@@ -1,0 +1,296 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="artifact.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="autopick.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="avatar.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="birth.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bldg.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cave.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cmd1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cmd2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cmd3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cmd4.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cmd5.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cmd6.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="do-spell.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dungeon.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="effects.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="files.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="flavor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="floors.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grid.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hex.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hissatsu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="inet.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="init1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="init2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="japanese.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="load.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main-win.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mane.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="melee1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="melee2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mind.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="monster1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="monster2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mspells1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mspells2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mspells3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mutation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="object1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="object2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="obj_kind.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="racial.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="readdib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="report.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rooms.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="save.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scores.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="snipe.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spells1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spells2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spells3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="store.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="streams.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tables.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="variable.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wild.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wizard1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wizard2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xtra1.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xtra2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="z-form.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="z-rand.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="z-term.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="z-util.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="z-virt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="chuukei.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="angband.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="externs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h-basic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h-config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h-define.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h-system.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="h-type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kajitips.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mindtips.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="readdib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rooms.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="streams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="z-config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="z-form.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="z-rand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="z-term.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="z-util.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="z-virt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ang_eng.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

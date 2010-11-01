@@ -1,0 +1,223 @@
+N: 1:BIAS_ELEC
+'Lightning'
+'Lightning Blade'
+'Thunder Fang'
+'Blue Thunder'
+'Lightning Heart'
+'Thunderstriker'
+'Purple Lightning'
+'Hurricane'
+'Typhoon'
+'Tempest'
+'Storm Seeker'
+of Electricity
+of Energy
+
+N: 2:BIAS_POIS
+'Hornet'
+'Hydrazone'
+'Mercapto'
+'Chloride'
+'Poison Needle of Wasp'
+'Snake Fang'
+'Stinger'
+'Vipera's Fang'
+'Aflatoxin'
+'Needle Bland'
+'Assassin'
+'Scorpion'
+'Poison Bland'
+'Marsh Viper'
+'Poison Tornado'
+'Assassinstrike'
+of Venoms
+of Poison
+
+N: 3:BIAS_FIRE
+'Flame Saber'
+'Fire Whip'
+'Fire Thorn'
+'Flame's Toungue'
+'Fire Bland'
+'Prominence'
+'Fire Tornado'
+'Burning Hammer'
+'Roaring Flames'
+'Heliotropic Wind'
+of Solar Wind
+of Flame
+of Zhuque
+
+N: 4:BIAS_COLD
+'Silver Frost'
+'Icicle'
+'Ice Edge'
+'Freezing Point'
+'Flost Bland'
+'General of Winter'
+'Ice Climber'
+of Aurora
+of Alaska
+of Ezo
+
+N: 5:BIAS_ACID
+'Rust Monster'
+'Sulfuric Acid'
+'Melted-in Balm'
+'Acid Blade'
+'Rustbringer'
+'Acid Drop'
+'Nitrate'
+'Preoxy'
+
+N:12:BIAS_CHAOS
+'Cyclcraze'
+'Armageddon'
+'Lunatic'
+'Chaosbane'
+'Warped Edge'
+'Lawslayer'
+'Distorter'
+'Banquet of Azathoth'
+'Cosmic Horror'
+'Amanitaceae Aroma'
+of Changes
+of Dara
+of Hionhurn
+
+N:14:BIAS_NECROMANTIC
+'Reaper'
+'Hellwind'
+'Chief of Souls'
+'Edge of Miasma'
+'Death Sword'
+'Hell Blade'
+'Zombie Claw'
+'Pestilence'
+'Night Blade'
+'Dark Banisher'
+'Bloody Mary'
+of Helthing
+of Darkness Strom
+of Genocide
+of Thuringwethil
+
+N:15:BIAS_LAW
+N:13:BIAS_PRIESTLY
+N: 8:BIAS_WIS
+'Lawgiver'
+'Sun Sword'
+'Deamonbane'
+'Gospel'
+'Advent'
+'Mundwine'
+'God Hand'
+'Ray Storm'
+'Crusader'
+'Demonbane'
+'Lightbringer'
+'Joyeuse'
+'Shiningcalibur'
+of Saladin
+of Holiness
+of Justice
+of the Priests
+of Awe
+of Mind
+of Soul
+
+
+N:16:BIAS_ROGUE
+'Thiefbane'
+'Quylthulg Smasher'
+'Cat's Clow'
+'Shinobi'
+'Speed King'
+'Quicker'
+'Spriggan'
+of the Night
+of Jack of Shadows
+of Koga
+
+N:17:BIAS_MAGE
+N: 7:BIAS_INT
+'Magicbane'
+'Hucker'
+'Manabringer'
+'Mirror of Seeing'
+'Whip of Evil Eye'
+'Brainstorm'
+'Laplace's Devil'
+of Grand Wizardry
+of Concentration
+of Ritual
+
+N:18:BIAS_WARRIOR
+N: 6:BIAS_STR
+N:10:BIAS_CON
+'Skullbasher'
+'Bonebreaker'
+'Skullbuster'
+'Skull Smasher'
+'Giant Strength'
+'Dragonbane'
+'Crash of Rhinos'
+'Cycle of Life'
+'Bull Elephant'
+'Warrior's Honor'
+of Rage
+of Crushing
+of Tomoe
+of Erkenbrando
+
+N: 9:BIAS_DEX
+'Gilettar'
+'Elvagil'
+'Orchast'
+'Cleaver'
+'Buttle Mastery'
+'Limbslicer'
+'Bryionak'
+of the Master
+of Charismatic Cook
+
+N:19:BIAS_RANGER
+'Eaglesword'
+'Tigarbaton'
+'Lionfang'
+'Sharkcutter'
+'Bisonaxe'
+'Sunstrike'
+'Hellwind'
+'Shooting Star'
+of the Eagle Lord
+of Entanglement
+of the Druid
+of the Valkyrie
+of the Hunter
+of Marksmanship
+
+N:*:Default
+'Weapon Alpha'
+'Werebane'
+'Dragon Clow'
+'Kraken'
+'Blue Steele'
+'Fury'
+'Howler'
+'Roarer'
+'Red October'
+'Witchfire'
+'Lord of Flies'
+'Pandemonium'
+'Bloodrain'
+'Delta'
+'Cubragol'
+of Joshua
+of Slay Mold
+of Damocles
+of the Shogun
+of the Borg
+of Hatred
+of Osric
+of Finndo

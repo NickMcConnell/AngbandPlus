@@ -1,0 +1,36 @@
+変愚蛮怒オプション
+
+ 参照したいオンライン・ヘルプを選んで下さい:
+
+    (a) 変愚蛮怒 オプション一覧             (joption.txt)
+    (b) オプション1 -- キー入力             (joption.txt#Input)
+    (c) オプション2 -- マップ画面           (joption.txt#MapScreen)
+    (d) オプション3 -- テキスト表示         (joption.txt#TextDisplay)
+    (e) オプション4 -- ゲームプレイ         (joption.txt#GamePlay)
+    (f) オプション5 -- 行動中止             (joption.txt#Disturbance)
+    (g) オプション6 -- 簡易自動破壊         (joption.txt#AutoDestroyer)
+    (h) オプションR -- プレイ記録           (joption.txt#PlayRecord)
+    (i) オプションD -- 基本ウェイト量       (joption.txt#BaseDelay)
+    (j) オプションH -- 低ヒットポイント警告 (joption.txt#Hitpoint)
+    (k) オプションA -- 自動セーブオプション (joption.txt#Autosave)
+    (l) オプションW -- ウィンドウ フラグ    (joption.txt#Window)
+    (m) オプションC -- 詐欺オプション       (joption.txt#Cheating)
+    (n) 初期オプション                      (joption.txt#Birth)
+
+    (?) ヘルプシステムの使用法      (jhelpinfo.txt)
+
+
+***** [a] joption.txt
+***** [b] joption.txt#Input
+***** [c] joption.txt#MapScreen
+***** [d] joption.txt#TextDisplay
+***** [e] joption.txt#GamePlay
+***** [f] joption.txt#Disturbance
+***** [g] joption.txt#AutoDestroyer
+***** [h] joption.txt#PlayRecord
+***** [i] joption.txt#BaseDelay
+***** [j] joption.txt#Hitpoint
+***** [k] joption.txt#Autosave
+***** [l] joption.txt#Window
+***** [m] joption.txt#Cheating
+***** [n] joption.txt#Birth

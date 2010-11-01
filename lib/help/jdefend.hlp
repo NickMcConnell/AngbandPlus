@@ -1,0 +1,26 @@
+防御と防具
+
+参照したいオンライン・ヘルプの記号を押して下さい:
+
+    (a) 防御と防具                        (jdefend.txt)
+    (b) アーマークラス                    (jdefend.txt#Armor)
+    (c) 魔法攻撃への耐性                  (jdefend.txt#ResistingMagic)
+    (d) 名のある防具と伝説の防具          (jdefend.txt#EgoArtifact)
+    (e) 耐性                              (jdefend.txt#Resistances)
+    (f) 耐性のない攻撃                    (jdefend.txt#Unresistable)
+    (g) 完全な耐性(免疫)                  (jdefend.txt#Immunities)
+    (h) その他                            (jdefend.txt#Miscellaneous)
+    (i) 攻撃からの回復                    (jdefend.txt#Recovering)
+
+    (?) ヘルプシステムの使用法            (jhelpinfo.txt)
+ 
+
+***** [a] jdefend.txt
+***** [b] jdefend.txt#Armor
+***** [c] jdefend.txt#ResistingMagic
+***** [d] jdefend.txt#EgoArtifact
+***** [e] jdefend.txt#Resistances
+***** [f] jdefend.txt#Unresistable
+***** [g] jdefend.txt#Immunities
+***** [h] jdefend.txt#Miscellaneous
+***** [i] jdefend.txt#Recovering

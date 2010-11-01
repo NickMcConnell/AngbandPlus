@@ -1,0 +1,173 @@
+N: 1:BIAS_ELEC
+'Registor'
+'Rubber Coat'
+'One Million Volt'
+'Electron'
+'Call of Thundercloud'
+of R'lyeh
+of Thunder
+of Helldiver
+
+N: 2:BIAS_POIS
+'Poison Barrier'
+of Scorpio
+of Cleanness
+of Immunity
+of Mughash
+of the Snake Master
+of the Bee Master
+
+N: 3:BIAS_FIRE
+'Blessed Fusion'
+'Flameturner'
+'Red Sun'
+'Shimmering Wings'
+'Lion in Flame'
+'Salamander'
+'Flamecoat'
+of Libyan Desert
+of Tropics
+of Desert
+of Lungorthin
+
+N: 4:BIAS_COLD
+'Icy Princess'
+'White Snow'
+'Great Icefield'
+of Siberia
+of White Ice
+of Arctic Ocean
+of Antarctic Land
+
+N: 5:BIAS_ACID
+'Gelatinous Cube'
+'Skin of Dhole'
+'Shield of Water'
+'Oozearmor'
+of Aqua Regia
+of the Devine Jewel
+of Diamond
+
+N:12:BIAS_CHAOS
+'Day of the Dove'
+'Prince of Chaos'
+'Chaos Tile'
+'Sad Giant's Shield'
+'Ever-Faithful'
+'Guard of Law'
+of Harmony
+of Reason
+of Seldon
+of the Chaos Lord
+
+N:14:BIAS_NECROMANTIC
+'Hand of Vecna'
+'Total Eclipse'
+'The Depth of Abyss'
+'Jet-black Bird'
+'Necrologia'
+'Total Solar Eclipse'
+'Undertaker'
+of Rituals
+of the Ruler of Wallachia
+
+N:15:BIAS_LAW
+N:13:BIAS_PRIESTLY
+N: 8:BIAS_WIS
+'Enlightenment from Heven'
+'Holy Chant'
+'Holy Prayer'
+'Righteousness'
+'Gospel'
+'Guardian Angel'
+'Hope and Glory'
+'AEther Flash'
+'Parament of Holy Brume'
+'Holy Destiny'
+'Keeper of Light'
+'Righteous Aura'
+'Nuts of Wisdom'
+of Eden
+of Piety
+of the Pious Believer
+of Ceremony
+of Revelation
+of Rite
+
+N:16:BIAS_ROGUE
+N: 9:BIAS_DEX
+'Silentwalker'
+'Mercury'
+'Darknesslurker'
+'Shadow'
+'Phantom'
+'Keeper of Darkness'
+'Crypt Creep'
+'Smoke Ball'
+of Nevrast
+of Quietness
+of the Ninja
+of Phasing
+of the Fairy
+
+N:17:BIAS_MAGE
+N: 7:BIAS_INT
+'Magi's Seeing'
+'Sign of Brilliance'
+'Tome of Intelligence'
+of *intelligence*
+of the Wizard
+of Knowledge
+of the Spellcaster
+of Arcane
+of Martin
+
+N:18:BIAS_WARRIOR
+N: 6:BIAS_STR
+'Steel Bull'
+'Avatar of Might'
+'Terminater'
+'Die Hard'
+'Power Shield'
+'Power Matrix'
+'Stonecold'
+of Vader
+of the Valkyrie
+of Daybreak
+of Diamond
+of Sad Giant
+
+N:19:BIAS_RANGER
+N:10:BIAS_CON
+'Hound'
+'Red Belet'
+'Bear's Hand'
+'Springsleeper'
+'Life of Leaf'
+of Hyper Nature
+of the Hunter
+of Marinera
+
+N:11:BIAS_CHR
+'Snow White'
+'Maiden's Hope'
+'Undiscoverd Paradise'
+'Kiss of Saccubus'
+of Cinderella
+of Benten
+of Nimue
+
+N:*:Default
+'Dal-i-Thalion'
+'Guardian'
+'Defender'
+'Steelskin'
+'Camelot'
+of Champion
+of Crystal
+of Icarus
+of the Dark Tiger
+of Kevlar
+of the Borg
+of Gondor
+of Belegennon

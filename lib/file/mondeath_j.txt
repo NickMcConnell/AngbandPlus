@@ -1,0 +1,59 @@
+N:53:Grip, Farmer Maggot's dog
+N:54:Wolf, Farmer Maggot's dog
+N:55:Fang, Farmer Maggot's dog
+
+N:63:Smeagol
+「にくむ、にくむ、にくむぅぅぅ！」
+
+N:393:It
+「それってひどくない？」
+
+N:573:Lord Borel
+にあなたは言った 「これはオリンピックじゃないんだ」
+
+N:670:Jack of Shadows
+「覚えておけ！今度会った時は貴様が堆屍穴に行く番だ！」
+
+N:732:Bull Gates
+「Ｍ＄帝国は永遠に不滅だ！」
+
+N:764:Uriel, Angel of Fire
+N:765:Azriel, Angel of Death
+N:769:Raphael, the Messenger
+「主よ、この罪深き者に天罰をお与え下さい！」
+
+N:780:Vlad Dracula, Prince of Darkness
+「フフフ、私はまた甦るだろう…人間の心に暗黒がある限り。ハハハハ！」
+
+N:873:Combat-Echizen, SEKKAKUDAKARA
+「おーのー。」
+
+N:878:Dio Brando
+「ば，ばかなッ！このディオが．．．このディオがァァァァ〜〜〜〜！！」
+
+N:880:Wong, Master of Time
+「この私がぁ！」
+
+N:921:Internet Exploder
+を削除します。
+
+N:931:Caldarm the third
+「すべての人々に．．．平和を．．．」
+
+N:936:Kenshirou of hokuto
+「ユリアーーーーーーーーーー！！！」
+
+N:1004:Pip, the Braver from Another World
+は無慈悲な冒険者によって殺されてしまった。14へ行け。
+
+N:1018:Raou
+は自分の胸の秘孔を突いた！「我が生涯に一片の悔いなし！」
+
+N:1063:lousy, the King of louses
+「ああん，やっぱり変愚って難しいよ！」
+
+N:1069:魔人ウォーケン
+「おおお………」
+
+N:*:Default
+「グアァァァ！」

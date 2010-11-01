@@ -1,0 +1,142 @@
+# File: xtra-xxx.prf
+
+#
+# This file defines special attr/char mappings for use in "graphics" mode
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+
+##### Remap the player icon #####
+
+?:[EQU $RACE Human]
+R:0:0/0x80
+?:[EQU $RACE Half-Elf]
+R:0:0/0x81
+?:[EQU $RACE Elf]
+R:0:0/0x82
+?:[EQU $RACE Hobbit]
+R:0:0/0x83
+?:[EQU $RACE Gnome]
+R:0:0/0x84
+?:[EQU $RACE Dwarf]
+R:0:0/0x85
+?:[EQU $RACE Half-Orc]
+R:0:0/0x86
+?:[EQU $RACE Half-Troll]
+R:0:0/0x87
+?:[EQU $RACE Amberite]
+R:0:0/0x88
+?:[EQU $RACE High-Elf]
+R:0:0/0x89
+?:[EQU $RACE Barbarian]
+R:0:0/0x8A
+?:[EQU $RACE Half-Ogre]
+R:0:0/0x8B
+?:[EQU $RACE Half-Giant]
+R:0:0/0x8C
+?:[EQU $RACE Half-Titan]
+R:0:0/0x8D
+?:[EQU $RACE Cyclops]
+R:0:0/0x8E
+?:[EQU $RACE Yeek]
+R:0:0/0x8F
+?:[EQU $RACE Klackon]
+R:0:0/0x90
+?:[EQU $RACE Kobold]
+R:0:0/0x91
+?:[EQU $RACE Nibelung]
+R:0:0/0x92
+?:[EQU $RACE Dark-Elf]
+R:0:0/0x93
+?:[EQU $RACE Draconian]
+R:0:0/0x94
+?:[EQU $RACE Mindflayer]
+R:0:0/0x95
+?:[EQU $RACE Imp]
+R:0:0/0x96
+?:[EQU $RACE Golem]
+R:0:0/0x97
+?:[EQU $RACE Skeleton]
+R:0:0/0x98
+?:[EQU $RACE Zombie]
+R:0:0/0x99
+?:[EQU $RACE Vampire]
+R:0:0/0x9A
+?:[EQU $RACE Spectre]
+R:0:0/0x9B
+?:[EQU $RACE Sprite]
+R:0:0/0x9C
+?:[EQU $RACE Beastman]
+R:0:0/0x9D
+?:[EQU $RACE Ent]
+R:0:0/0x97
+?:[EQU $RACE Archon]
+R:0:0/0x9C
+?:[EQU $RACE Balrog]
+R:0:0/0x96
+?:[EQU $RACE Dunadan]
+R:0:0/0x81
+?:[EQU $RACE Shadow-Fairy]
+R:0:0/0x86
+?:[EQU $RACE Kutar]
+R:0:0/0x91
+?:[EQU $RACE Android]
+R:0:0/0x97
+
+?:[EQU $CLASS Warrior]
+R:0:0xA4/0
+?:[EQU $CLASS Mage]
+R:0:0xA5/0
+?:[EQU $CLASS Priest]
+R:0:0xA6/0
+?:[EQU $CLASS Rogue]
+R:0:0xA7/0
+?:[EQU $CLASS Ranger]
+R:0:0xA8/0
+?:[EQU $CLASS Paladin]
+R:0:0xA9/0
+?:[EQU $CLASS Warrior-Mage]
+R:0:0xAA/0
+?:[EQU $CLASS Chaos-Warrior]
+R:0:0xAB/0
+?:[EQU $CLASS Monk]
+R:0:0xAC/0
+?:[EQU $CLASS Mindcrafter]
+R:0:0xAD/0
+?:[EQU $CLASS High-Mage]
+R:0:0xAE/0
+?:[EQU $CLASS Tourist]
+R:0:0xAC/0
+?:[EQU $CLASS Imitator]
+R:0:0xAC/0
+?:[EQU $CLASS BeastMaster]
+R:0:0xAA/0
+?:[EQU $CLASS Sorcerer]
+R:0:0xA5/0
+?:[EQU $CLASS Archer]
+R:0:0xA8/0
+?:[EQU $CLASS Magic-Eater]
+R:0:0xAD/0
+?:[EQU $CLASS Bard]
+R:0:0xA8/0
+?:[EQU $CLASS Red-Mage]
+R:0:0xAB/0
+?:[EQU $CLASS Samurai]
+R:0:0xAA/0
+?:[EQU $CLASS ForceTrainer]
+R:0:0xAC/0
+?:[EQU $CLASS Blue-Mage]
+R:0:0xAD/0
+?:[EQU $CLASS Cavalry]
+R:0:0xA4/0
+?:[EQU $CLASS Berserker]
+R:0:0xAB/0
+?:[EQU $CLASS Weaponsmith]
+R:0:0xAA/0
+?:[EQU $CLASS Mirror-Master]
+R:0:0xAD/0
+?:[EQU $CLASS Ninja]
+R:0:0xAA/0
+?:[EQU $CLASS Sniper]
+R:0:0xA8/0

@@ -1,0 +1,341 @@
+[[[[G|=== Auto-Picker/Destroyer Editor ===
+
+Please choose one of the following online help files:
+
+    (a) The Basics of Auto-picker Editor      (#Editor)            
+    (b) Cur and Paste                         (#CutAndPaste)       
+    (c) Register to Auto-picker               (#RegisterName)      
+    (d) Insert Name from your Inventory       (#InsertObjectName)  
+    (e) Insert Fixed Keyword                  (#InsertKeyword)     
+    (f) Change Multiple Lines at Once         (#MultiLines)        
+    (g) Conditionals                          (#Conditionals)      
+    (h) Auto Register an Item without Editor  (#AutoRegister)      
+
+    (i) Format of Auto-picker/destroyer       (#AutopickFormat)      
+    (j) Format of Conditionals                (#ConditionFormat)     
+    (k) Sample Preference File                (lib/pref/pickpref.prf)
+
+***** [a] editor.txt#Editor
+***** [b] editor.txt#CutAndPaste
+***** [c] editor.txt#RegisterName
+***** [d] editor.txt#InsertObjectName
+***** [e] editor.txt#InsertKeyword
+***** [f] editor.txt#MultiLines
+***** [g] editor.txt#Conditionals
+***** [h] editor.txt#AutoRegister
+***** [i] editor.txt#AutopickFormat
+***** [j] editor.txt#ConditionFormat
+***** [k] ../pref/pickpref.prf
+
+***** <Editor>
+[[[[G|--- The Basics of Auto-picker Editor ---
+
+The "auto-picker editor" is a special text editor to write preferences
+for auto-picker/destroyer.
+
+To open the editor, you can press the _ key in the game or choose
+"(P) Auto-picker/destroyer editor" in the options panel (=).
+
+Like normal text editor, you can move the cursor by Left, Right, Up,
+Down arrow keys, and Home, End, PageUp, and PageDown keys.  And any
+letter keys pressed are written as a text.
+
+Press ^W to finish the edito.  All changes will be saved automatically.
+Or press ^Q to quit and discard all changes.
+
+Press ESC to open a command menu.
++---------------------------+
+| a) Help                   |
+| b) Quit without save   ^Q |
+| c) Save & Quit         ^W |
+| d) Revert all changes  ^Z |
+| e) Edit                 > |
+| f) Search               > |
+| g) Move cursor          > |
+| h) Insert...            > |
+| i) Adjective (general)  > |
+| j) Adjective (special)  > |
+| k) Keywords (noun)      > |
+| l) Command letter       > |
++---------------------------+
+Press a-l to choose a command or open a sub-menu.  Also you can press
+^Q, ^Z, etc. to use commands without opening this menu.
+
+
+***** <CutAndPaste>
+[[[[G|--- Cur and Paste
+
+Cut and Paste are useful when you want to write many similer lines, or
+want to swap lines.
+Open submenu "e) Edit >",
++-------------------------+
+| a) Cut               ^X |
+| b) Copy              ^C |
+| c) Paste             ^V |
+| d) Select block      ^G |
+| e) Kill rest of line ^K |
+| f) Delete character  ^D |
+| g) Backspace         ^H |
+| h) Return            ^J |
+| i) Return            ^M |
++-------------------------+
+
+You can select a segment of the text using shift key + arrow keys.
+Selected text will be displayed in yellow.  You can press ^X to cut
+the selected text, or press ^C to copy the selected text to the
+clipboard.  Contents of the clipboard will be pasted on pressing ^V.
+
+Note that it's possible that Hengband cannot recognize shift+arrow
+keys on a minor environment.  In that case, you can press ^G and then
+move cursor to select text.
+
+
+***** <RegisterName>
+[[[[G|--- Register to Auto-picker ---
+
+***** <InsertObjectName>
+[[[[G|--- Insert Name from your Inventory ---
+
+***** <InsertKeyword>
+[[[[G|--- Insert Fixed Keyword ---
+
+***** <MultiLines>
+[[[[G|--- Change Multiple Lines at Once ---
+
+***** <Conditionals>
+[[[[G|--- Conditionals ---
+
+***** <AutoRegister>
+[[[[G|--- Auto Register an Item without Editor ---
+
+***** <AutopickFormat>
+[[[[G|--- Format of Auto-picker/destroyer ---
+
+Hengband can automatically pick up or destroy specified objects when
+you write objects name in the file "pickpref.prf" or
+"pickpref-<<playername>>.prf" in the user directory, this will be
+~/.angband/Hengband/ for UNIX, or Hengband\lib\user\ for other
+operating systems.
+
+The game will read the file "pickpref-<<playername>>.prf" first and
+then read the file "pickpref.prf".  The first-read file takes
+priority.
+
+You may use the '$' command within the game to reread auto-picker
+files.
+
+Notes:
+Maximum number of active lines is 1009.
+A line with a header '#' is a comment.
+
+--- Editing the file ---
+
+Command letter:
+
+      Each line determines the actions taken when you step over a kind
+  of object.  Starting a line with '!' indicates that you wish to
+  destroy this kind of object.  Starting a line with '~' indicates
+  that you wish to leave this kind of object on the floor.  Starting a
+  line with ';' indicates that you wish to force the game to ask you
+  if you want to pick the item up or not.  Otherwise, your character
+  will automatically attempt to pick up the object.
+       There is an additional command letter '('.  It indicates that
+  you don't wish this item to be displayed in full map. see below.
+
+  Notes:
+  If you want to disable the effect of the '!' indicator temporally,
+  use 'always_pickup' option.
+
+
+Keywords:
+       After the command letter may come one or more keywords.  They are:
+
+  all               : All items match.
+  collecting        : Matches if you already have that same item.
+  unaware           : Items with unknown effects match.
+  unidentified      : Unidentified items match.
+  identified        : Identified items match.
+  *identified*      : *Identified* items match.
+  dice boosted      : Weapons with boosted damage dice match.
+  more than N dice  : Weapons with dice (dd * ds) better than +N match.
+  more bonus than N : Items which has more magical bonus than (+N) match.
+  worthless         : Items which you cannot sell match.
+  artifact          : Artifacts items match.
+  ego               : Ego items match.
+  good              : {good} items match.
+  nameless          : Non ego/non artifact items match.
+  average           : {average} items match.
+  rare              : Rare equipment such as Dragon armors etc. match.
+  common            : Any equipments except 'rare' equipment match.
+  wanted            : Wanted monster's corpses or skeletons match.
+  unique monster's  : Unique monster's corpses, skeletons or statues match.
+  human             : Human corpses or skeletons match.
+  unreadable        : Spellbooks other than those you can read match.
+  first realm's     : Your first magic realm's spellbooks match.
+  second realm's    : Your second magic realm's spellbooks match.
+  first             : First one of four spellbooks in each realm match.
+  second            : Second one of four spellbooks in each realm match.
+  third             : Third one of four spellbooks in each realm match.
+  fourth            : Fourth one of four spellbooks in each realm match.
+
+  items             : All items match. Use it with an adjective for 
+                      readability (i.e. "unaware items").
+  weapons           : All weapons including missile weapons match.
+  armors            : All armors match.
+  missiles          : Arrows, bolts, and shots match.
+  magical devices   : Wands, staffs, rods and scrolls match.
+  lights            : Light sources match.
+  junks             : Junk items like Shard of Pottery or etc. match.
+  corpses or skeletons : Corpses or skeletons of monsters match.
+  spellbooks        : All books match.
+  favorite weapons  : Weapons suitable for your class (for Priest, Monk,
+                      BeastMaster, ForceTrainer, Cavalry, and Ninja)
+
+  You may also use keywords which match specified kinds of equipment:
+  weapons, armors, missiles, magical devices, lights, junks, spellbooks, 
+  hafted weapons, shields, bows, rings, amulets, suits, cloaks, helms, 
+  gloves, boots
+
+
+Character strings:
+       After the keywords, you may write a character string. Only items 
+  whose name contains this character string as part of their name match. 
+  Upper or lower case makes no difference.
+       You must insert a ':' between your special keywords and character 
+  string, if both exist in one line.
+
+Force start-of-line matching:
+  If the first character in a character string is '^', then the 
+  character string must match the beginning of a line.
+
+!Mace           // Destroy Maces and Lead-Filled Maces.
+!^Mace          // Destroy only Maces.
+
+
+Examples:
+
+!worthless items
+Meaning:  "destroy all items that are worthless"
+
+unaware potion
+Meaning:  "pick up all unaware potions"
+
+~unidentified lites
+Meaning:  "leave all unidentified light sources on the ground"
+
+unidentified more than 25 dice weapons
+Meaning:  "pick up all weapons with dice that total more than 25.  A 
+     weapon that is 2d13 qualifies, a weapon that is 5d5 does not."
+
+Acquirement
+Meaning:  "pick up anything that includes in its name the word 
+'Acquirement'"
+
+potion of Experience
+Meaning:  "pick up anything named 'potion of experience'"
+
+Lights:stone
+Meaning:  "Pick up light sources named stone"
+
+gloves:slaying
+Meaning:  "Pick up gauntlets of slaying. Not rings of slaying."
+
+
+Special Notes:
+
+  Lines will be evaluated in order, and first matched line will be 
+  applied. So you can write names of specific excellent items to pick 
+  up, followed by a general item name with '!' to destroy useless items.
+
+  ! Tips
+  !     In full map command ('M'), you can press M, N, K, or D to 
+  ! display locations of items for auto-pickup, leaving, auto-destroy 
+  ! or both auto-pickup and leaving.
+  !     Additional command letter '(' prevents this display.
+  !
+
+  If you begin the last string in a line with '#', this string will
+  be automatically inscribed on the item.
+
+
+  Strict syntax of each line is below.
+  
+  [! ~ ; (]
+  [[all] [collecting]
+   [unaware] [unidentified] [identified] [*identified*] 
+   [artifact] [ego] [good] [nameless] [average]
+   [worthless] [rare] [common]
+   [dice boosted] [more than N dice] [more bonus than N] 
+   [wanted] [unique monster's] [human] [unreadable] 
+   [first realm's] [second realm's] [first] [second] [third] [fourth] 
+   [items | weapons | favorite weapons | armors | missiles |
+    magical devices | lights | junks | corpses or skeletons | spellbooks |
+    hafted weapons | shields | bows | rings | amulets | suits | cloaks |
+    helms | gloves | boots] :]
+  [[^]part-of-item-name] [#auto-inscription-string]
+
+
+***** <ConditionFormat>
+[[[[G|--- Format of Conditionals ---
+
+  The lines of pickpref.prf can be disabled/enabled using 
+  conditional expressions. 
+  The syntax is the same as that of other preference files.
+
+  - usage of condition expressions
+    ?:expr
+      If result of expr is "0", all lines below are disabled.
+      If result of expr is "1", all lines below are enabled.
+      Caution:It cannot be nested.
+
+  - usage to include other file
+    %:filename
+      Read a file named 'filename' as a new pick-pref file. The file 
+      must be in the user directory.
+
+  - usage of operators
+    [EQU arg1 arg2 ...]
+      If all args are the same as arg1, returns "1", or else returns "0".
+    [IOR arg1 arg2 ...]
+    [AND arg1 arg2 ...]
+      IOR evaluates and returns all args' logical OR. IAND is logical AND.
+    [NOT arg]
+      Returns "0" if arg is "1", or else returns "1"
+    [LEQ arg1 arg2 ...]
+    [GEQ arg1 arg2 ...]
+      Compare args as string. LEQ returns "1" if (arg1 <= arg2 <= ...) ,
+      GEQ returns "1" if (arg1 >= arg2 >= ...) otherwise returns "0".
+
+  - Special variables
+    $RACE
+     Returns name of player race. One of below:
+      Human, Half-Elf, Elf, Hobbit, Gnome, Dwarf, Half-Orc,
+      Half-Troll, Amberite, High-Elf, Barbarian, Half-Ogre,
+      Half-Giant, Half-Titan, Cyclops, Yeek, Klackon, Kobold,
+      Nibelung, Dark-Elf, Draconian, Mindflayer, Imp, Golem,
+      Skeleton, Zombie, Vampire, Spectre, Sprite, Beastman, Ent,
+      Archon, Balrog, Dunadan, Shadow-Fairy, Kutar, Android,
+
+    $CLASS
+     Returns name of player class. One of below:
+      Warrior, Mage, Priest, Rogue, Ranger, Paladin,
+      Warrior-Mage, Chaos-Warrior, Monk, Mindcrafter, High-Mage,
+      Tourist, Imitator, BeastMaster, Sorcerer, Archer,
+      Magic-Eater, Bard, Red-Mage, Samurai, ForceTrainer,
+      Blue-Mage, Cavalry, Berserker, Weaponsmith, Mirror-Master,
+      Ninja, Sniper
+
+    $PLAYER
+     Returns player name.
+    $REALM1
+     Returns player's first magic realm
+      none, Life, Sorcery, Nature, Chaos, Death, Trump Arcane,
+      Craft, Daemon, Crusade, Music, Kendo, Hex
+    $REALM2
+     Returns player's second magic realm
+    $LEVEL
+     Returns player level as two-character string.
+      Ex. "01","09","10","50" etc.
+    $MONEY
+     Returns player money as 9 character string.
+      Ex. "000012345" etc.

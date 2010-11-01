@@ -1,0 +1,117 @@
+#=================================================#
+#   Object Auto-picker/Destroyer Sample Setting   #
+#=================================================#
+
+#
+# Pick up all wanted corpses for bounty hunting.
+# And inscribe {Wanted} on it.
+#
+wanted corpses or skeletons#Wanted
+
+#
+# Pick up all magical items with unknown effects.
+#
+unaware items
+
+#
+# Pick up an object if you have same objects in your inventory,
+# and if it will be stacked in a single slot.
+# (Useful to collect many supplies.)
+#
+collecting rod
+collecting potion
+collecting scroll
+(collecting items
+
+#
+# Pick up important magical potions.
+# And inscribe {!k} on it to protect from accidental destruction.
+#
+potion of strength#!k
+potion of wisdom#!k
+potion of dexterity#!k
+potion of constitution#!k
+potion of intelligence#!k
+potion of Charisma#!k
+potion of life#!k!q
+potion of *healing*#!k
+potion of healing#!k
+potion of resistance#!k
+potion of speed#!k
+
+#
+# Pick up important magical scrolls,
+# unless you are a Berserker who cannot read scrolls.
+#
+?:[NOT [EQU $CLASS Berserker]]
+scroll of artifact creation
+scroll of *destruction*
+scroll of mass genocide
+scroll of genocide
+?:1
+
+#
+# Auto-destroy some junk juice.
+#
+!potion of apple juice
+
+?:[EQU $CLASS Archer]
+# Archers pick up all bones to create arrows from it.
+junks:^broken skull
+junks:^broken bone
+corpses or skeletons:skeleton
+
+?:[EQU $CLASS Magic-Eater]
+# Magic-Eaters pick up magical devices to absorb its magical power.
+magical devices:rod
+magical devices:staff
+magical devices:wand
+
+?:[EQU $CLASS Ninja]
+# Ninja use a Light source of Darkness.
+(~ego lights:of darkness
+
+# Ninja throw Iron Spikes as Shuriken. 
+Iron Spike#@v0
+
+# Define a macro to throw Iron Spikes on pressing the TAB key.
+A:\s\s\s\s\\v0*t
+P:\t
+?:1
+
+#
+# Pick up magical weapons with bigger dice.
+#
+unidentified dice boosted weapons
+
+#
+# Auto-destroy non-magical common equipments for high level character,
+# except Dragon armors, Blades of Chaos, etc. which are NOT common.
+#
+?:[GEQ $LEVEL 30]
+# Destroy both average and good equipments.
+!nameless common weapons
+!nameless common armors
+
+?:[GEQ $LEVEL 20]
+# Destroy known average equipments.
+!average common weapons
+!average common armors
+?:1
+
+#
+# Pick up high level spellbooks, and inscribe on it.
+#
+first realm's fourth spellbooks#@md!k
+second realm's fourth spellbooks#@mh!k
+first realm's third spellbooks#@mc!k
+second realm's third spellbooks#@mg!k
+
+#
+# Inscribe on low level spellbooks.
+#
+~first realm's second spellbooks#@mb!k
+~first realm's first spellbooks#@ma!k
+~second realm's second spellbooks#@mf!k
+~second realm's first spellbooks#@me!k
+

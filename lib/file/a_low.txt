@@ -1,0 +1,182 @@
+N: 1:BIAS_ELEC
+'Lightning Conductor'
+'Electrostatic Barrier'
+'Shocking!'
+'Static Charge'
+of Insulation
+of 1.5 volts
+of the Thunderer
+of Volta
+
+N: 2:BIAS_POIS
+'Drug Puncher'
+'Vaccination'
+'Oblate'
+'Cosmocleaner'
+of Resist *Poison*
+of Kobold
+of Tarantula
+of Talos
+
+N: 3:BIAS_FIRE
+'Sunglasses'
+'Fan'
+'Fireman'
+'Fire Extinguisher'
+'Burning Student'
+'Keeper of Flame'
+'Dewar vessel'
+'Dead Heat'
+'Heatsink'
+of the Hawaiian Islands
+of Halloween
+of Insulator
+
+N: 4:BIAS_COLD
+'White Ice'
+'Cool Mint'
+'Snow'
+'Snowlets'
+'Siberian Cold Air Mass'
+'Refrigerator'
+'Antarctic II'
+'Cool Boy'
+'Muffler'
+
+N: 5:BIAS_ACID
+'Rustproof'
+'Melting'
+'Acidic Rain'
+'Halogen'
+'Iron Will'
+'Stainless'
+'Glacial Acetic Acid'
+of Teflon
+
+N:14:BIAS_NECROMANTIC
+'Darkest Hour'
+'Unholy Strength'
+'Revenant'
+'Infernal Contract'
+'Sacrifice to void'
+'Forgotten Fear'
+'Zombie Master'
+of Arcam
+of Deformity
+of Sabbath
+of Aleister Crowley
+
+N:12:BIAS_CHAOS
+'Mirage'
+'Mosaic'
+'Tranqilizer'
+'Shuffle'
+'Warp-Space'
+'Fractal'
+'Time Warp'
+'Tranquility'
+'Puzzle Box'
+'Reality Ripple'
+'Strange Attractor'
+of iridescence
+
+N:13:BIAS_PRIESTLY
+N: 8:BIAS_WIS
+'Preestablished Harmony'
+'Holiday'
+'Confession'
+'Soul Helper'
+'Spiritual Focus'
+'Holy Strength'
+'Avatar of Hope'
+'Keeper of Mind'
+'Oracle's Attendant'
+'Peacehoper'
+'Seeker of Skybreak'
+of the Buddhist Scriptures
+of Angel
+
+N:16:BIAS_ROGUE
+N: 9:BIAS_DEX
+'Speed'
+'Accelerator'
+'Hide-and-Seek'
+of Avoidance
+of Escapee
+of the Joker
+of Illusion
+of the Pickpocket
+
+N:17:BIAS_MAGE
+N: 7:BIAS_INT
+'Deja-Vu'
+'Caffeine'
+'Oath of Mages'
+'Whispers of Muse'
+of Talisman
+of Martine
+of Quiz King
+of Knowing
+
+N:18:BIAS_WARRIOR
+N: 6:BIAS_STR
+'Tournament'
+'Turbo'
+'Muscle Curtain'
+of Resist Smasher
+of the Minotaur
+of Sumo Wrestler
+of Minotaur
+of Meng Huo
+
+N:10:BIAS_CON
+'Endurance'
+'Growth Period'
+'Trollism'
+'Big Useless Fellow'
+'Healthy One'
+'Abtronic'
+of Pro Wrestler
+of Bullroarer
+
+N:19:BIAS_RANGER
+'Weeds'
+'Camouflage'
+'Radar'
+'Planaria'
+'Hound'
+'Ammonite'
+of The Stone
+of Squirrel
+of lesser panda
+
+N:11:BIAS_CHR
+'Cutie Girls'
+'Sudden Marriage'
+'Bridal'
+'Brunet Hair of Maiden'
+'Rose Bouquet'
+'Innocent Dress'
+'Miniskirt'
+of Companion
+of Super Model
+of Passion
+
+N:*:Default
+'Sambo'
+'Blink'
+'Pizza'
+'Curator'
+'Babel'
+'Grand Prix'
+'Generator'
+'Bladereturner'
+'Iron Maiden'
+of Glass
+of Clay
+of Sand
+of Modesty
+of Transylvania
+of Gurnemanz
+of Coral
+of Barahir

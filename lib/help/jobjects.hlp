@@ -1,0 +1,36 @@
+変愚蛮怒のアイテム
+
+参照したいオンライン・ヘルプの記号を押して下さい:
+
+    (a) 変愚蛮怒のアイテム             (jobjects.txt)
+    (b) アイテムの記号                 (jobjects.txt#ObjectSymbols)
+    (c) 装備と持ち物                   (jobjects.txt#EquipInvent)
+    (d) アイテムの生成                 (jobjects.txt#Generation)
+    (e) アイテム圧縮                   (jobjects.txt#Compaction)
+    (f) 呪われたアイテム               (jobjects.txt#CursedObjects)
+    (g) 太古の忌まわしい怨念           (jobjects.txt#AncientCurse)
+    (h) アイテムの見かけ               (jobjects.txt#ObjectFlavors)
+    (i) 疑似鑑定                       (jobjects.txt#PseudoID)
+    (j) アイテムの鑑定                 (jobjects.txt#Identifying)
+    (k) エゴアイテムとアーティファクト (jobjects.txt#EgoObjects)
+    (l) アイテムのランダムな属性       (jobjects.txt#RandomAbilities)
+    (m) アイテムの銘                   (jobjects.txt#Inscriptions)
+    (n) アイテムの種類                 (jobjects.txt#ObjectTypes)
+
+    (?) ヘルプシステムの使用法         (jhelpinfo.txt)
+
+
+***** [a] jobjects.txt
+***** [b] jobjects.txt#ObjectSymbols
+***** [c] jobjects.txt#EquipInvent
+***** [d] jobjects.txt#Generation
+***** [e] jobjects.txt#Compaction
+***** [f] jobjects.txt#CursedObjects
+***** [g] jobjects.txt#AncientCurse
+***** [h] jobjects.txt#ObjectFlavors
+***** [i] jobjects.txt#PseudoID
+***** [j] jobjects.txt#Identifying
+***** [k] jobjects.txt#EgoObjects
+***** [l] jobjects.txt#RandomAbilities
+***** [m] jobjects.txt#Inscriptions
+***** [n] jobjects.txt#ObjectTypes

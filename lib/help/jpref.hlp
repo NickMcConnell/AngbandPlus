@@ -1,0 +1,24 @@
+ユーザー設定ファイル
+
+参照したいオンライン・ヘルプの記号を押して下さい:
+
+    (a) ユーザー設定ファイル             (jpref.txt)
+    (b) ユーザー設定ファイルのコマンド   (jpref.txt#Commands)
+    (c) マクロ                           (jpref.txt#Macros)
+    (d) キー配置                         (jpref.txt#Keymaps)
+    (e) 画面表示                         (jpref.txt#Visuals)
+    (f) カラー                           (jpref.txt#Colors)
+    (g) オプション                       (jpref.txt#Options)
+
+
+    (?) ヘルプシステムの使用法           (jhelpinfo.txt)
+
+
+***** [a] jpref.txt
+***** [b] jpref.txt#Commands
+***** [c] jpref.txt#Macros
+***** [d] jpref.txt#Keymaps
+***** [e] jpref.txt#Visuals
+***** [f] jpref.txt#Colors
+***** [g] jpref.txt#Options
+***** [h] jeditor.txt

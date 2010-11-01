@@ -1,0 +1,297 @@
+# File: d_info.txt
+
+# This file is used to initialize the "lib/raw/d_info.raw" file, which is
+# used to initialize the "dungeon type" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+
+# After modifying this file, delete the "lib/raw/d_info.raw" file.
+
+# The dungeon type indexes are defined in "defines.h", and must not be
+# changed.
+
+# N:<index>:<name>
+# D:<long name>
+# W:<min depth>:<min depth>:<min player level>:<flags mode>:<min alloc>:<max alloc chance>:<obj good>:<obj great>:<pit>:<nest>
+# L:<floor1>:<%1>:<floor2>:<%2>:<floor3>:<%3>:<tunnel%>
+# A:<wall1>:<%1>:<wall2>:<%2>:<wall3>:<%3>:<outer wall>:<inner wall>:<stream1>:<stream2>
+# F:<flags>
+# M:<monster flags>
+# S:<monster spells>
+
+# Note on the MONSTER_DIV_ dungeon flag
+# It defines the percentage of monsters affected by the restrictions
+# so MONSTER_PERCENT_70 will create 70% of restricted monsters and 30%
+# of absulutly random monsters.
+# by default MONSTER_PERCENT_ is 0%
+
+# Note for <flags mode> :
+# 0 = No restriction
+# 1 = AND
+# 2 = NAND
+# 3 = OR
+# 4 = NOR
+
+# Version stamp (required)
+
+V:2.8.1
+
+### Wilderness(purely cosmetic, never used) ###
+
+N:0:¹ÓÌî
+E:Wilderness
+D:¹ÓÌî
+D:$wilderness
+P:0:0
+W:0:0:0:0:14:160:75:20:0x0000:0x0000
+L:FLOOR:100:FLOOR:0:FLOOR:0:50
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:MONSTER_DIV_64
+
+
+### The principal dungeons, they were created by spliting the vanilla dungeon ###
+
+N:1:Å´¹ö
+E:Angband
+D:$the entrance to the Dungeon of Angband
+D:Å´¹ö¤Ø¤ÎÆþ¤ê¸ý
+P:40:57
+W:1:127:30:0:14:160:75:20:0xffff:0xffff
+L:FLOOR:100:FLOOR:0:FLOOR:0:50
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:CAVERN | WATER_RIVER | LAVA_RIVER | ARENA | DESTROY | CURTAIN | GLASS_ROOM |
+F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE
+F:MONSTER_DIV_64
+
+N:2:¥¤¡¼¥¯¤ÎÆ¶·ê
+E:Yeek cave
+D:$the entrance to the cave leading to the Yeek's den
+D:¥¤¡¼¥¯¤Î½»¤ß¤«¤Ø¤ÈÂ³¤¯¾®¤µ¤ÊÆ¶·ê
+P:48:5
+W:1:13:1:0:14:240:75:20:0x0000:0x0000
+L:FLOOR:100:FLOOR:0:FLOOR:0:8
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:FINAL_GUARDIAN_237 | FINAL_OBJECT_426
+F:NO_VAULT | BEGINNER
+F:MONSTER_DIV_0
+
+N:3:¥ª¡¼¥¯¤ÎÆ¶·¢
+E:Orc cave
+D:$a dark tunnel leading to an Orc Cave
+D:¥ª¡¼¥¯¤ÎÆ¶·¢¤ØÂ³¤¯Çö°Å¤¤¥È¥ó¥Í¥ë
+P:45:30
+W:10:23:5:3:18:200:75:20:0x0031:0x006d
+L:DIRT:70:GRASS:30:FLOOR:0:14
+A:GRANITE:70:MOUNTAIN_WALL:30:FLOOR:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:FINAL_GUARDIAN_373 | FINAL_OBJECT_148 | CAVE | WATER_RIVER | CAVERN
+F:LAKE_TREE | DESTROY | BIG
+F:MONSTER_DIV_32
+M:ORC | R_CHAR_koO | ANIMAL
+
+N:4:ÌÂµÜ
+E:Labyrinth
+D:$the frightening entrance to the Labyrinth
+D:¶²¤ë¤Ù¤­´ñÌ¯¤ÊÌÂµÜ
+P:57:31
+W:10:18:1:0:80:160:75:20:0x0000:0x0000
+L:FLOOR:100:FLOOR:0:FLOOR:0:100
+A:GRANITE:98:SECRET_DOOR:2:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:MAZE | SMALLEST | FORGET
+F:MONSTER_DIV_64 | FINAL_GUARDIAN_1034 | FINAL_OBJECT_354
+
+N:5:Îµ¤Î½»¤ß¤«
+E:Dragon's lair
+D:$a big tunnel leading to a Dragon's Lair
+D:Îµ¤Î½»¤ß¤«¤ØÂ³¤¯Âç¤­¤¯¡¢Çö°Å¤¤¶²¤ë¤Ù¤­¥È¥ó¥Í¥ë
+P:28:74
+W:60:72:25:3:20:140:75:20:0x00a6:0x00c1
+L:DIRT:100:FLOOR:0:FLOOR:0:0
+A:GRANITE:90:DARK_PIT:10:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:DARK_PIT
+F:BIG | LAVA_RIVER | CAVERN | DESTROY
+F:MONSTER_DIV_10
+F:CAVE | LAKE_LAVA | LAKE_TREE | LAKE_RUBBLE
+M:DRAGON | R_CHAR_dD
+
+# Vecna is there, guarding Soulsword
+N:6:ÊèÃÏ
+E:Graveyard
+D:$a hole to the Graveyard underground
+D:ÊèÃÏ¤ÎÃÏ²¼¤Ø¤Î·ê
+P:19:85
+W:40:70:18:3:14:160:75:20:0x0128:0x027b
+L:FLOOR:85:SHALLOW_WATER:15:FLOOR:0:30
+A:GRANITE:75:DARK_PIT:25:GRANITE:0:GRANITE:GRANITE:SHALLOW_WATER:DEEP_WATER
+F:MONSTER_DIV_4 | FINAL_GUARDIAN_804 | FINAL_ARTIFACT_89
+F:WATER_RIVER | DESTROY | ARENA | LAKE_WATER | LAKE_RUBBLE | DESTROY
+M:UNDEAD | NONLIVING
+
+N:7:¿¹
+E:Forest
+D:$a path leading to a Forest
+D:¿¹¤ØÂ³¤¯Áð¤ÎÆ»
+P:53:63
+W:15:32:5:3:14:160:75:20:0x0001:0x0052
+L:GRASS:85:FLOWER:5:SHALLOW_WATER:10:15
+A:TREE:90:GRANITE:10:GRANITE:0:BRAKE:TREE:GRANITE:BRAKE
+F:NO_DOORS | WATER_RIVER | MONSTER_DIV_15
+F:FINAL_GUARDIAN_481 | FINAL_OBJECT_592
+M:ANIMAL | R_CHAR_SJZ# | WILD_WOOD
+
+N:8:²Ð»³
+E:Volcano
+D:$a hole to the center of the Volcano
+D:²Ð»³¤ÎÃæ¿´¤Ø¤Î·ê
+P:53:13
+W:50:60:18:3:14:160:80:30:0x01bf:0x02fd
+L:DIRT:40:SHALLOW_LAVA:40:DEEP_LAVA:20:0
+A:GRANITE:90:DARK_PIT:10:GRANITE:0:GRANITE:GRANITE:DARK_PIT:QUARTZ_VEIN
+F:CAVE | MONSTER_DIV_0 | CAVERN | LAKE_LAVA | LAVA_RIVER | DESTROY
+F:FINAL_GUARDIAN_972 | FINAL_OBJECT_629
+M:IM_FIRE | CAN_FLY | WILD_VOLCANO
+
+N:9:ÃÏ¹ö
+E:Hell
+D:$the stairway to the Hell
+D:ÃÏ¹ö¤Ø¤Î³¬ÃÊ
+P:62:94
+W:666:696:50:1:14:160:90:77:0x0188:0x0280
+L:SHALLOW_LAVA:80:DEEP_LAVA:20:FLOOR:0:0
+A:DEEP_LAVA:80:DARK_PIT:20:DARK_PIT:0:GRANITE:DEEP_LAVA:NONE:NONE
+F:CAVERN | MONSTER_DIV_0 | LAKE_LAVA | LAVA_RIVER | WINNER
+F:BIG
+M:IM_FIRE | EVIL
+
+N:10:Å·³¦
+E:Heaven
+D:$the way to the heaven
+D:Å·³¦¤Ø¤ÈÄÌ¤¸¤ëÆ»
+P:2:94
+W:555:585:50:1:18:160:85:35:0x0040:0x0104
+L:FLOOR:100:FLOOR:0:FLOOR:0:1000
+A:PERMANENT:100:GRANITE:0:GRANITE:0:PERMANENT:GRANITE:NONE:NONE
+F:MONSTER_DIV_0 | WATER_RIVER | WINNER | BIG | GLASS_ROOM
+M:GOOD
+
+# Wrath
+N:11:¿åË×¤·¤¿°äÀ×
+E:Numenor
+D:$a submerged way to the lost land of Numenor
+D:¼º¤ï¤ì¤¿ÃÏ¥Ì¥á¥Î¡¼¥ë¤Ø¤Î¿åË×¤·¤¿Æ»
+P:27:30
+W:55:75:30:3:14:160:80:30:0x0000:0x0000
+L:FLOOR:80:SHALLOW_WATER:20:FLOOR:0:100
+A:DEEP_WATER:80:SHALLOW_WATER:10:GRANITE:10:GRANITE:DEEP_WATER:NONE:NONE
+F:MONSTER_DIV_0 | LAKE_WATER | WATER_RIVER | DESTROY
+F:FINAL_GUARDIAN_854 | FINAL_ARTIFACT_107
+M:CAN_SWIM | CAN_FLY | AQUATIC | WILD_OCEAN
+
+N:12:¾ë
+E:Castle
+D:$the entrance to the Castle
+D:¾ë
+P:34:88
+W:20:65:30:3:14:160:75:20:0x037f:0x033f
+L:FLOOR:100:FLOOR:0:FLOOR:0:100
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:NONE:NONE
+F:MONSTER_DIV_16 | ARENA | NO_CAVE | CURTAIN | GLASS_ROOM | FINAL_GUARDIAN_882
+M:DEMON | R_CHAR_phHg
+
+# Cth and Razorback
+N:13:¥ë¥ë¥¤¥¨
+E:R'lyeh
+D:$a way to R'lyeh
+D:¥ë¥ë¥¤¥¨
+P:3:40
+W:80:96:45:3:14:160:75:20:0x01a8:0x023f
+L:FLOOR:50:SHALLOW_WATER:30:DEEP_WATER:20:100
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:SHALLOW_WATER:DEEP_WATER
+F:MONSTER_DIV_16 | ARENA | WATER_RIVER | LAKE_WATER |
+F:FINAL_GUARDIAN_857 | FINAL_ARTIFACT_129
+M:DEMON | ELDRITCH_HORROR
+
+N:14:»³
+E:Mountain
+D:$a way leading to the mountain
+D:»³
+P:46:76
+W:25:50:20:3:14:160:75:20:0x00b7:0x00df
+L:GRASS:100:GRASS:0:GRASS:0:0
+A:MOUNTAIN_WALL:100:GRANITE:0:GRANITE:0:MOUNTAIN_WALL:GRANITE:NONE:NONE
+F:FINAL_GUARDIAN_468 | FINAL_OBJECT_239 |
+F:MONSTER_DIV_16 | WATER_RIVER | CAVE | CAVERN | NO_DOORS | BIG
+M:TROLL | GIANT | CAN_FLY | ANIMAL | WILD_MOUNTAIN | R_CHAR_OYH
+
+N:15:¶â¹Û
+E:Mine
+D:$the entrance to the Mine
+D:¶â¹Û
+P:23:49
+W:75:80:50:3:18:80:80:25:0x0000:0x0010
+L:FLOOR:100:FLOOR:0:FLOOR:0:0
+A:GRANITE:60:MAGMA_TREASURE:20:QUARTZ_TREASURE:20:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:MONSTER_DIV_1 | WATER_RIVER | CAVE | CAVERN | SMALLEST
+F:LAVA_RIVER | DESTROY
+M:R_CHAR_$
+
+N:16:È¿ËâË¡¤ÎÆ¶·¢
+E:Anti-magic cave
+D:$the entrance to the cave filled with anti-magic cloud
+D:È¿ËâË¡¤ÎÆ¶·¢
+P:6:84
+W:40:50:30:0:14:160:75:20:0x01ff:0x01ed
+L:FLOOR:100:FLOOR:0:FLOOR:0:50
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:CAVERN | WATER_RIVER | LAVA_RIVER | ARENA | DESTROY
+F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE
+F:MONSTER_DIV_0 | NO_MAGIC
+
+N:17:È¿¹¶·â¤ÎÆ¶·¢
+E:Anti-melee cave
+D:$the entrance to the cave filled with restricting magical field
+D:È¿¹¶·â¤ÎÆ¶·¢
+P:45:47
+W:40:50:30:0:14:160:75:20:0x01ff:0x01ed
+L:FLOOR:100:FLOOR:0:FLOOR:0:50
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:CAVERN | WATER_RIVER | LAVA_RIVER | ARENA | DESTROY | GLASS_ROOM |
+F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE
+F:MONSTER_DIV_0 | NO_MELEE
+
+N:18:¥«¥á¥ì¥ª¥óÆ¶
+E:Chameleon cave
+D:$the entrance to the chameleon's den
+D:¥«¥á¥ì¥ª¥ó¤À¤±¤¬À³Â©¤¹¤ëÆ¶·¢
+P:52:94
+W:30:45:30:3:30:160:75:20:0x0000:0x0000
+L:FLOOR:100:FLOOR:0:FLOOR:0:50
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:CAVERN | WATER_RIVER | LAVA_RIVER | ARENA | DESTROY
+F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE | CHAMELEON
+F:MONSTER_DIV_0 | FINAL_GUARDIAN_1041 | FINAL_OBJECT_617
+M:CHAMELEON
+
+N:19:°Å°Ç¤ÎÆ¶·¢
+E:Dark cave
+D:$the dark entrance to the cave filled with magical darkness
+D:°Å°Ç¤ÎÆ¶·¢
+P:12:57
+W:55:72:30:0:14:160:80:30:0xffff:0xffff
+L:FLOOR:100:FLOOR:0:FLOOR:0:50
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:CAVERN | WATER_RIVER | LAVA_RIVER | ARENA | DESTROY | GLASS_ROOM |
+F:LAKE_WATER | LAKE_LAVA | LAKE_RUBBLE | LAKE_TREE
+F:MONSTER_DIV_64 | DARKNESS | FINAL_GUARDIAN_803
+
+N:20:¥¬¥é¥¹¤Î¾ë
+E:Glass castle
+D:$the entrance to the glass castle
+D:¥¬¥é¥¹¤Î¾ë
+P:40:37
+W:40:60:30:3:14:160:75:20:0x01f8:0x033d
+L:GLASS_FLOOR:100:GLASS_FLOOR:0:GLASS_FLOOR:0:100
+A:GLASS_WALL:100:GLASS_WALL:0:GLASS_WALL:0:GLASS_WALL:GLASS_WALL:NONE:NONE
+F:MONSTER_DIV_0 | ARENA | NO_CAVE | CURTAIN | GLASS_DOOR | GLASS_ROOM |
+M:INVISIBLE | HAS_LITE_1 | SELF_LITE_1 | HAS_LITE_2 | SELF_LITE_2 |
+M:HAS_DARK_1 | SELF_DARK_1 | HAS_DARK_2 | SELF_DARK_2
+S:BR_LITE | BR_DARK | BA_DARK | BA_LITE

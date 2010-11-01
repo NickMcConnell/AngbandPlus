@@ -1,0 +1,182 @@
+N: 1:BIAS_ELEC
+of Galactic Barrier
+of Resist *Lightning*
+of Thor
+of Zeus
+'Shambler'
+'Roaring Lightning Dragon'
+
+N: 2:BIAS_POIS
+'Poison Barrier'
+'Great unclean one'
+'Tir-karakse'
+'Healing Bottle'
+'Soul Purification'
+of the Archpriest
+of Hyper Resistance
+of Asklepios
+
+N: 3:BIAS_FIRE
+'Firewall'
+'Phoenix'
+'Rengoku-Kaen'
+of hellfire
+of Corona
+of Yama
+of Uriel
+#of Allah
+
+N: 4:BIAS_COLD
+'Helka-Turma'
+'White Diamond'
+'Great Snowfield'
+'Scale of Ice Dragon'
+'Great Winter'
+of Ymir
+of Snow Field
+of Soul Freeze
+
+N: 5:BIAS_ACID
+'O-Parts'
+'Scale of Vrtra'
+of Baihu
+of Heket
+of Rebma
+of the Everlasting
+of Eternity
+of Boldor
+
+N:12:BIAS_CHAOS
+'Unbalancer'
+'Void'
+'Chain of Control'
+of Balo
+of Nurgle
+of Pyaray
+of Arnara
+of Slortar
+of Slaanesh
+of Collapsium
+of Great Destruction
+
+N:14:BIAS_NECROMANTIC
+'Bloodmail of Lucifer'
+'Love of Demeter'
+'Bottomless Pit'
+of the Immortals
+of Hades
+of Sauron
+of Mephistopheles
+of the Demon Lord
+of Azriel
+
+N:15:BIAS_LAW
+N:13:BIAS_PRIESTLY
+N: 8:BIAS_WIS
+'Weirding'
+'Ever-Faithful'
+'Talisman of Simplicity'
+'God Mode'
+'Genesis'
+'Celestial Protection'
+'Avatar of Light'
+of the Gods
+of Divine Protection
+of the First Day
+of the Isles of the Blessed
+of the Holy Grail
+
+N: 9:BIAS_DEX
+N:16:BIAS_ROGUE
+of Gimli
+(*Stealth*)
+'Beelzebub's wing'
+of the Sprite
+of Lupin
+of Eric
+of Achilles
+of Super Speed
+of Idaten
+
+N:17:BIAS_MAGE
+N: 7:BIAS_INT
+of Celebrimbor
+of Eol
+of Merlin's Pattern
+of the Great Magi
+of Loki
+'Clear Mind'
+'the Eye of the Aethiopica'
+'Mana Prism'
+'Ivory Tower'
+
+N:18:BIAS_WARRIOR
+N: 6:BIAS_STR
+'Vajra'
+'Aegis'
+'Cloth of Vice'
+of Lions
+of Samurai
+of Titans
+of *Power*
+of Nike
+of Kronos
+of Diomedes
+
+N:19:BIAS_RANGER
+'Faroth'
+'Er-Draug'
+'Lifegiver'
+'Gaia's Blessing'
+'Nature's Gift'
+of Soil
+of Mind's Eye
+of the Red Beret
+of Nessa
+of Yavanna
+
+N:10:BIAS_CON
+'Heart of Ahriman'
+'Living Armour'
+'Life Matrix'
+'Orb of Destiny'
+'Amber Prison'
+of Corwin's Pattern
+of C('i)adan
+
+N:11:BIAS_CHR
+'Brilliant of Laurelin'
+'Hand of Elbereth'
+of Eternity
+of Heart's Desire
+of Cleopatra
+of Aphrodite
+of Vaire
+of Nienna
+
+N:*:Default
+'Monolith'
+'Destiny Star'
+'Lawmaster'
+of Diamond
+'Living Armour'
+'Living Wall'
+of Malachite
+'Citadel'
+'Genesis'
+of the Dungeon Master
+of the Dungeon Keeper
+'Intact'
+of Great Barrier
+'Battlemech'
+'Meganoid'
+'Imperium'
+of the Empire
+'Elite'
+of Infinity
+of the Makers
+of Thrain
+of Deirdre
+of Random
+of Celeborn
+'Eternal Bastion'

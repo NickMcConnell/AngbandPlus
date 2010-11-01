@@ -1,0 +1,26 @@
+攻撃と武器
+
+参照したいオンライン・ヘルプの記号を押して下さい:
+
+    (a) 攻撃と武器                       (jattack.txt)
+    (b) 射撃用武器                       (jattack.txt#DistanceAttack)
+    (c) 壁の中のモンスターへの攻撃       (jattack.txt#AttackWalls)
+    (d) 直接攻撃用武器                   (jattack.txt#MeleeWeapons)
+    (e) 射撃用武器                       (jattack.txt#MissileLaunch)
+    (f) 名のある武器と伝説の武器         (jattack.txt#EgoArtifact)
+    (g) 戦闘補助の魔法                   (jattack.txt#MagicalAids)
+    (h) 修行僧の攻撃                     (jattack.txt#MonkAttacks)
+    (i) 基本的な戦略                     (jattack.txt#MeleeTactics)
+
+    (?) ヘルプシステムの使用法           (jhelpinfo.txt)
+ 
+
+***** [a] jattack.txt
+***** [b] jattack.txt#DistanceAttack
+***** [c] jattack.txt#AttackWalls
+***** [d] jattack.txt#MeleeWeapons
+***** [e] jattack.txt#MissileLaunch
+***** [f] jattack.txt#EgoArtifact
+***** [g] jattack.txt#MagicalAids
+***** [h] jattack.txt#MonkAttacks
+***** [i] jattack.txt#MeleeTactics
