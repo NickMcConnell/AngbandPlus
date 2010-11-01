@@ -43,7 +43,7 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Hengband"
+#define VERSION_NAME "Chengband"
 
 
 /*
@@ -51,13 +51,14 @@
  *
  * FAKE_VER_MAJOR=1,2 were reserved for ZAngband version 1.x.x/2.x.x .
  *
- * Program Version of Hengband version is
+ * Program Version of Chengband version is
  *   "(FAKE_VER_MAJOR-10).(FAKE_VER_MINOR).(FAKE_VER_PATCH)".
+ *
  */
 #define FAKE_VERSION   0
-#define FAKE_VER_MAJOR 11
-#define FAKE_VER_MINOR 7
-#define FAKE_VER_PATCH 3
+#define FAKE_VER_MAJOR 10
+#define FAKE_VER_MINOR 0
+#define FAKE_VER_PATCH 1
 
 
 /*
@@ -73,9 +74,9 @@
  *
  * Upper compatibility is always guaranteed.
  */
-#define H_VER_MAJOR 1
-#define H_VER_MINOR 7
-#define H_VER_PATCH 3
+#define H_VER_MAJOR 0
+#define H_VER_MINOR 0
+#define H_VER_PATCH 1
 #define H_VER_EXTRA 0
 
 

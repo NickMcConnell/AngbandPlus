@@ -1,6 +1,6 @@
 
                   ****************************************
-                  **           Hengband 1.7.2           **
+                  **          Chengband 0.0.1           **
                   ****************************************
 
           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -15,8 +15,10 @@
        ZAngband Jap ver.:   Mitsuhiro Itakura <itakura @ users.sourceforge.net>
 
 
-           Hengband: Mr.Hoge (echizen @ users.sourceforge.jp) & Many others
+    Based on Hengband: Mr.Hoge (echizen @ users.sourceforge.jp) & Many others
                        http://hengband.sourceforge.jp/
 
-            Send bug report to "hengband-dev@lists.sourceforge.jp"
+        Chengband: Chris Kousky (https://code.google.com/p/chengband/)
+
+       Report bugs at "https://code.google.com/p/chengband/issues/list"
  
