@@ -147,3 +147,5 @@ R:0:0x93/0
 R:0:0x95/0
 ?:[EQU $CLASS Sniper]
 R:0:0x96/0
+?:[EQU $CLASS Time-Lord]
+R:0:0x93/0

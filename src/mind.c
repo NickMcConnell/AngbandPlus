@@ -287,6 +287,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       {  5,  4,  30, "Decay Door"},
       { 10, 10,  50, "Decay Wall"},
 	  { 13, 10,  50, "Devolution"},
+	  { 15, 10,  50, "Evolution"},
       { 17, 15,  50, "Slow Monster"},
       { 20, 15,  50, "Back to Origins"},
       { 23, 15,  60, "Haste Self"},
@@ -295,8 +296,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 35, 90,  70, "Rewind Time"},
       { 40, 80,  70, "Remembrance"},
       { 45, 60,  60, "Speed Essentia"},
-      { 45,150,  85, "The World"},
-      { 99,  0,   0, ""},
+      { 50,150,  65, "Stop Time"},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -439,6 +439,15 @@ void mindcraft_info(char *p, int use_mind, int power)
 	    case 18: sprintf(p, " %s%dd10", s_dam, 6+plev/8 ); break;
 	    case 19: sprintf(p, " %s6+d6", s_dur);  break;
 	    }
+	  break;
+	}
+	  case MIND_TIME_LORD:
+	{
+	  switch (power)
+	    {
+		case 12: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
+		default: break;
+		}
 	  break;
 	}
       }
@@ -1065,15 +1074,151 @@ msg_print("なに？");
 	return TRUE;
 }
 
+/* Finding what monster to evolve into is trivial, since the monster_race type
+   keeps a pointer in that direction.  However, we would like to reverse evolution
+   turning harder monsters into easier ones.  This fn will scan the monster race
+   table looking for a monster that evolves into this one.  Of course, we assume
+   there is at most one such race to be found.
+   Returns 0 if no such race can be found.
+*/
+static int find_evolution_idx(int r_idx)
+{
+	monster_race *r_ptr;
+
+	if (r_idx <= 0) return 0;
+	r_ptr = &r_info[r_idx];
+	return r_ptr->next_r_idx;
+}
+
+static int find_devolution_idx(int r_idx)
+{
+	int i;
+
+	if (r_idx <= 0) return 0;
+
+	for (i = 1; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		if (r_ptr->next_r_idx == r_idx)
+			return i;
+	}
+
+	return 0;
+}
+
+/*	Evolve or Devolve a Monster.  I spiked this from monster_gain_exp() in melee2.c without
+	any great understanding on my part.
+*/
+static void change_monster_race(int m_idx, int new_r_idx)
+{
+	char m_name[80];
+	int old_hp, old_maxhp, old_r_idx;
+	byte old_sub_align;
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+
+	/* Paranoia */
+	if (m_idx <= 0 || new_r_idx <= 0) return;
+
+	/* Get the monster and remember some stuff */
+	m_ptr = &m_list[m_idx];
+	old_hp = m_ptr->hp;
+	old_maxhp = m_ptr->max_maxhp;
+	old_r_idx = m_ptr->r_idx;
+	old_sub_align = m_ptr->sub_align;
+
+	/* Hack -- Reduce the racial counter of previous monster */
+	real_r_ptr(m_ptr)->cur_num--;
+
+	monster_desc(m_name, m_ptr, 0);
+	m_ptr->r_idx = new_r_idx;
+
+	/* Count the monsters on the level */
+	real_r_ptr(m_ptr)->cur_num++;
+
+	m_ptr->ap_r_idx = m_ptr->r_idx;
+	r_ptr = &r_info[m_ptr->r_idx];
+
+	if (r_ptr->flags1 & RF1_FORCE_MAXHP)
+	{
+		m_ptr->max_maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
+	}
+	else
+	{
+		m_ptr->max_maxhp = damroll(r_ptr->hdice, r_ptr->hside);
+	}
+	if (ironman_nightmare)
+	{
+		u32b hp = m_ptr->max_maxhp * 2L;
+
+		m_ptr->max_maxhp = (s16b)MIN(30000, hp);
+	}
+	m_ptr->maxhp = m_ptr->max_maxhp;
+	m_ptr->hp = old_hp * m_ptr->maxhp / old_maxhp;
+
+	/* Extract the monster base speed */
+	m_ptr->mspeed = get_mspeed(r_ptr);
+
+	/* Sub-alignment of a monster */
+	if (!is_pet(m_ptr) && !(r_ptr->flags3 & (RF3_EVIL | RF3_GOOD)))
+		m_ptr->sub_align = old_sub_align;
+	else
+	{
+		m_ptr->sub_align = SUB_ALIGN_NEUTRAL;
+		if (r_ptr->flags3 & RF3_EVIL) m_ptr->sub_align |= SUB_ALIGN_EVIL;
+		if (r_ptr->flags3 & RF3_GOOD) m_ptr->sub_align |= SUB_ALIGN_GOOD;
+	}
+
+	m_ptr->exp = 0;
+
+	if (is_pet(m_ptr) || m_ptr->ml)
+	{
+		if (!ignore_unview || player_can_see_bold(m_ptr->fy, m_ptr->fx))
+		{
+			if (p_ptr->image)
+			{
+				monster_race *hallu_race;
+
+				do
+				{
+					hallu_race = &r_info[randint1(max_r_idx - 1)];
+				}
+				while (!hallu_race->name || (hallu_race->flags1 & RF1_UNIQUE));
+
+#ifdef JP
+				msg_format("%sは%sに進化した。", m_name, r_name + hallu_race->name);
+#else
+				msg_format("%^s changed into %s.", m_name, r_name + hallu_race->name);
+#endif
+			}
+			else
+			{
+#ifdef JP
+				msg_format("%sは%sに進化した。", m_name, r_name + r_ptr->name);
+#else
+				msg_format("%^s changed into %s.", m_name, r_name + r_ptr->name);
+#endif
+			}
+		}
+
+		if (!p_ptr->image) r_info[old_r_idx].r_xtra1 |= MR1_SINKA;
+
+		/* Now you feel very close to this pet. */
+		m_ptr->parent_m_idx = 0;
+	}
+	update_mon(m_idx, FALSE);
+	lite_spot(m_ptr->fy, m_ptr->fx);
+}
+
 /*
  * do_cmd_cast calls this function if the player's class
  * is 'Time Lord'.
  */
 static bool cast_time_lord_spell(int spell)
 {
-	int             b = 0;
-	int             dir;
-	int             plev = p_ptr->lev;
+	int b = 0;
+	int dir;
+	int plev = p_ptr->lev;
 
 	/* spell code */
 	switch (spell)
@@ -1093,11 +1238,7 @@ static bool cast_time_lord_spell(int spell)
 			y = py + ddy[dir];
 			x = px + ddx[dir];
 
-			if (!cave_have_flag_bold(y, x, FF_DOOR))
-			{
-				msg_print("There is no door here.  Perhaps if you moved closer?");
-				break;
-			}
+			if (!cave_have_flag_bold(y, x, FF_DOOR)) break;
 	
 			/* Destroy the feature */
 			cave_alter_feat(y, x, FF_TUNNEL);
@@ -1108,7 +1249,7 @@ static bool cast_time_lord_spell(int spell)
 		break;
 
 	case 1:	 /* Decay Wall 
-	            There is a nice wall_to_mud() fn that fires a beam, but I just wand an adjacent
+	            There is a nice wall_to_mud() fn that fires a beam, but I just want an adjacent
 				square effect.
 	         */
 	/*	if (!get_aim_dir(&dir)) return FALSE;
@@ -1126,11 +1267,7 @@ static bool cast_time_lord_spell(int spell)
 		    if (cave[y][x].m_idx)
 				py_attack(y, x, HISSATSU_HAGAN); */
 	
-			if (!cave_have_flag_bold(y, x, FF_HURT_ROCK)) 
-			{
-				msg_print("There is no wall here.  Perhaps if you moved closer?");
-				break;
-			}
+			if (!cave_have_flag_bold(y, x, FF_HURT_ROCK))  break;
 	
 			/* Destroy the feature */
 			cave_alter_feat(y, x, FF_HURT_ROCK);
@@ -1141,42 +1278,130 @@ static bool cast_time_lord_spell(int spell)
 		break;
 
 	case 2:  /* Devolution */
+		{
+			int y, x, r_idx, m_idx;
+			monster_type *m_ptr;
+			monster_race *r_ptr;
+			char m_name[80];
+
+			if (!get_rep_dir2(&dir)) return FALSE;
+			if (dir == 5) return FALSE;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+
+			/* No monster?  Well just ignore ... */
+			m_idx = cave[y][x].m_idx;
+		    if (!m_idx) break;
+
+			/* Get the monster */
+			m_ptr = &m_list[m_idx];
+
+			/* Skip Dead Monsters? */
+			if (!m_ptr->r_idx) break;
+			monster_desc(m_name, m_ptr, 0);
+
+			r_idx = real_r_idx(m_ptr);
+			if (r_idx <= 0) return FALSE;
+			r_ptr = &r_info[r_idx];	/* We'll use the current race for a saving throw */
+			r_idx = find_devolution_idx(r_idx);
+			
+			/* Skip Primitive Monsters */
+			if (r_idx <= 0)
+			{
+				msg_format("%^s is too primitive for further devolution.", m_name);
+				break;
+			}
+
+			if (r_ptr->level > randint1(2*plev))
+			{		
+				msg_format("%^s resists.", m_name);
+				break;
+			}
+			else
+				change_monster_race(m_idx, r_idx);
+		}
+		break;
+
+	case 3:  /* Evolution */
+		{
+			int y, x, r_idx, m_idx;
+			monster_type *m_ptr;
+			monster_race *r_ptr;
+			char m_name[80];
+
+			if (!get_rep_dir2(&dir)) return FALSE;
+			if (dir == 5) return FALSE;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+
+			/* No monster?  Well just ignore ... */
+			m_idx = cave[y][x].m_idx;
+		    if (!m_idx) break;
+
+			/* Get the monster */
+			m_ptr = &m_list[m_idx];
+
+			/* Skip Dead Monsters? */
+			if (!m_ptr->r_idx) break;
+			monster_desc(m_name, m_ptr, 0);
+
+			r_idx = real_r_idx(m_ptr);
+			if (r_idx <= 0) return FALSE;
+			r_ptr = &r_info[r_idx];	/* We'll use the current race for a saving throw */
+			r_idx = find_evolution_idx(r_idx);
+			
+			/* Skip Advanced Monsters */
+			if (r_idx <= 0)
+			{
+				msg_format("%^s has reached evolutionary perfection.", m_name);
+				break;
+			}
+
+			if (r_ptr->level > randint1(2*plev))
+			{		
+				msg_format("%^s resists.", m_name);
+				break;
+			}
+			else
+				change_monster_race(m_idx, r_idx);
+		}
+		break;
+
+	case 4:  /* "Slow Monster" */
 		msg_print("I'm workin' on it!");
 		break;
 
-	case 3:  /* "Slow Monster" */
+	case 5:  /* "Back to Origins" */
 		msg_print("I'm workin' on it!");
 		break;
 
-	case 4:  /* "Back to Origins" */
+	case 6:  /* "Haste Self" */
+		set_fast(10 + randint1((plev * 3) / 2), FALSE);
+		break;
+
+	case 7:  /* "Mass Slow" */
 		msg_print("I'm workin' on it!");
 		break;
 
-	case 5:  /* "Haste Self" */
+	case 8:  /* "Temporal Prison" */
 		msg_print("I'm workin' on it!");
 		break;
 
-	case 6:  /* "Mass Slow" */
+	case 9: /* "Rewind Time" */
 		msg_print("I'm workin' on it!");
 		break;
 
-	case 7:  /* "Temporal Prison" */
+	case 10: /* "Remembrance" */
 		msg_print("I'm workin' on it!");
 		break;
 
-	case 8: /* "Rewind Time" */
+	case 11: /* "Speed Essentia" */
 		msg_print("I'm workin' on it!");
 		break;
 
-	case 9: /* "Remembrance" */
-		msg_print("I'm workin' on it!");
-		break;
-
-	case 10: /* "Speed Essentia" */
-		msg_print("I'm workin' on it!");
-		break;
-
-	case 11: /* "The World" */
+	case 12: /* "The World" */
 		if (world_player)
 		{
 #ifdef JP
@@ -1195,7 +1420,7 @@ static bool cast_time_lord_spell(int spell)
 		msg_print(NULL);
 
 		/* Hack */
-		p_ptr->energy_need -= 1000 + (100 + p_ptr->csp - 50)*TURNS_PER_TICK/10;
+		p_ptr->energy_need -= 1000 + (100 + p_ptr->csp - 50)*TURNS_PER_TICK/8;
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -2327,7 +2552,7 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 			p_ptr->csp_frac = 0;
 		}
 
-        if ((use_mind == MIND_TIME_LORD) && (n == 11))
+        if ((use_mind == MIND_TIME_LORD) && (n == 12))
         {
 			/* No mana left */
 			p_ptr->csp = 0;

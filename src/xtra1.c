@@ -3293,6 +3293,7 @@ void calc_bonuses(void)
 			if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
 			break;
 		case CLASS_TIME_LORD:
+			if (p_ptr->lev > 29) p_ptr->resist_time = TRUE;
 			new_speed += 5;
 			new_speed += (p_ptr->lev) / 5;
 			break;
@@ -4559,7 +4560,10 @@ void calc_bonuses(void)
 	/* Temporary "fast" */
 	if (IS_FAST())
 	{
-		new_speed += 10;
+		if (p_ptr->pclass == CLASS_TIME_LORD)
+			new_speed += 15;
+		else
+			new_speed += 10;
 	}
 
 	/* Temporary "slow" */

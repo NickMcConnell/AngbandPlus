@@ -189,6 +189,24 @@ monster_race *real_r_ptr(monster_type *m_ptr)
 	}
 }
 
+int real_r_idx(monster_type *m_ptr)
+{
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	/* Extract real race */
+	if (m_ptr->mflag2 & MFLAG2_CHAMELEON)
+	{
+		if (r_ptr->flags1 & RF1_UNIQUE)
+			return MON_CHAMELEON_K;
+		else
+			return MON_CHAMELEON;
+	}
+	else
+	{
+		return m_ptr->r_idx;
+	}
+}
+
 
 /*
  * Delete a monster by index.

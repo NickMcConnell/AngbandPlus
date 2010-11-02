@@ -14,15 +14,21 @@
 
 /* Hacks for the Time Lord
    Positive effects last longer
-   Negative effects last shorder */
-int calc_time_lord_duration_pos(int d)
+   Negative effects last shorter 
+   I might also expand this sort of effect to items, mutations, etc.
+   So, basically, all the set_* methods that wrap "timed effects"
+   will delegate here.  I'm not happy about the "bool do_dec" style
+   of programming, but I did not want to fight the existing codebase
+   too much just yet.
+   */
+int recalc_duration_pos(int d)
 {
 	if (d > 0 && p_ptr->pclass == CLASS_TIME_LORD)
 		return d + 2 + randint1((p_ptr->lev)/10 + 1);
 	return d;
 }
 
-int calc_time_lord_duration_neg(int d)
+int recalc_duration_neg(int d)
 {
 	int x;
 
@@ -437,7 +443,7 @@ bool set_blind(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_neg(v);
+		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -533,7 +539,7 @@ bool set_confused(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_neg(v);
+		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -645,7 +651,7 @@ bool set_poisoned(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_neg(v);
+		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -709,7 +715,7 @@ bool set_afraid(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_neg(v);
+		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -790,7 +796,7 @@ bool set_paralyzed(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_neg(v);
+		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -866,7 +872,7 @@ bool set_image(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_neg(v);
+		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -948,7 +954,7 @@ bool set_fast(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1019,7 +1025,7 @@ bool set_lightspeed(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1092,7 +1098,7 @@ bool set_slow(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_neg(v);
+		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1161,7 +1167,7 @@ bool set_shield(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1304,7 +1310,7 @@ bool set_magicdef(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1376,7 +1382,7 @@ bool set_blessed(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1447,7 +1453,7 @@ bool set_hero(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1521,7 +1527,7 @@ bool set_shero(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1596,7 +1602,7 @@ bool set_protevil(int v, bool do_dec)
 {
 	bool notice = FALSE;
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1664,7 +1670,7 @@ bool set_wraith_form(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1760,7 +1766,7 @@ bool set_invuln(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1857,7 +1863,7 @@ bool set_tim_esp(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1932,7 +1938,7 @@ bool set_tim_invis(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2007,7 +2013,7 @@ bool set_tim_infra(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2082,7 +2088,7 @@ bool set_tim_regen(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2154,7 +2160,7 @@ bool set_tim_stealth(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2295,7 +2301,7 @@ bool set_tim_levitation(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2433,7 +2439,7 @@ bool set_tim_sh_fire(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3262,7 +3268,7 @@ bool set_oppose_acid(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3331,7 +3337,7 @@ bool set_oppose_elec(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3400,7 +3406,7 @@ bool set_oppose_fire(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3470,7 +3476,7 @@ bool set_oppose_cold(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3539,7 +3545,7 @@ bool set_oppose_pois(int v, bool do_dec)
 	bool notice = FALSE;
 
 	if (!do_dec)
-		v = calc_time_lord_duration_pos(v);
+		v = recalc_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;

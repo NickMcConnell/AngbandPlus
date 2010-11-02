@@ -3729,13 +3729,13 @@ player_class class_info[MAX_CLASS] =
 
 	{
 #ifdef JP
-		"TRANSLATE(Time Lord)",
+		"TRANSLATE(Time-Lord)",
 #endif
-		"Time Lord",
+		"Time-Lord",  /* no spaces in class names! */
 
-		{-1, 3, 1, -1, -1, 1},
-		25, 35, 35, 1,  16, 8, 48, 35,
-		7,  11, 10, 0,  0,  0, 13, 11,
+		{-2, 3, 1, -2, -2, 1},
+		25, 18, 35, 1,  16, 8, 48, 20,
+		7,   7, 10, 0,  0,  0, 13, 13,
 		0, 50, 35
 	},
 };
