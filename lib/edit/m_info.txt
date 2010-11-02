@@ -13,7 +13,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -111,7 +111,7 @@ T:42:50:90:175
 T:43:40:55:200
 T:45:70:85:250
 
-# Neture
+# Nature
 R:2:1
 T:1:1:23:4  #0
 T:3:3:25:3
@@ -465,7 +465,7 @@ T:45:50:85:175
 T:46:45:55:200
 T:48:70:80:250
 
-# Neture
+# Nature
 R:2:1
 T:2:1:20:4  #0
 T:5:3:20:4
@@ -787,7 +787,7 @@ T:45:50:70:100
 T:49:50:70:100
 T:99:0:0:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -981,7 +981,7 @@ T:50:50:90:175
 T:99:0:0:0
 T:99:0:0:0
 
-# Neture
+# Nature
 R:2:1
 T:3:1:35:2  #0
 T:4:3:40:2
@@ -1207,7 +1207,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -1369,7 +1369,7 @@ T:46:55:90:175
 T:48:50:80:200
 T:48:75:85:250
 
-# Neture
+# Nature
 R:2:1
 T:2:2:23:4  #0
 T:3:3:25:3
@@ -1659,7 +1659,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -1789,7 +1789,7 @@ T:50:100:80:250
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:1
 T:1:1:35:2  #0
 T:3:3:40:2
@@ -1919,7 +1919,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -2017,7 +2017,7 @@ T:40:40:80:175
 T:41:43:50:200
 T:42:65:75:250
 
-# Neture
+# Nature
 R:2:1
 T:1:1:15:4  #0
 T:2:1:15:3
@@ -2307,7 +2307,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -2373,7 +2373,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -2407,7 +2407,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -2537,7 +2537,7 @@ T:42:50:90:175
 T:43:40:55:200
 T:45:70:85:250
 
-# Neture
+# Nature
 R:2:1
 T:1:1:23:4  #0
 T:3:3:25:3
@@ -2826,7 +2826,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -2860,7 +2860,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -2894,7 +2894,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -2992,7 +2992,7 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
-# Neture
+# Nature
 R:2:1
 T:3:1:35:2  #0
 T:4:3:40:2
@@ -3282,7 +3282,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -3348,7 +3348,7 @@ T:50:100:80:250
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:1
 T:1:1:35:2  #0
 T:3:3:40:2
@@ -3510,7 +3510,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -3544,7 +3544,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -3578,7 +3578,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -3612,7 +3612,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -3646,7 +3646,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -3680,7 +3680,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -3714,7 +3714,7 @@ R:0:0
 # Sorcery
 R:1:0
 
-# Neture
+# Nature
 R:2:0
 
 # Chaos
@@ -3737,3 +3737,37 @@ R:8:0
 
 # Crusade
 R:9:0
+
+### Time Lord ###
+N:28
+I:LIFE:INT:0x00:0:99:400
+# Life
+R:0:0
+
+# Sorcery
+R:1:0
+
+# Nature
+R:2:0
+
+# Chaos
+R:3:0
+
+# Death
+R:4:0
+
+# Trump
+R:5:0
+
+# Arcane
+R:6:0
+
+# Craft
+R:7:0
+
+# Deamon
+R:8:0
+
+# Crusade
+R:9:0
+

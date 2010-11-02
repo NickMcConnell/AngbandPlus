@@ -1304,8 +1304,8 @@ msg_print("自分の傷に念を集中した。");
 			msg_print("You concentrate on your wounds!");
 #endif
 		(void)hp_player(plev*4);
-		(void)set_stun(0);
-		(void)set_cut(0);
+		(void)set_stun(0, TRUE);
+		(void)set_cut(0, TRUE);
 		break;
 	case MS_INVULNER:
 #ifdef JP
@@ -2026,7 +2026,7 @@ msg_print("精神を集中しすぎて気を失ってしまった！");
 
 
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
+		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1), FALSE);
 
 		chg_virtue(V_KNOWLEDGE, -10);
 

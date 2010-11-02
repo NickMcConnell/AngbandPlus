@@ -5322,7 +5322,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 			if (!p_ptr->resist_blind && !p_ptr->resist_lite)
 			{
 				/* Become blind */
-				(void)set_blind(p_ptr->blind + 10 + randint1(10));
+				(void)set_blind(p_ptr->blind + 10 + randint1(10), FALSE);
 			}
 		}
 
@@ -5531,7 +5531,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 					msg_print("You are bashed by rubble!");
 #endif
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint1(50));
+					(void)set_stun(p_ptr->stun + randint1(50), FALSE);
 					break;
 				}
 				case 3:
@@ -5542,7 +5542,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 					msg_print("You are crushed between the floor and ceiling!");
 #endif
 					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint1(50));
+					(void)set_stun(p_ptr->stun + randint1(50), FALSE);
 					break;
 				}
 			}
@@ -7076,9 +7076,9 @@ msg_print("彫像になった気分だ！");
 #endif
 
 				if (p_ptr->free_act)
-					set_paralyzed(p_ptr->paralyzed + randint1(3));
+					set_paralyzed(p_ptr->paralyzed + randint1(3), FALSE);
 				else
-					set_paralyzed(p_ptr->paralyzed + randint1(13));
+					set_paralyzed(p_ptr->paralyzed + randint1(13), FALSE);
 				stop_ty = TRUE;
 			}
 			if (!one_in_(6)) break;

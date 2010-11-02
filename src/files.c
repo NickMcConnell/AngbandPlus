@@ -5101,7 +5101,7 @@ errr make_character_dump(FILE *fff)
 	fprintf(fff, "  [変愚蛮怒 %d.%d.%d キャラクタ情報]\n\n",
 		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #else
-	fprintf(fff, "  [Hengband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [Chengband %d.%d.%d Character Dump]\n\n",
 		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 

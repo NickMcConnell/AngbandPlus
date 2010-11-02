@@ -2070,11 +2070,11 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 	{
 		if (!p_ptr->resist_conf)
 		{
-			(void)set_confused(p_ptr->confused + randint0(4) + 4);
+			(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 		}
 		if (!p_ptr->resist_chaos && one_in_(3))
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150);
+			(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
 		}
 		return;
 	}
@@ -2090,11 +2090,11 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 	{
 		if (!p_ptr->resist_conf)
 		{
-			(void)set_confused(p_ptr->confused + randint0(4) + 4);
+			(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 		}
 		if (!p_ptr->free_act)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+			(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
 		}
 		while (randint0(100) > p_ptr->skill_sav)
 			(void)do_dec_stat(A_INT);
@@ -2102,7 +2102,7 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 			(void)do_dec_stat(A_WIS);
 		if (!p_ptr->resist_chaos)
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150);
+			(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
 		}
 		return;
 	}

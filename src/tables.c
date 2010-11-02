@@ -3726,6 +3726,18 @@ player_class class_info[MAX_CLASS] =
 		12, 10, 10, 0,  0,  0, 12,  28,
 		2, 20, 40,
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE(Time Lord)",
+#endif
+		"Time Lord",
+
+		{-1, 3, 1, -1, -1, 1},
+		25, 35, 35, 1,  16, 8, 48, 35,
+		7,  11, 10, 0,  0,  0, 13, 11,
+		0, 50, 35
+	},
 };
 
 player_seikaku seikaku_info[MAX_SEIKAKU] =
@@ -4093,6 +4105,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_NONE),				/* Mirror-master */
 	(CH_NONE),				/* Ninja */
 	(CH_NONE),				/* Sniper */
+	(CH_NONE),				/* Time Lord */
 };
 
 
@@ -4136,6 +4149,7 @@ s32b realm_choices2[MAX_CLASS] =
 	(CH_NONE),				/* Mirror-master */
 	(CH_NONE),				/* Ninja */
 	(CH_NONE),				/* Sniper */
+	(CH_NONE),				/* Time Lord */
 };
 
 
@@ -5071,6 +5085,20 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Baron",
 		"Duke",
 		"Lord",
+	},
+
+	/* Time Lord */
+	{
+		"Wanderer",
+		"Sojourner",
+		"Traveller",
+		"Seer",
+		"Manipulator",
+		"Chronomax",
+		"Time Hero",
+		"Time Baron",
+		"Time Duke",
+		"Time Lord",
 	},
 };
 #endif

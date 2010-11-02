@@ -3016,7 +3016,7 @@ msg_print("しかし恐怖に侵されなかった。");
 			}
 			else
 			{
-				(void)set_afraid(p_ptr->afraid + randint0(4) + 4);
+				(void)set_afraid(p_ptr->afraid + randint0(4) + 4, FALSE);
 			}
 			learn_spell(MS_SCARE);
 			update_smart_learn(m_idx, DRS_FEAR);
@@ -3060,7 +3060,7 @@ msg_print("しかし効力を跳ね返した！");
 			}
 			else
 			{
-				(void)set_blind(12 + randint0(4));
+				(void)set_blind(12 + randint0(4), FALSE);
 			}
 			learn_spell(MS_BLIND);
 			update_smart_learn(m_idx, DRS_BLIND);
@@ -3104,7 +3104,7 @@ msg_print("しかし幻覚にはだまされなかった。");
 			}
 			else
 			{
-				(void)set_confused(p_ptr->confused + randint0(4) + 4);
+				(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 			}
 			learn_spell(MS_CONF);
 			update_smart_learn(m_idx, DRS_CONF);
@@ -3186,7 +3186,7 @@ msg_format("しかし効力を跳ね返した！");
 			}
 			else
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+				(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
 			}
 			learn_spell(MS_SLEEP);
 			update_smart_learn(m_idx, DRS_FREE);

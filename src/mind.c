@@ -14,7 +14,7 @@
 #include "mindtips.h"
 
 
-mind_power mind_powers[5] =
+mind_power mind_powers[MIND_MAX_CLASSES] =
 {
   {
     {
@@ -281,6 +281,32 @@ mind_power mind_powers[5] =
       
     }
   },
+  {
+    {
+    /* Level gained,  cost,  %fail,  name */
+      {  5,  4,  30, "Decay Door"},
+      { 10, 10,  50, "Decay Wall"},
+	  { 13, 10,  50, "Devolution"},
+      { 17, 15,  50, "Slow Monster"},
+      { 20, 15,  50, "Back to Origins"},
+      { 23, 15,  60, "Haste Self"},
+      { 27, 20,  50, "Mass Slow"},
+      { 30, 20,  50, "Temporal Prison"},
+      { 35, 90,  70, "Rewind Time"},
+      { 40, 80,  70, "Remembrance"},
+      { 45, 60,  60, "Speed Essentia"},
+      { 45,150,  85, "The World"},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+	}
+  }
 };
 
 
@@ -419,7 +445,7 @@ void mindcraft_info(char *p, int use_mind, int power)
     }
 }
 
-  /*
+/*
  * Allow user to choose a mindcrafter power.
  *
  * If a valid spell is chosen, saves it in '*sn' and returns TRUE
@@ -433,28 +459,28 @@ void mindcraft_info(char *p, int use_mind, int power)
  * when you run it. It's probably easy to fix but I haven't tried,
  * sorry.
  */
-  static int get_mind_power(int *sn, bool only_browse)
-    {
-      int             i;
-      int             num = 0;
-      int             y = 1;
-      int             x = 10;
-      int             minfail = 0;
-      int             plev = p_ptr->lev;
-      int             chance = 0;
-      int             ask = TRUE;
-      char            choice;
-      char            out_val[160];
-      char            comment[80];
-      cptr            p;
+static int get_mind_power(int *sn, bool only_browse)
+{
+	int             i;
+	int             num = 0;
+	int             y = 1;
+	int             x = 10;
+	int             minfail = 0;
+	int             plev = p_ptr->lev;
+	int             chance = 0;
+	int             ask = TRUE;
+	char            choice;
+	char            out_val[160];
+	char            comment[80];
+	cptr            p;
 
-      mind_type       spell;
-      mind_power      *mind_ptr;
-      bool            flag, redraw;
-      int             use_mind;
-      int menu_line = (use_menu ? 1 : 0);
+	mind_type       spell;
+	mind_power      *mind_ptr;
+	bool            flag, redraw;
+	int             use_mind;
+	int menu_line = (use_menu ? 1 : 0);
 
-      switch(p_ptr->pclass)
+    switch(p_ptr->pclass)
 	{
 	case CLASS_MINDCRAFTER:
 	  {
@@ -506,6 +532,13 @@ void mindcraft_info(char *p, int use_mind, int power)
 #endif
 	    break;
 	  }
+
+	case CLASS_TIME_LORD:
+      {
+        use_mind = MIND_TIME_LORD;
+        p = "timecraft";
+        break;
+	  }
 	default:
 	  {
 	    use_mind = 0;
@@ -546,7 +579,7 @@ void mindcraft_info(char *p, int use_mind, int power)
       /* No redraw yet */
       redraw = FALSE;
 
-      for (i = 0; i < MAX_MIND_POWERS; i++)
+    for (i = 0; i < MAX_MIND_POWERS; i++)
 	{
 	  if (mind_ptr->info[i].min_lev <= plev)
 	    {
@@ -555,7 +588,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 	}
 
       /* Build a prompt (accept all spells) */
-      if (only_browse)
+    if (only_browse)
 	{
 #ifdef JP
 	  (void) strnfmt(out_val, 78, "(%^s %c-%c, '*'で一覧, ESC) どの%sについて知りますか？",
@@ -946,8 +979,8 @@ msg_print("精神を捻じ曲げる波動を発生させた！");
 		break;
 	case 9:
 		/* Adrenaline */
-		set_afraid(0);
-		set_stun(0);
+		set_afraid(0, TRUE);
+		set_stun(0, TRUE);
 
 		/*
 		 * Only heal when Adrenalin Channeling is not active. We check
@@ -1020,6 +1053,162 @@ msg_print("精神を捻じ曲げる波動を発生させた！");
 		handle_stuff();
 		break;
 	}
+	default:
+#ifdef JP
+msg_print("なに？");
+#else
+		msg_print("Zap?");
+#endif
+
+	}
+
+	return TRUE;
+}
+
+/*
+ * do_cmd_cast calls this function if the player's class
+ * is 'Time Lord'.
+ */
+static bool cast_time_lord_spell(int spell)
+{
+	int             b = 0;
+	int             dir;
+	int             plev = p_ptr->lev;
+
+	/* spell code */
+	switch (spell)
+	{
+	case 0:   /* Decay Door 
+	             There is a nice destroy_door() fn that fires a beam, but I just wand an adjacent
+				 square effect.
+	          */
+	/*	if (!get_aim_dir(&dir)) return FALSE;
+		destroy_door(dir);*/
+		{
+			int y, x;
+
+			if (!get_rep_dir2(&dir)) return FALSE;
+			if (dir == 5) return FALSE;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+
+			if (!cave_have_flag_bold(y, x, FF_DOOR))
+			{
+				msg_print("There is no door here.  Perhaps if you moved closer?");
+				break;
+			}
+	
+			/* Destroy the feature */
+			cave_alter_feat(y, x, FF_TUNNEL);
+	
+			/* Update some things */
+			p_ptr->update |= (PU_FLOW);
+		}	
+		break;
+
+	case 1:	 /* Decay Wall 
+	            There is a nice wall_to_mud() fn that fires a beam, but I just wand an adjacent
+				square effect.
+	         */
+	/*	if (!get_aim_dir(&dir)) return FALSE;
+		wall_to_mud(dir); */
+		{
+			int y, x;
+
+			if (!get_rep_dir2(&dir)) return FALSE;
+			if (dir == 5) return FALSE;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+
+		/*	TODO: Hurt Wall Monsters!
+		    if (cave[y][x].m_idx)
+				py_attack(y, x, HISSATSU_HAGAN); */
+	
+			if (!cave_have_flag_bold(y, x, FF_HURT_ROCK)) 
+			{
+				msg_print("There is no wall here.  Perhaps if you moved closer?");
+				break;
+			}
+	
+			/* Destroy the feature */
+			cave_alter_feat(y, x, FF_HURT_ROCK);
+	
+			/* Update some things */
+			p_ptr->update |= (PU_FLOW);
+		}	
+		break;
+
+	case 2:  /* Devolution */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 3:  /* "Slow Monster" */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 4:  /* "Back to Origins" */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 5:  /* "Haste Self" */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 6:  /* "Mass Slow" */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 7:  /* "Temporal Prison" */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 8: /* "Rewind Time" */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 9: /* "Remembrance" */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 10: /* "Speed Essentia" */
+		msg_print("I'm workin' on it!");
+		break;
+
+	case 11: /* "The World" */
+		if (world_player)
+		{
+#ifdef JP
+			msg_print("既に時は止まっている。");
+#else
+			msg_print("Time is already stopped.");
+#endif
+			return (FALSE);
+		}
+		world_player = TRUE;
+#ifdef JP
+		msg_print("「時よ！」");
+#else
+		msg_print("You yell 'Time!'");
+#endif
+		msg_print(NULL);
+
+		/* Hack */
+		p_ptr->energy_need -= 1000 + (100 + p_ptr->csp - 50)*TURNS_PER_TICK/10;
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Update monsters */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+		handle_stuff();
+		break;
+
 	default:
 #ifdef JP
 msg_print("なに？");
@@ -1844,6 +2033,7 @@ msg_print("混乱していて集中できない！");
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;break;
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;break;
+		case CLASS_TIME_LORD:       use_mind = MIND_TIME_LORD;break;
 		default:                use_mind = 0;break;
 	}
 #endif
@@ -1987,7 +2177,7 @@ msg_print("奇妙な光景が目の前で踊っている...");
 					msg_print("Weird visions seem to dance before your eyes...");
 #endif
 
-					set_image(p_ptr->image + 5 + randint1(10));
+					set_image(p_ptr->image + 5 + randint1(10), FALSE);
 				}
 				else if (b < 45)
 				{
@@ -1997,11 +2187,11 @@ msg_print("あなたの頭は混乱した！");
 					msg_print("Your brain is addled!");
 #endif
 
-					set_confused(p_ptr->confused + randint1(8));
+					set_confused(p_ptr->confused + randint1(8), FALSE);
 				}
 				else if (b < 90)
 				{
-					set_stun(p_ptr->stun + randint1(8));
+					set_stun(p_ptr->stun + randint1(8), FALSE);
 				}
 				else
 				{
@@ -2039,7 +2229,7 @@ msg_print("まわりのものがキラキラ輝いている！");
 					msg_print("Your brain is addled!");
 #endif
 
-					set_image(p_ptr->image + 5 + randint1(10));
+					set_image(p_ptr->image + 5 + randint1(10), FALSE);
 				}
 				else
 				{
@@ -2085,6 +2275,10 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 			/* Cast the spell */
 			cast = cast_ninja_spell(n);
 			break;
+        case MIND_TIME_LORD:
+            cast = cast_time_lord_spell(n);
+            break;
+
 		default:
 #ifdef JP
 			msg_format("謎の能力:%d, %d",use_mind, n);
@@ -2132,6 +2326,13 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 			p_ptr->csp = 0;
 			p_ptr->csp_frac = 0;
 		}
+
+        if ((use_mind == MIND_TIME_LORD) && (n == 11))
+        {
+			/* No mana left */
+			p_ptr->csp = 0;
+			p_ptr->csp_frac = 0;
+        }
 	}
 
 	/* Over-exert the player */
@@ -2152,7 +2353,7 @@ msg_format("%sを集中しすぎて気を失ってしまった！",p);
 
 
 		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
+		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1), FALSE);
 
 		/* Damage WIS (possibly permanently) */
 		if (randint0(100) < 50)

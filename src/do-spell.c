@@ -390,7 +390,7 @@ static void cast_invoke_spirits(int dir)
 		msg_print("An unnamable evil brushes against your mind...");
 #endif
 
-		set_afraid(p_ptr->afraid + randint1(4) + 4);
+		set_afraid(p_ptr->afraid + randint1(4) + 4, FALSE);
 	}
 	else if (die < 26)
 	{
@@ -400,7 +400,7 @@ static void cast_invoke_spirits(int dir)
 		msg_print("Your head is invaded by a horde of gibbering spectral voices...");
 #endif
 
-		set_confused(p_ptr->confused + randint1(4) + 4);
+		set_confused(p_ptr->confused + randint1(4) + 4, FALSE);
 	}
 	else if (die < 31)
 	{
@@ -1224,7 +1224,7 @@ static cptr do_life_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(spell_power(damroll(dice, sides)));
-				set_cut(p_ptr->cut - 10);
+				set_cut(p_ptr->cut - 10, TRUE);
 			}
 		}
 		break;
@@ -1337,7 +1337,7 @@ static cptr do_life_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(spell_power(damroll(dice, sides)));
-				set_cut((p_ptr->cut / 2) - 20);
+				set_cut((p_ptr->cut / 2) - 20, TRUE);
 			}
 		}
 		break;
@@ -1354,7 +1354,7 @@ static cptr do_life_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				set_poisoned(0);
+				set_poisoned(0, TRUE);
 			}
 		}
 		break;
@@ -1441,8 +1441,8 @@ static cptr do_life_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(spell_power(damroll(dice, sides)));
-				set_stun(0);
-				set_cut(0);
+				set_stun(0, TRUE);
+				set_cut(0, TRUE);
 			}
 		}
 		break;
@@ -1524,8 +1524,8 @@ static cptr do_life_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(heal);
-				set_stun(0);
-				set_cut(0);
+				set_stun(0, TRUE);
+				set_cut(0, TRUE);
 			}
 		}
 		break;
@@ -1836,8 +1836,8 @@ static cptr do_life_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(heal);
-				set_stun(0);
-				set_cut(0);
+				set_stun(0, TRUE);
+				set_cut(0, TRUE);
 			}
 		}
 		break;
@@ -2818,8 +2818,8 @@ static cptr do_nature_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(damroll(dice, sides));
-				set_cut(0);
-				set_poisoned(0);
+				set_cut(0, TRUE);
+				set_poisoned(0, TRUE);
 			}
 		}
 		break;
@@ -3013,9 +3013,9 @@ static cptr do_nature_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(heal);
-				set_stun(0);
-				set_cut(0);
-				set_poisoned(0);
+				set_stun(0, TRUE);
+				set_cut(0, TRUE);
+				set_poisoned(0, TRUE);
 			}
 		}
 		break;
@@ -4640,7 +4640,7 @@ static cptr do_death_spell(int spell, int mode)
 			{
 				set_shero(randint1(base) + base, FALSE);
 				hp_player(30);
-				set_afraid(0);
+				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -4710,7 +4710,7 @@ static cptr do_death_spell(int spell, int mode)
 			{
 				set_shero(randint1(25) + 25, FALSE);
 				hp_player(30);
-				set_afraid(0);
+				set_afraid(0, TRUE);
 				set_fast(randint1(sp_sides) + sp_base, FALSE);
 			}
 		}
@@ -6129,7 +6129,7 @@ static cptr do_arcane_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(damroll(dice, sides));
-				set_cut(p_ptr->cut - 10);
+				set_cut(p_ptr->cut - 10, TRUE);
 			}
 		}
 		break;
@@ -6250,7 +6250,7 @@ static cptr do_arcane_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				set_poisoned(0);
+				set_poisoned(0, TRUE);
 			}
 		}
 		break;
@@ -6357,7 +6357,7 @@ static cptr do_arcane_spell(int spell, int mode)
 			if (cast)
 			{
 				hp_player(damroll(dice, sides));
-				set_cut((p_ptr->cut / 2) - 50);
+				set_cut((p_ptr->cut / 2) - 50, TRUE);
 			}
 		}
 		break;
@@ -6804,7 +6804,7 @@ static cptr do_craft_spell(int spell, int mode)
 			{
 				set_hero(randint1(base) + base, FALSE);
 				hp_player(10);
-				set_afraid(0);
+				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -6935,7 +6935,7 @@ static cptr do_craft_spell(int spell, int mode)
 			{
 				set_shero(randint1(base) + base, FALSE);
 				hp_player(30);
-				set_afraid(0);
+				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -6991,10 +6991,10 @@ static cptr do_craft_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				set_poisoned(0);
-				set_stun(0);
-				set_cut(0);
-				set_image(0);
+				set_poisoned(0, TRUE);
+				set_stun(0, TRUE);
+				set_cut(0, TRUE);
+				set_image(0, TRUE);
 			}
 		}
 		break;
@@ -7837,7 +7837,7 @@ static cptr do_daemon_spell(int spell, int mode)
 				set_oppose_fire(dur, FALSE);
 				set_oppose_cold(dur, FALSE);
 				set_tim_sh_fire(dur, FALSE);
-				set_afraid(0);
+				set_afraid(0, TRUE);
 				break;
 			}
 		}
@@ -7999,7 +7999,7 @@ static cptr do_daemon_spell(int spell, int mode)
 			{
 				set_hero(randint1(base) + base, FALSE);
 				hp_player(10);
-				set_afraid(0);
+				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -8232,7 +8232,7 @@ static cptr do_crusade_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				set_afraid(0);
+				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -8337,9 +8337,9 @@ static cptr do_crusade_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				set_cut(0);
-				set_poisoned(0);
-				set_stun(0);
+				set_cut(0, TRUE);
+				set_poisoned(0, TRUE);
+				set_stun(0, TRUE);
 			}
 		}
 		break;
@@ -8536,10 +8536,10 @@ static cptr do_crusade_spell(int spell, int mode)
 			{
 				dispel_evil(randint1(dam_sides));
 				hp_player(heal);
-				set_afraid(0);
-				set_poisoned(0);
-				set_stun(0);
-				set_cut(0);
+				set_afraid(0, TRUE);
+				set_poisoned(0, TRUE);
+				set_stun(0, TRUE);
+				set_cut(0, TRUE);
 			}
 		}
 		break;
@@ -8750,7 +8750,7 @@ static cptr do_crusade_spell(int spell, int mode)
 			{
 				set_hero(randint1(base) + base, FALSE);
 				hp_player(10);
-				set_afraid(0);
+				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -8943,7 +8943,7 @@ static cptr do_crusade_spell(int spell, int mode)
 				set_blessed(randint1(base) + base, FALSE);
 				set_fast(randint1(sp_sides) + sp_base, FALSE);
 				set_protevil(randint1(base) + base, FALSE);
-				set_afraid(0);
+				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -9231,7 +9231,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 			(void)hp_player(10);
-			(void)set_afraid(0);
+			(void)set_afraid(0, TRUE);
 
 			/* Recalculate hitpoints */
 			p_ptr->update |= (PU_HP);
@@ -9991,7 +9991,7 @@ static cptr do_music_spell(int spell, int mode)
 			msg_print("You chant a powerful, heroic call to arms...");
 #endif
 			(void)hp_player(10);
-			(void)set_afraid(0);
+			(void)set_afraid(0, TRUE);
 
 			/* Recalculate hitpoints */
 			p_ptr->update |= (PU_HP);
@@ -10066,8 +10066,8 @@ static cptr do_music_spell(int spell, int mode)
 			if (cont)
 			{
 				hp_player(damroll(dice, sides));
-				set_stun(0);
-				set_cut(0);
+				set_stun(0, TRUE);
+				set_cut(0, TRUE);
 			}
 		}
 
@@ -10856,9 +10856,9 @@ static cptr do_hissatsu_spell(int spell, int mode)
 			monster_type    *m_ptr;
 	
 			if (p_ptr->cut < 300)
-				set_cut(p_ptr->cut + 300);
+				set_cut(p_ptr->cut + 300, FALSE);
 			else
-				set_cut(p_ptr->cut * 2);
+				set_cut(p_ptr->cut * 2, FALSE);
 	
 			for (dir = 0; dir < 8; dir++)
 			{
@@ -11499,7 +11499,7 @@ static cptr do_hex_spell(int spell, int mode)
 		if (cast || cont)
 		{
 			hp_player(damroll(1, 10));
-			set_cut(p_ptr->cut - 10);
+			set_cut(p_ptr->cut - 10, TRUE);
 		}
 		break;
 
@@ -11807,7 +11807,7 @@ static cptr do_hex_spell(int spell, int mode)
 		if (cast || cont)
 		{
 			hp_player(damroll(2, 10));
-			set_cut((p_ptr->cut / 2) - 10);
+			set_cut((p_ptr->cut / 2) - 10, TRUE);
 		}
 		break;
 
@@ -11984,9 +11984,9 @@ static cptr do_hex_spell(int spell, int mode)
 		if (cast || cont)
 		{
 			hp_player(damroll(4, 10));
-			set_stun(0);
-			set_cut(0);
-			set_poisoned(0);
+			set_stun(0, TRUE);
+			set_cut(0, TRUE);
+			set_poisoned(0, TRUE);
 		}
 		break;
 

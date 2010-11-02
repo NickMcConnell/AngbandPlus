@@ -2595,11 +2595,11 @@ void have_nightmare(int r_idx)
 	{
 		if (!p_ptr->resist_conf)
 		{
-			(void)set_confused(p_ptr->confused + randint0(4) + 4);
+			(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 		}
 		if (!p_ptr->resist_chaos && one_in_(3))
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150);
+			(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
 		}
 		return;
 	}
@@ -2617,11 +2617,11 @@ void have_nightmare(int r_idx)
 	{
 		if (!p_ptr->resist_conf)
 		{
-			(void)set_confused(p_ptr->confused + randint0(4) + 4);
+			(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 		}
 		if (!p_ptr->free_act)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+			(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
 		}
 		while (!saving_throw(p_ptr->skill_sav))
 		{
@@ -2633,7 +2633,7 @@ void have_nightmare(int r_idx)
 		}
 		if (!p_ptr->resist_chaos)
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150);
+			(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
 		}
 		return;
 	}
@@ -2874,8 +2874,8 @@ msg_print("バーテンはいくらかの食べ物とビールをくれた。");
 				}
 				else
 				{
-					set_blind(0);
-					set_confused(0);
+					set_blind(0, TRUE);
+					set_confused(0, TRUE);
 					p_ptr->stun = 0;
 					p_ptr->chp = p_ptr->mhp;
 					p_ptr->csp = p_ptr->msp;
@@ -4698,11 +4698,11 @@ msg_print("お金が足りません！");
 		break;
 	case BACT_HEALING: /* needs work */
 		hp_player(200);
-		set_poisoned(0);
-		set_blind(0);
-		set_confused(0);
-		set_cut(0);
-		set_stun(0);
+		set_poisoned(0, TRUE);
+		set_blind(0, TRUE);
+		set_confused(0, TRUE);
+		set_cut(0, TRUE);
+		set_stun(0, TRUE);
 		paid = TRUE;
 		break;
 	case BACT_RESTORE: /* needs work */

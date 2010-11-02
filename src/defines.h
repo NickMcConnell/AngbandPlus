@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            28
+#define MAX_CLASS            29
 
 #define MAX_SEIKAKU          12
 
@@ -359,9 +359,6 @@
 # define MA_KNEE 1
 # define MA_SLOW 2
 
-/* Mindcraft */
-#define MAX_MIND_POWERS  21
-
 /* Hallucination stuff */
 #ifdef JP
 #define MAX_SILLY_ATTACK 41
@@ -369,11 +366,16 @@
 #define MAX_SILLY_ATTACK 29
 #endif
 
+/* Spellcasters that don't use spell books */
+#define MAX_MIND_POWERS  21
+
 #define MIND_MINDCRAFTER    0
-#define MIND_KI             1
+#define MIND_KI             1   /* Force Trainer */
 #define MIND_BERSERKER      2
 #define MIND_MIRROR_MASTER  3
 #define MIND_NINJUTSU       4
+#define MIND_TIME_LORD		5
+#define MIND_MAX_CLASSES	6
 
 
 /*
@@ -908,6 +910,7 @@
 #define CLASS_MIRROR_MASTER     25
 #define CLASS_NINJA             26
 #define CLASS_SNIPER            27
+#define CLASS_TIME_LORD         28
 
 #define SEIKAKU_FUTUU	 0
 #define SEIKAKU_CHIKARA	 1

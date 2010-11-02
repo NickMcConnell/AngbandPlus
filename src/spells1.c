@@ -2823,10 +2823,10 @@ note_dies = "は蒸発した！";
 							switch (randint1(4))
 							{
 								case 1:
-									set_confused(p_ptr->confused + 3 + randint1(dam));
+									set_confused(p_ptr->confused + 3 + randint1(dam), FALSE);
 									break;
 								case 2:
-									set_stun(p_ptr->stun + randint1(dam));
+									set_stun(p_ptr->stun + randint1(dam), FALSE);
 									break;
 								case 3:
 								{
@@ -2838,12 +2838,12 @@ note_dies = "は蒸発した！";
 #endif
 
 									else
-										set_afraid(p_ptr->afraid + 3 + randint1(dam));
+										set_afraid(p_ptr->afraid + 3 + randint1(dam), FALSE);
 									break;
 								}
 								default:
 									if (!p_ptr->free_act)
-										(void)set_paralyzed(p_ptr->paralyzed + randint1(dam));
+										(void)set_paralyzed(p_ptr->paralyzed + randint1(dam), FALSE);
 									break;
 							}
 						}
@@ -3134,10 +3134,10 @@ note_dies = "は蒸発した！";
 						switch (randint1(4))
 						{
 							case 1:
-								set_stun(p_ptr->stun + dam / 2);
+								set_stun(p_ptr->stun + dam / 2, FALSE);
 								break;
 							case 2:
-								set_confused(p_ptr->confused + dam / 2);
+								set_confused(p_ptr->confused + dam / 2, FALSE);
 								break;
 							default:
 							{
@@ -3149,7 +3149,7 @@ note_dies = "は蒸発した！";
 #endif
 
 								else
-									set_afraid(p_ptr->afraid + dam);
+									set_afraid(p_ptr->afraid + dam, FALSE);
 							}
 						}
 					}
@@ -6564,7 +6564,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 			if (!(double_resist || p_ptr->resist_pois) && !CHECK_MULTISHADOW())
 			{
-				set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
+				set_poisoned(p_ptr->poisoned + randint0(dam) + 10, FALSE);
 			}
 			break;
 		}
@@ -6584,7 +6584,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			if (!(double_resist || p_ptr->resist_pois) && !CHECK_MULTISHADOW())
 			{
-				set_poisoned(p_ptr->poisoned + randint0(dam) + 10);
+				set_poisoned(p_ptr->poisoned + randint0(dam) + 10, FALSE);
 
 				if (one_in_(5)) /* 6 */
 				{
@@ -6688,7 +6688,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (!p_ptr->resist_sound && !CHECK_MULTISHADOW())
 			{
 				int k = (randint1((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)set_stun(p_ptr->stun + k, FALSE);
 			}
 
 			if (!(p_ptr->resist_fire ||
@@ -6749,11 +6749,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				if (!p_ptr->resist_sound)
 				{
-					set_stun(p_ptr->stun + randint1(40));
+					set_stun(p_ptr->stun + randint1(40), FALSE);
 				}
 				if (!p_ptr->resist_conf)
 				{
-					set_confused(p_ptr->confused + randint1(5) + 5);
+					set_confused(p_ptr->confused + randint1(5) + 5, FALSE);
 				}
 
 				if (one_in_(5))
@@ -6784,11 +6784,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				if (!p_ptr->resist_conf)
 				{
-					(void)set_confused(p_ptr->confused + randint0(20) + 10);
+					(void)set_confused(p_ptr->confused + randint0(20) + 10, FALSE);
 				}
 				if (!p_ptr->resist_chaos)
 				{
-					(void)set_image(p_ptr->image + randint1(10));
+					(void)set_image(p_ptr->image + randint1(10), FALSE);
 					if (one_in_(3))
 					{
 #ifdef JP
@@ -6831,7 +6831,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 			else if (!CHECK_MULTISHADOW())
 			{
-				(void)set_cut(p_ptr->cut + dam);
+				(void)set_cut(p_ptr->cut + dam, FALSE);
 			}
 
 			if (!p_ptr->resist_shard || one_in_(13))
@@ -6859,7 +6859,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			else if (!CHECK_MULTISHADOW())
 			{
 				int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
-				(void)set_stun(p_ptr->stun + k);
+				(void)set_stun(p_ptr->stun + k, FALSE);
 			}
 
 			if (!p_ptr->resist_sound || one_in_(13))
@@ -6886,7 +6886,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 			else if (!CHECK_MULTISHADOW())
 			{
-				(void)set_confused(p_ptr->confused + randint1(20) + 10);
+				(void)set_confused(p_ptr->confused + randint1(20) + 10, FALSE);
 			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
@@ -6945,7 +6945,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 			if (!p_ptr->resist_sound && !CHECK_MULTISHADOW())
 			{
-				(void)set_stun(p_ptr->stun + randint1(20));
+				(void)set_stun(p_ptr->stun + randint1(20), FALSE);
 			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
@@ -6963,7 +6963,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 			if (!p_ptr->resist_sound && !CHECK_MULTISHADOW())
 			{
-				(void)set_stun(p_ptr->stun + randint1(20));
+				(void)set_stun(p_ptr->stun + randint1(20), FALSE);
 			}
 
 			if (p_ptr->resist_shard)
@@ -6972,7 +6972,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 			else if (!CHECK_MULTISHADOW())
 			{
-				(void)set_cut(p_ptr->cut + (dam / 2));
+				(void)set_cut(p_ptr->cut + (dam / 2), FALSE);
 			}
 
 			if (!p_ptr->resist_shard || one_in_(12))
@@ -7013,7 +7013,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 			else if (!blind && !p_ptr->resist_blind && !CHECK_MULTISHADOW())
 			{
-				(void)set_blind(p_ptr->blind + randint1(5) + 2);
+				(void)set_blind(p_ptr->blind + randint1(5) + 2, FALSE);
 			}
 
 			if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
@@ -7074,7 +7074,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 			else if (!blind && !p_ptr->resist_blind && !CHECK_MULTISHADOW())
 			{
-				(void)set_blind(p_ptr->blind + randint1(5) + 2);
+				(void)set_blind(p_ptr->blind + randint1(5) + 2, FALSE);
 			}
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 			break;
@@ -7191,7 +7191,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				if (!(p_ptr->resist_sound || p_ptr->levitation))
 				{
 					int k = (randint1((dam > 90) ? 35 : (dam / 3 + 5)));
-					(void)set_stun(p_ptr->stun + k);
+					(void)set_stun(p_ptr->stun + k, FALSE);
 				}
 			}
 			if (p_ptr->levitation)
@@ -7287,7 +7287,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				get_mon_num_prep(NULL, NULL);
 			}
 
-			set_paralyzed(p_ptr->paralyzed + dam);
+			set_paralyzed(p_ptr->paralyzed + dam, FALSE);
 			dam = 0;
 			break;
 		}
@@ -7353,11 +7353,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				if (!p_ptr->resist_shard)
 				{
-					(void)set_cut(p_ptr->cut + damroll(5, 8));
+					(void)set_cut(p_ptr->cut + damroll(5, 8), FALSE);
 				}
 				if (!p_ptr->resist_sound)
 				{
-					(void)set_stun(p_ptr->stun + randint1(15));
+					(void)set_stun(p_ptr->stun + randint1(15), FALSE);
 				}
 
 				if ((!(p_ptr->resist_cold || IS_OPPOSE_COLD())) || one_in_(12))
@@ -7511,12 +7511,12 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 					if (!p_ptr->resist_conf)
 					{
-						(void)set_confused(p_ptr->confused + randint0(4) + 4);
+						(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 					}
 
 					if (!p_ptr->resist_chaos && one_in_(3))
 					{
-						(void)set_image(p_ptr->image + randint0(250) + 150);
+						(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
 					}
 
 					p_ptr->csp -= 50;
@@ -7569,15 +7569,15 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				{
 					if (!p_ptr->resist_blind)
 					{
-						(void)set_blind(p_ptr->blind + 8 + randint0(8));
+						(void)set_blind(p_ptr->blind + 8 + randint0(8), FALSE);
 					}
 					if (!p_ptr->resist_conf)
 					{
-						(void)set_confused(p_ptr->confused + randint0(4) + 4);
+						(void)set_confused(p_ptr->confused + randint0(4) + 4, FALSE);
 					}
 					if (!p_ptr->free_act)
 					{
-						(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4);
+						(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
 					}
 					(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
 
@@ -7588,7 +7588,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 					if (!p_ptr->resist_chaos)
 					{
-						(void)set_image(p_ptr->image + randint0(250) + 150);
+						(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
 					}
 				}
 			}
@@ -7670,7 +7670,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			else
 			{
 				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
-				if (!CHECK_MULTISHADOW()) (void)set_cut(p_ptr->cut + damroll(10, 10));
+				if (!CHECK_MULTISHADOW()) (void)set_cut(p_ptr->cut + damroll(10, 10), FALSE);
 			}
 			break;
 		}

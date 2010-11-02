@@ -1232,7 +1232,7 @@ static void hit_trap(bool break_trap)
 #endif
 
 					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint1(dam));
+					(void)set_cut(p_ptr->cut + randint1(dam), FALSE);
 				}
 
 				/* Take the damage */
@@ -1289,7 +1289,7 @@ static void hit_trap(bool break_trap)
 
 
 					dam = dam * 2;
-					(void)set_cut(p_ptr->cut + randint1(dam));
+					(void)set_cut(p_ptr->cut + randint1(dam), FALSE);
 
 					if (p_ptr->resist_pois || IS_OPPOSE_POIS())
 					{
@@ -1304,7 +1304,7 @@ static void hit_trap(bool break_trap)
 					else
 					{
 						dam = dam * 2;
-						(void)set_poisoned(p_ptr->poisoned + randint1(dam));
+						(void)set_poisoned(p_ptr->poisoned + randint1(dam), FALSE);
 					}
 				}
 
@@ -1525,7 +1525,7 @@ static void hit_trap(bool break_trap)
 
 			if (!p_ptr->resist_blind)
 			{
-				(void)set_blind(p_ptr->blind + randint0(50) + 25);
+				(void)set_blind(p_ptr->blind + randint0(50) + 25, FALSE);
 			}
 			break;
 		}
@@ -1540,7 +1540,7 @@ static void hit_trap(bool break_trap)
 
 			if (!p_ptr->resist_conf)
 			{
-				(void)set_confused(p_ptr->confused + randint0(20) + 10);
+				(void)set_confused(p_ptr->confused + randint0(20) + 10, FALSE);
 			}
 			break;
 		}
@@ -1555,7 +1555,7 @@ static void hit_trap(bool break_trap)
 
 			if (!p_ptr->resist_pois && !IS_OPPOSE_POIS())
 			{
-				(void)set_poisoned(p_ptr->poisoned + randint0(20) + 10);
+				(void)set_poisoned(p_ptr->poisoned + randint0(20) + 10, FALSE);
 			}
 			break;
 		}
@@ -1595,7 +1595,7 @@ msg_print("身の毛もよだつ光景が頭に浮かんだ。");
 					/* Remove the monster restriction */
 					get_mon_num_prep(NULL, NULL);
 				}
-				(void)set_paralyzed(p_ptr->paralyzed + randint0(10) + 5);
+				(void)set_paralyzed(p_ptr->paralyzed + randint0(10) + 5, FALSE);
 			}
 			break;
 		}

@@ -748,12 +748,12 @@ static bool pattern_effect(void)
 	switch (pattern_type)
 	{
 	case PATTERN_TILE_END:
-		(void)set_poisoned(0);
-		(void)set_image(0);
-		(void)set_stun(0);
-		(void)set_cut(0);
-		(void)set_blind(0);
-		(void)set_afraid(0);
+		(void)set_poisoned(0, TRUE);
+		(void)set_image(0, TRUE);
+		(void)set_stun(0, TRUE);
+		(void)set_cut(0, TRUE);
+		(void)set_blind(0, TRUE);
+		(void)set_afraid(0, TRUE);
 		(void)do_res_stat(A_STR);
 		(void)do_res_stat(A_INT);
 		(void)do_res_stat(A_WIS);
@@ -1888,13 +1888,13 @@ static void process_world_aux_timeout(void)
 	/* Hack -- Hallucinating */
 	if (p_ptr->image)
 	{
-		(void)set_image(p_ptr->image - dec_count);
+		(void)set_image(p_ptr->image - dec_count, TRUE);
 	}
 
 	/* Blindness */
 	if (p_ptr->blind)
 	{
-		(void)set_blind(p_ptr->blind - dec_count);
+		(void)set_blind(p_ptr->blind - dec_count, TRUE);
 	}
 
 	/* Times see-invisible */
@@ -2025,19 +2025,19 @@ static void process_world_aux_timeout(void)
 	/* Paralysis */
 	if (p_ptr->paralyzed)
 	{
-		(void)set_paralyzed(p_ptr->paralyzed - dec_count);
+		(void)set_paralyzed(p_ptr->paralyzed - dec_count, TRUE);
 	}
 
 	/* Confusion */
 	if (p_ptr->confused)
 	{
-		(void)set_confused(p_ptr->confused - dec_count);
+		(void)set_confused(p_ptr->confused - dec_count, TRUE);
 	}
 
 	/* Afraid */
 	if (p_ptr->afraid)
 	{
-		(void)set_afraid(p_ptr->afraid - dec_count);
+		(void)set_afraid(p_ptr->afraid - dec_count, TRUE);
 	}
 
 	/* Fast */
@@ -2155,7 +2155,7 @@ static void process_world_aux_timeout(void)
 		int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
 
 		/* Apply some healing */
-		(void)set_poisoned(p_ptr->poisoned - adjust);
+		(void)set_poisoned(p_ptr->poisoned - adjust, TRUE);
 	}
 
 	/* Stun */
@@ -2164,7 +2164,7 @@ static void process_world_aux_timeout(void)
 		int adjust = adj_con_fix[p_ptr->stat_ind[A_CON]] + 1;
 
 		/* Apply some healing */
-		(void)set_stun(p_ptr->stun - adjust);
+		(void)set_stun(p_ptr->stun - adjust, TRUE);
 	}
 
 	/* Cut */
@@ -2176,7 +2176,7 @@ static void process_world_aux_timeout(void)
 		if (p_ptr->cut > 1000) adjust = 0;
 
 		/* Apply some healing */
-		(void)set_cut(p_ptr->cut - adjust);
+		(void)set_cut(p_ptr->cut - adjust, TRUE);
 	}
 }
 
@@ -2236,7 +2236,7 @@ static void process_world_aux_mutation(void)
 #endif
 
 		(void)set_shero(10 + randint1(p_ptr->lev), FALSE);
-		(void)set_afraid(0);
+		(void)set_afraid(0, TRUE);
 	}
 
 	if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint1(3000) == 13))
@@ -2250,7 +2250,7 @@ static void process_world_aux_mutation(void)
 			msg_print("It's so dark... so scary!");
 #endif
 
-			set_afraid(p_ptr->afraid + 13 + randint1(26));
+			set_afraid(p_ptr->afraid + 13 + randint1(26), FALSE);
 		}
 	}
 
@@ -2289,7 +2289,7 @@ static void process_world_aux_mutation(void)
 
 		if (!p_ptr->resist_conf)
 		{
-			(void)set_confused(p_ptr->confused + randint0(20) + 15);
+			(void)set_confused(p_ptr->confused + randint0(20) + 15, FALSE);
 		}
 
 		if (!p_ptr->resist_chaos)
@@ -2320,7 +2320,7 @@ static void process_world_aux_mutation(void)
 					msg_print("Thishcischs GooDSChtuff!");
 #endif
 
-					(void)set_image(p_ptr->image + randint0(150) + 150);
+					(void)set_image(p_ptr->image + randint0(150) + 150, FALSE);
 				}
 			}
 		}
@@ -2332,7 +2332,7 @@ static void process_world_aux_mutation(void)
 		{
 			disturb(0, 0);
 			p_ptr->redraw |= PR_EXTRA;
-			(void)set_image(p_ptr->image + randint0(50) + 20);
+			(void)set_image(p_ptr->image + randint0(50) + 20, FALSE);
 		}
 	}
 
@@ -3065,7 +3065,7 @@ static void process_world_aux_curse(void)
 				msg_print("It's so dark... so scary!");
 #endif
 
-				set_afraid(p_ptr->afraid + 13 + randint1(26));
+				set_afraid(p_ptr->afraid + 13 + randint1(26), FALSE);
 			}
 		}
 		/* Teleport player */
@@ -4152,7 +4152,7 @@ msg_print("今、アングバンドへの門が閉ざされました。");
 				disturb(1, 0);
 
 				/* Hack -- faint (bypass free action) */
-				(void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5));
+				(void)set_paralyzed(p_ptr->paralyzed + 1 + randint0(5), FALSE);
 			}
 
 			/* Starve to death (slowly) */
@@ -4869,7 +4869,8 @@ msg_print("ウィザードモード突入。");
 					if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
 					    (p_ptr->pclass == CLASS_BERSERKER) ||
 					    (p_ptr->pclass == CLASS_NINJA) ||
-					    (p_ptr->pclass == CLASS_MIRROR_MASTER)
+					    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
+						(p_ptr->pclass == CLASS_TIME_LORD)
 					    )
 						do_cmd_mind();
 					else if (p_ptr->pclass == CLASS_IMITATOR)
@@ -7145,14 +7146,14 @@ prt("お待ち下さい...", 0, 0);
 					p_ptr->is_dead = FALSE;
 
 					/* Hack -- Healing */
-					(void)set_blind(0);
-					(void)set_confused(0);
-					(void)set_poisoned(0);
-					(void)set_afraid(0);
-					(void)set_paralyzed(0);
-					(void)set_image(0);
-					(void)set_stun(0);
-					(void)set_cut(0);
+					(void)set_blind(0, TRUE);
+					(void)set_confused(0, TRUE);
+					(void)set_poisoned(0, TRUE);
+					(void)set_afraid(0, TRUE);
+					(void)set_paralyzed(0, TRUE);
+					(void)set_image(0, TRUE);
+					(void)set_stun(0, TRUE);
+					(void)set_cut(0, TRUE);
 
 					/* Hack -- Prevent starvation */
 					(void)set_food(PY_FOOD_MAX - 1);

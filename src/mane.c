@@ -868,8 +868,8 @@ msg_print("自分の傷に念を集中した。");
 			msg_print("You concentrate on your wounds!");
 #endif
 		(void)hp_player(plev*6);
-		(void)set_stun(0);
-		(void)set_cut(0);
+		(void)set_stun(0, TRUE);
+		(void)set_cut(0, TRUE);
 		break;
 	case MS_INVULNER:
 #ifdef JP

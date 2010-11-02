@@ -2457,6 +2457,7 @@ static void calc_mana(void)
 	if (!mp_ptr->spell_book) return;
 
 	if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
+        (p_ptr->pclass == CLASS_TIME_LORD) ||
 	    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
 	    (p_ptr->pclass == CLASS_BLUE_MAGE))
 	{
@@ -3291,6 +3292,10 @@ void calc_bonuses(void)
 			if (p_ptr->lev > 29) p_ptr->resist_conf = TRUE;
 			if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
 			break;
+		case CLASS_TIME_LORD:
+			new_speed += 5;
+			new_speed += (p_ptr->lev) / 5;
+			break;
 		case CLASS_MONK:
 		case CLASS_FORCETRAINER:
 			/* Unencumbered Monks become faster every 10 levels */
@@ -3506,7 +3511,8 @@ void calc_bonuses(void)
 			p_ptr->resist_acid = TRUE;
 
 			/* Klackons become faster */
-			new_speed += (p_ptr->lev) / 10;
+			if (p_ptr->pclass != CLASS_TIME_LORD)
+				new_speed += (p_ptr->lev) / 10;
 			break;
 		case RACE_KOBOLD:
 			p_ptr->resist_pois = TRUE;
@@ -3584,7 +3590,8 @@ void calc_bonuses(void)
 			p_ptr->resist_lite = TRUE;
 
 			/* Sprites become faster */
-			new_speed += (p_ptr->lev) / 10;
+			if (p_ptr->pclass != CLASS_TIME_LORD)
+				new_speed += (p_ptr->lev) / 10;
 			break;
 		case RACE_BEASTMAN:
 			p_ptr->resist_conf  = TRUE;
@@ -4976,6 +4983,7 @@ void calc_bonuses(void)
 
 				/* Tourist */
 				case CLASS_TOURIST:
+				case CLASS_TIME_LORD:
 					num = 4; wgt = 100; mul = 3; break;
 
 				/* Imitator */

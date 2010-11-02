@@ -3597,7 +3597,7 @@ bool mutation_power_aux(u32b power)
 		case MUT1_BERSERK:
 			(void)set_shero(randint1(25) + 25, FALSE);
 			(void)hp_player(30);
-			(void)set_afraid(0);
+			(void)set_afraid(0, TRUE);
 			break;
 
 		case MUT1_POLYMORPH:

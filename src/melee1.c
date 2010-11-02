@@ -746,7 +746,7 @@ bool make_attack_normal(int m_idx)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()) && !CHECK_MULTISHADOW())
 					{
-						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
+						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5, FALSE))
 						{
 							obvious = TRUE;
 						}
@@ -1253,7 +1253,7 @@ bool make_attack_normal(int m_idx)
 					/* Increase "blind" */
 					if (!p_ptr->resist_blind && !CHECK_MULTISHADOW())
 					{
-						if (set_blind(p_ptr->blind + 10 + randint1(rlev)))
+						if (set_blind(p_ptr->blind + 10 + randint1(rlev), FALSE))
 						{
 #ifdef JP
 							if (m_ptr->r_idx == MON_DIO) msg_print("どうだッ！この血の目潰しはッ！");
@@ -1281,7 +1281,7 @@ bool make_attack_normal(int m_idx)
 					/* Increase "confused" */
 					if (!p_ptr->resist_conf && !CHECK_MULTISHADOW())
 					{
-						if (set_confused(p_ptr->confused + 3 + randint1(rlev)))
+						if (set_confused(p_ptr->confused + 3 + randint1(rlev), FALSE))
 						{
 							obvious = TRUE;
 						}
@@ -1327,7 +1327,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_afraid(p_ptr->afraid + 3 + randint1(rlev)))
+						if (set_afraid(p_ptr->afraid + 3 + randint1(rlev), FALSE))
 						{
 							obvious = TRUE;
 						}
@@ -1375,7 +1375,7 @@ bool make_attack_normal(int m_idx)
 					{
 						if (!p_ptr->paralyzed)
 						{
-							if (set_paralyzed(3 + randint1(rlev)))
+							if (set_paralyzed(3 + randint1(rlev), FALSE))
 							{
 								obvious = TRUE;
 							}
@@ -1578,7 +1578,7 @@ bool make_attack_normal(int m_idx)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
 					{
-						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5))
+						if (set_poisoned(p_ptr->poisoned + randint1(rlev) + 5, FALSE))
 						{
 							obvious = TRUE;
 						}
@@ -1821,7 +1821,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				}
 
 				/* Apply the cut */
-				if (k) (void)set_cut(p_ptr->cut + k);
+				if (k) (void)set_cut(p_ptr->cut + k, FALSE);
 			}
 
 			/* Handle stun */
@@ -1846,7 +1846,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				}
 
 				/* Apply the stun */
-				if (k) (void)set_stun(p_ptr->stun + k);
+				if (k) (void)set_stun(p_ptr->stun + k, FALSE);
 			}
 
 			if (explode)

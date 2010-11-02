@@ -614,7 +614,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 		if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()))
 		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint1(20));
+			(void)set_poisoned(p_ptr->poisoned + 10 + randint1(20), FALSE);
 		}
 	}
 
@@ -630,7 +630,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 
 		if (!p_ptr->free_act)
 		{
-			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint1(20));
+			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint1(20), FALSE);
 		}
 	}
 
@@ -775,15 +775,15 @@ static void chest_trap(int y, int x, s16b o_idx)
 #else
 				if (one_in_(6)) take_hit(DAMAGE_NOESCAPE, damroll(5, 20), "a chest dispel-player trap", -1);
 #endif
-				else if (one_in_(5)) (void)set_cut(p_ptr->cut + 200);
+				else if (one_in_(5)) (void)set_cut(p_ptr->cut + 200, FALSE);
 				else if (one_in_(4))
 				{
 					if (!p_ptr->free_act) 
 						(void)set_paralyzed(p_ptr->paralyzed + 2 + 
-						randint0(6));
+						randint0(6), FALSE);
 					else 
 						(void)set_stun(p_ptr->stun + 10 + 
-						randint0(100));
+						randint0(100), FALSE);
 				}
 				else if (one_in_(3)) apply_disenchant(0);
 				else if (one_in_(2))
@@ -2327,7 +2327,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 
 
 		/* Hack -- Lose balance ala paralysis */
-		(void)set_paralyzed(p_ptr->paralyzed + 2 + randint0(2));
+		(void)set_paralyzed(p_ptr->paralyzed + 2 + randint0(2), FALSE);
 	}
 
 	/* Result */
@@ -4062,7 +4062,7 @@ void do_cmd_fire(void)
 		msg_print("A reactionary of shooting attacked you. ");
 #endif
 		(void)set_slow(p_ptr->slow + randint0(7) + 7, FALSE);
-		(void)set_stun(p_ptr->stun + randint1(25));
+		(void)set_stun(p_ptr->stun + randint1(25), FALSE);
 	}
 }
 

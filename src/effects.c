@@ -12,6 +12,30 @@
 
 #include "angband.h"
 
+/* Hacks for the Time Lord
+   Positive effects last longer
+   Negative effects last shorder */
+int calc_time_lord_duration_pos(int d)
+{
+	if (d > 0 && p_ptr->pclass == CLASS_TIME_LORD)
+		return d + 2 + randint1((p_ptr->lev)/10 + 1);
+	return d;
+}
+
+int calc_time_lord_duration_neg(int d)
+{
+	int x;
+
+	x = d;
+	if (x > 0 && p_ptr->pclass == CLASS_TIME_LORD)
+	{
+		x -= 2 + randint1((p_ptr->lev)/10 + 1);
+		if (x < 0)
+			x = 0;
+	}
+	return x;
+}
+
 void set_action(int typ)
 {
 	int prev_typ = p_ptr->action;
@@ -409,9 +433,11 @@ bool set_mimic(int v, int p, bool do_dec)
  * Note that blindness is currently the only thing which can affect
  * "player_can_see_bold()".
  */
-bool set_blind(int v)
+bool set_blind(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -503,9 +529,11 @@ msg_print("やっと目が見えるようになった。");
 /*
  * Set "p_ptr->confused", notice observable changes
  */
-bool set_confused(int v)
+bool set_confused(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -613,9 +641,11 @@ msg_print("やっと混乱がおさまった。");
 /*
  * Set "p_ptr->poisoned", notice observable changes
  */
-bool set_poisoned(int v)
+bool set_poisoned(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -675,9 +705,11 @@ msg_print("やっと毒の痛みがなくなった。");
 /*
  * Set "p_ptr->afraid", notice observable changes
  */
-bool set_afraid(int v)
+bool set_afraid(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -754,9 +786,11 @@ msg_print("やっと恐怖を振り払った。");
 /*
  * Set "p_ptr->paralyzed", notice observable changes
  */
-bool set_paralyzed(int v)
+bool set_paralyzed(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -828,9 +862,11 @@ msg_print("やっと動けるようになった。");
  *
  * Note that we must redraw the map when hallucination changes.
  */
-bool set_image(int v)
+bool set_image(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -911,6 +947,8 @@ msg_print("やっとはっきりと物が見えるようになった。");
 bool set_fast(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -979,6 +1017,9 @@ msg_print("動きの素早さがなくなったようだ。");
 bool set_lightspeed(int v, bool do_dec)
 {
 	bool notice = FALSE;
+
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1050,6 +1091,9 @@ bool set_slow(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_neg(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1115,6 +1159,9 @@ msg_print("動きの遅さがなくなったようだ。");
 bool set_shield(int v, bool do_dec)
 {
 	bool notice = FALSE;
+
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1256,6 +1303,9 @@ bool set_magicdef(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1325,6 +1375,8 @@ bool set_magicdef(int v, bool do_dec)
 bool set_blessed(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1394,6 +1446,8 @@ msg_print("高潔な気分が消え失せた。");
 bool set_hero(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1466,6 +1520,8 @@ msg_print("ヒーローの気分が消え失せた。");
 bool set_shero(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1539,6 +1595,8 @@ msg_print("野蛮な気持ちが消え失せた。");
 bool set_protevil(int v, bool do_dec)
 {
 	bool notice = FALSE;
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1604,6 +1662,9 @@ msg_print("邪悪なる存在から守られている感じがなくなった。");
 bool set_wraith_form(int v, bool do_dec)
 {
 	bool notice = FALSE;
+
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1697,6 +1758,9 @@ msg_print("不透明になった感じがする。");
 bool set_invuln(int v, bool do_dec)
 {
 	bool notice = FALSE;
+
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1792,6 +1856,9 @@ bool set_tim_esp(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -1863,6 +1930,9 @@ msg_print("意識は元に戻った。");
 bool set_tim_invis(int v, bool do_dec)
 {
 	bool notice = FALSE;
+
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -1936,6 +2006,9 @@ bool set_tim_infra(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2008,6 +2081,9 @@ bool set_tim_regen(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2076,6 +2152,9 @@ msg_print("素早く回復する感じがなくなった。");
 bool set_tim_stealth(int v, bool do_dec)
 {
 	bool notice = FALSE;
+
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2215,6 +2294,9 @@ bool set_tim_levitation(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -2349,6 +2431,9 @@ msg_print("闘気が消えた。");
 bool set_tim_sh_fire(int v, bool do_dec)
 {
 	bool notice = FALSE;
+
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3176,6 +3261,9 @@ bool set_oppose_acid(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3242,6 +3330,9 @@ bool set_oppose_elec(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3307,6 +3398,9 @@ msg_print("電撃への耐性が薄れた気がする。");
 bool set_oppose_fire(int v, bool do_dec)
 {
 	bool notice = FALSE;
+
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3375,6 +3469,9 @@ bool set_oppose_cold(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3441,6 +3538,9 @@ bool set_oppose_pois(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	if (!do_dec)
+		v = calc_time_lord_duration_pos(v);
+
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
@@ -3506,11 +3606,10 @@ msg_print("毒への耐性が薄れた気がする。");
  *
  * Note the special code to only notice "range" changes.
  */
-bool set_stun(int v)
+bool set_stun(int v, bool do_dec)
 {
 	int old_aux, new_aux;
 	bool notice = FALSE;
-
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -3701,7 +3800,7 @@ msg_print("やっと朦朧状態から回復した。");
  *
  * Note the special code to only notice "range" changes.
  */
-bool set_cut(int v)
+bool set_cut(int v, bool do_dec)
 {
 	int old_aux, new_aux;
 	bool notice = FALSE;
@@ -4837,11 +4936,11 @@ take_hit(DAMAGE_LOSELIFE, change / 2, "変化した傷", -1);
 		take_hit(DAMAGE_LOSELIFE, change / 2, "a polymorphed wound", -1);
 #endif
 
-		set_cut(change);
+		set_cut(change, FALSE);
 	}
 	else
 	{
-		set_cut(p_ptr->cut - (change / 2));
+		set_cut(p_ptr->cut - (change / 2), FALSE);
 	}
 }
 

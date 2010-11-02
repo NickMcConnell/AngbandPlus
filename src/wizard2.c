@@ -1458,14 +1458,14 @@ static void do_cmd_wiz_cure_all(void)
 	}
 
 	/* Cure stuff */
-	(void)set_blind(0);
-	(void)set_confused(0);
-	(void)set_poisoned(0);
-	(void)set_afraid(0);
-	(void)set_paralyzed(0);
-	(void)set_image(0);
-	(void)set_stun(0);
-	(void)set_cut(0);
+	(void)set_blind(0, TRUE);
+	(void)set_confused(0, TRUE);
+	(void)set_poisoned(0, TRUE);
+	(void)set_afraid(0, TRUE);
+	(void)set_paralyzed(0, TRUE);
+	(void)set_image(0, TRUE);
+	(void)set_stun(0, TRUE);
+	(void)set_cut(0, TRUE);
 	(void)set_slow(0, TRUE);
 
 	/* No longer hungry */

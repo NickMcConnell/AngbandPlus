@@ -5273,12 +5273,12 @@ msg_print("「甦るがよい、我が下僕よ！」");
 #endif
 
 			restore_level();
-			(void)set_poisoned(0);
-			(void)set_blind(0);
-			(void)set_confused(0);
-			(void)set_image(0);
-			(void)set_stun(0);
-			(void)set_cut(0);
+			(void)set_poisoned(0, TRUE);
+			(void)set_blind(0, TRUE);
+			(void)set_confused(0, TRUE);
+			(void)set_image(0, TRUE);
+			(void)set_stun(0, TRUE);
+			(void)set_cut(0, TRUE);
 			hp_player(5000);
 			for (dummy = 0; dummy < 6; dummy++)
 			{

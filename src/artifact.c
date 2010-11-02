@@ -2603,7 +2603,7 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_CURE_LW:
 		{
-			(void)set_afraid(0);
+			(void)set_afraid(0, TRUE);
 			(void)hp_player(30);
 			o_ptr->timeout = 10;
 			break;
@@ -2618,7 +2618,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			hp_player(damroll(4, 8));
-			(void)set_cut((p_ptr->cut / 2) - 50);
+			(void)set_cut((p_ptr->cut / 2) - 50, TRUE);
 			o_ptr->timeout = randint0(3) + 3;
 			break;
 		}
@@ -2631,8 +2631,8 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows deep blue...");
 #endif
 
-			(void)set_afraid(0);
-			(void)set_poisoned(0);
+			(void)set_afraid(0, TRUE);
+			(void)set_poisoned(0, TRUE);
 			o_ptr->timeout = 5;
 			break;
 		}
@@ -2684,7 +2684,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			(void)hp_player(700);
-			(void)set_cut(0);
+			(void)set_cut(0, TRUE);
 			o_ptr->timeout = 250;
 			break;
 		}
@@ -2704,7 +2704,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			(void)hp_player(1000);
-			(void)set_cut(0);
+			(void)set_cut(0, TRUE);
 			o_ptr->timeout = 888;
 			break;
 		}
@@ -2720,7 +2720,7 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_BERSERK:
 		{
-			(void)set_afraid(0);
+			(void)set_afraid(0, TRUE);
 			(void)set_hero(randint1(50) + 50, FALSE);
 			(void)set_blessed(randint1(50) + 50, FALSE);
 			o_ptr->timeout = 100 + randint1(100);
