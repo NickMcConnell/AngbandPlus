@@ -4765,6 +4765,8 @@ void do_cmd_store(void)
 	cave_type   *c_ptr;
 	bool        need_redraw_store_inv; /* To redraw missiles damage and prices in store */
 	int w, h;
+	bool        vanilla_zerker_hack = FALSE;
+
 
 	/* Get term size */
 	Term_get_size(&w, &h);
@@ -4795,6 +4797,18 @@ void do_cmd_store(void)
 	if ((which == STORE_HOME) || (which == STORE_MUSEUM)) p_ptr->town_num = 1;
 	if (dun_level) p_ptr->town_num = NO_TOWN;
 	inner_town_num = p_ptr->town_num;
+
+	/* Berserkers in Vanilla Town are forced into a tough iron man game, with no id 
+	   Let's cut them some slack by giving extra options in the BM.
+	*/
+	if ( which == STORE_BLACK
+		&& p_ptr->pclass == CLASS_BERSERKER
+		&& vanilla_town )
+	{
+		vanilla_zerker_hack = TRUE;
+		--xtra_stock;
+		--store_bottom;
+	}
 
 	/* Hack -- Check the "locked doors" */
 	if ((town[p_ptr->town_num].store[which].store_open >= turn) ||
@@ -4886,7 +4900,6 @@ void do_cmd_store(void)
 		prt(" ESC) Exit from Building.", 21 + xtra_stock, 0);
 #endif
 
-
 		/* Browse if necessary */
 		if (st_ptr->stock_num > store_bottom)
 		{
@@ -4898,6 +4911,13 @@ void do_cmd_store(void)
 			prt(" SPACE) Next page", 23 + xtra_stock, 0);
 #endif
 
+		}
+
+		if (vanilla_zerker_hack)
+		{
+			prt(" 1) Identify (100gp)", 24 + xtra_stock, 0);
+			prt("   2) *Identify* (2000gp)", 24 + xtra_stock, 27);
+			prt("  3) Identify All (1000gp)", 24 + xtra_stock, 56);
 		}
 
 		/* Home commands */
@@ -4979,7 +4999,54 @@ void do_cmd_store(void)
 		request_command(TRUE);
 
 		/* Process the command */
-		store_process_command();
+		if (vanilla_zerker_hack)
+		{
+			/* Total Hackage */
+			switch (command_cmd)
+			{
+			case '1':
+				if (100 > p_ptr->au)
+					msg_print("You do not have the gold!");
+				else
+				{
+					if (ident_spell(FALSE))
+					{
+						p_ptr->au -= 100;
+						store_prt_gold(); 
+					}
+				}
+				break;
+			case '2':
+				if (2000 > p_ptr->au)
+					msg_print("You do not have the gold!");
+				else
+				{
+					if (identify_fully(FALSE))
+					{
+						p_ptr->au -= 2000;
+						store_prt_gold();
+					}
+				}
+				break;
+			case '3':
+				if (1000 > p_ptr->au)
+					msg_print("You do not have the gold!");
+				else
+				{
+					if (!get_check("Do you pay for identify all your possession? ")) break;
+					identify_pack();
+					p_ptr->au -= 1000;
+					msg_print("Your possessions have been identified.");
+					store_prt_gold();
+				}
+				break;
+			default:
+				store_process_command();
+				break;
+			}
+		}
+		else
+			store_process_command();
 
 		/*
 		 * Hack -- To redraw missiles damage and prices in store

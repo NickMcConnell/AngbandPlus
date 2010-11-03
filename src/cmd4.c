@@ -3204,7 +3204,7 @@ void do_cmd_macros(void)
 #ifdef JP
 				msg_format("'%s'の読み込みに失敗しました！", tmp);
 #else
-				msg_format("Failed to load '%s'!");
+				msg_format("Failed to load '%s'!", tmp);
 #endif
 			}
 			else

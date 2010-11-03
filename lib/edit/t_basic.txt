@@ -1,4 +1,4 @@
-# File: t_lite.txt
+# File: t_basic.txt
 
 # *Basic* town (vanilla style)
 
