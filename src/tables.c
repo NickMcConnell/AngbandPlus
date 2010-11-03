@@ -6286,6 +6286,9 @@ option_type option_info[] =
 	{ &allow_hostile_monster,          TRUE, OPT_PAGE_BIRTH, 6, 19,
 	"allow_hostile_monster",           "Allow monsters hostile to each other" },
 
+	{ &allow_pets,						TRUE, OPT_PAGE_BIRTH, 6, 20,
+	"allow_pets",						"Allow player to summon/charm monsters" },
+
 	/*** Easy Object Auto-Destroyer ***/
 
 #ifdef JP

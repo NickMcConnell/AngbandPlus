@@ -3705,9 +3705,11 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 	if (!(mode & PM_NO_KAGE) && one_in_(333))
 		mode |= PM_KAGE;
 
+	if ((mode & PM_FORCE_PET) && !allow_pets)
+		mode &= (~PM_FORCE_PET);
+
 	/* Place one monster, or fail */
 	if (!place_monster_one(who, y, x, r_idx, mode)) return (FALSE);
-
 
 	/* Require the "group" flag */
 	if (!(mode & PM_ALLOW_GROUP)) return (TRUE);

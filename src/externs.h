@@ -341,6 +341,7 @@ extern bool autochara;	/* Autoroll for weight, height and social status */
 extern bool powerup_home;	/* Increase capacity of your home (*) */
 extern bool allow_friendly_monster; /* Allow monsters friendly to player */
 extern bool allow_hostile_monster; /* Allow monsters hostile to each other */
+extern bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 
 
 /*** Easy Object Auto-Destroyer ***/

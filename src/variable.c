@@ -308,7 +308,7 @@ bool autochara;	/* Autoroll for weight, height and social status */
 bool powerup_home;	/* Increase capacity of your home (*) */
 bool allow_friendly_monster; /* Allow monsters friendly to player */
 bool allow_hostile_monster; /* Allow monsters hostile to each other */
-
+bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 
 /*** Easy Object Auto-Destroyer ***/
 
