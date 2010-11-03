@@ -427,6 +427,13 @@ bool monst_spell_monst(int m_idx)
 	x = t_ptr->fx;
 	tr_ptr = &r_info[t_ptr->r_idx];
 
+	/* No monster fighting (option) except involving pets */
+	if ( !allow_hostile_monster
+	  && !(pet || is_pet(t_ptr)) )
+	{	
+		return (FALSE);
+	}
+
 	/* Forget old counter attack target */
 	reset_target(m_ptr);
 

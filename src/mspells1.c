@@ -1684,7 +1684,7 @@ bool make_attack_spell(int m_idx)
 #ifdef JP
 		msg_format("反魔法バリアが%^sの呪文をかき消した。", m_name);
 #else
-		msg_format("Anti magic barrier cancels the spell which %^s casts.");
+		msg_format("Anti magic barrier cancels the spell which %^s casts.", m_name);
 #endif
 		return (TRUE);
 	}

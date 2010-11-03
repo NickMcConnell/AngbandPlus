@@ -1494,7 +1494,7 @@ static bool cast_time_lord_spell(int spell)
 		break;
 
 	case 9: /* "Rewind Time" */
-		if (!get_check("You will irreversibly alter the time line. Are you sure?")) return NULL;
+		if (!get_check("You will irreversibly alter the time line. Are you sure?")) return FALSE;
 		recall_player(1);
 		process_world_aux_movement(); /* Hack! Recall Now, Now, Now!!! */
 

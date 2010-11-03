@@ -306,6 +306,8 @@ bool preserve_mode;	/* Preserve artifacts (*) */
 bool autoroller;	/* Allow use of autoroller for stats (*) */
 bool autochara;	/* Autoroll for weight, height and social status */
 bool powerup_home;	/* Increase capacity of your home (*) */
+bool allow_friendly_monster; /* Allow monsters friendly to player */
+bool allow_hostile_monster; /* Allow monsters hostile to each other */
 
 
 /*** Easy Object Auto-Destroyer ***/

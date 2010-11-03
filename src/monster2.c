@@ -3254,7 +3254,7 @@ msg_print("守りのルーンが壊れた！");
 	else if ((r_ptr->flags7 & RF7_FRIENDLY) ||
 		 (mode & PM_FORCE_FRIENDLY) || is_friendly_idx(who))
 	{
-		if (!monster_has_hostile_align(NULL, 0, -1, r_ptr)) set_friendly(m_ptr);
+		if (allow_friendly_monster && !monster_has_hostile_align(NULL, 0, -1, r_ptr)) set_friendly(m_ptr);
 	}
 
 	/* Assume no sleeping */

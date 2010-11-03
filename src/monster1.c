@@ -3526,6 +3526,9 @@ bool are_enemies(monster_type *m_ptr, monster_type *n_ptr)
 	/* Friendly vs. opposite aligned normal or pet */
 	if (check_hostile_align(m_ptr->sub_align, n_ptr->sub_align))
 	{
+		/* No monster fighting (option) except involving pets */
+		if (!allow_hostile_monster && !is_pet(m_ptr) && !is_pet(n_ptr)) return FALSE;
+
 		if (!(m_ptr->mflag2 & MFLAG2_CHAMELEON) || !(n_ptr->mflag2 & MFLAG2_CHAMELEON)) return TRUE;
 	}
 

@@ -5475,7 +5475,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			}
 			else
 			{
-				char buf[10];
+				char buf[50];
 
 				if (p_ptr->inside_arena)
 #ifdef JP

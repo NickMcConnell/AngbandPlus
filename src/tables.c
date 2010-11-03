@@ -5996,10 +5996,10 @@ option_type option_info[] =
 
 #ifdef WORLD_SCORE
 #ifdef JP
-	{ &send_score,                  TRUE,  OPT_PAGE_GAMEPLAY, 4, 6,
+	{ &send_score,                  FALSE,  OPT_PAGE_GAMEPLAY, 4, 6,
 	"send_score",                   "スコアサーバにスコアを送る" },
 #else
-	{ &send_score,                  TRUE,  OPT_PAGE_GAMEPLAY, 4, 6,
+	{ &send_score,                  FALSE,  OPT_PAGE_GAMEPLAY, 4, 6,
 	"send_score",                   "Send score dump to the world score server" },
 #endif
 #endif
@@ -6279,6 +6279,12 @@ option_type option_info[] =
 	{ &powerup_home,                TRUE,  OPT_PAGE_BIRTH, 4, 3,
 	"powerup_home",                 "Increase capacity of your home (*)" },
 #endif
+
+	{ &allow_friendly_monster,          TRUE, OPT_PAGE_BIRTH, 6, 17,
+	"allow_friendly_monster",           "Allow monsters friendly to player" },
+
+	{ &allow_hostile_monster,          TRUE, OPT_PAGE_BIRTH, 6, 19,
+	"allow_hostile_monster",           "Allow monsters hostile to each other" },
 
 	/*** Easy Object Auto-Destroyer ***/
 
