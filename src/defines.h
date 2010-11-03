@@ -2264,7 +2264,7 @@
 #define SV_RING_WARNING                 54
 #define SV_RING_MUSCLE                  55
 #define SV_RING_FRODO                   56
-#define SV_RING_SPELL_POWER              57
+#define SV_RING_SPELL_POWER				57
 
 #define SV_EXPRESS_CARD                  0
 

@@ -3300,8 +3300,8 @@ void calc_bonuses(void)
 			break;
 		case CLASS_TIME_LORD:
 			if (p_ptr->lev > 29) p_ptr->resist_time = TRUE;
-			new_speed += 5;
-			new_speed += (p_ptr->lev) / 5;
+			new_speed += 3;
+			new_speed += (p_ptr->lev) / 7;
 			break;
 		case CLASS_MONK:
 		case CLASS_FORCETRAINER:
