@@ -1058,6 +1058,25 @@ struct player_type
 	s16b tim_sh_holy;
 	s16b tim_eyeeye;
 
+	/* Comment:  Every time based effect seems to require a separate field.
+	   Couldn't we move to some sort of dynamic storage, or a list<effect>
+	   where each effect had an id and a duration?  Most of the time, all
+	   of these effects are not active and we are wasting a lot more space this
+	   way.  Also, adding new timed effects breaks savefiles (or I should say
+	   requires effort to not break savefiles!).
+
+	   Well, I'm not going to fight the codebase for the moment, so here are
+	   a bunch more of these!
+	*/
+	s16b tim_speed_essentia;
+	s16b tim_slow_digest;
+	s16b tim_crystal_skin;
+	s16b tim_chaotic_surge;
+	s16b tim_wild_pos;
+	s16b tim_wild_mind;
+	s16b tim_blood_shield;
+	s16b tim_blood_rage;
+
 	/* for mirror master */
 	s16b tim_reflect;       /* Timed -- Reflect */
 	s16b multishadow;       /* Timed -- Multi-shadow */

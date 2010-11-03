@@ -725,6 +725,16 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_sh_holy);
 	wr_s16b(p_ptr->tim_eyeeye);
 
+	/* chengband */
+	wr_s16b(p_ptr->tim_speed_essentia);
+	wr_s16b(p_ptr->tim_slow_digest);
+	wr_s16b(p_ptr->tim_crystal_skin);
+	wr_s16b(p_ptr->tim_chaotic_surge);
+	wr_s16b(p_ptr->tim_wild_pos);
+	wr_s16b(p_ptr->tim_wild_mind);
+	wr_s16b(p_ptr->tim_blood_shield);
+	wr_s16b(p_ptr->tim_blood_rage);
+
 	/* by henkma */
 	wr_s16b(p_ptr->tim_reflect);
 	wr_s16b(p_ptr->multishadow);

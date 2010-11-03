@@ -233,7 +233,15 @@ void reset_tim_flags(void)
 	p_ptr->multishadow = 0;
 	p_ptr->dustrobe = 0;
 	p_ptr->action = ACTION_NONE;
-
+	
+	p_ptr->tim_speed_essentia = 0;
+	p_ptr->tim_slow_digest = 0;
+	p_ptr->tim_crystal_skin = 0;
+	p_ptr->tim_chaotic_surge = 0;
+	p_ptr->tim_wild_pos = 0;
+	p_ptr->tim_wild_mind = 0;
+	p_ptr->tim_blood_shield = 0;
+	p_ptr->tim_blood_rage = 0;
 
 	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
 	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
@@ -946,6 +954,59 @@ msg_print("やっとはっきりと物が見えるようになった。");
 	return (TRUE);
 }
 
+bool set_tim_speed_essentia(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_speed_essentia)
+		{
+			if (p_ptr->tim_speed_essentia > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You are death incarnate!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_speed_essentia)
+		{
+			msg_print("You feel the power of death leave you.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_speed_essentia = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->fast", notice observable changes

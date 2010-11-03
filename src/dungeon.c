@@ -1869,7 +1869,6 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	}
 }
 
-
 /*
  * Handle timeout every 10 game turns
  */
@@ -2145,6 +2144,11 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->ult_res)
 	{
 		(void)set_ultimate_res(p_ptr->ult_res - 1, TRUE);
+	}
+
+	if (p_ptr->tim_speed_essentia)
+	{
+		(void)set_tim_speed_essentia(p_ptr->tim_speed_essentia - 1, TRUE);
 	}
 
 	/*** Poison and Stun and Cut ***/
@@ -3249,7 +3253,7 @@ static void process_world_aux_recharge(void)
 /*
  * Handle involuntary movement once every 10 game turns
  */
-static void process_world_aux_movement(void)
+void process_world_aux_movement(void)
 {
 	/* Delayed Word-of-Recall */
 	if (p_ptr->word_recall)

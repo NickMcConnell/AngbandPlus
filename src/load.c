@@ -1357,6 +1357,29 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->tim_sh_holy);
 	rd_s16b(&p_ptr->tim_eyeeye);
 
+	if (h_older_than(0, 0, 2, 0))
+	{
+		p_ptr->tim_speed_essentia = 0;
+		p_ptr->tim_slow_digest = 0;
+		p_ptr->tim_crystal_skin = 0;
+		p_ptr->tim_chaotic_surge = 0;
+		p_ptr->tim_wild_pos = 0;
+		p_ptr->tim_wild_mind = 0;
+		p_ptr->tim_blood_shield = 0;
+		p_ptr->tim_blood_rage = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_speed_essentia);
+		rd_s16b(&p_ptr->tim_slow_digest);
+		rd_s16b(&p_ptr->tim_crystal_skin);
+		rd_s16b(&p_ptr->tim_chaotic_surge);
+		rd_s16b(&p_ptr->tim_wild_pos);
+		rd_s16b(&p_ptr->tim_wild_mind);
+		rd_s16b(&p_ptr->tim_blood_shield);
+		rd_s16b(&p_ptr->tim_blood_rage);
+	}
+
 	rd_s16b(&p_ptr->tim_reflect);
 	rd_s16b(&p_ptr->multishadow);
 	rd_s16b(&p_ptr->dustrobe);

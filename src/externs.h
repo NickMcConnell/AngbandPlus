@@ -828,6 +828,7 @@ extern void leave_level(int level);
 extern void enter_level(int level);
 extern s32b turn_real(s32b hoge);
 extern void prevent_turn_overflow(void);
+extern void process_world_aux_movement(void);  /* yuk!  refactor the recall code instead */
 
 
 /* files.c */
@@ -1417,6 +1418,7 @@ extern bool set_tim_sh_touki(int v, bool do_dec);
 extern bool set_tim_sh_fire(int v, bool do_dec);
 extern bool set_tim_sh_holy(int v, bool do_dec);
 extern bool set_tim_eyeeye(int v, bool do_dec);
+extern bool set_tim_speed_essentia(int v, bool do_dec);
 extern bool set_resist_magic(int v, bool do_dec);
 extern bool set_tim_reflect(int v, bool do_dec);
 extern bool set_multishadow(int v, bool do_dec);

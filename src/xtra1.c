@@ -3065,6 +3065,8 @@ void calc_bonuses(void)
 
 	/* Clear extra blows/shots */
 	extra_blows[0] = extra_blows[1] = extra_shots = 0;
+	if (p_ptr->tim_speed_essentia)
+		extra_shots += 1;
 
 	/* Clear the stat modifiers */
 	for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
@@ -4569,7 +4571,10 @@ void calc_bonuses(void)
 	/* Temporary "slow" */
 	if (p_ptr->slow)
 	{
-		new_speed -= 10;
+		if (p_ptr->pclass == CLASS_TIME_LORD)
+			new_speed -= 15;	/* Time-Lords are just more sensitive to speed effects :) */
+		else
+			new_speed -= 10;
 	}
 
 	/* Temporary "telepathy" */
@@ -5056,7 +5061,8 @@ void calc_bonuses(void)
 
 			/* Add in the "bonus blows" */
 			p_ptr->num_blow[i] += extra_blows[i];
-
+			if (p_ptr->tim_speed_essentia)
+				p_ptr->num_blow[i] += 2;
 
 			if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->num_blow[i] += (p_ptr->lev / 40);
 			else if (p_ptr->pclass == CLASS_BERSERKER)

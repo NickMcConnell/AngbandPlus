@@ -1210,6 +1210,18 @@ static void change_monster_race(int m_idx, int new_r_idx)
 	lite_spot(m_ptr->fy, m_ptr->fx);
 }
 
+/*	Time-Lords are unique in that their effects will work against unique monsters.
+*/
+static bool time_lord_monster_save(monster_race* r_ptr, int power)
+{
+	if (r_ptr->flagsr & RFR_RES_ALL)
+		return TRUE;
+	else if (r_ptr->flags1 & RF1_UNIQUE)
+		return r_ptr->level > randint1(2*power/3);
+	else
+		return r_ptr->level > randint1(power);
+}
+			
 /*
  * do_cmd_cast calls this function if the player's class
  * is 'Time Lord'.
@@ -1312,8 +1324,8 @@ static bool cast_time_lord_spell(int spell)
 				msg_format("%^s is too primitive for further devolution.", m_name);
 				break;
 			}
-
-			if (r_ptr->level > randint1(2*plev))
+			set_monster_csleep(m_idx, 0);
+			if (time_lord_monster_save(r_ptr, 2*plev))
 			{		
 				msg_format("%^s resists.", m_name);
 				break;
@@ -1358,8 +1370,8 @@ static bool cast_time_lord_spell(int spell)
 				msg_format("%^s has reached evolutionary perfection.", m_name);
 				break;
 			}
-
-			if (r_ptr->level > randint1(2*plev))
+			set_monster_csleep(m_idx, 0);
+			if (time_lord_monster_save(r_ptr, 2*plev))
 			{		
 				msg_format("%^s resists.", m_name);
 				break;
@@ -1370,53 +1382,174 @@ static bool cast_time_lord_spell(int spell)
 		break;
 
 	case 4:  /* "Slow Monster" */
-		msg_print("I'm workin' on it!");
+		{
+			int y, x, m_idx;
+			monster_type *m_ptr;
+			monster_race *r_ptr;
+			char m_name[80];
+
+			if (!get_rep_dir2(&dir)) return FALSE;
+			if (dir == 5) return FALSE;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+
+			m_idx = cave[y][x].m_idx;
+		    if (!m_idx) break;
+			m_ptr = &m_list[m_idx];
+
+			/* Skip Dead Monsters? */
+			if (!m_ptr->r_idx) break;
+			monster_desc(m_name, m_ptr, 0);
+			r_ptr = &r_info[m_ptr->r_idx];
+			set_monster_csleep(m_idx, 0);
+
+			if (time_lord_monster_save(r_ptr, 3*plev))
+			{		
+				msg_format("%^s resists.", m_name);
+				break;
+			}
+			else if (set_monster_slow(m_idx, MON_SLOW(m_ptr) + 50))
+				msg_format("%^s starts moving slower.", m_name);
+			else
+				msg_format("%^s is already slow.", m_name);
+		}	
 		break;
 
 	case 5:  /* "Back to Origins" */
-		msg_print("I'm workin' on it!");
+		{
+			int i, ct;
+
+			ct = 0;
+			for (i = 1; i < max_m_idx; i++)
+			{
+			monster_type *m_ptr = &m_list[i];
+			monster_race *r_ptr;
+
+				if (!m_ptr->r_idx) continue;
+				r_ptr = real_r_ptr(m_ptr);
+				if ( (r_ptr->flags2 & RF2_MULTIPLY)
+				  && r_ptr->cur_num > 1  /* shouldn't this be 2 ... well, breeding in *band has never been biologically accurate */
+				  && !time_lord_monster_save(r_ptr, 3*plev) )
+				{
+					delete_monster_idx(i);
+					ct++;
+				}
+			}
+
+			if (ct > 0)
+				msg_print("You feel the local population has reverted to an earlier state.");
+			else
+				msg_print("You feel the local population is stable.");
+		}
 		break;
 
 	case 6:  /* "Haste Self" */
 		set_fast(10 + randint1((plev * 3) / 2), FALSE);
 		break;
 
-	case 7:  /* "Mass Slow" */
-		msg_print("I'm workin' on it!");
+	case 7:  /* "Mass Slow" 
+	             Sorry, but this one won't affect uniques at all.  I could hack spells1.c for this
+				 class, but actually, I'm OK with this since if you really want to slow a unique, then
+				 you better use the riskier touch version.  Plus, hacking spells1.c might also inadvertantly
+				 boost _SlowMonster, which I don't want!
+			 */
+		project_hack(GF_OLD_SLOW, 3*plev + 10);
 		break;
 
 	case 8:  /* "Temporal Prison" */
-		msg_print("I'm workin' on it!");
+		{
+			int y, x, m_idx;
+			monster_type *m_ptr;
+			monster_race *r_ptr;
+			char m_name[80];
+
+			if (!get_rep_dir2(&dir)) return FALSE;
+			if (dir == 5) return FALSE;
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+
+			m_idx = cave[y][x].m_idx;
+		    if (!m_idx) break;
+			m_ptr = &m_list[m_idx];
+
+			/* Skip Dead Monsters? */
+			if (!m_ptr->r_idx) break;
+			monster_desc(m_name, m_ptr, 0);
+			r_ptr = &r_info[m_ptr->r_idx];
+			set_monster_csleep(m_idx, 0);
+
+			if (time_lord_monster_save(r_ptr, 3*plev))
+			{		
+				msg_format("%^s resists.", m_name);
+				break;
+			}
+			else 
+			{
+				msg_format("%^s is suspended!", m_name);
+				set_monster_csleep(m_idx, 1500);
+			}			
+		}	
 		break;
 
 	case 9: /* "Rewind Time" */
-		msg_print("I'm workin' on it!");
+		if (!get_check("You will irreversibly alter the time line. Are you sure?")) return NULL;
+		recall_player(1);
+		process_world_aux_movement(); /* Hack! Recall Now, Now, Now!!! */
+
+		if (p_ptr->prace == RACE_ANDROID)
+		{
+			dec_stat(A_CON, 10, TRUE);
+			if (one_in_(2)) break;
+			dec_stat(A_INT, 10, TRUE);
+			if (one_in_(2)) break;
+			dec_stat(A_DEX, 10, TRUE);
+			if (one_in_(2)) break;
+			dec_stat(A_WIS, 10, TRUE);
+			if (one_in_(2)) break;
+			dec_stat(A_STR, 10, TRUE);
+			if (one_in_(2)) break;
+			dec_stat(A_CHR, 10, TRUE);
+		}
+		else
+		{
+			int amount = 0;
+			
+			if (p_ptr->lev < 3) break;
+			amount = player_exp[p_ptr->lev-2] * p_ptr->expfact / 100L;
+			amount -= player_exp[p_ptr->lev-3] * p_ptr->expfact / 100L;
+			if (amount > 100000) amount = 100000;
+			if (amount > p_ptr->max_exp) amount = p_ptr->max_exp;
+			if (amount > p_ptr->exp) p_ptr->exp = 0;
+			else p_ptr->exp -= amount;
+			p_ptr->max_exp -= amount;
+			check_experience();
+		}
 		break;
 
 	case 10: /* "Remembrance" */
-		msg_print("I'm workin' on it!");
+		do_res_stat(A_STR);
+		do_res_stat(A_INT);
+		do_res_stat(A_WIS);
+		do_res_stat(A_DEX);
+		do_res_stat(A_CON);
+		do_res_stat(A_CHR);
+		restore_level();
 		break;
 
 	case 11: /* "Speed Essentia" */
-		msg_print("I'm workin' on it!");
+		set_tim_speed_essentia(3, FALSE);
 		break;
 
 	case 12: /* "The World" */
 		if (world_player)
 		{
-#ifdef JP
-			msg_print("既に時は止まっている。");
-#else
 			msg_print("Time is already stopped.");
-#endif
 			return (FALSE);
 		}
 		world_player = TRUE;
-#ifdef JP
-		msg_print("「時よ！」");
-#else
 		msg_print("You yell 'Time!'");
-#endif
 		msg_print(NULL);
 
 		/* Hack */
@@ -1435,12 +1568,7 @@ static bool cast_time_lord_spell(int spell)
 		break;
 
 	default:
-#ifdef JP
-msg_print("なに？");
-#else
 		msg_print("Zap?");
-#endif
-
 	}
 
 	return TRUE;
@@ -2430,6 +2558,36 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 					project(PROJECT_WHO_UNCTRL_POWER, 2 + plev / 10, py, px, plev * 2,
 						GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, -1);
 					p_ptr->csp = MAX(0, p_ptr->csp - plev * MAX(1, plev / 10));
+				}
+			  }
+			  if( use_mind == MIND_TIME_LORD ){
+				if (b < 61)
+				{
+				  /* Slow 
+				     I jacked up the duration a bit to compensate for the Time-Lord's duration
+					 mitigation effects.  Failing to properly control time should not have
+					 diminished effects!
+				  */
+				  set_fast(0, TRUE);
+				  set_slow(randint1(50) + 25, FALSE);
+				  msg_print("You feel caught in a temporal inversion!");
+				}
+				else if (b < 81)
+				{
+					/* Lose XP */
+					lose_exp(p_ptr->exp / 4);
+					msg_print("You feel life's experiences fade away!");
+				}
+				else
+				{
+					/* Lose Stats */
+					dec_stat(A_DEX, 10, FALSE);
+					dec_stat(A_WIS, 10, FALSE);
+					dec_stat(A_CON, 10, FALSE);
+					dec_stat(A_STR, 10, FALSE);
+					dec_stat(A_CHR, 10, FALSE);
+					dec_stat(A_INT, 10, FALSE);
+					msg_print("You feel as weak as a newborn kitten!");
 				}
 			  }
 			  if( use_mind == MIND_MIRROR_MASTER ){
