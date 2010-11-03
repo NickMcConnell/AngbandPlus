@@ -337,6 +337,7 @@ static void prt_stat(int stat)
 #define BAR_VAMPILIC 64
 #define BAR_CURE 65
 #define BAR_ESP_EVIL 66
+#define BAR_SPEED_ESSENTIA 67
 
 static struct {
 	byte attr;
@@ -485,6 +486,7 @@ static struct {
 	{TERM_RED, "Vm", "Vampiric"},
 	{TERM_WHITE, "Cu", "Cure"},
 	{TERM_L_DARK, "ET", "EvilTele"},
+	{TERM_RED, "At", "Attacks"},
 	{0, NULL, NULL}
 };
 #endif
@@ -641,6 +643,8 @@ static void prt_status(void)
 
 	/* An Eye for an Eye */
 	if (p_ptr->tim_eyeeye) ADD_FLG(BAR_EYEEYE);
+
+	if (p_ptr->tim_speed_essentia) ADD_FLG(BAR_SPEED_ESSENTIA);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)

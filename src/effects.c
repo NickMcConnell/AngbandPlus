@@ -958,8 +958,11 @@ bool set_tim_speed_essentia(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
+	/* Don't rescale the duration ... this is a very
+	   powerful Time-Lord spell and should only work
+	   for a very short time.  Thx.
 	if (!do_dec)
-		v = recalc_duration_pos(v);
+		v = recalc_duration_pos(v);*/
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -999,6 +1002,7 @@ bool set_tim_speed_essentia(int v, bool do_dec)
 	if (disturb_state) disturb(0, 0);
 
 	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
 	p_ptr->update |= (PU_BONUS);
 
 	/* Handle stuff */
