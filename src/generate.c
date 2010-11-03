@@ -817,8 +817,9 @@ static bool cave_gen(void)
 		if (!generate_rooms()) return FALSE;
 
 
-		/* Make a hole in the dungeon roof sometimes at level 1 */
-		if (dun_level == 1)
+		/* Make a hole in the dungeon roof sometimes at level 1
+		   But not in Angband.  See Issue #3 */
+		if (dun_level == 1 && dungeon_type != DUNGEON_ANGBAND)
 		{
 			while (one_in_(DUN_MOS_DEN))
 			{
