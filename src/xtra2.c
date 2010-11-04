@@ -126,6 +126,11 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 
 		if (level_inc_stat)
 		{
+			if ( p_ptr->pclass == CLASS_TIME_LORD
+			  && (p_ptr->max_plv == 35 || p_ptr->max_plv == 45) )
+			{
+				msg_print("You feel more temporally focused.");
+			}
 			/* one of the most frustrating things in heng is the early random stat rolls! */
 			if(  p_ptr->max_plv == 3	/* quicker starts, please! */
 			  || p_ptr->max_plv == 7 

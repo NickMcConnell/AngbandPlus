@@ -1,6 +1,6 @@
 
                   ****************************************
-                  **          Chengband 0.0.2           **
+                  **          Chengband 0.0.3           **
                   ****************************************
 
           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -18,7 +18,8 @@
     Based on Hengband: Mr.Hoge (echizen @ users.sourceforge.jp) & Many others
                        http://hengband.sourceforge.jp/
 
-        Chengband: Chris Kousky (https://code.google.com/p/chengband/)
+            Chengband: Chris Kousky & Many Others 
+                       (https://code.google.com/p/chengband/)
 
        Report bugs at "https://code.google.com/p/chengband/issues/list"
  

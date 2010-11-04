@@ -1254,6 +1254,7 @@ static bool cast_time_lord_spell(int spell)
 	
 			/* Destroy the feature */
 			cave_alter_feat(y, x, FF_TUNNEL);
+			msg_print("The door withers away.");
 	
 			/* Update some things */
 			p_ptr->update |= (PU_FLOW);
@@ -1283,6 +1284,7 @@ static bool cast_time_lord_spell(int spell)
 	
 			/* Destroy the feature */
 			cave_alter_feat(y, x, FF_HURT_ROCK);
+			msg_print("The wall turns to dust.");
 	
 			/* Update some things */
 			p_ptr->update |= (PU_FLOW);

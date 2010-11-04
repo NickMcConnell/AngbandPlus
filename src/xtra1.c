@@ -3302,6 +3302,20 @@ void calc_bonuses(void)
 			if (p_ptr->lev > 29) p_ptr->resist_time = TRUE;
 			new_speed += 3;
 			new_speed += (p_ptr->lev) / 7;
+			if (p_ptr->lev > 34) 
+			{
+				p_ptr->stat_add[A_STR]--;
+				p_ptr->stat_add[A_DEX]--;
+				p_ptr->stat_add[A_CON]--;
+				new_speed += 3;
+			}
+			if (p_ptr->lev > 44) 
+			{
+				p_ptr->stat_add[A_STR]--;
+				p_ptr->stat_add[A_DEX]--;
+				p_ptr->stat_add[A_CON]--;
+				new_speed += 3;
+			}
 			break;
 		case CLASS_MONK:
 		case CLASS_FORCETRAINER:

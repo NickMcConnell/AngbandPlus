@@ -9305,7 +9305,7 @@ N:28
 # Bow
 W:0:0:0:1  # 0
 W:0:1:0:1  # 
-W:0:2:0:1  # SLING
+W:0:2:1:2  # SLING
 W:0:3:0:1  # 
 W:0:4:0:1  # 
 W:0:5:0:1  # 
@@ -9315,8 +9315,8 @@ W:0:8:0:1  #
 W:0:9:0:1  # 
 W:0:10:0:1  # 10
 W:0:11:0:1  # 
-W:0:12:0:1  # SHORT_BOW
-W:0:13:0:1  # LONG_BOW
+W:0:12:1:2  # SHORT_BOW
+W:0:13:0:2  # LONG_BOW
 W:0:14:0:1  # 
 W:0:15:0:1  # 
 W:0:16:0:1  # 
@@ -9326,8 +9326,8 @@ W:0:19:0:1  #
 W:0:20:0:1  # 20
 W:0:21:0:1  # 
 W:0:22:0:1  # 
-W:0:23:0:1  # LIGHT_XBOW
-W:0:24:0:1  # HEAVY_XBOW
+W:0:23:0:2  # LIGHT_XBOW
+W:0:24:0:2  # HEAVY_XBOW
 W:0:25:0:1  # 
 W:0:26:0:1  # 
 W:0:27:0:1  # 
@@ -9567,14 +9567,14 @@ W:4:0:0:2  # 0
 W:4:1:0:2  # BROKEN_DAGGER
 W:4:2:0:2  # BROKEN_SWORD
 W:4:3:0:2  # 
-W:4:4:0:2  # DAGGER
+W:4:4:1:2  # DAGGER
 W:4:5:0:2  # MAIN_GAUCHE
 W:4:6:0:2  # TANTO
 W:4:7:0:2  # RAPIER
-W:4:8:1:4  # SMALL_SWORD
+W:4:8:1:2  # SMALL_SWORD
 W:4:9:0:2  # BASILLARD
-W:4:10:1:4  # SHORT_SWORD
-W:4:11:1:4  # SABRE
+W:4:10:1:2  # SHORT_SWORD
+W:4:11:1:2  # SABRE
 W:4:12:0:2  # CUTLASS
 W:4:13:0:2  # WAKIZASHI
 W:4:14:0:2  # KHOPESH

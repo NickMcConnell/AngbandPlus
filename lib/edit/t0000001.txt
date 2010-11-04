@@ -380,7 +380,7 @@ F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:15
 
 # Quest 27 rewarding (Mirror-Master gets The Jewel Encrusted Crown of Numenor)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mirror-Master] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mirror-Master Time-Lord] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:132
 
