@@ -2712,13 +2712,13 @@ msg_format("%^s%s", m_name, monmessage);
 		if (!counterattack)
 		{
 			/* Attempt to cast a spell */
+			/* Being Ticked Off will affect spell selection */
 			if (aware && make_attack_spell(m_idx))
 			{
-				/* Being Ticked Off will affect spell selection */
 				m_ptr->smart &= ~SM_TICKED_OFF;				
 				return;
 			}
-
+			m_ptr->smart &= ~SM_TICKED_OFF;
 			/*
 			 * Attempt to cast a spell at an enemy other than the player
 			 * (may slow the game a smidgeon, but I haven't noticed.)
@@ -2727,12 +2727,12 @@ msg_format("%^s%s", m_name, monmessage);
 		}
 		else
 		{
+			m_ptr->smart &= ~SM_TICKED_OFF;
 			/* Attempt to do counter attack at first */
 			if (monst_spell_monst(m_idx)) return;
 
 			if (aware && make_attack_spell(m_idx)) return;
 		}
-		m_ptr->smart &= ~SM_TICKED_OFF;
 	}
 
 	/* Hack -- Assume no movement */
