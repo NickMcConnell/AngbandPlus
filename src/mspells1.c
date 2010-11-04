@@ -1086,10 +1086,19 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	}
 
 	/* Summon if possible (sometimes) */
-	if (summon_num && (randint0(100) < 40))
+	if (summon_num)
 	{
-		/* Choose summon spell */
-		return (summon[randint0(summon_num)]);
+		/* Ticked off monsters retaliate with spells almost all the time.  If they pick
+		   summoning too often, it is too difficult.  Plus, an angry monster that just got
+		   tagged with a Mana Storm should respond in kind rather than summoning more buddies! */
+		if ((m_ptr->smart & SM_TICKED_OFF) && attack_num)
+		{
+			if (randint0(100) < 20) return (summon[randint0(summon_num)]);
+		}
+		else
+		{
+			if (randint0(100) < 40) return (summon[randint0(summon_num)]);
+		}
 	}
 
 	/* dispel */

@@ -2691,11 +2691,9 @@ msg_format("%^s%s", m_name, monmessage);
 	   TODO: We should probably scan the monsters spell list looking for
 	   something powerful. */
 	if ( r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell
-	  || ((m_ptr->smart & SM_TICKED_OFF) && randint1(100) < 50) )
+	  || ((m_ptr->smart & SM_TICKED_OFF) && randint1(100) < 70) )
 	{
 		bool counterattack = FALSE;
-
-		m_ptr->smart &= ~SM_TICKED_OFF;
 
 		/* Give priority to counter attack? */
 		if (m_ptr->target_y)
@@ -2714,7 +2712,12 @@ msg_format("%^s%s", m_name, monmessage);
 		if (!counterattack)
 		{
 			/* Attempt to cast a spell */
-			if (aware && make_attack_spell(m_idx)) return;
+			if (aware && make_attack_spell(m_idx))
+			{
+				/* Being Ticked Off will affect spell selection */
+				m_ptr->smart &= ~SM_TICKED_OFF;				
+				return;
+			}
 
 			/*
 			 * Attempt to cast a spell at an enemy other than the player
@@ -2729,6 +2732,7 @@ msg_format("%^s%s", m_name, monmessage);
 
 			if (aware && make_attack_spell(m_idx)) return;
 		}
+		m_ptr->smart &= ~SM_TICKED_OFF;
 	}
 
 	/* Hack -- Assume no movement */
