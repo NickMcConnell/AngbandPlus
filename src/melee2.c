@@ -2194,7 +2194,6 @@ static bool check_hp_for_feat_destruction(feature_type *f_ptr, monster_type *m_p
 	       (m_ptr->hp >= MAX(m_ptr->maxhp / 3, 200));
 }
 
-
 /*
  * Process a monster
  *
@@ -2278,7 +2277,7 @@ static void process_monster(int m_idx)
 		r_ptr = &r_info[m_ptr->r_idx];
 	}
 
-	/* Players hidden in shadow are almost imperceptable. -LM- */
+	/* Players hidden in shadow are almost imperceptible. -LM- */
 	if (p_ptr->special_defense & NINJA_S_STEALTH)
 	{
 		int tmp = p_ptr->lev*6+(p_ptr->skill_stl+10)*4;
@@ -2682,10 +2681,21 @@ msg_format("%^s%s", m_name, monmessage);
 		}
 	}
 
-	/* Try to cast spell occasionally */
-	if (r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell)
+	/* Try to cast spell occasionally
+	   Hack: Ticked off monsters retaliate more often
+	   The game was pretty broken in that distance killing The Serpent
+	   was much easier than melee, due to the 1 in 3 spell freq.  The
+	   other 2 in 3 would just be movement towards the player, who could
+	   teleport and reset as needed.  100% spell retaliation when ticked
+	   off seems steep, so let's tone it down just a tad.
+	   TODO: We should probably scan the monsters spell list looking for
+	   something powerful. */
+	if ( r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell
+	  || ((m_ptr->smart & SM_TICKED_OFF) && randint1(100) < 50) )
 	{
 		bool counterattack = FALSE;
+
+		m_ptr->smart &= ~SM_TICKED_OFF;
 
 		/* Give priority to counter attack? */
 		if (m_ptr->target_y)

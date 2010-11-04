@@ -4772,7 +4772,8 @@ msg_print("ウィザードモード突入。");
 			if ( (p_ptr->pclass == CLASS_MINDCRAFTER) ||
 			     (p_ptr->pclass == CLASS_BERSERKER) ||
 			     (p_ptr->pclass == CLASS_NINJA) ||
-			     (p_ptr->pclass == CLASS_MIRROR_MASTER) 
+			     (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
+				 (p_ptr->pclass == CLASS_TIME_LORD)
 			     ) do_cmd_mind_browse();
 			else if (p_ptr->pclass == CLASS_SMITH)
 				do_cmd_kaji(TRUE);

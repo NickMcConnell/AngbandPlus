@@ -6101,6 +6101,11 @@ note = "には効果がなかった。";
 			/* HACK - anger the monster before showing the sleep message */
 			if (do_sleep) anger_monster(m_ptr);
 
+			/* HACK - tick off smart monsters whenever damaged by the player
+			   from a distance. */
+			if (dam > 0 && (r_ptr->flags2 & RF2_SMART) && m_ptr->cdis > 1)
+				m_ptr->smart |= SM_TICKED_OFF;
+
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen_msg)
 #ifdef JP

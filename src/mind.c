@@ -291,13 +291,13 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 17, 15,  50, "Slow Monster"},
       { 20, 15,  50, "Back to Origins"},
       { 23, 15,  60, "Haste Self"},
+	  { 23, 15,  60, "Haste Monster"},
       { 27, 20,  50, "Mass Slow"},
       { 30, 20,  50, "Temporal Prison"},
       { 35, 90,  70, "Rewind Time"},
       { 40, 80,  70, "Remembrance"},
       { 45, 60,  60, "Speed Essentia"},
       { 50,150,  65, "Stop Time"},
-      { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -445,7 +445,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 	{
 	  switch (power)
 	    {
-		case 12: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
+		case 13: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
 		default: break;
 		}
 	  break;
@@ -1448,7 +1448,12 @@ static bool cast_time_lord_spell(int spell)
 		set_fast(10 + randint1((plev * 3) / 2), FALSE);
 		break;
 
-	case 7:  /* "Mass Slow" 
+	case 7:  /* "Haste Monster" */
+		if (!get_aim_dir(&dir)) return FALSE;
+		speed_monster(dir);
+		break;
+
+	case 8:  /* "Mass Slow" 
 	             Sorry, but this one won't affect uniques at all.  I could hack spells1.c for this
 				 class, but actually, I'm OK with this since if you really want to slow a unique, then
 				 you better use the riskier touch version.  Plus, hacking spells1.c might also inadvertantly
@@ -1457,7 +1462,7 @@ static bool cast_time_lord_spell(int spell)
 		project_hack(GF_OLD_SLOW, 3*plev + 10);
 		break;
 
-	case 8:  /* "Temporal Prison" */
+	case 9:  /* "Temporal Prison" */
 		{
 			int y, x, m_idx;
 			monster_type *m_ptr;
@@ -1493,7 +1498,13 @@ static bool cast_time_lord_spell(int spell)
 		}	
 		break;
 
-	case 9: /* "Rewind Time" */
+	case 10: /* "Rewind Time" */
+		if (p_ptr->inside_arena || ironman_downward || !dun_level)
+		{
+			msg_print("Nothing happens.");
+			return FALSE;
+		}
+
 		if (!get_check("You will irreversibly alter the time line. Are you sure?")) return FALSE;
 		recall_player(1);
 		process_world_aux_movement(); /* Hack! Recall Now, Now, Now!!! */
@@ -1528,7 +1539,7 @@ static bool cast_time_lord_spell(int spell)
 		}
 		break;
 
-	case 10: /* "Remembrance" */
+	case 11: /* "Remembrance" */
 		do_res_stat(A_STR);
 		do_res_stat(A_INT);
 		do_res_stat(A_WIS);
@@ -1538,11 +1549,11 @@ static bool cast_time_lord_spell(int spell)
 		restore_level();
 		break;
 
-	case 11: /* "Speed Essentia" */
+	case 12: /* "Speed Essentia" */
 		set_tim_speed_essentia(3, FALSE);
 		break;
 
-	case 12: /* "The World" */
+	case 13: /* "The World" */
 		if (world_player)
 		{
 			msg_print("Time is already stopped.");
@@ -2710,7 +2721,7 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 			p_ptr->csp_frac = 0;
 		}
 
-        if ((use_mind == MIND_TIME_LORD) && (n == 12))
+        if ((use_mind == MIND_TIME_LORD) && (n == 13))
         {
 			/* No mana left */
 			p_ptr->csp = 0;
@@ -2780,8 +2791,8 @@ void do_cmd_mind_browse(void)
 	else if (p_ptr->pclass == CLASS_FORCETRAINER) use_mind = MIND_KI;
 	else if (p_ptr->pclass == CLASS_BERSERKER) use_mind = MIND_BERSERKER;
 	else if (p_ptr->pclass == CLASS_NINJA) use_mind = MIND_NINJUTSU;
-	else if (p_ptr->pclass == CLASS_MIRROR_MASTER)
-	  use_mind = MIND_MIRROR_MASTER;
+	else if (p_ptr->pclass == CLASS_MIRROR_MASTER) use_mind = MIND_MIRROR_MASTER;
+	else if (p_ptr->pclass == CLASS_TIME_LORD) use_mind = MIND_TIME_LORD;
 
 	screen_save();
 

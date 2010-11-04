@@ -2695,7 +2695,7 @@
 #define SM_OPP_FIRE             0x00040000
 #define SM_OPP_COLD             0x00080000
 #define SM_OPP_POIS             0x00100000
-#define SM_OPP_XXX1             0x00200000 /* (unused) */
+#define SM_TICKED_OFF			0x00200000 /* Monster is temporarily ticked off */
 #define SM_CLONED               0x00400000 /* XXX Cloned */
 #define SM_PET                  0x00800000 /* XXX Pet */
 #define SM_IMM_ACID             0x01000000
@@ -3569,7 +3569,7 @@
 #define RF2_KILL_BODY       0x00200000  /* Monster can kill monsters */
 #define RF2_TAKE_ITEM       0x00400000  /* Monster can pick up items */
 #define RF2_KILL_ITEM       0x00800000  /* Monster can crush items */
-#define RF2_XXX1            0x01000000
+#define RF2_XXX1			0x01000000  
 #define RF2_XXX2            0x02000000
 #define RF2_XXX3            0x04000000
 #define RF2_XXX4            0x08000000
