@@ -1671,7 +1671,7 @@ static bool cast_blood_knight_spell(int spell)
 		{
 			int dice = 3;
 			int sides = 5;
-			int rad = (plev < 30) ? 2 : 3;
+			int rad = (plev < 30) ? 3 : 4;
 			int base = plev + plev/4;
 
 			fire_ball(GF_BLOOD, 5, 2*(damroll(dice, sides) + base), rad);
@@ -1683,8 +1683,7 @@ static bool cast_blood_knight_spell(int spell)
 			bool chg = FALSE;
 			if (do_res_stat(A_CON)) chg = TRUE;
 			if (set_poisoned(0, TRUE)) chg = TRUE;
-			if (chg) msg_print("You feel refreshed.");
-			else msg_print("You don't need a bath just yet.");
+			if (!chg) msg_print("You don't need a bath just yet.");
 		}
 		break;
 	

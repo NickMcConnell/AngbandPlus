@@ -4299,7 +4299,7 @@ msg_print("致命的な傷を負ってしまった。");
 			{
 				/* Let's tone down the scarring for blood knights, already */
 			}
-			if (!p_ptr->sustain_chr)
+			else if (!p_ptr->sustain_chr)
 			{
 #ifdef JP
 msg_print("ひどい傷跡が残ってしまった。");

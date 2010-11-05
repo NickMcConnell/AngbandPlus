@@ -242,6 +242,7 @@ static void sense_inventory1(void)
 		case CLASS_ARCHER:
 		case CLASS_SAMURAI:
 		case CLASS_CAVALRY:
+		case CLASS_BLOOD_KNIGHT:
 		{
 			/* Good sensing */
 			if (0 != randint0(9000L / (plev * plev + 40))) return;
@@ -279,6 +280,7 @@ static void sense_inventory1(void)
 
 		case CLASS_PRIEST:
 		case CLASS_BARD:
+		case CLASS_TIME_LORD:
 		{
 			/* Good (light) sensing */
 			if (0 != randint0(10000L / (plev * plev + 40))) return;
@@ -478,6 +480,7 @@ static void sense_inventory2(void)
 		case CLASS_CAVALRY:
 		case CLASS_BERSERKER:
 		case CLASS_SNIPER:
+		case CLASS_BLOOD_KNIGHT:
 		{
 			return;
 		}
