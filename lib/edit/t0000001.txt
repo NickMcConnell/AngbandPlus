@@ -331,6 +331,11 @@ F:@:FLOOR:3:0:0:0:141
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:125
 
+# Quest 27 rewarding (Blood-Knight gets Zarcuthra)
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Blood-Knight] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:77
+
 # Quest 27 rewarding (Warrior and Berserker get The Glaive of Pain)
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior Berserker] ]
 F:a:BUILDING_0:3

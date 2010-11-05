@@ -242,6 +242,14 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
+			/* Blood Seeking should slay all living monsters.  Originally, I just
+			   amalgamated SLAY_ANIMAL, SLAY_ORC, SLAY_TROLL, etc, but there are
+			   plenty of living monsters that aren't effected by any existing slay.*/
+			if (p_ptr->tim_blood_seek && monster_living(r_ptr))
+			{
+				if (mult < 20) mult = 20;
+			}
+
 			/* Slay Animal */
 			if ((have_flag(flgs, TR_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & RF3_ANIMAL))
@@ -657,6 +665,11 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				p_ptr->csp -= (1+(o_ptr->dd * o_ptr->ds / 5));
 				p_ptr->redraw |= (PR_MANA);
 				mult = mult * 3 / 2 + 20;
+			}
+
+			if (p_ptr->tim_blood_feast)
+			{
+				take_hit(DAMAGE_ATTACK, 15, "blood feast", -1);
 			}
 			break;
 		}
@@ -3051,6 +3064,15 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		}
 		backstab = FALSE;
 		fuiuchi = FALSE;
+
+		/* Hack: Blood Knights might damage themselves with the Blood Feast (or monster auras).  Since this
+		   class gets more attacks as health diminishes, it is only fair that we recalc and bump up attacks.
+		   This might be the player's last attack before death, and we wouldn't want to short change them! */
+		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+		{
+			num_blow = p_ptr->num_blow[hand];
+			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) num_blow = 1;
+		}
 	}
 
 

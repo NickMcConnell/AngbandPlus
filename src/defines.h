@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 3
+#define FAKE_VER_PATCH 4
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 3
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 4
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            29
+#define MAX_CLASS            30
 
 #define MAX_SEIKAKU          12
 
@@ -375,7 +375,8 @@
 #define MIND_MIRROR_MASTER  3
 #define MIND_NINJUTSU       4
 #define MIND_TIME_LORD		5
-#define MIND_MAX_CLASSES	6
+#define MIND_BLOOD_KNIGHT	6
+#define MIND_MAX_CLASSES	7
 
 
 /*
@@ -911,6 +912,7 @@
 #define CLASS_NINJA             26
 #define CLASS_SNIPER            27
 #define CLASS_TIME_LORD         28
+#define CLASS_BLOOD_KNIGHT		29
 
 #define SEIKAKU_FUTUU	 0
 #define SEIKAKU_CHIKARA	 1
@@ -2498,6 +2500,7 @@
 #define SV_POTION_NEO_TSUYOSHI          64
 #define SV_POTION_TSUYOSHI              65
 #define SV_POTION_POLYMORPH             66
+#define SV_POTION_BLOOD					67
 
 /* The "sval" codes for TV_FLASK */
 #define SV_FLASK_OIL                   0
@@ -3068,8 +3071,9 @@
 #define GF_CRUSADE     114
 #define GF_STASIS_EVIL 115
 #define GF_WOUNDS      116
+#define GF_BLOOD       117
 
-#define MAX_GF				117
+#define MAX_GF				118
 
 /*
  * Some things which induce learning
@@ -5554,3 +5558,11 @@ extern int PlayerUID;
 #define HEX_SHADOW_MOVE      29
 #define HEX_ANTI_MAGIC       30
 #define HEX_REVENGE          31
+
+#define CUT_MORTAL_WOUND 1000
+#define CUT_DEEP_GASH     200
+#define CUT_SEVERE        100
+#define CUT_NASTY          50
+#define CUT_BAD            25
+#define CUT_LIGHT          10
+#define CUT_GRAZE           1

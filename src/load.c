@@ -1366,7 +1366,7 @@ static void rd_extra(void)
 		p_ptr->tim_wild_pos = 0;
 		p_ptr->tim_wild_mind = 0;
 		p_ptr->tim_blood_shield = 0;
-		p_ptr->tim_blood_rage = 0;
+		p_ptr->tim_blood_sight = 0;
 	}
 	else
 	{
@@ -1377,7 +1377,25 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_wild_pos);
 		rd_s16b(&p_ptr->tim_wild_mind);
 		rd_s16b(&p_ptr->tim_blood_shield);
-		rd_s16b(&p_ptr->tim_blood_rage);
+		rd_s16b(&p_ptr->tim_blood_sight);
+	}
+
+	if (h_older_than(0, 0, 4, 0))
+	{
+		p_ptr->tim_blood_feast = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_blood_feast);
+	}
+
+	if (h_older_than(0, 0, 4, 1))
+	{
+		p_ptr->tim_blood_seek = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_blood_seek);
 	}
 
 	rd_s16b(&p_ptr->tim_reflect);

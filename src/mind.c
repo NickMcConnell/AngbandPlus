@@ -306,7 +306,33 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
 	}
-  }
+  },
+  {
+    {
+    /* Level gained,  cost,  %fail,  name */
+      {  1,  1,  20, "Blood Flow"},
+      {  5,  5,  30, "Blood Sight"},
+	  { 10, 10,  30, "Blood Spray"},
+	  { 15, 20,  30, "Blood Bath"},
+      { 20, 30,  30, "Blood Shield"},
+      { 25, 50,  40, "Blood Seeking"},
+      { 30, 60,  40, "Blood Rage"},
+	  { 35, 70,  50, "Blood Aura"},
+      { 40,100,  50, "Blood Feast"},
+	  { 45,500,  90, "Blood Pool"},
+      { 50,500,  70, "Blood Explosion"},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+	}
+  },
 };
 
 
@@ -441,17 +467,29 @@ void mindcraft_info(char *p, int use_mind, int power)
 	    }
 	  break;
 	}
-	  case MIND_TIME_LORD:
-	{
-	  switch (power)
-	    {
-		case 13: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
-		default: break;
+			case MIND_TIME_LORD:
+			{
+				switch (power)
+				{
+				case 13: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
+				}
+				break;
+			}
+			case MIND_BLOOD_KNIGHT:
+			{
+				switch (power)
+				{
+				case 2: sprintf(p, " %s%d+3d5", s_dam, plev + plev/4); break;
+				case 4: sprintf(p, " %s30+1d20", s_dur); break;
+				case 5: sprintf(p, " %s30+1d30", s_dur); break;
+				case 6: sprintf(p, " %s%d+d%d", s_dur, plev, plev); break;
+				case 7: sprintf(p, " %s%d+d%d", s_dur, plev, plev); break;
+				case 8: sprintf(p, " %s25+1d25", s_dur); break;
+				case 10: sprintf(p, " %s500", s_dam); break;
+				}
+			}
 		}
-	  break;
 	}
-      }
-    }
 }
 
 /*
@@ -546,6 +584,12 @@ static int get_mind_power(int *sn, bool only_browse)
       {
         use_mind = MIND_TIME_LORD;
         p = "timecraft";
+        break;
+	  }
+	case CLASS_BLOOD_KNIGHT:
+      {
+        use_mind = MIND_BLOOD_KNIGHT;
+        p = "bloodcraft";
         break;
 	  }
 	default:
@@ -732,7 +776,7 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						}
 
 						/* Not enough mana to cast */
-						if ((use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU) && (mana_cost > p_ptr->csp))
+						if ((use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU) && (use_mind != MIND_BLOOD_KNIGHT) && (mana_cost > p_ptr->csp))
 						{
 							chance += 5 * (mana_cost - p_ptr->csp);
 						}
@@ -1254,10 +1298,15 @@ static bool cast_time_lord_spell(int spell)
 	
 			/* Destroy the feature */
 			cave_alter_feat(y, x, FF_TUNNEL);
-			msg_print("The door withers away.");
+
+			/* Hack: Permanent Door in Arena */
+			if (!cave_have_flag_bold(y, x, FF_DOOR))
+			{
+				msg_print("The door withers away.");
 	
-			/* Update some things */
-			p_ptr->update |= (PU_FLOW);
+				/* Update some things */
+				p_ptr->update |= (PU_FLOW);
+			}
 		}	
 		break;
 
@@ -1282,7 +1331,10 @@ static bool cast_time_lord_spell(int spell)
 	
 			if (!cave_have_flag_bold(y, x, FF_HURT_ROCK))  break;
 	
-			/* Destroy the feature */
+			/* Destroy the feature 
+			   Note, it is my intention to allow treasure to be recovered this way.
+			   The gold, silver, mithril is immune to the effects of time!
+			*/
 			cave_alter_feat(y, x, FF_HURT_ROCK);
 			msg_print("The wall turns to dust.");
 	
@@ -1363,7 +1415,6 @@ static bool cast_time_lord_spell(int spell)
 
 			r_idx = real_r_idx(m_ptr);
 			if (r_idx <= 0) return FALSE;
-			r_ptr = &r_info[r_idx];	/* We'll use the current race for a saving throw */
 			r_idx = find_evolution_idx(r_idx);
 			
 			/* Skip Advanced Monsters */
@@ -1372,6 +1423,7 @@ static bool cast_time_lord_spell(int spell)
 				msg_format("%^s has reached evolutionary perfection.", m_name);
 				break;
 			}
+			r_ptr = &r_info[r_idx];	/* We'll use the target race for a saving throw */
 			set_monster_csleep(m_idx, 0);
 			if (time_lord_monster_save(r_ptr, 2*plev))
 			{		
@@ -1582,10 +1634,108 @@ static bool cast_time_lord_spell(int spell)
 
 	default:
 		msg_print("Zap?");
+		break;
 	}
 
 	return TRUE;
 }
+
+static bool cast_blood_knight_spell(int spell)
+{
+	int b = 0;
+	int dir;
+	int plev = p_ptr->lev;
+
+	/* spell code */
+	switch (spell)
+	{
+	case 0: /* Blood Flow */
+		{
+			int cut = p_ptr->cut;
+			cut += cut/5;
+			if (cut < CUT_LIGHT)
+				cut = CUT_LIGHT;
+
+			set_cut(cut, FALSE);
+		}
+		break;
+	
+	case 1: /* Blood Sight */
+		if (plev < 30)
+			detect_monsters_living(DETECT_RAD_DEFAULT);
+		else
+			set_tim_blood_sight(randint1(30) + 30, FALSE);
+		break;
+	
+	case 2: /* Blood Spray */
+		{
+			int dice = 3;
+			int sides = 5;
+			int rad = (plev < 30) ? 2 : 3;
+			int base = plev + plev/4;
+
+			fire_ball(GF_BLOOD, 5, 2*(damroll(dice, sides) + base), rad);
+		}
+		break;
+	
+	case 3: /* Blood Bath */
+		{
+			bool chg = FALSE;
+			if (do_res_stat(A_CON)) chg = TRUE;
+			if (set_poisoned(0, TRUE)) chg = TRUE;
+			if (chg) msg_print("You feel refreshed.");
+			else msg_print("You don't need a bath just yet.");
+		}
+		break;
+	
+	case 4: /* Blood Shield */
+		set_tim_blood_shield(randint1(20) + 30, FALSE);
+		break;
+	
+	case 5: /* Blood Seeking */
+		set_tim_blood_seek(randint1(30) + 30, FALSE);
+		break;
+	
+	case 6: /* Blood Rage */
+	    {
+			int dur = randint1(plev) + plev;
+			set_fast(dur, FALSE);
+			set_shero(dur, FALSE);
+			set_afraid(0, TRUE);
+		}
+		break;
+	
+	case 7: /* Blood Aura */
+		/* I so hacked Eye for an Eye for this ... */
+		set_tim_eyeeye(randint1(plev) + plev, FALSE);
+		break;
+	
+	case 8: /* Blood Feast */
+		set_tim_blood_feast(randint1(25) + 25, FALSE);
+		break;
+
+	case 9: /* Blood Pool */
+		{
+			object_type forge, *q_ptr = &forge;
+			msg_print("You feel light headed.");
+			object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_BLOOD));
+			drop_near(q_ptr, -1, py, px);
+		}
+		break;
+	
+	case 10: /* Blood Explosion */
+		msg_print("You cut too deep ... Your blood explodes!");
+		dispel_living(500);
+		break;
+	
+	default:
+		msg_print("Zap?");
+		break;
+	}
+
+	return TRUE;
+}
+
 
 
 /*
@@ -2400,6 +2550,7 @@ msg_print("混乱していて集中できない！");
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;break;
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;break;
 		case CLASS_TIME_LORD:       use_mind = MIND_TIME_LORD;break;
+		case CLASS_BLOOD_KNIGHT:    use_mind = MIND_BLOOD_KNIGHT;break;
 		default:                use_mind = 0;break;
 	}
 #endif
@@ -2425,7 +2576,7 @@ msg_print("混乱していて集中できない！");
 	}
 
 	/* Verify "dangerous" spells */
-	if ((use_mind == MIND_BERSERKER) || (use_mind == MIND_NINJUTSU))
+	if ((use_mind == MIND_BERSERKER) || (use_mind == MIND_NINJUTSU) || (use_mind == MIND_BLOOD_KNIGHT))
 	{
 		if (mana_cost > p_ptr->chp)
 		{
@@ -2469,7 +2620,7 @@ if (!get_check("それでも挑戦しますか? ")) return;
 		chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
 		/* Not enough mana to cast */
-		if ((mana_cost > p_ptr->csp) && (use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU))
+		if ((mana_cost > p_ptr->csp) && (use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU)  && (use_mind != MIND_BLOOD_KNIGHT))
 		{
 			chance += 5 * (mana_cost - p_ptr->csp);
 		}
@@ -2507,7 +2658,7 @@ msg_format("%sの集中に失敗した！",p);
 
 		sound(SOUND_FAIL);
 
-		if ((use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU))
+		if ((use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU) && (use_mind != MIND_BLOOD_KNIGHT))
 		{
 			if ((use_mind == MIND_KI) && (n != 5) && p_ptr->magic_num1[0])
 			{
@@ -2675,6 +2826,10 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
             cast = cast_time_lord_spell(n);
             break;
 
+        case MIND_BLOOD_KNIGHT:
+            cast = cast_blood_knight_spell(n);
+            break;
+
 		default:
 #ifdef JP
 			msg_format("謎の能力:%d, %d",use_mind, n);
@@ -2696,13 +2851,21 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 	  if( n==3 || n==5 || n==7 || n==16 )energy_use = 50;
 	}
 
-	if ((use_mind == MIND_BERSERKER) || (use_mind == MIND_NINJUTSU))
+	if ((use_mind == MIND_BERSERKER) || (use_mind == MIND_NINJUTSU) || (use_mind == MIND_BLOOD_KNIGHT))
 	{
 #ifdef JP
 		take_hit(DAMAGE_USELIFE, mana_cost, "過度の集中", -1);
 #else
 		take_hit(DAMAGE_USELIFE, mana_cost, "concentrating too hard", -1);
 #endif
+		/* Blood Knights are cut by their spells! */
+		if (use_mind == MIND_BLOOD_KNIGHT)
+		{
+			int cut = spell.min_lev;
+			set_cut(p_ptr->cut + cut, FALSE);
+			p_ptr->update |= PU_BONUS;
+		}
+
 		/* Redraw hp */
 		p_ptr->redraw |= (PR_HP);
 	}
@@ -2795,6 +2958,7 @@ void do_cmd_mind_browse(void)
 	else if (p_ptr->pclass == CLASS_NINJA) use_mind = MIND_NINJUTSU;
 	else if (p_ptr->pclass == CLASS_MIRROR_MASTER) use_mind = MIND_MIRROR_MASTER;
 	else if (p_ptr->pclass == CLASS_TIME_LORD) use_mind = MIND_TIME_LORD;
+	else if (p_ptr->pclass == CLASS_BLOOD_KNIGHT) use_mind = MIND_BLOOD_KNIGHT;
 
 	screen_save();
 

@@ -1827,6 +1827,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Time Lords ...)",
 
+"TRANSLATE(Blood Knight ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1886,6 +1888,9 @@ static cptr class_jouhou[MAX_CLASS] =
 "Snipers are good at shooting, and they can kill targets by a few shots. After they concentrate deeply, they can demonstrate their shooting talents. You can see incredibly firepower of their shots.",
 
 "Time Lords are masters of time.  They are mediocre fighters, but their temporal mastery gives them great speed, as well as the ability to manipulate time.",
+
+"A blood knight is a fighter who has delved into the dark arts and can perform a limited number of offense effects using his own health.  In addition to the HP cost, using an ability also causes bleeding/wounds, with an amount proportional to the cost of the ability.",
+
 #endif
 };
 
@@ -3819,6 +3824,12 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_POTION, SV_POTION_SPEED }
 	},
+	{
+		/* Blood Knight */
+		{ TV_POTION, SV_POTION_CURE_CRITICAL },
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+		{ TV_SWORD, SV_BROAD_SWORD }
+	},
 };
 
 
@@ -4310,6 +4321,7 @@ static bool get_player_class(void)
 	int     k, n, cs, os;
 	char    c;
 	char	sym[MAX_CLASS_CHOICE];
+	bool	allow[MAX_CLASS_CHOICE];
 	char    p2 = ')';
 	char    buf[80], cur[80];
 	cptr    str;
@@ -4323,40 +4335,54 @@ static bool get_player_class(void)
 	put_str("Note: Your 'class' determines various intrinsic abilities and bonuses.", 23, 5);
 #endif
 
-#ifdef JP
-	put_str("()で囲まれた選択肢はこの種族には似合わない職業です。", 11, 10);
-#else
-	put_str("Any entries in parentheses should only be used by advanced players.", 11, 5);
-#endif
-
-
 	/* Dump classes */
 	for (n = 0; n < MAX_CLASS_CHOICE; n++)
 	{
-		/* Analyze */
-		cp_ptr = &class_info[n];
-		mp_ptr = &m_info[n];
-		str = cp_ptr->title;
+		/* Hack:  We are running up against more than 32 classes, so the
+		   code that uses player_race.choice was doomed for failure.  Plus
+		   I've never liked the "restricted" choices options anyway.  Originally,
+		   they were prohibited.  But then they just becamed "parenthesized" ...
+		   Now for the hack:  There really are racial restrictions on some classes.
+		   At the moment, the Blood Knight thrives off bleeding, so certain races
+		   that don't get cut must be restricted! */
+		allow[n] = TRUE;
+		if (n == CLASS_BLOOD_KNIGHT)
+		{
+			switch (p_ptr->prace)
+			{
+			case RACE_ANDROID:
+			case RACE_DEMON:
+			case RACE_ENT:
+			case RACE_GOLEM:
+			case RACE_IMP:
+			case RACE_SKELETON:
+			case RACE_ZOMBIE:
+			case RACE_VAMPIRE:
+			case RACE_SPECTRE:
+				allow[n] = FALSE;
+				break;
+			}
+		}
+
 		if (n < 26)
 			sym[n] = I2A(n);
 		else
 			sym[n] = ('A' + n - 26);
 
-		/* Display */
-		if (!(rp_ptr->choice & (1L << n)))
-#ifdef JP
-			sprintf(buf, "%c%c(%s)", sym[n], p2, str);
-#else
-			sprintf(buf, "%c%c (%s)", sym[n], p2, str);
-#endif
-		else
+		if (allow[n])
+		{
+			/* Analyze */
+			cp_ptr = &class_info[n];
+			mp_ptr = &m_info[n];
+			str = cp_ptr->title;		   
 #ifdef JP
 			sprintf(buf, "%c%c%s", sym[n], p2, str);
 #else
 			sprintf(buf, "%c%c %s", sym[n], p2, str);
 #endif
 
-		put_str(buf, 13+ (n/4), 2 + 19 * (n%4));
+			put_str(buf, 13+ (n/4), 2 + 19 * (n%4));
+		}
 	}
 
 #ifdef JP
@@ -4371,7 +4397,7 @@ static bool get_player_class(void)
 	os = MAX_CLASS_CHOICE;
 	while (1)
 	{
-		/* Move Cursol */
+		/* Move Cursor */
 		if (cs != os)
 		{
 			c_put_str(TERM_WHITE, cur, 13 + (os/4), 2 + 19 * (os%4));
@@ -4386,42 +4412,41 @@ static bool get_player_class(void)
 				put_str("                                   ", 4, 40);
 				put_str("                                   ", 5, 40);
 			}
-			else
+			else if (allow[cs])
 			{
 				cp_ptr = &class_info[cs];
 				mp_ptr = &m_info[cs];
 				str = cp_ptr->title;
-				if (!(rp_ptr->choice & (1L << cs)))
 #ifdef JP
-					sprintf(cur, "%c%c(%s)", sym[cs], p2, str);
+				sprintf(cur, "%c%c%s", sym[cs], p2, str);
 #else
-					sprintf(cur, "%c%c (%s)", sym[cs], p2, str);
-#endif
-				else
-#ifdef JP
-					sprintf(cur, "%c%c%s", sym[cs], p2, str);
-#else
-					sprintf(cur, "%c%c %s", sym[cs], p2, str);
+				sprintf(cur, "%c%c %s", sym[cs], p2, str);
 #endif
 #ifdef JP
-					c_put_str(TERM_L_BLUE, cp_ptr->title, 3, 40);
-					put_str("の職業修正", 3, 40+strlen(cp_ptr->title));
-					put_str("腕力 知能 賢さ 器用 耐久 魅力 経験 ", 4, 40);
+				c_put_str(TERM_L_BLUE, cp_ptr->title, 3, 40);
+				put_str("の職業修正", 3, 40+strlen(cp_ptr->title));
+				put_str("腕力 知能 賢さ 器用 耐久 魅力 経験 ", 4, 40);
 #else
-					c_put_str(TERM_L_BLUE, cp_ptr->title, 3, 40);
-					put_str(": Class modification", 3, 40+strlen(cp_ptr->title));
-					put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
+				c_put_str(TERM_L_BLUE, cp_ptr->title, 3, 40);
+				put_str(": Class modification", 3, 40+strlen(cp_ptr->title));
+				put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
 #endif
-					sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-						cp_ptr->c_adj[0], cp_ptr->c_adj[1], cp_ptr->c_adj[2], cp_ptr->c_adj[3],
-						cp_ptr->c_adj[4], cp_ptr->c_adj[5], cp_ptr->c_exp);
-					c_put_str(TERM_L_BLUE, buf, 5, 40);
+				sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+					cp_ptr->c_adj[0], cp_ptr->c_adj[1], cp_ptr->c_adj[2], cp_ptr->c_adj[3],
+					cp_ptr->c_adj[4], cp_ptr->c_adj[5], cp_ptr->c_exp);
+				c_put_str(TERM_L_BLUE, buf, 5, 40);
+			}
+			else
+			{
+				sprintf(cur, " ");
+				c_put_str(TERM_L_BLUE, "                                          ", 4, 40);
+				c_put_str(TERM_L_BLUE, "                                          ", 5, 40);
 			}
 			c_put_str(TERM_YELLOW, cur, 13 + (cs/4), 2 + 19 * (cs%4));
 			os = cs;
 		}
 
-		if (k >= 0) break;
+		if (k >= 0 && allow[k]) break;
 
 #ifdef JP
 		sprintf(buf, "職業を選んで下さい (%c-%c) ('='初期オプション設定): ", sym[0], sym[MAX_CLASS_CHOICE-1]);
@@ -4437,19 +4462,35 @@ static bool get_player_class(void)
 		{
 			if(cs == MAX_CLASS_CHOICE)
 			{
-				k = randint0(MAX_CLASS_CHOICE);
+				for (;;)
+				{
+					k = randint0(MAX_CLASS_CHOICE);
+					if (allow[k]) break;
+				}
 				cs = k;
 				continue;
 			}
 			else
 			{
-				k = cs;
-				break;
+				if (allow[cs])
+				{
+					k = cs;
+					break;
+				}
+				else
+				{
+					/* Do something ... */
+					continue;
+				}
 			}
 		}
 		if (c == '*')
 		{
-			k = randint0(MAX_CLASS_CHOICE);
+		    for (;;)
+			{
+				k = randint0(MAX_CLASS_CHOICE);
+				if (allow[k]) break;
+			}
 			cs = k;
 			continue;
 		}

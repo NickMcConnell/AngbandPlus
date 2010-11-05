@@ -4155,6 +4155,72 @@ msg_print("自然でないモンスターの存在を感じた！");
 	return (flag);
 }
 
+/*
+ * Detect all "living" monsters on current panel
+ */
+bool detect_monsters_living(int range)
+{
+	int     i, y, x;
+	bool    flag = FALSE;
+
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (distance(py, px, y, x) > range) continue;
+
+		/* Detect non-living monsters */
+		if (monster_living(r_ptr))
+		{
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag2 |= (MFLAG2_MARK | MFLAG2_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+#ifdef JP
+msg_print("自然でないモンスターの存在を感じた！");
+#else
+		msg_print("You sense potential blood!");
+#endif
+
+	}
+
+	/* Result */
+	return (flag);
+}
+
 
 /*
  * Detect all monsters it has mind on current panel

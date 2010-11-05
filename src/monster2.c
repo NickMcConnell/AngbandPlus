@@ -2456,6 +2456,13 @@ void update_mon(int m_idx, bool full)
 			}
 
 			/* Magical sensing */
+			if ((p_ptr->tim_blood_sight) && monster_living(r_ptr))
+			{
+				flag = TRUE;
+				/* There is no RF3_LIVING flag, so you won't gain any monster memory here ... */
+			}
+
+			/* Magical sensing */
 			if ((p_ptr->esp_animal) && (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				flag = TRUE;
@@ -3907,13 +3914,6 @@ bool alloc_monster(int dis, u32b mode)
 {
 	int			y = 0, x = 0;
 	int         attempts_left = 10000;
-
-	/* Mega Hack -- No monster at first level of deeper dungeon */
-	if (p_ptr->enter_dungeon && dun_level > 1)
-	{
-		/* No stair scum! */
-		return TRUE;
-	}
 
 	/* Put the Guardian */
 	if (alloc_guardian(FALSE)) return TRUE;

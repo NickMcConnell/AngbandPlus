@@ -142,3 +142,5 @@ R:0:0xAA/0
 R:0:0xA8/0
 ?:[EQU $CLASS Time-Lord]
 R:0:0xA5/0
+?:[EQU $CLASS Blood-Knight]
+R:0:0xAA/0

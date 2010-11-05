@@ -861,6 +861,10 @@ static void regenhp(int percent)
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
 
+		/* Blood Knights get extra attacks depending on how wounded they are */
+		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+			p_ptr->update |= PU_BONUS;
+
 		wild_regen = 20;
 	}
 }
@@ -2149,6 +2153,26 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->tim_speed_essentia)
 	{
 		(void)set_tim_speed_essentia(p_ptr->tim_speed_essentia - 1, TRUE);
+	}
+
+	if (p_ptr->tim_blood_shield)
+	{
+		(void)set_tim_blood_shield(p_ptr->tim_blood_shield - 1, TRUE);
+	}
+
+	if (p_ptr->tim_blood_seek)
+	{
+		(void)set_tim_blood_seek(p_ptr->tim_blood_seek - 1, TRUE);
+	}
+
+	if (p_ptr->tim_blood_sight)
+	{
+		(void)set_tim_blood_sight(p_ptr->tim_blood_sight - 1, TRUE);
+	}
+
+	if (p_ptr->tim_blood_feast)
+	{
+		(void)set_tim_blood_feast(p_ptr->tim_blood_feast - 1, TRUE);
 	}
 
 	/*** Poison and Stun and Cut ***/
@@ -4773,7 +4797,8 @@ msg_print("ウィザードモード突入。");
 			     (p_ptr->pclass == CLASS_BERSERKER) ||
 			     (p_ptr->pclass == CLASS_NINJA) ||
 			     (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
-				 (p_ptr->pclass == CLASS_TIME_LORD)
+				 (p_ptr->pclass == CLASS_TIME_LORD) ||
+				 (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 			     ) do_cmd_mind_browse();
 			else if (p_ptr->pclass == CLASS_SMITH)
 				do_cmd_kaji(TRUE);
@@ -4875,7 +4900,8 @@ msg_print("ウィザードモード突入。");
 					    (p_ptr->pclass == CLASS_BERSERKER) ||
 					    (p_ptr->pclass == CLASS_NINJA) ||
 					    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
-						(p_ptr->pclass == CLASS_TIME_LORD)
+						(p_ptr->pclass == CLASS_TIME_LORD) ||
+						(p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 					    )
 						do_cmd_mind();
 					else if (p_ptr->pclass == CLASS_IMITATOR)

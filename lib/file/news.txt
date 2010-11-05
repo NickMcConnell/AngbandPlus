@@ -1,6 +1,5 @@
-
                   ****************************************
-                  **          Chengband 0.0.3           **
+                  **          Chengband 0.0.4           **
                   ****************************************
 
           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -8,18 +7,17 @@
 
        Angband 2.7 - 2.9:   Ben Harrison (benh@phial.com)
     Japanese version 1.2:   Sitoshin, sayu, FIRST, TeO
-
        Old ZAngband code:   (Mr) Topi Ylinen < f1toyl@uta.fi >
        New ZAngband code:   Robert Ruehlmann < rr9@thangorodrim.net >
     ZAngband 2.3.0 - ???:   The ZAngband DevTeam
        ZAngband Jap ver.:   Mitsuhiro Itakura <itakura @ users.sourceforge.net>
 
-
     Based on Hengband: Mr.Hoge (echizen @ users.sourceforge.jp) & Many others
                        http://hengband.sourceforge.jp/
 
-            Chengband: Chris Kousky & Many Others 
+            Chengband: Code Monkey: Chris Kousky
+                       Great New Ideas by DZhang and Djabanete
                        (https://code.google.com/p/chengband/)
 
-       Report bugs at "https://code.google.com/p/chengband/issues/list"
+    Report bugs and ideas at "https://code.google.com/p/chengband/issues/list"
  

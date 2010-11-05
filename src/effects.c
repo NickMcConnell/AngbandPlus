@@ -241,7 +241,9 @@ void reset_tim_flags(void)
 	p_ptr->tim_wild_pos = 0;
 	p_ptr->tim_wild_mind = 0;
 	p_ptr->tim_blood_shield = 0;
-	p_ptr->tim_blood_rage = 0;
+	p_ptr->tim_blood_seek = 0;
+	p_ptr->tim_blood_sight = 0;
+	p_ptr->tim_blood_feast = 0;
 
 	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
 	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
@@ -994,6 +996,226 @@ bool set_tim_speed_essentia(int v, bool do_dec)
 
 	/* Use the value */
 	p_ptr->tim_speed_essentia = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_blood_shield(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_blood_shield)
+		{
+			if (p_ptr->tim_blood_shield > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You are shielded in blood!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_blood_shield)
+		{
+			msg_print("Your blood shield vanishes.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_blood_shield = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_blood_seek(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_blood_seek)
+		{
+			if (p_ptr->tim_blood_seek > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("Your weapon thirsts for life!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_blood_seek)
+		{
+			msg_print("Your weapon no longer thirsts for life.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_blood_seek = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_blood_sight(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_blood_sight)
+		{
+			if (p_ptr->tim_blood_sight > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You sense life!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_blood_sight)
+		{
+			msg_print("You no longer sense life.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_blood_sight = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_blood_feast(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_blood_feast)
+		{
+			if (p_ptr->tim_blood_feast > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You begin to feast on blood!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_blood_feast)
+		{
+			msg_print("You no longer feast on blood.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_blood_feast = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2662,7 +2884,10 @@ bool set_tim_eyeeye(int v, bool do_dec)
 #ifdef JP
 msg_print("法の守り手になった気がした！");
 #else
-			msg_print("You feel like a keeper of commandments!");
+			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+				msg_print("You feel like bloody revenge!");
+			else 
+				msg_print("You feel like a keeper of commandments!");
 #endif
 
 			notice = TRUE;
@@ -2677,7 +2902,10 @@ msg_print("法の守り手になった気がした！");
 #ifdef JP
 msg_print("懲罰を執行することができなくなった。");
 #else
-			msg_print("You no longer feel like a keeper.");
+			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+				msg_print("You no longer feel like bloody revenge.");
+			else 
+				msg_print("You no longer feel like a keeper.");
 #endif
 
 			notice = TRUE;
@@ -4066,6 +4294,10 @@ msg_print("致命的な傷を負ってしまった。");
 
 		if (randint1(1000) < v || one_in_(16))
 		{
+			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && !one_in_(7))
+			{
+				/* Let's tone down the scarring for blood knights, already */
+			}
 			if (!p_ptr->sustain_chr)
 			{
 #ifdef JP
@@ -4618,6 +4850,12 @@ bool hp_player(int num)
 	if (vir)
 	{
 		num = num * (p_ptr->virtues[vir - 1] + 1250) / 1250;
+	}
+	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+	{
+		num /= 2;		
+		if (num == 0)
+			return FALSE;
 	}
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -5391,6 +5629,9 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
+
+	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+		p_ptr->update |= (PU_BONUS);
 
 	handle_stuff();
 

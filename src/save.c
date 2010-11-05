@@ -733,7 +733,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_wild_pos);
 	wr_s16b(p_ptr->tim_wild_mind);
 	wr_s16b(p_ptr->tim_blood_shield);
-	wr_s16b(p_ptr->tim_blood_rage);
+	wr_s16b(p_ptr->tim_blood_sight);
+	wr_s16b(p_ptr->tim_blood_feast);
+	wr_s16b(p_ptr->tim_blood_seek);
 
 	/* by henkma */
 	wr_s16b(p_ptr->tim_reflect);

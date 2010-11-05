@@ -338,6 +338,11 @@ static void prt_stat(int stat)
 #define BAR_CURE 65
 #define BAR_ESP_EVIL 66
 #define BAR_SPEED_ESSENTIA 67
+#define BAR_BLOOD_SHIELD 68
+#define BAR_BLOOD_SEEK 69
+#define BAR_BLOOD_AURA 70
+#define BAR_BLOOD_SIGHT 71
+#define BAR_BLOOD_FEAST 72
 
 static struct {
 	byte attr;
@@ -487,6 +492,11 @@ static struct {
 	{TERM_WHITE, "Cu", "Cure"},
 	{TERM_L_DARK, "ET", "EvilTele"},
 	{TERM_RED, "At", "Attacks"},
+	{TERM_RED, "Sh", "Shield"},
+	{TERM_L_RED, "Sk", "Seek"},
+	{TERM_RED, "Au", "Aura"},
+	{TERM_L_RED, "Si", "Sight"},
+	{TERM_RED, "Fs", "Feast"},
 	{0, NULL, NULL}
 };
 #endif
@@ -642,9 +652,17 @@ static void prt_status(void)
 	if (p_ptr->tim_sh_holy) ADD_FLG(BAR_SHHOLY);
 
 	/* An Eye for an Eye */
-	if (p_ptr->tim_eyeeye) ADD_FLG(BAR_EYEEYE);
+	if (p_ptr->tim_eyeeye) 
+	{
+		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT) ADD_FLG(BAR_BLOOD_AURA);
+		else ADD_FLG(BAR_EYEEYE);
+	}
 
 	if (p_ptr->tim_speed_essentia) ADD_FLG(BAR_SPEED_ESSENTIA);
+	if (p_ptr->tim_blood_shield) ADD_FLG(BAR_BLOOD_SHIELD);
+	if (p_ptr->tim_blood_seek) ADD_FLG(BAR_BLOOD_SEEK);
+	if (p_ptr->tim_blood_sight) ADD_FLG(BAR_BLOOD_SIGHT);
+	if (p_ptr->tim_blood_feast) ADD_FLG(BAR_BLOOD_FEAST);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
@@ -2461,7 +2479,6 @@ static void calc_mana(void)
 	if (!mp_ptr->spell_book) return;
 
 	if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
-        (p_ptr->pclass == CLASS_TIME_LORD) ||
 	    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
 	    (p_ptr->pclass == CLASS_BLUE_MAGE))
 	{
@@ -2688,7 +2705,6 @@ static void calc_mana(void)
 
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
-
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
@@ -3317,6 +3333,10 @@ void calc_bonuses(void)
 				new_speed += 3;
 			}
 			break;
+		case CLASS_BLOOD_KNIGHT:
+			p_ptr->regenerate = TRUE;
+			break;
+
 		case CLASS_MONK:
 		case CLASS_FORCETRAINER:
 			/* Unencumbered Monks become faster every 10 levels */
@@ -3717,6 +3737,15 @@ void calc_bonuses(void)
 	{
 		p_ptr->to_a += 50;
 		p_ptr->dis_to_a += 50;
+	}
+
+	if (p_ptr->tim_blood_shield)
+	{
+		int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
+		p_ptr->to_a += amt;
+		p_ptr->dis_to_a += amt;	
+		if (amt > 60)
+			p_ptr->reflect = TRUE;
 	}
 
 	if (p_ptr->tim_res_nether)
@@ -4576,6 +4605,65 @@ void calc_bonuses(void)
 		p_ptr->skill_tht -= 20;
 		p_ptr->skill_dig += 30;
 	}
+	if (p_ptr->tim_blood_feast)
+	{
+		p_ptr->to_d[0] += 35;
+		p_ptr->to_d[1] += 35;
+		p_ptr->to_d_m  += 35; /* Tentacles, beak, etc. */
+		p_ptr->dis_to_d[0] += 35;
+		p_ptr->dis_to_d[1] += 35;
+	}
+	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && p_ptr->cut > 0)
+	{
+		int to_h = 0;
+		int to_d = 0;
+		if (p_ptr->cut >= CUT_MORTAL_WOUND)
+		{
+			to_h = 50;
+			to_d = 50;
+		}
+		else if (p_ptr->cut >= CUT_DEEP_GASH)
+		{
+			to_h = 15;
+			to_d = 15;
+		}
+		else if (p_ptr->cut >= CUT_SEVERE)
+		{
+			to_h = 8;
+			to_d = 8;
+		}
+		else if (p_ptr->cut >= CUT_NASTY)
+		{
+			to_h = 6;
+			to_d = 6;
+		}
+		else if (p_ptr->cut >= CUT_BAD)
+		{
+			to_h = 4;
+			to_d = 4;
+		}
+		else if (p_ptr->cut >= CUT_LIGHT)
+		{
+			to_h = 2;
+			to_d = 2;
+		}
+		else
+		{
+			to_h = 1;
+			to_d = 1;
+		}
+		p_ptr->to_h[0] += to_h;
+		p_ptr->to_h[1] += to_h;
+		p_ptr->to_h_m  += to_h;
+		p_ptr->dis_to_h[0] += to_h;
+		p_ptr->dis_to_h[1] += to_h;
+
+		p_ptr->to_d[0] += to_d;
+		p_ptr->to_d[1] += to_d;
+		p_ptr->to_d_m  += to_d;
+		p_ptr->dis_to_d[0] += to_d;
+		p_ptr->dis_to_d[1] += to_d;
+	}
 
 	/* Temporary "fast" */
 	if (IS_FAST())
@@ -5013,6 +5101,9 @@ void calc_bonuses(void)
 				case CLASS_TIME_LORD:
 					num = 4; wgt = 100; mul = 3; break;
 
+				case CLASS_BLOOD_KNIGHT:
+					num = 3; wgt = 70; mul = 5; break;
+
 				/* Imitator */
 				case CLASS_IMITATOR:
 					num = 5; wgt = 70; mul = 4; break;
@@ -5079,9 +5170,26 @@ void calc_bonuses(void)
 
 			/* Add in the "bonus blows" */
 			p_ptr->num_blow[i] += extra_blows[i];
+
+			/* Various spells and effects for extra blows */
 			if (p_ptr->tim_speed_essentia)
 				p_ptr->num_blow[i] += 2;
 
+			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+			{
+				int frac = p_ptr->chp * 100 / p_ptr->mhp;
+				if (frac < 20 && p_ptr->lev > 48)
+					p_ptr->num_blow[i] += 9;
+				else if (frac < 40 && p_ptr->lev > 36)
+					p_ptr->num_blow[i] += 6;
+				else if (frac < 60 &&  p_ptr->lev > 24)
+					p_ptr->num_blow[i] += 4;
+				else if (frac < 80 && p_ptr->lev > 12)
+					p_ptr->num_blow[i] += 2;
+				else if (p_ptr->chp < p_ptr->mhp) /* Hack: frac might be 100 if we are just slightly wounded */
+					p_ptr->num_blow[i] += 1;
+			}
+			
 			if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->num_blow[i] += (p_ptr->lev / 40);
 			else if (p_ptr->pclass == CLASS_BERSERKER)
 			{

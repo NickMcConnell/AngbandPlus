@@ -1074,9 +1074,13 @@ struct player_type
 	s16b tim_chaotic_surge;
 	s16b tim_wild_pos;
 	s16b tim_wild_mind;
+	
+	/* Blood Knights */
 	s16b tim_blood_shield;
-	s16b tim_blood_rage;
-
+	s16b tim_blood_seek;
+	s16b tim_blood_sight;
+	s16b tim_blood_feast;
+							
 	/* for mirror master */
 	s16b tim_reflect;       /* Timed -- Reflect */
 	s16b multishadow;       /* Timed -- Multi-shadow */

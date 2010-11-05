@@ -1114,6 +1114,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			break;
 
 		case SV_POTION_HEALING:
+		case SV_POTION_BLOOD:
 			if (hp_player(300)) ident = TRUE;
 			if (set_blind(0, TRUE)) ident = TRUE;
 			if (set_confused(0, TRUE)) ident = TRUE;

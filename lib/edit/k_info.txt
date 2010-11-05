@@ -6386,3 +6386,14 @@ I:45:57:0
 W:20:0:2:1000
 A:20/2
 F:SPELL_POWER | STR | DEX | CON
+
+#Blood Potions
+#These should never allocate (How to do that? I'm trying rarity 255 ...)
+N:671:TRANSLATE
+E:Blood:Blood Red
+G:!:r
+I:75:67:0
+W:0:255:4:0
+P:0:1d1:0:0:0
+F:FIXED_FLAVOR
+

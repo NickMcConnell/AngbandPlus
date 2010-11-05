@@ -3740,7 +3740,40 @@ R:9:0
 
 ### Time Lord ###
 N:28
-I:LIFE:INT:0x00:0:99:400
+I:LIFE:INT:0x00:0:5:400
+# Life
+R:0:0
+
+# Sorcery
+R:1:0
+
+# Nature
+R:2:0
+
+# Chaos
+R:3:0
+
+# Death
+R:4:0
+
+# Trump
+R:5:0
+
+# Arcane
+R:6:0
+
+# Craft
+R:7:0
+
+# Deamon
+R:8:0
+
+# Crusade
+R:9:0
+
+### Blood-Knight ###
+N:29
+I:NONE:CON:0x00:0:0:0
 # Life
 R:0:0
 

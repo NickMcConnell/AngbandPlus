@@ -331,6 +331,7 @@ static named_num gf_desc[] =
 	{"GF_CRUSADE",		GF_CRUSADE			},
 	{"GF_STASIS_EVIL",			GF_STASIS_EVIL		},
 	{"GF_WOUNDS",			GF_WOUNDS		},
+	{"GF_BLOOD",		 	GF_BLOOD				},
 	{NULL, 						0						}
 };
 
@@ -2738,6 +2739,18 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 	if (p_ptr->tim_reflect)
 		add_flag(flgs, TR_REFLECT);
 
+	if (p_ptr->tim_blood_shield)
+	{
+		int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
+		if (amt > 60)
+			add_flag(flgs, TR_REFLECT);
+	}
+
+	if (p_ptr->tim_blood_seek)
+	{
+		/* TODO: Slay Living? */
+	}
+
 	if (p_ptr->magicdef)
 	{
 		add_flag(flgs, TR_RES_BLIND);
@@ -4003,7 +4016,7 @@ void display_player(int mode)
  */
 static void dump_aux_display_player(FILE *fff)
 {
-	int x, y, i;
+	int x, y;
 	byte a;
 	char c;
 	char		buf[1024];

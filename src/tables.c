@@ -3738,6 +3738,18 @@ player_class class_info[MAX_CLASS] =
 		7,   7, 10, 0,  0,  0, 13, 13,
 		0, 50, 20
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE(Blood-Knight)",
+#endif
+		"Blood-Knight",   /* no spaces in class names! */
+
+		{ 3, -2, -2, 2, 2, -3},
+		25, 18, 32, 2,  16, 6, 70, 20,
+		12, 7,  10, 0,  0,  0, 23, 15,
+		10, 30, 40
+	},
 };
 
 player_seikaku seikaku_info[MAX_SEIKAKU] =
@@ -4106,6 +4118,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_NONE),				/* Ninja */
 	(CH_NONE),				/* Sniper */
 	(CH_NONE),				/* Time Lord */
+	(CH_NONE),				/* Blood Knight */
 };
 
 
@@ -4150,6 +4163,7 @@ s32b realm_choices2[MAX_CLASS] =
 	(CH_NONE),				/* Ninja */
 	(CH_NONE),				/* Sniper */
 	(CH_NONE),				/* Time Lord */
+	(CH_NONE),				/* Blood Knight */
 };
 
 
@@ -5099,6 +5113,20 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Time Baron",
 		"Time Duke",
 		"Time Lord",
+	},
+
+	/* Blood Knight */
+	{
+		"Blood Rookie",
+		"Blood Soldier",
+		"Blood Mercenary",
+		"Blood Veteran",
+		"Blood Swordsman",
+		"Blood Champion",
+		"Blood Hero",
+		"Blood Baron",
+		"Blood Duke",
+		"Blood Lord",
 	},
 };
 #endif

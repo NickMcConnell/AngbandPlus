@@ -817,6 +817,7 @@ extern void do_cmd_use(void);
 extern void do_cmd_magic_eater(bool only_browse);
 
 /* do-spell.c */
+extern int spell_power(int pow);
 extern void stop_singing(void);
 extern cptr do_spell(int realm, int spell, int mode);
 
@@ -1110,6 +1111,7 @@ extern bool detect_monsters_evil(int range);
 extern bool detect_monsters_xxx(int range, u32b match_flag);
 extern bool detect_monsters_string(int range, cptr);
 extern bool detect_monsters_nonliving(int range);
+extern bool detect_monsters_living(int range);
 extern bool detect_monsters_mind(int range);
 extern bool detect_all(int range);
 extern bool wall_stone(void);
@@ -1422,6 +1424,10 @@ extern bool set_tim_sh_fire(int v, bool do_dec);
 extern bool set_tim_sh_holy(int v, bool do_dec);
 extern bool set_tim_eyeeye(int v, bool do_dec);
 extern bool set_tim_speed_essentia(int v, bool do_dec);
+extern bool set_tim_blood_shield(int v, bool do_dec);
+extern bool set_tim_blood_seek(int v, bool do_dec);
+extern bool set_tim_blood_sight(int v, bool do_dec);
+extern bool set_tim_blood_feast(int v, bool do_dec);
 extern bool set_resist_magic(int v, bool do_dec);
 extern bool set_tim_reflect(int v, bool do_dec);
 extern bool set_multishadow(int v, bool do_dec);

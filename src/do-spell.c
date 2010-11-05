@@ -5,7 +5,7 @@
 #include "angband.h"
 
 /* Hack: Increase spell power! */
-static int spell_power(int pow)
+int spell_power(int pow)
 {
 	if (p_ptr->spell_power > 0)
 		return pow * (10 + p_ptr->spell_power) / 10;
