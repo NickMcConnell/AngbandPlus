@@ -378,7 +378,15 @@ void do_cmd_go_down(void)
 			else
 			{
 				/* Create a way back */
-				prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN);
+				if (p_ptr->enter_dungeon && down_num > 1 && one_in_(7))
+				{
+					/* Hack:  No stair scum */
+					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
+				}
+				else
+				{
+					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN);
+				}
 			}
 		}
 	}

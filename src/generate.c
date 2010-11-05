@@ -1305,103 +1305,6 @@ static void battle_gen(void)
 	}
 }
 
-/* A better effort at preventing stair scumming.  The first level of higher
-   dungeons is a tiny empty launchpad level.  I simply spiked the Arena code
-   here, so we can still improve a bit.  Note, this does give a nice safe
-   place to read ?Acquirement, but that is *much* better than allowing stair 
-   scumming for worthy and isolated opponents.
-*/
-static void build_dungeon_top(void)
-{
-	int yval, y_height, y_depth, xval, x_left, x_right;
-	register int i, j;
-
-	yval = SCREEN_HGT / 2;
-	xval = SCREEN_WID / 2;
-	y_height = yval - 10;
-	y_depth = yval + 10;
-	x_left = xval - 32;
-	x_right = xval + 32;
-
-	for (i = y_height; i <= y_height + 5; i++)
-		for (j = x_left; j <= x_right; j++)
-		{
-			place_extra_perm_bold(i, j);
-		//	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-	for (i = y_depth; i >= y_depth - 5; i--)
-		for (j = x_left; j <= x_right; j++)
-		{
-			place_extra_perm_bold(i, j);
-		//	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-	for (j = x_left; j <= x_left + 17; j++)
-		for (i = y_height; i <= y_depth; i++)
-		{
-			place_extra_perm_bold(i, j);
-		//	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-	for (j = x_right; j >= x_right - 17; j--)
-		for (i = y_height; i <= y_depth; i++)
-		{
-			place_extra_perm_bold(i, j);
-		//	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-
-	place_extra_perm_bold(y_height+6, x_left+18);
-//	cave[y_height+6][x_left+18].info |= (CAVE_GLOW | CAVE_MARK);
-	place_extra_perm_bold(y_depth-6, x_left+18);
-//	cave[y_depth-6][x_left+18].info |= (CAVE_GLOW | CAVE_MARK);
-	place_extra_perm_bold(y_height+6, x_right-18);
-//	cave[y_height+6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK);
-	place_extra_perm_bold(y_depth-6, x_right-18);
-//	cave[y_depth-6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK);
-
-	i = y_height + 5;
-	j = xval;
-	cave[i][j].feat = feat_up_stair;
-//	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-	player_place(i, j);
-	cave[i+5][j].feat = feat_down_stair;
-//	cave[i+5][j].info |= (CAVE_GLOW | CAVE_MARK);
-}
-
-static void dungeon_top_gen(void)
-{
-	int y, x;
-	int qy = 0;
-	int qx = 0;
-
-	/* Smallest area */
-	cur_hgt = SCREEN_HGT;
-	cur_wid = SCREEN_WID;
-
-	/* Start with solid walls */
-	for (y = 0; y < MAX_HGT; y++)
-	{
-		for (x = 0; x < MAX_WID; x++)
-		{
-			/* Create "solid" perma-wall */
-			place_solid_perm_bold(y, x);
-
-			/* Illuminate and memorize the walls */
-		//	cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-	}
-
-	/* Then place some floors */
-	for (y = qy + 1; y < qy + SCREEN_HGT - 1; y++)
-	{
-		for (x = qx + 1; x < qx + SCREEN_WID - 1; x++)
-		{
-			/* Create empty floor */
-			cave[y][x].feat = feat_floor;
-		}
-	}
-
-	build_dungeon_top();
-}
-
 /*
  * Generate a quest level
  */
@@ -1657,11 +1560,6 @@ void generate_cave(void)
 			/* Make the wilderness */
 			if (p_ptr->wild_mode) wilderness_gen_small();
 			else wilderness_gen();
-		}
-		else if (p_ptr->enter_dungeon && dun_level > 1)
-		{
-			/* No stair scum */
-			dungeon_top_gen();
 		}
 		/* Build a real level */
 		else

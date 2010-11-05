@@ -1171,6 +1171,7 @@ bool set_tim_blood_sight(int v, bool do_dec)
 	/* Recalculate bonuses */
 	p_ptr->redraw |= (PR_STATUS);
 	p_ptr->update |= (PU_BONUS);
+	p_ptr->update |= (PU_MONSTERS);
 
 	/* Handle stuff */
 	handle_stuff();
