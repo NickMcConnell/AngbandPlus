@@ -1871,7 +1871,7 @@ extern void do_cmd_debug(void);
  */
 void do_cmd_debug(void)
 {
-	int     x, y;
+	int     x, y, n;
 	char    cmd;
 
 
@@ -1928,7 +1928,8 @@ void do_cmd_debug(void)
 
 	/* Create a named artifact */
 	case 'C':
-		wiz_create_named_art(command_arg);
+		n = get_quantity("Which One? ", max_a_idx);
+		wiz_create_named_art(n);
 		break;
 
 	/* Detect everything */
@@ -1983,7 +1984,7 @@ void do_cmd_debug(void)
 
 	/* Identify */
 	case 'i':
-		(void)ident_spell(FALSE);
+		(void)identify_fully(FALSE);
 		break;
 
 	/* Go up or down in the dungeon */
@@ -2008,7 +2009,8 @@ void do_cmd_debug(void)
 
 	/* Mutation */
 	case 'M':
-		(void)gain_random_mutation(command_arg);
+		n = get_quantity("Which One? ", 500);
+		(void)gain_random_mutation(n);
 		break;
 
 	/* Specific reward */
@@ -2023,7 +2025,8 @@ void do_cmd_debug(void)
 
 	/* Summon Named Monster */
 	case 'n':
-		do_cmd_wiz_named(command_arg);
+		n = get_quantity("Which One? ", 2000);
+		do_cmd_wiz_named(n);
 		break;
 
 	/* Dump option bits usage */

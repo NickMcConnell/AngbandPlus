@@ -3335,6 +3335,7 @@ void calc_bonuses(void)
 			break;
 		case CLASS_BLOOD_KNIGHT:
 			p_ptr->regenerate = TRUE;
+			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
 			break;
 
 		case CLASS_MONK:
@@ -4619,8 +4620,8 @@ void calc_bonuses(void)
 		int to_d = 0;
 		if (p_ptr->cut >= CUT_MORTAL_WOUND)
 		{
-			to_h = 50;
-			to_d = 50;
+			to_h = 25;
+			to_d = 25;
 		}
 		else if (p_ptr->cut >= CUT_DEEP_GASH)
 		{

@@ -2815,7 +2815,7 @@ msg_print("バーテンはいくらかの食べ物とビールをくれた。");
 #ifdef JP
 				msg_print("すみません、でもうちで誰かに死なれちゃ困りますんで。");
 #else
-				msg_print("Sorry, but don't want anyone dying in here.");
+				msg_print("Sorry, but I don't want anyone dying in here.");
 #endif
 			}
 			else
@@ -2827,7 +2827,17 @@ msg_print("バーテンはいくらかの食べ物とビールをくれた。");
 #ifdef JP
 				do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "宿屋に泊まった。");
 #else
-				if ((prev_hour >= 6) && (prev_hour <= 17)) do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "stay over daytime at the inn.");
+				if ((prev_hour >= 6) && (prev_hour <= 17)) 
+				{
+					/* Hack: No resting during the day 
+					   I'm not sure why this was changed in hengband 1.7 ... perhaps for undead races?
+					   But man, it opens up the door to a whole lotta macro shup scumming abuse,
+					   so let's revert to the way things used to be :)
+					*/
+					msg_print("Come back later this evening!");
+					return FALSE;
+				/*	do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "stay over daytime at the inn.");*/
+				}
 				else do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "stay over night at the inn.");
 #endif
 				turn = (turn / (TURNS_PER_TICK*TOWN_DAWN/2) + 1) * (TURNS_PER_TICK*TOWN_DAWN/2);

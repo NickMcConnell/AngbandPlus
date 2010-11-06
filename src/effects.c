@@ -4295,7 +4295,7 @@ msg_print("致命的な傷を負ってしまった。");
 
 		if (randint1(1000) < v || one_in_(16))
 		{
-			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && !one_in_(7))
+			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && !one_in_(2))
 			{
 				/* Let's tone down the scarring for blood knights, already */
 			}

@@ -1998,6 +1998,9 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		char            m_name[80];
 		monster_race    *r_ptr = &r_info[m_ptr->ap_r_idx];
 
+		/* Hack: Strong characters immune to weak monsters */
+		if (p_ptr->lev > r_ptr->level + 10) return;
+
 		power = r_ptr->level / 2;
 
 		monster_desc(m_name, m_ptr, 0);
@@ -2157,37 +2160,36 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 		switch (randint1(21))
 		{
 			case 1:
-				if (!(p_ptr->muta3 & MUT3_MORONIC) && one_in_(5))
+				if (!(p_ptr->muta3 & MUT3_MORONIC))
 				{
-					if ((p_ptr->stat_use[A_INT] < 4) && (p_ptr->stat_use[A_WIS] < 4))
+					if (one_in_(5))
 					{
-#ifdef JP
-msg_print("あなたは完璧な馬鹿になったような気がした。しかしそれは元々だった。");
-#else
 						msg_print("You turn into an utter moron!");
-#endif
+						if (p_ptr->muta3 & MUT3_HYPER_INT)
+						{
+							msg_print("Your brain is no longer a living computer.");
+							p_ptr->muta3 &= ~(MUT3_HYPER_INT);
+						}
+						p_ptr->muta3 |= MUT3_MORONIC;
+						happened = TRUE;
 					}
 					else
 					{
-#ifdef JP
-msg_print("あなたは完璧な馬鹿になった！");
-#else
-						msg_print("You turn into an utter moron!");
-#endif
+						/* Tone down the Moron.  For characters who resist fear and chaos, it
+						   becomes a guaranteed mutation if we get this far (which requires FMMMMF on
+						   saving throws, btw).  I think the FMMMMF sequence penalizes characters with
+						   relatively high saves, as they are more likely to make 4 in a row than
+						   characters with poor saves.  Perhaps, that would be a better level of redress.
+						   So, one initial save to avoid noticing the eldritch horror, and then a random
+						   dice roll to pick the effect?  As it used to stand, the moron mutation was a gimme
+						   unless you had a very high save (like with a patient sorceror), and would generally
+						   occur every 5 to 10 minutes of play.  So you could fight it, running to Zul after
+						   every trip down to the dungeon, or you could just try to find more Int/Wis to
+						   compensate.  A guaranteed 12% fail rate penalty on spells is a bit too harsh ...
+						   */
+						msg_print("You feel like a moron for a moment, but it passes.");
+						happened = TRUE;
 					}
-
-					if (p_ptr->muta3 & MUT3_HYPER_INT)
-					{
-#ifdef JP
-msg_print("あなたの脳は生体コンピュータではなくなった。");
-#else
-						msg_print("Your brain is no longer a living computer.");
-#endif
-
-						p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-					}
-					p_ptr->muta3 |= MUT3_MORONIC;
-					happened = TRUE;
 				}
 				break;
 			case 2:
