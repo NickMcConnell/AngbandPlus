@@ -3386,7 +3386,7 @@ msg_print("下に引きずり降ろされる感じがする！");
 				{
 					int i;
 
-					for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
+					for (i = MIN_RANDOM_QUEST; i < MIN_RANDOM_QUEST + num_random_quests; i++)
 					{
 						if ((quest[i].type == QUEST_TYPE_RANDOM) &&
 						    (quest[i].status == QUEST_STATUS_TAKEN) &&

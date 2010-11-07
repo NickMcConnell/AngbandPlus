@@ -309,6 +309,7 @@ bool powerup_home;	/* Increase capacity of your home (*) */
 bool allow_friendly_monster; /* Allow monsters friendly to player */
 bool allow_hostile_monster; /* Allow monsters hostile to each other */
 bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
+bool quest_unique; /* Random quests for unique monsters only */
 
 /*** Easy Object Auto-Destroyer ***/
 
@@ -1069,6 +1070,7 @@ building_type building[MAX_BLDG];
  * Maximum number of quests
  */
 u16b max_quests;
+byte num_random_quests;
 
 /*
  * Maximum number of monsters in r_info.txt

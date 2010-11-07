@@ -1339,8 +1339,12 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 
 	/* Dump the quests */
-	tmp8u = MAX_RANDOM_QUEST-MIN_RANDOM_QUEST;
+	/*tmp8u = MAX_RANDOM_QUEST-MIN_RANDOM_QUEST;
 	wr_byte(tmp8u);
+	Ugggghh ... notice the off by one bug above.  49 - 40 is 10 random quests,
+	but we have been writing out '9' forever.
+	*/
+	wr_byte(num_random_quests);
 
 	for (i = 0; i < max_quests; i++)
 	{

@@ -2603,6 +2603,13 @@ note(format("町が多すぎる(%u)！", max_towns_load));
 		rd_u16b(&max_quests_load);
 		rd_byte(&max_rquests_load);
 
+		/* Hengband writes 9 when it means 10 ... sigh */
+		if (h_older_than(0, 0, 5, 0))
+			max_rquests_load += 1;
+
+		num_random_quests = max_rquests_load;
+
+
 		/* Incompatible save files */
 		if (max_quests_load > max_quests)
 		{
@@ -2627,7 +2634,7 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 				/* Load quest status if quest is running */
 				if ((quest[i].status == QUEST_STATUS_TAKEN) ||
 				    (quest[i].status == QUEST_STATUS_COMPLETED) ||
-				    ((i >= MIN_RANDOM_QUEST) && (i <= (MIN_RANDOM_QUEST + max_rquests_load))))
+				    ((i >= MIN_RANDOM_QUEST) && (i < (MIN_RANDOM_QUEST + max_rquests_load))))
 				{
 					rd_s16b(&quest[i].cur_num);
 					rd_s16b(&quest[i].max_num);
@@ -2844,7 +2851,7 @@ note("持ち物情報を読み込むことができません");
 
 	if (p_ptr->is_dead)
 	{
-		for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
+		for (i = MIN_RANDOM_QUEST; i < MIN_RANDOM_QUEST + num_random_quests; i++)
 		{
 			r_info[quest[i].r_idx].flags1 &= ~(RF1_QUESTOR);
 		}

@@ -9528,14 +9528,18 @@ void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
 
 			if (!is_fixed_quest_idx(q_idx) && quest[q_idx].r_idx)
 			{
-				/* Print the quest info */
-#ifdef JP
-				sprintf(tmp_str, "  %-40s (%3d³¬)            - ¥ì¥Ù¥ë%2d\n",
-					r_name+r_info[quest[q_idx].r_idx].name, quest[q_idx].level, quest[q_idx].complev);
-#else
-				sprintf(tmp_str, "  %-40s (Dungeon level: %3d) - level %2d\n",
-					r_name+r_info[quest[q_idx].r_idx].name, quest[q_idx].level, quest[q_idx].complev);
-#endif
+				monster_race *r_ptr = &r_info[quest[q_idx].r_idx];
+				if (r_ptr->flags1 & RF1_UNIQUE)
+				{
+					sprintf(tmp_str, "  %-40s (Dungeon level: %3d) - level %2d\n",
+						r_name+r_ptr->name, quest[q_idx].level, quest[q_idx].complev);
+				}
+				else
+				{
+					sprintf(tmp_str, "  %-40s (Kill %d) (Dungeon level: %3d) - level %2d\n",
+						r_name+r_ptr->name, quest[q_idx].max_num, 
+						quest[q_idx].level, quest[q_idx].complev);
+				}
 			}
 			else
 			{
@@ -9562,7 +9566,7 @@ void do_cmd_knowledge_quests_failed(FILE *fff, int quest_num[])
 /*
  * Print all random quests
  */
-static void do_cmd_knowledge_quests_wiz_random(FILE *fff)
+static void do_cmd_knowledge_quests_wiz_random(FILE *fff, int quest_num[])
 {
 	char tmp_str[120];
 	int i;
@@ -9575,21 +9579,41 @@ static void do_cmd_knowledge_quests_wiz_random(FILE *fff)
 #endif
 	for (i = 1; i < max_quests; i++)
 	{
-		/* No info from "silent" quests */
-		if (quest[i].flags & QUEST_FLAG_SILENT) continue;
+		int			q_idx = quest_num[i];
+		quest_type *q_ptr = &quest[q_idx];
 
-		if ((quest[i].type == QUEST_TYPE_RANDOM) && (quest[i].status == QUEST_STATUS_TAKEN))
+		/* No info from "silent" quests */
+		if (q_ptr->flags & QUEST_FLAG_SILENT) continue;
+
+		if ((q_ptr->type == QUEST_TYPE_RANDOM) && (q_ptr->status == QUEST_STATUS_TAKEN))
 		{
+			monster_race *r_ptr = &r_info[q_ptr->r_idx];
 			total++;
 
-			/* Print the quest info */
-#ifdef JP
-			sprintf(tmp_str, "  %s (%d³¬, %s)\n",
-				quest[i].name, quest[i].level, r_name+r_info[quest[i].r_idx].name);
-#else
-			sprintf(tmp_str, "  %s (%d, %s)\n",
-				quest[i].name, quest[i].level, r_name+r_info[quest[i].r_idx].name);
-#endif
+			if (q_ptr->max_num > 1)
+			{
+				char name[100];
+				strcpy(name, r_name + r_ptr->name);
+				plural_aux(name);
+
+				if (q_ptr->cur_num > 0)
+				{
+					sprintf(tmp_str,"  (Lev: %d) Kill %d %s, have killed %d.\n",
+						q_ptr->level,
+						q_ptr->max_num, name, q_ptr->cur_num);
+				}
+				else
+				{
+					sprintf(tmp_str,"  (Lev: %d) Kill %d %s.\n",
+						q_ptr->level,
+						q_ptr->max_num, name);
+				}
+			}
+			else
+			{
+				sprintf(tmp_str, "  (Lev: %d) Kill %s.\n",
+					q_ptr->level, r_name+r_ptr->name);
+			}
 			fprintf(fff, tmp_str);
 		}
 	}
@@ -9670,7 +9694,7 @@ static void do_cmd_knowledge_quests(void)
 	if (p_ptr->wizard)
 	{
 		fputc('\n', fff);
-		do_cmd_knowledge_quests_wiz_random(fff);
+		do_cmd_knowledge_quests_wiz_random(fff, quest_num);
 	}
 
 	/* Close the file */

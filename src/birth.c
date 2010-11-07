@@ -3436,6 +3436,24 @@ static bool mon_hook_quest(int r_idx)
 	return TRUE;
 }
 
+static bool mon_hook_quest_unique(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (!(r_ptr->flags1 & RF1_UNIQUE)) return FALSE;
+
+	return TRUE;
+}
+
+static bool mon_hook_quest_nonunique(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if (r_ptr->flags1 & RF1_UNIQUE) return FALSE;
+
+	return TRUE;
+}
+
 
 /*
  * Determine the random quest uniques
@@ -3444,20 +3462,58 @@ void determine_random_questor(quest_type *q_ptr)
 {
 	int          r_idx;
 	monster_race *r_ptr;
+	int			 attempt = 0;
+	bool		 force_unique = FALSE;
+	bool		 prevent_unique = FALSE;
+
+	/* High Level quests are stacked with uniques.  Everything else
+	   is stacked the other way.  So lets make some attempt at balance.
+	   Of course, users can force all quests to be for uniques, in 
+	   true Hengband spirit. */
+	if (quest_unique || one_in_(3))
+	{
+		get_mon_num_prep(mon_hook_quest, mon_hook_quest_unique);
+		force_unique = TRUE;
+	}
+	else if (one_in_(2))
+	{
+		get_mon_num_prep(mon_hook_quest, mon_hook_quest_nonunique);
+		prevent_unique = TRUE;
+	}
+	else
+		get_mon_num_prep(mon_hook_quest, NULL);
 
 	/* Prepare allocation table */
 	get_mon_num_prep(mon_hook_quest, NULL);
 
 	while (1)
 	{
+		int accept_lev = q_ptr->level + (q_ptr->level / 20);
+		int mon_lev = q_ptr->level + 5 + randint1(q_ptr->level / 10);
+
+		/* Hacks for high level quests */
+		if (accept_lev > 88)
+			accept_lev = 88;
+
+		if (mon_lev > 88)
+			mon_lev = 88;
+
+		attempt++;
+
 		/*
 		 * Random monster 5 - 10 levels out of depth
 		 * (depending on level)
 		 */
-		r_idx = get_mon_num(q_ptr->level + 5 + randint1(q_ptr->level / 10));
+		r_idx = get_mon_num(mon_lev);
 		r_ptr = &r_info[r_idx];
 
-		if (!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+		/* Try to enforce preferences, but its virtually impossible to prevent
+		   high level quests for uniques */
+		if (attempt < 5000)
+		{
+			if (prevent_unique && (r_ptr->flags1 & RF1_UNIQUE)) continue;
+			if (force_unique && !(r_ptr->flags1 & RF1_UNIQUE)) continue;
+		}
 
 		if (r_ptr->flags1 & RF1_QUESTOR) continue;
 
@@ -3475,7 +3531,7 @@ void determine_random_questor(quest_type *q_ptr)
 		 * Accept monsters that are 2 - 6 levels
 		 * out of depth depending on the quest level
 		 */
-		if (r_ptr->level > (q_ptr->level + (q_ptr->level / 20))) break;
+		if (r_ptr->level > accept_lev) break;
 	}
 
 	q_ptr->r_idx = r_idx;
@@ -3487,8 +3543,9 @@ void determine_random_questor(quest_type *q_ptr)
  */
 static void init_dungeon_quests(void)
 {
-	int number_of_quests = MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1;
 	int i;
+
+	num_random_quests = get_quantity("How many quests (0 to 49)? ", 49);
 
 	/* Init the random quests */
 	init_flags = INIT_ASSIGN;
@@ -3499,7 +3556,7 @@ static void init_dungeon_quests(void)
 	p_ptr->inside_quest = 0;
 
 	/* Generate quests */
-	for (i = MIN_RANDOM_QUEST + number_of_quests - 1; i >= MIN_RANDOM_QUEST; i--)
+	for (i = MIN_RANDOM_QUEST + num_random_quests - 1; i >= MIN_RANDOM_QUEST; i--)
 	{
 		quest_type      *q_ptr = &quest[i];
 		monster_race    *quest_r_ptr;
@@ -3509,9 +3566,15 @@ static void init_dungeon_quests(void)
 
 		/* Mark uniques */
 		quest_r_ptr = &r_info[q_ptr->r_idx];
-		quest_r_ptr->flags1 |= RF1_QUESTOR;
-
-		q_ptr->max_num = 1;
+		if (quest_r_ptr->flags1 & RF1_UNIQUE)
+		{
+			quest_r_ptr->flags1 |= RF1_QUESTOR;
+			q_ptr->max_num = 1;
+		}
+		else
+		{
+			q_ptr->max_num = randint1(20) + 5;
+		}
 	}
 
 	/* Init the two main quests (Oberon + Serpent) */

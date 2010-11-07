@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 4
+#define FAKE_VER_PATCH 5
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 4
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 5
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -139,10 +139,10 @@
  * Quest constants
  */
 #define MIN_RANDOM_QUEST    40
-#define MAX_RANDOM_QUEST    49
+/*#define MAX_RANDOM_QUEST	(MIN_RANDOM_QUEST + num_random_quests - 1)*/
 
 /* Check is the quest index is "fixed" */
-#define is_fixed_quest_idx(Q_IDX) (((Q_IDX) < MIN_RANDOM_QUEST) || ((Q_IDX) > MAX_RANDOM_QUEST))
+#define is_fixed_quest_idx(Q_IDX) (((Q_IDX) < MIN_RANDOM_QUEST) || ((Q_IDX) >= MIN_RANDOM_QUEST + num_random_quests))
 
 #define QUEST_OBERON         8
 #define QUEST_SERPENT        9

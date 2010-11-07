@@ -6317,6 +6317,9 @@ option_type option_info[] =
 	{ &allow_pets,						TRUE, OPT_PAGE_BIRTH, 6, 20,
 	"allow_pets",						"Allow player to summon/charm monsters" },
 
+	{ &quest_unique,					TRUE, OPT_PAGE_BIRTH, 6, 21,
+	"quest_unique",						"Random quests for unique monsters only" },
+
 	/*** Easy Object Auto-Destroyer ***/
 
 #ifdef JP

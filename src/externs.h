@@ -342,6 +342,7 @@ extern bool powerup_home;	/* Increase capacity of your home (*) */
 extern bool allow_friendly_monster; /* Allow monsters friendly to player */
 extern bool allow_hostile_monster; /* Allow monsters hostile to each other */
 extern bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
+extern bool quest_unique; /* Random quests for unique monsters only */
 
 
 /*** Easy Object Auto-Destroyer ***/
@@ -523,6 +524,7 @@ extern bool monk_notify_aux;
 extern wilderness_type **wilderness;
 extern building_type building[MAX_BLDG];
 extern u16b max_quests;
+extern byte num_random_quests;
 extern u16b max_r_idx;
 extern u16b max_k_idx;
 extern u16b max_v_idx;
