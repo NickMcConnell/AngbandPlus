@@ -1132,6 +1132,10 @@ static void load_quick_start(void)
 	rd_byte(&previous_char.psex);
 	rd_byte(&previous_char.prace);
 	rd_byte(&previous_char.pclass);
+	if (h_older_than(0, 0, 7, 2))
+		previous_char.pclass = 0;
+	else
+		rd_byte(&previous_char.psubclass);
 	rd_byte(&previous_char.pseikaku);
 	rd_byte(&previous_char.realm1);
 	rd_byte(&previous_char.realm2);

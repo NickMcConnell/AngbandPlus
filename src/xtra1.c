@@ -2847,6 +2847,7 @@ static void calc_hitpoints(void)
 	if (IS_HERO()) mhp += 10;
 	if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER)) mhp += 30;
 	if (p_ptr->tsuyoshi) mhp += 50;
+	if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_UNDEAD) mhp += 100 * p_ptr->lev/50;
 
 	/* Factor in the hex spell settings */
 	if (hex_spelling(HEX_XTRA_MIGHT)) mhp += 15;
@@ -3432,9 +3433,9 @@ void calc_bonuses(void)
 			{
 			case PACT_UNDEAD:
 				p_ptr->resist_cold = TRUE;
-				if (p_ptr->lev > 9) p_ptr->skill_stl += 2;
+				p_ptr->skill_stl += 7 * p_ptr->lev/50;
 				if (p_ptr->lev > 14) p_ptr->resist_pois = TRUE;
-				if (p_ptr->lev > 24) p_ptr->stat_add[A_STR] += 3;
+				p_ptr->stat_add[A_CON] += 5 * p_ptr->lev/50;
 				if (p_ptr->lev > 29) 
 				{
 					p_ptr->resist_neth = TRUE;
@@ -3445,27 +3446,20 @@ void calc_bonuses(void)
 					p_ptr->resist_dark = TRUE;
 					p_ptr->resist_shard = TRUE;
 				}
-				if (p_ptr->lev > 44)
-				{
-					/* only give it if they don't already have it */
-					if (!(p_ptr->muta2 & MUT2_WRAITH))
-					{
-						p_ptr->muta2 |= MUT2_WRAITH;
-						p_ptr->muta2_lock |= MUT2_WRAITH;
-					}
-				}
-				/* only remove it if they got it from us ... hey, they could have used !Poly */
-				else if ((p_ptr->muta2 & MUT2_WRAITH) && (p_ptr->muta2_lock & MUT2_WRAITH))
-				{
-					p_ptr->muta2 &= ~(MUT2_WRAITH);
-					p_ptr->muta2_lock &= ~(MUT2_WRAITH);
-				}
 				break;
 			case PACT_DRAGON:
 				p_ptr->resist_fear = TRUE;
-				if (p_ptr->lev > 9) p_ptr->skill_thn += 10;
-				if (p_ptr->lev > 14) p_ptr->levitation = TRUE;
-				if (p_ptr->lev > 24) p_ptr->stat_add[A_CON] += 3;
+				p_ptr->skill_thn += 50 * p_ptr->lev / 50; /* Yeah, += p_ptr->lev is the same, but I want to tweak it */
+				if (p_ptr->lev > 14) p_ptr->levitation = TRUE; 
+				p_ptr->stat_add[A_STR] += 5 * p_ptr->lev / 50;
+				p_ptr->to_h[0] += 10 * p_ptr->lev / 50;
+				p_ptr->dis_to_h[0] +=  10 * p_ptr->lev / 50;
+				p_ptr->to_d[0] += 10 * p_ptr->lev / 50;
+				p_ptr->dis_to_d[0] += 10 * p_ptr->lev / 50;
+				p_ptr->to_h[1] += 10 * p_ptr->lev / 50;
+				p_ptr->dis_to_h[1] += 10 * p_ptr->lev / 50;
+				p_ptr->to_d[1] += 10 * p_ptr->lev / 50;
+				p_ptr->dis_to_d[1] += 10 * p_ptr->lev / 50;
 				if (p_ptr->lev > 29) p_ptr->sustain_con = TRUE;
 				if (p_ptr->lev > 44)
 				{
@@ -3485,31 +3479,16 @@ void calc_bonuses(void)
 				break;
 			case PACT_ANGEL:
 				p_ptr->levitation = TRUE;
-				if (p_ptr->lev > 9) p_ptr->skill_sav += 10;
+				p_ptr->skill_sav += 30 * p_ptr->lev/50;
 				if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
-				if (p_ptr->lev > 24) p_ptr->stat_add[A_WIS] += 3;
+				p_ptr->stat_add[A_WIS] += 5 * p_ptr->lev/50;
 				if (p_ptr->lev > 29) p_ptr->reflect = TRUE;
-				if (p_ptr->lev > 44)
-				{
-					/* only give it if they don't already have it */
-					if (!(p_ptr->muta2 & MUT2_INVULN))
-					{
-						p_ptr->muta2 |= MUT2_INVULN;
-						p_ptr->muta2_lock |= MUT2_INVULN;
-					}
-				}
-				/* only remove it if they got it from us ... hey, they could have used !Poly */
-				else if ((p_ptr->muta2 & MUT2_INVULN) && (p_ptr->muta2_lock & MUT2_INVULN))
-				{
-					p_ptr->muta2 &= ~(MUT2_INVULN);
-					p_ptr->muta2_lock &= ~(MUT2_INVULN);
-				}
 				break;
 			case PACT_DEMON:
 				p_ptr->resist_fire = TRUE;
-				if (p_ptr->lev > 9) p_ptr->skill_dev += 10;
+				p_ptr->skill_dev += 50 * p_ptr->lev/50;
 				if (p_ptr->lev > 14) p_ptr->hold_life = TRUE;
-				if (p_ptr->lev > 24) p_ptr->stat_add[A_INT] += 3;
+				p_ptr->stat_add[A_INT] += 5 * p_ptr->lev/50;
 				if (p_ptr->lev > 44)
 					p_ptr->kill_wall = TRUE;
 				break;
@@ -3519,7 +3498,7 @@ void calc_bonuses(void)
 					p_ptr->muta2 |= MUT2_HORNS;
 					p_ptr->muta2_lock |= MUT2_HORNS;
 				}
-				if (p_ptr->lev > 9) p_ptr->skill_srh += 10;
+				p_ptr->skill_srh += 20 * p_ptr->lev/50;
 				if (p_ptr->lev > 14)
 				{
 					/* only give it if they don't already have it */
@@ -3550,7 +3529,7 @@ void calc_bonuses(void)
 					p_ptr->muta2 &= ~(MUT2_TENTACLES);
 					p_ptr->muta2_lock &= ~(MUT2_TENTACLES);
 				}
-				if (p_ptr->lev > 24) p_ptr->stat_add[A_DEX] += 3;
+				p_ptr->stat_add[A_DEX] += 5 * p_ptr->lev/50;
 				if (p_ptr->lev > 44) p_ptr->telepathy = TRUE;	/* Easier then granting MUT3_ESP :) */
 				break;
 			}
@@ -5205,8 +5184,12 @@ void calc_bonuses(void)
 				case CLASS_MAGE:
 				case CLASS_HIGH_MAGE:
 				case CLASS_BLUE_MAGE:
-				case CLASS_WARLOCK:
 					num = 3; wgt = 100; mul = 2; break;
+
+				case CLASS_WARLOCK:
+					num = 3; wgt = 100; mul = 2; 
+					if (p_ptr->psubclass == PACT_DRAGON) num = 4;
+					break;
 
 				/* Priest, Mindcrafter, Magic-Eater */
 				case CLASS_PRIEST:

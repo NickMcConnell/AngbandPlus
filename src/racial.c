@@ -1425,6 +1425,10 @@ static bool cmd_racial_power_aux(s32b command)
 				{
 					restore_level();
 				}
+				else if (command == -5)
+				{
+					set_wraith_form(5 + randint1(5), FALSE);
+				}
 				break;
 
 			case PACT_DRAGON:
@@ -1468,6 +1472,10 @@ static bool cmd_racial_power_aux(s32b command)
 					int sides = 3 * plev;
 
 					set_protevil(randint1(sides) + sides, FALSE);
+				}
+				else if (command == -6)
+				{
+					set_invuln(3 + randint1(3), FALSE);
 				}
 				break;
 
@@ -2781,153 +2789,132 @@ strcpy(power_desc[num].name, "®�");
 		switch (p_ptr->psubclass)
 		{
 		case PACT_UNDEAD:
-			if (p_ptr->lev > 4)
-			{
-				strcpy(power_desc[num].name, "Satisfy Hunger");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 5;
-				power_desc[num++].number = -3;
-			}
-			if (p_ptr->lev > 19)
-			{
-				strcpy(power_desc[num].name, "Restore Life");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 30;
-				power_desc[num++].number = -4;
-			}
+			strcpy(power_desc[num].name, "Satisfy Hunger");
+			power_desc[num].level = 5;
+			power_desc[num].cost = 5;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 5;
+			power_desc[num++].number = -3;
+
+			strcpy(power_desc[num].name, "Restore Life");
+			power_desc[num].level = 20;
+			power_desc[num].cost = 20;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 30;
+			power_desc[num++].number = -4;
+
+			strcpy(power_desc[num].name, "Wraithform");
+			power_desc[num].level = 50;
+			power_desc[num].cost = 100;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 40;
+			power_desc[num++].number = -5;
 			break;
 
 		case PACT_DRAGON:
-			if (p_ptr->lev > 4)
-			{
-				strcpy(power_desc[num].name, "Detect Objects");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 5;
-				power_desc[num++].number = -3;
-			}
-			if (p_ptr->lev > 19)
-			{
-				strcpy(power_desc[num].name, "Identify");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -4;
-			}
-			if (p_ptr->lev > 34)
-			{
-				strcpy(power_desc[num].name, "Stone Skin");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -5;
-			}
+			strcpy(power_desc[num].name, "Detect Objects");
+			power_desc[num].level = 5;
+			power_desc[num].cost = 5;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 5;
+			power_desc[num++].number = -3;
+
+			strcpy(power_desc[num].name, "Identify");
+			power_desc[num].level = 20;
+			power_desc[num].cost = 20;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -4;
+
+			strcpy(power_desc[num].name, "Stone Skin");
+			power_desc[num].level = 35;
+			power_desc[num].cost = 40;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -5;
 			break;
 
 		case PACT_ANGEL:
-			if (p_ptr->lev > 4)
-			{
-				strcpy(power_desc[num].name, "Light Area");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 5;
-				power_desc[num++].number = -3;
-			}
-			if (p_ptr->lev > 19)
-			{
-				strcpy(power_desc[num].name, "Remove Curse");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -4;
-			}
-			if (p_ptr->lev > 34)
-			{
-				strcpy(power_desc[num].name, "Protection from Evil");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -5;
-			}
+			strcpy(power_desc[num].name, "Light Area");
+			power_desc[num].level = 5;
+			power_desc[num].cost = 5;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 5;
+			power_desc[num++].number = -3;
+
+			strcpy(power_desc[num].name, "Remove Curse");
+			power_desc[num].level = 20;
+			power_desc[num].cost = 20;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 20;
+			power_desc[num++].number = -4;
+
+			strcpy(power_desc[num].name, "Protection from Evil");
+			power_desc[num].level = 35;
+			power_desc[num].cost = 40;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -5;
+
+			strcpy(power_desc[num].name, "Invulnerability");
+			power_desc[num].level = 50;
+			power_desc[num].cost = 100;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 40;
+			power_desc[num++].number = -6;
 			break;
 
 		case PACT_DEMON:
-			if (p_ptr->lev > 4)
-			{
-				strcpy(power_desc[num].name, "Phase Door");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 5;
-				power_desc[num++].number = -3;
-			}
-			if (p_ptr->lev > 19)
-			{
-				strcpy(power_desc[num].name, "Teleport");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -4;
-			}
-			if (p_ptr->lev > 34)
-			{
-				strcpy(power_desc[num].name, "Recharge");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 30;
-				power_desc[num++].number = -5;
-			}
+			strcpy(power_desc[num].name, "Phase Door");
+			power_desc[num].level = 5;
+			power_desc[num].cost = 5;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 5;
+			power_desc[num++].number = -3;
+
+			strcpy(power_desc[num].name, "Teleport");
+			power_desc[num].level = 20;
+			power_desc[num].cost = 10;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -4;
+
+			strcpy(power_desc[num].name, "Recharge");
+			power_desc[num].level = 35;
+			power_desc[num].cost = 40;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 30;
+			power_desc[num++].number = -5;
 			break;
 
 		case PACT_ABERRATION:
-			if (p_ptr->lev > 4)
-			{
-				strcpy(power_desc[num].name, "Detect Monsters");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
-			}
-			if (p_ptr->lev > 19)
-			{
-				strcpy(power_desc[num].name, "Detect Doors and Stairs");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -4;
-			}
-			if (p_ptr->lev > 29)
-			{
-				strcpy(power_desc[num].name, "Polymorph Self");
-				power_desc[num].level = 30;
-				power_desc[num].cost = 30;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -5;
-			}
-			if (p_ptr->lev > 34)
-			{
-				strcpy(power_desc[num].name, "Magic Mapping");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -6;
-			}
+			strcpy(power_desc[num].name, "Detect Monsters");
+			power_desc[num].level = 5;
+			power_desc[num].cost = 5;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -3;
+
+			strcpy(power_desc[num].name, "Detect Doors and Stairs");
+			power_desc[num].level = 20;
+			power_desc[num].cost = 10;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -4;
+
+			strcpy(power_desc[num].name, "Polymorph Self");
+			power_desc[num].level = 30;
+			power_desc[num].cost = 30;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 20;
+			power_desc[num++].number = -5;
+
+			strcpy(power_desc[num].name, "Magic Mapping");
+			power_desc[num].level = 35;
+			power_desc[num].cost = 20;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -6;
 			break;
 		}
 		break;

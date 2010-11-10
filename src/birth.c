@@ -2598,6 +2598,7 @@ static void save_prev_data(birther *birther_ptr)
 	birther_ptr->psex = p_ptr->psex;
 	birther_ptr->prace = p_ptr->prace;
 	birther_ptr->pclass = p_ptr->pclass;
+	birther_ptr->psubclass = p_ptr->psubclass;
 	birther_ptr->pseikaku = p_ptr->pseikaku;
 	birther_ptr->realm1 = p_ptr->realm1;
 	birther_ptr->realm2 = p_ptr->realm2;
@@ -2655,6 +2656,7 @@ static void load_prev_data(bool swap)
 	p_ptr->psex = previous_char.psex;
 	p_ptr->prace = previous_char.prace;
 	p_ptr->pclass = previous_char.pclass;
+	p_ptr->psubclass = previous_char.psubclass;
 	p_ptr->pseikaku = previous_char.pseikaku;
 	p_ptr->realm1 = previous_char.realm1;
 	p_ptr->realm2 = previous_char.realm2;
@@ -4003,6 +4005,12 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_POTION, SV_POTION_CURE_CRITICAL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_SWORD, SV_BROAD_SWORD }
+	},
+	{
+		/* Warlock */
+		{ TV_POTION, SV_POTION_SPEED },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
+		{ TV_SWORD, SV_SHORT_SWORD },
 	},
 };
 

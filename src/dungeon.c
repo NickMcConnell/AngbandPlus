@@ -2596,10 +2596,6 @@ static void process_world_aux_mutation(void)
 	{
 		int chance = 3000;
 
-		/* Warlock Undead Pact gets better activation */
-		if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_UNDEAD && p_ptr->lev > 44)
-			chance = 1500;
-
 		if (one_in_(chance))
 		{
 			disturb(0, 0);
@@ -2797,10 +2793,6 @@ static void process_world_aux_mutation(void)
 	{
 		int chance = 5000;
 		
-		/* Warlock Angel Pact gets better activation */
-		if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_ANGEL && p_ptr->lev > 44)
-			chance = 2500;
-
 		if (one_in_(chance))
 		{
 			disturb(0, 0);

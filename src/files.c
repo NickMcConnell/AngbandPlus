@@ -2334,7 +2334,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_RES_COLD);
 			if (p_ptr->lev > 9) add_flag(flgs, TR_STEALTH);
 			if (p_ptr->lev > 14) add_flag(flgs, TR_RES_POIS);
-			if (p_ptr->lev > 24) add_flag(flgs, TR_STR);
+			if (p_ptr->lev > 4) add_flag(flgs, TR_CON);
 			if (p_ptr->lev > 29) 
 			{
 				add_flag(flgs, TR_RES_NETHER);
@@ -2349,22 +2349,22 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		case PACT_DRAGON:
 			add_flag(flgs, TR_RES_FEAR);
 			if (p_ptr->lev > 14) add_flag(flgs, TR_LEVITATION);
-			if (p_ptr->lev > 24) add_flag(flgs, TR_CON);
+			if (p_ptr->lev > 4) add_flag(flgs, TR_STR);
 			if (p_ptr->lev > 29) add_flag(flgs, TR_SUST_CON);
 			break;
 		case PACT_ANGEL:
 			add_flag(flgs, TR_LEVITATION);
 			if (p_ptr->lev > 14) add_flag(flgs, TR_SEE_INVIS);
-			if (p_ptr->lev > 24) add_flag(flgs, TR_WIS);
+			if (p_ptr->lev > 4) add_flag(flgs, TR_WIS);
 			if (p_ptr->lev > 29) add_flag(flgs, TR_REFLECT);
 			break;
 		case PACT_DEMON:
 			add_flag(flgs, TR_RES_FIRE);
 			if (p_ptr->lev > 14) add_flag(flgs, TR_HOLD_LIFE);
-			if (p_ptr->lev > 24) add_flag(flgs, TR_INT);
+			if (p_ptr->lev > 4) add_flag(flgs, TR_INT);
 			break;
 		case PACT_ABERRATION:
-			if (p_ptr->lev > 24) add_flag(flgs, TR_DEX);
+			if (p_ptr->lev > 4) add_flag(flgs, TR_DEX);
 			if (p_ptr->lev > 44) add_flag(flgs, TR_TELEPATHY);
 			break;
 		}
@@ -3700,7 +3700,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 		c = '.';
 
 		/* Mutations ... */
-		if (p_ptr->muta3 || p_ptr->tsuyoshi || (p_ptr->pclass == CLASS_WARLOCK && p_ptr->lev > 24))
+		if (p_ptr->muta3 || p_ptr->tsuyoshi || (p_ptr->pclass == CLASS_WARLOCK))
 		{
 			int dummy = 0;
 
@@ -3739,29 +3739,29 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 				if (p_ptr->muta3 & MUT3_ILL_NORM) dummy = 0;
 			}
 			
-			if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->lev > 24)
+			if (p_ptr->pclass == CLASS_WARLOCK)
 			{
 				switch (stat)
 				{
 				case A_STR:
-					if (p_ptr->psubclass == PACT_UNDEAD)
-						dummy += 3;
+					if (p_ptr->psubclass == PACT_DRAGON)
+						dummy += 5 * p_ptr->lev / 50;
 					break;
 				case A_INT:
 					if (p_ptr->psubclass == PACT_DEMON)
-						dummy += 3;
+						dummy += 5 * p_ptr->lev / 50;
 					break;
 				case A_WIS:
 					if (p_ptr->psubclass == PACT_ANGEL)
-						dummy += 3;
+						dummy += 5 * p_ptr->lev / 50;
 					break;
 				case A_DEX:
 					if (p_ptr->psubclass == PACT_ABERRATION)
-						dummy += 3;
+						dummy += 5 * p_ptr->lev / 50;
 					break;
 				case A_CON:
-					if (p_ptr->psubclass == PACT_DRAGON)
-						dummy += 3;
+					if (p_ptr->psubclass == PACT_UNDEAD)
+						dummy += 5 * p_ptr->lev / 50;
 					break;
 				}
 			}

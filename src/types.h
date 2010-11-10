@@ -1389,6 +1389,7 @@ struct birther
 	byte psex;         /* Sex index */
 	byte prace;        /* Race index */
 	byte pclass;       /* Class index */
+	byte psubclass;	   /* Subclass index */
 	byte pseikaku;     /* Seikaku index */
 	byte realm1;       /* First magic realm */
 	byte realm2;       /* Second magic realm */

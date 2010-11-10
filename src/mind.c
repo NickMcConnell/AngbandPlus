@@ -333,17 +333,121 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 99,  0,   0, ""},
 	}
   },
-  {
+  { /* Warlock: Undead */
     {
     /* Level gained,  cost,  %fail,  name */
       {  1,  0,  20, "Basic"},
       { 10,  0,  40, "Extended"},
 	  { 18,  0,  45, "Spear"},
-	  { 26,  0,  60, "Blast"},
+	  { 26,  0,  60, "Burst"},
       { 33,  0,  60, "Stunning"},
-	  { 40,  0,  70, "Special"},
-      { 45,  0,  80, "Empowered"},
+	  { 40,  0,  70, "Draining"},
+      { 45,  0,  75, "Empowered"},
+	  { 50,  0,  70, "Double"},
+      { 99,  0,   0, ""},
 	  { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+	}
+  },
+  { /* Warlock: Dragon */
+    {
+    /* Level gained,  cost,  %fail,  name */
+      {  1,  0,  20, "Basic"},
+      { 10,  0,  40, "Extended"},
+	  { 18,  0,  45, "Spear"},
+	  { 26,  0,  60, "Burst"},
+      { 33,  0,  60, "Stunning"},
+	  { 40,  0,  70, "Prismatic"},
+      { 45,  0,  75, "Empowered"},
+	  { 50,  0,  70, "Double"},
+      { 99,  0,   0, ""},
+	  { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+	}
+  },
+  { /* Warlock: Angel */
+    {
+    /* Level gained,  cost,  %fail,  name */
+      {  1,  0,  20, "Basic"},
+      { 10,  0,  40, "Extended"},
+	  { 18,  0,  45, "Spear"},
+	  { 26,  0,  60, "Burst"},
+      { 33,  0,  60, "Stunning"},
+	  { 40,  0,  70, "Dispelling"},
+      { 45,  0,  75, "Empowered"},
+	  { 50,  0,  70, "Double"},
+      { 99,  0,   0, ""},
+	  { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+	}
+  },
+  { /* Warlock: Demon */
+    {
+    /* Level gained,  cost,  %fail,  name */
+      {  1,  0,  20, "Basic"},
+      { 10,  0,  40, "Extended"},
+	  { 18,  0,  45, "Spear"},
+	  { 26,  0,  60, "Burst"},
+      { 33,  0,  60, "Stunning"},
+	  { 40,  0,  70, "Vengeful"},
+      { 45,  0,  75, "Empowered"},
+	  { 50,  0,  70, "Double"},
+      { 99,  0,   0, ""},
+	  { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+	}
+  },
+  { /* Warlock: Aberration */
+    {
+    /* Level gained,  cost,  %fail,  name */
+      {  1,  0,  20, "Basic"},
+      { 10,  0,  40, "Extended"},
+	  { 18,  0,  45, "Spear"},
+	  { 26,  0,  60, "Burst"},
+      { 33,  0,  60, "Stunning"},
+	  { 40,  0,  70, "Confusing"},
+      { 45,  0,  75, "Empowered"},
+	  { 50,  0,  70, "Double"},
       { 99,  0,   0, ""},
 	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -361,6 +465,29 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
   },
 };
 
+static int warlock_range(void)
+{
+	int rng = 5;
+
+	if (p_ptr->lev > 47)
+		rng = 8;
+	else if (p_ptr->lev > 31)
+		rng = 7;
+	else if (p_ptr->lev > 15)
+		rng = 6;
+
+	return rng;
+}
+
+static int warlock_dice(void)
+{
+	return 1 + (p_ptr->lev/2);
+}
+
+static int warlock_sides(void)
+{
+	return warlock_damage_sides[p_ptr->stat_ind[A_CHR]];
+}
 
 void mindcraft_info(char *p, int use_mind, int power)
 {
@@ -371,7 +498,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 #else
 	cptr s_dam = "dam ";
 	cptr s_dur = "dur ";
-	cptr s_range = "range ";
+	cptr s_range = "rng ";
 #endif
   int plev = p_ptr->lev;
 
@@ -515,8 +642,38 @@ void mindcraft_info(char *p, int use_mind, int power)
 				}
 				break;
 			}
-			case MIND_WARLOCK:
+			case MIND_WARLOCK_UNDEAD:
+			case MIND_WARLOCK_DRAGON:
+			case MIND_WARLOCK_ANGEL:
+			case MIND_WARLOCK_DEMON:
+			case MIND_WARLOCK_ABERRATION:
+			{
+			int rng, dice, sides;
+				dice = warlock_dice();
+				sides = warlock_sides();
+				rng = warlock_range();
+				switch (power)
+				{
+				case 0: sprintf(p, " %s%dd%d (%s%d)", s_dam, dice, sides, s_range, rng); break;
+				case 1: sprintf(p, " %s%dd%d (%s%d)", s_dam, dice, sides, s_range, rng + 10 * plev/50); break;
+				case 2: sprintf(p, " %s%dd%d (%s%d)", s_dam, dice, sides, s_range, rng); break;
+				case 3: sprintf(p, " %s%dd%d (%s%d)", s_dam, dice, sides, s_range, rng); break;
+				case 4: sprintf(p, " %s%dd%d (%s%d)", s_dam, dice, sides, s_range, rng); break;
+				case 5:
+					switch (p_ptr->psubclass)
+					{
+					case PACT_DEMON:
+						sprintf(p, " %s%dd%d*2 (%s%d)", s_dam, dice, sides, s_range, rng); break;
+					case PACT_DRAGON:
+						sprintf(p, " %s%dd%d*5/2 (%s%d)", s_dam, dice, sides, s_range, rng); break;
+					default: sprintf(p, " %s%dd%d (%s%d)", s_dam, dice, sides, s_range, rng); break;
+					}
+					break;
+				case 6: sprintf(p, " %s%dd%d*1.5 (%s%d)", s_dam, dice, sides, s_range, rng); break;
+				case 7: sprintf(p, " %s%dd%d*2 (%s%d)", s_dam, dice, sides - 2, s_range, rng); break;
+				}
 				break;
+			}
 		}
 	}
 }
@@ -623,7 +780,14 @@ static int get_mind_power(int *sn, bool only_browse)
 	  }
 	case CLASS_WARLOCK:
       {
-        use_mind = MIND_WARLOCK;
+		switch (p_ptr->psubclass)
+		{
+		case PACT_UNDEAD: use_mind = MIND_WARLOCK_UNDEAD; break;
+		case PACT_DRAGON: use_mind = MIND_WARLOCK_DRAGON; break;
+		case PACT_ANGEL: use_mind = MIND_WARLOCK_ANGEL; break;
+		case PACT_DEMON: use_mind = MIND_WARLOCK_DEMON; break;
+		case PACT_ABERRATION: use_mind = MIND_WARLOCK_ABERRATION; break;
+		}
         p = "eldritch blast";
         break;
 	  }
@@ -814,7 +978,11 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						if ((use_mind != MIND_BERSERKER) && 
 						    (use_mind != MIND_NINJUTSU) && 
 						    (use_mind != MIND_BLOOD_KNIGHT) && 
-							(use_mind != MIND_WARLOCK) && 
+							(use_mind != MIND_WARLOCK_UNDEAD) && 
+							(use_mind != MIND_WARLOCK_DRAGON) && 
+							(use_mind != MIND_WARLOCK_ANGEL) && 
+							(use_mind != MIND_WARLOCK_DEMON) && 
+							(use_mind != MIND_WARLOCK_ABERRATION) && 
 							(mana_cost > p_ptr->csp))
 						{
 							chance += 5 * (mana_cost - p_ptr->csp);
@@ -856,6 +1024,7 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 					}
 					else
 						sprintf(psi_desc, "  %c) ",I2A(i));
+
 					/* Dump the spell --(-- */
 					strcat(psi_desc,
 					       format("%-30s%2d %4d%s %3d%%%s",
@@ -1774,30 +1943,6 @@ static bool cast_blood_knight_spell(int spell)
 	return TRUE;
 }
 
-static int warlock_range(void)
-{
-	int rng = 5;
-
-	if (p_ptr->lev > 47)
-		rng += randint1(8);
-	else if (p_ptr->lev > 31)
-		rng += randint1(7);
-	else if (p_ptr->lev > 15)
-		rng += randint1(6);
-
-	return rng;
-}
-
-static int warlock_dice(void)
-{
-	return 1 + (p_ptr->lev/2);
-}
-
-static int warlock_sides(void)
-{
-	return warlock_damage_sides[p_ptr->stat_ind[A_CHR]];
-}
-
 static bool cast_warlock_spell(int spell)
 {
 	int dir, rng, dice, sides, rad;
@@ -1820,7 +1965,7 @@ static bool cast_warlock_spell(int spell)
 		break;
 
 	case 1: /* Extended */
-		rng += 10;
+		rng += 10 * plev/50;
 		project_length = rng;
 		if (!get_aim_dir(&dir)) return FALSE;
 		
@@ -1834,7 +1979,7 @@ static bool cast_warlock_spell(int spell)
 		fire_beam(GF_ELDRITCH, dir, damroll(dice, sides));
 		break;
 
-	case 3:	/* Blast */
+	case 3:	/* Burst */
 		rad = 2;
 		project_length = rng;
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1902,6 +2047,23 @@ static bool cast_warlock_spell(int spell)
 		   and block spells for that action, and then tick to 0 before the subsequent action.
 		*/
 		set_tim_no_spells(p_ptr->tim_no_spells + 1 + 1, FALSE);
+		break;
+
+	case 7:	/* Double */
+		project_length = rng;
+		sides -= 2;
+		if (!get_aim_dir(&dir)) return FALSE;
+		
+		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
+
+		/* Cancel the second ball and you still pay full price for the spell */
+		/* Hack: The Use Old Target option forces both balls on the same target */
+		 if (use_old_target && target_okay() && get_check("Choose another target?")) target_who = 0;
+		project_length = rng;
+		command_dir = 0; /* Nice ... When does this get cleared normally??? Oh, see request_command() */
+		if (!get_aim_dir(&dir)) return TRUE;
+		
+		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
 		break;
 
 	default:
@@ -2726,7 +2888,16 @@ msg_print("混乱していて集中できない！");
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;break;
 		case CLASS_TIME_LORD:       use_mind = MIND_TIME_LORD;break;
 		case CLASS_BLOOD_KNIGHT:    use_mind = MIND_BLOOD_KNIGHT;break;
-		case CLASS_WARLOCK:    use_mind = MIND_WARLOCK;break;
+		case CLASS_WARLOCK:
+			switch (p_ptr->psubclass)
+			{
+			case PACT_UNDEAD: use_mind = MIND_WARLOCK_UNDEAD; break;
+			case PACT_DRAGON: use_mind = MIND_WARLOCK_DRAGON; break;
+			case PACT_ANGEL: use_mind = MIND_WARLOCK_ANGEL; break;
+			case PACT_DEMON: use_mind = MIND_WARLOCK_DEMON; break;
+			case PACT_ABERRATION: use_mind = MIND_WARLOCK_ABERRATION; break;
+			}
+			break;
 		default:                use_mind = 0;break;
 	}
 #endif
@@ -2755,7 +2926,11 @@ msg_print("混乱していて集中できない！");
 	if ((use_mind == MIND_BERSERKER) || 
 	    (use_mind == MIND_NINJUTSU) || 
 		(use_mind == MIND_BLOOD_KNIGHT) ||
-		(use_mind == MIND_WARLOCK))
+		(use_mind == MIND_WARLOCK_UNDEAD) ||
+		(use_mind == MIND_WARLOCK_DRAGON) ||
+		(use_mind == MIND_WARLOCK_ANGEL) ||
+		(use_mind == MIND_WARLOCK_DEMON) ||
+		(use_mind == MIND_WARLOCK_ABERRATION))
 	{
 		if (mana_cost > p_ptr->chp)
 		{
@@ -2803,7 +2978,11 @@ if (!get_check("それでも挑戦しますか? ")) return;
 		    (use_mind != MIND_BERSERKER) && 
 			(use_mind != MIND_NINJUTSU) && 
 			(use_mind != MIND_BLOOD_KNIGHT) &&
-			(use_mind != MIND_WARLOCK))
+			(use_mind != MIND_WARLOCK_UNDEAD) &&
+			(use_mind != MIND_WARLOCK_DRAGON) &&
+			(use_mind != MIND_WARLOCK_ANGEL) &&
+			(use_mind != MIND_WARLOCK_DEMON) &&
+			(use_mind != MIND_WARLOCK_ABERRATION))
 		{
 			chance += 5 * (mana_cost - p_ptr->csp);
 		}
@@ -2844,7 +3023,11 @@ msg_format("%sの集中に失敗した！",p);
 		if ((use_mind != MIND_BERSERKER) && 
 		    (use_mind != MIND_NINJUTSU) && 
 			(use_mind != MIND_BLOOD_KNIGHT) && 
-			(use_mind != MIND_WARLOCK))
+			(use_mind != MIND_WARLOCK_UNDEAD) &&
+			(use_mind != MIND_WARLOCK_DRAGON) &&
+			(use_mind != MIND_WARLOCK_ANGEL) &&
+			(use_mind != MIND_WARLOCK_DEMON) &&
+			(use_mind != MIND_WARLOCK_ABERRATION))
 		{
 			if ((use_mind == MIND_KI) && (n != 5) && p_ptr->magic_num1[0])
 			{
@@ -3016,7 +3199,11 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
             cast = cast_blood_knight_spell(n);
             break;
 
-        case MIND_WARLOCK:
+        case MIND_WARLOCK_UNDEAD:
+		case MIND_WARLOCK_DRAGON:
+		case MIND_WARLOCK_ANGEL:
+		case MIND_WARLOCK_DEMON:
+		case MIND_WARLOCK_ABERRATION:
             cast = cast_warlock_spell(n);
             break;
 
@@ -3044,7 +3231,11 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 	if ((use_mind == MIND_BERSERKER) || 
 	    (use_mind == MIND_NINJUTSU) || 
 		(use_mind == MIND_BLOOD_KNIGHT) ||
-		(use_mind == MIND_WARLOCK))
+		(use_mind == MIND_WARLOCK_UNDEAD) ||
+		(use_mind == MIND_WARLOCK_DRAGON) ||
+		(use_mind == MIND_WARLOCK_ANGEL) ||
+		(use_mind == MIND_WARLOCK_DEMON) ||
+		(use_mind == MIND_WARLOCK_ABERRATION))
 	{
 #ifdef JP
 		take_hit(DAMAGE_USELIFE, mana_cost, "過度の集中", -1);
@@ -3152,7 +3343,17 @@ void do_cmd_mind_browse(void)
 	else if (p_ptr->pclass == CLASS_MIRROR_MASTER) use_mind = MIND_MIRROR_MASTER;
 	else if (p_ptr->pclass == CLASS_TIME_LORD) use_mind = MIND_TIME_LORD;
 	else if (p_ptr->pclass == CLASS_BLOOD_KNIGHT) use_mind = MIND_BLOOD_KNIGHT;
-	else if (p_ptr->pclass == CLASS_WARLOCK) use_mind = MIND_WARLOCK;
+	else if (p_ptr->pclass == CLASS_WARLOCK)
+	{
+		switch (p_ptr->psubclass)
+		{
+		case PACT_UNDEAD: use_mind = MIND_WARLOCK_UNDEAD; break;
+		case PACT_DRAGON: use_mind = MIND_WARLOCK_DRAGON; break;
+		case PACT_ANGEL: use_mind = MIND_WARLOCK_ANGEL; break;
+		case PACT_DEMON: use_mind = MIND_WARLOCK_DEMON; break;
+		case PACT_ABERRATION: use_mind = MIND_WARLOCK_ABERRATION; break;
+		}
+	}
 
 	screen_save();
 

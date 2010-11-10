@@ -77,7 +77,7 @@
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
 #define H_VER_PATCH 7
-#define H_VER_EXTRA 1
+#define H_VER_EXTRA 2
 
 
 #define ANGBAND_2_8_1
@@ -379,8 +379,13 @@
 #define MIND_NINJUTSU       4
 #define MIND_TIME_LORD		5
 #define MIND_BLOOD_KNIGHT	6
-#define MIND_WARLOCK		7
-#define MIND_MAX_CLASSES	8
+#define MIND_WARLOCK_UNDEAD	7
+#define MIND_WARLOCK_DRAGON	8
+#define MIND_WARLOCK_ANGEL	9
+#define MIND_WARLOCK_DEMON	10
+#define MIND_WARLOCK_ABERRATION	11
+
+#define MIND_MAX_CLASSES	12
 
 
 /*

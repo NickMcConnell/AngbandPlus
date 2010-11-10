@@ -818,6 +818,19 @@ bool make_attack_normal(int m_idx)
 							/* Don't heal more than max hp */
 							heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
 
+							/* Hack: Resist Charge Drain 
+							   We could make this a general ability, but for now,
+							   high level Demon Warlocks get this at CL40
+							*/
+							if ( p_ptr->pclass == CLASS_WARLOCK
+							  && p_ptr->psubclass == PACT_DEMON
+							  && p_ptr->lev > 39 
+							  && saving_throw(p_ptr->skill_sav - r_ptr->level/2) )
+							{
+								msg_print("Energy begins to drain from your pack, but you resist!");
+								break;
+							}
+
 							/* Message */
 #ifdef JP
 							msg_print("ザックからエネルギーが吸い取られた！");

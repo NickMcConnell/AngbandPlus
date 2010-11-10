@@ -521,6 +521,7 @@ static void save_quick_start(void)
 	wr_byte(previous_char.psex);
 	wr_byte(previous_char.prace);
 	wr_byte(previous_char.pclass);
+	wr_byte(previous_char.psubclass);
 	wr_byte(previous_char.pseikaku);
 	wr_byte(previous_char.realm1);
 	wr_byte(previous_char.realm2);
