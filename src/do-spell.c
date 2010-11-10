@@ -862,7 +862,7 @@ static void cast_shuffle(void)
 #endif
 
 		do_cmd_rerate(FALSE);
-		if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+		if (count_unlocked_mutations() > 0)
 		{
 #ifdef JP
 			msg_print("全ての突然変異が治った。");
@@ -870,7 +870,9 @@ static void cast_shuffle(void)
 			msg_print("You are cured of all mutations.");
 #endif
 
-			p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+			p_ptr->muta1 = p_ptr->muta1_lock;
+			p_ptr->muta2 = p_ptr->muta2_lock;
+			p_ptr->muta3 = p_ptr->muta3_lock;
 			p_ptr->update |= PU_BONUS;
 			handle_stuff();
 		}

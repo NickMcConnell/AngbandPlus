@@ -430,7 +430,7 @@ errr do_cmd_write_nikki(int type, int num, cptr note)
 #ifdef JP
 			note_level = "アリーナ:";
 #else
-			note_level = "Arane:";
+			note_level = "Arena:";
 #endif
 		else if (!dun_level)
 #ifdef JP

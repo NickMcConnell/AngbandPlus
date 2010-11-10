@@ -144,3 +144,5 @@ R:0:0xA8/0
 R:0:0xA5/0
 ?:[EQU $CLASS Blood-Knight]
 R:0:0xAA/0
+?:[EQU $CLASS Warlock]
+R:0:0xA5/0

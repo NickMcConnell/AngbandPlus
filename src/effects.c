@@ -1235,6 +1235,109 @@ bool set_tim_blood_feast(int v, bool do_dec)
 	return (TRUE);
 }
 
+bool set_tim_no_spells(int v, bool do_dec)
+{
+	bool notice = FALSE;
+	/* Don't recalc v! 
+	   This is not your typical timer, and counts down after every
+	   player action.
+	*/
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_no_spells)
+		{
+			msg_print("You feel your magic blocked.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_no_spells)
+		{
+			msg_print("You feel your magic return.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_no_spells = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_no_device(int v, bool do_dec)
+{
+	bool notice = FALSE;
+	/* Don't recalc v! 
+	   This is not your typical timer, and counts down after every
+	   player action.
+	*/
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (!p_ptr->tim_no_device)
+		{
+		/*  Hack: No message.  This always comes with tim_no_spells as an added evil effect */ 
+		/*	msg_print("You feel surrounded by powerful antimagic."); */
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_no_device)
+		{
+		/*  Hack: No message.  This always comes with tim_no_spells as an added evil effect */ 
+		/*	msg_print("You feel the antimagic forces leave you."); */
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_no_device = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
 /*
  * Set "p_ptr->fast", notice observable changes
  */
@@ -5631,6 +5734,8 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
 
+	/* This might slow things down a bit ... 
+	   But, Blood Knight power varies with hp.  */
 	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 		p_ptr->update |= (PU_BONUS);
 

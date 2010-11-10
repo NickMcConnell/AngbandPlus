@@ -270,69 +270,74 @@ static named_num gf_desc[] =
 	{"GF_OLD_CLONE",			GF_OLD_CLONE		},
 	{"GF_OLD_POLY",			GF_OLD_POLY			},
 	{"GF_OLD_HEAL",			GF_OLD_HEAL			},
-	{"GF_OLD_SPEED",			GF_OLD_SPEED		},
+	{"GF_OLD_SPEED",		GF_OLD_SPEED		},
 	{"GF_OLD_SLOW",			GF_OLD_SLOW			},
 	{"GF_OLD_CONF",			GF_OLD_CONF			},
-	{"GF_OLD_SLEEP",			GF_OLD_SLEEP		},
-	{"GF_OLD_DRAIN",			GF_OLD_DRAIN		},
+	{"GF_OLD_SLEEP",		GF_OLD_SLEEP		},
+	{"GF_OLD_DRAIN",		GF_OLD_DRAIN		},
 	{"GF_AWAY_UNDEAD",		GF_AWAY_UNDEAD		},
-	{"GF_AWAY_EVIL",			GF_AWAY_EVIL		},
+	{"GF_AWAY_EVIL",		GF_AWAY_EVIL		},
 	{"GF_AWAY_ALL",			GF_AWAY_ALL			},
 	{"GF_TURN_UNDEAD",		GF_TURN_UNDEAD		},
-	{"GF_TURN_EVIL",			GF_TURN_EVIL		},
+	{"GF_TURN_EVIL",		GF_TURN_EVIL		},
 	{"GF_TURN_ALL",			GF_TURN_ALL			},
 	{"GF_DISP_UNDEAD",		GF_DISP_UNDEAD		},
-	{"GF_DISP_EVIL",			GF_DISP_EVIL		},
+	{"GF_DISP_EVIL",		GF_DISP_EVIL		},
 	{"GF_DISP_ALL",			GF_DISP_ALL			},
-	{"GF_DISP_DEMON",			GF_DISP_DEMON		},
+	{"GF_DISP_DEMON",		GF_DISP_DEMON		},
 	{"GF_DISP_LIVING",		GF_DISP_LIVING		},
-	{"GF_ROCKET",				GF_ROCKET			},
-	{"GF_NUKE",					GF_NUKE				},
-	{"GF_MAKE_GLYPH",			GF_MAKE_GLYPH		},
-	{"GF_STASIS",				GF_STASIS			},
-	{"GF_STONE_WALL",			GF_STONE_WALL		},
-	{"GF_DEATH_RAY",			GF_DEATH_RAY		},
-	{"GF_STUN",					GF_STUN				},
-	{"GF_HOLY_FIRE",			GF_HOLY_FIRE		},
-	{"GF_HELL_FIRE",			GF_HELL_FIRE		},
+	{"GF_ROCKET",			GF_ROCKET			},
+	{"GF_NUKE",				GF_NUKE				},
+	{"GF_MAKE_GLYPH",		GF_MAKE_GLYPH		},
+	{"GF_STASIS",			GF_STASIS			},
+	{"GF_STONE_WALL",		GF_STONE_WALL		},
+	{"GF_DEATH_RAY",		GF_DEATH_RAY		},
+	{"GF_STUN",				GF_STUN				},
+	{"GF_HOLY_FIRE",		GF_HOLY_FIRE		},
+	{"GF_HELL_FIRE",		GF_HELL_FIRE		},
 	{"GF_DISINTEGRATE",		GF_DISINTEGRATE	},
-	{"GF_CHARM",				GF_CHARM				},
+	{"GF_CHARM",			GF_CHARM				},
 	{"GF_CONTROL_UNDEAD",	GF_CONTROL_UNDEAD	},
 	{"GF_CONTROL_ANIMAL",	GF_CONTROL_ANIMAL	},
-	{"GF_PSI",					GF_PSI				},
-	{"GF_PSI_DRAIN",			GF_PSI_DRAIN		},
+	{"GF_PSI",				GF_PSI				},
+	{"GF_PSI_DRAIN",		GF_PSI_DRAIN		},
 	{"GF_TELEKINESIS",		GF_TELEKINESIS		},
 	{"GF_JAM_DOOR",			GF_JAM_DOOR			},
-	{"GF_DOMINATION",			GF_DOMINATION		},
-	{"GF_DISP_GOOD",			GF_DISP_GOOD		},
-	{"GF_DRAIN_MANA",			GF_DRAIN_MANA		},
-	{"GF_MIND_BLAST",			GF_MIND_BLAST		},
-	{"GF_BRAIN_SMASH",			GF_BRAIN_SMASH		},
+	{"GF_DOMINATION",		GF_DOMINATION		},
+	{"GF_DISP_GOOD",		GF_DISP_GOOD		},
+	{"GF_DRAIN_MANA",		GF_DRAIN_MANA		},
+	{"GF_MIND_BLAST",		GF_MIND_BLAST		},
+	{"GF_BRAIN_SMASH",		GF_BRAIN_SMASH		},
 	{"GF_CAUSE_1",			GF_CAUSE_1		},
 	{"GF_CAUSE_2",			GF_CAUSE_2		},
 	{"GF_CAUSE_3",			GF_CAUSE_3		},
 	{"GF_CAUSE_4",			GF_CAUSE_4		},
-	{"GF_HAND_DOOM",			GF_HAND_DOOM		},
+	{"GF_HAND_DOOM",		GF_HAND_DOOM		},
 	{"GF_CAPTURE",			GF_CAPTURE		},
-	{"GF_ANIM_DEAD",			GF_ANIM_DEAD		},
-	{"GF_CONTROL_LIVING",		GF_CONTROL_LIVING	},
+	{"GF_ANIM_DEAD",		GF_ANIM_DEAD		},
+	{"GF_CONTROL_LIVING",	GF_CONTROL_LIVING	},
 	{"GF_IDENTIFY",			GF_IDENTIFY	},
 	{"GF_ATTACK",			GF_ATTACK	},
 	{"GF_ENGETSU",			GF_ENGETSU	},
 	{"GF_GENOCIDE",			GF_GENOCIDE	},
 	{"GF_PHOTO",			GF_PHOTO	},
 	{"GF_CONTROL_DEMON",	GF_CONTROL_DEMON	},
-	{"GF_LAVA_FLOW",	GF_LAVA_FLOW	},
-	{"GF_BLOOD_CURSE",	GF_BLOOD_CURSE	},
+	{"GF_LAVA_FLOW",		GF_LAVA_FLOW	},
+	{"GF_BLOOD_CURSE",		GF_BLOOD_CURSE	},
 	{"GF_SEEKER",			GF_SEEKER			},
 	{"GF_SUPER_RAY",		GF_SUPER_RAY			},
 	{"GF_STAR_HEAL",		GF_STAR_HEAL			},
 	{"GF_WATER_FLOW",		GF_WATER_FLOW			},
-	{"GF_CRUSADE",		GF_CRUSADE			},
-	{"GF_STASIS_EVIL",			GF_STASIS_EVIL		},
+	{"GF_CRUSADE",			GF_CRUSADE			},
+	{"GF_STASIS_EVIL",		GF_STASIS_EVIL		},
 	{"GF_WOUNDS",			GF_WOUNDS		},
 	{"GF_BLOOD",		 	GF_BLOOD				},
-	{NULL, 						0						}
+	{"GF_ELDRITCH",		 	GF_ELDRITCH				},
+	{"GF_ELDRITCH_STUN",	GF_ELDRITCH_STUN		},
+	{"GF_ELDRITCH_DRAIN",	GF_ELDRITCH_DRAIN		},
+	{"GF_ELDRITCH_DISPEL",	GF_ELDRITCH_DISPEL		},
+	{"GF_ELDRITCH_CONFUSE",	GF_ELDRITCH_CONFUSE		},
+	{NULL, 					0						}
 };
 
 
@@ -1569,10 +1574,9 @@ errr check_load_init(void)
 #define ENTRY_WEIGHT 40
 #define ENTRY_SOCIAL 41
 #define ENTRY_ALIGN 42
-
 #define ENTRY_EXP_ANDR 43
 #define ENTRY_EXP_TO_ADV_ANDR 44
-
+#define ENTRY_PACT 45
 
 static struct
 {
@@ -1676,6 +1680,7 @@ static struct
 	{29,  7, 21, "Align"},
 	{29, 14, 21, "Construction"},
 	{29, 16, 21, "Const to Adv"},
+	{ 1,  6, -1, "Pact     : "},
 };
 #endif
 
@@ -2321,6 +2326,48 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		break;
 	case CLASS_MIRROR_MASTER:
 		if(p_ptr->lev > 39)add_flag(flgs, TR_REFLECT);
+		break;
+	case CLASS_WARLOCK:
+		switch(p_ptr->psubclass)
+		{
+		case PACT_UNDEAD:
+			add_flag(flgs, TR_RES_COLD);
+			if (p_ptr->lev > 9) add_flag(flgs, TR_STEALTH);
+			if (p_ptr->lev > 14) add_flag(flgs, TR_RES_POIS);
+			if (p_ptr->lev > 24) add_flag(flgs, TR_STR);
+			if (p_ptr->lev > 29) 
+			{
+				add_flag(flgs, TR_RES_NETHER);
+				add_flag(flgs, TR_HOLD_LIFE);
+			}
+			if (p_ptr->lev > 34) 
+			{
+				add_flag(flgs, TR_RES_DARK);
+				add_flag(flgs, TR_RES_SHARDS);
+			}
+			break;		
+		case PACT_DRAGON:
+			add_flag(flgs, TR_RES_FEAR);
+			if (p_ptr->lev > 14) add_flag(flgs, TR_LEVITATION);
+			if (p_ptr->lev > 24) add_flag(flgs, TR_CON);
+			if (p_ptr->lev > 29) add_flag(flgs, TR_SUST_CON);
+			break;
+		case PACT_ANGEL:
+			add_flag(flgs, TR_LEVITATION);
+			if (p_ptr->lev > 14) add_flag(flgs, TR_SEE_INVIS);
+			if (p_ptr->lev > 24) add_flag(flgs, TR_WIS);
+			if (p_ptr->lev > 29) add_flag(flgs, TR_REFLECT);
+			break;
+		case PACT_DEMON:
+			add_flag(flgs, TR_RES_FIRE);
+			if (p_ptr->lev > 14) add_flag(flgs, TR_HOLD_LIFE);
+			if (p_ptr->lev > 24) add_flag(flgs, TR_INT);
+			break;
+		case PACT_ABERRATION:
+			if (p_ptr->lev > 24) add_flag(flgs, TR_DEX);
+			if (p_ptr->lev > 44) add_flag(flgs, TR_TELEPATHY);
+			break;
+		}
 		break;
 	default:
 		break; /* Do nothing */
@@ -3653,7 +3700,7 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 		c = '.';
 
 		/* Mutations ... */
-		if (p_ptr->muta3 || p_ptr->tsuyoshi)
+		if (p_ptr->muta3 || p_ptr->tsuyoshi || (p_ptr->pclass == CLASS_WARLOCK && p_ptr->lev > 24))
 		{
 			int dummy = 0;
 
@@ -3691,6 +3738,34 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 				if (p_ptr->muta3 & MUT3_WART_SKIN) dummy -= 2;
 				if (p_ptr->muta3 & MUT3_ILL_NORM) dummy = 0;
 			}
+			
+			if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->lev > 24)
+			{
+				switch (stat)
+				{
+				case A_STR:
+					if (p_ptr->psubclass == PACT_UNDEAD)
+						dummy += 3;
+					break;
+				case A_INT:
+					if (p_ptr->psubclass == PACT_DEMON)
+						dummy += 3;
+					break;
+				case A_WIS:
+					if (p_ptr->psubclass == PACT_ANGEL)
+						dummy += 3;
+					break;
+				case A_DEX:
+					if (p_ptr->psubclass == PACT_ABERRATION)
+						dummy += 3;
+					break;
+				case A_CON:
+					if (p_ptr->psubclass == PACT_DRAGON)
+						dummy += 3;
+					break;
+				}
+			}
+
 
 			/* Boost */
 			if (dummy)
@@ -3779,7 +3854,12 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_RACE, (p_ptr->mimic_form ? mimic_info[p_ptr->mimic_form].title : rp_ptr->title), TERM_L_BLUE);
 		display_player_one_line(ENTRY_CLASS, cp_ptr->title, TERM_L_BLUE);
 
-		if (p_ptr->realm1)
+		if (p_ptr->pclass == CLASS_WARLOCK)
+		{
+			strcpy(tmp, pact_info[p_ptr->psubclass].title);
+			display_player_one_line(ENTRY_PACT, tmp, TERM_L_BLUE);
+		}
+		else if (p_ptr->realm1)
 		{
 			if (p_ptr->realm2)
 				sprintf(tmp, "%s, %s", realm_names[p_ptr->realm1], realm_names[p_ptr->realm2]);

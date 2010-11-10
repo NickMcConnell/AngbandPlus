@@ -1938,17 +1938,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Modify the damage */
 		k = mon_damage_mod(m_ptr, k, FALSE);
 
-		/* Complex message */
-		if (p_ptr->wizard)
-		{
-#ifdef JP
-				msg_format("%d/%d のダメージを与えた。", k, m_ptr->hp);
-#else
-			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-#endif
-
-		}
-
 		/* Anger the monster */
 		if (k > 0) anger_monster(m_ptr);
 
@@ -2637,16 +2626,6 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 #endif
 					}
 				}
-			}
-
-			/* Complex message */
-			if (p_ptr->wizard || cheat_xtra)
-			{
-#ifdef JP
-				msg_format("%d/%d のダメージを与えた。", k, m_ptr->hp);
-#else
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-#endif
 			}
 
 			if (k <= 0) can_drain = FALSE;

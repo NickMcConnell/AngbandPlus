@@ -1891,6 +1891,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "A blood knight is a fighter who has delved into the dark arts and can perform a limited number of offense effects using his own health.  In addition to the HP cost, using an ability also causes bleeding/wounds, with an amount proportional to the cost of the ability.",
 
+"A warlock, unlike typical mages, derives his powers from pacts with arcane creatures, rather than through careful study.  They can cast all magic they know at will without requiring any SP, and depending on the type of Warlock, have different abilities.",
+ 
 #endif
 };
 
@@ -2351,6 +2353,103 @@ static byte choose_realm(s32b choices, int *count)
 
 	return (picks[k]);
 }
+
+static bool get_warlock_pact(void)
+{
+	int i, k, n, cs, os;
+	char buf[80], cur[80];
+	player_pact *pact_ptr = NULL;
+	cptr str;
+	char p2 = ')';
+	char c;
+
+	clear_from(10);
+	put_str("Its time to make your pact.", 23, 5);
+
+	for (n = 0; n < MAX_PACTS; n++)
+	{
+		pact_ptr = &pact_info[n];
+		sprintf(buf, "%c%c %s", I2A(n), p2, pact_ptr->title);
+		put_str(buf, 12 + (n/5), 2 + 15 * (n%5));
+	}
+
+	sprintf(cur, "%c%c %s", '*', p2, "Random");
+
+	/* Choose */
+	k = -1;
+	cs = 0;
+	os = MAX_PACTS;
+	while (1)
+	{
+		if (cs != os)
+		{
+			put_str(cur, 12 + (os/5), 2 + 15 * (os%5));
+			if(cs == MAX_PACTS)
+				sprintf(cur, "%c%c %s", '*', p2, "Random");
+			else
+			{
+				pact_ptr = &pact_info[cs];
+				str = pact_ptr->title;
+				sprintf(cur, "%c%c %s", I2A(cs), p2, str);
+			}
+			c_put_str(TERM_YELLOW, cur, 12 + (cs/5), 2 + 15 * (cs%5));
+			os = cs;
+		}
+
+		if (k >= 0) break;
+
+		sprintf(buf, "Make a Pact (%c-%c): ", I2A(0), I2A(n-1));
+
+		put_str(buf, 10, 10);
+		c = inkey();
+		if (c == 'Q') birth_quit();
+		if (c == 'S') return (FALSE);
+		if (c == ' ' || c == '\r' || c == '\n')
+		{
+			if(cs == MAX_PACTS)
+				k = randint0(MAX_PACTS);
+			else
+				k = cs;
+			break;
+		}
+		if (c == '*')
+		{
+			k = randint0(MAX_PACTS);
+			break;
+		}
+		if (c == '4')
+		{
+			if (cs > 0) cs--;
+		}
+		if (c == '6')
+		{
+			if (cs < MAX_PACTS) cs++;
+		}
+		k = (islower(c) ? A2I(c) : -1);
+		if ((k >= 0) && (k < MAX_PACTS))
+		{
+			cs = k;
+			continue;
+		}
+		else k = -1;
+		if (c == '?') do_cmd_help();
+		else if(c != '4' && c != '6')bell();
+	}
+
+	p_ptr->psubclass = k;
+	clear_from(10);
+	return TRUE;
+}
+
+static bool get_player_subclass(void)
+{
+	p_ptr->psubclass = 0;
+	if (p_ptr->pclass == CLASS_WARLOCK) 
+		return get_warlock_pact();
+
+	return TRUE;
+}
+
 
 
 /*
@@ -3299,6 +3398,14 @@ static void player_wipe(void)
 
 		/* Clear all kills in this life */
 		r_ptr->r_akills = 0;
+
+		/* Wipe out pact alliances from previous character 
+		   Currently, flagsr is only set to make the memory field
+		   work, but perhaps it would be better to set this once
+		   and for all when a pact is made?  This would break
+		   my savefiles though ...*/
+		r_ptr->flagsr &= ~(RFR_PACT_MONSTER);
+		r_ptr->r_flagsr &= ~(RFR_PACT_MONSTER);
 	}
 
 
@@ -3396,6 +3503,10 @@ static void player_wipe(void)
 	p_ptr->muta1 = 0;
 	p_ptr->muta2 = 0;
 	p_ptr->muta3 = 0;
+
+	p_ptr->muta1_lock = 0;
+	p_ptr->muta2_lock = 0;
+	p_ptr->muta3_lock = 0;
 
 	/* Reset virtues*/
 	for (i = 0; i < 8; i++) p_ptr->virtues[i]=0;
@@ -6032,6 +6143,7 @@ static bool player_birth_aux(void)
 
 	/* Choose the magic realms */
 	if (!get_player_realms()) return FALSE;
+	if (!get_player_subclass()) return FALSE;
 
 	/* Choose the players seikaku */
 	p_ptr->pseikaku = 0;

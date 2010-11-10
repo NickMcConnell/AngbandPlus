@@ -812,6 +812,14 @@ struct player_sex
 #endif
 };
 
+typedef struct player_pact player_pact;
+
+struct player_pact
+{
+	cptr title;
+	cptr alliance;
+};
+
 
 /*
  * Player racial info
@@ -955,7 +963,7 @@ struct player_type
 	byte pseikaku;		/* Seikaku index */
 	byte realm1;        /* First magic realm */
 	byte realm2;        /* Second magic realm */
-	byte oops;			/* Unused */
+	byte psubclass;		/* e.g. Pacts on Warlocks */
 
 	byte hitdie;		/* Hit dice (sides) */
 	u16b expfact;       /* Experience factor
@@ -1068,6 +1076,8 @@ struct player_type
 	   Well, I'm not going to fight the codebase for the moment, so here are
 	   a bunch more of these!
 	*/
+	s16b tim_spurt;
+	s16b tim_spec_corporeal;
 	s16b tim_speed_essentia;
 	s16b tim_slow_digest;
 	s16b tim_crystal_skin;
@@ -1080,6 +1090,10 @@ struct player_type
 	s16b tim_blood_seek;
 	s16b tim_blood_sight;
 	s16b tim_blood_feast;
+
+	/* Warlock */
+	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
+	s16b tim_no_device;		/* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
 							
 	/* for mirror master */
 	s16b tim_reflect;       /* Timed -- Reflect */
@@ -1090,6 +1104,11 @@ struct player_type
 	u32b muta1;
 	u32b muta2;
 	u32b muta3;
+
+	u32b muta1_lock;		/* Mutations may be locked so that they won't get removed. */
+	u32b muta2_lock;		/* For example, Lucky Personality gives white aura, though I'm sure that is just hacked to work.*/
+	u32b muta3_lock;		/* Warlocks gain fixed mutations as they level up, and these should never be removed! */
+							/* But now the door is open for other fixed mutation abilities */
 
 	s16b virtues[8];
 	s16b vir_types[8];

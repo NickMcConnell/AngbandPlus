@@ -343,6 +343,7 @@ static void prt_stat(int stat)
 #define BAR_BLOOD_AURA 70
 #define BAR_BLOOD_SIGHT 71
 #define BAR_BLOOD_FEAST 72
+#define BAR_NO_SPELLS 73
 
 static struct {
 	byte attr;
@@ -497,6 +498,7 @@ static struct {
 	{TERM_RED, "Au", "Aura"},
 	{TERM_L_RED, "Si", "Sight"},
 	{TERM_RED, "Fs", "Feast"},
+	{TERM_VIOLET, "NS", "No Spells"},
 	{0, NULL, NULL}
 };
 #endif
@@ -663,6 +665,7 @@ static void prt_status(void)
 	if (p_ptr->tim_blood_seek) ADD_FLG(BAR_BLOOD_SEEK);
 	if (p_ptr->tim_blood_sight) ADD_FLG(BAR_BLOOD_SIGHT);
 	if (p_ptr->tim_blood_feast) ADD_FLG(BAR_BLOOD_FEAST);
+	if (p_ptr->tim_no_spells) ADD_FLG(BAR_NO_SPELLS);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
@@ -3423,6 +3426,135 @@ void calc_bonuses(void)
 			}
 			p_ptr->see_nocto = TRUE;
 			break;
+
+		case CLASS_WARLOCK:
+			switch (p_ptr->psubclass)
+			{
+			case PACT_UNDEAD:
+				p_ptr->resist_cold = TRUE;
+				if (p_ptr->lev > 9) p_ptr->skill_stl += 2;
+				if (p_ptr->lev > 14) p_ptr->resist_pois = TRUE;
+				if (p_ptr->lev > 24) p_ptr->stat_add[A_STR] += 3;
+				if (p_ptr->lev > 29) 
+				{
+					p_ptr->resist_neth = TRUE;
+					p_ptr->hold_life = TRUE;
+				}
+				if (p_ptr->lev > 34) 
+				{
+					p_ptr->resist_dark = TRUE;
+					p_ptr->resist_shard = TRUE;
+				}
+				if (p_ptr->lev > 44)
+				{
+					/* only give it if they don't already have it */
+					if (!(p_ptr->muta2 & MUT2_WRAITH))
+					{
+						p_ptr->muta2 |= MUT2_WRAITH;
+						p_ptr->muta2_lock |= MUT2_WRAITH;
+					}
+				}
+				/* only remove it if they got it from us ... hey, they could have used !Poly */
+				else if ((p_ptr->muta2 & MUT2_WRAITH) && (p_ptr->muta2_lock & MUT2_WRAITH))
+				{
+					p_ptr->muta2 &= ~(MUT2_WRAITH);
+					p_ptr->muta2_lock &= ~(MUT2_WRAITH);
+				}
+				break;
+			case PACT_DRAGON:
+				p_ptr->resist_fear = TRUE;
+				if (p_ptr->lev > 9) p_ptr->skill_thn += 10;
+				if (p_ptr->lev > 14) p_ptr->levitation = TRUE;
+				if (p_ptr->lev > 24) p_ptr->stat_add[A_CON] += 3;
+				if (p_ptr->lev > 29) p_ptr->sustain_con = TRUE;
+				if (p_ptr->lev > 44)
+				{
+					/* only give it if they don't already have it */
+					if (!(p_ptr->muta1 & MUT1_RESIST))
+					{
+						p_ptr->muta1 |= MUT1_RESIST;
+						p_ptr->muta1_lock |= MUT1_RESIST;
+					}
+				}
+				/* only remove it if they got it from us ... hey, they could have used !Poly */
+				else if ((p_ptr->muta1 & MUT1_RESIST) && (p_ptr->muta1_lock & MUT1_RESIST))
+				{
+					p_ptr->muta1 &= ~(MUT1_RESIST);
+					p_ptr->muta1_lock &= ~(MUT1_RESIST);
+				}
+				break;
+			case PACT_ANGEL:
+				p_ptr->levitation = TRUE;
+				if (p_ptr->lev > 9) p_ptr->skill_sav += 10;
+				if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
+				if (p_ptr->lev > 24) p_ptr->stat_add[A_WIS] += 3;
+				if (p_ptr->lev > 29) p_ptr->reflect = TRUE;
+				if (p_ptr->lev > 44)
+				{
+					/* only give it if they don't already have it */
+					if (!(p_ptr->muta2 & MUT2_INVULN))
+					{
+						p_ptr->muta2 |= MUT2_INVULN;
+						p_ptr->muta2_lock |= MUT2_INVULN;
+					}
+				}
+				/* only remove it if they got it from us ... hey, they could have used !Poly */
+				else if ((p_ptr->muta2 & MUT2_INVULN) && (p_ptr->muta2_lock & MUT2_INVULN))
+				{
+					p_ptr->muta2 &= ~(MUT2_INVULN);
+					p_ptr->muta2_lock &= ~(MUT2_INVULN);
+				}
+				break;
+			case PACT_DEMON:
+				p_ptr->resist_fire = TRUE;
+				if (p_ptr->lev > 9) p_ptr->skill_dev += 10;
+				if (p_ptr->lev > 14) p_ptr->hold_life = TRUE;
+				if (p_ptr->lev > 24) p_ptr->stat_add[A_INT] += 3;
+				if (p_ptr->lev > 44)
+					p_ptr->kill_wall = TRUE;
+				break;
+			case PACT_ABERRATION:
+				if (!(p_ptr->muta2 & MUT2_HORNS))
+				{
+					p_ptr->muta2 |= MUT2_HORNS;
+					p_ptr->muta2_lock |= MUT2_HORNS;
+				}
+				if (p_ptr->lev > 9) p_ptr->skill_srh += 10;
+				if (p_ptr->lev > 14)
+				{
+					/* only give it if they don't already have it */
+					if (!(p_ptr->muta2 & MUT2_BEAK))
+					{
+						p_ptr->muta2 |= MUT2_BEAK;
+						p_ptr->muta2_lock |= MUT2_BEAK;
+					}
+				}
+				/* only remove it if they got it from us ... hey, they could have used !Poly */
+				else if ((p_ptr->muta2 & MUT2_BEAK) && (p_ptr->muta2_lock & MUT2_BEAK))
+				{
+					p_ptr->muta2 &= ~(MUT2_BEAK);
+					p_ptr->muta2_lock &= ~(MUT2_BEAK);
+				}
+				if (p_ptr->lev > 14)
+				{
+					/* only give it if they don't already have it */
+					if (!(p_ptr->muta2 & MUT2_TENTACLES))
+					{
+						p_ptr->muta2 |= MUT2_TENTACLES;
+						p_ptr->muta2_lock |= MUT2_TENTACLES;
+					}
+				}
+				/* only remove it if they got it from us ... hey, they could have used !Poly */
+				else if ((p_ptr->muta2 & MUT2_TENTACLES) && (p_ptr->muta2_lock & MUT2_TENTACLES))
+				{
+					p_ptr->muta2 &= ~(MUT2_TENTACLES);
+					p_ptr->muta2_lock &= ~(MUT2_TENTACLES);
+				}
+				if (p_ptr->lev > 24) p_ptr->stat_add[A_DEX] += 3;
+				if (p_ptr->lev > 44) p_ptr->telepathy = TRUE;	/* Easier then granting MUT3_ESP :) */
+				break;
+			}
+			break;
 	}
 
 	/***** Races ****/
@@ -3769,7 +3901,11 @@ void calc_bonuses(void)
 	if ((p_ptr->pseikaku == SEIKAKU_GAMAN) || (p_ptr->pseikaku == SEIKAKU_CHIKARA)) p_ptr->to_m_chance++;
 
 	/* Lucky man */
-	if (p_ptr->pseikaku == SEIKAKU_LUCKY) p_ptr->muta3 |= MUT3_GOOD_LUCK;
+	if (p_ptr->pseikaku == SEIKAKU_LUCKY)
+	{
+		p_ptr->muta3 |= MUT3_GOOD_LUCK;
+		p_ptr->muta3_lock |= MUT3_GOOD_LUCK;
+	}
 
 	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
 	{
@@ -4618,40 +4754,48 @@ void calc_bonuses(void)
 	{
 		int to_h = 0;
 		int to_d = 0;
+		int to_stealth = 0;
 		if (p_ptr->cut >= CUT_MORTAL_WOUND)
 		{
 			to_h = 25;
 			to_d = 25;
+			to_stealth = -10;
 		}
 		else if (p_ptr->cut >= CUT_DEEP_GASH)
 		{
 			to_h = 15;
 			to_d = 15;
+			to_stealth = -7;
 		}
 		else if (p_ptr->cut >= CUT_SEVERE)
 		{
 			to_h = 8;
 			to_d = 8;
+			to_stealth = -5;
 		}
 		else if (p_ptr->cut >= CUT_NASTY)
 		{
 			to_h = 6;
 			to_d = 6;
+			to_stealth = -4;
 		}
 		else if (p_ptr->cut >= CUT_BAD)
 		{
 			to_h = 4;
 			to_d = 4;
+			to_stealth = -3;
 		}
 		else if (p_ptr->cut >= CUT_LIGHT)
 		{
 			to_h = 2;
 			to_d = 2;
+			to_stealth = -2;
 		}
 		else
 		{
 			to_h = 1;
 			to_d = 1;
+			to_stealth = -1;
 		}
 		p_ptr->to_h[0] += to_h;
 		p_ptr->to_h[1] += to_h;
@@ -4664,6 +4808,8 @@ void calc_bonuses(void)
 		p_ptr->to_d_m  += to_d;
 		p_ptr->dis_to_d[0] += to_d;
 		p_ptr->dis_to_d[1] += to_d;
+
+		p_ptr->skill_stl += to_stealth;
 	}
 
 	/* Temporary "fast" */
@@ -5059,6 +5205,7 @@ void calc_bonuses(void)
 				case CLASS_MAGE:
 				case CLASS_HIGH_MAGE:
 				case CLASS_BLUE_MAGE:
+				case CLASS_WARLOCK:
 					num = 3; wgt = 100; mul = 2; break;
 
 				/* Priest, Mindcrafter, Magic-Eater */
@@ -5103,7 +5250,7 @@ void calc_bonuses(void)
 					num = 4; wgt = 100; mul = 3; break;
 
 				case CLASS_BLOOD_KNIGHT:
-					num = 3; wgt = 70; mul = 5; break;
+					num = 3; wgt = 150; mul = 3; break;
 
 				/* Imitator */
 				case CLASS_IMITATOR:

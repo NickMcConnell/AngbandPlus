@@ -2067,6 +2067,8 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 
 		/* Demon characters are unaffected */
 		if (prace_is_(RACE_IMP) || prace_is_(RACE_DEMON) || (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_DEMON)) return;
+		if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_DEMON && p_ptr->lev > 29) return;
+
 		if (p_ptr->wizard) return;
 
 		/* Undead characters are 50% likely to be unaffected */

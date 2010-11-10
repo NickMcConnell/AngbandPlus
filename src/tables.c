@@ -317,6 +317,51 @@ byte adj_chr_gold[] =
 	78      /* 18/220+ */
 };
 
+/*
+ * Stat Table (INT/WIS) -- Number of half-spells per level
+ */
+byte warlock_damage_sides[] =
+{
+	4	/* 3 */,
+	5	/* 4 */,
+	5	/* 5 */,
+	6	/* 6 */,
+	6	/* 7 */,
+	6	/* 8 */,
+	6	/* 9 */,
+	6	/* 10 */,
+	6	/* 11 */,
+	6	/* 12 */,
+	6	/* 13 */,
+	6	/* 14 */,
+	7	/* 15 */,
+	7	/* 16 */,
+	7	/* 17 */,
+	8	/* 18/00-18/09 */,
+	8	/* 18/10-18/19 */,
+	8	/* 18/20-18/29 */,
+	8	/* 18/30-18/39 */,
+	8	/* 18/40-18/49 */,
+	9	/* 18/50-18/59 */,
+	9	/* 18/60-18/69 */,
+	10	/* 18/70-18/79 */,
+	10	/* 18/80-18/89 */,
+	11	/* 18/90-18/99 */,
+	11	/* 18/100-18/109 */,
+	12	/* 18/110-18/119 */,
+	12	/* 18/120-18/129 */,
+	13	/* 18/130-18/139 */,
+	13	/* 18/140-18/149 */,
+	14	/* 18/150-18/159 */,
+	14	/* 18/160-18/169 */,
+	15	/* 18/170-18/179 */,
+	16	/* 18/180-18/189 */,
+	17	/* 18/190-18/199 */,
+	19	/* 18/200-18/209 */,
+	19	/* 18/210-18/219 */,
+	20	/* 18/220+ */
+};
+
 
 /*
  * Stat Table (INT) -- Magic devices
@@ -2785,7 +2830,6 @@ s32b player_exp_a[PY_MAX_LEVEL] =
 	5000000L
 };
 
-
 /*
  * Player Sexes
  *
@@ -3745,10 +3789,47 @@ player_class class_info[MAX_CLASS] =
 #endif
 		"Blood-Knight",   /* no spaces in class names! */
 
-		{ 3, -2, -2, 2, 2, -3},
+		{ 2, -2, -2, 0, 3, -3},
 		25, 18, 32, 2,  16, 6, 70, 20,
 		12, 7,  10, 0,  0,  0, 23, 15,
 		10, 30, 40
+	},
+
+	{
+#ifdef JP
+		"TRANSLATE(Warlock)",
+#endif
+		"Warlock",
+
+		{-2, 1, 2, -1, -2, 4},
+		20, 33, 34, 1, 16, 20, 34, 20,
+		8,  13, 11, 0,  0,  0,  10, 8,
+		2, 40, 25
+	},
+};
+
+/* Warlock Pacts */
+player_pact pact_info[MAX_PACTS] = 
+{
+	{
+		"Undead",
+		"LWVzs"
+	},
+	{
+		"Dragon",
+		"Dd"
+	},
+	{
+		"Angel",
+		"A"
+	},
+	{
+		"Demon",
+		"Uu"
+	},
+	{
+		"Aberrations",
+		"hp"
 	},
 };
 
@@ -5117,16 +5198,30 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 
 	/* Blood Knight */
 	{
-		"Blood Rookie",
-		"Blood Soldier",
-		"Blood Mercenary",
-		"Blood Veteran",
-		"Blood Swordsman",
-		"Blood Champion",
+		"Bleeder",
+		"Splatterer",
+		"Gusher",
+		"Autophleb",
+		"Hemophile",
+		"Bloodling",
 		"Blood Hero",
 		"Blood Baron",
 		"Blood Duke",
 		"Blood Lord",
+	},
+
+	/* Warlock */
+	{
+		"Arcanist",
+		"Arcanist",
+		"Binder",
+		"Binder",
+		"Blaster",
+		"Blaster",
+		"Howler",
+		"Howler",
+		"Conjurer",
+		"Warlock",
 	},
 };
 #endif
@@ -6259,6 +6354,9 @@ option_type option_info[] =
 	{ &ironman_rooms,               FALSE, OPT_PAGE_BIRTH, 6, 12,
 	"ironman_rooms",                "Always generate very unusual rooms (*)" },
 #endif
+
+	{ &ironman_quests,				FALSE, OPT_PAGE_BIRTH, 6, 22,
+	"ironman_quests",				"Random quests must be completed" },
 
 #ifdef JP
 	{ &ironman_nightmare,           FALSE, OPT_PAGE_BIRTH, 6, 18,

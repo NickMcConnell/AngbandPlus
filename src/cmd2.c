@@ -96,13 +96,13 @@ void do_cmd_go_up(void)
 		     (q_ptr->flags & QUEST_FLAG_ONCE &&
 		      q_ptr->status != QUEST_STATUS_COMPLETED)))
 		{
-#ifdef JP
-			msg_print("この階を一度去ると二度と戻って来られません。");
-			if (get_check("本当にこの階を去りますか？")) go_up = TRUE;
-#else
-			msg_print("You can't come back here once you leave this floor.");
-			if (get_check("Really leave this floor? ")) go_up = TRUE;
-#endif
+			if (q_ptr->type == QUEST_TYPE_RANDOM && ironman_quests)
+				go_up = TRUE;
+			else
+			{
+				msg_print("You can't come back here once you leave this floor.");
+				if (get_check("Really leave this floor? ")) go_up = TRUE;
+			}
 		}
 		else
 		{
@@ -3785,19 +3785,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 					tdam = mon_damage_mod(m_ptr, tdam, FALSE);
 				}
 
-				/* Complex message */
-				if (p_ptr->wizard || cheat_xtra)
-				{
-#ifdef JP
-					msg_format("%d/%d のダメージを与えた。",
-						   tdam, m_ptr->hp);
-#else
-					msg_format("You do %d (out of %d) damage.",
-						   tdam, m_ptr->hp);
-#endif
-
-				}
-
 				/* Sniper */
 				if (snipe_type == SP_EXPLODE)
 				{
@@ -4467,19 +4454,6 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 
 				/* Modify the damage */
 				tdam = mon_damage_mod(m_ptr, tdam, FALSE);
-
-				/* Complex message */
-				if (p_ptr->wizard)
-				{
-#ifdef JP
-					msg_format("%d/%dのダメージを与えた。",
-						   tdam, m_ptr->hp);
-#else
-					msg_format("You do %d (out of %d) damage.",
-						   tdam, m_ptr->hp);
-#endif
-
-				}
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))

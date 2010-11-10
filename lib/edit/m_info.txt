@@ -3804,3 +3804,36 @@ R:8:0
 # Crusade
 R:9:0
 
+### Warlock ###
+N:30
+I:NONE:CHR:0x00:0:0:0
+# Life
+R:0:0
+
+# Sorcery
+R:1:0
+
+# Nature
+R:2:0
+
+# Chaos
+R:3:0
+
+# Death
+R:4:0
+
+# Trump
+R:5:0
+
+# Arcane
+R:6:0
+
+# Craft
+R:7:0
+
+# Deamon
+R:8:0
+
+# Crusade
+R:9:0
+

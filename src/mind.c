@@ -333,6 +333,32 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 99,  0,   0, ""},
 	}
   },
+  {
+    {
+    /* Level gained,  cost,  %fail,  name */
+      {  1,  0,  20, "Basic"},
+      { 10,  0,  40, "Extended"},
+	  { 18,  0,  45, "Spear"},
+	  { 26,  0,  60, "Blast"},
+      { 33,  0,  60, "Stunning"},
+	  { 40,  0,  70, "Special"},
+      { 45,  0,  80, "Empowered"},
+	  { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+	  { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+      { 99,  0,   0, ""},
+	}
+  },
 };
 
 
@@ -412,61 +438,61 @@ void mindcraft_info(char *p, int use_mind, int power)
 #endif
 	  }
 	break;
-      case MIND_MIRROR_MASTER:
-	{
-	  switch (power)
-	    {
-	    case 0:  break;
-	    case 1:  break;
-	    case 2:  sprintf(p, " %s%dd4", s_dam,  3 + ((plev - 1) / 5) ); break;
-	    case 3:  sprintf(p, " %s10", s_range); break;
-	    case 4:  break;
-	    case 5:  sprintf(p, " %s%d", s_range, plev *5); break;
-	    case 6:  sprintf(p, " %s20+d20", s_dur);  break;
-	    case 7:  break;
-	    case 8:  sprintf(p, " %s%dd8", s_dam, 8+((plev -5)/4) ); break;
-	    case 9:  break;
-	    case 10: sprintf(p, " %s%dd8", s_dam, 11+(plev-5)/4 ); break;
-	    case 11: break;
-	    case 12: sprintf(p, " %s20+d20", s_dur);  break;
-	    case 13: sprintf(p, " %s150+d%d", s_dam, plev*2 ); break;
-	    case 14: break;
-	    case 15: break;
-	    case 16: sprintf(p, " %s%d", s_range, plev/2 +10); break;
-	    case 17: break;
-	    case 18: sprintf(p, " %s6+d6", s_dur);  break;
-	    case 19: sprintf(p, " %s%d", s_dam, plev*11+5 ); break;
-	    case 20: sprintf(p, " %s4+d4", s_dur);  break;
-	    }
-	  break;
-	}
-      case MIND_NINJUTSU:
-	{
-	  switch (power)
-	    {
-	    case 0:  break;
-	    case 1:  break;
-	    case 2:  sprintf(p, " %s10", s_range); break;
-	    case 3:  break;
-	    case 4:  sprintf(p, " %s%d", s_range , plev *5); break;
-	    case 5:  sprintf(p, " %s30", s_range); break;
-	    case 6:  break;
-	    case 7:  break;
-	    case 8:  sprintf(p, " %s20+d20", s_dur);  break;
-	    case 9:  sprintf(p, " %s%d", s_dam, (50+plev)/2 ); break;
-	    case 10: break;
-	    case 11: break;
-	    case 12: break;
-	    case 13: break;
-	    case 14: break;
-	    case 15: break;
-	    case 16: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2);  break;
-	    case 17: sprintf(p, " %s%d*3", s_dam, (75+plev*2/3)/2 ); break;
-	    case 18: sprintf(p, " %s%dd10", s_dam, 6+plev/8 ); break;
-	    case 19: sprintf(p, " %s6+d6", s_dur);  break;
-	    }
-	  break;
-	}
+			case MIND_MIRROR_MASTER:
+			{
+				switch (power)
+				{
+				case 0:  break;
+				case 1:  break;
+				case 2:  sprintf(p, " %s%dd4", s_dam,  3 + ((plev - 1) / 5) ); break;
+				case 3:  sprintf(p, " %s10", s_range); break;
+				case 4:  break;
+				case 5:  sprintf(p, " %s%d", s_range, plev *5); break;
+				case 6:  sprintf(p, " %s20+d20", s_dur);  break;
+				case 7:  break;
+				case 8:  sprintf(p, " %s%dd8", s_dam, 8+((plev -5)/4) ); break;
+				case 9:  break;
+				case 10: sprintf(p, " %s%dd8", s_dam, 11+(plev-5)/4 ); break;
+				case 11: break;
+				case 12: sprintf(p, " %s20+d20", s_dur);  break;
+				case 13: sprintf(p, " %s150+d%d", s_dam, plev*2 ); break;
+				case 14: break;
+				case 15: break;
+				case 16: sprintf(p, " %s%d", s_range, plev/2 +10); break;
+				case 17: break;
+				case 18: sprintf(p, " %s6+d6", s_dur);  break;
+				case 19: sprintf(p, " %s%d", s_dam, plev*11+5 ); break;
+				case 20: sprintf(p, " %s4+d4", s_dur);  break;
+				}
+				break;
+			}
+			case MIND_NINJUTSU:
+			{
+				switch (power)
+				{
+				case 0:  break;
+				case 1:  break;
+				case 2:  sprintf(p, " %s10", s_range); break;
+				case 3:  break;
+				case 4:  sprintf(p, " %s%d", s_range , plev *5); break;
+				case 5:  sprintf(p, " %s30", s_range); break;
+				case 6:  break;
+				case 7:  break;
+				case 8:  sprintf(p, " %s20+d20", s_dur);  break;
+				case 9:  sprintf(p, " %s%d", s_dam, (50+plev)/2 ); break;
+				case 10: break;
+				case 11: break;
+				case 12: break;
+				case 13: break;
+				case 14: break;
+				case 15: break;
+				case 16: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2);  break;
+				case 17: sprintf(p, " %s%d*3", s_dam, (75+plev*2/3)/2 ); break;
+				case 18: sprintf(p, " %s%dd10", s_dam, 6+plev/8 ); break;
+				case 19: sprintf(p, " %s6+d6", s_dur);  break;
+				}
+				break;
+			}
 			case MIND_TIME_LORD:
 			{
 				switch (power)
@@ -487,7 +513,10 @@ void mindcraft_info(char *p, int use_mind, int power)
 				case 8: sprintf(p, " %s25+1d25", s_dur); break;
 				case 10: sprintf(p, " %s500", s_dam); break;
 				}
+				break;
 			}
+			case MIND_WARLOCK:
+				break;
 		}
 	}
 }
@@ -590,6 +619,12 @@ static int get_mind_power(int *sn, bool only_browse)
       {
         use_mind = MIND_BLOOD_KNIGHT;
         p = "bloodcraft";
+        break;
+	  }
+	case CLASS_WARLOCK:
+      {
+        use_mind = MIND_WARLOCK;
+        p = "eldritch blast";
         break;
 	  }
 	default:
@@ -776,7 +811,11 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						}
 
 						/* Not enough mana to cast */
-						if ((use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU) && (use_mind != MIND_BLOOD_KNIGHT) && (mana_cost > p_ptr->csp))
+						if ((use_mind != MIND_BERSERKER) && 
+						    (use_mind != MIND_NINJUTSU) && 
+						    (use_mind != MIND_BLOOD_KNIGHT) && 
+							(use_mind != MIND_WARLOCK) && 
+							(mana_cost > p_ptr->csp))
 						{
 							chance += 5 * (mana_cost - p_ptr->csp);
 						}
@@ -1735,6 +1774,143 @@ static bool cast_blood_knight_spell(int spell)
 	return TRUE;
 }
 
+static int warlock_range(void)
+{
+	int rng = 5;
+
+	if (p_ptr->lev > 47)
+		rng += randint1(8);
+	else if (p_ptr->lev > 31)
+		rng += randint1(7);
+	else if (p_ptr->lev > 15)
+		rng += randint1(6);
+
+	return rng;
+}
+
+static int warlock_dice(void)
+{
+	return 1 + (p_ptr->lev/2);
+}
+
+static int warlock_sides(void)
+{
+	return warlock_damage_sides[p_ptr->stat_ind[A_CHR]];
+}
+
+static bool cast_warlock_spell(int spell)
+{
+	int dir, rng, dice, sides, rad;
+	int plev = p_ptr->lev;
+
+	/* Most Eldritch Blasts work the Same ... */
+	rng = warlock_range();
+	dice = warlock_dice();
+	sides = warlock_sides();
+	rad = 0;
+
+	/* spell code */
+	switch (spell)
+	{
+	case 0:	/* Basic */
+		project_length = rng;
+		if (!get_aim_dir(&dir)) return FALSE;
+		
+		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
+		break;
+
+	case 1: /* Extended */
+		rng += 10;
+		project_length = rng;
+		if (!get_aim_dir(&dir)) return FALSE;
+		
+		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
+		break;
+
+	case 2: /* Spear */
+		project_length = rng;
+		if (!get_aim_dir(&dir)) return FALSE;
+		
+		fire_beam(GF_ELDRITCH, dir, damroll(dice, sides));
+		break;
+
+	case 3:	/* Blast */
+		rad = 2;
+		project_length = rng;
+		if (!get_aim_dir(&dir)) return FALSE;
+		
+		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
+		break;
+
+	case 4:	/* Stunning */
+		project_length = rng;
+		if (!get_aim_dir(&dir)) return FALSE;
+		
+		fire_ball(GF_ELDRITCH_STUN, dir, damroll(dice, sides), rad);
+		break;
+
+	case 5:	/* Special */
+		project_length = rng;
+		if (!get_aim_dir(&dir)) return FALSE;
+		
+		switch (p_ptr->psubclass)
+		{
+		case PACT_UNDEAD:
+			fire_ball(GF_ELDRITCH_DRAIN, dir, damroll(dice, sides), rad);
+			break;
+
+		case PACT_DRAGON:
+			fire_ball(GF_FIRE, dir, damroll(dice, sides)/2, rad);
+			fire_ball(GF_COLD, dir, damroll(dice, sides)/2, rad);
+			fire_ball(GF_ACID, dir, damroll(dice, sides)/2, rad);
+			fire_ball(GF_ELEC, dir, damroll(dice, sides)/2, rad);
+			fire_ball(GF_POIS, dir, damroll(dice, sides)/2, rad);
+			break;
+
+		case PACT_ANGEL:
+			fire_ball(GF_ELDRITCH_DISPEL, dir, damroll(dice, sides), rad);
+			break;
+
+		case PACT_DEMON:
+			{
+				int dam = damroll(dice, sides);
+				dam *= 2;
+				fire_ball(GF_ELDRITCH, dir, dam, rad);
+				take_hit(DAMAGE_USELIFE, dam/3, "vengeful blast", -1);
+			}
+			break;
+
+		case PACT_ABERRATION:
+			fire_ball(GF_ELDRITCH_CONFUSE, dir, damroll(dice, sides), rad);
+			break;
+
+		default:
+			msg_print("BUG(What pact have you made?)");
+			break;
+		}
+		break;
+
+	case 6:	/* Empowered */
+		project_length = rng;
+		if (!get_aim_dir(&dir)) return FALSE;
+		
+		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides) * 3/2, rad);
+		/* I still don't quite understand process_player() ... I can't see
+		   where the player actually moves, so I am mimicing the lightspeed counter, which
+		   appears to decrement before player action.  The code is befuddling, so try
+		   setting to counter to 2.  It should tick to 1 before the players next action 
+		   and block spells for that action, and then tick to 0 before the subsequent action.
+		*/
+		set_tim_no_spells(p_ptr->tim_no_spells + 1 + 1, FALSE);
+		break;
+
+	default:
+		msg_print("Zap?");
+		break;
+	}
+
+	return TRUE;
+}
 
 
 /*
@@ -2550,6 +2726,7 @@ msg_print("混乱していて集中できない！");
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;break;
 		case CLASS_TIME_LORD:       use_mind = MIND_TIME_LORD;break;
 		case CLASS_BLOOD_KNIGHT:    use_mind = MIND_BLOOD_KNIGHT;break;
+		case CLASS_WARLOCK:    use_mind = MIND_WARLOCK;break;
 		default:                use_mind = 0;break;
 	}
 #endif
@@ -2575,7 +2752,10 @@ msg_print("混乱していて集中できない！");
 	}
 
 	/* Verify "dangerous" spells */
-	if ((use_mind == MIND_BERSERKER) || (use_mind == MIND_NINJUTSU) || (use_mind == MIND_BLOOD_KNIGHT))
+	if ((use_mind == MIND_BERSERKER) || 
+	    (use_mind == MIND_NINJUTSU) || 
+		(use_mind == MIND_BLOOD_KNIGHT) ||
+		(use_mind == MIND_WARLOCK))
 	{
 		if (mana_cost > p_ptr->chp)
 		{
@@ -2619,7 +2799,11 @@ if (!get_check("それでも挑戦しますか? ")) return;
 		chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
 		/* Not enough mana to cast */
-		if ((mana_cost > p_ptr->csp) && (use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU)  && (use_mind != MIND_BLOOD_KNIGHT))
+		if ((mana_cost > p_ptr->csp) && 
+		    (use_mind != MIND_BERSERKER) && 
+			(use_mind != MIND_NINJUTSU) && 
+			(use_mind != MIND_BLOOD_KNIGHT) &&
+			(use_mind != MIND_WARLOCK))
 		{
 			chance += 5 * (mana_cost - p_ptr->csp);
 		}
@@ -2657,7 +2841,10 @@ msg_format("%sの集中に失敗した！",p);
 
 		sound(SOUND_FAIL);
 
-		if ((use_mind != MIND_BERSERKER) && (use_mind != MIND_NINJUTSU) && (use_mind != MIND_BLOOD_KNIGHT))
+		if ((use_mind != MIND_BERSERKER) && 
+		    (use_mind != MIND_NINJUTSU) && 
+			(use_mind != MIND_BLOOD_KNIGHT) && 
+			(use_mind != MIND_WARLOCK))
 		{
 			if ((use_mind == MIND_KI) && (n != 5) && p_ptr->magic_num1[0])
 			{
@@ -2829,6 +3016,10 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
             cast = cast_blood_knight_spell(n);
             break;
 
+        case MIND_WARLOCK:
+            cast = cast_warlock_spell(n);
+            break;
+
 		default:
 #ifdef JP
 			msg_format("謎の能力:%d, %d",use_mind, n);
@@ -2850,7 +3041,10 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 	  if( n==3 || n==5 || n==7 || n==16 )energy_use = 50;
 	}
 
-	if ((use_mind == MIND_BERSERKER) || (use_mind == MIND_NINJUTSU) || (use_mind == MIND_BLOOD_KNIGHT))
+	if ((use_mind == MIND_BERSERKER) || 
+	    (use_mind == MIND_NINJUTSU) || 
+		(use_mind == MIND_BLOOD_KNIGHT) ||
+		(use_mind == MIND_WARLOCK))
 	{
 #ifdef JP
 		take_hit(DAMAGE_USELIFE, mana_cost, "過度の集中", -1);
@@ -2958,6 +3152,7 @@ void do_cmd_mind_browse(void)
 	else if (p_ptr->pclass == CLASS_MIRROR_MASTER) use_mind = MIND_MIRROR_MASTER;
 	else if (p_ptr->pclass == CLASS_TIME_LORD) use_mind = MIND_TIME_LORD;
 	else if (p_ptr->pclass == CLASS_BLOOD_KNIGHT) use_mind = MIND_BLOOD_KNIGHT;
+	else if (p_ptr->pclass == CLASS_WARLOCK) use_mind = MIND_WARLOCK;
 
 	screen_save();
 

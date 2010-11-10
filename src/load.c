@@ -720,6 +720,7 @@ static void rd_monster(monster_type *m_ptr)
 static void rd_lore(int r_idx)
 {
 	byte tmp8u;
+	bool pact = FALSE;
 
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -770,6 +771,9 @@ static void rd_lore(int r_idx)
 	/* Later (?) */
 	rd_byte(&tmp8u);
 
+	/* Uber Mega Hack */
+	if (r_ptr->r_flagsr & (RFR_PACT_MONSTER)) pact = TRUE;
+
 	/* Repair the lore flags */
 	r_ptr->r_flags1 &= r_ptr->flags1;
 	r_ptr->r_flags2 &= r_ptr->flags2;
@@ -778,6 +782,9 @@ static void rd_lore(int r_idx)
 	r_ptr->r_flags5 &= r_ptr->flags5;
 	r_ptr->r_flags6 &= r_ptr->flags6;
 	r_ptr->r_flagsr &= r_ptr->flagsr;
+
+	if (pact)
+		r_ptr->r_flagsr |= RFR_PACT_MONSTER;
 }
 
 
@@ -1187,7 +1194,7 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->psex);
 	rd_byte(&p_ptr->realm1);
 	rd_byte(&p_ptr->realm2);
-	rd_byte(&tmp8u); /* oops */
+	rd_byte(&p_ptr->psubclass);
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
@@ -1357,6 +1364,21 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->tim_sh_holy);
 	rd_s16b(&p_ptr->tim_eyeeye);
 
+	if (h_older_than(0, 0, 7, 0))
+	{
+		p_ptr->tim_spurt = 0;
+		p_ptr->tim_spec_corporeal = 0;
+		p_ptr->tim_no_spells = 0;
+		p_ptr->tim_no_device = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_spurt);
+		rd_s16b(&p_ptr->tim_spec_corporeal);
+		rd_s16b(&p_ptr->tim_no_spells);
+		rd_s16b(&p_ptr->tim_no_device);
+	}
+
 	if (h_older_than(0, 0, 2, 0))
 	{
 		p_ptr->tim_speed_essentia = 0;
@@ -1406,6 +1428,24 @@ static void rd_extra(void)
 	rd_u32b(&p_ptr->muta1);
 	rd_u32b(&p_ptr->muta2);
 	rd_u32b(&p_ptr->muta3);
+
+	if (h_older_than(0, 0, 7, 1))
+	{
+		p_ptr->muta1_lock = 0;
+		p_ptr->muta2_lock = 0;
+		p_ptr->muta3_lock = 0;
+		/* Stop hacking to keep this mutation on ... lock it in place! */
+		if (p_ptr->pseikaku == SEIKAKU_LUCKY)
+			p_ptr->muta3_lock |= MUT3_GOOD_LUCK;
+	}
+	else
+	{
+		rd_u32b(&p_ptr->muta1_lock);
+		rd_u32b(&p_ptr->muta2_lock);
+		rd_u32b(&p_ptr->muta3_lock);
+	}
+
+
 
 	for (i = 0; i < 8; i++)
 		rd_s16b(&p_ptr->virtues[i]);

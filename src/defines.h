@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 5
+#define FAKE_VER_PATCH 7
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 5
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 7
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            30
+#define MAX_CLASS            31
 
 #define MAX_SEIKAKU          12
 
@@ -245,6 +245,9 @@
 #define REW_SER_UNDE    34
 #define REW_SER_DEMO    35
 #define REW_SER_MONS    36
+
+
+#define MAX_RACIAL_POWERS 100
 
 /* Chaos mutations */
 
@@ -376,7 +379,8 @@
 #define MIND_NINJUTSU       4
 #define MIND_TIME_LORD		5
 #define MIND_BLOOD_KNIGHT	6
-#define MIND_MAX_CLASSES	7
+#define MIND_WARLOCK		7
+#define MIND_MAX_CLASSES	8
 
 
 /*
@@ -913,6 +917,15 @@
 #define CLASS_SNIPER            27
 #define CLASS_TIME_LORD         28
 #define CLASS_BLOOD_KNIGHT		29
+#define CLASS_WARLOCK			30
+
+/* Warlock Pacts ... stored in p_ptr->psubclass */
+#define PACT_UNDEAD		 0
+#define PACT_DRAGON		 1
+#define PACT_ANGEL		 2
+#define PACT_DEMON		 3
+#define PACT_ABERRATION	 4
+#define MAX_PACTS		 5
 
 #define SEIKAKU_FUTUU	 0
 #define SEIKAKU_CHIKARA	 1
@@ -3072,8 +3085,13 @@
 #define GF_STASIS_EVIL 115
 #define GF_WOUNDS      116
 #define GF_BLOOD       117
+#define GF_ELDRITCH			118
+#define GF_ELDRITCH_STUN	119
+#define GF_ELDRITCH_DRAIN	120
+#define GF_ELDRITCH_DISPEL	121
+#define GF_ELDRITCH_CONFUSE	122
 
-#define MAX_GF				118
+#define MAX_GF				123
 
 /*
  * Some things which induce learning
@@ -3827,7 +3845,7 @@
 #define RFR_RES_GRAV        0x00040000  /* Resist gravity */
 #define RFR_RES_ALL         0x00080000  /* Resist all */
 #define RFR_RES_TELE        0x00100000  /* Resist teleportation */
-#define RFR_XXX21           0x00200000
+#define RFR_PACT_MONSTER    0x00200000  /* Resists damage due to pact alliance ... s/b reset on new characters! */
 #define RFR_XXX22           0x00400000
 #define RFR_XXX23           0x00800000
 #define RFR_XXX24           0x01000000

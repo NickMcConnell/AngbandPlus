@@ -1770,9 +1770,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 	/* Prevents problems with chain reactions of exploding monsters */
 	if (m_ptr->hp < 0) return (FALSE);
 
-	/* Reduce damage by distance */
-	dam = (dam + r) / (r + 1);
-
+	/* Reduce damage by distance 
+	   Hack:  The Eldritch Blast is a full damage radius 2 ball with no damage reduction! 
+	          Other Eldritch balls are all radius 0, so this will work fine for now.  */
+	if (typ != GF_ELDRITCH)
+		dam = (dam + r) / (r + 1);
 
 	/* Get the monster name (BEFORE polymorphing) */
 	monster_desc(m_name, m_ptr, 0);
@@ -1788,9 +1790,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 	/* Analyze the damage type */
 	switch (typ)
 	{
-		/* Magic Missile -- pure damage */
+		/* Magic Missile, et al -- unresistable pure damage */
 		case GF_MISSILE:
 		case GF_BLOOD:
+		case GF_ELDRITCH:
+		case GF_ELDRITCH_DRAIN:  /* Lazy ... I'll give back hp later */
+		case GF_ELDRITCH_DISPEL: /* Lazy ... I'll dispel magic later */
 		{
 			if (seen) obvious = TRUE;
 
@@ -1805,6 +1810,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
+
 			break;
 		}
 
@@ -2345,6 +2351,31 @@ note = "には耐性がある。";
 			break;
 		}
 
+		case GF_ELDRITCH_STUN:
+		{
+			if (seen) obvious = TRUE;
+
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+#ifdef JP
+				note = "には完全な耐性がある！";
+#else
+				note = " is immune.";
+#endif
+				dam = 0;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			if (r_ptr->flagsr & RFR_RES_SOUN)
+			{
+				/* Sound resistance prevents stunning, but does not reduce damage! */
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
+			}
+			else
+				do_stun = 10 + randint1(15);
+			break;
+		}
+
 
 		/* Sound -- Sound breathers resist */
 		case GF_SOUND:
@@ -2374,6 +2405,70 @@ note = "には耐性がある。";
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
 			}
 			else do_stun = (10 + randint1(15) + r) / (r + 1);
+			break;
+		}
+
+		case GF_ELDRITCH_CONFUSE:
+		{
+			int rlev = r_ptr->level;
+			if (seen) obvious = TRUE;
+
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+#ifdef JP
+				note = "には完全な耐性がある！";
+#else
+				note = " is immune.";
+#endif
+				dam = 0;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+
+			/* Ideas for toning this down ...
+			if (r_ptr->flags3 & RF3_NO_CONF)
+				rlev += 10;
+
+			if (r_ptr->flags1 & RF1_UNIQUE)
+				rlev += 20;
+
+			if (rlev > 99)
+				rlev = 99;
+			*/
+
+			/* No monster resists?  I'll need to talk to Dave on this one ... */
+			if (rlev > randint1(p_ptr->lev * 2))
+			{
+				note = " resists confusion.";
+			}
+			else
+			{
+				int tmp = MON_CONFUSED(m_ptr);
+				int max = 2;
+
+				if (tmp < max)
+				{
+					if (MON_CONFUSED(m_ptr))
+					{
+		#ifdef JP
+						note = "はさらに混乱したようだ。";
+		#else
+						note = " looks more confused.";
+		#endif
+					}
+					/* Was not confused */
+					else
+					{
+		#ifdef JP
+						note = "は混乱したようだ。";
+		#else
+						note = " looks confused.";
+		#endif
+					}
+					/* Requested '1 turn of confusion' but recovery is random. */
+					(void)set_monster_confused(c_ptr->m_idx, max);
+				}
+			}
 			break;
 		}
 
@@ -5804,7 +5899,10 @@ note = "には効果がなかった。";
 
 	/* Modify the damage */
 	tmp = dam;
-	dam = mon_damage_mod(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
+	if (who)
+		dam = mon_damage_mod_mon(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
+	else
+		dam = mon_damage_mod(m_ptr, dam, (bool)(typ == GF_PSY_SPEAR));
 #ifdef JP
 	if ((tmp > 0) && (dam == 0)) note = "はダメージを受けていない。";
 #else
@@ -6091,6 +6189,21 @@ note = "には効果がなかった。";
 	{
 		bool fear = FALSE;
 
+		/* Hacks  ... these effects probably belong in the gargantuan switch statement above ... sigh */
+		/* Hack: The Draining Blast power gives hitpoints back. */
+		if (typ == GF_ELDRITCH_DRAIN && monster_living(r_ptr))
+		{
+			int heal = dam;
+			if (heal > m_ptr->hp)
+				heal = m_ptr->hp;
+			heal /= 2;
+			hp_player(heal);
+		}
+
+		/* Hack: Dispelling Blast does a Dispel Magic */
+		if (typ == GF_ELDRITCH_DISPEL)
+			dispel_monster_status(c_ptr->m_idx);
+
 		/* Hurt the monster, check for fear and death */
 		if (mon_take_hit(c_ptr->m_idx, dam, &fear, note_dies))
 		{
@@ -6115,7 +6228,6 @@ note = "には効果がなかった。";
 #else
 				msg_format("%^s%s", m_name, note);
 #endif
-
 
 			/* Hack -- Pain message */
 			else if (known && (dam || !do_fear))

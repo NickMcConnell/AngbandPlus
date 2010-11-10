@@ -1113,8 +1113,17 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			if (set_shero(0,TRUE)) ident = TRUE;
 			break;
 
-		case SV_POTION_HEALING:
 		case SV_POTION_BLOOD:
+			if (hp_player(300)) ident = TRUE;
+			if (set_blind(0, TRUE)) ident = TRUE;
+			if (set_confused(0, TRUE)) ident = TRUE;
+			if (set_poisoned(0, TRUE)) ident = TRUE;
+			if (set_stun(0, TRUE)) ident = TRUE;
+			if (set_cut(p_ptr->cut/2 - 10, TRUE)) ident = TRUE;
+			if (set_shero(0,TRUE)) ident = TRUE;
+			break;
+
+		case SV_POTION_HEALING:
 			if (hp_player(300)) ident = TRUE;
 			if (set_blind(0, TRUE)) ident = TRUE;
 			if (set_confused(0, TRUE)) ident = TRUE;
@@ -1359,7 +1368,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			do_cmd_rerate(FALSE);
 			get_max_stats();
 			p_ptr->update |= PU_BONUS;
-			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+			if (count_unlocked_mutations() > 0)
 			{
 				chg_virtue(V_CHANCE, -5);
 #ifdef JP
@@ -1367,8 +1376,10 @@ msg_print("全ての突然変異が治った。");
 #else
 				msg_print("You are cured of all mutations.");
 #endif
+				p_ptr->muta1 = p_ptr->muta1_lock;
+				p_ptr->muta2 = p_ptr->muta2_lock;
+				p_ptr->muta3 = p_ptr->muta3_lock;
 
-				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
 				p_ptr->update |= PU_BONUS;
 				handle_stuff();
 				mutant_regenerate_mod = calc_mutant_regenerate_mod();
@@ -1399,7 +1410,7 @@ msg_print("「オクレ兄さん！」");
 			break;
 		
 		case SV_POTION_POLYMORPH:
-			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && one_in_(23))
+			if ((count_unlocked_mutations() > 0) && one_in_(23))
 			{
 				chg_virtue(V_CHANCE, -5);
 #ifdef JP
@@ -1408,7 +1419,9 @@ msg_print("全ての突然変異が治った。");
 				msg_print("You are cured of all mutations.");
 #endif
 
-				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+				p_ptr->muta1 = p_ptr->muta1_lock;
+				p_ptr->muta2 = p_ptr->muta2_lock;
+				p_ptr->muta3 = p_ptr->muta3_lock;
 				p_ptr->update |= PU_BONUS;
 				handle_stuff();
 			}
@@ -1599,6 +1612,13 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 
 	/* Take a turn */
 	energy_use = 100;
+
+	/* Hack: Block devices *after* consuming player energy */
+	if (p_ptr->tim_no_device)
+	{
+		msg_print("An evil power blocks your magic!");
+		return;
+	}
 
 	if (world_player)
 	{
@@ -2735,6 +2755,13 @@ static void do_cmd_use_staff_aux(int item)
 	/* Take a turn */
 	energy_use = 100;
 
+	/* Hack: Block devices *after* consuming player energy */
+	if (p_ptr->tim_no_device)
+	{
+		msg_print("An evil power blocks your magic!");
+		return;
+	}
+
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
 	if (lev > 50) lev = 50 + (lev - 50)/2;
@@ -3269,6 +3296,13 @@ static void do_cmd_aim_wand_aux(int item)
 	/* Take a turn */
 	energy_use = 100;
 
+	/* Hack: Block devices *after* consuming player energy */
+	if (p_ptr->tim_no_device)
+	{
+		msg_print("An evil power blocks your magic!");
+		return;
+	}
+
 	/* Get the level */
 	lev = k_info[o_ptr->k_idx].level;
 	if (lev > 50) lev = 50 + (lev - 50)/2;
@@ -3705,6 +3739,13 @@ static void do_cmd_zap_rod_aux(int item)
 
 	/* Take a turn */
 	energy_use = 100;
+
+	/* Hack: Block devices *after* consuming player energy */
+	if (p_ptr->tim_no_device)
+	{
+		msg_print("An evil power blocks your magic!");
+		return;
+	}
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;

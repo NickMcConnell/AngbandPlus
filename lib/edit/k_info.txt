@@ -6396,4 +6396,6 @@ I:75:67:0
 W:0:255:4:0
 P:0:1d1:0:0:0
 F:FIXED_FLAVOR
+D:$A much needed infusion!  It heals you 150 and cures blindness, confusion
+D:$, poison, stunned, and berserk when you quaff it.  It reduces your cut status.
 

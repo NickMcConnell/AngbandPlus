@@ -1110,7 +1110,8 @@ msg_print("突然変異した！");
 		{
 			if (muta_which == MUT3_PUNY)
 			{
-				if (p_ptr->muta3 & MUT3_HYPER_STR)
+				if ( (p_ptr->muta3 & MUT3_HYPER_STR)
+				 && !(p_ptr->muta3_lock & MUT3_HYPER_STR))
 				{
 #ifdef JP
 msg_print("あなたはもう超人的に強くはない！");
@@ -1123,7 +1124,8 @@ msg_print("あなたはもう超人的に強くはない！");
 			}
 			else if (muta_which == MUT3_HYPER_STR)
 			{
-				if (p_ptr->muta3 & MUT3_PUNY)
+				if ( (p_ptr->muta3 & MUT3_PUNY)
+				 && !(p_ptr->muta3_lock & MUT3_PUNY))
 				{
 #ifdef JP
 msg_print("あなたはもう虚弱ではない！");
@@ -1136,7 +1138,7 @@ msg_print("あなたはもう虚弱ではない！");
 			}
 			else if (muta_which == MUT3_MORONIC)
 			{
-				if (p_ptr->muta3 & MUT3_HYPER_INT)
+				if ((p_ptr->muta3 & MUT3_HYPER_INT) && !(p_ptr->muta3_lock & MUT3_HYPER_INT))
 				{
 #ifdef JP
 msg_print("あなたの脳はもう生体コンピュータではない。");
@@ -1149,7 +1151,7 @@ msg_print("あなたの脳はもう生体コンピュータではない。");
 			}
 			else if (muta_which == MUT3_HYPER_INT)
 			{
-				if (p_ptr->muta3 & MUT3_MORONIC)
+				if ((p_ptr->muta3 & MUT3_MORONIC) && !(p_ptr->muta3_lock & MUT3_MORONIC))
 				{
 #ifdef JP
 msg_print("あなたはもう精神薄弱ではない。");
@@ -1162,7 +1164,7 @@ msg_print("あなたはもう精神薄弱ではない。");
 			}
 			else if (muta_which == MUT3_IRON_SKIN)
 			{
-				if (p_ptr->muta3 & MUT3_SCALES)
+				if ((p_ptr->muta3 & MUT3_SCALES) && !(p_ptr->muta3_lock & MUT3_SCALES))
 				{
 #ifdef JP
 msg_print("鱗がなくなった。");
@@ -1172,7 +1174,7 @@ msg_print("鱗がなくなった。");
 
 					p_ptr->muta3 &= ~(MUT3_SCALES);
 				}
-				if (p_ptr->muta3 & MUT3_FLESH_ROT)
+				if ((p_ptr->muta3 & MUT3_FLESH_ROT) && !(p_ptr->muta3_lock & MUT3_FLESH_ROT))
 				{
 #ifdef JP
 msg_print("肉体が腐乱しなくなった。");
@@ -1182,7 +1184,7 @@ msg_print("肉体が腐乱しなくなった。");
 
 					p_ptr->muta3 &= ~(MUT3_FLESH_ROT);
 				}
-				if (p_ptr->muta3 & MUT3_WART_SKIN)
+				if ((p_ptr->muta3 & MUT3_WART_SKIN) && !(p_ptr->muta3_lock & MUT3_WART_SKIN))
 				{
 #ifdef JP
 msg_print("肌のイボイボがなくなった。");
@@ -1196,7 +1198,7 @@ msg_print("肌のイボイボがなくなった。");
 			else if (muta_which == MUT3_WART_SKIN || muta_which == MUT3_SCALES
 				|| muta_which == MUT3_FLESH_ROT)
 			{
-				if (p_ptr->muta3 & MUT3_IRON_SKIN)
+				if ((p_ptr->muta3 & MUT3_IRON_SKIN) && !(p_ptr->muta3_lock & MUT3_IRON_SKIN))
 				{
 #ifdef JP
 msg_print("あなたの肌はもう鉄ではない。");
@@ -1209,7 +1211,7 @@ msg_print("あなたの肌はもう鉄ではない。");
 			}
 			else if (muta_which == MUT3_FEARLESS)
 			{
-				if (p_ptr->muta2 & MUT2_COWARDICE)
+				if ((p_ptr->muta2 & MUT2_COWARDICE) && !(p_ptr->muta2_lock & MUT2_COWARDICE))
 				{
 #ifdef JP
 msg_print("臆病でなくなった。");
@@ -1222,7 +1224,7 @@ msg_print("臆病でなくなった。");
 			}
 			else if (muta_which == MUT3_FLESH_ROT)
 			{
-				if (p_ptr->muta3 & MUT3_REGEN)
+				if ((p_ptr->muta3 & MUT3_REGEN) && !(p_ptr->muta3_lock & MUT3_REGEN))
 				{
 #ifdef JP
 msg_print("急速に回復しなくなった。");
@@ -1235,7 +1237,7 @@ msg_print("急速に回復しなくなった。");
 			}
 			else if (muta_which == MUT3_REGEN)
 			{
-				if (p_ptr->muta3 & MUT3_FLESH_ROT)
+				if ((p_ptr->muta3 & MUT3_FLESH_ROT) && !(p_ptr->muta3_lock & MUT3_FLESH_ROT))
 				{
 #ifdef JP
 msg_print("肉体が腐乱しなくなった。");
@@ -1248,7 +1250,7 @@ msg_print("肉体が腐乱しなくなった。");
 			}
 			else if (muta_which == MUT3_LIMBER)
 			{
-				if (p_ptr->muta3 & MUT3_ARTHRITIS)
+				if ((p_ptr->muta3 & MUT3_ARTHRITIS) && !(p_ptr->muta3_lock & MUT3_ARTHRITIS))
 				{
 #ifdef JP
 msg_print("関節が痛くなくなった。");
@@ -1261,7 +1263,7 @@ msg_print("関節が痛くなくなった。");
 			}
 			else if (muta_which == MUT3_ARTHRITIS)
 			{
-				if (p_ptr->muta3 & MUT3_LIMBER)
+				if ((p_ptr->muta3 & MUT3_LIMBER) && !(p_ptr->muta3_lock & MUT3_LIMBER))
 				{
 #ifdef JP
 msg_print("あなたはしなやかでなくなった。");
@@ -1277,7 +1279,7 @@ msg_print("あなたはしなやかでなくなった。");
 		{
 			if (muta_which == MUT2_COWARDICE)
 			{
-				if (p_ptr->muta3 & MUT3_FEARLESS)
+				if ((p_ptr->muta3 & MUT3_FEARLESS) && !(p_ptr->muta3_lock & MUT3_FEARLESS))
 				{
 #ifdef JP
 msg_print("恐れ知らずでなくなった。");
@@ -1290,7 +1292,7 @@ msg_print("恐れ知らずでなくなった。");
 			}
 			if (muta_which == MUT2_BEAK)
 			{
-				if (p_ptr->muta2 & MUT2_TRUNK)
+				if ((p_ptr->muta2 & MUT2_TRUNK) && !(p_ptr->muta2_lock & MUT2_TRUNK))
 				{
 #ifdef JP
 msg_print("あなたの鼻はもう象の鼻のようではなくなった。");
@@ -1303,7 +1305,7 @@ msg_print("あなたの鼻はもう象の鼻のようではなくなった。");
 			}
 			if (muta_which == MUT2_TRUNK)
 			{
-				if (p_ptr->muta2 & MUT2_BEAK)
+				if ((p_ptr->muta2 & MUT2_BEAK) && !(p_ptr->muta2_lock & MUT2_BEAK))
 				{
 #ifdef JP
 msg_print("硬いクチバシがなくなった。");
@@ -1331,6 +1333,7 @@ bool lose_mutation(int choose_mut)
 	bool muta_chosen = FALSE;
 	u32b muta_which = 0;
 	u32b *muta_class = NULL;
+	u32b *muta_class_lock = NULL;
 
 	if (choose_mut) attempts_left = 1;
 
@@ -1340,6 +1343,7 @@ bool lose_mutation(int choose_mut)
 		{
 		case 1: case 2: case 3: case 4:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_SPIT_ACID;
 #ifdef JP
 muta_desc = "酸を吹きかける能力を失った。";
@@ -1350,6 +1354,7 @@ muta_desc = "酸を吹きかける能力を失った。";
 			break;
 		case 5: case 6: case 7:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_BR_FIRE;
 #ifdef JP
 muta_desc = "炎のブレスを吐く能力を失った。";
@@ -1360,6 +1365,7 @@ muta_desc = "炎のブレスを吐く能力を失った。";
 			break;
 		case 8: case 9:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_HYPN_GAZE;
 #ifdef JP
 muta_desc = "あなたの目はつまらない目になった。";
@@ -1370,6 +1376,7 @@ muta_desc = "あなたの目はつまらない目になった。";
 			break;
 		case 10: case 11:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_TELEKINES;
 #ifdef JP
 muta_desc = "念動力で物を動かす能力を失った。";
@@ -1380,6 +1387,7 @@ muta_desc = "念動力で物を動かす能力を失った。";
 			break;
 		case 12: case 13: case 14:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_VTELEPORT;
 #ifdef JP
 muta_desc = "自分の意思でテレポートする能力を失った。";
@@ -1390,6 +1398,7 @@ muta_desc = "自分の意思でテレポートする能力を失った。";
 			break;
 		case 15: case 16:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_MIND_BLST;
 #ifdef JP
 muta_desc = "精神攻撃の能力を失った。";
@@ -1400,6 +1409,7 @@ muta_desc = "精神攻撃の能力を失った。";
 			break;
 		case 17: case 18:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_RADIATION;
 #ifdef JP
 muta_desc = "あなたは放射能を発生しなくなった。";
@@ -1410,6 +1420,7 @@ muta_desc = "あなたは放射能を発生しなくなった。";
 			break;
 		case 19: case 20:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_VAMPIRISM;
 #ifdef JP
 muta_desc = "吸血の能力を失った。";
@@ -1420,6 +1431,7 @@ muta_desc = "吸血の能力を失った。";
 			break;
 		case 21: case 22: case 23:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_SMELL_MET;
 #ifdef JP
 muta_desc = "金属の臭いを嗅げなくなった。";
@@ -1430,6 +1442,7 @@ muta_desc = "金属の臭いを嗅げなくなった。";
 			break;
 		case 24: case 25: case 26: case 27:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_SMELL_MON;
 #ifdef JP
 muta_desc = "不潔なモンスターの臭いを嗅げなくなった。";
@@ -1440,6 +1453,7 @@ muta_desc = "不潔なモンスターの臭いを嗅げなくなった。";
 			break;
 		case 28: case 29: case 30:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_BLINK;
 #ifdef JP
 muta_desc = "近距離テレポートの能力を失った。";
@@ -1450,6 +1464,7 @@ muta_desc = "近距離テレポートの能力を失った。";
 			break;
 		case 31: case 32:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_EAT_ROCK;
 #ifdef JP
 muta_desc = "壁は美味しそうに見えなくなった。";
@@ -1460,6 +1475,7 @@ muta_desc = "壁は美味しそうに見えなくなった。";
 			break;
 		case 33: case 34:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_SWAP_POS;
 #ifdef JP
 muta_desc = "あなたは自分の靴に留まる感じがする。";
@@ -1470,6 +1486,7 @@ muta_desc = "あなたは自分の靴に留まる感じがする。";
 			break;
 		case 35: case 36: case 37:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_SHRIEK;
 #ifdef JP
 muta_desc = "あなたの声質は弱くなった。";
@@ -1480,6 +1497,7 @@ muta_desc = "あなたの声質は弱くなった。";
 			break;
 		case 38: case 39: case 40:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_ILLUMINE;
 #ifdef JP
 muta_desc = "部屋を明るく照らすことが出来なくなった。";
@@ -1490,6 +1508,7 @@ muta_desc = "部屋を明るく照らすことが出来なくなった。";
 			break;
 		case 41: case 42:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_DET_CURSE;
 #ifdef JP
 muta_desc = "邪悪な魔法を感じられなくなった。";
@@ -1500,6 +1519,7 @@ muta_desc = "邪悪な魔法を感じられなくなった。";
 			break;
 		case 43: case 44: case 45:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_BERSERK;
 #ifdef JP
 muta_desc = "制御できる激情を感じなくなった。";
@@ -1510,6 +1530,7 @@ muta_desc = "制御できる激情を感じなくなった。";
 			break;
 		case 46:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_POLYMORPH;
 #ifdef JP
 muta_desc = "あなたの体は安定したように見える。";
@@ -1520,6 +1541,7 @@ muta_desc = "あなたの体は安定したように見える。";
 			break;
 		case 47: case 48:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_MIDAS_TCH;
 #ifdef JP
 muta_desc = "ミダスの手の能力を失った。";
@@ -1530,6 +1552,7 @@ muta_desc = "ミダスの手の能力を失った。";
 			break;
 		case 49:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_GROW_MOLD;
 #ifdef JP
 muta_desc = "突然カビが嫌いになった。";
@@ -1540,6 +1563,7 @@ muta_desc = "突然カビが嫌いになった。";
 			break;
 		case 50: case 51: case 52:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_RESIST;
 #ifdef JP
 muta_desc = "傷つき易くなった気がする。";
@@ -1550,6 +1574,7 @@ muta_desc = "傷つき易くなった気がする。";
 			break;
 		case 53: case 54: case 55:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_EARTHQUAKE;
 #ifdef JP
 muta_desc = "ダンジョンを壊す能力を失った。";
@@ -1560,6 +1585,7 @@ muta_desc = "ダンジョンを壊す能力を失った。";
 			break;
 		case 56:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_EAT_MAGIC;
 #ifdef JP
 muta_desc = "魔法のアイテムはもう美味しそうに見えなくなった。";
@@ -1570,6 +1596,7 @@ muta_desc = "魔法のアイテムはもう美味しそうに見えなくなった。";
 			break;
 		case 57: case 58:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_WEIGH_MAG;
 #ifdef JP
 muta_desc = "魔力を感じられなくなった。";
@@ -1580,6 +1607,7 @@ muta_desc = "魔力を感じられなくなった。";
 			break;
 		case 59:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_STERILITY;
 #ifdef JP
 muta_desc = "たくさんの安堵の吐息が聞こえた。";
@@ -1590,6 +1618,7 @@ muta_desc = "たくさんの安堵の吐息が聞こえた。";
 			break;
 		case 60: case 61:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_PANIC_HIT;
 #ifdef JP
 muta_desc = "あちこちへ跳べる気分がなくなった。";
@@ -1600,6 +1629,7 @@ muta_desc = "あちこちへ跳べる気分がなくなった。";
 			break;
 		case 62: case 63: case 64:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_DAZZLE;
 #ifdef JP
 muta_desc = "まばゆい閃光を発する能力を失った。";
@@ -1610,6 +1640,7 @@ muta_desc = "まばゆい閃光を発する能力を失った。";
 			break;
 		case 65: case 66: case 67:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_LASER_EYE;
 #ifdef JP
 muta_desc = "眼が少しの間焼き付いて、痛みが和らいだ。";
@@ -1620,6 +1651,7 @@ muta_desc = "眼が少しの間焼き付いて、痛みが和らいだ。";
 			break;
 		case 68: case 69:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_RECALL;
 #ifdef JP
 muta_desc = "少しの間ホームシックになった。";
@@ -1630,6 +1662,7 @@ muta_desc = "少しの間ホームシックになった。";
 			break;
 		case 70:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_BANISH;
 #ifdef JP
 muta_desc = "神聖な怒りの力を感じなくなった。";
@@ -1640,6 +1673,7 @@ muta_desc = "神聖な怒りの力を感じなくなった。";
 			break;
 		case 71: case 72:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_COLD_TOUCH;
 #ifdef JP
 muta_desc = "手が暖かくなった。";
@@ -1650,6 +1684,7 @@ muta_desc = "手が暖かくなった。";
 			break;
 		case 73: case 74:
 			muta_class = &(p_ptr->muta1);
+			muta_class_lock = &(p_ptr->muta1_lock);
 			muta_which = MUT1_LAUNCHER;
 #ifdef JP
 muta_desc = "物を投げる手が弱くなった気がする。";
@@ -1660,6 +1695,7 @@ muta_desc = "物を投げる手が弱くなった気がする。";
 			break;
 		case 75:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_BERS_RAGE;
 #ifdef JP
 muta_desc = "凶暴化の発作にさらされなくなった！";
@@ -1670,6 +1706,7 @@ muta_desc = "凶暴化の発作にさらされなくなった！";
 			break;
 		case 76:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_COWARDICE;
 #ifdef JP
 muta_desc = "もう信じがたいほど臆病ではなくなった！";
@@ -1680,6 +1717,7 @@ muta_desc = "もう信じがたいほど臆病ではなくなった！";
 			break;
 		case 77:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_RTELEPORT;
 #ifdef JP
 muta_desc = "あなたの位置はより確定的になった。";
@@ -1690,6 +1728,7 @@ muta_desc = "あなたの位置はより確定的になった。";
 			break;
 		case 78:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_ALCOHOL;
 #ifdef JP
 muta_desc = "あなたはアルコールを分泌しなくなった！";
@@ -1700,6 +1739,7 @@ muta_desc = "あなたはアルコールを分泌しなくなった！";
 			break;
 		case 79:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_HALLU;
 #ifdef JP
 muta_desc = "幻覚をひき起こす精神障害を起こさなくなった！";
@@ -1710,6 +1750,7 @@ muta_desc = "幻覚をひき起こす精神障害を起こさなくなった！";
 			break;
 		case 80:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_FLATULENT;
 #ifdef JP
 muta_desc = "もう強烈な屁はこかなくなった。";
@@ -1720,6 +1761,7 @@ muta_desc = "もう強烈な屁はこかなくなった。";
 			break;
 		case 81: case 82:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_SCOR_TAIL;
 #ifdef JP
 muta_desc = "サソリの尻尾がなくなった！";
@@ -1730,6 +1772,7 @@ muta_desc = "サソリの尻尾がなくなった！";
 			break;
 		case 83: case 84:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_HORNS;
 #ifdef JP
 muta_desc = "額から角が消えた！";
@@ -1740,6 +1783,7 @@ muta_desc = "額から角が消えた！";
 			break;
 		case 85: case 86:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_BEAK;
 #ifdef JP
 muta_desc = "口が普通に戻った！";
@@ -1750,6 +1794,7 @@ muta_desc = "口が普通に戻った！";
 			break;
 		case 87: case 88:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_ATT_DEMON;
 #ifdef JP
 muta_desc = "デーモンを引き寄せなくなった。";
@@ -1760,6 +1805,7 @@ muta_desc = "デーモンを引き寄せなくなった。";
 			break;
 		case 89:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_PROD_MANA;
 #ifdef JP
 muta_desc = "制御不能な魔法のエネルギーを発生しなくなった。";
@@ -1770,6 +1816,7 @@ muta_desc = "制御不能な魔法のエネルギーを発生しなくなった。";
 			break;
 		case 90: case 91:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_SPEED_FLUX;
 #ifdef JP
 muta_desc = "躁鬱質でなくなった。";
@@ -1780,6 +1827,7 @@ muta_desc = "躁鬱質でなくなった。";
 			break;
 		case 92: case 93:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_BANISH_ALL;
 #ifdef JP
 muta_desc = "背後に恐ろしい力を感じなくなった。";
@@ -1790,6 +1838,7 @@ muta_desc = "背後に恐ろしい力を感じなくなった。";
 			break;
 		case 94:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_EAT_LIGHT;
 #ifdef JP
 muta_desc = "世界が明るいと感じる。";
@@ -1800,6 +1849,7 @@ muta_desc = "世界が明るいと感じる。";
 			break;
 		case 95: case 96:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_TRUNK;
 #ifdef JP
 muta_desc = "鼻が普通の長さに戻った。";
@@ -1810,6 +1860,7 @@ muta_desc = "鼻が普通の長さに戻った。";
 			break;
 		case 97:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_ATT_ANIMAL;
 #ifdef JP
 muta_desc = "動物を引き寄せなくなった。";
@@ -1820,6 +1871,7 @@ muta_desc = "動物を引き寄せなくなった。";
 			break;
 		case 98:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_TENTACLES;
 #ifdef JP
 muta_desc = "触手が消えた。";
@@ -1830,6 +1882,7 @@ muta_desc = "触手が消えた。";
 			break;
 		case 99:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_RAW_CHAOS;
 #ifdef JP
 muta_desc = "周囲の空間が安定した気がする。";
@@ -1840,6 +1893,7 @@ muta_desc = "周囲の空間が安定した気がする。";
 			break;
 		case 100: case 101: case 102:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_NORMALITY;
 #ifdef JP
 muta_desc = "普通に奇妙な感じがする。";
@@ -1850,6 +1904,7 @@ muta_desc = "普通に奇妙な感じがする。";
 			break;
 		case 103:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_WRAITH;
 #ifdef JP
 muta_desc = "あなたは物質世界にしっかり存在している。";
@@ -1860,6 +1915,7 @@ muta_desc = "あなたは物質世界にしっかり存在している。";
 			break;
 		case 104:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_POLY_WOUND;
 #ifdef JP
 muta_desc = "古い傷からカオスの力が去っていった。";
@@ -1870,6 +1926,7 @@ muta_desc = "古い傷からカオスの力が去っていった。";
 			break;
 		case 105:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_WASTING;
 #ifdef JP
 muta_desc = "おぞましい衰弱病が治った！";
@@ -1880,6 +1937,7 @@ muta_desc = "おぞましい衰弱病が治った！";
 			break;
 		case 106:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_ATT_DRAGON;
 #ifdef JP
 muta_desc = "ドラゴンを引き寄せなくなった。";
@@ -1890,6 +1948,7 @@ muta_desc = "ドラゴンを引き寄せなくなった。";
 			break;
 		case 107: case 108:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_WEIRD_MIND;
 #ifdef JP
 muta_desc = "思考が退屈な方向に戻った。";
@@ -1900,6 +1959,7 @@ muta_desc = "思考が退屈な方向に戻った。";
 			break;
 		case 109:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_NAUSEA;
 #ifdef JP
 muta_desc = "胃が痙攣しなくなった。";
@@ -1910,6 +1970,7 @@ muta_desc = "胃が痙攣しなくなった。";
 			break;
 		case 110: case 111:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_CHAOS_GIFT;
 #ifdef JP
 muta_desc = "混沌の神々の興味を惹かなくなった。";
@@ -1920,6 +1981,7 @@ muta_desc = "混沌の神々の興味を惹かなくなった。";
 			break;
 		case 112:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_WALK_SHAD;
 #ifdef JP
 muta_desc = "物質世界に捕らわれている気がする。";
@@ -1930,6 +1992,7 @@ muta_desc = "物質世界に捕らわれている気がする。";
 			break;
 		case 113: case 114:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_WARNING;
 #ifdef JP
 muta_desc = "パラノイアでなくなった。";
@@ -1940,6 +2003,7 @@ muta_desc = "パラノイアでなくなった。";
 			break;
 		case 115:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_INVULN;
 #ifdef JP
 muta_desc = "無敵状態の発作を起こさなくなった。";
@@ -1950,6 +2014,7 @@ muta_desc = "無敵状態の発作を起こさなくなった。";
 			break;
 		case 116: case 117:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_SP_TO_HP;
 #ifdef JP
 muta_desc = "魔法の治癒の発作に襲われなくなった。";
@@ -1960,6 +2025,7 @@ muta_desc = "魔法の治癒の発作に襲われなくなった。";
 			break;
 		case 118:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_HP_TO_SP;
 #ifdef JP
 muta_desc = "痛みを伴う精神明瞭化の発作に襲われなくなった。";
@@ -1970,6 +2036,7 @@ muta_desc = "痛みを伴う精神明瞭化の発作に襲われなくなった。";
 			break;
 		case 119:
 			muta_class = &(p_ptr->muta2);
+			muta_class_lock = &(p_ptr->muta2_lock);
 			muta_which = MUT2_DISARM;
 #ifdef JP
 muta_desc = "脚が元の大きさに戻った。";
@@ -1980,6 +2047,7 @@ muta_desc = "脚が元の大きさに戻った。";
 			break;
 		case 120: case 121: case 122:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_HYPER_STR;
 #ifdef JP
 muta_desc = "筋肉が普通に戻った。";
@@ -1990,6 +2058,7 @@ muta_desc = "筋肉が普通に戻った。";
 			break;
 		case 123: case 124: case 125:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_PUNY;
 #ifdef JP
 muta_desc = "筋肉が普通に戻った。";
@@ -2000,6 +2069,7 @@ muta_desc = "筋肉が普通に戻った。";
 			break;
 		case 126: case 127: case 128:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_HYPER_INT;
 #ifdef JP
 muta_desc = "脳が普通に戻った。";
@@ -2010,6 +2080,7 @@ muta_desc = "脳が普通に戻った。";
 			break;
 		case 129: case 130: case 131:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_MORONIC;
 #ifdef JP
 muta_desc = "脳が普通に戻った。";
@@ -2020,6 +2091,7 @@ muta_desc = "脳が普通に戻った。";
 			break;
 		case 132: case 133:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_RESILIENT;
 #ifdef JP
 muta_desc = "普通の丈夫さに戻った。";
@@ -2030,6 +2102,7 @@ muta_desc = "普通の丈夫さに戻った。";
 			break;
 		case 134: case 135:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_XTRA_FAT;
 #ifdef JP
 muta_desc = "奇跡的なダイエットに成功した！";
@@ -2040,6 +2113,7 @@ muta_desc = "奇跡的なダイエットに成功した！";
 			break;
 		case 136: case 137:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_ALBINO;
 #ifdef JP
 muta_desc = "アルビノでなくなった！";
@@ -2050,6 +2124,7 @@ muta_desc = "アルビノでなくなった！";
 			break;
 		case 138: case 139: case 140:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_FLESH_ROT;
 #ifdef JP
 muta_desc = "肉体を腐敗させる病気が治った！";
@@ -2060,6 +2135,7 @@ muta_desc = "肉体を腐敗させる病気が治った！";
 			break;
 		case 141: case 142:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_SILLY_VOI;
 #ifdef JP
 muta_desc = "声質が普通に戻った。";
@@ -2070,6 +2146,7 @@ muta_desc = "声質が普通に戻った。";
 			break;
 		case 143: case 144:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_BLANK_FAC;
 #ifdef JP
 muta_desc = "顔に目鼻が戻った。";
@@ -2080,6 +2157,7 @@ muta_desc = "顔に目鼻が戻った。";
 			break;
 		case 145:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_ILL_NORM;
 #ifdef JP
 muta_desc = "心が安らぐ幻影を映し出さなくなった。";
@@ -2090,6 +2168,7 @@ muta_desc = "心が安らぐ幻影を映し出さなくなった。";
 			break;
 		case 146: case 147: case 148:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_XTRA_EYES;
 #ifdef JP
 muta_desc = "余分な目が消えてしまった！";
@@ -2100,6 +2179,7 @@ muta_desc = "余分な目が消えてしまった！";
 			break;
 		case 149: case 150:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_MAGIC_RES;
 #ifdef JP
 muta_desc = "魔法に弱くなった。";
@@ -2110,6 +2190,7 @@ muta_desc = "魔法に弱くなった。";
 			break;
 		case 151: case 152: case 153:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_XTRA_NOIS;
 #ifdef JP
 muta_desc = "奇妙な音を立てなくなった！";
@@ -2120,6 +2201,7 @@ muta_desc = "奇妙な音を立てなくなった！";
 			break;
 		case 154: case 155: case 156:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_INFRAVIS;
 #ifdef JP
 muta_desc = "赤外線視力が落ちた。";
@@ -2130,6 +2212,7 @@ muta_desc = "赤外線視力が落ちた。";
 			break;
 		case 157: case 158:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_XTRA_LEGS;
 #ifdef JP
 muta_desc = "余分な脚が消えてしまった！";
@@ -2140,6 +2223,7 @@ muta_desc = "余分な脚が消えてしまった！";
 			break;
 		case 159: case 160:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_SHORT_LEG;
 #ifdef JP
 muta_desc = "脚の長さが普通に戻った。";
@@ -2150,6 +2234,7 @@ muta_desc = "脚の長さが普通に戻った。";
 			break;
 		case 161: case 162:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_ELEC_TOUC;
 #ifdef JP
 muta_desc = "体を電流が流れなくなった。";
@@ -2160,6 +2245,7 @@ muta_desc = "体を電流が流れなくなった。";
 			break;
 		case 163: case 164:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_FIRE_BODY;
 #ifdef JP
 muta_desc = "体が炎に包まれなくなった。";
@@ -2170,6 +2256,7 @@ muta_desc = "体が炎に包まれなくなった。";
 			break;
 		case 165: case 166: case 167:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_WART_SKIN;
 #ifdef JP
 muta_desc = "イボイボが消えた！";
@@ -2180,6 +2267,7 @@ muta_desc = "イボイボが消えた！";
 			break;
 		case 168: case 169: case 170:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_SCALES;
 #ifdef JP
 muta_desc = "鱗が消えた！";
@@ -2190,6 +2278,7 @@ muta_desc = "鱗が消えた！";
 			break;
 		case 171: case 172:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_IRON_SKIN;
 #ifdef JP
 muta_desc = "肌が肉にもどった！";
@@ -2200,6 +2289,7 @@ muta_desc = "肌が肉にもどった！";
 			break;
 		case 173: case 174:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_WINGS;
 #ifdef JP
 muta_desc = "背中の羽根が取れ落ちた。";
@@ -2210,6 +2300,7 @@ muta_desc = "背中の羽根が取れ落ちた。";
 			break;
 		case 175: case 176: case 177:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_FEARLESS;
 #ifdef JP
 muta_desc = "再び恐怖を感じるようになった。";
@@ -2220,6 +2311,7 @@ muta_desc = "再び恐怖を感じるようになった。";
 			break;
 		case 178: case 179:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_REGEN;
 #ifdef JP
 muta_desc = "急速回復しなくなった。";
@@ -2230,6 +2322,7 @@ muta_desc = "急速回復しなくなった。";
 			break;
 		case 180: case 181:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_ESP;
 #ifdef JP
 muta_desc = "テレパシーの能力を失った！";
@@ -2240,6 +2333,7 @@ muta_desc = "テレパシーの能力を失った！";
 			break;
 		case 182: case 183: case 184:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_LIMBER;
 #ifdef JP
 muta_desc = "筋肉が硬くなった。";
@@ -2250,6 +2344,7 @@ muta_desc = "筋肉が硬くなった。";
 			break;
 		case 185: case 186: case 187:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_ARTHRITIS;
 #ifdef JP
 muta_desc = "関節が痛くなくなった。";
@@ -2260,6 +2355,7 @@ muta_desc = "関節が痛くなくなった。";
 			break;
 		case 188:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_BAD_LUCK;
 #ifdef JP
 muta_desc = "黒いオーラは渦巻いて消えた。";
@@ -2270,6 +2366,7 @@ muta_desc = "黒いオーラは渦巻いて消えた。";
 			break;
 		case 189:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_VULN_ELEM;
 #ifdef JP
 muta_desc = "無防備な感じはなくなった。";
@@ -2280,6 +2377,7 @@ muta_desc = "無防備な感じはなくなった。";
 			break;
 		case 190: case 191: case 192:
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_MOTION;
 #ifdef JP
 muta_desc = "動作の正確さがなくなった。";
@@ -2289,8 +2387,8 @@ muta_desc = "動作の正確さがなくなった。";
 
 			break;
 		case 193:
-			if (p_ptr->pseikaku == SEIKAKU_LUCKY) break;
 			muta_class = &(p_ptr->muta3);
+			muta_class_lock = &(p_ptr->muta3_lock);
 			muta_which = MUT3_GOOD_LUCK;
 #ifdef JP
 muta_desc = "白いオーラは輝いて消えた。";
@@ -2301,12 +2399,14 @@ muta_desc = "白いオーラは輝いて消えた。";
 			break;
 		default:
 			muta_class = NULL;
+			muta_class_lock = NULL;
 			muta_which = 0;
 		}
 
-		if (muta_class && muta_which)
+		if (muta_class && muta_class_lock && muta_which)
 		{
-			if (*(muta_class) & muta_which)
+			if ( (*(muta_class) & muta_which)
+			  && !(*(muta_class_lock) & muta_which))
 			{
 				muta_chosen = TRUE;
 			}
@@ -3257,11 +3357,11 @@ int count_bits(u32b x)
 }
 
 
-static int count_mutations(void)
+int count_unlocked_mutations(void)
 {
-	return (count_bits(p_ptr->muta1) +
-		count_bits(p_ptr->muta2) +
-		count_bits(p_ptr->muta3));
+	return (count_bits(p_ptr->muta1 & ~(p_ptr->muta1_lock)) +
+		count_bits(p_ptr->muta2 & ~(p_ptr->muta2_lock)) +
+		count_bits(p_ptr->muta3 & ~(p_ptr->muta3_lock)));
 }
 
 
@@ -3273,14 +3373,13 @@ int calc_mutant_regenerate_mod(void)
 {
 	int regen;
 	int mod = 10;
-	int count = count_mutations();
+	int count = count_unlocked_mutations(); /* locked mutations do not penalize the player */
 
 	/*
 	 * Beastman get 10 "free" mutations and
 	 * only 5% decrease per additional mutation
 	 */
 
-	if (p_ptr->pseikaku == SEIKAKU_LUCKY) count--;
 	if (p_ptr->prace == RACE_BEASTMAN)
 	{
 		count -= 10;

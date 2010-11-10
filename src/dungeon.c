@@ -281,6 +281,7 @@ static void sense_inventory1(void)
 		case CLASS_PRIEST:
 		case CLASS_BARD:
 		case CLASS_TIME_LORD:
+		case CLASS_WARLOCK:
 		{
 			/* Good (light) sensing */
 			if (0 != randint0(10000L / (plev * plev + 40))) return;
@@ -516,6 +517,7 @@ static void sense_inventory2(void)
 		case CLASS_ROGUE:
 		case CLASS_FORCETRAINER:
 		case CLASS_MINDCRAFTER:
+		case CLASS_WARLOCK:
 		{
 			/* Good sensing */
 			if (0 != randint0(20000L / (plev * plev + 40))) return;
@@ -1178,11 +1180,15 @@ void leave_quest_check(void)
 	    ((quest[leaving_quest].flags & QUEST_FLAG_ONCE)  || (quest[leaving_quest].type == QUEST_TYPE_RANDOM)) &&
 	    (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 	{
+		/* Hack: Ironman quests *must* be completed! */
+		if (quest[leaving_quest].type == QUEST_TYPE_RANDOM && ironman_quests) return;
+
 		quest[leaving_quest].status = QUEST_STATUS_FAILED;
 		quest[leaving_quest].complev = (byte)p_ptr->lev;
 		if (quest[leaving_quest].type == QUEST_TYPE_RANDOM)
 		{
-			r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
+			if (quest[leaving_quest].r_idx)
+				r_info[quest[leaving_quest].r_idx].flags1 &= ~(RF1_QUESTOR);
 			if (record_rand_quest)
 				do_cmd_write_nikki(NIKKI_RAND_QUEST_F, leaving_quest, NULL);
 
@@ -2586,17 +2592,26 @@ static void process_world_aux_mutation(void)
 #endif
 
 	}
-	if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic && one_in_(3000))
+	if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic)
 	{
-		disturb(0, 0);
+		int chance = 3000;
+
+		/* Warlock Undead Pact gets better activation */
+		if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_UNDEAD && p_ptr->lev > 44)
+			chance = 1500;
+
+		if (one_in_(chance))
+		{
+			disturb(0, 0);
 #ifdef JP
-		msg_print("非物質化した！");
+			msg_print("非物質化した！");
 #else
-		msg_print("You feel insubstantial!");
+			msg_print("You feel insubstantial!");
 #endif
 
-		msg_print(NULL);
-		set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
+			msg_print(NULL);
+			set_wraith_form(randint1(p_ptr->lev / 2) + (p_ptr->lev / 2), FALSE);
+		}
 	}
 	if ((p_ptr->muta2 & MUT2_POLY_WOUND) && one_in_(3000))
 	{
@@ -2778,18 +2793,26 @@ static void process_world_aux_mutation(void)
 #endif
 
 	}
-	if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
-	    one_in_(5000))
+	if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic)
 	{
-		disturb(0, 0);
+		int chance = 5000;
+		
+		/* Warlock Angel Pact gets better activation */
+		if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_ANGEL && p_ptr->lev > 44)
+			chance = 2500;
+
+		if (one_in_(chance))
+		{
+			disturb(0, 0);
 #ifdef JP
-		msg_print("無敵な気がする！");
+			msg_print("無敵な気がする！");
 #else
-		msg_print("You feel invincible!");
+			msg_print("You feel invincible!");
 #endif
 
-		msg_print(NULL);
-		(void)set_invuln(randint1(8) + 8, FALSE);
+			msg_print(NULL);
+			(void)set_invuln(randint1(8) + 8, FALSE);
+		}
 	}
 	if ((p_ptr->muta2 & MUT2_SP_TO_HP) && one_in_(2000))
 	{
@@ -3382,7 +3405,8 @@ msg_print("下に引きずり降ろされる感じがする！");
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 
-				if (dungeon_type == DUNGEON_ANGBAND)
+				if (dungeon_type == DUNGEON_ANGBAND	&&
+				    !ironman_quests) /* Hack: Using the Trump Tower to circumvent quests does not fail them for Ironman Quests */
 				{
 					int i;
 
@@ -4801,7 +4825,8 @@ msg_print("ウィザードモード突入。");
 			     (p_ptr->pclass == CLASS_NINJA) ||
 			     (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
 				 (p_ptr->pclass == CLASS_TIME_LORD) ||
-				 (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+				 (p_ptr->pclass == CLASS_BLOOD_KNIGHT) ||
+				 (p_ptr->pclass == CLASS_WARLOCK)
 			     ) do_cmd_mind_browse();
 			else if (p_ptr->pclass == CLASS_SMITH)
 				do_cmd_kaji(TRUE);
@@ -4826,6 +4851,10 @@ msg_print("ウィザードモード突入。");
 #else
 					msg_print("You cannot cast spells!");
 #endif
+				}
+				else if (p_ptr->tim_no_spells)
+				{
+					msg_print("Your spells are blocked!");
 				}
 				else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
 				{
@@ -4904,7 +4933,8 @@ msg_print("ウィザードモード突入。");
 					    (p_ptr->pclass == CLASS_NINJA) ||
 					    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
 						(p_ptr->pclass == CLASS_TIME_LORD) ||
-						(p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+						(p_ptr->pclass == CLASS_BLOOD_KNIGHT) ||
+						(p_ptr->pclass == CLASS_WARLOCK)
 					    )
 						do_cmd_mind();
 					else if (p_ptr->pclass == CLASS_IMITATOR)
@@ -5723,6 +5753,14 @@ msg_print("中断しました。");
 	{
 		(void)set_lightspeed(p_ptr->lightspeed - 1, TRUE);
 	}
+	if (p_ptr->tim_no_spells)
+	{
+		(void)set_tim_no_spells(p_ptr->tim_no_spells - 1, TRUE);
+	}
+	if (p_ptr->tim_no_device)
+	{
+		(void)set_tim_no_device(p_ptr->tim_no_device - 1, TRUE);
+	}
 	if ((p_ptr->pclass == CLASS_FORCETRAINER) && (p_ptr->magic_num1[0]))
 	{
 		if (p_ptr->magic_num1[0] < 40)
@@ -6146,7 +6184,8 @@ static void dungeon(bool load_game)
 	if (quest_num)
 	{
 		/* Mark the quest monster */
-		r_info[quest[quest_num].r_idx].flags1 |= RF1_QUESTOR;
+		if (quest[quest_num].r_idx) /* TODO: Non-monster quests are coming ... */
+			r_info[quest[quest_num].r_idx].flags1 |= RF1_QUESTOR;
 	}
 
 	/* Track maximum player level */
@@ -6377,10 +6416,15 @@ msg_print("試合開始！");
 	}
 
 	/* Inside a quest and non-unique questor? */
-	if (quest_num && !(r_info[quest[quest_num].r_idx].flags1 & RF1_UNIQUE))
+	if (quest_num)
 	{
-		/* Un-mark the quest monster */
-		r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
+		/* Mark the quest monster */
+		if ( quest[quest_num].r_idx /* TODO: Non-monster quests are coming ... */
+		  && !(r_info[quest[quest_num].r_idx].flags1 & RF1_UNIQUE) )
+		{
+			/* Un-mark the quest monster */
+			r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
+		}
 	}
 
 	/* Not save-and-quit and not dead? */
@@ -7310,3 +7354,5 @@ void prevent_turn_overflow(void)
 		}
 	}
 }
+
+

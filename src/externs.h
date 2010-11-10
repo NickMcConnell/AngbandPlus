@@ -55,6 +55,7 @@ extern byte adj_mag_mana[];
 extern byte adj_mag_fail[];
 extern byte adj_mag_stat[];
 extern byte adj_chr_gold[];
+extern byte warlock_damage_sides[];
 extern byte adj_int_dev[];
 extern byte adj_wis_sav[];
 extern byte adj_dex_dis[];
@@ -81,6 +82,7 @@ extern s32b player_exp_a[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
 extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
+extern player_pact pact_info[MAX_PACTS];
 extern magic_type technic_info[NUM_TECHNIC][32];
 extern player_seikaku seikaku_info[MAX_SEIKAKU];
 extern player_race mimic_info[];
@@ -343,6 +345,7 @@ extern bool allow_friendly_monster; /* Allow monsters friendly to player */
 extern bool allow_hostile_monster; /* Allow monsters hostile to each other */
 extern bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 extern bool quest_unique; /* Random quests for unique monsters only */
+extern bool ironman_quests; /* Random quests must be completed */
 
 
 /*** Easy Object Auto-Destroyer ***/
@@ -1430,6 +1433,8 @@ extern bool set_tim_blood_shield(int v, bool do_dec);
 extern bool set_tim_blood_seek(int v, bool do_dec);
 extern bool set_tim_blood_sight(int v, bool do_dec);
 extern bool set_tim_blood_feast(int v, bool do_dec);
+extern bool set_tim_no_spells(int v, bool do_dec);
+extern bool set_tim_no_device(int v, bool do_dec);
 extern bool set_resist_magic(int v, bool do_dec);
 extern bool set_tim_reflect(int v, bool do_dec);
 extern bool set_multishadow(int v, bool do_dec);
@@ -1497,6 +1502,7 @@ extern bool tgt_pt (int *x, int *y);
 extern void do_poly_wounds(void);
 extern void change_race(int new_race, cptr effect_msg);
 extern int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear);
+extern int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear);
 extern s16b gain_energy(void);
 extern s16b bow_energy(int sval);
 extern int bow_tmul(int sval);
@@ -1565,6 +1571,7 @@ extern void do_cmd_gain_hissatsu(void);
 
 /* mutation.c */
 extern int count_bits(u32b x);
+extern int count_unlocked_mutations(void);
 extern bool gain_random_mutation(int choose_mut);
 extern bool lose_mutation(int choose_mut);
 extern void dump_mutations(FILE *OutFile);

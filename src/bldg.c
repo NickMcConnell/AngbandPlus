@@ -4224,7 +4224,10 @@ bool tele_town(void)
 	{
 		char buf[80];
 
-		if ((i == NO_TOWN) || (i == SECRET_TOWN) || (i == p_ptr->town_num) || !(p_ptr->visit & (1L << (i-1)))) continue;
+		if ((i == NO_TOWN) || 
+		    (i == SECRET_TOWN) || 
+			(i == p_ptr->town_num) || 
+		    (!(p_ptr->visit & (1L << (i-1))) && !p_ptr->wizard)) continue;
 
 		sprintf(buf,"%c) %-20s", I2A(i-1), town[i].name);
 		prt(buf, 5+i, 5);
@@ -4259,7 +4262,7 @@ bool tele_town(void)
 			return FALSE;
 		}
 		else if ((i < 'a') || (i > ('a'+max_towns-2))) continue;
-		else if (((i-'a'+1) == p_ptr->town_num) || ((i-'a'+1) == NO_TOWN) || ((i-'a'+1) == SECRET_TOWN) || !(p_ptr->visit & (1L << (i-'a')))) continue;
+		else if (((i-'a'+1) == p_ptr->town_num) || ((i-'a'+1) == NO_TOWN) || ((i-'a'+1) == SECRET_TOWN) || (!(p_ptr->visit & (1L << (i-'a'))) && !p_ptr->wizard)) continue;
 		break;
 	}
 
@@ -4786,10 +4789,7 @@ msg_print("お金が足りません！");
 		break;
 	}
 	case BACT_LOSE_MUTATION:
-		if (p_ptr->muta1 || p_ptr->muta2 ||
-		    (p_ptr->muta3 & ~MUT3_GOOD_LUCK) ||
-		    (p_ptr->pseikaku != SEIKAKU_LUCKY &&
-		     (p_ptr->muta3 & MUT3_GOOD_LUCK)))
+		if (count_unlocked_mutations() > 0)
 		{
 			while(!lose_mutation(0));
 			paid = TRUE;
@@ -4799,7 +4799,7 @@ msg_print("お金が足りません！");
 #ifdef JP
 			msg_print("治すべき突然変異が無い。");
 #else
-			msg_print("You have no mutations.");
+			msg_print("You have no mutations that I can cure.");
 #endif
 			msg_print(NULL);
 		}

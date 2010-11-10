@@ -132,11 +132,11 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 				msg_print("You feel more temporally focused.");
 			}
 			/* one of the most frustrating things in heng is the early random stat rolls! */
-			if(  p_ptr->max_plv == 3	/* quicker starts, please! */
-			  || p_ptr->max_plv == 7 
-			  || p_ptr->max_plv == 10
-			  || p_ptr->max_plv == 15
-			  || p_ptr->max_plv == 20
+			if(  p_ptr->max_plv == 4	/* quicker starts, please! */
+			  || p_ptr->max_plv == 8 
+			  || p_ptr->max_plv == 12
+			  || p_ptr->max_plv == 16
+			  || p_ptr->max_plv == 20   /* now pick every 5 */
 			  || p_ptr->max_plv == 25
 			  || p_ptr->max_plv == 30
 			  || p_ptr->max_plv == 35
@@ -1603,6 +1603,8 @@ msg_print("地面に落とされた。");
  *
  * "type" is not yet used and should be 0.
  */
+ /* I had to split this into 2 routines:
+	[1] Player is damaging monster */
 int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 {
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -1631,6 +1633,57 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 			return (0);
 		}
 	}
+
+	/* Hack: Pact monsters have special resistance to all damage from the player
+	   I'm not sure if this is the correct spot for this code ...*/
+	if (p_ptr->pclass == CLASS_WARLOCK)
+	{
+		char* pc = my_strchr(pact_info[p_ptr->psubclass].alliance, r_ptr->d_char);
+		if (pc != NULL)
+		{
+			/* Let the player notice this for this monster race only the first time */
+			if (!(r_ptr->r_flagsr & RFR_PACT_MONSTER))
+			{
+				msg_print("You are less effective against monsters you have made a pact with.");
+				r_ptr->r_flagsr |= (RFR_PACT_MONSTER);
+			}
+			dam = dam/2;
+		}
+	}
+
+	return (dam);
+}
+
+/* [2] Another monster is damaging monster */
+int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear)
+{
+	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+	if ((r_ptr->flagsr & RFR_RES_ALL) && dam > 0)
+	{
+		dam /= 100;
+		if ((dam == 0) && one_in_(3)) dam = 1;
+	}
+
+	if (MON_INVULNER(m_ptr))
+	{
+		if (is_psy_spear)
+		{
+			if (!p_ptr->blind && is_seen(m_ptr))
+			{
+#ifdef JP
+				msg_print("バリアを切り裂いた！");
+#else
+				msg_print("The barrier is penetrated!");
+#endif
+			}
+		}
+		else if (!one_in_(PENETRATE_INVULNERABILITY))
+		{
+			return (0);
+		}
+	}
+
 	return (dam);
 }
 
@@ -1768,6 +1821,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Genocided by chaos patron */
 	if (!m_idx) return TRUE;
+
+	/* Hack: I moved this here ... formerly, melee and archery displayed damage, but other
+	   things did not (e.g. spells) I think all player induced monster damage comes thru
+	   here, so now you even get to see how much damage your auras inflict! */
+	if (p_ptr->wizard || cheat_xtra)
+		msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
 
 	/* Hurt it */
 	m_ptr->hp -= dam;

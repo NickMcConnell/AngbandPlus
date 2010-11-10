@@ -1412,6 +1412,106 @@ static bool cmd_racial_power_aux(s32b command)
 			energy_use = 0;
 			break;
 		}
+		case CLASS_WARLOCK:
+		{
+			switch (p_ptr->psubclass)
+			{
+			case PACT_UNDEAD:
+				if (command == -3)
+				{
+					set_food(PY_FOOD_MAX - 1);
+				}
+				else if (command == -4)
+				{
+					restore_level();
+				}
+				break;
+
+			case PACT_DRAGON:
+				if (command == -3)
+				{
+					detect_objects_normal(DETECT_RAD_DEFAULT);
+				}
+				else if (command == -4)
+				{
+					if (!ident_spell(TRUE)) return FALSE;
+				}
+				else if (command == -5)
+				{
+					set_shield(randint1(30) + 20, FALSE);
+				}
+				break;
+
+			case PACT_ANGEL:
+				if (command == -3)
+				{
+					int dice = 2;
+					int sides = plev / 2;
+					int rad = plev / 10 + 1;
+
+					lite_area(spell_power(damroll(dice, sides)), rad);
+				}
+				else if (command == -4)
+				{
+					if (remove_curse())
+					{
+#ifdef JP
+						msg_print("誰かに見守られているような気がする。");
+#else
+						msg_print("You feel as if someone is watching over you.");
+#endif
+					}
+				}
+				else if (command == -5)
+				{
+					int base = 25;
+					int sides = 3 * plev;
+
+					set_protevil(randint1(sides) + sides, FALSE);
+				}
+				break;
+
+			case PACT_DEMON:
+				if (command == -3)
+				{
+					teleport_player(10, 0);
+				}
+				else if (command == -4)
+				{
+					teleport_player(p_ptr->lev * 5, 0);
+				}
+				else if (command == -5)
+				{
+					if (!recharge(p_ptr->lev * 4)) return FALSE;
+				}
+				break;
+
+			case PACT_ABERRATION:
+				if (command == -3)
+				{
+					detect_monsters_normal(DETECT_RAD_DEFAULT);
+				}
+				else if (command == -4)
+				{
+					int rad = DETECT_RAD_DEFAULT;
+
+					detect_traps(rad, TRUE);
+					detect_doors(rad);
+					detect_stairs(rad);
+				}
+				else if (command == -5)
+				{
+					if (!get_check("You will polymorph your self. Are you sure? ")) return FALSE;
+					do_poly_self();
+				}
+				else if (command == -6)
+				{
+					map_area(DETECT_RAD_MAP);
+				}
+				break;
+			}
+			break;
+		}
 		}
 	}
 	else if (p_ptr->mimic_form)
@@ -2158,7 +2258,7 @@ static bool cmd_racial_power_aux(s32b command)
  */
 void do_cmd_racial_power(void)
 {
-	power_desc_type power_desc[36];
+	power_desc_type power_desc[MAX_RACIAL_POWERS];
 	int             num, i = 0;
 	int             ask = TRUE;
 	int             lvl = p_ptr->lev;
@@ -2169,7 +2269,7 @@ void do_cmd_racial_power(void)
 	int menu_line = (use_menu ? 1 : 0);
 
 
-	for (num = 0; num < 36; num++)
+	for (num = 0; num < MAX_RACIAL_POWERS; num++)
 	{
 		strcpy(power_desc[num].name, "");
 		power_desc[num].number = 0;
@@ -2675,13 +2775,170 @@ strcpy(power_desc[num].name, "速駆け");
 		power_desc[num++].number = -3;
 		break;
 	}
+	case CLASS_WARLOCK: /* I'm not proud of this ... :) */
+	{					/* Racial powers are -1 and -2.  Class powers are -3 and more negative! 
+						   The numbers we use here will be cracked in cmd_racial_power_aux ... Yuk! */
+		switch (p_ptr->psubclass)
+		{
+		case PACT_UNDEAD:
+			if (p_ptr->lev > 4)
+			{
+				strcpy(power_desc[num].name, "Satisfy Hunger");
+				power_desc[num].level = 5;
+				power_desc[num].cost = 5;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 5;
+				power_desc[num++].number = -3;
+			}
+			if (p_ptr->lev > 19)
+			{
+				strcpy(power_desc[num].name, "Restore Life");
+				power_desc[num].level = 20;
+				power_desc[num].cost = 20;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 30;
+				power_desc[num++].number = -4;
+			}
+			break;
+
+		case PACT_DRAGON:
+			if (p_ptr->lev > 4)
+			{
+				strcpy(power_desc[num].name, "Detect Objects");
+				power_desc[num].level = 5;
+				power_desc[num].cost = 5;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 5;
+				power_desc[num++].number = -3;
+			}
+			if (p_ptr->lev > 19)
+			{
+				strcpy(power_desc[num].name, "Identify");
+				power_desc[num].level = 20;
+				power_desc[num].cost = 20;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 10;
+				power_desc[num++].number = -4;
+			}
+			if (p_ptr->lev > 34)
+			{
+				strcpy(power_desc[num].name, "Stone Skin");
+				power_desc[num].level = 35;
+				power_desc[num].cost = 40;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 10;
+				power_desc[num++].number = -5;
+			}
+			break;
+
+		case PACT_ANGEL:
+			if (p_ptr->lev > 4)
+			{
+				strcpy(power_desc[num].name, "Light Area");
+				power_desc[num].level = 5;
+				power_desc[num].cost = 5;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 5;
+				power_desc[num++].number = -3;
+			}
+			if (p_ptr->lev > 19)
+			{
+				strcpy(power_desc[num].name, "Remove Curse");
+				power_desc[num].level = 20;
+				power_desc[num].cost = 20;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 20;
+				power_desc[num++].number = -4;
+			}
+			if (p_ptr->lev > 34)
+			{
+				strcpy(power_desc[num].name, "Protection from Evil");
+				power_desc[num].level = 35;
+				power_desc[num].cost = 40;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 10;
+				power_desc[num++].number = -5;
+			}
+			break;
+
+		case PACT_DEMON:
+			if (p_ptr->lev > 4)
+			{
+				strcpy(power_desc[num].name, "Phase Door");
+				power_desc[num].level = 5;
+				power_desc[num].cost = 5;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 5;
+				power_desc[num++].number = -3;
+			}
+			if (p_ptr->lev > 19)
+			{
+				strcpy(power_desc[num].name, "Teleport");
+				power_desc[num].level = 20;
+				power_desc[num].cost = 10;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 10;
+				power_desc[num++].number = -4;
+			}
+			if (p_ptr->lev > 34)
+			{
+				strcpy(power_desc[num].name, "Recharge");
+				power_desc[num].level = 35;
+				power_desc[num].cost = 40;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 30;
+				power_desc[num++].number = -5;
+			}
+			break;
+
+		case PACT_ABERRATION:
+			if (p_ptr->lev > 4)
+			{
+				strcpy(power_desc[num].name, "Detect Monsters");
+				power_desc[num].level = 5;
+				power_desc[num].cost = 5;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 10;
+				power_desc[num++].number = -3;
+			}
+			if (p_ptr->lev > 19)
+			{
+				strcpy(power_desc[num].name, "Detect Doors and Stairs");
+				power_desc[num].level = 20;
+				power_desc[num].cost = 10;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 10;
+				power_desc[num++].number = -4;
+			}
+			if (p_ptr->lev > 29)
+			{
+				strcpy(power_desc[num].name, "Polymorph Self");
+				power_desc[num].level = 30;
+				power_desc[num].cost = 30;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 20;
+				power_desc[num++].number = -5;
+			}
+			if (p_ptr->lev > 34)
+			{
+				strcpy(power_desc[num].name, "Magic Mapping");
+				power_desc[num].level = 35;
+				power_desc[num].cost = 20;
+				power_desc[num].stat = A_CHR;
+				power_desc[num].fail = 10;
+				power_desc[num++].number = -6;
+			}
+			break;
+		}
+		break;
+	}
 	default:
 #ifdef JP
 strcpy(power_desc[0].name, "(なし)");
 #else
 		strcpy(power_desc[0].name, "(none)");
 #endif
-
+		break;
 	}
 
 	if (p_ptr->mimic_form)

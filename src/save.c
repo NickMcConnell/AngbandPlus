@@ -579,7 +579,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->psex);
 	wr_byte(p_ptr->realm1);
 	wr_byte(p_ptr->realm2);
-	wr_byte(0);	/* oops */
+	wr_byte(p_ptr->psubclass);
 
 	wr_byte(p_ptr->hitdie);
 	wr_u16b(p_ptr->expfact);
@@ -726,6 +726,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_eyeeye);
 
 	/* chengband */
+	wr_s16b(p_ptr->tim_spurt);
+	wr_s16b(p_ptr->tim_spec_corporeal);
+	wr_s16b(p_ptr->tim_no_spells);
+	wr_s16b(p_ptr->tim_no_device);
 	wr_s16b(p_ptr->tim_speed_essentia);
 	wr_s16b(p_ptr->tim_slow_digest);
 	wr_s16b(p_ptr->tim_crystal_skin);
@@ -746,6 +750,9 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->muta1);
 	wr_u32b(p_ptr->muta2);
 	wr_u32b(p_ptr->muta3);
+	wr_u32b(p_ptr->muta1_lock);
+	wr_u32b(p_ptr->muta2_lock);
+	wr_u32b(p_ptr->muta3_lock);
 
 	for (i = 0; i<8; i++)
 		wr_s16b(p_ptr->virtues[i]);
