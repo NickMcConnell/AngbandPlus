@@ -3700,18 +3700,46 @@ D:知勇兼備の武者畠山重忠の赤糸威大鎧だ。清廉潔白をもって知ら
 D:れた重忠は「坂東武士の鑑」と称された。この大鎧は、あたかも
 D:彼がここにいるかのように威風堂々としている。
 
-N:237:『コルイン』
+N:237:TRANSLATE
 E:'Bruce Lee'
 I:35:1:3
-W:5:85:10:80000
+W:50:85:10:80000
 P:1:0d0:5:5:15
 F:STR | CON | DEX | HIDE_TYPE | SHOW_MODS | REGEN |
 F:RES_SOUND | RES_DISEN | XTRA_H_RES
 D:$A cape worn by a hero from Hong Kong
-D:精霊達が争う渦中の地ヴァリノールの英雄が身に付けていたマントだ。
 
-N:238:《ネンヤ》という
+N:238:TRANSLATE
 E:of Frodo
-I:45:56:4
-W:40:100:2:50000
-F:SPEED | HIDE_TYPE | FREE_ACT | SEE_INVIS | STEALTH | INSTA_ART
+I:30:2:2
+W:30:20:20:50000
+P:4:1d1:1:1:7
+F:STR | SPEED | HIDE_TYPE | STEALTH | FREE_ACT
+D:$Frodo somehow found courage to bear the One Ring to Mount Doom.
+D:$These boots seemed endowed with all that is brave and noble in hobbits.
+
+N:239:TRANSLATE
+E:of Sam
+I:32:2:1
+W:10:1:15:10000
+P:2:0d0:1:1:7
+F:CON | HIDE_TYPE | RES_FEAR | SPEED
+D:$Sam was brave and trustworthy companion of Frodo.
+D:$With this cap, you feel able to face the dangers
+D:$ahead with a standy hand and a noble heart.
+
+N:240:TRANSLATE
+E:of Merry
+I:35:1:1
+W:10:1:10:10000
+P:1:0d0:0:0:7
+F:INT | STEALTH | SPEED | RES_CONF | SEARCH | HIDE_TYPE 
+D:$Merry was the most perceptive and intelligent of hobbits.
+
+N:241:TRANSLATE
+E:of Pippin
+I:31:1:1
+W:10:1:5:36000
+P:1:0d0:1:1:7
+F:DEX | CHR | HIDE_TYPE | SHOW_MODS | SPEED
+D:$'Fool of a Took' ... Ah, but Peregrin was brave if not wise.
