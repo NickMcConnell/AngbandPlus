@@ -7,7 +7,7 @@
 
 # Name
 Q:$5:N:The Barrow Downs
-Q:5:N:Εγ
+Q:5:N:TRANSLATE
 
 # Definition
 Q:$5:Q:6:0:0:0:35:0:0:0:6
@@ -41,49 +41,51 @@ Q:$5:T:after we have had time to grieve.
 
 ##################################
 # Terrain
-F: :FLOOR:8
+F: :GRASS:8
 F:;:RUBBLE:8
 F:T:TREE:1
 
 ##################################
 # Monsters
 # Kuoko (L24)
-F:A:FLOOR:8:381
+F:A:GRASS:8:381
 
 # White Wraith (L26)
-F:B:FLOOR:8:416
+F:B:GRASS:8:416
 
 # Grave Wight (L30)
-F:C:FLOOR:8:470
+F:C:GRASS:8:470
 
 # Barrow Wight (L33)
-F:W:FLOOR:8:499
+F:W:GRASS:8:499
 
 # Emperor Wight (L38)
 # The big boss.  A bit tough, but this a L35 quest now.
-F:Z:FLOOR:8:604
+F:Z:GRASS:8:604
 
 ##################################
 # Objects
 #F:<letter>:<terrain>:<cave_info>:<monster>:<object>:<ego>:<artifact>:<trap>:<special>
-
+# The goal is to give players +4 speed between this quest and the cloning pits (boots of frodo)
+# Wimpy speed items that will need to get tossed sooner or later for better equipment, but
+# enough to climb the DL40 power wall ... hopefully.
 # Gloves of Pippin
-F:1:FLOOR:8:0:0:0:241
+F:1:GRASS:8:0:0:0:241
 
 #!Healing
-F:2:FLOOR:8:0:242
-F:3:FLOOR:8:0:242
+F:2:GRASS:8:0:242
+F:3:GRASS:8:0:242
 
 # Cloak of Merry
-F:4:FLOOR:8:0:0:0:240
+F:4:GRASS:8:0:0:0:240
 
 # Remaining objects are random
-F:9:FLOOR:8:0:*0
-F:8:FLOOR:8:0:*7
+F:9:GRASS:8:0:*0
+F:8:GRASS:8:0:*7
 
 # Well, lets throw in some crap westernesse
 # BTW, this doesn't work ... Help!
-F:7:FLOOR:8:0:47:68
+F:7:GRASS:8:0:47:68
 
 ##################################
 # Dungeon
@@ -94,16 +96,16 @@ D:X              ;;;  AA  ;;;      BTTTTTTTTTTTTTT            ;;;  CC  ;;;      
 D:X    ;        ;;   AAAA   ;;     TTTTTTTTTTTTTTT           ;;   CCCC   ;;      TTTTTTTTTTTT                    TT   ;; ;;;;X
 D:X   ;;;      ;;   AAAAAA   ;;    TTTTTTTBTTTTTTT          ;;9  CCCCCC   ;;     TTTTTBTTTTTT       ;;;;;;;;       TT        X
 D:X  ;;;;;     ; 9  AAAAAA  9 ;    TTTTTTTTTTTTTTT          ; 99 CCCCCC    ;     TTTTTTTTTTTT     ;;;  WW  ;;;       TT      X
-D:X  ;;;;;     ;;    AAAA    ;;    TTTTTTTTTTTTTTC          ;;9   CCCC    ;;     TTTTTTTTTTTT    ;;   WWWW   ;;        T     X
+D:X  ;;;;;     ;;    AAAA     ;    TTTTTTTTTTTTTTC          ;;9   CCCC     ;     TTTTTTTTTTTT    ;;   WWWW   ;;        T     X
 D:X   ;;;       ;;    AA    ;;         T                     ;;    CC    ;;           T         ;;   WWWWWW  9;;        TT   X
 D:X    ;    B    ;;;  9   ;;;         T                       ;;; C  C ;;;            T         ;    WWWWWW 979;         T   X
-D:X                ;;;;;;;;          T                          ;;;;;;;;               TTTT B   ;;    WWWW   9;;         T   X
+D:X                ;;;;;;;;          T                          ;;;;;;;;               TTTT B   ;;    WWWW   9 ;         T   X
 D:X                                 T             ;;;;;;;;                  ;;;;;;;;;;     T     ;;    WW    ;;          T   X
 D:X                              TTT            ;;;  WW  ;;;              ;;; WWWWWWW;;;    T     ;;;      ;;;           T   X
 D:XTTTTTTTTTTTTTTTTTTTT     TTTTT              ;;   WWWW   ;;            ;;  WW %%% WW ;;   T       ;;;;;;;;       ;;    T   X
 D:XTTTTTTTTTTTTTTTTTTTTTTTTT   ;;;;;;;;;;     ;;   WWWWWW   ;;   TTT    ;;8 WWW %1% WWW 8;  T                     ;;;;   T   X
 D:XTTTTTTTTTBTTTTTTTTTT       ;;;;;;;;;;;;    ; 9  WWWWWW  9 ;   TBT    ; 8WWWW %4% WWWW8;   T TTTTTTTTTTTTTTTTT  ;;;;   T   X
-D:XTTTTTTTTTTTTTTTTTTTT        ;;;;;;;;;;     ;;    WWWW    ;;   TTT    ;;8 WWW %Z% WWW 8;    TTTTTTTTBTTTTTTTTT  ;;;;   T   X
+D:XTTTTTTTTTTTTTTTTTTTT        ;;;;;;;;;;     ;;    WWWW     ;   TTT    ;;8 WWW %Z% WWW 8;    TTTTTTTTBTTTTTTTTT  ;;;;   T   X
 D:XTATTTTTTTTTTTTTTTTTT                        ;;    WW    ;;            ;;  WW %7% WW ;;      TTTTTTTTTTTTTTTTT  ;;;;  T    X
 D:XTTTTTTTTTTTTTTTTTTTT               ;;;;;;    ;;;  9   ;;;              ;;; WWWWWWW;;;      TTTTTTTTTTTTTTBTTT   ;;   T    X
 D:X                    TTTTT         ;;;;;;;;     ;;;;;;;;                  ;;;;;;;;;;       T TTTTTTTTTTTTTTTTT        T    X
@@ -113,9 +115,9 @@ D:X   ;            ;;;;;;;;        TTTTTTTTTTTTTTTTTTTTTTTT             TTTTTT  
 D:X  ;;;         ;;;  AA  ;;;      TTTTTTTTTTTTTTTBTT           ;;;;;;;;                  ;    ;;   WWWW   ;;             T  X
 D:X ;;;;;       ;;   AAAA   ;;     TTTTTTTTTTTTTTTTTT         ;;;  CC  ;;;                    ;;   WWWWWW  9;;           T   X
 D:X ;;;;;      ;;9  AAAAAA  9;;    TTTTTTTTTBTTTTTTTT        ;;   CCCC   ;;                   ;    WWWWWW 979;          T    X
-D:X  ;;;       ;    AAAAAA    ;    TTTTTTTTTTTTTTTTTT       ;;   CCCCCC  9;;         B        ;;    WWWW   9;;         T     X
-D:X   ;        ;;    AAAA    ;;    TTTTTTTTTTTTTTTATT       ;    CCCCCC 99 ;      ;;;;;;;;     ;;    WW    ;;    TTTTTT      X
-D:X             ;;    AA    ;;     TTTTTTTTTTTTTTTTTT       ;;    CCCC   9;;     ;;;;;;;;;;     ;;;      ;;;    T            X
+D:X  ;;;       ;    AAAAAA    ;    TTTTTTTTTTTTTTTTTT       ;;   CCCCCC  9;;         B        ;;    WWWW   9 ;         T     X
+D:X   ;        ;;    AAAA     ;    TTTTTTTTTTTTTTTATT       ;    CCCCCC 99 ;      ;;;;;;;;     ;;    WW    ;;    TTTTTT      X
+D:X             ;;    AA    ;;     TTTTTTTTTTTTTTTTTT       ;;    CCCC   9 ;     ;;;;;;;;;;     ;;;      ;;;    T            X
 D:X              ;;;   9  ;;;             T                  ;;    CC    ;;       ;;;;;;;;        ;;;;;;;;     T      ;; ;;;;X
 D:X;;;             ;;;;;;;;                TTTTTT             ;;; C  C ;;;                                    T       ; A  W X
 D:X;;;                                           TTTTTTTTT      ;;;;;;;;      TTTTTTTTTTTTTT           TTTTTTT        ;  BWW9X

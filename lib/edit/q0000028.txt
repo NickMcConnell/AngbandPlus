@@ -29,7 +29,8 @@ Q:$28:T:How can I ever thank you? Let the people rejoice - a hero
 Q:$28:T:of legend walks this day in Outpost. My treasurer tells me
 Q:$28:T:a number of rather valuable heirlooms seem to be missing
 Q:$28:T:from the crypt - how about I turn a blind eye and we call
-Q:$28:T:it quits?
+Q:$28:T:it quits? Oh wait a moment ... Now where did I put that?
+Q:$28:T:Ah!  Take this trinket and be glad you still live.
 Q:28:T:なんとお礼すればよいのでしょう！喜ばしいことです。
 Q:28:T:伝説の英雄が今この時この街を歩んでいるのです。ところで私のところの
 Q:28:T:財産管理人が、墓地にあった幾つかの先祖伝来の家宝が行方不明になったと

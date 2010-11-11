@@ -178,9 +178,11 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:28
 ?:[EQU $QUEST28 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:28
 
-# Quest 28 rewarding, you don't get none, no new quest available
+# Quest 28 rewarding, no new quest available
+# 'No reward changed' to The last and most powerful of the Hobbit Artifacts (which are all rather weak)
 ?:[EQU $QUEST28 3]
 F:b:BUILDING_1:3
+F:!:FLOOR:3:0:0:0:242
 
 # Quest 28 finished, no new quest available
 ?:[EQU $QUEST28 4]
@@ -277,7 +279,7 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:33
 F:a:BUILDING_0:3:0:0:0:0:NONE:33
 
 # Quest 33 rewarding
-# reward is The Pair of Soft Leather Boots of Shiva's Avatar (Nope ... Ring of Speed +4)
+# reward is The Pair of Soft Leather Boots of Frodo
 # no new quest is available
 ?:[EQU $QUEST33 3]
 F:a:BUILDING_0:3:0:0:0:0:NONE:27
