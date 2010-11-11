@@ -69,7 +69,7 @@ X:ignore_unview
 ##### Game-Play #####
 
 Y:stack_force_notes
-X:stack_force_costs
+Y:stack_force_costs
 Y:expand_list
 Y:small_levels
 X:always_small_levels

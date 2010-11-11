@@ -2327,6 +2327,9 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	case CLASS_MIRROR_MASTER:
 		if(p_ptr->lev > 39)add_flag(flgs, TR_REFLECT);
 		break;
+	case CLASS_BLOOD_KNIGHT:
+		add_flag(flgs, TR_REGEN);
+		break;
 	case CLASS_WARLOCK:
 		switch(p_ptr->psubclass)
 		{
@@ -2349,7 +2352,8 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		case PACT_DRAGON:
 			add_flag(flgs, TR_RES_FEAR);
 			if (p_ptr->lev > 14) add_flag(flgs, TR_LEVITATION);
-			if (p_ptr->lev > 4) add_flag(flgs, TR_STR);
+		/*	Giving TR_STR flags the player as cursed?  Not sure what might break if I fix that seeming bug ...
+		    if (p_ptr->lev > 4) add_flag(flgs, TR_STR); */
 			if (p_ptr->lev > 29) add_flag(flgs, TR_SUST_CON);
 			break;
 		case PACT_ANGEL:
@@ -3225,6 +3229,7 @@ display_flag_aux(row+9, col, "¼ö¤¤      :", 0, &f, DP_CURSE);
 	display_flag_aux(row+6, col, "Regene.   :", TR_REGEN, &f, 0);
 	display_flag_aux(row+7, col, "Levitation:", TR_LEVITATION, &f, 0);
 	display_flag_aux(row+8, col, "Perm Lite :", TR_LITE, &f, 0);
+	/* Befuddlement: Why query flag 0 for cursed?  This is actually TR_STR! */
 	display_flag_aux(row+9, col, "Cursed    :", 0, &f, DP_CURSE);
 #endif
 

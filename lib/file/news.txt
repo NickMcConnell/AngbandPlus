@@ -16,7 +16,7 @@
                        http://hengband.sourceforge.jp/
 
             Chengband: Code Monkey: Chris Kousky
-                       Great New Ideas by DZhang and Djabanete
+                       Great New Ideas by Dave Zhang and Djabanete
                        (https://code.google.com/p/chengband/)
 
     Report bugs and ideas at "https://code.google.com/p/chengband/issues/list"

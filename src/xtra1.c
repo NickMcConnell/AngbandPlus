@@ -3449,7 +3449,7 @@ void calc_bonuses(void)
 				break;
 			case PACT_DRAGON:
 				p_ptr->resist_fear = TRUE;
-				p_ptr->skill_thn += 50 * p_ptr->lev / 50; /* Yeah, += p_ptr->lev is the same, but I want to tweak it */
+				p_ptr->skill_thn += 100 * p_ptr->lev / 50; /* Yeah, += p_ptr->lev is the same, but I want to tweak it */
 				if (p_ptr->lev > 14) p_ptr->levitation = TRUE; 
 				p_ptr->stat_add[A_STR] += 5 * p_ptr->lev / 50;
 				p_ptr->to_h[0] += 10 * p_ptr->lev / 50;

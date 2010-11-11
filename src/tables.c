@@ -3802,8 +3802,8 @@ player_class class_info[MAX_CLASS] =
 		"Warlock",
 
 		{-2, 1, 2, -1, -2, 4},
-		20, 33, 34, 1, 16, 20, 34, 20,
-		8,  13, 11, 0,  0,  0,  10, 8,
+		20, 24, 34, 1, 16, 20, 34, 20,
+		8,  10, 11, 0,  0,  0,  10, 8,
 		2, 40, 25
 	},
 };
@@ -6065,7 +6065,7 @@ option_type option_info[] =
 	{ &stack_force_costs,           FALSE, OPT_PAGE_GAMEPLAY, 0, 9,
 	"stack_force_costs",            "異なる割引表示のアイテムをまとめる" },
 #else
-	{ &stack_force_costs,           FALSE, OPT_PAGE_GAMEPLAY, 0, 9,
+	{ &stack_force_costs,           TRUE, OPT_PAGE_GAMEPLAY, 0, 9,
 	"stack_force_costs",            "Merge discounts when stacking" },
 #endif
 

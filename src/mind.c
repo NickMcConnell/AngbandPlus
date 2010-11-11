@@ -476,12 +476,12 @@ static int warlock_range(void)
 	else if (p_ptr->lev > 15)
 		rng = 6;
 
-	return rng;
+	return rng; 
 }
 
 static int warlock_dice(void)
 {
-	return 1 + (p_ptr->lev/2);
+	return 1 + (p_ptr->lev/5) + (p_ptr->lev * p_ptr->lev * 3/500);
 }
 
 static int warlock_sides(void)

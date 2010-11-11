@@ -1427,7 +1427,7 @@ static bool cmd_racial_power_aux(s32b command)
 				}
 				else if (command == -5)
 				{
-					set_wraith_form(5 + randint1(5), FALSE);
+					set_wraith_form(2 + randint1(2), FALSE);
 				}
 				break;
 
@@ -1475,7 +1475,7 @@ static bool cmd_racial_power_aux(s32b command)
 				}
 				else if (command == -6)
 				{
-					set_invuln(3 + randint1(3), FALSE);
+					set_invuln(2 + randint1(2), FALSE);
 				}
 				break;
 
