@@ -3070,6 +3070,9 @@ put_str("クエストを終わらせたら戻って来て下さい。", 12, 0);
 	{
 		q_ptr->status = QUEST_STATUS_TAKEN;
 
+		/* Handle $RANDOM_ for each quest independently */
+		q_ptr->seed = randint0(0x10000000);
+
 		reinit_wilderness = TRUE;
 
 		/* Assign a new quest */

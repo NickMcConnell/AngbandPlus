@@ -1375,6 +1375,7 @@ static bool wr_savefile_new(void)
 			wr_s16b(quest[i].k_idx);
 			wr_byte(quest[i].flags);
 			wr_byte(quest[i].dungeon);
+			wr_u32b(quest[i].seed);
 		}
 	}
 

@@ -4248,10 +4248,14 @@ static bool process_keydown(WPARAM wParam, LPARAM lParam)
 	if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
 	if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
 
-	Term_no_press = (ma) ? TRUE : FALSE;
-
 	/* Handle "special" keys */
+#if defined JP
+	Term_no_press = (ma) ? TRUE : FALSE;
 	if (special_key[(byte)(wParam)] || (ma && !ignore_key[(byte)(wParam)]) )
+#else
+	Term_no_press = FALSE;
+	if (special_key[(byte)(wParam)])
+#endif
 	{
 		bool ext_key = (lParam & 0x1000000L) ? TRUE : FALSE;
 		bool numpad = FALSE;

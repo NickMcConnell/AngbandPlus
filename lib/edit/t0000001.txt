@@ -1,7 +1,11 @@
 # File: t000001.txt
-
 # Outpost
-
+#
+# I've made the Cloning Pits and Old Castle rewards random
+# I've also changed the way $RANDOM works ... be warned!
+# $RANDOM33 refers to a large random number generated specifically
+# for quest number 33, and you will want to take that mod some
+# small number to enumerate choices.
 
 ############### Additional default terrain settings ###############
 
@@ -279,11 +283,14 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:33
 F:a:BUILDING_0:3:0:0:0:0:NONE:33
 
 # Quest 33 rewarding
-# reward is The Pair of Soft Leather Boots of Frodo
-# no new quest is available
-?:[EQU $QUEST33 3]
+# The Pair of Soft Leather Boots of Frodo
+?:[AND [EQU $QUEST33 3] [EQU [MOD $RANDOM33 9] 0] ]
 F:a:BUILDING_0:3:0:0:0:0:NONE:27
-#F:@:FLOOR:3:0:0:0:63
+F:@:FLOOR:3:0:0:0:63
+
+# The Pair of Soft Leather Boots of Shiva's Avatar
+?:[AND [EQU $QUEST33 3] [GEQ [MOD $RANDOM33 9] 1] ]
+F:a:BUILDING_0:3:0:0:0:0:NONE:27
 F:@:FLOOR:3:0:0:0:238
 
 # Quest 33 finished, continue with quest 27
@@ -299,7 +306,6 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:33
 F:a:BUILDING_0:3:0:0:0:0:NONE:27
 
 ?:1
-
 
 ############### Quest 27 - The Old Castle ###############
 
@@ -318,8 +324,13 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:27
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:80
 
+# Quest 27 rewarding (Weaponsmith gets Balance Dragon Scale Mail)
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponsmith] [EQU [MOD $RANDOM27 9] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:411
+
 # Quest 27 rewarding (Weaponsmith gets Multi-Hued Dragon Scale Mail)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponsmith] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponsmith] [GEQ [MOD $RANDOM27 9] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:405
 
@@ -338,10 +349,16 @@ F:@:FLOOR:3:0:0:0:125
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:77
 
+# Quest 27 rewarding (Warrior and Berserker get Slayer)
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior Berserker] [EQU [MOD $RANDOM27 9] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:123
+
 # Quest 27 rewarding (Warrior and Berserker get The Glaive of Pain)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior Berserker] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Warrior Berserker] [GEQ [MOD $RANDOM27 9] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:94
+
 
 # Quest 27 rewarding (BeastMaster gets The Lance of Eorlingas)
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS BeastMaster] ]

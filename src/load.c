@@ -2705,6 +2705,11 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 					if (quest[i].status == QUEST_STATUS_TAKEN || quest[i].status == QUEST_STATUS_UNTAKEN)
 						if (r_info[quest[i].r_idx].flags1 & RF1_UNIQUE)
 							r_info[quest[i].r_idx].flags1 |= RF1_QUESTOR;
+
+					if (h_older_than(0, 0, 8, 0))
+						quest[i].seed = randint0(0x10000000);
+					else
+						rd_u32b(&quest[i].seed);
 				}
 			}
 			/* Ignore the empty quests from old versions */

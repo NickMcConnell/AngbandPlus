@@ -698,7 +698,9 @@ struct quest_type
 	byte dungeon;           /* quest dungeon */
 
 	byte complev;           /* player level (complete) */
-};
+
+	u32b seed;		        /* For $RANDOM_ in quest files ... using seed_town is really */
+};							/* not a good idea, as it correlates quest results unless you are careful */
 
 
 /*

@@ -4176,6 +4176,23 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 				if (streq(t, p)) v = "1";
 			}
 		}
+		/* Function: MOD */
+		else if (streq(t, "MOD"))
+		{
+			int x = 0;
+			int y = 0;
+			v = "0";
+			if (*s && (f != b2))
+			{
+				x = atoi(process_dungeon_file_expr(&s, &f));
+			}
+			if(*s && (f != b2))
+			{
+				y = atoi(process_dungeon_file_expr(&s, &f));
+				sprintf(tmp, "%d", x%y);
+				v = tmp;
+			}
+		}
 
 		/* Function: LEQ */
 		else if (streq(t, "LEQ"))
@@ -4364,11 +4381,17 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 				v = tmp;
 			}
 
-			/* Random */
+			/* Random 
+			   OLD: $RANDOM7 evaluated as seed_town % 7
+			   NEW: [MOD $RANDOM37 7] where 37 refers to the seed
+			   for quest 37.  Every quest gets assigned a new seed 
+			   when it is accepted in bldg.c.
+			*/
 			else if (prefix(b+1, "RANDOM"))
 			{
+				int q_idx = atoi(b+7);
 				/* "RANDOM" uses a special parameter to determine the number of the quest */
-				sprintf(tmp, "%d", (int)(seed_town%atoi(b+7)));
+				sprintf(tmp, "%d", quest[q_idx].seed);
 				v = tmp;
 			}
 
