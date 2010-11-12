@@ -3178,6 +3178,14 @@ static void process_world_aux_curse(void)
 #endif
 		}
 	}
+
+	if ((inventory[INVEN_RARM].name1 == ART_BLOODRIP || inventory[INVEN_LARM].name1 == ART_BLOODRIP) &&
+	    one_in_(7))
+	{
+		/* TODO: Check whether object is known ... */
+		msg_print("Bloodrip feeds on you!");
+		set_cut(p_ptr->cut + 66, FALSE);
+	}
 }
 
 

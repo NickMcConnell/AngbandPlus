@@ -1365,6 +1365,10 @@ return "全耐性(20+d20ターン) : 111 ターン毎";
 #endif
 
 		}
+		case ART_BLOODRIP:
+		{
+			return "whirlwind attack every 66 turns";
+		}
 		case ART_HOLCOLLETH:
 		{
 #ifdef JP

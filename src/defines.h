@@ -1481,6 +1481,7 @@
 #define ART_KAMUI               198
 #define ART_GOURYU              207
 #define ART_EOWYN               216
+#define ART_BLOODRIP			243
 
 /* Polearms */
 #define ART_THEODEN             93

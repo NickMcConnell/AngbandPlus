@@ -3756,5 +3756,18 @@ D:$"Also there is this!" said Bilbo, bringing out a parcel which seemed
 D:$to be rather heavy for its size. He unwound several folds of old cloth,
 D:$and held up a small shirt of mail. It was close-woven of many rings,
 D:$as supple almost as linen, cold as ice, and harder than steel. It shone
-D:$like moonlit silver, and was studded with white gems.'
+D:$like moonlit silver, and was studded with white gems.
+
+N:243:TRANSLATE
+E:'Bloodrip'
+I:23:21:2
+W:66:6:150:166666
+P:0:6d6:10:10:0
+F:CON | SPEED | HIDE_TYPE | ACTIVATE | SHOW_MODS
+F:VORPAL | VAMPIRIC | FREE_ACT | SEE_INVIS
+F:RES_CONF | RES_SOUND | RES_DISEN
+D:$This weapon is infused with the soul of the first Blood Knight.  Beware!
+D:$It longs for blood, even the wielder's!  But there is no finer weapon for
+D:$those who walk the red path.
+
 

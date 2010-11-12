@@ -4053,7 +4053,14 @@ static void do_cmd_activate_aux(int item)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Hack -- use artifact level instead */
-	if (object_is_fixed_artifact(o_ptr)) lev = a_info[o_ptr->name1].level;
+	if (object_is_fixed_artifact(o_ptr))
+	{
+		/* Hack -- Blood Knights love Bloodrip!! */
+		if (o_ptr->name1 == ART_BLOODRIP && p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+			lev = 5; /* vs 66! */
+		else
+			lev = a_info[o_ptr->name1].level;
+	}
 	else if (o_ptr->art_name)
 	{
 		switch (o_ptr->xtra2)
@@ -4620,6 +4627,29 @@ msg_print("天国の歌が聞こえる...");
 				break;
 			}
 
+			case ART_BLOODRIP:
+			{
+				int y = 0, x = 0;
+				cave_type       *c_ptr;
+				monster_type    *m_ptr;
+
+				msg_print("Your sword glows blood red...");
+				for (dir = 0; dir < 8; dir++)
+				{
+					y = py + ddy_ddd[dir];
+					x = px + ddx_ddd[dir];
+					c_ptr = &cave[y][x];
+
+					/* Get the monster */
+					m_ptr = &m_list[c_ptr->m_idx];
+
+					/* Hack -- attack monsters */
+					if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
+						py_attack(y, x, 0);
+				}
+				o_ptr->timeout = 66;
+				break;
+			}
 			case ART_HOLCOLLETH:
 			{
 #ifdef JP
