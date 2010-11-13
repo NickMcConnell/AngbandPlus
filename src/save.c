@@ -740,6 +740,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_blood_shield);
 	wr_s16b(p_ptr->tim_blood_sight);
 	wr_s16b(p_ptr->tim_blood_feast);
+	wr_s16b(p_ptr->tim_blood_revenge);
 	wr_s16b(p_ptr->tim_blood_seek);
 
 	/* by henkma */

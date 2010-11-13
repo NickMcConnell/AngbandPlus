@@ -244,6 +244,7 @@ void reset_tim_flags(void)
 	p_ptr->tim_blood_seek = 0;
 	p_ptr->tim_blood_sight = 0;
 	p_ptr->tim_blood_feast = 0;
+	p_ptr->tim_blood_revenge = 0;
 
 	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
 	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
@@ -1061,6 +1062,60 @@ bool set_tim_blood_shield(int v, bool do_dec)
 	/* Recalculate bonuses */
 	p_ptr->redraw |= (PR_STATUS);
 	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_blood_revenge(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_blood_revenge)
+		{
+			if (p_ptr->tim_blood_revenge > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("Its time for bloody revenge!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_blood_revenge)
+		{
+			msg_print("The time for bloody revenge has passed.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_blood_revenge = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();

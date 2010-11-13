@@ -1875,6 +1875,31 @@ msg_format("%sは体力を回復したようだ。", m_name);
 
 			if (touched)
 			{
+				if (p_ptr->tim_blood_revenge && alive && !p_ptr->is_dead && monster_living(r_ptr))
+				{   /* Scale the damage based on cuts and monster deadliness */
+					int dam = damage * p_ptr->cut / CUT_SEVERE;
+
+					/* Balance out a weak melee attack */
+					if (dam < p_ptr->cut / 6)
+						dam = p_ptr->cut / 6;
+
+					/* Not too powerful */
+					if (dam > 100)
+						dam = 100;
+
+					dam = mon_damage_mod(m_ptr, dam, FALSE);
+					if (dam > 0)
+					{
+						msg_format("%^s feels your bloody revenge!", m_name);
+						if (mon_take_hit(m_idx, dam, &fear,
+							" turns into a pool of blood."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+				}
+
 				if (p_ptr->sh_fire && alive && !p_ptr->is_dead)
 				{
 					if (!(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK))
@@ -2223,19 +2248,12 @@ msg_format("%^sから落ちてしまった！", m_name);
 	{
 		char m_name_self[80];
 
-		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && !monster_living(r_ptr))
-		{
-			/* Mega Hack:  The Blood Aura only effects living monsters */
-		}
-		else
-		{
-			/* hisself */
-			monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
+		/* hisself */
+		monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
-			msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
-			project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
-			if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
-		}
+		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
+		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
+		if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 	}
 
 	if ((p_ptr->counter || (p_ptr->special_defense & KATA_MUSOU)) && alive && !p_ptr->is_dead && m_ptr->ml && (p_ptr->csp > 7))

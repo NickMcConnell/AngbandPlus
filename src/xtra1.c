@@ -340,7 +340,7 @@ static void prt_stat(int stat)
 #define BAR_SPEED_ESSENTIA 67
 #define BAR_BLOOD_SHIELD 68
 #define BAR_BLOOD_SEEK 69
-#define BAR_BLOOD_AURA 70
+#define BAR_BLOOD_REVENGE 70
 #define BAR_BLOOD_SIGHT 71
 #define BAR_BLOOD_FEAST 72
 #define BAR_NO_SPELLS 73
@@ -495,7 +495,7 @@ static struct {
 	{TERM_RED, "At", "Attacks"},
 	{TERM_RED, "Sh", "Shield"},
 	{TERM_L_RED, "Sk", "Seek"},
-	{TERM_RED, "Au", "Aura"},
+	{TERM_RED, "Rv", "Revenge"},
 	{TERM_L_RED, "Si", "Sight"},
 	{TERM_RED, "Fs", "Feast"},
 	{TERM_VIOLET, "NS", "No Spells"},
@@ -654,11 +654,7 @@ static void prt_status(void)
 	if (p_ptr->tim_sh_holy) ADD_FLG(BAR_SHHOLY);
 
 	/* An Eye for an Eye */
-	if (p_ptr->tim_eyeeye) 
-	{
-		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT) ADD_FLG(BAR_BLOOD_AURA);
-		else ADD_FLG(BAR_EYEEYE);
-	}
+	if (p_ptr->tim_eyeeye) ADD_FLG(BAR_EYEEYE);
 
 	if (p_ptr->tim_speed_essentia) ADD_FLG(BAR_SPEED_ESSENTIA);
 	if (p_ptr->tim_blood_shield) ADD_FLG(BAR_BLOOD_SHIELD);
@@ -666,6 +662,7 @@ static void prt_status(void)
 	if (p_ptr->tim_blood_sight) ADD_FLG(BAR_BLOOD_SIGHT);
 	if (p_ptr->tim_blood_feast) ADD_FLG(BAR_BLOOD_FEAST);
 	if (p_ptr->tim_no_spells) ADD_FLG(BAR_NO_SPELLS);
+	if (p_ptr->tim_blood_revenge) ADD_FLG(BAR_BLOOD_REVENGE);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
@@ -4748,31 +4745,31 @@ void calc_bonuses(void)
 		{
 			to_h = 15;
 			to_d = 15;
-			to_stealth = -7;
+			to_stealth = -3;
 		}
 		else if (p_ptr->cut >= CUT_SEVERE)
 		{
 			to_h = 8;
 			to_d = 8;
-			to_stealth = -5;
+			to_stealth = -2;
 		}
 		else if (p_ptr->cut >= CUT_NASTY)
 		{
 			to_h = 6;
 			to_d = 6;
-			to_stealth = -4;
+			to_stealth = -2;
 		}
 		else if (p_ptr->cut >= CUT_BAD)
 		{
 			to_h = 4;
 			to_d = 4;
-			to_stealth = -3;
+			to_stealth = -1;
 		}
 		else if (p_ptr->cut >= CUT_LIGHT)
 		{
 			to_h = 2;
 			to_d = 2;
-			to_stealth = -2;
+			to_stealth = -1;
 		}
 		else
 		{

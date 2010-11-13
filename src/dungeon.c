@@ -2184,6 +2184,11 @@ static void process_world_aux_timeout(void)
 		(void)set_tim_blood_feast(p_ptr->tim_blood_feast - 1, TRUE);
 	}
 
+	if (p_ptr->tim_blood_revenge)
+	{
+		(void)set_tim_blood_revenge(p_ptr->tim_blood_revenge - 1, TRUE);
+	}
+
 	/*** Poison and Stun and Cut ***/
 
 	/* Poison */

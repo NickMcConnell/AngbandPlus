@@ -3591,21 +3591,14 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 						get_damage = take_hit(DAMAGE_NOESCAPE, dam, m_name, -1);
 						if (p_ptr->tim_eyeeye && get_damage > 0 && !p_ptr->is_dead)
 						{
-							if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && !monster_living(r_ptr))
-							{
-								/* Mega Hack:  The Blood Aura only effects living monsters */
-							}
-							else
-							{
-								char m_name_self[80];
+							char m_name_self[80];
 
-								/* hisself */
-								monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
+							/* hisself */
+							monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
-								msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
-								project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
-								set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
-							}
+							msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
+							project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
+							set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 						}
 
 						if (p_ptr->riding) mon_take_hit_mon(p_ptr->riding, dam, &fear, extract_note_dies(real_r_ptr(&m_list[p_ptr->riding])), m_idx);

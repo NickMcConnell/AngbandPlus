@@ -1415,6 +1415,15 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_blood_feast);
 	}
 
+	if (h_older_than(0, 0, 9, 0))
+	{
+		p_ptr->tim_blood_revenge = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_blood_revenge);
+	}
+
 	if (h_older_than(0, 0, 4, 1))
 	{
 		p_ptr->tim_blood_seek = 0;

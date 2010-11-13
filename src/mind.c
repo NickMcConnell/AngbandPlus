@@ -317,11 +317,11 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 20, 30,  30, "Blood Shield"},
       { 25, 50,  40, "Blood Seeking"},
       { 30, 60,  40, "Blood Rage"},
-	  { 35, 70,  50, "Blood Aura"},
+	  { 35, 60,  50, "Blood Rush"},
       { 40,100,  50, "Blood Feast"},
+	  { 42,100,   0, "Blood Revenge"},
 	  { 45,500,  90, "Blood Pool"},
       { 50,500,  70, "Blood Explosion"},
-      { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -636,9 +636,9 @@ void mindcraft_info(char *p, int use_mind, int power)
 				case 4: sprintf(p, " %s30+1d20", s_dur); break;
 				case 5: sprintf(p, " %s30+1d30", s_dur); break;
 				case 6: sprintf(p, " %s%d+d%d", s_dur, plev, plev); break;
-				case 7: sprintf(p, " %s%d+d%d", s_dur, plev, plev); break;
 				case 8: sprintf(p, " %s25+1d25", s_dur); break;
-				case 10: sprintf(p, " %s500", s_dam); break;
+				case 9: sprintf(p, " %s%d+d%d", s_dur, plev, plev); break;
+				case 11: sprintf(p, " %s500", s_dam); break;
 				}
 				break;
 			}
@@ -1912,16 +1912,19 @@ static bool cast_blood_knight_spell(int spell)
 		}
 		break;
 	
-	case 7: /* Blood Aura */
-		/* I so hacked Eye for an Eye for this ... */
-		set_tim_eyeeye(randint1(plev) + plev, FALSE);
+	case 7: /* Blood Rush */
+		if (!rush_attack(NULL)) return FALSE;
 		break;
 	
 	case 8: /* Blood Feast */
 		set_tim_blood_feast(randint1(25) + 25, FALSE);
 		break;
 
-	case 9: /* Blood Pool */
+	case 9: /* Blood Revenge */
+		set_tim_blood_revenge(randint1(plev) + plev, FALSE);
+		break;
+
+	case 10: /* Blood Pool */
 		{
 			object_type forge, *q_ptr = &forge;
 			msg_print("You feel light headed.");
@@ -1930,7 +1933,7 @@ static bool cast_blood_knight_spell(int spell)
 		}
 		break;
 	
-	case 10: /* Blood Explosion */
+	case 11: /* Blood Explosion */
 		msg_print("You cut too deep ... Your blood explodes!");
 		dispel_living(500);
 		break;

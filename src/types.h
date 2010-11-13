@@ -1092,6 +1092,7 @@ struct player_type
 	s16b tim_blood_seek;
 	s16b tim_blood_sight;
 	s16b tim_blood_feast;
+	s16b tim_blood_revenge;
 
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
