@@ -4015,6 +4015,13 @@ void do_cmd_fire(void)
 		return;
 	}
 
+	if (j_ptr->sval == SV_HARP)
+	{
+		msg_print("You play a soothing melody, but not much else happens.");
+		flush();
+		return;
+	}
+
 
 	if (p_ptr->special_defense & KATA_MUSOU)
 	{

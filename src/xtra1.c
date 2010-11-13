@@ -4220,6 +4220,7 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_RES_NEXUS))  p_ptr->resist_nexus = TRUE;
 		if (have_flag(flgs, TR_RES_BLIND))  p_ptr->resist_blind = TRUE;
 		if (have_flag(flgs, TR_RES_NETHER)) p_ptr->resist_neth = TRUE;
+		if (have_flag(flgs, TR_RES_TIME))   p_ptr->resist_time = TRUE;
 
 		if (have_flag(flgs, TR_REFLECT))  p_ptr->reflect = TRUE;
 		if (have_flag(flgs, TR_SH_FIRE))  p_ptr->sh_fire = TRUE;
@@ -5069,6 +5070,7 @@ void calc_bonuses(void)
 				break;
 			}
 			case SV_CRIMSON:
+			case SV_HARP:
 			{
 				p_ptr->tval_ammo = TV_NO_AMMO;
 				break;

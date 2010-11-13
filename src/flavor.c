@@ -782,6 +782,7 @@ static flag_insc_table flag_insc_resistance[] =
 	{ "Ca", TR_RES_CHAOS, -1 },
 	{ "Di", TR_RES_DISEN, -1 },
 	{ "Fe", TR_RES_FEAR, -1 },
+	{ "Ti", TR_RES_TIME, -1 },
 	{ NULL, 0, -1 }
 };
 
@@ -1374,13 +1375,20 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
-		case TV_BOW:
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
 			show_weapon = TRUE;
+			break;
+		}
+
+		case TV_BOW:
+		{
+			if (o_ptr->sval != SV_HARP)
+				show_weapon = TRUE;
+
 			break;
 		}
 
@@ -2323,6 +2331,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 		/* Bows get a special "damage string" */
 		case TV_BOW:
+		if (o_ptr->sval == SV_HARP) break;
 
 		/* Mega-Hack -- Extract the "base power" */
 		power = bow_tmul(o_ptr->sval);

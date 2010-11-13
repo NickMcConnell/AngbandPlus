@@ -1482,6 +1482,8 @@
 #define ART_GOURYU              207
 #define ART_EOWYN               216
 #define ART_BLOODRIP			243
+#define ART_MAGLOR				245
+#define ART_DAERON				246
 
 /* Polearms */
 #define ART_THEODEN             93
@@ -1984,7 +1986,9 @@
 #define SV_AMMO_NORMAL                   1	/* shots, arrows, bolts */
 #define SV_AMMO_HEAVY                    2	/* seeker arrows and bolts, mithril shots */
 
-/* The "sval" codes for TV_BOW (note information in "sval") */
+/* The "sval" codes for TV_BOW (note information in "sval") 
+   For those of us slower than the rest, sval mod 10 gives the 
+   shooting power ... */
 #define SV_SLING                         2	/* (x2) */
 #define SV_SHORT_BOW                    12	/* (x2) */
 #define SV_LONG_BOW                     13	/* (x3) */
@@ -1992,6 +1996,7 @@
 #define SV_HEAVY_XBOW                   24	/* (x4) */
 #define SV_CRIMSON                      50	/* (x0) */
 #define SV_NAMAKE_BOW                   63	/* (x3) */
+#define SV_HARP							70  /* (x0) */
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL                        1
@@ -3385,8 +3390,9 @@
 #define TR_FULL_NAME           116
 #define TR_FIXED_FLAVOR        117
 #define TR_SPELL_POWER          118
+#define TR_RES_TIME				119
 
-#define TR_FLAG_MAX            119
+#define TR_FLAG_MAX            120
 #define TR_FLAG_SIZE           4
 
 

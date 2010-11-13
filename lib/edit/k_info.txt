@@ -6399,3 +6399,10 @@ F:FIXED_FLAVOR
 D:$A much needed infusion!  It heals you 150 and cures blindness, confusion
 D:$, poison, stunned, and berserk when you quaff it.  It reduces your cut status.
 
+N:672:TRANSLATE
+E:& Harp~
+G:}:U
+I:19:70:0
+W:25:0:40:400
+A:25/4
+D:$A stringed instrument preferred by Bards.

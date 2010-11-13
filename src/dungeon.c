@@ -3180,7 +3180,7 @@ static void process_world_aux_curse(void)
 	}
 
 	if ((inventory[INVEN_RARM].name1 == ART_BLOODRIP || inventory[INVEN_LARM].name1 == ART_BLOODRIP) &&
-	    one_in_(7))
+	    one_in_(2)) /* TODO: Tweak Frequency */
 	{
 		/* TODO: Check whether object is known ... */
 		msg_print("Bloodrip feeds on you!");

@@ -1320,6 +1320,7 @@ return "体力回復(1000) : 888 ターン毎";
 
 		}
 		case ART_LOHENGRIN:
+		case ART_DAERON:
 		{
 #ifdef JP
 return ("回復 (777)、癒し、士気高揚 : 300 ターン毎");
@@ -1327,6 +1328,10 @@ return ("回復 (777)、癒し、士気高揚 : 300 ターン毎");
 			return ("heal (777), curing and heroism every 300 turns");
 #endif
 
+		}
+		case ART_MAGLOR:
+		{
+			return ("heal (777), curing and heroism every 777 turns");
 		}
 		case ART_JULIAN:
 		{
@@ -3298,6 +3303,15 @@ info[i++] = "それは破片への耐性を授ける。";
 info[i++] = "それは地獄への耐性を授ける。";
 #else
 		info[i++] = "It provides resistance to nether.";
+#endif
+
+	}
+	if (have_flag(flgs, TR_RES_TIME))
+	{
+#ifdef JP
+		info[i++] = "TRANSLATE";
+#else
+		info[i++] = "It provides resistance to time.";
 #endif
 
 	}

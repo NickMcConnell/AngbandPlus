@@ -764,6 +764,7 @@ static const flag_desc resist_flags_desc[] =
 	{ TR_RES_NEXUS,  "Nexus" },
 	{ TR_RES_CHAOS,  "Chaos" },
 	{ TR_RES_DISEN,  "Disenchantment" },
+	{ TR_RES_TIME,   "Time" },
 #endif
 };
 

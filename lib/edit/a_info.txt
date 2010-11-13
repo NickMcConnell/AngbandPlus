@@ -3747,11 +3747,11 @@ D:$'Fool of a Took' ... Ah, but Peregrin was brave if not wise.
 N:242:TRANSLATE
 E:of Bilbo
 I:37:20:1
-W:40:4:70:75000
+W:40:4:70:200000
 P:28:1d4:1:1:7
-F:STEALTH | WIS | INT | SEE_INVIS | DEX | CHR | SPEED
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | RES_DARK | RES_DISEN
-F:XTRA_H_RES | RES_FEAR |
+F:STEALTH | WIS | INT | SEE_INVIS | DEX | CHR | SPEED |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | RES_DARK | RES_DISEN |
+F:XTRA_H_RES | RES_FEAR
 D:$"Also there is this!" said Bilbo, bringing out a parcel which seemed
 D:$to be rather heavy for its size. He unwound several folds of old cloth,
 D:$and held up a small shirt of mail. It was close-woven of many rings,
@@ -3763,11 +3763,51 @@ E:'Bloodrip'
 I:23:21:2
 W:66:6:150:166666
 P:0:6d6:10:10:0
-F:CON | SPEED | HIDE_TYPE | ACTIVATE | SHOW_MODS
-F:VORPAL | VAMPIRIC | FREE_ACT | SEE_INVIS
-F:RES_CONF | RES_SOUND | RES_DISEN
+F:CON | HIDE_TYPE | ACTIVATE | SHOW_MODS |
+F:VORPAL | VAMPIRIC | FREE_ACT | SEE_INVIS |
+F:RES_CONF | RES_SOUND
 D:$This weapon is infused with the soul of the first Blood Knight.  Beware!
 D:$It longs for blood, even the wielder's!  But there is no finer weapon for
 D:$those who walk the red path.
 
+N:244:TRANSLATE
+E:of Eternity
+I:36:2:3
+W:42:12:0:100000
+P:0:0d0:0:0:42
+F:CON | SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
+F:FREE_ACT | LEVITATION | SEE_INVIS | HOLD_LIFE |
+F:RES_LITE | RES_DARK | RES_DISEN | RES_TIME
+D:$A robe indestructable, created long, long ago.  Donning this weightless
+D:$garment, you suddenly feel immune to the passing of time.
 
+N:245:TRANSLATE
+E:of Maglor
+I:19:70:4
+W:80:5:40:200000
+P:0:0d0:0:0:0
+F:STR | INT | CHR | ACTIVATE |
+F:SUST_STR | SUST_INT | SUST_CHR | FREE_ACT | HOLD_LIFE |
+F:RES_DARK | RES_NETHER | RES_FEAR | RES_BLIND
+D:$Maglor, son of Feanor and Nerdanel, was the greatest poet and bard of the Noldor.
+#http://en.wikipedia.org/wiki/Maglor
+
+
+N:246:TRANSLATE
+E:of Daeron
+I:19:70:4
+W:70:5:40:200000
+P:0:0d0:0:0:0
+F:WIS | CON | CHR | ACTIVATE |
+F:SUST_WIS | SUST_CON | SUST_CHR | SEE_INVIS | REFLECT |
+F:RES_FIRE | RES_ELEC | RES_LITE | RES_POIS
+D:$Daeron is mentioned as the greatest minstrel of all the Children of Iluvatar,
+D:$and only Maglor son of Feanor is said to come close to his skill.
+#(http://en.wikipedia.org/wiki/Daeron#Daeron)
+
+# N: serial number : item name
+# I: tval : sval : pval
+# W: depth : rarity : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus
+# to-ac
+# F: flag | flag |etc

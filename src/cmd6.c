@@ -4523,12 +4523,18 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 			}
 
 			case ART_LOHENGRIN:
+			case ART_DAERON:
 			{
+				if (o_ptr->name1 == ART_LOHENGRIN)
+				{
 #ifdef JP
-msg_print("天国の歌が聞こえる...");
+					msg_print("天国の歌が聞こえる...");
 #else
-				msg_print("A heavenly choir sings...");
+					msg_print("A heavenly choir sings...");
 #endif
+				}
+				else
+					msg_print("Your harps plays a restoring melody...");
 
 				(void)set_poisoned(0, TRUE);
 				(void)set_cut(0, TRUE);
@@ -4624,6 +4630,41 @@ msg_print("天国の歌が聞こえる...");
 				(void)set_oppose_cold(randint1(20) + 20, FALSE);
 				(void)set_oppose_pois(randint1(20) + 20, FALSE);
 				o_ptr->timeout = 111;
+				break;
+			}
+			case ART_MAGLOR:
+			{
+				msg_print("Your harps plays a restoring melody...");
+				/* Same as !RestoreMana ... Let's share code, please */
+				if (p_ptr->pclass == CLASS_MAGIC_EATER)
+				{
+					int i;
+					for (i = 0; i < EATER_EXT*2; i++)
+					{
+						p_ptr->magic_num1[i] += (p_ptr->magic_num2[i] < 10) ? EATER_CHARGE * 3 : p_ptr->magic_num2[i]*EATER_CHARGE/3;
+						if (p_ptr->magic_num1[i] > p_ptr->magic_num2[i]*EATER_CHARGE) p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
+					}
+					for (; i < EATER_EXT*3; i++)
+					{
+						int k_idx = lookup_kind(TV_ROD, i-EATER_EXT*2);
+						p_ptr->magic_num1[i] -= ((p_ptr->magic_num2[i] < 10) ? EATER_ROD_CHARGE*3 : p_ptr->magic_num2[i]*EATER_ROD_CHARGE/3)*k_info[k_idx].pval;
+						if (p_ptr->magic_num1[i] < 0) p_ptr->magic_num1[i] = 0;
+					}
+					p_ptr->window |= (PW_PLAYER);
+				/*	ident = TRUE; */
+				}
+				else if (p_ptr->csp < p_ptr->msp)
+				{
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+					p_ptr->redraw |= (PR_MANA);
+					p_ptr->window |= (PW_PLAYER);
+					p_ptr->window |= (PW_SPELL);
+				/*	ident = TRUE;*/
+				}
+				/*if (set_shero(0,TRUE)) ident = TRUE;*/
+				set_shero(0,TRUE);
+				o_ptr->timeout = 777;
 				break;
 			}
 
