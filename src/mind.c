@@ -343,7 +343,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 33,  0,  60, "Stunning"},
 	  { 40,  0,  70, "Draining"},
       { 45,  0,  75, "Empowered"},
-	  { 50,  0,  70, "Double"},
+	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
 	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -369,7 +369,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 33,  0,  60, "Stunning"},
 	  { 40,  0,  70, "Prismatic"},
       { 45,  0,  75, "Empowered"},
-	  { 50,  0,  70, "Double"},
+	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
 	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -395,7 +395,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 33,  0,  60, "Stunning"},
 	  { 40,  0,  70, "Dispelling"},
       { 45,  0,  75, "Empowered"},
-	  { 50,  0,  70, "Double"},
+	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
 	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -421,7 +421,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 33,  0,  60, "Stunning"},
 	  { 40,  0,  70, "Vengeful"},
       { 45,  0,  75, "Empowered"},
-	  { 50,  0,  70, "Double"},
+	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
 	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -447,7 +447,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 33,  0,  60, "Stunning"},
 	  { 40,  0,  70, "Confusing"},
       { 45,  0,  75, "Empowered"},
-	  { 50,  0,  70, "Double"},
+	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
 	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -2047,23 +2047,6 @@ static bool cast_warlock_spell(int spell)
 		   and block spells for that action, and then tick to 0 before the subsequent action.
 		*/
 		set_tim_no_spells(p_ptr->tim_no_spells + 1 + 1, FALSE);
-		break;
-
-	case 7:	/* Double */
-		project_length = rng;
-		sides -= 2;
-		if (!get_aim_dir(&dir)) return FALSE;
-		
-		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
-
-		/* Cancel the second ball and you still pay full price for the spell */
-		/* Hack: The Use Old Target option forces both balls on the same target */
-		 if (use_old_target && target_okay() && get_check("Choose another target?")) target_who = 0;
-		project_length = rng;
-		command_dir = 0; /* Nice ... When does this get cleared normally??? Oh, see request_command() */
-		if (!get_aim_dir(&dir)) return TRUE;
-		
-		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
 		break;
 
 	default:

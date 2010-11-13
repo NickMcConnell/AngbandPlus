@@ -2346,8 +2346,9 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			if (p_ptr->lev > 34) 
 			{
 				add_flag(flgs, TR_RES_DARK);
-				add_flag(flgs, TR_RES_SHARDS);
+				add_flag(flgs, TR_RES_BLIND);
 			}
+			if (p_ptr->lev > 44) add_flag(flgs, TR_RES_SHARDS);
 			break;		
 		case PACT_DRAGON:
 			add_flag(flgs, TR_RES_FEAR);
@@ -2360,12 +2361,15 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_LEVITATION);
 			if (p_ptr->lev > 14) add_flag(flgs, TR_SEE_INVIS);
 			if (p_ptr->lev > 4) add_flag(flgs, TR_WIS);
-			if (p_ptr->lev > 29) add_flag(flgs, TR_REFLECT);
+			if (p_ptr->lev > 34) add_flag(flgs, TR_REFLECT);
 			break;
 		case PACT_DEMON:
 			add_flag(flgs, TR_RES_FIRE);
 			if (p_ptr->lev > 14) add_flag(flgs, TR_HOLD_LIFE);
 			if (p_ptr->lev > 4) add_flag(flgs, TR_INT);
+			/* This is firing, but not working.  Note, DEMON LORD Mimic does work????? 
+			   Oh, see player_immunity() */
+			if (p_ptr->lev > 49) add_flag(flgs, TR_IM_FIRE);
 			break;
 		case PACT_ABERRATION:
 			if (p_ptr->lev > 4) add_flag(flgs, TR_DEX);
@@ -2964,6 +2968,9 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_FIRE);
 	else if (prace_is_(RACE_YEEK) && p_ptr->lev > 19)
 		add_flag(flgs, TR_RES_ACID);
+
+	if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_DEMON && p_ptr->lev > 49)
+		add_flag(flgs, TR_RES_FIRE);
 }
 
 static void tim_player_immunity(u32b flgs[TR_FLAG_SIZE])

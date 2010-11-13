@@ -3444,8 +3444,9 @@ void calc_bonuses(void)
 				if (p_ptr->lev > 34) 
 				{
 					p_ptr->resist_dark = TRUE;
-					p_ptr->resist_shard = TRUE;
+					p_ptr->resist_blind = TRUE;
 				}
+				if (p_ptr->lev > 44) p_ptr->resist_shard = TRUE;
 				break;
 			case PACT_DRAGON:
 				p_ptr->resist_fear = TRUE;
@@ -3482,7 +3483,7 @@ void calc_bonuses(void)
 				p_ptr->skill_sav += 30 * p_ptr->lev/50;
 				if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
 				p_ptr->stat_add[A_WIS] += 5 * p_ptr->lev/50;
-				if (p_ptr->lev > 29) p_ptr->reflect = TRUE;
+				if (p_ptr->lev > 34) p_ptr->reflect = TRUE;
 				break;
 			case PACT_DEMON:
 				p_ptr->resist_fire = TRUE;
@@ -3491,6 +3492,8 @@ void calc_bonuses(void)
 				p_ptr->stat_add[A_INT] += 5 * p_ptr->lev/50;
 				if (p_ptr->lev > 44)
 					p_ptr->kill_wall = TRUE;
+				if (p_ptr->lev > 49)
+					p_ptr->immune_fire = TRUE;
 				break;
 			case PACT_ABERRATION:
 				if (!(p_ptr->muta2 & MUT2_HORNS))

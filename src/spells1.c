@@ -1795,7 +1795,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 		case GF_BLOOD:
 		case GF_ELDRITCH:
 		case GF_ELDRITCH_DRAIN:  /* Lazy ... I'll give back hp later */
-		case GF_ELDRITCH_DISPEL: /* Lazy ... I'll dispel magic later */
 		{
 			if (seen) obvious = TRUE;
 
@@ -2405,6 +2404,41 @@ note = "には耐性がある。";
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
 			}
 			else do_stun = (10 + randint1(15) + r) / (r + 1);
+			break;
+		}
+
+		case GF_ELDRITCH_DISPEL:
+		{
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+#ifdef JP
+				note = "には完全な耐性がある！";
+#else
+				note = " is immune.";
+#endif
+				dam = 0;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			dispel_monster_status(c_ptr->m_idx);
+
+			/* More Powerful vs. Evil */
+			if ((r_ptr->flags3 & RF3_EVIL) && one_in_(5))
+			{
+				msg_print("You blast the forces of evil with great power!");
+				dam = dam * 2;
+
+				/* Attempt a Powerful Slow */
+				if (r_ptr->level > randint1(p_ptr->lev * 2))
+				{
+					note = " resists being slowed!";
+				}
+				else
+				{
+					if (set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50))
+						note = " starts moving slower.";
+				}
+			}
 			break;
 		}
 
@@ -6199,10 +6233,6 @@ note = "には効果がなかった。";
 			heal /= 2;
 			hp_player(heal);
 		}
-
-		/* Hack: Dispelling Blast does a Dispel Magic */
-		if (typ == GF_ELDRITCH_DISPEL)
-			dispel_monster_status(c_ptr->m_idx);
 
 		/* Hurt the monster, check for fear and death */
 		if (mon_take_hit(c_ptr->m_idx, dam, &fear, note_dies))

@@ -1444,6 +1444,25 @@ static bool cmd_racial_power_aux(s32b command)
 				{
 					set_shield(randint1(30) + 20, FALSE);
 				}
+				else if (command == -6)
+				{
+					int  type = 0;
+					cptr desc = NULL;
+
+					switch (randint0(5))
+					{
+					case 0: type = GF_FIRE; desc = "fire"; break;
+					case 1: type = GF_COLD; desc = "cold"; break;
+					case 2: type = GF_ELEC; desc = "lightning"; break;
+					case 3: type = GF_ACID; desc = "acid"; break;
+					case 4: type = GF_POIS; desc = "poison"; break;
+					}
+
+					if (!get_aim_dir(&dir)) return FALSE;
+
+					msg_format("You breathe %s.", desc);
+					fire_ball(type, dir, 400, -(plev / 15) - 1);
+				}
 				break;
 
 			case PACT_ANGEL:
@@ -1457,7 +1476,14 @@ static bool cmd_racial_power_aux(s32b command)
 				}
 				else if (command == -4)
 				{
-					if (remove_curse())
+					bool uncursed = FALSE;
+
+					if (one_in_((plev - 20) * 20))
+						uncursed = remove_all_curse();
+					else
+						uncursed = remove_curse();
+
+					if (uncursed)
 					{
 #ifdef JP
 						msg_print("誰かに見守られているような気がする。");
@@ -1468,12 +1494,20 @@ static bool cmd_racial_power_aux(s32b command)
 				}
 				else if (command == -5)
 				{
+					earthquake(py, px, 10);
+				}
+				else if (command == -6)
+				{
 					int base = 25;
 					int sides = 3 * plev;
 
 					set_protevil(randint1(sides) + sides, FALSE);
 				}
-				else if (command == -6)
+				else if (command == -7)
+				{
+					destroy_area(py, px, 12 + randint1(4), FALSE);
+				}
+				else if (command == -8)
 				{
 					set_invuln(2 + randint1(2), FALSE);
 				}
@@ -1515,6 +1549,10 @@ static bool cmd_racial_power_aux(s32b command)
 				else if (command == -6)
 				{
 					map_area(DETECT_RAD_MAP);
+				}
+				else if (command == -7)
+				{
+					if (!dimension_door()) return FALSE;
 				}
 				break;
 			}
@@ -2793,7 +2831,7 @@ strcpy(power_desc[num].name, "速駆け");
 			power_desc[num].level = 5;
 			power_desc[num].cost = 5;
 			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 5;
+			power_desc[num].fail = 10;
 			power_desc[num++].number = -3;
 
 			strcpy(power_desc[num].name, "Restore Life");
@@ -2816,7 +2854,7 @@ strcpy(power_desc[num].name, "速駆け");
 			power_desc[num].level = 5;
 			power_desc[num].cost = 5;
 			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 5;
+			power_desc[num].fail = 10;
 			power_desc[num++].number = -3;
 
 			strcpy(power_desc[num].name, "Identify");
@@ -2830,8 +2868,15 @@ strcpy(power_desc[num].name, "速駆け");
 			power_desc[num].level = 35;
 			power_desc[num].cost = 40;
 			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 10;
+			power_desc[num].fail = 8;
 			power_desc[num++].number = -5;
+
+			strcpy(power_desc[num].name, "Dragon Breath");
+			power_desc[num].level = 50;
+			power_desc[num].cost = 30;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 12;
+			power_desc[num++].number = -6;
 			break;
 
 		case PACT_ANGEL:
@@ -2839,7 +2884,7 @@ strcpy(power_desc[num].name, "速駆け");
 			power_desc[num].level = 5;
 			power_desc[num].cost = 5;
 			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 5;
+			power_desc[num].fail = 6;
 			power_desc[num++].number = -3;
 
 			strcpy(power_desc[num].name, "Remove Curse");
@@ -2849,19 +2894,33 @@ strcpy(power_desc[num].name, "速駆け");
 			power_desc[num].fail = 20;
 			power_desc[num++].number = -4;
 
+			strcpy(power_desc[num].name, "Earthquake");
+			power_desc[num].level = 30;
+			power_desc[num].cost = 10;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 12;
+			power_desc[num++].number = -5;
+
 			strcpy(power_desc[num].name, "Protection from Evil");
 			power_desc[num].level = 35;
 			power_desc[num].cost = 40;
 			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 10;
-			power_desc[num++].number = -5;
+			power_desc[num].fail = 12;
+			power_desc[num++].number = -6;
+
+			strcpy(power_desc[num].name, "Destruction");
+			power_desc[num].level = 35;
+			power_desc[num].cost = 40;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 20;
+			power_desc[num++].number = -7;
 
 			strcpy(power_desc[num].name, "Invulnerability");
 			power_desc[num].level = 50;
 			power_desc[num].cost = 100;
 			power_desc[num].stat = A_CHR;
 			power_desc[num].fail = 40;
-			power_desc[num++].number = -6;
+			power_desc[num++].number = -8;
 			break;
 
 		case PACT_DEMON:
@@ -2869,21 +2928,21 @@ strcpy(power_desc[num].name, "速駆け");
 			power_desc[num].level = 5;
 			power_desc[num].cost = 5;
 			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 5;
+			power_desc[num].fail = 10;
 			power_desc[num++].number = -3;
 
 			strcpy(power_desc[num].name, "Teleport");
 			power_desc[num].level = 20;
 			power_desc[num].cost = 10;
 			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 10;
+			power_desc[num].fail = 12;
 			power_desc[num++].number = -4;
 
 			strcpy(power_desc[num].name, "Recharge");
 			power_desc[num].level = 35;
 			power_desc[num].cost = 40;
 			power_desc[num].stat = A_CHR;
-			power_desc[num].fail = 30;
+			power_desc[num].fail = 20;
 			power_desc[num++].number = -5;
 			break;
 
@@ -2915,6 +2974,13 @@ strcpy(power_desc[num].name, "速駆け");
 			power_desc[num].stat = A_CHR;
 			power_desc[num].fail = 10;
 			power_desc[num++].number = -6;
+
+			strcpy(power_desc[num].name, "Dimension Door");
+			power_desc[num].level = 50;
+			power_desc[num].cost = 20;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 12;
+			power_desc[num++].number = -7;
 			break;
 		}
 		break;
