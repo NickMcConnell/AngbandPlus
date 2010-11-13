@@ -1954,6 +1954,15 @@ static cptr seikaku_jouhou[MAX_SEIKAKU] =
 #endif
 };
 
+static cptr pact_desc[MAX_PACTS] = 
+{
+"Undead are tough creatures, each having survived death at least once. Warlocks who make a pact with Undead will find themselves with a slew of additional resistances, along with significantly higher hit points and constitution. Eventually, Undead Warlocks attain the ability to become partially incorporeal for brief periods at will. Making a pact with Undead will reduce damage done to all undead by half.",
+"Dragons are powerful melee combatants, having tough hides and resistances to many common elemental types. Warlocks who make a pact with Dragons will find themselves with significantly strong melee abilities (both offensive and defensive), one extra maximum blow in combat, and eventually a powerful breath weapon. Making a pact with Dragons will reduce damage done to all dragons by half.",
+"Angels are heavenly beings who use a variety of techniques to smite those they view as evil. Warlocks who make pacts with Angels will find their saving throws significantly improved, and their body immune to bolt-like effects. Eventually Angel Warlocks attain the ability to become invulnerable for brief periods at will. Since Angels are strongly aligned with the forces of good, making a pact with Angels will reduce damage done to all good monsters by half.",
+"Demons are crafty creatures of the netherworld, using whatever means at their disposal to bring down their enemies. Warlocks who make pacts with Demons will find their abilities to use all magical devices improved, and gains the ability to Recharge these devices at will. Eventually, Demon Warlocks attain the ability to crush walls beneath their footsteps. Making a pact with Demons will reduce damage done to all demons by half.",
+"Aberrations are the mishmash of demihumanoid races in the world of Chengband. Warlocks who make pacts with Aberrations will find themselves sprouting strange body parts that can be used for various attacks. The demented mind of aberrations also eventually grants Warlocks the power of telepathy and dimension door. Making a pact with Aberrations will reduce damage done to all humanoids (h) and people (p) by half.",
+};
+
 static cptr realm_jouhou[VALID_REALM] =
 {
 #ifdef JP
@@ -2356,7 +2365,7 @@ static byte choose_realm(s32b choices, int *count)
 
 static bool get_warlock_pact(void)
 {
-	int i, k, n, cs, os;
+	int k, n, cs, os;
 	char buf[80], cur[80];
 	player_pact *pact_ptr = NULL;
 	cptr str;
@@ -2443,11 +2452,51 @@ static bool get_warlock_pact(void)
 
 static bool get_player_subclass(void)
 {
-	p_ptr->psubclass = 0;
-	if (p_ptr->pclass == CLASS_WARLOCK) 
-		return get_warlock_pact();
+	int i;
 
-	return TRUE;
+	p_ptr->psubclass = 0;
+	if (p_ptr->pclass != CLASS_WARLOCK) return TRUE;
+
+	/* Clean up infomation of modifications */
+	put_str("                                   ", 3, 40);
+	put_str("                                   ", 4, 40);
+	put_str("                                   ", 5, 40);
+
+	while (1)
+	{
+		char temp[80*10];
+		cptr t;
+		if (!get_warlock_pact()) return FALSE;
+
+		/* Clean up*/
+		clear_from(10);
+		put_str("                                   ", 3, 40);
+		put_str("                                   ", 4, 40);
+		put_str("                                   ", 5, 40);
+
+		roff_to_buf(pact_desc[p_ptr->psubclass], 74, temp, sizeof(temp));
+		t = temp;
+		for (i = 0; i < 10; i++)
+		{
+			if(t[0] == 0)
+				break; 
+			else
+			{
+				prt(t, 12+i, 3);
+				t += strlen(t) + 1;
+			}
+		}
+
+#ifdef JP
+		if (get_check_strict("よろしいですか？", CHECK_DEFAULT_Y)) break;
+#else
+		if (get_check_strict("Are you sure? ", CHECK_DEFAULT_Y)) break;
+#endif
+	}
+
+	put_str("Pact        :", 6, 1);
+	c_put_str(TERM_L_BLUE, pact_info[p_ptr->psubclass].title, 6, 15);
+	return (TRUE);
 }
 
 
