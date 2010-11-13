@@ -2495,7 +2495,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 		case TV_BOW:
 		{
-			/* Very good */
+		    /* TODO: Ego Harps ... */
 			if (power > 1)
 			{
 				if (one_in_(20) || (power > 2)) /* power > 2 is debug only */
@@ -4290,6 +4290,12 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
+			/* I couldn't figure out where to put this ... in many ways,
+			   Harps are more like rings and amulets, so the aux function that
+			   normally rolls pvals should always be called ... */
+			if (o_ptr->tval == TV_BOW && o_ptr->sval == SV_HARP)
+				o_ptr->pval = 1 + m_bonus(2, lev);
+
 			if (power) a_m_aux_1(o_ptr, lev, power);
 			break;
 		}

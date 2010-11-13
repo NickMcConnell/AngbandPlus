@@ -6405,4 +6405,5 @@ G:}:U
 I:19:70:0
 W:25:0:40:400
 A:25/4
+F:CHR
 D:$A stringed instrument preferred by Bards.
