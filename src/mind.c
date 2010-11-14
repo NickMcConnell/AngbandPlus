@@ -284,6 +284,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
   {
     {
     /* Level gained,  cost,  %fail,  name */
+      {  1,  5,  30, "Time Spurt"},
       {  5,  4,  30, "Decay Door"},
       { 10, 10,  50, "Decay Wall"},
 	  { 13, 10,  50, "Devolution"},
@@ -298,7 +299,6 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 40, 80,  70, "Remembrance"},
       { 45, 60,  60, "Speed Essentia"},
       { 50,150,  65, "Stop Time"},
-      { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -624,7 +624,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 			{
 				switch (power)
 				{
-				case 13: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
+				case 14: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
 				}
 				break;
 			}
@@ -637,7 +637,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 				case 5: sprintf(p, " %s30+1d30", s_dur); break;
 				case 6: sprintf(p, " %s%d+d%d", s_dur, plev, plev); break;
 				case 8: sprintf(p, " %s25+1d25", s_dur); break;
-				case 9: sprintf(p, " %s%d+d%d", s_dur, plev, plev); break;
+				case 9: sprintf(p, " %s%d+d%d", s_dur, 5, 5); break;
 				case 11: sprintf(p, " %s500", s_dam); break;
 				}
 				break;
@@ -1487,7 +1487,10 @@ static bool cast_time_lord_spell(int spell)
 	/* spell code */
 	switch (spell)
 	{
-	case 0:   /* Decay Door 
+	case 0: /* Time Spurt */
+		set_tim_spurt(spell_power(2 + randint1(2)), FALSE);
+		break;
+	case 1:   /* Decay Door 
 	             There is a nice destroy_door() fn that fires a beam, but I just wand an adjacent
 				 square effect.
 	          */
@@ -1518,7 +1521,7 @@ static bool cast_time_lord_spell(int spell)
 		}	
 		break;
 
-	case 1:	 /* Decay Wall 
+	case 2:	 /* Decay Wall 
 	            There is a nice wall_to_mud() fn that fires a beam, but I just want an adjacent
 				square effect.
 	         */
@@ -1551,7 +1554,7 @@ static bool cast_time_lord_spell(int spell)
 		}	
 		break;
 
-	case 2:  /* Devolution */
+	case 3:  /* Devolution */
 		{
 			int y, x, r_idx, m_idx;
 			monster_type *m_ptr;
@@ -1597,7 +1600,7 @@ static bool cast_time_lord_spell(int spell)
 		}
 		break;
 
-	case 3:  /* Evolution */
+	case 4:  /* Evolution */
 		{
 			int y, x, r_idx, m_idx;
 			monster_type *m_ptr;
@@ -1643,7 +1646,7 @@ static bool cast_time_lord_spell(int spell)
 		}
 		break;
 
-	case 4:  /* "Slow Monster" */
+	case 5:  /* "Slow Monster" */
 		{
 			int y, x, m_idx;
 			monster_type *m_ptr;
@@ -1678,7 +1681,7 @@ static bool cast_time_lord_spell(int spell)
 		}	
 		break;
 
-	case 5:  /* "Back to Origins" */
+	case 6:  /* "Back to Origins" */
 		{
 			int i, ct;
 
@@ -1706,16 +1709,16 @@ static bool cast_time_lord_spell(int spell)
 		}
 		break;
 
-	case 6:  /* "Haste Self" */
+	case 7:  /* "Haste Self" */
 		set_fast(10 + randint1((plev * 3) / 2), FALSE);
 		break;
 
-	case 7:  /* "Haste Monster" */
+	case 8:  /* "Haste Monster" */
 		if (!get_aim_dir(&dir)) return FALSE;
 		speed_monster(dir);
 		break;
 
-	case 8:  /* "Mass Slow" 
+	case 9:  /* "Mass Slow" 
 	             Sorry, but this one won't affect uniques at all.  I could hack spells1.c for this
 				 class, but actually, I'm OK with this since if you really want to slow a unique, then
 				 you better use the riskier touch version.  Plus, hacking spells1.c might also inadvertantly
@@ -1724,7 +1727,7 @@ static bool cast_time_lord_spell(int spell)
 		project_hack(GF_OLD_SLOW, 3*plev + 10);
 		break;
 
-	case 9:  /* "Temporal Prison" */
+	case 10:  /* "Temporal Prison" */
 		{
 			int y, x, m_idx;
 			monster_type *m_ptr;
@@ -1760,7 +1763,7 @@ static bool cast_time_lord_spell(int spell)
 		}	
 		break;
 
-	case 10: /* "Rewind Time" */
+	case 11: /* "Rewind Time" */
 		if (p_ptr->inside_arena || ironman_downward || !dun_level)
 		{
 			msg_print("Nothing happens.");
@@ -1801,7 +1804,7 @@ static bool cast_time_lord_spell(int spell)
 		}
 		break;
 
-	case 11: /* "Remembrance" */
+	case 12: /* "Remembrance" */
 		do_res_stat(A_STR);
 		do_res_stat(A_INT);
 		do_res_stat(A_WIS);
@@ -1811,11 +1814,11 @@ static bool cast_time_lord_spell(int spell)
 		restore_level();
 		break;
 
-	case 12: /* "Speed Essentia" */
+	case 13: /* "Speed Essentia" */
 		set_tim_speed_essentia(3, FALSE);
 		break;
 
-	case 13: /* "The World" */
+	case 14: /* "The World" */
 		if (world_player)
 		{
 			msg_print("Time is already stopped.");
@@ -1921,7 +1924,7 @@ static bool cast_blood_knight_spell(int spell)
 		break;
 
 	case 9: /* Blood Revenge */
-		set_tim_blood_revenge(randint1(plev) + plev, FALSE);
+		set_tim_blood_revenge(randint1(5) + 5, FALSE);
 		break;
 
 	case 10: /* Blood Pool */
@@ -3257,7 +3260,7 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 			p_ptr->csp_frac = 0;
 		}
 
-        if ((use_mind == MIND_TIME_LORD) && (n == 13))
+        if ((use_mind == MIND_TIME_LORD) && (n == 14))
         {
 			/* No mana left */
 			p_ptr->csp = 0;
@@ -3362,7 +3365,7 @@ void do_cmd_mind_browse(void)
 		Term_erase(12, 16, 255);
 
 		roff_to_buf(mind_tips[use_mind][n], 62, temp, sizeof(temp));
-		for(j=0, line = 17;temp[j];j+=(1+strlen(&temp[j])))
+		for(j=0, line = 18;temp[j];j+=(1+strlen(&temp[j])))
 		{
 			prt(&temp[j], line, 15);
 			line++;

@@ -2164,6 +2164,11 @@ static void process_world_aux_timeout(void)
 		(void)set_tim_speed_essentia(p_ptr->tim_speed_essentia - 1, TRUE);
 	}
 
+	if (p_ptr->tim_spurt)
+	{
+		(void)set_tim_spurt(p_ptr->tim_spurt - 1, TRUE);
+	}
+
 	if (p_ptr->tim_blood_shield)
 	{
 		(void)set_tim_blood_shield(p_ptr->tim_blood_shield - 1, TRUE);

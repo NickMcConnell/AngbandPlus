@@ -1438,13 +1438,18 @@ static bool cmd_racial_power_aux(s32b command)
 				}
 				else if (command == -4)
 				{
-					if (!ident_spell(FALSE)) return FALSE;
+					set_hero(randint1(25) + 25, FALSE);
+					hp_player(10);
 				}
 				else if (command == -5)
 				{
-					set_shield(randint1(30) + 20, FALSE);
+					if (!ident_spell(FALSE)) return FALSE;
 				}
 				else if (command == -6)
+				{
+					set_shield(randint1(30) + 20, FALSE);
+				}
+				else if (command == -7)
 				{
 					int  type = 0;
 					cptr desc = NULL;
@@ -1522,7 +1527,12 @@ static bool cmd_racial_power_aux(s32b command)
 				{
 					teleport_player(p_ptr->lev * 5, 0);
 				}
-				else if (command == -5)
+				else if (command == -4)
+				{
+					if (!get_check("Are you sure? (Teleport Level)")) return FALSE;
+					teleport_level(0);
+				}
+				else if (command == -6)
 				{
 					if (!recharge(p_ptr->lev * 4)) return FALSE;
 				}
@@ -2857,26 +2867,33 @@ strcpy(power_desc[num].name, "®�");
 			power_desc[num].fail = 10;
 			power_desc[num++].number = -3;
 
+			strcpy(power_desc[num].name, "Heroism");
+			power_desc[num].level = 15;
+			power_desc[num].cost = 10;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 10;
+			power_desc[num++].number = -4;
+
 			strcpy(power_desc[num].name, "Identify");
 			power_desc[num].level = 20;
 			power_desc[num].cost = 20;
 			power_desc[num].stat = A_CHR;
 			power_desc[num].fail = 10;
-			power_desc[num++].number = -4;
+			power_desc[num++].number = -5;
 
 			strcpy(power_desc[num].name, "Stone Skin");
 			power_desc[num].level = 35;
 			power_desc[num].cost = 40;
 			power_desc[num].stat = A_CHR;
 			power_desc[num].fail = 8;
-			power_desc[num++].number = -5;
+			power_desc[num++].number = -6;
 
 			strcpy(power_desc[num].name, "Dragon Breath");
 			power_desc[num].level = 50;
 			power_desc[num].cost = 30;
 			power_desc[num].stat = A_CHR;
 			power_desc[num].fail = 12;
-			power_desc[num++].number = -6;
+			power_desc[num++].number = -7;
 			break;
 
 		case PACT_ANGEL:
@@ -2938,12 +2955,19 @@ strcpy(power_desc[num].name, "®�");
 			power_desc[num].fail = 12;
 			power_desc[num++].number = -4;
 
+			strcpy(power_desc[num].name, "Teleport Level");
+			power_desc[num].level = 30;
+			power_desc[num].cost = 20;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 15;
+			power_desc[num++].number = -5;
+
 			strcpy(power_desc[num].name, "Recharge");
 			power_desc[num].level = 35;
 			power_desc[num].cost = 40;
 			power_desc[num].stat = A_CHR;
 			power_desc[num].fail = 20;
-			power_desc[num++].number = -5;
+			power_desc[num++].number = -6;
 			break;
 
 		case PACT_ABERRATION:

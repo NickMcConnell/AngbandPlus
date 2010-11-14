@@ -1877,15 +1877,15 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			{
 				if (p_ptr->tim_blood_revenge && alive && !p_ptr->is_dead && monster_living(r_ptr))
 				{   /* Scale the damage based on cuts and monster deadliness */
-					int dam = damage * p_ptr->cut / CUT_SEVERE;
+					int dam = damage * p_ptr->cut / CUT_DEEP_GASH;
 
 					/* Balance out a weak melee attack */
-					if (dam < p_ptr->cut / 6)
-						dam = p_ptr->cut / 6;
+					if (dam < p_ptr->cut / 10)
+						dam = p_ptr->cut / 10;
 
 					/* Not too powerful */
-					if (dam > 100)
-						dam = 100;
+					if (dam > 50)
+						dam = 50;
 
 					dam = mon_damage_mod(m_ptr, dam, FALSE);
 					if (dam > 0)

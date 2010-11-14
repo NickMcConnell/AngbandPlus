@@ -2371,6 +2371,10 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
 					{
+						/* Slight Hack: Everybody else has this reduction ... Why not monks?? */
+						if (MON_STUNNED(m_ptr))
+							stun_effect /= 2;
+
 						if (set_monster_stunned(c_ptr->m_idx, stun_effect + MON_STUNNED(m_ptr)))
 						{
 #ifdef JP

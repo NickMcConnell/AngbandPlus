@@ -344,6 +344,7 @@ static void prt_stat(int stat)
 #define BAR_BLOOD_SIGHT 71
 #define BAR_BLOOD_FEAST 72
 #define BAR_NO_SPELLS 73
+#define BAR_TIME_SPURT 74
 
 static struct {
 	byte attr;
@@ -499,6 +500,7 @@ static struct {
 	{TERM_L_RED, "Si", "Sight"},
 	{TERM_RED, "Fs", "Feast"},
 	{TERM_VIOLET, "NS", "No Spells"},
+	{TERM_YELLOW, "Ts", "Spurt"},
 	{0, NULL, NULL}
 };
 #endif
@@ -656,6 +658,7 @@ static void prt_status(void)
 	/* An Eye for an Eye */
 	if (p_ptr->tim_eyeeye) ADD_FLG(BAR_EYEEYE);
 
+	if (p_ptr->tim_spurt) ADD_FLG(BAR_TIME_SPURT);
 	if (p_ptr->tim_speed_essentia) ADD_FLG(BAR_SPEED_ESSENTIA);
 	if (p_ptr->tim_blood_shield) ADD_FLG(BAR_BLOOD_SHIELD);
 	if (p_ptr->tim_blood_seek) ADD_FLG(BAR_BLOOD_SEEK);
@@ -3499,6 +3502,8 @@ void calc_bonuses(void)
 					p_ptr->muta2_lock |= MUT2_HORNS;
 				}
 				p_ptr->skill_srh += 20 * p_ptr->lev/50;
+				p_ptr->skill_fos += 20 * p_ptr->lev/50;
+				p_ptr->skill_dis += 30 * p_ptr->lev/50;
 				if (p_ptr->lev > 14)
 				{
 					/* only give it if they don't already have it */
@@ -4799,6 +4804,11 @@ void calc_bonuses(void)
 			new_speed += 15;
 		else
 			new_speed += 10;
+	}
+	else if (p_ptr->tim_spurt)
+	{
+		/* The Time Lord's baby speed spell shouldn't stack with other forms of haste ... */
+		new_speed += 5;
 	}
 
 	/* Temporary "slow" */

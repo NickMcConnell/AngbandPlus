@@ -3740,7 +3740,7 @@ R:9:0
 
 ### Time Lord ###
 N:28
-I:LIFE:INT:0x00:0:5:400
+I:LIFE:INT:0x00:0:1:400
 # Life
 R:0:0
 

@@ -260,6 +260,7 @@ static cptr mind_tips[MIND_MAX_CLASSES][MAX_MIND_POWERS] =
 	"",
 },
 {
+	"Gives a very short speed boost.",
 	"Destroy an adjacent door.",
 	"Destroy an adjacent wall.",
 	"Attempts to reverse evolution for a single opponent.",
@@ -274,7 +275,6 @@ static cptr mind_tips[MIND_MAX_CLASSES][MAX_MIND_POWERS] =
 	"Restores life and stats.",
 	"Increases your melee and missile attacks for a bit.",
 	"Stops time. Consumes all of your SP, and the more SP consumed, the longer the duration of the spell.",
-	"",
 	"",
 	"",
 	"",

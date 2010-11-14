@@ -1429,6 +1429,7 @@ extern bool set_tim_sh_touki(int v, bool do_dec);
 extern bool set_tim_sh_fire(int v, bool do_dec);
 extern bool set_tim_sh_holy(int v, bool do_dec);
 extern bool set_tim_eyeeye(int v, bool do_dec);
+extern bool set_tim_spurt(int v, bool do_dec);
 extern bool set_tim_speed_essentia(int v, bool do_dec);
 extern bool set_tim_blood_shield(int v, bool do_dec);
 extern bool set_tim_blood_seek(int v, bool do_dec);
