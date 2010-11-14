@@ -76,7 +76,10 @@ static int check_hit(int power, int level, int stun)
 	if (p_ptr->special_attack & ATTACK_SUIKEN) ac += (p_ptr->lev * 2);
 
 	/* Power and Level compete against Armor */
-	if ((i > 0) && (randint1(i) > ((ac * 3) / 4))) return (TRUE);
+	/* Hack: Calc was AC * 3/4.  I'm renormalizing (linearly) character
+	   AC so that AC200 is now only as effective as AC150 used to be.
+	   So we have another factor of 150/200=3/4 for a total of 9/16. */
+	if ((i > 0) && (randint1(i) > ((ac * 9) / 16))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);
@@ -711,7 +714,7 @@ bool make_attack_normal(int m_idx)
 				{
 					if (((randint1(rlev*2+300) > (ac+200)) || one_in_(13)) && !CHECK_MULTISHADOW())
 					{
-						int tmp_damage = damage - (damage * ((ac < 150) ? ac : 150) / 250);
+						int tmp_damage = damage - (damage * ((ac < 200) ? ac : 200) / 333);
 #ifdef JP
 						msg_print("ÄËº¨¤Î°ì·â¡ª");
 #else
@@ -731,7 +734,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Hack -- Player armor reduces total damage */
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+					damage -= (damage * ((ac < 200) ? ac : 200) / 333);
 
 					/* Take damage */
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
@@ -1503,7 +1506,7 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Hack -- Reduce damage based on the player armor class */
-					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+					damage -= (damage * ((ac < 200) ? ac : 200) / 333);
 
 					/* Take damage */
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);

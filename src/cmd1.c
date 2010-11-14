@@ -1938,6 +1938,9 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Modify the damage */
 		k = mon_damage_mod(m_ptr, k, FALSE);
 
+		/* Hack: Monster AC now reduces damage */
+		k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 600);
+
 		/* Anger the monster */
 		if (k > 0) anger_monster(m_ptr);
 
@@ -2586,6 +2589,10 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			/* Modify the damage */
 			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_BERSERKER) && one_in_(2))));
+
+			/* Hack: Monster AC now reduces damage */
+			k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 600);
+
 			if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
 			{
 				if ((randint1(randint1(r_ptr->level/7)+5) == 1) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
