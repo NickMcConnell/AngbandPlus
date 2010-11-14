@@ -3816,6 +3816,16 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				/* No death */
 				else
 				{
+					if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+					{
+						if (!(m_ptr->smart & SM_TICKED_OFF))
+						{
+							char m_name[80];
+							monster_desc(m_name, m_ptr, 0);
+							msg_format("%^s is ticked off!", m_name);
+							m_ptr->smart |= SM_TICKED_OFF;
+						}
+					}
 					/* STICK TO */
 					if (object_is_fixed_artifact(q_ptr))
 					{
@@ -4009,7 +4019,7 @@ void do_cmd_fire(void)
 #ifdef JP
 		msg_print("この武器は発動して使うもののようだ。");
 #else
-		msg_print("Do activate.");
+		msg_print("You should activate Crimson instead.");
 #endif
 		flush();
 		return;

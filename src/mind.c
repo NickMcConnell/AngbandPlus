@@ -510,22 +510,22 @@ void mindcraft_info(char *p, int use_mind, int power)
       switch (power)
 	{
 	case 0:  break;
-	case 1:  sprintf(p, " %s%dd%d", s_dam, 3 + ((plev - 1) / 4), 3 + plev/15); break;
+	case 1:  sprintf(p, " %s%dd%d", s_dam, spell_power(3 + ((plev - 1) / 4)), 3 + plev/15); break;
 	case 2:  sprintf(p, " %s10", s_range); break;
 	case 3:  sprintf(p, " %s%d", s_range, plev * 5);  break;
 	case 4:  break;
-	case 5: sprintf(p, " %s%dd8", s_dam, 8 + ((plev - 5) / 4));  break;
+	case 5: sprintf(p, " %s%dd8", s_dam, spell_power(8 + ((plev - 5) / 4)));  break;
 	case 6:  sprintf(p, " %s%d", s_dur, plev);  break;
 	case 7:  break;
-	case 8:  sprintf(p, (plev < 25 ? " %s%d" : " %sd%d"), s_dam, (plev < 25 ? plev * 3 / 2 : plev * ((plev - 5) / 10 + 1))); break;
+	case 8:  sprintf(p, (plev < 25 ? " %s%d" : " %sd%d"), s_dam, spell_power((plev < 25 ? plev * 3 / 2 : plev * ((plev - 5) / 10 + 1)))); break;
 	case 9:  sprintf(p, " %s10+d%d", s_dur, plev * 3 / 2);  break;
 #ifdef JP
 	case 10: sprintf(p, " 最大重量:%d.%dkg", lbtokg1(plev * 15),lbtokg2(plev * 15));  break;
 #else
 	case 10: sprintf(p, " max wgt %d", plev * 15);  break;
 #endif
-	case 11: sprintf(p, " %s%dd6", s_dam, plev / 2);  break;
-	case 12: sprintf(p, " %sd%d+%d", s_dam, plev * 3, plev * 3); break;
+	case 11: sprintf(p, " %s%dd6", s_dam, spell_power(plev / 2));  break;
+	case 12: sprintf(p, " %sd%d+%d", s_dam, spell_power(plev * 3), spell_power(plev * 3)); break;
 #ifdef JP
 	case 13: sprintf(p, " 行動:%ld回", (p_ptr->csp + 100-p_ptr->energy_need - 50)/100); break;
 #else
@@ -571,24 +571,24 @@ void mindcraft_info(char *p, int use_mind, int power)
 				{
 				case 0:  break;
 				case 1:  break;
-				case 2:  sprintf(p, " %s%dd4", s_dam,  3 + ((plev - 1) / 5) ); break;
+				case 2:  sprintf(p, " %s%dd4", s_dam,  spell_power(3 + ((plev - 1) / 5)) ); break;
 				case 3:  sprintf(p, " %s10", s_range); break;
 				case 4:  break;
 				case 5:  sprintf(p, " %s%d", s_range, plev *5); break;
 				case 6:  sprintf(p, " %s20+d20", s_dur);  break;
 				case 7:  break;
-				case 8:  sprintf(p, " %s%dd8", s_dam, 8+((plev -5)/4) ); break;
+				case 8:  sprintf(p, " %s%dd8", s_dam, spell_power(8+((plev -5)/4)) ); break;
 				case 9:  break;
-				case 10: sprintf(p, " %s%dd8", s_dam, 11+(plev-5)/4 ); break;
+				case 10: sprintf(p, " %s%dd8", s_dam, spell_power(11+(plev-5)/4) ); break;
 				case 11: break;
 				case 12: sprintf(p, " %s20+d20", s_dur);  break;
-				case 13: sprintf(p, " %s150+d%d", s_dam, plev*2 ); break;
+				case 13: sprintf(p, " %s150+d%d", s_dam, spell_power(plev*2) ); break;
 				case 14: break;
 				case 15: break;
 				case 16: sprintf(p, " %s%d", s_range, plev/2 +10); break;
 				case 17: break;
 				case 18: sprintf(p, " %s6+d6", s_dur);  break;
-				case 19: sprintf(p, " %s%d", s_dam, plev*11+5 ); break;
+				case 19: sprintf(p, " %s%d", s_dam, spell_power(plev*11+5) ); break;
 				case 20: sprintf(p, " %s4+d4", s_dur);  break;
 				}
 				break;
@@ -650,7 +650,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 			{
 			int rng, dice, sides;
 				dice = warlock_dice();
-				sides = warlock_sides();
+				sides = spell_power(warlock_sides());
 				rng = warlock_range();
 				switch (power)
 				{
@@ -1177,9 +1177,9 @@ if (!b) msg_print("安全な気がする。");
 		if (!get_aim_dir(&dir)) return FALSE;
 
 		if (randint1(100) < plev * 2)
-			fire_beam(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3 + plev / 15)));
+			fire_beam(GF_PSI, dir, spell_power(damroll(3 + ((plev - 1) / 4), (3 + plev / 15))));
 		else
-			fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3 + plev / 15)), 0);
+			fire_ball(GF_PSI, dir, spell_power(damroll(3 + ((plev - 1) / 4), (3 + plev / 15))), 0);
 		break;
 	case 2:
 		/* Minor displace */
@@ -1195,28 +1195,28 @@ if (!b) msg_print("安全な気がする。");
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
 
-			fire_ball(GF_DOMINATION, dir, plev, 0);
+			fire_ball(GF_DOMINATION, dir, spell_power(plev), 0);
 		}
 		else
 		{
-			charm_monsters(plev * 2);
+			charm_monsters(spell_power(plev * 2));
 		}
 		break;
 	case 5:
 		/* Fist of Force  ---  not 'true' TK  */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_ball(GF_TELEKINESIS, dir, damroll(8 + ((plev - 5) / 4), 8),
-			(plev > 20 ? (plev - 20) / 8 + 1 : 0));
+		fire_ball(GF_TELEKINESIS, dir, spell_power(damroll(8 + ((plev - 5) / 4), 8)),
+			(plev > 20 ? spell_power((plev - 20) / 8 + 1) : 0));
 		break;
 	case 6:
 		/* Character Armour */
-		set_shield(plev, FALSE);
-		if (plev > 14) set_oppose_acid(plev, FALSE);
-		if (plev > 19) set_oppose_fire(plev, FALSE);
-		if (plev > 24) set_oppose_cold(plev, FALSE);
-		if (plev > 29) set_oppose_elec(plev, FALSE);
-		if (plev > 34) set_oppose_pois(plev, FALSE);
+		set_shield(spell_power(plev), FALSE);
+		if (plev > 14) set_oppose_acid(spell_power(plev), FALSE);
+		if (plev > 19) set_oppose_fire(spell_power(plev), FALSE);
+		if (plev > 24) set_oppose_cold(spell_power(plev), FALSE);
+		if (plev > 29) set_oppose_elec(spell_power(plev), FALSE);
+		if (plev > 34) set_oppose_pois(spell_power(plev), FALSE);
 		break;
 	case 7:
 		/* Psychometry */
@@ -1234,9 +1234,9 @@ msg_print("精神を捻じ曲げる波動を発生させた！");
 
 		if (plev < 25)
 			project(0, 2 + plev / 10, py, px,
-			(plev * 3), GF_PSI, PROJECT_KILL, -1);
+			spell_power(plev * 3), GF_PSI, PROJECT_KILL, -1);
 		else
-			(void)mindblast_monsters(randint1(plev * ((plev - 5) / 10 + 1)));
+			(void)mindblast_monsters(spell_power(randint1(plev * ((plev - 5) / 10 + 1))));
 		break;
 	case 9:
 		/* Adrenaline */
@@ -1252,7 +1252,7 @@ msg_print("精神を捻じ曲げる波動を発生させた！");
 			hp_player(plev);
 		}
 
-		b = 10 + randint1((plev * 3) / 2);
+		b = spell_power(10 + randint1((plev * 3) / 2));
 		set_hero(b, FALSE);
 		/* Haste */
 		(void)set_fast(b, FALSE);
@@ -1268,7 +1268,7 @@ msg_print("精神を捻じ曲げる波動を発生させた！");
 		/* Psychic Drain */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		b = damroll(plev / 2, 6);
+		b = spell_power(damroll(plev / 2, 6));
 
 		/* This is always a radius-0 ball now */
 		if (fire_ball(GF_PSI_DRAIN, dir, b, 0))
@@ -1278,7 +1278,7 @@ msg_print("精神を捻じ曲げる波動を発生させた！");
 		/* psycho-spear */
 		if (!get_aim_dir(&dir)) return FALSE;
 
-		fire_beam(GF_PSY_SPEAR, dir, randint1(plev*3)+plev*3);
+		fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(plev*3)+plev*3));
 		break;
 	case 13:
 	{
@@ -1964,7 +1964,7 @@ static bool cast_warlock_spell(int spell)
 		project_length = rng;
 		if (!get_aim_dir(&dir)) return FALSE;
 		
-		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
+		fire_ball(GF_ELDRITCH, dir, spell_power(damroll(dice, sides)), rad);
 		break;
 
 	case 1: /* Extended */
@@ -1972,14 +1972,14 @@ static bool cast_warlock_spell(int spell)
 		project_length = rng;
 		if (!get_aim_dir(&dir)) return FALSE;
 		
-		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
+		fire_ball(GF_ELDRITCH, dir, spell_power(damroll(dice, sides)), rad);
 		break;
 
 	case 2: /* Spear */
 		project_length = rng;
 		if (!get_aim_dir(&dir)) return FALSE;
 		
-		fire_beam(GF_ELDRITCH, dir, damroll(dice, sides));
+		fire_beam(GF_ELDRITCH, dir, spell_power(damroll(dice, sides)));
 		break;
 
 	case 3:	/* Burst */
@@ -1987,14 +1987,14 @@ static bool cast_warlock_spell(int spell)
 		project_length = rng;
 		if (!get_aim_dir(&dir)) return FALSE;
 		
-		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides), rad);
+		fire_ball(GF_ELDRITCH, dir, spell_power(damroll(dice, sides)), rad);
 		break;
 
 	case 4:	/* Stunning */
 		project_length = rng;
 		if (!get_aim_dir(&dir)) return FALSE;
 		
-		fire_ball(GF_ELDRITCH_STUN, dir, damroll(dice, sides), rad);
+		fire_ball(GF_ELDRITCH_STUN, dir, spell_power(damroll(dice, sides)), rad);
 		break;
 
 	case 5:	/* Special */
@@ -2004,32 +2004,33 @@ static bool cast_warlock_spell(int spell)
 		switch (p_ptr->psubclass)
 		{
 		case PACT_UNDEAD:
-			fire_ball(GF_ELDRITCH_DRAIN, dir, damroll(dice, sides), rad);
+			fire_ball(GF_ELDRITCH_DRAIN, dir, spell_power(damroll(dice, sides)), rad);
 			break;
 
 		case PACT_DRAGON:
-			fire_ball(GF_FIRE, dir, damroll(dice, sides)/2, rad);
-			fire_ball(GF_COLD, dir, damroll(dice, sides)/2, rad);
-			fire_ball(GF_ACID, dir, damroll(dice, sides)/2, rad);
-			fire_ball(GF_ELEC, dir, damroll(dice, sides)/2, rad);
-			fire_ball(GF_POIS, dir, damroll(dice, sides)/2, rad);
+			fire_ball(GF_FIRE, dir, spell_power(damroll(dice, sides)/2), rad);
+			fire_ball(GF_COLD, dir, spell_power(damroll(dice, sides)/2), rad);
+			fire_ball(GF_ACID, dir, spell_power(damroll(dice, sides)/2), rad);
+			fire_ball(GF_ELEC, dir, spell_power(damroll(dice, sides)/2), rad);
+			fire_ball(GF_POIS, dir, spell_power(damroll(dice, sides)/2), rad);
 			break;
 
 		case PACT_ANGEL:
-			fire_ball(GF_ELDRITCH_DISPEL, dir, damroll(dice, sides), rad);
+			fire_ball(GF_ELDRITCH_DISPEL, dir, spell_power(damroll(dice, sides)), rad);
 			break;
 
 		case PACT_DEMON:
 			{
 				int dam = damroll(dice, sides);
 				dam *= 2;
+				dam = spell_power(dam);
 				fire_ball(GF_ELDRITCH, dir, dam, rad);
 				take_hit(DAMAGE_USELIFE, dam/3, "vengeful blast", -1);
 			}
 			break;
 
 		case PACT_ABERRATION:
-			fire_ball(GF_ELDRITCH_CONFUSE, dir, damroll(dice, sides), rad);
+			fire_ball(GF_ELDRITCH_CONFUSE, dir, spell_power(damroll(dice, sides)), rad);
 			break;
 
 		default:
@@ -2042,7 +2043,7 @@ static bool cast_warlock_spell(int spell)
 		project_length = rng;
 		if (!get_aim_dir(&dir)) return FALSE;
 		
-		fire_ball(GF_ELDRITCH, dir, damroll(dice, sides) * 3/2, rad);
+		fire_ball(GF_ELDRITCH, dir, spell_power(damroll(dice, sides) * 3/2), rad);
 		/* I still don't quite understand process_player() ... I can't see
 		   where the player actually moves, so I am mimicing the lightspeed counter, which
 		   appears to decrement before player action.  The code is befuddling, so try
@@ -2310,10 +2311,10 @@ msg_format("There are too many mirrors to control!");
 	case 2:
 	  if (!get_aim_dir(&dir)) return FALSE;
 	  if ( plev > 9 && is_mirror_grid(&cave[py][px]) ) {
-	    fire_beam(GF_LITE, dir,damroll(3+((plev-1)/5),4));
+	    fire_beam(GF_LITE, dir,spell_power(damroll(3+((plev-1)/5),4)));
 	  }
 	  else {
-	    fire_bolt(GF_LITE, dir,damroll(3+((plev-1)/5),4));
+	    fire_bolt(GF_LITE, dir,spell_power(damroll(3+((plev-1)/5),4)));
 	  }
 	  break;
 	/* warped mirror */
@@ -2335,13 +2336,13 @@ msg_format("There are too many mirrors to control!");
 	/* banishing mirror */
 	case 7:
 	  if (!get_aim_dir(&dir)) return FALSE;
-	  (void)fire_beam(GF_AWAY_ALL, dir , plev);
+	  (void)fire_beam(GF_AWAY_ALL, dir , spell_power(plev));
 	  break;
 	/* mirror clashing */
 	case 8:
 	  if (!get_aim_dir(&dir)) return FALSE;
-	  fire_ball(GF_SHARDS, dir, damroll(8 + ((plev - 5) / 4), 8),
-		    (plev > 20 ? (plev - 20) / 8 + 1 : 0));
+	  fire_ball(GF_SHARDS, dir, spell_power(damroll(8 + ((plev - 5) / 4), 8)),
+		    (plev > 20 ? spell_power((plev - 20) / 8 + 1) : 0));
 	  break;
 	/* mirror sleeping */
 	case 9:
@@ -2356,15 +2357,15 @@ msg_format("There are too many mirrors to control!");
 	/* seeker ray */
 	case 10:
 	  if (!get_aim_dir(&dir)) return FALSE;
-	  fire_beam(GF_SEEKER,dir, damroll(11+(plev-5)/4,8));
+	  fire_beam(GF_SEEKER,dir, spell_power(damroll(11+(plev-5)/4,8)));
 	  break;
 	/* seal of mirror */
 	case 11:
-	  seal_of_mirror(plev*4+100);
+	  seal_of_mirror(spell_power(plev*4+100));
 	  break;
 	/* shield of water */
 	case 12:
-	  tmp = 20+randint1(20);
+	  tmp = spell_power(20+randint1(20));
 	  set_shield(tmp, FALSE);
 	  if( plev > 31 )set_tim_reflect(tmp, FALSE);
 	  if( plev > 39 )set_resist_magic(tmp,FALSE);
@@ -2372,17 +2373,17 @@ msg_format("There are too many mirrors to control!");
 	/* super ray */
 	case 13:
 	  if (!get_aim_dir(&dir)) return FALSE;
-	  fire_beam(GF_SUPER_RAY,dir, 150+randint1(2*plev));
+	  fire_beam(GF_SUPER_RAY,dir, spell_power(150+randint1(2*plev)));
 	  break;
 	/* illusion light */
 	case 14:
 	  tmp = is_mirror_grid(&cave[py][px]) ? 4 : 3;
 	  slow_monsters();
-	  stun_monsters(plev*tmp);
-	  confuse_monsters(plev*tmp);
-	  turn_monsters(plev*tmp);
-	  stun_monsters(plev*tmp);
-	  stasis_monsters(plev*tmp);
+	  stun_monsters(spell_power(plev*tmp));
+	  confuse_monsters(spell_power(plev*tmp));
+	  turn_monsters(spell_power(plev*tmp));
+	  stun_monsters(spell_power(plev*tmp));
+	  stasis_monsters(spell_power(plev*tmp));
 	  break;
 	/* mirror shift */
 	case 15:
@@ -2417,12 +2418,12 @@ msg_format("There are too many mirrors to control!");
 #ifdef JP
 	  if( !binding_field(plev*11+5) )msg_print("適当な鏡を選べなかった！");
 #else
-	  if( !binding_field(plev*11+5) )msg_print("You were not able to choose suitable mirrors!");
+	  if( !binding_field(spell_power(plev*11+5)) )msg_print("You were not able to choose suitable mirrors!");
 #endif
 	  break;
 	/* mirror of Ruffnor */
 	case 20:
-	  (void)set_invuln(randint1(4)+4,FALSE);
+	  (void)set_invuln(spell_power(randint1(4)+4),FALSE);
 	  break;
 	default:
 #ifdef JP

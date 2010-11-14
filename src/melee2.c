@@ -2715,10 +2715,15 @@ msg_format("%^s%s", m_name, monmessage);
 			/* Being Ticked Off will affect spell selection */
 			if (aware && make_attack_spell(m_idx))
 			{
-				m_ptr->smart &= ~SM_TICKED_OFF;				
+				if (m_ptr->smart & SM_TICKED_OFF)
+				{
+					char m_name[80];
+					monster_desc(m_name, m_ptr, 0);
+					msg_format("%^s is no longer ticked off!", m_name);
+					m_ptr->smart &= ~SM_TICKED_OFF;				
+				}
 				return;
 			}
-			m_ptr->smart &= ~SM_TICKED_OFF;
 			/*
 			 * Attempt to cast a spell at an enemy other than the player
 			 * (may slow the game a smidgeon, but I haven't noticed.)
@@ -2727,7 +2732,6 @@ msg_format("%^s%s", m_name, monmessage);
 		}
 		else
 		{
-			m_ptr->smart &= ~SM_TICKED_OFF;
 			/* Attempt to do counter attack at first */
 			if (monst_spell_monst(m_idx)) return;
 

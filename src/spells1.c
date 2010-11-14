@@ -23,6 +23,23 @@ static int rakubadam_p;
 int project_length = 0;
 
 /*
+ * Ticked off monsters must have a powerful distance attack
+ */
+bool allow_ticked_off(monster_race *r_ptr)
+{
+	if (r_ptr->flags4 & RF4_ATTACK_MASK)
+		return TRUE;
+
+	if (r_ptr->flags5 & RF5_WORTHY_ATTACK_MASK)
+		return TRUE;
+
+	if (r_ptr->flags6 & (RF6_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK))
+		return TRUE;
+
+	return FALSE;
+}
+
+/*
  * Get another mirror. for SEEKER 
  */
 static void next_mirror( int* next_y , int* next_x , int cury, int curx)
@@ -2370,6 +2387,10 @@ note = "には耐性がある。";
 				/* Sound resistance prevents stunning, but does not reduce damage! */
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
 			}
+			else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + p_ptr->stat_ind[A_CHR])
+			{
+				note = " resists stunning.";
+			}
 			else
 				do_stun = 10 + randint1(15);
 			break;
@@ -2402,6 +2423,11 @@ note = "には耐性がある。";
 
 				dam *= 2; dam /= randint1(6) + 6;
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
+			}
+			else if (who == 0 &&
+			         (r_ptr->level + randint1(100) > p_ptr->lev*2))
+			{
+				note = " resists stunning.";
 			}
 			else do_stun = (10 + randint1(15) + r) / (r + 1);
 			break;
@@ -6248,8 +6274,14 @@ note = "には効果がなかった。";
 
 			/* HACK - tick off smart monsters whenever damaged by the player
 			   from a distance. */
-			if (dam > 0 && (r_ptr->flags2 & RF2_SMART) && m_ptr->cdis > 1)
-				m_ptr->smart |= SM_TICKED_OFF;
+			if (dam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+			{
+				if (!(m_ptr->smart & SM_TICKED_OFF))
+				{
+					msg_format("%^s is ticked off!", m_name);
+					m_ptr->smart |= SM_TICKED_OFF;
+				}
+			}
 
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen_msg)

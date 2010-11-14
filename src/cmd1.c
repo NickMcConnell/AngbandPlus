@@ -2363,6 +2363,10 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					}
 				}
 
+				/* Massive Hack: Monk stunning is now greatly biffed! */
+				if (r_ptr->level + randint1(100) > p_ptr->lev*2 + p_ptr->stat_ind[A_DEX])
+					stun_effect = 0;
+
 				if (stun_effect && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
 				{
 					if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))

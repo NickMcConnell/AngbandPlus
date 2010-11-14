@@ -1132,7 +1132,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 			return (attack[randint0(attack_num)]);
 		}
 	}
-	else if (attack_num && (randint0(100) < 85))
+	else if (attack_num && ((m_ptr->smart & SM_TICKED_OFF) || (randint0(100) < 85)))
 	{
 		/* Choose attack spell */
 		return (attack[randint0(attack_num)]);
@@ -1363,7 +1363,11 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Sometimes forbid inate attacks (breaths) */
-	if (randint0(100) >= (r_ptr->freq_spell * 2)) no_inate = TRUE;
+	if (m_ptr->smart & SM_TICKED_OFF)
+	{
+		/* TODO: Tweak it down?? */
+	}
+	else if (randint0(100) >= (r_ptr->freq_spell * 2)) no_inate = TRUE;
 
 	/* XXX XXX XXX Handle "track_target" option (?) */
 
@@ -1372,6 +1376,15 @@ bool make_attack_spell(int m_idx)
 	f4 = r_ptr->flags4;
 	f5 = r_ptr->flags5;
 	f6 = r_ptr->flags6;
+
+	/* Ticked off monsters favor powerful offense */
+	f4 &= RF4_ATTACK_MASK;
+	f5 &= RF5_WORTHY_ATTACK_MASK;
+
+	if (m_ptr->hp < m_ptr->maxhp / 3)
+		f6 &= (RF6_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK | RF6_PANIC_MASK);
+	else
+		f6 &= (RF6_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK);
 
 	/*** require projectable player ***/
 

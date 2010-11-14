@@ -1472,7 +1472,7 @@ static bool cmd_racial_power_aux(s32b command)
 					int sides = plev / 2;
 					int rad = plev / 10 + 1;
 
-					lite_area(spell_power(damroll(dice, sides)), rad);
+					lite_area(damroll(dice, sides), rad);
 				}
 				else if (command == -4)
 				{
