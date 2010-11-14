@@ -13,8 +13,42 @@
 
 #include "angband.h"
 
+/*
+ * Wrap calculation of AC bonuses from Dex
+ */
+static int calc_adj_dex_ta(void)
+{
+	/* The old way:
+	 * return ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	 */
 
+int z, bonus;
 
+	bonus = ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	
+	z = 20;
+
+	if (inventory[INVEN_BODY].k_idx) z -= 5;
+
+	if (inventory[INVEN_LARM].k_idx && 
+	    k_info[inventory[INVEN_LARM].k_idx].tval == TV_SHIELD)
+	{
+		z -= 2;
+	}
+	if (inventory[INVEN_RARM].k_idx && 
+	    k_info[inventory[INVEN_RARM].k_idx].tval == TV_SHIELD)
+	{
+		z -= 2;
+	}
+
+	if (inventory[INVEN_HEAD].k_idx) z -= 1;
+	if (inventory[INVEN_HANDS].k_idx) z -= 1;
+	if (inventory[INVEN_FEET].k_idx) z -= 1;
+
+	bonus = bonus * z / 20;
+
+	return bonus;
+}
 
 /*
  * Converts stat num into a six-char (right justified) string
@@ -5005,7 +5039,7 @@ void calc_bonuses(void)
 	if (p_ptr->action == ACTION_SEARCH) new_speed -= 10;
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	p_ptr->to_a += calc_adj_dex_ta();
 	p_ptr->to_d[0] += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->to_d[1] += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->to_d_m  += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
@@ -5019,7 +5053,7 @@ void calc_bonuses(void)
 	p_ptr->to_h_m  += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
+	p_ptr->dis_to_a += calc_adj_dex_ta();
 	p_ptr->dis_to_d[0] += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_d[1] += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h[0] += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
@@ -6523,3 +6557,4 @@ bool heavy_armor(void)
 
 	return (monk_arm_wgt > (100 + (p_ptr->lev * 4)));
 }
+
