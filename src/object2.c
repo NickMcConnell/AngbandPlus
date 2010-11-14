@@ -1221,6 +1221,13 @@ s32b object_value_real(object_type *o_ptr)
 		/* No pval */
 		if (!o_ptr->pval) break;
 
+		/* Hack -- Spell Power should not auto destroy */
+		if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL_POWER)
+		{
+			value -= (o_ptr->pval * 1000L);
+			break;
+		}
+
 		/* Hack -- Negative "pval" is always bad */
 		if (o_ptr->pval < 0) return (0L);
 
@@ -2495,7 +2502,18 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 		case TV_BOW:
 		{
-		    /* TODO: Ego Harps ... */
+		    /* Harps require nasty hacks ...
+			   The game is setup to assume certain equipment slots
+			   gets certain types of egos.  Harps go in the bow slot, but
+			   they ain't bows!  We'll use a dummy INVEN_HARP to get
+			   around this, and we also need to force some plusses to 0.
+			*/
+			if (o_ptr->sval == SV_HARP)
+			{
+				o_ptr->to_h = 0;
+				o_ptr->to_d = 0;
+			}
+
 			if (power > 1)
 			{
 				if (one_in_(20) || (power > 2)) /* power > 2 is debug only */
@@ -2503,7 +2521,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					create_artifact(o_ptr, FALSE);
 					break;
 				}
-				o_ptr->name2 = get_random_ego(INVEN_BOW, TRUE);
+				if (o_ptr->sval == SV_HARP)
+					o_ptr->name2 = get_random_ego(INVEN_HARP, TRUE);
+				else
+					o_ptr->name2 = get_random_ego(INVEN_BOW, TRUE);
 			}
 
 			break;

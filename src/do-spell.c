@@ -8,7 +8,7 @@
 int spell_power(int pow)
 {
 	if (p_ptr->spell_power > 0)
-		return pow * (10 + p_ptr->spell_power) / 10;
+		return pow + pow*p_ptr->spell_power/13;
 	
 	return pow;
 }

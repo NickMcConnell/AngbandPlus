@@ -824,6 +824,11 @@
  */
 #define INVEN_FORCE     1111
 
+/*
+ * Fake inventory slot for harps.  They go in INVEN_BOW but
+ * they aren't really shooters.
+ */
+#define INVEN_HARP      100 /* ego_item_type.slot is a byte ... */
 
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
