@@ -709,7 +709,6 @@ bool make_attack_normal(int m_idx)
 
 					break;
 				}
-
 				case RBE_SUPERHURT:
 				{
 					if (((randint1(rlev*2+300) > (ac+200)) || one_in_(13)) && !CHECK_MULTISHADOW())
