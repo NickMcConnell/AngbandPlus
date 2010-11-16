@@ -1865,7 +1865,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Hack: I moved this here ... formerly, melee and archery displayed damage, but other
 	   things did not (e.g. spells) I think all player induced monster damage comes thru
 	   here, so now you even get to see how much damage your auras inflict! */
-	if (p_ptr->wizard || cheat_xtra)
+	if (dam > 0 && (p_ptr->wizard || cheat_xtra))
 		msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
 
 	/* Hurt it */

@@ -3076,6 +3076,18 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 		}
 	}
 
+	if (o_ptr->name1 == ART_DR_JONES)
+	{
+		if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+		{
+			give_power = TRUE;
+			give_resistance = TRUE;
+			o_ptr->pval += 2;
+			add_flag(o_ptr->art_flags, TR_SEARCH);
+			add_flag(o_ptr->art_flags, TR_FREE_ACT);
+		}
+	}
+
 	if (o_ptr->name1 == ART_XIAOLONG)
 	{
 		if (p_ptr->pclass == CLASS_MONK)

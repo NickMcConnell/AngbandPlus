@@ -373,6 +373,7 @@ static void sense_inventory1(void)
 		}
 
 		case CLASS_TOURIST:
+		case CLASS_ARCHAEOLOGIST:
 		{
 			/* Good sensing */
 			if (0 != randint0(20000L / ((plev+50)*(plev+50)))) return;
@@ -541,6 +542,7 @@ static void sense_inventory2(void)
 		}
 
 		case CLASS_TOURIST:
+		case CLASS_ARCHAEOLOGIST:
 		{
 			/* Good sensing */
 			if (0 != randint0(20000L / ((plev+50)*(plev+50)))) return;
@@ -4844,6 +4846,12 @@ msg_print("ウィザードモード突入。");
 				do_cmd_magic_eater(TRUE);
 			else if (p_ptr->pclass == CLASS_SNIPER)
 				do_cmd_snipe_browse();
+			else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+			{
+				/* This is the preferred entry point ... I'm still working on
+				   coverting everything else */
+				do_cmd_spell_browse();
+			}
 			else do_cmd_browse();
 			break;
 		}
@@ -4959,6 +4967,12 @@ msg_print("ウィザードモード突入。");
 						do_cmd_kaji(FALSE);
 					else if (p_ptr->pclass == CLASS_SNIPER)
 						do_cmd_snipe();
+					else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+					{
+						/* This is the preferred entrypoint for spells ...
+						   I'm still working on coverting everything else */
+						do_cmd_spell();
+					}
 					else
 						do_cmd_cast();
 				}
@@ -5755,6 +5769,9 @@ msg_print("中断しました。");
 	/* Hex - Handle the hex spells */
 	if (!load) check_hex();
 	if (!load) revenge_spell();
+
+	if (!load && p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+		archaeologist_on_process_player();
 
 	load = FALSE;
 

@@ -250,7 +250,7 @@ static named_num gf_desc[] =
 	{"GF_SOUND",				GF_SOUND				},
 	{"GF_CONFUSION",			GF_CONFUSION		},
 	{"GF_FORCE",				GF_FORCE				},
-	{"GF_INERTIA",				GF_INERTIA			},
+	{"GF_INERTIA",				GF_INERT			},
 	{"GF_MANA",					GF_MANA				},
 	{"GF_METEOR",				GF_METEOR			},
 	{"GF_ICE",					GF_ICE				},
@@ -337,6 +337,7 @@ static named_num gf_desc[] =
 	{"GF_ELDRITCH_DRAIN",	GF_ELDRITCH_DRAIN		},
 	{"GF_ELDRITCH_DISPEL",	GF_ELDRITCH_DISPEL		},
 	{"GF_ELDRITCH_CONFUSE",	GF_ELDRITCH_CONFUSE		},
+	{"GF_PHARAOHS_CURSE",	GF_PHARAOHS_CURSE		},
 	{NULL, 					0						}
 };
 
@@ -2329,6 +2330,14 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		break;
 	case CLASS_BLOOD_KNIGHT:
 		add_flag(flgs, TR_REGEN);
+		break;
+	case CLASS_ARCHAEOLOGIST:
+		if (p_ptr->lev >= 5)
+			add_flag(flgs, TR_WARNING);
+		if (p_ptr->lev >= 20)
+			add_flag(flgs, TR_SEE_INVIS);
+		if (p_ptr->lev >= 38)
+			add_flag(flgs, TR_RES_DARK);
 		break;
 	case CLASS_WARLOCK:
 		switch(p_ptr->psubclass)

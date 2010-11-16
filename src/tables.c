@@ -3806,7 +3806,25 @@ player_class class_info[MAX_CLASS] =
 		8,  10, 11, 0,  0,  0,  10, 8,
 		2, 40, 25
 	},
+	{
+#ifdef JP
+		"TRANSLATE(Archaeologist)",
+#endif
+		"Archaeologist",
+
+		{-1, 1, 1, 1, -1, 1},
+		45, 50, 36, 4, 50, 32, 40, 20,
+		15, 12, 10, 0,  0,  0, 11, 11,
+		2, 10, 40
+	},
 };
+/*
+ *      Title,
+ *      {STR,INT,WIS,DEX,CON,CHR},
+ *      c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
+ *      x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
+ *      HD, Exp, pet_upkeep_div
+ */
 
 /* Warlock Pacts */
 player_pact pact_info[MAX_PACTS] = 
@@ -4200,6 +4218,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_NONE),				/* Sniper */
 	(CH_NONE),				/* Time Lord */
 	(CH_NONE),				/* Blood Knight */
+	(CH_NONE),				/* Archaeologist */
 };
 
 
@@ -4245,6 +4264,7 @@ s32b realm_choices2[MAX_CLASS] =
 	(CH_NONE),				/* Sniper */
 	(CH_NONE),				/* Time Lord */
 	(CH_NONE),				/* Blood Knight */
+	(CH_NONE),				/* Archaeologist */
 };
 
 
@@ -5222,6 +5242,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Howler",
 		"Conjurer",
 		"Warlock",
+	},
+	/* Archaelogist */
+	{
+		"Student",
+		"Digger",
+		"Explorer",
+		"Adventurer",
+		"Spelunker",
+		"Discoverer",
+		"Grave Robber",
+		"Tomb Raider",
+		"Archaeologist",
+		"Archaeologist",
 	},
 };
 #endif

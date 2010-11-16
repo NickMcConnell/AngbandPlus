@@ -3678,9 +3678,9 @@ msg_format("%s は劣化した！",
 
 
 /*
- * pulish shield
+ * polish shield
  */
-bool pulish_shield(void)
+bool polish_shield(void)
 {
 	int             item;
 	object_type     *o_ptr;
@@ -3697,8 +3697,8 @@ bool pulish_shield(void)
 q = "どの盾を磨きますか？";
 s = "磨く盾がありません。";
 #else
-	q = "Pulish which weapon? ";
-	s = "You have weapon to pulish.";
+	q = "Polish which weapon? ";
+	s = "You have no shield to polish.";
 #endif
 
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))

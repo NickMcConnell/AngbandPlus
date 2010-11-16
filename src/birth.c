@@ -1825,9 +1825,13 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "スナイパーは一撃必殺を狙う恐るべき射手です。精神を高めることにより、射撃の威力と精度を高めます。また、魔法を使うことはできませんが、研ぎ澄まされた精神から繰り出される射撃術はさらなる威力をもたらすことでしょう。テクニックが必要とされる職業です。",
 
-"TRANSLATE(Time Lords ...)",
+"TRANSLATE(Time Lord ...)",
 
 "TRANSLATE(Blood Knight ...)",
+
+"TRANSLATE(Warlock ...)",
+
+"TRANSLATE(Archaeologist ...)",
 
 #else
 
@@ -1893,6 +1897,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "A warlock, unlike typical mages, derives his powers from pacts with arcane creatures, rather than through careful study.  They can cast all magic they know at will without requiring any SP, and depending on the type of Warlock, have different abilities.",
  
+"The Archaeologist is an erudite treasure hunter, seeking out the most valuable prizes that the dungeon has to offer. At home in subterranean caverns and vaults, he is rarely lost or snared in traps. His powers of perception and detection are very great, as is his skill with arcane devices. At high levels he can use the dark magic of the entombed Pharaohs.",
+
 #endif
 };
 
@@ -4061,6 +4067,12 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_POTION, SV_POTION_SPEED },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SWORD, SV_SHORT_SWORD },
+	},
+	{
+		/* Archaeologist */
+		{ TV_SCROLL, SV_SCROLL_MAPPING },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
+		{ TV_DIGGING, SV_PICK},
 	},
 };
 

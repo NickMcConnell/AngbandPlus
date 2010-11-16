@@ -379,6 +379,7 @@ static void prt_stat(int stat)
 #define BAR_BLOOD_FEAST 72
 #define BAR_NO_SPELLS 73
 #define BAR_TIME_SPURT 74
+#define BAR_SPECIAL 75
 
 static struct {
 	byte attr;
@@ -535,6 +536,7 @@ static struct {
 	{TERM_RED, "Fs", "Feast"},
 	{TERM_VIOLET, "NS", "No Spells"},
 	{TERM_YELLOW, "Ts", "Spurt"},
+	{TERM_L_BLUE, "Sp", "Special"},
 	{0, NULL, NULL}
 };
 #endif
@@ -700,6 +702,8 @@ static void prt_status(void)
 	if (p_ptr->tim_blood_feast) ADD_FLG(BAR_BLOOD_FEAST);
 	if (p_ptr->tim_no_spells) ADD_FLG(BAR_NO_SPELLS);
 	if (p_ptr->tim_blood_revenge) ADD_FLG(BAR_BLOOD_REVENGE);
+
+	if (p_ptr->sense_artifact) ADD_FLG(BAR_SPECIAL);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
@@ -3371,6 +3375,16 @@ void calc_bonuses(void)
 				new_speed += 3;
 			}
 			break;
+		case CLASS_ARCHAEOLOGIST:
+			p_ptr->see_infra += p_ptr->lev/10;
+			p_ptr->skill_dig += 2*p_ptr->lev;
+			if (p_ptr->lev >= 5)
+				p_ptr->warning = TRUE;
+			if (p_ptr->lev >= 20)
+				p_ptr->see_inv = TRUE;
+			if (p_ptr->lev >= 38)
+				p_ptr->resist_dark = TRUE;
+			break;
 		case CLASS_BLOOD_KNIGHT:
 			p_ptr->regenerate = TRUE;
 			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
@@ -5278,9 +5292,12 @@ void calc_bonuses(void)
 				case CLASS_TIME_LORD:
 					num = 4; wgt = 100; mul = 3; break;
 
+				case CLASS_ARCHAEOLOGIST:
+					num = 5; wgt = 100; mul = 3; break;
+
 				case CLASS_BLOOD_KNIGHT:
 					num = 3; wgt = 150; mul = 3; break;
-
+					
 				/* Imitator */
 				case CLASS_IMITATOR:
 					num = 5; wgt = 70; mul = 4; break;
@@ -5364,6 +5381,16 @@ void calc_bonuses(void)
 				else if (frac < 80 && p_ptr->lev > 12)
 					p_ptr->num_blow[i] += 2;
 				else if (p_ptr->chp < p_ptr->mhp) /* Hack: frac might be 100 if we are just slightly wounded */
+					p_ptr->num_blow[i] += 1;
+			}
+
+			if ( p_ptr->pclass == CLASS_ARCHAEOLOGIST
+			  && ( o_ptr->tval == TV_DIGGING
+			    || (o_ptr->tval == TV_HAFTED && o_ptr->sval == SV_WHIP)))
+			{
+				if (p_ptr->lev >= 50)
+					p_ptr->num_blow[i] += 2;
+				else if (p_ptr->lev >= 25)
 					p_ptr->num_blow[i] += 1;
 			}
 			

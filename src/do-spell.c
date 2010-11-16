@@ -35,7 +35,7 @@ static cptr info_string_dice(cptr str, int dice, int sides, int base)
 /*
  * Generate damage-dice info string such as "dam 2d10"
  */
-static cptr info_damage(int dice, int sides, int base)
+cptr info_damage(int dice, int sides, int base)
 {
 #ifdef JP
 	return info_string_dice("Â»½ý:", dice, sides, base);
@@ -48,7 +48,7 @@ static cptr info_damage(int dice, int sides, int base)
 /*
  * Generate duration info string such as "dur 20+1d20"
  */
-static cptr info_duration(int base, int sides)
+cptr info_duration(int base, int sides)
 {
 #ifdef JP
 	return format("´ü´Ö:%d+1d%d", base, sides);
@@ -61,7 +61,7 @@ static cptr info_duration(int base, int sides)
 /*
  * Generate range info string such as "range 5"
  */
-static cptr info_range(int range)
+cptr info_range(int range)
 {
 #ifdef JP
 	return format("ÈÏ°Ï:%d", range);
@@ -74,7 +74,7 @@ static cptr info_range(int range)
 /*
  * Generate heal info string such as "heal 2d8"
  */
-static cptr info_heal(int dice, int sides, int base)
+cptr info_heal(int dice, int sides, int base)
 {
 #ifdef JP
 	return info_string_dice("²óÉü:", dice, sides, base);
@@ -152,7 +152,7 @@ static cptr info_power_dice(int dice, int sides)
 /*
  * Generate radius info string such as "rad 100"
  */
-static cptr info_radius(int rad)
+cptr info_radius(int rad)
 {
 #ifdef JP
 	return format("È¾·Â:%d", rad);
@@ -7146,7 +7146,7 @@ static cptr do_craft_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				pulish_shield();
+				polish_shield();
 			}
 		}
 		break;

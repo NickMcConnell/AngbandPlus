@@ -825,6 +825,11 @@ extern void do_cmd_magic_eater(bool only_browse);
 extern int spell_power(int pow);
 extern void stop_singing(void);
 extern cptr do_spell(int realm, int spell, int mode);
+extern cptr info_damage(int dice, int sides, int base);
+extern cptr info_duration(int base, int sides);
+extern cptr info_range(int range);
+extern cptr info_heal(int dice, int sides, int base);
+extern cptr info_radius(int rad);
 
 /* dungeon.c */
 extern void leave_quest_check(void);
@@ -1250,7 +1255,7 @@ extern bool identify_item(object_type *o_ptr);
 extern bool identify_fully(bool only_equip);
 extern bool recharge(int num);
 extern bool bless_weapon(void);
-extern bool pulish_shield(void);
+extern bool polish_shield(void);
 extern bool potion_smash_effect(int who, int y, int x, int k_idx);
 extern void display_spell_list(void);
 extern s16b experience_of_spell(int spell, int realm);
@@ -1790,3 +1795,26 @@ extern bool teleport_barrier(int m_idx);
 extern bool magic_barrier(int m_idx);
 extern bool multiply_barrier(int m_idx);
 
+/* spells.c */
+extern void browse_spells(spell_info* spells, int ct, caster_info *caster);
+extern int calculate_fail_rate(const spell_info *spell, int stat_idx);
+extern int  choose_spell(spell_info* spells, int ct, caster_info *caster);
+extern void do_cmd_spell(void);
+extern void do_cmd_spell_browse(void);
+
+/* Public Spells ... spells?.c */
+extern bool cast_detect_traps(void);
+extern bool cast_light_area(void);
+extern bool cast_polish_shield(void);
+extern bool cast_recharging(void);
+
+extern void default_spell(int cmd, variant *res);
+extern void detect_traps_spell(int cmd, variant *res);
+extern void light_area_spell(int cmd, variant *res);
+extern void polish_shield_spell(int cmd, variant *res);
+extern void recharging_spell(int cmd, variant *res);
+
+/* archaeologist.c */
+extern caster_info archaeologist_caster_info;
+extern int archaeologist_get_spells(spell_info* spells, int max);
+void archaeologist_on_process_player(void);

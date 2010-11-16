@@ -1094,6 +1094,8 @@ struct player_type
 	s16b tim_blood_feast;
 	s16b tim_blood_revenge;
 
+	bool sense_artifact;
+
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
 	s16b tim_no_device;		/* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
@@ -1752,3 +1754,64 @@ typedef struct {
 	int dir;
 } travel_type;
 #endif
+
+/*
+ * A simple variant type (Keep it that way!)
+ */
+
+#define VAR_NULL			0
+#define VAR_STRING_INTERNAL	1
+#define VAR_STRING_ALLOC	2
+#define VAR_INT				3
+#define VAR_BOOL			4
+
+#define VAR_INTERNAL_STRING_SIZE  100
+
+typedef struct {
+	s16b tag;
+	union {
+	   int n;
+	   cptr pc;
+	   char buf[VAR_INTERNAL_STRING_SIZE];
+	   bool b;
+	} data;
+} variant;
+
+/* variant.c */
+extern void var_init(variant *var);
+extern void var_clear(variant *var);
+/*extern void var_copy(variant *src, variant *dest);*/
+
+extern void var_set_int(variant *var, int n);
+extern void var_set_string(variant *var, cptr pc);
+extern void var_set_bool(variant *var, bool b);
+
+extern int var_get_int(variant *var);
+extern cptr var_get_string(variant *var);
+extern bool var_get_bool(variant *var);
+
+/*
+ * A new approach to spells (and racial powers, class powers, mutations, etc)
+ * cmd will be one of the following SPELL_* modes found in defines.h
+ */
+typedef void (*ang_spell)(int cmd, variant *res);
+
+typedef struct {
+	s16b level;
+	s16b cost;
+	s16b fail;
+	ang_spell fn;
+} spell_info;
+
+typedef void (*ang_spell_action)(const spell_info *spell);
+
+/* TODO: This needs some work ... I just hacked this together for now.
+   I'm shooting for a single unified interface for choosing, browsing
+   and casting spells */
+typedef struct {
+	cptr magic_desc;	/* spell, mindcraft, brutal power, ninjitsu, etc */
+	bool use_sp;		/* 3 options: Mana, Hitpoints, or Freebies */
+	bool use_hp;
+	ang_spell_action on_fail;	/* Hallucinate, Temporal Inversion, etc. */
+	ang_spell_action on_cast;	/* Blood Knights take cuts, etc. */
+} caster_info;

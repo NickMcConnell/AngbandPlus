@@ -1532,7 +1532,7 @@ bool monst_spell_monst(int m_idx)
 		}
 
 		dam = ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6));
-		monst_breath_monst(m_idx, y, x, GF_INERTIA,
+		monst_breath_monst(m_idx, y, x, GF_INERT,
 				   dam,0, TRUE, MS_BR_INERTIA, learnable);
 
 		break;

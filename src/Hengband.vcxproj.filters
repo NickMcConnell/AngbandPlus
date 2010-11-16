@@ -216,6 +216,15 @@
     <ClCompile Include="chuukei.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="spells.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="variant.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="archaeologist.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

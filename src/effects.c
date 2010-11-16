@@ -6116,12 +6116,9 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	/* Hitpoint warning */
 	if (p_ptr->chp < warning)
 	{
-		/* Hack -- bell on first notice */
-		if (old_chp > warning) bell();
-
 		sound(SOUND_WARN);
 
-		if (record_danger && (old_chp > warning))
+		if (record_danger && (old_chp >= warning))
 		{
 			if (p_ptr->image && damage_type == DAMAGE_ATTACK)
 #ifdef JP
@@ -6150,6 +6147,23 @@ msg_print("*** ·Ù¹ð:Äã¥Ò¥Ã¥È¡¦¥Ý¥¤¥ó¥È¡ª ***");
 #else
 		msg_print("*** LOW HITPOINT WARNING! ***");
 #endif
+
+		/* Hack -- stop the player on first crossing the threshold */
+		if (old_chp >= warning) 
+		{
+			msg_print("*** LOW HITPOINT WARNING! *** Press 'Y' to continue.");
+			flush();
+			for (;;)
+			{
+				char ch = inkey();
+				if (ch == 'Y') break;
+			}
+			/*msg_print("OK.  Better be careful, I think you are about to die!");*/
+		}
+		else
+		{
+			msg_print("*** LOW HITPOINT WARNING! ***");
+		}
 
 		msg_print(NULL);
 		flush();

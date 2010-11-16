@@ -1433,6 +1433,11 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_blood_seek);
 	}
 
+	if (h_older_than(0, 0, 10, 1))
+		p_ptr->sense_artifact = FALSE;
+	else
+		rd_byte((byte *)&p_ptr->sense_artifact);
+
 	rd_s16b(&p_ptr->tim_reflect);
 	rd_s16b(&p_ptr->multishadow);
 	rd_s16b(&p_ptr->dustrobe);

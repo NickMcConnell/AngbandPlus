@@ -1042,17 +1042,23 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	}
 
 	/* Still hurt badly, couldn't flee, attempt to heal */
-	if (m_ptr->hp < m_ptr->maxhp / 3 && one_in_(2))
+	if (m_ptr->hp < m_ptr->maxhp / 3 && heal_num)
 	{
-		/* Choose heal spell if possible */
-		if (heal_num) return (heal[randint0(heal_num)]);
+		int odds = 2;
+		if (m_ptr->smart & SM_TICKED_OFF)
+			odds = 5;
+
+		if (one_in_(odds)) return (heal[randint0(heal_num)]);
 	}
 
 	/* Hurt badly or afraid, attempt to flee */
-	if (((m_ptr->hp < m_ptr->maxhp / 3) || MON_MONFEAR(m_ptr)) && one_in_(2))
+	if (((m_ptr->hp < m_ptr->maxhp / 3) || MON_MONFEAR(m_ptr)) && escape_num)
 	{
-		/* Choose escape spell if possible */
-		if (escape_num) return (escape[randint0(escape_num)]);
+		int odds = 2;
+		if (m_ptr->smart & SM_TICKED_OFF)
+			odds = 5;
+
+		if (one_in_(odds)) return (escape[randint0(escape_num)]);
 	}
 
 	/* special */
@@ -1088,17 +1094,12 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	/* Summon if possible (sometimes) */
 	if (summon_num)
 	{
-		/* Ticked off monsters retaliate with spells almost all the time.  If they pick
-		   summoning too often, it is too difficult.  Plus, an angry monster that just got
-		   tagged with a Mana Storm should respond in kind rather than summoning more buddies! */
+		int odds = 40;
+
 		if ((m_ptr->smart & SM_TICKED_OFF) && attack_num)
-		{
-			if (randint0(100) < 20) return (summon[randint0(summon_num)]);
-		}
-		else
-		{
-			if (randint0(100) < 40) return (summon[randint0(summon_num)]);
-		}
+			odds = 20;
+
+		if (randint0(100) < odds) return (summon[randint0(summon_num)]);
 	}
 
 	/* dispel */
@@ -1378,13 +1379,16 @@ bool make_attack_spell(int m_idx)
 	f6 = r_ptr->flags6;
 
 	/* Ticked off monsters favor powerful offense */
-	f4 &= RF4_ATTACK_MASK;
-	f5 &= RF5_WORTHY_ATTACK_MASK;
+	if (m_ptr->smart & SM_TICKED_OFF)
+	{
+		f4 &= RF4_ATTACK_MASK;
+		f5 &= RF5_WORTHY_ATTACK_MASK;
 
-	if (m_ptr->hp < m_ptr->maxhp / 3)
-		f6 &= (RF6_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK | RF6_PANIC_MASK);
-	else
-		f6 &= (RF6_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK);
+		if (m_ptr->hp < m_ptr->maxhp / 3)
+			f6 &= (RF6_WORTHY_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK | RF6_PANIC_MASK);
+		else
+			f6 &= (RF6_WORTHY_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK);
+	}
 
 	/*** require projectable player ***/
 
@@ -2161,7 +2165,7 @@ else msg_format("%^sが遅鈍のブレスを吐いた。", m_name);
 #endif
 
 			dam = ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6));
-			breath(y, x, m_idx, GF_INERTIA, dam,0, TRUE, MS_BR_INERTIA, learnable);
+			breath(y, x, m_idx, GF_INERT, dam,0, TRUE, MS_BR_INERTIA, learnable);
 			break;
 		}
 

@@ -1224,7 +1224,7 @@ s32b object_value_real(object_type *o_ptr)
 		/* Hack -- Spell Power should not auto destroy */
 		if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SPELL_POWER)
 		{
-			value -= (o_ptr->pval * 1000L);
+			value -= (o_ptr->pval * 10000L);
 			break;
 		}
 
@@ -6809,7 +6809,7 @@ bool process_warning(int xx, int yy)
 				if (f4 & RF4_BR_DISE) spell_damcalc(m_ptr, GF_DISENCHANT, breath_dam_div6, 500, &dam_max0);
 				if (f4 & RF4_BR_NEXU) spell_damcalc(m_ptr, GF_NEXUS, breath_dam_div3, 250, &dam_max0);
 				if (f4 & RF4_BR_TIME) spell_damcalc(m_ptr, GF_TIME, breath_dam_div3, 150, &dam_max0);
-				if (f4 & RF4_BR_INER) spell_damcalc(m_ptr, GF_INERTIA, breath_dam_div6, 200, &dam_max0);
+				if (f4 & RF4_BR_INER) spell_damcalc(m_ptr, GF_INERT, breath_dam_div6, 200, &dam_max0);
 				if (f4 & RF4_BR_GRAV) spell_damcalc(m_ptr, GF_GRAVITY, breath_dam_div3, 200, &dam_max0);
 				if (f4 & RF4_BR_SHAR) spell_damcalc(m_ptr, GF_SHARDS, breath_dam_div6, 500, &dam_max0);
 				if (f4 & RF4_BR_PLAS) spell_damcalc(m_ptr, GF_PLASMA, breath_dam_div6, 150, &dam_max0);

@@ -4082,8 +4082,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 
 
 static char tmp[8];
-static cptr variant = "ZANGBAND";
-
+static cptr variant_name = "CHENGBAND";
 
 /*
  * Helper function for "process_dungeon_file()"
@@ -4399,7 +4398,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Variant name */
 			else if (streq(b+1, "VARIANT"))
 			{
-				v = variant;
+				v = variant_name;
 			}
 
 			/* Wilderness */

@@ -874,6 +874,28 @@ void py_pickup_aux(int o_idx)
 	msg_format("You have %s (%c).", o_name, index_to_label(slot));
 	strcpy(record_o_name, o_name);
 #endif
+
+	/* Hack: Archaeologists Instantly Pseudo-ID artifacts on pickup */
+	if ( p_ptr->pclass == CLASS_ARCHAEOLOGIST 
+	  && object_is_artifact(o_ptr) 
+	  && !object_is_known(o_ptr) )
+	{
+		/* Suppress you are leaving something special behind message ... */
+		if (p_ptr->sense_artifact)
+		{
+			p_ptr->sense_artifact = FALSE;	/* There may be more than one? */
+			p_ptr->redraw |= PR_STATUS;
+		}
+
+		if (!(o_ptr->ident & (IDENT_SENSE)))
+		{
+			msg_format("You feel that the %s is %s...", o_name, game_inscriptions[FEEL_SPECIAL]);	
+		
+			o_ptr->ident |= (IDENT_SENSE);
+			o_ptr->feeling = FEEL_SPECIAL;
+		}
+	}
+
 	record_turn = turn;
 
 

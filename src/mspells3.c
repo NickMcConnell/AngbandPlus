@@ -924,7 +924,7 @@ else msg_print("遅鈍のブレスを吐いた。");
 			else msg_print("You breathe inertia.");
 #endif
 		damage = MIN(hp / 6, 200);
-		fire_ball(GF_INERTIA, dir, damage, (plev > 40 ? -3 : -2));
+		fire_ball(GF_INERT, dir, damage, (plev > 40 ? -3 : -2));
 		break;
 	case MS_BR_GRAVITY:
 		if (!get_aim_dir(&dir)) return FALSE;

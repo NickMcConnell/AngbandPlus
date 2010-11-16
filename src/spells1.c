@@ -136,7 +136,7 @@ static byte spell_color(int type)
 			case GF_SOUND:          return (0x09);
 			case GF_SHARDS:         return (0x08);
 			case GF_FORCE:          return (0x09);
-			case GF_INERTIA:        return (0x09);
+			case GF_INERT:        return (0x09);
 			case GF_GRAVITY:        return (0x09);
 			case GF_TIME:           return (0x09);
 			case GF_LITE_WEAK:      return (0x06);
@@ -806,9 +806,11 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 		/* Destroy Doors (and traps) */
 		case GF_KILL_DOOR:
+		case GF_REMOVE_OBSTACLE:
 		{
 			/* Destroy all doors and traps */
-			if (is_trap(c_ptr->feat) || have_flag(f_ptr->flags, FF_DOOR))
+			if (is_trap(c_ptr->feat) || have_flag(f_ptr->flags, FF_DOOR) || 
+			    (typ == GF_REMOVE_OBSTACLE && have_flag(f_ptr->flags, FF_TREE)))
 			{
 				/* Check line of sight */
 				if (known)
@@ -1503,6 +1505,7 @@ note_kill = "壊れてしまった！";
 			/* Unlock chests */
 			case GF_KILL_TRAP:
 			case GF_KILL_DOOR:
+			case GF_REMOVE_OBSTACLE:
 			{
 				/* Chests are noticed only if trapped or locked */
 				if (o_ptr->tval == TV_CHEST)
@@ -2468,6 +2471,24 @@ note = "には耐性がある。";
 			break;
 		}
 
+		case GF_PHARAOHS_CURSE:
+		{
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+#ifdef JP
+				note = "には完全な耐性がある！";
+#else
+				note = " is immune.";
+#endif
+				dam = 0;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			dam = MAX(m_ptr->hp*8/100, 400);
+			note = " is cursed by ancient pharaohs of long ago!";
+			break;
+		}
+
 		case GF_ELDRITCH_CONFUSE:
 		{
 			int rlev = r_ptr->level;
@@ -2655,7 +2676,7 @@ note = "には耐性がある。";
 		}
 
 		/* Inertia -- breathers resist */
-		case GF_INERTIA:
+		case GF_INERT:
 		{
 			if (seen) obvious = TRUE;
 
@@ -7169,7 +7190,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		}
 
 		/* Inertia -- slowness */
-		case GF_INERTIA:
+		case GF_INERT:
 		{
 #ifdef JP
 			if (fuzzy) msg_print("何か遅いもので攻撃された！");

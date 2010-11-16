@@ -57,6 +57,11 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:1
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:42
 
+# Whip
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Archaeologist] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:14
+F:!:FLOOR:3:0:49
+
 # Broad Spear
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS BeastMaster Cavalry] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
@@ -323,6 +328,19 @@ F:a:BUILDING_0:3:0:0:0:0:NONE:27
 ?:[EQU $QUEST27 3]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:80
+
+##########################################################################
+# Archaeologist
+# Jewel?  Help me out here ... I'm thinking Claurvoiyance is a fit.
+# And it is a rare treasure :)
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [EQU [MOD $RANDOM27 9] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:3
+
+# Whip of Dr. Jones ... note this class gets a buffed version!
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [GEQ [MOD $RANDOM27 9] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:162
 
 ##########################################################################
 # Weaponsmith

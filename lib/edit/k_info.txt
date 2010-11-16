@@ -6384,7 +6384,7 @@ E:Spell Power:Steel
 G:=:v
 I:45:57:0
 W:20:0:2:1000
-A:20/8:30/3:80/3
+A:20/8:30/6:80/6
 F:SPELL_POWER | STR | DEX | CON
 
 #Blood Potions

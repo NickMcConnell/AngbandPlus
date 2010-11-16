@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 9
+#define FAKE_VER_PATCH 10
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 9
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 10
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            31
+#define MAX_CLASS            32
 
 #define MAX_SEIKAKU          12
 
@@ -368,6 +368,8 @@
 #else
 #define MAX_SILLY_ATTACK 29
 #endif
+
+#define MAX_SPELLS			32
 
 /* Spellcasters that don't use spell books */
 #define MAX_MIND_POWERS  21
@@ -770,7 +772,6 @@
 #define REALM1_BOOK     (p_ptr->realm1 + TV_LIFE_BOOK - 1)
 #define REALM2_BOOK     (p_ptr->realm2 + TV_LIFE_BOOK - 1)
 
-
 /*
  * Mode constant for do_spell()
  */
@@ -781,7 +782,7 @@
 #define SPELL_FAIL   4
 #define SPELL_STOP   5
 #define SPELL_CONT   6
-
+#define SPELL_ENERGY 7
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -928,6 +929,7 @@
 #define CLASS_TIME_LORD         28
 #define CLASS_BLOOD_KNIGHT		29
 #define CLASS_WARLOCK			30
+#define CLASS_ARCHAEOLOGIST		31
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -1469,6 +1471,7 @@
 #define ART_HRUNTING            156
 #define ART_ANUBIS              158
 #define ART_GURENKI             160
+#define ART_DR_JONES			162
 #define ART_TAILBITER           167
 #define ART_MUSASI_KATANA       171
 #define ART_MUSASI_WAKIZASI     172
@@ -3019,7 +3022,7 @@
 #define GF_SOUND        21
 #define GF_CONFUSION    22
 #define GF_FORCE        23
-#define GF_INERTIA      24
+#define GF_INERT        24  /* M$ now uses GF_INERTIA for mouse gestures */
 #define GF_MANA         26
 #define GF_METEOR       27
 #define GF_ICE          28
@@ -3106,8 +3109,10 @@
 #define GF_ELDRITCH_DRAIN	120
 #define GF_ELDRITCH_DISPEL	121
 #define GF_ELDRITCH_CONFUSE	122
+#define GF_REMOVE_OBSTACLE	123
+#define GF_PHARAOHS_CURSE   124
 
-#define MAX_GF				123
+#define MAX_GF				125
 
 /*
  * Some things which induce learning
@@ -4012,6 +4017,8 @@
 	(RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | \
 	 RF6_HAND_DOOM | RF6_TELE_TO | RF6_TELE_AWAY | RF6_TELE_LEVEL | \
 	 RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
+
+#define RF6_WORTHY_ATTACK_MASK  (RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | RF6_HAND_DOOM)
 
 /*
  * Hack -- "indirect" spells
@@ -5006,6 +5013,7 @@ extern int PlayerUID;
 #define MON_WATER_ELEM    512
 #define MON_JURT          517
 #define MON_LICH          518
+#define MON_GREATER_MUMMY 522
 #define MON_BLOODLETTER   523
 #define MON_HALFLING_S    539
 #define MON_GRAV_HOUND    540
