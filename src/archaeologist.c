@@ -251,7 +251,7 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
 	case SPELL_CAST:
 		{
 			int power = spell_power(p_ptr->lev * 4);
-			project_hack(GF_PHARAOHS_CURSE, p_ptr->lev);
+			project_hack(GF_PHARAOHS_CURSE, p_ptr->lev + randint1(p_ptr->lev));
 			if (p_ptr->lev >= 46)
 				confuse_monsters(power);
 			if (p_ptr->lev >= 47)

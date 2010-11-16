@@ -533,6 +533,7 @@ static void sense_inventory2(void)
 		case CLASS_MAGIC_EATER:
 		case CLASS_MIRROR_MASTER:
 		case CLASS_BLUE_MAGE:
+		case CLASS_ARCHAEOLOGIST:
 		{
 			/* Good sensing */
 			if (0 != randint0(9000L / (plev * plev + 40))) return;
@@ -542,7 +543,6 @@ static void sense_inventory2(void)
 		}
 
 		case CLASS_TOURIST:
-		case CLASS_ARCHAEOLOGIST:
 		{
 			/* Good sensing */
 			if (0 != randint0(20000L / ((plev+50)*(plev+50)))) return;
