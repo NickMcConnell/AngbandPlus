@@ -2179,7 +2179,7 @@ static void calc_spells(void)
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
-	if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE))
+	if ((p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_RED_MAGE) || (p_ptr->pclass == CLASS_ARCHAEOLOGIST))
 	{
 		p_ptr->new_spells = 0;
 		return;
