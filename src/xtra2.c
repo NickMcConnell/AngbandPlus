@@ -1636,59 +1636,16 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 
 	/* Hack: Pact monsters have special resistance to all damage from the player
 	   I'm not sure if this is the correct spot for this code ...*/
-	if (p_ptr->pclass == CLASS_WARLOCK)
+	if ( p_ptr->pclass == CLASS_WARLOCK
+	  && warlock_is_pact_monster(r_ptr) )
 	{
-		bool is_pact = FALSE;
-		/* First, we list symbols for the alliance */
-		char* pc = my_strchr(pact_info[p_ptr->psubclass].alliance, r_ptr->d_char);
-		if (pc != NULL)
+		/* Let the player notice this for this monster race only the first time */
+		if (!(r_ptr->r_flagsr & RFR_PACT_MONSTER))
 		{
-			is_pact = TRUE;
+			msg_print("You are less effective against monsters you have made a pact with.");
+			r_ptr->r_flagsr |= (RFR_PACT_MONSTER);
 		}
-		else
-		{
-			/* If that fails, we check flags ... I'd prefer to only check flags
-			   but I'm not sure how accurate the beastiary is ... */
-			switch (p_ptr->psubclass)
-			{
-			case PACT_UNDEAD:
-				if (r_ptr->flags3 & RF3_UNDEAD)
-					is_pact = TRUE;
-				break;
-
-			case PACT_DRAGON:
-				if (r_ptr->flags3 & RF3_DRAGON)
-					is_pact = TRUE;
-				break;
-
-			case PACT_ANGEL:
-				/* Angel pact is now all good monsters!!! */
-				if (r_ptr->flags3 & RF3_GOOD)
-					is_pact = TRUE;
-				break;
-				
-			case PACT_DEMON:
-				if (r_ptr->flags3 & RF3_DEMON)
-					is_pact = TRUE;
-				break;
-				
-			case PACT_ABERRATION:
-				if (r_ptr->flags2 & RF2_HUMAN)
-					is_pact = TRUE;				
-				break;
-			}
-		}
-
-		if (is_pact)
-		{
-			/* Let the player notice this for this monster race only the first time */
-			if (!(r_ptr->r_flagsr & RFR_PACT_MONSTER))
-			{
-				msg_print("You are less effective against monsters you have made a pact with.");
-				r_ptr->r_flagsr |= (RFR_PACT_MONSTER);
-			}
-			dam = dam/2;
-		}
+		dam = dam/2;
 	}
 
 	return (dam);

@@ -2466,6 +2466,15 @@ void update_mon(int m_idx, bool full)
 				/* There is no RF3_LIVING flag, so you won't gain any monster memory here ... */
 			}
 
+			/* Warlock Pacts: Warlocks sense pact monsters at CL25 */
+			if ( p_ptr->pclass == CLASS_WARLOCK 
+			  && p_ptr->lev >= 25
+			  && warlock_is_pact_monster(r_ptr) )
+			{
+				flag = TRUE;
+				/* Pacts are too broad to augment monster memory ... */
+			}
+
 			/* Magical sensing */
 			if ((p_ptr->esp_animal) && (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
@@ -3796,6 +3805,18 @@ bool place_monster(int y, int x, u32b mode)
 
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
+
+	/* Hack: Warlock pact monsters are occasionally friendly */
+	if (p_ptr->pclass == CLASS_WARLOCK)
+	{
+		monster_race *r_ptr = &r_info[r_idx];
+		if ( warlock_is_pact_monster(r_ptr)
+		  && !(r_ptr->flags1 & RF1_QUESTOR)
+		  && one_in_(20 - p_ptr->lev/5) )
+		{
+			mode |= PM_FORCE_FRIENDLY;
+		}
+	}
 
 	/* Attempt to place the monster */
 	if (place_monster_aux(0, y, x, r_idx, mode)) return (TRUE);

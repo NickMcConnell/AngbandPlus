@@ -225,6 +225,9 @@
     <ClCompile Include="archaeologist.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="warlock.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

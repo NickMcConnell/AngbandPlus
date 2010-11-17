@@ -1633,14 +1633,18 @@ extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 /* extern int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, ...); */
 #endif
 
-
-#ifdef ALLOW_REPEAT /* TNB */
-
 /* util.c */
+#ifdef ALLOW_REPEAT /* TNB ... 'n' repeats the last command */
+#define REPEAT_PULL(pn) repeat_pull(pn)
+#define REPEAT_PUSH(pn) repeat_push(pn)
+
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
 extern void repeat_check(void);
 
+#else
+#define REPEAT_PULL(pn) FALSE
+#define REPEAT_PUSH(pn) ((void)0)
 #endif /* ALLOW_REPEAT -- TNB */
 
 #ifdef ALLOW_EASY_OPEN /* TNB */
@@ -1818,3 +1822,6 @@ extern void recharging_spell(int cmd, variant *res);
 extern caster_info archaeologist_caster_info;
 extern int archaeologist_get_spells(spell_info* spells, int max);
 void archaeologist_on_process_player(void);
+
+/* warlock.c */
+extern bool warlock_is_pact_monster(monster_race *r_ptr);

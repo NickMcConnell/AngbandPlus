@@ -1505,6 +1505,8 @@ static bool cast_time_lord_spell(int spell)
 			y = py + ddy[dir];
 			x = px + ddx[dir];
 
+			if (!in_bounds(y, x)) return FALSE;
+
 			if (!cave_have_flag_bold(y, x, FF_DOOR)) break;
 	
 			/* Destroy the feature */
@@ -1535,6 +1537,8 @@ static bool cast_time_lord_spell(int spell)
 
 			y = py + ddy[dir];
 			x = px + ddx[dir];
+			
+			if (!in_bounds(y, x)) return FALSE;
 
 		/*	TODO: Hurt Wall Monsters!
 		    if (cave[y][x].m_idx)
@@ -1566,6 +1570,8 @@ static bool cast_time_lord_spell(int spell)
 
 			y = py + ddy[dir];
 			x = px + ddx[dir];
+
+			if (!in_bounds(y, x)) return FALSE;
 
 			/* No monster?  Well just ignore ... */
 			m_idx = cave[y][x].m_idx;
@@ -1613,6 +1619,8 @@ static bool cast_time_lord_spell(int spell)
 			y = py + ddy[dir];
 			x = px + ddx[dir];
 
+			if (!in_bounds(y, x)) return FALSE;
+
 			/* No monster?  Well just ignore ... */
 			m_idx = cave[y][x].m_idx;
 		    if (!m_idx) break;
@@ -1658,6 +1666,8 @@ static bool cast_time_lord_spell(int spell)
 
 			y = py + ddy[dir];
 			x = px + ddx[dir];
+
+			if (!in_bounds(y, x)) return FALSE;
 
 			m_idx = cave[y][x].m_idx;
 		    if (!m_idx) break;
@@ -1739,6 +1749,8 @@ static bool cast_time_lord_spell(int spell)
 
 			y = py + ddy[dir];
 			x = px + ddx[dir];
+
+			if (!in_bounds(y, x)) return FALSE;
 
 			m_idx = cave[y][x].m_idx;
 		    if (!m_idx) break;

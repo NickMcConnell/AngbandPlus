@@ -3549,9 +3549,7 @@ void calc_bonuses(void)
 					p_ptr->muta2 |= MUT2_HORNS;
 					p_ptr->muta2_lock |= MUT2_HORNS;
 				}
-				p_ptr->skill_srh += 20 * p_ptr->lev/50;
-				p_ptr->skill_fos += 20 * p_ptr->lev/50;
-				p_ptr->skill_dis += 30 * p_ptr->lev/50;
+				p_ptr->skill_thb += 100 * p_ptr->lev/50;
 				if (p_ptr->lev > 14)
 				{
 					/* only give it if they don't already have it */
@@ -5169,6 +5167,13 @@ void calc_bonuses(void)
 			if (p_ptr->pclass == CLASS_WARRIOR &&
 			   (p_ptr->tval_ammo <= TV_BOLT) &&
 			   (p_ptr->tval_ammo >= TV_SHOT))
+			{
+				p_ptr->num_fire += (p_ptr->lev * 2);
+			}
+			if (p_ptr->pclass == CLASS_WARLOCK &&
+			    p_ptr->psubclass == PACT_ABERRATION &&
+			    p_ptr->tval_ammo <= TV_BOLT &&
+			    p_ptr->tval_ammo >= TV_SHOT)
 			{
 				p_ptr->num_fire += (p_ptr->lev * 2);
 			}

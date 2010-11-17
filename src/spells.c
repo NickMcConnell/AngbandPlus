@@ -273,8 +273,17 @@ int choose_spell(spell_info* spells, int ct, caster_info *caster)
 {
 	int choice = -1;
 
+	if (REPEAT_PULL(&choice))
+	{
+		if (choice >= 0 && choice < ct)
+			return choice;
+	}
+
 	screen_save();
+
 	choice = _choose_spell(spells, ct, caster);
+	REPEAT_PUSH(choice);
+
 	screen_load();
 
 	return choice;
@@ -374,6 +383,7 @@ void do_cmd_spell(void)
 	caster_info *caster = NULL;
 	int ct = 0; 
 	int choice = 0;
+	bool prompt = TRUE;
 	
 	if (p_ptr->confused)
 	{
@@ -388,7 +398,9 @@ void do_cmd_spell(void)
 		return;
 	}
 
-	choice = choose_spell(spells, ct, caster);
+	if (prompt)
+		choice = choose_spell(spells, ct, caster);
+
 	if (choice >= 0 && choice < ct)
 	{
 		spell_info *spell = &spells[choice];

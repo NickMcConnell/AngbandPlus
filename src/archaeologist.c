@@ -37,14 +37,14 @@ static void _evacuation_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Evacuation");
+		var_set_string(res, "Escape Rope");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Danger!  Abandon this expedition and teleport to a new level.");
+		var_set_string(res, "Danger!  Abandon this expedition and escape to a new level.");
 		break;
 	case SPELL_CAST:
 		var_set_bool(res, FALSE);
-		if (get_check("Are you sure? (Teleport Level)"))
+		if (get_check("Are you sure? (Escape Rope)"))
 		{
 			teleport_level(0);
 			var_set_bool(res, TRUE);
@@ -85,7 +85,13 @@ static void _excavation_spell(int cmd, variant *res)
 				y = py + ddy[dir];
 				x = px + ddx[dir];
 
-				if (cave_have_flag_bold(y, x, FF_WALL))
+				if (!in_bounds(y, x))
+				{
+					msg_print("You may excavate no further.");
+				}
+				else if ( cave_have_flag_bold(y, x, FF_WALL)
+				       || cave_have_flag_bold(y, x, FF_TREE) 
+					   || cave_have_flag_bold(y, x, FF_CAN_DIG) )
 				{
 					msg_print("You dig your way to treasure!");
 					cave_alter_feat(y, x, FF_TUNNEL);
@@ -93,9 +99,11 @@ static void _excavation_spell(int cmd, variant *res)
 					b = TRUE;
 				}
 				else
-					msg_print("There is no wall there!");
+				{
+					msg_print("There is nothing to excavate.");
+				}
 			}
-			var_set_bool(res, TRUE);
+			var_set_bool(res, b);
 		}
 		break;
 	default:
@@ -218,6 +226,8 @@ static void _magic_blueprint_spell(int cmd, variant *res)
 				rad = DETECT_RAD_ALL;
 
 			map_area(rad);
+			detect_treasure(rad);
+			detect_objects_gold(rad);
 			if (p_ptr->lev >= 20)
 			{
 				detect_traps(rad, TRUE);
