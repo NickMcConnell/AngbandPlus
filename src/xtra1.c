@@ -2549,7 +2549,13 @@ static void calc_mana(void)
 	else
 	{
 		/* Extract total mana */
-		msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * (levels+3) / 4;
+		if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+		{
+			int stat_idx = (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS])/2;
+			msp = adj_mag_mana[stat_idx] * (levels+3) / 4;
+		}
+		else
+			msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * (levels+3) / 4;
 
 		/* Hack -- usually add one mana */
 		if (msp) msp++;
@@ -3378,8 +3384,6 @@ void calc_bonuses(void)
 		case CLASS_ARCHAEOLOGIST:
 			p_ptr->see_infra += p_ptr->lev/10;
 			p_ptr->skill_dig += 2*p_ptr->lev;
-			if (p_ptr->lev >= 5)
-				p_ptr->warning = TRUE;
 			if (p_ptr->lev >= 20)
 				p_ptr->see_inv = TRUE;
 			if (p_ptr->lev >= 38)
@@ -3510,7 +3514,7 @@ void calc_bonuses(void)
 				p_ptr->to_d[1] += 10 * p_ptr->lev / 50;
 				p_ptr->dis_to_d[1] += 10 * p_ptr->lev / 50;
 				if (p_ptr->lev > 29) p_ptr->sustain_con = TRUE;
-				if (p_ptr->lev > 44)
+				if (p_ptr->lev > 29)
 				{
 					/* only give it if they don't already have it */
 					if (!(p_ptr->muta1 & MUT1_RESIST))
@@ -3524,6 +3528,21 @@ void calc_bonuses(void)
 				{
 					p_ptr->muta1 &= ~(MUT1_RESIST);
 					p_ptr->muta1_lock &= ~(MUT1_RESIST);
+				}
+				if (p_ptr->lev > 44)
+				{
+					/* only give it if they don't already have it */
+					if (!(p_ptr->muta1 & MUT1_BERSERK))
+					{
+						p_ptr->muta1 |= MUT1_BERSERK;
+						p_ptr->muta1_lock |= MUT1_BERSERK;
+					}
+				}
+				/* only remove it if they got it from us ... hey, they could have used !Poly */
+				else if ((p_ptr->muta1 & MUT1_BERSERK) && (p_ptr->muta1_lock & MUT1_BERSERK))
+				{
+					p_ptr->muta1 &= ~(MUT1_BERSERK);
+					p_ptr->muta1_lock &= ~(MUT1_BERSERK);
 				}
 				break;
 			case PACT_ANGEL:
@@ -5298,7 +5317,7 @@ void calc_bonuses(void)
 					num = 4; wgt = 100; mul = 3; break;
 
 				case CLASS_ARCHAEOLOGIST:
-					num = 5; wgt = 100; mul = 3; break;
+					num = 4; wgt = 70; mul = 3; break;
 
 				case CLASS_BLOOD_KNIGHT:
 					num = 3; wgt = 150; mul = 3; break;
@@ -5390,12 +5409,18 @@ void calc_bonuses(void)
 			}
 
 			if ( p_ptr->pclass == CLASS_ARCHAEOLOGIST
-			  && ( o_ptr->tval == TV_DIGGING
-			    || (o_ptr->tval == TV_HAFTED && o_ptr->sval == SV_WHIP)))
+			  && archaeologist_is_favored_weapon(o_ptr) )
 			{
+				p_ptr->to_h[i] += 10 * p_ptr->lev/50;
+				p_ptr->dis_to_h[i] += 10 * p_ptr->lev/50;
+				p_ptr->to_d[i] += 10 * p_ptr->lev/50;
+				p_ptr->dis_to_d[i] += 10 * p_ptr->lev/50;
+
 				if (p_ptr->lev >= 50)
-					p_ptr->num_blow[i] += 2;
+					p_ptr->num_blow[i] += 3;
 				else if (p_ptr->lev >= 25)
+					p_ptr->num_blow[i] += 2;
+				else
 					p_ptr->num_blow[i] += 1;
 			}
 			

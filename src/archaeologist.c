@@ -4,6 +4,127 @@
 
 #include "angband.h"
 
+/* Confirm 1 or 2 whip weapons for whip techniques.  Fail if no whip
+   is worn, or if a non-whip weapon is warn.  Do not fail if shields
+   or capture balls are equipped.  Handle empty inventory slots. */
+static bool _whip_check(void)
+{
+	bool result = FALSE;
+	if (inventory[INVEN_RARM].k_idx)
+	{
+		if ( inventory[INVEN_RARM].tval != TV_SHIELD
+		  && inventory[INVEN_RARM].tval != TV_CAPTURE )
+		{
+			if (inventory[INVEN_RARM].tval == TV_HAFTED && inventory[INVEN_RARM].sval == SV_WHIP)
+				result = TRUE;
+			else
+				return FALSE;
+		}
+	}
+	if (inventory[INVEN_LARM].k_idx)
+	{
+		if ( inventory[INVEN_LARM].tval != TV_SHIELD
+		  && inventory[INVEN_LARM].tval != TV_CAPTURE )
+		{
+			if (inventory[INVEN_LARM].tval == TV_HAFTED && inventory[INVEN_LARM].sval == SV_WHIP)
+				result = TRUE;
+			else
+				return FALSE;
+		}
+	}
+	return result;
+}
+
+/* A special fetch(), that places item in player's inventory */
+static bool _whip_fetch(int dir, int rng)
+{
+	int             ty, tx;
+	cave_type       *c_ptr;
+	object_type     *o_ptr;
+	char            o_name[MAX_NLEN];
+
+	/* Use a target */
+	if (dir == 5 && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+
+		if (distance(py, px, ty, tx) > rng)
+		{
+			msg_print("You can't fetch something that far away!");
+			return FALSE;
+		}
+
+		c_ptr = &cave[ty][tx];
+
+		/* We need an item to fetch */
+		if (!c_ptr->o_idx)
+		{
+			msg_print("There is no object at this place.");
+			return TRUE;  /* didn't work, but charge the player energy anyway */
+		}
+
+		/* Fetching from a vault is OK */
+
+		/* Line of sight is required */
+		if (!player_has_los_bold(ty, tx))
+		{
+			msg_print("You have no direct line of sight to that location.");
+			return FALSE;
+		}
+		else if (!projectable(py, px, ty, tx))
+		{
+			msg_print("You have no direct line of sight to that location.");
+			return FALSE;
+		}
+	}
+	else
+	{
+		/* Use a direction */
+		ty = py; /* Where to drop the item */
+		tx = px;
+
+		do
+		{
+			ty += ddy[dir];
+			tx += ddx[dir];
+			c_ptr = &cave[ty][tx];
+
+			if ((distance(py, px, ty, tx) > MAX_RANGE) ||
+			    !in_bounds(ty, tx) ||
+				!cave_have_flag_bold(ty, tx, FF_PROJECT))
+			{
+				return TRUE; /* didn't work, but charge the player energy anyway */
+			}
+		}
+		while (!c_ptr->o_idx);
+	}
+
+	o_ptr = &o_list[c_ptr->o_idx];
+
+	if (o_ptr->weight > p_ptr->lev * 15)
+	{
+		msg_print("The object is too heavy.");
+		return TRUE; /* didn't work, but charge the player energy anyway */
+	}
+
+	object_desc(o_name, o_ptr, OD_NAME_ONLY);
+
+	/* Get the object */
+	if (!inven_carry_okay(o_ptr))
+	{
+		msg_format("You fail to fetch %^s since your pack is full.", o_name);
+		/* Leave the object where it is */
+	}
+	else
+	{
+		msg_format("You skillfully crack your whip and fetch %^s.", o_name);
+		py_pickup_aux(c_ptr->o_idx);
+	}
+
+	return TRUE;
+}
+
 /****************************************************************
  * Private Spells
  ****************************************************************/
@@ -25,6 +146,85 @@ static void _ancient_protection_spell(int cmd, variant *res)
 		if (p_ptr->lev >= 50)
 			glyph_creation();
 		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _double_crack_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		if (p_ptr->lev < 40)
+			var_set_string(res, "Double Crack");
+		else
+			var_set_string(res, "Triple Crack");
+		break;
+	case SPELL_DESC:
+		if (p_ptr->lev < 40)
+			var_set_string(res, "Attack a monster normally with your whip, and then randomly attack an adjacent monster.");
+		else
+			var_set_string(res, "Attack a monster normally with your whip, and then randomly attack two adjacent monsters.");
+		break;
+	case SPELL_COST_EXTRA:
+		if (p_ptr->lev < 40)
+			var_set_int(res, 0);
+		else
+			var_set_int(res, 10);
+		break;
+	case SPELL_CAST:
+		if (_whip_check())
+		{
+			int dir = 5;
+			bool b = FALSE;
+
+			if ( get_rep_dir2(&dir)
+			  && dir != 5 )
+			{
+				int x, y;
+				int num = 1;
+
+				if (p_ptr->lev >= 40)
+					num++;
+
+				/* First we attack where the player selected */
+				y = py + ddy[dir];
+				x = px + ddx[dir];
+				if (in_bounds(y, x) && cave[y][x].m_idx)
+					py_attack(y, x, 0);
+				else
+					msg_print("Your whip cracks in empty air.");
+
+				/* Now the whip cracks randomly! */
+				while (num > 0)
+				{
+					dir = randint0(9);
+					if (dir == 5) continue;
+					
+					y = py + ddy_ddd[dir];
+					x = px + ddx_ddd[dir];
+					if (!in_bounds(y, x)) continue;
+					
+					if (cave[y][x].m_idx)
+						py_attack(y, x, 0);
+					else
+						msg_print("Your whip cracks in empty air.");
+
+					num--;
+				}
+
+				b = TRUE;
+			}
+			var_set_bool(res, b);
+		}
+		else
+		{
+			msg_print("Whip techniques can only be used if you are fighting with whips.");
+			var_set_bool(res, FALSE);
+		}
 		break;
 	default:
 		default_spell(cmd, res);
@@ -112,6 +312,78 @@ static void _excavation_spell(int cmd, variant *res)
 	}
 }
 
+static void _extended_whip_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Extended Whip");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "This spell extends the range of your whip based melee attack.");
+		break;
+	case SPELL_CAST:
+		if (_whip_check())
+		{
+			int dir = 5;
+			bool b = FALSE;
+
+			project_length = 2;
+			if (get_aim_dir(&dir))
+			{
+				project_hook(GF_ATTACK, dir, HISSATSU_2, PROJECT_STOP | PROJECT_KILL);
+				b = TRUE;
+			}
+			var_set_bool(res, b);
+		}
+		else
+		{
+			msg_print("Whip techniques can only be used if you are fighting with whips.");
+			var_set_bool(res, FALSE);
+		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _fetch_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Fetch");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Use your whip to fetch a nearby item.");
+		break;
+	case SPELL_CAST:
+		if (_whip_check())
+		{
+			int dir = 5;
+			bool b = FALSE;
+			int rng = 3 + p_ptr->lev/25;
+
+			project_length = rng;
+			if (get_aim_dir(&dir))
+			{
+				b = _whip_fetch(dir, rng);
+			}
+			var_set_bool(res, b);
+		}
+		else
+		{
+			msg_print("Whip techniques can only be used if you are fighting with whips.");
+			var_set_bool(res, FALSE);
+		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _first_aid_spell(int cmd, variant *res)
 {
 	int dice = 2 + p_ptr->lev/5;
@@ -164,6 +436,29 @@ static void _first_aid_spell(int cmd, variant *res)
 
 		var_set_bool(res, TRUE);
 		break;
+	case SPELL_COST_EXTRA:
+		{
+			int n = 0;
+			if (p_ptr->lev > 49)
+				n += 10;
+			if (p_ptr->lev > 44)
+				n += 4;
+			if (p_ptr->lev > 39)
+				n += 4;
+			if (p_ptr->lev > 29)
+				n += 4;
+			if (p_ptr->lev > 19)
+				n += 2;
+			if (p_ptr->lev > 15)
+				n += 2;
+			if (p_ptr->lev > 11)
+				n += 2;
+			if (p_ptr->lev > 7)
+				n += 2;
+			var_set_int(res, n);
+		}
+		break;
+
 	default:
 		default_spell(cmd, res);
 		break;
@@ -359,18 +654,21 @@ static void _remove_obstacles_spell(int cmd, variant *res)
  * Spell Table and Exports
  ****************************************************************/
 
-#define MAX_ARCHAEOLOGIST_SPELLS	13
+#define MAX_ARCHAEOLOGIST_SPELLS	16
 
 spell_info archaeologist_spells[MAX_ARCHAEOLOGIST_SPELLS] = 
 {
     /*lvl cst fail spell */
-	{  1,   3, 20, light_area_spell },
+	{  1,   1, 10, _extended_whip_spell },
+	{  2,   5, 20, detect_traps_spell },
+	{  3,   3, 20, light_area_spell },
 	{  5,   5, 30, _first_aid_spell },
-	{  8,   5, 35, detect_traps_spell },
-	{ 10,  10, 35, _identify_spell },
-	{ 12,  10, 45, _remove_obstacles_spell },
-	{ 15,  15, 55, _magic_blueprint_spell },
-	{ 18,  10, 40, _excavation_spell },
+	{ 10,  10, 40, _identify_spell },
+	{ 12,  10, 30, _remove_obstacles_spell },
+	{ 13,  10, 30, _double_crack_spell },
+	{ 15,  15, 30, _magic_blueprint_spell },
+	{ 18,  10, 30, _excavation_spell },
+	{ 22,  10, 30, _fetch_spell },
 	{ 25,  20, 50, _remove_curse_spell },
 	{ 32,  30, 70, recharging_spell },
 	{ 35,  80, 70, _ancient_protection_spell },
@@ -398,33 +696,9 @@ int archaeologist_get_spells(spell_info* spells, int max)
 			spell_info* current = &spells[ct];
 			current->fn = base->fn;
 			current->level = base->level;
+			current->cost = base->cost;
 
-			current->fail = calculate_fail_rate(base, stat_idx);
-			
-			/* Mega Hack for First Aid */
-			if (current->fn == _first_aid_spell)
-			{
-				current->cost = base->cost;
-				if (p_ptr->lev > 49)
-					current->cost += 10;
-				if (p_ptr->lev > 44)
-					current->cost += 4;
-				if (p_ptr->lev > 39)
-					current->cost += 4;
-				if (p_ptr->lev > 29)
-					current->cost += 4;
-				if (p_ptr->lev > 19)
-					current->cost += 2;
-				if (p_ptr->lev > 15)
-					current->cost += 2;
-				if (p_ptr->lev > 11)
-					current->cost += 2;
-				if (p_ptr->lev > 7)
-					current->cost += 2;
-			}
-			else
-				current->cost = base->cost;
-			
+			current->fail = calculate_fail_rate(base, stat_idx);			
 			ct++;
 		}
 	}
@@ -492,4 +766,15 @@ void archaeologist_on_process_player(void)
 		p_ptr->sense_artifact = FALSE;
 		p_ptr->redraw |= PR_STATUS;
 	}
+}
+
+bool archaeologist_is_favored_weapon(object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_DIGGING)
+		return TRUE;
+
+	if (o_ptr->tval == TV_HAFTED && o_ptr->sval == SV_WHIP)
+		return TRUE;
+
+	return FALSE;
 }

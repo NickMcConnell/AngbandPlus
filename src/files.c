@@ -2332,8 +2332,6 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_REGEN);
 		break;
 	case CLASS_ARCHAEOLOGIST:
-		if (p_ptr->lev >= 5)
-			add_flag(flgs, TR_WARNING);
 		if (p_ptr->lev >= 20)
 			add_flag(flgs, TR_SEE_INVIS);
 		if (p_ptr->lev >= 38)

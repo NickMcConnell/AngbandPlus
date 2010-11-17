@@ -4072,7 +4072,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Archaeologist */
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
-		{ TV_DIGGING, SV_PICK},
+		{ TV_HAFTED, SV_WHIP},
 	},
 };
 

@@ -1821,7 +1821,8 @@ extern void recharging_spell(int cmd, variant *res);
 /* archaeologist.c */
 extern caster_info archaeologist_caster_info;
 extern int archaeologist_get_spells(spell_info* spells, int max);
-void archaeologist_on_process_player(void);
+extern void archaeologist_on_process_player(void);
+extern bool archaeologist_is_favored_weapon(object_type *o_ptr);
 
 /* warlock.c */
 extern bool warlock_is_pact_monster(monster_race *r_ptr);

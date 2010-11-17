@@ -26,6 +26,10 @@ void default_spell(int cmd, variant *res) /* Base class */
 		var_set_bool(res, TRUE);
 		break;
 
+	case SPELL_COST_EXTRA:
+		var_set_int(res, 0);
+		break;
+
 	case SPELL_ENERGY:
 		var_set_int(res, 100);
 		break;
@@ -49,6 +53,17 @@ static int get_spell_energy(ang_spell spell)
 	variant res;
 	var_init(&res);
 	spell(SPELL_ENERGY, &res);
+	n = var_get_int(&res);
+	var_clear(&res);
+	return n;
+}
+
+static int get_spell_cost_extra(ang_spell spell)
+{
+	int n;
+	variant res;
+	var_init(&res);
+	spell(SPELL_COST_EXTRA, &res);
 	n = var_get_int(&res);
 	var_clear(&res);
 	return n;
@@ -356,6 +371,7 @@ int calculate_fail_rate(const spell_info *spell, int stat_idx)
 static int _get_spell_table(spell_info* spells, int max, caster_info **info)
 {
 	int ct = 0;
+	int i;
 	*info = NULL;
 
 	switch (p_ptr->pclass)
@@ -364,6 +380,14 @@ static int _get_spell_table(spell_info* spells, int max, caster_info **info)
 		ct = archaeologist_get_spells(spells, max);
 		*info = &archaeologist_caster_info;
 		break;
+	}
+
+	/* Some spells give extra abilities depending on player level ...
+	   Ideally, these spells should scale the costs as well! */
+	for (i = 0; i < ct; i++)
+	{
+		spell_info* current = &spells[i];
+		current->cost += get_spell_cost_extra(current->fn);
 	}
 
 	return ct;
