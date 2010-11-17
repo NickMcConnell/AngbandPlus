@@ -660,7 +660,7 @@ spell_info archaeologist_spells[MAX_ARCHAEOLOGIST_SPELLS] =
 {
     /*lvl cst fail spell */
 	{  1,   1, 10, _extended_whip_spell },
-	{  2,   5, 20, detect_traps_spell },
+	{  2,   2, 20, detect_traps_spell },
 	{  3,   3, 20, light_area_spell },
 	{  5,   5, 30, _first_aid_spell },
 	{ 10,  10, 40, _identify_spell },
