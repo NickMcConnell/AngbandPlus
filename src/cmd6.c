@@ -2018,6 +2018,7 @@ msg_print("ダンジョンが揺れた...");
 				(p_ptr->pclass == CLASS_BLOOD_KNIGHT) || 
 				(p_ptr->pclass == CLASS_WARLOCK) || 
 				(p_ptr->pclass == CLASS_ARCHAEOLOGIST) || 
+				(p_ptr->pclass == CLASS_DUELIST) || 
 				(p_ptr->pclass == CLASS_NINJA))
 			{
 				break;

@@ -962,9 +962,9 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						if (use_mind == MIND_KI)
 						{
 							if (heavy_armor()) chance += 20;
-							if (p_ptr->icky_wield[0]) chance += 20;
+							if (p_ptr->weapon_info[0].icky_wield) chance += 20;
 							else if (has_weapon[0]) chance += 10;
-							if (p_ptr->icky_wield[1]) chance += 20;
+							if (p_ptr->weapon_info[1].icky_wield) chance += 20;
 							else if (has_weapon[1]) chance += 10;
 							if (i == 5)
 							{
@@ -1003,8 +1003,8 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						if (use_mind == MIND_KI)
 						{
 							if (heavy_armor()) chance += 5;
-							if (p_ptr->icky_wield[0]) chance += 5;
-							if (p_ptr->icky_wield[1]) chance += 5;
+							if (p_ptr->weapon_info[0].icky_wield) chance += 5;
+							if (p_ptr->weapon_info[1].icky_wield) chance += 5;
 						}
 						/* Always a 5 percent chance of working */
 						if (chance > 95) chance = 95;
@@ -2912,9 +2912,9 @@ msg_print("混乱していて集中できない！");
 	if (use_mind == MIND_KI)
 	{
 		if (heavy_armor()) chance += 20;
-		if (p_ptr->icky_wield[0]) chance += 20;
+		if (p_ptr->weapon_info[0].icky_wield) chance += 20;
 		else if (buki_motteruka(INVEN_RARM)) chance += 10;
-		if (p_ptr->icky_wield[1]) chance += 20;
+		if (p_ptr->weapon_info[1].icky_wield) chance += 20;
 		else if (buki_motteruka(INVEN_LARM)) chance += 10;
 		if (n == 5)
 		{
@@ -3002,8 +3002,8 @@ if (!get_check("それでも挑戦しますか? ")) return;
 		if (use_mind == MIND_KI)
 		{
 			if (heavy_armor()) chance += 5;
-			if (p_ptr->icky_wield[0]) chance += 5;
-			if (p_ptr->icky_wield[1]) chance += 5;
+			if (p_ptr->weapon_info[0].icky_wield) chance += 5;
+			if (p_ptr->weapon_info[1].icky_wield) chance += 5;
 		}
 	}
 

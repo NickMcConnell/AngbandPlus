@@ -85,6 +85,7 @@
     <ClCompile Include="bldg.c" />
     <ClCompile Include="cave.c" />
     <ClCompile Include="chuukei.c" />
+    <ClCompile Include="classes.c" />
     <ClCompile Include="cmd1.c" />
     <ClCompile Include="cmd2.c" />
     <ClCompile Include="cmd3.c" />
@@ -92,6 +93,7 @@
     <ClCompile Include="cmd5.c" />
     <ClCompile Include="cmd6.c" />
     <ClCompile Include="do-spell.c" />
+    <ClCompile Include="duelist.c" />
     <ClCompile Include="dungeon.c" />
     <ClCompile Include="effects.c" />
     <ClCompile Include="files.c" />

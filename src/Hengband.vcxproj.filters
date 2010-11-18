@@ -228,6 +228,12 @@
     <ClCompile Include="warlock.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="classes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="duelist.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

@@ -3817,6 +3817,18 @@ player_class class_info[MAX_CLASS] =
 		15, 12, 10, 0,  0,  0, 11, 11,
 		4, 10, 40
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Duelist",
+
+		{2, 1, -5, 2, 1, -1},
+		30, 33, 23, 3,  22, 16, 50, 0,
+		10, 11, 10, 0,   0,  0, 14, 0,
+		2, 25, 35
+	},
 };
 /*
  *      Title,
@@ -4219,6 +4231,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_NONE),				/* Time Lord */
 	(CH_NONE),				/* Blood Knight */
 	(CH_NONE),				/* Archaeologist */
+	(CH_NONE),				/* Duelist */
 };
 
 
@@ -4265,6 +4278,7 @@ s32b realm_choices2[MAX_CLASS] =
 	(CH_NONE),				/* Time Lord */
 	(CH_NONE),				/* Blood Knight */
 	(CH_NONE),				/* Archaeologist */
+	(CH_NONE),				/* Duelist */
 };
 
 
@@ -5255,6 +5269,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Tomb Raider",
 		"Archaeologist",
 		"Archaeologist",
+	},
+	/* Duelist */
+	{
+		"Upstart",
+		"Upstart",
+		"Upstart",
+		"Challenger",
+		"Challenger",
+		"Challenger",
+		"Challenger",
+		"Duelist",
+		"Duelist",
+		"Duelist",
 	},
 };
 #endif

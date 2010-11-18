@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 12
+#define FAKE_VER_PATCH 13
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 12
+#define H_VER_PATCH 13
 #define H_VER_EXTRA 0
 
 
@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            32
+#define MAX_CLASS            33
 
 #define MAX_SEIKAKU          12
 
@@ -931,6 +931,7 @@
 #define CLASS_BLOOD_KNIGHT		29
 #define CLASS_WARLOCK			30
 #define CLASS_ARCHAEOLOGIST		31
+#define CLASS_DUELIST			32
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0

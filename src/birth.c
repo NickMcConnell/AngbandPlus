@@ -1833,6 +1833,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Archaeologist ...)",
 
+"TRANSLATE(Duelist ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1898,6 +1900,8 @@ static cptr class_jouhou[MAX_CLASS] =
 "A warlock, unlike typical mages, derives his powers from pacts with arcane creatures, rather than through careful study.  They can cast all magic they know at will without requiring any SP, and depending on the type of Warlock, have different abilities.",
  
 "The Archaeologist is an erudite treasure hunter, seeking out the most valuable prizes that the dungeon has to offer. At home in subterranean caverns and vaults, he is rarely lost or snared in traps. His powers of perception and detection are very great, as is his skill with arcane devices. At high levels he can use the dark magic of the entombed Pharaohs.",
+
+"The duelist is the ultimate one-on-one fighter, but finds himself at a severe disadvantage when facing numerous strong foes.", 
 
 #endif
 };
@@ -4073,6 +4077,12 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_HAFTED, SV_WHIP},
+	},
+	{
+		/* Duelist */
+		{ TV_RING, SV_RING_RES_FEAR },
+		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL},
+		{ TV_SWORD, SV_RAPIER },
 	},
 };
 

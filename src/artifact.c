@@ -1661,6 +1661,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			case CLASS_SAMURAI:
 			case CLASS_CAVALRY:
 			case CLASS_SMITH:
+			case CLASS_DUELIST:
+			case CLASS_BLOOD_KNIGHT:
 				artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_MAGE:
@@ -1668,6 +1670,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			case CLASS_SORCERER:
 			case CLASS_MAGIC_EATER:
 			case CLASS_BLUE_MAGE:
+			case CLASS_WARLOCK:
 				artifact_bias = BIAS_MAGE;
 				break;
 			case CLASS_PRIEST:
@@ -1705,6 +1708,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				if (randint1(5) > 2) artifact_bias = BIAS_PRIESTLY;
 				break;
 			case CLASS_TOURIST:
+			case CLASS_ARCHAEOLOGIST:
+			case CLASS_TIME_LORD:
 				if (randint1(5) > 2) artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_IMITATOR:

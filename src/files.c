@@ -1719,8 +1719,8 @@ static void display_player_one_line(int entry, cptr val, byte attr)
 static void display_player_melee_bonus(int hand, int hand_entry)
 {
 	char buf[160];
-	int show_tohit = p_ptr->dis_to_h[hand];
-	int show_todam = p_ptr->dis_to_d[hand];
+	int show_tohit = p_ptr->weapon_info[hand].dis_to_h;
+	int show_todam = p_ptr->weapon_info[hand].dis_to_d;
 	object_type *o_ptr = &inventory[INVEN_RARM + hand];
 
 	/* Hack -- add in weapon info if known */
@@ -2142,7 +2142,7 @@ static void display_player_various(void)
 
 	for(i = 0; i < 2; i++)
 	{
-		damage[i] = p_ptr->dis_to_d[i] * 100;
+		damage[i] = p_ptr->weapon_info[i].dis_to_d * 100;
 		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER)) && (empty_hands(TRUE) & EMPTY_HAND_RARM))
 		{
 			int level = p_ptr->lev;
@@ -2167,7 +2167,7 @@ static void display_player_various(void)
 			if (o_ptr->k_idx)
 			{
 				if (object_is_known(o_ptr)) damage[i] += o_ptr->to_d * 100;
-				basedam = ((o_ptr->dd + p_ptr->to_dd[i]) * (o_ptr->ds + p_ptr->to_ds[i] + 1)) * 50;
+				basedam = ((o_ptr->dd + p_ptr->weapon_info[i].to_dd) * (o_ptr->ds + p_ptr->weapon_info[i].to_ds + 1)) * 50;
 				object_flags_known(o_ptr, flgs);
 				if ((o_ptr->ident & IDENT_MENTAL) && ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD)))
 				{
@@ -2190,8 +2190,8 @@ static void display_player_various(void)
 		if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) damage[i] = 1;
 		if (damage[i] < 0) damage[i] = 0;
 	}
-	blows1 = p_ptr->migite ? p_ptr->num_blow[0]: 0;
-	blows2 = p_ptr->hidarite ? p_ptr->num_blow[1] : 0;
+	blows1 = p_ptr->migite ? p_ptr->weapon_info[0].num_blow: 0;
+	blows2 = p_ptr->hidarite ? p_ptr->weapon_info[1].num_blow : 0;
 
 	/* Basic abilities */
 

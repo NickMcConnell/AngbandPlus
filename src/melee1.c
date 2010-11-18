@@ -2112,8 +2112,8 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					{
 						if (o_ptr->k_idx)
 						{
-							int basedam = ((o_ptr->dd + p_ptr->to_dd[0]) * (o_ptr->ds + p_ptr->to_ds[0] + 1));
-							dam = basedam / 2 + o_ptr->to_d + p_ptr->to_d[0];
+							int basedam = ((o_ptr->dd + p_ptr->weapon_info[0].to_dd) * (o_ptr->ds + p_ptr->weapon_info[0].to_ds + 1));
+							dam = basedam / 2 + o_ptr->to_d + p_ptr->weapon_info[0].to_d;
 						}
 
 						/* Cursed armor makes damages doubled */

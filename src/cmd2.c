@@ -4449,7 +4449,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 
 				if (boomerang)
 				{
-					tdam *= (mult+p_ptr->num_blow[item - INVEN_RARM]);
+					tdam *= (mult+p_ptr->weapon_info[item - INVEN_RARM].num_blow);
 					tdam += p_ptr->to_d_m;
 				}
 				else if (have_flag(flgs, TR_THROW))

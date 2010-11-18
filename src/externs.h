@@ -1402,7 +1402,6 @@ extern void handle_stuff(void);
 extern s16b empty_hands(bool riding_control);
 extern bool heavy_armor(void);
 
-
 /* effects.c */
 extern void set_action(int typ);
 extern void reset_tim_flags(void);
@@ -1799,6 +1798,9 @@ extern bool teleport_barrier(int m_idx);
 extern bool magic_barrier(int m_idx);
 extern bool multiply_barrier(int m_idx);
 
+/* classes.c */
+extern class_t *get_class_t(void);
+
 /* spells.c */
 extern void browse_spells(spell_info* spells, int ct, caster_info *caster);
 extern int calculate_fail_rate(const spell_info *spell, int stat_idx);
@@ -1819,10 +1821,14 @@ extern void polish_shield_spell(int cmd, variant *res);
 extern void recharging_spell(int cmd, variant *res);
 
 /* archaeologist.c */
+extern class_t *archaeologist_get_class_t(void);
+
 extern caster_info archaeologist_caster_info;
 extern int archaeologist_get_spells(spell_info* spells, int max);
-extern void archaeologist_on_process_player(void);
 extern bool archaeologist_is_favored_weapon(object_type *o_ptr);
+
+/* duelist.c */
+extern class_t *duelist_get_class_t(void);
 
 /* warlock.c */
 extern bool warlock_is_pact_monster(monster_race *r_ptr);

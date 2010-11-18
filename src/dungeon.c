@@ -243,6 +243,7 @@ static void sense_inventory1(void)
 		case CLASS_SAMURAI:
 		case CLASS_CAVALRY:
 		case CLASS_BLOOD_KNIGHT:
+		case CLASS_DUELIST:
 		{
 			/* Good sensing */
 			if (0 != randint0(9000L / (plev * plev + 40))) return;
@@ -483,6 +484,7 @@ static void sense_inventory2(void)
 		case CLASS_BERSERKER:
 		case CLASS_SNIPER:
 		case CLASS_BLOOD_KNIGHT:
+		case CLASS_DUELIST:
 		{
 			return;
 		}
@@ -4846,7 +4848,8 @@ msg_print("ウィザードモード突入。");
 				do_cmd_magic_eater(TRUE);
 			else if (p_ptr->pclass == CLASS_SNIPER)
 				do_cmd_snipe_browse();
-			else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+			else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
+			         p_ptr->pclass == CLASS_DUELIST)
 			{
 				/* This is the preferred entry point ... I'm still working on
 				   coverting everything else */
@@ -4967,7 +4970,8 @@ msg_print("ウィザードモード突入。");
 						do_cmd_kaji(FALSE);
 					else if (p_ptr->pclass == CLASS_SNIPER)
 						do_cmd_snipe();
-					else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+					else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
+					         p_ptr->pclass == CLASS_DUELIST)
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */
@@ -5770,8 +5774,13 @@ msg_print("中断しました。");
 	if (!load) check_hex();
 	if (!load) revenge_spell();
 
-	if (!load && p_ptr->pclass == CLASS_ARCHAEOLOGIST)
-		archaeologist_on_process_player();
+	if (!load)
+	{
+	class_t *class_ptr = get_class_t();
+
+		if (class_ptr != NULL && class_ptr->process_player != NULL)
+			class_ptr->process_player();
+	}
 
 	load = FALSE;
 

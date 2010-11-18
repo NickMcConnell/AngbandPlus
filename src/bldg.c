@@ -3153,8 +3153,8 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
 	char tmp_str[80];
 
 	/* Effective dices */
-	int eff_dd = o_ptr->dd + p_ptr->to_dd[0];
-	int eff_ds = o_ptr->ds + p_ptr->to_ds[0];
+	int eff_dd = o_ptr->dd + p_ptr->weapon_info[0].to_dd;
+	int eff_ds = o_ptr->ds + p_ptr->weapon_info[0].to_ds;
 
 	/* Print the intro text */
 	c_put_str(color, attr, r, c);
@@ -3166,8 +3166,8 @@ sprintf(tmp_str, "１ターン: %d-%d ダメージ",
 	sprintf(tmp_str, "Attack: %d-%d damage",
 #endif
 
-	    (numblows * (mult * eff_dd / 60 + o_ptr->to_d + p_ptr->to_d[0])),
-	    (numblows * (mult * eff_ds * eff_dd / 60 + o_ptr->to_d + p_ptr->to_d[0])));
+	    (numblows * (mult * eff_dd / 60 + o_ptr->to_d + p_ptr->weapon_info[0].to_d)),
+	    (numblows * (mult * eff_ds * eff_dd / 60 + o_ptr->to_d + p_ptr->weapon_info[0].to_d)));
 
 	/* Print the damage */
 	put_str(tmp_str, r, c + 8);
@@ -3184,7 +3184,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 {
 	int mult = 60;
 	u32b flgs[TR_FLAG_SIZE];
-	int blow = p_ptr->num_blow[0];
+	int blow = p_ptr->weapon_info[0].num_blow;
 	bool print_force_weapon = FALSE;
 
 	/* Get the flags of the weapon */
@@ -3254,7 +3254,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 static int hit_chance(int to_h, int ac)
 {
 	int chance = 0;
-	int meichuu = p_ptr->skill_thn + (p_ptr->to_h[0] + to_h) * BTH_PLUS_ADJ;
+	int meichuu = p_ptr->skill_thn + (p_ptr->weapon_info[0].to_h + to_h) * BTH_PLUS_ADJ;
 
 	if (meichuu <= 0) return 5;
 
@@ -3279,8 +3279,8 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 	char tmp_str[80];
 
 	/* Effective dices */
-	int eff_dd = o_ptr->dd + p_ptr->to_dd[0];
-	int eff_ds = o_ptr->ds + p_ptr->to_ds[0];
+	int eff_dd = o_ptr->dd + p_ptr->weapon_info[0].to_dd;
+	int eff_ds = o_ptr->ds + p_ptr->weapon_info[0].to_ds;
 
 	/* Print the weapon name */
 	object_desc(o_name, o_ptr, OD_NAME_ONLY);
@@ -3288,9 +3288,9 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 
 	/* Print the player's number of blows */
 #ifdef JP
-sprintf(tmp_str, "攻撃回数: %d", p_ptr->num_blow[0]);
+sprintf(tmp_str, "攻撃回数: %d", p_ptr->weapon_info[0].num_blow);
 #else
-	sprintf(tmp_str, "Number of Blows: %d", p_ptr->num_blow[0]);
+	sprintf(tmp_str, "Number of Blows: %d", p_ptr->weapon_info[0].num_blow);
 #endif
 
 	put_str(tmp_str, row+1, col);
@@ -3327,8 +3327,8 @@ sprintf(tmp_str, "攻撃一回につき %d-%d",
 	sprintf(tmp_str, "One Strike: %d-%d damage",
 #endif
 
-	    eff_dd + o_ptr->to_d + p_ptr->to_d[0],
-	    eff_ds * eff_dd + o_ptr->to_d + p_ptr->to_d[0]);
+	    eff_dd + o_ptr->to_d + p_ptr->weapon_info[0].to_d,
+	    eff_ds * eff_dd + o_ptr->to_d + p_ptr->weapon_info[0].to_d);
 	put_str(tmp_str, row+6, col+1);
 
 	/* Damage for the complete attack (if all blows hit) */
@@ -3338,8 +3338,8 @@ sprintf(tmp_str, "１ターンにつき %d-%d",
 	sprintf(tmp_str, "One Attack: %d-%d damage",
 #endif
 
-	    p_ptr->num_blow[0] * (eff_dd + o_ptr->to_d + p_ptr->to_d[0]),
-	    p_ptr->num_blow[0] * (eff_ds * eff_dd + o_ptr->to_d + p_ptr->to_d[0]));
+	    p_ptr->weapon_info[0].num_blow * (eff_dd + o_ptr->to_d + p_ptr->weapon_info[0].to_d),
+	    p_ptr->weapon_info[0].num_blow * (eff_ds * eff_dd + o_ptr->to_d + p_ptr->weapon_info[0].to_d));
 	put_str(tmp_str, row+7, col+1);
 }
 

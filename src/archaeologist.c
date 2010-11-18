@@ -125,6 +125,52 @@ static bool _whip_fetch(int dir, int rng)
 	return TRUE;
 }
 
+static bool _sense_great_discovery(int range)
+{
+	int i, y, x;
+	int range2 = range;
+
+	bool detect = FALSE;
+
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range2 /= 3;
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Only alert to great discoveries */
+		if (!object_is_artifact(o_ptr)) continue;
+
+		/* Only alert to new discoveries */
+	    if (object_is_known(o_ptr)) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (distance(py, px, y, x) > range2) continue;
+
+		/* Hack -- memorize it */
+		o_ptr->marked |= OM_FOUND;
+
+		/* Redraw */
+		lite_spot(y, x);
+
+		/* Detect */
+		detect = TRUE;
+	}
+
+	return (detect);
+}
+
 /****************************************************************
  * Private Spells
  ****************************************************************/
@@ -728,53 +774,18 @@ int archaeologist_get_spells(spell_info* spells, int max)
 	return ct;
 }
 
-static bool _sense_great_discovery(int range)
+bool archaeologist_is_favored_weapon(object_type *o_ptr)
 {
-	int i, y, x;
-	int range2 = range;
+	if (o_ptr->tval == TV_DIGGING)
+		return TRUE;
 
-	bool detect = FALSE;
+	if (o_ptr->tval == TV_HAFTED && o_ptr->sval == SV_WHIP)
+		return TRUE;
 
-	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range2 /= 3;
-
-	/* Scan objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Only alert to great discoveries */
-		if (!object_is_artifact(o_ptr)) continue;
-
-		/* Only alert to new discoveries */
-	    if (object_is_known(o_ptr)) continue;
-
-		/* Location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		/* Only detect nearby objects */
-		if (distance(py, px, y, x) > range2) continue;
-
-		/* Hack -- memorize it */
-		o_ptr->marked |= OM_FOUND;
-
-		/* Redraw */
-		lite_spot(y, x);
-
-		/* Detect */
-		detect = TRUE;
-	}
-
-	return (detect);
+	return FALSE;
 }
 
-void archaeologist_on_process_player(void)
+static void _process_player(void)
 {
 	bool sense = _sense_great_discovery(3 + p_ptr->lev/10);
 	if (sense && !p_ptr->sense_artifact)
@@ -791,13 +802,49 @@ void archaeologist_on_process_player(void)
 	}
 }
 
-bool archaeologist_is_favored_weapon(object_type *o_ptr)
+static void _calc_bonuses(void)
 {
-	if (o_ptr->tval == TV_DIGGING)
-		return TRUE;
+	p_ptr->see_infra += p_ptr->lev/10;
+	p_ptr->skill_dig += 2*p_ptr->lev;
+	if (p_ptr->lev >= 20)
+		p_ptr->see_inv = TRUE;
+	if (p_ptr->lev >= 38)
+		p_ptr->resist_dark = TRUE;
+}
 
-	if (o_ptr->tval == TV_HAFTED && o_ptr->sval == SV_WHIP)
-		return TRUE;
+static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+	if (archaeologist_is_favored_weapon(o_ptr))
+	{
+		info_ptr->to_h += 10 * p_ptr->lev/50;
+		info_ptr->dis_to_h += 10 * p_ptr->lev/50;
+		info_ptr->to_d += 10 * p_ptr->lev/50;
+		info_ptr->dis_to_d += 10 * p_ptr->lev/50;
 
-	return FALSE;
+		if (p_ptr->lev >= 50)
+			info_ptr->num_blow += 3;
+		else if (p_ptr->lev >= 25)
+			info_ptr->num_blow += 2;
+		else
+			info_ptr->num_blow += 1;
+	}
+}
+
+class_t *archaeologist_get_class_t(void)
+{
+	static class_t me = {0};
+	static bool init = FALSE;
+
+	/* static info never changes */
+	if (!init)
+	{
+		me.calc_bonuses = _calc_bonuses;
+		me.calc_weapon_bonuses = _calc_weapon_bonuses;
+		me.process_player = _process_player;
+		init = TRUE;
+	}
+
+	/* dynamic info */
+
+	return &me;
 }

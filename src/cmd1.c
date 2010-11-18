@@ -2051,7 +2051,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	{
 	case CLASS_ROGUE:
 	case CLASS_NINJA:
-		if (buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand])
+		if (buki_motteruka(INVEN_RARM + hand) && !p_ptr->weapon_info[hand].icky_wield)
 		{
 			int tmp = p_ptr->lev * 6 + (p_ptr->skill_stl + 10) * 4;
 			if (p_ptr->monlite && (mode != HISSATSU_NYUSIN)) tmp /= 3;
@@ -2125,7 +2125,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h[hand] + o_ptr->to_h;
+	bonus = p_ptr->weapon_info[hand].to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 	if (mode == HISSATSU_IAI) chance += 60;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) chance += 150;
@@ -2142,8 +2142,8 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	e_j_mukou = ((o_ptr->name1 == ART_EXCALIBUR_J) && (r_ptr->d_char == 'S'));
 
 	if ((mode == HISSATSU_KYUSHO) || (mode == HISSATSU_MINEUCHI) || (mode == HISSATSU_3DAN) || (mode == HISSATSU_IAI)) num_blow = 1;
-	else if (mode == HISSATSU_COLD) num_blow = p_ptr->num_blow[hand]+2;
-	else num_blow = p_ptr->num_blow[hand];
+	else if (mode == HISSATSU_COLD) num_blow = p_ptr->weapon_info[hand].num_blow+2;
+	else num_blow = p_ptr->weapon_info[hand].num_blow;
 
 	/* Hack -- DOKUBARI always hit once */
 	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) num_blow = 1;
@@ -2306,7 +2306,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				if (p_ptr->pclass == CLASS_FORCETRAINER) min_level = MAX(1, ma_ptr->min_level - 3);
 				else min_level = ma_ptr->min_level;
-				k = damroll(ma_ptr->dd + p_ptr->to_dd[hand], ma_ptr->ds + p_ptr->to_ds[hand]);
+				k = damroll(ma_ptr->dd + p_ptr->weapon_info[hand].to_dd, ma_ptr->ds + p_ptr->weapon_info[hand].to_ds);
 				if (p_ptr->special_attack & ATTACK_SUIKEN) k *= 2;
 
 				if (ma_ptr->effect == MA_KNEE)
@@ -2358,9 +2358,9 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (weight > 20) weight = 20;
 				}
 
-				k = critical_norm(p_ptr->lev * weight, min_level, k, p_ptr->to_h[0], 0);
+				k = critical_norm(p_ptr->lev * weight, min_level, k, p_ptr->weapon_info[0].to_h, 0);
 
-				if ((special_effect == MA_KNEE) && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
+				if ((special_effect == MA_KNEE) && ((k + p_ptr->weapon_info[hand].to_d) < m_ptr->hp))
 				{
 #ifdef JP
 					msg_format("%^sは苦痛にうめいている！", m_name);
@@ -2372,7 +2372,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					resist_stun /= 3;
 				}
 
-				else if ((special_effect == MA_SLOW) && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
+				else if ((special_effect == MA_SLOW) && ((k + p_ptr->weapon_info[hand].to_d) < m_ptr->hp))
 				{
 					if (!(r_ptr->flags1 & RF1_UNIQUE) &&
 					    (randint1(p_ptr->lev) > r_ptr->level) &&
@@ -2392,7 +2392,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				if (r_ptr->level + randint1(100) > p_ptr->lev*2 + p_ptr->stat_ind[A_DEX])
 					stun_effect = 0;
 
-				if (stun_effect && ((k + p_ptr->to_d[hand]) < m_ptr->hp))
+				if (stun_effect && ((k + p_ptr->weapon_info[hand].to_d) < m_ptr->hp))
 				{
 					if (p_ptr->lev > randint1(r_ptr->level + resist_stun + 10))
 					{
@@ -2423,7 +2423,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Handle normal weapon */
 			else if (o_ptr->k_idx)
 			{
-				k = damroll(o_ptr->dd + p_ptr->to_dd[hand], o_ptr->ds + p_ptr->to_ds[hand]);
+				k = damroll(o_ptr->dd + p_ptr->weapon_info[hand].to_dd, o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr, mode, FALSE);
 
 				if (backstab)
@@ -2446,7 +2446,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 
 				if ((!(o_ptr->tval == TV_SWORD) || !(o_ptr->sval == SV_DOKUBARI)) && !(mode == HISSATSU_KYUSHO))
-					k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
+					k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
 
 				drain_result = k;
 
@@ -2532,8 +2532,8 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			/* Apply the player damage bonuses */
-			k += p_ptr->to_d[hand];
-			drain_result += p_ptr->to_d[hand];
+			k += p_ptr->weapon_info[hand].to_d;
+			drain_result += p_ptr->weapon_info[hand].to_d;
 
 			if ((mode == HISSATSU_SUTEMI) || (mode == HISSATSU_3DAN)) k *= 2;
 			if ((mode == HISSATSU_SEKIRYUKA) && !monster_living(r_ptr)) k = 0;
@@ -2628,7 +2628,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 				else k = 1;
 			}
-			else if ((p_ptr->pclass == CLASS_NINJA) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->icky_wield[hand] && ((p_ptr->cur_lite <= 0) || one_in_(7)))
+			else if ((p_ptr->pclass == CLASS_NINJA) && buki_motteruka(INVEN_RARM + hand) && !p_ptr->weapon_info[hand].icky_wield && ((p_ptr->cur_lite <= 0) || one_in_(7)))
 			{
 				int maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
 				if (one_in_(backstab ? 13 : (stab_fleeing || fuiuchi) ? 15 : 27))
@@ -2641,7 +2641,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					msg_format("You critically injured %s!", m_name);
 #endif
 				}
-				else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->num_blow[0]+p_ptr->num_blow[1]+1)*10)) || ((one_in_(666) || ((backstab || fuiuchi) && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
+				else if (((m_ptr->hp < maxhp/2) && one_in_((p_ptr->weapon_info[0].num_blow+p_ptr->weapon_info[1].num_blow+1)*10)) || ((one_in_(666) || ((backstab || fuiuchi) && one_in_(11))) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2)))
 				{
 					if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) || (m_ptr->hp >= maxhp/2))
 					{
@@ -2678,12 +2678,12 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					if (p_ptr->migite && p_ptr->hidarite)
 					{
-						if (hand) energy_use = energy_use*3/5+energy_use*num*2/(p_ptr->num_blow[hand]*5);
-						else energy_use = energy_use*num*3/(p_ptr->num_blow[hand]*5);
+						if (hand) energy_use = energy_use*3/5+energy_use*num*2/(p_ptr->weapon_info[hand].num_blow*5);
+						else energy_use = energy_use*num*3/(p_ptr->weapon_info[hand].num_blow*5);
 					}
 					else
 					{
-						energy_use = energy_use*num/p_ptr->num_blow[hand];
+						energy_use = energy_use*num/p_ptr->weapon_info[hand].num_blow;
 					}
 				}
 				if ((o_ptr->name1 == ART_ZANTETSU) && is_lowlevel)
@@ -2971,7 +2971,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				/* Extract the flags */
 				object_flags(o_ptr, flgs);
 
-				k = damroll(o_ptr->dd + p_ptr->to_dd[hand], o_ptr->ds + p_ptr->to_ds[hand]);
+				k = damroll(o_ptr->dd + p_ptr->weapon_info[hand].to_dd, o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
 				{
 					int mult;
 					switch (p_ptr->mimic_form)
@@ -3036,7 +3036,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					k /= 10;
 				}
 
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->to_h[hand], mode);
+				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
 				if (one_in_(6))
 				{
 					int mult = 2;
@@ -3053,7 +3053,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 					k *= mult;
 				}
-				k += (p_ptr->to_d[hand] + o_ptr->to_d);
+				k += (p_ptr->weapon_info[hand].to_d + o_ptr->to_d);
 
 				if (k < 0) k = 0;
 
@@ -3086,7 +3086,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		   This might be the player's last attack before death, and we wouldn't want to short change them! */
 		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 		{
-			num_blow = p_ptr->num_blow[hand];
+			num_blow = p_ptr->weapon_info[hand].num_blow;
 			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) num_blow = 1;
 		}
 	}
