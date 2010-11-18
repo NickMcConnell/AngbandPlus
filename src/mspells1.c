@@ -642,6 +642,9 @@ static bool spell_attack(byte spell)
 	/* All RF4 spells hurt (except for shriek and dispel) */
 	if (spell < 128 && spell > 98) return (TRUE);
 
+	/* BA_DISI */
+	if (spell == 96 + 1) return (TRUE);
+
 	/* Various "ball" spells */
 	if (spell >= 128 && spell <= 128 + 8) return (TRUE);
 
@@ -1737,10 +1740,15 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			break;
 		}
 
-		/* RF4_XXX1 */
+		/* RF4_BA_DISI */
 		case 96+1:
 		{
-			/* XXX XXX XXX */
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s casts a ball of disintegration.", m_name);
+
+			dam = 250;
+			breath(y, x, m_idx, GF_DISINTEGRATE, dam, 5, FALSE, MS_BA_DISI, learnable);
 			break;
 		}
 

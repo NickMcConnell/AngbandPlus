@@ -6141,13 +6141,6 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			now_damaged = TRUE;
 		}
 
-		/* Message */
-#ifdef JP
-msg_print("*** ·Ù¹ð:Äã¥Ò¥Ã¥È¡¦¥Ý¥¤¥ó¥È¡ª ***");
-#else
-		msg_print("*** LOW HITPOINT WARNING! ***");
-#endif
-
 		/* Hack -- stop the player on first crossing the threshold */
 		if (old_chp >= warning) 
 		{
@@ -6158,15 +6151,14 @@ msg_print("*** ·Ù¹ð:Äã¥Ò¥Ã¥È¡¦¥Ý¥¤¥ó¥È¡ª ***");
 				char ch = inkey();
 				if (ch == 'Y') break;
 			}
-			/*msg_print("OK.  Better be careful, I think you are about to die!");*/
+			prt("", 0, 0);
 		}
 		else
 		{
 			msg_print("*** LOW HITPOINT WARNING! ***");
+			msg_print(NULL);
+			flush();
 		}
-
-		msg_print(NULL);
-		flush();
 	}
 	if (p_ptr->wild_mode && !p_ptr->leaving && (p_ptr->chp < MAX(warning, p_ptr->mhp/5)))
 	{

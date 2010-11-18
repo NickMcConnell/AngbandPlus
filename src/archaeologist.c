@@ -682,16 +682,16 @@ static void _remove_obstacles_spell(int cmd, variant *res)
 spell_info archaeologist_spells[MAX_ARCHAEOLOGIST_SPELLS] = 
 {
     /*lvl cst fail spell */
-	{  1,   1, 10, _extended_whip_spell },
-	{  2,   2, 20, detect_traps_spell },
-	{  3,   3, 20, light_area_spell },
+	{  1,   3, 10, _extended_whip_spell },
+	{  2,   3, 20, detect_traps_spell },
+	{  3,   5, 20, light_area_spell },
 	{  5,   5, 30, _first_aid_spell },
 	{ 10,  10, 40, _identify_spell },
 	{ 12,  10, 30, _remove_obstacles_spell },
-	{ 13,  10, 30, _double_crack_spell },
+	{ 13,  20, 30, _double_crack_spell },
 	{ 15,  15, 30, _magic_blueprint_spell },
 	{ 18,  10, 30, _excavation_spell },
-	{ 22,  10, 30, _fetch_spell },
+	{ 22,  20, 30, _fetch_spell },
 	{ 25,  20, 50, _remove_curse_spell },
 	{ 32,  30, 70, recharging_spell },
 	{ 35,  80, 70, _ancient_protection_spell },

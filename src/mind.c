@@ -3239,11 +3239,17 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 		(use_mind == MIND_WARLOCK_DEMON) ||
 		(use_mind == MIND_WARLOCK_ABERRATION))
 	{
+		if (mana_cost > 0)
+		{
 #ifdef JP
-		take_hit(DAMAGE_USELIFE, mana_cost, "過度の集中", -1);
+			take_hit(DAMAGE_USELIFE, mana_cost, "過度の集中", -1);
 #else
-		take_hit(DAMAGE_USELIFE, mana_cost, "concentrating too hard", -1);
+			take_hit(DAMAGE_USELIFE, mana_cost, "concentrating too hard", -1);
 #endif
+			/* Redraw hp */
+			p_ptr->redraw |= (PR_HP);
+		}
+
 		/* Blood Knights are cut by their spells! */
 		if (use_mind == MIND_BLOOD_KNIGHT)
 		{
@@ -3251,9 +3257,6 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 			set_cut(p_ptr->cut + cut, FALSE);
 			p_ptr->update |= PU_BONUS;
 		}
-
-		/* Redraw hp */
-		p_ptr->redraw |= (PR_HP);
 	}
 
 	/* Sufficient mana */

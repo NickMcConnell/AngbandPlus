@@ -2257,6 +2257,17 @@ static void process_monster(int m_idx)
 
 	bool            see_m = is_seen(m_ptr);
 
+	/* Hack
+	   Ultimate Magus blinks continually for free.  Can we make this a TRUMP flag?
+	   Note, if you move this code below, the Magus actually spawns???  Probably,
+	   he is just in N places at once.
+	*/
+	if (m_ptr->r_idx == MON_ULT_MAGUS)
+	{
+		if (!MON_CSLEEP(m_ptr))
+			teleport_away(m_idx, 7, 0L);
+	}
+
 	if (is_riding_mon && !(r_ptr->flags7 & RF7_RIDING))
 	{
 		if (rakuba(0, TRUE))

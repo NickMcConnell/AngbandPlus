@@ -3664,7 +3664,7 @@
  * New monster race bit flags
  */
 #define RF4_SHRIEK          0x00000001  /* Shriek for help */
-#define RF4_XXX1            0x00000002  /* XXX */
+#define RF4_BA_DISI         0x00000002  /* Ball of Disintegration */
 #define RF4_DISPEL          0x00000004  /* Dispel magic */
 #define RF4_ROCKET          0x00000008  /* TY: Rocket */
 #define RF4_SHOOT           0x00000010  /* Fire missiles */
@@ -3942,7 +3942,7 @@
  */
 #define RF4_BALL_MASK \
 	(RF4_BIG_BALL_MASK | RF4_BREATH_MASK | \
-	 RF4_ROCKET | RF4_BA_NUKE)
+	 RF4_ROCKET | RF4_BA_NUKE | RF4_BA_DISI)
 
 #define RF5_BALL_MASK \
 	(RF5_BIG_BALL_MASK | RF5_BREATH_MASK | \
@@ -4934,6 +4934,7 @@ extern int PlayerUID;
 #define MS_S_HI_DRAGON    93
 #define MS_S_AMBERITE     94
 #define MS_S_UNIQUE       95
+#define MS_BA_DISI        96
 
 
 #define MON_BEGGAR        12
@@ -5182,6 +5183,7 @@ extern int PlayerUID;
 #define MON_JIZOTAKO      1065
 #define MON_TANUKI        1067
 #define MON_REINDEER      1081
+#define MON_ULT_MAGUS	  1083
 
 /* Maximum "Nazguls" number */
 #define MAX_NAZGUL_NUM 5
