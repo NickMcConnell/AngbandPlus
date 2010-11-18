@@ -3943,6 +3943,16 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 				}
 				break;
 
+			case MON_TALOS:
+				{
+					int num = 3 + randint1(3);
+					for (k = 0; k < num; k++)
+					{
+						count += summon_named_creature(m_idx, y, x, MON_SPELLWARP, mode);
+					}
+				}
+				break;
+
 			case MON_LOUSY:
 				{
 					int num = 2 + randint1(3);

@@ -5184,6 +5184,8 @@ extern int PlayerUID;
 #define MON_TANUKI        1067
 #define MON_REINDEER      1081
 #define MON_ULT_MAGUS	  1083
+#define MON_SPELLWARP	  1085
+#define MON_TALOS		  1086
 
 /* Maximum "Nazguls" number */
 #define MAX_NAZGUL_NUM 5

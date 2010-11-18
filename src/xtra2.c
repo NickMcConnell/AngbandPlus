@@ -1611,8 +1611,13 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 
 	if ((r_ptr->flagsr & RFR_RES_ALL) && dam > 0)
 	{
-		dam /= 100;
-		if ((dam == 0) && one_in_(3)) dam = 1;
+		/* Only the Metal Babble gets this
+		   Other magic immune monsters can be slain by melee and arrows */
+		if (m_ptr->r_idx == MON_HAGURE)
+		{
+			dam /= 100;
+			if ((dam == 0) && one_in_(3)) dam = 1;
+		}
 	}
 
 	if (MON_INVULNER(m_ptr))
