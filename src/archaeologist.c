@@ -186,6 +186,7 @@ static void _double_crack_spell(int cmd, variant *res)
 			{
 				int x, y;
 				int num = 1;
+				int attempts = 0;
 
 				if (p_ptr->lev >= 40)
 					num++;
@@ -198,15 +199,37 @@ static void _double_crack_spell(int cmd, variant *res)
 				else
 					msg_print("Your whip cracks in empty air.");
 
-				/* Now the whip cracks randomly! */
+				/* Now the whip cracks randomly!
+				   Note that we favor fighting in hallways, or
+				   with ones back up against the wall. */
 				while (num > 0)
 				{
+					if (attempts > 3 * num)
+					{
+						while (num > 0)
+						{
+							msg_print("Your whip cracks in empty air.");
+							num--;
+						}
+						break;
+					}
+
+					/* random direction, but we don't penalize for choosing the player (5) */
 					dir = randint0(9);
 					if (dir == 5) continue;
 					
-					y = py + ddy_ddd[dir];
-					x = px + ddx_ddd[dir];
-					if (!in_bounds(y, x)) continue;
+					attempts++;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+
+					if ( !in_bounds(y, x) 
+					  || cave_have_flag_bold(y, x, FF_WALL)
+				      || cave_have_flag_bold(y, x, FF_TREE) 
+					  || cave_have_flag_bold(y, x, FF_CAN_DIG) )
+					{
+						continue;
+					}
+
 					
 					if (cave[y][x].m_idx)
 						py_attack(y, x, 0);
@@ -317,7 +340,7 @@ static void _extended_whip_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Extended Whip");
+		var_set_string(res, "Extended Crack");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "This spell extends the range of your whip based melee attack.");

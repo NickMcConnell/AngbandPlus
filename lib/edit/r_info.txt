@@ -13928,8 +13928,7 @@ F:NO_STUN | NO_SLEEP | NO_CONF |
 F:IM_ELEC | IM_FIRE | IM_POIS | IM_COLD |
 F:COLD_BLOOD | RES_TELE
 S:1_IN_3 |
-S:CAUSE_4 | HOLD | DRAIN_MANA | SCARE | BLIND | 
-S:S_UNDEAD | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE | 
+S:CAUSE_4 | HOLD | DRAIN_MANA | SCARE | BLIND | SPECIAL
 S:BA_NETH | FORGET | TRAPS | BRAIN_SMASH | TELE_AWAY 
 D:$Why would anybody want to kill Santa Claus? To get all the presents, 
 D:$of course!
@@ -21672,3 +21671,26 @@ D:三分の一はインテリジェントデザインのため、三分の一はスパゲ
 D:ッティモンスター教のため、三分の一は圧倒的な量の観察可能な
 D:証拠に基づく論理的推論のため」
 D:(ボビー・ヘンダーソン)
+
+N:1081:TRANSLATE
+E:Reindeer
+G:q:u
+I:130:15d100:20:100:50
+W:40:200:0:2000:0:0
+B:KICK:HURT:8d8
+B:KICK:HURT:8d8
+B:BITE:HURT:9d9
+F:FORCE_MAXHP | ANIMAL | CAN_FLY
+F:REGENERATE | BASH_DOOR | IM_FIRE | IM_COLD | IM_ELEC |
+F:IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR | DROP_CORPSE | RIDING
+D:$A denizen of nothern climes.  It stares at you menacingly.
+
+# N: serial number : monster name
+# G: symbol : color
+# I: speed : hit points : vision : armor class : alertness
+# W: depth : rarity : 0 : exp : next_exp : next_mon
+# B: attack method : attack effect : damage
+# S: spell frequency |
+# S: spell type | spell type | etc
+# F: flag | flag | etc
+# D: Description

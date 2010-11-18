@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 11
+#define FAKE_VER_PATCH 12
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 11
+#define H_VER_PATCH 12
 #define H_VER_EXTRA 0
 
 
@@ -1493,6 +1493,7 @@
 #define ART_BLOODRIP			243
 #define ART_MAGLOR				245
 #define ART_DAERON				246
+#define ART_MASTER_TONBERRY		247
 
 /* Polearms */
 #define ART_THEODEN             93
@@ -5180,6 +5181,7 @@ extern int PlayerUID;
 #define MON_LOUSY         1063
 #define MON_JIZOTAKO      1065
 #define MON_TANUKI        1067
+#define MON_REINDEER      1081
 
 /* Maximum "Nazguls" number */
 #define MAX_NAZGUL_NUM 5

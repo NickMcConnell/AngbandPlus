@@ -3778,8 +3778,8 @@ P:0:0d0:0:0:42
 F:CON | SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
 F:FREE_ACT | LEVITATION | SEE_INVIS | HOLD_LIFE |
 F:RES_LITE | RES_DARK | RES_DISEN | RES_TIME
-D:$A robe indestructable, created long, long ago.  Donning this weightless
-D:$garment, you suddenly feel immune to the passing of time.
+D:$This robe is invisible to the naked eye.  It's a wonder you found it at all!  Yet,
+D:$it holds an incredible power, undiluted by time.
 
 N:245:TRANSLATE
 E:of Maglor
@@ -3805,9 +3805,18 @@ D:$Daeron is mentioned as the greatest minstrel of all the Children of Iluvatar,
 D:$and only Maglor son of Feanor is said to come close to his skill.
 #(http://en.wikipedia.org/wiki/Daeron#Daeron)
 
+N:247:TRANSLATE
+E:of the Master Tonberry
+I:31:2:-3
+W:99:3:25:200000
+P:2:0d0:10:100:0
+F:FREE_ACT | SUST_STR | SUST_CON | RES_TIME | RES_DISEN
+F:BLOWS | SPEED
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost
 # P: base armor class : base damage : plus to-hit : plus to-dam : plus
 # to-ac
 # F: flag | flag |etc
+

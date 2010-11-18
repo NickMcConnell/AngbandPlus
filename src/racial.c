@@ -1779,6 +1779,36 @@ static bool cmd_racial_power_aux(s32b command)
 			(void)hp_player(30);
 			break;
 
+		case RACE_ENT:
+			{
+				int attempts = 0;
+				int x, y, dir;
+
+				for (;;)
+				{
+					if (attempts > 4)
+					{
+						msg_print("No trees arrive.");
+						break;
+					}
+
+					dir = randint0(9);
+					if (dir == 5) continue;
+
+					attempts++;
+					y = py + ddy[dir];
+					x = px + ddx[dir];
+
+					if (!in_bounds(y, x)) continue;
+					if (!cave_naked_bold(y, x)) continue;
+					if (player_bold(y, x)) continue;
+
+					cave_set_feat(y, x, feat_tree);
+					break;
+				}
+			}
+			break;
+
 		case RACE_HALF_OGRE:
 #ifdef JP
 			msg_print("爆発のルーンを慎重に仕掛けた...");
@@ -3146,6 +3176,16 @@ strcpy(power_desc[num].name, "狂戦士化");
 			power_desc[num].fail = warrior ? 6 : 12;
 			power_desc[num++].number = -1;
 			break;
+
+		case RACE_ENT:
+			strcpy(power_desc[num].name, "Summon Tree");
+			power_desc[num].level = 10;
+			power_desc[num].cost = 20;
+			power_desc[num].stat = A_CHR;
+			power_desc[num].fail = 15;
+			power_desc[num++].number = -1;
+			break;
+
 		case RACE_AMBERITE:
 #ifdef JP
 strcpy(power_desc[num].name, "シャドウ・シフト");

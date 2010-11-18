@@ -3530,7 +3530,16 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 
 					break;
 				}
-
+			case MON_SANTACLAUS:
+				{
+					int num = 8;
+					msg_format("%^s says 'Now Dasher! Now Dancer! Now, Prancer and Vixen! On, Comet! On, Cupid! On, Donner and Blitzen!'", m_name);
+					for (k = 0; k < num; k++)
+					{
+						summon_named_creature(m_idx, y, x, MON_REINDEER, mode);
+					}
+					break;
+				}
 			case MON_ROLENTO:
 #ifdef JP
 				if (blind) msg_format("%^sが何か大量に投げた。", m_name);
