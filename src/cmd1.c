@@ -2035,6 +2035,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            stab_fleeing = FALSE;
 	bool            fuiuchi = FALSE;
 	bool            monk_attack = FALSE;
+	bool			duelist_attack = FALSE;
 	bool            do_quake = FALSE;
 	bool            weak = FALSE;
 	bool            drain_msg = TRUE;
@@ -2049,6 +2050,11 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 	switch (p_ptr->pclass)
 	{
+	case CLASS_DUELIST:
+		if (c_ptr->m_idx == p_ptr->duelist_target_idx)
+			duelist_attack = TRUE;
+		break;
+
 	case CLASS_ROGUE:
 	case CLASS_NINJA:
 		if (buki_motteruka(INVEN_RARM + hand) && !p_ptr->weapon_info[hand].icky_wield)
@@ -2167,6 +2173,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			success_hit = one_in_(n);
 		}
 		else if ((p_ptr->pclass == CLASS_NINJA) && ((backstab || fuiuchi) && !(r_ptr->flagsr & RFR_RES_ALL))) success_hit = TRUE;
+		else if (duelist_attack) success_hit = TRUE;
 		else success_hit = test_hit_norm(chance, r_ptr->ac, m_ptr->ml);
 
 		if (mode == HISSATSU_MAJIN)
@@ -2193,6 +2200,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (backstab) msg_format("You cruelly stab the helpless, sleeping %s!", m_name);
 			else if (fuiuchi) msg_format("You make surprise attack, and hit %s with a powerful blow!", m_name);
 			else if (stab_fleeing) msg_format("You backstab the fleeing %s!",  m_name);
+			else if (duelist_attack) msg_format("You land a perfect strike against %s.", m_name);
 			else if (!monk_attack) msg_format("You hit %s.", m_name);
 #endif
 
@@ -2615,6 +2623,47 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Hack: Monster AC now reduces damage */
 			k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 600);
 
+			if (duelist_attack)
+			{
+				/* Duelist: Careful Aim */
+				if (duelist_attack && 
+					p_ptr->lev >= 10) 
+				{
+					k *= 2;
+				}
+				if ( p_ptr->lev >= 15	/* Hamstring */
+					&& !(r_ptr->flags1 & (RF1_UNIQUE))
+					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + p_ptr->stat_ind[A_INT] )
+				{
+					msg_format("You hamstring %s.", m_name);
+					set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50);
+				}
+				if ( p_ptr->lev >= 20	/* Wounding Strike */
+					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + p_ptr->stat_ind[A_INT] )
+				{
+					msg_format("%^s is dealt a wounding strike.", m_name);
+					k += MIN(m_ptr->hp / 5, 200);
+				}
+				if ( p_ptr->lev >= 25	/* Stunning Blow */
+				    && !(r_ptr->flags3 & (RF3_NO_STUN))
+					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + p_ptr->stat_ind[A_INT] )
+				{
+					msg_format("%^s is dealt a stunning blow.", m_name);
+					set_monster_stunned(c_ptr->m_idx, MON_STUNNED(m_ptr) + 1);
+				}
+				if ( p_ptr->lev >= 40	/* Greater Wounding Strike */
+					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + p_ptr->stat_ind[A_INT] )
+				{
+					msg_format("%^s is dealt a *WOUNDING* strike.", m_name);
+					k += MIN(m_ptr->hp * 2 / 5, 2000);
+				}
+			}
+			else if (p_ptr->pclass == CLASS_DUELIST && p_ptr->lev >= 30)
+			{
+				/* Duelist: Careful Aim vs a non-target */
+				k *= 2;
+			}
+
 			if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
 			{
 				if ((randint1(randint1(r_ptr->level/7)+5) == 1) && !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
@@ -2674,6 +2723,24 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
 			{
 				*mdeath = TRUE;
+
+				if (duelist_attack)
+				{
+					p_ptr->duelist_target_idx = 0;
+					p_ptr->redraw |= PR_STATUS;
+
+					if (p_ptr->lev >= 35)	/* Endless Duel */
+					{
+						/* Hacks so that get_aim_dir() actually allows user to select a new target */
+						target_who = 0;
+						command_dir = 0;
+						msg_print("Your chosen target is vanquished!  Select another.");
+						duelist_issue_challenge();
+					}
+					else
+						msg_print("Your chosen target is vanquished!");
+				}
+
 				if ((p_ptr->pclass == CLASS_BERSERKER) && energy_use)
 				{
 					if (p_ptr->migite && p_ptr->hidarite)

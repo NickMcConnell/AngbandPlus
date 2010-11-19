@@ -7526,6 +7526,7 @@ bool kawarimi(bool success)
 /*
  * "Rush Attack" routine for Samurai or Ninja
  * Return value is for checking "done"
+ * Hacked up for Duelist as well.
  */
 bool rush_attack(bool *mdeath)
 {
@@ -7540,20 +7541,38 @@ bool rush_attack(bool *mdeath)
 	if (mdeath) *mdeath = FALSE;
 
 	project_length = 5;
-	if (!get_aim_dir(&dir)) return FALSE;
 
-	/* Use the given direction */
-	tx = px + project_length * ddx[dir];
-	ty = py + project_length * ddy[dir];
-
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
+	/* Mega Hack for the Duelist */
+	if (p_ptr->pclass == CLASS_DUELIST)
 	{
-		tx = target_col;
-		ty = target_row;
-	}
+		/* assert(p_ptr->duelist_target_idx); */
+		tm_idx = p_ptr->duelist_target_idx;
+		tx = m_list[tm_idx].fx;
+		ty = m_list[tm_idx].fy;
 
-	if (in_bounds(ty, tx)) tm_idx = cave[ty][tx].m_idx;
+		if (!los(ty, tx, py, px))
+		{
+			msg_format("%^s is not in your line of sight.", duelist_current_challenge());
+			return FALSE;
+		}
+	}
+	else
+	{
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		/* Use the given direction */
+		tx = px + project_length * ddx[dir];
+		ty = py + project_length * ddy[dir];
+
+		/* Hack -- Use an actual "target" */
+		if ((dir == 5) && target_okay())
+		{
+			tx = target_col;
+			ty = target_row;
+		}
+
+		if (in_bounds(ty, tx)) tm_idx = cave[ty][tx].m_idx;
+	}
 
 	path_n = project_path(path_g, project_length, py, px, ty, tx, PROJECT_STOP | PROJECT_KILL);
 	project_length = 0;

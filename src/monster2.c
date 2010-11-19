@@ -223,7 +223,6 @@ void delete_monster_idx(int i)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-
 	/* Get location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
@@ -294,6 +293,14 @@ void delete_monster_idx(int i)
 	/* Update some things */
 	if (r_ptr->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
 		p_ptr->update |= (PU_MON_LITE);
+
+	/* Duel challenge slain, but not by player in melee */
+	if ( p_ptr->pclass == CLASS_DUELIST
+	  && p_ptr->duelist_target_idx == i )
+	{
+		p_ptr->duelist_target_idx = 0;
+		p_ptr->redraw |= PR_STATUS;
+	}
 }
 
 
@@ -508,6 +515,8 @@ void compact_monsters(int size)
 void wipe_m_list(void)
 {
 	int i;
+
+	p_ptr->duelist_target_idx = 0;
 
 	/* Hack -- if Banor or Lupart dies, stay another dead */
 	if (!r_info[MON_BANORLUPART].max_num)
@@ -1834,6 +1843,14 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 			(void)strcat(desc, "'s");
 #endif
 		}
+	}
+
+	/* Hack for the Duelist */
+	if ( p_ptr->pclass == CLASS_DUELIST
+	  && p_ptr->duelist_target_idx
+	  && m_ptr == &m_list[p_ptr->duelist_target_idx] )
+	{
+		strcat(desc, " (Foe)");
 	}
 }
 

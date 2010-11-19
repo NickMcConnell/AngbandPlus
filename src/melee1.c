@@ -56,7 +56,7 @@ static int monster_critical(int dice, int sides, int dam)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match monster power against player armor.
  */
-static int check_hit(int power, int level, int stun)
+static int check_hit(int power, int level, int stun, int m_idx)
 {
 	int i, k, ac;
 
@@ -74,6 +74,12 @@ static int check_hit(int power, int level, int stun)
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 	if (p_ptr->special_attack & ATTACK_SUIKEN) ac += (p_ptr->lev * 2);
+
+	if ( p_ptr->pclass == CLASS_DUELIST
+	  && p_ptr->duelist_target_idx == m_idx )
+	{
+		ac += 100;
+	}
 
 	/* Power and Level compete against Armor */
 	/* Hack: Calc was AC * 3/4.  I'm renormalizing (linearly) character
@@ -253,7 +259,7 @@ bool make_attack_normal(int m_idx)
 		ac = p_ptr->ac + p_ptr->to_a;
 
 		/* Monster hits player */
-		if (!effect || check_hit(power, rlev, MON_STUNNED(m_ptr)))
+		if (!effect || check_hit(power, rlev, MON_STUNNED(m_ptr), m_idx))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
@@ -689,6 +695,12 @@ bool make_attack_normal(int m_idx)
 
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
+
+			if ( p_ptr->pclass == CLASS_DUELIST
+			  && p_ptr->duelist_target_idx == m_idx )
+			{
+				damage -= damage/3;
+			}
 
 			/*
 			 * Skip the effect when exploding, since the explosion

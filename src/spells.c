@@ -372,14 +372,16 @@ static int _get_spell_table(spell_info* spells, int max, caster_info **info)
 {
 	int ct = 0;
 	int i;
-	*info = NULL;
+	class_t *class_ptr = get_class_t();
 
-	switch (p_ptr->pclass)
+	*info = NULL;
+	if (class_ptr != NULL)
 	{
-	case CLASS_ARCHAEOLOGIST:
-		ct = archaeologist_get_spells(spells, max);
-		*info = &archaeologist_caster_info;
-		break;
+		if (class_ptr->get_spells != NULL)
+			ct = (class_ptr->get_spells)(spells, max);
+
+		if (class_ptr->caster_info != NULL)
+			*info = (class_ptr->caster_info)();
 	}
 
 	/* Some spells give extra abilities depending on player level ...
@@ -398,6 +400,11 @@ void do_cmd_spell_browse(void)
 	spell_info spells[MAX_SPELLS];
 	caster_info *caster = NULL;
 	int ct = _get_spell_table(spells, MAX_SPELLS, &caster);
+	if (ct == 0)
+	{
+		/* User probably canceled the prompt for a spellbook */
+		return;
+	}
 	browse_spells(spells, ct, caster);
 }
  

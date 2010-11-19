@@ -725,7 +725,7 @@ static void _remove_obstacles_spell(int cmd, variant *res)
 
 #define MAX_ARCHAEOLOGIST_SPELLS	16
 
-spell_info archaeologist_spells[MAX_ARCHAEOLOGIST_SPELLS] = 
+static spell_info _spells[MAX_ARCHAEOLOGIST_SPELLS] = 
 {
     /*lvl cst fail spell */
 	{  1,   3, 10, _extended_whip_spell },
@@ -746,10 +746,7 @@ spell_info archaeologist_spells[MAX_ARCHAEOLOGIST_SPELLS] =
 	{ 45,  50, 85, _pharaohs_curse_spell },
 };
 
-/* The Archaeologists casts spells with mana, and never suffers side effects on failures. */
-caster_info archaeologist_caster_info = { "spell", TRUE, FALSE, NULL, NULL };
-
-int archaeologist_get_spells(spell_info* spells, int max)
+static int _get_spells(spell_info* spells, int max)
 {
 	int i;
 	int ct = 0;
@@ -758,7 +755,7 @@ int archaeologist_get_spells(spell_info* spells, int max)
 	/* Initialize a (copied) spell list with current casting costs and fail rates */
 	for (i = 0; i < MAX_ARCHAEOLOGIST_SPELLS; i++)
 	{
-		spell_info *base = &archaeologist_spells[i];
+		spell_info *base = &_spells[i];
 		if (ct >= max) break;
 		if (base->level <= p_ptr->lev)
 		{
@@ -774,7 +771,7 @@ int archaeologist_get_spells(spell_info* spells, int max)
 	return ct;
 }
 
-bool archaeologist_is_favored_weapon(object_type *o_ptr)
+static bool _is_favored_weapon(object_type *o_ptr)
 {
 	if (o_ptr->tval == TV_DIGGING)
 		return TRUE;
@@ -814,7 +811,7 @@ static void _calc_bonuses(void)
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
-	if (archaeologist_is_favored_weapon(o_ptr))
+	if (_is_favored_weapon(o_ptr))
 	{
 		info_ptr->to_h += 10 * p_ptr->lev/50;
 		info_ptr->dis_to_h += 10 * p_ptr->lev/50;
@@ -830,6 +827,19 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 	}
 }
 
+static caster_info * _caster_info(void)
+{
+	static caster_info me = {0};
+	static bool init = FALSE;
+	if (!init)
+	{
+		me.magic_desc = "spell";
+		me.use_sp = TRUE;
+		init = TRUE;
+	}
+	return &me;
+}
+
 class_t *archaeologist_get_class_t(void)
 {
 	static class_t me = {0};
@@ -841,6 +851,8 @@ class_t *archaeologist_get_class_t(void)
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.process_player = _process_player;
+		me.caster_info = _caster_info;
+		me.get_spells = _get_spells;
 		init = TRUE;
 	}
 

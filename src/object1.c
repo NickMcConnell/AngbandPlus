@@ -1319,6 +1319,7 @@ return "体力回復(1000) : 888 ターン毎";
 #endif
 
 		}
+		case ART_DUELIST: return "Strafing every 3 turns";
 		case ART_LOHENGRIN:
 		case ART_DAERON:
 		{

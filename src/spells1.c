@@ -4697,6 +4697,53 @@ note = "には耐性がある！";
 			break;
 		}
 
+		case GF_ISOLATION:
+		{
+			bool resists_tele = FALSE;
+			if (c_ptr->m_idx == p_ptr->duelist_target_idx) 
+			{
+				dam = 0;
+				return TRUE;
+			}
+			if (r_ptr->flagsr & RFR_RES_TELE)
+			{
+				if ((r_ptr->flagsr & RFR_RES_ALL))
+				{
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+#ifdef JP
+					note = "には効果がなかった！";
+#else
+					note = " is unaffected!";
+#endif
+
+					resists_tele = TRUE;
+				}
+				else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + p_ptr->stat_ind[A_INT])
+				{
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+#ifdef JP
+					note = "には耐性がある！";
+#else
+					note = " resists!";
+#endif
+					resists_tele = TRUE;
+				}
+			}
+
+			if (!resists_tele)
+			{
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Prepare to teleport */
+				do_dist = dam;
+			}
+
+			/* No "real" damage */
+			dam = 0;
+			break;
+		}
+
 
 		/* Teleport monster (Use "dam" as "power") */
 		case GF_AWAY_ALL:
@@ -6638,6 +6685,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
+	if ( p_ptr->pclass == CLASS_DUELIST
+	  && p_ptr->duelist_target_idx == who )
+	{
+		dam -= dam/3;
+	}
 
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
@@ -7695,7 +7747,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		/* Mind blast */
 		case GF_MIND_BLAST:
 		{
-			if ((randint0(100 + rlev / 2) < MAX(5, p_ptr->skill_sav)) && !CHECK_MULTISHADOW())
+			if ((randint0(100 + rlev / 2) < MAX(5, duelist_skill_sav(who))) && !CHECK_MULTISHADOW())
 			{
 #ifdef JP
 				msg_print("しかし効力を跳ね返した！");
@@ -7741,7 +7793,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		/* Brain smash */
 		case GF_BRAIN_SMASH:
 		{
-			if ((randint0(100 + rlev / 2) < MAX(5, p_ptr->skill_sav)) && !CHECK_MULTISHADOW())
+			if ((randint0(100 + rlev / 2) < MAX(5, duelist_skill_sav(who))) && !CHECK_MULTISHADOW())
 			{
 #ifdef JP
 				msg_print("しかし効力を跳ね返した！");
@@ -7786,9 +7838,9 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 					}
 					(void)set_slow(p_ptr->slow + randint0(4) + 4, FALSE);
 
-					while (randint0(100 + rlev / 2) > (MAX(5, p_ptr->skill_sav)))
+					while (randint0(100 + rlev / 2) > (MAX(5, duelist_skill_sav(who))))
 						(void)do_dec_stat(A_INT);
-					while (randint0(100 + rlev / 2) > (MAX(5, p_ptr->skill_sav)))
+					while (randint0(100 + rlev / 2) > (MAX(5, duelist_skill_sav(who))))
 						(void)do_dec_stat(A_WIS);
 
 					if (!p_ptr->resist_chaos)
@@ -7803,7 +7855,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		/* cause 1 */
 		case GF_CAUSE_1:
 		{
-			if ((randint0(100 + rlev / 2) < p_ptr->skill_sav) && !CHECK_MULTISHADOW())
+			if ((randint0(100 + rlev / 2) < duelist_skill_sav(who)) && !CHECK_MULTISHADOW())
 			{
 #ifdef JP
 				msg_print("しかし効力を跳ね返した！");
@@ -7823,7 +7875,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		/* cause 2 */
 		case GF_CAUSE_2:
 		{
-			if ((randint0(100 + rlev / 2) < p_ptr->skill_sav) && !CHECK_MULTISHADOW())
+			if ((randint0(100 + rlev / 2) < duelist_skill_sav(who)) && !CHECK_MULTISHADOW())
 			{
 #ifdef JP
 				msg_print("しかし効力を跳ね返した！");
@@ -7843,7 +7895,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		/* cause 3 */
 		case GF_CAUSE_3:
 		{
-			if ((randint0(100 + rlev / 2) < p_ptr->skill_sav) && !CHECK_MULTISHADOW())
+			if ((randint0(100 + rlev / 2) < duelist_skill_sav(who)) && !CHECK_MULTISHADOW())
 			{
 #ifdef JP
 				msg_print("しかし効力を跳ね返した！");
@@ -7863,7 +7915,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		/* cause 4 */
 		case GF_CAUSE_4:
 		{
-			if ((randint0(100 + rlev / 2) < p_ptr->skill_sav) && !(m_ptr->r_idx == MON_KENSHIROU) && !CHECK_MULTISHADOW())
+			if ((randint0(100 + rlev / 2) < duelist_skill_sav(who)) && !(m_ptr->r_idx == MON_KENSHIROU) && !CHECK_MULTISHADOW())
 			{
 #ifdef JP
 				msg_print("しかし秘孔を跳ね返した！");
@@ -7883,7 +7935,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		/* Hand of Doom */
 		case GF_HAND_DOOM:
 		{
-			if ((randint0(100 + rlev/2) < p_ptr->skill_sav) && !CHECK_MULTISHADOW())
+			if ((randint0(100 + rlev/2) < duelist_skill_sav(who)) && !CHECK_MULTISHADOW())
 			{
 #ifdef JP
 				msg_format("しかし効力を跳ね返した！");

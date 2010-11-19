@@ -1108,6 +1108,7 @@ struct player_type
 	s16b tim_blood_revenge;
 
 	bool sense_artifact;
+	s16b duelist_target_idx;
 
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
@@ -1237,10 +1238,7 @@ struct player_type
 
 	bool cumber_armor;	/* Mana draining armor */
 	bool cumber_glove;	/* Mana draining gloves */
-	/*bool heavy_wield[2];	 Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
-	/*bool icky_wield[2]; Icky weapon */
-	/*bool riding_wield[2];	 Riding weapon */
 	bool riding_ryoute;	/* Riding weapon */
 	bool monlite;
 
@@ -1347,22 +1345,16 @@ struct player_type
 	bool mighty_throw;
 	bool see_nocto;		/* Noctovision */
 
-	/*s16b to_dd[2];  Extra dice/sides */
-	/*s16b to_ds[2];*/
 
 	weapon_info_t weapon_info[2];
 
-	/*s16b dis_to_h[2];	 Known bonus to hit (wield) */
 	s16b dis_to_h_b;	/* Known bonus to hit (bow) */
-	/*s16b dis_to_d[2];	 Known bonus to dam (wield) */
 	s16b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */
 
-	/*s16b to_h[2];			 Bonus to hit (wield) */
 	s16b to_h_b;			/* Bonus to hit (bow) */
 	s16b to_h_m;			/* Bonus to hit (misc) */
-	/*s16b to_d[2];			 Bonus to dam (wield) */
 	s16b to_d_m;			/* Bonus to dam (misc) */
 	s16b to_a;			/* Bonus to ac */
 
@@ -1388,7 +1380,6 @@ struct player_type
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
 
-	/*s16b num_blow[2];	 Number of blows */
 	s16b num_fire;		/* Number of shots */
 
 	byte tval_xtra;		/* Correct xtra tval */
@@ -1831,14 +1822,18 @@ typedef struct {
 	ang_spell_action on_cast;	/* Blood Knights take cuts, etc. */
 } caster_info;
 
-/* In progress ... */
+/* In progress ... Massive refactoring underway ... */
 
 typedef void(*process_player_fn)(void);
 typedef void(*calc_bonuses_fn)(void);
 typedef void(*calc_weapon_bonuses_fn)(object_type *o_ptr, weapon_info_t *info_ptr);
+typedef caster_info*(*caster_info_fn)(void);
+typedef int(*get_spells_fn)(spell_info* spells, int max);
 
 typedef struct {
 	process_player_fn process_player;
 	calc_bonuses_fn calc_bonuses;
 	calc_weapon_bonuses_fn calc_weapon_bonuses;
+	caster_info_fn caster_info;
+	get_spells_fn get_spells;
 } class_t;

@@ -155,3 +155,5 @@ R:0:0x9A/0
 R:0:0x93/0
 ?:[EQU $CLASS Archaeologist]
 R:0:0x98/0
+?:[EQU $CLASS Duelist]
+R:0:0x9A/0

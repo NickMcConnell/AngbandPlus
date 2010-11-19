@@ -43,8 +43,6 @@
  * Both of them have the same effect on the "choose spell" routine.
  */
 
-
-
 /*
  * Internal probability routine
  */
@@ -3039,7 +3037,7 @@ msg_print("しかし恐怖に侵されなかった。");
 #endif
 
 			}
-			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
 			{
 #ifdef JP
 msg_print("しかし恐怖に侵されなかった。");
@@ -3083,7 +3081,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 			}
-			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -3127,7 +3125,7 @@ msg_print("しかし幻覚にはだまされなかった。");
 #endif
 
 			}
-			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
 			{
 #ifdef JP
 msg_print("しかし幻覚にはだまされなかった。");
@@ -3165,7 +3163,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 			}
-			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -3209,7 +3207,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 			}
-			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
 			{
 #ifdef JP
 msg_format("しかし効力を跳ね返した！");
@@ -3667,6 +3665,25 @@ msg_format("%^sがあなたを引き戻した。", m_name);
 		{
 			if (!direct) return (FALSE);
 			disturb(1, 0);
+			learn_spell(MS_TELE_AWAY);
+
+			/* Duelist Unending Pursuit */
+			if ( p_ptr->pclass == CLASS_DUELIST
+			  && p_ptr->duelist_target_idx == m_idx
+			  && p_ptr->lev >= 30 )
+			{
+				if (get_check(format("%^s is attempting to teleport you.  Prevent? ", m_name)))
+				{
+					if (one_in_(3))
+						msg_print("Failed!");
+					else
+					{
+						msg_print("You invoke Unending Pursuit ... The duel continues!");
+						break;
+					}
+				}
+			}
+
 #ifdef JP
 msg_format("%^sにテレポートさせられた。", m_name);
 			if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
@@ -3675,7 +3692,6 @@ msg_format("%^sにテレポートさせられた。", m_name);
 			msg_format("%^s teleports you away.", m_name);
 #endif
 
-			learn_spell(MS_TELE_AWAY);
 			teleport_player_away(m_idx, 100);
 			break;
 		}
@@ -3706,7 +3722,7 @@ msg_print("しかし効果がなかった！");
 #endif
 
 			}
-			else if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -3807,7 +3823,7 @@ msg_format("%^sがあなたの記憶を消去しようとしている。", m_name);
 #endif
 
 
-			if (randint0(100 + rlev/2) < p_ptr->skill_sav)
+			if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");

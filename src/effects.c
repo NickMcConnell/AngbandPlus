@@ -5834,6 +5834,22 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		}
 	} /* not if LOSELIFE USELIFE */
 
+
+	/* Tera-Hack:  Duelist Nemesis */
+	if ( p_ptr->pclass == CLASS_DUELIST
+	  && p_ptr->duelist_target_idx
+	  && p_ptr->duelist_target_idx == hack_m_idx
+	  && p_ptr->lev >= 45
+	  && damage > p_ptr->chp )
+	{
+		damage = 0;
+		msg_print("Nemesis!!!!  You cannot be slain by your current target!");
+		set_stun(99, FALSE); /* 100 is Knocked Out */
+		msg_format("%^s is no longer your current target.", duelist_current_challenge());
+		p_ptr->duelist_target_idx = 0;
+		p_ptr->redraw |= PR_STATUS;
+	}
+
 	/* Hurt the player */
 	p_ptr->chp -= damage;
 	if(damage_type == DAMAGE_GENO && p_ptr->chp < 0)
@@ -6151,6 +6167,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 				char ch = inkey();
 				if (ch == 'Y') break;
 			}
+			prt("", 0, 0);
 			msg_flag = FALSE; /* prevents "-more-" message. */
 		}
 		else

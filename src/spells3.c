@@ -361,6 +361,9 @@ bool teleport_player_aux(int dis, u32b mode)
 			/* Skip too far locations */
 			if (d > dis) continue;
 
+			/* Strafing ... Maintains LoS with old location */
+			if ((mode & TELEPORT_LINE_OF_SIGHT) && !los(y, x, py, px)) continue;
+
 			/* Count the total number of candidates */
 			total_candidates++;
 
@@ -402,6 +405,9 @@ bool teleport_player_aux(int dis, u32b mode)
 
 			/* Skip too close locations */
 			if (d < min) continue;
+
+			/* Strafing ... Maintains LoS with old location */
+			if ((mode & TELEPORT_LINE_OF_SIGHT) && !los(y, x, py, px)) continue;
 
 			/* This grid was picked up? */
 			pick--;
@@ -450,6 +456,10 @@ void teleport_player(int dis, u32b mode)
 			{
 				monster_type *m_ptr = &m_list[tmp_m_idx];
 				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+				/* Hack: Duelist Disengage.  Marked foe can never follow */
+				if ((mode & TELEPORT_DISENGAGE) && tmp_m_idx == p_ptr->duelist_target_idx)
+					continue;
 
 				/*
 				 * The latter limitation is to avoid
@@ -573,6 +583,12 @@ void teleport_away_followable(int m_idx)
 		bool follow = FALSE;
 
 		if ((p_ptr->muta1 & MUT1_VTELEPORT) || (p_ptr->pclass == CLASS_IMITATOR)) follow = TRUE;
+		else if (p_ptr->pclass == CLASS_DUELIST
+			  && p_ptr->duelist_target_idx == m_idx
+			  && p_ptr->lev >= 30 )
+		{
+			follow = TRUE;
+		}
 		else
 		{
 			u32b flgs[TR_FLAG_SIZE];
@@ -599,7 +615,7 @@ void teleport_away_followable(int m_idx)
 #ifdef JP
 			if (get_check_strict("ついていきますか？", CHECK_OKAY_CANCEL))
 #else
-			if (get_check_strict("Do you follow it? ", CHECK_OKAY_CANCEL))
+			if (get_check("Do you follow it? "))
 #endif
 			{
 				if (one_in_(3))
@@ -611,7 +627,16 @@ void teleport_away_followable(int m_idx)
 					msg_print("Failed!");
 #endif
 				}
-				else teleport_player_to(m_ptr->fy, m_ptr->fx, 0L);
+				else 
+				{
+					if (p_ptr->pclass == CLASS_DUELIST
+					 && p_ptr->duelist_target_idx == m_idx
+					 && p_ptr->lev >= 30 )
+					{
+						msg_print("You invoke Unending Pursuit ... The duel continues!");
+					}
+					teleport_player_to(m_ptr->fy, m_ptr->fx, 0L);
+				}
 				p_ptr->energy_need += ENERGY_NEED();
 			}
 		}

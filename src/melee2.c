@@ -4261,12 +4261,20 @@ static void process_monsters_mtimed_aux(int m_idx, int mtimed_idx)
 		if (test)
 		{
 			u32b notice = randint0(1024);
+			int noise = csleep_noise;
 
 			/* Nightmare monsters are more alert */
 			if (ironman_nightmare) notice /= 2;
 
+			/* Hack: Duelist Stealthy Approach */
+			if ( p_ptr->pclass == CLASS_DUELIST
+			  && p_ptr->duelist_target_idx == m_idx )
+			{
+				noise = (1L << (30 - p_ptr->skill_stl - 5));
+			}
+
 			/* Hack -- See if monster "notices" player */
-			if ((notice * notice * notice) <= csleep_noise)
+			if ((notice * notice * notice) <= noise)
 			{
 				/* Hack -- amount of "waking" */
 				/* Wake up faster near the player */

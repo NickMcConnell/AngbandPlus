@@ -743,6 +743,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_blood_revenge);
 	wr_s16b(p_ptr->tim_blood_seek);
 	wr_byte(p_ptr->sense_artifact);
+	wr_s16b(p_ptr->duelist_target_idx);
 
 	/* by henkma */
 	wr_s16b(p_ptr->tim_reflect);

@@ -3570,6 +3570,8 @@ static void player_wipe(void)
 	p_ptr->muta2_lock = 0;
 	p_ptr->muta3_lock = 0;
 
+	p_ptr->duelist_target_idx = 0;
+
 	/* Reset virtues*/
 	for (i = 0; i < 8; i++) p_ptr->virtues[i]=0;
 
@@ -4081,7 +4083,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
 		/* Duelist */
 		{ TV_RING, SV_RING_RES_FEAR },
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL},
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SWORD, SV_RAPIER },
 	},
 };

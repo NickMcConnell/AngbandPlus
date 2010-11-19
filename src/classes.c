@@ -4,6 +4,8 @@
 
 #include "angband.h"
 
+/* Goal: This should be the one and only switch off of p_ptr->pclass in the
+   entire system! */
 class_t *get_class_t(void)
 {
 class_t *result = NULL;

@@ -77,7 +77,7 @@
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
 #define H_VER_PATCH 13
-#define H_VER_EXTRA 0
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -1215,9 +1215,11 @@
 /*
  * Bit flags for teleportation
  */
-#define TELEPORT_NONMAGICAL 0x00000001
-#define TELEPORT_PASSIVE    0x00000002
-#define TELEPORT_DEC_VALOUR 0x00000004
+#define TELEPORT_NONMAGICAL    0x00000001
+#define TELEPORT_PASSIVE       0x00000002
+#define TELEPORT_DEC_VALOUR    0x00000004
+#define TELEPORT_LINE_OF_SIGHT 0x00000008
+#define TELEPORT_DISENGAGE	   0x00000010
 
 
 /* Types of doors */
@@ -1495,6 +1497,7 @@
 #define ART_MAGLOR				245
 #define ART_DAERON				246
 #define ART_MASTER_TONBERRY		247
+#define ART_DUELIST				248
 
 /* Polearms */
 #define ART_THEODEN             93
@@ -3114,8 +3117,9 @@
 #define GF_ELDRITCH_CONFUSE	122
 #define GF_REMOVE_OBSTACLE	123
 #define GF_PHARAOHS_CURSE   124
+#define GF_ISOLATION	    125
 
-#define MAX_GF				125
+#define MAX_GF				126
 
 /*
  * Some things which induce learning

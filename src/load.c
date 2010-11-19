@@ -1438,6 +1438,11 @@ static void rd_extra(void)
 	else
 		rd_byte((byte *)&p_ptr->sense_artifact);
 
+	if (h_older_than(0, 0, 13, 1))
+		p_ptr->duelist_target_idx = 0;
+	else
+		rd_s16b(&p_ptr->duelist_target_idx);
+
 	rd_s16b(&p_ptr->tim_reflect);
 	rd_s16b(&p_ptr->multishadow);
 	rd_s16b(&p_ptr->dustrobe);

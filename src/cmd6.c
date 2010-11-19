@@ -4543,6 +4543,12 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				break;
 			}
 
+			case ART_DUELIST:
+				msg_print("Your rapier glows a deep purple...");
+				teleport_player(10, TELEPORT_LINE_OF_SIGHT);
+				o_ptr->timeout = 3;
+				break;
+
 			case ART_LOHENGRIN:
 			case ART_DAERON:
 			{

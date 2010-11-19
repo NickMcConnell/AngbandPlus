@@ -1800,6 +1800,8 @@ extern bool multiply_barrier(int m_idx);
 
 /* classes.c */
 extern class_t *get_class_t(void);
+extern class_t *archaeologist_get_class_t(void);
+extern class_t *duelist_get_class_t(void);
 
 /* spells.c */
 extern void browse_spells(spell_info* spells, int ct, caster_info *caster);
@@ -1820,15 +1822,10 @@ extern void light_area_spell(int cmd, variant *res);
 extern void polish_shield_spell(int cmd, variant *res);
 extern void recharging_spell(int cmd, variant *res);
 
-/* archaeologist.c */
-extern class_t *archaeologist_get_class_t(void);
-
-extern caster_info archaeologist_caster_info;
-extern int archaeologist_get_spells(spell_info* spells, int max);
-extern bool archaeologist_is_favored_weapon(object_type *o_ptr);
-
 /* duelist.c */
-extern class_t *duelist_get_class_t(void);
+extern cptr duelist_current_challenge(void);
+extern bool duelist_issue_challenge(void);
+extern int duelist_skill_sav(int m_idx);
 
 /* warlock.c */
 extern bool warlock_is_pact_monster(monster_race *r_ptr);

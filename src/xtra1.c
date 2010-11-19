@@ -380,6 +380,7 @@ static void prt_stat(int stat)
 #define BAR_NO_SPELLS 73
 #define BAR_TIME_SPURT 74
 #define BAR_SPECIAL 75
+#define BAR_DUELIST 76
 
 static struct {
 	byte attr;
@@ -537,6 +538,7 @@ static struct {
 	{TERM_VIOLET, "NS", "No Spells"},
 	{TERM_YELLOW, "Ts", "Spurt"},
 	{TERM_L_BLUE, "Sp", "Special"},
+	{TERM_YELLOW, "", "Duelist Target Goes Here!"},
 	{0, NULL, NULL}
 };
 #endif
@@ -705,6 +707,18 @@ static void prt_status(void)
 
 	if (p_ptr->sense_artifact) ADD_FLG(BAR_SPECIAL);
 
+	if (p_ptr->pclass == CLASS_DUELIST)
+	{
+		static char duelist_buffer[100];
+		ADD_FLG(BAR_DUELIST);
+		if (p_ptr->duelist_target_idx)
+			bar[BAR_DUELIST].attr = TERM_YELLOW;
+		else
+			bar[BAR_DUELIST].attr = TERM_L_DARK;
+		strnfmt(duelist_buffer, 100, "%^s", duelist_current_challenge());
+		bar[BAR_DUELIST].lstr = duelist_buffer;
+	}
+
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
 	{
@@ -734,7 +748,7 @@ static void prt_status(void)
 		}
 	}
 
-	/* Calcurate length */
+	/* Calculate length */
 	for (i = 0; bar[i].sstr; i++)
 	{
 		if (IS_FLG(i))
@@ -3255,10 +3269,6 @@ void calc_bonuses(void)
 
 	p_ptr->align = friend_align;
 
-	/* race_on_calc_bonuses(); */
-	if (class_ptr != NULL && class_ptr->calc_bonuses != NULL)
-		class_ptr->calc_bonuses();
-
 	if (p_ptr->mimic_form) tmp_rp_ptr = &mimic_info[p_ptr->mimic_form];
 	else tmp_rp_ptr = &race_info[p_ptr->prace];
 
@@ -5212,6 +5222,10 @@ void calc_bonuses(void)
 
 	if (p_ptr->ryoute)
 		hold *= 2;
+
+	/* Call the class hook after scanning equipment */
+	if (class_ptr != NULL && class_ptr->calc_bonuses != NULL)
+		class_ptr->calc_bonuses();
 
 	for(i = 0 ; i < 2 ; i++)
 	{
