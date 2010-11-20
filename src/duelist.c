@@ -101,6 +101,7 @@ bool duelist_issue_challenge(void)
 			   will return the correct text */
 			p_ptr->duelist_target_idx = m_idx;
 			msg_format("You challenge %s to a duel!", duelist_current_challenge());
+			set_monster_csleep(m_idx, 0);
 			result = TRUE;
 		}
 	}
@@ -292,6 +293,44 @@ static void _charge_target_spell(int cmd, variant *res)
 	}
 }
 
+static void _darting_duel_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Darting Duel");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Move up to 5 squares and attack your marked foe.  Strafe if you attack your foe.");
+		break;
+	case SPELL_CAST:
+		{
+			int tmp = p_ptr->duelist_target_idx;
+			_rush_result r = _rush_attack(5, _rush_normal);
+			if (r == _rush_cancelled)
+				var_set_bool(res, FALSE);
+			else 
+			{
+				var_set_bool(res, TRUE);
+				if (r == _rush_succeeded && tmp == p_ptr->duelist_target_idx)
+				{
+					monster_type *m_ptr = &m_list[p_ptr->duelist_target_idx];
+					if (!(m_ptr->smart & SM_TICKED_OFF))
+					{
+						msg_format("%^s is ticked off!", duelist_current_challenge());
+						m_ptr->smart |= SM_TICKED_OFF;
+					}
+					teleport_player(10, TELEPORT_LINE_OF_SIGHT);
+				}
+			}
+		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _disengage_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -419,7 +458,7 @@ static void _strafing_spell(int cmd, variant *res)
  * Spell Table
  ****************************************************************/
 
-#define MAX_DUELIST_SPELLS	7
+#define MAX_DUELIST_SPELLS	8
 
 static spell_info _spells[MAX_DUELIST_SPELLS] = 
 {
@@ -430,7 +469,8 @@ static spell_info _spells[MAX_DUELIST_SPELLS] =
 	{ 24,  25,  0, _disengage_spell },
 	{ 32,  30,  0, _acrobatic_charge_spell },
 	{ 40,  60,  0, _isolation_spell },
-	{ 48, 100,  0, _phase_charge_spell },
+	{ 45,  60,  0, _darting_duel_spell },
+	{ 48,  60,  0, _phase_charge_spell },
 }; 
 
 static int _get_spells(spell_info* spells, int max)

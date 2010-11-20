@@ -355,12 +355,13 @@ int calculate_fail_rate(const spell_info *spell, int stat_idx)
 
 		min = adj_mag_fail[stat_idx];
 		if (fail < min) fail = min;
-
-		if (p_ptr->stun > 50) fail += 25;
-		else if (p_ptr->stun) fail += 15;
-
-		if (fail > 95) fail = 95;
 	}
+
+	/* Stunning affects even 0% fail spells */
+	if (p_ptr->stun > 50) fail += 25;
+	else if (p_ptr->stun) fail += 15;
+
+	if (fail > 95) fail = 95;
 	return fail;
 }
  
@@ -472,8 +473,7 @@ void do_cmd_spell(void)
 			if (!cast_spell(spell->fn))
 			{
 				/* Give back the spell cost, since the user canceled the spell */
-				if (caster->use_hp) p_ptr->chp += spell->cost;
-				else if (caster->use_sp) p_ptr->csp += spell->cost;
+				if (caster->use_sp) p_ptr->csp += spell->cost;
 				return;
 			}
 			sound(SOUND_ZAP); /* Wahoo! */
@@ -482,7 +482,7 @@ void do_cmd_spell(void)
 		/* Pay Energy Use ... we already paid casting cost */
 		energy_use = get_spell_energy(spell->fn);
 
-		if (caster->use_hp)
+		if (caster->use_hp && spell->cost > 0)
 			take_hit(DAMAGE_USELIFE, spell->cost, "concentrating too hard", -1);
 
 		if (caster->on_cast != NULL)
