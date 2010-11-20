@@ -82,38 +82,15 @@ bool duelist_issue_challenge(void)
 	int dir = 5;
 	int m_idx = 0;
 
-	/* Hack: Target anybody, anyplace, anytime! */
-	project_length = 255;
-
-	if (get_aim_dir(&dir))
+	if (target_set(TARGET_MARK))
 	{
-		if (dir == 5 && target_okay())
-		{
-			if (target_who > 0)
-				m_idx = target_who;
-			else
-				m_idx = cave[target_row][target_col].m_idx;
-		}
+		msg_flag = FALSE; /* Bug ... we get an extra -more- prompt after target_set() ... */
+		if (target_who > 0)
+			m_idx = target_who;
 		else
-		{
-			int tx, ty;
-			cave_type *c_ptr = NULL;
-
-			ty = py;
-			tx = px;
-			while (!m_idx)
-			{
-				ty += ddy[dir];
-				tx += ddx[dir];
-
-				if (!in_bounds(ty, tx)) break;
-				c_ptr = &cave[ty][tx];
-				m_idx = c_ptr->m_idx;
-				if (!cave_have_flag_bold(ty, tx, FF_PROJECT)) break;
-			}					
-		}
+			m_idx = cave[target_row][target_col].m_idx;
 	}
-			
+
 	if (m_idx)
 	{
 		if (m_idx == p_ptr->duelist_target_idx)
@@ -150,7 +127,8 @@ typedef enum {
 
 typedef enum {
 	_rush_normal,     /* Attacks first monster in the way */
-	_rush_acrobatic   /* Displaces intervening monsters (waking them up) */
+	_rush_acrobatic,   /* Displaces intervening monsters (waking them up) */
+	_rush_phase,
 } _rush_type;
 
 _rush_result _rush_attack(int rng, _rush_type type)
@@ -165,8 +143,10 @@ _rush_result _rush_attack(int rng, _rush_type type)
 
 	if (type == _rush_normal)
 		flg = PROJECT_STOP | PROJECT_KILL;
-	else
+	else if (type == _rush_acrobatic)
 		flg = PROJECT_THRU | PROJECT_KILL;
+	else
+		flg = PROJECT_DISI | PROJECT_THRU;
 
 	if (!p_ptr->duelist_target_idx)
 	{
@@ -178,7 +158,7 @@ _rush_result _rush_attack(int rng, _rush_type type)
 	tx = m_list[tm_idx].fx;
 	ty = m_list[tm_idx].fy;
 
-	if (!los(ty, tx, py, px))
+	if (type != _rush_phase && !los(ty, tx, py, px))
 	{
 		msg_format("%^s is not in your line of sight.", duelist_current_challenge());
 		return result;
@@ -205,7 +185,8 @@ _rush_result _rush_attack(int rng, _rush_type type)
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
 
-		if (cave_empty_bold(ny, nx) && player_can_enter(cave[ny][nx].feat, 0))
+		if ( (type == _rush_phase && !cave[ny][nx].m_idx)
+		  || (cave_empty_bold(ny, nx) && player_can_enter(cave[ny][nx].feat, 0)))
 		{
 			ty = ny;
 			tx = nx;
@@ -394,26 +375,7 @@ static void _phase_charge_spell(int cmd, variant *res)
 		var_set_string(res, "Move up to 10 squares and attack your marked foe.  Functions even if there are walls or closed doors between you and your target.");
 		break;
 	case SPELL_CAST:
-		if (!p_ptr->duelist_target_idx)
-		{
-			msg_print("You need to mark your target first.");
-			var_set_bool(res, FALSE);
-		}
-		else
-		{
-			monster_type *m_ptr = &m_list[p_ptr->duelist_target_idx];
-			if (distance(m_ptr->fy, m_ptr->fx, py, px) <= 10)
-			{
-				teleport_player_to(m_ptr->fy, m_ptr->fx, 0);
-				py_attack(m_ptr->fy, m_ptr->fx, 0);
-				var_set_bool(res, TRUE);
-			}
-			else
-			{
-				msg_print("Your foe is too far away.");
-				var_set_bool(res, FALSE);
-			}
-		}
+		var_set_bool(res, _rush_attack(10, _rush_phase) != _rush_cancelled);
 		break;
 	default:
 		default_spell(cmd, res);

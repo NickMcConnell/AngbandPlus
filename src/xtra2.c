@@ -3074,6 +3074,13 @@ static void target_set_prepare(int mode)
 
 			if ((mode & (TARGET_KILL)) && !target_pet && is_pet(&m_list[c_ptr->m_idx])) continue;
 
+			/* Duelist is attempting to mark a target ... only visible monsters, please! */
+			if ( (mode & TARGET_MARK) 
+			  && (!c_ptr->m_idx || !m_list[c_ptr->m_idx].ml) )
+			{
+				continue;
+			}
+
 			/* Save the location */
 			temp_x[temp_n] = x;
 			temp_y[temp_n] = y;
@@ -3082,7 +3089,7 @@ static void target_set_prepare(int mode)
 	}
 
 	/* Set the sort hooks */
-	if (mode & (TARGET_KILL))
+	if ((mode & TARGET_KILL) || (mode & TARGET_MARK))
 	{
 		/* Target the nearest monster for shooting */
 		ang_sort_comp = ang_sort_comp_distance;
@@ -3877,13 +3884,18 @@ bool target_set(int mode)
 			y = temp_y[m];
 			x = temp_x[m];
 
-			if (!(mode & TARGET_LOOK)) prt_path(y, x);
+			if ( !(mode & TARGET_LOOK)
+			  && !(mode & TARGET_MARK) ) 
+			{
+				prt_path(y, x);
+			}
 
 			/* Access */
 			c_ptr = &cave[y][x];
 
 			/* Allow target */
-			if (target_able(c_ptr->m_idx))
+			if ( target_able(c_ptr->m_idx) 
+			 || ((mode & TARGET_MARK) && m_list[c_ptr->m_idx].ml))
 			{
 #ifdef JP
 strcpy(info, "q止 t決 p自 o現 +次 -前");
@@ -3933,7 +3945,8 @@ strcpy(info, "q止 p自 o現 +次 -前");
 				case '5':
 				case '0':
 				{
-					if (target_able(c_ptr->m_idx))
+					if ( target_able(c_ptr->m_idx) 
+					 || ((mode & TARGET_MARK) && m_list[c_ptr->m_idx].ml))
 					{
 						health_track(c_ptr->m_idx);
 						target_who = c_ptr->m_idx;
@@ -4121,17 +4134,19 @@ strcpy(info, "q止 p自 o現 +次 -前");
 		{
 			bool move_fast = FALSE;
 
-			if (!(mode & TARGET_LOOK)) prt_path(y, x);
+			if ( !(mode & TARGET_LOOK)
+			  && !(mode & TARGET_MARK) ) 
+			{
+				prt_path(y, x);
+			}
 
 			/* Access */
 			c_ptr = &cave[y][x];
 
-			/* Default prompt */
-#ifdef JP
-strcpy(info, "q止 t決 p自 m近 +次 -前");
-#else
-			strcpy(info, "q,t,p,m,+,-,<dir>");
-#endif
+			if ((mode & TARGET_MARK) && !m_list[c_ptr->m_idx].ml)
+				strcpy(info, "q,p,o,+,-,<dir>");
+			else
+				strcpy(info, "q,t,p,m,+,-,<dir>");
 
 
 			/* Describe and Prompt (enable "TARGET_LOOK") */
@@ -4162,13 +4177,22 @@ strcpy(info, "q止 t決 p自 m近 +次 -前");
 				case '.':
 				case '5':
 				case '0':
+				if ( !(mode & TARGET_MARK) 
+				  || (c_ptr->m_idx && m_list[c_ptr->m_idx].ml) )
 				{
-					target_who = -1;
+					if (mode & TARGET_MARK)
+						target_who = c_ptr->m_idx;
+					else
+						target_who = -1;
 					target_row = y;
 					target_col = x;
 					done = TRUE;
-					break;
 				}
+				else
+				{
+					bell();
+				}
+				break;
 
 				case 'p':
 				{

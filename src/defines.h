@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 13
+#define FAKE_VER_PATCH 14
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 13
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 14
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -2696,11 +2696,14 @@
  *      LOOK: Describe grid fully
  *      XTRA: Currently unused flag
  *      GRID: Select from all grids
+ *      MARK: Hack for The Duelist.  Only target viewable monsters.
+ *            Don't restrict selection to LoS.
  */
-#define TARGET_KILL             0x01
-#define TARGET_LOOK             0x02
-#define TARGET_XTRA             0x04
-#define TARGET_GRID             0x08
+#define TARGET_KILL		0x01
+#define TARGET_LOOK		0x02
+#define TARGET_XTRA		0x04
+#define TARGET_GRID		0x08
+#define TARGET_MARK		0x10
 
 
 /*
