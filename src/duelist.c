@@ -140,6 +140,7 @@ _rush_result _rush_attack(int rng, _rush_type type)
 	int path_n, i;
 	bool moved = FALSE;
 	int flg = 0;
+	int dis = 0;
 
 	if (type == _rush_normal)
 		flg = PROJECT_STOP | PROJECT_KILL;
@@ -158,10 +159,21 @@ _rush_result _rush_attack(int rng, _rush_type type)
 	tx = m_list[tm_idx].fx;
 	ty = m_list[tm_idx].fy;
 
-	if (type != _rush_phase && !los(ty, tx, py, px))
+	dis = distance(ty, tx, py, px);
+
+	/* Foe must be visible.  For all charges except the phase charge, the
+	   foe must also be in your line of sight */
+	if (!m_list[p_ptr->duelist_target_idx].ml ||
+	    (type != _rush_phase && !los(ty, tx, py, px)))
 	{
 		msg_format("%^s is not in your line of sight.", duelist_current_challenge());
 		return result;
+	}
+
+	if (dis > rng)
+	{
+		msg_format("Your foe is out of range (%d vs %d).", dis, rng);
+		if (!get_check("Charge anyway? ")) return result;
 	}
 
 	project_length = rng;
@@ -185,7 +197,7 @@ _rush_result _rush_attack(int rng, _rush_type type)
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
 
-		if ( (type == _rush_phase && !cave[ny][nx].m_idx)
+		if ( (type == _rush_phase && !cave[ny][nx].m_idx && !cave_have_flag_bold(ny, nx, FF_PERMANENT))
 		  || (cave_empty_bold(ny, nx) && player_can_enter(cave[ny][nx].feat, 0)))
 		{
 			ty = ny;

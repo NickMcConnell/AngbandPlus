@@ -370,6 +370,7 @@ static void compact_monsters_aux(int i1, int i2)
 
 	/* Hack -- Update the target */
 	if (target_who == i1) target_who = i2;
+	if (p_ptr->duelist_target_idx == i1) p_ptr->duelist_target_idx = i2;
 
 	/* Hack -- Update the target */
 	if (pet_t_m_idx == i1) pet_t_m_idx = i2;
