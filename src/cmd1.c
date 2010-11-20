@@ -3293,26 +3293,35 @@ bool py_attack(int y, int x, int mode)
 	/* Handle player fear */
 	if (p_ptr->afraid)
 	{
-		/* Message */
-		if (m_ptr->ml)
-#ifdef JP
-			msg_format("恐くて%sを攻撃できない！", m_name);
-#else
-			msg_format("You are too afraid to attack %s!", m_name);
-#endif
-
+		if ( p_ptr->pclass == CLASS_DUELIST
+		  && p_ptr->lev >= 5
+		  && p_ptr->duelist_target_idx == c_ptr->m_idx )
+		{
+			/* Duelist: Fearless Duel */
+		}
 		else
+		{
+			/* Message */
+			if (m_ptr->ml)
 #ifdef JP
-			msg_format ("そっちには何か恐いものがいる！");
+				msg_format("恐くて%sを攻撃できない！", m_name);
 #else
-			msg_format ("There is something scary in your way!");
+				msg_format("You are too afraid to attack %s!", m_name);
 #endif
 
-		/* Disturb the monster */
-		(void)set_monster_csleep(c_ptr->m_idx, 0);
+			else
+#ifdef JP
+				msg_format ("そっちには何か恐いものがいる！");
+#else
+				msg_format ("There is something scary in your way!");
+#endif
 
-		/* Done */
-		return FALSE;
+			/* Disturb the monster */
+			(void)set_monster_csleep(c_ptr->m_idx, 0);
+
+			/* Done */
+			return FALSE;
+		}
 	}
 
 	if (MON_CSLEEP(m_ptr)) /* It is not honorable etc to attack helpless victims */
