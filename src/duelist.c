@@ -71,9 +71,7 @@ int duelist_skill_sav(int m_idx)
 	if ( p_ptr->pclass == CLASS_DUELIST
 	  && p_ptr->duelist_target_idx == m_idx )
 	{
-		/*result += 30;*/
-		/* Same effect as "Anti-Magic */
-		result = MAX(result, 90 + p_ptr->lev);
+		result = result + 15 + p_ptr->lev;
 	}
 	return result;
 }
@@ -104,6 +102,7 @@ bool duelist_issue_challenge(void)
 			p_ptr->duelist_target_idx = m_idx;
 			msg_format("You challenge %s to a duel!", duelist_current_challenge());
 			set_monster_csleep(m_idx, 0);
+			set_hostile(&m_list[m_idx]);
 			result = TRUE;
 		}
 	}
@@ -196,25 +195,42 @@ _rush_result _rush_attack(int rng, _rush_type type)
 	{
 		monster_type *m_ptr;
 		cave_type *c_ptr;
+		bool can_enter = FALSE;
+		bool old_pass_wall = p_ptr->pass_wall;
 
 		int ny = GRID_Y(path_g[i]);
 		int nx = GRID_X(path_g[i]);
+		c_ptr = &cave[ny][nx];
 
-		if ( (type == _rush_phase && !cave[ny][nx].m_idx && !cave_have_flag_bold(ny, nx, FF_PERMANENT))
-		  || (cave_empty_bold(ny, nx) && player_can_enter(cave[ny][nx].feat, 0)))
+		switch (type)
+		{
+		case _rush_normal:
+			can_enter = cave_empty_bold(ny, nx) && player_can_enter(c_ptr->feat, 0);
+			break;
+
+		case _rush_acrobatic:
+			can_enter = !c_ptr->m_idx && player_can_enter(c_ptr->feat, 0);
+			break;
+		
+		case _rush_phase:
+			p_ptr->pass_wall = TRUE;
+			can_enter = !c_ptr->m_idx && player_can_enter(c_ptr->feat, 0);
+			p_ptr->pass_wall = old_pass_wall;
+			break;
+		}
+
+		if (can_enter)
 		{
 			ty = ny;
 			tx = nx;
 			continue;
 		}
 
-		if (!cave[ny][nx].m_idx)
+		if (!c_ptr->m_idx)
 		{
 			msg_print("Failed!");
 			break;
 		}
-
-		c_ptr = &cave[ny][nx];
 
 		/* Move player before updating the monster */
 		if (!player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
