@@ -515,7 +515,7 @@ static void _calc_bonuses(void)
 
 	if (!msg)
 	{
-		int x = p_ptr->stat_ind[A_INT];
+		int x = (p_ptr->stat_ind[A_INT] + 3);
 		int l = p_ptr->lev;
 		int to_a = x/2 + x*l/50;
 		p_ptr->to_a += to_a;
@@ -544,7 +544,7 @@ static void _calc_bonuses(void)
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
-	int to_d = 10 + p_ptr->lev/2 - o_ptr->weight/10;
+	int to_d = (p_ptr->stat_ind[A_DEX] + 3 - 10) + p_ptr->lev/2 - o_ptr->weight/10;
 
 	if (!_equip_error())
 	{

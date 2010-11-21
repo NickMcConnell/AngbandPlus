@@ -2390,7 +2390,7 @@ note = "には耐性がある。";
 				/* Sound resistance prevents stunning, but does not reduce damage! */
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
 			}
-			else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + p_ptr->stat_ind[A_CHR])
+			else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_CHR] + 3))
 			{
 				note = " resists stunning.";
 			}
@@ -4718,7 +4718,7 @@ note = "には耐性がある！";
 
 					resists_tele = TRUE;
 				}
-				else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + p_ptr->stat_ind[A_INT])
+				else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3))
 				{
 					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 #ifdef JP

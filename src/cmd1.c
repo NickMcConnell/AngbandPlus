@@ -2397,7 +2397,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 
 				/* Massive Hack: Monk stunning is now greatly biffed! */
-				if (r_ptr->level + randint1(100) > p_ptr->lev*2 + p_ptr->stat_ind[A_DEX])
+				if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3))
 					stun_effect = 0;
 
 				if (stun_effect && ((k + p_ptr->weapon_info[hand].to_d) < m_ptr->hp))
@@ -2633,26 +2633,26 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 				if ( p_ptr->lev >= 15	/* Hamstring */
 					&& !(r_ptr->flags1 & (RF1_UNIQUE))
-					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + p_ptr->stat_ind[A_INT] )
+					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
 				{
 					msg_format("You hamstring %s.", m_name);
 					set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50);
 				}
 				if ( p_ptr->lev >= 20	/* Wounding Strike */
-					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + p_ptr->stat_ind[A_INT] )
+					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
 				{
 					msg_format("%^s is dealt a wounding strike.", m_name);
 					k += MIN(m_ptr->hp / 5, p_ptr->lev * 10);
 				}
 				if ( p_ptr->lev >= 25	/* Stunning Blow */
 				    && !(r_ptr->flags3 & (RF3_NO_STUN))
-					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + p_ptr->stat_ind[A_INT] )
+					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
 				{
 					msg_format("%^s is dealt a stunning blow.", m_name);
 					set_monster_stunned(c_ptr->m_idx, MON_STUNNED(m_ptr) + 1);
 				}
 				if ( p_ptr->lev >= 40	/* Greater Wounding Strike */
-					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + p_ptr->stat_ind[A_INT] )
+					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
 				{
 					msg_format("%^s is dealt a *WOUNDING* strike.", m_name);
 					k += MIN(m_ptr->hp * 2 / 5, (p_ptr->lev - 20) * 50);
