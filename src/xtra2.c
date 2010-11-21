@@ -1858,6 +1858,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			/* When the player kills a Unique, it stays dead */
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
+				if (m_ptr->r_idx == MON_PHOENIX && one_in_(3))
+				{
+					m_ptr->hp = m_ptr->maxhp;
+					msg_print("The Phoenix rises again!");
+					return FALSE;
+				}
+
 				r_ptr->max_num = 0;
 
 				/* Mega-Hack -- Banor & Lupart */

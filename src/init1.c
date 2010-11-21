@@ -378,7 +378,7 @@ static cptr r_info_flags4[] =
 	"DISPEL",
 	"ROCKET",
 	"SHOOT",
-	"XXX2",
+	"ANTI_MAGIC",
 	"XXX3",
 	"XXX4",
 	"BR_ACID",

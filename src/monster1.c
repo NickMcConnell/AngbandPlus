@@ -1388,6 +1388,8 @@ if (flags4 & RF4_DISPEL)    {vp[vn] = "魔力消去";color[vn++] = TERM_L_WHITE;}
 	if (flags4 & RF4_DISPEL)    {vp[vn] = "dispel-magic";color[vn++] = TERM_L_WHITE;}
 #endif
 
+	if (flags4 & RF4_ANTI_MAGIC) {vp[vn] = "anti-magic";color[vn++] = TERM_L_WHITE;}
+
 #ifdef JP
 if (flags6 & (RF6_BLINK))           {vp[vn] = "ショートテレポート";color[vn++] = TERM_UMBER;}
 #else

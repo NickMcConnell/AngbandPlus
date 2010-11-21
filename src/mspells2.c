@@ -657,6 +657,12 @@ bool monst_spell_monst(int m_idx)
 			f4 &= ~(RF4_DISPEL);
 		}
 
+		/* Anti-magic only vs. Player for now */
+		if (f4 & RF4_ANTI_MAGIC)
+		{
+			f4 &= ~(RF4_ANTI_MAGIC);
+		}
+
 		/* Check for a possible raise dead */
 		if ((f6 & RF6_RAISE_DEAD) && !raise_possible(m_ptr))
 		{
@@ -902,9 +908,9 @@ bool monst_spell_monst(int m_idx)
 
 		break;
 
-	/* RF4_XXX2 */
+	/* RF4_ANTI_MAGIC */
 	case 96+5:
-		/* XXX XXX XXX */
+		/* Monsters will only do this vs player for now ... */
 		return FALSE;
 
 	/* RF4_XXX3 */

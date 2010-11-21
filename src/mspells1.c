@@ -637,8 +637,8 @@ msg_format("悪意に満ちた黒いオーラが%sをとりまいた...", o_name);
  */
 static bool spell_attack(byte spell)
 {
-	/* All RF4 spells hurt (except for shriek and dispel) */
-	if (spell < 128 && spell > 98) return (TRUE);
+	/* All RF4 spells hurt (except for shriek and dispel and anti-magic) */
+	if (spell < 128 && spell > 98 && spell != (96 + 5)) return (TRUE);
 
 	/* BA_DISI */
 	if (spell == 96 + 1) return (TRUE);
@@ -831,6 +831,31 @@ static bool spell_dispel(byte spell)
 	return (FALSE);
 }
 
+/*
+ * Return TRUE if a spell is good for anti-magic.
+ */
+static bool spell_anti_magic(byte spell)
+{
+	if (spell == 96 + 5) return (TRUE);
+
+	/* No dispel */
+	return (FALSE);
+}
+
+static bool anti_magic_check(void)
+{
+	switch (p_ptr->pclass)
+	{
+	case CLASS_WARRIOR:
+	case CLASS_BERSERKER:
+	case CLASS_SMITH:
+	case CLASS_ARCHER:
+	case CLASS_CAVALRY:
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 /*
  * Check should monster cast dispel spell.
@@ -965,6 +990,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	byte raise[96], raise_num = 0;
 	byte heal[96], heal_num = 0;
 	byte dispel[96], dispel_num = 0;
+	byte anti_magic[96], anti_magic_num = 0;
 
 	int i;
 
@@ -1016,6 +1042,8 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 
 		/* Dispel spell? */
 		if (spell_dispel(spells[i])) dispel[dispel_num++] = spells[i];
+
+		if (spell_anti_magic(spells[i])) anti_magic[anti_magic_num++] = spells[i];
 	}
 
 	/*** Try to pick an appropriate spell type ***/
@@ -1103,14 +1131,15 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 		if (randint0(100) < odds) return (summon[randint0(summon_num)]);
 	}
 
-	/* dispel */
-	if (dispel_num && one_in_(2))
+	/* dispel or anti-magic ... these abilities are evil, so
+	   only roll the 1 in 2 odds once */
+	if ((dispel_num || anti_magic_num) && one_in_(2))
 	{
-		/* Choose dispel spell if possible */
-		if (dispel_check(m_idx))
-		{
+		int n = randint1(10);
+		if (n <= 7 && dispel_num && dispel_check(m_idx))
 			return (dispel[randint0(dispel_num)]);
-		}
+		else if (anti_magic_check())
+			return (anti_magic[randint0(anti_magic_num)]);
 	}
 
 	/* Raise-dead if possible (sometimes) */
@@ -1819,10 +1848,15 @@ else msg_format("%^sが矢を放った。", m_name);
 			break;
 		}
 
-		/* RF4_XXX2 */
+		/* RF4_ANTI_MAGIC */
 		case 96+5:
 		{
-			/* XXX XXX XXX */
+			if (blind) msg_format("%^s mumbles powerfully.", m_name);
+			else msg_format("%^s invokes anti-magic.", m_name);
+			if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
+				msg_print("You resist the effects!");
+			else
+				set_tim_no_spells(p_ptr->tim_no_spells + 1 + randint1(3), FALSE);
 			break;
 		}
 

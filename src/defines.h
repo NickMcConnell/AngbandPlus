@@ -3676,7 +3676,7 @@
 #define RF4_DISPEL          0x00000004  /* Dispel magic */
 #define RF4_ROCKET          0x00000008  /* TY: Rocket */
 #define RF4_SHOOT           0x00000010  /* Fire missiles */
-#define RF4_XXX2            0x00000020
+#define RF4_ANTI_MAGIC      0x00000020
 #define RF4_XXX3            0x00000040
 #define RF4_XXX4            0x00000080
 #define RF4_BR_ACID         0x00000100  /* Breathe Acid */
@@ -3895,7 +3895,7 @@
  * Including "summon" spells
  */
 #define RF4_INT_MASK \
-	(RF4_SUMMON_MASK | RF4_DISPEL)
+	(RF4_SUMMON_MASK | RF4_DISPEL | RF4_ANTI_MAGIC)
 
 #define RF5_INT_MASK \
 	(RF5_SUMMON_MASK | \
@@ -4011,7 +4011,7 @@
  * Including "bolt", "beam" and "ball" spells
  */
 #define RF4_ATTACK_MASK \
-	(RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK | RF4_DISPEL)
+	(RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK | RF4_DISPEL | RF4_ANTI_MAGIC)
 
 #define RF5_ATTACK_MASK \
 	(RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | \
@@ -5070,6 +5070,7 @@ extern int PlayerUID;
 #define MON_LORD_CHAOS    737
 #define MON_TINDALOS      739
 #define MON_DEMILICH      742
+#define MON_PHOENIX		  743
 #define MON_NIGHTCRAWLER  744
 #define MON_CHAOS_VOR     751
 #define MON_AETHER_VOR    752

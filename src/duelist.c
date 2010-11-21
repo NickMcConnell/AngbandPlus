@@ -71,7 +71,9 @@ int duelist_skill_sav(int m_idx)
 	if ( p_ptr->pclass == CLASS_DUELIST
 	  && p_ptr->duelist_target_idx == m_idx )
 	{
-		result += 30;
+		/*result += 30;*/
+		/* Same effect as "Anti-Magic */
+		result = MAX(result, 90 + p_ptr->lev);
 	}
 	return result;
 }

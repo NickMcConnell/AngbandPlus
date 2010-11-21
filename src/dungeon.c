@@ -1804,6 +1804,8 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	}
 	else
 	{
+		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+			regen_amount += regen_amount*p_ptr->lev/50;
 		/* Regeneration ability */
 		if (p_ptr->regenerate)
 		{
@@ -1872,7 +1874,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 
 	/* Poisoned or cut yields no healing */
 	if (p_ptr->poisoned) regen_amount = 0;
-	if (p_ptr->cut) regen_amount = 0;
+	if (p_ptr->cut && p_ptr->pclass != CLASS_BLOOD_KNIGHT) regen_amount = 0;
 
 	/* Special floor -- Pattern, in a wall -- yields no healing */
 	if (cave_no_regen) regen_amount = 0;

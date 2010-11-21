@@ -14352,7 +14352,7 @@ F:SMART | COLD_BLOOD | CAN_SWIM |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_NETH |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
-S:TELE_AWAY | BLIND | CONF | SCARE | CAUSE_3 | FORGET | DARKNESS | DISPEL
+S:TELE_AWAY | BLIND | CONF | SCARE | CAUSE_3 | FORGET | DARKNESS | DISPEL | ANTI_MAGIC
 D:$A skeletal hand floating in the air, motionless except for its flexing 
 D:$fingers.
 D:それは宙に浮かぶ手の骨で、指が滑らかに動く他には身動きをしない。
@@ -14935,7 +14935,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP |
 S:1_IN_2 |
-S:TELE_TO | BLIND | BO_MANA | S_ANGEL | S_KIN | INVULNER | DISPEL | PSY_SPEAR
+S:TELE_TO | BLIND | BO_MANA | S_ANGEL | S_KIN | INVULNER | DISPEL | ANTI_MAGIC | PSY_SPEAR
 S:BR_MANA | BR_LITE | BR_ELEC | BA_MANA | HAND_DOOM | S_HI_DRAGON |
 S:BRAIN_SMASH | S_MONSTERS | HEAL | BR_DISE | BA_LITE
 D:$Commanding a legion of angels, Raphael will destroy you for your sins.  He 
@@ -15133,7 +15133,7 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:DRAIN_MANA | BRAIN_SMASH | S_HI_UNDEAD | S_UNDEAD | FORGET |
-S:TPORT | HEAL | S_KIN | S_DEMON | BA_NETH | ANIM_DEAD | DISPEL
+S:TPORT | HEAL | S_KIN | S_DEMON | BA_NETH | ANIM_DEAD | DISPEL | ANTI_MAGIC
 D:$A lich who has reached its ultimate evolutionary stage: a completely 
 D:$immaterial state.
 D:進化の最終段階に達したリッチで、完全に非物質化している。
@@ -15255,7 +15255,7 @@ F:BASH_DOOR | FEMALE | SMART | DROP_CORPSE |
 F:EVIL | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
-S:DARKNESS | BO_ACID | BO_FIRE | BO_COLD | S_KIN | BO_MANA | DISPEL
+S:DARKNESS | BO_ACID | BO_FIRE | BO_COLD | S_KIN | BO_MANA | DISPEL | ANTI_MAGIC
 D:$A disembodied eye, surrounded by twelve smaller eyes on stalks. 
 D:$This is a beholder hive-mother, far more powerful than normal 
 D:$beholders.
@@ -15882,7 +15882,7 @@ F:IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:BRAIN_SMASH | TRAPS | BA_MANA | 
-S:BO_MANA | BA_NETH | DISPEL | PSY_SPEAR |
+S:BO_MANA | BA_NETH | DISPEL | ANTI_MAGIC | PSY_SPEAR |
 S:S_MONSTERS | S_UNDEAD | S_KIN | ANIM_DEAD
 D:$He is a highly cunning, extremely magical being, spoken of in legends.  
 D:$This ancient shadow of death wilts any living thing it passes.
@@ -16324,7 +16324,7 @@ F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
 F:EVIL | IM_FIRE | IM_COLD | 
 F:IM_ELEC | NO_CONF | NO_SLEEP | POWERFUL |
 S:1_IN_2 | 
-S:TELE_TO | HOLD | CAUSE_3 | TRAPS | ANIM_DEAD | DISPEL | PSY_SPEAR |
+S:TELE_TO | HOLD | CAUSE_3 | TRAPS | ANIM_DEAD | DISPEL | ANTI_MAGIC | PSY_SPEAR |
 S:BO_PLAS | BA_DARK | BA_MANA | BA_FIRE | BA_WATE | BA_NETH
 D:$The Mouth of Sauron is a mighty spell caster.  So old that even he cannot 
 D:$remember his own name, his power and evil are undeniable.  He believes 
@@ -16352,7 +16352,7 @@ F:EVIL | IM_FIRE | IM_COLD |
 F:IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:CAUSE_3 | TELE_TO | BA_FIRE | DRAIN_MANA | HOLD |
-S:TRAPS | BA_WATE | BO_PLAS | BA_NETH | DISPEL | PSY_SPEAR |
+S:TRAPS | BA_WATE | BO_PLAS | BA_NETH | DISPEL | ANTI_MAGIC | PSY_SPEAR |
 S:BA_MANA | BA_DARK | S_HI_UNDEAD | BA_CHAO | HAND_DOOM | ANIM_DEAD
 D:$Klingsor, whose hopeless effort to join the Knights of the Grail 
 D:$was thwarted, turned to black magic and became a deadly necromancer.
@@ -16835,7 +16835,7 @@ S:1_IN_3 |
 S:SHRIEK | HASTE | HEAL | DRAIN_MANA | TPORT | TELE_TO | TELE_AWAY |
 S:TELE_LEVEL | FORGET | S_CYBER | S_DEMON | HAND_DOOM | S_HI_UNDEAD |
 S:S_UNIQUE | S_HI_DRAGON | BA_DARK | BA_MANA | S_AMBERITES | ANIM_DEAD
-S:INVULNER | DISPEL | PSY_SPEAR
+S:INVULNER | DISPEL | ANTI_MAGIC | PSY_SPEAR
 D:$Loki, the god of mischief, is a nasty person. He will use every 
 D:$dirty trick in the book, and then some. In the end, his half-giant 
 D:$heritage is bound to show, as he will defect to the side of the 
@@ -17011,7 +17011,7 @@ S:1_IN_2 |
 S:FORGET | HEAL | HAND_DOOM | BA_MANA | TPORT | TELE_AWAY |
 S:TELE_LEVEL | CONF | BLIND | BRAIN_SMASH | DRAIN_MANA |
 S:S_MONSTERS | S_KIN | S_CYBER | S_HOUND | S_HYDRA | S_DEMON |
-S:S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON | ANIM_DEAD | DISPEL | PSY_SPEAR
+S:S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON | ANIM_DEAD | DISPEL | ANTI_MAGIC | PSY_SPEAR
 D:$Shuma-Gorath is one of the immortal lords of chaos. The true form of 
 D:$this blasphemous horror is a huge, all-seeing eye surrounded by tentacles.
 D:『シュマ=ゴラス』は不死なる混沌の神の一人である。この冒涜的な恐怖
@@ -17087,7 +17087,7 @@ F:EVIL | UNDEAD | POWERFUL |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP |
 S:1_IN_3 | 
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
-S:BA_MANA | BO_MANA | BA_FIRE | DISPEL | PSY_SPEAR |
+S:BA_MANA | BO_MANA | BA_FIRE | DISPEL | ANTI_MAGIC | PSY_SPEAR |
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | HAND_DOOM | ANIM_DEAD
 D:$A stench of corruption and decay surrounds this sorcerer, who has clearly 
 D:$risen from the grave to continue his foul plots and schemes.
@@ -17114,7 +17114,7 @@ F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | ATTR_MULTI | ATTR_ANY | AURA_COLD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | NONLIVING | CAN_FLY | POWERFUL |
 F:EVIL | IM_ACID | IM_COLD | IM_ELEC | IM_POIS | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 |
-S:BO_MANA | BRAIN_SMASH | BA_MANA | S_MONSTERS | S_CYBER | DISPEL | BA_LITE |
+S:BO_MANA | BRAIN_SMASH | BA_MANA | S_MONSTERS | S_CYBER | DISPEL | ANTI_MAGIC | BA_LITE |
 S:BA_CHAO | S_DEMON | S_HI_UNDEAD | S_HOUND | BR_MANA | BR_DISI | PSY_SPEAR
 D:$"Great globes of light massing towards the opening... the breaking 
 D:$apart of the nearest globes, and the protoplasmic flesh that 
@@ -17251,7 +17251,7 @@ S:1_IN_1 |
 S:TELE_AWAY | TELE_TO | TELE_LEVEL | TPORT |
 S:BO_MANA | BA_MANA | S_MONSTERS | HEAL |
 S:HASTE | HAND_DOOM | 
-S:S_ANGEL | S_UNIQUE | DISPEL | PSY_SPEAR
+S:S_ANGEL | S_UNIQUE | DISPEL | ANTI_MAGIC | PSY_SPEAR
 D:$The hoary Lord of the Great Abyss seems a wizened man, but appearances
 D:$can be deceiving.
 D:大いなる深淵の神々しい主はしわくちゃ老人のように見えるが、その見
@@ -17541,7 +17541,7 @@ S:BRAIN_SMASH | FORGET |
 S:BO_ICEE | BO_MANA | BO_PLAS | 
 S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON |
-S:HAND_DOOM | ANIM_DEAD | DISPEL | PSY_SPEAR
+S:HAND_DOOM | ANIM_DEAD | DISPEL | ANTI_MAGIC | PSY_SPEAR
 D:$Mighty in spells and enchantments,
 D:$he created the One Ring.  His eyes glow with power and his gaze seeks to 
 D:$destroy your soul.  He has many servants, and rarely fights without them.
@@ -17572,7 +17572,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE | RIDING |
 S:1_IN_3 | 
 S:SHRIEK | BR_SOUN | BR_LITE | BR_INER | BR_TIME | BR_SHAR | 
 S:BR_PLAS | BR_MANA | BR_DISI | DRAIN_MANA | HEAL | HASTE |
-S:TELE_AWAY | BLINK | TPORT | FORGET | DISPEL |
+S:TELE_AWAY | BLINK | TPORT | FORGET | DISPEL | ANTI_MAGIC |
 S:S_MONSTERS | S_HI_DRAGON | S_UNIQUE | S_ANGEL
 D:$The Unicorn of Order, who once stole an eye from the great Serpent 
 D:$of chaos, is watching the events unfold with growing distress. It 
@@ -17619,7 +17619,7 @@ S:TPORT | SCARE | BLIND | S_DEMON | S_MONSTERS |
 S:TELE_TO | CONF | BO_MANA | BA_FIRE | BRAIN_SMASH | BA_NETH |
 S:BO_ICEE | CAUSE_4 | BA_WATE | BO_PLAS | TELE_LEVEL | TELE_AWAY |
 S:FORGET | DARKNESS | BA_MANA | S_HI_DRAGON | S_HI_UNDEAD | BA_CHAO
-S:S_AMBERITES | S_CYBER | HAND_DOOM | DISPEL | PSY_SPEAR
+S:S_AMBERITES | S_CYBER | HAND_DOOM | DISPEL | ANTI_MAGIC | PSY_SPEAR
 D:$Oberon, the father or grandfather of most Amberites, is as powerful 
 D:$as ever. He is afraid that you will upset the balance and will not 
 D:$let you harm the Serpent of Chaos. "Oberon, Lord of Amber, stood before 
@@ -17668,7 +17668,7 @@ F:REGENERATE | POWERFUL |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_DARK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_3 | 
-S:BRAIN_SMASH | DISPEL |
+S:BRAIN_SMASH | DISPEL | ANTI_MAGIC |
 S:BA_MANA | BO_MANA | BA_NETH | ANIM_DEAD 
 S:S_MONSTERS | S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON
 D:$He is the Master of the Pits of Angband.  His figure is like a black 
@@ -17720,7 +17720,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE | GUARDIAN |
 S:1_IN_3 | 
 S:S_MONSTERS | BR_CHAO | BA_CHAO | ROCKET | S_CYBER | S_KIN |
 S:BR_NETH | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
-S:BR_NUKE | BR_DISI | HAND_DOOM | DISPEL
+S:BR_NUKE | BR_DISI | HAND_DOOM | DISPEL | ANTI_MAGIC
 D:$The Big Boss himself. Before the universe the Serpent was. The Unicorn 
 D:$of Order fought with Serpent and stole one of its eyes, known as the 
 D:$Jewel of Judgement. With the Jewel, Dworkin drew the Pattern and thus 
@@ -17774,7 +17774,7 @@ F:RES_CHAO | RES_NEXU | RES_DISE | RES_WALL | RES_INER | RES_TIME | RES_GRAV |
 F:RES_TELE | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | 
 S:1_IN_2 | 
 S:BR_NETH | BR_TIME | BA_MANA | BO_MANA | HAND_DOOM | HEAL | 
-S:S_DEMON | S_HI_UNDEAD | S_HI_DRAGON | DISPEL
+S:S_DEMON | S_HI_UNDEAD | S_HI_DRAGON | DISPEL | ANTI_MAGIC
 D:$It is a ring of immense power.  You can hardly believe you've 
 D:$finally found the One Ring!
 D:強大な力を持つ指輪だ。あなたはついに『一つの指輪』を見つけたなんて
@@ -17823,7 +17823,7 @@ F:RES_CHAO | RES_NEXU | RES_DISE | RES_WALL | RES_INER | RES_TIME | RES_GRAV |
 F:RES_TELE | NO_FEAR | NO_CONF | NO_STUN | NO_SLEEP | 
 F:WILD_WASTE | WILD_SWAMP | 
 S:1_IN_5
-S:HEAL | INVULNER | DISPEL
+S:HEAL | INVULNER | DISPEL | ANTI_MAGIC
 D:$A thing like a massive, jet black oyster with four groping tendrils.
 D:$  Born of nether, it need not chase its prey, content to seeth
 D:$ in the darkness until some unfortunate creature wanders too close.
@@ -18104,7 +18104,7 @@ S:1_IN_2 |
 S:TPORT | SCARE | S_KIN | BLINK | HEAL |
 S:TELE_TO | CONF | BO_MANA | BRAIN_SMASH |
 S:BA_WATE | TELE_AWAY |
-S:DISPEL | WORLD | PSY_SPEAR
+S:DISPEL | ANTI_MAGIC | WORLD | PSY_SPEAR
 D:時間と空間を自在に操る超能力者。
 D:冷静沈着で、常に余裕の笑みを浮かべている。
 D:だが、その仮面の下には冷血な魂が宿り、自分自身の欲望の為なら手段を選ばない。
@@ -18177,7 +18177,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | RES_TELE |
 S:1_IN_3 | 
 S:S_MONSTERS | BR_CHAO | BA_CHAO | ROCKET | S_CYBER | S_KIN |
 S:BR_NETH | BR_MANA | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE |
-S:BR_NUKE | BR_DISI | HAND_DOOM | DISPEL
+S:BR_NUKE | BR_DISI | HAND_DOOM | DISPEL | ANTI_MAGIC
 D:自分を滅ぼした者に復讐するため、地獄の底から復活した！
 
 N:884:有毒ガス
@@ -18809,7 +18809,7 @@ F:NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
 S:BA_DARK | BO_NETH | BR_NETH | BR_DARK | BR_NUKE | BR_POIS | HAND_DOOM |
-S:S_DEMON | S_KIN | DISPEL
+S:S_DEMON | S_KIN | DISPEL | ANTI_MAGIC
 D:その名を口にするだけで破滅をもたらすほどの恐るべきデーモンであり、
 D:地獄の軍勢の指揮官であると言われている。
 
@@ -18960,7 +18960,7 @@ F:CAN_SWIM | CAN_FLY | UNIQUE2 | WILD_SHORE |
 F:WILD_OCEAN | WILD_WASTE | WILD_WOOD | WILD_VOLCANO | WILD_MOUNTAIN |
 F:WILD_GRASS | WILD_ALL | SELF_LITE_1 | SELF_LITE_2 |
 S:1_IN_3 |
-S:SHRIEK | DISPEL | ROCKET | SHOOT | BR_ACID |
+S:SHRIEK | DISPEL | ANTI_MAGIC | ROCKET | SHOOT | BR_ACID |
 S:BR_ELEC | BR_FIRE | BR_COLD | BR_POIS | BR_NETH | BR_LITE | BR_DARK | BR_CONF |
 S:BR_SOUN | BR_CHAO | BR_DISE | BR_NEXU | BR_TIME | BR_INER | BR_GRAV | BR_SHAR |
 S:BR_PLAS | BR_WALL | BR_MANA | BA_NUKE | BR_NUKE | BA_CHAO | BR_DISI | BA_ACID |
@@ -19240,7 +19240,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_FLY |
 S:1_IN_4 | 
 S:HEAL | HASTE | TELE_AWAY | BO_MANA | BO_PLAS | CAUSE_4 |
-S:S_MONSTERS | S_ANGEL | INVULNER | PSY_SPEAR | S_DRAGON | DISPEL
+S:S_MONSTERS | S_ANGEL | INVULNER | PSY_SPEAR | S_DRAGON | DISPEL | ANTI_MAGIC
 D:$It is an angel, fast and strong.  You are stunned by its extreme holiness 
 D:$and try to resist all desires to obey it.
 D:それは天使であり、素早くて強い。冒険者はその極度の神聖さに打ちのめされ、
@@ -19262,7 +19262,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_FLY |
 S:1_IN_3 | 
 S:TELE_TO | BLIND | SCARE | CAUSE_4 | BO_MANA | PSY_SPEAR | INVULNER
-S:S_ANGEL | S_DRAGON | BA_LITE | HEAL | DISPEL
+S:S_ANGEL | S_DRAGON | BA_LITE | HEAL | DISPEL | ANTI_MAGIC
 D:$Never a more heavenly being have you seen.  The very holiness of its 
 D:$presence makes you deeply respect it.  Few creatures can match the powers 
 D:$of a Solar; fewer still live to tell the tale after attacking one.
@@ -19298,7 +19298,7 @@ F:ONLY_ITEM | DROP_3D2 | DROP_1D2 | DROP_GOOD | KILL_BODY |
 F:IM_FIRE | IM_ELEC | IM_POIS | POWERFUL | ESCORT | SELF_LITE_2 |
 F:NO_SLEEP | NO_CONF | OPEN_DOOR | CAN_FLY | REGENERATE |
 S:1_IN_3 |
-S:BR_FIRE | DISPEL | BR_POIS | BO_PLAS | BR_PLAS | BA_FIRE |
+S:BR_FIRE | DISPEL | ANTI_MAGIC | BR_POIS | BO_PLAS | BR_PLAS | BA_FIRE |
 S:CONF | SCARE | HOLD | S_DEMON | HEAL
 
 N:946:静の魔王『氷のジシスル』
@@ -19315,7 +19315,7 @@ F:ONLY_ITEM | DROP_3D2 | DROP_1D2 | DROP_GOOD | MOVE_BODY |
 F:IM_COLD | IM_ELEC | IM_POIS | POWERFUL |
 F:NO_SLEEP | NO_CONF | OPEN_DOOR | CAN_FLY | REGENERATE |
 S:1_IN_3 |
-S:BR_COLD | DISPEL | BR_POIS | BA_COLD | BO_ICEE |
+S:BR_COLD | DISPEL | ANTI_MAGIC | BR_POIS | BA_COLD | BO_ICEE |
 S:CONF | SCARE | HOLD | S_DEMON
 
 N:947:盗賊『プアー』
@@ -20023,7 +20023,7 @@ F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_TELE |
 F:RES_DISE | RES_NETH | RES_PLAS |
 F:NO_STUN | NO_CONF | NO_SLEEP | RIDING
 S:1_IN_6 |
-S:BLIND | SHRIEK | DISPEL | INVULNER | S_ANGEL
+S:BLIND | SHRIEK | DISPEL | ANTI_MAGIC | INVULNER | S_ANGEL
 D:龍の鱗に牛の尾、馬の蹄を持ち、角の生えた四本足の聖なる獣で、
 D:王者が仁のある政治を行った時に姿を現わすと言われている。
 
@@ -21711,7 +21711,7 @@ F:SMART | OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
 F:EVIL | NO_CONF | NO_SLEEP |
 S:1_IN_1 |
 S:BLINK | TPORT | HEAL | TELE_AWAY |
-S:BA_MANA | BA_DISI | DISPEL
+S:BA_MANA | BA_DISI | DISPEL | ANTI_MAGIC
 S:BA_NETH | BO_MANA | BA_CHAO
 D:$A wizened old man, stooped by age, he seems barely able to move.
 D:$Yet, something is not quite right here.  You see a faint shimmer
