@@ -340,24 +340,24 @@ F:@:FLOOR:3:0:0:0:80
 # And it is a rare treasure :)
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [EQU [MOD $RANDOM27 9] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:3
+F:@:FLOOR:3:0:0:0:3
 
 # Whip of Dr. Jones ... note this class gets a buffed version!
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Archaeologist] [GEQ [MOD $RANDOM27 9] 1] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:162
+F:@:FLOOR:3:0:0:0:162
 
 ##########################################################################
 # Duelist
 # Rapier of the Duelist
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Duelist] [EQU [MOD $RANDOM27 9] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:248
+F:@:FLOOR:3:0:0:0:248
 
 # Quickthorn
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Duelist] [GEQ [MOD $RANDOM27 9] 1] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:174
+F:@:FLOOR:3:0:0:0:174
 
 ##########################################################################
 # Weaponsmith

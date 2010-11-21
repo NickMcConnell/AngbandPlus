@@ -317,7 +317,6 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 20, 30,  30, "Blood Shield"},
       { 25, 50,  40, "Blood Seeking"},
       { 30, 60,  40, "Blood Rage"},
-	  { 35, 60,  50, "Blood Rush"},
       { 40,100,  50, "Blood Feast"},
 	  { 42,100,   0, "Blood Revenge"},
 	  { 45,500,  90, "Blood Pool"},
@@ -325,6 +324,7 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
+	  { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -1927,19 +1927,15 @@ static bool cast_blood_knight_spell(int spell)
 		}
 		break;
 	
-	case 7: /* Blood Rush */
-		if (!rush_attack(NULL)) return FALSE;
-		break;
-	
-	case 8: /* Blood Feast */
+	case 7: /* Blood Feast */
 		set_tim_blood_feast(randint1(25) + 25, FALSE);
 		break;
 
-	case 9: /* Blood Revenge */
+	case 8: /* Blood Revenge */
 		set_tim_blood_revenge(randint1(5) + 5, FALSE);
 		break;
 
-	case 10: /* Blood Pool */
+	case 9: /* Blood Pool */
 		{
 			object_type forge, *q_ptr = &forge;
 			msg_print("You feel light headed.");
@@ -1948,7 +1944,7 @@ static bool cast_blood_knight_spell(int spell)
 		}
 		break;
 	
-	case 11: /* Blood Explosion */
+	case 10: /* Blood Explosion */
 		msg_print("You cut too deep ... Your blood explodes!");
 		dispel_living(500);
 		break;

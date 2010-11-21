@@ -347,6 +347,11 @@ static void _disengage_spell(int cmd, variant *res)
 			msg_print("You need to mark your target first.");
 			var_set_bool(res, FALSE);
 		}
+		else if (!m_list[p_ptr->duelist_target_idx].ml)
+		{
+			msg_print("You may not disengage unless your foe is visible.");
+			var_set_bool(res, FALSE);
+		}
 		else
 		{
 			teleport_player(100, TELEPORT_DISENGAGE);

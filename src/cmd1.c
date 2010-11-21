@@ -2649,7 +2649,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
 				{
 					msg_format("%^s is dealt a stunning blow.", m_name);
-					set_monster_stunned(c_ptr->m_idx, MON_STUNNED(m_ptr) + 1);
+					set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
 				}
 				if ( p_ptr->lev >= 40	/* Greater Wounding Strike */
 					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
