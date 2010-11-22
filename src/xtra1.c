@@ -1229,7 +1229,7 @@ static void prt_state(void)
 {
 	byte attr = TERM_WHITE;
 
-	char text[5];
+	char text[20];
 
 	/* Repeating */
 	if (command_rep)
