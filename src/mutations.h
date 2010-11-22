@@ -21,7 +21,7 @@
 #define MUT_DET_CURSE      15
 #define MUT_BERSERK        16
 #define MUT_POLYMORPH      17
-#define MUT_MIDAS_TCH      18
+#define MUT_MIDAS_TOUCH    18
 #define MUT_GROW_MOLD      19
 #define MUT_RESIST         20
 #define MUT_EARTHQUAKE     21

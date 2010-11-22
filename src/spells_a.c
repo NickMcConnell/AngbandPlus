@@ -34,15 +34,56 @@ void foo_spell(int cmd, variant *res)
 bool cast_foo(void) { return cast_spell(foo_spell); }
 */
 
+void alchemy_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Alchemy", "ミダスの手"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Turns valuable items into gold.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You gain the Midas touch.", "「ミダス王の手」の能力を得た。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You lose the Midas touch.", "ミダスの手の能力を失った。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can turn ordinary items to gold.", "あなたは通常アイテムを金に変えることができる。"));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (alchemy())
+			var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_alchemy(void) { return cast_spell(alchemy_spell); }
+
+
 void berserk_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Berserk");
+		var_set_string(res, T("Berserk", "狂戦士化"));
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Enter a berserk frenzy, gaining great combat bonuses, but losing the ability to think clearly.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel a controlled rage.", "制御できる激情を感じる。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer feel a controlled rage.", "制御できる激情を感じなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can drive yourself into a berserk frenzy.", "あなたは自分の意思で狂乱戦闘状態になることができる。"));
 		break;
 	case SPELL_CAST:
 		msg_print("Raaagh!  You feel like hitting something.");
@@ -102,6 +143,48 @@ void breathe_fire_spell(int cmd, variant *res)
 }
 bool cast_breathe_fire(void) { return cast_spell(breathe_fire_spell); }
 
+void detect_curses_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Detect Curses", "呪い感知"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Detected cursed items in your inventory.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You can feel evil magics.", "邪悪な魔法を感知できるようになった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You can no longer feel evil magics.", "邪悪な魔法を感じられなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can feel the danger of evil magic.", "あなたは邪悪な魔法の危険を感じとることができる。"));
+		break;
+	case SPELL_CAST:
+	{
+		int i;
+
+		for (i = 0; i < INVEN_TOTAL; i++)
+		{
+			object_type *o_ptr = &inventory[i];
+
+			if (!o_ptr->k_idx) continue;
+			if (!object_is_cursed(o_ptr)) continue;
+
+			o_ptr->feeling = FEEL_CURSED;
+		}
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_detect_curses(void) { return cast_spell(detect_curses_spell); }
+
 void detect_monsters_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -111,15 +194,6 @@ void detect_monsters_spell(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Detects nearby monsters.");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You smell filthy monsters.", "モンスターの臭いを嗅ぎ分けられるようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer smell filthy monsters.", "不潔なモンスターの臭いを嗅げなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You can smell nearby monsters.", "あなたは近くのモンスターの存在をかぎ分けることができる。"));
 		break;
 	case SPELL_CAST:
 		detect_monsters_normal(DETECT_RAD_DEFAULT);
@@ -168,15 +242,6 @@ void detect_treasure_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "Detects nearby treasure.");
 		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You smell a metallic odor.", "金属の匂いを嗅ぎ分けられるようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You no longer smell a metallic odor.", "金属の臭いを嗅げなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("You can smell nearby precious metal.", "あなたは近くにある貴金属をかぎ分けることができる。"));
-		break;
 	case SPELL_CAST:
 		detect_treasure(DETECT_RAD_DEFAULT);
 		var_set_bool(res, TRUE);
@@ -188,6 +253,198 @@ void detect_treasure_spell(int cmd, variant *res)
 }
 bool cast_detect_treasure(void) { return cast_spell(detect_treasure_spell); }
 
+void earthquake_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Earthquake", "地震"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "The walls will tremble and the gound will shake.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You gain the ability to wreck the dungeon.", "ダンジョンを破壊する能力を得た。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You lose the ability to wreck the dungeon.", "ダンジョンを壊す能力を失った。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can bring down the dungeon around your ears.", "あなたは周囲のダンジョンを崩壊させることができる。"));
+		break;
+	case SPELL_CAST:
+		earthquake(py, px, 10);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_earthquake(void) { return cast_spell(earthquake_spell); }
+
+void eat_magic_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Eat Magic", "魔力食い"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Consumes magical devices to regain spell points.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your magic items look delicious.", "魔法のアイテムが美味そうに見える。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your magic items no longer look delicious.", "魔法のアイテムはもう美味しそうに見えなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can consume magic energy for your own use.", "あなたは魔法のエネルギーを自分の物として使用できる。"));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (eat_magic(p_ptr->lev * 2))
+			var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_eat_magic(void) { return cast_spell(eat_magic_spell); }
+
+void eat_rock_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Eat Rock", "岩食い"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Consumes nearby rock.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("The walls look delicious.", "壁が美味しそうに見える。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("The walls look unappetizing.", "壁は美味しそうに見えなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can consume solid rock.", "あなたは硬い岩を食べることができる。"));
+		break;
+	case SPELL_CAST:
+	{
+		int x, y;
+		cave_type *c_ptr;
+		feature_type *f_ptr, *mimic_f_ptr;
+		int dir = 0;
+
+		var_set_bool(res, FALSE);
+
+		if (!get_rep_dir2(&dir)) break;
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+		c_ptr = &cave[y][x];
+		f_ptr = &f_info[c_ptr->feat];
+		mimic_f_ptr = &f_info[get_feat_mimic(c_ptr)];
+
+		racial_stop_mouth();
+
+		if (!have_flag(mimic_f_ptr->flags, FF_HURT_ROCK))
+		{
+			msg_print(T("You cannot eat this feature.", "この地形は食べられない。"));
+			break;
+		}
+		else if (have_flag(f_ptr->flags, FF_PERMANENT))
+		{
+			msg_format(T("Ouch!  This %s is harder than your teeth!", "いてっ！この%sはあなたの歯より硬い！"), 
+				f_name + mimic_f_ptr->name);
+
+			break;
+		}
+		else if (c_ptr->m_idx)
+		{
+			monster_type *m_ptr = &m_list[c_ptr->m_idx];
+			msg_print(T("There's something in the way!", "何かが邪魔しています！"));
+			if (!m_ptr->ml || !is_pet(m_ptr)) py_attack(y, x, 0);
+			break;
+		}
+		else if (have_flag(f_ptr->flags, FF_TREE))
+		{
+			msg_print(T("You don't like the woody taste!", "木の味は好きじゃない！"));
+			break;
+		}
+		else if (have_flag(f_ptr->flags, FF_GLASS))
+		{
+			msg_print(T("You don't like the glassy taste!", "ガラスの味は好きじゃない！"));
+			break;
+		}
+		else if (have_flag(f_ptr->flags, FF_DOOR) || have_flag(f_ptr->flags, FF_CAN_DIG))
+		{
+			set_food(p_ptr->food + 3000);
+		}
+		else if (have_flag(f_ptr->flags, FF_MAY_HAVE_GOLD) || have_flag(f_ptr->flags, FF_HAS_GOLD))
+		{
+			set_food(p_ptr->food + 5000);
+		}
+		else
+		{
+			msg_format(T("This %s is very filling!", "この%sはとてもおいしい！"), 
+				f_name + mimic_f_ptr->name);
+			set_food(p_ptr->food + 10000);
+		}
+
+		/* Destroy the wall */
+		cave_alter_feat(y, x, FF_HURT_ROCK);
+
+		/* Move the player */
+		move_player_effect(y, x, MPE_DONT_PICKUP);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_eat_rock(void) { return cast_spell(eat_rock_spell); }
+
+void grow_mold_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Grow Mold", "カビ発生"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Surrounds yourself with moldy things.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel a sudden affinity for mold.", "突然カビに親しみを覚えた。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel a sudden dislike for mold.", "突然カビが嫌いになった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can cause mold to grow near you.", "あなたは周囲にキノコを生やすことができる。"));
+		break;
+	case SPELL_CAST:
+	{
+		int i;
+		for (i = 0; i < 8; i++)
+		{
+			summon_specific(-1, py, px, p_ptr->lev, SUMMON_BIZARRE1, PM_FORCE_PET);
+		}
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_grow_mold(void) { return cast_spell(grow_mold_spell); }
 
 void hypnotic_gaze_spell(int cmd, variant *res)
 {
@@ -230,7 +487,7 @@ bool cast_hypnotic_gaze(void) { return cast_spell(hypnotic_gaze_spell); }
 void light_area_spell(int cmd, variant *res)
 {
 	int dice = 2;
-	int sides = spell_power(p_ptr->lev / 2);
+	int sides = p_ptr->lev / 2;
 	int rad = spell_power(p_ptr->lev / 10 + 1);
 
 	switch (cmd)
@@ -242,7 +499,16 @@ void light_area_spell(int cmd, variant *res)
 		var_set_string(res, "Lights up nearby area and the inside of a room permanently.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(dice, sides, 0));
+		var_set_string(res, info_damage(dice, spell_power(sides), 0));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You can light up rooms with your presence.", "あなたは光り輝いて部屋を明るくするようになった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You can no longer light up rooms with your presence.", "部屋を明るく照らすことが出来なくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can emit bright light.", "あなたは明るい光を放つことができる。"));
 		break;
 	case SPELL_CAST:
 		lite_area(spell_power(damroll(dice, sides)), rad);
@@ -349,6 +615,40 @@ void polish_shield_spell(int cmd, variant *res)
 }
 bool cast_polish_shield(void) {	return cast_spell(polish_shield_spell); }
 
+void polymorph_self_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Polymorph", "変身"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Mutates yourself.  This can be dangerous!");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your body seems mutable.", "体が変異しやすくなった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your body seems stable.", "あなたの体は安定したように見える。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can polymorph yourself at will.", "あなたは自分の意志で変化できる。"));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (get_check(T("You will polymorph yourself. Are you sure? ", "変身します。よろしいですか？")))
+		{
+			do_poly_self();
+			var_set_bool(res, TRUE);
+		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_polymorph_self(void) { return cast_spell(polymorph_self_spell); }
+
 void radiation_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -402,6 +702,160 @@ void recharging_spell(int cmd, variant *res)
 	}
 }
 bool cast_recharging(void) { return cast_spell(recharging_spell); }
+
+void resist_elements_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Resist Elements", "エレメント耐性"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Protect yourself from the ravages of the elements.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel like you can protect yourself.", "あなたは自分自身を守れる気がする。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel like you might be vulnerable.", "傷つき易くなった気がする。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can harden yourself to the ravages of the elements.", "あなたは元素の攻撃に対して身を硬くすることができる。"));
+		break;
+	case SPELL_CAST:
+	{
+		int num = p_ptr->lev / 10;
+		int dur = randint1(20) + 20;
+
+		if (randint0(5) < num)
+		{
+			set_oppose_acid(dur, FALSE);
+			num--;
+		}
+		if (randint0(4) < num)
+		{
+			set_oppose_elec(dur, FALSE);
+			num--;
+		}
+		if (randint0(3) < num)
+		{
+			set_oppose_fire(dur, FALSE);
+			num--;
+		}
+		if (randint0(2) < num)
+		{
+			set_oppose_cold(dur, FALSE);
+			num--;
+		}
+		if (num)
+		{
+			set_oppose_pois(dur, FALSE);
+			num--;
+		}
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_resist_elements(void) { return cast_spell(resist_elements_spell); }
+
+void shriek_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Shriek", "叫び"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Generates a large sound ball centered on you.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev)));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your vocal cords get much tougher.", "あなたの声は相当強くなった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your vocal cords get much weaker.", "あなたの声質は弱くなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can emit a horrible shriek.", "あなたは身の毛もよだつ叫び声を発することができる。"));
+		break;
+	case SPELL_CAST:
+		racial_stop_mouth();
+		fire_ball(GF_SOUND, 0, spell_power(2 * p_ptr->lev), 8);
+		aggravate_monsters(0);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_shriek(void) { return cast_spell(shriek_spell); }
+
+void smell_metal_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Smell Metal", "金属嗅覚"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Smells nearby metallic odors.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You smell a metallic odor.", "金属の匂いを嗅ぎ分けられるようになった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer smell a metallic odor.", "金属の臭いを嗅げなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can smell nearby precious metal.", "あなたは近くにある貴金属をかぎ分けることができる。"));
+		break;
+	case SPELL_CAST:
+		racial_stop_mouth();
+		detect_treasure(DETECT_RAD_DEFAULT);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void smell_monsters_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Smell Monsters", "敵臭嗅覚"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Detects nearby monsters.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You smell filthy monsters.", "モンスターの臭いを嗅ぎ分けられるようになった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer smell filthy monsters.", "不潔なモンスターの臭いを嗅げなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can smell nearby monsters.", "あなたは近くのモンスターの存在をかぎ分けることができる。"));
+		break;
+	case SPELL_CAST:
+		racial_stop_mouth();
+		detect_monsters_normal(DETECT_RAD_DEFAULT);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void spit_acid_spell(int cmd, variant *res)
 {
@@ -493,6 +947,46 @@ void summon_tree_spell(int cmd, variant *res)
 	}
 }
 bool cast_summon_tree(void) { return cast_spell(summon_tree_spell); }
+
+void swap_pos_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Swap Position", "位置交換"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Swap locations with a given monster.");
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel like walking a mile in someone else's shoes.", "他人の靴で一マイル歩くような気分がする。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel like staying in your own shoes.", "あなたは自分の靴に留まる感じがする。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can switch locations with another being.", "あなたは他の者と場所を入れ替わることができる。"));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+
+		project_length = -1;
+		if (get_aim_dir(&dir))
+		{
+			teleport_swap(dir);
+			var_set_bool(res, TRUE);
+		}
+		project_length = 0;
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_swap_pos(void) { return cast_spell(swap_pos_spell); }
 
 void telekinesis_spell(int cmd, variant *res)
 {

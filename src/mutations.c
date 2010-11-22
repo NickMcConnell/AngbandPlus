@@ -22,9 +22,21 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 	{   5,  3,  30, mind_blast_spell},
 	{  15, 15,  30, radiation_spell},
 	{   2,  1,  30, vampirism_spell},
-	{   3,  2,  30, detect_treasure_spell},
-	{   5,  4,  30, detect_monsters_spell},
-	{   3,  3,  25, phase_door_spell},
+	{   3,  2,  30, smell_metal_spell},
+	{   5,  4,  30, smell_monsters_spell},
+	{   3,  3,  30, phase_door_spell},
+	{   8, 12,  40, eat_rock_spell},
+	{  15, 12,  40, swap_pos_spell},
+	{  20, 14,  40, shriek_spell},
+	{   3,  2,  30, light_area_spell},
+	{   7, 14,  30, detect_curses_spell},
+	{   8,  8,  50, berserk_spell},
+	{  18, 20,  50, polymorph_self_spell},
+	{  10,  5,  70, alchemy_spell},
+	{   1,  6,  60, grow_mold_spell},
+	{  10, 12,  50, resist_elements_spell},
+	{  12, 12,  50, earthquake_spell},
+	{  17,  1,  80, eat_magic_spell},
 };
 
 /*
@@ -33,17 +45,29 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
  */
 static mutation_info _mutations[MAX_MUTATIONS] = 
 {
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_DEX, 4 },	/* MUT_SPIT_ACID */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_CON, 3 },	/* MUT_BR_FIRE */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_CHR, 2 },	/* MUT_HYPN_GAZE */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_WIS, 2 },	/* MUT_TELEKINESIS */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_WIS, 3 },	/* MUT_TELEPORT */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_WIS, 2 },	/* MUT_MIND_BLAST */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_CON, 2 }, /* MUT_RADIATION */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_CON, 2 }, /* MUT_VAMPIRISM */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_INT, 3 }, /* MUT_SMELL_METAL */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_INT, 4 }, /* MUT_SMELL_MONSTERS */
-	{ MUT_RATING_GOOD, MUT_TYPE_ACTIVATION, A_WIS, 3 }, /* MUT_BLINK */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_DEX, 4 },	/* MUT_SPIT_ACID */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_CON, 3 },	/* MUT_BR_FIRE */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_CHR, 2 },	/* MUT_HYPN_GAZE */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_WIS, 2 },	/* MUT_TELEKINESIS */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_WIS, 3 },	/* MUT_TELEPORT */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_WIS, 2 },	/* MUT_MIND_BLAST */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_CON, 2 },	/* MUT_RADIATION */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_CON, 2 },	/* MUT_VAMPIRISM */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_INT, 3 },	/* MUT_SMELL_METAL */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_INT, 4 },	/* MUT_SMELL_MONSTERS */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_WIS, 3 },	/* MUT_BLINK */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_CON, 2 },	/* MUT_EAT_ROCK */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_DEX, 2 },	/* MUT_SWAP_POS */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_CON, 3 },	/* MUT_SHRIEK */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_INT, 3 },	/* MUT_ILLUMINE */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_WIS, 2 },	/* MUT_DET_CURSE */
+	{ MUT_RATING_GREAT,		MUT_TYPE_ACTIVATION, A_STR, 3 },	/* MUT_BERSERK */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_CON, 1 },	/* MUT_POLYMORPH */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_INT, 2 },	/* MUT_MIDAS_TOUCH */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_CON, 1 },	/* MUT_SUMMON_MOLD */
+	{ MUT_RATING_GREAT,		MUT_TYPE_ACTIVATION, A_CON, 3 },	/* MUT_RESIST */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_STR, 3 },	/* MUT_EARTHQUAKE */
+	{ MUT_RATING_GREAT,		MUT_TYPE_ACTIVATION, A_WIS, 1 },	/* MUT_EAT_MAGIC */
 };
 
 bool mut_berserker_pred(int mut_idx)
