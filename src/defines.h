@@ -250,6 +250,7 @@
 #define MAX_RACIAL_POWERS 100
 
 /* Chaos mutations */
+#define MUT_FLAG_SIZE	   6    /* Room for growth */
 
 /* "Activatable" mutations must be in MUT1_* */
 #define MUT1_SPIT_ACID                  0x00000001L
@@ -784,6 +785,11 @@
 #define SPELL_CONT			6
 #define SPELL_ENERGY		7
 #define SPELL_COST_EXTRA	8
+#define SPELL_GAIN_MUT		9		/* For Mutations */
+#define SPELL_LOSE_MUT		10		/* For Mutations */
+#define SPELL_MUT_DESC		11		/* For Mutations */
+#define SPELL_CALC_BONUS	12		/* Mutations, Singing, etc.  Called from calc_bonuses() */
+#define SPELL_PROCESS		13      /* Randomly activating mutations */
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -2504,7 +2510,7 @@
 #define SV_POTION_RESIST_HEAT           30
 #define SV_POTION_RESIST_COLD           31
 #define SV_POTION_HEROISM               32
-#define SV_POTION_BESERK_STRENGTH       33
+#define SV_POTION_BERSERK_STRENGTH      33
 #define SV_POTION_CURE_LIGHT            34
 #define SV_POTION_CURE_SERIOUS          35
 #define SV_POTION_CURE_CRITICAL         36
@@ -5635,3 +5641,15 @@ extern int PlayerUID;
 #define CUT_BAD            25
 #define CUT_LIGHT          10
 #define CUT_GRAZE           1
+
+/* How to handle translations to different languages?
+ * Personally, the constant conditional compilation approach is too
+ * distracting for me.  I'm using T("In English", "In Japanese")
+ * for now, but obviously supporting multiple languages is not
+ * something that Angband does well.
+ */
+#if defined JP
+#define T(E, J) (J)
+#else
+#define T(E, J) (E)
+#endif

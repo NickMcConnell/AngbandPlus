@@ -882,8 +882,7 @@ static int racial_aux(power_desc_type *pd_ptr)
 }
 
 
-
-void ratial_stop_mouth()
+void racial_stop_mouth(void)
 {
 	if (music_singing_any()) stop_singing();
 	if (hex_spelling_any()) stop_hex_spell_all();
@@ -1579,7 +1578,7 @@ static bool cmd_racial_power_aux(s32b command)
 		{
 			int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
 			if (!get_aim_dir(&dir)) return FALSE;
-			ratial_stop_mouth();
+			racial_stop_mouth();
 #ifdef JP
 			msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"));
 #else
@@ -1610,7 +1609,7 @@ static bool cmd_racial_power_aux(s32b command)
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
 
-				ratial_stop_mouth();
+				racial_stop_mouth();
 
 				if (!c_ptr->m_idx)
 				{
@@ -1768,46 +1767,10 @@ static bool cmd_racial_power_aux(s32b command)
 			break;
 
 		case RACE_BARBARIAN:
-#ifdef JP
-			msg_print("うぉぉおお！");
-#else
-			msg_print("Raaagh!");
-#endif
-
-			(void)set_afraid(0, TRUE);
-			(void)set_shero(10 + randint1(plev), FALSE);
-			(void)hp_player(30);
-			break;
+			return cast_berserk();
 
 		case RACE_ENT:
-			{
-				int attempts = 0;
-				int x, y, dir;
-
-				for (;;)
-				{
-					if (attempts > 4)
-					{
-						msg_print("No trees arrive.");
-						break;
-					}
-
-					dir = randint0(9);
-					if (dir == 5) continue;
-
-					attempts++;
-					y = py + ddy[dir];
-					x = px + ddx[dir];
-
-					if (!in_bounds(y, x)) continue;
-					if (!cave_naked_bold(y, x)) continue;
-					if (player_bold(y, x)) continue;
-
-					cave_set_feat(y, x, feat_tree);
-					break;
-				}
-			}
-			break;
+			return cast_summon_tree();
 
 		case RACE_HALF_OGRE:
 #ifdef JP
@@ -1847,7 +1810,7 @@ static bool cmd_racial_power_aux(s32b command)
 
 		case RACE_YEEK:
 			if (!get_aim_dir(&dir)) return FALSE;
-			ratial_stop_mouth();
+			racial_stop_mouth();
 #ifdef JP
 			msg_print("身の毛もよだつ叫び声を上げた！");
 #else
@@ -1858,17 +1821,7 @@ static bool cmd_racial_power_aux(s32b command)
 			break;
 
 		case RACE_KLACKON:
-			if (!get_aim_dir(&dir)) return FALSE;
-			ratial_stop_mouth();
-#ifdef JP
-			msg_print("酸を吐いた。");
-#else
-			msg_print("You spit acid.");
-#endif
-
-			if (plev < 25) fire_bolt(GF_ACID, dir, plev);
-			else fire_ball(GF_ACID, dir, plev, 2);
-			break;
+			return cast_spit_acid();
 
 		case RACE_KOBOLD:
 			if (!get_aim_dir(&dir)) return FALSE;
@@ -2100,7 +2053,7 @@ static bool cmd_racial_power_aux(s32b command)
 					}
 				}
 
-				ratial_stop_mouth();
+				racial_stop_mouth();
 
 #ifdef JP
 				msg_format("あなたは%sのブレスを吐いた。", Type_desc);
@@ -2184,7 +2137,7 @@ static bool cmd_racial_power_aux(s32b command)
 				x = px + ddx[dir];
 				c_ptr = &cave[y][x];
 
-				ratial_stop_mouth();
+				racial_stop_mouth();
 
 				if (!c_ptr->m_idx)
 				{
@@ -2236,7 +2189,7 @@ static bool cmd_racial_power_aux(s32b command)
 
 		case RACE_SPECTRE:
 			if (!get_aim_dir(&dir)) return FALSE;
-			ratial_stop_mouth();
+			racial_stop_mouth();
 #ifdef JP
 			msg_print("あなたはおどろおどろしい叫び声をあげた！");
 #else
@@ -2261,7 +2214,7 @@ static bool cmd_racial_power_aux(s32b command)
 			{
 				int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
 				if (!get_aim_dir(&dir)) return FALSE;
-				ratial_stop_mouth();
+				racial_stop_mouth();
 #ifdef JP
 				msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"));
 #else

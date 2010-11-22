@@ -3,6 +3,12 @@
 /***********************************************************************
  * New Spell System ... Spells are objects (implemented as functions)
  * and can now be stored other data types (spell books, scrolls, etc).
+ *
+ * 'Spell' is misleading.  This will be used by spells, racial powers,
+ * mutations, potions, scrolls, etc.
+ *
+ * I'm attempting a grand unification of all player effects to allow
+ * for some more code flexibility (e.g. scrolls that hold *any* spell)
  ***********************************************************************/
  
 void default_spell(int cmd, variant *res) /* Base class */
@@ -15,8 +21,14 @@ void default_spell(int cmd, variant *res) /* Base class */
 
 	case SPELL_DESC:
 	case SPELL_INFO:
+	case SPELL_MUT_DESC:
 		var_set_string(res, "");
 		break;	
+
+	case SPELL_GAIN_MUT:
+	case SPELL_LOSE_MUT:
+		var_clear(res);
+		break;
 
 	case SPELL_CAST:
 	case SPELL_FAIL:
@@ -33,10 +45,14 @@ void default_spell(int cmd, variant *res) /* Base class */
 	case SPELL_ENERGY:
 		var_set_int(res, 100);
 		break;
+
+	case SPELL_CALC_BONUS:
+		var_set_bool(res, TRUE);
+		break;
 	}
 }
 
-static bool cast_spell(ang_spell spell)
+bool cast_spell(ang_spell spell)
 {
 	bool b;
 	variant res;
@@ -67,122 +83,6 @@ static int get_spell_cost_extra(ang_spell spell)
 	n = var_get_int(&res);
 	var_clear(&res);
 	return n;
-}
- 
-/****************************************************************
- * The Spells
- ****************************************************************/
-
-void detect_traps_spell(int cmd, variant *res)
-{
-	int rad = DETECT_RAD_DEFAULT;
-
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Detect Traps");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Detects traps in your vicinity.");
-		break;
-	case SPELL_INFO:
-		var_set_string(res, info_radius(rad));
-		break;
-	case SPELL_CAST:
-		detect_traps(rad, TRUE);
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-
-bool cast_detect_traps(void)
-{
-	return cast_spell(detect_traps_spell);
-}
-
-void light_area_spell(int cmd, variant *res)
-{
-	int dice = 2;
-	int sides = spell_power(p_ptr->lev / 2);
-	int rad = spell_power(p_ptr->lev / 10 + 1);
-
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Light Area");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Lights up nearby area and the inside of a room permanently.");
-		break;
-	case SPELL_INFO:
-		var_set_string(res, info_damage(dice, sides, 0));
-		break;
-	case SPELL_CAST:
-		lite_area(spell_power(damroll(dice, sides)), rad);
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-bool cast_light_area(void)
-{
-	return cast_spell(light_area_spell);
-}
-
-void polish_shield_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Polish Shield");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Makes your shield reflect missiles and bolt spells.");
-		break;
-	case SPELL_CAST:
-		polish_shield();
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-bool cast_polish_shield(void)
-{
-	return cast_spell(polish_shield_spell);
-}
-
-void recharging_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Recharging");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Attempts to recharge staffs, wands or rods.  Items may be destroyed on failure.");
-		break;
-	case SPELL_CAST:
-		var_set_bool(res, recharge(4 * p_ptr->lev));
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-bool cast_recharging(void)
-{
-	return cast_spell(recharging_spell);
 }
 
 /****************************************************************************************
@@ -345,6 +245,10 @@ void browse_spells(spell_info* spells, int ct, caster_info *caster)
 int calculate_fail_rate(const spell_info *spell, int stat_idx)
 {
 	int fail = spell->fail;
+
+	if (p_ptr->lev < spell->level)
+		return 100;
+
 	if (fail)	/* Hack: 0% base failure is always 0% */
 	{
 		int min = 0;

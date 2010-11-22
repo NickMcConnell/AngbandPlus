@@ -455,9 +455,6 @@ static void _fetch_spell(int cmd, variant *res)
 
 static void _first_aid_spell(int cmd, variant *res)
 {
-	int dice = 2 + p_ptr->lev/5;
-	int sides = spell_power(10);
-
 	switch (cmd)
 	{
 	case SPELL_NAME:
@@ -482,10 +479,10 @@ static void _first_aid_spell(int cmd, variant *res)
 			var_set_string(res, "Heals HP and Stun.  Cures cuts, poison and blindness.  Restores Con, Chr and Str.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_heal(dice, sides, 0));
+		var_set_string(res, info_heal(0, 0, spell_power(p_ptr->lev)));
 		break;
 	case SPELL_CAST:
-		hp_player(spell_power(damroll(dice, sides)));
+		hp_player(spell_power(p_ptr->lev));
 		set_stun(0, TRUE);
 
 		if (p_ptr->lev >= 8)

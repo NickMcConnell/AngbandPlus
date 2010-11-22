@@ -1082,7 +1082,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			if (hp_player(10)) ident = TRUE;
 			break;
 
-		case SV_POTION_BESERK_STRENGTH:
+		case SV_POTION_BERSERK_STRENGTH:
 			if (set_afraid(0, TRUE)) ident = TRUE;
 			if (set_shero(p_ptr->shero + randint1(25) + 25, FALSE)) ident = TRUE;
 			if (hp_player(30)) ident = TRUE;

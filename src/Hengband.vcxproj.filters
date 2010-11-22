@@ -234,6 +234,12 @@
     <ClCompile Include="duelist.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="spells_a.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mutations.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
@@ -303,6 +309,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="z-virt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spells.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mutations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

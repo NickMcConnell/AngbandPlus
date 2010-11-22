@@ -119,6 +119,7 @@
     <ClCompile Include="mspells2.c" />
     <ClCompile Include="mspells3.c" />
     <ClCompile Include="mutation.c" />
+    <ClCompile Include="mutations.c" />
     <ClCompile Include="object1.c" />
     <ClCompile Include="object2.c" />
     <ClCompile Include="obj_kind.c" />
@@ -133,6 +134,7 @@
     <ClCompile Include="spells1.c" />
     <ClCompile Include="spells2.c" />
     <ClCompile Include="spells3.c" />
+    <ClCompile Include="spells_a.c" />
     <ClCompile Include="store.c" />
     <ClCompile Include="streams.c" />
     <ClCompile Include="tables.c" />
@@ -165,8 +167,10 @@
     <ClInclude Include="init.h" />
     <ClInclude Include="kajitips.h" />
     <ClInclude Include="mindtips.h" />
+    <ClInclude Include="mutations.h" />
     <ClInclude Include="readdib.h" />
     <ClInclude Include="rooms.h" />
+    <ClInclude Include="spells.h" />
     <ClInclude Include="streams.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="z-config.h" />

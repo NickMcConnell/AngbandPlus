@@ -8,7 +8,6 @@
  * are included in all such copies.
  */
 
-
 /*
  * This file helps Angband work with Windows computers.
  *
@@ -78,6 +77,7 @@
 #ifdef WINDOWS
 #include <windows.h>
 #include <direct.h>
+
 
 /*
  * Extract the "WIN32" flag from the compiler

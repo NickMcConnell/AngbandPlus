@@ -2276,6 +2276,7 @@ static void process_world_aux_mutation(void)
 	/* No effect on the global map */
 	if (p_ptr->wild_mode) return;
 
+	mut_process();
 
 	if ((p_ptr->muta2 & MUT2_BERS_RAGE) && one_in_(3000))
 	{

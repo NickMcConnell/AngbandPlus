@@ -3269,6 +3269,9 @@ void calc_bonuses(void)
 
 	p_ptr->align = friend_align;
 
+
+	mut_calc_bonuses();
+
 	if (p_ptr->mimic_form) tmp_rp_ptr = &mimic_info[p_ptr->mimic_form];
 	else tmp_rp_ptr = &race_info[p_ptr->prace];
 

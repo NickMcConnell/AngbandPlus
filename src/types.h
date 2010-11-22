@@ -1120,6 +1120,9 @@ struct player_type
 	s16b dustrobe;          /* Timed -- Robe of dust */
 
 	s16b chaos_patron;
+	u32b muta[MUT_FLAG_SIZE];
+	u32b muta_lock[MUT_FLAG_SIZE];
+
 	u32b muta1;
 	u32b muta2;
 	u32b muta3;
@@ -1797,9 +1800,10 @@ extern cptr var_get_string(variant *var);
 extern bool var_get_bool(variant *var);
 
 /*
- * A new approach to spells (and racial powers, class powers, mutations, etc)
- * cmd will be one of the following SPELL_* modes found in defines.h
+ * A new spell system, and some half baked ideas for refactoring
+ * Below here, is under construction, to be cleaned up later!
  */
+
 typedef void (*ang_spell)(int cmd, variant *res);
 
 typedef struct {
@@ -1821,8 +1825,6 @@ typedef struct {
 	ang_spell_action on_fail;	/* Hallucinate, Temporal Inversion, etc. */
 	ang_spell_action on_cast;	/* Blood Knights take cuts, etc. */
 } caster_info;
-
-/* In progress ... Massive refactoring underway ... */
 
 typedef void(*process_player_fn)(void);
 typedef void(*calc_bonuses_fn)(void);

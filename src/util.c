@@ -5512,3 +5512,17 @@ int inkey_special(bool numpad_cursor)
 	/* Return normal keycode */
 	return (int)((unsigned char)key);
 }
+
+int count_bits(u32b x)
+{
+	int n = 0;
+
+	if (x) do
+	{
+		n++;
+	}
+	while (0 != (x = x&(x-1)));
+
+	return (n);
+}
+

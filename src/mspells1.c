@@ -844,6 +844,9 @@ static bool spell_anti_magic(byte spell)
 
 static bool anti_magic_check(void)
 {
+	if (p_ptr->anti_magic)
+		return FALSE;
+
 	switch (p_ptr->pclass)
 	{
 	case CLASS_WARRIOR:
@@ -852,8 +855,33 @@ static bool anti_magic_check(void)
 	case CLASS_ARCHER:
 	case CLASS_CAVALRY:
 		return FALSE;
+
+	case CLASS_TOURIST:
+		return one_in_(20);
+
+	case CLASS_DUELIST:
+		return one_in_(10);
+
+	case CLASS_ROGUE:
+	case CLASS_RANGER:
+	case CLASS_PALADIN:
+	case CLASS_WARRIOR_MAGE:
+	case CLASS_CHAOS_WARRIOR:
+	case CLASS_MONK:
+	case CLASS_BEASTMASTER:
+		return one_in_(5);
+
+	case CLASS_MINDCRAFTER:
+	case CLASS_IMITATOR:
+	case CLASS_FORCETRAINER:
+		return one_in_(3);
+
+	case CLASS_MAGIC_EATER:
+	case CLASS_RED_MAGE:
+		return one_in_(2);
 	}
 
+	/* Everybody else always gets it! */
 	return TRUE;
 }
 

@@ -3343,20 +3343,6 @@ show_file(TRUE, file_name, "突然変異", 0, 0);
 }
 
 
-int count_bits(u32b x)
-{
-	int n = 0;
-
-	if (x) do
-	{
-		n++;
-	}
-	while (0 != (x = x&(x-1)));
-
-	return (n);
-}
-
-
 int count_unlocked_mutations(void)
 {
 	return (count_bits(p_ptr->muta1 & ~(p_ptr->muta1_lock)) +
@@ -3414,60 +3400,19 @@ bool mutation_power_aux(u32b power)
 	switch (power)
 	{
 		case MUT1_SPIT_ACID:
-			if (!get_aim_dir(&dir)) return FALSE;
-			mutation_stop_mouth();
-#ifdef JP
-			msg_print("酸を吐きかけた...");
-#else
-			msg_print("You spit acid...");
-#endif
-
-			fire_ball(GF_ACID, dir, lvl, 1 + (lvl / 30));
-			break;
+			return cast_spit_acid();
 
 		case MUT1_BR_FIRE:
-			if (!get_aim_dir(&dir)) return FALSE;
-			mutation_stop_mouth();
-#ifdef JP
-			msg_print("あなたは火炎のブレスを吐いた...");
-#else
-			msg_print("You breathe fire...");
-#endif
-
-			fire_ball(GF_FIRE, dir, lvl * 2, 1 + (lvl / 20));
-			break;
+			return cast_breathe_fire();
 
 		case MUT1_HYPN_GAZE:
-			if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-			msg_print("あなたの目は幻惑的になった...");
-#else
-			msg_print("Your eyes look mesmerizing...");
-#endif
-
-			(void)charm_monster(dir, lvl);
-			break;
+			return cast_hypnotic_gaze();
 
 		case MUT1_TELEKINES:
-			if (!get_aim_dir(&dir)) return FALSE;
-#ifdef JP
-			msg_print("集中している...");
-#else
-			msg_print("You concentrate...");
-#endif
-
-			fetch(dir, lvl * 10, TRUE);
-			break;
+			return cast_telekinesis();
 
 		case MUT1_VTELEPORT:
-#ifdef JP
-			msg_print("集中している...");
-#else
-			msg_print("You concentrate...");
-#endif
-
-			teleport_player(10 + 4 * lvl, 0L);
-			break;
+			return cast_teleport();
 
 		case MUT1_MIND_BLST:
 			if (!get_aim_dir(&dir)) return FALSE;

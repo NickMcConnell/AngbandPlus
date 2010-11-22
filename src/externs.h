@@ -1087,6 +1087,7 @@ extern void do_cmd_kaji(bool only_browse);
 /* racial.c */
 extern bool gain_magic(void);
 extern void do_cmd_racial_power(void);
+extern void racial_stop_mouth(void);
 
 /* save.c */
 extern bool save_player(void);
@@ -1578,7 +1579,6 @@ extern void do_cmd_hissatsu_browse(void);
 extern void do_cmd_gain_hissatsu(void);
 
 /* mutation.c */
-extern int count_bits(u32b x);
 extern int count_unlocked_mutations(void);
 extern bool gain_random_mutation(int choose_mut);
 extern bool lose_mutation(int choose_mut);
@@ -1638,6 +1638,7 @@ extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 #define REPEAT_PULL(pn) repeat_pull(pn)
 #define REPEAT_PUSH(pn) repeat_push(pn)
 
+extern int count_bits(u32b x);
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
 extern void repeat_check(void);
@@ -1803,25 +1804,6 @@ extern bool multiply_barrier(int m_idx);
 extern class_t *get_class_t(void);
 extern class_t *archaeologist_get_class_t(void);
 extern class_t *duelist_get_class_t(void);
-
-/* spells.c */
-extern void browse_spells(spell_info* spells, int ct, caster_info *caster);
-extern int calculate_fail_rate(const spell_info *spell, int stat_idx);
-extern int  choose_spell(spell_info* spells, int ct, caster_info *caster);
-extern void do_cmd_spell(void);
-extern void do_cmd_spell_browse(void);
-
-/* Public Spells ... spells?.c */
-extern bool cast_detect_traps(void);
-extern bool cast_light_area(void);
-extern bool cast_polish_shield(void);
-extern bool cast_recharging(void);
-
-extern void default_spell(int cmd, variant *res);
-extern void detect_traps_spell(int cmd, variant *res);
-extern void light_area_spell(int cmd, variant *res);
-extern void polish_shield_spell(int cmd, variant *res);
-extern void recharging_spell(int cmd, variant *res);
 
 /* duelist.c */
 extern cptr duelist_current_challenge(void);
