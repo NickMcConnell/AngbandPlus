@@ -3777,7 +3777,7 @@ player_class class_info[MAX_CLASS] =
 #endif
 		"Time-Lord",  /* no spaces in class names! */
 
-		{-2, 3, 1, -2, -2, 1},
+		{0, 3, 1, 0, 0, 1},
 		25, 18, 35, 1,  16, 8, 48, 20,
 		7,   7, 10, 0,  0,  0, 13, 13,
 		0, 50, 20

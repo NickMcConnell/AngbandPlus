@@ -2641,6 +2641,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			t = object_desc_chr(t, p2);
 		}
 
+		if (have_flag(flgs, TR_SPELL_POWER))
+		{
+			int pct = spell_power_aux(100, -o_ptr->pval) - 100;
+			t = object_desc_str(t, format(" <+%d%%>", pct));
+		}
+
 		/* Hack -- Process Lanterns/Torches */
 		if ((o_ptr->tval == TV_LITE) && (!(object_is_fixed_artifact(o_ptr) || (o_ptr->sval == SV_LITE_FEANOR))))
 		{

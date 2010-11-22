@@ -823,6 +823,7 @@ extern void do_cmd_magic_eater(bool only_browse);
 
 /* do-spell.c */
 extern int spell_power(int pow);
+extern int spell_power_aux(int pow, int bonus);
 extern void stop_singing(void);
 extern cptr do_spell(int realm, int spell, int mode);
 extern cptr info_damage(int dice, int sides, int base);

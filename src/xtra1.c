@@ -3384,16 +3384,16 @@ void calc_bonuses(void)
 		new_speed += (p_ptr->lev) / 7;
 		if (p_ptr->lev > 34) 
 		{
-			p_ptr->stat_add[A_STR]--;
-			p_ptr->stat_add[A_DEX]--;
-			p_ptr->stat_add[A_CON]--;
+			p_ptr->stat_add[A_STR] -= 2;
+			p_ptr->stat_add[A_DEX] -= 2;
+			p_ptr->stat_add[A_CON] -= 2;
 			new_speed += 3;
 		}
 		if (p_ptr->lev > 44) 
 		{
-			p_ptr->stat_add[A_STR]--;
-			p_ptr->stat_add[A_DEX]--;
-			p_ptr->stat_add[A_CON]--;
+			p_ptr->stat_add[A_STR] -= 2;
+			p_ptr->stat_add[A_DEX] -= 2;
+			p_ptr->stat_add[A_CON] -= 2;
 			new_speed += 3;
 		}
 		break;
@@ -3740,10 +3740,7 @@ void calc_bonuses(void)
 		case RACE_KLACKON:
 			p_ptr->resist_conf = TRUE;
 			p_ptr->resist_acid = TRUE;
-
-			/* Klackons become faster */
-			if (p_ptr->pclass != CLASS_TIME_LORD)
-				new_speed += (p_ptr->lev) / 10;
+			new_speed += (p_ptr->lev) / 10;
 			break;
 		case RACE_KOBOLD:
 			p_ptr->resist_pois = TRUE;
@@ -3819,10 +3816,7 @@ void calc_bonuses(void)
 		case RACE_SPRITE:
 			p_ptr->levitation = TRUE;
 			p_ptr->resist_lite = TRUE;
-
-			/* Sprites become faster */
-			if (p_ptr->pclass != CLASS_TIME_LORD)
-				new_speed += (p_ptr->lev) / 10;
+			new_speed += (p_ptr->lev) / 10;
 			break;
 		case RACE_BEASTMAN:
 			p_ptr->resist_conf  = TRUE;
