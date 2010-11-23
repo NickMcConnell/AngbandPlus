@@ -26,7 +26,7 @@
 #define MUT_RESIST         20
 #define MUT_EARTHQUAKE     21
 #define MUT_EAT_MAGIC      22
-#define MUT_WEIGH_MAG      23
+#define MUT_WEIGH_MAGIC    23
 #define MUT_STERILITY      24
 #define MUT_PANIC_HIT      25
 #define MUT_DAZZLE         26

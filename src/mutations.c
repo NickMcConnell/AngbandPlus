@@ -37,6 +37,15 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 	{  10, 12,  50, resist_elements_spell},
 	{  12, 12,  50, earthquake_spell},
 	{  17,  1,  80, eat_magic_spell},
+	{   6,  6,  50, weigh_magic_spell},
+	{  12, 23,  70, sterility_spell},
+	{  10, 12,  60, panic_hit_spell},
+	{   7, 15,  60, dazzle_spell},
+	{   7, 10,  50, laser_eye_spell},
+	{  17, 50,  70, recall_spell},
+	{  25, 25,  70, banish_evil_spell},
+	{   2,  2,  30, cold_touch_spell},
+	{   1,  0,  40, power_throw_spell},
 };
 
 /*
@@ -68,7 +77,28 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{ MUT_RATING_GREAT,		MUT_TYPE_ACTIVATION, A_CON, 3 },	/* MUT_RESIST */
 	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_STR, 3 },	/* MUT_EARTHQUAKE */
 	{ MUT_RATING_GREAT,		MUT_TYPE_ACTIVATION, A_WIS, 1 },	/* MUT_EAT_MAGIC */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_INT, 2 },	/* MUT_WEIGH_MAGIC */
+	{ MUT_RATING_GREAT,		MUT_TYPE_ACTIVATION, A_CHR, 1 },	/* MUT_STERILITY */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_DEX, 2 },	/* MUT_PANIC_HIT */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_CHR, 3 },	/* MUT_DAZZLE */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_WIS, 3 },	/* MUT_LASER_EYE */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_INT, 2 },	/* MUT_RECALL */
+	{ MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_WIS, 1 },	/* MUT_BANISH */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_CON, 2 },	/* MUT_COLD_TOUCH */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_ACTIVATION, A_STR, 2 },	/* MUT_LAUNCHER */
 };
+
+int _mut_prob_gain(int i)
+{
+	/* TODO: Tweak probabilities for various races ... */
+	return _mutations[i].prob;
+}
+
+int _mut_prob_lose(int i)
+{
+	/* TODO: Tweak probabilities for various races ... */
+	return _mutations[i].prob;
+}
 
 bool mut_berserker_pred(int mut_idx)
 {
@@ -118,7 +148,7 @@ bool mut_gain_random(mut_pred pred)
 		if (!mut_present(i))
 		{
 			if (pred == NULL || (pred(i)))
-				cur = _mutations[i].prob;
+				cur = _mut_prob_gain(i);
 		}
 		tot += cur;
 		prob[i] = tot;
@@ -218,10 +248,10 @@ bool mut_lose_random(mut_pred pred)
 	for (i = 0; i < MAX_MUTATIONS; i++)
 	{
 		int cur = 0;
-		if (mut_present(i))
+		if (mut_present(i) && !mut_locked(i))
 		{
 			if (pred == NULL || (pred(i)))
-				cur = _mutations[i].prob;
+				cur = cur = _mut_prob_lose(i);
 		}
 		tot += cur;
 		prob[i] = tot;

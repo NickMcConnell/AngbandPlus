@@ -1884,7 +1884,7 @@ else msg_format("%^sが矢を放った。", m_name);
 			if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
 				msg_print("You resist the effects!");
 			else
-				set_tim_no_spells(p_ptr->tim_no_spells + 1 + randint1(3), FALSE);
+				set_tim_no_spells(p_ptr->tim_no_spells + 3 + randint1(3), FALSE);
 			break;
 		}
 

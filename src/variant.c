@@ -54,7 +54,10 @@ void var_set_bool(variant *var, bool b)
 {
 	var_clear(var);
 	var->tag = VAR_BOOL;
-	var->data.b = b;
+	if (b)
+		var->data.b = TRUE;
+	else
+		var->data.b = FALSE;
 }
 
 int var_get_int(variant *var)
