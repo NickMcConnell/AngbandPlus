@@ -837,6 +837,7 @@ extern void leave_quest_check(void);
 extern void extract_option_vars(void);
 extern void determine_bounty_uniques(void);
 extern void determine_today_mon(bool conv_old);
+extern void notice_lite_change(object_type *o_ptr);
 extern void play_game(bool new_game);
 extern bool psychometry(void);
 extern void leave_level(int level);

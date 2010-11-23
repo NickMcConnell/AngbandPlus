@@ -52,6 +52,15 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 	{   0,  0,   0, alcohol_mut},
 	{   0,  0,   0, hallucination_mut},
 	{   0,  0,   0, flatulence_mut},
+	{   0,  0,   0, scorpion_tail_mut},
+	{   0,  0,   0, horns_mut},
+	{   0,  0,   0, beak_mut},
+	{   0,  0,   0, attract_demon_mut},
+	{   0,  0,   0, produce_mana_mut},
+	{   0,  0,   0, speed_flux_mut},
+	{   0,  0,   0, random_banish_mut},
+	{   0,  0,   0, eat_light_mut},
+	{   0,  0,   0, trunk_mut},
 };
 
 /*
@@ -98,6 +107,15 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_ALCOHOL */
 	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_HALLUCINATION */
 	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_FLATULENT */
+	{ MUT_RATING_GOOD,		              0,	     0, 4 },	/* MUT_SCORPION_TAIL */
+	{ MUT_RATING_GOOD,		              0,	     0, 4 },	/* MUT_HORNS */
+	{ MUT_RATING_GOOD,		              0,	     0, 4 },	/* MUT_BEAK */
+	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 4 },	/* MUT_ATTRACT_DEMON */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_PRODUCE_MANA */
+	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 4 },	/* MUT_SPEED_FLUX */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 4 },	/* MUT_BANISH_ALL_RND */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_BANISH_EAT_LIGHT */
+	{ MUT_RATING_GOOD,		              0,	     0, 4 },	/* MUT_TRUNK */
 };
 
 int _mut_prob_gain(int i)

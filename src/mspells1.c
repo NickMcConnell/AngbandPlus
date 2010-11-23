@@ -1164,10 +1164,16 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	if ((dispel_num || anti_magic_num) && one_in_(2))
 	{
 		int n = randint1(10);
-		if (n <= 7 && dispel_num && dispel_check(m_idx))
-			return (dispel[randint0(dispel_num)]);
-		else if (anti_magic_check())
-			return (anti_magic[randint0(anti_magic_num)]);
+		if (n <= 7)
+		{
+			if (dispel_num && dispel_check(m_idx))
+				return (dispel[randint0(dispel_num)]);
+		}
+		else
+		{
+			if (dispel_num && anti_magic_check())
+				return (anti_magic[randint0(anti_magic_num)]);
+		}
 	}
 
 	/* Raise-dead if possible (sometimes) */

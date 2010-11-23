@@ -38,11 +38,20 @@
 
 /* Non-spell mutations ... */
 extern void alcohol_mut(int cmd, variant *res);
+extern void attract_demon_mut(int cmd, variant *res);
+extern void beak_mut(int cmd, variant *res);
 extern void berserk_rage_mut(int cmd, variant *res);
 extern void cowardice_mut(int cmd, variant *res);
+extern void eat_light_mut(int cmd, variant *res);
 extern void flatulence_mut(int cmd, variant *res);
 extern void hallucination_mut(int cmd, variant *res);
+extern void horns_mut(int cmd, variant *res);
+extern void produce_mana_mut(int cmd, variant *res);
+extern void random_banish_mut(int cmd, variant *res);
 extern void random_teleport_mut(int cmd, variant *res);
+extern void scorpion_tail_mut(int cmd, variant *res);
+extern void speed_flux_mut(int cmd, variant *res);
+extern void trunk_mut(int cmd, variant *res);
 
 #define MUT_BERS_RAGE      32
 #define MUT_COWARDICE      33
@@ -50,16 +59,16 @@ extern void random_teleport_mut(int cmd, variant *res);
 #define MUT_ALCOHOL        35
 #define MUT_HALLUCINATION  36
 #define MUT_FLATULENT      37
-
-#define MUT_SCOR_TAIL      38
+#define MUT_SCORPION_TAIL  38
 #define MUT_HORNS          39
 #define MUT_BEAK           40
-#define MUT_ATT_DEMON      41
+#define MUT_ATTRACT_DEMON  41
 #define MUT_PROD_MANA      42
 #define MUT_SPEED_FLUX     43
-#define MUT_BANISH_ALL     44
+#define MUT_BANISH_ALL_RND 44
 #define MUT_EAT_LIGHT      45
 #define MUT_TRUNK          46
+
 #define MUT_ATT_ANIMAL     47
 #define MUT_TENTACLES      48
 #define MUT_RAW_CHAOS      49
