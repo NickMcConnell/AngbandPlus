@@ -1802,8 +1802,13 @@ extern bool multiply_barrier(int m_idx);
 
 /* classes.c */
 extern class_t *get_class_t(void);
+extern class_t *get_class_t_aux(int pclass, int psubclass);
 extern class_t *archaeologist_get_class_t(void);
 extern class_t *duelist_get_class_t(void);
+
+/* races.c */
+extern race_t *get_race_t(void);
+extern race_t *get_race_t_aux(int prace);
 
 /* duelist.c */
 extern cptr duelist_current_challenge(void);

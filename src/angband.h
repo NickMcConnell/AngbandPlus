@@ -45,7 +45,7 @@
 #include "types.h"
 #include "externs.h"
 
-#include "mutations.h"
+#include "mut.h"
 #include "spells.h"
 
 /***** Some copyright messages follow below *****/

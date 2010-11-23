@@ -865,7 +865,7 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
-	u32b choice;        /* Legal class choices */
+	u32b choice;        /* Legal class choices ... DEAD: We are over 32 classes these days ... */
 /*    byte choice_xtra;   */
 };
 
@@ -1828,14 +1828,42 @@ typedef struct {
 
 typedef void(*process_player_fn)(void);
 typedef void(*calc_bonuses_fn)(void);
+typedef void(*birth_fn)(void);
 typedef void(*calc_weapon_bonuses_fn)(object_type *o_ptr, weapon_info_t *info_ptr);
 typedef caster_info*(*caster_info_fn)(void);
 typedef int(*get_spells_fn)(spell_info* spells, int max);
 
 typedef struct {
-	process_player_fn process_player;
-	calc_bonuses_fn calc_bonuses;
-	calc_weapon_bonuses_fn calc_weapon_bonuses;
-	caster_info_fn caster_info;
-	get_spells_fn get_spells;
+	s16b dis;			/* disarming */
+	s16b dev;			/* magic devices */
+	s16b sav;			/* saving throw */
+	s16b stl;			/* stealth */
+	s16b srh;			/* search ability */
+	s16b fos;			/* search frequency */
+	s16b thn;			/* combat (normal) */
+	s16b thb;			/* combat (shooting) */
+} skills_t;
+
+typedef struct {
+	cptr					name;
+	cptr					desc;
+	s16b					stats[MAX_STATS];
+	skills_t				base_skills;
+	skills_t				extra_skills; /* Prorata every 10 levels */
+	birth_fn				birth;
+	process_player_fn		process_player;
+	calc_bonuses_fn			calc_bonuses;
+	calc_weapon_bonuses_fn	calc_weapon_bonuses;
+	caster_info_fn			caster_info;
+	get_spells_fn			get_spells;
+	get_spells_fn			get_powers;
 } class_t;
+
+typedef struct {
+    cptr			name;
+	cptr			desc;
+	skills_t		skills;
+	birth_fn		birth;
+	get_spells_fn	get_powers;
+} race_t;
+

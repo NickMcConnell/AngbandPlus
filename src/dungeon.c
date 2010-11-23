@@ -2278,132 +2278,6 @@ static void process_world_aux_mutation(void)
 
 	mut_process();
 
-	if ((p_ptr->muta2 & MUT2_BERS_RAGE) && one_in_(3000))
-	{
-		disturb(0, 0);
-#ifdef JP
-		msg_print("ウガァァア！");
-		msg_print("激怒の発作に襲われた！");
-#else
-		msg_print("RAAAAGHH!");
-		msg_print("You feel a fit of rage coming over you!");
-#endif
-
-		(void)set_shero(10 + randint1(p_ptr->lev), FALSE);
-		(void)set_afraid(0, TRUE);
-	}
-
-	if ((p_ptr->muta2 & MUT2_COWARDICE) && (randint1(3000) == 13))
-	{
-		if (!p_ptr->resist_fear)
-		{
-			disturb(0, 0);
-#ifdef JP
-			msg_print("とても暗い... とても恐い！");
-#else
-			msg_print("It's so dark... so scary!");
-#endif
-
-			set_afraid(p_ptr->afraid + 13 + randint1(26), FALSE);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_RTELEPORT) && (randint1(5000) == 88))
-	{
-		if (!p_ptr->resist_nexus && !(p_ptr->muta1 & MUT1_VTELEPORT) &&
-		    !p_ptr->anti_tele)
-		{
-			disturb(0, 0);
-
-			/* Teleport player */
-#ifdef JP
-			msg_print("あなたの位置は突然ひじょうに不確定になった...");
-#else
-			msg_print("Your position suddenly seems very uncertain...");
-#endif
-
-			msg_print(NULL);
-			teleport_player(40, TELEPORT_PASSIVE);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_ALCOHOL) && (randint1(6400) == 321))
-	{
-		if (!p_ptr->resist_conf && !p_ptr->resist_chaos)
-		{
-			disturb(0, 0);
-			p_ptr->redraw |= PR_EXTRA;
-#ifdef JP
-			msg_print("いひきがもーろーとひてきたきがふる...ヒック！");
-#else
-			msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
-#endif
-
-		}
-
-		if (!p_ptr->resist_conf)
-		{
-			(void)set_confused(p_ptr->confused + randint0(20) + 15, FALSE);
-		}
-
-		if (!p_ptr->resist_chaos)
-		{
-			if (one_in_(20))
-			{
-				msg_print(NULL);
-				if (one_in_(3)) lose_all_info();
-				else wiz_dark();
-				(void)teleport_player_aux(100, TELEPORT_NONMAGICAL | TELEPORT_PASSIVE);
-				wiz_dark();
-#ifdef JP
-				msg_print("あなたは見知らぬ場所で目が醒めた...頭が痛い。");
-				msg_print("何も覚えていない。どうやってここに来たかも分からない！");
-#else
-				msg_print("You wake up somewhere with a sore head...");
-				msg_print("You can't remember a thing, or how you got here!");
-#endif
-
-			}
-			else
-			{
-				if (one_in_(3))
-				{
-#ifdef JP
-					msg_print("き〜れいなちょおちょらとんれいる〜");
-#else
-					msg_print("Thishcischs GooDSChtuff!");
-#endif
-
-					(void)set_image(p_ptr->image + randint0(150) + 150, FALSE);
-				}
-			}
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_HALLU) && (randint1(6400) == 42))
-	{
-		if (!p_ptr->resist_chaos)
-		{
-			disturb(0, 0);
-			p_ptr->redraw |= PR_EXTRA;
-			(void)set_image(p_ptr->image + randint0(50) + 20, FALSE);
-		}
-	}
-
-	if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint1(3000) == 13))
-	{
-		disturb(0, 0);
-
-#ifdef JP
-		msg_print("ブゥーーッ！おっと。");
-#else
-		msg_print("BRRAAAP! Oops.");
-#endif
-
-		msg_print(NULL);
-		fire_ball(GF_POIS, 0, p_ptr->lev, 3);
-	}
-
 	if ((p_ptr->muta2 & MUT2_PROD_MANA) &&
 	    !p_ptr->anti_magic && one_in_(9000))
 	{
@@ -5180,7 +5054,7 @@ msg_print("アリーナが魔法を吸収した！");
 		/* Use racial power */
 		case 'U':
 		{
-			if (!p_ptr->wild_mode) do_cmd_racial_power();
+			if (!p_ptr->wild_mode) do_cmd_power();
 			break;
 		}
 

@@ -599,7 +599,21 @@ class_t *duelist_get_class_t(void)
 
 	/* static info never changes */
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 30,  33,  23,   3,  22,  16,  50,   0};
+	skills_t xs = { 10,  11,  10,   0,   0,   0,  14,   0};
+
+		me.name = "Duelist";
+		me.desc = "The duelist is the ultimate one-on-one fighter, but finds himself at a severe "
+				  "disadvantage when facing numerous strong foes.";
+		me.stats[A_STR] =  2;
+		me.stats[A_INT] =  1;
+		me.stats[A_WIS] = -2;
+		me.stats[A_DEX] =  2;
+		me.stats[A_CON] = -3;
+		me.stats[A_CHR] = -1;
+		me.base_skills = bs;
+		me.extra_skills = xs;
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.caster_info = _caster_info;

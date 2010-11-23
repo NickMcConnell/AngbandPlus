@@ -370,7 +370,7 @@
 #define MAX_SILLY_ATTACK 29
 #endif
 
-#define MAX_SPELLS			32
+#define MAX_SPELLS			50
 
 /* Spellcasters that don't use spell books */
 #define MAX_MIND_POWERS  21
@@ -847,6 +847,8 @@
 #define A_DEX   3
 #define A_CON   4
 #define A_CHR   5
+
+#define MAX_STATS 6
 
 /*
  * Player sex constants (hard-coded by save-files, arrays, etc)

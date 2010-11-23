@@ -36,12 +36,21 @@
 #define MUT_COLD_TOUCH     30
 #define MUT_LAUNCHER       31
 
+/* Non-spell mutations ... */
+extern void alcohol_mut(int cmd, variant *res);
+extern void berserk_rage_mut(int cmd, variant *res);
+extern void cowardice_mut(int cmd, variant *res);
+extern void flatulence_mut(int cmd, variant *res);
+extern void hallucination_mut(int cmd, variant *res);
+extern void random_teleport_mut(int cmd, variant *res);
+
 #define MUT_BERS_RAGE      32
 #define MUT_COWARDICE      33
 #define MUT_TELEPORT_RND   34
 #define MUT_ALCOHOL        35
-#define MUT_HALLU          36
+#define MUT_HALLUCINATION  36
 #define MUT_FLATULENT      37
+
 #define MUT_SCOR_TAIL      38
 #define MUT_HORNS          39
 #define MUT_BEAK           40
@@ -125,7 +134,7 @@ extern bool mut_good_pred(int mut_idx);
 extern void mut_calc_bonuses(void);
 extern void mut_gain(int mut_idx);
 extern bool mut_gain_random(mut_pred pred);
-extern int  mut_get_spells(spell_info* spells, int max);
+extern int  mut_get_powers(spell_info* spells, int max);
 extern void mut_lock(int mut_idx);
 extern bool mut_locked(int mut_idx);
 extern void mut_lose(int mut_idx);
@@ -135,3 +144,4 @@ extern void mut_process(void);
 extern int  mut_rating(int mut_idx);
 extern int  mut_type(int mut_idx);
 extern void mut_unlock(int mut_idx);
+

@@ -237,7 +237,13 @@
     <ClCompile Include="spells_a.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mutations.c">
+    <ClCompile Include="races.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mut.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mut_a.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -314,7 +320,7 @@
     <ClInclude Include="spells.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mutations.h">
+    <ClInclude Include="mut.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

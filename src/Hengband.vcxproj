@@ -118,11 +118,13 @@
     <ClCompile Include="mspells1.c" />
     <ClCompile Include="mspells2.c" />
     <ClCompile Include="mspells3.c" />
+    <ClCompile Include="mut.c" />
     <ClCompile Include="mutation.c" />
-    <ClCompile Include="mutations.c" />
+    <ClCompile Include="mut_a.c" />
     <ClCompile Include="object1.c" />
     <ClCompile Include="object2.c" />
     <ClCompile Include="obj_kind.c" />
+    <ClCompile Include="races.c" />
     <ClCompile Include="racial.c" />
     <ClCompile Include="readdib.c" />
     <ClCompile Include="report.c" />
@@ -167,7 +169,7 @@
     <ClInclude Include="init.h" />
     <ClInclude Include="kajitips.h" />
     <ClInclude Include="mindtips.h" />
-    <ClInclude Include="mutations.h" />
+    <ClInclude Include="mut.h" />
     <ClInclude Include="readdib.h" />
     <ClInclude Include="rooms.h" />
     <ClInclude Include="spells.h" />

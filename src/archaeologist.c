@@ -844,7 +844,24 @@ class_t *archaeologist_get_class_t(void)
 
 	/* static info never changes */
 	if (!init)
-	{
+	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
+	skills_t bs = { 45,  50,  36,   4,  50,  32,  40,  20};
+	skills_t xs = { 15,  12,  10,   0,   0,   0,  11,  11};
+
+		me.name = "Archaeologist";
+		me.desc = "The Archaeologist is an erudite treasure hunter, seeking out the most valuable "
+		          "prizes that the dungeon has to offer. At home in subterranean caverns and vaults, "
+				  "he is rarely lost or snared in traps. His powers of perception and detection are "
+				  "very great, as is his skill with arcane devices. At high levels he can use the "
+				  "dark magic of the entombed Pharaohs.";
+		me.stats[A_STR] = -1;
+		me.stats[A_INT] =  1;
+		me.stats[A_WIS] =  1;
+		me.stats[A_DEX] =  1;
+		me.stats[A_CON] = -1;
+		me.stats[A_CHR] =  1;
+		me.base_skills = bs;
+		me.extra_skills = xs;
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.process_player = _process_player;

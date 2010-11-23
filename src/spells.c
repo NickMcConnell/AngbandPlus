@@ -8,7 +8,8 @@
  * mutations, potions, scrolls, etc.
  *
  * I'm attempting a grand unification of all player effects to allow
- * for some more code flexibility (e.g. scrolls that hold *any* spell)
+ * for some more code flexibility (e.g. scrolls that hold *any* spell and
+ * Spells copied from scrolls into "books" for spellcasters, etc.)
  ***********************************************************************/
  
 void default_spell(int cmd, variant *res) /* Base class */
@@ -90,33 +91,38 @@ static int get_spell_cost_extra(ang_spell spell)
  *   choose_spell - prompt user with a list of spells, they choose one.
  *   browse_spell - show spell list, user picks spells repeatedly.  describe each spell.
  ****************************************************************************************/
-static void _list_spells(spell_info* spells, int ct, caster_info *caster)
+static void _list_spells(spell_info* spells, int ct)
 {
 	char temp[140];
 	int  i;
 	int  y = 1;
 	int  x = 10;
-	cptr cost_desc = NULL;
 	variant name, info;
 
 	var_init(&name);
 	var_init(&info);
 
-	if (caster->use_hp) cost_desc = "HP";
-	else if (caster->use_sp) cost_desc = "SP";
-	else cost_desc = "";
+	/* TODO: Use 2 columns when the list is larger than screen height.
+	         But leave at least 5 columns on the bottom for browse info.
+	*/
 
 	Term_erase(x, y, 255);
-	put_str(format("Lv   %s   Fail Info", cost_desc), y, x + 35);
+	put_str("Lv Cost Fail Info", y, x + 35);
 	for (i = 0; i < ct; i++)
 	{
+		char letter = '\0';
 		spell_info* spell = &spells[i];
 
 		(spell->fn)(SPELL_NAME, &name);
 		(spell->fn)(SPELL_INFO, &info);
 
-		sprintf(temp, "  %c) ",I2A(i));
-		strcat(temp, format("%-30s%2d %4d  %3d%%  %s", 
+		if (i < 26)
+			letter = I2A(i);
+		else
+			letter = '0' + i - 26;
+
+		sprintf(temp, "  %c) ", letter);
+		strcat(temp, format("%-23.23s %2d %4d %3d%%  %s", 
 							var_get_string(&name),
 							spell->level,
 							spell->cost,
@@ -130,7 +136,7 @@ static void _list_spells(spell_info* spells, int ct, caster_info *caster)
 	var_clear(&info);
 }
 
-static int _choose_spell(spell_info* spells, int ct, caster_info *caster)
+static int _choose_spell(spell_info* spells, int ct, cptr desc)
 {
 	int choice = -1;
 	char prompt[140];
@@ -138,10 +144,8 @@ static int _choose_spell(spell_info* spells, int ct, caster_info *caster)
 
 	var_init(&name);
 
-	strnfmt(prompt, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
-		caster->magic_desc, I2A(0), I2A(ct - 1), caster->magic_desc);
-
-	_list_spells(spells, ct, caster);
+	strnfmt(prompt, 78, "Use which %s? ", desc);
+	_list_spells(spells, ct);
 
 	for (;;)
 	{
@@ -152,11 +156,13 @@ static int _choose_spell(spell_info* spells, int ct, caster_info *caster)
 		choice = -1;
 		if (!get_com(prompt, &ch, TRUE)) break;
 
+		/* TODO: Handle more than 26 possibilities! */
 		if (isupper(ch))
 		{
 			confirm_choice = TRUE;
 			ch = tolower(ch);
 		}
+
 		choice = islower(ch) ? A2I(ch) : -1;
 
 		/* Valid Choice? */
@@ -184,7 +190,7 @@ static int _choose_spell(spell_info* spells, int ct, caster_info *caster)
 	return choice;
 }
 
-int choose_spell(spell_info* spells, int ct, caster_info *caster)
+int choose_spell(spell_info* spells, int ct, cptr desc)
 {
 	int choice = -1;
 
@@ -196,7 +202,7 @@ int choose_spell(spell_info* spells, int ct, caster_info *caster)
 
 	screen_save();
 
-	choice = _choose_spell(spells, ct, caster);
+	choice = _choose_spell(spells, ct, desc);
 	REPEAT_PUSH(choice);
 
 	screen_load();
@@ -204,7 +210,7 @@ int choose_spell(spell_info* spells, int ct, caster_info *caster)
 	return choice;
 }
 
-void browse_spells(spell_info* spells, int ct, caster_info *caster)
+void browse_spells(spell_info* spells, int ct, cptr desc)
 {
 	char tmp[62*5];
 	int i, line;
@@ -219,19 +225,19 @@ void browse_spells(spell_info* spells, int ct, caster_info *caster)
 		spell_info* spell = NULL;
 		int choice = -1;
 		
-		choice = _choose_spell(spells, ct, caster);
+		choice = _choose_spell(spells, ct, desc);
 		if (choice < 0 || choice >= ct) break;
 
 		/* 2 lines below list of spells, 5 lines for description */
 		for (i = 0; i < 7; i++)
-			Term_erase(12, ct + i + 1, 255);
+			Term_erase(12, MIN(ct, 18) + i + 1, 255);
 
 		/* Get the description, and line break it (max 5 lines) */
 		spell = &spells[choice];
 		(spell->fn)(SPELL_DESC, &info);
 		roff_to_buf(var_get_string(&info), 62, tmp, sizeof(tmp));
 
-		for(i = 0, line = ct + 3; tmp[i]; i += 1+strlen(&tmp[i]))
+		for(i = 0, line = MIN(ct, 18) + 3; tmp[i]; i += 1+strlen(&tmp[i]))
 		{
 			prt(&tmp[i], line, 15);
 			line++;
@@ -273,10 +279,22 @@ int calculate_fail_rate(const spell_info *spell, int stat_idx)
  * Entrypoints for the world
  ****************************************************************/
 
+static void _add_extra_costs(spell_info* spells, int max)
+{
+	int i;
+	/* Some spells give extra abilities depending on player level ...
+	   Ideally, these spells should scale the costs as well! */
+	for (i = 0; i < max; i++)
+	{
+		spell_info* current = &spells[i];
+		current->cost += get_spell_cost_extra(current->fn);
+	}
+}
+
+
 static int _get_spell_table(spell_info* spells, int max, caster_info **info)
 {
 	int ct = 0;
-	int i;
 	class_t *class_ptr = get_class_t();
 
 	*info = NULL;
@@ -289,14 +307,7 @@ static int _get_spell_table(spell_info* spells, int max, caster_info **info)
 			*info = (class_ptr->caster_info)();
 	}
 
-	/* Some spells give extra abilities depending on player level ...
-	   Ideally, these spells should scale the costs as well! */
-	for (i = 0; i < ct; i++)
-	{
-		spell_info* current = &spells[i];
-		current->cost += get_spell_cost_extra(current->fn);
-	}
-
+	_add_extra_costs(spells, ct);
 	return ct;
 }
 
@@ -304,22 +315,22 @@ void do_cmd_spell_browse(void)
 {
 	spell_info spells[MAX_SPELLS];
 	caster_info *caster = NULL;
+	/* TODO: Prompt for Racial Powers as well! */
 	int ct = _get_spell_table(spells, MAX_SPELLS, &caster);
 	if (ct == 0)
 	{
 		/* User probably canceled the prompt for a spellbook */
 		return;
 	}
-	browse_spells(spells, ct, caster);
+	browse_spells(spells, ct, caster->magic_desc);
 }
- 
+
 void do_cmd_spell(void)
 {
 	spell_info spells[MAX_SPELLS];
 	caster_info *caster = NULL;
 	int ct = 0; 
 	int choice = 0;
-	bool prompt = TRUE;
 	
 	if (p_ptr->confused)
 	{
@@ -334,8 +345,7 @@ void do_cmd_spell(void)
 		return;
 	}
 
-	if (prompt)
-		choice = choose_spell(spells, ct, caster);
+	choice = choose_spell(spells, ct, caster->magic_desc);
 
 	if (choice >= 0 && choice < ct)
 	{
@@ -391,6 +401,91 @@ void do_cmd_spell(void)
 
 		if (caster->on_cast != NULL)
 			(caster->on_cast)(spell);
+
+		p_ptr->redraw |= (PR_MANA);
+		p_ptr->redraw |= (PR_HP);
+		p_ptr->window |= (PW_PLAYER);
+		p_ptr->window |= (PW_SPELL);
+	}
+}
+
+void do_cmd_power(void)
+{
+	spell_info spells[MAX_SPELLS];
+	int ct = 0; 
+	int choice = 0;
+	race_t *race_ptr = get_race_t();
+	class_t *class_ptr = get_class_t();
+	
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+	
+	if (race_ptr != NULL && race_ptr->get_powers != NULL)
+	{
+		ct += (race_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
+	}
+
+	if (class_ptr != NULL && class_ptr->get_powers != NULL)
+	{
+		ct += (class_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
+	}
+
+	ct += mut_get_powers(spells + ct, MAX_SPELLS - ct);
+
+	if (ct == 0)
+	{
+		msg_print("You have no powers.");
+		return;
+	}
+
+	_add_extra_costs(spells, ct);
+
+	choice = choose_spell(spells, ct, "power");
+
+	if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
+	{
+		set_action(ACTION_NONE);
+	}
+
+	if (choice >= 0 && choice < ct)
+	{
+		spell_info *spell = &spells[choice];
+
+		if (spell->cost > p_ptr->chp + p_ptr->csp)
+		{
+			msg_print("Using this power will kill you!  Why not rest a bit first?");
+			return;
+		}
+
+		/* Check for Failure */
+		if (randint0(100) < spell->fail)
+		{
+			sound(SOUND_FAIL); /* Doh! */
+			if (flush_failure) flush();
+			msg_print("You failed to concentrate hard enough!");
+		}
+		else
+		{
+			if (!cast_spell(spell->fn))
+				return;
+			sound(SOUND_ZAP); /* Wahoo! */
+		}
+
+		/* Pay Energy Use ... we already paid casting cost */
+		energy_use = get_spell_energy(spell->fn);
+
+		/* Casting costs spill over into hit points */
+		if (p_ptr->csp < spell->cost)
+		{
+			int cost = spell->cost - p_ptr->csp;
+			p_ptr->csp = 0;
+			take_hit(DAMAGE_USELIFE, cost, T("concentrating too hard", "過度の集中"), -1);
+		}
+		else 
+			p_ptr->csp -= spell->cost;
 
 		p_ptr->redraw |= (PR_MANA);
 		p_ptr->redraw |= (PR_HP);

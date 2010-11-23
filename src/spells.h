@@ -4,6 +4,7 @@ extern int calculate_fail_rate(const spell_info *spell, int stat_idx);
 extern bool cast_spell(ang_spell spell);
 extern int  choose_spell(spell_info* spells, int ct, caster_info *caster);
 extern void default_spell(int cmd, variant *res);
+extern void do_cmd_power(void);
 extern void do_cmd_spell(void);
 extern void do_cmd_spell_browse(void);
 
