@@ -36,23 +36,6 @@
 #define MUT_COLD_TOUCH     30
 #define MUT_LAUNCHER       31
 
-/* Non-spell mutations ... */
-extern void alcohol_mut(int cmd, variant *res);
-extern void attract_demon_mut(int cmd, variant *res);
-extern void beak_mut(int cmd, variant *res);
-extern void berserk_rage_mut(int cmd, variant *res);
-extern void cowardice_mut(int cmd, variant *res);
-extern void eat_light_mut(int cmd, variant *res);
-extern void flatulence_mut(int cmd, variant *res);
-extern void hallucination_mut(int cmd, variant *res);
-extern void horns_mut(int cmd, variant *res);
-extern void produce_mana_mut(int cmd, variant *res);
-extern void random_banish_mut(int cmd, variant *res);
-extern void random_teleport_mut(int cmd, variant *res);
-extern void scorpion_tail_mut(int cmd, variant *res);
-extern void speed_flux_mut(int cmd, variant *res);
-extern void trunk_mut(int cmd, variant *res);
-
 #define MUT_BERS_RAGE      32
 #define MUT_COWARDICE      33
 #define MUT_TELEPORT_RND   34
@@ -68,27 +51,30 @@ extern void trunk_mut(int cmd, variant *res);
 #define MUT_BANISH_ALL_RND 44
 #define MUT_EAT_LIGHT      45
 #define MUT_TRUNK          46
-
-#define MUT_ATT_ANIMAL     47
+#define MUT_ATTRACT_ANIMAL 47
 #define MUT_TENTACLES      48
 #define MUT_RAW_CHAOS      49
 #define MUT_NORMALITY      50
 #define MUT_WRAITH         51
 #define MUT_POLY_WOUND     52
 #define MUT_WASTING        53
-#define MUT_ATT_DRAGON     54
+#define MUT_ATTRACT_DRAGON 54
 #define MUT_WEIRD_MIND     55
 #define MUT_NAUSEA         56
 #define MUT_CHAOS_GIFT     57
-#define MUT_WALK_SHAD      58
+#define MUT_SHADOW_WALK    58
 #define MUT_WARNING        59
 #define MUT_INVULN         60
 #define MUT_SP_TO_HP       61
 #define MUT_HP_TO_SP       62
-#define MUT_DISARM         63
+#define MUT_FUMBLING       63
+
+extern void he_man_mut(int cmd, variant *res);
+extern void puny_mut(int cmd, variant *res);
 
 #define MUT_HYPER_STR      64
 #define MUT_PUNY           65
+
 #define MUT_HYPER_INT      66
 #define MUT_MORONIC        67
 #define MUT_RESILIENT      68
@@ -153,4 +139,38 @@ extern void mut_process(void);
 extern int  mut_rating(int mut_idx);
 extern int  mut_type(int mut_idx);
 extern void mut_unlock(int mut_idx);
+
+/* Non-spell mutations ... */
+extern void alcohol_mut(int cmd, variant *res);
+extern void attract_animal_mut(int cmd, variant *res);
+extern void attract_demon_mut(int cmd, variant *res);
+extern void attract_dragon_mut(int cmd, variant *res);
+extern void beak_mut(int cmd, variant *res);
+extern void berserk_rage_mut(int cmd, variant *res);
+extern void chaos_deity_mut(int cmd, variant *res);
+extern void cowardice_mut(int cmd, variant *res);
+extern void eat_light_mut(int cmd, variant *res);
+extern void flatulence_mut(int cmd, variant *res);
+extern void fumbling_mut(int cmd, variant *res);
+extern void hallucination_mut(int cmd, variant *res);
+extern void horns_mut(int cmd, variant *res);
+extern void hp_to_sp_mut(int cmd, variant *res);
+extern void invulnerability_mut(int cmd, variant *res);
+extern void nausea_mut(int cmd, variant *res);
+extern void normality_mut(int cmd, variant *res);
+extern void polymorph_wounds_mut(int cmd, variant *res);
+extern void produce_mana_mut(int cmd, variant *res);
+extern void random_banish_mut(int cmd, variant *res);
+extern void random_teleport_mut(int cmd, variant *res);
+extern void raw_chaos_mut(int cmd, variant *res);
+extern void scorpion_tail_mut(int cmd, variant *res);
+extern void shadow_walk_mut(int cmd, variant *res);
+extern void sp_to_hp_mut(int cmd, variant *res);
+extern void speed_flux_mut(int cmd, variant *res);
+extern void tentacles_mut(int cmd, variant *res);
+extern void trunk_mut(int cmd, variant *res);
+extern void warning_mut(int cmd, variant *res);
+extern void wasting_mut(int cmd, variant *res);
+extern void weird_mind_mut(int cmd, variant *res);
+extern void wraith_mut(int cmd, variant *res);
 

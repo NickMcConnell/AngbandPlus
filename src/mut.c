@@ -61,6 +61,25 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 	{   0,  0,   0, random_banish_mut},
 	{   0,  0,   0, eat_light_mut},
 	{   0,  0,   0, trunk_mut},
+	{   0,  0,   0, attract_animal_mut},
+	{   0,  0,   0, tentacles_mut},
+	{   0,  0,   0, raw_chaos_mut},
+	{   0,  0,   0, normality_mut},
+	{   0,  0,   0, wraith_mut},
+	{   0,  0,   0, polymorph_wounds_mut},
+	{   0,  0,   0, wasting_mut},
+	{   0,  0,   0, attract_dragon_mut},
+	{   0,  0,   0, weird_mind_mut},
+	{   0,  0,   0, nausea_mut},
+	{   0,  0,   0, chaos_deity_mut},
+	{   0,  0,   0, shadow_walk_mut},
+	{   0,  0,   0, warning_mut},
+	{   0,  0,   0, invulnerability_mut},
+	{   0,  0,   0, sp_to_hp_mut},
+	{   0,  0,   0, hp_to_sp_mut},
+	{   0,  0,   0, fumbling_mut},
+	{   0,  0,   0, he_man_mut},
+	{   0,  0,   0, puny_mut},
 };
 
 /*
@@ -114,8 +133,27 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_PRODUCE_MANA */
 	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 4 },	/* MUT_SPEED_FLUX */
 	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 4 },	/* MUT_BANISH_ALL_RND */
-	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_BANISH_EAT_LIGHT */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_EAT_LIGHT */
 	{ MUT_RATING_GOOD,		              0,	     0, 4 },	/* MUT_TRUNK */
+	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_ATTRACT_ANIMAL */
+	{ MUT_RATING_GOOD,		              0,	     0, 2 },	/* MUT_TENTACLES */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_RAW_CHAOS */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 6 },	/* MUT_NORMALITY */
+	{ MUT_RATING_GOOD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_WRAITH */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_POLY_WOUND */
+	{ MUT_RATING_AWFUL,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_WASTING */
+	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_ATTRACT_DRAGON */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 4 },	/* MUT_WEIRD_MIND */
+	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_NAUSEA */
+	{ MUT_RATING_GREAT,		              0,	     0, 4 },	/* MUT_CHAOS_GIFT */
+	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_SHADOW_WALK */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_WARNING */
+	{ MUT_RATING_GOOD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_INVULN */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 4 },	/* MUT_SP_TO_HP */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_HP_TO_SP */
+	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_FUMBLING */
+	{ MUT_RATING_GREAT,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_HYPER_STR */
+	{ MUT_RATING_AWFUL,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_PUNY */
 };
 
 int _mut_prob_gain(int i)
@@ -123,6 +161,9 @@ int _mut_prob_gain(int i)
 	int result = _mutations[i].prob;
 
 	/* TODO: Tweak probabilities for various races ... */
+
+	if (i == MUT_CHAOS_GIFT && p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+		return 0;
 
 	if ( _mutations[i].rating < MUT_RATING_AVERAGE
 	  && mut_present(MUT_GOOD_LUCK) )
@@ -142,8 +183,6 @@ int _mut_prob_gain(int i)
 int _mut_prob_lose(int i)
 {
 	int result = _mutations[i].prob;
-
-	/* TODO: Tweak probabilities for various races ... */
 
 	if ( _mutations[i].rating > MUT_RATING_AVERAGE
 	  && mut_present(MUT_GOOD_LUCK) )
@@ -353,6 +392,13 @@ void mut_process(void)
 {
 	int i;
 	variant v;
+
+	/* No effect on monster arena */
+	if (p_ptr->inside_battle) return;
+
+	/* No effect on the global map */
+	if (p_ptr->wild_mode) return;
+
 	var_init(&v);
 
 	for (i = 0; i < MAX_MUTATIONS; i++)

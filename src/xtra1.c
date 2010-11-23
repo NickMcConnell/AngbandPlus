@@ -3988,19 +3988,9 @@ void calc_bonuses(void)
 
 
 	/* I'm adding the mutations here for the lack of a better place... */
+	mut_calc_bonuses();
 	if (p_ptr->muta3)
 	{
-		/* Hyper Strength */
-		if (p_ptr->muta3 & MUT3_HYPER_STR)
-		{
-			p_ptr->stat_add[A_STR] += 4;
-		}
-
-		/* Puny */
-		if (p_ptr->muta3 & MUT3_PUNY)
-		{
-			p_ptr->stat_add[A_STR] -= 4;
-		}
 
 		/* Living computer */
 		if (p_ptr->muta3 & MUT3_HYPER_INT)
