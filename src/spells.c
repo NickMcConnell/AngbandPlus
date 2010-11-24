@@ -107,7 +107,7 @@ static void _list_spells(spell_info* spells, int ct)
 	*/
 
 	Term_erase(x, y, 255);
-	put_str("Lv Cost Fail Info", y, x + 35);
+	put_str("Lv Cost Fail Info", y, x + 29);
 	for (i = 0; i < ct; i++)
 	{
 		char letter = '\0';
@@ -122,7 +122,7 @@ static void _list_spells(spell_info* spells, int ct)
 			letter = '0' + i - 26;
 
 		sprintf(temp, "  %c) ", letter);
-		strcat(temp, format("%-23.23s %2d %4d %3d%%  %s", 
+		strcat(temp, format("%-23.23s %2d %4d %3d%% %s", 
 							var_get_string(&name),
 							spell->level,
 							spell->cost,
@@ -248,18 +248,18 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
 	var_clear(&info);
 }
 
-int calculate_fail_rate(const spell_info *spell, int stat_idx)
+int calculate_fail_rate(int level, int base_fail, int stat_idx)
 {
-	int fail = spell->fail;
+	int fail = base_fail;
 
-	if (p_ptr->lev < spell->level)
+	if (p_ptr->lev < level)
 		return 100;
 
 	if (fail)	/* Hack: 0% base failure is always 0% */
 	{
 		int min = 0;
 
-		fail -= 3 * (p_ptr->lev - spell->level);
+		fail -= 3 * (p_ptr->lev - level);
 		fail += p_ptr->to_m_chance;
 		fail -= 3 * (adj_mag_stat[stat_idx] - 1);
 
@@ -427,11 +427,15 @@ void do_cmd_power(void)
 	{
 		ct += (race_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
 	}
+	/* Temp Hack during refactoring ... */
+	ct += get_racial_powers(spells + ct, MAX_SPELLS - ct);
 
 	if (class_ptr != NULL && class_ptr->get_powers != NULL)
 	{
 		ct += (class_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
 	}
+	/* Temp Hack during refactoring ... */
+	ct += get_class_powers(spells + ct, MAX_SPELLS - ct);
 
 	ct += mut_get_powers(spells + ct, MAX_SPELLS - ct);
 
@@ -453,6 +457,12 @@ void do_cmd_power(void)
 	if (choice >= 0 && choice < ct)
 	{
 		spell_info *spell = &spells[choice];
+		
+		if (spell->level > p_ptr->lev)
+		{
+			msg_print("You can't cast that spell yet!");
+			return;
+		}
 
 		if (spell->cost > p_ptr->chp + p_ptr->csp)
 		{

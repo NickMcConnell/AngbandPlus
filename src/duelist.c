@@ -521,7 +521,7 @@ static int _get_spells(spell_info* spells, int max)
 			current->level = base->level;
 			current->cost = base->cost;
 
-			current->fail = calculate_fail_rate(base, stat_idx);			
+			current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);			
 			ct++;
 		}
 	}

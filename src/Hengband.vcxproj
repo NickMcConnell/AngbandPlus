@@ -78,9 +78,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="archaeologist.c" />
+    <ClCompile Include="archer.c" />
     <ClCompile Include="artifact.c" />
     <ClCompile Include="autopick.c" />
     <ClCompile Include="avatar.c" />
+    <ClCompile Include="bard.c" />
     <ClCompile Include="birth.c" />
     <ClCompile Include="bldg.c" />
     <ClCompile Include="cave.c" />
@@ -108,11 +110,13 @@
     <ClCompile Include="init2.c" />
     <ClCompile Include="japanese.c" />
     <ClCompile Include="load.c" />
+    <ClCompile Include="magic_eater.c" />
     <ClCompile Include="main-win.c" />
     <ClCompile Include="mane.c" />
     <ClCompile Include="melee1.c" />
     <ClCompile Include="melee2.c" />
     <ClCompile Include="mind.c" />
+    <ClCompile Include="monk.c" />
     <ClCompile Include="monster1.c" />
     <ClCompile Include="monster2.c" />
     <ClCompile Include="mspells1.c" />

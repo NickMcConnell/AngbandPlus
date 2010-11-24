@@ -75,8 +75,8 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 	{   0,  0,   0, shadow_walk_mut},
 	{   0,  0,   0, warning_mut},
 	{   0,  0,   0, invulnerability_mut},
-	{   0,  0,   0, sp_to_hp_mut},
-	{   0,  0,   0, hp_to_sp_mut},
+	{   0,  0,   0, sp_to_hp_spell},
+	{   0,  0,   0, hp_to_sp_spell},
 	{   0,  0,   0, fumbling_mut},
 	{   0,  0,   0, he_man_mut},
 	{   0,  0,   0, puny_mut},
@@ -461,7 +461,7 @@ int mut_get_powers(spell_info* spells, int max)
 			current->level = base->level;
 			current->cost = base->cost;
 
-			current->fail = calculate_fail_rate(base, stat_idx);			
+			current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);			
 			ct++;
 		}
 	}

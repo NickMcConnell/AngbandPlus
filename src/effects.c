@@ -134,7 +134,7 @@ void set_action(int typ)
 	p_ptr->action = typ;
 
 	/* If we are requested other action, stop singing */
-	if (prev_typ == ACTION_SING) stop_singing();
+	if (prev_typ == ACTION_SING) bard_stop_singing();
 
 	switch (p_ptr->action)
 	{

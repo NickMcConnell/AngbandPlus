@@ -298,3 +298,25 @@ bool multiply_barrier(int m_idx)
 
 	return TRUE;
 }
+
+void hex_stop_spelling_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Stop Spelling", "±Ó¾§¤ò¤ä¤á¤ë"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_ENERGY:
+		var_set_int(res, 10);
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, stop_hex_spell());
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}

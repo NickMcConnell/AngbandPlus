@@ -6342,7 +6342,7 @@ note = "には効果がなかった。";
 
 			/* HACK - tick off smart monsters whenever damaged by the player
 			   from a distance. */
-			if (dam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+			if (who == 0 && dam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
 			{
 				if (!(m_ptr->smart & SM_TICKED_OFF))
 				{
@@ -6689,6 +6689,12 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	  && p_ptr->duelist_target_idx == who )
 	{
 		dam -= dam/3;
+	}
+
+	if (p_ptr->tim_blood_shield)
+	{
+		int factor = 50 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp;
+		dam -= dam * factor / 100;
 	}
 
 	/* If the player is blind, be more descriptive */

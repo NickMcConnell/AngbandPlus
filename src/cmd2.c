@@ -2839,7 +2839,7 @@ void do_cmd_rest(void)
 
 	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] || p_ptr->magic_num1[1]))
 	{
-		stop_singing();
+		bard_stop_singing();
 	}
 
 	/* Hex */

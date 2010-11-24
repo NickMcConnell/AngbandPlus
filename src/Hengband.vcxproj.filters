@@ -243,6 +243,18 @@
     <ClCompile Include="mut_a.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="archer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="monk.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="magic_eater.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bard.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

@@ -703,6 +703,14 @@ bool make_attack_normal(int m_idx)
 			}
 
 			/*
+			if (p_ptr->tim_blood_shield)
+			{
+				int factor = 50 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp;
+				damage -= damage * factor / 100;
+			}
+			*/
+
+			/*
 			 * Skip the effect when exploding, since the explosion
 			 * already causes the effect.
 			 */

@@ -179,6 +179,25 @@ void berserk_spell(int cmd, variant *res)
 }
 bool cast_berserk(void) { return cast_spell(berserk_spell); }
 
+void bless_weapon_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Bless Weapon", "武器祝福"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Blesses your current weapon.", ""));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, bless_weapon());
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void breathe_fire_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -197,6 +216,7 @@ void breathe_fire_spell(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You can breathe fire (dam lvl * 2).", "あなたは炎のブレスを吐くことができる。(ダメージ レベルX2)"));
+		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, 2 * p_ptr->lev));
 		break;
@@ -222,6 +242,42 @@ void breathe_fire_spell(int cmd, variant *res)
 	}
 }
 bool cast_breathe_fire(void) { return cast_spell(breathe_fire_spell); }
+
+void clear_mind_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Clear Mind", "明鏡止水"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (total_friends)
+		{
+			msg_print(T("You need to concentrate on your pets now.", "今はペットを操ることに集中していないと。"));
+			return;
+		}
+
+		msg_print(T("You feel your head clear a little.", "少し頭がハッキリした。"));
+
+		p_ptr->csp += (3 + p_ptr->lev/20);
+		if (p_ptr->csp >= p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
+		}
+
+		p_ptr->redraw |= (PR_MANA);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void cold_touch_spell(int cmd, variant *res)
 {
@@ -275,6 +331,31 @@ void cold_touch_spell(int cmd, variant *res)
 	}
 }
 bool cast_cold_touch(void) { return cast_spell(cold_touch_spell); }
+
+void confusing_lights_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Confusing Lights", "幻惑の光"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Emits confusing lights, slowing, stunning, confusing, scaring and freezing nearby monsters.");
+		break;
+	case SPELL_CAST:
+		msg_print(T("You glare nearby monsters with a dazzling array of confusing lights!", "辺りを睨んだ..."));
+		slow_monsters();
+		stun_monsters(p_ptr->lev * 4);
+		confuse_monsters(p_ptr->lev * 4);
+		turn_monsters(p_ptr->lev * 4);
+		stasis_monsters(p_ptr->lev * 4);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void dazzle_spell(int cmd, variant *res)
 {
@@ -417,6 +498,51 @@ void detect_treasure_spell(int cmd, variant *res)
 	}
 }
 bool cast_detect_treasure(void) { return cast_spell(detect_treasure_spell); }
+
+void dominate_living_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Dominate a Living Thing", "生物支配"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball_hide(GF_CONTROL_LIVING, dir, p_ptr->lev, 0);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void dominate_living_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Dominate Living Things", "真・生物支配"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+		project_hack(GF_CONTROL_LIVING, p_ptr->lev);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void earthquake_spell(int cmd, variant *res)
 {
@@ -575,6 +701,32 @@ void eat_rock_spell(int cmd, variant *res)
 }
 bool cast_eat_rock(void) { return cast_spell(eat_rock_spell); }
 
+void evocation_spell(int cmd, variant *res)
+{
+	int power = spell_power(p_ptr->lev * 4);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Evocation", "召魂"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Dispels, scares and banishes all monsters in view.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, power));
+		break;
+	case SPELL_CAST:
+		dispel_monsters(power);
+		turn_monsters(power);
+		banish_monsters(power);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void grow_mold_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -610,6 +762,155 @@ void grow_mold_spell(int cmd, variant *res)
 	}
 }
 bool cast_grow_mold(void) { return cast_spell(grow_mold_spell); }
+
+void identify_fully_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Identify True", "真・鑑定"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, identify_fully(FALSE));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_identify_fully(void) { return cast_spell(identify_fully_spell); }
+
+void hell_lance_spell(int cmd, variant *res)
+{
+	int dam = spell_power(p_ptr->lev * 3);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Hell Lance", "ヘル・ランス"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a beam of pure hellfire.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, dam));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (get_aim_dir(&dir))
+		{
+			fire_beam(GF_HELL_FIRE, dir, dam);
+			var_set_bool(res, TRUE);
+		}
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_hell_lance(void) { return cast_spell(hell_lance_spell); }
+
+void holy_lance_spell(int cmd, variant *res)
+{
+	int dam = spell_power(p_ptr->lev * 3);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Holy Lance", "ホーリー・ランス"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a beam of pure holiness.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, dam));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (get_aim_dir(&dir))
+		{
+			fire_beam(GF_HOLY_FIRE, dir, dam);
+			var_set_bool(res, TRUE);
+		}
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_holy_lance(void) { return cast_spell(holy_lance_spell); }
+
+void hp_to_sp_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Convert HP to SP", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Converts HP into SP", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You are subject to fits of painful clarity.", "痛みを伴う精神明瞭化の発作を起こすようになった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You are no longer subject to fits of painful clarity.", "痛みを伴う精神明瞭化の発作に襲われなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your blood sometimes rushes to your head.", "あなたは時々頭に血がどっと流れる。"));
+		break;
+	case SPELL_PROCESS:
+		if (!p_ptr->anti_magic && one_in_(4000))
+		{
+			int wounds = p_ptr->msp - p_ptr->csp;
+
+			if (wounds > 0)
+			{
+				int healing = p_ptr->chp;
+
+				if (healing > wounds)
+					healing = wounds;
+
+				p_ptr->csp += healing;
+
+				p_ptr->redraw |= (PR_MANA);
+				take_hit(DAMAGE_LOSELIFE, healing, T("blood rushing to the head", "頭に昇った血"), -1);
+			}
+		}
+		break;
+
+	case SPELL_CAST:
+	{
+		int gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, T("thoughtless convertion from HP to SP", "ＨＰからＭＰへの無謀な変換"), -1) / 5;
+		if (gain_sp)
+		{
+			p_ptr->csp += gain_sp;
+			if (p_ptr->csp > p_ptr->msp)
+			{
+				p_ptr->csp = p_ptr->msp;
+				p_ptr->csp_frac = 0;
+			}
+
+			p_ptr->redraw |= PR_MANA;
+		}
+		else
+			msg_print(T("You failed to convert.", "変換に失敗した。"));
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void hypnotic_gaze_spell(int cmd, variant *res)
 {
@@ -940,6 +1241,27 @@ void power_throw_spell(int cmd, variant *res)
 }
 bool cast_power_throw(void) { return cast_spell(power_throw_spell); }
 
+void probing_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Probe Monster", "モンスター調査"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Determines the abilities, strengths and weaknesses of nearby monsters.", ""));
+		break;
+	case SPELL_CAST:
+		probing();
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_probing(void) { return cast_spell(probing_spell); }
+
 void radiation_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1179,6 +1501,62 @@ void smell_monsters_spell(int cmd, variant *res)
 	}
 }
 
+void sp_to_hp_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Convert SP to HP", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Converts SP into HP", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You are subject to fits of magical healing.", "魔法の治癒の発作を起こすようになった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You are no longer subject to fits of magical healing.", "魔法の治癒の発作に襲われなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your blood sometimes rushes to your muscles.", "あなたは時々血が筋肉にどっと流れる。"));
+		break;
+	case SPELL_PROCESS:
+		if (one_in_(2000))
+		{
+			int wounds = p_ptr->mhp - p_ptr->chp;
+
+			if (wounds > 0)
+			{
+				int healing = p_ptr->csp;
+
+				if (healing > wounds)
+					healing = wounds;
+
+				hp_player(healing);
+				p_ptr->csp -= healing;
+
+				p_ptr->redraw |= (PR_MANA);
+			}
+		}
+		break;
+	case SPELL_CAST:
+		if (p_ptr->csp >= p_ptr->lev / 5)
+		{
+			p_ptr->csp -= p_ptr->lev / 5;
+			p_ptr->redraw |= PR_MANA;
+			hp_player(p_ptr->lev);
+		}
+		else
+			msg_print(T("You failed to convert.", "変換に失敗した。"));
+
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void spit_acid_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1200,6 +1578,7 @@ void spit_acid_spell(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You can spit acid (dam lvl).", "あなたは酸を吹きかけることができる。(ダメージ レベルX1)"));
+		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, p_ptr->lev));
 		break;
@@ -1343,6 +1722,68 @@ void swap_pos_spell(int cmd, variant *res)
 	}
 }
 bool cast_swap_pos(void) { return cast_spell(swap_pos_spell); }
+
+void sword_dance_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Sword Dancing", "剣の舞い"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attacks adjacent monsters randomly.");
+		break;
+	case SPELL_CAST:
+	{
+		int y = 0, x = 0, i, dir = 0;
+		cave_type *c_ptr;
+
+		for (i = 0; i < 6; i++)
+		{
+			dir = randint0(8);
+			y = py + ddy_ddd[dir];
+			x = px + ddx_ddd[dir];
+			c_ptr = &cave[y][x];
+
+			if (c_ptr->m_idx)
+				py_attack(y, x, 0);
+			else
+				msg_print(T("You attack the empty air.", "攻撃が空をきった。"));
+		}
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void take_photo_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Take Photograph", "写真撮影"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Creates something to show the kids back home!", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, TRUE);
+		if (!get_aim_dir(&dir)) return;
+		project_length = 1;
+		fire_beam(GF_PHOTO, dir, 1);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void telekinesis_spell(int cmd, variant *res)
 {

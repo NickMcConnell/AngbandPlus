@@ -1402,7 +1402,7 @@ static void check_music(void)
 
 	if (p_ptr->anti_magic)
 	{
-		stop_singing();
+		bard_stop_singing();
 		return;
 	}
 
@@ -1417,7 +1417,7 @@ static void check_music(void)
 
 	if (s64b_cmp(p_ptr->csp, p_ptr->csp_frac, need_mana, need_mana_frac) < 0)
 	{
-		stop_singing();
+		bard_stop_singing();
 		return;
 	}
 	else
@@ -4176,7 +4176,7 @@ msg_print("ウィザードモード突入。");
 			else if (p_ptr->pclass == CLASS_SAMURAI)
 				do_cmd_gain_hissatsu();
 			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
-				gain_magic();
+				cast_absorb_magic();
 			else
 				do_cmd_study();
 			break;

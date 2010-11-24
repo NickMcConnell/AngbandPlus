@@ -824,7 +824,6 @@ extern void do_cmd_magic_eater(bool only_browse);
 /* do-spell.c */
 extern int spell_power(int pow);
 extern int spell_power_aux(int pow, int bonus);
-extern void stop_singing(void);
 extern cptr do_spell(int realm, int spell, int mode);
 extern cptr info_damage(int dice, int sides, int base);
 extern cptr info_duration(int base, int sides);
@@ -1086,7 +1085,6 @@ extern bool process_warning(int xx, int yy);
 extern void do_cmd_kaji(bool only_browse);
 
 /* racial.c */
-extern bool gain_magic(void);
 extern void do_cmd_racial_power(void);
 extern void racial_stop_mouth(void);
 
@@ -1567,6 +1565,7 @@ extern void do_cmd_mind_browse(void);
 
 /* mane.c */
 extern bool do_cmd_mane(bool baigaesi);
+extern void double_revenge_spell(int cmd, variant *res);
 
 /* mspells3.c */
 extern bool do_cmd_cast_learned(void);
@@ -1786,6 +1785,7 @@ extern bool stop_hex_spell_all(void);
 extern bool stop_hex_spell(void);
 extern void check_hex(void);
 extern bool hex_spell_fully(void);
+extern void hex_stop_spelling_spell(int cmd, variant *res);
 extern void revenge_spell();
 extern void revenge_store(int dam);
 extern bool teleport_barrier(int m_idx);
@@ -1795,17 +1795,32 @@ extern bool multiply_barrier(int m_idx);
 /* classes.c */
 extern class_t *get_class_t(void);
 extern class_t *get_class_t_aux(int pclass, int psubclass);
+extern int get_class_powers(spell_info* spells, int max);
 extern class_t *archaeologist_get_class_t(void);
 extern class_t *duelist_get_class_t(void);
 
 /* races.c */
 extern race_t *get_race_t(void);
 extern race_t *get_race_t_aux(int prace);
+extern int get_racial_powers(spell_info* spells, int max);
+
+/* bard.c */
+extern void bard_start_singing(int spell, int song);
+extern void bard_stop_singing(void);
+extern void bard_stop_singing_spell(int cmd, variant *res);
 
 /* duelist.c */
 extern cptr duelist_current_challenge(void);
 extern bool duelist_issue_challenge(void);
 extern int duelist_skill_sav(int m_idx);
+
+/* magic_eater.c */
+extern void absorb_magic_spell(int cmd, variant *res);
+extern void cast_abosrb_magic(void);
+
+/* monk.c */
+extern void monk_double_attack_spell(int cmd, variant *res);
+extern void monk_posture_spell(int cmd, variant *res);
 
 /* warlock.c */
 extern bool warlock_is_pact_monster(monster_race *r_ptr);

@@ -1376,3 +1376,23 @@ msg_print("ものまねに失敗した！");
 
 	return TRUE;
 }
+
+void double_revenge_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Double Revenge", "倍返し"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+		handle_stuff();
+		var_set_bool(res, do_cmd_mane(TRUE));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}

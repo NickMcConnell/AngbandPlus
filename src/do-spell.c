@@ -1126,64 +1126,6 @@ static bool cast_summon_greater_demon(void)
 }
 
 
-/*
- * Start singing if the player is a Bard 
- */
-static void start_singing(int spell, int song)
-{
-	/* Remember the song index */
-	p_ptr->magic_num1[0] = song;
-
-	/* Remember the index of the spell which activated the song */
-	p_ptr->magic_num2[0] = spell;
-
-
-	/* Now the player is singing */
-	set_action(ACTION_SING);
-
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-}
-
-
-/*
- * Stop singing if the player is a Bard 
- */
-void stop_singing(void)
-{
-	if (p_ptr->pclass != CLASS_BARD) return;
-
- 	/* Are there interupted song? */
-	if (p_ptr->magic_num1[1])
-	{
-		/* Forget interupted song */
-		p_ptr->magic_num1[1] = 0;
-		return;
-	}
-
-	/* The player is singing? */
-	if (!p_ptr->magic_num1[0]) return;
-
-	/* Hack -- if called from set_action(), avoid recursive loop */
-	if (p_ptr->action == ACTION_SING) set_action(ACTION_NONE);
-
-	/* Message text of each song or etc. */
-	do_spell(REALM_MUSIC, p_ptr->magic_num2[0], SPELL_STOP);
-
-	p_ptr->magic_num1[0] = MUSIC_NONE;
-	p_ptr->magic_num2[0] = 0;
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Redraw status bar */
-	p_ptr->redraw |= (PR_STATUS);
-}
-
 
 static cptr do_life_spell(int spell, int mode)
 {
@@ -8975,7 +8917,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -8984,7 +8926,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You start humming a slow, steady melody...");
 #endif
-			start_singing(spell, MUSIC_SLOW);
+			bard_start_singing(spell, MUSIC_SLOW);
 		}
 
 		{
@@ -9009,7 +8951,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9018,7 +8960,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("The holy power of the Music of the Ainur enters you...");
 #endif
-			start_singing(spell, MUSIC_BLESS);
+			bard_start_singing(spell, MUSIC_BLESS);
 		}
 
 		if (stop)
@@ -9045,7 +8987,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		{
 			int dice = spell_power(4 + (plev - 1) / 5);
@@ -9072,7 +9014,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9081,7 +9023,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You weave a pattern of sounds to bewilder and daze...");
 #endif
-			start_singing(spell, MUSIC_STUN);
+			bard_start_singing(spell, MUSIC_STUN);
 		}
 
 		{
@@ -9108,7 +9050,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9117,7 +9059,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("Life flows through you as you sing a song of healing...");
 #endif
-			start_singing(spell, MUSIC_L_LIFE);
+			bard_start_singing(spell, MUSIC_L_LIFE);
 		}
 
 		{
@@ -9144,7 +9086,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		{
 			int dice = 2;
@@ -9176,7 +9118,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9185,7 +9127,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You start weaving a fearful pattern...");
 #endif
-			start_singing(spell, MUSIC_FEAR);			
+			bard_start_singing(spell, MUSIC_FEAR);			
 		}
 
 		{
@@ -9211,7 +9153,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9227,7 +9169,7 @@ static cptr do_music_spell(int spell, int mode)
 			/* Recalculate hitpoints */
 			p_ptr->update |= (PU_HP);
 
-			start_singing(spell, MUSIC_HERO);
+			bard_start_singing(spell, MUSIC_HERO);
 		}
 
 		if (stop)
@@ -9256,7 +9198,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9269,7 +9211,7 @@ static cptr do_music_spell(int spell, int mode)
 			/* Hack -- Initialize the turn count */
 			p_ptr->magic_num1[2] = 0;
 
-			start_singing(spell, MUSIC_DETECT);
+			bard_start_singing(spell, MUSIC_DETECT);
 		}
 
 		{
@@ -9327,7 +9269,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9336,7 +9278,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You start singing a song of soul in pain...");
 #endif
-			start_singing(spell, MUSIC_PSI);
+			bard_start_singing(spell, MUSIC_PSI);
 		}
 
 		{
@@ -9363,7 +9305,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9372,7 +9314,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You recall the rich lore of the world...");
 #endif
-			start_singing(spell, MUSIC_ID);
+			bard_start_singing(spell, MUSIC_ID);
 		}
 
 		{
@@ -9402,7 +9344,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9411,7 +9353,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("Your song carries you beyond the sight of mortal eyes...");
 #endif
-			start_singing(spell, MUSIC_STEALTH);
+			bard_start_singing(spell, MUSIC_STEALTH);
 		}
 
 		if (stop)
@@ -9438,7 +9380,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9447,7 +9389,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You weave a pattern of sounds to beguile and confuse...");
 #endif
-			start_singing(spell, MUSIC_CONF);
+			bard_start_singing(spell, MUSIC_CONF);
 		}
 
 		{
@@ -9473,7 +9415,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9482,7 +9424,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("The fury of the Downfall of Numenor lashes out...");
 #endif
-			start_singing(spell, MUSIC_SOUND);
+			bard_start_singing(spell, MUSIC_SOUND);
 		}
 
 		{
@@ -9510,7 +9452,7 @@ static cptr do_music_spell(int spell, int mode)
     
 		{
 			/* Stop singing before start another */
-			if (cast || fail) stop_singing();
+			if (cast || fail) bard_stop_singing();
 
 			if (cast)
 			{
@@ -9535,7 +9477,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9544,7 +9486,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You weave a slow, soothing melody of imploration...");
 #endif
-			start_singing(spell, MUSIC_CHARM);
+			bard_start_singing(spell, MUSIC_CHARM);
 		}
 
 		{
@@ -9571,7 +9513,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9580,7 +9522,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You weave a violent pattern of sounds to break wall.");
 #endif
-			start_singing(spell, MUSIC_WALL);
+			bard_start_singing(spell, MUSIC_WALL);
 		}
 
 		{
@@ -9606,7 +9548,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9615,7 +9557,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You sing a song of perseverance against powers...");
 #endif
-			start_singing(spell, MUSIC_RESIST);
+			bard_start_singing(spell, MUSIC_RESIST);
 		}
 
 		if (stop)
@@ -9678,7 +9620,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9687,7 +9629,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You start singing joyful pop song...");
 #endif
-			start_singing(spell, MUSIC_SPEED);
+			bard_start_singing(spell, MUSIC_SPEED);
 		}
 
 		if (stop)
@@ -9720,7 +9662,7 @@ static cptr do_music_spell(int spell, int mode)
 			if (info) return info_radius(rad);
 
 			/* Stop singing before start another */
-			if (cast || fail) stop_singing();
+			if (cast || fail) bard_stop_singing();
 
 			if (cast)
 			{
@@ -9745,7 +9687,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9754,7 +9696,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You cry out in an ear-wracking voice...");
 #endif
-			start_singing(spell, MUSIC_DISPEL);
+			bard_start_singing(spell, MUSIC_DISPEL);
 		}
 
 		{
@@ -9781,7 +9723,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9790,7 +9732,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You start humming a gentle and attractive song...");
 #endif
-			start_singing(spell, MUSIC_SARUMAN);
+			bard_start_singing(spell, MUSIC_SARUMAN);
 		}
 
 		{
@@ -9823,7 +9765,7 @@ static cptr do_music_spell(int spell, int mode)
 			if (info) return info_damage(dice, sides, 0);
 
 			/* Stop singing before start another */
-			if (cast || fail) stop_singing();
+			if (cast || fail) bard_stop_singing();
 
 			if (cast)
 			{
@@ -9850,7 +9792,7 @@ static cptr do_music_spell(int spell, int mode)
 			if (info) return info_delay(base, sides);
 
 			/* Stop singing before start another */
-			if (cast || fail) stop_singing();
+			if (cast || fail) bard_stop_singing();
 
 			if (cast)
 			{
@@ -9875,7 +9817,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9884,7 +9826,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You weave a pattern of sounds to contort and shatter...");
 #endif
-			start_singing(spell, MUSIC_QUAKE);
+			bard_start_singing(spell, MUSIC_QUAKE);
 		}
 
 		{
@@ -9911,7 +9853,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9920,7 +9862,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("You weave a very slow pattern which is almost likely to stop...");
 #endif
-			start_singing(spell, MUSIC_STASIS);
+			bard_start_singing(spell, MUSIC_STASIS);
 		}
 
 		{
@@ -9947,7 +9889,7 @@ static cptr do_music_spell(int spell, int mode)
     
 		{
 			/* Stop singing before start another */
-			if (cast || fail) stop_singing();
+			if (cast || fail) bard_stop_singing();
 
 			if (cast)
 			{
@@ -9972,7 +9914,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -9987,7 +9929,7 @@ static cptr do_music_spell(int spell, int mode)
 			/* Recalculate hitpoints */
 			p_ptr->update |= (PU_HP);
 
-			start_singing(spell, MUSIC_SHERO);
+			bard_start_singing(spell, MUSIC_SHERO);
 		}
 
 		if (stop)
@@ -10036,7 +9978,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -10045,7 +9987,7 @@ static cptr do_music_spell(int spell, int mode)
 #else
 			msg_print("Life flows through you as you sing the song...");
 #endif
-			start_singing(spell, MUSIC_H_LIFE);
+			bard_start_singing(spell, MUSIC_H_LIFE);
 		}
 
 		{
@@ -10075,7 +10017,7 @@ static cptr do_music_spell(int spell, int mode)
     
 		{
 			/* Stop singing before start another */
-			if (cast || fail) stop_singing();
+			if (cast || fail) bard_stop_singing();
 
 			if (cast)
 			{
@@ -10112,7 +10054,7 @@ static cptr do_music_spell(int spell, int mode)
 			if (info) return info_damage(dice, sides, 0);
 
 			/* Stop singing before start another */
-			if (cast || fail) stop_singing();
+			if (cast || fail) bard_stop_singing();
 
 			if (cast)
 			{
@@ -10133,7 +10075,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
     
 		/* Stop singing before start another */
-		if (cast || fail) stop_singing();
+		if (cast || fail) bard_stop_singing();
 
 		if (cast)
 		{
@@ -10152,7 +10094,7 @@ static cptr do_music_spell(int spell, int mode)
 				/* Window stuff */
 				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
-				start_singing(spell, MUSIC_INVULN);
+				bard_start_singing(spell, MUSIC_INVULN);
 		}
 
 		if (stop)

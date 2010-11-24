@@ -881,47 +881,6 @@ void horns_mut(int cmd, variant *res)
 	}
 }
 
-void hp_to_sp_mut(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("HP to SP", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You are subject to fits of painful clarity.", "痛みを伴う精神明瞭化の発作を起こすようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer subject to fits of painful clarity.", "痛みを伴う精神明瞭化の発作に襲われなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your blood sometimes rushes to your head.", "あなたは時々頭に血がどっと流れる。"));
-		break;
-	case SPELL_PROCESS:
-		if (!p_ptr->anti_magic && one_in_(4000))
-		{
-			int wounds = p_ptr->msp - p_ptr->csp;
-
-			if (wounds > 0)
-			{
-				int healing = p_ptr->chp;
-
-				if (healing > wounds)
-					healing = wounds;
-
-				p_ptr->csp += healing;
-
-				p_ptr->redraw |= (PR_MANA);
-				take_hit(DAMAGE_LOSELIFE, healing, T("blood rushing to the head", "頭に昇った血"), -1);
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
 void illusion_normal_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1131,7 +1090,7 @@ void nausea_mut(int cmd, variant *res)
 
 			set_food(PY_FOOD_WEAK);
 			
-			if (music_singing_any()) stop_singing();
+			if (music_singing_any()) bard_stop_singing();
 			if (hex_spelling_any()) stop_hex_spell_all();
 		}
 		break;
@@ -1572,46 +1531,6 @@ void silly_voice_mut(int cmd, variant *res)
 	}
 }
 
-void sp_to_hp_mut(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("SP to HP", ""));
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("You are subject to fits of magical healing.", "魔法の治癒の発作を起こすようになった。"));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("You are no longer subject to fits of magical healing.", "魔法の治癒の発作に襲われなくなった。"));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("Your blood sometimes rushes to your muscles.", "あなたは時々血が筋肉にどっと流れる。"));
-		break;
-	case SPELL_PROCESS:
-		if (one_in_(2000))
-		{
-			int wounds = p_ptr->mhp - p_ptr->chp;
-
-			if (wounds > 0)
-			{
-				int healing = p_ptr->csp;
-
-				if (healing > wounds)
-					healing = wounds;
-
-				hp_player(healing);
-				p_ptr->csp -= healing;
-
-				p_ptr->redraw |= (PR_MANA);
-			}
-		}
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
 
 void speed_flux_mut(int cmd, variant *res)
 {

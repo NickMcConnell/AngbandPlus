@@ -59,7 +59,7 @@ static void do_cmd_eat_food_aux(int item)
 	int ident, lev;
 	object_type *o_ptr;
 
-	if (music_singing_any()) stop_singing();
+	if (music_singing_any()) bard_stop_singing();
 	if (hex_spelling_any()) stop_hex_spell_all();
 
 	/* Get the item (in the pack) */
@@ -732,7 +732,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		return;
 	}
 
-	if (music_singing_any()) stop_singing();
+	if (music_singing_any()) bard_stop_singing();
 	if (hex_spelling_any())
 	{
 		if (!hex_spelling(HEX_INHAIL)) stop_hex_spell_all();
@@ -1615,7 +1615,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 		return;
 	}
 
-	if (music_singing_any()) stop_singing();
+	if (music_singing_any()) bard_stop_singing();
 
 	/* Hex */
 	if (hex_spelling_any() && ((p_ptr->lev < 35) || hex_spell_fully())) stop_hex_spell_all();
@@ -5422,7 +5422,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 			case ART_BOROMIR:
 			{
-				if (music_singing_any()) stop_singing();
+				if (music_singing_any()) bard_stop_singing();
 				if (hex_spelling_any()) stop_hex_spell_all();
 #ifdef JP
 				msg_print("あなたは力強い突風を吹き鳴らした。周囲の敵が震え上っている!");
@@ -6065,7 +6065,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 		/* Get a direction for breathing (or abort) */
 		if (!get_aim_dir(&dir)) return;
 
-		if (music_singing_any()) stop_singing();
+		if (music_singing_any()) bard_stop_singing();
 		if (hex_spelling_any()) stop_hex_spell_all();
 
 		/* Branch on the sub-type */
@@ -6512,7 +6512,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 
 	else if (o_ptr->tval == TV_WHISTLE)
 	{
-		if (music_singing_any()) stop_singing();
+		if (music_singing_any()) bard_stop_singing();
 		if (hex_spelling_any()) stop_hex_spell_all();
 
 #if 0
