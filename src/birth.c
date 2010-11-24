@@ -3562,13 +3562,11 @@ static void player_wipe(void)
 	battle_monsters();
 
 	/* Reset mutations */
-	p_ptr->muta1 = 0;
-	p_ptr->muta2 = 0;
-	p_ptr->muta3 = 0;
-
-	p_ptr->muta1_lock = 0;
-	p_ptr->muta2_lock = 0;
-	p_ptr->muta3_lock = 0;
+	for (i = 0; i < MUT_FLAG_SIZE; ++i)
+	{
+		p_ptr->muta[i] = 0;
+		p_ptr->muta_lock[i] = 0;
+	}
 
 	p_ptr->duelist_target_idx = 0;
 

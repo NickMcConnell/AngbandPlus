@@ -1579,15 +1579,6 @@ extern void do_cmd_hissatsu(void);
 extern void do_cmd_hissatsu_browse(void);
 extern void do_cmd_gain_hissatsu(void);
 
-/* mutation.c */
-extern int count_unlocked_mutations(void);
-extern bool gain_random_mutation(int choose_mut);
-extern bool lose_mutation(int choose_mut);
-extern void dump_mutations(FILE *OutFile);
-extern void do_cmd_knowledge_mutations(void);
-extern int calc_mutant_regenerate_mod(void);
-extern bool mutation_power_aux(u32b power);
-
 
 /*
  * Hack -- conditional (or "bizarre") externs

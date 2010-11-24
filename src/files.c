@@ -2095,11 +2095,11 @@ static void display_player_various(void)
 
 	object_type		*o_ptr;
 
-	if (p_ptr->muta2 & MUT2_HORNS)     muta_att++;
-	if (p_ptr->muta2 & MUT2_SCOR_TAIL) muta_att++;
-	if (p_ptr->muta2 & MUT2_BEAK)      muta_att++;
-	if (p_ptr->muta2 & MUT2_TRUNK)     muta_att++;
-	if (p_ptr->muta2 & MUT2_TENTACLES) muta_att++;
+	if (mut_present(MUT_HORNS))     muta_att++;
+	if (mut_present(MUT_SCORPION_TAIL)) muta_att++;
+	if (mut_present(MUT_BEAK))      muta_att++;
+	if (mut_present(MUT_TRUNK))     muta_att++;
+	if (mut_present(MUT_TENTACLES)) muta_att++;
 
 	xthn = p_ptr->skill_thn + (p_ptr->to_h_m * BTH_PLUS_ADJ);
 
@@ -2632,55 +2632,52 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	}
 
 	/* Mutations */
-	if (p_ptr->muta3)
+	if (mut_present(MUT_FLESH_ROT))
 	{
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
-		{
-			remove_flag(flgs, TR_REGEN);
-		}
+		remove_flag(flgs, TR_REGEN);
+	}
 
-		if ((p_ptr->muta3 & MUT3_XTRA_FAT) ||
-			(p_ptr->muta3 & MUT3_XTRA_LEGS) ||
-			(p_ptr->muta3 & MUT3_SHORT_LEG))
-		{
-			add_flag(flgs, TR_SPEED);
-		}
+	if (mut_present(MUT_XTRA_FAT) ||
+		mut_present(MUT_XTRA_LEGS) ||
+		mut_present(MUT_SHORT_LEG))
+	{
+		add_flag(flgs, TR_SPEED);
+	}
 
-		if (p_ptr->muta3  & MUT3_ELEC_TOUC)
-		{
-			add_flag(flgs, TR_SH_ELEC);
-		}
+	if (mut_present(MUT_ELEC_AURA))
+	{
+		add_flag(flgs, TR_SH_ELEC);
+	}
 
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-			add_flag(flgs, TR_SH_FIRE);
-			add_flag(flgs, TR_LITE);
-		}
+	if (mut_present(MUT_FIRE_AURA))
+	{
+		add_flag(flgs, TR_SH_FIRE);
+		add_flag(flgs, TR_LITE);
+	}
 
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			add_flag(flgs, TR_LEVITATION);
-		}
+	if (mut_present(MUT_WINGS))
+	{
+		add_flag(flgs, TR_LEVITATION);
+	}
 
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			add_flag(flgs, TR_RES_FEAR);
-		}
+	if (mut_present(MUT_FEARLESS))
+	{
+		add_flag(flgs, TR_RES_FEAR);
+	}
 
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			add_flag(flgs, TR_REGEN);
-		}
+	if (mut_present(MUT_REGEN))
+	{
+		add_flag(flgs, TR_REGEN);
+	}
 
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			add_flag(flgs, TR_TELEPATHY);
-		}
+	if (mut_present(MUT_ESP))
+	{
+		add_flag(flgs, TR_TELEPATHY);
+	}
 
-		if (p_ptr->muta3 & MUT3_MOTION)
-		{
-			add_flag(flgs, TR_FREE_ACT);
-		}
+	if (mut_present(MUT_MOTION))
+	{
+		add_flag(flgs, TR_FREE_ACT);
 	}
 
 	if (p_ptr->pseikaku == SEIKAKU_SEXY)
@@ -3008,7 +3005,7 @@ static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if ((p_ptr->muta3 & MUT3_VULN_ELEM) || (p_ptr->special_defense & KATA_KOUKIJIN))
+	if (mut_present(MUT_VULN_ELEM) || (p_ptr->special_defense & KATA_KOUKIJIN))
 	{
 		add_flag(flgs, TR_RES_ACID);
 		add_flag(flgs, TR_RES_ELEC);
@@ -3719,43 +3716,43 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 		c = '.';
 
 		/* Mutations ... */
-		if (p_ptr->muta3 || p_ptr->tsuyoshi || (p_ptr->pclass == CLASS_WARLOCK))
+		if (1)
 		{
 			int dummy = 0;
 
 			if (stat == A_STR)
 			{
-				if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
-				if (p_ptr->muta3 & MUT3_PUNY) dummy -= 4;
+				if (mut_present(MUT_HYPER_STR)) dummy += 4;
+				if (mut_present(MUT_PUNY)) dummy -= 4;
 				if (p_ptr->tsuyoshi) dummy += 4;
 			}
 			else if (stat == A_WIS || stat == A_INT)
 			{
-				if (p_ptr->muta3 & MUT3_HYPER_INT) dummy += 4;
-				if (p_ptr->muta3 & MUT3_MORONIC) dummy -= 4;
+				if (mut_present(MUT_HYPER_INT)) dummy += 4;
+				if (mut_present(MUT_MORONIC)) dummy -= 4;
 			}
 			else if (stat == A_DEX)
 			{
-				if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_LIMBER) dummy += 3;
-				if (p_ptr->muta3 & MUT3_ARTHRITIS) dummy -= 3;
+				if (mut_present(MUT_STEEL_SKIN)) dummy -= 1;
+				if (mut_present(MUT_LIMBER)) dummy += 3;
+				if (mut_present(MUT_ARTHRITIS)) dummy -= 3;
 			}
 			else if (stat == A_CON)
 			{
-				if (p_ptr->muta3 & MUT3_RESILIENT) dummy += 4;
-				if (p_ptr->muta3 & MUT3_XTRA_FAT) dummy += 2;
-				if (p_ptr->muta3 & MUT3_ALBINO) dummy -= 4;
-				if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 2;
+				if (mut_present(MUT_RESILIENT)) dummy += 4;
+				if (mut_present(MUT_XTRA_FAT)) dummy += 2;
+				if (mut_present(MUT_ALBINO)) dummy -= 4;
+				if (mut_present(MUT_FLESH_ROT)) dummy -= 2;
 				if (p_ptr->tsuyoshi) dummy += 4;
 			}
 			else if (stat == A_CHR)
 			{
-				if (p_ptr->muta3 & MUT3_SILLY_VOI) dummy -= 4;
-				if (p_ptr->muta3 & MUT3_BLANK_FAC) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_SCALES) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_WART_SKIN) dummy -= 2;
-				if (p_ptr->muta3 & MUT3_ILL_NORM) dummy = 0;
+				if (mut_present(MUT_SILLY_VOICE)) dummy -= 4;
+				if (mut_present(MUT_BLANK_FACE)) dummy -= 1;
+				if (mut_present(MUT_FLESH_ROT)) dummy -= 1;
+				if (mut_present(MUT_SCALES)) dummy -= 1;
+				if (mut_present(MUT_WARTS)) dummy -= 2;
+				if (mut_present(MUT_ILL_NORM)) dummy = 0;
 			}
 			
 			if (p_ptr->pclass == CLASS_WARLOCK)
@@ -3850,7 +3847,7 @@ void display_player(int mode)
 
 
 	/* XXX XXX XXX */
-	if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && display_mutations)
+	if (mut_count(NULL) && display_mutations)
 		mode = (mode % 5);
 	else
 		mode = (mode % 4);
@@ -3887,7 +3884,7 @@ void display_player(int mode)
 			display_player_one_line(ENTRY_REALM, tmp, TERM_L_BLUE);
 		}
 
-		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->muta2 & MUT2_CHAOS_GIFT))
+		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
 			display_player_one_line(ENTRY_PATRON, chaos_patrons[p_ptr->chaos_patron], TERM_L_BLUE);
 
 		/* Age, Height, Weight, Social */
@@ -4089,7 +4086,7 @@ void display_player(int mode)
 	/* Special */
 	else if (mode == 2)
 	{
-		/* See "http://www.cs.berkeley.edu/~davidb/angband.html" */
+		/* See "http://www.cs.berkeley.edu/~davidb/angband.html" <=== LINK ROT!! */
 
 		/* Dump the info */
 		display_player_misc_info();
@@ -4105,7 +4102,7 @@ void display_player(int mode)
 
 	else if (mode == 4)
 	{
-		do_cmd_knowledge_mutations();
+		mut_do_cmd_knowledge();
 	}
 }
 
@@ -5056,7 +5053,7 @@ static void dump_aux_virtues(FILE *fff)
  */
 static void dump_aux_mutations(FILE *fff)
 {
-	if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+	if (mut_count(NULL))
 	{
 #ifdef JP
 		fprintf(fff, "\n\n  [突然変異]\n\n");
@@ -5064,7 +5061,7 @@ static void dump_aux_mutations(FILE *fff)
 		fprintf(fff, "\n\n  [Mutations]\n\n");
 #endif
 
-		dump_mutations(fff);
+		mut_dump_file(fff);
 	}
 }
 

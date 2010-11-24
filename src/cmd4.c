@@ -1799,7 +1799,7 @@ static void do_cmd_options_cheat(cptr info)
 
 static option_type autosave_info[2] =
 {
-	{ &autosave_l,      FALSE, 255, 0x01, 0x00,
+	{ &autosave_l,      TRUE, 255, 0x01, 0x00,
 #ifdef JP
 	    "autosave_l",    "新しい階に入る度に自動セーブする" },
 #else
@@ -5067,7 +5067,7 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	if (p_ptr->muta3 & MUT3_GOOD_LUCK || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+	if (mut_present(MUT_GOOD_LUCK) || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
 		msg_print(do_cmd_feeling_text_lucky[p_ptr->feeling]);
 	else if (p_ptr->pseikaku == SEIKAKU_COMBAT ||
 		 inventory[INVEN_BOW].name1 == ART_CRIMSON)
@@ -10058,7 +10058,7 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_stat();
 			break;
 		case 'b': /* Mutations */
-			do_cmd_knowledge_mutations();
+			mut_do_cmd_knowledge();
 			break;
 		case 'c': /* weapon-exp */
 			do_cmd_knowledge_weapon_exp();

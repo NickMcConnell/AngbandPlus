@@ -83,7 +83,7 @@ void check_experience(void)
 			p_ptr->max_plv = p_ptr->lev;
 
 			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
-			    (p_ptr->muta2 & MUT2_CHAOS_GIFT))
+			    mut_present(MUT_CHAOS_GIFT))
 			{
 				level_reward = TRUE;
 			}
@@ -209,7 +209,7 @@ msg_print("あなたは変わった気がする...");
 			msg_print("You feel different...");
 #endif
 
-			(void)gain_random_mutation(0);
+			mut_gain_random(NULL);
 			level_mutation = FALSE;
 		}
 
@@ -1562,7 +1562,7 @@ msg_print("地面に落とされた。");
 		do_cmd_write_nikki(NIKKI_BUNSHOU, 0, "become *WINNER* of Hengband finely!");
 #endif
 
-		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->muta2 & MUT2_CHAOS_GIFT))
+		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
 		{
 #ifdef JP
 			msg_format("%sからの声が響いた。", chaos_patrons[p_ptr->chaos_patron]);
@@ -4808,8 +4808,8 @@ msg_format("%^sは褒美としてあなたを突然変異させた。",
 		msg_format("%^s rewards you with a mutation!",
 			chaos_patrons[p_ptr->chaos_patron]);
 #endif
-
-		(void)gain_random_mutation(0);
+	
+		mut_gain_random(NULL);
 #ifdef JP
 		reward = "変異した。";
 #else

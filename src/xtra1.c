@@ -3528,32 +3528,32 @@ void calc_bonuses(void)
 			if (p_ptr->lev > 29)
 			{
 				/* only give it if they don't already have it */
-				if (!(p_ptr->muta1 & MUT1_RESIST))
+				if (!mut_present(MUT_RESIST))
 				{
-					p_ptr->muta1 |= MUT1_RESIST;
-					p_ptr->muta1_lock |= MUT1_RESIST;
+					mut_gain(MUT_RESIST);
+					mut_lock(MUT_RESIST);
 				}
 			}
 			/* only remove it if they got it from us ... hey, they could have used !Poly */
-			else if ((p_ptr->muta1 & MUT1_RESIST) && (p_ptr->muta1_lock & MUT1_RESIST))
+			else if (mut_present(MUT_RESIST) && mut_locked(MUT_RESIST))
 			{
-				p_ptr->muta1 &= ~(MUT1_RESIST);
-				p_ptr->muta1_lock &= ~(MUT1_RESIST);
+				mut_unlock(MUT_RESIST);
+				mut_lose(MUT_RESIST);
 			}
 			if (p_ptr->lev > 44)
 			{
 				/* only give it if they don't already have it */
-				if (!(p_ptr->muta1 & MUT1_BERSERK))
+				if (!mut_present(MUT_BERSERK))
 				{
-					p_ptr->muta1 |= MUT1_BERSERK;
-					p_ptr->muta1_lock |= MUT1_BERSERK;
+					mut_gain(MUT_BERSERK);
+					mut_lock(MUT_BERSERK);
 				}
 			}
 			/* only remove it if they got it from us ... hey, they could have used !Poly */
-			else if ((p_ptr->muta1 & MUT1_BERSERK) && (p_ptr->muta1_lock & MUT1_BERSERK))
+			else if (mut_present(MUT_BERSERK) && mut_locked(MUT_BERSERK))
 			{
-				p_ptr->muta1 &= ~(MUT1_BERSERK);
-				p_ptr->muta1_lock &= ~(MUT1_BERSERK);
+				mut_unlock(MUT_BERSERK);
+				mut_lose(MUT_BERSERK);
 			}
 			break;
 		case PACT_ANGEL:
@@ -3574,41 +3574,41 @@ void calc_bonuses(void)
 				p_ptr->immune_fire = TRUE;
 			break;
 		case PACT_ABERRATION:
-			if (!(p_ptr->muta2 & MUT2_HORNS))
+			if (!mut_present(MUT_HORNS))
 			{
-				p_ptr->muta2 |= MUT2_HORNS;
-				p_ptr->muta2_lock |= MUT2_HORNS;
+				mut_gain(MUT_HORNS);
+				mut_lock(MUT_HORNS);
 			}
 			p_ptr->skill_thb += 100 * p_ptr->lev/50;
 			if (p_ptr->lev > 14)
 			{
 				/* only give it if they don't already have it */
-				if (!(p_ptr->muta2 & MUT2_BEAK))
+				if (!mut_present(MUT_BEAK))
 				{
-					p_ptr->muta2 |= MUT2_BEAK;
-					p_ptr->muta2_lock |= MUT2_BEAK;
+					mut_gain(MUT_BEAK);
+					mut_lock(MUT_BEAK);
 				}
 			}
 			/* only remove it if they got it from us ... hey, they could have used !Poly */
-			else if ((p_ptr->muta2 & MUT2_BEAK) && (p_ptr->muta2_lock & MUT2_BEAK))
+			else if (mut_present(MUT_BEAK) && mut_locked(MUT_BEAK))
 			{
-				p_ptr->muta2 &= ~(MUT2_BEAK);
-				p_ptr->muta2_lock &= ~(MUT2_BEAK);
+				mut_unlock(MUT_BEAK);
+				mut_lose(MUT_BEAK);
 			}
 			if (p_ptr->lev > 14)
 			{
 				/* only give it if they don't already have it */
-				if (!(p_ptr->muta2 & MUT2_TENTACLES))
+				if (!mut_present(MUT_TENTACLES))
 				{
-					p_ptr->muta2 |= MUT2_TENTACLES;
-					p_ptr->muta2_lock |= MUT2_TENTACLES;
+					mut_gain(MUT_TENTACLES);
+					mut_lock(MUT_TENTACLES);
 				}
 			}
 			/* only remove it if they got it from us ... hey, they could have used !Poly */
-			else if ((p_ptr->muta2 & MUT2_TENTACLES) && (p_ptr->muta2_lock & MUT2_TENTACLES))
+			else if (mut_present(MUT_TENTACLES) && mut_locked(MUT_TENTACLES))
 			{
-				p_ptr->muta2 &= ~(MUT2_TENTACLES);
-				p_ptr->muta2_lock &= ~(MUT2_TENTACLES);
+				mut_unlock(MUT_TENTACLES);
+				mut_lose(MUT_TENTACLES);
 			}
 			p_ptr->stat_add[A_DEX] += 5 * p_ptr->lev/50;
 			if (p_ptr->lev > 44) p_ptr->telepathy = TRUE;	/* Easier then granting MUT3_ESP :) */
@@ -3954,11 +3954,14 @@ void calc_bonuses(void)
 	if (p_ptr->pseikaku == SEIKAKU_KIREMONO) p_ptr->to_m_chance -= 3;
 	if ((p_ptr->pseikaku == SEIKAKU_GAMAN) || (p_ptr->pseikaku == SEIKAKU_CHIKARA)) p_ptr->to_m_chance++;
 
-	/* Lucky man */
-	if (p_ptr->pseikaku == SEIKAKU_LUCKY)
+	/* Lucky man 
+	   TODO: This will become a birth event!
+	*/
+	if ( p_ptr->pseikaku == SEIKAKU_LUCKY
+	  && !mut_present(MUT_GOOD_LUCK) )
 	{
-		p_ptr->muta3 |= MUT3_GOOD_LUCK;
-		p_ptr->muta3_lock |= MUT3_GOOD_LUCK;
+		mut_gain(MUT_GOOD_LUCK);
+		mut_lock(MUT_GOOD_LUCK);
 	}
 
 	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
@@ -3989,31 +3992,8 @@ void calc_bonuses(void)
 
 	/* I'm adding the mutations here for the lack of a better place... */
 	mut_calc_bonuses();
-	if (p_ptr->muta3)
-	{
-
-		if (p_ptr->muta3 & MUT3_ESP)
-		{
-			p_ptr->telepathy = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_LIMBER)
-		{
-			p_ptr->stat_add[A_DEX] += 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_ARTHRITIS)
-		{
-			p_ptr->stat_add[A_DEX] -= 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_MOTION)
-		{
-			p_ptr->free_act = TRUE;
-			p_ptr->skill_stl += 1;
-		}
-
-	}
+	if (mut_present(MUT_ILL_NORM))
+		p_ptr->stat_add[A_CHR] = 0;
 
 	if (p_ptr->tsuyoshi)
 	{
@@ -4476,7 +4456,7 @@ void calc_bonuses(void)
 		/* Extract the new "stat_use" value for the stat */
 		use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
 
-		if ((i == A_CHR) && mut_present(MUT3_ILL_NORM))
+		if ((i == A_CHR) && mut_present(MUT_ILL_NORM))
 		{
 			/* 10 to 18/90 charisma, guaranteed, based on level */
 			if (use < 8 + 2 * p_ptr->lev)

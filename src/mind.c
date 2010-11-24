@@ -1928,7 +1928,13 @@ static bool cast_blood_knight_spell(int spell)
 		break;
 	
 	case 7: /* Blood Feast */
-		set_tim_blood_feast(randint1(25) + 25, FALSE);
+		if (p_ptr->tim_blood_feast)
+		{
+			if (!get_check("Cancel the Blood Feast? ")) return FALSE;
+			set_tim_blood_feast(0, TRUE);
+		}
+		else
+			set_tim_blood_feast(randint1(25) + 25, FALSE);
 		break;
 
 	case 8: /* Blood Revenge */

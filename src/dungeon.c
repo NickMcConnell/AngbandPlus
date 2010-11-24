@@ -110,7 +110,7 @@ static void sense_inventory_aux(int slot, bool heavy)
 	if (!feel) return;
 
 	/* Bad luck */
-	if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !randint0(13))
+	if (mut_present(MUT_BAD_LUCK) && !randint0(13))
 	{
 		switch (feel)
 		{
@@ -452,7 +452,7 @@ static void sense_inventory1(void)
 		if ((i < INVEN_RARM) && (0 != randint0(5))) continue;
 
 		/* Good luck */
-		if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && !randint0(13))
+		if (mut_present(MUT_GOOD_LUCK) && !randint0(13))
 		{
 			heavy = TRUE;
 		}
@@ -4237,7 +4237,8 @@ msg_print("ウィザードモード突入。");
 #endif
 					msg_print(NULL);
 				}
-				else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
+				else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_BERSERKER) 
+				     && (p_ptr->pclass != CLASS_SMITH) && p_ptr->pclass != CLASS_BLOOD_KNIGHT )
 				{
 #ifdef JP
 
@@ -4289,7 +4290,7 @@ msg_print("ウィザードモード突入。");
 #endif
 					energy_use = 0;
 				}
-				else if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER))
+				else if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER) && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
 				{
 #ifdef JP
 					msg_format("狂戦士化していて頭が回らない！");
@@ -4899,7 +4900,7 @@ msg_print("何か変わった気がする！");
 		msg_print("You feel different!");
 #endif
 
-		(void)gain_random_mutation(0);
+		mut_gain_random(NULL);
 		hack_mutation = FALSE;
 	}
 
@@ -6052,6 +6053,7 @@ void play_game(bool new_game)
 	}
 
 	hack_mutation = FALSE;
+	autosave_l = TRUE;
 
 	/* Hack -- Character is "icky" */
 	character_icky = TRUE;

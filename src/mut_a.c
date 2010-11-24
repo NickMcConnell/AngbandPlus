@@ -119,6 +119,32 @@ void alcohol_mut(int cmd, variant *res)
 	}
 }
 
+void arthritis_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Arthritis", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your joints suddenly hurt.", "関節が突然痛み出した。"));
+		mut_lose(MUT_LIMBER);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your joints stop hurting.", "関節が痛くなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your joints ache constantly (-3 DEX).", "あなたはいつも関節に痛みを感じている。(器用-3)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_DEX] -= 3;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void attract_animal_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -252,6 +278,29 @@ void blank_face_mut(int cmd, variant *res)
 		break;
 	case SPELL_CALC_BONUS:
 		p_ptr->stat_add[A_CHR] -= 1;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void bad_luck_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Black Aura", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("There is a malignant black aura surrounding you...", "悪意に満ちた黒いオーラがあなたをとりまいた..."));
+		mut_lose(MUT_GOOD_LUCK);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your black aura swirls and fades.", "黒いオーラは渦巻いて消えた。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("There is a black aura surrounding you.", "あなたは黒いオーラにつつまれている。"));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -731,6 +780,29 @@ void fumbling_mut(int cmd, variant *res)
 	}
 }
 
+void good_luck_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("There is a benevolent white aura surrounding you...", "慈悲深い白いオーラがあなたをとりまいた..."));
+		mut_lose(MUT_BAD_LUCK);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your white aura shimmers and fades.", "白いオーラは輝いて消えた。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("There is a white aura surrounding you.", "あなたは白いオーラにつつまれている。"));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void hallucination_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -866,9 +938,6 @@ void illusion_normal_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("Your appearance is masked with illusion.", "あなたは幻影に覆われている。"));
 		break;
-	case SPELL_CALC_BONUS:
-		p_ptr->stat_add[A_CHR] = 0;		
-		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -932,6 +1001,32 @@ void invulnerability_mut(int cmd, variant *res)
 	}
 }
 
+void limber_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Limber", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your muscles become limber.", "筋肉がしなやかになった。"));
+		mut_lose(MUT_ARTHRITIS);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your muscles stiffen.", "筋肉が硬くなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your body is very limber (+3 DEX).", "あなたの体は非常にしなやかだ。(器用+3)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_DEX] += 3;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void magic_resistance_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -977,6 +1072,32 @@ void moron_mut(int cmd, variant *res)
 	case SPELL_CALC_BONUS:
 		p_ptr->stat_add[A_INT] -= 4;
 		p_ptr->stat_add[A_WIS] -= 4;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void motion_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Motion", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You move with new assurance.", "体の動作がより正確になった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You move with less assurance.", "動作の正確さがなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your movements are precise and forceful (+1 STL).", "あなたの動作は正確で力強い。(隠密+1)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->free_act = TRUE;
+		p_ptr->skill_stl += 1;
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1567,6 +1688,31 @@ void steel_skin_mut(int cmd, variant *res)
 	}
 }
 
+void telepathy_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Telepathy", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You develop a telepathic ability!", "テレパシーの能力を得た！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You lose your telepathic ability!", "テレパシーの能力を失った！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are telepathic.", "あなたはテレパシーを持っている。"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->telepathy = TRUE;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void tentacles_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1605,6 +1751,28 @@ void trunk_mut(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You have an elephantine trunk (dam 1d4).", "あなたは象のような鼻を持っている。(ダメージ 1d4)"));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void vulnerability_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Vulnerability", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel strangely exposed.", "妙に無防備になった気がする。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel less exposed.", "無防備な感じはなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are susceptible to damage from the elements.", "あなたは元素の攻撃に弱い。"));
 		break;
 	default:
 		default_spell(cmd, res);

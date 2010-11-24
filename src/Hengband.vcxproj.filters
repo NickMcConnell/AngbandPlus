@@ -126,9 +126,6 @@
     <ClCompile Include="mspells3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mutation.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="object1.c">
       <Filter>Source Files</Filter>
     </ClCompile>

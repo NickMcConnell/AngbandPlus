@@ -1045,7 +1045,7 @@ static void wild_magic(int spell)
 		break;
 	case 27:
 	case 28:
-		(void)gain_random_mutation(0);
+		mut_gain_random(NULL);
 		break;
 	case 29:
 	case 30:

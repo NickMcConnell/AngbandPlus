@@ -582,7 +582,7 @@ void teleport_away_followable(int m_idx)
 	{
 		bool follow = FALSE;
 
-		if ((p_ptr->muta1 & MUT1_VTELEPORT) || (p_ptr->pclass == CLASS_IMITATOR)) follow = TRUE;
+		if (mut_present(MUT_TELEPORT) || (p_ptr->pclass == CLASS_IMITATOR)) follow = TRUE;
 		else if (p_ptr->pclass == CLASS_DUELIST
 			  && p_ptr->duelist_target_idx == m_idx
 			  && p_ptr->lev >= 30 )
@@ -5026,7 +5026,7 @@ int acid_dam(int dam, cptr kb_str, int monspell)
 	}
 
 	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (mut_present(MUT_VULN_ELEM)) dam *= 2;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
 
 	/* Resist the damage */
@@ -5070,7 +5070,7 @@ int elec_dam(int dam, cptr kb_str, int monspell)
 	}
 
 	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (mut_present(MUT_VULN_ELEM)) dam *= 2;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
 	if (prace_is_(RACE_ANDROID)) dam += dam / 3;
 
@@ -5110,7 +5110,7 @@ int fire_dam(int dam, cptr kb_str, int monspell)
 	}
 
 	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (mut_present(MUT_VULN_ELEM)) dam *= 2;
 	if (prace_is_(RACE_ENT)) dam += dam / 3;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
 
@@ -5150,7 +5150,7 @@ int cold_dam(int dam, cptr kb_str, int monspell)
 	}
 
 	/* Vulnerability (Ouch!) */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (mut_present(MUT_VULN_ELEM)) dam *= 2;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) dam += dam / 3;
 
 	/* Resist the damage */

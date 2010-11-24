@@ -1368,22 +1368,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			do_cmd_rerate(FALSE);
 			get_max_stats();
 			p_ptr->update |= PU_BONUS;
-			if (count_unlocked_mutations() > 0)
-			{
-				chg_virtue(V_CHANCE, -5);
-#ifdef JP
-msg_print("全ての突然変異が治った。");
-#else
-				msg_print("You are cured of all mutations.");
-#endif
-				p_ptr->muta1 = p_ptr->muta1_lock;
-				p_ptr->muta2 = p_ptr->muta2_lock;
-				p_ptr->muta3 = p_ptr->muta3_lock;
-
-				p_ptr->update |= PU_BONUS;
-				handle_stuff();
-				mutant_regenerate_mod = calc_mutant_regenerate_mod();
-			}
+			mut_lose_all();
 			ident = TRUE;
 			break;
 
@@ -1410,30 +1395,17 @@ msg_print("「オクレ兄さん！」");
 			break;
 		
 		case SV_POTION_POLYMORPH:
-			if ((count_unlocked_mutations() > 0) && one_in_(23))
-			{
-				chg_virtue(V_CHANCE, -5);
-#ifdef JP
-msg_print("全ての突然変異が治った。");
-#else
-				msg_print("You are cured of all mutations.");
-#endif
-
-				p_ptr->muta1 = p_ptr->muta1_lock;
-				p_ptr->muta2 = p_ptr->muta2_lock;
-				p_ptr->muta3 = p_ptr->muta3_lock;
-				p_ptr->update |= PU_BONUS;
-				handle_stuff();
-			}
+			if (mut_count(mut_unlocked_pred) && one_in_(23))
+				mut_lose_all();
 			else
 			{
 				do
 				{
 					if (one_in_(2))
 					{
-						if(gain_random_mutation(0)) ident = TRUE;
+						if(mut_gain_random(NULL)) ident = TRUE;
 					}
-					else if (lose_mutation(0)) ident = TRUE;
+					else if (mut_lose_random(NULL)) ident = TRUE;
 				} while(!ident || one_in_(2));
 			}
 			break;

@@ -3056,7 +3056,11 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 
 	if (o_ptr->name1 == ART_TERROR) /* Terror Mask is for warriors... */
 	{
-		if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_ARCHER || p_ptr->pclass == CLASS_CAVALRY || p_ptr->pclass == CLASS_BERSERKER)
+		if (p_ptr->pclass == CLASS_WARRIOR || 
+		    p_ptr->pclass == CLASS_ARCHER || 
+			p_ptr->pclass == CLASS_CAVALRY || 
+			p_ptr->pclass == CLASS_BLOOD_KNIGHT || 
+			p_ptr->pclass == CLASS_BERSERKER)
 		{
 			give_power = TRUE;
 			give_resistance = TRUE;

@@ -1123,15 +1123,6 @@ struct player_type
 	u32b muta[MUT_FLAG_SIZE];
 	u32b muta_lock[MUT_FLAG_SIZE];
 
-	u32b muta1;
-	u32b muta2;
-	u32b muta3;
-
-	u32b muta1_lock;		/* Mutations may be locked so that they won't get removed. */
-	u32b muta2_lock;		/* For example, Lucky Personality gives white aura, though I'm sure that is just hacked to work.*/
-	u32b muta3_lock;		/* Warlocks gain fixed mutations as they level up, and these should never be removed! */
-							/* But now the door is open for other fixed mutation abilities */
-
 	s16b virtues[8];
 	s16b vir_types[8];
 

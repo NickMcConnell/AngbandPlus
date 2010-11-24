@@ -1448,26 +1448,56 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->dustrobe);
 
 	rd_s16b(&p_ptr->chaos_patron);
-	rd_u32b(&p_ptr->muta1);
-	rd_u32b(&p_ptr->muta2);
-	rd_u32b(&p_ptr->muta3);
 
-	if (h_older_than(0, 0, 7, 1))
+	if (h_older_than(0, 0, 18, 0))
 	{
-		p_ptr->muta1_lock = 0;
-		p_ptr->muta2_lock = 0;
-		p_ptr->muta3_lock = 0;
-		/* Stop hacking to keep this mutation on ... lock it in place! */
-		if (p_ptr->pseikaku == SEIKAKU_LUCKY)
-			p_ptr->muta3_lock |= MUT3_GOOD_LUCK;
+		u32b tm1, tm2, tm3, tml1, tml2, tml3;
+
+		rd_u32b(&tm1);
+		rd_u32b(&tm2);
+		rd_u32b(&tm3);
+
+		if (h_older_than(0, 0, 7, 1))
+		{
+			tml1 = 0;
+			tml1 = 0;
+			tml3 = 0;
+		}
+		else
+		{
+			rd_u32b(&tml1);
+			rd_u32b(&tml2);
+			rd_u32b(&tml3);
+		}
+
+		p_ptr->muta[0] = tm1;
+		p_ptr->muta[1] = tm2;
+		p_ptr->muta[2] = tm3;
+
+		p_ptr->muta_lock[0] = tml1;
+		p_ptr->muta_lock[1] = tml2;
+		p_ptr->muta_lock[2] = tml3;
+		
+		for (i = 3; i < MUT_FLAG_SIZE; ++i)
+		{
+			p_ptr->muta[i] = 0;
+			p_ptr->muta_lock[i] = 0;
+		}
+
+		if (h_older_than(0, 0, 7, 1))
+		{
+			if (p_ptr->pseikaku == SEIKAKU_LUCKY)
+				mut_lock(MUT_GOOD_LUCK);
+		}
 	}
 	else
 	{
-		rd_u32b(&p_ptr->muta1_lock);
-		rd_u32b(&p_ptr->muta2_lock);
-		rd_u32b(&p_ptr->muta3_lock);
-	}
+		for (i = 0; i < MUT_FLAG_SIZE; ++i)
+			rd_u32b(&p_ptr->muta[i]);
 
+		for (i = 0; i < MUT_FLAG_SIZE; ++i)
+			rd_u32b(&p_ptr->muta_lock[i]);
+	}
 
 
 	for (i = 0; i < 8; i++)
@@ -1476,7 +1506,7 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->vir_types[i]);
 
 	/* Calc the regeneration modifier for mutations */
-	mutant_regenerate_mod = calc_mutant_regenerate_mod();
+	mutant_regenerate_mod = mut_regenerate_mod();
 
 	rd_s16b(&p_ptr->ele_attack);
 	rd_u32b(&p_ptr->special_attack);

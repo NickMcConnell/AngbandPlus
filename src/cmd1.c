@@ -1861,7 +1861,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 	switch (attack)
 	{
-		case MUT2_SCOR_TAIL:
+		case MUT_SCORPION_TAIL:
 			dss = 3;
 			ddd = 7;
 			n_weight = 5;
@@ -1872,7 +1872,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 #endif
 
 			break;
-		case MUT2_HORNS:
+		case MUT_HORNS:
 			dss = 2;
 			ddd = 6;
 			n_weight = 15;
@@ -1883,7 +1883,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 #endif
 
 			break;
-		case MUT2_BEAK:
+		case MUT_BEAK:
 			dss = 2;
 			ddd = 4;
 			n_weight = 5;
@@ -1894,7 +1894,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 #endif
 
 			break;
-		case MUT2_TRUNK:
+		case MUT_TRUNK:
 			dss = 1;
 			ddd = 4;
 			n_weight = 35;
@@ -1905,7 +1905,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 #endif
 
 			break;
-		case MUT2_TENTACLES:
+		case MUT_TENTACLES:
 			dss = 2;
 			ddd = 5;
 			n_weight = 5;
@@ -1969,20 +1969,20 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Damage, check for fear and mdeath */
 		switch (attack)
 		{
-			case MUT2_SCOR_TAIL:
+			case MUT_SCORPION_TAIL:
 				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL, -1);
 				*mdeath = (m_ptr->r_idx == 0);
 				break;
-			case MUT2_HORNS:
+			case MUT_HORNS:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
-			case MUT2_BEAK:
+			case MUT_BEAK:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
-			case MUT2_TRUNK:
+			case MUT_TRUNK:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
-			case MUT2_TENTACLES:
+			case MUT_TENTACLES:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
 			default:
@@ -3198,8 +3198,13 @@ bool py_attack(int y, int x, int mode)
 
 	energy_use = 100;
 
-	if (!p_ptr->migite && !p_ptr->hidarite &&
-	    !(p_ptr->muta2 & (MUT2_HORNS | MUT2_BEAK | MUT2_SCOR_TAIL | MUT2_TRUNK | MUT2_TENTACLES)))
+	if (!p_ptr->migite && 
+	    !p_ptr->hidarite &&
+	    !mut_present(MUT_HORNS) &&
+		!mut_present(MUT_BEAK) &&
+		!mut_present(MUT_SCORPION_TAIL) &&
+		!mut_present(MUT_TRUNK) &&
+		!mut_present(MUT_TENTACLES))
 	{
 #ifdef JP
 		msg_format("%s攻撃できない。", (empty_hands(FALSE) == EMPTY_HAND_NONE) ? "両手がふさがって" : "");
@@ -3383,16 +3388,16 @@ bool py_attack(int y, int x, int mode)
 	/* Mutations which yield extra 'natural' attacks */
 	if (!mdeath)
 	{
-		if ((p_ptr->muta2 & MUT2_HORNS) && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_HORNS, &fear, &mdeath);
-		if ((p_ptr->muta2 & MUT2_BEAK) && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_BEAK, &fear, &mdeath);
-		if ((p_ptr->muta2 & MUT2_SCOR_TAIL) && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_SCOR_TAIL, &fear, &mdeath);
-		if ((p_ptr->muta2 & MUT2_TRUNK) && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_TRUNK, &fear, &mdeath);
-		if ((p_ptr->muta2 & MUT2_TENTACLES) && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_TENTACLES, &fear, &mdeath);
+		if (mut_present(MUT_HORNS) && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT_HORNS, &fear, &mdeath);
+		if (mut_present(MUT_BEAK) && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT_BEAK, &fear, &mdeath);
+		if (mut_present(MUT_SCORPION_TAIL) && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT_SCORPION_TAIL, &fear, &mdeath);
+		if (mut_present(MUT_TRUNK) && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT_TRUNK, &fear, &mdeath);
+		if (mut_present(MUT_TENTACLES) && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT_TENTACLES, &fear, &mdeath);
 	}
 
 	/* Hack -- delay fear messages */
@@ -4026,7 +4031,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 		/* Attack -- only if we can see it OR it is not in a wall */
 		if (!is_hostile(m_ptr) &&
 		    !(p_ptr->confused || p_ptr->image || !m_ptr->ml || p_ptr->stun ||
-		    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
+		    (mut_present(MUT_BERS_RAGE) && p_ptr->shero)) &&
 		    pattern_seq(py, px, y, x) && (p_can_enter || p_can_kill_walls))
 		{
 			/* Disturb the monster */

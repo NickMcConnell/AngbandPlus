@@ -7054,7 +7054,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 						msg_print("Your body is twisted by chaos!");
 #endif
 
-						(void)gain_random_mutation(0);
+						mut_gain_random(NULL);
 					}
 				}
 				if (!p_ptr->resist_neth && !p_ptr->resist_chaos)

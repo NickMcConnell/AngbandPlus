@@ -2167,9 +2167,9 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 	}
 
 	/* Else gain permanent insanity */
-	if ((p_ptr->muta3 & MUT3_MORONIC) && /*(p_ptr->muta2 & MUT2_BERS_RAGE) &&*/
-		((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-		((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
+	if (mut_present(MUT_MORONIC) && /*(p_ptr->muta2 & MUT2_BERS_RAGE) &&*/
+		(mut_present(MUT_COWARDICE) || (p_ptr->resist_fear)) &&
+		(mut_present(MUT_HALLUCINATION) || (p_ptr->resist_chaos)))
 	{
 		/* The poor bastard already has all possible insanities! */
 		return;
@@ -2180,17 +2180,11 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 		switch (randint1(21))
 		{
 			case 1:
-				if (!(p_ptr->muta3 & MUT3_MORONIC))
+				if (!mut_present(MUT_MORONIC))
 				{
 					if (one_in_(5))
 					{
-						msg_print("You turn into an utter moron!");
-						if (p_ptr->muta3 & MUT3_HYPER_INT)
-						{
-							msg_print("Your brain is no longer a living computer.");
-							p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-						}
-						p_ptr->muta3 |= MUT3_MORONIC;
+						mut_gain(MUT_MORONIC);
 						happened = TRUE;
 					}
 					else
@@ -2222,28 +2216,9 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 			case 9:
 			case 10:
 			case 11:
-				if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
+				if (!mut_present(MUT_COWARDICE) && !p_ptr->resist_fear)
 				{
-#ifdef JP
-msg_print("あなたはパラノイアになった！");
-#else
-					msg_print("You become paranoid!");
-#endif
-
-
-					/* Duh, the following should never happen, but anyway... */
-					if (p_ptr->muta3 & MUT3_FEARLESS)
-					{
-#ifdef JP
-msg_print("あなたはもう恐れ知らずではなくなった。");
-#else
-						msg_print("You are no longer fearless.");
-#endif
-
-						p_ptr->muta3 &= ~(MUT3_FEARLESS);
-					}
-
-					p_ptr->muta2 |= MUT2_COWARDICE;
+					mut_gain(MUT_COWARDICE);
 					happened = TRUE;
 				}
 				break;
@@ -2257,28 +2232,16 @@ msg_print("あなたはもう恐れ知らずではなくなった。");
 			case 19:
 			case 20:
 			case 21:
-				if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
+				if (!mut_present(MUT_HALLUCINATION) && !p_ptr->resist_chaos)
 				{
-#ifdef JP
-msg_print("幻覚をひき起こす精神錯乱に陥った！");
-#else
-					msg_print("You are afflicted by a hallucinatory insanity!");
-#endif
-
-					p_ptr->muta2 |= MUT2_HALLU;
+					mut_gain(MUT_HALLUCINATION);
 					happened = TRUE;
 				}
 				break;
 			default:
-				if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
+				if (!mut_present(MUT_BERS_RAGE))
 				{
-#ifdef JP
-msg_print("激烈な感情の発作におそわれるようになった！");
-#else
-					msg_print("You become subject to fits of berserk rage!");
-#endif
-
-					p_ptr->muta2 |= MUT2_BERS_RAGE;
+					mut_gain(MUT_BERS_RAGE);
 					happened = TRUE;
 				}
 				break;

@@ -564,7 +564,7 @@ static void wild_magic(int spell)
 		break;
 	case 27:
 	case 28:
-		(void)gain_random_mutation(0);
+		mut_gain_random(NULL);
 		break;
 	case 29:
 	case 30:
@@ -864,20 +864,7 @@ static void cast_shuffle(void)
 #endif
 
 		do_cmd_rerate(FALSE);
-		if (count_unlocked_mutations() > 0)
-		{
-#ifdef JP
-			msg_print("全ての突然変異が治った。");
-#else
-			msg_print("You are cured of all mutations.");
-#endif
-
-			p_ptr->muta1 = p_ptr->muta1_lock;
-			p_ptr->muta2 = p_ptr->muta2_lock;
-			p_ptr->muta3 = p_ptr->muta3_lock;
-			p_ptr->update |= PU_BONUS;
-			handle_stuff();
-		}
+		mut_lose_all();
 	}
 	else if (die < 120)
 	{
@@ -5665,13 +5652,13 @@ static cptr do_trump_spell(int spell, int mode)
 
 				if (one_in_(7))
 					/* Teleport control */
-					mutation = 12;
+					mutation = MUT_TELEPORT;
 				else
 					/* Random teleportation (uncontrolled) */
-					mutation = 77;
+					mutation = MUT_TELEPORT_RND;
 
 				/* Gain the mutation */
-				if (gain_random_mutation(mutation))
+				if (mut_gain(mutation))
 				{
 #ifdef JP
 					msg_print("あなたは生きているカードに変わった。");
@@ -7331,13 +7318,13 @@ static cptr do_craft_spell(int spell, int mode)
 
 				if (one_in_(7))
 					/* Teleport control */
-					mutation = 12;
+					mutation = MUT_TELEPORT;
 				else
 					/* Random teleportation (uncontrolled) */
-					mutation = 77;
+					mutation = MUT_TELEPORT_RND;
 
 				/* Gain the mutation */
-				if (gain_random_mutation(mutation))
+				if (mut_gain(mutation))
 				{
 #ifdef JP
 					msg_print("あなたは生きているカードに変わった。");

@@ -2655,9 +2655,9 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 	}
 
 	/* Else gain permanent insanity */
-	if ((p_ptr->muta3 & MUT3_MORONIC) && (p_ptr->muta2 & MUT2_BERS_RAGE) &&
-		((p_ptr->muta2 & MUT2_COWARDICE) || (p_ptr->resist_fear)) &&
-		((p_ptr->muta2 & MUT2_HALLU) || (p_ptr->resist_chaos)))
+	if (mut_present(MUT_MORONIC) && mut_present(MUT_BERS_RAGE) &&
+		(mut_present(MUT_COWARDICE) || (p_ptr->resist_fear)) &&
+		(mut_present(MUT_HALLUCINATION) || (p_ptr->resist_chaos)))
 	{
 		/* The poor bastard already has all possible insanities! */
 		return;
@@ -2669,94 +2669,36 @@ msg_print("あまりの恐怖に全てのことを忘れてしまった！");
 		{
 			case 1:
 			{
-				if (!(p_ptr->muta3 & MUT3_MORONIC))
+				if (!mut_present(MUT_MORONIC))
 				{
-					if ((p_ptr->stat_use[A_INT] < 4) && (p_ptr->stat_use[A_WIS] < 4))
-					{
-#ifdef JP
-msg_print("あなたは完璧な馬鹿になったような気がした。しかしそれは元々だった。");
-#else
-						msg_print("You turn into an utter moron!");
-#endif
-					}
-					else
-					{
-#ifdef JP
-msg_print("あなたは完璧な馬鹿になった！");
-#else
-						msg_print("You turn into an utter moron!");
-#endif
-					}
-
-					if (p_ptr->muta3 & MUT3_HYPER_INT)
-					{
-#ifdef JP
-msg_print("あなたの脳は生体コンピュータではなくなった。");
-#else
-						msg_print("Your brain is no longer a living computer.");
-#endif
-
-						p_ptr->muta3 &= ~(MUT3_HYPER_INT);
-					}
-					p_ptr->muta3 |= MUT3_MORONIC;
+					mut_gain(MUT_MORONIC);
 					happened = TRUE;
 				}
 				break;
 			}
 			case 2:
 			{
-				if (!(p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear)
+				if (!mut_present(MUT_COWARDICE) && !p_ptr->resist_fear)
 				{
-#ifdef JP
-msg_print("あなたはパラノイアになった！");
-#else
-					msg_print("You become paranoid!");
-#endif
-
-
-					/* Duh, the following should never happen, but anyway... */
-					if (p_ptr->muta3 & MUT3_FEARLESS)
-					{
-#ifdef JP
-msg_print("あなたはもう恐れ知らずではなくなった。");
-#else
-						msg_print("You are no longer fearless.");
-#endif
-
-						p_ptr->muta3 &= ~(MUT3_FEARLESS);
-					}
-
-					p_ptr->muta2 |= MUT2_COWARDICE;
+					mut_gain(MUT_COWARDICE);
 					happened = TRUE;
 				}
 				break;
 			}
 			case 3:
 			{
-				if (!(p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos)
+				if (!mut_present(MUT_HALLUCINATION) && !p_ptr->resist_chaos)
 				{
-#ifdef JP
-msg_print("幻覚をひき起こす精神錯乱に陥った！");
-#else
-					msg_print("You are afflicted by a hallucinatory insanity!");
-#endif
-
-					p_ptr->muta2 |= MUT2_HALLU;
+					mut_gain(MUT_HALLUCINATION);
 					happened = TRUE;
 				}
 				break;
 			}
 			default:
 			{
-				if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
+				if (!mut_present(MUT_BERS_RAGE))
 				{
-#ifdef JP
-msg_print("激烈な感情の発作におそわれるようになった！");
-#else
-					msg_print("You become subject to fits of berserk rage!");
-#endif
-
-					p_ptr->muta2 |= MUT2_BERS_RAGE;
+					mut_gain(MUT_BERS_RAGE);
 					happened = TRUE;
 				}
 				break;
@@ -4792,10 +4734,9 @@ msg_print("お金が足りません！");
 		break;
 	}
 	case BACT_LOSE_MUTATION:
-		if (count_unlocked_mutations() > 0)
+		if (mut_count(mut_unlocked_pred))
 		{
-			while(!lose_mutation(0));
-			paid = TRUE;
+			paid = mut_lose_random(NULL);
 		}
 		else
 		{

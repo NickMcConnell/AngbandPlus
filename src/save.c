@@ -751,12 +751,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->dustrobe);
 
 	wr_s16b(p_ptr->chaos_patron);
-	wr_u32b(p_ptr->muta1);
-	wr_u32b(p_ptr->muta2);
-	wr_u32b(p_ptr->muta3);
-	wr_u32b(p_ptr->muta1_lock);
-	wr_u32b(p_ptr->muta2_lock);
-	wr_u32b(p_ptr->muta3_lock);
+	for (i = 0; i < MUT_FLAG_SIZE; ++i)
+		wr_u32b(p_ptr->muta[i]);
+	for (i = 0; i < MUT_FLAG_SIZE; ++i)
+		wr_u32b(p_ptr->muta_lock[i]);
 
 	for (i = 0; i<8; i++)
 		wr_s16b(p_ptr->virtues[i]);
