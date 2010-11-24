@@ -1389,7 +1389,7 @@ struct player_type
 
 	byte tval_ammo;		/* Correct ammo tval */
 
-	byte pspeed;		/* Current speed */
+	s16b pspeed;		/* Current speed */
 };
 
 

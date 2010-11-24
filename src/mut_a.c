@@ -31,14 +31,38 @@ void foo_mut(int cmd, variant *res)
 		break;
 	case SPELL_CALC_BONUS:
 		break;
-	case SPELL_PROCESS:
-		break;
 	default:
 		default_spell(cmd, res);
 		break;
 	}
 }
 */
+
+void albino_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Albino", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You turn into an albino! You feel frail...", "アルビノになった！弱くなった気がする..."));
+		mut_lose(MUT_RESILIENT);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You are no longer an albino!", "アルビノでなくなった！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are albino (-4 CON).", "あなたはアルビノだ。(耐久-4)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CON] -= 4;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void alcohol_mut(int cmd, variant *res)
 {
@@ -210,6 +234,31 @@ void attract_dragon_mut(int cmd, variant *res)
 	}
 }
 
+void blank_face_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Blank Face", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your face becomes completely featureless!", "のっぺらぼうになった！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your facial features return.", "顔に目鼻が戻った。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your face is featureless (-1 CHR).", "あなたはのっぺらぼうだ。(魅力-1)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CHR] -= 1;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void beak_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -371,6 +420,212 @@ void eat_light_mut(int cmd, variant *res)
 			 */
 			unlite_area(50, 10);
 		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void einstein_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Living Computer", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your brain evolves into a living computer!", "あなたの脳は生体コンピュータに進化した！"));
+		mut_lose(MUT_MORONIC);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your brain reverts to normal.", "脳が普通に戻った。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your brain is a living computer (+4 INT/WIS).", "あなたの脳は生体コンピュータだ。(知能＆賢さ+4)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_INT] += 4;
+		p_ptr->stat_add[A_WIS] += 4;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void elec_aura_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Electric Aura", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Electricity starts running through you!", "血管を電流が流れ始めた！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Electricity stops running through you.", "体を電流が流れなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Electricity is running through your veins.", "あなたの血管には電流が流れている。"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->sh_elec = TRUE;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void extra_eyes_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Extra Eyes", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You grow an extra pair of eyes!", "新たに二つの目が出来た！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your extra eyes vanish!", "余分な目が消えてしまった！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You have an extra pair of eyes (+15 search).", "あなたは余分に二つの目を持っている。(探索+15)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->skill_fos += 15;
+		p_ptr->skill_srh += 15;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void extra_legs_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Extra Legs", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You grow an extra pair of legs!", "新たに二本の足が生えてきた！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your extra legs disappear!", "余分な脚が消えてしまった！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You have an extra pair of legs (+3 speed).", "あなたは余分に二本の足が生えている。(加速+3)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->pspeed += 3;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void extra_noise_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Extra Noise", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You start making strange noise!", "あなたは奇妙な音を立て始めた！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You stop making strange noise!", "奇妙な音を立てなくなった！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You make a lot of strange noise (-3 stealth).", "あなたは変な音を発している。(隠密-3)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->skill_stl -= 3;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void fat_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Extra Fat", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You become sickeningly fat!", "あなたは気持ち悪いくらい太った！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You benefit from a miracle diet!", "奇跡的なダイエットに成功した！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are extremely fat (+2 CON, -2 speed).", "あなたは極端に太っている。(耐久+2,スピード-2)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CON] += 2;
+		p_ptr->pspeed -= 2;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void fearless_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Fearless", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You become completely fearless.", "完全に怖れ知らずになった。"));
+		mut_lose(MUT_COWARDICE);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You begin to feel fear again.", "再び恐怖を感じるようになった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are completely fearless.", "あなたは全く恐怖を感じない。"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->resist_fear = TRUE;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void fire_aura_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Fire Aura", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your body is enveloped in flames!", "あなたの体は炎につつまれている。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your body is no longer enveloped in flames.", "体が炎に包まれなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your body is enveloped in flames.", "あなたの体は炎につつまれている。"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->sh_fire = TRUE;
+		p_ptr->lite = TRUE;
 		break;
 	default:
 		default_spell(cmd, res);
@@ -595,6 +850,56 @@ void hp_to_sp_mut(int cmd, variant *res)
 	}
 }
 
+void illusion_normal_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Reassuring Image", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You start projecting a reassuring image.", "心の安らぐ幻影を映し出すようになった。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You stop projecting a reassuring image.", "心が安らぐ幻影を映し出さなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your appearance is masked with illusion.", "あなたは幻影に覆われている。"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CHR] = 0;		
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void infravision_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Infravision", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your infravision is improved.", "赤外線視力が増した。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your infravision is degraded.", "赤外線視力が落ちた。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You have remarkable infravision (+3).", "あなたは素晴らしい赤外線視力を持っている。(+3)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->see_infra += 3;		
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void invulnerability_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -620,6 +925,58 @@ void invulnerability_mut(int cmd, variant *res)
 			msg_print(NULL);
 			set_invuln(randint1(8) + 8, FALSE);
 		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void magic_resistance_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Magic Resistance", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You become resistant to magic.", "魔法への耐性がついた。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You become susceptible to magic again.", "魔法に弱くなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are resistant to magic.", "あなたは魔法への耐性をもっている。"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void moron_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Moron", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your brain withers away...", "脳が萎縮してしまった..."));
+		mut_lose(MUT_HYPER_INT);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your brain reverts to normal.", "脳が普通に戻った。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are moronic (-4 INT/WIS).", "あなたは精神薄弱だ。(知能＆賢さ-4)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_INT] -= 4;
+		p_ptr->stat_add[A_WIS] -= 4;
 		break;
 	default:
 		default_spell(cmd, res);
@@ -887,6 +1244,115 @@ void raw_chaos_mut(int cmd, variant *res)
 	}
 }
 
+void regeneration_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Regeneration", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You start regenerating.", "急速に回復し始めた。"));
+		mut_lose(MUT_FLESH_ROT);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You stop regenerating.", "急速回復しなくなった。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are regenerating.", "あなたは急速に回復する。"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->regenerate = TRUE;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void resilient_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Resilient", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You become extraordinarily resilient.", "並外れてタフになった。"));
+		mut_lose(MUT_ALBINO);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You become ordinarily resilient again.", "普通の丈夫さに戻った。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are very resilient (+4 CON).", "あなたの体は弾力性に富んでいる。(耐久+4)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CON] += 4;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void rotting_flesh_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Rotting Flesh", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your flesh is afflicted by a rotting disease!", "あなたの肉体は腐敗する病気に侵された！"));
+		mut_lose(MUT_STEEL_SKIN);
+		mut_lose(MUT_REGEN);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your flesh is no longer afflicted by a rotting disease!", "肉体を腐敗させる病気が治った！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your flesh is rotting (-2 CON, -1 CHR).", "あなたの肉体は腐敗している。(耐久-2,魅力-1)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CON] -= 2;
+		p_ptr->stat_add[A_CHR] -= 1;
+		p_ptr->regenerate = FALSE; /* Equip and spells processed later ... */
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void scales_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Scales", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your skin turns into black scales!", "肌が黒い鱗に変わった！"));
+		mut_lose(MUT_STEEL_SKIN);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your scales vanish!", "鱗が消えた！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your skin has turned into scales (-1 CHR, +10 AC).", "あなたの肌は鱗になっている。(魅力-1, AC+10)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CHR] -= 1;
+		p_ptr->to_a += 10;
+		p_ptr->dis_to_a += 10;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void scorpion_tail_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -928,6 +1394,56 @@ void shadow_walk_mut(int cmd, variant *res)
 	case SPELL_PROCESS:
 		if (!p_ptr->anti_magic && one_in_(12000) && !p_ptr->inside_arena)
 			alter_reality();
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void short_legs_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Short Legs", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your legs turn into short stubs!", "足が短い突起になってしまった！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your legs lengthen to normal.", "脚の長さが普通に戻った。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your legs are short stubs (-3 speed).", "あなたの足は短い突起だ。(加速-3)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->pspeed -= 3;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void silly_voice_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Silly Voice", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your voice turns into a ridiculous squeak!", "声が間抜けなキーキー声になった！"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your voice returns to normal.", "声質が普通に戻った。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your voice is a silly squeak (-4 CHR).", "あなたの声は間抜けなキーキー声だ。(魅力-4)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CHR] -= 4;		
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1014,6 +1530,36 @@ void speed_flux_mut(int cmd, variant *res)
 			}
 			msg_print(NULL);
 		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void steel_skin_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Steel Skin", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Your skin turns to steel!", "あなたの肌は鉄になった！"));
+		mut_lose(MUT_SCALES);
+		mut_lose(MUT_WARTS);
+		mut_lose(MUT_FLESH_ROT);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your skin reverts to flesh!", "肌が肉にもどった！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your skin is made of steel (-1 DEX, +25 AC).", "あなたの肌は鉄でできている。(器用-1, AC+25)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_DEX] -= 1;
+		p_ptr->to_a += 25;
+		p_ptr->dis_to_a += 25;
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1127,6 +1673,34 @@ void warning_mut(int cmd, variant *res)
 	}
 }
 
+void warts_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Warts", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("Disgusting warts appear everywhere on you!", "気持ち悪いイボイボが体中にできた！"));
+		mut_lose(MUT_STEEL_SKIN);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your warts disappear!", "イボイボが消えた！"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your skin is covered with warts (-2 CHR, +5 AC).", "あなたの肌はイボに被われている。(魅力-2, AC+5)"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->stat_add[A_CHR] -= 2;
+		p_ptr->to_a += 5;
+		p_ptr->dis_to_a += 5;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void wasting_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1220,6 +1794,31 @@ void weird_mind_mut(int cmd, variant *res)
 				set_tim_esp(p_ptr->lev, FALSE);
 			}
 		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void wings_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Wings", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You grow a pair of wings.", "背中に羽が生えた。"));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your wings fall off.", "背中の羽根が取れ落ちた。"));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You have wings.", "あなたは羽を持っている。"));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->levitation = TRUE;
 		break;
 	default:
 		default_spell(cmd, res);

@@ -3104,7 +3104,7 @@ bool buki_motteruka(int i)
 void calc_bonuses(void)
 {
 	int             i, j, hold, neutral[2];
-	int             new_speed;
+	s16b            old_speed = p_ptr->pspeed;
 	int             default_hand = 0;
 	int             empty_hands_status = empty_hands(TRUE);
 	int             extra_blows[2];
@@ -3142,8 +3142,8 @@ void calc_bonuses(void)
 	bool old_mighty_throw = p_ptr->mighty_throw;
 
 	/* Save the old armor class */
-	bool old_dis_ac = p_ptr->dis_ac;
-	bool old_dis_to_a = p_ptr->dis_to_a;
+	s16b old_dis_ac = p_ptr->dis_ac;
+	s16b old_dis_to_a = p_ptr->dis_to_a;
 
 
 	/* Clear extra blows/shots */
@@ -3176,7 +3176,7 @@ void calc_bonuses(void)
 	p_ptr->weapon_info[1].to_dd = p_ptr->weapon_info[1].to_ds = 0;
 
 	/* Start with "normal" speed */
-	new_speed = 110;
+	p_ptr->pspeed = 110;
 
 	/* Start with a single blow per turn */
 	p_ptr->weapon_info[0].num_blow = 1;
@@ -3383,21 +3383,21 @@ void calc_bonuses(void)
 		break;
 	case CLASS_TIME_LORD:
 		if (p_ptr->lev > 29) p_ptr->resist_time = TRUE;
-		new_speed += 3;
-		new_speed += (p_ptr->lev) / 7;
+		p_ptr->pspeed += 3;
+		p_ptr->pspeed += (p_ptr->lev) / 7;
 		if (p_ptr->lev > 34) 
 		{
 			p_ptr->stat_add[A_STR] -= 2;
 			p_ptr->stat_add[A_DEX] -= 2;
 			p_ptr->stat_add[A_CON] -= 2;
-			new_speed += 3;
+			p_ptr->pspeed += 3;
 		}
 		if (p_ptr->lev > 44) 
 		{
 			p_ptr->stat_add[A_STR] -= 2;
 			p_ptr->stat_add[A_DEX] -= 2;
 			p_ptr->stat_add[A_CON] -= 2;
-			new_speed += 3;
+			p_ptr->pspeed += 3;
 		}
 		break;
 	case CLASS_BLOOD_KNIGHT:
@@ -3413,7 +3413,7 @@ void calc_bonuses(void)
 			if (!(prace_is_(RACE_KLACKON) ||
 				    prace_is_(RACE_SPRITE) ||
 				    (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
-				new_speed += (p_ptr->lev) / 10;
+				p_ptr->pspeed += (p_ptr->lev) / 10;
 
 			/* Free action if unencumbered at level 25 */
 			if  (p_ptr->lev > 24)
@@ -3437,11 +3437,11 @@ void calc_bonuses(void)
 		p_ptr->sustain_con = TRUE;
 		p_ptr->regenerate = TRUE;
 		p_ptr->free_act = TRUE;
-		new_speed += 2;
-		if (p_ptr->lev > 29) new_speed++;
-		if (p_ptr->lev > 39) new_speed++;
-		if (p_ptr->lev > 44) new_speed++;
-		if (p_ptr->lev > 49) new_speed++;
+		p_ptr->pspeed += 2;
+		if (p_ptr->lev > 29) p_ptr->pspeed++;
+		if (p_ptr->lev > 39) p_ptr->pspeed++;
+		if (p_ptr->lev > 44) p_ptr->pspeed++;
+		if (p_ptr->lev > 49) p_ptr->pspeed++;
 		p_ptr->to_a += 10+p_ptr->lev/2;
 		p_ptr->dis_to_a += 10+p_ptr->lev/2;
 		p_ptr->skill_dig += (100+p_ptr->lev*8);
@@ -3455,17 +3455,17 @@ void calc_bonuses(void)
 		/* Unencumbered Ninjas become faster every 10 levels */
 		if (heavy_armor())
 		{
-			new_speed -= (p_ptr->lev) / 10;
+			p_ptr->pspeed -= (p_ptr->lev) / 10;
 			p_ptr->skill_stl -= (p_ptr->lev)/10;
 		}
 		else if ((!inventory[INVEN_RARM].k_idx || p_ptr->migite) &&
 			        (!inventory[INVEN_LARM].k_idx || p_ptr->hidarite))
 		{
-			new_speed += 3;
+			p_ptr->pspeed += 3;
 			if (!(prace_is_(RACE_KLACKON) ||
 				    prace_is_(RACE_SPRITE) ||
 				    (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
-				new_speed += (p_ptr->lev) / 10;
+				p_ptr->pspeed += (p_ptr->lev) / 10;
 			p_ptr->skill_stl += (p_ptr->lev)/10;
 
 			/* Free action if unencumbered at level 25 */
@@ -3629,7 +3629,7 @@ void calc_bonuses(void)
 			p_ptr->resist_fire = TRUE;
 			p_ptr->oppose_fire = 1;
 			p_ptr->see_inv=TRUE;
-			new_speed += 3;
+			p_ptr->pspeed += 3;
 			p_ptr->redraw |= PR_STATUS;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
@@ -3654,7 +3654,7 @@ void calc_bonuses(void)
 			p_ptr->telepathy = TRUE;
 			p_ptr->levitation = TRUE;
 			p_ptr->kill_wall = TRUE;
-			new_speed += 5;
+			p_ptr->pspeed += 5;
 			p_ptr->to_a += 20;
 			p_ptr->dis_to_a += 20;
 			p_ptr->align -= 200;
@@ -3666,7 +3666,7 @@ void calc_bonuses(void)
 			p_ptr->resist_cold = TRUE;
 			p_ptr->resist_pois = TRUE;
 			p_ptr->see_inv = TRUE;
-			new_speed += 3;
+			p_ptr->pspeed += 3;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
 			if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
@@ -3743,7 +3743,7 @@ void calc_bonuses(void)
 		case RACE_KLACKON:
 			p_ptr->resist_conf = TRUE;
 			p_ptr->resist_acid = TRUE;
-			new_speed += (p_ptr->lev) / 10;
+			p_ptr->pspeed += (p_ptr->lev) / 10;
 			break;
 		case RACE_KOBOLD:
 			p_ptr->resist_pois = TRUE;
@@ -3819,7 +3819,7 @@ void calc_bonuses(void)
 		case RACE_SPRITE:
 			p_ptr->levitation = TRUE;
 			p_ptr->resist_lite = TRUE;
-			new_speed += (p_ptr->lev) / 10;
+			p_ptr->pspeed += (p_ptr->lev) / 10;
 			break;
 		case RACE_BEASTMAN:
 			p_ptr->resist_conf  = TRUE;
@@ -3970,7 +3970,7 @@ void calc_bonuses(void)
 
 		if ((p_ptr->prace != RACE_KLACKON) && (p_ptr->prace != RACE_SPRITE))
 			/* Munchkin become faster */
-			new_speed += (p_ptr->lev) / 10 + 5;
+			p_ptr->pspeed += (p_ptr->lev) / 10 + 5;
 	}
 
 	if (music_singing(MUSIC_WALL))
@@ -3991,132 +3991,6 @@ void calc_bonuses(void)
 	mut_calc_bonuses();
 	if (p_ptr->muta3)
 	{
-
-		/* Living computer */
-		if (p_ptr->muta3 & MUT3_HYPER_INT)
-		{
-			p_ptr->stat_add[A_INT] += 4;
-			p_ptr->stat_add[A_WIS] += 4;
-		}
-
-		/* Moronic */
-		if (p_ptr->muta3 & MUT3_MORONIC)
-		{
-			p_ptr->stat_add[A_INT] -= 4;
-			p_ptr->stat_add[A_WIS] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_RESILIENT)
-		{
-			p_ptr->stat_add[A_CON] += 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_FAT)
-		{
-			p_ptr->stat_add[A_CON] += 2;
-			new_speed -= 2;
-		}
-
-		if (p_ptr->muta3 & MUT3_ALBINO)
-		{
-			p_ptr->stat_add[A_CON] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_FLESH_ROT)
-		{
-			p_ptr->stat_add[A_CON] -= 2;
-			p_ptr->stat_add[A_CHR] -= 1;
-			p_ptr->regenerate = FALSE;
-			/* Cancel innate regeneration */
-		}
-
-		if (p_ptr->muta3 & MUT3_SILLY_VOI)
-		{
-			p_ptr->stat_add[A_CHR] -= 4;
-		}
-
-		if (p_ptr->muta3 & MUT3_BLANK_FAC)
-		{
-			p_ptr->stat_add[A_CHR] -= 1;
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_EYES)
-		{
-			p_ptr->skill_fos += 15;
-			p_ptr->skill_srh += 15;
-		}
-
-		if (p_ptr->muta3 & MUT3_MAGIC_RES)
-		{
-			p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
-		{
-			p_ptr->skill_stl -= 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_INFRAVIS)
-		{
-			p_ptr->see_infra += 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-		{
-			new_speed += 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_SHORT_LEG)
-		{
-			new_speed -= 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-		{
-			p_ptr->sh_elec = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_FIRE_BODY)
-		{
-			p_ptr->sh_fire = TRUE;
-			p_ptr->lite = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_WART_SKIN)
-		{
-			p_ptr->stat_add[A_CHR] -= 2;
-			p_ptr->to_a += 5;
-			p_ptr->dis_to_a += 5;
-		}
-
-		if (p_ptr->muta3 & MUT3_SCALES)
-		{
-			p_ptr->stat_add[A_CHR] -= 1;
-			p_ptr->to_a += 10;
-			p_ptr->dis_to_a += 10;
-		}
-
-		if (p_ptr->muta3 & MUT3_IRON_SKIN)
-		{
-			p_ptr->stat_add[A_DEX] -= 1;
-			p_ptr->to_a += 25;
-			p_ptr->dis_to_a += 25;
-		}
-
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			p_ptr->levitation = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			p_ptr->resist_fear = TRUE;
-		}
-
-		if (p_ptr->muta3 & MUT3_REGEN)
-		{
-			p_ptr->regenerate = TRUE;
-		}
 
 		if (p_ptr->muta3 & MUT3_ESP)
 		{
@@ -4139,10 +4013,6 @@ void calc_bonuses(void)
 			p_ptr->skill_stl += 1;
 		}
 
-		if (p_ptr->muta3 & MUT3_ILL_NORM)
-		{
-			p_ptr->stat_add[A_CHR] = 0;
-		}
 	}
 
 	if (p_ptr->tsuyoshi)
@@ -4192,7 +4062,7 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_TUNNEL)) p_ptr->skill_dig += (o_ptr->pval * 20);
 
 		/* Affect speed */
-		if (have_flag(flgs, TR_SPEED)) new_speed += o_ptr->pval;
+		if (have_flag(flgs, TR_SPEED)) p_ptr->pspeed += o_ptr->pval;
 
 		/* Affect blows */
 		if (have_flag(flgs, TR_BLOWS))
@@ -4564,7 +4434,7 @@ void calc_bonuses(void)
 		if (hex_spelling(HEX_SHOCK_CLOAK))
 		{
 			p_ptr->sh_elec = TRUE;
-			new_speed += 3;
+			p_ptr->pspeed += 3;
 		}
 		for (i = INVEN_RARM; i <= INVEN_FEET; i++)
 		{
@@ -4606,7 +4476,7 @@ void calc_bonuses(void)
 		/* Extract the new "stat_use" value for the stat */
 		use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
 
-		if ((i == A_CHR) && (p_ptr->muta3 & MUT3_ILL_NORM))
+		if ((i == A_CHR) && mut_present(MUT3_ILL_NORM))
 		{
 			/* 10 to 18/90 charisma, guaranteed, based on level */
 			if (use < 8 + 2 * p_ptr->lev)
@@ -4861,23 +4731,23 @@ void calc_bonuses(void)
 	if (IS_FAST())
 	{
 		if (p_ptr->pclass == CLASS_TIME_LORD)
-			new_speed += 15;
+			p_ptr->pspeed += 15;
 		else
-			new_speed += 10;
+			p_ptr->pspeed += 10;
 	}
 	else if (p_ptr->tim_spurt)
 	{
 		/* The Time Lord's baby speed spell shouldn't stack with other forms of haste ... */
-		new_speed += 5;
+		p_ptr->pspeed += 5;
 	}
 
 	/* Temporary "slow" */
 	if (p_ptr->slow)
 	{
 		if (p_ptr->pclass == CLASS_TIME_LORD)
-			new_speed -= 15;	/* Time-Lords are just more sensitive to speed effects :) */
+			p_ptr->pspeed -= 15;	/* Time-Lords are just more sensitive to speed effects :) */
 		else
-			new_speed -= 10;
+			p_ptr->pspeed -= 10;
 	}
 
 	/* Temporary "telepathy" */
@@ -4964,9 +4834,9 @@ void calc_bonuses(void)
 	}
 
 	/* Bloating slows the player down (a little) */
-	if (p_ptr->food >= PY_FOOD_MAX) new_speed -= 10;
+	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
 
-	if (p_ptr->special_defense & KAMAE_SUZAKU) new_speed += 10;
+	if (p_ptr->special_defense & KAMAE_SUZAKU) p_ptr->pspeed += 10;
 
 	if ((p_ptr->migite && (empty_hands_status & EMPTY_HAND_RARM)) ||
 	    (p_ptr->hidarite && (empty_hands_status & EMPTY_HAND_LARM)))
@@ -4984,7 +4854,7 @@ void calc_bonuses(void)
 		{
 			penalty1 = penalty1 / 2 - 5;
 			penalty2 = penalty2 / 2 - 5;
-			new_speed += 7;
+			p_ptr->pspeed += 7;
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
 		}
@@ -5036,16 +4906,16 @@ void calc_bonuses(void)
 
 		if (riding_m_ptr->mspeed > 110)
 		{
-			new_speed = 110 + (s16b)((speed - 110) * (p_ptr->skill_exp[GINOU_RIDING] * 3 + p_ptr->lev * 160L - 10000L) / (22000L));
-			if (new_speed < 110) new_speed = 110;
+			p_ptr->pspeed = 110 + (s16b)((speed - 110) * (p_ptr->skill_exp[GINOU_RIDING] * 3 + p_ptr->lev * 160L - 10000L) / (22000L));
+			if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
 		}
 		else
 		{
-			new_speed = speed;
+			p_ptr->pspeed = speed;
 		}
-		new_speed += (p_ptr->skill_exp[GINOU_RIDING] + p_ptr->lev *160L)/3200;
-		if (MON_FAST(riding_m_ptr)) new_speed += 10;
-		if (MON_SLOW(riding_m_ptr)) new_speed -= 10;
+		p_ptr->pspeed += (p_ptr->skill_exp[GINOU_RIDING] + p_ptr->lev *160L)/3200;
+		if (MON_FAST(riding_m_ptr)) p_ptr->pspeed += 10;
+		if (MON_SLOW(riding_m_ptr)) p_ptr->pspeed -= 10;
 		riding_levitation = (riding_r_ptr->flags7 & RF7_CAN_FLY) ? TRUE : FALSE;
 		if (riding_r_ptr->flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
 
@@ -5059,10 +4929,10 @@ void calc_bonuses(void)
 	}
 
 	/* XXX XXX XXX Apply "encumbrance" from weight */
-	if (j > i) new_speed -= ((j - i) / (i / 5));
+	if (j > i) p_ptr->pspeed -= ((j - i) / (i / 5));
 
 	/* Searching slows the player down */
-	if (p_ptr->action == ACTION_SEARCH) new_speed -= 10;
+	if (p_ptr->action == ACTION_SEARCH) p_ptr->pspeed -= 10;
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->to_a += calc_adj_dex_ta();
@@ -5698,20 +5568,18 @@ void calc_bonuses(void)
 
 	/* Maximum speed is (+99). (internally it's 110 + 99) */
 	/* Temporary lightspeed forces to be maximum speed */
-	if ((p_ptr->lightspeed && !p_ptr->riding) || (new_speed > 209))
+	if ((p_ptr->lightspeed && !p_ptr->riding) || (p_ptr->pspeed > 209))
 	{
-		new_speed = 209;
+		p_ptr->pspeed = 209;
 	}
 
 	/* Minimum speed is (-99). (internally it's 110 - 99) */
-	if (new_speed < 11) new_speed = 11;
+	if (p_ptr->pspeed < 11)
+		p_ptr->pspeed = 11;
 
 	/* Display the speed (if needed) */
-	if (p_ptr->pspeed != (byte)new_speed)
-	{
-		p_ptr->pspeed = (byte)new_speed;
+	if (p_ptr->pspeed != old_speed)
 		p_ptr->redraw |= (PR_SPEED);
-	}
 
 	if (yoiyami)
 	{

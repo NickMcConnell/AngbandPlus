@@ -80,6 +80,29 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 	{   0,  0,   0, fumbling_mut},
 	{   0,  0,   0, he_man_mut},
 	{   0,  0,   0, puny_mut},
+	{   0,  0,   0, einstein_mut},
+	{   0,  0,   0, moron_mut},
+	{   0,  0,   0, resilient_mut},
+	{   0,  0,   0, fat_mut},
+	{   0,  0,   0, albino_mut},
+	{   0,  0,   0, rotting_flesh_mut},
+	{   0,  0,   0, silly_voice_mut},
+	{   0,  0,   0, blank_face_mut},
+	{   0,  0,   0, illusion_normal_mut},
+	{   0,  0,   0, extra_eyes_mut},
+	{   0,  0,   0, magic_resistance_mut},
+	{   0,  0,   0, extra_noise_mut},
+	{   0,  0,   0, infravision_mut},
+	{   0,  0,   0, extra_legs_mut},
+	{   0,  0,   0, short_legs_mut},
+	{   0,  0,   0, elec_aura_mut},
+	{   0,  0,   0, fire_aura_mut},
+	{   0,  0,   0, warts_mut},
+	{   0,  0,   0, scales_mut},
+	{   0,  0,   0, steel_skin_mut},
+	{   0,  0,   0, wings_mut},
+	{   0,  0,   0, fearless_mut},
+	{   0,  0,   0, regeneration_mut},
 };
 
 /*
@@ -154,6 +177,29 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_FUMBLING */
 	{ MUT_RATING_GREAT,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_HYPER_STR */
 	{ MUT_RATING_AWFUL,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_PUNY */
+	{ MUT_RATING_GREAT,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_HYPER_INT */
+	{ MUT_RATING_AWFUL,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_MORON */
+	{ MUT_RATING_GREAT,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_RESILIENT */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_BONUS,			 0, 4 },    /* MUT_XTRA_FAT */
+	{ MUT_RATING_AWFUL,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_ALBINO */
+	{ MUT_RATING_AWFUL,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_FLESH_ROT */
+	{ MUT_RATING_BAD,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_SILLY_VOICE */
+	{ MUT_RATING_BAD,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_BLANK_FACE */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_BONUS,			 0, 2 },    /* MUT_ILLUS_NORM */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_BONUS,			 0, 6 },    /* MUT_XTRA_EYES */
+	{ MUT_RATING_GOOD,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_MAGIC_RES */
+	{ MUT_RATING_BAD,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_XTRA_NOISE */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_BONUS,			 0, 6 },    /* MUT_INFRAVISION */
+	{ MUT_RATING_GREAT,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_XTRA_LEGS */
+	{ MUT_RATING_AWFUL,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_SHORT_LEGS */
+	{ MUT_RATING_GOOD,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_ELEC_AURA */
+	{ MUT_RATING_GOOD,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_FIRE_AURA */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_BONUS,			 0, 6 },    /* MUT_WARTS */
+	{ MUT_RATING_GOOD,		MUT_TYPE_BONUS,			 0, 6 },    /* MUT_SCALES */
+	{ MUT_RATING_GREAT,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_STEEL_SKIN */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_BONUS,			 0, 4 },    /* MUT_WINGS */
+	{ MUT_RATING_AVERAGE,	MUT_TYPE_BONUS,			 0, 6 },    /* MUT_FEARLESS */
+	{ MUT_RATING_GOOD,		MUT_TYPE_BONUS,			 0, 4 },    /* MUT_REGEN */
 };
 
 int _mut_prob_gain(int i)
@@ -223,15 +269,19 @@ void mut_calc_bonuses(void)
 	var_clear(&v);
 }
 
-void mut_gain(int mut_idx)
+bool mut_gain(int mut_idx)
 {
 	variant v;
-	if (mut_present(mut_idx)) return;
+
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE; /* Wizard Command ... */
+	if (mut_present(mut_idx)) return FALSE;
 	
 	var_init(&v);
 	add_flag(p_ptr->muta, mut_idx);
 	(_mutation_spells[mut_idx].fn)(SPELL_GAIN_MUT, &v);
 	var_clear(&v);
+
+	return TRUE;
 }
 
 bool mut_gain_random(mut_pred pred)
@@ -271,8 +321,7 @@ bool mut_gain_random(mut_pred pred)
 
 		if (which >= 0 && !mut_present(which)) /* paranoid checks ... should always pass */
 		{
-			mut_gain(which);
-			return TRUE;
+			return mut_gain(which);
 		}
 	}
 
@@ -316,25 +365,30 @@ bool mut_good_pred(int mut_idx)
 
 void mut_lock(int mut_idx)
 {
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return;
 	if (mut_locked(mut_idx)) return;
 	add_flag(p_ptr->muta_lock, mut_idx);
 }
 
 bool mut_locked(int mut_idx)
 {
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE;
 	return have_flag(p_ptr->muta_lock, mut_idx);
 }
 
-void mut_lose(int mut_idx)
+bool mut_lose(int mut_idx)
 {
 	variant v;
-	if (!mut_present(mut_idx)) return;
-	if (mut_locked(mut_idx)) return;
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE;
+	if (!mut_present(mut_idx)) return FALSE;
+	if (mut_locked(mut_idx)) return FALSE;
 	
 	var_init(&v);
 	remove_flag(p_ptr->muta, mut_idx);
 	(_mutation_spells[mut_idx].fn)(SPELL_LOSE_MUT, &v);
 	var_clear(&v);
+
+	return TRUE;
 }
 
 bool mut_lose_random(mut_pred pred)
@@ -374,8 +428,7 @@ bool mut_lose_random(mut_pred pred)
 
 		if (which >= 0 && mut_present(which)) /* paranoid checks ... should always pass */
 		{
-			mut_lose(which);
-			return TRUE;
+			return mut_lose(which);
 		}
 	}
 
@@ -385,6 +438,7 @@ bool mut_lose_random(mut_pred pred)
 
 bool mut_present(int mut_idx)
 {
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE;
 	return have_flag(p_ptr->muta, mut_idx);
 }
 
@@ -415,16 +469,19 @@ void mut_process(void)
 
 int mut_rating(int mut_idx)
 {
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return MUT_RATING_AWFUL;
 	return _mutations[mut_idx].rating;
 }
 
 int mut_type(int mut_idx)
 {
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return 0;
 	return _mutations[mut_idx].type;
 }
 
 void mut_unlock(int mut_idx)
 {
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return;
 	if (!mut_locked(mut_idx)) return;
 	remove_flag(p_ptr->muta_lock, mut_idx);
 }

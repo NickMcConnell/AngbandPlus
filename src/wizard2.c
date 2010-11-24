@@ -2010,7 +2010,7 @@ void do_cmd_debug(void)
 	/* Mutation */
 	case 'M':
 		n = get_quantity("Which One? ", 500);
-		(void)gain_random_mutation(n);
+		mut_gain(n);
 		break;
 
 	/* Specific reward */
