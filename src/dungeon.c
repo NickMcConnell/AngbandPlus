@@ -4892,18 +4892,6 @@ static void process_player(void)
 
 	/*** Apply energy ***/
 
-	if (hack_mutation)
-	{
-#ifdef JP
-msg_print("何か変わった気がする！");
-#else
-		msg_print("You feel different!");
-#endif
-
-		mut_gain_random(mut_good_pred);
-		hack_mutation = FALSE;
-	}
-
 	if (p_ptr->inside_battle)
 	{
 		for(i = 1; i < m_max; i++)
@@ -6052,7 +6040,6 @@ void play_game(bool new_game)
 		return;
 	}
 
-	hack_mutation = FALSE;
 	autosave_l = TRUE;
 
 	/* Hack -- Character is "icky" */

@@ -123,6 +123,7 @@ extern bool mut_good_pred(int mut_idx);
 extern bool mut_unlocked_pred(int mut_idx);
 
 extern void mut_calc_bonuses(void);
+extern int  mut_gain_random_aux(mut_pred pred);
 extern int  mut_count(mut_pred pred);
 extern void mut_do_cmd_knowledge(void);
 extern void mut_dump_file(FILE* file);
@@ -134,6 +135,7 @@ extern bool mut_locked(int mut_idx);
 extern bool mut_lose(int mut_idx);
 extern void mut_lose_all(void);
 extern bool mut_lose_random(mut_pred pred);
+extern void mut_name(int i, char* buf);
 extern bool mut_present(int mut_idx);
 extern void mut_process(void);
 extern int  mut_rating(int mut_idx);

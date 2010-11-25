@@ -2681,6 +2681,7 @@ static void save_prev_data(birther *birther_ptr)
 	}
 
 	birther_ptr->chaos_patron = p_ptr->chaos_patron;
+	birther_ptr->mutation = p_ptr->birth_mutation;
 
 	/* Save the virtues */
 	for (i = 0; i < 8; i++)
@@ -2741,6 +2742,7 @@ static void load_prev_data(bool swap)
 	p_ptr->chp = p_ptr->player_hp[0];
 
 	p_ptr->chaos_patron = previous_char.chaos_patron;
+	p_ptr->birth_mutation = previous_char.mutation;
 
 	for (i = 0; i < 8; i++)
 	{
@@ -6510,6 +6512,9 @@ static bool player_birth_aux(void)
 		/* Hack -- get a chaos patron even if you are not a chaos warrior */
 		p_ptr->chaos_patron = (s16b)randint0(MAX_PATRON);
 
+		if (p_ptr->prace == RACE_BEASTMAN)
+			p_ptr->birth_mutation = mut_gain_random_aux(mut_good_pred);
+
 		/* Input loop */
 		while (TRUE)
 		{
@@ -6527,6 +6532,14 @@ static bool player_birth_aux(void)
 
 			/* Display the player */
 			display_player(mode);
+
+			if (p_ptr->prace == RACE_BEASTMAN)
+			{
+				char buf[100];
+				put_str("Mutation :", 8, 1);
+				mut_name(p_ptr->birth_mutation, buf);
+				c_put_str(TERM_L_BLUE, buf, 8, 12);
+			}
 
 			/* Prepare a prompt (must squeeze everything in) */
 			Term_gotoxy(2, 23);
@@ -6805,6 +6818,11 @@ void player_birth(void)
 			player_wipe();
 		}
 	}
+	else
+	{
+		if (p_ptr->prace == RACE_BEASTMAN)
+			p_ptr->birth_mutation = mut_gain_random_aux(mut_good_pred);
+	}
 
 	/* Note player birth in the message recall */
 	message_add(" ");
@@ -6872,8 +6890,8 @@ void player_birth(void)
 	seed_wilderness();
 
 	/* Give beastman a mutation at character birth */
-	if (p_ptr->prace == RACE_BEASTMAN) hack_mutation = TRUE;
-	else hack_mutation = FALSE;
+	if (p_ptr->prace == RACE_BEASTMAN) 
+		mut_gain(p_ptr->birth_mutation);
 
 	/* Set the message window flag as default */
 	if (!window_flag[1])

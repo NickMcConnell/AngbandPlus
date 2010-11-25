@@ -34,7 +34,7 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 	{  18, 20,  50, polymorph_self_spell},
 	{  10,  5,  70, alchemy_spell},
 	{   1,  6,  60, grow_mold_spell},
-	{  10, 12,  50, resist_elements_spell},
+	{  25, 30,  70, resist_elements_spell},
 	{  12, 12,  50, earthquake_spell},
 	{  17,  1,  80, eat_magic_spell},
 	{   6,  6,  50, weigh_magic_spell},
@@ -394,7 +394,7 @@ bool mut_gain(int mut_idx)
 	return TRUE;
 }
 
-bool mut_gain_random(mut_pred pred)
+int mut_gain_random_aux(mut_pred pred)
 {
 	int prob[MAX_MUTATIONS];
 	int i;
@@ -417,25 +417,28 @@ bool mut_gain_random(mut_pred pred)
 	if (tot > 0)
 	{
 		int j = randint0(tot);
-		int which = -1;
 		
 		/* scan the probability table for the correct mutation */
 		for (i = 0; i < MAX_MUTATIONS; i++)
 		{
 			if (j < prob[i])
 			{
-				which = i;
-				break;
+				return i;
 			}
-		}
-
-		if (which >= 0 && !mut_present(which)) /* paranoid checks ... should always pass */
-		{
-			chg_virtue(V_CHANCE, 1);
-			return mut_gain(which);
 		}
 	}
 
+	return -1;
+}
+
+bool mut_gain_random(mut_pred pred)
+{
+	int which = mut_gain_random_aux(pred);
+	if (which >= 0 && !mut_present(which))
+	{
+		chg_virtue(V_CHANCE, 1);
+		return mut_gain(which);
+	}
 	msg_print("You feel normal.");
 	return FALSE;
 }
@@ -561,6 +564,20 @@ bool mut_lose_random(mut_pred pred)
 
 	msg_print("You feel strange.");
 	return FALSE;
+}
+
+void mut_name(int i, char* buf)
+{
+	variant v;
+	var_init(&v);
+
+	if (i >= 0 && i < MAX_MUTATIONS)
+		(_mutation_spells[i].fn)(SPELL_NAME, &v);
+	else
+		var_set_string(&v, "None");
+
+	sprintf(buf, "%s", var_get_string(&v));
+	var_clear(&v);
 }
 
 bool mut_present(int mut_idx)

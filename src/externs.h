@@ -207,7 +207,6 @@ extern bool reinit_wilderness;
 extern bool multi_rew;
 extern char summon_kin_type;
 extern bool hack_mind;
-extern bool hack_mutation;
 
 
 /*

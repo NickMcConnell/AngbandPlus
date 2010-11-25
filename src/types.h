@@ -1359,6 +1359,8 @@ struct player_type
 	bool hidarite;
 	bool no_flowed;
 
+	int birth_mutation;
+
 	s16b ac;			/* Base ac */
 
 	s16b see_infra;		/* Infravision range */
@@ -1411,6 +1413,7 @@ struct birther
 	s16b player_hp[PY_MAX_LEVEL];
 
 	s16b chaos_patron;
+	int  mutation;
 
 	s16b vir_types[8];
 
