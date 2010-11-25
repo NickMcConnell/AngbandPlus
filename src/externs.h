@@ -820,6 +820,7 @@ extern void do_cmd_use(void);
 extern void do_cmd_magic_eater(bool only_browse);
 
 /* do-spell.c */
+extern int beam_chance(void);
 extern int spell_power(int pow);
 extern int spell_power_aux(int pow, int bonus);
 extern cptr do_spell(int realm, int spell, int mode);
@@ -1084,8 +1085,7 @@ extern void do_cmd_kaji(bool only_browse);
 
 /* racial.c */
 extern bool can_do_cmd_cast(void);
-extern void do_cmd_racial_power(void);
-extern void racial_stop_mouth(void);
+extern void stop_mouth(void);
 
 /* save.c */
 extern bool save_player(void);

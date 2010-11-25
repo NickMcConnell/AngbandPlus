@@ -19,6 +19,9 @@
     <Filter Include="Spells">
       <UniqueIdentifier>{b835b5ee-a944-43e5-8add-1246d18d1c13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Races">
+      <UniqueIdentifier>{1fb26358-84e5-4ff7-b510-11ae3026c10f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="artifact.c">
@@ -216,9 +219,6 @@
     <ClCompile Include="variant.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="races.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mirror.c">
       <Filter>Classes</Filter>
     </ClCompile>
@@ -278,6 +278,9 @@
     </ClCompile>
     <ClCompile Include="spells_a.c">
       <Filter>Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="races.c">
+      <Filter>Races</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

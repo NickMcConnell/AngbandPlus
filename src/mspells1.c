@@ -847,6 +847,9 @@ static bool anti_magic_check(void)
 	if (p_ptr->anti_magic)
 		return FALSE;
 
+	if (p_ptr->tim_no_spells)
+		return FALSE;
+
 	switch (p_ptr->pclass)
 	{
 	case CLASS_WARRIOR:

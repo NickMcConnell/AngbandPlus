@@ -6,10 +6,10 @@ void foo_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "");
+		var_set_string(res, T("", ""));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "");
+		var_set_string(res, T("", ""));
 		break;
 	case SPELL_CAST:
 		var_set_bool(res, TRUE);
@@ -52,6 +52,146 @@ void alchemy_spell(int cmd, variant *res)
 	}
 }
 bool cast_alchemy(void) { return cast_spell(alchemy_spell); }
+
+void android_ray_gun_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Ray Gun", "レイガン"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		
+		msg_print(T("You fire your ray gun.", "レイガンを発射した。"));
+		fire_bolt(GF_MISSILE, dir, (p_ptr->lev+1) / 2);
+		
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void android_blaster_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Blaster", "ブラスター"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You fire your blaster.", "ブラスターを発射した。"));
+		fire_bolt(GF_MISSILE, dir, p_ptr->lev);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void android_bazooka_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Bazooka", "バズーカ"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You fire your bazooka.", "バズーカを発射した。"));
+		fire_ball(GF_MISSILE, dir, p_ptr->lev * 3, 2);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void android_beam_cannon_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Beam Cannon", "ビームキャノン"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You fire a beam cannon.", "ビームキャノンを発射した。"));
+		fire_beam(GF_MISSILE, dir, p_ptr->lev * 3);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void android_rocket_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Rocket Launcher", "ロケット"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You launch a rocket.", "ロケットを発射した。"));
+		fire_rocket(GF_ROCKET, dir, p_ptr->lev * 7, 2);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void banish_evil_spell(int cmd, variant *res)
 {
@@ -217,7 +357,7 @@ void breathe_fire_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (get_aim_dir(&dir))
 		{
-			racial_stop_mouth();
+			stop_mouth();
 			msg_print(T("You breathe fire...", "あなたは火炎のブレスを吐いた..."));
 			fire_ball(GF_FIRE, dir, 2 * p_ptr->lev, 1 + (p_ptr->lev / 20));
 			var_set_bool(res, TRUE);
@@ -345,6 +485,38 @@ void confusing_lights_spell(int cmd, variant *res)
 	}
 }
 
+void create_food_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Create Food", "食糧生成"));
+		break;
+	case SPELL_DESC:
+		if (p_ptr->prace == RACE_HOBBIT)
+			var_set_string(res, "It's time for second breakfast!  Cook up a tasty meal.");
+		else
+			var_set_string(res, "Create a ration of tasty food.");
+		break;
+	case SPELL_CAST:
+	{
+		object_type forge;
+
+		object_prep(&forge, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+		drop_near(&forge, -1, py, px);
+
+		msg_print("You feel something tasty appear nearby.");
+		
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_create_food(void) { return cast_spell(create_food_spell); }
+
 void dazzle_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -376,6 +548,38 @@ void dazzle_spell(int cmd, variant *res)
 	}
 }
 bool cast_dazzle(void) { return cast_spell(dazzle_spell); }
+
+void demon_breath_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Breathe Fire/Nether", "地獄/火炎のブレス"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Breathe a powerful blast of either fire or nether at your opponent.");
+		break;
+	case SPELL_CAST:
+	{
+		int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		stop_mouth();
+
+		msg_format(T("You breathe %s.", "あなたは%sのブレスを吐いた。"),
+			((type == GF_NETHER) ? T("nether", "地獄") : T("fire", "火炎")));
+
+		fire_ball(type, dir, p_ptr->lev * 3, -(p_ptr->lev / 15) - 1);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void destruction_spell(int cmd, variant *res)
 {
@@ -447,7 +651,7 @@ void detect_doors_stairs_traps_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Detect Doors, Stairs & Traps");
+		var_set_string(res, T("Detect Doors & Traps", "ドアと罠 感知"));
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Detects doors, stairs, and traps in your vicinity.");
@@ -648,6 +852,234 @@ void double_magic_spell(int cmd, variant *res)
 	}
 }
 
+void draconian_breath_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Breathe", "ブレス"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+	{/* Sorry ... I made no effort to clean this up :( */
+		int plev = p_ptr->lev;
+		int dir = 0;
+		int  Type = (one_in_(3) ? GF_COLD : GF_FIRE);
+#ifdef JP
+		cptr Type_desc = ((Type == GF_COLD) ? "冷気" : "炎");
+#else
+		cptr Type_desc = ((Type == GF_COLD) ? "cold" : "fire");
+#endif
+
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		if (randint1(100) < plev)
+		{
+			switch (p_ptr->pclass)
+			{
+				case CLASS_WARRIOR:
+				case CLASS_BERSERKER:
+				case CLASS_RANGER:
+				case CLASS_TOURIST:
+				case CLASS_IMITATOR:
+				case CLASS_ARCHER:
+				case CLASS_SMITH:
+					if (one_in_(3))
+					{
+						Type = GF_MISSILE;
+#ifdef JP
+						Type_desc = "エレメント";
+#else
+						Type_desc = "the elements";
+#endif
+					}
+					else
+					{
+						Type = GF_SHARDS;
+#ifdef JP
+						Type_desc = "破片";
+#else
+						Type_desc = "shards";
+#endif
+					}
+					break;
+				case CLASS_MAGE:
+				case CLASS_WARRIOR_MAGE:
+				case CLASS_HIGH_MAGE:
+				case CLASS_SORCERER:
+				case CLASS_MAGIC_EATER:
+				case CLASS_RED_MAGE:
+				case CLASS_BLUE_MAGE:
+				case CLASS_MIRROR_MASTER:
+					if (one_in_(3))
+					{
+						Type = GF_MANA;
+#ifdef JP
+						Type_desc = "魔力";
+#else
+						Type_desc = "mana";
+#endif
+					}
+					else
+					{
+						Type = GF_DISENCHANT;
+#ifdef JP
+						Type_desc = "劣化";
+#else
+						Type_desc = "disenchantment";
+#endif
+					}
+					break;
+				case CLASS_CHAOS_WARRIOR:
+					if (!one_in_(3))
+					{
+						Type = GF_CONFUSION;
+#ifdef JP
+						Type_desc = "混乱";
+#else
+						Type_desc = "confusion";
+#endif
+					}
+					else
+					{
+						Type = GF_CHAOS;
+#ifdef JP
+						Type_desc = "カオス";
+#else
+						Type_desc = "chaos";
+#endif
+					}
+					break;
+				case CLASS_MONK:
+				case CLASS_SAMURAI:
+				case CLASS_FORCETRAINER:
+					if (!one_in_(3))
+					{
+						Type = GF_CONFUSION;
+#ifdef JP
+						Type_desc = "混乱";
+#else
+						Type_desc = "confusion";
+#endif
+					}
+					else
+					{
+						Type = GF_SOUND;
+#ifdef JP
+						Type_desc = "轟音";
+#else
+						Type_desc = "sound";
+#endif
+					}
+					break;
+				case CLASS_MINDCRAFTER:
+					if (!one_in_(3))
+					{
+						Type = GF_CONFUSION;
+#ifdef JP
+						Type_desc = "混乱";
+#else
+						Type_desc = "confusion";
+#endif
+					}
+					else
+					{
+						Type = GF_PSI;
+#ifdef JP
+						Type_desc = "精神エネルギー";
+#else
+						Type_desc = "mental energy";
+#endif
+					}
+					break;
+				case CLASS_PRIEST:
+				case CLASS_PALADIN:
+					if (one_in_(3))
+					{
+						Type = GF_HELL_FIRE;
+#ifdef JP
+						Type_desc = "地獄の劫火";
+#else
+						Type_desc = "hellfire";
+#endif
+					}
+					else
+					{
+						Type = GF_HOLY_FIRE;
+#ifdef JP
+						Type_desc = "聖なる炎";
+#else
+						Type_desc = "holy fire";
+#endif
+					}
+					break;
+				case CLASS_ROGUE:
+				case CLASS_NINJA:
+					if (one_in_(3))
+					{
+						Type = GF_DARK;
+#ifdef JP
+						Type_desc = "暗黒";
+#else
+						Type_desc = "darkness";
+#endif
+					}
+					else
+					{
+						Type = GF_POIS;
+#ifdef JP
+						Type_desc = "毒";
+#else
+						Type_desc = "poison";
+#endif
+					}
+					break;
+				case CLASS_BARD:
+					if (!one_in_(3))
+					{
+						Type = GF_SOUND;
+#ifdef JP
+						Type_desc = "轟音";
+#else
+						Type_desc = "sound";
+#endif
+					}
+					else
+					{
+						Type = GF_CONFUSION;
+#ifdef JP
+						Type_desc = "混乱";
+#else
+						Type_desc = "confusion";
+#endif
+					}
+					break;
+			}
+		}
+
+		stop_mouth();
+
+#ifdef JP
+		msg_format("あなたは%sのブレスを吐いた。", Type_desc);
+#else
+		msg_format("You breathe %s.", Type_desc);
+#endif
+
+		fire_ball(Type, dir, plev * 2,
+			-(plev / 15) - 1);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void earthquake_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -744,7 +1176,7 @@ void eat_rock_spell(int cmd, variant *res)
 		f_ptr = &f_info[c_ptr->feat];
 		mimic_f_ptr = &f_info[get_feat_mimic(c_ptr)];
 
-		racial_stop_mouth();
+		stop_mouth();
 
 		if (!have_flag(mimic_f_ptr->flags, FF_HURT_ROCK))
 		{
@@ -823,6 +1255,27 @@ void evocation_spell(int cmd, variant *res)
 		dispel_monsters(power);
 		turn_monsters(power);
 		banish_monsters(power);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void explosive_rune_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Explosive Rune", "爆発のルーン"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+		msg_print(T("You carefully set an explosive rune...", "爆発のルーンを慎重に仕掛けた..."));
+		explosive_rune();
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -1096,6 +1549,58 @@ void hypnotic_gaze_spell(int cmd, variant *res)
 }
 bool cast_hypnotic_gaze(void) { return cast_spell(hypnotic_gaze_spell); }
 
+void imp_fire_spell(int cmd, variant *res)
+{
+	const int ball_lev = 30;
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		if (p_ptr->lev >= ball_lev)
+			var_set_string(res, T("Fire Ball", ""));
+		else
+			var_set_string(res, T("Fire Bolt", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		if (p_ptr->lev >= ball_lev)
+			fire_ball(GF_FIRE, dir, p_ptr->lev, 2);
+		else
+			fire_bolt(GF_FIRE, dir, p_ptr->lev);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void kutar_expand_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Expand Horizontally", "横に伸びる"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Expand like a cat, gaining +50 AC but becoming more susceptible to magical attacks.", ""));
+		break;
+	case SPELL_CAST:
+		set_tsubureru(randint1(20) + 30, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void laser_eye_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1194,6 +1699,38 @@ void magic_mapping_spell(int cmd, variant *res)
 }
 bool cast_magic_mapping(void) { return cast_spell(magic_mapping_spell); }
 
+void magic_missile_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Magic Missile", "マジック・ミサイル"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 5)), 4, 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dice = spell_power(3 + ((p_ptr->lev - 1) / 5));
+		int sides = 4;
+		int dir = 0;
+
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam_chance() - 10, GF_MISSILE, dir, damroll(dice, sides));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_magic_missile(void) { return cast_spell(magic_missile_spell); }
+
 void mind_blast_spell(int cmd, variant *res)
 {
 	int dice = 3 + (p_ptr->lev - 1)/5;
@@ -1290,13 +1827,47 @@ void panic_hit_spell(int cmd, variant *res)
 }
 bool cast_panic_hit(void) { return cast_spell(panic_hit_spell); }
 
+void pattern_mindwalk_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Pattern Mindwalking", "パターン・ウォーク"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Walk the pattern in your mind.  Restores life and stats.");
+		break;
+	case SPELL_CAST:
+		msg_print(T("You picture the Pattern in your mind and walk it...", "あなたは「パターン」を心に描いてその上を歩いた..."));
+
+		set_poisoned(0, TRUE);
+		set_image(0, TRUE);
+		set_stun(0, TRUE);
+		set_cut(0, TRUE);
+		set_blind(0, TRUE);
+		set_afraid(0, TRUE);
+		do_res_stat(A_STR);
+		do_res_stat(A_INT);
+		do_res_stat(A_WIS);
+		do_res_stat(A_DEX);
+		do_res_stat(A_CON);
+		do_res_stat(A_CHR);
+		restore_level();
+		
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void phase_door_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Phase Door");
+		var_set_string(res, T("Phase Door", "ショート・テレポート"));
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "A short range teleport.");
@@ -1320,6 +1891,32 @@ void phase_door_spell(int cmd, variant *res)
 	}
 }
 bool cast_phase_door(void) { return cast_spell(phase_door_spell); }
+
+void poison_dart_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Poison Dart", "毒のダーツ"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		msg_print(T("You throw a dart of poison.", "毒のダーツを投げた。"));
+		fire_bolt(GF_POIS, dir, p_ptr->lev);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void polish_shield_spell(int cmd, variant *res)
 {
@@ -1579,6 +2176,27 @@ void remove_curse_II_spell(int cmd, variant *res)
 }
 bool cast_remove_curse_II(void) { return cast_spell(remove_curse_II_spell); }
 
+void remove_fear_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Remove Fear", "恐怖除去"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+		set_afraid(0, TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_remove_fear(void) { return cast_spell(remove_fear_spell); }
+
 void resist_elements_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1680,6 +2298,57 @@ void satisfy_hunger_spell(int cmd, variant *res)
 }
 bool cast_satisfy_hunger(void) { return cast_spell(satisfy_hunger_spell); }
 
+void scare_monster_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Scare Monster", "モンスター恐慌"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		stop_mouth();
+		/*
+		msg_print(T("You make a horrible scream!", "身の毛もよだつ叫び声を上げた！");
+		msg_print(T("You emit an eldritch howl!", "あなたはおどろおどろしい叫び声をあげた！"));
+		*/
+		fear_monster(dir, p_ptr->lev);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void shadow_shifting_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Shadow Shifting", "シャドウ・シフト"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Recreates the current dungeon level after a short delay.");
+		break;
+	case SPELL_CAST:
+		msg_print(T("You start walking around.", "あなたは歩き周り始めた。"));
+		alter_reality();
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void shriek_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1703,7 +2372,7 @@ void shriek_spell(int cmd, variant *res)
 		var_set_string(res, T("You can emit a horrible shriek.", "あなたは身の毛もよだつ叫び声を発することができる。"));
 		break;
 	case SPELL_CAST:
-		racial_stop_mouth();
+		stop_mouth();
 		fire_ball(GF_SOUND, 0, spell_power(2 * p_ptr->lev), 8);
 		aggravate_monsters(0);
 		var_set_bool(res, TRUE);
@@ -1714,6 +2383,28 @@ void shriek_spell(int cmd, variant *res)
 	}
 }
 bool cast_shriek(void) { return cast_spell(shriek_spell); }
+
+void sleeping_dust_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Sleeping Dust", "眠り粉"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("", ""));
+		break;
+	case SPELL_CAST:
+		msg_print(T("You throw some magic dust...", "あなたは魔法の粉を投げつけた..."));
+		if (p_ptr->lev < 25) sleep_monsters_touch();
+		else sleep_monsters();
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void smell_metal_spell(int cmd, variant *res)
 {
@@ -1735,7 +2426,7 @@ void smell_metal_spell(int cmd, variant *res)
 		var_set_string(res, T("You can smell nearby precious metal.", "あなたは近くにある貴金属をかぎ分けることができる。"));
 		break;
 	case SPELL_CAST:
-		racial_stop_mouth();
+		stop_mouth();
 		detect_treasure(DETECT_RAD_DEFAULT);
 		var_set_bool(res, TRUE);
 		break;
@@ -1765,7 +2456,7 @@ void smell_monsters_spell(int cmd, variant *res)
 		var_set_string(res, T("You can smell nearby monsters.", "あなたは近くのモンスターの存在をかぎ分けることができる。"));
 		break;
 	case SPELL_CAST:
-		racial_stop_mouth();
+		stop_mouth();
 		detect_monsters_normal(DETECT_RAD_DEFAULT);
 		var_set_bool(res, TRUE);
 		break;
@@ -1862,7 +2553,7 @@ void spit_acid_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (get_aim_dir(&dir))
 		{
-			racial_stop_mouth();
+			stop_mouth();
 			msg_print(T("You spit acid...", "酸を吐きかけた..."));
 			if (p_ptr->lev < 25) fire_bolt(GF_ACID, dir, p_ptr->lev);
 			else fire_ball(GF_ACID, dir, p_ptr->lev, 2);
@@ -1931,6 +2622,32 @@ void stone_skin_spell(int cmd, variant *res)
 	}
 }
 bool cast_stone_skin(void) { return cast_spell(stone_skin_spell); }
+
+void stone_to_mud_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Stone to Mud", "岩石溶解"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		wall_to_mud(dir);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_stone_to_mud(void) { return cast_spell(stone_to_mud_spell); }
 
 void summon_tree_spell(int cmd, variant *res)
 {
@@ -2171,6 +2888,32 @@ void teleport_level_spell(int cmd, variant *res)
 }
 bool cast_teleport_level(void) { return cast_spell(teleport_level_spell); }
 
+void throw_boulder_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Throw Boulder", "岩石投げ（ダメージ"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		msg_print(T("You throw a huge boulder.", "巨大な岩を投げた。"));
+		fire_bolt(GF_MISSILE, dir, (3 * p_ptr->lev) / 2);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void vampirism_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2194,55 +2937,59 @@ void vampirism_spell(int cmd, variant *res)
 		var_set_string(res, T("You can drain life from a foe like a vampire.", "あなたは吸血鬼のように敵から生命力を吸収することができる。"));
 		break;
 	case SPELL_CAST:
-	{
-		int x, y, dummy;
-		cave_type *c_ptr;
-		int dir = 0;
-
 		var_set_bool(res, FALSE);
-
-		/* Only works on adjacent monsters */
-		if (!get_rep_dir2(&dir)) break;
-
-		var_set_bool(res, TRUE);
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-		c_ptr = &cave[y][x];
-
-		racial_stop_mouth();
-
-		if (!(c_ptr->m_idx))
+		if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
 		{
-			msg_print(T("You bite into thin air!", "何もない場所に噛みついた！"));
-			break;
-		}
-
-		msg_print(T("You grin and bare your fangs...", "あなたはニヤリとして牙をむいた..."));
-		dummy = p_ptr->lev * 2;
-
-		if (drain_life(dir, dummy))
-		{
-			/* No heal if we are "full" */
-			if (p_ptr->food < PY_FOOD_FULL)
-				hp_player(dummy);
-			else
-				msg_print(T("You were not hungry.", "あなたは空腹ではありません。"));
-
-			/* Gain nutritional sustenance: 150/hp drained
-			 * A Food ration gives 5000 food points (by contrast)
-			 * Don't ever get more than "Full" this way
-			 * But if we ARE Gorged,  it won't cure us 
-			 */
-			dummy = p_ptr->food + MIN(5000, 100 * dummy);
-			if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
-				set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
+			msg_print(T("Something prevent you from attacking.", "なぜか攻撃することができない。"));
+			return;
 		}
 		else
-			msg_print(T("Yechh. That tastes foul.", "げぇ！ひどい味だ。"));
+		{
+			int x, y, dummy;
+			cave_type *c_ptr;
+			int dir = 0;
 
+			/* Only works on adjacent monsters */
+			if (!get_rep_dir2(&dir)) break;
+
+			var_set_bool(res, TRUE);
+
+			y = py + ddy[dir];
+			x = px + ddx[dir];
+			c_ptr = &cave[y][x];
+
+			stop_mouth();
+
+			if (!(c_ptr->m_idx))
+			{
+				msg_print(T("You bite into thin air!", "何もない場所に噛みついた！"));
+				break;
+			}
+
+			msg_print(T("You grin and bare your fangs...", "あなたはニヤリとして牙をむいた..."));
+			dummy = p_ptr->lev * 2;
+
+			if (drain_life(dir, dummy))
+			{
+				/* No heal if we are "full" */
+				if (p_ptr->food < PY_FOOD_FULL)
+					hp_player(dummy);
+				else
+					msg_print(T("You were not hungry.", "あなたは空腹ではありません。"));
+
+				/* Gain nutritional sustenance: 150/hp drained
+				 * A Food ration gives 5000 food points (by contrast)
+				 * Don't ever get more than "Full" this way
+				 * But if we ARE Gorged,  it won't cure us 
+				 */
+				dummy = p_ptr->food + MIN(5000, 100 * dummy);
+				if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
+					set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
+			}
+			else
+				msg_print(T("Yechh. That tastes foul.", "げぇ！ひどい味だ。"));
+		}
 		break;
-	}
 	case SPELL_COST_EXTRA:
 		var_set_int(res, p_ptr->lev / 3);
 		break;

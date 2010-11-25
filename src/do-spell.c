@@ -180,7 +180,7 @@ static cptr info_weight(int weight)
 /*
  * Prepare standard probability to become beam for fire_bolt_or_beam()
  */
-static int beam_chance(void)
+int beam_chance(void)
 {
 	if (p_ptr->pclass == CLASS_MAGE)
 		return p_ptr->lev;

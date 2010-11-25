@@ -837,7 +837,7 @@ int _aberration_get_powers(spell_info* spells, int max)
 	spell = &spells[ct++];
 	spell->level = 50;
 	spell->cost = 20;
-	spell->fail = calculate_fail_rate(50, 70, p_ptr->stat_ind[A_CHR]);
+	spell->fail = calculate_fail_rate(50, 65, p_ptr->stat_ind[A_CHR]);
 	spell->fn = dimension_door_spell;
 
 	return ct;

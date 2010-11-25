@@ -4900,7 +4900,7 @@ msg_print("何か変わった気がする！");
 		msg_print("You feel different!");
 #endif
 
-		mut_gain_random(NULL);
+		mut_gain_random(mut_good_pred);
 		hack_mutation = FALSE;
 	}
 

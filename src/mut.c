@@ -382,7 +382,7 @@ bool mut_gain(int mut_idx)
 {
 	variant v;
 
-	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE; /* Wizard Command ... */
+	if (mut_idx < 0 || mut_idx >= MAX_MUTATIONS) return FALSE;
 	if (mut_present(mut_idx)) return FALSE;
 	
 	var_init(&v);
