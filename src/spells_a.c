@@ -11,18 +11,6 @@ void foo_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "");
 		break;
-	case SPELL_INFO:
-		var_set_string(res, "");
-		break;
-	case SPELL_GAIN_MUT:
-		msg_print(T("", ""));
-		break;
-	case SPELL_LOSE_MUT:
-		msg_print(T("", ""));
-		break;
-	case SPELL_MUT_DESC:
-		var_set_string(res, T("", ""));
-		break;
 	case SPELL_CAST:
 		var_set_bool(res, TRUE);
 		break;
@@ -389,6 +377,27 @@ void dazzle_spell(int cmd, variant *res)
 }
 bool cast_dazzle(void) { return cast_spell(dazzle_spell); }
 
+void destruction_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Word of Destruction");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Destroys everything in your nearby vicinity ... except you, of course.");
+		break;
+	case SPELL_CAST:
+		destroy_area(py, px, 12 + randint1(4), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_destruction(void) { return cast_spell(destruction_spell); }
+
 void detect_curses_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -431,6 +440,34 @@ void detect_curses_spell(int cmd, variant *res)
 }
 bool cast_detect_curses(void) { return cast_spell(detect_curses_spell); }
 
+void detect_doors_stairs_traps_spell(int cmd, variant *res)
+{
+	int rad = DETECT_RAD_DEFAULT;
+
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Detect Doors, Stairs & Traps");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Detects doors, stairs, and traps in your vicinity.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_radius(rad));
+		break;
+	case SPELL_CAST:
+		detect_traps(rad, TRUE);
+		detect_doors(rad);
+		detect_stairs(rad);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_detect_doors_stairs_traps(void) { return cast_spell(detect_doors_stairs_traps_spell); }
+
 void detect_monsters_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -451,6 +488,27 @@ void detect_monsters_spell(int cmd, variant *res)
 	}
 }
 bool cast_detect_monsters(void) { return cast_spell(detect_monsters_spell); }
+
+void detect_objects_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Detect Objects");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Detects nearby objects.");
+		break;
+	case SPELL_CAST:
+		detect_objects_normal(DETECT_RAD_DEFAULT);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_detect_objects(void) { return cast_spell(detect_objects_spell); }
 
 void detect_traps_spell(int cmd, variant *res)
 {
@@ -498,6 +556,26 @@ void detect_treasure_spell(int cmd, variant *res)
 	}
 }
 bool cast_detect_treasure(void) { return cast_spell(detect_treasure_spell); }
+
+void dimension_door_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Dimension Door");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Open a portal to another dimension, and step to a nearby location with great precision.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, dimension_door());
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_dimension_door(void) { return cast_spell(dimension_door_spell); }
 
 void dominate_living_I_spell(int cmd, variant *res)
 {
@@ -789,6 +867,48 @@ void grow_mold_spell(int cmd, variant *res)
 }
 bool cast_grow_mold(void) { return cast_spell(grow_mold_spell); }
 
+void heroism_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Heroism", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+		set_hero(randint1(25) + 25, FALSE);
+		hp_player(10);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_heroism(void) { return cast_spell(heroism_spell); }
+
+void identify_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Identify", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, ident_spell(FALSE));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_identify(void) { return cast_spell(identify_spell); }
+
 void identify_fully_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1053,6 +1173,27 @@ void light_area_spell(int cmd, variant *res)
 }
 bool cast_light_area(void) { return cast_spell(light_area_spell); }
 
+void magic_mapping_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Magic Mapping");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Maps the dungeon in your vicinity.");
+		break;
+	case SPELL_CAST:
+		map_area(DETECT_RAD_MAP);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_magic_mapping(void) { return cast_spell(magic_mapping_spell); }
+
 void mind_blast_spell(int cmd, variant *res)
 {
 	int dice = 3 + (p_ptr->lev - 1)/5;
@@ -1288,6 +1429,27 @@ void probing_spell(int cmd, variant *res)
 }
 bool cast_probing(void) { return cast_spell(probing_spell); }
 
+void protection_from_evil_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Protection from Evil");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempts to prevent evil monsters from attacking you.  When a weak evil monster melees you, it may be repelled by the forces of good.");
+		break;
+	case SPELL_CAST:
+		set_protevil(randint1(3 * p_ptr->lev) + 25, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_protection_from_evil(void) { return cast_spell(protection_from_evil_spell); }
+
 void radiation_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1373,6 +1535,50 @@ void recharging_spell(int cmd, variant *res)
 }
 bool cast_recharging(void) { return cast_spell(recharging_spell); }
 
+void remove_curse_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Remove Curse");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Uncurses an item so that you may remove it.");
+		break;
+	case SPELL_CAST:
+		if (remove_curse())
+			msg_print(T("You feel as if someone is watching over you.", "誰かに見守られているような気がする。"));
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_remove_curse_I(void) { return cast_spell(remove_curse_I_spell); }
+
+void remove_curse_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "*Remove Curse*");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Uncurses an item so that you may remove it.  Even heavily cursed items can be removed.");
+		break;
+	case SPELL_CAST:
+		if (remove_all_curse())
+			msg_print(T("You feel as if someone is watching over you.", "誰かに見守られているような気がする。"));
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_remove_curse_II(void) { return cast_spell(remove_curse_II_spell); }
+
 void resist_elements_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1431,6 +1637,48 @@ void resist_elements_spell(int cmd, variant *res)
 	}
 }
 bool cast_resist_elements(void) { return cast_spell(resist_elements_spell); }
+
+void restore_life_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Restore Life");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Regain all lost experience.");
+		break;
+	case SPELL_CAST:
+		restore_level();
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_restore_life(void) { return cast_spell(restore_life_spell); }
+
+void satisfy_hunger_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Satisfy Hunger");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Fills your belly with pure yuminess.");
+		break;
+	case SPELL_CAST:
+		set_food(PY_FOOD_MAX - 1);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_satisfy_hunger(void) { return cast_spell(satisfy_hunger_spell); }
 
 void shriek_spell(int cmd, variant *res)
 {
@@ -1663,6 +1911,27 @@ void sterility_spell(int cmd, variant *res)
 }
 bool cast_sterility(void) { return cast_spell(sterility_spell); }
 
+void stone_skin_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Stone Skin");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+		set_shield(randint1(30) + 20, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_stone_skin(void) { return cast_spell(stone_skin_spell); }
+
 void summon_tree_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1878,6 +2147,29 @@ void teleport_spell(int cmd, variant *res)
 	}
 }
 bool cast_teleport(void) { return cast_spell(teleport_spell); }
+
+void teleport_level_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Teleport Level", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Escape to another level.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!get_check("Are you sure? (Teleport Level)")) return;
+		teleport_level(0);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_teleport_level(void) { return cast_spell(teleport_level_spell); }
 
 void vampirism_spell(int cmd, variant *res)
 {

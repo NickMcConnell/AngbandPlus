@@ -16,6 +16,9 @@
     <Filter Include="Classes">
       <UniqueIdentifier>{4fd55de5-5e67-40b3-af1e-5965804963e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Spells">
+      <UniqueIdentifier>{b835b5ee-a944-43e5-8add-1246d18d1c13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="artifact.c">
@@ -210,25 +213,10 @@
     <ClCompile Include="chuukei.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="spells.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="variant.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="spells_a.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="races.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="mut.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="mut_a.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="monk.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mirror.c">
@@ -275,6 +263,21 @@
     </ClCompile>
     <ClCompile Include="ninja.c">
       <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="monk.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="spells.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="mut.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="mut_a.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells_a.c">
+      <Filter>Spells</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -348,10 +351,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="spells.h">
-      <Filter>Header Files</Filter>
+      <Filter>Spells</Filter>
     </ClInclude>
     <ClInclude Include="mut.h">
-      <Filter>Header Files</Filter>
+      <Filter>Spells</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

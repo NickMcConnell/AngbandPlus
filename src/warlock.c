@@ -50,6 +50,10 @@ bool warlock_is_pact_monster(monster_race *r_ptr)
 	return is_pact;
 }
 
+/****************************************************************
+ * Private Helpers
+ ****************************************************************/
+
 static int _warlock_range(void)
 {
 	int rng = 5;
@@ -73,6 +77,10 @@ static int _warlock_sides(void)
 {
 	return warlock_damage_sides[p_ptr->stat_ind[A_CHR]];
 }
+
+/****************************************************************
+ * Private Spells
+ ****************************************************************/
 
 static void _basic_spell(int cmd, variant *res)
 {
@@ -518,6 +526,93 @@ static void _confusing_spell(int cmd, variant *res)
 }
 
 /****************************************************************
+ * Private Powers
+ ****************************************************************/
+
+void _dragon_breath_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Dragon Breath");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Breathes a powerful elemental breath.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, format("dam %d", spell_power(400)));
+		break;
+	case SPELL_CAST:
+	{
+		int  type = 0, dir = 0;
+		cptr desc = NULL;
+
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		switch (randint0(5))
+		{
+		case 0: type = GF_FIRE; desc = "fire"; break;
+		case 1: type = GF_COLD; desc = "cold"; break;
+		case 2: type = GF_ELEC; desc = "lightning"; break;
+		case 3: type = GF_ACID; desc = "acid"; break;
+		case 4: type = GF_POIS; desc = "poison"; break;
+		}
+
+
+		msg_format("You breathe %s.", desc);
+		fire_ball(type, dir, spell_power(400), -(p_ptr->lev / 15) - 1);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void _invulnerability_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Invulnerability");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Invulnerability!! Nothing can touch you!  Nothing can hurt you!  You become *Invincible*!!!");
+		break;
+	case SPELL_CAST:
+		set_invuln(2 + randint1(2), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void _wraithform_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Wraithform");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Leave the world of the living, and travel the shadows of the underwold.  You gain passwall and great resistance to damage.");
+		break;
+	case SPELL_CAST:
+		set_wraith_form(2 + randint1(2), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+/****************************************************************
  * Spell Table and Exports
  ****************************************************************/
 
@@ -575,122 +670,107 @@ static int _get_spells(spell_info* spells, int max)
 int _undead_get_powers(spell_info* spells, int max)
 {
 	int ct = 0;
-/*
-				strcpy(power_desc[num].name, "Satisfy Hunger");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
+	
+	spell_info *spell = &spells[ct++];
+	spell->level = 5;
+	spell->cost = 5;
+	spell->fail = calculate_fail_rate(5, 60, p_ptr->stat_ind[A_CHR]);
+	spell->fn = satisfy_hunger_spell;
 
-				strcpy(power_desc[num].name, "Restore Life");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 30;
-				power_desc[num++].number = -4;
+	spell = &spells[ct++];
+	spell->level = 20;
+	spell->cost = 20;
+	spell->fail = calculate_fail_rate(20, 80, p_ptr->stat_ind[A_CHR]);
+	spell->fn = restore_life_spell;
 
-				strcpy(power_desc[num].name, "Wraithform");
-				power_desc[num].level = 50;
-				power_desc[num].cost = 100;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 40;
-				power_desc[num++].number = -5;
-				break;
-*/
+	spell = &spells[ct++];
+	spell->level = 50;
+	spell->cost = 100;
+	spell->fail = calculate_fail_rate(50, 80, p_ptr->stat_ind[A_CHR]);
+	spell->fn = _wraithform_spell;
+
 	return ct;
 }
 
 int _dragon_get_powers(spell_info* spells, int max)
 {
 	int ct = 0;
-/*
-				strcpy(power_desc[num].name, "Detect Objects");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
 
-				strcpy(power_desc[num].name, "Heroism");
-				power_desc[num].level = 15;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -4;
+	spell_info *spell = &spells[ct++];
+	spell->level = 5;
+	spell->cost = 5;
+	spell->fail = calculate_fail_rate(5, 60, p_ptr->stat_ind[A_CHR]);
+	spell->fn = detect_objects_spell;
 
-				strcpy(power_desc[num].name, "Identify");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -5;
+	spell = &spells[ct++];
+	spell->level = 15;
+	spell->cost = 10;
+	spell->fail = calculate_fail_rate(15, 60, p_ptr->stat_ind[A_CHR]);
+	spell->fn = heroism_spell;
 
-				strcpy(power_desc[num].name, "Stone Skin");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 8;
-				power_desc[num++].number = -6;
+	spell = &spells[ct++];
+	spell->level = 20;
+	spell->cost = 20;
+	spell->fail = calculate_fail_rate(20, 70, p_ptr->stat_ind[A_CHR]);
+	spell->fn = identify_spell;
 
-				strcpy(power_desc[num].name, "Dragon Breath");
-				power_desc[num].level = 50;
-				power_desc[num].cost = 30;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -7;
-				break;
-*/
+	spell = &spells[ct++];
+	spell->level = 35;
+	spell->cost = 40;
+	spell->fail = calculate_fail_rate(35, 70, p_ptr->stat_ind[A_CHR]);
+	spell->fn = stone_skin_spell;
+
+	spell = &spells[ct++];
+	spell->level = 50;
+	spell->cost = 30;
+	spell->fail = calculate_fail_rate(50, 70, p_ptr->stat_ind[A_CHR]);
+	spell->fn = _dragon_breath_spell;
+
 	return ct;
 }
 
 int _angel_get_powers(spell_info* spells, int max)
 {
 	int ct = 0;
-/*
-				strcpy(power_desc[num].name, "Light Area");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 6;
-				power_desc[num++].number = -3;
 
-				strcpy(power_desc[num].name, "Remove Curse");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -4;
+	spell_info *spell = &spells[ct++];
+	spell->level = 5;
+	spell->cost = 5;
+	spell->fail = calculate_fail_rate(5, 40, p_ptr->stat_ind[A_CHR]);
+	spell->fn = light_area_spell;
 
-				strcpy(power_desc[num].name, "Earthquake");
-				power_desc[num].level = 30;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -5;
+	spell = &spells[ct++];
+	spell->level = 20;
+	spell->cost = 20;
+	spell->fail = calculate_fail_rate(20, 60, p_ptr->stat_ind[A_CHR]);
+	if (p_ptr->lev >= 45)
+		spell->fn = remove_curse_II_spell;
+	else
+		spell->fn = remove_curse_I_spell;
 
-				strcpy(power_desc[num].name, "Protection from Evil");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -6;
+	spell = &spells[ct++];
+	spell->level = 30;
+	spell->cost = 10;
+	spell->fail = calculate_fail_rate(30, 60, p_ptr->stat_ind[A_CHR]);
+	spell->fn = earthquake_spell;
 
-				strcpy(power_desc[num].name, "Destruction");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -7;
+	spell = &spells[ct++];
+	spell->level = 35;
+	spell->cost = 40;
+	spell->fail = calculate_fail_rate(35, 60, p_ptr->stat_ind[A_CHR]);
+	spell->fn = protection_from_evil_spell;
 
-				strcpy(power_desc[num].name, "Invulnerability");
-				power_desc[num].level = 50;
-				power_desc[num].cost = 100;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 40;
-				power_desc[num++].number = -8;
-				break;
-*/
+	spell = &spells[ct++];
+	spell->level = 35;
+	spell->cost = 70;
+	spell->fail = calculate_fail_rate(35, 60, p_ptr->stat_ind[A_CHR]);
+	spell->fn = destruction_spell;
+
+	spell = &spells[ct++];
+	spell->level = 50;
+	spell->cost = 100;
+	spell->fail = calculate_fail_rate(50, 90, p_ptr->stat_ind[A_CHR]);
+	spell->fn = _invulnerability_spell;
 
 	return ct;
 }
@@ -698,37 +778,30 @@ int _angel_get_powers(spell_info* spells, int max)
 int _demon_get_powers(spell_info* spells, int max)
 {
 	int ct = 0;
-/*
-				strcpy(power_desc[num].name, "Phase Door");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
 
-				strcpy(power_desc[num].name, "Teleport");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -4;
+	spell_info *spell = &spells[ct++];
+	spell->level = 5;
+	spell->cost = 5;
+	spell->fail = calculate_fail_rate(5, 40, p_ptr->stat_ind[A_CHR]);
+	spell->fn = phase_door_spell;
 
-				strcpy(power_desc[num].name, "Teleport Level");
-				power_desc[num].level = 30;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 15;
-				power_desc[num++].number = -5;
+	spell = &spells[ct++];
+	spell->level = 20;
+	spell->cost = 10;
+	spell->fail = calculate_fail_rate(20, 50, p_ptr->stat_ind[A_CHR]);
+	spell->fn = teleport_spell;
 
-				strcpy(power_desc[num].name, "Recharge");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -6;
-				break;
+	spell = &spells[ct++];
+	spell->level = 30;
+	spell->cost = 20;
+	spell->fail = calculate_fail_rate(30, 60, p_ptr->stat_ind[A_CHR]);
+	spell->fn = teleport_level_spell;
 
-*/
+	spell = &spells[ct++];
+	spell->level = 35;
+	spell->cost = 40;
+	spell->fail = calculate_fail_rate(35, 70, p_ptr->stat_ind[A_CHR]);
+	spell->fn = recharging_spell;
 
 	return ct;
 }
@@ -736,43 +809,36 @@ int _demon_get_powers(spell_info* spells, int max)
 int _aberration_get_powers(spell_info* spells, int max)
 {
 	int ct = 0;
-/*
-				strcpy(power_desc[num].name, "Detect Monsters");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
 
-				strcpy(power_desc[num].name, "Detect Doors and Stairs");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -4;
+	spell_info *spell = &spells[ct++];
+	spell->level = 5;
+	spell->cost = 5;
+	spell->fail = calculate_fail_rate(5, 40, p_ptr->stat_ind[A_CHR]);
+	spell->fn = detect_monsters_spell;
 
-				strcpy(power_desc[num].name, "Polymorph Self");
-				power_desc[num].level = 30;
-				power_desc[num].cost = 30;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -5;
+	spell = &spells[ct++];
+	spell->level = 20;
+	spell->cost = 10;
+	spell->fail = calculate_fail_rate(20, 40, p_ptr->stat_ind[A_CHR]);
+	spell->fn = detect_doors_stairs_traps_spell;
 
-				strcpy(power_desc[num].name, "Magic Mapping");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -6;
+	spell = &spells[ct++];
+	spell->level = 30;
+	spell->cost = 30;
+	spell->fail = calculate_fail_rate(30, 50, p_ptr->stat_ind[A_CHR]);
+	spell->fn = polymorph_self_spell;
 
-				strcpy(power_desc[num].name, "Dimension Door");
-				power_desc[num].level = 50;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -7;
-				break;
-*/
+	spell = &spells[ct++];
+	spell->level = 35;
+	spell->cost = 20;
+	spell->fail = calculate_fail_rate(35, 50, p_ptr->stat_ind[A_CHR]);
+	spell->fn = magic_mapping_spell;
+
+	spell = &spells[ct++];
+	spell->level = 50;
+	spell->cost = 20;
+	spell->fail = calculate_fail_rate(50, 70, p_ptr->stat_ind[A_CHR]);
+	spell->fn = dimension_door_spell;
 
 	return ct;
 }
