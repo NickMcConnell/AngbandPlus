@@ -4755,44 +4755,6 @@ void cave_alter_feat(int y, int x, int action)
 }
 
 
-/* Remove a mirror */
-void remove_mirror(int y, int x)
-{
-	cave_type *c_ptr = &cave[y][x];
-
-	/* Remove the mirror */
-	c_ptr->info &= ~(CAVE_OBJECT);
-	c_ptr->mimic = 0;
-
-	if (d_info[dungeon_type].flags1 & DF1_DARKNESS)
-	{
-		c_ptr->info &= ~(CAVE_GLOW);
-		if (!view_torch_grids) c_ptr->info &= ~(CAVE_MARK);
-
-		/* Update the monster */
-		if (c_ptr->m_idx) update_mon(c_ptr->m_idx, FALSE);
-
-		update_local_illumination(y, x);
-	}
-
-	/* Notice */
-	note_spot(y, x);
-
-	/* Redraw */
-	lite_spot(y, x);
-}
-
-
-/*
- *  Return TRUE if there is a mirror on the grid.
- */
-bool is_mirror_grid(cave_type *c_ptr)
-{
-	if ((c_ptr->info & CAVE_OBJECT) && have_flag(f_info[c_ptr->mimic].flags, FF_MIRROR))
-		return TRUE;
-	else
-		return FALSE;
-}
 
 
 /*

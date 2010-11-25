@@ -2081,38 +2081,6 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 	return TRUE;
 }
 
-bool place_mirror(void)
-{
-	/* XXX XXX XXX */
-	if (!cave_clean_bold(py, px))
-	{
-#ifdef JP
-msg_print("床上のアイテムが呪文を跳ね返した。");
-#else
-		msg_print("The object resists the spell.");
-#endif
-
-		return FALSE;
-	}
-
-	/* Create a mirror */
-	cave[py][px].info |= CAVE_OBJECT;
-	cave[py][px].mimic = feat_mirror;
-
-	/* Turn on the light */
-	cave[py][px].info |= CAVE_GLOW;
-
-	/* Notice */
-	note_spot(py, px);
-
-	/* Redraw */
-	lite_spot(py, px);
-
-	update_local_illumination(py, px);
-
-	return TRUE;
-}
-
 
 /*
  * Leave an "explosive rune" which prevents monster movement
@@ -5613,7 +5581,7 @@ bool polymorph_monster(int y, int x)
 /*
  * Dimension Door
  */
-static bool dimension_door_aux(int x, int y)
+bool dimension_door_aux(int x, int y)
 {
 	int	plev = p_ptr->lev;
 
@@ -5660,27 +5628,6 @@ bool dimension_door(void)
 	return TRUE;
 }
 
-
-/*
- * Mirror Master's Dimension Door
- */
-bool mirror_tunnel(void)
-{
-	int x = 0, y = 0;
-
-	/* Rerutn FALSE if cancelled */
-	if (!tgt_pt(&x, &y)) return FALSE;
-
-	if (dimension_door_aux(x, y)) return TRUE;
-
-#ifdef JP
-	msg_print("鏡の世界をうまく通れなかった！");
-#else
-	msg_print("You fail to pass the mirror plane correctly!");
-#endif
-
-	return TRUE;
-}
 
 
 bool eat_magic(int power)

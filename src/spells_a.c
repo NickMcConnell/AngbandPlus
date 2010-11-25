@@ -544,6 +544,32 @@ void dominate_living_II_spell(int cmd, variant *res)
 	}
 }
 
+void double_magic_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Double Magic", "Ï¢Â³Ëâ"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!can_do_cmd_cast()) return;
+		handle_stuff();
+		do_cmd_cast();
+		handle_stuff();
+		if (!p_ptr->paralyzed && can_do_cmd_cast())
+			do_cmd_cast();
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void earthquake_spell(int cmd, variant *res)
 {
 	switch (cmd)

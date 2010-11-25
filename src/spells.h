@@ -71,6 +71,7 @@ extern void detect_traps_spell(int cmd, variant *res);
 extern void detect_treasure_spell(int cmd, variant *res);
 extern void dominate_living_I_spell(int cmd, variant *res);
 extern void dominate_living_II_spell(int cmd, variant *res);
+extern void double_magic_spell(int cmd, variant *res);
 extern void earthquake_spell(int cmd, variant *res);
 extern void eat_magic_spell(int cmd, variant *res);
 extern void eat_rock_spell(int cmd, variant *res);

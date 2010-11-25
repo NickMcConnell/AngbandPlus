@@ -688,8 +688,6 @@ extern void cave_set_feat(int y, int x, int feat);
 extern int conv_dungeon_feat(int newfeat);
 extern int feat_state(int feat, int action);
 extern void cave_alter_feat(int y, int x, int action);
-extern void remove_mirror(int y, int x);
-extern bool is_mirror_grid(cave_type *c_ptr);
 extern bool is_glyph_grid(cave_type *c_ptr);
 extern bool is_explosive_rune_grid(cave_type *c_ptr);
 extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);
@@ -1085,6 +1083,7 @@ extern bool process_warning(int xx, int yy);
 extern void do_cmd_kaji(bool only_browse);
 
 /* racial.c */
+extern bool can_do_cmd_cast(void);
 extern void do_cmd_racial_power(void);
 extern void racial_stop_mouth(void);
 
@@ -1216,9 +1215,10 @@ extern bool eat_magic(int power);
 extern void discharge_minion(void);
 extern bool kawarimi(bool success);
 extern bool rush_attack(bool *mdeath);
-extern void remove_all_mirrors(bool explode);
+
 
 /* spells3.c */
+extern bool dimension_door_aux(int x, int y);
 extern bool teleport_away(int m_idx, int dis, u32b mode);
 extern void teleport_monster_to(int m_idx, int ty, int tx, int power, u32b mode);
 extern bool cave_player_teleportable_bold(int y, int x, u32b mode);
@@ -1241,7 +1241,6 @@ extern void call_the_(void);
 extern void fetch(int dir, int wgt, bool require_los);
 extern void alter_reality(void);
 extern bool warding_glyph(void);
-extern bool place_mirror(void);
 extern bool explosive_rune(void);
 extern void identify_pack(void);
 extern bool remove_curse(void);
@@ -1285,7 +1284,6 @@ extern bool curse_weapon(bool force, int slot);
 extern bool brand_bolts(void);
 extern bool polymorph_monster(int y, int x);
 extern bool dimension_door(void);
-extern bool mirror_tunnel(void);
 extern bool summon_kin_player(int level, int y, int x, u32b mode);
 
 /* store.c */
@@ -1792,25 +1790,33 @@ extern bool teleport_barrier(int m_idx);
 extern bool magic_barrier(int m_idx);
 extern bool multiply_barrier(int m_idx);
 
-/* classes.c */
-extern class_t *get_class_t(void);
-extern class_t *get_class_t_aux(int pclass, int psubclass);
-extern int get_class_powers(spell_info* spells, int max);
-extern class_t *archaeologist_get_class_t(void);
-extern class_t *duelist_get_class_t(void);
-
 /* races.c */
 extern race_t *get_race_t(void);
 extern race_t *get_race_t_aux(int prace);
 extern int get_racial_powers(spell_info* spells, int max);
+
+/* classes.c */
+extern class_t *get_class_t(void);
+extern class_t *get_class_t_aux(int pclass, int psubclass);
+extern int get_class_powers(spell_info* spells, int max);
+
+/* archaeologist.c */
+extern class_t *archaeologist_get_class_t(void);
 
 /* bard.c */
 extern void bard_start_singing(int spell, int song);
 extern void bard_stop_singing(void);
 extern void bard_stop_singing_spell(int cmd, variant *res);
 
+/* blue_mage.c */
+extern void blue_learning_spell(int cmd, variant *res);
+
+/* cavalry.c */
+extern void rodeo_spell(int cmd, variant *res);
+
 /* duelist.c */
 extern cptr duelist_current_challenge(void);
+extern class_t *duelist_get_class_t(void);
 extern bool duelist_issue_challenge(void);
 extern int duelist_skill_sav(int m_idx);
 
@@ -1818,9 +1824,29 @@ extern int duelist_skill_sav(int m_idx);
 extern void absorb_magic_spell(int cmd, variant *res);
 extern void cast_abosrb_magic(void);
 
+/* mirror.c */
+extern void break_mirrors_spell(int cmd, variant *res);
+extern bool is_mirror_grid(cave_type *c_ptr);
+extern void mirror_concentration_spell(int cmd, variant *res);
+extern bool mirror_tunnel(void);
+extern bool place_mirror(void);
+extern void remove_all_mirrors(bool explode);
+extern void remove_mirror(int y, int x);
+
 /* monk.c */
 extern void monk_double_attack_spell(int cmd, variant *res);
 extern void monk_posture_spell(int cmd, variant *res);
 
+/* ninja.c */
+extern void quick_walk_spell(int cmd, variant *res);
+
+/* samurai.c */
+extern void samurai_concentration_spell(int cmd, variant *res);
+extern void samurai_posture_spell(int cmd, variant *res);
+
+/* smith.c */
+extern void smith_judgment_spell(int cmd, variant *res);
+
 /* warlock.c */
+extern class_t *warlock_get_class_t(int psubclass);
 extern bool warlock_is_pact_monster(monster_race *r_ptr);

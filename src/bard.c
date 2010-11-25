@@ -70,6 +70,8 @@ void bard_stop_singing_spell(int cmd, variant *res)
 		var_set_string(res, "");
 		break;
 	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!p_ptr->magic_num1[0] && !p_ptr->magic_num1[1]) return;
 		bard_stop_singing();
 		var_set_bool(res, TRUE);
 		break;

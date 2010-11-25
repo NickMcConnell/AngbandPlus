@@ -18,6 +18,9 @@ class_t *result = NULL;
 	case CLASS_DUELIST:
 		result = duelist_get_class_t();
 		break;
+	case CLASS_WARLOCK:
+		result = warlock_get_class_t(psubclass);
+		break;
 	}
 
 	return result;
@@ -239,331 +242,91 @@ int get_class_powers(spell_info* spells, int max)
 			spell->fn = bard_stop_singing_spell;
 			break;
 		}
-	}
-
-	return ct;
-}
-/*
 		case CLASS_RED_MAGE:
 		{
-	#ifdef JP
-	strcpy(power_desc[num].name, "連続魔");
-	#else
-			strcpy(power_desc[num].name, "Double Magic");
-	#endif
-
-			power_desc[num].level = 48;
-			power_desc[num].cost = 20;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -3;
+			spell_info* spell = &spells[ct++];
+			spell->level = 48;
+			spell->cost = 20;
+			spell->fail = 0;
+			spell->fn = double_magic_spell;
 			break;
 		}
 		case CLASS_SAMURAI:
 		{
-	#ifdef JP
-	strcpy(power_desc[num].name, "気合いため");
-	#else
-			strcpy(power_desc[num].name, "Concentration");
-	#endif
+			spell_info* spell = &spells[ct++];
+			spell->level = 1;
+			spell->cost = 0;
+			spell->fail = 0;
+			spell->fn = samurai_concentration_spell;
 
-			power_desc[num].level = 1;
-			power_desc[num].cost = 0;
-			power_desc[num].stat = A_WIS;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -3;
-	#ifdef JP
-	strcpy(power_desc[num].name, "型");
-	#else
-			strcpy(power_desc[num].name, "Assume a Posture");
-	#endif
-
-			power_desc[num].level = 25;
-			power_desc[num].cost = 0;
-			power_desc[num].stat = A_DEX;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -4;
+			spell = &spells[ct++];
+			spell->level = 25;
+			spell->cost = 0;
+			spell->fail = 0;
+			spell->fn = samurai_posture_spell;
 			break;
 		}
 		case CLASS_BLUE_MAGE:
 		{
-	#ifdef JP
-	strcpy(power_desc[num].name, "ラーニング");
-	#else
-			strcpy(power_desc[num].name, "Learning");
-	#endif
-
-			power_desc[num].level = 1;
-			power_desc[num].cost = 0;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -3;
+			spell_info* spell = &spells[ct++];
+			spell->level = 1;
+			spell->cost = 0;
+			spell->fail = 0;
+			spell->fn = blue_learning_spell;
 			break;
 		}
 		case CLASS_CAVALRY:
 		{
-	#ifdef JP
-	strcpy(power_desc[num].name, "荒馬ならし");
-	#else
-			strcpy(power_desc[num].name, "Rodeo");
-	#endif
-
-			power_desc[num].level = 10;
-			power_desc[num].cost = 0;
-			power_desc[num].stat = A_STR;
-			power_desc[num].fail = 10;
-			power_desc[num++].number = -3;
+			spell_info* spell = &spells[ct++];
+			spell->level = 10;
+			spell->cost = 0;
+			spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_STR]);
+			spell->fn = rodeo_spell;
 			break;
 		}
 		case CLASS_BERSERKER:
 		{
-	#ifdef JP
-	strcpy(power_desc[num].name, "帰還");
-	#else
-			strcpy(power_desc[num].name, "Recall");
-	#endif
-
-			power_desc[num].level = 10;
-			power_desc[num].cost = 10;
-			power_desc[num].stat = A_DEX;
-			power_desc[num].fail = 20;
-			power_desc[num++].number = -3;
+			spell_info* spell = &spells[ct++];
+			spell->level = 10;
+			spell->cost = 10;
+			spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_DEX]);
+			spell->fn = recall_spell;
 			break;
 		}
 		case CLASS_MIRROR_MASTER:
 		{
-	#ifdef JP
-	strcpy(power_desc[num].name, "鏡割り");
-	#else
-			strcpy(power_desc[num].name, "Break Mirrors");
-	#endif
+			spell_info* spell = &spells[ct++];
+			spell->level = 1;
+			spell->cost = 0;
+			spell->fail = 0;
+			spell->fn = break_mirrors_spell;
 
-			power_desc[num].level = 1;
-			power_desc[num].cost = 0;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -3;
-	#ifdef JP
-	strcpy(power_desc[num].name, "静水");
-	#else
-			strcpy(power_desc[num].name, "Mirror Concentration");
-	#endif
-
-			power_desc[num].level = 30;
-			power_desc[num].cost = 0;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 20;
-			power_desc[num++].number = -4;
+			spell = &spells[ct++];
+			spell->level = 30;
+			spell->cost = 0;
+			spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_INT]);
+			spell->fn = mirror_concentration_spell;
 			break;
 		}
 		case CLASS_SMITH:
 		{
-	#ifdef JP
-	strcpy(power_desc[num].name, "目利き");
-	#else
-			strcpy(power_desc[num].name, "Judgment");
-	#endif
-
-			power_desc[num].level = 5;
-			power_desc[num].cost = 15;
-			power_desc[num].stat = A_INT;
-			power_desc[num].fail = 20;
-			power_desc[num++].number = -3;
+			spell_info* spell = &spells[ct++];
+			spell->level = 5;
+			spell->cost = 15;
+			spell->fail = calculate_fail_rate(spell->level, 80, p_ptr->stat_ind[A_INT]);
+			spell->fn = smith_judgment_spell;
 			break;
 		}
 		case CLASS_NINJA:
 		{
-	#ifdef JP
-	strcpy(power_desc[num].name, "速駆け");
-	#else
-			strcpy(power_desc[num].name, "Quick Walk");
-	#endif
-
-			power_desc[num].level = 20;
-			power_desc[num].cost = 0;
-			power_desc[num].stat = A_DEX;
-			power_desc[num].fail = 0;
-			power_desc[num++].number = -3;
-			break;
-		}
-		case CLASS_WARLOCK:
-		{
-			switch (p_ptr->psubclass)
-			{
-			case PACT_UNDEAD:
-				strcpy(power_desc[num].name, "Satisfy Hunger");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
-
-				strcpy(power_desc[num].name, "Restore Life");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 30;
-				power_desc[num++].number = -4;
-
-				strcpy(power_desc[num].name, "Wraithform");
-				power_desc[num].level = 50;
-				power_desc[num].cost = 100;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 40;
-				power_desc[num++].number = -5;
-				break;
-
-			case PACT_DRAGON:
-				strcpy(power_desc[num].name, "Detect Objects");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
-
-				strcpy(power_desc[num].name, "Heroism");
-				power_desc[num].level = 15;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -4;
-
-				strcpy(power_desc[num].name, "Identify");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -5;
-
-				strcpy(power_desc[num].name, "Stone Skin");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 8;
-				power_desc[num++].number = -6;
-
-				strcpy(power_desc[num].name, "Dragon Breath");
-				power_desc[num].level = 50;
-				power_desc[num].cost = 30;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -7;
-				break;
-
-			case PACT_ANGEL:
-				strcpy(power_desc[num].name, "Light Area");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 6;
-				power_desc[num++].number = -3;
-
-				strcpy(power_desc[num].name, "Remove Curse");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -4;
-
-				strcpy(power_desc[num].name, "Earthquake");
-				power_desc[num].level = 30;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -5;
-
-				strcpy(power_desc[num].name, "Protection from Evil");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -6;
-
-				strcpy(power_desc[num].name, "Destruction");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -7;
-
-				strcpy(power_desc[num].name, "Invulnerability");
-				power_desc[num].level = 50;
-				power_desc[num].cost = 100;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 40;
-				power_desc[num++].number = -8;
-				break;
-
-			case PACT_DEMON:
-				strcpy(power_desc[num].name, "Phase Door");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
-
-				strcpy(power_desc[num].name, "Teleport");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -4;
-
-				strcpy(power_desc[num].name, "Teleport Level");
-				power_desc[num].level = 30;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 15;
-				power_desc[num++].number = -5;
-
-				strcpy(power_desc[num].name, "Recharge");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 40;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -6;
-				break;
-
-			case PACT_ABERRATION:
-				strcpy(power_desc[num].name, "Detect Monsters");
-				power_desc[num].level = 5;
-				power_desc[num].cost = 5;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -3;
-
-				strcpy(power_desc[num].name, "Detect Doors and Stairs");
-				power_desc[num].level = 20;
-				power_desc[num].cost = 10;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -4;
-
-				strcpy(power_desc[num].name, "Polymorph Self");
-				power_desc[num].level = 30;
-				power_desc[num].cost = 30;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 20;
-				power_desc[num++].number = -5;
-
-				strcpy(power_desc[num].name, "Magic Mapping");
-				power_desc[num].level = 35;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 10;
-				power_desc[num++].number = -6;
-
-				strcpy(power_desc[num].name, "Dimension Door");
-				power_desc[num].level = 50;
-				power_desc[num].cost = 20;
-				power_desc[num].stat = A_CHR;
-				power_desc[num].fail = 12;
-				power_desc[num++].number = -7;
-				break;
-			}
+			spell_info* spell = &spells[ct++];
+			spell->level = 20;
+			spell->cost = 0;
+			spell->fail = 0;
+			spell->fn = quick_walk_spell;
 			break;
 		}
 	}
+
 	return ct;
 }
-*/

@@ -3491,130 +3491,6 @@ void calc_bonuses(void)
 		p_ptr->see_nocto = TRUE;
 		break;
 
-	case CLASS_WARLOCK:
-		switch (p_ptr->psubclass)
-		{
-		case PACT_UNDEAD:
-			p_ptr->resist_cold = TRUE;
-			p_ptr->skill_stl += 7 * p_ptr->lev/50;
-			if (p_ptr->lev > 14) p_ptr->resist_pois = TRUE;
-			p_ptr->stat_add[A_CON] += 5 * p_ptr->lev/50;
-			if (p_ptr->lev > 29) 
-			{
-				p_ptr->resist_neth = TRUE;
-				p_ptr->hold_life = TRUE;
-			}
-			if (p_ptr->lev > 34) 
-			{
-				p_ptr->resist_dark = TRUE;
-				p_ptr->resist_blind = TRUE;
-			}
-			if (p_ptr->lev > 44) p_ptr->resist_shard = TRUE;
-			break;
-		case PACT_DRAGON:
-			p_ptr->resist_fear = TRUE;
-			p_ptr->skill_thn += 100 * p_ptr->lev / 50; /* Yeah, += p_ptr->lev is the same, but I want to tweak it */
-			if (p_ptr->lev > 14) p_ptr->levitation = TRUE; 
-			p_ptr->stat_add[A_STR] += 5 * p_ptr->lev / 50;
-			p_ptr->weapon_info[0].to_h += 10 * p_ptr->lev / 50;
-			p_ptr->weapon_info[0].dis_to_h +=  10 * p_ptr->lev / 50;
-			p_ptr->weapon_info[0].to_d += 10 * p_ptr->lev / 50;
-			p_ptr->weapon_info[0].dis_to_d += 10 * p_ptr->lev / 50;
-			p_ptr->weapon_info[1].to_h += 10 * p_ptr->lev / 50;
-			p_ptr->weapon_info[1].dis_to_h +=  10 * p_ptr->lev / 50;
-			p_ptr->weapon_info[1].to_d += 10 * p_ptr->lev / 50;
-			p_ptr->weapon_info[1].dis_to_d += 10 * p_ptr->lev / 50;
-			if (p_ptr->lev > 29) p_ptr->sustain_con = TRUE;
-			if (p_ptr->lev > 29)
-			{
-				/* only give it if they don't already have it */
-				if (!mut_present(MUT_RESIST))
-				{
-					mut_gain(MUT_RESIST);
-					mut_lock(MUT_RESIST);
-				}
-			}
-			/* only remove it if they got it from us ... hey, they could have used !Poly */
-			else if (mut_present(MUT_RESIST) && mut_locked(MUT_RESIST))
-			{
-				mut_unlock(MUT_RESIST);
-				mut_lose(MUT_RESIST);
-			}
-			if (p_ptr->lev > 44)
-			{
-				/* only give it if they don't already have it */
-				if (!mut_present(MUT_BERSERK))
-				{
-					mut_gain(MUT_BERSERK);
-					mut_lock(MUT_BERSERK);
-				}
-			}
-			/* only remove it if they got it from us ... hey, they could have used !Poly */
-			else if (mut_present(MUT_BERSERK) && mut_locked(MUT_BERSERK))
-			{
-				mut_unlock(MUT_BERSERK);
-				mut_lose(MUT_BERSERK);
-			}
-			break;
-		case PACT_ANGEL:
-			p_ptr->levitation = TRUE;
-			p_ptr->skill_sav += 30 * p_ptr->lev/50;
-			if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
-			p_ptr->stat_add[A_WIS] += 5 * p_ptr->lev/50;
-			if (p_ptr->lev > 34) p_ptr->reflect = TRUE;
-			break;
-		case PACT_DEMON:
-			p_ptr->resist_fire = TRUE;
-			p_ptr->skill_dev += 50 * p_ptr->lev/50;
-			if (p_ptr->lev > 14) p_ptr->hold_life = TRUE;
-			p_ptr->stat_add[A_INT] += 5 * p_ptr->lev/50;
-			if (p_ptr->lev > 44)
-				p_ptr->kill_wall = TRUE;
-			if (p_ptr->lev > 49)
-				p_ptr->immune_fire = TRUE;
-			break;
-		case PACT_ABERRATION:
-			if (!mut_present(MUT_HORNS))
-			{
-				mut_gain(MUT_HORNS);
-				mut_lock(MUT_HORNS);
-			}
-			p_ptr->skill_thb += 100 * p_ptr->lev/50;
-			if (p_ptr->lev > 14)
-			{
-				/* only give it if they don't already have it */
-				if (!mut_present(MUT_BEAK))
-				{
-					mut_gain(MUT_BEAK);
-					mut_lock(MUT_BEAK);
-				}
-			}
-			/* only remove it if they got it from us ... hey, they could have used !Poly */
-			else if (mut_present(MUT_BEAK) && mut_locked(MUT_BEAK))
-			{
-				mut_unlock(MUT_BEAK);
-				mut_lose(MUT_BEAK);
-			}
-			if (p_ptr->lev > 14)
-			{
-				/* only give it if they don't already have it */
-				if (!mut_present(MUT_TENTACLES))
-				{
-					mut_gain(MUT_TENTACLES);
-					mut_lock(MUT_TENTACLES);
-				}
-			}
-			/* only remove it if they got it from us ... hey, they could have used !Poly */
-			else if (mut_present(MUT_TENTACLES) && mut_locked(MUT_TENTACLES))
-			{
-				mut_unlock(MUT_TENTACLES);
-				mut_lose(MUT_TENTACLES);
-			}
-			p_ptr->stat_add[A_DEX] += 5 * p_ptr->lev/50;
-			if (p_ptr->lev > 44) p_ptr->telepathy = TRUE;	/* Easier then granting MUT3_ESP :) */
-			break;
-		}
-		break;
 	}
 
 	/***** Races ****/
@@ -5035,9 +4911,9 @@ void calc_bonuses(void)
 				p_ptr->num_fire += (p_ptr->lev * 2);
 			}
 			if (p_ptr->pclass == CLASS_WARLOCK &&
-			    p_ptr->psubclass == PACT_ABERRATION &&
-			    p_ptr->tval_ammo <= TV_BOLT &&
-			    p_ptr->tval_ammo >= TV_SHOT)
+				p_ptr->psubclass == PACT_ABERRATION &&
+				p_ptr->tval_ammo <= TV_BOLT &&
+				p_ptr->tval_ammo >= TV_SHOT)
 			{
 				p_ptr->num_fire += (p_ptr->lev * 2);
 			}
