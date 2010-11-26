@@ -988,6 +988,7 @@ class_t *warlock_get_class_t(int psubclass)
 {
 	static class_t me = {0};
 	static bool init = FALSE;
+	static int pact_init = -1;
 
 	/* static info never changes */
 	if (!init)
@@ -1013,29 +1014,32 @@ class_t *warlock_get_class_t(int psubclass)
 		init = TRUE;
 	}
 
-	/* dynamic info */
-	switch (psubclass)
+	if (pact_init != psubclass)
 	{
-	case PACT_UNDEAD:
-		me.calc_bonuses = _undead_calc_bonuses;
-		me.get_powers = _undead_get_powers;
-		break;
-	case PACT_DRAGON:
-		me.calc_bonuses = _dragon_calc_bonuses;
-		me.get_powers = _dragon_get_powers;
-		break;
-	case PACT_ANGEL:
-		me.calc_bonuses = _angel_calc_bonuses;
-		me.get_powers = _angel_get_powers;
-		break;
-	case PACT_DEMON:
-		me.calc_bonuses = _demon_calc_bonuses;
-		me.get_powers = _demon_get_powers;
-		break;
-	case PACT_ABERRATION:
-		me.calc_bonuses = _aberration_calc_bonuses;
-		me.get_powers = _aberration_get_powers;
-		break;
+		switch (psubclass)
+		{
+		case PACT_UNDEAD:
+			me.calc_bonuses = _undead_calc_bonuses;
+			me.get_powers = _undead_get_powers;
+			break;
+		case PACT_DRAGON:
+			me.calc_bonuses = _dragon_calc_bonuses;
+			me.get_powers = _dragon_get_powers;
+			break;
+		case PACT_ANGEL:
+			me.calc_bonuses = _angel_calc_bonuses;
+			me.get_powers = _angel_get_powers;
+			break;
+		case PACT_DEMON:
+			me.calc_bonuses = _demon_calc_bonuses;
+			me.get_powers = _demon_get_powers;
+			break;
+		case PACT_ABERRATION:
+			me.calc_bonuses = _aberration_calc_bonuses;
+			me.get_powers = _aberration_get_powers;
+			break;
+		}
+		pact_init = psubclass;
 	}
 
 	return &me;

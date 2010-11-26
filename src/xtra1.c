@@ -1089,15 +1089,21 @@ static void prt_sp(void)
 
 static void prt_blood_points(void)
 {
+	return;
+
+	/*
 	char tmp[32];
 	byte color = TERM_L_GREEN;
 
-	/* For now, I'm showing blood points where mana would normally
+	if (p_ptr->pclass != CLASS_BLOOD_KNIGHT) return;
+
+	* For now, I'm showing blood points where mana would normally
 	   be displayed.  Only Blood Knights currently use these, and
-	   they don't have mana */
+	   they don't have mana *
 	put_str("BP", ROW_CURSP, COL_CURSP);
 	sprintf(tmp, "%4ld", p_ptr->blood_points);
 	c_put_str(color, tmp, ROW_CURSP, COL_CURSP+3);
+	*/
 }
 
 
@@ -3413,10 +3419,6 @@ void calc_bonuses(void)
 			p_ptr->pspeed += 3;
 		}
 		break;
-	case CLASS_BLOOD_KNIGHT:
-		p_ptr->regenerate = TRUE;
-		if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
-		break;
 
 	case CLASS_MONK:
 	case CLASS_FORCETRAINER:
@@ -4534,67 +4536,6 @@ void calc_bonuses(void)
 		p_ptr->weapon_info[0].dis_to_d += 35;
 		p_ptr->weapon_info[1].dis_to_d += 35;
 	}
-	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && p_ptr->cut > 0)
-	{
-		int to_h = 0;
-		int to_d = 0;
-		int to_stealth = 0;
-		if (p_ptr->cut >= CUT_MORTAL_WOUND)
-		{
-			to_h = 25;
-			to_d = 25;
-			to_stealth = -10;
-		}
-		else if (p_ptr->cut >= CUT_DEEP_GASH)
-		{
-			to_h = 15;
-			to_d = 15;
-			to_stealth = -3;
-		}
-		else if (p_ptr->cut >= CUT_SEVERE)
-		{
-			to_h = 8;
-			to_d = 8;
-			to_stealth = -2;
-		}
-		else if (p_ptr->cut >= CUT_NASTY)
-		{
-			to_h = 6;
-			to_d = 6;
-			to_stealth = -2;
-		}
-		else if (p_ptr->cut >= CUT_BAD)
-		{
-			to_h = 4;
-			to_d = 4;
-			to_stealth = -1;
-		}
-		else if (p_ptr->cut >= CUT_LIGHT)
-		{
-			to_h = 2;
-			to_d = 2;
-			to_stealth = -1;
-		}
-		else
-		{
-			to_h = 1;
-			to_d = 1;
-			to_stealth = -1;
-		}
-		p_ptr->weapon_info[0].to_h += to_h;
-		p_ptr->weapon_info[1].to_h += to_h;
-		p_ptr->to_h_m  += to_h;
-		p_ptr->weapon_info[0].dis_to_h += to_h;
-		p_ptr->weapon_info[1].dis_to_h += to_h;
-
-		p_ptr->weapon_info[0].to_d += to_d;
-		p_ptr->weapon_info[1].to_d += to_d;
-		p_ptr->to_d_m  += to_d;
-		p_ptr->weapon_info[0].dis_to_d += to_d;
-		p_ptr->weapon_info[1].dis_to_d += to_d;
-
-		p_ptr->skill_stl += to_stealth;
-	}
 
 	/* Temporary "fast" */
 	if (IS_FAST())
@@ -5133,21 +5074,6 @@ void calc_bonuses(void)
 			/* Various spells and effects for extra blows */
 			if (p_ptr->tim_speed_essentia)
 				p_ptr->weapon_info[i].num_blow += 2;
-
-			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
-			{
-				int frac = p_ptr->chp * 100 / p_ptr->mhp;
-				if (frac < 20 && p_ptr->lev > 48)
-					p_ptr->weapon_info[i].num_blow += 9;
-				else if (frac < 40 && p_ptr->lev > 36)
-					p_ptr->weapon_info[i].num_blow += 6;
-				else if (frac < 60 &&  p_ptr->lev > 24)
-					p_ptr->weapon_info[i].num_blow += 4;
-				else if (frac < 80 && p_ptr->lev > 12)
-					p_ptr->weapon_info[i].num_blow += 2;
-				else if (p_ptr->chp < p_ptr->mhp) /* Hack: frac might be 100 if we are just slightly wounded */
-					p_ptr->weapon_info[i].num_blow += 1;
-			}
 			
 			if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->weapon_info[i].num_blow += (p_ptr->lev / 40);
 			else if (p_ptr->pclass == CLASS_BERSERKER)

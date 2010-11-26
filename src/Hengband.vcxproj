@@ -85,6 +85,7 @@
     <ClCompile Include="bard.c" />
     <ClCompile Include="birth.c" />
     <ClCompile Include="bldg.c" />
+    <ClCompile Include="blood_knight.c" />
     <ClCompile Include="blue_mage.c" />
     <ClCompile Include="cavalry.c" />
     <ClCompile Include="cave.c" />

@@ -233,7 +233,7 @@ _rush_result _rush_attack(int rng, _rush_type type)
 		}
 
 		/* Move player before updating the monster */
-		if (!player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
+		if (!player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
 		moved = TRUE;
 
 		/* Update the monster */
@@ -266,7 +266,7 @@ _rush_result _rush_attack(int rng, _rush_type type)
 		break;
 	}
 
-	if (!moved && !player_bold(ty, tx)) teleport_player_to(ty, tx, TELEPORT_NONMAGICAL);
+	if (!moved && !player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
 	return result;
 }
 
@@ -620,8 +620,6 @@ class_t *duelist_get_class_t(void)
 		me.get_spells = _get_spells;
 		init = TRUE;
 	}
-
-	/* dynamic info */
 
 	return &me;
 }

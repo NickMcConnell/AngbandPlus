@@ -275,9 +275,8 @@
 #define MIND_MIRROR_MASTER  3
 #define MIND_NINJUTSU       4
 #define MIND_TIME_LORD		5
-#define MIND_BLOOD_KNIGHT	6
 
-#define MIND_MAX_CLASSES	7
+#define MIND_MAX_CLASSES	6
 
 
 /*

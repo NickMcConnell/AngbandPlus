@@ -133,9 +133,7 @@ static void wiz_create_named_art(int a_idx)
  */
 static void do_cmd_wiz_hack_ben(void)
 {
-	/* Oops */
-	msg_print("Oops.");
-	(void)probing();
+	wall_stone();
 }
 
 

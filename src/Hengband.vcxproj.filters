@@ -282,6 +282,9 @@
     <ClCompile Include="races.c">
       <Filter>Races</Filter>
     </ClCompile>
+    <ClCompile Include="blood_knight.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

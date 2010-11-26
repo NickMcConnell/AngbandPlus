@@ -4189,8 +4189,7 @@ msg_print("ウィザードモード突入。");
 			     (p_ptr->pclass == CLASS_BERSERKER) ||
 			     (p_ptr->pclass == CLASS_NINJA) ||
 			     (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
-				 (p_ptr->pclass == CLASS_TIME_LORD) ||
-				 (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+				 (p_ptr->pclass == CLASS_TIME_LORD)
 			     ) do_cmd_mind_browse();
 			else if (p_ptr->pclass == CLASS_SMITH)
 				do_cmd_kaji(TRUE);
@@ -4200,7 +4199,8 @@ msg_print("ウィザードモード突入。");
 				do_cmd_snipe_browse();
 			else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
 			         p_ptr->pclass == CLASS_DUELIST ||
-					 p_ptr->pclass == CLASS_WARLOCK)
+					 p_ptr->pclass == CLASS_WARLOCK ||
+					 p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 			{
 				/* This is the preferred entry point ... I'm still working on
 				   coverting everything else */
@@ -4305,8 +4305,7 @@ msg_print("ウィザードモード突入。");
 					    (p_ptr->pclass == CLASS_BERSERKER) ||
 					    (p_ptr->pclass == CLASS_NINJA) ||
 					    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
-						(p_ptr->pclass == CLASS_TIME_LORD) ||
-						(p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+						(p_ptr->pclass == CLASS_TIME_LORD)
 					    )
 						do_cmd_mind();
 					else if (p_ptr->pclass == CLASS_IMITATOR)
@@ -4323,7 +4322,8 @@ msg_print("ウィザードモード突入。");
 						do_cmd_snipe();
 					else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
 					         p_ptr->pclass == CLASS_DUELIST ||
-							 p_ptr->pclass == CLASS_WARLOCK)
+							 p_ptr->pclass == CLASS_WARLOCK ||
+							 p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */

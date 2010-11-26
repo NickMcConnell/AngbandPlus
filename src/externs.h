@@ -1807,6 +1807,9 @@ extern void bard_start_singing(int spell, int song);
 extern void bard_stop_singing(void);
 extern void bard_stop_singing_spell(int cmd, variant *res);
 
+/* blood_knight.c */
+extern class_t *blood_knight_get_class_t(void);
+
 /* blue_mage.c */
 extern void blue_learning_spell(int cmd, variant *res);
 
@@ -1821,7 +1824,7 @@ extern int duelist_skill_sav(int m_idx);
 
 /* magic_eater.c */
 extern void absorb_magic_spell(int cmd, variant *res);
-extern void cast_abosrb_magic(void);
+extern bool cast_abosrb_magic(void);
 
 /* mirror.c */
 extern void break_mirrors_spell(int cmd, variant *res);

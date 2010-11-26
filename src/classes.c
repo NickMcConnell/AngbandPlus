@@ -21,6 +21,9 @@ class_t *result = NULL;
 	case CLASS_WARLOCK:
 		result = warlock_get_class_t(psubclass);
 		break;
+	case CLASS_BLOOD_KNIGHT:
+		result = blood_knight_get_class_t();
+		break;
 	}
 
 	return result;

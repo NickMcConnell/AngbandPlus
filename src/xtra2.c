@@ -1843,10 +1843,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			if (r_ptr->d_char == 'p' || (r_ptr->flags2 & RF2_HUMAN))
 			{
-				p_ptr->blood_points += r_ptr->level/10;
+			/*	p_ptr->blood_points += r_ptr->level/10;
 				if (p_ptr->blood_points > 1000)
 					p_ptr->blood_points = 1000;
-				p_ptr->redraw |= PR_BLOOD_POINTS;
+				p_ptr->redraw |= PR_BLOOD_POINTS; */
 			}
 		}
 

@@ -1953,7 +1953,10 @@ static void display_player_middle(void)
 
 	/* Dump mana power */
 	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+	{/*
 		display_player_one_line(ENTRY_BLOOD_POINTS, format("%4d", p_ptr->blood_points), TERM_L_GREEN);
+	*/
+	}
 	else
 	{
 		if (p_ptr->csp >= p_ptr->msp) 
