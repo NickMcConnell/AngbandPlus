@@ -2185,7 +2185,10 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		/* Test for hit */
 		if (success_hit)
 		{
-			int vorpal_chance = ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD)) ? 2 : 4;
+			int vorpal_chance = 
+				((o_ptr->name1 == ART_VORPAL_BLADE) || 
+				 (o_ptr->name1 == ART_CHAINSWORD) ||
+				 (o_ptr->name1 == ART_MURAMASA)) ? 2 : 4;
 
 			/* Sound */
 			sound(SOUND_HIT);
@@ -2797,6 +2800,15 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 #endif
 							o_ptr->to_h = to_h;
 							o_ptr->to_d = to_d;
+
+							if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+							{
+								msg_print("Muramasa shares the blood with you!");
+								p_ptr->blood_points += 100;
+								if (p_ptr->blood_points > 1000)
+									p_ptr->blood_points = 1000;
+								p_ptr->redraw |= PR_BLOOD_POINTS;
+							}
 						}
 					}
 				}

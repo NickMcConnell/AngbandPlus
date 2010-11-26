@@ -3078,7 +3078,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 
 	if (o_ptr->name1 == ART_MURAMASA)
 	{
-		if (p_ptr->pclass != CLASS_SAMURAI)
+		if (p_ptr->pclass != CLASS_SAMURAI && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
 		{
 			add_flag(o_ptr->art_flags, TR_NO_MAGIC);
 			o_ptr->curse_flags |= (TRC_HEAVY_CURSE);

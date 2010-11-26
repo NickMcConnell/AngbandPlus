@@ -658,6 +658,8 @@ static void wr_extra(void)
 	wr_s32b(p_ptr->csp);
 	wr_u32b(p_ptr->csp_frac);
 
+	wr_s32b(p_ptr->blood_points);
+
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_plv);
 	tmp8u = (byte)max_d_idx;

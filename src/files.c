@@ -1578,6 +1578,7 @@ errr check_load_init(void)
 #define ENTRY_EXP_ANDR 43
 #define ENTRY_EXP_TO_ADV_ANDR 44
 #define ENTRY_PACT 45
+#define ENTRY_BLOOD_POINTS 46
 
 static struct
 {
@@ -1682,6 +1683,7 @@ static struct
 	{29, 14, 21, "Construction"},
 	{29, 16, 21, "Const to Adv"},
 	{ 1,  6, -1, "Pact     : "},
+	{29, 11, 21, "Blood Pts"},
 };
 #endif
 
@@ -1950,12 +1952,17 @@ static void display_player_middle(void)
 		display_player_one_line(ENTRY_HP, format("%4d/%4d", p_ptr->chp , p_ptr->mhp), TERM_RED);
 
 	/* Dump mana power */
-	if (p_ptr->csp >= p_ptr->msp) 
-		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_L_GREEN);
-	else if (p_ptr->csp > (p_ptr->msp * mana_warn) / 10) 
-		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_YELLOW);
+	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+		display_player_one_line(ENTRY_BLOOD_POINTS, format("%4d", p_ptr->blood_points), TERM_L_GREEN);
 	else
-		display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_RED);
+	{
+		if (p_ptr->csp >= p_ptr->msp) 
+			display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_L_GREEN);
+		else if (p_ptr->csp > (p_ptr->msp * mana_warn) / 10) 
+			display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_YELLOW);
+		else
+			display_player_one_line(ENTRY_SP, format("%4d/%4d", p_ptr->csp , p_ptr->msp), TERM_RED);
+	}
 
 	/* Dump play time */
 	display_player_one_line(ENTRY_PLAY_TIME, format("%.2lu:%.2lu:%.2lu", playtime/(60*60), (playtime/60)%60, playtime%60), TERM_L_GREEN);

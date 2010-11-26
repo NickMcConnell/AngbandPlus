@@ -530,11 +530,11 @@ static struct {
 	{TERM_WHITE, "Cu", "Cure"},
 	{TERM_L_DARK, "ET", "EvilTele"},
 	{TERM_RED, "At", "Attacks"},
-	{TERM_RED, "Sh", "Shield"},
-	{TERM_L_RED, "Sk", "Seek"},
+	{TERM_ORANGE, "Sh", "Shield"},
+	{TERM_YELLOW, "Sk", "Seek"},
 	{TERM_RED, "Rv", "Revenge"},
-	{TERM_L_RED, "Si", "Sight"},
-	{TERM_RED, "Fs", "Feast"},
+	{TERM_L_BLUE, "Si", "Sight"},
+	{TERM_WHITE, "Fs", "Feast"},
 	{TERM_VIOLET, "NS", "No Spells"},
 	{TERM_YELLOW, "Ts", "Spurt"},
 	{TERM_L_BLUE, "Sp", "Special"},
@@ -1085,6 +1085,19 @@ static void prt_sp(void)
 	color = TERM_L_GREEN;
 
 	c_put_str(color, tmp, ROW_CURSP, COL_CURSP + 8);
+}
+
+static void prt_blood_points(void)
+{
+	char tmp[32];
+	byte color = TERM_L_GREEN;
+
+	/* For now, I'm showing blood points where mana would normally
+	   be displayed.  Only Blood Knights currently use these, and
+	   they don't have mana */
+	put_str("BP", ROW_CURSP, COL_CURSP);
+	sprintf(tmp, "%4ld", p_ptr->blood_points);
+	c_put_str(color, tmp, ROW_CURSP, COL_CURSP+3);
 }
 
 
@@ -1796,6 +1809,8 @@ static void prt_frame_basic(void)
 
 	/* Spellpoints */
 	prt_sp();
+
+	prt_blood_points();
 
 	/* Gold */
 	prt_gold();
@@ -3269,8 +3284,6 @@ void calc_bonuses(void)
 
 	p_ptr->align = friend_align;
 
-
-	mut_calc_bonuses();
 
 	if (p_ptr->mimic_form) tmp_rp_ptr = &mimic_info[p_ptr->mimic_form];
 	else tmp_rp_ptr = &race_info[p_ptr->prace];
@@ -6102,6 +6115,12 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_MANA);
 		prt_sp();
+	}
+
+	if (p_ptr->redraw & PR_BLOOD_POINTS)
+	{
+		p_ptr->redraw &= ~PR_BLOOD_POINTS;
+		prt_blood_points();
 	}
 
 	if (p_ptr->redraw & (PR_GOLD))

@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 18
+#define FAKE_VER_PATCH 19
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 18
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 19
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -2722,6 +2722,7 @@
 #define PR_BASIC        0x02000000L     /* Display Basic Info */
 #define PR_MAP          0x04000000L     /* Display Map */
 #define PR_WIPE         0x08000000L     /* Hack -- Total Redraw */
+#define PR_BLOOD_POINTS 0x10000000L
 /* xxx */
 /* xxx */
 /* xxx */

@@ -1019,6 +1019,8 @@ struct player_type
 	s32b csp;			/* Cur mana pts */
 	u32b csp_frac;		/* Cur mana frac (times 2^16) */
 
+	s32b blood_points;
+
 	s16b max_plv;		/* Max Player Level */
 
 	s16b stat_max[6];	/* Current "maximal" stat values */

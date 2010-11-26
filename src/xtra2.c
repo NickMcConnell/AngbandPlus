@@ -1838,6 +1838,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	{
 		char m_name[80];
 
+		/* Blood Points */
+		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+		{
+			if (r_ptr->d_char == 'p' || (r_ptr->flags2 & RF2_HUMAN))
+			{
+				p_ptr->blood_points += r_ptr->level/10;
+				if (p_ptr->blood_points > 1000)
+					p_ptr->blood_points = 1000;
+				p_ptr->redraw |= PR_BLOOD_POINTS;
+			}
+		}
+
+
 		if (r_info[m_ptr->r_idx].flags7 & RF7_TANUKI)
 		{
 			/* You might have unmasked Tanuki first time */

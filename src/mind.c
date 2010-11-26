@@ -319,8 +319,8 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
       { 30, 60,  40, "Blood Rage"},
       { 40, 60,  50, "Blood Feast"},
 	  { 42, 60,   0, "Blood Revenge"},
-	  { 45,200,  90, "Blood Pool"},
-      { 50,500,  70, "Blood Explosion"},
+	  { 45, 60,  50, "Blood Pool"},
+      { 50,500,  60, "Blood Explosion"},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
       { 99,  0,   0, ""},
@@ -481,7 +481,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 				case 2: sprintf(p, " %s%d+3d5", s_dam, plev + plev/4); break;
 				case 4: sprintf(p, " %s30+1d20", s_dur); break;
 				case 5: sprintf(p, " %s30+1d30", s_dur); break;
-				case 6: sprintf(p, " %s%d+d%d", s_dur, plev, plev); break;
+				case 6: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2); break;
 				case 8: sprintf(p, " %s25+1d25", s_dur); break;
 				case 9: sprintf(p, " %s%d+d%d", s_dur, 5, 5); break;
 				case 11: sprintf(p, " %s500", s_dam); break;
@@ -1715,7 +1715,7 @@ static bool cast_blood_knight_spell(int spell)
 	
 	case 6: /* Blood Rage */
 	    {
-			int dur = randint1(plev) + plev;
+			int dur = randint1(plev/2) + plev/2;
 			set_fast(dur, FALSE);
 			set_shero(dur, FALSE);
 			set_afraid(0, TRUE);
@@ -1727,6 +1727,7 @@ static bool cast_blood_knight_spell(int spell)
 		{
 			if (!get_check("Cancel the Blood Feast? ")) return FALSE;
 			set_tim_blood_feast(0, TRUE);
+			return FALSE;	/* OK ... no charge to cancel the feast as well! */
 		}
 		else
 			set_tim_blood_feast(randint1(25) + 25, FALSE);
@@ -1737,19 +1738,39 @@ static bool cast_blood_knight_spell(int spell)
 		break;
 
 	case 9: /* Blood Pool */
+	{
+		object_type forge, *q_ptr = &forge;
+		const int blood_cost = 100;
+		if (p_ptr->blood_points < blood_cost)
 		{
-			object_type forge, *q_ptr = &forge;
-			msg_print("You feel light headed.");
-			object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_BLOOD));
-			drop_near(q_ptr, -1, py, px);
+			msg_print("You need more blood!");
+			return FALSE;
 		}
+
+		msg_print("You feel light headed.");
+		object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_BLOOD));
+		drop_near(q_ptr, -1, py, px);
+		p_ptr->blood_points -= blood_cost;
+		p_ptr->redraw |= PR_BLOOD_POINTS;
 		break;
-	
+	}	
 	case 10: /* Blood Explosion */
+	{
+		const int blood_cost = 0;
+		if (p_ptr->blood_points < blood_cost)
+		{
+			msg_print("You need more blood!");
+			return FALSE;
+		}
 		msg_print("You cut too deep ... Your blood explodes!");
 		dispel_living(500);
+		if (blood_cost > 0)
+		{
+			p_ptr->blood_points -= blood_cost;
+			p_ptr->redraw |= PR_BLOOD_POINTS;
+		}
 		break;
-	
+	}
 	default:
 		msg_print("Zap?");
 		break;

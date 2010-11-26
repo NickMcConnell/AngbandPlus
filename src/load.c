@@ -1286,6 +1286,11 @@ static void rd_extra(void)
 	rd_s32b(&p_ptr->csp);
 	rd_u32b(&p_ptr->csp_frac);
 
+	if (h_older_than(0, 0, 19, 1))
+		p_ptr->blood_points = 0;
+	else
+		rd_s32b(&p_ptr->blood_points);
+
 	rd_s16b(&p_ptr->max_plv);
 	if (1)
 	{

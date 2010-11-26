@@ -6693,7 +6693,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 	if (p_ptr->tim_blood_shield)
 	{
-		int factor = 50 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp;
+		int factor = (p_ptr->lev * 7/10) * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp;
 		dam -= dam * factor / 100;
 	}
 
