@@ -2228,6 +2228,14 @@ static void process_world_aux_timeout(void)
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
 
+		/* Blood Knights thrive on cuts, and even regen while cut.
+		   So, cuts heal much more slowly */
+		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+		{
+			adjust /= 3;
+			if (adjust < 1) adjust = 1;
+		}
+
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust, TRUE);
 	}

@@ -230,6 +230,22 @@ void _blood_revenge_spell(int cmd, variant *res)
 	}
 }
 
+static int _count_blood_potions(void)
+{
+	int result = 0, i;
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		if (!o_ptr->k_idx) continue;
+
+		if (o_ptr->tval == TV_POTION && o_ptr->sval == SV_POTION_BLOOD)
+			result += o_ptr->number;
+	}
+
+	return result;
+}
+
 void _blood_pool_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -242,21 +258,31 @@ void _blood_pool_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 	{
-		object_type forge, *q_ptr = &forge;
-		const int blood_cost = 100;
+		object_type forge;
+		int ct = _count_blood_potions();
 
-		var_set_bool(res, FALSE);
-		if (p_ptr->blood_points < blood_cost)
+		if (ct >= 30)
 		{
-			msg_print("You need more blood!");
+			msg_print("You have too many blood potions at the moment.  Why not drink some?");
+			var_set_bool(res, FALSE);
 			return;
 		}
 
 		msg_print("You feel light headed.");
-		object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_BLOOD));
-		drop_near(q_ptr, -1, py, px);
-		p_ptr->blood_points -= blood_cost;
-		p_ptr->redraw |= PR_BLOOD_POINTS;
+		object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_BLOOD));
+
+		/* We can't just drop potions on the ground, or the user can spam the spell! */
+		if (!inven_carry_okay(&forge))
+		{
+			msg_print("Your pack is full!  The potion goes sour ...");
+			object_prep(&forge, lookup_kind(TV_POTION, SV_POTION_SALT_WATER));
+			drop_near(&forge, -1, py, px);
+		}
+		else
+		{
+			inven_carry(&forge);
+			msg_print("You store your blood for future use.");
+		}
 		var_set_bool(res, TRUE);
 		break;
 	}
@@ -281,20 +307,8 @@ void _blood_explosion_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 	{
-		const int blood_cost = 0;
-		var_set_bool(res, FALSE);
-		if (p_ptr->blood_points < blood_cost)
-		{
-			msg_print("You need more blood!");
-			return;
-		}
 		msg_print("You cut too deep ... Your blood explodes!");
 		dispel_living(500);
-		if (blood_cost > 0)
-		{
-			p_ptr->blood_points -= blood_cost;
-			p_ptr->redraw |= PR_BLOOD_POINTS;
-		}
 		var_set_bool(res, TRUE);
 		break;
 	}
@@ -305,7 +319,7 @@ void _blood_explosion_spell(int cmd, variant *res)
 }
 
 
-#define MAX_BLOOD_KNIGHT_SPELLS	10
+#define MAX_BLOOD_KNIGHT_SPELLS	11
 
 static spell_info _spells[MAX_BLOOD_KNIGHT_SPELLS] = 
 {
@@ -318,7 +332,8 @@ static spell_info _spells[MAX_BLOOD_KNIGHT_SPELLS] =
     { 25, 50,  40, _blood_seeking_spell},
     { 30, 60,  40, _blood_rage_spell},
     { 40, 60,  50, _blood_feast_spell},
-	{ 45, 60,   0, _blood_revenge_spell},
+	{ 42, 60,   0, _blood_revenge_spell},
+	{ 45,200,   0, _blood_pool_spell},
 	{ 50,500,  60, _blood_explosion_spell},
 }; 
 

@@ -145,6 +145,7 @@ static cptr desc_moan[] =
 
 };
 
+bool nemesis_hack;
 
 /*
  * Attack the player via physical attacks.
@@ -216,6 +217,7 @@ bool make_attack_normal(int m_idx)
 	blinked = FALSE;
 
 	/* Scan through all four blows */
+	nemesis_hack = FALSE;
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
 		bool obvious = FALSE;
@@ -233,6 +235,9 @@ bool make_attack_normal(int m_idx)
 
 
 		if (!m_ptr->r_idx) break;
+
+		/* Call off the attacks on the Duelist's Nemesis power */
+		if (nemesis_hack) break;
 
 		/* Hack -- no more attacks */
 		if (!method) break;
@@ -1899,7 +1904,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			{
 				if (p_ptr->tim_blood_revenge && alive && !p_ptr->is_dead && monster_living(r_ptr))
 				{   /* Scale the damage based on cuts and monster deadliness */
-					int dam = damage * p_ptr->cut / CUT_DEEP_GASH;
+					int dam = damage * p_ptr->cut / CUT_SEVERE;
 
 					/* Balance out a weak melee attack */
 					if (dam < p_ptr->cut / 10)

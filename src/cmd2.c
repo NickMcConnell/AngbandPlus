@@ -4200,6 +4200,12 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		return FALSE;
 	}
 
+	if (o_ptr->tval == TV_POTION && o_ptr->sval == SV_POTION_BLOOD)
+	{
+		msg_print("You can't do that!  Your blood will go sour!");
+		return FALSE;
+	}
+
 	if (p_ptr->inside_arena && !boomerang)
 	{
 		if (o_ptr->tval != TV_SPIKE)

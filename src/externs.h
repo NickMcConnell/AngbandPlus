@@ -1821,6 +1821,7 @@ extern cptr duelist_current_challenge(void);
 extern class_t *duelist_get_class_t(void);
 extern bool duelist_issue_challenge(void);
 extern int duelist_skill_sav(int m_idx);
+extern bool nemesis_hack;	/* Actually, its in melee1.c */
 
 /* magic_eater.c */
 extern void absorb_magic_spell(int cmd, variant *res);

@@ -3873,6 +3873,11 @@ static void store_sell(void)
 		return;
 	}
 
+	if (o_ptr->tval == TV_POTION && o_ptr->sval == SV_POTION_BLOOD)
+	{
+		msg_print("You can't do that!  Your blood will go sour!");
+		return;
+	}
 
 	/* Assume one item */
 	amt = 1;

@@ -2646,6 +2646,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					msg_format("%^s is dealt a wounding strike.", m_name);
 					k += MIN(m_ptr->hp / 5, p_ptr->lev * 10);
+					drain_result = k;
 				}
 				if ( p_ptr->lev >= 25	/* Stunning Blow */
 				    && !(r_ptr->flags3 & (RF3_NO_STUN))
@@ -2659,6 +2660,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					msg_format("%^s is dealt a *WOUNDING* strike.", m_name);
 					k += MIN(m_ptr->hp * 2 / 5, (p_ptr->lev - 20) * 50);
+					drain_result = k;
 				}
 			}
 			else if (p_ptr->pclass == CLASS_DUELIST && p_ptr->lev >= 30)
@@ -2823,7 +2825,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						/* Hex */
 						if (hex_spelling(HEX_VAMP_BLADE)) drain_heal *= 2;
 
-						if (cheat_xtra)
+						if (cheat_xtra || p_ptr->wizard)
 						{
 #ifdef JP
 							msg_format("Draining left: %d", drain_left);

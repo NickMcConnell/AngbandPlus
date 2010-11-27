@@ -5842,6 +5842,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	  && p_ptr->lev >= 45
 	  && damage > p_ptr->chp )
 	{
+		nemesis_hack = TRUE;  /* Stops monster melee back in make_attack_normal in melee1.c */
 		damage = 0;
 		msg_print("Nemesis!!!!  You cannot be slain by your current target!");
 		set_stun(99, FALSE); /* 100 is Knocked Out */
