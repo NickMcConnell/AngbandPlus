@@ -3943,8 +3943,7 @@ void display_spell_list(void)
 	}
 
 	/* mind.c type classes */
-	if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
-	    (p_ptr->pclass == CLASS_BERSERKER) ||
+	if ((p_ptr->pclass == CLASS_BERSERKER) ||
 	    (p_ptr->pclass == CLASS_NINJA) ||
 	    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
 	    (p_ptr->pclass == CLASS_FORCETRAINER))
@@ -3973,7 +3972,6 @@ put_str("Lv   MP ¼ºÎ¨ ¸ú²Ì", y, x + 35);
 
 		switch(p_ptr->pclass)
 		{
-		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;break;
 		case CLASS_FORCETRAINER:          use_mind = MIND_KI;break;
 		case CLASS_BERSERKER: use_mind = MIND_BERSERKER; use_hp = TRUE; break;
 		case CLASS_MIRROR_MASTER: use_mind = MIND_MIRROR_MASTER; break;

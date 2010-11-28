@@ -91,23 +91,53 @@ static int get_spell_cost_extra(ang_spell spell)
  *   choose_spell - prompt user with a list of spells, they choose one.
  *   browse_spell - show spell list, user picks spells repeatedly.  describe each spell.
  ****************************************************************************************/
+
+ static int _col_height(int ct)
+ {
+	int  w, h;
+	int result = ct;
+
+	Term_get_size(&w, &h);
+
+	h -= 5; /* Room for browsing */
+	if (result > h)
+	{
+		result = (ct + 1)/2;
+	}
+
+	return result;
+ }
+
 static void _list_spells(spell_info* spells, int ct)
 {
 	char temp[140];
 	int  i;
 	int  y = 1;
 	int  x = 10;
+	int  col_height = _col_height(ct);
+	int  col_width;
 	variant name, info;
 
 	var_init(&name);
 	var_init(&info);
 
-	/* TODO: Use 2 columns when the list is larger than screen height.
-	         But leave at least 5 columns on the bottom for browse info.
-	*/
 
 	Term_erase(x, y, 255);
-	put_str("Lv Cost Fail Info", y, x + 29);
+
+	if (col_height == ct)
+	{
+		Term_erase(x, y, 255);
+		put_str("Lv Cost Fail Info", y, x + 29);
+	}
+	else
+	{
+		col_width = 42;
+		x = 1;
+		Term_erase(x, y, 255);
+		put_str("Lv Cost Fail", y, x + 29);
+		put_str("Lv Cost Fail", y, x + col_width + 29);
+	}
+
 	for (i = 0; i < ct; i++)
 	{
 		char letter = '\0';
@@ -118,52 +148,92 @@ static void _list_spells(spell_info* spells, int ct)
 
 		if (i < 26)
 			letter = I2A(i);
+		else if (i < 52)
+			letter = 'A' + i - 26;
 		else
-			letter = '0' + i - 26;
+			letter = '0' + i - 52;
 
 		sprintf(temp, "  %c) ", letter);
-		strcat(temp, format("%-23.23s %2d %4d %3d%% %s", 
+
+		strcat(temp, format("%-23.23s %2d %4d %3d%%", 
 							var_get_string(&name),
 							spell->level,
 							spell->cost,
-							spell->fail,
-							var_get_string(&info)));
+							spell->fail));
 
-		prt(temp, y + i + 1, x);
+		if (col_height == ct)
+			strcat(temp, format(" %s", var_get_string(&info)));
+
+		if (i < col_height)
+			prt(temp, y + i + 1, x);
+		else
+			prt(temp, y + (i - col_height) + 1, (x + col_width));
 	}
 
 	var_clear(&name);
 	var_clear(&info);
 }
 
+static void _describe_spell(spell_info *spell, int col_height)
+{
+	char tmp[62*5];
+	int i, line;
+	variant info;
+
+	var_init(&info);
+
+	/* 2 lines below list of spells, 5 lines for description */
+	for (i = 0; i < 7; i++)
+		Term_erase(12, col_height + i + 2, 255);
+
+	/* Get the description, and line break it (max 5 lines) */
+	(spell->fn)(SPELL_DESC, &info);
+	roff_to_buf(var_get_string(&info), 62, tmp, sizeof(tmp));
+
+	for(i = 0, line = col_height + 3; tmp[i]; i += 1+strlen(&tmp[i]))
+	{
+		prt(&tmp[i], line, 15);
+		line++;
+	}
+
+	var_clear(&info);
+}
+
 static int _choose_spell(spell_info* spells, int ct, cptr desc)
 {
 	int choice = -1;
-	char prompt[140];
+	char prompt1[140];
+	char prompt2[140];
 	variant name;
+	bool describe = FALSE;
 
 	var_init(&name);
 
-	strnfmt(prompt, 78, "Use which %s? ", desc);
+	strnfmt(prompt1, 78, "Use which %s? (Type '?' to Browse) ", desc);
+	strnfmt(prompt2, 78, "Browse which %s? (Type '?' to Use)", desc);
 	_list_spells(spells, ct);
 
 	for (;;)
 	{
 		char ch = '\0';
-		bool confirm_choice = FALSE;
 
 		/* Prompt User */
 		choice = -1;
-		if (!get_com(prompt, &ch, TRUE)) break;
 
-		/* TODO: Handle more than 26 possibilities! */
-		if (isupper(ch))
+		if (!get_com(describe ? prompt2 : prompt1, &ch, FALSE)) break;
+
+		if (ch == '?')
 		{
-			confirm_choice = TRUE;
-			ch = tolower(ch);
+			describe = !describe;
+			if (!get_com(describe ? prompt2 : prompt1, &ch, FALSE)) break;
 		}
 
-		choice = islower(ch) ? A2I(ch) : -1;
+		if (isupper(ch))
+			choice = ch - 'A' + 26;
+		else if (islower(ch))
+			choice = ch - 'a';
+		else if (ch >= '0' && ch <= '9')
+			choice = ch - '0' + 52;
 
 		/* Valid Choice? */
 		if (choice < 0 || choice >= ct)
@@ -172,14 +242,10 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc)
 			continue;
 		}
 
-		/* Confirm Choice? */
-		if (confirm_choice)
+		if (describe)
 		{
-			char tmp[160];
-			spell_info* spell = &spells[choice];
-			(spell->fn)(SPELL_NAME, &name);
-			strnfmt(tmp, 78, "Use %s? ", var_get_string(&name));
-			if (!get_check(tmp)) continue;
+			_describe_spell(&spells[choice], _col_height(ct));
+			continue;
 		}
 
 		/* Good to go! */
@@ -212,12 +278,6 @@ int choose_spell(spell_info* spells, int ct, cptr desc)
 
 void browse_spells(spell_info* spells, int ct, cptr desc)
 {
-	char tmp[62*5];
-	int i, line;
-	variant info;
-
-	var_init(&info);
-
 	screen_save();
 
 	for(;;)
@@ -228,24 +288,9 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
 		choice = _choose_spell(spells, ct, desc);
 		if (choice < 0 || choice >= ct) break;
 
-		/* 2 lines below list of spells, 5 lines for description */
-		for (i = 0; i < 7; i++)
-			Term_erase(12, MIN(ct, 18) + i + 1, 255);
-
-		/* Get the description, and line break it (max 5 lines) */
-		spell = &spells[choice];
-		(spell->fn)(SPELL_DESC, &info);
-		roff_to_buf(var_get_string(&info), 62, tmp, sizeof(tmp));
-
-		for(i = 0, line = MIN(ct, 18) + 3; tmp[i]; i += 1+strlen(&tmp[i]))
-		{
-			prt(&tmp[i], line, 15);
-			line++;
-		}
+		_describe_spell(&spells[choice], _col_height(ct));
 	}
 	screen_load();
-
-	var_clear(&info);
 }
 
 int calculate_fail_rate(int level, int base_fail, int stat_idx)

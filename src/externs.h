@@ -1827,6 +1827,9 @@ extern bool nemesis_hack;	/* Actually, its in melee1.c */
 extern void absorb_magic_spell(int cmd, variant *res);
 extern bool cast_abosrb_magic(void);
 
+/* mindcrafter.c */
+extern class_t *mindcrafter_get_class_t(void);
+
 /* mirror.c */
 extern void break_mirrors_spell(int cmd, variant *res);
 extern bool is_mirror_grid(cave_type *c_ptr);

@@ -359,7 +359,7 @@ void breathe_fire_spell(int cmd, variant *res)
 		{
 			stop_mouth();
 			msg_print(T("You breathe fire...", "あなたは火炎のブレスを吐いた..."));
-			fire_ball(GF_FIRE, dir, 2 * p_ptr->lev, 1 + (p_ptr->lev / 20));
+			fire_ball(GF_FIRE, dir, 2 * p_ptr->lev, -1 - (p_ptr->lev / 20));
 			var_set_bool(res, TRUE);
 		}
 		break;

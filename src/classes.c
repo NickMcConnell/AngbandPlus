@@ -15,14 +15,17 @@ class_t *result = NULL;
 	case CLASS_ARCHAEOLOGIST:
 		result = archaeologist_get_class_t();
 		break;
+	case CLASS_BLOOD_KNIGHT:
+		result = blood_knight_get_class_t();
+		break;
 	case CLASS_DUELIST:
 		result = duelist_get_class_t();
 		break;
+	case CLASS_MINDCRAFTER:
+		result = mindcrafter_get_class_t();
+		break;
 	case CLASS_WARLOCK:
 		result = warlock_get_class_t(psubclass);
-		break;
-	case CLASS_BLOOD_KNIGHT:
-		result = blood_knight_get_class_t();
 		break;
 	}
 
@@ -169,7 +172,6 @@ int get_class_powers(spell_info* spells, int max)
 			spell->fn = monk_double_attack_spell;
 			break;
 		}
-		case CLASS_MINDCRAFTER:
 		case CLASS_FORCETRAINER:
 		{
 			spell_info* spell = &spells[ct++];

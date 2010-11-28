@@ -20,58 +20,6 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
     {
       /* Level gained,  cost,  %fail,  name */
 #ifdef JP
-      { 1,   1,  15, "霊視"},
-      { 2,   1,  20, "神経攻撃"},
-      { 3,   2,  25, "次元の瞬き"},
-      { 7,   6,  35, "虚空の幻影"},
-      { 9,   7,  50, "精神支配"},
-      { 11,  7,  30, "念動衝撃弾"},
-      { 13, 12,  50, "鎧化"},
-      { 15, 12,  60, "サイコメトリー"},
-      { 18, 10,  45, "精神波動"},
-      { 23, 15,  50, "アドレナリン・ドーピング"},
-      { 26, 28,  60, "テレキネシス"},
-      { 28, 10,  40, "サイキック・ドレイン"},
-      { 35, 35,  75, "光の剣"},
-      { 45,150,  85, "完全な世界"},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-#else
-      { 1,   1,  15, "Precognition"},
-      { 2,   1,  20, "Neural Blast"},
-      { 3,   2,  25, "Minor Displacement"},
-      { 7,   6,  35, "Major Displacement"},
-      { 9,   7,  50, "Domination"},
-      { 11,  7,  30, "Pulverise"},
-      { 13, 12,  50, "Character Armour"},
-      { 15, 12,  60, "Psychometry" },
-      { 18, 10,  45, "Mind Wave" },
-      { 23, 15,  50, "Adrenaline Channeling"},
-      { 26, 28,  60, "Telekinesis"},
-      { 28, 10,  40, "Psychic Drain"},
-      { 35, 35,  75, "Psycho-Spear"},
-      { 45,150,  85, "The World"},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-#endif
-      
-    }
-  },
-  
-  {
-    {
-      /* Level gained,  cost,  %fail,  name */
-#ifdef JP
       { 1,   1,  15, "小龍"},
       { 3,   3,  30, "閃光"},
       { 5,   6,  35, "舞空術"},
@@ -326,33 +274,6 @@ void mindcraft_info(char *p, int use_mind, int power)
 
   switch (use_mind)
     {
-    case MIND_MINDCRAFTER:
-      switch (power)
-	{
-	case 0:  break;
-	case 1:  sprintf(p, " %s%dd%d", s_dam, spell_power(3 + ((plev - 1) / 4)), 3 + plev/15); break;
-	case 2:  sprintf(p, " %s10", s_range); break;
-	case 3:  sprintf(p, " %s%d", s_range, plev * 5);  break;
-	case 4:  break;
-	case 5: sprintf(p, " %s%dd8", s_dam, spell_power(8 + ((plev - 5) / 4)));  break;
-	case 6:  sprintf(p, " %s%d", s_dur, plev);  break;
-	case 7:  break;
-	case 8:  sprintf(p, (plev < 25 ? " %s%d" : " %sd%d"), s_dam, spell_power((plev < 25 ? plev * 3 / 2 : plev * ((plev - 5) / 10 + 1)))); break;
-	case 9:  sprintf(p, " %s10+d%d", s_dur, plev * 3 / 2);  break;
-#ifdef JP
-	case 10: sprintf(p, " 最大重量:%d.%dkg", lbtokg1(plev * 15),lbtokg2(plev * 15));  break;
-#else
-	case 10: sprintf(p, " max wgt %d", plev * 15);  break;
-#endif
-	case 11: sprintf(p, " %s%dd6", s_dam, spell_power(plev / 2));  break;
-	case 12: sprintf(p, " %sd%d+%d", s_dam, spell_power(plev * 3), spell_power(plev * 3)); break;
-#ifdef JP
-	case 13: sprintf(p, " 行動:%ld回", (p_ptr->csp + 100-p_ptr->energy_need - 50)/100); break;
-#else
-	case 13: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/100); break;
-#endif
-	}
-      break;
     case MIND_KI:
       {
 	int boost = p_ptr->magic_num1[0];
@@ -489,16 +410,6 @@ static int get_mind_power(int *sn, bool only_browse)
 
     switch(p_ptr->pclass)
 	{
-	case CLASS_MINDCRAFTER:
-	  {
-	    use_mind = MIND_MINDCRAFTER;
-#ifdef JP
-	    p = "超能力";
-#else
-	    p = "mindcraft";
-#endif
-	    break;
-	  }
 	case CLASS_FORCETRAINER:
 	  {
 	    use_mind = MIND_KI;
@@ -779,9 +690,9 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 					       format("%-30s%2d %4d%s %3d%%%s",
 						      spell.name, spell.min_lev, mana_cost,
 #ifdef JP
-						      (((use_mind == MIND_MINDCRAFTER) && (i == 13)) ? "〜" : "  "), 
+						      "  ", 
 #else
-						      (((use_mind == MIND_MINDCRAFTER) && (i == 13)) ? "~ " : "  "), 
+						      "  ", 
 #endif
 						      chance, comment));
 					prt(psi_desc, y + i + 1, x);
@@ -873,207 +784,6 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 	return (TRUE);
 }
 
-
-/*
- * do_cmd_cast calls this function if the player's class
- * is 'mindcrafter'.
- */
-static bool cast_mindcrafter_spell(int spell)
-{
-	int             b = 0;
-	int             dir;
-	int             plev = p_ptr->lev;
-
-	/* spell code */
-	switch (spell)
-	{
-	case 0:   /* Precog */
-		if (plev > 44)
-		{
-			chg_virtue(V_KNOWLEDGE, 1);
-			chg_virtue(V_ENLIGHTEN, 1);
-			wiz_lite(FALSE);
-		}
-		else if (plev > 19)
-			map_area(DETECT_RAD_MAP);
-
-		if (plev < 30)
-		{
-			b = detect_monsters_normal(DETECT_RAD_DEFAULT);
-			if (plev > 14) b |= detect_monsters_invis(DETECT_RAD_DEFAULT);
-			if (plev > 4)  {
-				b |= detect_traps(DETECT_RAD_DEFAULT, TRUE);
-				b |= detect_doors(DETECT_RAD_DEFAULT);
-			}
-		}
-		else
-		{
-			b = detect_all(DETECT_RAD_DEFAULT);
-		}
-
-		if ((plev > 24) && (plev < 40))
-			set_tim_esp(plev, FALSE);
-
-#ifdef JP
-if (!b) msg_print("安全な気がする。");
-#else
-		if (!b) msg_print("You feel safe.");
-#endif
-
-		break;
-	case 1:
-		/* Mindblast */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		if (randint1(100) < plev * 2)
-			fire_beam(GF_PSI, dir, spell_power(damroll(3 + ((plev - 1) / 4), (3 + plev / 15))));
-		else
-			fire_ball(GF_PSI, dir, spell_power(damroll(3 + ((plev - 1) / 4), (3 + plev / 15))), 0);
-		break;
-	case 2:
-		/* Minor displace */
-		teleport_player(10, 0L);
-		break;
-	case 3:
-		/* Major displace */
-		teleport_player(plev * 5, 0L);
-		break;
-	case 4:
-		/* Domination */
-		if (plev < 30)
-		{
-			if (!get_aim_dir(&dir)) return FALSE;
-
-			fire_ball(GF_DOMINATION, dir, spell_power(plev), 0);
-		}
-		else
-		{
-			charm_monsters(spell_power(plev * 2));
-		}
-		break;
-	case 5:
-		/* Fist of Force  ---  not 'true' TK  */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_ball(GF_TELEKINESIS, dir, spell_power(damroll(8 + ((plev - 5) / 4), 8)),
-			(plev > 20 ? spell_power((plev - 20) / 8 + 1) : 0));
-		break;
-	case 6:
-		/* Character Armour */
-		set_shield(spell_power(plev), FALSE);
-		if (plev > 14) set_oppose_acid(spell_power(plev), FALSE);
-		if (plev > 19) set_oppose_fire(spell_power(plev), FALSE);
-		if (plev > 24) set_oppose_cold(spell_power(plev), FALSE);
-		if (plev > 29) set_oppose_elec(spell_power(plev), FALSE);
-		if (plev > 34) set_oppose_pois(spell_power(plev), FALSE);
-		break;
-	case 7:
-		/* Psychometry */
-		if (plev < 25)
-			return psychometry();
-		else
-			return ident_spell(FALSE);
-	case 8:
-		/* Mindwave */
-#ifdef JP
-msg_print("精神を捻じ曲げる波動を発生させた！");
-#else
-		msg_print("Mind-warping forces emanate from your brain!");
-#endif
-
-		if (plev < 25)
-			project(0, 2 + plev / 10, py, px,
-			spell_power(plev * 3), GF_PSI, PROJECT_KILL, -1);
-		else
-			(void)mindblast_monsters(spell_power(randint1(plev * ((plev - 5) / 10 + 1))));
-		break;
-	case 9:
-		/* Adrenaline */
-		set_afraid(0, TRUE);
-		set_stun(0, TRUE);
-
-		/*
-		 * Only heal when Adrenalin Channeling is not active. We check
-		 * that by checking if the player isn't fast and 'heroed' atm.
-		 */
-		if (!IS_FAST() || !IS_HERO())
-		{
-			hp_player(plev);
-		}
-
-		b = spell_power(10 + randint1((plev * 3) / 2));
-		set_hero(b, FALSE);
-		/* Haste */
-		(void)set_fast(b, FALSE);
-		break;
-	case 10:
-		/* Telekinesis */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fetch(dir, plev * 15, FALSE);
-
-		break;
-	case 11:
-		/* Psychic Drain */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		b = spell_power(damroll(plev / 2, 6));
-
-		/* This is always a radius-0 ball now */
-		if (fire_ball(GF_PSI_DRAIN, dir, b, 0))
-			p_ptr->energy_need += randint1(150);
-		break;
-	case 12:
-		/* psycho-spear */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(plev*3)+plev*3));
-		break;
-	case 13:
-	{
-		if (world_player)
-		{
-#ifdef JP
-			msg_print("既に時は止まっている。");
-#else
-			msg_print("Time is already stopped.");
-#endif
-			return (FALSE);
-		}
-		world_player = TRUE;
-#ifdef JP
-		msg_print("「時よ！」");
-#else
-		msg_print("You yell 'Time!'");
-#endif
-		msg_print(NULL);
-
-		/* Hack */
-		p_ptr->energy_need -= 1000 + (100 + p_ptr->csp - 50)*TURNS_PER_TICK/10;
-
-		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
-
-		/* Update monsters */
-		p_ptr->update |= (PU_MONSTERS);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-		handle_stuff();
-		break;
-	}
-	default:
-#ifdef JP
-msg_print("なに？");
-#else
-		msg_print("Zap?");
-#endif
-
-	}
-
-	return TRUE;
-}
 
 /* Finding what monster to evolve into is trivial, since the monster_race type
    keeps a pointer in that direction.  However, we would like to reverse evolution
@@ -2409,7 +2119,6 @@ msg_print("混乱していて集中できない！");
 #ifdef JP
 	switch(p_ptr->pclass)
 	{
-		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;p = "精神";break;
 		case CLASS_FORCETRAINER:          use_mind = MIND_KI;p = "気";break;
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;p = "怒り";break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;p = "鏡魔法";break;
@@ -2419,7 +2128,6 @@ msg_print("混乱していて集中できない！");
 #else
 	switch(p_ptr->pclass)
 	{
-		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;break;
 		case CLASS_FORCETRAINER:          use_mind = MIND_KI;break;
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;break;
@@ -2553,55 +2261,6 @@ msg_format("%sの集中に失敗した！",p);
 				/* Backfire */
 			  b = randint1(100);
 
-			  if( use_mind == MIND_MINDCRAFTER ){
-				if (b < 5)
-				{
-#ifdef JP
-msg_print("なんてこった！頭の中が真っ白になった！");
-#else
-					msg_print("Oh, no! Your mind has gone blank!");
-#endif
-
-					lose_all_info();
-				}
-				else if (b < 15)
-				{
-#ifdef JP
-msg_print("奇妙な光景が目の前で踊っている...");
-#else
-					msg_print("Weird visions seem to dance before your eyes...");
-#endif
-
-					set_image(p_ptr->image + 5 + randint1(10), FALSE);
-				}
-				else if (b < 45)
-				{
-#ifdef JP
-msg_print("あなたの頭は混乱した！");
-#else
-					msg_print("Your brain is addled!");
-#endif
-
-					set_confused(p_ptr->confused + randint1(8), FALSE);
-				}
-				else if (b < 90)
-				{
-					set_stun(p_ptr->stun + randint1(8), FALSE);
-				}
-				else
-				{
-					/* Mana storm */
-#ifdef JP
-msg_format("%sの力が制御できない氾流となって解放された！", p);
-#else
-					msg_print("Your mind unleashes its power in an uncontrollable storm!");
-#endif
-
-					project(PROJECT_WHO_UNCTRL_POWER, 2 + plev / 10, py, px, plev * 2,
-						GF_MANA, PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM, -1);
-					p_ptr->csp = MAX(0, p_ptr->csp - plev * MAX(1, plev / 10));
-				}
-			  }
 			  if( use_mind == MIND_TIME_LORD ){
 				if (b < 61)
 				{
@@ -2679,10 +2338,6 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 
 		switch(use_mind)
 		{
-		case MIND_MINDCRAFTER:
-			/* Cast the spell */
-			cast = cast_mindcrafter_spell(n);
-			break;
 		case MIND_KI:
 			/* Cast the spell */
 			cast = cast_force_spell(n);
@@ -2750,13 +2405,6 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 		/* Limit */
 		if (p_ptr->csp < 0) p_ptr->csp = 0;
 
-		if ((use_mind == MIND_MINDCRAFTER) && (n == 13))
-		{
-			/* No mana left */
-			p_ptr->csp = 0;
-			p_ptr->csp_frac = 0;
-		}
-
         if ((use_mind == MIND_TIME_LORD) && (n == 14))
         {
 			/* No mana left */
@@ -2823,8 +2471,7 @@ void do_cmd_mind_browse(void)
 	char temp[62*5];
 	int use_mind = 0;
 
-	if (p_ptr->pclass == CLASS_MINDCRAFTER) use_mind = MIND_MINDCRAFTER;
-	else if (p_ptr->pclass == CLASS_FORCETRAINER) use_mind = MIND_KI;
+	if (p_ptr->pclass == CLASS_FORCETRAINER) use_mind = MIND_KI;
 	else if (p_ptr->pclass == CLASS_BERSERKER) use_mind = MIND_BERSERKER;
 	else if (p_ptr->pclass == CLASS_NINJA) use_mind = MIND_NINJUTSU;
 	else if (p_ptr->pclass == CLASS_MIRROR_MASTER) use_mind = MIND_MIRROR_MASTER;

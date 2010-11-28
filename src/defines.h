@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 19
+#define FAKE_VER_PATCH 20
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 19
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 20
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -269,14 +269,13 @@
 /* Spellcasters that don't use spell books */
 #define MAX_MIND_POWERS  21
 
-#define MIND_MINDCRAFTER    0
-#define MIND_KI             1   /* Force Trainer */
-#define MIND_BERSERKER      2
-#define MIND_MIRROR_MASTER  3
-#define MIND_NINJUTSU       4
-#define MIND_TIME_LORD		5
+#define MIND_KI             0   /* Force Trainer */
+#define MIND_BERSERKER      1
+#define MIND_MIRROR_MASTER  2
+#define MIND_NINJUTSU       3
+#define MIND_TIME_LORD		4
 
-#define MIND_MAX_CLASSES	6
+#define MIND_MAX_CLASSES	5
 
 
 /*

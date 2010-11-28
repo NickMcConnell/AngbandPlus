@@ -119,6 +119,7 @@
     <ClCompile Include="melee1.c" />
     <ClCompile Include="melee2.c" />
     <ClCompile Include="mind.c" />
+    <ClCompile Include="mindcrafter.c" />
     <ClCompile Include="mirror.c" />
     <ClCompile Include="monk.c" />
     <ClCompile Include="monster1.c" />

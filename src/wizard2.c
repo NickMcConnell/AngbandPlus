@@ -2008,7 +2008,14 @@ void do_cmd_debug(void)
 	/* Mutation */
 	case 'M':
 		n = get_quantity("Which One? ", 500);
-		mut_gain(n);
+		if (n == 500)
+		{
+			int i;
+			for (i = 0; i < 32; ++i)
+				mut_gain(i);
+		}
+		else
+			mut_gain(n);
 		break;
 
 	/* Specific reward */

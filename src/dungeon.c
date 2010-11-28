@@ -1747,6 +1747,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 		if (!IS_INVULN() && !p_ptr->wraith_form && !p_ptr->kabenuke &&
 		    ((p_ptr->chp > (p_ptr->lev / 5)) || !p_ptr->pass_wall))
 		{
+			int dam;
 			cptr dam_desc;
 
 			cave_no_regen = TRUE;
@@ -1772,7 +1773,25 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 #endif
 			}
 
-			take_hit(DAMAGE_NOESCAPE, 1 + (p_ptr->lev / 5), dam_desc, -1);
+			/* Biff the spectre ... they are too powerful */
+			if (p_ptr->prace == RACE_SPECTRE)
+			{
+				int old = 1 + (p_ptr->lev/5);
+				dam = randint1(1 + p_ptr->mhp/12);
+
+				if (dam < old)
+					dam = old;
+
+				if (dam > p_ptr->chp)
+					dam = p_ptr->chp;
+
+				if (p_ptr->wizard)
+					msg_format("%d passwall damage", dam);
+			}
+			else
+				dam = 1 + (p_ptr->lev/5);
+
+			take_hit(DAMAGE_NOESCAPE, dam, dam_desc, -1);
 		}
 	}
 
@@ -4193,8 +4212,7 @@ msg_print("ウィザードモード突入。");
 		/* Browse a book */
 		case 'b':
 		{
-			if ( (p_ptr->pclass == CLASS_MINDCRAFTER) ||
-			     (p_ptr->pclass == CLASS_BERSERKER) ||
+			if ( (p_ptr->pclass == CLASS_BERSERKER) ||
 			     (p_ptr->pclass == CLASS_NINJA) ||
 			     (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
 				 (p_ptr->pclass == CLASS_TIME_LORD)
@@ -4208,7 +4226,8 @@ msg_print("ウィザードモード突入。");
 			else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
 			         p_ptr->pclass == CLASS_DUELIST ||
 					 p_ptr->pclass == CLASS_WARLOCK ||
-					 p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+					 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
+					 p_ptr->pclass == CLASS_MINDCRAFTER)
 			{
 				/* This is the preferred entry point ... I'm still working on
 				   coverting everything else */
@@ -4309,8 +4328,7 @@ msg_print("ウィザードモード突入。");
 				}
 				else
 				{
-					if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
-					    (p_ptr->pclass == CLASS_BERSERKER) ||
+					if ((p_ptr->pclass == CLASS_BERSERKER) ||
 					    (p_ptr->pclass == CLASS_NINJA) ||
 					    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
 						(p_ptr->pclass == CLASS_TIME_LORD)
@@ -4331,7 +4349,8 @@ msg_print("ウィザードモード突入。");
 					else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
 					         p_ptr->pclass == CLASS_DUELIST ||
 							 p_ptr->pclass == CLASS_WARLOCK ||
-							 p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+							 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
+							 p_ptr->pclass == CLASS_MINDCRAFTER)
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */

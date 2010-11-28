@@ -3394,12 +3394,6 @@ void calc_bonuses(void)
 		if (p_ptr->lev > 29) p_ptr->resist_chaos = TRUE;
 		if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
 		break;
-	case CLASS_MINDCRAFTER:
-		if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
-		if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
-		if (p_ptr->lev > 29) p_ptr->resist_conf = TRUE;
-		if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
-		break;
 	case CLASS_TIME_LORD:
 		if (p_ptr->lev > 29) p_ptr->resist_time = TRUE;
 		p_ptr->pspeed += 3;
