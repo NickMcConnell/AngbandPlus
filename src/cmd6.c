@@ -1368,6 +1368,8 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			p_ptr->update |= PU_BONUS;
 			mut_lose_all();
 			ident = TRUE;
+			if (p_ptr->pclass == CLASS_WILD_TALENT)
+				wild_talent_new_life();
 			break;
 
 		case SV_POTION_NEO_TSUYOSHI:

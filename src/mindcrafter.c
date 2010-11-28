@@ -431,7 +431,7 @@ void _psychic_drain_spell(int cmd, variant *res)
 	}
 }
 
-void _psycho_spear_spell(int cmd, variant *res)
+void psycho_spear_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
@@ -530,7 +530,7 @@ static spell_info _spells[MAX_MINDCRAFTER_SPELLS] =
     { 23, 15,  50, _adrenaline_spell},
     { 26, 28,  60, _telekinesis_spell},
     { 28, 10,  40, _psychic_drain_spell},
-    { 35, 35,  75, _psycho_spear_spell},
+    { 35, 35,  75, psycho_spear_spell},
     { 45,150,  85, _the_world_spell},
 };
 

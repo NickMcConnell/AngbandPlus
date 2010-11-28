@@ -1829,6 +1829,7 @@ extern bool cast_abosrb_magic(void);
 
 /* mindcrafter.c */
 extern class_t *mindcrafter_get_class_t(void);
+extern void psycho_spear_spell(int cmd, variant *res);
 
 /* mirror.c */
 extern void break_mirrors_spell(int cmd, variant *res);
@@ -1859,3 +1860,4 @@ extern bool warlock_is_pact_monster(monster_race *r_ptr);
 
 /* wild_talent.c */
 extern class_t *wild_talent_get_class_t(void);
+extern void wild_talent_new_life(void);

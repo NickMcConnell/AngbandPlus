@@ -168,7 +168,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_ATTRACT_ANIMAL */
 	{ MUT_RATING_GOOD,		              0,	     0, 2 },	/* MUT_TENTACLES */
 	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_RAW_CHAOS */
-	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 6 },	/* MUT_NORMALITY */
+	{ MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 6 },	/* MUT_NORMALITY */
 	{ MUT_RATING_GOOD,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_WRAITH */
 	{ MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_POLY_WOUND */
 	{ MUT_RATING_AWFUL,		MUT_TYPE_EFFECT,	     0, 2 },	/* MUT_WASTING */
@@ -514,7 +514,7 @@ void mut_lose_all(void)
 		chg_virtue(V_CHANCE, -5);
 		msg_print(T("You are cured of all mutations.", "全ての突然変異が治った。"));
 
-		for (i = 0; i < MAX_MUTATIONS; ++i)
+		for (i = 0; i < MUT_FLAG_SIZE; ++i)
 			p_ptr->muta[i] = p_ptr->muta_lock[i];
 
 		_mut_refresh();
