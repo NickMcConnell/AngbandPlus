@@ -143,7 +143,7 @@ static void do_cmd_eat_food_aux(int item)
 			{
 				if (!p_ptr->resist_chaos)
 				{
-					if (set_image(p_ptr->image + randint0(250) + 250, FALSE))
+					if (set_image(p_ptr->image + randint0(25) + 25, FALSE))
 					{
 						ident = TRUE;
 					}
@@ -881,7 +881,7 @@ static void do_cmd_quaff_potion_aux(int item)
 			{
 				if (one_in_(2))
 				{
-					if (set_image(p_ptr->image + randint0(150) + 150, FALSE))
+					if (set_image(p_ptr->image + randint0(25) + 25, FALSE))
 					{
 						ident = TRUE;
 					}

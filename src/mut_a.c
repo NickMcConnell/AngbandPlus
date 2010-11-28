@@ -108,7 +108,7 @@ void alcohol_mut(int cmd, variant *res)
 				else if (one_in_(3))
 				{
 					msg_print(T("Thishcischs GooDSChtuff!", "き〜れいなちょおちょらとんれいる〜"));
-					set_image(p_ptr->image + randint0(150) + 150, FALSE);
+					set_image(p_ptr->image + randint0(15) + 15, FALSE);
 				}
 			}
 		}

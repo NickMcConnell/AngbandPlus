@@ -294,12 +294,16 @@ void berserk_spell(int cmd, variant *res)
 		var_set_string(res, T("You can drive yourself into a berserk frenzy.", "あなたは自分の意思で狂乱戦闘状態になることができる。"));
 		break;
 	case SPELL_CAST:
+	{
+		bool heal = !p_ptr->shero;
 		msg_print("Raaagh!  You feel like hitting something.");
 		set_afraid(0, TRUE);
 		set_shero(10 + randint1(p_ptr->lev), FALSE);
-		hp_player(30);
+		if (heal)
+			hp_player(30);
 		var_set_bool(res, TRUE);
 		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;

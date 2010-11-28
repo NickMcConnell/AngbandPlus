@@ -2115,7 +2115,7 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 		}
 		if (!p_ptr->resist_chaos && one_in_(3))
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
+			(void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
 		}
 		return;
 	}
@@ -2143,7 +2143,7 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 			(void)do_dec_stat(A_WIS);
 		if (!p_ptr->resist_chaos)
 		{
-			(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
+			(void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
 		}
 		return;
 	}

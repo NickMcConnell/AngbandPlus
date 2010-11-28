@@ -188,7 +188,7 @@ void samurai_posture_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Assume a Posture", "·¿"));
+		var_set_string(res, T("Assume a Guard Position", "·¿"));
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "");

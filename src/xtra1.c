@@ -3691,7 +3691,6 @@ void calc_bonuses(void)
 			break;
 		case RACE_SPECTRE:
 			p_ptr->levitation = TRUE;
-			p_ptr->free_act = TRUE;
 			p_ptr->resist_neth = TRUE;
 			p_ptr->hold_life = TRUE;
 			p_ptr->see_inv = TRUE;
@@ -3699,7 +3698,6 @@ void calc_bonuses(void)
 			p_ptr->slow_digest = TRUE;
 			p_ptr->resist_cold = TRUE;
 			p_ptr->pass_wall = TRUE;
-			if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;
 			break;
 		case RACE_SPRITE:
 			p_ptr->levitation = TRUE;

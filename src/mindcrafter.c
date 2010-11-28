@@ -448,7 +448,7 @@ void _psycho_spear_spell(int cmd, variant *res)
 	case SPELL_CAST:
 	{
 		int dir = 0;
-		var_set_bool(res, TRUE);
+		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 		fire_beam(GF_PSY_SPEAR, dir, spell_power(randint1(p_ptr->lev*4)+p_ptr->lev*4));
 		var_set_bool(res, TRUE);

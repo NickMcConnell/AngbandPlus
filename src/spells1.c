@@ -7779,7 +7779,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 					if (!p_ptr->resist_chaos && one_in_(3))
 					{
-						(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
+						(void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
 					}
 
 					p_ptr->csp -= 50;
@@ -7851,7 +7851,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 					if (!p_ptr->resist_chaos)
 					{
-						(void)set_image(p_ptr->image + randint0(250) + 150, FALSE);
+						(void)set_image(p_ptr->image + randint0(25) + 15, FALSE);
 					}
 				}
 			}

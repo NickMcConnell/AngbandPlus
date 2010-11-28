@@ -327,6 +327,23 @@ void dispel_player(void)
 	(void)set_ele_attack(0, 0);
 	(void)set_ele_immune(0, 0);
 
+	set_tim_blood_shield(0, TRUE);
+	set_tim_blood_seek(0, TRUE);
+	set_tim_blood_sight(0, TRUE);
+	set_tim_blood_feast(0, TRUE);
+	set_tim_blood_revenge(0, TRUE);
+
+	set_tim_spurt(0, TRUE);
+	set_tim_speed_essentia(0, TRUE);
+	/* Coming soon ... 
+	set_tim_slow_digest(0, TRUE);
+	set_tim_crystal_skin(0, TRUE);
+	set_tim_chaotic_surge(0, TRUE);
+	set_tim_wild_pos(0, TRUE);
+	set_tim_wild_mind(0, TRUE);
+	*/
+
+
 	/* Cancel glowing hands */
 	if (p_ptr->special_attack & ATTACK_CONFUSE)
 	{

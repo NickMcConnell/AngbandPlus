@@ -2589,16 +2589,12 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		break;
 	case RACE_SPECTRE:
 		add_flag(flgs, TR_LEVITATION);
-		add_flag(flgs, TR_FREE_ACT);
 		add_flag(flgs, TR_RES_COLD);
 		add_flag(flgs, TR_SEE_INVIS);
 		add_flag(flgs, TR_HOLD_LIFE);
 		add_flag(flgs, TR_RES_NETHER);
 		add_flag(flgs, TR_RES_POIS);
 		add_flag(flgs, TR_SLOW_DIGEST);
-		/* XXX pass_wall */
-		if (p_ptr->lev > 34)
-			add_flag(flgs, TR_TELEPATHY);
 		break;
 	case RACE_SPRITE:
 		add_flag(flgs, TR_RES_LITE);
