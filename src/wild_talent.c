@@ -56,8 +56,8 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 	/* CL9: Middle Offense */
 	{
 		{ A_CHR, "like a Beastmaster", {1, 0, 30, dominate_living_I_spell}},
-		{ A_WIS, "like an Imp", {9, 15, 50, imp_fire_spell}},
-		{ A_STR, "like an Android", {9, 13, 30, android_blaster_spell}},
+		{ A_WIS, "like an Imp", {9, 7, 50, imp_fire_spell}},
+		{ A_STR, "like an Android", {9, 7, 30, android_blaster_spell}},
 		{ A_INT, "like a Sprite", {9, 12, 50, sleeping_dust_spell}},
 		{ A_DEX, "like a Kobold", {9, 8, 50, poison_dart_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
@@ -358,6 +358,12 @@ void wild_talent_new_life(void)
 		_gain_level(i);
 }
 
+static void _calc_bonuses(void)
+{
+	if (p_ptr->lev >= 30)
+		p_ptr->regenerate = TRUE;
+}
+
 class_t *wild_talent_get_class_t(void)
 {
 	static class_t me = {0};
@@ -382,6 +388,7 @@ class_t *wild_talent_get_class_t(void)
 		me.stats[A_CHR] = +3;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.calc_bonuses = _calc_bonuses;
 		me.get_powers = _get_powers;
 		me.gain_level = _gain_level;
 		init = TRUE;

@@ -63,6 +63,9 @@ void android_ray_gun_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("", ""));
 		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(5 + (p_ptr->lev+1) / 2)));
+		break;
 	case SPELL_CAST:
 	{
 		int dir = 0;
@@ -70,7 +73,7 @@ void android_ray_gun_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 		
 		msg_print(T("You fire your ray gun.", "レイガンを発射した。"));
-		fire_bolt(GF_MISSILE, dir, 5 + (p_ptr->lev+1) / 2);
+		fire_bolt(GF_MISSILE, dir, spell_power(5 + (p_ptr->lev+1) / 2));
 		
 		var_set_bool(res, TRUE);
 		break;
@@ -91,6 +94,9 @@ void android_blaster_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("", ""));
 		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(5 + p_ptr->lev)));
+		break;
 	case SPELL_CAST:
 	{
 		int dir = 0;
@@ -98,7 +104,7 @@ void android_blaster_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		msg_print(T("You fire your blaster.", "ブラスターを発射した。"));
-		fire_bolt(GF_MISSILE, dir, 5 + p_ptr->lev);
+		fire_bolt(GF_MISSILE, dir, spell_power(5 + p_ptr->lev));
 
 		var_set_bool(res, TRUE);
 		break;
@@ -126,7 +132,7 @@ void android_bazooka_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		msg_print(T("You fire your bazooka.", "バズーカを発射した。"));
-		fire_ball(GF_MISSILE, dir, 5 + p_ptr->lev * 3, 2);
+		fire_ball(GF_MISSILE, dir, spell_power(25 + p_ptr->lev * 2), 2);
 
 		var_set_bool(res, TRUE);
 		break;
@@ -147,6 +153,9 @@ void android_beam_cannon_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("", ""));
 		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(25 + p_ptr->lev * 3)));
+		break;
 	case SPELL_CAST:
 	{
 		int dir = 0;
@@ -154,7 +163,7 @@ void android_beam_cannon_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		msg_print(T("You fire a beam cannon.", "ビームキャノンを発射した。"));
-		fire_beam(GF_MISSILE, dir, 5 + p_ptr->lev * 3);
+		fire_beam(GF_MISSILE, dir, spell_power(25 + p_ptr->lev * 3));
 
 		var_set_bool(res, TRUE);
 		break;
@@ -182,7 +191,7 @@ void android_rocket_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		msg_print(T("You launch a rocket.", "ロケットを発射した。"));
-		fire_rocket(GF_ROCKET, dir, p_ptr->lev * 7, 2);
+		fire_rocket(GF_ROCKET, dir, spell_power(p_ptr->lev * 7), 2);
 
 		var_set_bool(res, TRUE);
 		break;
@@ -350,7 +359,7 @@ void breathe_fire_spell(int cmd, variant *res)
 		var_set_string(res, T("You can breathe fire (dam lvl * 2).", "あなたは炎のブレスを吐くことができる。(ダメージ レベルX2)"));
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, 2 * p_ptr->lev));
+		var_set_string(res, info_damage(0, 0, spell_power(2 * p_ptr->lev)));
 		break;
 	case SPELL_COST_EXTRA:
 		var_set_int(res, p_ptr->lev);
@@ -363,7 +372,7 @@ void breathe_fire_spell(int cmd, variant *res)
 		{
 			stop_mouth();
 			msg_print(T("You breathe fire...", "あなたは火炎のブレスを吐いた..."));
-			fire_ball(GF_FIRE, dir, 2 * p_ptr->lev, -1 - (p_ptr->lev / 20));
+			fire_ball(GF_FIRE, dir, spell_power(2 * p_ptr->lev), -1 - (p_ptr->lev / 20));
 			var_set_bool(res, TRUE);
 		}
 		break;
@@ -563,6 +572,9 @@ void demon_breath_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "Breathe a powerful blast of either fire or nether at your opponent.");
 		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 3)));
+		break;
 	case SPELL_CAST:
 	{
 		int type = (one_in_(2) ? GF_NETHER : GF_FIRE);
@@ -575,7 +587,7 @@ void demon_breath_spell(int cmd, variant *res)
 		msg_format(T("You breathe %s.", "あなたは%sのブレスを吐いた。"),
 			((type == GF_NETHER) ? T("nether", "地獄") : T("fire", "火炎")));
 
-		fire_ball(type, dir, p_ptr->lev * 3, -(p_ptr->lev / 15) - 1);
+		fire_ball(type, dir, spell_power(p_ptr->lev * 3), -(p_ptr->lev / 15) - 1);
 		var_set_bool(res, TRUE);
 		break;
 	}
@@ -1081,7 +1093,7 @@ void draconian_breath_spell(int cmd, variant *res)
 		msg_format("You breathe %s.", Type_desc);
 #endif
 
-		fire_ball(Type, dir, plev * 2,
+		fire_ball(Type, dir, spell_power(plev * 2),
 			-(plev / 15) - 1);
 
 		var_set_bool(res, TRUE);
@@ -1585,7 +1597,7 @@ void imp_fire_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 		if (p_ptr->lev >= ball_lev)
-			fire_ball(GF_FIRE, dir, p_ptr->lev, 2);
+			fire_ball(GF_FIRE, dir, p_ptr->lev * 2, 2);
 		else
 			fire_bolt(GF_FIRE, dir, p_ptr->lev);
 		var_set_bool(res, TRUE);
@@ -2561,7 +2573,7 @@ void spit_acid_spell(int cmd, variant *res)
 		var_set_string(res, T("You can spit acid (dam lvl).", "あなたは酸を吹きかけることができる。(ダメージ レベルX1)"));
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, p_ptr->lev));
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 2)));
 		break;
 	case SPELL_CAST:
 	{
@@ -2572,7 +2584,7 @@ void spit_acid_spell(int cmd, variant *res)
 			stop_mouth();
 			msg_print(T("You spit acid...", "酸を吐きかけた..."));
 			if (p_ptr->lev < 25) fire_bolt(GF_ACID, dir, p_ptr->lev);
-			else fire_ball(GF_ACID, dir, p_ptr->lev, 2);
+			else fire_ball(GF_ACID, dir, spell_power(p_ptr->lev * 2), 2);
 			var_set_bool(res, TRUE);
 		}
 		break;
@@ -2914,13 +2926,16 @@ void throw_boulder_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "");
 		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(2 * p_ptr->lev)));
+		break;
 	case SPELL_CAST:
 	{
 		int dir = 0;
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 		msg_print(T("You throw a huge boulder.", "巨大な岩を投げた。"));
-		fire_bolt(GF_MISSILE, dir, (3 * p_ptr->lev) / 2);
+		fire_bolt(GF_MISSILE, dir, spell_power(2 * p_ptr->lev));
 		var_set_bool(res, TRUE);
 		break;
 	}
@@ -2941,7 +2956,7 @@ void vampirism_spell(int cmd, variant *res)
 		var_set_string(res, "Suck blood from an adjacent monster, gaining hp in the process.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, p_ptr->lev * 2));
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 2)));
 		break;
 	case SPELL_GAIN_MUT:
 		msg_print(T("You become vampiric.", "生命力を吸収できるようになった。"));
@@ -2983,7 +2998,7 @@ void vampirism_spell(int cmd, variant *res)
 			}
 
 			msg_print(T("You grin and bare your fangs...", "あなたはニヤリとして牙をむいた..."));
-			dummy = p_ptr->lev * 2;
+			dummy = spell_power(p_ptr->lev * 2);
 
 			if (drain_life(dir, dummy))
 			{
