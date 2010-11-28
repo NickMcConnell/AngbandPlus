@@ -3829,6 +3829,18 @@ player_class class_info[MAX_CLASS] =
 		10, 11, 10, 0,   0,  0, 14, 0,
 		2, 25, 35
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Wild-Talent",
+
+		{-1, +2, -1, 2, -2, +3},
+		30, 40, 31, 1, 24, 16, 68, 50,
+		 8, 15, 10, 0,  0,  0, 18, 20,
+		2, 35, 35
+	},
 };
 /*
  *      Title,
@@ -4232,6 +4244,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_NONE),				/* Blood Knight */
 	(CH_NONE),				/* Archaeologist */
 	(CH_NONE),				/* Duelist */
+	(CH_NONE),				/* Wild-Talent */
 };
 
 
@@ -4279,6 +4292,7 @@ s32b realm_choices2[MAX_CLASS] =
 	(CH_NONE),				/* Blood Knight */
 	(CH_NONE),				/* Archaeologist */
 	(CH_NONE),				/* Duelist */
+	(CH_NONE),				/* Wild-Talent */
 };
 
 
@@ -5282,6 +5296,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Duelist",
 		"Duelist",
 		"Duelist",
+	},
+	/* Wild-Talent */
+	{
+		"Wild Child",
+		"Wild Child",
+		"Stochasticator",
+		"Probabilistifier",
+		"Randomness",
+		"Wild Thing",
+		"Wild Thing",
+		"Wild Lord",
+		"Wild Lord",
+		"Wild Lord",
 	},
 };
 #endif

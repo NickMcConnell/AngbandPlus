@@ -80,7 +80,12 @@ void check_experience(void)
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_plv)
 		{
+			class_t *class_ptr = get_class_t();
+
 			p_ptr->max_plv = p_ptr->lev;
+
+			if (class_ptr != NULL && class_ptr->gain_level != NULL)
+				(class_ptr->gain_level)(p_ptr->lev);
 
 			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
 			    mut_present(MUT_CHAOS_GIFT))

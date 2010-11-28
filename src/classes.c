@@ -27,6 +27,9 @@ class_t *result = NULL;
 	case CLASS_WARLOCK:
 		result = warlock_get_class_t(psubclass);
 		break;
+	case CLASS_WILD_TALENT:
+		result = wild_talent_get_class_t();
+		break;
 	}
 
 	return result;
@@ -209,13 +212,13 @@ int get_class_powers(spell_info* spells, int max)
 		{
 			spell_info* spell = &spells[ct++];
 			spell->level = 1;
-			spell->cost = (p_ptr->lev+3)/4;
+			spell->cost = 0;
 			spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_CHR]);
 			spell->fn = dominate_living_I_spell;
 
 			spell = &spells[ct++];
 			spell->level = 30;
-			spell->cost = (p_ptr->lev+20)/2;
+			spell->cost = 0;
 			spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_CHR]);
 			spell->fn = dominate_living_II_spell;
 			break;

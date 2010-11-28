@@ -1835,6 +1835,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Duelist ...)",
 
+"TRANSLATE(Wild-Thing ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1902,6 +1904,11 @@ static cptr class_jouhou[MAX_CLASS] =
 "The Archaeologist is an erudite treasure hunter, seeking out the most valuable prizes that the dungeon has to offer. At home in subterranean caverns and vaults, he is rarely lost or snared in traps. His powers of perception and detection are very great, as is his skill with arcane devices. At high levels he can use the dark magic of the entombed Pharaohs.",
 
 "The duelist is the ultimate one-on-one fighter, but finds himself at a severe disadvantage when facing numerous strong foes.", 
+
+"The Wild-Talent gains random talents and abilities as they "
+  "level up.  They are good fighters, and decent with magical devices, "
+  "but their true forte is their vast array of potential random "
+  "powers.  Except you never know what those might be!",
 
 #endif
 };
@@ -4085,6 +4092,12 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_RING, SV_RING_RES_FEAR },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SWORD, SV_RAPIER },
+	},
+	{
+		/* Wild-Talent */
+		{ TV_POTION, SV_POTION_SPEED },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
+		{ TV_SWORD, SV_SMALL_SWORD },
 	},
 };
 
@@ -6900,6 +6913,13 @@ void player_birth(void)
 	/* Set the inv/equip window flag as default */
 	if (!window_flag[2])
 		window_flag[2] |= PW_INVEN;
+
+	/* Hack: Gain CL1 */
+	{
+		class_t *class_ptr = get_class_t();
+		if (class_ptr != NULL && class_ptr->gain_level != NULL)
+			(class_ptr->gain_level)(p_ptr->lev);
+	}
 }
 
 

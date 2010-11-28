@@ -1828,6 +1828,7 @@ typedef void(*birth_fn)(void);
 typedef void(*calc_weapon_bonuses_fn)(object_type *o_ptr, weapon_info_t *info_ptr);
 typedef caster_info*(*caster_info_fn)(void);
 typedef int(*get_spells_fn)(spell_info* spells, int max);
+typedef void(*gain_level_fn)(int new_level);
 
 typedef struct {
 	s16b dis;			/* disarming */
@@ -1853,6 +1854,7 @@ typedef struct {
 	caster_info_fn			caster_info;
 	get_spells_fn			get_spells;
 	get_spells_fn			get_powers;
+	gain_level_fn			gain_level; /* Only ever called when a new max level is achieved */
 } class_t;
 
 typedef struct {

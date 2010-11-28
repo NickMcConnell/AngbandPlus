@@ -288,6 +288,9 @@
     <ClCompile Include="mindcrafter.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="wild_talent.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

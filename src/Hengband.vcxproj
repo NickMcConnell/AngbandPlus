@@ -156,6 +156,7 @@
     <ClCompile Include="variant.c" />
     <ClCompile Include="warlock.c" />
     <ClCompile Include="wild.c" />
+    <ClCompile Include="wild_talent.c" />
     <ClCompile Include="wizard1.c" />
     <ClCompile Include="wizard2.c" />
     <ClCompile Include="xtra1.c" />

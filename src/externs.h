@@ -1856,3 +1856,6 @@ extern void smith_judgment_spell(int cmd, variant *res);
 /* warlock.c */
 extern class_t *warlock_get_class_t(int psubclass);
 extern bool warlock_is_pact_monster(monster_race *r_ptr);
+
+/* wild_talent.c */
+extern class_t *wild_talent_get_class_t(void);

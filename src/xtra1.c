@@ -2600,7 +2600,11 @@ static void calc_mana(void)
 		if (msp && (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)) msp += msp/2;
 
 		/* Hack: High mages have a 25% mana bonus */
-		if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE)) msp += msp / 4;
+		if (msp && 
+		    (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_WILD_TALENT))
+		{
+			msp += msp / 4;
+		}
 
 		if (msp && (p_ptr->pclass == CLASS_SORCERER)) msp += msp*(25+p_ptr->lev)/100;
 	}
@@ -4999,6 +5003,9 @@ void calc_bonuses(void)
 				/* Imitator */
 				case CLASS_IMITATOR:
 					num = 5; wgt = 70; mul = 4; break;
+
+				case CLASS_WILD_TALENT:
+					num = 4; wgt = 70; mul = 4; break;
 
 				/* Beastmaster */
 				case CLASS_BEASTMASTER:

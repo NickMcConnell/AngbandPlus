@@ -70,7 +70,7 @@ void android_ray_gun_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 		
 		msg_print(T("You fire your ray gun.", "レイガンを発射した。"));
-		fire_bolt(GF_MISSILE, dir, (p_ptr->lev+1) / 2);
+		fire_bolt(GF_MISSILE, dir, 5 + (p_ptr->lev+1) / 2);
 		
 		var_set_bool(res, TRUE);
 		break;
@@ -98,7 +98,7 @@ void android_blaster_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		msg_print(T("You fire your blaster.", "ブラスターを発射した。"));
-		fire_bolt(GF_MISSILE, dir, p_ptr->lev);
+		fire_bolt(GF_MISSILE, dir, 5 + p_ptr->lev);
 
 		var_set_bool(res, TRUE);
 		break;
@@ -126,7 +126,7 @@ void android_bazooka_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		msg_print(T("You fire your bazooka.", "バズーカを発射した。"));
-		fire_ball(GF_MISSILE, dir, p_ptr->lev * 3, 2);
+		fire_ball(GF_MISSILE, dir, 5 + p_ptr->lev * 3, 2);
 
 		var_set_bool(res, TRUE);
 		break;
@@ -154,7 +154,7 @@ void android_beam_cannon_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		msg_print(T("You fire a beam cannon.", "ビームキャノンを発射した。"));
-		fire_beam(GF_MISSILE, dir, p_ptr->lev * 3);
+		fire_beam(GF_MISSILE, dir, 5 + p_ptr->lev * 3);
 
 		var_set_bool(res, TRUE);
 		break;
@@ -579,6 +579,9 @@ void demon_breath_spell(int cmd, variant *res)
 		var_set_bool(res, TRUE);
 		break;
 	}
+	case SPELL_COST_EXTRA:
+		var_set_int(res, p_ptr->lev/3);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -804,6 +807,9 @@ void dominate_living_I_spell(int cmd, variant *res)
 		var_set_bool(res, TRUE);
 		break;
 	}
+	case SPELL_COST_EXTRA:
+		var_set_int(res, (p_ptr->lev+3)/4);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -823,6 +829,9 @@ void dominate_living_II_spell(int cmd, variant *res)
 	case SPELL_CAST:
 		project_hack(GF_CONTROL_LIVING, p_ptr->lev);
 		var_set_bool(res, TRUE);
+		break;
+	case SPELL_COST_EXTRA:
+		var_set_int(res, (p_ptr->lev+20)/2);
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1078,6 +1087,9 @@ void draconian_breath_spell(int cmd, variant *res)
 		var_set_bool(res, TRUE);
 		break;
 	}
+	case SPELL_COST_EXTRA:
+		var_set_int(res, p_ptr->lev);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;

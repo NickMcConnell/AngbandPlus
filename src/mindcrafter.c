@@ -558,7 +558,7 @@ static int _get_spells(spell_info* spells, int max)
 	return ct;
 }
 
-int _get_powers(spell_info* spells, int max)
+static int _get_powers(spell_info* spells, int max)
 {
 	int ct = 0;
 

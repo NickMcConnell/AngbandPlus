@@ -283,6 +283,7 @@ static void sense_inventory1(void)
 		case CLASS_BARD:
 		case CLASS_TIME_LORD:
 		case CLASS_WARLOCK:
+		case CLASS_WILD_TALENT:
 		{
 			/* Good (light) sensing */
 			if (0 != randint0(10000L / (plev * plev + 40))) return;
@@ -521,6 +522,7 @@ static void sense_inventory2(void)
 		case CLASS_FORCETRAINER:
 		case CLASS_MINDCRAFTER:
 		case CLASS_WARLOCK:
+		case CLASS_WILD_TALENT:
 		{
 			/* Good sensing */
 			if (0 != randint0(20000L / (plev * plev + 40))) return;
@@ -6319,14 +6321,6 @@ quit("セーブファイルが壊れています");
 
 	/* Flavor the objects */
 	flavor_init();
-
-	/* Flash a message */
-#ifdef JP
-prt("お待ち下さい...", 0, 0);
-#else
-	prt("Please wait...", 0, 0);
-#endif
-
 
 	/* Flush the message */
 	Term_fresh();

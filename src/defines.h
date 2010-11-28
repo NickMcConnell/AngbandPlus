@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            33
+#define MAX_CLASS            34
 
 #define MAX_SEIKAKU          12
 
@@ -827,6 +827,7 @@
 #define CLASS_WARLOCK			30
 #define CLASS_ARCHAEOLOGIST		31
 #define CLASS_DUELIST			32
+#define CLASS_WILD_TALENT		33
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
