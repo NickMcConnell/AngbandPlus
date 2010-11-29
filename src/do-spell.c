@@ -275,7 +275,7 @@ void cast_wonder(int dir)
 	}
 
 	if (p_ptr->pclass == CLASS_WILD_TALENT)
-		die += 25 + p_ptr->lev/2;
+		die += randint1(25 + p_ptr->lev/2);
 
 	if (die < 26)
 		chg_virtue(V_CHANCE, 1);

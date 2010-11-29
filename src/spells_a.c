@@ -3367,6 +3367,7 @@ void summon_tree_spell(int cmd, variant *res)
 		int attempts = 0;
 		int x, y, dir;
 
+		var_set_bool(res, TRUE);
 		for (;;)
 		{
 			if (attempts > 4)
