@@ -1268,22 +1268,14 @@ msg_print("しかし効力を跳ね返した！");
 		{
 			if (randint0(100) < p_ptr->skill_sav)
 			{
-#ifdef JP
-msg_print("しかし効力を跳ね返した！");
-#else
-				msg_print("You resist the effects!");
-#endif
-
+				msg_print(T("You resist the effects!", "しかし効力を跳ね返した！"));
 				break;
 			}
-
-#ifdef JP
-msg_print("体がねじれ始めた...");
-#else
-			msg_print("Your body starts to scramble...");
-#endif
-
-			mutate_player();
+			msg_print(T("Your body starts to scramble...", "体がねじれ始めた..."));
+			if (p_ptr->pclass == CLASS_WILD_TALENT)
+				wild_talent_scramble();
+			else
+				mutate_player();
 			break;
 		}
 	}

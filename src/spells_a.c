@@ -339,7 +339,69 @@ void bless_weapon_spell(int cmd, variant *res)
 	}
 }
 
-void breathe_fire_spell(int cmd, variant *res)
+void brain_smash_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Brain Smash", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Gaze intently at a single foe, causing damage, confusion and stunning", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(12, spell_power(12), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball_hide(GF_BRAIN_SMASH, dir, spell_power(damroll(12, 12)), 0);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void breathe_disintegration_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Breathe Disintegration", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("A disintegration breath.  Not even the dungeon walls can withstand its power!", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(MIN(p_ptr->chp / 6, 150))));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		stop_mouth();
+		msg_print(T("You breathe disintegration.", "分解のブレスを吐いた。"));
+		fire_ball(GF_DISINTEGRATE, dir, 
+			spell_power(MIN(p_ptr->chp / 6, 150)), 
+			(p_ptr->lev > 40 ? -3 : -2));
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void breathe_fire_I_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
@@ -382,7 +444,154 @@ void breathe_fire_spell(int cmd, variant *res)
 		break;
 	}
 }
-bool cast_breathe_fire(void) { return cast_spell(breathe_fire_spell); }
+bool cast_breathe_fire_I(void) { return cast_spell(breathe_fire_I_spell); }
+
+void breathe_fire_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Breathe Fire", "炎のブレス"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Breathes Fire at your opponent.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(MIN(p_ptr->chp/3, 200))));
+		break;
+	case SPELL_COST_EXTRA:
+		var_set_int(res, p_ptr->lev);
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (get_aim_dir(&dir))
+		{
+			stop_mouth();
+			msg_print(T("You breathe fire...", "あなたは火炎のブレスを吐いた..."));
+			fire_ball(GF_FIRE, dir, spell_power(MIN(p_ptr->chp/3, 200)), -1 - (p_ptr->lev / 20));
+			var_set_bool(res, TRUE);
+		}
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void cause_wounds_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Cause Light Wounds", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attempts to damage a single foe.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(3, spell_power(8), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball_hide(GF_CAUSE_1, dir, spell_power(damroll(3, 8)), 0);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void cause_wounds_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Cause Medium Wounds", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attempts to damage a single foe.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(8, spell_power(8), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball_hide(GF_CAUSE_2, dir, spell_power(damroll(8, 8)), 0);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void cause_wounds_III_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Cause Critical Wounds", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attempts to damage a single foe.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(10, spell_power(15), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball_hide(GF_CAUSE_3, dir, spell_power(damroll(10, 15)), 0);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void cause_wounds_IV_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Cause Mortal Wounds", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attempts to damage a single foe.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(15, spell_power(15), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		fire_ball_hide(GF_CAUSE_4, dir, spell_power(damroll(15, 15)), 0);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void clear_mind_spell(int cmd, variant *res)
 {
@@ -529,6 +738,66 @@ void create_food_spell(int cmd, variant *res)
 	}
 }
 bool cast_create_food(void) { return cast_spell(create_food_spell); }
+
+void darkness_storm_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Darkness Storm", "暗黒の嵐"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a huge ball of darkness.", "巨大な暗黒の球を放つ。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		msg_print(T("You invoke a darkness storm.", "暗黒の嵐の呪文を念じた。"));
+		fire_ball(GF_DARK, dir, spell_power(100 + p_ptr->lev * 2), spell_power(4));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void darkness_storm_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Darkness Storm", "暗黒の嵐"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a huge ball of darkness of unmatched power", "巨大な暗黒の球を放つ。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 8)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		msg_print(T("You invoke a darkness storm.", "暗黒の嵐の呪文を念じた。"));
+		fire_ball(GF_DARK, dir, 
+			spell_power(50 + p_ptr->lev * 8 + damroll(10, 10)), 
+			spell_power(4));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void dazzle_spell(int cmd, variant *res)
 {
@@ -690,6 +959,26 @@ void detect_doors_stairs_traps_spell(int cmd, variant *res)
 	}
 }
 bool cast_detect_doors_stairs_traps(void) { return cast_spell(detect_doors_stairs_traps_spell); }
+
+void detect_menace_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Detect Ferocity", "殺気感知"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Detects nearby menacing monsters.  Only intelligent monsters are detected.", ""));
+		break;
+	case SPELL_CAST:
+		detect_monsters_mind(DETECT_RAD_DEFAULT);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void detect_monsters_spell(int cmd, variant *res)
 {
@@ -882,7 +1171,7 @@ void draconian_breath_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Breathe", "ブレス"));
+		var_set_string(res, T("Draconian Breath", "ブレス"));
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("", ""));
@@ -1410,6 +1699,56 @@ void identify_fully_spell(int cmd, variant *res)
 }
 bool cast_identify_fully(void) { return cast_spell(identify_fully_spell); }
 
+void healing_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Healing I", "体力回復"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Powerful healing magic:  heals hitpoints, cuts and stun.", "極めて強力な回復呪文で、負傷と朦朧状態も全快する。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, format("Heals %d", spell_power(300)));
+		break;
+	case SPELL_CAST:
+		hp_player(spell_power(300));
+		set_stun(0, TRUE);
+		set_cut(0, TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void healing_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Healing II", "体力回復"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Powerful healing magic:  heals hitpoints, cuts and stun.", "極めて強力な回復呪文で、負傷と朦朧状態も全快する。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, format("Heals %d", spell_power(500)));
+		break;
+	case SPELL_CAST:
+		hp_player(spell_power(500));
+		set_stun(0, TRUE);
+		set_cut(0, TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void hell_lance_spell(int cmd, variant *res)
 {
 	int dam = spell_power(p_ptr->lev * 3);
@@ -1758,6 +2097,166 @@ void magic_missile_spell(int cmd, variant *res)
 	}
 }
 bool cast_magic_missile(void) { return cast_spell(magic_missile_spell); }
+
+void mana_bolt_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Mana Bolt I", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a bolt of pure mana.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7 / 2), spell_power(50)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You cast a mana bolt.", "魔力の矢の呪文を唱えた。"));
+		fire_bolt(GF_MANA, dir, spell_power(randint1(p_ptr->lev * 7 / 2) + 50));
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void mana_bolt_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Mana Bolt II", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a powerful bolt of pure mana.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 7), spell_power(100)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You cast a mana bolt.", "魔力の矢の呪文を唱えた。"));
+		fire_bolt(GF_MANA, dir, spell_power(randint1(p_ptr->lev * 7) + 100));
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void mana_storm_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Mana Storm", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a large ball of pure mana.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 5)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You cast a mana storm.", "魔力の嵐の呪文を念じた。"));
+		fire_ball(GF_MANA, dir, spell_power(p_ptr->lev * 5 + damroll(10, 10)), 4);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void mana_storm_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Mana Storm", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a large ball of pure mana.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 8 + 50)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You cast a mana storm.", "魔力の嵐の呪文を念じた。"));
+		fire_ball(GF_MANA, dir, spell_power(p_ptr->lev * 8 + 50 + damroll(10, 10)), 4);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void massacre_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Massacre", "皆殺し"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attack all adjacent monsters in a fit of wild, uncontrollable fury.", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int              dir, x, y;
+		cave_type       *c_ptr;
+		monster_type    *m_ptr;
+
+		for (dir = 0; dir < 8; dir++)
+		{
+			y = py + ddy_ddd[dir];
+			x = px + ddx_ddd[dir];
+			c_ptr = &cave[y][x];
+
+			m_ptr = &m_list[c_ptr->m_idx];
+
+			if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
+				py_attack(y, x, 0);
+		}
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void mind_blast_spell(int cmd, variant *res)
 {
@@ -2305,6 +2804,93 @@ void restore_life_spell(int cmd, variant *res)
 }
 bool cast_restore_life(void) { return cast_spell(restore_life_spell); }
 
+void rocket_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Magic Rocket I", "マジック・ロケット"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a magic rocket.", "ロケットを発射する。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(120 + p_ptr->lev * 2)));
+		break;	
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		int dam = spell_power(120 + p_ptr->lev * 2);
+		int rad = 2;
+
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You launch a rocket!", "ロケット発射！"));
+		fire_rocket(GF_ROCKET, dir, dam, rad);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void rocket_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Magic Rocket II", "マジック・ロケット"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a magic rocket of unsurpassable fire power.", "ロケットを発射する。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(500)));
+		break;	
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		int dam = spell_power(500);
+		int rad = 2;
+
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		msg_print(T("You launch a rocket!", "ロケット発射！"));
+		fire_rocket(GF_ROCKET, dir, dam, rad);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void rush_attack_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Rush Attack", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Charge a nearby monster and attack with your weapons.", ""));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, rush_attack(NULL));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void satisfy_hunger_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2371,6 +2957,35 @@ void shadow_shifting_spell(int cmd, variant *res)
 		alter_reality();
 		var_set_bool(res, TRUE);
 		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void shoot_arrow_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Shoot Arrow", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires an arrow.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(2, spell_power(7), 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		msg_print(T("You fire an arrow.", "矢を放った。"));
+		fire_bolt(GF_ARROW, dir, spell_power(damroll(2, 7)));
+		var_set_bool(res, TRUE);
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -2596,6 +3211,66 @@ void spit_acid_spell(int cmd, variant *res)
 }
 bool cast_spit_acid(void) { return cast_spell(spit_acid_spell); }
 
+void starburst_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Star Burst", "スターバースト"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a huge ball of powerful light.", "巨大な閃光の球を放つ。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(100 + p_ptr->lev * 2)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		msg_print(T("You invoke a starburst.", "スターバーストの呪文を念じた。"));
+		fire_ball(GF_LITE, dir, spell_power(100 + p_ptr->lev * 2), spell_power(4));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void starburst_II_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Star Burst", "スターバースト"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a huge ball of powerful light.", "巨大な閃光の球を放つ。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(10, spell_power(10), spell_power(50 + p_ptr->lev * 8)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		msg_print(T("You invoke a starburst.", "スターバーストの呪文を念じた。"));
+		fire_ball(GF_LITE, dir, 
+			spell_power(50 + p_ptr->lev * 8 + damroll(10, 10)), 
+			spell_power(4));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void sterility_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2722,6 +3397,34 @@ void summon_tree_spell(int cmd, variant *res)
 	}
 }
 bool cast_summon_tree(void) { return cast_spell(summon_tree_spell); }
+
+void super_stealth_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Hide in Darkness", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Grants the stealth of the Ninja!  You may hide in shadows and see in the dark.  Your light radius is decreased by 3.", ""));
+		break;
+	case SPELL_CAST:
+		if (p_ptr->tim_superstealth)
+		{
+			msg_print("You are already moving in the shadows.");
+			var_set_bool(res, FALSE);
+		}
+		else
+		{
+			set_tim_superstealth(spell_power(randint1(p_ptr->lev/2) + p_ptr->lev/2), FALSE);
+			var_set_bool(res, TRUE);
+		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void swap_pos_spell(int cmd, variant *res)
 {
@@ -3060,3 +3763,28 @@ void weigh_magic_spell(int cmd, variant *res)
 	}
 }
 bool cast_weigh_magic(void) { return cast_spell(weigh_magic_spell); }
+
+void wonder_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Wonder", "ワンダー"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires something with random effects.", "モンスターにランダムな効果を与える。"));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		cast_wonder(dir);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}

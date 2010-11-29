@@ -1116,6 +1116,8 @@ struct player_type
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
 	s16b tim_no_device;		/* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
 							
+	s16b tim_superstealth;
+
 	/* for mirror master */
 	s16b tim_reflect;       /* Timed -- Reflect */
 	s16b multishadow;       /* Timed -- Multi-shadow */

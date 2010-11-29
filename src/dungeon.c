@@ -2221,6 +2221,9 @@ static void process_world_aux_timeout(void)
 		(void)set_tim_blood_revenge(p_ptr->tim_blood_revenge - 1, TRUE);
 	}
 
+	if (p_ptr->tim_superstealth)
+		set_tim_superstealth(p_ptr->tim_superstealth - 1, TRUE);
+
 	/*** Poison and Stun and Cut ***/
 
 	/* Poison */
@@ -4229,7 +4232,8 @@ msg_print("ウィザードモード突入。");
 			         p_ptr->pclass == CLASS_DUELIST ||
 					 p_ptr->pclass == CLASS_WARLOCK ||
 					 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
-					 p_ptr->pclass == CLASS_MINDCRAFTER)
+					 p_ptr->pclass == CLASS_MINDCRAFTER ||
+					 p_ptr->pclass == CLASS_WILD_TALENT)
 			{
 				/* This is the preferred entry point ... I'm still working on
 				   coverting everything else */
@@ -4352,7 +4356,8 @@ msg_print("ウィザードモード突入。");
 					         p_ptr->pclass == CLASS_DUELIST ||
 							 p_ptr->pclass == CLASS_WARLOCK ||
 							 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
-							 p_ptr->pclass == CLASS_MINDCRAFTER)
+							 p_ptr->pclass == CLASS_MINDCRAFTER ||
+							 p_ptr->pclass == CLASS_WILD_TALENT)
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */

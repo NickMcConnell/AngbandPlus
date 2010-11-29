@@ -752,6 +752,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->multishadow);
 	wr_s16b(p_ptr->dustrobe);
 
+	wr_s16b(p_ptr->tim_superstealth);
+
 	wr_s16b(p_ptr->chaos_patron);
 	for (i = 0; i < MUT_FLAG_SIZE; ++i)
 		wr_u32b(p_ptr->muta[i]);

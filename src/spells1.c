@@ -7062,6 +7062,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 						mut_gain_random(NULL);
 					}
+					if (p_ptr->pclass == CLASS_WILD_TALENT && one_in_(7))
+						wild_talent_scramble();
 				}
 				if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
 				{

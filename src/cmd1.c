@@ -3694,7 +3694,7 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 		/* Handle stuff */
 		if (mpe_mode & MPE_HANDLE_STUFF) handle_stuff();
 
-		if (p_ptr->pclass == CLASS_NINJA)
+		if (p_ptr->pclass == CLASS_NINJA || p_ptr->tim_superstealth)
 		{
 			if (c_ptr->info & (CAVE_GLOW)) set_superstealth(FALSE);
 			else if (p_ptr->cur_lite <= 0) set_superstealth(TRUE);

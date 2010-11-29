@@ -820,6 +820,7 @@ extern void do_cmd_magic_eater(bool only_browse);
 
 /* do-spell.c */
 extern int beam_chance(void);
+extern void cast_wonder(int dir);
 extern int spell_power(int pow);
 extern int spell_power_aux(int pow, int bonus);
 extern cptr do_spell(int realm, int spell, int mode);
@@ -1438,6 +1439,7 @@ extern bool set_tim_blood_seek(int v, bool do_dec);
 extern bool set_tim_blood_sight(int v, bool do_dec);
 extern bool set_tim_blood_feast(int v, bool do_dec);
 extern bool set_tim_blood_revenge(int v, bool do_dec);
+extern bool set_tim_superstealth(int v, bool do_dec);
 extern bool set_tim_no_spells(int v, bool do_dec);
 extern bool set_tim_no_device(int v, bool do_dec);
 extern bool set_resist_magic(int v, bool do_dec);
@@ -1860,4 +1862,5 @@ extern bool warlock_is_pact_monster(monster_race *r_ptr);
 
 /* wild_talent.c */
 extern class_t *wild_talent_get_class_t(void);
+extern void wild_talent_scramble(void);
 extern void wild_talent_new_life(void);

@@ -256,7 +256,7 @@ static bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, 
  * while keeping the results quite random.  It also allows some potent
  * effects only at high level.
  */
-static void cast_wonder(int dir)
+void cast_wonder(int dir)
 {
 	int plev = p_ptr->lev;
 	int die = randint1(100) + plev / 5;
@@ -273,6 +273,9 @@ static void cast_wonder(int dir)
 			while (randint1(400) < (0-p_ptr->virtues[vir - 1])) die--;
 		}
 	}
+
+	if (p_ptr->pclass == CLASS_WILD_TALENT)
+		die += 25 + p_ptr->lev/2;
 
 	if (die < 26)
 		chg_virtue(V_CHANCE, 1);

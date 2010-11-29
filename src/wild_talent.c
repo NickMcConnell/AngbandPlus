@@ -1,5 +1,6 @@
 #include "angband.h"
 
+
 /*
  * We are using p_ptr->magic_num to remember talents.
  * 0 indicates no talent for this group, so we always subtract
@@ -16,7 +17,7 @@ spell_info	spell;
  * Talents are grouped.  Each group of talent will contain abilities
  * of a similar kind, such as offense, defense, detection.
  */
-#define _MAX_TALENTS 23
+#define _MAX_TALENTS 25
 #define _MAX_TALENTS_PER_GROUP 10
 
 static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] = 
@@ -26,6 +27,8 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_INT, "like a Dark Elf", {1, 1, 30, magic_missile_spell}},
 		{ A_STR, "like an Android", {1, 1, 30, android_ray_gun_spell}},
 		{ A_CON, "like a Vampire", {1, 1, 70, vampirism_spell}},
+		{ A_DEX, "like a Novice Ranger", {1, 1, 30, shoot_arrow_spell}},
+		{ A_WIS, "like a Novice Paladin", {1, 1, 30, cause_wounds_I_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL3: Weak utility */
@@ -42,15 +45,17 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_INT, "like a Gnome", {3, 5, 50, phase_door_spell}},
 		{ A_DEX, "like an Archer", {1, 0, 0, create_ammo_spell}},
 		{ A_WIS, "like a Dwarf", {5, 5, 50, detect_doors_stairs_traps_spell}},
+		{ A_INT, "like a Mutant", {3, 2, 30, smell_metal_spell}},
+		{ A_CHR, "like a Warlock", {5, 5, 50, detect_objects_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 
 	/* CL7: Middle Utility */
 	{
-		{ A_INT, "like a Mutant", {3, 2, 30, smell_metal_spell}},
 		{ A_CHR, "like a Warlock", {5, 5, 40, detect_monsters_spell}},
-		{ A_CHR, "like a Warlock", {5, 5, 50, detect_objects_spell}},
 		{ A_CON, "like a Mutant", {7, 12, 40, eat_rock_spell}},
+		{ A_INT, "like a Sprite", {7, 12, 50, sleeping_dust_spell}},
+		{ A_STR, "like a Berserker", {7, 5, 40, detect_menace_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL9: Middle Offense */
@@ -58,8 +63,8 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_CHR, "like a Beastmaster", {1, 0, 30, dominate_living_I_spell}},
 		{ A_WIS, "like an Imp", {9, 7, 50, imp_fire_spell}},
 		{ A_STR, "like an Android", {9, 7, 30, android_blaster_spell}},
-		{ A_INT, "like a Sprite", {9, 12, 50, sleeping_dust_spell}},
 		{ A_DEX, "like a Kobold", {9, 8, 50, poison_dart_spell}},
+		{ A_WIS, "like a Moon Beast", {9, 7, 40, cause_wounds_II_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL11: Middle Offense */
@@ -88,7 +93,9 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 	/* CL17: Middle Offense */
 	{
 		{ A_STR, "like a Cyclops", {17, 15, 50, throw_boulder_spell}},
-		{ A_STR, "like an Android", {17, 26, 40, android_bazooka_spell}},
+		{ A_STR, "like an Android", {17, 20, 40, android_bazooka_spell}},
+		{ A_WIS, "like a Black Knight", {17, 12, 40, cause_wounds_III_spell}},
+		{ A_CHR, "like a Dark Elven Warlock", {17, 15, 50, mana_bolt_I_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL19: Good Utility */
@@ -120,7 +127,8 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 	{
 		{ A_CON, "like a Draconian", {1, 0, 40, draconian_breath_spell}},
 		{ A_DEX, "like a Klackon", {9, 9, 40, spit_acid_spell}},
-		{ A_CON, "like a Mutant", {20,  0,  40, breathe_fire_spell}},
+		{ A_CON, "like a Mutant", {20,  0,  40, breathe_fire_I_spell}},
+		{ A_WIS, "like a Blue-Mage", {20,  0,  40, brain_smash_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL27: Good Utility */
@@ -133,11 +141,12 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_WIS, "like a Mutant", {9, 9, 40, telekinesis_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
-	/* CL29: Good Recovery */
+	/* CL29: Good Recovery/Ability */
 	{
 		{ A_INT, "like a Warrior-Mage", {25, 0, 50, hp_to_sp_spell}},
 		{ A_INT, "like a Warrior-Mage", {25, 0, 50, sp_to_hp_spell}},
 		{ A_INT, "like a Mage", {25, 1, 70, eat_magic_spell}},
+		{ A_DEX, "like a Ninja", {20, 0, 0, quick_walk_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL31: Good Offense */
@@ -145,6 +154,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_WIS, "like a Good Paladin", {30, 30, 40, holy_lance_spell}},
 		{ A_WIS, "like an Evil Paladin", {30, 30, 40, hell_lance_spell}},
 		{ A_STR, "like an Android", {30, 40, 50, android_beam_cannon_spell}},
+		{ A_INT, "like a Monastic Lich", {30, 30, 40, cause_wounds_IV_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL33: Good Utility */
@@ -153,13 +163,16 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_INT, "like a Tourist", {25, 20, 30, identify_fully_spell}},
 		{ A_CHR, "like a Warlock", {30, 10, 40, earthquake_spell}},
 		{ A_CHR, "like a Warlock", {30, 20, 40, teleport_level_spell}},
+		{ A_WIS, "like a Priest", {30, 30, 80, healing_I_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL35: Good Offense/Ability */
 	{
 		{ A_DEX, "like a Warrior", {33, 75, 60, sword_dance_spell}},
 		{ A_DEX, "like a Monk", {30, 30, 60, monk_double_attack_spell}},
-		{ A_DEX, "like a Ninja", {20, 0, 0, quick_walk_spell}},
+		{ A_INT, "like Jack of Shadows", {35, 50, 50, darkness_storm_I_spell}},
+		{ A_INT, "like a Solar", {35, 50, 50, starburst_I_spell}},
+		{ A_CON, "like a Greater Balrog", {35, 30, 50, breathe_fire_II_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL37: Great Buff */
@@ -175,25 +188,44 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_CHR, "like a Mutant", {7, 15, 60, dazzle_spell}},
 		{ A_WIS, "like a Mutant", {25, 25, 70, banish_evil_spell}},
 		{ A_CON, "like a Mutant", {1, 6, 60, grow_mold_spell}},
+		{ A_DEX, "like a Samurai", {46, 20, 65, rush_attack_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
-	/* CL41: Great Utility */
+	/* CL41: Great Offense */
+	{
+		{ A_STR, "like an Android", {40, 50, 70, android_rocket_spell}},
+		{ A_WIS, "like an Mindcrafter", {40, 40, 70, psycho_spear_spell}},
+		{ A_CON, "like The Destroyer", {40, 40, 70, breathe_disintegration_spell}},
+		{ A_CHR, "like an Eye Druj", {17, 15, 50, mana_bolt_II_spell}},
+		{ A_INT, "like Habu, The Champion of Chaos", {50, 60, 65, mana_storm_I_spell}},
+		{ -1, NULL, {0, 0, 0, NULL}},
+	},
+	/* CL43: Great Utility */
 	{
 		{ A_WIS, "like an Amberite", {40, 75, 75, pattern_mindwalk_spell}},
 		{ A_CHR, "like a Warlock", {35, 70, 60, destruction_spell}},
 		{ A_CHR, "like a Warlock", {46, 20, 65, dimension_door_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
-	/* CL43: Great Utility */
+	/* CL45: Great Utility */
 	{
 		{ A_INT, "like a Chaos Warrior", {40, 50, 80, confusing_lights_spell}},
 		{ A_WIS, "like an Evil Priest", {42, 40, 80, evocation_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
-	/* CL45: Great Offense */
+	/* CL47: General Awesomeness */
 	{
-		{ A_STR, "like an Android", {43, 60, 70, android_rocket_spell}},
-		{ A_WIS, "like an Mindcrafter", {43, 60, 70, psycho_spear_spell}},
+		{ A_DEX, "like a Ninja", {45, 50, 80, super_stealth_spell}},
+		{ A_STR, "like a Berserker", {45, 50, 80, massacre_spell}},
+		{ A_WIS, "like a Priest", {45, 50, 80, healing_II_spell}},
+		{ -1, NULL, {0, 0, 0, NULL}},
+	},
+	/* CL49: Capstone Offense */
+	{
+		{ A_INT, "like Atlach-Nacha, the Spider God", {49, 50, 65, darkness_storm_II_spell}},
+		{ A_WIS, "like Raphael, the Messenger", {49, 50, 65, starburst_II_spell}},
+		{ A_STR, "like Oremorj, the Cyberdemon Lord", {50, 60, 65, rocket_II_spell}},
+		{ A_CON, "like Morgoth, Lord of Darkness", {50, 60, 80, mana_storm_II_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 };
@@ -217,9 +249,15 @@ static int _group_size(int i)
 	return result;
 }
 
-static int _get_powers(spell_info* spells, int max)
+static int _get_spells(spell_info* spells, int max)
 {
 	int ct = 0, i;
+
+	spell_info* spell = &spells[ct++];
+	spell->level = 10;
+	spell->cost = 10;
+	spell->fail = calculate_fail_rate(10, 30, p_ptr->stat_ind[A_INT]);
+	spell->fn = wonder_spell;
 
 	for (i = 0; i < _MAX_TALENTS; ++i)
 	{
@@ -227,7 +265,8 @@ static int _get_powers(spell_info* spells, int max)
 		if (idx >= 0 && idx < _group_size(i))
 		{
 			talent_t *talent = &_talents[i][idx];
-			spell_info* spell = &spells[ct++];
+			
+			spell = &spells[ct++];
 			spell->level = talent->spell.level;
 			spell->cost = talent->spell.cost;
 			spell->fail = calculate_fail_rate(
@@ -246,11 +285,10 @@ void _gain_power(int level)
 {
 int group_idx = -1;
 
-	/* Powers on every odd level from 1 to 45 */
-	if (level <= 45 && level % 2 == 1)
+	if (level % 2 == 1)
 		group_idx = level/2;
 
-	if (group_idx >= 0 && group_idx < _MAX_TALENTS)
+	if (group_idx >= 0 && group_idx < _MAX_TALENTS && _group_size(group_idx) > 0)
 	{
 		variant name;
 		int idx = randint0(_group_size(group_idx));
@@ -312,21 +350,15 @@ void _gain_mutation(int level)
 	switch (level)
 	{
 	case 10:
-		mut_gain_random(_mut_avg_plus_pred);
+		mut_gain_random(_mut_good_pred);
 		break;
 	case 20:
 		mut_gain_random(_mut_good_pred);
 		break;
 	case 30:
-		mut_gain_random(_mut_good_pred);
+		mut_gain_random(_mut_good_plus_pred);
 		break;
 	case 40:
-		mut_gain_random(_mut_good_plus_pred);
-		break;
-	case 47:
-		mut_gain_random(_mut_good_plus_pred);
-		break;
-	case 49:
 		mut_gain_random(_mut_great_pred);
 		break;
 	case 50:
@@ -341,27 +373,54 @@ void _gain_level(int new_level)
 	_gain_mutation(new_level);
 }
 
+void wild_talent_scramble(void)
+{
+	int i;
+
+	if (p_ptr->pclass != CLASS_WILD_TALENT) return;
+
+	/* Forget old talents */
+	for (i = 0; i <= _MAX_TALENTS; ++i)
+		p_ptr->magic_num1[i] = 0;
+
+	msg_print("You feel wild forces of randomness enter your body!");
+
+	/* Regain new talents */
+	for (i = 1; i <= p_ptr->lev; ++i)
+		_gain_power(i);
+}
+
 void wild_talent_new_life(void)
 {
 	int i;
 
 	if (p_ptr->pclass != CLASS_WILD_TALENT) return;
 
-	/* Forget old talents ... mutations have already been cleared by !New Life */
-	for (i = 0; i <= _MAX_TALENTS; ++i)
-		p_ptr->magic_num1[i] = 0;
+	/* re-grant powers */
+	wild_talent_scramble();
 
-	msg_print("You feel new forces of randomness enter your body!");
-
-	/* Regain new talents and mutations */
+	/* re-grant mutations */
 	for (i = 1; i <= p_ptr->lev; ++i)
-		_gain_level(i);
+		_gain_mutation(i);
 }
 
 static void _calc_bonuses(void)
 {
 	if (p_ptr->lev >= 30)
 		p_ptr->regenerate = TRUE;
+}
+
+static caster_info * _caster_info(void)
+{
+	static caster_info me = {0};
+	static bool init = FALSE;
+	if (!init)
+	{
+		me.magic_desc = "wild spell";
+		me.use_sp = TRUE;
+		init = TRUE;
+	}
+	return &me;
 }
 
 class_t *wild_talent_get_class_t(void)
@@ -389,7 +448,8 @@ class_t *wild_talent_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.calc_bonuses = _calc_bonuses;
-		me.get_powers = _get_powers;
+		me.get_spells = _get_spells;
+		me.caster_info = _caster_info;
 		me.gain_level = _gain_level;
 		init = TRUE;
 	}

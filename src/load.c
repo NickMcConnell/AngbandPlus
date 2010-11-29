@@ -1452,6 +1452,11 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->multishadow);
 	rd_s16b(&p_ptr->dustrobe);
 
+	if (h_older_than(0, 0, 21, 1))
+		p_ptr->tim_superstealth = 0;
+	else
+		rd_s16b(&p_ptr->tim_superstealth);
+
 	rd_s16b(&p_ptr->chaos_patron);
 
 	if (h_older_than(0, 0, 18, 0))

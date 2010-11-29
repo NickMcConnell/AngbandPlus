@@ -2,7 +2,7 @@
 
 static bool _monk_check_spell(void)
 {
-	if (!(empty_hands(TRUE) & EMPTY_HAND_RARM))
+	if (p_ptr->pclass != CLASS_WILD_TALENT && !(empty_hands(TRUE) & EMPTY_HAND_RARM))
 	{
 		msg_print(T("You need to be bare hand.", "素手じゃないとできません。"));
 		return FALSE;

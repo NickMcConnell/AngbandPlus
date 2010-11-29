@@ -15,7 +15,7 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 {
     /*lvl cst fail  spell */
 	{   9,  9,  30, spit_acid_spell},
-	{  20,  0,  40, breathe_fire_spell},
+	{  20,  0,  40, breathe_fire_I_spell},
 	{  12, 12,  40, hypnotic_gaze_spell},
 	{   9,  9,  40, telekinesis_spell},
 	{   7,  7,  30, teleport_spell},

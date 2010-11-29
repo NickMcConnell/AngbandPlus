@@ -3070,6 +3070,13 @@ static void calc_torch(void)
 
 	/* end experimental mods */
 
+	if (p_ptr->tim_superstealth)
+	{
+		p_ptr->cur_lite -= 3;
+		if (p_ptr->cur_lite < 0)
+			p_ptr->cur_lite = 0;
+	}
+
 	/* Notice changes in the "lite radius" */
 	if (p_ptr->old_lite != p_ptr->cur_lite)
 	{
@@ -3382,11 +3389,14 @@ void calc_bonuses(void)
 
 	if (p_ptr->special_defense & KAMAE_MASK)
 	{
-		if (!(empty_hands_status & EMPTY_HAND_RARM))
+		if (p_ptr->pclass != CLASS_WILD_TALENT && !(empty_hands_status & EMPTY_HAND_RARM))
 		{
 			set_action(ACTION_NONE);
 		}
 	}
+
+	if (p_ptr->tim_superstealth)
+		p_ptr->see_nocto = TRUE;
 
 	switch (p_ptr->pclass)
 	{

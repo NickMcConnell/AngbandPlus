@@ -1396,7 +1396,11 @@ msg_print("「オクレ兄さん！」");
 		
 		case SV_POTION_POLYMORPH:
 			if (mut_count(mut_unlocked_pred) && one_in_(23))
+			{
 				mut_lose_all();
+				if (p_ptr->pclass == CLASS_WILD_TALENT)
+					wild_talent_new_life();
+			}
 			else
 			{
 				do
@@ -1407,6 +1411,9 @@ msg_print("「オクレ兄さん！」");
 					}
 					else if (mut_lose_random(NULL)) ident = TRUE;
 				} while(!ident || one_in_(2));
+
+				if (p_ptr->pclass == CLASS_WILD_TALENT && one_in_(2))
+					wild_talent_scramble();
 			}
 			break;
 		}
