@@ -64,7 +64,7 @@ bool cast_spell(ang_spell spell)
 	return b;
 }
 
-static int get_spell_energy(ang_spell spell)
+int get_spell_energy(ang_spell spell)
 {
 	int n;
 	variant res;
@@ -75,7 +75,7 @@ static int get_spell_energy(ang_spell spell)
 	return n;
 }
 
-static int get_spell_cost_extra(ang_spell spell)
+int get_spell_cost_extra(ang_spell spell)
 {
 	int n;
 	variant res;

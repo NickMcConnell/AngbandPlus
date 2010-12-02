@@ -4244,14 +4244,41 @@ void calc_bonuses(void)
 			p_ptr->to_a += (p_ptr->lev / 3);
 			p_ptr->dis_to_a += (p_ptr->lev / 3);
 		}
+	}
+	if ( (p_ptr->pclass == CLASS_MONK && !heavy_armor())
+	  || p_ptr->pclass == CLASS_WILD_TALENT)
+	{
+		/* Massive Hacks:  The Wild Talent gets monk posture benefits without monk
+		   restrictions, so we duplicate a bunch of code here that is set later for monks
+		   after checking weapon status */
 		if (p_ptr->special_defense & KAMAE_BYAKKO)
 		{
 			p_ptr->stat_add[A_STR] += 2;
 			p_ptr->stat_add[A_DEX] += 2;
 			p_ptr->stat_add[A_CON] -= 3;
+			
+			if (p_ptr->pclass == CLASS_WILD_TALENT)
+			{
+				p_ptr->to_a -= 40;
+				p_ptr->dis_to_a -= 40;
+			}
 		}
 		else if (p_ptr->special_defense & KAMAE_SEIRYU)
 		{
+			if (p_ptr->pclass == CLASS_WILD_TALENT)
+			{
+				p_ptr->to_a -= 50;
+				p_ptr->dis_to_a -= 50;
+				p_ptr->resist_acid = TRUE;
+				p_ptr->resist_fire = TRUE;
+				p_ptr->resist_elec = TRUE;
+				p_ptr->resist_cold = TRUE;
+				p_ptr->resist_pois = TRUE;
+				p_ptr->sh_fire = TRUE;
+				p_ptr->sh_elec = TRUE;
+				p_ptr->sh_cold = TRUE;
+				p_ptr->levitation = TRUE;
+			}
 		}
 		else if (p_ptr->special_defense & KAMAE_GENBU)
 		{
@@ -4259,6 +4286,13 @@ void calc_bonuses(void)
 			p_ptr->stat_add[A_WIS] -= 1;
 			p_ptr->stat_add[A_DEX] -= 2;
 			p_ptr->stat_add[A_CON] += 3;
+
+			if (p_ptr->pclass == CLASS_WILD_TALENT)
+			{
+				p_ptr->to_a += (p_ptr->lev*p_ptr->lev)/50;
+				p_ptr->dis_to_a += (p_ptr->lev*p_ptr->lev)/50;
+				p_ptr->reflect = TRUE;
+			}
 		}
 		else if (p_ptr->special_defense & KAMAE_SUZAKU)
 		{
@@ -4267,8 +4301,13 @@ void calc_bonuses(void)
 			p_ptr->stat_add[A_WIS] += 1;
 			p_ptr->stat_add[A_DEX] += 2;
 			p_ptr->stat_add[A_CON] -= 2;
+			if (p_ptr->pclass == CLASS_WILD_TALENT)
+			{
+				p_ptr->levitation = TRUE;
+			}
 		}
 	}
+
 
 	if (p_ptr->special_defense & KATA_KOUKIJIN)
 	{
@@ -5328,6 +5367,36 @@ void calc_bonuses(void)
 		}
 
 		p_ptr->weapon_info[0].num_blow += 1+extra_blows[0];
+	}
+
+	/* Hack for Wild Talents assuming Monk Postures */
+	if (p_ptr->pclass == CLASS_WILD_TALENT)
+	{
+		if (p_ptr->special_defense & KAMAE_GENBU)
+		{
+			p_ptr->weapon_info[0].num_blow -= 2;
+			p_ptr->weapon_info[1].num_blow -= 2;
+			if (p_ptr->weapon_info[0].num_blow < 0) p_ptr->weapon_info[0].num_blow = 0;
+			if (p_ptr->weapon_info[1].num_blow < 0) p_ptr->weapon_info[1].num_blow = 0;
+		}
+		else if (p_ptr->special_defense & KAMAE_BYAKKO)
+		{
+			/* Hack: This should "strengthen your attacks" */
+			p_ptr->weapon_info[0].num_blow++;
+			p_ptr->weapon_info[1].num_blow++;
+		}
+		else if (p_ptr->special_defense & KAMAE_SUZAKU)
+		{
+			for (i = 0; i < 2; ++i)
+			{
+				p_ptr->weapon_info[i].to_h -= (p_ptr->lev / 3);
+				p_ptr->weapon_info[i].to_d -= (p_ptr->lev / 6);
+
+				p_ptr->weapon_info[i].dis_to_h -= (p_ptr->lev / 3);
+				p_ptr->weapon_info[i].dis_to_d -= (p_ptr->lev / 6);
+				p_ptr->weapon_info[i].num_blow /= 2;
+			}
+		}
 	}
 
 	if (p_ptr->riding) p_ptr->levitation = riding_levitation;

@@ -5492,6 +5492,7 @@ note_dies = "はドロドロに溶けた！";
 		/* CAUSE_4 */
 		case GF_CAUSE_4:
 		{
+			bool save = FALSE;
 			if (seen) obvious = TRUE;
 			/* Message */
 #ifdef JP
@@ -5513,12 +5514,20 @@ note_dies = "はドロドロに溶けた！";
 			}
 
 			/* Attempt a saving throw */
-			if ((randint0(100 + (caster_lev / 2)) < (r_ptr->level + 35)) && ((who <= 0) || (caster_ptr->r_idx != MON_KENSHIROU)))
+			if (who == 0)
+				save = (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_WIS] + 3));
+			else
+			{
+				save = ((randint0(100 + (caster_lev / 2)) < (r_ptr->level + 35)) 
+				    && ((who <= 0) || (caster_ptr->r_idx != MON_KENSHIROU)));
+			}
+
+			if (save)
 			{
 #ifdef JP
 				note = "には効果がなかった。";
 #else
-				note = "is unaffected!";
+				note = " is unaffected!";
 #endif
 				dam = 0;
 			}

@@ -76,6 +76,7 @@ void check_experience(void)
 	{
 		/* Gain a level */
 		p_ptr->lev++;
+		wild_talent_fix_up();
 
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_plv)

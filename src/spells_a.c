@@ -457,7 +457,7 @@ void breathe_fire_II_spell(int cmd, variant *res)
 		var_set_string(res, "Breathes Fire at your opponent.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, spell_power(MIN(p_ptr->chp/3, 200))));
+		var_set_string(res, info_damage(0, 0, spell_power(MAX(p_ptr->chp/2, 200))));
 		break;
 	case SPELL_COST_EXTRA:
 		var_set_int(res, p_ptr->lev);
@@ -470,7 +470,7 @@ void breathe_fire_II_spell(int cmd, variant *res)
 		{
 			stop_mouth();
 			msg_print(T("You breathe fire...", "あなたは火炎のブレスを吐いた..."));
-			fire_ball(GF_FIRE, dir, spell_power(MIN(p_ptr->chp/3, 200)), -1 - (p_ptr->lev / 20));
+			fire_ball(GF_FIRE, dir, spell_power(MAX(p_ptr->chp/2, 200)), -1 - (p_ptr->lev / 20));
 			var_set_bool(res, TRUE);
 		}
 		break;

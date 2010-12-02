@@ -5212,6 +5212,8 @@ static void dump_aux_home_museum(FILE *fff)
  */
 errr make_character_dump(FILE *fff)
 {
+	class_t *class_ptr = get_class_t();
+
 #ifdef JP
 	fprintf(fff, "  [変愚蛮怒 %d.%d.%d キャラクタ情報]\n\n",
 		FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
@@ -5235,6 +5237,10 @@ errr make_character_dump(FILE *fff)
 	dump_aux_class_special(fff);
 	dump_aux_mutations(fff);
 	dump_aux_pet(fff);
+
+	if (class_ptr != NULL && class_ptr->character_dump != NULL)
+		(class_ptr->character_dump)(fff);
+
 	fputs("\n\n", fff);
 	dump_aux_equipment_inventory(fff);
 	dump_aux_home_museum(fff);

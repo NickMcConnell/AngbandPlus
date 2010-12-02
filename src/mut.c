@@ -372,7 +372,7 @@ void mut_dump_file(FILE* file)
 		if (mut_present(i))
 		{
 			(_mutation_spells[i].fn)(SPELL_MUT_DESC, &desc);
-			fprintf(file, " %s\n", var_get_string(&desc));
+			fprintf(file, "%s\n", var_get_string(&desc));
 		}
 	}
 	var_clear(&desc);

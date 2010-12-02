@@ -1864,3 +1864,4 @@ extern bool warlock_is_pact_monster(monster_race *r_ptr);
 extern class_t *wild_talent_get_class_t(void);
 extern void wild_talent_scramble(void);
 extern void wild_talent_new_life(void);
+extern void wild_talent_fix_up(void);

@@ -7,6 +7,8 @@ extern void default_spell(int cmd, variant *res);
 extern void do_cmd_power(void);
 extern void do_cmd_spell(void);
 extern void do_cmd_spell_browse(void);
+extern int get_spell_energy(ang_spell spell);
+extern int get_spell_cost_extra(ang_spell spell);
 
 /* Public Spells:  I'm using the following system for placing code.
    This makes it easier to split a too large file, and easier to locate
