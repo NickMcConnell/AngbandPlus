@@ -424,7 +424,7 @@ void breathe_fire_I_spell(int cmd, variant *res)
 		var_set_string(res, info_damage(0, 0, spell_power(2 * p_ptr->lev)));
 		break;
 	case SPELL_COST_EXTRA:
-		var_set_int(res, p_ptr->lev);
+		var_set_int(res, (p_ptr->lev+1)/2);
 		break;
 	case SPELL_CAST:
 	{
@@ -457,7 +457,7 @@ void breathe_fire_II_spell(int cmd, variant *res)
 		var_set_string(res, "Breathes Fire at your opponent.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, spell_power(MAX(p_ptr->chp/2, 200))));
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->chp*2/5)));
 		break;
 	case SPELL_COST_EXTRA:
 		var_set_int(res, p_ptr->lev);
@@ -470,7 +470,7 @@ void breathe_fire_II_spell(int cmd, variant *res)
 		{
 			stop_mouth();
 			msg_print(T("You breathe fire...", "あなたは火炎のブレスを吐いた..."));
-			fire_ball(GF_FIRE, dir, spell_power(MAX(p_ptr->chp/2, 200)), -1 - (p_ptr->lev / 20));
+			fire_ball(GF_FIRE, dir, spell_power(p_ptr->chp*2/5), -1 - (p_ptr->lev / 20));
 			var_set_bool(res, TRUE);
 		}
 		break;
@@ -1389,7 +1389,7 @@ void draconian_breath_spell(int cmd, variant *res)
 		break;
 	}
 	case SPELL_COST_EXTRA:
-		var_set_int(res, p_ptr->lev);
+		var_set_int(res, (p_ptr->lev+1)/2);
 		break;
 	default:
 		default_spell(cmd, res);
@@ -2743,6 +2743,20 @@ void resist_elements_spell(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You can harden yourself to the ravages of the elements.", "あなたは元素の攻撃に対して身を硬くすることができる。"));
 		break;
+	case SPELL_COST_EXTRA:
+	{
+		int n = 0;
+		if (p_ptr->lev >= 20)
+			n += 5;
+		if (p_ptr->lev >= 30)
+			n += 5;
+		if (p_ptr->lev >= 40)
+			n += 5;
+		if (p_ptr->lev >= 50)
+			n += 5;
+		var_set_int(res, n);
+		break;
+	}
 	case SPELL_CAST:
 	{
 		int num = p_ptr->lev / 10;
@@ -3189,6 +3203,9 @@ void spit_acid_spell(int cmd, variant *res)
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 2)));
+		break;
+	case SPELL_COST_EXTRA:
+		var_set_int(res, p_ptr->lev/5);
 		break;
 	case SPELL_CAST:
 	{

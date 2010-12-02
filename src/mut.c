@@ -34,7 +34,7 @@ static spell_info _mutation_spells[MAX_MUTATIONS] =
 	{  18, 20,  50, polymorph_self_spell},
 	{  10,  5,  70, alchemy_spell},
 	{   1,  6,  60, grow_mold_spell},
-	{  25, 30,  70, resist_elements_spell},
+	{  25, 10,  70, resist_elements_spell},
 	{  12, 12,  50, earthquake_spell},
 	{  17,  1,  80, eat_magic_spell},
 	{   6,  6,  50, weigh_magic_spell},

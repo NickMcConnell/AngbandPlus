@@ -251,14 +251,14 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_DEX, "like a Monk", {30, 30, 60, monk_double_attack_spell}},
 		{ A_INT, "like Jack of Shadows", {35, 30, 50, darkness_storm_I_spell}},
 		{ A_INT, "like a Solar", {35, 50, 50, starburst_I_spell}},
-		{ A_CON, "like a Greater Balrog", {35, 20, 50, breathe_fire_II_spell}},
+		{ A_CON, "like a Greater Balrog", {35, 10, 50, breathe_fire_II_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL37: Great Buff */
 	{
 		{ A_DEX, "like a Monk", {25, 0, 0, monk_posture_spell}},
 		{ A_DEX, "like a Samurai", {25, 0, 0, samurai_posture_spell}},
-		{ A_CON, "like a Mutant", {25, 30, 50, resist_elements_spell}},
+		{ A_CON, "like a Mutant", {25, 10, 50, resist_elements_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL39: Great Utility */
