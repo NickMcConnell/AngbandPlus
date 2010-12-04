@@ -21,7 +21,7 @@ void _precognition_spell(int cmd, variant *res)
 		{
 			chg_virtue(V_KNOWLEDGE, 1);
 			chg_virtue(V_ENLIGHTEN, 1);
-			wiz_lite(FALSE);
+			wiz_lite(p_ptr->tim_superstealth);
 		}
 		else if (p_ptr->lev > 19)
 			map_area(DETECT_RAD_MAP);

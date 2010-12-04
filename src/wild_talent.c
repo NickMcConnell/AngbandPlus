@@ -247,7 +247,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 	},
 	/* CL35: Good Offense/Ability */
 	{
-		{ A_DEX, "like a Warrior", {33, 30, 60, lightning_eagle_spell}},
+		{ A_DEX, "like a Warrior", {33, 20, 60, lightning_eagle_spell}},
 		{ A_DEX, "like a Monk", {30, 30, 60, monk_double_attack_spell}},
 		{ A_INT, "like Jack of Shadows", {35, 30, 50, darkness_storm_I_spell}},
 		{ A_INT, "like a Solar", {35, 50, 50, starburst_I_spell}},
@@ -275,36 +275,36 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_STR, "like an Android", {40, 40, 70, android_rocket_spell}},
 		{ A_WIS, "like an Mindcrafter", {40, 40, 70, psycho_spear_spell}},
 		{ A_CON, "like The Destroyer", {40, 40, 70, breathe_disintegration_spell}},
-		{ A_CHR, "like an Eye Druj", {17, 35, 50, mana_bolt_II_spell}},
-		{ A_INT, "like Habu, The Champion of Chaos", {50, 40, 65, mana_storm_I_spell}},
+		{ A_CHR, "like an Eye Druj", {40, 35, 50, mana_bolt_II_spell}},
+		{ A_INT, "like Habu, The Champion of Chaos", {40, 40, 65, mana_storm_I_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL43: Great Utility */
 	{
 		{ A_WIS, "like an Amberite", {40, 75, 75, pattern_mindwalk_spell}},
 		{ A_CHR, "like a Warlock", {35, 70, 60, destruction_spell}},
-		{ A_CHR, "like a Warlock", {46, 20, 65, dimension_door_spell}},
+		{ A_CHR, "like a Warlock", {40, 20, 65, dimension_door_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL45: Great Utility */
 	{
-		{ A_INT, "like a Chaos Warrior", {40, 50, 80, confusing_lights_spell}},
-		{ A_WIS, "like an Evil Priest", {42, 40, 80, evocation_spell}},
+		{ A_INT, "like a Chaos Warrior", {40, 50, 60, confusing_lights_spell}},
+		{ A_WIS, "like an Evil Priest", {40, 40, 60, evocation_spell}},
+		{ A_STR, "like a Berserker", {40, 50, 80, massacre_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL47: General Awesomeness */
 	{
-		{ A_DEX, "like a Ninja", {45, 50, 80, super_stealth_spell}},
-		{ A_STR, "like a Berserker", {45, 50, 80, massacre_spell}},
-		{ A_WIS, "like a Priest", {45, 50, 80, healing_II_spell}},
+		{ A_DEX, "like a Ninja", {40, 50, 50, super_stealth_spell}},
+		{ A_WIS, "like a Priest", {40, 50, 80, healing_II_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL49: Capstone Offense */
 	{
 		{ A_INT, "like Atlach-Nacha, the Spider God", {49, 50, 65, darkness_storm_II_spell}},
 		{ A_WIS, "like Raphael, the Messenger", {49, 50, 65, starburst_II_spell}},
-		{ A_STR, "like Oremorj, the Cyberdemon Lord", {50, 60, 65, rocket_II_spell}},
-		{ A_CON, "like Morgoth, Lord of Darkness", {50, 60, 80, mana_storm_II_spell}},
+		{ A_STR, "like Oremorj, the Cyberdemon Lord", {50, 50, 65, rocket_II_spell}},
+		{ A_CON, "like Morgoth, Lord of Darkness", {50, 50, 70, mana_storm_II_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 };

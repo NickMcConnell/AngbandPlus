@@ -123,7 +123,10 @@ void android_bazooka_spell(int cmd, variant *res)
 		var_set_string(res, T("Bazooka", "バズーカ"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("", ""));
+		var_set_string(res, T("Fires your bazooka at a nearby monster.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(25 + p_ptr->lev * 2)));
 		break;
 	case SPELL_CAST:
 	{
@@ -182,7 +185,10 @@ void android_rocket_spell(int cmd, variant *res)
 		var_set_string(res, T("Rocket Launcher", "ロケット"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("", ""));
+		var_set_string(res, T("Launches a powerful rocket at your opponent.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 7)));
 		break;
 	case SPELL_CAST:
 	{
@@ -1174,7 +1180,10 @@ void draconian_breath_spell(int cmd, variant *res)
 		var_set_string(res, T("Draconian Breath", "ブレス"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("", ""));
+		var_set_string(res, T("Fires an elemental, or perhaps special, breath at your foes.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 2)));
 		break;
 	case SPELL_CAST:
 	{/* Sorry ... I made no effort to clean this up :( */
@@ -2427,7 +2436,10 @@ void poison_dart_spell(int cmd, variant *res)
 		var_set_string(res, T("Poison Dart", "毒のダーツ"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "");
+		var_set_string(res, "Fires a poison dart at a single foe.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev)));
 		break;
 	case SPELL_CAST:
 	{
@@ -3374,39 +3386,60 @@ void summon_tree_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Summon Tree");
+		if (p_ptr->lev >= 45)
+			var_set_string(res, "Summon Trees");
+		else
+			var_set_string(res, "Summon Tree");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Attempts to summon a tree.");
+		if (p_ptr->lev >= 45)
+			var_set_string(res, "Attempts to summon many trees");
+		else
+			var_set_string(res, "Attempts to summon a tree.");
 		break;
 	case SPELL_CAST:
-	{
-		int attempts = 0;
-		int x, y, dir;
-
-		var_set_bool(res, TRUE);
-		for (;;)
+		if (p_ptr->lev >= 45)
 		{
-			if (attempts > 4)
+			tree_creation();
+			var_set_bool(res, TRUE);
+		}	
+		else
+		{
+			int attempts = 0;
+			int x, y, dir;
+
+			var_set_bool(res, TRUE);
+			for (;;)
 			{
-				msg_print("No trees arrive.");
+				if (attempts > 4)
+				{
+					msg_print("No trees arrive.");
+					break;
+				}
+
+				dir = randint0(9);
+				if (dir == 5) continue;
+
+				attempts++;
+				y = py + ddy[dir];
+				x = px + ddx[dir];
+
+				if (!in_bounds(y, x)) continue;
+				if (!cave_naked_bold(y, x)) continue;
+				if (player_bold(y, x)) continue;
+
+				cave_set_feat(y, x, feat_tree);
 				break;
 			}
-
-			dir = randint0(9);
-			if (dir == 5) continue;
-
-			attempts++;
-			y = py + ddy[dir];
-			x = px + ddx[dir];
-
-			if (!in_bounds(y, x)) continue;
-			if (!cave_naked_bold(y, x)) continue;
-			if (player_bold(y, x)) continue;
-
-			cave_set_feat(y, x, feat_tree);
-			break;
 		}
+		break;
+	case SPELL_COST_EXTRA:
+	{
+		int n = 0;
+		if (p_ptr->lev >= 45)
+			n += 30;
+
+		var_set_int(res, n);
 		break;
 	}
 	default:

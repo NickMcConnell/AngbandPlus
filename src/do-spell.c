@@ -879,7 +879,7 @@ static void cast_shuffle(void)
 
 		chg_virtue(V_KNOWLEDGE, 1);
 		chg_virtue(V_ENLIGHTEN, 1);
-		wiz_lite(FALSE);
+		wiz_lite(p_ptr->tim_superstealth);
 	}
 	else
 	{
@@ -1727,7 +1727,7 @@ static cptr do_life_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				wiz_lite(FALSE);
+				wiz_lite(p_ptr->tim_superstealth);
 			}
 		}
 		break;
@@ -2437,7 +2437,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 				chg_virtue(V_KNOWLEDGE, 1);
 				chg_virtue(V_ENLIGHTEN, 1);
 
-				wiz_lite(FALSE);
+				wiz_lite(p_ptr->tim_superstealth);
 
 				if (!p_ptr->telepathy)
 				{
@@ -6595,7 +6595,7 @@ static cptr do_arcane_spell(int spell, int mode)
 				chg_virtue(V_KNOWLEDGE, 1);
 				chg_virtue(V_ENLIGHTEN, 1);
 
-				wiz_lite(FALSE);
+				wiz_lite(p_ptr->tim_superstealth);
 
 				if (!p_ptr->telepathy)
 				{

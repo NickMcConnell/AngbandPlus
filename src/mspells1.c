@@ -1434,7 +1434,7 @@ bool make_attack_spell(int m_idx)
 	/* Sometimes forbid inate attacks (breaths) */
 	if (m_ptr->smart & SM_TICKED_OFF)
 	{
-		/* TODO: Tweak it down?? */
+		if (randint0(100) >= (r_ptr->freq_spell * 3)) no_inate = TRUE;
 	}
 	else if (randint0(100) >= (r_ptr->freq_spell * 2)) no_inate = TRUE;
 

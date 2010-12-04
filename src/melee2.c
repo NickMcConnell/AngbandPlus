@@ -2702,7 +2702,7 @@ msg_format("%^s%s", m_name, monmessage);
 	   TODO: We should probably scan the monsters spell list looking for
 	   something powerful. */
 	if ( r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell
-	  || ((m_ptr->smart & SM_TICKED_OFF) && randint1(100) < 50) )
+	  || ((m_ptr->smart & SM_TICKED_OFF) && randint1(100) < (30 + r_ptr->level/5)) )
 	{
 		bool counterattack = FALSE;
 
