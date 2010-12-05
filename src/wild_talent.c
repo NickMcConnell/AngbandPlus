@@ -392,6 +392,9 @@ int group_idx = -1;
 void wild_talent_fix_up(void)
 {
 	int i;
+
+	if (p_ptr->pclass != CLASS_WILD_TALENT) return;
+
 	for (i = 1; i <= p_ptr->max_plv; ++i)
 	{
 	int group_idx = -1;

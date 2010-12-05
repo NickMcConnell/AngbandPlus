@@ -3142,7 +3142,13 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 				case SV_RING_WARNING:
 				{
-					if (one_in_(3)) one_low_esp(o_ptr);
+					if (one_in_(3))
+					{
+						if (one_in_(20)) 
+							add_flag(o_ptr->art_flags, TR_ESP_EVIL);
+						else
+							one_low_esp(o_ptr);
+					}
 					break;
 				}
 

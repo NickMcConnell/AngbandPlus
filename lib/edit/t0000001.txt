@@ -621,12 +621,12 @@ F:@:FLOOR:3:0:0:0:217
 ##########################################################################
 # Evil Paladin
 # Doomcaller
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Death Demon] [EQU [MOD $RANDOM27 9] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] [EQU [MOD $RANDOM27 9] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:91
 
 # Harness of the Hell
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Death Demon] [GEQ [MOD $RANDOM27 9] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] [GEQ [MOD $RANDOM27 9] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:218
 

@@ -270,6 +270,7 @@ void get_virtues(void)
 		p_ptr->vir_types[i++] = V_CHANCE;
 		break;
 	case CLASS_IMITATOR:
+	case CLASS_WILD_TALENT:
 		p_ptr->vir_types[i++] = V_CHANCE;
 		break;
 	case CLASS_BLUE_MAGE:

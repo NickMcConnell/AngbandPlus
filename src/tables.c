@@ -4212,7 +4212,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_SORCERY | CH_DEATH | CH_TRUMP |
 	 CH_ARCANE | CH_ENCHANT),               /* Rogue */
 	(CH_NATURE),                            /* Ranger */
-	(CH_CRUSADE | CH_DEATH),                   /* Paladin */
+	(CH_CRUSADE | CH_DEATH | CH_LIFE | CH_DAEMON),/* Paladin */
 	(CH_ARCANE),                            /* Warrior-Mage */
 	(CH_CHAOS | CH_DAEMON),                 /* Chaos-Warrior */
 	(CH_LIFE | CH_NATURE | CH_DEATH |

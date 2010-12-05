@@ -140,10 +140,10 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:5
 ?:[EQU $QUEST5 6]
 F:b:BUILDING_1:3:0:0:0:0:NONE:26
 
-?:[AND [EQU $QUEST5 6] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death] ] ]
+?:[AND [EQU $QUEST5 6] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] ] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:16
 
-?:[AND [EQU $QUEST5 6] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death] ] ]
+?:[AND [EQU $QUEST5 6] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] ] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:16
 
 # Quest 5 rewarding, continue with quest 26,
@@ -156,11 +156,11 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:26
 F:b:BUILDING_1:3:0:0:0:0:NONE:26
 
 # Death Paladins continue with quest 16
-?:[AND [EQU $QUEST5 3] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death] ] ]
+?:[AND [EQU $QUEST5 3] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] ] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:16
 
 # Death Paladins continue with quest 16
-?:[AND [EQU $QUEST5 4] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death] ] ]
+?:[AND [EQU $QUEST5 4] [AND [EQU $CLASS Paladin] [EQU $REALM1 Death Daemon] ] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:16
 
 ?:1
