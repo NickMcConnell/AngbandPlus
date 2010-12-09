@@ -2385,17 +2385,23 @@ note = "には耐性がある。";
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
-			if (r_ptr->flagsr & RFR_RES_SOUN)
+			if (r_ptr->flagsr & RFR_RES_SOUN) 
 			{
-				/* Sound resistance prevents stunning, but does not reduce damage! */
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_SOUN);
+			}
+			else if (r_ptr->flags3 & RF3_NO_STUN)
+			{
+			}
+			else if (MON_STUNNED(m_ptr))
+			{
+				note = " is already stunned.";
 			}
 			else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_CHR] + 3))
 			{
 				note = " resists stunning.";
 			}
 			else
-				do_stun = 10 + randint1(15);
+				do_stun = 3 + randint0(5);
 			break;
 		}
 
@@ -2506,49 +2512,20 @@ note = "には耐性がある。";
 				break;
 			}
 
-			/* Ideas for toning this down ...
-			if (r_ptr->flags3 & RF3_NO_CONF)
-				rlev += 10;
-
-			if (r_ptr->flags1 & RF1_UNIQUE)
-				rlev += 20;
-
-			if (rlev > 99)
-				rlev = 99;
-			*/
-
-			/* No monster resists?  I'll need to talk to Dave on this one ... */
-			if (rlev > randint1(p_ptr->lev * 2))
+			/* 593 monsters have NO_CONF ... it is more widely resisted than fire ... 
+			   Eldritch confusion will bypass this check, but that is hacked below */
+			if (MON_CONFUSED(m_ptr))
+			{
+				note = " is already confused.";
+			}
+			else if ((r_ptr->flags3 & RF3_NO_CONF) && r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_CHR] + 3) - 10)
 			{
 				note = " resists confusion.";
 			}
 			else
 			{
-				int tmp = MON_CONFUSED(m_ptr);
-				int max = 2;
-
-				if (tmp < max)
-				{
-					if (MON_CONFUSED(m_ptr))
-					{
-		#ifdef JP
-						note = "はさらに混乱したようだ。";
-		#else
-						note = " looks more confused.";
-		#endif
-					}
-					/* Was not confused */
-					else
-					{
-		#ifdef JP
-						note = "は混乱したようだ。";
-		#else
-						note = " looks confused.";
-		#endif
-					}
-					/* Requested '1 turn of confusion' but recovery is random. */
-					(void)set_monster_confused(c_ptr->m_idx, max);
-				}
+				/* Recovery is randint1(r_info[m_ptr->r_idx].level / 20 + 1) */
+				do_conf = 3 + randint0(5);
 			}
 			break;
 		}
@@ -6092,9 +6069,9 @@ note = "には効果がなかった。";
 		}
 
 		/* Confusion and Chaos resisters (and sleepers) never confuse */
-		if (do_conf &&
+		if (do_conf && (typ == GF_ELDRITCH_CONFUSE || (
 			 !(r_ptr->flags3 & RF3_NO_CONF) &&
-			 !(r_ptr->flagsr & RFR_EFF_RES_CHAO_MASK))
+			 !(r_ptr->flagsr & RFR_EFF_RES_CHAO_MASK))))
 		{
 			/* Obvious */
 			if (seen) obvious = TRUE;

@@ -1945,9 +1945,9 @@ void imp_fire_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 		if (p_ptr->lev >= ball_lev)
-			fire_ball(GF_FIRE, dir, p_ptr->lev * 2, 2);
+			fire_ball(GF_FIRE, dir, spell_power(p_ptr->lev * 2), 2);
 		else
-			fire_bolt(GF_FIRE, dir, p_ptr->lev);
+			fire_bolt(GF_FIRE, dir, spell_power(p_ptr->lev));
 		var_set_bool(res, TRUE);
 		break;
 	}
@@ -2005,7 +2005,7 @@ void laser_eye_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (get_aim_dir(&dir))
 		{
-			fire_beam(GF_LITE, dir, 2 * p_ptr->lev);
+			fire_beam(GF_LITE, dir, spell_power(2 * p_ptr->lev));
 			var_set_bool(res, TRUE);
 		}
 		break;

@@ -133,7 +133,13 @@ static void wiz_create_named_art(int a_idx)
  */
 static void do_cmd_wiz_hack_ben(void)
 {
-	wall_stone();
+	int num = 8, k;
+	for (k = 0; k < num; k++)
+	{
+		summon_named_creature(0, py, px, MON_SPELLWARP, 0);
+	}
+	p_ptr->energy_need += 100;
+	/*wall_stone();*/
 }
 
 

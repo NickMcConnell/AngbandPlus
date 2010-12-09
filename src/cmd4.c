@@ -1989,6 +1989,7 @@ void do_cmd_options_aux(int page, cptr info)
 	bool    browse_only = (page == OPT_PAGE_BIRTH) && character_generated &&
 	                      (!p_ptr->wizard || !allow_debug_opts);
 
+/*	browse_only = FALSE; */
 
 	/* Lookup the options */
 	for (i = 0; i < 24; i++) opt[i] = 0;

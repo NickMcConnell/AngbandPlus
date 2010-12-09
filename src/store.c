@@ -971,10 +971,19 @@ static void mass_produce(object_type *o_ptr)
 		case TV_POTION:
 		case TV_SCROLL:
 		{
-			if (cost <= 60L) size += damroll(3, 5);
-			if (cost <= 240L) size += damroll(1, 5);
-			if (o_ptr->sval == SV_SCROLL_STAR_IDENTIFY) size += damroll(3, 5);
-			if (o_ptr->sval == SV_SCROLL_STAR_REMOVE_CURSE) size += damroll(1, 4);
+			/* Hack: Let's rewrite the store stocking code ...
+			   In the meantime, tone down the number of resist heat and cold */
+			if (o_ptr->tval == TV_POTION && (o_ptr->sval == SV_POTION_RESIST_HEAT || o_ptr->sval == SV_POTION_RESIST_COLD))
+			{
+				 size += randint0(3);
+			}
+			else
+			{
+				if (cost <= 60L) size += damroll(3, 5);
+				if (cost <= 240L) size += damroll(1, 5);
+				if (o_ptr->sval == SV_SCROLL_STAR_IDENTIFY) size += damroll(3, 5);
+				if (o_ptr->sval == SV_SCROLL_STAR_REMOVE_CURSE) size += damroll(1, 4);
+			}
 			break;
 		}
 

@@ -31,12 +31,12 @@ int z, bonus;
 	if (inventory[INVEN_BODY].k_idx) z -= 5;
 
 	if (inventory[INVEN_LARM].k_idx && 
-	    k_info[inventory[INVEN_LARM].k_idx].tval == TV_SHIELD)
+	    (k_info[inventory[INVEN_LARM].k_idx].tval == TV_SHIELD || k_info[inventory[INVEN_LARM].k_idx].tval == TV_CARD))
 	{
 		z -= 2;
 	}
 	if (inventory[INVEN_RARM].k_idx && 
-	    k_info[inventory[INVEN_RARM].k_idx].tval == TV_SHIELD)
+	    (k_info[inventory[INVEN_RARM].k_idx].tval == TV_SHIELD  || k_info[inventory[INVEN_RARM].k_idx].tval == TV_CARD))
 	{
 		z -= 2;
 	}
@@ -4370,108 +4370,6 @@ void calc_bonuses(void)
 		}
 	}
 
-	/* Calculate stats */
-	for (i = 0; i < 6; i++)
-	{
-		int top, use, ind;
-
-		/* Extract the new "stat_use" value for the stat */
-		top = modify_stat_value(p_ptr->stat_max[i], p_ptr->stat_add[i]);
-
-		/* Notice changes */
-		if (p_ptr->stat_top[i] != top)
-		{
-			/* Save the new value */
-			p_ptr->stat_top[i] = top;
-
-			/* Redisplay the stats later */
-			p_ptr->redraw |= (PR_STATS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER);
-		}
-
-
-		/* Extract the new "stat_use" value for the stat */
-		use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
-
-		if ((i == A_CHR) && mut_present(MUT_ILL_NORM))
-		{
-			/* 10 to 18/90 charisma, guaranteed, based on level */
-			if (use < 8 + 2 * p_ptr->lev)
-			{
-				use = 8 + 2 * p_ptr->lev;
-			}
-		}
-
-		/* Notice changes */
-		if (p_ptr->stat_use[i] != use)
-		{
-			/* Save the new value */
-			p_ptr->stat_use[i] = use;
-
-			/* Redisplay the stats later */
-			p_ptr->redraw |= (PR_STATS);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER);
-		}
-
-
-		/* Values: 3, 4, ..., 17 */
-		if (use <= 18) ind = (use - 3);
-
-		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
-		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
-
-		/* Range: 18/220+ */
-		else ind = (37);
-
-		/* Notice changes */
-		if (p_ptr->stat_ind[i] != ind)
-		{
-			/* Save the new index */
-			p_ptr->stat_ind[i] = ind;
-
-			/* Change in CON affects Hitpoints */
-			if (i == A_CON)
-			{
-				p_ptr->update |= (PU_HP);
-			}
-
-			/* Change in INT may affect Mana/Spells */
-			else if (i == A_INT)
-			{
-				if (mp_ptr->spell_stat == A_INT)
-				{
-					p_ptr->update |= (PU_MANA | PU_SPELLS);
-				}
-			}
-
-			/* Change in WIS may affect Mana/Spells */
-			else if (i == A_WIS)
-			{
-				if (mp_ptr->spell_stat == A_WIS)
-				{
-					p_ptr->update |= (PU_MANA | PU_SPELLS);
-				}
-			}
-
-			/* Change in WIS may affect Mana/Spells */
-			else if (i == A_CHR)
-			{
-				if (mp_ptr->spell_stat == A_CHR)
-				{
-					p_ptr->update |= (PU_MANA | PU_SPELLS);
-				}
-			}
-
-			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER);
-		}
-	}
-
-
 	/* Apply temporary "stun" */
 	if (p_ptr->stun > 50)
 	{
@@ -4691,6 +4589,111 @@ void calc_bonuses(void)
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
+	/* Call the class hook after scanning equipment but before calculating encumbrance, et. al.*/
+	if (class_ptr != NULL && class_ptr->calc_bonuses != NULL)
+		class_ptr->calc_bonuses();
+
+	/* Calculate stats after calling class hook */
+	for (i = 0; i < 6; i++)
+	{
+		int top, use, ind;
+
+		/* Extract the new "stat_use" value for the stat */
+		top = modify_stat_value(p_ptr->stat_max[i], p_ptr->stat_add[i]);
+
+		/* Notice changes */
+		if (p_ptr->stat_top[i] != top)
+		{
+			/* Save the new value */
+			p_ptr->stat_top[i] = top;
+
+			/* Redisplay the stats later */
+			p_ptr->redraw |= (PR_STATS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER);
+		}
+
+
+		/* Extract the new "stat_use" value for the stat */
+		use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
+
+		if ((i == A_CHR) && mut_present(MUT_ILL_NORM))
+		{
+			/* 10 to 18/90 charisma, guaranteed, based on level */
+			if (use < 8 + 2 * p_ptr->lev)
+			{
+				use = 8 + 2 * p_ptr->lev;
+			}
+		}
+
+		/* Notice changes */
+		if (p_ptr->stat_use[i] != use)
+		{
+			/* Save the new value */
+			p_ptr->stat_use[i] = use;
+
+			/* Redisplay the stats later */
+			p_ptr->redraw |= (PR_STATS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER);
+		}
+
+
+		/* Values: 3, 4, ..., 17 */
+		if (use <= 18) ind = (use - 3);
+
+		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
+		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
+
+		/* Range: 18/220+ */
+		else ind = (37);
+
+		/* Notice changes */
+		if (p_ptr->stat_ind[i] != ind)
+		{
+			/* Save the new index */
+			p_ptr->stat_ind[i] = ind;
+
+			/* Change in CON affects Hitpoints */
+			if (i == A_CON)
+			{
+				p_ptr->update |= (PU_HP);
+			}
+
+			/* Change in INT may affect Mana/Spells */
+			else if (i == A_INT)
+			{
+				if (mp_ptr->spell_stat == A_INT)
+				{
+					p_ptr->update |= (PU_MANA | PU_SPELLS);
+				}
+			}
+
+			/* Change in WIS may affect Mana/Spells */
+			else if (i == A_WIS)
+			{
+				if (mp_ptr->spell_stat == A_WIS)
+				{
+					p_ptr->update |= (PU_MANA | PU_SPELLS);
+				}
+			}
+
+			/* Change in WIS may affect Mana/Spells */
+			else if (i == A_CHR)
+			{
+				if (mp_ptr->spell_stat == A_CHR)
+				{
+					p_ptr->update |= (PU_MANA | PU_SPELLS);
+				}
+			}
+
+			/* Window stuff */
+			p_ptr->window |= (PW_PLAYER);
+		}
+	}
+
 	/* Bloating slows the player down (a little) */
 	if (p_ptr->food >= PY_FOOD_MAX) p_ptr->pspeed -= 10;
 
@@ -4821,6 +4824,9 @@ void calc_bonuses(void)
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
 
+	if (p_ptr->ryoute)
+		hold *= 2;
+
 
 	/* Examine the "current bow" */
 	o_ptr = &inventory[INVEN_BOW];
@@ -4829,7 +4835,7 @@ void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
 
-	/* It is hard to carholdry a heavy bow */
+	/* It is hard to carry a heavy bow */
 	if (hold < o_ptr->weight / 10)
 	{
 		/* Hard to wield a heavy bow */
@@ -4934,13 +4940,6 @@ void calc_bonuses(void)
 			}
 		}
 	}
-
-	if (p_ptr->ryoute)
-		hold *= 2;
-
-	/* Call the class hook after scanning equipment */
-	if (class_ptr != NULL && class_ptr->calc_bonuses != NULL)
-		class_ptr->calc_bonuses();
 
 	for(i = 0 ; i < 2 ; i++)
 	{

@@ -3302,7 +3302,9 @@ msg_print("守りのルーンが壊れた！");
 	/* Give a random starting energy */
 	if (!ironman_nightmare)
 	{
-		m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(100);
+		/*m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(100);*/
+		m_ptr->energy_need = ENERGY_NEED();
+		/*m_ptr->energy_need = ENERGY_NEED() - (s16b)randint0(30);*/
 	}
 	else
 	{
@@ -3793,7 +3795,7 @@ bool place_monster(int y, int x, u32b mode)
 		monster_race *r_ptr = &r_info[r_idx];
 		if ( warlock_is_pact_monster(r_ptr)
 		  && !(r_ptr->flags1 & RF1_QUESTOR)
-		  && one_in_(20 - p_ptr->lev/5) )
+		  && one_in_(12 - p_ptr->lev/5) )
 		{
 			mode |= PM_FORCE_FRIENDLY;
 		}

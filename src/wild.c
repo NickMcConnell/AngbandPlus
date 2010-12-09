@@ -1063,6 +1063,7 @@ bool change_wild_mode(void)
 		if (MON_CSLEEP(m_ptr)) continue;
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 		if (!is_hostile(m_ptr)) continue;
+		if (r_info[m_ptr->r_idx].level < p_ptr->lev - 10) continue;
 #ifdef JP
 		msg_print("敵がすぐ近くにいるときは広域マップに入れない！");
 #else
