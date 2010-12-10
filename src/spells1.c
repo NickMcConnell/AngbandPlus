@@ -1762,7 +1762,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 	char m_name[80];
 
 #ifndef JP
-	char m_poss[10];
+	char m_poss[80];
 #endif
 
 	int photo = 0;

@@ -1280,7 +1280,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 
 			chg_virtue(V_KNOWLEDGE, 1);
 			chg_virtue(V_ENLIGHTEN, 1);
-			wiz_lite(p_ptr->tim_superstealth);
+			wiz_lite(p_ptr->tim_superstealth > 0);
 			ident = TRUE;
 			break;
 
@@ -1294,7 +1294,7 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			chg_virtue(V_KNOWLEDGE, 1);
 			chg_virtue(V_ENLIGHTEN, 2);
 			msg_print(NULL);
-			wiz_lite(p_ptr->tim_superstealth);
+			wiz_lite(p_ptr->tim_superstealth > 0);
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
 			(void)detect_traps(DETECT_RAD_DEFAULT, TRUE);
@@ -4291,7 +4291,7 @@ msg_print("その宝石は赤く明るく光った！");
 
 				chg_virtue(V_KNOWLEDGE, 1);
 				chg_virtue(V_ENLIGHTEN, 1);
-				wiz_lite(p_ptr->tim_superstealth);
+				wiz_lite(p_ptr->tim_superstealth > 0);
 #ifdef JP
 msg_print("その宝石はあなたの体力を奪った...");
 take_hit(DAMAGE_LOSELIFE, damroll(3,8), "審判の宝石", -1);

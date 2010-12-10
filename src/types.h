@@ -610,9 +610,29 @@ struct monster_type
 	u32b smart;			/* Field for "smart_learn" */
 
 	s16b parent_m_idx;
+	s16b pack_idx;
 };
 
+enum {
+	AI_SEEK = 0,
+	AI_LURE = 1,
+	AI_GUARD_MON = 2,
+	AI_GUARD_POS = 3,
+	AI_FEAR = 4,
+	AI_SHOOT = 5
+};
 
+typedef struct {
+	s16b pack_idx;		/* Set when allocated */
+	s16b leader_idx;
+	s16b count;
+	s16b ai;			/* How is the pack behaving? */
+	s16b guard_m_idx;	/* Pack is guarding another monster, perhaps the leader */
+	s16b guard_x;       /* Pack is defending a specific location */
+	s16b guard_y;
+
+	s16b next_idx;		/* Free list */
+} pack_info_t;
 
 
 /*

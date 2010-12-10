@@ -694,6 +694,12 @@ object_type *o_list;
  */
 monster_type *m_list;
 
+pack_info_t *pack_info_list;
+s16b max_pack_info_idx;
+s16b pack_info_free_list;
+s16b pack_info_count;
+
+
 /*
  * The array to process dungeon monsters [max_m_idx]
  */

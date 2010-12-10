@@ -1,12 +1,14 @@
 #=================================================#
 #   Object Auto-picker/Destroyer Sample Setting   #
 #=================================================#
+mushroom of restoring#!E
+
 
 #
 # Pick up all wanted corpses for bounty hunting.
 # And inscribe {Wanted} on it.
 #
-wanted corpses or skeletons#Wanted
+wanted corpses or skeletons#Wanted!k!k!k
 
 #
 # Pick up all magical items with unknown effects.
@@ -34,20 +36,20 @@ potion of constitution#!k
 potion of intelligence#!k
 potion of Charisma#!k
 potion of life#!k!q
-potion of *healing*#!k
-potion of healing#!k
-potion of resistance#!k
-potion of speed#!k
+potion of *healing*#!k!q
+potion of healing#!k!q
+potion of resistance#!k!q
+potion of speed#!k!q
 
 #
 # Pick up important magical scrolls,
 # unless you are a Berserker who cannot read scrolls.
 #
 ?:[NOT [EQU $CLASS Berserker]]
-scroll of artifact creation
-scroll of *destruction*
-scroll of mass genocide
-scroll of genocide
+scroll of artifact creation#!*
+scroll of *destruction*#!*
+scroll of mass genocide#!*
+scroll of genocide#!*
 ?:1
 
 #

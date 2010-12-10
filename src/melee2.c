@@ -1070,6 +1070,7 @@ static bool get_moves(int m_idx, int *mm)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	pack_info_t  *pack_ptr = pack_info_ptr(m_idx);
 	int          y, ay, x, ax;
 	int          move_val = 0;
 	int          y2 = py;
@@ -1079,6 +1080,31 @@ static bool get_moves(int m_idx, int *mm)
 	cave_type    *c_ptr;
 	bool         no_flow = ((m_ptr->mflag2 & MFLAG2_NOFLOW) && (cave[m_ptr->fy][m_ptr->fx].cost > 2));
 	bool         can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || p_ptr->pass_wall));
+
+	if (pack_ptr)
+	{
+		if (pack_ptr->ai == AI_FEAR)
+		{
+			int odds = 1000 - m_ptr->cdis * m_ptr->cdis;
+			
+			/* Recover from fear? */
+			if (odds <= 1 || one_in_(odds))
+				pack_ptr->ai = AI_SEEK;
+			else
+				will_run = TRUE;
+		}
+		/* Change Tactics?  This is still pretty lame ...
+		else if (m_ptr->cdis < 3 && pack_ptr->ai != AI_SEEK)
+		{
+			if (los(m_ptr->fy, m_ptr->fx, py, px))
+				pack_ptr->ai = AI_SEEK;
+		}
+		else if (m_ptr->cdis > 15 && pack_ptr->ai == AI_SEEK)
+		{
+			pack_ptr->ai = AI_LURE;
+		}
+		*/
+	}
 
 	/* Counter attack to an enemy monster */
 	if (!will_run && m_ptr->target_y)
@@ -1098,17 +1124,17 @@ static bool get_moves(int m_idx, int *mm)
 		}
 	}
 
-	if (!done && !will_run && is_hostile(m_ptr) &&
-	    (r_ptr->flags1 & RF1_FRIENDS) &&
-	    ((los(m_ptr->fy, m_ptr->fx, py, px) && projectable(m_ptr->fy, m_ptr->fx, py, px)) ||
-	    (cave[m_ptr->fy][m_ptr->fx].dist < MAX_SIGHT / 2)))
+	/* Handle Packs ... */
+	if (!done && !will_run && is_hostile(m_ptr) && pack_ptr)
 	{
-	/*
-	 * Animal packs try to get the player out of corridors
-	 * (...unless they can move through walls -- TY)
-	 */
-		if ((r_ptr->flags3 & RF3_ANIMAL) && !can_pass_wall &&
-			 !(r_ptr->flags2 & RF2_KILL_WALL))
+		/*
+	    (
+		 (los(m_ptr->fy, m_ptr->fx, py, px) && projectable(m_ptr->fy, m_ptr->fx, py, px)) ||
+	     cave[m_ptr->fy][m_ptr->fx].dist < MAX_SIGHT / 2
+		)
+		*/
+
+		if (pack_ptr->ai == AI_LURE &&  !can_pass_wall && !(r_ptr->flags2 & RF2_KILL_WALL))
 		{
 			int i, room = 0;
 
@@ -1138,6 +1164,33 @@ static bool get_moves(int m_idx, int *mm)
 			{
 				/* Find hiding place */
 				if (find_hiding(m_idx, &y, &x)) done = TRUE;
+			}
+		}
+
+		if (pack_ptr->ai == AI_SHOOT)
+		{
+			x = 0;
+			y = 0;
+			done = TRUE;
+		}
+
+		if (pack_ptr->ai == AI_GUARD_POS)
+		{
+			x = m_ptr->fx - pack_ptr->guard_x;
+			y = m_ptr->fy - pack_ptr->guard_y;
+			done = TRUE;
+		}
+
+		if (pack_ptr->ai == AI_GUARD_MON)
+		{
+			monster_type *m_ptr2 = &m_list[pack_ptr->guard_m_idx];
+			if (!m_ptr2->r_idx)
+				pack_ptr->ai = AI_SEEK;	/* detect a dead guardian */
+			else
+			{
+				x = m_ptr->fx - m_ptr2->fx;
+				y = m_ptr->fy - m_ptr2->fy;
+				done = TRUE;
 			}
 		}
 
@@ -2692,61 +2745,106 @@ msg_format("%^s%s", m_name, monmessage);
 		}
 	}
 
-	/* Try to cast spell occasionally
-	   Hack: Ticked off monsters retaliate more often
-	   The game was pretty broken in that distance killing The Serpent
-	   was much easier than melee, due to the 1 in 3 spell freq.  The
-	   other 2 in 3 would just be movement towards the player, who could
-	   teleport and reset as needed.  100% spell retaliation when ticked
-	   off seems steep, so let's tone it down just a tad.
-	   TODO: We should probably scan the monsters spell list looking for
-	   something powerful. */
-	if ( r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell
-	  || ((m_ptr->smart & SM_TICKED_OFF) && randint1(100) < (30 + r_ptr->level/5)) )
+	/* Pack AI ... Attempt to wake up your buddies! */
 	{
-		bool counterattack = FALSE;
+	pack_info_t *pack_ptr = pack_info_ptr(m_idx);
+	int dir, x, y;
+	cave_type *c_ptr;
+	monster_type *m_ptr2;
+	const int max_wake = 3;
+	int count = max_wake;
 
-		/* Give priority to counter attack? */
-		if (m_ptr->target_y)
+		if (pack_ptr)
 		{
-			int t_m_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
-
-			/* The monster must be an enemy, and projectable */
-			if (t_m_idx &&
-			    are_enemies(m_ptr, &m_list[t_m_idx]) &&
-			    projectable(m_ptr->fy, m_ptr->fx, m_ptr->target_y, m_ptr->target_x))
+			for (dir = 0; count && dir < 8; dir++)
 			{
-				counterattack = TRUE;
-			}
-		}
+				y = m_ptr->fy + ddy_ddd[dir];
+				x = m_ptr->fx + ddx_ddd[dir];
+				c_ptr = &cave[y][x];
 
-		if (!counterattack)
-		{
-			/* Attempt to cast a spell */
-			/* Being Ticked Off will affect spell selection */
-			if (aware && make_attack_spell(m_idx))
-			{
-				if (m_ptr->smart & SM_TICKED_OFF)
+				m_ptr2 = &m_list[c_ptr->m_idx];
+
+				if (c_ptr->m_idx && 
+				    m_ptr2->pack_idx == m_ptr->pack_idx &&
+					MON_CSLEEP(m_ptr2))
 				{
-					char m_name[80];
-					monster_desc(m_name, m_ptr, 0);
-					msg_format("%^s is no longer ticked off!", m_name);
-					m_ptr->smart &= ~SM_TICKED_OFF;				
+					set_monster_csleep(c_ptr->m_idx, 0);
+					--count;
 				}
-				return;
 			}
-			/*
-			 * Attempt to cast a spell at an enemy other than the player
-			 * (may slow the game a smidgeon, but I haven't noticed.)
-			 */
-			if (monst_spell_monst(m_idx)) return;
-		}
-		else
-		{
-			/* Attempt to do counter attack at first */
-			if (monst_spell_monst(m_idx)) return;
 
-			if (aware && make_attack_spell(m_idx)) return;
+			if (count < max_wake) return;
+		}
+	}
+
+	/* Try to cast spell occasionally */
+	{
+	int freq = r_ptr->freq_spell;
+	pack_info_t *pack_ptr = pack_info_ptr(m_idx);
+	bool ticked_off = (m_ptr->smart & SM_TICKED_OFF) ? TRUE : FALSE;
+
+		if (ticked_off)
+			freq += (30 + r_ptr->level/5);
+		else if (m_ptr->pack_idx)
+		{
+			switch (pack_ptr->ai)
+			{
+			case AI_SHOOT:
+			case AI_LURE:
+			case AI_FEAR:
+				freq += 30;
+				break;
+			}
+		}
+
+		freq = MIN(freq, MAX(75, r_ptr->freq_spell));
+
+		if (r_ptr->freq_spell && randint1(100) <= freq)
+		{
+			bool counterattack = FALSE;
+
+			/* Give priority to counter attack? */
+			if (m_ptr->target_y)
+			{
+				int t_m_idx = cave[m_ptr->target_y][m_ptr->target_x].m_idx;
+
+				/* The monster must be an enemy, and projectable */
+				if (t_m_idx &&
+					are_enemies(m_ptr, &m_list[t_m_idx]) &&
+					projectable(m_ptr->fy, m_ptr->fx, m_ptr->target_y, m_ptr->target_x))
+				{
+					counterattack = TRUE;
+				}
+			}
+
+			if (!counterattack)
+			{
+				/* Attempt to cast a spell */
+				/* Being Ticked Off will affect spell selection */
+				if (aware && make_attack_spell(m_idx, ticked_off))
+				{
+					if (ticked_off)
+					{
+						char m_name[80];
+						monster_desc(m_name, m_ptr, 0);
+						msg_format("%^s is no longer ticked off!", m_name);
+						m_ptr->smart &= ~SM_TICKED_OFF;				
+					}
+					return;
+				}
+				/*
+				 * Attempt to cast a spell at an enemy other than the player
+				 * (may slow the game a smidgeon, but I haven't noticed.)
+				 */
+				if (monst_spell_monst(m_idx)) return;
+			}
+			else
+			{
+				/* Attempt to do counter attack at first */
+				if (monst_spell_monst(m_idx)) return;
+
+				if (aware && make_attack_spell(m_idx, FALSE)) return;
+			}
 		}
 	}
 
@@ -3546,7 +3644,7 @@ msg_format("%^s%s", m_name, monmessage);
 		/* Try to cast spell again */
 		if (r_ptr->freq_spell && randint1(100) <= r_ptr->freq_spell)
 		{
-			if (make_attack_spell(m_idx)) return;
+			if (make_attack_spell(m_idx, FALSE)) return;
 		}
 	}
 

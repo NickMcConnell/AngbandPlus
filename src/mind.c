@@ -2262,7 +2262,10 @@ msg_format("%sの集中に失敗した！",p);
 			  b = randint1(100);
 
 			  if( use_mind == MIND_TIME_LORD ){
-				if (b < 61)
+				if (b < 81)
+				{
+				}
+				else if (b < 91)
 				{
 				  /* Slow 
 				     I jacked up the duration a bit to compensate for the Time-Lord's duration
@@ -2273,7 +2276,7 @@ msg_format("%sの集中に失敗した！",p);
 				  set_slow(randint1(50) + 25, FALSE);
 				  msg_print("You feel caught in a temporal inversion!");
 				}
-				else if (b < 81)
+				else if (b < 96)
 				{
 					/* Lose XP */
 					lose_exp(p_ptr->exp / 4);

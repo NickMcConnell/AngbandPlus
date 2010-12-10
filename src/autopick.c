@@ -2856,10 +2856,14 @@ static void prepare_default_pickpref(void)
 	};
 
 	char buf[1024];
+	char buf_src[255];
+	char buf_dest[255];
 	FILE *pref_fp;
 	FILE *user_fp;
 	int i;
-	cptr filename = pickpref_filename(PT_DEFAULT);
+
+	sprintf(buf_src, "%s", pickpref_filename(PT_DEFAULT));
+	sprintf(buf_dest, "%s", pickpref_filename(PT_WITH_PNAME));
 
 	/* Display messages */
 	for (i = 0; messages[i]; i++) msg_print(messages[i]);
@@ -2867,7 +2871,7 @@ static void prepare_default_pickpref(void)
 
 
 	/* Open new file */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, filename);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, buf_dest);
 	user_fp = my_fopen(buf, "w");
 
 	/* Failed */
@@ -2883,7 +2887,7 @@ static void prepare_default_pickpref(void)
 
 
 	/* Open the default file */
-	path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, filename);
+	path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, buf_src);
 	pref_fp = my_fopen(buf, "r");
 
 	/* Failed */
@@ -2926,6 +2930,8 @@ static cptr *read_pickpref_text_lines(int *filename_mode_p)
 	if (!lines_list)
 	{
 		/* There is no preference file in the user directory */
+		*filename_mode_p = PT_WITH_PNAME;
+		strcpy(buf, pickpref_filename(*filename_mode_p));
 
 		/* Copy the default autopick file to the user directory */
 		prepare_default_pickpref();
@@ -6191,7 +6197,7 @@ void do_cmd_edit_autopick(void)
 	tb->last_destroyed = NULL;
 	tb->dirty_flags = DIRTY_ALL | DIRTY_MODE | DIRTY_EXPRESSION;
 	tb->dirty_line = -1;
-	tb->filename_mode = PT_DEFAULT;
+	tb->filename_mode = PT_WITH_PNAME;
 
 	if (turn < old_autosave_turn)
 	{

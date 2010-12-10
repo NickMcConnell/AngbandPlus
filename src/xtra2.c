@@ -1355,6 +1355,11 @@ msg_print("地面に落とされた。");
 			chance = 75;
 			break;
 
+		case MON_MASTER_TONBERRY:
+			a_idx = ART_MASTER_TONBERRY;
+			chance = 75;
+			break;
+
 		case MON_HAGEN:
 			a_idx = ART_HAGEN;
 			chance = 66;
@@ -1911,6 +1916,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			/* When the player kills a Nazgul, it stays dead */
 			else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num--;
 		}
+
+		/* Handle Packs ... Check Morale */
+		pack_on_slay_monster(m_idx);
 
 		/* Count all monsters killed */
 		if (r_ptr->r_akills < MAX_SHORT) r_ptr->r_akills++;

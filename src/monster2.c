@@ -582,6 +582,158 @@ void wipe_m_list(void)
 
 	/* Hack -- no more tracking */
 	health_track(0);
+
+	pack_info_wipe();
+}
+
+/*
+ * Return a Pack Info record to the free list
+ */ 
+void pack_info_push(int idx)
+{
+	pack_info_t *pack_ptr = &pack_info_list[idx];
+	WIPE(pack_ptr, pack_info_t);
+	pack_ptr->next_idx = pack_info_free_list;
+	pack_ptr->pack_idx = 0;
+	pack_info_free_list = idx;
+	--pack_info_count;
+}
+
+/*
+ * Get a Pack Info record from the free list
+ */ 
+s16b pack_info_pop(void)
+{
+	s16b result = pack_info_free_list;
+	if (result)
+	{
+		pack_info_t *pack_ptr = &pack_info_list[result];
+		pack_info_free_list = pack_ptr->next_idx;
+		pack_ptr->next_idx = 0;
+		++pack_info_count;
+		pack_ptr->pack_idx = result;
+	}
+	return result;
+}
+
+void pack_info_wipe(void)
+{
+	int i;
+
+	for (i = 1; i < max_pack_info_idx; ++i)
+	{
+		pack_info_t *pack_ptr = &pack_info_list[i];
+		WIPE(pack_ptr, pack_info_t);
+	}
+
+	pack_info_free_list = 1;
+	pack_info_count = 0;
+	for (i = 1; i < max_pack_info_idx - 1; ++i)
+	{
+		pack_info_t *pack_ptr = &pack_info_list[i];
+		pack_ptr->next_idx = i + 1;
+	}
+}
+
+void pack_choose_ai(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	if (m_ptr->pack_idx)
+	{
+		pack_info_t *pack_ptr = &pack_info_list[m_ptr->pack_idx];
+		pack_ptr->ai = AI_SEEK; /* paranoia ... make sure something gets chosen! */
+
+		if (r_ptr->flags3 & RF3_ANIMAL)
+		{
+			switch(randint1(10))
+			{
+			case 1: case 2:
+				pack_ptr->ai = AI_SEEK;
+				break;
+			case 3: case 4:
+				pack_ptr->ai = AI_SHOOT;
+				break;
+			default:
+				pack_ptr->ai = AI_LURE;
+				break;
+			}
+		}
+		else
+		{
+			switch(randint1(10))
+			{
+			case 1: case 2: case 3:
+				pack_ptr->ai = AI_SEEK;
+				break;
+			case 4: case 5: case 6:
+				pack_ptr->ai = AI_LURE;
+				break;
+			 case 7: case 8: case 9:
+				if (pack_ptr->leader_idx)
+				{
+					pack_ptr->ai = AI_GUARD_MON;
+					pack_ptr->guard_m_idx = pack_ptr->leader_idx;
+				}
+				else if (r_ptr->freq_spell)
+				{
+					pack_ptr->ai = AI_GUARD_POS;
+					pack_ptr->guard_x = m_ptr->fx;
+					pack_ptr->guard_y = m_ptr->fy;
+				}
+				else
+					pack_ptr->ai = AI_LURE;
+				break;
+			case 10:
+				if (r_ptr->freq_spell)
+					pack_ptr->ai = AI_SHOOT;
+				else
+					pack_ptr->ai = AI_SEEK;
+				break;
+			}
+		}
+	}
+}
+
+void pack_on_slay_monster(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+
+	if (m_ptr->pack_idx)
+	{
+		pack_info_t *pack_ptr = &pack_info_list[m_ptr->pack_idx];
+		pack_ptr->count--;
+		if (pack_ptr->count <= 0)
+			pack_info_push(m_ptr->pack_idx);
+		else if (pack_ptr->ai != AI_FEAR)
+		{
+			if (pack_ptr->leader_idx == m_idx)
+				pack_ptr->ai = AI_FEAR;
+			else if (one_in_(pack_ptr->count))
+				pack_ptr->ai = AI_FEAR;
+			else if (pack_ptr->ai == AI_LURE && one_in_(2))
+				pack_ptr->ai = AI_SEEK;
+			else if (pack_ptr->ai == AI_SHOOT && one_in_(3))
+				pack_ptr->ai = AI_SEEK;
+		}
+	}
+}
+
+pack_info_t *pack_info_ptr(int m_idx)
+{
+	pack_info_t *result = NULL;
+	if (m_idx)
+	{
+		monster_type *m_ptr = &m_list[m_idx];
+		if (m_ptr->pack_idx)
+		{
+			result = &pack_info_list[m_ptr->pack_idx];
+			if (result->pack_idx != m_ptr->pack_idx)
+				result = NULL;
+		}
+	}
+	return result;
 }
 
 
@@ -1853,6 +2005,31 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	{
 		strcat(desc, " (Foe)");
 	}
+
+	if (/*p_ptr->wizard &&*/ m_ptr->pack_idx)
+	{
+		switch (pack_info_list[m_ptr->pack_idx].ai)
+		{
+		case AI_SEEK:
+			strcat(desc, " [Seek]");
+			break;
+		case AI_SHOOT:
+			strcat(desc, " [Shoot]");
+			break;
+		case AI_LURE:
+			strcat(desc, " [Lure]");
+			break;
+		case AI_FEAR:
+			strcat(desc, " [Fear]");
+			break;
+		case AI_GUARD_MON:
+			strcat(desc, " [Guard Monster]");
+			break;
+		case AI_GUARD_POS:
+			strcat(desc, " [Guard Position]");
+			break;
+		}
+	}
 }
 
 
@@ -3002,7 +3179,7 @@ byte get_mspeed(monster_race *r_ptr)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
+static int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
 {
 	/* Access the location */
 	cave_type		*c_ptr = &cave[y][x];
@@ -3015,25 +3192,24 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 
 	int cmi;
 
-	/* DO NOT PLACE A MONSTER IN THE SMALL SCALE WILDERNESS !!! */
-	if (p_ptr->wild_mode) return FALSE;
+	if (p_ptr->wild_mode) return 0;
 
 	/* Verify location */
-	if (!in_bounds(y, x)) return (FALSE);
+	if (!in_bounds(y, x)) return 0;
 
 	/* Paranoia */
-	if (!r_idx) return (FALSE);
+	if (!r_idx) return 0;
 
 	/* Paranoia */
-	if (!r_ptr->name) return (FALSE);
+	if (!r_ptr->name) return 0;
 
 	if (!(mode & PM_IGNORE_TERRAIN))
 	{
 		/* Not on the Pattern */
-		if (pattern_tile(y, x)) return FALSE;
+		if (pattern_tile(y, x)) return 0;
 
 		/* Require empty space (if not ghostly) */
-		if (!monster_can_enter(y, x, r_ptr, 0)) return FALSE;
+		if (!monster_can_enter(y, x, r_ptr, 0)) return 0;
 	}
 
 	if (!p_ptr->inside_battle)
@@ -3044,19 +3220,19 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 		    (r_ptr->cur_num >= r_ptr->max_num))
 		{
 			/* Cannot create */
-			return (FALSE);
+			return 0;
 		}
 
 		if ((r_ptr->flags7 & (RF7_UNIQUE2)) &&
 		    (r_ptr->cur_num >= 1))
 		{
-			return (FALSE);
+			return 0;
 		}
 
 		if (r_idx == MON_BANORLUPART)
 		{
-			if (r_info[MON_BANOR].cur_num > 0) return FALSE;
-			if (r_info[MON_LUPART].cur_num > 0) return FALSE;
+			if (r_info[MON_BANOR].cur_num > 0) return 0;
+			if (r_info[MON_LUPART].cur_num > 0) return 0;
 		}
 
 		/* Depth monsters may NOT be created out of depth, unless in Nightmare mode */
@@ -3064,7 +3240,7 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 		    (!ironman_nightmare || (r_ptr->flags1 & (RF1_QUESTOR))))
 		{
 			/* Cannot create */
-			return (FALSE);
+			return 0;
 		}
 	}
 
@@ -3085,7 +3261,7 @@ static bool place_monster_one(int who, int y, int x, int r_idx, u32b mode)
 							if (m_list[cave[j2][i2].m_idx].r_idx == quest[hoge].r_idx)
 								number_mon++;
 				if(number_mon + quest[hoge].cur_num >= quest[hoge].max_num)
-					return FALSE;
+					return 0;
 			}
 		}
 	}
@@ -3115,7 +3291,7 @@ msg_print("守りのルーンが壊れた！");
 			/* Notice */
 			note_spot(y, x);
 		}
-		else return FALSE;
+		else return 0;
 	}
 
 	/* Powerful monster */
@@ -3163,11 +3339,14 @@ msg_print("守りのルーンが壊れた！");
 	hack_m_idx_ii = c_ptr->m_idx;
 
 	/* Mega-Hack -- catch "failure" */
-	if (!c_ptr->m_idx) return (FALSE);
+	if (!c_ptr->m_idx) return 0;
 
 
 	/* Get a new monster record */
 	m_ptr = &m_list[c_ptr->m_idx];
+	m_ptr->pack_idx = pack_idx;
+	if (pack_idx)
+		pack_info_list[pack_idx].count++;
 
 	/* Save the race */
 	m_ptr->r_idx = r_idx;
@@ -3464,7 +3643,7 @@ msg_print("爆発のルーンは解除された。");
 	}
 
 	/* Success */
-	return (TRUE);
+	return c_ptr->m_idx;
 }
 
 
@@ -3553,7 +3732,7 @@ static bool mon_scatter(int r_idx, int *yp, int *xp, int y, int x, int max_dist)
 /*
  * Attempt to place a "group" of monsters around the given location
  */
-static bool place_monster_group(int who, int y, int x, int r_idx, u32b mode)
+static bool place_monster_group(int who, int y, int x, int r_idx, int pack_idx, u32b mode)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -3619,7 +3798,7 @@ static bool place_monster_group(int who, int y, int x, int r_idx, u32b mode)
 			if (!cave_empty_bold2(my, mx)) continue;
 
 			/* Attempt to place another monster */
-			if (place_monster_one(who, my, mx, r_idx, mode))
+			if (place_monster_one(who, my, mx, r_idx, pack_idx, mode))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -3703,6 +3882,7 @@ static bool place_monster_okay(int r_idx)
 bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 {
 	int             i;
+	int				m_idx = 0;
 	monster_race    *r_ptr = &r_info[r_idx];
 
 	if (!(mode & PM_NO_KAGE) && one_in_(333))
@@ -3712,7 +3892,8 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 		mode &= (~PM_FORCE_PET);
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(who, y, x, r_idx, mode)) return (FALSE);
+	m_idx = place_monster_one(who, y, x, r_idx, 0, mode);
+	if (!m_idx) return (FALSE);
 
 	/* Require the "group" flag */
 	if (!(mode & PM_ALLOW_GROUP)) return (TRUE);
@@ -3720,16 +3901,26 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 	place_monster_m_idx = hack_m_idx_ii;
 
 	/* Friends for certain monsters */
-	if (r_ptr->flags1 & (RF1_FRIENDS))
+	if (r_ptr->flags1 & RF1_FRIENDS)
 	{
-		/* Attempt to place a group */
-		(void)place_monster_group(who, y, x, r_idx, mode);
+		int pack_idx = pack_info_pop();
+		pack_info_t *pack_ptr = &pack_info_list[pack_idx];
+		m_list[m_idx].pack_idx = pack_idx;
+		pack_ptr->count++;
+		(void)place_monster_group(who, y, x, r_idx, pack_idx, mode);
+		pack_choose_ai(m_idx);
 	}
 
-
 	/* Escorts for certain monsters */
-	if (r_ptr->flags1 & (RF1_ESCORT))
+	if ((r_ptr->flags1 & RF1_ESCORT) && !(r_ptr->flags1 & RF1_FRIENDS))
 	{
+		int pack_idx = pack_info_pop();
+		pack_info_t *pack_ptr = &pack_info_list[pack_idx];
+
+		m_list[m_idx].pack_idx = pack_idx;
+		pack_ptr->leader_idx = m_idx;
+		pack_ptr->count++;
+
 		/* Set the escort index */
 		place_monster_idx = r_idx;
 
@@ -3754,16 +3945,17 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 			if (!z) break;
 
 			/* Place a single escort */
-			(void)place_monster_one(place_monster_m_idx, ny, nx, z, mode);
+			(void)place_monster_one(place_monster_m_idx, ny, nx, z, pack_idx, mode);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & RF1_FRIENDS) ||
 			    (r_ptr->flags1 & RF1_ESCORTS))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(place_monster_m_idx, ny, nx, z, mode);
+				(void)place_monster_group(place_monster_m_idx, ny, nx, z, pack_idx, mode);
 			}
 		}
+		pack_choose_ai(m_idx);
 	}
 
 	/* Success */

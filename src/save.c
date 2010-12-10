@@ -204,6 +204,7 @@ static void wr_monster(monster_type *m_ptr)
 	if (m_ptr->mflag2) flags |= SAVE_MON_MFLAG2;
 	if (m_ptr->nickname) flags |= SAVE_MON_NICKNAME;
 	if (m_ptr->parent_m_idx) flags |= SAVE_MON_PARENT;
+	if (m_ptr->pack_idx) flags |= SAVE_MON_PACK_IDX;
 
 	/*** Monster save flags ***/
 	wr_u32b(flags);
@@ -262,6 +263,7 @@ static void wr_monster(monster_type *m_ptr)
 	if (flags & SAVE_MON_MFLAG2) wr_byte(m_ptr->mflag2);
 	if (flags & SAVE_MON_NICKNAME) wr_string(quark_str(m_ptr->nickname));
 	if (flags & SAVE_MON_PARENT) wr_s16b(m_ptr->parent_m_idx);
+	if (flags & SAVE_MON_PACK_IDX) wr_s16b(m_ptr->pack_idx);
 }
 
 
@@ -1112,6 +1114,23 @@ static void wr_saved_floor(saved_floor_type *sf_ptr)
 
 		/* Dump it */
 		wr_monster(m_ptr);
+	}
+
+	/* Pack Info */
+	wr_s16b(pack_info_count);
+	for (i = 1; i < max_pack_info_idx; ++i)
+	{
+		pack_info_t	*pack_ptr = &pack_info_list[i];
+		if (pack_ptr->pack_idx)
+		{
+			wr_s16b(pack_ptr->pack_idx);
+			wr_s16b(pack_ptr->leader_idx);
+			wr_s16b(pack_ptr->count);
+			wr_s16b(pack_ptr->ai);
+			wr_s16b(pack_ptr->guard_m_idx);
+			wr_s16b(pack_ptr->guard_x);
+			wr_s16b(pack_ptr->guard_y);
+		}
 	}
 }
 

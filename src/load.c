@@ -668,6 +668,9 @@ static void rd_monster(monster_type *m_ptr)
 
 	if (flags & SAVE_MON_PARENT) rd_s16b(&m_ptr->parent_m_idx);
 	else m_ptr->parent_m_idx = 0;
+
+	if (flags & SAVE_MON_PACK_IDX) rd_s16b(&m_ptr->pack_idx);
+	else m_ptr->pack_idx = 0;
 }
 
 
@@ -1766,326 +1769,6 @@ static void rd_messages(void)
 #define QUEST_ROYAL_CRYPT 28
 
 /*
- * Read the dungeon (old method)
- *
- * The monsters/objects must be loaded in the same order
- * that they were stored, since the actual indexes matter.
- */
-static errr rd_dungeon_old(void)
-{
-	int i, y, x;
-	int ymax, xmax;
-	byte count;
-	byte tmp8u;
-	s16b tmp16s;
-	u16b limit;
-	cave_type *c_ptr;
-
-
-	/*** Basic info ***/
-
-	/* Header info */
-	rd_s16b(&dun_level);
-	rd_byte(&dungeon_type);
-
-	/* Set the base level for old versions */
-	base_level = dun_level;
-
-	rd_s16b(&base_level);
-
-	rd_s16b(&num_repro);
-	rd_s16b(&tmp16s);
-	py = (int)tmp16s;
-	rd_s16b(&tmp16s);
-	px = (int)tmp16s;
-	rd_s16b(&cur_hgt);
-	rd_s16b(&cur_wid);
-	rd_s16b(&tmp16s); /* max_panel_rows */
-	rd_s16b(&tmp16s); /* max_panel_cols */
-
-#if 0
-	if (!py || !px) {py = 10;px = 10;}/* ダンジョン生成に失敗してセグメンテったときの復旧用 */
-#endif
-
-	/* Maximal size */
-	ymax = cur_hgt;
-	xmax = cur_wid;
-
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		u16b info;
-
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_u16b(&info);
-
-		/* Decline invalid flags */
-		info &= ~(CAVE_LITE | CAVE_VIEW | CAVE_MNLT | CAVE_MNDK);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "info" */
-			c_ptr->info = info;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "feat" */
-			c_ptr->feat = (s16b)tmp8u;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_byte(&tmp8u);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "mimic" */
-			c_ptr->mimic = (s16b)tmp8u;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-	/*** Run length decoding ***/
-
-	/* Load the dungeon data */
-	for (x = y = 0; y < ymax; )
-	{
-		/* Grab RLE info */
-		rd_byte(&count);
-		rd_s16b(&tmp16s);
-
-		/* Apply the RLE info */
-		for (i = count; i > 0; i--)
-		{
-			/* Access the cave */
-			c_ptr = &cave[y][x];
-
-			/* Extract "feat" */
-			c_ptr->special = tmp16s;
-
-			/* Advance/Wrap */
-			if (++x >= xmax)
-			{
-				/* Wrap */
-				x = 0;
-
-				/* Advance/Wrap */
-				if (++y >= ymax) break;
-			}
-		}
-	}
-
-	/*** Objects ***/
-
-	/* Read the item count */
-	rd_u16b(&limit);
-
-	/* Verify maximum */
-	if (limit > max_o_idx)
-	{
-#ifdef JP
-note(format("アイテムの配列が大きすぎる(%d)！", limit));
-#else
-		note(format("Too many (%d) object entries!", limit));
-#endif
-
-		return (151);
-	}
-
-	/* Read the dungeon items */
-	for (i = 1; i < limit; i++)
-	{
-		int o_idx;
-
-		object_type *o_ptr;
-
-
-		/* Get a new record */
-		o_idx = o_pop();
-
-		/* Oops */
-		if (i != o_idx)
-		{
-#ifdef JP
-note(format("アイテム配置エラー (%d <> %d)", i, o_idx));
-#else
-			note(format("Object allocation error (%d <> %d)", i, o_idx));
-#endif
-
-			return (152);
-		}
-
-
-		/* Acquire place */
-		o_ptr = &o_list[o_idx];
-
-		/* Read the item */
-		rd_item(o_ptr);
-
-
-		/* XXX XXX XXX XXX XXX */
-
-		/* Monster */
-		if (o_ptr->held_m_idx)
-		{
-			monster_type *m_ptr;
-
-			/* Monster */
-			m_ptr = &m_list[o_ptr->held_m_idx];
-
-			/* Build a stack */
-			o_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-			/* Place the object */
-			m_ptr->hold_o_idx = o_idx;
-		}
-
-		/* Dungeon */
-		else
-		{
-			/* Access the item location */
-			c_ptr = &cave[o_ptr->iy][o_ptr->ix];
-
-			/* Build a stack */
-			o_ptr->next_o_idx = c_ptr->o_idx;
-
-			/* Place the object */
-			c_ptr->o_idx = o_idx;
-		}
-	}
-
-
-	/*** Monsters ***/
-
-	/* Read the monster count */
-	rd_u16b(&limit);
-
-	/* Hack -- verify */
-	if (limit > max_m_idx)
-	{
-#ifdef JP
-note(format("モンスターの配列が大きすぎる(%d)！", limit));
-#else
-		note(format("Too many (%d) monster entries!", limit));
-#endif
-
-		return (161);
-	}
-
-	/* Read the monsters */
-	for (i = 1; i < limit; i++)
-	{
-		int m_idx;
-		monster_type *m_ptr;
-
-		/* Get a new record */
-		m_idx = m_pop();
-
-		/* Oops */
-		if (i != m_idx)
-		{
-#ifdef JP
-note(format("モンスター配置エラー (%d <> %d)", i, m_idx));
-#else
-			note(format("Monster allocation error (%d <> %d)", i, m_idx));
-#endif
-
-			return (162);
-		}
-
-
-		/* Acquire monster */
-		m_ptr = &m_list[m_idx];
-
-		/* Read the monster */
-		rd_monster(m_ptr);
-
-
-		/* Access grid */
-		c_ptr = &cave[m_ptr->fy][m_ptr->fx];
-
-		/* Mark the location */
-		c_ptr->m_idx = m_idx;
-
-		/* Count */
-		real_r_ptr(m_ptr)->cur_num++;
-	}
-
-	/*** Success ***/
-
-	/* The dungeon is ready */
-	character_dungeon = TRUE;
-
-	/* Success */
-	return (0);
-}
-
-
-
-/*
  * Read the saved floor
  *
  * The monsters/objects must be loaded in the same order
@@ -2330,6 +2013,43 @@ static errr rd_saved_floor(saved_floor_type *sf_ptr)
 
 		/* Count */
 		real_r_ptr(m_ptr)->cur_num++;
+	}
+
+	if (h_older_than(0, 0, 26, 1))
+	{
+		pack_info_wipe();
+	}
+	else
+	{
+		s16b count;
+
+		pack_info_wipe();
+		rd_s16b(&count);
+		
+		for (i = 0; i < count; ++i)
+		{
+			s16b new_idx = pack_info_pop();
+			s16b old_idx;
+			pack_info_t *ptr = &pack_info_list[new_idx];
+			int j;
+
+			rd_s16b(&old_idx);
+			rd_s16b(&ptr->leader_idx);
+			rd_s16b(&ptr->count);
+			rd_s16b(&ptr->ai);
+			rd_s16b(&ptr->guard_m_idx);
+			rd_s16b(&ptr->guard_x);
+			rd_s16b(&ptr->guard_y);
+
+			/* I make no effort to keep the same pack_info index on a reload, so
+			   patch things up.  I'm pretty sure, but not certain, that monster
+			   and object indices won't change after a save and reload. */
+			for (j = 1; j < max_m_idx; ++j)
+			{
+				if (m_list[j].pack_idx == old_idx)
+					m_list[j].pack_idx = new_idx;
+			}
+		}
 	}
 
 	/* Success */

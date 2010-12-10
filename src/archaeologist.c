@@ -598,7 +598,7 @@ static void _magic_blueprint_spell(int cmd, variant *res)
 				detect_objects_normal(rad);
 
 			if (p_ptr->lev >= 35)
-				wiz_lite(p_ptr->tim_superstealth);	/* somewhat redundant, but I want level wide trap detection! */
+				wiz_lite(p_ptr->tim_superstealth > 0);	/* somewhat redundant, but I want level wide trap detection! */
 
 			var_set_bool(res, TRUE);
 		}

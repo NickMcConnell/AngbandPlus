@@ -1004,7 +1004,7 @@ bool dispel_check(int m_idx)
  *
  * This function may well be an efficiency bottleneck.
  */
-static int choose_attack_spell(int m_idx, byte spells[], byte num)
+static int choose_attack_spell(int m_idx, byte spells[], byte num, bool ticked_off)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1106,7 +1106,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	if (m_ptr->hp < m_ptr->maxhp / 3 && heal_num)
 	{
 		int odds = 2;
-		if (m_ptr->smart & SM_TICKED_OFF)
+		if (ticked_off)
 			odds = 5;
 
 		if (one_in_(odds)) return (heal[randint0(heal_num)]);
@@ -1116,7 +1116,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	if (((m_ptr->hp < m_ptr->maxhp / 3) || MON_MONFEAR(m_ptr)) && escape_num)
 	{
 		int odds = 2;
-		if (m_ptr->smart & SM_TICKED_OFF)
+		if (ticked_off)
 			odds = 5;
 
 		if (one_in_(odds)) return (escape[randint0(escape_num)]);
@@ -1157,7 +1157,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 	{
 		int odds = 40;
 
-		if ((m_ptr->smart & SM_TICKED_OFF) && attack_num)
+		if (ticked_off && attack_num)
 			odds = 20;
 
 		if (randint0(100) < odds) return (summon[randint0(summon_num)]);
@@ -1201,7 +1201,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num)
 			return (attack[randint0(attack_num)]);
 		}
 	}
-	else if (attack_num && ((m_ptr->smart & SM_TICKED_OFF) || (randint0(100) < 85)))
+	else if (attack_num && (ticked_off || (randint0(100) < 85)))
 	{
 		/* Choose attack spell */
 		return (attack[randint0(attack_num)]);
@@ -1371,7 +1371,7 @@ static bool adjacent_grid_check(monster_type *m_ptr, int *yp, int *xp,
  * Note the special "MFLAG_NICE" flag, which prevents a monster from using
  * any spell attacks until the player has had a single chance to move.
  */
-bool make_attack_spell(int m_idx)
+bool make_attack_spell(int m_idx, bool ticked_off)
 {
 	int             k, thrown_spell = 0, rlev, failrate;
 	byte            spell[96], num = 0;
@@ -1432,7 +1432,7 @@ bool make_attack_spell(int m_idx)
 
 
 	/* Sometimes forbid inate attacks (breaths) */
-	if (m_ptr->smart & SM_TICKED_OFF)
+	if (ticked_off)
 	{
 		if (randint0(100) >= (r_ptr->freq_spell * 3)) no_inate = TRUE;
 	}
@@ -1447,7 +1447,7 @@ bool make_attack_spell(int m_idx)
 	f6 = r_ptr->flags6;
 
 	/* Ticked off monsters favor powerful offense */
-	if (m_ptr->smart & SM_TICKED_OFF)
+	if (ticked_off)
 	{
 		f4 &= RF4_ATTACK_MASK;
 		f5 &= RF5_WORTHY_ATTACK_MASK;
@@ -1456,6 +1456,14 @@ bool make_attack_spell(int m_idx)
 			f6 &= (RF6_WORTHY_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK | RF6_PANIC_MASK);
 		else
 			f6 &= (RF6_WORTHY_ATTACK_MASK | RF6_WORTHY_SUMMON_MASK);
+
+		/* Restore original spell list if masking removes *all* spells */
+		if (!f4 && !f5 && !f6)
+		{
+			f4 = r_ptr->flags4;
+			f5 = r_ptr->flags5;
+			f6 = r_ptr->flags6;
+		}
 	}
 
 	/*** require projectable player ***/
@@ -1726,7 +1734,7 @@ bool make_attack_spell(int m_idx)
 			int attempt = 10;
 			while (attempt--)
 			{
-				thrown_spell = choose_attack_spell(m_idx, spell, num);
+				thrown_spell = choose_attack_spell(m_idx, spell, num, ticked_off);
 				if (thrown_spell) break;
 			}
 		}
@@ -4041,6 +4049,18 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 				}
 				break;
 
+			case MON_MASTER_TONBERRY:
+				{
+					int num = 3 + randint1(3);
+					for (k = 0; k < num; k++)
+					{
+						if (one_in_(3))
+							count += summon_named_creature(m_idx, y, x, MON_NINJA_TONBERRY, mode);
+						else
+							count += summon_named_creature(m_idx, y, x, MON_TONBERRY, mode);
+					}
+				}
+				break;
 			case MON_LOUSY:
 				{
 					int num = 2 + randint1(3);

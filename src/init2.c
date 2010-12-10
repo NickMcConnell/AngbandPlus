@@ -1768,6 +1768,8 @@ static errr init_other(void)
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, max_m_idx, monster_type);
 
+	C_MAKE(pack_info_list, max_pack_info_idx, pack_info_t);
+
 	/* Allocate and Wipe the monster process list */
 	for (i = 0; i < MAX_MTIMED; i++)
 	{

@@ -1610,7 +1610,16 @@ static void do_cmd_wiz_summon(int num)
  */
 static void do_cmd_wiz_named(int r_idx)
 {
-	(void)summon_named_creature(0, py, px, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
+	int x = px;
+	int y = py;
+
+	if (target_who < 0)
+	{
+		x = target_col;
+		y = target_row;
+	}
+
+	(void)summon_named_creature(0, y, x, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
 }
 
 
@@ -2055,14 +2064,18 @@ void do_cmd_debug(void)
 		teleport_player(10, 0L);
 		break;
 
-#if 0
 	/* Complete a Quest -KMW- */
 	case 'q':
+	{
+		int i;
 		for (i = 0; i < max_quests; i++)
 		{
-			if (p_ptr->quest[i].status == QUEST_STATUS_TAKEN)
+			if (i == QUEST_OBERON || i == QUEST_SERPENT)
+				continue;
+
+			if (is_fixed_quest_idx(i) && quest[i].status == QUEST_STATUS_TAKEN)
 			{
-				p_ptr->quest[i].status++;
+				quest[i].status++;
 				msg_print("Completed Quest");
 				msg_print(NULL);
 				break;
@@ -2074,8 +2087,7 @@ void do_cmd_debug(void)
 			msg_print(NULL);
 		}
 		break;
-#endif
-
+	}
 	/* Make every dungeon square "known" to test streamers -KMW- */
 	case 'u':
 		for (y = 0; y < cur_hgt; y++)

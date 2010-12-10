@@ -452,6 +452,13 @@ extern s16b max_floor_id;
 extern u32b saved_floor_file_sign;
 extern object_type *o_list;
 extern monster_type *m_list;
+
+extern pack_info_t *pack_info_list;
+extern s16b max_pack_info_idx;
+extern s16b pack_info_free_list;
+extern s16b pack_info_count;
+
+
 extern s16b *mproc_list[MAX_MTIMED];
 extern s16b mproc_max[MAX_MTIMED];
 extern u16b max_towns;
@@ -982,6 +989,14 @@ extern void delete_monster_idx(int i);
 extern void delete_monster(int y, int x);
 extern void compact_monsters(int size);
 extern void wipe_m_list(void);
+
+extern s16b pack_info_pop(void);
+extern void pack_info_push(int idx);
+extern void pack_info_wipe(void);
+extern void pack_on_slay_monster(int m_idx);
+extern pack_info_t *pack_info_ptr(int m_idx);
+extern void pack_choose_ai(int m_idx);
+
 extern s16b m_pop(void);
 extern errr get_mon_num_prep(monster_hook_type monster_hook, monster_hook_type monster_hook2);
 extern s16b get_mon_num(int level);
@@ -1524,7 +1539,7 @@ extern bool summon_possible(int y1, int x1);
 extern bool raise_possible(monster_type *m_ptr);
 extern bool dispel_check(int m_idx);
 extern bool spell_is_inate(u16b spell);
-extern bool make_attack_spell(int m_idx);
+extern bool make_attack_spell(int m_idx, bool ticked_off);
 
 /* mspells2.c */
 extern void get_project_point(int sy, int sx, int *ty, int *tx, int flg);

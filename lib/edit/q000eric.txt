@@ -66,8 +66,8 @@ F:e:FLOOR:8:636
 # Floor + sorcerer
 F:f:FLOOR:8:638
 
-# Floor + Hell Knight
-F:g:FLOOR:8:731
+# Floor + Anti-Paladin
+F:g:FLOOR:8:497
 
 # Floor + Lord of Chaos
 F:h:FLOOR:8:737

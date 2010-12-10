@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 25
+#define FAKE_VER_PATCH 26
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 25
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 26
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -3925,7 +3925,7 @@
 	 RF6_HAND_DOOM | RF6_TELE_TO | RF6_TELE_AWAY | RF6_TELE_LEVEL | \
 	 RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
 
-#define RF6_WORTHY_ATTACK_MASK  (RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | RF6_HAND_DOOM)
+#define RF6_WORTHY_ATTACK_MASK  (RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | RF6_HAND_DOOM | RF6_TELE_TO)
 
 /*
  * Hack -- "indirect" spells
@@ -5092,6 +5092,9 @@ extern int PlayerUID;
 #define MON_ULT_MAGUS	  1083
 #define MON_SPELLWARP	  1085
 #define MON_TALOS		  1086
+#define MON_TONBERRY	  1087
+#define MON_NINJA_TONBERRY  1088
+#define MON_MASTER_TONBERRY 1089
 
 /* Maximum "Nazguls" number */
 #define MAX_NAZGUL_NUM 5
@@ -5345,6 +5348,7 @@ extern int PlayerUID;
 #define SAVE_MON_MFLAG2       0x00002000
 #define SAVE_MON_NICKNAME     0x00004000
 #define SAVE_MON_PARENT       0x00008000
+#define SAVE_MON_PACK_IDX     0x00010000
 
 
 /*
