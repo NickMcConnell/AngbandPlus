@@ -4501,7 +4501,7 @@ void calc_bonuses(void)
 	if (p_ptr->slow)
 	{
 		if (p_ptr->pclass == CLASS_TIME_LORD)
-			p_ptr->pspeed -= 15;	/* Time-Lords are just more sensitive to speed effects :) */
+			p_ptr->pspeed -= 5;
 		else
 			p_ptr->pspeed -= 10;
 	}

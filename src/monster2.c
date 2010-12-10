@@ -653,7 +653,10 @@ void pack_choose_ai(int m_idx)
 				pack_ptr->ai = AI_SEEK;
 				break;
 			case 3: case 4:
-				pack_ptr->ai = AI_SHOOT;
+				if (r_ptr->freq_spell)
+					pack_ptr->ai = AI_SHOOT;
+				else
+					pack_ptr->ai = AI_LURE;
 				break;
 			default:
 				pack_ptr->ai = AI_LURE;
@@ -2006,7 +2009,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 		strcat(desc, " (Foe)");
 	}
 
-	if (/*p_ptr->wizard &&*/ m_ptr->pack_idx)
+	if (p_ptr->wizard && m_ptr->pack_idx)
 	{
 		switch (pack_info_list[m_ptr->pack_idx].ai)
 		{
