@@ -1627,7 +1627,7 @@ static void get_random_name(char *return_name, bool armour, int power)
 }
 
 
-bool create_artifact(object_type *o_ptr, bool a_scroll)
+bool create_artifact(object_type *o_ptr, u32b mode)
 {
 	char    new_name[1024];
 	int     has_pval = 0;
@@ -1651,7 +1651,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	if (o_ptr->pval) has_pval = TRUE;
 
-	if (a_scroll && one_in_(4))
+	if ((mode & CREATE_ART_GOOD) && one_in_(4))
 	{
 		switch (p_ptr->pclass)
 		{
@@ -1732,12 +1732,12 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		}
 	}
 
-	if (a_scroll && (randint1(100) <= warrior_artifact_bias))
+	if ((mode & CREATE_ART_GOOD) && (randint1(100) <= warrior_artifact_bias))
 		artifact_bias = BIAS_WARRIOR;
 
 	strcpy(new_name, "");
 
-	if (!a_scroll && one_in_(A_CURSED))
+	if (!(mode & CREATE_ART_GOOD) && one_in_(A_CURSED))
 		a_cursed = TRUE;
 	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && object_is_cursed(o_ptr))
 		a_cursed = TRUE;
@@ -1904,7 +1904,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		else power_level = 3;
 	}
 
-	if (a_scroll)
+	if (mode & CREATE_ART_SCROLL)
 	{
 		char dummy_name[80] = "";
 #ifdef JP

@@ -3029,7 +3029,7 @@ static void calc_torch(void)
 			}
 
 			/* Artifact Lites provide permanent, bright, lite */
-			else if (object_is_fixed_artifact(o_ptr))
+			else if (o_ptr->name1 || o_ptr->art_name)
 			{
 				p_ptr->cur_lite += 3;
 			}

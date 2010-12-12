@@ -2714,7 +2714,7 @@ bool artifact_scroll(void)
 				floor_item_increase(0-item, 1-(o_ptr->number));
 			}
 		}
-		okay = create_artifact(o_ptr, TRUE);
+		okay = create_artifact(o_ptr, CREATE_ART_SCROLL | CREATE_ART_GOOD);
 	}
 
 	/* Failure */

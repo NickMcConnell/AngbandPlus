@@ -3603,7 +3603,7 @@ static errr parse_line_building(char *buf)
 /*
  * Place the object j_ptr to a grid
  */
-static void drop_here(object_type *j_ptr, int y, int x)
+void drop_here(object_type *j_ptr, int y, int x)
 {
 	cave_type *c_ptr = &cave[y][x];
 	object_type *o_ptr;
@@ -3826,14 +3826,22 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			{
 				if (a_info[artifact_index].cur_num)
 				{
+					/* The Old Approach! 
 					int k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT);
 					object_type forge;
 					object_type *q_ptr = &forge;
 
 					object_prep(q_ptr, k_idx);
 
-					/* Drop it in the dungeon */
-					drop_here(q_ptr, *y, *x);
+					drop_here(q_ptr, *y, *x);*/
+
+					artifact_type *a_ptr = &a_info[artifact_index];
+					int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+					object_type forge;
+
+					object_prep(&forge, k_idx);
+					create_artifact(&forge, CREATE_ART_GOOD);
+					drop_here(&forge, *y, *x);
 				}
 				else
 				{

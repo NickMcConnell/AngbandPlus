@@ -919,6 +919,7 @@ extern void generate_cave(void);
 /* init1.c */
 extern byte color_char_to_attr(char c);
 extern s16b f_tag_to_index(cptr str);
+extern void drop_here(object_type *j_ptr, int y, int x);
 extern errr process_dungeon_file(cptr name, int ymin, int xmin, int ymax, int xmax);
 
 /* init2.c */
@@ -1554,7 +1555,12 @@ extern void one_dragon_ele_resistance(object_type *o_ptr);
 extern void one_low_esp(object_type *o_ptr);
 extern void one_resistance(object_type *o_ptr);
 extern void one_ability(object_type *o_ptr);
-extern bool create_artifact(object_type *o_ptr, bool a_scroll);
+enum {
+	CREATE_ART_NORMAL = 0x00,
+	CREATE_ART_SCROLL = 0x01,
+	CREATE_ART_GOOD   = 0x02,
+};
+extern bool create_artifact(object_type *o_ptr, u32b mode);
 extern bool activate_random_artifact(object_type * o_ptr);
 extern void get_bloody_moon_flags(object_type *o_ptr);
 extern void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr);

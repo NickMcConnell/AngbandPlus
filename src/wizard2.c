@@ -120,11 +120,18 @@ static bool wiz_dimension_door(void)
  */
 static void wiz_create_named_art(int a_idx)
 {
-	/* Create the artifact */
-	(void)create_named_art(a_idx, py, px);
+	if (a_info[a_idx].cur_num)
+	{
+		artifact_type *a_ptr = &a_info[a_idx];
+		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+		object_type forge;
 
-	/* All done */
-	msg_print("Allocated.");
+		object_prep(&forge, k_idx);
+		create_artifact(&forge, CREATE_ART_GOOD);
+		drop_here(&forge, py, px);
+	}
+	else if (create_named_art(a_idx, py, px))
+		a_info[a_idx].cur_num = 1;
 }
 
 
@@ -950,7 +957,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 				apply_magic(q_ptr, dun_level, AM_GOOD | AM_GREAT | AM_SPECIAL);
 
 				/* Failed to create artifact; make a random one */
-				if (!object_is_artifact(q_ptr)) create_artifact(q_ptr, FALSE);
+				if (!object_is_artifact(q_ptr)) create_artifact(q_ptr, CREATE_ART_NORMAL);
 				break;
 			}
 		}

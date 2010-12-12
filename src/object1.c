@@ -2569,7 +2569,7 @@ info[i++] = "それは魔法抵抗力を下げる。";
 #endif
 			}
 		}
-		else if (object_is_fixed_artifact(o_ptr))
+		else if (o_ptr->name1 || o_ptr->art_name)
 		{
 #ifdef JP
 info[i++] = "それは永遠なる明かり(半径 3)を授ける。";
