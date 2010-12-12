@@ -1174,7 +1174,7 @@ static bool get_moves(int m_idx, int *mm)
 			done = TRUE;
 		}
 
-		if (pack_ptr->ai == AI_GUARD_POS)
+		if (pack_ptr->ai == AI_GUARD_POS && m_ptr->cdis > 3)
 		{
 			x = m_ptr->fx - pack_ptr->guard_x;
 			y = m_ptr->fy - pack_ptr->guard_y;
@@ -1186,7 +1186,8 @@ static bool get_moves(int m_idx, int *mm)
 			monster_type *m_ptr2 = &m_list[pack_ptr->guard_m_idx];
 			if (!m_ptr2->r_idx)
 				pack_ptr->ai = AI_SEEK;	/* detect a dead guardian */
-			else
+			else if ( m_idx != pack_ptr->guard_m_idx
+			       && m_ptr->cdis > 3 )
 			{
 				x = m_ptr->fx - m_ptr2->fx;
 				y = m_ptr->fy - m_ptr2->fy;
