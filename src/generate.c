@@ -1450,7 +1450,16 @@ void clear_cave(void)
 {
 	int x, y;
 
-	wipe_o_list();
+	/* Very simplified version of wipe_o_list() */
+	C_WIPE(o_list, o_max, object_type);
+	o_max = 1;
+	o_cnt = 0;
+	
+	/* Note, when I replaced the above with wipe_o_list(), artifacts started spawning
+	   multiple times!
+	  wipe_o_list();*/
+
+
 	wipe_m_list();
 
 	/* Pre-calc cur_num of pets in party_mon[] */

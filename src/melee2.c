@@ -1085,12 +1085,12 @@ static bool get_moves(int m_idx, int *mm)
 	{
 		if (pack_ptr->ai == AI_FEAR)
 		{
-			int odds = 1000 - m_ptr->cdis * m_ptr->cdis;
+			int odds = 500 - m_ptr->cdis * m_ptr->cdis;
 			
 			/* Recover from fear? */
 			if (odds <= 1 || one_in_(odds))
 				pack_ptr->ai = AI_SEEK;
-			else
+			else if (m_ptr->cdis > 5)
 				will_run = TRUE;
 		}
 		/* Change Tactics?  This is still pretty lame ...

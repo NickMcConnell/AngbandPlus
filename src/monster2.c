@@ -712,8 +712,11 @@ void pack_on_slay_monster(int m_idx)
 		else if (pack_ptr->ai != AI_FEAR)
 		{
 			if (pack_ptr->leader_idx == m_idx)
+			{
 				pack_ptr->ai = AI_FEAR;
-			else if (one_in_(pack_ptr->count))
+				pack_ptr->leader_idx = 0;
+			}
+			else if (one_in_(pack_ptr->count * (pack_ptr->leader_idx ? 2 : 1)))
 				pack_ptr->ai = AI_FEAR;
 			else if (pack_ptr->ai == AI_LURE && one_in_(2))
 				pack_ptr->ai = AI_SEEK;

@@ -733,8 +733,6 @@ void create_food_spell(int cmd, variant *res)
 		object_prep(&forge, lookup_kind(TV_FOOD, SV_FOOD_RATION));
 		drop_near(&forge, -1, py, px);
 
-		msg_print("You feel something tasty appear nearby.");
-		
 		var_set_bool(res, TRUE);
 		break;
 	}
