@@ -2595,8 +2595,11 @@ msg_print("強化に失敗した。");
  */
 static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 {
-	/* Require weapon or armour */
-	if (!object_is_weapon_armour_ammo(o_ptr)) return FALSE;
+	if ( !object_is_weapon_armour_ammo(o_ptr)
+	  && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR) )
+	{
+		return FALSE;
+	}
 	
 	/* Require nameless object if the object is well known */
 	if (object_is_known(o_ptr) && !object_is_nameless(o_ptr))

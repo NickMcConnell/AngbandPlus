@@ -90,35 +90,35 @@ F:7:GRASS:8:0:47:68
 ##################################
 # Dungeon
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X                                       TTTTTTTTTTT       TTTTTTTTTTTTTTTTTT                   TTTTT                ; WWW92X
-D:X B              ;;;;;;;;              T           TTTTTTT    ;;;;;;;;      TTT            TTTT     TTTTT           ;   BW9X
-D:X              ;;;  AA  ;;;      BTTTTTTTTTTTTTT            ;;;  CC  ;;;       TTTTTTTTTTAT              TTTTTT     ; A  W X
+D:X                                       TTTTTTTTTTT       TTTTTTTTTTTTTTTTTT             A     TTTTT                ; WWW92X
+D:X B              ;;;;;;;;       B      T           TTTTTTT    ;;;;;;;;      TTT            TTTT     TTTTT           ;   BW9X
+D:X              ;;;  AA  ;;;      TTTTTTTTTTTTTTT            ;;;  CC  ;;;       TTTTTTTTTTTT              TTTTTT     ; A  W X
 D:X    ;        ;;   AAAA   ;;     TTTTTTTTTTTTTTT           ;;   CCCC   ;;      TTTTTTTTTTTT                    TT   ;; ;;;;X
-D:X   ;;;      ;;   AAAAAA   ;;    TTTTTTTBTTTTTTT          ;;9  CCCCCC   ;;     TTTTTBTTTTTT       ;;;;;;;;       TT        X
+D:X   ;;;      ;;   AAAAAA   ;;    TTTTTTTTTTTTTTT    C     ;;9  CCCCCC   ;;   B TTTTTTTTTTTT       ;;;;;;;;       TT        X
 D:X  ;;;;;     ; 9  AAAAAA  9 ;    TTTTTTTTTTTTTTT          ; 99 CCCCCC    ;     TTTTTTTTTTTT     ;;;  WW  ;;;       TT      X
-D:X  ;;;;;     ;;    AAAA     ;    TTTTTTTTTTTTTTC          ;;9   CCCC     ;     TTTTTTTTTTTT    ;;   WWWW   ;;        T     X
+D:X  ;;;;;     ;;    AAAA     ;    TTTTTTTTTTTTTTT          ;;9   CCCC     ;     TTTTTTTTTTTT    ;;   WWWW   ;;        T     X
 D:X   ;;;       ;;    AA    ;;         T                     ;;    CC    ;;           T         ;;   WWWWWW  9;;        TT   X
-D:X    ;    B    ;;;  9   ;;;         T                       ;;; C  C ;;;            T         ;    WWWWWW 979;         T   X
+D:X    ;    B    ;;;  9   ;;;         T        B              ;;; C  C ;;;            T         ;    WWWWWW 979;         T   X
 D:X                ;;;;;;;;          T                          ;;;;;;;;               TTTT B   ;;    WWWW   9 ;         T   X
 D:X                                 T             ;;;;;;;;                  ;;;;;;;;;;     T     ;;    WW    ;;          T   X
-D:X                              TTT            ;;;  WW  ;;;              ;;; WWWWWWW;;;    T     ;;;      ;;;           T   X
+D:X           B                  TTT            ;;;  WW  ;;;              ;;; WWWWWWW;;;    T     ;;;      ;;;           T   X
 D:XTTTTTTTTTTTTTTTTTTTT     TTTTT              ;;   WWWW   ;;            ;;  WW %%% WW ;;   T       ;;;;;;;;       ;;    T   X
-D:XTTTTTTTTTTTTTTTTTTTTTTTTT   ;;;;;;;;;;     ;;   WWWWWW   ;;   TTT    ;;8 WWW %1% WWW 8;  T                     ;;;;   T   X
-D:XTTTTTTTTTBTTTTTTTTTT       ;;;;;;;;;;;;    ; 9  WWWWWW  9 ;   TBT    ; 8WWWW %4% WWWW8;   T TTTTTTTTTTTTTTTTT  ;;;;   T   X
-D:XTTTTTTTTTTTTTTTTTTTT        ;;;;;;;;;;     ;;    WWWW     ;   TTT    ;;8 WWW %Z% WWW 8;    TTTTTTTTBTTTTTTTTT  ;;;;   T   X
-D:XTATTTTTTTTTTTTTTTTTT                        ;;    WW    ;;            ;;  WW %7% WW ;;      TTTTTTTTTTTTTTTTT  ;;;;  T    X
-D:XTTTTTTTTTTTTTTTTTTTT               ;;;;;;    ;;;  9   ;;;              ;;; WWWWWWW;;;      TTTTTTTTTTTTTTBTTT   ;;   T    X
-D:X                    TTTTT         ;;;;;;;;     ;;;;;;;;                  ;;;;;;;;;;       T TTTTTTTTTTTTTTTTT        T    X
-D:X                         TT        ;;;;;;                TTTTTTTTT                      TT                           T    X
+D:XTTTTTTTTTTTTTTTTTTTTTTTTT   ;;;;;;;;;;     ;;   WWWWWW   ;;   TTT    ;;8 WWW %1% WWW 8;  T B                   ;;;;   T   X
+D:XTTTTTTTTTTTTTTTTTTTT       ;;;;;;;;;;;;    ; 9  WWWWWW  9 ;   TBT    ; 8WWWW %4% WWWW8;   T TTTTTTTTTTTTTTTTT  ;;;;   T   X
+D:XTTTTTTTTTTTTTTTTTTTT        ;;;;;;;;;;     ;;    WWWW     ;   TTT    ;;8 WWW %Z% WWW 8;    TTTTTTTTTTTTTTTTTT  ;;;;   T   X
+D:XTTTTTTTTTTTTTTTTTTTT                        ;;    WW    ;;            ;;  WW %7% WW ;;      TTTTTTTTTTTTTTTTT  ;;;;  T    X
+D:XTTTTTTTTTTTTTTTTTTTT               ;;;;;;    ;;;  9   ;;;              ;;; WWWWWWW;;;      TTTTTTTTTTTTTTTTTT B ;;   T    X
+D:X  A                  TTTTT         ;;;;;;;;    ;;;;;;;;                  ;;;;;;;;;;       T TTTTTTTTTTTTTTTTT        T    X
+D:X                         TT        ;;;;;;   B            TTTTTTTTT                      TT                           T    X
 D:X                           TTTTT                        T         TTT      TTTTT     TTT       ;;;;;;;;               T   X
 D:X   ;            ;;;;;;;;        TTTTTTTTTTTTTTTTTTTTTTTT             TTTTTT     TTTTT        ;;;  WW  ;;;      ;;      T  X
-D:X  ;;;         ;;;  AA  ;;;      TTTTTTTTTTTTTTTBTT           ;;;;;;;;                  ;    ;;   WWWW   ;;             T  X
+D:X  ;;;         ;;;  AA  ;;;      TTTTTTTTTTTTTTTTTTA          ;;;;;;;;                  ;    ;;   WWWW   ;;             T  X
 D:X ;;;;;       ;;   AAAA   ;;     TTTTTTTTTTTTTTTTTT         ;;;  CC  ;;;                    ;;   WWWWWW  9;;           T   X
-D:X ;;;;;      ;;9  AAAAAA  9;;    TTTTTTTTTBTTTTTTTT        ;;   CCCC   ;;                   ;    WWWWWW 979;          T    X
+D:X ;;;;;      ;;9  AAAAAA  9;;    TTTTTTTTTTTTTTTTTT        ;;   CCCC   ;;                   ;    WWWWWW 979;          T    X
 D:X  ;;;       ;    AAAAAA    ;    TTTTTTTTTTTTTTTTTT       ;;   CCCCCC  9;;         B        ;;    WWWW   9 ;         T     X
-D:X   ;        ;;    AAAA     ;    TTTTTTTTTTTTTTTATT       ;    CCCCCC 99 ;      ;;;;;;;;     ;;    WW    ;;    TTTTTT      X
+D:X   ;        ;;    AAAA     ;    TTTTTTTTTTTTTTTTTT       ;    CCCCCC 99 ;      ;;;;;;;;     ;;    WW    ;;    TTTTTT      X
 D:X             ;;    AA    ;;     TTTTTTTTTTTTTTTTTT       ;;    CCCC   9 ;     ;;;;;;;;;;     ;;;      ;;;    T            X
-D:X              ;;;   9  ;;;             T                  ;;    CC    ;;       ;;;;;;;;        ;;;;;;;;     T      ;; ;;;;X
+D:X              ;;;   9  ;;;             T  B               ;;    CC    ;;       ;;;;;;;;        ;;;;;;;;     T      ;; ;;;;X
 D:X;;;             ;;;;;;;;                TTTTTT             ;;; C  C ;;;                                    T       ; A  W X
 D:X;;;                                           TTTTTTTTT      ;;;;;;;;      TTTTTTTTTTTTTT           TTTTTTT        ;  BWW9X
 D:X<;;                                                    TTTTTTTTTTTTTTTTTTTT  A           TTTTTTTTTTT               ; WWW93X
