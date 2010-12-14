@@ -3841,6 +3841,18 @@ player_class class_info[MAX_CLASS] =
 		 8, 15, 10, 0,  0,  0, 18, 20,
 		2, 35, 35
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Rune-Knight",
+
+		{ 2, 2, 0, 1, 0, 1},
+		30, 35, 36, 2, 18, 16, 50, 25,
+		7,  10, 10, 0,  0,  0, 15, 11,
+		3, 40, 35
+	},
 };
 /*
  *      Title,
@@ -4245,6 +4257,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_NONE),				/* Archaeologist */
 	(CH_NONE),				/* Duelist */
 	(CH_NONE),				/* Wild-Talent */
+	(CH_NONE),				/* Rune-Knight */
 };
 
 
@@ -4293,6 +4306,7 @@ s32b realm_choices2[MAX_CLASS] =
 	(CH_NONE),				/* Archaeologist */
 	(CH_NONE),				/* Duelist */
 	(CH_NONE),				/* Wild-Talent */
+	(CH_NONE),				/* Rune-Knight */
 };
 
 
@@ -5162,16 +5176,16 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 
 	/* Berserker */
 	{
-		    "Berserker",
-		    "Berserker",
-		    "Berserker",
-		    "Rage Prince",
-		    "Rage Prince",
-		    "Rage Prince",
-		    "Rage King",
-		    "Rage King",
-		    "Rage King",
-		    "God of Rage",
+		"Berserker",
+		"Berserker",
+		"Berserker",
+		"Rage Prince",
+		"Rage Prince",
+		"Rage Prince",
+		"Rage King",
+		"Rage King",
+		"Rage King",
+		"God of Rage",
 	},
 
 	/* Weaponsmith */
@@ -5309,6 +5323,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Wild Lord",
 		"Wild Lord",
 		"Wild Lord",
+	},
+	/* Rune-Knight */
+	{
+		"Rookie",
+		"Soldier",
+		"Mercenary",
+		"Enchanter",
+		"Defender",
+		"Champion",
+		"Hero",
+		"Baron",
+		"Knight",
+		"Rune Lord",
 	},
 };
 #endif

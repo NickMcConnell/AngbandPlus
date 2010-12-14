@@ -1835,7 +1835,9 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Duelist ...)",
 
-"TRANSLATE(Wild-Thing ...)",
+"TRANSLATE(Wild-Talent ...)",
+
+"TRANSLATE(Rune-Knight ...)",
 
 #else
 
@@ -1909,6 +1911,15 @@ static cptr class_jouhou[MAX_CLASS] =
   "level up.  They are good fighters, and decent with magical devices, "
   "but their true forte is their vast array of potential random "
   "powers.  Except you never know what those might be!",
+
+"The Rune Knight is a mythical warrior-mage who is dedicated to the power "
+  "of ancient Runes that hold immense power.  By affixing these Runes to his "
+  "equipment, the Rune Knight can become an avatar of destruction, or an "
+  "invulnerable bastion.  Unlike the Warrior-Mage and all other casters, the "
+  "Rune Knight's mana does not regenerate on its own; rather, the Rune Knight "
+  "must siphon mana from magical attacks directed at him.  The Rune Knight has "
+  "a fixed (though very large) selection of spells that he can use his mana on, "
+  "in addition to his unique Rune spells.",
 
 #endif
 };
@@ -3689,6 +3700,9 @@ void determine_random_questor(quest_type *q_ptr)
 		r_idx = get_mon_num(mon_lev);
 		r_ptr = &r_info[r_idx];
 
+		if (r_idx == MON_ROBIN_HOOD) continue;
+		if (r_idx == MON_JACK_SHADOWS) continue;
+
 		/* Try to enforce preferences, but its virtually impossible to prevent
 		   high level quests for uniques */
 		if (attempt < 5000)
@@ -3709,10 +3723,8 @@ void determine_random_questor(quest_type *q_ptr)
 
 		if (no_questor_or_bounty_uniques(r_idx)) continue;
 
-		/*
-		 * Accept monsters that are 2 - 6 levels
-		 * out of depth depending on the quest level
-		 */
+		if (r_ptr->level > q_ptr->level + 12) continue;
+
 		if (r_ptr->level > accept_lev) break;
 	}
 
@@ -4099,6 +4111,12 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SWORD, SV_SMALL_SWORD },
 	},
+	{
+		/* Rune-Knight */
+		{ TV_POTION, SV_POTION_SPEED },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
+		{ TV_SWORD, SV_BROAD_SWORD },
+	},
 };
 
 
@@ -4385,6 +4403,10 @@ void player_outfit(void)
 		{
 			q_ptr->name2 = EGO_BRAND_POIS;
 		}
+
+		/* Hack: Rune-Knights begin with an Absorption Rune on their broad sword */
+		if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_SWORD && sv == SV_BROAD_SWORD)
+			rune_add(q_ptr, RUNE_ABSORPTION);
 
 		add_outfit(q_ptr);
 	}

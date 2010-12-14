@@ -159,3 +159,5 @@ R:0:0x98/0
 R:0:0x9A/0
 ?:[EQU $CLASS Wild-Talent]
 R:0:0x99/0
+?:[EQU $CLASS Rune-Knight]
+R:0:0x97/0

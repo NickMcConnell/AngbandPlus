@@ -554,6 +554,7 @@ struct object_type
 	u32b art_flags[TR_FLAG_SIZE];        /* Extra Flags for ego and artifacts */
 
 	u32b curse_flags;        /* Flags for curse */
+	u32b rune_flags;
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
@@ -1137,6 +1138,17 @@ struct player_type
 	s16b tim_no_device;		/* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
 							
 	s16b tim_superstealth;
+
+	/* Rune Knight: Some Rune effects might become general game mechanics, like Magic Resistance
+	   and Magic Absorption.  Also, let's consolidate the White Aura mutation with the Rune of
+	   Good Fortune into a cached Good Luck value */
+	s16b magic_resistance;
+	s16b magic_absorption;
+	bool good_luck;
+
+	bool rune_regen;
+	bool rune_elem_prot;
+	bool rune_mind;
 
 	/* for mirror master */
 	s16b tim_reflect;       /* Timed -- Reflect */

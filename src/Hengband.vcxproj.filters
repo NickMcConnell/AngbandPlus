@@ -291,6 +291,9 @@
     <ClCompile Include="wild_talent.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="rune_knight.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

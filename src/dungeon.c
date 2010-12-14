@@ -244,6 +244,7 @@ static void sense_inventory1(void)
 		case CLASS_CAVALRY:
 		case CLASS_BLOOD_KNIGHT:
 		case CLASS_DUELIST:
+		case CLASS_RUNE_KNIGHT:
 		{
 			/* Good sensing */
 			if (0 != randint0(9000L / (plev * plev + 40))) return;
@@ -453,7 +454,7 @@ static void sense_inventory1(void)
 		if ((i < INVEN_RARM) && (0 != randint0(5))) continue;
 
 		/* Good luck */
-		if (mut_present(MUT_GOOD_LUCK) && !randint0(13))
+		if (p_ptr->good_luck && !randint0(13))
 		{
 			heavy = TRUE;
 		}
@@ -887,6 +888,8 @@ static void regenhp(int percent)
 static void regenmana(int percent)
 {
 	s32b old_csp = p_ptr->csp;
+
+	if (p_ptr->pclass == CLASS_RUNE_KNIGHT) return;
 
 	/*
 	 * Excess mana will decay 32 times faster than normal
@@ -1906,6 +1909,25 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	if ((p_ptr->chp < p_ptr->mhp) && !cave_no_regen)
 	{
 		regenhp(regen_amount);
+	}
+
+	if (p_ptr->rune_regen)
+	{
+		int gain = (1<<(1 + p_ptr->lev/10));
+		int new_hp = MIN(p_ptr->chp + gain, p_ptr->mhp);
+
+		if (new_hp != p_ptr->chp)
+		{
+			p_ptr->chp = new_hp;
+			p_ptr->chp_frac = 0;
+
+			p_ptr->redraw |= (PR_HP);
+			p_ptr->window |= (PW_PLAYER);
+
+			/* Blood Knights get extra attacks depending on how wounded they are */
+			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+				p_ptr->update |= PU_BONUS;
+		}
 	}
 }
 
@@ -4233,6 +4255,7 @@ msg_print("ウィザードモード突入。");
 					 p_ptr->pclass == CLASS_WARLOCK ||
 					 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
 					 p_ptr->pclass == CLASS_MINDCRAFTER ||
+					 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 					 p_ptr->pclass == CLASS_WILD_TALENT)
 			{
 				/* This is the preferred entry point ... I'm still working on
@@ -4357,6 +4380,7 @@ msg_print("ウィザードモード突入。");
 							 p_ptr->pclass == CLASS_WARLOCK ||
 							 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
 							 p_ptr->pclass == CLASS_MINDCRAFTER ||
+							 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 							 p_ptr->pclass == CLASS_WILD_TALENT)
 					{
 						/* This is the preferred entrypoint for spells ...
@@ -4963,7 +4987,7 @@ static void process_player(void)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp >= p_ptr->msp))
+			    (p_ptr->csp >= p_ptr->msp || p_ptr->pclass == CLASS_RUNE_KNIGHT))
 			{
 				set_action(ACTION_NONE);
 			}
@@ -4974,7 +4998,7 @@ static void process_player(void)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp >= p_ptr->msp) &&
+			    (p_ptr->csp >= p_ptr->msp || p_ptr->pclass == CLASS_RUNE_KNIGHT) &&
 			    !p_ptr->blind && !p_ptr->confused &&
 			    !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !p_ptr->cut &&

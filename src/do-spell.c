@@ -4379,7 +4379,7 @@ static cptr do_death_spell(int spell, int mode)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_ball(GF_OLD_DRAIN, dir, damroll(dice, dice) + base, rad);
+				fire_ball(GF_OLD_DRAIN, dir, damroll(dice, sides) + base, rad);
 			}
 		}
 		break;

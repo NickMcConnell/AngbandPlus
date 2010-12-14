@@ -1096,6 +1096,20 @@ void do_cmd_destroy(void)
 	msg_format("You destroy %s.", o_name);
 #endif
 
+	if (o_ptr->rune_flags & RUNE_SACRIFICE)
+	{
+		msg_print("You feel a surge of wondrous power enter your body.");
+		p_ptr->chp = p_ptr->mhp;
+		p_ptr->chp_frac = 0;
+		p_ptr->csp = p_ptr->msp;
+		p_ptr->csp_frac = 0;
+
+		p_ptr->redraw |= (PR_MANA);
+		p_ptr->window |= (PW_PLAYER);
+		p_ptr->window |= (PW_SPELL);
+		p_ptr->redraw |= (PR_HP);
+	}
+
 	sound(SOUND_DESTITEM);
 
 	/* Reduce the charges of rods/wands */

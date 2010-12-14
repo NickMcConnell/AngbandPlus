@@ -875,6 +875,9 @@ void py_pickup_aux(int o_idx)
 	strcpy(record_o_name, o_name);
 #endif
 
+	/* Runes confer benefits even when in inventory */
+	p_ptr->update |= PU_BONUS;
+
 	/* Hack: Archaeologists Instantly Pseudo-ID artifacts on pickup */
 	if ( p_ptr->pclass == CLASS_ARCHAEOLOGIST 
 	  && object_is_artifact(o_ptr) 

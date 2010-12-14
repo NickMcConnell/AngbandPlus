@@ -2590,6 +2590,8 @@ void have_nightmare(int r_idx)
 		}
 	}
 
+	if (p_ptr->rune_mind) return;
+
 	/* Mind blast */
 	if (!saving_throw(p_ptr->skill_sav * 100 / power))
 	{
@@ -2830,7 +2832,8 @@ msg_print("バーテンはいくらかの食べ物とビールをくれた。");
 					set_confused(0, TRUE);
 					p_ptr->stun = 0;
 					p_ptr->chp = p_ptr->mhp;
-					p_ptr->csp = p_ptr->msp;
+					if (p_ptr->pclass != CLASS_RUNE_KNIGHT)
+						p_ptr->csp = p_ptr->msp;
 					if (p_ptr->pclass == CLASS_MAGIC_EATER)
 					{
 						int i;
@@ -3494,10 +3497,10 @@ static bool eval_ac(int iAC)
 		"monster's melee attacks.  "
 		"It is depend on the level of the monster and your AC.\n \n"
 		"'Average Damage' indicates the expected amount of damage "
-		"when you are attacked by normal melee attacks with power=100.";
+		"when you are attacked by normal melee attacks with power=60.";
 #endif
 
-	int protection;
+	int protection, protection_old;
 	int col, row = 2;
 	int lvl;
 	char buf[80*20], *t;
@@ -3506,7 +3509,8 @@ static bool eval_ac(int iAC)
 	if (iAC < 0) iAC = 0;
 
 	/* ダメージ軽減率を計算 */
-	protection = 100 * MIN(iAC, 150) / 250;
+	protection = 100 * MIN(iAC, 200) / 333;
+	protection_old = 100 * MIN(iAC, 150) / 250;
 
 	screen_save();
 	clear_bldg(0, 22);
@@ -3521,13 +3525,15 @@ static bool eval_ac(int iAC)
 	put_str("ダメージ期待値  :", row + 2, 0);
 #else
 	put_str(format("Your current AC : %3d", iAC), row++, 0);
-	put_str(format("Protection rate : %3d%%", protection), row++, 0);
+	put_str(format("Protection rate : %3d%% (Was %3d%%)", protection, protection_old), row++, 0);
 	row++;
 
 	put_str("Level of Monster:", row + 0, 0);
 	put_str("Dodge Rate      :", row + 1, 0);
 	put_str("Average Damage  :", row + 2, 0);
 #endif
+	put_str("Old Dodge Rate  :", row + 3, 0);
+	put_str("Old Avg Damage  :", row + 4, 0);
     
 	for (col = 17 + 1, lvl = 0; lvl <= 100; lvl += 10, col += 5)
 	{
@@ -3538,7 +3544,7 @@ static bool eval_ac(int iAC)
 		put_str(format("%3d", lvl), row + 0, col);
 
 		/* 回避率を計算 */
-		dodge = 5 + (MIN(100, 100 * (iAC * 3 / 4) / quality) * 9 + 5) / 10;
+		dodge = 5 + (MIN(100, 100 * (iAC * 9 / 16) / quality) * 9 + 5) / 10;
 		put_str(format("%3d%%", dodge), row + 1, col);
 
 		/* 100点の攻撃に対してのダメージ期待値を計算 */
@@ -3546,10 +3552,27 @@ static bool eval_ac(int iAC)
 		put_str(format("%3d", average), row + 2, col);
 	}
 
+	for (col = 17 + 1, lvl = 0; lvl <= 100; lvl += 10, col += 5)
+	{
+		int quality = 60 + lvl * 3; /* attack quality with power 60 */
+		int dodge;   /* 回避率(%) */
+		int average; /* ダメージ期待値 */
+
+		put_str(format("%3d", lvl), row + 0, col);
+
+		/* 回避率を計算 */
+		dodge = 5 + (MIN(100, 100 * (iAC * 3 / 4) / quality) * 9 + 5) / 10;
+		put_str(format("%3d%%", dodge), row + 3, col);
+
+		/* 100点の攻撃に対してのダメージ期待値を計算 */
+		average = (100 - dodge) * (100 - protection_old) / 100;
+		put_str(format("%3d", average), row + 4, col);
+	}
+
 	/* Display note */
 	roff_to_buf(memo, 70, buf, sizeof(buf));
 	for (t = buf; t[0]; t += strlen(t) + 1)
-		put_str(t, (row++) + 4, 4);
+		put_str(t, (row++) + 6, 4);
 
 #ifdef JP
 	prt("現在のあなたの装備からすると、あなたの防御力は"

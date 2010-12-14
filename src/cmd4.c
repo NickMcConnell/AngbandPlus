@@ -5068,7 +5068,7 @@ void do_cmd_feeling(void)
 	}
 
 	/* Display the feeling */
-	if (mut_present(MUT_GOOD_LUCK) || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
+	if (p_ptr->good_luck || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
 		msg_print(do_cmd_feeling_text_lucky[p_ptr->feeling]);
 	else if (p_ptr->pseikaku == SEIKAKU_COMBAT ||
 		 inventory[INVEN_BOW].name1 == ART_CRIMSON)

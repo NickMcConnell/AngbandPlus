@@ -2193,6 +2193,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 	int power = 100;
 
 	if (p_ptr->inside_battle || !character_dungeon) return;
+	if (p_ptr->rune_mind) return;
 
 	if (!necro)
 	{

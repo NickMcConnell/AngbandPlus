@@ -50,6 +50,10 @@ void default_spell(int cmd, variant *res) /* Base class */
 	case SPELL_CALC_BONUS:
 		var_set_bool(res, TRUE);
 		break;
+
+	case SPELL_COLOR:
+		var_set_int(res, TERM_WHITE);
+		break;
 	}
 }
 
@@ -108,7 +112,7 @@ int get_spell_cost_extra(ang_spell spell)
 	return result;
  }
 
-static void _list_spells(spell_info* spells, int ct)
+static void _list_spells(spell_info* spells, int ct, int max_cost)
 {
 	char temp[140];
 	int  i;
@@ -116,11 +120,11 @@ static void _list_spells(spell_info* spells, int ct)
 	int  x = 10;
 	int  col_height = _col_height(ct);
 	int  col_width;
-	variant name, info;
+	variant name, info, color;
 
 	var_init(&name);
 	var_init(&info);
-
+	var_init(&color);
 
 	Term_erase(x, y, 255);
 
@@ -141,10 +145,16 @@ static void _list_spells(spell_info* spells, int ct)
 	for (i = 0; i < ct; i++)
 	{
 		char letter = '\0';
+		byte attr = TERM_WHITE;
 		spell_info* spell = &spells[i];
+
+		var_set_int(&color, TERM_WHITE);
 
 		(spell->fn)(SPELL_NAME, &name);
 		(spell->fn)(SPELL_INFO, &info);
+		(spell->fn)(SPELL_COLOR, &color);
+
+		attr = var_get_int(&color);
 
 		if (i < 26)
 			letter = I2A(i);
@@ -164,14 +174,25 @@ static void _list_spells(spell_info* spells, int ct)
 		if (col_height == ct)
 			strcat(temp, format(" %s", var_get_string(&info)));
 
+		if (spell->fail == 100)
+			attr = TERM_L_DARK;
+
+		if (spell->cost > max_cost)
+			attr = TERM_L_DARK;
+
 		if (i < col_height)
-			prt(temp, y + i + 1, x);
+		{
+			c_prt(attr, temp, y + i + 1, x);
+		}
 		else
-			prt(temp, y + (i - col_height) + 1, (x + col_width));
+		{
+			c_prt(attr, temp, y + (i - col_height) + 1, (x + col_width));
+		}
 	}
 
 	var_clear(&name);
 	var_clear(&info);
+	var_clear(&color);
 }
 
 static void _describe_spell(spell_info *spell, int col_height)
@@ -196,10 +217,13 @@ static void _describe_spell(spell_info *spell, int col_height)
 		line++;
 	}
 
+	(spell->fn)(SPELL_INFO, &info);
+	prt(format("%^s", var_get_string(&info)), line, 15);
+
 	var_clear(&info);
 }
 
-static int _choose_spell(spell_info* spells, int ct, cptr desc)
+static int _choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
 {
 	int choice = -1;
 	char prompt1[140];
@@ -211,7 +235,7 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc)
 
 	strnfmt(prompt1, 78, "Use which %s? (Type '?' to Browse) ", desc);
 	strnfmt(prompt2, 78, "Browse which %s? (Type '?' to Use)", desc);
-	_list_spells(spells, ct);
+	_list_spells(spells, ct, max_cost);
 
 	for (;;)
 	{
@@ -256,7 +280,7 @@ static int _choose_spell(spell_info* spells, int ct, cptr desc)
 	return choice;
 }
 
-int choose_spell(spell_info* spells, int ct, cptr desc)
+int choose_spell(spell_info* spells, int ct, cptr desc, int max_cost)
 {
 	int choice = -1;
 
@@ -268,7 +292,7 @@ int choose_spell(spell_info* spells, int ct, cptr desc)
 
 	screen_save();
 
-	choice = _choose_spell(spells, ct, desc);
+	choice = _choose_spell(spells, ct, desc, max_cost);
 	REPEAT_PUSH(choice);
 
 	screen_load();
@@ -285,7 +309,7 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
 		spell_info* spell = NULL;
 		int choice = -1;
 		
-		choice = _choose_spell(spells, ct, desc);
+		choice = _choose_spell(spells, ct, desc, 10000);
 		if (choice < 0 || choice >= ct) break;
 
 		_describe_spell(&spells[choice], _col_height(ct));
@@ -376,6 +400,7 @@ void do_cmd_spell(void)
 	caster_info *caster = NULL;
 	int ct = 0; 
 	int choice = 0;
+	int max_cost = 0;
 	
 	if (p_ptr->confused)
 	{
@@ -390,7 +415,13 @@ void do_cmd_spell(void)
 		return;
 	}
 
-	choice = choose_spell(spells, ct, caster->magic_desc);
+	if (caster->use_hp)
+		max_cost = p_ptr->chp;
+	else if (caster->use_sp)
+		max_cost = p_ptr->csp;
+	else
+		max_cost = 10000;
+	choice = choose_spell(spells, ct, caster->magic_desc, max_cost);
 
 	if (choice >= 0 && choice < ct)
 	{
@@ -492,7 +523,7 @@ void do_cmd_power(void)
 
 	_add_extra_costs(spells, ct);
 
-	choice = choose_spell(spells, ct, "power");
+	choice = choose_spell(spells, ct, "power", p_ptr->csp + p_ptr->chp);
 
 	if (p_ptr->special_defense & (KATA_MUSOU | KATA_KOUKIJIN))
 	{

@@ -1472,6 +1472,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			break;
 		}
 
+		case TV_RUNE:
+		{
+			break;
+		}
+
 		case TV_STAFF:
 		{
 			/* Color the object */
@@ -2143,7 +2148,6 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	}
 #endif
 
-
 	/* No more details wanted */
 	if (mode & OD_NAME_ONLY) goto object_desc_done;
 
@@ -2484,6 +2488,32 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		t = object_desc_chr(t, b1);
 		t = object_desc_num(t, o_ptr->ac);
 		t = object_desc_chr(t, b2);
+	}
+
+	if (o_ptr->rune_flags)
+	{
+		if (o_ptr->rune_flags & RUNE_ABSORPTION)
+			t = object_desc_str(t, " <<Absorption>>");
+		if (o_ptr->rune_flags & RUNE_REGENERATION)
+			t = object_desc_str(t, " <<Regeneration>>");
+		if (o_ptr->rune_flags & RUNE_DEFLECTION)
+			t = object_desc_str(t, " <<Deflection>>");
+		if (o_ptr->rune_flags & RUNE_STASIS)
+			t = object_desc_str(t, " <<Stasis>>");
+		if (o_ptr->rune_flags & RUNE_DESTRUCTION)
+			t = object_desc_str(t, " <<Destruction>>");
+		if (o_ptr->rune_flags & RUNE_ELEMENTAL_PROTECTION)
+			t = object_desc_str(t, " <<Elemental Protection>>");
+		if (o_ptr->rune_flags & RUNE_SACRIFICE)
+			t = object_desc_str(t, " <<Sacrifice>>");
+		if (o_ptr->rune_flags & RUNE_REFLECTION)
+			t = object_desc_str(t, " <<Reflection>>");
+		if (o_ptr->rune_flags & RUNE_GOOD_FORTUNE)
+			t = object_desc_str(t, " <<Good Fortune>>");
+		if (o_ptr->rune_flags & RUNE_BODY)
+			t = object_desc_str(t, " <<Body>>");
+		if (o_ptr->rune_flags & RUNE_MIND)
+			t = object_desc_str(t, " <<Mind>>");
 	}
 
 

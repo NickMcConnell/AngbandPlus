@@ -870,7 +870,5 @@ class_t *archaeologist_get_class_t(void)
 		init = TRUE;
 	}
 
-	/* dynamic info */
-
 	return &me;
 }

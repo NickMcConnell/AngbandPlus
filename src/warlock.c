@@ -600,7 +600,7 @@ void _wraithform_spell(int cmd, variant *res)
 		var_set_string(res, "Wraithform");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Leave the world of the living, and travel the shadows of the underwold.  You gain passwall and great resistance to damage.");
+		var_set_string(res, "Leave the world of the living and travel the shadows of the underwold.  You gain passwall and great resistance to damage.");
 		break;
 	case SPELL_CAST:
 		set_wraith_form(2 + randint1(2), FALSE);

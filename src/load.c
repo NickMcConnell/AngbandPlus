@@ -279,130 +279,6 @@ static void strip_bytes(int n)
 #define OLD_MAX_MANE 22
 
 /*
- * Read an object (Old method)
- *
- * This function attempts to "repair" old savefiles, and to extract
- * the most up to date values for various object fields.
- *
- * Note that Angband 2.7.9 introduced a new method for object "flags"
- * in which the "flags" on an object are actually extracted when they
- * are needed from the object kind, artifact index, ego-item index,
- * and two special "xtra" fields which are used to encode any "extra"
- * power of certain ego-items.  This had the side effect that items
- * imported from pre-2.7.9 savefiles will lose any "extra" powers they
- * may have had, and also, all "uncursed" items will become "cursed"
- * again, including Calris, even if it is being worn at the time.  As
- * a complete hack, items which are inscribed with "uncursed" will be
- * "uncursed" when imported from pre-2.7.9 savefiles.
- */
-static void rd_item_old(object_type *o_ptr)
-{
-	char buf[128];
-
-
-	/* Kind */
-	rd_s16b(&o_ptr->k_idx);
-
-	/* Location */
-	rd_byte(&o_ptr->iy);
-	rd_byte(&o_ptr->ix);
-
-	/* Type/Subtype */
-	rd_byte(&o_ptr->tval);
-	rd_byte(&o_ptr->sval);
-
-	/* Special pval */
-	rd_s16b(&o_ptr->pval);
-
-	rd_byte(&o_ptr->discount);
-	rd_byte(&o_ptr->number);
-	rd_s16b(&o_ptr->weight);
-
-	rd_byte(&o_ptr->name1);
-	rd_byte(&o_ptr->name2);
-	rd_s16b(&o_ptr->timeout);
-
-	rd_s16b(&o_ptr->to_h);
-	rd_s16b(&o_ptr->to_d);
-	rd_s16b(&o_ptr->to_a);
-
-	rd_s16b(&o_ptr->ac);
-
-	rd_byte(&o_ptr->dd);
-	rd_byte(&o_ptr->ds);
-
-	rd_byte(&o_ptr->ident);
-
-	rd_byte(&o_ptr->marked);
-
-	/* Object flags */
-	rd_u32b(&o_ptr->art_flags[0]);
-	rd_u32b(&o_ptr->art_flags[1]);
-	rd_u32b(&o_ptr->art_flags[2]);
-	rd_u32b(&o_ptr->art_flags[3]);
-	rd_u32b(&o_ptr->curse_flags);
-
-	/* Monster holding object */
-	rd_s16b(&o_ptr->held_m_idx);
-
-	/* Special powers */
-	rd_byte(&o_ptr->xtra1);
-	rd_byte(&o_ptr->xtra2);
-
-	rd_byte(&o_ptr->xtra3);
-	rd_s16b(&o_ptr->xtra4);
-	rd_s16b(&o_ptr->xtra5);
-
-	rd_byte(&o_ptr->feeling);
-
-	/* Inscription */
-	rd_string(buf, sizeof(buf));
-
-	/* Save the inscription */
-	if (buf[0]) o_ptr->inscription = quark_add(buf);
-
-	rd_string(buf, sizeof(buf));
-	if (buf[0]) o_ptr->art_name = quark_add(buf);
-
-	/* The Python object */
-	{
-		s32b tmp32s;
-
-		rd_s32b(&tmp32s);
-		strip_bytes(tmp32s);
-	}
-
-	/* Mega-Hack -- handle "dungeon objects" later */
-	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
-
-	/* Paranoia */
-	if (object_is_fixed_artifact(o_ptr))
-	{
-		artifact_type *a_ptr;
-
-		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
-
-		/* Verify that artifact */
-		if (!a_ptr->name) o_ptr->name1 = 0;
-	}
-
-	/* Paranoia */
-	if (object_is_ego(o_ptr))
-	{
-		ego_item_type *e_ptr;
-
-		/* Obtain the ego-item info */
-		e_ptr = &e_info[o_ptr->name2];
-
-		/* Verify that ego-item */
-		if (!e_ptr->name) o_ptr->name2 = 0;
-
-	}
-}
-
-
-/*
  * Read an object (New method)
  */
 static void rd_item(object_type *o_ptr)
@@ -478,6 +354,9 @@ static void rd_item(object_type *o_ptr)
 
 	if (flags & SAVE_ITEM_CURSE_FLAGS) rd_u32b(&o_ptr->curse_flags);
 	else o_ptr->curse_flags = 0;
+
+	if (flags & SAVE_ITEM_RUNE_FLAGS) rd_u32b(&o_ptr->rune_flags);
+	else o_ptr->rune_flags = 0;
 
 	/* Monster holding object */
 	if (flags & SAVE_ITEM_HELD_M_IDX) rd_s16b(&o_ptr->held_m_idx);

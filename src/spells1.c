@@ -6668,6 +6668,21 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* Limit maximum damage */
 	if (dam > 1600) dam = 1600;
 
+	/* Apply Absorption before subsequent damage reduction */
+	if (p_ptr->magic_absorption)
+	{
+		int gain = MAX(dam * p_ptr->magic_absorption / 100, 1);
+		int new_sp = MIN(p_ptr->csp + gain, p_ptr->msp);
+		if (new_sp > p_ptr->csp)
+		{
+			p_ptr->csp = new_sp;
+			p_ptr->csp_frac = 0;
+			p_ptr->redraw |= (PR_MANA);
+			p_ptr->window |= (PW_PLAYER);
+			p_ptr->window |= (PW_SPELL);
+		}
+	}
+
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
@@ -6682,6 +6697,9 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		int factor = (p_ptr->lev * 7/10) * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp;
 		dam -= dam * factor / 100;
 	}
+
+	if (p_ptr->magic_resistance)
+		dam -= dam * p_ptr->magic_resistance / 100;
 
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;

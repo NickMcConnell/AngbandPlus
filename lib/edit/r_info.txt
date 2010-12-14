@@ -13633,7 +13633,7 @@ S:1_IN_4 |
 S:BLIND | CONF | BRAIN_SMASH | 
 S:BR_FIRE | BO_PLAS | BA_NETH | S_HI_UNDEAD | S_UNDEAD |
 S:S_DEMON
-D:$It is a massive humanoid demon wreathed in flames.
+D:$"A Balrog. A demon of the ancient world.  This foe is beyond any of you ... Run!"
 D:それは全身が炎で覆われた屈強な人間型のモンスターだ。
 
 N:721:メンデスの山羊
@@ -21757,7 +21757,7 @@ N:1086:TRANSLATE
 E:Talos, Masterwork Spellwarp Automaton
 G:g:y
 I:115:200d100:30:300:20
-W:90:4:0:40000:0:0
+W:90:15:0:40000:0:0
 B:HIT:SHATTER:15d15
 B:HIT:SHATTER:15d15
 B:HIT:SHATTER:15d15

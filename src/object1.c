@@ -327,6 +327,51 @@ void object_flags_known(object_type *o_ptr, u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_RES_COLD);
 		}
 	}
+	if (o_ptr->rune_flags)
+	{
+		if (o_ptr->rune_flags & RUNE_REGENERATION)
+			add_flag(flgs, TR_REGEN);
+		if (o_ptr->rune_flags & RUNE_STASIS)
+		{
+			if (p_ptr->lev >= 15)
+				add_flag(flgs, TR_SUST_STR);
+		
+			if (p_ptr->lev >= 20)
+				add_flag(flgs, TR_SUST_DEX);
+		
+			if (p_ptr->lev >= 25)
+				add_flag(flgs, TR_SUST_INT);
+
+			if (p_ptr->lev >= 30)
+				add_flag(flgs, TR_SUST_CON);
+
+			if (p_ptr->lev >= 35)
+			{
+				add_flag(flgs, TR_SUST_WIS);
+				add_flag(flgs, TR_SUST_CHR);
+			}
+
+			if (p_ptr->lev >= 40)
+				add_flag(flgs, TR_HOLD_LIFE);
+
+			if (p_ptr->lev >= 45)
+				add_flag(flgs, TR_RES_DISEN);
+
+			if (p_ptr->lev >= 50)
+				add_flag(flgs, TR_RES_TIME);
+		}
+
+		if (o_ptr->rune_flags & RUNE_BODY)
+		{
+			add_flag(flgs, TR_RES_NEXUS);
+		}
+		if (o_ptr->rune_flags & RUNE_MIND)
+		{
+			add_flag(flgs, TR_TELEPATHY);
+			add_flag(flgs, TR_RES_CONF);
+			add_flag(flgs, TR_RES_CHAOS);
+		}
+	}
 }
 
 

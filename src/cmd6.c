@@ -1194,7 +1194,11 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			}
 			else if (p_ptr->csp < p_ptr->msp)
 			{
-				p_ptr->csp = p_ptr->msp;
+				if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+					p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
+				else
+					p_ptr->csp = p_ptr->msp;
+
 				p_ptr->csp_frac = 0;
 #ifdef JP
 				msg_print("頭がハッキリとした。");
@@ -1998,6 +2002,8 @@ msg_print("ダンジョンが揺れた...");
 				(p_ptr->pclass == CLASS_WARLOCK) || 
 				(p_ptr->pclass == CLASS_ARCHAEOLOGIST) || 
 				(p_ptr->pclass == CLASS_DUELIST) || 
+				(p_ptr->pclass == CLASS_RUNE_KNIGHT) ||
+				(p_ptr->pclass == CLASS_WILD_TALENT) ||
 				(p_ptr->pclass == CLASS_NINJA))
 			{
 				break;
@@ -2562,7 +2568,10 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 			if (do_res_stat(A_INT)) ident = TRUE;
 			if (p_ptr->csp < p_ptr->msp)
 			{
-				p_ptr->csp = p_ptr->msp;
+				if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+					p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
+				else
+					p_ptr->csp = p_ptr->msp;
 				p_ptr->csp_frac = 0;
 				ident = TRUE;
 #ifdef JP
@@ -4661,7 +4670,10 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				}
 				else if (p_ptr->csp < p_ptr->msp)
 				{
-					p_ptr->csp = p_ptr->msp;
+					if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+						p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
+					else
+						p_ptr->csp = p_ptr->msp;
 					p_ptr->csp_frac = 0;
 					p_ptr->redraw |= (PR_MANA);
 					p_ptr->window |= (PW_PLAYER);
@@ -5944,7 +5956,10 @@ msg_print("あなたの槍は電気でスパークしている...");
 				}
 				else if (p_ptr->csp < p_ptr->msp)
 				{
-					p_ptr->csp = p_ptr->msp;
+					if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+						p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
+					else
+						p_ptr->csp = p_ptr->msp;
 					p_ptr->csp_frac = 0;
 #ifdef JP
 					msg_print("頭がハッキリとした。");

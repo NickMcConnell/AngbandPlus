@@ -207,6 +207,25 @@ bool object_is_armour(object_type *o_ptr)
 	return FALSE;
 }
 
+bool object_is_shield(object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_SHIELD || o_ptr->tval == TV_CARD) return TRUE;
+	return FALSE;
+}
+
+bool object_is_body_armour(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+	case TV_SOFT_ARMOR:
+	case TV_HARD_ARMOR:
+	case TV_DRAG_ARMOR:
+		return TRUE;
+		break;
+	}
+	return FALSE;
+}
+
 
 /*
  * Check if an object is weapon, armour or ammo

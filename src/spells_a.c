@@ -289,6 +289,36 @@ void banish_evil_spell(int cmd, variant *res)
 }
 bool cast_banish_evil(void) { return cast_spell(banish_evil_spell); }
 
+void battle_frenzy_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Battle Frenzy", "狂乱戦士"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Gives another bonus to hit and HP, immunity to fear for a while. Hastes you. But decreases AC.", "狂戦士化し、恐怖を除去し、加速する。"));
+		break;
+	case SPELL_CAST:
+	{
+		int b_base = spell_power(25);
+		int sp_base = spell_power(p_ptr->lev / 2);
+		int sp_sides = 20 + p_ptr->lev / 2;
+
+		set_shero(randint1(25) + 25, FALSE);
+		hp_player(30);
+		set_afraid(0, TRUE);
+		set_fast(randint1(sp_sides) + sp_base, FALSE);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void berserk_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -599,6 +629,33 @@ void cause_wounds_IV_spell(int cmd, variant *res)
 	}
 }
 
+void clairvoyance_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Clairvoyance", "千里眼"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Maps and lights whole dungeon level and gives telepathy for a while.", "その階全体を永久に照らし、ダンジョン内すべてのアイテムを感知する。さらに、一定時間テレパシー能力を得る。"));
+		break;
+	case SPELL_CAST:
+		chg_virtue(V_KNOWLEDGE, 1);
+		chg_virtue(V_ENLIGHTEN, 1);
+
+		wiz_lite(p_ptr->tim_superstealth > 0);
+
+		if (!p_ptr->telepathy)
+			set_tim_esp(randint1(30) + 25, FALSE);
+
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void clear_mind_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -614,6 +671,11 @@ void clear_mind_spell(int cmd, variant *res)
 		if (total_friends)
 		{
 			msg_print(T("You need to concentrate on your pets now.", "今はペットを操ることに集中していないと。"));
+			return;
+		}
+		if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+		{
+			msg_print("Your mind remains cloudy.");
 			return;
 		}
 
@@ -1081,7 +1143,7 @@ void dimension_door_spell(int cmd, variant *res)
 		var_set_string(res, "Dimension Door");
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "Open a portal to another dimension, and step to a nearby location with great precision.");
+		var_set_string(res, "Open a portal to another dimension and step to a nearby location with great precision.");
 		break;
 	case SPELL_CAST:
 		var_set_bool(res, dimension_door());
@@ -1092,6 +1154,39 @@ void dimension_door_spell(int cmd, variant *res)
 	}
 }
 bool cast_dimension_door(void) { return cast_spell(dimension_door_spell); }
+
+void disintegrate_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Disintegrate", "原子分解"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a huge ball of disintegration.", "巨大な分解の球を放つ。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev + 70)));
+		break;
+	case SPELL_CAST:
+	{
+		int dam = spell_power(p_ptr->lev + 70);
+		int rad = 3 + p_ptr->lev / 40;
+		int dir;
+			
+		var_set_bool(res, FALSE);
+
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_DISINTEGRATE, dir, dam, rad);
+			
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void dominate_living_I_spell(int cmd, variant *res)
 {
@@ -1608,6 +1703,46 @@ void explosive_rune_spell(int cmd, variant *res)
 	}
 }
 
+void eye_for_an_eye_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("An Eye for an Eye", "目には目を"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Gives special aura for a while. When you are attacked by a monster, the monster are injured with same amount of damage as you take.", "一定時間、自分がダメージを受けたときに攻撃を行ったモンスターに対して同等のダメージを与える。"));
+		break;
+	case SPELL_CAST:
+		set_tim_eyeeye(spell_power(randint1(10) + 10), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void glyph_of_warding_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Glyph of Warding", "結界の紋章"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break glyph.", "自分のいる床の上に、モンスターが通り抜けたり召喚されたりすることができなくなるルーンを描く。"));
+		break;
+	case SPELL_CAST:
+		warding_glyph();
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void grow_mold_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1844,7 +1979,7 @@ void hp_to_sp_spell(int cmd, variant *res)
 		{
 			int wounds = p_ptr->msp - p_ptr->csp;
 
-			if (wounds > 0)
+			if (wounds > 0 && p_ptr->pclass != CLASS_RUNE_KNIGHT)
 			{
 				int healing = p_ptr->chp;
 
@@ -1862,7 +1997,7 @@ void hp_to_sp_spell(int cmd, variant *res)
 	case SPELL_CAST:
 	{
 		int gain_sp = take_hit(DAMAGE_USELIFE, p_ptr->lev, T("thoughtless convertion from HP to SP", "ＨＰからＭＰへの無謀な変換"), -1) / 5;
-		if (gain_sp)
+		if (gain_sp && p_ptr->pclass != CLASS_RUNE_KNIGHT)
 		{
 			p_ptr->csp += gain_sp;
 			if (p_ptr->csp > p_ptr->msp)
@@ -2029,9 +2164,6 @@ void light_area_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "Lights up nearby area and the inside of a room permanently.");
 		break;
-	case SPELL_INFO:
-		var_set_string(res, info_damage(dice, spell_power(sides), 0));
-		break;
 	case SPELL_GAIN_MUT:
 		msg_print(T("You can light up rooms with your presence.", "あなたは光り輝いて部屋を明るくするようになった。"));
 		break;
@@ -2051,6 +2183,31 @@ void light_area_spell(int cmd, variant *res)
 	}
 }
 bool cast_light_area(void) { return cast_spell(light_area_spell); }
+
+void living_trump_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Living Trump", "人間トランプ"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Gives mutation which makes you teleport randomly or makes you able to teleport at will.", "ランダムにテレポートする突然変異か、自分の意思でテレポートする突然変異が身につく。"));
+		break;
+	case SPELL_CAST:
+	{
+		int mutation = one_in_(7) ? MUT_TELEPORT : MUT_TELEPORT_RND;
+
+		if (mut_gain(mutation))
+			msg_print(T("You have turned into a Living Trump.", "あなたは生きているカードに変わった。"));
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void magic_mapping_spell(int cmd, variant *res)
 {
@@ -2081,7 +2238,7 @@ void magic_missile_spell(int cmd, variant *res)
 		var_set_string(res, T("Magic Missile", "マジック・ミサイル"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("", ""));
+		var_set_string(res, T("Fires a weak bolt of unresistable magic.", "弱い魔法の矢を放つ。"));
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 5)), 4, 0));
@@ -2104,6 +2261,25 @@ void magic_missile_spell(int cmd, variant *res)
 	}
 }
 bool cast_magic_missile(void) { return cast_spell(magic_missile_spell); }
+
+void mana_branding_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Mana Branding", "魔法剣"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Makes current weapon some elemental branded. You must wield weapons.", "一定時間、武器に冷気、炎、電撃、酸、毒のいずれかの属性をつける。武器を持たないと使えない。"));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, choose_ele_attack());
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void mana_bolt_I_spell(int cmd, variant *res)
 {
@@ -2308,6 +2484,45 @@ void mind_blast_spell(int cmd, variant *res)
 }
 bool cast_mind_blast(void) { return cast_spell(mind_blast_spell); }
 
+void orb_of_entropy_spell(int cmd, variant *res)
+{
+	int base;
+
+	if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
+		base = p_ptr->lev + p_ptr->lev / 2;
+	else
+		base = p_ptr->lev + p_ptr->lev / 4;
+
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Orb of Entropy", "エントロピーの球"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a ball which damages living monsters.", "生命のある者に効果のある球を放つ。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(3, spell_power(6), spell_power(base)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir;
+		int rad = (p_ptr->lev < 30) ? 2 : 3;
+
+		var_set_bool(res, FALSE);
+		
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_OLD_DRAIN, dir, spell_power(damroll(3, 6) + base), rad);
+		
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void panic_hit_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2475,6 +2690,32 @@ void polish_shield_spell(int cmd, variant *res)
 	}
 }
 bool cast_polish_shield(void) {	return cast_spell(polish_shield_spell); }
+
+void polymorph_demonlord_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Polymorph Demonlord", "魔王変化"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Mimic a demon lord for a while. Loses abilities of original race and gets great abilities as a demon lord. Even hard walls can't stop your walking.", "悪魔の王に変化する。変化している間は本来の種族の能力を失い、代わりに悪魔の王としての能力を得、壁を破壊しながら歩く。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(spell_power(15), spell_power(15)));
+		break;
+	case SPELL_CAST:
+	{
+		int base = spell_power(15);
+		set_mimic(base + randint1(base), MIMIC_DEMON_LORD, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void polymorph_self_spell(int cmd, variant *res)
 {
@@ -2734,6 +2975,35 @@ void remove_fear_spell(int cmd, variant *res)
 }
 bool cast_remove_fear(void) { return cast_spell(remove_fear_spell); }
 
+void resistance_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Resistance", "全耐性"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Gives resistance to fire, cold, electricity, acid and poison for a while. These resistances can be added to which from equipment for more powerful resistances.", "一定時間、酸、電撃、炎、冷気、毒に対する耐性を得る。装備による耐性に累積する。"));
+		break;
+	case SPELL_CAST:
+	{
+		int base = spell_power(20);
+
+		set_oppose_acid(randint1(base) + base, FALSE);
+		set_oppose_elec(randint1(base) + base, FALSE);
+		set_oppose_fire(randint1(base) + base, FALSE);
+		set_oppose_cold(randint1(base) + base, FALSE);
+		set_oppose_pois(randint1(base) + base, FALSE);
+	
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void resist_elements_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2806,6 +3076,26 @@ void resist_elements_spell(int cmd, variant *res)
 	}
 }
 bool cast_resist_elements(void) { return cast_spell(resist_elements_spell); }
+
+void resist_poison_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Resist Poison", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Provides temporary resistance to poison.");
+		break;
+	case SPELL_CAST:
+		set_oppose_pois(randint1(20) + 20, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void restore_life_spell(int cmd, variant *res)
 {
@@ -3379,6 +3669,28 @@ void stone_to_mud_spell(int cmd, variant *res)
 }
 bool cast_stone_to_mud(void) { return cast_spell(stone_to_mud_spell); }
 
+void summon_manes_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Summon Manes", "古代の死霊召喚"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attempts to summon some demonic friends.", "古代の死霊を召喚する。"));
+		break;
+	case SPELL_CAST:
+		if (!summon_specific(-1, py, px, (p_ptr->lev * 3) / 2, SUMMON_MANES, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+			msg_print(T("No Manes arrive.", "古代の死霊は現れなかった。"));
+
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void summon_tree_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -3614,6 +3926,35 @@ void telekinesis_spell(int cmd, variant *res)
 }
 bool cast_telekinesis(void) { return cast_spell(telekinesis_spell); }
 
+void teleport_other_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Teleport Other", "テレポート・アウェイ"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Teleports all monsters on the line away unless resisted.", "モンスターをテレポートさせるビームを放つ。抵抗されると無効。"));
+		break;
+	case SPELL_CAST:
+	{
+		int dir;
+		int power = spell_power(p_ptr->lev);
+
+		var_set_bool(res, FALSE);
+
+		if (!get_aim_dir(&dir)) return;
+		fire_beam(GF_AWAY_ALL, dir, power);
+			
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void teleport_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -3829,6 +4170,32 @@ void wonder_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 		cast_wonder(dir);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void wraithform_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Wraithform", "幽体化"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Leave the world of the living and travel the shadows of the underwold.  You gain passwall and great resistance to damage.", "一定時間、壁を通り抜けることができ受けるダメージが軽減される幽体の状態に変身する。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(spell_power(p_ptr->lev/2), spell_power(p_ptr->lev/2)));
+		break;
+	case SPELL_CAST:
+	{
+		int base = spell_power(p_ptr->lev / 2);
+		set_wraith_form(randint1(base) + base, FALSE);
 		var_set_bool(res, TRUE);
 		break;
 	}

@@ -3658,24 +3658,43 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 		/* Initialize color based of sign of pval. */
 		for (stat = 0; stat < 6; stat++)
 		{
+			int adj = 0;
+
 			/* Default */
 			a = TERM_SLATE;
 			c = '.';
 
 			/* Boost */
 			if (have_flag(flgs, stat))
+				adj = o_ptr->pval;
+
+			/* Gargantuan hack for runes ... yes, you can put RUNE_BODY on Idler
+			   giving +4 Str, +4 Dex, +11 Con and +7 Chr! */
+			switch (stat)
+			{
+			case A_STR: case A_DEX: case A_CON:
+				if (o_ptr->rune_flags & RUNE_BODY)
+					adj += 4;
+				break;
+
+			case A_INT:
+				if (o_ptr->rune_flags & RUNE_MIND)
+					adj += 4;
+			}
+
+			if (adj != 0)
 			{
 				/* Default */
 				c = '*';
 
 				/* Good */
-				if (o_ptr->pval > 0)
+				if (adj > 0)
 				{
 					/* Good */
 					a = TERM_L_GREEN;
 
 					/* Label boost */
-					if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
+					if (adj < 10) c = '0' + adj;
 				}
 
 				if (have_flag(flgs, stat + TR_SUST_STR))
@@ -3685,13 +3704,13 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
 				}
 
 				/* Bad */
-				if (o_ptr->pval < 0)
+				if (adj < 0)
 				{
 					/* Bad */
 					a = TERM_RED;
 
 					/* Label boost */
-					if (o_ptr->pval > -10) c = '0' - o_ptr->pval;
+					if (adj > -10) c = '0' - adj;
 				}
 			}
 
@@ -4092,8 +4111,6 @@ void display_player(int mode)
 	/* Special */
 	else if (mode == 2)
 	{
-		/* See "http://www.cs.berkeley.edu/~davidb/angband.html" <=== LINK ROT!! */
-
 		/* Dump the info */
 		display_player_misc_info();
 		display_player_stat_info();

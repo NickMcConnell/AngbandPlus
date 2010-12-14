@@ -1450,7 +1450,7 @@ s32b object_value(object_type *o_ptr)
 bool can_player_destroy_object(object_type *o_ptr)
 {
 	/* Artifacts cannot be destroyed */
-	if (!object_is_artifact(o_ptr)) return TRUE;
+	if (!object_is_artifact(o_ptr) || (o_ptr->rune_flags & RUNE_SACRIFICE)) return TRUE;
 
 	/* If object is unidentified, makes fake inscription */
 	if (!object_is_known(o_ptr))
@@ -4186,7 +4186,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 	if ((p_ptr->pseikaku != SEIKAKU_MUNCHKIN) && (f2 > d_info[dungeon_type].obj_great))
 		f2 = d_info[dungeon_type].obj_great;
 
-	if (mut_present(MUT_GOOD_LUCK))
+	if (p_ptr->good_luck)
 	{
 		f1 += 5;
 		f2 += 2;
@@ -4258,7 +4258,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 	{
 		/* Roll for an artifact */
 		if (make_artifact(o_ptr)) break;
-		if (mut_present(MUT_GOOD_LUCK) && one_in_(77))
+		if (p_ptr->good_luck && one_in_(77))
 		{
 			if (make_artifact(o_ptr)) break;
 		}
@@ -6141,6 +6141,9 @@ void inven_drop(int item, int amt)
 	inven_item_increase(item, -amt);
 	inven_item_describe(item);
 	inven_item_optimize(item);
+
+	/* Runes confer benefits even when in inventory */
+	p_ptr->update |= PU_BONUS;
 }
 
 

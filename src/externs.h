@@ -1702,6 +1702,8 @@ extern bool object_is_weapon(object_type *o_ptr);
 extern bool object_is_weapon_ammo(object_type *o_ptr);
 extern bool object_is_ammo(object_type *o_ptr);
 extern bool object_is_armour(object_type *o_ptr);
+extern bool object_is_shield(object_type *o_ptr);
+extern bool object_is_body_armour(object_type *o_ptr);
 extern bool object_is_weapon_armour_ammo(object_type *o_ptr);
 extern bool object_is_melee_weapon(object_type *o_ptr);
 extern bool object_is_wearable(object_type *o_ptr);
@@ -1848,7 +1850,7 @@ extern bool nemesis_hack;	/* Actually, its in melee1.c */
 
 /* magic_eater.c */
 extern void absorb_magic_spell(int cmd, variant *res);
-extern bool cast_abosrb_magic(void);
+extern bool cast_absorb_magic(void);
 
 /* mindcrafter.c */
 extern class_t *mindcrafter_get_class_t(void);
@@ -1869,6 +1871,10 @@ extern void monk_posture_spell(int cmd, variant *res);
 
 /* ninja.c */
 extern void quick_walk_spell(int cmd, variant *res);
+
+/* rune_knight.c */
+extern bool rune_add(object_type *o_ptr, int which);
+extern class_t *rune_knight_get_class_t(void);
 
 /* samurai.c */
 extern void samurai_concentration_spell(int cmd, variant *res);

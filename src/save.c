@@ -113,6 +113,7 @@ static void wr_item(object_type *o_ptr)
 	if (o_ptr->art_flags[2]) flags |= SAVE_ITEM_ART_FLAGS2;
 	if (o_ptr->art_flags[3]) flags |= SAVE_ITEM_ART_FLAGS3;
 	if (o_ptr->curse_flags) flags |= SAVE_ITEM_CURSE_FLAGS;
+	if (o_ptr->rune_flags) flags |= SAVE_ITEM_RUNE_FLAGS;
 	if (o_ptr->held_m_idx) flags |= SAVE_ITEM_HELD_M_IDX;
 	if (o_ptr->xtra1) flags |= SAVE_ITEM_XTRA1;
 	if (o_ptr->xtra2) flags |= SAVE_ITEM_XTRA2;
@@ -161,6 +162,7 @@ static void wr_item(object_type *o_ptr)
 	if (flags & SAVE_ITEM_ART_FLAGS3) wr_u32b(o_ptr->art_flags[3]);
 
 	if (flags & SAVE_ITEM_CURSE_FLAGS) wr_u32b(o_ptr->curse_flags);
+	if (flags & SAVE_ITEM_RUNE_FLAGS) wr_u32b(o_ptr->rune_flags);
 
 	/* Held by monster index */
 	if (flags & SAVE_ITEM_HELD_M_IDX) wr_s16b(o_ptr->held_m_idx);

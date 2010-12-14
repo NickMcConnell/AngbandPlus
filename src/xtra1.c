@@ -2559,6 +2559,7 @@ static void calc_mana(void)
 
 	if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
 	    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
+		(p_ptr->pclass == CLASS_RUNE_KNIGHT) ||
 	    (p_ptr->pclass == CLASS_BLUE_MAGE))
 	{
 		levels = p_ptr->lev;
@@ -2610,6 +2611,8 @@ static void calc_mana(void)
 		}
 
 		if (msp && (p_ptr->pclass == CLASS_SORCERER)) msp += msp*(25+p_ptr->lev)/100;
+
+		if (msp && p_ptr->pclass == CLASS_RUNE_KNIGHT) msp += msp/2;
 	}
 
 	/* Only mages are affected */
@@ -3292,6 +3295,13 @@ void calc_bonuses(void)
 	p_ptr->mighty_throw = FALSE;
 	p_ptr->see_nocto = FALSE;
 
+	p_ptr->magic_absorption = 0;
+	p_ptr->magic_resistance = 0;
+	p_ptr->good_luck = FALSE;
+	p_ptr->rune_regen = FALSE;
+	p_ptr->rune_elem_prot = FALSE;
+	p_ptr->rune_mind = FALSE;
+	
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
@@ -3864,6 +3874,9 @@ void calc_bonuses(void)
 		mut_lock(MUT_GOOD_LUCK);
 	}
 
+	if (mut_present(MUT_GOOD_LUCK))
+		p_ptr->good_luck = TRUE;
+
 	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
 	{
 		p_ptr->resist_blind = TRUE;
@@ -3901,6 +3914,17 @@ void calc_bonuses(void)
 		p_ptr->stat_add[A_CON] += 4;
 	}
 
+	/* Some Runes work when placed in Inventory */
+	for (i = 0; i < INVEN_RARM; i++)
+	{
+		o_ptr = &inventory[i];
+		if (!o_ptr->k_idx) continue;
+		if (o_ptr->rune_flags & RUNE_ELEMENTAL_PROTECTION) 
+			p_ptr->rune_elem_prot = TRUE;
+		if (o_ptr->rune_flags & RUNE_GOOD_FORTUNE) 
+			p_ptr->good_luck = TRUE;
+	}
+
 	/* Scan the usable inventory */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
@@ -3915,6 +3939,63 @@ void calc_bonuses(void)
 
 		p_ptr->cursed |= (o_ptr->curse_flags & (0xFFFFFFF0L));
 		if (o_ptr->name1 == ART_CHAINSWORD) p_ptr->cursed |= TRC_CHAINSWORD;
+
+		/* Runes */
+		if (o_ptr->rune_flags & RUNE_ABSORPTION)
+		{
+			p_ptr->magic_resistance += 25;
+			p_ptr->magic_absorption += 5;
+		}
+		if (o_ptr->rune_flags & RUNE_REGENERATION) p_ptr->rune_regen = TRUE;
+		if (o_ptr->rune_flags & RUNE_DEFLECTION)
+		{
+			p_ptr->to_a += 5 + p_ptr->lev/2;
+			p_ptr->dis_to_a += 5 + p_ptr->lev/2;
+		}
+		if (o_ptr->rune_flags & RUNE_STASIS)
+		{
+			if (p_ptr->lev >= 15)
+				p_ptr->sustain_str = TRUE;
+		
+			if (p_ptr->lev >= 20)
+				p_ptr->sustain_dex = TRUE;
+		
+			if (p_ptr->lev >= 25)
+				p_ptr->sustain_int = TRUE;
+
+			if (p_ptr->lev >= 30)
+				p_ptr->sustain_con = TRUE;
+
+			if (p_ptr->lev >= 35)
+			{
+				p_ptr->sustain_wis = TRUE;
+				p_ptr->sustain_chr = TRUE;
+			}
+
+			if (p_ptr->lev >= 40)
+				p_ptr->hold_life = TRUE;
+
+			if (p_ptr->lev >= 45)
+				p_ptr->resist_disen = TRUE;
+
+			if (p_ptr->lev >= 50)
+				p_ptr->resist_time = TRUE;
+		}
+		if (o_ptr->rune_flags & RUNE_BODY)
+		{
+			p_ptr->stat_add[A_STR] += 4;
+			p_ptr->stat_add[A_DEX] += 4;
+			p_ptr->stat_add[A_CON] += 4;
+			p_ptr->resist_nexus = TRUE;
+		}
+		if (o_ptr->rune_flags & RUNE_MIND)
+		{
+			p_ptr->stat_add[A_INT] += 4;
+			p_ptr->telepathy = TRUE;
+			p_ptr->resist_conf = TRUE;
+			p_ptr->resist_chaos = TRUE;
+			p_ptr->rune_mind = TRUE;
+		}
 
 		/* Affect stats */
 		if (have_flag(flgs, TR_STR)) p_ptr->stat_add[A_STR] += o_ptr->pval;
@@ -5022,6 +5103,7 @@ void calc_bonuses(void)
 
 				/* Weaponsmith */
 				case CLASS_SMITH:
+				case CLASS_RUNE_KNIGHT:
 					num = 5; wgt = 150; mul = 5; break;
 
 				/* Warrior-Mage */

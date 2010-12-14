@@ -4751,6 +4751,7 @@ bool hates_cold(object_type *o_ptr)
 int set_acid_destroy(object_type *o_ptr)
 {
 	u32b flgs[TR_FLAG_SIZE];
+	if (p_ptr->rune_elem_prot && one_in_(2)) return FALSE;
 	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, flgs);
 	if (have_flag(flgs, TR_IGNORE_ACID)) return (FALSE);
@@ -4764,6 +4765,7 @@ int set_acid_destroy(object_type *o_ptr)
 int set_elec_destroy(object_type *o_ptr)
 {
 	u32b flgs[TR_FLAG_SIZE];
+	if (p_ptr->rune_elem_prot && one_in_(2)) return FALSE;
 	if (!hates_elec(o_ptr)) return (FALSE);
 	object_flags(o_ptr, flgs);
 	if (have_flag(flgs, TR_IGNORE_ELEC)) return (FALSE);
@@ -4777,6 +4779,7 @@ int set_elec_destroy(object_type *o_ptr)
 int set_fire_destroy(object_type *o_ptr)
 {
 	u32b flgs[TR_FLAG_SIZE];
+	if (p_ptr->rune_elem_prot && one_in_(2)) return FALSE;
 	if (!hates_fire(o_ptr)) return (FALSE);
 	object_flags(o_ptr, flgs);
 	if (have_flag(flgs, TR_IGNORE_FIRE)) return (FALSE);
@@ -4790,6 +4793,7 @@ int set_fire_destroy(object_type *o_ptr)
 int set_cold_destroy(object_type *o_ptr)
 {
 	u32b flgs[TR_FLAG_SIZE];
+	if (p_ptr->rune_elem_prot && one_in_(2)) return FALSE;
 	if (!hates_cold(o_ptr)) return (FALSE);
 	object_flags(o_ptr, flgs);
 	if (have_flag(flgs, TR_IGNORE_COLD)) return (FALSE);
@@ -5637,6 +5641,12 @@ bool eat_magic(int power)
 	char o_name[MAX_NLEN];
 
 	item_tester_hook = item_tester_hook_recharge;
+
+	if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+	{
+		msg_print("You are not allowed to Eat Magic!");
+		return FALSE;
+	}
 
 	/* Get an item */
 #ifdef JP

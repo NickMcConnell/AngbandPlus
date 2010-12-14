@@ -138,6 +138,7 @@
     <ClCompile Include="readdib.c" />
     <ClCompile Include="report.c" />
     <ClCompile Include="rooms.c" />
+    <ClCompile Include="rune_knight.c" />
     <ClCompile Include="samurai.c" />
     <ClCompile Include="save.c" />
     <ClCompile Include="scores.c" />

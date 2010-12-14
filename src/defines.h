@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 27
+#define FAKE_VER_PATCH 28
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 27
+#define H_VER_PATCH 28
 #define H_VER_EXTRA 0
 
 
@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            34
+#define MAX_CLASS            35
 
 #define MAX_SEIKAKU          12
 
@@ -677,6 +677,7 @@
 #define SPELL_MUT_DESC		11		/* For Mutations */
 #define SPELL_CALC_BONUS	12		/* Mutations, Singing, etc.  Called from calc_bonuses() */
 #define SPELL_PROCESS		13      /* Randomly activating mutations */
+#define SPELL_COLOR			14      /* Terminal Color for display */
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -828,6 +829,7 @@
 #define CLASS_ARCHAEOLOGIST		31
 #define CLASS_DUELIST			32
 #define CLASS_WILD_TALENT		33
+#define CLASS_RUNE_KNIGHT		34
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -1840,6 +1842,7 @@
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
+#define TV_RUNE			81
 #define TV_LIFE_BOOK    90
 #define TV_SORCERY_BOOK 91
 #define TV_NATURE_BOOK  92
@@ -2469,6 +2472,8 @@
 #define SV_FOOD_PINT_OF_ALE             38
 #define SV_FOOD_PINT_OF_WINE            39
 
+/* TV_RUNE */
+#define SV_RUNE        1
 
 /*
  * Special "sval" limit -- first "normal" food
@@ -5327,6 +5332,7 @@ extern int PlayerUID;
 #define SAVE_ITEM_FEELING      0x02000000
 #define SAVE_ITEM_INSCRIPTION  0x04000000
 #define SAVE_ITEM_ART_NAME     0x08000000
+#define SAVE_ITEM_RUNE_FLAGS   0x10000000
 
 
 /*
@@ -5548,3 +5554,17 @@ extern int PlayerUID;
 #else
 #define T(E, J) (E)
 #endif
+
+/* object_type.rune_flags */
+#define RUNE_ABSORPTION           0x00000001
+#define RUNE_REGENERATION         0x00000002
+#define RUNE_DEFLECTION           0x00000004
+#define RUNE_STASIS               0x00000008
+#define RUNE_DESTRUCTION          0x00000010
+#define RUNE_ELEMENTAL_PROTECTION 0x00000020
+#define RUNE_SACRIFICE            0x00000040
+#define RUNE_REFLECTION           0x00000080
+#define RUNE_GOOD_FORTUNE         0x00000100
+#define RUNE_BODY                 0x00000200
+#define RUNE_MIND                 0x00000400
+
