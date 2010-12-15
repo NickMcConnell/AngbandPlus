@@ -199,6 +199,7 @@ extern s16b o_cnt;
 extern s16b m_max;
 extern s16b m_cnt;
 extern s16b hack_m_idx;
+extern int hack_m_spell;
 extern s16b hack_m_idx_ii;
 extern int total_friends;
 extern s32b friend_align;

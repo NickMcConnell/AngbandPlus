@@ -1797,6 +1797,7 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 	can_remember = is_original_ap_and_seen(m_ptr);
 
 	/* Cast the spell. */
+	hack_m_spell = thrown_spell;
 	switch (thrown_spell)
 	{
 		/* RF4_SHRIEK */
@@ -4632,7 +4633,7 @@ else msg_format("%^sが魔法で特別な強敵を召喚した！", m_name);
 			break;
 		}
 	}
-
+	hack_m_spell = 0;
 	if ((p_ptr->action == ACTION_LEARN) && thrown_spell > 175)
 	{
 		learn_spell(thrown_spell - 96);

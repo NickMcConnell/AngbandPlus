@@ -6668,10 +6668,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* Limit maximum damage */
 	if (dam > 1600) dam = 1600;
 
+	/* Reduce damage by distance */
+	dam = (dam + r) / (r + 1);
+
 	/* Apply Absorption before subsequent damage reduction */
-	if (p_ptr->magic_absorption)
+	if (p_ptr->magic_absorption && hack_m_spell)
 	{
-		int gain = MAX(dam * p_ptr->magic_absorption / 100, 1);
+		int gain = MAX(dam * p_ptr->magic_absorption / 100, (p_ptr->lev/12 + 1));
 		int new_sp = MIN(p_ptr->csp + gain, p_ptr->msp);
 		if (new_sp > p_ptr->csp)
 		{
@@ -6682,9 +6685,6 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			p_ptr->window |= (PW_SPELL);
 		}
 	}
-
-	/* Reduce damage by distance */
-	dam = (dam + r) / (r + 1);
 
 	if ( p_ptr->pclass == CLASS_DUELIST
 	  && p_ptr->duelist_target_idx == who )

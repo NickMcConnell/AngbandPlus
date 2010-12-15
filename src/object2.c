@@ -3899,7 +3899,9 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 				o_ptr->pval = 0;
 			}
 
-			if (one_in_(20) || power > 2) /* power > 2 is debug only */
+			if ((o_ptr->sval != SV_LITE_TORCH) && 
+			    (o_ptr->sval != SV_LITE_LANTERN) && 
+			    (one_in_(20) || power > 2))
 			{
 				create_artifact(o_ptr, CREATE_ART_NORMAL);
 			}

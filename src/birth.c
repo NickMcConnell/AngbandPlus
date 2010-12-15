@@ -4404,10 +4404,17 @@ void player_outfit(void)
 			q_ptr->name2 = EGO_BRAND_POIS;
 		}
 
-		/* Hack: Rune-Knights begin with an Absorption Rune on their broad sword */
-		if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_SWORD && sv == SV_BROAD_SWORD)
-			rune_add(q_ptr, RUNE_ABSORPTION);
-
+		/* Hack: Rune-Knights begin with an Absorption Rune on their broad sword (or whip if sexy) */
+		if(p_ptr->pseikaku == SEIKAKU_SEXY)
+		{
+			if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_HAFTED && sv == SV_WHIP)
+				rune_add(q_ptr, RUNE_ABSORPTION);
+		}
+		else
+		{
+			if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_SWORD && sv == SV_BROAD_SWORD)
+				rune_add(q_ptr, RUNE_ABSORPTION);
+		}
 		add_outfit(q_ptr);
 	}
 

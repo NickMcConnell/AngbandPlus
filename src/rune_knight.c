@@ -108,6 +108,11 @@ static void _rune_of_absorption_spell(int cmd, variant *res)
 
 		break;
 	}
+	case SPELL_COST_EXTRA:
+		/* We keep the cost 0 on purpose.  New players might lose/sell their starting absorption
+		   weapon, forcing them to wait a loooong time to find !Restore Mana. */
+		var_set_int(res, MIN(p_ptr->msp, 0));
+		break;
 	default:
 		_rune_default_spell(cmd, res);
 		break;

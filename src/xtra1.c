@@ -5949,6 +5949,10 @@ msg_print("バランスがとれるようになった。");
 		magic_type *s_ptr = &mp_ptr->info[REALM_CRAFT-1][SPELL_KABE];
 		if (p_ptr->lev >= s_ptr->slevel) p_ptr->no_flowed = TRUE;
 	}
+
+	/* Apply some maximums ... */
+	if (p_ptr->magic_resistance > 25)
+		p_ptr->magic_resistance = 25;
 }
 
 
