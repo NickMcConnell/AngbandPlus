@@ -1298,6 +1298,7 @@ extern int cold_dam(int dam, cptr kb_str, int monspell);
 extern bool rustproof(void);
 extern bool curse_armor(void);
 extern bool curse_weapon(bool force, int slot);
+extern void blast_object(object_type *o_ptr);
 extern bool brand_bolts(void);
 extern bool polymorph_monster(int y, int x);
 extern bool dimension_door(void);
@@ -1874,7 +1875,8 @@ extern void monk_posture_spell(int cmd, variant *res);
 extern void quick_walk_spell(int cmd, variant *res);
 
 /* rune_knight.c */
-extern bool rune_add(object_type *o_ptr, int which);
+extern bool rune_add(object_type *o_ptr, int which, bool prompt);
+extern cptr rune_desc(int which);
 extern class_t *rune_knight_get_class_t(void);
 
 /* samurai.c */

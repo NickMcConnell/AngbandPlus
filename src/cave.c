@@ -163,7 +163,6 @@ bool los(int y1, int x1, int y2, int x2)
 	/* Slope, or 1/Slope, of LOS */
 	int m;
 
-
 	/* Extract the offset */
 	dy = y2 - y1;
 	dx = x2 - x1;
@@ -4843,7 +4842,7 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
  *
  * This is slightly (but significantly) different from "los(y1,x1,y2,x2)".
  */
-bool projectable(int y1, int x1, int y2, int x2)
+bool _projectable(int y1, int x1, int y2, int x2)
 {
 	int y, x;
 
@@ -4865,6 +4864,22 @@ bool projectable(int y1, int x1, int y2, int x2)
 
 	/* Assume okay */
 	return (TRUE);
+}
+
+bool projectable(int y1, int x1, int y2, int x2)
+{
+	bool result = _projectable(y1, x1, y2, x2);
+#if 0
+	if (p_ptr->wizard)
+	{
+		bool result2 = _projectable(y2, x2, y1, x1);
+		if (result != result2)
+		{
+			msg_format("WARNING: (%d,%d) and (%d,%d) are not symmetric under projectable()!", y1, x1, y2, x2);
+		}
+	}
+#endif
+	return result;
 }
 
 

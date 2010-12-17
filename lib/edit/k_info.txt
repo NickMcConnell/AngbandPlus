@@ -6412,7 +6412,8 @@ N:673:TRANSLATE
 E:Rune
 G:*:B
 I:81:1:0
-W:0:255:4:500
+W:0:0:4:500
+A:0/255
 P:0:1d1:0:0:0
 A:$A cryptic rune, of powers incomprehensible.
 

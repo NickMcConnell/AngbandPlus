@@ -4408,12 +4408,12 @@ void player_outfit(void)
 		if(p_ptr->pseikaku == SEIKAKU_SEXY)
 		{
 			if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_HAFTED && sv == SV_WHIP)
-				rune_add(q_ptr, RUNE_ABSORPTION);
+				rune_add(q_ptr, RUNE_ABSORPTION, FALSE);
 		}
 		else
 		{
 			if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_SWORD && sv == SV_BROAD_SWORD)
-				rune_add(q_ptr, RUNE_ABSORPTION);
+				rune_add(q_ptr, RUNE_ABSORPTION, FALSE);
 		}
 		add_outfit(q_ptr);
 	}

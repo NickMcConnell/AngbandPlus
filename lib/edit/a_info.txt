@@ -164,7 +164,7 @@ N:4:カルランマスの
 E:of Carlammas
 I:40:10:2
 W:50:30:3:60000
-F:CON | HIDE_TYPE | ACTIVATE | RES_FIRE | INSTA_ART
+F:CON | HIDE_TYPE | ACTIVATE | RES_FIRE | RES_FEAR | INSTA_ART
 D:$A fiery circle of bronze, with mighty spells to ward off evil.
 D:ブロンズの燃えるような首飾りで、邪悪な者をかわして退散させる
 D:強力な呪文が込められている。

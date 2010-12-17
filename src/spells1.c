@@ -286,7 +286,7 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
  * This algorithm is similar to, but slightly different from, the one used
  * by "update_view_los()", and very different from the one used by "los()".
  */
-sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
+sint project_path_old(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 {
 	int y, x;
 
@@ -578,7 +578,251 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 	return (n);
 }
 
+/* Check whether or not to continue this projection */
+static bool _path_continue(int n, int y, int x, int flg)
+{
+	if (flg & (PROJECT_DISI))
+	{
+		if ((n > 0) && cave_stop_disintegration(y, x)) return FALSE;
+	}
+	else if (flg & (PROJECT_LOS))
+	{
+		if ((n > 0) && !cave_los_bold(y, x)) return FALSE;
+	}
+	else /*if (!(flg & (PROJECT_PATH))) ?? This makes the printed path differ from the actual path!!!*/
+	{
+		/* Always stop at non-initial wall grids */
+		if ((n > 0) && !cave_have_flag_bold(y, x, FF_PROJECT)) return FALSE;
+	}
 
+	/* Sometimes stop at non-initial monsters/players */
+	if (flg & (PROJECT_STOP))
+	{
+		if ((n > 0) &&
+			(player_bold(y, x) || cave[y][x].m_idx != 0))
+			return FALSE;
+	}
+
+	return TRUE;
+}
+
+/* Try a given projection with horizontal major axis 
+   These projections handle arbitrary rational slope values by the use of integer
+   counters.  The steps are always +-1 along the major axis, but may be any of -1,0,+1
+   along the minor axis.  The start values are used to select different tile paths between
+   the end points whenever there might be any ambiguity.  We return whether or not the
+   desired endpoint was reached, but note that the path may extend beyond this point.
+*/
+static bool _project_path_x(u16b *path, int* ct, int range, int y1, int x1, int y2, int x2, 
+    int step_x, int step_y, int count_x, int count_y, int start_cx, int start_cy,
+	int flg)
+{
+	int cx = start_cx;
+	int cy = start_cy;
+	int x = x1;
+	int y = y1;
+	int n = 0;
+	int k = 0;
+	bool result = FALSE;
+
+	for (;;)
+	{
+		--cx;
+		--cy;
+		if (cx <= 0) /* cx < 0 should never occur */
+		{
+			x += step_x;
+			cx += count_x;
+
+			if (cy <= 0) /* cy < 0 is to be expected and quite common */
+			{
+				y += step_y;
+				cy += count_y;
+				if (step_y) ++k; /* k tracks units of (SQRT(2) - 1) in distance ... we fudge this as .5 */
+			}
+
+			if (!in_bounds(y, x)) break;
+
+			path[n++] = GRID(y, x);
+
+			if (x == x2 && y == y2)
+			{
+				result = TRUE;
+				if (!(flg & PROJECT_THRU)) break;
+			}
+
+			if ((n + (k >> 1)) >= range) break;
+
+			if (!_path_continue(n, y, x, flg)) break;
+		}
+	}
+
+	*ct = n;
+	return result;
+}
+
+/* Try a given projection with vertical major axis */
+static bool _project_path_y(u16b *path, int *ct, int range, int y1, int x1, int y2, int x2, 
+    int step_x, int step_y, int count_x, int count_y, int start_cx, int start_cy,
+	int flg)
+{
+	int cx = start_cx;
+	int cy = start_cy;
+	int x = x1;
+	int y = y1;
+	int n = 0;
+	int k = 0;
+	bool result = FALSE;
+
+	for (;;)
+	{
+		--cx;
+		--cy;
+		if (cy <= 0) /* cy < 0 should never occur */
+		{
+			y += step_y;
+			cy += count_y;
+
+			if (cx <= 0) /* cx < 0 is to be expected and quite common */
+			{
+				x += step_x;
+				cx += count_x;
+				if (step_x) ++k; /* k tracks units of (SQRT(2) - 1) in distance ... we fudge this as .5 */
+			}
+
+			if (!in_bounds(y, x)) break;
+
+			path[n++] = GRID(y, x);
+
+			if (x == x2 && y == y2)
+			{
+				result = TRUE;
+				if (!(flg & PROJECT_THRU)) break;
+			}
+
+			if ((n + (k >> 1)) >= range) break;
+
+			if (!_path_continue(n, y, x, flg)) break;
+		}
+	}
+
+	*ct = n;
+	return result;
+}
+
+static void _copy_path(u16b* dest, u16b* src, int ct)
+{
+	int i;
+	for (i = 0; i < ct; ++i)
+		dest[i] = src[i];
+}
+
+/* Lots of attempts have been made to fix asymmetrical targeting.  Here is my
+   attempt.  Simply put, there are multiple ways to discretize a line into a
+   sequence of grids.  We will simply try alternate discretizations should a
+   given one fail. */
+static int project_path_new(u16b *path, int range, int y1, int x1, int y2, int x2, int flg)
+{
+	int dx, dy, ax, ay;
+	int n = 0;
+
+	/* No path necessary (or allowed) */
+	if ((x1 == x2) && (y1 == y2)) return 0;
+
+	dx = x2 - x1;
+	ax = ABS(dx);
+
+	dy = y2 - y1;
+	ay = ABS(dy);
+
+	/* Case 1: Horizontal */
+	if (ay == 0)
+	{
+		int step_x = (dx > 0) ? 1 : -1;
+		_project_path_x(path, &n, range, y1, x1, y2, x2, step_x, 0, 1, 1, 1, 1, flg);
+	}
+	/* Case 2: Vertical */
+	else if (ax == 0)
+	{
+		int step_y = (dy > 0) ? 1 : -1;
+		_project_path_y(path, &n, range, y1, x1, y2, x2, 0, step_y, 1, 1, 1, 1, flg);
+	}
+	/* Case 3: Primary Axis Horizontal */
+	else if (ax > ay)
+	{
+		int step_x = (dx > 0) ? 1 : -1;
+		int step_y = (dy > 0) ? 1 : -1;
+		int count_x = ay;
+		int count_y = ax;
+		int start_cx = count_x;
+		int start_cy = (count_y + 1)/2;
+
+		if (count_y % 2 == 1)
+		{
+			_project_path_x(path, &n, range, y1, x1, y2, x2, step_x, step_y, count_x, count_y, start_cx, start_cy, flg);
+		}
+		else
+		{
+		int ct2 = 0;
+		u16b path2[512];
+			if (!_project_path_x(path, &n, range, y1, x1, y2, x2, step_x, step_y, count_x, count_y, start_cx, start_cy, flg))
+			{
+				/* Take the second path if it succeeds, or if it fails but is longer */
+				if ( _project_path_x(path2, &ct2, range, y1, x1, y2, x2, step_x, step_y, count_x, count_y, start_cx, start_cy + 1, flg)
+				  || ct2 > n )
+				{
+					_copy_path(path, path2, ct2);
+					n = ct2;
+				}
+			}
+		}
+	}
+	/* Case 4: Primary Axis Vertical */
+	else if (ay > ax)
+	{
+		int step_x = (dx > 0) ? 1 : -1;
+		int step_y = (dy > 0) ? 1 : -1;
+		int count_x = ay;
+		int count_y = ax;
+		int start_cx = (count_x + 1)/2;
+		int start_cy = count_y;
+
+		if (count_x % 2 == 1)
+		{
+			_project_path_y(path, &n, range, y1, x1, y2, x2, step_x, step_y, count_x, count_y, start_cx, start_cy, flg);
+		}
+		else
+		{
+		int ct2 = 0;
+		u16b path2[512];
+			if (!_project_path_y(path, &n, range, y1, x1, y2, x2, step_x, step_y, count_x, count_y, start_cx, start_cy, flg))
+			{
+				/* Take the second path if it succeeds, or if it fails but is longer */
+				if ( _project_path_y(path2, &ct2, range, y1, x1, y2, x2, step_x, step_y, count_x, count_y, start_cx + 1, start_cy, flg)
+				  || ct2 > n )
+				{
+					_copy_path(path, path2, ct2);
+					n = ct2;
+				}
+			}
+		}
+	}
+	/* Case 5: Exact Diagonal */
+	else
+	{
+		int step_x = (dx > 0) ? 1 : -1;
+		int step_y = (dy > 0) ? 1 : -1;
+		_project_path_x(path, &n, range, y1, x1, y2, x2, step_x, step_y, 1, 1, 1, 1, flg);
+	}
+
+	return n;
+}
+
+sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
+{
+	return project_path_new(gp, range, y1, x1, y2, x2, flg);
+	/*return project_path_old(gp, range, y1, x1, y2, x2, flg);*/
+}
 
 /*
  * Mega-Hack -- track "affected" monsters (see "project()" comments)

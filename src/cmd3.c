@@ -953,12 +953,17 @@ void do_cmd_destroy(void)
 	object_type		*o_ptr;
 	object_type             forge;
 	object_type             *q_ptr = &forge;
+	bool		is_equipped = FALSE;
 
 	char		o_name[MAX_NLEN];
 
 	char		out_val[MAX_NLEN+40];
 
 	cptr q, s;
+	int mode = USE_INVEN | USE_FLOOR;
+
+	if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+		mode |= USE_EQUIP;
 
 	if (p_ptr->special_defense & KATA_MUSOU)
 	{
@@ -978,18 +983,28 @@ void do_cmd_destroy(void)
 	s = "You have nothing to destroy.";
 #endif
 
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, mode)) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+		is_equipped = item >= INVEN_RARM && item <= INVEN_FEET;
 	}
 
 	/* Get the item (on the floor) */
 	else
 	{
 		o_ptr = &o_list[0 - item];
+	}
+
+	/* Hack for Rune Knight: They can destroy worn equipment, but only
+	   if it has the Sacrifice rune.  get_item() is not smart enough
+	   to handle this restriction ... */
+	if (is_equipped && !(o_ptr->rune_flags & RUNE_SACRIFICE))
+	{
+		msg_print("You must first remove that item before destroying it.");
+		return;
 	}
 
 	/* Verify unless quantity given beforehand */
@@ -1098,10 +1113,14 @@ void do_cmd_destroy(void)
 
 	if (o_ptr->rune_flags & RUNE_SACRIFICE)
 	{
+		int add_hp = is_equipped ? p_ptr->mhp : p_ptr->mhp/3;
+		int add_sp = is_equipped ? p_ptr->msp : p_ptr->msp/3;
+
 		msg_print("You feel a surge of wondrous power enter your body.");
-		p_ptr->chp = p_ptr->mhp;
+		
+		p_ptr->chp = MIN(p_ptr->mhp, p_ptr->chp + add_hp);
 		p_ptr->chp_frac = 0;
-		p_ptr->csp = p_ptr->msp;
+		p_ptr->csp = MIN(p_ptr->msp, p_ptr->csp + add_sp);
 		p_ptr->csp_frac = 0;
 
 		p_ptr->redraw |= (PR_MANA);
@@ -1109,6 +1128,9 @@ void do_cmd_destroy(void)
 		p_ptr->window |= (PW_SPELL);
 		p_ptr->redraw |= (PR_HP);
 	}
+
+	if (is_equipped)
+		blast_object(o_ptr);
 
 	sound(SOUND_DESTITEM);
 
@@ -1118,9 +1140,12 @@ void do_cmd_destroy(void)
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
 	{
-		inven_item_increase(item, -amt);
-		inven_item_describe(item);
-		inven_item_optimize(item);
+		if (!is_equipped)
+		{
+			inven_item_increase(item, -amt);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
 	}
 
 	/* Eliminate the item (from the floor) */
@@ -1161,34 +1186,30 @@ void do_cmd_destroy(void)
 			if (q_ptr->sval < 3) tester_exp /= 4;
 			if (tester_exp<1) tester_exp = 1;
 
-#ifdef JP
-msg_print("更に経験を積んだような気がする。");
-#else
-			msg_print("You feel more experienced.");
-#endif
-
+			msg_print(T("You feel more experienced.", "更に経験を積んだような気がする。"));
 			gain_exp(tester_exp * amt);
 		}
-		if (high_level_book(q_ptr) && q_ptr->tval == TV_LIFE_BOOK)
-		{
-			chg_virtue(V_UNLIFE, 1);
-			chg_virtue(V_VITALITY, -1);
-		}
-		else if (high_level_book(q_ptr) && q_ptr->tval == TV_DEATH_BOOK)
-		{
-			chg_virtue(V_UNLIFE, -1);
-			chg_virtue(V_VITALITY, 1);
-		}
-	
-		if (q_ptr->to_a || q_ptr->to_h || q_ptr->to_d)
-			chg_virtue(V_ENCHANT, -1);
-	
-		if (object_value_real(q_ptr) > 30000)
-			chg_virtue(V_SACRIFICE, 2);
-	
-		else if (object_value_real(q_ptr) > 10000)
-			chg_virtue(V_SACRIFICE, 1);
 	}
+
+	if (high_level_book(q_ptr) && q_ptr->tval == TV_LIFE_BOOK)
+	{
+		chg_virtue(V_UNLIFE, 1);
+		chg_virtue(V_VITALITY, -1);
+	}
+	else if (high_level_book(q_ptr) && q_ptr->tval == TV_DEATH_BOOK)
+	{
+		chg_virtue(V_UNLIFE, -1);
+		chg_virtue(V_VITALITY, 1);
+	}	
+
+	if (q_ptr->to_a || q_ptr->to_h || q_ptr->to_d)
+		chg_virtue(V_ENCHANT, -1);
+	
+	if (object_value_real(q_ptr) > 30000)
+		chg_virtue(V_SACRIFICE, 2);
+	
+	else if (object_value_real(q_ptr) > 10000)
+		chg_virtue(V_SACRIFICE, 1);
 
 	if (q_ptr->to_a != 0 || q_ptr->to_d != 0 || q_ptr->to_h != 0)
 		chg_virtue(V_HARMONY, 1);

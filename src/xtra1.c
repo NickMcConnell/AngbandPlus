@@ -2807,23 +2807,24 @@ static void calc_mana(void)
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
 	{
+		int delta = p_ptr->msp - p_ptr->csp;
+		int csp = msp - delta;
+
+		/* Save new mana */
+		p_ptr->msp = msp;
+
+		/* Preserve the amount of used up mana whenever the total changes */
+		if (p_ptr->csp > 0 && csp >= 0)
+		{
+			p_ptr->csp = csp;
+		}
+
 		/* Enforce maximum */
 		if ((p_ptr->csp >= msp) && (p_ptr->pclass != CLASS_SAMURAI))
 		{
 			p_ptr->csp = msp;
 			p_ptr->csp_frac = 0;
 		}
-
-#ifdef JP
-		/* レベルアップの時は上昇量を表示する */
-		if ((level_up == 1) && (msp > p_ptr->msp))
-		{
-			msg_format("最大マジック・ポイントが %d 増加した！",
-				   (msp - p_ptr->msp));
-		}
-#endif
-		/* Save new mana */
-		p_ptr->msp = msp;
 
 		/* Display mana later */
 		p_ptr->redraw |= (PR_MANA);

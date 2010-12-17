@@ -5201,13 +5201,52 @@ msg_format("%sは腐食しなくなった。", o_name);
 	return TRUE;
 }
 
+/*
+ * Helper for Cursing Equipment (?Curse Armor and ?Curse Weapn)
+ * Also used when sacrificing a worn piece of equipment.
+ */
+
+void blast_object(object_type *o_ptr)
+{
+	bool is_armor = object_is_armour(o_ptr);
+	bool is_weapon = object_is_weapon(o_ptr);
+	int i;
+
+	o_ptr->name1 = 0;
+	o_ptr->name2 = EGO_BLASTED;
+	o_ptr->to_a = 0;
+	o_ptr->to_h = 0;
+	o_ptr->to_d = 0;
+	o_ptr->ac = 0;
+	o_ptr->dd = 0;
+	o_ptr->ds = 0;
+
+	if (is_armor)
+		o_ptr->to_a -= randint1(5) + randint1(5);
+
+	if (is_weapon)
+	{
+		o_ptr->to_h -= randint1(5) + randint1(5);
+		o_ptr->to_d -= randint1(5) + randint1(5);
+	}
+
+	for (i = 0; i < TR_FLAG_SIZE; i++)
+		o_ptr->art_flags[i] = 0;
+
+	o_ptr->rune_flags = 0;
+
+	o_ptr->ident |= (IDENT_BROKEN);
+
+	p_ptr->update |= (PU_BONUS);
+	p_ptr->update |= (PU_MANA);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+}
 
 /*
  * Curse the players armor
  */
 bool curse_armor(void)
 {
-	int i;
 	object_type *o_ptr;
 
 	char o_name[MAX_NLEN];
@@ -5249,33 +5288,8 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 
 		chg_virtue(V_ENCHANT, -5);
 
-		/* Blast the armor */
-		o_ptr->name1 = 0;
-		o_ptr->name2 = EGO_BLASTED;
-		o_ptr->to_a = 0 - randint1(5) - randint1(5);
-		o_ptr->to_h = 0;
-		o_ptr->to_d = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
-
-		for (i = 0; i < TR_FLAG_SIZE; i++)
-			o_ptr->art_flags[i] = 0;
-
-		/* Curse it */
+		blast_object(o_ptr);
 		o_ptr->curse_flags = TRC_CURSED;
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Recalculate mana */
-		p_ptr->update |= (PU_MANA);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
 
 	return (TRUE);
@@ -5287,8 +5301,6 @@ msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
  */
 bool curse_weapon(bool force, int slot)
 {
-	int i;
-
 	object_type *o_ptr;
 
 	char o_name[MAX_NLEN];
@@ -5330,34 +5342,8 @@ if (!force) msg_format("恐怖の暗黒オーラがあなたの%sを包み込んだ！", o_name);
 
 		chg_virtue(V_ENCHANT, -5);
 
-		/* Shatter the weapon */
-		o_ptr->name1 = 0;
-		o_ptr->name2 = EGO_SHATTERED;
-		o_ptr->to_h = 0 - randint1(5) - randint1(5);
-		o_ptr->to_d = 0 - randint1(5) - randint1(5);
-		o_ptr->to_a = 0;
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
-
-		for (i = 0; i < TR_FLAG_SIZE; i++)
-			o_ptr->art_flags[i] = 0;
-
-
-		/* Curse it */
+		blast_object(o_ptr);
 		o_ptr->curse_flags = TRC_CURSED;
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Recalculate mana */
-		p_ptr->update |= (PU_MANA);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
 
 	/* Notice */

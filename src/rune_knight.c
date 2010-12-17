@@ -7,7 +7,49 @@
 /****************************************************************
  * Public Helpers
  ****************************************************************/
-bool rune_add(object_type *o_ptr, int which)	/* Birthing needs access to this ... */
+
+cptr rune_desc(int which)
+{
+	switch (which)
+	{
+	case RUNE_ABSORPTION:
+		return "<<Absorption>>";
+		break;
+	case RUNE_REGENERATION:
+		return "<<Regeneration>>";
+		break;
+	case RUNE_DEFLECTION:
+		return "<<Deflection>>";
+		break;
+	case RUNE_STASIS:
+		return "<<Stasis>>";
+		break;
+	case RUNE_DESTRUCTION:
+		return "<<Destruction>>";
+		break;
+	case RUNE_ELEMENTAL_PROTECTION:
+		return "<<Elemental Protection>>";
+		break;
+	case RUNE_SACRIFICE:
+		return "<<Sacrifice>>";
+		break;
+	case RUNE_REFLECTION:
+		return "<<Reflection>>";
+		break;
+	case RUNE_GOOD_FORTUNE:
+		return "<<Good Fortune>>";
+		break;
+	case RUNE_BODY:
+		return "<<Body>>";
+		break;
+	case RUNE_MIND:
+		return "<<Mind>>";
+		break;
+	}
+	return "<<Unknown>>";
+}
+
+bool rune_add(object_type *o_ptr, int which, bool prompt)	/* Birthing needs access to this ... */
 {
 	char o_name[MAX_NLEN];
 
@@ -20,6 +62,13 @@ bool rune_add(object_type *o_ptr, int which)	/* Birthing needs access to this ..
 	{
 		msg_format("%^s already has an attached rune.", o_name);
 		return FALSE;
+	}
+
+	if (prompt)
+	{
+		if (!get_check(
+				format("Really add %^s to %^s?", 
+					rune_desc(which), o_name))) return FALSE;
 	}
 
 	o_ptr->rune_flags = which;
@@ -104,14 +153,12 @@ static void _rune_of_absorption_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_ABSORPTION));
+			var_set_bool(res, rune_add(o_ptr, RUNE_ABSORPTION, TRUE));
 
 		break;
 	}
 	case SPELL_COST_EXTRA:
-		/* We keep the cost 0 on purpose.  New players might lose/sell their starting absorption
-		   weapon, forcing them to wait a loooong time to find !Restore Mana. */
-		var_set_int(res, MIN(p_ptr->msp, 0));
+		var_set_int(res, p_ptr->msp/3);
 		break;
 	default:
 		_rune_default_spell(cmd, res);
@@ -135,7 +182,7 @@ static void _rune_of_regeneration_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_REGENERATION));
+			var_set_bool(res, rune_add(o_ptr, RUNE_REGENERATION, TRUE));
 		
 		break;
 	}
@@ -161,7 +208,7 @@ static void _rune_of_deflection_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_DEFLECTION));
+			var_set_bool(res, rune_add(o_ptr, RUNE_DEFLECTION, TRUE));
 
 		break;
 	}
@@ -187,7 +234,7 @@ static void _rune_of_stasis_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_STASIS));
+			var_set_bool(res, rune_add(o_ptr, RUNE_STASIS, TRUE));
 		
 		break;
 	}
@@ -213,7 +260,7 @@ static void _rune_of_destruction_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_DESTRUCTION));
+			var_set_bool(res, rune_add(o_ptr, RUNE_DESTRUCTION, TRUE));
 
 		break;
 	}
@@ -238,7 +285,7 @@ static void _rune_of_elemental_protection_spell(int cmd, variant *res)
 		object_type forge;
 
 		object_prep(&forge, lookup_kind(TV_RUNE, SV_RUNE));
-		rune_add(&forge, RUNE_ELEMENTAL_PROTECTION);
+		rune_add(&forge, RUNE_ELEMENTAL_PROTECTION, FALSE);
 		drop_near(&forge, -1, py, px);
 
 		var_set_bool(res, TRUE);
@@ -266,7 +313,7 @@ static void _rune_of_sacrifice_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_SACRIFICE));
+			var_set_bool(res, rune_add(o_ptr, RUNE_SACRIFICE, TRUE));
 
 		break;
 	}
@@ -292,7 +339,7 @@ static void _rune_of_reflection_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_REFLECTION));
+			var_set_bool(res, rune_add(o_ptr, RUNE_REFLECTION, TRUE));
 
 		break;
 	}
@@ -317,7 +364,7 @@ static void _rune_of_good_fortune_spell(int cmd, variant *res)
 		object_type forge;
 
 		object_prep(&forge, lookup_kind(TV_RUNE, SV_RUNE));
-		rune_add(&forge, RUNE_GOOD_FORTUNE);
+		rune_add(&forge, RUNE_GOOD_FORTUNE, FALSE);
 		drop_near(&forge, -1, py, px);
 
 		var_set_bool(res, TRUE);
@@ -359,7 +406,7 @@ static void _rune_of_body_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_BODY));
+			var_set_bool(res, rune_add(o_ptr, RUNE_BODY, TRUE));
 
 		break;
 	}
@@ -399,7 +446,7 @@ static void _rune_of_mind_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 
 		if (o_ptr)
-			var_set_bool(res, rune_add(o_ptr, RUNE_MIND));
+			var_set_bool(res, rune_add(o_ptr, RUNE_MIND, TRUE));
 
 		break;
 	}
