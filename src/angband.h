@@ -47,6 +47,7 @@
 
 #include "mut.h"
 #include "spells.h"
+#include "menu.h"
 
 /***** Some copyright messages follow below *****/
 

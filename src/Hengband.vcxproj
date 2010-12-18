@@ -118,6 +118,7 @@
     <ClCompile Include="mane.c" />
     <ClCompile Include="melee1.c" />
     <ClCompile Include="melee2.c" />
+    <ClCompile Include="menu.c" />
     <ClCompile Include="mind.c" />
     <ClCompile Include="mindcrafter.c" />
     <ClCompile Include="mirror.c" />
@@ -181,6 +182,7 @@
     <ClInclude Include="h-type.h" />
     <ClInclude Include="init.h" />
     <ClInclude Include="kajitips.h" />
+    <ClInclude Include="menu.h" />
     <ClInclude Include="mindtips.h" />
     <ClInclude Include="mut.h" />
     <ClInclude Include="readdib.h" />

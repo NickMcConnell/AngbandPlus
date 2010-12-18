@@ -328,24 +328,17 @@ static int _group_size(int i)
 	return result;
 }
 
-static int _get_spells(spell_info* spells, int max)
+static int _get_spells_imp(spell_info* spells, int max, int start, int stop)
 {
 	int ct = 0, i;
-
-	spell_info* spell = &spells[ct++];
-	spell->level = 10;
-	spell->cost = 10;
-	spell->fail = calculate_fail_rate(10, 30, p_ptr->stat_ind[A_INT]);
-	spell->fn = wonder_spell;
-
-	for (i = 0; i < _MAX_TALENTS; ++i)
+	for (i = start; i <= stop; ++i)
 	{
 		int idx = p_ptr->magic_num1[i] - 1;	/* Magic Numbers are base 1, Table indices base 0 */
+		if (ct >= max) break;
 		if (idx >= 0 && idx < _group_size(i))
 		{
 			talent_t *talent = &_talents[i][idx];
-			
-			spell = &spells[ct++];
+			spell_info *spell = &spells[ct++];
 			spell->level = talent->spell.level;
 			spell->cost = talent->spell.cost;
 			spell->fail = calculate_fail_rate(
@@ -356,7 +349,62 @@ static int _get_spells(spell_info* spells, int max)
 			spell->fn = talent->spell.fn;
 		}
 	}
+	return ct;
+}
 
+/*
+ * We now group wild talents.  Its hard to pick from a large list of seemingly unsorted
+ * choices.  Also, there is wide variety in monitor sizes and resolutions, so attempting
+ * to prompt for more than 15 or so choices at a time is a bad idea anyway.
+ */
+typedef struct {
+	cptr name;
+	cptr help;
+	int min_slot;
+	int max_slot;
+	int color;
+} group_choice;
+
+group_choice _groups[] =  {
+	{ "Wild Beginnings", "Your early wild talents.  Perhaps these are not so awe inspiring, but they will allow you to survive early on.", 0, 7, TERM_GREEN},
+	{ "Wild Musings", "Your middle powers, more useful and destructive.", 8, 16, TERM_L_UMBER},
+	{ "Wild Destructions", "Your most powerful wild talents.  Death!  Destruction!  Devastation!  Monsters tremble in fear before the awesomeness of your power!", 17, _MAX_TALENTS - 1, TERM_RED},
+};
+
+static cptr _group_name(menu_choices choices, int which) {
+	return _groups[which].name;
+}
+
+static cptr _group_help(menu_choices choices, int which) {
+	return _groups[which].help;
+}
+
+static int _group_color(menu_choices choices, int which) {
+	return _groups[which].color;
+}
+
+static int _get_spells(spell_info* spells, int max)
+{
+	int idx = -1;
+	int ct = 0;
+	menu_list_t list = { "Use which group of talents?", "Browse which group of talents?", NULL,
+						_group_name, _group_help, _group_color, 
+						_groups, 3};
+	
+	idx = menu_choose(&list);
+	if (idx < 0) return 0;
+
+	/* Hack: Add innate Wonder attack to Wild Beginnings */
+	if (idx == 0)
+	{
+		spell_info* spell = &spells[ct++];
+		spell->level = 10;
+		spell->cost = 10;
+		spell->fail = calculate_fail_rate(10, 30, p_ptr->stat_ind[A_INT]);
+		spell->fn = wonder_spell;
+	}
+
+	ct += _get_spells_imp(spells + ct, max - ct, _groups[idx].min_slot, _groups[idx].max_slot);
 	return ct;
 }
 

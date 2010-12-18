@@ -294,6 +294,9 @@
     <ClCompile Include="rune_knight.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="menu.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
@@ -369,6 +372,9 @@
       <Filter>Spells</Filter>
     </ClInclude>
     <ClInclude Include="mut.h">
+      <Filter>Spells</Filter>
+    </ClInclude>
+    <ClInclude Include="menu.h">
       <Filter>Spells</Filter>
     </ClInclude>
   </ItemGroup>

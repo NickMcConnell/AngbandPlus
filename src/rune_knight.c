@@ -128,9 +128,9 @@ static void _rune_default_spell(int cmd, variant *res)
 	case SPELL_COST_EXTRA:
 		var_set_int(res, p_ptr->msp);
 		break;
-	case SPELL_COLOR:
+	/*case SPELL_COLOR:
 		var_set_int(res, TERM_L_BLUE);
-		break;
+		break; */
 	default:
 		default_spell(cmd, res);
 		break;
@@ -459,53 +459,104 @@ static void _rune_of_mind_spell(int cmd, variant *res)
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
+ #define _MAX_SPELLS_PER_GROUP	15
+ #define _MAX_SPELL_GROUPS       4
 
-static spell_info _spells[] = 
-{
-    /*lvl cst fail spell*/
-	{  1,   0, 20, _rune_of_absorption_spell },
-	{  1,   1, 20, magic_missile_spell },
-	{  1,   2, 25, phase_door_spell },
-	{  3,   3, 25, detect_doors_stairs_traps_spell },
-	{  5,   0, 30, _rune_of_regeneration_spell },
-	{  5,   5, 35, light_area_spell },
-	{  7,  10, 75, resist_poison_spell },
-	{  9,   7, 75, magic_mapping_spell },
-	{ 10,   0, 30, _rune_of_deflection_spell },
-	{ 11,   9, 35, summon_manes_spell },
-	{ 12,  12, 40, orb_of_entropy_spell },
-	{ 15,   9, 35, teleport_spell },
-	{ 15,   0, 30, _rune_of_stasis_spell },
-	{ 16,  16, 45, remove_curse_I_spell },
-	{ 18,  12, 60, teleport_other_spell },
-	{ 20,  20, 85, resistance_spell },
-	{ 20,   0, 40, _rune_of_destruction_spell },
-	{ 21,  20, 80, explosive_rune_spell },
-	{ 22,  16, 60, stone_to_mud_spell },
-	{ 25,  25, 85, disintegrate_spell },
-	{ 25,   0, 40, _rune_of_elemental_protection_spell },
-	{ 28,  20, 70, satisfy_hunger_spell },
-	{ 29,  23, 60, protection_from_evil_spell },
-	{ 30,  25, 75, battle_frenzy_spell },
-	{ 30,   0, 50, _rune_of_sacrifice_spell },
-	{ 33,  30, 75, identify_fully_spell },
-	{ 35,  33, 45, dimension_door_spell },
-	{ 35,   0, 60, _rune_of_reflection_spell },
-	{ 36,  70, 75, glyph_of_warding_spell },
-	{ 38,  65, 85, mana_branding_spell },
-	{ 40,  40, 80, eye_for_an_eye_spell },
-	{ 40,   0, 60, _rune_of_good_fortune_spell },
-	{ 42, 100, 80, clairvoyance_spell },
-	{ 43, 100, 45, living_trump_spell },
-	{ 45,  58, 85, mana_storm_II_spell },
-	{ 45,   0, 70, _rune_of_body_spell },
-	{ 47, 100, 90, wraithform_spell },
-	{ 49,  80, 85, polymorph_demonlord_spell },
-	{ 50,   0, 70, _rune_of_mind_spell },
-	{ -1,   0,  0, NULL },
+typedef struct {
+	cptr name;
+	cptr help;
+	int color;
+	spell_info spells[_MAX_SPELLS_PER_GROUP];	/* There is always a sentinel at the end */
+} _spell_group;
+
+static _spell_group _spell_groups[_MAX_SPELL_GROUPS] = {
+	{ "Runes of Creation",
+	  "Augment your equipment by attaching runes of various powers.  Also, you may create "
+	  "certain stand alone runes that grant powers by virtue of being present in your "
+	  "inventory.  Be sure to always keep Absorption handy, for it is your only means "
+	  "of regaining spell points!",
+	  TERM_L_BLUE,
+	  { {  1,   0, 20, _rune_of_absorption_spell },
+		{  5,   0, 30, _rune_of_regeneration_spell },
+		{ 10,   0, 30, _rune_of_deflection_spell },
+		{ 15,   0, 30, _rune_of_stasis_spell },
+		{ 20,   0, 40, _rune_of_destruction_spell },
+		{ 25,   0, 40, _rune_of_elemental_protection_spell },
+		{ 30,   0, 50, _rune_of_sacrifice_spell },
+		{ 35,   0, 60, _rune_of_reflection_spell },
+		{ 40,   0, 60, _rune_of_good_fortune_spell },
+		{ 45,   0, 70, _rune_of_body_spell },
+		{ 50,   0, 70, _rune_of_mind_spell },
+		{ -1,   0,  0, NULL },
+	  }
+	},
+	{ "Runes of the Novice",
+	  "Minor spells and powers, available to the weakest of Rune-Knights.  "
+	  "While hardly awe-inspiring, these powers grant minor offense and weak "
+	  "utility that are designed to assist the novice in their quest for deeper "
+	  "understanding.",
+	  TERM_L_GREEN,
+	  { {  1,   1, 20, magic_missile_spell },
+	    {  1,   2, 25, phase_door_spell },
+		{  3,   3, 25, detect_doors_stairs_traps_spell },
+		{  5,   5, 35, light_area_spell },
+		{  7,  10, 75, resist_poison_spell },
+		{  9,   7, 75, magic_mapping_spell },
+		{ 11,   9, 35, summon_manes_spell },
+		{ 12,  12, 40, orb_of_entropy_spell },
+		{ 15,   9, 35, teleport_spell },
+		{ -1,   0,  0, NULL },
+	  }
+	},
+	{ "Runes of the Initiate",
+	  "Stronger rune powers, available to the experienced Rune-Knight.  "
+	  "These powers offer great utility to assist you on your journey "
+	  "of knowledge.",
+	  TERM_UMBER,
+	  { { 16,  16, 45, remove_curse_I_spell },
+	    { 18,  12, 60, teleport_other_spell },
+		{ 20,  20, 85, resistance_spell },
+		{ 21,  20, 80, explosive_rune_spell },
+        { 22,  16, 60, stone_to_mud_spell },
+        { 25,  25, 85, disintegrate_spell },
+        { 28,  20, 70, satisfy_hunger_spell },
+        { 29,  23, 60, protection_from_evil_spell },
+        { 30,  25, 75, battle_frenzy_spell },
+	    { -1,   0,  0, NULL },
+	  }
+	},
+	{ "Runes of the Master",
+	  "Mighty powers indeed.  Use them wisely, for the forces of evil have "
+	  "grown strong and don't take well to rivals in their quest for domination.",
+	  TERM_RED,
+	  { { 33,  30, 75, identify_fully_spell },
+	    { 35,  33, 45, dimension_door_spell },
+        { 36,  70, 75, glyph_of_warding_spell },
+		{ 38,  65, 85, mana_branding_spell },
+		{ 40,  40, 80, eye_for_an_eye_spell },
+		{ 42, 100, 80, clairvoyance_spell },
+		{ 43, 100, 45, living_trump_spell },
+		{ 45,  58, 85, mana_storm_II_spell },
+		{ 47, 100, 90, wraithform_spell },
+		{ 49,  80, 85, polymorph_demonlord_spell },
+	    { -1,   0,  0, NULL },
+	  }
+	},
 };
 
-static int _get_spells(spell_info* spells, int max)
+static cptr _spell_group_name(menu_choices choices, int which) {
+	return _spell_groups[which].name;
+}
+
+static cptr _spell_group_help(menu_choices choices, int which) {
+	return _spell_groups[which].help;
+}
+
+static int _spell_group_color(menu_choices choices, int which) {
+	return _spell_groups[which].color;
+}
+
+static int _get_spells_imp(spell_info* spells, int max, _spell_group *spell_group)
 {
 	int i;
 	int ct = 0;
@@ -513,7 +564,7 @@ static int _get_spells(spell_info* spells, int max)
 	
 	for (i = 0; ; i++)
 	{
-		spell_info *base = &_spells[i];
+		spell_info *base = &spell_group->spells[i];
 		if (base->level < 0) break;
 		if (ct >= max) break;
 		if (base->level <= p_ptr->lev)
@@ -528,6 +579,18 @@ static int _get_spells(spell_info* spells, int max)
 		}
 	}
 	return ct;
+}
+
+static int _get_spells(spell_info* spells, int max)
+{
+	int idx = -1;
+	menu_list_t list = { "Use which group of spells?", "Browse which group of spells?", NULL,
+						_spell_group_name, _spell_group_help, _spell_group_color, 
+						_spell_groups, _MAX_SPELL_GROUPS};
+
+	idx = menu_choose(&list);
+	if (idx < 0) return 0;
+	return _get_spells_imp(spells, max, &_spell_groups[idx]);
 }
 
 static caster_info * _caster_info(void)

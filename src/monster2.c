@@ -2793,6 +2793,14 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 		}
+
+		/* Projectable monsters better be visible! Note, I've made
+		   projectable() symmetric to stop player abuse, but now we
+		   need to make sure that targetable monsters are always visible. */
+		if (!flag && !p_ptr->blind)
+		{
+			flag = projectable(py, px, fy, fx);
+		}
 	}
 
 
