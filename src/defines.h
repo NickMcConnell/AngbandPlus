@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 31
+#define FAKE_VER_PATCH 32
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 31
+#define H_VER_PATCH 32
 #define H_VER_EXTRA 0
 
 
@@ -4354,7 +4354,8 @@
 {\
 	u32b tmp;\
 	tmp = time(NULL);\
-	playtime += (tmp - start_time);\
+	if (start_time)\
+		playtime += (tmp - start_time);\
 	start_time = tmp;\
 }
 

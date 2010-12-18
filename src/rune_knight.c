@@ -584,13 +584,17 @@ static int _get_spells_imp(spell_info* spells, int max, _spell_group *spell_grou
 static int _get_spells(spell_info* spells, int max)
 {
 	int idx = -1;
+	int ct = 0;
 	menu_list_t list = { "Use which group of spells?", "Browse which group of spells?", NULL,
 						_spell_group_name, _spell_group_help, _spell_group_color, 
 						_spell_groups, _MAX_SPELL_GROUPS};
 
 	idx = menu_choose(&list);
 	if (idx < 0) return 0;
-	return _get_spells_imp(spells, max, &_spell_groups[idx]);
+	ct = _get_spells_imp(spells, max, &_spell_groups[idx]);
+	if (ct == 0)
+		msg_print("You don't know any of those spells yet!");
+	return ct;
 }
 
 static caster_info * _caster_info(void)

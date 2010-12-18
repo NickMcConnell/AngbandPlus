@@ -140,12 +140,16 @@ static void wiz_create_named_art(int a_idx)
  */
 static void do_cmd_wiz_hack_ben(void)
 {
-	int num = 8, k;
-	for (k = 0; k < num; k++)
+	if (p_ptr->pclass == CLASS_BLUE_MAGE)
 	{
-		summon_named_creature(0, py, px, MON_SPELLWARP, 0);
+		int i;
+
+		for (i = 0; i < 108; ++i)
+			p_ptr->magic_num2[i] = 1;
+
+		msg_print("There ... now wasn't that easier?");
 	}
-	p_ptr->energy_need += 100;
+
 	/*wall_stone();*/
 }
 

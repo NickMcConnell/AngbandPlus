@@ -405,6 +405,8 @@ static int _get_spells(spell_info* spells, int max)
 	}
 
 	ct += _get_spells_imp(spells + ct, max - ct, _groups[idx].min_slot, _groups[idx].max_slot);
+	if (ct == 0)
+		msg_print("You don't know any of those talents yet!");
 	return ct;
 }
 

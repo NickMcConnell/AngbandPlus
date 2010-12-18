@@ -64,8 +64,8 @@ static int _choose(menu_list_t *menu_list)
 	int	 choice = -1;
 	bool describe = FALSE;
 	bool allow_browse = FALSE;
-	char choose_prompt[100];
-	char browse_prompt[100];
+	char choose_prompt[255];
+	char browse_prompt[255];
 	
 	if (menu_list->browse_prompt && menu_list->help_fn)
 	{

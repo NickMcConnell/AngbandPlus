@@ -2070,7 +2070,16 @@ void imp_fire_spell(int cmd, variant *res)
 			var_set_string(res, T("Fire Bolt", ""));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("", ""));
+		if (p_ptr->lev >= ball_lev)
+			var_set_string(res, T("", ""));
+		else
+			var_set_string(res, T("", ""));
+		break;
+	case SPELL_INFO:
+		if (p_ptr->lev >= ball_lev)
+			var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 2)));
+		else
+			var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev)));
 		break;
 	case SPELL_CAST:
 	{
