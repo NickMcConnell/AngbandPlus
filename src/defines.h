@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 32
+#define FAKE_VER_PATCH 33
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 32
+#define H_VER_PATCH 33
 #define H_VER_EXTRA 0
 
 
@@ -678,6 +678,7 @@
 #define SPELL_CALC_BONUS	12		/* Mutations, Singing, etc.  Called from calc_bonuses() */
 #define SPELL_PROCESS		13      /* Randomly activating mutations */
 #define SPELL_COLOR			14      /* Terminal Color for display */
+#define SPELL_FAIL_MIN		15
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"

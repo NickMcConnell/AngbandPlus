@@ -40,6 +40,7 @@ void default_spell(int cmd, variant *res) /* Base class */
 		break;
 
 	case SPELL_COST_EXTRA:
+	case SPELL_FAIL_MIN:
 		var_set_int(res, 0);
 		break;
 
@@ -53,6 +54,10 @@ void default_spell(int cmd, variant *res) /* Base class */
 
 	case SPELL_COLOR:
 		var_set_int(res, TERM_WHITE);
+		break;
+
+	default:
+		var_clear(res);
 		break;
 	}
 }
@@ -85,6 +90,17 @@ int get_spell_cost_extra(ang_spell spell)
 	variant res;
 	var_init(&res);
 	spell(SPELL_COST_EXTRA, &res);
+	n = var_get_int(&res);
+	var_clear(&res);
+	return n;
+}
+
+int get_spell_fail_min(ang_spell spell)
+{
+	int n;
+	variant res;
+	var_init(&res);
+	spell(SPELL_FAIL_MIN, &res);
 	n = var_get_int(&res);
 	var_clear(&res);
 	return n;
@@ -357,6 +373,7 @@ static void _add_extra_costs(spell_info* spells, int max)
 	{
 		spell_info* current = &spells[i];
 		current->cost += get_spell_cost_extra(current->fn);
+		current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
 	}
 }
 

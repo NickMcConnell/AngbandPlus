@@ -565,12 +565,13 @@ void _character_dump(FILE* file)
 {
 	int i;
 	spell_info spells[MAX_SPELLS];
-	int ct = _get_spells(spells, MAX_SPELLS);
+	int ct = _get_spells_imp(spells, MAX_SPELLS, 0, _MAX_TALENTS - 1);
 
 	for (i = 0; i < ct; i++)
 	{
 		spell_info* current = &spells[i];
 		current->cost += get_spell_cost_extra(current->fn);
+		current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
 	}
 
 	if (ct > 0)

@@ -2727,8 +2727,8 @@ void update_mon(int m_idx, bool full)
 		}
 
 		/* Normal line of sight, and not blind */
-		if (player_has_los_bold(fy, fx) && !p_ptr->blind)
-		{
+		if (!p_ptr->blind && (player_has_los_bold(fy, fx)/* || projectable(py, px, fy, fx)*/))
+		{ 
 			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
 
@@ -2792,14 +2792,6 @@ void update_mon(int m_idx, bool full)
 					if (do_cold_blood) r_ptr->r_flags2 |= (RF2_COLD_BLOOD);
 				}
 			}
-		}
-
-		/* Projectable monsters better be visible! Note, I've made
-		   projectable() symmetric to stop player abuse, but now we
-		   need to make sure that targetable monsters are always visible. */
-		if (!flag && !p_ptr->blind)
-		{
-			flag = projectable(py, px, fy, fx);
 		}
 	}
 

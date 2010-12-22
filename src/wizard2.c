@@ -140,7 +140,7 @@ static void wiz_create_named_art(int a_idx)
  */
 static void do_cmd_wiz_hack_ben(void)
 {
-	if (p_ptr->pclass == CLASS_BLUE_MAGE)
+/*	if (p_ptr->pclass == CLASS_BLUE_MAGE)
 	{
 		int i;
 
@@ -148,7 +148,28 @@ static void do_cmd_wiz_hack_ben(void)
 			p_ptr->magic_num2[i] = 1;
 
 		msg_print("There ... now wasn't that easier?");
+	} */
+
+	int i, j, total = 0, ct = 0;
+	int fd = fd_open("rng2.txt", O_TEXT | O_CREAT | O_WRONLY);
+
+	for (i = 0; i < 1000; ++i)
+	{
+		for (j = 0; j < 100; ++j)
+		{
+			++total;
+			if (randint0(100) < 21)
+				fd_write(fd, "F", 1);
+			else
+			{
+				fd_write(fd, "S", 1);
+				++ct;
+			}
+		}
+		fd_write(fd, "\r\n", 2);
 	}
+	fd_close(fd);
+	msg_format("%d out of %d", ct, total);
 
 	/*wall_stone();*/
 }

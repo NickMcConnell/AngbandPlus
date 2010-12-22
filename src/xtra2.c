@@ -1489,7 +1489,7 @@ msg_print("地面に落とされた。");
 
 	/* Determine how much we can drop */
 	if ((r_ptr->flags1 & RF1_DROP_60) && (randint0(100) < 60)) number++;
-	if ((r_ptr->flags1 & RF1_DROP_90) && (randint0(100) < 90)) number++;
+	if ((r_ptr->flags1 & RF1_DROP_90) && ((r_ptr->flags1 & RF1_UNIQUE) || randint0(100) < 90)) number++;
 	if  (r_ptr->flags1 & RF1_DROP_1D2) number += damroll(1, 2);
 	if  (r_ptr->flags1 & RF1_DROP_2D2) number += damroll(2, 2);
 	if  (r_ptr->flags1 & RF1_DROP_3D2) number += damroll(3, 2);

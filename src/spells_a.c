@@ -1553,6 +1553,9 @@ void eat_magic_spell(int cmd, variant *res)
 		if (eat_magic(p_ptr->lev * 2))
 			var_set_bool(res, TRUE);
 		break;
+	case SPELL_FAIL_MIN:
+		var_set_int(res, 11);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;

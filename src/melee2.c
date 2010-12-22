@@ -2752,8 +2752,11 @@ msg_format("%^s%s", m_name, monmessage);
 	int dir, x, y;
 	cave_type *c_ptr;
 	monster_type *m_ptr2;
-	const int max_wake = 3;
+	int max_wake = 1;
 	int count = max_wake;
+
+		while (one_in_(5))
+			++max_wake;
 
 		if (pack_ptr)
 		{

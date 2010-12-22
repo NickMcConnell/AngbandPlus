@@ -2010,6 +2010,7 @@ bool autopick_autoregister(object_type *o_ptr)
 		/* Use default name */
 		path_build(pref_file, sizeof(pref_file), ANGBAND_DIR_USER, pickpref_filename(PT_DEFAULT));
 		pref_fff = my_fopen(pref_file, "r");
+		if (!pref_fff) return FALSE;
 	}
 
 	/* Check the header */
