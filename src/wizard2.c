@@ -158,7 +158,7 @@ static void do_cmd_wiz_hack_ben(void)
 		for (j = 0; j < 100; ++j)
 		{
 			++total;
-			if (randint0(100) < 21)
+			if (randint0(100) < 11)
 				fd_write(fd, "F", 1);
 			else
 			{
@@ -166,7 +166,7 @@ static void do_cmd_wiz_hack_ben(void)
 				++ct;
 			}
 		}
-		fd_write(fd, "\r\n", 2);
+		/*fd_write(fd, "\r\n", 2);*/
 	}
 	fd_close(fd);
 	msg_format("%d out of %d", ct, total);

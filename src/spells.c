@@ -424,6 +424,11 @@ void do_cmd_spell(void)
 		msg_print("You are too confused!");
 		return;
 	}
+
+	if (p_ptr->special_defense & KATA_MASK)
+	{
+		set_action(ACTION_NONE);
+	}
 	
 	ct = _get_spell_table(spells, MAX_SPELLS, &caster);
 	if (ct == 0)

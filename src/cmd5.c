@@ -12,6 +12,27 @@
 
 #include "angband.h"
 
+static bool try_to_cast_spell(int chance)
+{
+	static FILE *file = NULL;
+	int roll;
+	if (!file)
+	{
+		char buf[1024];
+		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "spell_log.txt");
+		file = fopen(buf, "w");
+	}
+	roll = randint0(100);
+	fprintf(file, "%d,%d\r\n", chance, roll);
+	if (roll < chance)
+	{
+		fflush(file);
+		return FALSE;
+	}
+	return TRUE;
+}
+
+
 cptr spell_category_name(int tval)
 {
 	switch (tval)
@@ -1308,6 +1329,9 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 
 	}
 
+	/* Spell failure chance */
+	chance = spell_chance(spell, use_realm);
+
 	/* Take spell cost eagerly unless we are exerting ourselves.
 	   This is to prevent death from using a force weapon with a spell
 	   that also attacks, like Cyclone.
@@ -1318,9 +1342,6 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 		p_ptr->csp -= need_mana;
 		take_mana = need_mana;
 	}
-
-	/* Spell failure chance */
-	chance = spell_chance(spell, use_realm);
 
 	/* Failed spell */
 	if (randint0(100) < chance)
