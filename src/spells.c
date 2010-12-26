@@ -333,30 +333,72 @@ void browse_spells(spell_info* spells, int ct, cptr desc)
 	screen_load();
 }
 
+int calculate_cost(int cost)
+{
+	int result = cost;
+	caster_info *caster_ptr = get_caster_info();
+
+	if (caster_ptr && (caster_ptr->options & CASTER_NO_SPELL_COST))
+		return 0;
+
+	if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+	{
+		if (p_ptr->dec_mana)
+			result = result * 3 / 4;
+	}
+
+	return result;
+}
+
 int calculate_fail_rate(int level, int base_fail, int stat_idx)
 {
 	int fail = base_fail;
+	int min = 0;
+	caster_info *caster_ptr = get_caster_info();
 
 	if (p_ptr->lev < level)
 		return 100;
 
-	if (fail)	/* Hack: 0% base failure is always 0% */
+	if (caster_ptr && (caster_ptr->options & CASTER_NO_SPELL_FAIL))
+		return 0;
+
+	/* Adjust Fail Rate */
+	fail -= 3 * (p_ptr->lev - level);
+	fail += p_ptr->to_m_chance;
+	fail -= 3 * (adj_mag_stat[stat_idx] - 1);
+	if (p_ptr->heavy_spell) fail += 20;
+
+	if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
 	{
-		int min = 0;
-
-		fail -= 3 * (p_ptr->lev - level);
-		fail += p_ptr->to_m_chance;
-		fail -= 3 * (adj_mag_stat[stat_idx] - 1);
-
-		min = adj_mag_fail[stat_idx];
-		if (fail < min) fail = min;
+		if (p_ptr->dec_mana && p_ptr->easy_spell) fail -= 4;
+		else if (p_ptr->easy_spell) fail -= 3;
+		else if (p_ptr->dec_mana) fail -= 2;
 	}
+
+	/* Apply Min Fail Rate */
+	min = adj_mag_fail[stat_idx];
+
+	if (caster_ptr && min < caster_ptr->min_fail)
+		min = caster_ptr->min_fail;
+
+	if (fail < min) fail = min;
 
 	/* Stunning affects even 0% fail spells */
 	if (p_ptr->stun > 50) fail += 25;
 	else if (p_ptr->stun) fail += 15;
 
+	/* Max Fail Rate */
 	if (fail > 95) fail = 95;
+
+	/* Some effects violate the Min/Max Fail Rates */
+	if (p_ptr->heavy_spell) fail += 5; /* Fail could go to 100% */
+
+	if (caster_ptr && (caster_ptr->options & CASTER_ALLOW_DEC_MANA))
+	{
+		if (p_ptr->dec_mana) fail--; /* 5% casters could get 4% fail rates */
+	}
+
+	if (fail < 0) fail = 0;
 	return fail;
 }
  
@@ -374,6 +416,7 @@ static void _add_extra_costs(spell_info* spells, int max)
 		spell_info* current = &spells[i];
 		current->cost += get_spell_cost_extra(current->fn);
 		current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
+		current->cost = calculate_cost(current->cost);
 	}
 }
 

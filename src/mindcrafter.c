@@ -55,13 +55,13 @@ void _precognition_spell(int cmd, variant *res)
 		/* Base is 1.  Lets give reasonable costs based on powers.  Note
 		   some powers become obsolete, like Telepathy, Magic Mapping and Detect Items */
 		if (p_ptr->lev >= 45)
-			n += 49;
+			n += 39;
 		else if (p_ptr->lev >= 30)
-			n += 29;
-		else if (p_ptr->lev >= 25)
 			n += 19;
-		else if (p_ptr->lev >= 20)
+		else if (p_ptr->lev >= 25)
 			n += 14;
+		else if (p_ptr->lev >= 20)
+			n += 9;
 		else if (p_ptr->lev >= 15)
 			n += 4;
 		else if (p_ptr->lev >= 5)
@@ -626,6 +626,7 @@ static caster_info * _caster_info(void)
 		me.magic_desc = T("mindcraft", "д╤г╫но");
 		me.use_sp = TRUE;
 		me.on_fail = _on_fail;
+		me.options = CASTER_ALLOW_DEC_MANA;
 		init = TRUE;
 	}
 	return &me;

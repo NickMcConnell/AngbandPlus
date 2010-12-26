@@ -43,6 +43,15 @@ class_t *get_class_t(void)
 	return get_class_t_aux(p_ptr->pclass, p_ptr->psubclass);
 }
 
+caster_info *get_caster_info(void)
+{
+	caster_info *result = NULL;
+	class_t *class_ptr = get_class_t();
+	if (class_ptr && class_ptr->caster_info)
+		result = (class_ptr->caster_info)();
+	return result;
+}
+
 /* HACK: This should be handled by the class_t entry point ...
    This is just here while I am refactoring code!!! */
 int get_class_powers(spell_info* spells, int max)

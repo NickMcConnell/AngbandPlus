@@ -1824,6 +1824,7 @@ extern int get_racial_powers(spell_info* spells, int max);
 /* classes.c */
 extern class_t *get_class_t(void);
 extern class_t *get_class_t_aux(int pclass, int psubclass);
+extern caster_info *get_caster_info(void);
 extern int get_class_powers(spell_info* spells, int max);
 
 /* archaeologist.c */

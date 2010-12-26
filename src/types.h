@@ -1844,14 +1844,23 @@ typedef struct {
 } spell_info;
 
 typedef void (*ang_spell_action)(const spell_info *spell);
+typedef int (*calc_fail_fn)(int fail);
 
 /* TODO: This needs some work ... I just hacked this together for now.
    I'm shooting for a single unified interface for choosing, browsing
    and casting spells */
+
+#define CASTER_ALLOW_DEC_MANA		0x01
+#define CASTER_GLOVE_ENCUMBRANCE	0x02
+#define CASTER_NO_SPELL_COST		0x04
+#define CASTER_NO_SPELL_FAIL		0x08
+
 typedef struct {
 	cptr magic_desc;	/* spell, mindcraft, brutal power, ninjitsu, etc */
 	bool use_sp;		/* 3 options: Mana, Hitpoints, or Freebies */
 	bool use_hp;
+	int  min_fail;
+	u32b options;
 	ang_spell_action on_fail;	/* Hallucinate, Temporal Inversion, etc. */
 	ang_spell_action on_cast;	/* Blood Knights take cuts, etc. */
 } caster_info;
