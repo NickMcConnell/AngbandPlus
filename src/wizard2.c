@@ -125,9 +125,10 @@ static void wiz_create_named_art(int a_idx)
 		artifact_type *a_ptr = &a_info[a_idx];
 		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
 		object_type forge;
+		int i;
 
 		object_prep(&forge, k_idx);
-		create_artifact(&forge, CREATE_ART_GOOD);
+		create_artifact(&forge, CREATE_ART_GOOD); /*CREATE_ART_GOOD); CREATE_ART_CURSED);*/
 		drop_here(&forge, py, px);
 	}
 	else if (create_named_art(a_idx, py, px))
@@ -150,28 +151,7 @@ static void do_cmd_wiz_hack_ben(void)
 		msg_print("There ... now wasn't that easier?");
 	} */
 
-	int i, j, total = 0, ct = 0;
-	int fd = fd_open("rng2.txt", O_TEXT | O_CREAT | O_WRONLY);
-
-	for (i = 0; i < 1000; ++i)
-	{
-		for (j = 0; j < 100; ++j)
-		{
-			++total;
-			if (randint0(100) < 11)
-				fd_write(fd, "F", 1);
-			else
-			{
-				fd_write(fd, "S", 1);
-				++ct;
-			}
-		}
-		/*fd_write(fd, "\r\n", 2);*/
-	}
-	fd_close(fd);
-	msg_format("%d out of %d", ct, total);
-
-	/*wall_stone();*/
+	wall_stone();
 }
 
 

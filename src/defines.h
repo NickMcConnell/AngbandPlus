@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 35
+#define FAKE_VER_PATCH 36
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 35
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 36
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -374,7 +374,7 @@
  * OPTION: Maximum number of "quarks" (see "io.c")
  * Default: assume at most 512 different inscriptions are used
  */
-#define QUARK_MAX       768
+#define QUARK_MAX       1024
 /* Was 512... 256 quarks added for random artifacts */
 
 /*

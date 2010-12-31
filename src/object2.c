@@ -3341,7 +3341,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 			}
-			if ((one_in_(400) && (power > 0) && !object_is_cursed(o_ptr) && (level > 79))
+			if ((one_in_(20) && (power > 0) && !object_is_cursed(o_ptr) && (level > 79))
 			    || (power > 2)) /* power > 2 is debug only */
 			{
 				o_ptr->pval = MIN(o_ptr->pval, 4);
@@ -3677,7 +3677,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 			}
-			if ((one_in_(150) && (power > 0) && !object_is_cursed(o_ptr) && (level > 79))
+			if ((one_in_(20) && (power > 0) && !object_is_cursed(o_ptr) && (level > 79))
 			    || (power > 2)) /* power > 2 is debug only */
 			{
 				o_ptr->pval = MIN(o_ptr->pval, 4);
@@ -3901,7 +3901,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 			if ((o_ptr->sval != SV_LITE_TORCH) && 
 			    (o_ptr->sval != SV_LITE_LANTERN) && 
-			    (one_in_(20) || power > 2))
+			    (one_in_(10) || power > 2))
 			{
 				create_artifact(o_ptr, CREATE_ART_NORMAL);
 			}

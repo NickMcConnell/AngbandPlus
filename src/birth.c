@@ -6862,7 +6862,7 @@ void player_birth(void)
 	}
 	else
 	{
-		if (p_ptr->prace == RACE_BEASTMAN)
+		if (p_ptr->prace == RACE_BEASTMAN && !p_ptr->birth_mutation)
 			p_ptr->birth_mutation = mut_gain_random_aux(mut_good_pred);
 	}
 

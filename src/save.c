@@ -542,6 +542,7 @@ static void save_quick_start(void)
 	for (i = 0; i < PY_MAX_LEVEL; i++) wr_s16b(previous_char.player_hp[i]);
 
 	wr_s16b(previous_char.chaos_patron);
+	wr_s32b(previous_char.mutation);
 
 	for (i = 0; i < 8; i++) wr_s16b(previous_char.vir_types[i]);
 

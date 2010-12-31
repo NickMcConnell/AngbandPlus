@@ -82,10 +82,8 @@ static int check_hit(int power, int level, int stun, int m_idx)
 	}
 
 	/* Power and Level compete against Armor */
-	/* Hack: Calc was AC * 3/4.  I'm renormalizing (linearly) character
-	   AC so that AC200 is now only as effective as AC150 used to be.
-	   So we have another factor of 150/200=3/4 for a total of 9/16. */
-	if ((i > 0) && (randint1(i) > ((ac * 9) / 16))) return (TRUE);
+	/* Hack: Calc was AC * 3/4 ... */
+	if ((i > 0) && (randint1(i) > ((ac * 21) / 32))) return (TRUE);
 
 	/* Assume miss */
 	return (FALSE);

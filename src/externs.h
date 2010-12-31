@@ -1561,12 +1561,14 @@ enum {
 	CREATE_ART_NORMAL = 0x00,
 	CREATE_ART_SCROLL = 0x01,
 	CREATE_ART_GOOD   = 0x02,
+	CREATE_ART_CURSED = 0x04,
 };
 extern bool create_artifact(object_type *o_ptr, u32b mode);
 extern bool activate_random_artifact(object_type * o_ptr);
 extern void get_bloody_moon_flags(object_type *o_ptr);
 extern void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr);
 extern bool create_named_art(int a_idx, int y, int x);
+extern void get_random_name(char *return_name, object_type *o_ptr, int power);
 
 /* scores.c */
 extern void display_scores_aux(int from, int to, int note, high_score *score);

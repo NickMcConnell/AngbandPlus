@@ -785,7 +785,7 @@ void good_luck_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("", ""));
+		var_set_string(res, T("White Aura", ""));
 		break;
 	case SPELL_GAIN_MUT:
 		msg_print(T("There is a benevolent white aura surrounding you...", "慈悲深い白いオーラがあなたをとりまいた..."));

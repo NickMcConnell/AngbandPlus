@@ -3544,7 +3544,7 @@ static bool eval_ac(int iAC)
 		put_str(format("%3d", lvl), row + 0, col);
 
 		/* 回避率を計算 */
-		dodge = 5 + (MIN(100, 100 * (iAC * 9 / 16) / quality) * 9 + 5) / 10;
+		dodge = 5 + (MIN(100, 100 * (iAC * 21 / 32) / quality) * 9 + 5) / 10;
 		put_str(format("%3d%%", dodge), row + 1, col);
 
 		/* 100点の攻撃に対してのダメージ期待値を計算 */

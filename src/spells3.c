@@ -4222,7 +4222,7 @@ s16b spell_chance(int spell, int use_realm)
 	int             chance, minfail;
 	magic_type      *s_ptr;
 	int             need_mana;
-	int penalty = (mp_ptr->spell_stat == A_WIS) ? 10 : 4;
+	int penalty = (mp_ptr->spell_stat == A_WIS) ? 5 : 2;
 
 
 	/* Paranoia -- must be literate */

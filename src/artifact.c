@@ -1535,94 +1535,103 @@ static void give_activation_power(object_type *o_ptr)
 	o_ptr->timeout = 0;
 }
 
-
-static void get_random_name(char *return_name, bool armour, int power)
-{
-	int prob = randint1(100);
-
-	if (prob <= SINDARIN_NAME)
+static void get_random_name_aux(char *return_name, object_type *o_ptr, int power)
+{	
+	if (o_ptr->tval == TV_LITE)
 	{
-		get_table_sindarin(return_name);
+		cptr filename;
+		switch (power)
+		{
+		case 0:
+			filename = "lite_cursed.txt";
+			break;
+		case 1:
+			filename = "lite_low.txt";
+			break;
+		case 2:
+			filename = "lite_med.txt";
+			break;
+		default:
+			filename = "lite_high.txt";
+		}
+		get_rnd_line(filename, artifact_bias, return_name);
 	}
-	else if (prob <= TABLE_NAME)
+	else if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
 	{
-		get_table_name(return_name);
+		/* TODO */
+		if (one_in_(2))
+			get_table_sindarin(return_name);
+		else
+			get_table_name(return_name);
 	}
 	else
 	{
-		cptr filename;
+		int prob = randint1(100);
 
-		switch (armour)
+		if (prob <= SINDARIN_NAME)
 		{
-			case 1:
-				switch (power)
-				{
-					case 0:
-#ifdef JP
-						filename = "a_cursed_j.txt";
-#else
-						filename = "a_cursed.txt";
-#endif
-						break;
-					case 1:
-#ifdef JP
-						filename = "a_low_j.txt";
-#else
-						filename = "a_low.txt";
-#endif
-						break;
-					case 2:
-#ifdef JP
-						filename = "a_med_j.txt";
-#else
-						filename = "a_med.txt";
-#endif
-						break;
-					default:
-#ifdef JP
-						filename = "a_high_j.txt";
-#else
-						filename = "a_high.txt";
-#endif
-				}
-				break;
-			default:
-				switch (power)
-				{
-					case 0:
-#ifdef JP
-						filename = "w_cursed_j.txt";
-#else
-						filename = "w_cursed.txt";
-#endif
-						break;
-					case 1:
-#ifdef JP
-						filename = "w_low_j.txt";
-#else
-						filename = "w_low.txt";
-#endif
-						break;
-					case 2:
-#ifdef JP
-						filename = "w_med_j.txt";
-#else
-						filename = "w_med.txt";
-#endif
-						break;
-					default:
-#ifdef JP
-						filename = "w_high_j.txt";
-#else
-						filename = "w_high.txt";
-#endif
-				}
+			get_table_sindarin(return_name);
 		}
+		else if (prob <= TABLE_NAME)
+		{
+			get_table_name(return_name);
+		}
+		else
+		{
+			cptr filename;
 
-		(void)get_rnd_line(filename, artifact_bias, return_name);
-#ifdef JP
-		 if (return_name[0] == 0) get_table_name(return_name);
-#endif
+			if (object_is_armour(o_ptr))
+			{
+				switch (power)
+				{
+				case 0:
+					filename = T("a_cursed.txt", "a_cursed_j.txt");
+					break;
+				case 1:
+					filename = T("a_low.txt", "a_low_j.txt");
+					break;
+				case 2:
+					filename = T("a_med.txt", "a_med_j.txt");
+					break;
+				default:
+					filename = T("a_high.txt", "a_high_j.txt");
+				}
+			}
+			else
+			{
+				switch (power)
+				{
+				case 0:
+					filename = T("w_cursed.txt", "w_cursed_j.txt");
+					break;
+				case 1:
+					filename = T("w_low.txt", "w_low_j.txt");
+					break;
+				case 2:
+					filename = T("w_med.txt", "w_med_j.txt");
+					break;
+				default:
+					filename = T("w_high.txt", "w_high_j.txt");
+				}
+			}
+
+			get_rnd_line(filename, artifact_bias, return_name);
+	#ifdef JP
+			 if (return_name[0] == 0) get_table_name(return_name);
+	#endif
+		}
+	}
+}
+
+void get_random_name(char *return_name, object_type *o_ptr, int power)
+{
+	int attempt;
+	return_name[0] == '\0';
+	for (attempt = 0;; ++attempt)
+	{
+		get_random_name_aux(return_name, o_ptr, power);
+		if (return_name[0] != '\0') break;
+		if (attempt > 100) break;
 	}
 }
 
@@ -1739,6 +1748,10 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 
 	if (!(mode & CREATE_ART_GOOD) && one_in_(A_CURSED))
 		a_cursed = TRUE;
+
+	if (mode & CREATE_ART_CURSED)
+		a_cursed = TRUE;
+
 	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && object_is_cursed(o_ptr))
 		a_cursed = TRUE;
 
@@ -1947,7 +1960,7 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 	}
 	else
 	{
-		get_random_name(new_name, object_is_armour(o_ptr), power_level);
+		get_random_name(new_name, o_ptr, power_level);
 	}
 
 	if (cheat_xtra)

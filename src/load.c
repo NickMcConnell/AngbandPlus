@@ -389,6 +389,9 @@ static void rd_item(object_type *o_ptr)
 	if (flags & SAVE_ITEM_ART_NAME)
 	{
 		rd_string(buf, sizeof(buf));
+		/* Hack: Patch up previously un-named artifacts */
+		if (buf[0] == '\0')
+			get_random_name(buf, o_ptr, 2);
 		o_ptr->art_name = quark_add(buf);
 	}
 	else o_ptr->art_name = 0;
@@ -1034,6 +1037,10 @@ static void load_quick_start(void)
 	for (i = 0; i < PY_MAX_LEVEL; i++) rd_s16b(&previous_char.player_hp[i]);
 
 	rd_s16b(&previous_char.chaos_patron);
+	if (h_older_than(0, 0, 36, 1))
+		previous_char.mutation = 0;
+	else
+		rd_s32b(&previous_char.mutation);
 
 	for (i = 0; i < 8; i++) rd_s16b(&previous_char.vir_types[i]);
 

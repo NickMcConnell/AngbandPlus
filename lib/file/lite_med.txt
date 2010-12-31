@@ -1,0 +1,22 @@
+N:*:Default
+'Andromeda'
+'Astral Ray'
+'Divine Light'
+'Eye of the Overworld'
+'Hellion'
+'Iron Star'
+'Oculus Dei'
+'Powersphere'
+'Pulcherrima'
+'Sadachbia'
+'Shadowbane'
+'Silmaril Jr.'
+'Spectral Compass'
+'Sunray'
+'Wizard Eye'
+'Zephyrlight'
+of Drawmij
+of Phantasmagoria
+of Tenser
+of Transcendence
+of the Trapped Genie

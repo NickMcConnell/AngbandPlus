@@ -1,0 +1,21 @@
+N:*:Default
+'Aquilon Lamp'
+'Corona'
+'Eye of Argon'
+'Fairie Light'
+'Firefly'
+'Foxfire'
+'Lucky Star'
+'Moonglow'
+'Pathfinder'
+'Planaria'
+'Scintillator'
+'Silverlight'
+'Skycleaver'
+'Sungazer'
+'Talisman'
+'Tarazed'
+'Trailblazer'
+of Alhazred
+of Mordenkainen
+of Otiluke
