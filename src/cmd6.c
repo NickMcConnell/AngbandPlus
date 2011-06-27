@@ -4630,6 +4630,19 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				break;
 			}
 
+			case ART_SARUMAN:
+			{
+				msg_print("Your staff glows many colours...");
+
+				(void)set_oppose_acid(randint1(20) + 20, FALSE);
+				(void)set_oppose_elec(randint1(20) + 20, FALSE);
+				(void)set_oppose_fire(randint1(20) + 20, FALSE);
+				(void)set_oppose_cold(randint1(20) + 20, FALSE);
+				(void)set_oppose_pois(randint1(20) + 20, FALSE);
+				o_ptr->timeout = 111;
+				break;
+			}
+
 			case ART_COLLUIN:
 			case ART_SEIRYU:
 			{

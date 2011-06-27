@@ -774,6 +774,7 @@ static cptr k_info_flags[] =
 	"FIXED_FLAVOR",
 	"SPELL_POWER",
 	"RES_TIME",
+	"SPELL_CAP",
 };
 
 

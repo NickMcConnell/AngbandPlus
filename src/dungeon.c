@@ -1864,6 +1864,12 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 
 	/* Regenerate the mana */
 	upkeep_regen = (100 - upkeep_factor) * regen_amount;
+	if (p_ptr->pclass == CLASS_MAGE ||
+	    p_ptr->pclass == CLASS_HIGH_MAGE ||
+		p_ptr->pclass == CLASS_SORCERER)
+	{
+		upkeep_regen = upkeep_regen * 2;
+	}
 	regenmana(upkeep_regen);
 
 
@@ -3476,7 +3482,8 @@ msg_print("今、アングバンドへの門が閉ざされました。");
 	    !p_ptr->inside_arena && !p_ptr->inside_quest && !p_ptr->inside_battle)
 	{
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, 0);
+		if (one_in_(2)) /* Hack ... adjust d_info.txt if desired instead */
+			(void)alloc_monster(MAX_SIGHT + 5, 0);
 	}
 
 	/* Hack -- Check for creature regeneration */

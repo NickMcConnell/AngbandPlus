@@ -732,7 +732,7 @@ E:of Thranduil
 I:32:2:2
 W:20:2:15:50000
 P:2:0d0:0:0:10
-F:INT | WIS | HIDE_TYPE | RES_BLIND | TELEPATHY | XTRA_H_RES
+F:INT | WIS | HIDE_TYPE | RES_BLIND | TELEPATHY | XTRA_H_RES | SPELL_CAP
 D:$The hunting cap of King Thranduil, to whose ears come all the secrets of 
 D:$his forest domain.
 D:レゴラスの父であり、領土の森のあらゆる事を知るスランドウィル王
@@ -2218,9 +2218,9 @@ D:燃える星と名付けられ、守りと思慮の神秘的な力を封じた高価な宝石が付いている。
 N:119:『エリリル』
 E:'Eriril'
 I:21:3:4
-W:20:18:150:20000
+W:20:30:150:100000
 P:0:1d9:3:5:0
-F:INT | WIS | HIDE_TYPE |
+F:INT | WIS | HIDE_TYPE | SPELL_CAP | DEC_MANA
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 D:$The radiant golden staff of an Istari of legend, this wizard's companion 
 D:$grants keen sight and the knowledge of many hidden things.
@@ -2239,7 +2239,7 @@ P:0:3d2:10:13:0
 F:INT | WIS | CHR | HIDE_TYPE | SEARCH | BRAND_FIRE | FORCE_WEAPON |
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | LITE | DEC_MANA | XTRA_POWER |
 F:HOLD_LIFE | RES_FIRE | RES_NETHER | SEE_INVIS | ACTIVATE | SHOW_MODS
-F:REGEN | SLOW_DIGEST | RES_CONF | RES_BLIND
+F:REGEN | SLOW_DIGEST | RES_CONF | RES_BLIND | SPELL_CAP
 D:$The staff of the great wizard Gandalf.  
 D:$It is tall and sturdy, with rough-hewn runes that invoke the element of 
 D:$Earth, and which strikes down all creatures who live in the shadow of 
@@ -2426,7 +2426,7 @@ W:50:40:20:100000
 P:2:0d0:0:0:20
 F:INT | WIS | SEARCH | HIDE_TYPE | LEVITATION | ACTIVATE 
 F:SUST_INT | SUST_WIS | FREE_ACT | SEE_INVIS | DEC_MANA |
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SPELL_CAP
 D:$The robe of the great wizard Gandalf, also known as Incanus in the 
 D:$lands of the South. It is proof against elements, for neither the 
 D:$heat of the South, nor the ice of the North, nor the acidy pits of Dol 
@@ -3819,6 +3819,15 @@ I:23:7:4
 W:50:7:30:150000
 P:0:1d6:7:17:17
 F:VAMPIRIC | SHOW_MODS | SPEED | DEX | INT | FREE_ACT | ACTIVATE
+
+N:249:TRANSLATE
+E:of Saruman
+I:21:21:3
+W:30:20:40:100000
+P:0:3d2:8:8:0
+F:INT | HIDE_TYPE | DEC_MANA | REGEN |
+F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC | ACTIVATE
+F:VAMPIRIC | BRAND_POIS | FORCE_WEAPON | SPELL_CAP
 
 
 # N: serial number : item name

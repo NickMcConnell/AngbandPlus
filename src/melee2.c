@@ -2679,12 +2679,11 @@ static void process_monster(int m_idx)
 		    one_in_(CYBERNOISE) &&
 		    !m_ptr->ml && (m_ptr->cdis <= MAX_SIGHT))
 		{
-			if (disturb_minor) disturb(FALSE, FALSE);
-#ifdef JP
-			msg_print("重厚な足音が聞こえた。");
-#else
-			msg_print("You hear heavy steps.");
-#endif
+			if (disturb_minor)
+			{
+				msg_print(T("You hear heavy steps.", "重厚な足音が聞こえた。"));
+				disturb(0, 0);
+			}
 		}
 
 		/* Some monsters can speak */
@@ -2801,7 +2800,9 @@ msg_format("%^s%s", m_name, monmessage);
 			}
 		}
 
+		/* Cap spell frequency at 75% or twice the natural frequency */
 		freq = MIN(freq, MAX(75, r_ptr->freq_spell));
+		freq = MIN(freq, 2*r_ptr->freq_spell);
 
 		if (r_ptr->freq_spell && randint1(100) <= freq)
 		{
@@ -3096,22 +3097,16 @@ msg_format("%^s%s", m_name, monmessage);
 				/* Attempt to Bash XXX XXX XXX */
 				if (check_hp_for_feat_destruction(f_ptr, m_ptr) && (randint0(m_ptr->hp / 10) > f_ptr->power))
 				{
-					/* Message */
-					if (have_flag(f_ptr->flags, FF_GLASS))
-#ifdef JP
-						msg_print("ガラスが砕ける音がした！");
-#else
-						msg_print("You hear a glass was crashed!");
-#endif
-					else
-#ifdef JP
-						msg_print("ドアを叩き開ける音がした！");
-#else
-						msg_print("You hear a door burst open!");
-#endif
-
 					/* Disturb (sometimes) */
-					if (disturb_minor) disturb(0, 0);
+					if (disturb_minor)
+					{
+						if (have_flag(f_ptr->flags, FF_GLASS))
+							msg_print(T("You hear a glass was crashed!", "ガラスが砕ける音がした！"));
+						else
+							msg_print(T("You hear a door burst open!", "ドアを叩き開ける音がした！"));
+
+						disturb(0, 0);
+					}
 
 					/* The door was bashed open */
 					did_bash_door = TRUE;

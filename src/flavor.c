@@ -2677,6 +2677,15 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			t = object_desc_str(t, format(" <+%d%%>", pct));
 		}
 
+		if (have_flag(flgs, TR_SPELL_CAP))
+		{
+			int pct = o_ptr->pval * 10;
+			if (pct > 0)
+				t = object_desc_str(t, format(" <+%d%%>", pct));
+			else
+				t = object_desc_str(t, format(" <%d%%>", pct));
+		}
+
 		/* Hack -- Process Lanterns/Torches */
 		if ((o_ptr->tval == TV_LITE) && (!(o_ptr->name1 || o_ptr->art_name || (o_ptr->sval == SV_LITE_FEANOR))))
 		{

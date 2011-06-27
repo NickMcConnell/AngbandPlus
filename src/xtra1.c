@@ -2804,6 +2804,9 @@ static void calc_mana(void)
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
 
+	/* Spell Capacity increases 10% per point */
+	msp = msp + p_ptr->spell_cap * msp / 10;
+
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
 	{
@@ -3246,6 +3249,7 @@ void calc_bonuses(void)
 	p_ptr->kill_wall = FALSE;
 	p_ptr->dec_mana = FALSE;
 	p_ptr->spell_power = 0;
+	p_ptr->spell_cap = 0;
 	p_ptr->easy_spell = FALSE;
 	p_ptr->heavy_spell = FALSE;
 	p_ptr->see_inv = FALSE;
@@ -4052,6 +4056,7 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_TY_CURSE))    p_ptr->cursed |= TRC_TY_CURSE;
 		if (have_flag(flgs, TR_DEC_MANA))    p_ptr->dec_mana = TRUE;
 		if (have_flag(flgs, TR_SPELL_POWER)) p_ptr->spell_power -= o_ptr->pval;	/*Increasing Spell Power always comes with decreasing STR, DEX, CON*/
+		if (have_flag(flgs, TR_SPELL_CAP))   p_ptr->spell_cap += o_ptr->pval;
 		if (have_flag(flgs, TR_BLESSED))     p_ptr->bless_blade = TRUE;
 		if (have_flag(flgs, TR_XTRA_MIGHT))  p_ptr->xtra_might = TRUE;
 		if (have_flag(flgs, TR_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;

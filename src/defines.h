@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 36
+#define FAKE_VER_PATCH 37
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 36
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 37
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -1439,6 +1439,7 @@
 #define ART_NAR                 118
 #define ART_ERIRIL              119
 #define ART_GANDALF             120
+#define ART_SARUMAN             249
 #define ART_DEATHWREAKER        121
 #define ART_TURMIL              122
 #define ART_MJOLLNIR            136
@@ -2146,6 +2147,8 @@
 #define SV_AMULET_WISDOM                22
 #define SV_AMULET_MAGIC_MASTERY         23
 #define SV_AMULET_NIGHT                 24
+#define SV_AMULET_SPELL_POWER           25
+#define SV_AMULET_SPELL_CAP             26
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -2205,6 +2208,7 @@
 #define SV_RING_MUSCLE                  55
 #define SV_RING_FRODO                   56
 #define SV_RING_SPELL_POWER				57
+#define SV_RING_SPELL_CAP				58
 
 #define SV_EXPRESS_CARD                  0
 
@@ -3269,7 +3273,7 @@
 #define TR_HIDE_TYPE           73     /* Hide "pval" description */
 #define TR_SHOW_MODS           74     /* Always show Tohit/Todam */
 #define TR_XXX1                75     /* XXX1 */
-#define TR_LEVITATION             76     /* Feather Falling */
+#define TR_LEVITATION          76     /* Feather Falling */
 #define TR_LITE                77     /* Permanent Light */
 #define TR_SEE_INVIS           78     /* See Invisible */
 #define TR_TELEPATHY           79     /* Telepathy */
@@ -3312,10 +3316,11 @@
 #define TR_ESP_UNIQUE          115
 #define TR_FULL_NAME           116
 #define TR_FIXED_FLAVOR        117
-#define TR_SPELL_POWER          118
-#define TR_RES_TIME				119
+#define TR_SPELL_POWER         118
+#define TR_RES_TIME			   119
+#define TR_SPELL_CAP           120
 
-#define TR_FLAG_MAX            120
+#define TR_FLAG_MAX            121
 #define TR_FLAG_SIZE           4
 
 

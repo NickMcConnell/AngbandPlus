@@ -1228,6 +1228,12 @@ s32b object_value_real(object_type *o_ptr)
 			break;
 		}
 
+		if (o_ptr->tval == TV_AMULET && o_ptr->sval == SV_AMULET_SPELL_POWER)
+		{
+			value -= (o_ptr->pval * 10000L);
+			break;
+		}
+
 		/* Hack -- Negative "pval" is always bad */
 		if (o_ptr->pval < 0) return (0L);
 
@@ -3073,6 +3079,27 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				case SV_RING_SPELL_CAP:
+				{
+					/* Stat bonus */
+					o_ptr->pval = 1 + m_bonus(3, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->curse_flags |= TRC_CURSED;
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
+
+					break;
+				}
+
 				/* Strength, Constitution, Dexterity, Intelligence */
 				case SV_RING_STR:
 				case SV_RING_CON:
@@ -3543,6 +3570,34 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
+				case SV_AMULET_SPELL_POWER:
+				{
+					/* Stat bonus ... these wizard amulets decrease STR, DEX, CON */
+					o_ptr->pval = 0 - 1 - m_bonus(5, level);
+					break;
+				}
+
+				case SV_AMULET_SPELL_CAP:
+				{
+					/* Stat bonus */
+					o_ptr->pval = 1 + m_bonus(3, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->curse_flags |= TRC_CURSED;
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
+
+					break;
+				}
+
 				/* Amulet of wisdom/charisma */
 				case SV_AMULET_INTELLIGENCE:
 				case SV_AMULET_WISDOM:

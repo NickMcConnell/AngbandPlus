@@ -1369,6 +1369,7 @@ struct player_type
 	bool kill_wall;
 	bool dec_mana;
 	s16b spell_power;
+	s16b spell_cap;
 	bool easy_spell;
 	bool heavy_spell;
 	bool warning;

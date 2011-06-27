@@ -6417,6 +6417,30 @@ A:110/255
 P:0:1d1:0:0:0
 D:$A cryptic rune, of powers incomprehensible.
 
+N:674:æ√»ÒÀ‚Œœ∏∫æØ:π›≈¥§Œ
+E:Spell Capacity:Opal
+G:=:v
+I:45:58:0
+W:20:0:2:1000
+A:20/8:30/6:80/6
+F:SPELL_CAP
+
+N:675:√Œ¿≠:‡Ë‡·§Œ
+E:Spell Power:Steel
+G:":y
+I:40:25:0
+W:20:0:2:1000
+A:20/8:30/6:80/6
+F:SPELL_POWER | STR | DEX | CON
+
+N:676:√Œ¿≠:‡Ë‡·§Œ
+E:Spell Capacity:Opal
+G:":v
+I:40:26:0
+W:20:0:2:1000
+A:20/8:30/6:80/6
+F:SPELL_CAP
+
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval

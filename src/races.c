@@ -272,7 +272,7 @@ int get_racial_powers(spell_info* spells, int max)
 			{
 				spell_info *spell = &spells[ct++];
 				spell->level = 15;
-				spell->cost = 10 + p_ptr->lev/3;
+				spell->cost = 10;
 				spell->fail = calculate_fail_rate(15, 70, p_ptr->stat_ind[A_CON]);
 				spell->fn = demon_breath_spell;
 				break;

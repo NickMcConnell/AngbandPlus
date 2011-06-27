@@ -1407,6 +1407,7 @@ return "テレポート・アウェイ : 150 ターン毎";
 
 		}
 		case ART_COLLUIN:
+		case ART_SARUMAN:
 		case ART_SEIRYU:
 		{
 #ifdef JP
@@ -3112,6 +3113,10 @@ info[i++] = "それは魔力の消費を押さえる。";
 	if (have_flag(flgs, TR_SPELL_POWER))
 	{
 		info[i++] = "It increases your spell power.";
+	}
+	if (have_flag(flgs, TR_SPELL_CAP))
+	{
+		info[i++] = "It increases your spell capacity.";
 	}
 	if (have_flag(flgs, TR_SUST_STR))
 	{
