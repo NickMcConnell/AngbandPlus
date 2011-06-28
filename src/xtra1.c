@@ -2805,7 +2805,7 @@ static void calc_mana(void)
 	if (msp < 0) msp = 0;
 
 	/* Spell Capacity increases 10% per point */
-	msp = msp + p_ptr->spell_cap * msp / 10;
+	msp = spell_cap(msp);
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)

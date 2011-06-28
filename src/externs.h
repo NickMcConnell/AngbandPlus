@@ -831,6 +831,8 @@ extern int beam_chance(void);
 extern void cast_wonder(int dir);
 extern int spell_power(int pow);
 extern int spell_power_aux(int pow, int bonus);
+extern int spell_cap(int cap);
+extern int spell_cap_aux(int cap, int bonus);
 extern cptr do_spell(int realm, int spell, int mode);
 extern cptr info_damage(int dice, int sides, int base);
 extern cptr info_duration(int base, int sides);

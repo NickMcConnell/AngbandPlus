@@ -2343,7 +2343,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->curse_flags |= TRC_CURSED;
 	}
 
+	/* Allow ego/artifact diamond edges :)
 	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return;
+	*/
 
 	/* Analyze type */
 	switch (o_ptr->tval)

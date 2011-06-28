@@ -660,9 +660,13 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				if (mult == 10) mult = 40;
 				else if (mult < 60) mult = 60;
 			}
-			if ((p_ptr->pclass != CLASS_SAMURAI) && (have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+			if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 			{
-				p_ptr->csp -= (1+(o_ptr->dd * o_ptr->ds / 5));
+				if (p_ptr->pclass == CLASS_SAMURAI)
+					p_ptr->csp -= (1 + (o_ptr->dd * o_ptr->ds * 2 / 5));
+				else
+					p_ptr->csp -= (1+(o_ptr->dd * o_ptr->ds / 5));
+
 				p_ptr->redraw |= (PR_MANA);
 				mult = mult * 3 / 2 + 20;
 			}
@@ -1964,7 +1968,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		k = mon_damage_mod(m_ptr, k, FALSE);
 
 		/* Hack: Monster AC now reduces damage */
-		k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 600);
+		k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
 
 		/* Anger the monster */
 		if (k > 0) anger_monster(m_ptr);
@@ -2627,7 +2631,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_BERSERKER) && one_in_(2))));
 
 			/* Hack: Monster AC now reduces damage */
-			k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 900);
+			k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
 
 			if (duelist_attack)
 			{
@@ -3112,7 +3116,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()) && (mult < 25))
 						mult = 25;
 
-					if ((p_ptr->pclass != CLASS_SAMURAI) && (have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (p_ptr->msp / 30)))
+					if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (p_ptr->msp / 30)))
 					{
 						p_ptr->csp -= (1+(p_ptr->msp / 30));
 						p_ptr->redraw |= (PR_MANA);

@@ -2679,11 +2679,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 		if (have_flag(flgs, TR_SPELL_CAP))
 		{
-			int pct = o_ptr->pval * 10;
+			int pct = spell_cap_aux(100, o_ptr->pval) - 100;
 			if (pct > 0)
-				t = object_desc_str(t, format(" <+%d%%>", pct));
+				t = object_desc_str(t, format(" [+%d%%]", pct));
 			else
-				t = object_desc_str(t, format(" <%d%%>", pct));
+				t = object_desc_str(t, format(" [%d%%]", pct));
 		}
 
 		/* Hack -- Process Lanterns/Torches */

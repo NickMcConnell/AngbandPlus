@@ -517,13 +517,19 @@ F:@:FLOOR:3:0:0:0:215
 
 ##########################################################################
 # Mage, High-Mage, Sorcerer, Blue-Mage
-# The Wizardstaff of Gandalf (Dave, this so beats Incanus!!! :)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage] [EQU [MOD $RANDOM27 5] 0] ]
+
+# Gandalf
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage] [EQU [MOD $RANDOM27 10] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:120
 
+# Saruman
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage] [EQU [MOD $RANDOM27 10] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:249
+
 # Thranduil
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mage High-Mage Sorcerer Blue-Mage] [GEQ [MOD $RANDOM27 10] 2] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:36
 
@@ -542,17 +548,17 @@ F:@:FLOOR:3:0:0:0:15
 ##########################################################################
 # Bard
 # Harp of Maglor
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [EQU [MOD $RANDOM27 18] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [EQU [MOD $RANDOM27 10] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:245
 
 # Harp of Daeron
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [EQU [MOD $RANDOM27 18] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [EQU [MOD $RANDOM27 10] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:246
 
 # Palantir
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [GEQ [MOD $RANDOM27 18] 2] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Bard] [GEQ [MOD $RANDOM27 10] 2] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:15
 

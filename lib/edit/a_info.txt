@@ -331,7 +331,7 @@ F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | TY_CURSE |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
 F:SUST_STR | SUST_DEX | SUST_CON |
 F:SUST_INT | SUST_WIS | SUST_CHR |
-F:INSTA_ART | XTRA_POWER | XTRA_H_RES |
+F:INSTA_ART | XTRA_POWER | XTRA_H_RES | SPELL_CAP
 F:ESP_DEMON | ESP_UNDEAD
 D:$"One Ring to rule them all, One Ring to find them, One Ring to bring 
 D:$them all and in the darkness bind them."  Made of massive gold, and 
@@ -712,7 +712,7 @@ D:王冠だ。
 #J0#
 N:35:ベルシエル王妃の
 E:of Beruthiel
-I:33:10:-25
+I:33:40:-25
 W:40:12:20:0
 P:0:1d1:0:0:25
 F:STR | DEX | CON | HIDE_TYPE | DEC_MANA | EASY_SPELL |
@@ -2220,7 +2220,7 @@ E:'Eriril'
 I:21:3:4
 W:20:30:150:100000
 P:0:1d9:3:5:0
-F:INT | WIS | HIDE_TYPE | SPELL_CAP | DEC_MANA
+F:INT | WIS | HIDE_TYPE | SPELL_CAP
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 D:$The radiant golden staff of an Istari of legend, this wizard's companion 
 D:$grants keen sight and the knowledge of many hidden things.
@@ -2647,7 +2647,7 @@ I:40:19:3
 W:65:50:3:90000
 F:INT | CHR | SEARCH | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT | ACTIVATE |
-F:RES_FIRE | RES_COLD | RES_ELEC |
+F:RES_FIRE | RES_COLD | RES_ELEC | SPELL_CAP
 F:INSTA_ART
 
 N:150:『斬鉄剣』
@@ -3268,6 +3268,7 @@ F:INT | WIS | CHR | HIDE_TYPE | RES_LITE | RES_DARK |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:RES_POIS | RES_CONF | RES_CHAOS | RES_NETHER |
 F:RES_NEXUS | AGGRAVATE | CURSED | HEAVY_CURSE | TY_CURSE
+F:STR | DEX | CON | SPELL_POWER
 D:この赤々と錆びた今にも崩れ去りそうな鎖かたびらには、
 D:かつて愚かにも守護する魔除けを奪われ朽ち果てた、
 D:太古の高僧の怨念がこもっている。
@@ -3828,6 +3829,15 @@ P:0:3d2:8:8:0
 F:INT | HIDE_TYPE | DEC_MANA | REGEN |
 F:RES_FIRE | RES_COLD | RES_ACID | RES_ELEC | ACTIVATE
 F:VAMPIRIC | BRAND_POIS | FORCE_WEAPON | SPELL_CAP
+
+N:250:TRANSLATE
+E:of Kaschei
+I:21:21:-6
+W:30:20:40:300000
+P:0:3d2:-6:-6:0
+F:CURSED | HEAVY_CURSE | PERMA_CURSE | AGGRAVATE | DRAIN_EXP
+F:STR | DEX | CON | SPELL_POWER | DEC_MANA
+F:RES_POIS | RES_NETHER | RES_DARK | RES_DISEN
 
 
 # N: serial number : item name

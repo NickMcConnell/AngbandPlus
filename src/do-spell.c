@@ -15,6 +15,16 @@ int spell_power(int pow)
 	return spell_power_aux(pow, p_ptr->spell_power);
 }
 
+int spell_cap_aux(int cap, int bonus)
+{
+	return cap + cap*bonus/13;
+}
+
+int spell_cap(int cap)
+{
+	return spell_cap_aux(cap, p_ptr->spell_cap);
+}
+
 /*
  * Generate dice info string such as "foo 2d10"
  */
@@ -4644,8 +4654,8 @@ static cptr do_death_spell(int spell, int mode)
 
 			if (cast)
 			{
-				set_shero(randint1(25) + 25, FALSE);
-				hp_player(30);
+				set_hero(randint1(b_base) + b_base, FALSE);
+				set_blessed(randint1(b_base) + b_base, FALSE);
 				set_afraid(0, TRUE);
 				set_fast(randint1(sp_sides) + sp_base, FALSE);
 			}

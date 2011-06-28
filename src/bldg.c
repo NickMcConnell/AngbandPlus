@@ -3135,7 +3135,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	/* Get the flags of the weapon */
 	object_flags(o_ptr, flgs);
 
-	if ((p_ptr->pclass != CLASS_SAMURAI) && have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+	if (have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 	{
 		mult = mult * 7 / 2;
 		print_force_weapon = TRUE;
