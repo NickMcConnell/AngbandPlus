@@ -467,7 +467,7 @@ static struct {
 	{TERM_RED, "Pa", "Paralyzed"},
 	{TERM_VIOLET, "Cf", "Confused"},
 	{TERM_GREEN, "Po", "Poisoned"},
-	{TERM_BLUE, "Af", "Afraid"},
+	{TERM_YELLOW, "Af", "Afraid"},
 	{TERM_L_BLUE, "Lv", "Levit"},
 	{TERM_SLATE, "Rf", "Reflect"},
 	{TERM_SLATE, "Pw", "PassWall"},
@@ -3249,6 +3249,8 @@ void calc_bonuses(void)
 	p_ptr->kill_wall = FALSE;
 	p_ptr->dec_mana = FALSE;
 	p_ptr->spell_power = 0;
+	if (p_ptr->pclass == CLASS_HIGH_MAGE)
+		p_ptr->spell_power += 2; 
 	p_ptr->spell_cap = 0;
 	p_ptr->easy_spell = FALSE;
 	p_ptr->heavy_spell = FALSE;
@@ -5044,7 +5046,7 @@ void calc_bonuses(void)
 
 		/* Assume not heavy */
 		info_ptr->heavy_wield = FALSE;
-		info_ptr->icky_wield = FALSE;
+		info_ptr->icky_wield = FALSE; 
 		info_ptr->riding_wield = FALSE;
 
 		if (!buki_motteruka(INVEN_RARM+i)) {info_ptr->num_blow=1;continue;}

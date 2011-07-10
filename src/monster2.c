@@ -644,15 +644,16 @@ void pack_choose_ai(int m_idx)
 	{
 		pack_info_t *pack_ptr = &pack_info_list[m_ptr->pack_idx];
 		pack_ptr->ai = AI_SEEK; /* paranoia ... make sure something gets chosen! */
+		if (pack_ptr->count == 1) return; /* not sure why we are getting packs of one?? */
 
 		if (r_ptr->flags3 & RF3_ANIMAL)
 		{
 			switch(randint1(10))
 			{
-			case 1: case 2:
+			case 1: case 2: case 3: 
 				pack_ptr->ai = AI_SEEK;
 				break;
-			case 3: case 4:
+			case 4:
 				if (r_ptr->freq_spell)
 					pack_ptr->ai = AI_SHOOT;
 				else
@@ -667,13 +668,13 @@ void pack_choose_ai(int m_idx)
 		{
 			switch(randint1(10))
 			{
-			case 1: case 2: case 3:
+			case 1: case 2: case 3: case 4: case 5: case 6: 
 				pack_ptr->ai = AI_SEEK;
 				break;
-			case 4: case 5: case 6:
+			case 7: case 8: 
 				pack_ptr->ai = AI_LURE;
 				break;
-			 case 7: case 8: case 9:
+			case 9:
 				if (pack_ptr->leader_idx)
 				{
 					pack_ptr->ai = AI_GUARD_MON;
@@ -695,6 +696,22 @@ void pack_choose_ai(int m_idx)
 					pack_ptr->ai = AI_SEEK;
 				break;
 			}
+		}
+	}
+}
+
+void pack_on_damage_monster(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+
+	if (m_ptr->pack_idx)
+	{
+		pack_info_t *pack_ptr = &pack_info_list[m_ptr->pack_idx];
+		if ( pack_ptr->leader_idx == m_idx
+		  && pack_ptr->ai != AI_SEEK
+		  && one_in_(3) )
+		{
+			pack_ptr->ai = AI_SEEK;
 		}
 	}
 }
@@ -1547,8 +1564,32 @@ s16b get_mon_num(int level)
 			}
 		}
 
-		/* Accept */
-		table[i].prob3 = table[i].prob2;
+		/* Accept 
+		   TODO:  Total Hack Job ... Distribution should be normal ...
+		*/
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+			table[i].prob3 = table[i].prob2;
+		else if (r_ptr->level + 50 < level)
+		{
+			if (r_ptr->level >= 50)
+				table[i].prob3 = table[i].prob2 / 4;
+			else
+				table[i].prob3 = table[i].prob2 / 10;
+		}
+		else if (r_ptr->level + 30 < level)
+			table[i].prob3 = table[i].prob2 / 3;
+		else if (r_ptr->level + 25 < level)
+			table[i].prob3 = table[i].prob2 / 2;
+		else if (r_ptr->level + 20 < level)
+			table[i].prob3 = table[i].prob2 * 2 / 3;
+		else if (r_ptr->level + 15 < level)
+			table[i].prob3 = table[i].prob2 * 3 / 4;
+		else if (r_ptr->level + 10 < level)
+			table[i].prob3 = table[i].prob2 * 4 / 5;
+		else if (r_ptr->level + 5 < level)
+			table[i].prob3 = table[i].prob2 * 5 / 6;
+		else
+			table[i].prob3 = table[i].prob2;
 
 		/* Total */
 		total += table[i].prob3;
@@ -3302,6 +3343,7 @@ msg_print("守りのルーンが壊れた！");
 	}
 
 	/* Powerful monster */
+	if (cheat_hear) msg_format("%s %i", name, r_ptr->level);
 	if (r_ptr->level > dun_level)
 	{
 		/* Unique monsters */
@@ -3311,7 +3353,7 @@ msg_print("守りのルーンが壊れた！");
 #ifdef JP
 			if (cheat_hear) msg_format("深層のユニーク・モンスター (%s)。", name);
 #else
-			if (cheat_hear) msg_format("Deep Unique (%s).", name);
+			if (cheat_hear && 0) msg_format("Deep Unique (%s).", name);
 #endif
 		}
 
@@ -3322,7 +3364,7 @@ msg_print("守りのルーンが壊れた！");
 #ifdef JP
 			if (cheat_hear) msg_format("深層のモンスター (%s)。", name);
 #else
-			if (cheat_hear) msg_format("Deep Monster (%s).", name);
+			if (cheat_hear && 0) msg_format("Deep Monster (%s).", name);
 #endif
 		}
 	}
@@ -3334,7 +3376,7 @@ msg_print("守りのルーンが壊れた！");
 #ifdef JP
 		if (cheat_hear) msg_format("ユニーク・モンスター (%s)。", name);
 #else
-		if (cheat_hear) msg_format("Unique (%s).", name);
+		if (cheat_hear && 0) msg_format("Unique (%s).", name);
 #endif
 
 	}

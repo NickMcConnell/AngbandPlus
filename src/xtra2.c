@@ -1741,7 +1741,7 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 
 	/* Special penalty in the wilderness */
 	if (!dun_level && (!(r_ptr->flags8 & RF8_WILD_ONLY) || !(r_ptr->flags1 & RF1_UNIQUE)))
-		s64b_mul(&div_h, &div_l, 0, 5);
+		s64b_mul(&div_h, &div_l, 0, 2);
 
 	/* Do division first to prevent overflaw */
 	s64b_div(&new_exp, &new_exp_frac, div_h, div_l);
@@ -1749,13 +1749,13 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 	/* Special penalty for mutiply-monster */
 	if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN))
 	{
-		int monnum_penarty = r_ptr->r_akills / 400;
+		int monnum_penarty = r_ptr->r_akills / 800;
 		if (monnum_penarty > 8) monnum_penarty = 8;
 
 		while (monnum_penarty--)
 		{
-			/* Divide by 4 */
-			s64b_RSHIFT(new_exp, new_exp_frac, 2);
+			/* Divide by 2 */
+			s64b_RSHIFT(new_exp, new_exp_frac, 1);
 		}
 	}
 
@@ -1844,6 +1844,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
+	if (m_ptr->hp >= 0)
+		pack_on_damage_monster(m_idx);
 
 	/* It is dead now */
 	if (m_ptr->hp < 0)

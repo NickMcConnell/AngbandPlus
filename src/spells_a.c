@@ -4032,7 +4032,7 @@ void throw_boulder_spell(int cmd, variant *res)
 		var_set_string(res, "");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, spell_power(2 * p_ptr->lev)));
+		var_set_string(res, info_damage(0, 0, spell_power(3 * p_ptr->lev)));
 		break;
 	case SPELL_CAST:
 	{
@@ -4040,7 +4040,7 @@ void throw_boulder_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 		msg_print(T("You throw a huge boulder.", "µðÂç¤Ê´ä¤òÅê¤²¤¿¡£"));
-		fire_bolt(GF_MISSILE, dir, spell_power(2 * p_ptr->lev));
+		fire_bolt(GF_MISSILE, dir, spell_power(3 * p_ptr->lev));
 		var_set_bool(res, TRUE);
 		break;
 	}

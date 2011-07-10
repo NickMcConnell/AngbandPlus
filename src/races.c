@@ -218,7 +218,7 @@ int get_racial_powers(spell_info* spells, int max)
 				spell_info *spell = &spells[ct++];
 				spell->level = 1;
 				spell->cost = 1;
-				spell->fail = calculate_fail_rate(2, 30, p_ptr->stat_ind[A_INT]);
+				spell->fail = calculate_fail_rate(1, 30, p_ptr->stat_ind[A_INT]);
 				spell->fn = magic_missile_spell;
 				break;
 			}

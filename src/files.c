@@ -2191,7 +2191,7 @@ static void display_player_various(void)
 					basedam *= 11;
 					basedam /= 9;
 				}
-				if ((p_ptr->pclass != CLASS_SAMURAI) && have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+				if (have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 					basedam = basedam * 7 / 2;
 			}
 			else basedam = 0;

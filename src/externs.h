@@ -998,6 +998,7 @@ extern s16b pack_info_pop(void);
 extern void pack_info_push(int idx);
 extern void pack_info_wipe(void);
 extern void pack_on_slay_monster(int m_idx);
+extern void pack_on_damage_monster(int m_idx);
 extern pack_info_t *pack_info_ptr(int m_idx);
 extern void pack_choose_ai(int m_idx);
 

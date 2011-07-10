@@ -212,8 +212,8 @@ static bool trump_summoning(int num, bool pet, int y, int x, int lev, int type, 
 	int i;
 	bool success = FALSE;
 
-	/* Default level */
-	if (!lev) lev = plev * 2 / 3 + randint1(plev / 2);
+	/* Default level */ 
+	if (!lev) lev = spell_power(plev) + randint1(spell_power(plev));
 
 	if (pet)
 	{
@@ -353,7 +353,7 @@ void cast_wonder(int dir)
 static void cast_invoke_spirits(int dir)
 {
 	int plev = p_ptr->lev;
-	int die = randint1(100) + plev / 5;
+	int die = spell_power(randint1(100) + plev / 5);
 	int vir = virtue_number(V_CHANCE);
 
 	if (vir)
@@ -4985,6 +4985,14 @@ static cptr do_trump_spell(int spell, int mode)
 
 	int dir;
 	int plev = p_ptr->lev;
+	int x = px;
+	int y = py;
+
+	if (use_old_target && target_okay() && los(py, px, target_row, target_col))
+	{
+		y = target_row;
+		x = target_col;
+	}
 
 	switch (spell)
 	{
@@ -5027,7 +5035,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of an spider...");
 #endif
 
-				if (trump_summoning(1, !fail, py, px, 0, SUMMON_SPIDER, PM_ALLOW_GROUP))
+				if (trump_summoning(1, !fail, y, x, 0, SUMMON_SPIDER, PM_ALLOW_GROUP))
 				{
 					if (fail)
 					{
@@ -5164,7 +5172,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of an animal...");
 #endif
 
-				if (trump_summoning(1, !fail, py, px, 0, type, 0L))
+				if (trump_summoning(1, !fail, y, x, 0, type, 0L))
 				{
 					if (fail)
 					{
@@ -5271,7 +5279,7 @@ static cptr do_trump_spell(int spell, int mode)
 			{
 				int summon_lev = plev * 2 / 3 + randint1(plev / 2);
 
-				if (trump_summoning(1, !fail, py, px, (summon_lev * 3 / 2), SUMMON_PHANTOM, 0L))
+				if (trump_summoning(1, !fail, y, x, (summon_lev * 3 / 2), SUMMON_PHANTOM, 0L))
 				{
 #ifdef JP
 					msg_print("御用でございますか、御主人様？");
@@ -5452,7 +5460,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of an undead creature...");
 #endif
 
-				if (trump_summoning(1, !fail, py, px, 0, SUMMON_UNDEAD, 0L))
+				if (trump_summoning(1, !fail, y, x, 0, SUMMON_UNDEAD, 0L))
 				{
 					if (fail)
 					{
@@ -5485,7 +5493,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of a reptile...");
 #endif
 
-				if (trump_summoning(1, !fail, py, px, 0, SUMMON_HYDRA, 0L))
+				if (trump_summoning(1, !fail, y, x, 0, SUMMON_HYDRA, 0L))
 				{
 					if (fail)
 					{
@@ -5525,7 +5533,7 @@ static cptr do_trump_spell(int spell, int mode)
 				else
 					type = 0;
 
-				if (trump_summoning((1 + (plev - 15)/ 10), !fail, py, px, 0, type, 0L))
+				if (trump_summoning((1 + (plev - 15)/ 10), !fail, y, x, 0, type, 0L))
 				{
 					if (fail)
 					{
@@ -5559,7 +5567,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of a hound...");
 #endif
 
-				if (trump_summoning(1, !fail, py, px, 0, SUMMON_HOUND, PM_ALLOW_GROUP))
+				if (trump_summoning(1, !fail, y, x, 0, SUMMON_HOUND, PM_ALLOW_GROUP))
 				{
 					if (fail)
 					{
@@ -5643,7 +5651,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of a Cyberdemon...");
 #endif
 
-				if (trump_summoning(1, !fail, py, px, 0, SUMMON_CYBER, 0L))
+				if (trump_summoning(1, !fail, y, x, 0, SUMMON_CYBER, 0L))
 				{
 					if (fail)
 					{
@@ -5748,7 +5756,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of a dragon...");
 #endif
 
-				if (trump_summoning(1, !fail, py, px, 0, SUMMON_DRAGON, 0L))
+				if (trump_summoning(1, !fail, y, x, 0, SUMMON_DRAGON, 0L))
 				{
 					if (fail)
 					{
@@ -5803,7 +5811,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of a demon...");
 #endif
 
-				if (trump_summoning(1, !fail, py, px, 0, SUMMON_DEMON, 0L))
+				if (trump_summoning(1, !fail, y, x, 0, SUMMON_DEMON, 0L))
 				{
 					if (fail)
 					{
@@ -5836,7 +5844,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You concentrate on the trump of a greater undead being...");
 #endif
 				/* May allow unique depend on level and dice roll */
-				if (trump_summoning(1, !fail, py, px, 0, SUMMON_HI_UNDEAD, PM_ALLOW_UNIQUE))
+				if (trump_summoning(1, !fail, y, x, 0, SUMMON_HI_UNDEAD, PM_ALLOW_UNIQUE))
 				{
 					if (fail)
 					{
@@ -5877,7 +5885,7 @@ static cptr do_trump_spell(int spell, int mode)
 #endif
 
 				/* May allow unique depend on level and dice roll */
-				if (trump_summoning(1, !fail, py, px, 0, type, PM_ALLOW_UNIQUE))
+				if (trump_summoning(1, !fail, y, x, 0, type, PM_ALLOW_UNIQUE))
 				{
 					if (fail)
 					{

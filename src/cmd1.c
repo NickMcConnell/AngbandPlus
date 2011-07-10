@@ -660,15 +660,21 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				if (mult == 10) mult = 40;
 				else if (mult < 60) mult = 60;
 			}
-			if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+			if ((have_flag(flgs, TR_FORCE_WEAPON)))
 			{
+				int cost = 0;
+				
 				if (p_ptr->pclass == CLASS_SAMURAI)
-					p_ptr->csp -= (1 + (o_ptr->dd * o_ptr->ds * 2 / 5));
+					cost = (1 + (o_ptr->dd * o_ptr->ds * 2 / 5));
 				else
-					p_ptr->csp -= (1+(o_ptr->dd * o_ptr->ds / 5));
+					cost = (1+(o_ptr->dd * o_ptr->ds / 5));
 
-				p_ptr->redraw |= (PR_MANA);
-				mult = mult * 3 / 2 + 20;
+				if (p_ptr->csp > cost)
+				{
+					p_ptr->csp -= cost;
+					p_ptr->redraw |= (PR_MANA);
+					mult = mult * 3 / 2 + 20;
+				}
 			}
 
 			if (p_ptr->tim_blood_feast)

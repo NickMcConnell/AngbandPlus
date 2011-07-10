@@ -55,15 +55,15 @@ void _precognition_spell(int cmd, variant *res)
 		/* Base is 1.  Lets give reasonable costs based on powers.  Note
 		   some powers become obsolete, like Telepathy, Magic Mapping and Detect Items */
 		if (p_ptr->lev >= 45)
-			n += 39;
-		else if (p_ptr->lev >= 30)
 			n += 19;
-		else if (p_ptr->lev >= 25)
-			n += 14;
-		else if (p_ptr->lev >= 20)
+		else if (p_ptr->lev >= 30)
 			n += 9;
-		else if (p_ptr->lev >= 15)
+		else if (p_ptr->lev >= 25)
+			n += 7;
+		else if (p_ptr->lev >= 20)
 			n += 4;
+		else if (p_ptr->lev >= 15)
+			n += 2;
 		else if (p_ptr->lev >= 5)
 			n += 1;
 

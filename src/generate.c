@@ -1373,8 +1373,9 @@ static bool level_gen(cptr *why)
 				level_height = randint1(MAX_HGT/SCREEN_HGT);
 				level_width = randint1(MAX_WID/SCREEN_WID);
 			}
-			while ((level_height == MAX_HGT/SCREEN_HGT) &&
-				   (level_width == MAX_WID/SCREEN_WID));
+			while (level_height + level_width >= MAX_HGT/SCREEN_HGT + MAX_WID/SCREEN_WID - 2);
+		/*	while ((level_height == MAX_HGT/SCREEN_HGT) &&
+				   (level_width == MAX_WID/SCREEN_WID)); */
 		}
 
 		cur_hgt = level_height * SCREEN_HGT;
