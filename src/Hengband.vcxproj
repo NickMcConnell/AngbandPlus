@@ -104,6 +104,7 @@
     <ClCompile Include="files.c" />
     <ClCompile Include="flavor.c" />
     <ClCompile Include="floors.c" />
+    <ClCompile Include="force_trainer.c" />
     <ClCompile Include="generate.c" />
     <ClCompile Include="grid.c" />
     <ClCompile Include="hex.c" />

@@ -3967,7 +3967,6 @@ put_str("Lv   MP ¼ºÎ¨ ¸ú²Ì", y, x + 35);
 
 		switch(p_ptr->pclass)
 		{
-		case CLASS_FORCETRAINER:          use_mind = MIND_KI;break;
 		case CLASS_BERSERKER: use_mind = MIND_BERSERKER; use_hp = TRUE; break;
 		case CLASS_MIRROR_MASTER: use_mind = MIND_MIRROR_MASTER; break;
 		case CLASS_NINJA: use_mind = MIND_NINJUTSU; use_hp = TRUE; break;

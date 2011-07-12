@@ -9,7 +9,7 @@ hengband_SOURCES = \
         bard.c birth.c bldg.c blood_knight.c blue_mage.c cavalry.c \
         cave.c chuukei.c classes.c cmd1.c cmd2.c cmd3.c cmd4.c \
         cmd5.c cmd6.c do-spell.c duelist.c dungeon.c effects.c \
-        files.c flavor.c floors.c generate.c grid.c hex.c hissatsu.c \
+        files.c flavor.c floors.c force_trainer.c generate.c grid.c hex.c hissatsu.c \
         inet.c init1.c init2.c japanese.c load.c magic_eater.c \
         main.c mane.c melee1.c melee2.c menu.c mind.c mindcrafter.c \
         mirror.c monk.c monster1.c monster2.c mspells1.c mspells2.c \

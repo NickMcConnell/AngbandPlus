@@ -21,6 +21,9 @@ class_t *result = NULL;
 	case CLASS_DUELIST:
 		result = duelist_get_class_t();
 		break;
+	case CLASS_FORCETRAINER:
+		result = force_trainer_get_class_t();
+		break;
 	case CLASS_MINDCRAFTER:
 		result = mindcrafter_get_class_t();
 		break;

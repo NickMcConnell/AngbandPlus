@@ -247,10 +247,10 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 	},
 	/* CL35: Good Offense/Ability */
 	{
-		{ A_DEX, "like a Warrior", {33, 20, 60, lightning_eagle_spell}},
+		{ A_DEX, "like a Samurai", {33, 20, 60, lightning_eagle_spell}},
 		{ A_DEX, "like a Monk", {30, 30, 60, monk_double_attack_spell}},
 		{ A_INT, "like Jack of Shadows", {35, 30, 50, darkness_storm_I_spell}},
-		{ A_INT, "like a Solar", {35, 50, 50, starburst_I_spell}},
+		{ A_INT, "like a Solar", {35, 30, 50, starburst_I_spell}},
 		{ A_CON, "like a Greater Balrog", {35, 10, 50, breathe_fire_II_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},

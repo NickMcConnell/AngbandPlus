@@ -1856,6 +1856,9 @@ extern bool duelist_issue_challenge(void);
 extern int duelist_skill_sav(int m_idx);
 extern bool nemesis_hack;	/* Actually, its in melee1.c */
 
+/* force_trainer.c */
+extern class_t *force_trainer_get_class_t(void);
+
 /* magic_eater.c */
 extern void absorb_magic_spell(int cmd, variant *res);
 extern bool cast_absorb_magic(void);

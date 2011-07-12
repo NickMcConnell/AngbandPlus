@@ -444,7 +444,7 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 		info_ptr->num_blow += 1;
 }
 
-void _on_cast(const spell_info *spell)
+static void _on_cast(const spell_info *spell)
 {
 	set_cut(p_ptr->cut + spell->level, FALSE);
 	p_ptr->update |= PU_BONUS;

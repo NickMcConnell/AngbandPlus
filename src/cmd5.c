@@ -527,7 +527,7 @@ void do_cmd_browse(void)
 
 	if (item == INVEN_FORCE) /* the_force */
 	{
-		do_cmd_mind_browse();
+		do_cmd_spell_browse();
 		return;
 	}
 
@@ -1221,7 +1221,7 @@ void do_cmd_cast(void)
 
 	if (item == INVEN_FORCE) /* the_force */
 	{
-		do_cmd_mind();
+		do_cmd_spell(); /* hack */
 		return;
 	}
 

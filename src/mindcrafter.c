@@ -579,7 +579,7 @@ static void _calc_bonuses(void)
 	if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
 }
 
-void _on_fail(const spell_info *spell)
+static void _on_fail(const spell_info *spell)
 {
 	if (randint1(100) < (spell->fail / 2))
 	{

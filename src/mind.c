@@ -20,58 +20,6 @@ mind_power mind_powers[MIND_MAX_CLASSES] =
     {
       /* Level gained,  cost,  %fail,  name */
 #ifdef JP
-      { 1,   1,  15, "小龍"},
-      { 3,   3,  30, "閃光"},
-      { 5,   6,  35, "舞空術"},
-      { 8,   5,  40, "カメハメ波"},
-      { 10,  7,  45, "対魔法防御"},
-      { 13,  5,  60, "練気"},
-      { 17, 17,  50, "纏闘気"},
-      { 20, 20,  50, "衝波"},
-      { 23, 18,  55, "彗龍"},
-      { 25, 30,  70, "いてつく波動"},
-      { 28, 26,  50, "幻霊召喚"},
-      { 32, 35,  65, "煉獄火炎"},
-      { 38, 42,  75, "超カメハメ波"},
-      { 44, 50,  80, "光速移動"},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-#else
-      { 1,   1,  15, "Small Force Ball"},
-      { 3,   3,  30, "Flash Light"},
-      { 5,   6,  35, "Flying Technique"},
-      { 8,   5,  40, "Kamehameha"},
-      { 10,  7,  45, "Magic Resistance"},
-      { 13,  5,  60, "Improve Force"},
-      { 17, 17,  50, "Aura of Force"},
-      { 20, 20,  50, "Shock Power"},
-      { 23, 18,  55, "Large Force Ball"},
-      { 25, 30,  70, "Dispel Magic"},
-      { 28, 26,  50, "Summon Ghost"},
-      { 32, 35,  65, "Exploding Frame"},
-      { 38, 42,  75, "Super Kamehameha"},
-      { 44, 50,  80, "Light Speed"},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-      { 99,  0,   0, ""},
-#endif
-      
-    }
-  },
-  
-  {
-    {
-      /* Level gained,  cost,  %fail,  name */
-#ifdef JP
       {  8,  5,  40, "殺気感知"},
       { 15, 20,   0, "突撃"},
       { 20, 15,   0, "トラップ粉砕"},
@@ -273,104 +221,71 @@ void mindcraft_info(char *p, int use_mind, int power)
   strcpy(p, "");
 
   switch (use_mind)
-    {
-    case MIND_KI:
-      {
-	int boost = p_ptr->magic_num1[0];
-
-	if (heavy_armor()) boost /= 2;
-
-	switch (power)
-	  {
-	  case 0:  sprintf(p, " %s%dd4", s_dam, 3 + ((plev - 1) / 5) + boost / 12); break;
-	  case 1:  break;
-	  case 2:  sprintf(p, " %s%d+d30", s_dur, 30 + boost / 5); break;
-	  case 3:  sprintf(p, " %s%dd5", s_dam, 5 + ((plev - 1) / 5) + boost / 10); break;
-	  case 4:  sprintf(p, " %s%d+d20", s_dur, 20 + boost / 5); break;
-	  case 5:  break;
-	  case 6:  sprintf(p, " %s%d+d%d", s_dur, 15 + boost / 7, plev / 2); break;
-	  case 7:  sprintf(p, " %s%dd8", s_dam, 8 + ((plev - 5) / 5) + boost / 12); break;
-	  case 8:  sprintf(p, " %s10d6+%d", s_dam, plev * 3 / 2 + boost * 3 / 5); break;
-	  case 9:  break;
-#ifdef JP
-	  case 10: sprintf(p, " 最大%d体", 1+boost/100); break;
-#else
-	  case 10: sprintf(p, " max %d", 1+boost/100); break;
-#endif
-	  case 11: sprintf(p, " %s%d", s_dam, 100 + plev + boost); break;
-	  case 12: sprintf(p, " %s%dd15", s_dam, 10 + plev / 2 + boost * 3 / 10); break;
-#ifdef JP
-	  case 13: sprintf(p, " 行動:%d+d16回", 16+boost/20); break;
-#else
-	  case 13: sprintf(p, " %d+d16 acts", 16+boost/20); break;
-#endif
-	  }
-	break;
-			case MIND_MIRROR_MASTER:
-			{
-				switch (power)
-				{
-				case 0:  break;
-				case 1:  break;
-				case 2:  sprintf(p, " %s%dd4", s_dam,  spell_power(3 + ((plev - 1) / 5)) ); break;
-				case 3:  sprintf(p, " %s10", s_range); break;
-				case 4:  break;
-				case 5:  sprintf(p, " %s%d", s_range, plev *5); break;
-				case 6:  sprintf(p, " %s20+d20", s_dur);  break;
-				case 7:  break;
-				case 8:  sprintf(p, " %s%dd8", s_dam, spell_power(8+((plev -5)/4)) ); break;
-				case 9:  break;
-				case 10: sprintf(p, " %s%dd8", s_dam, spell_power(11+(plev-5)/4) ); break;
-				case 11: break;
-				case 12: sprintf(p, " %s20+d20", s_dur);  break;
-				case 13: sprintf(p, " %s150+d%d", s_dam, spell_power(plev*2) ); break;
-				case 14: break;
-				case 15: break;
-				case 16: sprintf(p, " %s%d", s_range, plev/2 +10); break;
-				case 17: break;
-				case 18: sprintf(p, " %s6+d6", s_dur);  break;
-				case 19: sprintf(p, " %s%d", s_dam, spell_power(plev*11+5) ); break;
-				case 20: sprintf(p, " %s4+d4", s_dur);  break;
-				}
-				break;
-			}
-			case MIND_NINJUTSU:
-			{
-				switch (power)
-				{
-				case 0:  break;
-				case 1:  break;
-				case 2:  sprintf(p, " %s10", s_range); break;
-				case 3:  break;
-				case 4:  sprintf(p, " %s%d", s_range , plev *5); break;
-				case 5:  sprintf(p, " %s30", s_range); break;
-				case 6:  break;
-				case 7:  break;
-				case 8:  sprintf(p, " %s20+d20", s_dur);  break;
-				case 9:  sprintf(p, " %s%d", s_dam, (50+plev)/2 ); break;
-				case 10: break;
-				case 11: break;
-				case 12: break;
-				case 13: break;
-				case 14: break;
-				case 15: break;
-				case 16: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2);  break;
-				case 17: sprintf(p, " %s%d*3", s_dam, (75+plev*2/3)/2 ); break;
-				case 18: sprintf(p, " %s%dd10", s_dam, 6+plev/8 ); break;
-				case 19: sprintf(p, " %s6+d6", s_dur);  break;
-				}
-				break;
-			}
-			case MIND_TIME_LORD:
-			{
-				switch (power)
-				{
-				case 14: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
-				}
-				break;
-			}
+  {
+	case MIND_MIRROR_MASTER:
+	{
+		switch (power)
+		{
+		case 0:  break;
+		case 1:  break;
+		case 2:  sprintf(p, " %s%dd4", s_dam,  spell_power(3 + ((plev - 1) / 5)) ); break;
+		case 3:  sprintf(p, " %s10", s_range); break;
+		case 4:  break;
+		case 5:  sprintf(p, " %s%d", s_range, plev *5); break;
+		case 6:  sprintf(p, " %s20+d20", s_dur);  break;
+		case 7:  break;
+		case 8:  sprintf(p, " %s%dd8", s_dam, spell_power(8+((plev -5)/4)) ); break;
+		case 9:  break;
+		case 10: sprintf(p, " %s%dd8", s_dam, spell_power(11+(plev-5)/4) ); break;
+		case 11: break;
+		case 12: sprintf(p, " %s20+d20", s_dur);  break;
+		case 13: sprintf(p, " %s150+d%d", s_dam, spell_power(plev*2) ); break;
+		case 14: break;
+		case 15: break;
+		case 16: sprintf(p, " %s%d", s_range, plev/2 +10); break;
+		case 17: break;
+		case 18: sprintf(p, " %s6+d6", s_dur);  break;
+		case 19: sprintf(p, " %s%d", s_dam, spell_power(plev*11+5) ); break;
+		case 20: sprintf(p, " %s4+d4", s_dur);  break;
 		}
+		break;
 	}
+	case MIND_NINJUTSU:
+	{
+		switch (power)
+		{
+		case 0:  break;
+		case 1:  break;
+		case 2:  sprintf(p, " %s10", s_range); break;
+		case 3:  break;
+		case 4:  sprintf(p, " %s%d", s_range , plev *5); break;
+		case 5:  sprintf(p, " %s30", s_range); break;
+		case 6:  break;
+		case 7:  break;
+		case 8:  sprintf(p, " %s20+d20", s_dur);  break;
+		case 9:  sprintf(p, " %s%d", s_dam, (50+plev)/2 ); break;
+		case 10: break;
+		case 11: break;
+		case 12: break;
+		case 13: break;
+		case 14: break;
+		case 15: break;
+		case 16: sprintf(p, " %s%d+d%d", s_dur, plev/2, plev/2);  break;
+		case 17: sprintf(p, " %s%d*3", s_dam, (75+plev*2/3)/2 ); break;
+		case 18: sprintf(p, " %s%dd10", s_dam, 6+plev/8 ); break;
+		case 19: sprintf(p, " %s6+d6", s_dur);  break;
+		}
+		break;
+	}
+	case MIND_TIME_LORD:
+	{
+		switch (power)
+		{
+		case 14: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
+		}
+		break;
+	}
+  }
 }
 
 /*
@@ -410,16 +325,6 @@ static int get_mind_power(int *sn, bool only_browse)
 
     switch(p_ptr->pclass)
 	{
-	case CLASS_FORCETRAINER:
-	  {
-	    use_mind = MIND_KI;
-#ifdef JP
-	    p = "練気術";
-#else
-	    p = "Force";
-#endif
-	    break;
-	  }
 	case CLASS_BERSERKER:
 	  {
 	    use_mind = MIND_BERSERKER;
@@ -625,21 +530,6 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						/* Reduce failure rate by INT/WIS adjustment */
 						chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
-						if (use_mind == MIND_KI)
-						{
-							if (heavy_armor()) chance += 20;
-							if (p_ptr->weapon_info[0].icky_wield) chance += 20;
-							else if (has_weapon[0]) chance += 10;
-							if (p_ptr->weapon_info[1].icky_wield) chance += 20;
-							else if (has_weapon[1]) chance += 10;
-							if (i == 5)
-							{
-								int j;
-								for (j = 0; j < p_ptr->magic_num1[0] / 50; j++)
-									mana_cost += (j+1) * 3 / 2;
-							}
-						}
-
 						/* Not enough mana to cast */
 						if ((use_mind != MIND_BERSERKER) && 
 						    (use_mind != MIND_NINJUTSU) && 
@@ -660,12 +550,6 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						if (p_ptr->stun > 50) chance += 25;
 						else if (p_ptr->stun) chance += 15;
 
-						if (use_mind == MIND_KI)
-						{
-							if (heavy_armor()) chance += 5;
-							if (p_ptr->weapon_info[0].icky_wield) chance += 5;
-							if (p_ptr->weapon_info[1].icky_wield) chance += 5;
-						}
 						/* Always a 5 percent chance of working */
 						if (chance > 95) chance = 95;
 					}
@@ -2119,7 +2003,6 @@ msg_print("混乱していて集中できない！");
 #ifdef JP
 	switch(p_ptr->pclass)
 	{
-		case CLASS_FORCETRAINER:          use_mind = MIND_KI;p = "気";break;
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;p = "怒り";break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;p = "鏡魔法";break;
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;p = "精神";break;
@@ -2128,7 +2011,6 @@ msg_print("混乱していて集中できない！");
 #else
 	switch(p_ptr->pclass)
 	{
-		case CLASS_FORCETRAINER:          use_mind = MIND_KI;break;
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;break;
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;break;
@@ -2142,20 +2024,6 @@ msg_print("混乱していて集中できない！");
 	chance = spell.fail;
 
 	mana_cost = spell.mana_cost;
-	if (use_mind == MIND_KI)
-	{
-		if (heavy_armor()) chance += 20;
-		if (p_ptr->weapon_info[0].icky_wield) chance += 20;
-		else if (buki_motteruka(INVEN_RARM)) chance += 10;
-		if (p_ptr->weapon_info[1].icky_wield) chance += 20;
-		else if (buki_motteruka(INVEN_LARM)) chance += 10;
-		if (n == 5)
-		{
-			int j;
-			for (j = 0; j < p_ptr->magic_num1[0] / 50; j++)
-				mana_cost += (j+1) * 3 / 2;
-		}
-	}
 
 	/* Verify "dangerous" spells */
 	if ((use_mind == MIND_BERSERKER) || 
@@ -2219,13 +2087,6 @@ if (!get_check("それでも挑戦しますか? ")) return;
 		/* Stunning makes spells harder */
 		if (p_ptr->stun > 50) chance += 25;
 		else if (p_ptr->stun) chance += 15;
-
-		if (use_mind == MIND_KI)
-		{
-			if (heavy_armor()) chance += 5;
-			if (p_ptr->weapon_info[0].icky_wield) chance += 5;
-			if (p_ptr->weapon_info[1].icky_wield) chance += 5;
-		}
 	}
 
 	/* Always a 5 percent chance of working */
@@ -2246,16 +2107,6 @@ msg_format("%sの集中に失敗した！",p);
 		if ((use_mind != MIND_BERSERKER) && 
 		    (use_mind != MIND_NINJUTSU))
 		{
-			if ((use_mind == MIND_KI) && (n != 5) && p_ptr->magic_num1[0])
-			{
-#ifdef JP
-				msg_print("気が散ってしまった．．．");
-#else
-				msg_print("Your improved Force has gone away...");
-#endif
-				p_ptr->magic_num1[0] = 0;
-			}
-
 			if (randint1(100) < (chance / 2))
 			{
 				/* Backfire */
@@ -2341,10 +2192,6 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 
 		switch(use_mind)
 		{
-		case MIND_KI:
-			/* Cast the spell */
-			cast = cast_force_spell(n);
-			break;
 		case MIND_BERSERKER:
 			/* Cast the spell */
 			cast = cast_berserk_spell(n);
@@ -2474,8 +2321,7 @@ void do_cmd_mind_browse(void)
 	char temp[62*5];
 	int use_mind = 0;
 
-	if (p_ptr->pclass == CLASS_FORCETRAINER) use_mind = MIND_KI;
-	else if (p_ptr->pclass == CLASS_BERSERKER) use_mind = MIND_BERSERKER;
+	if (p_ptr->pclass == CLASS_BERSERKER) use_mind = MIND_BERSERKER;
 	else if (p_ptr->pclass == CLASS_NINJA) use_mind = MIND_NINJUTSU;
 	else if (p_ptr->pclass == CLASS_MIRROR_MASTER) use_mind = MIND_MIRROR_MASTER;
 	else if (p_ptr->pclass == CLASS_TIME_LORD) use_mind = MIND_TIME_LORD;
