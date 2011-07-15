@@ -534,7 +534,7 @@ bool mut_lose_random(mut_pred pred)
 		if (mut_present(i) && !mut_locked(i))
 		{
 			if (pred == NULL || (pred(i)))
-				cur = cur = _mut_prob_lose(i);
+				cur = _mut_prob_lose(i);
 		}
 		tot += cur;
 		prob[i] = tot;
