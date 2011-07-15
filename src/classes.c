@@ -190,15 +190,6 @@ int get_class_powers(spell_info* spells, int max)
 			spell->fn = monk_double_attack_spell;
 			break;
 		}
-		case CLASS_FORCETRAINER:
-		{
-			spell_info* spell = &spells[ct++];
-			spell->level = 15;
-			spell->cost = 0;
-			spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_WIS]);
-			spell->fn = clear_mind_spell;
-			break;
-		}
 		case CLASS_TOURIST:
 		{
 			spell_info* spell = &spells[ct++];

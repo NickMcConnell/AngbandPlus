@@ -411,7 +411,7 @@ static void confirm_use_force(bool browse_only)
 	/* Get the item index */
 	if (repeat_pull(&item) && (item == INVEN_FORCE))
 	{
-		browse_only ? do_cmd_mind_browse() : do_cmd_mind();
+		browse_only ? do_cmd_spell_browse() : do_cmd_spell();
 		return;
 	}
 
@@ -448,7 +448,7 @@ static void confirm_use_force(bool browse_only)
 
 	if (which == 'w')
 	{
-		browse_only ? do_cmd_mind_browse() : do_cmd_mind();
+		browse_only ? do_cmd_spell_browse() : do_cmd_spell();
 	}
 }
 

@@ -197,6 +197,13 @@ void _shock_power_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Damages an adjacent monster, and blow it away.",""));
 		break;
+	case SPELL_INFO:
+	{
+		int dice = 8 + ((p_ptr->lev - 5) / 4) + _force_boost() / 12;
+		int sides = 8;
+		var_set_string(res, info_damage(spell_power(dice), sides, 0));
+		break;
+	}
 	case SPELL_CAST:
 	{
 		int y, x, dam, dir;
