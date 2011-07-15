@@ -62,7 +62,7 @@ SRCS = \
 OBJS = \
 	archaeologist.o archer.o artifact.o autopick.o avatar.o bard.o \
 	birth.o bldg.o blood_knight.o blue_mage.o cavalry.o cave.o \
-	chuukei.o classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+	classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
 	do-spell.o duelist.o dungeon.o effects.o files.o flavor.o floors.o \
 	force_trainer.o generate.o grid.o hex.o hissatsu.o inet.o init1.o \
 	init2.o japanese.o load.o magic_eater.o mane.o melee1.o \
@@ -73,7 +73,7 @@ OBJS = \
 	spells1.o spells2.o spells3.o spells_a.o store.o streams.o tables.o \
 	util.o variable.o variant.o warlock.o wild.o wild_talent.o wizard1.o \
 	wizard2.o xtra1.o xtra2.o z-form.o z-rand.o z-term.o z-util.o z-virt.o \
-	main-cap.o main-gcu.o main-x11.o main-xaw.o main.o chuukei.o
+	main-x11.o main-gcu.o main.o chuukei.o
 
 
 ##
@@ -134,7 +134,7 @@ CC = gcc
 #CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
 #LIBS = -lX11 -lcurses -ltermcap
 
-CFLAGS = -Wall -O2  -fno-strength-reduce -pipe -g -D"USE_X11" $(JP_OPT) -D"USE_GCU" -I/usr/X11R6/include
+CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g -D"USE_X11" -D"USE_GCU" -I/usr/X11R6/include
 LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
 
@@ -342,7 +342,7 @@ main-cap.o: main-cap.c $(INCS)
 main-gcu.o: main-gcu.c $(INCS)
 main-x11.o: main-x11.c $(INCS)
 main-xaw.o: main-xaw.c $(INCS)
-main.o: main.c $(INCS)mane.c $(INCS)
+main.o: main.c $(INCS)
 melee1.o: melee1.c $(INCS)
 melee2.o: melee2.c $(INCS)
 menu.o: menu.c $(INCS)
