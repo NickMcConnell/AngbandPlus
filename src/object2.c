@@ -1011,7 +1011,7 @@ s32b flag_cost(object_type *o_ptr, int plusses)
 	if (have_flag(flgs, TR_WARNING)) total += 2000;
 	if (have_flag(flgs, TR_DEC_MANA)) total += 10000;
 	if (have_flag(flgs, TR_XTRA_MIGHT)) total += 2250;
-	if (have_flag(flgs, TR_XTRA_SHOTS)) total += 10000;
+	if (have_flag(flgs, TR_XTRA_SHOTS)) total += 10000 * o_ptr->pval;
 	if (have_flag(flgs, TR_IGNORE_ACID)) total += 100;
 	if (have_flag(flgs, TR_IGNORE_ELEC)) total += 100;
 	if (have_flag(flgs, TR_IGNORE_FIRE)) total += 100;
@@ -2165,15 +2165,23 @@ static bool make_artifact_special(object_type *o_ptr)
 			if (!one_in_(d)) continue;
 		}
 
-		/* Assign the template */
-		object_prep(o_ptr, k_idx);
+		if (random_artifacts)
+		{
+			object_prep(o_ptr, k_idx);
+			create_artifact(o_ptr, CREATE_ART_GOOD);
+			a_ptr->cur_num = 1;	/* Hack: Later code will skip otherwise */
+		}
+		else
+		{
+			/* Assign the template */
+			object_prep(o_ptr, k_idx);
 
-		/* Mega-Hack -- mark the item as an artifact */
-		o_ptr->name1 = i;
+			/* Mega-Hack -- mark the item as an artifact */
+			o_ptr->name1 = i;
 
-		/* Hack: Some artifacts get random extra powers */
-		random_artifact_resistance(o_ptr, a_ptr);
-
+			/* Hack: Some artifacts get random extra powers */
+			random_artifact_resistance(o_ptr, a_ptr);
+		}
 		/* Success */
 		return (TRUE);
 	}
@@ -2234,11 +2242,21 @@ static bool make_artifact(object_type *o_ptr)
 		if (!one_in_(a_ptr->rarity)) continue;
 
 		/* Hack -- mark the item as an artifact */
-		o_ptr->name1 = i;
+		if (random_artifacts)
+		{
+			int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
 
-		/* Hack: Some artifacts get random extra powers */
-		random_artifact_resistance(o_ptr, a_ptr);
+			object_prep(o_ptr, k_idx);
+			create_artifact(o_ptr, CREATE_ART_GOOD);
+			a_ptr->cur_num = 1;	/* Hack: Later code will skip otherwise */
+		}
+		else
+		{
+			o_ptr->name1 = i;
 
+			/* Hack: Some artifacts get random extra powers */
+			random_artifact_resistance(o_ptr, a_ptr);
+		}
 		/* Success */
 		return (TRUE);
 	}
@@ -3047,6 +3065,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			switch (o_ptr->sval)
 			{
 				case SV_RING_ATTACKS:
+				case SV_RING_SHOTS:
 				{
 					/* Stat bonus */
 					o_ptr->pval = m_bonus(2, level);
@@ -3066,11 +3085,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
 
-					break;
-				}
-
-				case SV_RING_SHOTS:
-				{
 					break;
 				}
 				

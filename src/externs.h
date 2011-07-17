@@ -346,6 +346,7 @@ extern bool allow_hostile_monster; /* Allow monsters hostile to each other */
 extern bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 extern bool quest_unique; /* Random quests for unique monsters only */
 extern bool ironman_quests; /* Random quests must be completed */
+extern bool random_artifacts;
 
 
 /*** Easy Object Auto-Destroyer ***/

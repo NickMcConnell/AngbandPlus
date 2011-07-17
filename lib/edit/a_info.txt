@@ -877,9 +877,9 @@ D:精霊達が争う渦中の地ヴァリノールの英雄が身に付けていたマントだ。
 #J0# ???
 N:45:『ホルコルレス』
 E:'Holcolleth'
-I:35:2:2
+I:35:2:3
 W:20:15:5:43000
-P:4:0d0:0:0:4
+P:4:0d0:0:0:15
 F:INT | WIS | STEALTH | HIDE_TYPE | RES_ACID | SEARCH | ACTIVATE
 D:$This elven-grey mantle possesses great powers of tranquility and of 
 D:$concealment, and grants the wearer the knowledge and understanding of 
@@ -1495,7 +1495,7 @@ N:80:『クリスドゥリアン』
 E:'Crisdurian'
 I:23:28:0
 W:40:15:260:111000
-P:0:4d5:18:19:0
+P:0:4d5:23:24:0
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT |
 F:SLAY_HUMAN | SLAY_ORC | SEE_INVIS | SHOW_MODS | VORPAL | BRAND_POIS
 D:$A giant's weapon, with a long blade tall and straight thrusting out from a 
@@ -3479,7 +3479,7 @@ W:50:100:2:100000
 P:0:0d0:0:0:5
 F:INT | CHR | INFRA | SEARCH | HIDE_TYPE | FULL_NAME |
 F:SEE_INVIS | FREE_ACT | SLOW_DIGEST | REGEN | LITE | WARNING |
-F:SH_FIRE | SH_ELEC | SH_COLD | ACTIVATE |
+F:SH_FIRE | SH_ELEC | SH_COLD | ACTIVATE | EASY_SPELL
 F:INSTA_ART
 
 N:220:ものまねの始祖ゴゴの

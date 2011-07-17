@@ -3984,7 +3984,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"ラッキーマン",
 #endif
 		"Lucky",
-		{  -2,  -2,  -2,  -2,  -2,  0 },
+		{  -3,  -3,  -3,  -3,  -3,  0 },
 		10,  7,  3,  2, 10,  8,  15,  15,
 		0, 1, 2
 	},
@@ -6531,6 +6531,9 @@ option_type option_info[] =
 
 	{ &quest_unique,					TRUE, OPT_PAGE_BIRTH, 6, 21,
 	"quest_unique",						"Random quests for unique monsters only" },
+
+	{ &random_artifacts,				FALSE, OPT_PAGE_BIRTH, 6, 23,
+	"random_artifacts",					"Only create random artifacts" },
 
 	/*** Easy Object Auto-Destroyer ***/
 

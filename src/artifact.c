@@ -1641,12 +1641,12 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 	char    new_name[1024];
 	int     has_pval = 0;
 	int     powers = randint1(5) + 1;
-	int     max_type = (object_is_weapon_ammo(o_ptr) ? 7 : 5);
 	int     power_level;
 	s32b    total_flags;
 	bool    a_cursed = FALSE;
 	int     warrior_artifact_bias = 0;
 	int i;
+	bool has_resistance = FALSE;
 
 	/* Reset artifact bias */
 	artifact_bias = 0;
@@ -1660,7 +1660,9 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 
 	if (o_ptr->pval) has_pval = TRUE;
 
-	if ((mode & CREATE_ART_GOOD) && one_in_(4))
+	if ((mode & CREATE_ART_GOOD) 
+	  && (one_in_(4) 
+	     || (p_ptr->pseikaku == SEIKAKU_LUCKY && one_in_(4))))
 	{
 		switch (p_ptr->pclass)
 		{
@@ -1755,44 +1757,94 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && object_is_cursed(o_ptr))
 		a_cursed = TRUE;
 
-	while (one_in_(powers) || one_in_(7) || one_in_(10))
-		powers++;
+	if (dun_level == 0)	/* quest reward ... can't really know what level to use! */
+	{
+		while (one_in_(powers) || one_in_(7) || one_in_(10))
+			powers++;
+	}
+	else
+	{
+		powers = m_bonus(7, dun_level) + 1;
+	/*
+		while (one_in_(powers))
+			powers++;
 
-	if (!a_cursed && one_in_(WEIRD_LUCK))
-		powers *= 2;
+		while (randint1(300) < dun_level)
+			powers++; */
+	}
+
+	if (!a_cursed)
+	{
+		if (one_in_(WEIRD_LUCK))
+			powers *= 2;
+		else if (p_ptr->pseikaku == SEIKAKU_LUCKY && one_in_(WEIRD_LUCK))
+			powers *= 2;
+	}
 
 	if (a_cursed) powers /= 2;
 
 	/* Main loop */
-	while (powers--)
+	while (powers > 0)
 	{
-		switch (randint1(max_type))
+		powers--;
+		switch (randint1(8))
 		{
 			case 1: case 2:
 				random_plus(o_ptr);
 				has_pval = TRUE;
 				break;
-			case 3: case 4:
-				if (one_in_(2) && object_is_weapon_ammo(o_ptr) && (o_ptr->tval != TV_BOW))
+			case 3:
+				if (one_in_(5) && object_is_weapon_ammo(o_ptr) && (o_ptr->tval != TV_BOW))
 				{
 					if (a_cursed && !one_in_(13)) break;
-					if (one_in_(13))
+					/* spiked code from EGO_SLAYING_WEAPON */
+					if (one_in_(3)) /* double damage */
 					{
-						if (one_in_(o_ptr->ds+4)) o_ptr->ds++;
+						powers -= o_ptr->dd - 1;
+						o_ptr->dd *= 2;
 					}
 					else
 					{
-						if (one_in_(o_ptr->dd+1)) o_ptr->dd++;
-					}
+						powers++;
+						powers++;
+						do
+						{
+							o_ptr->dd++;
+							powers--;
+						}
+						while (one_in_(o_ptr->dd));
+						
+						do
+						{
+							o_ptr->ds++;
+							powers--;
+						}
+						while (one_in_(o_ptr->ds));
+					}					
+				}
+				else if (!has_resistance 
+				      && (object_is_body_armour(o_ptr) || object_is_shield(o_ptr)) 
+					  && one_in_(2) )
+				{
+					add_flag(o_ptr->art_flags, TR_RES_ACID);
+					add_flag(o_ptr->art_flags, TR_RES_COLD);
+					add_flag(o_ptr->art_flags, TR_RES_FIRE);
+					add_flag(o_ptr->art_flags, TR_RES_ELEC);
+					if (one_in_(3))
+						add_flag(o_ptr->art_flags, TR_RES_POIS);
+					has_resistance = TRUE;
 				}
 				else
 					random_resistance(o_ptr);
 				break;
-			case 5:
+			case 4:
 				random_misc(o_ptr);
 				break;
-			case 6: case 7:
-				random_slay(o_ptr);
+			case 5: case 6: case 7: case 8:
+				if (object_is_weapon_ammo(o_ptr))
+					random_slay(o_ptr);
+				else
+					random_resistance(o_ptr);					
 				break;
 			default:
 				if (p_ptr->wizard) msg_print("Switch error in create_artifact!");
@@ -1813,16 +1865,29 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 		if (have_flag(o_ptr->art_flags, TR_BLOWS))
 		{
 			o_ptr->pval = randint1(2);
+			if (one_in_(30)) o_ptr->pval++;
 			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA))
+			{
 				o_ptr->pval++;
+				if (one_in_(30)) o_ptr->pval++;
+			}
 		}
 		else
 		{
-			do
+			if (dun_level == 0)
 			{
-				o_ptr->pval++;
+				do
+				{
+					o_ptr->pval++;
+				}
+				while (o_ptr->pval < randint1(5) || one_in_(o_ptr->pval));
 			}
-			while (o_ptr->pval < randint1(5) || one_in_(o_ptr->pval));
+			else
+			{
+				o_ptr->pval = m_bonus(5, dun_level) + 1;
+				while (one_in_(WEIRD_LUCK))
+					o_ptr->pval++;
+			}		
 		}
 
 		if ((o_ptr->pval > 4) && !one_in_(WEIRD_LUCK))
@@ -1831,11 +1896,11 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 
 	/* give it some plusses... */
 	if (object_is_armour(o_ptr))
-		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
+		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 + (dun_level/20) - o_ptr->to_a);
 	else if (object_is_weapon_ammo(o_ptr))
 	{
-		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
-		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
+		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 + (dun_level/20) - o_ptr->to_h);
+		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 + (dun_level/20) - o_ptr->to_d);
 		if ((have_flag(o_ptr->art_flags, TR_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->art_flags, TR_BLESSED);
 	}
 
@@ -3160,6 +3225,17 @@ bool create_named_art(int a_idx, int y, int x)
 	int i;
 
 	artifact_type *a_ptr = &a_info[a_idx];
+
+	if (random_artifacts)
+	{
+		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+		object_prep(&forge, k_idx);
+		create_artifact(&forge, CREATE_ART_GOOD);
+		drop_here(&forge, y, x);
+		a_info[a_idx].cur_num = 1;
+		return TRUE;
+	}
 
 	/* Get local object */
 	q_ptr = &forge;

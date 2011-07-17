@@ -4591,6 +4591,10 @@ msg_print("不死の者が近くに現れるのが聞こえた。");
 		{
 			bool uniques_are_summoned = FALSE;
 			int non_unique_type = SUMMON_HI_UNDEAD;
+			u32b mode = (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
+
+			if (r_ptr->level > 98 && one_in_(3))
+				mode |= PM_ALLOW_CLONED;
 
 			disturb(1, 0);
 #ifdef JP
@@ -4607,7 +4611,7 @@ else msg_format("%^sが魔法で特別な強敵を召喚した！", m_name);
 
 			for (k = 0; k < s_num_4; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, mode);
 			}
 
 			if (count) uniques_are_summoned = TRUE;
@@ -4619,7 +4623,7 @@ else msg_format("%^sが魔法で特別な強敵を召喚した！", m_name);
 
 			for (k = count; k < s_num_4; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, non_unique_type, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+				count += summon_specific(m_idx, y, x, rlev, non_unique_type, mode);
 			}
 
 			if (blind && count)

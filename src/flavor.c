@@ -2594,7 +2594,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		}
 
 		/* Dump "pval" flags for wearable items */
-		if (have_pval_flags(flgs))
+		if (have_pval_flags(flgs) || 
+		    (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SHOTS)) /* megahack, but no other options :( */
 		{
 			/* Start the display */
 			t = object_desc_chr(t, ' ');

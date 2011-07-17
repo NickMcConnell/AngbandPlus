@@ -3459,9 +3459,7 @@ void calc_bonuses(void)
 		/* Unencumbered Monks become faster every 10 levels */
 		if (!(heavy_armor()))
 		{
-			if (!(prace_is_(RACE_KLACKON) ||
-				    prace_is_(RACE_SPRITE) ||
-				    (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
+			if (p_ptr->pseikaku != SEIKAKU_MUNCHKIN)
 				p_ptr->pspeed += (p_ptr->lev) / 10;
 
 			/* Free action if unencumbered at level 25 */
@@ -3511,9 +3509,7 @@ void calc_bonuses(void)
 			        (!inventory[INVEN_LARM].k_idx || p_ptr->hidarite))
 		{
 			p_ptr->pspeed += 3;
-			if (!(prace_is_(RACE_KLACKON) ||
-				    prace_is_(RACE_SPRITE) ||
-				    (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
+			if (p_ptr->pseikaku != SEIKAKU_MUNCHKIN)
 				p_ptr->pspeed += (p_ptr->lev) / 10;
 			p_ptr->skill_stl += (p_ptr->lev)/10;
 
@@ -4050,7 +4046,13 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_IMPACT)) p_ptr->impact[(i == INVEN_RARM) ? 0 : 1] = TRUE;
 
 		/* Boost shots */
-		if (have_flag(flgs, TR_XTRA_SHOTS)) extra_shots++;
+		if (have_flag(flgs, TR_XTRA_SHOTS)) 
+		{
+			if (o_ptr->tval == TV_RING)
+				extra_shots += o_ptr->pval;
+			else
+				extra_shots++;
+		}
 
 		/* Various flags */
 		if (have_flag(flgs, TR_AGGRAVATE))   p_ptr->cursed |= TRC_AGGRAVATE;
@@ -4149,6 +4151,7 @@ void calc_bonuses(void)
 
 		if (o_ptr->name2 == EGO_YOIYAMI) yoiyami = TRUE;
 		if (o_ptr->name2 == EGO_2WEAPON) easy_2weapon = TRUE;
+		if (o_ptr->name1 == ART_MASTER_TONBERRY) easy_2weapon = TRUE;
 		if (o_ptr->name2 == EGO_RING_RES_TIME) p_ptr->resist_time = TRUE;
 		if (o_ptr->name2 == EGO_RING_THROW) p_ptr->mighty_throw = TRUE;
 		if (have_flag(flgs, TR_EASY_SPELL)) p_ptr->easy_spell = TRUE;
@@ -5033,6 +5036,8 @@ void calc_bonuses(void)
 				p_ptr->to_h_b += (10 + (p_ptr->lev / 5));
 				p_ptr->dis_to_h_b += (10 + (p_ptr->lev / 5));
 			}
+
+			if (p_ptr->num_fire < 0) p_ptr->num_fire = 0;
 		}
 	}
 

@@ -834,6 +834,7 @@ static int summon_specific_who = -1;
 
 
 static bool summon_unique_okay = FALSE;
+static bool summon_cloned_okay = FALSE;
 
 
 static bool summon_specific_aux(int r_idx)
@@ -1455,7 +1456,7 @@ static int mysqrt(int n)
  */
 s16b get_mon_num(int level)
 {
-	int			i, j, p;
+	int			i;
 
 	int			r_idx;
 
@@ -1548,7 +1549,8 @@ s16b get_mon_num(int level)
 			     (r_ptr->flags7 & (RF7_NAZGUL))) &&
 			    (r_ptr->cur_num >= r_ptr->max_num))
 			{
-				continue;
+				/* Serpent can "resurrect" uniques, but not weak ones! */
+				if (!summon_cloned_okay || r_ptr->level < 70) continue;
 			}
 
 			if ((r_ptr->flags7 & (RF7_UNIQUE2)) &&
@@ -1612,57 +1614,6 @@ s16b get_mon_num(int level)
 		value = value - table[i].prob3;
 	}
 
-
-	/* Power boost */
-	p = randint0(100);
-
-	/* Try for a "harder" monster once (50%) or twice (10%) */
-	if (p < 60)
-	{
-		/* Save old */
-		j = i;
-
-		/* Pick a monster */
-		value = randint0(total);
-
-		/* Find the monster */
-		for (i = 0; i < alloc_race_size; i++)
-		{
-			/* Found the entry */
-			if (value < table[i].prob3) break;
-
-			/* Decrement */
-			value = value - table[i].prob3;
-		}
-
-		/* Keep the "best" one */
-		if (table[i].level < table[j].level) i = j;
-	}
-
-	/* Try for a "harder" monster twice (10%) */
-	if (p < 10)
-	{
-		/* Save old */
-		j = i;
-
-		/* Pick a monster */
-		value = randint0(total);
-
-		/* Find the monster */
-		for (i = 0; i < alloc_race_size; i++)
-		{
-			/* Found the entry */
-			if (value < table[i].prob3) break;
-
-			/* Decrement */
-			value = value - table[i].prob3;
-		}
-
-		/* Keep the "best" one */
-		if (table[i].level < table[j].level) i = j;
-	}
-
-	/* Result */
 	return (table[i].index);
 }
 
@@ -3237,6 +3188,7 @@ static int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32
 	monster_race	*r_ptr = &r_info[r_idx];
 
 	cptr		name = (r_name + r_ptr->name);
+	bool cloned = FALSE;
 
 	int cmi;
 
@@ -3268,7 +3220,10 @@ static int place_monster_one(int who, int y, int x, int r_idx, int pack_idx, u32
 		    (r_ptr->cur_num >= r_ptr->max_num))
 		{
 			/* Cannot create */
-			return 0;
+			if (mode & PM_ALLOW_CLONED)
+				cloned = TRUE;
+			else
+				return 0;
 		}
 
 		if ((r_ptr->flags7 & (RF7_UNIQUE2)) &&
@@ -3423,6 +3378,9 @@ msg_print("守りのルーンが壊れた！");
 		if (r_ptr->flags3 & RF3_EVIL) m_ptr->sub_align |= SUB_ALIGN_EVIL;
 		if (r_ptr->flags3 & RF3_GOOD) m_ptr->sub_align |= SUB_ALIGN_GOOD;
 	}
+
+	if (cloned)
+		m_ptr->smart |= SM_CLONED;
 
 	/* Place the monster at the location */
 	m_ptr->fy = y;
@@ -4321,13 +4279,15 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 	summon_specific_type = type;
 
 	summon_unique_okay = (mode & PM_ALLOW_UNIQUE) ? TRUE : FALSE;
+	summon_cloned_okay = (mode & PM_ALLOW_CLONED) ? TRUE : FALSE;
 
 	/* Prepare allocation table */
 	get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
 
 	/* Pick a monster, using the level calculation */
 	r_idx = get_mon_num((dun_level + lev) / 2 + 5);
-
+	summon_cloned_okay = FALSE; /* This is a hack for RF6_S_UNIQUE ... get_mon_num() is much more widely used, however! */
+	                            /* place_monster_aux() will now handle setting the unique as "cloned" if appropriate */
 	/* Handle failure */
 	if (!r_idx)
 	{

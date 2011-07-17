@@ -2944,9 +2944,6 @@ static void get_extra(bool roll_hitdie)
 	if (p_ptr->prace == RACE_ANDROID) p_ptr->expfact = rp_ptr->r_exp;
 	else p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
-		p_ptr->expfact -= 15;
-
 	/* Reset record of race/realm changes */
 	p_ptr->start_race = p_ptr->prace;
 	p_ptr->old_race1 = 0L;
@@ -3643,6 +3640,7 @@ static bool mon_hook_quest_nonunique(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	if (r_ptr->flags1 & RF1_UNIQUE) return FALSE;
+	if (r_ptr->flags1 & RF7_UNIQUE2) return FALSE;
 
 	return TRUE;
 }

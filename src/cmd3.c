@@ -426,7 +426,7 @@ sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
 		if (!get_check(dummy)) return;
 	}
 
-	if ((o_ptr->name1 == ART_STONEMASK) && object_is_known(o_ptr) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID))
+	if ((o_ptr->name1 == ART_STONEMASK) && object_is_known(o_ptr) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->pclass != CLASS_BLOOD_KNIGHT))
 	{
 		char dummy[MAX_NLEN+80];
 
@@ -618,7 +618,7 @@ msg_print("クエストを達成した！");
 	}
 
 	/* The Stone Mask make the player turn into a vampire! */
-	if ((o_ptr->name1 == ART_STONEMASK) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID))
+	if ((o_ptr->name1 == ART_STONEMASK) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->pclass != CLASS_BLOOD_KNIGHT))
 	{
 		/* Turn into a vampire */
 		change_race(RACE_VAMPIRE, "");

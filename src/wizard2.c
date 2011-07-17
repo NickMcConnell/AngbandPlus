@@ -151,7 +151,25 @@ static void do_cmd_wiz_hack_ben(void)
 		msg_print("There ... now wasn't that easier?");
 	} */
 
-	wall_stone();
+	int a_idx = get_quantity("Which One? ", max_a_idx);
+	int ct = get_quantity("How Many?", 100);
+	int i;
+
+	for (i = 0; i < ct; i++)
+	{
+		artifact_type *a_ptr = &a_info[a_idx];
+		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+		object_type forge;
+		char        o_name[MAX_NLEN];
+
+		object_prep(&forge, k_idx);
+		create_artifact(&forge, CREATE_ART_GOOD); /*CREATE_ART_GOOD); CREATE_ART_CURSED);*/
+		identify_item(&forge);
+
+		forge.ident |= (IDENT_MENTAL); 
+		object_desc(o_name, &forge, 0);
+		msg_format("%s", o_name);
+	}
 }
 
 

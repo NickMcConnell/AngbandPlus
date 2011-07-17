@@ -312,6 +312,7 @@ bool allow_hostile_monster; /* Allow monsters hostile to each other */
 bool allow_pets; /* Allow pets: Note, this makes some classes unplayable. */
 bool quest_unique; /* Random quests for unique monsters only */
 bool ironman_quests; /* Random quests must be completed */
+bool random_artifacts;
 
 /*** Easy Object Auto-Destroyer ***/
 
