@@ -6541,145 +6541,151 @@ static void do_cmd_knowledge_artifacts(void)
 	    return;
 	}
 
-	/* Allocate the "who" array */
-	C_MAKE(who, max_a_idx, s16b);
-
-	/* Allocate the "okay" array */
-	C_MAKE(okay, max_a_idx, bool);
-
-	/* Scan the artifacts */
-	for (k = 0; k < max_a_idx; k++)
+	if (random_artifacts)
 	{
-		artifact_type *a_ptr = &a_info[k];
-
-		/* Default */
-		okay[k] = FALSE;
-
-		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
-
-		/* Assume okay */
-		okay[k] = TRUE;
+		fprintf(fff, "You won't find any fixed artifacts this game.");
 	}
-
-	/* Check the dungeon */
-	for (y = 0; y < cur_hgt; y++)
+	else
 	{
-		for (x = 0; x < cur_wid; x++)
+		/* Allocate the "who" array */
+		C_MAKE(who, max_a_idx, s16b);
+
+		/* Allocate the "okay" array */
+		C_MAKE(okay, max_a_idx, bool);
+
+		/* Scan the artifacts */
+		for (k = 0; k < max_a_idx; k++)
 		{
-			cave_type *c_ptr = &cave[y][x];
+			artifact_type *a_ptr = &a_info[k];
 
-			s16b this_o_idx, next_o_idx = 0;
+			/* Default */
+			okay[k] = FALSE;
 
-			/* Scan all objects in the grid */
-			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			/* Skip "empty" artifacts */
+			if (!a_ptr->name) continue;
+
+			/* Skip "uncreated" artifacts */
+			if (!a_ptr->cur_num) continue;
+
+			/* Assume okay */
+			okay[k] = TRUE;
+		}
+
+		/* Check the dungeon */
+		for (y = 0; y < cur_hgt; y++)
+		{
+			for (x = 0; x < cur_wid; x++)
 			{
-				object_type *o_ptr;
+				cave_type *c_ptr = &cave[y][x];
 
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
+				s16b this_o_idx, next_o_idx = 0;
 
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
+				/* Scan all objects in the grid */
+				for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+				{
+					object_type *o_ptr;
 
-				/* Ignore non-artifacts */
-				if (!object_is_fixed_artifact(o_ptr)) continue;
+					/* Acquire object */
+					o_ptr = &o_list[this_o_idx];
 
-				/* Ignore known items */
-				if (object_is_known(o_ptr)) continue;
+					/* Acquire next object */
+					next_o_idx = o_ptr->next_o_idx;
 
-				/* Note the artifact */
-				okay[o_ptr->name1] = FALSE;
+					/* Ignore non-artifacts */
+					if (!object_is_fixed_artifact(o_ptr)) continue;
+
+					/* Ignore known items */
+					if (object_is_known(o_ptr)) continue;
+
+					/* Note the artifact */
+					okay[o_ptr->name1] = FALSE;
+				}
 			}
 		}
-	}
 
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Ignore non-artifacts */
-		if (!object_is_fixed_artifact(o_ptr)) continue;
-
-		/* Ignore known items */
-		if (object_is_known(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
-	}
-
-	for (k = 0; k < max_a_idx; k++)
-	{
-		if (okay[k]) who[n++] = k;
-	}
-
-	/* Select the sort method */
-	ang_sort_comp = ang_sort_art_comp;
-	ang_sort_swap = ang_sort_art_swap;
-
-	/* Sort the array by dungeon depth of monsters */
-	ang_sort(who, &why, n);
-
-	/* Scan the artifacts */
-	for (k = 0; k < n; k++)
-	{
-		artifact_type *a_ptr = &a_info[who[k]];
-
-		/* Paranoia */
-#ifdef JP
-		strcpy(base_name, "未知の伝説のアイテム");
-#else
-		strcpy(base_name, "Unknown Artifact");
-#endif
-
-
-		/* Obtain the base object type */
-		z = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-		/* Real object */
-		if (z)
+		/* Check the inventory and equipment */
+		for (i = 0; i < INVEN_TOTAL; i++)
 		{
-			object_type forge;
-			object_type *q_ptr;
+			object_type *o_ptr = &inventory[i];
 
-			/* Get local object */
-			q_ptr = &forge;
+			/* Ignore non-objects */
+			if (!o_ptr->k_idx) continue;
 
-			/* Create fake object */
-			object_prep(q_ptr, z);
+			/* Ignore non-artifacts */
+			if (!object_is_fixed_artifact(o_ptr)) continue;
 
-			/* Make it an artifact */
-			q_ptr->name1 = (byte)who[k];
+			/* Ignore known items */
+			if (object_is_known(o_ptr)) continue;
 
-			/* Display as if known */
-			q_ptr->ident |= IDENT_STORE;
-
-			/* Describe the artifact */
-			object_desc(base_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			/* Note the artifact */
+			okay[o_ptr->name1] = FALSE;
 		}
 
-		/* Hack -- Build the artifact name */
-#ifdef JP
-		fprintf(fff, "     %s\n", base_name);
-#else
-		fprintf(fff, "     The %s\n", base_name);
-#endif
+		for (k = 0; k < max_a_idx; k++)
+		{
+			if (okay[k]) who[n++] = k;
+		}
 
+		/* Select the sort method */
+		ang_sort_comp = ang_sort_art_comp;
+		ang_sort_swap = ang_sort_art_swap;
+
+		/* Sort the array by dungeon depth of monsters */
+		ang_sort(who, &why, n);
+
+		/* Scan the artifacts */
+		for (k = 0; k < n; k++)
+		{
+			artifact_type *a_ptr = &a_info[who[k]];
+
+			/* Paranoia */
+	#ifdef JP
+			strcpy(base_name, "未知の伝説のアイテム");
+	#else
+			strcpy(base_name, "Unknown Artifact");
+	#endif
+
+
+			/* Obtain the base object type */
+			z = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+			/* Real object */
+			if (z)
+			{
+				object_type forge;
+				object_type *q_ptr;
+
+				/* Get local object */
+				q_ptr = &forge;
+
+				/* Create fake object */
+				object_prep(q_ptr, z);
+
+				/* Make it an artifact */
+				q_ptr->name1 = (byte)who[k];
+
+				/* Display as if known */
+				q_ptr->ident |= IDENT_STORE;
+
+				/* Describe the artifact */
+				object_desc(base_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			}
+
+			/* Hack -- Build the artifact name */
+	#ifdef JP
+			fprintf(fff, "     %s\n", base_name);
+	#else
+			fprintf(fff, "     The %s\n", base_name);
+	#endif
+
+		}
+
+		/* Free the "who" array */
+		C_KILL(who, max_a_idx, s16b);
+
+		/* Free the "okay" array */
+		C_KILL(okay, max_a_idx, bool);
 	}
-
-	/* Free the "who" array */
-	C_KILL(who, max_a_idx, s16b);
-
-	/* Free the "okay" array */
-	C_KILL(okay, max_a_idx, bool);
-
 	/* Close the file */
 	my_fclose(fff);
 

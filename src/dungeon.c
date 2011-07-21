@@ -2306,7 +2306,7 @@ static void process_world_aux_light(void)
 	if (o_ptr->tval == TV_LITE)
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
-		if (!(o_ptr->name1 || o_ptr->art_name || o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->xtra4 > 0))
+		if (!(o_ptr->name1 || o_ptr->name3 || o_ptr->art_name || o_ptr->sval == SV_LITE_FEANOR) && (o_ptr->xtra4 > 0))
 		{
 			/* Decrease life-span */
 			if (o_ptr->name2 == EGO_LITE_LONG)

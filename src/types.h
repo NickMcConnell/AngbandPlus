@@ -525,6 +525,7 @@ struct object_type
 
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
+	byte name3;         /* Random replacement for a fixed art */
 
 	byte xtra1;			/* Extra info type (now unused) */
 	byte xtra2;			/* Extra info index */

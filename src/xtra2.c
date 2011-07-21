@@ -1050,7 +1050,8 @@ msg_print("地面に落とされた。");
 				/* Hack -- Memorize location of artifact in saved floors */
 				if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
 			}
-			else if (!preserve_mode) a_ptr->cur_num = 1;
+			else if (!preserve_mode) 
+				a_ptr->cur_num = 1;
 		}
 		break;
 
@@ -1435,7 +1436,8 @@ msg_print("地面に落とされた。");
 					/* Hack -- Memorize location of artifact in saved floors */
 					if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
 				}
-				else if (!preserve_mode) a_ptr->cur_num = 1;
+				else if (!preserve_mode) 
+					a_ptr->cur_num = 1;
 			}
 		}
 
@@ -1459,7 +1461,8 @@ msg_print("地面に落とされた。");
 						/* Hack -- Memorize location of artifact in saved floors */
 						if (character_dungeon) a_ptr->floor_id = p_ptr->floor_id;
 					}
-					else if (!preserve_mode) a_ptr->cur_num = 1;
+					else if (!preserve_mode) 
+						a_ptr->cur_num = 1;
 
 					/* Prevent rewarding both artifact and "default" object */
 					if (!d_info[dungeon_type].final_object) k_idx = 0;

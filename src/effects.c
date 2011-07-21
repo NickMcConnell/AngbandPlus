@@ -6331,7 +6331,7 @@ void calc_android_exp(void)
 		}
 		else if (o_ptr->art_name)
 		{
-			s32b total_flags = flag_cost(o_ptr, o_ptr->pval);
+			s32b total_flags = flag_cost(o_ptr, o_ptr->pval, FALSE);
 			int fake_level;
 
 			if (!object_is_weapon_ammo(o_ptr))

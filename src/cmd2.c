@@ -3951,6 +3951,8 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			{
 				a_info[j_ptr->name1].cur_num = 0;
 			}
+			if (q_ptr->name3)
+				a_info[j_ptr->name3].cur_num = 0;
 			return;
 		}
 

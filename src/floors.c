@@ -663,6 +663,10 @@ static void update_unique_artifact(s16b cur_floor_id)
 		{
 			a_info[o_ptr->name1].floor_id = cur_floor_id;
 		}
+		else if (o_ptr->name3)
+		{
+			a_info[o_ptr->name3].floor_id = cur_floor_id;
+		}
 	}
 }
 
@@ -926,6 +930,10 @@ void leave_floor(void)
 		if (object_is_fixed_artifact(o_ptr))
 		{
 			a_info[o_ptr->name1].floor_id = 0;
+		}
+		else if (o_ptr->name3)
+		{
+			a_info[o_ptr->name3].floor_id = 0;
 		}
 	}
 
@@ -1251,19 +1259,26 @@ void change_floor(void)
 				/* Skip dead objects */
 				if (!o_ptr->k_idx) continue;
 
-				/* Ignore non-artifact */
-				if (!object_is_fixed_artifact(o_ptr)) continue;
-
-				/* Appear at a different floor? */
-				if (a_info[o_ptr->name1].floor_id != new_floor_id)
+				if (object_is_fixed_artifact(o_ptr))
 				{
-					/* Disappear from here */
-					delete_object_idx(i);
+					/* Appear at a different floor? */
+					if (a_info[o_ptr->name1].floor_id != new_floor_id)
+					{
+						/* Disappear from here */
+						delete_object_idx(i);
+					}
+					else
+					{
+						/* Cancel preserve */
+						a_info[o_ptr->name1].cur_num = 1;
+					}
 				}
-				else
+				if (o_ptr->name3)
 				{
-					/* Cancel preserve */
-					a_info[o_ptr->name1].cur_num = 1;
+					if (a_info[o_ptr->name3].floor_id != new_floor_id)
+						delete_object_idx(i);
+					else
+						a_info[o_ptr->name3].cur_num = 1;
 				}
 			}
 

@@ -318,6 +318,8 @@ static void rd_item(object_type *o_ptr)
 	else o_ptr->name1 = 0;
 	if (flags & SAVE_ITEM_NAME2) rd_byte(&o_ptr->name2);
 	else o_ptr->name2 = 0;
+	if (flags & SAVE_ITEM_NAME3) rd_byte(&o_ptr->name3);
+	else o_ptr->name3 = 0;
 	if (flags & SAVE_ITEM_TIMEOUT) rd_s16b(&o_ptr->timeout);
 	else o_ptr->timeout = 0;
 

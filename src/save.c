@@ -99,6 +99,7 @@ static void wr_item(object_type *o_ptr)
 	if (o_ptr->number != 1) flags |= SAVE_ITEM_NUMBER;
 	if (o_ptr->name1) flags |= SAVE_ITEM_NAME1;
 	if (o_ptr->name2) flags |= SAVE_ITEM_NAME2;
+	if (o_ptr->name3) flags |= SAVE_ITEM_NAME3;
 	if (o_ptr->timeout) flags |= SAVE_ITEM_TIMEOUT;
 	if (o_ptr->to_h) flags |= SAVE_ITEM_TO_H;
 	if (o_ptr->to_d) flags |= SAVE_ITEM_TO_D;
@@ -143,6 +144,7 @@ static void wr_item(object_type *o_ptr)
 
 	if (flags & SAVE_ITEM_NAME1) wr_byte(o_ptr->name1);
 	if (flags & SAVE_ITEM_NAME2) wr_byte(o_ptr->name2);
+	if (flags & SAVE_ITEM_NAME3) wr_byte(o_ptr->name3);
 	if (flags & SAVE_ITEM_TIMEOUT) wr_s16b(o_ptr->timeout);
 
 	if (flags & SAVE_ITEM_TO_H) wr_s16b(o_ptr->to_h);

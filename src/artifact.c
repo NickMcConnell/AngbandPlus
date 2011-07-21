@@ -1558,68 +1558,48 @@ static void get_random_name_aux(char *return_name, object_type *o_ptr, int power
 	}
 	else if (o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
 	{
-		/* TODO */
-		if (one_in_(2))
-			get_table_sindarin(return_name);
-		else
-			get_table_name(return_name);
+		get_table_name(return_name);
 	}
 	else
 	{
-		int prob = randint1(100);
+		cptr filename;
 
-		if (prob <= SINDARIN_NAME)
+		if (object_is_armour(o_ptr))
 		{
-			get_table_sindarin(return_name);
-		}
-		else if (prob <= TABLE_NAME)
-		{
-			get_table_name(return_name);
+			switch (power)
+			{
+			case 0:
+				filename = T("a_cursed.txt", "a_cursed_j.txt");
+				break;
+			case 1:
+				filename = T("a_low.txt", "a_low_j.txt");
+				break;
+			case 2:
+				filename = T("a_med.txt", "a_med_j.txt");
+				break;
+			default:
+				filename = T("a_high.txt", "a_high_j.txt");
+			}
 		}
 		else
 		{
-			cptr filename;
-
-			if (object_is_armour(o_ptr))
+			switch (power)
 			{
-				switch (power)
-				{
-				case 0:
-					filename = T("a_cursed.txt", "a_cursed_j.txt");
-					break;
-				case 1:
-					filename = T("a_low.txt", "a_low_j.txt");
-					break;
-				case 2:
-					filename = T("a_med.txt", "a_med_j.txt");
-					break;
-				default:
-					filename = T("a_high.txt", "a_high_j.txt");
-				}
+			case 0:
+				filename = T("w_cursed.txt", "w_cursed_j.txt");
+				break;
+			case 1:
+				filename = T("w_low.txt", "w_low_j.txt");
+				break;
+			case 2:
+				filename = T("w_med.txt", "w_med_j.txt");
+				break;
+			default:
+				filename = T("w_high.txt", "w_high_j.txt");
 			}
-			else
-			{
-				switch (power)
-				{
-				case 0:
-					filename = T("w_cursed.txt", "w_cursed_j.txt");
-					break;
-				case 1:
-					filename = T("w_low.txt", "w_low_j.txt");
-					break;
-				case 2:
-					filename = T("w_med.txt", "w_med_j.txt");
-					break;
-				default:
-					filename = T("w_high.txt", "w_high_j.txt");
-				}
-			}
-
-			get_rnd_line(filename, artifact_bias, return_name);
-	#ifdef JP
-			 if (return_name[0] == 0) get_table_name(return_name);
-	#endif
 		}
+
+		get_rnd_line(filename, artifact_bias, return_name);
 	}
 }
 
@@ -1636,17 +1616,25 @@ void get_random_name(char *return_name, object_type *o_ptr, int power)
 }
 
 
-bool create_artifact(object_type *o_ptr, u32b mode)
+s32b create_artifact(object_type *o_ptr, u32b mode)
 {
 	char    new_name[1024];
 	int     has_pval = 0;
-	int     powers = randint1(5) + 1;
+	int     powers = 0;
 	int     power_level;
 	s32b    total_flags;
 	bool    a_cursed = FALSE;
 	int     warrior_artifact_bias = 0;
 	int i;
 	bool has_resistance = FALSE;
+	int lev = dun_level;
+	int slaying = 0;
+
+	if (lev == 0)
+		lev = 30; /* assume a quest reward */
+
+	if (lev > 127)
+		lev = 127; /* no going to heaven or hell for uber nutso craziness */
 
 	/* Reset artifact bias */
 	artifact_bias = 0;
@@ -1654,6 +1642,7 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 	/* Nuke enchantments */
 	o_ptr->name1 = 0;
 	o_ptr->name2 = 0;
+	o_ptr->name3 = 0;
 
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		o_ptr->art_flags[i] |= k_info[o_ptr->k_idx].flags[i];
@@ -1757,21 +1746,7 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && object_is_cursed(o_ptr))
 		a_cursed = TRUE;
 
-	if (dun_level == 0)	/* quest reward ... can't really know what level to use! */
-	{
-		while (one_in_(powers) || one_in_(7) || one_in_(10))
-			powers++;
-	}
-	else
-	{
-		powers = m_bonus(7, dun_level) + 1;
-	/*
-		while (one_in_(powers))
-			powers++;
-
-		while (randint1(300) < dun_level)
-			powers++; */
-	}
+	powers = m_bonus(5, lev) + randint1(3);
 
 	if (!a_cursed)
 	{
@@ -1794,14 +1769,17 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 				has_pval = TRUE;
 				break;
 			case 3:
-				if (one_in_(5) && object_is_weapon_ammo(o_ptr) && (o_ptr->tval != TV_BOW))
+				if ( slaying < 5
+				  && object_is_weapon_ammo(o_ptr) && (o_ptr->tval != TV_BOW)
+				  && one_in_(3))
 				{
 					if (a_cursed && !one_in_(13)) break;
 					/* spiked code from EGO_SLAYING_WEAPON */
-					if (one_in_(3)) /* double damage */
+					if (slaying == 0 && one_in_(3)) /* double damage */
 					{
 						powers -= o_ptr->dd - 1;
 						o_ptr->dd *= 2;
+						slaying += o_ptr->dd;
 					}
 					else
 					{
@@ -1811,6 +1789,7 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 						{
 							o_ptr->dd++;
 							powers--;
+							slaying++;
 						}
 						while (one_in_(o_ptr->dd));
 						
@@ -1818,9 +1797,10 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 						{
 							o_ptr->ds++;
 							powers--;
+							slaying++;
 						}
 						while (one_in_(o_ptr->ds));
-					}					
+					}			
 				}
 				else if (!has_resistance 
 				      && (object_is_body_armour(o_ptr) || object_is_shield(o_ptr)) 
@@ -1874,20 +1854,9 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 		}
 		else
 		{
-			if (dun_level == 0)
-			{
-				do
-				{
-					o_ptr->pval++;
-				}
-				while (o_ptr->pval < randint1(5) || one_in_(o_ptr->pval));
-			}
-			else
-			{
-				o_ptr->pval = m_bonus(5, dun_level) + 1;
-				while (one_in_(WEIRD_LUCK))
-					o_ptr->pval++;
-			}		
+			o_ptr->pval = m_bonus(4, lev) + 1;
+			while (one_in_(WEIRD_LUCK))
+				o_ptr->pval++;
 		}
 
 		if ((o_ptr->pval > 4) && !one_in_(WEIRD_LUCK))
@@ -1895,12 +1864,34 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 	}
 
 	/* give it some plusses... */
-	if (object_is_armour(o_ptr))
-		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 + (dun_level/20) - o_ptr->to_a);
+	if (object_is_armour(o_ptr) && o_ptr->to_a < 20)
+	{
+		int n = 5 + (lev/5) - o_ptr->to_a;
+		if (n > 0)
+			o_ptr->to_a += randint1(n);
+
+		o_ptr->to_a += m_bonus(10, lev);
+	}
 	else if (object_is_weapon_ammo(o_ptr))
 	{
-		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 + (dun_level/20) - o_ptr->to_h);
-		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 + (dun_level/20) - o_ptr->to_d);
+		int n;
+
+		if (o_ptr->to_h < 20)
+		{
+			n = 5 + (lev/5) - o_ptr->to_h;
+			if (n > 0)
+				o_ptr->to_h += randint1(n);
+			o_ptr->to_h += m_bonus(10, lev);
+		}
+
+		if (o_ptr->to_d < 20)
+		{
+			n = 5 + (lev/5) - o_ptr->to_d;
+			if (n > 0)
+				o_ptr->to_d += randint1(n);
+			o_ptr->to_d += m_bonus(10, lev);
+		}
+
 		if ((have_flag(o_ptr->art_flags, TR_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->art_flags, TR_BLESSED);
 	}
 
@@ -1910,7 +1901,9 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 	add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
 	add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
 
-	total_flags = flag_cost(o_ptr, o_ptr->pval);
+	total_flags = flag_cost(o_ptr, o_ptr->pval, FALSE);
+	if (slaying)
+		total_flags *= slaying/3;
 	if (cheat_peek) msg_format("%ld", total_flags);
 
 	if (a_cursed) curse_artifact(o_ptr);
@@ -2045,7 +2038,7 @@ bool create_artifact(object_type *o_ptr, u32b mode)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-	return TRUE;
+	return total_flags;
 }
 
 
@@ -3226,17 +3219,6 @@ bool create_named_art(int a_idx, int y, int x)
 
 	artifact_type *a_ptr = &a_info[a_idx];
 
-	if (random_artifacts)
-	{
-		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-		object_prep(&forge, k_idx);
-		create_artifact(&forge, CREATE_ART_GOOD);
-		drop_here(&forge, y, x);
-		a_info[a_idx].cur_num = 1;
-		return TRUE;
-	}
-
 	/* Get local object */
 	q_ptr = &forge;
 
@@ -3274,6 +3256,36 @@ bool create_named_art(int a_idx, int y, int x)
 	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) q_ptr->curse_flags |= get_curse(2, q_ptr);
 
 	random_artifact_resistance(q_ptr, a_ptr);
+
+	if (random_artifacts)
+	{
+		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+		int base_power = (a_ptr->cost + flag_cost(q_ptr, q_ptr->pval, TRUE))/2;
+		int best_power = -100000;
+		int power = 0;
+		object_type keeper;
+
+		if (a_ptr->tval == TV_LITE)
+			base_power = 0;
+
+		for (i = 0; i < 20; i++)
+		{
+			object_prep(&forge, k_idx);
+			power = create_artifact(&forge, CREATE_ART_GOOD);
+			if (power > best_power)
+			{
+				object_copy(&keeper, &forge);
+				best_power = power;
+			}
+			if (power > base_power * 7 / 10)
+				break;
+		}
+
+		keeper.name3 = a_idx;
+		drop_near(&keeper, -1, y, x);
+
+		return TRUE;
+	}
 
 	/*
 	 * drop_near()内で普通の固定アーティファクトが重ならない性質に依存する.

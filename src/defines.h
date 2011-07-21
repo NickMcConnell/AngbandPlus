@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 41
+#define FAKE_VER_PATCH 42
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 41
+#define H_VER_PATCH 42
 #define H_VER_EXTRA 0
 
 
@@ -5340,6 +5340,7 @@ extern int PlayerUID;
 #define SAVE_ITEM_INSCRIPTION  0x04000000
 #define SAVE_ITEM_ART_NAME     0x08000000
 #define SAVE_ITEM_RUNE_FLAGS   0x10000000
+#define SAVE_ITEM_NAME3        0x20000000
 
 
 /*

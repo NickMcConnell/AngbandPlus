@@ -3042,7 +3042,7 @@ static void calc_torch(void)
 			}
 
 			/* Artifact Lites provide permanent, bright, lite */
-			else if (o_ptr->name1 || o_ptr->art_name)
+			else if (o_ptr->name1 || o_ptr->art_name || o_ptr->name3)
 			{
 				p_ptr->cur_lite += 3;
 			}

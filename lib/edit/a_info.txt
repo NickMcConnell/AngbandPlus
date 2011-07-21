@@ -3722,7 +3722,7 @@ D:$These boots seem endowed with all that is brave and noble in hobbits.
 N:239:TRANSLATE
 E:of Sam
 I:32:2:1
-W:10:1:15:10000
+W:10:1:15:25000
 P:2:0d0:1:1:7
 F:CON | HIDE_TYPE | RES_FEAR | SPEED
 D:$Sam was brave and trustworthy companion of Frodo.
@@ -3732,7 +3732,7 @@ D:$ahead with a steady hand and a noble heart.
 N:240:TRANSLATE
 E:of Merry
 I:35:1:1
-W:10:1:10:10000
+W:10:1:10:25000
 P:1:0d0:1:1:7
 F:INT | STEALTH | SPEED | RES_CONF | SEARCH | HIDE_TYPE 
 D:$Merry was the most perceptive and intelligent of hobbits.

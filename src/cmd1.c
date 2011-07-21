@@ -917,7 +917,7 @@ void py_pickup_aux(int o_idx)
 	{
 		if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) &&
 		    (quest[i].status == QUEST_STATUS_TAKEN) &&
-			   (quest[i].k_idx == o_ptr->name1))
+			   (quest[i].k_idx == o_ptr->name1 || quest[i].k_idx == o_ptr->name3))
 		{
 			if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 			quest[i].status = QUEST_STATUS_COMPLETED;

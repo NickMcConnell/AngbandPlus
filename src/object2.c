@@ -456,6 +456,11 @@ void wipe_o_list(void)
 				/* Mega-Hack -- Preserve the artifact */
 				a_info[o_ptr->name1].cur_num = 0;
 			}
+			if (o_ptr->name3 && !object_is_known(o_ptr))
+			{
+				/* Mega-Hack -- Preserve the artifact */
+				a_info[o_ptr->name3].cur_num = 0;
+			}
 		}
 
 		/* Monster */
@@ -856,7 +861,7 @@ static s32b object_value_base(object_type *o_ptr)
 
 
 /* Return the value of the flags the object has... */
-s32b flag_cost(object_type *o_ptr, int plusses)
+s32b flag_cost(object_type *o_ptr, int plusses, bool hack)
 {
 	s32b total = 0;
 	u32b flgs[TR_FLAG_SIZE];
@@ -875,7 +880,7 @@ s32b flag_cost(object_type *o_ptr, int plusses)
 		flgs[i] &= ~(k_ptr->flags[i]);
 
 	/* Exclude fixed flags of the fixed artifact. */
-	if (object_is_fixed_artifact(o_ptr))
+	if (object_is_fixed_artifact(o_ptr) && !hack)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -908,19 +913,19 @@ s32b flag_cost(object_type *o_ptr, int plusses)
 	if (have_flag(flgs, TR_INFRA)) total += (150 * plusses);
 	if (have_flag(flgs, TR_TUNNEL)) total += (175 * plusses);
 	if ((have_flag(flgs, TR_SPEED)) && (plusses > 0))
-		total += (10000 + (2500 * plusses));
+		total += (10000 * plusses);
 	if ((have_flag(flgs, TR_BLOWS)) && (plusses > 0))
-		total += (10000 + (2500 * plusses));
+		total += (10000 * plusses);
 
 	tmp_cost = 0;
 	count = 0;
-	if (have_flag(flgs, TR_CHAOTIC)) {total += 5000;count++;}
+	if (have_flag(flgs, TR_CHAOTIC)) {total += 3000;count++;}
 	if (have_flag(flgs, TR_VAMPIRIC)) {total += 6500;count++;}
 	if (have_flag(flgs, TR_FORCE_WEAPON)) {tmp_cost += 2500;count++;}
 	if (have_flag(flgs, TR_KILL_ANIMAL)) {tmp_cost += 2800;count++;}
 	else if (have_flag(flgs, TR_SLAY_ANIMAL)) {tmp_cost += 1800;count++;}
-	if (have_flag(flgs, TR_KILL_EVIL)) {tmp_cost += 3300;count++;}
-	else if (have_flag(flgs, TR_SLAY_EVIL)) {tmp_cost += 2300;count++;}
+	if (have_flag(flgs, TR_KILL_EVIL)) {tmp_cost += 5800;count++;}
+	else if (have_flag(flgs, TR_SLAY_EVIL)) {tmp_cost += 3800;count++;}
 	if (have_flag(flgs, TR_KILL_HUMAN)) {tmp_cost += 2800;count++;}
 	else if (have_flag(flgs, TR_SLAY_HUMAN)) {tmp_cost += 1800;count++;}
 	if (have_flag(flgs, TR_KILL_UNDEAD)) {tmp_cost += 2800;count++;}
@@ -936,9 +941,9 @@ s32b flag_cost(object_type *o_ptr, int plusses)
 	if (have_flag(flgs, TR_KILL_DRAGON)) {tmp_cost += 2800;count++;}
 	else if (have_flag(flgs, TR_SLAY_DRAGON)) {tmp_cost += 1800;count++;}
 
-	if (have_flag(flgs, TR_VORPAL)) {tmp_cost += 2500;count++;}
-	if (have_flag(flgs, TR_IMPACT)) {tmp_cost += 2500;count++;}
-	if (have_flag(flgs, TR_BRAND_POIS)) {tmp_cost += 3800;count++;}
+	if (have_flag(flgs, TR_VORPAL)) {tmp_cost += 1500;count++;}
+	if (have_flag(flgs, TR_IMPACT)) {tmp_cost += 500;count++;}
+	if (have_flag(flgs, TR_BRAND_POIS)) {tmp_cost += 2500;count++;}
 	if (have_flag(flgs, TR_BRAND_ACID)) {tmp_cost += 3800;count++;}
 	if (have_flag(flgs, TR_BRAND_ELEC)) {tmp_cost += 3800;count++;}
 	if (have_flag(flgs, TR_BRAND_FIRE)) {tmp_cost += 2500;count++;}
@@ -953,9 +958,9 @@ s32b flag_cost(object_type *o_ptr, int plusses)
 	if (have_flag(flgs, TR_SUST_CHR)) total += 250;
 	if (have_flag(flgs, TR_RIDING)) total += 0;
 	if (have_flag(flgs, TR_EASY_SPELL)) total += 1500;
-	if (have_flag(flgs, TR_THROW)) total += 5000;
-	if (have_flag(flgs, TR_FREE_ACT)) total += 4500;
-	if (have_flag(flgs, TR_HOLD_LIFE)) total += 8500;
+	if (have_flag(flgs, TR_THROW)) total += 500;
+	if (have_flag(flgs, TR_FREE_ACT)) total += 2500;
+	if (have_flag(flgs, TR_HOLD_LIFE)) total += 1500;
 
 	tmp_cost = 0;
 	count = 0;
@@ -982,17 +987,17 @@ s32b flag_cost(object_type *o_ptr, int plusses)
 	if (have_flag(flgs, TR_RES_DISEN)) {tmp_cost += 2000;count += 2;}
 	total += (tmp_cost * count);
 
-	if (have_flag(flgs, TR_SH_FIRE)) total += 5000;
-	if (have_flag(flgs, TR_SH_ELEC)) total += 5000;
-	if (have_flag(flgs, TR_SH_COLD)) total += 5000;
-	if (have_flag(flgs, TR_NO_TELE)) total -= 10000;
-	if (have_flag(flgs, TR_NO_MAGIC)) total += 2500;
+	if (have_flag(flgs, TR_SH_FIRE)) total += 1000;
+	if (have_flag(flgs, TR_SH_ELEC)) total += 1000;
+	if (have_flag(flgs, TR_SH_COLD)) total += 1000;
+	if (have_flag(flgs, TR_NO_TELE)) total -= 50000;
+	if (have_flag(flgs, TR_NO_MAGIC)) total -= 2500;
 	if (have_flag(flgs, TR_TY_CURSE)) total -= 15000;
 	if (have_flag(flgs, TR_HIDE_TYPE)) total += 0;
 	if (have_flag(flgs, TR_SHOW_MODS)) total += 0;
-	if (have_flag(flgs, TR_LEVITATION)) total += 1250;
-	if (have_flag(flgs, TR_LITE)) total += 1250;
-	if (have_flag(flgs, TR_SEE_INVIS)) total += 2000;
+	if (have_flag(flgs, TR_LEVITATION)) total += 350;
+	if (have_flag(flgs, TR_LITE)) total += 350;
+	if (have_flag(flgs, TR_SEE_INVIS)) total += 500;
 	if (have_flag(flgs, TR_TELEPATHY)) total += 20000;
 	if (have_flag(flgs, TR_ESP_ANIMAL)) total += 1000;
 	if (have_flag(flgs, TR_ESP_UNDEAD)) total += 1000;
@@ -1165,7 +1170,7 @@ s32b object_value_real(object_type *o_ptr)
 
 		/* Hack -- Use the artifact cost instead */
 		value = a_ptr->cost;
-		value += flag_cost(o_ptr, o_ptr->pval);
+		value += flag_cost(o_ptr, o_ptr->pval, FALSE);
 
 		/* Don't add pval bonuses etc. */
 		return (value);
@@ -1181,7 +1186,7 @@ s32b object_value_real(object_type *o_ptr)
 
 		/* Hack -- Reward the ego-item with a bonus */
 		value += e_ptr->cost;
-		value += flag_cost(o_ptr, o_ptr->pval);
+		value += flag_cost(o_ptr, o_ptr->pval, FALSE);
 	}
 
 	else
@@ -1192,7 +1197,7 @@ s32b object_value_real(object_type *o_ptr)
 		for (i = 0; i < TR_FLAG_SIZE; i++) 
 			if (o_ptr->art_flags[i]) flag = TRUE;
 
-		if (flag) value += flag_cost(o_ptr, o_ptr->pval);
+		if (flag) value += flag_cost(o_ptr, o_ptr->pval, FALSE);
 	}
 
 	/* Analyze pval bonus for normal object */
@@ -1901,7 +1906,7 @@ s16b lookup_kind(int tval, int sval)
 void object_wipe(object_type *o_ptr)
 {
 	/* Wipe the structure */
-	(void)WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type); 
 }
 
 
@@ -2169,7 +2174,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		{
 			object_prep(o_ptr, k_idx);
 			create_artifact(o_ptr, CREATE_ART_GOOD);
-			a_ptr->cur_num = 1;	/* Hack: Later code will skip otherwise */
+			o_ptr->name3 = i;
 		}
 		else
 		{
@@ -2248,7 +2253,7 @@ static bool make_artifact(object_type *o_ptr)
 
 			object_prep(o_ptr, k_idx);
 			create_artifact(o_ptr, CREATE_ART_GOOD);
-			a_ptr->cur_num = 1;	/* Hack: Later code will skip otherwise */
+			o_ptr->name3 = i;
 		}
 		else
 		{
@@ -4324,7 +4329,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 	if (mode & (AM_GREAT | AM_SPECIAL)) rolls = 4;
 
 	/* Hack -- Get no rolls if not allowed */
-	if ((mode & AM_NO_FIXED_ART) || o_ptr->name1) rolls = 0;
+	if ((mode & AM_NO_FIXED_ART) || o_ptr->name1 || o_ptr->name3) rolls = 0;
 
 	/* Roll for artifacts if allowed */
 	for (i = 0; i < rolls; i++)
@@ -4338,7 +4343,22 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 	}
 
 
-	/* Hack -- analyze artifacts */
+	/* Hack -- analyze replacement artifacts */
+	if (o_ptr->name3)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name3];
+
+		/* Hack -- Mark the artifact as "created" */
+		a_ptr->cur_num = 1;
+
+		/* Hack -- Memorize location of artifact in saved floors */
+		if (character_dungeon)
+			a_ptr->floor_id = p_ptr->floor_id;
+
+		if (cheat_peek) object_mention(o_ptr);
+		return;
+	}
+
 	if (object_is_fixed_artifact(o_ptr))
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
@@ -4739,13 +4759,14 @@ bool make_object(object_type *j_ptr, u32b mode)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			if (!j_ptr->name1)
+			if (!j_ptr->name1 && !j_ptr->name3)
 				j_ptr->number = (byte)damroll(6, 7);
 		}
 	}
 
 	obj_level = k_info[j_ptr->k_idx].level;
 	if (object_is_fixed_artifact(j_ptr)) obj_level = a_info[j_ptr->name1].level;
+	if (j_ptr->name3) obj_level = a_info[j_ptr->name3].level;
 
 	/* Notice "okay" out-of-depth objects */
 	if (!object_is_cursed(j_ptr) && !object_is_broken(j_ptr) &&
@@ -4837,6 +4858,8 @@ void place_object(int y, int x, u32b mode)
 		{
 			a_info[q_ptr->name1].cur_num = 0;
 		}
+		if (q_ptr->name3)
+			a_info[q_ptr->name3].cur_num = 0;
 	}
 }
 
@@ -5200,6 +5223,12 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 					/* Mega-Hack -- Preserve the artifact */
 					a_info[j_ptr->name1].cur_num = 0;
 				}
+
+				if (j_ptr->name3 && !object_is_known(j_ptr))
+				{
+					/* Mega-Hack -- Preserve the artifact */
+					a_info[j_ptr->name3].cur_num = 0;
+				}
 			}
 
 			/* Failure */
@@ -5285,6 +5314,11 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		if (object_is_fixed_artifact(j_ptr))
 		{
 			a_info[j_ptr->name1].cur_num = 0;
+		}
+
+		if (j_ptr->name3)
+		{
+			a_info[j_ptr->name3].cur_num = 0;
 		}
 
 		/* Failure */

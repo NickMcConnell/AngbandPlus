@@ -4408,6 +4408,22 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 #endif
 						}
 					}
+					else if (o_ptr->name3 && (!object_is_known(o_ptr) || in_generate))
+					{
+						/* Mega-Hack -- Preserve the artifact */
+						a_info[o_ptr->name3].cur_num = 0;
+
+						if (in_generate && cheat_peek)
+						{
+							char o_name[MAX_NLEN];
+							object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
+#ifdef JP
+							msg_format("伝説のアイテム (%s) は生成中に*破壊*された。", o_name);
+#else
+							msg_format("Artifact (%s) was *destroyed* during generation.", o_name);
+#endif
+						}
+					}
 					else if (in_generate && cheat_peek && o_ptr->art_name)
 					{
 #ifdef JP

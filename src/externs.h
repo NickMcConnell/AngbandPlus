@@ -1226,7 +1226,7 @@ extern bool control_one_demon(int dir, int plev);
 extern bool charm_animal(int dir, int plev);
 extern bool charm_living(int dir, int plev);
 extern bool mindblast_monsters(int dam);
-extern s32b flag_cost(object_type *o_ptr, int plusses);
+extern s32b flag_cost(object_type *o_ptr, int plusses, bool hack);
 extern void report_magics(void);
 extern bool teleport_swap(int dir);
 extern bool item_tester_hook_recharge(object_type *o_ptr);
@@ -1567,7 +1567,7 @@ enum {
 	CREATE_ART_GOOD   = 0x02,
 	CREATE_ART_CURSED = 0x04,
 };
-extern bool create_artifact(object_type *o_ptr, u32b mode);
+extern s32b create_artifact(object_type *o_ptr, u32b mode);
 extern bool activate_random_artifact(object_type * o_ptr);
 extern void get_bloody_moon_flags(object_type *o_ptr);
 extern void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr);

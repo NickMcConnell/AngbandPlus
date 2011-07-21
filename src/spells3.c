@@ -5213,6 +5213,7 @@ void blast_object(object_type *o_ptr)
 
 	o_ptr->name1 = 0;
 	o_ptr->name2 = EGO_BLASTED;
+	o_ptr->name3 = 0;
 	o_ptr->to_a = 0;
 	o_ptr->to_h = 0;
 	o_ptr->to_d = 0;

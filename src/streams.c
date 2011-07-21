@@ -297,6 +297,22 @@ void build_streamer(int feat, int chance)
 #endif
 						}
 					}
+					else if (o_ptr->name3)
+					{
+						/* Mega-Hack -- Preserve the artifact */
+						a_info[o_ptr->name3].cur_num = 0;
+
+						if (cheat_peek)
+						{
+							char o_name[MAX_NLEN];
+							object_desc(o_name, o_ptr, (OD_NAME_ONLY | OD_STORE));
+#ifdef JP
+							msg_format("伝説のアイテム (%s) はストリーマーにより削除された。", o_name);
+#else
+							msg_format("Artifact (%s) was deleted by streamer.", o_name);
+#endif
+						}
+					}
 					else if (cheat_peek && o_ptr->art_name)
 					{
 #ifdef JP
