@@ -2731,7 +2731,7 @@ void do_cmd_walk(bool pickup)
 	/* Hack again -- Is there a special encounter ??? */
 	if (p_ptr->wild_mode && !cave_have_flag_bold(py, px, FF_TOWN))
 	{
-		int tmp = 120 + p_ptr->lev*10 - wilderness[py][px].level + 5;
+		int tmp = 200 + p_ptr->lev*10 - wilderness[py][px].level + 5;
 		if (tmp < 1) 
 			tmp = 1;
 		if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && randint0(tmp) < (21-p_ptr->skill_stl))
@@ -3375,75 +3375,12 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
  *
  * Note that Bows of "Extra Shots" give an extra shot.
  */
-void do_cmd_fire_aux(int item, object_type *j_ptr)
+void do_cmd_fire_aux1(int item, object_type *j_ptr)
 {
 	int dir;
-	int i, j, y, x, ny, nx, ty, tx, prev_y, prev_x;
-	int tdam_base, tdis, thits, tmul;
-	int bonus, chance;
-	int cur_dis, visible;
+	int tdis, tmul, tx, ty;
 
-	object_type forge;
-	object_type *q_ptr;
-
-	object_type *o_ptr;
-
-	bool hit_body = FALSE;
-
-	char o_name[MAX_NLEN];
-
-	u16b path_g[512];	/* For calcuration of path length */
-
-	int msec = delay_factor * delay_factor * delay_factor;
-
-	/* STICK TO */
-	bool stick_to = FALSE;
-
-	/* Access the item (if in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Sniper - Cannot shot a single arrow twice */
-	if ((snipe_type == SP_DOUBLE) && (o_ptr->number < 2)) snipe_type = SP_NONE;
-
-	/* Describe the object */
-	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
-
-	/* Use the proper number of shots */
-	thits = p_ptr->num_fire;
-
-	/* Use a base distance */
-	tdis = 10;
-
-	/* Base damage from thrown object plus launcher bonus */
-	tdam_base = damroll(o_ptr->dd, o_ptr->ds) + o_ptr->to_d + j_ptr->to_d;
-
-	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h_b + o_ptr->to_h + j_ptr->to_h);
-	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
-		chance = (p_ptr->skill_thb + (p_ptr->weapon_exp[0][j_ptr->sval] / 400 + bonus) * BTH_PLUS_ADJ);
-	else
-		chance = (p_ptr->skill_thb + ((p_ptr->weapon_exp[0][j_ptr->sval] - (WEAPON_EXP_MASTER / 2)) / 200 + bonus) * BTH_PLUS_ADJ);
-
-	energy_use = bow_energy(j_ptr->sval);
 	tmul = bow_tmul(j_ptr->sval);
-
-	/* Get extra "power" from "extra might" */
-	if (p_ptr->xtra_might) tmul++;
-
-	tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-
-	/* Boost the damage */
-	tdam_base *= tmul;
-	tdam_base /= 100;
-
-	/* Base range */
 	tdis = 13 + tmul/80;
 	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
 	{
@@ -3477,12 +3414,6 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		tx = target_col;
 		ty = target_row;
 	}
-
-	/* Get projection path length */
-	tdis = project_path(path_g, project_length, py, px, ty, tx, PROJECT_PATH|PROJECT_THRU) - 1;
-
-	project_length = 0; /* reset to default */
-
 	/* Don't shoot at my feet */
 	if (tx == px && ty == py)
 	{
@@ -3493,497 +3424,734 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 		return;
 	}
 
+	do_cmd_fire_aux2(item, j_ptr, px, py, tx, ty);
+}
+void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int ty)
+{
+	int i, j, y, x, ny, nx, prev_y, prev_x, dd;
+	int tdam_base, tdis, thits, tmul;
+	int bonus, chance;
+	int cur_dis, visible;
+	bool no_energy = FALSE;
+	int num_shots = 1;
+
+	object_type forge, forge2;
+	object_type *q_ptr;
+
+	object_type *o_ptr;
+
+	bool hit_body = FALSE;
+	bool return_ammo = FALSE;
+
+	char o_name[MAX_NLEN];
+
+	u16b path_g[512];	/* For calcuration of path length */
+
+	int msec = delay_factor * delay_factor * delay_factor;
+
+	/* STICK TO */
+	bool stick_to = FALSE;
+
+	/* Access the item (if in the pack) */
+	if (item >= 0)
+	{
+		if (item == INVEN_UNLIMITED_QUIVER)
+		{
+			int k_idx = lookup_kind(p_ptr->tval_ammo, SV_AMMO_NORMAL);
+			object_prep(&forge2, k_idx);
+			o_ptr = &forge2;
+		}
+		else
+			o_ptr = &inventory[item];
+	}
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Sniper - Cannot shot a single arrow twice */
+	if ((snipe_type == SP_DOUBLE) && (o_ptr->number < 2)) snipe_type = SP_NONE;
+	if (snipe_type == SP_DOUBLE) num_shots = 2;
+
+	/* Describe the object */
+	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
+
+	/* Use the proper number of shots */
+	thits = p_ptr->num_fire;
+
+	/* Use a base distance */
+	tdis = 10;
+
+	/* Base damage from thrown object plus launcher bonus */
+	dd = o_ptr->dd;
+	if (p_ptr->big_shot)
+		dd *= 2;
+	tdam_base = damroll(dd, o_ptr->ds) + o_ptr->to_d + j_ptr->to_d;
+
+	/* Actually "fire" the object */
+	bonus = (p_ptr->to_h_b + o_ptr->to_h + j_ptr->to_h);
+
+	if (shoot_hack == SHOOT_BOUNCE)
+	{
+		bonus -= 20 * shoot_count;
+	}
+
+	if (shoot_hack == SHOOT_RUN)
+	{
+		bonus -= 10;
+		no_energy = TRUE;
+	}
+
+	if (shoot_hack == SHOOT_MANY)
+	{
+		bonus -= 10;
+		no_energy = TRUE;
+	}
+
+	if (shoot_hack == SHOOT_ALL)
+	{
+		bonus -= 20;
+		no_energy = TRUE;
+	}
+
+	if (weaponmaster_get_toggle() == TOGGLE_RAPID_SHOT)
+	{
+	int frac;
+		bonus -= 20;
+		/* In this mode, whenever the player fires, all of their shots go
+		   at a single target in rapid succession.  Full energy is consumed, and
+		   the player gets a slight bonus to the number of shots.  Think of
+		   a rapid fire machine gun :) */
+		no_energy = TRUE;
+		energy_use = 100;
+		num_shots = p_ptr->num_fire * 120 / 100;
+		frac = num_shots % 100;
+		num_shots /= 100;
+		if (randint1(100) < frac)
+			num_shots++;
+	}
+
+	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
+		chance = (p_ptr->skill_thb + (p_ptr->weapon_exp[0][j_ptr->sval] / 400 + bonus) * BTH_PLUS_ADJ);
+	else
+		chance = (p_ptr->skill_thb + ((p_ptr->weapon_exp[0][j_ptr->sval] - (WEAPON_EXP_MASTER / 2)) / 200 + bonus) * BTH_PLUS_ADJ);
+
+	if (!no_energy)
+		energy_use = bow_energy(j_ptr->sval);
+
+	tmul = bow_tmul(j_ptr->sval);
+
+	/* Get extra "power" from "extra might" */
+	if (p_ptr->xtra_might) tmul++;
+
+	tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+
+	/* Boost the damage */
+	tdam_base *= tmul;
+	tdam_base /= 100;
+
+	/* Base range */
+	tdis = 13 + tmul/80;
+	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
+	{
+		if (p_ptr->concent)
+			tdis -= (5 - (p_ptr->concent + 1) / 2);
+		else
+			tdis -= 5;
+	}
+
+	project_length = tdis + 1;
+
+	/* Get projection path length */
+	tdis = project_path(path_g, project_length, sy, sx, ty, tx, PROJECT_PATH|PROJECT_THRU) - 1;
+
+	project_length = 0; /* reset to default */
 
 	/* Take a (partial) turn */
-	energy_use = (energy_use / thits);
+	if (!no_energy)
+		energy_use = (energy_use / thits); 
+
 	is_fired = TRUE;
 
 	/* Sniper - Difficult to shot twice at 1 turn */
 	if (snipe_type == SP_DOUBLE)  p_ptr->concent = (p_ptr->concent + 1) / 2;
 
 	/* Sniper - Repeat shooting when double shots */
-	for (i = 0; i < ((snipe_type == SP_DOUBLE) ? 2 : 1); i++)
+	for (i = 0; i < num_shots; i++)
 	{
-
-	/* Start at the player */
-	y = py;
-	x = px;
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
-
-	/* Single object */
-	q_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Sound */
-	sound(SOUND_SHOOT);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-	/* Save the old location */
-	prev_y = y;
-	prev_x = x;
-
-	/* The shot does not hit yet */
-	hit_body = FALSE;
-
-	/* Travel until stopped */
-	for (cur_dis = 0; cur_dis <= tdis; )
-	{
-		cave_type *c_ptr;
-
-		/* Hack -- Stop at the target */
-		if ((y == ty) && (x == tx)) break;
-
-		/* Calculate the new location (see "project()") */
-		ny = y;
-		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
-
-		/* Shatter Arrow */
-		if (snipe_type == SP_KILL_WALL)
+		/* Make sure there is ammo left over for this shot */
+		if (item != INVEN_UNLIMITED_QUIVER)
 		{
-			c_ptr = &cave[ny][nx];
-
-			if (cave_have_flag_grid(c_ptr, FF_HURT_ROCK) && !c_ptr->m_idx)
+			if (inventory[item].tval != p_ptr->tval_ammo)
 			{
-#ifdef JP
-				if (c_ptr->info & (CAVE_MARK)) msg_print("岩が砕け散った。");
-#else
-				if (c_ptr->info & (CAVE_MARK)) msg_print("Wall rocks were shattered.");
-#endif
-				/* Forget the wall */
-				c_ptr->info &= ~(CAVE_MARK);
-
-				p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
-
-				/* Destroy the wall */
-				cave_alter_feat(ny, nx, FF_HURT_ROCK);
-
-				hit_body = TRUE;
+				msg_print("Your ammo has run out.  Time to reload!");
 				break;
 			}
 		}
 
-		/* Stopped by walls/doors */
-		if (!cave_have_flag_bold(ny, nx, FF_PROJECT) && !cave[ny][nx].m_idx) break;
+		/* Start at the source */
+		y = sy;
+		x = sx;
 
-		/* Advance the distance */
-		cur_dis++;
+		/* Weaponmaster power:  Ammo is not consumed */
+		if (p_ptr->return_ammo && randint1(100) <= 50 + p_ptr->lev/2)
+			return_ammo = TRUE;
 
-		/* Sniper */
-		if (snipe_type == SP_LITE)
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Obtain a local object */
+		object_copy(q_ptr, o_ptr);
+
+		/* Single object */
+		q_ptr->number = 1;
+
+		/* Reduce and describe inventory */
+		if (return_ammo)
 		{
-			cave[ny][nx].info |= (CAVE_GLOW);
-
-			/* Notice */
-			note_spot(ny, nx);
-
-			/* Redraw */
-			lite_spot(ny, nx);
+		}
+		else if (item >= 0)
+		{
+			if (item != INVEN_UNLIMITED_QUIVER)
+			{
+				inven_item_increase(item, -1);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+			}
 		}
 
-		/* The player can see the (on screen) missile */
-		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
-		{
-			char c = object_char(q_ptr);
-			byte a = object_attr(q_ptr);
-
-			/* Draw, Hilite, Fresh, Pause, Erase */
-			print_rel(c, a, ny, nx);
-			move_cursor_relative(ny, nx);
-			Term_fresh();
-			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(ny, nx);
-			Term_fresh();
-		}
-
-		/* The player cannot see the missile */
+		/* Reduce and describe floor item */
 		else
 		{
-			/* Pause anyway, for consistancy */
-			Term_xtra(TERM_XTRA_DELAY, msec);
+			floor_item_increase(0 - item, -1);
+			floor_item_optimize(0 - item);
 		}
 
-		/* Sniper */
-		if (snipe_type == SP_KILL_TRAP)
-		{
-			project(0, 0, ny, nx, 0, GF_KILL_TRAP,
-				(PROJECT_JUMP | PROJECT_HIDE | PROJECT_GRID | PROJECT_ITEM), -1);
-		}
+		/* Sound */
+		sound(SOUND_SHOOT);
 
-		/* Sniper */
-		if (snipe_type == SP_EVILNESS)
-		{
-			cave[ny][nx].info &= ~(CAVE_GLOW | CAVE_MARK);
-
-			/* Notice */
-			note_spot(ny, nx);
-
-			/* Redraw */
-			lite_spot(ny, nx);
-		}
+		/* Hack -- Handle stuff */
+		handle_stuff();
 
 		/* Save the old location */
 		prev_y = y;
 		prev_x = x;
 
-		/* Save the new location */
-		x = nx;
-		y = ny;
+		/* The shot does not hit yet */
+		hit_body = FALSE;
 
-
-		/* Monster here, Try to hit it */
-		if (cave[y][x].m_idx)
+		/* Travel until stopped */
+		for (cur_dis = 0; cur_dis <= tdis; )
 		{
-			int armour;
-			cave_type *c_ptr = &cave[y][x];
+			cave_type *c_ptr;
 
-			monster_type *m_ptr = &m_list[c_ptr->m_idx];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			/* Hack -- Stop at the target */
+			if ((y == ty) && (x == tx)) break;
 
-			/* Check the visibility */
-			visible = m_ptr->ml;
+			/* Calculate the new location (see "project()") */
+			ny = y;
+			nx = x;
+			/* Why, after having calculated a projection path, do we not use it?????
+			mmove2(&ny, &nx, sy, sx, ty, tx);*/
+			ny = GRID_Y(path_g[cur_dis]);
+			nx = GRID_X(path_g[cur_dis]);
 
-			/* Note the collision */
-			hit_body = TRUE;
-
-			if (MON_CSLEEP(m_ptr))
+			/* Shatter Arrow */
+			if (snipe_type == SP_KILL_WALL)
 			{
-				if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_COMPASSION, -1);
-				if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_HONOUR, -1);
-			}
+				c_ptr = &cave[ny][nx];
 
-			if ((r_ptr->level + 10) > p_ptr->lev)
-			{
-				int now_exp = p_ptr->weapon_exp[0][j_ptr->sval];
-				if (now_exp < s_info[p_ptr->pclass].w_max[0][j_ptr->sval])
+				if (cave_have_flag_grid(c_ptr, FF_HURT_ROCK) && !c_ptr->m_idx)
 				{
-					int amount = 0;
-					if (now_exp < WEAPON_EXP_BEGINNER) amount = 80;
-					else if (now_exp < WEAPON_EXP_SKILLED) amount = 25;
-					else if ((now_exp < WEAPON_EXP_EXPERT) && (p_ptr->lev > 19)) amount = 10;
-					else if (p_ptr->lev > 34) amount = 2;
-					p_ptr->weapon_exp[0][j_ptr->sval] += amount;
-					p_ptr->update |= (PU_BONUS);
+	#ifdef JP
+					if (c_ptr->info & (CAVE_MARK)) msg_print("岩が砕け散った。");
+	#else
+					if (c_ptr->info & (CAVE_MARK)) msg_print("Wall rocks were shattered.");
+	#endif
+					/* Forget the wall */
+					c_ptr->info &= ~(CAVE_MARK);
+
+					p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
+
+					/* Destroy the wall */
+					cave_alter_feat(ny, nx, FF_HURT_ROCK);
+
+					hit_body = TRUE;
+					break;
 				}
 			}
 
-			if (p_ptr->riding)
+			/* Stopped by walls/doors */
+			if (!cave_have_flag_bold(ny, nx, FF_PROJECT) && !cave[ny][nx].m_idx) break;
+
+			/* Advance the distance */
+			cur_dis++;
+
+			/* Sniper */
+			if (snipe_type == SP_LITE)
 			{
-				if ((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING])
-					&& ((p_ptr->skill_exp[GINOU_RIDING] - (RIDING_EXP_BEGINNER * 2)) / 200 < r_info[m_list[p_ptr->riding].r_idx].level)
-					&& one_in_(2))
-				{
-					p_ptr->skill_exp[GINOU_RIDING] += 1;
-					p_ptr->update |= (PU_BONUS);
-				}
+				cave[ny][nx].info |= (CAVE_GLOW);
+
+				/* Notice */
+				note_spot(ny, nx);
+
+				/* Redraw */
+				lite_spot(ny, nx);
 			}
 
-			/* Some shots have hit bonus */
-			armour = r_ptr->ac;
-			if (p_ptr->concent)
+			/* The player can see the (on screen) missile */
+			if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
 			{
-				armour *= (10 - p_ptr->concent);
-				armour /= 10;
+				char c = object_char(q_ptr);
+				byte a = object_attr(q_ptr);
+
+				/* Draw, Hilite, Fresh, Pause, Erase */
+				print_rel(c, a, ny, nx);
+				move_cursor_relative(ny, nx);
+				Term_fresh();
+				Term_xtra(TERM_XTRA_DELAY, msec);
+				lite_spot(ny, nx);
+				Term_fresh();
 			}
 
-			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance - cur_dis, armour, m_ptr->ml))
+			/* The player cannot see the missile */
+			else
 			{
-				bool fear = FALSE;
-				int tdam = tdam_base;
+				/* Pause anyway, for consistancy */
+				Term_xtra(TERM_XTRA_DELAY, msec);
+			}
 
-				/* Get extra damage from concentration */
-				if (p_ptr->concent) tdam = boost_concentration_damage(tdam);
+			/* Sniper */
+			if (snipe_type == SP_KILL_TRAP)
+			{
+				project(0, 0, ny, nx, 0, GF_KILL_TRAP,
+					(PROJECT_JUMP | PROJECT_HIDE | PROJECT_GRID | PROJECT_ITEM), -1);
+			}
 
-				/* Handle unseen monster */
-				if (!visible)
+			/* Sniper */
+			if (snipe_type == SP_EVILNESS)
+			{
+				cave[ny][nx].info &= ~(CAVE_GLOW | CAVE_MARK);
+
+				/* Notice */
+				note_spot(ny, nx);
+
+				/* Redraw */
+				lite_spot(ny, nx);
+			}
+
+			/* Save the old location */
+			prev_y = y;
+			prev_x = x;
+
+			/* Save the new location */
+			x = nx;
+			y = ny;
+
+			/* Hack: Shoot all monsters fires over the heads of intervening monsters */
+			if (shoot_hack == SHOOT_ALL && (x != tx || y != ty)) continue;
+
+			/* Monster here, Try to hit it */
+			if (cave[y][x].m_idx)
+			{
+				int armour;
+				bool hit = FALSE;
+				cave_type *c_ptr = &cave[y][x];
+
+				monster_type *m_ptr = &m_list[c_ptr->m_idx];
+				monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+				/* Check the visibility */
+				visible = m_ptr->ml;
+
+				/* Note the collision */
+				hit_body = TRUE;
+
+				if (MON_CSLEEP(m_ptr))
 				{
-					/* Invisible monster */
-#ifdef JP
-					msg_format("%sが敵を捕捉した。", o_name);
-#else
-					msg_format("The %s finds a mark.", o_name);
-#endif
-
+					if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_COMPASSION, -1);
+					if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_HONOUR, -1);
 				}
 
-				/* Handle visible monster */
-				else
+				if ((r_ptr->level + 10) > p_ptr->lev)
 				{
-					char m_name[80];
-
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
-
-					/* Message */
-#ifdef JP
-					msg_format("%sが%sに命中した。", o_name, m_name);
-#else
-					msg_format("The %s hits %s.", o_name, m_name);
-#endif
-
-					if (m_ptr->ml)
+					int now_exp = p_ptr->weapon_exp[0][j_ptr->sval];
+					if (now_exp < s_info[p_ptr->pclass].w_max[0][j_ptr->sval])
 					{
-						/* Hack -- Track this monster race */
-						if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
-
-						/* Hack -- Track this monster */
-						health_track(c_ptr->m_idx);
+						int amount = 0;
+						if (now_exp < WEAPON_EXP_BEGINNER) amount = 80;
+						else if (now_exp < WEAPON_EXP_SKILLED) amount = 25;
+						else if ((now_exp < WEAPON_EXP_EXPERT) && (p_ptr->lev > 19)) amount = 10;
+						else if (p_ptr->lev > 34) amount = 2;
+						p_ptr->weapon_exp[0][j_ptr->sval] += amount;
+						p_ptr->update |= (PU_BONUS);
 					}
 				}
 
-				if (snipe_type == SP_NEEDLE)
+				if (p_ptr->riding)
 				{
-					if ((randint1(randint1(r_ptr->level / (3 + p_ptr->concent)) + (8 - p_ptr->concent)) == 1)
-						&& !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
+					if ((p_ptr->skill_exp[GINOU_RIDING] < s_info[p_ptr->pclass].s_max[GINOU_RIDING])
+						&& ((p_ptr->skill_exp[GINOU_RIDING] - (RIDING_EXP_BEGINNER * 2)) / 200 < r_info[m_list[p_ptr->riding].r_idx].level)
+						&& one_in_(2))
+					{
+						p_ptr->skill_exp[GINOU_RIDING] += 1;
+						p_ptr->update |= (PU_BONUS);
+					}
+				}
+
+				/* Some shots have hit bonus */
+				armour = r_ptr->ac;
+				if (p_ptr->concent)
+				{
+					armour *= (10 - p_ptr->concent);
+					armour /= 10;
+				}
+
+				/* A painted target always hits */
+				if (p_ptr->painted_target && p_ptr->painted_target_idx == c_ptr->m_idx && p_ptr->painted_target_ct >= 3)
+					hit = TRUE;
+				else
+				{
+					/* Did we hit it? (penalize range) */
+					hit = test_hit_fire(chance - cur_dis, armour, m_ptr->ml);
+
+					if (p_ptr->painted_target)
+					{
+						if (shoot_hack == SHOOT_BOUNCE && shoot_count > 0)
+						{
+							/* A richochet from bouncing pebble should not reset the
+							   painted target */
+						}
+						else if (!hit)
+						{
+							p_ptr->painted_target_idx = 0;
+							p_ptr->painted_target_ct = 0;
+						}
+						else if (p_ptr->painted_target_idx == c_ptr->m_idx)
+						{
+							p_ptr->painted_target_ct++;
+						}
+						else
+						{
+							p_ptr->painted_target_idx = c_ptr->m_idx;
+							p_ptr->painted_target_ct = 1;
+						}
+					}
+				}
+
+				if (hit)
+				{
+					bool fear = FALSE;
+					int tdam = tdam_base;
+
+					/* Get extra damage from concentration */
+					if (p_ptr->concent) tdam = boost_concentration_damage(tdam);
+
+					/* Handle unseen monster */
+					if (!visible)
+					{
+						/* Invisible monster */
+	#ifdef JP
+						msg_format("%sが敵を捕捉した。", o_name);
+	#else
+						msg_format("The %s finds a mark.", o_name);
+	#endif
+
+					}
+
+					/* Handle visible monster */
+					else
 					{
 						char m_name[80];
 
 						/* Get "the monster" or "it" */
 						monster_desc(m_name, m_ptr, 0);
 
-						tdam = m_ptr->hp + 1;
-#ifdef JP
-						msg_format("%sの急所に突き刺さった！", m_name);
-#else
-						msg_format("Your shot sticked on a fatal spot of %s!", m_name);
-#endif
+						/* Message */
+	#ifdef JP
+						msg_format("%sが%sに命中した。", o_name, m_name);
+	#else
+						msg_format("The %s hits %s.", o_name, m_name);
+	#endif
+
+						if (m_ptr->ml)
+						{
+							/* Hack -- Track this monster race */
+							if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
+
+							/* Hack -- Track this monster */
+							health_track(c_ptr->m_idx);
+						}
 					}
-					else tdam = 1;
-				}
-				else
-				{
-					/* Apply special damage XXX XXX XXX */
-					tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
-					tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
-					/* No negative damage */
-					if (tdam < 0) tdam = 0;
-
-					/* Modify the damage */
-					tdam = mon_damage_mod(m_ptr, tdam, FALSE);
-				}
-
-				/* Sniper */
-				if (snipe_type == SP_EXPLODE)
-				{
-					u16b flg = (PROJECT_STOP | PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID);
-
-					sound(SOUND_EXPLODE); /* No explode sound - use breath fire instead */
-					project(0, ((p_ptr->concent + 1) / 2 + 1), ny, nx, tdam, GF_MISSILE, flg, -1);
-					break;
-				}
-
-				/* Sniper */
-				if (snipe_type == SP_HOLYNESS)
-				{
-					cave[ny][nx].info |= (CAVE_GLOW);
-
-					/* Notice */
-					note_spot(ny, nx);
-
-					/* Redraw */
-					lite_spot(ny, nx);
-				}
-
-				/* Hit the monster, check for death */
-				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
-				{
-					/* Dead monster */
-				}
-
-				/* No death */
-				else
-				{
-					if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+					if (snipe_type == SP_NEEDLE)
 					{
-						if (!(m_ptr->smart & SM_TICKED_OFF))
+						if ((randint1(randint1(r_ptr->level / (3 + p_ptr->concent)) + (8 - p_ptr->concent)) == 1)
+							&& !(r_ptr->flags1 & RF1_UNIQUE) && !(r_ptr->flags7 & RF7_UNIQUE2))
 						{
 							char m_name[80];
+
+							/* Get "the monster" or "it" */
 							monster_desc(m_name, m_ptr, 0);
-							msg_format("%^s is ticked off!", m_name);
-							m_ptr->smart |= SM_TICKED_OFF;
+
+							tdam = m_ptr->hp + 1;
+	#ifdef JP
+							msg_format("%sの急所に突き刺さった！", m_name);
+	#else
+							msg_format("Your shot sticked on a fatal spot of %s!", m_name);
+	#endif
 						}
+						else tdam = 1;
 					}
-					/* STICK TO */
-					if (object_is_fixed_artifact(q_ptr))
+					else
 					{
-						char m_name[80];
+						/* Apply special damage XXX XXX XXX */
+						tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
+						tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
-						monster_desc(m_name, m_ptr, 0);
+						/* No negative damage */
+						if (tdam < 0) tdam = 0;
 
-						stick_to = TRUE;
-#ifdef JP
-						msg_format("%sは%sに突き刺さった！",o_name, m_name);
-#else
-						msg_format("%^s have stuck into %s!",o_name, m_name);
-#endif
+						/* Modify the damage */
+						tdam = mon_damage_mod(m_ptr, tdam, FALSE);
 					}
-
-					/* Message */
-					message_pain(c_ptr->m_idx, tdam);
-
-					/* Anger the monster */
-					if (tdam > 0) anger_monster(m_ptr);
-
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						char m_name[80];
-
-						/* Sound */
-						sound(SOUND_FLEE);
-
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
-
-						/* Message */
-#ifdef JP
-						msg_format("%^sは恐怖して逃げ出した！", m_name);
-#else
-						msg_format("%^s flees in terror!", m_name);
-#endif
-
-					}
-
-					set_target(m_ptr, py, px);
 
 					/* Sniper */
-					if (snipe_type == SP_RUSH)
+					if (snipe_type == SP_EXPLODE)
 					{
-						int n = randint1(5) + 3;
-						int m_idx = c_ptr->m_idx;
+						u16b flg = (PROJECT_STOP | PROJECT_JUMP | PROJECT_KILL | PROJECT_GRID);
 
-						for ( ; cur_dis <= tdis; )
+						sound(SOUND_EXPLODE); /* No explode sound - use breath fire instead */
+						project(0, ((p_ptr->concent + 1) / 2 + 1), ny, nx, tdam, GF_MISSILE, flg, -1);
+						break;
+					}
+
+					/* Sniper */
+					if (snipe_type == SP_HOLYNESS)
+					{
+						cave[ny][nx].info |= (CAVE_GLOW);
+
+						/* Notice */
+						note_spot(ny, nx);
+
+						/* Redraw */
+						lite_spot(ny, nx);
+					}
+
+					if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+					{
+						/* Dead monster ... abort firing additional shots */
+						i = num_shots;
+						p_ptr->painted_target_idx = 0;
+						p_ptr->painted_target_ct = 0;
+					}
+
+					/* No death */
+					else
+					{
+						if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
 						{
-							int ox = nx;
-							int oy = ny;
+							if (!(m_ptr->smart & SM_TICKED_OFF))
+							{
+								char m_name[80];
+								monster_desc(m_name, m_ptr, 0);
+								msg_format("%^s is ticked off!", m_name);
+								m_ptr->smart |= SM_TICKED_OFF;
+							}
+						}
+						/* STICK TO */
+						if (object_is_fixed_artifact(q_ptr))
+						{
+							char m_name[80];
 
-							if (!n) break;
+							monster_desc(m_name, m_ptr, 0);
 
-							/* Calculate the new location (see "project()") */
-							mmove2(&ny, &nx, py, px, ty, tx);
+							stick_to = TRUE;
+	#ifdef JP
+							msg_format("%sは%sに突き刺さった！",o_name, m_name);
+	#else
+							msg_format("%^s have stuck into %s!",o_name, m_name);
+	#endif
+						}
 
-							/* Stopped by wilderness boundary */
-							if (!in_bounds2(ny, nx)) break;
+						/* Message */
+						message_pain(c_ptr->m_idx, tdam);
 
-							/* Stopped by walls/doors */
-							if (!player_can_enter(cave[ny][nx].feat, 0)) break;
+						/* Anger the monster */
+						if (tdam > 0) anger_monster(m_ptr);
 
-							/* Stopped by monsters */
-							if (!cave_empty_bold(ny, nx)) break;
+						/* Take note */
+						if (fear && m_ptr->ml)
+						{
+							char m_name[80];
 
-							cave[ny][nx].m_idx = m_idx;
-							cave[oy][ox].m_idx = 0;
+							/* Sound */
+							sound(SOUND_FLEE);
 
-							m_ptr->fx = nx;
-							m_ptr->fy = ny;
+							/* Get the monster name (or "it") */
+							monster_desc(m_name, m_ptr, 0);
 
-							/* Update the monster (new location) */
-							update_mon(c_ptr->m_idx, TRUE);
+							/* Message */
+	#ifdef JP
+							msg_format("%^sは恐怖して逃げ出した！", m_name);
+	#else
+							msg_format("%^s flees in terror!", m_name);
+	#endif
 
-							lite_spot(ny, nx);
-							lite_spot(oy, ox);
+						}
 
-							Term_fresh();
-							Term_xtra(TERM_XTRA_DELAY, msec);
+						set_target(m_ptr, py, px);
 
-							x = nx;
-							y = ny;
-							cur_dis++;
-							n--;
+						/* Sniper */
+						if (snipe_type == SP_RUSH)
+						{
+							int n = randint1(5) + 3;
+							int m_idx = c_ptr->m_idx;
+
+							for ( ; cur_dis <= tdis; )
+							{
+								int ox = nx;
+								int oy = ny;
+
+								if (!n) break;
+
+								/* Calculate the new location (see "project()") */
+								mmove2(&ny, &nx, sy, sx, ty, tx);
+
+								/* Stopped by wilderness boundary */
+								if (!in_bounds2(ny, nx)) break;
+
+								/* Stopped by walls/doors */
+								if (!player_can_enter(cave[ny][nx].feat, 0)) break;
+
+								/* Stopped by monsters */
+								if (!cave_empty_bold(ny, nx)) break;
+
+								cave[ny][nx].m_idx = m_idx;
+								cave[oy][ox].m_idx = 0;
+
+								m_ptr->fx = nx;
+								m_ptr->fy = ny;
+
+								/* Update the monster (new location) */
+								update_mon(c_ptr->m_idx, TRUE);
+
+								lite_spot(ny, nx);
+								lite_spot(oy, ox);
+
+								Term_fresh();
+								Term_xtra(TERM_XTRA_DELAY, msec);
+
+								x = nx;
+								y = ny;
+								cur_dis++;
+								n--;
+							}
 						}
 					}
 				}
-			}
 
-			/* Sniper */
-			if (snipe_type == SP_PIERCE)
-			{
-				if(p_ptr->concent < 1) break;
-				p_ptr->concent--;
-				continue;
-			}
+				/* Sniper */
+				if (snipe_type == SP_PIERCE)
+				{
+					if(p_ptr->concent < 1) break;
+					p_ptr->concent--;
+					continue;
+				}
 
-			/* Stop looking */
-			break;
+				if (shoot_hack == SHOOT_PIERCE)
+				{
+					shoot_count++;
+					if (one_in_(shoot_count) || randint1(100) < p_ptr->lev)
+						continue;
+				}
+
+				if (shoot_hack == SHOOT_BOUNCE)
+				{
+					int dir = randint1(9);
+					if (dir != 5)
+					{
+						/* For now, only one bounce ... Consider allowing a chance
+						   of multiple bounces (e.g. one_in_(shoot_count)) or just
+						   letting the pebble bounce until it fails to hit a monster */
+						shoot_count++;
+						if (shoot_count <= 5)
+						{
+							tx = x + 99 * ddx[dir];
+							ty = y + 99 * ddy[dir];
+							do_cmd_fire_aux2(item, j_ptr, x, y, tx, ty);
+							return;
+						}
+					}
+				}
+				/* Stop looking */
+				break;
+			}
 		}
-	}
 
-	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(q_ptr) : 0);
+		/* Chance of breakage (during attacks) */
+		j = (hit_body ? breakage_chance(q_ptr) : 0);
 
-	if (stick_to)
-	{
-		int m_idx = cave[y][x].m_idx;
-		monster_type *m_ptr = &m_list[m_idx];
-		int o_idx = o_pop();
-
-		if (!o_idx)
+		if (item == INVEN_UNLIMITED_QUIVER)
 		{
-#ifdef JP
-			msg_format("%sはどこかへ行った。", o_name);
-#else
-			msg_format("The %s have gone to somewhere.", o_name);
-#endif
-			if (object_is_fixed_artifact(q_ptr))
-			{
-				a_info[j_ptr->name1].cur_num = 0;
-			}
-			if (q_ptr->name3)
-				a_info[j_ptr->name3].cur_num = 0;
-			return;
+			if (disturb_minor)
+				msg_print("Your quiver seems endless.");
 		}
+		else if (return_ammo)
+		{
+			if (disturb_minor)
+				msg_format("The %s returns to your pack.", o_name);
+		}
+		else if (stick_to)
+		{
+			int m_idx = cave[y][x].m_idx;
+			monster_type *m_ptr = &m_list[m_idx];
+			int o_idx = o_pop();
 
-		o_ptr = &o_list[o_idx];
-		object_copy(o_ptr, q_ptr);
+			if (!o_idx)
+			{
+	#ifdef JP
+				msg_format("%sはどこかへ行った。", o_name);
+	#else
+				msg_format("The %s have gone to somewhere.", o_name);
+	#endif
+				if (object_is_fixed_artifact(q_ptr))
+				{
+					a_info[j_ptr->name1].cur_num = 0;
+				}
+				if (q_ptr->name3)
+					a_info[j_ptr->name3].cur_num = 0;
+				return;
+			}
 
-		/* Forget mark */
-		o_ptr->marked &= OM_TOUCHED;
+			o_ptr = &o_list[o_idx];
+			object_copy(o_ptr, q_ptr);
 
-		/* Forget location */
-		o_ptr->iy = o_ptr->ix = 0;
+			/* Forget mark */
+			o_ptr->marked &= OM_TOUCHED;
 
-		/* Memorize monster */
-		o_ptr->held_m_idx = m_idx;
+			/* Forget location */
+			o_ptr->iy = o_ptr->ix = 0;
 
-		/* Build a stack */
-		o_ptr->next_o_idx = m_ptr->hold_o_idx;
+			/* Memorize monster */
+			o_ptr->held_m_idx = m_idx;
 
-		/* Carry object */
-		m_ptr->hold_o_idx = o_idx;
-	}
-	else if (cave_have_flag_bold(y, x, FF_PROJECT))
-	{
-		/* Drop (or break) near that location */
-		(void)drop_near(q_ptr, j, y, x);
-	}
-	else
-	{
-		/* Drop (or break) near that location */
-		(void)drop_near(q_ptr, j, prev_y, prev_x);
-	}
+			/* Build a stack */
+			o_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+			/* Carry object */
+			m_ptr->hold_o_idx = o_idx;
+		}
+		else if (cave_have_flag_bold(y, x, FF_PROJECT))
+		{
+			/* Drop (or break) near that location */
+			(void)drop_near(q_ptr, j, y, x);
+		}
+		else
+		{
+			/* Drop (or break) near that location */
+			(void)drop_near(q_ptr, j, prev_y, prev_x);
+		}
 
 	/* Sniper - Repeat shooting when double shots */
 	}
@@ -4052,14 +4220,14 @@ void do_cmd_fire(void)
 	s = "You have nothing to fire.";
 #endif
 
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR)))
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_QUIVER)))
 	{
 		flush();
 		return;
 	}
 
 	/* Fire the item */
-	do_cmd_fire_aux(item, j_ptr);
+	do_cmd_fire_aux1(item, j_ptr);
 
 	if (!is_fired || p_ptr->pclass != CLASS_SNIPER) return;
 
@@ -4187,6 +4355,11 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		o_ptr = &o_list[0 - item];
 	}
 
+	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	{
+		msg_print("You may not toss your signature item.  It is precious to you!");
+		return FALSE;
+	}
 
 	/* Item is cursed */
 	if (object_is_cursed(o_ptr) && (item >= INVEN_RARM))

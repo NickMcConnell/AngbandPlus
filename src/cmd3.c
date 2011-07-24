@@ -407,6 +407,14 @@ void do_cmd_wield(void)
 		return;
 	}
 
+	if (have_flag(inventory[slot].art_flags, TR_SIGNATURE))
+	{
+		object_desc(o_name, &inventory[slot], (OD_OMIT_PREFIX | OD_NAME_ONLY));
+		msg_format("The %s you are %s is your signature item and may not be removed.",
+			   o_name, describe_use(slot));
+		return;
+	}
+
 	if (confirm_wear &&
 		((object_is_cursed(o_ptr) && object_is_known(o_ptr)) ||
 		((o_ptr->ident & IDENT_SENSE) &&
@@ -756,6 +764,11 @@ void do_cmd_takeoff(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	{
+		msg_print("You can not remove your signature item.");
+		return;
+	}
 
 	/* Item is cursed */
 	if (object_is_cursed(o_ptr))

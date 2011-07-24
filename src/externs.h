@@ -208,6 +208,7 @@ extern bool reinit_wilderness;
 extern bool multi_rew;
 extern char summon_kin_type;
 extern bool hack_mind;
+extern int quest_mega_hack;
 
 
 /*
@@ -650,6 +651,7 @@ extern void do_cmd_edit_autopick(void);
 
 /* birth.c */
 extern void add_history_from_pref_line(cptr t);
+extern void add_outfit(object_type *o_ptr);
 extern void player_birth(void);
 extern void get_max_stats(void);
 extern void get_height_weight(void);
@@ -743,7 +745,8 @@ extern void do_cmd_stay(bool pickup);
 extern void do_cmd_run(void);
 extern void do_cmd_rest(void);
 extern void do_cmd_fire(void);
-extern void do_cmd_fire_aux(int item, object_type *j_ptr);
+extern void do_cmd_fire_aux1(int item, object_type *j_ptr); /* ammo already chosen */
+extern void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int ty); /* ammo and target already chosen */
 extern void do_cmd_throw(void);
 extern bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken);
 #ifdef TRAVEL
@@ -1899,6 +1902,15 @@ extern void smith_judgment_spell(int cmd, variant *res);
 /* warlock.c */
 extern class_t *warlock_get_class_t(int psubclass);
 extern bool warlock_is_pact_monster(monster_race *r_ptr);
+
+/* weaponmaster.c */
+extern class_t *weaponmaster_get_class_t(void);
+extern int weaponmaster_get_toggle(void);
+extern cptr weaponmaster_speciality_name(void);
+extern int weaponmaster_specialty2_k_idx(void);
+extern int shoot_hack;
+extern int shoot_count;
+extern int shoot_item;
 
 /* wild_talent.c */
 extern class_t *wild_talent_get_class_t(void);

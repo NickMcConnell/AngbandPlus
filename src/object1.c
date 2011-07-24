@@ -3655,6 +3655,13 @@ info[i++] = "それは神に祝福されている。";
 
 	}
 
+	if (have_flag(flgs, TR_SIGNATURE))
+	{
+		msg_print("It is your signature item.");
+		return;
+	}
+
+
 	if (object_is_cursed(o_ptr))
 	{
 		if (o_ptr->curse_flags & TRC_PERMA_CURSE)
@@ -5510,6 +5517,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool equip = FALSE;
 	bool inven = FALSE;
 	bool floor = FALSE;
+	bool quiver = FALSE;
 
 	bool allow_floor = FALSE;
 
@@ -5542,6 +5550,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	if (mode & USE_EQUIP) equip = TRUE;
 	if (mode & USE_INVEN) inven = TRUE;
 	if (mode & USE_FLOOR) floor = TRUE;
+	if (mode & USE_QUIVER) quiver = TRUE;
 
 #ifdef ALLOW_REPEAT
 
@@ -5555,6 +5564,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			item_tester_hook = NULL;
 			command_cmd = 0; /* Hack -- command_cmd is no longer effective */
 			return (TRUE);
+		}
+
+		else if (quiver && (*cp == INVEN_UNLIMITED_QUIVER))
+		{
+			item_tester_tval = 0;
+			item_tester_hook = NULL;
+			command_cmd = 0; /* Hack -- command_cmd is no longer effective */
+			return (TRUE);			
 		}
 
 		/* Floor item? */
@@ -5713,6 +5730,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		if (select_the_force) {
 		    *cp = INVEN_FORCE;
 		    item = TRUE;
+		}
+		if (quiver && p_ptr->unlimited_quiver) {
+		    *cp = INVEN_UNLIMITED_QUIVER;
+		    item = TRUE;
+			oops = FALSE;
 		}
 	}
 
@@ -5899,6 +5921,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 #else
 		if (allow_floor) strcat(out_val, " - for floor,");
 		if (select_the_force) strcat(out_val, " w for the Force,");
+		if (quiver && p_ptr->unlimited_quiver) strcat(out_val, " w for unlimited quiver,");
 #endif
 
 		/* Finish the prompt */
@@ -6014,6 +6037,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			{
 				if (select_the_force) {
 					*cp = INVEN_FORCE;
+					item = TRUE;
+					done = TRUE;
+					break;
+				}
+				if (quiver && p_ptr->unlimited_quiver) {
+					*cp = INVEN_UNLIMITED_QUIVER;
 					item = TRUE;
 					done = TRUE;
 					break;
@@ -6219,6 +6248,12 @@ if (other_query_flag && !verify("本当に", k)) continue;
 			{
 				if (select_the_force) {
 					*cp = INVEN_FORCE;
+					item = TRUE;
+					done = TRUE;
+					break;
+				}
+				if (quiver && p_ptr->unlimited_quiver) {
+					*cp = INVEN_UNLIMITED_QUIVER;
 					item = TRUE;
 					done = TRUE;
 					break;

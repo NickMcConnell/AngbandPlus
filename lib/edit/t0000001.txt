@@ -138,6 +138,46 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:130
 
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Axes] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:70
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Bows] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:73
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Clubs] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:55
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Crossbows] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:75
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Daggers] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:43
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Polearms] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:63
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Shields] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:128
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Slings] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:77
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Staves] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:54
+
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Weaponmaster] [EQU $SPECIALITY Swords] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:42
+
 ?:[AND [EQU $QUEST14 3] [EQU $CLASS BeastMaster Cavalry Ninja] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:126
@@ -466,6 +506,13 @@ F:@:FLOOR:3:0:0:0:77
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Chaos-Warrior Rune-Knight] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:80
+
+##########################################################################
+# Weaponmaster
+# 555 is a hack.  This is handled in code
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Weaponmaster] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:555
 
 ##########################################################################
 # Warlock

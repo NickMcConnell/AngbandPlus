@@ -1117,6 +1117,11 @@ bool apply_disenchant(int mode)
 	if (!object_is_weapon_armour_ammo(o_ptr))
 		return FALSE;
 
+	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	{
+		return FALSE;
+	}
+
 	/* Nothing to disenchant */
 	if ((o_ptr->to_h <= 0) && (o_ptr->to_d <= 0) && (o_ptr->to_a <= 0) && (o_ptr->pval <= 1))
 	{
@@ -5262,6 +5267,12 @@ bool curse_armor(void)
 	/* Describe */
 	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
 
+	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	{
+		msg_format("Your %s resists cursing!", o_name);
+		return TRUE;
+	}
+
 	/* Attempt a saving throw for artifacts */
 	if (object_is_artifact(o_ptr) && (randint0(100) < 50))
 	{
@@ -5315,6 +5326,12 @@ bool curse_weapon(bool force, int slot)
 
 	/* Describe */
 	object_desc(o_name, o_ptr, OD_OMIT_PREFIX);
+
+	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	{
+		msg_format("Your %s resists cursing!", o_name);
+		return TRUE;
+	}
 
 	/* Attempt a saving throw */
 	if (object_is_artifact(o_ptr) && (randint0(100) < 50) && !force)

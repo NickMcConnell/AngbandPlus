@@ -3303,6 +3303,7 @@ static int i = 0;
 #define RANDOM_EGO          0x00000008
 #define RANDOM_ARTIFACT     0x00000010
 #define RANDOM_TRAP         0x00000020
+#define UBER_MEGA_HACK		0x00000040
 
 
 typedef struct dungeon_grid dungeon_grid;
@@ -3380,6 +3381,11 @@ static errr parse_line_feature(char *buf)
 				else
 				{
 					letter[index].artifact = atoi(zz[6]);
+					if (letter[index].artifact == 555)
+					{
+						letter[index].random |= UBER_MEGA_HACK;
+						letter[index].artifact = 0;
+					}
 				}
 				/* Fall through */
 			/* Ego-item */
@@ -3775,6 +3781,27 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				}
 
 				object_level = base_level;
+			}
+			else if (random & UBER_MEGA_HACK)
+			{
+				/* My deep apologies, but I need a way to handle quest rewards
+				   that just can't be done with the current external files! */
+				if (quest_mega_hack == 27)
+				{
+					/* Old Castle Reward: Randart specialization weapon, generated as dlvl 80. */
+					if (p_ptr->pclass == CLASS_WEAPONMASTER)
+					{
+						object_type forge;
+
+						object_level = 80;
+
+						object_prep(&forge, weaponmaster_specialty2_k_idx());
+						create_artifact(&forge, CREATE_ART_GOOD);
+						drop_here(&forge, *y, *x);
+
+						object_level = base_level;
+					}
+				}
 			}
 			else if (random & RANDOM_OBJECT)
 			{
@@ -4424,6 +4451,13 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 					sprintf(tmp, "LITE");
 				else
 					sprintf(tmp, "NORMAL");
+				v = tmp;
+			}
+
+			else if (streq(b+1, "SPECIALITY"))
+			{
+				if (p_ptr->pclass == CLASS_WEAPONMASTER)
+					sprintf(tmp, weaponmaster_speciality_name());
 				v = tmp;
 			}
 		}

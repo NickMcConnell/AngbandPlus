@@ -245,6 +245,7 @@ static void sense_inventory1(void)
 		case CLASS_BLOOD_KNIGHT:
 		case CLASS_DUELIST:
 		case CLASS_RUNE_KNIGHT:
+		case CLASS_WEAPONMASTER:
 		{
 			/* Good sensing */
 			if (0 != randint0(9000L / (plev * plev + 40))) return;
@@ -487,6 +488,7 @@ static void sense_inventory2(void)
 		case CLASS_SNIPER:
 		case CLASS_BLOOD_KNIGHT:
 		case CLASS_DUELIST:
+		case CLASS_WEAPONMASTER:
 		{
 			return;
 		}
@@ -2427,7 +2429,7 @@ static void process_world_aux_curse(void)
 			o_ptr = choose_cursed_obj_name(TRC_ADD_L_CURSE);
 
 			new_curse = get_curse(0, o_ptr);
-			if (!(o_ptr->curse_flags & new_curse))
+			if (!(o_ptr->curse_flags & new_curse) && !have_flag(o_ptr->art_flags, TR_SIGNATURE))
 			{
 				char o_name[MAX_NLEN];
 
@@ -2454,7 +2456,7 @@ static void process_world_aux_curse(void)
 			o_ptr = choose_cursed_obj_name(TRC_ADD_H_CURSE);
 
 			new_curse = get_curse(1, o_ptr);
-			if (!(o_ptr->curse_flags & new_curse))
+			if (!(o_ptr->curse_flags & new_curse) && !have_flag(o_ptr->art_flags, TR_SIGNATURE))
 			{
 				char o_name[MAX_NLEN];
 
@@ -4388,7 +4390,8 @@ msg_print("ウィザードモード突入。");
 							 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
 							 p_ptr->pclass == CLASS_MINDCRAFTER ||
 							 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
-							 p_ptr->pclass == CLASS_WILD_TALENT)
+							 p_ptr->pclass == CLASS_WILD_TALENT ||
+							 p_ptr->pclass == CLASS_WEAPONMASTER)
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */
@@ -6465,7 +6468,10 @@ quit("セーブファイルが壊れています");
 	/* Give startup outfit (after loading pref files) */
 	if (new_game)
 	{
+		class_t *class_ptr = get_class_t();
 		player_outfit();
+		if (class_ptr)
+			class_ptr->birth();
 	}
 
 	/* React to changes */
@@ -6721,6 +6727,7 @@ quit("セーブファイルが壊れています");
 
 		/* Make a new level */
 		change_floor();
+		quest_mega_hack = 0;
 	}
 
 	/* Close stuff */

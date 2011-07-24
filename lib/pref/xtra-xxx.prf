@@ -154,3 +154,5 @@ R:0:0xAA/0
 R:0:0xAB/0
 ?:[EQU $CLASS Rune-Knight]
 R:0:0xA9/0
+?:[EQU $CLASS Weaponmaster]
+R:0:0xA4/0

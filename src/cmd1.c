@@ -2061,6 +2061,12 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
 	bool            zantetsu_mukou, e_j_mukou;
 
+	if (p_ptr->painted_target)
+	{
+		p_ptr->painted_target_idx = 0;
+		p_ptr->painted_target_ct = 0;
+	}
+
 	switch (p_ptr->pclass)
 	{
 	case CLASS_DUELIST:
@@ -4401,6 +4407,11 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 
 		/* Move the player */
 		(void)move_player_effect(y, x, mpe_mode);
+		{
+			class_t *class_ptr = get_class_t();
+			if (class_ptr && class_ptr->move_player)
+				class_ptr->move_player();
+		}
 	}
 }
 

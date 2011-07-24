@@ -8,7 +8,7 @@
 typedef void *menu_choices;
 typedef cptr (*menu_text_fn)(menu_choices choices, int which);
 typedef int (*menu_attr_fn)(menu_choices choices, int which);
-
+	
 typedef struct {
 	cptr          choose_prompt;
 	cptr          browse_prompt;

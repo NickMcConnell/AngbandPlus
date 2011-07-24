@@ -753,6 +753,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_blood_seek);
 	wr_byte(p_ptr->sense_artifact);
 	wr_s16b(p_ptr->duelist_target_idx);
+	wr_byte(p_ptr->speciality1);
+	wr_byte(p_ptr->speciality2);
+	wr_byte(p_ptr->speciality3);
 
 	/* by henkma */
 	wr_s16b(p_ptr->tim_reflect);

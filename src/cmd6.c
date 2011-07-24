@@ -6960,7 +6960,7 @@ msg_print("混乱していて読めない！");
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			do_cmd_fire_aux(item, &inventory[INVEN_BOW]);
+			do_cmd_fire_aux1(item, &inventory[INVEN_BOW]);
 			break;
 		}
 

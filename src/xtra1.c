@@ -381,6 +381,8 @@ static void prt_stat(int stat)
 #define BAR_TIME_SPURT 74
 #define BAR_SPECIAL 75
 #define BAR_DUELIST 76
+#define BAR_SHOT_ON_THE_RUN 77
+#define BAR_RAPID_SHOT 78
 
 static struct {
 	byte attr;
@@ -539,6 +541,8 @@ static struct {
 	{TERM_YELLOW, "Ts", "Spurt"},
 	{TERM_L_BLUE, "Sp", "Special"},
 	{TERM_YELLOW, "", "Duelist Target Goes Here!"},
+	{TERM_L_BLUE, "Rn", "Shoot on Run"},
+	{TERM_L_RED, "Rp", "Rapid Shot"},
 	{0, NULL, NULL}
 };
 #endif
@@ -704,6 +708,18 @@ static void prt_status(void)
 	if (p_ptr->tim_blood_feast) ADD_FLG(BAR_BLOOD_FEAST);
 	if (p_ptr->tim_no_spells) ADD_FLG(BAR_NO_SPELLS);
 	if (p_ptr->tim_blood_revenge) ADD_FLG(BAR_BLOOD_REVENGE);
+	if (p_ptr->pclass == CLASS_WEAPONMASTER)
+	{
+		switch (weaponmaster_get_toggle())
+		{
+		case TOGGLE_SHOT_ON_THE_RUN:
+			ADD_FLG(BAR_SHOT_ON_THE_RUN);
+			break;
+		case TOGGLE_RAPID_SHOT:
+			ADD_FLG(BAR_RAPID_SHOT);
+			break;
+		}
+	}
 
 	if (p_ptr->sense_artifact) ADD_FLG(BAR_SPECIAL);
 
@@ -3325,6 +3341,11 @@ void calc_bonuses(void)
 	p_ptr->hidarite = FALSE;
 	p_ptr->no_flowed = FALSE;
 
+	p_ptr->unlimited_quiver = FALSE;
+	p_ptr->return_ammo = FALSE;
+	p_ptr->big_shot = FALSE;
+	p_ptr->painted_target = FALSE;
+
 	p_ptr->align = friend_align;
 
 
@@ -5123,6 +5144,7 @@ void calc_bonuses(void)
 				/* Weaponsmith */
 				case CLASS_SMITH:
 				case CLASS_RUNE_KNIGHT:
+				case CLASS_WEAPONMASTER:
 					num = 5; wgt = 150; mul = 5; break;
 
 				/* Warrior-Mage */

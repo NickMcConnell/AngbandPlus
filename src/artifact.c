@@ -1627,11 +1627,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	int     warrior_artifact_bias = 0;
 	int i;
 	bool has_resistance = FALSE;
-	int lev = dun_level;
+	int lev = object_level;
 	int slaying = 0;
 
-	if (lev == 0)
-		lev = 30; /* assume a quest reward */
+	if (lev == 0 && quest_mega_hack)
+		lev = quest[quest_mega_hack].level;
 
 	if (lev > 127)
 		lev = 127; /* no going to heaven or hell for uber nutso craziness */

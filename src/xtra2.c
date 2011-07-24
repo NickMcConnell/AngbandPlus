@@ -6206,6 +6206,8 @@ s16b bow_energy(int sval)
 
 		/* Long Bow and Arrow */
 		case SV_LONG_BOW:
+		case SV_CRIMSON:
+		case SV_HARP:
 		{
 			energy = 10000;
 			break;

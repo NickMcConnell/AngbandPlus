@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 42
+#define FAKE_VER_PATCH 44
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 42
+#define H_VER_PATCH 44
 #define H_VER_EXTRA 0
 
 
@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            35
+#define MAX_CLASS            36
 
 #define MAX_SEIKAKU          12
 
@@ -718,7 +718,9 @@
 /*
  * Fake inventory slot for selecting force (hard-coded).
  */
-#define INVEN_FORCE     1111
+#define INVEN_FORCE				1111
+
+#define INVEN_UNLIMITED_QUIVER	1112
 
 /*
  * Fake inventory slot for harps.  They go in INVEN_BOW but
@@ -830,6 +832,7 @@
 #define CLASS_DUELIST			32
 #define CLASS_WILD_TALENT		33
 #define CLASS_RUNE_KNIGHT		34
+#define CLASS_WEAPONMASTER		35
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -2005,6 +2008,9 @@
 #define SV_DOKUBARI                     32  /* 1d1 */
 #define SV_HAYABUSA                     33  /* 1d6 */
 
+#define SV_FALCON_SWORD					33
+#define SV_POISON_NEEDLE				32
+
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD          2
 #define SV_SMALL_METAL_SHIELD            3
@@ -2663,6 +2669,7 @@
 #define USE_EQUIP	0x01	/* Allow equip items */
 #define USE_INVEN	0x02	/* Allow inven items */
 #define USE_FLOOR	0x04	/* Allow floor items */
+#define USE_QUIVER	0x08
 
 
 /*
@@ -3319,8 +3326,9 @@
 #define TR_SPELL_POWER         118
 #define TR_RES_TIME			   119
 #define TR_SPELL_CAP           120
+#define TR_SIGNATURE		   121
 
-#define TR_FLAG_MAX            121
+#define TR_FLAG_MAX            122
 #define TR_FLAG_SIZE           4
 
 
@@ -5575,4 +5583,20 @@ extern int PlayerUID;
 #define RUNE_GOOD_FORTUNE         0x00000100
 #define RUNE_BODY                 0x00000200
 #define RUNE_MIND                 0x00000400
+
+/* Weaponmaster shooting powers */
+#define SHOOT_NONE		0
+#define SHOOT_BOUNCE	1
+#define SHOOT_PIERCE	2
+#define SHOOT_PHASE		3
+#define SHOOT_RUN		4 
+#define SHOOT_MANY      5
+#define SHOOT_ALL       6
+
+/* Weaponmaster toggle modes */
+#define TOGGLE_NONE				0
+
+	/* Slingmaster */
+	#define TOGGLE_SHOT_ON_THE_RUN	1
+	#define TOGGLE_RAPID_SHOT		2
 

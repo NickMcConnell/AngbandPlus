@@ -3853,6 +3853,18 @@ player_class class_info[MAX_CLASS] =
 		7,  10, 10, 0,  0,  0, 15, 11,
 		3, 40, 35
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Weaponmaster",
+
+		{ 3, -1, -1, 1, 1, 0},
+		30, 28, 28, 1, 20, 10, 60, 45,
+		10, 10, 10, 0,  0,  0, 20, 15,
+		6, 30, 40
+	},
 };
 /*
  *      Title,
@@ -4258,6 +4270,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_NONE),				/* Duelist */
 	(CH_NONE),				/* Wild-Talent */
 	(CH_NONE),				/* Rune-Knight */
+	(CH_NONE),				/* Weaponmaster */
 };
 
 
@@ -4307,6 +4320,7 @@ s32b realm_choices2[MAX_CLASS] =
 	(CH_NONE),				/* Duelist */
 	(CH_NONE),				/* Wild-Talent */
 	(CH_NONE),				/* Rune-Knight */
+	(CH_NONE),				/* Weaponmaster */
 };
 
 
@@ -5336,6 +5350,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Baron",
 		"Knight",
 		"Rune Lord",
+	},
+	/* Weaponmaster */
+	{
+		"Trainee",
+		"Soldier",
+		"Mercenary",
+		"Veteran",
+		"Swordsman",
+		"Champion",
+		"Hero",
+		"Baron",
+		"Duke",
+		"Master",
 	},
 };
 #endif

@@ -1000,7 +1000,7 @@ struct player_type
 	byte pseikaku;		/* Seikaku index */
 	byte realm1;        /* First magic realm */
 	byte realm2;        /* Second magic realm */
-	byte psubclass;		/* e.g. Pacts on Warlocks */
+	byte psubclass;		/* e.g. Pacts on Warlocks*/
 
 	byte hitdie;		/* Hit dice (sides) */
 	u16b expfact;       /* Experience factor
@@ -1133,6 +1133,18 @@ struct player_type
 
 	bool sense_artifact;
 	s16b duelist_target_idx;
+
+	/* Weaponmaster */
+	byte speciality1; 
+	byte speciality2;
+	byte speciality3;		/* Can only choose once, at CL50 */
+	
+	bool unlimited_quiver;
+	bool return_ammo;
+	bool big_shot;
+	bool painted_target;
+	int  painted_target_idx;
+	int  painted_target_ct;
 
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
@@ -1868,6 +1880,7 @@ typedef struct {
 } caster_info;
 
 typedef void(*process_player_fn)(void);
+typedef void(*move_player_fn)(void);
 typedef void(*calc_bonuses_fn)(void);
 typedef void(*birth_fn)(void);
 typedef void(*calc_weapon_bonuses_fn)(object_type *o_ptr, weapon_info_t *info_ptr);
@@ -1887,6 +1900,9 @@ typedef struct {
 	s16b thb;			/* combat (shooting) */
 } skills_t;
 
+/* Note: Most of this info is still not being used.  Be sure to
+   double maintain tables in tables.c until I can get around to
+   converting all the classes */
 typedef struct {
 	cptr					name;
 	cptr					desc;
@@ -1894,7 +1910,11 @@ typedef struct {
 	skills_t				base_skills;
 	skills_t				extra_skills; /* Prorata every 10 levels */
 	birth_fn				birth;
-	process_player_fn		process_player;
+	s16b					mhp;			/* Class hit-dice adjustment */
+	s16b					exp;			/* Class experience factor */
+	byte					pets;			/* Pet upkeep divider */
+	process_player_fn		process_player; /* Called from process_player ... but player take 0 or more actions per call */
+	process_player_fn		move_player;    /* Called every time the player actually moves */
 	calc_bonuses_fn			calc_bonuses;
 	calc_weapon_bonuses_fn	calc_weapon_bonuses;
 	caster_info_fn			caster_info;

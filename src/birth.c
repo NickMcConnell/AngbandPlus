@@ -1839,6 +1839,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Rune-Knight ...)",
 
+"TRANSLATE(Weaponmaster ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1920,6 +1922,17 @@ static cptr class_jouhou[MAX_CLASS] =
   "must siphon mana from magical attacks directed at him.  The Rune Knight has "
   "a fixed (though very large) selection of spells that he can use his mana on, "
   "in addition to his unique Rune spells.",
+
+"The weaponmaster is great with a class of weapons, but truly "
+	"outstanding with the one weapon he specializes in. "
+	"At character creation, the player chooses a sub-specialization "
+	"(e.g. Polearms) and a specialization (e.g. Scythe). "
+	"At level 50, the character gets to super-specialization in "
+	"one particular weapon (e.g. Avavir). The character gets "
+	"bonuses from Sub-specialization if he uses weapon from "
+	"that group, and abilities from Specialization if he uses "
+	"weapon of that type. If dual-wielding, both weapons must "
+	"be of the appropriate type.",
 
 #endif
 };
@@ -4115,6 +4128,12 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SWORD, SV_BROAD_SWORD },
 	},
+	{
+		/* Weaponmaster */
+		{ TV_POTION, SV_POTION_SPEED },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+	},
 };
 
 
@@ -4136,7 +4155,7 @@ static bool monster_hook_human(int r_idx)
 /*
  * Add an outfit object
  */
-static void add_outfit(object_type *o_ptr)
+void add_outfit(object_type *o_ptr)
 {
 	s16b slot;
 

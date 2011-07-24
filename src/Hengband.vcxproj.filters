@@ -300,6 +300,9 @@
     <ClCompile Include="force_trainer.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="weaponmaster.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

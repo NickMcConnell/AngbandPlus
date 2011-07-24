@@ -1339,6 +1339,19 @@ static void rd_extra(void)
 	else
 		rd_s16b(&p_ptr->duelist_target_idx);
 
+	if (h_older_than(0, 0, 43, 1))
+	{
+		p_ptr->speciality1 = 0;
+		p_ptr->speciality2 = 0;
+		p_ptr->speciality3 = 0;
+	}
+	else
+	{
+		rd_byte(&p_ptr->speciality1);
+		rd_byte(&p_ptr->speciality2);
+		rd_byte(&p_ptr->speciality3);
+	}
+
 	rd_s16b(&p_ptr->tim_reflect);
 	rd_s16b(&p_ptr->multishadow);
 	rd_s16b(&p_ptr->dustrobe);

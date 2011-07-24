@@ -2004,6 +2004,14 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 		strcat(desc, " (Foe)");
 	}
 
+	if ( p_ptr->painted_target
+	  && p_ptr->painted_target_idx
+	  && m_ptr == &m_list[p_ptr->painted_target_idx]
+	  && p_ptr->painted_target_ct >= 3 )
+	{
+		strcat(desc, " (Painted)");
+	}
+
 	if (p_ptr->wizard && m_ptr->pack_idx)
 	{
 		switch (pack_info_list[m_ptr->pack_idx].ai)

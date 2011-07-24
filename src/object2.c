@@ -3070,7 +3070,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			switch (o_ptr->sval)
 			{
 				case SV_RING_ATTACKS:
-				case SV_RING_SHOTS:
 				{
 					/* Stat bonus */
 					o_ptr->pval = m_bonus(2, level);
@@ -3092,6 +3091,21 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					break;
 				}
+				case SV_RING_SHOTS:
+					o_ptr->pval = 1;
+
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->curse_flags |= TRC_CURSED;
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - o_ptr->pval;
+					}
+					break;
 				
 				case SV_RING_SPELL_POWER:
 				{

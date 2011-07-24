@@ -2973,6 +2973,7 @@ put_str("今のところクエストはありません。", 8, 0);
 	{
 		/* Rewarded quest */
 		q_ptr->status = QUEST_STATUS_REWARDED;
+		quest_mega_hack = q_index;
 
 		get_questinfo(q_index);
 

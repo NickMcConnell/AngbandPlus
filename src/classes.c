@@ -33,6 +33,9 @@ class_t *result = NULL;
 	case CLASS_WARLOCK:
 		result = warlock_get_class_t(psubclass);
 		break;
+	case CLASS_WEAPONMASTER:
+		result = weaponmaster_get_class_t();
+		break;
 	case CLASS_WILD_TALENT:
 		result = wild_talent_get_class_t();
 		break;

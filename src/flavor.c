@@ -2324,7 +2324,10 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		/* Append a "damage" string */
 		t = object_desc_chr(t, ' ');
 		t = object_desc_chr(t, p1);
-		t = object_desc_num(t, o_ptr->dd);
+		if (p_ptr->big_shot && o_ptr->tval == p_ptr->tval_ammo)
+			t = object_desc_num(t, o_ptr->dd * 2);
+		else
+			t = object_desc_num(t, o_ptr->dd);
 		t = object_desc_chr(t, 'd');
 		t = object_desc_num(t, o_ptr->ds);
 		t = object_desc_chr(t, p2);
@@ -2393,9 +2396,14 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	/* If have a firing weapon + ammo matches bow */
 	if (bow_ptr->k_idx && (o_ptr->tval == p_ptr->tval_ammo))
 	{
-		int avgdam = o_ptr->dd * (o_ptr->ds + 1) * 10 / 2;
+		int avgdam;		
 		int tmul = bow_tmul(bow_ptr->sval);
 		s16b energy_fire = bow_energy(bow_ptr->sval);
+
+		if (p_ptr->big_shot && o_ptr->tval == p_ptr->tval_ammo)
+			avgdam = o_ptr->dd * 2 * (o_ptr->ds + 1) * 10 / 2;
+		else
+			avgdam = o_ptr->dd * (o_ptr->ds + 1) * 10 / 2;
 
 		/* See if the bow is "known" - then set damage bonus */
 		if (object_is_known(bow_ptr)) avgdam += (bow_ptr->to_d * 10);

@@ -580,6 +580,12 @@ void curse_equipment(int chance, int heavy_chance)
 
 	object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
+	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	{
+		msg_format("Your %s resists cursing!", o_name);
+		return;
+	}
+
 	/* Extra, biased saving throw for blessed items */
 	if (have_flag(oflgs, TR_BLESSED) && (randint1(888) > chance))
 	{
