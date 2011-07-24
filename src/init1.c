@@ -775,6 +775,7 @@ static cptr k_info_flags[] =
 	"SPELL_POWER",
 	"RES_TIME",
 	"SPELL_CAP",
+	"TR_SIGNATURE",
 };
 
 
@@ -4457,7 +4458,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "SPECIALITY"))
 			{
 				if (p_ptr->pclass == CLASS_WEAPONMASTER)
-					sprintf(tmp, weaponmaster_speciality_name());
+					sprintf(tmp, weaponmaster_speciality1_name());
 				v = tmp;
 			}
 		}

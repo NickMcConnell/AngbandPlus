@@ -87,6 +87,7 @@ static int _get_greater_many_shot_targets(int *targets, int max)
 		if (m_ptr->smart & SM_FRIENDLY) continue;
 		if (m_ptr->smart & SM_PET) continue;
 		if (m_ptr->cdis >= AAF_LIMIT) continue;
+		if (!m_ptr->ml) continue;
 		if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
 		if (result >= max) break;
 
@@ -113,6 +114,7 @@ static int _get_many_shot_targets(int *targets, int max)
 		if (m_ptr->smart & SM_FRIENDLY) continue;
 		if (m_ptr->smart & SM_PET) continue;
 		if (m_ptr->cdis >= AAF_LIMIT) continue;
+		if (!m_ptr->ml) continue;
 		if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
 		if (ct >= _MAX_TARGETS) break;
 
@@ -787,7 +789,7 @@ static int _count_weapons(int speciality)
 	return result;
 }
 
-cptr weaponmaster_speciality_name(void)
+cptr weaponmaster_speciality1_name(void)
 {
 	cptr result = "";
 	if (p_ptr->pclass == CLASS_WEAPONMASTER)
@@ -799,6 +801,16 @@ int weaponmaster_specialty2_k_idx(void)
 {
 	_object_kind kind = _specialities[p_ptr->speciality1].objects[p_ptr->speciality2];
 	return lookup_kind(kind.tval, kind.sval);
+}
+
+cptr weaponmaster_speciality2_name(void)
+{
+	static char buf[MAX_NLEN];
+	object_type forge;
+	object_prep(&forge, weaponmaster_specialty2_k_idx());
+	forge.number = 2;
+	object_desc(buf, &forge, OD_OMIT_PREFIX|OD_NAME_ONLY);
+	return buf;
 }
 
 static int _get_spells(spell_info* spells, int max)
@@ -922,24 +934,43 @@ void _on_birth(void)
 	object_prep(&forge, lookup_kind(kind.tval, kind.sval));
 	add_outfit(&forge);
 
-	/* Fix up skills for Speciality */
+	for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
+	{
+		kind = _specialities[p_ptr->speciality1].objects[i];
+		if (kind.tval == 0) break;
+
+		p_ptr->weapon_exp[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_BEGINNER;
+	}
+}
+
+void weaponmaster_adjust_skills(void)
+{
+	int i;
+	_object_kind kind;
+
+	/* Fix up skills for Speciality.  This needs to be called every time the game is loaded! */
 	for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
 	{
 		kind = _specialities[p_ptr->speciality1].objects[i];
 		if (kind.tval == 0) break;
 
 		s_info[p_ptr->pclass].w_max[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_MASTER;
-		p_ptr->weapon_exp[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_BEGINNER;
 	}
 }
 
 static void _calc_bonuses(void)
 {
+	static bool last_spec1 = FALSE;
+	static bool last_spec2 = FALSE;
+	static bool init = FALSE;
+	bool spec1 = _check_speciality1_equip();
+	bool spec2 = _check_speciality2_equip();
+
 	if (strcmp(_specialities[p_ptr->speciality1].name, "Slings") == 0)
 	{
 		object_type *o_ptr = &inventory[INVEN_BOW];
 
-		if (_check_speciality1_equip())
+		if (spec1)
 		{
 			p_ptr->num_fire += 300 * p_ptr->lev/100;
 			p_ptr->return_ammo = TRUE;
@@ -951,7 +982,7 @@ static void _calc_bonuses(void)
 				p_ptr->unlimited_quiver = TRUE;
 		}
 
-		if (_check_speciality2_equip())
+		if (spec2)
 		{
 			if (p_ptr->lev >= 10)
 				p_ptr->painted_target = TRUE;
@@ -968,8 +999,64 @@ static void _calc_bonuses(void)
 	}
 
 	/* Handle cases where user swaps in unfavorable gear */
-	if (!_check_speciality2_equip() && _get_toggle() != TOGGLE_NONE)
+	if (!spec2 && _get_toggle() != TOGGLE_NONE)
 		_set_toggle(TOGGLE_NONE);
+
+	/* Message about favored gear */
+	if (!init || spec1 != last_spec1 || spec2 != last_spec2)
+	{
+		int slot1 = _specialities[p_ptr->speciality1].slot1;
+		if (!spec1)
+		{
+			switch (slot1)
+			{
+			case INVEN_BOW:
+				msg_print("You do not feel comfortable with your shooter.");
+				break;
+			case INVEN_LARM:
+				msg_print("You do not feel comfortable with your shield.");
+				break;
+			default:
+				msg_print("You do not feel comfortable with your weapon.");
+				break;
+			}
+		}
+		else if (!spec2)
+		{
+			switch (slot1)
+			{
+			case INVEN_BOW:
+				msg_print("Your shooter is OK, but you could do better.");
+				break;
+			case INVEN_LARM:
+				msg_print("Your shield is OK, but you could do better.");
+				break;
+			default:
+				msg_print("Your weapon is OK, but you could do better.");
+				break;
+			}
+		}
+		else
+		{
+		/*
+			switch (slot1)
+			{
+			case INVEN_BOW:
+				msg_print("You love your shooter.");
+				break;
+			case INVEN_LARM:
+				msg_print("You love your shield.");
+				break;
+			default:
+				msg_print("You love your weapon.");
+				break;
+			} */
+		}
+
+		init = TRUE;
+		last_spec1 = spec1;
+		last_spec2 = spec2;
+	}
 }
 
 static void _move_player(void)

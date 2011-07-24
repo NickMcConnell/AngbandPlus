@@ -1906,7 +1906,9 @@ extern bool warlock_is_pact_monster(monster_race *r_ptr);
 /* weaponmaster.c */
 extern class_t *weaponmaster_get_class_t(void);
 extern int weaponmaster_get_toggle(void);
-extern cptr weaponmaster_speciality_name(void);
+extern void weaponmaster_adjust_skills(void);
+extern cptr weaponmaster_speciality1_name(void);
+extern cptr weaponmaster_speciality2_name(void);
 extern int weaponmaster_specialty2_k_idx(void);
 extern int shoot_hack;
 extern int shoot_count;

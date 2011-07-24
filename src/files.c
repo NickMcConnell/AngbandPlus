@@ -1579,6 +1579,8 @@ errr check_load_init(void)
 #define ENTRY_EXP_TO_ADV_ANDR 44
 #define ENTRY_PACT 45
 #define ENTRY_BLOOD_POINTS 46
+#define ENTRY_SPECIALIZATION1 47
+#define ENTRY_SPECIALIZATION2 48
 
 static struct
 {
@@ -1684,6 +1686,8 @@ static struct
 	{29, 16, 21, "Const to Adv"},
 	{ 1,  6, -1, "Pact     : "},
 	{29, 11, 21, "Blood Pts"},
+	{ 1,  6, -1, "Subspec  : "},
+	{ 1,  7, -1, "Spec     : "},
 };
 #endif
 
@@ -3899,6 +3903,13 @@ void display_player(int mode)
 		{
 			strcpy(tmp, pact_info[p_ptr->psubclass].title);
 			display_player_one_line(ENTRY_PACT, tmp, TERM_L_BLUE);
+		}
+		else if (p_ptr->pclass == CLASS_WEAPONMASTER)
+		{
+			strcpy(tmp, weaponmaster_speciality1_name());
+			display_player_one_line(ENTRY_SPECIALIZATION1, tmp, TERM_L_BLUE);
+			strcpy(tmp, weaponmaster_speciality2_name());
+			display_player_one_line(ENTRY_SPECIALIZATION2, tmp, TERM_L_BLUE);
 		}
 		else if (p_ptr->realm1)
 		{
