@@ -6238,6 +6238,21 @@ s16b bow_energy(int sval)
 	return (energy);
 }
 
+int bow_range(int sval)
+{
+	int tdis, tmul;
+
+	tmul = bow_tmul(sval);
+	tdis = 13 + tmul/80;
+	if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)
+	{
+		if (p_ptr->concent)
+			tdis -= (5 - (p_ptr->concent + 1) / 2);
+		else
+			tdis -= 5;
+	}
+	return tdis;
+}
 
 /*
  * Return bow tmul

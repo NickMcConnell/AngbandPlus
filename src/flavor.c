@@ -2423,6 +2423,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		/* Get extra damage from concentration */
 		if (p_ptr->concent) avgdam = boost_concentration_damage(avgdam);
 
+		/* Testing */
+		avgdam += p_ptr->to_d_m;
+
 		if (avgdam < 0) avgdam = 0;
 
 		/* Display (shot damage/ avg damage) */
@@ -2602,8 +2605,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		}
 
 		/* Dump "pval" flags for wearable items */
-		if (have_pval_flags(flgs) || 
-		    (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_SHOTS)) /* megahack, but no other options :( */
+		if (have_pval_flags(flgs))
 		{
 			/* Start the display */
 			t = object_desc_chr(t, ' ');

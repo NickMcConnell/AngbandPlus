@@ -4293,7 +4293,11 @@ msg_print("ウィザードモード突入。");
 				{
 					msg_print("Your spells are blocked!");
 				}
-				else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
+				else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) 
+					&& (p_ptr->pclass != CLASS_BERSERKER) 
+					&& (p_ptr->pclass != CLASS_SMITH) 
+					&& p_ptr->pclass != CLASS_BLOOD_KNIGHT
+					&& p_ptr->pclass != CLASS_WEAPONMASTER)
 				{
 #ifdef JP
 					msg_print("ダンジョンが魔法を吸収した！");
@@ -4303,7 +4307,9 @@ msg_print("ウィザードモード突入。");
 					msg_print(NULL);
 				}
 				else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_BERSERKER) 
-				     && (p_ptr->pclass != CLASS_SMITH) && p_ptr->pclass != CLASS_BLOOD_KNIGHT )
+				     && (p_ptr->pclass != CLASS_SMITH) 
+					 && p_ptr->pclass != CLASS_BLOOD_KNIGHT
+					 && p_ptr->pclass != CLASS_WEAPONMASTER )
 				{
 #ifdef JP
 

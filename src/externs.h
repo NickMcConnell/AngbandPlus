@@ -744,8 +744,8 @@ extern void do_cmd_walk(bool pickup);
 extern void do_cmd_stay(bool pickup);
 extern void do_cmd_run(void);
 extern void do_cmd_rest(void);
-extern void do_cmd_fire(void);
-extern void do_cmd_fire_aux1(int item, object_type *j_ptr); /* ammo already chosen */
+extern bool do_cmd_fire(void);
+extern bool do_cmd_fire_aux1(int item, object_type *j_ptr); /* ammo already chosen */
 extern void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int ty); /* ammo and target already chosen */
 extern void do_cmd_throw(void);
 extern bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken);
@@ -1538,6 +1538,7 @@ extern int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear);
 extern s16b gain_energy(void);
 extern s16b bow_energy(int sval);
 extern int bow_tmul(int sval);
+extern int bow_range(int sval);
 extern cptr your_alignment(void);
 extern int weapon_exp_level(int weapon_exp);
 extern int riding_exp_level(int riding_exp);

@@ -3375,13 +3375,13 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
  *
  * Note that Bows of "Extra Shots" give an extra shot.
  */
-void do_cmd_fire_aux1(int item, object_type *j_ptr)
+bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 {
 	int dir;
 	int tdis, tmul, tx, ty;
 
 	tmul = bow_tmul(j_ptr->sval);
-	tdis = 13 + tmul/80;
+	tdis = bow_range(j_ptr->sval);
 	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
 	{
 		if (p_ptr->concent)
@@ -3401,7 +3401,7 @@ void do_cmd_fire_aux1(int item, object_type *j_ptr)
 
 		/* need not to reset project_length (already did)*/
 
-		return;
+		return FALSE;
 	}
 
 	/* Predict the "target" location */
@@ -3421,10 +3421,11 @@ void do_cmd_fire_aux1(int item, object_type *j_ptr)
 
 		/* project_length is already reset to 0 */
 
-		return;
+		return FALSE;
 	}
 
 	do_cmd_fire_aux2(item, j_ptr, px, py, tx, ty);
+	return TRUE;
 }
 void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int ty)
 {
@@ -3516,7 +3517,9 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 
 	if (weaponmaster_get_toggle() == TOGGLE_RAPID_SHOT)
 	{
-	int frac;
+	int  frac;
+	s16b energy_fire = bow_energy(j_ptr->sval);
+
 		bonus -= 20;
 		/* In this mode, whenever the player fires, all of their shots go
 		   at a single target in rapid succession.  Full energy is consumed, and
@@ -3524,9 +3527,15 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 		   a rapid fire machine gun :) */
 		no_energy = TRUE;
 		energy_use = 100;
-		num_shots = p_ptr->num_fire * 120 / 100;
-		frac = num_shots % 100;
-		num_shots /= 100;
+
+		/* Calculate shots per round 
+		   CTK: energy_fire has four decimal places implied
+		        p_ptr->num_fire only has two decimal places implied */
+		num_shots = p_ptr->num_fire * 100;  /* rescale to 4 decimal places */
+		num_shots = num_shots * 120 / 100;  /* rapid fire gives 1.2x the number of shots */
+		frac = (num_shots * 100 / energy_fire) % 100;
+		num_shots /= energy_fire;
+
 		if (randint1(100) < frac)
 			num_shots++;
 	}
@@ -3909,6 +3918,9 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						tdam = tot_dam_aux_shot(q_ptr, tdam, m_ptr);
 						tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
+						/* Testing */
+						tdam += p_ptr->to_d_m;
+
 						/* No negative damage */
 						if (tdam < 0) tdam = 0;
 
@@ -4161,8 +4173,9 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 }
 
 
-void do_cmd_fire(void)
+bool do_cmd_fire(void)
 {
+	bool result = FALSE;
 	int item;
 	object_type *j_ptr;
 	cptr q, s;
@@ -4181,7 +4194,7 @@ void do_cmd_fire(void)
 		msg_print("You have nothing to fire with.");
 #endif
 		flush();
-		return;
+		return FALSE;
 	}
 
 	if (j_ptr->sval == SV_CRIMSON)
@@ -4192,14 +4205,14 @@ void do_cmd_fire(void)
 		msg_print("You should activate Crimson instead.");
 #endif
 		flush();
-		return;
+		return FALSE;
 	}
 
 	if (j_ptr->sval == SV_HARP)
 	{
 		msg_print("You play a soothing melody, but not much else happens.");
 		flush();
-		return;
+		return FALSE;
 	}
 
 
@@ -4223,13 +4236,13 @@ void do_cmd_fire(void)
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_QUIVER)))
 	{
 		flush();
-		return;
+		return FALSE;
 	}
 
 	/* Fire the item */
-	do_cmd_fire_aux1(item, j_ptr);
+	result = do_cmd_fire_aux1(item, j_ptr);
 
-	if (!is_fired || p_ptr->pclass != CLASS_SNIPER) return;
+	if (!is_fired || p_ptr->pclass != CLASS_SNIPER) return FALSE;
 
 	/* Sniper actions after some shootings */
 	if (snipe_type == SP_AWAY)
@@ -4246,6 +4259,8 @@ void do_cmd_fire(void)
 		(void)set_slow(p_ptr->slow + randint0(7) + 7, FALSE);
 		(void)set_stun(p_ptr->stun + randint1(25), FALSE);
 	}
+
+	return result;
 }
 
 

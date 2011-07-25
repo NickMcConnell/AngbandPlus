@@ -4067,13 +4067,7 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_IMPACT)) p_ptr->impact[(i == INVEN_RARM) ? 0 : 1] = TRUE;
 
 		/* Boost shots */
-		if (have_flag(flgs, TR_XTRA_SHOTS)) 
-		{
-			if (o_ptr->tval == TV_RING)
-				extra_shots += o_ptr->pval;
-			else
-				extra_shots++;
-		}
+		if (have_flag(flgs, TR_XTRA_SHOTS)) extra_shots++;
 
 		/* Various flags */
 		if (have_flag(flgs, TR_AGGRAVATE))   p_ptr->cursed |= TRC_AGGRAVATE;

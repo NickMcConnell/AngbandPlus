@@ -47,20 +47,49 @@ static bool _check_speciality1_equip(void);
 static bool _check_speciality2_equip(void);
 static bool _make_uber_weapon(void);
 
+static int _find_ammo_slot(void)
+{
+	int i;
+
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		if (inventory[i].tval == p_ptr->tval_ammo) return i;
+	}
+	if (p_ptr->unlimited_quiver) return INVEN_UNLIMITED_QUIVER;
+	return -1;
+}
+
+static int _count_ammo_slots(void)
+{
+	int result = 0;
+	int i;
+
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		if (inventory[i].tval == p_ptr->tval_ammo) result++;
+	}
+
+	if (p_ptr->unlimited_quiver) result++;
+	return result;
+}
+
 static int _get_nearest_target_los(void)
 {
 	int result = 0;
 	int dis = AAF_LIMIT + 1;
 	int i;
 	monster_type *m_ptr = NULL;
+	int rng = bow_range(inventory[INVEN_BOW].sval);
 	
 	for (i = m_max - 1; i >= 1; i--)
 	{
 		m_ptr = &m_list[i];
-		if (!m_ptr->r_idx) continue;
+		if (!m_ptr->r_idx
+		) continue;
 		if (m_ptr->smart & SM_FRIENDLY) continue;
 		if (m_ptr->smart & SM_PET) continue;
-		if (m_ptr->cdis >= AAF_LIMIT) continue;
+		if (m_ptr->cdis > rng) continue;
+		if (!m_ptr->ml) continue;
 		if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
 
 		if (m_ptr->cdis < dis)
@@ -78,6 +107,7 @@ static int _get_greater_many_shot_targets(int *targets, int max)
 	int result = 0;
 	int i;
 	monster_type *m_ptr = NULL;
+	int rng = bow_range(inventory[INVEN_BOW].sval);
 
 	/* shoot *all* line of sight monsters */	
 	for (i = m_max - 1; i >= 1; i--)
@@ -86,7 +116,7 @@ static int _get_greater_many_shot_targets(int *targets, int max)
 		if (!m_ptr->r_idx) continue;
 		if (m_ptr->smart & SM_FRIENDLY) continue;
 		if (m_ptr->smart & SM_PET) continue;
-		if (m_ptr->cdis >= AAF_LIMIT) continue;
+		if (m_ptr->cdis > rng) continue;
 		if (!m_ptr->ml) continue;
 		if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
 		if (result >= max) break;
@@ -105,6 +135,7 @@ static int _get_many_shot_targets(int *targets, int max)
 	monster_type *m_ptr = NULL;
 	int in_sight[_MAX_TARGETS];
 	int ct = 0;
+	int rng = bow_range(inventory[INVEN_BOW].sval);
 
 	/* pass 1: get line of sight monsters */	
 	for (i = m_max - 1; i >= 1; i--)
@@ -113,7 +144,7 @@ static int _get_many_shot_targets(int *targets, int max)
 		if (!m_ptr->r_idx) continue;
 		if (m_ptr->smart & SM_FRIENDLY) continue;
 		if (m_ptr->smart & SM_PET) continue;
-		if (m_ptr->cdis >= AAF_LIMIT) continue;
+		if (m_ptr->cdis > rng) continue;
 		if (!m_ptr->ml) continue;
 		if (!los(py, px, m_ptr->fy, m_ptr->fx)) continue;
 		if (ct >= _MAX_TARGETS) break;
@@ -138,13 +169,16 @@ static int _get_many_shot_targets(int *targets, int max)
 	return result;
 }
 
-static void _fire(int power)
+static bool _fire(int power)
 {
+	bool result = FALSE;
 	shoot_hack = power;
 	shoot_count = 0;
-	do_cmd_fire();
+	result = do_cmd_fire();
 	shoot_hack = SHOOT_NONE;
 	shoot_count = 0;
+
+	return result;
 }
 
 /* Weaponmasters have toggle based abilities */
@@ -186,8 +220,8 @@ static void _bouncing_pebble_spell(int cmd, variant *res)
 			msg_print("Failed!  You do not feel comfortable with your shooter.");
 			return;
 		}
-		_fire(SHOOT_BOUNCE);
-		var_set_bool(res, TRUE);
+		if (_fire(SHOOT_BOUNCE))
+			var_set_bool(res, TRUE);
 		break;
 	case SPELL_ENERGY:
 		var_set_int(res, 0);	/* already charged in _fire() */
@@ -583,7 +617,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 0, 0 },
 	  },
 	  {
-	    {  1,   5,  0, _bouncing_pebble_spell },
+	    {  5,   5,  0, _bouncing_pebble_spell },
 		{ 15,  15,  0, _many_shot_spell },
 		{ 25,   0,  0, _shot_on_the_run_spell },
 		{ 30,  15,  0, _greater_many_shot_spell },
@@ -908,7 +942,16 @@ void _on_birth(void)
 	/* Choose a single weapon in the group */
 	for (;;)
 	{
-		int idx = _prompt_for_speciality2();
+		int idx;
+		
+		if (_count_weapons(p_ptr->speciality1) == 1)
+		{
+			p_ptr->speciality2 = 0;
+			break;
+		}
+
+		idx = _prompt_for_speciality2();
+
 		if (idx >= 0)
 		{
 			char buf[255];
@@ -934,6 +977,30 @@ void _on_birth(void)
 	object_prep(&forge, lookup_kind(kind.tval, kind.sval));
 	add_outfit(&forge);
 
+	if (kind.tval == TV_BOW)
+	{
+		switch (kind.sval)
+		{
+		case SV_SLING:
+			object_prep(&forge, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
+			forge.number = (byte)rand_range(15, 20);
+			add_outfit(&forge);
+			break;
+		case SV_SHORT_BOW:
+		case SV_LONG_BOW:
+			object_prep(&forge, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
+			forge.number = (byte)rand_range(15, 20);
+			add_outfit(&forge);
+			break;
+		case SV_LIGHT_XBOW:
+		case SV_HEAVY_XBOW:
+			object_prep(&forge, lookup_kind(TV_BOLT, SV_AMMO_NORMAL));
+			forge.number = (byte)rand_range(15, 20);
+			add_outfit(&forge);
+			break;
+		}
+	}
+
 	for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
 	{
 		kind = _specialities[p_ptr->speciality1].objects[i];
@@ -941,6 +1008,7 @@ void _on_birth(void)
 
 		p_ptr->weapon_exp[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_BEGINNER;
 	}
+	weaponmaster_adjust_skills();
 }
 
 void weaponmaster_adjust_skills(void)
@@ -955,6 +1023,18 @@ void weaponmaster_adjust_skills(void)
 		if (kind.tval == 0) break;
 
 		s_info[p_ptr->pclass].w_max[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_MASTER;
+	}
+
+	if (strcmp(_specialities[p_ptr->speciality1].name, "Slings") == 0)
+	{
+		s16b tmp;
+		tmp = cp_ptr->c_thn;
+		cp_ptr->c_thn = cp_ptr->c_thb;
+		cp_ptr->c_thb = tmp;
+
+		tmp = cp_ptr->x_thn;
+		cp_ptr->x_thn = cp_ptr->x_thb;
+		cp_ptr->x_thb = tmp;
 	}
 }
 
@@ -1083,9 +1163,16 @@ static void _move_player(void)
 			{
 				if (inventory[shoot_item].tval != p_ptr->tval_ammo)
 				{
-					msg_print("Your ammo has run out.  Time to reload!");
-					_set_toggle(TOGGLE_NONE);
-					return;
+					/* Ugh, with this technique, the ammo slot is constantly moving thanks
+					   to pseudo-id/autodestroyer or unstacking and stacking of staves.
+					   Just try to find usable ammo should this occur */
+					shoot_item = _find_ammo_slot();
+					if (shoot_item < 0)
+					{
+						msg_print("Your ammo has run out.  Time to reload!");
+						_set_toggle(TOGGLE_NONE);
+						return;
+					}
 				}
 			}
 
