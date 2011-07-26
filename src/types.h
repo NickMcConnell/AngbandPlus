@@ -1398,6 +1398,7 @@ struct player_type
 	s16b dis_ac;		/* Known base ac */
 
 	s16b to_h_b;			/* Bonus to hit (bow) */
+	s16b to_d_b;			/* Bonus to hit (bow) */
 	s16b to_h_m;			/* Bonus to hit (misc) */
 	s16b to_d_m;			/* Bonus to dam (misc) */
 	s16b to_a;			/* Bonus to ac */

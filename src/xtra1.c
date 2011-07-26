@@ -3232,6 +3232,7 @@ void calc_bonuses(void)
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
 	p_ptr->to_h_m = 0;
 	p_ptr->to_d_m = 0;
+	p_ptr->to_d_b = 0;
 
 	p_ptr->to_m_chance = 0;
 
@@ -4266,6 +4267,7 @@ void calc_bonuses(void)
 		p_ptr->to_h_b += bonus_to_h;
 		p_ptr->to_h_m += bonus_to_h;
 		p_ptr->to_d_m += bonus_to_d;
+		p_ptr->to_d_b += bonus_to_d;
 
 		/* Apply the mental bonuses tp hit/damage, if known */
 		if (object_is_known(o_ptr)) p_ptr->dis_to_h_b += bonus_to_h;
@@ -4496,6 +4498,7 @@ void calc_bonuses(void)
 		p_ptr->weapon_info[0].to_d -= 20;
 		p_ptr->weapon_info[1].to_d -= 20;
 		p_ptr->to_d_m -= 20;
+		p_ptr->to_d_b -= 20;
 		p_ptr->weapon_info[0].dis_to_d -= 20;
 		p_ptr->weapon_info[1].dis_to_d -= 20;
 	}
@@ -4511,6 +4514,7 @@ void calc_bonuses(void)
 		p_ptr->weapon_info[0].to_d -= 5;
 		p_ptr->weapon_info[1].to_d -= 5;
 		p_ptr->to_d_m -= 5;
+		p_ptr->to_d_b -= 5;
 		p_ptr->weapon_info[0].dis_to_d -= 5;
 		p_ptr->weapon_info[1].dis_to_d -= 5;
 	}

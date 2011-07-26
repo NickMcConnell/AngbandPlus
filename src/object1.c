@@ -3658,7 +3658,6 @@ info[i++] = "それは神に祝福されている。";
 	if (have_flag(flgs, TR_SIGNATURE))
 	{
 		msg_print("It is your signature item.");
-		return;
 	}
 
 

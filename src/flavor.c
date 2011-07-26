@@ -2424,7 +2424,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		if (p_ptr->concent) avgdam = boost_concentration_damage(avgdam);
 
 		/* Testing */
-		avgdam += p_ptr->to_d_m;
+		avgdam += p_ptr->to_d_b;
 
 		if (avgdam < 0) avgdam = 0;
 

@@ -3919,7 +3919,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 						/* Testing */
-						tdam += p_ptr->to_d_m;
+						tdam += p_ptr->to_d_b;
 
 						/* No negative damage */
 						if (tdam < 0) tdam = 0;

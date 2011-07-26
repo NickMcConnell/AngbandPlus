@@ -3264,6 +3264,10 @@ bool create_named_art(int a_idx, int y, int x)
 		int best_power = -100000;
 		int power = 0;
 		object_type keeper;
+		int old_level = object_level;
+
+		if (object_level < a_ptr->level)
+			object_level = a_ptr->level;
 
 		if (a_ptr->tval == TV_LITE)
 			base_power = 0;
@@ -3283,6 +3287,8 @@ bool create_named_art(int a_idx, int y, int x)
 
 		keeper.name3 = a_idx;
 		drop_near(&keeper, -1, y, x);
+
+		object_level = old_level;
 
 		return TRUE;
 	}

@@ -888,7 +888,6 @@ static caster_info * _caster_info(void)
 	{
 		me.magic_desc = "skill";
 		me.use_hp = TRUE;
-		me.options = CASTER_NO_SPELL_FAIL;
 		init = TRUE;
 	}
 	return &me;
