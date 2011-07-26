@@ -6538,7 +6538,7 @@ static void do_cmd_knowledge_artifacts(void)
 	    msg_format("Failed to create temporary file %s.", file_name);
 #endif
 	    msg_print(NULL);
-	    return;
+	    return; 
 	}
 
 	if (random_artifacts)
