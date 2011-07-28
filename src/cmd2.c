@@ -2836,6 +2836,8 @@ void do_cmd_rest(void)
 {
 
 	set_action(ACTION_NONE);
+	if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
+		weaponmaster_set_toggle(TOGGLE_NONE);
 
 	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] || p_ptr->magic_num1[1]))
 	{
@@ -3382,14 +3384,6 @@ bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 
 	tmul = bow_tmul(j_ptr->sval);
 	tdis = bow_range(j_ptr->sval);
-	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
-	{
-		if (p_ptr->concent)
-			tdis -= (5 - (p_ptr->concent + 1) / 2);
-		else
-			tdis -= 5;
-	}
-
 	project_length = tdis + 1;
 
 	/* Get a direction (or cancel) */
@@ -4342,6 +4336,10 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		else if (buki_motteruka(INVEN_LARM)) item = INVEN_LARM;
 		else item = INVEN_RARM;
 	}
+	else if (shoot_hack == SHOOT_DAGGER_TOSS && shoot_count == 1 && (shoot_item == INVEN_RARM || shoot_item == INVEN_LARM))
+	{
+		item = INVEN_RARM; /* assume combine_pack has occurred */
+	}
 	else
 	{
 		/* Get an item */
@@ -4364,6 +4362,13 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+		if (shoot_hack == SHOOT_DAGGER_TOSS)
+		{
+			shoot_count++;
+			shoot_item = item;
+			if (!object_is_melee_weapon(o_ptr))
+				return FALSE;
+		}
 	}
 	else
 	{
@@ -4498,7 +4503,8 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	}
 
 	/* Take a turn */
-	energy_use = 100;
+	if (shoot_hack != SHOOT_DAGGER_TOSS)
+		energy_use = 100;
 
 	/* Rogue and Ninja gets bonus */
 	if ((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass == CLASS_NINJA))
@@ -4508,15 +4514,15 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	y = py;
 	x = px;
 
-
 	/* Hack -- Handle stuff */
+	notice_stuff(); /* Hack: combine_pack before calc_bonuses */
 	handle_stuff();
 
 	if ((p_ptr->pclass == CLASS_NINJA) && ((q_ptr->tval == TV_SPIKE) || ((have_flag(flgs, TR_THROW)) && (q_ptr->tval == TV_SWORD)))) shuriken = TRUE;
 	else shuriken = FALSE;
 
 	/* Chance of hitting */
-	if (have_flag(flgs, TR_THROW)) chance = ((p_ptr->skill_tht) +
+	if (have_flag(flgs, TR_THROW) || (shoot_hack == SHOOT_DAGGER_TOSS)) chance = ((p_ptr->skill_tht) +
 		((p_ptr->to_h_b + q_ptr->to_h) * BTH_PLUS_ADJ));
 	else chance = (p_ptr->skill_tht + (p_ptr->to_h_b * BTH_PLUS_ADJ));
 
@@ -4907,6 +4913,9 @@ msg_print("これはあまり良くない気がする。");
 			(void)drop_near(q_ptr, j, prev_y, prev_x);
 		}
 	}
+
+	if (shoot_hack == SHOOT_DAGGER_TOSS && (shoot_item == INVEN_RARM || shoot_item == INVEN_LARM) && shoot_count == 1)
+		do_cmd_throw_aux(4, FALSE, 0); /* Don't use current parms ... they've been mutated */
 
 	return TRUE;
 }

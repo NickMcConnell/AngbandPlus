@@ -457,7 +457,7 @@ static void _phase_charge_spell(int cmd, variant *res)
 	}
 }
 
-static void _strafing_spell(int cmd, variant *res)
+void strafing_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
@@ -488,7 +488,7 @@ static spell_info _spells[MAX_DUELIST_SPELLS] =
     /*lvl cst fail spell */
 	{  1,   0,  0, _mark_target_spell },
 	{  8,  10,  0, _charge_target_spell },
-	{ 16,   8,  0, _strafing_spell },
+	{ 16,   8,  0, strafing_spell },
 	{ 24,  25,  0, _disengage_spell },
 	{ 32,  30,  0, _acrobatic_charge_spell },
 	{ 40,  60,  0, _isolation_spell },

@@ -121,20 +121,6 @@ static bool wiz_dimension_door(void)
 static void wiz_create_named_art(int a_idx)
 {
 	create_named_art(a_idx, py, px);
-	return;
-	if (a_info[a_idx].cur_num)
-	{
-		artifact_type *a_ptr = &a_info[a_idx];
-		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-		object_type forge;
-		int i;
-
-		object_prep(&forge, k_idx);
-		create_artifact(&forge, CREATE_ART_GOOD);
-		drop_here(&forge, py, px);
-	}
-	else if (create_named_art(a_idx, py, px))
-		a_info[a_idx].cur_num = 1;
 }
 
 
@@ -154,56 +140,45 @@ static void do_cmd_wiz_hack_ben(void)
 	} */
 
 	int a_idx = get_quantity("Which One? ", max_a_idx);
-	int ct = get_quantity("How Many?", 100);
-	int i, j;
-	artifact_type *a_ptr = &a_info[a_idx];
-	int			   k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-	object_type    forge1, forge2, keeper;
-	char           o_name[MAX_NLEN];
-	int            power, base_power, best_power;
-
-	object_prep(&forge1, k_idx);
-
-	forge1.name1 = a_idx;
-	forge1.pval = a_ptr->pval;
-	forge1.ac = a_ptr->ac;
-	forge1.dd = a_ptr->dd;
-	forge1.ds = a_ptr->ds;
-	forge1.to_a = a_ptr->to_a;
-	forge1.to_h = a_ptr->to_h;
-	forge1.to_d = a_ptr->to_d;
-	forge1.weight = a_ptr->weight;
-
-	random_artifact_resistance(&forge1, a_ptr);
-	base_power = (a_ptr->cost + flag_cost(&forge1, forge1.pval, TRUE))/2;
-
-	if (a_ptr->tval == TV_LITE)
-		base_power = 0;
-
+	int k_idx = lookup_kind(a_info[a_idx].tval, a_info[a_idx].sval);
+	int ct = get_quantity("How Many?", 1000);
+	int ct_speed = 0;
+	int ct_immunity = 0;
+	int ct_blows = 0;
+	int i;
 	for (i = 0; i < ct; i++)
 	{
-		best_power = -100000;
+		object_type forge;
+		char buf[MAX_NLEN];
+		int power, value;
 
-		for (j = 0; j < 20; j++)
+		create_replacement_art(a_idx, &forge);
+		identify_item(&forge);
+
+		forge.ident |= (IDENT_MENTAL); 
+		object_desc(buf, &forge, 0);
+		power = flag_cost(&forge, forge.pval, FALSE);
+		value = object_value_real(&forge);
+		value -= k_info[k_idx].cost;
+
+		if (have_flag(forge.art_flags, TR_IM_ACID)
+		 || have_flag(forge.art_flags, TR_IM_COLD)
+		 || have_flag(forge.art_flags, TR_IM_FIRE)
+		 || have_flag(forge.art_flags, TR_IM_ELEC))
 		{
-			object_prep(&forge2, k_idx);
-			power = create_artifact(&forge2, CREATE_ART_GOOD);
-			if (power > best_power)
-			{
-				object_copy(&keeper, &forge2);
-				best_power = power;
-			}
-			if (power > base_power * 7 / 10)
-				break;
+			ct_immunity++;
 		}
 
-		identify_item(&keeper);
+		if (have_flag(forge.art_flags, TR_SPEED))
+			ct_speed++;
 
-		keeper.ident |= (IDENT_MENTAL); 
-		object_desc(o_name, &keeper, 0);
-		power = flag_cost(&keeper, keeper.pval, FALSE);
-		msg_format("%s (Base: %d) (Actual: %d)", o_name, base_power, best_power);
+		if (have_flag(forge.art_flags, TR_BLOWS))
+			ct_blows++;
+
+		msg_format("%s (Score: %d, Cost: %d)", buf, power, value);
 	}
+
+	msg_format("Generated %d artifacts.  %d had immunity.  %d had speed.  %d had extra attacks.", ct, ct_immunity, ct_speed, ct_blows);
 }
 
 

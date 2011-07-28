@@ -419,7 +419,6 @@ static void random_plus(object_type * o_ptr)
 	}
 }
 
-
 static void random_resistance(object_type * o_ptr)
 {
 	switch (artifact_bias)
@@ -430,7 +429,7 @@ static void random_resistance(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_RES_ACID);
 			if (one_in_(2)) return;
 		}
-		if (one_in_(BIAS_LUCK) && !(have_flag(o_ptr->art_flags, TR_IM_ACID)))
+		if (one_in_(BIAS_LUCK) && randint1(150) < object_level && !(have_flag(o_ptr->art_flags, TR_IM_ACID)))
 		{
 			add_flag(o_ptr->art_flags, TR_IM_ACID);
 			if (!one_in_(IM_LUCK))
@@ -455,7 +454,7 @@ static void random_resistance(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_SH_ELEC);
 			if (one_in_(2)) return;
 		}
-		if (one_in_(BIAS_LUCK) && !(have_flag(o_ptr->art_flags, TR_IM_ELEC)))
+		if (one_in_(BIAS_LUCK) && randint1(150) < object_level && !(have_flag(o_ptr->art_flags, TR_IM_ELEC)))
 		{
 			add_flag(o_ptr->art_flags, TR_IM_ELEC);
 			if (!one_in_(IM_LUCK))
@@ -483,7 +482,7 @@ static void random_resistance(object_type * o_ptr)
 			if (one_in_(2)) return;
 		}
 		if (one_in_(BIAS_LUCK) &&
-		    !(have_flag(o_ptr->art_flags, TR_IM_FIRE)))
+		    randint1(150) < object_level && !(have_flag(o_ptr->art_flags, TR_IM_FIRE)))
 		{
 			add_flag(o_ptr->art_flags, TR_IM_FIRE);
 			if (!one_in_(IM_LUCK))
@@ -509,7 +508,7 @@ static void random_resistance(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_SH_COLD);
 			if (one_in_(2)) return;
 		}
-		if (one_in_(BIAS_LUCK) && !(have_flag(o_ptr->art_flags, TR_IM_COLD)))
+		if (one_in_(BIAS_LUCK) && randint1(150) < object_level && !(have_flag(o_ptr->art_flags, TR_IM_COLD)))
 		{
 			add_flag(o_ptr->art_flags, TR_IM_COLD);
 			if (!one_in_(IM_LUCK))
@@ -583,7 +582,7 @@ static void random_resistance(object_type * o_ptr)
 	switch (randint1(42))
 	{
 		case 1:
-			if (!one_in_(WEIRD_LUCK))
+			if (!one_in_(WEIRD_LUCK) || randint1(150) >= object_level)
 				random_resistance(o_ptr);
 			else
 			{
@@ -593,7 +592,7 @@ static void random_resistance(object_type * o_ptr)
 			}
 			break;
 		case 2:
-			if (!one_in_(WEIRD_LUCK))
+			if (!one_in_(WEIRD_LUCK) || randint1(150) >= object_level)
 				random_resistance(o_ptr);
 			else
 			{
@@ -603,7 +602,7 @@ static void random_resistance(object_type * o_ptr)
 			}
 			break;
 		case 3:
-			if (!one_in_(WEIRD_LUCK))
+			if (!one_in_(WEIRD_LUCK) || randint1(150) >= object_level)
 				random_resistance(o_ptr);
 			else
 			{
@@ -613,7 +612,7 @@ static void random_resistance(object_type * o_ptr)
 			}
 			break;
 		case 4:
-			if (!one_in_(WEIRD_LUCK))
+			if (!one_in_(WEIRD_LUCK) || randint1(150) >= object_level)
 				random_resistance(o_ptr);
 			else
 			{
@@ -1663,6 +1662,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			case CLASS_SMITH:
 			case CLASS_DUELIST:
 			case CLASS_BLOOD_KNIGHT:
+			case CLASS_WEAPONMASTER:
+			case CLASS_RUNE_KNIGHT:
 				artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_MAGE:
@@ -1758,6 +1759,12 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (a_cursed) powers /= 2;
 
+	if (o_ptr->tval == TV_LITE)
+	{
+		powers = powers * 7 / 10;
+		if (powers == 0) powers = 1;
+	}
+
 	/* Main loop */
 	while (powers > 0)
 	{
@@ -1804,7 +1811,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				}
 				else if (!has_resistance 
 				      && (object_is_body_armour(o_ptr) || object_is_shield(o_ptr)) 
-					  && one_in_(2) )
+					  && one_in_(4) )
 				{
 					add_flag(o_ptr->art_flags, TR_RES_ACID);
 					add_flag(o_ptr->art_flags, TR_RES_COLD);
@@ -1871,6 +1878,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			o_ptr->to_a += randint1(n);
 
 		o_ptr->to_a += m_bonus(10, lev);
+
+		if (o_ptr->to_a < 7)
+			o_ptr->to_a += 3;
 	}
 	else if (object_is_weapon_ammo(o_ptr))
 	{
@@ -1882,6 +1892,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			if (n > 0)
 				o_ptr->to_h += randint1(n);
 			o_ptr->to_h += m_bonus(10, lev);
+			if (o_ptr->to_h < 7)
+				o_ptr->to_h += 3;
 		}
 
 		if (o_ptr->to_d < 20)
@@ -1890,6 +1902,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			if (n > 0)
 				o_ptr->to_d += randint1(n);
 			o_ptr->to_d += m_bonus(10, lev);
+			if (o_ptr->to_d < 7)
+				o_ptr->to_d += 3;
 		}
 
 		if ((have_flag(o_ptr->art_flags, TR_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->art_flags, TR_BLESSED);
@@ -3207,98 +3221,135 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 	}
 }
 
+bool create_replacement_art(int a_idx, object_type *o_ptr)
+{
+	object_type		forge1;
+	object_type		forge2;
+	object_type		keeper;
+	int				base_power, best_power, power = 0;
+	int				old_level;
+	artifact_type  *a_ptr = &a_info[a_idx];
+	int				k_idx, i;
+
+	if (!a_ptr->name) return FALSE;
+
+	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+	if (!k_idx) return FALSE;
+
+	/* Make the original artifact so we can get a target score for the replacement.
+	   Don't trust a_ptr->cost too much (We'll average) */
+	object_prep(&forge1, k_idx);
+	forge1.name1 = a_idx;
+
+	forge1.pval = a_ptr->pval;
+	forge1.ac = a_ptr->ac;
+	forge1.dd = a_ptr->dd;
+	forge1.ds = a_ptr->ds;
+	forge1.to_a = a_ptr->to_a;
+	forge1.to_h = a_ptr->to_h;
+	forge1.to_d = a_ptr->to_d;
+	forge1.weight = a_ptr->weight;
+
+	if (a_ptr->gen_flags & TRG_CURSED) forge1.curse_flags |= (TRC_CURSED);
+	if (a_ptr->gen_flags & TRG_HEAVY_CURSE) forge1.curse_flags |= (TRC_HEAVY_CURSE);
+	if (a_ptr->gen_flags & TRG_PERMA_CURSE) forge1.curse_flags |= (TRC_PERMA_CURSE);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE0)) forge1.curse_flags |= get_curse(0, &forge1);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE1)) forge1.curse_flags |= get_curse(1, &forge1);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) forge1.curse_flags |= get_curse(2, &forge1);
+
+	random_artifact_resistance(&forge1, a_ptr);
+
+	base_power = (a_ptr->cost + flag_cost(&forge1, forge1.pval, TRUE))/2;
+	best_power = -100000;
+	power = 0;
+	old_level = object_level;
+
+	/*if (object_level < a_ptr->level)*/
+		object_level = a_ptr->level;
+
+	if (a_ptr->tval == TV_LITE && a_idx != ART_JUDGE)	/* Lights are too powerful, for some reason ... */
+		base_power = 0;
+
+	/* Roll a few times, attempting to come close in power to the original */
+	for (i = 0; i < 7; i++)
+	{
+		object_prep(&forge2, k_idx);
+		power = create_artifact(&forge2, CREATE_ART_GOOD);
+		power += object_value_real(&forge2) - k_info[k_idx].cost; /* Better scoring? */
+		power /= 2;
+		if (power > best_power)
+		{
+			object_copy(&keeper, &forge2);
+			best_power = power;
+		}
+		if (power > base_power * 7 / 10)
+			break;
+	}
+
+	keeper.name3 = a_idx;
+	object_level = old_level;
+	object_copy(o_ptr, &keeper);
+
+	return TRUE;
+}
 
 /*
  * Create the artifact of the specified number
  */
 bool create_named_art(int a_idx, int y, int x)
 {
-	object_type forge;
-	object_type *q_ptr;
-	int i;
-
-	artifact_type *a_ptr = &a_info[a_idx];
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return FALSE;
-
-	/* Acquire the "kind" index */
-	i = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-	/* Oops */
-	if (!i) return FALSE;
-
-	/* Create the artifact */
-	object_prep(q_ptr, i);
-
-	/* Save the name */
-	q_ptr->name1 = a_idx;
-
-	/* Extract the fields */
-	q_ptr->pval = a_ptr->pval;
-	q_ptr->ac = a_ptr->ac;
-	q_ptr->dd = a_ptr->dd;
-	q_ptr->ds = a_ptr->ds;
-	q_ptr->to_a = a_ptr->to_a;
-	q_ptr->to_h = a_ptr->to_h;
-	q_ptr->to_d = a_ptr->to_d;
-	q_ptr->weight = a_ptr->weight;
-
-	/* Hack -- extract the "cursed" flag */
-	if (a_ptr->gen_flags & TRG_CURSED) q_ptr->curse_flags |= (TRC_CURSED);
-	if (a_ptr->gen_flags & TRG_HEAVY_CURSE) q_ptr->curse_flags |= (TRC_HEAVY_CURSE);
-	if (a_ptr->gen_flags & TRG_PERMA_CURSE) q_ptr->curse_flags |= (TRC_PERMA_CURSE);
-	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE0)) q_ptr->curse_flags |= get_curse(0, q_ptr);
-	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE1)) q_ptr->curse_flags |= get_curse(1, q_ptr);
-	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) q_ptr->curse_flags |= get_curse(2, q_ptr);
-
-	random_artifact_resistance(q_ptr, a_ptr);
-
 	if (random_artifacts)
 	{
-		int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-		int base_power = (a_ptr->cost + flag_cost(q_ptr, q_ptr->pval, TRUE))/2;
-		int best_power = -100000;
-		int power = 0;
-		object_type keeper;
-		int old_level = object_level;
-
-		if (object_level < a_ptr->level)
-			object_level = a_ptr->level;
-
-		if (a_ptr->tval == TV_LITE)
-			base_power = 0;
-
-		for (i = 0; i < 20; i++)
-		{
-			object_prep(&forge, k_idx);
-			power = create_artifact(&forge, CREATE_ART_GOOD);
-			if (power > best_power)
-			{
-				object_copy(&keeper, &forge);
-				best_power = power;
-			}
-			if (power > base_power * 7 / 10)
-				break;
-		}
-
-		keeper.name3 = a_idx;
-		drop_near(&keeper, -1, y, x);
-
-		object_level = old_level;
-
-		return TRUE;
+		object_type forge;
+		create_replacement_art(a_idx, &forge);
+		return drop_near(&forge, -1, y, x) ? TRUE : FALSE;
 	}
+	else
+	{
+		object_type forge;
+		object_type *q_ptr;
+		int i;
 
-	/*
-	 * drop_near()内で普通の固定アーティファクトが重ならない性質に依存する.
-	 * 仮に2個以上存在可能かつ装備品以外の固定アーティファクトが作成されれば
-	 * この関数の返り値は信用できなくなる.
-	 */
+		artifact_type *a_ptr = &a_info[a_idx];
 
-	/* Drop the artifact from heaven */
-	return drop_near(q_ptr, -1, y, x) ? TRUE : FALSE;
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Ignore "empty" artifacts */
+		if (!a_ptr->name) return FALSE;
+
+		/* Acquire the "kind" index */
+		i = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+		/* Oops */
+		if (!i) return FALSE;
+
+		/* Create the artifact */
+		object_prep(q_ptr, i);
+
+		/* Save the name */
+		q_ptr->name1 = a_idx;
+
+		/* Extract the fields */
+		q_ptr->pval = a_ptr->pval;
+		q_ptr->ac = a_ptr->ac;
+		q_ptr->dd = a_ptr->dd;
+		q_ptr->ds = a_ptr->ds;
+		q_ptr->to_a = a_ptr->to_a;
+		q_ptr->to_h = a_ptr->to_h;
+		q_ptr->to_d = a_ptr->to_d;
+		q_ptr->weight = a_ptr->weight;
+
+		/* Hack -- extract the "cursed" flag */
+		if (a_ptr->gen_flags & TRG_CURSED) q_ptr->curse_flags |= (TRC_CURSED);
+		if (a_ptr->gen_flags & TRG_HEAVY_CURSE) q_ptr->curse_flags |= (TRC_HEAVY_CURSE);
+		if (a_ptr->gen_flags & TRG_PERMA_CURSE) q_ptr->curse_flags |= (TRC_PERMA_CURSE);
+		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE0)) q_ptr->curse_flags |= get_curse(0, q_ptr);
+		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE1)) q_ptr->curse_flags |= get_curse(1, q_ptr);
+		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) q_ptr->curse_flags |= get_curse(2, q_ptr);
+
+		random_artifact_resistance(q_ptr, a_ptr);
+
+		return drop_near(q_ptr, -1, y, x) ? TRUE : FALSE;
+	}
 }

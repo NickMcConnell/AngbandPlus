@@ -1576,6 +1576,7 @@ extern bool activate_random_artifact(object_type * o_ptr);
 extern void get_bloody_moon_flags(object_type *o_ptr);
 extern void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr);
 extern bool create_named_art(int a_idx, int y, int x);
+extern bool create_replacement_art(int a_idx, object_type *o_ptr);
 extern void get_random_name(char *return_name, object_type *o_ptr, int power);
 
 /* scores.c */
@@ -1859,6 +1860,7 @@ extern cptr duelist_current_challenge(void);
 extern class_t *duelist_get_class_t(void);
 extern bool duelist_issue_challenge(void);
 extern int duelist_skill_sav(int m_idx);
+extern void strafing_spell(int cmd, variant *res);
 extern bool nemesis_hack;	/* Actually, its in melee1.c */
 
 /* force_trainer.c */
@@ -1907,13 +1909,17 @@ extern bool warlock_is_pact_monster(monster_race *r_ptr);
 /* weaponmaster.c */
 extern class_t *weaponmaster_get_class_t(void);
 extern int weaponmaster_get_toggle(void);
+extern void weaponmaster_set_toggle(int toggle);
 extern void weaponmaster_adjust_skills(void);
 extern cptr weaponmaster_speciality1_name(void);
 extern cptr weaponmaster_speciality2_name(void);
 extern int weaponmaster_specialty2_k_idx(void);
+extern int weaponmaster_wield_hack(object_type *o_ptr);
+extern void weaponmaster_get_frenzy_items(void);
 extern int shoot_hack;
 extern int shoot_count;
 extern int shoot_item;
+extern int frenzy_items[];
 
 /* wild_talent.c */
 extern class_t *wild_talent_get_class_t(void);

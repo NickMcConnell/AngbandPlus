@@ -2061,6 +2061,13 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
 	bool            zantetsu_mukou, e_j_mukou;
 
+	if (p_ptr->wizard)
+	{
+		char buf[MAX_NLEN];
+		object_desc(buf, o_ptr, 0);
+		msg_format("Attacking with %s", buf);
+	}
+
 	if (p_ptr->painted_target)
 	{
 		p_ptr->painted_target_idx = 0;
@@ -2074,6 +2081,10 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			duelist_attack = TRUE;
 		break;
 
+	case CLASS_WEAPONMASTER:
+		if (!p_ptr->sneak_attack)
+			break;
+		/* vvvvv FALL THRU vvvvvv */
 	case CLASS_ROGUE:
 	case CLASS_NINJA:
 		if (buki_motteruka(INVEN_RARM + hand) && !p_ptr->weapon_info[hand].icky_wield)
@@ -3233,6 +3244,8 @@ bool py_attack(int y, int x, int mode)
 
 	energy_use = 100;
 
+	if (weaponmaster_get_toggle() == TOGGLE_FRENZY_STANCE) mode = WEAPONMASTER_FRENZY;
+
 	if (!p_ptr->migite && 
 	    !p_ptr->hidarite &&
 	    !mut_present(MUT_HORNS) &&
@@ -3417,8 +3430,72 @@ bool py_attack(int y, int x, int mode)
 	}
 
 	riding_t_m_idx = c_ptr->m_idx;
-	if (p_ptr->migite) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
-	if (p_ptr->hidarite && !mdeath) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+
+	if (mode == WEAPONMASTER_FRENZY)
+	{
+		object_type rarm, larm;
+		int i, j;
+		object_copy(&rarm, &inventory[INVEN_RARM]);
+		object_copy(&larm, &inventory[INVEN_LARM]);
+
+		/* Attack with equipped weapons */
+		if (p_ptr->migite) 
+			py_attack_aux(y, x, &fear, &mdeath, 0, mode);
+
+		if (p_ptr->hidarite && !mdeath) 
+			py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+
+		/* Attack with inventory weapons as if single wielding */
+		weaponmaster_get_frenzy_items();
+		for (i = 0; i < MAX_FRENZY_ITEMS; i++)
+		{
+			int item = frenzy_items[i];
+			object_type copy, blank;
+
+			object_wipe(&blank);
+			
+			if (item < 0) break;
+			if (mdeath) break;
+			
+			object_copy(&copy, &inventory[item]);
+			copy.number = 1;
+			object_copy(&inventory[INVEN_RARM], &copy);
+			if (p_ptr->hidarite)
+				object_copy(&inventory[INVEN_LARM], &blank);
+
+			p_ptr->update |= PU_BONUS;
+			handle_stuff();
+
+			py_attack_aux(y, x, &fear, &mdeath, 0, mode);
+		}
+		for (j = 0; j < i; j++)
+		{
+			int item = frenzy_items[j];
+			if (object_is_artifact(&inventory[item]))
+			{
+				 if (one_in_(3))
+				 {
+					blast_object(&inventory[item]);
+				 }
+			}
+			else
+			{
+				inven_item_increase(item, -1);
+				inven_item_describe(item);
+				inven_item_optimize(item);
+			}	
+		}
+
+		object_copy(&inventory[INVEN_RARM], &rarm);
+		object_copy(&inventory[INVEN_LARM], &larm);
+		p_ptr->update |= PU_BONUS;
+		handle_stuff();
+	}
+	else
+	{
+		if (p_ptr->migite) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
+		if (p_ptr->hidarite && !mdeath) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+	}
 
 	/* Mutations which yield extra 'natural' attacks */
 	if (!mdeath)
@@ -4065,9 +4142,9 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 
 		/* Attack -- only if we can see it OR it is not in a wall */
 		if (!is_hostile(m_ptr) &&
-		    !(p_ptr->confused || p_ptr->image || !m_ptr->ml || p_ptr->stun ||
-		    (mut_present(MUT_BERS_RAGE) && p_ptr->shero)) &&
-		    pattern_seq(py, px, y, x) && (p_can_enter || p_can_kill_walls))
+			!(p_ptr->confused || p_ptr->image || !m_ptr->ml || p_ptr->stun ||
+			(mut_present(MUT_BERS_RAGE) && p_ptr->shero)) &&
+			pattern_seq(py, px, y, x) && (p_can_enter || p_can_kill_walls))
 		{
 			/* Disturb the monster */
 			(void)set_monster_csleep(c_ptr->m_idx, 0);
@@ -4111,7 +4188,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 		else
 		{
 			py_attack(y, x, 0);
-			oktomove = FALSE;
+			if (weaponmaster_get_toggle() != TOGGLE_SHADOW_STANCE)
+				oktomove = FALSE;
 		}
 	}
 

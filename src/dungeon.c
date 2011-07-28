@@ -4265,7 +4265,8 @@ msg_print("ウィザードモード突入。");
 					 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
 					 p_ptr->pclass == CLASS_MINDCRAFTER ||
 					 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
-					 p_ptr->pclass == CLASS_WILD_TALENT)
+					 p_ptr->pclass == CLASS_WILD_TALENT ||
+					 p_ptr->pclass == CLASS_WEAPONMASTER)
 			{
 				/* This is the preferred entry point ... I'm still working on
 				   coverting everything else */

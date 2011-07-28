@@ -7,6 +7,8 @@
 int shoot_hack = SHOOT_NONE;
 int shoot_count = 0;
 int shoot_item = 0;
+int frenzy_items[MAX_FRENZY_ITEMS];
+static int _dual_wield = FALSE;
 
 #define _MAX_TARGETS 100
 
@@ -44,7 +46,9 @@ static bool _check_direct_shot(int tx, int ty)
 }
 
 static bool _check_speciality1_equip(void);
+static bool _check_speciality1_aux(object_type *o_ptr);
 static bool _check_speciality2_equip(void);
+static bool _check_speciality2_aux(object_type *o_ptr);
 static bool _make_uber_weapon(void);
 
 static int _find_ammo_slot(void)
@@ -232,6 +236,415 @@ static void _bouncing_pebble_spell(int cmd, variant *res)
 	}
 }
 
+/* DAGGER TOSS: Code spiked from do_cmd_throw with heavy mods */
+static int _dagger_toss_multiplier(int item)
+{
+	int result = 4;
+
+	switch (item)
+	{
+	case INVEN_RARM:
+		result = p_ptr->weapon_info[0].num_blow;
+		break;
+	case INVEN_LARM:
+		result = p_ptr->weapon_info[1].num_blow;
+		break;
+	default:
+	{   /* Total Hack Job: Swap the weapon to toss into the right arm, recalc
+	       all bonuses, read the result, and then swap back the original item */
+		object_type rarm, copy;
+		object_copy(&rarm, &inventory[INVEN_RARM]);
+		object_copy(&copy, &inventory[item]);
+		copy.number = 1;
+		object_copy(&inventory[INVEN_RARM], &copy);
+		p_ptr->update |= PU_BONUS;
+		handle_stuff();
+		result = p_ptr->weapon_info[0].num_blow;
+		object_copy(&inventory[INVEN_RARM], &rarm);
+		p_ptr->update |= PU_BONUS;
+		handle_stuff();
+	}
+	}
+	return result;
+}
+
+static bool _dagger_toss_imp1(int item);
+
+typedef struct {
+	int item;
+	object_type *o_ptr;
+	int mult;
+	int tdis;
+	int tx;
+	int ty;
+	bool come_back;
+	bool flying_dagger;
+} _dagger_toss_info;
+
+static void _dagger_toss_imp2(_dagger_toss_info * info_ptr);
+
+static bool _dagger_toss(void)
+{
+	int item;
+
+	/* Prompt for dagger to toss.  Choose equipped dagger and we will toss both, if possible.
+	   Choose from pack and it is just a single toss */
+	item_tester_hook = _check_speciality2_aux;
+	if (!get_item(&item, "Throw which item? ", "You have nothing to throw.", (USE_INVEN | USE_EQUIP)))
+	{
+		flush();
+		return FALSE;
+	}
+
+	if (item == INVEN_RARM || item == INVEN_LARM)
+	{
+		if (!_dagger_toss_imp1(INVEN_RARM)) return FALSE;
+		_dagger_toss_imp1(INVEN_LARM);
+		return TRUE;
+	}
+	else
+		return _dagger_toss_imp1(item);
+}
+
+static bool _dagger_toss_imp1(int item)
+{
+	int dir;
+	_dagger_toss_info info;
+	
+	/* Setup info for the toss */
+	info.item = item;
+	info.o_ptr = &inventory[item];
+	info.come_back = FALSE;
+	info.flying_dagger = FALSE;
+	if (_get_toggle() == TOGGLE_FLYING_DAGGER_STANCE)
+		info.flying_dagger = TRUE;
+
+	if (!_check_speciality2_aux(info.o_ptr)) return FALSE;
+	if (object_is_cursed(info.o_ptr) && (info.item >= INVEN_RARM))
+	{
+		msg_print(T("Hmmm, it seems to be cursed.", "ふーむ、どうやら呪われているようだ。"));
+		return FALSE;
+	}
+
+	if (have_flag(info.o_ptr->art_flags, TR_SIGNATURE)) 
+		info.come_back = TRUE;
+	else if (info.flying_dagger)
+	{
+		if (randint1(100) <= 58 + p_ptr->stat_ind[A_DEX])
+			info.come_back = TRUE;
+	}
+
+	/* Pick a target */
+	info.mult = _dagger_toss_multiplier(item);
+	{
+		int mul, div;
+		mul = 10 + 2 * (info.mult - 1);
+		div = (info.o_ptr->weight > 10) ? info.o_ptr->weight : 10;
+		div /= 2;
+		info.tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
+		if (info.tdis > mul) info.tdis = mul;
+
+		project_length = info.tdis + 1;
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		info.tx = px + 99 * ddx[dir];
+		info.ty = py + 99 * ddy[dir];
+
+		if ((dir == 5) && target_okay())
+		{
+			info.tx = target_col;
+			info.ty = target_row;
+		}
+
+		project_length = 0;
+	}
+
+	/* Toss */
+	_dagger_toss_imp2(&info);
+
+	/* Handle Inventory */
+	if (!info.come_back)
+	{
+		object_type copy;
+
+		object_copy(&copy, info.o_ptr);
+		copy.number = 1;
+
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+		
+		/* Dagger Toss never breaks! */
+		drop_near(&copy, 0, info.ty, info.tx);
+		
+		if (item >= INVEN_RARM)
+		{
+			p_ptr->redraw |= PR_EQUIPPY;
+			p_ptr->update |= PU_BONUS;
+
+			kamaenaoshi(item);
+			calc_android_exp();
+		}
+		handle_stuff();
+	}
+
+	return TRUE;
+}
+
+static void _dagger_toss_imp2(_dagger_toss_info * info)
+{
+	char o_name[MAX_NLEN];
+	u16b path[512];
+	int msec = delay_factor * delay_factor * delay_factor;
+	int y, x, ny, nx, dd, tdam;
+	int cur_dis, ct;
+	int chance;
+
+	chance = p_ptr->skill_tht + ((p_ptr->to_h_b + info->o_ptr->to_h) * BTH_PLUS_ADJ);
+	chance *= 2; /* mimicking code for ninja shuriken */
+
+	object_desc(o_name, info->o_ptr, OD_OMIT_PREFIX);
+	ct = project_path(path, info->tdis, py, px, info->ty, info->tx, PROJECT_PATH);
+
+	y = py;
+	x = px;
+
+	for (cur_dis = 0; cur_dis < ct; )
+	{
+		/* Peek ahead at the next square in the path */
+		ny = GRID_Y(path[cur_dis]);
+		nx = GRID_X(path[cur_dis]);
+
+		/* Stopped by walls/doors */
+		if (!cave_have_flag_bold(ny, nx, FF_PROJECT)) break;
+
+		/* The player can see the (on screen) missile */
+		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
+		{
+			char c = object_char(info->o_ptr);
+			byte a = object_attr(info->o_ptr);
+
+			/* Draw, Hilite, Fresh, Pause, Erase */
+			print_rel(c, a, ny, nx);
+			move_cursor_relative(ny, nx);
+			Term_fresh();
+			Term_xtra(TERM_XTRA_DELAY, msec);
+			lite_spot(ny, nx);
+			Term_fresh();
+		}
+
+		/* The player cannot see the missile */
+		else
+		{
+			/* Pause anyway, for consistancy */
+			Term_xtra(TERM_XTRA_DELAY, msec);
+		}
+
+		/* Save the new location */
+		x = nx;
+		y = ny;
+
+		/* Advance the distance */
+		cur_dis++;
+
+		/* Monster here, Try to hit it */
+		if (cave[y][x].m_idx)
+		{
+			cave_type *c_ptr = &cave[y][x];
+			monster_type *m_ptr = &m_list[c_ptr->m_idx];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			bool visible = m_ptr->ml;
+
+			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			{
+				bool fear = FALSE;
+
+				if (!visible)
+					msg_format("The %s finds a mark.", o_name);
+				else
+				{
+					char m_name[80];
+					monster_desc(m_name, m_ptr, 0);
+					msg_format("The %s hits %s.", o_name, m_name);
+					if (m_ptr->ml)
+					{
+						if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
+						health_track(c_ptr->m_idx);
+					}
+				}
+
+				/***** The Damage Calculation!!! *****/
+				dd = info->o_ptr->dd;
+				if (info->flying_dagger)
+					dd += p_ptr->lev/15;
+				tdam = damroll(dd, info->o_ptr->ds);				
+				tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, TRUE);
+				tdam = critical_shot(info->o_ptr->weight, info->o_ptr->to_h, tdam);
+				tdam += info->o_ptr->to_d;
+				tdam *= info->mult;
+				tdam += p_ptr->to_d_b;
+				if (tdam < 0) tdam = 0;
+				tdam = mon_damage_mod(m_ptr, tdam, FALSE);
+
+				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+				{
+					/* Dead monster */
+				}
+				else
+				{
+					message_pain(c_ptr->m_idx, tdam);
+					if (tdam > 0)
+						anger_monster(m_ptr);
+
+					if (fear && m_ptr->ml)
+					{
+						char m_name[80];
+						sound(SOUND_FLEE);
+						monster_desc(m_name, m_ptr, 0);
+						msg_format("%^s flees in terror!", m_name);
+					}
+				}
+			}
+
+			/* Stop looking */
+			break;
+		}
+	}
+
+	if (info->come_back)
+	{
+		int i;
+		for (i = cur_dis; i >= 0; i--)
+		{
+			y = GRID_Y(path[i]);
+			x = GRID_X(path[i]);
+			if (panel_contains(y, x) && player_can_see_bold(y, x))
+			{
+				char c = object_char(info->o_ptr);
+				byte a = object_attr(info->o_ptr);
+
+				/* Draw, Hilite, Fresh, Pause, Erase */
+				print_rel(c, a, y, x);
+				move_cursor_relative(y, x);
+				Term_fresh();
+				Term_xtra(TERM_XTRA_DELAY, msec);
+				lite_spot(y, x);
+				Term_fresh();
+			}
+			else
+			{
+				/* Pause anyway, for consistancy */
+				Term_xtra(TERM_XTRA_DELAY, msec);
+			}
+		}
+		msg_format("Your %s comes back to you.", o_name);
+	}
+	else
+	{
+		/* Record the actual location of the toss so we can drop the object here if required */
+		info->tx = x;
+		info->ty = y;
+	}
+}
+
+static void _dagger_toss_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Dagger Toss");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Throws both equipped weapons, or 1 inventory weapon at target monster.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_dagger_toss())
+			var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _flying_dagger_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Flying Dagger Stance");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "When using this technique, you gain great prowess with the Dagger Toss.  Thrown weapons often return and damage is greatly increased.  However, this stance leaves you somewhat exposed to your enemies.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_FLYING_DAGGER_STANCE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_FLYING_DAGGER_STANCE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_FLYING_DAGGER_STANCE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _frenzy_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Frenzy");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "In this posture, you attack foes with great power, using both equipped weapons and weapons in your inventory.  However, inventory items will be destroyed on use.");
+		break;
+	case SPELL_CAST:
+	{
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_FRENZY_STANCE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_FRENZY_STANCE);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_FRENZY_STANCE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _greater_many_shot_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -338,6 +751,47 @@ static void _many_shot_spell(int cmd, variant *res)
 	}
 }
 
+static void _shadow_stance_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Shadow Stance");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "When using this technique, you walk quickly and stealthily.  On attacking a foe, you will swap positions.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_SHADOW_STANCE)
+		{
+			_set_toggle(TOGGLE_NONE);
+			set_action(ACTION_NONE);
+		}
+		else
+		{
+			set_action(ACTION_HAYAGAKE); /* Steal Ninja Quickwalk code */
+			_set_toggle(TOGGLE_SHADOW_STANCE);
+		}
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_SHADOW_STANCE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _rapid_shot_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -367,6 +821,8 @@ static void _rapid_shot_spell(int cmd, variant *res)
 	case SPELL_ENERGY:
 		if (_get_toggle() != TOGGLE_RAPID_SHOT)
 			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
 		break;
 	default:
 		default_spell(cmd, res);
@@ -413,7 +869,71 @@ static void _shot_on_the_run_spell(int cmd, variant *res)
 	case SPELL_ENERGY:
 		if (_get_toggle() != TOGGLE_SHOT_ON_THE_RUN)
 			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
 		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _tumble_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Tumble");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Move 1 square in a direction and displace any monster originally there.");
+		break;
+	case SPELL_CAST:
+	{
+		int dir, tx, ty;
+		cave_type *c_ptr;
+		bool can_enter = FALSE;
+
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (!get_rep_dir2(&dir)) return;
+		tx = px + ddx[dir];
+		ty = py + ddy[dir];
+
+		c_ptr = &cave[ty][tx];
+
+		if (!c_ptr->m_idx)
+		{
+			if (player_can_enter(c_ptr->feat, 0))
+			{
+				move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+				var_set_bool(res, TRUE);
+			}
+		}
+		else
+		{
+			if (player_can_enter(c_ptr->feat, 0))
+			{
+				set_monster_csleep(c_ptr->m_idx, 0);
+				move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+				update_mon(c_ptr->m_idx, TRUE);
+				var_set_bool(res, TRUE);
+			}
+		}
+		break;
+	}
+	case SPELL_ENERGY:
+	{
+		int energy = 100;
+		if (p_ptr->action == ACTION_HAYAGAKE) 
+			energy = energy * (45-(p_ptr->lev/2)) / 100;
+		var_set_int(res, energy);
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -465,6 +985,13 @@ int weaponmaster_get_toggle(void)
 		result = _get_toggle();
 	return result;
 }
+
+void weaponmaster_set_toggle(int toggle)
+{
+	if (p_ptr->pclass == CLASS_WEAPONMASTER)
+		_set_toggle(toggle);
+}
+
   
 typedef struct {
 	byte tval;
@@ -553,17 +1080,22 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 	  "You will have some ranged combat abilities.",
 	  INVEN_RARM, INVEN_LARM,
 	  { { TV_SWORD, SV_BASILLARD },
-		{ TV_SWORD, SV_BROKEN_DAGGER } ,
-		{ TV_SWORD, SV_DAGGER } ,
-		{ TV_SWORD, SV_FALCON_SWORD } ,
-	    { TV_SWORD, SV_MAIN_GAUCHE } ,
-		{ TV_SWORD, SV_NINJATO } ,
-		{ TV_SWORD, SV_RAPIER } ,
-		{ TV_SWORD, SV_SABRE } ,
-		{ TV_SWORD, SV_TANTO } ,
+		{ TV_SWORD, SV_BROKEN_DAGGER },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SWORD, SV_FALCON_SWORD },
+	    { TV_SWORD, SV_MAIN_GAUCHE },
+		{ TV_SWORD, SV_NINJATO },
+		{ TV_SWORD, SV_RAPIER },
+		{ TV_SWORD, SV_SABRE },
+		{ TV_SWORD, SV_TANTO },
 		{ 0, 0 },
 	  },
 	  {
+	    {  5,   5,  0, _dagger_toss_spell },
+		{ 15,   0,  0, _flying_dagger_spell },
+		{ 25,  10,  0, strafing_spell },
+		{ 35,   0,  0, _shadow_stance_spell },
+		{ 40,   0,  0, _frenzy_spell },
 	    { -1,   0,  0, NULL },
 	  },
 	  { TV_SWORD, SV_DAGGER },
@@ -694,23 +1226,41 @@ static bool _check_speciality1_aux(object_type *o_ptr)
 static bool _check_speciality1_equip(void)
 {
 	_speciality *ptr = &_specialities[p_ptr->speciality1];
+	int slot1 = ptr->slot1;
+	int slot2 = ptr->slot2;
+
+	_dual_wield = FALSE;
+
+	/* Hack, when throwing your leading weapon while dual wielding, you will
+	   temporarily have an empty right hand but a possibly OK left hand.  The game
+	   will calc_bonuses, combine_pack, calc_bonuses again to fix up, and this
+	   can be annoying since we give the user status messages in _calc_bonuses */
+	if ( slot1 == INVEN_RARM /* This detects a melee weaponmaster */
+	  && slot2 == INVEN_LARM 
+	  && !inventory[slot1].k_idx 
+	  && inventory[slot2].k_idx )
+	{
+		slot1 = INVEN_LARM;
+		slot2 = INVEN_RARM;
+	}
 
 	/* First slot should always match */
-	if (!_check_speciality1_aux(&inventory[ptr->slot1])) return FALSE;
+	if (!_check_speciality1_aux(&inventory[slot1])) return FALSE;
 
 	/* Second slot might be the shield slot for weaponmasters, or the weapon slot for shieldmasters
 	   Try to handle these cases */
-	if (ptr->slot2 != -1 && inventory[ptr->slot2].tval != 0)
+	if (slot2 != -1 && inventory[slot2].tval != 0)
 	{
 		if (strcmp(ptr->name, "Shields") == 0)
 		{
-			if ( !object_is_weapon(&inventory[ptr->slot2]) 
-			  && !_check_speciality1_aux(&inventory[ptr->slot2])) return FALSE;
+			if ( !object_is_weapon(&inventory[slot2]) 
+			  && !_check_speciality1_aux(&inventory[slot2])) return FALSE;
 		}
 		else
 		{
-			if ( !object_is_shield(&inventory[ptr->slot2]) 
-			  && !_check_speciality1_aux(&inventory[ptr->slot2])) return FALSE;
+			_dual_wield = TRUE;
+			if ( !object_is_shield(&inventory[slot2]) 
+			  && !_check_speciality1_aux(&inventory[slot2])) return FALSE;
 		}
 	}
 
@@ -727,24 +1277,39 @@ static bool _check_speciality2_aux(object_type *o_ptr)
 static bool _check_speciality2_equip(void)
 {
 	_speciality *ptr = &_specialities[p_ptr->speciality1];
+	int slot1 = ptr->slot1;
+	int slot2 = ptr->slot2;
+
+	/* Hack, when throwing your leading weapon while dual wielding, you will
+	   temporarily have an empty right hand but a possibly OK left hand.  The game
+	   will calc_bonuses, combine_pack, calc_bonuses again to fix up, and this
+	   can be annoying since we give the user status messages in _calc_bonuses */
+	if ( slot1 == INVEN_RARM /* This detects a melee weaponmaster */
+	  && slot2 == INVEN_LARM 
+	  && !inventory[slot1].k_idx 
+	  && inventory[slot2].k_idx )
+	{
+		slot1 = INVEN_LARM;
+		slot2 = INVEN_RARM;
+	}
 
 	/* First slot should always match */
-	if (!_check_speciality2_aux(&inventory[ptr->slot1])) return FALSE;
+	if (!_check_speciality2_aux(&inventory[slot1])) return FALSE;
 
 	/* Second slot might be the shield slot for weaponmasters, or the weapon slot for shieldmasters
 	   Try to handle these cases 
 	   Note: A non-speciality2 weapon in slot2 disqualifies all speciality2 abilities!! */
-	if (ptr->slot2 != -1 && inventory[ptr->slot2].tval != 0)
+	if (slot2 != -1 && inventory[slot2].tval != 0)
 	{
 		if (strcmp(ptr->name, "Shields") == 0)
 		{
-			if ( !object_is_weapon(&inventory[ptr->slot2]) 
-			  && !_check_speciality2_aux(&inventory[ptr->slot2])) return FALSE;
+			if ( !object_is_weapon(&inventory[slot2]) 
+			  && !_check_speciality2_aux(&inventory[slot2])) return FALSE;
 		}
 		else
 		{
-			if ( !object_is_shield(&inventory[ptr->slot2]) 
-			  && !_check_speciality2_aux(&inventory[ptr->slot2])) return FALSE;
+			if ( !object_is_shield(&inventory[slot2]) 
+			  && !_check_speciality2_aux(&inventory[slot2])) return FALSE;
 		}
 	}
 
@@ -1007,6 +1572,7 @@ void _on_birth(void)
 
 		p_ptr->weapon_exp[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_BEGINNER;
 	}
+
 	weaponmaster_adjust_skills();
 }
 
@@ -1045,6 +1611,17 @@ static void _calc_bonuses(void)
 	bool spec1 = _check_speciality1_equip();
 	bool spec2 = _check_speciality2_equip();
 
+	p_ptr->speciality1_equip = spec1;
+	p_ptr->speciality2_equip = spec2;
+
+	/* Handle cases where user swaps in unfavorable gear */
+	if (!spec2 && _get_toggle() != TOGGLE_NONE)
+		_set_toggle(TOGGLE_NONE);
+
+	if (!spec2 && p_ptr->action == ACTION_HAYAGAKE)
+		set_action(ACTION_NONE);
+
+
 	if (strcmp(_specialities[p_ptr->speciality1].name, "Slings") == 0)
 	{
 		object_type *o_ptr = &inventory[INVEN_BOW];
@@ -1070,16 +1647,45 @@ static void _calc_bonuses(void)
 				p_ptr->num_fire += 100;
 		}
 	} 
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Daggers") == 0)
+	{
+		if (spec1) 
+		{
+			p_ptr->easy_2weapon = TRUE;
+			if (p_ptr->lev >= 20 && _dual_wield)
+			{
+				p_ptr->to_a += 10 + p_ptr->lev/2;
+				p_ptr->dis_to_a += 10 + p_ptr->lev/2;
+			}
+		}
+		if (spec2)
+		{
+			if (p_ptr->lev >= 10)
+				p_ptr->skill_stl += 2;
+
+			if (p_ptr->lev >= 30)
+				p_ptr->sneak_attack = TRUE;
+
+			switch (_get_toggle())
+			{
+			case TOGGLE_FLYING_DAGGER_STANCE:
+				p_ptr->stat_add[A_CON] -= 4;
+				break;
+
+			case TOGGLE_SHADOW_STANCE:
+				p_ptr->to_d_b -= 10;
+				p_ptr->to_d_m -= 10;
+				p_ptr->skill_stl += p_ptr->lev/12;
+				break;
+			}
+		}
+	}
 
 	if (!p_ptr->painted_target)
 	{
 		p_ptr->painted_target_idx = 0;
 		p_ptr->painted_target_ct = 0;
 	}
-
-	/* Handle cases where user swaps in unfavorable gear */
-	if (!spec2 && _get_toggle() != TOGGLE_NONE)
-		_set_toggle(TOGGLE_NONE);
 
 	/* Message about favored gear */
 	if (!init || spec1 != last_spec1 || spec2 != last_spec2)
@@ -1115,9 +1721,8 @@ static void _calc_bonuses(void)
 				break;
 			}
 		}
-		else
+		else if (init)
 		{
-		/*
 			switch (slot1)
 			{
 			case INVEN_BOW:
@@ -1129,12 +1734,30 @@ static void _calc_bonuses(void)
 			default:
 				msg_print("You love your weapon.");
 				break;
-			} */
+			} 
 		}
 
 		init = TRUE;
 		last_spec1 = spec1;
 		last_spec2 = spec2;
+	}
+}
+
+static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
+{
+	if (strcmp(_specialities[p_ptr->speciality1].name, "Daggers") == 0)
+	{
+	int spec1 = _check_speciality1_aux(o_ptr);
+		if (spec1 && p_ptr->speciality1_equip && p_ptr->lev >= 45)
+			info_ptr->num_blow++;
+
+		switch (_get_toggle())
+		{
+		case TOGGLE_SHADOW_STANCE:
+			info_ptr->to_d -= 10;
+			info_ptr->dis_to_d -= 10;
+			break;
+		}
 	}
 }
 
@@ -1226,9 +1849,41 @@ class_t *weaponmaster_get_class_t(void)
 		me.get_spells = _get_spells;
 		me.birth = _on_birth;
 		me.calc_bonuses = _calc_bonuses;
+		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.move_player = _move_player;
 		init = TRUE;
 	}
 
 	return &me;
+}
+
+int weaponmaster_wield_hack(object_type *o_ptr)
+{
+	int result = 100;
+
+	if (p_ptr->pclass == CLASS_WEAPONMASTER)
+	{
+		if (strcmp(_specialities[p_ptr->speciality1].name, "Daggers") == 0)
+		{
+			if (_check_speciality1_aux(o_ptr)) result = 0;
+		}
+	}
+	return result;
+}
+
+void weaponmaster_get_frenzy_items(void)
+{
+	int i;
+	int ct = 0;
+	for (i = 0; i < MAX_FRENZY_ITEMS; i++)
+		frenzy_items[i] = -1;
+
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		if (_check_speciality2_aux(&inventory[i]))
+		{
+			frenzy_items[ct] = i;
+			ct++;
+		}
+	}
 }

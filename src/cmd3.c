@@ -502,7 +502,7 @@ msg_print("クエストを達成した！");
 	}
 
 	/* Take a turn */
-	energy_use = 100;
+	energy_use = weaponmaster_wield_hack(o_ptr);
 
 	/* Get local object */
 	q_ptr = &forge;

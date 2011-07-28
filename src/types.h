@@ -1145,6 +1145,10 @@ struct player_type
 	bool painted_target;
 	int  painted_target_idx;
 	int  painted_target_ct;
+	bool easy_2weapon;
+	bool speciality1_equip; 
+	bool speciality2_equip;
+	bool sneak_attack;
 
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
@@ -1398,7 +1402,7 @@ struct player_type
 	s16b dis_ac;		/* Known base ac */
 
 	s16b to_h_b;			/* Bonus to hit (bow) */
-	s16b to_d_b;			/* Bonus to hit (bow) */
+	s16b to_d_b;			/* Bonus to damage (bow) */
 	s16b to_h_m;			/* Bonus to hit (misc) */
 	s16b to_d_m;			/* Bonus to dam (misc) */
 	s16b to_a;			/* Bonus to ac */

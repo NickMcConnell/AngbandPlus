@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 45
+#define FAKE_VER_PATCH 46
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 45
+#define H_VER_PATCH 46
 #define H_VER_EXTRA 0
 
 
@@ -5206,6 +5206,8 @@ extern int PlayerUID;
 #define HISSATSU_HARAI  28
 #define HISSATSU_3DAN   29
 #define HISSATSU_100NIN 30
+#define WEAPONMASTER_FRENZY 31
+#define MAX_FRENZY_ITEMS 3
 
 #define HISSATSU_IAI    100
 
@@ -5592,6 +5594,7 @@ extern int PlayerUID;
 #define SHOOT_RUN		4 
 #define SHOOT_MANY      5
 #define SHOOT_ALL       6
+#define SHOOT_DAGGER_TOSS 7
 
 /* Weaponmaster toggle modes */
 #define TOGGLE_NONE				0
@@ -5599,4 +5602,9 @@ extern int PlayerUID;
 	/* Slingmaster */
 	#define TOGGLE_SHOT_ON_THE_RUN	1
 	#define TOGGLE_RAPID_SHOT		2
+
+	/* Daggermaster */
+	#define TOGGLE_FLYING_DAGGER_STANCE	3
+	#define TOGGLE_SHADOW_STANCE		4
+	#define TOGGLE_FRENZY_STANCE		5
 

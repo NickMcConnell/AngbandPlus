@@ -6243,6 +6243,8 @@ int bow_range(int sval)
 	int tdis, tmul;
 
 	tmul = bow_tmul(sval);
+	if (p_ptr->xtra_might) tmul++;
+	tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	tdis = 13 + tmul/80;
 	if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)
 	{

@@ -3855,31 +3855,9 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			{
 				if (a_info[artifact_index].cur_num)
 				{
-					artifact_type *a_ptr = &a_info[artifact_index];
-					int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-					int base_power = a_ptr->cost;
-					int best_power = -100000;
-					int power = 0;
 					object_type forge;
-					object_type keeper;
-
-					if (a_ptr->tval == TV_LITE)
-						base_power = 0;
-
-					for (i = 0; i < 20; i++)
-					{
-						object_prep(&forge, k_idx);
-						power = create_artifact(&forge, CREATE_ART_GOOD);
-						if (power > best_power)
-						{
-							object_copy(&keeper, &forge);
-							best_power = power;
-						}
-						if (power > base_power * 7 / 10)
-							break;
-					}
-
-					drop_here(&keeper, *y, *x);
+					create_replacement_art(artifact_index, &forge);
+					drop_here(&forge, *y, *x);
 				}
 				else
 				{

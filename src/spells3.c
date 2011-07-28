@@ -2953,6 +2953,12 @@ s = "使えるものがありません。";
 		o_ptr = &o_list[0 - item];
 	}
 
+	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	{
+		msg_print("There is no effect.");
+		return FALSE;
+	}
+
 	/* Oops */
 #ifdef JP
 	msg_print("まばゆい閃光が走った！");

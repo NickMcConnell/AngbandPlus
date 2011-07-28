@@ -383,6 +383,9 @@ static void prt_stat(int stat)
 #define BAR_DUELIST 76
 #define BAR_SHOT_ON_THE_RUN 77
 #define BAR_RAPID_SHOT 78
+#define BAR_FLYING_DAGGER 79
+#define BAR_SHADOW_STANCE 80
+#define BAR_FRENZY_STANCE 81
 
 static struct {
 	byte attr;
@@ -542,7 +545,10 @@ static struct {
 	{TERM_L_BLUE, "Sp", "Special"},
 	{TERM_YELLOW, "", "Duelist Target Goes Here!"},
 	{TERM_L_BLUE, "Rn", "Shoot on Run"},
-	{TERM_L_RED, "Rp", "Rapid Shot"},
+	{TERM_L_BLUE, "Rp", "Rapid Shot"},
+	{TERM_L_BLUE, "FD", "Flying Dagger"},
+	{TERM_L_BLUE, "Sw", "Shadow"},
+	{TERM_L_BLUE, "Fz", "Frenzy"},
 	{0, NULL, NULL}
 };
 #endif
@@ -717,6 +723,15 @@ static void prt_status(void)
 			break;
 		case TOGGLE_RAPID_SHOT:
 			ADD_FLG(BAR_RAPID_SHOT);
+			break;
+		case TOGGLE_FLYING_DAGGER_STANCE:
+			ADD_FLG(BAR_FLYING_DAGGER);
+			break;
+		case TOGGLE_SHADOW_STANCE:
+			ADD_FLG(BAR_SHADOW_STANCE);
+			break;
+		case TOGGLE_FRENZY_STANCE:
+			ADD_FLG(BAR_FRENZY_STANCE);
 			break;
 		}
 	}
@@ -3233,6 +3248,10 @@ void calc_bonuses(void)
 	p_ptr->to_h_m = 0;
 	p_ptr->to_d_m = 0;
 	p_ptr->to_d_b = 0;
+	p_ptr->easy_2weapon = FALSE;
+	p_ptr->speciality1_equip = FALSE;
+	p_ptr->speciality2_equip = FALSE;
+	p_ptr->sneak_attack = FALSE;
 
 	p_ptr->to_m_chance = 0;
 
@@ -4836,7 +4855,14 @@ void calc_bonuses(void)
 			p_ptr->to_a += 10;
 			p_ptr->dis_to_a += 10;
 		}
-		if (easy_2weapon)
+		/* Hack: easy_2weapon means Genji.  p_ptr->easy_2weapon means a Daggermaster dual
+		   wielding favored weapons */
+		if (easy_2weapon && p_ptr->easy_2weapon)
+		{
+			penalty1 = 0;
+			penalty2 = 0;
+		}
+		else if (easy_2weapon || p_ptr->easy_2weapon)
 		{
 			if (penalty1 > 0) penalty1 /= 2;
 			if (penalty2 > 0) penalty2 /= 2;

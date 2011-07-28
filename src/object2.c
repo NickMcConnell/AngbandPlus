@@ -2172,35 +2172,7 @@ static bool make_artifact_special(object_type *o_ptr)
 
 		if (random_artifacts)
 		{
-			int base_power = a_ptr->cost;
-			int best_power = -100000;
-			int power = 0;
-			int j;
-			object_type keeper, forge;
-			int old_level = object_level;
-
-			if (object_level < a_ptr->level)
-				object_level = a_ptr->level;
-
-			if (a_ptr->tval == TV_LITE)
-				base_power = 0;
-
-			for (j = 0; j < 20; j++)
-			{
-				object_prep(&forge, k_idx);
-				power = create_artifact(&forge, CREATE_ART_GOOD);
-				if (power > best_power)
-				{
-					object_copy(&keeper, &forge);
-					best_power = power;
-				}
-				if (power > base_power * 7 / 10)
-					break;
-			}
-
-			keeper.name3 = i;
-			object_copy(o_ptr, &keeper);
-			object_level = old_level;
+			create_replacement_art(i, o_ptr);
 		}
 		else
 		{
@@ -2275,37 +2247,7 @@ static bool make_artifact(object_type *o_ptr)
 		/* Hack -- mark the item as an artifact */
 		if (random_artifacts)
 		{
-			int k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-			artifact_type *a_ptr = &a_info[i];
-			int base_power = a_ptr->cost;
-			int best_power = -100000;
-			int j;
-			int power = 0;
-			object_type keeper, forge;
-			int old_level = object_level;
-
-			if (object_level < a_ptr->level)
-				object_level = a_ptr->level;
-
-			if (a_ptr->tval == TV_LITE)
-				base_power = 0;
-
-			for (j = 0; j < 20; j++)
-			{
-				object_prep(&forge, k_idx);
-				power = create_artifact(&forge, CREATE_ART_GOOD);
-				if (power > best_power)
-				{
-					object_copy(&keeper, &forge);
-					best_power = power;
-				}
-				if (power > base_power * 7 / 10)
-					break;
-			}
-
-			keeper.name3 = i;
-			object_copy(o_ptr, &keeper);
-			object_level = old_level;
+			create_replacement_art(i, o_ptr);
 		}
 		else
 		{
