@@ -298,8 +298,13 @@ static bool _dagger_toss(void)
 
 	if (item == INVEN_RARM || item == INVEN_LARM)
 	{
+		int k_idx = inventory[INVEN_LARM].k_idx;
 		if (!_dagger_toss_imp1(INVEN_RARM)) return FALSE;
-		_dagger_toss_imp1(INVEN_LARM);
+		/* Hack: First toss did not return, and weapons shuffled */
+		if (inventory[INVEN_LARM].k_idx != k_idx && inventory[INVEN_RARM].k_idx == k_idx) 
+			_dagger_toss_imp1(INVEN_RARM);
+		else
+			_dagger_toss_imp1(INVEN_LARM);
 		return TRUE;
 	}
 	else
@@ -357,6 +362,8 @@ static bool _dagger_toss_imp1(int item)
 		}
 
 		project_length = 0;
+
+		if (info.tx == px && info.ty == py) return FALSE;
 	}
 
 	/* Toss */
@@ -415,8 +422,12 @@ static void _dagger_toss_imp2(_dagger_toss_info * info)
 		ny = GRID_Y(path[cur_dis]);
 		nx = GRID_X(path[cur_dis]);
 
-		/* Stopped by walls/doors */
-		if (!cave_have_flag_bold(ny, nx, FF_PROJECT)) break;
+		/* Stopped by walls/doors/forest ... but allow hitting your target, please! */
+		if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
+		 && !cave[ny][nx].m_idx) 
+		{
+			break;
+		}
 
 		/* The player can see the (on screen) missile */
 		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
@@ -495,6 +506,17 @@ static void _dagger_toss_imp2(_dagger_toss_info * info)
 					message_pain(c_ptr->m_idx, tdam);
 					if (tdam > 0)
 						anger_monster(m_ptr);
+
+					if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+					{
+						if (!(m_ptr->smart & SM_TICKED_OFF))
+						{
+							char m_name[80];
+							monster_desc(m_name, m_ptr, 0);
+							msg_format("%^s is ticked off!", m_name);
+							m_ptr->smart |= SM_TICKED_OFF;
+						}
+					}
 
 					if (fear && m_ptr->ml)
 					{

@@ -6480,7 +6480,7 @@ quit("セーブファイルが壊れています");
 	{
 		class_t *class_ptr = get_class_t();
 		player_outfit();
-		if (class_ptr)
+		if (class_ptr && class_ptr->birth)
 			class_ptr->birth();
 	}
 

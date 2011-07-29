@@ -5168,8 +5168,10 @@ void calc_bonuses(void)
 				/* Weaponsmith */
 				case CLASS_SMITH:
 				case CLASS_RUNE_KNIGHT:
-				case CLASS_WEAPONMASTER:
 					num = 5; wgt = 150; mul = 5; break;
+
+				case CLASS_WEAPONMASTER:
+					num = 5; wgt = 70; mul = 5; break;
 
 				/* Warrior-Mage */
 				case CLASS_WARRIOR_MAGE:

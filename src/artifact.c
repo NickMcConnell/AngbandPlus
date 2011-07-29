@@ -405,7 +405,10 @@ static void random_plus(object_type * o_ptr)
 			artifact_bias = BIAS_ROGUE;
 		break;
 	case 20: case 21:
-		add_flag(o_ptr->art_flags, TR_TUNNEL);
+		if (one_in_(3))
+			add_flag(o_ptr->art_flags, TR_SPEED);
+		else
+			add_flag(o_ptr->art_flags, TR_TUNNEL);
 		break;
 	case 22: case 23:
 		if (o_ptr->tval == TV_BOW) random_plus(o_ptr);
@@ -3264,7 +3267,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 	power = 0;
 	old_level = object_level;
 
-	/*if (object_level < a_ptr->level)*/
+	if (object_level < a_ptr->level)
 		object_level = a_ptr->level;
 
 	if (a_ptr->tval == TV_LITE && a_idx != ART_JUDGE)	/* Lights are too powerful, for some reason ... */

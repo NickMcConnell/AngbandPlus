@@ -1047,7 +1047,7 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
 	i += randint1(8);
 
 	/* Put some monsters in the dungeon */
-	for (i = i + k; i > 0; i--)
+	for (i = (i + k) * 6 / 10; i > 0; i--)
 	{
 		(void)alloc_monster(0, PM_ALLOW_SLEEP);
 	}
@@ -1373,7 +1373,7 @@ static bool level_gen(cptr *why)
 				level_height = randint1(MAX_HGT/SCREEN_HGT);
 				level_width = randint1(MAX_WID/SCREEN_WID);
 			}
-			while (level_height + level_width >= MAX_HGT/SCREEN_HGT + MAX_WID/SCREEN_WID - 2);
+			while (level_height + level_width > MAX_HGT/SCREEN_HGT + MAX_WID/SCREEN_WID - 2);
 		/*	while ((level_height == MAX_HGT/SCREEN_HGT) &&
 				   (level_width == MAX_WID/SCREEN_WID)); */
 		}
