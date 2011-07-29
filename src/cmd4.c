@@ -6541,7 +6541,7 @@ static void do_cmd_knowledge_artifacts(void)
 	    return; 
 	}
 
-	if (random_artifacts && 0)
+	if (random_artifacts)
 	{
 		fprintf(fff, "You won't find any fixed artifacts this game.");
 	}
