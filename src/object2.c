@@ -923,42 +923,42 @@ s32b flag_cost(object_type *o_ptr, int plusses, bool hack)
 	if (have_flag(flgs, TR_VAMPIRIC)) {total += 6500;count++;}
 	if (have_flag(flgs, TR_FORCE_WEAPON)) {tmp_cost += 2500;count++;}
 	if (have_flag(flgs, TR_KILL_ANIMAL)) {tmp_cost += 2800;count++;}
-	else if (have_flag(flgs, TR_SLAY_ANIMAL)) {tmp_cost += 1800;count++;}
+	else if (have_flag(flgs, TR_SLAY_ANIMAL)) {tmp_cost += 500;}
 	if (have_flag(flgs, TR_KILL_EVIL)) {tmp_cost += 5800;count++;}
 	else if (have_flag(flgs, TR_SLAY_EVIL)) {tmp_cost += 3800;count++;}
 	if (have_flag(flgs, TR_KILL_HUMAN)) {tmp_cost += 2800;count++;}
-	else if (have_flag(flgs, TR_SLAY_HUMAN)) {tmp_cost += 1800;count++;}
+	else if (have_flag(flgs, TR_SLAY_HUMAN)) {tmp_cost += 800;}
 	if (have_flag(flgs, TR_KILL_UNDEAD)) {tmp_cost += 2800;count++;}
-	else if (have_flag(flgs, TR_SLAY_UNDEAD)) {tmp_cost += 1800;count++;}
+	else if (have_flag(flgs, TR_SLAY_UNDEAD)) {tmp_cost += 1000;}
 	if (have_flag(flgs, TR_KILL_DEMON)) {tmp_cost += 2800;count++;}
-	else if (have_flag(flgs, TR_SLAY_DEMON)) {tmp_cost += 1800;count++;}
-	if (have_flag(flgs, TR_KILL_ORC)) {tmp_cost += 2500;count++;}
-	else if (have_flag(flgs, TR_SLAY_ORC)) {tmp_cost += 1500;count++;}
-	if (have_flag(flgs, TR_KILL_TROLL)) {tmp_cost += 2800;count++;}
-	else if (have_flag(flgs, TR_SLAY_TROLL)) {tmp_cost += 1800;count++;}
-	if (have_flag(flgs, TR_KILL_GIANT)) {tmp_cost += 2800;count++;}
-	else if (have_flag(flgs, TR_SLAY_GIANT)) {tmp_cost += 1800;count++;}
+	else if (have_flag(flgs, TR_SLAY_DEMON)) {tmp_cost += 800;}
+	if (have_flag(flgs, TR_KILL_ORC)) {tmp_cost += 500;}
+	else if (have_flag(flgs, TR_SLAY_ORC)) {tmp_cost += 150;}
+	if (have_flag(flgs, TR_KILL_TROLL)) {tmp_cost += 280;}
+	else if (have_flag(flgs, TR_SLAY_TROLL)) {tmp_cost += 180;}
+	if (have_flag(flgs, TR_KILL_GIANT)) {tmp_cost += 1000;count++;}
+	else if (have_flag(flgs, TR_SLAY_GIANT)) {tmp_cost += 180;}
 	if (have_flag(flgs, TR_KILL_DRAGON)) {tmp_cost += 2800;count++;}
 	else if (have_flag(flgs, TR_SLAY_DRAGON)) {tmp_cost += 1800;count++;}
 
 	if (have_flag(flgs, TR_VORPAL)) {tmp_cost += 1500;count++;}
-	if (have_flag(flgs, TR_IMPACT)) {tmp_cost += 500;count++;}
-	if (have_flag(flgs, TR_BRAND_POIS)) {tmp_cost += 2500;count++;}
-	if (have_flag(flgs, TR_BRAND_ACID)) {tmp_cost += 3800;count++;}
-	if (have_flag(flgs, TR_BRAND_ELEC)) {tmp_cost += 3800;count++;}
-	if (have_flag(flgs, TR_BRAND_FIRE)) {tmp_cost += 2500;count++;}
-	if (have_flag(flgs, TR_BRAND_COLD)) {tmp_cost += 2500;count++;}
+	if (have_flag(flgs, TR_IMPACT)) {tmp_cost += 500;}
+	if (have_flag(flgs, TR_BRAND_POIS)) {tmp_cost += 1000;count++;}
+	if (have_flag(flgs, TR_BRAND_ACID)) {tmp_cost += 1200;count++;}
+	if (have_flag(flgs, TR_BRAND_ELEC)) {tmp_cost += 1000;count++;}
+	if (have_flag(flgs, TR_BRAND_FIRE)) {tmp_cost += 1000;count++;}
+	if (have_flag(flgs, TR_BRAND_COLD)) {tmp_cost += 1000;count++;}
 	total += (tmp_cost * count);
 
-	if (have_flag(flgs, TR_SUST_STR)) total += 850;
-	if (have_flag(flgs, TR_SUST_INT)) total += 850;
-	if (have_flag(flgs, TR_SUST_WIS)) total += 850;
-	if (have_flag(flgs, TR_SUST_DEX)) total += 850;
-	if (have_flag(flgs, TR_SUST_CON)) total += 850;
-	if (have_flag(flgs, TR_SUST_CHR)) total += 250;
+	if (have_flag(flgs, TR_SUST_STR)) total += 250;
+	if (have_flag(flgs, TR_SUST_INT)) total += 250;
+	if (have_flag(flgs, TR_SUST_WIS)) total += 250;
+	if (have_flag(flgs, TR_SUST_DEX)) total += 250;
+	if (have_flag(flgs, TR_SUST_CON)) total += 250;
+	if (have_flag(flgs, TR_SUST_CHR)) total += 50;
 	if (have_flag(flgs, TR_RIDING)) total += 0;
 	if (have_flag(flgs, TR_EASY_SPELL)) total += 1500;
-	if (have_flag(flgs, TR_THROW)) total += 500;
+	if (have_flag(flgs, TR_THROW)) total += 50;
 	if (have_flag(flgs, TR_FREE_ACT)) total += 2500;
 	if (have_flag(flgs, TR_HOLD_LIFE)) total += 1500;
 
@@ -973,23 +973,23 @@ s32b flag_cost(object_type *o_ptr, int plusses, bool hack)
 	if (have_flag(flgs, TR_RES_ELEC)) {tmp_cost += 500;count++;}
 	if (have_flag(flgs, TR_RES_FIRE)) {tmp_cost += 500;count++;}
 	if (have_flag(flgs, TR_RES_COLD)) {tmp_cost += 500;count++;}
-	if (have_flag(flgs, TR_RES_POIS)) {tmp_cost += 1000;count += 2;}
-	if (have_flag(flgs, TR_RES_FEAR)) {tmp_cost += 1000;count += 2;}
-	if (have_flag(flgs, TR_RES_LITE)) {tmp_cost += 800;count += 2;}
-	if (have_flag(flgs, TR_RES_DARK)) {tmp_cost += 800;count += 2;}
-	if (have_flag(flgs, TR_RES_BLIND)) {tmp_cost += 900;count += 2;}
-	if (have_flag(flgs, TR_RES_CONF)) {tmp_cost += 900;count += 2;}
-	if (have_flag(flgs, TR_RES_SOUND)) {tmp_cost += 900;count += 2;}
-	if (have_flag(flgs, TR_RES_SHARDS)) {tmp_cost += 900;count += 2;}
-	if (have_flag(flgs, TR_RES_NETHER)) {tmp_cost += 900;count += 2;}
-	if (have_flag(flgs, TR_RES_NEXUS)) {tmp_cost += 900;count += 2;}
-	if (have_flag(flgs, TR_RES_CHAOS)) {tmp_cost += 1000;count += 2;}
-	if (have_flag(flgs, TR_RES_DISEN)) {tmp_cost += 2000;count += 2;}
+	if (have_flag(flgs, TR_RES_POIS)) {tmp_cost += 1000;count += 1;}
+	if (have_flag(flgs, TR_RES_FEAR)) {tmp_cost += 1000;count += 1;}
+	if (have_flag(flgs, TR_RES_LITE)) {tmp_cost += 800;count += 1;}
+	if (have_flag(flgs, TR_RES_DARK)) {tmp_cost += 800;count += 1;}
+	if (have_flag(flgs, TR_RES_BLIND)) {tmp_cost += 900;count += 1;}
+	if (have_flag(flgs, TR_RES_CONF)) {tmp_cost += 900;count += 1;}
+	if (have_flag(flgs, TR_RES_SOUND)) {tmp_cost += 900;count += 1;}
+	if (have_flag(flgs, TR_RES_SHARDS)) {tmp_cost += 900;count += 1;}
+	if (have_flag(flgs, TR_RES_NETHER)) {tmp_cost += 900;count += 1;}
+	if (have_flag(flgs, TR_RES_NEXUS)) {tmp_cost += 900;count += 1;}
+	if (have_flag(flgs, TR_RES_CHAOS)) {tmp_cost += 1000;count += 1;}
+	if (have_flag(flgs, TR_RES_DISEN)) {tmp_cost += 2000;count += 1;}
 	total += (tmp_cost * count);
 
-	if (have_flag(flgs, TR_SH_FIRE)) total += 1000;
-	if (have_flag(flgs, TR_SH_ELEC)) total += 1000;
-	if (have_flag(flgs, TR_SH_COLD)) total += 1000;
+	if (have_flag(flgs, TR_SH_FIRE)) total += 100;
+	if (have_flag(flgs, TR_SH_ELEC)) total += 100;
+	if (have_flag(flgs, TR_SH_COLD)) total += 100;
 	if (have_flag(flgs, TR_NO_TELE)) total -= 50000;
 	if (have_flag(flgs, TR_NO_MAGIC)) total -= 2500;
 	if (have_flag(flgs, TR_TY_CURSE)) total -= 15000;
@@ -2138,9 +2138,6 @@ static bool make_artifact_special(object_type *o_ptr)
 		/* Skip "empty" artifacts */
 		if (!a_ptr->name) continue;
 
-		/* Cannot make an artifact twice */
-		if (a_ptr->cur_num) continue;
-
 		if (a_ptr->gen_flags & TRG_QUESTITEM) continue;
 		if (!(a_ptr->gen_flags & TRG_INSTA_ART)) continue;
 
@@ -2170,7 +2167,22 @@ static bool make_artifact_special(object_type *o_ptr)
 			if (!one_in_(d)) continue;
 		}
 
-		if (random_artifacts)
+		if (a_ptr->cur_num)
+		{
+			if (!random_artifacts) continue;
+			if (randint1(300) >= object_level) continue;
+			switch (a_ptr->tval)
+			{
+			case TV_RING:
+			case TV_LITE: 
+			case TV_AMULET:
+				continue;
+			default:
+				object_prep(o_ptr, lookup_kind(a_ptr->tval, a_ptr->sval));
+				create_artifact(o_ptr, CREATE_ART_GOOD);
+			}
+		}
+		else if (random_artifacts)
 		{
 			create_replacement_art(i, o_ptr);
 		}
@@ -2220,9 +2232,6 @@ static bool make_artifact(object_type *o_ptr)
 		/* Skip "empty" items */
 		if (!a_ptr->name) continue;
 
-		/* Cannot make an artifact twice */
-		if (a_ptr->cur_num) continue;
-
 		if (a_ptr->gen_flags & TRG_QUESTITEM) continue;
 
 		if (a_ptr->gen_flags & TRG_INSTA_ART) continue;
@@ -2241,11 +2250,24 @@ static bool make_artifact(object_type *o_ptr)
 			if (!one_in_(d)) continue;
 		}
 
-		/* We must make the "rarity roll" */
 		if (!one_in_(a_ptr->rarity)) continue;
 
-		/* Hack -- mark the item as an artifact */
-		if (random_artifacts)
+		if (a_ptr->cur_num)
+		{
+			if (!random_artifacts) continue;
+			if (randint1(300) >= object_level) continue;
+			switch (a_ptr->tval)
+			{
+			case TV_RING:
+			case TV_LITE: 
+			case TV_AMULET:
+				continue;
+			default:
+				object_prep(o_ptr, lookup_kind(a_ptr->tval, a_ptr->sval));
+				create_artifact(o_ptr, CREATE_ART_GOOD);
+			}
+		}
+		else if (random_artifacts)
 		{
 			create_replacement_art(i, o_ptr);
 		}
@@ -4391,6 +4413,11 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 		if (cheat_peek) object_mention(o_ptr);
 
 		/* Done */
+		return;
+	}
+
+	if (o_ptr->art_name)
+	{
 		return;
 	}
 
@@ -6674,12 +6701,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 		break;
 
 	case GF_NETHER:
-		if (prace_is_(RACE_SPECTRE))
-		{
-			dam = 0;
-			ignore_wraith_form = TRUE;
-		}
-		else if (p_ptr->resist_neth) dam = dam * 3 / 4; /* Worst case of 6 / (d4 + 7) */
+		if (p_ptr->resist_neth) dam = dam * 3 / 4; /* Worst case of 6 / (d4 + 7) */
 		break;
 
 	case GF_DISENCHANT:

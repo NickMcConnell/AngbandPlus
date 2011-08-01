@@ -2419,7 +2419,7 @@ E:Strength:Azure
 G:!:B
 I:75:48:0
 W:20:0:4:30000
-A:20/8:30/3:80/3
+A:20/8:30/3:60/3:80/2
 P:0:1d1:0:0:0
 D:$It increases your strength when you quaff it.
 D:それは飲むと腕力の最大値が上がる。
@@ -2449,7 +2449,7 @@ E:Intelligence:Black
 G:!:D
 I:75:49:0
 W:20:0:4:30000
-A:20/8:30/3:80/3
+A:20/8:30/3:60/3:80/2
 P:0:1d1:0:0:0
 D:$It increases your intellingence when you quaff it.
 D:それは飲むと知能の最大値が上がる。
@@ -2479,7 +2479,7 @@ E:Wisdom:Bubbling
 G:!:W
 I:75:50:0
 W:20:0:4:30000
-A:20/8:30/3:80/3
+A:20/8:30/3:60/3:80/2
 P:0:1d1:0:0:0
 D:$It increases your wisdom when you quaff it.
 D:それは飲むと賢さの最大値が上がる。
@@ -2509,7 +2509,7 @@ E:Charisma:Copper Speckled
 G:!:U
 I:75:53:0
 W:20:0:4:30000
-A:20/8:30/3:80/3
+A:20/8:30/3:60/3:80/2
 P:0:1d1:0:0:0
 D:$It increases your charisma when you quaff it.
 D:それは飲むと魅力の最大値が上がる。
@@ -2609,7 +2609,7 @@ E:Constitution:Green
 G:!:g
 I:75:52:0
 W:20:0:4:30000
-A:20/8:30/3:80/3
+A:20/8:30/3:60/3:80/2
 P:0:1d1:0:0:0
 D:$It increases your constitution when you quaff it.
 D:それは飲むと耐久力の最大値が上がる。
@@ -2691,7 +2691,7 @@ E:Dexterity:Metallic Red
 G:!:r
 I:75:51:0
 W:20:0:4:30000
-A:20/8:30/3:80/3
+A:20/8:30/3:60/3:80/2
 P:0:1d1:0:0:0
 D:$It increases your dexterity when you quaff it.
 D:それは飲むと器用さの最大値が上がる。

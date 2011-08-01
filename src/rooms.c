@@ -2856,7 +2856,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 					monster_level = base_level + 9;
 					place_monster(y, x, PM_ALLOW_SLEEP);
 					monster_level = base_level;
-					object_level = base_level + 7;
+					object_level = base_level + 9;
 					place_object(y, x, AM_GOOD);
 					object_level = base_level;
 					break;
@@ -2868,7 +2868,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data,
 					monster_level = base_level + 40;
 					place_monster(y, x, PM_ALLOW_SLEEP);
 					monster_level = base_level;
-					object_level = base_level + 20;
+					object_level = base_level + 40;
 					place_object(y, x, AM_GOOD | AM_GREAT);
 					object_level = base_level;
 					break;

@@ -1557,6 +1557,7 @@ extern void get_project_point(int sy, int sx, int *ty, int *tx, int flg);
 extern bool monst_spell_monst(int m_idx);
 
 /* artifact.c */
+extern bool immunity_hack;
 extern void one_sustain(object_type *o_ptr);
 extern void one_high_resistance(object_type *o_ptr);
 extern void one_lordly_high_resistance(object_type *o_ptr);

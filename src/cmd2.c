@@ -2731,7 +2731,7 @@ void do_cmd_walk(bool pickup)
 	/* Hack again -- Is there a special encounter ??? */
 	if (p_ptr->wild_mode && !cave_have_flag_bold(py, px, FF_TOWN))
 	{
-		int tmp = 200 + p_ptr->lev*10 - wilderness[py][px].level + 5;
+		int tmp = 1000 + p_ptr->lev*10 - wilderness[py][px].level + 5;
 		if (tmp < 1) 
 			tmp = 1;
 		if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && randint0(tmp) < (21-p_ptr->skill_stl))

@@ -2974,8 +2974,6 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if (prace_is_(RACE_SPECTRE))
-		add_flag(flgs, TR_RES_NETHER);
 	if (p_ptr->mimic_form == MIMIC_VAMPIRE || prace_is_(RACE_VAMPIRE))
 		add_flag(flgs, TR_RES_DARK);
 	if (p_ptr->mimic_form == MIMIC_DEMON_LORD)

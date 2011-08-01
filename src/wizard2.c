@@ -127,7 +127,7 @@ static void wiz_create_named_art(int a_idx)
 /*
  * Hack -- quick debugging hook
  */
-static void do_cmd_wiz_hack_ben(void)
+static void do_cmd_wiz_hack_chris1(void)
 {
 /*	if (p_ptr->pclass == CLASS_BLUE_MAGE)
 	{
@@ -144,6 +144,7 @@ static void do_cmd_wiz_hack_ben(void)
 	int ct = get_quantity("How Many?", 1000);
 	int ct_speed = 0;
 	int ct_immunity = 0;
+	int ct_would_be_immunities = 0;
 	int ct_blows = 0;
 	int i;
 	for (i = 0; i < ct; i++)
@@ -175,13 +176,30 @@ static void do_cmd_wiz_hack_ben(void)
 		if (have_flag(forge.art_flags, TR_BLOWS))
 			ct_blows++;
 
+		if (immunity_hack)
+		{
+			ct_would_be_immunities++;
+		}
 		msg_format("%s (Score: %d, Cost: %d)", buf, power, value);
 	}
 
 	msg_format("Generated %d artifacts.  %d had immunity.  %d had speed.  %d had extra attacks.", ct, ct_immunity, ct_speed, ct_blows);
+	msg_format("%d would be immunities created.", ct_would_be_immunities);
 }
 
-
+static void do_cmd_wiz_hack_chris2(void)
+{
+	int i;
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		if (inventory[i].name3)
+		{
+			create_replacement_art(inventory[i].name3, &inventory[i]);
+			identify_item(&inventory[i]);
+			inventory[i].ident |= IDENT_MENTAL; 
+		}
+	}
+}
 
 #ifdef MONSTER_HORDES
 
@@ -2179,8 +2197,12 @@ void do_cmd_debug(void)
 		break;
 
 	/* Hack -- whatever I desire */
-	case '_':
-		do_cmd_wiz_hack_ben();
+	case '1':
+		do_cmd_wiz_hack_chris1();
+		break;
+
+	case '2':
+		do_cmd_wiz_hack_chris2();
 		break;
 
 	/* Not a Wizard Command */

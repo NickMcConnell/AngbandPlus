@@ -1784,7 +1784,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 			if (p_ptr->prace == RACE_SPECTRE)
 			{
 				int old = 1 + (p_ptr->lev/5);
-				dam = randint1(1 + p_ptr->mhp/12);
+				dam = randint1(1 + p_ptr->mhp/24);
 
 				if (dam < old)
 					dam = old;
@@ -1793,7 +1793,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 					dam = p_ptr->chp;
 
 				if (p_ptr->wizard)
-					msg_format("%d passwall damage", dam);
+					msg_format("%d passwall damage (Was %d)", dam, old);
 			}
 			else
 				dam = 1 + (p_ptr->lev/5);
@@ -3041,7 +3041,8 @@ static byte get_dungeon_feeling(void)
 			if (cost > 100000L) delta += 10 * base;
 
 			/* Special feeling */
-			if (!preserve_mode) return 1;
+			/*if (!preserve_mode) return 1;*/
+			return 1;
 		}
 
 		if (o_ptr->tval == TV_DRAG_ARMOR) delta += 30 * base;
