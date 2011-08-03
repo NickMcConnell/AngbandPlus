@@ -1685,6 +1685,72 @@ void evocation_spell(int cmd, variant *res)
 	}
 }
 
+void enchantment_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Enchantment", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attempts to enchant a weapon, ammo or armor.");
+		break;
+	case SPELL_CAST:
+	{
+		int         item;
+		bool        okay = FALSE;
+		object_type *o_ptr;
+		char        o_name[MAX_NLEN];
+
+		var_set_bool(res, FALSE);
+
+		item_tester_hook = object_is_weapon_armour_ammo;
+		item_tester_no_ryoute = TRUE;
+
+		if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+
+		if (item >= 0)
+			o_ptr = &inventory[item];
+		else
+			o_ptr = &o_list[0 - item];
+
+		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+		if (object_is_weapon_ammo(o_ptr))
+		{
+			if (enchant(o_ptr, randint0(4) + 1, ENCH_TOHIT)) okay = TRUE;
+			if (enchant(o_ptr, randint0(4) + 1, ENCH_TODAM)) okay = TRUE;
+		}
+		else
+		{
+			if (enchant(o_ptr, randint0(3) + 2, ENCH_TOAC)) okay = TRUE;			
+		}
+			
+
+		msg_format("%s %s glow%s brightly!",
+			   ((item >= 0) ? "Your" : "The"), o_name,
+			   ((o_ptr->number > 1) ? "" : "s"));
+
+		if (!okay)
+		{
+			if (flush_failure) flush();
+			msg_print("The enchantment failed.");
+			if (one_in_(3)) chg_virtue(V_ENCHANT, -1);
+		}
+		else
+			chg_virtue(V_ENCHANT, 1);
+
+		calc_android_exp();
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+bool cast_enchantment(void) { return cast_spell(enchantment_spell); }
+
 void explosive_rune_spell(int cmd, variant *res)
 {
 	switch (cmd)

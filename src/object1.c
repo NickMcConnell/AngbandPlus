@@ -5920,7 +5920,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 #else
 		if (allow_floor) strcat(out_val, " - for floor,");
 		if (select_the_force) strcat(out_val, " w for the Force,");
-		if (quiver && p_ptr->unlimited_quiver) strcat(out_val, " w for unlimited quiver,");
+		if (quiver && p_ptr->unlimited_quiver) strcat(out_val, " z for unlimited quiver,");
 #endif
 
 		/* Finish the prompt */
@@ -5941,8 +5941,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		switch (which)
 		{
 			case ESCAPE:
-			case 'z':
-			case 'Z':
 			case '0':
 			{
 				done = TRUE;
@@ -6038,14 +6036,16 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					*cp = INVEN_FORCE;
 					item = TRUE;
 					done = TRUE;
-					break;
 				}
+				break;
+
+			case 'z':
 				if (quiver && p_ptr->unlimited_quiver) {
 					*cp = INVEN_UNLIMITED_QUIVER;
 					item = TRUE;
 					done = TRUE;
-					break;
 				}
+				break;
 			}
 		}
 		if (menu_line > max_line) menu_line -= max_line;
@@ -6251,6 +6251,8 @@ if (other_query_flag && !verify("ËÜÅö¤Ë", k)) continue;
 					done = TRUE;
 					break;
 				}
+
+			case 'z':
 				if (quiver && p_ptr->unlimited_quiver) {
 					*cp = INVEN_UNLIMITED_QUIVER;
 					item = TRUE;

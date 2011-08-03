@@ -6827,25 +6827,16 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 9:
-#ifdef JP
-		if (name) return "解呪";
-		if (desc) return "アイテムにかかった弱い呪いを解除する。";
-#else
-		if (name) return "Remove Curse";
-		if (desc) return "Removes normal curses from equipped items.";
-#endif
-    
+		if (name) return "Polymorph Clay Golem";
+		if (desc) return "You lose the benefits of your current race and become a clay golem.";
 		{
+			int base = spell_power(10 + plev / 2);
+
+			if (info) return info_duration(base, base);
+
 			if (cast)
 			{
-				if (remove_curse())
-				{
-#ifdef JP
-					msg_print("誰かに見守られているような気がする。");
-#else
-					msg_print("You feel as if someone is watching over you.");
-#endif
-				}
+				set_mimic(base + randint1(base), MIMIC_CLAY_GOLEM, FALSE);
 			}
 		}
 		break;
@@ -6872,13 +6863,8 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 11:
-#ifdef JP
-		if (name) return "狂戦士化";
-		if (desc) return "狂戦士化し、恐怖を除去する。";
-#else
-		if (name) return "Berserk";
-		if (desc) return "Gives bonus to hit and HP, immunity to fear for a while. But decreases AC.";
-#endif
+		if (name) return "Building Up";
+		if (desc) return "Attempts to increases your strength, dexterity and constitusion.";
     
 		{
 			int base = spell_power(25);
@@ -6887,9 +6873,8 @@ static cptr do_craft_spell(int spell, int mode)
 
 			if (cast)
 			{
-				set_shero(randint1(base) + base, FALSE);
-				hp_player(30);
-				set_afraid(0, TRUE);
+				bool heal = !p_ptr->tim_building_up;
+				set_tim_building_up(randint1(base) + base, FALSE);
 			}
 		}
 		break;
@@ -6934,21 +6919,16 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 14:
-#ifdef JP
-		if (name) return "癒し";
-		if (desc) return "毒、朦朧状態、負傷を全快させ、幻覚を直す。";
-#else
-		if (name) return "Cure";
-		if (desc) return "Heals poison, stun, cut and hallucination completely.";
-#endif
-    
+		if (name) return "Polymorph Iron Golem";
+		if (desc) return "You lose the benefits of your current race and become an iron golem.";
 		{
+			int base = spell_power(10 + plev / 2);
+
+			if (info) return info_duration(base, base);
+
 			if (cast)
 			{
-				set_poisoned(0, TRUE);
-				set_stun(0, TRUE);
-				set_cut(0, TRUE);
-				set_image(0, TRUE);
+				set_mimic(base + randint1(base), MIMIC_IRON_GOLEM, FALSE);
 			}
 		}
 		break;
@@ -7104,33 +7084,16 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 22:
-#ifdef JP
-		if (name) return "ゴーレム製造";
-		if (desc) return "1体のゴーレムを製造する。";
-#else
-		if (name) return "Create Golem";
-		if (desc) return "Creates a golem.";
-#endif
-    
+		if (name) return "Polymorph Mithril Golem";
+		if (desc) return "You lose the benefits of your current race and become a mithril golem.";
 		{
+			int base = spell_power(10 + plev / 2);
+
+			if (info) return info_duration(base, base);
+
 			if (cast)
 			{
-				if (summon_specific(-1, py, px, plev, SUMMON_GOLEM, PM_FORCE_PET))
-				{
-#ifdef JP
-					msg_print("ゴーレムを作った。");
-#else
-					msg_print("You make a golem.");
-#endif
-				}
-				else
-				{
-#ifdef JP
-					msg_print("うまくゴーレムを作れなかった。");
-#else
-					msg_print("No Golems arrive.");
-#endif
-				}
+				set_mimic(base + randint1(base), MIMIC_MITHRIL_GOLEM, FALSE);
 			}
 		}
 		break;
@@ -7158,23 +7121,6 @@ static cptr do_craft_spell(int spell, int mode)
 
 	case 24:
 #ifdef JP
-		if (name) return "装備無力化";
-		if (desc) return "武器・防具にかけられたあらゆる魔力を完全に解除する。";
-#else
-		if (name) return "Remove Enchantment";
-		if (desc) return "Removes all magics completely from any weapon or armor.";
-#endif
-    
-		{
-			if (cast)
-			{
-				if (!mundane_spell(TRUE)) return NULL;
-			}
-		}
-		break;
-
-	case 25:
-#ifdef JP
 		if (name) return "呪い粉砕";
 		if (desc) return "アイテムにかかった強力な呪いを解除する。";
 #else
@@ -7192,6 +7138,35 @@ static cptr do_craft_spell(int spell, int mode)
 #else
 					msg_print("You feel as if someone is watching over you.");
 #endif
+				}
+			}
+		}
+		break;
+
+	case 25:
+		if (name) return "Whirlwind Attack";
+		if (desc) return "Attacks all adjacent monsters.";
+    
+		{
+			if (cast)
+			{
+				int y = 0, x = 0;
+				cave_type       *c_ptr;
+				monster_type    *m_ptr;
+				int dir;
+
+				for (dir = 0; dir < 8; dir++)
+				{
+					y = py + ddy_ddd[dir];
+					x = px + ddx_ddd[dir];
+					c_ptr = &cave[y][x];
+
+					/* Get the monster */
+					m_ptr = &m_list[c_ptr->m_idx];
+
+					/* Hack -- attack monsters */
+					if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
+						py_attack(y, x, 0);
 				}
 			}
 		}
@@ -7219,36 +7194,19 @@ static cptr do_craft_spell(int spell, int mode)
 		if (name) return "武器強化";
 		if (desc) return "武器の命中率修正とダメージ修正を強化する。";
 #else
-		if (name) return "Enchant Weapon";
-		if (desc) return "Attempts to increase +to-hit, +to-dam of a weapon.";
+		if (name) return "Enchantment";
+		if (desc) return "Attempts to increase +to-hit, +to-dam of a weapon, or to increase +AC of armor.";
 #endif
     
 		{
 			if (cast)
 			{
-				if (!enchant_spell(randint0(4) + 1, randint0(4) + 1, 0)) return NULL;
+				if (!cast_enchantment()) return NULL;
 			}
 		}
 		break;
 
 	case 28:
-#ifdef JP
-		if (name) return "防具強化";
-		if (desc) return "鎧の防御修正を強化する。";
-#else
-		if (name) return "Enchant Armor";
-		if (desc) return "Attempts to increase +AC of an armor.";
-#endif
-    
-		{
-			if (cast)
-			{
-				if (!enchant_spell(0, 0, randint0(3) + 2)) return NULL;
-			}
-		}
-		break;
-
-	case 29:
 #ifdef JP
 		if (name) return "武器属性付与";
 		if (desc) return "武器にランダムに属性をつける。";
@@ -7265,57 +7223,45 @@ static cptr do_craft_spell(int spell, int mode)
 		}
 		break;
 
-	case 30:
-#ifdef JP
-		if (name) return "人間トランプ";
-		if (desc) return "ランダムにテレポートする突然変異か、自分の意思でテレポートする突然変異が身につく。";
-#else
-		if (name) return "Living Trump";
-		if (desc) return "Gives mutation which makes you teleport randomly or makes you able to teleport at will.";
-#endif
-    
+	case 29:
+		if (name) return "Polymorph Colossus";
+		if (desc) return "You lose the benefits of your current race and become a colossus.";
 		{
-			if (cast)
-			{
-				int mutation;
-
-				if (one_in_(7))
-					/* Teleport control */
-					mutation = MUT_TELEPORT;
-				else
-					/* Random teleportation (uncontrolled) */
-					mutation = MUT_TELEPORT_RND;
-
-				/* Gain the mutation */
-				if (mut_gain(mutation))
-				{
-#ifdef JP
-					msg_print("あなたは生きているカードに変わった。");
-#else
-					msg_print("You have turned into a Living Trump.");
-#endif
-				}
-			}
-		}
-		break;
-
-	case 31:
-#ifdef JP
-		if (name) return "属性への免疫";
-		if (desc) return "一定時間、冷気、炎、電撃、酸のいずれかに対する免疫を得る。";
-#else
-		if (name) return "Immunity";
-		if (desc) return "Gives an immunity to fire, cold, electricity or acid for a while.";
-#endif
-    
-		{
-			int base = spell_power(13);
+			int base = spell_power(10 + plev / 2);
 
 			if (info) return info_duration(base, base);
 
 			if (cast)
 			{
-				if (!choose_ele_immune(base + randint1(base))) return NULL;
+				set_mimic(base + randint1(base), MIMIC_COLOSSUS, FALSE);
+			}
+		}
+		break;
+
+	case 30:
+		if (name) return "Way of Genji";
+		if (desc) return "Temporarily improves your skill with dual wielding.";
+    
+		{
+		int base = spell_power(plev / 4);
+
+			if (cast)
+			{
+				set_tim_genji(base + randint1(base), FALSE);
+			}
+		}
+		break;
+
+	case 31:
+		if (name) return "Force Branding";
+		if (desc) return "Temporarily brands your weapon with force.";
+    
+		{
+		int base = spell_power(plev / 4);
+
+			if (cast)
+			{
+				set_tim_force(base + randint1(base), FALSE);
 			}
 		}
 		break;

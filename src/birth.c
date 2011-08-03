@@ -2540,7 +2540,136 @@ static bool get_player_subclass(void)
 	return (TRUE);
 }
 
+static bool get_base_spell_power(void)
+{
+	int count;
 
+	p_ptr->base_spell_power = 0;
+	while (1)
+	{
+		int ct_choices = 4;
+		char* _strings[] = {
+			"a) No Extra Spell Power",
+			"b) +1 Spell Power",
+			"c) +2 Spell Power",
+			"d) +3 Spell Power",
+		};
+
+		count = 0;
+
+		clear_from(10);
+		put_str("                                   ", 3, 40);
+		put_str("                                   ", 4, 40);
+		put_str("                                   ", 5, 40);
+
+		{
+			int     k, cs, os;
+			char    c;
+			char    buf[80];
+
+			/* Extra info */
+			clear_from(10);
+			put_str("Note: Adding extra spell power will affect your stats.", 23 ,5);
+
+			put_str("a) No Extra Spell Power", 13, 1);
+			put_str("b) +1 Spell Power", 14, 1);
+			put_str("c) +2 Spell Power", 15, 1);
+			put_str("d) +3 Spell Power", 16, 1);
+
+			k = -1;
+			cs = 0;
+			os = ct_choices;
+			while (1)
+			{
+				/* Move Cursol */
+				if (cs != os)
+				{
+					if (os < ct_choices)
+						c_put_str(TERM_WHITE, _strings[os], 13 + os, 1);
+					if(cs == ct_choices)
+					{
+						put_str("                                   ", 4, 40);
+						put_str("                                   ", 5, 40);
+					}
+					else
+					{
+						put_str("Str  Int  Wis  Dex  Con  Chr", 4, 40);
+						sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d ",
+							-cs, cs, 0, -cs, -cs, 0);
+						c_put_str(TERM_L_BLUE, buf, 5, 40);
+					}
+					if (cs < ct_choices)
+						c_put_str(TERM_YELLOW, _strings[cs], 13 + cs, 1);
+					os = cs;
+				}
+
+				if (k >= 0) break;
+
+				put_str("Choose Spell Power (a-d): ", 10, 10);
+				c = inkey();
+				if (c == 'Q') birth_quit();
+				if (c == 'S') return (FALSE);
+				if (c == ' ' || c == '\r' || c == '\n')
+				{
+					if(cs == ct_choices)
+					{
+						k = randint0(ct_choices);
+						cs = k;
+						continue;
+					}
+					else
+					{
+						k = cs;
+						break;
+					}
+				}
+				if (c == '8')
+				{
+					if (cs >= 5) cs -= 5;
+				}
+				if (c == '4')
+				{
+					if (cs > 0) cs--;
+				}
+				if (c == '6')
+				{
+					if (cs < ct_choices) cs++;
+				}
+				if (c == '2')
+				{
+					if ((cs + 5) <= ct_choices) cs += 5;
+				}
+				k = (islower(c) ? A2I(c) : -1);
+				if ((k >= 0) && (k < ct_choices))
+				{
+					cs = k;
+					continue;
+				}
+				k = (isupper(c) ? (26 + c - 'A') : -1);
+				if ((k >= 26) && (k < ct_choices))
+				{
+					cs = k;
+					continue;
+				}
+				else k = -1;
+				if (c !='2' && c !='4' && c !='6' && c !='8') bell();
+			}
+
+			p_ptr->base_spell_power = k;
+			{
+			char buf[100];
+				sprintf(buf, "+%d Base Spell Power.  Are you sure?", k);
+				if (get_check_strict(buf, CHECK_DEFAULT_Y)) break;
+			}
+		}
+		clear_from(10);
+		put_str("                                   ", 3, 40);
+		put_str("                                   ", 4, 40);
+		put_str("                                   ", 5, 40);
+	}
+
+	return (TRUE);
+}
 
 /*
  * Choose the magical realms
@@ -2697,6 +2826,7 @@ static void save_prev_data(birther *birther_ptr)
 	birther_ptr->wt = p_ptr->wt;
 	birther_ptr->sc = p_ptr->sc;
 	birther_ptr->au = p_ptr->au;
+	birther_ptr->base_spell_power = p_ptr->base_spell_power;
 
 	/* Save the stats */
 	for (i = 0; i < 6; i++)
@@ -2756,6 +2886,7 @@ static void load_prev_data(bool swap)
 	p_ptr->wt = previous_char.wt;
 	p_ptr->sc = previous_char.sc;
 	p_ptr->au = previous_char.au;
+	p_ptr->base_spell_power = previous_char.base_spell_power;
 
 	/* Load the stats */
 	for (i = 0; i < 6; i++)
@@ -6283,6 +6414,10 @@ static bool player_birth_aux(void)
 	}
 
 	/* Choose the magic realms */
+	if (p_ptr->pclass == CLASS_HIGH_MAGE)
+	{
+		if (!get_base_spell_power()) return FALSE;
+	}
 	if (!get_player_realms()) return FALSE;
 	if (!get_player_subclass()) return FALSE;
 

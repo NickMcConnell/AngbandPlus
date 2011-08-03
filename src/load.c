@@ -1033,6 +1033,11 @@ static void load_quick_start(void)
 	rd_s16b(&previous_char.sc);
 	rd_s32b(&previous_char.au);
 
+	if (h_older_than(0, 0, 49, 4))
+		previous_char.base_spell_power = 0;
+	else
+		rd_s16b(&previous_char.base_spell_power);
+
 	for (i = 0; i < 6; i++) rd_s16b(&previous_char.stat_max[i]);
 	for (i = 0; i < 6; i++) rd_s16b(&previous_char.stat_max_max[i]);
 
@@ -1327,6 +1332,35 @@ static void rd_extra(void)
 	else
 	{
 		rd_s16b(&p_ptr->tim_blood_seek);
+	}
+
+	if (h_older_than(0, 0, 49, 1))
+	{
+		p_ptr->tim_genji = 0;
+		p_ptr->tim_force = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_genji);
+		rd_s16b(&p_ptr->tim_force);
+	}
+
+	if (h_older_than(0, 0, 49, 2))
+	{
+		p_ptr->tim_building_up = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_building_up);
+	}
+
+	if (h_older_than(0, 0, 49, 3))
+	{
+		p_ptr->base_spell_power = 2;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->base_spell_power);
 	}
 
 	if (h_older_than(0, 0, 10, 1))

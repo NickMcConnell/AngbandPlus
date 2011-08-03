@@ -537,6 +537,7 @@ static void save_quick_start(void)
 	wr_s16b(previous_char.wt);
 	wr_s16b(previous_char.sc);
 	wr_s32b(previous_char.au);
+	wr_s16b(previous_char.base_spell_power);
 
 	for (i = 0; i < 6; i++) wr_s16b(previous_char.stat_max[i]);
 	for (i = 0; i < 6; i++) wr_s16b(previous_char.stat_max_max[i]);
@@ -751,6 +752,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_blood_feast);
 	wr_s16b(p_ptr->tim_blood_revenge);
 	wr_s16b(p_ptr->tim_blood_seek);
+	wr_s16b(p_ptr->tim_genji);
+	wr_s16b(p_ptr->tim_force);
+	wr_s16b(p_ptr->tim_building_up);
+	wr_s16b(p_ptr->base_spell_power);
 	wr_byte(p_ptr->sense_artifact);
 	wr_s16b(p_ptr->duelist_target_idx);
 	wr_byte(p_ptr->speciality1);

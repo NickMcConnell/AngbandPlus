@@ -1131,6 +1131,10 @@ struct player_type
 	s16b tim_blood_feast;
 	s16b tim_blood_revenge;
 
+	s16b tim_genji;
+	s16b tim_force;
+	s16b tim_building_up;
+
 	bool sense_artifact;
 	s16b duelist_target_idx;
 
@@ -1386,6 +1390,7 @@ struct player_type
 	bool kill_wall;
 	bool dec_mana;
 	s16b spell_power;
+	s16b base_spell_power; /* High mages choose how much ... */
 	s16b spell_cap;
 	bool easy_spell;
 	bool heavy_spell;
@@ -1460,6 +1465,7 @@ struct birther
 	s16b ht;
 	s16b wt;
 	s16b sc;
+	s16b base_spell_power;
 
 	s32b au;
 

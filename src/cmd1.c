@@ -660,7 +660,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				if (mult == 10) mult = 40;
 				else if (mult < 60) mult = 60;
 			}
-			if ((have_flag(flgs, TR_FORCE_WEAPON)))
+			if (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force)
 			{
 				int cost = 0;
 				
@@ -3139,7 +3139,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()) && (mult < 25))
 						mult = 25;
 
-					if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (p_ptr->msp / 30)))
+					if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (p_ptr->msp / 30)))
 					{
 						p_ptr->csp -= (1+(p_ptr->msp / 30));
 						p_ptr->redraw |= (PR_MANA);

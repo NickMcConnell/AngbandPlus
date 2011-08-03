@@ -6070,6 +6070,12 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 	case MIMIC_VAMPIRE:
 		summon_kin_type = 'V';
 		break;
+	case MIMIC_CLAY_GOLEM:
+	case MIMIC_IRON_GOLEM:
+	case MIMIC_MITHRIL_GOLEM:
+	case MIMIC_COLOSSUS:
+		summon_kin_type = 'g';
+		break;
 	}	
 	return summon_specific((pet ? -1 : 0), y, x, level, SUMMON_KIN, mode);
 }

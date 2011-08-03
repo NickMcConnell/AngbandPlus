@@ -386,6 +386,8 @@ static void prt_stat(int stat)
 #define BAR_FLYING_DAGGER 79
 #define BAR_SHADOW_STANCE 80
 #define BAR_FRENZY_STANCE 81
+#define BAR_GENJI 82
+#define BAR_FORCE 83
 
 static struct {
 	byte attr;
@@ -549,6 +551,8 @@ static struct {
 	{TERM_L_BLUE, "FD", "Flying Dagger"},
 	{TERM_L_BLUE, "Sw", "Shadow"},
 	{TERM_L_BLUE, "Fz", "Frenzy"},
+	{TERM_YELLOW, "Gj", "Genji"},
+	{TERM_L_BLUE, "Fc", "Force"},
 	{0, NULL, NULL}
 };
 #endif
@@ -714,6 +718,8 @@ static void prt_status(void)
 	if (p_ptr->tim_blood_feast) ADD_FLG(BAR_BLOOD_FEAST);
 	if (p_ptr->tim_no_spells) ADD_FLG(BAR_NO_SPELLS);
 	if (p_ptr->tim_blood_revenge) ADD_FLG(BAR_BLOOD_REVENGE);
+	if (p_ptr->tim_genji) ADD_FLG(BAR_GENJI);
+	if (p_ptr->tim_force) ADD_FLG(BAR_FORCE);
 	if (p_ptr->pclass == CLASS_WEAPONMASTER)
 	{
 		switch (weaponmaster_get_toggle())
@@ -749,6 +755,8 @@ static void prt_status(void)
 		strnfmt(duelist_buffer, 100, "%^s", duelist_current_challenge());
 		bar[BAR_DUELIST].lstr = duelist_buffer;
 	}
+
+	if (p_ptr->tim_building_up) ADD_FLG(BAR_BUILD);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
@@ -2982,25 +2990,18 @@ static void calc_hitpoints(void)
 	/* Factor in the hex spell settings */
 	if (hex_spelling(HEX_XTRA_MIGHT)) mhp += 15;
 	if (hex_spelling(HEX_BUILDING)) mhp += 60;
+	if (p_ptr->tim_building_up) 
+	{
+		mhp += 10 + p_ptr->lev;
+	}
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
-		/* Enforce maximum */
-		if (p_ptr->chp >= mhp)
-		{
-			p_ptr->chp = mhp;
-			p_ptr->chp_frac = 0;
-		}
+		/* Keep proportional hp ... I changed this for polymorph spells */
+		p_ptr->chp = mhp * p_ptr->chp / p_ptr->mhp;
+		p_ptr->chp_frac = 0;
 
-#ifdef JP
-		/* レベルアップの時は上昇量を表示する */
-		if ((level_up == 1) && (mhp > p_ptr->mhp))
-		{
-			msg_format("最大ヒット・ポイントが %d 増加した！",
-				   (mhp - p_ptr->mhp) );
-		}
-#endif
 		/* Save the new max-hitpoints */
 		p_ptr->mhp = mhp;
 
@@ -3249,6 +3250,7 @@ void calc_bonuses(void)
 	p_ptr->to_d_m = 0;
 	p_ptr->to_d_b = 0;
 	p_ptr->easy_2weapon = FALSE;
+	if (p_ptr->tim_genji) easy_2weapon = TRUE;
 	p_ptr->speciality1_equip = FALSE;
 	p_ptr->speciality2_equip = FALSE;
 	p_ptr->sneak_attack = FALSE;
@@ -3285,8 +3287,6 @@ void calc_bonuses(void)
 	p_ptr->kill_wall = FALSE;
 	p_ptr->dec_mana = FALSE;
 	p_ptr->spell_power = 0;
-	if (p_ptr->pclass == CLASS_HIGH_MAGE)
-		p_ptr->spell_power += 2; 
 	p_ptr->spell_cap = 0;
 	p_ptr->easy_spell = FALSE;
 	p_ptr->heavy_spell = FALSE;
@@ -3464,6 +3464,13 @@ void calc_bonuses(void)
 
 	switch (p_ptr->pclass)
 	{
+	case CLASS_HIGH_MAGE:
+		p_ptr->spell_power += p_ptr->base_spell_power; 
+		p_ptr->stat_add[A_STR] -= p_ptr->base_spell_power;
+		p_ptr->stat_add[A_INT] += p_ptr->base_spell_power;
+		p_ptr->stat_add[A_DEX] -= p_ptr->base_spell_power;
+		p_ptr->stat_add[A_CON] -= p_ptr->base_spell_power;
+		break;
 	case CLASS_WARRIOR:
 		if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
 		if (p_ptr->lev > 44) p_ptr->regenerate = TRUE;
@@ -3584,6 +3591,49 @@ void calc_bonuses(void)
 	{
 		switch (p_ptr->mimic_form)
 		{
+		case MIMIC_CLAY_GOLEM:
+			p_ptr->free_act = TRUE;
+			p_ptr->hold_life = TRUE;
+			p_ptr->to_a += 10 + (p_ptr->lev * 2 / 5);
+			p_ptr->dis_to_a += 10 + (p_ptr->lev * 2 / 5);
+			break;
+
+		case MIMIC_IRON_GOLEM:
+			p_ptr->free_act = TRUE;
+			p_ptr->see_inv = TRUE;
+			p_ptr->hold_life = TRUE;
+			p_ptr->resist_pois = TRUE;
+			p_ptr->pspeed -= 1;
+			p_ptr->to_a += 15 + (p_ptr->lev * 2 / 5);
+			p_ptr->dis_to_a += 15 + (p_ptr->lev * 2 / 5);
+			break;
+
+		case MIMIC_MITHRIL_GOLEM:
+			p_ptr->free_act = TRUE;
+			p_ptr->see_inv = TRUE;
+			p_ptr->hold_life = TRUE;
+			p_ptr->resist_pois = TRUE;
+			p_ptr->resist_shard = TRUE;
+			p_ptr->reflect = TRUE;
+			p_ptr->pspeed -= 2;
+			p_ptr->to_a += 20 + (p_ptr->lev * 2 / 5);
+			p_ptr->dis_to_a += 20 + (p_ptr->lev * 2 / 5);
+			break;
+
+		case MIMIC_COLOSSUS:
+			p_ptr->free_act = TRUE;
+			p_ptr->see_inv = TRUE;
+			p_ptr->hold_life = TRUE;
+			p_ptr->resist_pois = TRUE;
+			p_ptr->resist_shard = TRUE;
+			p_ptr->resist_sound = TRUE;
+			p_ptr->resist_disen = TRUE;
+			p_ptr->reflect = TRUE;
+			p_ptr->pspeed -= 3;
+			p_ptr->to_a += 40 + (p_ptr->lev * 2 / 5);
+			p_ptr->dis_to_a += 40 + (p_ptr->lev * 2 / 5);
+			break;
+
 		case MIMIC_DEMON:
 			p_ptr->hold_life = TRUE;
 			p_ptr->resist_chaos = TRUE;
@@ -4461,6 +4511,13 @@ void calc_bonuses(void)
 		p_ptr->dis_to_a += 10 + (p_ptr->lev * 2 / 5);
 	}
 
+	if (p_ptr->tim_building_up)
+	{
+		p_ptr->stat_add[A_STR] += 2 + 2*p_ptr->lev/30;
+		p_ptr->stat_add[A_DEX] += 2 + 2*p_ptr->lev/30;
+		p_ptr->stat_add[A_CON] += 2 + 2*p_ptr->lev/30;
+	}
+
 	/* Hex bonuses */
 	if (p_ptr->realm1 == REALM_HEX)
 	{
@@ -4845,8 +4902,13 @@ void calc_bonuses(void)
 	if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
 		int penalty1, penalty2;
-		penalty1 = ((100 - p_ptr->skill_exp[GINOU_NITOURYU] / 160) - (130 - inventory[INVEN_RARM].weight) / 8);
-		penalty2 = ((100 - p_ptr->skill_exp[GINOU_NITOURYU] / 160) - (130 - inventory[INVEN_LARM].weight) / 8);
+		int skill = p_ptr->skill_exp[GINOU_NITOURYU];
+
+		if (p_ptr->tim_genji && skill < 7000)
+			skill = 7000;
+
+		penalty1 = ((100 - skill / 160) - (130 - inventory[INVEN_RARM].weight) / 8);
+		penalty2 = ((100 - skill / 160) - (130 - inventory[INVEN_LARM].weight) / 8);
 		if ((inventory[INVEN_RARM].name1 == ART_QUICKTHORN) && (inventory[INVEN_LARM].name1 == ART_TINYTHORN))
 		{
 			penalty1 = penalty1 / 2 - 5;
@@ -5242,6 +5304,13 @@ void calc_bonuses(void)
 
 			/* Hex - extra mights gives +1 bonus to max blows */
 			if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING)) { num++; wgt /= 2; mul += 2; }
+			if (p_ptr->tim_building_up) 
+			{ 
+				if (num < 5 && p_ptr->lev >= 30) 
+					num++; 
+				wgt /= 2; 
+				mul += 2; 
+			}
 
 			/* Enforce a minimum "weight" (tenth pounds) */
 			div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);

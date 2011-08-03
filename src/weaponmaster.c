@@ -1397,6 +1397,12 @@ static cptr _speciality_help(menu_choices choices, int which) {
 	return _specialities[which].help;
 }
 
+static int _speciality_color(menu_choices choices, int which) {
+	if (_specialities[which].spells[0].level < 0)
+		return TERM_SLATE;
+	return TERM_WHITE;
+}
+
 static int _count_weapons(int speciality)
 {
 	int result = 0;
@@ -1483,7 +1489,7 @@ static caster_info * _caster_info(void)
 int _prompt_for_speciality1(void)
 {
 	menu_list_t list = { "Choose a speciality.", "Browse which speciality?", NULL,
-						_speciality_name, _speciality_help, NULL, 
+						_speciality_name, _speciality_help, _speciality_color, 
 						_specialities, _MAX_SPECIALITIES};
 
 	return menu_choose(&list);

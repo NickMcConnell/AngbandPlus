@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 48
+#define FAKE_VER_PATCH 49
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 48
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 49
+#define H_VER_EXTRA 4
 
 
 #define ANGBAND_2_8_1
@@ -5382,6 +5382,10 @@ extern int PlayerUID;
 #define MIMIC_DEMON      1
 #define MIMIC_DEMON_LORD 2
 #define MIMIC_VAMPIRE    3
+#define MIMIC_CLAY_GOLEM 4
+#define MIMIC_IRON_GOLEM 5
+#define MIMIC_MITHRIL_GOLEM 6
+#define MIMIC_COLOSSUS   7
 
 
 #define MIMIC_FLAGS choice

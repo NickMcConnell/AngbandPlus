@@ -2195,7 +2195,7 @@ static void display_player_various(void)
 					basedam *= 11;
 					basedam /= 9;
 				}
-				if (have_flag(flgs, TR_FORCE_WEAPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+				if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 					basedam = basedam * 7 / 2;
 			}
 			else basedam = 0;
@@ -2407,6 +2407,41 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	{
 		switch(p_ptr->mimic_form)
 		{
+		case MIMIC_CLAY_GOLEM:
+			add_flag(flgs, TR_FREE_ACT);
+			add_flag(flgs, TR_HOLD_LIFE);
+			break;
+
+		case MIMIC_IRON_GOLEM:
+			add_flag(flgs, TR_FREE_ACT);
+			add_flag(flgs, TR_SEE_INVIS);
+			add_flag(flgs, TR_HOLD_LIFE);
+			add_flag(flgs, TR_RES_POIS);
+			add_flag(flgs, TR_SPEED);
+			break;
+
+		case MIMIC_MITHRIL_GOLEM:
+			add_flag(flgs, TR_FREE_ACT);
+			add_flag(flgs, TR_SEE_INVIS);
+			add_flag(flgs, TR_HOLD_LIFE);
+			add_flag(flgs, TR_RES_POIS);
+			add_flag(flgs, TR_RES_SHARDS);
+			add_flag(flgs, TR_SPEED);
+			add_flag(flgs, TR_REFLECT);
+			break;
+
+		case MIMIC_COLOSSUS:
+			add_flag(flgs, TR_FREE_ACT);
+			add_flag(flgs, TR_SEE_INVIS);
+			add_flag(flgs, TR_HOLD_LIFE);
+			add_flag(flgs, TR_RES_POIS);
+			add_flag(flgs, TR_RES_SHARDS);
+			add_flag(flgs, TR_RES_SOUND);
+			add_flag(flgs, TR_RES_DISEN);
+			add_flag(flgs, TR_SPEED);
+			add_flag(flgs, TR_REFLECT);
+			break;
+
 		case MIMIC_DEMON:
 			add_flag(flgs, TR_HOLD_LIFE);
 			add_flag(flgs, TR_RES_CHAOS);

@@ -247,6 +247,8 @@ void reset_tim_flags(void)
 	p_ptr->tim_blood_feast = 0;
 	p_ptr->tim_blood_revenge = 0;
 	p_ptr->tim_superstealth = 0;
+	p_ptr->tim_genji = 0;
+	p_ptr->tim_force = 0;
 
 	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
 	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
@@ -1526,6 +1528,171 @@ bool set_tim_no_device(int v, bool do_dec)
 	return (TRUE);
 }
 
+bool set_tim_genji(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_genji)
+		{
+			if (p_ptr->tim_genji > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel the power of Genji.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_genji)
+		{
+			msg_print("Dual wielding seems difficult once again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_genji = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_force(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_force)
+		{
+			if (p_ptr->tim_force > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("Your weapon seems very powerful.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_force)
+		{
+			msg_print("Your weapon seems normal once again.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_force = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_building_up(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_building_up)
+		{
+			if (p_ptr->tim_building_up > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your body is more developed now.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_building_up)
+		{
+			msg_print("Your body reverts to normal size.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_building_up = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+	p_ptr->update |= (PU_HP);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->fast", notice observable changes

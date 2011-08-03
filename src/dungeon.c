@@ -2254,6 +2254,21 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->tim_superstealth)
 		set_tim_superstealth(p_ptr->tim_superstealth - 1, TRUE);
 
+	if (p_ptr->tim_genji)
+	{
+		set_tim_genji(p_ptr->tim_genji - 1, TRUE);
+	}
+
+	if (p_ptr->tim_force)
+	{
+		set_tim_force(p_ptr->tim_force - 1, TRUE);
+	}
+
+	if (p_ptr->tim_building_up)
+	{
+		set_tim_building_up(p_ptr->tim_building_up - 1, TRUE);
+	}
+
 	/*** Poison and Stun and Cut ***/
 
 	/* Poison */
