@@ -1622,6 +1622,7 @@ static void give_activation_power(object_type *o_ptr)
 			case ACT_DEST_DOOR:
 			case ACT_STONE_MUD:
 			case ACT_TELEPORT:
+			case ACT_WIZ_LITE:
 				chance = 101;
 				break;
 			case ACT_BA_COLD_1:
@@ -1786,7 +1787,6 @@ void get_random_name(char *return_name, object_type *o_ptr, int power)
 	}
 }
 
-
 s32b create_artifact(object_type *o_ptr, u32b mode)
 {
 	char    new_name[1024];
@@ -1940,7 +1940,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (o_ptr->tval == TV_LITE || o_ptr->tval == TV_AMULET)
 	{
-		powers = powers * 6 / 10;
+		powers = powers * 7 / 10;
 		if (powers < 2) powers = 2;
 	}
 
@@ -1989,16 +1989,97 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	while (powers > 0)
 	{
 		powers--;
-		switch (randint1(8))
+		/* Attempt to craft artifacts by appropriate to type.  For example, arrows should
+		   not grant extra blows or +3 strength :)  More realistically, weapons should
+		   preferentially get slays while armor should favor resists */
+		switch (o_ptr->tval)
 		{
+		case TV_BOLT:
+		case TV_SHOT:
+		case TV_ARROW:
+			/* Ammo either boosts up damage dice, or gains slays */
+			if (randint1(150) < lev)
+			{
+				if (slaying == 0 && one_in_(3)) /* double damage */
+				{
+					powers -= o_ptr->dd - 1;
+					o_ptr->dd *= 2;
+					slaying += o_ptr->dd;
+				}
+				else
+				{
+					powers++;
+					powers++;
+					do
+					{
+						o_ptr->dd++;
+						powers--;
+						slaying++;
+					}
+					while (one_in_(o_ptr->dd));
+						
+					do
+					{
+						o_ptr->ds++;
+						powers--;
+						slaying++;
+					}
+					while (one_in_(o_ptr->ds));
+				}			
+			}
+			else
+				random_slay(o_ptr);
+			break;
+
+		case TV_LITE:
+			switch (randint1(7))
+			{
+			case 1: case 2:
+				random_plus(o_ptr);
+				has_pval = TRUE;
+				break;
+			case 3:
+				if (one_in_(15))
+				{
+					add_flag(o_ptr->art_flags, TR_TELEPATHY);
+				}
+				else if (one_in_(15))
+				{
+					o_ptr->xtra2 = ACT_WIZ_LITE;
+					add_flag(o_ptr->art_flags, TR_ACTIVATE);
+					o_ptr->timeout = 0;
+				}
+				else
+				{
+					random_plus(o_ptr);
+					has_pval = TRUE;
+				}
+				break;
+			case 4: case 5: case 6:
+				if (one_in_(3))
+					one_high_resistance(o_ptr);
+				else
+					random_resistance(o_ptr);
+				break;
+			case 7:
+				random_misc(o_ptr);
+				break;
+			}		
+			break;
+
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+			switch (randint1(7))
+			{
 			case 1: case 2:
 				random_plus(o_ptr);
 				has_pval = TRUE;
 				break;
 			case 3:
 				if ( slaying < 5
-				  && object_is_weapon_ammo(o_ptr) && (o_ptr->tval != TV_BOW)
-				  && randint1(150) < lev)
+					&& randint1(150) < lev)
 				{
 					if (a_cursed && !one_in_(13)) break;
 					/* spiked code from EGO_SLAYING_WEAPON */
@@ -2029,19 +2110,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 						while (one_in_(o_ptr->ds));
 					}			
 				}
-				else if (!has_resistance 
-				      && (object_is_body_armour(o_ptr) || object_is_shield(o_ptr)) 
-					  && one_in_(4) )
-				{
-					add_flag(o_ptr->art_flags, TR_RES_ACID);
-					add_flag(o_ptr->art_flags, TR_RES_COLD);
-					add_flag(o_ptr->art_flags, TR_RES_FIRE);
-					add_flag(o_ptr->art_flags, TR_RES_ELEC);
-					if (one_in_(3))
-						add_flag(o_ptr->art_flags, TR_RES_POIS);
-					has_resistance = TRUE;
-					powers -= 3;
-				}
 				else
 					random_resistance(o_ptr);
 				break;
@@ -2049,18 +2117,164 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				random_misc(o_ptr);
 				break;
 			case 5: case 6: case 7: 
-				if (object_is_weapon_ammo(o_ptr))
-					random_slay(o_ptr);
-				else
-					random_resistance(o_ptr);					
+				random_slay(o_ptr);
 				break;
-			case 8:
+			}
+			break;
+
+		case TV_BOW:
+			switch (randint1(7))
+			{
+			case 1: case 2:
 				random_plus(o_ptr);
 				has_pval = TRUE;
 				break;
-			default:
-				if (p_ptr->wizard) msg_print("Switch error in create_artifact!");
-				powers++;
+			case 3: case 4: case 5:
+				random_slay(o_ptr);
+				break;
+			case 6:
+				random_misc(o_ptr);
+				break;
+			case 7:
+				random_resistance(o_ptr);
+				break;
+			}
+			break;
+
+		case TV_RING:
+			switch (randint1(7))
+			{
+			case 1: case 2:
+				random_plus(o_ptr);
+				has_pval = TRUE;
+				break;
+			case 3:
+				if (one_in_(10))
+				{
+					add_flag(o_ptr->art_flags, TR_SPEED);
+					has_pval = TRUE;
+				}
+				else if (one_in_(20) && randint1(150) < lev - 50)
+				{
+					add_flag(o_ptr->art_flags, TR_BLOWS);
+					has_pval = TRUE;
+				}
+				else if (one_in_(15))
+				{
+					add_flag(o_ptr->art_flags, TR_SUST_STR);
+					add_flag(o_ptr->art_flags, TR_SUST_INT);
+					add_flag(o_ptr->art_flags, TR_SUST_WIS);
+					add_flag(o_ptr->art_flags, TR_SUST_DEX);
+					add_flag(o_ptr->art_flags, TR_SUST_CON);
+					add_flag(o_ptr->art_flags, TR_SUST_CHR);
+					add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+				}
+				else if (one_in_(2))
+				{
+					add_flag(o_ptr->art_flags, TR_SHOW_MODS);
+					o_ptr->to_h = 4 + (randint1(11));
+					o_ptr->to_d = 4 + (randint1(11));
+				}
+				else
+				{
+					one_high_resistance(o_ptr);
+				}
+				break;
+			case 4: case 5: case 6:
+				random_resistance(o_ptr);
+				break;
+			case 7:
+				random_misc(o_ptr);
+				break;
+			}
+			break;
+
+		case TV_AMULET:
+			switch (randint1(7))
+			{
+			case 1: case 2:
+				random_plus(o_ptr);
+				has_pval = TRUE;
+				break;
+			case 3:
+				if (one_in_(15))
+				{
+					add_flag(o_ptr->art_flags, TR_TELEPATHY);
+				}
+				else if (artifact_bias == BIAS_MAGE && one_in_(10))
+				{
+					add_flag(o_ptr->art_flags, TR_DEC_MANA);
+				}
+				else if (one_in_(7))
+				{
+					add_flag(o_ptr->art_flags, TR_REFLECT);
+				}
+				else if (one_in_(2))
+				{
+					add_flag(o_ptr->art_flags, TR_SHOW_MODS);
+					o_ptr->to_h = 4 + (randint1(11));
+					o_ptr->to_d = 4 + (randint1(11));
+				}
+				else
+				{
+					one_high_resistance(o_ptr);
+				}
+				break;
+			case 4: case 5: case 6:
+				random_resistance(o_ptr);
+				break;
+			case 7:
+				random_misc(o_ptr);
+				break;
+			}
+			break;
+
+		default: /* Assume Armor */
+			switch (randint1(7))
+			{
+				case 1: case 2:
+					random_plus(o_ptr);
+					has_pval = TRUE;
+					break;
+				case 3:
+					if (!has_resistance 
+					  && (object_is_body_armour(o_ptr) || object_is_shield(o_ptr)) 
+					  && one_in_(4) )
+					{
+						add_flag(o_ptr->art_flags, TR_RES_ACID);
+						add_flag(o_ptr->art_flags, TR_RES_COLD);
+						add_flag(o_ptr->art_flags, TR_RES_FIRE);
+						add_flag(o_ptr->art_flags, TR_RES_ELEC);
+						if (one_in_(3))
+							add_flag(o_ptr->art_flags, TR_RES_POIS);
+						has_resistance = TRUE;
+						powers -= 3;
+					}
+					else if (o_ptr->tval == TV_BOOTS && one_in_(3))
+					{
+						add_flag(o_ptr->art_flags, TR_SPEED);
+						has_pval = TRUE;
+					}
+					else if (o_ptr->tval == TV_BOOTS && one_in_(2))
+					{
+						add_flag(o_ptr->art_flags, TR_LEVITATION);
+					}
+					else if (o_ptr->tval == TV_GLOVES && one_in_(2))
+					{
+						add_flag(o_ptr->art_flags, TR_SHOW_MODS);
+						o_ptr->to_h = 4 + (randint1(11));
+						o_ptr->to_d = 4 + (randint1(11));
+					}
+					else
+						one_high_resistance(o_ptr);
+					break;
+				case 4:
+					random_misc(o_ptr);
+					break;
+				case 5: case 6: case 7: 
+					random_resistance(o_ptr);					
+					break;
+			}
 		}
 	};
 
@@ -2076,12 +2290,17 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 		if (have_flag(o_ptr->art_flags, TR_BLOWS))
 		{
-			o_ptr->pval = randint1(2);
-			if (one_in_(30)) o_ptr->pval++;
-			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA))
+			if (o_ptr->tval == TV_RING)
+				o_ptr->pval = 1;
+			else
 			{
-				o_ptr->pval++;
+				o_ptr->pval = randint1(2);
 				if (one_in_(30)) o_ptr->pval++;
+				if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA))
+				{
+					o_ptr->pval++;
+					if (one_in_(30)) o_ptr->pval++;
+				}
 			}
 		}
 		else
@@ -2166,13 +2385,18 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (object_is_armour(o_ptr) || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)
 	{
+		int lower = 10;
+
+		if (o_ptr->tval == TV_RING)
+			lower = 15;
+
 		while ((o_ptr->to_d+o_ptr->to_h) > 20)
 		{
 			if (one_in_(o_ptr->to_d) && one_in_(o_ptr->to_h)) break;
 			o_ptr->to_d -= (s16b)randint0(3);
 			o_ptr->to_h -= (s16b)randint0(3);
 		}
-		while ((o_ptr->to_d+o_ptr->to_h) > 10 && !immunity_hack)
+		while ((o_ptr->to_d+o_ptr->to_h) > lower && !immunity_hack)
 		{
 			if (one_in_(o_ptr->to_d) || one_in_(o_ptr->to_h)) break;
 			o_ptr->to_d -= (s16b)randint0(3);
@@ -3124,6 +3348,16 @@ bool activate_random_artifact(object_type * o_ptr)
 		}
 
 		/* Activate for general purpose effect (detection etc.) */
+		case ACT_WIZ_LITE:
+			msg_print("It flashes bright red ...");
+			chg_virtue(V_KNOWLEDGE, 1);
+			chg_virtue(V_ENLIGHTEN, 1);
+			wiz_lite(p_ptr->tim_superstealth > 0);
+			detect_traps(DETECT_RAD_DEFAULT, TRUE);
+			detect_doors(DETECT_RAD_DEFAULT);
+			detect_stairs(DETECT_RAD_DEFAULT);
+			o_ptr->timeout = randint0(20) + 20;
+			break;
 
 		case ACT_LIGHT:
 		{

@@ -4114,6 +4114,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 		{
 			int i = 1;
 			int check;
+			int count = 0;
 
 			u32b match = 0;
 
@@ -4134,7 +4135,11 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			/* Pick a random non-unique monster race */
 			while (1)
 			{
-				i = get_mon_num(dun_level);
+				/* This loop is spinning forever at deep levels ... */
+				count++;
+				if (count > 100) break;
+
+				i = get_mon_num(0);
 
 				r_ptr = &r_info[i];
 

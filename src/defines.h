@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 50
+#define FAKE_VER_PATCH 51
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 50
+#define H_VER_PATCH 51
 #define H_VER_EXTRA 0 
 
 
@@ -1770,7 +1770,8 @@
 #define ACT_XTRA_SPEED          96
 #define ACT_WRAITH              97
 #define ACT_INVULN              98
-/* 99 - 110 unused */
+/* 99 - 109 unused */
+#define ACT_WIZ_LITE			110
 #define ACT_LIGHT               111
 #define ACT_MAP_LIGHT           112
 #define ACT_DETECT_ALL          113
