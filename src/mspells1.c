@@ -927,6 +927,10 @@ bool dispel_check(int m_idx)
 	/* Demon Lord */
 	if (p_ptr->mimic_form == MIMIC_DEMON_LORD) return (TRUE);
 
+	if (p_ptr->mimic_form == MIMIC_COLOSSUS) return TRUE;
+	if (p_ptr->tim_genji) return TRUE;
+	if (p_ptr->tim_force) return TRUE;
+
 	/* Elemental resistances */
 	if (r_ptr->flags4 & RF4_BR_ACID)
 	{

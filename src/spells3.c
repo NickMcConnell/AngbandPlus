@@ -1413,6 +1413,35 @@ s = "強化できる武器がない。";
 
 		switch (brand_type)
 		{
+		case 18:
+			act = "seems very deadly.";
+			o_ptr->name2 = EGO_SLAYING_WEAPON;
+			if (one_in_(3)) /* double damage */
+				o_ptr->dd *= 2;
+			else
+			{
+				do
+				{
+					o_ptr->dd++;
+				}
+				while (one_in_(o_ptr->dd));
+						
+				do
+				{
+					o_ptr->ds++;
+				}
+				while (one_in_(o_ptr->ds));
+			}
+					
+			if (one_in_(5))
+			{
+				add_flag(o_ptr->art_flags, TR_BRAND_POIS);
+			}
+			if (o_ptr->tval == TV_SWORD && one_in_(3))
+			{
+				add_flag(o_ptr->art_flags, TR_VORPAL);
+			}
+			break;
 		case 17:
 			if (o_ptr->tval == TV_SWORD)
 			{

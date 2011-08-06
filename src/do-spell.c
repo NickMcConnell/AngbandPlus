@@ -6864,7 +6864,7 @@ static cptr do_craft_spell(int spell, int mode)
 
 	case 11:
 		if (name) return "Building Up";
-		if (desc) return "Attempts to increases your strength, dexterity and constitusion.";
+		if (desc) return "Increases your physical prowess.";
     
 		{
 			int base = spell_power(25);
@@ -7218,7 +7218,7 @@ static cptr do_craft_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				brand_weapon(randint0(18));
+				brand_weapon(randint0(19));
 			}
 		}
 		break;

@@ -1941,7 +1941,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	if (o_ptr->tval == TV_LITE || o_ptr->tval == TV_AMULET)
 	{
 		powers = powers * 6 / 10;
-		if (powers == 0) powers = 1;
+		if (powers < 2) powers = 2;
 	}
 
 	/* Playtesting shows that FA, SI and HL are too rare ... let's boost these a bit */

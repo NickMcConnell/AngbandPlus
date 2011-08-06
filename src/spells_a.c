@@ -2162,6 +2162,12 @@ void imp_fire_spell(int cmd, variant *res)
 		var_set_bool(res, TRUE);
 		break;
 	}
+	case SPELL_COST_EXTRA:
+		if (p_ptr->lev >= ball_lev)
+			var_set_int(res, 7);
+		else
+			var_set_int(res, 0);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -3577,7 +3583,7 @@ void spit_acid_spell(int cmd, variant *res)
 		msg_print(T("You lose the ability to spit acid.", "酸を吹きかける能力を失った。"));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You can spit acid (dam lvl).", "あなたは酸を吹きかけることができる。(ダメージ レベルX1)"));
+		var_set_string(res, T("You can spit acid (dam lvl*2).", "あなたは酸を吹きかけることができる。(ダメージ レベルX1)"));
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, spell_power(p_ptr->lev * 2)));
@@ -3593,7 +3599,7 @@ void spit_acid_spell(int cmd, variant *res)
 		{
 			stop_mouth();
 			msg_print(T("You spit acid...", "酸を吐きかけた..."));
-			if (p_ptr->lev < 25) fire_bolt(GF_ACID, dir, p_ptr->lev);
+			if (p_ptr->lev < 25) fire_bolt(GF_ACID, dir, spell_power(p_ptr->lev * 2));
 			else fire_ball(GF_ACID, dir, spell_power(p_ptr->lev * 2), 2);
 			var_set_bool(res, TRUE);
 		}

@@ -1825,7 +1825,11 @@ static void prt_frame_basic(void)
 
 	/* Race and Class */
 	if (p_ptr->mimic_form)
-		prt_field(mimic_info[p_ptr->mimic_form].title, ROW_RACE, COL_RACE);
+	{
+		char str[14];
+		my_strcpy(str, mimic_info[p_ptr->mimic_form].title, sizeof(str));
+		prt_field(str, ROW_RACE, COL_RACE);
+	}
 	else
 	{
 		char str[14];
@@ -4513,9 +4517,11 @@ void calc_bonuses(void)
 
 	if (p_ptr->tim_building_up)
 	{
-		p_ptr->stat_add[A_STR] += 2 + 2*p_ptr->lev/30;
-		p_ptr->stat_add[A_DEX] += 2 + 2*p_ptr->lev/30;
-		p_ptr->stat_add[A_CON] += 2 + 2*p_ptr->lev/30;
+		int amt = 2;
+		if (p_ptr->lev >= 30) amt = 4;
+		p_ptr->stat_add[A_STR] += amt;
+		p_ptr->stat_add[A_DEX] += amt;
+		p_ptr->stat_add[A_CON] += amt;
 	}
 
 	/* Hex bonuses */

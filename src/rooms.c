@@ -41,10 +41,10 @@ static room_info_type room_info_normal[ROOM_T_MAX] =
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  1}, /*OVERLAP  */
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  3}, /*CROSS    */
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  3}, /*INNER_F  */
-	{{  0,  1,  1,  1,  2,  3,  5,  6,  8, 10, 13}, 10}, /*NEST     */
-	{{  0,  1,  1,  2,  3,  4,  6,  8, 10, 13, 16}, 10}, /*PIT      */
+	{{  0,  1,  1,  1,  4,  6, 10, 12, 16, 20, 26}, 10}, /*NEST     */
+	{{  0,  1,  1,  1,  2,  3,  5,  6,  8, 10, 13}, 10}, /*PIT      */
 	{{  0,  1,  1,  1,  2,  2,  3,  5,  6,  8, 10}, 10}, /*LESSER_V */
-	{{  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  4}, 20}, /*GREATER_V*/
+	{{  0,  0,  1,  1,  1,  2,  2,  2,  3,  5,  7}, 40}, /*GREATER_V*/
 	{{  0,100,200,300,400,500,600,700,800,900,999}, 10}, /*FRACAVE  */
 	{{  0,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2}, 10}, /*RANDOM_V */
 	{{  0,  4,  8, 12, 16, 20, 24, 28, 32, 36, 40},  3}, /*OVAL     */
@@ -1939,7 +1939,7 @@ static vault_aux_type nest_types[] =
 	{"アンデッド",   vault_aux_undead,   NULL,              75, 5},
 	{NULL,           NULL,               NULL,               0, 0},
 #else
-	{"clone",        vault_aux_clone,    vault_prep_clone,   5, 3},
+	{"clone",        vault_aux_clone,    vault_prep_clone,   5, 16},
 	{"jelly",        vault_aux_jelly,    NULL,               5, 6},
 	{"symbol good",  vault_aux_symbol_g, vault_prep_symbol, 25, 2},
 	{"symbol evil",  vault_aux_symbol_e, vault_prep_symbol, 25, 2},
@@ -1975,7 +1975,7 @@ static vault_aux_type pit_types[] =
 	{"symbol good",  vault_aux_symbol_g, vault_prep_symbol, 70, 1},
 	{"symbol evil",  vault_aux_symbol_e, vault_prep_symbol, 70, 1},
 	{"chapel",       vault_aux_chapel_g, NULL,              65, 2},
-	{"dragon",       vault_aux_dragon,   vault_prep_dragon, 70, 6},
+	{"dragon",       vault_aux_dragon,   vault_prep_dragon, 60, 6},
 	{"demon",        vault_aux_demon,    NULL,              80, 6},
 	{"dark elf",     vault_aux_dark_elf, NULL,              45, 4},
 	{NULL,           NULL,               NULL,               0, 0},

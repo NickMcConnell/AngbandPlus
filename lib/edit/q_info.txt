@@ -133,6 +133,9 @@
 ?:[EQU $QUEST_NUMBER 33]
 %:q0clone0.txt
 
+?:[EQU $QUEST_NUMBER 34]
+%:qsmaug.txt
+
 # Random quests (always adressed with number 40)
 ?:[EQU $QUEST_NUMBER 40]
 %:q_random.txt

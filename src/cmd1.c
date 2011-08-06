@@ -220,16 +220,46 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
  * Note that most brands and slays are x3, except Slay Animal (x2),
  * Slay Evil (x2), and Kill dragon (x5).
  */
+
+#define _MAX_CHAOS_SLAYS 14
+
+int _chaos_slays[_MAX_CHAOS_SLAYS] = {
+	TR_SLAY_ANIMAL,
+	TR_SLAY_EVIL,
+	TR_SLAY_UNDEAD,
+	TR_SLAY_DEMON,
+	TR_SLAY_ORC,
+	TR_SLAY_TROLL,
+	TR_SLAY_GIANT,
+	TR_SLAY_DRAGON,
+	TR_SLAY_HUMAN,
+	TR_BRAND_POIS,
+	TR_BRAND_ACID,
+	TR_BRAND_ELEC,
+	TR_BRAND_FIRE,
+	TR_BRAND_COLD,
+};	
+
 s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bool thrown)
 {
 	int mult = 10;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	int chaos_slay = 0;
 
 	u32b flgs[TR_FLAG_SIZE];
+	char o_name[MAX_NLEN];
 
 	/* Extract the flags */
 	object_flags(o_ptr, flgs);
+
+	/* Chaos Weapons now have random slay effects, and the slay so
+	   chosen will augment any existing slay of the same type. */
+	if (have_flag(flgs, TR_CHAOTIC))
+	{
+		chaos_slay = _chaos_slays[randint0(_MAX_CHAOS_SLAYS)];
+		object_desc(o_name, o_ptr, OD_NAME_ONLY);
+	}
 
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
@@ -250,224 +280,318 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				if (mult < 20) mult = 20;
 			}
 
-			/* Slay Animal */
-			if ((have_flag(flgs, TR_SLAY_ANIMAL)) &&
-			    (r_ptr->flags3 & RF3_ANIMAL))
+			if (r_ptr->flags3 & RF3_ANIMAL)
 			{
-				if (is_original_ap_and_seen(m_ptr))
+				if (chaos_slay == TR_SLAY_ANIMAL)
 				{
-					r_ptr->r_flags3 |= RF3_ANIMAL;
+					msg_format("%s slays animals.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_ANIMAL;
+					if (have_flag(flgs, TR_KILL_ANIMAL))
+					{
+						if (mult < 50) mult = 50;
+					}
+					else if (have_flag(flgs, TR_SLAY_ANIMAL))
+					{
+						if (mult < 35) mult = 35;
+					}
+					else
+					{
+						if (mult < 25) mult = 25;
+					}
 				}
-
-				if (mult < 25) mult = 25;
+				else
+				{
+					if (have_flag(flgs, TR_KILL_ANIMAL))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_ANIMAL;
+						if (mult < 40) mult = 40;
+					}
+					else if (have_flag(flgs, TR_SLAY_ANIMAL))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_ANIMAL;
+						if (mult < 25) mult = 25;
+					}
+				}
 			}
 
-			/* Execute Animal */
-			if ((have_flag(flgs, TR_KILL_ANIMAL)) &&
-			    (r_ptr->flags3 & RF3_ANIMAL))
+			if (r_ptr->flags3 & RF3_EVIL)
 			{
-				if (is_original_ap_and_seen(m_ptr))
+				if (chaos_slay == TR_SLAY_EVIL)
 				{
-					r_ptr->r_flags3 |= RF3_ANIMAL;
-				}
+					msg_format("%s slays evil.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;
+					if (have_flag(flgs, TR_KILL_EVIL))
+					{
+						if (mult < 45) mult = 45;
+					}
+					else if (have_flag(flgs, TR_SLAY_EVIL))
+					{
+						if (mult < 30) mult = 30;
+					}
+					else
+					{
+						if (mult < 20) mult = 20;
+					}
 
-				if (mult < 40) mult = 40;
+				}
+				else
+				{
+					if (have_flag(flgs, TR_KILL_EVIL))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;
+						if (mult < 35) mult = 35;
+					}
+					else if (have_flag(flgs, TR_SLAY_EVIL))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;
+						if (mult < 20) mult = 20;
+					}
+				}
 			}
 
-			/* Slay Evil */
-			if ((have_flag(flgs, TR_SLAY_EVIL)) &&
-			    (r_ptr->flags3 & RF3_EVIL))
+			if (r_ptr->flags2 & RF2_HUMAN)
 			{
-				if (is_original_ap_and_seen(m_ptr))
+				if (chaos_slay == TR_SLAY_HUMAN)
 				{
-					r_ptr->r_flags3 |= RF3_EVIL;
+					msg_format("%s slays humans.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= RF2_HUMAN;
+					if (have_flag(flgs, TR_KILL_HUMAN))
+					{
+						if (mult < 50) mult = 50;
+					}
+					else if (have_flag(flgs, TR_SLAY_HUMAN))
+					{
+						if (mult < 35) mult = 35;
+					}
+					else
+					{
+						if (mult < 25) mult = 25;
+					}
 				}
-
-				if (mult < 20) mult = 20;
+				else
+				{
+					if (have_flag(flgs, TR_KILL_HUMAN))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= RF2_HUMAN;
+						if (mult < 40) mult = 40;
+					}
+					else if (have_flag(flgs, TR_SLAY_HUMAN))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= RF2_HUMAN;
+						if (mult < 25) mult = 25;
+					}
+				}
 			}
 
-			/* Execute Evil */
-			if ((have_flag(flgs, TR_KILL_EVIL)) &&
-			    (r_ptr->flags3 & RF3_EVIL))
+			if (r_ptr->flags3 & RF3_UNDEAD)
 			{
-				if (is_original_ap_and_seen(m_ptr))
+				if (chaos_slay == TR_SLAY_UNDEAD)
 				{
-					r_ptr->r_flags3 |= RF3_EVIL;
+					msg_format("%s slays undead.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_UNDEAD;
+					if (have_flag(flgs, TR_KILL_UNDEAD))
+					{
+						if (mult < 60) mult = 60;
+					}
+					else if (have_flag(flgs, TR_SLAY_UNDEAD))
+					{
+						if (mult < 40) mult = 40;
+					}
+					else
+					{
+						if (mult < 30) mult = 30;
+					}
 				}
-
-				if (mult < 35) mult = 35;
+				else
+				{
+					if (have_flag(flgs, TR_KILL_UNDEAD))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_UNDEAD;
+						if (mult < 50) mult = 50;
+					}
+					else if (have_flag(flgs, TR_SLAY_UNDEAD))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_UNDEAD;
+						if (mult < 30) mult = 30;
+					}
+				}
 			}
 
-			/* Slay Human */
-			if ((have_flag(flgs, TR_SLAY_HUMAN)) &&
-			    (r_ptr->flags2 & RF2_HUMAN))
+			if (r_ptr->flags3 & RF3_DEMON)
 			{
-				if (is_original_ap_and_seen(m_ptr))
+				if (chaos_slay == TR_SLAY_DEMON)
 				{
-					r_ptr->r_flags2 |= RF2_HUMAN;
+					msg_format("%s slays demons.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_DEMON;
+					if (have_flag(flgs, TR_KILL_DEMON))
+					{
+						if (mult < 60) mult = 60;
+					}
+					else if (have_flag(flgs, TR_SLAY_DEMON))
+					{
+						if (mult < 40) mult = 40;
+					}
+					else
+					{
+						if (mult < 30) mult = 30;
+					}
 				}
-
-				if (mult < 25) mult = 25;
+				else
+				{
+					if (have_flag(flgs, TR_KILL_DEMON))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_DEMON;
+						if (mult < 50) mult = 50;
+					}
+					else if (have_flag(flgs, TR_SLAY_DEMON))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_DEMON;
+						if (mult < 30) mult = 30;
+					}
+				}
 			}
 
-			/* Execute Human */
-			if ((have_flag(flgs, TR_KILL_HUMAN)) &&
-			    (r_ptr->flags2 & RF2_HUMAN))
+			if (r_ptr->flags3 & RF3_ORC)
 			{
-				if (is_original_ap_and_seen(m_ptr))
+				if (chaos_slay == TR_SLAY_ORC)
 				{
-					r_ptr->r_flags2 |= RF2_HUMAN;
+					msg_format("%s slays orcs.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_ORC;
+					if (have_flag(flgs, TR_KILL_ORC))
+					{
+						if (mult < 60) mult = 60;
+					}
+					else if (have_flag(flgs, TR_SLAY_ORC))
+					{
+						if (mult < 40) mult = 40;
+					}
+					else
+					{
+						if (mult < 30) mult = 30;
+					}
 				}
-
-				if (mult < 40) mult = 40;
+				else
+				{
+					if (have_flag(flgs, TR_KILL_ORC))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_ORC;
+						if (mult < 50) mult = 50;
+					}
+					else if (have_flag(flgs, TR_SLAY_ORC))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_ORC;
+						if (mult < 30) mult = 30;
+					}
+				}
 			}
 
-			/* Slay Undead */
-			if ((have_flag(flgs, TR_SLAY_UNDEAD)) &&
-			    (r_ptr->flags3 & RF3_UNDEAD))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_UNDEAD;
-				}
 
-				if (mult < 30) mult = 30;
+			if (r_ptr->flags3 & RF3_TROLL)
+			{
+				if (chaos_slay == TR_SLAY_TROLL)
+				{
+					msg_format("%s slays trolls.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_TROLL;
+					if (have_flag(flgs, TR_KILL_TROLL))
+					{
+						if (mult < 60) mult = 60;
+					}
+					else if (have_flag(flgs, TR_SLAY_TROLL))
+					{
+						if (mult < 40) mult = 40;
+					}
+					else
+					{
+						if (mult < 30) mult = 30;
+					}
+				}
+				else
+				{
+					if (have_flag(flgs, TR_KILL_TROLL))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_TROLL;
+						if (mult < 50) mult = 50;
+					}
+					else if (have_flag(flgs, TR_SLAY_TROLL))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_TROLL;
+						if (mult < 30) mult = 30;
+					}
+				}
 			}
 
-			/* Execute Undead */
-			if ((have_flag(flgs, TR_KILL_UNDEAD)) &&
-			    (r_ptr->flags3 & RF3_UNDEAD))
+			if (r_ptr->flags3 & RF3_GIANT)
 			{
-				if (is_original_ap_and_seen(m_ptr))
+				if (chaos_slay == TR_SLAY_GIANT)
 				{
-					r_ptr->r_flags3 |= RF3_UNDEAD;
+					msg_format("%s slays giants.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_GIANT;
+					if (have_flag(flgs, TR_KILL_GIANT))
+					{
+						if (mult < 60) mult = 60;
+					}
+					else if (have_flag(flgs, TR_SLAY_GIANT))
+					{
+						if (mult < 40) mult = 40;
+					}
+					else
+					{
+						if (mult < 30) mult = 30;
+					}
 				}
-
-				if (mult < 50) mult = 50;
+				else
+				{
+					if (have_flag(flgs, TR_KILL_GIANT))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_GIANT;
+						if (mult < 50) mult = 50;
+					}
+					else if (have_flag(flgs, TR_SLAY_GIANT))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_GIANT;
+						if (mult < 30) mult = 30;
+					}
+				}
 			}
 
-			/* Slay Demon */
-			if ((have_flag(flgs, TR_SLAY_DEMON)) &&
-			    (r_ptr->flags3 & RF3_DEMON))
+			if (r_ptr->flags3 & RF3_DRAGON)
 			{
-				if (is_original_ap_and_seen(m_ptr))
+				if (chaos_slay == TR_SLAY_DRAGON)
 				{
-					r_ptr->r_flags3 |= RF3_DEMON;
+					msg_format("%s slays dragons.", o_name);
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_DRAGON;
+					if (have_flag(flgs, TR_KILL_DRAGON))
+					{
+						if (mult < 60) mult = 60;
+						if ((o_ptr->name1 == ART_NOTHUNG) && (m_ptr->r_idx == MON_FAFNER))
+							mult *= 3;
+					}
+					else if (have_flag(flgs, TR_SLAY_DRAGON))
+					{
+						if (mult < 40) mult = 40;
+					}
+					else
+					{
+						if (mult < 30) mult = 30;
+					}
 				}
-
-				if (mult < 30) mult = 30;
+				else
+				{
+					if (have_flag(flgs, TR_KILL_DRAGON))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_DRAGON;
+						if (mult < 50) mult = 50;
+						if ((o_ptr->name1 == ART_NOTHUNG) && (m_ptr->r_idx == MON_FAFNER))
+							mult *= 3;
+					}
+					else if (have_flag(flgs, TR_SLAY_DRAGON))
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_DRAGON;
+						if (mult < 30) mult = 30;
+					}
+				}
 			}
 
-			/* Execute Demon */
-			if ((have_flag(flgs, TR_KILL_DEMON)) &&
-			    (r_ptr->flags3 & RF3_DEMON))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_DEMON;
-				}
-
-				if (mult < 50) mult = 50;
-			}
-
-			/* Slay Orc */
-			if ((have_flag(flgs, TR_SLAY_ORC)) &&
-			    (r_ptr->flags3 & RF3_ORC))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_ORC;
-				}
-
-				if (mult < 30) mult = 30;
-			}
-
-			/* Execute Orc */
-			if ((have_flag(flgs, TR_KILL_ORC)) &&
-			    (r_ptr->flags3 & RF3_ORC))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_ORC;
-				}
-
-				if (mult < 50) mult = 50;
-			}
-
-			/* Slay Troll */
-			if ((have_flag(flgs, TR_SLAY_TROLL)) &&
-			    (r_ptr->flags3 & RF3_TROLL))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_TROLL;
-				}
-
-				if (mult < 30) mult = 30;
-			}
-
-			/* Execute Troll */
-			if ((have_flag(flgs, TR_KILL_TROLL)) &&
-			    (r_ptr->flags3 & RF3_TROLL))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_TROLL;
-				}
-
-				if (mult < 50) mult = 50;
-			}
-
-			/* Slay Giant */
-			if ((have_flag(flgs, TR_SLAY_GIANT)) &&
-			    (r_ptr->flags3 & RF3_GIANT))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_GIANT;
-				}
-
-				if (mult < 30) mult = 30;
-			}
-
-			/* Execute Giant */
-			if ((have_flag(flgs, TR_KILL_GIANT)) &&
-			    (r_ptr->flags3 & RF3_GIANT))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_GIANT;
-				}
-
-				if (mult < 50) mult = 50;
-			}
-
-			/* Slay Dragon  */
-			if ((have_flag(flgs, TR_SLAY_DRAGON)) &&
-			    (r_ptr->flags3 & RF3_DRAGON))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_DRAGON;
-				}
-
-				if (mult < 30) mult = 30;
-			}
-
-			/* Execute Dragon */
-			if ((have_flag(flgs, TR_KILL_DRAGON)) &&
-			    (r_ptr->flags3 & RF3_DRAGON))
-			{
-				if (is_original_ap_and_seen(m_ptr))
-				{
-					r_ptr->r_flags3 |= RF3_DRAGON;
-				}
-
-				if (mult < 50) mult = 50;
-
-				if ((o_ptr->name1 == ART_NOTHUNG) && (m_ptr->r_idx == MON_FAFNER))
-					mult *= 3;
-			}
 
 			/* Hex - Slay Good (Runesword) */
 			if (hex_spelling(HEX_RUNESWORD) &&
@@ -482,18 +606,26 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 			}
 
 			/* Brand (Acid) */
-			if (have_flag(flgs, TR_BRAND_ACID) || ((p_ptr->special_attack & (ATTACK_ACID)) && !thrown))
+			if ( have_flag(flgs, TR_BRAND_ACID) 
+			  || ((p_ptr->special_attack & ATTACK_ACID) && !thrown)
+			  || chaos_slay == TR_BRAND_ACID)
 			{
-				/* Notice immunity */
 				if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
 				{
-					if (is_original_ap_and_seen(m_ptr))
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK);
+				}
+				else if (chaos_slay == TR_BRAND_ACID)
+				{
+					msg_format("%s is covered in acid.", o_name);
+					if (have_flag(flgs, TR_BRAND_ACID) || ((p_ptr->special_attack & (ATTACK_ACID)) && !thrown))
 					{
-						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK);
+						if (mult < 35) mult = 35;
+					}
+					else
+					{
+						if (mult < 25) mult = 25;
 					}
 				}
-
-				/* Otherwise, take the damage */
 				else
 				{
 					if (mult < 25) mult = 25;
@@ -501,132 +633,311 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 			}
 
 			/* Brand (Elec) */
-			if (have_flag(flgs, TR_BRAND_ELEC) || ((p_ptr->special_attack & (ATTACK_ELEC)) && !thrown) || (mode == HISSATSU_ELEC))
+			if ( have_flag(flgs, TR_BRAND_ELEC) 
+			 || ((p_ptr->special_attack & ATTACK_ELEC) && !thrown) 
+			 || mode == HISSATSU_ELEC
+			 || chaos_slay == TR_BRAND_ELEC )
 			{
-				/* Notice immunity */
 				if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
 				{
-					if (is_original_ap_and_seen(m_ptr))
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
+				}
+				else if (chaos_slay == TR_BRAND_ELEC)
+				{
+					msg_format("%s is covered in electricity.", o_name);
+					if (have_flag(flgs, TR_BRAND_ELEC))
 					{
-						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
+						if (mode == HISSATSU_ELEC)
+						{
+							if (mult < 80) mult = 80;
+						}
+						else
+						{
+							if (mult < 35) mult = 35;
+						}
+					}
+					else if ((p_ptr->special_attack & ATTACK_ELEC) && !thrown)
+					{
+						if (mode == HISSATSU_ELEC)
+						{
+							if (mult < 80) mult = 80;
+						}
+						else
+						{
+							if (mult < 35) mult = 35;
+						}
+					}
+					else if (mode == HISSATSU_ELEC)
+					{
+						if (mult < 60) mult = 60;
+					}
+					else
+					{
+						if (mult < 35) mult = 35;
 					}
 				}
-
-				/* Otherwise, take the damage */
-				else if ((have_flag(flgs, TR_BRAND_ELEC) || ((p_ptr->special_attack & (ATTACK_ELEC)) && !thrown)) && (mode == HISSATSU_ELEC))
-				{
-					if (mult < 70) mult = 70;
-				}
-				else if (mode == HISSATSU_ELEC)
-				{
-					if (mult < 50) mult = 50;
-				}
-
 				else
 				{
-					if (mult < 25) mult = 25;
+					if (have_flag(flgs, TR_BRAND_ELEC))
+					{
+						if (mode == HISSATSU_ELEC)
+						{
+							if (mult < 70) mult = 70;
+						}
+						else
+						{
+							if (mult < 25) mult = 25;
+						}
+					}
+					else if ((p_ptr->special_attack & ATTACK_ELEC) && !thrown)
+					{
+						if (mode == HISSATSU_ELEC)
+						{
+							if (mult < 70) mult = 70;
+						}
+						else
+						{
+							if (mult < 25) mult = 25;
+						}
+					}
+					else if (mode == HISSATSU_ELEC)
+					{
+						if (mult < 50) mult = 50;
+					}
 				}
 			}
 
 			/* Brand (Fire) */
-			if (have_flag(flgs, TR_BRAND_FIRE) || ((p_ptr->special_attack & (ATTACK_FIRE)) && !thrown) || (mode == HISSATSU_FIRE))
+			if ( have_flag(flgs, TR_BRAND_FIRE) 
+			 || ((p_ptr->special_attack & ATTACK_FIRE) && !thrown) 
+			 || mode == HISSATSU_FIRE
+			 || chaos_slay == TR_BRAND_FIRE )
 			{
-				/* Notice immunity */
 				if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
 				{
-					if (is_original_ap_and_seen(m_ptr))
-					{
-						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK);
-					}
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK);
 				}
-
-				/* Otherwise, take the damage */
-				else if ((have_flag(flgs, TR_BRAND_FIRE) || ((p_ptr->special_attack & (ATTACK_FIRE)) && !thrown)) && (mode == HISSATSU_FIRE))
+				else if (chaos_slay == TR_BRAND_FIRE)
 				{
-					if (r_ptr->flags3 & RF3_HURT_FIRE)
+					int tmp = 0;
+					msg_format("%s is covered in fire.", o_name);
+					if (have_flag(flgs, TR_BRAND_FIRE))
 					{
-						if (mult < 70) mult = 70;
-						if (is_original_ap_and_seen(m_ptr))
-						{
-							r_ptr->r_flags3 |= RF3_HURT_FIRE;
-						}
+						if (mode == HISSATSU_FIRE)
+							tmp = 45;
+						else
+							tmp = 35;
 					}
-					else if (mult < 35) mult = 35;
+					else if ((p_ptr->special_attack & ATTACK_FIRE) && !thrown)
+					{
+						if (mode == HISSATSU_FIRE)
+							tmp = 45;
+						else
+							tmp = 35;
+					}
+					else if (mode == HISSATSU_FIRE)
+					{
+						tmp = 35;
+					}
+					else
+					{
+						tmp = 25;
+					}
+
+					if (r_ptr->flags3 & RF3_HURT_FIRE)
+					{	
+						tmp *= 2;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_FIRE;
+					}
+					if (mult < tmp) mult = tmp;
 				}
 				else
 				{
-					if (r_ptr->flags3 & RF3_HURT_FIRE)
+					int tmp = 0;
+					if (have_flag(flgs, TR_BRAND_FIRE))
 					{
-						if (mult < 50) mult = 50;
-						if (is_original_ap_and_seen(m_ptr))
-						{
-							r_ptr->r_flags3 |= RF3_HURT_FIRE;
-						}
+						if (mode == HISSATSU_FIRE)
+							tmp = 35;
+						else
+							tmp = 25;
 					}
-					else if (mult < 25) mult = 25;
+					else if ((p_ptr->special_attack & ATTACK_FIRE) && !thrown)
+					{
+						if (mode == HISSATSU_FIRE)
+							tmp = 35;
+						else
+							tmp = 25;
+					}
+					else if (mode == HISSATSU_FIRE)
+					{
+						tmp = 25;
+					}
+
+					if (tmp > 0)
+					{
+						if (r_ptr->flags3 & RF3_HURT_FIRE)
+						{	
+							tmp *= 2;
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_FIRE;
+						}
+						if (mult < tmp) mult = tmp;
+					}
 				}
 			}
 
 			/* Brand (Cold) */
-			if (have_flag(flgs, TR_BRAND_COLD) || ((p_ptr->special_attack & (ATTACK_COLD)) && !thrown) || (mode == HISSATSU_COLD))
+			if ( have_flag(flgs, TR_BRAND_COLD) 
+			  || ((p_ptr->special_attack & ATTACK_COLD) && !thrown) 
+			  || mode == HISSATSU_COLD
+			  || chaos_slay == TR_BRAND_COLD ) 
 			{
-				/* Notice immunity */
 				if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
 				{
-					if (is_original_ap_and_seen(m_ptr))
-					{
-						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK);
-					}
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK);
 				}
-				/* Otherwise, take the damage */
-				else if ((have_flag(flgs, TR_BRAND_COLD) || ((p_ptr->special_attack & (ATTACK_COLD)) && !thrown)) && (mode == HISSATSU_COLD))
+				else if (chaos_slay == TR_BRAND_COLD)
 				{
-					if (r_ptr->flags3 & RF3_HURT_COLD)
+					int tmp = 0;
+					msg_format("%s is covered in frost.", o_name);
+					if (have_flag(flgs, TR_BRAND_COLD))
 					{
-						if (mult < 70) mult = 70;
-						if (is_original_ap_and_seen(m_ptr))
-						{
-							r_ptr->r_flags3 |= RF3_HURT_COLD;
-						}
+						if (mode == HISSATSU_COLD)
+							tmp = 45;
+						else
+							tmp = 35;
 					}
-					else if (mult < 35) mult = 35;
+					else if ((p_ptr->special_attack & ATTACK_COLD) && !thrown)
+					{
+						if (mode == HISSATSU_COLD)
+							tmp = 45;
+						else
+							tmp = 35;
+					}
+					else if (mode == HISSATSU_COLD)
+					{
+						tmp = 35;
+					}
+					else
+					{
+						tmp = 25;
+					}
+
+					if (r_ptr->flags3 & RF3_HURT_COLD)
+					{	
+						tmp *= 2;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_COLD;
+					}
+					if (mult < tmp) mult = tmp;
 				}
 				else
 				{
-					if (r_ptr->flags3 & RF3_HURT_COLD)
+					int tmp = 0;
+					if (have_flag(flgs, TR_BRAND_COLD))
 					{
-						if (mult < 50) mult = 50;
-						if (is_original_ap_and_seen(m_ptr))
-						{
-							r_ptr->r_flags3 |= RF3_HURT_COLD;
-						}
+						if (mode == HISSATSU_COLD)
+							tmp = 35;
+						else
+							tmp = 25;
 					}
-					else if (mult < 25) mult = 25;
+					else if ((p_ptr->special_attack & ATTACK_COLD) && !thrown)
+					{
+						if (mode == HISSATSU_COLD)
+							tmp = 35;
+						else
+							tmp = 25;
+					}
+					else if (mode == HISSATSU_COLD)
+					{
+						tmp = 25;
+					}
+
+					if (tmp > 0)
+					{
+						if (r_ptr->flags3 & RF3_HURT_COLD)
+						{	
+							tmp *= 2;
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_HURT_COLD;
+						}
+						if (mult < tmp) mult = tmp;
+					}
 				}
 			}
 
 			/* Brand (Poison) */
-			if (have_flag(flgs, TR_BRAND_POIS) || ((p_ptr->special_attack & (ATTACK_POIS)) && !thrown) || (mode == HISSATSU_POISON))
+			if ( have_flag(flgs, TR_BRAND_POIS) 
+			  || ((p_ptr->special_attack & ATTACK_POIS) && !thrown) 
+			  || mode == HISSATSU_POISON
+			  || chaos_slay == TR_BRAND_POIS )
 			{
-				/* Notice immunity */
 				if (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)
 				{
-					if (is_original_ap_and_seen(m_ptr))
-					{
-						r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK);
-					}
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK);
 				}
-
-				/* Otherwise, take the damage */
-				else if ((have_flag(flgs, TR_BRAND_POIS) || ((p_ptr->special_attack & (ATTACK_POIS)) && !thrown)) && (mode == HISSATSU_POISON))
+				else if (chaos_slay == TR_BRAND_POIS)
 				{
-					if (mult < 35) mult = 35;
+					msg_format("%s is covered in poison.", o_name);
+					if (have_flag(flgs, TR_BRAND_POIS))
+					{
+						if (mode == HISSATSU_POISON)
+						{
+							if (mult < 45) mult = 45;
+						}
+						else
+						{
+							if (mult < 35) mult = 35;
+						}
+					}
+					else if ((p_ptr->special_attack & ATTACK_POIS) && !thrown)
+					{
+						if (mode == HISSATSU_POISON)
+						{
+							if (mult < 45) mult = 45;
+						}
+						else
+						{
+							if (mult < 35) mult = 35;
+						}
+					}
+					else if (mode == HISSATSU_POISON)
+					{
+						if (mult < 35) mult = 35;
+					}
+					else
+					{
+						if (mult < 25) mult = 25;
+					}
 				}
 				else
 				{
-					if (mult < 25) mult = 25;
+					if (have_flag(flgs, TR_BRAND_POIS))
+					{
+						if (mode == HISSATSU_POISON)
+						{
+							if (mult < 35) mult = 35;
+						}
+						else
+						{
+							if (mult < 25) mult = 25;
+						}
+					}
+					else if ((p_ptr->special_attack & ATTACK_POIS) && !thrown)
+					{
+						if (mode == HISSATSU_POISON)
+						{
+							if (mult < 35) mult = 35;
+						}
+						else
+						{
+							if (mult < 25) mult = 25;
+						}
+					}
+					else if (mode == HISSATSU_POISON)
+					{
+						if (mult < 25) mult = 25;
+					}
 				}
 			}
+
 			if ((mode == HISSATSU_ZANMA) && !monster_living(r_ptr) && (r_ptr->flags3 & RF3_EVIL))
 			{
 				if (mult < 15) mult = 25;
@@ -2256,7 +2567,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				else if (one_in_(250))
 				{
 					/* Quake (0.12%) */
-					chaos_effect = 2;
+					chaos_effect = 0;
 				}
 				else if (!one_in_(10))
 				{
@@ -2266,12 +2577,12 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				else if (one_in_(2))
 				{
 					/* Teleport away (1.494%) */
-					chaos_effect = 4;
+					chaos_effect = 0;
 				}
 				else
 				{
 					/* Polymorph (1.494%) */
-					chaos_effect = 5;
+					chaos_effect = 0;
 				}
 			}
 

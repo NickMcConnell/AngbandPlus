@@ -234,9 +234,9 @@ int get_racial_powers(spell_info* spells, int max)
 			case RACE_MIND_FLAYER:
 			{
 				spell_info *spell = &spells[ct++];
-				spell->level = 15;
-				spell->cost = 12;
-				spell->fail = calculate_fail_rate(15, 50, p_ptr->stat_ind[A_INT]);
+				spell->level = 5;
+				spell->cost = 3;
+				spell->fail = calculate_fail_rate(5, 50, p_ptr->stat_ind[A_INT]);
 				spell->fn = mind_blast_spell;
 				break;
 			}
@@ -281,8 +281,8 @@ int get_racial_powers(spell_info* spells, int max)
 			{
 				spell_info *spell = &spells[ct++];
 				spell->level = 9;
-				spell->cost = 15;
-				spell->fail = calculate_fail_rate(9, 50, p_ptr->stat_ind[A_WIS]);
+				spell->cost = 8;
+				spell->fail = calculate_fail_rate(9, 50, p_ptr->stat_ind[A_INT]);
 				spell->fn = imp_fire_spell;
 				break;
 			}

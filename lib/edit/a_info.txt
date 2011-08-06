@@ -2653,7 +2653,7 @@ F:INSTA_ART
 N:150:『斬鉄剣』
 E:'Zantetsuken'
 I:23:20:2
-W:30:25:120:80000
+W:50:25:120:80000
 P:0:10d4:17:21:0
 F:STR | DEX | VORPAL | TUNNEL | SHOW_MODS
 D:鋼をも切り裂く、切れ味抜群の日本刀だ。
