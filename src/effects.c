@@ -1694,6 +1694,61 @@ bool set_tim_building_up(int v, bool do_dec)
 	return (TRUE);
 }
 
+bool set_tim_vicious_strike(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_vicious_strike)
+		{
+			if (p_ptr->tim_vicious_strike > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel greatly exposed by your last attack.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_vicious_strike)
+		{
+			msg_print("You no longer feel greatly exposed.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_vicious_strike = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
 /*
  * Set "p_ptr->fast", notice observable changes
  */

@@ -1354,6 +1354,15 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_building_up);
 	}
 
+	if (h_older_than(0, 0, 52, 1))
+	{
+		p_ptr->tim_vicious_strike = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_vicious_strike);
+	}
+
 	if (h_older_than(0, 0, 49, 3))
 	{
 		p_ptr->base_spell_power = 2;

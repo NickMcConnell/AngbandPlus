@@ -755,6 +755,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_genji);
 	wr_s16b(p_ptr->tim_force);
 	wr_s16b(p_ptr->tim_building_up);
+	wr_s16b(p_ptr->tim_vicious_strike);
 	wr_s16b(p_ptr->base_spell_power);
 	wr_byte(p_ptr->sense_artifact);
 	wr_s16b(p_ptr->duelist_target_idx);

@@ -145,6 +145,12 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
 {
 	int i, k;
 
+	if (p_ptr->enhanced_crit)
+	{
+		weight = weight * 3 / 2;
+		weight += 300;
+	}
+
 	/* Extract "blow" power */
 	i = (weight + (meichuu * 3 + plus * 5) + (p_ptr->lev * 3));
 
@@ -2331,8 +2337,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	}
 }
 
-
-
 /*
  * Player attacks a (poor, defenseless) creature        -RAK-
  *
@@ -2371,8 +2375,9 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            is_human = (r_ptr->d_char == 'p');
 	bool            is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
 	bool            zantetsu_mukou, e_j_mukou;
+	int				knock_out = 0;
 
-	if (p_ptr->wizard)
+	if (p_ptr->wizard && 0)
 	{
 		char buf[MAX_NLEN];
 		object_desc(buf, o_ptr, 0);
@@ -2466,7 +2471,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	}
 
 	/* Disturb the monster */
-	(void)set_monster_csleep(c_ptr->m_idx, 0);
+	set_monster_csleep(c_ptr->m_idx, 0);
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
@@ -2962,7 +2967,13 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			/* Modify the damage */
-			k = mon_damage_mod(m_ptr, k, (bool)(((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) || ((p_ptr->pclass == CLASS_BERSERKER) && one_in_(2))));
+			k = mon_damage_mod(
+				m_ptr, 
+				k, 
+				(o_ptr->tval == TV_POLEARM && o_ptr->sval == SV_DEATH_SCYTHE) 
+				|| (p_ptr->pclass == CLASS_BERSERKER && one_in_(2))
+				|| mode == WEAPONMASTER_STRIKE_VULNERABILITY 
+			);
 
 			/* Hack: Monster AC now reduces damage */
 			k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
@@ -3065,6 +3076,12 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (drain_result > m_ptr->hp)
 				drain_result = m_ptr->hp;
 
+			if (mode == WEAPONMASTER_STRIKE_VULNERABILITY)
+				k *= 2;
+
+			if (mode == WEAPONMASTER_VICIOUS_STRIKE)
+				k *= 2;
+
 			/* Damage, check for fear and death */
 			if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
 			{
@@ -3106,6 +3123,79 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					msg_print("Sigh... Another trifling thing I've cut....");
 #endif
 				break;
+			}
+			else
+			{
+				if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
+				{
+					msg_format("Your Crusader's Strike drains life from %s!", m_name);
+					hp_player(k);
+				}
+
+				/* Clubmaster Hacks.  We do these effects *after* the monster takes damage. */
+				if ( p_ptr->pclass == CLASS_WEAPONMASTER
+				  && strcmp(weaponmaster_speciality1_name(), "Clubs") == 0
+				  && p_ptr->speciality1_equip )
+				{
+					int odds = 5;
+				
+					if (weaponmaster_get_toggle() == TOGGLE_CUNNING_STRIKE)
+						odds = 2;
+
+					if (one_in_(odds))
+					{
+						if (r_ptr->flags3 & RF3_NO_CONF)
+						{
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_CONF;
+							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+						}
+						else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+						{
+							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+						}
+						else
+						{
+							msg_format(T("%^s appears confused.", "%^sは混乱したようだ。"), m_name);
+							set_monster_confused(c_ptr->m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
+						}
+					}
+
+					if (p_ptr->lev >= 20 && one_in_(odds))
+					{
+						if (r_ptr->flags3 & RF3_NO_SLEEP)
+						{
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_SLEEP;
+							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+						}
+						else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+						{
+							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+						}
+						else
+						{
+							msg_format(T("%^s is knocked out.", ), m_name);
+							knock_out++;							
+						}
+					}
+
+					if (p_ptr->lev >= 45 && one_in_(odds))
+					{
+						if (r_ptr->flags3 & RF3_NO_STUN)
+						{
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_STUN;
+							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+						}
+						else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+						{
+							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+						}
+						else
+						{
+							msg_format(T("%^s is stunned.", ), m_name);
+							set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
+						}
+					}
+				}
 			}
 
 			/* Anger the monster */
@@ -3513,8 +3603,17 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			num_blow = p_ptr->weapon_info[hand].num_blow;
 			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) num_blow = 1;
 		}
+
+		if (mode == WEAPONMASTER_RETALIATION) break;
+		if (mode == WEAPONMASTER_CRUSADERS_STRIKE) break;
+		if (mode == WEAPONMASTER_STRIKE_VULNERABILITY) break;
 	}
 
+	/* Sleep counter ticks down in energy units ... Also, *lots* of code
+	   will just wake the monster back up, so we need to be very careful
+	   about when we call this.  */
+	if (knock_out && !(*mdeath))
+		set_monster_csleep(c_ptr->m_idx, MON_CSLEEP(m_ptr) + 500);
 
 	if (weak && !(*mdeath))
 	{
@@ -3821,6 +3920,31 @@ bool py_attack(int y, int x, int mode)
 			natural_attack(c_ptr->m_idx, MUT_TRUNK, &fear, &mdeath);
 		if (mut_present(MUT_TENTACLES) && !mdeath)
 			natural_attack(c_ptr->m_idx, MUT_TENTACLES, &fear, &mdeath);
+	}
+	else if (p_ptr->cleave)
+	{
+		int y, x, dir;
+
+		msg_print("You have cleaved your foe. Choose another.");
+
+		command_dir = 0; /* Won't work at all, otherwise!! */
+		if (!get_rep_dir2(&dir)) return TRUE;
+		if (dir == 5) return TRUE;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, 0);
+		else
+		{
+			if (player_can_enter(cave[y][x].feat, 0))
+				move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+			
+		/*	msg_print(T("There is no monster.", "その方向にはモンスターはいません。")); */
+		}
+
+		return TRUE;
 	}
 
 	/* Hack -- delay fear messages */

@@ -388,6 +388,11 @@ static void prt_stat(int stat)
 #define BAR_FRENZY_STANCE 81
 #define BAR_GENJI 82
 #define BAR_FORCE 83
+#define BAR_COMBAT_EXPERTISE 84
+#define BAR_CUNNING_STRIKE 85
+#define BAR_TRADE_BLOWS 86
+#define BAR_POWER_ATTACK 87
+#define BAR_VICIOUS_STRIKE 88
 
 static struct {
 	byte attr;
@@ -553,6 +558,11 @@ static struct {
 	{TERM_L_BLUE, "Fz", "Frenzy"},
 	{TERM_YELLOW, "Gj", "Genji"},
 	{TERM_L_BLUE, "Fc", "Force"},
+	{TERM_L_BLUE, "Ex", "Combat Expertise"},
+	{TERM_L_BLUE, "Cn", "Cunning Strike"},
+	{TERM_L_BLUE, "Tr", "Trade Blows"},
+	{TERM_L_BLUE, "Pw", "Power Attack"},
+	{TERM_RED, "Vs", "Stumbling 'n Bumbling"},
 	{0, NULL, NULL}
 };
 #endif
@@ -739,6 +749,18 @@ static void prt_status(void)
 		case TOGGLE_FRENZY_STANCE:
 			ADD_FLG(BAR_FRENZY_STANCE);
 			break;
+		case TOGGLE_COMBAT_EXPERTISE:
+			ADD_FLG(BAR_COMBAT_EXPERTISE);
+			break;
+		case TOGGLE_CUNNING_STRIKE:
+			ADD_FLG(BAR_CUNNING_STRIKE);
+			break;
+		case TOGGLE_TRADE_BLOWS:
+			ADD_FLG(BAR_TRADE_BLOWS);
+			break;
+		case TOGGLE_POWER_ATTACK:
+			ADD_FLG(BAR_POWER_ATTACK);
+			break;
 		}
 	}
 
@@ -757,6 +779,7 @@ static void prt_status(void)
 	}
 
 	if (p_ptr->tim_building_up) ADD_FLG(BAR_BUILD);
+	if (p_ptr->tim_vicious_strike) ADD_FLG(BAR_VICIOUS_STRIKE);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
@@ -3369,6 +3392,8 @@ void calc_bonuses(void)
 	p_ptr->return_ammo = FALSE;
 	p_ptr->big_shot = FALSE;
 	p_ptr->painted_target = FALSE;
+	p_ptr->enhanced_crit = FALSE;
+	p_ptr->cleave = FALSE;
 
 	p_ptr->align = friend_align;
 
@@ -3598,8 +3623,8 @@ void calc_bonuses(void)
 		case MIMIC_CLAY_GOLEM:
 			p_ptr->free_act = TRUE;
 			p_ptr->hold_life = TRUE;
-			p_ptr->to_a += 10 + (p_ptr->lev * 2 / 5);
-			p_ptr->dis_to_a += 10 + (p_ptr->lev * 2 / 5);
+			p_ptr->to_a += 10;
+			p_ptr->dis_to_a += 10;
 			break;
 
 		case MIMIC_IRON_GOLEM:
@@ -3608,8 +3633,8 @@ void calc_bonuses(void)
 			p_ptr->hold_life = TRUE;
 			p_ptr->resist_pois = TRUE;
 			p_ptr->pspeed -= 1;
-			p_ptr->to_a += 15 + (p_ptr->lev * 2 / 5);
-			p_ptr->dis_to_a += 15 + (p_ptr->lev * 2 / 5);
+			p_ptr->to_a += 15;
+			p_ptr->dis_to_a += 15;
 			break;
 
 		case MIMIC_MITHRIL_GOLEM:
@@ -3620,8 +3645,8 @@ void calc_bonuses(void)
 			p_ptr->resist_shard = TRUE;
 			p_ptr->reflect = TRUE;
 			p_ptr->pspeed -= 2;
-			p_ptr->to_a += 20 + (p_ptr->lev * 2 / 5);
-			p_ptr->dis_to_a += 20 + (p_ptr->lev * 2 / 5);
+			p_ptr->to_a += 20;
+			p_ptr->dis_to_a += 20;
 			break;
 
 		case MIMIC_COLOSSUS:
@@ -3633,9 +3658,9 @@ void calc_bonuses(void)
 			p_ptr->resist_sound = TRUE;
 			p_ptr->resist_disen = TRUE;
 			p_ptr->reflect = TRUE;
-			p_ptr->pspeed -= 3;
-			p_ptr->to_a += 40 + (p_ptr->lev * 2 / 5);
-			p_ptr->dis_to_a += 40 + (p_ptr->lev * 2 / 5);
+			p_ptr->pspeed -= 5;
+			p_ptr->to_a += 40;
+			p_ptr->dis_to_a += 40;
 			break;
 
 		case MIMIC_DEMON:
@@ -6089,6 +6114,15 @@ msg_print("バランスがとれるようになった。");
 	/* Apply some maximums ... */
 	if (p_ptr->magic_resistance > 25)
 		p_ptr->magic_resistance = 25;
+
+	/* Hack: Vicious Strike should not put AC below 0, but I can't find out a better
+	   way to achieve this! */
+	if (p_ptr->ac + p_ptr->to_a < 0 && p_ptr->tim_vicious_strike)
+	{
+		int delta = -(p_ptr->ac + p_ptr->to_a);
+		p_ptr->to_a += delta;
+		p_ptr->dis_to_a += delta;
+	}
 }
 
 

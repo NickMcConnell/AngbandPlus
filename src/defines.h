@@ -1,4 +1,4 @@
-/* File: defines.h */
+/* File: defines.h */ 
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 51
+#define FAKE_VER_PATCH 52
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 51
-#define H_VER_EXTRA 0 
+#define H_VER_PATCH 52
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -1463,6 +1463,8 @@
 #define ART_JIZO                213
 #define ART_FUNDIN              214
 #define ART_AESCULAPIUS         225
+#define ART_AEGIR				251
+#define ART_DEFENDER_OF_THE_CROWN 252
 
 /* Bows */
 #define ART_BELTHRONDING        124
@@ -5208,6 +5210,12 @@ extern int PlayerUID;
 #define HISSATSU_3DAN   29
 #define HISSATSU_100NIN 30
 #define WEAPONMASTER_FRENZY 31
+#define WEAPONMASTER_RETALIATION 32
+#define WEAPONMASTER_CRUSADERS_STRIKE 33
+#define WEAPONMASTER_STRIKE_VULNERABILITY 34
+#define WEAPONMASTER_VICIOUS_STRIKE 35
+
+
 #define MAX_FRENZY_ITEMS 3
 
 #define HISSATSU_IAI    100
@@ -5612,4 +5620,12 @@ extern int PlayerUID;
 	#define TOGGLE_FLYING_DAGGER_STANCE	3
 	#define TOGGLE_SHADOW_STANCE		4
 	#define TOGGLE_FRENZY_STANCE		5
+
+	/* Clubmaster */
+	#define TOGGLE_COMBAT_EXPERTISE		6
+	#define TOGGLE_CUNNING_STRIKE		7
+	#define TOGGLE_TRADE_BLOWS			8
+
+	/* Axemaster */
+	#define TOGGLE_POWER_ATTACK			9
 

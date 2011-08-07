@@ -1467,6 +1467,7 @@ extern bool set_tim_blood_revenge(int v, bool do_dec);
 extern bool set_tim_genji(int v, bool do_dec);
 extern bool set_tim_force(int v, bool do_dec);
 extern bool set_tim_building_up(int v, bool do_dec);
+extern bool set_tim_vicious_strike(int v, bool do_dec);
 extern bool set_tim_superstealth(int v, bool do_dec);
 extern bool set_tim_no_spells(int v, bool do_dec);
 extern bool set_tim_no_device(int v, bool do_dec);

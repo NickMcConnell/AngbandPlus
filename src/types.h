@@ -1134,6 +1134,7 @@ struct player_type
 	s16b tim_genji;
 	s16b tim_force;
 	s16b tim_building_up;
+	s16b tim_vicious_strike;
 
 	bool sense_artifact;
 	s16b duelist_target_idx;
@@ -1153,6 +1154,8 @@ struct player_type
 	bool speciality1_equip; 
 	bool speciality2_equip;
 	bool sneak_attack;
+	bool enhanced_crit;
+	bool cleave;
 
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */

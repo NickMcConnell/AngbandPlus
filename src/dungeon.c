@@ -2269,6 +2269,11 @@ static void process_world_aux_timeout(void)
 		set_tim_building_up(p_ptr->tim_building_up - 1, TRUE);
 	}
 
+	if (p_ptr->tim_vicious_strike)
+	{
+		set_tim_vicious_strike(p_ptr->tim_vicious_strike - 1, TRUE);
+	}
+
 	/*** Poison and Stun and Cut ***/
 
 	/* Poison */

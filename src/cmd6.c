@@ -5224,6 +5224,21 @@ msg_print("あなたの槍は電気でスパークしている...");
 				break;
 			}
 
+			case ART_AEGIR:
+			{
+				msg_print("Your club shines golden ...");
+				set_mimic(25 + randint1(25), MIMIC_COLOSSUS, FALSE);
+				o_ptr->timeout = 500;
+				break;
+			}
+
+			case ART_DEFENDER_OF_THE_CROWN:
+			{
+				msg_print("Your ball and chain goes 'boop' ...");
+				set_shield(randint1(30) + 20, FALSE);
+				o_ptr->timeout = 300;
+				break;
+			}
 			case ART_GOTHMOG:
 			{
 #ifdef JP

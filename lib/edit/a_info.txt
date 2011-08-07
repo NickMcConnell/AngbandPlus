@@ -3839,6 +3839,53 @@ F:CURSED | HEAVY_CURSE | PERMA_CURSE | AGGRAVATE | DRAIN_EXP
 F:STR | DEX | CON | SPELL_POWER | DEC_MANA
 F:RES_POIS | RES_NETHER | RES_DARK | RES_DISEN
 
+N:251:TRANSLATE
+E:of Aegir
+I:21:1:4
+W:50:50:300:150000
+P:0:3d8:13:20:10
+F:STR | CON | RES_FEAR | RES_COLD | SLAY_EVIL | SLAY_UNDEAD
+F:SLAY_DEMON | BRAND_COLD | ACTIVATE
+D:$The mighty black stone club of the sea-god Aegir, crafted from 
+D:$hot magma quarried from a volcano in the blackest depths of his 
+D:$watery domain. Although a jovial soul in nature, Aegir is 
+D:$terrifying to behold when angered. You feel the contained rage 
+D:$within this heavy truncheon, awaiting your command to be released.
+
+N:252:TRANSLATE
+E:of the Defender of the Crown
+I:21:6:3
+W:50:50:200:150000
+P:0:5d4:0:20:0
+F:STR | CON | LITE | HIDE_TYPE | 
+F:SLAY_EVIL | SLAY_HUMAN | SLAY_DEMON
+F:RES_SOUND | RES_SHARDS | RES_NETHER | HOLD_LIFE | 
+F:ACTIVATE
+D:$A rather clumsy but large ball-and-chain forged of iron.
+D:$It emits a curiously muted bell-like tone when you strike
+D:$your foes.
+
+N:253:TRANSLATE
+E:of Rygar
+I:21:12:2
+W:50:50:150:150000
+P:0:2d9:12:20:5
+F:STR | DEX | BLOWS | HIDE_TYPE | SLAY_HUMAN |
+F:SLAY_ANIMAL | SLAY_EVIL | SLAY_DRAGON | RES_FEAR | SEE_INVIS |
+F:FREE_ACT | SHOW_MODS | 
+D:$This curious weapon with an oversized head seems to flail out with
+D:$amazing ease. In fact, it seems to leap out several times on its own
+D:$without your trying.
+
+N:254:TRANSLATE
+E:'Big Punch'
+I:21:15:0
+W:50:50:800:150000
+P:0:8d5:1:3:-6
+F:HIDE_TYPE | SHOW_MODS |
+D:$This gigantic, dull-gray mace was rumored to be a gift
+D:$from an ancient dwarven king to an adventurer for saving
+D:$his people from a fearsome demon.
 
 # N: serial number : item name
 # I: tval : sval : pval

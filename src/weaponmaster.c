@@ -236,6 +236,120 @@ static void _bouncing_pebble_spell(int cmd, variant *res)
 	}
 }
 
+static void _combat_expertise_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Combat Expertise");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You lose accuracy but gain armor class.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_COMBAT_EXPERTISE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_COMBAT_EXPERTISE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_COMBAT_EXPERTISE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _crusaders_strike_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Crusaders Strike");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack an adjacent opponent with a single blow.  You regain hp.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, WEAPONMASTER_CRUSADERS_STRIKE);
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _cunning_strike_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Cunning Strike");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Number of attacks are cut in half, but blows are more likely to confuse, stun, knock out your opponent.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_CUNNING_STRIKE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_CUNNING_STRIKE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_CUNNING_STRIKE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 /* DAGGER TOSS: Code spiked from do_cmd_throw with heavy mods */
 static int _dagger_toss_multiplier(int item)
 {
@@ -773,6 +887,41 @@ static void _many_shot_spell(int cmd, variant *res)
 	}
 }
 
+static void _power_attack_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Power Attack");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You lose accuracy but gain damage.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_POWER_ATTACK)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_POWER_ATTACK);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_POWER_ATTACK)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _shadow_stance_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -900,6 +1049,468 @@ static void _shot_on_the_run_spell(int cmd, variant *res)
 	}
 }
 
+static void _smash_ground_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Smash Ground");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Stuns, scares and aggravates nearby monsters.");
+		break;
+	case SPELL_CAST:
+	{
+		int power = spell_power(p_ptr->lev * 4);
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		msg_print("You smash your weapon mightily on the ground.");
+		stun_monsters(power);
+		turn_monsters(power);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _strike_vulnerability_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Strike Vulnerability");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack an adjacent opponent with a single blow powerfully.  Your attack will penetrate invulnerability.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, WEAPONMASTER_STRIKE_VULNERABILITY);
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+/***** THROW WEAPON SPELL **********/
+typedef struct {
+	int item;
+	object_type *o_ptr;
+	int mult;
+	int tdis;
+	int tx;
+	int ty;
+	bool come_back;
+} _club_toss_info;
+static void _club_toss_imp(_club_toss_info * info);
+
+static bool _club_toss(void)
+{
+	int dir;
+	_club_toss_info info;
+	
+	/* Setup info for the toss */
+	info.item = INVEN_RARM;
+	info.o_ptr = &inventory[INVEN_RARM];
+	info.come_back = randint1(100) < (35 + p_ptr->lev);
+
+	if (!_check_speciality2_aux(info.o_ptr)) return FALSE;
+	if (object_is_cursed(info.o_ptr) && (info.item >= INVEN_RARM))
+	{
+		msg_print(T("Hmmm, it seems to be cursed.", "ふーむ、どうやら呪われているようだ。"));
+		return FALSE;
+	}
+
+	if (have_flag(info.o_ptr->art_flags, TR_SIGNATURE)) 
+		info.come_back = TRUE;
+
+	/* Pick a target */
+	info.mult = 3;
+	{
+		int mul, div;
+		mul = 10 + 2 * (info.mult - 1);
+		div = (info.o_ptr->weight > 10) ? info.o_ptr->weight : 10;
+		div /= 2;
+		info.tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
+		if (info.tdis > mul) info.tdis = mul;
+
+		project_length = info.tdis + 1;
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		info.tx = px + 99 * ddx[dir];
+		info.ty = py + 99 * ddy[dir];
+
+		if ((dir == 5) && target_okay())
+		{
+			info.tx = target_col;
+			info.ty = target_row;
+		}
+
+		project_length = 0;
+
+		if (info.tx == px && info.ty == py) return FALSE;
+	}
+
+	/* Toss */
+	_club_toss_imp(&info);
+
+	/* Handle Inventory */
+	if (!info.come_back)
+	{
+		object_type copy;
+
+		object_copy(&copy, info.o_ptr);
+		copy.number = 1;
+
+		inven_item_increase(info.item, -1);
+		inven_item_describe(info.item);
+		inven_item_optimize(info.item);
+		
+		/* Dagger Toss never breaks! */
+		drop_near(&copy, 0, info.ty, info.tx);
+		
+		if (info.item >= INVEN_RARM)
+		{
+			p_ptr->redraw |= PR_EQUIPPY;
+			p_ptr->update |= PU_BONUS;
+
+			kamaenaoshi(info.item);
+			calc_android_exp();
+		}
+		handle_stuff();
+	}
+
+	return TRUE;
+}
+
+static void _club_toss_imp(_club_toss_info * info)
+{
+	char o_name[MAX_NLEN];
+	u16b path[512];
+	int msec = delay_factor * delay_factor * delay_factor;
+	int y, x, ny, nx, dd, tdam;
+	int cur_dis, ct;
+	int chance;
+
+	chance = p_ptr->skill_tht + ((p_ptr->to_h_b + info->o_ptr->to_h) * BTH_PLUS_ADJ);
+	chance *= 2; /* mimicking code for ninja shuriken */
+
+	object_desc(o_name, info->o_ptr, OD_OMIT_PREFIX);
+	ct = project_path(path, info->tdis, py, px, info->ty, info->tx, PROJECT_PATH);
+
+	y = py;
+	x = px;
+
+	for (cur_dis = 0; cur_dis < ct; )
+	{
+		/* Peek ahead at the next square in the path */
+		ny = GRID_Y(path[cur_dis]);
+		nx = GRID_X(path[cur_dis]);
+
+		/* Stopped by walls/doors/forest ... but allow hitting your target, please! */
+		if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
+		 && !cave[ny][nx].m_idx) 
+		{
+			break;
+		}
+
+		/* The player can see the (on screen) missile */
+		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
+		{
+			char c = object_char(info->o_ptr);
+			byte a = object_attr(info->o_ptr);
+
+			/* Draw, Hilite, Fresh, Pause, Erase */
+			print_rel(c, a, ny, nx);
+			move_cursor_relative(ny, nx);
+			Term_fresh();
+			Term_xtra(TERM_XTRA_DELAY, msec);
+			lite_spot(ny, nx);
+			Term_fresh();
+		}
+
+		/* The player cannot see the missile */
+		else
+		{
+			/* Pause anyway, for consistancy */
+			Term_xtra(TERM_XTRA_DELAY, msec);
+		}
+
+		/* Save the new location */
+		x = nx;
+		y = ny;
+
+		/* Advance the distance */
+		cur_dis++;
+
+		/* Monster here, Try to hit it */
+		if (cave[y][x].m_idx)
+		{
+			cave_type *c_ptr = &cave[y][x];
+			monster_type *m_ptr = &m_list[c_ptr->m_idx];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			bool visible = m_ptr->ml;
+
+			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			{
+				bool fear = FALSE;
+
+				if (!visible)
+					msg_format("The %s finds a mark.", o_name);
+				else
+				{
+					char m_name[80];
+					monster_desc(m_name, m_ptr, 0);
+					msg_format("The %s hits %s.", o_name, m_name);
+					if (m_ptr->ml)
+					{
+						if (!p_ptr->image) monster_race_track(m_ptr->ap_r_idx);
+						health_track(c_ptr->m_idx);
+					}
+				}
+
+				/***** The Damage Calculation!!! *****/
+				dd = info->o_ptr->dd;
+				tdam = damroll(dd, info->o_ptr->ds);				
+				tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, TRUE);
+				tdam = critical_shot(info->o_ptr->weight, info->o_ptr->to_h, tdam);
+				tdam += info->o_ptr->to_d;
+				tdam *= info->mult;
+				tdam += p_ptr->to_d_b;
+				if (tdam < 0) tdam = 0;
+				tdam = mon_damage_mod(m_ptr, tdam, FALSE);
+
+				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+				{
+					/* Dead monster */
+				}
+				else
+				{
+					message_pain(c_ptr->m_idx, tdam);
+					if (tdam > 0)
+						anger_monster(m_ptr);
+
+					if (tdam > 0 && m_ptr->cdis > 1 && allow_ticked_off(r_ptr))
+					{
+						if (!(m_ptr->smart & SM_TICKED_OFF))
+						{
+							char m_name[80];
+							monster_desc(m_name, m_ptr, 0);
+							msg_format("%^s is ticked off!", m_name);
+							m_ptr->smart |= SM_TICKED_OFF;
+						}
+					}
+
+					if (fear && m_ptr->ml)
+					{
+						char m_name[80];
+						sound(SOUND_FLEE);
+						monster_desc(m_name, m_ptr, 0);
+						msg_format("%^s flees in terror!", m_name);
+					}
+
+					{
+						char m_name[80];
+						int odds = 5;
+						monster_desc(m_name, m_ptr, 0);
+				
+						/* I don't think Cunning Strike should apply here ...
+						if (_get_toggle() == TOGGLE_CUNNING_STRIKE)
+							odds = 2;
+						*/
+
+						if (one_in_(odds))
+						{
+							if (r_ptr->flags3 & RF3_NO_CONF)
+							{
+								if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_CONF;
+								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							}
+							else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+							{
+								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							}
+							else
+							{
+								msg_format(T("%^s appears confused.", "%^sは混乱したようだ。"), m_name);
+								set_monster_confused(c_ptr->m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
+							}
+						}
+
+						if (p_ptr->lev >= 20 && one_in_(odds))
+						{
+							if (r_ptr->flags3 & RF3_NO_SLEEP)
+							{
+								if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_SLEEP;
+								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							}
+							else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+							{
+								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							}
+							else
+							{
+								msg_format(T("%^s is knocked out.", ), m_name);
+								set_monster_csleep(c_ptr->m_idx, MON_CSLEEP(m_ptr) + 500);
+							}
+						}
+
+						if (p_ptr->lev >= 45 && one_in_(odds))
+						{
+							if (r_ptr->flags3 & RF3_NO_STUN)
+							{
+								if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_STUN;
+								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							}
+							else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+							{
+								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							}
+							else
+							{
+								msg_format(T("%^s is stunned.", ), m_name);
+								set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
+							}
+						}
+					}
+				}
+			}
+
+			/* Stop looking */
+			break;
+		}
+	}
+
+	if (info->come_back)
+	{
+		int i;
+		for (i = cur_dis; i >= 0; i--)
+		{
+			y = GRID_Y(path[i]);
+			x = GRID_X(path[i]);
+			if (panel_contains(y, x) && player_can_see_bold(y, x))
+			{
+				char c = object_char(info->o_ptr);
+				byte a = object_attr(info->o_ptr);
+
+				/* Draw, Hilite, Fresh, Pause, Erase */
+				print_rel(c, a, y, x);
+				move_cursor_relative(y, x);
+				Term_fresh();
+				Term_xtra(TERM_XTRA_DELAY, msec);
+				lite_spot(y, x);
+				Term_fresh();
+			}
+			else
+			{
+				/* Pause anyway, for consistancy */
+				Term_xtra(TERM_XTRA_DELAY, msec);
+			}
+		}
+		msg_format("Your %s comes back to you.", o_name);
+	}
+	else
+	{
+		/* Record the actual location of the toss so we can drop the object here if required */
+		info->tx = x;
+		info->ty = y;
+	}
+}
+
+static void _throw_weapon_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Throw Weapon");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Throws your leading weapon, which might return to you.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_club_toss())
+			var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _trade_blows_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Trade Blows");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "When using this technique, you are somewhat exposed.  However, you will retaliate whenever a monster hits you.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_TRADE_BLOWS)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_TRADE_BLOWS);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_TRADE_BLOWS)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _tumble_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -988,6 +1599,53 @@ static void _uber_weapon_spell(int cmd, variant *res)
 	}
 }
 
+static void _vicious_strike_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Vicious Strike");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attacks an opponent very powerfully, but you become greatly exposed by the effort.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+		{
+			py_attack(y, x, WEAPONMASTER_VICIOUS_STRIKE);
+			set_tim_vicious_strike(p_ptr->tim_vicious_strike + 10, FALSE);
+		}
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 
 /****************************************************************
  * Spell Table and Exports
@@ -1047,6 +1705,11 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 0, 0 },
 	  },
 	  {
+		{ 10,   0,  0, _power_attack_spell },
+		{ 15,  10,  0, berserk_spell },
+		{ 25,  12,  0, _crusaders_strike_spell },
+		{ 35,  25,  0, _strike_vulnerability_spell },
+		{ 35,  25,  0, _vicious_strike_spell },
 	    { -1,   0,  0, NULL },
 	  },
 	  { TV_POLEARM, SV_BROAD_AXE },
@@ -1080,6 +1743,11 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 0, 0 },
 	  },
 	  {
+		{  5,   0,  0, _combat_expertise_spell },
+		{ 10,  10,  0, _throw_weapon_spell },
+		{ 15,   0,  0, _cunning_strike_spell },
+		{ 30,  30,  0, _smash_ground_spell },
+		{ 35,   0,  0, _trade_blows_spell },
 	    { -1,   0,  0, NULL },
 	  },
 	  { TV_HAFTED, SV_CLUB },
@@ -1644,7 +2312,14 @@ static void _calc_bonuses(void)
 
 	/* Handle cases where user swaps in unfavorable gear */
 	if (!spec2 && _get_toggle() != TOGGLE_NONE)
-		_set_toggle(TOGGLE_NONE);
+	{
+		/* Triggering a recursive call to calc_bonuses would be bad ... */
+		/*	_set_toggle(TOGGLE_NONE); */
+		/* This assumes all bonus calcs are handled here and in _calc_weapon_bonuses() */
+		p_ptr->magic_num1[0] = TOGGLE_NONE;
+		p_ptr->redraw |= (PR_STATUS);
+		redraw_stuff();
+	}
 
 	if (!spec2 && p_ptr->action == ACTION_HAYAGAKE)
 		set_action(ACTION_NONE);
@@ -1706,6 +2381,44 @@ static void _calc_bonuses(void)
 				p_ptr->skill_stl += p_ptr->lev/12;
 				break;
 			}
+		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Clubs") == 0)
+	{
+		if (spec2)
+		{
+			if (p_ptr->lev >= 40)
+				p_ptr->enhanced_crit = TRUE;
+
+			switch (_get_toggle())
+			{
+			case TOGGLE_TRADE_BLOWS:
+				p_ptr->to_a -= 50;
+				p_ptr->dis_to_a -= 50;
+				break;
+			case TOGGLE_COMBAT_EXPERTISE:
+				p_ptr->to_a += 2*p_ptr->lev;
+				p_ptr->dis_to_a += 2*p_ptr->lev;
+				break;
+			}
+		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Axes") == 0)
+	{
+		if (p_ptr->tim_vicious_strike)
+		{
+			p_ptr->to_a -= 120;
+			p_ptr->dis_to_a -= 120;
+			/* TODO: AC should not go below 0 ... */
+		}
+
+		if (spec2)
+		{
+			if (p_ptr->lev >= 5)
+				p_ptr->skill_dig += (5 * 20); /* As if you had a +5 digger ... */
+
+			if (p_ptr->lev >= 30)
+				p_ptr->cleave = TRUE;
 		}
 	}
 
@@ -1773,7 +2486,51 @@ static void _calc_bonuses(void)
 
 static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 {
-	if (strcmp(_specialities[p_ptr->speciality1].name, "Daggers") == 0)
+	if (strcmp(_specialities[p_ptr->speciality1].name, "Axes") == 0)
+	{
+	int spec1 = _check_speciality1_aux(o_ptr);
+	int spec2 = _check_speciality2_aux(o_ptr);
+		if (spec1 && p_ptr->speciality1_equip)
+		{
+			info_ptr->to_d += 5;
+			info_ptr->dis_to_d += 5;
+			if (p_ptr->ryoute) info_ptr->num_blow++;
+
+			if (p_ptr->lev >= 20)
+			{
+				info_ptr->to_d += 10;
+				info_ptr->dis_to_d += 10;
+			}
+
+			if (p_ptr->lev >= 45)
+			{
+				info_ptr->to_d += 15;
+				info_ptr->dis_to_d += 15;
+			}
+		}
+
+		if (spec2 && p_ptr->speciality2_equip)
+		{
+			switch (_get_toggle())
+			{
+			case TOGGLE_POWER_ATTACK:
+				info_ptr->dis_to_h -= p_ptr->lev;
+				info_ptr->to_h -= p_ptr->lev;
+				if (p_ptr->ryoute)
+				{
+					info_ptr->dis_to_d += 2*p_ptr->lev/3;
+					info_ptr->to_d += 2*p_ptr->lev/3;
+				}
+				else
+				{
+					info_ptr->dis_to_d += p_ptr->lev/3;
+					info_ptr->to_d += p_ptr->lev/3;
+				}
+				break;
+			}
+		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Daggers") == 0)
 	{
 	int spec1 = _check_speciality1_aux(o_ptr);
 		if (spec1 && p_ptr->speciality1_equip && p_ptr->lev >= 45)
@@ -1784,6 +2541,30 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 		case TOGGLE_SHADOW_STANCE:
 			info_ptr->to_d -= 10;
 			info_ptr->dis_to_d -= 10;
+			break;
+		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Clubs") == 0)
+	{
+		if (p_ptr->speciality2_equip)
+		{
+			if (p_ptr->lev >= 25)
+			{
+				info_ptr->to_h += 20;
+				info_ptr->dis_to_h += 20;
+			}
+		}
+
+		switch (_get_toggle())
+		{
+		case TOGGLE_CUNNING_STRIKE:
+			info_ptr->num_blow /= 2;
+			info_ptr->to_h += 20;
+			info_ptr->dis_to_h += 20;
+			break;
+		case TOGGLE_COMBAT_EXPERTISE:
+			info_ptr->to_h -= p_ptr->lev;
+			info_ptr->dis_to_h -= p_ptr->lev;
 			break;
 		}
 	}

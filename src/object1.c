@@ -1180,6 +1180,14 @@ return "巨大ファイア・ボール(72) : 100 ターン毎";
 #endif
 
 		}
+		case ART_AEGIR:
+		{
+			return "polymorph colossus every 500 turns";
+		}
+		case ART_DEFENDER_OF_THE_CROWN:
+		{
+			return "stone skin every 300 turns";
+		}
 		case ART_GOTHMOG:
 		{
 #ifdef JP

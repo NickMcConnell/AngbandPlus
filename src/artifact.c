@@ -1167,6 +1167,24 @@ static void random_slay(object_type *o_ptr)
 {
 	if (o_ptr->tval == TV_BOW)
 	{
+		if (o_ptr->sval == SV_CRIMSON)
+		{
+			random_plus(o_ptr);
+			has_pval = TRUE;
+			one_high_resistance(o_ptr);
+			return;
+		}
+		else if (o_ptr->sval == SV_HARP)
+		{
+			if (one_in_(2))
+				random_resistance(o_ptr);
+			else
+			{
+				random_plus(o_ptr);
+				has_pval = TRUE;
+			}
+			return;
+		}
 		switch (randint1(6))
 		{
 			case 1:
@@ -1822,8 +1840,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (o_ptr->pval) has_pval = TRUE;
 
-	if ((mode & CREATE_ART_GOOD) 
-	  && (one_in_(4) 
+	if ((mode & CREATE_ART_GOOD)
+	  && !random_artifacts /* Sorry, but biasing this many arts off the back totally sucks!!! */ 
+	  && (one_in_(4)       /* example, my mage typically finds 4 to 5 "Math Magic's" every level! */
 	     || (p_ptr->pseikaku == SEIKAKU_LUCKY && one_in_(4))))
 	{
 		switch (p_ptr->pclass)
@@ -1938,10 +1957,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (a_cursed) powers /= 2;
 
-	if (o_ptr->tval == TV_LITE || o_ptr->tval == TV_AMULET)
+	if ((o_ptr->tval == TV_LITE && o_ptr->sval != SV_LITE_JUDGE) || o_ptr->tval == TV_AMULET)
 	{
-		powers = powers * 7 / 10;
-		if (powers < 2) powers = 2;
+		if (powers > 5) powers = 5;
 	}
 
 	/* Playtesting shows that FA, SI and HL are too rare ... let's boost these a bit */
@@ -2265,6 +2283,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 						o_ptr->to_h = 4 + (randint1(11));
 						o_ptr->to_d = 4 + (randint1(11));
 					}
+					else if (o_ptr->tval == TV_GLOVES && one_in_(2))
+					{
+						add_flag(o_ptr->art_flags, TR_DEX);
+						has_pval = TRUE;
+					}
 					else
 						one_high_resistance(o_ptr);
 					break;
@@ -2405,6 +2428,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	}
 
 	if (((artifact_bias == BIAS_MAGE) || (artifact_bias == BIAS_INT)) && (o_ptr->tval == TV_GLOVES)) add_flag(o_ptr->art_flags, TR_FREE_ACT);
+
+	if (o_ptr->tval == TV_BOW && o_ptr->sval == SV_HARP)
+	{
+		o_ptr->to_h = 0;
+		o_ptr->to_d = 0;
+		remove_flag(o_ptr->art_flags, TR_SHOW_MODS);
+	}
 
 	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI))
 	{
@@ -3735,9 +3765,6 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 
 	if (object_level < a_ptr->level)
 		object_level = a_ptr->level;
-
-	if (a_ptr->tval == TV_LITE && a_idx != ART_JUDGE)	/* Lights are too powerful, for some reason ... */
-		base_power = 0;
 
 	/* Roll a few times, attempting to come close in power to the original */
 	for (i = 0; i < 7; i++)

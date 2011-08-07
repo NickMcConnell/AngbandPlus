@@ -1900,6 +1900,14 @@ msg_format("%sは体力を回復したようだ。", m_name);
 
 			if (touched)
 			{
+				if ( weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS
+				  && alive
+				  && !p_ptr->is_dead )
+				{
+					msg_format("You trade blows with %^s.", m_name);
+					py_attack(m_ptr->fy, m_ptr->fx, WEAPONMASTER_RETALIATION);
+				}
+
 				if (p_ptr->tim_blood_revenge && alive && !p_ptr->is_dead && monster_living(r_ptr))
 				{   /* Scale the damage based on cuts and monster deadliness */
 					int dam = damage * p_ptr->cut / CUT_SEVERE;
