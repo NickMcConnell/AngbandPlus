@@ -2564,7 +2564,7 @@ E:New Life:Dark Red
 G:!:r
 I:75:63:100
 W:50:0:4:25000
-A:30/5
+A:30/4
 P:0:1d1:0:0:0
 D:$It changes your life rating and max of all your stats and cures all 
 D:$mutations when you quaff it.
@@ -6440,6 +6440,14 @@ I:40:26:0
 W:20:0:2:1000
 A:20/8:30/6:80/6
 F:SPELL_CAP
+
+N:677:アーティファクト生成:化九 印制 行八
+E:Weapon Branding:enchantus maximus
+G:?:w
+I:70:55:0
+W:70:0:5:100000
+A:70/8
+D:$It creates an ego item from a nameless weapon when you read it. 
 
 # N: serial number : & object name~
 # G: symbol : color

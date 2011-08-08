@@ -1260,7 +1260,7 @@ extern bool apply_disenchant(int mode);
 extern void mutate_player(void);
 extern void apply_nexus(monster_type *m_ptr);
 extern void phlogiston(void);
-extern void brand_weapon(int brand_type);
+extern bool brand_weapon(int brand_type);
 extern void call_the_(void);
 extern void fetch(int dir, int wgt, bool require_los);
 extern void alter_reality(void);

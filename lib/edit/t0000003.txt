@@ -196,14 +196,10 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:21
 ?:[EQU $QUEST21 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:21
 
-# Quest 21 rewarding, reward is Artifact Creation, no new quest available
-# (Adjust reward as needed; I think this quest is tough enough, and
-#  Artifact Creation scrolls are flaky enough to not be an automatic
-#  huge reward.  Besides, they're cool when they turn up.)
-
+# Quest 21 rewarding
 ?:[EQU $QUEST21 3]
 F:b:BUILDING_1:3
-F:~:FLOOR:3:0:329
+F:~:FLOOR:3:0:205
 
 # Quest 21 finished, no new quest available
 ?:[EQU $QUEST21 4]

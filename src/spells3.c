@@ -1361,12 +1361,95 @@ msg_print("照明用アイテムは満タンになった。");
 /*
  * Brand the current weapon
  */
-void brand_weapon(int brand_type)
+
+typedef struct {
+	int ego_type;
+	cptr info;
+	int min_depth;
+	int max_depth;
+} _brand_type;
+
+#define _MAX_BRANDS 32
+
+_brand_type _brand_types[_MAX_BRANDS] = {
+	{ EGO_BRAND_COLD, T("glows deep, icy blue!", "は深く冷たいブルーに輝いた！"), 0, 70 },
+	{ EGO_BRAND_FIRE, T("is covered in a fiery shield!", "は炎のシールドに覆われた！"), 0, 70 },
+	{ EGO_CHAOTIC, T("is engulfed in raw Logrus!", "は純ログルスに飲み込まれた。") }, 
+	{ EGO_BRAND_POIS, T("is coated with poison.", "は毒に覆われた。"), 0, 75 },
+	{ EGO_VAMPIRIC, T("thirsts for blood!", "は血を求めている！"), 30, 2000 },
+	{ EGO_TRUMP, T("seems very unstable now.", "は非常に不安定になったようだ。"), 30, 2000 },
+	{ EGO_SLAY_GIANT, T("seems to be looking for giants!", "は巨人の血を求めている！"), 0, 50 },
+	{ EGO_SLAY_ORC, T("seems to be looking for orcs!", "はオークの血を求めている！"), 0, 40 },
+	{ EGO_SLAY_TROLL, T("seems to be looking for trolls!", "はトロルの血を求めている！"), 0, 45 },
+	{ EGO_SLAY_DRAGON, T("seems to be looking for dragons!", "はドラゴンの血を求めている！"), 20, 60 },
+
+	{ EGO_SLAY_ANIMAL, T("seems to be looking for animals!", "は動物の血を求めている！"), 0, 20 },
+	{ EGO_SLAY_UNDEAD, T("seems to be looking for undead!", "は屍を求めている！"), 20, 50 },
+	{ EGO_SLAY_DEMON, T("seems to be looking for demons!", "は異世界の住人の肉体を求めている！"), 20, 60 },
+	{ EGO_SLAY_EVIL, T("seems to be looking for evil monsters!", "は邪悪なる怪物を求めている！"), 30, 90 },
+	{ EGO_BRAND_ACID, T("coated with acid!", "は酸に覆われた！"), 30, 80 },
+	{ EGO_BRAND_ELEC, T("covered with lightning!", "は電撃に覆われた！"), 30, 90  },
+	{ EGO_SLAY_HUMAN, T("seems to be looking for humans!", "は人間の血を求めている！"), 20, 60 }, 
+	{ EGO_SHARPNESS, T("becomes very sharp!", "は鋭さを増した！"), 0, 40 },
+	{ EGO_EARTHQUAKES, T("seems very powerful!", "は破壊力を増した！"), 0, 40 },
+	{ EGO_SLAYING_WEAPON, T("seems very deadly!", ""), 20, 2000 },
+
+	{ EGO_PATTERN, T("glows with great power!", ""), 80, 2000 },
+	{ EGO_FORCE_WEAPON, T("seems to thrive off your mana!", ""), 70, 2000 },
+	{ EGO_PRISM, T("is covered in ice, fire and lightning!", ""), 50, 2000 },
+	{ EGO_KILL_GIANT, T("seems to thirst for giants!", "は巨人の血を求めている！"), 40, 80 },
+	{ EGO_KILL_ORC, T("seems to thirst for orcs!", "はオークの血を求めている！"), 20, 50 },
+	{ EGO_KILL_TROLL, T("seems to thirst for trolls!", "はトロルの血を求めている！"), 20, 65 },
+	{ EGO_KILL_DRAGON, T("seems to thirst for dragons!", "はドラゴンの血を求めている！"), 50, 90 },
+	{ EGO_KILL_ANIMAL, T("seems to thirst for animals!", "は動物の血を求めている！"), 20, 70 },
+	{ EGO_KILL_UNDEAD, T("seems to thirst for undead!", "は屍を求めている！"), 50, 95 },
+	{ EGO_KILL_DEMON, T("seems to thirst for demons!", "は異世界の住人の肉体を求めている！"), 50, 95 },
+	
+	{ EGO_KILL_EVIL, T("seems to thirst for evil monsters!", "は邪悪なる怪物を求めている！"), 90, 2000 },
+	{ EGO_KILL_HUMAN, T("seems to thirst for humans!", "は人間の血を求めている！"), 60, 90 }, 
+};
+
+int _find_brand_type(int ego_type)
+{
+	int result = 0;
+
+	if (ego_type <= 0) return -1;
+
+	for (; result < _MAX_BRANDS; result++)
+	{
+		if (_brand_types[result].ego_type == ego_type) return result;
+	}
+	return -1;
+}
+int _get_random_brand(int depth)
+{
+	if (depth < 0) depth = 0;
+	if (depth > 100) depth = 100;
+
+	for (;;)	/* Make sure the table above accepts something for every possible depth!!! */
+	{
+		int i = randint0(_MAX_BRANDS);
+		if (_brand_types[i].min_depth > depth && !one_in_(_brand_types[i].min_depth - depth)) continue;
+		if (depth > _brand_types[i].max_depth && !one_in_(depth - _brand_types[i].max_depth)) continue;
+		return i;
+	}
+	return -1; /* unreachable */
+}
+
+bool brand_weapon(int ego_type)
 {
 	int         item;
 	object_type *o_ptr;
 	cptr        q, s;
+	bool force_good = FALSE;
+	int  idx = _find_brand_type(ego_type);
 
+	if (idx < 0) idx = _get_random_brand(dun_level);
+	if (idx < 0) 
+	{
+		msg_format("Software Bug:  No brand found for depth %d.", dun_level);
+		return FALSE;
+	}
 
 	/* Assume enchant weapon */
 	item_tester_hook = object_allow_enchant_melee_weapon;
@@ -1381,7 +1464,7 @@ s = "強化できる武器がない。";
 	s = "You have nothing to enchant.";
 #endif
 
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1395,6 +1478,13 @@ s = "強化できる武器がない。";
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Only swords can be sharp */
+	if (_brand_types[idx].ego_type == EGO_SHARPNESS && o_ptr->tval != TV_SWORD)
+		idx = _find_brand_type(EGO_EARTHQUAKES);
+	
+	/* Swords never cause earthquakes */
+	if (_brand_types[idx].ego_type == EGO_EARTHQUAKES && o_ptr->tval == TV_SWORD)
+		idx = _find_brand_type(EGO_SHARPNESS);
 
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify cursed items */
@@ -1405,17 +1495,15 @@ s = "強化できる武器がない。";
 	    !((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE)) /*&&
 	    !((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE))*/)
 	{
-		cptr act = NULL;
-
 		/* Let's get the name before it is changed... */
 		char o_name[MAX_NLEN];
 		object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
 
-		switch (brand_type)
+		o_ptr->name2 = _brand_types[idx].ego_type;
+
+		switch (_brand_types[idx].ego_type)
 		{
-		case 18:
-			act = "seems very deadly.";
-			o_ptr->name2 = EGO_SLAYING_WEAPON;
+		case EGO_SLAYING_WEAPON:
 			if (one_in_(3)) /* double damage */
 				o_ptr->dd *= 2;
 			else
@@ -1442,196 +1530,55 @@ s = "強化できる武器がない。";
 				add_flag(o_ptr->art_flags, TR_VORPAL);
 			}
 			break;
-		case 17:
-			if (o_ptr->tval == TV_SWORD)
-			{
-#ifdef JP
-act = "は鋭さを増した！";
-#else
-				act = "becomes very sharp!";
-#endif
 
-				o_ptr->name2 = EGO_SHARPNESS;
-				o_ptr->pval = m_bonus(5, dun_level) + 1;
+		case EGO_PATTERN:
+			o_ptr->pval = randint1(2);
+			if (one_in_(3))
+				add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+			if (one_in_(3))
+				add_flag(o_ptr->art_flags, TR_DEX);
+			if (one_in_(5))
+				add_flag(o_ptr->art_flags, TR_RES_FEAR);
 
-				if ((o_ptr->sval == SV_HAYABUSA) && (o_ptr->pval > 2))
-					o_ptr->pval = 2;
-			}
-			else
-			{
-#ifdef JP
-act = "は破壊力を増した！";
-#else
-				act = "seems very powerful.";
-#endif
-
-				o_ptr->name2 = EGO_EARTHQUAKES;
-				o_ptr->pval = m_bonus(3, dun_level);
-			}
+			one_high_resistance(o_ptr);
 			break;
-		case 16:
-#ifdef JP
-act = "は人間の血を求めている！";
-#else
-			act = "seems to be looking for humans!";
-#endif
 
-			o_ptr->name2 = EGO_SLAY_HUMAN;
+
+		case EGO_TRUMP:
+			o_ptr->pval = randint1(2);
+			if (one_in_(5))
+				add_flag(o_ptr->art_flags, TR_SLAY_DEMON);
+			if (one_in_(7))
+				one_ability(o_ptr);
+
+			one_high_resistance(o_ptr);
 			break;
-		case 15:
-#ifdef JP
-act = "は電撃に覆われた！";
-#else
-			act = "covered with lightning!";
-#endif
 
-			o_ptr->name2 = EGO_BRAND_ELEC;
-			break;
-		case 14:
-#ifdef JP
-act = "は酸に覆われた！";
-#else
-			act = "coated with acid!";
-#endif
-
-			o_ptr->name2 = EGO_BRAND_ACID;
-			break;
-		case 13:
-#ifdef JP
-act = "は邪悪なる怪物を求めている！";
-#else
-			act = "seems to be looking for evil monsters!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_EVIL;
-			break;
-		case 12:
-#ifdef JP
-act = "は異世界の住人の肉体を求めている！";
-#else
-			act = "seems to be looking for demons!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_DEMON;
-			break;
-		case 11:
-#ifdef JP
-act = "は屍を求めている！";
-#else
-			act = "seems to be looking for undead!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_UNDEAD;
-			break;
-		case 10:
-#ifdef JP
-act = "は動物の血を求めている！";
-#else
-			act = "seems to be looking for animals!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_ANIMAL;
-			break;
-		case 9:
-#ifdef JP
-act = "はドラゴンの血を求めている！";
-#else
-			act = "seems to be looking for dragons!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_DRAGON;
-			break;
-		case 8:
-#ifdef JP
-act = "はトロルの血を求めている！";
-#else
-			act = "seems to be looking for troll!s";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_TROLL;
-			break;
-		case 7:
-#ifdef JP
-act = "はオークの血を求めている！";
-#else
-			act = "seems to be looking for orcs!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_ORC;
-			break;
-		case 6:
-#ifdef JP
-act = "は巨人の血を求めている！";
-#else
-			act = "seems to be looking for giants!";
-#endif
-
-			o_ptr->name2 = EGO_SLAY_GIANT;
-			break;
-		case 5:
-#ifdef JP
-act = "は非常に不安定になったようだ。";
-#else
-			act = "seems very unstable now.";
-#endif
-
-			o_ptr->name2 = EGO_TRUMP;
+		case EGO_FORCE_WEAPON:
+		case EGO_KILL_GIANT:
+		case EGO_KILL_ORC:
+		case EGO_KILL_TROLL:
+		case EGO_KILL_DRAGON:
+		case EGO_KILL_ANIMAL:
+		case EGO_KILL_UNDEAD:
+		case EGO_KILL_DEMON:
+		case EGO_KILL_EVIL:
+		case EGO_KILL_HUMAN:
 			o_ptr->pval = randint1(2);
 			break;
-		case 4:
-#ifdef JP
-act = "は血を求めている！";
-#else
-			act = "thirsts for blood!";
-#endif
 
-			o_ptr->name2 = EGO_VAMPIRIC;
+		case EGO_SHARPNESS:
+			o_ptr->pval = m_bonus(5, dun_level) + 1;
+			if (o_ptr->sval == SV_HAYABUSA && o_ptr->pval > 2)
+				o_ptr->pval = 2;
 			break;
-		case 3:
-#ifdef JP
-act = "は毒に覆われた。";
-#else
-			act = "is coated with poison.";
-#endif
 
-			o_ptr->name2 = EGO_BRAND_POIS;
+		case EGO_EARTHQUAKES:
+			o_ptr->pval = m_bonus(3, dun_level);
 			break;
-		case 2:
-#ifdef JP
-act = "は純ログルスに飲み込まれた。";
-#else
-			act = "is engulfed in raw Logrus!";
-#endif
+		}			
 
-			o_ptr->name2 = EGO_CHAOTIC;
-			break;
-		case 1:
-#ifdef JP
-act = "は炎のシールドに覆われた！";
-#else
-			act = "is covered in a fiery shield!";
-#endif
-
-			o_ptr->name2 = EGO_BRAND_FIRE;
-			break;
-		default:
-#ifdef JP
-act = "は深く冷たいブルーに輝いた！";
-#else
-			act = "glows deep, icy blue!";
-#endif
-
-			o_ptr->name2 = EGO_BRAND_COLD;
-			break;
-		}
-
-#ifdef JP
-msg_format("あなたの%s%s", o_name, act);
-#else
-		msg_format("Your %s %s", o_name, act);
-#endif
-
-
+		msg_format(T("Your %s %s", "あなたの%s%s"), o_name, _brand_types[idx].info);
 		enchant(o_ptr, randint0(3) + 4, ENCH_TOHIT | ENCH_TODAM);
 
 		o_ptr->discount = 99;
@@ -1641,15 +1588,12 @@ msg_format("あなたの%s%s", o_name, act);
 	{
 		if (flush_failure) flush();
 
-#ifdef JP
-msg_print("属性付加に失敗した。");
-#else
-		msg_print("The Branding failed.");
-#endif
-
+		msg_print(T("You can't improve that item.", "属性付加に失敗した。"));
 		chg_virtue(V_ENCHANT, -2);
+		return FALSE;
 	}
 	calc_android_exp();
+	return TRUE;
 }
 
 

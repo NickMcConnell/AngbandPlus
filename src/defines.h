@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 52
+#define FAKE_VER_PATCH 53
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 52
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 53
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -2381,6 +2381,7 @@
 #define SV_SCROLL_ARTIFACT              52
 #define SV_SCROLL_RESET_RECALL          53
 #define SV_SCROLL_SUMMON_KIN            54
+#define SV_SCROLL_BRAND_WEAPON          55
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0

@@ -26,7 +26,7 @@ static bool has_pval;
  * Bias luck needs to be higher than weird luck,
  * since it is usually tested several times...
  */
-#define ACTIVATION_CHANCE 3
+#define ACTIVATION_CHANCE 5
 
 
 /*
@@ -1840,10 +1840,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (o_ptr->pval) has_pval = TRUE;
 
-	if ((mode & CREATE_ART_GOOD)
-	  && !random_artifacts /* Sorry, but biasing this many arts off the back totally sucks!!! */ 
-	  && (one_in_(4)       /* example, my mage typically finds 4 to 5 "Math Magic's" every level! */
-	     || (p_ptr->pseikaku == SEIKAKU_LUCKY && one_in_(4))))
+	if ((mode & CREATE_ART_SCROLL) || ((mode & CREATE_ART_GOOD) && one_in_(5)))
 	{
 		switch (p_ptr->pclass)
 		{
@@ -1866,57 +1863,60 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			case CLASS_BLUE_MAGE:
 			case CLASS_WARLOCK:
 				artifact_bias = BIAS_MAGE;
+				warrior_artifact_bias = 40;
 				break;
 			case CLASS_PRIEST:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 10;
+				warrior_artifact_bias = 60;
 				break;
 			case CLASS_ROGUE:
 			case CLASS_NINJA:
 				artifact_bias = BIAS_ROGUE;
-				warrior_artifact_bias = 25;
+				warrior_artifact_bias = 85;
 				break;
 			case CLASS_RANGER:
 			case CLASS_SNIPER:
 				artifact_bias = BIAS_RANGER;
-				warrior_artifact_bias = 30;
+				warrior_artifact_bias = 70;
 				break;
 			case CLASS_PALADIN:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 40;
+				warrior_artifact_bias = 90;
 				break;
 			case CLASS_WARRIOR_MAGE:
 			case CLASS_RED_MAGE:
 				artifact_bias = BIAS_MAGE;
-				warrior_artifact_bias = 40;
+				warrior_artifact_bias = 70;
 				break;
 			case CLASS_CHAOS_WARRIOR:
 				artifact_bias = BIAS_CHAOS;
-				warrior_artifact_bias = 40;
+				warrior_artifact_bias = 60;
 				break;
 			case CLASS_MONK:
 			case CLASS_FORCETRAINER:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 30;
+				warrior_artifact_bias = 70;
 				break;
 			case CLASS_MINDCRAFTER:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 30;
+				warrior_artifact_bias = 60;
 				break;
 			case CLASS_BARD:
-				if (randint1(5) > 2) artifact_bias = BIAS_PRIESTLY;
+				artifact_bias = BIAS_PRIESTLY;
+				warrior_artifact_bias = 60;
 				break;
 			case CLASS_TOURIST:
 			case CLASS_ARCHAEOLOGIST:
 			case CLASS_TIME_LORD:
-				if (randint1(5) > 2) artifact_bias = BIAS_WARRIOR;
+				warrior_artifact_bias = 50;
 				break;
 			case CLASS_IMITATOR:
-				if (randint1(2) > 1) artifact_bias = BIAS_RANGER;
+				artifact_bias = BIAS_RANGER;
+				warrior_artifact_bias = 60;
 				break;
 			case CLASS_BEASTMASTER:
 				artifact_bias = BIAS_CHR;
-				warrior_artifact_bias = 50;
+				warrior_artifact_bias = 70;
 				break;
 			case CLASS_MIRROR_MASTER:
 				if (randint1(4) > 1) 
@@ -1927,6 +1927,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				{
 				    artifact_bias = BIAS_ROGUE;
 				}
+				warrior_artifact_bias = 20;
 				break;
 		}
 	}
@@ -2400,6 +2401,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	if (a_cursed) curse_artifact(o_ptr);
 
 	if (!a_cursed &&
+	    !have_flag(o_ptr->art_flags, TR_ACTIVATE) && 
 	    one_in_(object_is_armour(o_ptr) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE))
 	{
 		o_ptr->xtra2 = 0;

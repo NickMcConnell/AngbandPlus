@@ -2163,6 +2163,13 @@ msg_print("巻物は煙を立てて消え去った！");
 			break;
 		}
 
+		case SV_SCROLL_BRAND_WEAPON:
+		{
+			ident = TRUE;
+			if (!brand_weapon(-1)) used_up = FALSE;
+			break;
+		}
+
 		case SV_SCROLL_RESET_RECALL:
 		{
 			ident = TRUE;

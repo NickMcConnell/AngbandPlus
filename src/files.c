@@ -1686,8 +1686,8 @@ static struct
 	{29, 16, 21, "Const to Adv"},
 	{ 1,  6, -1, "Pact     : "},
 	{29, 11, 21, "Blood Pts"},
-	{ 1,  6, -1, "Subspec  : "},
-	{ 1,  7, -1, "Spec     : "},
+	{ 1,  7, -1, "Subspec  : "},
+	{ 1,  8, -1, "Spec     : "},
 };
 #endif
 

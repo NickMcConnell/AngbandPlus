@@ -3923,27 +3923,23 @@ bool py_attack(int y, int x, int mode)
 	}
 	else if (p_ptr->cleave)
 	{
-		int y, x, dir;
+		int y = 0, x = 0, i, dir = 0;
+		cave_type *c_ptr;
 
-		msg_print("You have cleaved your foe. Choose another.");
-
-		command_dir = 0; /* Won't work at all, otherwise!! */
-		if (!get_rep_dir2(&dir)) return TRUE;
-		if (dir == 5) return TRUE;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-
-		if (cave[y][x].m_idx)
-			py_attack(y, x, 0);
-		else
+		for (i = 1; i <= 2; i++) /* TODO: Tweak the number of attempts */
 		{
-			if (player_can_enter(cave[y][x].feat, 0))
-				move_player_effect(y, x, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
-			
-		/*	msg_print(T("There is no monster.", "その方向にはモンスターはいません。")); */
-		}
+			dir = randint0(8);
+			y = py + ddy_ddd[dir];
+			x = px + ddx_ddd[dir];
+			c_ptr = &cave[y][x];
 
+			if (c_ptr->m_idx)
+			{
+				msg_print("You attempt to cleave another foe!");
+				py_attack(y, x, 0);
+				break;
+			}
+		}
 		return TRUE;
 	}
 
