@@ -1929,6 +1929,10 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				}
 				warrior_artifact_bias = 20;
 				break;
+
+			default:
+				artifact_bias = BIAS_WARRIOR;
+				break;
 		}
 	}
 

@@ -940,6 +940,10 @@ return "周辺照明 (ダメージ 2d15) : 10+d10 ターン毎";
 #endif
 
 			}
+			case ACT_WIZ_LITE:
+			{
+				return "enlightenment every 20+d20 turns";
+			}
 			case ACT_MAP_LIGHT:
 			{
 #ifdef JP

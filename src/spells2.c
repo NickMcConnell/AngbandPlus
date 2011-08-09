@@ -1084,7 +1084,7 @@ info[i++] = "あなたはヒーロー気分だ。";
 #endif
 
 	}
-	if (p_ptr->shero)
+	if (IS_SHERO())
 	{
 #ifdef JP
 info[i++] = "あなたは戦闘狂だ。";
@@ -1093,7 +1093,7 @@ info[i++] = "あなたは戦闘狂だ。";
 #endif
 
 	}
-	if (p_ptr->protevil)
+	if (IS_PROT_EVIL())
 	{
 #ifdef JP
 info[i++] = "あなたは邪悪なる存在から守られている。";
@@ -1120,7 +1120,7 @@ info[i++] = "あなたは現在傷つかない。";
 #endif
 
 	}
-	if (p_ptr->wraith_form)
+	if (IS_WRAITH())
 	{
 #ifdef JP
 info[i++] = "あなたは一時的に幽体化している。";
@@ -1702,7 +1702,7 @@ info[i++] = "あなたは閃光に弱い。";
 
 	}
 
-	if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || p_ptr->wraith_form)
+	if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || IS_WRAITH())
 	{
 #ifdef JP
 info[i++] = "あなたは暗黒に対する完全なる免疫を持っている。";

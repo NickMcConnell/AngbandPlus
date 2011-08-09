@@ -269,7 +269,7 @@ bool make_attack_normal(int m_idx)
 
 
 			/* Hack -- Apply "protection from evil" */
-			if ((p_ptr->protevil > 0) &&
+			if (IS_PROT_EVIL() &&
 			    (r_ptr->flags3 & RF3_EVIL) &&
 			    (p_ptr->lev * 3 / 2 >= rlev) &&
 			    ((randint0(100) + p_ptr->lev) > 50))
@@ -2276,7 +2276,7 @@ msg_format("%^sから落ちてしまった！", m_name);
 	/* Hex - revenge damage stored */
 	revenge_store(get_damage);
 
-	if ((p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE))
+	if (IS_REVENGE()
 		&& get_damage > 0 && !p_ptr->is_dead)
 	{
 		char m_name_self[80];

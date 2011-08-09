@@ -330,7 +330,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 					{
 						if (mult < 45) mult = 45;
 					}
-					else if (have_flag(flgs, TR_SLAY_EVIL))
+					else if (have_flag(flgs, TR_SLAY_EVIL) || weaponmaster_get_toggle() == TOGGLE_HOLY_BLADE)
 					{
 						if (mult < 30) mult = 30;
 					}
@@ -347,7 +347,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;
 						if (mult < 35) mult = 35;
 					}
-					else if (have_flag(flgs, TR_SLAY_EVIL))
+					else if (have_flag(flgs, TR_SLAY_EVIL) || weaponmaster_get_toggle() == TOGGLE_HOLY_BLADE)
 					{
 						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;
 						if (mult < 20) mult = 20;
@@ -2520,6 +2520,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		}
 		else if ((p_ptr->pclass == CLASS_NINJA) && ((backstab || fuiuchi) && !(r_ptr->flagsr & RFR_RES_ALL))) success_hit = TRUE;
 		else if (duelist_attack) success_hit = TRUE;
+		else if (weaponmaster_get_toggle() == TOGGLE_BURNING_BLADE) success_hit = TRUE;
 		else success_hit = test_hit_norm(chance, r_ptr->ac, m_ptr->ml);
 
 		if (mode == HISSATSU_MAJIN)
@@ -2592,7 +2593,11 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 
 			/* Vampiric drain */
-			if ((have_flag(flgs, TR_VAMPIRIC)) || (chaos_effect == 1) || (mode == HISSATSU_DRAIN) || hex_spelling(HEX_VAMP_BLADE))
+			if ((have_flag(flgs, TR_VAMPIRIC)) 
+			 || (chaos_effect == 1) 
+			 || (mode == HISSATSU_DRAIN) 
+			 || hex_spelling(HEX_VAMP_BLADE)
+			 || weaponmaster_get_toggle() == TOGGLE_BLOOD_BLADE )
 			{
 				/* Only drain "living" monsters */
 				if (monster_living(r_ptr))
@@ -2601,9 +2606,16 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					can_drain = FALSE;
 			}
 
-			if ((have_flag(flgs, TR_VORPAL) || hex_spelling(HEX_RUNESWORD)) && (randint1(vorpal_chance*3/2) == 1) && !zantetsu_mukou)
-				vorpal_cut = TRUE;
-			else vorpal_cut = FALSE;
+			vorpal_cut = FALSE;
+			if (!zantetsu_mukou) /* No jelly cuts with Zantetsuken */
+			{
+				if (have_flag(flgs, TR_VORPAL) && p_ptr->vorpal && vorpal_chance > 3) vorpal_chance = 3;
+				if (have_flag(flgs, TR_VORPAL) || hex_spelling(HEX_RUNESWORD) || p_ptr->vorpal)
+				{
+					if (randint1(vorpal_chance*3/2) == 1)
+						vorpal_cut = TRUE;
+				}
+			}
 
 			if (monk_attack)
 			{
@@ -2780,7 +2792,10 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Handle normal weapon */
 			else if (o_ptr->k_idx)
 			{
-				k = damroll(o_ptr->dd + p_ptr->weapon_info[hand].to_dd, o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
+				if (weaponmaster_get_toggle() == TOGGLE_ORDER_BLADE)
+					k = (o_ptr->dd + p_ptr->weapon_info[hand].to_dd) * (o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
+				else
+					k = damroll(o_ptr->dd + p_ptr->weapon_info[hand].to_dd, o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr, mode, FALSE);
 
 				if (backstab)
@@ -2802,8 +2817,12 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					do_quake = TRUE;
 				}
 
-				if ((!(o_ptr->tval == TV_SWORD) || !(o_ptr->sval == SV_DOKUBARI)) && !(mode == HISSATSU_KYUSHO))
+				if ((!(o_ptr->tval == TV_SWORD) || !(o_ptr->sval == SV_DOKUBARI)) 
+				 && !(mode == HISSATSU_KYUSHO)
+				 && weaponmaster_get_toggle() != TOGGLE_ORDER_BLADE )
+				{
 					k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
+				}
 
 				drain_result = k;
 
@@ -3076,11 +3095,96 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (drain_result > m_ptr->hp)
 				drain_result = m_ptr->hp;
 
-			if (mode == WEAPONMASTER_STRIKE_VULNERABILITY)
-				k *= 2;
 
-			if (mode == WEAPONMASTER_VICIOUS_STRIKE)
-				k *= 2;
+			if (p_ptr->pclass == CLASS_WEAPONMASTER)
+			{
+				if (mode == WEAPONMASTER_STRIKE_VULNERABILITY)
+					k *= 2;
+
+				if (mode == WEAPONMASTER_VICIOUS_STRIKE)
+					k *= 2;
+
+				switch(weaponmaster_get_toggle())
+				{
+				case TOGGLE_BURNING_BLADE:
+					if (r_ptr->flagsr & RFR_RES_ALL)
+					{
+						msg_format("%^s is immune.", m_name);
+						k = 0;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+					}
+					else if (r_ptr->flagsr & RFR_IM_FIRE)
+					{
+						msg_format("%^s resists alot.", m_name);
+						k /= 9;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_FIRE);
+					}
+					else if (r_ptr->flags3 & (RF3_HURT_FIRE))
+					{
+						msg_format("%^s is hit hard.", m_name);
+						k *= 2;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_HURT_FIRE);
+					}
+					break;
+				case TOGGLE_ICE_BLADE:
+					if (r_ptr->flagsr & RFR_RES_ALL)
+					{
+						msg_format("%^s is immune.", m_name);
+						k = 0;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+					}
+					else if (r_ptr->flagsr & RFR_IM_COLD)
+					{
+						msg_format("%^s resists alot.", m_name);
+						k /= 9;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_COLD);
+					}
+					else 
+					{
+						if (r_ptr->flags3 & (RF3_HURT_COLD))
+						{
+							msg_format("%^s is hit hard.", m_name);
+							k *= 2;
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_HURT_COLD);
+						}
+						if (one_in_(5)
+							&& !(r_ptr->flags1 & (RF1_UNIQUE))
+							&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3) )
+						{
+							msg_format("%^s is slowed by the cold.", m_name);
+							set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50);
+						}
+					}
+					break;
+				case TOGGLE_THUNDER_BLADE:
+					if (r_ptr->flagsr & RFR_RES_ALL)
+					{
+						msg_format("%^s is immune.", m_name);
+						k = 0;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+					}
+					else if (r_ptr->flagsr & RFR_IM_ELEC)
+					{
+						msg_format("%^s resists alot.", m_name);
+						k /= 9;
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_IM_ELEC);
+					}
+					else 
+					{
+						if (one_in_(5)
+							&& !(r_ptr->flags3 & (RF3_NO_STUN))
+							&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3) )
+						{
+							msg_format("%^s is shocked convulsively.", m_name);
+							set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 4));
+						}
+					}
+					break;
+				case TOGGLE_WILD_BLADE:
+					wild_weapon_strike(); /* TODO: Add EGO_WILD_BLADE and TR_WILD for weapons */
+					break;
+				}
+			}
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
@@ -3711,7 +3815,7 @@ bool py_attack(int y, int x, int mode)
 	/* Stop if friendly */
 	if (!is_hostile(m_ptr) &&
 	    !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
-	    p_ptr->shero || !m_ptr->ml))
+	    IS_SHERO() || !m_ptr->ml))
 	{
 		if (inventory[INVEN_RARM].name1 == ART_STORMBRINGER) stormbringer = TRUE;
 		if (inventory[INVEN_LARM].name1 == ART_STORMBRINGER) stormbringer = TRUE;
@@ -4574,7 +4678,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 		/* Attack -- only if we can see it OR it is not in a wall */
 		if (!is_hostile(m_ptr) &&
 			!(p_ptr->confused || p_ptr->image || !m_ptr->ml || p_ptr->stun ||
-			(mut_present(MUT_BERS_RAGE) && p_ptr->shero)) &&
+			(mut_present(MUT_BERS_RAGE) && IS_SHERO())) &&
 			pattern_seq(py, px, y, x) && (p_can_enter || p_can_kill_walls))
 		{
 			/* Disturb the monster */

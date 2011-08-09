@@ -1385,7 +1385,7 @@ void print_rel(char c, byte a, int y, int x)
 		{
 			if (world_monster) a = TERM_DARK;
 			else if (IS_INVULN() || world_player) a = TERM_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_L_DARK;
+			else if (IS_WRAITH()) a = TERM_L_DARK;
 		}
 
 		/* Draw the char using the attr */
@@ -1554,7 +1554,7 @@ void display_dungeon(void)
 				{
 					if (world_monster) a = TERM_DARK;
 					else if (IS_INVULN() || world_player) a = TERM_WHITE;
-					else if (p_ptr->wraith_form) a = TERM_L_DARK;
+					else if (IS_WRAITH()) a = TERM_L_DARK;
 				}
 
 				/* Hack -- Queue it */
@@ -1605,7 +1605,7 @@ void lite_spot(int y, int x)
 		{
 			if (world_monster) a = TERM_DARK;
 			else if (IS_INVULN() || world_player) a = TERM_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_L_DARK;
+			else if (IS_WRAITH()) a = TERM_L_DARK;
 		}
 
 		/* Hack -- Queue it */
@@ -1687,7 +1687,7 @@ void prt_map(void)
 			{
 				if (world_monster) a = TERM_DARK;
 				else if (IS_INVULN() || world_player) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
+				else if (IS_WRAITH()) a = TERM_L_DARK;
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1759,7 +1759,7 @@ void prt_path(int y, int x)
 			{
 				if (world_monster) a = TERM_DARK;
 				else if (IS_INVULN() || world_player) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
+				else if (IS_WRAITH()) a = TERM_L_DARK;
 			}
 
 			c = '*';
@@ -2078,7 +2078,7 @@ void display_map(int *cy, int *cx)
 			{
 				if (world_monster) ta = TERM_DARK;
 				else if (IS_INVULN() || world_player) ta = TERM_WHITE;
-				else if (p_ptr->wraith_form) ta = TERM_L_DARK;
+				else if (IS_WRAITH()) ta = TERM_L_DARK;
 			}
 
 			/* Add the character */

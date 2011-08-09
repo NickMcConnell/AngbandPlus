@@ -340,7 +340,7 @@ void berserk_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 	{
-		bool heal = !p_ptr->shero;
+		bool heal = !IS_SHERO();
 		msg_print("Raaagh!  You feel like hitting something.");
 		set_afraid(0, TRUE);
 		set_shero(10 + randint1(p_ptr->lev), FALSE);

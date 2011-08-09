@@ -907,7 +907,7 @@ bool dispel_check(int m_idx)
 	if (IS_INVULN()) return (TRUE);
 
 	/* Wraith form */
-	if (p_ptr->wraith_form) return (TRUE);
+	if (IS_WRAITH()) return (TRUE);
 
 	/* Shield */
 	if (p_ptr->shield) return (TRUE);
@@ -922,7 +922,7 @@ bool dispel_check(int m_idx)
 	if (p_ptr->dustrobe) return (TRUE);
 
 	/* Berserk Strength */
-	if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER)) return (TRUE);
+	if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER)) return (TRUE);
 
 	/* Demon Lord */
 	if (p_ptr->mimic_form == MIMIC_DEMON_LORD) return (TRUE);
@@ -988,7 +988,7 @@ bool dispel_check(int m_idx)
 	}
 
 	/* Light speed */
-	if (p_ptr->lightspeed && (m_ptr->mspeed < 136)) return (TRUE);
+	if (IS_LIGHT_SPEED() && (m_ptr->mspeed < 136)) return (TRUE);
 
 	if (p_ptr->riding && (m_list[p_ptr->riding].mspeed < 135))
 	{
@@ -3712,7 +3712,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 						   -- henkma
 						 */
 						get_damage = take_hit(DAMAGE_NOESCAPE, dam, m_name, -1);
-						if (p_ptr->tim_eyeeye && get_damage > 0 && !p_ptr->is_dead)
+						if (IS_REVENGE() && get_damage > 0 && !p_ptr->is_dead)
 						{
 							char m_name_self[80];
 
@@ -3721,7 +3721,8 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 
 							msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 							project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
-							set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
+							if (p_ptr->tim_eyeeye)
+								set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 						}
 
 						if (p_ptr->riding) mon_take_hit_mon(p_ptr->riding, dam, &fear, extract_note_dies(real_r_ptr(&m_list[p_ptr->riding])), m_idx);

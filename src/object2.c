@@ -2464,7 +2464,24 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					break;
 				case EGO_SLAYING_WEAPON:
 					if (one_in_(3)) /* double damage */
+					{
 						o_ptr->dd *= 2;
+
+						/* Look alikes to keep players happy */
+						if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_LONG_SWORD && one_in_(2))
+							o_ptr->dd = 5; /* Vorpal Blade */
+						if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_KATANA && one_in_(2))
+						{
+							o_ptr->dd = 8; /* Aglarang */
+							if (one_in_(100))
+							{
+								o_ptr->dd = 10;
+								o_ptr->ds = 5; /* Muramasa */
+							}
+						}
+						if (o_ptr->tval == TV_HAFTED && o_ptr->sval == SV_WAR_HAMMER && one_in_(2))
+							o_ptr->dd = 9; /* Aule */
+					}
 					else
 					{
 						do
@@ -6677,11 +6694,11 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 		 * Cannot use "ignore_wraith_form" strictly (for "random one damage")
 		 * "dam *= 2;" for later "dam /= 2"
 		 */
-		if (p_ptr->wraith_form) dam *= 2;
+		if (IS_WRAITH()) dam *= 2;
 		break;
 
 	case GF_DARK:
-		if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || p_ptr->wraith_form)
+		if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || IS_WRAITH())
 		{
 			dam = 0;
 			ignore_wraith_form = TRUE;
@@ -6798,7 +6815,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 		break;
 	}
 
-	if (p_ptr->wraith_form && !ignore_wraith_form)
+	if (IS_WRAITH() && !ignore_wraith_form)
 	{
 		dam /= 2;
 		if (!dam) dam = 1;
@@ -6862,7 +6879,7 @@ static int blow_damcalc(monster_type *m_ptr, monster_blow *blow_ptr)
 			break;
 		}
 
-		if (check_wraith_form && p_ptr->wraith_form)
+		if (check_wraith_form && IS_WRAITH())
 		{
 			dam /= 2;
 			if (!dam) dam = 1;

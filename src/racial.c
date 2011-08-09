@@ -34,7 +34,7 @@ bool can_do_cmd_cast(void)
 #endif
 		return FALSE;
 	}
-	else if (p_ptr->shero)
+	else if (IS_SHERO())
 	{
 #ifdef JP
 		msg_format("狂戦士化していて頭が回らない！");

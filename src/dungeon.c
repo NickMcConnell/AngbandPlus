@@ -1751,7 +1751,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	 */
 	if (!have_flag(f_ptr->flags, FF_MOVE) && !have_flag(f_ptr->flags, FF_CAN_FLY))
 	{
-		if (!IS_INVULN() && !p_ptr->wraith_form && !p_ptr->kabenuke &&
+		if (!IS_INVULN() && !IS_WRAITH() && !IS_PASSWALL() &&
 		    ((p_ptr->chp > (p_ptr->lev / 5)) || !p_ptr->pass_wall))
 		{
 			int dam;
@@ -2273,6 +2273,8 @@ static void process_world_aux_timeout(void)
 	{
 		set_tim_vicious_strike(p_ptr->tim_vicious_strike - 1, TRUE);
 	}
+
+	wild_decrement_counters();
 
 	/*** Poison and Stun and Cut ***/
 
@@ -4383,7 +4385,7 @@ msg_print("ウィザードモード突入。");
 #endif
 					energy_use = 0;
 				}
-				else if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER) && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
+				else if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER) && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
 				{
 #ifdef JP
 					msg_format("狂戦士化していて頭が回らない！");

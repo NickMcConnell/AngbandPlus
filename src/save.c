@@ -756,6 +756,15 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_force);
 	wr_s16b(p_ptr->tim_building_up);
 	wr_s16b(p_ptr->tim_vicious_strike);
+	{
+		int i;
+		wr_s16b(MAX_WILD_COUNTERS);
+		for (i = 0; i < MAX_WILD_COUNTERS; i++)
+		{
+			wr_s16b(p_ptr->wild_counters[i].type);
+			wr_s16b(p_ptr->wild_counters[i].counter);
+		}
+	}
 	wr_s16b(p_ptr->base_spell_power);
 	wr_byte(p_ptr->sense_artifact);
 	wr_s16b(p_ptr->duelist_target_idx);

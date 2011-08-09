@@ -1861,7 +1861,7 @@ static void display_player_middle(void)
 		{
 			if (IS_FAST()) tmp_speed += 10;
 			if (p_ptr->slow) tmp_speed -= 10;
-			if (p_ptr->lightspeed) tmp_speed = 99;
+			if (IS_LIGHT_SPEED()) tmp_speed = 99;
 		}
 		else
 		{
@@ -2797,7 +2797,7 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if (IS_HERO() || p_ptr->shero)
+	if (IS_HERO() || IS_SHERO())
 		add_flag(flgs, TR_RES_FEAR);
 	if (p_ptr->tim_invis)
 		add_flag(flgs, TR_SEE_INVIS);
@@ -2837,7 +2837,7 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_IM_FIRE);
 	if (p_ptr->special_defense & DEFENSE_COLD)
 		add_flag(flgs, TR_IM_COLD);
-	if (p_ptr->wraith_form)
+	if (IS_WRAITH())
 		add_flag(flgs, TR_REFLECT);
 	/* by henkma */
 	if (p_ptr->tim_reflect)
@@ -3036,7 +3036,7 @@ static void tim_player_immunity(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_FIRE);
 	if (p_ptr->special_defense & DEFENSE_COLD)
 		add_flag(flgs, TR_RES_COLD);
-	if (p_ptr->wraith_form)
+	if (IS_WRAITH())
 		add_flag(flgs, TR_RES_DARK);
 }
 

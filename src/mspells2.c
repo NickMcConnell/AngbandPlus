@@ -3305,7 +3305,7 @@ bool monst_spell_monst(int m_idx)
 						   -- henkma
 						 */
 						get_damage = take_hit(DAMAGE_NOESCAPE, dam, m_name, -1);
-						if (p_ptr->tim_eyeeye && get_damage > 0 && !p_ptr->is_dead)
+						if (IS_REVENGE() && get_damage > 0 && !p_ptr->is_dead)
 						{
 							char m_name_self[80];
 
@@ -3314,7 +3314,7 @@ bool monst_spell_monst(int m_idx)
 
 							msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 							project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
-							set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
+							if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 						}
 					}
 

@@ -160,6 +160,7 @@
     <ClCompile Include="warlock.c" />
     <ClCompile Include="weaponmaster.c" />
     <ClCompile Include="wild.c" />
+    <ClCompile Include="wild_realm.c" />
     <ClCompile Include="wild_talent.c" />
     <ClCompile Include="wizard1.c" />
     <ClCompile Include="wizard2.c" />

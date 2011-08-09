@@ -1363,6 +1363,23 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_vicious_strike);
 	}
 
+	if (h_older_than(0, 0, 54, 1))
+	{
+		wild_reset_counters();
+	}
+	else
+	{
+		int i;
+		s16b ct;
+		rd_s16b(&ct);
+		wild_reset_counters();
+		for (i = 0; i < MAX_WILD_COUNTERS && i < ct; i++)
+		{
+			rd_s16b(&p_ptr->wild_counters[i].type);
+			rd_s16b(&p_ptr->wild_counters[i].counter);
+		}
+	}
+
 	if (h_older_than(0, 0, 49, 3))
 	{
 		p_ptr->base_spell_power = 2;

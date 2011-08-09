@@ -1369,7 +1369,7 @@ typedef struct {
 	int max_depth;
 } _brand_type;
 
-#define _MAX_BRANDS 32
+#define _MAX_BRANDS 36
 
 _brand_type _brand_types[_MAX_BRANDS] = {
 	{ EGO_BRAND_COLD, T("glows deep, icy blue!", "は深く冷たいブルーに輝いた！"), 0, 70 },
@@ -1383,7 +1383,7 @@ _brand_type _brand_types[_MAX_BRANDS] = {
 	{ EGO_SLAY_TROLL, T("seems to be looking for trolls!", "はトロルの血を求めている！"), 0, 45 },
 	{ EGO_SLAY_DRAGON, T("seems to be looking for dragons!", "はドラゴンの血を求めている！"), 20, 60 },
 
-	{ EGO_SLAY_ANIMAL, T("seems to be looking for animals!", "は動物の血を求めている！"), 0, 20 },
+	{ EGO_SLAY_ANIMAL, T("seems to be looking for animals!", "は動物の血を求めている！"), 0, 40 },
 	{ EGO_SLAY_UNDEAD, T("seems to be looking for undead!", "は屍を求めている！"), 20, 50 },
 	{ EGO_SLAY_DEMON, T("seems to be looking for demons!", "は異世界の住人の肉体を求めている！"), 20, 60 },
 	{ EGO_SLAY_EVIL, T("seems to be looking for evil monsters!", "は邪悪なる怪物を求めている！"), 30, 90 },
@@ -1407,6 +1407,10 @@ _brand_type _brand_types[_MAX_BRANDS] = {
 	
 	{ EGO_KILL_EVIL, T("seems to thirst for evil monsters!", "は邪悪なる怪物を求めている！"), 90, 2000 },
 	{ EGO_KILL_HUMAN, T("seems to thirst for humans!", "は人間の血を求めている！"), 60, 90 }, 
+	{ EGO_HA, T("seems on a crusade for justice!", ""), 80, 2000 },
+	{ EGO_DF, T("seems to protect its wielder!", ""), 50, 2000 },
+	{ EGO_BLESS_BLADE, T("seems ok for priests to use.", ""), 0, 40 },
+	{ EGO_WEST, T("seems to hunt the servants of Morgoth!", ""), 20, 70 },
 };
 
 int _find_brand_type(int ego_type)
@@ -1575,6 +1579,36 @@ s = "強化できる武器がない。";
 
 		case EGO_EARTHQUAKES:
 			o_ptr->pval = m_bonus(3, dun_level);
+			break;
+
+		case EGO_HA:
+			if (one_in_(4) && (dun_level > 40))
+			{
+				add_flag(o_ptr->art_flags, TR_BLOWS);
+				o_ptr->pval = 1;
+			}
+			else
+				o_ptr->pval = randint1(4);
+			break;
+
+		case EGO_DF:
+			if (one_in_(3))
+				add_flag(o_ptr->art_flags, TR_RES_POIS);
+			if (one_in_(3))
+				add_flag(o_ptr->art_flags, TR_WARNING);
+			
+			one_high_resistance(o_ptr);
+			o_ptr->pval = randint1(4);
+			break;
+
+		case EGO_BLESS_BLADE:
+			o_ptr->pval = randint1(4);
+			break;
+
+		case EGO_WEST:
+			if (one_in_(3))
+				add_flag(o_ptr->art_flags, TR_RES_FEAR);
+			o_ptr->pval = randint1(2);
 			break;
 		}			
 

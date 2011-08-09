@@ -265,6 +265,8 @@ void reset_tim_flags(void)
 	p_ptr->special_attack = 0L;
 	p_ptr->special_defense = 0L;
 
+	wild_reset_counters();
+
 	while(p_ptr->energy_need < 0) p_ptr->energy_need += ENERGY_NEED();
 	world_player = FALSE;
 
@@ -336,6 +338,9 @@ void dispel_player(void)
 	set_tim_blood_feast(0, TRUE);
 	set_tim_blood_revenge(0, TRUE);
 
+	set_tim_genji(0, TRUE);
+	set_tim_force(0, TRUE);
+
 	set_tim_spurt(0, TRUE);
 	set_tim_speed_essentia(0, TRUE);
 	/* Coming soon ... 
@@ -345,6 +350,7 @@ void dispel_player(void)
 	set_tim_wild_pos(0, TRUE);
 	set_tim_wild_mind(0, TRUE);
 	*/
+	wild_dispel_player();
 
 
 	/* Cancel glowing hands */
@@ -1770,7 +1776,7 @@ bool set_fast(int v, bool do_dec)
 		{
 			if (p_ptr->fast > v) return FALSE;
 		}
-		else if (!IS_FAST() && !p_ptr->lightspeed)
+		else if (!IS_FAST() && !IS_LIGHT_SPEED())
 		{
 #ifdef JP
 msg_print("素早く動けるようになった！");
@@ -1787,7 +1793,7 @@ msg_print("素早く動けるようになった！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->fast && !p_ptr->lightspeed && !music_singing(MUSIC_SPEED) && !music_singing(MUSIC_SHERO))
+		if (p_ptr->fast && !IS_LIGHT_SPEED() && !music_singing(MUSIC_SPEED) && !music_singing(MUSIC_SHERO))
 		{
 #ifdef JP
 msg_print("動きの素早さがなくなったようだ。");
@@ -2829,7 +2835,7 @@ bool set_tim_infra(int v, bool do_dec)
 		{
 			if (p_ptr->tim_infra > v) return FALSE;
 		}
-		else if (!p_ptr->tim_infra)
+		else if (!IS_TIM_INFRA())
 		{
 #ifdef JP
 msg_print("目がランランと輝き始めた！");
@@ -2844,7 +2850,7 @@ msg_print("目がランランと輝き始めた！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_infra)
+		if (p_ptr->tim_infra && !wild_has_power(WILD_INFRAVISION))
 		{
 #ifdef JP
 msg_print("目の輝きがなくなった。");
@@ -6107,7 +6113,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 			}
 		}
 
-		if (p_ptr->wraith_form)
+		if (IS_WRAITH())
 		{
 			if (damage_type == DAMAGE_FORCE)
 			{

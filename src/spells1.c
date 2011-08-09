@@ -7529,12 +7529,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				dam = dam * 4 / 3;
 			}
 
-			if (p_ptr->wraith_form) dam *= 2;
+			if (IS_WRAITH()) dam *= 2;
 			get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 
-			if (p_ptr->wraith_form && !CHECK_MULTISHADOW())
+			if (IS_WRAITH() && !CHECK_MULTISHADOW())
 			{
 				p_ptr->wraith_form = 0;
+				wild_reset_counter(WILD_WRAITH);
 #ifdef JP
 				msg_print("閃光のため非物質的な影の存在でいられなくなった。");
 #else
@@ -7568,7 +7569,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				dam *= 4; dam /= (randint1(4) + 7);
 
-				if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || p_ptr->wraith_form) dam = 0;
+				if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || IS_WRAITH()) dam = 0;
 			}
 			else if (!blind && !p_ptr->resist_blind && !CHECK_MULTISHADOW())
 			{
@@ -8217,7 +8218,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* Hex - revenge damage stored */
 	revenge_store(get_damage);
 
-	if ((p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE))
+	if (IS_REVENGE()
 		&& (get_damage > 0) && !p_ptr->is_dead && (who > 0))
 	{
 		char m_name_self[80];

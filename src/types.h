@@ -989,6 +989,13 @@ struct player_seikaku
 
 typedef struct player_type player_type;
 
+typedef struct {
+	s16b type;
+	s16b counter;
+} counter_t;
+
+#define MAX_WILD_COUNTERS 5
+
 struct player_type
 {
 	s16b oldpy;		/* Previous player location -KMW- */
@@ -1136,6 +1143,8 @@ struct player_type
 	s16b tim_building_up;
 	s16b tim_vicious_strike;
 
+	counter_t wild_counters[MAX_WILD_COUNTERS];	/* Wild Weapons */
+
 	bool sense_artifact;
 	s16b duelist_target_idx;
 
@@ -1156,6 +1165,8 @@ struct player_type
 	bool sneak_attack;
 	bool enhanced_crit;
 	bool cleave;
+	bool constant_hero;
+	bool vorpal;
 
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */

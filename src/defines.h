@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 53
+#define FAKE_VER_PATCH 54
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 53
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 54
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -5412,17 +5412,27 @@ extern int PlayerUID;
 #define SUB_ALIGN_GOOD    0x0002
 
 /* Temporary flags macro */
-#define IS_FAST() (p_ptr->fast || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO))
-#define IS_INVULN() (p_ptr->invuln || music_singing(MUSIC_INVULN))
-#define IS_HERO() (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO))
-#define IS_BLESSED() (p_ptr->blessed || music_singing(MUSIC_BLESS) || hex_spelling(HEX_BLESS))
-#define IS_OPPOSE_ACID() (p_ptr->oppose_acid || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-#define IS_OPPOSE_ELEC() (p_ptr->oppose_elec || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-#define IS_OPPOSE_FIRE() (p_ptr->oppose_fire || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-#define IS_OPPOSE_COLD() (p_ptr->oppose_cold || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-#define IS_OPPOSE_POIS() (p_ptr->oppose_pois || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU))
-#define IS_TIM_ESP() (p_ptr->tim_esp || music_singing(MUSIC_MIND) || (p_ptr->concent >= CONCENT_TELE_THRESHOLD))
+#define IS_FAST() (p_ptr->fast || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO) || wild_has_power(WILD_SPEED))
+#define IS_LIGHT_SPEED() (p_ptr->lightspeed || wild_has_power(WILD_LIGHT_SPEED))
+#define IS_INVULN() (p_ptr->invuln || music_singing(MUSIC_INVULN) || wild_has_power(WILD_INVULN))
+#define IS_HERO() (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO) || p_ptr->constant_hero)
+#define IS_BLESSED() (p_ptr->blessed || music_singing(MUSIC_BLESS) || hex_spelling(HEX_BLESS) || wild_has_power(WILD_BLESS))
+#define IS_SHERO() (p_ptr->shero || p_ptr->pclass == CLASS_BERSERKER || wild_has_power(WILD_BERSERK))
+#define IS_OPPOSE_ACID() (p_ptr->oppose_acid || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
+#define IS_OPPOSE_ELEC() (p_ptr->oppose_elec || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
+#define IS_OPPOSE_FIRE() (p_ptr->oppose_fire || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
+#define IS_OPPOSE_COLD() (p_ptr->oppose_cold || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
+#define IS_OPPOSE_POIS() (p_ptr->oppose_pois || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
+#define IS_RESIST() ((p_ptr->oppose_acid && p_ptr->oppose_elec && p_ptr->oppose_fire && p_ptr->oppose_cold && p_ptr->oppose_pois) || music_singing(MUSIC_RESIST) || (p_ptr->special_defense & KATA_MUSOU) || wild_has_power(WILD_RESIST))
+#define IS_TIM_ESP() (p_ptr->tim_esp || music_singing(MUSIC_MIND) || (p_ptr->concent >= CONCENT_TELE_THRESHOLD) || wild_has_power(WILD_ESP))
 #define IS_TIM_STEALTH() (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH))
+#define IS_TIM_INFRA() (p_ptr->tim_infra || wild_has_power(WILD_INFRAVISION))
+#define IS_PROT_EVIL() (p_ptr->protevil || wild_has_power(WILD_PROT_EVIL))
+#define IS_RESIST_MAGIC() (p_ptr->resist_magic || wild_has_power(WILD_MAGIC_RESIST))
+#define IS_STONE_SKIN() (p_ptr->shield || wild_has_power(WILD_STONE_SKIN))
+#define IS_PASSWALL() (p_ptr->kabenuke || wild_has_power(WILD_PASSWALL))
+#define IS_REVENGE() (p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE) || wild_has_power(WILD_REVENGE))
+#define IS_WRAITH() (p_ptr->wraith_form || wild_has_power(WILD_WRAITH))
 
 /* Multishadow effects is determined by turn */
 #define CHECK_MULTISHADOW() (p_ptr->multishadow && (turn & 1))
@@ -5629,4 +5639,29 @@ extern int PlayerUID;
 
 	/* Axemaster */
 	#define TOGGLE_POWER_ATTACK			9
+
+	/* Swordmaster */
+	#define TOGGLE_BURNING_BLADE		10
+	#define TOGGLE_ICE_BLADE			11
+	#define TOGGLE_THUNDER_BLADE		12
+	#define TOGGLE_BLOOD_BLADE			13
+	#define TOGGLE_HOLY_BLADE			14
+	#define TOGGLE_ORDER_BLADE			15
+	#define TOGGLE_WILD_BLADE			16
+
+/* Wild Counters */
+#define WILD_INFRAVISION 1
+#define WILD_BLESS 2
+#define WILD_BERSERK 3
+#define WILD_SPEED 4
+#define WILD_ESP 5
+#define WILD_PROT_EVIL 6
+#define WILD_MAGIC_RESIST 7
+#define WILD_RESIST 8
+#define WILD_STONE_SKIN 9
+#define WILD_PASSWALL 10
+#define WILD_REVENGE 11
+#define WILD_INVULN 12
+#define WILD_WRAITH 13
+#define WILD_LIGHT_SPEED 14
 

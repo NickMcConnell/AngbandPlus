@@ -393,6 +393,13 @@ static void prt_stat(int stat)
 #define BAR_TRADE_BLOWS 86
 #define BAR_POWER_ATTACK 87
 #define BAR_VICIOUS_STRIKE 88
+#define BAR_BURNING_BLADE 89
+#define BAR_ICE_BLADE 90
+#define BAR_THUNDER_BLADE 91
+#define BAR_BLOOD_BLADE 92
+#define BAR_HOLY_BLADE 93
+#define BAR_ORDER_BLADE 94
+#define BAR_WILD_BLADE 95
 
 static struct {
 	byte attr;
@@ -563,6 +570,13 @@ static struct {
 	{TERM_L_BLUE, "Tr", "Trade Blows"},
 	{TERM_L_BLUE, "Pw", "Power Attack"},
 	{TERM_RED, "Vs", "Stumbling 'n Bumbling"},
+	{TERM_RED, "BB", "Burning Blade"},
+	{TERM_BLUE, "IB", "Ice Blade"},
+	{TERM_YELLOW, "TB", "Thunder Blade"},
+	{TERM_RED, "Bl", "Blood Blade"},
+	{TERM_WHITE, "HB", "Holy Blade"},
+	{TERM_ORANGE, "OB", "Order Blade"},
+	{TERM_GREEN, "WB", "Wild Blade"},
 	{0, NULL, NULL}
 };
 #endif
@@ -617,19 +631,19 @@ static void prt_status(void)
 	if (p_ptr->tim_regen) ADD_FLG(BAR_REGENERATION);
 
 	/* Timed infra-vision */
-	if (p_ptr->tim_infra) ADD_FLG(BAR_INFRAVISION);
+	if (IS_TIM_INFRA()) ADD_FLG(BAR_INFRAVISION);
 
 	/* Protection from evil */
-	if (p_ptr->protevil) ADD_FLG(BAR_PROTEVIL);
+	if (IS_PROT_EVIL()) ADD_FLG(BAR_PROTEVIL);
 
 	/* Invulnerability */
 	if (IS_INVULN()) ADD_FLG(BAR_INVULN);
 
 	/* Wraith form */
-	if (p_ptr->wraith_form) ADD_FLG(BAR_WRAITH);
+	if (IS_WRAITH()) ADD_FLG(BAR_WRAITH);
 
 	/* Kabenuke */
-	if (p_ptr->kabenuke) ADD_FLG(BAR_PASSWALL);
+	if (IS_PASSWALL()) ADD_FLG(BAR_PASSWALL);
 
 	if (p_ptr->tim_reflect) ADD_FLG(BAR_REFLECTION);
 
@@ -637,7 +651,7 @@ static void prt_status(void)
 	if (IS_HERO()) ADD_FLG(BAR_HEROISM);
 
 	/* Super Heroism / berserk */
-	if (p_ptr->shero) ADD_FLG(BAR_BERSERK);
+	if (IS_SHERO()) ADD_FLG(BAR_BERSERK);
 
 	/* Blessed */
 	if (IS_BLESSED()) ADD_FLG(BAR_BLESSED);
@@ -647,7 +661,7 @@ static void prt_status(void)
 
 	if (p_ptr->tsubureru) ADD_FLG(BAR_EXPAND);
 
-	if (p_ptr->shield) ADD_FLG(BAR_STONESKIN);
+	if (IS_STONE_SKIN()) ADD_FLG(BAR_STONESKIN);
 	
 	if (p_ptr->special_defense & NINJA_KAWARIMI) ADD_FLG(BAR_KAWARIMI);
 
@@ -687,7 +701,7 @@ static void prt_status(void)
 	/* Confusing Hands */
 	if (p_ptr->special_attack & ATTACK_CONFUSE) ADD_FLG(BAR_ATTKCONF);
 
-	if (p_ptr->resist_magic) ADD_FLG(BAR_REGMAGIC);
+	if (IS_RESIST_MAGIC()) ADD_FLG(BAR_REGMAGIC);
 
 	/* Ultimate-resistance */
 	if (p_ptr->ult_res) ADD_FLG(BAR_ULTIMATE);
@@ -718,7 +732,7 @@ static void prt_status(void)
 	if (p_ptr->tim_sh_holy) ADD_FLG(BAR_SHHOLY);
 
 	/* An Eye for an Eye */
-	if (p_ptr->tim_eyeeye) ADD_FLG(BAR_EYEEYE);
+	if (IS_REVENGE()) ADD_FLG(BAR_EYEEYE);
 
 	if (p_ptr->tim_spurt) ADD_FLG(BAR_TIME_SPURT);
 	if (p_ptr->tim_speed_essentia) ADD_FLG(BAR_SPEED_ESSENTIA);
@@ -760,6 +774,27 @@ static void prt_status(void)
 			break;
 		case TOGGLE_POWER_ATTACK:
 			ADD_FLG(BAR_POWER_ATTACK);
+			break;
+		case TOGGLE_BURNING_BLADE:
+			ADD_FLG(BAR_BURNING_BLADE);
+			break;
+		case TOGGLE_ICE_BLADE:
+			ADD_FLG(BAR_ICE_BLADE);
+			break;
+		case TOGGLE_THUNDER_BLADE:
+			ADD_FLG(BAR_THUNDER_BLADE);
+			break;
+		case TOGGLE_BLOOD_BLADE:
+			ADD_FLG(BAR_BLOOD_BLADE);
+			break;
+		case TOGGLE_HOLY_BLADE:
+			ADD_FLG(BAR_HOLY_BLADE);
+			break;
+		case TOGGLE_ORDER_BLADE:
+			ADD_FLG(BAR_ORDER_BLADE);
+			break;
+		case TOGGLE_WILD_BLADE:
+			ADD_FLG(BAR_WILD_BLADE);
 			break;
 		}
 	}
@@ -1508,7 +1543,7 @@ static void prt_speed(void)
 	row_speed = hgt + ROW_SPEED;
 
 	/* Hack -- Visually "undo" the Search Mode Slowdown */
-	if (p_ptr->action == ACTION_SEARCH && !p_ptr->lightspeed) i += 10;
+	if (p_ptr->action == ACTION_SEARCH && !IS_LIGHT_SPEED()) i += 10;
 
 	/* Fast */
 	if (i > 110)
@@ -1520,7 +1555,7 @@ static void prt_speed(void)
 			else if (MON_SLOW(m_ptr) && !MON_FAST(m_ptr)) attr = TERM_VIOLET;
 			else attr = TERM_GREEN;
 		}
-		else if ((is_fast && !p_ptr->slow) || p_ptr->lightspeed) attr = TERM_YELLOW;
+		else if ((is_fast && !p_ptr->slow) || IS_LIGHT_SPEED()) attr = TERM_YELLOW;
 		else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
 		else attr = TERM_L_GREEN;
 #ifdef JP
@@ -3010,7 +3045,7 @@ static void calc_hitpoints(void)
 
 	/* Factor in the hero / superhero settings */
 	if (IS_HERO()) mhp += 10;
-	if (p_ptr->shero && (p_ptr->pclass != CLASS_BERSERKER)) mhp += 30;
+	if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER)) mhp += 30;
 	if (p_ptr->tsuyoshi) mhp += 50;
 	if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_UNDEAD) mhp += 100 * p_ptr->lev/50;
 
@@ -3394,6 +3429,8 @@ void calc_bonuses(void)
 	p_ptr->painted_target = FALSE;
 	p_ptr->enhanced_crit = FALSE;
 	p_ptr->cleave = FALSE;
+	p_ptr->constant_hero = FALSE;
+	p_ptr->vorpal = FALSE;
 
 	p_ptr->align = friend_align;
 
@@ -3959,7 +3996,7 @@ void calc_bonuses(void)
 		p_ptr->dis_to_a += 100;
 	}
 	/* Temporary shield */
-	else if (p_ptr->tsubureru || p_ptr->shield || p_ptr->magicdef)
+	else if (p_ptr->tsubureru || IS_STONE_SKIN() || p_ptr->magicdef)
 	{
 		p_ptr->to_a += 50;
 		p_ptr->dis_to_a += 50;
@@ -4627,13 +4664,13 @@ void calc_bonuses(void)
 	}
 
 	/* Wraith form */
-	if (p_ptr->wraith_form)
+	if (IS_WRAITH())
 	{
 		p_ptr->reflect = TRUE;
 		p_ptr->pass_wall = TRUE;
 	}
 
-	if (p_ptr->kabenuke)
+	if (IS_PASSWALL())
 	{
 		p_ptr->pass_wall = TRUE;
 	}
@@ -4661,20 +4698,8 @@ void calc_bonuses(void)
 		p_ptr->levitation = TRUE;
 	}
 
-	/* Temporary "Hero" */
-	if (IS_HERO())
-	{
-		p_ptr->weapon_info[0].to_h += 12;
-		p_ptr->weapon_info[1].to_h += 12;
-		p_ptr->to_h_b  += 12;
-		p_ptr->to_h_m  += 12;
-		p_ptr->weapon_info[0].dis_to_h += 12;
-		p_ptr->weapon_info[1].dis_to_h += 12;
-		p_ptr->dis_to_h_b  += 12;
-	}
-
 	/* Temporary "Beserk" */
-	if (p_ptr->shero)
+	if (IS_SHERO())
 	{
 		p_ptr->weapon_info[0].to_h += 12;
 		p_ptr->weapon_info[1].to_h += 12;
@@ -4755,7 +4780,7 @@ void calc_bonuses(void)
 	}
 
 	/* Temporary infravision boost */
-	if (p_ptr->tim_infra)
+	if (IS_TIM_INFRA())
 	{
 		p_ptr->see_infra+=3;
 	}
@@ -4777,13 +4802,6 @@ void calc_bonuses(void)
 	{
 		p_ptr->reflect = TRUE;
 	}
-
-	/* Hack -- Hero/Shero -> Res fear */
-	if (IS_HERO() || p_ptr->shero)
-	{
-		p_ptr->resist_fear = TRUE;
-	}
-
 
 	/* Hack -- Telepathy Change */
 	if (p_ptr->telepathy != old_telepathy)
@@ -4816,6 +4834,24 @@ void calc_bonuses(void)
 	/* Call the class hook after scanning equipment but before calculating encumbrance, et. al.*/
 	if (class_ptr != NULL && class_ptr->calc_bonuses != NULL)
 		class_ptr->calc_bonuses();
+
+	/* Temporary "Hero" ... moved after class processing for the Swordmaster */
+	if (IS_HERO())
+	{
+		p_ptr->weapon_info[0].to_h += 12;
+		p_ptr->weapon_info[1].to_h += 12;
+		p_ptr->to_h_b  += 12;
+		p_ptr->to_h_m  += 12;
+		p_ptr->weapon_info[0].dis_to_h += 12;
+		p_ptr->weapon_info[1].dis_to_h += 12;
+		p_ptr->dis_to_h_b  += 12;
+	}
+
+	/* Hack -- Hero/Shero -> Res fear */
+	if (IS_HERO() || IS_SHERO())
+	{
+		p_ptr->resist_fear = TRUE;
+	}
 
 	/* Calculate stats after calling class hook */
 	for (i = 0; i < 6; i++)
@@ -5692,7 +5728,7 @@ void calc_bonuses(void)
 
 	/* Maximum speed is (+99). (internally it's 110 + 99) */
 	/* Temporary lightspeed forces to be maximum speed */
-	if ((p_ptr->lightspeed && !p_ptr->riding) || (p_ptr->pspeed > 209))
+	if ((IS_LIGHT_SPEED() && !p_ptr->riding) || (p_ptr->pspeed > 209))
 	{
 		p_ptr->pspeed = 209;
 	}
@@ -5801,7 +5837,7 @@ void calc_bonuses(void)
 
 	if (p_ptr->tsubureru) p_ptr->skill_sav = 10;
 
-	if ((p_ptr->ult_res || p_ptr->resist_magic || p_ptr->magicdef) && (p_ptr->skill_sav < (95 + p_ptr->lev))) p_ptr->skill_sav = 95 + p_ptr->lev;
+	if ((p_ptr->ult_res || IS_RESIST_MAGIC() || p_ptr->magicdef) && (p_ptr->skill_sav < (95 + p_ptr->lev))) p_ptr->skill_sav = 95 + p_ptr->lev;
 
 	if (down_saving) p_ptr->skill_sav /= 2;
 

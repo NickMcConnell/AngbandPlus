@@ -303,6 +303,9 @@
     <ClCompile Include="weaponmaster.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="wild_realm.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

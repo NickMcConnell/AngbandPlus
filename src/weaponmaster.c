@@ -207,6 +207,253 @@ static int _set_toggle(s32b toggle)
  * Private Spells
  ****************************************************************/
 
+static void _burning_blade_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Burning Blade");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Damage from your blade becomes fire damage and never misses.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_BURNING_BLADE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_BURNING_BLADE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_BURNING_BLADE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _ice_blade_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Ice Blade");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Damage from your blade becomes frost damage and slows your opponent.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_ICE_BLADE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_ICE_BLADE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_ICE_BLADE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _thunder_blade_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Thunder Blade");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Damage from your blade becomes lightning damage and stuns your opponent.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_THUNDER_BLADE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_THUNDER_BLADE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_THUNDER_BLADE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _blood_blade_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Blood Blade");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Your blade thirsts for the living.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_BLOOD_BLADE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_BLOOD_BLADE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_BLOOD_BLADE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _holy_blade_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Holy Blade");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Your blade fights powerful against the forces of evil.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_HOLY_BLADE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_HOLY_BLADE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_HOLY_BLADE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _order_blade_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Order Blade");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Your blade becomes a weapon of order, always dealing maximal damage.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_ORDER_BLADE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_ORDER_BLADE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_ORDER_BLADE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _wild_blade_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Wild Blade");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "This is too crazy to describe.  You wouldn't believe me anyway!");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_WILD_BLADE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_WILD_BLADE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_WILD_BLADE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+
+
 static void _bouncing_pebble_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1893,6 +2140,13 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 0, 0 },
 	  },
 	  {
+		{  5,   0,  0, _burning_blade_spell },
+		{ 10,   0,  0, _ice_blade_spell },
+		{ 15,   0,  0, _thunder_blade_spell },
+		{ 25,   0,  0, _blood_blade_spell },
+		{ 30,   0,  0, _holy_blade_spell },
+		{ 35,   0,  0, _order_blade_spell },
+		{ 40,   0,  0, _wild_blade_spell },
 	    { -1,   0,  0, NULL },
 	  },
 	  { TV_SWORD, SV_LONG_SWORD } ,
@@ -2137,6 +2391,9 @@ static int _get_spells(spell_info* spells, int max)
 		current->fail = 0;			
 		ct++;
 	}
+
+	if (ct == 0)
+		msg_print("You need more experience.  Why not kill something?");
 
 	return ct;
 }
@@ -2421,6 +2678,32 @@ static void _calc_bonuses(void)
 				p_ptr->cleave = TRUE;
 		}
 	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Swords") == 0)
+	{
+		if (spec1)
+		{
+			if (p_ptr->lev >= 20)
+			{
+				/* Hackery to keep the status bar up to date ... sigh */
+				if (!IS_HERO())
+				{
+					p_ptr->constant_hero = TRUE;
+					p_ptr->redraw |= (PR_STATUS);
+					redraw_stuff();
+				}
+				else
+					p_ptr->constant_hero = TRUE;				
+			}
+
+			if (p_ptr->lev >= 45)
+				p_ptr->vorpal = TRUE;
+		}
+		else if (last_spec1 && p_ptr->lev >= 20)
+		{
+			p_ptr->redraw |= (PR_STATUS);
+			redraw_stuff();
+		}
+	}
 
 	if (!p_ptr->painted_target)
 	{
@@ -2566,6 +2849,16 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 			info_ptr->to_h -= p_ptr->lev;
 			info_ptr->dis_to_h -= p_ptr->lev;
 			break;
+		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Swords") == 0)
+	{
+	int spec1 = _check_speciality1_aux(o_ptr);
+	int spec2 = _check_speciality2_aux(o_ptr);
+		if (spec1 && p_ptr->speciality1_equip)
+		{
+			info_ptr->to_h += 10;
+			info_ptr->dis_to_h += 10;
 		}
 	}
 }

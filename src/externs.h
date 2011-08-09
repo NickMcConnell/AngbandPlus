@@ -1921,6 +1921,7 @@ extern cptr weaponmaster_speciality2_name(void);
 extern int weaponmaster_specialty2_k_idx(void);
 extern int weaponmaster_wield_hack(object_type *o_ptr);
 extern void weaponmaster_get_frenzy_items(void);
+extern void weaponmaster_do_wild_blade(void);
 extern int shoot_hack;
 extern int shoot_count;
 extern int shoot_item;
@@ -1931,3 +1932,11 @@ extern class_t *wild_talent_get_class_t(void);
 extern void wild_talent_scramble(void);
 extern void wild_talent_new_life(void);
 extern void wild_talent_fix_up(void);
+
+/* wild_realm.c */
+extern void wild_weapon_strike(void);
+extern void wild_decrement_counters(void);
+extern void wild_reset_counters(void);
+extern void wild_dispel_player(void);
+extern bool wild_has_power(int power);
+extern void wild_reset_counter(int power);
