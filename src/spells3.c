@@ -1433,8 +1433,8 @@ int _get_random_brand(int depth)
 	for (;;)	/* Make sure the table above accepts something for every possible depth!!! */
 	{
 		int i = randint0(_MAX_BRANDS);
-		if (_brand_types[i].min_depth > depth && !one_in_(_brand_types[i].min_depth - depth)) continue;
-		if (depth > _brand_types[i].max_depth && !one_in_(depth - _brand_types[i].max_depth)) continue;
+		if (_brand_types[i].min_depth > depth && !one_in_(_brand_types[i].min_depth - depth + 1)) continue;
+		if (depth > _brand_types[i].max_depth && !one_in_(depth - _brand_types[i].max_depth + 1)) continue;
 		return i;
 	}
 	return -1; /* unreachable */
@@ -1508,7 +1508,10 @@ s = "強化できる武器がない。";
 		switch (_brand_types[idx].ego_type)
 		{
 		case EGO_SLAYING_WEAPON:
-			if (one_in_(3)) /* double damage */
+		{
+			int odds = o_ptr->dd * o_ptr->ds / 5;
+			if (odds < 3) odds = 3;
+			if (one_in_(odds)) /* double damage */
 				o_ptr->dd *= 2;
 			else
 			{
@@ -1534,7 +1537,7 @@ s = "強化できる武器がない。";
 				add_flag(o_ptr->art_flags, TR_VORPAL);
 			}
 			break;
-
+		}
 		case EGO_PATTERN:
 			o_ptr->pval = randint1(2);
 			if (one_in_(3))

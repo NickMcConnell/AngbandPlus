@@ -2264,13 +2264,22 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		if ((randint1(10) >= percentage) ||
 		    ((dam >= m_ptr->hp) && (randint0(100) < 80)))
 		{
-			/* Hack -- note fear */
-			(*fear) = TRUE;
+			if (m_ptr->mflag2 & MFLAG2_ENCLOSED)
+			{
+				char m_name[80];
+				monster_desc(m_name, m_ptr, 0);
+				msg_format("%^s is enclosed and unable to run away!", m_name);
+			}
+			else
+			{
+				/* Hack -- note fear */
+				(*fear) = TRUE;
 
-			/* XXX XXX XXX Hack -- Add some timed fear */
-			(void)set_monster_monfear(m_idx, (randint1(10) +
-					  (((dam >= m_ptr->hp) && (percentage > 7)) ?
-					   20 : ((11 - percentage) * 5))));
+				/* XXX XXX XXX Hack -- Add some timed fear */
+				(void)set_monster_monfear(m_idx, (randint1(10) +
+						  (((dam >= m_ptr->hp) && (percentage > 7)) ?
+						   20 : ((11 - percentage) * 5))));
+			}
 		}
 	}
 

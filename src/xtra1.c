@@ -400,6 +400,10 @@ static void prt_stat(int stat)
 #define BAR_HOLY_BLADE 93
 #define BAR_ORDER_BLADE 94
 #define BAR_WILD_BLADE 95
+#define BAR_MANY_STRIKE 96
+#define BAR_PIERCING_STRIKE 97
+#define BAR_TRIP 98
+#define BAR_ENTRENCHED 99
 
 static struct {
 	byte attr;
@@ -577,6 +581,10 @@ static struct {
 	{TERM_WHITE, "HB", "Holy Blade"},
 	{TERM_ORANGE, "OB", "Order Blade"},
 	{TERM_GREEN, "WB", "Wild Blade"},
+	{TERM_L_BLUE, "MS", "Many Strike"},
+	{TERM_L_BLUE, "PS", "Piercing Strike"},
+	{TERM_L_BLUE, "Trp", "Trip"},
+	{TERM_UMBER, "En", "Entrenched"},
 	{0, NULL, NULL}
 };
 #endif
@@ -590,7 +598,7 @@ static struct {
  */
 static void prt_status(void)
 {
-	u32b bar_flags[3];
+	u32b bar_flags[7];
 	int wid, hgt, row_statbar, max_col_statbar;
 	int i, col = 0, num = 0;
 	int space = 2;
@@ -601,7 +609,8 @@ static void prt_status(void)
 
 	Term_erase(0, row_statbar, max_col_statbar);
 
-	bar_flags[0] = bar_flags[1] = bar_flags[2] = 0L;
+	for (i = 0; i < 7; i++)
+		bar_flags[i] = 0L;
 
 	/* Tsuyoshi  */
 	if (p_ptr->tsuyoshi) ADD_FLG(BAR_TSUYOSHI);
@@ -796,7 +805,18 @@ static void prt_status(void)
 		case TOGGLE_WILD_BLADE:
 			ADD_FLG(BAR_WILD_BLADE);
 			break;
+		case TOGGLE_MANY_STRIKE:
+			ADD_FLG(BAR_MANY_STRIKE);
+			break;
+		case TOGGLE_PIERCING_STRIKE:
+			ADD_FLG(BAR_PIERCING_STRIKE);
+			break;
+		case TOGGLE_TRIP:
+			ADD_FLG(BAR_TRIP);
+			break;
 		}
+
+		if (p_ptr->entrenched) ADD_FLG(BAR_ENTRENCHED);
 	}
 
 	if (p_ptr->sense_artifact) ADD_FLG(BAR_SPECIAL);
@@ -3431,6 +3451,8 @@ void calc_bonuses(void)
 	p_ptr->cleave = FALSE;
 	p_ptr->constant_hero = FALSE;
 	p_ptr->vorpal = FALSE;
+	p_ptr->whirlwind = FALSE;
+	p_ptr->entrenched = FALSE;
 
 	p_ptr->align = friend_align;
 

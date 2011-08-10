@@ -2463,7 +2463,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						add_flag(o_ptr->art_flags, TR_RES_FEAR);
 					break;
 				case EGO_SLAYING_WEAPON:
-					if (one_in_(3)) /* double damage */
+				{
+					int odds = o_ptr->dd * o_ptr->ds / 5;
+					if (odds < 3) odds = 3;
+					if (one_in_(odds)) /* double damage */
 					{
 						o_ptr->dd *= 2;
 
@@ -2506,6 +2509,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						add_flag(o_ptr->art_flags, TR_VORPAL);
 					}
 					break;
+				}
 				case EGO_TRUMP:
 					if (one_in_(5))
 						add_flag(o_ptr->art_flags, TR_SLAY_DEMON);

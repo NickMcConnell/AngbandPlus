@@ -264,7 +264,7 @@ static void wr_monster(monster_type *m_ptr)
 	}
 	if (flags & SAVE_MON_SMART) wr_u32b(m_ptr->smart);
 	if (flags & SAVE_MON_EXP) wr_u32b(m_ptr->exp);
-	if (flags & SAVE_MON_MFLAG2) wr_byte(m_ptr->mflag2);
+	if (flags & SAVE_MON_MFLAG2) wr_u32b(m_ptr->mflag2);
 	if (flags & SAVE_MON_NICKNAME) wr_string(quark_str(m_ptr->nickname));
 	if (flags & SAVE_MON_PARENT) wr_s16b(m_ptr->parent_m_idx);
 	if (flags & SAVE_MON_PACK_IDX) wr_s16b(m_ptr->pack_idx);
@@ -765,6 +765,9 @@ static void wr_extra(void)
 			wr_s16b(p_ptr->wild_counters[i].counter);
 		}
 	}
+	wr_s16b(p_ptr->entrench_x);
+	wr_s16b(p_ptr->entrench_y);
+	wr_s16b(p_ptr->entrench_ct);
 	wr_s16b(p_ptr->base_spell_power);
 	wr_byte(p_ptr->sense_artifact);
 	wr_s16b(p_ptr->duelist_target_idx);

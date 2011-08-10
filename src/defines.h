@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 54
+#define FAKE_VER_PATCH 55
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 54
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 55
+#define H_VER_EXTRA 2
 
 
 #define ANGBAND_2_8_1
@@ -3164,13 +3164,16 @@
 #define MFLAG_BORN      0x10    /* Monster is still being born */
 #define MFLAG_NICE      0x20    /* Monster is still being nice */
 
-#define MFLAG2_KAGE      0x01    /* Monster is kage */
-#define MFLAG2_NOPET     0x02    /* Cannot make monster pet */
-#define MFLAG2_NOGENO    0x04    /* Cannot genocide */
-#define MFLAG2_CHAMELEON 0x08    /* Monster is chameleon */
-#define MFLAG2_NOFLOW    0x10    /* Monster is in no_flow_by_smell mode */
-#define MFLAG2_SHOW      0x20    /* Monster is recently memorized */
-#define MFLAG2_MARK      0x40    /* Monster is currently memorized */
+#define MFLAG2_KAGE       0x00000001    /* Monster is kage */
+#define MFLAG2_NOPET      0x00000002    /* Cannot make monster pet */
+#define MFLAG2_NOGENO     0x00000004    /* Cannot genocide */
+#define MFLAG2_CHAMELEON  0x00000008    /* Monster is chameleon */
+#define MFLAG2_NOFLOW     0x00000010    /* Monster is in no_flow_by_smell mode */
+#define MFLAG2_SHOW       0x00000020    /* Monster is recently memorized */
+#define MFLAG2_MARK       0x00000040    /* Monster is currently memorized */
+#define MFLAG2_TRIPPED	  0x00000080
+#define MFLAG2_ENCLOSED   0x00000100
+#define MFLAG2_NODESTRUCT 0x00000200    /* Cannot destruct */
 
 
 /*
@@ -5215,6 +5218,14 @@ extern int PlayerUID;
 #define WEAPONMASTER_CRUSADERS_STRIKE 33
 #define WEAPONMASTER_STRIKE_VULNERABILITY 34
 #define WEAPONMASTER_VICIOUS_STRIKE 35
+#define WEAPONMASTER_MANY_STRIKE 36
+#define WEAPONMASTER_WHIRLWIND 37
+#define WEAPONMASTER_PIERCING_STRIKE 38
+#define WEAPONMASTER_ENCLOSE 39
+#define WEAPONMASTER_PROXIMITY_ALERT 40
+#define WEAPONMASTER_AUTO_BLOW 41
+#define WEAPONMASTER_KNOCK_BACK 42
+#define WEAPONMASTER_REAPING 43
 
 
 #define MAX_FRENZY_ITEMS 3
@@ -5648,6 +5659,11 @@ extern int PlayerUID;
 	#define TOGGLE_HOLY_BLADE			14
 	#define TOGGLE_ORDER_BLADE			15
 	#define TOGGLE_WILD_BLADE			16
+
+	/* Scythemaster */
+	#define TOGGLE_MANY_STRIKE			17
+	#define TOGGLE_PIERCING_STRIKE		18
+	#define TOGGLE_TRIP					19
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1

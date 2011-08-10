@@ -3455,6 +3455,15 @@ msg_format("%^s%s", m_name, monmessage);
 
 				/* Redraw the new grid */
 				lite_spot(ny, nx);
+
+				/* Hack: Some classes have techniques to apply whenever a monster
+				   moves too close */
+				{
+				class_t *class_ptr = get_class_t();
+
+					if (class_ptr && class_ptr->move_monster)
+						class_ptr->move_monster(m_idx);
+				}
 			}
 			else
 			{
@@ -3912,6 +3921,20 @@ void process_monsters(void)
 		/* Use up "some" energy */
 		m_ptr->energy_need += ENERGY_NEED();
 
+		if (m_ptr->mflag2 & MFLAG2_ENCLOSED)
+		{
+			m_ptr->mflag2 &= ~MFLAG2_ENCLOSED;
+		}
+
+		if (m_ptr->mflag2 & MFLAG2_TRIPPED)
+		{
+			char m_name[80];
+			monster_desc(m_name, m_ptr, 0);
+			msg_format("%^s gets back up and looks mad as hell.", m_name);
+			m_ptr->mflag2 &= ~MFLAG2_TRIPPED;
+			m_ptr->smart |= SM_TICKED_OFF;
+			continue;
+		}
 
 		/* Save global index */
 		hack_m_idx = i;

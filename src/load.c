@@ -540,7 +540,17 @@ static void rd_monster(monster_type *m_ptr)
 
 	m_ptr->mflag = 0; /* Not saved */
 
-	if (flags & SAVE_MON_MFLAG2) rd_byte(&m_ptr->mflag2);
+	if (flags & SAVE_MON_MFLAG2) 
+	{
+		if (h_older_than(0, 0, 55, 1))
+		{
+			byte b;
+			rd_byte(&b);
+			m_ptr->mflag2 = b;
+		}
+		else
+			rd_u32b(&m_ptr->mflag2);
+	}
 	else m_ptr->mflag2 = 0;
 
 	if (flags & SAVE_MON_NICKNAME) 
@@ -1378,6 +1388,19 @@ static void rd_extra(void)
 			rd_s16b(&p_ptr->wild_counters[i].type);
 			rd_s16b(&p_ptr->wild_counters[i].counter);
 		}
+	}
+
+	if (h_older_than(0, 0, 55, 2))
+	{
+		p_ptr->entrench_x = 0;
+		p_ptr->entrench_y = 0;
+		p_ptr->entrench_ct = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->entrench_x);
+		rd_s16b(&p_ptr->entrench_y);
+		rd_s16b(&p_ptr->entrench_ct);
 	}
 
 	if (h_older_than(0, 0, 49, 3))

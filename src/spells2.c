@@ -4352,26 +4352,64 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 					/* Delete the monster (if any) */
 					delete_monster(y, x);
 				}
-				else if (r_ptr->flags1 & RF1_QUESTOR)
+				else 
 				{
-					/* Heal the monster */
-					m_ptr->hp = m_ptr->maxhp;
+					bool resist = FALSE;
+					if (m_ptr->mflag2 & MFLAG2_NODESTRUCT) resist = TRUE;
+					else if (r_ptr->level > randint0(300)) resist = TRUE; /* Fairly effective ... */
 
-					/* Try to teleport away quest monsters */
-					if (!teleport_away(c_ptr->m_idx, (r * 2) + 1, TELEPORT_DEC_VALOUR)) continue;
-				}
-				else
-				{
-					if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+					if (resist)
 					{
+						bool see_m = is_seen(m_ptr);
 						char m_name[80];
 
-						monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-						do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_DESTROY, m_name);
-					}
+						monster_desc(m_name, m_ptr, 0);
 
-					/* Delete the monster (if any) */
-					delete_monster(y, x);
+						if (see_m)
+							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+
+						if (MON_CSLEEP(m_ptr))
+						{
+							set_monster_csleep(c_ptr->m_idx, 0);
+							if (m_ptr->ml)
+								msg_format(T("%^s wakes up.", "%^sが目を覚ました。"), m_name);
+						}
+
+						if (is_friendly(m_ptr) && !is_pet(m_ptr))
+						{
+							if (see_m)
+								msg_format(T("%^s gets angry!", "%sは怒った！"), m_name);
+							set_hostile(m_ptr);
+						}
+						if (one_in_(13)) 
+							m_ptr->mflag2 |= MFLAG2_NODESTRUCT;
+
+						continue;
+					}
+					else
+					{
+						if (r_ptr->flags1 & RF1_QUESTOR)
+						{
+							/* Heal the monster */
+							m_ptr->hp = m_ptr->maxhp;
+
+							/* Try to teleport away quest monsters */
+							if (!teleport_away(c_ptr->m_idx, (r * 2) + 1, TELEPORT_DEC_VALOUR)) continue;
+						}
+						else
+						{
+							if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+							{
+								char m_name[80];
+
+								monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+								do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_DESTROY, m_name);
+							}
+
+							/* Delete the monster (if any) */
+							delete_monster(y, x);
+						}
+					}
 				}
 			}
 

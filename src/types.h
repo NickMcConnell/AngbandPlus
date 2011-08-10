@@ -595,8 +595,8 @@ struct monster_type
 
 	byte cdis;		/* Current dis from player */
 
-	byte mflag;		/* Extra monster flags */
-	byte mflag2;		/* Extra monster flags */
+	u32b mflag;		/* Extra monster flags */
+	u32b mflag2;		/* Extra monster flags */
 
 	bool ml;		/* Monster is "visible" */
 
@@ -1167,6 +1167,12 @@ struct player_type
 	bool cleave;
 	bool constant_hero;
 	bool vorpal;
+	bool whirlwind;
+
+	s16b entrench_x;
+	s16b entrench_y;
+	s16b entrench_ct;
+	bool entrenched;
 
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
@@ -1906,6 +1912,7 @@ typedef struct {
 
 typedef void(*process_player_fn)(void);
 typedef void(*move_player_fn)(void);
+typedef void(*move_monster_fn)(int m_idx);
 typedef void(*calc_bonuses_fn)(void);
 typedef void(*birth_fn)(void);
 typedef void(*calc_weapon_bonuses_fn)(object_type *o_ptr, weapon_info_t *info_ptr);
@@ -1939,7 +1946,8 @@ typedef struct {
 	s16b					exp;			/* Class experience factor */
 	byte					pets;			/* Pet upkeep divider */
 	process_player_fn		process_player; /* Called from process_player ... but player take 0 or more actions per call */
-	process_player_fn		move_player;    /* Called every time the player actually moves */
+	move_player_fn			move_player;    /* Called every time the player actually moves */
+	move_monster_fn			move_monster;	/* Called whenever a monster moves */
 	calc_bonuses_fn			calc_bonuses;
 	calc_weapon_bonuses_fn	calc_weapon_bonuses;
 	caster_info_fn			caster_info;

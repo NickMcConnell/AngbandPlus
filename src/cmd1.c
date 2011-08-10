@@ -2342,19 +2342,52 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
  *
  * If no "weapon" is available, then "punch" the monster one time.
  */
-static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int mode)
+
+static int drain_left = MAX_VAMPIRIC_DRAIN;
+
+static int calculate_dir(int sx, int sy, int tx, int ty)
+{
+	int dir;
+	for (dir = 0; dir <= 9; dir++)
+	{
+		int x = sx + ddx[dir];
+		int y = sy + ddy[dir];
+
+		if (x == tx && y == ty) return dir;
+	}
+	return 5;
+}
+
+static int get_next_dir(int dir)
+{
+	switch (dir)
+	{
+	case 1: return 4;
+	case 4: return 7;
+	case 7: return 8;
+	case 8: return 9;
+	case 9: return 6;
+	case 6: return 3;
+	case 3: return 2;
+	case 2: return 1;
+	}
+	return 5;
+}
+
+static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int mode)
 {
 	int		num = 0, k, bonus, chance, vir;
 
 	cave_type       *c_ptr = &cave[y][x];
 
-	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+	monster_type    *m_ptr = 0;
+	monster_race    *r_ptr = 0;
 
 	/* Access the weapon */
 	object_type     *o_ptr = &inventory[INVEN_RARM + hand];
 
-	char            m_name[80];
+	char            m_name[MAX_NLEN];
+	char			o_name[MAX_NLEN];
 
 	bool            success_hit = FALSE;
 	bool            backstab = FALSE;
@@ -2370,19 +2403,27 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	int             drain_result = 0, drain_heal = 0;
 	bool            can_drain = FALSE;
 	int             num_blow;
-	int             drain_left = MAX_VAMPIRIC_DRAIN;
 	u32b flgs[TR_FLAG_SIZE]; /* A massive hack -- life-draining weapons */
-	bool            is_human = (r_ptr->d_char == 'p');
-	bool            is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
+	bool            is_human;
+	bool            is_lowlevel;
 	bool            zantetsu_mukou, e_j_mukou;
 	int				knock_out = 0;
 
-	if (p_ptr->wizard && 0)
+	if (!c_ptr->m_idx)
 	{
-		char buf[MAX_NLEN];
-		object_desc(buf, o_ptr, 0);
-		msg_format("Attacking with %s", buf);
+		msg_print("You swing wildly at nothing.");
+		return FALSE;
 	}
+
+	m_ptr = &m_list[c_ptr->m_idx];
+	r_ptr = &r_info[m_ptr->r_idx];
+	is_human = (r_ptr->d_char == 'p');
+	is_lowlevel = (r_ptr->level < (p_ptr->lev - 15));
+
+	object_desc(o_name, o_ptr, OD_NAME_ONLY);
+
+	if (p_ptr->wizard)
+		msg_format("Attacking with %s", o_name);
 
 	if (p_ptr->painted_target)
 	{
@@ -2478,6 +2519,9 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->weapon_info[hand].to_h + o_ptr->to_h;
+	if (mode == WEAPONMASTER_ENCLOSE) bonus -= 10;
+	if (mode == WEAPONMASTER_KNOCK_BACK) bonus -= 20;
+	if (mode == WEAPONMASTER_REAPING) bonus -= 40;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 	if (mode == HISSATSU_IAI) chance += 60;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) chance += 150;
@@ -2503,6 +2547,16 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	/* Attack once for each legal blow */
 	while ((num++ < num_blow) && !p_ptr->is_dead)
 	{
+	bool do_whirlwind = FALSE;
+	bool did_knockback = FALSE;
+
+		/* Weaponmaster Whirlwind turns a normal strike into a sweeping whirlwind strike */
+		if (p_ptr->whirlwind && mode == 0)
+		{
+			if (one_in_(5))
+				do_whirlwind = TRUE;
+		}
+
 		if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
 		{
 			int n = 1;
@@ -3186,8 +3240,55 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 			}
 
+			if (mode == WEAPONMASTER_REAPING)
+			{
+				int              start_dir, x2, y2;
+				int				 dir;
+				cave_type       *c_ptr2;
+				monster_type    *m_ptr2;
+				bool             fear2 = FALSE;
+				int				 ct = 10;
+
+				k *= 2;
+
+				/* First hit the chosen target */			
+				if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
+				{
+					*mdeath = TRUE;
+					ct += 5;
+				}
+
+				msg_format("Your swing your %s about, reaping a harvest of death!", o_name);
+			
+				/* Next hit all adjacent targets in a swinging circular arc */
+				start_dir = calculate_dir(px, py, x, y);
+				dir = start_dir;
+
+				for (;;)
+				{
+					dir = get_next_dir(dir);
+					if (dir == start_dir || dir == 5) break;
+
+					x2 = px + ddx[dir];
+					y2 = py + ddy[dir];
+					c_ptr2 = &cave[y2][x2];
+					m_ptr2 = &m_list[c_ptr2->m_idx];
+
+					if (c_ptr2->m_idx && (m_ptr2->ml || cave_have_flag_bold(y2, x2, FF_PROJECT)))
+					{
+						if (mon_take_hit(c_ptr2->m_idx, k, &fear2, NULL))
+							ct += 5;
+					}
+				}
+
+				/* Finally, gain Wraithform */
+				set_wraith_form(p_ptr->wraith_form + ct/10, FALSE);
+
+				if (p_ptr->wizard)
+					msg_print("****END REAPING****");
+			}
 			/* Damage, check for fear and death */
-			if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
+			else if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
 			{
 				*mdeath = TRUE;
 
@@ -3230,12 +3331,59 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 			else
 			{
+				if (mode == WEAPONMASTER_ENCLOSE)
+				{
+					if (!(m_ptr->mflag2 & MFLAG2_ENCLOSED))
+					{
+						msg_format("%^s seems unable to run away.", m_name);
+						m_ptr->mflag2 |= MFLAG2_ENCLOSED;
+					}
+				}
+
+				if (mode == WEAPONMASTER_KNOCK_BACK)
+				{
+					int dir = calculate_dir(px, py, x, y);
+					if (dir != 5)
+					{
+						int ty = y, tx = x;
+						int oy = y, ox = x;
+
+						y += ddy[dir];
+						x += ddx[dir];
+						if (cave_empty_bold(y, x))
+						{
+							ty = y;
+							tx = x;
+						}
+						did_knockback = TRUE;
+						if (ty != oy || tx != ox)
+						{
+							int m_idx = cave[oy][ox].m_idx;
+
+							msg_format("You knock %s back!", m_name);
+							cave[oy][ox].m_idx = 0;
+							cave[ty][tx].m_idx = m_idx;
+							m_ptr->fy = ty;
+							m_ptr->fx = tx;
+	
+							update_mon(m_idx, TRUE);
+							lite_spot(oy, ox);
+							lite_spot(ty, tx);
+	
+							if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+								p_ptr->update |= PU_MON_LITE;
+						}
+						else
+							msg_format("You fail to knock %s back.", m_name);
+					}
+				}
+
 				if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
 				{
 					msg_format("Your Crusader's Strike drains life from %s!", m_name);
 					hp_player(k);
 				}
-
+			
 				/* Clubmaster Hacks.  We do these effects *after* the monster takes damage. */
 				if ( p_ptr->pclass == CLASS_WEAPONMASTER
 				  && strcmp(weaponmaster_speciality1_name(), "Clubs") == 0
@@ -3362,12 +3510,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 						if (cheat_xtra || p_ptr->wizard)
 						{
-#ifdef JP
-							msg_format("Draining left: %d", drain_left);
-#else
-							msg_format("Draining left: %d", drain_left);
-#endif
-
+							msg_format("Draining left: %d  amount: %d", drain_left, drain_heal);
 						}
 
 						if (drain_left)
@@ -3708,9 +3851,49 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) num_blow = 1;
 		}
 
+		/* Hack: Whirlwind first attacks chosen monster, than attempts to strike
+		   all other monsters adjacent.*/
+		if (do_whirlwind)
+		{
+			int              start_dir, x2, y2;
+			int				 dir;
+			cave_type       *c_ptr2;
+			monster_type    *m_ptr2;
+			bool			fear2 = FALSE;
+			bool			mdeath2 = FALSE;
+
+			msg_format("Your swing your %s about, striking all nearby foes.", o_name);
+			
+			start_dir = calculate_dir(px, py, x, y);
+			dir = start_dir;
+
+			for (;;)
+			{
+				dir = get_next_dir(dir);
+				if (dir == start_dir || dir == 5) break;
+
+				x2 = px + ddx[dir];
+				y2 = py + ddy[dir];
+				c_ptr2 = &cave[y2][x2];
+				m_ptr2 = &m_list[c_ptr2->m_idx];
+
+				if (c_ptr2->m_idx && (m_ptr2->ml || cave_have_flag_bold(y2, x2, FF_PROJECT)))
+					py_attack_aux(y2, x2, &fear2, &mdeath2, hand, WEAPONMASTER_WHIRLWIND);
+			}
+
+			if (p_ptr->wizard)
+				msg_print("****END WHIRLWIND****");
+		}
+
 		if (mode == WEAPONMASTER_RETALIATION) break;
 		if (mode == WEAPONMASTER_CRUSADERS_STRIKE) break;
 		if (mode == WEAPONMASTER_STRIKE_VULNERABILITY) break;
+		if (mode == WEAPONMASTER_MANY_STRIKE) break;
+		if (mode == WEAPONMASTER_PIERCING_STRIKE) break;
+		if (mode == WEAPONMASTER_PROXIMITY_ALERT) break;
+		if (mode == WEAPONMASTER_WHIRLWIND) break;
+		if (mode == WEAPONMASTER_KNOCK_BACK && did_knockback) break;
+		if (mode == WEAPONMASTER_REAPING) break;
 	}
 
 	/* Sleep counter ticks down in energy units ... Also, *lots* of code
@@ -3718,6 +3901,25 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	   about when we call this.  */
 	if (knock_out && !(*mdeath))
 		set_monster_csleep(c_ptr->m_idx, MON_CSLEEP(m_ptr) + 500);
+
+	if (weaponmaster_get_toggle() == TOGGLE_TRIP && mode == 0 && !(*mdeath))
+	{
+		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+		{
+			if (m_ptr->mflag2 & MFLAG2_TRIPPED)
+				msg_format("%^s is already tripped up.", m_name);
+			else if ( !(r_ptr->flags1 & RF1_UNIQUE)
+			       || r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+			{
+				msg_format("%^s cries 'Help, I've fallen and I can't get up!'", m_name);
+				m_ptr->mflag2 |= MFLAG2_TRIPPED;
+			}
+			else
+				msg_format("%^s nimbly dodges your attempt to trip.", m_name);
+		}
+		else
+			msg_format("You attempt to trip %^s but miss.", m_name);
+	}
 
 	if (weak && !(*mdeath))
 	{
@@ -3740,6 +3942,37 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		earthquake(py, px, 10);
 		if (!cave[y][x].m_idx) *mdeath = TRUE;
 	}
+
+	return success_hit;
+}
+
+bool random_opponent(int *y, int *x)
+{
+	int dirs[9];
+	int ct = 0;
+	int i, tx, ty;
+	cave_type *c_ptr;
+
+	for (i = 0; i < 8; i++)
+	{
+		ty = py + ddy_ddd[i];
+		tx = px + ddx_ddd[i];
+		c_ptr = &cave[ty][tx];
+		if (c_ptr->m_idx)
+		{
+			dirs[ct] = i;
+			ct++;
+		}
+	}
+
+	if (ct)
+	{
+		i = randint0(ct);
+		*y = py + ddy_ddd[dirs[i]];
+		*x = px + ddx_ddd[dirs[i]];
+		return TRUE;
+	}
+	return FALSE;
 }
 
 bool py_attack(int y, int x, int mode)
@@ -3757,8 +3990,6 @@ bool py_attack(int y, int x, int mode)
 	disturb(0, 0);
 
 	energy_use = 100;
-
-	if (weaponmaster_get_toggle() == TOGGLE_FRENZY_STANCE) mode = WEAPONMASTER_FRENZY;
 
 	if (!p_ptr->migite && 
 	    !p_ptr->hidarite &&
@@ -3945,7 +4176,8 @@ bool py_attack(int y, int x, int mode)
 
 	riding_t_m_idx = c_ptr->m_idx;
 
-	if (mode == WEAPONMASTER_FRENZY)
+	drain_left = MAX_VAMPIRIC_DRAIN;
+	if (weaponmaster_get_toggle() == TOGGLE_FRENZY_STANCE)
 	{
 		object_type rarm, larm;
 		int i, j;
@@ -3953,13 +4185,16 @@ bool py_attack(int y, int x, int mode)
 		object_copy(&larm, &inventory[INVEN_LARM]);
 
 		/* Attack with equipped weapons */
+		drain_left = MAX_VAMPIRIC_DRAIN;
 		if (p_ptr->migite) 
 			py_attack_aux(y, x, &fear, &mdeath, 0, mode);
 
+		drain_left = MAX_VAMPIRIC_DRAIN;
 		if (p_ptr->hidarite && !mdeath) 
 			py_attack_aux(y, x, &fear, &mdeath, 1, mode);
 
 		/* Attack with inventory weapons as if single wielding */
+		/* Sorry, no more vampirism!! */
 		weaponmaster_get_frenzy_items();
 		for (i = 0; i < MAX_FRENZY_ITEMS; i++)
 		{
@@ -4005,9 +4240,160 @@ bool py_attack(int y, int x, int mode)
 		p_ptr->update |= PU_BONUS;
 		handle_stuff();
 	}
+	else if (weaponmaster_get_toggle() == TOGGLE_MANY_STRIKE && mode == 0)
+	{
+		int i;
+		bool stop = FALSE;
+		int msec = delay_factor * delay_factor * delay_factor;
+		drain_left = MAX_VAMPIRIC_DRAIN;
+		if (p_ptr->migite) 
+		{
+			for (i = 0; i < p_ptr->weapon_info[0].num_blow; i++)
+			{
+				{
+					char c = object_char(&inventory[INVEN_RARM]);
+					byte a = object_attr(&inventory[INVEN_RARM]);
+
+					print_rel(c, a, y, x);
+					move_cursor_relative(y, x);
+					Term_fresh();
+					Term_xtra(TERM_XTRA_DELAY, msec);
+					lite_spot(y, x);
+					Term_fresh();
+				}
+				py_attack_aux(y, x, &fear, &mdeath, 0, WEAPONMASTER_MANY_STRIKE);
+				if (!random_opponent(&y, &x))
+				{
+					stop = TRUE;
+					break;
+				}
+			}
+		}
+		drain_left = MAX_VAMPIRIC_DRAIN;
+		if (p_ptr->hidarite && !stop)
+		{
+			for (i = 0; i < p_ptr->weapon_info[1].num_blow; i++)
+			{
+				{
+					char c = object_char(&inventory[INVEN_LARM]);
+					byte a = object_attr(&inventory[INVEN_LARM]);
+
+					print_rel(c, a, y, x);
+					move_cursor_relative(y, x);
+					Term_fresh();
+					Term_xtra(TERM_XTRA_DELAY, msec);
+					lite_spot(y, x);
+					Term_fresh();
+				}
+				py_attack_aux(y, x, &fear, &mdeath, 1, WEAPONMASTER_MANY_STRIKE);
+				if (!random_opponent(&y, &x)) break;
+			}
+		}
+	}
+	else if (weaponmaster_get_toggle() == TOGGLE_PIERCING_STRIKE && mode == 0)
+	{
+	u16b	path[512];
+	int		ct = project_path(path, 3, py, px, y, x, PROJECT_PATH | PROJECT_THRU);
+	int		msec = delay_factor * delay_factor * delay_factor;
+
+		int i, j;
+		bool stop = FALSE;
+		drain_left = MAX_VAMPIRIC_DRAIN;
+		if (p_ptr->migite) 
+		{
+			for (i = 0; i < p_ptr->weapon_info[0].num_blow; i++)
+			{
+				if (p_ptr->wizard)
+					msg_format("Attack #%d", i+1);
+
+				for (j = 0; j < ct; j++)
+				{
+					int nx, ny;
+					ny = GRID_Y(path[j]);
+					nx = GRID_X(path[j]);
+
+					if (p_ptr->wizard)
+						msg_format("  Step #%d", j+1);
+
+					if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
+					 && !cave[ny][nx].m_idx) 
+					{
+						break;
+					}
+
+					if (!cave[ny][nx].m_idx) break;
+
+					if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
+					{
+						char c = object_char(&inventory[INVEN_RARM]);
+						byte a = object_attr(&inventory[INVEN_RARM]);
+						int msec = delay_factor * delay_factor * delay_factor;
+
+						print_rel(c, a, ny, nx);
+						move_cursor_relative(ny, nx);
+						Term_fresh();
+						Term_xtra(TERM_XTRA_DELAY, msec);
+						lite_spot(ny, nx);
+						Term_fresh();
+					}
+					else
+						Term_xtra(TERM_XTRA_DELAY, msec);
+					
+					if (!py_attack_aux(ny, nx, &fear, &mdeath, 0, WEAPONMASTER_PIERCING_STRIKE)) break;
+				}
+			}
+		}
+		drain_left = MAX_VAMPIRIC_DRAIN;
+		if (p_ptr->hidarite)
+		{
+			for (i = 0; i < p_ptr->weapon_info[1].num_blow; i++)
+			{
+				if (p_ptr->wizard)
+					msg_format("Attack #%d", i+1);
+
+				for (j = 0; j < ct; j++)
+				{
+					int nx, ny;
+					ny = GRID_Y(path[j]);
+					nx = GRID_X(path[j]);
+
+					if (p_ptr->wizard)
+						msg_format("  Step #%d", j+1);
+
+					if (!cave_have_flag_bold(ny, nx, FF_PROJECT)
+					 && !cave[ny][nx].m_idx) 
+					{
+						break;
+					}
+
+					if (!cave[ny][nx].m_idx) break;
+
+					if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
+					{
+						char c = object_char(&inventory[INVEN_LARM]);
+						byte a = object_attr(&inventory[INVEN_LARM]);
+						int msec = delay_factor * delay_factor * delay_factor;
+
+						print_rel(c, a, ny, nx);
+						move_cursor_relative(ny, nx);
+						Term_fresh();
+						Term_xtra(TERM_XTRA_DELAY, msec);
+						lite_spot(ny, nx);
+						Term_fresh();
+					}
+					else
+						Term_xtra(TERM_XTRA_DELAY, msec);
+					
+					if (!py_attack_aux(ny, nx, &fear, &mdeath, 1, WEAPONMASTER_PIERCING_STRIKE)) break;
+				}
+			}
+		}
+	}
 	else
 	{
+		drain_left = MAX_VAMPIRIC_DRAIN;
 		if (p_ptr->migite) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
+		drain_left = MAX_VAMPIRIC_DRAIN;
 		if (p_ptr->hidarite && !mdeath) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
 	}
 

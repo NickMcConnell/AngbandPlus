@@ -2104,9 +2104,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				if ( slaying < 5
 					&& randint1(150) < lev)
 				{
+					int odds = o_ptr->dd * o_ptr->ds / 5;
+					if (odds < 3) odds = 3;
 					if (a_cursed && !one_in_(13)) break;
 					/* spiked code from EGO_SLAYING_WEAPON */
-					if (slaying == 0 && one_in_(3)) /* double damage */
+					if (slaying == 0 && one_in_(odds)) /* double damage */
 					{
 						powers -= o_ptr->dd - 1;
 						o_ptr->dd *= 2;

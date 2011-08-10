@@ -207,6 +207,243 @@ static int _set_toggle(s32b toggle)
  * Private Spells
  ****************************************************************/
 
+static void _many_strike_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Many Strike");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Your attacks scatter widely among surrounding foes.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_MANY_STRIKE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_MANY_STRIKE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_MANY_STRIKE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _piercing_strike_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Piercing Strike");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "When you attack a foe, successful hits will pierce the opponent attacking additional monsters.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_PIERCING_STRIKE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_PIERCING_STRIKE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_PIERCING_STRIKE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _trip_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Trip");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "When you attack a foe, successful hits will attempt to trip up your opponent.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_TRIP)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_TRIP);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_TRIP)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _enclose_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Enclose");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "A successful attack renders your opponent unable to run away.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, WEAPONMASTER_ENCLOSE);
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _knock_back_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Knock Back");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "A successful attack will push your opponent back a square.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, WEAPONMASTER_KNOCK_BACK);
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _reaping_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Reaping");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "A successful strike will damage all adjacent opponents granting you wraithform.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, WEAPONMASTER_REAPING);
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _burning_blade_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2058,6 +2295,12 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 0, 0 },
 	  },
 	  {
+	    {  5,   0,  0, _many_strike_spell },
+		{ 10,   5,  0, _enclose_spell },
+		{ 15,  15,  0, _knock_back_spell },
+		{ 25,   0,  0, _piercing_strike_spell },
+		{ 35,   0,  0, _trip_spell },
+		{ 40,  40,  0, _reaping_spell },
 	    { -1,   0,  0, NULL },
 	  },
 	  { TV_POLEARM, SV_SPEAR },
@@ -2704,6 +2947,29 @@ static void _calc_bonuses(void)
 			redraw_stuff();
 		}
 	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Polearms") == 0)
+	{
+		if (spec1)
+		{
+			if (p_ptr->lev >= 45)
+				p_ptr->whirlwind = TRUE;
+		}
+
+		if (spec2)
+		{
+			if (p_ptr->lev >= 30)
+			{
+				if (p_ptr->entrench_ct >= 3) 
+				{
+					p_ptr->entrenched = TRUE;
+					p_ptr->redraw |= PR_STATUS;
+
+					p_ptr->to_a += 20;
+					p_ptr->dis_to_a += 20;
+				}
+			}
+		}
+	}
 
 	if (!p_ptr->painted_target)
 	{
@@ -2861,6 +3127,71 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 			info_ptr->dis_to_h += 10;
 		}
 	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Polearms") == 0)
+	{
+		if (p_ptr->entrenched)
+		{
+			info_ptr->to_h += 20;
+			info_ptr->dis_to_h += 20;
+		}
+
+		switch (_get_toggle())
+		{
+		case TOGGLE_MANY_STRIKE:
+			info_ptr->to_h -= 5;
+			info_ptr->dis_to_h -= 5;
+			break;
+		case TOGGLE_PIERCING_STRIKE:
+			info_ptr->to_h -= 20;
+			info_ptr->dis_to_h -= 20;
+			break;
+		case TOGGLE_TRIP:
+			info_ptr->to_h -= 30;
+			info_ptr->dis_to_h -= 30;
+			break;
+		}
+	}
+}
+
+static void _move_monster(int m_idx)
+{
+	if (strcmp(_specialities[p_ptr->speciality1].name, "Polearms") == 0)
+	{
+		if (p_ptr->lev >= 20 && p_ptr->speciality1_equip)
+		{
+			monster_type *m_ptr = &m_list[m_idx];
+			if (m_ptr->cdis == 1)
+			{
+				char m_name[80];
+				monster_desc(m_name, m_ptr, 0);
+				msg_format("%^s gets too close!", m_name);
+				py_attack(m_ptr->fy, m_ptr->fx, WEAPONMASTER_PROXIMITY_ALERT);
+			}
+		}
+	}
+}
+
+static void _process_player(void)
+{
+	if (strcmp(_specialities[p_ptr->speciality1].name, "Polearms") == 0)
+	{
+		/* process_player() fires before move_player() */
+		if (px == p_ptr->entrench_x && py == p_ptr->entrench_y)
+		{
+			if (p_ptr->entrench_ct < 1000) /* I suppose we could overflow after a while ... */
+				p_ptr->entrench_ct++;
+			p_ptr->update |= PU_BONUS;
+			p_ptr->redraw |= PR_STATUS;
+		}
+		else
+		{
+			p_ptr->entrench_x = px;
+			p_ptr->entrench_y = py;
+			p_ptr->entrench_ct = 0;
+			p_ptr->update |= PU_BONUS;
+			p_ptr->redraw |= PR_STATUS;
+		}
+	}
 }
 
 static void _move_player(void)
@@ -2914,6 +3245,24 @@ static void _move_player(void)
 			}
 		}
 	}
+	if (strcmp(_specialities[p_ptr->speciality1].name, "Polearms") == 0)
+	{
+		int y, x;
+		if (one_in_(5) && random_opponent(&y, &x))
+		{
+			py_attack(y, x, WEAPONMASTER_AUTO_BLOW);
+			energy_use = 0;
+		}
+
+		/*
+		if (px != p_ptr->entrench_x || py != p_ptr->entrench_y)
+		{
+			p_ptr->entrench_x = px;
+			p_ptr->entrench_y = py;
+			p_ptr->entrench_ct = 0;
+			p_ptr->update |= PU_BONUS;
+		}*/
+	}
 }
 
 class_t *weaponmaster_get_class_t(void)
@@ -2953,6 +3302,8 @@ class_t *weaponmaster_get_class_t(void)
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.move_player = _move_player;
+		me.move_monster = _move_monster;
+		me.process_player = _process_player;
 		init = TRUE;
 	}
 

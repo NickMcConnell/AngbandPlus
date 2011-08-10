@@ -25,10 +25,10 @@ s16b ddd[9] =
  * Global arrays for converting "keypad direction" into offsets
  */
 s16b ddx[10] =
-{ 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+{ 0, -1, 0, 1, -1, 0, 1, -1,  0,  1 };
 
 s16b ddy[10] =
-{ 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
+{ 0, 1,  1, 1,  0, 0, 0, -1, -1, -1 };
 
 /*
  * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]"

@@ -1678,6 +1678,17 @@ static void do_cmd_wiz_named(int r_idx)
 		y = target_row;
 	}
 
+	{
+		monster_race *r_ptr = &r_info[r_idx];
+		if (((r_ptr->flags1 & (RF1_UNIQUE)) ||
+				(r_ptr->flags7 & (RF7_NAZGUL))) &&
+			(r_ptr->cur_num >= r_ptr->max_num))
+		{
+			r_ptr->cur_num = 0;
+			r_ptr->max_num = 1;
+		}
+	}
+
 	(void)summon_named_creature(0, y, x, r_idx, (PM_ALLOW_SLEEP | PM_ALLOW_GROUP));
 }
 
