@@ -1142,6 +1142,7 @@ struct player_type
 	s16b tim_force;
 	s16b tim_building_up;
 	s16b tim_vicious_strike;
+	s16b tim_enlarge_weapon;
 
 	counter_t wild_counters[MAX_WILD_COUNTERS];	/* Wild Weapons */
 
@@ -1168,6 +1169,9 @@ struct player_type
 	bool constant_hero;
 	bool vorpal;
 	bool whirlwind;
+	s16b elaborate_defense;
+	s16b cloak_of_shadows;
+	bool lightning_reflexes;
 
 	s16b entrench_x;
 	s16b entrench_y;

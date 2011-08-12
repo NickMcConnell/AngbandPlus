@@ -710,6 +710,7 @@ extern void disturb(int stop_search, int flush_output);
 extern void glow_deep_lava_and_bldg(void);
 
 /* cmd1.c */
+extern void touch_zap_player(monster_type *m_ptr);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool random_opponent(int *y, int *x);
 extern bool test_hit_norm(int chance, int ac, int vis);
@@ -1469,6 +1470,7 @@ extern bool set_tim_genji(int v, bool do_dec);
 extern bool set_tim_force(int v, bool do_dec);
 extern bool set_tim_building_up(int v, bool do_dec);
 extern bool set_tim_vicious_strike(int v, bool do_dec);
+extern bool set_tim_enlarge_weapon(int v, bool do_dec);
 extern bool set_tim_superstealth(int v, bool do_dec);
 extern bool set_tim_no_spells(int v, bool do_dec);
 extern bool set_tim_no_device(int v, bool do_dec);

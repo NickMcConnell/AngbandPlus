@@ -7070,18 +7070,16 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 21:
-#ifdef JP
-		if (name) return "解酸き";
-		if (desc) return "解に瓤纪の掳拉をつける。";
-#else
-		if (name) return "Polish Shield";
-		if (desc) return "Makes a shield a shield of reflection.";
-#endif
+		if (name) return "Enlarge Weapon";
+		if (desc) return "Makes your weapons bigger and more deadly, but harder to wield.";
     
 		{
 			if (cast)
 			{
-				polish_shield();
+			int base = spell_power(plev / 2);
+
+			if (info) return info_duration(base, base);
+				set_tim_enlarge_weapon(randint1(base) + base, FALSE);
 			}
 		}
 		break;

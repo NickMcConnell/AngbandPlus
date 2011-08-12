@@ -3723,6 +3723,16 @@ bool monst_spell_monst(int m_idx)
 			}
 			break;
 
+		case MON_VARIANT_MAINTAINER:
+			{
+				int num = 2 + randint1(3);
+				for (k = 0; k < num; k++)
+				{
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_SOFTWARE_BUG, (PM_ALLOW_GROUP));
+				}
+			}
+			break;
+
 		default:
 			summon_kin_type = r_ptr->d_char;
 

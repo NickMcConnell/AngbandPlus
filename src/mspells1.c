@@ -927,9 +927,11 @@ bool dispel_check(int m_idx)
 	/* Demon Lord */
 	if (p_ptr->mimic_form == MIMIC_DEMON_LORD) return (TRUE);
 
+	/* Craft Munckin Checks :) */
 	if (p_ptr->mimic_form == MIMIC_COLOSSUS) return TRUE;
 	if (p_ptr->tim_genji) return TRUE;
 	if (p_ptr->tim_force) return TRUE;
+	if (p_ptr->tim_enlarge_weapon) return TRUE;
 
 	/* Elemental resistances */
 	if (r_ptr->flags4 & RF4_BR_ACID)
@@ -1326,6 +1328,7 @@ static bool adjacent_grid_check(monster_type *m_ptr, int *yp, int *xp,
 #define DO_SPELL_BR_LITE 1
 #define DO_SPELL_BR_DISI 2
 #define DO_SPELL_BA_LITE 3
+#define DO_SPELL_TELE_TO 4
 
 /*
  * Creatures can cast spells, shoot missiles, and breathe.
@@ -1551,6 +1554,17 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 				success = TRUE;
 			}
 		}
+		
+		/* Raphael can Breathe Light *and* Teleport To */
+		if (!success && (f6 & RF6_TELE_TO) && m_ptr->cdis <= MAX_RANGE 
+		  && r_ptr->level >= 40 && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY) )
+		{
+			if (one_in_(15))
+			{
+				do_spell = DO_SPELL_TELE_TO;
+				success = TRUE;
+			}
+		}
 
 		if (!success) success = adjacent_grid_check(m_ptr, &y, &x, FF_PROJECT, projectable);
 
@@ -1760,6 +1774,10 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 
 	case DO_SPELL_BA_LITE:
 		thrown_spell = 128+20; /* RF5_BA_LITE */
+		break;
+
+	case DO_SPELL_TELE_TO:
+		thrown_spell = 160+8; /* RF6_TELE_TO */
 		break;
 
 	default:
@@ -3747,8 +3765,18 @@ msg_format("%^sがあなたを引き戻した。", m_name);
 			msg_format("%^s commands you to return.", m_name);
 #endif
 
-			teleport_player_to(m_ptr->fy, m_ptr->fx, TELEPORT_PASSIVE);
-			learn_spell(MS_TELE_TO);
+			/* Only powerful monsters can choose this spell when the player is not in 
+			   los.  In this case, it is nasty enough to warrant a saving throw. */
+			if (!projectable(m_ptr->fy, m_ptr->fx, py, px) 
+			  && randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2 )
+			{
+				msg_print("You resist the effects!");
+			}
+			else
+			{
+				teleport_player_to(m_ptr->fy, m_ptr->fx, TELEPORT_PASSIVE);
+				learn_spell(MS_TELE_TO);
+			}
 			break;
 		}
 
@@ -3974,7 +4002,7 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 					msg_format("%^s magically summons guardians of dungeons.", m_name);
 #endif
 			}
-			else
+			else if (m_ptr->r_idx != MON_VARIANT_MAINTAINER)
 			{
 #ifdef JP
 				if (blind)
@@ -4079,6 +4107,41 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 					for (k = 0; k < num; k++)
 					{
 						count += summon_specific(m_idx, y, x, rlev, SUMMON_LOUSE, PM_ALLOW_GROUP);
+					}
+				}
+				break;
+			case MON_VARIANT_MAINTAINER:
+				{
+					int num = 2 + randint1(3);
+					switch (randint1(7))
+					{
+					case 1:
+						msg_format("%^s says, 'I just finished coding up something sweet!'", m_name);
+						break;
+					case 2:
+						msg_format("%^s says, 'It compiles, so it ought to work just fine!'", m_name);
+						break;
+					case 3:
+						msg_format("%^s says, 'Hack him to pieces, my pretties!'", m_name);
+						break;
+					case 4:
+						msg_format("%^s says, 'Just when you thought you fixed the last of 'em ...'", m_name);
+						break;
+					case 5:
+						msg_format("%^s says, 'They're not bugs, they're features!'", m_name);
+						break;
+					case 6:
+						msg_format("%^s says, 'Talk to QA about these guys!'", m_name);
+						break;
+					case 7:
+						msg_format("%^s summons Cyberdemons. %^s says, 'Doh!'", m_name, m_name);
+						break;
+					}
+
+
+					for (k = 0; k < num; k++)
+					{
+						count += summon_specific(m_idx, y, x, rlev, SUMMON_SOFTWARE_BUG, PM_ALLOW_GROUP);
 					}
 				}
 				break;

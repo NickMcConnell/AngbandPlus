@@ -340,6 +340,8 @@ void dispel_player(void)
 
 	set_tim_genji(0, TRUE);
 	set_tim_force(0, TRUE);
+	set_tim_building_up(0, TRUE);
+	set_tim_enlarge_weapon(0, TRUE);
 
 	set_tim_spurt(0, TRUE);
 	set_tim_speed_essentia(0, TRUE);
@@ -1737,6 +1739,61 @@ bool set_tim_vicious_strike(int v, bool do_dec)
 
 	/* Use the value */
 	p_ptr->tim_vicious_strike = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_enlarge_weapon(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_enlarge_weapon)
+		{
+			if (p_ptr->tim_enlarge_weapon > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your weapon is much bigger.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_enlarge_weapon)
+		{
+			msg_print("Your weapon returns to normal.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_enlarge_weapon = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -5391,7 +5448,13 @@ bool hp_player(int num)
 		{
 			p_ptr->chp = p_ptr->mhp;
 			p_ptr->chp_frac = 0;
+
+			if (strcmp(weaponmaster_speciality1_name(), "Staves") == 0)
+				p_ptr->update |= (PU_BONUS);
 		}
+
+		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+			p_ptr->update |= PU_BONUS;
 
 		/* Redraw */
 		p_ptr->redraw |= (PR_HP);
@@ -6171,6 +6234,9 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	/* This might slow things down a bit ... 
 	   But, Blood Knight power varies with hp.  */
 	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+		p_ptr->update |= (PU_BONUS);
+
+	if (strcmp(weaponmaster_speciality1_name(), "Staves") == 0)
 		p_ptr->update |= (PU_BONUS);
 
 	handle_stuff();

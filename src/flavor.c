@@ -2312,32 +2312,44 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	/* Dump base weapon info */
 	switch (o_ptr->tval)
 	{
-		/* Missiles and Weapons */
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
+	/* Missiles and Weapons */
+	case TV_SHOT:
+	case TV_BOLT:
+	case TV_ARROW:
+	case TV_HAFTED:
+	case TV_POLEARM:
+	case TV_SWORD:
+	case TV_DIGGING:
+	{
+		int dd = o_ptr->dd;
+		int ds = o_ptr->ds;
+
+		if (p_ptr->big_shot && o_ptr->tval == p_ptr->tval_ammo)
+			dd *= 2;
+		else if (o_ptr == &inventory[INVEN_RARM])
+		{
+			dd += p_ptr->weapon_info[0].to_dd;
+			ds += p_ptr->weapon_info[0].to_ds;
+		}
+		else if (o_ptr == &inventory[INVEN_LARM])
+		{
+			dd += p_ptr->weapon_info[1].to_dd;
+			ds += p_ptr->weapon_info[1].to_ds;
+		}
 
 		/* Append a "damage" string */
 		t = object_desc_chr(t, ' ');
 		t = object_desc_chr(t, p1);
-		if (p_ptr->big_shot && o_ptr->tval == p_ptr->tval_ammo)
-			t = object_desc_num(t, o_ptr->dd * 2);
-		else
-			t = object_desc_num(t, o_ptr->dd);
+		t = object_desc_num(t, dd);
 		t = object_desc_chr(t, 'd');
-		t = object_desc_num(t, o_ptr->ds);
+		t = object_desc_num(t, ds);
 		t = object_desc_chr(t, p2);
 
 		/* All done */
 		break;
-
-
-		/* Bows get a special "damage string" */
-		case TV_BOW:
+	}
+	/* Bows get a special "damage string" */
+	case TV_BOW:
 		if (o_ptr->sval == SV_HARP) break;
 
 		/* Mega-Hack -- Extract the "base power" */

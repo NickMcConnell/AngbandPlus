@@ -182,6 +182,9 @@ static void roff_aux(int r_idx, int mode)
 	if (cheat_know || (mode & 0x01))
 		know_everything = TRUE;
 
+	if (r_idx == MON_MONKEY_CLONE)
+		know_everything = TRUE;
+
 	/* Cheat -- Know everything */
 	if (know_everything)
 	{

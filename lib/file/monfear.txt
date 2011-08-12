@@ -415,11 +415,22 @@ casts a Globe of Invulnerability.
 magically summons Lords of Amber!
 yells 'The World! Time has stopped!'
 
+N:1094:The Variant Maintainer
+whimpers, 'Why does everybody try to kill me?'
+pleads, 'Let's make a deal instead. What do you want? Ringil? Vorpal Blade? Harpies?'
+boasts, 'You can kill me, but I will only have my revenge later!'
+pleads, 'Wait! I can tell the RNG to play fair!'
+cries, 'Where's a scroll of teleport level when you need one?'
+cries, 'No fair, players get 23 inventory slots and I get none!'
+whimpers, 'Don't you like this game?'
+whimpers, 'If I die, who will take over Chengband?'
+
 N:*:Default lines
 says, 'I am too young to die.'
-says, 'Ok, ok! I get: no more pals.'
+says, 'Ok, ok! I get it: no more pals.'
 screams, 'Help, ho!'
 screams, 'What ho! Help!'
+says, 'That white '@' looked harmless enough.'
 says, 'You will pay for this!'
 says, 'Violence is no solution!'
 says, 'I thought you liked me.'

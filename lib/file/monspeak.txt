@@ -268,6 +268,7 @@ summons special opponents!
 concentrates on its wounds.
 concentrates on its body. It starts moving faster.
 teleports away.
+dies.  You see a longsword (4d5).
 
 N:409:Kharis the Powerslave
 says, 'Open the gates of my hell, I will strike from the grave!'
@@ -297,7 +298,7 @@ says, 'I won't take that from you!'
 
 N:505:Goemon
 says, 'Zantetsuken is sharp this night. '
-mumbles, 'Sign..Another trifling thing I've cut....'
+mumbles, 'Sigh..Another trifling thing I've cut....'
 buttons his lips, '.....'
 
 N:1062:Groo the Wanderer
@@ -364,6 +365,7 @@ says, 'Be made to realize my darkness hold.'
 says, 'Power of shadow is infinite.'
 says, 'With the Key of Kolwynia, I am invincible!'
 says, 'Soul? What is it of use to?'
+casts Light Speed.
 
 N:685:Shoggoth
 says, 'barrels towards you horrifyingly.'
@@ -420,6 +422,7 @@ says, 'You're on the Naughty List!'
 says, 'No presents for you, ever!'
 says, 'I'll sic my man-eating reindeer on you!'
 says, 'I hate Christmas so much that I've gone psychotic!'
+says, 'Christmas is so stressful!'
 
 #N:738:Khamul the Easterling
 #N:743:The Phoenix
@@ -662,6 +665,7 @@ says, 'Everything is as I like... huh...'
 N:921:Internet Exploder
 is slow.
 throws off some dorky packets.
+tries to download a 100MB service pack.
 
 N:931:Caldarm the third
 says, 'Lookup failure, human race will go to ruin.'
@@ -705,12 +709,32 @@ invokes the Hand of Doom!
 casts a Globe of Invulnerability.
 magically summons Lords of Amber!
 yells 'The World! Time has stopped!'
+casts Anti-Magic. You feel your spells are blocked!
 
 N:1063:lousy, the King of louses
 says, 'You, transform a louse!'
 says, 'Don't look me as I was a louse!'
 says, 'Here a louse.'
 says, 'Die. Die. Damn thing is strong!'
+
+N:1094:The Variant Maintainer
+says, 'On Error Resume Next'
+says, 'Where's my damn Intellisense?'
+says, 'Want some new features?'
+says, '10 PRINT "I AM THE MASTER OF THE UNIVERSE!"'
+says, '20 GOTO 10'
+takes another swig of Jolt cola.
+opens another bag of Doritos.
+takes out his 4d5 longsword and says, 'No more Mr. Nice Guy!'
+says, 'I'll teach you not to play!'
+says, 'Wait until you see the changes I made for this version!'
+says, 'If you're going to cry, just go play Vanilla!'
+says, 'Game balance? What is this ... game ... balance?'
+wonders why monsters only get 4 blows when you get 16.
+says, 'If you think I'm tough, you ain't seen nothin' yet!'
+ponders reading a scroll of *destruction* just to save himself the bother.
+asks, 'How do you like 'No Spells'? There's plenty more where that came from!'
+is ticked off!
 
 N:*:Default lines
 cackles evilly.

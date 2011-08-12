@@ -20,6 +20,7 @@
 #define IM_LUCK         7
 #define IM_DEPTH		150
 bool immunity_hack = FALSE;
+int slaying_hack = 0;
 static bool has_pval;
 
 /*
@@ -417,9 +418,14 @@ static void random_plus(object_type * o_ptr)
 		if (o_ptr->tval == TV_BOW) random_plus(o_ptr);
 		else
 		{
-			add_flag(o_ptr->art_flags, TR_BLOWS);
-			if (!artifact_bias && one_in_(11))
-				artifact_bias = BIAS_WARRIOR;
+			if (slaying_hack == 0)
+			{
+				add_flag(o_ptr->art_flags, TR_BLOWS);
+				if (!artifact_bias && one_in_(11))
+					artifact_bias = BIAS_WARRIOR;
+			}
+			else
+				random_plus(o_ptr);
 		}
 		break;
 	}
@@ -1796,7 +1802,7 @@ static void get_random_name_aux(char *return_name, object_type *o_ptr, int power
 void get_random_name(char *return_name, object_type *o_ptr, int power)
 {
 	int attempt;
-	return_name[0] == '\0';
+	return_name[0] = '\0';
 	for (attempt = 0;; ++attempt)
 	{
 		get_random_name_aux(return_name, o_ptr, power);
@@ -1816,9 +1822,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	int i;
 	bool has_resistance = FALSE;
 	int lev = object_level;
-	int slaying = 0;
+	bool is_falcon_sword = FALSE;
+	
+	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_HAYABUSA)
+		is_falcon_sword = TRUE;
 
 	immunity_hack = FALSE;
+	slaying_hack = 0;
 	has_pval = FALSE;
 
 	if (lev == 0 && quest_mega_hack)
@@ -2023,11 +2033,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			/* Ammo either boosts up damage dice, or gains slays */
 			if (randint1(150) < lev)
 			{
-				if (slaying == 0 && one_in_(3)) /* double damage */
+				if (slaying_hack == 0 && one_in_(3)) /* double damage */
 				{
 					powers -= o_ptr->dd - 1;
 					o_ptr->dd *= 2;
-					slaying += o_ptr->dd;
+					slaying_hack += o_ptr->dd;
 				}
 				else
 				{
@@ -2037,7 +2047,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					{
 						o_ptr->dd++;
 						powers--;
-						slaying++;
+						slaying_hack++;
 					}
 					while (one_in_(o_ptr->dd));
 						
@@ -2045,7 +2055,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					{
 						o_ptr->ds++;
 						powers--;
-						slaying++;
+						slaying_hack++;
 					}
 					while (one_in_(o_ptr->ds));
 				}			
@@ -2101,18 +2111,19 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				has_pval = TRUE;
 				break;
 			case 3:
-				if ( slaying < 5
+				if ( slaying_hack < 5
+				    && (is_falcon_sword || !have_flag(o_ptr->art_flags, TR_BLOWS))
 					&& randint1(150) < lev)
 				{
 					int odds = o_ptr->dd * o_ptr->ds / 5;
 					if (odds < 3) odds = 3;
 					if (a_cursed && !one_in_(13)) break;
 					/* spiked code from EGO_SLAYING_WEAPON */
-					if (slaying == 0 && one_in_(odds)) /* double damage */
+					if (slaying_hack == 0 && one_in_(odds)) /* double damage */
 					{
 						powers -= o_ptr->dd - 1;
 						o_ptr->dd *= 2;
-						slaying += o_ptr->dd;
+						slaying_hack += o_ptr->dd;
 					}
 					else
 					{
@@ -2122,7 +2133,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 						{
 							o_ptr->dd++;
 							powers--;
-							slaying++;
+							slaying_hack++;
 						}
 						while (one_in_(o_ptr->dd));
 						
@@ -2130,7 +2141,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 						{
 							o_ptr->ds++;
 							powers--;
-							slaying++;
+							slaying_hack++;
 						}
 						while (one_in_(o_ptr->ds));
 					}			
@@ -2326,7 +2337,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			{
 				o_ptr->pval = randint1(2);
 				if (one_in_(30)) o_ptr->pval++;
-				if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA))
+				if (is_falcon_sword)
 				{
 					o_ptr->pval++;
 					if (one_in_(30)) o_ptr->pval++;
@@ -2359,8 +2370,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			if (o_ptr->to_a < 7)
 				o_ptr->to_a += 3;			
 		}
-		if (o_ptr->to_a > 39)
-			o_ptr->to_a = 39;
+		if (o_ptr->to_a > 29)
+			o_ptr->to_a = 29;
 	}
 	else if (object_is_weapon_ammo(o_ptr))
 	{
@@ -2375,8 +2386,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			if (o_ptr->to_h < 7)
 				o_ptr->to_h += 3;
 		}
-		if (o_ptr->to_h > 39)
-			o_ptr->to_h = 39;
+		if (o_ptr->to_h > 29)
+			o_ptr->to_h = 29;
 
 		if (o_ptr->to_d < 20)
 		{
@@ -2387,8 +2398,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			if (o_ptr->to_d < 7)
 				o_ptr->to_d += 3;
 		}
-		if (o_ptr->to_d > 39)
-			o_ptr->to_d = 39;
+		if (o_ptr->to_d > 29)
+			o_ptr->to_d = 29;
 
 		if ((have_flag(o_ptr->art_flags, TR_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->art_flags, TR_BLESSED);
 	}
@@ -2400,8 +2411,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
 
 	total_flags = flag_cost(o_ptr, o_ptr->pval, FALSE);
-	if (slaying)
-		total_flags *= slaying/3;
+	if (slaying_hack)
+		total_flags *= slaying_hack/3;
 	if (cheat_peek) msg_format("%ld", total_flags);
 
 	if (a_cursed) curse_artifact(o_ptr);

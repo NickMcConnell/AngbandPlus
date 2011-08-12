@@ -401,57 +401,6 @@ static void rd_item(object_type *o_ptr)
 
 
 /*
- * Read a monster (Old method)
- */
-static void rd_monster_old(monster_type *m_ptr)
-{
-	byte tmp8u;
-	char buf[128];
-
-	/* Read the monster race */
-	rd_s16b(&m_ptr->r_idx);
-	rd_s16b(&m_ptr->ap_r_idx);
-	rd_byte(&m_ptr->sub_align);
-
-	/* Read the other information */
-	rd_byte(&m_ptr->fy);
-	rd_byte(&m_ptr->fx);
-	rd_s16b(&m_ptr->hp);
-	rd_s16b(&m_ptr->maxhp);
-	rd_s16b(&m_ptr->max_maxhp);
-	rd_s16b(&m_ptr->mtimed[MTIMED_CSLEEP]);
-	rd_byte(&m_ptr->mspeed);
-	rd_s16b(&m_ptr->energy_need);
-
-	rd_byte(&tmp8u);
-	m_ptr->mtimed[MTIMED_FAST] = (s16b)tmp8u;
-	rd_byte(&tmp8u);
-	m_ptr->mtimed[MTIMED_SLOW] = (s16b)tmp8u;
-	rd_byte(&tmp8u);
-	m_ptr->mtimed[MTIMED_STUNNED] = (s16b)tmp8u;
-	rd_byte(&tmp8u);
-	m_ptr->mtimed[MTIMED_CONFUSED] = (s16b)tmp8u;
-	rd_byte(&tmp8u);
-	m_ptr->mtimed[MTIMED_MONFEAR] = (s16b)tmp8u;
-
-	rd_s16b(&m_ptr->target_y);
-	rd_s16b(&m_ptr->target_x);
-
-	rd_byte(&tmp8u);
-	m_ptr->mtimed[MTIMED_INVULNER] = (s16b)tmp8u;
-
-	rd_u32b(&m_ptr->smart);
-	rd_u32b(&m_ptr->exp);
-	rd_byte(&m_ptr->mflag2);
-
-	rd_string(buf, sizeof(buf));
-	if (buf[0]) m_ptr->nickname = quark_add(buf);
-
-	rd_byte(&tmp8u);
-}
-
-
-/*
  * Read a monster (New method)
  */
 static void rd_monster(monster_type *m_ptr)
@@ -765,7 +714,6 @@ static errr rd_store(int town_number, int store_number)
 	int j;
 
 	byte own;
-	byte tmp8u;
 	s16b num;
 
 	bool sort = FALSE;
@@ -1079,7 +1027,6 @@ static void rd_extra(void)
 
 	byte tmp8u;
 	s16b tmp16s;
-	u16b tmp16u;
 	char buf[1024];
 
 	rd_string(player_name, sizeof(player_name));
@@ -1373,6 +1320,15 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_vicious_strike);
 	}
 
+	if (h_older_than(0, 0, 56, 1))
+	{
+		p_ptr->tim_enlarge_weapon = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_enlarge_weapon);
+	}
+
 	if (h_older_than(0, 0, 54, 1))
 	{
 		wild_reset_counters();
@@ -1388,6 +1344,34 @@ static void rd_extra(void)
 			rd_s16b(&p_ptr->wild_counters[i].type);
 			rd_s16b(&p_ptr->wild_counters[i].counter);
 		}
+	}
+
+	/* Remember the Monkey Clone */
+	if (h_older_than(0, 0, 56, 2))
+	{
+	}
+	else
+	{
+		int i;
+		monster_race *r_ptr = &r_info[MON_MONKEY_CLONE];
+		rd_byte(&r_ptr->cur_num);
+		if (r_ptr->cur_num)
+		{
+			rd_byte(&r_ptr->hdice); /* Probably not required ... */
+			rd_byte(&r_ptr->hside); /* Probably not required ... */
+			rd_s16b(&r_ptr->ac);
+			rd_byte(&r_ptr->speed); /* Probably not required ... */
+			for (i = 0; i < 4; i++)
+			{
+				rd_byte(&r_ptr->blow[i].method);
+				rd_byte(&r_ptr->blow[i].effect);
+				rd_byte(&r_ptr->blow[i].d_dice);
+				rd_byte(&r_ptr->blow[i].d_side);
+			}
+			rd_u32b(&r_ptr->flags3);
+			rd_u32b(&r_ptr->flagsr);
+		}
+		
 	}
 
 	if (h_older_than(0, 0, 55, 2))

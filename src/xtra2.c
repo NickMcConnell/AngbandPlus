@@ -909,7 +909,7 @@ msg_print("地面に落とされた。");
 
 				if (pet) mode |= PM_FORCE_PET;
 
-				if (summon_specific((pet ? -1 : m_idx), wy, wx, 100, SUMMON_BLUE_HORROR, mode))
+				if (summon_specific((pet ? -1 : m_idx), wy, wx, 20, SUMMON_BLUE_HORROR, mode))
 				{
 					if (player_can_see_bold(wy, wx))
 						notice = TRUE;
@@ -925,6 +925,25 @@ msg_print("地面に落とされた。");
 		}
 		break;
 
+	case MON_VARIANT_MAINTAINER:
+	{
+		bool notice = FALSE;
+
+		for (i = 0; i < 4; i++)
+		{
+			int wy = y, wx = x;
+
+			if (summon_specific(m_idx, wy, wx, 14, SUMMON_SOFTWARE_BUG, 0))
+			{
+				if (player_can_see_bold(wy, wx))
+					notice = TRUE;
+			}
+		}
+
+		if (notice)
+			msg_print("The Variant Maintainer is dead, but his crappy code remains!");
+		break;
+	}
 	case MON_BLOODLETTER:
 		/* Bloodletters of Khorne may drop a blade of chaos */
 		if (drop_chosen_item && (randint1(100) < 15))
@@ -989,7 +1008,7 @@ msg_print("地面に落とされた。");
 					u32b mode = 0L;
 					if (pet) mode |= PM_FORCE_PET;
 
-					if (summon_specific((pet ? -1 : m_idx), wy, wx, 100, SUMMON_DAWN, mode))
+					if (summon_specific((pet ? -1 : m_idx), wy, wx, 40, SUMMON_DAWN, mode))
 					{
 						if (player_can_see_bold(wy, wx))
 #ifdef JP

@@ -1192,6 +1192,10 @@ return "巨大ファイア・ボール(72) : 100 ターン毎";
 		{
 			return "stone skin every 300 turns";
 		}
+		case ART_MONKEY_KING:
+		{
+			return "enlarge weapon every 555 turns";
+		}
 		case ART_GOTHMOG:
 		{
 #ifdef JP

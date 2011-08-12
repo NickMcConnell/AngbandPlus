@@ -404,6 +404,9 @@ static void prt_stat(int stat)
 #define BAR_PIERCING_STRIKE 97
 #define BAR_TRIP 98
 #define BAR_ENTRENCHED 99
+#define BAR_ENLARGE_WEAPON 100
+#define BAR_FLURRY_OF_BLOWS 101
+#define BAR_GREATER_FLURRY 102
 
 static struct {
 	byte attr;
@@ -585,6 +588,9 @@ static struct {
 	{TERM_L_BLUE, "PS", "Piercing Strike"},
 	{TERM_L_BLUE, "Trp", "Trip"},
 	{TERM_UMBER, "En", "Entrenched"},
+	{TERM_RED, "EW", "Enlarge"},
+	{TERM_L_RED, "Fl", "Flurry"},
+	{TERM_RED, "Fl", "FLURRY"},
 	{0, NULL, NULL}
 };
 #endif
@@ -814,6 +820,12 @@ static void prt_status(void)
 		case TOGGLE_TRIP:
 			ADD_FLG(BAR_TRIP);
 			break;
+		case TOGGLE_FLURRY_OF_BLOWS:
+			ADD_FLG(BAR_FLURRY_OF_BLOWS);
+			break;
+		case TOGGLE_GREATER_FLURRY:
+			ADD_FLG(BAR_GREATER_FLURRY);
+			break;
 		}
 
 		if (p_ptr->entrenched) ADD_FLG(BAR_ENTRENCHED);
@@ -835,6 +847,7 @@ static void prt_status(void)
 
 	if (p_ptr->tim_building_up) ADD_FLG(BAR_BUILD);
 	if (p_ptr->tim_vicious_strike) ADD_FLG(BAR_VICIOUS_STRIKE);
+	if (p_ptr->tim_enlarge_weapon) ADD_FLG(BAR_ENLARGE_WEAPON);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
@@ -3453,6 +3466,7 @@ void calc_bonuses(void)
 	p_ptr->vorpal = FALSE;
 	p_ptr->whirlwind = FALSE;
 	p_ptr->entrenched = FALSE;
+	p_ptr->lightning_reflexes = FALSE;
 
 	p_ptr->align = friend_align;
 
@@ -5251,6 +5265,16 @@ void calc_bonuses(void)
 		info_ptr->riding_wield = FALSE;
 
 		if (!buki_motteruka(INVEN_RARM+i)) {info_ptr->num_blow=1;continue;}
+
+		if (p_ptr->tim_enlarge_weapon)
+		{
+			info_ptr->to_dd += 2;
+			info_ptr->to_ds += 2;
+
+			info_ptr->dis_to_h -= 20;
+			info_ptr->to_h -= 20;
+		}
+
 		/* It is hard to hold a heavy weapon */
 		if (hold < o_ptr->weight / 10)
 		{

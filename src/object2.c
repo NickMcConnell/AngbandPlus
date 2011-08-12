@@ -2473,7 +2473,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						/* Look alikes to keep players happy */
 						if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_LONG_SWORD && one_in_(2))
 							o_ptr->dd = 5; /* Vorpal Blade */
-						if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_KATANA && one_in_(2))
+						if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_KATANA)
 						{
 							o_ptr->dd = 8; /* Aglarang */
 							if (one_in_(100))
@@ -2482,7 +2482,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 								o_ptr->ds = 5; /* Muramasa */
 							}
 						}
-						if (o_ptr->tval == TV_HAFTED && o_ptr->sval == SV_WAR_HAMMER && one_in_(2))
+						if (o_ptr->tval == TV_HAFTED && o_ptr->sval == SV_WAR_HAMMER)
 							o_ptr->dd = 9; /* Aule */
 					}
 					else

@@ -2090,7 +2090,7 @@ msg_print("まばゆい閃光が走った！");
 }
 
 
-static void touch_zap_player(monster_type *m_ptr)
+void touch_zap_player(monster_type *m_ptr)
 {
 	int aura_damage = 0;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -2150,7 +2150,14 @@ static void touch_zap_player(monster_type *m_ptr)
 
 	if (r_ptr->flags2 & RF2_AURA_ELEC)
 	{
-		if (!p_ptr->immune_elec)
+		if (p_ptr->immune_elec)
+		{
+		}
+		else if (p_ptr->lightning_reflexes)
+		{
+			msg_print("You strike so fast that you avoid getting zapped.");
+		}
+		else
 		{
 			char aura_dam[80];
 
@@ -2593,6 +2600,19 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			/* Sound */
 			sound(SOUND_HIT);
+
+			/* Uber mega-hack ... aren't they all?! */
+			if (strcmp(weaponmaster_speciality1_name(), "Staves") == 0)
+			{
+				bool update = FALSE;
+				if (p_ptr->elaborate_defense == 0) update = TRUE;
+				p_ptr->elaborate_defense = 1;
+				if (update)
+				{
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
+			}
 
 			/* Message */
 #ifdef JP

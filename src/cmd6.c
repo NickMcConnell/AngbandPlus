@@ -5246,6 +5246,13 @@ msg_print("あなたの槍は電気でスパークしている...");
 				o_ptr->timeout = 300;
 				break;
 			}
+			case ART_MONKEY_KING:
+			{
+				msg_print("Your cudgel grows bigger ...");
+				set_tim_enlarge_weapon(5, FALSE);
+				o_ptr->timeout = 555;
+				break;
+			}
 			case ART_GOTHMOG:
 			{
 #ifdef JP

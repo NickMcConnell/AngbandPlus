@@ -4355,6 +4355,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 				else 
 				{
 					bool resist = FALSE;
+					
 					if (m_ptr->mflag2 & MFLAG2_NODESTRUCT) resist = TRUE;
 					else if (r_ptr->level > randint0(300)) resist = TRUE; /* Fairly effective ... */
 
@@ -4381,7 +4382,9 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 								msg_format(T("%^s gets angry!", "%sは怒った！"), m_name);
 							set_hostile(m_ptr);
 						}
-						if (one_in_(13)) 
+
+						/* Never give questors this flag! */
+						if (!(r_ptr->flags1 & RF1_QUESTOR) && one_in_(13)) 
 							m_ptr->mflag2 |= MFLAG2_NODESTRUCT;
 
 						continue;

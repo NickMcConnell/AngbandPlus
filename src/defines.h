@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 55
+#define FAKE_VER_PATCH 56
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 55
+#define H_VER_PATCH 56
 #define H_VER_EXTRA 2
 
 
@@ -1465,6 +1465,7 @@
 #define ART_AESCULAPIUS         225
 #define ART_AEGIR				251
 #define ART_DEFENDER_OF_THE_CROWN 252
+#define ART_MONKEY_KING			255
 
 /* Bows */
 #define ART_BELTHRONDING        124
@@ -2924,6 +2925,7 @@
 #define SUMMON_PIRANHAS             65
 #define SUMMON_ARMAGE_GOOD          66
 #define SUMMON_ARMAGE_EVIL          67
+#define SUMMON_SOFTWARE_BUG         68
 
 
 /*
@@ -4902,6 +4904,7 @@ extern int PlayerUID;
 #define MON_MITHRIL_COINS 239
 #define MON_DRUID         241
 #define MON_PINK_HORROR   242
+#define MON_SOFTWARE_BUG  246
 #define MON_HILL_GIANT    255
 #define MON_WERERAT       270
 #define MON_UMBER_HULK    283
@@ -5122,6 +5125,8 @@ extern int PlayerUID;
 #define MON_TONBERRY	  1087
 #define MON_NINJA_TONBERRY  1088
 #define MON_MASTER_TONBERRY 1089
+#define MON_VARIANT_MAINTAINER 1094
+#define MON_MONKEY_CLONE  1095
 
 /* Maximum "Nazguls" number */
 #define MAX_NAZGUL_NUM 5
@@ -5664,6 +5669,10 @@ extern int PlayerUID;
 	#define TOGGLE_MANY_STRIKE			17
 	#define TOGGLE_PIERCING_STRIKE		18
 	#define TOGGLE_TRIP					19
+
+	/* Staffmaster */
+	#define TOGGLE_FLURRY_OF_BLOWS		20
+	#define TOGGLE_GREATER_FLURRY		21
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1

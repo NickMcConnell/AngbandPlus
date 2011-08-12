@@ -879,6 +879,9 @@ static void regenhp(int percent)
 		if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
 			p_ptr->update |= PU_BONUS;
 
+		if (strcmp(weaponmaster_speciality1_name(), "Staves") == 0)
+			p_ptr->update |= (PU_BONUS);
+
 		wild_regen = 20;
 	}
 }
@@ -2272,6 +2275,11 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->tim_vicious_strike)
 	{
 		set_tim_vicious_strike(p_ptr->tim_vicious_strike - 1, TRUE);
+	}
+
+	if (p_ptr->tim_enlarge_weapon)
+	{
+		set_tim_enlarge_weapon(p_ptr->tim_enlarge_weapon - 1, TRUE);
 	}
 
 	wild_decrement_counters();
@@ -3886,6 +3894,7 @@ extern void do_cmd_borg(void);
 static void process_command(void)
 {
 	int old_now_message = now_message;
+
 
 #ifdef ALLOW_REPEAT /* TNB */
 

@@ -3887,6 +3887,15 @@ D:$This gigantic, dull-gray mace was rumored to be a gift
 D:$from an ancient dwarven king to an adventurer for saving
 D:$his people from a fearsome demon.
 
+N:255:TRANSLATE
+E:Monkey King's Cudgel
+I:21:14:2
+W:40:45:160:300000
+P:0:2d8:20:25:15
+F:ACTIVATE | SLAY_ANIMAL | SLAY_DEMON | SLAY_UNDEAD |
+F:FREE_ACT | RES_SOUND | HOLD_LIFE | SUST_STR | SUST_DEX |
+F:BLOWS | SPEED | STR | DEX | CON | WIS
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

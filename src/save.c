@@ -756,6 +756,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_force);
 	wr_s16b(p_ptr->tim_building_up);
 	wr_s16b(p_ptr->tim_vicious_strike);
+	wr_s16b(p_ptr->tim_enlarge_weapon);
 	{
 		int i;
 		wr_s16b(MAX_WILD_COUNTERS);
@@ -763,6 +764,28 @@ static void wr_extra(void)
 		{
 			wr_s16b(p_ptr->wild_counters[i].type);
 			wr_s16b(p_ptr->wild_counters[i].counter);
+		}
+	}
+	/* Remember the Monkey Clone */
+	{
+		int i;
+		monster_race *r_ptr = &r_info[MON_MONKEY_CLONE];
+		wr_byte(r_ptr->cur_num);
+		if (r_ptr->cur_num)
+		{
+			wr_byte(r_ptr->hdice); /* Probably not required ... */
+			wr_byte(r_ptr->hside); /* Probably not required ... */
+			wr_s16b(r_ptr->ac);
+			wr_byte(r_ptr->speed); /* Probably not required ... */
+			for (i = 0; i < 4; i++)
+			{
+				wr_byte(r_ptr->blow[i].method);
+				wr_byte(r_ptr->blow[i].effect);
+				wr_byte(r_ptr->blow[i].d_dice);
+				wr_byte(r_ptr->blow[i].d_side);
+			}
+			wr_u32b(r_ptr->flags3);
+			wr_u32b(r_ptr->flagsr);
 		}
 	}
 	wr_s16b(p_ptr->entrench_x);

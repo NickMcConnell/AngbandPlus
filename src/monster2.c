@@ -1089,6 +1089,12 @@ static bool summon_specific_aux(int r_idx)
 			break;
 		}
 
+		case SUMMON_SOFTWARE_BUG:
+		{
+			okay = (r_idx == MON_SOFTWARE_BUG);
+			break;
+		}
+
 		case SUMMON_GUARDIANS:
 		{
 			okay = (r_ptr->flags7 & RF7_GUARDIAN);
@@ -1569,14 +1575,18 @@ s16b get_mon_num(int level)
 		/* Accept 
 		   TODO:  Total Hack Job ... Distribution should be normal ...
 		*/
+		if (!table[i].prob2) continue;
+
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 			table[i].prob3 = table[i].prob2;
 		else if (r_ptr->level + 50 < level)
 		{
 			if (r_ptr->level >= 50)
 				table[i].prob3 = table[i].prob2 / 4;
-			else
+			else if (r_ptr->level >= 30)
 				table[i].prob3 = table[i].prob2 / 10;
+			else
+				table[i].prob3 = 0;
 		}
 		else if (r_ptr->level + 30 < level)
 			table[i].prob3 = table[i].prob2 / 3;

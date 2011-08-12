@@ -207,6 +207,386 @@ static int _set_toggle(s32b toggle)
  * Private Spells
  ****************************************************************/
 
+bool _design_monkey_clone(void)
+{
+	int i;
+	monster_race *r_ptr = &r_info[MON_MONKEY_CLONE];
+	int dd = 10;
+	int ds = 10;
+
+	if (r_ptr->cur_num == 1)
+	{
+		msg_print("You may only have one Monkey Clone at a time!");
+		return FALSE;
+	}
+
+	r_ptr->hdice = 10;
+	r_ptr->hside = p_ptr->mhp / 30;
+	r_ptr->ac = p_ptr->ac + p_ptr->to_a;
+	r_ptr->speed = p_ptr->pspeed;
+
+	/* Combat */
+	if (inventory[INVEN_RARM].k_idx)
+	{
+		object_type *o_ptr = &inventory[INVEN_RARM];
+		int dam = o_ptr->dd * (o_ptr->ds + 1)/2 + p_ptr->weapon_info[0].to_d + o_ptr->to_d;
+
+		/* Scale the damage since our clone can only get 4 blows */
+		if (p_ptr->weapon_info[0].num_blow > 4)
+			dam = dam * p_ptr->weapon_info[0].num_blow / 4;
+
+		dd = 10;
+		ds = dam/5;
+	}
+
+	r_ptr->level = p_ptr->lev * 2;
+	for (i = 0; i < 4; i++)
+	{
+		r_ptr->blow[i].method = 0;
+	}
+
+	for (i = 0; i < 4 && i < p_ptr->weapon_info[0].num_blow; i++)
+	{
+		r_ptr->blow[i].method = RBM_HIT;
+		r_ptr->blow[i].effect = RBE_HURT;
+		r_ptr->blow[i].d_dice = dd;
+		r_ptr->blow[i].d_side = ds;
+	}
+
+	/* Resistances */
+	r_ptr->flagsr = 0;
+	r_ptr->flags3 = 0;
+
+	if (p_ptr->resist_acid) r_ptr->flagsr |= RFR_IM_ACID;
+	if (p_ptr->resist_elec) r_ptr->flagsr |= RFR_IM_ELEC;
+	if (p_ptr->resist_fire) r_ptr->flagsr |= RFR_IM_FIRE;
+	if (p_ptr->resist_cold) r_ptr->flagsr |= RFR_IM_COLD;
+	if (p_ptr->resist_pois) r_ptr->flagsr |= RFR_IM_POIS;
+	if (p_ptr->resist_lite) r_ptr->flagsr |= RFR_RES_LITE;
+	if (p_ptr->resist_dark) r_ptr->flagsr |= RFR_RES_DARK;
+	if (p_ptr->resist_neth) r_ptr->flagsr |= RFR_RES_NETH;
+	if (p_ptr->resist_shard) r_ptr->flagsr |= RFR_RES_SHAR;
+	if (p_ptr->resist_sound) r_ptr->flagsr |= RFR_RES_SOUN;
+	if (p_ptr->resist_chaos) r_ptr->flagsr |= RFR_RES_CHAO;
+	if (p_ptr->resist_nexus) r_ptr->flagsr |= RFR_RES_NEXU;
+	if (p_ptr->resist_disen) r_ptr->flagsr |= RFR_RES_DISE;
+
+	if (p_ptr->resist_conf) r_ptr->flags3 |= RF3_NO_CONF;
+	if (p_ptr->resist_fear) r_ptr->flags3 |= RF3_NO_FEAR;
+
+	return TRUE;
+}
+
+static void _monkey_king_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Monkey King's Technique");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Create a clone of yourself, but at great cost.");
+		break;
+	case SPELL_CAST:
+	{
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_design_monkey_clone() && summon_named_creature(0, py, px, MON_MONKEY_CLONE, PM_FORCE_PET))
+			var_set_bool(res, TRUE);
+		break;
+	}
+	case SPELL_COST_EXTRA:
+		var_set_int(res, (p_ptr->mhp + 2)/3);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void _circle_kick(void)
+{
+	int i;
+	int dd = 1;
+	int ds = p_ptr->lev;
+	int bonus = p_ptr->to_h_m;
+	int chance = p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ);
+
+	if (inventory[INVEN_FEET].k_idx)
+		dd = k_info[inventory[INVEN_FEET].k_idx].ac;
+	
+	for (i = 0; i < 8; i++)
+	{	
+		int           dir = cdd[i];
+		int           y = py + ddy[dir];
+		int           x = px + ddx[dir];
+		cave_type    *c_ptr = &cave[y][x];
+		monster_type *m_ptr = &m_list[c_ptr->m_idx];
+
+		if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
+		{
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		char          m_name[MAX_NLEN];
+
+			monster_desc(m_name, m_ptr, 0);
+			
+			if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+			{
+				int dam = damroll(dd, ds) + p_ptr->to_d_m;
+
+				sound(SOUND_HIT);
+				msg_format("You kick %s.", m_name);
+
+				if (!(r_ptr->flags3 & RF3_NO_STUN))
+				{
+					if (MON_STUNNED(m_ptr))
+						msg_format("%s is more dazed.", m_name);
+					else
+						msg_format("%s is dazed.", m_name);
+
+					set_monster_stunned(c_ptr->m_idx, MON_STUNNED(m_ptr) + 1);
+				}
+				else
+					msg_format("%s is not affected.", m_name);
+
+
+				dam = mon_damage_mod(m_ptr, dam, FALSE);
+				/* Hack: Monster AC now reduces damage */
+				dam -= (dam * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
+
+				if (dam > 0)
+				{
+					bool fear;
+					mon_take_hit(c_ptr->m_idx, dam, &fear, NULL);
+
+					anger_monster(m_ptr);
+				}
+				touch_zap_player(m_ptr);
+			}
+			else
+			{
+				sound(SOUND_MISS);
+				msg_format("You miss %s.", m_name);
+			}
+		}
+	}
+}
+
+static void _circle_kick_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Circle Kick");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Kicks all adjacent opponents, stunning them.  Damage depends on your boots!");
+		break;
+	case SPELL_CAST:
+	{
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		_circle_kick();
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+ static bool _vault_attack(void)
+{
+	int tx, ty;
+	int tm_idx = 0;
+	u16b path_g[32];
+	int path_n, i;
+	bool moved = FALSE;
+	int flg = PROJECT_THRU | PROJECT_KILL;
+	int dis = 0;
+	int dir;
+
+	project_length = 3;
+
+	if (!get_aim_dir(&dir)) return FALSE;
+
+	tx = px + project_length * ddx[dir];
+	ty = py + project_length * ddy[dir];
+
+	if ((dir == 5) && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+	}
+
+	if (in_bounds(ty, tx)) tm_idx = cave[ty][tx].m_idx;
+
+	dis = distance(ty, tx, py, px);
+
+	path_n = project_path(path_g, project_length, py, px, ty, tx, flg);
+	project_length = 0;
+
+	if (!path_n) return FALSE;
+
+	ty = py;
+	tx = px;
+
+	for (i = 0; i < path_n; i++)
+	{
+		monster_type *m_ptr;
+		cave_type *c_ptr;
+		bool can_enter = FALSE;
+		int ny = GRID_Y(path_g[i]);
+		int nx = GRID_X(path_g[i]);
+		
+		c_ptr = &cave[ny][nx];
+		can_enter = !c_ptr->m_idx && player_can_enter(c_ptr->feat, 0);
+
+		if (can_enter)
+		{
+			ty = ny;
+			tx = nx;
+			continue;
+		}
+
+		if (!c_ptr->m_idx)
+		{
+			msg_print("Failed!");
+			break;
+		}
+
+		/* Move player before updating the monster */
+		if (!player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+		moved = TRUE;
+		
+		update_mon(c_ptr->m_idx, TRUE);
+
+		m_ptr = &m_list[c_ptr->m_idx];
+		if (tm_idx != c_ptr->m_idx)
+		{
+			/* Just like "Acrobatic Charge." Attempts to displace monsters on route. */
+			set_monster_csleep(c_ptr->m_idx, 0);
+			move_player_effect(ny, nx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+			ty = ny;
+			tx = nx;
+			continue;
+		}
+		py_attack(ny, nx, 0);
+		break;
+	}
+
+	if (!moved && !player_bold(ty, tx)) move_player_effect(ty, tx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+	return TRUE;
+}
+
+static void _vault_attack_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Vault Attack");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Charge and attack a nearby opponent in a single move.");
+		break;
+	case SPELL_CAST:
+	{
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_vault_attack())
+			var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+
+static void _flurry_of_blows_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Flurry of Blows");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You gain additional attacks when using this technique, but you lose accuracy.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_FLURRY_OF_BLOWS)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_FLURRY_OF_BLOWS);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_FLURRY_OF_BLOWS)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _greater_flurry_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Greater Flurry");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You gain additional attacks when using this technique, but you lose accuracy.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_GREATER_FLURRY)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_GREATER_FLURRY);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_GREATER_FLURRY)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _many_strike_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2350,7 +2730,12 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 0, 0 },
 	  },
 	  {
-	    { -1,   0,  0, NULL },
+		{ 10,  0, 0, _flurry_of_blows_spell },
+		{ 15, 15, 0, _vault_attack_spell },
+		{ 25, 25, 0, _circle_kick_spell },
+		{ 30,  0, 0, _greater_flurry_spell },
+		{ 40,  0, 0, _monkey_king_spell },
+	    { -1,  0, 0, NULL },
 	  },
 	  { TV_HAFTED, SV_QUARTERSTAFF },
 	},
@@ -2970,6 +3355,37 @@ static void _calc_bonuses(void)
 			}
 		}
 	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Staves") == 0)
+	{
+		if (spec1)
+		{
+			if (p_ptr->elaborate_defense)
+			{
+				p_ptr->to_a += 10 + p_ptr->lev*2/3;
+				p_ptr->dis_to_a += 10 + p_ptr->lev*2/3;
+			}
+
+			if (p_ptr->lev >= 20)
+				p_ptr->pspeed += 2;
+		}
+
+		if (spec2)
+		{
+			if (p_ptr->cloak_of_shadows && !p_ptr->elaborate_defense)
+			{
+				p_ptr->to_a += 10 + p_ptr->lev*2/3;
+				p_ptr->dis_to_a += 10 + p_ptr->lev*2/3;
+			}
+
+			if (p_ptr->lev >= 35)
+				p_ptr->lightning_reflexes = TRUE;
+		}
+
+		if (object_is_shield(&inventory[INVEN_RARM]) || object_is_shield(&inventory[INVEN_LARM]))
+		{
+			p_ptr->pspeed -= 5;
+		}
+	}
 
 	if (!p_ptr->painted_target)
 	{
@@ -3151,6 +3567,31 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 			break;
 		}
 	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Staves") == 0)
+	{
+	int spec1 = _check_speciality1_aux(o_ptr);
+	int spec2 = _check_speciality2_aux(o_ptr);
+		if (spec1 && p_ptr->speciality1_equip && p_ptr->lev >= 45 && p_ptr->chp == p_ptr->mhp)
+			info_ptr->num_blow++;
+
+		if (spec2 && p_ptr->speciality2_equip)
+		{
+			switch (_get_toggle())
+			{
+			case TOGGLE_FLURRY_OF_BLOWS:
+				info_ptr->num_blow++;
+				info_ptr->to_h -= 15;
+				info_ptr->dis_to_h -= 15;
+				break;
+
+			case TOGGLE_GREATER_FLURRY:
+				info_ptr->num_blow += 2;
+				info_ptr->to_h -= 30;
+				info_ptr->dis_to_h -= 30;
+				break;
+			}
+		}
+	}
 }
 
 static void _move_monster(int m_idx)
@@ -3190,6 +3631,21 @@ static void _process_player(void)
 			p_ptr->entrench_ct = 0;
 			p_ptr->update |= PU_BONUS;
 			p_ptr->redraw |= PR_STATUS;
+		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Staves") == 0)
+	{
+		if (p_ptr->elaborate_defense)
+		{
+			p_ptr->elaborate_defense--;
+			if (p_ptr->elaborate_defense <= 0)
+				p_ptr->update |= PU_BONUS;
+		}
+		if (p_ptr->cloak_of_shadows)
+		{
+			p_ptr->cloak_of_shadows--;
+			if (p_ptr->cloak_of_shadows <= 0)
+				p_ptr->update |= PU_BONUS;
 		}
 	}
 }
@@ -3253,15 +3709,14 @@ static void _move_player(void)
 			py_attack(y, x, WEAPONMASTER_AUTO_BLOW);
 			energy_use = 0;
 		}
-
-		/*
-		if (px != p_ptr->entrench_x || py != p_ptr->entrench_y)
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Staves") == 0)
+	{
+		if (p_ptr->speciality2_equip && p_ptr->lev >= 5)
 		{
-			p_ptr->entrench_x = px;
-			p_ptr->entrench_y = py;
-			p_ptr->entrench_ct = 0;
+			p_ptr->cloak_of_shadows = 1;
 			p_ptr->update |= PU_BONUS;
-		}*/
+		}
 	}
 }
 
