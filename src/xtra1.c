@@ -407,6 +407,9 @@ static void prt_stat(int stat)
 #define BAR_ENLARGE_WEAPON 100
 #define BAR_FLURRY_OF_BLOWS 101
 #define BAR_GREATER_FLURRY 102
+#define BAR_STRENGTH_OF_THE_UNDERTAKER 103
+#define BAR_STOICISM 104
+#define BAR_INDUSTRIOUS_MORTICIAN 105
 
 static struct {
 	byte attr;
@@ -591,6 +594,9 @@ static struct {
 	{TERM_RED, "EW", "Enlarge"},
 	{TERM_L_RED, "Fl", "Flurry"},
 	{TERM_RED, "Fl", "FLURRY"},
+	{TERM_UMBER, "Str", "Undertaker"},
+	{TERM_ORANGE, "Sc", "Stoicism"},
+	{TERM_YELLOW, "At", "Mortician"},
 	{0, NULL, NULL}
 };
 #endif
@@ -825,6 +831,15 @@ static void prt_status(void)
 			break;
 		case TOGGLE_GREATER_FLURRY:
 			ADD_FLG(BAR_GREATER_FLURRY);
+			break;
+		case TOGGLE_STRENGTH_OF_THE_UNDERTAKER:
+			ADD_FLG(BAR_STRENGTH_OF_THE_UNDERTAKER);
+			break;
+		case TOGGLE_STOICISM:
+			ADD_FLG(BAR_STOICISM);
+			break;
+		case TOGGLE_INDUSTRIOUS_MORTICIAN:
+			ADD_FLG(BAR_INDUSTRIOUS_MORTICIAN);
 			break;
 		}
 

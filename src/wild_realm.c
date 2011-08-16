@@ -15,13 +15,20 @@ typedef struct {
 
 /* The trouble with status messages is that you can get multiple sources of a power, so we need
    to check all other possibilites.  Annoying ... Note that many of the current set_tim_foo()
-   routines now report incorrectly.  They are coded obtusely, so I won't even attempt to fix. */
+   routines now report incorrectly.  They are coded obtusely, so I won't even attempt to fix. 
+   
+   Note: It wasn't clear to me whether wild buffs should clobber normal buff.  If so, this means
+   that Haste and Double Resist are pretty hard to come by!  For now, they will clobber (i.e., when
+   wild double resist shuts off, so too does normal double resist), but we can change this later
+   if desired. */
 void _wild_infravision_on(void) {
 	if (!IS_TIM_INFRA())
 		msg_print("Your eyes begin to tingle!");
 }
 
 void _wild_infravision_off(void) {
+	if (p_ptr->tim_infra)
+		set_tim_infra(0, TRUE);
 	if (!IS_TIM_INFRA())
 		msg_print("Your eyes stop tingling.");
 }
@@ -32,6 +39,8 @@ void _wild_bless_on(void) {
 }
 
 void _wild_bless_off(void) {
+	if (p_ptr->blessed)
+		set_blessed(0, TRUE);
 	if (!IS_BLESSED())
 		msg_print("The prayer has expired.");
 }
@@ -42,6 +51,8 @@ void _wild_berserk_on(void) {
 }
 
 void _wild_berserk_off(void) {
+	if (p_ptr->shero)
+		set_shero(0, TRUE);
 	if (!IS_SHERO())
 		msg_print("You feel less Berserk.");
 }
@@ -52,6 +63,8 @@ void _wild_speed_on(void) {
 }
 
 void _wild_speed_off(void) {
+	if (p_ptr->fast)
+		set_fast(0, TRUE);
 	if (!IS_FAST() && !IS_LIGHT_SPEED())
 		msg_print("You feel yourself slow down.");
 }
@@ -62,6 +75,8 @@ void _wild_esp_on(void) {
 }
 
 void _wild_esp_off(void) {
+	if (p_ptr->tim_esp)
+		set_tim_esp(0, TRUE);
 	if (!IS_TIM_ESP())
 		msg_print("Your consciousness contracts again.");
 }
@@ -72,6 +87,8 @@ void _wild_prot_evil_on(void) {
 }
 
 void _wild_prot_evil_off(void) {
+	if (p_ptr->protevil)
+		set_protevil(0, TRUE);
 	if (!IS_PROT_EVIL())
 		msg_print("You no longer feel safe from evil.");
 }
@@ -82,6 +99,8 @@ void _wild_magic_resist_on(void) {
 }
 
 void _wild_magic_resist_off(void) {
+	if (p_ptr->resist_magic)
+		set_resist_magic(0, TRUE);
 	if (!IS_RESIST_MAGIC())
 		msg_print("You no longer feel resistant to magic.");
 }
@@ -92,6 +111,16 @@ void _wild_resist_on(void) {
 }
 
 void _wild_resist_off(void) {
+	if (p_ptr->oppose_acid)
+		set_oppose_acid(0, TRUE);
+	if (p_ptr->oppose_cold)
+		set_oppose_cold(0, TRUE);
+	if (p_ptr->oppose_elec)
+		set_oppose_elec(0, TRUE);
+	if (p_ptr->oppose_fire)
+		set_oppose_fire(0, TRUE);
+	if (p_ptr->oppose_pois)
+		set_oppose_pois(0, TRUE);
 	if (!IS_RESIST())
 		msg_print("You no longer feel resistant to the elements.");
 }
@@ -102,6 +131,8 @@ void _wild_stone_skin_on(void) {
 }
 
 void _wild_stone_skin_off(void) {
+	if (p_ptr->shield)
+		set_shield(0, TRUE);
 	if (!IS_STONE_SKIN())
 		msg_print("Your skin turns to normal.");
 }
@@ -112,6 +143,8 @@ void _wild_passwall_on(void) {
 }
 
 void _wild_passwall_off(void) {
+	if (p_ptr->kabenuke)
+		set_kabenuke(0, TRUE);
 	if (!IS_PASSWALL())
 		msg_print("You are no longer ethereal.");
 }
@@ -122,6 +155,8 @@ void _wild_revenge_on(void) {
 }
 
 void _wild_revenge_off(void) {
+	if (p_ptr->tim_eyeeye)
+		set_tim_eyeeye(0, TRUE);
 	if (!IS_REVENGE())
 		msg_print("You feel like letting bygones be bygones.");
 }
@@ -132,6 +167,8 @@ void _wild_invulnerability_on(void) {
 }
 
 void _wild_invulnerability_off(void) {
+	if (p_ptr->invuln)
+		set_invuln(0, TRUE);
 	if (!IS_INVULN())
 		msg_print("The invulnerability wears off.");	/* no energy penalty */
 }
@@ -142,6 +179,8 @@ void _wild_wraith_on(void) {
 }
 
 void _wild_wraith_off(void) {
+	if (p_ptr->wraith_form)
+		set_wraith_form(0, TRUE);
 	if (!IS_WRAITH())
 		msg_print("You feel opaque.");
 }

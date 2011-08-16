@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 56
+#define FAKE_VER_PATCH 57
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 56
-#define H_VER_EXTRA 2
+#define H_VER_PATCH 57
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -1605,6 +1605,8 @@
 #define EGO_SLAY_HUMAN          101
 #define EGO_MORGUL              102
 #define EGO_KILL_HUMAN          103
+#define EGO_WILD				242
+#define EGO_ORDER				243
 
 /* Bows */
 #define EGO_ACCURACY            104
@@ -3336,8 +3338,10 @@
 #define TR_RES_TIME			   119
 #define TR_SPELL_CAP           120
 #define TR_SIGNATURE		   121
+#define TR_WILD				   122
+#define TR_ORDER               123
 
-#define TR_FLAG_MAX            122
+#define TR_FLAG_MAX            124
 #define TR_FLAG_SIZE           4
 
 
@@ -5673,6 +5677,11 @@ extern int PlayerUID;
 	/* Staffmaster */
 	#define TOGGLE_FLURRY_OF_BLOWS		20
 	#define TOGGLE_GREATER_FLURRY		21
+
+	/* Pickmaster */
+	#define TOGGLE_STRENGTH_OF_THE_UNDERTAKER	22
+	#define TOGGLE_STOICISM						23
+	#define TOGGLE_INDUSTRIOUS_MORTICIAN		24
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1

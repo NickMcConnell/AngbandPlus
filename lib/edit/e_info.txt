@@ -1490,6 +1490,18 @@ W:0:4:0:20000
 C:0:0:0:2
 F:STEALTH | DEX | SPEED
 
+N:242:TRANSLATE
+E:(Wild)
+X:24:70
+W:0:100:0:50000
+F:WILD | XTRA_RES | XTRA_H_RES | XTRA_POWER
+
+N:243:TRANSLATE
+E:(Order)
+X:24:70
+W:0:100:0:50000
+F:ORDER | RES_SOUND | RES_SHARDS
+
 # N: serial number : ego type
 # X: inventory slot : rating
 # C: max to-hit : max to-dam : max to-ac : pval

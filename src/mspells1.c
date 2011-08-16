@@ -932,6 +932,7 @@ bool dispel_check(int m_idx)
 	if (p_ptr->tim_genji) return TRUE;
 	if (p_ptr->tim_force) return TRUE;
 	if (p_ptr->tim_enlarge_weapon) return TRUE;
+	if (p_ptr->kabenuke && one_in_(3)) return TRUE;
 
 	/* Elemental resistances */
 	if (r_ptr->flags4 & RF4_BR_ACID)

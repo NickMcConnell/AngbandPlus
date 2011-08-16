@@ -919,7 +919,9 @@ s32b flag_cost(object_type *o_ptr, int plusses, bool hack)
 
 	tmp_cost = 0;
 	count = 0;
-	if (have_flag(flgs, TR_CHAOTIC)) {total += 3000;count++;}
+	if (have_flag(flgs, TR_CHAOTIC)) {total += 9000;count++;}
+	if (have_flag(flgs, TR_ORDER)) {total += 12000;count++;}
+	if (have_flag(flgs, TR_WILD)) {total += 20000;count++;}
 	if (have_flag(flgs, TR_VAMPIRIC)) {total += 6500;count++;}
 	if (have_flag(flgs, TR_FORCE_WEAPON)) {tmp_cost += 2500;count++;}
 	if (have_flag(flgs, TR_KILL_ANIMAL)) {tmp_cost += 2800;count++;}
@@ -2462,6 +2464,17 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					if (one_in_(3))
 						add_flag(o_ptr->art_flags, TR_RES_FEAR);
 					break;
+				
+				case EGO_WILD:
+					o_ptr->ds = o_ptr->dd * o_ptr->ds;
+					o_ptr->dd = 1;
+					break;
+				
+				case EGO_ORDER:
+					o_ptr->dd = o_ptr->dd * o_ptr->ds;
+					o_ptr->ds = 1;
+					break;
+
 				case EGO_SLAYING_WEAPON:
 				{
 					int odds = o_ptr->dd * o_ptr->ds / 5;
@@ -2544,8 +2557,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					/* Hack -- Super-charge the damage dice */
 					while (one_in_(10L * o_ptr->dd * o_ptr->ds)) o_ptr->dd++;
 
+					/* Do *NOT* lower the damage dice!!!!! Weapons of Order ... sigh! */
 					/* Hack -- Lower the damage dice */
-					if (o_ptr->dd > 9) o_ptr->dd = 9;
+					/*if (o_ptr->dd > 9) o_ptr->dd = 9;*/
 				}
 			}
 
@@ -4722,6 +4736,7 @@ static bool kind_is_good(int k_idx)
 		{
 			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
 			if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
+			if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE);
 			return (FALSE);
 		}
 

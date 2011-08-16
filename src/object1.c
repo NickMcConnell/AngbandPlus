@@ -2938,6 +2938,12 @@ info[i++] = "それは非常に切れ味が鋭く敵を切断することができる。";
 
 	}
 
+	if (have_flag(flgs, TR_ORDER))
+		info[i++] = "It is a weapon of order.";
+
+	if (have_flag(flgs, TR_WILD))
+		info[i++] = "It is a wild weapon.";
+
 	if (have_flag(flgs, TR_KILL_DRAGON))
 	{
 #ifdef JP

@@ -968,7 +968,7 @@ static bool build_type3(void)
 			place_object(yval, xval, 0L);
 
 			/* Let's guard the treasure well */
-			vault_monsters(yval, xval, randint0(2) + 3);
+			vault_monsters(yval, xval, randint1(2));
 
 			/* Traps naturally */
 			vault_traps(yval, xval, 4, 4, randint0(3) + 2);
@@ -1182,7 +1182,7 @@ static bool build_type4(void)
 			}
 
 			/* Monsters to guard the "treasure" */
-			vault_monsters(yval, xval, randint1(3) + 2);
+			vault_monsters(yval, xval, randint1(3));
 
 			/* Object (80%) */
 			if (randint0(100) < 80)
@@ -1270,8 +1270,8 @@ static bool build_type4(void)
 				place_secret_door(yval - 3 + (randint1(2) * 2), xval + 3, door_type);
 
 				/* Monsters */
-				vault_monsters(yval, xval - 2, randint1(2));
-				vault_monsters(yval, xval + 2, randint1(2));
+				vault_monsters(yval, xval - 2, 1);
+				vault_monsters(yval, xval + 2, 1);
 
 				/* Objects */
 				if (one_in_(3)) place_object(yval, xval - 2, 0L);
@@ -1307,8 +1307,8 @@ static bool build_type4(void)
 			}
 
 			/* Monsters just love mazes. */
-			vault_monsters(yval, xval - 5, randint1(3));
-			vault_monsters(yval, xval + 5, randint1(3));
+			vault_monsters(yval, xval - 5, 1);
+			vault_monsters(yval, xval + 5, 1);
 
 			/* Traps make them entertaining. */
 			vault_traps(yval, xval - 3, 2, 8, randint1(3));
@@ -1361,10 +1361,10 @@ static bool build_type4(void)
 			vault_objects(yval, xval, 2 + randint1(2));
 
 			/* Gotta have some monsters. */
-			vault_monsters(yval + 1, xval - 4, randint1(4));
-			vault_monsters(yval + 1, xval + 4, randint1(4));
-			vault_monsters(yval - 1, xval - 4, randint1(4));
-			vault_monsters(yval - 1, xval + 4, randint1(4));
+			vault_monsters(yval + 1, xval - 4, randint1(2));
+			vault_monsters(yval + 1, xval + 4, randint1(2));
+			vault_monsters(yval - 1, xval - 4, randint1(2));
+			vault_monsters(yval - 1, xval + 4, randint1(2));
 
 			break;
 		}
@@ -5559,7 +5559,7 @@ static bool build_type12(void)
 		place_object(y0, x0, 0L);
 
 		/* Let's guard the treasure well */
-		vault_monsters(y0, x0, randint0(2) + 3);
+		vault_monsters(y0, x0, randint1(2));
 
 		/* Traps naturally */
 		vault_traps(y0, x0, 4, 4, randint0(3) + 2);

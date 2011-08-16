@@ -4357,7 +4357,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 					bool resist = FALSE;
 					
 					if (m_ptr->mflag2 & MFLAG2_NODESTRUCT) resist = TRUE;
-					else if (r_ptr->level > randint0(300)) resist = TRUE; /* Fairly effective ... */
+					else if (r_ptr->level > randint0(6*p_ptr->lev)) resist = TRUE;
 
 					if (resist)
 					{
@@ -4383,10 +4383,12 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 							set_hostile(m_ptr);
 						}
 
-						/* Never give questors this flag! */
-						if (!(r_ptr->flags1 & RF1_QUESTOR) && one_in_(13)) 
+						if (!(r_ptr->flags1 & RF1_QUESTOR) /* Questors becoming immune to *destruct* can be advantageous! */
+						     && !(r_ptr->flags2 & RF2_MULTIPLY)  /* Unmakers ... *shudder* */
+							 && one_in_(13)) 
+						{
 							m_ptr->mflag2 |= MFLAG2_NODESTRUCT;
-
+						}
 						continue;
 					}
 					else
@@ -4604,6 +4606,9 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 
 		/* Update stuff */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS);
+
+		if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
+			p_ptr->update |= PU_BONUS;
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -5119,6 +5124,9 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_MONSTERS);
+
+	if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
+		p_ptr->update |= PU_BONUS;
 
 	/* Update the health bar */
 	p_ptr->redraw |= (PR_HEALTH | PR_UHEALTH);

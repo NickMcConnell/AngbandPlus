@@ -4709,6 +4709,10 @@ void cave_alter_feat(int y, int x, int action)
 	/* Set the new feature */
 	cave_set_feat(y, x, newfeat);
 
+	/* Earthen Shield needs to recalc # of nearby walls ... */
+	if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
+		p_ptr->update |= PU_BONUS;
+
 	if (!(feature_action_flags[action] & FAF_NO_DROP))
 	{
 		feature_type *old_f_ptr = &f_info[oldfeat];

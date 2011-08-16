@@ -2978,7 +2978,7 @@ static cptr do_nature_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				stair_creation();
+				stair_creation(FALSE);
 			}
 		}
 		break;
@@ -6760,7 +6760,6 @@ static cptr do_craft_spell(int spell, int mode)
 			if (cast)
 			{
 				set_hero(randint1(base) + base, FALSE);
-				hp_player(10);
 				set_afraid(0, TRUE);
 			}
 		}
@@ -7070,6 +7069,17 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 21:
+		if (name) return "Polish Shield";
+		if (desc) return "Makes a shield a shield of reflection.";
+    
+		{
+			if (cast)
+			{
+				polish_shield();
+			}
+		}
+	/*  This turned out to be the tipping point for game balance ... Its way cool, but
+	    on high dice weapon with Force Brand?  Too much ... 
 		if (name) return "Enlarge Weapon";
 		if (desc) return "Makes your weapons bigger and more deadly, but harder to wield.";
     
@@ -7081,7 +7091,7 @@ static cptr do_craft_spell(int spell, int mode)
 			if (info) return info_duration(base, base);
 				set_tim_enlarge_weapon(randint1(base) + base, FALSE);
 			}
-		}
+		} */
 		break;
 
 	case 22:

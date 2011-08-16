@@ -776,6 +776,8 @@ static cptr k_info_flags[] =
 	"RES_TIME",
 	"SPELL_CAP",
 	"TR_SIGNATURE",
+	"WILD",
+	"ORDER",
 };
 
 

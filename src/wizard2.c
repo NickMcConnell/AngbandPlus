@@ -180,6 +180,11 @@ static void do_cmd_wiz_hack_chris1(void)
 		{
 			ct_would_be_immunities++;
 		}
+
+		if ( have_flag(forge.art_flags, TR_WILD)
+		  || have_flag(forge.art_flags, TR_ORDER) )
+		{
+		}
 		msg_format("%s (Score: %d, Cost: %d)", buf, power, value);
 	}
 
@@ -200,6 +205,30 @@ static void do_cmd_wiz_hack_chris2(void)
 		}
 	}
 }
+
+static void do_cmd_wiz_hack_chris3(void)
+{
+	int k_idx = get_quantity("Enter k_idx: ", 1000);
+	int ct = get_quantity("How Many?", 1000);
+	int i;
+	for (i = 0; i < ct; i++)
+	{
+		object_type forge;
+		char buf[MAX_NLEN];
+		u32b flgs[TR_FLAG_SIZE];
+
+		object_prep(&forge, k_idx);
+		apply_magic(&forge, dun_level, AM_GREAT);
+
+		identify_item(&forge);
+		forge.ident |= (IDENT_MENTAL); 
+		object_desc(buf, &forge, 0);
+		object_flags(&forge, flgs);
+
+		msg_format("%s", buf);
+	}
+}
+
 
 #ifdef MONSTER_HORDES
 
@@ -1423,6 +1452,7 @@ static void wiz_create_item(void)
 {
 	object_type	forge;
 	object_type *q_ptr;
+	int n = 1;
 
 	int k_idx;
 
@@ -1462,6 +1492,10 @@ static void wiz_create_item(void)
 			return;
 		}
 	}
+	else
+	{
+		n = get_quantity("How many? ", 99);	
+	}
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -1471,7 +1505,8 @@ static void wiz_create_item(void)
 
 	/* Apply magic */
 	apply_magic(q_ptr, dun_level, AM_NO_FIXED_ART);
-
+	q_ptr->number = n;
+ 
 	/* Drop the object from heaven */
 	(void)drop_near(q_ptr, -1, py, px);
 
@@ -2214,6 +2249,10 @@ void do_cmd_debug(void)
 
 	case '2':
 		do_cmd_wiz_hack_chris2();
+		break;
+
+	case '3':
+		do_cmd_wiz_hack_chris3();
 		break;
 
 	/* Not a Wizard Command */

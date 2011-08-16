@@ -5000,7 +5000,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 					teleport_player(222, 0L);
 					break;
 				case 11: case 12:
-					(void)stair_creation();
+					(void)stair_creation(FALSE);
 					break;
 				default:
 #ifdef JP

@@ -917,7 +917,7 @@ extern void prepare_change_floor_mode(u32b mode);
 extern void precalc_cur_num_of_pet(void);
 extern void leave_floor(void);
 extern void change_floor(void);
-extern void stair_creation(void);
+extern void stair_creation(bool down_only);
 
 /* generate.c */
 extern bool place_quest_monsters(void);

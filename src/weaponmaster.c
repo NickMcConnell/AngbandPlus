@@ -206,6 +206,308 @@ static int _set_toggle(s32b toggle)
 /****************************************************************
  * Private Spells
  ****************************************************************/
+static void _tunnel_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Tunnel");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Creates a tunnel down to the next level.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality1_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (!cave_valid_bold(py, px))
+		{
+			msg_print("You need room to dig!");
+		}
+		else
+		{
+			msg_print("You tunnel downwards ...");
+			stair_creation(TRUE);
+			var_set_bool(res, TRUE);
+		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _calamity_of_the_living_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Calamity of the Living");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Causes an earthquake or destruction.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (one_in_(3))
+		{
+			destroy_area(py, px, 12 + randint1(4), FALSE);
+		}
+		else
+		{
+			msg_print("The ground rumbles!");
+			earthquake(py, px, 10);
+		}
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static bool _object_is_corpse_or_skeleton(object_type *o_ptr)
+{
+	if (o_ptr->tval == TV_CORPSE) return TRUE;
+	if (o_ptr->tval == TV_SKELETON) return TRUE;
+	return FALSE;
+}
+
+static void _bury_dead_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Bury Dead");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You gain temporary enchantments by burying a corpse or skeleton.");
+		break;
+	case SPELL_CAST:
+	{
+		int item;
+		char o_name[MAX_NLEN];
+		object_type *o_ptr;
+		object_type copy;
+		int turns;
+
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+		item_tester_hook = _object_is_corpse_or_skeleton;
+		if (!get_item(&item, "Bury which corpse? ", "You have nothing to bury.", (USE_INVEN | USE_FLOOR))) return;
+
+		if (item >= 0)
+			o_ptr = &inventory[item];
+		else
+			o_ptr = &o_list[0 - item];
+
+		/* TV_CORPSE, SV_CORPSE = Corpse
+		   TV_CORPSE, SV_SKELETON = Skeleton
+		   TV_SKELETON, ??? = Skeleton */
+		if (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE)
+			turns = 15;
+		else
+			turns = 5;
+
+		object_copy(&copy, o_ptr);
+		copy.number = 1;
+		object_desc(o_name, &copy, OD_NAME_ONLY);
+		msg_format("You dig a hasty grave and toss in %s.", o_name);
+
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+
+		set_blessed(p_ptr->blessed + turns, FALSE);
+		if (p_ptr->lev > 15)
+			set_hero(p_ptr->hero + turns, FALSE);
+		if (p_ptr->lev > 30)
+			set_fast(p_ptr->fast + turns, FALSE);
+		if (p_ptr->lev > 40)
+			set_resist_magic(p_ptr->resist_magic + turns, FALSE);
+	
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _barricade_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Barricade");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Creates a pile of rubble on the adjacent square that you target.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (!in_bounds(y, x)) return;
+		if (!cave_naked_bold(y, x))
+		{
+			msg_print("You can't create a barricade there!");
+			return;
+		}
+
+		cave_set_feat(y, x, feat_rubble);
+		p_ptr->update |= PU_BONUS;
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _strength_of_the_undertaker_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Strength of Undertaker");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You gain additional strength based on the quality of your digger.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_STRENGTH_OF_THE_UNDERTAKER)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_STRENGTH_OF_THE_UNDERTAKER);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_STRENGTH_OF_THE_UNDERTAKER)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _stoicism_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Stoicism");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You gain additional constitution based on the quality of your digger.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_STOICISM)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_STOICISM);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_STOICISM)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _industrious_mortician_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Industrious Mortician");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You gain additional attacks when using this technique based on the quality of your digger.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_INDUSTRIOUS_MORTICIAN)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_INDUSTRIOUS_MORTICIAN);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_INDUSTRIOUS_MORTICIAN)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 
 bool _design_monkey_clone(void)
 {
@@ -2516,7 +2818,7 @@ static void _vicious_strike_spell(int cmd, variant *res)
  ****************************************************************/
 
 #define _MAX_OBJECTS_PER_SPECIALITY		32
-#define _MAX_SPECIALITIES				10
+#define _MAX_SPECIALITIES				11
 #define _MAX_SPELLS_PER_SPECIALITY		10
 
 int weaponmaster_get_toggle(void)
@@ -2778,6 +3080,32 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 	    { -1,   0,  0, NULL },
 	  },
 	  { TV_SWORD, SV_LONG_SWORD } ,
+	},
+	{ "Diggers",
+	  "A master of digging.  You prefer rocky enclosures and don't mind "
+	  "lugging around a corpse or two.",
+	  INVEN_RARM, INVEN_LARM,
+	  { 
+		{ TV_DIGGING, SV_SHOVEL},
+		{ TV_DIGGING, SV_GNOMISH_SHOVEL},
+		{ TV_DIGGING, SV_DWARVEN_SHOVEL},
+		{ TV_DIGGING, SV_PICK},
+		{ TV_DIGGING, SV_ORCISH_PICK},
+		{ TV_DIGGING, SV_DWARVEN_PICK},
+		{ TV_DIGGING, SV_MATTOCK},
+		{ 0, 0 },
+	  },
+	  {
+	    {  5, 10,  0, _bury_dead_spell },
+		{ 10,  0,  0, _strength_of_the_undertaker_spell },
+		{ 20, 20,  0, _tunnel_spell },
+		{ 25,  0,  0, _stoicism_spell },
+		{ 30, 40,  0, _barricade_spell },
+		{ 35, 40,  0, _calamity_of_the_living_spell },
+		{ 40,  0,  0, _industrious_mortician_spell },
+	    { -1,  0,  0, NULL },
+	  },
+	  { TV_DIGGING, SV_PICK },
 	},
 };
 
@@ -3317,7 +3645,6 @@ static void _calc_bonuses(void)
 				{
 					p_ptr->constant_hero = TRUE;
 					p_ptr->redraw |= (PR_STATUS);
-					redraw_stuff();
 				}
 				else
 					p_ptr->constant_hero = TRUE;				
@@ -3329,7 +3656,6 @@ static void _calc_bonuses(void)
 		else if (last_spec1 && p_ptr->lev >= 20)
 		{
 			p_ptr->redraw |= (PR_STATUS);
-			redraw_stuff();
 		}
 	}
 	else if (strcmp(_specialities[p_ptr->speciality1].name, "Polearms") == 0)
@@ -3384,6 +3710,48 @@ static void _calc_bonuses(void)
 		if (object_is_shield(&inventory[INVEN_RARM]) || object_is_shield(&inventory[INVEN_LARM]))
 		{
 			p_ptr->pspeed -= 5;
+		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Diggers") == 0)
+	{
+		if (spec1)
+		{
+			p_ptr->skill_dig += (5 + p_ptr->lev/5) * 20;
+			if (p_ptr->lev >= 45)
+				p_ptr->kill_wall = TRUE;
+		}
+		if (spec2)
+		{
+			if (p_ptr->lev >= 15) /* Earthen Shield */
+			{
+				int dir, x, y;
+				int count = 0;
+				for (dir = 0; dir < 8; dir++)
+				{
+					y = py + ddy_ddd[dir];
+					x = px + ddx_ddd[dir];
+					if (cave_have_flag_bold(y, x, FF_HURT_ROCK))
+						count++;
+				}
+				p_ptr->to_a += 7*count;
+				p_ptr->dis_to_a += 7*count;
+			}
+			switch (_get_toggle())
+			{
+			case TOGGLE_STRENGTH_OF_THE_UNDERTAKER:
+				if (_check_speciality2_aux(&inventory[INVEN_RARM]))
+					p_ptr->stat_add[A_STR] += inventory[INVEN_RARM].pval;
+				if (_check_speciality2_aux(&inventory[INVEN_LARM]))
+					p_ptr->stat_add[A_STR] += inventory[INVEN_LARM].pval;
+				break;
+
+			case TOGGLE_STOICISM:
+				if (_check_speciality2_aux(&inventory[INVEN_RARM]))
+					p_ptr->stat_add[A_CON] += inventory[INVEN_RARM].pval;
+				if (_check_speciality2_aux(&inventory[INVEN_LARM]))
+					p_ptr->stat_add[A_CON] += inventory[INVEN_LARM].pval;
+				break;
+			}
 		}
 	}
 
@@ -3592,6 +3960,19 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 			}
 		}
 	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Diggers") == 0)
+	{
+	int spec2 = _check_speciality2_aux(o_ptr);
+		if (spec2 && p_ptr->speciality2_equip)
+		{
+			switch (_get_toggle())
+			{
+			case TOGGLE_INDUSTRIOUS_MORTICIAN:
+				info_ptr->num_blow += o_ptr->pval/2;
+				break;
+			}
+		}
+	}
 }
 
 static void _move_monster(int m_idx)
@@ -3717,6 +4098,14 @@ static void _move_player(void)
 			p_ptr->cloak_of_shadows = 1;
 			p_ptr->update |= PU_BONUS;
 		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Diggers") == 0)
+	{
+	/*	handled in move_player_effect() since things like Phase Door don't trigger
+	    this fn.
+		if (p_ptr->speciality2_equip && p_ptr->lev >= 15)
+			p_ptr->update |= PU_BONUS;
+	*/
 	}
 }
 

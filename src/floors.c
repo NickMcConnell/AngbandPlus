@@ -1434,7 +1434,7 @@ void change_floor(void)
  * Create stairs at or move previously created stairs into the player
  * location.
  */
-void stair_creation(void)
+void stair_creation(bool down_only)
 {
 	saved_floor_type *sf_ptr;
 	saved_floor_type *dest_sf_ptr;
@@ -1445,7 +1445,7 @@ void stair_creation(void)
 
 
 	/* Forbid up staircases on Ironman mode */
-	if (ironman_downward) up = FALSE;
+	if (ironman_downward || down_only) up = FALSE;
 
 	/* Forbid down staircases on quest level */
 	if (quest_number(dun_level) || (dun_level >= d_info[dungeon_type].maxdepth)) down = FALSE;

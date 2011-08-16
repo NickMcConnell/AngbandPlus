@@ -2547,12 +2547,13 @@ static bool get_base_spell_power(void)
 	p_ptr->base_spell_power = 0;
 	while (1)
 	{
-		int ct_choices = 4;
+		int ct_choices = 5;
 		char* _strings[] = {
 			"a) No Extra Spell Power",
 			"b) +1 Spell Power",
 			"c) +2 Spell Power",
 			"d) +3 Spell Power",
+			"e) +4 Spell Power",
 		};
 
 		count = 0;
@@ -2575,6 +2576,7 @@ static bool get_base_spell_power(void)
 			put_str("b) +1 Spell Power", 14, 1);
 			put_str("c) +2 Spell Power", 15, 1);
 			put_str("d) +3 Spell Power", 16, 1);
+			put_str("e) +4 Spell Power", 17, 1);
 
 			k = -1;
 			cs = 0;
@@ -2605,7 +2607,7 @@ static bool get_base_spell_power(void)
 
 				if (k >= 0) break;
 
-				put_str("Choose Spell Power (a-d): ", 10, 10);
+				put_str("Choose Spell Power (a-e): ", 10, 10);
 				c = inkey();
 				if (c == 'Q') birth_quit();
 				if (c == 'S') return (FALSE);

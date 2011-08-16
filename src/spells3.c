@@ -1369,7 +1369,7 @@ typedef struct {
 	int max_depth;
 } _brand_type;
 
-#define _MAX_BRANDS 36
+#define _MAX_BRANDS 38
 
 _brand_type _brand_types[_MAX_BRANDS] = {
 	{ EGO_BRAND_COLD, T("glows deep, icy blue!", "は深く冷たいブルーに輝いた！"), 0, 70 },
@@ -1411,6 +1411,8 @@ _brand_type _brand_types[_MAX_BRANDS] = {
 	{ EGO_DF, T("seems to protect its wielder!", ""), 50, 2000 },
 	{ EGO_BLESS_BLADE, T("seems ok for priests to use.", ""), 0, 40 },
 	{ EGO_WEST, T("seems to hunt the servants of Morgoth!", ""), 20, 70 },
+	{ EGO_WILD, T("seems completely random!", ""), 150, 2000 },
+	{ EGO_ORDER, T("seems completely predictable!", ""), 1, 2000 },
 };
 
 int _find_brand_type(int ego_type)
@@ -1606,6 +1608,16 @@ s = "強化できる武器がない。";
 
 		case EGO_BLESS_BLADE:
 			o_ptr->pval = randint1(4);
+			break;
+
+		case EGO_WILD:
+			o_ptr->ds = o_ptr->dd * o_ptr->ds;
+			o_ptr->dd = 1;
+			break;
+				
+		case EGO_ORDER:
+			o_ptr->dd = o_ptr->dd * o_ptr->ds;
+			o_ptr->ds = 1;
 			break;
 
 		case EGO_WEST:

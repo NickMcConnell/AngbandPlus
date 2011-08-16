@@ -1442,14 +1442,21 @@ static void random_slay(object_type *o_ptr)
 				artifact_bias = BIAS_PRIESTLY;
 			break;
 		default:
-			if (randint1(250) <= object_level)
-				add_flag(o_ptr->art_flags, TR_KILL_EVIL);
-			else
-				add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
-			if (!artifact_bias && one_in_(2))
-				artifact_bias = BIAS_LAW;
-			else if (!artifact_bias && one_in_(9))
-				artifact_bias = BIAS_PRIESTLY;
+			if (!have_flag(o_ptr->art_flags, TR_ORDER) && !have_flag(o_ptr->art_flags, TR_WILD) && one_in_(100))
+				add_flag(o_ptr->art_flags, TR_ORDER);
+			else if (!have_flag(o_ptr->art_flags, TR_WILD) && !have_flag(o_ptr->art_flags, TR_ORDER) &&  one_in_(100))
+				add_flag(o_ptr->art_flags, TR_WILD);
+			else 
+			{
+				if (randint1(250) <= object_level)
+					add_flag(o_ptr->art_flags, TR_KILL_EVIL);
+				else
+					add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
+				if (!artifact_bias && one_in_(2))
+					artifact_bias = BIAS_LAW;
+				else if (!artifact_bias && one_in_(9))
+					artifact_bias = BIAS_PRIESTLY;
+			}
 			break;
 	}
 }
@@ -2402,6 +2409,19 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			o_ptr->to_d = 29;
 
 		if ((have_flag(o_ptr->art_flags, TR_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->art_flags, TR_BLESSED);
+	}
+
+	/* Fix up Damage Dice for (Wild) and (Order) weapons */
+	if (have_flag(o_ptr->art_flags, TR_ORDER))
+	{
+		remove_flag(o_ptr->art_flags, TR_WILD);
+		o_ptr->dd = o_ptr->dd * o_ptr->ds;
+		o_ptr->ds = 1;
+	}
+	else if (have_flag(o_ptr->art_flags, TR_WILD))
+	{
+		o_ptr->ds = o_ptr->dd * o_ptr->ds;
+		o_ptr->dd = 1;
 	}
 
 	/* Just to be sure */

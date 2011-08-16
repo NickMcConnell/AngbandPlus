@@ -2893,7 +2893,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				if ((!(o_ptr->tval == TV_SWORD) || !(o_ptr->sval == SV_DOKUBARI)) 
 				 && !(mode == HISSATSU_KYUSHO)
-				 && weaponmaster_get_toggle() != TOGGLE_ORDER_BLADE )
+				 && weaponmaster_get_toggle() != TOGGLE_ORDER_BLADE 
+				 && !have_flag(flgs, TR_ORDER) )
 				{
 					k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
 				}
@@ -3169,6 +3170,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (drain_result > m_ptr->hp)
 				drain_result = m_ptr->hp;
 
+			if (have_flag(flgs, TR_WILD))
+				wild_weapon_strike();
 
 			if (p_ptr->pclass == CLASS_WEAPONMASTER)
 			{
@@ -4718,6 +4721,9 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 
 		/* Update stuff */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_DISTANCE);
+
+		if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
+			p_ptr->update |= PU_BONUS;
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
