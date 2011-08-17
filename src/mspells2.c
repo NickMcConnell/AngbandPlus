@@ -428,7 +428,8 @@ bool monst_spell_monst(int m_idx)
 	tr_ptr = &r_info[t_ptr->r_idx];
 
 	/* No monster fighting (option) except involving pets */
-	if ( !allow_hostile_monster
+	if ( !p_ptr->inside_battle
+	  && !allow_hostile_monster
 	  && !(pet || is_pet(t_ptr)) )
 	{	
 		return (FALSE);

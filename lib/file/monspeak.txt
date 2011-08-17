@@ -736,6 +736,12 @@ ponders reading a scroll of *destruction* just to save himself the bother.
 asks, 'How do you like 'No Spells'? There's plenty more where that came from!'
 is ticked off!
 
+N:1095:Monkey Clone
+says, "Monkey see, monkey do!"
+says, "Don't you monkey with the monkey!"
+munches on a banana.
+says, "Hear no evil, see no evil, speak no evil."
+
 N:*:Default lines
 cackles evilly.
 cackles diabolically.

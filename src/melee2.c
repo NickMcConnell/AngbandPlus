@@ -2713,12 +2713,6 @@ static void process_monster(int m_idx)
 #else
 				filename = "monfear.txt";
 #endif
-			else if (is_pet(m_ptr))
-#ifdef JP
-				filename = "monpet_j.txt";
-#else
-				filename = "monpet.txt";
-#endif
 			else if (is_friendly(m_ptr))
 #ifdef JP
 				filename = "monfrien_j.txt";

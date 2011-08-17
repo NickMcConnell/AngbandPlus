@@ -2097,7 +2097,14 @@ void touch_zap_player(monster_type *m_ptr)
 
 	if (r_ptr->flags2 & RF2_AURA_FIRE)
 	{
-		if (!p_ptr->immune_fire)
+		if (p_ptr->immune_fire)
+		{
+		}
+		else if (p_ptr->lightning_reflexes)
+		{
+			msg_print("You strike so fast that you avoid getting burned.");
+		}
+		else
 		{
 			char aura_dam[80];
 
@@ -2124,7 +2131,14 @@ void touch_zap_player(monster_type *m_ptr)
 
 	if (r_ptr->flags3 & RF3_AURA_COLD)
 	{
-		if (!p_ptr->immune_cold)
+		if (p_ptr->immune_cold)
+		{
+		}
+		else if (p_ptr->lightning_reflexes)
+		{
+			msg_print("You strike so fast that you avoid getting frozen.");
+		}
+		else
 		{
 			char aura_dam[80];
 
@@ -2529,6 +2543,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	if (mode == WEAPONMASTER_ENCLOSE) bonus -= 10;
 	if (mode == WEAPONMASTER_KNOCK_BACK) bonus -= 20;
 	if (mode == WEAPONMASTER_REAPING) bonus -= 40;
+	if (mode == WEAPONMASTER_CUNNING_STRIKE) bonus += 20;
+	if (mode == WEAPONMASTER_SMITE_EVIL && hand == 0 && (r_ptr->flags3 & RF3_EVIL)) bonus += 200;
+
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 	if (mode == HISSATSU_IAI) chance += 60;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) chance += 150;
@@ -2547,6 +2564,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	if ((mode == HISSATSU_KYUSHO) || (mode == HISSATSU_MINEUCHI) || (mode == HISSATSU_3DAN) || (mode == HISSATSU_IAI)) num_blow = 1;
 	else if (mode == HISSATSU_COLD) num_blow = p_ptr->weapon_info[hand].num_blow+2;
 	else num_blow = p_ptr->weapon_info[hand].num_blow;
+
+	if (mode == WEAPONMASTER_CUNNING_STRIKE) num_blow = (num_blow + 1)/2;
 
 	/* Hack -- DOKUBARI always hit once */
 	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) num_blow = 1;
@@ -2896,7 +2915,10 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				 && weaponmaster_get_toggle() != TOGGLE_ORDER_BLADE 
 				 && !have_flag(flgs, TR_ORDER) )
 				{
-					k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
+					if (mode == WEAPONMASTER_SMITE_EVIL && hand == 0)
+						k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h + 200, mode);
+					else
+						k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
 				}
 
 				drain_result = k;
@@ -3414,8 +3436,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				{
 					int odds = 5;
 				
-					if (weaponmaster_get_toggle() == TOGGLE_CUNNING_STRIKE)
-						odds = 2;
+					if (mode == WEAPONMASTER_CUNNING_STRIKE)
+						odds = 3;
 
 					if (one_in_(odds))
 					{
@@ -3453,7 +3475,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						}
 					}
 
-					if (p_ptr->lev >= 45 && one_in_(odds))
+					if ((p_ptr->lev >= 45 || mode == WEAPONMASTER_CUNNING_STRIKE) && one_in_(odds))
 					{
 						if (r_ptr->flags3 & RF3_NO_STUN)
 						{

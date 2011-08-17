@@ -786,6 +786,8 @@ static void wr_extra(void)
 			}
 			wr_u32b(r_ptr->flags3);
 			wr_u32b(r_ptr->flagsr);
+			wr_u32b(r_ptr->flags2);
+			wr_u32b(r_ptr->flags7);
 		}
 	}
 	wr_s16b(p_ptr->entrench_x);

@@ -1,4 +1,4 @@
-/* File: defines.h */ 
+/* File: defines.h */  
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 57
+#define FAKE_VER_PATCH 58
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 57
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 58
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -5235,6 +5235,8 @@ extern int PlayerUID;
 #define WEAPONMASTER_AUTO_BLOW 41
 #define WEAPONMASTER_KNOCK_BACK 42
 #define WEAPONMASTER_REAPING 43
+#define WEAPONMASTER_CUNNING_STRIKE 44
+#define WEAPONMASTER_SMITE_EVIL 45
 
 
 #define MAX_FRENZY_ITEMS 3
@@ -5654,7 +5656,7 @@ extern int PlayerUID;
 
 	/* Clubmaster */
 	#define TOGGLE_COMBAT_EXPERTISE		6
-	#define TOGGLE_CUNNING_STRIKE		7
+	#define TOGGLE_STONE_BONES			7
 	#define TOGGLE_TRADE_BLOWS			8
 
 	/* Axemaster */

@@ -2064,14 +2064,16 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
-#ifdef JP
-				note = "には完全な耐性がある！";
-#else
-				note = " is immune.";
-#endif
-				dam = 0;
-				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
-				break;
+				/* In the ugly hack department, monsters melee other monsters
+				   by projecting GF_MISSILE damage on them.  Sigh ... */
+				if ( m_ptr->r_idx == MON_HAGURE
+				  || who == 0 )
+				{
+					note = T(" is immune.", "には完全な耐性がある！");
+					dam = 0;
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+					break;
+				}
 			}
 
 			break;
@@ -6942,6 +6944,20 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		dam -= dam * factor / 100;
 	}
 
+	if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
+	{
+		switch (typ)
+		{
+		case GF_ACID: case GF_ELEC: case GF_POIS: case GF_COLD: case GF_FIRE:
+		case GF_PLASMA: case GF_WATER: case GF_LITE: case GF_DARK: case GF_SHARDS:
+		case GF_SOUND: case GF_CONFUSION: case GF_FORCE: case GF_ICE: case GF_CHAOS:
+		case GF_NETHER: case GF_DISENCHANT: case GF_NEXUS: case GF_ROCKET: case GF_DISINTEGRATE:
+			dam -= p_ptr->lev * p_ptr->lev / 50;
+			if (dam < 0) dam = 0;
+			break;
+		}
+	}
+
 	if (p_ptr->magic_resistance)
 		dam -= dam * p_ptr->magic_resistance / 100;
 
@@ -8783,7 +8799,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 	byte gx[1024], gy[1024];
 
 	/* Encoded "radius" info (see above) */
-	byte gm[32];
+	byte gm[64];
 
 	/* Actual radius encoded in gm[] */
 	int gm_rad = rad;

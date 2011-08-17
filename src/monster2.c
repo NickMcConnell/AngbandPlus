@@ -1579,11 +1579,11 @@ s16b get_mon_num(int level)
 
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 			table[i].prob3 = table[i].prob2;
-		else if (r_ptr->level + 50 < level)
+		else if (r_ptr->level + 40 < level)
 		{
 			if (r_ptr->level >= 50)
 				table[i].prob3 = table[i].prob2 / 4;
-			else if (r_ptr->level >= 30)
+			else if (r_ptr->level >= 40)
 				table[i].prob3 = table[i].prob2 / 10;
 			else
 				table[i].prob3 = 0;

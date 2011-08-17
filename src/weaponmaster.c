@@ -523,7 +523,7 @@ bool _design_monkey_clone(void)
 	}
 
 	r_ptr->hdice = 10;
-	r_ptr->hside = p_ptr->mhp / 30;
+	r_ptr->hside = p_ptr->mhp / 15;
 	r_ptr->ac = p_ptr->ac + p_ptr->to_a;
 	r_ptr->speed = p_ptr->pspeed;
 
@@ -558,6 +558,8 @@ bool _design_monkey_clone(void)
 	/* Resistances */
 	r_ptr->flagsr = 0;
 	r_ptr->flags3 = 0;
+	r_ptr->flags2 = 0;
+	r_ptr->flags7 = 0;
 
 	if (p_ptr->resist_acid) r_ptr->flagsr |= RFR_IM_ACID;
 	if (p_ptr->resist_elec) r_ptr->flagsr |= RFR_IM_ELEC;
@@ -575,6 +577,19 @@ bool _design_monkey_clone(void)
 
 	if (p_ptr->resist_conf) r_ptr->flags3 |= RF3_NO_CONF;
 	if (p_ptr->resist_fear) r_ptr->flags3 |= RF3_NO_FEAR;
+	if (p_ptr->free_act) r_ptr->flags3 |= RF3_NO_SLEEP;
+	if (p_ptr->sh_cold) r_ptr->flags3 |= RF3_AURA_COLD;
+
+	if (p_ptr->reflect) r_ptr->flags2 |= RF2_REFLECTING;
+	if (p_ptr->regenerate) r_ptr->flags2 |= RF2_REGENERATE;
+	if (p_ptr->sh_fire) r_ptr->flags2 |= RF2_AURA_FIRE;
+	if (p_ptr->sh_elec) r_ptr->flags2 |= RF2_AURA_ELEC;
+	if (p_ptr->pass_wall) r_ptr->flags2 |= RF2_PASS_WALL;
+	r_ptr->flags2 |= RF2_OPEN_DOOR;
+	r_ptr->flags2 |= RF2_CAN_SPEAK;
+
+	r_ptr->flags7 |= RF7_CAN_SWIM;
+	if (p_ptr->levitation) r_ptr->flags7 |= RF7_CAN_FLY;
 
 	return TRUE;
 }
@@ -1437,6 +1452,41 @@ static void _combat_expertise_spell(int cmd, variant *res)
 	}
 }
 
+static void _stone_bones_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Stone Bones");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You become nearly impervious to melee damage, but seem hardly able to hurt anything yourself!");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_STONE_BONES)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_STONE_BONES);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_STONE_BONES)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _crusaders_strike_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1492,24 +1542,77 @@ static void _cunning_strike_spell(int cmd, variant *res)
 		var_set_string(res, "Number of attacks are cut in half, but blows are more likely to confuse, stun, knock out your opponent.");
 		break;
 	case SPELL_CAST:
+	{
+		int y, x, dir;
 		var_set_bool(res, FALSE);
 		if (!_check_speciality2_equip())
 		{
 			msg_print("Failed!  You do not feel comfortable with your weapon.");
 			return;
 		}
-		if (_get_toggle() == TOGGLE_CUNNING_STRIKE)
-			_set_toggle(TOGGLE_NONE);
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, WEAPONMASTER_CUNNING_STRIKE);
 		else
-			_set_toggle(TOGGLE_CUNNING_STRIKE);
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
 		var_set_bool(res, TRUE);
 		break;
-	case SPELL_ENERGY:
-		if (_get_toggle() != TOGGLE_CUNNING_STRIKE)
-			var_set_int(res, 0);	/* no charge for dismissing a technique */
-		else
-			var_set_int(res, 100);
+	}
+	default:
+		default_spell(cmd, res);
 		break;
+	}
+}
+
+static void _smite_evil_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Smite Evil");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack powerfully at an evil monster.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, WEAPONMASTER_SMITE_EVIL);
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
@@ -1776,6 +1879,7 @@ static void _dagger_toss_imp2(_dagger_toss_info * info)
 				tdam += p_ptr->to_d_b;
 				if (tdam < 0) tdam = 0;
 				tdam = mon_damage_mod(m_ptr, tdam, FALSE);
+				tdam -= (tdam * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
 
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
 				{
@@ -2300,6 +2404,7 @@ typedef struct {
 	int tx;
 	int ty;
 	bool come_back;
+	bool fail_catch;
 } _club_toss_info;
 static void _club_toss_imp(_club_toss_info * info);
 
@@ -2307,12 +2412,25 @@ static bool _club_toss(void)
 {
 	int dir;
 	_club_toss_info info;
+	int back_chance;
 	
 	/* Setup info for the toss */
 	info.item = INVEN_RARM;
 	info.o_ptr = &inventory[INVEN_RARM];
-	info.come_back = randint1(100) < (35 + p_ptr->lev);
 
+	/* Toss mechanics stolen from Samurai Boomerang ... see do_cmd_throw_aux() */
+	back_chance = randint1(30)+20+((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+	back_chance += 4+randint1(5);
+
+	info.come_back = FALSE;
+	info.fail_catch = FALSE;
+	if (back_chance > 30 && !one_in_(100))
+	{
+		info.come_back = TRUE;
+		if (back_chance <= 37)
+			info.fail_catch = TRUE;
+	}
+	
 	if (!_check_speciality2_aux(info.o_ptr)) return FALSE;
 	if (object_is_cursed(info.o_ptr) && (info.item >= INVEN_RARM))
 	{
@@ -2321,10 +2439,13 @@ static bool _club_toss(void)
 	}
 
 	if (have_flag(info.o_ptr->art_flags, TR_SIGNATURE)) 
+	{
 		info.come_back = TRUE;
+		info.fail_catch = FALSE;
+	}
 
 	/* Pick a target */
-	info.mult = 3;
+	info.mult = 1 + p_ptr->weapon_info[0].num_blow;
 	{
 		int mul, div;
 		mul = 10 + 2 * (info.mult - 1);
@@ -2354,7 +2475,7 @@ static bool _club_toss(void)
 	_club_toss_imp(&info);
 
 	/* Handle Inventory */
-	if (!info.come_back)
+	if (!info.come_back || info.fail_catch)
 	{
 		object_type copy;
 
@@ -2365,8 +2486,14 @@ static bool _club_toss(void)
 		inven_item_describe(info.item);
 		inven_item_optimize(info.item);
 		
-		/* Dagger Toss never breaks! */
-		drop_near(&copy, 0, info.ty, info.tx);
+
+		if (!info.come_back)
+			drop_near(&copy, 0, info.ty, info.tx);
+		else
+		{
+			msg_print("But you can't catch!");
+			drop_near(&copy, 0, py, px);
+		}
 		
 		if (info.item >= INVEN_RARM)
 		{
@@ -2475,9 +2602,10 @@ static void _club_toss_imp(_club_toss_info * info)
 				tdam = critical_shot(info->o_ptr->weight, info->o_ptr->to_h, tdam);
 				tdam += info->o_ptr->to_d;
 				tdam *= info->mult;
-				tdam += p_ptr->to_d_b;
+				tdam += p_ptr->to_d_m;
 				if (tdam < 0) tdam = 0;
 				tdam = mon_damage_mod(m_ptr, tdam, FALSE);
+				tdam -= (tdam * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
 
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
 				{
@@ -2513,11 +2641,6 @@ static void _club_toss_imp(_club_toss_info * info)
 						int odds = 5;
 						monster_desc(m_name, m_ptr, 0);
 				
-						/* I don't think Cunning Strike should apply here ...
-						if (_get_toggle() == TOGGLE_CUNNING_STRIKE)
-							odds = 2;
-						*/
-
 						if (one_in_(odds))
 						{
 							if (r_ptr->flags3 & RF3_NO_CONF)
@@ -2910,9 +3033,9 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 	  },
 	  {
 		{  5,   0,  0, _combat_expertise_spell },
-		{ 10,  10,  0, _throw_weapon_spell },
-		{ 15,   0,  0, _cunning_strike_spell },
-		{ 30,  30,  0, _smash_ground_spell },
+		{ 10,  12,  0, _cunning_strike_spell },
+		{ 15,   0,  0, _stone_bones_spell },
+		{ 30,  50,  0, _smite_evil_spell },
 		{ 35,   0,  0, _trade_blows_spell },
 	    { -1,   0,  0, NULL },
 	  },
@@ -3245,6 +3368,7 @@ static bool _make_uber_weapon(void)
 		}
 		add_flag(o_ptr->art_flags, TR_SIGNATURE);
 		add_flag(o_ptr->art_flags, TR_FREE_ACT);
+		add_flag(o_ptr->art_flags, TR_RES_DISEN);
 		p_ptr->speciality3 = 1;
 
 		result = TRUE;
@@ -3487,7 +3611,7 @@ void _on_birth(void)
 
 void weaponmaster_adjust_skills(void)
 {
-	int i;
+	int i, j;
 	_object_kind kind;
 
 	/* Fix up skills for Speciality.  This needs to be called every time the game is loaded! */
@@ -3497,6 +3621,16 @@ void weaponmaster_adjust_skills(void)
 		if (kind.tval == 0) break;
 
 		s_info[p_ptr->pclass].w_max[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_MASTER;
+	}
+
+	/* 0.0.58 biffed skills for non-specialty weapons! */
+	for (i = 0; i < 5; i++)
+	{
+		for (j = 0; j < 64; j++)
+		{
+			if (p_ptr->weapon_exp[i][j] > s_info[p_ptr->pclass].w_max[i][j])
+				p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_max[i][j];
+		}
 	}
 
 	if (strcmp(_specialities[p_ptr->speciality1].name, "Slings") == 0)
@@ -3890,14 +4024,13 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 
 		switch (_get_toggle())
 		{
-		case TOGGLE_CUNNING_STRIKE:
-			info_ptr->num_blow /= 2;
-			info_ptr->to_h += 20;
-			info_ptr->dis_to_h += 20;
-			break;
 		case TOGGLE_COMBAT_EXPERTISE:
 			info_ptr->to_h -= p_ptr->lev;
 			info_ptr->dis_to_h -= p_ptr->lev;
+			break;
+		case TOGGLE_STONE_BONES:
+			info_ptr->to_d -= p_ptr->lev * p_ptr->lev / 50;
+			info_ptr->dis_to_d -= p_ptr->lev * p_ptr->lev / 50;
 			break;
 		}
 	}
@@ -4109,6 +4242,117 @@ static void _move_player(void)
 	}
 }
 
+static void _character_dump(FILE* file)
+{
+	cptr o_name = weaponmaster_speciality2_name();
+	fprintf(file, "\n\n  [Weaponmaster Abilities]\n\n");
+	
+	if (strcmp(_specialities[p_ptr->speciality1].name, "Axes") == 0)
+	{
+		if (p_ptr->lev >= 45)
+			fprintf(file, "You gain +30 damage when wielding an axe.\n");	
+		else if (p_ptr->lev >= 20)
+			fprintf(file, "You gain +15 damage when wielding an axe.\n");	
+		else
+			fprintf(file, "You gain +5 damage when wielding an axe.\n");	
+		
+		fprintf(file, "You gain +1 attack when wielding an axe with two hands.\n");
+
+		if (p_ptr->lev >= 5)
+			fprintf(file, "You gain +5 tunneling when wielding %s.\n", o_name);
+
+		if (p_ptr->lev >= 30)
+			fprintf(file, "You occasionally get a free round of attacks after moving when wielding %s.\n", o_name);
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Clubs") == 0)
+	{
+		fprintf(file, "Your attacks have a chance to confuse when wielding a club.\n");	
+		
+		if (p_ptr->lev >= 20)
+			fprintf(file, "Your attacks have a chance to knock out when wielding a club.\n");	
+		
+		if (p_ptr->lev >= 45)
+			fprintf(file, "Your attacks have a chance to stun when wielding a club.\n");	
+
+		if (p_ptr->lev >= 25)
+			fprintf(file, "You gain +20 to hit when wielding %s.\n", o_name);
+
+		if (p_ptr->lev >= 40)
+			fprintf(file, "You gain crushing blows when wielding %s.\n", o_name);
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Daggers") == 0)
+	{
+		fprintf(file, "You pay no energy costs when equipping a dagger.\n");	
+		fprintf(file, "You dual wield very effectively with daggers.\n");	
+		if (p_ptr->lev >= 20)
+			fprintf(file, "You gain +%d to AC when wielding a dagger.\n", 10 + p_ptr->lev/2);
+		if (p_ptr->lev >= 45)
+			fprintf(file, "You gain +1 attack when wielding a dagger.\n");	
+
+
+		if (p_ptr->lev >= 10)
+			fprintf(file, "You gain +2 stealth when wielding %s.\n", o_name);
+		if (p_ptr->lev >= 30)
+			fprintf(file, "You gain sneak attack and backstab when wielding %s.\n", o_name);
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Diggers") == 0)
+	{
+		fprintf(file, "You gain +%d tunneling when wielding a digger.\n", 5 + p_ptr->lev/5);
+		if (p_ptr->lev >= 45)
+			fprintf(file, "Your steps break walls when wielding a digger.\n");
+
+		if (p_ptr->lev >= 15)
+			fprintf(file, "You gain an AC bonus depending on the number of adjacent walls when wielding %s.\n", o_name);
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Polearms") == 0)
+	{
+		fprintf(file, "You occasionally get a free round of attacks after moving when wielding a polearm.\n");
+		if (p_ptr->lev >= 20)
+			fprintf(file, "You automatically attack any enemy that steps next to you when wielding a polearm.\n");
+		if (p_ptr->lev >= 45)
+			fprintf(file, "You occasionally strike all adjacent foes when wielding a polearm.\n");
+
+		if (p_ptr->lev >= 30)
+			fprintf(file, "You gain +20 to hit and +20 to AC when you don't move for 3 rounds when wielding %s.\n", o_name);
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Slings") == 0)
+	{
+		fprintf(file, "Your ammo often returns to you when wielding a sling.\n");
+		if (p_ptr->lev >= 20)
+			fprintf(file, "Your ammo gains extra damage dice when wielding a sling.\n");
+		if (p_ptr->lev >= 45)
+			fprintf(file, "You have access to an unlimited quiver when wielding a sling.\n");
+
+		if (p_ptr->lev >= 10)
+			fprintf(file, "Your shots never miss your target once you score 3 consecutive hits when wielding %s.\n", o_name);
+		if (p_ptr->lev >= 40)
+			fprintf(file, "You gain extra shots when wielding %s.\n", o_name);
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Staves") == 0)
+	{
+		fprintf(file, "You gain +%d AC until your next turn after any successful hit when wielding a staff.\n", 10 + 2*p_ptr->lev/3);
+		fprintf(file, "You gain -5 speed when wielding a shield.\n");
+		if (p_ptr->lev >= 20)
+			fprintf(file, "You gain +2 speed when wielding a staff.\n");
+		if (p_ptr->lev >= 45)
+			fprintf(file, "You gain +1 attack when you are at full health and wielding a staff.\n");
+
+		if (p_ptr->lev >= 5)
+			fprintf(file, "You gain +%d AC after moving until your next turn when wielding %s.\n", 10 + 2*p_ptr->lev/3, o_name);
+
+		if (p_ptr->lev >= 35)
+			fprintf(file, "You are unaffected by elemental auras when wielding %s.\n", o_name);
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Swords") == 0)
+	{
+		fprintf(file, "You gain +10 to hit when wielding a sword.\n");
+		if (p_ptr->lev >= 20)
+			fprintf(file, "You gain constant heroism when wielding a sword.\n");
+		if (p_ptr->lev >= 45)
+			fprintf(file, "You gain vorpal attacks when wielding a sword.\n");
+	}
+}
+
 class_t *weaponmaster_get_class_t(void)
 {
 	static class_t me = {0};
@@ -4148,6 +4392,7 @@ class_t *weaponmaster_get_class_t(void)
 		me.move_player = _move_player;
 		me.move_monster = _move_monster;
 		me.process_player = _process_player;
+		me.character_dump = _character_dump;
 		init = TRUE;
 	}
 

@@ -561,7 +561,7 @@ static void _calc_bonuses(void)
 		p_ptr->regenerate = TRUE;
 }
 
-void _character_dump(FILE* file)
+static void _character_dump(FILE* file)
 {
 	int i;
 	spell_info spells[MAX_SPELLS];

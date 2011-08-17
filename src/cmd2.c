@@ -4834,7 +4834,7 @@ msg_print("これはあまり良くない気がする。");
 #ifdef JP
 					msg_format("%sを受け損ねた！", o2_name);
 #else
-					msg_format("%s backs, but you can't catch!", o2_name);
+					msg_format("%s comes back to you, but you can't catch!", o2_name);
 #endif
 				}
 				else

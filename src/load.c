@@ -1370,6 +1370,15 @@ static void rd_extra(void)
 			}
 			rd_u32b(&r_ptr->flags3);
 			rd_u32b(&r_ptr->flagsr);
+
+			if (h_older_than(0, 0, 58, 1))
+			{
+			}
+			else
+			{
+				rd_u32b(&r_ptr->flags2);
+				rd_u32b(&r_ptr->flags7);
+			}
 		}
 		
 	}

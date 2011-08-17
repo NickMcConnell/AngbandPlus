@@ -1726,16 +1726,20 @@ void battle_monsters(void)
 	{
 		total = 0;
 		tekitou = FALSE;
+		
 		for(i=0;i<4;i++)
 		{
 			int r_idx, j;
+			int attempt = 0;
 			while (1)
 			{
+				attempt++;
 				get_mon_num_prep(vault_aux_battle, NULL);
 				p_ptr->inside_battle = TRUE;
 				r_idx = get_mon_num(mon_level);
 				p_ptr->inside_battle = old_inside_battle;
 				if (!r_idx) continue;
+				if (attempt > 1000) break;
 
 				if ((r_info[r_idx].flags1 & RF1_UNIQUE) || (r_info[r_idx].flags7 & RF7_UNIQUE2))
 				{
@@ -1751,6 +1755,13 @@ void battle_monsters(void)
 			battle_mon[i] = r_idx;
 			if (r_info[r_idx].level < 45) tekitou = TRUE;
 		}
+
+		/*
+		battle_mon[0] = MON_SERPENT;
+		battle_mon[1] = MON_TALOS;
+		battle_mon[2] = MON_SOFTWARE_BUG;
+		battle_mon[3] = MON_SOFTWARE_BUG;
+		*/
 
 		for (i=0;i<4;i++)
 		{

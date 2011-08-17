@@ -389,7 +389,7 @@ static void prt_stat(int stat)
 #define BAR_GENJI 82
 #define BAR_FORCE 83
 #define BAR_COMBAT_EXPERTISE 84
-#define BAR_CUNNING_STRIKE 85
+#define BAR_STONE_BONES 85
 #define BAR_TRADE_BLOWS 86
 #define BAR_POWER_ATTACK 87
 #define BAR_VICIOUS_STRIKE 88
@@ -576,7 +576,7 @@ static struct {
 	{TERM_YELLOW, "Gj", "Genji"},
 	{TERM_L_BLUE, "Fc", "Force"},
 	{TERM_L_BLUE, "Ex", "Combat Expertise"},
-	{TERM_L_BLUE, "Cn", "Cunning Strike"},
+	{TERM_UMBER, "SB", "Stone Bones"},
 	{TERM_L_BLUE, "Tr", "Trade Blows"},
 	{TERM_L_BLUE, "Pw", "Power Attack"},
 	{TERM_RED, "Vs", "Stumbling 'n Bumbling"},
@@ -787,8 +787,8 @@ static void prt_status(void)
 		case TOGGLE_COMBAT_EXPERTISE:
 			ADD_FLG(BAR_COMBAT_EXPERTISE);
 			break;
-		case TOGGLE_CUNNING_STRIKE:
-			ADD_FLG(BAR_CUNNING_STRIKE);
+		case TOGGLE_STONE_BONES:
+			ADD_FLG(BAR_STONE_BONES);
 			break;
 		case TOGGLE_TRADE_BLOWS:
 			ADD_FLG(BAR_TRADE_BLOWS);

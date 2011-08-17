@@ -6394,7 +6394,7 @@ quit("セーブファイルが壊れています");
 	if (p_ptr->pseikaku == SEIKAKU_SEXY)
 		s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_MASTER;
 
-	if (p_ptr->pclass == CLASS_WEAPONMASTER)
+	if (p_ptr->pclass == CLASS_WEAPONMASTER && !new_game)
 		weaponmaster_adjust_skills();
 
 	/* Fill the arrays of floors and walls in the good proportions */

@@ -445,9 +445,9 @@ void teleport_player(int dis, u32b mode)
 	if (!teleport_player_aux(dis, mode)) return;
 
 	/* Monsters with teleport ability may follow the player */
-	for (xx = -1; xx < 2; xx++)
+	for (xx = -2; xx < 3; xx++)
 	{
-		for (yy = -1; yy < 2; yy++)
+		for (yy = -2; yy < 3; yy++)
 		{
 			int tmp_m_idx = cave[oy+yy][ox+xx].m_idx;
 
@@ -470,6 +470,9 @@ void teleport_player(int dis, u32b mode)
 				{
 					if (!MON_CSLEEP(m_ptr)) teleport_monster_to(tmp_m_idx, py, px, r_ptr->level, 0L);
 				}
+
+				if (m_ptr->r_idx == MON_MONKEY_CLONE)
+					teleport_monster_to(tmp_m_idx, py, px, 10000, 0L);
 			}
 		}
 	}
@@ -1412,7 +1415,7 @@ _brand_type _brand_types[_MAX_BRANDS] = {
 	{ EGO_BLESS_BLADE, T("seems ok for priests to use.", ""), 0, 40 },
 	{ EGO_WEST, T("seems to hunt the servants of Morgoth!", ""), 20, 70 },
 	{ EGO_WILD, T("seems completely random!", ""), 150, 2000 },
-	{ EGO_ORDER, T("seems completely predictable!", ""), 1, 2000 },
+	{ EGO_ORDER, T("seems completely predictable!", ""), 150, 2000 },
 };
 
 int _find_brand_type(int ego_type)
