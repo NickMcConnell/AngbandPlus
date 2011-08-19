@@ -180,7 +180,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 #ifdef JP
 put_str("                ÊÑ¶òÈÚÅÜ: Í¦¼Ô¤ÎÅÂÆ²", 0, 0);
 #else
-		put_str("                Hengband Hall of Fame", 0, 0);
+		put_str("                Chengband Hall of Fame", 0, 0);
 #endif
 
 

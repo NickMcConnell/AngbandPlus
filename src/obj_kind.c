@@ -345,5 +345,7 @@ bool object_allow_two_hands_wielding(object_type *o_ptr)
 {
 	if (object_is_melee_weapon(o_ptr) && ((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM))) return TRUE;
 
+	/* Hack: Shield Mastery technique */
+	if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && object_is_shield(o_ptr)) return TRUE;
 	return FALSE;
 }

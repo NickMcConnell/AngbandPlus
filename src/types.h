@@ -1177,6 +1177,7 @@ struct player_type
 	s16b entrench_y;
 	s16b entrench_ct;
 	bool entrenched;
+	bool inven_prot;
 
 	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */

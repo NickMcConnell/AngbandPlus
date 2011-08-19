@@ -1,4 +1,4 @@
-/* File: defines.h */  
+/* File: defines.h */ 
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 58
+#define FAKE_VER_PATCH 59
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 58
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 59
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -2848,6 +2848,7 @@
 #define KATA_MUSOU              0x00001000
 #define NINJA_KAWARIMI          0x00002000
 #define NINJA_S_STEALTH         0x00004000
+#define DEFENSE_SANCTUARY		0x00008000
 
 #define MAX_KAMAE 4
 #define KAMAE_MASK (KAMAE_GENBU | KAMAE_BYAKKO | KAMAE_SEIRYU | KAMAE_SUZAKU)
@@ -3552,7 +3553,7 @@
 #define RF2_KILL_BODY       0x00200000  /* Monster can kill monsters */
 #define RF2_TAKE_ITEM       0x00400000  /* Monster can pick up items */
 #define RF2_KILL_ITEM       0x00800000  /* Monster can crush items */
-#define RF2_XXX1			0x01000000  
+#define RF2_AURA_REVENGE	0x01000000  
 #define RF2_XXX2            0x02000000
 #define RF2_XXX3            0x04000000
 #define RF2_XXX4            0x08000000
@@ -5436,7 +5437,7 @@ extern int PlayerUID;
 /* Temporary flags macro */
 #define IS_FAST() (p_ptr->fast || music_singing(MUSIC_SPEED) || music_singing(MUSIC_SHERO) || wild_has_power(WILD_SPEED))
 #define IS_LIGHT_SPEED() (p_ptr->lightspeed || wild_has_power(WILD_LIGHT_SPEED))
-#define IS_INVULN() (p_ptr->invuln || music_singing(MUSIC_INVULN) || wild_has_power(WILD_INVULN))
+#define IS_INVULN() (p_ptr->invuln || music_singing(MUSIC_INVULN) || wild_has_power(WILD_INVULN) || (p_ptr->special_defense & DEFENSE_SANCTUARY))
 #define IS_HERO() (p_ptr->hero || music_singing(MUSIC_HERO) || music_singing(MUSIC_SHERO) || p_ptr->constant_hero)
 #define IS_BLESSED() (p_ptr->blessed || music_singing(MUSIC_BLESS) || hex_spelling(HEX_BLESS) || wild_has_power(WILD_BLESS))
 #define IS_SHERO() (p_ptr->shero || p_ptr->pclass == CLASS_BERSERKER || wild_has_power(WILD_BERSERK))
@@ -5453,7 +5454,7 @@ extern int PlayerUID;
 #define IS_RESIST_MAGIC() (p_ptr->resist_magic || wild_has_power(WILD_MAGIC_RESIST))
 #define IS_STONE_SKIN() (p_ptr->shield || wild_has_power(WILD_STONE_SKIN))
 #define IS_PASSWALL() (p_ptr->kabenuke || wild_has_power(WILD_PASSWALL))
-#define IS_REVENGE() (p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE) || wild_has_power(WILD_REVENGE))
+#define IS_REVENGE() (p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE) || wild_has_power(WILD_REVENGE) || weaponmaster_get_toggle() == TOGGLE_SHIELD_REVENGE)
 #define IS_WRAITH() (p_ptr->wraith_form || wild_has_power(WILD_WRAITH))
 
 /* Multishadow effects is determined by turn */
@@ -5684,6 +5685,11 @@ extern int PlayerUID;
 	#define TOGGLE_STRENGTH_OF_THE_UNDERTAKER	22
 	#define TOGGLE_STOICISM						23
 	#define TOGGLE_INDUSTRIOUS_MORTICIAN		24
+
+	/* Shieldmaster */
+	#define TOGGLE_SHIELD_BASH      25
+	#define TOGGLE_BULWARK			26
+	#define TOGGLE_SHIELD_REVENGE	27
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1

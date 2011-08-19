@@ -1733,6 +1733,39 @@ static void display_player_melee_bonus(int hand, int hand_entry)
 	if (object_is_known(o_ptr)) show_tohit += o_ptr->to_h;
 	if (object_is_known(o_ptr)) show_todam += o_ptr->to_d;
 
+	if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+	{
+		if (hand == 0 && object_is_shield(&inventory[INVEN_RARM]))
+		{
+			if (object_is_known(&inventory[INVEN_RARM]))
+			{
+				show_tohit += inventory[INVEN_RARM].to_a;
+				show_todam += inventory[INVEN_RARM].to_a;
+
+				show_tohit += 2*inventory[INVEN_RARM].to_h;
+				show_todam += 2*inventory[INVEN_RARM].to_d;
+			}
+
+			if (object_is_shield(&inventory[INVEN_LARM])
+			  && object_is_known(&inventory[INVEN_LARM]) )
+			{
+				show_tohit += inventory[INVEN_LARM].to_a;
+				show_todam += inventory[INVEN_LARM].to_a;
+			}
+		}
+		if (hand == 1 && !object_is_shield(&inventory[INVEN_RARM]) && object_is_shield(&inventory[INVEN_LARM]))
+		{
+			if (object_is_known(&inventory[INVEN_LARM]))
+			{
+				show_tohit += inventory[INVEN_LARM].to_a;
+				show_todam += inventory[INVEN_LARM].to_a;
+
+				show_tohit += 2*inventory[INVEN_LARM].to_h;
+				show_todam += 2*inventory[INVEN_LARM].to_d;
+			}
+		}
+	}
+
 	/* Melee attacks */
 	sprintf(buf, "(%+d,%+d)", show_tohit, show_todam);
 
@@ -2180,8 +2213,25 @@ static void display_player_various(void)
 			/* Average damage per round */
 			if (o_ptr->k_idx)
 			{
-				if (object_is_known(o_ptr)) damage[i] += o_ptr->to_d * 100;
-				basedam = ((o_ptr->dd + p_ptr->weapon_info[i].to_dd) * (o_ptr->ds + p_ptr->weapon_info[i].to_ds + 1)) * 50;
+				int dd = o_ptr->dd;
+				int ds = o_ptr->ds;
+
+				if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH && object_is_shield(o_ptr))
+				{
+					dd = 3;
+					ds = k_info[o_ptr->k_idx].ac;
+					
+					if (object_is_known(o_ptr)) damage[i] += o_ptr->to_a * 100;
+					basedam = dd * (ds + 1) * 50;
+
+					if (i == 0 && inventory[INVEN_LARM].k_idx && object_is_shield(&inventory[INVEN_LARM]))
+						damage[i] += inventory[INVEN_LARM].to_a * 100;
+				}
+				else
+				{
+					if (object_is_known(o_ptr)) damage[i] += o_ptr->to_d * 100;
+					basedam = ((o_ptr->dd + p_ptr->weapon_info[i].to_dd) * (o_ptr->ds + p_ptr->weapon_info[i].to_ds + 1)) * 50;
+				}
 				object_flags_known(o_ptr, flgs);
 				if ((o_ptr->ident & IDENT_MENTAL) && ((o_ptr->name1 == ART_VORPAL_BLADE) || (o_ptr->name1 == ART_CHAINSWORD)))
 				{
@@ -2398,6 +2448,35 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			break;
 		}
 		break;
+	case CLASS_WEAPONMASTER:
+		if (strcmp(weaponmaster_speciality1_name(), "Daggers") == 0)
+		{
+			if (p_ptr->speciality2_equip)
+			{
+				if (p_ptr->lev >= 10) add_flag(flgs, TR_STEALTH);
+			}
+		}
+		else if (strcmp(weaponmaster_speciality1_name(), "Shields") == 0)
+		{
+			if (p_ptr->speciality1_equip)
+			{
+				if (p_ptr->lev >= 45)
+				{
+					add_flag(flgs, TR_RES_ACID);
+					add_flag(flgs, TR_RES_COLD);
+					add_flag(flgs, TR_RES_FIRE);
+					add_flag(flgs, TR_RES_ELEC);
+					add_flag(flgs, TR_REFLECT);
+				}
+			}
+		}
+		else if (strcmp(weaponmaster_speciality1_name(), "Staves") == 0)
+		{
+			if (p_ptr->speciality1_equip)
+			{
+				if (p_ptr->lev >= 20) add_flag(flgs, TR_SPEED);
+			}
+		}
 	default:
 		break; /* Do nothing */
 	}

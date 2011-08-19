@@ -410,6 +410,8 @@ static void prt_stat(int stat)
 #define BAR_STRENGTH_OF_THE_UNDERTAKER 103
 #define BAR_STOICISM 104
 #define BAR_INDUSTRIOUS_MORTICIAN 105
+#define BAR_SHIELD_BASH 106
+#define BAR_BULWARK 107
 
 static struct {
 	byte attr;
@@ -597,6 +599,8 @@ static struct {
 	{TERM_UMBER, "Str", "Undertaker"},
 	{TERM_ORANGE, "Sc", "Stoicism"},
 	{TERM_YELLOW, "At", "Mortician"},
+	{TERM_L_BLUE, "SB", "Shield Bash"},
+	{TERM_L_BLUE, "Bw", "Bulwark"},
 	{0, NULL, NULL}
 };
 #endif
@@ -840,6 +844,15 @@ static void prt_status(void)
 			break;
 		case TOGGLE_INDUSTRIOUS_MORTICIAN:
 			ADD_FLG(BAR_INDUSTRIOUS_MORTICIAN);
+			break;
+		case TOGGLE_SHIELD_BASH:
+			ADD_FLG(BAR_SHIELD_BASH);
+			break;
+		case TOGGLE_BULWARK:
+			ADD_FLG(BAR_BULWARK);
+			break;
+		case TOGGLE_SHIELD_REVENGE:
+			ADD_FLG(BAR_EYEEYE);
 			break;
 		}
 
@@ -1891,25 +1904,14 @@ static void health_redraw(bool riding)
 		/* Default to almost dead */
 		byte attr = TERM_RED;
 
-		/* Invulnerable */
 		if (MON_INVULNER(m_ptr)) attr = TERM_WHITE;
-
-		/* Asleep */
 		else if (MON_CSLEEP(m_ptr)) attr = TERM_BLUE;
-
-		/* Afraid */
+		else if (MON_STUNNED(m_ptr)) attr = TERM_L_BLUE;
+		else if (MON_CONFUSED(m_ptr)) attr = TERM_UMBER;
 		else if (MON_MONFEAR(m_ptr)) attr = TERM_VIOLET;
-
-		/* Healthy */
 		else if (pct >= 100) attr = TERM_L_GREEN;
-
-		/* Somewhat Wounded */
 		else if (pct >= 60) attr = TERM_YELLOW;
-
-		/* Wounded */
 		else if (pct >= 25) attr = TERM_ORANGE;
-
-		/* Badly wounded */
 		else if (pct >= 10) attr = TERM_L_RED;
 
 		/* Default to "unknown" */
@@ -3267,7 +3269,30 @@ u32b weight_limit(void)
 
 bool buki_motteruka(int i)
 {
-	return ((inventory[i].k_idx && object_is_melee_weapon(&inventory[i])) ? TRUE : FALSE);
+	bool result = FALSE;
+	if (inventory[i].k_idx)
+	{
+		/* With shield bash, weapons are no longer weapons, but now shields
+		   are weapons.  Also, only one shield becomes a weapon, and that could
+		   be your right hand (dual wielding shields) or your left hand. */
+		if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+		{
+			if (object_is_shield(&inventory[i]))
+			{
+				if (i == INVEN_LARM  /* Dual wielding shields?  The right hand shield is a weapon, but not the left */
+				  && inventory[INVEN_RARM].k_idx 
+				  && object_is_shield(&inventory[INVEN_RARM]) )
+				{
+					result = FALSE;
+				}
+				else
+					result = TRUE;
+			}
+		}
+		else if (object_is_melee_weapon(&inventory[i])) 
+			result = TRUE;
+	}
+	return result;
 }
 
 
@@ -3482,6 +3507,7 @@ void calc_bonuses(void)
 	p_ptr->whirlwind = FALSE;
 	p_ptr->entrenched = FALSE;
 	p_ptr->lightning_reflexes = FALSE;
+	p_ptr->inven_prot = FALSE;
 
 	p_ptr->align = friend_align;
 
@@ -3552,6 +3578,18 @@ void calc_bonuses(void)
 				{
 					p_ptr->migite = TRUE;
 					p_ptr->ryoute = TRUE;
+				}
+				break;
+			case CLASS_WEAPONMASTER:
+				if (strcmp(weaponmaster_speciality1_name(), "Shields") == 0)
+				{
+					if ( inventory[INVEN_LARM].k_idx
+					  && object_is_shield(&inventory[INVEN_LARM])
+					  && buki_motteruka(INVEN_RARM) 
+					  && object_allow_two_hands_wielding(&inventory[INVEN_RARM]) )
+					{
+						p_ptr->ryoute = TRUE;
+					}
 				}
 				break;
 			}
@@ -5266,6 +5304,7 @@ void calc_bonuses(void)
 		}
 	}
 
+	/* Blows Calculation */
 	for(i = 0 ; i < 2 ; i++)
 	{
 		weapon_info_t *info_ptr = &p_ptr->weapon_info[i];		

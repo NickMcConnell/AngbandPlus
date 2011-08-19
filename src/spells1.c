@@ -2642,7 +2642,7 @@ note = "には耐性がある。";
 			{
 				note = " is already stunned.";
 			}
-			else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_CHR] + 3))
+			else if (mon_save_p(m_ptr->r_idx, A_CHR))
 			{
 				note = " resists stunning.";
 			}
@@ -4941,7 +4941,7 @@ note = "には耐性がある！";
 
 					resists_tele = TRUE;
 				}
-				else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3))
+				else if (mon_save_p(m_ptr->r_idx, A_DEX))
 				{
 					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
 #ifdef JP
@@ -5738,7 +5738,7 @@ note_dies = "はドロドロに溶けた！";
 
 			/* Attempt a saving throw */
 			if (who == 0)
-				save = (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_WIS] + 3));
+				save = mon_save_p(m_ptr->r_idx, A_WIS);
 			else
 			{
 				save = ((randint0(100 + (caster_lev / 2)) < (r_ptr->level + 35)) 

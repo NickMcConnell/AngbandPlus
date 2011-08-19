@@ -4730,8 +4730,6 @@ static bool kind_is_good(int k_idx)
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
 		}
-
-		/* Rings -- Rings of Speed are good */
 		case TV_RING:
 		{
 			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
@@ -4739,8 +4737,21 @@ static bool kind_is_good(int k_idx)
 			if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE);
 			return (FALSE);
 		}
-
-		/* Amulets -- Amulets of the Magi and Resistance are good */
+		case TV_POTION:
+		{
+			if (k_ptr->sval == SV_POTION_LIFE) return one_in_(5);
+			if (k_ptr->sval == SV_POTION_STAR_HEALING) return one_in_(5);
+			if (k_ptr->sval == SV_POTION_AUGMENTATION) return one_in_(10);
+			return FALSE;
+		}
+		case TV_SCROLL:
+		{
+			if (k_ptr->sval == SV_SCROLL_STAR_ACQUIREMENT) return one_in_(5);
+			if (k_ptr->sval == SV_SCROLL_STAR_DESTRUCTION) return one_in_(5);
+			if (k_ptr->sval == SV_SCROLL_GENOCIDE) return one_in_(7);
+			if (k_ptr->sval == SV_SCROLL_MASS_GENOCIDE) return one_in_(12);
+			return FALSE;
+		}
 		case TV_AMULET:
 		{
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);

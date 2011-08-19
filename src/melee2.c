@@ -1533,6 +1533,9 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
 	if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
+	if (!retaliation_hack)
+		retaliation_count = 0;
+
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
@@ -1544,10 +1547,21 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		cptr act = NULL;
 
 		/* Extract the attack infomation */
-		int effect = r_ptr->blow[ap_cnt].effect;
-		int method = r_ptr->blow[ap_cnt].method;
-		int d_dice = r_ptr->blow[ap_cnt].d_dice;
-		int d_side = r_ptr->blow[ap_cnt].d_side;
+		int effect;
+		int method;
+		int d_dice;
+		int d_side;
+
+		if (retaliation_hack)
+		{
+			ap_cnt = retaliation_count;
+			if (ap_cnt >= 4) return FALSE;
+		}
+
+		effect = r_ptr->blow[ap_cnt].effect;
+		method = r_ptr->blow[ap_cnt].method;
+		d_dice = r_ptr->blow[ap_cnt].d_dice;
+		d_side = r_ptr->blow[ap_cnt].d_side;
 
 		if (!m_ptr->r_idx) break;
 
@@ -1558,7 +1572,14 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		/* Hack -- no more attacks */
 		if (!method) break;
 
-		if (method == RBM_SHOOT) continue;
+		if (method == RBM_SHOOT)
+		{
+			if (retaliation_hack) break;
+			 continue;
+		}
+
+		if (retaliation_hack)
+			msg_format("%^s retaliates!", m_name);
 
 		/* Extract the attack "power" */
 		power = mbe_info[effect].power;
@@ -2052,6 +2073,14 @@ act = "%sにむかって歌った。";
 
 				if (touched)
 				{
+					if (tr_ptr->flags2 & RF2_AURA_REVENGE && !retaliation_hack)
+					{
+						retaliation_hack = TRUE;
+						monst_attack_monst(t_idx, m_idx);
+						retaliation_count++;
+						retaliation_hack = FALSE;
+					}
+
 					/* Aura fire */
 					if ((tr_ptr->flags2 & RF2_AURA_FIRE) && m_ptr->r_idx)
 					{
@@ -2182,6 +2211,9 @@ act = "%sにむかって歌った。";
 				}
 			}
 		}
+
+		if (retaliation_hack)
+			break;
 	}
 
 	if (explode)
@@ -4204,6 +4236,11 @@ bool set_monster_stunned(int m_idx, int v)
 	/* Use the value */
 	m_ptr->mtimed[MTIMED_STUNNED] = v;
 
+	if (m_ptr->ml)
+	{
+		if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+	}
+
 	return notice;
 }
 
@@ -4241,6 +4278,11 @@ bool set_monster_confused(int m_idx, int v)
 
 	/* Use the value */
 	m_ptr->mtimed[MTIMED_CONFUSED] = v;
+
+	if (m_ptr->ml)
+	{
+		if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+	}
 
 	return notice;
 }

@@ -710,7 +710,7 @@ extern void disturb(int stop_search, int flush_output);
 extern void glow_deep_lava_and_bldg(void);
 
 /* cmd1.c */
-extern void touch_zap_player(monster_type *m_ptr);
+extern void touch_zap_player(int m_idx);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool random_opponent(int *y, int *x);
 extern bool test_hit_norm(int chance, int ac, int vis);
@@ -946,6 +946,8 @@ extern bool load_floor(saved_floor_type *sf_ptr, u32b mode);
 
 /* melee1.c */
 /* melee2.c */
+extern bool retaliation_hack;
+extern int retaliation_count;
 extern bool make_attack_normal(int m_idx);
 extern void process_monsters(void);
 extern int get_mproc_idx(int m_idx, int mproc_type);
@@ -966,6 +968,7 @@ extern bool process_the_world(int num, int who, bool vs_player);
 extern void monster_gain_exp(int m_idx, int s_idx);
 
 /* monster1.c */
+extern bool mon_save_p(int r_idx, int stat);
 extern void roff_top(int r_idx);
 extern void screen_roff(int r_idx, int mode);
 extern void display_roff(int r_idx);
@@ -1513,6 +1516,7 @@ extern bool choose_ele_immune(int turn);
 extern bool set_wraith_form(int v, bool do_dec);
 extern bool set_tim_esp(int v, bool do_dec);
 extern bool set_superstealth(bool set);
+extern bool set_sanctuary(bool set);
 
 /* xtra2.c */
 extern void check_experience(void);

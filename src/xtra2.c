@@ -1830,6 +1830,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	int         i;
 	int         expdam;
 
+	set_sanctuary(FALSE);
+
 	COPY(&exp_mon, m_ptr, monster_type);
 	if (!(r_ptr->flags7 & RF7_KILL_EXP))
 	{

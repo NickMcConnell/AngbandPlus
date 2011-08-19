@@ -1168,7 +1168,7 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num, bool ticked_o
 	/* Summon if possible (sometimes) */
 	if (summon_num)
 	{
-		int odds = 40;
+		int odds = 30;
 
 		if (ticked_off && attack_num)
 			odds = 20;

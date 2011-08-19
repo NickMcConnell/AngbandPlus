@@ -4847,6 +4847,7 @@ int inven_damage(inven_func typ, int perc)
 
 	if (CHECK_MULTISHADOW()) return 0;
 	if (p_ptr->rune_elem_prot && one_in_(2)) return 0;
+	if (p_ptr->inven_prot && one_in_(2)) return 0;
 
 	if (p_ptr->inside_arena) return 0;
 

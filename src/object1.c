@@ -5131,7 +5131,14 @@ int show_equip(int target_item)
 		/* Description */
 		object_desc(o_name, o_ptr, 0);
 
-		if ((((i == INVEN_RARM) && p_ptr->hidarite) || ((i == INVEN_LARM) && p_ptr->migite)) && p_ptr->ryoute)
+		if ( strcmp(weaponmaster_speciality1_name(), "Shields") == 0
+		  && inventory[INVEN_RARM].k_idx
+		  && inventory[INVEN_LARM].k_idx )
+		{
+			(void)strcpy(out_desc[k], o_name);
+			out_color[k] = tval_to_attr[o_ptr->tval % 128];
+		}
+		else if ((((i == INVEN_RARM) && p_ptr->hidarite) || ((i == INVEN_LARM) && p_ptr->migite)) && p_ptr->ryoute)
 		{
 #ifdef JP
 			(void)strcpy(out_desc[k],"(武器を両手持ち)");

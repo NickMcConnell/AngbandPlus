@@ -206,6 +206,209 @@ static int _set_toggle(s32b toggle)
 /****************************************************************
  * Private Spells
  ****************************************************************/
+
+static int _get_desperation_idx(void)
+{
+	if (inventory[INVEN_RARM].k_idx && object_is_melee_weapon(&inventory[INVEN_RARM]))
+		return INVEN_RARM;
+
+	if (inventory[INVEN_LARM].k_idx && object_is_melee_weapon(&inventory[INVEN_LARM]))
+		return INVEN_LARM;
+
+	return -1;
+}
+
+static void _desperation_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Desperation");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You regain hp by completely disenchanting your current weapon.");
+		break;
+	case SPELL_CAST:
+	{
+		int item, ds, hp;
+		char o_name[MAX_NLEN];
+
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do need a shield.");
+			return;
+		}
+		item = _get_desperation_idx();
+		if (item < 0)
+		{
+			msg_print("Failed!  You do need a weapon to disenchant.");
+			return;
+		}
+		ds = inventory[item].to_h + inventory[item].to_d;
+		object_desc(o_name, &inventory[item], OD_NAME_ONLY | OD_OMIT_PREFIX);
+
+		if (ds > 0)
+		{
+			hp = damroll(7, ds);
+			hp_player(hp);
+
+			if (!object_is_artifact(&inventory[item]) || one_in_(2))
+			{
+				if (inventory[item].to_h > 0) inventory[item].to_h = 0;
+				if (inventory[item].to_d > 0) inventory[item].to_d = 0;
+				msg_format("Your %s is disenchanted.", o_name);
+			}
+			else
+			{
+				msg_format("Your %s resists disenchantment.", o_name);
+			}
+		}
+		else
+		{
+			msg_format("Your %s is too weak to help you any more.", o_name);
+		}
+		
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _sanctuary_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Sanctuary");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You become invulnerable until you damage a monster.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do need a shield.");
+			return;
+		}
+		set_sanctuary(TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _shield_bash_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Shield Bash");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You fight with your shield rather than your weapon.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do need a shield.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_SHIELD_BASH)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_SHIELD_BASH);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_SHIELD_BASH)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _bulwark_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Bulwark");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "All melee damage that you receive is reduced.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do need a shield.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_BULWARK)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_BULWARK);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_BULWARK)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+static void _shield_revenge_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Eye for an Eye");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Monsters are damaged whenever they hurt you.");
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do need a shield.");
+			return;
+		}
+		if (_get_toggle() == TOGGLE_SHIELD_REVENGE)
+			_set_toggle(TOGGLE_NONE);
+		else
+			_set_toggle(TOGGLE_SHIELD_REVENGE);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (_get_toggle() != TOGGLE_SHIELD_REVENGE)
+			var_set_int(res, 0);	/* no charge for dismissing a technique */
+		else
+			var_set_int(res, 100);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _tunnel_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -508,6 +711,21 @@ static void _industrious_mortician_spell(int cmd, variant *res)
 	}
 }
 
+static int hit_chance(int to_h, int ac)
+{
+	int chance = 0;
+	int meichuu = p_ptr->skill_thn + (p_ptr->weapon_info[0].to_h + to_h) * BTH_PLUS_ADJ;
+
+	if (meichuu <= 0) return 5;
+
+	chance = 100 - ((ac * 75) / meichuu);
+
+	if (chance > 95) chance = 95;
+	if (chance < 5) chance = 5;
+	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
+		chance = (chance*19+9)/20;
+	return chance;
+}
 
 bool _design_monkey_clone(void)
 {
@@ -515,6 +733,11 @@ bool _design_monkey_clone(void)
 	monster_race *r_ptr = &r_info[MON_MONKEY_CLONE];
 	int dd = 10;
 	int ds = 10;
+	int dam = 0;
+	int tdam = 0;
+	int blows = 0;
+	int acc = 0;
+	int tmp_acc = 0;
 
 	if (r_ptr->cur_num == 1)
 	{
@@ -528,26 +751,42 @@ bool _design_monkey_clone(void)
 	r_ptr->speed = p_ptr->pspeed;
 
 	/* Combat */
-	if (inventory[INVEN_RARM].k_idx)
+	if (buki_motteruka(INVEN_RARM))
 	{
 		object_type *o_ptr = &inventory[INVEN_RARM];
-		int dam = o_ptr->dd * (o_ptr->ds + 1)/2 + p_ptr->weapon_info[0].to_d + o_ptr->to_d;
+		tdam += p_ptr->weapon_info[0].num_blow * 
+			(o_ptr->dd * (o_ptr->ds + 1)/2 + p_ptr->weapon_info[0].to_d + o_ptr->to_d);
 
-		/* Scale the damage since our clone can only get 4 blows */
-		if (p_ptr->weapon_info[0].num_blow > 4)
-			dam = dam * p_ptr->weapon_info[0].num_blow / 4;
-
-		dd = 10;
-		ds = dam/5;
+		blows += p_ptr->weapon_info[0].num_blow;
+		acc = hit_chance(o_ptr->to_h, 150);
 	}
 
-	r_ptr->level = p_ptr->lev * 2;
-	for (i = 0; i < 4; i++)
+	if (buki_motteruka(INVEN_LARM))
+	{
+		object_type *o_ptr = &inventory[INVEN_LARM];
+		tdam += p_ptr->weapon_info[1].num_blow * 
+			(o_ptr->dd * (o_ptr->ds + 1)/2 + p_ptr->weapon_info[0].to_d + o_ptr->to_d);
+
+		blows += p_ptr->weapon_info[1].num_blow;
+	}
+
+	dam = tdam / MIN(4, blows);
+	dd = 10;
+	ds = dam/5;
+	if (ds < 1) 
+	{
+		dd = 1;
+		ds = 1;
+	}
+
+	r_ptr->level = (60*acc + 5200)/(300 - 3*acc); /* Don't ask ... */
+
+	for (i = 0; i < 4 && i < blows; i++)
 	{
 		r_ptr->blow[i].method = 0;
 	}
 
-	for (i = 0; i < 4 && i < p_ptr->weapon_info[0].num_blow; i++)
+	for (i = 0; i < 4; i++)
 	{
 		r_ptr->blow[i].method = RBM_HIT;
 		r_ptr->blow[i].effect = RBE_HURT;
@@ -682,7 +921,8 @@ void _circle_kick(void)
 
 					anger_monster(m_ptr);
 				}
-				touch_zap_player(m_ptr);
+				retaliation_count = 0; /* AURA_REVENGE */
+				touch_zap_player(c_ptr->m_idx);
 			}
 			else
 			{
@@ -2648,7 +2888,7 @@ static void _club_toss_imp(_club_toss_info * info)
 								if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_CONF;
 								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
 							}
-							else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+							else if (mon_save_p(m_ptr->r_idx, A_STR))
 							{
 								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
 							}
@@ -2666,7 +2906,7 @@ static void _club_toss_imp(_club_toss_info * info)
 								if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_SLEEP;
 								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
 							}
-							else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+							else if (mon_save_p(m_ptr->r_idx, A_STR))
 							{
 								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
 							}
@@ -2684,7 +2924,7 @@ static void _club_toss_imp(_club_toss_info * info)
 								if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_STUN;
 								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
 							}
-							else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+							else if (mon_save_p(m_ptr->r_idx, A_STR))
 							{
 								msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
 							}
@@ -3123,7 +3363,12 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 0, 0 },
 	  },
 	  {
-	    { -1,   0,  0, NULL },
+	    { 10,  0,  0, _shield_bash_spell },
+		{ 15, 10,  0, _desperation_spell },
+		{ 30,  0,  0, _bulwark_spell },
+		{ 35, 50,  0, _sanctuary_spell },
+		{ 40,  0,  0, _shield_revenge_spell },
+	    { -1,  0,  0, NULL },
 	  },
 	  { TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
 	},
@@ -3254,17 +3499,24 @@ static bool _check_speciality1_equip(void)
 
 	_dual_wield = FALSE;
 
-	/* Hack, when throwing your leading weapon while dual wielding, you will
-	   temporarily have an empty right hand but a possibly OK left hand.  The game
-	   will calc_bonuses, combine_pack, calc_bonuses again to fix up, and this
-	   can be annoying since we give the user status messages in _calc_bonuses */
-	if ( slot1 == INVEN_RARM /* This detects a melee weaponmaster */
-	  && slot2 == INVEN_LARM 
-	  && !inventory[slot1].k_idx 
-	  && inventory[slot2].k_idx )
+	if (strcmp(ptr->name, "Shields") == 0)
 	{
-		slot1 = INVEN_LARM;
-		slot2 = INVEN_RARM;
+		bool left_check = FALSE;
+		bool right_check = FALSE;
+
+		if (inventory[INVEN_RARM].k_idx)
+		{
+			right_check = _check_speciality1_aux(&inventory[INVEN_RARM]);
+			if (!object_is_weapon(&inventory[INVEN_RARM]) && !right_check) return FALSE;
+		}
+
+		if (inventory[INVEN_LARM].k_idx)
+		{
+			left_check = _check_speciality1_aux(&inventory[INVEN_LARM]);
+			if (!object_is_weapon(&inventory[INVEN_LARM]) && !left_check) return FALSE;
+		}
+
+		return left_check || right_check;
 	}
 
 	/* First slot should always match */
@@ -3274,17 +3526,9 @@ static bool _check_speciality1_equip(void)
 	   Try to handle these cases */
 	if (slot2 != -1 && inventory[slot2].tval != 0)
 	{
-		if (strcmp(ptr->name, "Shields") == 0)
-		{
-			if ( !object_is_weapon(&inventory[slot2]) 
-			  && !_check_speciality1_aux(&inventory[slot2])) return FALSE;
-		}
-		else
-		{
-			_dual_wield = TRUE;
-			if ( !object_is_shield(&inventory[slot2]) 
-			  && !_check_speciality1_aux(&inventory[slot2])) return FALSE;
-		}
+		_dual_wield = TRUE;
+		if ( !object_is_shield(&inventory[slot2]) 
+			&& !_check_speciality1_aux(&inventory[slot2])) return FALSE;
 	}
 
 	return TRUE;
@@ -3303,17 +3547,24 @@ static bool _check_speciality2_equip(void)
 	int slot1 = ptr->slot1;
 	int slot2 = ptr->slot2;
 
-	/* Hack, when throwing your leading weapon while dual wielding, you will
-	   temporarily have an empty right hand but a possibly OK left hand.  The game
-	   will calc_bonuses, combine_pack, calc_bonuses again to fix up, and this
-	   can be annoying since we give the user status messages in _calc_bonuses */
-	if ( slot1 == INVEN_RARM /* This detects a melee weaponmaster */
-	  && slot2 == INVEN_LARM 
-	  && !inventory[slot1].k_idx 
-	  && inventory[slot2].k_idx )
+	if (strcmp(ptr->name, "Shields") == 0)
 	{
-		slot1 = INVEN_LARM;
-		slot2 = INVEN_RARM;
+		bool left_check = FALSE;
+		bool right_check = FALSE;
+
+		if (inventory[INVEN_RARM].k_idx)
+		{
+			right_check = _check_speciality2_aux(&inventory[INVEN_RARM]);
+			if (!object_is_weapon(&inventory[INVEN_RARM]) && !right_check) return FALSE;
+		}
+
+		if (inventory[INVEN_LARM].k_idx)
+		{
+			left_check = _check_speciality2_aux(&inventory[INVEN_LARM]);
+			if (!object_is_weapon(&inventory[INVEN_LARM]) && !left_check) return FALSE;
+		}
+
+		return left_check || right_check;
 	}
 
 	/* First slot should always match */
@@ -3815,6 +4066,49 @@ static void _calc_bonuses(void)
 			}
 		}
 	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Shields") == 0)
+	{
+		if (spec1)
+		{
+			if (p_ptr->lev >= 20)
+				p_ptr->inven_prot = TRUE;
+
+			if (p_ptr->lev >= 45)
+			{
+				p_ptr->resist_acid = TRUE;
+				p_ptr->resist_cold = TRUE;
+				p_ptr->resist_fire = TRUE;
+				p_ptr->resist_elec = TRUE;
+				p_ptr->reflect = TRUE;
+			}
+		}
+
+		if (spec2)
+		{
+			/* Block: Shield AC doubled. */
+			if (p_ptr->lev >= 5)
+			{
+				if (inventory[INVEN_RARM].k_idx && object_is_shield(&inventory[INVEN_RARM]))
+				{
+					p_ptr->to_a += k_info[inventory[INVEN_RARM].k_idx].ac;
+					p_ptr->to_a += inventory[INVEN_RARM].to_a;
+					if (object_is_known(&inventory[INVEN_RARM]))
+						p_ptr->dis_to_a += inventory[INVEN_RARM].to_a;
+				}
+				if (inventory[INVEN_LARM].k_idx && object_is_shield(&inventory[INVEN_LARM]))
+				{
+					p_ptr->to_a += k_info[inventory[INVEN_LARM].k_idx].ac;
+					p_ptr->to_a += inventory[INVEN_LARM].to_a;
+					if (object_is_known(&inventory[INVEN_LARM]))
+						p_ptr->dis_to_a += inventory[INVEN_LARM].to_a;
+				}
+			}
+
+			/* Stalwart: +20 saving throws */
+			if (p_ptr->lev >= 25)
+				p_ptr->skill_sav += 20;
+		}
+	}
 	else if (strcmp(_specialities[p_ptr->speciality1].name, "Staves") == 0)
 	{
 		if (spec1)
@@ -4033,6 +4327,9 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 			info_ptr->dis_to_d -= p_ptr->lev * p_ptr->lev / 50;
 			break;
 		}
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Shields") == 0)
+	{
 	}
 	else if (strcmp(_specialities[p_ptr->speciality1].name, "Swords") == 0)
 	{

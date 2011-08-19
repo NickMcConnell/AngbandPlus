@@ -2090,10 +2090,26 @@ msg_print("まばゆい閃光が走った！");
 }
 
 
-void touch_zap_player(monster_type *m_ptr)
+void touch_zap_player(int m_idx)
 {
 	int aura_damage = 0;
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	if (r_ptr->flags2 & RF2_AURA_REVENGE)
+	{
+		if (p_ptr->lightning_reflexes)
+		{
+			msg_print("You strike so fast that you avoid a retaliatory strike.");
+		}
+		else
+		{
+			retaliation_hack = TRUE;
+			make_attack_normal(m_idx);
+			retaliation_count++; /* Indexes which blow to use per retaliation, but start at 0 ... See py_attack() for initialization.*/
+			retaliation_hack = FALSE;
+		}
+	}
 
 	if (r_ptr->flags2 & RF2_AURA_FIRE)
 	{
@@ -2340,7 +2356,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 		}
 
-		touch_zap_player(m_ptr);
+		touch_zap_player(m_idx);
 	}
 	/* Player misses */
 	else
@@ -2398,7 +2414,7 @@ static int get_next_dir(int dir)
 static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int mode)
 {
 	int		num = 0, k, bonus, chance, vir;
-
+	int     to_h = 0, to_d = 0;
 	cave_type       *c_ptr = &cave[y][x];
 
 	monster_type    *m_ptr = 0;
@@ -2429,6 +2445,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            is_lowlevel;
 	bool            zantetsu_mukou, e_j_mukou;
 	int				knock_out = 0;
+	int				dd, ds;
 
 	if (!c_ptr->m_idx)
 	{
@@ -2450,6 +2467,30 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	{
 		p_ptr->painted_target_idx = 0;
 		p_ptr->painted_target_ct = 0;
+	}
+
+	if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+	{
+		dd = 3;
+		ds = k_info[o_ptr->k_idx].ac;
+		to_h = o_ptr->to_a;
+		to_d = o_ptr->to_a;
+
+		to_h += 2*o_ptr->to_h;
+		to_d += 2*o_ptr->to_d;
+
+		if (hand == 0 && inventory[INVEN_LARM].k_idx && object_is_shield(&inventory[INVEN_LARM]))
+		{
+			to_h += inventory[INVEN_LARM].to_a;
+			to_d += inventory[INVEN_LARM].to_a;
+		}
+	}
+	else
+	{
+		dd = o_ptr->dd;
+		ds = o_ptr->ds;
+		to_h = o_ptr->to_h;
+		to_d = o_ptr->to_d;
 	}
 
 	switch (p_ptr->pclass)
@@ -2539,7 +2580,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Calculate the "attack quality" */
-	bonus = p_ptr->weapon_info[hand].to_h + o_ptr->to_h;
+	bonus = p_ptr->weapon_info[hand].to_h + to_h;
 	if (mode == WEAPONMASTER_ENCLOSE) bonus -= 10;
 	if (mode == WEAPONMASTER_KNOCK_BACK) bonus -= 20;
 	if (mode == WEAPONMASTER_REAPING) bonus -= 40;
@@ -2851,7 +2892,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 
 				/* Massive Hack: Monk stunning is now greatly biffed! */
-				if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3))
+				if (mon_save_p(m_ptr->r_idx, A_DEX))
 					stun_effect = 0;
 
 				if (stun_effect && ((k + p_ptr->weapon_info[hand].to_d) < m_ptr->hp))
@@ -2886,9 +2927,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			else if (o_ptr->k_idx)
 			{
 				if (weaponmaster_get_toggle() == TOGGLE_ORDER_BLADE)
-					k = (o_ptr->dd + p_ptr->weapon_info[hand].to_dd) * (o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
+					k = (dd + p_ptr->weapon_info[hand].to_dd) * (ds + p_ptr->weapon_info[hand].to_ds);
 				else
-					k = damroll(o_ptr->dd + p_ptr->weapon_info[hand].to_dd, o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
+					k = damroll(dd + p_ptr->weapon_info[hand].to_dd, ds + p_ptr->weapon_info[hand].to_ds);
 				k = tot_dam_aux(o_ptr, k, m_ptr, mode, FALSE);
 
 				if (backstab)
@@ -2915,10 +2956,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				 && weaponmaster_get_toggle() != TOGGLE_ORDER_BLADE 
 				 && !have_flag(flgs, TR_ORDER) )
 				{
-					if (mode == WEAPONMASTER_SMITE_EVIL && hand == 0)
-						k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h + 200, mode);
-					else
-						k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
+					int bonus = 0;
+					if (mode == WEAPONMASTER_SMITE_EVIL && hand == 0 && (r_ptr->flags3 & RF3_EVIL)) bonus = 200;
+					k = critical_norm(o_ptr->weight, to_h, k, p_ptr->weapon_info[hand].to_h + bonus, mode);
 				}
 
 				drain_result = k;
@@ -3000,8 +3040,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					drain_result = drain_result * 3 / 2;
 				}
 
-				k += o_ptr->to_d;
-				drain_result += o_ptr->to_d;
+				k += to_d;
+				drain_result += to_d;
 			}
 
 			/* Apply the player damage bonuses */
@@ -3104,13 +3144,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 				if ( p_ptr->lev >= 15	/* Hamstring */
 					&& !(r_ptr->flags1 & (RF1_UNIQUE))
-					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
+					&& !mon_save_p(m_ptr->r_idx, A_DEX) )
 				{
 					msg_format("You hamstring %s.", m_name);
 					set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50);
 				}
 				if ( p_ptr->lev >= 20	/* Wounding Strike */
-					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
+				    && !mon_save_p(m_ptr->r_idx, A_DEX) )
 				{
 					msg_format("%^s is dealt a wounding strike.", m_name);
 					k += MIN(m_ptr->hp / 5, p_ptr->lev * 10);
@@ -3118,13 +3158,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 				if ( p_ptr->lev >= 25	/* Stunning Blow */
 				    && !(r_ptr->flags3 & (RF3_NO_STUN))
-					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
+					&& !mon_save_p(m_ptr->r_idx, A_DEX) )
 				{
 					msg_format("%^s is dealt a stunning blow.", m_name);
 					set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
 				}
 				if ( p_ptr->lev >= 40	/* Greater Wounding Strike */
-					&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_DEX] + 3) )
+				    && !mon_save_p(m_ptr->r_idx, A_DEX) )
 				{
 					msg_format("%^s is dealt a *WOUNDING* strike.", m_name);
 					k += MIN(m_ptr->hp * 2 / 5, (p_ptr->lev - 20) * 50);
@@ -3248,7 +3288,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						}
 						if (one_in_(5)
 							&& !(r_ptr->flags1 & (RF1_UNIQUE))
-							&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3) )
+							&& !mon_save_p(m_ptr->r_idx, A_STR) )
 						{
 							msg_format("%^s is slowed by the cold.", m_name);
 							set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 50);
@@ -3272,7 +3312,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					{
 						if (one_in_(5)
 							&& !(r_ptr->flags3 & (RF3_NO_STUN))
-							&& r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3) )
+							&& !mon_save_p(m_ptr->r_idx, A_STR) )
 						{
 							msg_format("%^s is shocked convulsively.", m_name);
 							set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 4));
@@ -3437,18 +3477,23 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					int odds = 5;
 				
 					if (mode == WEAPONMASTER_CUNNING_STRIKE)
-						odds = 3;
+						odds = 2;
 
 					if (one_in_(odds))
 					{
-						if (r_ptr->flags3 & RF3_NO_CONF)
+						if (r_ptr->flagsr & RFR_RES_ALL)
+						{
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ALL;
+							msg_format(T("%^s is immune.", "%^sには効果がなかった。"), m_name);
+						}
+						else if (r_ptr->flags3 & RF3_NO_CONF)
 						{
 							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_CONF;
-							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							msg_format(T("%^s is immune.", "%^sには効果がなかった。"), m_name);
 						}
-						else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+						else if (mon_save_p(m_ptr->r_idx, A_STR))
 						{
-							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							msg_format(T("%^s resists.", "%^sには効果がなかった。"), m_name);
 						}
 						else
 						{
@@ -3459,32 +3504,44 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 					if (p_ptr->lev >= 20 && one_in_(odds))
 					{
-						if (r_ptr->flags3 & RF3_NO_SLEEP)
+						if (r_ptr->flagsr & RFR_RES_ALL)
+						{
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ALL;
+							msg_format(T("%^s is immune.", "%^sには効果がなかった。"), m_name);
+						}
+						else if (r_ptr->flags3 & RF3_NO_SLEEP)
 						{
 							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_SLEEP;
-							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							msg_format(T("%^s is immune.", "%^sには効果がなかった。"), m_name);
 						}
-						else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+						else if (mon_save_p(m_ptr->r_idx, A_STR))
 						{
-							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							msg_format(T("%^s resists.", "%^sには効果がなかった。"), m_name);
 						}
 						else
 						{
 							msg_format(T("%^s is knocked out.", ), m_name);
-							knock_out++;							
+							knock_out++;		
+							/* No more retaliation this round! */					
+							retaliation_count = 100; /* Any number >= 4 will do ... */
 						}
 					}
 
 					if ((p_ptr->lev >= 45 || mode == WEAPONMASTER_CUNNING_STRIKE) && one_in_(odds))
 					{
-						if (r_ptr->flags3 & RF3_NO_STUN)
+						if (r_ptr->flagsr & RFR_RES_ALL)
+						{
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ALL;
+							msg_format(T("%^s is immune.", "%^sには効果がなかった。"), m_name);
+						}
+						else if (r_ptr->flags3 & RF3_NO_STUN)
 						{
 							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_STUN;
-							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							msg_format(T("%^s is immune.", "%^sには効果がなかった。"), m_name);
 						}
-						else if (r_ptr->level + randint1(100) > p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+						else if (mon_save_p(m_ptr->r_idx, A_STR))
 						{
-							msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+							msg_format(T("%^s resists.", "%^sには効果がなかった。"), m_name);
 						}
 						else
 						{
@@ -3498,7 +3555,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			/* Anger the monster */
 			if (k > 0) anger_monster(m_ptr);
 
-			touch_zap_player(m_ptr);
+			touch_zap_player(c_ptr->m_idx);
 
 			/* Are we draining it?  A little note: If the monster is
 			dead, the drain does not work... */
@@ -3954,7 +4011,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (m_ptr->mflag2 & MFLAG2_TRIPPED)
 				msg_format("%^s is already tripped up.", m_name);
 			else if ( !(r_ptr->flags1 & RF1_UNIQUE)
-			       || r_ptr->level + randint1(100) <= p_ptr->lev*2 + (p_ptr->stat_ind[A_STR] + 3))
+			       || !mon_save_p(m_ptr->r_idx, A_STR) )
 			{
 				msg_format("%^s cries 'Help, I've fallen and I can't get up!'", m_name);
 				m_ptr->mflag2 |= MFLAG2_TRIPPED;
@@ -4222,6 +4279,7 @@ bool py_attack(int y, int x, int mode)
 	riding_t_m_idx = c_ptr->m_idx;
 
 	drain_left = MAX_VAMPIRIC_DRAIN;
+	retaliation_count = 0;
 	if (weaponmaster_get_toggle() == TOGGLE_FRENZY_STANCE)
 	{
 		object_type rarm, larm;

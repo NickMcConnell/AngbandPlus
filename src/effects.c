@@ -331,6 +331,7 @@ void dispel_player(void)
 	(void)set_mimic(0, 0, TRUE);
 	(void)set_ele_attack(0, 0);
 	(void)set_ele_immune(0, 0);
+	set_sanctuary(FALSE);
 
 	set_tim_blood_shield(0, TRUE);
 	set_tim_blood_seek(0, TRUE);
@@ -3088,6 +3089,36 @@ msg_print("足音が大きくなった。");
 	return (TRUE);
 }
 
+bool set_sanctuary(bool set)
+{
+	bool notice = FALSE;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	if (set)
+	{
+		if (!(p_ptr->special_defense & DEFENSE_SANCTUARY))
+		{
+			msg_print("You claim Sanctuary!  Nothing can hurt you now!!");
+			notice = TRUE;
+			p_ptr->special_defense |= DEFENSE_SANCTUARY;
+		}
+	}
+	else
+	{
+		if (p_ptr->special_defense & DEFENSE_SANCTUARY)
+		{
+			msg_print("You no longer feel safe.");
+			notice = TRUE;
+			p_ptr->special_defense &= ~(DEFENSE_SANCTUARY);
+		}
+	}
+
+	if (!notice) return FALSE;
+	p_ptr->redraw |= (PR_STATUS);
+	if (disturb_state) disturb(0, 0);
+	return TRUE;
+}
 
 bool set_superstealth(bool set)
 {

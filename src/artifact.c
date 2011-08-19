@@ -2129,8 +2129,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					if (slaying_hack == 0 && one_in_(odds)) /* double damage */
 					{
 						powers -= o_ptr->dd - 1;
-						o_ptr->dd *= 2;
 						slaying_hack += o_ptr->dd;
+						o_ptr->dd *= 2;
 					}
 					else
 					{

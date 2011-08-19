@@ -143,7 +143,28 @@ static cptr desc_moan[] =
 
 };
 
-bool nemesis_hack;
+int reduce_melee_dam_p(int dam)
+{
+	int result = dam;
+	switch (weaponmaster_get_toggle())
+	{
+	case TOGGLE_STONE_BONES:
+		result -= p_ptr->lev * p_ptr->lev / 50;
+		break;
+
+	case TOGGLE_BULWARK:
+		result -= (result + 2)/3;
+		break;
+	}
+
+	if (result < 0) result = 0;
+	return result;
+}
+
+/* Apologies for the following hacks ... I'm too lazy to refactor monster attack code! */
+bool nemesis_hack = FALSE;
+bool retaliation_hack = FALSE;
+int retaliation_count = 0;
 
 /*
  * Attack the player via physical attacks.
@@ -225,12 +246,30 @@ bool make_attack_normal(int m_idx)
 
 		cptr act = NULL;
 
-		/* Extract the attack infomation */
-		int effect = r_ptr->blow[ap_cnt].effect;
-		int method = r_ptr->blow[ap_cnt].method;
-		int d_dice = r_ptr->blow[ap_cnt].d_dice;
-		int d_side = r_ptr->blow[ap_cnt].d_side;
+		int effect;
+		int method;
+		int d_dice;
+		int d_side;
 
+		/* Revenge aura only gives a single retaliatory attempt per player strike 
+		   We'll cycle thru monster attacks on each revenge strike, and the revenge
+		   will stop after the monster runs out of attacks.  So 20 attack players need
+		   not fear insta-death (as much).  All the hackery is communicated between
+		   here, py_attack_* and touch_zap_player().  Enjoy! 
+		   (Note: If I had a mon_attack_p(int m_idx, int blow_idx), we could
+		   avoid all this nonsense ... )
+		 */
+		if (retaliation_hack)
+		{
+			ap_cnt = retaliation_count;
+			if (ap_cnt >= 4) return FALSE;
+		}
+
+		/* Extract the attack infomation */
+		effect = r_ptr->blow[ap_cnt].effect;
+		method = r_ptr->blow[ap_cnt].method;
+		d_dice = r_ptr->blow[ap_cnt].d_dice;
+		d_side = r_ptr->blow[ap_cnt].d_side;
 
 		if (!m_ptr->r_idx) break;
 
@@ -253,7 +292,14 @@ bool make_attack_normal(int m_idx)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-		if (method == RBM_SHOOT) continue;
+		if (method == RBM_SHOOT)
+		{
+			if (retaliation_hack) break;
+			 continue;
+		}
+
+		if (retaliation_hack)
+			msg_format("%^s retaliates!", m_name);
 
 		/* Extract the attack "power" */
 		power = mbe_info[effect].power;
@@ -266,7 +312,6 @@ bool make_attack_normal(int m_idx)
 		{
 			/* Always disturbing */
 			disturb(1, 0);
-
 
 			/* Hack -- Apply "protection from evil" */
 			if (IS_PROT_EVIL() &&
@@ -290,6 +335,7 @@ bool make_attack_normal(int m_idx)
 
 
 				/* Hack -- Next attack */
+				if (retaliation_hack) break;
 				continue;
 			}
 
@@ -730,12 +776,6 @@ bool make_attack_normal(int m_idx)
 					{
 						int tmp_damage = damage - (damage * ((ac < 200) ? ac : 200) / 333);
 
-						if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-						{
-							tmp_damage -= p_ptr->lev * p_ptr->lev / 50;
-							if (tmp_damage < 0) tmp_damage = 0;
-						}
-
 #ifdef JP
 						msg_print("痛恨の一撃！");
 #else
@@ -743,6 +783,7 @@ bool make_attack_normal(int m_idx)
 #endif
 
 						tmp_damage = MAX(damage, tmp_damage*2);
+						tmp_damage = reduce_melee_dam_p(tmp_damage);
 
 						/* Take damage */
 						get_damage += take_hit(DAMAGE_ATTACK, tmp_damage, ddesc, -1);
@@ -756,12 +797,7 @@ bool make_attack_normal(int m_idx)
 
 					/* Hack -- Player armor reduces total damage */
 					damage -= (damage * ((ac < 200) ? ac : 200) / 333);
-
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
+					damage = reduce_melee_dam_p(damage);
 
 					/* Take damage */
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
@@ -782,13 +818,8 @@ bool make_attack_normal(int m_idx)
 						}
 					}
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Take some damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					/* Learn about the player */
@@ -813,13 +844,8 @@ bool make_attack_normal(int m_idx)
 						}
 					}
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Take some damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					/* Learn about the player */
@@ -830,13 +856,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_UN_POWER:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Take some damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -916,13 +937,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_GOLD:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Take some damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					/* Confused monsters cannot steal successfully. -LM-*/
@@ -1006,13 +1022,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_ITEM:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Take some damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					/* Confused monsters cannot steal successfully. -LM-*/
@@ -1136,13 +1147,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_FOOD:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Take some damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1193,16 +1199,11 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_EAT_LITE:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Access the lite */
 					o_ptr = &inventory[INVEN_LITE];
 
 					/* Take some damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1246,14 +1247,8 @@ bool make_attack_normal(int m_idx)
 					msg_print("You are covered in acid!");
 #endif
 
-
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Special damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += acid_dam(damage, ddesc, -1);
 
 					/* Hack -- Update AC */
@@ -1277,14 +1272,8 @@ bool make_attack_normal(int m_idx)
 #else
 					msg_print("You are struck by electricity!");
 #endif
-
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Special damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += elec_dam(damage, ddesc, -1);
 
 					/* Learn about the player */
@@ -1306,13 +1295,8 @@ bool make_attack_normal(int m_idx)
 					msg_print("You are enveloped in flames!");
 #endif
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Special damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += fire_dam(damage, ddesc, -1);
 
 					/* Learn about the player */
@@ -1334,13 +1318,8 @@ bool make_attack_normal(int m_idx)
 					msg_print("You are covered with frost!");
 #endif
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Special damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += cold_dam(damage, ddesc, -1);
 
 					/* Learn about the player */
@@ -1351,12 +1330,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_BLIND:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead) break;
@@ -1385,11 +1360,7 @@ bool make_attack_normal(int m_idx)
 				{
 					if (explode) break;
 					/* Take damage */
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead) break;
@@ -1411,12 +1382,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_TERRIFY:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead) break;
@@ -1462,12 +1429,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_PARALYZE:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead) break;
@@ -1516,12 +1479,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_STR:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Damage (physical) */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1534,12 +1493,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_INT:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Damage (physical) */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1552,12 +1507,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_WIS:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Damage (physical) */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1570,12 +1521,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_DEX:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Damage (physical) */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1588,12 +1535,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_CON:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Damage (physical) */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1606,12 +1549,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_CHR:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Damage (physical) */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1624,12 +1563,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_LOSE_ALL:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Damage (physical) */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1653,13 +1588,8 @@ bool make_attack_normal(int m_idx)
 					/* Hack -- Reduce damage based on the player armor class */
 					damage -= (damage * ((ac < 200) ? ac : 200) / 333);
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
-
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					/* Radius 8 earthquake centered at the monster */
@@ -1678,12 +1608,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1699,12 +1625,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1720,12 +1642,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1741,12 +1659,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1757,12 +1671,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_DISEASE:
 				{
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take some damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -1871,11 +1781,7 @@ bool make_attack_normal(int m_idx)
 							}
 						}
 					}
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					break;
@@ -1888,12 +1794,8 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
-					if (weaponmaster_get_toggle() == TOGGLE_STONE_BONES)
-					{
-						damage -= p_ptr->lev * p_ptr->lev / 50;
-						if (damage < 0) damage = 0;
-					}
 					/* Take damage */
+					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
@@ -2066,6 +1968,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			{
 				if ( weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS
 				  && alive
+				  && !retaliation_hack /* Otherwise, we get a retaliatory cycle!!! */
 				  && !p_ptr->is_dead )
 				{
 					msg_format("You trade blows with %^s.", m_name);
@@ -2435,6 +2338,9 @@ msg_format("%^sから落ちてしまった！", m_name);
 		{
 			if (kawarimi(FALSE)) return TRUE;
 		}
+	
+		if (retaliation_hack)
+			break;
 	}
 
 	/* Hex - revenge damage stored */

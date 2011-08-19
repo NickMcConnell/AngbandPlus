@@ -6205,7 +6205,7 @@ B:KICK:SUPERHURT:5d5
 B:HIT:SUPERHURT:5d1
 F:MALE | DROP_60 | DROP_1D2 | OPEN_DOOR | BASH_DOOR | IM_ELEC | HAS_LITE_2 |
 F:IM_FIRE | IM_COLD | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | HUMAN |
-F:DROP_CORPSE | DROP_SKELETON
+F:DROP_CORPSE | DROP_SKELETON | AURA_REVENGE
 S:1_IN_6 | 
 S:BO_ELEC
 D:$A green-garbed monk, trained in martial arts.
@@ -7334,7 +7334,7 @@ F:FORCE_MAXHP |
 F:ESCORT | HAS_LITE_2 |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_CORPSE
 F:OPEN_DOOR | BASH_DOOR | CAN_SWIM |
-F:EVIL | GIANT | IM_POIS
+F:EVIL | GIANT | IM_POIS | AURA_REVENGE
 D:$An ogre renowned for acts of surpassing cruelty.
 D:抜きん出た残酷さで名声を博したオーガだ。
 
@@ -8544,7 +8544,7 @@ B:KICK:SUPERHURT:8d4
 B:HIT:SUPERHURT:8d1
 F:MALE | DROP_60 | DROP_1D2 | OPEN_DOOR | BASH_DOOR | IM_FIRE | HUMAN |
 F:IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | DROP_CORPSE | HAS_LITE_1 |
-F:DROP_SKELETON | HAS_LITE_2 |
+F:DROP_SKELETON | HAS_LITE_2 | AURA_REVENGE
 S:1_IN_7 | 
 S:HEAL
 D:$A monk in white robes.  He is skilled in martial arts.
@@ -13101,7 +13101,7 @@ B:SLASH:EXP_VAMP:8d8
 F:CHAR_MULTI | EVIL | IM_POIS | IM_COLD | IM_FIRE | RES_NETH | RES_CHAO |
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP | CAN_FLY |
 F:COLD_BLOOD | BASH_DOOR | NONLIVING |
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | AURA_REVENGE
 D:$The mightiest of hellblades, a black runesword which thirsts for 
 D:$your soul.
 D:最も強力な魔剣である、この黒いルーンソードはあなたの魂を渇望している。
@@ -13402,7 +13402,7 @@ B:HIT:UN_BONUS:7d7
 B:HIT:EXP_VAMP:5d5
 F:FORCE_SLEEP | NEVER_MOVE | CAN_SWIM |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | AURA_REVENGE
 D:$It is the epitome of all that is evil, in a mold.  Its lifeless form draws 
 D:$power from sucking the souls of those that approach it, a nimbus of pure 
 D:$evil surrounds it.  Luckily for you, it can't move.
@@ -17905,7 +17905,7 @@ B:KICK:SUPERHURT:7d4
 B:HIT:EXP_10:7d2
 F:MALE | DROP_60 | DROP_1D2 | OPEN_DOOR | BASH_DOOR | IM_COLD | HAS_LITE_2 |
 F:IM_POIS | RES_NETH | NO_FEAR | NO_CONF | NO_SLEEP | HUMAN |
-F:DROP_CORPSE | DROP_SKELETON
+F:DROP_CORPSE | DROP_SKELETON | AURA_REVENGE
 S:1_IN_9 | 
 S:BO_NETH
 D:$A monk in dusky robes trained in the most lethal martial arts.
@@ -18700,7 +18700,7 @@ F:MALE | GOOD | DROP_CORPSE | DROP_SKELETON |
 F:FORCE_SLEEP | FORCE_MAXHP | HUMAN |
 F:ONLY_ITEM | DROP_1D2 | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
+F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP | AURA_REVENGE
 S:1_IN_6 | 
 S:HEAL | 
 S:S_SPIDER
@@ -18725,7 +18725,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | HUMAN |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP
+F:NO_CONF | NO_SLEEP | AURA_REVENGE
 S:1_IN_3 | 
 S:HEAL | 
 S:S_SPIDER
@@ -18748,7 +18748,7 @@ B:HIT:PARALYZE:20d1
 F:MALE | GOOD | DROP_CORPSE | DROP_SKELETON |
 F:FORCE_SLEEP | FORCE_MAXHP | HUMAN |
 F:ONLY_ITEM | DROP_4D2 | 
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | AURA_REVENGE
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | MIND_BLAST | 
@@ -19118,7 +19118,7 @@ B:KICK:SUPERHURT:15d15
 F:UNIQUE | MALE | CAN_SPEAK | SMART | REFLECTING | HAS_LITE_2 |
 F:OPEN_DOOR | BASH_DOOR | DROP_CORPSE | DROP_SKELETON | HUMAN |
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
-F:DROP_2D2 | DROP_1D2 | DROP_GOOD | ONLY_ITEM | CAN_SWIM |
+F:DROP_2D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT | ONLY_ITEM | CAN_SWIM | AURA_REVENGE |
 F:GOOD | IM_COLD | IM_POIS | IM_ACID | IM_ELEC | IM_FIRE | REGENERATE |
 S:1_IN_3 |
 S:CAUSE_4 | TELE_TO
@@ -20584,7 +20584,7 @@ F:DROP_SKELETON | DROP_CORPSE
 F:FORCE_SLEEP | FORCE_MAXHP | KILL_WALL | HUMAN |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | MOVE_BODY |
 F:EVIL | REGENERATE |
-F:OPEN_DOOR | BASH_DOOR | RES_WALL
+F:OPEN_DOOR | BASH_DOOR | RES_WALL | AURA_REVENGE
 S:1_IN_8 |
 S:TELE_TO | BO_MANA
 D:$He looks like brawny human being apparently. 
@@ -21084,7 +21084,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_GOOD | DROP_4D2 | KILL_BODY | KILL_WALL |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | DROP_CORPSE | 
-F:EVIL | GIANT | HURT_ROCK | HAS_LITE_2 | 
+F:EVIL | GIANT | HURT_ROCK | HAS_LITE_2 | AURA_REVENGE
 F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
 D:$The strongest of all the Titans.  Legend has it that he use to hold the sky 
 D:$on his shoulders; and the mountain range that now does so is named after him. 
@@ -21779,7 +21779,7 @@ I:110:30d100:30:200:80
 W:80:4:0:5000:0:0
 B:HIT:HURT:50d30
 F:RAND_50 | RAND_25 | FORCE_MAXHP
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | AURA_REVENGE
 D:$This sluggish lizard-like being approaches you with a large knife brandished. 
 D:$You have trouble taking this monster seriously, as it repeatedly seems to trip 
 D:$over its own feet. Yet you don't remeber any tales of heroes who's fought one and lived...
@@ -21791,7 +21791,7 @@ G:h:D
 I:125:20d100:30:150:30
 W:80:7:0:5000:0:0
 B:HIT:EAT_ITEM:30d15
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | AURA_REVENGE
 D:$This sluggish lizard-like being approaches you with a large knife brandished. 
 D:$It is cloaked in brown, and attempting to hide in the shadows ... not very well
 D:$though.  But perhaps now is not the time to laugh?
@@ -21804,6 +21804,7 @@ W:80:10:0:40000:0:0
 B:HIT:HURT:70d30
 F:RAND_50 | RAND_25 | FORCE_MAXHP | UNIQUE
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT
+F:NO_CONF | NO_SLEEP | AURA_REVENGE
 S:1_IN_3 |
 S:S_KIN | HEAL | TPORT | TELE_LEVEL
 D:$This sluggish lizard-like being approaches you with a large knife brandished. 
@@ -21822,6 +21823,7 @@ F:UNIQUE | FORCE_MAXHP | SMART | ESCORT | ESCORTS |
 F:ONLY_GOLD | DROP_3D2 | DROP_4D2 | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | REFLECTING |
 F:EVIL | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS |
+F:NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:S_KIN
 D:$A massive pile of coins, wealth beyond your wildest dreams.
@@ -21865,6 +21867,7 @@ B:HIT:TIME:10d5
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:DROP_SKELETON | DROP_CORPSE | HUMAN |
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
+F:NO_CONF | NO_SLEEP
 S:1_IN_3 | HASTE | SLOW | TELE_LEVEL
 D:$A human, clothed in a blue robe, moving with speed uncanny.
 D:$He seems to be in several places at once.

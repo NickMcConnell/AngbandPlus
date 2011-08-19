@@ -40,8 +40,19 @@ static cptr wd_his[3] =
 
 
 
+/* Monster saving throws versus player attacks */
+bool mon_save_p(int r_idx, int stat)
+{
+	int pl = p_ptr->lev * 2; /* = MAX(p_ptr->lev, p_ptr->lev * p_ptr->lev / 25); */
+	int ml = r_info[r_idx].level;
+	int s = 0;
 
+	/* Use linearized player stat for the power */
+	if (stat >= 0 && stat < 6) s = p_ptr->stat_ind[stat] + 3;
 
+	if (ml + randint1(100) > pl + s) return TRUE;
+	return FALSE;
+}
 
 /*
  * Determine if the "armor" is known
@@ -813,6 +824,9 @@ else                            hooked_roff("モンスター");
 
 		}
 	}
+
+	if (flags2 & RF2_AURA_REVENGE)
+		hook_c_roff(TERM_VIOLET, format("%^s retaliates when struck.  ", wd_he[msex]));
 
 	if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC) && (flags3 & RF3_AURA_COLD))
 	{
@@ -2152,7 +2166,7 @@ if (flags6 & (RF6_S_UNIQUE))        {vp[vn] = "ユニーク・モンスター召喚";color[v
 #ifdef JP
 			hooked_roff(format("%sは進化しない。", wd_he[msex]));
 #else
-			hooked_roff(format("%s won't evolve.  ", wd_he[msex]));
+			hooked_roff(format("%^s won't evolve.  ", wd_he[msex]));
 #endif
 		}
 	}
