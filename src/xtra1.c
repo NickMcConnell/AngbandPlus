@@ -5799,26 +5799,37 @@ void calc_bonuses(void)
 			int tval = inventory[INVEN_RARM+i].tval - TV_WEAPON_BEGIN;
 			int sval = inventory[INVEN_RARM+i].sval;
 
-			p_ptr->weapon_info[i].to_h += (p_ptr->weapon_exp[tval][sval] - WEAPON_EXP_BEGINNER) / 200;
-			p_ptr->weapon_info[i].dis_to_h += (p_ptr->weapon_exp[tval][sval] - WEAPON_EXP_BEGINNER) / 200;
-			if ((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER))
+			if (inventory[INVEN_RARM+i].tval == TV_SHIELD)
 			{
-				if (!s_info[p_ptr->pclass].w_max[tval][sval])
-				{
-					p_ptr->weapon_info[i].to_h -= 40;
-					p_ptr->weapon_info[i].dis_to_h -= 40;
-					p_ptr->weapon_info[i].icky_wield = TRUE;
-				}
+				int skill_hack = 6000;
+				/* TODO: We should add item skills for shields for the shieldmaster 
+				   For now, just give them [Skilled] status ... */
+				p_ptr->weapon_info[i].to_h += (skill_hack - WEAPON_EXP_BEGINNER) / 200;
+				p_ptr->weapon_info[i].dis_to_h += (skill_hack - WEAPON_EXP_BEGINNER) / 200;
 			}
-			else if (p_ptr->pclass == CLASS_NINJA)
+			else
 			{
-				if ((s_info[CLASS_NINJA].w_max[tval][sval] <= WEAPON_EXP_BEGINNER) || (inventory[INVEN_LARM-i].tval == TV_SHIELD))
+				p_ptr->weapon_info[i].to_h += (p_ptr->weapon_exp[tval][sval] - WEAPON_EXP_BEGINNER) / 200;
+				p_ptr->weapon_info[i].dis_to_h += (p_ptr->weapon_exp[tval][sval] - WEAPON_EXP_BEGINNER) / 200;
+				if ((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER))
 				{
-					p_ptr->weapon_info[i].to_h -= 40;
-					p_ptr->weapon_info[i].dis_to_h -= 40;
-					p_ptr->weapon_info[i].icky_wield = TRUE;
-					p_ptr->weapon_info[i].num_blow /= 2;
-					if (p_ptr->weapon_info[i].num_blow < 1) p_ptr->weapon_info[i].num_blow = 1;
+					if (!s_info[p_ptr->pclass].w_max[tval][sval])
+					{
+						p_ptr->weapon_info[i].to_h -= 40;
+						p_ptr->weapon_info[i].dis_to_h -= 40;
+						p_ptr->weapon_info[i].icky_wield = TRUE;
+					}
+				}
+				else if (p_ptr->pclass == CLASS_NINJA)
+				{
+					if ((s_info[CLASS_NINJA].w_max[tval][sval] <= WEAPON_EXP_BEGINNER) || (inventory[INVEN_LARM-i].tval == TV_SHIELD))
+					{
+						p_ptr->weapon_info[i].to_h -= 40;
+						p_ptr->weapon_info[i].dis_to_h -= 40;
+						p_ptr->weapon_info[i].icky_wield = TRUE;
+						p_ptr->weapon_info[i].num_blow /= 2;
+						if (p_ptr->weapon_info[i].num_blow < 1) p_ptr->weapon_info[i].num_blow = 1;
+					}
 				}
 			}
 

@@ -3355,6 +3355,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 	  INVEN_LARM, INVEN_RARM,
 	  { 
 		{ TV_SHIELD, SV_DRAGON_SHIELD },
+		{ TV_SHIELD, SV_KNIGHT_SHIELD },
 		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_LARGE_METAL_SHIELD },
 		{ TV_SHIELD, SV_MIRROR_SHIELD },
@@ -3854,7 +3855,8 @@ void _on_birth(void)
 		kind = _specialities[p_ptr->speciality1].objects[i];
 		if (kind.tval == 0) break;
 
-		p_ptr->weapon_exp[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_BEGINNER;
+		if (kind.tval != TV_SHIELD)
+			p_ptr->weapon_exp[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_BEGINNER;
 	}
 
 	weaponmaster_adjust_skills();
@@ -4091,6 +4093,7 @@ static void _calc_bonuses(void)
 				if (inventory[INVEN_RARM].k_idx && object_is_shield(&inventory[INVEN_RARM]))
 				{
 					p_ptr->to_a += k_info[inventory[INVEN_RARM].k_idx].ac;
+					p_ptr->dis_to_a += k_info[inventory[INVEN_RARM].k_idx].ac;
 					p_ptr->to_a += inventory[INVEN_RARM].to_a;
 					if (object_is_known(&inventory[INVEN_RARM]))
 						p_ptr->dis_to_a += inventory[INVEN_RARM].to_a;
@@ -4098,6 +4101,7 @@ static void _calc_bonuses(void)
 				if (inventory[INVEN_LARM].k_idx && object_is_shield(&inventory[INVEN_LARM]))
 				{
 					p_ptr->to_a += k_info[inventory[INVEN_LARM].k_idx].ac;
+					p_ptr->dis_to_a += k_info[inventory[INVEN_LARM].k_idx].ac;
 					p_ptr->to_a += inventory[INVEN_LARM].to_a;
 					if (object_is_known(&inventory[INVEN_LARM]))
 						p_ptr->dis_to_a += inventory[INVEN_LARM].to_a;
@@ -4624,6 +4628,21 @@ static void _character_dump(FILE* file)
 			fprintf(file, "Your shots never miss your target once you score 3 consecutive hits when wielding %s.\n", o_name);
 		if (p_ptr->lev >= 40)
 			fprintf(file, "You gain extra shots when wielding %s.\n", o_name);
+	}
+	else if (strcmp(_specialities[p_ptr->speciality1].name, "Shields") == 0)
+	{
+		fprintf(file, "You gain two handed wielding bonuses even when wielding a shield.\n");
+		if (p_ptr->lev >= 20)
+			fprintf(file, "Your inventory items are somewhat protected from destruction when wielding a shield.\n");
+		if (p_ptr->lev >= 45)
+			fprintf(file, "You gain basic resistance and reflection when wielding a shield.\n");
+
+		if (p_ptr->lev >= 5)
+			fprintf(file, "You gain double the AC benefit when wielding %s.\n", o_name);
+
+		if (p_ptr->lev >= 25)
+			fprintf(file, "You gain a bonus to saving throws when wielding %s.\n", o_name);
+	
 	}
 	else if (strcmp(_specialities[p_ptr->speciality1].name, "Staves") == 0)
 	{

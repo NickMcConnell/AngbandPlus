@@ -3245,6 +3245,31 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				switch(weaponmaster_get_toggle())
 				{
+				case TOGGLE_SHIELD_BASH:
+					if (one_in_(20))
+					{
+						if (r_ptr->flagsr & RFR_RES_ALL)
+						{
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_ALL;
+							msg_format(T("%^s is immune.", "%^sには効果がなかった。"), m_name);
+						}
+						else if (r_ptr->flags3 & RF3_NO_STUN)
+						{
+							if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_STUN;
+							msg_format(T("%^s is immune.", "%^sには効果がなかった。"), m_name);
+						}
+						else if (mon_save_p(m_ptr->r_idx, A_STR))
+						{
+							msg_format(T("%^s resists.", "%^sには効果がなかった。"), m_name);
+						}
+						else
+						{
+							msg_format(T("%^s is stunned.", ), m_name);
+							set_monster_stunned(c_ptr->m_idx, MAX(MON_STUNNED(m_ptr), 2));
+						}
+					}
+					break;
+
 				case TOGGLE_BURNING_BLADE:
 					if (r_ptr->flagsr & RFR_RES_ALL)
 					{

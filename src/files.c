@@ -5232,7 +5232,13 @@ static void dump_aux_equipment_inventory(FILE *fff)
 		for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 		{
 			object_desc(o_name, &inventory[i], 0);
-			if ((((i == INVEN_RARM) && p_ptr->hidarite) || ((i == INVEN_LARM) && p_ptr->migite)) && p_ptr->ryoute)
+			
+			if ( strcmp(weaponmaster_speciality1_name(), "Shields") == 0
+			  && inventory[INVEN_RARM].k_idx
+			  && inventory[INVEN_LARM].k_idx )
+			{
+			}
+			else if ((((i == INVEN_RARM) && p_ptr->hidarite) || ((i == INVEN_LARM) && p_ptr->migite)) && p_ptr->ryoute)
 #ifdef JP
 				strcpy(o_name, "(武器を両手持ち)");
 #else
