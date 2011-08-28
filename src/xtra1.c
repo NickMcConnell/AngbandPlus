@@ -3583,7 +3583,11 @@ void calc_bonuses(void)
 			case CLASS_WEAPONMASTER:
 				if (strcmp(weaponmaster_speciality1_name(), "Shields") == 0)
 				{
-					if ( inventory[INVEN_LARM].k_idx
+					if (weaponmaster_get_toggle() == TOGGLE_SHIELD_BASH)
+					{
+						p_ptr->ryoute = TRUE;
+					}
+					else if ( inventory[INVEN_LARM].k_idx
 					  && object_is_shield(&inventory[INVEN_LARM])
 					  && buki_motteruka(INVEN_RARM) 
 					  && object_allow_two_hands_wielding(&inventory[INVEN_RARM]) )
@@ -4470,8 +4474,8 @@ void calc_bonuses(void)
 		}
 
 		/* Hack -- do not apply "weapon" bonuses */
-		if (i == INVEN_RARM && buki_motteruka(i)) continue;
-		if (i == INVEN_LARM && buki_motteruka(i)) continue;
+		if (i == INVEN_RARM && (buki_motteruka(i) || object_is_melee_weapon(o_ptr))) continue;
+		if (i == INVEN_LARM && (buki_motteruka(i) || object_is_melee_weapon(o_ptr))) continue;
 
 		/* Hack -- do not apply "bow" bonuses */
 		if (i == INVEN_BOW) continue;

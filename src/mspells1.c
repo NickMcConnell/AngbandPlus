@@ -1557,8 +1557,8 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 		}
 		
 		/* Raphael can Breathe Light *and* Teleport To */
-		if (!success && (f6 & RF6_TELE_TO) && m_ptr->cdis <= MAX_RANGE 
-		  && r_ptr->level >= 40 && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY) )
+		if (!success && (f6 & RF6_TELE_TO) && m_ptr->cdis <= (MAX_RANGE * 2/3)
+		  && r_ptr->level >= 60 && !(cave[m_ptr->fy][m_ptr->fx].info & CAVE_ICKY) )
 		{
 			if (one_in_(15))
 			{

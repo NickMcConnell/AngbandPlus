@@ -832,6 +832,9 @@ void do_cmd_takeoff(void)
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
 
+	if (strcmp(weaponmaster_speciality1_name(), "Shields") == 0)
+		handle_stuff();
+
 	kamaenaoshi(item);
 
 	calc_android_exp();

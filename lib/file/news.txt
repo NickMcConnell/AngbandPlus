@@ -1,5 +1,5 @@
                   ****************************************
-                  **          Chengband 0.0.60          **
+                  **          Chengband 0.0.61          **
                   ****************************************
 
           Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke

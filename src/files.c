@@ -1581,6 +1581,7 @@ errr check_load_init(void)
 #define ENTRY_BLOOD_POINTS 46
 #define ENTRY_SPECIALIZATION1 47
 #define ENTRY_SPECIALIZATION2 48
+#define ENTRY_PATRON_HACK 49
 
 static struct
 {
@@ -1686,8 +1687,9 @@ static struct
 	{29, 16, 21, "Const to Adv"},
 	{ 1,  6, -1, "Pact     : "},
 	{29, 11, 21, "Blood Pts"},
-	{ 1,  7, -1, "Subspec  : "},
-	{ 1,  8, -1, "Spec     : "},
+	{ 1,  6, -1, "Subspec  : "},
+	{ 1,  7, -1, "Spec     : "},
+	{ 1,  8, -1, "Patron   : "},
 };
 #endif
 
@@ -1744,13 +1746,6 @@ static void display_player_melee_bonus(int hand, int hand_entry)
 
 				show_tohit += 2*inventory[INVEN_RARM].to_h;
 				show_todam += 2*inventory[INVEN_RARM].to_d;
-			}
-
-			if (object_is_shield(&inventory[INVEN_LARM])
-			  && object_is_known(&inventory[INVEN_LARM]) )
-			{
-				show_tohit += inventory[INVEN_LARM].to_a;
-				show_todam += inventory[INVEN_LARM].to_a;
 			}
 		}
 		if (hand == 1 && !object_is_shield(&inventory[INVEN_RARM]) && object_is_shield(&inventory[INVEN_LARM]))
@@ -2223,9 +2218,6 @@ static void display_player_various(void)
 					
 					if (object_is_known(o_ptr)) damage[i] += o_ptr->to_a * 100;
 					basedam = dd * (ds + 1) * 50;
-
-					if (i == 0 && inventory[INVEN_LARM].k_idx && object_is_shield(&inventory[INVEN_LARM]))
-						damage[i] += inventory[INVEN_LARM].to_a * 100;
 				}
 				else
 				{
@@ -4020,7 +4012,8 @@ void display_player(int mode)
 		{
 			strcpy(tmp, weaponmaster_speciality1_name());
 			display_player_one_line(ENTRY_SPECIALIZATION1, tmp, TERM_L_BLUE);
-			strcpy(tmp, weaponmaster_speciality2_name());
+			sprintf(tmp, "%-16.16s", weaponmaster_speciality2_name());
+			/*strcpy(tmp, weaponmaster_speciality2_name());*/
 			display_player_one_line(ENTRY_SPECIALIZATION2, tmp, TERM_L_BLUE);
 		}
 		else if (p_ptr->realm1)
@@ -4033,7 +4026,12 @@ void display_player(int mode)
 		}
 
 		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || mut_present(MUT_CHAOS_GIFT))
-			display_player_one_line(ENTRY_PATRON, chaos_patrons[p_ptr->chaos_patron], TERM_L_BLUE);
+		{
+			if (p_ptr->pclass == CLASS_WEAPONMASTER)
+				display_player_one_line(ENTRY_PATRON_HACK, chaos_patrons[p_ptr->chaos_patron], TERM_L_BLUE);
+			else
+				display_player_one_line(ENTRY_PATRON, chaos_patrons[p_ptr->chaos_patron], TERM_L_BLUE);
+		}
 
 		/* Age, Height, Weight, Social */
 		/* 身長はセンチメートルに、体重はキログラムに変更してあります */

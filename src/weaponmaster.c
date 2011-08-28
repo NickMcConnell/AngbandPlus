@@ -191,13 +191,47 @@ static int _get_toggle(void)
 	return p_ptr->magic_num1[0];
 }
 
+static void _shield_bash_toggle_hack(s32b toggle)
+{
+	bool do_swap = FALSE;
+	if (toggle == TOGGLE_SHIELD_BASH)
+	{
+		if ( (!inventory[INVEN_RARM].k_idx || object_is_melee_weapon(&inventory[INVEN_RARM]))
+		  && object_is_shield(&inventory[INVEN_LARM]) )
+		{
+			do_swap = TRUE;
+		}
+	}
+	else if (p_ptr->magic_num1[0] == TOGGLE_SHIELD_BASH)
+	{
+		if ( (!inventory[INVEN_LARM].k_idx || object_is_melee_weapon(&inventory[INVEN_LARM]))
+		  && object_is_shield(&inventory[INVEN_RARM]) )
+		{
+			do_swap = TRUE;
+		}
+	}
+
+	if (do_swap)
+	{
+		object_type copy;
+		object_copy(&copy, &inventory[INVEN_RARM]);
+		object_copy(&inventory[INVEN_RARM], &inventory[INVEN_LARM]);
+		object_copy(&inventory[INVEN_LARM], &copy);
+		p_ptr->redraw |= PR_EQUIPPY;
+	}
+}
+
 static int _set_toggle(s32b toggle)
 {
 	int result = p_ptr->magic_num1[0];
+
+	if (toggle == result) return result;
+
+	_shield_bash_toggle_hack(toggle);
 	p_ptr->magic_num1[0] = toggle;
 
-	p_ptr->redraw |= (PR_STATUS);
-	p_ptr->update |= (PU_BONUS);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
 	handle_stuff();
 
 	return result;
@@ -255,8 +289,8 @@ static void _desperation_spell(int cmd, variant *res)
 
 			if (!object_is_artifact(&inventory[item]) || one_in_(2))
 			{
-				if (inventory[item].to_h > 0) inventory[item].to_h = 0;
-				if (inventory[item].to_d > 0) inventory[item].to_d = 0;
+				if (inventory[item].to_h > 0) inventory[item].to_h--;
+				if (inventory[item].to_d > 0) inventory[item].to_d--;
 				msg_format("Your %s is disenchanted.", o_name);
 			}
 			else
@@ -3862,12 +3896,39 @@ void _on_birth(void)
 	weaponmaster_adjust_skills();
 }
 
+static void _set_max_skill(int tval, int skill)
+{
+	int j;
+	for (j = 0; j < 64; j++)
+		s_info[p_ptr->pclass].w_max[tval - TV_WEAPON_BEGIN][j] = skill;
+}
+
 void weaponmaster_adjust_skills(void)
 {
 	int i, j;
 	_object_kind kind;
 
 	/* Fix up skills for Speciality.  This needs to be called every time the game is loaded! */
+	/* Bang everything in class (melee, bows, shields) down to unskilled max */
+	switch (_specialities[p_ptr->speciality1].slot1)
+	{
+	case INVEN_RARM:
+		_set_max_skill(TV_DIGGING, WEAPON_EXP_UNSKILLED);
+		_set_max_skill(TV_HAFTED, WEAPON_EXP_UNSKILLED);
+		_set_max_skill(TV_POLEARM, WEAPON_EXP_UNSKILLED);
+		_set_max_skill(TV_SWORD, WEAPON_EXP_UNSKILLED);
+		break;
+
+	case INVEN_BOW:
+		_set_max_skill(TV_BOW, WEAPON_EXP_UNSKILLED);
+		break;
+
+	case INVEN_LARM:
+		/* TODO: We do not keep skills for shields.  Probably never will, either ... */
+		break;
+	}
+
+	/* Now make favored weapons "masterable" */
 	for (i = 0; i < _MAX_OBJECTS_PER_SPECIALITY; i++)
 	{
 		kind = _specialities[p_ptr->speciality1].objects[i];
@@ -3876,7 +3937,7 @@ void weaponmaster_adjust_skills(void)
 		s_info[p_ptr->pclass].w_max[kind.tval-TV_WEAPON_BEGIN][kind.sval] = WEAPON_EXP_MASTER;
 	}
 
-	/* 0.0.58 biffed skills for non-specialty weapons! */
+	/* Patch up current skills since we keep changing the allowed maximums */
 	for (i = 0; i < 5; i++)
 	{
 		for (j = 0; j < 64; j++)
@@ -3886,7 +3947,8 @@ void weaponmaster_adjust_skills(void)
 		}
 	}
 
-	if (strcmp(_specialities[p_ptr->speciality1].name, "Slings") == 0)
+	/* Shooters swap Bow Skills with Melee Skills */
+	if (_specialities[p_ptr->speciality1].slot1 == INVEN_BOW)
 	{
 		s16b tmp;
 		tmp = cp_ptr->c_thn;
@@ -3916,6 +3978,7 @@ static void _calc_bonuses(void)
 		/* Triggering a recursive call to calc_bonuses would be bad ... */
 		/*	_set_toggle(TOGGLE_NONE); */
 		/* This assumes all bonus calcs are handled here and in _calc_weapon_bonuses() */
+		_shield_bash_toggle_hack(TOGGLE_NONE);
 		p_ptr->magic_num1[0] = TOGGLE_NONE;
 		p_ptr->redraw |= (PR_STATUS);
 		redraw_stuff();

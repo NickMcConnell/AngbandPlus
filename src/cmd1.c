@@ -2478,12 +2478,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 		to_h += 2*o_ptr->to_h;
 		to_d += 2*o_ptr->to_d;
-
-		if (hand == 0 && inventory[INVEN_LARM].k_idx && object_is_shield(&inventory[INVEN_LARM]))
-		{
-			to_h += inventory[INVEN_LARM].to_a;
-			to_d += inventory[INVEN_LARM].to_a;
-		}
 	}
 	else
 	{
@@ -3246,7 +3240,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				switch(weaponmaster_get_toggle())
 				{
 				case TOGGLE_SHIELD_BASH:
-					if (one_in_(20))
+					if (one_in_(12))
 					{
 						if (r_ptr->flagsr & RFR_RES_ALL)
 						{
