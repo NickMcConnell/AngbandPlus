@@ -1987,6 +1987,12 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	/* Playtesting shows that FA, SI and HL are too rare ... let's boost these a bit */
 	switch (o_ptr->tval)
 	{
+	case TV_BOLT:
+	case TV_SHOT:
+	case TV_ARROW:
+		o_ptr->number = 1;	/* Where's the best place for this? */
+		break;
+
 	case TV_RING:
 		if (one_in_(2))
 			add_flag(o_ptr->art_flags, TR_FREE_ACT);
@@ -2038,7 +2044,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		case TV_SHOT:
 		case TV_ARROW:
 			/* Ammo either boosts up damage dice, or gains slays */
-			if (randint1(150) < lev)
+			if ( randint1(225) < lev
+			  && slaying_hack == 0 ) /* OK: Slaying can now only happen once! */
 			{
 				if (slaying_hack == 0 && one_in_(3)) /* double damage */
 				{
@@ -2079,7 +2086,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				has_pval = TRUE;
 				break;
 			case 3:
-				if (one_in_(15))
+				if (one_in_(45))
 				{
 					add_flag(o_ptr->art_flags, TR_TELEPATHY);
 				}
@@ -2118,9 +2125,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				has_pval = TRUE;
 				break;
 			case 3:
-				if ( slaying_hack < 5
+				if ( slaying_hack == 0 /* OK: Slaying can now only happen once! */
 				    && (is_falcon_sword || !have_flag(o_ptr->art_flags, TR_BLOWS))
-					&& randint1(150) < lev)
+					&& randint1(225) < lev)
 				{
 					int odds = o_ptr->dd * o_ptr->ds / 5;
 					if (odds < 3) odds = 3;
@@ -2166,7 +2173,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			break;
 
 		case TV_BOW:
-			switch (randint1(7))
+			switch (randint1(8))
 			{
 			case 1: case 2:
 				random_plus(o_ptr);
@@ -2178,7 +2185,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			case 6:
 				random_misc(o_ptr);
 				break;
-			case 7:
+			case 7: case 8:
 				random_resistance(o_ptr);
 				break;
 			}
@@ -2240,7 +2247,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				has_pval = TRUE;
 				break;
 			case 3:
-				if (one_in_(15))
+				if (one_in_(45))
 				{
 					add_flag(o_ptr->art_flags, TR_TELEPATHY);
 				}
@@ -2505,16 +2512,24 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		if (a_cursed) power_level = 0;
 		else if (total_flags < 15000) power_level = 1;
 		else if (total_flags < 35000) power_level = 2;
-		else power_level = 3;
+		else 
+		{
+			power_level = 3;
+			if (one_in_(8)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+		}
 	}
 
 	else
 	{
 		/* For weapons */
 		if (a_cursed) power_level = 0;
-		else if (total_flags < 20000) power_level = 1;
-		else if (total_flags < 45000) power_level = 2;
-		else power_level = 3;
+		else if (total_flags < 15000) power_level = 1;
+		else if (total_flags < 35000) power_level = 2;
+		else 
+		{
+			power_level = 3;
+			if (one_in_(8)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+		}
 	}
 
 	if (mode & CREATE_ART_SCROLL)
@@ -3683,6 +3698,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 		    p_ptr->pclass == CLASS_ARCHER || 
 			p_ptr->pclass == CLASS_CAVALRY || 
 			p_ptr->pclass == CLASS_BLOOD_KNIGHT || 
+			p_ptr->pclass == CLASS_WEAPONMASTER ||
 			p_ptr->pclass == CLASS_BERSERKER)
 		{
 			give_power = TRUE;
