@@ -885,8 +885,8 @@ N:73:ショート・ボウ
 E:& Short Bow~
 G:}:U
 I:19:12:0
-W:3:0:30:50
-A:3/1:20/1:40/1
+W:30:0:30:400
+A:30/2:40/2:60/2:80/2:90/2
 F:SHOW_MODS
 D:$The traditional hunter's weapon, this light bow is easily drawn.
 D:伝統的に狩人に用いられる武器だ。この軽い弓は簡単に引く事ができる。
@@ -906,8 +906,8 @@ N:75:ライト・クロスボウ
 E:& Light Crossbow~
 G:}:s
 I:19:23:0
-W:10:0:110:140
-A:10/1:20/1:30/1
+W:30:0:110:500
+A:30/2:40/2:60/2:80/2
 F:SHOW_MODS
 D:$A mechanical bow made of wood, it is cocked to augment the strength of 
 D:$its wielder.
@@ -919,7 +919,7 @@ E:& Heavy Crossbow~
 G:}:s
 I:19:24:0
 W:30:0:200:500
-A:30/2:40/2:60/2:80/20
+A:30/2:40/2:60/2:80/2
 F:SHOW_MODS
 # Not all heavy crossbow is the arbalest with a crank!
 #D:$The arbalest is so powerful it has to be reinforced with metal and 

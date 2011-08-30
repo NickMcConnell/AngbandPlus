@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 62
+#define FAKE_VER_PATCH 63
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 62
+#define H_VER_PATCH 63
 #define H_VER_EXTRA 0
 
 
@@ -1909,13 +1909,11 @@
 #define SV_AMMO_NORMAL                   1	/* shots, arrows, bolts */
 #define SV_AMMO_HEAVY                    2	/* seeker arrows and bolts, mithril shots */
 
-/* The "sval" codes for TV_BOW (note information in "sval") 
-   For those of us slower than the rest, sval mod 10 gives the 
-   shooting power ... */
+/* The "sval" codes for TV_BOW */
 #define SV_SLING                         2	/* (x2) */
-#define SV_SHORT_BOW                    12	/* (x2) */
+#define SV_SHORT_BOW                    12	/* (x3) */
 #define SV_LONG_BOW                     13	/* (x3) */
-#define SV_LIGHT_XBOW                   23	/* (x3) */
+#define SV_LIGHT_XBOW                   23	/* (x4) */
 #define SV_HEAVY_XBOW                   24	/* (x4) */
 #define SV_CRIMSON                      50	/* (x0) */
 #define SV_NAMAKE_BOW                   63	/* (x3) */

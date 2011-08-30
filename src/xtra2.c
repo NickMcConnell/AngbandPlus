@@ -6272,16 +6272,30 @@ int bow_range(int sval)
 {
 	int tdis, tmul;
 
-	tmul = bow_tmul(sval);
-	if (p_ptr->xtra_might) tmul++;
-	tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	tdis = 13 + tmul/80;
-	if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)
+	switch (sval)
 	{
-		if (p_ptr->concent)
-			tdis -= (5 - (p_ptr->concent + 1) / 2);
-		else
-			tdis -= 5;
+	case SV_LIGHT_XBOW:
+		tdis = 7; /* somebody is adding 1 later ... */
+		tdis += (p_ptr->concent + 1) / 2;	/* Snipers? */
+		break;
+
+	case SV_SHORT_BOW:
+		tdis = 7; /* somebody is adding 1 later ... */
+		break;
+
+	default:
+		tmul = bow_tmul(sval);
+		if (p_ptr->xtra_might) tmul++;
+		tmul = tmul * (100 + (int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+		tdis = 13 + tmul/80;
+		if (sval == SV_LIGHT_XBOW || sval == SV_HEAVY_XBOW)
+		{
+			if (p_ptr->concent)
+				tdis -= (5 - (p_ptr->concent + 1) / 2);
+			else
+				tdis -= 5;
+		}
+		break;
 	}
 	return tdis;
 }
@@ -6306,7 +6320,7 @@ int bow_tmul(int sval)
 		/* Short Bow and Arrow */
 		case SV_SHORT_BOW:
 		{
-			tmul = 2;
+			tmul = 3;
 			break;
 		}
 
@@ -6327,7 +6341,7 @@ int bow_tmul(int sval)
 		/* Light Crossbow and Bolt */
 		case SV_LIGHT_XBOW:
 		{
-			tmul = 3;
+			tmul = 4;
 			break;
 		}
 

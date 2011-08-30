@@ -3380,9 +3380,8 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 {
 	int dir;
-	int tdis, tmul, tx, ty;
+	int tdis, tx, ty;
 
-	tmul = bow_tmul(j_ptr->sval);
 	tdis = bow_range(j_ptr->sval);
 	project_length = tdis + 1;
 
