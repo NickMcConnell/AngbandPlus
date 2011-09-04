@@ -2437,11 +2437,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	add_flag(o_ptr->art_flags, TR_IGNORE_FIRE);
 	add_flag(o_ptr->art_flags, TR_IGNORE_COLD);
 
-	total_flags = flag_cost(o_ptr, o_ptr->pval, FALSE);
-	if (slaying_hack)
-		total_flags *= slaying_hack/3;
-	if (cheat_peek) msg_format("%ld", total_flags);
-
 	if (a_cursed) curse_artifact(o_ptr);
 
 	if (!a_cursed &&
@@ -2505,6 +2500,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		remove_flag(o_ptr->art_flags, TR_BRAND_FIRE);
 		remove_flag(o_ptr->art_flags, TR_BRAND_COLD);
 	}
+
+	total_flags = new_object_cost(o_ptr);
+	if (cheat_peek) msg_format("Score: %ld", total_flags);
 
 	if (!object_is_weapon_ammo(o_ptr))
 	{
@@ -3813,7 +3811,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 
 	random_artifact_resistance(&forge1, a_ptr);
 
-	base_power = (a_ptr->cost + flag_cost(&forge1, forge1.pval, TRUE))/2;
+	base_power = object_value_real(&forge1);
 	best_power = -100000;
 	power = 0;
 	old_level = object_level;

@@ -1112,6 +1112,14 @@ extern object_type *choose_warning_item(void);
 extern bool process_warning(int xx, int yy);
 extern void do_cmd_kaji(bool only_browse);
 
+/* object3.c */
+typedef void (*debug_hook)(cptr msg);
+extern debug_hook cost_calc_hook;
+extern s32b weapon_cost(object_type *o_ptr);
+extern s32b armor_cost(object_type *o_ptr);
+extern s32b jewelry_cost(object_type *o_ptr);
+extern s32b new_object_cost(object_type *o_ptr);
+
 /* racial.c */
 extern bool can_do_cmd_cast(void);
 extern void stop_mouth(void);
@@ -1266,6 +1274,7 @@ extern void mutate_player(void);
 extern void apply_nexus(monster_type *m_ptr);
 extern void phlogiston(void);
 extern bool brand_weapon(int brand_type);
+extern bool brand_weapon_aux(int brand_type, int item);
 extern void call_the_(void);
 extern void fetch(int dir, int wgt, bool require_los);
 extern void alter_reality(void);
@@ -1277,6 +1286,7 @@ extern bool remove_all_curse(void);
 extern bool alchemy(void);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
+extern bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr);
 extern bool artifact_scroll(void);
 extern bool ident_spell(bool only_equip);
 extern bool mundane_spell(bool only_equip);
@@ -1731,6 +1741,7 @@ extern bool object_is_shield(object_type *o_ptr);
 extern bool object_is_body_armour(object_type *o_ptr);
 extern bool object_is_weapon_armour_ammo(object_type *o_ptr);
 extern bool object_is_melee_weapon(object_type *o_ptr);
+extern bool object_is_jewelry(object_type *o_ptr);
 extern bool object_is_wearable(object_type *o_ptr);
 extern bool object_is_equipment(object_type *o_ptr);
 extern bool object_refuse_enchant_weapon(object_type *o_ptr);

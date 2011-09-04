@@ -153,16 +153,14 @@ static void do_cmd_wiz_hack_chris1(void)
 	{
 		object_type forge;
 		char buf[MAX_NLEN];
-		int power, value;
+		int value;
 
 		create_replacement_art(a_idx, &forge);
 		identify_item(&forge);
 
 		forge.ident |= (IDENT_MENTAL); 
 		object_desc(buf, &forge, 0);
-		power = flag_cost(&forge, forge.pval, FALSE);
 		value = object_value_real(&forge);
-		value -= k_info[k_idx].cost;
 
 		if (have_flag(forge.art_flags, TR_IM_ACID)
 		 || have_flag(forge.art_flags, TR_IM_COLD)
@@ -193,7 +191,7 @@ static void do_cmd_wiz_hack_chris1(void)
 		  || have_flag(forge.art_flags, TR_ORDER) )
 		{
 		}
-		msg_format("%s (Score: %d, Cost: %d)", buf, power, value);
+		msg_format("%s (Cost: %d)", buf, value);
 	}
 
 	msg_format("Generated %d artifacts.  %d had immunity.  %d had speed.  %d had extra attacks.", ct, ct_immunity, ct_speed, ct_blows);
@@ -225,6 +223,7 @@ static void do_cmd_wiz_hack_chris3(void)
 		object_type forge;
 		char buf[MAX_NLEN];
 		u32b flgs[TR_FLAG_SIZE];
+		u32b old_cost = 0, new_cost = 0;
 
 		object_prep(&forge, k_idx);
 		apply_magic(&forge, dun_level, AM_GREAT);
@@ -234,8 +233,134 @@ static void do_cmd_wiz_hack_chris3(void)
 		object_desc(buf, &forge, 0);
 		object_flags(&forge, flgs);
 
-		msg_format("%s", buf);
+		new_cost = new_object_cost(&forge);
+		old_cost = object_value_real(&forge);
+
+		msg_format("  * %d, %d, `%s`", old_cost, new_cost, buf);
 	}
+}
+
+static void do_cmd_wiz_hack_chris4_imp(FILE* file)
+{
+	int i;
+	fprintf(file, "Old\tNew\tDelta\tObject\n");
+	for (i = 1; i < max_a_idx; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+		object_type forge;
+
+		object_prep(&forge, lookup_kind(a_ptr->tval, a_ptr->sval));
+
+		if (object_is_melee_weapon(&forge) || object_is_armour(&forge) || object_is_jewelry(&forge))
+		{
+			char buf[MAX_NLEN];
+			s32b new_score = 0, old_score = 0;
+
+			forge.name1 = i;
+			forge.pval = a_ptr->pval;
+			forge.ac = a_ptr->ac;
+			forge.dd = a_ptr->dd;
+			forge.ds = a_ptr->ds;
+			forge.to_a = a_ptr->to_a;
+			forge.to_h = a_ptr->to_h;
+			forge.to_d = a_ptr->to_d;
+			forge.weight = a_ptr->weight;
+
+			if (a_ptr->gen_flags & TRG_CURSED) forge.curse_flags |= (TRC_CURSED);
+			if (a_ptr->gen_flags & TRG_HEAVY_CURSE) forge.curse_flags |= (TRC_HEAVY_CURSE);
+			if (a_ptr->gen_flags & TRG_PERMA_CURSE) forge.curse_flags |= (TRC_PERMA_CURSE);
+
+			random_artifact_resistance(&forge, a_ptr);
+
+			identify_item(&forge);
+			forge.ident |= (IDENT_MENTAL); 
+			object_desc(buf, &forge, 0);
+
+			new_score = new_object_cost(&forge);
+			old_score = object_value_real(&forge);
+
+
+			fprintf(file, "%d\t%d\t%d\t%s\n", 
+				old_score,
+				new_score,
+				new_score - old_score,
+				buf
+			);
+		}
+	}	
+
+	for (i = 0; i < 5000; )
+	{
+		int k = randint1(max_k_idx);
+		object_type forge;
+
+		if (k_info[k].gen_flags & TRG_INSTA_ART) continue;
+
+		object_prep(&forge, k);
+
+		if (object_is_melee_weapon(&forge) || object_is_armour(&forge) || object_is_jewelry(&forge))
+		{
+			s32b new_score = 0, old_score = 0;
+			char buf[MAX_NLEN];
+
+			apply_magic(&forge, dun_level, AM_GREAT);
+
+			/*if (forge.name2)*/
+			{
+				identify_item(&forge);
+				forge.ident |= (IDENT_MENTAL); 
+				object_desc(buf, &forge, 0);
+
+				new_score = new_object_cost(&forge);
+				old_score = object_value_real(&forge);
+
+				fprintf(file, "%d\t%d\t%d\t%s\n", 
+					old_score,
+					new_score,
+					new_score - old_score,
+					buf
+				);
+
+				i++;
+			}
+		}
+	}
+}
+
+static FILE    *_wiz_dbg_file = NULL;
+static void _wiz_dbg_hook(cptr msg)
+{
+	fprintf(_wiz_dbg_file, "%s\n", msg);
+}
+
+static void do_cmd_wiz_hack_chris4(void)
+{
+	int		fd = -1;
+	FILE	*fff = NULL;
+	char	buf[1024];
+
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Scoring6.txt");
+	fff = my_fopen(buf, "w");
+
+	if (!fff)
+	{
+		prt("Failed!", 0, 0);
+		(void)inkey();
+		return;
+	}
+
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "ScoringDetails6.txt");
+	_wiz_dbg_file = my_fopen(buf, "w");
+	cost_calc_hook = _wiz_dbg_hook;
+
+	do_cmd_wiz_hack_chris4_imp(fff);
+	
+	cost_calc_hook = NULL;
+	my_fclose(_wiz_dbg_file);
+
+	my_fclose(fff);
+	msg_print("Successful.");
+	msg_print(NULL);
 }
 
 
@@ -2262,6 +2387,10 @@ void do_cmd_debug(void)
 
 	case '3':
 		do_cmd_wiz_hack_chris3();
+		break;
+
+	case '4':
+		do_cmd_wiz_hack_chris4();
 		break;
 
 	/* Not a Wizard Command */

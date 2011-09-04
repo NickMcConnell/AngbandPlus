@@ -248,6 +248,21 @@ bool object_is_melee_weapon(object_type *o_ptr)
 	return FALSE;
 }
 
+bool object_is_jewelry(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+	case TV_RING:
+	case TV_AMULET:
+		return TRUE;
+
+	case TV_LITE:
+		if  (o_ptr->sval > SV_LITE_LANTERN)
+			return TRUE;
+	}
+
+	return FALSE;
+}
 
 /*
  * Wearable including all weapon, all armour, bow, light source, amulet, and ring

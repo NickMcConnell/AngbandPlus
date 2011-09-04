@@ -306,6 +306,9 @@
     <ClCompile Include="wild_realm.c">
       <Filter>Spells</Filter>
     </ClCompile>
+    <ClCompile Include="object3.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

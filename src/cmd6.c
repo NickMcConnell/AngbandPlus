@@ -2163,6 +2163,77 @@ msg_print("巻物は煙を立てて消え去った！");
 			break;
 		}
 
+		case SV_SCROLL_MADNESS:
+		{
+			/* Fun ... Make player choose an item.  Then
+			   either blast it, or artifact it, or brand it,
+			   or enchant it, or curse it.  You just never know :) */
+			int item;
+			object_type *o_ptr;
+
+			item_tester_no_ryoute = TRUE;
+			item_tester_hook = item_tester_hook_nameless_weapon_armour;
+			if (!get_item(&item, "Use which item? ", "You have nothing to use.", (USE_EQUIP | USE_INVEN | USE_FLOOR))) used_up = FALSE;
+
+			if (used_up)
+			{
+				if (item >= 0)
+					o_ptr = &inventory[item];
+				else
+					o_ptr = &o_list[0 - item];
+
+				if (o_ptr->number > 1)
+				{
+					msg_print("Don't be greedy.  Just try it out on a single object at a time.");
+					used_up = FALSE;
+				}
+			}
+			
+			if (used_up)
+			{
+				int n = randint0(100);
+				
+				ident = TRUE;
+
+				/* TODO: Add more goodies ... */
+				if (n < 10)
+				{
+					msg_print("Ooops!  That didn't work at all!");
+					destroy_area(py, px, 13 + randint0(5), FALSE);
+				}
+				else if (n < 15)
+				{
+					msg_print("You faintly hear crazy laughter for a moment.");
+					summon_cyber(-1, py, px);
+				}
+				else if (n < 25)
+				{
+					msg_print("The scroll explodes violently!");
+					call_chaos();
+				}
+				else if (n < 65)
+				{				
+					curse_weapon(FALSE, item);	/* This curses armor too ... */
+				}
+				else if (n < 90)
+				{
+					if (object_is_melee_weapon(o_ptr))
+					{
+						if (!brand_weapon_aux(-1, item)) used_up = FALSE;
+					}
+					else
+					{
+						msg_print("Funny, nothing happened.");
+					}
+				}
+				else
+				{
+					create_artifact(o_ptr, CREATE_ART_SCROLL | CREATE_ART_GOOD);
+				}
+			}
+			break;
+		}
+
 		case SV_SCROLL_BRAND_WEAPON:
 		{
 			ident = TRUE;
@@ -6122,6 +6193,14 @@ msg_print("あなたの槍は電気でスパークしている...");
 		return;
 	}
 
+	if (o_ptr->name2 == EGO_DAEMON)
+	{
+		destroy_area(py, px, 13 + randint0(5), FALSE);
+		o_ptr->timeout = 100 + randint1(100);
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		return;
+	}
+
 
 	/* Hack -- Dragon Scale Mail can be activated as well */
 	if (o_ptr->tval == TV_DRAG_ARMOR)
@@ -6144,7 +6223,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball(GF_ELEC, dir, 100, -2);
-				o_ptr->timeout = randint0(150) + 150;
+				o_ptr->timeout = randint0(15) + 15;
 				break;
 			}
 
@@ -6157,7 +6236,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball(GF_COLD, dir, 110, -2);
-				o_ptr->timeout = randint0(150) + 150;
+				o_ptr->timeout = randint0(15) + 15;
 				break;
 			}
 
@@ -6170,7 +6249,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball(GF_ACID, dir, 130, -2);
-				o_ptr->timeout = randint0(150) + 150;
+				o_ptr->timeout = randint0(15) + 15;
 				break;
 			}
 
@@ -6183,7 +6262,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball(GF_POIS, dir, 150, -2);
-				o_ptr->timeout = randint0(180) + 180;
+				o_ptr->timeout = randint0(18) + 18;
 				break;
 			}
 
@@ -6196,7 +6275,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball(GF_FIRE, dir, 200, -2);
-				o_ptr->timeout = randint0(200) + 200;
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
 
@@ -6222,7 +6301,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 					    ((chance == 3) ? GF_ACID :
 					     ((chance == 4) ? GF_POIS : GF_FIRE)))),
 					  dir, 250, -2);
-				o_ptr->timeout = randint0(200) + 200;
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
 
@@ -6235,7 +6314,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball(GF_CONFUSION, dir, 120, -2);
-				o_ptr->timeout = randint0(180) + 180;
+				o_ptr->timeout = randint0(18) + 18;
 				break;
 			}
 
@@ -6248,7 +6327,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball(GF_SOUND, dir, 130, -2);
-				o_ptr->timeout = randint0(180) + 180;
+				o_ptr->timeout = randint0(18) + 18;
 				break;
 			}
 
@@ -6265,7 +6344,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 					  dir, 220, -2);
-				o_ptr->timeout = randint0(200) + 200;
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
 
@@ -6282,7 +6361,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
 					  dir, 230, -2);
-				o_ptr->timeout = randint0(200) + 200;
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
 
@@ -6305,7 +6384,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 					   ((chance == 2) ? GF_DISENCHANT :
 					    ((chance == 3) ? GF_SOUND : GF_SHARDS))),
 					  dir, 250, -2);
-				o_ptr->timeout = randint0(200) + 200;
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
 
@@ -6321,7 +6400,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, -2);
-				o_ptr->timeout = randint0(200) + 200;
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
 
@@ -6334,7 +6413,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 #endif
 
 				fire_ball(GF_MISSILE, dir, 300, -3);
-				o_ptr->timeout = randint0(200) + 200;
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
 		}

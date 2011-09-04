@@ -2,6 +2,9 @@
 
 /* Main "Angband" header file */
 
+#pragma warning (disable:4244) /* You will get tens of thousands of these ... */
+#pragma warning (disable:4996) /* Whatever ... Stop whining already! */
+
 #ifndef INCLUDED_ANGBAND_H
 #define INCLUDED_ANGBAND_H
 

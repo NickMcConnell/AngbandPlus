@@ -4419,7 +4419,7 @@ static void process_monsters_mtimed_aux(int m_idx, int mtimed_idx)
 		if (test)
 		{
 			u32b notice = randint0(1024);
-			int noise = csleep_noise;
+			u32b noise = csleep_noise;
 
 			/* Nightmare monsters are more alert */
 			if (ironman_nightmare) notice /= 2;

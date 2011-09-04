@@ -3610,18 +3610,16 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	int         i, item;
 	bool        okay = FALSE;
 	object_type *o_ptr;
+	object_type copy;
 	cptr        q, s;
 	int         maxenchant = (p_ptr->lev / 5);
 	char        tmp_str[MAX_NLEN];
+	int old_cost, new_cost;
 
 	clear_bldg(4, 18);
-#ifdef JP
-	prt(format("現在のあなたの技量だと、+%d まで改良できます。", maxenchant), 5, 0);
-	prt(format(" 改良の料金は一個につき＄%d です。", cost), 7, 0);
-#else
+
 	prt(format("  Based on your skill, we can improve up to +%d.", maxenchant), 5, 0);
-	prt(format("  The price for the service is %d gold per item.", cost), 7, 0);
-#endif
+	prt(format("  The price for the service will depend on the item you choose."), 7, 0);
 
 	item_tester_no_ryoute = TRUE;
 
@@ -3638,6 +3636,32 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 
 	/* Get the item (in the pack) */
 	o_ptr = &inventory[item];
+
+	old_cost = new_object_cost(o_ptr);
+	object_copy(&copy, o_ptr);
+
+	for (i = 0; i < to_hit; i++)
+	{
+		if (copy.to_h < maxenchant)
+			copy.to_h++;
+	}
+	for (i = 0; i < to_dam; i++)
+	{
+		if (copy.to_d < maxenchant)
+			copy.to_d++;
+	}
+	for (i = 0; i < to_ac; i++)
+	{
+		if (copy.to_a < maxenchant)
+			copy.to_a++;
+	}
+	new_cost = new_object_cost(&copy);
+
+	cost = (new_cost - old_cost) * 7;
+	if (cost == 0) cost = 1000;
+
+	prt(format("  The price for the service will be %d.", cost), 7, 0);
+	if (!get_check("Do you pay?")) return FALSE;
 
 	/* Check if the player has enough money */
 	if (p_ptr->au < (cost * o_ptr->number))

@@ -3473,9 +3473,6 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
 
-	/* Use a base distance */
-	tdis = 10;
-
 	/* Base damage from thrown object plus launcher bonus */
 	dd = o_ptr->dd;
 	if (p_ptr->big_shot)
@@ -3553,15 +3550,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 	tdam_base /= 100;
 
 	/* Base range */
-	tdis = 13 + tmul/80;
-	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
-	{
-		if (p_ptr->concent)
-			tdis -= (5 - (p_ptr->concent + 1) / 2);
-		else
-			tdis -= 5;
-	}
-
+	tdis = bow_range(j_ptr->sval);
 	project_length = tdis + 1;
 
 	/* Get projection path length */

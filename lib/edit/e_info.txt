@@ -512,7 +512,7 @@ F:SPEED | AGGRAVATE
 # OneSustain
 
 N:64:(聖戦者)
-E:(Holy Avenger)
+E:(Crusade)
 X:24:30
 W:0:36:0:20000
 C:6:6:4:4
@@ -610,7 +610,7 @@ F:BRAND_POIS | RES_POIS
 
 #JZ#
 N:77:(混沌)
-E:(Chaotic)
+E:(Chaos)
 X:24:28
 W:0:36:0:10000
 F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | XTRA_RES
@@ -683,7 +683,7 @@ F:SLAY_DRAGON | XTRA_E_RES
 # The "Kill" brands (8)
 
 N:88:*アニマルスレイヤー*の
-E:of *Slay* Animal
+E:(Nature)
 X:24:20
 W:0:90:0:6000
 C:0:0:0:2
@@ -740,13 +740,13 @@ F:CON | SLAY_DRAGON | KILL_DRAGON | XTRA_E_RES | XTRA_D_RES | ESP_DRAGON
 
 #JZ#
 N:96:(吸血)
-E:(Vampiric)
+E:(Death)
 X:24:25
 W:0:18:0:10000
 F:VAMPIRIC | HOLD_LIFE
 
 N:97:虹色の
-E:of Prism
+E:(Craft)
 X:24:25
 W:0:36:0:10000
 F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | LITE
@@ -754,7 +754,7 @@ F:IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
 #JZ#
 N:98:(トランプ)
-E:(Trump Weapon)
+E:(Trump)
 X:24:22
 W:0:18:0:7000
 C:4:4:0:2
@@ -763,7 +763,7 @@ F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE | XTRA_H_RES
 
 #JZ#
 N:99:(パターン)
-E:(Pattern Weapon)
+E:(Pattern)
 X:24:26
 W:0:36:0:25000
 C:6:6:0:2
@@ -1474,8 +1474,6 @@ W:0:15:0:50000
 C:0:0:0:0
 F:CHR | SUST_CHR | SUST_STR | SUST_CON | RES_FEAR | RES_BLIND
 
-# I'm trying to give more early tiny speed items
-
 N:240:TRANSLATE
 E:of Thievery
 X:32:20
@@ -1501,6 +1499,27 @@ E:(Order)
 X:24:70
 W:0:100:0:50000
 F:ORDER | RES_SOUND | RES_SHARDS
+
+N:244:TRANSLATE
+E:(Life)
+X:24:70
+C:0:0:0:4
+W:0:40:0:10000
+F:HOLD_LIFE | CON
+F:SLAY_UNDEAD | SLAY_DEMON
+
+N:245:TRANSLATE
+E:(Arcane)
+X:24:70
+W:0:70:0:50000
+F:SPELL_POWER | STR | DEX | CON
+
+N:246:TRANSLATE
+E:(Daemon)
+X:24:70
+C:0:0:0:2
+W:0:120:0:100000
+F:BLOWS | STR | DEX | AGGRAVATE | ACTIVATE
 
 # N: serial number : ego type
 # X: inventory slot : rating

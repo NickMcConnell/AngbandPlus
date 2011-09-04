@@ -1450,18 +1450,7 @@ int _get_random_brand(int depth)
 bool brand_weapon(int ego_type)
 {
 	int         item;
-	object_type *o_ptr;
 	cptr        q, s;
-	bool force_good = FALSE;
-	int  idx = _find_brand_type(ego_type);
-
-	if (idx < 0) idx = _get_random_brand(dun_level);
-	if (idx < 0) 
-	{
-		msg_format("Software Bug:  No brand found for depth %d.", dun_level);
-		return FALSE;
-	}
-
 	/* Assume enchant weapon */
 	item_tester_hook = object_allow_enchant_melee_weapon;
 	item_tester_no_ryoute = TRUE;
@@ -1475,19 +1464,26 @@ s = "強化できる武器がない。";
 	s = "You have nothing to enchant.";
 #endif
 
-	if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;
+	if (!get_item(&item, q, s, (USE_EQUIP))) return FALSE;	
+	return brand_weapon_aux(ego_type, item);
+}
 
-	/* Get the item (in the pack) */
+bool brand_weapon_aux(int ego_type, int item)
+{
+	object_type *o_ptr;
+	int  idx = _find_brand_type(ego_type);
+
+	if (idx < 0) idx = _get_random_brand(dun_level);
+	if (idx < 0) 
+	{
+		msg_format("Software Bug:  No brand found for depth %d.", dun_level);
+		return FALSE;
+	}
+
 	if (item >= 0)
-	{
 		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
 	else
-	{
 		o_ptr = &o_list[0 - item];
-	}
 
 	/* Only swords can be sharp */
 	if (_brand_types[idx].ego_type == EGO_SHARPNESS && o_ptr->tval != TV_SWORD)
@@ -1512,7 +1508,7 @@ s = "強化できる武器がない。";
 
 		o_ptr->name2 = _brand_types[idx].ego_type;
 
-		switch (_brand_types[idx].ego_type)
+		switch (o_ptr->name2)
 		{
 		case EGO_SLAYING_WEAPON:
 		{
@@ -1579,6 +1575,16 @@ s = "強化できる武器がない。";
 		case EGO_KILL_EVIL:
 		case EGO_KILL_HUMAN:
 			o_ptr->pval = randint1(2);
+			break;
+
+		case EGO_LIFE:
+			o_ptr->pval = randint1(4);
+			break;
+
+		case EGO_ARCANE:
+			o_ptr->pval = -randint1(3);
+			o_ptr->to_h = -10;
+			o_ptr->to_d = -10;
 			break;
 
 		case EGO_SHARPNESS:
@@ -2168,7 +2174,7 @@ void identify_pack(void)
  */
 static int enchant_table[16] =
 {
-	0, 10,  50, 100, 200,
+	900, 10,  50, 100, 200,
 	300, 400, 500, 650, 800,
 	950, 987, 993, 995, 998,
 	1000
@@ -2625,7 +2631,7 @@ msg_print("強化に失敗した。");
 /*
  * Check if an object is nameless weapon or armour
  */
-static bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
+bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 {
 	if ( !object_is_weapon_armour_ammo(o_ptr)
 	  && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR) )

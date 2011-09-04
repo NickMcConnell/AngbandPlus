@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 63
+#define FAKE_VER_PATCH 64
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 63
+#define H_VER_PATCH 64
 #define H_VER_EXTRA 0
 
 
@@ -1607,6 +1607,9 @@
 #define EGO_KILL_HUMAN          103
 #define EGO_WILD				242
 #define EGO_ORDER				243
+#define EGO_LIFE				244
+#define EGO_ARCANE				245
+#define EGO_DAEMON				246
 
 /* Bows */
 #define EGO_ACCURACY            104
@@ -2383,6 +2386,7 @@
 #define SV_SCROLL_RESET_RECALL          53
 #define SV_SCROLL_SUMMON_KIN            54
 #define SV_SCROLL_BRAND_WEAPON          55
+#define SV_SCROLL_MADNESS				56
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0

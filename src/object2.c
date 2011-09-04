@@ -1151,10 +1151,23 @@ s32b object_value_real(object_type *o_ptr)
 	u32b flgs[TR_FLAG_SIZE];
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-
+	
 	/* Hack -- "worthless" items */
 	if (!k_info[o_ptr->k_idx].cost) return (0L);
+
+	/* Dave has been kind enough to come up with much better scoring.
+	   So use the new algorithms whenever possible.
+	*/
+	if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr);
+	if (object_is_armour(o_ptr)) return armor_cost(o_ptr);
+	if (object_is_jewelry(o_ptr)) return jewelry_cost(o_ptr);
+
+	/* OK, here's the old pricing algorithm :( 
+	   Note this algorithm cheats for artifacts by relying on cost
+	   data from a_info.txt.  The result was that rand-arts get scored
+	   poorly.  Also, try comparing the code calculated cost to
+	   the human one in a_info.txt some time.  The new algorithms
+	   are much nicer. */
 
 	/* Base cost */
 	value = k_info[o_ptr->k_idx].cost;
@@ -1420,8 +1433,6 @@ s32b object_value(object_type *o_ptr)
 {
 	s32b value;
 
-
-	/* Unknown items -- acquire a base value */
 	if (object_is_known(o_ptr))
 	{
 		/* Broken items -- worthless */
@@ -1433,8 +1444,6 @@ s32b object_value(object_type *o_ptr)
 		/* Real value (see above) */
 		value = object_value_real(o_ptr);
 	}
-
-	/* Known items -- acquire the actual value */
 	else
 	{
 		/* Hack -- Felt broken items */
@@ -2469,6 +2478,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					o_ptr->ds = o_ptr->dd * o_ptr->ds;
 					o_ptr->dd = 1;
 					break;
+
+				case EGO_ARCANE:
+					o_ptr->pval = -randint1(3);
+					o_ptr->to_h = -10;
+					o_ptr->to_d = -10;
+					break;
 				
 				case EGO_ORDER:
 					o_ptr->dd = o_ptr->dd * o_ptr->ds;
@@ -2555,7 +2570,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				if (!o_ptr->art_name)
 				{
 					/* Hack -- Super-charge the damage dice */
-					while (one_in_(10L * o_ptr->dd * o_ptr->ds)) o_ptr->dd++;
+					if (o_ptr->dd * o_ptr->ds > 0)
+					{
+						while (one_in_(10L * o_ptr->dd * o_ptr->ds)) o_ptr->dd++;
+					}
 
 					/* Do *NOT* lower the damage dice!!!!! Weapons of Order ... sigh! */
 					/* Hack -- Lower the damage dice */

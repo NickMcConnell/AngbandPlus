@@ -2027,6 +2027,11 @@ return "ショート・テレポート : 10+d10 ターン毎";
 
 	}
 
+	else if (o_ptr->name2 == EGO_DAEMON)
+	{
+		return "destruction every 100+d100 turns";
+	}
+
 	if (o_ptr->tval == TV_RING)
 	{
 		if (object_is_ego(o_ptr))
@@ -2302,7 +2307,7 @@ if (o_ptr->tval != TV_DRAG_ARMOR) return ("奇妙な光");
 #ifdef JP
 return "稲妻のブレス(100) : 150+d150 ターン毎";
 #else
-			return "breathe lightning (100) every 150+d150 turns";
+			return "breathe lightning (100) every 15+d15 turns";
 #endif
 
 		}
@@ -2311,7 +2316,7 @@ return "稲妻のブレス(100) : 150+d150 ターン毎";
 #ifdef JP
 return "冷気のブレス(110) : 150+d150 ターン毎";
 #else
-			return "breathe frost (110) every 150+d150 turns";
+			return "breathe frost (110) every 15+d15 turns";
 #endif
 
 		}
@@ -2320,7 +2325,7 @@ return "冷気のブレス(110) : 150+d150 ターン毎";
 #ifdef JP
 return "酸のブレス(130) : 150+d150 ターン毎";
 #else
-			return "breathe acid (130) every 150+d150 turns";
+			return "breathe acid (130) every 15+d15 turns";
 #endif
 
 		}
@@ -2329,7 +2334,7 @@ return "酸のブレス(130) : 150+d150 ターン毎";
 #ifdef JP
 return "毒のガスのブレス(150) : 180+d180 ターン毎";
 #else
-			return "breathe poison gas (150) every 180+d180 turns";
+			return "breathe poison gas (150) every 18+d18 turns";
 #endif
 
 		}
@@ -2338,7 +2343,7 @@ return "毒のガスのブレス(150) : 180+d180 ターン毎";
 #ifdef JP
 return "火炎のブレス(200) : 200+d200 ターン毎";
 #else
-			return "breathe fire (200) every 200+d200 turns";
+			return "breathe fire (200) every 20+d20 turns";
 #endif
 
 		}
@@ -2347,7 +2352,7 @@ return "火炎のブレス(200) : 200+d200 ターン毎";
 #ifdef JP
 return "万色のブレス(250) : 200+d200 ターン毎";
 #else
-			return "breathe multi-hued (250) every 200+d200 turns";
+			return "breathe multi-hued (250) every 20+d20 turns";
 #endif
 
 		}
@@ -2356,7 +2361,7 @@ return "万色のブレス(250) : 200+d200 ターン毎";
 #ifdef JP
 return "混乱のブレス(120) : 180+d180 ターン毎";
 #else
-			return "breathe confusion (120) every 180+d180 turns";
+			return "breathe confusion (120) every 18+d18 turns";
 #endif
 
 		}
@@ -2365,7 +2370,7 @@ return "混乱のブレス(120) : 180+d180 ターン毎";
 #ifdef JP
 return "轟音のブレス(130) : 180+d180 ターン毎";
 #else
-			return "breathe sound (130) every 180+d180 turns";
+			return "breathe sound (130) every 18+d18 turns";
 #endif
 
 		}
@@ -2374,7 +2379,7 @@ return "轟音のブレス(130) : 180+d180 ターン毎";
 #ifdef JP
 return "カオス/劣化のブレス(220) : 200+d200 ターン毎";
 #else
-			return "breathe chaos/disenchant (220) every 200+d200 turns";
+			return "breathe chaos/disenchant (220) every 20+d20 turns";
 #endif
 
 		}
@@ -2383,7 +2388,7 @@ return "カオス/劣化のブレス(220) : 200+d200 ターン毎";
 #ifdef JP
 return "轟音/破片のブレス(230) : 200+d200 ターン毎";
 #else
-			return "breathe sound/shards (230) every 200+d200 turns";
+			return "breathe sound/shards (230) every 20+d20 turns";
 #endif
 
 		}
@@ -2392,7 +2397,7 @@ return "轟音/破片のブレス(230) : 200+d200 ターン毎";
 #ifdef JP
 return "バランスのブレス (250) 200+d200 ターン毎";
 #else
-			return "breathe balance (250) every 200+d200 turns";
+			return "breathe balance (250) every 20+d20 turns";
 #endif
 
 		}
@@ -2401,7 +2406,7 @@ return "バランスのブレス (250) 200+d200 ターン毎";
 #ifdef JP
 return "閃光/暗黒のブレス(200) : 200+d200 ターン毎";
 #else
-			return "breathe light/darkness (200) every 200+d200 turns";
+			return "breathe light/darkness (200) every 20+d20 turns";
 #endif
 
 		}
@@ -2410,7 +2415,7 @@ return "閃光/暗黒のブレス(200) : 200+d200 ターン毎";
 #ifdef JP
 return "エレメントのブレス(300) : 200+d200 ターン毎";
 #else
-			return "breathe the elements (300) every 200+d200 turns";
+			return "breathe the elements (300) every 20+d20 turns";
 #endif
 
 		}
