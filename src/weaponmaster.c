@@ -4626,7 +4626,7 @@ static void _character_dump(FILE* file)
 			fprintf(file, "You gain +5 tunneling when wielding %s.\n", o_name);
 
 		if (p_ptr->lev >= 30)
-			fprintf(file, "You occasionally get a free round of attacks after moving when wielding %s.\n", o_name);
+			fprintf(file, "You occasionally attack an adjacent opponent after killing a foe when wielding %s.\n", o_name);
 	}
 	else if (strcmp(_specialities[p_ptr->speciality1].name, "Clubs") == 0)
 	{

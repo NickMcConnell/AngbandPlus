@@ -1820,8 +1820,8 @@ void do_cmd_pet_dismiss(void)
 	for (i = 0; i < max_pet; i++)
 	{
 		bool delete_this;
-		char friend_name[80];
-		char buf[80];
+		char friend_name[MAX_NLEN];
+		char buf[512];
 		bool kakunin;
 
 		/* Access the monster */
