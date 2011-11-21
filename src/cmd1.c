@@ -986,7 +986,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				else
 					cost = (1+(o_ptr->dd * o_ptr->ds / 5));
 
-				if (p_ptr->csp > cost)
+				if (p_ptr->csp >= cost)
 				{
 					p_ptr->csp -= cost;
 					p_ptr->redraw |= (PR_MANA);

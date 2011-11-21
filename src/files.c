@@ -2237,8 +2237,18 @@ static void display_player_various(void)
 					basedam *= 11;
 					basedam /= 9;
 				}
-				if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
-					basedam = basedam * 7 / 2;
+				if (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force)
+				{
+					int cost = 0;
+				
+					if (p_ptr->pclass == CLASS_SAMURAI)
+						cost = (1 + (o_ptr->dd * o_ptr->ds * 2 / 5));
+					else
+						cost = (1+(o_ptr->dd * o_ptr->ds / 5));
+
+					if (p_ptr->csp >= cost)
+						basedam = basedam * 7 / 2;
+				}
 			}
 			else basedam = 0;
 		}

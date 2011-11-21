@@ -1603,6 +1603,7 @@ int object_similar_part(object_type *o_ptr, object_type *j_ptr)
 		case TV_CHEST:
 		case TV_CARD:
 		case TV_CAPTURE:
+		case TV_RUNE:
 		{
 			/* Never okay */
 			return 0;

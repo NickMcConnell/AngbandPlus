@@ -517,7 +517,16 @@ void wipe_m_list(void)
 {
 	int i;
 
-	p_ptr->duelist_target_idx = 0;
+	if (p_ptr->duelist_target_idx)
+	{
+		/* This is unfortunate, but the monster list gets wiped every time the
+		   game is saved, sometimes multiple times.  I think to create a save file,
+		   we continually write out and read in "saved floors".  The result is that
+		   the current duel will unfortunately be canceled until I can think of a
+		   way to cope with this. */
+		p_ptr->duelist_target_idx = 0;
+		p_ptr->redraw |= PR_STATUS;
+	}
 
 	/* Hack -- if Banor or Lupart dies, stay another dead */
 	if (!r_info[MON_BANORLUPART].max_num)
