@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 64
+#define FAKE_VER_PATCH 65
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 64 
+#define H_VER_PATCH 65 
 #define H_VER_EXTRA 0
 
 
@@ -751,12 +751,12 @@
  * Player race constants (hard-coded by save-files, arrays, etc)
  */
 #define RACE_HUMAN               0
-#define RACE_HALF_ELF            1
+#define RACE_TONBERRY            1
 #define RACE_ELF                 2
 #define RACE_HOBBIT              3
 #define RACE_GNOME               4
 #define RACE_DWARF               5
-#define RACE_HALF_ORC            6
+#define RACE_SNOTLING            6
 #define RACE_HALF_TROLL          7
 #define RACE_AMBERITE            8
 #define RACE_HIGH_ELF            9
@@ -2482,7 +2482,10 @@
 #define SV_FOOD_RESTORE_STR             17
 #define SV_FOOD_RESTORE_CON             18
 #define SV_FOOD_RESTORING               19
-/* many missing mushrooms */
+/* many missing mushrooms*/
+#define SV_FOOD_MIN_MUSHROOM			 0  /* Used by object_is_mushroom() */
+#define SV_FOOD_MAX_MUSHROOM			31  /* Assume mushrooms are contiguous svals! */
+
 #define SV_FOOD_BISCUIT                 32
 #define SV_FOOD_JERKY                   33
 #define SV_FOOD_RATION                  35

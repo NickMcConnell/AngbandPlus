@@ -1,8 +1,28 @@
 #include "angband.h"
 
 
-
-
+static void _devour_flesh_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Devour Flesh");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Devour flesh (yours) in order to fill your belly.");
+		break;
+	case SPELL_CAST:
+		msg_print("You devour your own flesh!");
+		set_food(PY_FOOD_MAX - 1);
+		set_cut(p_ptr->cut + CUT_SEVERE, FALSE);
+		take_hit(DAMAGE_USELIFE, p_ptr->mhp / 3, "devouring your own flesh", -1);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 /****************************************************************
  * Public Entrypoints
@@ -90,13 +110,13 @@ int get_racial_powers(spell_info* spells, int max)
 				spell->fn = phase_door_spell;
 				break;
 			}
-			case RACE_HALF_ORC:
+			case RACE_SNOTLING:
 			{
 				spell_info *spell = &spells[ct++];
-				spell->level = 3;
-				spell->cost = 5;
-				spell->fail = calculate_fail_rate(3, 50, p_ptr->stat_ind[A_WIS]);
-				spell->fn = remove_fear_spell;
+				spell->level = 1;
+				spell->cost = 0;
+				spell->fail = 0;
+				spell->fn = _devour_flesh_spell;
 				break;
 			}
 			case RACE_HALF_TROLL:
@@ -241,12 +261,12 @@ int get_racial_powers(spell_info* spells, int max)
 				break;
 			}
 			case RACE_GOLEM:
-			{
+			{/*
 				spell_info *spell = &spells[ct++];
 				spell->level = 20;
 				spell->cost = 15;
 				spell->fail = calculate_fail_rate(20, 50, p_ptr->stat_ind[A_CON]);
-				spell->fn = stone_skin_spell;
+				spell->fn = stone_skin_spell;*/
 				break;
 			}
 			case RACE_SKELETON:

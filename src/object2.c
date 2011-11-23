@@ -1632,6 +1632,8 @@ int object_similar_part(object_type *o_ptr, object_type *j_ptr)
 		case TV_POTION:
 		case TV_SCROLL:
 		{
+			if (o_ptr->art_name || j_ptr->art_name)
+				return 0;
 			/* Assume okay */
 			break;
 		}

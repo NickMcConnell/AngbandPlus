@@ -3,6 +3,18 @@
 #include "angband.h"
 
 
+bool object_is_mushroom(object_type *o_ptr)
+{
+	bool result = FALSE;
+	if ( o_ptr->tval == TV_FOOD
+	  && SV_FOOD_MIN_MUSHROOM <= o_ptr->sval
+	  && o_ptr->sval <= SV_FOOD_MAX_MUSHROOM )
+	{
+		result = TRUE;
+	}
+	return result;
+}
+
 bool object_is_potion(object_type *o_ptr)
 {
 	return (k_info[o_ptr->k_idx].tval == TV_POTION);

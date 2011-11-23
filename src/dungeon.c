@@ -2699,8 +2699,9 @@ static void process_world_aux_recharge(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Examine all charging rods or stacks of charging rods. */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		/* Examine all charging rods or stacks of charging rods. 
+		   Hack: Treasured Mushrooms now 'recharge' */
+		if ((o_ptr->tval == TV_ROD || object_is_mushroom(o_ptr)) && (o_ptr->timeout))
 		{
 			/* Determine how many rods are charging. */
 			int temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
@@ -6393,6 +6394,9 @@ quit("セーブファイルが壊れています");
 	/* Sexy gal gets bonus to maximum weapon skill of whip */
 	if (p_ptr->pseikaku == SEIKAKU_SEXY)
 		s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_MASTER;
+
+	if (p_ptr->prace == RACE_TONBERRY)
+		s_info[p_ptr->pclass].w_max[TV_HAFTED-TV_WEAPON_BEGIN][SV_SABRE] = WEAPON_EXP_MASTER;
 
 	if (p_ptr->pclass == CLASS_WEAPONMASTER && !new_game)
 		weaponmaster_adjust_skills();

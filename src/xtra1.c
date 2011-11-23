@@ -3848,6 +3848,20 @@ void calc_bonuses(void)
 	{
 		switch (p_ptr->prace)
 		{
+		case RACE_TONBERRY:
+		{
+			int dam = 10+(p_ptr->lev/5);
+			p_ptr->sustain_str = TRUE;
+			p_ptr->sustain_con = TRUE;
+			p_ptr->resist_fear = TRUE;
+			p_ptr->pspeed -= 3;
+			p_ptr->weapon_info[0].to_d += dam;
+			p_ptr->weapon_info[1].to_d += dam;
+			p_ptr->to_d_m  += dam;
+			p_ptr->weapon_info[0].dis_to_d += dam;
+			p_ptr->weapon_info[1].dis_to_d += dam;
+			break;
+		}
 		case RACE_ELF:
 			p_ptr->resist_lite = TRUE;
 			break;
@@ -3859,9 +3873,6 @@ void calc_bonuses(void)
 			break;
 		case RACE_DWARF:
 			p_ptr->resist_blind = TRUE;
-			break;
-		case RACE_HALF_ORC:
-			p_ptr->resist_dark = TRUE;
 			break;
 		case RACE_HALF_TROLL:
 			p_ptr->sustain_str = TRUE;

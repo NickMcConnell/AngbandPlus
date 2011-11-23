@@ -2634,7 +2634,8 @@ msg_print("強化に失敗した。");
 bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 {
 	if ( !object_is_weapon_armour_ammo(o_ptr)
-	  && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR) )
+	  && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR) 
+	  && !(p_ptr->prace == RACE_SNOTLING && object_is_mushroom(o_ptr)) )
 	{
 		return FALSE;
 	}
@@ -2755,7 +2756,15 @@ bool artifact_scroll(void)
 				floor_item_increase(0-item, 1-(o_ptr->number));
 			}
 		}
-		okay = create_artifact(o_ptr, CREATE_ART_SCROLL | CREATE_ART_GOOD);
+		if (object_is_mushroom(o_ptr)) /* Hack for Snotlings ... */
+		{
+			o_ptr->art_name = quark_add("(Eternal Mushroom)");
+			okay = TRUE;
+		}
+		else
+		{
+			okay = create_artifact(o_ptr, CREATE_ART_SCROLL | CREATE_ART_GOOD);
+		}
 	}
 
 	/* Failure */
@@ -6017,7 +6026,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 			case RACE_DUNADAN:
 				summon_kin_type = 'p';
 				break;
-			case RACE_HALF_ELF:
+			case RACE_TONBERRY:
 			case RACE_ELF:
 			case RACE_HOBBIT:
 			case RACE_GNOME:
@@ -6030,7 +6039,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 			case RACE_S_FAIRY:
 				summon_kin_type = 'h';
 				break;
-			case RACE_HALF_ORC:
+			case RACE_SNOTLING:
 				summon_kin_type = 'o';
 				break;
 			case RACE_HALF_TROLL:

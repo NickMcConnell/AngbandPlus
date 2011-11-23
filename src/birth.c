@@ -1691,7 +1691,7 @@ static cptr race_jouhou[MAX_RACES] =
 
 "The human is the base character.  All other races are compared to them.  Humans can choose any class and are average at everything.  Humans tend to go up levels faster than most other races because of their shorter life spans.  No racial adjustments or intrinsics occur to characters choosing human.",
 
-"Half-elves tend to be smarter and faster than humans, but not as strong.  Half-elves are slightly better at searching, disarming, saving throws, stealth, bows, and magic, but they are not as good at hand weapons.  Half-elves may choose any class and do not receive any intrinsic abilities.",
+"Tonberries are lizard-like creatures who possess enormous strength and have a preference for cleavers and large knives.  They are, however, sluggish in their movements and reactions; young and inexperienced tonberries are often preyed on by the other races.  They possess human-like intelligence, but rarely become mages due to their culture and physiology.",
 
 "Elves are better magicians then humans, but not as good at fighting.  They tend to be smarter and faster than either humans or half-elves and also have better wisdom.  Elves are better at searching, disarming, perception, stealth, bows, and magic, but they are not as good at hand weapons.  They resist light effects intrinsically.",
 
@@ -1701,7 +1701,7 @@ static cptr race_jouhou[MAX_RACES] =
 
 "Dwarves are the headstrong miners and fighters of legend.  Dwarves tend to be stronger and tougher but slower and less intelligent than humans.  Because they are so headstrong and are somewhat wise, they resist spells which are cast on them.  They are very good at searching, perception, fighting, and bows.  Dwarves  have a miserable stealth.  They can never be blinded.",
 
-"Half-orcs make excellent warriors, but are terrible at magic.  They are as bad as dwarves at stealth, and horrible at searching, disarming, and perception.  Half-orcs are quite ugly, and tend to pay more for goods in town.  Because of their preference to living underground to on the surface, half-orcs resist darkness attacks.",
+"Snotlings are greenskins, and are cousins of Goblins and Orcs, smaller than the former and dumber than the latter, often used by them as cannon fodder, food or even cannon missiles. They are on the lowest rung of greenskin society and are bullied by all. Snotlings often wield mushrooms or sticks into battle.",
 
 "Half-Trolls are incredibly strong, and have more hit points than most other races.  They are also very stupid and slow.  They are bad at searching, disarming, perception, and stealth.  They are so ugly that a Half-Orc grimaces in their presence.  They also happen to be fun to run...  Half-trolls always have their strength sustained.  At higher levels, Half-Trolls regenerate wounds automatically, and if he or her is warrior slowly.",
 
@@ -3163,7 +3163,7 @@ static void get_history(void)
 			chart = 1;
 			break;
 		}
-		case RACE_HALF_ELF:
+		case RACE_TONBERRY:
 		{
 			chart = 4;
 			break;
@@ -3189,7 +3189,7 @@ static void get_history(void)
 			chart = 16;
 			break;
 		}
-		case RACE_HALF_ORC:
+		case RACE_SNOTLING:
 		{
 			chart = 19;
 			break;
@@ -4414,6 +4414,13 @@ void player_outfit(void)
 
 	/* Get local object */
 	q_ptr = &forge;
+
+	if (p_ptr->prace == RACE_SNOTLING)
+	{
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_CURE_SERIOUS));
+		q_ptr->number = randint1(3);
+		add_outfit(q_ptr);
+	}
 
 	if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_CAVALRY))
 	{

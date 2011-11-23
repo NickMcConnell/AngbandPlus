@@ -1729,6 +1729,7 @@ extern bool easy_floor;
 #endif /* ALLOW_EASY_FLOOR -- TNB */
 
 /* obj_kind.c */
+extern bool object_is_mushroom(object_type *o_ptr);
 extern bool object_is_potion(object_type *o_ptr);
 extern bool object_is_shoukinkubi(object_type *o_ptr);
 extern bool object_is_favorite(object_type *o_ptr);

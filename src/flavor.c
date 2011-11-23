@@ -2731,12 +2731,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		/* Indicate charging objects, but not rods. */
 		if (o_ptr->timeout && (o_ptr->tval != TV_ROD))
 		{
-			/* Hack -- Dump " (charging)" if relevant */
-#ifdef JP
-			t = object_desc_str(t, "(½¼Å¶Ãæ)");
-#else
 			t = object_desc_str(t, " (charging)");
-#endif
 		}
 	}
 

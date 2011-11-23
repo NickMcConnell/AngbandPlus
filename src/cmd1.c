@@ -3869,7 +3869,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 							case RACE_BARBARIAN:
 							case RACE_BEASTMAN:
 								mult = 25;break;
-							case RACE_HALF_ORC:
+							case RACE_SNOTLING:
 							case RACE_HALF_TROLL:
 							case RACE_HALF_OGRE:
 							case RACE_HALF_GIANT:

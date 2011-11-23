@@ -2666,6 +2666,7 @@ note("持ち物情報を読み込むことができません");
 	/* I'm not dead yet... */
 	if (!p_ptr->is_dead)
 	{
+		int tmp_ix = p_ptr->duelist_target_idx;
 		/* Dead players have no dungeon */
 #ifdef JP
 note("ダンジョン復元中...");
@@ -2683,6 +2684,8 @@ note("ダンジョンデータ読み込み失敗");
 
 			return (34);
 		}
+
+		p_ptr->duelist_target_idx = tmp_ix;
 
 		/* Read the ghost info */
 		rd_ghost();

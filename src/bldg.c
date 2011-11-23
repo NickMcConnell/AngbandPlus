@@ -2843,7 +2843,7 @@ msg_print("バーテンはいくらかの食べ物とビールをくれた。");
 					set_confused(0, TRUE);
 					p_ptr->stun = 0;
 					p_ptr->chp = p_ptr->mhp;
-					if (p_ptr->pclass != CLASS_RUNE_KNIGHT)
+					/*if (p_ptr->pclass != CLASS_RUNE_KNIGHT)*/
 						p_ptr->csp = p_ptr->msp;
 					if (p_ptr->pclass == CLASS_MAGIC_EATER)
 					{

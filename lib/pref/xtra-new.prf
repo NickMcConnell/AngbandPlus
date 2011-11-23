@@ -13,8 +13,8 @@
 
 ?:[EQU $RACE Human]
 R:0:0/0x80
-?:[EQU $RACE Half-Elf]
-R:0:0/0x81
+?:[EQU $RACE Tonberry]
+R:0:0/0x95
 ?:[EQU $RACE Elf]
 R:0:0x92/0x82
 ?:[EQU $RACE Hobbit]
@@ -23,7 +23,7 @@ R:0:0/0x83
 R:0:0/0x84
 ?:[EQU $RACE Dwarf]
 R:0:0/0x85
-?:[EQU $RACE Half-Orc]
+?:[EQU $RACE Snotling]
 R:0:0/0x86
 ?:[EQU $RACE Half-Troll]
 R:0:0/0x87

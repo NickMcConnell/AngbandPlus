@@ -1353,9 +1353,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Lorax the Suave",        1000,    165, 107,  6, 18, RACE_VAMPIRE},
 #endif
 #ifdef JP
-{ "ブッチ",         250,    170, 108,  5, 15, RACE_HALF_ORC},
+{ "ブッチ",         250,    170, 108,  5, 15, RACE_SNOTLING},
 #else
-		{ "Butch",         250,    170, 108,  5, 15, RACE_HALF_ORC},
+		{ "Butch",         250,    170, 108,  5, 15, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "美しきエルベレス",       500,    175, 108,  4, 12, RACE_HIGH_ELF},
@@ -1418,9 +1418,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Abiemar the Peasant",         250,    170, 108,  5, 15, RACE_HUMAN},
 #endif
 #ifdef JP
-{ "貧乏なハーク",       500,    175, 108,  4, 12, RACE_HALF_ORC},
+{ "貧乏なハーク",       500,    175, 108,  4, 12, RACE_SNOTLING},
 #else
-		{ "Hurk the Poor",       500,    175, 108,  4, 12, RACE_HALF_ORC},
+		{ "Hurk the Poor",       500,    175, 108,  4, 12, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "みじめなソアリン",          750,    170, 107,  5, 15, RACE_ZOMBIE},
@@ -1436,21 +1436,21 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{
 		/* Armoury - 28 unique names */
 #ifdef JP
-		{ "醜悪コン=ダー",      5000,   210,  115,   5,   7,  RACE_HALF_ORC},
+		{ "醜悪コン=ダー",      5000,   210,  115,   5,   7,  RACE_SNOTLING},
 		{ "頑固者ダーグ=ロウ",  10000,  190,  111,   4,   9,  RACE_HUMAN},
 		{ "賢者デカド",                 25000,  200,  112,   4,  10,  RACE_DUNADAN},
 		{ "鍛冶屋のウィーランド",   30000,  200,  112,   4,   5,  RACE_DWARF},
 #else
-		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_SNOTLING},
 		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
 		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_DUNADAN},
 		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
 #endif
 
 #ifdef JP
-{ "醜悪コン=ダー",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
+{ "醜悪コン=ダー",           10000,   210, 115,  5,  7, RACE_SNOTLING},
 #else
-		{ "Kon-Dar the Ugly",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Kon-Dar the Ugly",           10000,   210, 115,  5,  7, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "頑固者ダーグ=ロウ",          15000,  190, 111,  4,  9, RACE_HUMAN},
@@ -1528,9 +1528,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{ "Ranalar the Sweet",          30000,  200, 112,  4,  5, RACE_AMBERITE},
 #endif
 #ifdef JP
-{ "不浄のホルバグ",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+{ "不浄のホルバグ",           5000,   210, 115,  5,  7, RACE_SNOTLING},
 #else
-		{ "Horbag the Unclean",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Horbag the Unclean",           5000,   210, 115,  5,  7, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "テレパスのエレレン",          15000,  190, 111,  4,  9, RACE_DARK_ELF},
@@ -1568,9 +1568,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{ "Zzathath the Imp",          30000,  200, 112,  4,  5, RACE_IMP},
 #endif
 #ifdef JP
-{ "醜悪コン=ダー",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+{ "醜悪コン=ダー",           5000,   210, 115,  5,  7, RACE_SNOTLING},
 #else
-		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "頑固者ダーグ=ロウ",          10000,  190, 111,  4,  9, RACE_HUMAN},
@@ -1592,13 +1592,13 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		/* Weapon Smith - 28 unique names */
 #ifdef JP
 		{ "残忍なるアーノルド",        5000,   210,  115,   6,   6,  RACE_HALF_TROLL},
-		{ "獣殺しのアーンダル", 10000,  185,  110,   5,   9,  RACE_HALF_ELF},
+		{ "獣殺しのアーンダル", 10000,  185,  110,   5,   9,  RACE_TONBERRY},
 		{ "獣マスターのエディー", 25000,  190,  115,   5,   7,  RACE_HOBBIT},
 		{ "竜殺しのオグライン", 30000,  195,  112,   4,   8,  RACE_DWARF},
 #else
 		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
-		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
+		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_TONBERRY},
+		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_SNOTLING},
 		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
 #endif
 
@@ -1668,9 +1668,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Delantha",      10000,   210, 115,  6,  6, RACE_ELF},
 #endif
 #ifdef JP
-{"レンジャーのソルビスタニ",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
+{"レンジャーのソルビスタニ",        15000,  185, 110,  5,  9, RACE_TONBERRY},
 #else
-		{"Solvistani the Ranger",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
+		{"Solvistani the Ranger",        15000,  185, 110,  5,  9, RACE_TONBERRY},
 #endif
 #ifdef JP
 { "ノロマのゾリル",         25000,  190, 115,  5,  7, RACE_GOLEM},
@@ -1678,9 +1678,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Xoril the Slow",         25000,  190, 115,  5,  7, RACE_GOLEM},
 #endif
 #ifdef JP
-{ "イーオン・フラックス",       20000,  195, 112,  4,  8, RACE_HALF_ELF},
+{ "イーオン・フラックス",       20000,  195, 112,  4,  8, RACE_TONBERRY},
 #else
-		{ "Aeon Flux",       20000,  195, 112,  4,  8, RACE_HALF_ELF},
+		{ "Aeon Flux",       20000,  195, 112,  4,  8, RACE_TONBERRY},
 #endif
 #ifdef JP
 { "強者ナドック",      10000,   210, 115,  6,  6, RACE_HOBBIT},
@@ -1698,9 +1698,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Eowilith the Fair",         25000,  190, 115,  5,  7, RACE_VAMPIRE},
 #endif
 #ifdef JP
-{ "バルログ殺しのヒュイモグ",       30000,  195, 112,  4,  8, RACE_HALF_ORC},
+{ "バルログ殺しのヒュイモグ",       30000,  195, 112,  4,  8, RACE_SNOTLING},
 #else
-		{ "Huimog Balrog-Slayer",       30000,  195, 112,  4,  8, RACE_HALF_ORC},
+		{ "Huimog Balrog-Slayer",       30000,  195, 112,  4,  8, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "冷酷ピーダス",      5000,   210, 115,  6,  6, RACE_HUMAN},
@@ -1728,14 +1728,14 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
 #endif
 #ifdef JP
-{ "獣殺しのアーンダル",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
+{ "獣殺しのアーンダル",        10000,  185, 110,  5,  9, RACE_TONBERRY},
 #else
-		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
+		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_TONBERRY},
 #endif
 #ifdef JP
-{ "ビーストマスター・エディー",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
+{ "ビーストマスター・エディー",         25000,  190, 115,  5,  7, RACE_SNOTLING},
 #else
-		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
+		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "竜殺しのオグライン",       30000,  195, 112,  4,  8, RACE_DWARF},
@@ -1901,12 +1901,12 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{
 		/* Alchemist - 26 unique names */
 #ifdef JP
-		{ "化学者マウザー",             10000,  190,  111,   5,   8,  RACE_HALF_ELF},
+		{ "化学者マウザー",             10000,  190,  111,   5,   8,  RACE_TONBERRY},
 		{ "カオスのウィズル",   10000,  190,  110,   6,   8,  RACE_HOBBIT},
 		{ "強欲ミダス",              15000,  200,  116,   6,   9,  RACE_GNOME},
 		{ "貧弱ジャ=ファー",                   15000,  220,  111,   4,   9,  RACE_ELF},/*FIRST*/
 #else
-		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
+		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_TONBERRY},
 		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
 		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
 		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
@@ -1998,9 +1998,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{ "Fthoglo the Demonicist",           15000,  200, 116,  6,  9, RACE_IMP},
 #endif
 #ifdef JP
-	{ "錬金術師ドゥリアシュ",       15000,  220, 111,  4,  9, RACE_HALF_ORC},
+	{ "錬金術師ドゥリアシュ",       15000,  220, 111,  4,  9, RACE_SNOTLING},
 #else
-	{ "Dridash the Alchemist",       15000,  220, 111,  4,  9, RACE_HALF_ORC},
+	{ "Dridash the Alchemist",       15000,  220, 111,  4,  9, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "強者ネリア",         10000,  190, 111,  5,  8, RACE_CYCLOPS},
@@ -2008,9 +2008,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Nelir the Strong",         10000,  190, 111,  5,  8, RACE_CYCLOPS},
 #endif
 #ifdef JP
-{ "辛口リグナス",         10000,  190, 110,  6,  8, RACE_HALF_ORC},
+{ "辛口リグナス",         10000,  190, 110,  6,  8, RACE_SNOTLING},
 #else
-		{ "Lignus the Pungent",         10000,  190, 110,  6,  8, RACE_HALF_ORC},
+		{ "Lignus the Pungent",         10000,  190, 110,  6,  8, RACE_SNOTLING},
 #endif
 #ifdef JP
 	{ "ティルバ",           15000,  200, 116,  6,  9, RACE_HOBBIT},
@@ -2023,9 +2023,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{ "Myrildric the Wealthy",       15000,  220, 111,  4,  9, RACE_HUMAN},
 #endif
 #ifdef JP
-{ "科学者マウザー",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
+{ "科学者マウザー",         10000,  190, 111,  5,  8, RACE_TONBERRY},
 #else
-		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
+		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_TONBERRY},
 #endif
 #ifdef JP
 { "カオスのウィズル",         10000,  190, 110,  6,  8, RACE_HOBBIT},
@@ -2056,21 +2056,21 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{
 		/* Magic Shop - 23 unique names */
 #ifdef JP
-		{ "ソーサラーのロ=パン",       20000,  200,  110,   7,   8,  RACE_HALF_ELF},
+		{ "ソーサラーのロ=パン",       20000,  200,  110,   7,   8,  RACE_TONBERRY},
 		{ "偉大なるブガービイ",         20000,  215,  113,   6,  10,  RACE_GNOME},
 		{ "イェンダーの魔法使い",     30000,  200,  110,   7,  10,  RACE_HUMAN},
 		{ "死霊使いリャク",30000,      175,  110,   5,  11,  RACE_HIGH_ELF},
 #else
-		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
+		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_TONBERRY},
 		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
 		{ "The Wizard of Yendor",       30000,  200, 110,  7, 10, RACE_HUMAN},
 		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
 #endif
 
 #ifdef JP
-	{ "魔術師スキドゥニー",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+	{ "魔術師スキドゥニー",        15000,  200, 110,  7,  8, RACE_TONBERRY},
 #else
-	{ "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+	{ "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_TONBERRY},
 #endif
 #ifdef JP
 	{ "幻術師キリア",       30000,  200, 110,  7, 10, RACE_HUMAN},
@@ -2163,9 +2163,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{ "Heto the Necromancer",       30000,  175, 110,  5, 11, RACE_YEEK},
 #endif
 #ifdef JP
-{ "魔術師ロ=パン",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
+{ "魔術師ロ=パン",        20000,  200, 110,  7,  8, RACE_TONBERRY},
 #else
-		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
+		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_TONBERRY},
 #endif
 #ifdef JP
 { "偉大なるブガービイ",         20000,  215, 113,  6, 10, RACE_GNOME},
@@ -2183,9 +2183,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
 #endif
 #ifdef JP
-	{ "魔術師スキドゥニー",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+	{ "魔術師スキドゥニー",        15000,  200, 110,  7,  8, RACE_TONBERRY},
 #else
-	{ "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+	{ "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_TONBERRY},
 #endif
 #ifdef JP
 	{ "幻術師キリア",       30000,  200, 110,  7, 10, RACE_HUMAN},
@@ -2212,12 +2212,12 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		/* Black Market - 32 unique names */
 #ifdef JP
 		{ "ガリー=ギガズ",            20000,  250,  150,  10,   5,  RACE_HALF_TROLL},
-		{ "ゴブリンのヒストーア",       20000,  250,  150,  10,   5,  RACE_HALF_ORC},
+		{ "ゴブリンのヒストーア",       20000,  250,  150,  10,   5,  RACE_SNOTLING},
 		{ "フェレンギ人クアーク",           30000,  250,  150,  10,   5,  RACE_HUMAN},
 		{ "公正なる(?)トッピ",                     30000,  250,  150,  10,   5,  RACE_ELF},
 #else
 		{ "Gary Gygaz",                 20000,  250, 150, 10,  5, RACE_HALF_TROLL},
-		{ "Histor the Goblin",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
+		{ "Histor the Goblin",          20000,  250, 150, 10,  5, RACE_SNOTLING},
 		{ "Quark the Ferengi",          30000,  250, 150, 10,  5, RACE_DWARF},
 		{ "Topi the Fair(?)",           30000,  250, 150, 10,  5, RACE_HUMAN},
 #endif
@@ -2288,9 +2288,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Charity the Necromancer", 20000,  250, 150, 10,  5, RACE_DARK_ELF},
 #endif
 #ifdef JP
-{ "ボクサーのプグナシオス",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
+{ "ボクサーのプグナシオス",          20000,  250, 150, 10,  5, RACE_SNOTLING},
 #else
-		{ "Pugnacious the Pugilist",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
+		{ "Pugnacious the Pugilist",          20000,  250, 150, 10,  5, RACE_SNOTLING},
 #endif
 #ifdef JP
 { "幸運なフットソア",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
@@ -2868,7 +2868,7 @@ player_sex sex_info[MAX_SEXES] =
  *      Male (Hgt, Wgt),
  *      Female (Hgt, Wgt)
  *      infra,
- *      class-choices
+ *      class-choices (*UNUSED*)
  */
 player_race race_info[MAX_RACES] =
 {
@@ -2891,11 +2891,11 @@ player_race race_info[MAX_RACES] =
 #ifdef JP
 		"ハーフエルフ",
 #endif
-		"Half-Elf",
+		"Tonberry",
 
-		{ -1,  1,  1,  1, -1,  1 },
-		2,  3,  2,  1, 6,  11, -1,  5,
-		9,  110,
+		{ 4,  0,  0,  -4, 5,  -2 },
+		-5,  3,  3,  1, -2, 5, 20, -10,
+		13,  190,
 		24, 16,
 		66,  6, 130, 15,
 		62,  6, 100, 10,
@@ -2967,11 +2967,11 @@ player_race race_info[MAX_RACES] =
 #ifdef JP
 		"ハーフオーク",
 #endif
-		"Half-Orc",
+		"Snotling",
 
-		{  2, -1,  0,  0,  1, -2 },
-		-3, -3, -2,  -1,  0, 7, 12, -5,
-		10,  110,
+		{  -1, -3,  -2,  -1,  -1, -2 },
+		-3, -3, -2,  1,  0, 7, -5, -5,
+		8,  75,
 		11,  4,
 		66,  1, 150,  5,
 		62,  1, 120,  5,

@@ -294,14 +294,11 @@ sprintf(Dummy, "あなたは範囲 %d 以内にテレポートできる。(%d MP)",
 				info[i++] = Dummy;
 			}
 			break;
-		case RACE_HALF_ORC:
-			if (plev > 2)
-#ifdef JP
-info[i++] = "あなたは恐怖を除去できる。(5 MP)";
-#else
-				info[i++] = "You can remove fear (cost 5).";
-#endif
-
+		case RACE_SNOTLING:
+			info[i++] = "You can devour your own flesh for sustenance.";
+			info[i++] = "You are often bullied by other monsters.";
+			info[i++] = "You recoil when shooting missiles.";
+			info[i++] = "You are addicted to mushrooms.";
 			break;
 		case RACE_HALF_TROLL:
 			if (plev > 9)

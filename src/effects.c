@@ -6256,6 +6256,18 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		p_ptr->chp = 0;
 	}
 
+	/* Snotlings scare easy */
+	if (p_ptr->prace == RACE_SNOTLING && damage > 0)
+	{
+		if ((p_ptr->resist_fear && !one_in_(7)) || randint0(100) < p_ptr->skill_sav)
+		{
+		}
+		else
+		{
+			set_afraid(p_ptr->afraid + randint0(4) + 4, FALSE);
+		}
+	}
+
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
 

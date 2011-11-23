@@ -2567,6 +2567,12 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	{
 	switch (p_ptr->prace)
 	{
+	case RACE_TONBERRY:
+		add_flag(flgs, TR_SUST_STR);
+		add_flag(flgs, TR_SUST_CON);
+		add_flag(flgs, TR_SPEED);
+		add_flag(flgs, TR_RES_FEAR);
+		break;
 	case RACE_ELF:
 		add_flag(flgs, TR_RES_LITE);
 		break;
@@ -2578,9 +2584,6 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		break;
 	case RACE_DWARF:
 		add_flag(flgs, TR_RES_BLIND);
-		break;
-	case RACE_HALF_ORC:
-		add_flag(flgs, TR_RES_DARK);
 		break;
 	case RACE_HALF_TROLL:
 		add_flag(flgs, TR_SUST_STR);

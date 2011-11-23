@@ -74,6 +74,12 @@ static void do_cmd_eat_food_aux(int item)
 		o_ptr = &o_list[0 - item];
 	}
 
+	if (object_is_mushroom(o_ptr) && o_ptr->art_name && o_ptr->timeout)
+	{
+		msg_print("Your mushroom is still charging.");
+		return;
+	}
+
 	/* Sound */
 	sound(SOUND_EAT);
 
@@ -268,6 +274,7 @@ static void do_cmd_eat_food_aux(int item)
 			case SV_FOOD_CURE_SERIOUS:
 			{
 				if (hp_player(damroll(4, 8))) ident = TRUE;
+				if (set_cut((p_ptr->cut / 2) - 50, TRUE)) ident = TRUE;
 				break;
 			}
 
@@ -376,6 +383,16 @@ static void do_cmd_eat_food_aux(int item)
 #endif
 
 		}
+	}
+
+	if (p_ptr->prace == RACE_SNOTLING && object_is_mushroom(o_ptr))
+	{
+		int lev = k_info[o_ptr->k_idx].level;
+		int dur = lev + randint1(lev);
+		set_fast(p_ptr->fast + dur, FALSE);
+		set_shield(p_ptr->shield + dur, FALSE);
+		set_hero(p_ptr->hero + dur, FALSE);
+		set_tim_building_up(p_ptr->tim_building_up + dur, FALSE);
 	}
 
 	/* Combine / Reorder the pack (later) */
@@ -616,19 +633,26 @@ msg_print("生者の食物はあなたにとってほとんど栄養にならない。");
 	}
 
 	/* Destroy a food in the pack */
-	if (item >= 0)
+	if (o_ptr->art_name) /* Hack: Artifact Food does not get destroyed! */
 	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
+		o_ptr->timeout += 99;
 	}
-
-	/* Destroy a food on the floor */
 	else
 	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+
+		/* Destroy a food on the floor */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
 	}
 }
 

@@ -3418,6 +3418,37 @@ bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 	}
 
 	do_cmd_fire_aux2(item, j_ptr, px, py, tx, ty);
+
+	/* Hack! Snotlings recoil when shooting ... */
+	if (p_ptr->prace == RACE_SNOTLING)
+	{
+		int ny, nx;
+
+		if (dir == 5)
+		{
+			ny = py;
+			nx = px;
+			if (ty > py) ny--;
+			if (ty < py) ny++;
+			if (tx > px) nx--;
+			if (tx < px) nx++;
+		}
+		else
+		{
+			ny = py - ddy[dir];
+			nx = px - ddx[dir];
+		}
+		if (player_can_enter(cave[ny][nx].feat, 0))
+		{
+			move_player_effect(ny, nx, MPE_FORGET_FLOW | MPE_HANDLE_STUFF | MPE_DONT_PICKUP);
+		}
+		else
+		{
+			msg_print("The recoil hurts!");
+			take_hit(DAMAGE_NOESCAPE, 5 + randint1(5), "the recoil of shooting", -1);
+		}
+	}
+
 	return TRUE;
 }
 void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int ty)

@@ -1642,8 +1642,17 @@ static bool save_player_aux(char *name)
 		/* Successful open */
 		if (fff)
 		{
+			/* Hack: Wiping the monster list clears the current duel! */
+			int tmp_ix = p_ptr->duelist_target_idx;
+
 			/* Write the savefile */
 			if (wr_savefile_new()) ok = TRUE;
+
+			if (tmp_ix)
+			{
+				p_ptr->duelist_target_idx = tmp_ix;
+				p_ptr->redraw |= PR_STATUS;
+			}
 
 			/* Attempt to close it */
 			if (my_fclose(fff)) ok = FALSE;
