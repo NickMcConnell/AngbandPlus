@@ -1138,6 +1138,8 @@ struct player_type
 	s16b tim_blood_feast;
 	s16b tim_blood_revenge;
 
+	s16b tim_blood_rite;
+
 	s16b tim_genji;
 	s16b tim_force;
 	s16b tim_building_up;

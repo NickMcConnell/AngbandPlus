@@ -3362,7 +3362,7 @@ msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_MAGIC_EATER || p_ptr->pclass == CLASS_BLUE_MAGE)
+			if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_MAGIC_EATER || p_ptr->pclass == CLASS_BLUE_MAGE)
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)
@@ -4229,6 +4229,9 @@ int mod_need_mana(int need_mana, int spell, int realm)
 #undef MANA_DIV
 #undef MANA_CONST
 
+	if (p_ptr->tim_blood_rite)
+		need_mana *= 2;
+
 	return need_mana;
 }
 
@@ -4274,7 +4277,8 @@ s16b spell_chance(int spell, int use_realm)
 	int             chance, minfail;
 	magic_type      *s_ptr;
 	int             need_mana;
-	int penalty = (mp_ptr->spell_stat == A_WIS) ? 5 : 2;
+	int				penalty = (mp_ptr->spell_stat == A_WIS) ? 5 : 2;
+	caster_info		*caster_ptr = get_caster_info();
 
 
 	/* Paranoia -- must be literate */
@@ -4308,12 +4312,16 @@ s16b spell_chance(int spell, int use_realm)
 	need_mana = mod_need_mana(s_ptr->smana, spell, use_realm);
 
 	/* Not enough mana to cast */
-	if (need_mana > p_ptr->csp)
+	if (caster_ptr && caster_ptr->use_hp)
+	{
+		/* Spells can't be cast without enough hp, so just leave the fail rate alone! */
+	}
+	else if (need_mana > p_ptr->csp)
 	{
 		chance += 5 * (need_mana - p_ptr->csp);
 	}
 
-	if ((use_realm != p_ptr->realm1) && ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_PRIEST))) chance += 5;
+	if ((use_realm != p_ptr->realm1) && ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_BLOOD_MAGE) || (p_ptr->pclass == CLASS_PRIEST))) chance += 5;
 
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
@@ -4434,6 +4442,7 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 	char            ryakuji[5];
 	char            buf[256];
 	bool max = FALSE;
+	caster_info		*caster_ptr = get_caster_info();
 
 
 	if (((use_realm <= REALM_NONE) || (use_realm > MAX_REALM)) && p_ptr->wizard)
@@ -4453,11 +4462,12 @@ msg_print("警告！ print_spell が領域なしに呼ばれた");
 		strcpy(buf,"  Lv   SP");
 #endif
 	else
-#ifdef JP
-		strcpy(buf,"熟練度 Lv   MP 失率 効果");
-#else
-		strcpy(buf,"Profic Lv   SP Fail Effect");
-#endif
+	{
+		if (caster_ptr && caster_ptr->use_hp)
+			strcpy(buf,"Profic Lv   HP Fail Effect");
+		else
+			strcpy(buf,"Profic Lv   SP Fail Effect");
+	}
 
 #ifdef JP
 put_str("名前", y, x + 5);
@@ -5844,7 +5854,7 @@ msg_format("魔力が逆流した！%sは完全に魔力を失った。", o_name);
 			/*** Determine Seriousness of Failure ***/
 
 			/* Mages recharge objects more safely. */
-			if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_MAGIC_EATER || p_ptr->pclass == CLASS_BLUE_MAGE)
+			if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER || p_ptr->pclass == CLASS_MAGIC_EATER || p_ptr->pclass == CLASS_BLUE_MAGE)
 			{
 				/* 10% chance to blow up one rod, otherwise draining. */
 				if (o_ptr->tval == TV_ROD)

@@ -1323,6 +1323,7 @@ void draconian_breath_spell(int cmd, variant *res)
 					}
 					break;
 				case CLASS_MAGE:
+				case CLASS_BLOOD_MAGE:
 				case CLASS_WARRIOR_MAGE:
 				case CLASS_HIGH_MAGE:
 				case CLASS_SORCERER:
@@ -2572,7 +2573,7 @@ void orb_of_entropy_spell(int cmd, variant *res)
 {
 	int base;
 
-	if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
+	if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
 		base = p_ptr->lev + p_ptr->lev / 2;
 	else
 		base = p_ptr->lev + p_ptr->lev / 4;

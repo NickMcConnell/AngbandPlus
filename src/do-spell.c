@@ -12,7 +12,10 @@ int spell_power_aux(int pow, int bonus)
 
 int spell_power(int pow)
 {
-	return spell_power_aux(pow, p_ptr->spell_power);
+	int tmp = p_ptr->spell_power;
+	if (p_ptr->tim_blood_rite)
+		tmp += 7;
+	return spell_power_aux(pow, tmp);
 }
 
 int spell_cap_aux(int cap, int bonus)
@@ -192,7 +195,7 @@ static cptr info_weight(int weight)
  */
 int beam_chance(void)
 {
-	if (p_ptr->pclass == CLASS_MAGE)
+	if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_BLOOD_MAGE)
 		return p_ptr->lev;
 	if (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_SORCERER)
 		return p_ptr->lev + 10;
@@ -3466,6 +3469,7 @@ static cptr do_chaos_spell(int spell, int mode)
 			int base;
 
 			if (p_ptr->pclass == CLASS_MAGE ||
+			    p_ptr->pclass == CLASS_BLOOD_MAGE ||
 			    p_ptr->pclass == CLASS_HIGH_MAGE ||
 			    p_ptr->pclass == CLASS_SORCERER)
 				base = spell_power(plev + plev / 2);
@@ -4379,6 +4383,7 @@ static cptr do_death_spell(int spell, int mode)
 			int base;
 
 			if (p_ptr->pclass == CLASS_MAGE ||
+			    p_ptr->pclass == CLASS_BLOOD_MAGE ||
 			    p_ptr->pclass == CLASS_HIGH_MAGE ||
 			    p_ptr->pclass == CLASS_SORCERER)
 				base = spell_power(plev + plev / 2);
@@ -7475,6 +7480,7 @@ static cptr do_daemon_spell(int spell, int mode)
 			int base;
 
 			if (p_ptr->pclass == CLASS_MAGE ||
+			    p_ptr->pclass == CLASS_BLOOD_MAGE ||
 			    p_ptr->pclass == CLASS_HIGH_MAGE ||
 			    p_ptr->pclass == CLASS_SORCERER)
 				base = spell_power(plev + plev / 2);

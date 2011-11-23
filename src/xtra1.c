@@ -412,6 +412,7 @@ static void prt_stat(int stat)
 #define BAR_INDUSTRIOUS_MORTICIAN 105
 #define BAR_SHIELD_BASH 106
 #define BAR_BULWARK 107
+#define BAR_BLOOD_RITE 108
 
 static struct {
 	byte attr;
@@ -601,6 +602,7 @@ static struct {
 	{TERM_YELLOW, "At", "Mortician"},
 	{TERM_L_BLUE, "SB", "Shield Bash"},
 	{TERM_L_BLUE, "Bw", "Bulwark"},
+	{TERM_RED, "Rt", "Rite"},
 	{0, NULL, NULL}
 };
 #endif
@@ -765,6 +767,7 @@ static void prt_status(void)
 	if (p_ptr->tim_blood_seek) ADD_FLG(BAR_BLOOD_SEEK);
 	if (p_ptr->tim_blood_sight) ADD_FLG(BAR_BLOOD_SIGHT);
 	if (p_ptr->tim_blood_feast) ADD_FLG(BAR_BLOOD_FEAST);
+	if (p_ptr->tim_blood_rite) ADD_FLG(BAR_BLOOD_RITE);
 	if (p_ptr->tim_no_spells) ADD_FLG(BAR_NO_SPELLS);
 	if (p_ptr->tim_blood_revenge) ADD_FLG(BAR_BLOOD_REVENGE);
 	if (p_ptr->tim_genji) ADD_FLG(BAR_GENJI);
@@ -2404,7 +2407,7 @@ static void calc_spells(void)
 		num_allowed = (num_allowed+1)/2;
 		if (num_allowed>(32+bonus)) num_allowed = 32+bonus;
 	}
-	else if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_PRIEST))
+	else if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_BLOOD_MAGE) || (p_ptr->pclass == CLASS_PRIEST))
 	{
 		if (num_allowed>(96+bonus)) num_allowed = 96+bonus;
 	}
@@ -2713,6 +2716,13 @@ static void calc_mana(void)
 
 	/* Hack -- Must be literate */
 	if (!mp_ptr->spell_book) return;
+	if (p_ptr->pclass == CLASS_BLOOD_MAGE)
+	{ 
+		p_ptr->msp = 0;
+		p_ptr->csp = 0;
+		p_ptr->redraw |= (PR_MANA);
+		return;
+	}
 
 	if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
 	    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
@@ -2820,6 +2830,7 @@ static void calc_mana(void)
 		/* For these classes, mana is halved if armour 
 		 * is 30 pounds over their weight limit. */
 		case CLASS_MAGE:
+		case CLASS_BLOOD_MAGE:
 		case CLASS_HIGH_MAGE:
 		case CLASS_BLUE_MAGE:
 		case CLASS_MONK:
@@ -2892,6 +2903,7 @@ static void calc_mana(void)
 			/* For these classes, mana is halved if armour 
 			 * is 30 pounds over their weight limit. */
 			case CLASS_MAGE:
+			case CLASS_BLOOD_MAGE:
 			case CLASS_HIGH_MAGE:
 			case CLASS_BLUE_MAGE:
 			{
@@ -5381,6 +5393,7 @@ void calc_bonuses(void)
 
 				/* Mage */
 				case CLASS_MAGE:
+				case CLASS_BLOOD_MAGE:
 				case CLASS_HIGH_MAGE:
 				case CLASS_BLUE_MAGE:
 					num = 3; wgt = 100; mul = 2; break;

@@ -241,6 +241,7 @@ void reset_tim_flags(void)
 	p_ptr->tim_chaotic_surge = 0;
 	p_ptr->tim_wild_pos = 0;
 	p_ptr->tim_wild_mind = 0;
+	p_ptr->tim_blood_rite = 0;
 	p_ptr->tim_blood_shield = 0;
 	p_ptr->tim_blood_seek = 0;
 	p_ptr->tim_blood_sight = 0;
@@ -1805,6 +1806,60 @@ bool set_tim_enlarge_weapon(int v, bool do_dec)
 	/* Recalculate bonuses */
 	p_ptr->redraw |= (PR_STATUS);
 	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_blood_rite(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_blood_rite)
+		{
+			if (p_ptr->tim_blood_rite > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You invoke the ancient blood rite.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_blood_rite)
+		{
+			msg_print("The blood rite has ended.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_blood_rite = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -4903,7 +4958,7 @@ msg_print("致命的な傷を負ってしまった。");
 
 		if (randint1(1000) < v || one_in_(16))
 		{
-			if (p_ptr->pclass == CLASS_BLOOD_KNIGHT && !one_in_(2))
+			if ((p_ptr->pclass == CLASS_BLOOD_KNIGHT || p_ptr->pclass == CLASS_BLOOD_MAGE) && !one_in_(2))
 			{
 				/* Let's tone down the scarring for blood knights, already */
 			}
@@ -5460,7 +5515,7 @@ bool hp_player(int num)
 	{
 		num = num * (p_ptr->virtues[vir - 1] + 1250) / 1250;
 	}
-	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT)
+	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT || p_ptr->pclass == CLASS_BLOOD_MAGE)
 	{
 		num /= 2;		
 		if (num == 0)

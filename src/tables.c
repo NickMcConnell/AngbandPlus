@@ -3865,6 +3865,18 @@ player_class class_info[MAX_CLASS] =
 		10, 10, 10, 0,  0,  0, 20, 15,
 		6, 30, 40
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Blood-Mage",
+
+		{-4, 3, 0, 1, 2, 1},
+		30, 40, 38, 3,  16, 20, 34, 20,
+		7,  15, 11,  0,  0,  0,  6, 7,
+		5, 30, 30
+	},
 };
 /*
  *      Title,
@@ -4322,11 +4334,16 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_NONE),				/* Sniper */
 	(CH_NONE),				/* Time Lord */
 	(CH_NONE),				/* Blood Knight */
+	(CH_NONE),				/* Warlock */
 	(CH_NONE),				/* Archaeologist */
 	(CH_NONE),				/* Duelist */
 	(CH_NONE),				/* Wild-Talent */
 	(CH_NONE),				/* Rune-Knight */
 	(CH_NONE),				/* Weaponmaster */
+	(CH_LIFE | CH_SORCERY | CH_NATURE |
+	 CH_CHAOS | CH_DEATH | CH_TRUMP |
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
+	 CH_CRUSADE),                              /* Blood-Mage */
 };
 
 
@@ -4372,11 +4389,16 @@ s32b realm_choices2[MAX_CLASS] =
 	(CH_NONE),				/* Sniper */
 	(CH_NONE),				/* Time Lord */
 	(CH_NONE),				/* Blood Knight */
+	(CH_NONE),				/* Warlock */
 	(CH_NONE),				/* Archaeologist */
 	(CH_NONE),				/* Duelist */
 	(CH_NONE),				/* Wild-Talent */
 	(CH_NONE),				/* Rune-Knight */
 	(CH_NONE),				/* Weaponmaster */
+	(CH_LIFE | CH_SORCERY | CH_NATURE |
+	 CH_CHAOS | CH_DEATH | CH_TRUMP |
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
+	 CH_CRUSADE),                              /* Blood-Mage */
 };
 
 
@@ -5419,6 +5441,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Baron",
 		"Duke",
 		"Master",
+	},
+	/* Mage */
+	{
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Bloodmage",
 	},
 };
 #endif

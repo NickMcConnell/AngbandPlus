@@ -270,6 +270,7 @@ static void sense_inventory1(void)
 		}
 
 		case CLASS_MAGE:
+		case CLASS_BLOOD_MAGE:
 		case CLASS_HIGH_MAGE:
 		case CLASS_SORCERER:
 		case CLASS_MAGIC_EATER:
@@ -535,6 +536,7 @@ static void sense_inventory2(void)
 		}
 
 		case CLASS_MAGE:
+		case CLASS_BLOOD_MAGE:
 		case CLASS_HIGH_MAGE:
 		case CLASS_SORCERER:
 		case CLASS_MAGIC_EATER:
@@ -1870,6 +1872,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	/* Regenerate the mana */
 	upkeep_regen = (100 - upkeep_factor) * regen_amount;
 	if (p_ptr->pclass == CLASS_MAGE ||
+		p_ptr->pclass == CLASS_BLOOD_MAGE ||
 	    p_ptr->pclass == CLASS_HIGH_MAGE ||
 		p_ptr->pclass == CLASS_SORCERER)
 	{
@@ -2232,6 +2235,11 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->tim_blood_shield)
 	{
 		(void)set_tim_blood_shield(p_ptr->tim_blood_shield - 1, TRUE);
+	}
+
+	if (p_ptr->tim_blood_rite)
+	{
+		(void)set_tim_blood_rite(p_ptr->tim_blood_rite - 1, TRUE);
 	}
 
 	if (p_ptr->tim_blood_seek)

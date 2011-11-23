@@ -18,6 +18,9 @@ class_t *result = NULL;
 	case CLASS_BLOOD_KNIGHT:
 		result = blood_knight_get_class_t();
 		break;
+	case CLASS_BLOOD_MAGE:
+		result = blood_mage_get_class_t();
+		break;
 	case CLASS_DUELIST:
 		result = duelist_get_class_t();
 		break;

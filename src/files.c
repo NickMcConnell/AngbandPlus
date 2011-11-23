@@ -2331,6 +2331,9 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	case CLASS_WARRIOR:
 		if (p_ptr->lev > 44)
 			add_flag(flgs, TR_REGEN);
+	case CLASS_BLOOD_MAGE:
+		add_flag(flgs, TR_REGEN);
+		break;
 	case CLASS_SAMURAI:
 		if (p_ptr->lev > 29)
 			add_flag(flgs, TR_RES_FEAR);

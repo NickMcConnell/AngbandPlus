@@ -1127,6 +1127,8 @@ void do_cmd_cast(void)
 
 	cptr q, s;
 
+	caster_info	*caster_ptr = get_caster_info();
+
 	/* Require spell ability */
 	if (!p_ptr->realm1 && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_RED_MAGE))
 	{
@@ -1303,7 +1305,16 @@ void do_cmd_cast(void)
 	need_mana = mod_need_mana(s_ptr->smana, spell, realm);
 
 	/* Verify "dangerous" spells */
-	if (need_mana > p_ptr->csp)
+	if (caster_ptr && caster_ptr->use_hp)
+	{
+		if (need_mana > p_ptr->chp)
+		{
+			msg_print("You do not have enough hp to use this spell.");
+			if (flush_failure) flush();
+			return;
+		}
+	}
+	else if (need_mana > p_ptr->csp)
 	{
 		if (flush_failure) flush();
 
@@ -1336,11 +1347,18 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 	   This is to prevent death from using a force weapon with a spell
 	   that also attacks, like Cyclone.
 	*/
-	take_mana = 0;
-	if (need_mana <= p_ptr->csp)
+	if (caster_ptr && caster_ptr->use_hp)
 	{
-		p_ptr->csp -= need_mana;
-		take_mana = need_mana;
+		take_mana = 0;
+	}
+	else
+	{
+		take_mana = 0;
+		if (need_mana <= p_ptr->csp)
+		{
+			p_ptr->csp -= need_mana;
+			take_mana = need_mana;
+		}
 	}
 
 	/* Failed spell */
@@ -1355,6 +1373,17 @@ msg_format("%sをうまく唱えられなかった！", prayer);
 #endif
 
 		sound(SOUND_FAIL);
+
+		if (caster_ptr && caster_ptr->on_fail != NULL)
+		{
+			spell_info hack = {0};
+			hack.level = s_ptr->slevel;
+			hack.cost = need_mana;
+			hack.fail = chance;
+			(caster_ptr->on_fail)(&hack);
+		}
+		if (caster_ptr && caster_ptr->use_hp)
+			take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);
 
 		switch (realm)
 		{
@@ -1443,6 +1472,18 @@ msg_print("An infernal sound echoed.");
 			if (take_mana > 0)
 				p_ptr->csp += take_mana;
 			return;
+		}
+
+		if (caster_ptr && caster_ptr->use_hp)
+			take_hit(DAMAGE_USELIFE, need_mana, "concentrating too hard", -1);
+
+		if (caster_ptr && caster_ptr->on_cast != NULL)
+		{
+			spell_info hack = {0};
+			hack.level = s_ptr->slevel;
+			hack.cost = need_mana;
+			hack.fail = chance;
+			(caster_ptr->on_cast)(&hack);
 		}
 
 		if (randint1(100) < chance)
@@ -1590,7 +1631,10 @@ msg_print("An infernal sound echoed.");
 		   spell that might do just that, but I don't think that spell comes thru this fn.
 		   So it is prudent to double check for overexertion ...
 		*/
-		if (need_mana <= p_ptr->csp)
+		if (caster_ptr && caster_ptr->use_hp)
+		{
+		}
+		else if (need_mana <= p_ptr->csp)
 		{
 			p_ptr->csp -= need_mana;
 		}

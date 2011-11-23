@@ -752,6 +752,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_blood_feast);
 	wr_s16b(p_ptr->tim_blood_revenge);
 	wr_s16b(p_ptr->tim_blood_seek);
+	wr_s16b(p_ptr->tim_blood_rite);
 	wr_s16b(p_ptr->tim_genji);
 	wr_s16b(p_ptr->tim_force);
 	wr_s16b(p_ptr->tim_building_up);

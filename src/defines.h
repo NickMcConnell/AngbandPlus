@@ -1,4 +1,4 @@
-/* File: defines.h */ 
+/* File: defines.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -77,7 +77,7 @@
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
 #define H_VER_PATCH 65 
-#define H_VER_EXTRA 0
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            36
+#define MAX_CLASS            37
 
 #define MAX_SEIKAKU          12
 
@@ -833,6 +833,7 @@
 #define CLASS_WILD_TALENT		33
 #define CLASS_RUNE_KNIGHT		34
 #define CLASS_WEAPONMASTER		35
+#define CLASS_BLOOD_MAGE		36
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0

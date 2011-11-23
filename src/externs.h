@@ -1474,6 +1474,7 @@ extern bool set_tim_sh_holy(int v, bool do_dec);
 extern bool set_tim_eyeeye(int v, bool do_dec);
 extern bool set_tim_spurt(int v, bool do_dec);
 extern bool set_tim_speed_essentia(int v, bool do_dec);
+extern bool set_tim_blood_rite(int v, bool do_dec);
 extern bool set_tim_blood_shield(int v, bool do_dec);
 extern bool set_tim_blood_seek(int v, bool do_dec);
 extern bool set_tim_blood_sight(int v, bool do_dec);
@@ -1872,6 +1873,9 @@ extern void bard_stop_singing_spell(int cmd, variant *res);
 
 /* blood_knight.c */
 extern class_t *blood_knight_get_class_t(void);
+
+/* blood_mage.c */
+extern class_t *blood_mage_get_class_t(void);
 
 /* blue_mage.c */
 extern void blue_learning_spell(int cmd, variant *res);

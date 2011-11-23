@@ -1291,6 +1291,15 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_blood_seek);
 	}
 
+	if (h_older_than(0, 0, 65, 1))
+	{
+		p_ptr->tim_blood_rite = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_blood_rite);
+	}
+
 	if (h_older_than(0, 0, 49, 1))
 	{
 		p_ptr->tim_genji = 0;

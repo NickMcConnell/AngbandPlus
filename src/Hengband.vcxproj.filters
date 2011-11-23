@@ -309,6 +309,9 @@
     <ClCompile Include="object3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="blood_mage.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

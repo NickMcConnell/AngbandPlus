@@ -215,6 +215,7 @@ void get_virtues(void)
 		p_ptr->vir_types[i++] = V_HONOUR;
 		break;
 	case CLASS_MAGE:
+	case CLASS_BLOOD_MAGE:
 		p_ptr->vir_types[i++] = V_KNOWLEDGE;
 		p_ptr->vir_types[i++] = V_ENCHANT;
 		break;

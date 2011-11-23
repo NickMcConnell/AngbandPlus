@@ -1841,6 +1841,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Weaponmaster ...)",
 
+"TRANSLATE(Blood Mage ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1933,6 +1935,12 @@ static cptr class_jouhou[MAX_CLASS] =
 	"that group, and abilities from Specialization if he uses "
 	"weapon of that type. If dual-wielding, both weapons must "
 	"be of the appropriate type.",
+
+"A blood mage is similar to a normal mage in his selection and "
+	"variety of spells, but differs in that he has no separate "
+	"Spell Point pool.  Instead, all his spells are powered by "
+	"his HP.  However, due to the Blood Mage's abnormal constitution, "
+	"all healing (spells, potions) is only half as effective.",
 
 #endif
 };
@@ -4267,6 +4275,13 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 	},
+
+	{
+		/* Blood Mage */
+		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_DEATH_BOOK, 0 }, /* Hack: for realm2 book */
+		{ TV_SWORD, SV_DAGGER }
+	},
 };
 
 
@@ -4801,7 +4816,7 @@ static bool get_player_class(void)
 		   At the moment, the Blood Knight thrives off bleeding, so certain races
 		   that don't get cut must be restricted! */
 		allow[n] = TRUE;
-		if (n == CLASS_BLOOD_KNIGHT)
+		if (n == CLASS_BLOOD_KNIGHT || n == CLASS_BLOOD_MAGE)
 		{
 			switch (p_ptr->prace)
 			{

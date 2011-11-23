@@ -1879,6 +1879,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			case CLASS_MAGIC_EATER:
 			case CLASS_BLUE_MAGE:
 			case CLASS_WARLOCK:
+			case CLASS_BLOOD_MAGE:
 				artifact_bias = BIAS_MAGE;
 				warrior_artifact_bias = 40;
 				break;
