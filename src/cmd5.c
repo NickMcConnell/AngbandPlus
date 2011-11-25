@@ -1818,7 +1818,14 @@ int calculate_upkeep(void)
 	if (total_friends)
 	{
 		int upkeep_factor;
-		upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / (cp_ptr->pet_upkeep_div)));
+		int div = cp_ptr->pet_upkeep_div;
+
+		/* Lower divs are better ... I think. */
+		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)
+			div /= 2;
+
+		upkeep_factor = (total_friend_levels - (p_ptr->lev * 80 / div));
+
 		if (upkeep_factor < 0) upkeep_factor = 0;
 		if (upkeep_factor > 1000) upkeep_factor = 1000;
 		return upkeep_factor;

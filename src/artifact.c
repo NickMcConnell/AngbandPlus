@@ -2361,7 +2361,10 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		}
 		else
 		{
-			o_ptr->pval = m_bonus(4, lev) + 1;
+			if (o_ptr->pval <= 0)
+				o_ptr->pval = m_bonus(4, lev) + 1;
+			else if (one_in_(5))
+				o_ptr->pval++;
 			while (one_in_(WEIRD_LUCK))
 				o_ptr->pval++;
 		}
@@ -2441,11 +2444,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	if (a_cursed) curse_artifact(o_ptr);
 
 	if (!a_cursed &&
-	    !have_flag(o_ptr->art_flags, TR_ACTIVATE) && 
-	    one_in_(object_is_armour(o_ptr) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE))
+	    !have_flag(o_ptr->art_flags, TR_ACTIVATE))
 	{
-		o_ptr->xtra2 = 0;
-		give_activation_power(o_ptr);
+		int odds = object_is_armour(o_ptr) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE;
+		if (one_in_(odds))
+		{
+			o_ptr->xtra2 = 0;
+			give_activation_power(o_ptr);
+		}
 	}
 
 	if (object_is_armour(o_ptr) || o_ptr->tval == TV_RING || o_ptr->tval == TV_AMULET)

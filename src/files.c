@@ -2602,7 +2602,8 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_FREE_ACT);
 			add_flag(flgs, TR_RES_LITE);
 			add_flag(flgs, TR_RES_BLIND);
-			if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
+			add_flag(flgs, TR_RES_SOUND);
+			add_flag(flgs, TR_LITE);
 			break;
 		case DEMIGOD_ARTEMIS:
 			break;

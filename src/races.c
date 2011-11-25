@@ -30,10 +30,24 @@ static void _devour_flesh_spell(int cmd, variant *res)
 
 void _demigod_gain_level(int new_level)
 {
-	if (new_level == 20 || new_level == 40)
+	if (new_level >= 20)
 	{
-		int idx = mut_gain_choice(mut_human_pred);
-		mut_lock(idx);
+		if (p_ptr->demigod_power[0] < 0)
+		{
+			int idx = mut_gain_choice(mut_human_pred);
+			mut_lock(idx);
+			p_ptr->demigod_power[0] = idx;
+		}
+	}
+
+	if (new_level >= 40)
+	{
+		if (p_ptr->demigod_power[1] < 0)
+		{
+			int idx = mut_gain_choice(mut_human_pred);
+			mut_lock(idx);
+			p_ptr->demigod_power[1] = idx;
+		}
 	}
 }
 
@@ -52,6 +66,8 @@ void _demigod_calc_bonuses(void)
 		p_ptr->stat_add[A_CHR] += 1;
 		break;
 	case DEMIGOD_POSEIDON:
+		p_ptr->stat_add[A_STR] += 1;
+		p_ptr->stat_add[A_DEX] += 1;
 		p_ptr->resist_acid = TRUE;
 		p_ptr->resist_conf = TRUE;
 		p_ptr->skill_sav += 15;
@@ -94,6 +110,7 @@ void _demigod_calc_bonuses(void)
 		p_ptr->free_act = TRUE;
 		p_ptr->resist_lite = TRUE;
 		p_ptr->resist_blind = TRUE;
+		p_ptr->resist_sound = TRUE;
 		/* cf calc_torch in xtra1.c for the 'extra light' */
 		break;
 	case DEMIGOD_ARTEMIS:
@@ -181,10 +198,14 @@ race_t *demigod_get_race_t(void)
 
 void _human_gain_level(int new_level)
 {
-	if (new_level == 30)
+	if (new_level >= 30)
 	{
-		int idx = mut_gain_choice(mut_human_pred);
-		mut_lock(idx);
+		if (p_ptr->demigod_power[0] < 0)
+		{
+			int idx = mut_gain_choice(mut_human_pred);
+			mut_lock(idx);
+			p_ptr->demigod_power[0] = idx;
+		}
 	}
 }
 

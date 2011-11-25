@@ -815,6 +815,8 @@ static void wr_extra(void)
 		wr_u32b(p_ptr->muta[i]);
 	for (i = 0; i < MUT_FLAG_SIZE; ++i)
 		wr_u32b(p_ptr->muta_lock[i]);
+	for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
+		wr_s16b(p_ptr->demigod_power[i]);
 
 	for (i = 0; i<8; i++)
 		wr_s16b(p_ptr->virtues[i]);

@@ -1001,6 +1001,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 			break;
 		}
 	}
+	if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+		mult += 10;
 	if (mult > 150) mult = 150;
 
 	/* Return the total damage */

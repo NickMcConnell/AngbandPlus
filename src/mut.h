@@ -112,8 +112,10 @@
 #define MUT_EVASION        105
 #define MUT_POTION_CHUGGER 106
 #define MUT_ONE_WITH_MAGIC 107
+#define MUT_PEERLESS_TRACKER 108
+ #define MUT_INFERNAL_DEAL 109
 
-#define MAX_MUTATIONS      108   /* see also MUT_FLAG_SIZE in defines.h */
+#define MAX_MUTATIONS      110   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
 	MUT_RATING_AWFUL = -2,
@@ -126,7 +128,7 @@ typedef enum {
 typedef enum {
 	MUT_TYPE_ACTIVATION = 0x01,	/* Mutation activates as a racial power (e.g. Harden to Elements) */
 	MUT_TYPE_EFFECT = 0x02,     /* Mutation has a passive effect (e.g. Flatulence)*/
-	MUT_TYPE_BONUS = 0x04       /* Mutation confers a passive bonus (e.g. +4 Str) */
+	MUT_TYPE_BONUS = 0x04,      /* Mutation confers a passive bonus (e.g. +4 Str) */
 } mutation_type;
 
 typedef bool (*mut_pred)(int mut_idx);
@@ -189,6 +191,7 @@ extern void hallucination_mut(int cmd, variant *res);
 extern void he_man_mut(int cmd, variant *res);
 extern void horns_mut(int cmd, variant *res);
 extern void illusion_normal_mut(int cmd, variant *res);
+extern void infernal_deal_mut(int cmd, variant *res);
 extern void infravision_mut(int cmd, variant *res);
 extern void invulnerability_mut(int cmd, variant *res);
 extern void limber_mut(int cmd, variant *res);
@@ -200,6 +203,7 @@ extern void nausea_mut(int cmd, variant *res);
 extern void normality_mut(int cmd, variant *res);
 extern void one_with_magic_mut(int cmd, variant *res);
 extern void peerless_sniper_mut(int cmd, variant *res);
+extern void peerless_tracker_mut(int cmd, variant *res);
 extern void polymorph_wounds_mut(int cmd, variant *res);
 extern void potion_chugger_mut(int cmd, variant *res);
 extern void produce_mana_mut(int cmd, variant *res);

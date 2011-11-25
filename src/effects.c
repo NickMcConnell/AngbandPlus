@@ -5933,7 +5933,23 @@ void change_race(int new_race, cptr effect_msg)
 	cptr title = race_info[new_race].title;
 	int  old_race = p_ptr->prace;
 
-	if (new_race == RACE_DEMIGOD) return;
+	if (new_race == old_race) return;
+
+	if (old_race == RACE_HUMAN || old_race == RACE_DEMIGOD)
+	{
+		int i, idx;
+		for (i = 0; i < MAX_DEMIGOD_POWERS; i++)
+		{
+			idx = p_ptr->demigod_power[i];
+			if (idx >= 0)
+			{
+				mut_unlock(idx);
+				mut_lose(idx);
+				p_ptr->demigod_power[i] = -1;
+			}
+		}
+		p_ptr->psubrace = 0;
+	}
 
 #ifdef JP
 	msg_format("あなたは%s%sに変化した！", effect_msg, title);
@@ -5977,6 +5993,13 @@ void change_race(int new_race, cptr effect_msg)
 
 	/* The experience level may be modified */
 	check_experience();
+
+	if (p_ptr->prace == RACE_HUMAN || p_ptr->prace == RACE_DEMIGOD)
+	{
+		race_t *race_ptr = get_race_t();
+		if (race_ptr != NULL && race_ptr->gain_level != NULL)
+			race_ptr->gain_level(p_ptr->lev);	/* This is OK ... Just make sure we get to choose racial powers on poly */
+	}
 
 	p_ptr->redraw |= (PR_BASIC);
 
@@ -6112,7 +6135,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 			new_race = randint0(MAX_RACES);
 			expfact = race_info[new_race].r_exp;
 		}
-		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID) || (new_race == RACE_DEMIGOD));
+		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID));
 
 		change_race(new_race, effect_msg);
 	}

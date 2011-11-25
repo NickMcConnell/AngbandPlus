@@ -2468,8 +2468,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & ENCH_TOHIT)
 		{
 			int idx = o_ptr->to_h;
+			/*
 			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-				idx -= 3;
+				idx -= 3;*/
 
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
@@ -2490,8 +2491,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & ENCH_TODAM)
 		{
 			int idx = o_ptr->to_d;
+			/*
 			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-				idx -= 3;
+				idx -= 3;*/
 
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
@@ -2512,8 +2514,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & ENCH_TOAC)
 		{
 			int idx = o_ptr->to_a;
+			/*
 			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-				idx -= 3;
+				idx -= 3;*/
 
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;

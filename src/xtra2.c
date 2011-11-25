@@ -748,6 +748,23 @@ void monster_death(int m_idx, bool drop_item)
 		p_ptr->update |= (PU_MON_LITE);
 	}
 
+	if (mut_present(MUT_INFERNAL_DEAL))
+	{
+		if (p_ptr->msp > 0)
+		{
+			hp_player(20);
+			p_ptr->csp += 10;
+			if (p_ptr->csp > p_ptr->msp)
+			{
+				p_ptr->csp_frac = 0;
+				p_ptr->csp = p_ptr->msp;
+			}
+			p_ptr->redraw |= PR_MANA;
+		}
+		else
+			hp_player(30);
+	}
+
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
@@ -1790,8 +1807,8 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 
 	if (mut_present(MUT_FAST_LEARNER))
 	{
-		s64b_div(&new_exp, &new_exp_frac, 0, 2);
-		s64b_mul(&new_exp, &new_exp_frac, 0, 3);
+		s64b_mul(&new_exp, &new_exp_frac, 0, 13);
+		s64b_div(&new_exp, &new_exp_frac, 0, 10);
 	}
 
 	/* Gain experience */
@@ -6308,7 +6325,7 @@ int bow_range(int sval)
 		break;
 	}
 	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ARTEMIS)
-		tdis += 1;
+		tdis += 2;
 
 	return tdis;
 }

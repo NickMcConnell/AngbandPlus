@@ -166,8 +166,8 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(object_type *o_ptr)
 {
-	if ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ABUNAI_MIZUGI))
-		if (p_ptr->psex == SEX_MALE) return FALSE;
+	/*if ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ABUNAI_MIZUGI))
+		if (p_ptr->psex == SEX_MALE) return FALSE;*/
 
 	/* Check for a usable slot */
 	if (wield_slot(o_ptr) >= INVEN_RARM) return (TRUE);

@@ -3972,6 +3972,9 @@ static void player_wipe(void)
 		p_ptr->muta_lock[i] = 0;
 	}
 
+	for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
+		p_ptr->demigod_power[i] = -1;
+
 	p_ptr->duelist_target_idx = 0;
 
 	/* Reset virtues*/

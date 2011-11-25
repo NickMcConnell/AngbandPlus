@@ -1506,6 +1506,16 @@ static void rd_extra(void)
 			rd_u32b(&p_ptr->muta_lock[i]);
 	}
 
+	if (h_older_than(0,0,66,2))
+	{
+		for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
+			p_ptr->demigod_power[i] = -1;
+	}
+	else
+	{
+		for (i = 0; i < MAX_DEMIGOD_POWERS; ++i)
+			rd_s16b(&p_ptr->demigod_power[i]);
+	}
 
 	for (i = 0; i < 8; i++)
 		rd_s16b(&p_ptr->virtues[i]);

@@ -77,7 +77,7 @@
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
 #define H_VER_PATCH 66
-#define H_VER_EXTRA 1
+#define H_VER_EXTRA 2
 
 
 #define ANGBAND_2_8_1
@@ -803,6 +803,7 @@
 #define DEMIGOD_APHRODITE		12
 
 #define MAX_DEMIGOD_TYPES		13
+#define MAX_DEMIGOD_POWERS		5
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)

@@ -3616,10 +3616,6 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	char        tmp_str[MAX_NLEN];
 	int old_cost, new_cost;
 
-	/* TODO:
-	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-		maxenchant += 3;*/
-
 	clear_bldg(4, 18);
 
 	prt(format("  Based on your skill, we can improve up to +%d.", maxenchant), 5, 0);

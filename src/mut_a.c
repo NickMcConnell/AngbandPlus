@@ -991,6 +991,29 @@ void illusion_normal_mut(int cmd, variant *res)
 	}
 }
 
+void infernal_deal_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Infernal Deal", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You make a pact with the devil!", ""));
+		mut_lose(MUT_ARTHRITIS);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your infernal pact is broken.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You have made an infernal deal.", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void infravision_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1079,7 +1102,7 @@ void loremaster_mut(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Identify True", ""));
+		var_set_string(res, T("Loremaster", ""));
 		break;
 	case SPELL_GAIN_MUT:
 		msg_print(T("You feel quite knowledgeable.", ""));
@@ -1281,6 +1304,43 @@ void peerless_sniper_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("Your missiles are less likely to anger monsters.", ""));
 		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void peerless_tracker_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Peerless Tracker", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel able to track anything...", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You can no longer track so well.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are a peerless tracker.", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Maps nearby area. Detects all monsters, traps, doors and stairs.", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int rad1 = DETECT_RAD_MAP;
+		int rad2 = DETECT_RAD_DEFAULT;
+		map_area(rad1);
+		detect_traps(rad2, TRUE);
+		detect_doors(rad2);
+		detect_stairs(rad2);
+		detect_monsters_normal(rad2);
+		var_set_bool(res, TRUE);
+		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;
