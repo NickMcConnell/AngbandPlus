@@ -1008,6 +1008,7 @@ struct player_type
 	byte realm1;        /* First magic realm */
 	byte realm2;        /* Second magic realm */
 	byte psubclass;		/* e.g. Pacts on Warlocks*/
+	byte psubrace;      /* e.g. Parentage on Demigods */
 
 	byte hitdie;		/* Hit dice (sides) */
 	u16b expfact;       /* Experience factor
@@ -1482,6 +1483,7 @@ struct birther
 {
 	byte psex;         /* Sex index */
 	byte prace;        /* Race index */
+	byte psubrace;
 	byte pclass;       /* Class index */
 	byte psubclass;	   /* Subclass index */
 	byte pseikaku;     /* Seikaku index */
@@ -1969,6 +1971,8 @@ typedef struct {
 	cptr			desc;
 	skills_t		skills;
 	birth_fn		birth;
+	calc_bonuses_fn	calc_bonuses;
 	get_spells_fn	get_powers;
+	gain_level_fn	gain_level; /* Only ever called when a new max level is achieved */
 } race_t;
 

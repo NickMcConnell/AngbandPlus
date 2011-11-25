@@ -119,6 +119,50 @@ void alcohol_mut(int cmd, variant *res)
 	}
 }
 
+void ambidexterity_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Ambidexterity", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel like dual wielding.", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer feel like dual wielding.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are ambidextrous.", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void arcane_mastery_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Arcane Mastery", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You gain arcane insights.", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel your arcane mastery slipping away.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You have arcane mastery (-5% spell fail).", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void arthritis_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -528,6 +572,28 @@ void elec_aura_mut(int cmd, variant *res)
 	}
 }
 
+void evasion_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Evasion", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You gain the power of evasion.", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You lose the power of evasion.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are never crushed by earthquakes, and thieves never successfully steal from you.", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void extra_eyes_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -597,6 +663,28 @@ void extra_noise_mut(int cmd, variant *res)
 		break;
 	case SPELL_CALC_BONUS:
 		p_ptr->skill_stl -= 3;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void fast_learner_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Fast Learner", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You learn things quickly...", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You revert to you normal dull self!", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are a fast learner.", ""));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -986,6 +1074,32 @@ void limber_mut(int cmd, variant *res)
 	}
 }
 
+void loremaster_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Identify True", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel quite knowledgeable.", ""));
+		mut_lose(MUT_ARTHRITIS);
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You know longer know so much.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are a Loremaster.", ""));
+		break;
+	case SPELL_CAST:
+		var_set_bool(res, identify_fully(FALSE));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void magic_resistance_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1129,6 +1243,50 @@ void normality_mut(int cmd, variant *res)
 	}
 }
 
+void one_with_magic_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("One with Magic", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel one with magic.", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer feel one with magic.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You have a chance of resisting Dispel Magic and Antimagic.", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void peerless_sniper_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Peerless Sniper", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel distant monsters relax...", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel distant monsters return to their normal grouchy selves.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your missiles are less likely to anger monsters.", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void polymorph_wounds_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1148,6 +1306,28 @@ void polymorph_wounds_mut(int cmd, variant *res)
 	case SPELL_PROCESS:
 		if (one_in_(3000))
 			do_poly_wounds();
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void potion_chugger_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Potion Chugger", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel like chugging a six pack of healing potions.", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer feel like chugging your potions.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You chug potions twice as fast as normal.", ""));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1607,6 +1787,28 @@ void steel_skin_mut(int cmd, variant *res)
 	}
 }
 
+void subtle_casting_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Subtle Casting", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel distant monsters relax...", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel distant monsters return to their normal grouchy selves.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Your spells are less likely to anger monsters.", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void telepathy_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1670,6 +1872,54 @@ void trunk_mut(int cmd, variant *res)
 		break;
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You have an elephantine trunk (dam 1d4).", "あなたは象のような鼻を持っている。(ダメージ 1d4)"));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void untouchable_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Untouchable", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel untouchable!", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Your feel touchable!", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are untouchable (+30 AC).", ""));
+		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->to_a += 30;
+		p_ptr->dis_to_a += 30;
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void unyielding_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Unyielding", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You will never yield!!", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("Heck!  Might as well give up ...", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are unyielding (+2 HP per level).", ""));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1844,6 +2094,28 @@ void wasting_mut(int cmd, variant *res)
 				dec_stat(which_stat, randint1(6) + 6, one_in_(6));
 			}
 		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void weapon_skills_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Weapon Versatility", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel you may master anything...", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer feel so masterful.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You may master any weapon.", ""));
 		break;
 	default:
 		default_spell(cmd, res);

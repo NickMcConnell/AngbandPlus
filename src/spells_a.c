@@ -805,6 +805,30 @@ void create_food_spell(int cmd, variant *res)
 }
 bool cast_create_food(void) { return cast_spell(create_food_spell); }
 
+void cure_wounds_I_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Cure Light Wounds", "軽傷の治癒"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Heals cut and HP a little.", "怪我と体力を少し回復させる。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(2, spell_power(10), 0));
+		break;
+	case SPELL_CAST:
+		hp_player(spell_power(damroll(2, 10)));
+		set_cut(p_ptr->cut - 10, TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void darkness_storm_I_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -2943,6 +2967,34 @@ void radiation_spell(int cmd, variant *res)
 	}
 }
 bool cast_radiation(void) { return cast_spell(radiation_spell); }
+
+void ray_of_sunlight_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Ray of Sunlight", "太陽光線"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a beam of light which damages to light-sensitive monsters.", "光線を放つ。光りを嫌うモンスターに効果がある。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(6, 8, 0));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		lite_line(dir);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void recall_spell(int cmd, variant *res)
 {

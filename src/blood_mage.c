@@ -47,7 +47,9 @@ static void _calc_bonuses(void)
 
 static void _on_cast(const spell_info *spell)
 {
-	set_cut(p_ptr->cut + spell->level, FALSE);
+	int cut = spell->level - p_ptr->lev/2;
+	if (cut > 0)
+		set_cut(p_ptr->cut + cut, FALSE);
 }
 
 static caster_info * _caster_info(void)

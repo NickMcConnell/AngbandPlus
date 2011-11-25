@@ -1867,14 +1867,19 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a dispel magic.", m_name);
 #endif
-			dispel_player();
-			if (p_ptr->riding) dispel_monster_status(p_ptr->riding);
+			if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
+				msg_print("You resist the effects!");
+			else
+			{
+				dispel_player();
+				if (p_ptr->riding) dispel_monster_status(p_ptr->riding);
 
-#ifdef JP
-			if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
-				msg_print("やりやがったな！");
-#endif
-			learn_spell(MS_DISPEL);
+	#ifdef JP
+				if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+					msg_print("やりやがったな！");
+	#endif
+				learn_spell(MS_DISPEL);
+			}
 			break;
 		}
 
@@ -1930,6 +1935,8 @@ else msg_format("%^sが矢を放った。", m_name);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes anti-magic.", m_name);
 			if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
+				msg_print("You resist the effects!");
+			else if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
 				msg_print("You resist the effects!");
 			else
 				set_tim_no_spells(p_ptr->tim_no_spells + 3 + randint1(3), FALSE);

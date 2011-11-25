@@ -4580,6 +4580,7 @@ bool set_stun(int v, bool do_dec)
 	if (p_ptr->is_dead) return FALSE;
 
 	if (prace_is_(RACE_GOLEM) || ((p_ptr->pclass == CLASS_BERSERKER) && (p_ptr->lev > 34))) v = 0;
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_POSEIDON) v = 0;
 
 	/* Knocked out */
 	if (p_ptr->stun > 100)
@@ -5932,6 +5933,8 @@ void change_race(int new_race, cptr effect_msg)
 	cptr title = race_info[new_race].title;
 	int  old_race = p_ptr->prace;
 
+	if (new_race == RACE_DEMIGOD) return;
+
 #ifdef JP
 	msg_format("あなたは%s%sに変化した！", effect_msg, title);
 #else
@@ -6109,7 +6112,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 			new_race = randint0(MAX_RACES);
 			expfact = race_info[new_race].r_exp;
 		}
-		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID));
+		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID) || (new_race == RACE_DEMIGOD));
 
 		change_race(new_race, effect_msg);
 	}

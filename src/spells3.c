@@ -2467,9 +2467,13 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to hit */
 		if (eflag & ENCH_TOHIT)
 		{
-			if (o_ptr->to_h < 0) chance = 0;
-			else if (o_ptr->to_h > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_h];
+			int idx = o_ptr->to_h;
+			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+				idx -= 3;
+
+			if (idx < 0) chance = 0;
+			else if (idx > 15) chance = 1000;
+			else chance = enchant_table[idx];
 
 			if (force || ((randint1(1000) > chance) && (!a || (randint0(100) < 50))))
 			{
@@ -2485,9 +2489,13 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to damage */
 		if (eflag & ENCH_TODAM)
 		{
-			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_d];
+			int idx = o_ptr->to_d;
+			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+				idx -= 3;
+
+			if (idx < 0) chance = 0;
+			else if (idx > 15) chance = 1000;
+			else chance = enchant_table[idx];
 
 			if (force || ((randint1(1000) > chance) && (!a || (randint0(100) < 50))))
 			{
@@ -2503,9 +2511,13 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to armor class */
 		if (eflag & ENCH_TOAC)
 		{
-			if (o_ptr->to_a < 0) chance = 0;
-			else if (o_ptr->to_a > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_a];
+			int idx = o_ptr->to_a;
+			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+				idx -= 3;
+
+			if (idx < 0) chance = 0;
+			else if (idx > 15) chance = 1000;
+			else chance = enchant_table[idx];
 
 			if (force || ((randint1(1000) > chance) && (!a || (randint0(100) < 50))))
 			{
@@ -4250,6 +4262,11 @@ int mod_spell_chance_1(int chance)
 	else if (p_ptr->easy_spell) chance -= 3;
 	else if (p_ptr->dec_mana) chance -= 2;
 
+	if (mut_present(MUT_ARCANE_MASTERY))
+		chance -= 5;
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
+		chance -= 5;
+
 	return chance;
 }
 
@@ -4334,6 +4351,8 @@ s16b spell_chance(int spell, int use_realm)
 	{
 		if (minfail < 5) minfail = 5;
 	}
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
+		minfail -= 1;
 
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
 	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->weapon_info[0].icky_wield) chance += 25;
@@ -5072,8 +5091,13 @@ int acid_dam(int dam, cptr kb_str, int monspell)
 	get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
-	if (!(double_resist && p_ptr->resist_acid))
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+	{
+	}
+	else if (!(double_resist && p_ptr->resist_acid))
+	{
 		inven_damage(set_acid_destroy, inv);
+	}
 	return get_damage;
 }
 
@@ -6034,10 +6058,10 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 			case RACE_BARBARIAN:
 			case RACE_BEASTMAN:
 			case RACE_DUNADAN:
+			case RACE_DEMIGOD:
 				summon_kin_type = 'p';
 				break;
 			case RACE_TONBERRY:
-			case RACE_ELF:
 			case RACE_HOBBIT:
 			case RACE_GNOME:
 			case RACE_DWARF:

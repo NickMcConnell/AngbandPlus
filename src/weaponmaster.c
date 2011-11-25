@@ -2169,10 +2169,16 @@ static void _dagger_toss_imp2(_dagger_toss_info * info)
 					{
 						if (!(m_ptr->smart & SM_TICKED_OFF))
 						{
-							char m_name[80];
-							monster_desc(m_name, m_ptr, 0);
-							msg_format("%^s is ticked off!", m_name);
-							m_ptr->smart |= SM_TICKED_OFF;
+							if (mut_present(MUT_PEERLESS_SNIPER) && !one_in_(3))
+							{
+							}
+							else
+							{
+								char m_name[80];
+								monster_desc(m_name, m_ptr, 0);
+								msg_format("%^s is ticked off!", m_name);
+								m_ptr->smart |= SM_TICKED_OFF;
+							}
 						}
 					}
 
@@ -2895,10 +2901,16 @@ static void _club_toss_imp(_club_toss_info * info)
 					{
 						if (!(m_ptr->smart & SM_TICKED_OFF))
 						{
-							char m_name[80];
-							monster_desc(m_name, m_ptr, 0);
-							msg_format("%^s is ticked off!", m_name);
-							m_ptr->smart |= SM_TICKED_OFF;
+							if (mut_present(MUT_PEERLESS_SNIPER) && !one_in_(3))
+							{
+							}
+							else
+							{
+								char m_name[80];
+								monster_desc(m_name, m_ptr, 0);
+								msg_format("%^s is ticked off!", m_name);
+								m_ptr->smart |= SM_TICKED_OFF;
+							}
 						}
 					}
 

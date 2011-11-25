@@ -381,6 +381,15 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
 	if (caster_ptr && min < caster_ptr->min_fail)
 		min = caster_ptr->min_fail;
 
+	if (mut_present(MUT_ARCANE_MASTERY))
+		fail -= 5;
+
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
+	{
+		fail -= 5;
+		min -= 1;
+	}
+
 	if (fail < min) fail = min;
 
 	/* Stunning affects even 0% fail spells */

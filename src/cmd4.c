@@ -6903,7 +6903,7 @@ static void do_cmd_knowledge_weapon_exp(void)
 					weapon_exp = p_ptr->weapon_exp[4 - i][num];
 					strip_name(tmp, j);
 					fprintf(fff, "%-25s ", tmp);
-					if (weapon_exp >= s_info[p_ptr->pclass].w_max[4 - i][num]) fprintf(fff, "!");
+					if (!mut_present(MUT_WEAPON_SKILLS) && weapon_exp >= s_info[p_ptr->pclass].w_max[4 - i][num]) fprintf(fff, "!");
 					else fprintf(fff, " ");
 					fprintf(fff, "%s", exp_level_str[weapon_exp_level(weapon_exp)]);
 					if (cheat_xtra) fprintf(fff, " %d", weapon_exp);

@@ -100,8 +100,20 @@
 #define MUT_VULN_ELEM      93
 #define MUT_MOTION         94
 #define MUT_GOOD_LUCK      95   /* End of the old mutations */
+#define MUT_FAST_LEARNER   96
+#define MUT_WEAPON_SKILLS  97
+#define MUT_SUBTLE_CASTING 98
+#define MUT_PEERLESS_SNIPER 99
+#define MUT_UNYIELDING     100
+#define MUT_AMBIDEXTROUS   101
+#define MUT_UNTOUCHABLE    102
+#define MUT_LOREMASTER     103
+#define MUT_ARCANE_MASTERY 104
+#define MUT_EVASION        105
+#define MUT_POTION_CHUGGER 106
+#define MUT_ONE_WITH_MAGIC 107
 
-#define MAX_MUTATIONS      96   /* see also MUT_FLAG_SIZE in defines.h */
+#define MAX_MUTATIONS      108   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
 	MUT_RATING_AWFUL = -2,
@@ -118,8 +130,8 @@ typedef enum {
 } mutation_type;
 
 typedef bool (*mut_pred)(int mut_idx);
-extern bool mut_berserker_pred(int mut_idx);
 extern bool mut_good_pred(int mut_idx);
+extern bool mut_human_pred(int mut_idx);
 extern bool mut_unlocked_pred(int mut_idx);
 
 extern void mut_calc_bonuses(void);
@@ -128,6 +140,7 @@ extern int  mut_count(mut_pred pred);
 extern void mut_do_cmd_knowledge(void);
 extern void mut_dump_file(FILE* file);
 extern bool mut_gain(int mut_idx);
+extern int mut_gain_choice(mut_pred pred);
 extern bool mut_gain_random(mut_pred pred);
 extern int  mut_get_powers(spell_info* spells, int max);
 extern void mut_lock(int mut_idx);
@@ -146,6 +159,8 @@ extern void mut_unlock(int mut_idx);
 /* Non-spell mutations ... */
 extern void albino_mut(int cmd, variant *res);
 extern void alcohol_mut(int cmd, variant *res);
+extern void ambidexterity_mut(int cmd, variant *res);
+extern void arcane_mastery_mut(int cmd, variant *res);
 extern void arthritis_mut(int cmd, variant *res);
 extern void attract_animal_mut(int cmd, variant *res);
 extern void attract_demon_mut(int cmd, variant *res);
@@ -159,9 +174,11 @@ extern void cowardice_mut(int cmd, variant *res);
 extern void eat_light_mut(int cmd, variant *res);
 extern void einstein_mut(int cmd, variant *res);
 extern void elec_aura_mut(int cmd, variant *res);
+extern void evasion_mut(int cmd, variant *res);
 extern void extra_eyes_mut(int cmd, variant *res);
 extern void extra_legs_mut(int cmd, variant *res);
 extern void extra_noise_mut(int cmd, variant *res);
+extern void fast_learner_mut(int cmd, variant *res);
 extern void fat_mut(int cmd, variant *res);
 extern void fearless_mut(int cmd, variant *res);
 extern void fire_aura_mut(int cmd, variant *res);
@@ -175,12 +192,16 @@ extern void illusion_normal_mut(int cmd, variant *res);
 extern void infravision_mut(int cmd, variant *res);
 extern void invulnerability_mut(int cmd, variant *res);
 extern void limber_mut(int cmd, variant *res);
+extern void loremaster_mut(int cmd, variant *res);
 extern void magic_resistance_mut(int cmd, variant *res);
 extern void moron_mut(int cmd, variant *res);
 extern void motion_mut(int cmd, variant *res);
 extern void nausea_mut(int cmd, variant *res);
 extern void normality_mut(int cmd, variant *res);
+extern void one_with_magic_mut(int cmd, variant *res);
+extern void peerless_sniper_mut(int cmd, variant *res);
 extern void polymorph_wounds_mut(int cmd, variant *res);
+extern void potion_chugger_mut(int cmd, variant *res);
 extern void produce_mana_mut(int cmd, variant *res);
 extern void puny_mut(int cmd, variant *res);
 extern void random_banish_mut(int cmd, variant *res);
@@ -196,13 +217,17 @@ extern void short_legs_mut(int cmd, variant *res);
 extern void silly_voice_mut(int cmd, variant *res);
 extern void speed_flux_mut(int cmd, variant *res);
 extern void steel_skin_mut(int cmd, variant *res);
+extern void subtle_casting_mut(int cmd, variant *res);
 extern void telepathy_mut(int cmd, variant *res);
 extern void tentacles_mut(int cmd, variant *res);
 extern void trunk_mut(int cmd, variant *res);
+extern void untouchable_mut(int cmd, variant *res);
+extern void unyielding_mut(int cmd, variant *res);
 extern void vulnerability_mut(int cmd, variant *res);
 extern void warning_mut(int cmd, variant *res);
 extern void warts_mut(int cmd, variant *res);
 extern void wasting_mut(int cmd, variant *res);
+extern void weapon_skills_mut(int cmd, variant *res);
 extern void weird_mind_mut(int cmd, variant *res);
 extern void wings_mut(int cmd, variant *res);
 extern void wraith_mut(int cmd, variant *res);

@@ -1283,13 +1283,13 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 /*                { "憶病者ラストリン",       200,    175,  108,   4,  12,  RACE_HUMAN},  */
 		{ "憶病者リンスウィンド",       200,    175,  108,   4,  12,  RACE_HUMAN}, 
 		{ "背の低いサルタン",             300,    170,  107,   5,  15,  RACE_GNOME},
-		{ "ハンサムなライア=エル",      300,    165,  107,   6,  18,  RACE_ELF},
+		{ "ハンサムなライア=エル",      300,    165,  107,   6,  18,  RACE_DEMIGOD},
 #else
 		{ "Bilbo the Friendly",         200,    170, 108,  5, 15, RACE_HOBBIT},
 /*		{ "Raistlin the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN}, */
 		{ "Rincewind the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN},
 		{ "Sultan the Midget",          300,    170, 107,  5, 15, RACE_GNOME},
-		{ "Lyar-el the Comely",         300,    165, 107,  6, 18, RACE_ELF},
+		{ "Lyar-el the Comely",         300,    165, 107,  6, 18, RACE_DEMIGOD},
 #endif
 
 #ifdef JP
@@ -1398,9 +1398,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Poogor the Dumb",         250,    170, 108,  5, 15, RACE_BEASTMAN},
 #endif
 #ifdef JP
-{ "フェロールフィリアン",       500,    175, 108,  4, 12, RACE_ELF},
+{ "フェロールフィリアン",       500,    175, 108,  4, 12, RACE_DEMIGOD},
 #else
-		{ "Felorfiliand",       500,    175, 108,  4, 12, RACE_ELF},
+		{ "Felorfiliand",       500,    175, 108,  4, 12, RACE_DEMIGOD},
 #endif
 #ifdef JP
 { "年寄りマロカ",          750,    170, 107,  5, 15, RACE_GNOME},
@@ -1428,9 +1428,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Soalin the Wretched",          750,    170, 107,  5, 15, RACE_ZOMBIE},
 #endif
 #ifdef JP
-{ "質素なメルラ",        1000,    165, 107,  6, 18, RACE_ELF},
+{ "質素なメルラ",        1000,    165, 107,  6, 18, RACE_DEMIGOD},
 #else
-		{ "Merulla the Humble",        1000,    165, 107,  6, 18, RACE_ELF},
+		{ "Merulla the Humble",        1000,    165, 107,  6, 18, RACE_DEMIGOD},
 #endif
 	},
 	{
@@ -1463,9 +1463,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
 #endif
 #ifdef JP
-	{ "エロー・ドラゴンスケイル",          30000,  200, 112,  4,  5, RACE_ELF},
+	{ "エロー・ドラゴンスケイル",          30000,  200, 112,  4,  5, RACE_DEMIGOD},
 #else
-	{ "Elo Dragonscale",          30000,  200, 112,  4,  5, RACE_ELF},
+	{ "Elo Dragonscale",          30000,  200, 112,  4,  5, RACE_DEMIGOD},
 #endif
 #ifdef JP
 { "デリカトス",           10000,   210, 115,  5,  7, RACE_SPRITE},
@@ -1663,9 +1663,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Fungus Giant-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
 #endif
 #ifdef JP
-{ "デランサ",      10000,   210, 115,  6,  6, RACE_ELF},
+{ "デランサ",      10000,   210, 115,  6,  6, RACE_DEMIGOD},
 #else
-		{ "Delantha",      10000,   210, 115,  6,  6, RACE_ELF},
+		{ "Delantha",      10000,   210, 115,  6,  6, RACE_DEMIGOD},
 #endif
 #ifdef JP
 {"レンジャーのソルビスタニ",        15000,  185, 110,  5,  9, RACE_TONBERRY},
@@ -1748,7 +1748,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 #ifdef JP
 		{ "質素なルードヴィヒ",         5000,   175,  109,   6,  15,  RACE_HUMAN},
 		{ "パラディンのガンナー",       10000,  185,  110,   5,  23,  RACE_HUMAN},
-		{ "選ばれしトリン",                     25000,  180,  107,   6,  20,  RACE_ELF},
+		{ "選ばれしトリン",                     25000,  180,  107,   6,  20,  RACE_DEMIGOD},
 		{ "賢明なるサラストロ",                     30000,  185,  109,   5,  15,  RACE_DWARF},
 #else
 		{ "Ludwig the Humble",          5000,   175, 109,  6, 15, RACE_DWARF},
@@ -1793,9 +1793,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Krikkik",         10000,   175, 109,  6, 15, RACE_KLACKON},
 #endif
 #ifdef JP
-{ "荒くれ者モリヴァル",         15000,  185, 110,  5, 23, RACE_ELF},
+{ "荒くれ者モリヴァル",         15000,  185, 110,  5, 23, RACE_DEMIGOD},
 #else
-		{ "Morival the Wild",         15000,  185, 110,  5, 23, RACE_ELF},
+		{ "Morival the Wild",         15000,  185, 110,  5, 23, RACE_DEMIGOD},
 #endif
 #ifdef JP
 { "暗きホシャック",           25000,  180, 107,  6, 20, RACE_IMP},
@@ -1904,12 +1904,12 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "化学者マウザー",             10000,  190,  111,   5,   8,  RACE_TONBERRY},
 		{ "カオスのウィズル",   10000,  190,  110,   6,   8,  RACE_HOBBIT},
 		{ "強欲ミダス",              15000,  200,  116,   6,   9,  RACE_GNOME},
-		{ "貧弱ジャ=ファー",                   15000,  220,  111,   4,   9,  RACE_ELF},/*FIRST*/
+		{ "貧弱ジャ=ファー",                   15000,  220,  111,   4,   9,  RACE_DEMIGOD},/*FIRST*/
 #else
 		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_TONBERRY},
 		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
 		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
-		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_DEMIGOD},
 #endif
 
 #ifdef JP
@@ -1918,9 +1918,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{ "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
 #endif
 #ifdef JP
-	{ "錬金術師ジャル=エス",       15000,  220, 111,  4,  9, RACE_ELF},
+	{ "錬金術師ジャル=エス",       15000,  220, 111,  4,  9, RACE_DEMIGOD},
 #else
-	{ "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+	{ "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_DEMIGOD},
 #endif
 #ifdef JP
 { "用心深いファネラス",         10000,  190, 111,  5,  8, RACE_DWARF},
@@ -2038,9 +2038,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
 #endif
 #ifdef JP
-{ "錬金術師ジャ=ファー",       15000,  220, 111,  4,  9, RACE_ELF},
+{ "錬金術師ジャ=ファー",       15000,  220, 111,  4,  9, RACE_DEMIGOD},
 #else
-		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_DEMIGOD},
 #endif
 #ifdef JP
 	{ "カカルラカカル",           15000,  200, 116,  6,  9, RACE_KLACKON},
@@ -2048,9 +2048,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{ "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
 #endif
 #ifdef JP
-	{ "錬金術師ジャル=エス",       15000,  220, 111,  4,  9, RACE_ELF},
+	{ "錬金術師ジャル=エス",       15000,  220, 111,  4,  9, RACE_DEMIGOD},
 #else
-	{ "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+	{ "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_DEMIGOD},
 #endif
 	},
 	{
@@ -2214,7 +2214,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "ガリー=ギガズ",            20000,  250,  150,  10,   5,  RACE_HALF_TROLL},
 		{ "ゴブリンのヒストーア",       20000,  250,  150,  10,   5,  RACE_SNOTLING},
 		{ "フェレンギ人クアーク",           30000,  250,  150,  10,   5,  RACE_HUMAN},
-		{ "公正なる(?)トッピ",                     30000,  250,  150,  10,   5,  RACE_ELF},
+		{ "公正なる(?)トッピ",                     30000,  250,  150,  10,   5,  RACE_DEMIGOD},
 #else
 		{ "Gary Gygaz",                 20000,  250, 150, 10,  5, RACE_HALF_TROLL},
 		{ "Histor the Goblin",          20000,  250, 150, 10,  5, RACE_SNOTLING},
@@ -2441,12 +2441,12 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "強欲ドラフ", 10000, 175, 108, 4, 12, RACE_HUMAN},
 		{ "賢者オドナー", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
 		{ "中立のガンダー", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
-		{ "忍耐の人ロ=シャ", 30000, 140, 105, 6, 12, RACE_ELF},
+		{ "忍耐の人ロ=シャ", 30000, 140, 105, 6, 12, RACE_DEMIGOD},
 #else
 		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
 		{ "Odnar the Sage", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
 		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
-		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
+		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_DEMIGOD},
 #endif
 
 #ifdef JP
@@ -2510,9 +2510,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Ronar the Iron", 25000, 120, 110, 7, 19, RACE_GOLEM},
 #endif
 #ifdef JP
-{ "ガリル=ガミル", 30000, 140, 105, 6, 12, RACE_ELF},
+{ "ガリル=ガミル", 30000, 140, 105, 6, 12, RACE_DEMIGOD},
 #else
-		{ "Galil-Gamir", 30000, 140, 105, 6, 12, RACE_ELF},
+		{ "Galil-Gamir", 30000, 140, 105, 6, 12, RACE_DEMIGOD},
 #endif
 #ifdef JP
 { "本食いローバグ", 15000, 175, 108, 4, 12, RACE_KOBOLD},
@@ -2550,9 +2550,9 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
 #endif
 #ifdef JP
-{ "忍耐の人ロ=シャ", 30000, 140, 105, 6, 12, RACE_ELF},
+{ "忍耐の人ロ=シャ", 30000, 140, 105, 6, 12, RACE_DEMIGOD},
 #else
-		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
+		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_DEMIGOD},
 #endif
 #ifdef JP
 { "ランドルフ・カーター", 15000, 175, 108, 4, 12, RACE_HUMAN},
@@ -2889,7 +2889,7 @@ player_race race_info[MAX_RACES] =
 	},
 	{
 #ifdef JP
-		"ハーフエルフ",
+		"TRANSLATE",
 #endif
 		"Tonberry",
 
@@ -2904,17 +2904,17 @@ player_race race_info[MAX_RACES] =
 	},
 	{
 #ifdef JP
-		"エルフ",
+		"TRANSLATE",
 #endif
-		"Elf",
+		"Demigod",
 
-		{ -1,  2,  0,  1, -2,  2 },
-		5,  6,  4,  2, 8,  12, -5, 15,
-		8,  120,
+		{ 1,  1,  1,  1, 1,  1 },
+		4,  5,  3, -2, 3, 13, 15, 10,
+		10,  220,
 		75, 75,
 		60,  4, 100,  6,
 		54,  4, 80,  6,
-		3,
+		0,
 		0xE77E75B,
 
 	},

@@ -4770,15 +4770,19 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 		}
 
 		/* Hurt the player a lot */
+		damage = 0;
 		if (!sn)
 		{
-			/* Message and damage */
-#ifdef JP
-			msg_print("あなたはひどい怪我を負った！");
-#else
-			msg_print("You are severely crushed!");
-#endif
-			damage = 200;
+			if (!mut_present(MUT_EVASION))
+			{
+				/* Message and damage */
+	#ifdef JP
+				msg_print("あなたはひどい怪我を負った！");
+	#else
+				msg_print("You are severely crushed!");
+	#endif
+				damage = 200;
+			}
 		}
 
 		/* Destroy the grid, and push the player to safety */
@@ -4789,34 +4793,43 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 			{
 				case 1:
 				{
-#ifdef JP
-					msg_print("降り注ぐ岩をうまく避けた！");
-#else
-					msg_print("You nimbly dodge the blast!");
-#endif
-					damage = 0;
+					if (!mut_present(MUT_EVASION))
+					{
+	#ifdef JP
+						msg_print("降り注ぐ岩をうまく避けた！");
+	#else
+						msg_print("You nimbly dodge the blast!");
+	#endif
+						damage = 0;
+					}
 					break;
 				}
 				case 2:
 				{
-#ifdef JP
-					msg_print("岩石があなたに直撃した!");
-#else
-					msg_print("You are bashed by rubble!");
-#endif
-					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint1(50), FALSE);
+					if (!mut_present(MUT_EVASION))
+					{
+	#ifdef JP
+						msg_print("岩石があなたに直撃した!");
+	#else
+						msg_print("You are bashed by rubble!");
+	#endif
+						damage = damroll(10, 4);
+						(void)set_stun(p_ptr->stun + randint1(50), FALSE);
+					}
 					break;
 				}
 				case 3:
 				{
-#ifdef JP
-					msg_print("あなたは床と壁との間に挟まれてしまった！");
-#else
-					msg_print("You are crushed between the floor and ceiling!");
-#endif
-					damage = damroll(10, 4);
-					(void)set_stun(p_ptr->stun + randint1(50), FALSE);
+					if (!mut_present(MUT_EVASION))
+					{
+	#ifdef JP
+						msg_print("あなたは床と壁との間に挟まれてしまった！");
+	#else
+						msg_print("You are crushed between the floor and ceiling!");
+	#endif
+						damage = damroll(10, 4);
+						(void)set_stun(p_ptr->stun + randint1(50), FALSE);
+					}
 					break;
 				}
 			}

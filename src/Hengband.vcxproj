@@ -146,6 +146,7 @@
     <ClCompile Include="samurai.c" />
     <ClCompile Include="save.c" />
     <ClCompile Include="scores.c" />
+    <ClCompile Include="skills.c" />
     <ClCompile Include="smith.c" />
     <ClCompile Include="snipe.c" />
     <ClCompile Include="spells.c" />

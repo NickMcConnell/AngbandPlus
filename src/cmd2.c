@@ -3420,7 +3420,7 @@ bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 	do_cmd_fire_aux2(item, j_ptr, px, py, tx, ty);
 
 	/* Hack! Snotlings recoil when shooting ... */
-	if (p_ptr->prace == RACE_SNOTLING)
+	if (prace_is_(RACE_SNOTLING))
 	{
 		int ny, nx;
 
@@ -3796,19 +3796,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 				}
 
 				if ((r_ptr->level + 10) > p_ptr->lev)
-				{
-					int now_exp = p_ptr->weapon_exp[0][j_ptr->sval];
-					if (now_exp < s_info[p_ptr->pclass].w_max[0][j_ptr->sval])
-					{
-						int amount = 0;
-						if (now_exp < WEAPON_EXP_BEGINNER) amount = 80;
-						else if (now_exp < WEAPON_EXP_SKILLED) amount = 25;
-						else if ((now_exp < WEAPON_EXP_EXPERT) && (p_ptr->lev > 19)) amount = 10;
-						else if (p_ptr->lev > 34) amount = 2;
-						p_ptr->weapon_exp[0][j_ptr->sval] += amount;
-						p_ptr->update |= (PU_BONUS);
-					}
-				}
+					skills_bow_gain(j_ptr->sval);
 
 				if (p_ptr->riding)
 				{
@@ -3978,10 +3966,16 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						{
 							if (!(m_ptr->smart & SM_TICKED_OFF))
 							{
-								char m_name[80];
-								monster_desc(m_name, m_ptr, 0);
-								msg_format("%^s is ticked off!", m_name);
-								m_ptr->smart |= SM_TICKED_OFF;
+								if (mut_present(MUT_PEERLESS_SNIPER) && !one_in_(3))
+								{
+								}
+								else
+								{
+									char m_name[80];
+									monster_desc(m_name, m_ptr, 0);
+									msg_format("%^s is ticked off!", m_name);
+									m_ptr->smart |= SM_TICKED_OFF;
+								}
 							}
 						}
 						/* STICK TO */

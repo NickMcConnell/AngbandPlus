@@ -892,7 +892,10 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 
 
 	/* Compute the racial factor */
-	factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE && flip)
+		factor = 100;
+	else
+		factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
 
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
@@ -3112,13 +3115,21 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 
 	*price = 0;
 
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)
+	{
+		cur_ask = 1;
+		final_ask = price_item(o_ptr, 100, TRUE);
+		noneed = TRUE;
+	}
+	else
+	{
+		/* Obtain the starting offer and the final offer */
+		cur_ask = price_item(o_ptr, ot_ptr->max_inflate, TRUE);
+		final_ask = price_item(o_ptr, ot_ptr->min_inflate, TRUE);
 
-	/* Obtain the starting offer and the final offer */
-	cur_ask = price_item(o_ptr, ot_ptr->max_inflate, TRUE);
-	final_ask = price_item(o_ptr, ot_ptr->min_inflate, TRUE);
-
-	/* Determine if haggling is necessary */
-	noneed = noneedtobargain(final_ask);
+		/* Determine if haggling is necessary */
+		noneed = noneedtobargain(final_ask);
+	}
 
 	/* Get the owner's payout limit */
 	purse = (s32b)(ot_ptr->max_cost);

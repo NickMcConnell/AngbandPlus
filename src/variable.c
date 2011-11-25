@@ -810,11 +810,6 @@ char *v_name;
 char *v_text;
 
 /*
- * The skill table
- */
-skill_table *s_info;
-
-/*
  * The magic info
  */
 player_magic *m_info;

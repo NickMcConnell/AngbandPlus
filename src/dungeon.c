@@ -6523,9 +6523,15 @@ quit("セーブファイルが壊れています");
 	if (new_game)
 	{
 		class_t *class_ptr = get_class_t();
+		race_t *race_ptr = get_race_t();
+		
 		player_outfit();
+		
 		if (class_ptr && class_ptr->birth)
 			class_ptr->birth();
+
+		if (race_ptr && race_ptr->birth)
+			race_ptr->birth();
 	}
 
 	/* React to changes */

@@ -950,7 +950,12 @@ bool make_attack_normal(int m_idx)
 					obvious = TRUE;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->paralyzed &&
+					if (mut_present(MUT_EVASION))
+					{
+						msg_print("You quickly protect your money pouch!");
+						if (randint0(3)) blinked = TRUE;
+					}
+					else if (!p_ptr->paralyzed &&
 					    (randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 							      p_ptr->lev)))
 					{
@@ -1032,7 +1037,13 @@ bool make_attack_normal(int m_idx)
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
-					if (!p_ptr->paralyzed &&
+					if (mut_present(MUT_EVASION))
+					{
+						msg_print("You grab hold of your backpack!");
+						blinked = TRUE;
+						obvious = TRUE;
+					}
+					else if (!p_ptr->paralyzed &&
 					    (randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
 							      p_ptr->lev)))
 					{
@@ -1152,6 +1163,11 @@ bool make_attack_normal(int m_idx)
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+					if (mut_present(MUT_EVASION))
+					{
+						msg_print("You grab hold of your food stores!");
+						break;
+					}
 
 					/* Steal some food */
 					for (k = 0; k < 10; k++)

@@ -976,6 +976,10 @@ static void load_quick_start(void)
 
 	rd_byte(&previous_char.psex);
 	rd_byte(&previous_char.prace);
+	if (h_older_than(0, 0, 66, 1))
+		previous_char.psubrace = 0;
+	else
+		rd_byte(&previous_char.psubrace);
 	rd_byte(&previous_char.pclass);
 	if (h_older_than(0, 0, 7, 2))
 		previous_char.pclass = 0;
@@ -1052,6 +1056,10 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->realm1);
 	rd_byte(&p_ptr->realm2);
 	rd_byte(&p_ptr->psubclass);
+	if (h_older_than(0, 0, 66, 1))
+		p_ptr->psubrace = 0;
+	else
+		rd_byte(&p_ptr->psubrace);
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);

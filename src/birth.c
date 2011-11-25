@@ -1693,7 +1693,7 @@ static cptr race_jouhou[MAX_RACES] =
 
 "Tonberries are lizard-like creatures who possess enormous strength and have a preference for cleavers and large knives.  They are, however, sluggish in their movements and reactions; young and inexperienced tonberries are often preyed on by the other races.  They possess human-like intelligence, but rarely become mages due to their culture and physiology.",
 
-"Elves are better magicians then humans, but not as good at fighting.  They tend to be smarter and faster than either humans or half-elves and also have better wisdom.  Elves are better at searching, disarming, perception, stealth, bows, and magic, but they are not as good at hand weapons.  They resist light effects intrinsically.",
+"The term demigod is commonly used to describe mythological figures whose one parent was a god and whose other parent was human; as such, demigods are human-god hybrids and are quite powerful.  Demigods receive special abilities depending on their parentage.",
 
 "Hobbits, or Halflings, are very good at bows, throwing, and have good saving throws.  They also are very good at searching, disarming, perception, and stealth; so they make excellent rogues, but prefer to be called burglars.  They are much weaker than humans, and no good at melee fighting.  Halflings have fair infravision, so they can detect warm creatures at a distance.  They have a strong hold on their life force, and are thus intrinsically resistant to life draining.",
 
@@ -2010,6 +2010,66 @@ static cptr pact_desc[MAX_PACTS] =
 "Angels are heavenly beings who use a variety of techniques to smite those they view as evil. Warlocks who make pacts with Angels will find their saving throws significantly improved, and their body immune to bolt-like effects. Eventually Angel Warlocks attain the ability to become invulnerable for brief periods at will. Since Angels are strongly aligned with the forces of good, making a pact with Angels will reduce damage done to all good monsters by half.",
 "Demons are crafty creatures of the netherworld, using whatever means at their disposal to bring down their enemies. Warlocks who make pacts with Demons will find their abilities to use all magical devices improved, and gains the ability to Recharge these devices at will. Eventually, Demon Warlocks attain the ability to crush walls beneath their footsteps. Making a pact with Demons will reduce damage done to all demons by half.",
 "Aberrations are the mishmash of demihumanoid races in the world of Chengband. Warlocks who make pacts with Aberrations will find themselves sprouting strange body parts that can be used for various attacks. The demented mind of aberrations also eventually grants Warlocks the power of telepathy and dimension door. Making a pact with Aberrations will reduce damage done to all humanoids (h) and people (p) by half.",
+};
+
+static cptr demigod_name[MAX_DEMIGOD_TYPES] =
+{
+	"Minor God",
+	"Zeus",
+	"Poseidon",
+	"Hades",
+	"Athena",
+	"Ares",
+	"Hermes",
+	"Apollo",
+	"Artemis",
+	"Hephaestus",
+	"Hera",
+	"Demeter",
+	"Aphrodite",
+};
+
+/* Some of the following descriptions are from wikipedia ... */
+static cptr demigod_desc[MAX_DEMIGOD_TYPES] =
+{
+"Fathered by a minor god, you gain no special powers.  There is no xp penalty for this choice.",
+"Zeus, King of the gods and ruler of Mount Olympus; god of the Sky and Thunder, and "
+	"nominal husband of Hera.  You inherit elemental protection and increased stature.",
+"Poseidon, Brother of Zeus, Lord of the Seas and Storm.  You inherit protection from water "
+	"and storms of confusion.",
+"Hades, Ruler of the Underworld.  You gain resistance to nether forces and increased fortitude.",
+"Athena is the great goddess of wisdom and the protector of Athens. She was born of Zeus "
+	"and the Titan Metis, and her cunning far surpasses that of the other deities.  "
+	"You inherit great clarity of thought and magic.",
+"Ares is the bold son of Zeus and Hera, whose very name is feared and respected by "
+	"warriors and citizens alike. His legendary combat prowess exceeds that of "
+	"Zeus and Poseidon, but he is less skilled in wiles than the other Olympians.  "
+	"You inherit exceptional bonuses to combat.",
+"Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians to "
+	"negotiate truces. With his Winged Sandals and his powerful magic, there is no "
+	"place barred from him, and there is no way to detain him.  You inherit great powers "
+	"of motion.",
+"Apollo has been variously recognized as a god of light and the sun, truth and prophecy, "
+	"medicine, healing, plague, music, poetry, arts, archery, and more.  You inherit "
+	"powers of illumination.",
+"Artemis was often described as the daughter of Zeus and Leto, and the twin sister of "
+	"Apollo. She was the Hellenic goddess of the hunt, wild animals, wilderness, "
+	"childbirth, virginity and young girls, bringing and relieving disease in women; "
+	"she often was depicted as a huntress carrying a bow and arrows.  "
+	"You inherit powers of archery.",
+"Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, sculptors, "
+	"metals, metallurgy, fire and volcanoes. Like other mythic smiths but unlike "
+	"most other gods, Hephaestus was lame, which gave him a grotesque appearance "
+	"in Greek eyes. He served as the blacksmith of the gods.  You inherit powers "
+	"of enchantment and protection.",
+"Hera was the wife and one of three sisters of Zeus.  Her chief function was as the "
+	"goddess of women and marriage.  You inherit great clarity of mind and capacity "
+	"for magic.",
+"Demeter is the goddess of the harvest, who presided over grains, the fertility of "
+	"the earth, and the seasons.  You gain powers of regeneration, healing, and "
+	"temperance.",
+"Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation.  You "
+	"inherit her sex appeal!",
 };
 
 static cptr realm_jouhou[VALID_REALM] =
@@ -2548,6 +2608,142 @@ static bool get_player_subclass(void)
 	return (TRUE);
 }
 
+static bool get_demigod_parent(void)
+{
+	int k, n, cs, os;
+	char buf[80], cur[80];
+	cptr parent = NULL;
+	cptr str;
+	char p2 = ')';
+	char c;
+
+	clear_from(10);
+	put_str("Unlike in real life, you get to choose you parent.", 23, 5);
+
+	for (n = 0; n < MAX_DEMIGOD_TYPES; n++)
+	{
+		parent = demigod_name[n];
+		sprintf(buf, "%c%c %s", I2A(n), p2, parent);
+		put_str(buf, 12 + (n/5), 2 + 15 * (n%5));
+	}
+
+	sprintf(cur, "%c%c %s", '*', p2, "Random");
+
+	/* Choose */
+	k = -1;
+	cs = 0;
+	os = MAX_DEMIGOD_TYPES;
+	while (1)
+	{
+		if (cs != os)
+		{
+			put_str(cur, 12 + (os/5), 2 + 15 * (os%5));
+			if(cs == MAX_DEMIGOD_TYPES)
+				sprintf(cur, "%c%c %s", '*', p2, "Random");
+			else
+			{
+				parent = demigod_name[cs];
+				str = parent;
+				sprintf(cur, "%c%c %s", I2A(cs), p2, str);
+			}
+			c_put_str(TERM_YELLOW, cur, 12 + (cs/5), 2 + 15 * (cs%5));
+			os = cs;
+		}
+
+		if (k >= 0) break;
+
+		sprintf(buf, "Choose Parentage (%c-%c): ", I2A(0), I2A(n-1));
+
+		put_str(buf, 10, 10);
+		c = inkey();
+		if (c == 'Q') birth_quit();
+		if (c == 'S') return (FALSE);
+		if (c == ' ' || c == '\r' || c == '\n')
+		{
+			if(cs == MAX_DEMIGOD_TYPES)
+				k = randint0(MAX_DEMIGOD_TYPES);
+			else
+				k = cs;
+			break;
+		}
+		if (c == '*')
+		{
+			k = randint0(MAX_DEMIGOD_TYPES);
+			break;
+		}
+		if (c == '4')
+		{
+			if (cs > 0) cs--;
+		}
+		if (c == '6')
+		{
+			if (cs < MAX_DEMIGOD_TYPES) cs++;
+		}
+		k = (islower(c) ? A2I(c) : -1);
+		if ((k >= 0) && (k < MAX_DEMIGOD_TYPES))
+		{
+			cs = k;
+			continue;
+		}
+		else k = -1;
+		if (c == '?') do_cmd_help();
+		else if(c != '4' && c != '6')bell();
+	}
+
+	p_ptr->psubrace = k;
+	clear_from(10);
+	return TRUE;
+}
+
+static bool get_player_subrace(void)
+{
+	int i;
+
+	p_ptr->psubrace = 0;
+	if (p_ptr->prace != RACE_DEMIGOD) return TRUE;
+
+	/* Clean up infomation of modifications */
+	put_str("                                   ", 3, 40);
+	put_str("                                   ", 4, 40);
+	put_str("                                   ", 5, 40);
+
+	while (1)
+	{
+		char temp[80*10];
+		cptr t;
+		if (!get_demigod_parent()) return FALSE;
+
+		/* Clean up*/
+		clear_from(10);
+		put_str("                                   ", 3, 40);
+		put_str("                                   ", 4, 40);
+		put_str("                                   ", 5, 40);
+
+		roff_to_buf(demigod_desc[p_ptr->psubrace], 74, temp, sizeof(temp));
+		t = temp;
+		for (i = 0; i < 10; i++)
+		{
+			if(t[0] == 0)
+				break; 
+			else
+			{
+				prt(t, 12+i, 3);
+				t += strlen(t) + 1;
+			}
+		}
+
+#ifdef JP
+		if (get_check_strict("よろしいですか？", CHECK_DEFAULT_Y)) break;
+#else
+		if (get_check_strict("Are you sure? ", CHECK_DEFAULT_Y)) break;
+#endif
+	}
+
+/*	put_str("Pact        :", 6, 1);
+	c_put_str(TERM_L_BLUE, pact_info[p_ptr->psubclass].title, 6, 15);*/
+	return TRUE;
+}
+
 static bool get_base_spell_power(void)
 {
 	int count;
@@ -2826,6 +3022,7 @@ static void save_prev_data(birther *birther_ptr)
 	/* Save the data */
 	birther_ptr->psex = p_ptr->psex;
 	birther_ptr->prace = p_ptr->prace;
+	birther_ptr->psubrace = p_ptr->psubrace;
 	birther_ptr->pclass = p_ptr->pclass;
 	birther_ptr->psubclass = p_ptr->psubclass;
 	birther_ptr->pseikaku = p_ptr->pseikaku;
@@ -2886,6 +3083,7 @@ static void load_prev_data(bool swap)
 	/* Load the data */
 	p_ptr->psex = previous_char.psex;
 	p_ptr->prace = previous_char.prace;
+	p_ptr->psubrace = previous_char.psubrace;
 	p_ptr->pclass = previous_char.pclass;
 	p_ptr->psubclass = previous_char.psubclass;
 	p_ptr->pseikaku = previous_char.pseikaku;
@@ -3098,6 +3296,34 @@ static void get_extra(bool roll_hitdie)
 	if (p_ptr->prace == RACE_ANDROID) p_ptr->expfact = rp_ptr->r_exp;
 	else p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
+	/* TODO: Table this stuff up ... */
+	if (p_ptr->prace == RACE_DEMIGOD)
+	{
+		switch (p_ptr->psubrace)
+		{
+		case DEMIGOD_ZEUS:
+		case DEMIGOD_POSEIDON:
+		case DEMIGOD_HADES:
+			p_ptr->expfact += 100;
+			break;
+		case DEMIGOD_ATHENA:
+		case DEMIGOD_ARES:
+		case DEMIGOD_HERMES:
+			p_ptr->expfact += 90;
+			break;
+		case DEMIGOD_APOLLO:
+		case DEMIGOD_ARTEMIS:
+		case DEMIGOD_HEPHAESTUS:
+			p_ptr->expfact += 80;
+			break;
+		case DEMIGOD_HERA:
+		case DEMIGOD_DEMETER:
+		case DEMIGOD_APHRODITE:
+			p_ptr->expfact += 70;
+			break;
+		}
+	}
+
 	/* Reset record of race/realm changes */
 	p_ptr->start_race = p_ptr->prace;
 	p_ptr->old_race1 = 0L;
@@ -3112,8 +3338,15 @@ static void get_extra(bool roll_hitdie)
 	}
 
 	for (i = 0; i < 5; i++)
+	{
 		for (j = 0; j < 64; j++)
-			p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_start[i][j];
+		{
+			if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARES)
+				p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
+			else
+				p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_start[i][j];
+		}
+	}
 	if ((p_ptr->pseikaku == SEIKAKU_SEXY) && (p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] < WEAPON_EXP_BEGINNER))
 	{
 		p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_BEGINNER;
@@ -3167,6 +3400,7 @@ static void get_history(void)
 		case RACE_HUMAN:
 		case RACE_BARBARIAN:
 		case RACE_DUNADAN:
+		case RACE_DEMIGOD:
 		{
 			chart = 1;
 			break;
@@ -3176,7 +3410,6 @@ static void get_history(void)
 			chart = 4;
 			break;
 		}
-		case RACE_ELF:
 		case RACE_HIGH_ELF:
 		{
 			chart = 7;
@@ -6404,6 +6637,8 @@ static bool player_birth_aux(void)
 
 	/* Clean up */
 	clear_from(10);
+
+	if (!get_player_subrace()) return FALSE;
 
 	/* Choose the players class */
 	p_ptr->pclass = 0;

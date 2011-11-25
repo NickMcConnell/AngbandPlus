@@ -474,7 +474,7 @@ static void _vengeful_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		fire_ball(GF_ELDRITCH, dir, dam, 0);
-		take_hit(DAMAGE_USELIFE, dam/3, "vengeful blast", -1);
+		take_hit(DAMAGE_USELIFE, 100, "vengeful blast", -1);
 
 		var_set_bool(res, TRUE);
 		break;

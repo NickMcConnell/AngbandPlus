@@ -486,7 +486,6 @@ extern birther previous_char;
 extern vault_type *v_info;
 extern char *v_name;
 extern char *v_text;
-extern skill_table *s_info;
 extern player_magic *m_info;
 extern feature_type *f_info;
 extern char *f_name;
@@ -1926,6 +1925,16 @@ extern class_t *rune_knight_get_class_t(void);
 /* samurai.c */
 extern void samurai_concentration_spell(int cmd, variant *res);
 extern void samurai_posture_spell(int cmd, variant *res);
+
+/* skills.c */
+extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/
+extern int skills_bow_current(int sval);
+extern int skills_bow_max(int sval);
+extern void skills_bow_gain(int sval);
+extern int skills_weapon_current(int tval, int sval);
+extern int skills_weapon_max(int tval, int sval);
+extern void skills_weapon_gain(int tval, int sval);
+extern bool skills_weapon_is_icky(int tval, int sval);
 
 /* smith.c */
 extern void smith_judgment_spell(int cmd, variant *res);

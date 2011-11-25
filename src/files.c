@@ -2570,14 +2570,60 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	{
 	switch (p_ptr->prace)
 	{
+	case RACE_DEMIGOD:
+		switch (p_ptr->psubrace)
+		{
+		case DEMIGOD_ZEUS:
+			add_flag(flgs, TR_RES_ELEC);
+			add_flag(flgs, TR_SH_ELEC);
+			break;
+		case DEMIGOD_POSEIDON:
+			add_flag(flgs, TR_RES_ACID);
+			add_flag(flgs, TR_RES_CONF);
+			break;
+		case DEMIGOD_HADES:
+			add_flag(flgs, TR_RES_NETHER);
+			add_flag(flgs, TR_HOLD_LIFE);
+			add_flag(flgs, TR_SUST_CON);
+			break;
+		case DEMIGOD_ATHENA:
+			add_flag(flgs, TR_SUST_INT);
+			break;
+		case DEMIGOD_ARES:
+			add_flag(flgs, TR_RES_FEAR);
+			add_flag(flgs, TR_SUST_STR);
+			add_flag(flgs, TR_STEALTH);
+			break;
+		case DEMIGOD_HERMES:
+			add_flag(flgs, TR_SPEED);
+			add_flag(flgs, TR_STEALTH);
+			break;
+		case DEMIGOD_APOLLO:
+			add_flag(flgs, TR_FREE_ACT);
+			add_flag(flgs, TR_RES_LITE);
+			add_flag(flgs, TR_RES_BLIND);
+			if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
+			break;
+		case DEMIGOD_ARTEMIS:
+			break;
+		case DEMIGOD_HEPHAESTUS:
+			break;
+		case DEMIGOD_HERA:
+			break;
+		case DEMIGOD_DEMETER:
+			add_flag(flgs, TR_REGEN);
+			add_flag(flgs, TR_SLOW_DIGEST);
+			break;
+		case DEMIGOD_APHRODITE:
+			add_flag(flgs, TR_SUST_CHR);
+			break;
+		}
+		break;
 	case RACE_TONBERRY:
 		add_flag(flgs, TR_SUST_STR);
 		add_flag(flgs, TR_SUST_CON);
 		add_flag(flgs, TR_SPEED);
 		add_flag(flgs, TR_RES_FEAR);
-		break;
-	case RACE_ELF:
-		add_flag(flgs, TR_RES_LITE);
 		break;
 	case RACE_HOBBIT:
 		add_flag(flgs, TR_HOLD_LIFE);
@@ -3679,6 +3725,37 @@ c_put_str(TERM_YELLOW, "¸½ºß", row, stat_col+35);
 
 		if (p_ptr->mimic_form) r_adj = mimic_info[p_ptr->mimic_form].r_adj[i];
 		else r_adj = rp_ptr->r_adj[i];
+
+		if (p_ptr->prace == RACE_DEMIGOD)
+		{
+			switch (p_ptr->psubrace)
+			{
+			case DEMIGOD_ZEUS:
+				r_adj++;
+				break;
+
+			case DEMIGOD_HADES:
+				if (i == A_CON) r_adj += 2;
+				if (i == A_CHR) r_adj -= 2;
+				break;
+
+			case DEMIGOD_ATHENA:
+				if (i == A_INT) r_adj += 2;
+				break;
+
+			case DEMIGOD_ARES:
+				if (i == A_STR) r_adj += 2;
+				break;
+
+			case DEMIGOD_ARTEMIS:
+				if (i == A_DEX) r_adj += 2;
+				break;
+
+			case DEMIGOD_APHRODITE:
+				if (i == A_CHR) r_adj += 1;
+				break;
+			}
+		}
 
 		/* Calculate equipment adjustment */
 		e_adj = 0;

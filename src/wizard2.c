@@ -2261,6 +2261,8 @@ void do_cmd_debug(void)
 
 	/* Mutation */
 	case 'M':
+		mut_gain_choice(mut_human_pred);
+	/*
 		n = get_quantity("Which One? ", 500);
 		if (n == 500)
 		{
@@ -2269,7 +2271,7 @@ void do_cmd_debug(void)
 				mut_gain(i);
 		}
 		else
-			mut_gain(n);
+			mut_gain(n);*/
 		break;
 
 	/* Specific reward */

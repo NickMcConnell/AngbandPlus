@@ -83,11 +83,15 @@ void check_experience(void)
 		if (p_ptr->lev > p_ptr->max_plv)
 		{
 			class_t *class_ptr = get_class_t();
+			race_t *race_ptr = get_race_t();
 
 			p_ptr->max_plv = p_ptr->lev;
 
 			if (class_ptr != NULL && class_ptr->gain_level != NULL)
 				(class_ptr->gain_level)(p_ptr->lev);
+
+			if (race_ptr != NULL && race_ptr->gain_level != NULL)
+				(race_ptr->gain_level)(p_ptr->lev);
 
 			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
 			    mut_present(MUT_CHAOS_GIFT))
@@ -1783,6 +1787,12 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 
 	/* Finally multiply base experience point of the monster */
 	s64b_mul(&new_exp, &new_exp_frac, 0, r_ptr->mexp);
+
+	if (mut_present(MUT_FAST_LEARNER))
+	{
+		s64b_div(&new_exp, &new_exp_frac, 0, 2);
+		s64b_mul(&new_exp, &new_exp_frac, 0, 3);
+	}
 
 	/* Gain experience */
 	gain_exp_64(new_exp, new_exp_frac);
@@ -6297,6 +6307,9 @@ int bow_range(int sval)
 		}
 		break;
 	}
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ARTEMIS)
+		tdis += 1;
+
 	return tdis;
 }
 

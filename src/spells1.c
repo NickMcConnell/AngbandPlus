@@ -6578,8 +6578,14 @@ note = "には効果がなかった。";
 			{
 				if (!(m_ptr->smart & SM_TICKED_OFF))
 				{
-					msg_format("%^s is ticked off!", m_name);
-					m_ptr->smart |= SM_TICKED_OFF;
+					if (mut_present(MUT_SUBTLE_CASTING) && one_in_(3))
+					{
+					}
+					else
+					{
+						msg_format("%^s is ticked off!", m_name);
+						m_ptr->smart |= SM_TICKED_OFF;
+					}
 				}
 			}
 

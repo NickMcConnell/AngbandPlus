@@ -3118,6 +3118,8 @@ static void calc_hitpoints(void)
 	{
 		mhp += 10 + p_ptr->lev;
 	}
+	if (mut_present(MUT_UNYIELDING))
+		mhp += 2 * p_ptr->lev;
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
@@ -3204,6 +3206,8 @@ static void calc_torch(void)
 			}
 
 			if (o_ptr->name2 == EGO_LITE_SHINE) p_ptr->cur_lite++;
+			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
+				p_ptr->cur_lite++;
 		}
 		else
 		{
@@ -3350,6 +3354,7 @@ void calc_bonuses(void)
 	s16b this_o_idx, next_o_idx = 0;
 	player_race *tmp_rp_ptr;
 	class_t *class_ptr = get_class_t();
+	race_t *race_ptr = get_race_t();
 
 	/* Save the old vision stuff */
 	bool old_telepathy = p_ptr->telepathy;
@@ -3398,6 +3403,7 @@ void calc_bonuses(void)
 	p_ptr->to_d_b = 0;
 	p_ptr->easy_2weapon = FALSE;
 	if (p_ptr->tim_genji) easy_2weapon = TRUE;
+	if (mut_present(MUT_AMBIDEXTROUS)) easy_2weapon = TRUE;
 	p_ptr->speciality1_equip = FALSE;
 	p_ptr->speciality2_equip = FALSE;
 	p_ptr->sneak_attack = FALSE;
@@ -3874,9 +3880,6 @@ void calc_bonuses(void)
 			p_ptr->weapon_info[1].dis_to_d += dam;
 			break;
 		}
-		case RACE_ELF:
-			p_ptr->resist_lite = TRUE;
-			break;
 		case RACE_HOBBIT:
 			p_ptr->hold_life = TRUE;
 			break;
@@ -3948,6 +3951,7 @@ void calc_bonuses(void)
 			break;
 		case RACE_DARK_ELF:
 			p_ptr->resist_dark = TRUE;
+			p_ptr->spell_cap += 3;
 			if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
 			break;
 		case RACE_DRACONIAN:
@@ -4950,6 +4954,9 @@ void calc_bonuses(void)
 	/* Call the class hook after scanning equipment but before calculating encumbrance, et. al.*/
 	if (class_ptr != NULL && class_ptr->calc_bonuses != NULL)
 		class_ptr->calc_bonuses();
+
+	if (race_ptr != NULL && race_ptr->calc_bonuses != NULL)
+		race_ptr->calc_bonuses();
 
 	/* Temporary "Hero" ... moved after class processing for the Swordmaster */
 	if (IS_HERO())

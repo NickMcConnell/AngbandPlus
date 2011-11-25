@@ -312,6 +312,9 @@
     <ClCompile Include="blood_mage.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="skills.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

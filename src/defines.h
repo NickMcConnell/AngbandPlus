@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 65
+#define FAKE_VER_PATCH 66
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 65 
+#define H_VER_PATCH 66
 #define H_VER_EXTRA 1
 
 
@@ -752,7 +752,7 @@
  */
 #define RACE_HUMAN               0
 #define RACE_TONBERRY            1
-#define RACE_ELF                 2
+#define RACE_DEMIGOD             2
 #define RACE_HOBBIT              3
 #define RACE_GNOME               4
 #define RACE_DWARF               5
@@ -787,6 +787,22 @@
 #define RACE_S_FAIRY            34
 #define RACE_KUTAR              35
 #define RACE_ANDROID            36
+
+#define DEMIGOD_MINOR			0 	/* Demigod Parentage.  Modeled as a 'subrace' */
+#define DEMIGOD_ZEUS			1
+#define DEMIGOD_POSEIDON		2
+#define DEMIGOD_HADES			3
+#define DEMIGOD_ATHENA			4
+#define DEMIGOD_ARES			5
+#define DEMIGOD_HERMES			6
+#define DEMIGOD_APOLLO			7
+#define DEMIGOD_ARTEMIS			8
+#define DEMIGOD_HEPHAESTUS		9
+#define DEMIGOD_HERA			10
+#define DEMIGOD_DEMETER			11
+#define DEMIGOD_APHRODITE		12
+
+#define MAX_DEMIGOD_TYPES		13
 
 /*
  * Maximum number of player "race" types (see "table.c", etc)
@@ -4689,9 +4705,12 @@ extern int PlayerUID;
 #define PARSE_ERROR_UNDEFINED_TERRAIN_TAG   10
 #define PARSE_ERROR_MAX                     11
 
-#define GINOU_SUDE       0
-#define GINOU_NITOURYU   1
-#define GINOU_RIDING      2
+#define GINOU_SUDE          0
+#define SKILL_MARTIAL_ARTS  0
+#define GINOU_NITOURYU      1
+#define SKILL_DUAL_WIELDING 1
+#define GINOU_RIDING        2
+#define SKILL_RIDING        2
 
 /* Proficiency level */
 #define EXP_LEVEL_UNSKILLED 0

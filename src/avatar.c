@@ -317,7 +317,7 @@ void get_virtues(void)
 	case RACE_HUMAN: case RACE_TONBERRY: case RACE_DUNADAN:
 		p_ptr->vir_types[i++] = V_INDIVIDUALISM;
 		break;
-	case RACE_ELF: case RACE_SPRITE: case RACE_ENT:
+	case RACE_DEMIGOD: case RACE_SPRITE: case RACE_ENT:
 		p_ptr->vir_types[i++] = V_NATURE;
 		break;
 	case RACE_HOBBIT: case RACE_HALF_OGRE:

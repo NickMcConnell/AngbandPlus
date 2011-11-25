@@ -385,7 +385,7 @@ static void do_cmd_eat_food_aux(int item)
 		}
 	}
 
-	if (p_ptr->prace == RACE_SNOTLING && object_is_mushroom(o_ptr))
+	if (prace_is_(RACE_SNOTLING) && object_is_mushroom(o_ptr))
 	{
 		int lev = k_info[o_ptr->k_idx].level;
 		int dur = lev + randint1(lev);
@@ -741,7 +741,10 @@ static void do_cmd_quaff_potion_aux(int item)
 
 
 	/* Take a turn */
-	energy_use = 100;
+	if (mut_present(MUT_POTION_CHUGGER))
+		energy_use = 50;
+	else
+		energy_use = 100;
 
 	if (world_player)
 	{

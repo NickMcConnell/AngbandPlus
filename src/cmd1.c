@@ -2550,21 +2550,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	else if (object_is_melee_weapon(o_ptr))
 	{
 		if ((r_ptr->level + 10) > p_ptr->lev)
-		{
-			int tval = inventory[INVEN_RARM+hand].tval - TV_WEAPON_BEGIN;
-			int sval = inventory[INVEN_RARM+hand].sval;
-			int now_exp = p_ptr->weapon_exp[tval][sval];
-			if (now_exp < s_info[p_ptr->pclass].w_max[tval][sval])
-			{
-				int amount = 0;
-				if (now_exp < WEAPON_EXP_BEGINNER) amount = 80;
-				else if (now_exp < WEAPON_EXP_SKILLED) amount = 10;
-				else if ((now_exp < WEAPON_EXP_EXPERT) && (p_ptr->lev > 19)) amount = 1;
-				else if ((p_ptr->lev > 34) && one_in_(2)) amount = 1;
-				p_ptr->weapon_exp[tval][sval] += amount;
-				p_ptr->update |= (PU_BONUS);
-			}
-		}
+			skills_weapon_gain(inventory[INVEN_RARM+hand].tval, inventory[INVEN_RARM+hand].sval);
 	}
 
 	/* Disturb the monster */
