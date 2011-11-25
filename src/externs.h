@@ -83,6 +83,7 @@ extern player_sex sex_info[MAX_SEXES];
 extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
 extern player_pact pact_info[MAX_PACTS];
+extern demigod_type demigod_info[MAX_DEMIGOD_TYPES];
 extern magic_type technic_info[NUM_TECHNIC][32];
 extern player_seikaku seikaku_info[MAX_SEIKAKU];
 extern player_race mimic_info[];

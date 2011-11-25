@@ -2012,66 +2012,6 @@ static cptr pact_desc[MAX_PACTS] =
 "Aberrations are the mishmash of demihumanoid races in the world of Chengband. Warlocks who make pacts with Aberrations will find themselves sprouting strange body parts that can be used for various attacks. The demented mind of aberrations also eventually grants Warlocks the power of telepathy and dimension door. Making a pact with Aberrations will reduce damage done to all humanoids (h) and people (p) by half.",
 };
 
-static cptr demigod_name[MAX_DEMIGOD_TYPES] =
-{
-	"Minor God",
-	"Zeus",
-	"Poseidon",
-	"Hades",
-	"Athena",
-	"Ares",
-	"Hermes",
-	"Apollo",
-	"Artemis",
-	"Hephaestus",
-	"Hera",
-	"Demeter",
-	"Aphrodite",
-};
-
-/* Some of the following descriptions are from wikipedia ... */
-static cptr demigod_desc[MAX_DEMIGOD_TYPES] =
-{
-"Fathered by a minor god, you gain no special powers.  There is no xp penalty for this choice.",
-"Zeus, King of the gods and ruler of Mount Olympus; god of the Sky and Thunder, and "
-	"nominal husband of Hera.  You inherit elemental protection and increased stature.",
-"Poseidon, Brother of Zeus, Lord of the Seas and Storm.  You inherit protection from water "
-	"and storms of confusion.",
-"Hades, Ruler of the Underworld.  You gain resistance to nether forces and increased fortitude.",
-"Athena is the great goddess of wisdom and the protector of Athens. She was born of Zeus "
-	"and the Titan Metis, and her cunning far surpasses that of the other deities.  "
-	"You inherit great clarity of thought and magic.",
-"Ares is the bold son of Zeus and Hera, whose very name is feared and respected by "
-	"warriors and citizens alike. His legendary combat prowess exceeds that of "
-	"Zeus and Poseidon, but he is less skilled in wiles than the other Olympians.  "
-	"You inherit exceptional bonuses to combat.",
-"Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians to "
-	"negotiate truces. With his Winged Sandals and his powerful magic, there is no "
-	"place barred from him, and there is no way to detain him.  You inherit great powers "
-	"of motion.",
-"Apollo has been variously recognized as a god of light and the sun, truth and prophecy, "
-	"medicine, healing, plague, music, poetry, arts, archery, and more.  You inherit "
-	"powers of illumination.",
-"Artemis was often described as the daughter of Zeus and Leto, and the twin sister of "
-	"Apollo. She was the Hellenic goddess of the hunt, wild animals, wilderness, "
-	"childbirth, virginity and young girls, bringing and relieving disease in women; "
-	"she often was depicted as a huntress carrying a bow and arrows.  "
-	"You inherit powers of archery.",
-"Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, sculptors, "
-	"metals, metallurgy, fire and volcanoes. Like other mythic smiths but unlike "
-	"most other gods, Hephaestus was lame, which gave him a grotesque appearance "
-	"in Greek eyes. He served as the blacksmith of the gods.  You inherit powers "
-	"of enchantment and protection.",
-"Hera was the wife and one of three sisters of Zeus.  Her chief function was as the "
-	"goddess of women and marriage.  You inherit great clarity of mind and capacity "
-	"for magic.",
-"Demeter is the goddess of the harvest, who presided over grains, the fertility of "
-	"the earth, and the seasons.  You gain powers of regeneration, healing, and "
-	"temperance.",
-"Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation.  You "
-	"inherit her sex appeal!",
-};
-
 static cptr realm_jouhou[VALID_REALM] =
 {
 #ifdef JP
@@ -2622,7 +2562,7 @@ static bool get_demigod_parent(void)
 
 	for (n = 0; n < MAX_DEMIGOD_TYPES; n++)
 	{
-		parent = demigod_name[n];
+		parent = demigod_info[n].name;
 		sprintf(buf, "%c%c %s", I2A(n), p2, parent);
 		put_str(buf, 12 + (n/5), 2 + 15 * (n%5));
 	}
@@ -2642,7 +2582,7 @@ static bool get_demigod_parent(void)
 				sprintf(cur, "%c%c %s", '*', p2, "Random");
 			else
 			{
-				parent = demigod_name[cs];
+				parent = demigod_info[cs].name;
 				str = parent;
 				sprintf(cur, "%c%c %s", I2A(cs), p2, str);
 			}
@@ -2719,7 +2659,7 @@ static bool get_player_subrace(void)
 		put_str("                                   ", 4, 40);
 		put_str("                                   ", 5, 40);
 
-		roff_to_buf(demigod_desc[p_ptr->psubrace], 74, temp, sizeof(temp));
+		roff_to_buf(demigod_info[p_ptr->psubrace].desc, 74, temp, sizeof(temp));
 		t = temp;
 		for (i = 0; i < 10; i++)
 		{

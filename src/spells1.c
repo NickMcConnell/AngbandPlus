@@ -6578,7 +6578,7 @@ note = "には効果がなかった。";
 			{
 				if (!(m_ptr->smart & SM_TICKED_OFF))
 				{
-					if (mut_present(MUT_SUBTLE_CASTING) && one_in_(3))
+					if (mut_present(MUT_SUBTLE_CASTING) && one_in_(2))
 					{
 					}
 					else

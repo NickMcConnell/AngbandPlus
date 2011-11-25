@@ -844,6 +844,10 @@ struct player_pact
 	cptr alliance;
 };
 
+typedef struct {
+	cptr name;
+	cptr desc;
+} demigod_type;
 
 /*
  * Player racial info

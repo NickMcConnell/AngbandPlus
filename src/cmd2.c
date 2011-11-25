@@ -3966,7 +3966,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						{
 							if (!(m_ptr->smart & SM_TICKED_OFF))
 							{
-								if (mut_present(MUT_PEERLESS_SNIPER) && !one_in_(3))
+								if (mut_present(MUT_PEERLESS_SNIPER) && !one_in_(5))
 								{
 								}
 								else

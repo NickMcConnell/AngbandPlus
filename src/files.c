@@ -1582,6 +1582,7 @@ errr check_load_init(void)
 #define ENTRY_SPECIALIZATION1 47
 #define ENTRY_SPECIALIZATION2 48
 #define ENTRY_PATRON_HACK 49
+#define ENTRY_DEMIGOD 50
 
 static struct
 {
@@ -1690,6 +1691,7 @@ static struct
 	{ 1,  6, -1, "Subspec  : "},
 	{ 1,  7, -1, "Spec     : "},
 	{ 1,  8, -1, "Patron   : "},
+	{29,  8, 21, "Parent"},
 };
 #endif
 
@@ -4096,6 +4098,12 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_SEX, sp_ptr->title, TERM_L_BLUE);
 		display_player_one_line(ENTRY_RACE, (p_ptr->mimic_form ? mimic_info[p_ptr->mimic_form].title : rp_ptr->title), TERM_L_BLUE);
 		display_player_one_line(ENTRY_CLASS, cp_ptr->title, TERM_L_BLUE);
+
+		if (p_ptr->prace == RACE_DEMIGOD)
+		{
+			strcpy(tmp, demigod_info[p_ptr->psubrace].name);
+			display_player_one_line(ENTRY_DEMIGOD, tmp, TERM_L_BLUE);
+		}
 
 		if (p_ptr->pclass == CLASS_WARLOCK)
 		{
