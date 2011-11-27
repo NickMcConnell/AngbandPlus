@@ -3663,6 +3663,16 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 					}
 					break;
 				}
+			case MON_ZEUS:
+			{
+					int num = 8;
+					msg_format("%^s summons Shamblers", m_name);
+					for (k = 0; k < num; k++)
+					{
+						summon_named_creature(m_idx, y, x, MON_SHAMBLER, mode);
+					}
+					break;
+			}
 			case MON_ROLENTO:
 #ifdef JP
 				if (blind) msg_format("%^sが何か大量に投げた。", m_name);
@@ -3995,6 +4005,22 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 		/* RF6_S_KIN */
 		case 160+16:
 		{
+			if (r_ptr->flags3 & RF3_OLYMPIAN)
+			{
+				disturb(1, 0);
+				if (blind) msg_format("%^s mumbles.", m_name);
+				else msg_format("%^s magically summons Olympians!", m_name);
+
+				for (k = 0; k < s_num_4; k++)
+				{
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_OLYMPIANS, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+				}
+				if (blind && count)
+				{
+					msg_print("You hear immortal beings appear nearby.");
+				}
+				break;
+			}
 			disturb(1, 0);
 			if (m_ptr->r_idx == MON_SERPENT || m_ptr->r_idx == MON_ZOMBI_SERPENT)
 			{

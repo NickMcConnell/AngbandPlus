@@ -529,6 +529,8 @@ void do_cmd_spell(void)
 			sound(SOUND_FAIL); /* Doh! */
 			if (flush_failure) flush();
 			msg_print("You failed to concentrate hard enough!");
+			if (caster->use_sp && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+				p_ptr->csp += spell->cost/2;
 			if (caster->on_fail != NULL)
 				(caster->on_fail)(spell);
 		}

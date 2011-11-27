@@ -3896,6 +3896,127 @@ F:ACTIVATE | SLAY_ANIMAL | SLAY_DEMON | SLAY_UNDEAD |
 F:FREE_ACT | RES_SOUND | HOLD_LIFE | SUST_STR | SUST_DEX |
 F:BLOWS | SPEED | STR | DEX | CON | WIS
 
+N:256:TRANSLATE
+E:of Zeus
+I:40:29:5
+W:90:127:2:555555
+P:0:0d0:5:5:5
+F:SPEED | MAGIC_MASTERY | LITE | REGEN | FREE_ACT |
+F:RES_SHARDS | SH_ELEC | PERMA_CURSE | ACTIVATE | QUESTITEM
+D:$This is the charm worn by Zeus, King of the Olympians and Bane of the Titans.
+
+N:257:TRANSLATE
+E:of Poseidon
+I:22:5:3
+W:90:127:70:555555
+P:0:24d1:24:24:0
+F:STR | DEX | CON | SPEED | BRAND_ACID |
+F:ORDER | RES_ACID | RES_FIRE | RES_SOUND | ACTIVATE |
+F:PERMA_CURSE | QUESTITEM
+
+N:258:TRANSLATE
+E:of Hades
+I:36:13:1
+W:90:127:80:555555
+P:4:1d1:0:0:26
+F:CON | STEALTH | SPEED | SUST_CON | FREE_ACT |
+F:SEE_INVIS | HOLD_LIFE | SLOW_DIGEST | RES_ACID | RES_ELEC |
+F:RES_COLD | RES_FIRE | RES_POIS | RES_DARK | RES_NETHER |
+F:RES_NEXUS | ESP_UNDEAD | ESP_DEMON | ESP_EVIL | SH_COLD |
+F:PERMA_CURSE | ACTIVATE | QUESTITEM
+D:$This simple tunic belongs to Hades, Lord of the Underworld.
+
+N:259:TRANSLATE
+E:of Athena
+I:22:2:5
+W:90:127:50:555555
+P:0:3d6:15:15:15
+F:DEX | INT | WIS | SUST_INT | SUST_WIS |
+F:HOLD_LIFE | TELEPATHY | PERMA_CURSE | ACTIVATE | QUESTITEM
+D:$This is the favored weapon of Athena, the great goddess of War and Wisdom.
+
+N:260:TRANSLATE
+E:of Ares
+I:32:5:1
+W:90:127:75:555555
+P:5:5d5:12:12:-5
+F:STR | DEX | CON | SPEED | BLOWS |
+F:WARNING | REFLECT | AGGRAVATE | PERMA_CURSE | ACTIVATE |
+F:QUESTITEM
+D:$The helm of Ares, the Olympian whose legendary combat prowess exceeds that 
+D:$of Zeus himself.
+
+N:261:TRANSLATE
+E:of Hermes
+I:30:2:7
+W:90:127:20:555555
+P:2:1d1:0:0:7
+F:SPEED | DEX | STEALTH | FREE_ACT | LEVITATION |
+F:RES_CHAOS | PERMA_CURSE | ACTIVATE | QUESTITEM
+
+N:262:TRANSLATE
+E:of Apollo
+I:19:70:3
+W:90:127:40:555555
+P:0:0d0:0:0:0
+F:STR | INT | CHR | SPEED | SUST_STR |
+F:SUST_INT | SUST_CHR | FREE_ACT | RES_FEAR | RES_LITE |
+F:RES_NETHER | PERMA_CURSE | ACTIVATE | QUESTITEM
+D:$The is the lyre of Apollo, the sun god.
+
+N:263:TRANSLATE
+E:of Artemis
+I:19:12:3
+W:90:127:30:555555
+P:0:0d0:12:18:0
+F:STR | DEX | CHR | STEALTH | XTRA_MIGHT |
+F:XTRA_SHOTS | SUST_STR | SUST_DEX | SUST_CHR | SEE_INVIS |
+F:RES_BLIND | PERMA_CURSE | ACTIVATE | QUESTITEM
+D:$This is the bow of Artemis, the virgin huntress and twin of Apollo.
+
+N:264:TRANSLATE
+E:of Hephaestus
+I:21:19:1
+W:90:127:300:555555
+P:0:5d6:0:0:0
+F:STR | DEX | CON | INT | WIS | CHR |
+F:SPEED | BLOWS | KILL_EVIL | KILL_DRAGON | KILL_UNDEAD | 
+F:KILL_DEMON | SLAY_HUMAN | SLAY_ANIMAL | SLAY_ORC | SLAY_TROLL | 
+F:SLAY_GIANT | BRAND_ACID | BRAND_COLD | BRAND_FIRE | BRAND_ELEC |
+F:VAMPIRIC | PERMA_CURSE | ACTIVATE | QUESTITEM
+
+N:265:TRANSLATE
+E:of Hera
+I:33:12:3
+W:90:127:40:555555
+P:0:1d1:0:0:20
+F:INT | WIS | CHR | SPELL_CAP | SUST_INT |
+F:SUST_WIS | SUST_CHR | RES_CONF | RES_SOUND | DEC_MANA |
+F:PERMA_CURSE | ACTIVATE | QUESTITEM
+
+N:266:TRANSLATE
+E:of Demeter
+I:39:0:2
+W:90:127:30:555555
+P:0:1d1:0:0:0
+F:WIS | CON | RES_TIME | REGEN | LITE |
+F:PERMA_CURSE | ACTIVATE | QUESTITEM
+
+N:267:TRANSLATE
+E:of Aphrodite
+I:40:32:5
+W:90:127:2:555555
+P:0:1d1:0:0:25
+F:CHR | SUST_CHR | RES_POIS | RES_BLIND | RES_NEXUS |
+F:RES_CHAOS | RES_DISEN | FREE_ACT | SEE_INVIS | LEVITATION |
+F:TELEPATHY | REFLECT | AGGRAVATE | PERMA_CURSE | ACTIVATE |
+F:QUESTITEM
+D:$The legendary Apple of Discord, created by Eris in revenge for 
+D:$not being invited to the wedding of Peleus and Thetis. On this 
+D:$apple is engrave "For the Fairest," and Athena, Hera, and Aphrodite 
+D:$all laid claim to it. When the Trojan Prince gave the apple to 
+D:$Aphrodite, he received Helen of Troy, which sparked the Trojan War.
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

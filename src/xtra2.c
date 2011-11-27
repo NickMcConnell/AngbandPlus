@@ -1401,6 +1401,55 @@ msg_print("地面に落とされた。");
 			chance = 75;
 			break;
 
+		case MON_ZEUS:
+			a_idx = ART_ZEUS;
+			chance = 100;
+			break;
+		case MON_POSEIDON:
+			a_idx = ART_POSEIDON;
+			chance = 100;
+			break;
+		case MON_HADES:
+			a_idx = ART_HADES;
+			chance = 100;
+			break;
+		case MON_ATHENA:
+			a_idx = ART_ATHENA;
+			chance = 100;
+			break;
+		case MON_ARES:
+			a_idx = ART_ARES;
+			chance = 100;
+			break;
+		case MON_HERMES:
+			a_idx = ART_HERMES;
+			chance = 100;
+			break;
+		case MON_APOLLO:
+			a_idx = ART_APOLLO;
+			chance = 100;
+			break;
+		case MON_ARTEMIS:
+			a_idx = ART_ARTEMIS;
+			chance = 100;
+			break;
+		case MON_HEPHAESTUS:
+			a_idx = ART_HEPHAESTUS;
+			chance = 100;
+			break;
+		case MON_HERA:
+			a_idx = ART_HERA;
+			chance = 100;
+			break;
+		case MON_DEMETER:
+			a_idx = ART_DEMETER;
+			chance = 100;
+			break;
+		case MON_APHRODITE:
+			a_idx = ART_APHRODITE;
+			chance = 100;
+			break;
+
 		case MON_HAGEN:
 			a_idx = ART_HAGEN;
 			chance = 66;
@@ -1892,6 +1941,19 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	   here, so now you even get to see how much damage your auras inflict! */
 	if (dam > 0 && (p_ptr->wizard || cheat_xtra))
 		msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
+
+	if (prace_is_(RACE_DEMIGOD) && 
+	    p_ptr->psubrace == DEMIGOD_POSEIDON &&
+		note == NULL && /* Hack: Trying to just get melee and shooting */
+		!mon_save_p(m_ptr->r_idx, A_DEX) )
+	{
+		char m_name[MAX_NLEN];
+		monster_desc(m_name, m_ptr, MD_POSSESSIVE);
+		msg_format("%^s armor melts.", m_name);
+		m_ptr->ac_adj -= 4;
+		if (p_ptr->wizard || cheat_xtra)
+			msg_format("Melt Armor: AC is now %d", MON_AC(r_ptr, m_ptr));
+	}
 
 	/* Hurt it */
 	m_ptr->hp -= dam;

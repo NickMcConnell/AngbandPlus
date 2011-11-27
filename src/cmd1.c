@@ -2305,7 +2305,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
 	/* Test for hit */
-	if ((!(r_ptr->flags2 & RF2_QUANTUM) || !randint0(2)) && test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+	if ((!(r_ptr->flags2 & RF2_QUANTUM) || !randint0(2)) && test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
 	{
 		/* Sound */
 		sound(SOUND_HIT);
@@ -2330,7 +2330,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		k = mon_damage_mod(m_ptr, k, FALSE);
 
 		/* Hack: Monster AC now reduces damage */
-		k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
+		k -= (k * ((MON_AC(r_ptr, m_ptr) < 200) ? MON_AC(r_ptr, m_ptr) : 200) / 1200);
 
 		/* Anger the monster */
 		if (k > 0) anger_monster(m_ptr);
@@ -2624,7 +2624,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		else if ((p_ptr->pclass == CLASS_NINJA) && ((backstab || fuiuchi) && !(r_ptr->flagsr & RFR_RES_ALL))) success_hit = TRUE;
 		else if (duelist_attack) success_hit = TRUE;
 		else if (weaponmaster_get_toggle() == TOGGLE_BURNING_BLADE) success_hit = TRUE;
-		else success_hit = test_hit_norm(chance, r_ptr->ac, m_ptr->ml);
+		else success_hit = test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml);
 
 		if (mode == HISSATSU_MAJIN)
 		{
@@ -3114,7 +3114,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			);
 
 			/* Hack: Monster AC now reduces damage */
-			k -= (k * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
+			k -= (k * ((MON_AC(r_ptr, m_ptr) < 200) ? MON_AC(r_ptr, m_ptr) : 200) / 1200);
 
 			if (duelist_attack)
 			{
@@ -4013,7 +4013,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 	if (weaponmaster_get_toggle() == TOGGLE_TRIP && mode == 0 && !(*mdeath))
 	{
-		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+		if (test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
 		{
 			if (m_ptr->mflag2 & MFLAG2_TRIPPED)
 				msg_format("%^s is already tripped up.", m_name);

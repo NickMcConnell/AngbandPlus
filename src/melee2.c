@@ -1512,7 +1512,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 	if (d_info[dungeon_type].flags1 & DF1_NO_MELEE) return (FALSE);
 
 	/* Total armor */
-	ac = tr_ptr->ac;
+	ac = MON_AC(tr_ptr, t_ptr);
 
 	/* Extract the effective monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);

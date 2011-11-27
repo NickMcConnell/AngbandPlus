@@ -4368,6 +4368,150 @@ static void do_cmd_activate_aux(int item)
 		/* Choose effect */
 		switch (o_ptr->name1)
 		{
+			case ART_ZEUS:
+			{
+				msg_print("Your pendant crackles with power.");
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_ELEC, dir, 555, 3);
+				o_ptr->timeout = 5;
+				break;
+			}
+			case ART_POSEIDON:
+			{
+				msg_print("The ground trembles!");
+				earthquake(py, px, 5);
+				break;
+			}
+			case ART_HADES:
+			{
+				msg_print("Your clothes glow black.");
+				restore_level();
+				do_res_stat(A_STR);
+				do_res_stat(A_INT);
+				do_res_stat(A_WIS);
+				do_res_stat(A_DEX);
+				do_res_stat(A_CON);
+				do_res_stat(A_CHR);
+				o_ptr->timeout = 5;
+				break;
+			}
+			case ART_ATHENA:
+			{
+				msg_print("Your spear glows red.");
+				recharge(200);
+				o_ptr->timeout = 150;
+				break;
+			}
+			case ART_ARES:
+			{
+				msg_print("Your head fills with the dying cries of fallen heroes.");
+				cast_berserk();
+				o_ptr->timeout = 20;
+				break;
+			}
+			case ART_HERMES:
+			{
+				msg_print("Your boots shine.");
+				set_fast(randint1(75) + 75, FALSE);
+				dimension_door();
+				o_ptr->timeout = 100;
+				break;
+			}
+			case ART_APOLLO:
+			{
+				msg_print("Your harp flashes bright red!");
+				wiz_lite(p_ptr->tim_superstealth > 0);
+				detect_traps(DETECT_RAD_DEFAULT, TRUE);
+				detect_doors(DETECT_RAD_DEFAULT);
+				detect_stairs(DETECT_RAD_DEFAULT);
+				o_ptr->timeout = 200;
+				break;
+			}
+			case ART_ARTEMIS:
+			{
+				object_type forge;
+				char o_name[MAX_NLEN];
+				int slot;
+
+				msg_print("Your bow glows purple.");
+
+				object_prep(&forge, lookup_kind(TV_ARROW, m_bonus(1, p_ptr->lev)+ 1));
+				forge.number = (byte)rand_range(5, 10);
+				object_aware(&forge);
+				object_known(&forge);
+				apply_magic(&forge, p_ptr->lev, AM_NO_FIXED_ART);
+
+				forge.discount = 99;
+
+				object_desc(o_name, &forge, 0);
+
+				slot = inven_carry(&forge);
+				if (slot >= 0) autopick_alter_item(slot, FALSE);
+
+				o_ptr->timeout = 999;
+				break;
+			}
+			case ART_HEPHAESTUS:
+			{
+				msg_print("You mighty hammer lets out a shrill wail.");
+				enchantment_hack = TRUE;
+				if (cast_enchantment())
+					o_ptr->timeout = 200;
+				enchantment_hack = FALSE;
+				break;
+			}
+			case ART_HERA:
+			{
+				if (p_ptr->pclass == CLASS_MAGIC_EATER)
+				{
+					int i;
+					for (i = 0; i < EATER_EXT*2; i++)
+					{
+						p_ptr->magic_num1[i] += (p_ptr->magic_num2[i] < 10) ? EATER_CHARGE * 3 : p_ptr->magic_num2[i]*EATER_CHARGE/3;
+						if (p_ptr->magic_num1[i] > p_ptr->magic_num2[i]*EATER_CHARGE) p_ptr->magic_num1[i] = p_ptr->magic_num2[i]*EATER_CHARGE;
+					}
+					for (; i < EATER_EXT*3; i++)
+					{
+						int k_idx = lookup_kind(TV_ROD, i-EATER_EXT*2);
+						p_ptr->magic_num1[i] -= ((p_ptr->magic_num2[i] < 10) ? EATER_ROD_CHARGE*3 : p_ptr->magic_num2[i]*EATER_ROD_CHARGE/3)*k_info[k_idx].pval;
+						if (p_ptr->magic_num1[i] < 0) p_ptr->magic_num1[i] = 0;
+					}
+					msg_print("You feel your head clear.");
+					p_ptr->window |= (PW_PLAYER);
+				}
+				else if (p_ptr->csp < p_ptr->msp)
+				{
+					if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+						p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
+					else
+						p_ptr->csp = p_ptr->msp;
+
+					p_ptr->csp_frac = 0;
+					msg_print("You feel your head clear.");
+
+					p_ptr->redraw |= (PR_MANA);
+					p_ptr->window |= (PW_PLAYER);
+					p_ptr->window |= (PW_SPELL);
+				}
+				set_shero(0,TRUE);
+				o_ptr->timeout = 555;
+				break;
+			}
+			case ART_DEMETER:
+			{
+				msg_print("Your torch engulfs you in a purifying flame!");
+				hp_player(500);
+				set_food(PY_FOOD_MAX - 1);
+				o_ptr->timeout = 100;
+				break;
+			}
+			case ART_APHRODITE:
+			{
+				msg_print("Your golden apple pulsates!");
+				summon_specific(-1, py, px, MIN(p_ptr->lev, dun_level), 0, (PM_ALLOW_GROUP | PM_FORCE_PET));
+				o_ptr->timeout = 25;
+				break;
+			}
 			case ART_GALADRIEL:
 			{
 #ifdef JP

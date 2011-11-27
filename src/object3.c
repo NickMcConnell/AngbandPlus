@@ -352,7 +352,7 @@ static s32b _stats_q(u32b flgs[TR_FLAG_SIZE], int pval)
 	pval = MIN(pval, 10); /* Iron Crown of the Serpent is +125 */
 
 	if (have_flag(flgs, TR_SPELL_POWER)) 
-		return 10000 * ABS(pval); /* Hack! */
+		return 5000 * ABS(pval); /* Hack! */
 	else
 	{
 		if (have_flag(flgs, TR_STR)) {y += 10; ct++;}

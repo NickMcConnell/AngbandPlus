@@ -2026,6 +2026,8 @@ bool set_slow(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HERMES) v = 0;
+
 	/* Open */
 	if (v)
 	{
@@ -5305,7 +5307,10 @@ bool inc_stat(int stat)
 		/* Gain one (sometimes two) points */
 		if (value < 18)
 		{
-			gain = ((randint0(100) < 75) ? 1 : 2);
+			if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ZEUS)
+				gain = 2;
+			else
+				gain = ((randint0(100) < 75) ? 1 : 2);
 			value += gain;
 		}
 
@@ -5319,7 +5324,10 @@ bool inc_stat(int stat)
 			if (gain < 1) gain = 1;
 
 			/* Apply the bonus */
-			value += randint1(gain) + gain / 2;
+			if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ZEUS)
+				value += gain + gain/2;
+			else
+				value += randint1(gain) + gain / 2;
 
 			/* Maximal value */
 			if (value > (p_ptr->stat_max_max[stat]-1)) value = p_ptr->stat_max_max[stat]-1;
@@ -5988,6 +5996,9 @@ void change_race(int new_race, cptr effect_msg)
 		p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
 	else
 		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
+
+	if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_HADES)
+		p_ptr->hitdie += 2;
 
 	do_cmd_rerate(FALSE);
 

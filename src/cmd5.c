@@ -1372,6 +1372,9 @@ msg_format("%sをうまく唱えられなかった！", prayer);
 		msg_format("You failed to get the %s off!", prayer);
 #endif
 
+		if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+			p_ptr->csp += take_mana/2;
+
 		sound(SOUND_FAIL);
 
 		if (caster_ptr && caster_ptr->on_fail != NULL)

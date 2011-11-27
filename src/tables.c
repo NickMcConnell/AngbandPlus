@@ -3889,19 +3889,72 @@ player_class class_info[MAX_CLASS] =
 /* Some of the following descriptions are from wikipedia ... */
 demigod_type demigod_info[MAX_DEMIGOD_TYPES] = 
 {
-	{"Minor God", "Fathered by a minor god, you gain no special powers."},
-	{"Zeus", "Zeus, King of the gods and ruler of Mount Olympus; god of the Sky and Thunder, and nominal husband of Hera.  You inherit elemental protection and increased stature."},
-	{"Poseidon", "Poseidon, Brother of Zeus, Lord of the Seas and Storm.  You inherit protection from water and storms of confusion."},
-	{"Hades", "Hades, Ruler of the Underworld.  You gain resistance to nether forces and increased fortitude."},
-	{"Athena", "Athena is the great goddess of wisdom and the protector of Athens. She was born of Zeus and the Titan Metis, and her cunning far surpasses that of the other deities.  You inherit great clarity of thought and magic."},
-	{"Ares", "Ares is the bold son of Zeus and Hera, whose very name is feared and respected by warriors and citizens alike. His legendary combat prowess exceeds that of Zeus and Poseidon, but he is less skilled in wiles than the other Olympians.  You inherit exceptional bonuses to combat."},
-	{"Hermes", "Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians to negotiate truces. With his Winged Sandals and his powerful magic, there is no place barred from him, and there is no way to detain him.  You inherit great powers of motion."},
-	{"Apollo", "Apollo has been variously recognized as a god of light and the sun, truth and prophecy, medicine, healing, plague, music, poetry, arts, archery, and more.  You inherit powers of illumination."},
-	{"Artemis", "Artemis was often described as the daughter of Zeus and Leto, and the twin sister of Apollo. She was the Hellenic goddess of the hunt, wild animals, wilderness, childbirth, virginity and young girls, bringing and relieving disease in women; she often was depicted as a huntress carrying a bow and arrows.  You inherit powers of archery."},
-	{"Hephaestus", "Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, sculptors, metals, metallurgy, fire and volcanoes. Like other mythic smiths but unlike most other gods, Hephaestus was lame, which gave him a grotesque appearance in Greek eyes. He served as the blacksmith of the gods.  You inherit powers of enchantment and protection."},
-	{"Hera", "Hera was the wife and one of three sisters of Zeus.  Her chief function was as the goddess of women and marriage.  You inherit great clarity of mind and capacity for magic."},
-	{"Demeter", "Demeter is the goddess of the harvest, who presided over grains, the fertility of the earth, and the seasons.  You gain powers of regeneration, healing, and temperance."},
-	{"Aphrodite", "Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation.  You inherit her sex appeal!"},
+	{"Minor God", 
+		"Fathered by a minor god, you gain no special powers.",
+		0},
+	{"Zeus", 
+		"Zeus, King of the gods and ruler of Mount Olympus, god of the Sky "
+		"and Thunder, and nominal husband of Hera.  You inherit elemental "
+		"protection and increased stature.",
+		120},
+	{"Poseidon", 
+		"Poseidon, Brother of Zeus, Lord of the Seas and Storm.  You inherit "
+		"protection from water and storms of confusion.",
+		120},
+	{"Hades", 
+		"Hades, Ruler of the Underworld.  You gain resistance to nether forces and "
+		"increased fortitude.",
+		120},
+	{"Athena", 
+		"Athena is the great goddess of wisdom and the protector of Athens. She was "
+		"born of Zeus and the Titan Metis, and her cunning far surpasses that of the "
+		"other deities.  You inherit great clarity of thought and magic.",
+		100},
+	{"Ares", 
+		"Ares is the bold son of Zeus and Hera, whose very name is feared and respected "
+		"by warriors and citizens alike. His legendary combat prowess exceeds that of "
+		"Zeus and Poseidon, but he is less skilled in wiles than the other Olympians.  "
+		"You inherit exceptional bonuses to combat.",
+		100},
+	{"Hermes", 
+		"Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians "
+		"to negotiate truces. With his Winged Sandals and his powerful magic, there "
+		"is no place barred from him, and there is no way to detain him.  You inherit "
+		"great powers of motion.",
+		100},
+	{"Apollo", 
+		"Apollo has been variously recognized as a god of light and the sun, "
+		"truth and prophecy, medicine, healing, plague, music, poetry, arts, "
+		"archery, and more.  You inherit powers of illumination.",
+		80},
+	{"Artemis", 
+		"Artemis was often described as the daughter of Zeus and Leto, and the "
+		"twin sister of Apollo. She was the Hellenic goddess of the hunt, wild "
+		"animals, wilderness, childbirth, virginity and young girls, bringing "
+		"and relieving disease in women; she often was depicted as a huntress "
+		"carrying a bow and arrows.  You inherit powers of archery.",
+		80},
+	{"Hephaestus", 
+		"Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, "
+		"sculptors, metals, metallurgy, fire and volcanoes. Like other mythic smiths "
+		"but unlike most other gods, Hephaestus was lame, which gave him a "
+		"grotesque appearance in Greek eyes. He served as the blacksmith of the "
+		"gods.  You inherit powers of enchantment and protection.",
+		80},
+	{"Hera", 
+		"Hera was the wife and one of three sisters of Zeus.  Her chief function "
+		"was as the goddess of women and marriage.  You inherit great clarity of "
+		"mind and capacity for magic.",
+		60},
+	{"Demeter", 
+		"Demeter is the goddess of the harvest, who presided over grains, the "
+		"fertility of the earth, and the seasons.  You gain powers of regeneration, "
+		"healing, and temperance.",
+		60},
+	{"Aphrodite", 
+		"Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation.  "
+		"You inherit her sex appeal!",
+		60},
 };
 
 /* Warlock Pacts */

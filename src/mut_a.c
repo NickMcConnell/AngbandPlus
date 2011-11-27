@@ -1979,7 +1979,7 @@ void unyielding_mut(int cmd, variant *res)
 		msg_print(T("Heck!  Might as well give up ...", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are unyielding (+2 HP per level).", ""));
+		var_set_string(res, T("You are unyielding (+1.5 HP per level).", ""));
 		break;
 	default:
 		default_spell(cmd, res);

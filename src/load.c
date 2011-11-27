@@ -314,12 +314,45 @@ static void rd_item(object_type *o_ptr)
 
 	rd_s16b(&o_ptr->weight);
 
-	if (flags & SAVE_ITEM_NAME1) rd_byte(&o_ptr->name1);
-	else o_ptr->name1 = 0;
-	if (flags & SAVE_ITEM_NAME2) rd_byte(&o_ptr->name2);
-	else o_ptr->name2 = 0;
-	if (flags & SAVE_ITEM_NAME3) rd_byte(&o_ptr->name3);
-	else o_ptr->name3 = 0;
+	if (flags & SAVE_ITEM_NAME1) 
+	{
+		if (h_older_than(0, 0, 67, 1))
+		{
+			byte b;
+			rd_byte(&b);
+			o_ptr->name1 = b;
+		}
+		else
+			rd_s16b(&o_ptr->name1);
+	}
+	else 
+		o_ptr->name1 = 0;
+	if (flags & SAVE_ITEM_NAME2) 
+	{
+		if (h_older_than(0, 0, 67, 1))
+		{
+			byte b;
+			rd_byte(&b);
+			o_ptr->name2 = b;
+		}
+		else
+			rd_s16b(&o_ptr->name2);
+	}
+	else 
+		o_ptr->name2 = 0;
+	if (flags & SAVE_ITEM_NAME3) 
+	{
+		if (h_older_than(0, 0, 67, 1))
+		{
+			byte b;
+			rd_byte(&b);
+			o_ptr->name3 = b;
+		}
+		else
+			rd_s16b(&o_ptr->name3);
+	}
+	else 
+		o_ptr->name3 = 0;
 	if (flags & SAVE_ITEM_TIMEOUT) rd_s16b(&o_ptr->timeout);
 	else o_ptr->timeout = 0;
 
@@ -514,6 +547,9 @@ static void rd_monster(monster_type *m_ptr)
 
 	if (flags & SAVE_MON_PACK_IDX) rd_s16b(&m_ptr->pack_idx);
 	else m_ptr->pack_idx = 0;
+
+	if (flags & SAVE_MON_AC) rd_s16b(&m_ptr->ac_adj);
+	else m_ptr->ac_adj = 0;
 }
 
 

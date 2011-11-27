@@ -1741,6 +1741,7 @@ extern bool object_is_ammo(object_type *o_ptr);
 extern bool object_is_armour(object_type *o_ptr);
 extern bool object_is_shield(object_type *o_ptr);
 extern bool object_is_body_armour(object_type *o_ptr);
+extern bool enchantment_hack;
 extern bool object_is_weapon_armour_ammo(object_type *o_ptr);
 extern bool object_is_melee_weapon(object_type *o_ptr);
 extern bool object_is_jewelry(object_type *o_ptr);

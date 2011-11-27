@@ -2578,10 +2578,12 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		case DEMIGOD_ZEUS:
 			add_flag(flgs, TR_RES_ELEC);
 			add_flag(flgs, TR_SH_ELEC);
+			add_flag(flgs, TR_LEVITATION);
 			break;
 		case DEMIGOD_POSEIDON:
 			add_flag(flgs, TR_RES_ACID);
-			add_flag(flgs, TR_RES_CONF);
+			add_flag(flgs, TR_RES_COLD);
+			add_flag(flgs, TR_RES_ELEC);
 			break;
 		case DEMIGOD_HADES:
 			add_flag(flgs, TR_RES_NETHER);
@@ -2592,7 +2594,6 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_SUST_INT);
 			break;
 		case DEMIGOD_ARES:
-			add_flag(flgs, TR_RES_FEAR);
 			add_flag(flgs, TR_SUST_STR);
 			add_flag(flgs, TR_STEALTH);
 			break;
@@ -2601,13 +2602,11 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_STEALTH);
 			break;
 		case DEMIGOD_APOLLO:
-			add_flag(flgs, TR_FREE_ACT);
-			add_flag(flgs, TR_RES_LITE);
 			add_flag(flgs, TR_RES_BLIND);
-			add_flag(flgs, TR_RES_SOUND);
 			add_flag(flgs, TR_LITE);
 			break;
 		case DEMIGOD_ARTEMIS:
+			add_flag(flgs, TR_SUST_DEX);
 			break;
 		case DEMIGOD_HEPHAESTUS:
 			break;
@@ -3151,6 +3150,9 @@ static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_FIRE);
 	else if (prace_is_(RACE_YEEK) && p_ptr->lev > 19)
 		add_flag(flgs, TR_RES_ACID);
+
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
+		add_flag(flgs, TR_RES_LITE);
 
 	if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_DEMON && p_ptr->lev > 49)
 		add_flag(flgs, TR_RES_FIRE);
@@ -3755,7 +3757,7 @@ c_put_str(TERM_YELLOW, "¸½ºß", row, stat_col+35);
 				break;
 
 			case DEMIGOD_APHRODITE:
-				if (i == A_CHR) r_adj += 1;
+				if (i == A_CHR) r_adj += 2;
 				break;
 			}
 		}

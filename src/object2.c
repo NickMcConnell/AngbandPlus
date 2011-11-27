@@ -6740,6 +6740,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 		if (p_ptr->resist_lite) dam /= 2; /* Worst case of 4 / (d4 + 7) */
 		if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) dam *= 2;
 		else if (prace_is_(RACE_S_FAIRY)) dam = dam * 4 / 3;
+		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO) dam = 0;
 
 		/*
 		 * Cannot use "ignore_wraith_form" strictly (for "random one damage")

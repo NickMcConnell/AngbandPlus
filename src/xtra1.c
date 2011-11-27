@@ -2766,7 +2766,32 @@ static void calc_mana(void)
 		/* Hack -- usually add one mana */
 		if (msp) msp++;
 
-		if (msp) msp += (msp * rp_ptr->r_adj[mp_ptr->spell_stat] / 20);
+		if (msp) 
+		{
+			int adj = rp_ptr->r_adj[mp_ptr->spell_stat];
+			if (p_ptr->prace == RACE_DEMIGOD)
+			{
+				switch (p_ptr->psubrace)
+				{
+				case DEMIGOD_ZEUS:
+					adj++;
+					break;
+				case DEMIGOD_ATHENA:
+					if (mp_ptr->spell_stat == A_INT)
+						adj += 2;
+					break;
+				case DEMIGOD_HADES:
+					if (mp_ptr->spell_stat == A_CHR)
+						adj -= 2;
+					break;
+				case DEMIGOD_APHRODITE:
+					if (mp_ptr->spell_stat == A_CHR)
+						adj += 2;
+					break;
+				}
+			}
+			msp += (msp * adj / 20);
+		}
 
 		if (msp && (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)) msp += msp/2;
 
@@ -3119,7 +3144,7 @@ static void calc_hitpoints(void)
 		mhp += 10 + p_ptr->lev;
 	}
 	if (mut_present(MUT_UNYIELDING))
-		mhp += 2 * p_ptr->lev;
+		mhp += 3 * p_ptr->lev / 2;
 
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)

@@ -1,4 +1,4 @@
-/* File: defines.h */
+/* File: defines.h */ 
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 66
+#define FAKE_VER_PATCH 67
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 66
-#define H_VER_EXTRA 2
+#define H_VER_PATCH 67
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -1500,6 +1500,20 @@
 /* Arrows */
 #define ART_BARD_ARROW          153
 
+
+#define ART_ZEUS		256
+#define ART_POSEIDON	257
+#define ART_HADES		258
+#define ART_ATHENA		259
+#define ART_ARES		260
+#define ART_HERMES		261
+#define ART_APOLLO		262
+#define ART_ARTEMIS		263
+#define ART_HEPHAESTUS	264
+#define ART_HERA		265
+#define ART_DEMETER		266
+#define ART_APHRODITE	267
+
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
 
@@ -2177,8 +2191,14 @@
 #define SV_AMULET_WISDOM                22
 #define SV_AMULET_MAGIC_MASTERY         23
 #define SV_AMULET_NIGHT                 24
-#define SV_AMULET_SPELL_POWER           25
-#define SV_AMULET_SPELL_CAP             26
+#define SV_AMULET_SACRED_KNIGHTS		25
+#define SV_AMULET_HARNESS_OF_THE_HELL	26
+#define SV_AMULET_CHARMED_PENDANT		27
+#define SV_AMULET_GOGO					28
+#define SV_AMULET_ZEUS					29
+#define SV_AMULET_SPELL_POWER           30
+#define SV_AMULET_SPELL_CAP             31
+#define SV_AMULET_APHRODITE				32
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -2952,6 +2972,7 @@
 #define SUMMON_ARMAGE_GOOD          66
 #define SUMMON_ARMAGE_EVIL          67
 #define SUMMON_SOFTWARE_BUG         68
+#define SUMMON_OLYMPIANS            69
 
 
 /*
@@ -3604,7 +3625,7 @@
 #define RF3_HURT_ROCK       0x00002000  /* Hurt by rock remover */
 #define RF3_HURT_FIRE       0x00004000  /* Hurt badly by fire */
 #define RF3_HURT_COLD       0x00008000  /* Hurt badly by cold */
-#define RF3_XXX16           0x00010000
+#define RF3_OLYMPIAN        0x00010000
 #define RF3_XXX17           0x00020000
 #define RF3_XXX18           0x00040000
 #define RF3_XXX19           0x00080000
@@ -5158,6 +5179,18 @@ extern int PlayerUID;
 #define MON_MASTER_TONBERRY 1089
 #define MON_VARIANT_MAINTAINER 1094
 #define MON_MONKEY_CLONE  1095
+#define MON_ZEUS		  1096
+#define MON_POSEIDON	1097
+#define MON_HADES		1098
+#define MON_ATHENA		1099
+#define MON_ARES		1100
+#define MON_HERMES		1101
+#define MON_APOLLO		1102
+#define MON_ARTEMIS		1103
+#define MON_HEPHAESTUS	1104
+#define MON_HERA		1105
+#define MON_DEMETER		1106
+#define MON_APHRODITE	1107
 
 /* Maximum "Nazguls" number */
 #define MAX_NAZGUL_NUM 5
@@ -5432,6 +5465,7 @@ extern int PlayerUID;
 #define SAVE_MON_NICKNAME     0x00004000
 #define SAVE_MON_PARENT       0x00008000
 #define SAVE_MON_PACK_IDX     0x00010000
+#define SAVE_MON_AC			  0x00020000
 
 
 /*

@@ -924,7 +924,7 @@ void _circle_kick(void)
 
 			monster_desc(m_name, m_ptr, 0);
 			
-			if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+			if (test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
 			{
 				int dam = damroll(dd, ds) + p_ptr->to_d_m;
 
@@ -946,7 +946,7 @@ void _circle_kick(void)
 
 				dam = mon_damage_mod(m_ptr, dam, FALSE);
 				/* Hack: Monster AC now reduces damage */
-				dam -= (dam * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
+				dam -= (dam * ((MON_AC(r_ptr, m_ptr) < 200) ? MON_AC(r_ptr, m_ptr) : 200) / 1200);
 
 				if (dam > 0)
 				{
@@ -2123,7 +2123,7 @@ static void _dagger_toss_imp2(_dagger_toss_info * info)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			bool visible = m_ptr->ml;
 
-			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr, m_ptr), m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2153,7 +2153,7 @@ static void _dagger_toss_imp2(_dagger_toss_info * info)
 				tdam += p_ptr->to_d_b;
 				if (tdam < 0) tdam = 0;
 				tdam = mon_damage_mod(m_ptr, tdam, FALSE);
-				tdam -= (tdam * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
+				tdam -= (tdam * ((MON_AC(r_ptr, m_ptr) < 200) ? MON_AC(r_ptr, m_ptr) : 200) / 1200);
 
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
 				{
@@ -2857,7 +2857,7 @@ static void _club_toss_imp(_club_toss_info * info)
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 			bool visible = m_ptr->ml;
 
-			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr, m_ptr), m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2885,7 +2885,7 @@ static void _club_toss_imp(_club_toss_info * info)
 				tdam += p_ptr->to_d_m;
 				if (tdam < 0) tdam = 0;
 				tdam = mon_damage_mod(m_ptr, tdam, FALSE);
-				tdam -= (tdam * ((r_ptr->ac < 200) ? r_ptr->ac : 200) / 1200);
+				tdam -= (tdam * ((MON_AC(r_ptr, m_ptr) < 200) ? MON_AC(r_ptr, m_ptr) : 200) / 1200);
 
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
 				{

@@ -1685,7 +1685,10 @@ info[i++] = "あなたは毒への耐性を持っている。";
 #ifdef JP
 info[i++] = "あなたは閃光への耐性を持っている。";
 #else
-		info[i++] = "You are resistant to bright light.";
+		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
+			info[i++] = "You are immune to bright light.";
+		else
+			info[i++] = "You are resistant to bright light.";
 #endif
 
 	}
@@ -4188,7 +4191,7 @@ bool probing(void)
 #ifdef JP
 sprintf(buf,"%s ... 属性:%s HP:%d/%d AC:%d 速度:%s%d 経験:", m_name, align, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
 #else
-sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
+sprintf(buf, "%s ... align:%s HP:%d/%d AC:%d speed:%s%d exp:", m_name, align, m_ptr->hp, m_ptr->maxhp, MON_AC(r_ptr, m_ptr), (speed > 0) ? "+" : "", speed);
 #endif
 			if (r_ptr->next_r_idx)
 			{

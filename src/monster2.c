@@ -931,6 +931,12 @@ static bool summon_specific_aux(int r_idx)
 			break;
 		}
 
+		case SUMMON_OLYMPIANS:
+		{
+			okay = (r_ptr->flags3 & (RF3_OLYMPIAN)) ? TRUE : FALSE;
+			break;
+		}
+
 		case SUMMON_UNIQUE:
 		{
 			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
@@ -3509,6 +3515,7 @@ msg_print("守りのルーンが壊れた！");
 
 	/* Extract the monster base speed */
 	m_ptr->mspeed = get_mspeed(r_ptr);
+	m_ptr->ac_adj = 0;
 
 	if (mode & PM_HASTE) (void)set_monster_fast(c_ptr->m_idx, 100);
 

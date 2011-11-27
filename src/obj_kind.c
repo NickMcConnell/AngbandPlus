@@ -236,8 +236,11 @@ bool object_is_body_armour(object_type *o_ptr)
 /*
  * Check if an object is weapon, armour or ammo
  */
+bool enchantment_hack = FALSE;
 bool object_is_weapon_armour_ammo(object_type *o_ptr)
 {
+	if (enchantment_hack && o_ptr->name1 == ART_HEPHAESTUS) return FALSE;
+
 	if (object_is_weapon_ammo(o_ptr) || object_is_armour(o_ptr)) return TRUE;
 
 	return FALSE;

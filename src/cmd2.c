@@ -3810,7 +3810,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 				}
 
 				/* Some shots have hit bonus */
-				armour = r_ptr->ac;
+ 				armour = MON_AC(r_ptr, m_ptr);
 				if (p_ptr->concent)
 				{
 					armour *= (10 - p_ptr->concent);
@@ -4611,7 +4611,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+			if (test_hit_fire(chance - cur_dis, MON_AC(r_ptr, m_ptr), m_ptr->ml))
 			{
 				bool fear = FALSE;
 

@@ -3236,33 +3236,8 @@ static void get_extra(bool roll_hitdie)
 	if (p_ptr->prace == RACE_ANDROID) p_ptr->expfact = rp_ptr->r_exp;
 	else p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-	/* TODO: Table this stuff up ... */
 	if (p_ptr->prace == RACE_DEMIGOD)
-	{
-		switch (p_ptr->psubrace)
-		{
-		case DEMIGOD_ZEUS:
-		case DEMIGOD_POSEIDON:
-		case DEMIGOD_HADES:
-			p_ptr->expfact += 100;
-			break;
-		case DEMIGOD_ATHENA:
-		case DEMIGOD_ARES:
-		case DEMIGOD_HERMES:
-			p_ptr->expfact += 90;
-			break;
-		case DEMIGOD_APOLLO:
-		case DEMIGOD_ARTEMIS:
-		case DEMIGOD_HEPHAESTUS:
-			p_ptr->expfact += 80;
-			break;
-		case DEMIGOD_HERA:
-		case DEMIGOD_DEMETER:
-		case DEMIGOD_APHRODITE:
-			p_ptr->expfact += 70;
-			break;
-		}
-	}
+		p_ptr->expfact += demigod_info[p_ptr->psubrace].exp;
 
 	/* Reset record of race/realm changes */
 	p_ptr->start_race = p_ptr->prace;
@@ -3300,6 +3275,9 @@ static void get_extra(bool roll_hitdie)
 		p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
 	else
 		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
+
+	if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_HADES)
+		p_ptr->hitdie += 3;
 
 	/* Roll for hit point unless quick-start */
 	if (roll_hitdie) do_cmd_rerate_aux();

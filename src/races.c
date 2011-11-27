@@ -24,6 +24,32 @@ static void _devour_flesh_spell(int cmd, variant *res)
 	}
 }
 
+void _shine_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Shine", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Generates a large ball of sunlight.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(0, 0, p_ptr->lev * 6));
+		break;
+	case SPELL_CAST:
+		fire_ball(GF_LITE, 0, p_ptr->lev * 6 * 2, 5);
+		var_set_bool(res, TRUE);
+		break;
+	case SPELL_COST_EXTRA:
+		var_set_int(res, p_ptr->lev);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 /****************************************************************
  * Demigod
  ****************************************************************/
@@ -58,6 +84,7 @@ void _demigod_calc_bonuses(void)
 	case DEMIGOD_ZEUS:
 		p_ptr->resist_elec = TRUE;
 		p_ptr->sh_elec = TRUE;
+		p_ptr->levitation = TRUE;
 		p_ptr->stat_add[A_STR] += 1;
 		p_ptr->stat_add[A_INT] += 1;
 		p_ptr->stat_add[A_WIS] += 1;
@@ -69,8 +96,8 @@ void _demigod_calc_bonuses(void)
 		p_ptr->stat_add[A_STR] += 1;
 		p_ptr->stat_add[A_DEX] += 1;
 		p_ptr->resist_acid = TRUE;
-		p_ptr->resist_conf = TRUE;
-		p_ptr->skill_sav += 15;
+		p_ptr->resist_cold = TRUE;
+		p_ptr->resist_elec = TRUE;
 		/*p_ptr->resist_stun = TRUE; Handled as a hack elsewhere ... */
 		break;
 	case DEMIGOD_HADES:
@@ -79,6 +106,7 @@ void _demigod_calc_bonuses(void)
 		p_ptr->stat_add[A_CON] += 2;
 		p_ptr->stat_add[A_CHR] -= 2;
 		p_ptr->sustain_con = TRUE;
+		p_ptr->skill_sav += 15;
 		break;
 	case DEMIGOD_ATHENA:
 		p_ptr->stat_add[A_INT] += 2;
@@ -88,7 +116,6 @@ void _demigod_calc_bonuses(void)
 	{
 		int dam = 5 + p_ptr->lev/7;
 
-		p_ptr->resist_fear = TRUE;
 		p_ptr->stat_add[A_STR] += 2;
 		p_ptr->sustain_str = TRUE;
 		p_ptr->to_a += 10 + p_ptr->lev/5;
@@ -103,19 +130,19 @@ void _demigod_calc_bonuses(void)
 		break;
 	}
 	case DEMIGOD_HERMES:
-		p_ptr->skill_stl += 4;
+		p_ptr->skill_stl += 5;
 		p_ptr->pspeed += 2;
 		break;
 	case DEMIGOD_APOLLO:
-		p_ptr->free_act = TRUE;
 		p_ptr->resist_lite = TRUE;
 		p_ptr->resist_blind = TRUE;
-		p_ptr->resist_sound = TRUE;
 		/* cf calc_torch in xtra1.c for the 'extra light' */
 		break;
 	case DEMIGOD_ARTEMIS:
 		p_ptr->stat_add[A_DEX] += 2;
 		p_ptr->to_d_b += 5 + p_ptr->lev/7;
+		p_ptr->skill_thb += 15;
+		p_ptr->sustain_dex = TRUE;
 		break;
 	case DEMIGOD_HEPHAESTUS:
 		break;
@@ -125,9 +152,10 @@ void _demigod_calc_bonuses(void)
 	case DEMIGOD_DEMETER:
 		p_ptr->regenerate = TRUE;
 		p_ptr->slow_digest = TRUE;
+		p_ptr->resist_time = TRUE;
 		break;
 	case DEMIGOD_APHRODITE:
-		p_ptr->stat_add[A_CHR] += 1;
+		p_ptr->stat_add[A_CHR] += 2;
 		p_ptr->sustain_chr = TRUE;
 		break;
 	}
@@ -142,6 +170,12 @@ int _demigod_get_powers(spell_info* spells, int max)
 	case DEMIGOD_APOLLO:
 	{
 		spell_info *spell = &spells[ct++];
+		spell->level = 1;
+		spell->cost = 10;
+		spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_CHR]);
+		spell->fn = _shine_spell;
+
+		spell = &spells[ct++];
 		spell->level = 5;
 		spell->cost = 3;
 		spell->fail = calculate_fail_rate(5, 50, p_ptr->stat_ind[A_INT]);
@@ -152,6 +186,7 @@ int _demigod_get_powers(spell_info* spells, int max)
 		spell->cost = 7;
 		spell->fail = calculate_fail_rate(12, 60, p_ptr->stat_ind[A_WIS]);
 		spell->fn = ray_of_sunlight_spell;
+
 		break;
 	}
 	case DEMIGOD_HERA:
@@ -170,6 +205,15 @@ int _demigod_get_powers(spell_info* spells, int max)
 		spell->cost = 0;
 		spell->fail = calculate_fail_rate(spell->level, 60, p_ptr->stat_ind[A_WIS]);
 		spell->fn = cure_wounds_I_spell;
+		break;
+	}
+	case DEMIGOD_ARES:
+	{
+		spell_info *spell = &spells[ct++];
+		spell->level = 10;
+		spell->cost = 10;
+		spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_STR]);
+		spell->fn = berserk_spell;
 		break;
 	}
 	}

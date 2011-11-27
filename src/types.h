@@ -288,6 +288,9 @@ struct mbe_info_type
 
 typedef struct monster_race monster_race;
 
+#define MON_AC(r_ptr, m_ptr) MAX((r_ptr)->ac + (m_ptr)->ac_adj, 0)
+/*#define MON_AC(r_ptr, m_ptr) 0*/
+
 struct monster_race
 {
 	u32b name;				/* Name (offset) */
@@ -523,9 +526,9 @@ struct object_type
 
 	s16b weight;		/* Item weight */
 
-	byte name1;			/* Artifact type, if any */
-	byte name2;			/* Ego-Item type, if any */
-	byte name3;         /* Random replacement for a fixed art */
+	s16b name1;			/* Artifact type, if any */
+	s16b name2;			/* Ego-Item type, if any */
+	s16b name3;         /* Random replacement for a fixed art */
 
 	byte xtra1;			/* Extra info type (now unused) */
 	byte xtra2;			/* Extra info index */
@@ -587,6 +590,7 @@ struct monster_type
 	s16b hp;		/* Current Hit points */
 	s16b maxhp;		/* Max Hit points */
 	s16b max_maxhp;		/* Max Max Hit points */
+	s16b ac_adj;
 
 	s16b mtimed[MAX_MTIMED];	/* Timed status counter */
 
@@ -847,6 +851,7 @@ struct player_pact
 typedef struct {
 	cptr name;
 	cptr desc;
+	int  exp;
 } demigod_type;
 
 /*

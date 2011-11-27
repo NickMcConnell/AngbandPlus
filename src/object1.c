@@ -1094,6 +1094,31 @@ return "Ì¤ÄêµÁ";
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
+		case ART_ZEUS:
+			return "Lightning Storm (555) every 5 turns";
+		case ART_POSEIDON:
+			return "Earthquake every turn";
+		case ART_HADES:
+			return "Restoration every 500 turns";
+		case ART_ATHENA:
+			return "Recharging every 150 turns";
+		case ART_ARES:
+			return "Berserk every 20 turns";
+		case ART_HERMES:
+			return "Haste and Dimension Door every 100 turns";
+		case ART_APOLLO:
+			return "Clairvoyance every 100 turns";
+		case ART_ARTEMIS:
+			return "Create Arrows every 999 turns";
+		case ART_HEPHAESTUS:
+			return "Enchantment every 200 turns";
+		case ART_HERA:
+			return "Restore Mana every 555 turns";
+		case ART_DEMETER:
+			return "Heal (500) and Satisfy Hunger every 100 turns";
+		case ART_APHRODITE:
+			return "Summon Pet every 25 turns";
+
 		case ART_NARTHANC:
 		{
 #ifdef JP

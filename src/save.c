@@ -142,9 +142,9 @@ static void wr_item(object_type *o_ptr)
 
 	wr_s16b(o_ptr->weight);
 
-	if (flags & SAVE_ITEM_NAME1) wr_byte(o_ptr->name1);
-	if (flags & SAVE_ITEM_NAME2) wr_byte(o_ptr->name2);
-	if (flags & SAVE_ITEM_NAME3) wr_byte(o_ptr->name3);
+	if (flags & SAVE_ITEM_NAME1) wr_s16b(o_ptr->name1);
+	if (flags & SAVE_ITEM_NAME2) wr_s16b(o_ptr->name2);
+	if (flags & SAVE_ITEM_NAME3) wr_s16b(o_ptr->name3);
 	if (flags & SAVE_ITEM_TIMEOUT) wr_s16b(o_ptr->timeout);
 
 	if (flags & SAVE_ITEM_TO_H) wr_s16b(o_ptr->to_h);
@@ -209,6 +209,7 @@ static void wr_monster(monster_type *m_ptr)
 	if (m_ptr->nickname) flags |= SAVE_MON_NICKNAME;
 	if (m_ptr->parent_m_idx) flags |= SAVE_MON_PARENT;
 	if (m_ptr->pack_idx) flags |= SAVE_MON_PACK_IDX;
+	if (m_ptr->ac_adj) flags |= SAVE_MON_AC;
 
 	/*** Monster save flags ***/
 	wr_u32b(flags);
@@ -268,6 +269,7 @@ static void wr_monster(monster_type *m_ptr)
 	if (flags & SAVE_MON_NICKNAME) wr_string(quark_str(m_ptr->nickname));
 	if (flags & SAVE_MON_PARENT) wr_s16b(m_ptr->parent_m_idx);
 	if (flags & SAVE_MON_PACK_IDX) wr_s16b(m_ptr->pack_idx);
+	if (flags & SAVE_MON_AC) wr_s16b(m_ptr->ac_adj);
 }
 
 

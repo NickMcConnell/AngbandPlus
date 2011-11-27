@@ -7527,7 +7527,12 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (fuzzy) msg_print("You are hit by something!");
 #endif
 
-			if (p_ptr->resist_lite)
+			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
+			{
+				msg_print("You bask in the light!");
+				dam = 0;
+			}
+			else if (p_ptr->resist_lite)
 			{
 				dam *= 4; dam /= (randint1(4) + 7);
 			}
