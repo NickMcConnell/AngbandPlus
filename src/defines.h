@@ -1,4 +1,4 @@
-/* File: defines.h */ 
+/* File: defines.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 67
+#define FAKE_VER_PATCH 68
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 67
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 68
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -5040,8 +5040,10 @@ extern int PlayerUID;
 #define MON_STORMBRINGER  698
 #define MON_ULTRA_PALADIN 699
 #define MON_G_TITAN       702
+#define MON_ENT			  708
 #define MON_FAFNER        712
 #define MON_G_BALROG      720
+#define MON_GREATER_BALROG 720
 #define MON_TIME_HOUND    725
 #define MON_PLASMA_HOUND  726
 #define MON_BULLGATES     732
@@ -5061,6 +5063,7 @@ extern int PlayerUID;
 #define MON_GANDALF       772
 #define MON_BRAND         773
 #define MON_SHADOWLORD    774
+#define MON_GREATER_KRAKEN 775
 #define MON_ARCHLICH      776
 #define MON_CHAOS_HOUND   779
 #define MON_ULT_BEHOLDER  781

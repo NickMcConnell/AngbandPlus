@@ -3739,6 +3739,11 @@ c_put_str(TERM_YELLOW, "¸½ºß", row, stat_col+35);
 				r_adj++;
 				break;
 
+			case DEMIGOD_POSEIDON:
+				if (i == A_STR) r_adj += 1;
+				if (i == A_DEX) r_adj += 1;
+				break;
+
 			case DEMIGOD_HADES:
 				if (i == A_CON) r_adj += 2;
 				if (i == A_CHR) r_adj -= 2;

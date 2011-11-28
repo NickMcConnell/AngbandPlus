@@ -325,7 +325,10 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 150)) f5 &= ~(RF5_BO_PLAS);
 		if (int_outof(r_ptr, 150)) f5 &= ~(RF5_BO_ICEE);
 		if (int_outof(r_ptr, 150)) f5 &= ~(RF5_MISSILE);
-		if (int_outof(r_ptr, 150)) f4 &= ~(RF4_SHOOT);
+		if (m_ptr->r_idx != MON_ARTEMIS)
+		{
+			if (int_outof(r_ptr, 150)) f4 &= ~(RF4_SHOOT);
+		}
 	}
 
 	if (smart & (SM_IMM_FREE))
@@ -483,6 +486,14 @@ bool clean_shot(int y1, int x1, int y2, int x2, bool friend)
 static void bolt(int m_idx, int typ, int dam_hp, int monspell, bool learnable)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_PLAYER | PROJECT_REFLECTABLE;
+
+	/* Target the player with a bolt attack */
+	(void)project(m_idx, 0, py, px, dam_hp, typ, flg, (learnable ? monspell : -1));
+}
+
+static void artemis_bolt(int m_idx, int typ, int dam_hp, int monspell, bool learnable)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_PLAYER;
 
 	/* Target the player with a bolt attack */
 	(void)project(m_idx, 0, py, px, dam_hp, typ, flg, (learnable ? monspell : -1));
@@ -1711,6 +1722,17 @@ bool make_attack_spell(int m_idx, bool ticked_off)
 			{
 				f6 &= ~(RF6_SPECIAL);
 			}
+			if (m_ptr->r_idx == MON_ARTEMIS)
+			{
+				if(!one_in_(7))
+					f6 &= ~(RF6_SPECIAL);
+				if (m_ptr->cdis >= 3)
+					f6 &= ~(RF6_BLINK);
+			}
+			if ((r_ptr->flags3 & RF3_OLYMPIAN) && !summon_possible(y, x))
+			{
+				f6 &= ~(RF6_SPECIAL);
+			}
 		}
 
 		/* No spells left */
@@ -1909,23 +1931,25 @@ else msg_format("%^sがロケットを発射した。", m_name);
 		/* RF4_SHOOT */
 		case 96+4:
 		{
+			int ct = 1, i;
 			if (!direct) return (FALSE);
 			disturb(1, 0);
-#ifdef JP
-if (blind) msg_format("%^sが奇妙な音を発した。", m_name);
-#else
-			if (blind) msg_format("%^s makes a strange noise.", m_name);
-#endif
 
-#ifdef JP
-else msg_format("%^sが矢を放った。", m_name);
-#else
-			else msg_format("%^s fires an arrow.", m_name);
-#endif
+			if (m_ptr->r_idx == MON_ARTEMIS)
+				ct = 4;
 
-			dam = damroll(r_ptr->blow[0].d_dice, r_ptr->blow[0].d_side);
-			bolt(m_idx, GF_ARROW, dam, MS_SHOOT, learnable);
-			update_smart_learn(m_idx, DRS_REFLECT);
+			for (i = 0; i < ct; i++)
+			{
+				if (blind) msg_format("%^s makes a strange noise.", m_name);
+				else msg_format("%^s fires an arrow.", m_name);
+
+				dam = damroll(r_ptr->blow[0].d_dice, r_ptr->blow[0].d_side);
+				if (m_ptr->r_idx == MON_ARTEMIS)
+					artemis_bolt(m_idx, GF_ARROW, dam, MS_SHOOT, learnable);
+				else
+					bolt(m_idx, GF_ARROW, dam, MS_SHOOT, learnable);
+				update_smart_learn(m_idx, DRS_REFLECT);
+			}
 			break;
 		}
 
@@ -2666,6 +2690,8 @@ msg_print("あなたは渦巻きに飲み込まれた。");
 
 			dam = ((r_ptr->flags2 & RF2_POWERFUL) ? randint1(rlev * 3) : randint1(rlev * 2)) + 50;
 			breath(y, x, m_idx, GF_WATER, dam, 4, FALSE, MS_BALL_WATER, learnable);
+			if (m_ptr->r_idx == MON_POSEIDON)
+				fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
 			break;
 		}
 
@@ -3418,7 +3444,10 @@ msg_format("%^sが自分の傷に集中した。", m_name);
 			}
 
 			/* Heal some */
-			m_ptr->hp += (rlev * 6);
+			if (m_ptr->r_idx == MON_DEMETER)
+				m_ptr->hp += 3000;
+			else
+				m_ptr->hp += (rlev * 6);
 
 			/* Fully healed */
 			if (m_ptr->hp >= m_ptr->maxhp)
@@ -3665,13 +3694,139 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 				}
 			case MON_ZEUS:
 			{
-					int num = 8;
-					msg_format("%^s summons Shamblers", m_name);
+				int num = 8;
+				msg_format("%^s summons Shamblers!", m_name);
+				for (k = 0; k < num; k++)
+				{
+					summon_named_creature(m_idx, y, x, MON_SHAMBLER, mode);
+				}
+				break;
+			}
+			case MON_POSEIDON:
+			{
+				int num = 8;
+				fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
+				msg_format("%^s summons Greater Kraken!", m_name);
+				for (k = 0; k < num; k++)
+				{
+					summon_named_creature(m_idx, y, x, MON_GREATER_KRAKEN, mode);
+				}
+				break;
+			}
+			case MON_HADES:
+			{
+				int num = 4;
+				fire_ball_hide(GF_LAVA_FLOW, 0, 3, 8);
+				msg_format("%^s summons Death!", m_name);
+				for (k = 0; k < num; k++)
+				{ 
+					summon_named_creature(m_idx, y, x, MON_GREATER_BALROG, mode);
+				}
+				for (k = 0; k < num; k++)
+				{ 
+					summon_named_creature(m_idx, y, x, MON_ARCHLICH, mode);
+				}
+				break;
+			}
+			case MON_ATHENA:
+			{
+				int num = 8;
+				msg_format("%^s summons friends!", m_name);
+				if (one_in_(3) && r_info[MON_ZEUS].cur_num == 0 && r_info[MON_ZEUS].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_ZEUS, mode);
+				}
+				else
+				{
 					for (k = 0; k < num; k++)
 					{
-						summon_named_creature(m_idx, y, x, MON_SHAMBLER, mode);
+						summon_named_creature(m_idx, y, x, MON_ULT_MAGUS, mode);
 					}
-					break;
+				}
+				break;
+			}
+			case MON_ARES:
+			{
+				msg_format("%^s yells 'Mommy! Daddy! Help!!'", m_name);
+				if (r_info[MON_ZEUS].cur_num == 0 && r_info[MON_ZEUS].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_ZEUS, mode);
+				}
+				if (r_info[MON_HERA].cur_num == 0 && r_info[MON_HERA].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_HERA, mode);
+				}
+				break;
+			}
+			case MON_APOLLO:
+			{
+				int num = 8;
+				msg_format("%^s summons help!", m_name);
+				if (one_in_(3) && r_info[MON_ARTEMIS].cur_num == 0 && r_info[MON_ARTEMIS].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_ARTEMIS, mode);
+				}
+				else
+				{
+					for (k = 0; k < num; k++)
+					{
+						summon_named_creature(m_idx, y, x, MON_FENGHUANG, mode);
+					}
+				}
+				break;
+			}
+			case MON_ARTEMIS:
+			{
+				msg_format("%^s summons help!", m_name);
+				if (r_info[MON_APOLLO].cur_num == 0 && r_info[MON_APOLLO].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_APOLLO, mode);
+				}
+				break;
+			}
+			case MON_HEPHAESTUS:
+			{
+				int num = 8;
+				msg_format("%^s summons friends!", m_name);
+				if (one_in_(3) && r_info[MON_ZEUS].cur_num == 0 && r_info[MON_ZEUS].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_ZEUS, mode);
+				}
+				else if (one_in_(3) && r_info[MON_HERA].cur_num == 0 && r_info[MON_HERA].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_HERA, mode);
+				}
+				else
+				{
+					for (k = 0; k < num; k++)
+					{
+						summon_named_creature(m_idx, y, x, MON_SPELLWARP, mode);
+					}
+				}
+				break;
+			}
+			case MON_HERA:
+			{
+				msg_format("%^s summons aid!'", m_name);
+				if (r_info[MON_ARES].cur_num == 0 && r_info[MON_ARES].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_ARES, mode);
+				}
+				if (r_info[MON_HEPHAESTUS].cur_num == 0 && r_info[MON_HEPHAESTUS].max_num == 1)
+				{
+					summon_named_creature(m_idx, y, x, MON_HEPHAESTUS, mode);
+				}
+				break;
+			}
+			case MON_DEMETER:
+			{
+				int num = 8;
+				msg_format("%^s summons ents!", m_name);
+				for (k = 0; k < num; k++)
+				{
+					summon_named_creature(m_idx, y, x, MON_ENT, mode);
+				}
+				break;
 			}
 			case MON_ROLENTO:
 #ifdef JP
