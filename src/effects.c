@@ -5979,14 +5979,7 @@ void change_race(int new_race, cptr effect_msg)
 	rp_ptr = &race_info[p_ptr->prace];
 
 	/* Experience factor */
-	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
-
-	/*
-	 * The speed bonus of Klackons and Sprites are disabled
-	 * and the experience penalty is decreased.
-	 */
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
-		p_ptr->expfact -= 15;
+	p_ptr->expfact = calc_exp_factor();
 
 	/* Get character's height and weight */
 	get_height_weight();

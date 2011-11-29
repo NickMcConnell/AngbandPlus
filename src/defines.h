@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 68
+#define FAKE_VER_PATCH 69
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 68
+#define H_VER_PATCH 69
 #define H_VER_EXTRA 0
 
 
@@ -5174,6 +5174,7 @@ extern int PlayerUID;
 #define MON_JIZOTAKO      1065
 #define MON_TANUKI        1067
 #define MON_REINDEER      1081
+#define MON_DEATH_BEAST   1082
 #define MON_ULT_MAGUS	  1083
 #define MON_SPELLWARP	  1085
 #define MON_TALOS		  1086

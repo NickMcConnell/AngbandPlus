@@ -879,7 +879,7 @@ struct player_race
 	s16b r_thb;			/* combat (shooting) */
 
 	byte r_mhp;			/* Race hit-dice modifier */
-	byte r_exp;			/* Race experience factor */
+	s16b r_exp;			/* Race experience factor */
 
 	byte b_age;			/* base age */
 	byte m_age;			/* mod age */
@@ -965,6 +965,8 @@ struct player_seikaku
 
 	byte no;			/* ¤Î */
 	byte sex;			/* seibetu seigen */
+
+	s16b a_exp;
 };
 
 

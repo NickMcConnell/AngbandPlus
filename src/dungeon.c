@@ -2648,8 +2648,8 @@ static void process_world_aux_curse(void)
 	    one_in_(2)) /* TODO: Tweak Frequency */
 	{
 		/* TODO: Check whether object is known ... */
-		msg_print("Bloodrip feeds on you!");
-		set_cut(p_ptr->cut + 66, FALSE);
+		if (set_cut(p_ptr->cut + 66, FALSE))
+			msg_print("Bloodrip feeds on you!");
 	}
 }
 

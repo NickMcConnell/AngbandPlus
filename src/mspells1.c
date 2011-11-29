@@ -3807,14 +3807,22 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			}
 			case MON_HERA:
 			{
+				int num = 8;
 				msg_format("%^s summons aid!'", m_name);
-				if (r_info[MON_ARES].cur_num == 0 && r_info[MON_ARES].max_num == 1)
+				if (one_in_(3) && r_info[MON_ARES].cur_num == 0 && r_info[MON_ARES].max_num == 1)
 				{
 					summon_named_creature(m_idx, y, x, MON_ARES, mode);
 				}
-				if (r_info[MON_HEPHAESTUS].cur_num == 0 && r_info[MON_HEPHAESTUS].max_num == 1)
+				else if (one_in_(3) && r_info[MON_HEPHAESTUS].cur_num == 0 && r_info[MON_HEPHAESTUS].max_num == 1)
 				{
 					summon_named_creature(m_idx, y, x, MON_HEPHAESTUS, mode);
+				}
+				else
+				{
+					for (k = 0; k < num; k++)
+					{
+						summon_named_creature(m_idx, y, x, MON_DEATH_BEAST, mode);
+					}
 				}
 				break;
 			}

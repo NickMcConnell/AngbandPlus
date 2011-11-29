@@ -3224,6 +3224,24 @@ void get_max_stats(void)
 	p_ptr->redraw |= (PR_STATS);
 }
 
+int calc_exp_factor(void)
+{
+	int exp;
+	int r_exp = rp_ptr->r_exp;
+	int c_exp = cp_ptr->c_exp;
+	int a_exp = ap_ptr->a_exp;
+
+	if (p_ptr->prace == RACE_ANDROID) 
+		return r_exp;
+
+	if (p_ptr->prace == RACE_DEMIGOD)
+		r_exp += demigod_info[p_ptr->psubrace].exp;
+
+	exp = r_exp * c_exp / 100;
+	exp = exp * a_exp / 100;
+
+	return exp;
+}
 
 /*
  * Roll for some info that the auto-roller ignores
@@ -3232,12 +3250,7 @@ static void get_extra(bool roll_hitdie)
 {
 	int i, j;
 
-	/* Experience factor */
-	if (p_ptr->prace == RACE_ANDROID) p_ptr->expfact = rp_ptr->r_exp;
-	else p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
-
-	if (p_ptr->prace == RACE_DEMIGOD)
-		p_ptr->expfact += demigod_info[p_ptr->psubrace].exp;
+	p_ptr->expfact = calc_exp_factor();
 
 	/* Reset record of race/realm changes */
 	p_ptr->start_race = p_ptr->prace;
@@ -4833,9 +4846,9 @@ static bool get_player_race(void)
 				put_str(": Race modification", 3, 40+strlen(rp_ptr->title));
 				put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
 #endif
-				sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+				sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",
 					rp_ptr->r_adj[0], rp_ptr->r_adj[1], rp_ptr->r_adj[2], rp_ptr->r_adj[3],
-					rp_ptr->r_adj[4], rp_ptr->r_adj[5], (rp_ptr->r_exp - 100));
+					rp_ptr->r_adj[4], rp_ptr->r_adj[5], (rp_ptr->r_exp));
 				c_put_str(TERM_L_BLUE, buf, 5, 40);
 			}
 			c_put_str(TERM_YELLOW, cur, 12 + (cs/5), 1 + 16 * (cs%5));
@@ -5055,7 +5068,7 @@ static bool get_player_class(void)
 				put_str(": Class modification", 3, 40+strlen(cp_ptr->title));
 				put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
 #endif
-				sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+				sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",
 					cp_ptr->c_adj[0], cp_ptr->c_adj[1], cp_ptr->c_adj[2], cp_ptr->c_adj[3],
 					cp_ptr->c_adj[4], cp_ptr->c_adj[5], cp_ptr->c_exp);
 				c_put_str(TERM_L_BLUE, buf, 5, 40);
@@ -5270,11 +5283,11 @@ static bool get_player_seikaku(void)
 #else
 					c_put_str(TERM_L_BLUE, ap_ptr->title, 3, 40);
 					put_str(": Personality modification", 3, 40+strlen(ap_ptr->title));
-					put_str("Str  Int  Wis  Dex  Con  Chr       ", 4, 40);
+					put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
 #endif
-					sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d       ",
+					sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",
 						ap_ptr->a_adj[0], ap_ptr->a_adj[1], ap_ptr->a_adj[2], ap_ptr->a_adj[3],
-						ap_ptr->a_adj[4], ap_ptr->a_adj[5]);
+						ap_ptr->a_adj[4], ap_ptr->a_adj[5], ap_ptr->a_exp);
 					c_put_str(TERM_L_BLUE, buf, 5, 40);
 			}
 			c_put_str(TERM_YELLOW, cur, 12 + (cs/4), 2 + 18 * (cs%4));
@@ -6394,7 +6407,7 @@ static bool player_birth_aux(void)
 #ifdef JP
 	put_str("キャラクターを作成します。('S'やり直す, 'Q'終了, '?'ヘルプ)", 8, 10);
 #else
-	put_str("Make your charactor. ('S' Restart, 'Q' Quit, '?' Help)", 8, 10);
+	put_str("Make your character. ('S' Restart, 'Q' Quit, '?' Help)", 8, 10);
 #endif
 
 

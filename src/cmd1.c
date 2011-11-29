@@ -2874,6 +2874,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 
 				/* Massive Hack: Monk stunning is now greatly biffed! */
+				if ((r_ptr->flags1 & RF1_UNIQUE) && r_ptr->level >= 50) stun_effect = 0;
+				if (r_ptr->flags3 & RF3_NO_STUN) stun_effect = 0;
+
 				if (mon_save_p(m_ptr->r_idx, A_DEX))
 					stun_effect = 0;
 
