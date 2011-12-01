@@ -4843,6 +4843,16 @@ void calc_bonuses(void)
 		p_ptr->levitation = TRUE;
 	}
 
+	if (mut_present(MUT_WEAPON_SKILLS))
+	{
+		p_ptr->weapon_info[0].to_h += 8;
+		p_ptr->weapon_info[1].to_h += 8;
+		p_ptr->weapon_info[0].dis_to_h += 8;
+		p_ptr->weapon_info[1].dis_to_h += 8;
+		p_ptr->to_h_b  += 8;
+		p_ptr->dis_to_h_b += 8;
+	}
+
 	/* Temporary "Beserk" */
 	if (IS_SHERO())
 	{
@@ -5432,7 +5442,11 @@ void calc_bonuses(void)
 
 				case CLASS_WARLOCK:
 					num = 3; wgt = 100; mul = 2; 
-					if (p_ptr->psubclass == PACT_DRAGON) num = 4;
+					if (p_ptr->psubclass == PACT_DRAGON) 
+					{
+						if (p_ptr->lev >= 35) num = 5;
+						else num = 4;
+					}
 					break;
 
 				/* Priest, Mindcrafter, Magic-Eater */

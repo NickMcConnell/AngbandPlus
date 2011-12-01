@@ -175,7 +175,7 @@ bool make_attack_normal(int m_idx)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	int ap_cnt;
+	int ap_cnt, ht_cnt;
 
 	int i, k, tmp, ac, rlev;
 	int do_cut, do_stun;
@@ -237,6 +237,7 @@ bool make_attack_normal(int m_idx)
 
 	/* Scan through all four blows */
 	nemesis_hack = FALSE;
+	ht_cnt = 0;
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
 		bool obvious = FALSE;
@@ -338,7 +339,7 @@ bool make_attack_normal(int m_idx)
 				if (retaliation_hack) break;
 				continue;
 			}
-
+			ht_cnt++;
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -2391,6 +2392,17 @@ msg_format("%^sから落ちてしまった！", m_name);
 
 		/* Redraw mana */
 		p_ptr->redraw |= (PR_MANA);
+	}
+
+	if (ht_cnt == 0 && !p_ptr->is_dead && allow_ticked_off(r_ptr))
+	{
+		if (!(m_ptr->smart & SM_TICKED_OFF))
+		{
+			char m_name[80];
+			monster_desc(m_name, m_ptr, 0);
+			msg_format("%^s is ticked off!", m_name);
+			m_ptr->smart |= SM_TICKED_OFF;
+		}
 	}
 
 	/* Blink away */

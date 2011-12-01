@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 69
+#define FAKE_VER_PATCH 70
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 69
+#define H_VER_PATCH 70
 #define H_VER_EXTRA 0
 
 
@@ -5301,6 +5301,7 @@ extern int PlayerUID;
 #define WEAPONMASTER_REAPING 43
 #define WEAPONMASTER_CUNNING_STRIKE 44
 #define WEAPONMASTER_SMITE_EVIL 45
+#define WEAPONMASTER_ABSORB_SOUL 34
 
 
 #define MAX_FRENZY_ITEMS 3

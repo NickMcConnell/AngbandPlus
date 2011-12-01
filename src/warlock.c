@@ -722,9 +722,9 @@ int _dragon_get_powers(spell_info* spells, int max)
 
 	spell = &spells[ct++];
 	spell->level = 50;
-	spell->cost = 30;
-	spell->fail = calculate_fail_rate(50, 70, p_ptr->stat_ind[A_CHR]);
-	spell->fn = _dragon_breath_spell;
+	spell->cost = 15;
+	spell->fail = calculate_fail_rate(50, 60, p_ptr->stat_ind[A_CHR]);
+	spell->fn = massacre_spell;
 
 	return ct;
 }

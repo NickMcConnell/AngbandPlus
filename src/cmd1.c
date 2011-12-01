@@ -1160,9 +1160,12 @@ void py_pickup_aux(int o_idx)
 	/* Delete the object */
 	delete_object_idx(o_idx);
 
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
+	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN || mut_present(MUT_LOREMASTER))
 	{
 		bool old_known = identify_item(o_ptr);
+
+		if (mut_present(MUT_LOREMASTER))
+			o_ptr->ident |= (IDENT_MENTAL);
 
 		/* Auto-inscription/destroy */
 		autopick_alter_item(slot, (bool)(destroy_identify && !old_known));
@@ -3113,7 +3116,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				k, 
 				(o_ptr->tval == TV_POLEARM && o_ptr->sval == SV_DEATH_SCYTHE) 
 				|| (p_ptr->pclass == CLASS_BERSERKER && one_in_(2))
-				|| mode == WEAPONMASTER_STRIKE_VULNERABILITY 
+				|| mode == WEAPONMASTER_CRUSADERS_STRIKE
 			);
 
 			/* Hack: Monster AC now reduces damage */
@@ -3335,6 +3338,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				}
 			}
 
+			if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
+				k = k * 3 / 2;
+
 			if (mode == WEAPONMASTER_REAPING)
 			{
 				int              start_dir, x2, y2;
@@ -3386,6 +3392,33 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			else if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
 			{
 				*mdeath = TRUE;
+
+				if (mode == WEAPONMASTER_ABSORB_SOUL)
+				{
+					bool do_it = TRUE;
+
+					if (do_it && r_ptr->level <= o_ptr->to_h + o_ptr->to_d)
+					{
+						msg_print("The soul is too weak!");
+						do_it = FALSE;
+					}
+
+					if ( do_it 
+					  && (object_is_artifact(o_ptr) || have_flag(o_ptr->art_flags, TR_SIGNATURE))
+					  && (r_ptr->flags1 & RF1_UNIQUE) == 0 
+					  && !one_in_(3) )
+					{
+						msg_print("The soul got away!");
+						do_it = FALSE;
+					}
+
+					if (do_it)
+					{
+						msg_print("Your weapon feeds on the soul of the newly departed!");
+						o_ptr->to_h++;
+						o_ptr->to_d++;
+					} 
+				}
 
 				if (duelist_attack)
 				{
@@ -4006,6 +4039,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		if (mode == WEAPONMASTER_WHIRLWIND) break;
 		if (mode == WEAPONMASTER_KNOCK_BACK && did_knockback) break;
 		if (mode == WEAPONMASTER_REAPING) break;
+		if (mode == WEAPONMASTER_ABSORB_SOUL) break;
 	}
 
 	/* Sleep counter ticks down in energy units ... Also, *lots* of code

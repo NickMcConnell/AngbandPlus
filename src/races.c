@@ -172,7 +172,7 @@ int _demigod_get_powers(spell_info* spells, int max)
 		spell_info *spell = &spells[ct++];
 		spell->level = 1;
 		spell->cost = 10;
-		spell->fail = calculate_fail_rate(spell->level, 90, p_ptr->stat_ind[A_CHR]);
+		spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_CHR]);
 		spell->fn = _shine_spell;
 
 		spell = &spells[ct++];

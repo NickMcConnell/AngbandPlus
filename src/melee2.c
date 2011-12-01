@@ -2812,7 +2812,7 @@ msg_format("%^s%s", m_name, monmessage);
 	pack_info_t *pack_ptr = pack_info_ptr(m_idx);
 	bool ticked_off = (m_ptr->smart & SM_TICKED_OFF) ? TRUE : FALSE;
 
-		if (ticked_off)
+		if (ticked_off || is_glyph_grid(&cave[py][px]))
 			freq += (30 + r_ptr->level/5);
 		else if (m_ptr->pack_idx)
 		{

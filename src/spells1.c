@@ -6938,6 +6938,16 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		}
 	}
 
+	if (mut_present(MUT_EVASION))
+	{
+		/* Yes, it is as ugly as this ... sigh */
+		if (hack_m_spell >= 96+8 && hack_m_spell <= 96+31)
+		{
+			msg_print("You evade the attack!");
+			dam -= dam/3;
+		}
+	}
+
 	if ( p_ptr->pclass == CLASS_DUELIST
 	  && p_ptr->duelist_target_idx == who )
 	{

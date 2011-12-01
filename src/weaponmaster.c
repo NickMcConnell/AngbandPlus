@@ -2675,6 +2675,50 @@ static void _strike_vulnerability_spell(int cmd, variant *res)
 	}
 }
 
+static void _absorb_soul_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Absorb Soul");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack an adjacent opponent with a single blow.  If your foe is slain, your weapon might grow more powerful.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+		if (!_check_speciality2_equip())
+		{
+			msg_print("Failed!  You do not feel comfortable with your weapon.");
+			return;
+		}
+
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+			py_attack(y, x, WEAPONMASTER_ABSORB_SOUL);
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 /***** THROW WEAPON SPELL **********/
 typedef struct {
 	int item;
@@ -3283,7 +3327,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 10,   0,  0, _power_attack_spell },
 		{ 15,  10,  0, berserk_spell },
 		{ 25,  12,  0, _crusaders_strike_spell },
-		{ 35,  25,  0, _strike_vulnerability_spell },
+		{ 35,  25,  0, _absorb_soul_spell },
 		{ 35,  25,  0, _vicious_strike_spell },
 	    { -1,   0,  0, NULL },
 	  },
@@ -4254,9 +4298,22 @@ static void _calc_bonuses(void)
 
 			case TOGGLE_STOICISM:
 				if (_check_speciality2_aux(&inventory[INVEN_RARM]))
+				{
 					p_ptr->stat_add[A_CON] += inventory[INVEN_RARM].pval;
+					p_ptr->skill_stl += inventory[INVEN_RARM].pval;
+				}
 				if (_check_speciality2_aux(&inventory[INVEN_LARM]))
+				{
 					p_ptr->stat_add[A_CON] += inventory[INVEN_LARM].pval;
+					p_ptr->skill_stl += inventory[INVEN_LARM].pval;
+				}
+				break;
+
+			case TOGGLE_INDUSTRIOUS_MORTICIAN:
+				if (_check_speciality2_aux(&inventory[INVEN_RARM]))
+					p_ptr->pspeed += inventory[INVEN_RARM].pval;
+				if (_check_speciality2_aux(&inventory[INVEN_LARM]))
+					p_ptr->pspeed += inventory[INVEN_LARM].pval;
 				break;
 			}
 		}

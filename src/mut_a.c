@@ -1115,7 +1115,7 @@ void loremaster_mut(int cmd, variant *res)
 		var_set_string(res, T("You are a Loremaster.", ""));
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, identify_fully(FALSE));
+		var_set_bool(res, cast_probing());
 		break;
 	default:
 		default_spell(cmd, res);

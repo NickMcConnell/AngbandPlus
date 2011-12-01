@@ -3899,7 +3899,7 @@ demigod_type demigod_info[MAX_DEMIGOD_TYPES] =
 		120},
 	{"Poseidon", 
 		"Poseidon, Brother of Zeus, Lord of the Seas and Storm.  You inherit "
-		"protection from water and storms of confusion.",
+		"elemental protection and corrosive attacks.",
 		120},
 	{"Hades", 
 		"Hades, Ruler of the Underworld.  You gain resistance to nether forces and "
@@ -4204,7 +4204,7 @@ player_race mimic_info[] =
 		"[Mithril Golem]",
 		{  5,  1,  1,  -3,  5,  2 },
 		0,  0, 25, -3,  -2,  5, 50, -10,
-		14,  0,
+		13,  0,
 		0,  0,
 		0,  0, 0, 0,
 		0,  0, 0, 0,
@@ -4218,7 +4218,7 @@ player_race mimic_info[] =
 		"[Colossus]",
 		{  7,  2,  2,  -4,  7,  4 },
 		0,  0, 35, -4,  -2,  5, 90, -20,
-		17,  0,
+		15,  0,
 		0,  0,
 		0,  0, 0, 0,
 		0,  0, 0, 0,

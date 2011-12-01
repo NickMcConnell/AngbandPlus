@@ -6052,7 +6052,7 @@ msg_format("'%s'をオープンできません。", name);
 #ifdef JP
 				"[変愚蛮怒 %d.%d.%d, %s, %d/%d]",
 #else
-				"[Hengband %d.%d.%d, %s, Line %d/%d]",
+				"[Chengband %d.%d.%d, %s, Line %d/%d]",
 #endif
 
 			   FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH,
