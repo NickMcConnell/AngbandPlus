@@ -1890,6 +1890,8 @@ static cptr do_sorcery_spell(int spell, int mode)
 
 			if (cast)
 			{
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
 				teleport_player(range, 0L);
 			}
 		}
@@ -1980,6 +1982,8 @@ static cptr do_sorcery_spell(int spell, int mode)
 
 			if (cast)
 			{
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
 				teleport_player(range, 0L);
 			}
 		}
@@ -3144,36 +3148,11 @@ static cptr do_nature_spell(int spell, int mode)
 		break;
 
 	case 25:
-#ifdef JP
-		if (name) return "カマイタチ";
-		if (desc) return "全方向に向かって攻撃する。";
-#else
-		if (name) return "Cyclone";
-		if (desc) return "Attacks all adjacent monsters.";
-#endif
-    
-		{
-			if (cast)
-			{
-				int y = 0, x = 0;
-				cave_type       *c_ptr;
-				monster_type    *m_ptr;
-
-				for (dir = 0; dir < 8; dir++)
-				{
-					y = py + ddy_ddd[dir];
-					x = px + ddx_ddd[dir];
-					c_ptr = &cave[y][x];
-
-					/* Get the monster */
-					m_ptr = &m_list[c_ptr->m_idx];
-
-					/* Hack -- attack monsters */
-					if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
-						py_attack(y, x, 0);
-				}
-			}
-		}
+		if (name) return "Summon Lake";
+		if (desc) return "Summons a body of fresh, delicious water.";
+		
+		if (cast)
+			fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
 		break;
 
 	case 26:
@@ -5020,6 +4999,8 @@ static cptr do_trump_spell(int spell, int mode)
 
 			if (cast)
 			{
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
 				teleport_player(range, 0L);
 			}
 		}
@@ -5110,6 +5091,8 @@ static cptr do_trump_spell(int spell, int mode)
 
 			if (cast)
 			{
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
 				teleport_player(range, 0L);
 			}
 		}
@@ -6026,6 +6009,8 @@ static cptr do_arcane_spell(int spell, int mode)
 
 			if (cast)
 			{
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
 				teleport_player(range, 0L);
 			}
 		}
@@ -6340,6 +6325,8 @@ static cptr do_arcane_spell(int spell, int mode)
 
 			if (cast)
 			{
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
 				teleport_player(range, 0L);
 			}
 		}
@@ -8214,6 +8201,8 @@ static cptr do_crusade_spell(int spell, int mode)
 
 			if (cast)
 			{
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
 				teleport_player(range, 0L);
 			}
 		}
@@ -12402,6 +12391,8 @@ static cptr do_hex_spell(int spell, int mode)
 #else
 				msg_print("Oops!");
 #endif
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
 				teleport_player(30, 0L);
 			}
 

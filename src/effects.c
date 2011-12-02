@@ -5524,12 +5524,17 @@ bool hp_player(int num)
 	{
 		num = num * (p_ptr->virtues[vir - 1] + 1250) / 1250;
 	}
+
+	if (mut_present(MUT_SACRED_VITALITY))
+		num = num * 13/10;
+
 	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT || p_ptr->pclass == CLASS_BLOOD_MAGE)
 	{
 		num /= 2;		
 		if (num == 0)
 			return FALSE;
 	}
+
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{

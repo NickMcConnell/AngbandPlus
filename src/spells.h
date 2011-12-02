@@ -12,6 +12,51 @@ extern int get_spell_energy(ang_spell spell);
 extern int get_spell_cost_extra(ang_spell spell);
 extern int get_spell_fail_min(ang_spell spell);
 
+/* New Magic System ... In progress! */
+enum spell_options {
+	spell_allow_scroll = 0x01,
+	spell_allow_potion = 0x02,
+	spell_allow_wand = 0x04,
+	spell_allow_staff = 0x08,
+	spell_allow_rod = 0x10,
+	spell_allow_shop = 0x20,
+	spell_allow_read = 0x40, /* Restrict reading of certain scrolls to classes that know the realm */
+};
+
+enum spell_realms {
+	realm_life = 0x0001,
+	realm_sorcery = 0x0002,
+	realm_nature = 0x0004,
+	realm_chaos = 0x0008,
+	realm_death = 0x0010,
+	realm_trump = 0x0020,
+	realm_arcane = 0x0040,
+	realm_craft = 0x0080,
+	realm_daemon = 0x0100,
+	realm_crusade = 0x0200,
+	realm_wild = 0x0400,
+	realm_order = 0x0800,
+};
+
+typedef struct {
+	u32b realm;
+	ang_spell spell;
+	s16b level;
+	s16b cost;
+	s16b fail;
+	u32b options;
+	byte rarity;
+} spell_t;
+
+typedef void (*spell_action)(const spell_info *spell);
+
+typedef struct {
+	cptr name;
+	cptr desc;
+	spell_action on_cast;
+	spell_action on_fail;
+} realm_t;
+
 /* Public Spells:  I'm using the following system for placing code.
    This makes it easier to split a too large file, and easier to locate
    the correct file for a spell.

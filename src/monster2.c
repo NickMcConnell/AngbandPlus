@@ -4331,6 +4331,17 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 
 	if ((type == SUMMON_BLUE_HORROR) || (type == SUMMON_DAWN)) mode |= PM_NO_KAGE;
 
+	if (who > 1 && mut_present(MUT_CULT_OF_PERSONALITY))
+	{
+		int lev = r_info[r_idx].level;
+		if (one_in_(2) && !mon_save_p(r_idx, A_CHR))
+		{
+			mode |= PM_FORCE_FRIENDLY;
+			if (!mon_save_p(r_idx, A_CHR))
+				mode |= PM_FORCE_PET;
+		}
+	}
+
 	/* Attempt to place the monster (awake, allow groups) */
 	if (!place_monster_aux(who, y, x, r_idx, mode))
 	{

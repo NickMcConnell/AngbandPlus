@@ -1805,6 +1805,9 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	/* Start dumping the result */
 	t = tmp_val;
 
+	if (o_ptr->marked & OM_RESERVED)
+		t = object_desc_str(t, "<<Hold>> ");
+
 #ifdef JP
 	if (basenm[0] == '&')
 		s = basenm + 2;

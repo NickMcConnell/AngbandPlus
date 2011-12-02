@@ -1,5 +1,15 @@
 #include "angband.h"
 
+/* Table of All Spells.  The index into this table will be stored in 
+   object_type.#### and player_type.####, so please do not reorder stuff!
+   Always add new spells at the end. */
+static spell_t _spells[] = 
+{
+	{realm_life, cure_wounds_I_spell, 1, 1, 30, spell_allow_potion | spell_allow_shop | spell_allow_read, 1},
+};
+
+
+
 /***********************************************************************
  * New Spell System ... Spells are objects (implemented as functions)
  * and can now be stored other data types (spell books, scrolls, etc).

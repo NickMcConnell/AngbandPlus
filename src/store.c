@@ -299,7 +299,7 @@ static cptr comment_6[MAX_COMMENT_6] =
 
 };
 
-
+static void _restock(store_type *st_ptr, bool all);
 
 /*
  * Successful haggle.
@@ -1959,6 +1959,7 @@ static bool black_market_crap(object_type *o_ptr)
 
 	/* Ego items are never crap */
 	if (object_is_ego(o_ptr)) return (FALSE);
+	if (o_ptr->marked & OM_RESERVED) return FALSE;
 
 	/* Good items are never crap */
 	if (o_ptr->to_a > 0) return (FALSE);
@@ -1996,6 +1997,7 @@ static void store_delete(void)
 
 	/* Pick a random slot */
 	what = randint0(st_ptr->stock_num);
+	if (st_ptr->stock[what].marked & OM_RESERVED) return;
 
 	/* Determine how many items are here */
 	num = st_ptr->stock[what].number;
@@ -3337,7 +3339,6 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	return (FALSE);
 }
 
-
 /*
  * Buy an item from a store 			-RAK-
  */
@@ -3605,6 +3606,8 @@ msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 				/* Erase the "feeling" */
 				j_ptr->feeling = FEEL_NONE;
 				j_ptr->ident &= ~(IDENT_STORE);
+				j_ptr->marked &= ~(OM_RESERVED);
+
 				/* Give it to the player */
 				item_new = inven_carry(j_ptr);
 
@@ -4788,9 +4791,10 @@ void do_cmd_store(void)
 	int         maintain_num;
 	int         i;
 	cave_type   *c_ptr;
-	bool        need_redraw_store_inv; /* To redraw missiles damage and prices in store */
+	bool        need_redraw_store_inv = FALSE; /* To redraw missiles damage and prices in store */
 	int w, h;
 	bool        vanilla_zerker_hack = FALSE;
+	bool        friend_hack = FALSE;
 
 
 	/* Get term size */
@@ -4831,6 +4835,15 @@ void do_cmd_store(void)
 		&& vanilla_town )
 	{
 		vanilla_zerker_hack = TRUE;
+		--xtra_stock;
+		--store_bottom;
+	}
+
+	if ( mut_present(MUT_MERCHANTS_FRIEND) 
+	  && cur_store_num != STORE_HOME
+	  && cur_store_num != STORE_MUSEUM )
+	{
+		friend_hack = TRUE;
 		--xtra_stock;
 		--store_bottom;
 	}
@@ -4943,6 +4956,11 @@ void do_cmd_store(void)
 			prt(" 1) Identify (100gp)", 24 + xtra_stock, 0);
 			prt("   2) *Identify* (2000gp)", 24 + xtra_stock, 27);
 			prt("  3) Identify All (1000gp)", 24 + xtra_stock, 56);
+		}
+		else if (friend_hack)
+		{
+			prt(" 1) Shuffle Stock (5000gp)", 24 + xtra_stock, 0);
+			prt("   2) Hold Item (10000gp)", 24 + xtra_stock, 27);
 		}
 
 		/* Home commands */
@@ -5070,6 +5088,56 @@ void do_cmd_store(void)
 				break;
 			}
 		}
+		else if (friend_hack)
+		{
+			switch (command_cmd)
+			{
+			case '1':
+				if (5000 > p_ptr->au)
+					msg_print("You do not have the gold!");
+				else
+				{
+					_restock(st_ptr, TRUE);
+					need_redraw_store_inv = TRUE;
+					p_ptr->au -= 5000;
+					store_prt_gold(); 
+				}
+				break;
+			case '2':
+				if (10000 > p_ptr->au)
+					msg_print("You do not have the gold!");
+				else
+				{
+					int item, i;
+					object_type *o_ptr;
+
+					i = (st_ptr->stock_num - store_top);
+					if (i > store_bottom) i = store_bottom;
+					if (get_stock(&item, "Which item shall I hold for you? ", 0, i - 1))
+					{
+						item = item + store_top;
+						o_ptr = &st_ptr->stock[item];
+						if (o_ptr->marked & OM_RESERVED)
+						{
+							msg_print("You already reserved that item!");
+						}
+						else
+						{
+							o_ptr->marked |= OM_RESERVED;
+							p_ptr->au -= 10000;
+							store_prt_gold();
+
+							need_redraw_store_inv = TRUE;
+							msg_print("Done! Come back later when you have more gold, OK?");
+						}
+					}
+				}
+				break;
+			default:
+				store_process_command();
+				break;
+			}
+		}
 		else
 			store_process_command();
 
@@ -5077,7 +5145,8 @@ void do_cmd_store(void)
 		 * Hack -- To redraw missiles damage and prices in store
 		 * If player's charisma changes, or if player changes a bow, PU_BONUS is set
 		 */
-		need_redraw_store_inv = (p_ptr->update & PU_BONUS) ? TRUE : FALSE;
+		 if (p_ptr->update & PU_BONUS)
+			need_redraw_store_inv = TRUE;
 
 		/* Hack -- Character is still in "icky" mode */
 		character_icky = TRUE;
@@ -5308,13 +5377,12 @@ void store_shuffle(int which)
 	}
 }
 
-
 /*
  * Maintain the inventory at the stores.
  */
 void store_maint(int town_num, int store_num)
 {
-	int 		j;
+	int j;
 
 	cur_store_num = store_num;
 
@@ -5349,43 +5417,7 @@ void store_maint(int town_num, int store_num)
 		}
 	}
 
-
-	/* Choose the number of slots to keep */
-	j = st_ptr->stock_num;
-
-	/* Sell a few items */
-	j = j - randint1(STORE_TURNOVER);
-
-	/* Never keep more than "STORE_MAX_KEEP" slots */
-	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
-
-	/* Always "keep" at least "STORE_MIN_KEEP" items */
-	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
-
-	/* Hack -- prevent "underflow" */
-	if (j < 0) j = 0;
-
-	/* Destroy objects until only "j" slots are left */
-	while (st_ptr->stock_num > j) store_delete();
-
-
-	/* Choose the number of slots to fill */
-	j = st_ptr->stock_num;
-
-	/* Buy some more items */
-	j = j + randint1(STORE_TURNOVER);
-
-	/* Never keep more than "STORE_MAX_KEEP" slots */
-	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
-
-	/* Always "keep" at least "STORE_MIN_KEEP" items */
-	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
-
-	/* Hack -- prevent "overflow" */
-	if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
-
-	/* Acquire some new items */
-	while (st_ptr->stock_num < j) store_create();
+	_restock(st_ptr, FALSE);
 }
 
 
@@ -5456,3 +5488,50 @@ void move_to_black_market(object_type *o_ptr)
 
 	object_wipe(o_ptr); /* Don't leave a bogus object behind... */
 }
+
+static void _restock(store_type *st_ptr, bool all)
+{
+	int j, attempt;
+	
+	j = st_ptr->stock_num;
+
+	if (all)
+		j = 0;
+	else
+	{
+		j = j - randint1(STORE_TURNOVER);
+		if (j > STORE_MAX_KEEP) 
+			j = STORE_MAX_KEEP;
+		if (j < STORE_MIN_KEEP) 
+			j = STORE_MIN_KEEP;
+		if (j < 0) 
+			j = 0;
+	}
+
+	attempt = 1;
+	while (st_ptr->stock_num > j) 
+	{
+		store_delete(); /* Players may reserve items, so this might fail! */
+		attempt++;
+		if (attempt > 50)
+			break;
+	}
+
+	j = st_ptr->stock_num;
+
+	if (all)
+		j = STORE_MAX_KEEP;
+	else
+	{
+		j = j + randint1(STORE_TURNOVER);
+		if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
+		if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
+	}
+
+	if (j >= st_ptr->stock_size) 
+		j = st_ptr->stock_size - 1;
+
+	while (st_ptr->stock_num < j) 
+		store_create();
+}
+

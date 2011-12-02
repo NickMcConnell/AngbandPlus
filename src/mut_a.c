@@ -189,6 +189,28 @@ void arthritis_mut(int cmd, variant *res)
 	}
 }
 
+void astral_guide_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Astral Guide", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You teleport quickly!", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer teleport quickly!", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are an astral guide (Teleport costs less energy).", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void attract_animal_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -451,6 +473,28 @@ void cowardice_mut(int cmd, variant *res)
 			msg_print(T("It's so dark... so scary!", "とても暗い... とても恐い！"));
 			set_afraid(p_ptr->afraid + 13 + randint1(26), FALSE);
 		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void cult_of_personality_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Cult of Personality", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You gain control over your enemy's summons!", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You lose control over your enemy's summons!", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("Summoned monsters are sometimes friendly.", ""));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -802,6 +846,28 @@ void flatulence_mut(int cmd, variant *res)
 	}
 }
 
+void fleet_of_foot_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Fleet of Foot", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel fleet of foot!", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel like your old plodding self!", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are fleet of foot (Movement costs less energy).", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void fumbling_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1141,6 +1207,28 @@ void magic_resistance_mut(int cmd, variant *res)
 		break;
 	case SPELL_CALC_BONUS:
 		p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void merchants_friend_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Merchant's Friend", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel an intense desire to shop!", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer feel like shopping.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are a Merchant's Friend.", ""));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1638,6 +1726,28 @@ void rotting_flesh_mut(int cmd, variant *res)
 		p_ptr->stat_add[A_CON] -= 2;
 		p_ptr->stat_add[A_CHR] -= 1;
 		p_ptr->regenerate = FALSE; /* Equip and spells processed later ... */
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void sacred_vitality_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Sacred Vitality", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You gain the power of Sacred Vitality!", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You lose the power of Sacred Vitality!", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You gain +30% from all healing effects.", ""));
 		break;
 	default:
 		default_spell(cmd, res);

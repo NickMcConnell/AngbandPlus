@@ -1,4 +1,4 @@
-/* File: defines.h */
+/* File: defines.h */ 
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 70
+#define FAKE_VER_PATCH 71
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 70
+#define H_VER_PATCH 71
 #define H_VER_EXTRA 0
 
 
@@ -2368,62 +2368,62 @@
 
 /* The "sval" codes for TV_SCROLL */
 
-#define SV_SCROLL_DARKNESS               0
-#define SV_SCROLL_AGGRAVATE_MONSTER      1
+	#define SV_SCROLL_DARKNESS               0
+	#define SV_SCROLL_AGGRAVATE_MONSTER      1
 #define SV_SCROLL_CURSE_ARMOR            2
 #define SV_SCROLL_CURSE_WEAPON           3
 #define SV_SCROLL_SUMMON_MONSTER         4
 #define SV_SCROLL_SUMMON_UNDEAD          5
-#define SV_SCROLL_SUMMON_PET             6
+	#define SV_SCROLL_SUMMON_PET             6
 #define SV_SCROLL_TRAP_CREATION          7
-#define SV_SCROLL_PHASE_DOOR             8
-#define SV_SCROLL_TELEPORT               9
-#define SV_SCROLL_TELEPORT_LEVEL        10
-#define SV_SCROLL_WORD_OF_RECALL        11
-#define SV_SCROLL_IDENTIFY              12
-#define SV_SCROLL_STAR_IDENTIFY         13
-#define SV_SCROLL_REMOVE_CURSE          14
-#define SV_SCROLL_STAR_REMOVE_CURSE     15
-#define SV_SCROLL_ENCHANT_ARMOR         16
-#define SV_SCROLL_ENCHANT_WEAPON_TO_HIT 17
-#define SV_SCROLL_ENCHANT_WEAPON_TO_DAM 18
+	#define SV_SCROLL_PHASE_DOOR             8
+	#define SV_SCROLL_TELEPORT               9
+	#define SV_SCROLL_TELEPORT_LEVEL        10
+	#define SV_SCROLL_WORD_OF_RECALL        11
+	#define SV_SCROLL_IDENTIFY              12
+	#define SV_SCROLL_STAR_IDENTIFY         13
+	#define SV_SCROLL_REMOVE_CURSE          14
+	#define SV_SCROLL_STAR_REMOVE_CURSE     15
+	#define SV_SCROLL_ENCHANT_ARMOR         16
+	#define SV_SCROLL_ENCHANT_WEAPON_TO_HIT 17
+	#define SV_SCROLL_ENCHANT_WEAPON_TO_DAM 18
 /* xxx enchant missile? */
-#define SV_SCROLL_STAR_ENCHANT_ARMOR    20
-#define SV_SCROLL_STAR_ENCHANT_WEAPON   21
-#define SV_SCROLL_RECHARGING            22
-#define SV_SCROLL_MUNDANITY             23
-#define SV_SCROLL_LIGHT                 24
-#define SV_SCROLL_MAPPING               25
-#define SV_SCROLL_DETECT_GOLD           26
-#define SV_SCROLL_DETECT_ITEM           27
-#define SV_SCROLL_DETECT_TRAP           28
-#define SV_SCROLL_DETECT_DOOR           29
-#define SV_SCROLL_DETECT_INVIS          30
+	#define SV_SCROLL_STAR_ENCHANT_ARMOR    20
+	#define SV_SCROLL_STAR_ENCHANT_WEAPON   21
+	#define SV_SCROLL_RECHARGING            22
+	#define SV_SCROLL_MUNDANITY             23
+	#define SV_SCROLL_LIGHT                 24
+	#define SV_SCROLL_MAPPING               25
+	#define SV_SCROLL_DETECT_GOLD           26
+	#define SV_SCROLL_DETECT_ITEM           27
+	#define SV_SCROLL_DETECT_TRAP           28
+	#define SV_SCROLL_DETECT_DOOR           29
+	#define SV_SCROLL_DETECT_INVIS          30
 /* xxx (detect evil?) */
-#define SV_SCROLL_SATISFY_HUNGER        32
-#define SV_SCROLL_BLESSING              33
-#define SV_SCROLL_HOLY_CHANT            34
-#define SV_SCROLL_HOLY_PRAYER           35
-#define SV_SCROLL_MONSTER_CONFUSION     36
-#define SV_SCROLL_PROTECTION_FROM_EVIL  37
-#define SV_SCROLL_RUNE_OF_PROTECTION    38
-#define SV_SCROLL_TRAP_DOOR_DESTRUCTION 39
+	#define SV_SCROLL_SATISFY_HUNGER        32
+	#define SV_SCROLL_BLESSING              33
+	#define SV_SCROLL_HOLY_CHANT            34
+	#define SV_SCROLL_HOLY_PRAYER           35
+	#define SV_SCROLL_MONSTER_CONFUSION     36
+	#define SV_SCROLL_PROTECTION_FROM_EVIL  37
+	#define SV_SCROLL_RUNE_OF_PROTECTION    38
+	#define SV_SCROLL_TRAP_DOOR_DESTRUCTION 39
 /* xxx */
-#define SV_SCROLL_STAR_DESTRUCTION      41
-#define SV_SCROLL_DISPEL_UNDEAD         42
+	#define SV_SCROLL_STAR_DESTRUCTION      41
+	#define SV_SCROLL_DISPEL_UNDEAD         42
 #define SV_SCROLL_SPELL                 43
-#define SV_SCROLL_GENOCIDE              44
-#define SV_SCROLL_MASS_GENOCIDE         45
+	#define SV_SCROLL_GENOCIDE              44
+	#define SV_SCROLL_MASS_GENOCIDE         45
 #define SV_SCROLL_ACQUIREMENT           46
 #define SV_SCROLL_STAR_ACQUIREMENT      47
-#define SV_SCROLL_FIRE                  48
-#define SV_SCROLL_ICE                   49
-#define SV_SCROLL_CHAOS                 50
+	#define SV_SCROLL_FIRE                  48
+	#define SV_SCROLL_ICE                   49
+	#define SV_SCROLL_CHAOS                 50
 #define SV_SCROLL_RUMOR                 51
 #define SV_SCROLL_ARTIFACT              52
-#define SV_SCROLL_RESET_RECALL          53
-#define SV_SCROLL_SUMMON_KIN            54
-#define SV_SCROLL_BRAND_WEAPON          55
+	#define SV_SCROLL_RESET_RECALL          53
+	#define SV_SCROLL_SUMMON_KIN            54
+	#define SV_SCROLL_BRAND_WEAPON          55
 #define SV_SCROLL_MADNESS				56
 
 /* The "sval" codes for TV_POTION */
@@ -2451,30 +2451,30 @@
 #define SV_POTION_DEC_CHR               21
 #define SV_POTION_DETONATIONS           22
 #define SV_POTION_DEATH                 23
-#define SV_POTION_INFRAVISION           24
-#define SV_POTION_DETECT_INVIS          25
+	#define SV_POTION_INFRAVISION           24
+	#define SV_POTION_DETECT_INVIS          25
 #define SV_POTION_SLOW_POISON           26
-#define SV_POTION_CURE_POISON           27
-#define SV_POTION_BOLDNESS              28
-#define SV_POTION_SPEED                 29
-#define SV_POTION_RESIST_HEAT           30
-#define SV_POTION_RESIST_COLD           31
-#define SV_POTION_HEROISM               32
-#define SV_POTION_BERSERK_STRENGTH      33
-#define SV_POTION_CURE_LIGHT            34
-#define SV_POTION_CURE_SERIOUS          35
-#define SV_POTION_CURE_CRITICAL         36
-#define SV_POTION_HEALING               37
-#define SV_POTION_STAR_HEALING          38
-#define SV_POTION_LIFE                  39
+	#define SV_POTION_CURE_POISON           27
+	#define SV_POTION_BOLDNESS              28
+	#define SV_POTION_SPEED                 29
+	#define SV_POTION_RESIST_HEAT           30
+	#define SV_POTION_RESIST_COLD           31
+	#define SV_POTION_HEROISM               32
+	#define SV_POTION_BERSERK_STRENGTH      33
+	#define SV_POTION_CURE_LIGHT            34
+	#define SV_POTION_CURE_SERIOUS          35
+	#define SV_POTION_CURE_CRITICAL         36
+	#define SV_POTION_HEALING               37
+	#define SV_POTION_STAR_HEALING          38
+	#define SV_POTION_LIFE                  39
 #define SV_POTION_RESTORE_MANA          40
-#define SV_POTION_RESTORE_EXP           41
-#define SV_POTION_RES_STR               42
-#define SV_POTION_RES_INT               43
-#define SV_POTION_RES_WIS               44
-#define SV_POTION_RES_DEX               45
-#define SV_POTION_RES_CON               46
-#define SV_POTION_RES_CHR               47
+	#define SV_POTION_RESTORE_EXP           41
+	#define SV_POTION_RES_STR               42
+	#define SV_POTION_RES_INT               43
+	#define SV_POTION_RES_WIS               44
+	#define SV_POTION_RES_DEX               45
+	#define SV_POTION_RES_CON               46
+	#define SV_POTION_RES_CHR               47
 #define SV_POTION_INC_STR               48
 #define SV_POTION_INC_INT               49
 #define SV_POTION_INC_WIS               50
@@ -2483,17 +2483,17 @@
 #define SV_POTION_INC_CHR               53
 /* xxx */
 #define SV_POTION_AUGMENTATION          55
-#define SV_POTION_ENLIGHTENMENT         56
-#define SV_POTION_STAR_ENLIGHTENMENT    57
-#define SV_POTION_SELF_KNOWLEDGE        58
+	#define SV_POTION_ENLIGHTENMENT         56
+	#define SV_POTION_STAR_ENLIGHTENMENT    57
+	#define SV_POTION_SELF_KNOWLEDGE        58
 #define SV_POTION_EXPERIENCE            59
-#define SV_POTION_RESISTANCE            60
-#define SV_POTION_CURING                61
-#define SV_POTION_INVULNERABILITY       62
+	#define SV_POTION_RESISTANCE            60
+	#define SV_POTION_CURING                61
+	#define SV_POTION_INVULNERABILITY       62
 #define SV_POTION_NEW_LIFE              63
 #define SV_POTION_NEO_TSUYOSHI          64
 #define SV_POTION_TSUYOSHI              65
-#define SV_POTION_POLYMORPH             66
+	#define SV_POTION_POLYMORPH             66
 #define SV_POTION_BLOOD					67
 
 /* The "sval" codes for TV_FLASK */
@@ -3201,6 +3201,7 @@
 #define OM_NO_QUERY     0x04    /* Query for auto-pick was already answered as 'No' */
 #define OM_AUTODESTROY  0x08    /* Destroy later to avoid illegal inventry shift */
 #define OM_TOUCHED      0x10    /* Object was touched by player */
+#define OM_RESERVED     0x20    /* Object reserved in the shop */
 
 
 /*
@@ -5301,7 +5302,7 @@ extern int PlayerUID;
 #define WEAPONMASTER_REAPING 43
 #define WEAPONMASTER_CUNNING_STRIKE 44
 #define WEAPONMASTER_SMITE_EVIL 45
-#define WEAPONMASTER_ABSORB_SOUL 34
+#define WEAPONMASTER_ABSORB_SOUL 46
 
 
 #define MAX_FRENZY_ITEMS 3

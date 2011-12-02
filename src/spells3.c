@@ -5668,13 +5668,15 @@ bool dimension_door_aux(int x, int y)
 {
 	int	plev = p_ptr->lev;
 
-	p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
+	if (!mut_present(MUT_ASTRAL_GUIDE))
+		p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
 
 	if (!cave_player_teleportable_bold(y, x, 0L) ||
 	    (distance(y, x, py, px) > plev / 2 + 10) ||
 	    (!randint0(plev / 10 + 10)))
 	{
-		p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
+		if (!mut_present(MUT_ASTRAL_GUIDE))
+			p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
 		teleport_player((plev + 2) * 2, TELEPORT_PASSIVE);
 
 		/* Failed */

@@ -3632,6 +3632,8 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			teleport_player(100, 0L);
+			if (mut_present(MUT_ASTRAL_GUIDE))
+				energy_use = 30;
 			o_ptr->timeout = 45;
 			break;
 		}

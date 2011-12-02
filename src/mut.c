@@ -120,6 +120,11 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, one_with_magic_mut}},
 	{MUT_RATING_GREAT,	    MUT_TYPE_ACTIVATION, A_INT, 0, {20, 25, 70, peerless_tracker_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, infernal_deal_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, merchants_friend_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, sacred_vitality_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, cult_of_personality_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, fleet_of_foot_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, astral_guide_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -451,6 +456,11 @@ bool mut_human_pred(int mut_idx)
 	case MUT_ONE_WITH_MAGIC:
 	case MUT_PEERLESS_TRACKER:
 	case MUT_INFERNAL_DEAL:
+	case MUT_MERCHANTS_FRIEND:
+	case MUT_SACRED_VITALITY:
+	case MUT_CULT_OF_PERSONALITY:
+	case MUT_FLEET_OF_FOOT:
+	case MUT_ASTRAL_GUIDE:
 		return TRUE;
 	}
 	return FALSE;

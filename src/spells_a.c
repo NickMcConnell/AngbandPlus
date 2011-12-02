@@ -1172,6 +1172,12 @@ void dimension_door_spell(int cmd, variant *res)
 	case SPELL_CAST:
 		var_set_bool(res, dimension_door());
 		break;
+	case SPELL_ENERGY:
+		if (mut_present(MUT_ASTRAL_GUIDE))
+			var_set_int(res, 30);
+		else
+			default_spell(cmd, res);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -2743,6 +2749,12 @@ void phase_door_spell(int cmd, variant *res)
 		teleport_player(10, 0);
 		var_set_bool(res, TRUE);
 		break;
+	case SPELL_ENERGY:
+		if (mut_present(MUT_ASTRAL_GUIDE))
+			var_set_int(res, 30);
+		else
+			default_spell(cmd, res);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;
@@ -4115,6 +4127,12 @@ void teleport_spell(int cmd, variant *res)
 	case SPELL_CAST:
 		teleport_player(10 + 4 * p_ptr->lev, 0);
 		var_set_bool(res, TRUE);
+		break;
+	case SPELL_ENERGY:
+		if (mut_present(MUT_ASTRAL_GUIDE))
+			var_set_int(res, 30);
+		else
+			default_spell(cmd, res);
 		break;
 	default:
 		default_spell(cmd, res);

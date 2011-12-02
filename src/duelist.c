@@ -468,6 +468,8 @@ void strafing_spell(int cmd, variant *res)
 		var_set_string(res, "Blink to a new location in the line of sight of your current location.");
 		break;
 	case SPELL_CAST:
+		if (mut_present(MUT_ASTRAL_GUIDE))
+			energy_use = 30;
 		teleport_player(10, TELEPORT_LINE_OF_SIGHT);
 		var_set_bool(res, TRUE);
 		break;

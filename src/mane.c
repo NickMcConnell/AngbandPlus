@@ -880,9 +880,13 @@ msg_print("Ìµ½ý¤Îµå¤Î¼öÊ¸¤ò¾§¤¨¤¿¡£");
 		(void)set_invuln(randint1(7) + 7, FALSE);
 		break;
 	case MS_BLINK:
+		if (mut_present(MUT_ASTRAL_GUIDE))
+			energy_use = 30;
 		teleport_player(10, 0L);
 		break;
 	case MS_TELEPORT:
+		if (mut_present(MUT_ASTRAL_GUIDE))
+			energy_use = 30;
 		teleport_player(plev * 5, 0L);
 		break;
 	case MS_WORLD:

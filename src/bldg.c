@@ -3637,31 +3637,37 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	/* Get the item (in the pack) */
 	o_ptr = &inventory[item];
 
-	old_cost = new_object_cost(o_ptr);
-	object_copy(&copy, o_ptr);
-
-	for (i = 0; i < to_hit; i++)
+	if (o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT || o_ptr->tval == TV_SHOT)
 	{
-		if (copy.to_h < maxenchant)
-			copy.to_h++;
 	}
-	for (i = 0; i < to_dam; i++)
+	else
 	{
-		if (copy.to_d < maxenchant)
-			copy.to_d++;
-	}
-	for (i = 0; i < to_ac; i++)
-	{
-		if (copy.to_a < maxenchant)
-			copy.to_a++;
-	}
-	new_cost = new_object_cost(&copy);
+		old_cost = new_object_cost(o_ptr);
+		object_copy(&copy, o_ptr);
 
-	cost = (new_cost - old_cost) * 7;
-	if (cost == 0) cost = 1000;
+		for (i = 0; i < to_hit; i++)
+		{
+			if (copy.to_h < maxenchant)
+				copy.to_h++;
+		}
+		for (i = 0; i < to_dam; i++)
+		{
+			if (copy.to_d < maxenchant)
+				copy.to_d++;
+		}
+		for (i = 0; i < to_ac; i++)
+		{
+			if (copy.to_a < maxenchant)
+				copy.to_a++;
+		}
+		new_cost = new_object_cost(&copy);
 
-	prt(format("  The price for the service will be %d.", cost), 7, 0);
-	if (!get_check("Do you pay?")) return FALSE;
+		cost = (new_cost - old_cost) * 7;
+		if (cost == 0) cost = 1000;
+
+		prt(format("  The price for the service will be %d.", cost), 7, 0);
+		if (!get_check("Do you pay?")) return FALSE;
+	}
 
 	/* Check if the player has enough money */
 	if (p_ptr->au < (cost * o_ptr->number))
