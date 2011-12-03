@@ -1124,16 +1124,6 @@ struct player_type
 	s16b tim_sh_holy;
 	s16b tim_eyeeye;
 
-	/* Comment:  Every time based effect seems to require a separate field.
-	   Couldn't we move to some sort of dynamic storage, or a list<effect>
-	   where each effect had an id and a duration?  Most of the time, all
-	   of these effects are not active and we are wasting a lot more space this
-	   way.  Also, adding new timed effects breaks savefiles (or I should say
-	   requires effort to not break savefiles!).
-
-	   Well, I'm not going to fight the codebase for the moment, so here are
-	   a bunch more of these!
-	*/
 	s16b tim_spurt;
 	s16b tim_spec_corporeal;
 	s16b tim_speed_essentia;
@@ -1143,7 +1133,6 @@ struct player_type
 	s16b tim_wild_pos;
 	s16b tim_wild_mind;
 	
-	/* Blood Knights */
 	s16b tim_blood_shield;
 	s16b tim_blood_seek;
 	s16b tim_blood_sight;
@@ -1193,7 +1182,6 @@ struct player_type
 	bool entrenched;
 	bool inven_prot;
 
-	/* Warlock */
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
 	s16b tim_no_device;		/* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
 							

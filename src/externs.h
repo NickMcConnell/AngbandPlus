@@ -846,6 +846,7 @@ extern cptr info_duration(int base, int sides);
 extern cptr info_range(int range);
 extern cptr info_heal(int dice, int sides, int base);
 extern cptr info_radius(int rad);
+extern cptr info_power(int power);
 
 /* dungeon.c */
 extern void leave_quest_check(void);

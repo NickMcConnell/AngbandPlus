@@ -315,6 +315,18 @@
     <ClCompile Include="skills.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="spells_m.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells_c.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells_h.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
+    <ClCompile Include="spells_s.c">
+      <Filter>Spells</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

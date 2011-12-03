@@ -14,13 +14,13 @@ extern int get_spell_fail_min(ang_spell spell);
 
 /* New Magic System ... In progress! */
 enum spell_options {
-	spell_allow_scroll = 0x01,
+	spell_no_scroll = 0x01,
 	spell_allow_potion = 0x02,
 	spell_allow_wand = 0x04,
 	spell_allow_staff = 0x08,
 	spell_allow_rod = 0x10,
 	spell_allow_shop = 0x20,
-	spell_allow_read = 0x40, /* Restrict reading of certain scrolls to classes that know the realm */
+	spell_no_read = 0x40, /* Restrict reading of certain scrolls to classes that know the realm */
 };
 
 enum spell_realms {
@@ -39,11 +39,11 @@ enum spell_realms {
 };
 
 typedef struct {
-	u32b realm;
 	ang_spell spell;
 	s16b level;
 	s16b cost;
 	s16b fail;
+	u32b realms;
 	u32b options;
 	byte rarity;
 } spell_t;
@@ -123,10 +123,6 @@ extern bool cast_teleport_level(void);
 extern bool cast_vampirism(void);
 extern bool cast_weigh_magic(void);
 
-/* The Spells ... alot of racial powers that could be
-   private are actually public.  Coming up is the "Wild Thing"
-   class that gains random racial powers!
-*/
 extern void alchemy_spell(int cmd, variant *res);
 extern void android_ray_gun_spell(int cmd, variant *res);
 extern void android_blaster_spell(int cmd, variant *res);
@@ -136,6 +132,7 @@ extern void android_rocket_spell(int cmd, variant *res);
 extern void banish_evil_spell(int cmd, variant *res);
 extern void battle_frenzy_spell(int cmd, variant *res);
 extern void berserk_spell(int cmd, variant *res);
+extern void bless_spell(int cmd, variant *res);
 extern void bless_weapon_spell(int cmd, variant *res);
 extern void brain_smash_spell(int cmd, variant *res);
 extern void breathe_disintegration_spell(int cmd, variant *res);
@@ -151,9 +148,13 @@ extern void cold_touch_spell(int cmd, variant *res);
 extern void confusing_lights_spell(int cmd, variant *res);
 extern void create_ammo_spell(int cmd, variant *res);
 extern void create_food_spell(int cmd, variant *res);
+extern void cure_poison_spell(int cmd, variant *res);
 extern void cure_wounds_I_spell(int cmd, variant *res);
+extern void cure_wounds_II_spell(int cmd, variant *res);
+extern void cure_wounds_III_spell(int cmd, variant *res);
 extern void darkness_storm_I_spell(int cmd, variant *res);
 extern void darkness_storm_II_spell(int cmd, variant *res);
+extern void day_of_the_dove_spell(int cmd, variant *res);
 extern void dazzle_spell(int cmd, variant *res);
 extern void demon_breath_spell(int cmd, variant *res);
 extern void destruction_spell(int cmd, variant *res);
@@ -166,6 +167,7 @@ extern void detect_traps_spell(int cmd, variant *res);
 extern void detect_treasure_spell(int cmd, variant *res);
 extern void dimension_door_spell(int cmd, variant *res);
 extern void disintegrate_spell(int cmd, variant *res);
+extern void dispel_undead_spell(int cmd, variant *res);
 extern void dominate_living_I_spell(int cmd, variant *res);
 extern void dominate_living_II_spell(int cmd, variant *res);
 extern void double_magic_spell(int cmd, variant *res);
@@ -205,6 +207,7 @@ extern void mind_blast_spell(int cmd, variant *res);
 extern void orb_of_entropy_spell(int cmd, variant *res);
 extern void panic_hit_spell(int cmd, variant *res);
 extern void pattern_mindwalk_spell(int cmd, variant *res);
+extern void perception_spell(int cmd, variant *res);
 extern void phase_door_spell(int cmd, variant *res);
 extern void poison_dart_spell(int cmd, variant *res);
 extern void polish_shield_spell(int cmd, variant *res);
@@ -222,6 +225,7 @@ extern void remove_curse_II_spell(int cmd, variant *res);
 extern void remove_fear_spell(int cmd, variant *res);
 extern void resistance_spell(int cmd, variant *res);
 extern void resist_elements_spell(int cmd, variant *res);
+extern void resist_heat_cold_spell(int cmd, variant *res);
 extern void resist_poison_spell(int cmd, variant *res);
 extern void restore_life_spell(int cmd, variant *res);
 extern void rocket_I_spell(int cmd, variant *res);
@@ -229,6 +233,7 @@ extern void rocket_II_spell(int cmd, variant *res);
 extern void rush_attack_spell(int cmd, variant *res);
 extern void satisfy_hunger_spell(int cmd, variant *res);
 extern void scare_monster_spell(int cmd, variant *res);
+extern void sense_surroundings_spell(int cmd, variant *res);
 extern void shadow_shifting_spell(int cmd, variant *res);
 extern void shoot_arrow_spell(int cmd, variant *res);
 extern void shriek_spell(int cmd, variant *res);
@@ -253,6 +258,7 @@ extern void teleport_spell(int cmd, variant *res);
 extern void teleport_level_spell(int cmd, variant *res);
 extern void teleport_other_spell(int cmd, variant *res);
 extern void throw_boulder_spell(int cmd, variant *res);
+extern void turn_undead_spell(int cmd, variant *res);
 extern void vampirism_spell(int cmd, variant *res);
 extern void weigh_magic_spell(int cmd, variant *res);
 extern void wonder_spell(int cmd, variant *res);

@@ -141,7 +141,7 @@ static cptr info_multi_damage_dice(int dice, int sides)
 /*
  * Generate power info string such as "power 100"
  */
-static cptr info_power(int power)
+cptr info_power(int power)
 {
 #ifdef JP
 	return format("¸úÎÏ:%d", power);

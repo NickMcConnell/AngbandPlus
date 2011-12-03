@@ -154,6 +154,10 @@
     <ClCompile Include="spells2.c" />
     <ClCompile Include="spells3.c" />
     <ClCompile Include="spells_a.c" />
+    <ClCompile Include="spells_c.c" />
+    <ClCompile Include="spells_h.c" />
+    <ClCompile Include="spells_m.c" />
+    <ClCompile Include="spells_s.c" />
     <ClCompile Include="store.c" />
     <ClCompile Include="streams.c" />
     <ClCompile Include="tables.c" />
