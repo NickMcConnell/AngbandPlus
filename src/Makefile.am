@@ -2,11 +2,11 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-bin_PROGRAMS = hengband
+bin_PROGRAMS = chengband
 
 hengband_SOURCES = \
         archaeologist.c archer.c artifact.c autopick.c avatar.c \
-        bard.c birth.c bldg.c blood_knight.c blue_mage.c cavalry.c \
+        bard.c birth.c bldg.c blood_knight.c blood_mage.c blue_mage.c cavalry.c \
         cave.c chuukei.c classes.c cmd1.c cmd2.c cmd3.c cmd4.c \
         cmd5.c cmd6.c do-spell.c duelist.c dungeon.c effects.c \
         files.c flavor.c floors.c force_trainer.c generate.c grid.c hex.c hissatsu.c \
@@ -15,8 +15,9 @@ hengband_SOURCES = \
         mirror.c monk.c monster1.c monster2.c mspells1.c mspells2.c \
         mspells3.c mut.c mut_a.c ninja.c object1.c object2.c obj_kind.c \
         main-gcu.c races.c racial.c report.c rooms.c rune_knight.c \
-        samurai.c save.c scores.c smith.c snipe.c spells.c spells1.c \
-        spells2.c spells3.c spells_a.c store.c streams.c tables.c \
+        samurai.c save.c scores.c skills.c smith.c snipe.c spells.c spells1.c \
+        spells2.c spells3.c spells_a.c spells_c.c spells_h.c spells_m.c spells_s.c\
+		store.c streams.c tables.c \
         util.c variable.c variant.c warlock.c wild.c wild_talent.c \
         wizard1.c wizard2.c xtra1.c xtra2.c z-form.c z-rand.c \
         z-term.c z-util.c z-virt.c \
@@ -34,6 +35,6 @@ EXTRA_hengband_SOURCES = \
 
 install-exec-hook:
 if SET_GID
-	chgrp "@GAMEGROUP@" "$(DESTDIR)$(bindir)/hengband"
-	chmod g+s "$(DESTDIR)$(bindir)/hengband"
+	chgrp "@GAMEGROUP@" "$(DESTDIR)$(bindir)/chengband"
+	chmod g+s "$(DESTDIR)$(bindir)/chengband"
 endif

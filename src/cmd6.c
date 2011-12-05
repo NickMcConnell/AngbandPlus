@@ -5678,7 +5678,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 				if (!ident_spell(FALSE)) return;
 
-				if (mp_ptr->spell_book)
+				if (mp_ptr->spell_book && p_ptr->pclass != CLASS_BLOOD_MAGE)
 				{
 					/* Sufficient mana */
 					if (20 <= p_ptr->csp)

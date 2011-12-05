@@ -102,7 +102,7 @@ cptr info_heal(int dice, int sides, int base)
 /*
  * Generate delay info string such as "delay 15+1d15"
  */
-static cptr info_delay(int base, int sides)
+cptr info_delay(int base, int sides)
 {
 #ifdef JP
 	return format("цы╠Д:%d+1d%d", base, sides);

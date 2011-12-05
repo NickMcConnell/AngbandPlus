@@ -45,7 +45,7 @@
 
 SRCS = \
 	archaeologist.c archer.c artifact.c autopick.c avatar.c bard.c \
-	birth.c bldg.c blood_knight.c blue_mage.c cavalry.c cave.c \
+	birth.c bldg.c blood_knight.c blood_mage.c blue_mage.c cavalry.c cave.c \
 	chuukei.c classes.c cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
 	do-spell.c duelist.c dungeon.c effects.c files.c flavor.c floors.c \
 	force_trainer.c generate.c grid.c hex.c hissatsu.c inet.c init1.c \
@@ -53,15 +53,16 @@ SRCS = \
 	melee2.c menu.c mind.c mindcrafter.c mirror.c monk.c monster1.c \
 	monster2.c mspells1.c mspells2.c mspells3.c mut.c mut_a.c ninja.c \
 	object1.c object2.c object3.c obj_kind.c races.c racial.c report.c \
-	rooms.c rune_knight.c samurai.c save.c scores.c smith.c snipe.c spells.c \
-	spells1.c spells2.c spells3.c spells_a.c store.c streams.c tables.c \
-	util.c variable.c variant.c warlock.c weaponmaster.c wild.c wild_realm.c wild_talent.c wizard1.c \
+	rooms.c rune_knight.c samurai.c save.c scores.c skills.c smith.c snipe.c spells.c \
+	spells1.c spells2.c spells3.c spells_a.c spells_c.c spells_h.c \
+	spells_m.c spells_s.c store.c streams.c tables.c util.c variable.c \
+	variant.c warlock.c weaponmaster.c wild.c wild_realm.c wild_talent.c wizard1.c \
 	wizard2.c xtra1.c xtra2.c z-form.c z-rand.c z-term.c z-util.c z-virt.c \
 	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c chuukei.c
 
 OBJS = \
 	archaeologist.o archer.o artifact.o autopick.o avatar.o bard.o \
-	birth.o bldg.o blood_knight.o blue_mage.o cavalry.o cave.o \
+	birth.o bldg.o blood_knight.o blue_mage.o blood_mage.o cavalry.o cave.o \
 	classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
 	do-spell.o duelist.o dungeon.o effects.o files.o flavor.o floors.o \
 	force_trainer.o generate.o grid.o hex.o hissatsu.o inet.o init1.o \
@@ -69,9 +70,10 @@ OBJS = \
 	melee2.o menu.o mind.o mindcrafter.o mirror.o monk.o monster1.o \
 	monster2.o mspells1.o mspells2.o mspells3.o mut.o mut_a.o ninja.o \
 	object1.o object2.o object3.o obj_kind.o races.o racial.o report.o \
-	rooms.o rune_knight.o samurai.o save.o scores.o smith.o snipe.o spells.o \
-	spells1.o spells2.o spells3.o spells_a.o store.o streams.o tables.o \
-	util.o variable.o variant.o warlock.o weaponmaster.o wild.o wild_realm.o wild_talent.o wizard1.o \
+	rooms.o rune_knight.o samurai.o save.o scores.o skills.o smith.o snipe.o spells.o \
+	spells1.o spells2.o spells3.o spells_a.o spells_c.o spells_h.o \
+	spells_m.o spells_s.o store.o streams.o tables.o util.o variable.o \
+	variant.o warlock.o weaponmaster.o wild.o wild_realm.o wild_talent.o wizard1.o \
 	wizard2.o xtra1.o xtra2.o z-form.o z-rand.o z-term.o z-util.o z-virt.o \
 	main-x11.o main-gcu.o main.o chuukei.o
 
@@ -299,7 +301,6 @@ INCS = \
 	z-config.h defines.h types.h externs.h \
 	z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
-
 archaeologist.o: archaeologist.c $(INCS)
 archer.o: archer.c $(INCS)
 artifact.o: artifact.c $(INCS)
@@ -309,6 +310,7 @@ bard.o: bard.c $(INCS)
 birth.o: birth.c $(INCS)
 bldg.o: bldg.c $(INCS)
 blood_knight.o: blood_knight.c $(INCS)
+blood_mage.o: blood_mage.c $(INCS)
 blue_mage.o: blue_mage.c $(INCS)
 cavalry.o: cavalry.c $(INCS)
 cave.o: cave.c $(INCS)
@@ -370,6 +372,7 @@ rune_knight.o: rune_knight.c $(INCS)
 samurai.o: samurai.c $(INCS)
 save.o: save.c $(INCS)
 scores.o: scores.c $(INCS)
+skills.o: skills.c $(INCS)
 smith.o: smith.c $(INCS)
 snipe.o: snipe.c $(INCS)
 spells.o: spells.c $(INCS)
@@ -377,6 +380,10 @@ spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
 spells3.o: spells3.c $(INCS)
 spells_a.o: spells_a.c $(INCS)
+spells_c.o: spells_c.c $(INCS)
+spells_h.o: spells_h.c $(INCS)
+spells_m.o: spells_m.c $(INCS)
+spells_s.o: spells_s.c $(INCS)
 store.o: store.c $(INCS)
 streams.o: streams.c $(INCS) grid.h generate.h
 tables.o: tables.c $(INCS)

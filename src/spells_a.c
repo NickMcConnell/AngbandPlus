@@ -31,6 +31,30 @@ void alchemy_spell(int cmd, variant *res)
 }
 bool cast_alchemy(void) { return cast_spell(alchemy_spell); }
 
+void alter_reality_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Alter Reality", "真実の祭壇"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Recreates current dungeon level.", "現在の階を再構成する。"));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_delay(15, 20));
+		break;
+	case SPELL_CAST:
+		alter_reality();
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+
 void android_ray_gun_spell(int cmd, variant *res)
 {
 	switch (cmd)

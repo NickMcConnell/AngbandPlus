@@ -1,58 +1,5 @@
 #include "angband.h"
 
-
-#define _NO_SCROLL spell_no_scroll
-#define _POTION spell_allow_potion
-#define _WAND spell_allow_wand
-#define _STAFF spell_allow_staff
-#define _ROD spell_allow_rod
-#define _SHOP spell_allow_shop
-#define _NO_READ spell_no_read
-
-#define _LIFE realm_life
-#define _SORCERY realm_sorcery
-#define _NATURE realm_nature
-#define _CHAOS realm_chaos
-#define _DEATH realm_death
-#define _TRUMP realm_trump
-#define _ARCANE realm_arcane
-#define _CRAFT realm_craft
-#define _DAEMON realm_daemon
-#define _CRUSADE realm_crusade
-#define _WILD realm_wild
-#define _ORDER realm_order
-
-/* Table of All Spells.  The index into this table will be stored in 
-   object_type.#### and player_type.####, so please do not reorder stuff!
-   Always add new spells at the end. */
-static spell_t _spells[] = 
-{
-	{cure_wounds_I_spell, 1, 1, 30, _LIFE, _POTION | _SHOP, 1},
-	{bless_spell, 3, 2, 35, _LIFE, _SHOP, 1},
-	{cause_wounds_I_spell, 4, 3, 35, _LIFE, 0, 2},
-	{light_area_spell, 5, 5, 35, _LIFE, _ROD | _STAFF | _SHOP, 1},
-	{detect_doors_stairs_traps_spell, 7, 7, 35, _LIFE, _ROD | _STAFF | _SHOP, 1},
-	{cure_wounds_II_spell, 9, 8, 40, _LIFE, _POTION | _SHOP, 2},
-	{cure_poison_spell, 12, 12, 40, _LIFE | _ARCANE, _POTION | _SHOP, 2},
-	{satisfy_hunger_spell, 15, 14, 45, _LIFE | _CRAFT | _ARCANE, 0, 3},
-	{remove_curse_I_spell, 16, 16, 45, _LIFE | _CRAFT, _SHOP, 2},
-	{cause_wounds_II_spell, 17, 17, 50, _LIFE, 0, 3},
-	{cure_wounds_III_spell, 18, 18, 50, _LIFE, _POTION | _SHOP, 2},
-	{resist_heat_cold_spell, 19, 19, 50, _LIFE, _POTION | _SHOP, 3},
-	{sense_surroundings_spell, 20, 20, 50, _LIFE | _SORCERY, _STAFF | _SHOP, 3},
-	{turn_undead_spell, 23, 23, 50, _LIFE, _NO_READ, 5},
-	{healing_I_spell, 30, 30, 55, _LIFE, _POTION | _NO_READ, 3},
-	{healing_II_spell, 40, 40, 75, _LIFE, _POTION | _NO_READ, 20},
-	{glyph_of_warding_spell, 35, 70, 75, _LIFE, 0, 10},
-	{remove_curse_II_spell, 26, 30, 50, _LIFE, 0, 20},
-	{perception_spell, 28, 25, 70, _LIFE, _STAFF, 12},
-	{dispel_undead_spell, 33, 33, 60, _LIFE, _STAFF, 17},
-	{day_of_the_dove_spell, 35, 35, 60, _LIFE, _NO_READ, 20},
-	{cause_wounds_III_spell, 35, 35, 70, _LIFE, _NO_READ, 15},
-	{recall_spell, 35, 55, 80, _LIFE, _NO_READ, 20},
-	{NULL, 0, 0, 0, 0, 0, 0}
-};
-
 /***********************************************************************
  * New Spell System ... Spells are objects (implemented as functions)
  * and can now be stored other data types (spell books, scrolls, etc).
