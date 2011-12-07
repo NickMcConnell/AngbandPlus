@@ -65,7 +65,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /DMSVC %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -200,6 +200,7 @@
     <ClInclude Include="spells.h" />
     <ClInclude Include="streams.h" />
     <ClInclude Include="types.h" />
+    <ClInclude Include="variant.h" />
     <ClInclude Include="z-config.h" />
     <ClInclude Include="z-form.h" />
     <ClInclude Include="z-rand.h" />

@@ -2590,6 +2590,9 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_HOLD_LIFE);
 			add_flag(flgs, TR_SUST_CON);
 			break;
+		case DEMIGOD_HEPHAESTUS:
+			add_flag(flgs, TR_RES_DISEN);
+			break;
 		case DEMIGOD_ATHENA:
 			add_flag(flgs, TR_SUST_INT);
 			break;
@@ -2607,8 +2610,6 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			break;
 		case DEMIGOD_ARTEMIS:
 			add_flag(flgs, TR_SUST_DEX);
-			break;
-		case DEMIGOD_HEPHAESTUS:
 			break;
 		case DEMIGOD_HERA:
 			break;

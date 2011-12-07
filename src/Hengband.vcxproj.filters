@@ -22,6 +22,9 @@
     <Filter Include="Races">
       <UniqueIdentifier>{1fb26358-84e5-4ff7-b510-11ae3026c10f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{19308e86-aa91-4cf9-ae1f-82c804b4947d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="artifact.c">
@@ -216,9 +219,6 @@
     <ClCompile Include="chuukei.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="variant.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mirror.c">
       <Filter>Classes</Filter>
     </ClCompile>
@@ -327,6 +327,9 @@
     <ClCompile Include="spells_s.c">
       <Filter>Spells</Filter>
     </ClCompile>
+    <ClCompile Include="variant.c">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
@@ -406,6 +409,9 @@
     </ClInclude>
     <ClInclude Include="menu.h">
       <Filter>Spells</Filter>
+    </ClInclude>
+    <ClInclude Include="variant.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

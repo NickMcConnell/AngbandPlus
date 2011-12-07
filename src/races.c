@@ -1,5 +1,28 @@
 #include "angband.h"
 
+void _demeter_clw_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Cure Wounds", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Heals cut and HP a little.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(p_ptr->lev/7 + 1, 10, 0));
+		break;
+	case SPELL_CAST:
+		hp_player(damroll(p_ptr->lev/7 + 1, 10));
+		set_cut(p_ptr->cut - 10, TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 static void _devour_flesh_spell(int cmd, variant *res)
 {
@@ -129,6 +152,9 @@ void _demigod_calc_bonuses(void)
 		p_ptr->skill_stl -= 2;
 		break;
 	}
+	case DEMIGOD_HEPHAESTUS:
+		p_ptr->resist_disen = TRUE;
+		break;
 	case DEMIGOD_HERMES:
 		p_ptr->skill_stl += 5;
 		p_ptr->pspeed += 2;
@@ -143,8 +169,6 @@ void _demigod_calc_bonuses(void)
 		p_ptr->to_d_b += 5 + p_ptr->lev/7;
 		p_ptr->skill_thb += 15;
 		p_ptr->sustain_dex = TRUE;
-		break;
-	case DEMIGOD_HEPHAESTUS:
 		break;
 	case DEMIGOD_HERA:
 		p_ptr->spell_cap += 3;
@@ -204,7 +228,7 @@ int _demigod_get_powers(spell_info* spells, int max)
 		spell->level = 5;
 		spell->cost = 0;
 		spell->fail = calculate_fail_rate(spell->level, 60, p_ptr->stat_ind[A_WIS]);
-		spell->fn = cure_wounds_I_spell;
+		spell->fn = _demeter_clw_spell;
 		break;
 	}
 	case DEMIGOD_ARES:

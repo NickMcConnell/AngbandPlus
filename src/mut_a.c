@@ -630,7 +630,7 @@ void evasion_mut(int cmd, variant *res)
 		msg_print(T("You lose the power of evasion.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are never crushed by earthquakes, and thieves never successfully steal from you.", ""));
+		var_set_string(res, T("You are never crushed by earthquakes and you dodge monster breath attacks.", ""));
 		break;
 	default:
 		default_spell(cmd, res);

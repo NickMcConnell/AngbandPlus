@@ -1856,8 +1856,8 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 
 	if (mut_present(MUT_FAST_LEARNER))
 	{
-		s64b_mul(&new_exp, &new_exp_frac, 0, 13);
-		s64b_div(&new_exp, &new_exp_frac, 0, 10);
+		s64b_mul(&new_exp, &new_exp_frac, 0, 5);
+		s64b_div(&new_exp, &new_exp_frac, 0, 3);
 	}
 
 	/* Gain experience */
@@ -3309,10 +3309,16 @@ static void evaluate_monster_exp(char *buf, monster_type *m_ptr)
 	s64b_div(&exp_mon, &exp_mon_frac, 0, (p_ptr->max_plv + 2));
 
 
-	/* Total experience value for next level */
+	/* Total experience value for next level
 	exp_adv = player_exp[p_ptr->lev -1] * p_ptr->expfact;
 	exp_adv_frac = 0;
-	s64b_div(&exp_adv, &exp_adv_frac, 0, 100);
+	s64b_div(&exp_adv, &exp_adv_frac, 0, 100); 
+
+	Note: The code above loops infinitely for an exp requirement of 18,000,000
+	When attempting to divide the scaled by 100 value of 1,800,000,000 by 100, the
+	highest order bit can not be located ... See s64b_div in z-util.c.
+	*/
+	exp_adv = (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
 
 	/* Experience value need to get */
 	s64b_sub(&exp_adv, &exp_adv_frac, p_ptr->exp, p_ptr->exp_frac);

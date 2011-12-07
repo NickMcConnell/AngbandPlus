@@ -46,6 +46,7 @@
  * Now, include the define's, the type's, and the extern's
  */
 #include "defines.h"
+#include "variant.h"
 #include "types.h"
 #include "externs.h"
 
