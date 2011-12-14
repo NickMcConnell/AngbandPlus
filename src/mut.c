@@ -113,7 +113,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, unyielding_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, ambidexterity_mut}},
 	{MUT_RATING_GOOD,		MUT_TYPE_BONUS,			 0, 0, {0,  0,   0, untouchable_mut}},
-	{MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_INT, 0, {25, 25, 55, loremaster_mut}},
+	{MUT_RATING_GOOD,		MUT_TYPE_ACTIVATION, A_INT, 0, {20, 25, 55, loremaster_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, arcane_mastery_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, evasion_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, potion_chugger_mut}},

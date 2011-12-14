@@ -45,7 +45,7 @@ static room_info_type room_info_normal[ROOM_T_MAX] =
 	{{  0,  1,  1,  1,  2,  3,  5,  6,  8, 10, 13}, 10}, /*PIT      */
 	{{  0,  1,  1,  1,  2,  2,  3,  5,  6,  8, 10}, 10}, /*LESSER_V */
 	{{  0,  0,  1,  1,  1,  2,  2,  2,  3,  5,  7}, 40}, /*GREATER_V*/
-	{{  0,100,200,300,400,500,600,700,800,900,999}, 10}, /*FRACAVE  */
+	{{  0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 99}, 10}, /*FRACAVE  */
 	{{  0,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2}, 10}, /*RANDOM_V */
 	{{  0,  4,  8, 12, 16, 20, 24, 28, 32, 36, 40},  3}, /*OVAL     */
 	{{  1,  6, 12, 18, 24, 30, 36, 42, 48, 54, 60}, 10}, /*CRYPT    */
@@ -968,7 +968,10 @@ static bool build_type3(void)
 			place_object(yval, xval, 0L);
 
 			/* Let's guard the treasure well */
-			vault_monsters(yval, xval, randint1(2));
+			if (dun_level < 50)
+				vault_monsters(yval, xval, randint0(2) + 3);
+			else
+				vault_monsters(yval, xval, randint1(2));
 
 			/* Traps naturally */
 			vault_traps(yval, xval, 4, 4, randint0(3) + 2);
@@ -1182,7 +1185,10 @@ static bool build_type4(void)
 			}
 
 			/* Monsters to guard the "treasure" */
-			vault_monsters(yval, xval, randint1(3));
+			if (dun_level < 50)
+				vault_monsters(yval, xval, randint1(3) + 2);
+			else
+				vault_monsters(yval, xval, randint1(3));
 
 			/* Object (80%) */
 			if (randint0(100) < 80)
@@ -1270,8 +1276,16 @@ static bool build_type4(void)
 				place_secret_door(yval - 3 + (randint1(2) * 2), xval + 3, door_type);
 
 				/* Monsters */
-				vault_monsters(yval, xval - 2, 1);
-				vault_monsters(yval, xval + 2, 1);
+				if (dun_level < 50)
+				{
+					vault_monsters(yval, xval - 2, randint1(2));
+					vault_monsters(yval, xval + 2, randint1(2));
+				}
+				else
+				{
+					vault_monsters(yval, xval - 2, 1);
+					vault_monsters(yval, xval + 2, 1);
+				}
 
 				/* Objects */
 				if (one_in_(3)) place_object(yval, xval - 2, 0L);
@@ -1307,8 +1321,16 @@ static bool build_type4(void)
 			}
 
 			/* Monsters just love mazes. */
-			vault_monsters(yval, xval - 5, 1);
-			vault_monsters(yval, xval + 5, 1);
+			if (dun_level < 50)
+			{
+				vault_monsters(yval, xval - 2, randint1(2));
+				vault_monsters(yval, xval + 2, randint1(2));
+			}
+			else
+			{
+				vault_monsters(yval, xval - 5, 1);
+				vault_monsters(yval, xval + 5, 1);
+			}
 
 			/* Traps make them entertaining. */
 			vault_traps(yval, xval - 3, 2, 8, randint1(3));
@@ -1361,10 +1383,20 @@ static bool build_type4(void)
 			vault_objects(yval, xval, 2 + randint1(2));
 
 			/* Gotta have some monsters. */
-			vault_monsters(yval + 1, xval - 4, randint1(2));
-			vault_monsters(yval + 1, xval + 4, randint1(2));
-			vault_monsters(yval - 1, xval - 4, randint1(2));
-			vault_monsters(yval - 1, xval + 4, randint1(2));
+			if (dun_level < 50)
+			{
+				vault_monsters(yval + 1, xval - 4, randint1(4));
+				vault_monsters(yval + 1, xval + 4, randint1(4));
+				vault_monsters(yval - 1, xval - 4, randint1(4));
+				vault_monsters(yval - 1, xval + 4, randint1(4));
+			}
+			else
+			{
+				vault_monsters(yval + 1, xval - 4, randint1(2));
+				vault_monsters(yval + 1, xval + 4, randint1(2));
+				vault_monsters(yval - 1, xval - 4, randint1(2));
+				vault_monsters(yval - 1, xval + 4, randint1(2));
+			}
 
 			break;
 		}
@@ -1939,8 +1971,8 @@ static vault_aux_type nest_types[] =
 	{"アンデッド",   vault_aux_undead,   NULL,              75, 5},
 	{NULL,           NULL,               NULL,               0, 0},
 #else
-	{"clone",        vault_aux_clone,    vault_prep_clone,   5, 16},
-	{"jelly",        vault_aux_jelly,    NULL,               5, 6},
+	{"clone",        vault_aux_clone,    vault_prep_clone,   5, 8},
+	{"jelly",        vault_aux_jelly,    NULL,               5, 4},
 	{"symbol good",  vault_aux_symbol_g, vault_prep_symbol, 25, 2},
 	{"symbol evil",  vault_aux_symbol_e, vault_prep_symbol, 25, 2},
 	{"mimic",        vault_aux_mimic,    NULL,              30, 4},
@@ -1975,7 +2007,7 @@ static vault_aux_type pit_types[] =
 	{"symbol good",  vault_aux_symbol_g, vault_prep_symbol, 70, 1},
 	{"symbol evil",  vault_aux_symbol_e, vault_prep_symbol, 70, 1},
 	{"chapel",       vault_aux_chapel_g, NULL,              65, 2},
-	{"dragon",       vault_aux_dragon,   vault_prep_dragon, 60, 6},
+	{"dragon",       vault_aux_dragon,   vault_prep_dragon, 60, 9},
 	{"demon",        vault_aux_demon,    NULL,              80, 6},
 	{"dark elf",     vault_aux_dark_elf, NULL,              45, 4},
 	{NULL,           NULL,               NULL,               0, 0},
@@ -5559,7 +5591,10 @@ static bool build_type12(void)
 		place_object(y0, x0, 0L);
 
 		/* Let's guard the treasure well */
-		vault_monsters(y0, x0, randint1(2));
+		if (dun_level < 50)
+			vault_monsters(y0, x0, randint0(2) + 3);
+		else
+			vault_monsters(y0, x0, randint1(2));
 
 		/* Traps naturally */
 		vault_traps(y0, x0, 4, 4, randint0(3) + 2);

@@ -4656,10 +4656,14 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 					o_ptr->pval += randint1(e_ptr->max_pval);
 				}
 			}
-			if ((o_ptr->name2 == EGO_SPEED) && (lev < 50))
+			if (o_ptr->name2 == EGO_SPEED)
 			{
-				o_ptr->pval = randint1(o_ptr->pval);
+				if (lev < 50)
+					o_ptr->pval = 2 + randint1(o_ptr->pval);
+				else
+					o_ptr->pval += 3;
 			}
+
 			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA) && (o_ptr->pval > 2) && (o_ptr->name2 != EGO_ATTACKS))
 				o_ptr->pval = 2;
 		}

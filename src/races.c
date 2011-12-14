@@ -314,6 +314,9 @@ race_t *get_race_t_aux(int prace)
 
 race_t *get_race_t(void)
 {
+	if (p_ptr->mimic_form)
+		return NULL;
+
 	return get_race_t_aux(p_ptr->prace);
 }
 

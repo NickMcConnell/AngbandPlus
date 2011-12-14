@@ -381,6 +381,7 @@ static void preserve_pet(void)
 	/*
 	 * If player is in wild mode, no pets are preserved
 	 * except a monster whom player riding
+	 * Hack: In the wilderness, hostile monsters now follow!
 	 */
 	if (!p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
 	{
@@ -389,7 +390,7 @@ static void preserve_pet(void)
 			monster_type *m_ptr = &m_list[i];
 
 			if (!m_ptr->r_idx) continue;
-			if (!is_pet(m_ptr)) continue;
+			if (!is_pet(m_ptr) && dun_level > 0) continue;
 			if (i == p_ptr->riding) continue;
 
 			if (reinit_wilderness)
@@ -410,9 +411,13 @@ static void preserve_pet(void)
 				 * Pets with nickname will follow even from 3 blocks away
 				 * when you or the pet can see the other.
 				 */
-				if (m_ptr->nickname && 
-				    ((player_has_los_bold(m_ptr->fy, m_ptr->fx) && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
-				     (los(m_ptr->fy, m_ptr->fx, py, px) && projectable(m_ptr->fy, m_ptr->fx, py, px))))
+				if (!is_pet(m_ptr))
+				{
+					if (dis > 3) continue;
+				}
+				else if (m_ptr->nickname && 
+				         ((player_has_los_bold(m_ptr->fy, m_ptr->fx) && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
+				         (los(m_ptr->fy, m_ptr->fx, py, px) && projectable(m_ptr->fy, m_ptr->fx, py, px))))
 				{
 					if (dis > 3) continue;
 				}
@@ -422,6 +427,7 @@ static void preserve_pet(void)
 				}
 			}
 
+			m_ptr->pack_idx = 0;
 			COPY(&party_mon[num], &m_list[i], monster_type);
 
 			num++;
@@ -509,7 +515,7 @@ void precalc_cur_num_of_pet(void)
 static void place_pet(void)
 {
 	int i;
-	int max_num = p_ptr->wild_mode ? 1 : MAX_PARTY_MON;
+	int max_num = MAX_PARTY_MON;
 
 	for (i = 0; i < max_num; i++)
 	{

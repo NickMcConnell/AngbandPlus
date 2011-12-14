@@ -62,6 +62,11 @@ F:!:FLOOR:3:0:42
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:44
 
+# Sling
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Rogue] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:14
+F:!:FLOOR:3:0:77
+
 # Whip
 ?:[AND [EQU $QUEST1 3] [EQU $CLASS Archaeologist] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14

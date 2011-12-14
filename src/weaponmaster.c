@@ -3328,7 +3328,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ 15,  10,  0, berserk_spell },
 		{ 25,  12,  0, _crusaders_strike_spell },
 		{ 35,  25,  0, _absorb_soul_spell },
-		{ 35,  25,  0, _vicious_strike_spell },
+		{ 40,  25,  0, _vicious_strike_spell },
 	    { -1,   0,  0, NULL },
 	  },
 	  { TV_POLEARM, SV_BROAD_AXE },

@@ -5020,15 +5020,10 @@ static int minus_ac(void)
 	object_flags(o_ptr, flgs);
 
 	/* Object resists */
-	if (have_flag(flgs, TR_IGNORE_ACID))
+	if ( have_flag(flgs, TR_IGNORE_ACID)
+	  || (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS) )
 	{
-#ifdef JP
-msg_format("しかし%sには効果がなかった！", o_name);
-#else
-		msg_format("Your %s is unaffected!", o_name);
-#endif
-
-
+		msg_format(T("Your %s is unaffected!", "しかし%sには効果がなかった！"), o_name);
 		return (TRUE);
 	}
 
@@ -5094,10 +5089,7 @@ int acid_dam(int dam, cptr kb_str, int monspell)
 	get_damage = take_hit(DAMAGE_ATTACK, dam, kb_str, monspell);
 
 	/* Inventory damage */
-	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-	{
-	}
-	else if (!(double_resist && p_ptr->resist_acid))
+	if (!(double_resist && p_ptr->resist_acid))
 	{
 		inven_damage(set_acid_destroy, inv);
 	}
