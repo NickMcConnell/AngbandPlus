@@ -390,7 +390,7 @@ static void preserve_pet(void)
 			monster_type *m_ptr = &m_list[i];
 
 			if (!m_ptr->r_idx) continue;
-			if (!is_pet(m_ptr) && dun_level > 0) continue;
+			if (!is_pet(m_ptr) && (dun_level > 0 || p_ptr->town_num)) continue;
 			if (i == p_ptr->riding) continue;
 
 			if (reinit_wilderness)
