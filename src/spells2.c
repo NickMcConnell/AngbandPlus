@@ -2998,6 +2998,7 @@ bool detect_objects_magic(int range)
 			(tv == TV_CRAFT_BOOK) ||
 			(tv == TV_DAEMON_BOOK) ||
 			(tv == TV_CRUSADE_BOOK) ||
+			(tv == TV_NECROMANCY_BOOK) ||
 			(tv == TV_MUSIC_BOOK) ||
 			(tv == TV_HISSATSU_BOOK) ||
 			(tv == TV_HEX_BOOK) ||
@@ -5190,8 +5191,20 @@ void discharge_minion(void)
 	for (i = 1; i < m_max; i++)
 	{
 		int dam;
+		int typ = GF_PLASMA;
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr;
+
+		if (p_ptr->pclass == CLASS_NECROMANCER) 
+		{
+			switch (randint1(4))
+			{
+			case 1: typ = GF_POIS; break;
+			case 2: typ = GF_NETHER; break;
+			case 3: typ = GF_DISENCHANT; break;
+			case 4: typ = GF_MANA; break;
+			}	
+		}
 
 		if (!m_ptr->r_idx || !is_pet(m_ptr)) continue;
 		r_ptr = &r_info[m_ptr->r_idx];
@@ -5214,7 +5227,7 @@ void discharge_minion(void)
 		if (dam > 400) dam = (dam-400)/2 + 400;
 		if (dam > 800) dam = 800;
 		project(i, 2+(r_ptr->level/20), m_ptr->fy,
-			m_ptr->fx, dam, GF_PLASMA, 
+			m_ptr->fx, dam, typ, 
 			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
 
 		if (record_named_pet && m_ptr->nickname)

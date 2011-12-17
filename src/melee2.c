@@ -2375,7 +2375,7 @@ static void process_monster(int m_idx)
 	}
 
 	/* Players hidden in shadow are almost imperceptible. -LM- */
-	if (p_ptr->special_defense & NINJA_S_STEALTH)
+	if (p_ptr->special_defense & NINJA_S_STEALTH && !is_pet(m_ptr))
 	{
 		int tmp = p_ptr->lev*6+(p_ptr->skill_stl+10)*4;
 		if (p_ptr->monlite) tmp /= 3;
@@ -2660,8 +2660,15 @@ static void process_monster(int m_idx)
 		/* Hack -- multiply slower in crowded areas */
 		if ((k < 4) && (!k || !randint0(k * MON_MULT_ADJ)))
 		{
+			bool allow = TRUE;
 			/* Try to multiply */
-			if (multiply_monster(m_idx, FALSE, (is_pet(m_ptr) ? PM_FORCE_PET : 0)))
+			if (is_pet(m_ptr))
+			{
+				int upkeep = calculate_upkeep();
+				if (upkeep > 80)
+					allow = FALSE;
+			}
+			if (allow && multiply_monster(m_idx, FALSE, (is_pet(m_ptr) ? PM_FORCE_PET : 0)))
 			{
 				/* Take note if visible */
 				if (m_list[hack_m_idx_ii].ml && is_original_ap_and_seen(m_ptr))

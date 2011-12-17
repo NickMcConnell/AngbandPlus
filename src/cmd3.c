@@ -625,6 +625,18 @@ msg_print("クエストを達成した！");
 		o_ptr->ident |= (IDENT_SENSE);
 	}
 
+	if (o_ptr->name1 == ART_HAND_OF_VECNA)
+	{
+		msg_print("You chop off your own hand to wield the Hand of Vecna!");
+		set_cut(CUT_MORTAL_WOUND, FALSE);
+	}
+
+	if (o_ptr->name1 == ART_EYE_OF_VECNA)
+	{
+		msg_print("You pluck out your own eye to wield the Eye of Vecna!");
+		set_cut(CUT_MORTAL_WOUND, FALSE);
+	}
+
 	/* The Stone Mask make the player turn into a vampire! */
 	if ((o_ptr->name1 == ART_STONEMASK) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->pclass != CLASS_BLOOD_KNIGHT))
 	{
@@ -943,6 +955,7 @@ static bool high_level_book(object_type *o_ptr)
 	    (o_ptr->tval == TV_CRAFT_BOOK) ||
 	    (o_ptr->tval == TV_DAEMON_BOOK) ||
 	    (o_ptr->tval == TV_CRUSADE_BOOK) ||
+		(o_ptr->tval == TV_NECROMANCY_BOOK) ||
 	    (o_ptr->tval == TV_MUSIC_BOOK) ||
 		(o_ptr->tval == TV_HEX_BOOK))
 	{
@@ -1172,6 +1185,32 @@ void do_cmd_destroy(void)
 		floor_item_increase(0 - item, -amt);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
+	}
+
+	if ( p_ptr->pclass == CLASS_NECROMANCER
+	  && (q_ptr->tval == TV_LIFE_BOOK || q_ptr->tval == TV_CRUSADE_BOOK) )
+	{
+		int sp = 0;
+		int osp = p_ptr->csp;
+		switch (q_ptr->sval)
+		{
+		case 0: sp = 10; break;
+		case 1: sp = 25; break;
+		case 2: sp = 100; break;
+		case 3: sp = 666; break;
+		}
+
+		p_ptr->csp += sp;
+		if (p_ptr->csp >= p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
+		}
+
+		if (p_ptr->csp > osp)
+			msg_print("You feel your head clear.");
+
+		p_ptr->redraw |= (PR_MANA);
 	}
 
 	if (high_level_book(q_ptr))

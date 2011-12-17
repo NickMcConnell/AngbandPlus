@@ -627,6 +627,7 @@ extern s16b feat_tree;
 extern s16b feat_mountain;
 extern s16b feat_swamp;
 extern s16b feat_undetected;
+extern s16b feat_dark_pit;
 
 extern byte dungeon_type;
 extern s16b *max_dlv;
@@ -834,6 +835,7 @@ extern void do_cmd_use(void);
 extern void do_cmd_magic_eater(bool only_browse);
 
 /* do-spell.c */
+extern bool repose_of_the_dead;
 extern int beam_chance(void);
 extern void cast_wonder(int dir);
 extern int spell_power(int pow);
@@ -1918,6 +1920,9 @@ extern void remove_mirror(int y, int x);
 /* monk.c */
 extern void monk_double_attack_spell(int cmd, variant *res);
 extern void monk_posture_spell(int cmd, variant *res);
+
+/* necromancer.c */
+extern class_t *necromancer_get_class_t(void);
 
 /* ninja.c */
 extern void quick_walk_spell(int cmd, variant *res);

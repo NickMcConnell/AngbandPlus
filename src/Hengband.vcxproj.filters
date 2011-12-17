@@ -330,6 +330,9 @@
     <ClCompile Include="variant.c">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="necromancer.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

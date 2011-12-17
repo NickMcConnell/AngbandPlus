@@ -936,7 +936,57 @@ static bool summon_specific_aux(int r_idx)
 			okay = (r_ptr->flags3 & (RF3_OLYMPIAN)) ? TRUE : FALSE;
 			break;
 		}
-
+		case SUMMON_RAT:
+		{
+			okay = (r_ptr->d_char == 'r') ? TRUE : FALSE;
+			break;
+		}
+		case SUMMON_BAT:
+		{
+			okay = (r_ptr->d_char == 'b') ? TRUE : FALSE;
+			break;
+		}
+		case SUMMON_WOLF:
+		{
+			okay = (r_ptr->d_char == 'C') ? TRUE : FALSE;
+			break;
+		}
+		case SUMMON_DREAD:
+		{
+			okay = (r_idx == MON_DREAD) ? TRUE : FALSE;
+			break;
+		}
+		case SUMMON_ZOMBIE:
+		{
+			okay = (r_ptr->d_char == 'z') ? TRUE : FALSE;
+			break;
+		}
+		case SUMMON_SKELETON:
+		{
+			okay = (r_ptr->d_char == 's' || r_idx == MON_BONE_DRAGON) ? TRUE : FALSE;
+			break;
+		}
+		case SUMMON_GHOST:
+		{
+			okay = (r_ptr->d_char == 'G' || r_idx == MON_SPECT_WYRM) ? TRUE : FALSE;
+			if (r_idx == MON_SHADOW_DEMON) okay = FALSE;
+			break;
+		}
+		case SUMMON_VAMPIRE:
+		{
+			okay = (r_ptr->d_char == 'V') ? TRUE : FALSE;
+			break;
+		}
+		case SUMMON_WIGHT:
+		{
+			okay = (r_ptr->d_char == 'W') ? TRUE : FALSE;
+			break;
+		}
+		case SUMMON_LICH:
+		{
+			okay = (r_ptr->d_char == 'L' || r_idx == MON_DRACOLICH) ? TRUE : FALSE;
+			break;
+		}
 		case SUMMON_UNIQUE:
 		{
 			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
@@ -1597,24 +1647,28 @@ s16b get_mon_num(int level)
 		else if (r_ptr->level + 40 < level)
 		{
 			if (r_ptr->level >= 50)
-				table[i].prob3 = table[i].prob2 / 4;
+				table[i].prob3 = MAX(table[i].prob2 / 4, 1);
 			else if (r_ptr->level >= 40)
-				table[i].prob3 = table[i].prob2 / 10;
+				table[i].prob3 = MAX(table[i].prob2 / 8, 1);
+			else if (r_ptr->level >= 35)
+				table[i].prob3 = MAX(table[i].prob2 / 16, 1);
+			else if (r_ptr->level >= 30)
+				table[i].prob3 = MAX(table[i].prob2 / 32, 1);
 			else
 				table[i].prob3 = 0;
 		}
 		else if (r_ptr->level + 30 < level)
-			table[i].prob3 = table[i].prob2 / 3;
+			table[i].prob3 = MAX(table[i].prob2 / 3, 1);
 		else if (r_ptr->level + 25 < level)
-			table[i].prob3 = table[i].prob2 / 2;
+			table[i].prob3 = MAX(table[i].prob2 / 2, 1);
 		else if (r_ptr->level + 20 < level)
-			table[i].prob3 = table[i].prob2 * 2 / 3;
+			table[i].prob3 = MAX(table[i].prob2 * 2 / 3, 1);
 		else if (r_ptr->level + 15 < level)
-			table[i].prob3 = table[i].prob2 * 3 / 4;
+			table[i].prob3 = MAX(table[i].prob2 * 3 / 4, 1);
 		else if (r_ptr->level + 10 < level)
-			table[i].prob3 = table[i].prob2 * 4 / 5;
+			table[i].prob3 = MAX(table[i].prob2 * 4 / 5, 1);
 		else if (r_ptr->level + 5 < level)
-			table[i].prob3 = table[i].prob2 * 5 / 6;
+			table[i].prob3 = MAX(table[i].prob2 * 5 / 6, 1);
 		else
 			table[i].prob3 = table[i].prob2;
 

@@ -32,6 +32,7 @@ static bool object_easy_know(int i)
 		case TV_CRAFT_BOOK:
 		case TV_DAEMON_BOOK:
 		case TV_CRUSADE_BOOK:
+		case TV_NECROMANCY_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		case TV_HEX_BOOK:
@@ -452,6 +453,7 @@ char *object_desc_kosuu(char *t, object_type *o_ptr)
       case  TV_CRAFT_BOOK:
       case  TV_DAEMON_BOOK:
       case  TV_CRUSADE_BOOK:
+	  case TV_NECROMANCY_BOOK:
       case  TV_MUSIC_BOOK:
       case  TV_HISSATSU_BOOK:
 	  case TV_HEX_BOOK:
@@ -1242,6 +1244,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	/* See if the object is "aware" */
 	if (object_is_aware(o_ptr)) aware = TRUE;
 
+	/* Hack object_is_aware() is wrong in this case.
+	   Anybody know how k_info[].aware gets set?  Perhaps flavor_init? */
+	if (o_ptr->name1 == ART_HAND_OF_VECNA || o_ptr->name1 == ART_EYE_OF_VECNA)
+		aware = FALSE;
+
 	/* See if the object is "known" */
 	if (object_is_known(o_ptr)) known = TRUE;
 
@@ -1403,13 +1410,28 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			show_armour = TRUE;
+			if (o_ptr->name1 == ART_HAND_OF_VECNA)
+			{
+				modstr = k_name + flavor_k_ptr->flavor_name;
+				if (!flavor)    basenm = "& Hand~ of %";
+				else if (aware) break;
+				else            basenm = "& # Hand~";
+			}
+			else
+				show_armour = TRUE;
 			break;
 		}
 
 		/* Lites (including a few "Specials") */
 		case TV_LITE:
 		{
+			if (o_ptr->name1 == ART_EYE_OF_VECNA)
+			{
+				modstr = k_name + flavor_k_ptr->flavor_name;
+				if (!flavor)    basenm = "& Eye~ of %";
+				else if (aware) break;
+				else            basenm = "& # Eye~";
+			}
 			break;
 		}
 
@@ -1736,6 +1758,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 				basenm = "& Crusade Spellbook~ %";
 #endif
 
+			break;
+		}
+
+		case TV_NECROMANCY_BOOK:
+		{
+			basenm = "& Necromancy Spellbook~ %";
 			break;
 		}
 

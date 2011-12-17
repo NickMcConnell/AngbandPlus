@@ -210,6 +210,26 @@ void android_rocket_spell(int cmd, variant *res)
 	}
 }
 
+void animate_dead_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Animate Dead", "È¿º²¤Î½Ñ"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Resurrects nearby corpse and skeletons. And makes these your pets.", "¼þ°Ï¤Î»àÂÎ¤ä¹ü¤òÀ¸¤­ÊÖ¤¹¡£"));
+		break;
+	case SPELL_CAST:
+		animate_dead(0, py, px);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void banish_evil_spell(int cmd, variant *res)
 {
 	switch (cmd)

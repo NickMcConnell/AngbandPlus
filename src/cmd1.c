@@ -3508,7 +3508,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				if (mode == WEAPONMASTER_CRUSADERS_STRIKE)
 				{
-					msg_format("Your Crusader's Strike drains life from %s! (%d)", m_name, k);
+					msg_format("Your Crusader's Strike drains life from %s!", m_name);
 					hp_player(k);
 				}
 			

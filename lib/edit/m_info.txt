@@ -37,6 +37,9 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
+
 
 ### Mage ###
 N:1
@@ -391,6 +394,8 @@ T:43:65:90:200
 T:46:90:90:200
 T:48:100:85:250
 
+# Necromancy
+R:10:0
 
 ### Priest ###
 N:2
@@ -745,6 +750,8 @@ T:43:65:90:200
 T:45:90:90:200
 T:46:100:85:250
 
+# Necromancy
+R:10:0
 
 ### Rogue ###
 N:3
@@ -939,6 +946,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Ranger ###
 N:4
@@ -1197,6 +1206,8 @@ T:99:0:0:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Paladin ###
 N:5
@@ -1359,6 +1370,8 @@ T:47:80:85:100
 T:48:100:90:200
 T:50:100:80:250
 
+# Necromancy
+R:10:0
 
 ### Warrior-Mage ###
 N:6
@@ -1713,6 +1726,8 @@ T:48:80:85:100
 T:49:100:90:100
 T:50:100:80:250
 
+# Necromancy
+R:10:0
 
 ### Chaos Warrior ###
 N:7
@@ -1811,6 +1826,8 @@ T:49:80:85:250
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Monk ###
 N:8
@@ -2005,6 +2022,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Mindcrafter ###
 N:9
@@ -2039,6 +2058,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### High Mage ###
 N:10
@@ -2393,6 +2414,8 @@ T:39:55:75:200
 T:42:85:85:200
 T:45:90:75:250
 
+# Necromancy
+R:10:0
 
 ### Tourist ###
 N:11
@@ -2459,6 +2482,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Imitator ###
 N:12
@@ -2493,6 +2518,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Beastmaster ###
 N:13
@@ -2559,6 +2586,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Sorcerer ###
 N:14
@@ -2913,6 +2942,9 @@ T:43:65:90:200
 T:46:90:90:200
 T:48:100:85:250
 
+# Necromancy
+R:10:0
+
 ### Archer ###
 N:15
 I:NONE:STR:0x00:0:99:0
@@ -2946,6 +2978,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Magic eater ###
 N:16
@@ -2980,6 +3014,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Bard ###
 N:17
@@ -3014,6 +3050,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Red Mage ###
 N:18
@@ -3368,6 +3406,8 @@ T:99:0:0:0
 T:99:0:0:0
 T:99:0:0:0
 
+# Necromancy
+R:10:0
 
 ### Samurai ###
 N:19
@@ -3402,6 +3442,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### ForceTrainer ###
 N:20
@@ -3596,6 +3638,8 @@ T:47:80:90:100
 T:48:100:90:200
 T:50:100:80:250
 
+# Necromancy
+R:10:0
 
 ### Blue Mage ###
 N:21
@@ -3630,6 +3674,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Cavalry ###
 N:22
@@ -3664,6 +3710,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Berserker ###
 N:23
@@ -3698,6 +3746,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Weaponsmith ###
 N:24
@@ -3732,6 +3782,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Mirror Master ###
 N:25
@@ -3766,6 +3818,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Ninja ###
 N:26
@@ -3800,6 +3854,8 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
 
 ### Sniper ###
 N:27
@@ -3834,6 +3890,9 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
+
 ### Time Lord ###
 N:28
 I:LIFE:INT:0x00:0:1:400
@@ -3866,6 +3925,9 @@ R:8:0
 
 # Crusade
 R:9:0
+
+# Necromancy
+R:10:0
 
 ### Blood-Knight ###
 N:29
@@ -3900,6 +3962,9 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
+
 ### Warlock ###
 N:30
 I:NONE:CHR:0x00:0:0:0
@@ -3932,6 +3997,9 @@ R:8:0
 
 # Crusade
 R:9:0
+
+# Necromancy
+R:10:0
 
 ### Archaeologist ###
 N:31
@@ -3966,6 +4034,9 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
+
 ### Duelist ###
 N:32
 I:NONE:INT:0x00:0:0:0
@@ -3998,6 +4069,9 @@ R:8:0
 
 # Crusade
 R:9:0
+
+# Necromancy
+R:10:0
 
 ### Wild-Talent ###
 N:33
@@ -4032,6 +4106,9 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
+
 ### Rune-Knight ###
 N:34
 I:LIFE:INT:0x00:0:1:450
@@ -4065,6 +4142,9 @@ R:8:0
 # Crusade
 R:9:0
 
+# Necromancy
+R:10:0
+
 ### Weaponmaster ###
 N:35
 I:NONE:STR:0x00:0:99:0
@@ -4097,6 +4177,9 @@ R:8:0
 
 # Crusade
 R:9:0
+
+# Necromancy
+R:10:0
 
 ### Blood Mage ###
 N:36
@@ -4450,3 +4533,79 @@ T:40:40:80:150
 T:43:65:90:200
 T:46:90:90:200
 T:48:100:85:250
+
+# Necromancy
+R:10:0
+
+### Warrior ###
+N:37
+I:NECROMANCY:INT:0x05:0:1:430
+# Life
+R:0:0
+
+# Sorcery
+R:1:0
+
+# Nature
+R:2:0
+
+# Chaos
+R:3:0
+
+# Death
+R:4:0
+
+# Trump
+R:5:0
+
+# Arcane
+R:6:0
+
+# Craft
+R:7:0
+
+# Deamon
+R:8:0
+
+# Crusade
+R:9:0
+
+# Necromancy
+R:10:1
+T:1:1:30:4  #0
+T:2:3:35:4
+T:4:3:35:4
+T:5:3:35:4
+T:7:3:35:4
+T:9:8:40:4
+T:11:8:40:3
+T:13:8:45:3
+T:15:9:45:4  #1
+T:17:11:50:4
+T:20:12:50:4
+T:22:13:50:4
+T:25:15:50:4
+T:28:20:50:4
+T:32:30:55:5
+T:40:50:75:5
+T:26:30:50:75  #2
+T:28:30:55:150
+T:30:33:60:75
+T:32:35:60:75
+T:35:40:70:75
+T:37:55:70:115
+T:40:65:75:125
+T:47:75:75:150
+
+T:25:10:50:40  #3
+T:30:60:70:50
+T:35:30:80:115
+T:40:45:80:225
+T:42:65:80:115
+T:45:50:80:100
+T:48:100:80:250
+T:50:100:80:250
+
+# I:book:stat:xtra:type:first:weight
+# R:realm:readable
+# T:level:mana:fail:exp

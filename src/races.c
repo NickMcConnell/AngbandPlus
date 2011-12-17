@@ -388,7 +388,7 @@ int get_racial_powers(spell_info* spells, int max)
 			{
 				spell_info *spell = &spells[ct++];
 				spell->level = 5;
-				spell->cost = 5;
+				spell->cost = 2;
 				spell->fail = calculate_fail_rate(5, 50, p_ptr->stat_ind[A_INT]);
 				spell->fn = phase_door_spell;
 				break;

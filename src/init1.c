@@ -1309,6 +1309,7 @@ errr parse_m_info(char *buf, header *head)
 
 		if (streq(book, "SORCERY")) m_ptr->spell_book = TV_SORCERY_BOOK;
 		else if (streq(book, "LIFE")) m_ptr->spell_book = TV_LIFE_BOOK;
+		else if (streq(book, "NECROMANCY")) m_ptr->spell_book = TV_NECROMANCY_BOOK;
 		else if (streq(book, "MUSIC")) m_ptr->spell_book = TV_MUSIC_BOOK;
 		else if (streq(book, "HISSATSU")) m_ptr->spell_book = TV_HISSATSU_BOOK;
 		else if (streq(book, "NONE")) m_ptr->spell_book = 0;

@@ -2796,7 +2796,7 @@ msg_print("ダンジョンが揺れた。");
 #endif
 			project(0, 5, py, px,
 				(randint1(200) + 300) * 2, GF_MANA, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID, -1);
-			if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_HIGH_MAGE) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_MAGIC_EATER) && (p_ptr->pclass != CLASS_BLUE_MAGE) && (p_ptr->pclass != CLASS_BLOOD_MAGE))
+			if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_HIGH_MAGE) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_MAGIC_EATER) && (p_ptr->pclass != CLASS_BLUE_MAGE) && (p_ptr->pclass != CLASS_BLOOD_MAGE) && (p_ptr->pclass != CLASS_NECROMANCER))
 			{
 #ifdef JP
 				(void)take_hit(DAMAGE_NOESCAPE, 50, "コントロールし難い強力な魔力の解放", -1);
@@ -4542,6 +4542,14 @@ static void do_cmd_activate_aux(int item)
 				map_area(DETECT_RAD_MAP);
 				lite_area(damroll(2, 15), 3);
 				o_ptr->timeout = randint0(50) + 50;
+				break;
+			}
+			case ART_EYE_OF_VECNA:
+			{
+				msg_print("The Eye burns painfully!");
+				take_hit(DAMAGE_LOSELIFE, damroll(8, 8), "the Eye of Vecna", -1);
+				wiz_lite(TRUE);
+				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
 

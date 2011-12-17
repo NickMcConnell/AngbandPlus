@@ -6448,6 +6448,7 @@ I:70:55:0
 W:70:0:5:100000
 A:70/8
 D:$It creates an ego item from a nameless weapon when you read it. 
+F:FIXED_FLAVOR
 
 N:678:TRANSLATE
 E:Madness:mumblus incognitus
@@ -6458,20 +6459,71 @@ A:60/8
 D:$It seems to be the hurried scriblings of a mad wizard on the verge
 D:$of some great arcane discovery.  You can't make heads or tails of it.
 D:$Do you read it to see what happens?
+F:FIXED_FLAVOR
 
 N:679:TRANSLATE
 E:& Pendant~:Sparkling
 G:":w
 I:40:29:0
 W:90:0:2:555555
-F:INSTA_ART
+F:INSTA_ART | FIXED_FLAVOR
 
 N:680:TRANSLATE
 E:& Golden Apple~:Alluring
 G:":w
 I:40:32:0
 W:90:0:2:555555
-F:INSTA_ART
+F:INSTA_ART | FIXED_FLAVOR
+
+N:681:TRANSLATE
+E:& Hand~:Decrepit
+G:]:W
+I:31:6:0
+W:66:0:5:66666
+P:0:1d1:0:0:0
+F:INSTA_ART | FIXED_FLAVOR
+
+N:682:TRANSLATE
+E:& Eye~:Shriveled
+G:*:R
+I:39:10:0
+W:66:0:5:66666
+P:0:1d1:0:0:0
+F:INSTA_ART | FIXED_FLAVOR
+
+N:683:TRANSLATE
+E:[Stench of Death]
+G:?:v
+I:100:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:684:TRANSLATE
+E:[Sepulchral Ways]
+G:?:v
+I:100:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:685:TRANSLATE
+E:[Return of the Dead]
+G:?:D
+I:100:2:0
+W:50:0:30:25000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:686:TRANSLATE
+E:[Necromatic Tome]
+G:?:D
+I:100:3:0
+W:90:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # N: serial number : & object name~
 # G: symbol : color

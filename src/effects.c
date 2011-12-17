@@ -853,7 +853,10 @@ bool set_paralyzed(int v, bool do_dec)
 #ifdef JP
 msg_print("体が麻痺してしまった！");
 #else
-			msg_print("You are paralyzed!");
+			if (repose_of_the_dead)
+				msg_print("You enter a deep sleep!");
+			else
+				msg_print("You are paralyzed!");
 #endif
 
 			/* Sniper */
@@ -875,7 +878,41 @@ msg_print("体が麻痺してしまった！");
 #ifdef JP
 msg_print("やっと動けるようになった。");
 #else
-			msg_print("You can move again.");
+			if (repose_of_the_dead)
+			{
+				msg_print("You awake refreshed!");
+				restore_level();
+				set_poisoned(0, TRUE);
+				set_blind(0, TRUE);
+				set_confused(0, TRUE);
+				set_image(0, TRUE);
+				set_stun(0, TRUE);
+				set_cut(0, TRUE);
+				do_res_stat(A_STR);
+				do_res_stat(A_CON);
+				do_res_stat(A_DEX);
+				do_res_stat(A_WIS);
+				do_res_stat(A_INT);
+				do_res_stat(A_CHR);
+				set_shero(0,TRUE);
+				hp_player(5000);
+				if (p_ptr->csp < p_ptr->msp)
+				{
+					if (p_ptr->pclass == CLASS_RUNE_KNIGHT)
+						p_ptr->csp += (p_ptr->msp - p_ptr->csp) / 3;
+					else
+						p_ptr->csp = p_ptr->msp;
+
+					p_ptr->csp_frac = 0;
+
+					p_ptr->redraw |= (PR_MANA);
+					p_ptr->window |= (PW_PLAYER);
+					p_ptr->window |= (PW_SPELL);
+				}
+				repose_of_the_dead = FALSE;
+			}
+			else
+				msg_print("You can move again.");
 #endif
 
 			notice = TRUE;

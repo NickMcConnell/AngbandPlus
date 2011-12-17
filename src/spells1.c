@@ -4056,6 +4056,37 @@ note = "は眠り込んでしまった！";
 			break;
 		}
 
+		case GF_UNHOLY_WORD:
+		{
+			if (is_pet(m_ptr) && (r_ptr->flags3 & RF3_EVIL))
+			{
+				if (seen) obvious = TRUE;
+
+				set_monster_csleep(c_ptr->m_idx, 0);
+				if (MON_STUNNED(m_ptr))
+				{
+					if (seen_msg) msg_format("%^s is no longer stunned.", m_name);
+					set_monster_stunned(c_ptr->m_idx, 0);
+				}
+				if (MON_CONFUSED(m_ptr))
+				{
+					if (seen_msg) msg_format("%^s is no longer confused.", m_name);
+					set_monster_confused(c_ptr->m_idx, 0);
+				}
+				if (MON_MONFEAR(m_ptr))
+				{
+					if (seen_msg) msg_format("%^s recovers %s courage.", m_name, m_poss);
+					set_monster_monfear(c_ptr->m_idx, 0);
+				}
+
+				if (m_ptr->hp < 30000) m_ptr->hp += dam;
+				if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+				set_monster_fast(c_ptr->m_idx, MON_FAST(m_ptr) + 100);
+				note = " fights with renewed vigor!";
+			}
+			dam = 0;
+			break;
+		}
 
 		/* Sleep (Use "dam" as "power") */
 		case GF_STASIS_EVIL:
@@ -4148,6 +4179,38 @@ note = "は動けなくなった！";
 			break;
 		}
 
+		case GF_ELDRITCH_HOWL:
+		{
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				skipped = TRUE;
+				break;
+			}
+			if (seen) obvious = TRUE;
+
+			do_fear = damroll(3, (dam / 2)) + 1;
+
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			    (r_ptr->flags3 & (RF3_NO_FEAR)))
+			{
+				note = " is unaffected!";
+				obvious = FALSE;
+				do_fear = 0;
+			}
+			else if (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+			{
+				note = " resists!";
+				obvious = FALSE;
+				do_fear = 0;
+			}
+			else if (r_ptr->level <= randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+			{
+				note = " is frozen with terror!";
+				do_sleep = 500;
+			}
+			dam = 0;
+			break;
+		}
 		/* Charm monster */
 		case GF_CHARM:
 		{
@@ -5374,6 +5437,37 @@ note_dies = "はドロドロに溶けた！";
 			break;
 		}
 
+		case GF_DRAINING_TOUCH:
+		{
+			if (seen) obvious = TRUE;
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				note = T(" is immune.", "には完全な耐性がある！");
+				skipped = TRUE;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				dam = 0;
+				break;
+			}
+
+			if ((r_ptr->flags4 & ~(RF4_NOMAGIC_MASK)) || (r_ptr->flags5 & ~(RF5_NOMAGIC_MASK)) || (r_ptr->flags6 & ~(RF6_NOMAGIC_MASK)))
+			{
+				/*msg_format(T("You draw psychic energy from %s.", "%sから精神エネルギーを吸いとった。"), m_name);*/
+				p_ptr->csp += dam;
+				if (p_ptr->csp > p_ptr->msp)
+				{
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+				}
+				p_ptr->redraw |= PR_MANA;		
+			}
+			else
+			{
+				if (see_s_msg) 
+					msg_format(T("%s is unaffected.", "%sには効果がなかった。"), m_name);
+				dam = 0;
+			}
+			break;
+		}
 		/* Drain mana */
 		case GF_DRAIN_MANA:
 		{
@@ -6031,7 +6125,29 @@ note = "には効果がなかった！";
 			dam = 0;
 			break;
 		}
+		case GF_ENTOMB:
+		{
+			int dir, x, y;
 
+			if (is_pet(m_ptr) || is_friendly(m_ptr))
+			{
+				msg_print("Failed!");
+				return FALSE;
+			}
+
+			for (dir = 0; dir < 8; dir++)
+			{
+				y = m_ptr->fy + ddy_ddd[dir];
+				x = m_ptr->fx + ddx_ddd[dir];
+
+				if (!cave_naked_bold(y, x)) continue;
+				if (p_ptr->lev < 45)
+					cave_set_feat(y, x, feat_rubble);
+				else
+					cave_set_feat(y, x, feat_granite);
+			}
+			return TRUE;
+		}
 		/* GENOCIDE */
 		case GF_GENOCIDE:
 		{

@@ -51,7 +51,7 @@ SRCS = \
 	force_trainer.c generate.c grid.c hex.c hissatsu.c inet.c init1.c \
 	init2.c japanese.c load.c magic_eater.c mane.c melee1.c \
 	melee2.c menu.c mind.c mindcrafter.c mirror.c monk.c monster1.c \
-	monster2.c mspells1.c mspells2.c mspells3.c mut.c mut_a.c ninja.c \
+	monster2.c mspells1.c mspells2.c mspells3.c mut.c mut_a.c ninja.c necromancer.c \
 	object1.c object2.c object3.c obj_kind.c races.c racial.c report.c \
 	rooms.c rune_knight.c samurai.c save.c scores.c skills.c smith.c snipe.c spells.c \
 	spells1.c spells2.c spells3.c spells_a.c spells_c.c spells_h.c \
@@ -68,7 +68,7 @@ OBJS = \
 	force_trainer.o generate.o grid.o hex.o hissatsu.o inet.o init1.o \
 	init2.o japanese.o load.o magic_eater.o mane.o melee1.o \
 	melee2.o menu.o mind.o mindcrafter.o mirror.o monk.o monster1.o \
-	monster2.o mspells1.o mspells2.o mspells3.o mut.o mut_a.o ninja.o \
+	monster2.o mspells1.o mspells2.o mspells3.o mut.o mut_a.o ninja.o necromancer.o \
 	object1.o object2.o object3.o obj_kind.o races.o racial.o report.o \
 	rooms.o rune_knight.o samurai.o save.o scores.o skills.o smith.o snipe.o spells.o \
 	spells1.o spells2.o spells3.o spells_a.o spells_c.o spells_h.o \
@@ -359,6 +359,7 @@ mspells2.o: mspells2.c $(INCS)
 mspells3.o: mspells3.c $(INCS)
 mut.o: mut.c $(INCS)
 mut_a.o: mut_a.c $(INCS)
+necromancer.o: necromancer.c $(INCS)
 ninja.o: ninja.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)

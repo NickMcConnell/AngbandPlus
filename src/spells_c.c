@@ -955,6 +955,7 @@ void draconian_breath_spell(int cmd, variant *res)
 					}
 					break;
 				case CLASS_MAGE:
+				case CLASS_NECROMANCER:
 				case CLASS_BLOOD_MAGE:
 				case CLASS_WARRIOR_MAGE:
 				case CLASS_HIGH_MAGE:
@@ -1383,6 +1384,36 @@ void enchantment_spell(int cmd, variant *res)
 	}
 }
 bool cast_enchantment(void) { return cast_spell(enchantment_spell); }
+
+void enslave_undead_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Enslave Undead", "アンデッド従属"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attempts to enslave an undead monster.", "アンデッド1体を魅了する。抵抗されると無効。"));
+		break;
+	case SPELL_CAST:
+	{
+		int power, dir;
+		if (p_ptr->pclass == CLASS_NECROMANCER)
+			power = spell_power(p_ptr->lev*3);
+		else
+			power = spell_power(p_ptr->lev);
+
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+		control_one_undead(dir, power);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void explosive_rune_spell(int cmd, variant *res)
 {

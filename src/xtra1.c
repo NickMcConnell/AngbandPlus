@@ -2855,6 +2855,7 @@ static void calc_mana(void)
 		/* For these classes, mana is halved if armour 
 		 * is 30 pounds over their weight limit. */
 		case CLASS_MAGE:
+		case CLASS_NECROMANCER:
 		case CLASS_BLOOD_MAGE:
 		case CLASS_HIGH_MAGE:
 		case CLASS_BLUE_MAGE:
@@ -2928,6 +2929,7 @@ static void calc_mana(void)
 			/* For these classes, mana is halved if armour 
 			 * is 30 pounds over their weight limit. */
 			case CLASS_MAGE:
+			case CLASS_NECROMANCER:
 			case CLASS_BLOOD_MAGE:
 			case CLASS_HIGH_MAGE:
 			case CLASS_BLUE_MAGE:
@@ -3233,6 +3235,11 @@ static void calc_torch(void)
 			if (o_ptr->name2 == EGO_LITE_SHINE) p_ptr->cur_lite++;
 			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
 				p_ptr->cur_lite++;
+
+			if (o_ptr->sval == SV_LITE_EYE)
+			{
+				p_ptr->cur_lite -= 10;
+			}
 		}
 		else
 		{
@@ -3662,6 +3669,9 @@ void calc_bonuses(void)
 	}
 
 	if (p_ptr->tim_superstealth)
+		p_ptr->see_nocto = TRUE;
+
+	if (inventory[INVEN_LITE].k_idx && inventory[INVEN_LITE].name1 == ART_EYE_OF_VECNA)
 		p_ptr->see_nocto = TRUE;
 
 	switch (p_ptr->pclass)
@@ -5435,6 +5445,7 @@ void calc_bonuses(void)
 
 				/* Mage */
 				case CLASS_MAGE:
+				case CLASS_NECROMANCER:
 				case CLASS_BLOOD_MAGE:
 				case CLASS_HIGH_MAGE:
 				case CLASS_BLUE_MAGE:

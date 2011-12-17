@@ -132,6 +132,7 @@
     <ClCompile Include="mspells3.c" />
     <ClCompile Include="mut.c" />
     <ClCompile Include="mut_a.c" />
+    <ClCompile Include="necromancer.c" />
     <ClCompile Include="ninja.c" />
     <ClCompile Include="object1.c" />
     <ClCompile Include="object2.c" />

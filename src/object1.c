@@ -1606,6 +1606,8 @@ return "魔法の地図と光 : 50+d50 ターン毎";
 #endif
 
 		}
+		case ART_EYE_OF_VECNA:
+			return "the Vision of Vecna, every 20+d20 turns";
 		case ART_JUDGE:
 		{
 #ifdef JP
@@ -2663,12 +2665,18 @@ info[i++] = "それは魔法抵抗力を下げる。";
 		}
 		else if (o_ptr->name1 || o_ptr->art_name)
 		{
+			if (o_ptr->name1 == ART_EYE_OF_VECNA)
+			{
+				info[i++] = "It allows you to see in the dark.";
+			}
+			else
+			{
 #ifdef JP
 info[i++] = "それは永遠なる明かり(半径 3)を授ける。";
 #else
-			info[i++] = "It provides light (radius 3) forever.";
-#endif
-
+				info[i++] = "It provides light (radius 3) forever.";
+#endif	
+			}
 		}
 		else if (o_ptr->name2 == EGO_LITE_SHINE)
 		{

@@ -2333,6 +2333,13 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	case CLASS_WARRIOR:
 		if (p_ptr->lev > 44)
 			add_flag(flgs, TR_REGEN);
+		break;
+	case CLASS_NECROMANCER:
+		if (p_ptr->lev >= 5) add_flag(flgs, TR_RES_COLD);
+		if (p_ptr->lev >= 15) add_flag(flgs, TR_SEE_INVIS);
+		if (p_ptr->lev >= 25) add_flag(flgs, TR_HOLD_LIFE);
+		if (p_ptr->lev >= 35) add_flag(flgs, TR_RES_POIS);
+		break;
 	case CLASS_BLOOD_MAGE:
 		add_flag(flgs, TR_REGEN);
 		break;

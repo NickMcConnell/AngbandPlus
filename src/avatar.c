@@ -166,7 +166,7 @@ static s16b get_realm_virtues(byte realm)
 	case REALM_CHAOS:
 		if (virtue_number(V_CHANCE)) return V_INDIVIDUALISM;
 		else return V_CHANCE;
-	case REALM_DEATH:
+	case REALM_DEATH: case REALM_NECROMANCY:
 		return V_UNLIFE;
 	case REALM_TRUMP:
 		return V_KNOWLEDGE;
@@ -216,6 +216,7 @@ void get_virtues(void)
 		break;
 	case CLASS_MAGE:
 	case CLASS_BLOOD_MAGE:
+	case CLASS_NECROMANCER:
 		p_ptr->vir_types[i++] = V_KNOWLEDGE;
 		p_ptr->vir_types[i++] = V_ENCHANT;
 		break;

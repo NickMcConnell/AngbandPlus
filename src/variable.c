@@ -1271,6 +1271,7 @@ s16b feat_brake;
 s16b feat_tree;
 s16b feat_mountain;
 s16b feat_swamp;
+s16b feat_dark_pit;
 
 /* Unknown grid (not detected) */
 s16b feat_undetected;

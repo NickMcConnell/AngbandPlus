@@ -338,7 +338,7 @@ static bool kind_is_book(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Analyze the item type */
-	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_CRUSADE_BOOK))
+	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_NECROMANCY_BOOK))
 	{
 		return (TRUE);
 	}
@@ -356,7 +356,7 @@ static bool kind_is_good_book(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Analyze the item type */
-	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_CRUSADE_BOOK) && (k_ptr->tval != TV_ARCANE_BOOK) && (k_ptr->sval > 1))
+	if ((k_ptr->tval >= TV_LIFE_BOOK) && (k_ptr->tval <= TV_NECROMANCY_BOOK) && (k_ptr->tval != TV_ARCANE_BOOK) && (k_ptr->sval > 1))
 	{
 		return (TRUE);
 	}
@@ -1445,6 +1445,14 @@ msg_print("地面に落とされた。");
 			a_idx = ART_DEMETER;
 			chance = 100;
 			break;
+		case MON_VECNA:
+			if (p_ptr->pclass == CLASS_NECROMANCER)
+			{
+				a_idx = ART_HAND_OF_VECNA;
+				chance = 100;
+			}
+			break;
+
 		case MON_APHRODITE:
 			a_idx = ART_APHRODITE;
 			chance = 100;

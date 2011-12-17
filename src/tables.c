@@ -3877,6 +3877,18 @@ player_class class_info[MAX_CLASS] =
 		7,  15, 11,  0,  0,  0,  6, 7,
 		5, 150, 30
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Necromancer",
+
+		{-2, 3, 0, 1, 0, 1},
+		30, 40, 38, 5, 16, 20, 34, 20,
+		7,  15, 11, 0,  0,  0,  6, 7,
+		2, 120, 10
+	},
 };
 /*
  *      Title,
@@ -4369,9 +4381,9 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
 	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
-	 CH_CRUSADE),                              /* Mage */
+	 CH_CRUSADE),                           /* Mage */
 	(CH_LIFE | CH_DEATH | CH_DAEMON |
-	 CH_CRUSADE),                              /* Priest */
+	 CH_CRUSADE),                           /* Priest */
 	(CH_SORCERY | CH_DEATH | CH_TRUMP |
 	 CH_ARCANE | CH_ENCHANT),               /* Rogue */
 	(CH_NATURE),                            /* Ranger */
@@ -4379,7 +4391,7 @@ s32b realm_choices1[MAX_CLASS] =
 	(CH_ARCANE),                            /* Warrior-Mage */
 	(CH_CHAOS | CH_DAEMON),                 /* Chaos-Warrior */
 	(CH_LIFE | CH_NATURE | CH_DEATH |
-	 CH_ENCHANT | CH_TRUMP),                           /* Monk */
+	 CH_ENCHANT | CH_TRUMP),                /* Monk */
 	(CH_NONE),                              /* Mindcrafter */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
@@ -4415,6 +4427,7 @@ s32b realm_choices1[MAX_CLASS] =
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
 	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
 	 CH_CRUSADE),                              /* Blood-Mage */
+	CH_NECROMANCY,			/* Necromancer */
 };
 
 
@@ -4470,6 +4483,7 @@ s32b realm_choices2[MAX_CLASS] =
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
 	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
 	 CH_CRUSADE),                              /* Blood-Mage */
+	CH_NONE,                /* Necromancer */
 };
 
 
@@ -4516,7 +4530,7 @@ cptr realm_names[]
 	"Craft",
 	"Daemon",
 	"Crusade",
-	"unknown",
+	"Necromancy",
 	"unknown",
 	"unknown",
 	"unknown",
@@ -5513,7 +5527,7 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Duke",
 		"Master",
 	},
-	/* Mage */
+	/* Blood-Mage */
 	{
 		"Apprentice",
 		"Trickster",
@@ -5525,6 +5539,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Sorcerer",
 		"Ipsissimus",
 		"Bloodmage",
+	},
+	/* Necromancer */
+	{
+		"Stenchseeker",
+		"Maledicter",
+		"Darkcaster",
+		"Blackmagicker",
+		"Deathling",
+		"Undertaker",
+		"Warlock",
+		"Dominator",
+		"Reaper",
+		"Necromancer",
 	},
 };
 #endif

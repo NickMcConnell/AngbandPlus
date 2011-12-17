@@ -1942,6 +1942,11 @@ static cptr class_jouhou[MAX_CLASS] =
 	"his HP.  However, due to the Blood Mage's abnormal constitution, "
 	"all healing (spells, potions) is only half as effective.",
 
+"A necromancer attempts to gain both power and knowledge through "
+	"communion with the dead.  A powerful necromancer is truly "
+	"awe inspiring, and may even kill foes with a single touch! "
+	"They forever hunt for the legendary Eye and Hand of Vecna in "
+	"order to complete their power.",
 #endif
 };
 
@@ -2035,6 +2040,8 @@ static cptr realm_jouhou[VALID_REALM] =
 
 "破邪は「正義」の魔法です。直接敵を傷つける魔法が多く含まれ、特に邪悪な敵に対する力は恐るべきものがあります。しかし、善良な敵にはあまり効果がありません。",
 
+"TRANSLATE",
+
 "歌集は、歌によって効果を発揮する魔法です。魔法と同様、使った時に効果のあるものと、歌い続けることによって持続して効果を発揮するものがあります。後者の場合は、MPの続く限り効果を発揮することができますが、同時に歌える歌は1つだけという制限もあります。",
 
 "武芸の書は、様々な戦闘の技について書かれています。この本は技を覚えるときに読む必要がありますが、一度覚えた技は使うのに本を持つ必要はありません。技を使うときには必ず武器を装備していなければいけません。",
@@ -2062,6 +2069,8 @@ static cptr realm_jouhou[VALID_REALM] =
 
 "Crusade is a magic of 'Justice'.  It includes damage spells, which are greatly effective against foul and evil monsters, but have poor effects against good monsters.",
 
+"Necromancy allows communication with and ultimately control over the deceased. All direct damage afforded by this realm requires the caster to touch his or her opponent.  Any weapons or gloves will obstruct this macabre contact.",
+
 "Music magic shows various effects as sing song.  There is two type of song; the one which shows effects instantly and the other one shows effect continuously until SP runs out.  But the latter type has a limit; only one song can be sing at the same time.",
 
 "The books of Kendo describe about various combat techniques.  When learning new techniques, you are required to carry the books, but once you memorizes them, you don't have to carry them.  When using a technique, wielding a weapon is required.",
@@ -2070,7 +2079,7 @@ static cptr realm_jouhou[VALID_REALM] =
 #endif
 };
 
-static char realm_subinfo[VALID_REALM][41] =
+static char realm_subinfo[VALID_REALM][128] =
 {
 #ifdef JP
 "感知と防御と回復に優れています",
@@ -2083,6 +2092,7 @@ static char realm_subinfo[VALID_REALM][41] =
 "直接戦闘の補助に優れています",
 "攻撃と防御の両面に優れています",
 "邪悪な怪物に対する攻撃に優れています",
+"TRANSLATE",
 "様々な魔法効果を持った歌を歌います",
 "打撃攻撃に特殊能力を付加します",
 "敵を邪魔しつつ復讐を狙います"
@@ -2097,6 +2107,7 @@ static char realm_subinfo[VALID_REALM][41] =
 "Support for melee fighting.",
 "Good at both offence and defence.",
 "Destroys evil creatures.",
+"Control and Commune with the dead.",
 "Song with magical effects.",
 "Special attacks on melee.",
 "Good at obstacle and revenge."
@@ -2214,6 +2225,11 @@ static byte choose_realm(s32b choices, int *count)
 	{
 		(*count)++;
 		auto_select = REALM_CRUSADE;
+	}
+	if (choices & CH_NECROMANCY)
+	{
+		(*count)++;
+		auto_select = REALM_NECROMANCY;
 	}
 	if (choices & CH_MUSIC)
 	{
@@ -4449,6 +4465,13 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_DEATH_BOOK, 0 }, /* Hack: for realm2 book */
 		{ TV_SWORD, SV_DAGGER }
 	},
+
+	{
+		/* Necromancer */
+		{ TV_NECROMANCY_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_RING, SV_RING_SUSTAIN_INT},
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+	},
 };
 
 
@@ -4640,7 +4663,6 @@ void player_outfit(void)
 	{
 		for (i = TV_LIFE_BOOK; i <= TV_LIFE_BOOK+MAX_MAGIC-1; i++)
 		{
-			/* Hack -- Give the player some arrows */
 			object_prep(q_ptr, lookup_kind(i, 0));
 			q_ptr->number = 1;
 

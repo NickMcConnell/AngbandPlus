@@ -2450,6 +2450,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
 
+	if (o_ptr->tval == TV_BOW && o_ptr->sval == SV_HARP)
+		return FALSE;
+
+	if (o_ptr->name1 == ART_HAND_OF_VECNA)
+		return FALSE;
+
 	/* Missiles are easy to enchant */
 	if ((o_ptr->tval == TV_BOLT) ||
 	    (o_ptr->tval == TV_ARROW) ||
@@ -3011,6 +3017,12 @@ s = "使えるものがありません。";
 	}
 
 	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
+	{
+		msg_print("There is no effect.");
+		return FALSE;
+	}
+
+	if (o_ptr->name1 == ART_HAND_OF_VECNA || o_ptr->name1 == ART_EYE_OF_VECNA)
 	{
 		msg_print("There is no effect.");
 		return FALSE;
@@ -4785,6 +4797,7 @@ bool hates_fire(object_type *o_ptr)
 		case TV_CRAFT_BOOK:
 		case TV_DAEMON_BOOK:
 		case TV_CRUSADE_BOOK:
+		case TV_NECROMANCY_BOOK:
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		case TV_HEX_BOOK:

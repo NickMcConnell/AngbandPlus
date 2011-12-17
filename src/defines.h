@@ -1,4 +1,4 @@
-/* File: defines.h */ 
+/* File: defines.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 74
+#define FAKE_VER_PATCH 75
 
 
 /*
@@ -76,7 +76,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 74
+#define H_VER_PATCH 75
 #define H_VER_EXTRA 0
 
 
@@ -196,7 +196,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            37
+#define MAX_CLASS            38
 
 #define MAX_SEIKAKU          12
 
@@ -618,6 +618,7 @@
 #define CH_ENCHANT      0x80
 #define CH_DAEMON       0x100
 #define CH_CRUSADE      0x200
+#define CH_NECROMANCY   0x400
 
 #define CH_MUSIC        0x08000	/* This is 16th bit */
 #define CH_HISSATSU     0x10000
@@ -635,10 +636,11 @@
 #define REALM_DEATH        5
 #define REALM_TRUMP        6
 #define REALM_ARCANE       7
-#define REALM_CRAFT      8
+#define REALM_CRAFT		   8
 #define REALM_DAEMON       9
 #define REALM_CRUSADE      10
-#define MAX_MAGIC          10
+#define REALM_NECROMANCY   11
+#define MAX_MAGIC          11
 #define MIN_TECHNIC        16
 #define REALM_MUSIC        16
 #define REALM_HISSATSU     17
@@ -851,6 +853,7 @@
 #define CLASS_RUNE_KNIGHT		34
 #define CLASS_WEAPONMASTER		35
 #define CLASS_BLOOD_MAGE		36
+#define CLASS_NECROMANCER		37
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -1513,6 +1516,8 @@
 #define ART_HERA		265
 #define ART_DEMETER		266
 #define ART_APHRODITE	267
+#define ART_HAND_OF_VECNA	268
+#define ART_EYE_OF_VECNA	269
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -1898,6 +1903,7 @@
 #define TV_CRAFT_BOOK 97
 #define TV_DAEMON_BOOK  98
 #define TV_CRUSADE_BOOK 99
+#define TV_NECROMANCY_BOOK 100
 #define TV_MUSIC_BOOK   105
 #define TV_HISSATSU_BOOK 106
 #define TV_HEX_BOOK     107
@@ -2095,6 +2101,7 @@
 #define SV_SET_OF_GAUNTLETS              2
 #define SV_SET_OF_DRAGON_GLOVES          3
 #define SV_SET_OF_CESTI                  5
+#define SV_HAND							 6
 
 /* The "sval" codes for TV_SOFT_ARMOR */
 #define SV_T_SHIRT                       0
@@ -2164,6 +2171,7 @@
 #define SV_LITE_LORE                     7
 #define SV_LITE_PALANTIR                 8
 #define SV_LITE_FLY_STONE                9
+#define SV_LITE_EYE						10
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM                   0
@@ -2973,6 +2981,16 @@
 #define SUMMON_ARMAGE_EVIL          67
 #define SUMMON_SOFTWARE_BUG         68
 #define SUMMON_OLYMPIANS            69
+#define SUMMON_RAT					70
+#define SUMMON_BAT					71
+#define SUMMON_WOLF					72
+#define SUMMON_DREAD				73
+#define SUMMON_ZOMBIE				74
+#define SUMMON_SKELETON				75
+#define SUMMON_GHOST				76
+#define SUMMON_VAMPIRE				77
+#define SUMMON_WIGHT				78
+#define SUMMON_LICH					79
 
 
 /*
@@ -3088,8 +3106,12 @@
 #define GF_REMOVE_OBSTACLE	123
 #define GF_PHARAOHS_CURSE   124
 #define GF_ISOLATION	    125
+#define GF_ELDRITCH_HOWL 126
+#define GF_ENTOMB    127
+#define GF_UNHOLY_WORD  128
+#define GF_DRAINING_TOUCH 129
 
-#define MAX_GF				126
+#define MAX_GF				130
 
 /*
  * Some things which induce learning
@@ -5006,6 +5028,7 @@ extern int PlayerUID;
 #define MON_LICH          518
 #define MON_GREATER_MUMMY 522
 #define MON_BLOODLETTER   523
+#define MON_DREAD         534
 #define MON_HALFLING_S    539
 #define MON_GRAV_HOUND    540
 #define MON_REVENANT      555
@@ -5031,6 +5054,7 @@ extern int PlayerUID;
 #define MON_RINALDO       660
 #define MON_ARCHON        661
 #define MON_UND_BEHOLDER  664
+#define MON_SHADOW_DEMON  665
 #define MON_IRON_LICH     666
 #define MON_JACK_SHADOWS  670
 #define MON_LLOIGOR       682
@@ -5040,6 +5064,7 @@ extern int PlayerUID;
 #define MON_SMAUG         697
 #define MON_STORMBRINGER  698
 #define MON_ULTRA_PALADIN 699
+#define MON_DRACOLICH     701
 #define MON_G_TITAN       702
 #define MON_ENT			  708
 #define MON_FAFNER        712
@@ -5054,6 +5079,9 @@ extern int PlayerUID;
 #define MON_DEMILICH      742
 #define MON_PHOENIX		  743
 #define MON_NIGHTCRAWLER  744
+#define MON_HAND_DRUJ	  748
+#define MON_EYE_DRUJ	  749
+#define MON_SKULL_DRUJ	  750
 #define MON_CHAOS_VOR     751
 #define MON_AETHER_VOR    752
 #define MON_FUNDIN        762
@@ -5075,6 +5103,7 @@ extern int PlayerUID;
 #define MON_JULIAN        794
 #define MON_BLACK_REAVER  798
 #define MON_CAINE         799
+#define MON_VECNA		  804
 #define MON_GERARD        807
 #define MON_UNGOLIANT     808
 #define MON_ATLACH_NACHA  809
@@ -5134,6 +5163,7 @@ extern int PlayerUID;
 #define MON_LUPART        934
 #define MON_KENSHIROU     936
 #define MON_W_KNIGHT      938
+#define MON_BONE_DRAGON	  941
 #define MON_PLANETAR      942
 #define MON_SOLAR         943
 #define MON_BIKETAL       945

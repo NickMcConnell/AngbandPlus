@@ -1386,6 +1386,11 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_HEX_BOOK, 0 },
 		{ TV_HEX_BOOK, 1 },
 		{ TV_HEX_BOOK, 1 },
+
+		{ TV_NECROMANCY_BOOK, 0 },
+		{ TV_NECROMANCY_BOOK, 0 },
+		{ TV_NECROMANCY_BOOK, 1 },
+		{ TV_NECROMANCY_BOOK, 1 },
 	},
 
 	{
@@ -1741,6 +1746,7 @@ static errr init_feat_variables(void)
 	feat_tree = f_tag_to_index_in_init("TREE");
 	feat_mountain = f_tag_to_index_in_init("MOUNTAIN");
 	feat_swamp = f_tag_to_index_in_init("SWAMP");
+	feat_dark_pit = f_tag_to_index_in_init("DARK_PIT");
 
 	/* Unknown grid (not detected) */
 	feat_undetected = f_tag_to_index_in_init("UNDETECTED");

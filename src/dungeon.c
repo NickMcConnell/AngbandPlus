@@ -270,6 +270,7 @@ static void sense_inventory1(void)
 		}
 
 		case CLASS_MAGE:
+		case CLASS_NECROMANCER:
 		case CLASS_BLOOD_MAGE:
 		case CLASS_HIGH_MAGE:
 		case CLASS_SORCERER:
@@ -536,6 +537,7 @@ static void sense_inventory2(void)
 		}
 
 		case CLASS_MAGE:
+		case CLASS_NECROMANCER:
 		case CLASS_BLOOD_MAGE:
 		case CLASS_HIGH_MAGE:
 		case CLASS_SORCERER:
@@ -1873,6 +1875,7 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 	upkeep_regen = (100 - upkeep_factor) * regen_amount;
 	if (p_ptr->pclass == CLASS_MAGE ||
 		p_ptr->pclass == CLASS_BLOOD_MAGE ||
+		p_ptr->pclass == CLASS_NECROMANCER ||
 	    p_ptr->pclass == CLASS_HIGH_MAGE ||
 		p_ptr->pclass == CLASS_SORCERER)
 	{
@@ -2642,6 +2645,35 @@ static void process_world_aux_curse(void)
 			take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "the Jewel of Judgement", -1);
 #endif
 		}
+	}
+
+	if (one_in_(666))
+	{
+		object_type *o_ptr = &inventory[INVEN_HANDS];
+		if (o_ptr->name1 == ART_HAND_OF_VECNA)
+		if (object_is_known(o_ptr))
+			msg_print("The Hand of Vecna strangles you!");
+		else
+			msg_print("The Hand strangles you!");
+		take_hit(DAMAGE_LOSELIFE, MIN(p_ptr->lev, 50), "the Hand of Vecna", -1);
+	}
+
+	if (one_in_(666))
+	{
+		object_type *o_ptr = &inventory[INVEN_LITE];
+		if (o_ptr->name1 == ART_EYE_OF_VECNA)
+		if (object_is_known(o_ptr))
+			msg_print("The Eye of Vecna causes mental anquish!");
+		else
+			msg_print("The Eye causes mental anquish!");
+
+		p_ptr->csp -= MIN(p_ptr->lev, 50);
+		if (p_ptr->csp < 0)
+		{
+			p_ptr->csp = 0;
+			p_ptr->csp_frac = 0;
+		}
+		p_ptr->redraw |= PR_MANA;		
 	}
 
 	if ((inventory[INVEN_RARM].name1 == ART_BLOODRIP || inventory[INVEN_LARM].name1 == ART_BLOODRIP) &&
