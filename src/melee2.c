@@ -191,6 +191,7 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
 	monster_type	*m_ptr = &m_list[m_idx];
 
 	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
+	bool			 who_is_pet = FALSE;
 
 	char m_name[160];
 
@@ -198,6 +199,9 @@ void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note, int who)
 
 	/* Can the player be aware of this attack? */
 	bool known = (m_ptr->cdis <= MAX_SIGHT);
+
+	if (who && is_pet(&m_list[who]))
+		who_is_pet = TRUE;
 
 	/* Extract monster name */
 	monster_desc(m_name, m_ptr, 0);
@@ -318,7 +322,7 @@ msg_format("%^sは殺された。", m_name);
 			monster_gain_exp(who, m_ptr->r_idx);
 
 			/* Generate treasure */
-			monster_death(m_idx, FALSE);
+			monster_death(m_idx, who_is_pet);
 
 			/* Delete the monster */
 			delete_monster_idx(m_idx);
@@ -4791,12 +4795,22 @@ void monster_gain_exp(int m_idx, int s_idx)
 
 	if (p_ptr->inside_battle) return;
 
-	if (!r_ptr->next_exp) return;
-
 	new_exp = s_ptr->mexp * s_ptr->level / (r_ptr->level + 2);
 	if (m_idx == p_ptr->riding) new_exp = (new_exp + 1) / 2;
 	if (!dun_level) new_exp /= 5;
+
+	/* Experimental: Share the xp with the player */
+	if (is_pet(m_ptr))
+	{
+		int exp = new_exp / 5;
+		gain_exp(exp);
+		new_exp -= exp;
+		if (new_exp < 0) new_exp = 0;
+	}
+
+	if (!r_ptr->next_exp) return;
 	m_ptr->exp += new_exp;
+
 	if (m_ptr->mflag2 & MFLAG2_CHAMELEON) return;
 
 	if (m_ptr->exp >= r_ptr->next_exp)

@@ -38,7 +38,7 @@ class_t *necromancer_get_class_t(void)
 
 	if (!init)
 	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 30,  40,  38,   5,  16,  20,  34,  20};
+	skills_t bs = { 30,  40,  38,   4,  16,  20,  34,  20};
 	skills_t xs = {  7,  15,  11,   0,   0,   0,   6,   7};
 
 		me.name = "Necromancer";
@@ -51,8 +51,9 @@ class_t *necromancer_get_class_t(void)
 		me.stats[A_INT] =  3;
 		me.stats[A_WIS] =  0;
 		me.stats[A_DEX] =  1;
-		me.stats[A_CON] =  0;
+		me.stats[A_CON] = -1;
 		me.stats[A_CHR] =  1;
+		me.mhp = 1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.calc_bonuses = _calc_bonuses;

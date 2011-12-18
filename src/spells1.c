@@ -2022,6 +2022,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 
 	int caster_lev = (who > 0) ? r_info[caster_ptr->r_idx].level : (p_ptr->lev * 2);
 
+	bool who_is_pet = FALSE;
+	if (who && is_pet(&m_list[who]))
+		who_is_pet = TRUE;
+
 	/* Nobody here */
 	if (!c_ptr->m_idx) return (FALSE);
 
@@ -6605,7 +6609,7 @@ note = "には効果がなかった。";
 			if (who > 0) monster_gain_exp(who, m_ptr->r_idx);
 
 			/* Generate treasure, etc */
-			monster_death(c_ptr->m_idx, FALSE);
+			monster_death(c_ptr->m_idx, who_is_pet);
 
 			/* Delete the monster */
 			delete_monster_idx(c_ptr->m_idx);

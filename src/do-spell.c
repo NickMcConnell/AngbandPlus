@@ -4977,7 +4977,7 @@ static cptr do_trump_spell(int spell, int mode)
 	int x = px;
 	int y = py;
 
-	if (use_old_target && target_okay() && los(py, px, target_row, target_col))
+	if (!fail && use_old_target && target_okay() && los(py, px, target_row, target_col) && !one_in_(3))
 	{
 		y = target_row;
 		x = target_col;
@@ -6859,6 +6859,23 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 11:
+		if (name) return T("Berserk", "陡里晃步");
+		if (desc) return T("Gives bonus to hit and HP, immunity to fear for a while. But decreases AC.", "陡里晃步し、恫奢を近殿する。");
+
+		{
+			int base = spell_power(25);
+
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				set_shero(randint1(base) + base, FALSE);
+				hp_player(30);
+				set_afraid(0, TRUE);
+			}
+		}
+		break;
+	/*
 		if (name) return "Building Up";
 		if (desc) return "Increases your physical prowess.";
     
@@ -6874,7 +6891,7 @@ static cptr do_craft_spell(int spell, int mode)
 			}
 		}
 		break;
-
+	*/
 	case 12:
 #ifdef JP
 		if (name) return "极甘尸老";
@@ -12700,7 +12717,7 @@ static cptr do_necromancy_spell(int spell, int mode)
 	case 6:
 		if (name) return "Eldritch Howl";
 		if (desc) return "Emit a terrifying howl.";
-		if (cast) project_hack(GF_ELDRITCH_HOWL, spell_power(plev * 4));
+		if (cast) project_hack(GF_ELDRITCH_HOWL, spell_power(plev * 3));
 		break;
 
 	case 7:
@@ -12815,8 +12832,8 @@ static cptr do_necromancy_spell(int spell, int mode)
 	case 13:
 		if (name) return "Vampiric Touch";
 		if (desc) return "Steal life from an adjacent foe.";
-		if (info) return _necro_info_damage(0, 0, plev * 3);
-		if (cast && !_necro_do_touch(GF_OLD_DRAIN, 0, 0, plev * 3)) return NULL;
+		if (info) return _necro_info_damage(0, 0, plev * 4);
+		if (cast && !_necro_do_touch(GF_OLD_DRAIN, 0, 0, plev * 4)) return NULL;
 		break;
 
 	case 14:

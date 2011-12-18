@@ -132,6 +132,9 @@ int _mut_prob_gain(int i)
 	int result = _mutations[i].prob;
 	const int racial_odds = 50;
 
+	if (result == 0)
+		return 0;
+
 	if (p_ptr->pclass == CLASS_BERSERKER && mut_type(i) & MUT_TYPE_ACTIVATION)
 		return 0;
 
