@@ -3595,7 +3595,7 @@ msg_print("守りのルーンが壊れた！");
 		/* Must repair monsters */
 		repair_monsters = TRUE;
 	}
-
+	
 	/* Hack -- see "process_monsters()" */
 	if (c_ptr->m_idx < hack_m_idx)
 	{

@@ -2456,6 +2456,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	if (o_ptr->name1 == ART_HAND_OF_VECNA)
 		return FALSE;
 
+	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD)
+		return FALSE;
+
 	/* Missiles are easy to enchant */
 	if ((o_ptr->tval == TV_BOLT) ||
 	    (o_ptr->tval == TV_ARROW) ||
@@ -2664,6 +2667,8 @@ bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 	/* Require nameless object if the object is well known */
 	if (object_is_known(o_ptr) && !object_is_nameless(o_ptr))
 		return FALSE;
+
+	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) return FALSE;
 
 	return TRUE;
 }

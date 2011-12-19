@@ -766,6 +766,16 @@ static errr rd_store(int town_number, int store_number)
 
 	/* Read last visit */
 	rd_s32b(&st_ptr->last_visit);
+	if (h_older_than(0, 0, 77, 1))
+	{
+		st_ptr->last_lev = 0;
+		st_ptr->last_exp = 0;
+	}
+	else
+	{
+		rd_s16b(&st_ptr->last_lev);
+		rd_s32b(&st_ptr->last_exp);
+	}
 
 	/* Extract the owner (see above) */
 	st_ptr->owner = own;

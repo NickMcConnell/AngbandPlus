@@ -12962,13 +12962,9 @@ static cptr do_necromancy_spell(int spell, int mode)
 		break;
 
 	case 30:
-		if (name) return "Wraithform";
-		if (desc) return "At last, you may join the ranks of the undead!  You temporarily become a wraith, during which time your incorporeal state allows you to pass through walls and resist damage.";
-		{
-			int base = spell_power(plev / 2);
-			if (info) return info_duration(base, base);
-			if (cast) set_wraith_form(randint1(base) + base, FALSE);
-		}
+		if (name) return "Deadly Touch";
+		if (desc) return "Attempt to kill an adjacent monster.";
+		if (cast && !_necro_do_touch(GF_DEATH_TOUCH, 0, 0, p_ptr->lev * 200)) return NULL;
 		break;
 
 	case 31:

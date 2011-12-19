@@ -370,6 +370,8 @@ static void wr_store(store_type *st_ptr)
 	wr_s16b(st_ptr->bad_buy);
 
 	wr_s32b(st_ptr->last_visit);
+	wr_s16b(st_ptr->last_lev);
+	wr_s32b(st_ptr->last_exp);
 
 	/* Save the stock */
 	for (j = 0; j < st_ptr->stock_num; j++)

@@ -4511,7 +4511,14 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 
 		case TV_SWORD:
 		{
-			if (power && !(o_ptr->sval == SV_DOKUBARI)) a_m_aux_1(o_ptr, lev, power);
+			if (o_ptr->sval == SV_RUNESWORD) 
+			{
+				o_ptr->curse_flags |= (TRC_PERMA_CURSE);
+			}
+			else 
+			{
+				if (power && !(o_ptr->sval == SV_DOKUBARI)) a_m_aux_1(o_ptr, lev, power);
+			}
 			break;
 		}
 

@@ -872,6 +872,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		cptr message;
 		switch (typ)
 		{
+		case GF_DEATH_TOUCH:
+			message = "dies.";break;
+
 		case GF_POIS:
 		case GF_NUKE:
 		case GF_DEATH_RAY:
@@ -3685,6 +3688,41 @@ note = "があなたに隷属した。";
 			}
 			else do_time = (dam+7)/8;
 
+			break;
+		}
+
+		case GF_DEATH_TOUCH:
+		{
+			if (seen) obvious = TRUE;
+
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				note = T(" is immune.", "には完全な耐性がある！");
+				dam = 0;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			if (!monster_living(r_ptr))
+			{
+				if (is_original_ap_and_seen(m_ptr))
+				{
+					if (r_ptr->flags3 & RF3_DEMON) r_ptr->r_flags3 |= (RF3_DEMON);
+					if (r_ptr->flags3 & RF3_UNDEAD) r_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (r_ptr->flags3 & RF3_NONLIVING) r_ptr->r_flags3 |= (RF3_NONLIVING);
+				}
+
+				note = T(" is immune.", "には完全な耐性がある。");
+				obvious = FALSE;
+				dam = 0;
+			}
+			else if (((r_ptr->flags1 & RF1_UNIQUE) && randint1(888) != 666) 
+			        || mon_save_p(m_ptr->r_idx, A_INT) 
+					|| mon_save_p(m_ptr->r_idx, A_INT) )
+			{
+				note = T(" resists!", "には耐性がある！");
+				obvious = FALSE;
+				dam = 0;
+			}
 			break;
 		}
 

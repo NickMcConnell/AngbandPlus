@@ -5943,18 +5943,6 @@ msg_print("試合開始！");
 		if (wild_regen) wild_regen--;
 	}
 
-	/* Inside a quest and non-unique questor? */
-	if (quest_num)
-	{
-		/* Mark the quest monster */
-		if ( quest[quest_num].r_idx /* TODO: Non-monster quests are coming ... */
-		  && !(r_info[quest[quest_num].r_idx].flags1 & RF1_UNIQUE) )
-		{
-			/* Un-mark the quest monster */
-			r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
-		}
-	}
-
 	/* Not save-and-quit and not dead? */
 	if (p_ptr->playing && !p_ptr->is_dead)
 	{
@@ -5966,6 +5954,21 @@ msg_print("試合開始！");
 
 		/* Forget the flag */
 		reinit_wilderness = FALSE;
+	}
+
+	/* Inside a quest and non-unique questor? 
+	   Remark: leave_floor() requires RF1_QUESTOR still be valid for the old level
+			   ... look up a few lines!
+	*/
+	if (quest_num)
+	{
+		/* Mark the quest monster */
+		if ( quest[quest_num].r_idx /* TODO: Non-monster quests are coming ... */
+		  && !(r_info[quest[quest_num].r_idx].flags1 & RF1_UNIQUE) )
+		{
+			/* Un-mark the quest monster */
+			r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
+		}
 	}
 
 	/* Write about current level on the play record once per level */

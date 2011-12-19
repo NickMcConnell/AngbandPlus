@@ -4870,6 +4870,19 @@ void do_cmd_store(void)
 	/* Maintain the store max. 10 times */
 	if (maintain_num > 10) maintain_num = 10;
 
+	if (maintain_num && which != STORE_GENERAL)
+	{
+		int xp = town[p_ptr->town_num].store[which].last_exp;
+		xp += MIN(MAX(xp / 20, 1000), 100000);
+		if ( p_ptr->max_plv <= town[p_ptr->town_num].store[which].last_lev
+		  && p_ptr->max_exp <= xp )
+		{
+			if (p_ptr->wizard)
+				msg_format("Rejecting store restock.  Lev = %d.  XP = %d.", town[p_ptr->town_num].store[which].last_lev, xp);
+			maintain_num = 0;
+		}
+	}
+
 	if (maintain_num)
 	{
 		/* Maintain the store */
@@ -4878,6 +4891,8 @@ void do_cmd_store(void)
 
 		/* Save the visit */
 		town[p_ptr->town_num].store[which].last_visit = turn;
+		town[p_ptr->town_num].store[which].last_lev = p_ptr->max_plv;
+		town[p_ptr->town_num].store[which].last_exp = p_ptr->max_exp;
 	}
 
 	/* Forget the lite */
@@ -5468,6 +5483,8 @@ void store_init(int town_num, int store_num)
 	 * BEFORE player birth to enable store restocking
 	 */
 	st_ptr->last_visit = -10L * TURNS_PER_TICK * STORE_TICKS;
+	st_ptr->last_lev = 0;
+	st_ptr->last_exp = 0;
 
 	/* Clear any old items */
 	for (k = 0; k < st_ptr->stock_size; k++)

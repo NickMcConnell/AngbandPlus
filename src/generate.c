@@ -968,8 +968,7 @@ static bool cave_gen(void)
 			try_door(y + 1, x);
 		}
 
-		/* Place 3 or 4 down stairs near some walls */
-		if (!alloc_stairs(feat_down_stair, rand_range(3, 4), 3)) return FALSE;
+		if (!alloc_stairs(feat_down_stair, rand_range(4, 5), 3)) return FALSE;
 
 		/* Place 1 or 2 up stairs near some walls */
 		if (!alloc_stairs(feat_up_stair, rand_range(1, 2), 3)) return FALSE;

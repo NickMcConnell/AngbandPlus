@@ -774,6 +774,8 @@ struct store_type
 	s32b store_open;		/* Closed until this turn */
 
 	s32b last_visit;		/* Last visited on this turn */
+	s16b last_lev;
+	s32b last_exp;
 
 	s16b table_num;			/* Table -- Number of entries */
 	s16b table_size;		/* Table -- Total Size of Array */

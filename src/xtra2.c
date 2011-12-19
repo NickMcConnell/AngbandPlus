@@ -744,11 +744,10 @@ void monster_death(int m_idx, bool drop_item)
 	/* Notice changes in view */
 	if (r_ptr->flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
 	{
-		/* Update some things */
 		p_ptr->update |= (PU_MON_LITE);
 	}
 
-	if (mut_present(MUT_INFERNAL_DEAL))
+	if (mut_present(MUT_INFERNAL_DEAL) && los(py, px, m_ptr->fy, m_ptr->fx))
 	{
 		if (p_ptr->msp > 0)
 		{
@@ -765,7 +764,6 @@ void monster_death(int m_idx, bool drop_item)
 			hp_player(30);
 	}
 
-	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
@@ -799,7 +797,6 @@ void monster_death(int m_idx, bool drop_item)
 		r_ptr = &r_info[m_ptr->r_idx];
 	}
 
-	/* Check for quest completion */
 	check_quest_completion(m_ptr);
 
 	/* Handle the possibility of player vanquishing arena combatant -KMW- */
@@ -826,15 +823,9 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 
 		if (arena_info[p_ptr->arena_number].tval)
 		{
-			/* Get local object */
 			q_ptr = &forge;
-
-			/* Prepare to make a prize */
 			object_prep(q_ptr, lookup_kind(arena_info[p_ptr->arena_number].tval, arena_info[p_ptr->arena_number].sval));
-
 			apply_magic(q_ptr, object_level, AM_NO_FIXED_ART);
-
-			/* Drop it in the dungeon */
 			(void)drop_near(q_ptr, -1, y, x);
 		}
 
@@ -843,10 +834,7 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		if (record_arena)
 		{
 			char m_name[80];
-			
-			/* Extract monster name */
 			monster_desc(m_name, m_ptr, MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
-			
 			do_cmd_write_nikki(NIKKI_ARENA, p_ptr->arena_number, m_name);
 		}
 	}

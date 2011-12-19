@@ -301,6 +301,7 @@ bool object_is_equipment(object_type *o_ptr)
 bool object_refuse_enchant_weapon(object_type *o_ptr)
 {
 	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_DOKUBARI) return TRUE;
+	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) return TRUE;
 
 	return FALSE;
 }

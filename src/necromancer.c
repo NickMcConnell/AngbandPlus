@@ -5,7 +5,7 @@
 static void _calc_bonuses(void)
 {
 	p_ptr->align -= 200;
-	p_ptr->spell_cap += 3;
+	p_ptr->spell_cap += 2;
 	if (p_ptr->lev >= 5) p_ptr->resist_cold = TRUE;
 	if (p_ptr->lev >= 15) p_ptr->see_inv = TRUE;
 	if (p_ptr->lev >= 25) p_ptr->hold_life = TRUE;

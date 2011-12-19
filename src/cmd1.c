@@ -13,6 +13,165 @@
 #include "angband.h"
 #define MAX_VAMPIRIC_DRAIN 50
 
+static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
+{
+	if (o_ptr->curse_flags & TRC_PERMA_CURSE)
+	{
+		bool feed = FALSE;
+						
+		switch (randint1(4))
+		{
+		case 1:
+			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d) && one_in_(6))
+			{
+				if (o_ptr->to_h < 50 || one_in_(666))
+				{
+					feed = TRUE;
+					o_ptr->to_h++;
+				}
+			}
+			break;
+
+		case 2:
+			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d) && one_in_(6))
+			{
+				if (o_ptr->to_d < 50 || one_in_(666))
+				{
+					feed = TRUE;
+					o_ptr->to_d++;
+				}
+			}
+			break;
+
+		case 3:
+			if ((r_ptr->level > o_ptr->dd * o_ptr->ds) && one_in_(o_ptr->dd * o_ptr->ds) && one_in_(6))
+			{
+				if (o_ptr->dd < 9 || one_in_(666))
+				{
+					feed = TRUE;
+					o_ptr->dd++;
+				}
+			}
+			break;
+
+		case 4:
+			if ((r_ptr->level > o_ptr->dd * o_ptr->ds) && o_ptr->ds < 9 && one_in_(o_ptr->dd * o_ptr->ds) && one_in_(6))
+			{
+				if (o_ptr->ds < 9 || one_in_(666))
+				{
+					feed = TRUE;
+					o_ptr->ds++;
+				}
+			}
+			break;
+		}
+
+		if (!feed && (r_ptr->flags1 & RF1_UNIQUE) && one_in_(200 / r_ptr->level))
+		{
+			switch (randint1(11))
+			{
+			case 1:
+				if (one_in_(3)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_BRAND_POIS); 
+				} 
+				break;
+			case 2:
+				if (one_in_(3)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_BRAND_FIRE);
+				} 
+				break;
+			case 3:
+				if (one_in_(3)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_BRAND_COLD); 
+				} 
+				break;
+			case 4:
+				if (one_in_(13)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_BRAND_ELEC); 
+				} 
+				break;
+			case 5:
+				if (one_in_(13)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD); 
+				} 
+				break;
+			case 6:
+				if (one_in_(13)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_SLAY_DEMON); 
+				} 
+				break;
+			case 7:
+				if (one_in_(5)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_SLAY_DRAGON); 
+				} 
+				break;
+			case 8:
+				if (one_in_(5)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_SLAY_TROLL); 
+				} 
+				break;
+			case 9:
+				if (one_in_(5)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_SLAY_GIANT); 
+				} 
+				break;
+			case 10:
+				if (one_in_(33)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_SLAY_HUMAN); 
+				} 
+				break;
+			case 11:
+				if (one_in_(66)) 
+				{ 
+					feed = TRUE; 
+					add_flag(o_ptr->art_flags, TR_SLAY_EVIL); 
+				} 
+				break;
+			}
+		}
+
+		if (feed)
+		{
+			if ((o_ptr->curse_flags & TRC_TY_CURSE) == 0
+			  && o_ptr->dd * o_ptr->ds > 50 )
+			{
+				o_ptr->curse_flags |= TRC_TY_CURSE;
+				msg_print("Your Rune Swords seeks to dominate you!");
+			}
+			else if ((o_ptr->curse_flags & TRC_AGGRAVATE) == 0
+				   && o_ptr->dd * o_ptr->ds > 30 )
+			{
+				o_ptr->curse_flags |= TRC_AGGRAVATE;
+				msg_print("The thirst of your sword redoubles!");
+			}
+			else
+				msg_print("You rune sword grows more powerful!");
+		}
+	}
+	else
+		msg_print("Only cursed Rune Swords may feed.");
+}
+
 
 /*
  * Determine if the player "hits" a monster (normal combat).
@@ -3392,6 +3551,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			else if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
 			{
 				*mdeath = TRUE;
+
+				if ( o_ptr->tval == TV_SWORD
+				  && o_ptr->sval == SV_RUNESWORD
+				  && monster_living(r_ptr) )
+				{
+					_rune_sword_kill(o_ptr, r_ptr);
+				}
 
 				if (mode == WEAPONMASTER_ABSORB_SOUL)
 				{

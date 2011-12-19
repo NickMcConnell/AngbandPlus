@@ -2,6 +2,34 @@
 #   Object Auto-picker/Destroyer Sample Setting   #
 #=================================================#
 mushroom of restoring#!E
+potion of resist#!k!q
+potion of restore mana#!k!q
+
+power dragon
+balance dragon
+dragon gloves
+dragon boots
+dragon shield
+dragon helm
+dragon wings
+
+?:[EQU $CLASS Mage High-Mage]
+rod of cold balls#!s!d!k
+rod of fire balls#!s!d!k
+rod of lightning balls#!s!d!k
+rod of acid balls#!s!d!k
+wizardstaff
+wizard cloak
+?:1
+
+rod of healing
+staff of healing
+staff of speed
+staff of *destruction*#!u!s!d!k
+
+diamond edge
+rune sword
+blade of chaos
 
 
 #

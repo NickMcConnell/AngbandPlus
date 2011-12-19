@@ -1929,6 +1929,7 @@ void do_cmd_locate(void)
 
 			/* Get a command (or Cancel) */
 			if (!get_com(out_val, &command, TRUE)) break;
+			if (command == '5') break;
 
 			/* Extract the action (if any) */
 			dir = get_keymap_dir(command);

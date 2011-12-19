@@ -390,12 +390,12 @@ static void preserve_pet(void)
 			monster_type *m_ptr = &m_list[i];
 
 			if (!m_ptr->r_idx) continue;
-			if (!is_pet(m_ptr) && (dun_level > 0 || p_ptr->town_num)) continue;
 			if (i == p_ptr->riding) continue;
 
 			if (reinit_wilderness)
 			{
 				/* Don't lose sight of pets when getting a Quest */
+				if (!is_pet(m_ptr)) continue;
 			}
 			else
 			{
@@ -407,13 +407,14 @@ static void preserve_pet(void)
 				/* Pet of other pet don't follow. */
 				if (m_ptr->parent_m_idx) continue;
 
-				/*
-				 * Pets with nickname will follow even from 3 blocks away
-				 * when you or the pet can see the other.
-				 */
+				/* Hack: Hostile monsters follow, even if you recall! */
 				if (!is_pet(m_ptr))
 				{
-					if (dis > 3) continue;
+					int rng = 3;
+					if (dun_level > 0) rng = 1;
+					if (dis > rng) continue;
+					if (r_info[m_ptr->r_idx].flags1 & RF1_QUESTOR) continue;
+					m_ptr->energy_need += ENERGY_NEED();
 				}
 				else if (m_ptr->nickname && 
 				         ((player_has_los_bold(m_ptr->fy, m_ptr->fx) && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||

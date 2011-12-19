@@ -1,4 +1,4 @@
-/* File: defines.h */
+/* File: defines.h */ 
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 76
+#define FAKE_VER_PATCH 77
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 76
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 77
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -733,6 +733,7 @@
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
  */
+#define A_NONE -1
 #define A_STR   0
 #define A_INT   1
 #define A_WIS   2
@@ -2052,6 +2053,7 @@
 #define SV_DIAMOND_EDGE                 31  /* 7d5 */
 #define SV_DOKUBARI                     32  /* 1d1 */
 #define SV_HAYABUSA                     33  /* 1d6 */
+#define SV_RUNESWORD					34  /* 0d0 */
 
 #define SV_FALCON_SWORD					33
 #define SV_POISON_NEEDLE				32
@@ -3110,8 +3112,9 @@
 #define GF_ENTOMB    127
 #define GF_UNHOLY_WORD  128
 #define GF_DRAINING_TOUCH 129
+#define GF_DEATH_TOUCH 130
 
-#define MAX_GF				130
+#define MAX_GF				131
 
 /*
  * Some things which induce learning
@@ -3561,7 +3564,7 @@
  * New monster race bit flags
  */
 #define RF1_UNIQUE              0x00000001  /* Unique Monster */
-#define RF1_QUESTOR             0x00000002  /* Quest Monster */
+#define RF1_QUESTOR             0x00000002  /* Quest Monster Remark: See dungeon() for setting/unsetting for quests.*/
 #define RF1_MALE                0x00000004  /* Male gender */
 #define RF1_FEMALE              0x00000008  /* Female gender */
 #define RF1_CHAR_CLEAR          0x00000010  /* Absorbs symbol */
