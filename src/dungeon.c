@@ -345,6 +345,7 @@ static void sense_inventory1(void)
 		}
 
 		case CLASS_MINDCRAFTER:
+		case CLASS_PSION:
 		case CLASS_IMITATOR:
 		case CLASS_BLUE_MAGE:
 		case CLASS_MIRROR_MASTER:
@@ -526,6 +527,7 @@ static void sense_inventory2(void)
 		case CLASS_ROGUE:
 		case CLASS_FORCETRAINER:
 		case CLASS_MINDCRAFTER:
+		case CLASS_PSION:
 		case CLASS_WARLOCK:
 		case CLASS_WILD_TALENT:
 		{
@@ -2294,6 +2296,9 @@ static void process_world_aux_timeout(void)
 	}
 
 	wild_decrement_counters();
+
+	if (p_ptr->pclass == CLASS_PSION)
+		psion_decrement_counters();
 
 	/*** Poison and Stun and Cut ***/
 
@@ -4317,6 +4322,8 @@ msg_print("ウィザードモード突入。");
 				do_cmd_gain_hissatsu();
 			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
 				cast_absorb_magic();
+			else if (p_ptr->pclass == CLASS_PSION)
+				psion_study();
 			else
 				do_cmd_study();
 			break;
@@ -4339,6 +4346,7 @@ msg_print("ウィザードモード突入。");
 			else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
 			         p_ptr->pclass == CLASS_DUELIST ||
 					 p_ptr->pclass == CLASS_WARLOCK ||
+					 p_ptr->pclass == CLASS_PSION || 
 					 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
 					 p_ptr->pclass == CLASS_MINDCRAFTER ||
 					 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
@@ -4395,7 +4403,7 @@ msg_print("ウィザードモード突入。");
 #else
 					cptr which_power = "magic";
 #endif
-					if (p_ptr->pclass == CLASS_MINDCRAFTER)
+					if (p_ptr->pclass == CLASS_MINDCRAFTER || p_ptr->pclass == CLASS_PSION)
 #ifdef JP
 						which_power = "超能力";
 #else
@@ -4468,11 +4476,16 @@ msg_print("ウィザードモード突入。");
 						do_cmd_kaji(FALSE);
 					else if (p_ptr->pclass == CLASS_SNIPER)
 						do_cmd_snipe();
+					else if (p_ptr->pclass == CLASS_PSION)
+					{
+						psion_spell();
+					}
 					else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
 					         p_ptr->pclass == CLASS_DUELIST ||
 							 p_ptr->pclass == CLASS_WARLOCK ||
 							 p_ptr->pclass == CLASS_BLOOD_KNIGHT ||
 							 p_ptr->pclass == CLASS_MINDCRAFTER ||
+							 p_ptr->pclass == CLASS_PSION ||
 							 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 							 p_ptr->pclass == CLASS_WILD_TALENT ||
 							 p_ptr->pclass == CLASS_WEAPONMASTER)
@@ -5350,6 +5363,8 @@ msg_print("中断しました。");
 
 		/* Handle "p_ptr->notice" */
 		notice_stuff();
+
+		psion_do_mindspring();
 
 		/* Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window" */
 		handle_stuff();

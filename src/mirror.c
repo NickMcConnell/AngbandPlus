@@ -22,7 +22,7 @@ bool mirror_tunnel(void)
 	/* Rerutn FALSE if cancelled */
 	if (!tgt_pt(&x, &y)) return FALSE;
 
-	if (dimension_door_aux(x, y)) return TRUE;
+	if (dimension_door_aux(x, y, p_ptr->lev / 2 + 10)) return TRUE;
 
 #ifdef JP
 	msg_print("鏡の世界をうまく通れなかった！");

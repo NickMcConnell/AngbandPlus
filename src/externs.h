@@ -1260,7 +1260,7 @@ extern bool rush_attack(bool *mdeath);
 
 
 /* spells3.c */
-extern bool dimension_door_aux(int x, int y);
+extern bool dimension_door_aux(int x, int y, int rng);
 extern bool teleport_away(int m_idx, int dis, u32b mode);
 extern void teleport_monster_to(int m_idx, int ty, int tx, int power, u32b mode);
 extern bool cave_player_teleportable_bold(int y, int x, u32b mode);
@@ -1328,7 +1328,7 @@ extern bool curse_weapon(bool force, int slot);
 extern void blast_object(object_type *o_ptr);
 extern bool brand_bolts(void);
 extern bool polymorph_monster(int y, int x);
-extern bool dimension_door(void);
+extern bool dimension_door(int rng);
 extern bool summon_kin_player(int level, int y, int x, u32b mode);
 
 /* store.c */
@@ -1926,6 +1926,30 @@ extern class_t *necromancer_get_class_t(void);
 
 /* ninja.c */
 extern void quick_walk_spell(int cmd, variant *res);
+
+/* psion.c */
+extern class_t *psion_get_class_t(void);
+extern int psion_backlash_dam(int dam);
+extern bool psion_can_study(void);
+extern bool psion_check_foresight(void);
+extern void psion_decrement_counters(void);
+extern void psion_do_mindspring(void);
+extern bool psion_mon_save_p(int r_idx, int power);
+extern int psion_power(void);
+extern bool psion_process_monster(int m_idx);
+extern void psion_spell(void);
+extern void psion_study(void);
+
+extern bool psion_backlash(void);
+extern bool psion_blending(void);
+extern bool psion_clarity(void);
+extern bool psion_combat(void);
+extern bool psion_foresight(void);
+extern bool psion_mental_fortress(void);
+extern bool psion_mindspring(void);
+extern bool psion_shielding(void);
+extern bool psion_speed(void);
+extern bool psion_weapon_graft(void);
 
 /* rune_knight.c */
 extern bool rune_add(object_type *o_ptr, int which, bool prompt);

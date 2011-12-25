@@ -6269,6 +6269,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 
 	if (p_ptr->sutemi) damage *= 2;
 	if (p_ptr->special_defense & KATA_IAI) damage += (damage + 4) / 5;
+	if (psion_check_foresight()) return 0;
 
 	if (easy_band) damage = (damage+1)/2;
 

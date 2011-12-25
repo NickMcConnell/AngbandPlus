@@ -58,7 +58,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 77
+#define FAKE_VER_PATCH 78
 
 
 /*
@@ -76,8 +76,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 77
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 78
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -192,11 +192,6 @@
  * Maximum number of player "sex" types (see "table.c", etc)
  */
 #define MAX_SEXES            2
-
-/*
- * Maximum number of player "class" types (see "table.c", etc)
- */
-#define MAX_CLASS            38
 
 #define MAX_SEIKAKU          12
 
@@ -855,6 +850,9 @@
 #define CLASS_WEAPONMASTER		35
 #define CLASS_BLOOD_MAGE		36
 #define CLASS_NECROMANCER		37
+#define CLASS_PSION		        38
+
+#define MAX_CLASS               39
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -2659,6 +2657,7 @@
 #define ENCH_TODAM      0x02 /* Enchant to damage */
 #define ENCH_TOAC       0x04 /* Enchant to AC */
 #define ENCH_FORCE      0x08 /* Force enchantment */
+#define ENCH_PSI_HACK   0x10
 
 /*
  * Bit flags for the "target_set" function XXX XXX XXX
@@ -3113,8 +3112,11 @@
 #define GF_UNHOLY_WORD  128
 #define GF_DRAINING_TOUCH 129
 #define GF_DEATH_TOUCH 130
+#define GF_PSI_EGO_WHIP 131
+#define GF_PSI_BRAIN_SMASH 132
+#define GF_PSI_STORM 133
 
-#define MAX_GF				131
+#define MAX_GF				134
 
 /*
  * Some things which induce learning
@@ -5553,7 +5555,7 @@ extern int PlayerUID;
 #define IS_RESIST_MAGIC() (p_ptr->resist_magic || wild_has_power(WILD_MAGIC_RESIST))
 #define IS_STONE_SKIN() (p_ptr->shield || wild_has_power(WILD_STONE_SKIN))
 #define IS_PASSWALL() (p_ptr->kabenuke || wild_has_power(WILD_PASSWALL))
-#define IS_REVENGE() (p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE) || wild_has_power(WILD_REVENGE) || weaponmaster_get_toggle() == TOGGLE_SHIELD_REVENGE)
+#define IS_REVENGE() (p_ptr->tim_eyeeye || hex_spelling(HEX_EYE_FOR_EYE) || wild_has_power(WILD_REVENGE) || weaponmaster_get_toggle() == TOGGLE_SHIELD_REVENGE || psion_backlash())
 #define IS_WRAITH() (p_ptr->wraith_form || wild_has_power(WILD_WRAITH))
 
 /* Multishadow effects is determined by turn */

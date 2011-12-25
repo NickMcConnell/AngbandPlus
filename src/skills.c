@@ -4,7 +4,7 @@ skill_table *s_info;
 
 int skills_bow_current(int sval)
 {
-	int max = skills_weapon_max(0, sval);
+	int max = skills_weapon_max(TV_BOW, sval);
 	int cur = p_ptr->weapon_exp[0][sval];
 
 	if (cur > max)
@@ -23,7 +23,7 @@ int skills_bow_max(int sval)
 
 void skills_bow_gain(int sval)
 {
-	int max = skills_weapon_max(0, sval);
+	int max = skills_weapon_max(TV_BOW, sval);
 	int cur = p_ptr->weapon_exp[0][sval];
 
 	if (cur < max)

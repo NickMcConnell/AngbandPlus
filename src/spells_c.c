@@ -746,7 +746,7 @@ void dimension_door_spell(int cmd, variant *res)
 		var_set_string(res, "Open a portal to another dimension and step to a nearby location with great precision.");
 		break;
 	case SPELL_CAST:
-		var_set_bool(res, dimension_door());
+		var_set_bool(res, dimension_door(p_ptr->lev / 2 + 10));
 		break;
 	case SPELL_ENERGY:
 		if (mut_present(MUT_ASTRAL_GUIDE))
@@ -1026,6 +1026,7 @@ void draconian_breath_spell(int cmd, variant *res)
 					}
 					break;
 				case CLASS_MINDCRAFTER:
+				case CLASS_PSION:
 					if (!one_in_(3))
 					{
 						Type = GF_CONFUSION;

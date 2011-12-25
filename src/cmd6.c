@@ -2018,6 +2018,7 @@ msg_print("ダンジョンが揺れた...");
 			if ((p_ptr->pclass == CLASS_WARRIOR) ||
 			    (p_ptr->pclass == CLASS_IMITATOR) || 
 				(p_ptr->pclass == CLASS_MINDCRAFTER) || 
+				(p_ptr->pclass == CLASS_PSION) || 
 				(p_ptr->pclass == CLASS_SORCERER) || 
 				(p_ptr->pclass == CLASS_ARCHER) || 
 				(p_ptr->pclass == CLASS_MAGIC_EATER) || 
@@ -4419,7 +4420,7 @@ static void do_cmd_activate_aux(int item)
 			{
 				msg_print("Your boots shine.");
 				set_fast(randint1(75) + 75, FALSE);
-				dimension_door();
+				dimension_door(p_ptr->lev / 2 + 10);
 				o_ptr->timeout = 100;
 				break;
 			}
@@ -6824,7 +6825,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			case EGO_AMU_D_DOOR:
-				(void)dimension_door();
+				(void)dimension_door(p_ptr->lev / 2 + 10);
 				o_ptr->timeout = 200;
 				break;
 			case EGO_AMU_RES_FIRE_:

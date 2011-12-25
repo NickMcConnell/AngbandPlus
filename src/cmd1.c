@@ -18,130 +18,147 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 	if (o_ptr->curse_flags & TRC_PERMA_CURSE)
 	{
 		bool feed = FALSE;
+		bool unique = (r_ptr->flags1 & RF1_UNIQUE);
 						
 		switch (randint1(4))
 		{
 		case 1:
-			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d) && one_in_(6))
+			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d + 25))
 			{
-				if (o_ptr->to_h < 50 || one_in_(666))
+				/*msg_print("Boost ToHit?");*/
+				if (unique || one_in_(6))
 				{
-					feed = TRUE;
-					o_ptr->to_h++;
+					if (o_ptr->to_h < 50 || one_in_(666))
+					{
+						feed = TRUE;
+						o_ptr->to_h++;
+					}
 				}
 			}
 			break;
 
 		case 2:
-			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d) && one_in_(6))
+			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d + 25))
 			{
-				if (o_ptr->to_d < 50 || one_in_(666))
+				/*msg_print("Boost ToDam?");*/
+				if (unique || one_in_(6))
 				{
-					feed = TRUE;
-					o_ptr->to_d++;
+					if (o_ptr->to_d < 50 || one_in_(666))
+					{
+						feed = TRUE;
+						o_ptr->to_d++;
+					}
 				}
 			}
 			break;
 
 		case 3:
-			if ((r_ptr->level > o_ptr->dd * o_ptr->ds) && one_in_(o_ptr->dd * o_ptr->ds) && one_in_(6))
+			if ((r_ptr->level > o_ptr->dd * o_ptr->ds + 25))
 			{
-				if (o_ptr->dd < 9 || one_in_(666))
+				/*msg_print("Boost dd?");*/
+				if (one_in_((o_ptr->dd + 1) * (o_ptr->ds + 1)) && (unique || one_in_(6)))
 				{
-					feed = TRUE;
-					o_ptr->dd++;
+					if (o_ptr->dd < 9 || one_in_(666))
+					{
+						feed = TRUE;
+						o_ptr->dd++;
+					}
 				}
 			}
 			break;
 
 		case 4:
-			if ((r_ptr->level > o_ptr->dd * o_ptr->ds) && o_ptr->ds < 9 && one_in_(o_ptr->dd * o_ptr->ds) && one_in_(6))
+			if ((r_ptr->level > o_ptr->dd * o_ptr->ds + 25))
 			{
-				if (o_ptr->ds < 9 || one_in_(666))
+				/*msg_print("Boost ds?");*/
+				if (one_in_((o_ptr->dd + 1) * (o_ptr->ds + 1)) && (unique || one_in_(6)))
 				{
-					feed = TRUE;
-					o_ptr->ds++;
+					if (o_ptr->ds < 9 || one_in_(666))
+					{
+						feed = TRUE;
+						o_ptr->ds++;
+					}
 				}
 			}
 			break;
 		}
 
-		if (!feed && (r_ptr->flags1 & RF1_UNIQUE) && one_in_(200 / r_ptr->level))
+		if (unique && one_in_(200 / r_ptr->level))
 		{
 			switch (randint1(11))
 			{
 			case 1:
-				if (one_in_(3)) 
+				if (one_in_(6)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_BRAND_POIS); 
 				} 
 				break;
 			case 2:
-				if (one_in_(3)) 
+				if (one_in_(6)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_BRAND_FIRE);
 				} 
 				break;
 			case 3:
-				if (one_in_(3)) 
+				if (one_in_(6)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_BRAND_COLD); 
 				} 
 				break;
 			case 4:
-				if (one_in_(13)) 
+				if (one_in_(26)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_BRAND_ELEC); 
 				} 
 				break;
 			case 5:
-				if (one_in_(13)) 
+				if (one_in_(26)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_SLAY_UNDEAD); 
 				} 
 				break;
 			case 6:
-				if (one_in_(13)) 
+				if (one_in_(26)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_SLAY_DEMON); 
 				} 
 				break;
 			case 7:
-				if (one_in_(5)) 
+				if (one_in_(13)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_SLAY_DRAGON); 
 				} 
 				break;
 			case 8:
-				if (one_in_(5)) 
+				if (one_in_(13)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_SLAY_TROLL); 
 				} 
 				break;
 			case 9:
-				if (one_in_(5)) 
+				if (one_in_(13)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_SLAY_GIANT); 
 				} 
 				break;
 			case 10:
-				if (one_in_(33)) 
+				if (one_in_(66)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_SLAY_HUMAN); 
 				} 
 				break;
 			case 11:
-				if (one_in_(66)) 
+				if (one_in_(666)) 
 				{ 
 					feed = TRUE; 
 					add_flag(o_ptr->art_flags, TR_SLAY_EVIL); 
@@ -154,7 +171,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 		{
 			if ((o_ptr->curse_flags & TRC_TY_CURSE) == 0
 			  && o_ptr->dd * o_ptr->ds > 50 )
-			{
+			{  
 				o_ptr->curse_flags |= TRC_TY_CURSE;
 				msg_print("Your Rune Swords seeks to dominate you!");
 			}

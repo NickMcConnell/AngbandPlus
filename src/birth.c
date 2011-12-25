@@ -1843,6 +1843,10 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Blood Mage ...)",
 
+"TRANSLATE(Necromancer ...)",
+
+"TRANSLATE(Psion ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1947,6 +1951,13 @@ static cptr class_jouhou[MAX_CLASS] =
 	"awe inspiring, and may even kill foes with a single touch! "
 	"They forever hunt for the legendary Eye and Hand of Vecna in "
 	"order to complete their power.",
+
+"The Psion is like a Mindcrafter, and uses innate mental powers. "
+	"Unlike the Mindcrafter, however, Psions have the freedom to learn "
+	"powers that enforce their own styles. They learn very few powers, "
+	"but they can scale their powers to determine the SP cost and the "
+	"powers' potency. Psionic powers require great concentration, however, "
+	"and psions do not have the mind to spare to care for others.",
 #endif
 };
 
@@ -4468,9 +4479,16 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Necromancer */
-		{ TV_NECROMANCY_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_NECROMANCY_BOOK, 0 },
 		{ TV_RING, SV_RING_SUSTAIN_INT},
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+	},
+
+	{
+		/* Psion */
+		{ TV_SWORD, SV_SMALL_SWORD },
+		{ TV_RING, SV_RING_SUSTAIN_INT},
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 	},
 };
 

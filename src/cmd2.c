@@ -4383,6 +4383,16 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 			if (!object_is_melee_weapon(o_ptr))
 				return FALSE;
 		}
+
+		/* Ugly hack! */
+		if ( object_is_melee_weapon(o_ptr) 
+		  && (item == INVEN_LARM || item == INVEN_RARM)
+		  && p_ptr->pclass == CLASS_PSION
+		  && psion_weapon_graft() )
+		{
+			msg_print("Failed!  Your weapon is currently grafted to your arm!");
+			return FALSE;
+		}
 	}
 	else
 	{

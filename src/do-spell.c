@@ -2369,7 +2369,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 				msg_print("You open a dimensional gate. Choose a destination.");
 #endif
 
-				if (!dimension_door()) return NULL;
+				if (!dimension_door(p_ptr->lev / 2 + 10)) return NULL;
 			}
 		}
 		break;
@@ -5358,7 +5358,7 @@ static cptr do_trump_spell(int spell, int mode)
 				msg_print("You open a dimensional gate. Choose a destination.");
 #endif
 
-				if (!dimension_door()) return NULL;
+				if (!dimension_door(range)) return NULL;
 			}
 		}
 		break;
@@ -7080,29 +7080,19 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 21:
-		if (name) return "Polish Shield";
-		if (desc) return "Makes a shield a shield of reflection.";
-    
+		if (name) return T("Recharging", "ËâÎÏ½¼Å¶");
+		if (desc) return T("Recharges staves, wands or rods.", "¾ó/ËâË¡ËÀ¤Î½¼Å¶²ó¿ô¤òÁý¤ä¤¹¤«¡¢½¼Å¶Ãæ¤Î¥í¥Ã¥É¤Î½¼Å¶»þ´Ö¤ò¸º¤é¤¹¡£");
+
 		{
+			int power = spell_power(plev * 3);
+
+			if (info) return info_power(power);
+
 			if (cast)
 			{
-				polish_shield();
+				if (!recharge(power)) return NULL;
 			}
 		}
-	/*  This turned out to be the tipping point for game balance ... Its way cool, but
-	    on high dice weapon with Force Brand?  Too much ... 
-		if (name) return "Enlarge Weapon";
-		if (desc) return "Makes your weapons bigger and more deadly, but harder to wield.";
-    
-		{
-			if (cast)
-			{
-			int base = spell_power(plev / 2);
-
-			if (info) return info_duration(base, base);
-				set_tim_enlarge_weapon(randint1(base) + base, FALSE);
-			}
-		} */
 		break;
 
 	case 22:

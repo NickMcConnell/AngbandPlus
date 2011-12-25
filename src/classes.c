@@ -33,6 +33,9 @@ class_t *result = NULL;
 	case CLASS_NECROMANCER:
 		result = necromancer_get_class_t();
 		break;
+	case CLASS_PSION:
+		result = psion_get_class_t();
+		break;
 	case CLASS_RUNE_KNIGHT:
 		result = rune_knight_get_class_t();
 		break;

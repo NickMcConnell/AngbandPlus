@@ -1904,6 +1904,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				break;
 			case CLASS_WARRIOR_MAGE:
 			case CLASS_RED_MAGE:
+			case CLASS_PSION:
 				artifact_bias = BIAS_MAGE;
 				warrior_artifact_bias = 70;
 				break;
@@ -3618,7 +3619,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You open a dimensional gate. Choose a destination.");
 #endif
 
-			if (!dimension_door()) return FALSE;
+			if (!dimension_door(p_ptr->lev / 2 + 10)) return FALSE;
 			o_ptr->timeout = 100;
 			break;
 		}

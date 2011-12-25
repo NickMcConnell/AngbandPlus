@@ -1525,9 +1525,10 @@ static int mysqrt(int n)
  * Note that if no monsters are "appropriate", then this function will
  * fail, and return zero, but this should *almost* never happen.
  */
+
 s16b get_mon_num(int level)
 {
-	int			i;
+	int			i, j, p;
 
 	int			r_idx;
 
@@ -1637,40 +1638,8 @@ s16b get_mon_num(int level)
 			}
 		}
 
-		/* Accept 
-		   TODO:  Total Hack Job ... Distribution should be normal ...
-		*/
-		if (!table[i].prob2) continue;
-
-		if (r_ptr->flags1 & (RF1_UNIQUE))
-			table[i].prob3 = table[i].prob2;
-		else if (r_ptr->level + 40 < level)
-		{
-			if (r_ptr->level >= 50)
-				table[i].prob3 = MAX(table[i].prob2 / 4, 1);
-			else if (r_ptr->level >= 40)
-				table[i].prob3 = MAX(table[i].prob2 / 8, 1);
-			else if (r_ptr->level >= 35)
-				table[i].prob3 = MAX(table[i].prob2 / 16, 1);
-			else if (r_ptr->level >= 30)
-				table[i].prob3 = MAX(table[i].prob2 / 32, 1);
-			else
-				table[i].prob3 = 0;
-		}
-		else if (r_ptr->level + 30 < level)
-			table[i].prob3 = MAX(table[i].prob2 / 3, 1);
-		else if (r_ptr->level + 25 < level)
-			table[i].prob3 = MAX(table[i].prob2 / 2, 1);
-		else if (r_ptr->level + 20 < level)
-			table[i].prob3 = MAX(table[i].prob2 * 2 / 3, 1);
-		else if (r_ptr->level + 15 < level)
-			table[i].prob3 = MAX(table[i].prob2 * 3 / 4, 1);
-		else if (r_ptr->level + 10 < level)
-			table[i].prob3 = MAX(table[i].prob2 * 4 / 5, 1);
-		else if (r_ptr->level + 5 < level)
-			table[i].prob3 = MAX(table[i].prob2 * 5 / 6, 1);
-		else
-			table[i].prob3 = table[i].prob2;
+		/* Accept */
+		table[i].prob3 = table[i].prob2;
 
 		/* Total */
 		total += table[i].prob3;
@@ -1693,12 +1662,59 @@ s16b get_mon_num(int level)
 		value = value - table[i].prob3;
 	}
 
+
+	/* Power boost */
+	p = randint0(100);
+
+	/* Try for a "harder" monster once (50%) or twice (10%) */
+	if (p < 60)
+	{
+		/* Save old */
+		j = i;
+
+		/* Pick a monster */
+		value = randint0(total);
+
+		/* Find the monster */
+		for (i = 0; i < alloc_race_size; i++)
+		{
+			/* Found the entry */
+			if (value < table[i].prob3) break;
+
+			/* Decrement */
+			value = value - table[i].prob3;
+		}
+
+		/* Keep the "best" one */
+		if (table[i].level < table[j].level) i = j;
+	}
+
+	/* Try for a "harder" monster twice (10%) */
+	if (p < 10)
+	{
+		/* Save old */
+		j = i;
+
+		/* Pick a monster */
+		value = randint0(total);
+
+		/* Find the monster */
+		for (i = 0; i < alloc_race_size; i++)
+		{
+			/* Found the entry */
+			if (value < table[i].prob3) break;
+
+			/* Decrement */
+			value = value - table[i].prob3;
+		}
+
+		/* Keep the "best" one */
+		if (table[i].level < table[j].level) i = j;
+	}
+
+	/* Result */
 	return (table[i].index);
 }
-
-
-
-
 
 /*
  * Build a string describing a monster in some way.
@@ -3983,7 +3999,7 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 	if (!(mode & PM_NO_KAGE) && one_in_(333))
 		mode |= PM_KAGE;
 
-	if ((mode & PM_FORCE_PET) && !allow_pets)
+	if ((mode & PM_FORCE_PET) && (!allow_pets || p_ptr->pclass == CLASS_PSION))
 		mode &= (~PM_FORCE_PET);
 
 	/* Place one monster, or fail */

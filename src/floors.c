@@ -414,6 +414,7 @@ static void preserve_pet(void)
 					if (dun_level > 0) rng = 1;
 					if (dis > rng) continue;
 					if (r_info[m_ptr->r_idx].flags1 & RF1_QUESTOR) continue;
+					if (!los(m_ptr->fy, m_ptr->fx, py, px)) continue;
 					m_ptr->energy_need += ENERGY_NEED();
 				}
 				else if (m_ptr->nickname && 

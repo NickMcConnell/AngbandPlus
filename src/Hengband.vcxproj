@@ -138,6 +138,7 @@
     <ClCompile Include="object2.c" />
     <ClCompile Include="object3.c" />
     <ClCompile Include="obj_kind.c" />
+    <ClCompile Include="psion.c" />
     <ClCompile Include="races.c" />
     <ClCompile Include="racial.c" />
     <ClCompile Include="readdib.c" />

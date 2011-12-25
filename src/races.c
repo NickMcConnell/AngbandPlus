@@ -102,6 +102,9 @@ void _demigod_gain_level(int new_level)
 
 void _demigod_calc_bonuses(void)
 {
+	if (p_ptr->mimic_form)
+		return;
+
 	switch (p_ptr->psubrace)
 	{
 	case DEMIGOD_ZEUS:
@@ -188,6 +191,9 @@ void _demigod_calc_bonuses(void)
 int _demigod_get_powers(spell_info* spells, int max)
 {
 	int ct = 0;
+
+	if (p_ptr->mimic_form)
+		return 0;
 
 	switch (p_ptr->psubrace)
 	{
@@ -314,9 +320,6 @@ race_t *get_race_t_aux(int prace)
 
 race_t *get_race_t(void)
 {
-	if (p_ptr->mimic_form)
-		return NULL;
-
 	return get_race_t_aux(p_ptr->prace);
 }
 

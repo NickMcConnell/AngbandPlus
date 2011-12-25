@@ -2334,6 +2334,13 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		if (p_ptr->lev > 44)
 			add_flag(flgs, TR_REGEN);
 		break;
+
+	case CLASS_PSION:
+		if (psion_blending()) add_flag(flgs, TR_STEALTH);
+		if (psion_shielding()) add_flag(flgs, TR_FREE_ACT);
+		if (psion_speed()) add_flag(flgs, TR_SPEED);
+		break;
+
 	case CLASS_NECROMANCER:
 		if (p_ptr->lev >= 5) add_flag(flgs, TR_RES_COLD);
 		if (p_ptr->lev >= 15) add_flag(flgs, TR_SEE_INVIS);

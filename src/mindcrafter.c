@@ -131,7 +131,7 @@ void _minor_displacement_spell(int cmd, variant *res)
 	case SPELL_CAST:
 	{
 		if (p_ptr->lev >= 45)
-			var_set_bool(res, dimension_door());
+			var_set_bool(res, dimension_door(p_ptr->lev / 2 + 10));
 		else
 		{
 			teleport_player(10, 0L);

@@ -257,6 +257,7 @@ void get_virtues(void)
 		break;
 	case CLASS_MINDCRAFTER:
 	case CLASS_MIRROR_MASTER:
+	case CLASS_PSION:
 		p_ptr->vir_types[i++] = V_HARMONY;
 		p_ptr->vir_types[i++] = V_ENLIGHTEN;
 		p_ptr->vir_types[i++] = V_PATIENCE;

@@ -43,7 +43,7 @@ static cptr wd_his[3] =
 /* Monster saving throws versus player attacks */
 bool mon_save_p(int r_idx, int stat)
 {
-	int pl = p_ptr->lev * 2; /* = MAX(p_ptr->lev, p_ptr->lev * p_ptr->lev / 25); */
+	int pl = p_ptr->lev * 2;
 	int ml = r_info[r_idx].level;
 	int s = 0;
 

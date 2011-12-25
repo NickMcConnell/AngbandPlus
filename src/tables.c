@@ -3889,6 +3889,18 @@ player_class class_info[MAX_CLASS] =
 		7,  15, 11, 0,  0,  0,  6, 7,
 		1, 100, 10
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Psion",
+
+		{-1, 3, -1, -1, -1, 1},
+		25, 35, 40, 2,  16, 8, 48, 35,
+		7,  11, 12, 0,  0,  0, 13, 11,
+		2, 175, 35
+	},
 };
 /*
  *      Title,
@@ -4428,6 +4440,7 @@ s32b realm_choices1[MAX_CLASS] =
 	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
 	 CH_CRUSADE),                              /* Blood-Mage */
 	CH_NECROMANCY,			/* Necromancer */
+	CH_NONE,				/* Psion */
 };
 
 
@@ -4484,6 +4497,7 @@ s32b realm_choices2[MAX_CLASS] =
 	 CH_ARCANE | CH_ENCHANT | CH_DAEMON |
 	 CH_CRUSADE),                              /* Blood-Mage */
 	CH_NONE,                /* Necromancer */
+	CH_NONE,				/* Psion */
 };
 
 
@@ -5552,6 +5566,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Dominator",
 		"Reaper",
 		"Necromancer",
+	},
+	/* Psion */
+	{
+		"Trainee",
+		"Acolyte",
+		"Adept",
+		"Immaculate",
+		"Contemplator",
+		"Mentalist",
+		"Psychic",
+		"Psionicist",
+		"Esper",
+		"Mindmaster",
 	},
 };
 #endif

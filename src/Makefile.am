@@ -14,7 +14,7 @@ hengband_SOURCES = \
         main.c mane.c melee1.c melee2.c menu.c mind.c mindcrafter.c \
         mirror.c monk.c monster1.c monster2.c mspells1.c mspells2.c \
         mspells3.c mut.c mut_a.c necromancer.c ninja.c object1.c object2.c obj_kind.c \
-        main-gcu.c races.c racial.c report.c rooms.c rune_knight.c \
+        main-gcu.c psion.c races.c racial.c report.c rooms.c rune_knight.c \
         samurai.c save.c scores.c skills.c smith.c snipe.c spells.c spells1.c \
         spells2.c spells3.c spells_a.c spells_c.c spells_h.c spells_m.c spells_s.c\
 		store.c streams.c tables.c \

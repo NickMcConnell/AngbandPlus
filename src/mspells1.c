@@ -895,6 +895,7 @@ static bool anti_magic_check(void)
 	case CLASS_MINDCRAFTER:
 	case CLASS_IMITATOR:
 	case CLASS_FORCETRAINER:
+	case CLASS_PSION:
 		return one_in_(3);
 
 	case CLASS_MAGIC_EATER:
@@ -1891,6 +1892,8 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 #endif
 			if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
 				msg_print("You resist the effects!");
+			else if (psion_mental_fortress())
+				msg_print("Your mental fortress is impenetrable!");
 			else
 			{
 				dispel_player();
@@ -1958,10 +1961,13 @@ else msg_format("%^sがロケットを発射した。", m_name);
 		{
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes anti-magic.", m_name);
+			
 			if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
 				msg_print("You resist the effects!");
 			else if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
 				msg_print("You resist the effects!");
+			else if (psion_mental_fortress())
+				msg_print("Your mental fortress is impenetrable!");
 			else
 				set_tim_no_spells(p_ptr->tim_no_spells + 3 + randint1(3), FALSE);
 			break;
@@ -3919,7 +3925,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 							monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 							msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
-							project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
+							project(0, 0, m_ptr->fy, m_ptr->fx, psion_backlash_dam(get_damage), GF_MISSILE, PROJECT_KILL, -1);
 							if (p_ptr->tim_eyeeye)
 								set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 						}

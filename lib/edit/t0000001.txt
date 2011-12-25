@@ -619,14 +619,14 @@ F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:15
 
 ##########################################################################
-# Mindcrafter
+# Mindcrafter, Psion
 # The Robe of Eternity
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mindcrafter] [EQU [MOD $RANDOM27 5] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mindcrafter Psion] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:244
 
 # Palantir
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Mindcrafter] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mindcrafter Psion] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:15
 

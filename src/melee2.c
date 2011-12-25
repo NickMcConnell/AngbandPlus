@@ -2358,6 +2358,11 @@ static void process_monster(int m_idx)
 			teleport_away(m_idx, 7, 0L);
 	}
 
+	if (p_ptr->pclass == CLASS_PSION)
+	{
+		if (psion_process_monster(m_idx)) return;
+	}
+	
 	if (is_riding_mon && !(r_ptr->flags7 & RF7_RIDING))
 	{
 		if (rakuba(0, TRUE))

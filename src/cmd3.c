@@ -256,6 +256,15 @@ void do_cmd_wield(void)
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
+	/* Ugly hack! */
+	if ( object_is_melee_weapon(o_ptr) 
+	  && p_ptr->pclass == CLASS_PSION
+	  && psion_weapon_graft() )
+	{
+		msg_print("Failed!  Your weapon is currently grafted to your arm!");
+		return;
+	}
+
 	switch (o_ptr->tval)
 	{
 	/* Shields and some misc. items */
@@ -768,11 +777,21 @@ void do_cmd_takeoff(void)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+		
+		/* Ugly hack! */
+		if ( object_is_melee_weapon(o_ptr) 
+		  && p_ptr->pclass == CLASS_PSION
+		  && psion_weapon_graft() )
+		{
+			msg_print("Failed!  Your weapon is currently grafted to your arm!");
+			return;
+		}
 	}
 
 	/* Get the item (on the floor) */
 	else
 	{
+		/* Umm ... How can you take off something on the floor? */
 		o_ptr = &o_list[0 - item];
 	}
 
@@ -887,6 +906,16 @@ void do_cmd_drop(void)
 	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
+
+		/* Ugly hack! */
+		if ( object_is_melee_weapon(o_ptr) 
+		  && (item == INVEN_LARM || item == INVEN_RARM)
+		  && p_ptr->pclass == CLASS_PSION
+		  && psion_weapon_graft() )
+		{
+			msg_print("Failed!  Your weapon is currently grafted to your arm!");
+			return;
+		}
 	}
 
 	/* Get the item (on the floor) */

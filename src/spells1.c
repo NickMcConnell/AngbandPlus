@@ -2044,7 +2044,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 	/* Reduce damage by distance 
 	   Hack:  The Eldritch Blast is a full damage radius 2 ball with no damage reduction! 
 	          Other Eldritch balls are all radius 0, so this will work fine for now.  */
-	if (typ != GF_ELDRITCH)
+	if (typ != GF_ELDRITCH && typ != GF_PSI_BRAIN_SMASH && typ != GF_PSI_STORM)
 		dam = (dam + r) / (r + 1);
 
 	/* Get the monster name (BEFORE polymorphing) */
@@ -3093,6 +3093,7 @@ note = "には耐性がある！";
 
 		/* Pure damage */
 		case GF_MANA:
+		case GF_PSI_STORM:
 		case GF_SEEKER:
 		case GF_SUPER_RAY:
 		{
@@ -5579,6 +5580,86 @@ note_dies = "はドロドロに溶けた！";
 			break;
 		}
 
+		case GF_PSI_EGO_WHIP:
+		{
+			if (seen) obvious = TRUE;
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				note = T(" is immune.", "には完全な耐性がある！");
+				skipped = TRUE;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			if (psion_mon_save_p(m_ptr->r_idx, psion_power()))
+			{
+				note = T(" resists!", "には耐性がある！");
+				dam = 0;
+				m_ptr->ego_whip_ct = 0;
+				m_ptr->ego_whip_pow = 0;
+			}
+			else
+			{
+				m_ptr->ego_whip_ct = 4;
+				m_ptr->ego_whip_pow = psion_power();
+			}
+			break;
+		}
+
+		case GF_PSI_BRAIN_SMASH: /* dam is the power of the effect (1-5) */
+		{
+			if (seen) obvious = TRUE;
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				note = T(" is immune.", "には完全な耐性がある！");
+				skipped = TRUE;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			if (r_ptr->flags3 & RF3_NO_CONF)
+			{
+				if (r_ptr->flags3 & (RF3_NO_CONF))
+				{
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= (RF3_NO_CONF);
+				}
+				note = T(" is unaffected!", "には効果がなかった。");
+				dam = 0;
+			}
+			else if (r_ptr->flags2 & RF2_EMPTY_MIND)
+			{
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
+				note = T(" is immune!", "には完全な耐性がある！");
+				dam = 0;
+			}
+			else if (psion_mon_save_p(m_ptr->r_idx, psion_power()))
+			{
+				note = T(" resists!", "には耐性がある！");
+				dam = 0;
+			}
+			else if (r_ptr->flags2 & RF2_WEIRD_MIND)
+			{
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= (RF2_WEIRD_MIND);
+				note = T(" resists somewhat.", "には耐性がある。");
+				dam /= 3;
+			}
+			if (dam)
+			{
+				note = T(" is blasted by psionic energy.", "は精神攻撃を食らった。");
+
+				do_conf = 2*dam;
+				if (r_ptr->flags3 & RF3_NO_STUN)
+				{
+					if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_STUN;
+				}
+				else
+				{
+					do_stun = 2*dam;
+				}
+				set_monster_slow(c_ptr->m_idx, MON_SLOW(m_ptr) + 2*dam);
+				dam = 0; /* No physical damage */
+			}
+			break;
+		}
+
 		/* Mind blast */
 		case GF_MIND_BLAST:
 		{
@@ -5615,7 +5696,7 @@ note_dies = "はドロドロに溶けた！";
 #ifdef JP
 				note = "には効果がなかった。";
 #else
-				note = "is unaffected!";
+				note = " is unaffected!";
 #endif
 				dam = 0;
 			}
@@ -5691,7 +5772,7 @@ note_dies = "はドロドロに溶けた！";
 #ifdef JP
 				note = "には効果がなかった。";
 #else
-				note = "is unaffected!";
+				note = " is unaffected!";
 #endif
 				dam = 0;
 			}
@@ -8117,6 +8198,10 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				msg_print("The attack hits Shadow, you are unharmed!");
 #endif
 			}
+			else if (psion_mental_fortress())
+			{
+				msg_print("Your mental fortress is impenetrable!");
+			}
 			else if (p_ptr->csp)
 			{
 				/* Basic message */
@@ -8422,7 +8507,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
-		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
+		project(0, 0, m_ptr->fy, m_ptr->fx, psion_backlash_dam(get_damage), GF_MISSILE, PROJECT_KILL, -1);
 		if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 	}
 

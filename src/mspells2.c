@@ -480,7 +480,7 @@ bool monst_spell_monst(int m_idx)
 		f6 &= (RF6_NOMAGIC_MASK);
 	}
 
-	if (p_ptr->inside_arena || p_ptr->inside_battle)
+	if (p_ptr->inside_arena || p_ptr->inside_battle || !(pet || is_pet(t_ptr)))
 	{
 		f4 &= ~(RF4_SUMMON_MASK);
 		f5 &= ~(RF5_SUMMON_MASK);
@@ -3314,7 +3314,7 @@ bool monst_spell_monst(int m_idx)
 							monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 							msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
-							project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
+							project(0, 0, m_ptr->fy, m_ptr->fx, psion_backlash_dam(get_damage), GF_MISSILE, PROJECT_KILL, -1);
 							if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 						}
 					}

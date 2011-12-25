@@ -102,7 +102,7 @@ R:0:0xAA/0
 R:0:0xAB/0
 ?:[EQU $CLASS Monk]
 R:0:0xAC/0
-?:[EQU $CLASS Mindcrafter]
+?:[EQU $CLASS Mindcrafter Psion]
 R:0:0xAD/0
 ?:[EQU $CLASS High-Mage]
 R:0:0xAE/0

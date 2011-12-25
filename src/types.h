@@ -617,6 +617,12 @@ struct monster_type
 
 	s16b parent_m_idx;
 	s16b pack_idx;
+
+	/* Hack below this point ... TODO: Clean up timed monster effects
+	   to use a linked list of { type; dur; extra; } or something similar.
+	*/
+	byte ego_whip_ct;
+	byte ego_whip_pow; 
 };
 
 enum {

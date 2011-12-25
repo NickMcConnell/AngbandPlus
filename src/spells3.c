@@ -2481,6 +2481,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
 				idx -= 3;*/
 
+			if (eflag & ENCH_PSI_HACK)
+			{
+				idx -= 2*(psion_power() - 1);
+				if (idx <= 0) idx = 1;	/* 0 is hard ... */
+			}
+
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
 			else chance = enchant_table[idx];
@@ -2503,6 +2509,11 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			/*
 			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
 				idx -= 3;*/
+			if (eflag & ENCH_PSI_HACK)
+			{
+				idx -= 2*(psion_power() - 1);
+				if (idx <= 0) idx = 1;	/* 0 is hard ... */
+			}
 
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
@@ -2526,6 +2537,11 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			/*
 			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
 				idx -= 3;*/
+			if (eflag & ENCH_PSI_HACK)
+			{
+				idx -= 2*(psion_power() - 1);
+				if (idx <= 0) idx = 1;	/* 0 is hard ... */
+			}
 
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
@@ -5674,7 +5690,7 @@ bool polymorph_monster(int y, int x)
 /*
  * Dimension Door
  */
-bool dimension_door_aux(int x, int y)
+bool dimension_door_aux(int x, int y, int rng)
 {
 	int	plev = p_ptr->lev;
 
@@ -5682,7 +5698,7 @@ bool dimension_door_aux(int x, int y)
 		p_ptr->energy_need += (s16b)((s32b)(60 - plev) * ENERGY_NEED() / 100L);
 
 	if (!cave_player_teleportable_bold(y, x, 0L) ||
-	    (distance(y, x, py, px) > plev / 2 + 10) ||
+	    (distance(y, x, py, px) > rng) ||
 	    (!randint0(plev / 10 + 10)))
 	{
 		if (!mut_present(MUT_ASTRAL_GUIDE))
@@ -5705,14 +5721,14 @@ bool dimension_door_aux(int x, int y)
 /*
  * Dimension Door
  */
-bool dimension_door(void)
+bool dimension_door(int rng)
 {
 	int x = 0, y = 0;
 
 	/* Rerutn FALSE if cancelled */
 	if (!tgt_pt(&x, &y)) return FALSE;
 
-	if (dimension_door_aux(x, y)) return TRUE;
+	if (dimension_door_aux(x, y, rng)) return TRUE;
 
 #ifdef JP
 	msg_print("精霊界から物質界に戻る時うまくいかなかった！");

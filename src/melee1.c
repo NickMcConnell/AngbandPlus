@@ -1866,6 +1866,8 @@ msg_format("%sは体力を回復したようだ。", m_name);
 						msg_print("The attack hits Shadow, you are unharmed!");
 #endif
 					}
+					else if (psion_mental_fortress())
+						msg_print("Your mental fortress is impenetrable!");
 					else
 					{
 						do_cut = 0;
@@ -2356,7 +2358,7 @@ msg_format("%^sから落ちてしまった！", m_name);
 		monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
 
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
-		project(0, 0, m_ptr->fy, m_ptr->fx, get_damage, GF_MISSILE, PROJECT_KILL, -1);
+		project(0, 0, m_ptr->fy, m_ptr->fx, psion_backlash_dam(get_damage), GF_MISSILE, PROJECT_KILL, -1);
 		if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
 	}
 

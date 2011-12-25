@@ -413,6 +413,14 @@ static void prt_stat(int stat)
 #define BAR_SHIELD_BASH 106
 #define BAR_BULWARK 107
 #define BAR_BLOOD_RITE 108
+#define BAR_WEAPON_GRAFT 109
+#define BAR_PSIONIC_CLARITY 110
+#define BAR_PSIONIC_BLENDING 111
+#define BAR_PSIONIC_SHIELDING 112
+#define BAR_PSIONIC_COMBAT 113
+#define BAR_MENTAL_FORTRESS 114
+#define BAR_MINDSPRING 115
+#define BAR_PSIONIC_FORESIGHT 116
 
 static struct {
 	byte attr;
@@ -603,6 +611,14 @@ static struct {
 	{TERM_L_BLUE, "SB", "Shield Bash"},
 	{TERM_L_BLUE, "Bw", "Bulwark"},
 	{TERM_RED, "Rt", "Rite"},
+	{TERM_WHITE, "Gft", "Graft"},
+	{TERM_YELLOW, "Cl", "Clarity"},
+	{TERM_L_DARK, "Bl", "Blending"},
+	{TERM_ORANGE, "Sh", "Shielding"},
+	{TERM_RED, "Ct", "Combat"},
+	{TERM_VIOLET, "Ft", "Fortress"},
+	{TERM_GREEN, "MS", "Mindspring"},
+	{TERM_YELLOW, "Fs", "Foresight"},
 	{0, NULL, NULL}
 };
 #endif
@@ -860,6 +876,18 @@ static void prt_status(void)
 		}
 
 		if (p_ptr->entrenched) ADD_FLG(BAR_ENTRENCHED);
+	}
+
+	if (p_ptr->pclass == CLASS_PSION)
+	{
+		if (psion_weapon_graft()) ADD_FLG(BAR_WEAPON_GRAFT);
+		if (psion_clarity()) ADD_FLG(BAR_PSIONIC_CLARITY);
+		if (psion_blending()) ADD_FLG(BAR_PSIONIC_BLENDING);
+		if (psion_shielding()) ADD_FLG(BAR_PSIONIC_SHIELDING);
+		if (psion_combat()) ADD_FLG(BAR_PSIONIC_COMBAT);
+		if (psion_mental_fortress()) ADD_FLG(BAR_MENTAL_FORTRESS);
+		if (psion_mindspring()) ADD_FLG(BAR_MINDSPRING);
+		if (psion_foresight()) ADD_FLG(BAR_PSIONIC_FORESIGHT);
 	}
 
 	if (p_ptr->sense_artifact) ADD_FLG(BAR_SPECIAL);
@@ -1672,7 +1700,7 @@ static void prt_study(void)
 	col_study = wid + COL_STUDY;
 	row_study = hgt + ROW_STUDY;
 
-	if (p_ptr->new_spells)
+	if (p_ptr->new_spells || (p_ptr->pclass == CLASS_PSION && psion_can_study()))
 	{
 #ifdef JP
 		put_str("³Ø½¬", row_study, col_study);
@@ -2377,6 +2405,7 @@ static void calc_spells(void)
 		(p_ptr->pclass == CLASS_RUNE_KNIGHT)|| 
 		(p_ptr->pclass == CLASS_BLOOD_KNIGHT)|| 
 		(p_ptr->pclass == CLASS_MINDCRAFTER)|| 
+		(p_ptr->pclass == CLASS_PSION) ||
 		(p_ptr->pclass == CLASS_WILD_TALENT))
 	{
 		p_ptr->new_spells = 0;
@@ -2725,6 +2754,7 @@ static void calc_mana(void)
 	}
 
 	if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
+	    (p_ptr->pclass == CLASS_PSION) ||
 	    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
 		(p_ptr->pclass == CLASS_RUNE_KNIGHT) ||
 	    (p_ptr->pclass == CLASS_BLUE_MAGE))
@@ -2879,6 +2909,7 @@ static void calc_mana(void)
 		}
 
 		case CLASS_MINDCRAFTER:
+		case CLASS_PSION:
 		case CLASS_BEASTMASTER:
 		case CLASS_MIRROR_MASTER:
 		{
@@ -2941,6 +2972,7 @@ static void calc_mana(void)
 			/* Mana halved if armour is 40 pounds over weight limit. */
 			case CLASS_PRIEST:
 			case CLASS_MINDCRAFTER:
+			case CLASS_PSION:
 			case CLASS_BEASTMASTER:
 			case CLASS_BARD:
 			case CLASS_FORCETRAINER:
@@ -5459,6 +5491,9 @@ void calc_bonuses(void)
 						else num = 4;
 					}
 					break;
+
+				case CLASS_PSION:
+					num = 3; wgt = 100; mul = 3; break;
 
 				/* Priest, Mindcrafter, Magic-Eater */
 				case CLASS_PRIEST:
