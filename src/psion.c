@@ -640,6 +640,16 @@ static void _psionic_healing_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 		hp_player(spell_power(120*_power - 50));
+		
+		set_blind(0, TRUE);
+		set_confused(0, TRUE); /* Probably, @ can't cast this while confused! */
+		set_stun(0, TRUE);
+		set_cut(0, TRUE);
+		set_shero(0,TRUE);
+
+		if (_power >= 3)
+			set_image(0, TRUE);
+
 		if (_power == 5)
 		{
 			do_res_stat(A_STR);
@@ -840,7 +850,7 @@ static void _psionic_storm_spell(int cmd, variant *res)
 			GF_PSI_STORM, 
 			dir, 
 			spell_power(_power*150 - 50),
-			4
+			4 + _power
 		);
 
 		var_set_bool(res, TRUE);
@@ -1013,30 +1023,21 @@ static cptr _spell_desc(menu_choices choices, int which) {
 	return get_spell_desc(_spells[idx].fn);
 }
 
-bool psion_can_study(void)
+bool _can_study(void)
 {
 	int num = _num_spells_allowed() - _num_spells_learned();
-	if (num <= 0) return FALSE;
-	return TRUE;
+    if (num <= 0) return FALSE;
+    return TRUE;
 }
 
-void psion_study(void)
+static void _study(void)
 {
 	int choices[MAX_PSION_SPELLS];
 	int i;
 	int ct = 0;
-	int num = _num_spells_allowed() - _num_spells_learned();
 	menu_list_t list = { "Gain which power?", "Browse which power?", NULL,
 						_spell_name, _spell_desc, NULL, 
 						choices, 0};
-
-	if (num <= 0)
-	{
-		msg_print("You are unable to learn any more powers.");
-		return;
-	}
-	msg_format("You may learn %d more power%s.", num, num == 1 ? "" : "s");
-
 
 	for (i = 0; i < MAX_PSION_SPELLS; i++)
 	{
@@ -1048,27 +1049,31 @@ void psion_study(void)
 		}
 	}
 
-	if (ct == 0)	/* Bug ... */
-	{
-		msg_format("It seems you have learned all there is to know!");
-		return;
-	}
-
 	list.count = ct;
-
-	i = menu_choose(&list);
-	if (i >= 0)
+	for (;;)
 	{
-		char buf[1024];
-		int idx = choices[i];
-		sprintf(buf, "You will learn %s.  Are you sure?", get_spell_name(_spells[idx].fn));
-		if (get_check(buf))
+		i = menu_choose(&list);
+		if (i >= 0)
 		{
-			p_ptr->spell_order[_num_spells_learned()] = idx;
-			p_ptr->redraw |= PR_STUDY;
-			msg_format("You have gained %s.", get_spell_name(_spells[idx].fn));
+			char buf[1024];
+			int idx = choices[i];
+			sprintf(buf, "You will learn %s.  Are you sure?", get_spell_name(_spells[idx].fn));
+			if (get_check(buf))
+			{
+				p_ptr->spell_order[_num_spells_learned()] = idx;
+				p_ptr->redraw |= PR_STUDY;
+				msg_format("You have gained %s.", get_spell_name(_spells[idx].fn));
+				break;
+			}
 		}
+		msg_print("Please make a choice!");
 	}
+}
+
+static void _gain_level(int new_level)
+{
+	while (_can_study())
+		_study();
 }
 
 static void _decrement_counter(int which, cptr off)
@@ -1224,6 +1229,55 @@ static caster_info * _caster_info(void)
 	return &me;
 }
 
+static void _character_dump(FILE* file)
+{
+	int i, j;
+
+	for (j = 1; j <= 5; j++)
+	{
+		spell_info spells[MAX_SPELLS];
+		int ct;
+
+		_power = j;
+		ct = _get_spells(spells, MAX_SPELLS);
+
+		if (ct > 0)
+		{
+			variant name, info;
+
+			var_init(&name);
+			var_init(&info);
+
+			for (i = 0; i < ct; i++)
+			{
+				spell_info* current = &spells[i];
+				current->cost += get_spell_cost_extra(current->fn);
+				current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
+			}
+
+			fprintf(file, "\n  [Psionic Powers %d]\n", _power);
+			fprintf(file, "%-23.23s Lv Cost Fail Info\n", "");
+			for (i = 0; i < ct; ++i)
+			{
+				spell_info *spell = &spells[i];
+
+				(spell->fn)(SPELL_NAME, &name);
+				(spell->fn)(SPELL_INFO, &info);
+
+				fprintf(file, "%-23.23s %2d %4d %3d%% %s\n", 
+								var_get_string(&name),
+								spell->level,
+								spell->cost,
+								spell->fail,
+								var_get_string(&info));
+			}
+
+			var_clear(&name);
+			var_clear(&info);
+		}
+	}
+}
+
 class_t *psion_get_class_t(void)
 {
 	static class_t me = {0};
@@ -1257,6 +1311,8 @@ class_t *psion_get_class_t(void)
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		me.get_powers = _get_powers;
+		me.character_dump = _character_dump;
+		me.gain_level = _gain_level;
 		init = TRUE;
 	}
 

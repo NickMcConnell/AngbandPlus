@@ -518,7 +518,7 @@ void _gain_mutation(int level)
 	}
 }
 
-void _gain_level(int new_level)
+static void _gain_level(int new_level)
 {
 	_gain_power(new_level);
 	_gain_mutation(new_level);

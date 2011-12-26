@@ -4323,7 +4323,9 @@ msg_print("ウィザードモード突入。");
 			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
 				cast_absorb_magic();
 			else if (p_ptr->pclass == CLASS_PSION)
-				psion_study();
+			{
+				msg_print("You can only gain spells at certain levels.");
+			}
 			else
 				do_cmd_study();
 			break;
@@ -5364,8 +5366,6 @@ msg_print("中断しました。");
 		/* Handle "p_ptr->notice" */
 		notice_stuff();
 
-		psion_do_mindspring();
-
 		/* Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window" */
 		handle_stuff();
 
@@ -5495,6 +5495,8 @@ msg_print("中断しました。");
 		/* Significant */
 		if (energy_use)
 		{
+			psion_do_mindspring();
+			
 			/* Use some energy */
 			if (world_player || energy_use > 400)
 			{

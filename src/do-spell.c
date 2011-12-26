@@ -11682,7 +11682,7 @@ static cptr do_hex_spell(int spell, int mode)
 		if (desc) return "氷のオーラを身にまとい、防御力が上昇する。";
 #else
 		if (name) return "Ice armor";
-		if (desc) return "Gives fire aura and bonus to AC.";
+		if (desc) return "Gives cold aura and bonus to AC.";
 #endif
 		if (cast)
 		{
@@ -12630,7 +12630,10 @@ static void _necro_do_summon(int what, int num, bool fail)
 	int x = px;
 	int y = py;
 
-	num = spell_power(num);
+	if (fail) /* Failing spells should not be insta-death ... */
+		num = MAX(1, num/4);
+	else
+		num = spell_power(num);
 
 	if (!fail && use_old_target && target_okay() && los(py, px, target_row, target_col) && !one_in_(3))
 	{

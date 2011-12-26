@@ -4333,6 +4333,7 @@ bool py_attack(int y, int x, int mode)
 #else
 		msg_print("You cannot do attacking.");
 #endif
+		energy_use = 0;
 		return FALSE;
 	}
 

@@ -1700,7 +1700,7 @@ static void prt_study(void)
 	col_study = wid + COL_STUDY;
 	row_study = hgt + ROW_STUDY;
 
-	if (p_ptr->new_spells || (p_ptr->pclass == CLASS_PSION && psion_can_study()))
+	if (p_ptr->new_spells)
 	{
 #ifdef JP
 		put_str("³Ø½¬", row_study, col_study);
@@ -3684,7 +3684,7 @@ void calc_bonuses(void)
 
 	if (!p_ptr->migite && !p_ptr->hidarite)
 	{
-		if (empty_hands_status & EMPTY_HAND_RARM) p_ptr->migite = TRUE;
+		if (empty_hands_status & EMPTY_HAND_RARM) p_ptr->migite = (p_ptr->pclass != CLASS_NECROMANCER);
 		else if (empty_hands_status == EMPTY_HAND_LARM)
 		{
 			p_ptr->hidarite = TRUE;
