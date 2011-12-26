@@ -12640,7 +12640,7 @@ static void _necro_do_summon(int what, int num, bool fail)
 		y = target_row;
 		x = target_col;
 	}
-	if (trump_summoning(num, !fail, y, x, 0, what, 0L))
+	if (trump_summoning(num, !fail, y, x, 0, what, PM_ALLOW_UNIQUE))
 	{
 		if (fail)
 		{
@@ -12669,7 +12669,7 @@ static cptr do_necromancy_spell(int spell, int mode)
 	/* Stench of Death */
 	case 0:
 		if (name) return "Cold Touch";
-		if (desc) return "Damage an adjacent monster with a chill touch.";
+		if (desc) return "Damage an adjacent monster with a chilling touch.";
 		if (info) return _necro_info_damage(2, 6, plev);
 		if (cast && !_necro_do_touch(GF_COLD, 2, 6, plev)) return NULL;
 		break;

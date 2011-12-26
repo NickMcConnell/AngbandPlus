@@ -91,10 +91,10 @@ bool psion_mindspring(void)
 	return FALSE;
 }
 
-void psion_do_mindspring(void)
+void psion_do_mindspring(int energy)
 {
 	if (!psion_mindspring()) return;
-	p_ptr->csp += 25*p_ptr->magic_num2[_MINDSPRING];
+	p_ptr->csp += 25*p_ptr->magic_num2[_MINDSPRING] * energy / 100;
 	if (p_ptr->csp >= p_ptr->msp)
 	{
 		p_ptr->csp = p_ptr->msp;

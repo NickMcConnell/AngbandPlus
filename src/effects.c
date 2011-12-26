@@ -1467,6 +1467,12 @@ bool set_tim_superstealth(int v, bool do_dec)
 	/* Handle stuff */
 	handle_stuff();
 
+	/* Hack: Objects are not being drawn ... ever.  You stand on the object, and the game
+	   says you see the object, but the game will never draw the object.
+	   If anybody knows what voodoo is required to get objects to draw, please enlighten me.  
+	   The follow sledge hammer makes things work correctly ... except we flicker annoyingly.
+	do_cmd_redraw();
+	*/
 	/* Result */
 	return (TRUE);
 }

@@ -5495,7 +5495,7 @@ msg_print("中断しました。");
 		/* Significant */
 		if (energy_use)
 		{
-			psion_do_mindspring();
+			psion_do_mindspring(energy_use);
 			
 			/* Use some energy */
 			if (world_player || energy_use > 400)

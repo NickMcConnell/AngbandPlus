@@ -839,7 +839,7 @@ static int summon_specific_type = 0;
 /*
  * Hack -- the index of the summoning monster
  */
-static int summon_specific_who = -1;
+static int summon_specific_who = 0;
 
 
 static bool summon_unique_okay = FALSE;
@@ -1237,8 +1237,8 @@ static bool restrict_monster_to_dungeon(int r_idx)
 		    !(r_ptr->flags6 & RF6_NOMAGIC_MASK))
 			return FALSE;
 	}
-	if (d_ptr->flags1 & DF1_NO_MELEE)
-	{
+	if (d_ptr->flags1 & DF1_NO_MELEE && (summon_specific_who != -1))
+	{                                 /* ^---- Block players spamming the anti-melee cave for better summons */
 		if (r_idx == MON_CHAMELEON) return TRUE;
 		if (!(r_ptr->flags4 & (RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK)) &&
 		    !(r_ptr->flags5 & (RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | RF5_CAUSE_1 | RF5_CAUSE_2 | RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_MIND_BLAST | RF5_BRAIN_SMASH)) &&
@@ -4396,6 +4396,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 	if (!r_idx)
 	{
 		summon_specific_type = 0;
+		summon_specific_who = 0;
 		return (FALSE);
 	}
 
@@ -4416,10 +4417,12 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 	if (!place_monster_aux(who, y, x, r_idx, mode))
 	{
 		summon_specific_type = 0;
+		summon_specific_who = 0;
 		return (FALSE);
 	}
 
 	summon_specific_type = 0;
+	summon_specific_who = 0;
 	/* Success */
 	return (TRUE);
 }

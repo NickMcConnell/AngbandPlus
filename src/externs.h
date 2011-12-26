@@ -1932,7 +1932,7 @@ extern class_t *psion_get_class_t(void);
 extern int psion_backlash_dam(int dam);
 extern bool psion_check_foresight(void);
 extern void psion_decrement_counters(void);
-extern void psion_do_mindspring(void);
+extern void psion_do_mindspring(int energy);
 extern bool psion_mon_save_p(int r_idx, int power);
 extern int psion_power(void);
 extern bool psion_process_monster(int m_idx);
