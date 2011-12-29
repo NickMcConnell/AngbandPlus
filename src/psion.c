@@ -1093,6 +1093,8 @@ static void _decrement_counter(int which, cptr off)
 
 void psion_decrement_counters(void)
 {
+	if (p_ptr->pclass != CLASS_PSION) return;
+
 	_decrement_counter(_WEAPON_GRAFT, "Your melee weapon is no longer fused to your arm.");	
 	_decrement_counter(_CLARITY, "You lose your mental focus.");	
 	_decrement_counter(_BLENDING, "You no longer blend into your surroundings.");	
@@ -1119,6 +1121,8 @@ static void _clear_counter(int which, cptr off)
 
 void psion_dispel_player(void)
 {
+	if (p_ptr->pclass != CLASS_PSION) return;
+
 	_clear_counter(_WEAPON_GRAFT, "Your melee weapon is no longer fused to your arm.");	
 	_clear_counter(_CLARITY, "You lose your mental focus.");	
 	_clear_counter(_BLENDING, "You no longer blend into your surroundings.");	
