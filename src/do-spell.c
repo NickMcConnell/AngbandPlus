@@ -4268,7 +4268,7 @@ static cptr do_death_spell(int spell, int mode)
 #endif
     
 		{
-			int power = plev;
+			int power = spell_power(plev);
 
 			if (info) return info_power(power);
 
@@ -4312,7 +4312,7 @@ static cptr do_death_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 
@@ -4336,7 +4336,7 @@ static cptr do_death_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 
@@ -7398,7 +7398,7 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 
@@ -7505,7 +7505,7 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 
@@ -7668,7 +7668,7 @@ static cptr do_daemon_spell(int spell, int mode)
 				else mode |= PM_NO_PET;
 				if (!(pet && (plev < 50))) mode |= PM_ALLOW_GROUP;
 
-				if (summon_specific((pet ? -1 : 0), py, px, plev*2/3+randint1(plev/2), SUMMON_DEMON, mode))
+				if (summon_specific((pet ? -1 : 0), py, px, spell_power(plev*2/3+randint1(plev/2)), SUMMON_DEMON, mode))
 				{
 #ifdef JP
 					msg_print("硫黄の悪臭が充満した。");
@@ -7717,7 +7717,7 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int base = 30;
+			int base = spell_power(30);
 			int sides = 25;
 
 			if (info) return info_duration(base, sides);
@@ -7739,7 +7739,7 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int base = 20;
+			int base = spell_power(20);
 
 			if (info) return info_duration(base, base);
 
@@ -7829,7 +7829,7 @@ static cptr do_daemon_spell(int spell, int mode)
 		if (name) return "地獄の波動";
 		if (desc) return "視界内の全てのモンスターにダメージを与える。善良なモンスターに特に大きなダメージを与える。";
 #else
-		if (name) return "Nather Wave";
+		if (name) return "Nether Wave";
 		if (desc) return "Damages all monsters in sight. Hurts good monsters greatly.";
 #endif
     
@@ -7889,7 +7889,7 @@ static cptr do_daemon_spell(int spell, int mode)
 				else msg_print("You invoke the Hand of Doom!");
 #endif
 
-				fire_ball_hide(GF_HAND_DOOM, dir, plev * 2, 0);
+				fire_ball_hide(GF_HAND_DOOM, dir, spell_power(plev * 5 / 2), 0);
 			}
 		}
 		break;
@@ -7904,7 +7904,7 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int base = 25;
+			int base = spell_power(25);
 
 			if (info) return info_duration(base, base);
 
@@ -7927,7 +7927,7 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int base = 20;
+			int base = spell_power(20);
 
 			if (info) return info_duration(base, base);
 

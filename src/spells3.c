@@ -1582,7 +1582,7 @@ bool brand_weapon_aux(int ego_type, int item)
 			break;
 
 		case EGO_ARCANE:
-			o_ptr->pval = -randint1(3);
+			o_ptr->pval = -randint1(2);
 			o_ptr->to_h = -10;
 			o_ptr->to_d = -10;
 			break;

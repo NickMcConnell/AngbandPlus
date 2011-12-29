@@ -3236,7 +3236,7 @@ msg_format("%^s%s", m_name, monmessage);
 			if (!is_pet(m_ptr))
 			{
 				/* Break the ward */
-				if (randint1(BREAK_MINOR_GLYPH) > r_ptr->level)
+				if (randint1(BREAK_MINOR_GLYPH * p_ptr->lev / 50) > r_ptr->level)
 				{
 					/* Describe observable breakage */
 					if (c_ptr->info & CAVE_MARK)
@@ -3519,7 +3519,7 @@ msg_format("%^s%s", m_name, monmessage);
 			/* Possible disturb */
 			if (m_ptr->ml &&
 			    (disturb_move ||
-			     (disturb_near && (m_ptr->mflag & MFLAG_VIEW) && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
+			     (disturb_near /*&& (m_ptr->mflag & MFLAG_VIEW)*/ && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
 			     (disturb_high && ap_r_ptr->r_tkills && ap_r_ptr->level >= p_ptr->lev)))
 			{
 				/* Disturb */

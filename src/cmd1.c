@@ -83,7 +83,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 			break;
 		}
 
-		if (unique && one_in_(200 / r_ptr->level))
+		if (unique && one_in_(200 / MAX(r_ptr->level, 1)))
 		{
 			switch (randint1(11))
 			{

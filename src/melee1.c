@@ -901,6 +901,13 @@ bool make_attack_normal(int m_idx)
 								break;
 							}
 
+							if ( mut_present(MUT_DEMONIC_GRASP)
+							  && saving_throw(p_ptr->skill_sav - r_ptr->level/2) )
+							{
+								msg_print("Energy begins to drain from your pack, but you resist!");
+								break;
+							}
+
 							/* Message */
 #ifdef JP
 							msg_print("ザックからエネルギーが吸い取られた！");

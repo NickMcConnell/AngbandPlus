@@ -355,6 +355,7 @@ void dispel_player(void)
 	set_tim_wild_mind(0, TRUE);
 	*/
 	wild_dispel_player();
+	psion_dispel_player();
 
 
 	/* Cancel glowing hands */
@@ -1463,16 +1464,12 @@ bool set_tim_superstealth(int v, bool do_dec)
 	/* Recalculate bonuses */
 	p_ptr->redraw |= (PR_STATUS);
 	p_ptr->update |= (PU_BONUS | PU_TORCH); /* Note: Forcing PU_TORCH is the key!!! */
+	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+	p_ptr->update |= (PU_VIEW | PU_LITE);
 
 	/* Handle stuff */
 	handle_stuff();
 
-	/* Hack: Objects are not being drawn ... ever.  You stand on the object, and the game
-	   says you see the object, but the game will never draw the object.
-	   If anybody knows what voodoo is required to get objects to draw, please enlighten me.  
-	   The follow sledge hammer makes things work correctly ... except we flicker annoyingly.
-	do_cmd_redraw();
-	*/
 	/* Result */
 	return (TRUE);
 }

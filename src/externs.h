@@ -1937,6 +1937,7 @@ extern bool psion_mon_save_p(int r_idx, int power);
 extern int psion_power(void);
 extern bool psion_process_monster(int m_idx);
 extern void psion_spell(void);
+extern void psion_dispel_player(void);
 
 extern bool psion_backlash(void);
 extern bool psion_blending(void);

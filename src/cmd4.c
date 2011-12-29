@@ -1358,6 +1358,7 @@ void do_cmd_messages(int num_now)
 	cptr shower = NULL;
 	int wid, hgt;
 	int num_lines;
+	bool done = FALSE;
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -1384,7 +1385,7 @@ void do_cmd_messages(int num_now)
 	Term_clear();
 
 	/* Process requests until done */
-	while (1)
+	while (!done)
 	{
 		int j;
 		int skey;
@@ -1573,6 +1574,10 @@ void do_cmd_messages(int num_now)
 		case SKEY_DOWN:
 			/* Go newer (if able) */
 			i = MAX(0, i - 1);
+			break;
+
+		default:
+			done = TRUE;
 			break;
 		}
 

@@ -1,4 +1,4 @@
-/* File: defines.h */  
+/* File: defines.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke

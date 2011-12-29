@@ -4015,7 +4015,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Ordinary",
 		{  0,  0,  0,  0,  0,  0 },
 		0,  0,  0,  0,  0,  0,  0,  0,
-		0, 1, 0, 100
+		0, 1, 0, 80
 	},
 
 	{
@@ -4025,7 +4025,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Mighty",
 		{  2,  -2,  -1,  0,  1,  0 },
 		-5,  -5,  -3,  -1,  -2,  -2,  10,  0,
-		1, 1, 0, 133
+		1, 1, 0, 110
 	},
 
 	{
@@ -4035,7 +4035,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Shrewd",
 		{  -2,  2,  0,  1,  -1,  -1 },
 		3,  8,  2,  0,  -2,  5,  -8,  -5,
-		-1, 1, 0, 144
+		-1, 1, 0, 105
 	},
 
 	{
@@ -4045,7 +4045,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Pious",
 		{  0,  -1,  2,  -1,  0,  1 },
 		-5,  2,  4,  -1,  3,  -2,  -3,  -6,
-		0, 1, 0, 120
+		0, 1, 0, 100
 	},
 
 	{
@@ -4055,7 +4055,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Nimble",
 		{  -1,  1,  -1,  2,  -1,  -1 },
 		7,  2,  -1,  1,  5,  5,  0,  10,
-		0, 0, 0, 128
+		0, 0, 0, 90
 	},
 
 	{
@@ -4065,7 +4065,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Fearless",
 		{  2,  1,  1,  -1,  -1,  0 },
 		-5,  5,  -2,  0,  2,  -2,  10,  10,
-		-1, 1, 0, 118
+		-1, 1, 0, 90
 	},
 
 	{
@@ -4075,7 +4075,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Combat",
 		{  1,  -1,  -2,  2,  0,  1 },
 		-2,  -3,  -3,  0,  -1,  2,  5,  5,
-		0, 0, 0, 135
+		0, 0, 0, 105
 	},
 
 	{
@@ -4085,7 +4085,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Lazy",
 		{  -2,  -2,  -2,  -2,  -2,  -2 },
 		-5,  -5,  -3,  -1,  -4,  -2,  -8,  -8,
-		-1, 1, 0, 150
+		-1, 1, 0, 130
 	},
 
 	{
@@ -4095,7 +4095,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Sexy",
 		{  1,  1,  1,  1,  1,  3 },
 		10,  5,  3,  0,  4,  2,  10,  10,
-		0, 1, 1, 140
+		0, 1, 1, 110
 	},
 
 	{
@@ -4105,7 +4105,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Lucky",
 		{  -2,  -2,  -2,  -2,  -2,  0 },
 		10,  7,  3,  2, 10,  8,  15,  15,
-		0, 1, 2, 125
+		0, 1, 2, 110
 	},
 
 	{
@@ -4115,7 +4115,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Patient",
 		{  -1,  -1,  1,  -2,  2,  0 },
 		-5,  -3,  3,  1,  0,  -3,  -6,  -6,
-		1, 0, 0, 153
+		1, 0, 0, 105
 	},
 
 	{
@@ -4167,7 +4167,7 @@ player_race mimic_info[] =
 #ifdef JP
 		"[À‚≤¶]",
 #endif
-		"[Demon lord]",
+		"[Demon Lord]",
 
 		{  20,  20,  20,  20,  20,  20 },
 		20,  20, 25, -2,  3,  10, 70, 40,

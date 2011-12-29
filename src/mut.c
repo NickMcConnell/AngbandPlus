@@ -125,6 +125,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, cult_of_personality_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, fleet_of_foot_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, astral_guide_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, demonic_grasp_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -464,6 +465,7 @@ bool mut_human_pred(int mut_idx)
 	case MUT_CULT_OF_PERSONALITY:
 	case MUT_FLEET_OF_FOOT:
 	case MUT_ASTRAL_GUIDE:
+	case MUT_DEMONIC_GRASP:
 		return TRUE;
 	}
 	return FALSE;

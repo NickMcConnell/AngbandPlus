@@ -351,6 +351,7 @@ static monster_type party_mon[MAX_PARTY_MON];
 static void preserve_pet(void)
 {
 	int num, i;
+	static bool inside_arena = FALSE;
 
 	for (num = 0; num < MAX_PARTY_MON; num++)
 	{
@@ -383,7 +384,7 @@ static void preserve_pet(void)
 	 * except a monster whom player riding
 	 * Hack: In the wilderness, hostile monsters now follow!
 	 */
-	if (!p_ptr->wild_mode && !p_ptr->inside_arena && !p_ptr->inside_battle)
+	if (!p_ptr->wild_mode && !inside_arena && !p_ptr->inside_battle)
 	{
 		for (i = m_max - 1, num = 1; (i >= 1 && num < MAX_PARTY_MON); i--)
 		{
@@ -485,6 +486,16 @@ static void preserve_pet(void)
 			delete_monster_idx(i);
 		}
 	}
+
+	/* Hack: p_ptr->inside_arena is out of synch with the level we are leaving
+	   so stay one step behind ...
+	   p_ptr->inside_arena = TRUE for leaving the town to enter the arena
+	   p_ptr->inside_arena = FALSE for leaving the arena to enter the town
+	   Both of these are obviously wrong.
+
+	   p_ptr->inside_arena = FALSE for most other circumstances!
+	*/
+	inside_arena = p_ptr->inside_arena;
 }
 
 

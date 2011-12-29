@@ -3583,7 +3583,7 @@ void update_view(void)
 	/*** Initialize ***/
 
 	/* Optimize */
-	if (view_reduce_view && !dun_level)
+	if (view_reduce_view && !dun_level && p_ptr->town_num)
 	{
 		/* Full radius (10) */
 		full = MAX_SIGHT / 2;

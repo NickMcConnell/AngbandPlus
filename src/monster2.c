@@ -3719,7 +3719,7 @@ msg_print("守りのルーンが壊れた！");
 	if (is_explosive_rune_grid(c_ptr))
 	{
 		/* Break the ward */
-		if (randint1(BREAK_MINOR_GLYPH) > r_ptr->level)
+		if (randint1(BREAK_MINOR_GLYPH * p_ptr->lev / 50) > r_ptr->level)
 		{
 			/* Describe observable breakage */
 			if (c_ptr->info & CAVE_MARK)

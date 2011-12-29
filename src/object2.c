@@ -2483,7 +2483,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					break;
 
 				case EGO_ARCANE:
-					o_ptr->pval = -randint1(3);
+					o_ptr->pval = -randint1(2);
 					o_ptr->to_h = -10;
 					o_ptr->to_d = -10;
 					break;
@@ -3168,8 +3168,14 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				
 				case SV_RING_SPELL_POWER:
 				{
-					/* Stat bonus ... these wizard rings decrease STR, DEX, CON */
-					o_ptr->pval = 0 - 1 - m_bonus(5, level);
+					int pv = 1;
+
+					while (one_in_(5))
+						++pv;
+
+					if (pv > 3) pv = 3;
+
+					o_ptr->pval = -pv;
 					break;
 				}
 
@@ -3666,8 +3672,14 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			{
 				case SV_AMULET_SPELL_POWER:
 				{
-					/* Stat bonus ... these wizard amulets decrease STR, DEX, CON */
-					o_ptr->pval = 0 - 1 - m_bonus(5, level);
+					int pv = 1;
+
+					while (one_in_(5))
+						++pv;
+
+					if (pv > 3) pv = 3;
+
+					o_ptr->pval = -pv;
 					break;
 				}
 

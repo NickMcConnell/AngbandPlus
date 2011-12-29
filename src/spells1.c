@@ -2023,7 +2023,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 	int ty = m_ptr->fy;
 	int tx = m_ptr->fx;
 
-	int caster_lev = (who > 0) ? r_info[caster_ptr->r_idx].level : (p_ptr->lev * 2);
+	int caster_lev = (who > 0) ? r_info[caster_ptr->r_idx].level : spell_power(p_ptr->lev * 2);
 
 	bool who_is_pet = FALSE;
 	if (who && is_pet(&m_list[who]))
@@ -5996,7 +5996,7 @@ note_dies = "はドロドロに溶けた！";
 #ifdef JP
 				note = "には効果がなかった！";
 #else
-				note = "is unaffected!";
+				note = " is unaffected!";
 #endif
 				dam = 0;
 			}
@@ -6014,7 +6014,7 @@ note_dies = "はドロドロに溶けた！";
 #ifdef JP
 					note = "は耐性を持っている！";
 #else
-					note = "resists!";
+					note = " resists!";
 #endif
 					dam = 0;
 				}
@@ -6885,7 +6885,7 @@ msg_print("地面が揺れた...");
 					earthquake(ty, tx, 4 + randint0(4));
 					if (!one_in_(6)) break;
 				}
-			case 3: case 4: case 5: case 6:
+			case 3: case 4: case 5: case 6: case 7: case 8: 
 				if (!count)
 				{
 					int dam = damroll(10, 10);
@@ -6898,35 +6898,35 @@ msg_print("純粋な魔力の次元への扉が開いた！");
 					project(0, 8, ty,tx, dam, GF_MANA, curse_flg, -1);
 					if (!one_in_(6)) break;
 				}
-			case 7: case 8:
+			case 9: case 10: case 11: 
 				if (!count)
 				{
 #ifdef JP
 msg_print("空間が歪んだ！");
 #else
-					msg_print("Space warps about you!");
+					msg_print("Space warps about it!");
 #endif
 
 					if (m_ptr->r_idx) teleport_away(c_ptr->m_idx, damroll(10, 10), TELEPORT_PASSIVE);
 					if (one_in_(13)) count += activate_hi_summon(ty, tx, TRUE);
 					if (!one_in_(6)) break;
 				}
-			case 9: case 10: case 11:
+			case 12: case 13: case 14: case 15: case 16: 
 #ifdef JP
 msg_print("エネルギーのうねりを感じた！");
 #else
-				msg_print("You feel a surge of energy!");
+				msg_print("It feels a surge of energy!");
 #endif
 
 				project(0, 7, ty, tx, 50, GF_DISINTEGRATE, curse_flg, -1);
 				if (!one_in_(6)) break;
-			case 12: case 13: case 14: case 15: case 16:
+			case 17: case 18: case 19: 
 				aggravate_monsters(0);
 				if (!one_in_(6)) break;
-			case 17: case 18:
+			case 20: case 21: 
 				count += activate_hi_summon(ty, tx, TRUE);
 				if (!one_in_(6)) break;
-			case 19: case 20: case 21: case 22:
+			case 22: case 23: case 24: case 25: case 26: 
 			{
 				bool pet = !one_in_(3);
 				u32b mode = PM_ALLOW_GROUP;
@@ -6937,7 +6937,7 @@ msg_print("エネルギーのうねりを感じた！");
 				count += summon_specific((pet ? -1 : 0), py, px, (pet ? p_ptr->lev*2/3+randint1(p_ptr->lev/2) : dun_level), 0, mode);
 				if (!one_in_(6)) break;
 			}
-			case 23: case 24: case 25:
+			case 27: 
 				if (p_ptr->hold_life && (randint0(100) < 75)) break;
 #ifdef JP
 msg_print("生命力が体から吸い取られた気がする！");
@@ -6948,7 +6948,7 @@ msg_print("生命力が体から吸い取られた気がする！");
 				if (p_ptr->hold_life) lose_exp(p_ptr->exp / 160);
 				else lose_exp(p_ptr->exp / 16);
 				if (!one_in_(6)) break;
-			case 26: case 27: case 28:
+			case 28:
 			{
 				int i = 0;
 				if (one_in_(13))

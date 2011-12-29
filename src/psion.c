@@ -1105,6 +1105,32 @@ void psion_decrement_counters(void)
 	_decrement_counter(_FORESIGHT, "Your foresight fades.");	
 }
 
+static void _clear_counter(int which, cptr off)
+{
+	if (p_ptr->magic_num1[which])
+	{
+		p_ptr->magic_num1[which] = 0;
+		p_ptr->magic_num2[which] = 0;
+		msg_print(off);
+		p_ptr->update |= PU_BONUS;
+		p_ptr->redraw |= PR_STATUS;
+	}
+}
+
+void psion_dispel_player(void)
+{
+	_clear_counter(_WEAPON_GRAFT, "Your melee weapon is no longer fused to your arm.");	
+	_clear_counter(_CLARITY, "You lose your mental focus.");	
+	_clear_counter(_BLENDING, "You no longer blend into your surroundings.");	
+	_clear_counter(_SHIELDING, "Your psionic shield disappears.");	
+	_clear_counter(_COMBAT, "Your combat transformation expires.");	
+	_clear_counter(_SPEED, "Your psionic speed fades.");	
+	_clear_counter(_BACKLASH, "Your mental revenge abates.");	
+	_clear_counter(_FORTRESS, "Your mental fortress collapses.");	
+	_clear_counter(_MINDSPRING, "Your mindspring dries up.");	
+	_clear_counter(_FORESIGHT, "Your foresight fades.");	
+}
+
 static int _get_powers(spell_info* spells, int max)
 {
 	int ct = 0;

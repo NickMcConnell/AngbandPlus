@@ -502,6 +502,28 @@ void cult_of_personality_mut(int cmd, variant *res)
 	}
 }
 
+void demonic_grasp_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Demonic Grasp", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You have a firm grasp on your magical devices.", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You lose your firm grasp on your magical devices.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You can resist charge draining.", ""));
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void eat_light_mut(int cmd, variant *res)
 {
 	switch (cmd)

@@ -1517,7 +1517,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 
 	if (leave_special)
 	{
-		if (p_ptr->prace == RACE_DEMON)
+		if (p_ptr->prace == RACE_DEMON || p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
 		{
 			if (o_ptr->tval == TV_CORPSE &&
 			    o_ptr->sval == SV_CORPSE &&

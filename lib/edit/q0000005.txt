@@ -93,9 +93,9 @@ D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X                                                                                        A                          ; WWW92X
 D:X B              ;;;;;;;;       B                             ;;;;;;;;                                              ;   BW9X
 D:X              ;;;  AA  ;;;                                 ;;;  CC  ;;;                                            ; A  W X
-D:X    ;        ;;   AAAA   ;;                               ;;   CCCC   ;;                                           ;; ;;;;X
-D:X   ;;;      ;;   AAAAAA   ;;                       C     ;;9  CCCCCC   ;;   B                    ;;;;;;;;                 X
-D:X  ;;;;;     ; 9  AAAAAA  9 ;                             ; 99 CCZCCC    ;                      ;;;  WW  ;;;               X
+D:X    ;        ;;   AAAA   ;;                               ;;   CCCC   ;;         ;;;;;;;                           ;; ;;;;X
+D:X   ;;;      ;;   AAAAAA   ;;                       C     ;;9  CCCCCC   ;;   B   ;;;;;;;;;        ;;;;;;;;                 X
+D:X  ;;;;;     ; 9  AAAAAA  9 ;                             ; 99 CCZCCC    ;        ;;;;;;;       ;;;  WW  ;;;               X
 D:X  ;;;;;     ;;    AAAA     ;                             ;;9   CCCC     ;                     ;;   WWWW   ;;              X
 D:X   ;;;       ;;    AA    ;;                               ;;    CC    ;;                     ;;   WWWWWW  9;;             X
 D:X    ;    B    ;;;  9   ;;;                  B              ;;; C  C ;;;                      ;    WWZWWW 979;             X
@@ -107,18 +107,18 @@ D:X     T  T  TTT  T           ;;;;;;;;;;     ;;   WWWWWW   ;;          ;;8 WWW 
 D:X     T  T T   T T          ;;;;;;;;;;;;    ; 9  WWWZWW  9 ;    B     ; 8WWWZ %4% ZWWW8;                        ;;;;       X
 D:X     TTTT TTTTT T           ;;;;;;;;;;     ;;    WWWW     ;          ;;8 WWW %Z% WWW 8;                        ;;;;       X
 D:X     T  T T   T                             ;;    WW    ;;            ;;  WW %7% WW ;;                         ;;;;       X
-D:X     T  T T   T T                  ;;;;;;    ;;;  9   ;;;              ;;; WWWWWWW;;;                         B ;;        X
-D:X  A                                ;;;;;;;;    ;;;;;;;;                  ;;;;;;;;;;                                       X
-D:X                                   ;;;;;;   B                                                                             X
+D:X     T  T T   T T                  ;;;;;;    ;;;  9   ;;;       ;      ;;; WWWWWWW;;;                         B ;;        X
+D:X  A                                ;;;;;;;;    ;;;;;;;;        ;;;       ;;;;;;;;;;                                       X
+D:X                                   ;;;;;;   B                   ;                                                         X
 D:X                                                                                               ;;;;;;;;                   X
 D:X   ;            ;;;;;;;;                                                                     ;;;  WW  ;;;      ;;         X
 D:X  ;;;         ;;;  AA  ;;;                        A          ;;;;;;;;                  ;    ;;   WWWW   ;;                X
 D:X ;;;;;       ;;   AAAA   ;;                                ;;;  CC  ;;;                    ;;   WWWWWW  9;;               X
 D:X ;;;;;      ;;9  AAAAAA  9;;                              ;;   CCCC   ;;                   ;    WWZWWW 979;               X
-D:X  ;;;       ;    AAAAAA    ;                             ;;   CCCCCC  9;;         B        ;;    WWWW   9 ;               X
-D:X   ;        ;;    AAAA     ;                             ;    CCCZCC 99 ;      ;;;;;;;;     ;;    WW    ;;                X
-D:X             ;;    AA    ;;                              ;;    CCCC   9 ;     ;;;;;;;;;;     ;;;      ;;;                 X
-D:X              ;;;   9  ;;;                B               ;;    CC    ;;       ;;;;;;;;        ;;;;;;;;            ;; ;;;;X
+D:X  ;;;       ;    AAAAAA    ;                   ;;        ;;   CCCCCC  9;;         B        ;;    WWWW   9 ;               X
+D:X   ;        ;;    AAAA     ;                    ;        ;    CCCZCC 99 ;      ;;;;;;;;     ;;    WW    ;;                X
+D:X             ;;    AA    ;;                     ;        ;;    CCCC   9 ;     ;;;;;;;;;;     ;;;      ;;;                 X
+D:X              ;;;   9  ;;;                B    ;;         ;;    CC    ;;       ;;;;;;;;        ;;;;;;;;            ;; ;;;;X
 D:X;;;             ;;;;;;;;                                   ;;; C  C ;;;                                            ; A  W X
 D:X;;;                                                          ;;;;;;;;                                              ;  BWW9X
 D:X<;;                                                                          A                                     ; WWW93X

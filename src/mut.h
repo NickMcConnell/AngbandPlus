@@ -119,8 +119,9 @@
 #define MUT_CULT_OF_PERSONALITY 112
 #define MUT_FLEET_OF_FOOT 113
 #define MUT_ASTRAL_GUIDE 114
+#define MUT_DEMONIC_GRASP 115
 
-#define MAX_MUTATIONS      115   /* see also MUT_FLAG_SIZE in defines.h */
+#define MAX_MUTATIONS      116   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
 	MUT_RATING_AWFUL = -2,
@@ -181,6 +182,7 @@ extern void chaos_deity_mut(int cmd, variant *res);
 extern void cowardice_mut(int cmd, variant *res);
 extern void cult_of_personality_mut(int cmd, variant *res);
 extern void eat_light_mut(int cmd, variant *res);
+extern void demonic_grasp_mut(int cmd, variant *res);
 extern void einstein_mut(int cmd, variant *res);
 extern void elec_aura_mut(int cmd, variant *res);
 extern void evasion_mut(int cmd, variant *res);
