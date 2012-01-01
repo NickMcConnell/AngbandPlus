@@ -18,6 +18,16 @@ int spell_power(int pow)
 	return spell_power_aux(pow, tmp);
 }
 
+int device_power_aux(int pow, int bonus)
+{
+	return pow + pow*bonus/20;
+}
+
+int device_power(int pow)
+{
+	return device_power_aux(pow, p_ptr->device_power);
+}
+
 int spell_cap_aux(int cap, int bonus)
 {
 	return cap + cap*bonus/13;
@@ -2002,7 +2012,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 3 /2);
 
 			if (info) return info_power(power);
 
@@ -2084,7 +2094,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 
@@ -2107,7 +2117,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 
@@ -2128,7 +2138,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 
@@ -2357,7 +2367,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 #endif
     
 		{
-			int range = plev / 2 + 10;
+			int range = spell_power(plev / 2 + 10);
 
 			if (info) return info_range(range);
 
@@ -2369,7 +2379,7 @@ static cptr do_sorcery_spell(int spell, int mode)
 				msg_print("You open a dimensional gate. Choose a destination.");
 #endif
 
-				if (!dimension_door(p_ptr->lev / 2 + 10)) return NULL;
+				if (!dimension_door(range)) return NULL;
 			}
 		}
 		break;

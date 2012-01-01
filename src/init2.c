@@ -1877,7 +1877,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Mr.Hoge", MAINTAINER);
+	(void)format("%s (%s).", "Chengband", "Hack Whack");
 
 
 	/* Success */
@@ -2042,17 +2042,15 @@ static errr init_alloc(void)
 		/* Count valid pairs */
 		if (r_ptr->rarity)
 		{
-			int p, x;
-
-			/* Extract the base level */
-			x = r_ptr->level;
+			int p;
 
 			/* Extract the base probability */
 			p = (100 / r_ptr->rarity);
 
 			/* Load the entry */
 			alloc_race_table[i].index = (int)elements[i].pointer;
-			alloc_race_table[i].level = x;
+			alloc_race_table[i].level = r_ptr->level;
+			alloc_race_table[i].max_level = r_ptr->max_level;
 			alloc_race_table[i].prob1 = p;
 			alloc_race_table[i].prob2 = p;
 			alloc_race_table[i].prob3 = p;

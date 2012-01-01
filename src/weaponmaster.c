@@ -3197,7 +3197,7 @@ static void _uber_weapon_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, "Superspecialization");
+		var_set_string(res, "Weaponmastery");
 		break;
 	case SPELL_DESC:
 		var_set_string(res, "Chooses a single weapon for ultimate power.  You may only choose once, so choose wisely!");
@@ -3206,7 +3206,7 @@ static void _uber_weapon_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!_check_speciality2_equip())
 		{
-			msg_print("Failed!  You must equip your speciality weapon.");
+			msg_print("Failed!  You must equip your subspeciality weapon.");
 			return;
 		}
 		if (_make_uber_weapon())

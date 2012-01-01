@@ -3504,6 +3504,7 @@ void calc_bonuses(void)
 	p_ptr->kill_wall = FALSE;
 	p_ptr->dec_mana = FALSE;
 	p_ptr->spell_power = 0;
+	p_ptr->device_power = 0;
 	p_ptr->spell_cap = 0;
 	p_ptr->easy_spell = FALSE;
 	p_ptr->heavy_spell = FALSE;
@@ -3710,6 +3711,7 @@ void calc_bonuses(void)
 	{
 	case CLASS_HIGH_MAGE:
 		p_ptr->spell_power += p_ptr->base_spell_power; 
+		p_ptr->device_power += p_ptr->base_spell_power*2; 
 		p_ptr->stat_add[A_STR] -= p_ptr->base_spell_power;
 		p_ptr->stat_add[A_INT] += p_ptr->base_spell_power;
 		p_ptr->stat_add[A_DEX] -= p_ptr->base_spell_power;
@@ -4358,7 +4360,11 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
 		if (have_flag(flgs, TR_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
 
-		if (have_flag(flgs, TR_MAGIC_MASTERY))    p_ptr->skill_dev += 8*o_ptr->pval;
+		if (have_flag(flgs, TR_MAGIC_MASTERY))
+		{
+		    p_ptr->skill_dev += 8*o_ptr->pval;
+			p_ptr->device_power += o_ptr->pval;
+		}
 
 		/* Affect stealth */
 		if (have_flag(flgs, TR_STEALTH)) p_ptr->skill_stl += o_ptr->pval;

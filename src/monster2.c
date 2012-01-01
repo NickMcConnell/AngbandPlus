@@ -1602,16 +1602,11 @@ s16b get_mon_num(int level)
 	/* Process probabilities */
 	for (i = 0; i < alloc_race_size; i++)
 	{
-		/* Monsters are sorted by depth */
-		if (table[i].level > level) break;
-
-		/* Default */
+		if (table[i].level > level) break; /* Monsters are sorted by depth */
 		table[i].prob3 = 0;
+		if (table[i].max_level < level) continue;
 
-		/* Access the "r_idx" of the chosen monster */
 		r_idx = table[i].index;
-
-		/* Access the actual race */
 		r_ptr = &r_info[r_idx];
 
 		if (!p_ptr->inside_battle && !chameleon_change_m_idx)
@@ -1638,10 +1633,7 @@ s16b get_mon_num(int level)
 			}
 		}
 
-		/* Accept */
 		table[i].prob3 = table[i].prob2;
-
-		/* Total */
 		total += table[i].prob3;
 	}
 
@@ -1655,10 +1647,7 @@ s16b get_mon_num(int level)
 	/* Find the monster */
 	for (i = 0; i < alloc_race_size; i++)
 	{
-		/* Found the entry */
 		if (value < table[i].prob3) break;
-
-		/* Decrement */
 		value = value - table[i].prob3;
 	}
 
@@ -1667,7 +1656,7 @@ s16b get_mon_num(int level)
 	p = randint0(100);
 
 	/* Try for a "harder" monster once (50%) or twice (10%) */
-	if (p < 60)
+	if (p < (60 >> (level/10)))
 	{
 		/* Save old */
 		j = i;
@@ -1678,10 +1667,7 @@ s16b get_mon_num(int level)
 		/* Find the monster */
 		for (i = 0; i < alloc_race_size; i++)
 		{
-			/* Found the entry */
 			if (value < table[i].prob3) break;
-
-			/* Decrement */
 			value = value - table[i].prob3;
 		}
 
@@ -1690,7 +1676,7 @@ s16b get_mon_num(int level)
 	}
 
 	/* Try for a "harder" monster twice (10%) */
-	if (p < 10)
+	if (p < (10 >> (level/10)))
 	{
 		/* Save old */
 		j = i;
@@ -1701,10 +1687,7 @@ s16b get_mon_num(int level)
 		/* Find the monster */
 		for (i = 0; i < alloc_race_size; i++)
 		{
-			/* Found the entry */
 			if (value < table[i].prob3) break;
-
-			/* Decrement */
 			value = value - table[i].prob3;
 		}
 
@@ -2288,6 +2271,7 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 	int power = 100;
 
 	if (p_ptr->inside_battle || !character_dungeon) return;
+	if (mut_present(MUT_WEIRD_MIND)) return;
 	if (p_ptr->rune_mind) return;
 
 	if (!necro)
@@ -2923,7 +2907,10 @@ void update_mon(int m_idx, bool full)
 			}
 
 			/* Disturb on appearance */
-			if (disturb_near && (projectable(m_ptr->fy, m_ptr->fx, py, px) && projectable(py, px, m_ptr->fy, m_ptr->fx)))
+			if (disturb_near 
+			  && (r_info[m_ptr->ap_r_idx].level || p_ptr->lev < 10) /* Town dweller don't disturb! */
+			  && projectable(m_ptr->fy, m_ptr->fx, py, px) 
+			  && projectable(py, px, m_ptr->fy, m_ptr->fx) )
 			{
 				if (disturb_pets || is_hostile(m_ptr))
 					disturb(1, 0);

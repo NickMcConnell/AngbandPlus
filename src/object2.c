@@ -4772,7 +4772,7 @@ static bool kind_is_good(int k_idx)
 		case TV_HISSATSU_BOOK:
 		case TV_HEX_BOOK:
 		{
-			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
+			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return one_in_(2);
 			return (FALSE);
 		}
 		case TV_RING:
@@ -4784,6 +4784,7 @@ static bool kind_is_good(int k_idx)
 		}
 		case TV_POTION:
 		{
+			if (k_ptr->sval == SV_POTION_RESISTANCE) return TRUE;
 			if (k_ptr->sval == SV_POTION_LIFE) return one_in_(5);
 			if (k_ptr->sval == SV_POTION_STAR_HEALING) return one_in_(5);
 			if (k_ptr->sval == SV_POTION_AUGMENTATION) return one_in_(10);
@@ -4802,6 +4803,18 @@ static bool kind_is_good(int k_idx)
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_RESISTANCE) return (TRUE);
 			return (FALSE);
+		}
+		case TV_WAND:
+		{
+			if (k_ptr->sval == SV_WAND_ROCKETS) return one_in_(7);
+			if (k_ptr->sval == SV_WAND_DISINTEGRATE) return one_in_(7);
+			return FALSE;
+		}
+		case TV_STAFF:
+		{
+			if (k_ptr->sval == SV_STAFF_HEALING) return one_in_(5);
+			if (k_ptr->sval == SV_STAFF_MSTORM) return one_in_(12);
+			return FALSE;
 		}
 	}
 
@@ -8457,8 +8470,8 @@ static void add_essence(int mode)
 		}
 		p_ptr->magic_num1[es_ptr->essence] -= use_essence;
 		if (es_ptr->add == ESSENCE_ATTACK)
-		{
-			if ((o_ptr->to_h >= p_ptr->lev/5+5) && (o_ptr->to_d >= p_ptr->lev/5+5))
+		{   
+			if ((o_ptr->to_h >= 5 + 15*p_ptr->lev/50) && (o_ptr->to_d >= 5 + 15*p_ptr->lev/50))
 			{
 #ifdef JP
 				msg_print("改良に失敗した。");
@@ -8470,13 +8483,13 @@ static void add_essence(int mode)
 			}
 			else
 			{
-				if (o_ptr->to_h < p_ptr->lev/5+5) o_ptr->to_h++;
-				if (o_ptr->to_d < p_ptr->lev/5+5) o_ptr->to_d++;
+				if (o_ptr->to_h < 5 + 15*p_ptr->lev/50) o_ptr->to_h++;
+				if (o_ptr->to_d < 5 + 15*p_ptr->lev/50) o_ptr->to_d++;
 			}
 		}
 		else if (es_ptr->add == ESSENCE_AC)
 		{
-			if (o_ptr->to_a >= p_ptr->lev/5+5)
+			if (o_ptr->to_a >= 5 + 15*p_ptr->lev/50)
 			{
 #ifdef JP
 				msg_print("改良に失敗した。");
@@ -8488,7 +8501,7 @@ static void add_essence(int mode)
 			}
 			else
 			{
-				if (o_ptr->to_a < p_ptr->lev/5+5) o_ptr->to_a++;
+				if (o_ptr->to_a < 5 + 15*p_ptr->lev/50) o_ptr->to_a++;
 			}
 		}
 		else

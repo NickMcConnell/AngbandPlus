@@ -2315,12 +2315,12 @@ void weapon_skills_mut(int cmd, variant *res)
 	}
 }
 
-void weird_mind_mut(int cmd, variant *res)
+void random_telepathy_mut(int cmd, variant *res)
 {
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Weird Mind", ""));
+		var_set_string(res, T("Random Telepathy", ""));
 		break;
 	case SPELL_GAIN_MUT:
 		msg_print(T("Your thoughts suddenly take off in strange directions.", "あなたの思考は突然おかしな方向に向き始めた。"));
@@ -2345,6 +2345,28 @@ void weird_mind_mut(int cmd, variant *res)
 				set_tim_esp(p_ptr->lev, FALSE);
 			}
 		}
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void weird_mind_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Weird Mind", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You are no longer bothered by the Eldritch Horror!", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You feel susceptible to the Eldritch Horror again.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You are unaffected by the Eldritch Horror.", ""));
 		break;
 	default:
 		default_spell(cmd, res);

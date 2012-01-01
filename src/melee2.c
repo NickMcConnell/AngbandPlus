@@ -3517,7 +3517,8 @@ msg_format("%^s%s", m_name, monmessage);
 			}
 
 			/* Possible disturb */
-			if (m_ptr->ml &&
+			if (m_ptr->ml && 
+			    (ap_r_ptr->level || p_ptr->lev < 10) && /* Town dweller don't disturb! */
 			    (disturb_move ||
 			     (disturb_near /*&& (m_ptr->mflag & MFLAG_VIEW)*/ && projectable(py, px, m_ptr->fy, m_ptr->fx)) ||
 			     (disturb_high && ap_r_ptr->r_tkills && ap_r_ptr->level >= p_ptr->lev)))

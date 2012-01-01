@@ -483,8 +483,15 @@ static void roff_aux(int r_idx, int mode)
 				    wd_he[msex], r_ptr->level));
 		}
 		old = TRUE;
-	}
 
+		if (r_ptr->max_level < 999)
+		{
+			if (depth_in_feet)
+				hooked_roff(format(", won't be found deeper than depths of %d feet", r_ptr->max_level * 50));
+			else
+				hooked_roff(format(", won't be found deeper than dungeon level %d", r_ptr->max_level));
+		}
+	}
 
 	/* Describe movement */
 	if (r_idx == MON_CHAMELEON)

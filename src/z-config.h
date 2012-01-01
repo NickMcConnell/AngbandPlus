@@ -400,13 +400,6 @@
 
 
 
-/*
- * OPTION: Person to bother if something goes wrong.
- */
-/* #define MAINTAINER	"rr9@angband.org" */
-#define MAINTAINER	"echizen@users.sourceforge.jp"
-
-
 #ifdef JP
 #ifndef USE_FONTSET
 /*

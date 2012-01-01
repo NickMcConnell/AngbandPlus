@@ -65,7 +65,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, polymorph_wounds_mut}},
 	{MUT_RATING_AWFUL,		MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, wasting_mut}},
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, attract_dragon_mut}},
-	{MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 4, {0,  0,   0, weird_mind_mut}},
+	{MUT_RATING_AVERAGE,	MUT_TYPE_EFFECT,	     0, 4, {0,  0,   0, random_telepathy_mut}},
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, nausea_mut}},
 	{MUT_RATING_GREAT,		              0,	     0, 4, {0,  0,   0, chaos_deity_mut}},
 	{MUT_RATING_BAD,		MUT_TYPE_EFFECT,	     0, 2, {0,  0,   0, shadow_walk_mut}},
@@ -126,6 +126,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, fleet_of_foot_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, astral_guide_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, demonic_grasp_mut}},
+	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, weird_mind_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -466,6 +467,7 @@ bool mut_human_pred(int mut_idx)
 	case MUT_FLEET_OF_FOOT:
 	case MUT_ASTRAL_GUIDE:
 	case MUT_DEMONIC_GRASP:
+	case MUT_WEIRD_MIND:
 		return TRUE;
 	}
 	return FALSE;

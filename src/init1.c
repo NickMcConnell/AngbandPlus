@@ -2735,19 +2735,21 @@ errr parse_r_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int lev, rar, pad;
+		int lev, rar, max_lev;
 		long exp;
 		long nextexp;
 		int nextmon;
 
 		/* Scan for the values */
 		if (6 != sscanf(buf+2, "%d:%d:%d:%ld:%ld:%d",
-				&lev, &rar, &pad, &exp, &nextexp, &nextmon)) return (1);
+				&lev, &rar, &max_lev, &exp, &nextexp, &nextmon)) return (1);
 
 		/* Save the values */
 		r_ptr->level = lev;
+		r_ptr->max_level = max_lev;
+
 		r_ptr->rarity = rar;
-		r_ptr->extra = pad;
+		r_ptr->extra = 0;
 		r_ptr->mexp = exp;
 		r_ptr->next_exp = nextexp;
 		r_ptr->next_r_idx = nextmon;

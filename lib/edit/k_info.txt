@@ -2879,9 +2879,6 @@ D:装備による耐性に累積する。
 
 
 ##### Wands #####
-# Note : some of the old wands have been taken higher (low level characters
-# really need them and they used to be higher in earlier versions...)
-
 N:269:光:アルミの
 E:Light:Aluminum
 G:-:B
@@ -2907,8 +2904,8 @@ N:271:アイス・ボルト:クロムの
 E:Frost Bolts:Chromium
 G:-:w
 I:65:19:12
-W:20:0:10:800
-A:20/1
+W:15:0:10:800
+A:15/1
 P:0:1d1:0:0:0
 D:$It fires a bolt or beam of cold (damage: (5+level/8)d8) when you use it.
 D:それは使うとダメージ(5+レベル/8)d8の冷気の矢またはビームを放つ。
@@ -2917,8 +2914,8 @@ N:272:ファイア・ボルト:銅の
 E:Fire Bolts:Copper
 G:-:U
 I:65:18:15
-W:30:0:10:1000
-A:30/1
+W:20:0:10:1000
+A:20/1
 P:0:1d1:0:0:0
 D:$It fires a bolt or beam of fire (damage: (7+level/6)d8) when you use it.
 D:それは使うとダメージ(7+レベル/6)d8の火炎の矢またはビームを放つ。
@@ -2938,8 +2935,8 @@ N:274:チェンジ・モンスター:鉄の
 E:Polymorph:Iron
 G:-:s
 I:65:13:15
-W:20:0:10:400
-A:20/1
+W:15:0:10:400
+A:15/1
 P:0:1d1:0:0:0
 D:$It changes a monster into another when you use it.
 D:それは使うと1体のモンスターを変身させる。
@@ -2998,8 +2995,8 @@ N:280:生命力吸収:鋼鉄の
 E:Drain Life:Steel
 G:-:W
 I:65:12:7
-W:50:0:10:1200
-A:50/1
+W:40:0:10:1200
+A:40/1
 P:0:1d1:0:0:0
 D:$It fires a bolt of drain life (damage: 80+level) when you use it.
 D:それは使うとダメージ80+レベルの生命力を削る矢を放つ。
@@ -3069,8 +3066,8 @@ N:287:サンダー・ボール:金メッキの
 E:Lightning Balls:Gold-Plated
 G:-:y
 I:65:21:13
-W:35:0:10:1200
-A:35/1
+W:30:0:10:1200
+A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_ELEC
 D:$It fires a ball of lightning (damage: 40+3*level/4) when you use it.
@@ -3080,8 +3077,8 @@ N:288:アイス・ボール:銀メッキの
 E:Cold Balls:Silver-Plated
 G:-:W
 I:65:23:9
-W:40:0:10:1500
-A:40/1
+W:30:0:10:1500
+A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_COLD
 D:$It fires a ball of cold (damage: 50+3*level/4) when you use it.
@@ -3091,8 +3088,8 @@ N:289:ファイア・ボール:スズメッキの
 E:Fire Balls:Tin-Plated
 G:-:W
 I:65:22:7
-W:50:0:10:1800
-A:50/1
+W:30:0:10:1800
+A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_FIRE
 D:$It fires a ball of fire (damage: 70+3*level/4) when you use it.
@@ -3112,8 +3109,8 @@ N:291:アシッド・ボール:ミスリルの
 E:Acid Balls:Mithril
 G:-:B
 I:65:20:8
-W:50:0:10:1650
-A:50/1
+W:30:0:10:1650
+A:30/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID
 D:$It fires a ball of acid (damage: 60+3*level/4) when you use it.
@@ -3148,8 +3145,8 @@ N:294:アシッド・ボルト:真鍮の
 E:Acid Bolts:Brass
 G:-:U
 I:65:16:15
-W:30:0:10:950
-A:30/1
+W:20:0:10:950
+A:20/1
 P:0:1d1:0:0:0
 D:$It fires a bolt or beam of acid (damage: (6+level/7)d8) when you use it.
 D:それは使うとダメージ(6+レベル/7)d8の酸の矢またはビームを放つ。
@@ -3158,8 +3155,8 @@ N:295:ドラゴンの火炎:プラチナの
 E:Dragon's Flame:Platinum
 G:-:w
 I:65:26:5
-W:50:0:10:2400
-A:50/4
+W:40:0:10:2400
+A:40/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It breathes fire (damage: 200) when you use it.
@@ -3169,8 +3166,8 @@ N:296:ドラゴンの冷気:鉛の
 E:Dragon's Frost:Lead
 G:-:s
 I:65:27:5
-W:50:0:10:2400
-A:50/4
+W:40:0:10:2400
+A:40/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It breathes cold (damage: 180) when you use it.
@@ -3180,8 +3177,8 @@ N:297:ドラゴン・ブレス:鉛メッキの
 E:Dragon's Breath:Lead-Plated
 G:-:s
 I:65:28:5
-W:60:0:10:2400
-A:60/4
+W:50:0:10:2400
+A:50/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It breathes acid (damage: 240), lightning (damage: 210), fire (damage: 
@@ -3194,8 +3191,8 @@ N:298:分解:象牙の
 E:Disintegrate:Ivory
 G:-:w
 I:65:25:4
-W:60:0:10:3000
-A:60/4
+W:50:0:10:3000
+A:50/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It fires a ball of disintegration (damage: 200+d(level*2)) when you use it.
@@ -3466,8 +3463,8 @@ N:324:力:クルミの
 E:Power:Walnut
 G:_:u
 I:55:25:5
-W:70:0:50:4000
-A:70/2
+W:50:0:50:4000
+A:50/2
 P:0:1d2:0:0:0
 D:$It does 150 damage to all monsters in sight when you use it.
 D:それは使うと視界内のモンスターに150のダメージを与える。
@@ -3477,7 +3474,7 @@ E:the Magi:Mistletoe
 G:_:g
 I:55:19:5
 W:100:0:50:100000
-A:100/255
+A:100/222
 P:0:1d2:0:0:0
 D:$It restores mana to full, restores your intelligence and cures berserk when 
 D:$you use it.
@@ -3497,8 +3494,8 @@ N:327:聖浄:竹の
 E:Holiness:Bamboo
 G:_:U
 I:55:26:5
-W:70:0:50:4500
-A:70/2
+W:50:0:50:4500
+A:50/2
 P:0:1d2:0:0:0
 D:$It does 150 damage to all evil monsters in sight, gives temporary 
 D:$protection from lesser evil creature, cures poison, stuuned, cuts, removes 
@@ -3521,8 +3518,8 @@ N:329:体力回復:ルーンの
 E:Healing:Runed
 G:_:u
 I:55:18:4
-W:70:0:50:5000
-A:70/2
+W:60:0:50:5000
+A:60/2
 P:0:1d2:0:0:0
 D:$It heals you 300 and cures stunned, cuts and berserk when you use it.
 D:それは使うと体力が300回復し、朦朧・切り傷・狂戦士化を癒す。
@@ -3738,7 +3735,7 @@ E:Trap Location:Chromium
 G:-:w
 I:66:0:15
 W:5:0:15:100
-A:3/4:5/1
+A:3/2:10/1
 P:0:1d1:0:0:0
 D:$It detects all traps in your vicinity when you zap it.
 D:それは振ると自分の周辺のトラップを感知する。
@@ -3802,8 +3799,8 @@ N:358:アイス・ボルト:ニッケルの
 E:Frost Bolts:Nickel
 G:-:U
 I:66:23:5
-W:25:0:15:2500
-A:13/4:25/1
+W:20:0:15:2500
+A:13/4:20/1
 P:0:1d1:0:0:0
 D:$It fires a bolt or beam of cold (damage: (5+level/8)d8) when you zap it.
 D:それは振るとダメージ(5+レベル/8)d8の冷気の矢またはビームを放つ。
@@ -3812,8 +3809,8 @@ N:359:ファイア・ボルト:錆びた
 E:Fire Bolts:Rusty
 G:-:r
 I:66:22:5
-W:30:0:15:3000
-A:15/4:30/1
+W:20:0:15:3000
+A:15/4:20/1
 P:0:1d1:0:0:0
 D:$It fires a bolt or beam of fire (damage: (7+level/6)d8) when you zap it.
 D:それは振るとダメージ(7+レベル/6)d8の火炎の矢またはビームを放つ。
@@ -3852,8 +3849,8 @@ N:363:生命力吸収:チタンの
 E:Drain Life:Titanium
 G:-:w
 I:66:18:13
-W:75:0:15:3600
-A:38/16:75/4
+W:55:0:15:3600
+A:38/16:55/4
 P:0:1d1:0:0:0
 D:$It fires a bolt of drain life (damage: 70+3*level/2) when you zap it.
 D:それは振るとダメージ70+3*レベル/2の生命力を削る矢を放つ。
@@ -3882,8 +3879,8 @@ N:366:サンダー・ボール:亜鉛の
 E:Lightning Balls:Zinc
 G:-:W
 I:66:25:23
-W:55:0:15:4000
-A:28/4:55/1
+W:35:0:15:4000
+A:35/1
 P:0:1d1:0:0:0
 D:$It fires a ball of lightning (damage: 40+level) when you zap it.
 D:それは振るとダメージ40+レベルの電撃の球を放つ。
@@ -3892,8 +3889,8 @@ N:367:アイス・ボール:銅メッキの
 E:Cold Balls:Copper-Plated
 G:-:U
 I:66:27:25
-W:60:0:15:4500
-A:30/4:60/1
+W:40:0:15:4500
+A:40/1
 P:0:1d1:0:0:0
 D:$It fires a ball of cold (damage: 50+level) when you zap it.
 D:それは振るとダメージ50+レベルの冷気の球を放つ。
@@ -3902,8 +3899,8 @@ N:368:ファイア・ボール:金メッキの
 E:Fire Balls:Gold-Plated
 G:-:y
 I:66:26:30
-W:75:0:15:5000
-A:38/4:75/1
+W:40:0:15:5000
+A:40/1
 P:0:1d1:0:0:0
 D:$It fires a ball of fire (damage: 70+level) when you zap it.
 D:それは振るとダメージ70+レベルの火炎の球を放つ。
@@ -3912,8 +3909,8 @@ N:369:アシッド・ボール:銀メッキの
 E:Acid Balls:Silver-Plated
 G:-:W
 I:66:24:27
-W:70:0:15:5500
-A:35/4:70/1
+W:40:0:15:5500
+A:40/1
 P:0:1d1:0:0:0
 D:$It fires a ball of acid (damage: 60+level) when you zap it.
 D:それは振るとダメージ60+レベルの酸の球を放つ。
@@ -3932,8 +3929,8 @@ N:371:周辺感知:亜鉛メッキの
 E:Enlightenment:Zinc-Plated
 G:-:W
 I:66:5:30
-W:65:0:15:10000
-A:33/16:65/4
+W:55:0:15:10000
+A:33/16:55/4
 P:0:1d1:0:0:0
 D:$It maps your vicinity when you zap it.
 D:それは振ると自分の周辺の地形を感知する。
@@ -3974,7 +3971,7 @@ E:Detection:Platinum
 G:-:w
 I:66:6:50
 W:30:0:15:5000
-A:15/32:30/8
+A:15/32:30/6
 P:0:1d1:0:0:0
 D:$It detects all traps, doors, stairs, treasures, items and monsters in the 
 D:$neighborhood when you zap it.
@@ -6017,8 +6014,8 @@ N:628:衝撃:イリヂウムの
 E:Striking:Uridium
 G:-:R
 I:65:30:6
-W:65:0:10:4000
-A:65/3
+W:55:0:10:4000
+A:55/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:$It fires a bolt of meteor (damage: (15+level/3)d13) when you use it.

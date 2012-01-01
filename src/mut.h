@@ -58,7 +58,7 @@
 #define MUT_POLY_WOUND     52
 #define MUT_WASTING        53
 #define MUT_ATTRACT_DRAGON 54
-#define MUT_WEIRD_MIND     55
+#define MUT_RANDOM_TELEPATHY 55
 #define MUT_NAUSEA         56
 #define MUT_CHAOS_GIFT     57
 #define MUT_SHADOW_WALK    58
@@ -120,8 +120,9 @@
 #define MUT_FLEET_OF_FOOT 113
 #define MUT_ASTRAL_GUIDE 114
 #define MUT_DEMONIC_GRASP 115
+#define MUT_WEIRD_MIND 116
 
-#define MAX_MUTATIONS      116   /* see also MUT_FLAG_SIZE in defines.h */
+#define MAX_MUTATIONS      117   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
 	MUT_RATING_AWFUL = -2,
@@ -221,6 +222,7 @@ extern void produce_mana_mut(int cmd, variant *res);
 extern void puny_mut(int cmd, variant *res);
 extern void random_banish_mut(int cmd, variant *res);
 extern void random_teleport_mut(int cmd, variant *res);
+extern void random_telepathy_mut(int cmd, variant *res);
 extern void raw_chaos_mut(int cmd, variant *res);
 extern void regeneration_mut(int cmd, variant *res);
 extern void resilient_mut(int cmd, variant *res);

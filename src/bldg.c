@@ -2601,6 +2601,7 @@ void have_nightmare(int r_idx)
 		}
 	}
 
+	if (mut_present(MUT_WEIRD_MIND)) return;
 	if (p_ptr->rune_mind) return;
 
 	/* Mind blast */

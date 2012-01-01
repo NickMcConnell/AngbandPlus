@@ -46,11 +46,15 @@ unaware items
 #
 # Pick up an object if you have same objects in your inventory,
 # and if it will be stacked in a single slot.
+# CTK: I fixed so that wands and staves are collecting even when
+#      not yet identified.
 # (Useful to collect many supplies.)
 #
 collecting rod
 collecting potion
 collecting scroll
+collecting staff
+collecting wand
 (collecting items
 
 #

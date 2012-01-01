@@ -332,6 +332,7 @@ struct monster_race
 
 	byte level;				/* Level of creature */
 	byte rarity;			/* Rarity of creature */
+	s16b max_level;
 
 
 	byte d_attr;			/* Default monster attribute */
@@ -662,6 +663,7 @@ struct alloc_entry
 	s16b index;		/* The actual index */
 
 	byte level;		/* Base dungeon level */
+	byte max_level;
 	byte prob1;		/* Probability, pass 1 */
 	byte prob2;		/* Probability, pass 2 */
 	byte prob3;		/* Probability, pass 3 */
@@ -1426,6 +1428,7 @@ struct player_type
 	bool kill_wall;
 	bool dec_mana;
 	s16b spell_power;
+	s16b device_power;
 	s16b base_spell_power; /* High mages choose how much ... */
 	s16b spell_cap;
 	bool easy_spell;

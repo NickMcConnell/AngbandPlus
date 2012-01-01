@@ -1583,6 +1583,8 @@ errr check_load_init(void)
 #define ENTRY_SPECIALIZATION2 48
 #define ENTRY_PATRON_HACK 49
 #define ENTRY_DEMIGOD 50
+#define ENTRY_SPELL_POWER 51
+#define ENTRY_DEVICE_POWER 52
 
 static struct
 {
@@ -1665,14 +1667,14 @@ static struct
 	{53, 11, -1, "Bows/Throw : "},
 	{53, 12, -1, "SavingThrow: "},
 	{53, 13, -1, "Stealth    : "},
-	{53, 15, -1, "Perception : "},
-	{53, 16, -1, "Searching  : "},
-	{53, 17, -1, "Disarming  : "},
-	{53, 18, -1, "MagicDevice: "},
+	{53, 14, -1, "Perception : "},
+	{53, 15, -1, "Searching  : "},
+	{53, 16, -1, "Disarming  : "},
+	{53, 17, -1, "MagicDevice: "},
 	{ 1, 12, 25, "Blows/Round"},
 	{ 1, 17, 25, "Shots/Round"},
 	{ 1, 13, 25, "AverageDmg/Rnd"},
-	{53, 20, -1, "Infra-Vision: "},
+	{53, 20, -1, "Infravision: "},
 	{26,  1, -1, "Name  : "},
 	{ 1,  3, -1, "Sex      : "},
 	{ 1,  4, -1, "Race     : "},
@@ -1688,10 +1690,12 @@ static struct
 	{29, 16, 21, "Const to Adv"},
 	{ 1,  6, -1, "Pact     : "},
 	{29, 11, 21, "Blood Pts"},
-	{ 1,  6, -1, "Subspec  : "},
-	{ 1,  7, -1, "Spec     : "},
+	{ 1,  6, -1, "Spec     : "},
+	{ 1,  7, -1, "Subspec  : "},
 	{ 1,  8, -1, "Patron   : "},
 	{29,  8, 21, "Parent"},
+	{53, 18, -1, "SpellPower : "},
+	{53, 19, -1, "DevicePower: "},
 };
 #endif
 
@@ -2295,6 +2299,21 @@ static void display_player_various(void)
 
 	desc = likert(xdev, 6);
 	display_player_one_line(ENTRY_SKILL_DEVICE, desc, likert_color);
+
+
+	/*if (p_ptr->spell_power)*/
+	{
+		tmp = spell_power_aux(100, p_ptr->spell_power) - 100;
+		desc = format("+%d%%", tmp);
+		display_player_one_line(ENTRY_SPELL_POWER, desc, TERM_L_BLUE);
+	}
+
+	/*if (p_ptr->device_power)*/
+	{
+		tmp = device_power_aux(100, p_ptr->device_power) - 100;
+		desc = format("+%d%%", tmp);
+		display_player_one_line(ENTRY_DEVICE_POWER, desc, TERM_L_BLUE);
+	}
 
 	if (!muta_att)
 		display_player_one_line(ENTRY_BLOWS, format("%d+%d", blows1, blows2), TERM_L_BLUE);

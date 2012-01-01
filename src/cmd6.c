@@ -53,6 +53,12 @@
  * but instead use the "sval" (which is also used to sort the objects).
  */
 
+static int _device_power_hack(int pow, bool magic)
+{
+	if (magic) return pow; /* Magic Eaters do not benefit from device power */
+	return device_power(pow);
+}
+
 
 static void do_cmd_eat_food_aux(int item)
 {
@@ -2563,7 +2569,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 
 		case SV_STAFF_STARLITE:
 		{
-			int num = damroll(5, 3);
+			int num = _device_power_hack(damroll(5, 3), magic);
 			int y, x;
 			int attempts;
 
@@ -2668,7 +2674,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 
 		case SV_STAFF_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			if (hp_player(_device_power_hack(300, magic))) ident = TRUE;
 			if (set_stun(0, TRUE)) ident = TRUE;
 			if (set_cut(0, TRUE)) ident = TRUE;
 			if (set_shero(0,TRUE)) ident = TRUE;
@@ -2714,7 +2720,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 
 		case SV_STAFF_SPEED:
 		{
-			if (set_fast(randint1(30) + 15, FALSE)) ident = TRUE;
+			if (set_fast(_device_power_hack(randint1(30) + 15, magic), FALSE)) ident = TRUE;
 			break;
 		}
 
@@ -2727,19 +2733,19 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 
 		case SV_STAFF_DISPEL_EVIL:
 		{
-			if (dispel_evil(80)) ident = TRUE;
+			if (dispel_evil(_device_power_hack(80, magic))) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_POWER:
 		{
-			if (dispel_monsters(150)) ident = TRUE;
+			if (dispel_monsters(_device_power_hack(150, magic))) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_HOLINESS:
 		{
-			if (dispel_evil(150)) ident = TRUE;
+			if (dispel_evil(_device_power_hack(150, magic))) ident = TRUE;
 			k = 3 * p_ptr->lev;
 			if (set_protevil((magic ? 0 : p_ptr->protevil) + randint1(25) + k, FALSE)) ident = TRUE;
 			if (set_poisoned(0, TRUE)) ident = TRUE;
@@ -2752,7 +2758,7 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 
 		case SV_STAFF_GENOCIDE:
 		{
-			(void)symbol_genocide((magic ? p_ptr->lev + 50 : 200), TRUE);
+			(void)symbol_genocide((magic ? p_ptr->lev + 50 : device_power(200)), TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -2796,7 +2802,8 @@ msg_print("ダンジョンが揺れた。");
 			msg_print("Mighty magics rend your enemies!");
 #endif
 			project(0, 5, py, px,
-				(randint1(200) + 300) * 2, GF_MANA, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID, -1);
+				_device_power_hack((randint1(200) + 300) * 2, magic), 
+				GF_MANA, PROJECT_KILL | PROJECT_ITEM | PROJECT_GRID, -1);
 			if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_HIGH_MAGE) && (p_ptr->pclass != CLASS_SORCERER) && (p_ptr->pclass != CLASS_MAGIC_EATER) && (p_ptr->pclass != CLASS_BLUE_MAGE) && (p_ptr->pclass != CLASS_BLOOD_MAGE) && (p_ptr->pclass != CLASS_NECROMANCER))
 			{
 #ifdef JP
@@ -3091,7 +3098,7 @@ static int wand_effect(int sval, int dir, bool magic)
 	{
 		case SV_WAND_HEAL_MONSTER:
 		{
-			if (heal_monster(dir, damroll(10, 10))) ident = TRUE;
+			if (heal_monster(dir, _device_power_hack(damroll(10, 10), magic))) ident = TRUE;
 			break;
 		}
 
@@ -3158,19 +3165,24 @@ static int wand_effect(int sval, int dir, bool magic)
 
 		case SV_WAND_CONFUSE_MONSTER:
 		{
-			if (confuse_monster(dir, p_ptr->lev)) ident = TRUE;
+			if (confuse_monster(dir, _device_power_hack(p_ptr->lev, magic))) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FEAR_MONSTER:
 		{
-			if (fear_monster(dir, p_ptr->lev)) ident = TRUE;
+			if (fear_monster(dir, _device_power_hack(p_ptr->lev, magic))) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 80 + p_ptr->lev)) ident = TRUE;
+			int dam = _device_power_hack(80 + p_ptr->lev, magic);
+			if (drain_life(dir, dam)) 
+			{
+				hp_player(dam);
+				ident = TRUE;
+			}
 			break;
 		}
 
@@ -3182,70 +3194,70 @@ static int wand_effect(int sval, int dir, bool magic)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12 + p_ptr->lev / 4, 2);
+			fire_ball(GF_POIS, dir, _device_power_hack(12 + p_ptr->lev / 4, magic), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2 + p_ptr->lev / 10, 6));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, _device_power_hack(damroll(2 + p_ptr->lev / 10, 6), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(6 + p_ptr->lev / 7, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, _device_power_hack(damroll(6 + p_ptr->lev / 7, 8), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_CHARM_MONSTER:
 		{
-			if (charm_monster(dir, MAX(20, p_ptr->lev)))
+			if (charm_monster(dir, MAX(20, _device_power_hack(p_ptr->lev, magic))))
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(7 + p_ptr->lev / 6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, _device_power_hack(damroll(7 + p_ptr->lev / 6, 8), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(5 + p_ptr->lev / 8, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, _device_power_hack(damroll(5 + p_ptr->lev / 8, 8), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60 + 3 * p_ptr->lev / 4, 2);
+			fire_ball(GF_ACID, dir, _device_power_hack(60 + 3 * p_ptr->lev / 4, magic), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 40 + 3 * p_ptr->lev / 4, 2);
+			fire_ball(GF_ELEC, dir, _device_power_hack(40 + 3 * p_ptr->lev / 4, magic), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 70 + 3 * p_ptr->lev / 4, 2);
+			fire_ball(GF_FIRE, dir, _device_power_hack(70 + 3 * p_ptr->lev / 4, magic), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 50 + 3 * p_ptr->lev / 4, 2);
+			fire_ball(GF_COLD, dir, _device_power_hack(50 + 3 * p_ptr->lev / 4, magic), 2);
 			ident = TRUE;
 			break;
 		}
@@ -3263,14 +3275,14 @@ static int wand_effect(int sval, int dir, bool magic)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 200, -3);
+			fire_ball(GF_FIRE, dir, _device_power_hack(200, magic), -3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 180, -3);
+			fire_ball(GF_COLD, dir, _device_power_hack(180, magic), -3);
 			ident = TRUE;
 			break;
 		}
@@ -3281,31 +3293,31 @@ static int wand_effect(int sval, int dir, bool magic)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 240, -3);
+					fire_ball(GF_ACID, dir, _device_power_hack(240, magic), -3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 210, -3);
+					fire_ball(GF_ELEC, dir, _device_power_hack(210, magic), -3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 240, -3);
+					fire_ball(GF_FIRE, dir, _device_power_hack(240, magic), -3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 210, -3);
+					fire_ball(GF_COLD, dir, _device_power_hack(210, magic), -3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 180, -3);
+					fire_ball(GF_POIS, dir, _device_power_hack(180, magic), -3);
 					break;
 				}
 			}
@@ -3316,7 +3328,7 @@ static int wand_effect(int sval, int dir, bool magic)
 
 		case SV_WAND_DISINTEGRATE:
 		{
-			fire_ball(GF_DISINTEGRATE, dir, 200 + randint1(p_ptr->lev * 2), 2);
+			fire_ball(GF_DISINTEGRATE, dir, _device_power_hack(200 + randint1(p_ptr->lev * 2), magic), 2);
 			ident = TRUE;
 			break;
 		}
@@ -3329,21 +3341,21 @@ msg_print("ロケットを発射した！");
 			msg_print("You launch a rocket!");
 #endif
 
-			fire_rocket(GF_ROCKET, dir, 250 + p_ptr->lev * 3, 2);
+			fire_rocket(GF_ROCKET, dir, _device_power_hack(250 + p_ptr->lev * 3, magic), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_STRIKING:
 		{
-			fire_bolt(GF_METEOR, dir, damroll(15 + p_ptr->lev / 3, 13));
+			fire_bolt(GF_METEOR, dir, _device_power_hack(damroll(15 + p_ptr->lev / 3, 13), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_GENOCIDE:
 		{
-			fire_ball_hide(GF_GENOCIDE, dir, magic ? p_ptr->lev + 50 : 250, 0);
+			fire_ball_hide(GF_GENOCIDE, dir, magic ? p_ptr->lev + 50 : device_power(250), 0);
 			ident = TRUE;
 			break;
 		}
@@ -3563,7 +3575,6 @@ void do_cmd_aim_wand(void)
 	do_cmd_aim_wand_aux(item);
 }
 
-
 static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 {
 	int ident = FALSE;
@@ -3603,7 +3614,7 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 
 		case SV_ROD_ILLUMINATION:
 		{
-			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
+			if (lite_area(_device_power_hack(damroll(2, 8), magic), 2)) ident = TRUE;
 			break;
 		}
 
@@ -3642,7 +3653,7 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 
 		case SV_ROD_HEALING:
 		{
-			if (hp_player(500)) ident = TRUE;
+			if (hp_player(_device_power_hack(500, magic))) ident = TRUE;
 			if (set_stun(0, TRUE)) ident = TRUE;
 			if (set_cut(0, TRUE)) ident = TRUE;
 			if (set_shero(0,TRUE)) ident = TRUE;
@@ -3663,13 +3674,13 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 
 		case SV_ROD_SPEED:
 		{
-			if (set_fast(randint1(30) + 15, FALSE)) ident = TRUE;
+			if (set_fast(_device_power_hack(randint1(30) + 15, magic), FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_PESTICIDE:
 		{
-			if (dispel_monsters(4)) ident = TRUE;
+			if (dispel_monsters(_device_power_hack(4, magic))) ident = TRUE;
 			break;
 		}
 
@@ -3712,7 +3723,12 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 70 + 3 * p_ptr->lev / 2)) ident = TRUE;
+			int dam = _device_power_hack(70 + 3 * p_ptr->lev / 2, magic);
+			if (drain_life(dir, dam)) 
+			{
+				hp_player(dam);
+				ident = TRUE;
+			}
 			break;
 		}
 
@@ -3724,56 +3740,56 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6 + p_ptr->lev / 7, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, _device_power_hack(damroll(6 + p_ptr->lev / 7, 8), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(4 + p_ptr->lev / 9, 8));
+			fire_bolt_or_beam(10, GF_ELEC, dir, _device_power_hack(damroll(4 + p_ptr->lev / 9, 8), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(7 + p_ptr->lev / 6, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, _device_power_hack(damroll(7 + p_ptr->lev / 6, 8), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5 + p_ptr->lev / 8, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, _device_power_hack(damroll(5 + p_ptr->lev / 8, 8), magic));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60 + p_ptr->lev, 2);
+			fire_ball(GF_ACID, dir, _device_power_hack(60 + p_ptr->lev, magic), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 40 + p_ptr->lev, 2);
+			fire_ball(GF_ELEC, dir, _device_power_hack(40 + p_ptr->lev, magic), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 70 + p_ptr->lev, 2);
+			fire_ball(GF_FIRE, dir, _device_power_hack(70 + p_ptr->lev, magic), 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 50 + p_ptr->lev, 2);
+			fire_ball(GF_COLD, dir, _device_power_hack(50 + p_ptr->lev, magic), 2);
 			ident = TRUE;
 			break;
 		}

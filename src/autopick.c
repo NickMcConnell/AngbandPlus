@@ -1022,6 +1022,13 @@ static cptr autopick_line_from_entry_kill(autopick_type *entry)
 }
 
 
+static bool _collecting(object_type *o1, object_type *o2)
+{
+	if (o1->k_idx != o2->k_idx)	 return FALSE;
+	if (o1->tval == TV_WAND || o1->tval == TV_STAFF) return TRUE;
+	return object_similar(o1, o2);
+}
+
 /*
  * A function for Auto-picker/destroyer
  * Examine whether the object matches to the entry
@@ -1429,14 +1436,15 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 		 * But an item can not be absorbed into itself!
 		 */
 		if ((&inventory[j] != o_ptr) &&
-		    object_similar(&inventory[j], o_ptr))
+		    _collecting(&inventory[j], o_ptr))
+		{
 			return TRUE;
+		}
 	}
 
 	/* Not collecting */
 	return FALSE;
 }
-
 
 /*
  * A function for Auto-picker/destroyer
@@ -1460,7 +1468,8 @@ int is_autopick(object_type *o_ptr)
 	{
 		autopick_type *entry = &autopick_list[i];
 
-		if (is_autopick_aux(o_ptr, entry, o_name)) return i;
+		if (is_autopick_aux(o_ptr, entry, o_name)) 
+			return i;
 	}
 
 	/* No matching entry */

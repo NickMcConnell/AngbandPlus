@@ -838,6 +838,8 @@ extern void do_cmd_magic_eater(bool only_browse);
 extern bool repose_of_the_dead;
 extern int beam_chance(void);
 extern void cast_wonder(int dir);
+extern int device_power(int pow);
+extern int device_power_aux(int pow, int bonus);
 extern int spell_power(int pow);
 extern int spell_power_aux(int pow, int bonus);
 extern int spell_cap(int cap);
