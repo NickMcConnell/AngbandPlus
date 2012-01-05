@@ -7,7 +7,7 @@
 /* Hack: Increase spell power! */
 int spell_power_aux(int pow, int bonus)
 {
-	return pow + pow*bonus/13;
+	return pow + pow*bonus/20;
 }
 
 int spell_power(int pow)
@@ -894,6 +894,18 @@ static void cast_shuffle(void)
 
 		do_cmd_rerate(FALSE);
 		mut_lose_all();
+
+		{
+			msg_print("Press Space to continue.");
+			flush();
+			for (;;)
+			{
+				char ch = inkey();
+				if (ch == ' ') break;
+			}
+			prt("", 0, 0);
+			msg_flag = FALSE;
+		}
 	}
 	else if (die < 120)
 	{
@@ -5065,7 +5077,10 @@ static cptr do_trump_spell(int spell, int mode)
 
 			if (cast)
 			{
-				cast_shuffle();
+				if (get_check("Are you sure you wish to shuffle?"))
+					cast_shuffle();
+				else
+					return NULL;
 			}
 		}
 		break;
@@ -5142,7 +5157,7 @@ static cptr do_trump_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev*2);
 
 			if (info) return info_power(power);
 
@@ -7069,26 +7084,23 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 20:
-#ifdef JP
-		if (name) return "壁抜け";
-		if (desc) return "一定時間、半物質化し壁を通り抜けられるようになる。";
-#else
-		if (name) return "Walk through Wall";
-		if (desc) return "Gives ability to pass walls for a while.";
-#endif
-    
+	{
+		int amt = spell_power(plev*3);
+		if (name) return "Curing";
+		if (desc) return "Cures cuts, stuns, and hallucination.  Heals hp a bit.";
+		if (info) return info_heal(0, 0, amt);
+		if (cast)
 		{
-			int base = spell_power(plev / 2);
-
-			if (info) return info_duration(base, base);
-
-			if (cast)
-			{
-				set_kabenuke(randint1(base) + base, FALSE);
-			}
+			hp_player(amt);
+			set_blind(0, TRUE);
+			set_poisoned(0, TRUE);
+			set_confused(0, TRUE);
+			set_stun(0, TRUE);
+			set_cut(0, TRUE);
+			set_image(0, TRUE);
 		}
 		break;
-
+	}
 	case 21:
 		if (name) return T("Recharging", "魔力充填");
 		if (desc) return T("Recharges staves, wands or rods.", "杖/魔法棒の充填回数を増やすか、充填中のロッドの充填時間を減らす。");
@@ -7182,11 +7194,7 @@ static cptr do_craft_spell(int spell, int mode)
 					y = py + ddy_ddd[dir];
 					x = px + ddx_ddd[dir];
 					c_ptr = &cave[y][x];
-
-					/* Get the monster */
 					m_ptr = &m_list[c_ptr->m_idx];
-
-					/* Hack -- attack monsters */
 					if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
 						py_attack(y, x, 0);
 				}
@@ -7237,12 +7245,7 @@ static cptr do_craft_spell(int spell, int mode)
 		if (desc) return "Makes current weapon a random ego weapon.";
 #endif
     
-		{
-			if (cast)
-			{
-				brand_weapon(-1);
-			}
-		}
+		if (cast) brand_weapon(-1);
 		break;
 
 	case 29:

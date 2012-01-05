@@ -55,7 +55,7 @@
 
 static int _device_power_hack(int pow, bool magic)
 {
-	if (magic) return pow; /* Magic Eaters do not benefit from device power */
+	if (magic) return spell_power(pow);
 	return device_power(pow);
 }
 

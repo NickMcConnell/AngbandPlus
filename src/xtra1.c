@@ -3711,7 +3711,7 @@ void calc_bonuses(void)
 	{
 	case CLASS_HIGH_MAGE:
 		p_ptr->spell_power += p_ptr->base_spell_power; 
-		p_ptr->device_power += p_ptr->base_spell_power*2; 
+		p_ptr->device_power += p_ptr->base_spell_power; 
 		p_ptr->stat_add[A_STR] -= p_ptr->base_spell_power;
 		p_ptr->stat_add[A_INT] += p_ptr->base_spell_power;
 		p_ptr->stat_add[A_DEX] -= p_ptr->base_spell_power;

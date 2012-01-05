@@ -2387,7 +2387,7 @@ msg_format("%^sから落ちてしまった！", m_name);
 		p_ptr->redraw |= (PR_MANA);
 	}
 
-	if (ht_cnt == 0 && !p_ptr->is_dead && allow_ticked_off(r_ptr))
+	if (ht_cnt == 0 && !p_ptr->is_dead && allow_ticked_off(r_ptr) && one_in_(2))
 	{
 		if (!(m_ptr->smart & SM_TICKED_OFF))
 		{

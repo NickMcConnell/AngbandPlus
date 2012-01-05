@@ -1126,7 +1126,7 @@ void draconian_breath_spell(int cmd, variant *res)
 		break;
 	}
 	case SPELL_COST_EXTRA:
-		var_set_int(res, (p_ptr->lev+1)/2);
+		var_set_int(res, p_ptr->lev/3);
 		break;
 	default:
 		default_spell(cmd, res);

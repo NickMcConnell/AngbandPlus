@@ -755,8 +755,6 @@ bool monst_spell_monst(int m_idx)
 	/* Check for spell failure (inate attacks never fail) */
 	if (!spell_is_inate(thrown_spell) && (in_no_magic_dungeon || (MON_STUNNED(m_ptr) && one_in_(2))))
 	{
-		disturb(1, 0);
-		/* Message */
 #ifdef JP
 		if (see_m) msg_format("%^sは呪文を唱えようとしたが失敗した。", m_name);
 #else

@@ -3176,7 +3176,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					if (pv > 3) pv = 3;
 
 					o_ptr->pval = -pv;
-					break;
+					return; /* No ego or artifacts, please!*/
 				}
 
 				case SV_RING_SPELL_CAP:
@@ -3680,7 +3680,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					if (pv > 3) pv = 3;
 
 					o_ptr->pval = -pv;
-					break;
+					return; /* No ego or artifacts, please!*/
 				}
 
 				case SV_AMULET_SPELL_CAP:
@@ -4716,6 +4716,79 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 /*
  * Hack -- determine if a template is "good"
  */
+static bool kind_is_great(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	/* Analyze the item type */
+	switch (k_ptr->tval)
+	{
+		/* Armor -- Good unless damaged */
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		{
+			if (k_ptr->to_a < 0) return (FALSE);
+			return (TRUE);
+		}
+
+		/* Weapons -- Good unless damaged */
+		case TV_BOW:
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		{
+			if (k_ptr->to_h < 0) return (FALSE);
+			if (k_ptr->to_d < 0) return (FALSE);
+			return (TRUE);
+		}
+
+		/* Ammo -- Arrows/Bolts are good */
+		case TV_BOLT:
+		case TV_ARROW:
+		{
+			return (TRUE);
+		}
+
+		/* Books -- High level books are good (except Arcane books) */
+		case TV_LIFE_BOOK:
+		case TV_SORCERY_BOOK:
+		case TV_NATURE_BOOK:
+		case TV_CHAOS_BOOK:
+		case TV_DEATH_BOOK:
+		case TV_TRUMP_BOOK:
+		case TV_CRAFT_BOOK:
+		case TV_DAEMON_BOOK:
+		case TV_CRUSADE_BOOK:
+		case TV_NECROMANCY_BOOK:
+		case TV_MUSIC_BOOK:
+		case TV_HISSATSU_BOOK:
+		case TV_HEX_BOOK:
+		{
+			if (k_ptr->sval == SV_BOOK_MIN_GOOD) return one_in_(3); /* Third Spellbooks */
+			if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return TRUE;   /* Fourth Spellbooks */
+			return (FALSE);
+		}
+		case TV_RING:
+		{
+			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
+			if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
+			if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE);
+			return (FALSE);
+		}
+	}
+
+	/* Assume not good */
+	return (FALSE);
+}
+
 static bool kind_is_good(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
@@ -4772,7 +4845,8 @@ static bool kind_is_good(int k_idx)
 		case TV_HISSATSU_BOOK:
 		case TV_HEX_BOOK:
 		{
-			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return one_in_(2);
+			if (k_ptr->sval == SV_BOOK_MIN_GOOD) return one_in_(3); /* Third Spellbooks */
+			if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return TRUE;   /* Fourth Spellbooks */
 			return (FALSE);
 		}
 		case TV_RING:
@@ -4784,7 +4858,7 @@ static bool kind_is_good(int k_idx)
 		}
 		case TV_POTION:
 		{
-			if (k_ptr->sval == SV_POTION_RESISTANCE) return TRUE;
+			if (k_ptr->sval == SV_POTION_RESISTANCE) return one_in_(2);
 			if (k_ptr->sval == SV_POTION_LIFE) return one_in_(5);
 			if (k_ptr->sval == SV_POTION_STAR_HEALING) return one_in_(5);
 			if (k_ptr->sval == SV_POTION_AUGMENTATION) return one_in_(10);
@@ -4851,6 +4925,11 @@ bool make_object(object_type *j_ptr, u32b mode)
 		int k_idx;
 
 		/* Good objects */
+		if ((mode & AM_GREAT) && !get_obj_num_hook)
+		{
+			/* Activate restriction (if already specified, use that) */
+			get_obj_num_hook = kind_is_great;
+		}
 		if ((mode & AM_GOOD) && !get_obj_num_hook)
 		{
 			/* Activate restriction (if already specified, use that) */

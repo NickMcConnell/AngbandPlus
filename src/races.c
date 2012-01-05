@@ -532,7 +532,7 @@ int get_racial_powers(spell_info* spells, int max)
 			{
 				spell_info *spell = &spells[ct++];
 				spell->level = 1;
-				spell->cost = 0;
+				spell->cost = 1;
 				spell->fail = calculate_fail_rate(1, 70, p_ptr->stat_ind[A_CON]);
 				spell->fn = draconian_breath_spell;
 				break;

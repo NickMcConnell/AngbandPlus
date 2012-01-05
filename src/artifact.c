@@ -2522,7 +2522,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		else 
 		{
 			power_level = 3;
-			if (one_in_(8)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+			if (one_in_(12)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
 		}
 	}
 

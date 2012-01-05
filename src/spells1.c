@@ -5599,7 +5599,7 @@ note_dies = "はドロドロに溶けた！";
 			}
 			else
 			{
-				m_ptr->ego_whip_ct = 4;
+				m_ptr->ego_whip_ct = 5;
 				m_ptr->ego_whip_pow = psion_power();
 			}
 			break;
@@ -6447,12 +6447,13 @@ note = "には効果がなかった！";
 
 			/* Attempt a saving throw */
 			if (randint0(100 + dam) < (r_ptr->level + 50))
+			/*if (mon_save_p(m_ptr->r_idx, mp_ptr->spell_stat))*/
 			{
 
 #ifdef JP
 note = "には効果がなかった。";
 #else
-				note = "is unaffected!";
+				note = " is unaffected!";
 #endif
 				dam = 0;
 			}
@@ -7177,10 +7178,10 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		}
 	}
 
-	if (mut_present(MUT_EVASION))
+	/* Yes, it is as ugly as this ... sigh */
+	if (mut_present(MUT_EVASION) && hack_m_spell >= 96+8 && hack_m_spell <= 96+31)
 	{
-		/* Yes, it is as ugly as this ... sigh */
-		if (hack_m_spell >= 96+8 && hack_m_spell <= 96+31)
+		if (randint0(100) < 70)
 		{
 			msg_print("You evade the attack!");
 			dam -= dam/3;

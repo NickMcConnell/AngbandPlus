@@ -463,6 +463,9 @@ void teleport_player(int dis, u32b mode)
 				if ((mode & TELEPORT_DISENGAGE) && tmp_m_idx == p_ptr->duelist_target_idx)
 					continue;
 
+				if (!projectable(oy+yy, ox+xx, oy, ox)) /* Careful: Player has already left!!! */
+					continue;
+
 				/*
 				 * The latter limitation is to avoid
 				 * totally unkillable suckers...

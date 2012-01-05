@@ -4874,7 +4874,8 @@ void do_cmd_store(void)
 	{
 		int xp = town[p_ptr->town_num].store[which].last_exp;
 		xp += MIN(MAX(xp / 20, 1000), 100000);
-		if ( p_ptr->max_plv <= town[p_ptr->town_num].store[which].last_lev
+		if ( !ironman_downward
+		  && p_ptr->max_plv <= town[p_ptr->town_num].store[which].last_lev
 		  && p_ptr->max_exp <= xp )
 		{
 			if (p_ptr->wizard)
