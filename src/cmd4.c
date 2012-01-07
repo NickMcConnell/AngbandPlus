@@ -1989,7 +1989,7 @@ void do_cmd_options_aux(int page, cptr info)
 {
 	char    ch;
 	int     i, k = 0, n = 0, l;
-	int     opt[24];
+	int     opt[32];
 	char    buf[80];
 	bool    browse_only = (page == OPT_PAGE_BIRTH) && character_generated &&
 	                      (!p_ptr->wizard || !allow_debug_opts);
@@ -1997,7 +1997,7 @@ void do_cmd_options_aux(int page, cptr info)
 /*	browse_only = FALSE; */
 
 	/* Lookup the options */
-	for (i = 0; i < 24; i++) opt[i] = 0;
+	for (i = 0; i < 32; i++) opt[i] = 0;
 
 	/* Scan the options */
 	for (i = 0; option_info[i].o_desc; i++)
@@ -6549,6 +6549,10 @@ static void do_cmd_knowledge_artifacts(void)
 	if (random_artifacts)
 	{
 		fprintf(fff, "You won't find any fixed artifacts this game.");
+	}
+	else if (no_artifacts)
+	{
+		fprintf(fff, "You won't find any artifacts this game.");
 	}
 	else
 	{

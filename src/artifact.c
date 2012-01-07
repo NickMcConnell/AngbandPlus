@@ -1830,6 +1830,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	bool has_resistance = FALSE;
 	int lev = object_level;
 	bool is_falcon_sword = FALSE;
+
+	if (no_artifacts) return 0;
 	
 	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_HAYABUSA)
 		is_falcon_sword = TRUE;
@@ -3795,6 +3797,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 	int				k_idx, i;
 
 	if (!a_ptr->name) return FALSE;
+	if (no_artifacts) return FALSE;
 
 	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
 	if (!k_idx) return FALSE;
@@ -3874,6 +3877,8 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
  */
 bool create_named_art(int a_idx, int y, int x)
 {
+	if (no_artifacts) return FALSE;
+
 	if (random_artifacts)
 	{
 		object_type forge;

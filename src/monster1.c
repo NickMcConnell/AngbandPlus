@@ -50,8 +50,8 @@ bool mon_save_p(int r_idx, int stat)
 	/* Use linearized player stat for the power */
 	if (stat >= 0 && stat < 6) s = p_ptr->stat_ind[stat] + 3;
 
-	if (p_ptr->wizard)
-		msg_format("MonSave: %d +d100 > %d + %d?", ml, pl, s);
+	/*if (p_ptr->wizard)
+		msg_format("MonSave: %d +d100 > %d + %d?", ml, pl, s);*/
 
 	if (ml + randint1(100) > pl + s) return TRUE;
 	return FALSE;

@@ -29,7 +29,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 82
+#define FAKE_VER_PATCH 83
 
 
 /*
@@ -47,7 +47,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 82
+#define H_VER_PATCH 83
 #define H_VER_EXTRA 0
 
 
@@ -1550,6 +1550,7 @@
 #define EGO_AURA_ELEC           47
 #define EGO_AURA_COLD          128
 #define EGO_BAT                129
+#define EGO_CLOAK_THIEVERY     240
 
 /* Gloves */
 #define EGO_FREE_ACTION         48
@@ -1570,6 +1571,7 @@
 #define EGO_NOISE               61
 #define EGO_SLOWNESS            62
 #define EGO_ANNOYANCE           63
+#define EGO_BOOTS_THIEVERY     241
 
 /* Weapons */
 #define EGO_HA                  64

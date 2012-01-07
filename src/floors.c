@@ -669,7 +669,7 @@ static void update_unique_artifact(s16b cur_floor_id)
 		}
 	}
 
-	/* Maintain artifatcs */
+	/* Maintain artifacts */
 	for (i = 1; i < o_max; i++)
 	{
 		object_type *o_ptr = &o_list[i];

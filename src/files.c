@@ -2322,6 +2322,11 @@ static void display_player_various(void)
 
 	display_player_one_line(ENTRY_SHOTS, format("%d.%02d", shots, shot_frac), TERM_L_BLUE);
 
+	if (p_ptr->pclass == CLASS_DUELIST)
+	{
+		if (p_ptr->lev >= 10)
+			damage[0] = damage[0] * 2;
+	}
 
 	if ((damage[0]+damage[1]) == 0)
 		desc = "nil!";
@@ -5062,6 +5067,17 @@ static void dump_aux_options(FILE *fff)
 		fprintf(fff, "\n Arena Levels:       OFF");
 #endif
 
+
+	if (ironman_quests)
+		fprintf(fff, "\n Ironman Quests:     ENABLED");
+
+	if (no_artifacts)
+		fprintf(fff, "\n No Artifacts:       ENABLED");
+	else if (random_artifacts)
+		fprintf(fff, "\n Random Artifacts:   ENABLED");
+
+	if (no_egos)
+		fprintf(fff, "\n No Egos:            ENABLED");
 
 	fputc('\n', fff);
 

@@ -6165,7 +6165,7 @@ E:Magic Device Mastery:Mithril
 G:":B
 I:40:23:0
 W:35:0:3:1000
-A:35/4
+A:35/8
 F:MAGIC_MASTERY | HIDE_TYPE
 
 N:645:¥í¡¼¥Ö

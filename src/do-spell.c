@@ -7085,7 +7085,7 @@ static cptr do_craft_spell(int spell, int mode)
 
 	case 20:
 	{
-		int amt = spell_power(plev*3);
+		int amt = spell_power(plev*3/2);
 		if (name) return "Curing";
 		if (desc) return "Cures cuts, stuns, and hallucination.  Heals hp a bit.";
 		if (info) return info_heal(0, 0, amt);

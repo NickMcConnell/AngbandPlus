@@ -1476,6 +1476,8 @@ bool brand_weapon_aux(int ego_type, int item)
 	object_type *o_ptr;
 	int  idx = _find_brand_type(ego_type);
 
+	if (no_egos) return FALSE;
+
 	if (idx < 0) idx = _get_random_brand(dun_level);
 	if (idx < 0) 
 	{

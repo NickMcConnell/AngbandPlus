@@ -394,7 +394,7 @@ F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC
 
 N:48:呾摦襞日內及
 E:of Free Action
-X:34:11
+X:34:10
 F:FREE_ACT
 W:0:4:0:1000
 
@@ -407,30 +407,30 @@ F:SHOW_MODS
 
 N:50:諉奿及
 E:of Agility
-X:34:14
+X:34:12
 W:0:9:0:1000
 C:0:0:0:5
 F:DEX | HIDE_TYPE
 
 N:51:珃恘及
 E:of Power
-X:34:22
+X:34:25
 W:0:18:0:8000
 C:5:5:0:5
 F:STR | SHOW_MODS | HIDE_TYPE | XTRA_H_RES
 
 N:52:蜓頗及
 E:of Genji
-X:34:30
+X:34:37
 W:0:36:0:50000
 C:8:0:0:3
 F:DEX | SHOW_MODS | HIDE_TYPE
 
 N:53:呺恘障т及
 E:of Magic Mastery
-X:34:17
+X:34:30
 W:0:7:0:2000
-C:0:0:0:4
+C:0:0:0:3
 F:MAGIC_MASTERY | HIDE_TYPE
 
 N:54:檀澆及

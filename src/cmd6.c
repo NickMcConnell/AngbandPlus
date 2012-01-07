@@ -2197,7 +2197,14 @@ msg_print("巻物は煙を立てて消え去った！");
 		case SV_SCROLL_ARTIFACT:
 		{
 			ident = TRUE;
-			if (!artifact_scroll()) used_up = FALSE;
+			if (no_artifacts)
+			{
+				if (!brand_weapon(-1)) used_up = FALSE;
+			}
+			else
+			{
+				if (!artifact_scroll()) used_up = FALSE;
+			}
 			break;
 		}
 
@@ -2266,7 +2273,17 @@ msg_print("巻物は煙を立てて消え去った！");
 				}
 				else
 				{
-					create_artifact(o_ptr, CREATE_ART_SCROLL | CREATE_ART_GOOD);
+					if (no_artifacts)
+					{
+						if (object_is_melee_weapon(o_ptr))
+						{
+							if (!brand_weapon_aux(-1, item)) used_up = FALSE;
+						}
+					}
+					else
+					{
+						create_artifact(o_ptr, CREATE_ART_SCROLL | CREATE_ART_GOOD);
+					}
 				}
 			}
 			break;

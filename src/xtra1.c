@@ -4595,7 +4595,12 @@ void calc_bonuses(void)
 		p_ptr->to_h_b += bonus_to_h;
 		p_ptr->to_h_m += bonus_to_h;
 		p_ptr->to_d_m += bonus_to_d;
-		p_ptr->to_d_b += bonus_to_d;
+		if (o_ptr->name1 != ART_MASTER_TONBERRY)
+		{
+			p_ptr->to_d_b += bonus_to_d;
+			/*if (object_is_known(o_ptr))
+				p_ptr->dis_to_d_b += bonus_to_d;*/
+		}
 
 		/* Apply the mental bonuses tp hit/damage, if known */
 		if (object_is_known(o_ptr)) p_ptr->dis_to_h_b += bonus_to_h;
@@ -5174,7 +5179,7 @@ void calc_bonuses(void)
 
 	if (buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
 	{
-		int penalty1, penalty2;
+		int penalty1, penalty2, to_d;
 		int skill = p_ptr->skill_exp[GINOU_NITOURYU];
 
 		if (p_ptr->tim_genji && skill < 7000)
@@ -5227,6 +5232,35 @@ void calc_bonuses(void)
 		p_ptr->weapon_info[1].to_h -= penalty2;
 		p_ptr->weapon_info[0].dis_to_h -= penalty1;
 		p_ptr->weapon_info[1].dis_to_h -= penalty2;
+
+		/* Hack: Dual Wielding now decreases the deadliness of strikes as you need to
+		   focus your concentration on both weapons. Genji eliminates this penalty.
+		   To summarize:
+		   * Two Handed Wielding -> 3/2 Strength Bonus
+		   * One Handed Wielding -> Normal Strength Bonus
+		   * Dual Wielding       -> 2/3 Strength Bonus
+		*/
+		to_d = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+		if (to_d > 0 && !easy_2weapon && !p_ptr->easy_2weapon)
+		{
+			to_d /= 3;
+			p_ptr->weapon_info[0].to_d -= to_d;
+			p_ptr->weapon_info[0].dis_to_d -= to_d;
+			p_ptr->weapon_info[1].to_d -= to_d;
+			p_ptr->weapon_info[1].dis_to_d -= to_d;
+		}
+
+		/* Hack: Berserking now prorates damage bonus when dual wielding unless
+		   player has Genji bonus.
+		*/
+		if (IS_SHERO() && !easy_2weapon && !p_ptr->easy_2weapon)
+		{
+			to_d = 3+(p_ptr->lev/5);
+			p_ptr->weapon_info[0].to_d -= to_d/2;
+			p_ptr->weapon_info[0].dis_to_d -= to_d/2;
+			p_ptr->weapon_info[1].to_d -= (to_d + 1)/2;
+			p_ptr->weapon_info[1].dis_to_d -= (to_d + 1)/2;
+		}
 	}
 
 	/* Extract the current weight (in tenth pounds) */
@@ -5650,8 +5684,10 @@ void calc_bonuses(void)
 			if (class_ptr != NULL && class_ptr->calc_weapon_bonuses != NULL)
 				class_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
 
-			/* Require at least one blow */
-			if (p_ptr->weapon_info[i].num_blow < 1) p_ptr->weapon_info[i].num_blow = 1;
+			/* Require at least one blow
+			   CTK: No ... negative attacks are now zero attacks!
+			 */
+			if (p_ptr->weapon_info[i].num_blow < 1) p_ptr->weapon_info[i].num_blow = 0;
 
 			/* Boost digging skill by weapon weight */
 			p_ptr->skill_dig += (o_ptr->weight / 10);
@@ -6000,7 +6036,7 @@ void calc_bonuses(void)
 	if (p_ptr->ryoute && !omoi)
 	{
 		int bonus_to_h=0, bonus_to_d=0;
-		bonus_to_d = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128)/2;
+		bonus_to_d = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3/4;
 		bonus_to_h = ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128) + ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 
 		p_ptr->weapon_info[default_hand].to_h += MAX(bonus_to_h,1);

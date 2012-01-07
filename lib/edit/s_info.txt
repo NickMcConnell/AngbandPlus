@@ -333,7 +333,7 @@ W:4:62:1:4  #
 W:4:63:1:4  # 
 # Skill
 S:0:0:8000  # SUDE
-S:1:4000:8000  # NITOURYU
+S:1:0:8000  # NITOURYU
 S:2:0:5000  # RIDING
 
 ### MAGE ###
@@ -1329,7 +1329,7 @@ W:4:62:0:2  #
 W:4:63:0:2  # 
 # Skill
 S:0:0:8000  # SUDE
-S:1:4000:8000  # NITOURYU
+S:1:0:8000  # NITOURYU
 S:2:0:2000  # RIDING
 
 ### RANGER ###
@@ -6641,7 +6641,7 @@ W:4:62:1:4  #
 W:4:63:1:4  # 
 # Skill
 S:0:0:4000  # SUDE
-S:1:4000:8000  # NITOURYU
+S:1:0:8000  # NITOURYU
 S:2:0:2000  # RIDING
 
 ### ForceTrainer ###
@@ -8965,7 +8965,7 @@ W:4:62:0:2  #
 W:4:63:0:2  # 
 # Skill
 S:0:0:7000  # SUDE
-S:1:4000:8000  # NITOURYU
+S:1:0:8000  # NITOURYU
 S:2:0:0  # RIDING
 
 ### SNIPER ###
@@ -9961,7 +9961,7 @@ W:4:62:1:4  #
 W:4:63:1:4  # 
 # Skill
 S:0:0:4000  # SUDE
-S:1:4000:8000  # NITOURYU
+S:1:0:8000  # NITOURYU
 S:2:0:2000  # RIDING
 
 ### WARLOCK ###

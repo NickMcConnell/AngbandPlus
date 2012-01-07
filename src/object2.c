@@ -2140,6 +2140,7 @@ static bool make_artifact_special(object_type *o_ptr)
 
 	/* No artifacts in the town */
 	if (!dun_level) return (FALSE);
+	if (no_artifacts) return FALSE;
 
 	/* Themed object */
 	if (get_obj_num_hook) return (FALSE);
@@ -2233,7 +2234,8 @@ static bool make_artifact(object_type *o_ptr)
 
 
 	/* No artifacts in the town */
-	if (!dun_level) return (FALSE);
+	if (!dun_level) return FALSE;
+	if (no_artifacts) return FALSE;
 
 	/* Paranoia -- no "plural" artifacts */
 	if (o_ptr->number != 1) return (FALSE);
@@ -3820,7 +3822,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 				case SV_AMULET_MAGIC_MASTERY:
 				{
-					o_ptr->pval = 1 + m_bonus(4, level);
+					o_ptr->pval = 1 + m_bonus(3, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -4375,7 +4377,10 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 		power = 1;
 
 		/* Roll for "great" */
-		if ((mode & AM_GREAT) || magik(f2))
+		if (no_egos)
+		{
+		}
+		else if ((mode & AM_GREAT) || magik(f2))
 		{
 			power = 2;
 
@@ -4391,7 +4396,13 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 		power = -1;
 
 		/* Roll for "broken" */
-		if (magik(f2)) power = -2;
+		if (no_egos)
+		{
+		}
+		else if (magik(f2))
+		{
+			power = -2;
+		}
 	}
 
 	/* Apply curse */
@@ -4668,7 +4679,12 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 				else if (o_ptr->name2 == EGO_BAT)
 				{
 					o_ptr->pval = randint1(e_ptr->max_pval);
-					if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint1(2);
+					/*if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint1(2);*/
+				}
+				else if (o_ptr->name2 == EGO_CLOAK_THIEVERY)
+				{
+					o_ptr->pval = randint1(e_ptr->max_pval);
+					/*if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint1(2);*/
 				}
 				else
 				{
@@ -4677,10 +4693,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 			}
 			if (o_ptr->name2 == EGO_SPEED)
 			{
-				if (lev < 50)
-					o_ptr->pval = 2 + randint1(o_ptr->pval);
-				else
-					o_ptr->pval += 3;
+				o_ptr->pval = 1 + m_bonus(9, object_level);
 			}
 
 			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA) && (o_ptr->pval > 2) && (o_ptr->name2 != EGO_ATTACKS))
@@ -4772,7 +4785,7 @@ static bool kind_is_great(int k_idx)
 		case TV_HISSATSU_BOOK:
 		case TV_HEX_BOOK:
 		{
-			if (k_ptr->sval == SV_BOOK_MIN_GOOD) return one_in_(3); /* Third Spellbooks */
+			/*if (k_ptr->sval == SV_BOOK_MIN_GOOD) return one_in_(3);  Third Spellbooks */
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD + 1) return TRUE;   /* Fourth Spellbooks */
 			return (FALSE);
 		}
@@ -4782,6 +4795,17 @@ static bool kind_is_great(int k_idx)
 			if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
 			if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE);
 			return (FALSE);
+		}
+		case TV_POTION:
+		{
+			if (k_ptr->sval == SV_POTION_LIFE) return TRUE;
+			if (k_ptr->sval == SV_POTION_STAR_HEALING) return TRUE;
+			return FALSE;
+		}
+		case TV_WAND:
+		{
+			if (k_ptr->sval == SV_WAND_ROCKETS) return TRUE;
+			return FALSE;
 		}
 	}
 
@@ -4858,7 +4882,7 @@ static bool kind_is_good(int k_idx)
 		}
 		case TV_POTION:
 		{
-			if (k_ptr->sval == SV_POTION_RESISTANCE) return one_in_(2);
+			if (k_ptr->sval == SV_POTION_RESISTANCE) return one_in_(5);
 			if (k_ptr->sval == SV_POTION_LIFE) return one_in_(5);
 			if (k_ptr->sval == SV_POTION_STAR_HEALING) return one_in_(5);
 			if (k_ptr->sval == SV_POTION_AUGMENTATION) return one_in_(10);

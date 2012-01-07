@@ -1418,7 +1418,7 @@ return ("回復 (777)、癒し、士気高揚 : 300 ターン毎");
 		}
 		case ART_MAGLOR:
 		{
-			return ("heal (777), curing and heroism every 777 turns");
+			return ("restore mana every 777 turns");
 		}
 		case ART_JULIAN:
 		{

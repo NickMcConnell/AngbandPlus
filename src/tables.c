@@ -6778,6 +6778,12 @@ option_type option_info[] =
 	{ &random_artifacts,				FALSE, OPT_PAGE_BIRTH, 6, 23,
 	"random_artifacts",					"Only create random artifacts" },
 
+	{ &no_artifacts,				    FALSE, OPT_PAGE_BIRTH, 6, 24,
+	"no_artifacts",					    "Never create artifacts" },
+
+	{ &no_egos,				            FALSE, OPT_PAGE_BIRTH, 6, 25,
+	"no_egos",					        "Never create ego items" },
+
 	/*** Easy Object Auto-Destroyer ***/
 
 #ifdef JP

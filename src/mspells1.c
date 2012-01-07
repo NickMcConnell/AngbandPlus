@@ -3690,7 +3690,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 				}
 			case MON_SANTACLAUS:
 				{
-					int num = 8;
+					int num = randint1(4);
 					msg_format("%^s says 'Now Dasher! Now Dancer! Now, Prancer and Vixen! On, Comet! On, Cupid! On, Donner and Blitzen!'", m_name);
 					for (k = 0; k < num; k++)
 					{
@@ -3700,7 +3700,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 				}
 			case MON_ZEUS:
 			{
-				int num = 8;
+				int num = randint1(4);
 				msg_format("%^s summons Shamblers!", m_name);
 				for (k = 0; k < num; k++)
 				{
@@ -3710,7 +3710,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			}
 			case MON_POSEIDON:
 			{
-				int num = 8;
+				int num = randint1(4);
 				fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
 				msg_format("%^s summons Greater Kraken!", m_name);
 				for (k = 0; k < num; k++)
@@ -3721,7 +3721,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			}
 			case MON_HADES:
 			{
-				int num = 4;
+				int num = randint1(4);
 				fire_ball_hide(GF_LAVA_FLOW, 0, 3, 8);
 				msg_format("%^s summons Death!", m_name);
 				for (k = 0; k < num; k++)
@@ -3736,7 +3736,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			}
 			case MON_ATHENA:
 			{
-				int num = 8;
+				int num = randint1(4);
 				msg_format("%^s summons friends!", m_name);
 				if (one_in_(3) && r_info[MON_ZEUS].cur_num == 0 && r_info[MON_ZEUS].max_num == 1)
 				{
@@ -3766,7 +3766,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			}
 			case MON_APOLLO:
 			{
-				int num = 8;
+				int num = randint1(4);
 				msg_format("%^s summons help!", m_name);
 				if (one_in_(3) && r_info[MON_ARTEMIS].cur_num == 0 && r_info[MON_ARTEMIS].max_num == 1)
 				{
@@ -3792,7 +3792,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			}
 			case MON_HEPHAESTUS:
 			{
-				int num = 8;
+				int num = randint1(4);
 				msg_format("%^s summons friends!", m_name);
 				if (one_in_(3) && r_info[MON_ZEUS].cur_num == 0 && r_info[MON_ZEUS].max_num == 1)
 				{
@@ -3813,7 +3813,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			}
 			case MON_HERA:
 			{
-				int num = 8;
+				int num = randint1(4);
 				msg_format("%^s summons aid!'", m_name);
 				if (one_in_(3) && r_info[MON_ARES].cur_num == 0 && r_info[MON_ARES].max_num == 1)
 				{
@@ -3834,7 +3834,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 			}
 			case MON_DEMETER:
 			{
-				int num = 8;
+				int num = randint1(4);
 				msg_format("%^s summons ents!", m_name);
 				for (k = 0; k < num; k++)
 				{

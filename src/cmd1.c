@@ -189,6 +189,118 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 		msg_print("Only cursed Rune Swords may feed.");
 }
 
+static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
+{
+	u32b flgs[TR_FLAG_SIZE];
+	int k;
+
+	/* Sound */
+	sound(SOUND_HIT);
+
+	/* Message */
+#ifdef JP
+	msg_print("振り回した大鎌が自分自身に返ってきた！");
+#else
+	msg_print("Your scythe returns to you!");
+#endif
+
+	/* Extract the flags */
+	object_flags(o_ptr, flgs);
+
+	k = damroll(o_ptr->dd + p_ptr->weapon_info[hand].to_dd, o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
+	{
+		int mult;
+		switch (p_ptr->mimic_form)
+		{
+		case MIMIC_NONE:
+			switch (p_ptr->prace)
+			{
+				case RACE_YEEK:
+				case RACE_KLACKON:
+				case RACE_HUMAN:
+				case RACE_AMBERITE:
+				case RACE_DUNADAN:
+				case RACE_BARBARIAN:
+				case RACE_BEASTMAN:
+					mult = 25;break;
+				case RACE_SNOTLING:
+				case RACE_HALF_TROLL:
+				case RACE_HALF_OGRE:
+				case RACE_HALF_GIANT:
+				case RACE_HALF_TITAN:
+				case RACE_CYCLOPS:
+				case RACE_IMP:
+				case RACE_SKELETON:
+				case RACE_ZOMBIE:
+				case RACE_VAMPIRE:
+				case RACE_SPECTRE:
+				case RACE_DEMON:
+				case RACE_DRACONIAN:
+					mult = 30;break;
+				default:
+					mult = 10;break;
+			}
+			break;
+		case MIMIC_DEMON:
+		case MIMIC_DEMON_LORD:
+		case MIMIC_VAMPIRE:
+			mult = 30;break;
+		default:
+			mult = 10;break;
+		}
+
+		if (p_ptr->align < 0 && mult < 20)
+			mult = 20;
+		if (!(p_ptr->resist_acid || IS_OPPOSE_ACID() || p_ptr->immune_acid) && (mult < 25))
+			mult = 25;
+		if (!(p_ptr->resist_elec || IS_OPPOSE_ELEC() || p_ptr->immune_elec) && (mult < 25))
+			mult = 25;
+		if (!(p_ptr->resist_fire || IS_OPPOSE_FIRE() || p_ptr->immune_fire) && (mult < 25))
+			mult = 25;
+		if (!(p_ptr->resist_cold || IS_OPPOSE_COLD() || p_ptr->immune_cold) && (mult < 25))
+			mult = 25;
+		if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()) && (mult < 25))
+			mult = 25;
+
+		if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (p_ptr->msp / 30)))
+		{
+			p_ptr->csp -= (1+(p_ptr->msp / 30));
+			p_ptr->redraw |= (PR_MANA);
+			mult = mult * 3 / 2 + 20;
+		}
+		k *= mult;
+		k /= 10;
+	}
+
+	k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
+	if (one_in_(6))
+	{
+		int mult = 2;
+#ifdef JP
+		msg_format("グッサリ切り裂かれた！");
+#else
+		msg_format("Your weapon cuts deep into yourself!");
+#endif
+		/* Try to increase the damage */
+		while (one_in_(4))
+		{
+			mult++;
+		}
+
+		k *= mult;
+	}
+	k += (p_ptr->weapon_info[hand].to_d + o_ptr->to_d);
+
+	if (k < 0) k = 0;
+
+#ifdef JP
+	take_hit(DAMAGE_FORCE, k, "死の大鎌", -1);
+#else
+	take_hit(DAMAGE_FORCE, k, "Death scythe", -1);
+#endif
+
+	redraw_stuff();
+}
 
 /*
  * Determine if the player "hits" a monster (normal combat).
@@ -2855,35 +2967,19 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			object_flags(o_ptr, flgs);
 
 			/* Select a chaotic effect (50% chance) */
-			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(2))
+			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(7))
 			{
 				if (one_in_(10))
 				chg_virtue(V_CHANCE, 1);
 
-				if (randint1(5) < 3)
+				if (randint1(5) < 4)
 				{
-					/* Vampiric (20%) */
 					chaos_effect = 1;
-				}
-				else if (one_in_(250))
-				{
-					/* Quake (0.12%) */
-					chaos_effect = 0;
-				}
-				else if (!one_in_(10))
-				{
-					/* Confusion (26.892%) */
-					chaos_effect = 3;
-				}
-				else if (one_in_(2))
-				{
-					/* Teleport away (1.494%) */
-					chaos_effect = 0;
 				}
 				else
 				{
-					/* Polymorph (1.494%) */
-					chaos_effect = 0;
+					if (one_in_(5))
+						chaos_effect = 3;
 				}
 			}
 
@@ -3304,7 +3400,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				if (duelist_attack && 
 					p_ptr->lev >= 10) 
 				{
-					k *= 2;
+					k = k * 2;
 				}
 				if ( p_ptr->lev >= 15	/* Hamstring */
 					&& !(r_ptr->flags1 & (RF1_UNIQUE))
@@ -3338,7 +3434,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			else if (p_ptr->pclass == CLASS_DUELIST && p_ptr->lev >= 30)
 			{
 				/* Duelist: Careful Aim vs a non-target */
-				k *= 2;
+				k = k * 3 / 2;
 			}
 
 			if (((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) || (mode == HISSATSU_KYUSHO))
@@ -4029,6 +4125,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					inven_carry(q_ptr);
 				}
 			}
+
+			if ( p_ptr->pclass == CLASS_DUELIST
+			  && o_ptr->tval == TV_POLEARM 
+			  && o_ptr->sval == SV_DEATH_SCYTHE
+			  && !one_in_(3) )
+			{
+				death_scythe_miss(o_ptr, hand, mode);
+			}
 		}
 
 		/* Player misses */
@@ -4039,120 +4143,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
 			{
-				u32b flgs[TR_FLAG_SIZE];
-
-				/* Sound */
-				sound(SOUND_HIT);
-
-				/* Message */
-#ifdef JP
-				msg_format("ミス！ %sにかわされた。", m_name);
-#else
-				msg_format("You miss %s.", m_name);
-#endif
-				/* Message */
-#ifdef JP
-				msg_print("振り回した大鎌が自分自身に返ってきた！");
-#else
-				msg_print("Your scythe returns to you!");
-#endif
-
-				/* Extract the flags */
-				object_flags(o_ptr, flgs);
-
-				k = damroll(o_ptr->dd + p_ptr->weapon_info[hand].to_dd, o_ptr->ds + p_ptr->weapon_info[hand].to_ds);
-				{
-					int mult;
-					switch (p_ptr->mimic_form)
-					{
-					case MIMIC_NONE:
-						switch (p_ptr->prace)
-						{
-							case RACE_YEEK:
-							case RACE_KLACKON:
-							case RACE_HUMAN:
-							case RACE_AMBERITE:
-							case RACE_DUNADAN:
-							case RACE_BARBARIAN:
-							case RACE_BEASTMAN:
-								mult = 25;break;
-							case RACE_SNOTLING:
-							case RACE_HALF_TROLL:
-							case RACE_HALF_OGRE:
-							case RACE_HALF_GIANT:
-							case RACE_HALF_TITAN:
-							case RACE_CYCLOPS:
-							case RACE_IMP:
-							case RACE_SKELETON:
-							case RACE_ZOMBIE:
-							case RACE_VAMPIRE:
-							case RACE_SPECTRE:
-							case RACE_DEMON:
-							case RACE_DRACONIAN:
-								mult = 30;break;
-							default:
-								mult = 10;break;
-						}
-						break;
-					case MIMIC_DEMON:
-					case MIMIC_DEMON_LORD:
-					case MIMIC_VAMPIRE:
-						mult = 30;break;
-					default:
-						mult = 10;break;
-					}
-
-					if (p_ptr->align < 0 && mult < 20)
-						mult = 20;
-					if (!(p_ptr->resist_acid || IS_OPPOSE_ACID() || p_ptr->immune_acid) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_elec || IS_OPPOSE_ELEC() || p_ptr->immune_elec) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_fire || IS_OPPOSE_FIRE() || p_ptr->immune_fire) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_cold || IS_OPPOSE_COLD() || p_ptr->immune_cold) && (mult < 25))
-						mult = 25;
-					if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()) && (mult < 25))
-						mult = 25;
-
-					if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (p_ptr->msp / 30)))
-					{
-						p_ptr->csp -= (1+(p_ptr->msp / 30));
-						p_ptr->redraw |= (PR_MANA);
-						mult = mult * 3 / 2 + 20;
-					}
-					k *= mult;
-					k /= 10;
-				}
-
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k, p_ptr->weapon_info[hand].to_h, mode);
-				if (one_in_(6))
-				{
-					int mult = 2;
-#ifdef JP
-					msg_format("グッサリ切り裂かれた！");
-#else
-					msg_format("Your weapon cuts deep into yourself!");
-#endif
-					/* Try to increase the damage */
-					while (one_in_(4))
-					{
-						mult++;
-					}
-
-					k *= mult;
-				}
-				k += (p_ptr->weapon_info[hand].to_d + o_ptr->to_d);
-
-				if (k < 0) k = 0;
-
-#ifdef JP
-				take_hit(DAMAGE_FORCE, k, "死の大鎌", -1);
-#else
-				take_hit(DAMAGE_FORCE, k, "Death scythe", -1);
-#endif
-
-				redraw_stuff();
+				msg_format(T("You miss %s.", "ミス！ %sにかわされた。"), m_name);
+				death_scythe_miss(o_ptr, hand, mode);
 			}
 			else
 			{

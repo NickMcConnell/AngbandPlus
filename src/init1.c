@@ -3858,7 +3858,16 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			/* Artifact */
 			if (artifact_index)
 			{
-				if (a_info[artifact_index].cur_num)
+				if (no_artifacts)
+				{
+					int k_idx = lookup_kind(TV_SCROLL, SV_SCROLL_ACQUIREMENT);
+					object_type forge;
+					object_type *q_ptr = &forge;
+
+					object_prep(q_ptr, k_idx);
+					drop_here(q_ptr, *y, *x);				
+				}
+				else if (a_info[artifact_index].cur_num)
 				{
 					object_type forge;
 					create_replacement_art(artifact_index, &forge);
