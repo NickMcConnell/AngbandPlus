@@ -3194,7 +3194,7 @@ static int wand_effect(int sval, int dir, bool magic)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			int dam = _device_power_hack(80 + p_ptr->lev, magic);
+			int dam = _device_power_hack(50 + p_ptr->lev/2, magic);
 			if (drain_life(dir, dam)) 
 			{
 				hp_player(dam);
@@ -3740,7 +3740,7 @@ static int rod_effect(int sval, int dir, bool *use_charge, bool magic)
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			int dam = _device_power_hack(70 + 3 * p_ptr->lev / 2, magic);
+			int dam = _device_power_hack(60 + p_ptr->lev / 2, magic);
 			if (drain_life(dir, dam)) 
 			{
 				hp_player(dam);

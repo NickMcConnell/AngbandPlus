@@ -3406,7 +3406,6 @@ void calc_bonuses(void)
 	int             extra_shots;
 	object_type     *o_ptr;
 	u32b flgs[TR_FLAG_SIZE];
-	bool            omoi = FALSE;
 	bool            yoiyami = FALSE;
 	bool            down_saving = FALSE;
 #if 0
@@ -3575,6 +3574,7 @@ void calc_bonuses(void)
 	p_ptr->immune_cold = FALSE;
 
 	p_ptr->ryoute = FALSE;
+	p_ptr->omoi = FALSE;
 	p_ptr->migite = FALSE;
 	p_ptr->hidarite = FALSE;
 	p_ptr->no_flowed = FALSE;
@@ -5490,7 +5490,7 @@ void calc_bonuses(void)
 			/* Heavy weapon */
 			info_ptr->heavy_wield = TRUE;
 		}
-		else if (p_ptr->ryoute && (hold < o_ptr->weight/5)) omoi = TRUE;
+		else if (p_ptr->ryoute && (hold < o_ptr->weight/5)) p_ptr->omoi = TRUE;
 
 		if ((i == 1) && (o_ptr->tval == TV_SWORD) && ((o_ptr->sval == SV_MAIN_GAUCHE) || (o_ptr->sval == SV_WAKIZASHI)))
 		{
@@ -5645,7 +5645,7 @@ void calc_bonuses(void)
 			/* Access the strength vs weight */
 			str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
 
-			if (p_ptr->ryoute && !omoi) str_index++;
+			if (p_ptr->ryoute && !p_ptr->omoi) str_index++;
 			if (p_ptr->pclass == CLASS_NINJA) str_index = MAX(0, str_index-1);
 
 			/* Maximal value */
@@ -6033,7 +6033,7 @@ void calc_bonuses(void)
 	}
 
 
-	if (p_ptr->ryoute && !omoi)
+	if (p_ptr->ryoute && !p_ptr->omoi)
 	{
 		int bonus_to_h=0, bonus_to_d=0;
 		bonus_to_d = ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128) * 3/4;

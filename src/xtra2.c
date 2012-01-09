@@ -1084,6 +1084,7 @@ msg_print("地面に落とされた。");
 
 	case MON_SERPENT:
 		if (!drop_chosen_item) break;
+		if (no_artifacts) break;
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -1594,6 +1595,12 @@ msg_print("地面に落とされた。");
 
 	/* Average dungeon and monster levels */
 	object_level = (dun_level + r_ptr->level) / 2;
+
+	/* No more farming quartz veins for millions in gold */
+	if ((r_ptr->flags2 & RF2_MULTIPLY) && r_ptr->r_akills > 1200)
+	{
+		number = 0;
+	}
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)

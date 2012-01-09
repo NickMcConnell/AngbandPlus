@@ -4842,8 +4842,8 @@ void do_cmd_store(void)
 	}
 
 	if ( mut_present(MUT_MERCHANTS_FRIEND) 
-	  && cur_store_num != STORE_HOME
-	  && cur_store_num != STORE_MUSEUM )
+	  && which != STORE_HOME
+	  && which != STORE_MUSEUM )
 	{
 		friend_hack = TRUE;
 		--xtra_stock;

@@ -432,6 +432,7 @@ s16b critical_shot(int weight, int plus, int dam)
 s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
 {
 	int i, k;
+	int roll = (p_ptr->pclass == CLASS_NINJA) ? 4444 : 5000;
 
 	if (p_ptr->enhanced_crit)
 	{
@@ -439,11 +440,23 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
 		weight += 300;
 	}
 
+	/* Hack: Two handed wielding gets more crits.   Dual wielding, less */
+	                    /* v----- I'm pretty sure monks get "ryoute" as well ... */
+	if (p_ptr->ryoute && buki_motteruka(INVEN_RARM))
+	{
+		if (!p_ptr->omoi) /* Two handed, but weapon is otherwise too heavy to use with just one hand, so no bonus */
+			roll = roll * 2 / 3;
+	}
+	else if (p_ptr->migite && p_ptr->hidarite)
+	{
+		roll = roll * 3 / 2;
+	}
+
 	/* Extract "blow" power */
 	i = (weight + (meichuu * 3 + plus * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
-	if ((randint1((p_ptr->pclass == CLASS_NINJA) ? 4444 : 5000) <= i) || (mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN))
+	if ((randint1(roll) <= i) || (mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN))
 	{
 		k = weight + randint1(650);
 		if ((mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN)) k+= randint1(650);

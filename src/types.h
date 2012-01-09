@@ -1454,8 +1454,10 @@ struct player_type
 	s16b to_m_chance;		/* Minusses to cast chance */
 
 	bool ryoute;
+	bool omoi;
 	bool migite;
 	bool hidarite;
+
 	bool no_flowed;
 
 	int birth_mutation;

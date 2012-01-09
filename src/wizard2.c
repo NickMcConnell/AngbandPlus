@@ -2263,9 +2263,10 @@ void do_cmd_debug(void)
 	/* Mutation */
 	case 'M':
 	{
+	/*
 		for (n = 0; n < 120; n++)
-			mut_gain_random(NULL);
-	/*	mut_gain_choice(mut_human_pred); */
+			mut_gain_random(NULL);*/
+		mut_gain_choice(mut_human_pred);
 	/*
 		n = get_quantity("Which One? ", 500);
 		if (n == 500)
