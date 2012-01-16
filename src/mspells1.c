@@ -3811,6 +3811,16 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 				}
 				break;
 			}
+			case MON_HERMES:
+			{
+				int num = randint1(16);
+				msg_format("%^s summons friends!", m_name);
+				for (k = 0; k < num; k++)
+				{
+					summon_named_creature(m_idx, y, x, MON_MAGIC_MUSHROOM, mode);
+				}
+				break;
+			}
 			case MON_HERA:
 			{
 				int num = randint1(4);

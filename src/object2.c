@@ -3170,13 +3170,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				
 				case SV_RING_SPELL_POWER:
 				{
-					int pv = 1;
-
-					while (one_in_(5))
-						++pv;
-
-					if (pv > 3) pv = 3;
-
+					int pv = m_bonus(3, level);
+					if (one_in_(30)) pv++;
+					if (pv == 0) pv = 1;
 					o_ptr->pval = -pv;
 					return; /* No ego or artifacts, please!*/
 				}
@@ -3674,13 +3670,9 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			{
 				case SV_AMULET_SPELL_POWER:
 				{
-					int pv = 1;
-
-					while (one_in_(5))
-						++pv;
-
-					if (pv > 3) pv = 3;
-
+					int pv = m_bonus(3, level);
+					if (one_in_(30)) pv++;
+					if (pv == 0) pv = 1;
 					o_ptr->pval = -pv;
 					return; /* No ego or artifacts, please!*/
 				}

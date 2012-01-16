@@ -2368,6 +2368,9 @@ void weird_mind_mut(int cmd, variant *res)
 	case SPELL_MUT_DESC:
 		var_set_string(res, T("You are unaffected by the Eldritch Horror.", ""));
 		break;
+	case SPELL_CALC_BONUS:
+		p_ptr->resist_conf = TRUE;
+		break;
 	default:
 		default_spell(cmd, res);
 		break;

@@ -204,22 +204,10 @@ static void _double_crack_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		if (p_ptr->lev < 40)
-			var_set_string(res, "Double Crack");
-		else
-			var_set_string(res, "Triple Crack");
+		var_set_string(res, "Double Crack");
 		break;
 	case SPELL_DESC:
-		if (p_ptr->lev < 40)
-			var_set_string(res, "Attack a monster normally with your whip, and then randomly attack an adjacent monster.");
-		else
-			var_set_string(res, "Attack a monster normally with your whip, and then randomly attack two adjacent monsters.");
-		break;
-	case SPELL_COST_EXTRA:
-		if (p_ptr->lev < 40)
-			var_set_int(res, 0);
-		else
-			var_set_int(res, 10);
+		var_set_string(res, "Attack a monster normally with your whip, and then randomly attack an adjacent monster.");
 		break;
 	case SPELL_CAST:
 		if (_whip_check())
@@ -233,9 +221,6 @@ static void _double_crack_spell(int cmd, variant *res)
 				int x, y;
 				int num = 1;
 				int attempts = 0;
-
-				if (p_ptr->lev >= 40)
-					num++;
 
 				/* First we attack where the player selected */
 				y = py + ddy[dir];
@@ -740,7 +725,7 @@ static spell_info _spells[MAX_ARCHAEOLOGIST_SPELLS] =
 	{ 35,  80, 70, _ancient_protection_spell },
 	{ 40, 150, 80, polish_shield_spell },
 	{ 42,  30, 50, _evacuation_spell },
-	{ 45,  50, 85, _pharaohs_curse_spell },
+	{ 45,  50, 80, _pharaohs_curse_spell }, /* No wizardstaff.  No spell skills! So, 8% best possible fail.*/
 };
 
 static int _get_spells(spell_info* spells, int max)
@@ -749,7 +734,6 @@ static int _get_spells(spell_info* spells, int max)
 	int ct = 0;
 	int stat_idx = (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2;
 	
-	/* Initialize a (copied) spell list with current casting costs and fail rates */
 	for (i = 0; i < MAX_ARCHAEOLOGIST_SPELLS; i++)
 	{
 		spell_info *base = &_spells[i];
@@ -815,11 +799,9 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 		info_ptr->to_d += 10 * p_ptr->lev/50;
 		info_ptr->dis_to_d += 10 * p_ptr->lev/50;
 
-		if (p_ptr->lev >= 50)
-			info_ptr->num_blow += 3;
-		else if (p_ptr->lev >= 25)
+		if (p_ptr->lev >= 40)
 			info_ptr->num_blow += 2;
-		else
+		else if (p_ptr->lev >= 20)
 			info_ptr->num_blow += 1;
 	}
 }

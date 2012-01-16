@@ -1609,6 +1609,13 @@ s16b get_mon_num(int level)
 		r_idx = table[i].index;
 		r_ptr = &r_info[r_idx];
 
+		/* Hack: Only Olympians can summon Olympians ... */
+		if ((r_ptr->flags3 & RF3_OLYMPIAN) && summon_specific_who)
+		{
+			monster_race *sr_ptr = &r_info[m_list[summon_specific_who].r_idx];
+			if ((sr_ptr->flags3 & RF3_OLYMPIAN) != 0 && randint1(777) > sr_ptr->level) continue;
+		}
+
 		if (!p_ptr->inside_battle && !chameleon_change_m_idx)
 		{
 			/* Hack -- "unique" monsters must be "unique" */

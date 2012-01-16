@@ -1783,7 +1783,8 @@ static int home_carry(object_type *o_ptr)
 	/* Insert the new item */
 	st_ptr->stock[slot] = *o_ptr;
 
-	chg_virtue(V_SACRIFICE, -1);
+	if (cur_store_num == STORE_MUSEUM)
+		chg_virtue(V_SACRIFICE, 1);
 
 	(void)combine_and_reorder_home(cur_store_num);
 
@@ -3784,7 +3785,7 @@ msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 			/* Redraw everything */
 			display_inventory();
 
-			chg_virtue(V_SACRIFICE, 1);
+			/* ??? chg_virtue(V_SACRIFICE, 1); */
 		}
 	}
 

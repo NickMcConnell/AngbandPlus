@@ -3333,7 +3333,8 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
 
-			if ((have_flag(flgs, TR_FORCE_WEAPON)) && (p_ptr->csp > (p_ptr->msp / 30)))
+			if ( (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) 
+			  && (p_ptr->csp > (p_ptr->msp / 30)))
 			{
 				p_ptr->csp -= (1+(p_ptr->msp / 30));
 				p_ptr->redraw |= (PR_MANA);

@@ -956,7 +956,12 @@ bool set_image(int v, bool do_dec)
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
-
+	
+	if (mut_present(MUT_WEIRD_MIND))
+	{
+		 v = 0;
+		 do_dec = TRUE;
+	}
 
 	/* Open */
 	if (v)
@@ -5564,7 +5569,10 @@ bool hp_player(int num)
 	}
 
 	if (mut_present(MUT_SACRED_VITALITY))
-		num = num * 13/10;
+	{
+		num += MIN(MAX(p_ptr->lev, num/3), num*2);
+		/*num = num * 13 / 10;*/
+	}
 
 	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT || p_ptr->pclass == CLASS_BLOOD_MAGE)
 	{

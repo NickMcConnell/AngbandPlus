@@ -744,11 +744,15 @@ static void do_cmd_quaff_potion_aux(int item)
 	object_type	*o_ptr;
 	object_type forge;
 	object_type *q_ptr;
+	bool chugger = FALSE;
 
 
 	/* Take a turn */
 	if (mut_present(MUT_POTION_CHUGGER))
-		energy_use = 50;
+	{
+		energy_use = 30;
+		chugger = TRUE;
+	}
 	else
 		energy_use = 100;
 
@@ -1059,19 +1063,25 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			break;
 
 		case SV_POTION_INFRAVISION:
-			if (set_tim_infra(p_ptr->tim_infra + 100 + randint1(100), FALSE))
+		{
+			int dur = 100 + randint1(100);
+			if (chugger) dur *= 2;
+			if (set_tim_infra(p_ptr->tim_infra + dur, FALSE))
 			{
 				ident = TRUE;
 			}
 			break;
-
+		}
 		case SV_POTION_DETECT_INVIS:
-			if (set_tim_invis(p_ptr->tim_invis + 12 + randint1(12), FALSE))
+		{
+			int dur = 12 + randint1(12);
+			if (chugger) dur *= 2;
+			if (set_tim_invis(p_ptr->tim_invis + dur, FALSE))
 			{
 				ident = TRUE;
 			}
 			break;
-
+		}
 		case SV_POTION_SLOW_POISON:
 			if (set_poisoned(p_ptr->poisoned / 2, TRUE)) ident = TRUE;
 			break;
@@ -1087,7 +1097,9 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 		case SV_POTION_SPEED:
 			if (!p_ptr->fast)
 			{
-				if (set_fast(randint1(25) + 15, FALSE)) ident = TRUE;
+				int dur = randint1(25) + 15;
+				if (chugger) dur *= 2;
+				if (set_fast(dur, FALSE)) ident = TRUE;
 			}
 			else
 			{
@@ -1096,31 +1108,43 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			break;
 
 		case SV_POTION_RESIST_HEAT:
-			if (set_oppose_fire(p_ptr->oppose_fire + randint1(10) + 10, FALSE))
+		{
+			int dur = 10 + randint1(10);
+			if (chugger) dur *= 2;
+			if (set_oppose_fire(p_ptr->oppose_fire + dur, FALSE))
 			{
 				ident = TRUE;
 			}
 			break;
-
+		}
 		case SV_POTION_RESIST_COLD:
-			if (set_oppose_cold(p_ptr->oppose_cold + randint1(10) + 10, FALSE))
+		{
+			int dur = 10 + randint1(10);
+			if (chugger) dur *= 2;
+			if (set_oppose_cold(p_ptr->oppose_cold + dur, FALSE))
 			{
 				ident = TRUE;
 			}
 			break;
-
+		}
 		case SV_POTION_HEROISM:
+		{
+			int dur = 25 + randint1(25);
+			if (chugger) dur *= 2;
 			if (set_afraid(0, TRUE)) ident = TRUE;
-			if (set_hero(p_ptr->hero + randint1(25) + 25, FALSE)) ident = TRUE;
+			if (set_hero(p_ptr->hero + dur, FALSE)) ident = TRUE;
 			if (hp_player(10)) ident = TRUE;
 			break;
-
+		}
 		case SV_POTION_BERSERK_STRENGTH:
+		{
+			int dur = 25 + randint1(25);
+			if (chugger) dur *= 2;
 			if (set_afraid(0, TRUE)) ident = TRUE;
-			if (set_shero(p_ptr->shero + randint1(25) + 25, FALSE)) ident = TRUE;
+			if (set_shero(p_ptr->shero + dur, FALSE)) ident = TRUE;
 			if (hp_player(30)) ident = TRUE;
 			break;
-
+		}
 		case SV_POTION_CURE_LIGHT:
 			if (hp_player(damroll(2, 8))) ident = TRUE;
 			if (set_blind(0, TRUE)) ident = TRUE;
@@ -1376,14 +1400,17 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			break;
 
 		case SV_POTION_RESISTANCE:
-			(void)set_oppose_acid(p_ptr->oppose_acid + randint1(20) + 20, FALSE);
-			(void)set_oppose_elec(p_ptr->oppose_elec + randint1(20) + 20, FALSE);
-			(void)set_oppose_fire(p_ptr->oppose_fire + randint1(20) + 20, FALSE);
-			(void)set_oppose_cold(p_ptr->oppose_cold + randint1(20) + 20, FALSE);
-			(void)set_oppose_pois(p_ptr->oppose_pois + randint1(20) + 20, FALSE);
+		{
+			int dur = 20 + randint1(20);
+			if (chugger) dur *= 2;
+			(void)set_oppose_acid(p_ptr->oppose_acid + dur, FALSE);
+			(void)set_oppose_elec(p_ptr->oppose_elec + dur, FALSE);
+			(void)set_oppose_fire(p_ptr->oppose_fire + dur, FALSE);
+			(void)set_oppose_cold(p_ptr->oppose_cold + dur, FALSE);
+			(void)set_oppose_pois(p_ptr->oppose_pois + dur, FALSE);
 			ident = TRUE;
 			break;
-
+		}
 		case SV_POTION_CURING:
 			if (hp_player(50)) ident = TRUE;
 			if (set_blind(0, TRUE)) ident = TRUE;
@@ -1395,10 +1422,13 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			break;
 
 		case SV_POTION_INVULNERABILITY:
-			(void)set_invuln(p_ptr->invuln + randint1(4) + 4, FALSE);
+		{
+			int dur = 4 + randint1(4);
+			if (chugger) dur *= 2;
+			(void)set_invuln(p_ptr->invuln + dur, FALSE);
 			ident = TRUE;
 			break;
-
+		}
 		case SV_POTION_NEW_LIFE:
 			do_cmd_rerate(FALSE);
 			get_max_stats();
@@ -4439,7 +4469,7 @@ static void do_cmd_activate_aux(int item)
 			{
 				msg_print("Your spear glows red.");
 				recharge(200);
-				o_ptr->timeout = 150;
+				o_ptr->timeout = 15;
 				break;
 			}
 			case ART_ARES:
@@ -4464,7 +4494,7 @@ static void do_cmd_activate_aux(int item)
 				detect_traps(DETECT_RAD_DEFAULT, TRUE);
 				detect_doors(DETECT_RAD_DEFAULT);
 				detect_stairs(DETECT_RAD_DEFAULT);
-				o_ptr->timeout = 200;
+				o_ptr->timeout = 20;
 				break;
 			}
 			case ART_ARTEMIS:
@@ -4534,7 +4564,7 @@ static void do_cmd_activate_aux(int item)
 					p_ptr->window |= (PW_SPELL);
 				}
 				set_shero(0,TRUE);
-				o_ptr->timeout = 555;
+				o_ptr->timeout = 55;
 				break;
 			}
 			case ART_DEMETER:

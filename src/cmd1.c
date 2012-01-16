@@ -2979,7 +2979,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			object_flags(o_ptr, flgs);
 
-			/* Select a chaotic effect (50% chance) */
 			if ((have_flag(flgs, TR_CHAOTIC)) && one_in_(7))
 			{
 				if (one_in_(10))

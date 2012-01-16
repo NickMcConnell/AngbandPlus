@@ -126,7 +126,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, fleet_of_foot_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, astral_guide_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, demonic_grasp_mut}},
-	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, weird_mind_mut}},
+	{MUT_RATING_GOOD,       MUT_TYPE_BONUS,			 0, 0, {0,  0,   0, weird_mind_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -465,10 +465,14 @@ bool mut_human_pred(int mut_idx)
 	case MUT_SACRED_VITALITY:
 	case MUT_CULT_OF_PERSONALITY:
 	case MUT_FLEET_OF_FOOT:
-	case MUT_ASTRAL_GUIDE:
 	case MUT_DEMONIC_GRASP:
 	case MUT_WEIRD_MIND:
 		return TRUE;
+		break;
+
+	case MUT_ASTRAL_GUIDE:
+		if (p_ptr->pclass != CLASS_BERSERKER) return TRUE;
+		break;
 	}
 	return FALSE;
 }

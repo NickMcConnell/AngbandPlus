@@ -1947,6 +1947,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	if (prace_is_(RACE_DEMIGOD) && 
 	    p_ptr->psubrace == DEMIGOD_POSEIDON &&
 		note == NULL && /* Hack: Trying to just get melee and shooting */
+		(-m_ptr->ac_adj) < r_ptr->ac/2 && 
 		!mon_save_p(m_ptr->r_idx, A_DEX) )
 	{
 		char m_name[MAX_NLEN];

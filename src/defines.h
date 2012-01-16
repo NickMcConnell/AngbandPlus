@@ -1,4 +1,4 @@
-/* File: defines.h */
+/* File: defines.h */ 
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -29,7 +29,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 84
+#define FAKE_VER_PATCH 85
 
 
 /*
@@ -47,7 +47,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 84
+#define H_VER_PATCH 85
 #define H_VER_EXTRA 0
 
 
@@ -4959,6 +4959,7 @@ extern int PlayerUID;
 #define MON_PINK_HORROR   242
 #define MON_SOFTWARE_BUG  246
 #define MON_HILL_GIANT    255
+#define MON_MAGIC_MUSHROOM 267
 #define MON_WERERAT       270
 #define MON_UMBER_HULK    283
 #define MON_ORC_CAPTAIN   285

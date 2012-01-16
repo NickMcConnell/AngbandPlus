@@ -2743,7 +2743,7 @@ note = "には耐性がある。";
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
-			dam = MIN(m_ptr->hp*8/100 + dam, 400);
+			dam = spell_power(MIN(m_ptr->hp*8/100 + dam, 400));
 			note = " is cursed by ancient pharaohs of long ago!";
 			break;
 		}

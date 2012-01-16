@@ -329,6 +329,21 @@ int get_racial_powers(spell_info* spells, int max)
 {
 	int ct = 0;
 
+	if (mut_present(MUT_ASTRAL_GUIDE))
+	{
+		spell_info *spell = &spells[ct++];
+		spell->level = 5;
+		spell->cost = 2;
+		spell->fail = calculate_fail_rate(5, 50, p_ptr->stat_ind[A_DEX]);
+		spell->fn = phase_door_spell;
+
+		spell = &spells[ct++];
+		spell->level = 15;
+		spell->cost = 6;
+		spell->fail = calculate_fail_rate(15, 50, p_ptr->stat_ind[A_DEX]);
+		spell->fn = teleport_spell;
+	}
+
 	if (p_ptr->mimic_form)
 	{
 		switch (p_ptr->mimic_form)
