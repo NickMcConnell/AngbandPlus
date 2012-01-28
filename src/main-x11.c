@@ -2735,7 +2735,7 @@ static errr CheckEvent(bool wait)
 		/* Move and/or Resize */
 		case ConfigureNotify:
 		{
-			int cols, rows, wid, hgt;
+			int cols, rows, wid, hgt, force_resize;
 
 			int ox = Infowin->ox;
 			int oy = Infowin->oy;
@@ -2757,24 +2757,23 @@ static errr CheckEvent(bool wait)
 			if (td == &data[0])
 			{
 				/* Hack the main window must be at least 80x24 */
-				if (cols < 80) cols = 80;
-				if (rows < 24) rows = 24;
-			}
+                                force_resize = FALSE;
+				if (cols < 80) { cols = 80; force_resize = TRUE; }
+				if (rows < 24) { rows = 24; force_resize = TRUE; }
+                                if (force_resize)
+                                {
+ 					/* Desired size of window */
+					wid = cols * td->fnt->wid + (ox + ox);
+					hgt = rows * td->fnt->hgt + (oy + oy);
 
-			/* Desired size of window */
-			wid = cols * td->fnt->wid + (ox + ox);
-			hgt = rows * td->fnt->hgt + (oy + oy);
+					/* Resize window */
+					Infowin_set(td->win);
+					Infowin_resize(wid, hgt);
+				}
+			}
 
 			/* Resize the Term (if needed) */
 			Term_resize(cols, rows);
-
-			/* Resize the windows if any "change" is needed */
-			if ((Infowin->w != wid) || (Infowin->h != hgt))
-			{
-				/* Resize window */
-				Infowin_set(td->win);
-				Infowin_resize(wid, hgt);
-			}
 
 			break;
 		}

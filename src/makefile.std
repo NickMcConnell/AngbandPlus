@@ -58,7 +58,7 @@ SRCS = \
 	spells_m.c spells_s.c store.c streams.c tables.c util.c variable.c \
 	variant.c warlock.c weaponmaster.c wild.c wild_realm.c wild_talent.c wizard1.c \
 	wizard2.c xtra1.c xtra2.c z-form.c z-rand.c z-term.c z-util.c z-virt.c \
-	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c chuukei.c
+	main-gcu.c main-x11.c main.c chuukei.c
 
 OBJS = \
 	archaeologist.o archer.o artifact.o autopick.o avatar.o bard.o \
