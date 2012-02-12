@@ -3046,6 +3046,10 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 	{
 		add_flag(flgs, TR_RES_NETHER);
 	}
+	if (p_ptr->tim_res_disenchantment)
+	{
+		add_flag(flgs, TR_RES_DISEN);
+	}
 	if (p_ptr->tim_sh_fire)
 	{
 		add_flag(flgs, TR_SH_FIRE);

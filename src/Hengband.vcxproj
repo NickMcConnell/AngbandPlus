@@ -216,6 +216,64 @@
   <ItemGroup>
     <ResourceCompile Include="ang_eng.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\lib\edit\a_info.txt" />
+    <None Include="..\lib\edit\d_info.txt" />
+    <None Include="..\lib\edit\e_info.txt" />
+    <None Include="..\lib\edit\f_info.txt" />
+    <None Include="..\lib\edit\k_info.txt" />
+    <None Include="..\lib\edit\misc.txt" />
+    <None Include="..\lib\edit\m_info.txt" />
+    <None Include="..\lib\edit\q0000001.txt" />
+    <None Include="..\lib\edit\q0000002.txt" />
+    <None Include="..\lib\edit\q0000003.txt" />
+    <None Include="..\lib\edit\q0000004.txt" />
+    <None Include="..\lib\edit\q0000005.txt" />
+    <None Include="..\lib\edit\q0000006.txt" />
+    <None Include="..\lib\edit\q0000007.txt" />
+    <None Include="..\lib\edit\q0000019.txt" />
+    <None Include="..\lib\edit\q0000020.txt" />
+    <None Include="..\lib\edit\q0000021.txt" />
+    <None Include="..\lib\edit\q0000022.txt" />
+    <None Include="..\lib\edit\q0000023.txt" />
+    <None Include="..\lib\edit\q0000027.txt" />
+    <None Include="..\lib\edit\q0000028.txt" />
+    <None Include="..\lib\edit\q00000ms.txt" />
+    <None Include="..\lib\edit\q000chao.txt" />
+    <None Include="..\lib\edit\q000dekn.txt" />
+    <None Include="..\lib\edit\q000eric.txt" />
+    <None Include="..\lib\edit\q000lyeh.txt" />
+    <None Include="..\lib\edit\q000natu.txt" />
+    <None Include="..\lib\edit\q000sorc.txt" />
+    <None Include="..\lib\edit\q0clone0.txt" />
+    <None Include="..\lib\edit\q0fields.txt" />
+    <None Include="..\lib\edit\q0thief1.txt" />
+    <None Include="..\lib\edit\q0thief2.txt" />
+    <None Include="..\lib\edit\q0willow.txt" />
+    <None Include="..\lib\edit\qdarkelf.txt" />
+    <None Include="..\lib\edit\qhaunted.txt" />
+    <None Include="..\lib\edit\qsmaug.txt" />
+    <None Include="..\lib\edit\q_info.txt" />
+    <None Include="..\lib\edit\q_oberon.txt" />
+    <None Include="..\lib\edit\q_pref.txt" />
+    <None Include="..\lib\edit\q_random.txt" />
+    <None Include="..\lib\edit\q_serpen.txt" />
+    <None Include="..\lib\edit\q_warg.txt" />
+    <None Include="..\lib\edit\r_info.txt" />
+    <None Include="..\lib\edit\s_info.txt" />
+    <None Include="..\lib\edit\t0000001.txt" />
+    <None Include="..\lib\edit\t0000002.txt" />
+    <None Include="..\lib\edit\t0000003.txt" />
+    <None Include="..\lib\edit\t0000004.txt" />
+    <None Include="..\lib\edit\t0000005.txt" />
+    <None Include="..\lib\edit\t0000006.txt" />
+    <None Include="..\lib\edit\t_basic.txt" />
+    <None Include="..\lib\edit\t_info.txt" />
+    <None Include="..\lib\edit\t_lite.txt" />
+    <None Include="..\lib\edit\t_pref.txt" />
+    <None Include="..\lib\edit\v_info.txt" />
+    <None Include="..\lib\edit\w_info.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

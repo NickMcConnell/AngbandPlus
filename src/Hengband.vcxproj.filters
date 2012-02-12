@@ -25,6 +25,18 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{19308e86-aa91-4cf9-ae1f-82c804b4947d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Edit">
+      <UniqueIdentifier>{6ba343ec-d3e1-4207-8723-bae7326e4c7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Edit\Towns">
+      <UniqueIdentifier>{0629a7f3-0266-4381-b8bb-fd470228a35b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Edit\Quests">
+      <UniqueIdentifier>{5d152b1a-06a9-4284-8f05-736ad4f75989}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Edit\Stuff">
+      <UniqueIdentifier>{efe867ac-761f-4d45-b6f5-7c8e4e99039a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="artifact.c">
@@ -427,5 +439,175 @@
     <ResourceCompile Include="ang_eng.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\lib\edit\a_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\d_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\e_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\f_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\k_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\m_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\misc.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000001.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000002.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000003.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000004.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000005.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000006.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000007.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000019.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000020.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000021.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000022.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000023.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000027.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0000028.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q00000ms.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q000chao.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q000dekn.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q000eric.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q000lyeh.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q000natu.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q000sorc.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0clone0.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0fields.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0thief1.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0thief2.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q0willow.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q_info.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q_oberon.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q_pref.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q_random.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q_serpen.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\q_warg.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\qdarkelf.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\qhaunted.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\qsmaug.txt">
+      <Filter>Edit\Quests</Filter>
+    </None>
+    <None Include="..\lib\edit\r_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\s_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\t0000001.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t0000002.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t0000003.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t0000004.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t0000005.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t0000006.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t_basic.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t_info.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t_lite.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\t_pref.txt">
+      <Filter>Edit\Towns</Filter>
+    </None>
+    <None Include="..\lib\edit\v_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
+    <None Include="..\lib\edit\w_info.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
   </ItemGroup>
 </Project>
