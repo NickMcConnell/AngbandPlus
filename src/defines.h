@@ -1,4 +1,4 @@
-/* File: defines.h */  
+/* File: defines.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -9,7 +9,6 @@
  */
 
 /* Purpose: global constants and macro definitions */
-
 
 /*
  * Name of the version/variant

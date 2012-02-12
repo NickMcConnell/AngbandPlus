@@ -51,6 +51,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /DMSVC %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -141,6 +142,7 @@
     <ClCompile Include="psion.c" />
     <ClCompile Include="races.c" />
     <ClCompile Include="racial.c" />
+    <ClCompile Include="rage-mage.c" />
     <ClCompile Include="readdib.c" />
     <ClCompile Include="report.c" />
     <ClCompile Include="rooms.c" />

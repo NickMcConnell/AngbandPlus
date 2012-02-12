@@ -131,6 +131,9 @@ F:~:FLOOR:3:0:665
 ?:[AND [EQU $QUEST34 3] [EQU $REALM1 Necromancy] ]
 F:~:FLOOR:3:0:685
 
+?:[AND [EQU $QUEST34 3] [EQU $REALM1 Rage] ]
+F:~:FLOOR:3:0:690
+
 # Quest 34 finished, continue with quest 24
 ?:[EQU $QUEST34 4]
 F:b:BUILDING_1:3:0:0:0:0:NONE:24

@@ -336,6 +336,9 @@
     <ClCompile Include="psion.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="rage-mage.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

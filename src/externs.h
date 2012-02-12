@@ -1969,6 +1969,7 @@ extern bool psion_weapon_graft(void);
 extern void rage_mage_browse_spell(void);
 extern void rage_mage_gain_spell(void);
 extern class_t *rage_mage_get_class_t(void);
+extern void rage_mage_blood_lust(int dam);
 extern void rage_mage_rage_fueled(int dam);
 
 /* rune_knight.c */
