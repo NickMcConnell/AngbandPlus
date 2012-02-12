@@ -1004,6 +1004,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		case TV_HEX_BOOK:
+		case TV_RAGE_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
 			if (cost <= 500L) size += damroll(1, 3);
@@ -1390,6 +1391,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_POLEARM:
 				case TV_SWORD:
 				case TV_HISSATSU_BOOK:
+				case TV_RAGE_BOOK:
 				break;
 				case TV_HAFTED:
 				{

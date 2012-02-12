@@ -33,8 +33,8 @@ cptr _equip_error(void)
 	if (inventory[INVEN_RARM].k_idx && inventory[INVEN_LARM].k_idx)
 		return "Dual wielding is disrupting your talents.";
 
-	if ( (inventory[INVEN_RARM].tval == TV_SWORD) && (inventory[INVEN_RARM].sval == SV_DOKUBARI)
-	  || (inventory[INVEN_LARM].tval == TV_SWORD) && (inventory[INVEN_LARM].sval == SV_DOKUBARI))
+	if ( (inventory[INVEN_RARM].tval == TV_SWORD && inventory[INVEN_RARM].sval == SV_DOKUBARI)
+	  || (inventory[INVEN_LARM].tval == TV_SWORD && inventory[INVEN_LARM].sval == SV_DOKUBARI))
 	{
 		return "The Poison Needle is not an honorable dueling weapon.";
 	}
@@ -79,7 +79,6 @@ int duelist_skill_sav(int m_idx)
 bool duelist_issue_challenge(void)
 {
 	bool result = FALSE;
-	int dir = 5;
 	int m_idx = 0;
 
 	if (target_set(TARGET_MARK))
@@ -467,9 +466,13 @@ void strafing_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "Blink to a new location in the line of sight of your current location.");
 		break;
-	case SPELL_CAST:
+	case SPELL_ENERGY:
 		if (mut_present(MUT_ASTRAL_GUIDE))
-			energy_use = 30;
+			var_set_int(res, 30);
+		else
+			default_spell(cmd, res);
+		break;
+	case SPELL_CAST:
 		teleport_player(10, TELEPORT_LINE_OF_SIGHT);
 		var_set_bool(res, TRUE);
 		break;

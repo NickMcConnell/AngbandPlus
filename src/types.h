@@ -621,9 +621,11 @@ struct monster_type
 
 	/* Hack below this point ... TODO: Clean up timed monster effects
 	   to use a linked list of { type; dur; extra; } or something similar.
+	   BTW, none of what follows will survive a save/reload
 	*/
 	byte ego_whip_ct;
-	byte ego_whip_pow; 
+	byte ego_whip_pow;
+	byte anti_magic_ct;
 };
 
 enum {
@@ -1115,6 +1117,7 @@ struct player_type
 
 
 	s16b tim_esp;       /* Timed ESP */
+	s16b tim_esp_magical;
 	s16b wraith_form;   /* Timed wraithform */
 
 	s16b resist_magic;  /* Timed Resist Magic (later) */
@@ -1128,6 +1131,7 @@ struct player_type
 	s16b magicdef;
 	s16b tim_res_nether;	/* Timed -- Nether resistance */
 	s16b tim_res_time;	/* Timed -- Time resistance */
+	s16b tim_res_disenchantment;
 	byte mimic_form;
 	s16b tim_mimic;
 	s16b tim_sh_fire;
@@ -1156,6 +1160,12 @@ struct player_type
 	s16b tim_building_up;
 	s16b tim_vicious_strike;
 	s16b tim_enlarge_weapon;
+	
+	s16b tim_spell_reaction;
+	s16b tim_resist_curses;
+	s16b tim_armor_of_fury;
+	s16b tim_spell_turning;
+	bool spell_turned;
 
 	counter_t wild_counters[MAX_WILD_COUNTERS];	/* Wild Weapons */
 
@@ -1419,6 +1429,7 @@ struct player_type
 	bool esp_good;
 	bool esp_nonliving;
 	bool esp_unique;
+	bool esp_magical;
 
 	bool slow_digest;	/* Slower digestion */
 	bool bless_blade;	/* Blessed blade */
@@ -1907,6 +1918,7 @@ typedef caster_info*(*caster_info_fn)(void);
 typedef int(*get_spells_fn)(spell_info* spells, int max);
 typedef void(*gain_level_fn)(int new_level);
 typedef void(*character_dump_fn)(FILE* file);
+typedef void(*player_action_fn)(int energy_use);
 
 typedef struct {
 	s16b dis;			/* disarming */
@@ -1933,6 +1945,7 @@ typedef struct {
 	s16b					exp;			/* Class experience factor */
 	byte					pets;			/* Pet upkeep divider */
 	process_player_fn		process_player; /* Called from process_player ... but player take 0 or more actions per call */
+	player_action_fn		player_action;  /* Called once per player action, so long as the action consumes energy */
 	move_player_fn			move_player;    /* Called every time the player actually moves */
 	move_monster_fn			move_monster;	/* Called whenever a monster moves */
 	calc_bonuses_fn			calc_bonuses;

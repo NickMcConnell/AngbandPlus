@@ -306,6 +306,7 @@ void dispel_player(void)
 	(void)set_kabenuke(0, TRUE);
 	(void)set_tim_res_nether(0, TRUE);
 	(void)set_tim_res_time(0, TRUE);
+	(void)set_tim_res_disenchantment(0, TRUE);
 	/* by henkma */
 	(void)set_tim_reflect(0,TRUE);
 	(void)set_multishadow(0,TRUE);
@@ -314,6 +315,7 @@ void dispel_player(void)
 	(void)set_tim_invis(0, TRUE);
 	(void)set_tim_infra(0, TRUE);
 	(void)set_tim_esp(0, TRUE);
+	(void)set_tim_esp_magical(0, TRUE);
 	(void)set_tim_regen(0, TRUE);
 	(void)set_tim_stealth(0, TRUE);
 	(void)set_tim_levitation(0, TRUE);
@@ -344,6 +346,11 @@ void dispel_player(void)
 	set_tim_force(0, TRUE);
 	set_tim_building_up(0, TRUE);
 	set_tim_enlarge_weapon(0, TRUE);
+
+	set_tim_spell_reaction(0, TRUE);
+	set_tim_resist_curses(0, TRUE);
+	set_tim_armor_of_fury(0, TRUE);
+	set_tim_spell_turning(0, TRUE);
 
 	set_tim_spurt(0, TRUE);
 	set_tim_speed_essentia(0, TRUE);
@@ -1857,6 +1864,182 @@ bool set_tim_enlarge_weapon(int v, bool do_dec)
 	return (TRUE);
 }
 
+bool set_tim_spell_reaction(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_spell_reaction)
+		{
+			if (p_ptr->tim_spell_reaction > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel ready for magical attacks.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_spell_reaction)
+		{
+			msg_print("You are no longer ready for magical attacks.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_spell_reaction = v;
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+	return (TRUE);
+}
+
+bool set_tim_resist_curses(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_resist_curses)
+		{
+			if (p_ptr->tim_resist_curses > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel resistant to curses.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_resist_curses)
+		{
+			msg_print("You are no longer resistant to curses.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_resist_curses = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_armor_of_fury(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_armor_of_fury)
+		{
+			if (p_ptr->tim_armor_of_fury > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel cloaked in rage.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_armor_of_fury)
+		{
+			msg_print("You are no longer cloaked in rage.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_armor_of_fury = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_spell_turning(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_spell_turning)
+		{
+			if (p_ptr->tim_spell_turning > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You begin to turn magical attacks.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_spell_turning)
+		{
+			msg_print("You are no longer turn magical attacks.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_spell_turning = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
 bool set_tim_blood_rite(int v, bool do_dec)
 {
 	bool notice = FALSE;
@@ -2872,6 +3055,67 @@ msg_print("意識は元に戻った。");
 
 	/* Use the value */
 	p_ptr->tim_esp = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_esp_magical(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_esp_magical && !do_dec)
+		{
+			if (p_ptr->tim_esp_magical > v) return FALSE;
+		}
+		else if (!p_ptr->tim_esp_magical)
+		{
+			msg_print("You feel conscious of magical foes.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_esp_magical)
+		{
+			msg_print("You are no longer conscious of magical foes.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_esp_magical = v;
 
 	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
@@ -5660,6 +5904,29 @@ msg_print("ひじょうに気分が良くなった。");
 	return (FALSE);
 }
 
+bool sp_player(int num)
+{
+	bool notice = FALSE;
+	int old_csp = p_ptr->csp;
+
+	p_ptr->csp += num;
+	if (p_ptr->csp > p_ptr->msp)
+	{
+		p_ptr->csp = p_ptr->msp;
+		p_ptr->csp_frac = 0;
+	}
+	if (p_ptr->csp < 0)
+	{
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+	}
+	if (p_ptr->csp != old_csp)
+	{
+		p_ptr->redraw |= PR_MANA;
+		notice = TRUE;
+	}
+	return notice;
+}
 
 /*
  * Array of stat "descriptions"
@@ -6383,6 +6650,13 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		msg_format("%^s is no longer your current target.", duelist_current_challenge());
 		p_ptr->duelist_target_idx = 0;
 		p_ptr->redraw |= PR_STATUS;
+	}
+	
+	/* Rage Mage: "Rage Fueled" */
+	if ( p_ptr->pclass == CLASS_RAGE_MAGE
+	  && (!hit_from || strcmp(hit_from, "Rage") != 0))
+	{
+		rage_mage_rage_fueled(damage);
 	}
 
 	/* Hurt the player */
@@ -7123,6 +7397,47 @@ msg_print("時間逆転の力に対する耐性が薄れた気がする。");
 	return (TRUE);
 }
 
+bool set_tim_res_disenchantment(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_res_disenchantment && !do_dec)
+		{
+			if (p_ptr->tim_res_disenchantment > v) return FALSE;
+		}
+		else if (!p_ptr->tim_res_disenchantment)
+		{
+			msg_print("You feel resistant to disenchantment.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_res_disenchantment)
+		{
+			msg_print("You no longer resist disenchantment.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_res_disenchantment = v;
+	p_ptr->redraw |= PR_STATUS;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
 
 /*
  * Choose a warrior-mage elemental attack. -LM-

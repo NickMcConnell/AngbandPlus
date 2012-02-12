@@ -2810,6 +2810,9 @@ void update_mon(int m_idx, bool full)
 				flag = TRUE;
 				if (is_original_ap(m_ptr) && !p_ptr->image) r_ptr->r_flags1 |= (RF1_UNIQUE);
 			}
+			
+			if (p_ptr->esp_magical && monster_magical(r_ptr))
+				flag = TRUE;
 		}
 
 		/* Normal line of sight, and not blind */

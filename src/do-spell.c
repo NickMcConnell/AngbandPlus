@@ -4290,7 +4290,7 @@ static cptr do_death_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 

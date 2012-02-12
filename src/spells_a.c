@@ -327,8 +327,7 @@ void battle_frenzy_spell(int cmd, variant *res)
 		int sp_base = spell_power(p_ptr->lev / 2);
 		int sp_sides = 20 + p_ptr->lev / 2;
 
-		set_shero(randint1(25) + 25, FALSE);
-		hp_player(30);
+		set_shero(randint1(b_base) + b_base, FALSE);
 		set_afraid(0, TRUE);
 		set_fast(randint1(sp_sides) + sp_base, FALSE);
 
@@ -362,12 +361,9 @@ void berserk_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 	{
-		bool heal = !IS_SHERO();
 		msg_print("Raaagh!  You feel like hitting something.");
 		set_afraid(0, TRUE);
 		set_shero(10 + randint1(p_ptr->lev), FALSE);
-		if (heal)
-			hp_player(30);
 		var_set_bool(res, TRUE);
 		break;
 	}

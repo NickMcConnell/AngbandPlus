@@ -2022,6 +2022,8 @@ static byte likert_color = TERM_WHITE;
 static cptr likert(int x, int y)
 {
 	static char dummy[20] = "";
+	
+	if (p_ptr->wizard) return format("%d", x);
 
 	/* Paranoia */
 	if (y <= 0) y = 1;
@@ -2851,6 +2853,9 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	}
 
 	/* Mutations */
+	if (mut_present(MUT_WEIRD_MIND))
+		add_flag(flgs, TR_RES_CONF);
+	
 	if (mut_present(MUT_FLESH_ROT))
 	{
 		remove_flag(flgs, TR_REGEN);

@@ -1308,6 +1308,11 @@ static void _character_dump(FILE* file)
 	}
 }
 
+static void _player_action(int energy_use)
+{
+	psion_do_mindspring(energy_use);
+}
+
 class_t *psion_get_class_t(void)
 {
 	static class_t me = {0};
@@ -1343,6 +1348,7 @@ class_t *psion_get_class_t(void)
 		me.get_powers = _get_powers;
 		me.character_dump = _character_dump;
 		me.gain_level = _gain_level;
+		me.player_action = _player_action;
 		init = TRUE;
 	}
 

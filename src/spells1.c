@@ -2071,8 +2071,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
-				/* In the ugly hack department, monsters melee other monsters
-				   by projecting GF_MISSILE damage on them.  Sigh ... */
 				if ( m_ptr->r_idx == MON_HAGURE
 				  || who == 0 )
 				{
@@ -2083,6 +2081,31 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 				}
 			}
 
+			break;
+		}
+
+		case GF_MANA_CLASH:
+		{
+			if (seen) obvious = TRUE;
+
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				note = T(" is immune.", "には完全な耐性がある！");
+				dam = 0;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			else if (!r_ptr->freq_spell)
+			{
+				note = T(" is immune.", "には完全な耐性がある！");
+				dam = 0;
+			}
+			else
+			{
+				int div = 100/r_ptr->freq_spell;
+				/*msg_format("Mana Clash: Freq=%d, 1 in %d", r_ptr->freq_spell, div);*/
+				dam /= div + 1;
+			}
 			break;
 		}
 
@@ -5580,6 +5603,33 @@ note_dies = "はドロドロに溶けた！";
 			break;
 		}
 
+		case GF_ANTIMAGIC:
+		{
+			if (seen) obvious = TRUE;
+			if (r_ptr->flagsr & RFR_RES_ALL)
+			{
+				note = T(" is immune.", "には完全な耐性がある！");
+				skipped = TRUE;
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
+				break;
+			}
+			if (mon_save_p(m_ptr->r_idx, A_STR))
+			{
+				msg_format("%^s resists!", m_name);
+				dam = 0;
+				m_ptr->anti_magic_ct = 0;
+				return TRUE;
+			}
+			else
+			{
+				msg_format("%^s can no longer cast spells!", m_name);
+				m_ptr->anti_magic_ct = 2 + randint1(2);
+				dam = 0;
+				return TRUE;
+			}
+			break;
+		}
+
 		case GF_PSI_EGO_WHIP:
 		{
 			if (seen) obvious = TRUE;
@@ -7159,6 +7209,24 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* XXX XXX XXX */
 	/* Limit maximum damage */
 	if (dam > 1600) dam = 1600;
+	
+	p_ptr->spell_turned = FALSE;
+	if (p_ptr->tim_spell_turning)
+	{
+		bool turn = FALSE;
+		if (p_ptr->shero)
+			turn = (randint1(100) <= p_ptr->lev) ? TRUE : FALSE;
+		else
+			turn = (randint1(200) <= 20 + p_ptr->lev) ? TRUE : FALSE;
+			
+		if (turn)
+		{
+			msg_print("You turn the magic on the caster!");
+			p_ptr->spell_turned = TRUE;
+			disturb(1, 0);
+			return TRUE;
+		}
+	}
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
@@ -8503,10 +8571,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		&& (get_damage > 0) && !p_ptr->is_dead && (who > 0))
 	{
 		char m_name_self[80];
-
-		/* hisself */
 		monster_desc(m_name_self, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE | MD_OBJECTIVE);
-
 		msg_format("The attack of %s has wounded %s!", m_name, m_name_self);
 		project(0, 0, m_ptr->fy, m_ptr->fx, psion_backlash_dam(get_damage), GF_MISSILE, PROJECT_KILL, -1);
 		if (p_ptr->tim_eyeeye) set_tim_eyeeye(p_ptr->tim_eyeeye-5, TRUE);
@@ -8517,10 +8582,40 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 		rakubadam_p = (dam > 200) ? 200 : dam;
 	}
 
+	if (get_damage && p_ptr->tim_spell_reaction && !p_ptr->fast)
+	{
+		msg_print("You react to the attack!");
+		set_fast(2, FALSE);
+	}
+	
+	if (who > 0 && get_damage && p_ptr->tim_armor_of_fury)
+	{
+		if (!MON_SLOW(m_ptr) || !MON_STUNNED(m_ptr))
+		{
+			msg_format("%^s is hit by your fury!", m_name);
+			if (mon_save_p(m_ptr->r_idx, A_STR))
+			{
+				msg_format("%^s resists!", m_name);
+			}
+			else
+			{
+				int dur = 1;
+				if (p_ptr->shero) dur = 3;
+				if (!MON_SLOW(m_ptr))
+				{
+					msg_format("%^s is slowed.", m_name);
+					set_monster_slow(who, dur);
+				}
+				if (!MON_STUNNED(m_ptr))
+				{
+					msg_format("%^s is stunned.", m_name);
+					set_monster_stunned(who, dur);
+				}
+			}
+		}
+	}
 
-	/* Disturb */
 	disturb(1, 0);
-
 
 	if ((p_ptr->special_defense & NINJA_KAWARIMI) && dam && who && (who != p_ptr->riding))
 	{
@@ -9027,6 +9122,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 	int y1, x1;
 	int y2, x2;
 	int by, bx;
+	int old_rad = rad;
 
 	int dist_hack = 0;
 
@@ -9109,6 +9205,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 	/* Start at monster */
 	else if (who > 0)
 	{
+		p_ptr->spell_turned = FALSE;
 		x1 = m_list[who].fx;
 		y1 = m_list[who].fy;
 		monster_desc(who_name, &m_list[who], MD_IGNORE_HALLU | MD_ASSUME_VISIBLE | MD_INDEF_VISIBLE);
@@ -9643,8 +9740,12 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg, int mons
 	}
 
 	/* Speed -- ignore "non-explosions" */
-	if (!grids) return (FALSE);
-
+	if (!grids) 
+	{
+		if (who > 0 && p_ptr->spell_turned)
+			project(-1, old_rad, y1, x1, dam, typ, flg, 0);
+		return (FALSE);
+	}
 
 	/* Display the "blast area" if requested */
 	if (!blind && !(flg & (PROJECT_HIDE)))
@@ -10092,6 +10193,9 @@ msg_format("%^sから落ちてしまった！", m_name);
 			}
 		}
 	}
+
+	if (who > 0 && p_ptr->spell_turned)
+		project(-1, old_rad, y1, x1, dam, typ, flg, 0);
 
 	/* Return "something was noticed" */
 	return (notice);

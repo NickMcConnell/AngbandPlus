@@ -794,6 +794,37 @@ void disintegrate_spell(int cmd, variant *res)
 	}
 }
 
+void dispel_magic_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Dispel Magic", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Dispels all magics which is effecting a monster.",""));
+		break;
+	case SPELL_CAST:
+	{
+		int m_idx;
+
+		var_set_bool(res, FALSE);
+		if (!target_set(TARGET_KILL)) return;
+		m_idx = cave[target_row][target_col].m_idx;
+		if (!m_idx) return;
+
+		var_set_bool(res, TRUE);
+		if (!player_has_los_bold(target_row, target_col)) return;
+		if (!projectable(py, px, target_row, target_col)) return;
+		dispel_monster_status(m_idx);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void dispel_undead_spell(int cmd, variant *res)
 {
 	int dice = 1;

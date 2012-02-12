@@ -724,6 +724,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_pois);
 	wr_s16b(p_ptr->tsuyoshi);
 	wr_s16b(p_ptr->tim_esp);
+	wr_s16b(p_ptr->tim_esp_magical);
 	wr_s16b(p_ptr->wraith_form);
 	wr_s16b(p_ptr->resist_magic);
 	wr_s16b(p_ptr->tim_regen);
@@ -736,6 +737,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->magicdef);
 	wr_s16b(p_ptr->tim_res_nether);
 	wr_s16b(p_ptr->tim_res_time);
+	wr_s16b(p_ptr->tim_res_disenchantment);
 	wr_byte(p_ptr->mimic_form);
 	wr_s16b(p_ptr->tim_mimic);
 	wr_s16b(p_ptr->tim_sh_fire);
@@ -764,6 +766,12 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_building_up);
 	wr_s16b(p_ptr->tim_vicious_strike);
 	wr_s16b(p_ptr->tim_enlarge_weapon);
+	
+	wr_s16b(p_ptr->tim_spell_reaction);
+	wr_s16b(p_ptr->tim_resist_curses);
+	wr_s16b(p_ptr->tim_armor_of_fury);
+	wr_s16b(p_ptr->tim_spell_turning);
+	
 	{
 		int i;
 		wr_s16b(MAX_WILD_COUNTERS);

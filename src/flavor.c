@@ -36,6 +36,7 @@ static bool object_easy_know(int i)
 		case TV_MUSIC_BOOK:
 		case TV_HISSATSU_BOOK:
 		case TV_HEX_BOOK:
+		case TV_RAGE_BOOK:
 		{
 			return (TRUE);
 		}
@@ -457,6 +458,7 @@ char *object_desc_kosuu(char *t, object_type *o_ptr)
       case  TV_MUSIC_BOOK:
       case  TV_HISSATSU_BOOK:
 	  case TV_HEX_BOOK:
+	  case TV_RAGE_BOOK:
       {
 	  t = object_desc_str(t, "ºý");
 	  break;
@@ -1764,6 +1766,12 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 		case TV_NECROMANCY_BOOK:
 		{
 			basenm = "& Necromancy Spellbook~ %";
+			break;
+		}
+
+		case TV_RAGE_BOOK:
+		{
+			basenm = "& Rage Spellbook~ %";
 			break;
 		}
 

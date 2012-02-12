@@ -6535,6 +6535,40 @@ D:$A black blade, covered with gleaming runes.  It is rumored
 D:$to be an evil weapon of great power that will ultimately control
 D:$its bearer.
 
+N:688:TRANSLATE
+E:[Anger Management]
+G:?:v
+I:108:0:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:689:TRANSLATE
+E:[Northern Frights]
+G:?:v
+I:108:1:0
+W:20:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:690:TRANSLATE
+E:[The Sound and the Fury]
+G:?:D
+I:108:2:0
+W:50:0:30:25000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:691:TRANSLATE
+E:[Dire Ire]
+G:?:D
+I:108:3:0
+W:90:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval

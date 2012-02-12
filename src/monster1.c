@@ -3618,6 +3618,13 @@ bool monster_living(monster_race *r_ptr)
 		return TRUE;
 }
 
+bool monster_magical(monster_race *r_ptr)
+{
+	if (r_ptr->freq_spell >= 16)
+		return TRUE;
+	else
+		return FALSE;
+}
 
 /*
  * Is this monster declined to be questor or bounty?

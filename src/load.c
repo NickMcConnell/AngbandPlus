@@ -1261,6 +1261,10 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->tsuyoshi);
 
 	rd_s16b(&p_ptr->tim_esp);
+	if (h_older_than(0, 0, 86, 1))
+		p_ptr->tim_esp_magical = 0;
+	else
+		rd_s16b(&p_ptr->tim_esp_magical);
 	rd_s16b(&p_ptr->wraith_form);
 	rd_s16b(&p_ptr->resist_magic);
 	rd_s16b(&p_ptr->tim_regen);
@@ -1273,6 +1277,13 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->magicdef);
 	rd_s16b(&p_ptr->tim_res_nether);
 	rd_s16b(&p_ptr->tim_res_time);
+	
+	if (h_older_than(0, 0, 86, 2))
+		p_ptr->tim_res_disenchantment = 0;
+	else
+		rd_s16b(&p_ptr->tim_res_disenchantment);
+	
+	
 	rd_byte(&p_ptr->mimic_form);
 	rd_s16b(&p_ptr->tim_mimic);
 	rd_s16b(&p_ptr->tim_sh_fire);
@@ -1390,6 +1401,21 @@ static void rd_extra(void)
 	else
 	{
 		rd_s16b(&p_ptr->tim_enlarge_weapon);
+	}
+
+	if (h_older_than(0, 0, 86, 3))
+	{
+		p_ptr->tim_spell_reaction = 0;
+		p_ptr->tim_resist_curses = 0;
+		p_ptr->tim_armor_of_fury = 0;
+		p_ptr->tim_spell_turning = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_spell_reaction);
+		rd_s16b(&p_ptr->tim_resist_curses);
+		rd_s16b(&p_ptr->tim_armor_of_fury);
+		rd_s16b(&p_ptr->tim_spell_turning);
 	}
 
 	if (h_older_than(0, 0, 54, 1))

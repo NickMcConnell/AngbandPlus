@@ -3899,7 +3899,19 @@ player_class class_info[MAX_CLASS] =
 		{-1, 3, -1, -1, -1, 1},
 		25, 35, 40, 2,  16, 8, 48, 35,
 		7,  11, 12, 0,  0,  0, 13, 11,
-		2, 175, 35
+		2, 150, 35
+	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Rage-Mage",
+
+		{3, -2, 0, -2, 2, -2},
+		20, 24, 40, -1, 12,  2, 50, 30,
+		7,  10, 15,  0,  0,  0, 15, 15,
+		3, 150, 40
 	},
 };
 /*
@@ -4371,6 +4383,45 @@ magic_type technic_info[NUM_TECHNIC][32] =
 		{ 42, 24, 70, 120},
 		{ 46, 45, 80, 200}
 	},
+
+	{
+		/* Unused */
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0},
+		{ 0,   0,   0,   0}
+	},
 };
 
 
@@ -4441,6 +4492,7 @@ s32b realm_choices1[MAX_CLASS] =
 	 CH_CRUSADE),                              /* Blood-Mage */
 	CH_NECROMANCY,			/* Necromancer */
 	CH_NONE,				/* Psion */
+	CH_RAGE,                /* Rage-Mage */
 };
 
 
@@ -4498,6 +4550,7 @@ s32b realm_choices2[MAX_CLASS] =
 	 CH_CRUSADE),                              /* Blood-Mage */
 	CH_NONE,                /* Necromancer */
 	CH_NONE,				/* Psion */
+	CH_NONE,                /* Rage-Mage */	
 };
 
 
@@ -4552,6 +4605,7 @@ cptr realm_names[]
 	"Music",
 	"Kendo",
 	"Hex",
+	"Rage",
 	"unknown"
 };
 
@@ -5283,16 +5337,16 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 
 	/* Bard */
 	{
-		"Apprentice",	/*"Apprentice"*/
-		"Songsmith",	/*"Songsmith"*/
-		"Bard",	/*"Bard"*/
-		"Companion",	/*"Companion"*/
-		"Minstrel",	/*"Minstrel"*/
-		"Harper",	/*"Harper"*/
-		"Loreweaver",	/*"Loreweaver"*/
-		"Muse",	/*"Muse"*/
-		"Dreamweaver",	/*"Dreamweaver"*/
-		"Master Harper",	/*"Master Harper"*/
+		"Apprentice",
+		"Songsmith",
+		"Bard",
+		"Companion",
+		"Minstrel",
+		"Harper",
+		"Loreweaver",
+		"Muse",
+		"Dreamweaver",
+		"Master Harper",
 	},
 
 	/* Red Mage */
@@ -5579,6 +5633,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Psionicist",
 		"Esper",
 		"Mindmaster",
+	},
+	/* Rage-Mage */
+	{
+		"Annoyed",
+		"Annoyed",
+		"Irate",
+		"Irate",
+		"Pissed",
+		"Pissed",
+		"Berserk",
+		"Berserk",
+		"Rage",
+		"Rage",
 	},
 };
 #endif

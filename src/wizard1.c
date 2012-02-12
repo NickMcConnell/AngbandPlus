@@ -199,6 +199,7 @@ static grouper group_item[] =
 	{ TV_MUSIC_BOOK,    "参礁" },
 	{ TV_HISSATSU_BOOK, "绅份の今" },
 	{ TV_HEX_BOOK,      "蒜恕今 (荐窖)" },
+	{ TV_RAGE_BOOK,      "Books (Rage)" },
 #else
 	{ TV_LIFE_BOOK,     "Books (Life)" },
 	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
@@ -214,6 +215,7 @@ static grouper group_item[] =
 	{ TV_MUSIC_BOOK,    "Song Books" },
 	{ TV_HISSATSU_BOOK, "Books (Kendo)" },
 	{ TV_HEX_BOOK,      "Books (Hex)" },
+	{ TV_RAGE_BOOK,      "Books (Rage)" },
 #endif
 
 #ifdef JP

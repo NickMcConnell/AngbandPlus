@@ -1765,8 +1765,6 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 /* [2] Another monster is damaging monster */
 int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear)
 {
-	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-
 	if (m_ptr->r_idx == MON_HAGURE && dam > 0)
 	{
 		dam /= 100;
@@ -1910,7 +1908,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	set_sanctuary(FALSE);
 
-	COPY(&exp_mon, m_ptr, monster_type);
+	(void)COPY(&exp_mon, m_ptr, monster_type);
 	if (!(r_ptr->flags7 & RF7_KILL_EXP))
 	{
 		expdam = (m_ptr->hp > dam) ? dam : m_ptr->hp;
@@ -1938,9 +1936,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Genocided by chaos patron */
 	if (!m_idx) return TRUE;
 
-	/* Hack: I moved this here ... formerly, melee and archery displayed damage, but other
-	   things did not (e.g. spells) I think all player induced monster damage comes thru
-	   here, so now you even get to see how much damage your auras inflict! */
 	if (dam > 0 && (p_ptr->wizard || cheat_xtra))
 		msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
 
@@ -1956,6 +1951,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		m_ptr->ac_adj -= 4;
 		if (p_ptr->wizard || cheat_xtra)
 			msg_format("Melt Armor: AC is now %d", MON_AC(r_ptr, m_ptr));
+	}
+	
+	/* Rage Mage: "Blood Lust" */
+	if (p_ptr->pclass == CLASS_RAGE_MAGE && dam > 0)
+	{
+		rage_mage_blood_lust(dam);
 	}
 
 	/* Hurt it */

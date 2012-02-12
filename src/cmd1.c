@@ -3750,6 +3750,58 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 			else
 			{
+				if (mode == RAGEMAGE_AWESOME_BLOW)
+				{
+					int dir = calculate_dir(px, py, x, y);
+					if (dir != 5)
+					{
+						int ct = 0;
+						int max = 3;
+						int m_idx = c_ptr->m_idx;
+						int ty = y, tx = x;
+						int oy = y, ox = x;
+						
+						if (p_ptr->shero)
+							max = 6;
+						
+						for (ct = 0; ct < max; ct++) 
+						{
+							y += ddy[dir];
+							x += ddx[dir];
+							if (!cave_empty_bold(y, x))
+							{
+								msg_format("%^s is wounded.", m_name);							
+								mon_take_hit(m_idx, 50 * (max - ct), fear, NULL);
+								break;
+							}
+							else
+							{
+								ty = y;
+								tx = x;
+							}
+							if (ty != oy || tx != ox)
+							{
+								int m_idx = cave[oy][ox].m_idx;
+
+								cave[oy][ox].m_idx = 0;
+								cave[ty][tx].m_idx = m_idx;
+								m_ptr->fy = ty;
+								m_ptr->fx = tx;
+	
+								update_mon(m_idx, TRUE);
+								lite_spot(oy, ox);
+								lite_spot(ty, tx);
+								
+								oy = ty;
+								ox = tx;
+	
+								if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+									p_ptr->update |= PU_MON_LITE;
+							}
+						}
+					}
+				}
+					
 				if (mode == WEAPONMASTER_ENCLOSE)
 				{
 					if (!(m_ptr->mflag2 & MFLAG2_ENCLOSED))
@@ -4227,6 +4279,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		if (mode == WEAPONMASTER_KNOCK_BACK && did_knockback) break;
 		if (mode == WEAPONMASTER_REAPING) break;
 		if (mode == WEAPONMASTER_ABSORB_SOUL) break;
+		if (mode == RAGEMAGE_AWESOME_BLOW) break;
 	}
 
 	/* Sleep counter ticks down in energy units ... Also, *lots* of code

@@ -1312,6 +1312,7 @@ errr parse_m_info(char *buf, header *head)
 		else if (streq(book, "NECROMANCY")) m_ptr->spell_book = TV_NECROMANCY_BOOK;
 		else if (streq(book, "MUSIC")) m_ptr->spell_book = TV_MUSIC_BOOK;
 		else if (streq(book, "HISSATSU")) m_ptr->spell_book = TV_HISSATSU_BOOK;
+		else if (streq(book, "RAGE")) m_ptr->spell_book = TV_RAGE_BOOK;
 		else if (streq(book, "NONE")) m_ptr->spell_book = 0;
 		else return (5);
 
@@ -4124,7 +4125,7 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 }
 
 
-static char tmp[8];
+static char tmp[255];
 static cptr variant_name = "CHENGBAND";
 
 /*

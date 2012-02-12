@@ -1,4 +1,4 @@
-/* File: defines.h */ 
+/* File: defines.h */  
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -29,7 +29,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 85
+#define FAKE_VER_PATCH 86
 
 
 /*
@@ -47,8 +47,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 85
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 86
+#define H_VER_EXTRA 3
 
 
 #define ANGBAND_2_8_1
@@ -589,6 +589,7 @@
 #define CH_MUSIC        0x08000	/* This is 16th bit */
 #define CH_HISSATSU     0x10000
 #define CH_HEX          0x20000
+#define CH_RAGE         0x40000
 
 
 /*
@@ -611,7 +612,8 @@
 #define REALM_MUSIC        16
 #define REALM_HISSATSU     17
 #define REALM_HEX          18
-#define MAX_REALM          18
+#define REALM_RAGE         19
+#define MAX_REALM          19
 
 #define VALID_REALM        (MAX_REALM + MAX_MAGIC - MIN_TECHNIC + 1)
 #define NUM_TECHNIC        (MAX_REALM - MIN_TECHNIC + 1)
@@ -822,8 +824,9 @@
 #define CLASS_BLOOD_MAGE		36
 #define CLASS_NECROMANCER		37
 #define CLASS_PSION		        38
+#define CLASS_RAGE_MAGE	        39
 
-#define MAX_CLASS               39
+#define MAX_CLASS               40
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -1872,13 +1875,14 @@
 #define TV_DEATH_BOOK   94
 #define TV_TRUMP_BOOK   95
 #define TV_ARCANE_BOOK  96
-#define TV_CRAFT_BOOK 97
+#define TV_CRAFT_BOOK   97
 #define TV_DAEMON_BOOK  98
 #define TV_CRUSADE_BOOK 99
 #define TV_NECROMANCY_BOOK 100
 #define TV_MUSIC_BOOK   105
 #define TV_HISSATSU_BOOK 106
 #define TV_HEX_BOOK     107
+#define TV_RAGE_BOOK    108
 #define TV_GOLD         127     /* Gold can only be picked up by players */
 
 #define TV_EQUIP_BEGIN    TV_SHOT
@@ -3088,8 +3092,10 @@
 #define GF_PSI_EGO_WHIP 131
 #define GF_PSI_BRAIN_SMASH 132
 #define GF_PSI_STORM 133
+#define GF_MANA_CLASH 134
+#define GF_ANTIMAGIC 135
 
-#define MAX_GF				134
+#define MAX_GF				136
 
 /*
  * Some things which induce learning
@@ -5296,6 +5302,7 @@ extern int PlayerUID;
 #define HISSATSU_HARAI  28
 #define HISSATSU_3DAN   29
 #define HISSATSU_100NIN 30
+
 #define WEAPONMASTER_FRENZY 31
 #define WEAPONMASTER_RETALIATION 32
 #define WEAPONMASTER_CRUSADERS_STRIKE 33
@@ -5312,6 +5319,8 @@ extern int PlayerUID;
 #define WEAPONMASTER_CUNNING_STRIKE 44
 #define WEAPONMASTER_SMITE_EVIL 45
 #define WEAPONMASTER_ABSORB_SOUL 46
+
+#define RAGEMAGE_AWESOME_BLOW 47
 
 
 #define MAX_FRENZY_ITEMS 3

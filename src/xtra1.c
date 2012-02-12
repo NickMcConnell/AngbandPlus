@@ -421,6 +421,11 @@ static void prt_stat(int stat)
 #define BAR_MENTAL_FORTRESS 114
 #define BAR_MINDSPRING 115
 #define BAR_PSIONIC_FORESIGHT 116
+#define BAR_RES_DISENCHANTMENT 117
+#define BAR_SPELL_REACTION 118
+#define BAR_RESIST_CURSES 119
+#define BAR_ARMOR_OF_FURY 120
+#define BAR_SPELL_TURNING 121
 
 static struct {
 	byte attr;
@@ -619,6 +624,11 @@ static struct {
 	{TERM_VIOLET, "Ft", "Fortress"},
 	{TERM_GREEN, "MS", "Mindspring"},
 	{TERM_YELLOW, "Fs", "Foresight"},
+	{TERM_L_DARK, "Dis", "Disenchant"},
+	{TERM_L_BLUE, "Rct", "Reaction"},
+	{TERM_YELLOW, "RC", "Curses"},
+	{TERM_RED, "Fy", "Fury"},
+	{TERM_GREEN, "Tn", "Turning"},
 	{0, NULL, NULL}
 };
 #endif
@@ -753,6 +763,12 @@ static void prt_status(void)
 	if (p_ptr->tim_levitation) ADD_FLG(BAR_LEVITATE);
 
 	if (p_ptr->tim_res_nether) ADD_FLG(BAR_RESNETH);
+	if (p_ptr->tim_res_disenchantment) ADD_FLG(BAR_RES_DISENCHANTMENT);
+	
+	if (p_ptr->tim_spell_reaction) ADD_FLG(BAR_SPELL_REACTION);
+	if (p_ptr->tim_resist_curses) ADD_FLG(BAR_RESIST_CURSES);
+	if (p_ptr->tim_armor_of_fury) ADD_FLG(BAR_ARMOR_OF_FURY);
+	if (p_ptr->tim_spell_turning) ADD_FLG(BAR_SPELL_TURNING);
 
 	if (p_ptr->dustrobe) ADD_FLG(BAR_DUSTROBE);
 
@@ -2427,7 +2443,7 @@ static void calc_spells(void)
 	{
 		bonus = 4;
 	}
-	if (p_ptr->pclass == CLASS_SAMURAI)
+	if (p_ptr->pclass == CLASS_SAMURAI || p_ptr->pclass == CLASS_RAGE_MAGE)
 	{
 		num_allowed = 32;
 	}
@@ -2465,6 +2481,7 @@ static void calc_spells(void)
 	{
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
+		if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
 
 		/* Access the spell */
 		j = p_ptr->spell_order[i];
@@ -2540,6 +2557,8 @@ static void calc_spells(void)
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
 
+		if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
+
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
 
@@ -2599,6 +2618,7 @@ static void calc_spells(void)
 	{
 		/* None left to remember */
 		if (p_ptr->new_spells <= 0) break;
+		if (p_ptr->pclass == CLASS_RAGE_MAGE) break;
 
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2) break;
@@ -2692,7 +2712,13 @@ static void calc_spells(void)
 			k++;
 		}
 		if (k>32) k = 32;
-		if ((p_ptr->new_spells > k) && ((mp_ptr->spell_book == TV_LIFE_BOOK) || (mp_ptr->spell_book == TV_HISSATSU_BOOK))) p_ptr->new_spells = k;
+		if ( p_ptr->new_spells > k 
+		  && (mp_ptr->spell_book == TV_LIFE_BOOK 
+		   || mp_ptr->spell_book == TV_HISSATSU_BOOK
+		   || mp_ptr->spell_book == TV_RAGE_BOOK))
+		{
+			p_ptr->new_spells = k;
+		}
 	}
 
 	if (p_ptr->new_spells < 0) p_ptr->new_spells = 0;
@@ -2701,7 +2727,7 @@ static void calc_spells(void)
 	if (p_ptr->old_spells != p_ptr->new_spells)
 	{
 		/* Message if needed */
-		if (p_ptr->new_spells)
+		if (p_ptr->new_spells && p_ptr->pclass != CLASS_RAGE_MAGE)
 		{
 			/* Message */
 #ifdef JP
@@ -2763,12 +2789,9 @@ static void calc_mana(void)
 	}
 	else
 	{
-		if(mp_ptr->spell_first > p_ptr->lev)
+		if (mp_ptr->spell_first > p_ptr->lev)
 		{
-			/* Save new mana */
 			p_ptr->msp = 0;
-
-			/* Display mana later */
 			p_ptr->redraw |= (PR_MANA);
 			return;
 		}
@@ -2825,9 +2848,9 @@ static void calc_mana(void)
 
 		if (msp && (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)) msp += msp/2;
 
-		/* Hack: High mages have a 25% mana bonus */
+		/* Hack: High mages et. al. have a 25% mana bonus */
 		if (msp && 
-		    (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_WILD_TALENT))
+		    (p_ptr->pclass == CLASS_HIGH_MAGE || p_ptr->pclass == CLASS_WILD_TALENT || p_ptr->pclass == CLASS_RAGE_MAGE))
 		{
 			msp += msp / 4;
 		}
@@ -2932,6 +2955,7 @@ static void calc_mana(void)
 		/* Mana halved if armour is 60 pounds over weight limit. */
 		case CLASS_PALADIN:
 		case CLASS_CHAOS_WARRIOR:
+		case CLASS_RAGE_MAGE:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight/5;
 			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight/5;
@@ -2947,7 +2971,7 @@ static void calc_mana(void)
 
 	/* Determine the weight allowance */
 	max_wgt = mp_ptr->spell_weight;
-
+	
 	/* Heavy armor penalizes mana by a percentage.  -LM- */
 	if ((cur_wgt - max_wgt) > 0)
 	{
@@ -3003,6 +3027,7 @@ static void calc_mana(void)
 			case CLASS_PALADIN:
 			case CLASS_CHAOS_WARRIOR:
 			case CLASS_WARRIOR_MAGE:
+			case CLASS_RAGE_MAGE:
 			{
 				msp -= msp * (cur_wgt - max_wgt) / 1200;
 				break;
@@ -3433,6 +3458,7 @@ void calc_bonuses(void)
 	bool old_esp_good = p_ptr->esp_good;
 	bool old_esp_nonliving = p_ptr->esp_nonliving;
 	bool old_esp_unique = p_ptr->esp_unique;
+	bool old_esp_magical = p_ptr->esp_magical;
 	bool old_see_inv = p_ptr->see_inv;
 	bool old_mighty_throw = p_ptr->mighty_throw;
 
@@ -3527,6 +3553,7 @@ void calc_bonuses(void)
 	p_ptr->esp_good = FALSE;
 	p_ptr->esp_nonliving = FALSE;
 	p_ptr->esp_unique = FALSE;
+	p_ptr->esp_magical = FALSE;
 	p_ptr->lite = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
@@ -4204,6 +4231,10 @@ void calc_bonuses(void)
 	{
 		p_ptr->resist_neth = TRUE;
 	}
+	
+	if (p_ptr->tim_res_disenchantment)
+		p_ptr->resist_disen = TRUE;
+	
 	if (p_ptr->tim_sh_fire)
 	{
 		p_ptr->sh_fire = TRUE;
@@ -4968,6 +4999,8 @@ void calc_bonuses(void)
 	{
 		p_ptr->telepathy = TRUE;
 	}
+	if (p_ptr->tim_esp_magical)
+		p_ptr->esp_magical = TRUE;
 
 	if (p_ptr->ele_immune)
 	{
@@ -5028,7 +5061,8 @@ void calc_bonuses(void)
 	    (p_ptr->esp_evil != old_esp_evil) ||
 	    (p_ptr->esp_good != old_esp_good) ||
 	    (p_ptr->esp_nonliving != old_esp_nonliving) ||
-	    (p_ptr->esp_unique != old_esp_unique))
+	    (p_ptr->esp_unique != old_esp_unique) ||
+	    p_ptr->esp_magical != old_esp_magical )
 	{
 		p_ptr->update |= (PU_MONSTERS);
 	}
@@ -5504,18 +5538,17 @@ void calc_bonuses(void)
 			int str_index, dex_index;
 			int num = 0, wgt = 0, mul = 0, div = 0;
 
-			/* Analyze the class */
 			switch (p_ptr->pclass)
 			{
-				/* Warrior */
 				case CLASS_WARRIOR:
 					num = 6; wgt = 70; mul = 5; break;
 
-				/* Berserker */
 				case CLASS_BERSERKER:
 					num = 6; wgt = 70; mul = 7; break;
 
-				/* Mage */
+				case CLASS_RAGE_MAGE:
+					num = 3; wgt = 70; mul = 3; break;
+					
 				case CLASS_MAGE:
 				case CLASS_NECROMANCER:
 				case CLASS_BLOOD_MAGE:
@@ -5535,26 +5568,21 @@ void calc_bonuses(void)
 				case CLASS_PSION:
 					num = 3; wgt = 100; mul = 3; break;
 
-				/* Priest, Mindcrafter, Magic-Eater */
 				case CLASS_PRIEST:
 				case CLASS_MAGIC_EATER:
 				case CLASS_MINDCRAFTER:
 					num = 5; wgt = 100; mul = 3; break;
 
-				/* Rogue */
 				case CLASS_ROGUE:
 					num = 5; wgt = 40; mul = 3; break;
 
-				/* Ranger */
 				case CLASS_RANGER:
 					num = 5; wgt = 70; mul = 4; break;
 
-				/* Paladin */
 				case CLASS_PALADIN:
 				case CLASS_SAMURAI:
 					num = 5; wgt = 70; mul = 4; break;
 
-				/* Weaponsmith */
 				case CLASS_SMITH:
 				case CLASS_RUNE_KNIGHT:
 					num = 5; wgt = 150; mul = 5; break;
@@ -5562,20 +5590,16 @@ void calc_bonuses(void)
 				case CLASS_WEAPONMASTER:
 					num = 5; wgt = 70; mul = 5; break;
 
-				/* Warrior-Mage */
 				case CLASS_WARRIOR_MAGE:
 				case CLASS_RED_MAGE:
 					num = 5; wgt = 70; mul = 3; break;
 
-				/* Chaos Warrior */
 				case CLASS_CHAOS_WARRIOR:
 					num = 5; wgt = 70; mul = 4; break;
 
-				/* Monk */
 				case CLASS_MONK:
 					num = 5; wgt = 60; mul = 3; break;
 
-				/* Tourist */
 				case CLASS_TOURIST:
 				case CLASS_TIME_LORD:
 					num = 4; wgt = 100; mul = 3; break;
@@ -5589,42 +5613,34 @@ void calc_bonuses(void)
 				case CLASS_DUELIST:
 					num = 1; wgt = 70; mul = 4; break;
 					
-				/* Imitator */
 				case CLASS_IMITATOR:
 					num = 5; wgt = 70; mul = 4; break;
 
 				case CLASS_WILD_TALENT:
 					num = 4; wgt = 70; mul = 4; break;
 
-				/* Beastmaster */
 				case CLASS_BEASTMASTER:
 					num = 5; wgt = 70; mul = 3; break;
 
-				/* Cavalry */
 				case CLASS_CAVALRY:
 					if ((p_ptr->riding) && (have_flag(flgs, TR_RIDING))) {num = 5; wgt = 70; mul = 4;}
 					else {num = 5; wgt = 100; mul = 3;}
 					break;
 
-				/* Sorcerer */
 				case CLASS_SORCERER:
 					num = 1; wgt = 1; mul = 1; break;
 
-				/* Archer, Bard */
 				case CLASS_ARCHER:
 				case CLASS_BARD:
 					num = 4; wgt = 70; mul = 2; break;
 
-				/* ForceTrainer */
 				case CLASS_FORCETRAINER:
 					num = 4; wgt = 60; mul = 2; break;
 
-				/* Mirror Master, Sniper */
 				case CLASS_MIRROR_MASTER:
 				case CLASS_SNIPER:
 					num = 3; wgt = 100; mul = 3; break;
 
-				/* Ninja */
 				case CLASS_NINJA:
 					num = 4; wgt = 20; mul = 1; break;
 			}

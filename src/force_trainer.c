@@ -314,37 +314,6 @@ void _large_force_ball_spell(int cmd, variant *res)
 	}
 }
 
-void _dispel_magic_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Dispel Magic", ""));
-		break;
-	case SPELL_DESC:
-		var_set_string(res, T("Dispels all magics which is effecting a monster.",""));
-		break;
-	case SPELL_CAST:
-	{
-		int m_idx;
-
-		var_set_bool(res, FALSE);
-		if (!target_set(TARGET_KILL)) return;
-		m_idx = cave[target_row][target_col].m_idx;
-		if (!m_idx) return;
-
-		var_set_bool(res, TRUE);
-		if (!player_has_los_bold(target_row, target_col)) return;
-		if (!projectable(py, px, target_row, target_col)) return;
-		dispel_monster_status(m_idx);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
 void _summon_ghost_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -478,7 +447,7 @@ static spell_info _spells[MAX_FORCETRAINER_SPELLS] =
     { 17, 17,  50, _aura_of_force_spell},
     { 20, 20,  50, _shock_power_spell},
     { 23, 18,  55, _large_force_ball_spell},
-    { 25, 30,  70, _dispel_magic_spell},
+    { 25, 30,  70, dispel_magic_spell},
     { 28, 26,  50, _summon_ghost_spell},
     { 32, 35,  65, _exploding_flame_spell},
     { 38, 42,  75, _super_kamehameha_spell},

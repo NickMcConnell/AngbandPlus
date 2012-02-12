@@ -31,10 +31,13 @@ void default_spell(int cmd, variant *res) /* Base class */
 		var_clear(res);
 		break;
 
-	case SPELL_CAST:
 	case SPELL_FAIL:
 	case SPELL_STOP:
 	case SPELL_CONT:
+		var_set_bool(res, TRUE);
+		break;
+
+	case SPELL_CAST:
 		msg_print("Zap?");
 		var_set_bool(res, TRUE);
 		break;
@@ -71,6 +74,14 @@ bool cast_spell(ang_spell spell)
 	b = var_get_bool(&res);
 	var_clear(&res);
 	return b;
+}
+
+void fail_spell(ang_spell spell)
+{
+	variant res;
+	var_init(&res);
+	spell(SPELL_FAIL, &res);
+	var_clear(&res);
 }
 
 int get_spell_energy(ang_spell spell)
@@ -475,7 +486,6 @@ void do_cmd_spell_browse(void)
 {
 	spell_info spells[MAX_SPELLS];
 	caster_info *caster = NULL;
-	/* TODO: Prompt for Racial Powers as well! */
 	int ct = _get_spell_table(spells, MAX_SPELLS, &caster);
 	if (ct == 0)
 	{
@@ -549,6 +559,7 @@ void do_cmd_spell(void)
 		if (randint0(100) < spell->fail)
 		{
 			sound(SOUND_FAIL); /* Doh! */
+			fail_spell(spell->fn);
 			if (flush_failure) flush();
 			msg_print("You failed to concentrate hard enough!");
 			if (caster->use_sp && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
@@ -648,6 +659,7 @@ void do_cmd_power(void)
 		if (randint0(100) < spell->fail)
 		{
 			sound(SOUND_FAIL); /* Doh! */
+			fail_spell(spell->fn);
 			if (flush_failure) flush();
 			msg_print("You failed to concentrate hard enough!");
 		}

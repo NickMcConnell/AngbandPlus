@@ -996,6 +996,7 @@ extern bool monster_can_enter(int y, int x, monster_race *r_ptr, u16b mode);
 extern bool are_enemies(monster_type *m_ptr1, monster_type *m_ptr2);
 extern bool monster_has_hostile_align(monster_type *m_ptr, int pa_good, int pa_evil, monster_race *r_ptr);
 extern bool monster_living(monster_race *r_ptr);
+extern bool monster_magical(monster_race *r_ptr);
 extern bool no_questor_or_bounty_uniques(int r_idx);
 
 
@@ -1170,6 +1171,7 @@ extern bool detect_monsters_string(int range, cptr);
 extern bool detect_monsters_nonliving(int range);
 extern bool detect_monsters_living(int range);
 extern bool detect_monsters_mind(int range);
+extern bool detect_monsters_magical(int range);
 extern bool detect_all(int range);
 extern bool wall_stone(void);
 extern bool speed_monsters(void);
@@ -1499,6 +1501,12 @@ extern bool set_tim_no_spells(int v, bool do_dec);
 extern bool set_tim_no_device(int v, bool do_dec);
 extern bool set_resist_magic(int v, bool do_dec);
 extern bool set_tim_reflect(int v, bool do_dec);
+
+extern bool set_tim_spell_reaction(int v, bool do_dec);
+extern bool set_tim_resist_curses(int v, bool do_dec);
+extern bool set_tim_armor_of_fury(int v, bool do_dec);
+extern bool set_tim_spell_turning(int v, bool do_dec);
+
 extern bool set_multishadow(int v, bool do_dec);
 extern bool set_dustrobe(int v, bool do_dec);
 extern bool set_kabenuke(int v, bool do_dec);
@@ -1517,6 +1525,7 @@ extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool hp_player(int num);
+extern bool sp_player(int num);
 extern bool do_dec_stat(int stat);
 extern bool do_res_stat(int stat);
 extern bool do_inc_stat(int stat);
@@ -1531,10 +1540,12 @@ extern void do_poly_self(void);
 extern bool set_ultimate_res(int v, bool do_dec);
 extern bool set_tim_res_nether(int v, bool do_dec);
 extern bool set_tim_res_time(int v, bool do_dec);
+extern bool set_tim_res_disenchantment(int v, bool do_dec);
 extern bool choose_ele_attack(void);
 extern bool choose_ele_immune(int turn);
 extern bool set_wraith_form(int v, bool do_dec);
 extern bool set_tim_esp(int v, bool do_dec);
+extern bool set_tim_esp_magical(int v, bool do_dec);
 extern bool set_superstealth(bool set);
 extern bool set_sanctuary(bool set);
 
@@ -1953,6 +1964,12 @@ extern bool psion_mindspring(void);
 extern bool psion_shielding(void);
 extern bool psion_speed(void);
 extern bool psion_weapon_graft(void);
+
+/* rage_mage.c */
+extern void rage_mage_browse_spell(void);
+extern void rage_mage_gain_spell(void);
+extern class_t *rage_mage_get_class_t(void);
+extern void rage_mage_rage_fueled(int dam);
 
 /* rune_knight.c */
 extern bool rune_add(object_type *o_ptr, int which, bool prompt);

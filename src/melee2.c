@@ -2827,6 +2827,7 @@ msg_format("%^s%s", m_name, monmessage);
 	int freq = r_ptr->freq_spell;
 	pack_info_t *pack_ptr = pack_info_ptr(m_idx);
 	bool ticked_off = (m_ptr->smart & SM_TICKED_OFF) ? TRUE : FALSE;
+	bool blocked_magic = FALSE;
 
 		if (ticked_off || is_glyph_grid(&cave[py][px]))
 			freq += (30 + r_ptr->level/5);
@@ -2845,8 +2846,39 @@ msg_format("%^s%s", m_name, monmessage);
 		/* Cap spell frequency at 75% or twice the natural frequency */
 		freq = MIN(freq, MAX(75, r_ptr->freq_spell));
 		freq = MIN(freq, 2*r_ptr->freq_spell);
+		
+		/* Hack for Rage Mage Anti-magic Ray ... */
+		if (m_ptr->anti_magic_ct)
+		{
+			char m_name[80];
+			monster_desc(m_name, m_ptr, 0);
 
-		if (r_ptr->freq_spell && randint1(100) <= freq)
+			/* Monsters that spell 1 in 1 get a save on each action.  Make the
+			   save and the spell is broken.  Fail, and a turn is lost. */
+			if (r_ptr->freq_spell == 100)
+			{
+				if (!mon_save_p(m_ptr->r_idx, A_STR))
+				{
+					msg_format("%^s tries to break your anti-magic ray but fails.", m_name);
+					m_ptr->anti_magic_ct--;
+					return;
+				}
+				else
+				{
+					msg_format("%^s breaks your anti-magic ray.", m_name);
+					m_ptr->anti_magic_ct = 0;
+				}
+			}
+			/* Other monsters continue to take a move, but can't cast spells */
+			else
+			{
+				msg_format("%^s says 'Just you wait until I can cast spells again!'", m_name);
+				blocked_magic = TRUE;	
+				m_ptr->anti_magic_ct--;
+			}
+		}
+
+		if (!blocked_magic && r_ptr->freq_spell && randint1(100) <= freq)
 		{
 			bool counterattack = FALSE;
 

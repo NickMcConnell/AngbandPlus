@@ -246,6 +246,7 @@ static void sense_inventory1(void)
 		case CLASS_DUELIST:
 		case CLASS_RUNE_KNIGHT:
 		case CLASS_WEAPONMASTER:
+		case CLASS_RAGE_MAGE:
 		{
 			/* Good sensing */
 			if (0 != randint0(9000L / (plev * plev + 40))) return;
@@ -492,6 +493,7 @@ static void sense_inventory2(void)
 		case CLASS_BLOOD_KNIGHT:
 		case CLASS_DUELIST:
 		case CLASS_WEAPONMASTER:
+		case CLASS_RAGE_MAGE:
 		{
 			return;
 		}
@@ -900,7 +902,7 @@ static void regenmana(int percent)
 {
 	s32b old_csp = p_ptr->csp;
 
-	if (p_ptr->pclass == CLASS_RUNE_KNIGHT) return;
+	if (p_ptr->pclass == CLASS_RUNE_KNIGHT || p_ptr->pclass == CLASS_RAGE_MAGE) return;
 
 	/*
 	 * Excess mana will decay 32 times faster than normal
@@ -1994,6 +1996,11 @@ static void process_world_aux_timeout(void)
 		(void)set_tim_esp(p_ptr->tim_esp - 1, TRUE);
 	}
 
+	if (p_ptr->tim_esp_magical)
+	{
+		(void)set_tim_esp_magical(p_ptr->tim_esp_magical - 1, TRUE);
+	}
+
 	/* Timed temporary elemental brands. -LM- */
 	if (p_ptr->ele_attack)
 	{
@@ -2077,6 +2084,9 @@ static void process_world_aux_timeout(void)
 	{
 		(void)set_tim_res_time(p_ptr->tim_res_time - 1, TRUE);
 	}
+
+	if (p_ptr->tim_res_disenchantment)
+		(void)set_tim_res_disenchantment(p_ptr->tim_res_disenchantment - 1, TRUE);
 
 	/* Timed reflect */
 	if (p_ptr->tim_reflect)
@@ -2294,6 +2304,18 @@ static void process_world_aux_timeout(void)
 	{
 		set_tim_enlarge_weapon(p_ptr->tim_enlarge_weapon - 1, TRUE);
 	}
+
+	if (p_ptr->tim_spell_reaction)
+		set_tim_spell_reaction(p_ptr->tim_spell_reaction - 1, TRUE);
+
+	if (p_ptr->tim_resist_curses)
+		set_tim_resist_curses(p_ptr->tim_resist_curses - 1, TRUE);
+
+	if (p_ptr->tim_armor_of_fury)
+		set_tim_armor_of_fury(p_ptr->tim_armor_of_fury - 1, TRUE);
+
+	if (p_ptr->tim_spell_turning)
+		set_tim_spell_turning(p_ptr->tim_spell_turning - 1, TRUE);
 
 	wild_decrement_counters();
 
@@ -4320,6 +4342,8 @@ msg_print("ウィザードモード突入。");
 #endif
 			else if (p_ptr->pclass == CLASS_SAMURAI)
 				do_cmd_gain_hissatsu();
+			else if (p_ptr->pclass == CLASS_RAGE_MAGE)
+				rage_mage_gain_spell();
 			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
 				cast_absorb_magic();
 			else if (p_ptr->pclass == CLASS_PSION)
@@ -4345,6 +4369,8 @@ msg_print("ウィザードモード突入。");
 				do_cmd_magic_eater(TRUE);
 			else if (p_ptr->pclass == CLASS_SNIPER)
 				do_cmd_snipe_browse();
+			else if (p_ptr->pclass == CLASS_RAGE_MAGE)
+				rage_mage_browse_spell();
 			else if (p_ptr->pclass == CLASS_ARCHAEOLOGIST ||
 			         p_ptr->pclass == CLASS_DUELIST ||
 					 p_ptr->pclass == CLASS_WARLOCK ||
@@ -4441,6 +4467,8 @@ msg_print("ウィザードモード突入。");
 #else
 						which_power = "prayer";
 #endif
+					else if (mp_ptr->spell_book == TV_RAGE_BOOK)
+						which_power = "rage";
 
 #ifdef JP
 					msg_format("反魔法バリアが%sを邪魔した！", which_power);
@@ -4449,7 +4477,7 @@ msg_print("ウィザードモード突入。");
 #endif
 					energy_use = 0;
 				}
-				else if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER) && p_ptr->pclass != CLASS_BLOOD_KNIGHT)
+				else if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER) && p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_RAGE_MAGE)
 				{
 #ifdef JP
 					msg_format("狂戦士化していて頭が回らない！");
@@ -4490,7 +4518,8 @@ msg_print("ウィザードモード突入。");
 							 p_ptr->pclass == CLASS_PSION ||
 							 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 							 p_ptr->pclass == CLASS_WILD_TALENT ||
-							 p_ptr->pclass == CLASS_WEAPONMASTER)
+							 p_ptr->pclass == CLASS_WEAPONMASTER ||
+							 p_ptr->pclass == CLASS_RAGE_MAGE)
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */
@@ -5096,7 +5125,7 @@ static void process_player(void)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp >= p_ptr->msp || p_ptr->pclass == CLASS_RUNE_KNIGHT))
+			    (p_ptr->csp >= p_ptr->msp || p_ptr->pclass == CLASS_RUNE_KNIGHT || p_ptr->pclass == CLASS_RAGE_MAGE))
 			{
 				set_action(ACTION_NONE);
 			}
@@ -5107,7 +5136,7 @@ static void process_player(void)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp >= p_ptr->msp || p_ptr->pclass == CLASS_RUNE_KNIGHT) &&
+			    (p_ptr->csp >= p_ptr->msp || p_ptr->pclass == CLASS_RUNE_KNIGHT || p_ptr->pclass == CLASS_RAGE_MAGE) &&
 			    !p_ptr->blind && !p_ptr->confused &&
 			    !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !p_ptr->cut &&
@@ -5495,7 +5524,10 @@ msg_print("中断しました。");
 		/* Significant */
 		if (energy_use)
 		{
-			psion_do_mindspring(energy_use);
+			class_t *class_ptr = get_class_t();
+			
+			if (class_ptr && class_ptr->player_action)
+				class_ptr->player_action(energy_use);
 			
 			/* Use some energy */
 			if (world_player || energy_use > 400)

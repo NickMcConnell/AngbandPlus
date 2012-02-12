@@ -518,8 +518,8 @@ void _the_world_spell(int cmd, variant *res)
 static spell_info _spells[MAX_MINDCRAFTER_SPELLS] = 
 {
     /*lvl cst fail spell */
-    { 1,   1,  15, _precognition_spell},
-    { 2,   1,  20, _neural_blast_spell},
+    { 1,   1,  15, _neural_blast_spell},
+    { 2,   1,  20, _precognition_spell},
     { 3,   2,  25, _minor_displacement_spell},
     { 7,   6,  35, _major_displacement_spell},
     { 9,   7,  50, _domination_spell},

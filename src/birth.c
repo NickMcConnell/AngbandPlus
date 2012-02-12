@@ -1847,6 +1847,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Psion ...)",
 
+"TRANSLATE(Rage-Mage ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1931,12 +1933,12 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "The weaponmaster is great with a class of weapons, but truly "
 	"outstanding with the one weapon he specializes in. "
-	"At character creation, the player chooses a sub-specialization "
-	"(e.g. Polearms) and a specialization (e.g. Scythe). "
-	"At level 50, the character gets to super-specialization in "
+	"At character creation, the player chooses a specialization "
+	"(e.g. Polearms) and a sub-specialization (e.g. Scythe). "
+	"At level 50, the character gains weapon mastery in "
 	"one particular weapon (e.g. Avavir). The character gets "
-	"bonuses from Sub-specialization if he uses weapon from "
-	"that group, and abilities from Specialization if he uses "
+	"bonuses from specialization if he uses weapon from "
+	"that group, and abilities from sub-specialization if he uses "
 	"weapon of that type. If dual-wielding, both weapons must "
 	"be of the appropriate type.",
 
@@ -1958,6 +1960,11 @@ static cptr class_jouhou[MAX_CLASS] =
 	"but they can scale their powers to determine the SP cost and the "
 	"powers' potency. Psionic powers require great concentration, however, "
 	"and psions do not have the mind to spare to care for others.",
+	
+"The Rage Mage is part of a secret sect descending from the Barbarians "
+	"in response to their natural foes, the mages. As time passed, other "
+	"races have also begun to learn their arts.",
+	
 #endif
 };
 
@@ -2084,9 +2091,13 @@ static cptr realm_jouhou[VALID_REALM] =
 
 "Music magic shows various effects as sing song.  There is two type of song; the one which shows effects instantly and the other one shows effect continuously until SP runs out.  But the latter type has a limit; only one song can be sing at the same time.",
 
-"The books of Kendo describe about various combat techniques.  When learning new techniques, you are required to carry the books, but once you memorizes them, you don't have to carry them.  When using a technique, wielding a weapon is required.",
+"The books Kendo of describe about various combat techniques.  When learning new techniques, you are required to carry the books, but once you memorizes them, you don't have to carry them.  When using a technique, wielding a weapon is required.",
 
-"Hex is a very terrible realm. Spells gives continual effects when they are spelled continually like songs. Spells may obstract monsters' actions, may deal damages in sight, may revenge against enemies."
+"Hex is a very terrible realm. Spells gives continual effects when they are spelled continually like songs. Spells may obstract monsters' actions, may deal damages in sight, may revenge against enemies.",
+
+"The books of Rage describe various techniques. To learn a new technique, you must perform a ritual of rage, destroying the book in the process."
+	" Once learned, you may use techniques without requiring the corresponding Rage book, but you will need to find many copies of each book in order"
+	" to learn all of the techniques.",
 #endif
 };
 
@@ -2121,7 +2132,8 @@ static char realm_subinfo[VALID_REALM][128] =
 "Control and Commune with the dead.",
 "Song with magical effects.",
 "Special attacks on melee.",
-"Good at obstacle and revenge."
+"Good at obstacle and revenge.",
+"Good at destroying spellcasting foes.",
 #endif
 };
 
@@ -2256,6 +2268,11 @@ static byte choose_realm(s32b choices, int *count)
 	{
 		(*count)++;
 		auto_select = REALM_HEX;
+	}
+	if (choices & CH_RAGE)
+	{
+		(*count)++;
+		auto_select = REALM_RAGE;
 	}
 
 	clear_from(10);
@@ -2585,7 +2602,7 @@ static bool get_demigod_parent(void)
 	char c;
 
 	clear_from(10);
-	put_str("Unlike in real life, you get to choose you parent.", 23, 5);
+	put_str("Unlike in real life, you get to choose your parent.", 23, 5);
 
 	for (n = 0; n < MAX_DEMIGOD_TYPES; n++)
 	{
@@ -4488,6 +4505,13 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_RING, SV_RING_SUSTAIN_INT},
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 	},
+
+	{
+		/* Rage-Mage */
+		{ TV_RAGE_BOOK, 0 },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
+		{ TV_SWORD, SV_BROAD_SWORD },
+	},
 };
 
 
@@ -4530,16 +4554,19 @@ void add_outfit(object_type *o_ptr)
  *
  * Having an item makes the player "aware" of its purpose.
  */
+static void _birth_object(int tv, int sv, int qty)
+{
+	object_type	forge;
+	object_prep(&forge, lookup_kind(tv, sv));
+	forge.number = qty;
+	add_outfit(&forge);
+}
+ 
 void player_outfit(void)
 {
 	int i, tv, sv;
 
 	object_type	forge;
-	object_type	*q_ptr;
-
-
-	/* Get local object */
-	q_ptr = &forge;
 
 	/* Give the player some food */
 	switch (p_ptr->prace)
@@ -4551,193 +4578,108 @@ void player_outfit(void)
 
 	case RACE_DEMON:
 		/* Demon can drain vitality from humanoid corpse */
-
-		/* Prepare allocation table */
 		get_mon_num_prep(monster_hook_human, NULL);
 
 		for (i = rand_range(3,4); i > 0; i--)
 		{
-			object_prep(q_ptr, lookup_kind(TV_CORPSE, SV_CORPSE));
-			q_ptr->pval = get_mon_num(2);
-			q_ptr->number = 1;
-			add_outfit(q_ptr);
+			object_prep(&forge, lookup_kind(TV_CORPSE, SV_CORPSE));
+			forge.pval = get_mon_num(2);
+			forge.number = 1;
+			add_outfit(&forge);
 		}
 		break;
 
-#if 0
-	case RACE_SKELETON:
-		/* Some Skeletons */
-		object_prep(q_ptr, lookup_kind(TV_SKELETON, SV_ANY));
-		q_ptr->number = (byte)rand_range(7, 12);
-		add_outfit(q_ptr);
-		break;
-#endif
 	case RACE_SKELETON:
 	case RACE_GOLEM:
 	case RACE_ZOMBIE:
 	case RACE_SPECTRE:
-		/* Staff (of Nothing) */
-		object_prep(q_ptr, lookup_kind(TV_STAFF, SV_STAFF_NOTHING));
-		q_ptr->number = 1;
-
-		add_outfit(q_ptr);
+		_birth_object(TV_STAFF, SV_STAFF_NOTHING, 1);
 		break;
 
 	case RACE_ENT:
-		/* Potions of Water */
-		object_prep(q_ptr, lookup_kind(TV_POTION, SV_POTION_WATER));
-		q_ptr->number = (byte)rand_range(15, 23);
-		add_outfit(q_ptr);
-
+		_birth_object(TV_POTION, SV_POTION_WATER, rand_range(15, 23));
 		break;
 
 	case RACE_ANDROID:
-		/* Flasks of oil */
-		object_prep(q_ptr, lookup_kind(TV_FLASK, SV_ANY));
+		object_prep(&forge, lookup_kind(TV_FLASK, SV_ANY));
 
 		/* Fuel with oil (move pval to xtra4) */
-		apply_magic(q_ptr, 1, AM_NO_FIXED_ART);
+		apply_magic(&forge, 1, AM_NO_FIXED_ART);
 
-		q_ptr->number = (byte)rand_range(7, 12);
-		add_outfit(q_ptr);
+		forge.number = (byte)rand_range(7, 12);
+		add_outfit(&forge);
 
 		break;
 
 	default:
-		/* Food rations */
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-		q_ptr->number = (byte)rand_range(3, 7);
-
-		add_outfit(q_ptr);
+		_birth_object(TV_FOOD, SV_FOOD_RATION, rand_range(3, 7));
 	}
-
-	/* Get local object */
-	q_ptr = &forge;
 
 	if ((p_ptr->prace == RACE_VAMPIRE) && (p_ptr->pclass != CLASS_NINJA))
 	{
-		/* Hack -- Give the player scrolls of DARKNESS! */
-		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
-
-		q_ptr->number = (byte)rand_range(2, 5);
-
-		add_outfit(q_ptr);
+		_birth_object(TV_SCROLL, SV_SCROLL_DARKNESS, rand_range(2, 5));
 	}
 	else if (p_ptr->pclass != CLASS_NINJA)
 	{
-		/* Hack -- Give the player some torches */
-		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-		q_ptr->number = (byte)rand_range(3, 7);
-		q_ptr->xtra4 = rand_range(3, 7) * 500;
-
-		add_outfit(q_ptr);
+		object_prep(&forge, lookup_kind(TV_LITE, SV_LITE_TORCH));
+		forge.number = (byte)rand_range(3, 7);
+		forge.xtra4 = rand_range(3, 7) * 500;
+		add_outfit(&forge);
 	}
-
-	/* Get local object */
-	q_ptr = &forge;
 
 	if (p_ptr->prace == RACE_SNOTLING)
 	{
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_CURE_SERIOUS));
-		q_ptr->number = randint1(3);
-		add_outfit(q_ptr);
+		_birth_object(TV_FOOD, SV_FOOD_CURE_SERIOUS, randint1(3));
 	}
 
 	if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_CAVALRY))
 	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
-		q_ptr->number = (byte)rand_range(15, 20);
-
-		add_outfit(q_ptr);
+		_birth_object(TV_ARROW, SV_AMMO_NORMAL, rand_range(15, 20));
 	}
 	if (p_ptr->pclass == CLASS_RANGER)
 	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_BOW, SV_SHORT_BOW));
-
-		add_outfit(q_ptr);
+		_birth_object(TV_BOW, SV_SHORT_BOW, 1);
 	}
 	else if (p_ptr->pclass == CLASS_ARCHER)
 	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
-		q_ptr->number = (byte)rand_range(15, 20);
-
-		add_outfit(q_ptr);
+		_birth_object(TV_ARROW, SV_AMMO_NORMAL, rand_range(15, 20));
 	}
 	else if (p_ptr->pclass == CLASS_HIGH_MAGE)
 	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
-		q_ptr->number = 1;
-		q_ptr->pval = (byte)rand_range(25, 30);
-
-		add_outfit(q_ptr);
+		object_prep(&forge, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
+		forge.number = 1;
+		forge.pval = (byte)rand_range(25, 30);
+		add_outfit(&forge);
 	}
 	else if (p_ptr->pclass == CLASS_SORCERER)
 	{
 		for (i = TV_LIFE_BOOK; i <= TV_LIFE_BOOK+MAX_MAGIC-1; i++)
 		{
 			if (i == TV_NECROMANCY_BOOK) continue;
-
-			object_prep(q_ptr, lookup_kind(i, 0));
-			q_ptr->number = 1;
-
-			add_outfit(q_ptr);
+			_birth_object(i, 0, 1);
 		}
 	}
 	else if (p_ptr->pclass == CLASS_TOURIST)
 	{
 		if (p_ptr->pseikaku != SEIKAKU_SEXY)
 		{
-			/* Hack -- Give the player some arrows */
-			object_prep(q_ptr, lookup_kind(TV_SHOT, SV_AMMO_LIGHT));
-			q_ptr->number = (byte)rand_range(15, 20);
-
-			add_outfit(q_ptr);
+			_birth_object(TV_SHOT, SV_AMMO_LIGHT, rand_range(15, 20));
 		}
 
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_BISCUIT));
-		q_ptr->number = (byte)rand_range(2, 4);
-
-		add_outfit(q_ptr);
-
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_WAYBREAD));
-		q_ptr->number = (byte)rand_range(2, 4);
-
-		add_outfit(q_ptr);
-
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_JERKY));
-		q_ptr->number = (byte)rand_range(1, 3);
-
-		add_outfit(q_ptr);
-
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_PINT_OF_ALE));
-		q_ptr->number = (byte)rand_range(2, 4);
-
-		add_outfit(q_ptr);
-
-		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_PINT_OF_WINE));
-		q_ptr->number = (byte)rand_range(2, 4);
-
-		add_outfit(q_ptr);
+		_birth_object(TV_FOOD, SV_FOOD_BISCUIT, rand_range(2, 4));
+		_birth_object(TV_FOOD, SV_FOOD_WAYBREAD, rand_range(2, 4));
+		_birth_object(TV_FOOD, SV_FOOD_JERKY, rand_range(1, 3));
+		_birth_object(TV_FOOD, SV_FOOD_PINT_OF_ALE, rand_range(2, 4));
+		_birth_object(TV_FOOD, SV_FOOD_PINT_OF_WINE, rand_range(2, 4));
+		_birth_object(TV_FOOD, SV_FOOD_BISCUIT, rand_range(2, 4));
 	}
 	else if (p_ptr->pclass == CLASS_NINJA)
 	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_SPIKE, 0));
-		q_ptr->number = (byte)rand_range(15, 20);
-
-		add_outfit(q_ptr);
+		_birth_object(TV_SPIKE, 0, rand_range(15, 20));
 	}
 	else if (p_ptr->pclass == CLASS_SNIPER)
 	{
-		/* Hack -- Give the player some bolts */
-		object_prep(q_ptr, lookup_kind(TV_BOLT, SV_AMMO_NORMAL));
-		q_ptr->number = (byte)rand_range(15, 20);
-
-		add_outfit(q_ptr);
+		_birth_object(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 20));
 	}
 
 	if(p_ptr->pseikaku == SEIKAKU_SEXY)
@@ -4770,31 +4712,27 @@ void player_outfit(void)
 			sv = SV_POTION_RESTORE_MANA;
 		  }
 
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Hack -- Give the player an object */
-		object_prep(q_ptr, lookup_kind(tv, sv));
+		object_prep(&forge, lookup_kind(tv, sv));
 
 		/* Assassins begin the game with a poisoned dagger */
 		if ((tv == TV_SWORD || tv == TV_HAFTED) && (p_ptr->pclass == CLASS_ROGUE &&
 			p_ptr->realm1 == REALM_DEATH)) /* Only assassins get a poisoned weapon */
 		{
-			q_ptr->name2 = EGO_BRAND_POIS;
+			forge.name2 = EGO_BRAND_POIS;
 		}
 
 		/* Hack: Rune-Knights begin with an Absorption Rune on their broad sword (or whip if sexy) */
 		if(p_ptr->pseikaku == SEIKAKU_SEXY)
 		{
 			if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_HAFTED && sv == SV_WHIP)
-				rune_add(q_ptr, RUNE_ABSORPTION, FALSE);
+				rune_add(&forge, RUNE_ABSORPTION, FALSE);
 		}
 		else
 		{
 			if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_SWORD && sv == SV_BROAD_SWORD)
-				rune_add(q_ptr, RUNE_ABSORPTION, FALSE);
+				rune_add(&forge, RUNE_ABSORPTION, FALSE);
 		}
-		add_outfit(q_ptr);
+		add_outfit(&forge);
 	}
 
 	/* Hack -- make aware of the water */
@@ -6946,7 +6884,7 @@ static bool player_birth_aux(void)
 		while (TRUE)
 		{
 			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP);
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 			/* Update stuff */
 			update_stuff();
