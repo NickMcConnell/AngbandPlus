@@ -2448,7 +2448,7 @@ void do_cmd_options(void)
 			else k = 0;
 
 			/* Exit */
-			if (k == ESCAPE) break;
+			if (IS_ESCAPE(k)) break;
 
 			if (my_strchr("\n\r ", k))
 			{
@@ -2476,7 +2476,7 @@ void do_cmd_options(void)
 		}
 
 		/* Exit */
-		if (k == ESCAPE) break;
+		if (IS_ESCAPE(k)) break;
 
 		/* Analyze */
 		switch (k)

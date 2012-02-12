@@ -5689,7 +5689,8 @@ note_dies = "はドロドロに溶けた！";
 			{
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags2 |= (RF2_WEIRD_MIND);
 				note = T(" resists somewhat.", "には耐性がある。");
-				dam /= 3;
+				dam /= 2;
+				if (dam == 0) dam = 1;
 			}
 			if (dam)
 			{
@@ -8271,6 +8272,12 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				msg_print("Your mental fortress is impenetrable!");
 			}
+			else if ( p_ptr->prace == RACE_DEMIGOD
+					&& p_ptr->psubrace == DEMIGOD_HERA
+					&& randint1(100) > r_ptr->level - 2*(p_ptr->stat_ind[A_WIS] + 3))
+			{
+				msg_print("You keep your wits about you!");
+			}
 			else if (p_ptr->csp)
 			{
 				/* Basic message */
@@ -8395,7 +8402,13 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 			else
 			{
-				if (!CHECK_MULTISHADOW())
+				if ( p_ptr->prace == RACE_DEMIGOD
+				  && p_ptr->psubrace == DEMIGOD_HERA
+				  && randint1(100) > r_ptr->level - 2*(p_ptr->stat_ind[A_WIS] + 3))
+				{
+					msg_print("You keep your wits about you!");
+				}
+				else if (!CHECK_MULTISHADOW())
 				{
 #ifdef JP
 					msg_print("霊的エネルギーで精神が攻撃された。");

@@ -6397,7 +6397,7 @@ int bow_range(int sval)
 		break;
 	}
 	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ARTEMIS)
-		tdis += 2;
+		tdis += 1 + p_ptr->lev/12;
 
 	return tdis;
 }

@@ -620,19 +620,16 @@ static void _shatter_device_spell(int cmd, variant *res)
 		o_ptr = &inventory[item];
 		var_set_bool(res, TRUE);
 		
-		/* Lots of special case code to follow written in "do it and return" style */
 		if (_object_is_(o_ptr, TV_STAFF, SV_STAFF_DESTRUCTION))
 		{
 			if (destroy_area(py, px, 15 + p_ptr->lev + randint0(11), FALSE))
 				msg_print("The dungeon collapses...");
 			else
 				msg_print("The dungeon trembles.");
-			return;
 		}
-		
-		if ( _object_is_(o_ptr, TV_STAFF, SV_STAFF_HEALING)
-		  || _object_is_(o_ptr, TV_ROD, SV_ROD_HEALING)
-		  || _object_is_(o_ptr, TV_ROD, SV_ROD_RESTORATION) )
+		else if ( _object_is_(o_ptr, TV_STAFF, SV_STAFF_HEALING)
+		       || _object_is_(o_ptr, TV_ROD, SV_ROD_HEALING)
+		       || _object_is_(o_ptr, TV_ROD, SV_ROD_RESTORATION) )
 		{
 			msg_print("You feel life flow through your body!");
 			restore_level();
@@ -650,21 +647,21 @@ static void _shatter_device_spell(int cmd, variant *res)
 			(void)do_res_stat(A_CHR);
 			update_stuff();
 			hp_player(5000);
-			return;
 		}
-		
-		if (_object_is_(o_ptr, TV_ROD, SV_ROD_TELEPORT_AWAY))
+		else if (_object_is_(o_ptr, TV_ROD, SV_ROD_TELEPORT_AWAY))
 		{
 			banish_monsters(p_ptr->lev * 4);
-			return;
 		}
-		
-		/* Everything else just blows up. */
-		project(0, 5, py, px, 
-			k_info[o_ptr->k_idx].level * 16, 
-			_object_dam_type(o_ptr), 
-			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
-		
+		else
+		{
+			project(0, 5, py, px, 
+				k_info[o_ptr->k_idx].level * 16, 
+				_object_dam_type(o_ptr), 
+				PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL, -1);
+		}
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
 		break;
 	}
 	default:

@@ -4870,6 +4870,7 @@ bool set_stun(int v, bool do_dec)
 
 	if (prace_is_(RACE_GOLEM) || ((p_ptr->pclass == CLASS_BERSERKER) && (p_ptr->lev > 34))) v = 0;
 	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_POSEIDON) v = 0;
+	if (psion_mental_fortress()) v = 0;
 
 	/* Knocked out */
 	if (p_ptr->stun > 100)

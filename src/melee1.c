@@ -1875,19 +1875,16 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					}
 					else if (psion_mental_fortress())
 						msg_print("Your mental fortress is impenetrable!");
+					else if ( p_ptr->prace == RACE_DEMIGOD
+						   && p_ptr->psubrace == DEMIGOD_HERA
+						   && randint1(100) > r_ptr->level - 2*(p_ptr->stat_ind[A_WIS] + 3))
+					{
+						msg_print("You keep your wits about you!");
+					}
 					else
 					{
 						do_cut = 0;
-
-						/* Take damage */
-						p_ptr->csp -= damage;
-						if (p_ptr->csp < 0)
-						{
-							p_ptr->csp = 0;
-							p_ptr->csp_frac = 0;
-						}
-
-						p_ptr->redraw |= (PR_MANA);
+						sp_player(-damage);
 					}
 
 					/* Learn about the player */

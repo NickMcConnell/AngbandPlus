@@ -1,5 +1,86 @@
 #include "angband.h"
 
+void _kiss_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Kiss", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attempt to charm an adjacent monster.", ""));
+		break;
+	case SPELL_COST_EXTRA:
+		var_set_int(res, p_ptr->lev * 2);
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir = 0, m_idx;
+		var_set_bool(res, FALSE);
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		m_idx = cave[y][x].m_idx;
+		if (m_idx)
+		{
+			monster_type *m_ptr = &m_list[m_idx];
+			char desc[MAX_NLEN];
+			monster_desc(desc, m_ptr, 0);
+			if (mon_save_p(m_ptr->r_idx, A_CHR))
+			{
+				set_monster_csleep(m_idx, 0);
+				if (is_hostile(m_ptr))
+				{
+					switch (randint1(10))
+					{
+					case 1:
+						msg_format("%^s says 'Impudent Strumpet!'", desc);
+						break;
+					case 2:
+						msg_format("%^s says 'Ewwww! Gross!!'", desc);
+						break;
+					case 3:
+						msg_format("%^s says 'You ain't my type!'", desc);
+						break;
+					default:
+						msg_format("%^s resists your charms.", desc);
+					}
+				}
+				else
+					msg_format("%^s ignores you.", desc);
+			}
+			else
+			{
+				if (is_pet(m_ptr))
+					msg_format("%^s slobbers on you affectionately.", desc);
+				else if (is_friendly(m_ptr))
+				{
+					set_pet(m_ptr);
+					msg_format("%^s is charmed!", desc);
+				}
+				else
+				{
+					set_friendly(m_ptr);
+					msg_format("%^s suddenly becomes friendly.", desc);
+				}
+			}
+			var_set_bool(res, TRUE);
+		}
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+		}
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void _demeter_clw_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -244,6 +325,15 @@ int _demigod_get_powers(spell_info* spells, int max)
 		spell->cost = 10;
 		spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_STR]);
 		spell->fn = berserk_spell;
+		break;
+	}
+	case DEMIGOD_APHRODITE:
+	{
+		spell_info *spell = &spells[ct++];
+		spell->level = 1;
+		spell->cost = 10;
+		spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_CHR]);
+		spell->fn = _kiss_spell;
 		break;
 	}
 	}

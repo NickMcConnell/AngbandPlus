@@ -6380,7 +6380,7 @@ prt("[キー:(?)ヘルプ (ESC)終了]", hgt - 1, 0);
 		}
 
 		/* Return to last screen */
-		if ((skey == ESCAPE) || (skey == '<')) break;
+		if (IS_ESCAPE(skey) || skey == '<') break;
 
 		/* Exit on the ^q */
 		if (skey == KTRL('q')) skey = 'q';

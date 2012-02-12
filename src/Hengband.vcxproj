@@ -52,6 +52,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalOptions>/D _CRT_SECURE_NO_WARNINGS /DMSVC %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>

@@ -114,7 +114,7 @@ bool psion_foresight(void)
 bool psion_check_foresight(void)
 {
 	if (!psion_foresight()) return FALSE;
-	if (randint1(100) <= 13*p_ptr->magic_num2[_FORESIGHT]) 
+	if (randint1(100) <= 13*p_ptr->magic_num2[_FORESIGHT] + 10) 
 	{
 		msg_print("You saw that one coming!");
 		return TRUE;
@@ -176,7 +176,7 @@ static void _brain_smash_spell(int cmd, variant *res)
 		var_set_string(res, "Pummel the minds of your foes.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_radius(1));
+		var_set_string(res, info_radius(2));
 		break;
 	case SPELL_CAST:
 	{
@@ -188,7 +188,7 @@ static void _brain_smash_spell(int cmd, variant *res)
 			GF_PSI_BRAIN_SMASH, 
 			dir, 
 			_power,
-			1
+			2
 		);
 
 		var_set_bool(res, TRUE);
@@ -276,7 +276,7 @@ static void _energy_blast_spell(int cmd, variant *res)
 		var_set_string(res, "Fires an elemental ball.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(spell_power(_power*4), 6, 0));
+		var_set_string(res, info_damage(spell_power(_power*5 - 2), 6, 0));
 		break;
 	case SPELL_CAST:
 	{
@@ -297,7 +297,7 @@ static void _energy_blast_spell(int cmd, variant *res)
 		fire_ball(
 			type, 
 			dir, 
-			spell_power(damroll(_power*4, 6)),
+			spell_power(damroll(_power*5 - 2, 6)),
 			spell_power((1 + _power)/2)
 		);
 
@@ -351,7 +351,7 @@ static void _mana_thrust_spell(int cmd, variant *res)
 		var_set_string(res, "Fires a bolt of pure mana.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(spell_power(_power*4), 6, 0));
+		var_set_string(res, info_damage(spell_power(_power*5 - 2), 6, 0));
 		break;
 	case SPELL_CAST:
 	{
@@ -360,9 +360,9 @@ static void _mana_thrust_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		if (_power == 5)
-			fire_beam(GF_MANA, dir, spell_power(damroll(_power*4, 6)));
+			fire_beam(GF_MANA, dir, spell_power(damroll(_power*5 - 2, 6)));
 		else
-			fire_bolt(GF_MANA, dir, spell_power(damroll(_power*4, 6)));
+			fire_bolt(GF_MANA, dir, spell_power(damroll(_power*5 - 2, 6)));
 
 		var_set_bool(res, TRUE);
 		break;
@@ -917,27 +917,27 @@ static spell_info _spells[MAX_PSION_SPELLS] =
     /*lvl cst fail spell */
 	{  1,   2, 30, _mana_thrust_spell },
 	{  1,   2, 30, _energy_blast_spell },
-	{  1,   5, 40, _psionic_seeing_spell },
-	{  1,   6, 40, _graft_weapon_spell },
-	{  1,   8, 50, _psionic_clarity_spell },
+	{  1,   3, 40, _psionic_seeing_spell },
+	{  1,   5, 40, _graft_weapon_spell },
+	{  1,   6, 50, _psionic_clarity_spell },
 
-	{ 10,   7, 40, _psionic_blending_spell },
-	{ 10,   9, 50, _psionic_shielding_spell },
-	{ 10,   8, 30, _psionic_travel_spell },
+	{ 10,   4, 40, _psionic_blending_spell },
+	{ 10,   7, 50, _psionic_shielding_spell },
+	{ 10,   5, 30, _psionic_travel_spell },
 
 	{ 20,   4, 30, _psionic_protection_spell },
-	{ 20,  16, 50, _combat_transformation_spell },
-	{ 20,  10, 40, _ego_whip_spell },
+	{ 20,  13, 50, _combat_transformation_spell },
+	{ 20,   6, 40, _ego_whip_spell },
 
-	{ 30,   8, 40, _psionic_speed_spell },
+	{ 30,   6, 40, _psionic_speed_spell },
 	{ 30,  14, 50, _psionic_healing_spell },
-	{ 30,  13, 60, _brain_smash_spell },
+	{ 30,  10, 60, _brain_smash_spell },
 
 	{ 40,  30, 70, _psionic_crafting_spell },
-	{ 40,  25, 60, _psionic_storm_spell },
+	{ 40,  20, 60, _psionic_storm_spell },
 	{ 40,  20, 50, _psionic_backlash_spell },
 
-	{ 50,  50, 30, _mental_fortress_spell },
+	{ 50,  40, 30, _mental_fortress_spell },
 	{ 50,  40, 50, _mindspring_spell },
 	{ 50,  50, 40, _psionic_foresight_spell },
 };
@@ -1225,6 +1225,17 @@ static void _calc_bonuses(void)
 	{
 		if (!p_ptr->fast)
 			p_ptr->pspeed += 3*p_ptr->magic_num2[_SPEED];
+	}
+	if (p_ptr->magic_num1[_FORTRESS])
+	{
+		p_ptr->resist_time = TRUE;
+		p_ptr->sustain_str = TRUE;
+		p_ptr->sustain_int = TRUE;
+		p_ptr->sustain_wis = TRUE;
+		p_ptr->sustain_dex = TRUE;
+		p_ptr->sustain_con = TRUE;
+		p_ptr->sustain_chr = TRUE;
+		p_ptr->hold_life = TRUE;
 	}
 }
 

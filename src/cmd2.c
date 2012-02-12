@@ -3340,6 +3340,9 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				p_ptr->redraw |= (PR_MANA);
 				mult = mult * 5 / 2;
 			}
+
+			if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+				mult += 5;
 			break;
 		}
 	}

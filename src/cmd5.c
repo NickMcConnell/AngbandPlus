@@ -1373,7 +1373,7 @@ msg_format("%sをうまく唱えられなかった！", prayer);
 #endif
 
 		if (take_mana && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
-			p_ptr->csp += take_mana/2;
+			p_ptr->csp += take_mana;
 
 		sound(SOUND_FAIL);
 
