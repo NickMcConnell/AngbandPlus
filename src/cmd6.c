@@ -1387,7 +1387,13 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
-				if (ee > 100000L) ee = 100000L;
+				s32b max = 100000L;
+				if (mut_present(MUT_FAST_LEARNER))
+				{
+					ee = ee * 5/3;
+					max = max * 5/3;
+				}
+				if (ee > max) ee = max;
 #ifdef JP
 				msg_print("更に経験を積んだような気がする。");
 #else

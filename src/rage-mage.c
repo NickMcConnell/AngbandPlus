@@ -903,9 +903,9 @@ static book_t _books[4] = {
 	{ "Northern Frights",
 		{{15,  8, 45, _crude_mapping_spell},
 	     {18, 18, 50, _resist_disenchantment_spell},
-	     {20, 30, 75, _awesome_blow_spell},
+	     {20, 30, 55, _awesome_blow_spell},
 	     {22, 15, 60, _spell_reaction_spell},
-	     {23, 21, 80, _greater_shout_spell},
+	     {23, 21, 60, _greater_shout_spell},
 	     {25, 18, 60, _whirlwind_attack_spell},
 	     {27, 20, 55, _resist_curses_spell},
 	     {28, 23, 70, _detect_magic_spell}}

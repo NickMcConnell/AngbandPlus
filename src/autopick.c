@@ -1542,9 +1542,12 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 		}
 		else if (p_ptr->pclass == CLASS_NINJA)
 		{
-			if (o_ptr->tval == TV_LITE &&
-			    o_ptr->name2 == EGO_LITE_DARKNESS && object_is_known(o_ptr))
+			if ( o_ptr->tval == TV_LITE 
+			  && (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS))
+			  && object_is_known(o_ptr))
+			{
 				return FALSE;
+			}
 		}
 		else if (p_ptr->pclass == CLASS_BEASTMASTER ||
 			 p_ptr->pclass == CLASS_CAVALRY)

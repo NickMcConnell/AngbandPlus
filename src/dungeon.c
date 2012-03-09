@@ -1609,8 +1609,10 @@ take_hit(DAMAGE_NOESCAPE, 1, "Æü¸÷", -1);
 			}
 		}
 
-		if (inventory[INVEN_LITE].tval && (inventory[INVEN_LITE].name2 != EGO_LITE_DARKNESS) &&
-		    !p_ptr->resist_lite)
+		if ( inventory[INVEN_LITE].tval 
+		  && inventory[INVEN_LITE].name2 != EGO_LITE_DARKNESS 
+		  && !have_flag(inventory[INVEN_LITE].art_flags, TR_DARKNESS)
+		  && !p_ptr->resist_lite)
 		{
 			object_type * o_ptr = &inventory[INVEN_LITE];
 			char o_name [MAX_NLEN];

@@ -609,5 +609,8 @@
     <None Include="..\lib\edit\w_info.txt">
       <Filter>Edit\Stuff</Filter>
     </None>
+    <None Include="..\lib\file\news.txt">
+      <Filter>Edit</Filter>
+    </None>
   </ItemGroup>
 </Project>

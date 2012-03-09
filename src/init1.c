@@ -778,6 +778,7 @@ static cptr k_info_flags[] =
 	"TR_SIGNATURE",
 	"WILD",
 	"ORDER",
+	"DARKNESS"
 };
 
 

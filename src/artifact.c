@@ -2016,6 +2016,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	case TV_LITE:
 		if (one_in_(3))
 			add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+		if (one_in_(10))
+			add_flag(o_ptr->art_flags, TR_DARKNESS);
 		break;
 
 	case TV_BOOTS:

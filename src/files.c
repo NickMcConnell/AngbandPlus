@@ -2470,7 +2470,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			break;		
 		case PACT_DRAGON:
 			add_flag(flgs, TR_RES_FEAR);
-			if (p_ptr->lev > 14) add_flag(flgs, TR_LEVITATION);
+		/*	if (p_ptr->lev > 14) add_flag(flgs, TR_LEVITATION); */
 		/*	Giving TR_STR flags the player as cursed?  Not sure what might break if I fix that seeming bug ...
 		    if (p_ptr->lev > 4) add_flag(flgs, TR_STR); */
 			if (p_ptr->lev > 29) add_flag(flgs, TR_SUST_CON);

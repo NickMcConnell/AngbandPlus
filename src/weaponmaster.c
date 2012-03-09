@@ -578,11 +578,19 @@ static void _bury_dead_spell(int cmd, variant *res)
 		}
 
 		set_blessed(p_ptr->blessed + turns, FALSE);
-		if (p_ptr->lev > 15)
+		if (p_ptr->lev >= 15)
 			set_hero(p_ptr->hero + turns, FALSE);
-		if (p_ptr->lev > 30)
+		if (p_ptr->lev >= 30)
 			set_fast(p_ptr->fast + turns, FALSE);
-		if (p_ptr->lev > 40)
+		if (p_ptr->lev >= 35)
+		{
+			set_oppose_acid(p_ptr->oppose_acid + turns, FALSE);
+			set_oppose_elec(p_ptr->oppose_elec + turns, FALSE);
+			set_oppose_fire(p_ptr->oppose_fire + turns, FALSE);
+			set_oppose_cold(p_ptr->oppose_cold + turns, FALSE);
+			set_oppose_pois(p_ptr->oppose_pois + turns, FALSE);
+		}
+		if (p_ptr->lev >= 40)
 			set_resist_magic(p_ptr->resist_magic + turns, FALSE);
 	
 		var_set_bool(res, TRUE);

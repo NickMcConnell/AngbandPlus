@@ -3177,7 +3177,11 @@ static cptr do_nature_spell(int spell, int mode)
 		if (desc) return "Summons a body of fresh, delicious water.";
 		
 		if (cast)
+		{
 			fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
+			if (one_in_(3))
+				summon_specific(-1, py, px, spell_power(plev), SUMMON_KRAKEN, PM_FORCE_PET);
+		}
 		break;
 
 	case 26:
@@ -3624,7 +3628,7 @@ static cptr do_chaos_spell(int spell, int mode)
 #endif
     
 		{
-			int dam = spell_power(60 + plev);
+			int dam = spell_power(60 + plev*3/2);
 			int rad = spell_power(plev / 10 + 2);
 
 			if (info) return info_damage(0, 0, dam/2);
@@ -3700,7 +3704,7 @@ static cptr do_chaos_spell(int spell, int mode)
 #endif
     
 		{
-			int power = spell_power(plev);
+			int power = spell_power(plev*2);
 
 			if (info) return info_power(power);
 
@@ -4197,11 +4201,11 @@ static cptr do_death_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(3 + (plev - 1) / 5);
+			int dice = 3 + (plev - 1) / 5;
 			int sides = 4;
 			int rad = 0;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(spell_power(dice), sides, 0);
 
 			if (cast)
 			{
@@ -4215,7 +4219,7 @@ static cptr do_death_spell(int spell, int mode)
 				 * travel to the monster.
 				 */
 
-				fire_ball(GF_HELL_FIRE, dir, damroll(dice, sides), rad);
+				fire_ball(GF_HELL_FIRE, dir, spell_power(damroll(dice, sides)), rad);
 
 				if (one_in_(5))
 				{
@@ -4223,13 +4227,13 @@ static cptr do_death_spell(int spell, int mode)
 					int effect = randint1(1000);
 
 					if (effect == 666)
-						fire_ball_hide(GF_DEATH_RAY, dir, plev * 200, 0);
+						fire_ball_hide(GF_DEATH_RAY, dir, spell_power(plev * 200), 0);
 					else if (effect < 500)
-						fire_ball_hide(GF_TURN_ALL, dir, plev, 0);
+						fire_ball_hide(GF_TURN_ALL, dir, spell_power(plev), 0);
 					else if (effect < 800)
-						fire_ball_hide(GF_OLD_CONF, dir, plev, 0);
+						fire_ball_hide(GF_OLD_CONF, dir, spell_power(plev), 0);
 					else
-						fire_ball_hide(GF_STUN, dir, plev, 0);
+						fire_ball_hide(GF_STUN, dir, spell_power(plev), 0);
 				}
 			}
 		}
@@ -4382,7 +4386,7 @@ static cptr do_death_spell(int spell, int mode)
     
 		{
 			int dice = 3;
-			int sides = spell_power(6);
+			int sides = 6;
 			int rad = (plev < 30) ? 2 : 3;
 			int base;
 
@@ -4390,18 +4394,18 @@ static cptr do_death_spell(int spell, int mode)
 			    p_ptr->pclass == CLASS_BLOOD_MAGE ||
 			    p_ptr->pclass == CLASS_HIGH_MAGE ||
 			    p_ptr->pclass == CLASS_SORCERER)
-				base = spell_power(plev + plev / 2);
+				base = plev + plev / 2;
 			else
-				base = spell_power(plev + plev / 4);
+				base = plev + plev / 4;
 
 
-			if (info) return info_damage(dice, sides, base);
+			if (info) return info_damage(dice, spell_power(sides), spell_power(base));
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_ball(GF_OLD_DRAIN, dir, damroll(dice, sides) + base, rad);
+				fire_ball(GF_OLD_DRAIN, dir, spell_power(damroll(dice, sides) + base), rad);
 			}
 		}
 		break;
@@ -4416,16 +4420,16 @@ static cptr do_death_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(8 + (plev - 5) / 4);
+			int dice = 8 + (plev - 5) / 4;
 			int sides = 8;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(spell_power(dice), sides, 0);
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_bolt_or_beam(beam_chance(), GF_NETHER, dir, damroll(dice, sides));
+				fire_bolt_or_beam(beam_chance(), GF_NETHER, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;
@@ -4634,16 +4638,16 @@ static cptr do_death_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(4 + (plev - 5) / 4);
+			int dice = 4 + (plev - 5) / 4;
 			int sides = 8;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(spell_power(dice), sides, 0);
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_bolt_or_beam(beam_chance(), GF_DARK, dir, damroll(dice, sides));
+				fire_bolt_or_beam(beam_chance(), GF_DARK, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;

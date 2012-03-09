@@ -273,6 +273,7 @@
     <None Include="..\lib\edit\t_pref.txt" />
     <None Include="..\lib\edit\v_info.txt" />
     <None Include="..\lib\edit\w_info.txt" />
+    <None Include="..\lib\file\news.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

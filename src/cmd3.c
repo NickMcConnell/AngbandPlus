@@ -1605,7 +1605,8 @@ static void do_cmd_refill_lamp(void)
 #endif
 
 	/* Comment */
-	if ((o_ptr->name2 == EGO_LITE_DARKNESS) && (j_ptr->xtra4 > 0))
+	if ( (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS)) 
+	  && j_ptr->xtra4 > 0)
 	{
 		j_ptr->xtra4 = 0;
 #ifdef JP
@@ -1614,7 +1615,10 @@ static void do_cmd_refill_lamp(void)
 		msg_print("Your lamp has gone out!");
 #endif
 	}
-	else if ((o_ptr->name2 == EGO_LITE_DARKNESS) || (j_ptr->name2 == EGO_LITE_DARKNESS))
+	else if ( o_ptr->name2 == EGO_LITE_DARKNESS 
+	       || have_flag(o_ptr->art_flags, TR_DARKNESS) 
+		   || j_ptr->name2 == EGO_LITE_DARKNESS 
+		   || have_flag(j_ptr->art_flags, TR_DARKNESS))
 	{
 		j_ptr->xtra4 = 0;
 #ifdef JP
@@ -1727,7 +1731,7 @@ static void do_cmd_refill_torch(void)
 
 
 	/* Comment */
-	if ((o_ptr->name2 == EGO_LITE_DARKNESS) && (j_ptr->xtra4 > 0))
+	if ((o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS)) && (j_ptr->xtra4 > 0))
 	{
 		j_ptr->xtra4 = 0;
 #ifdef JP
@@ -1736,7 +1740,7 @@ static void do_cmd_refill_torch(void)
 		msg_print("Your torch has gone out!");
 #endif
 	}
-	else if ((o_ptr->name2 == EGO_LITE_DARKNESS) || (j_ptr->name2 == EGO_LITE_DARKNESS))
+	else if ((o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS)) || (j_ptr->name2 == EGO_LITE_DARKNESS || have_flag(j_ptr->art_flags, TR_DARKNESS)))
 	{
 		j_ptr->xtra4 = 0;
 #ifdef JP

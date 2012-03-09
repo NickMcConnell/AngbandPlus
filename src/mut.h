@@ -121,8 +121,9 @@
 #define MUT_ASTRAL_GUIDE 114
 #define MUT_DEMONIC_GRASP 115
 #define MUT_WEIRD_MIND 116
+#define MUT_FANTASTIC_FRENZY 117
 
-#define MAX_MUTATIONS      117   /* see also MUT_FLAG_SIZE in defines.h */
+#define MAX_MUTATIONS      118   /* see also MUT_FLAG_SIZE in defines.h */
 
 typedef enum {
 	MUT_RATING_AWFUL = -2,
@@ -190,6 +191,7 @@ extern void evasion_mut(int cmd, variant *res);
 extern void extra_eyes_mut(int cmd, variant *res);
 extern void extra_legs_mut(int cmd, variant *res);
 extern void extra_noise_mut(int cmd, variant *res);
+extern void fantastic_frenzy_mut(int cmd, variant *res);
 extern void fast_learner_mut(int cmd, variant *res);
 extern void fat_mut(int cmd, variant *res);
 extern void fearless_mut(int cmd, variant *res);

@@ -118,7 +118,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, evasion_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, potion_chugger_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, one_with_magic_mut}},
-	{MUT_RATING_GREAT,	    MUT_TYPE_ACTIVATION, A_INT, 0, {20, 25, 55, peerless_tracker_mut}},
+	{MUT_RATING_GREAT,	    MUT_TYPE_ACTIVATION, A_INT, 0, {20, 25, 40, peerless_tracker_mut}},
 	{MUT_RATING_GREAT,				     0,			 0, 0, {0,  0,   0, infernal_deal_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, merchants_friend_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, sacred_vitality_mut}},
@@ -127,6 +127,7 @@ static mutation_info _mutations[MAX_MUTATIONS] =
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, astral_guide_mut}},
 	{MUT_RATING_GOOD,				     0,			 0, 0, {0,  0,   0, demonic_grasp_mut}},
 	{MUT_RATING_GOOD,       MUT_TYPE_BONUS,			 0, 0, {0,  0,   0, weird_mind_mut}},
+	{MUT_RATING_GREAT,	    MUT_TYPE_ACTIVATION, A_STR, 0, {50, 50, 70, fantastic_frenzy_mut}},
 };
 
 int _mut_prob_gain(int i)
@@ -471,6 +472,7 @@ bool mut_human_pred(int mut_idx)
 		break;
 
 	case MUT_ASTRAL_GUIDE:
+	case MUT_FANTASTIC_FRENZY:
 		if (p_ptr->pclass != CLASS_BERSERKER) return TRUE;
 		break;
 	}

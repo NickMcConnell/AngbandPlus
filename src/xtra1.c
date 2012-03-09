@@ -3248,7 +3248,7 @@ static void calc_torch(void)
 		/* Examine actual lites */
 		if ((i == INVEN_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE))
 		{
-			if (o_ptr->name2 == EGO_LITE_DARKNESS)
+			if (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS))
 			{
 				if (o_ptr->sval == SV_LITE_TORCH)
 				{
@@ -3261,7 +3261,7 @@ static void calc_torch(void)
 					p_ptr->cur_lite -= 2;
 				}
 
-				else if (o_ptr->sval == SV_LITE_FEANOR)
+				else
 				{
 					p_ptr->cur_lite -= 3;
 				}
@@ -3964,7 +3964,7 @@ void calc_bonuses(void)
 		{
 		case RACE_TONBERRY:
 		{
-			int dam = 10+(p_ptr->lev/5);
+			int dam = 15+(p_ptr->lev/10);
 			p_ptr->sustain_str = TRUE;
 			p_ptr->sustain_con = TRUE;
 			p_ptr->resist_fear = TRUE;
@@ -5557,7 +5557,7 @@ void calc_bonuses(void)
 					num = 3; wgt = 100; mul = 2; break;
 
 				case CLASS_WARLOCK:
-					num = 3; wgt = 100; mul = 2; 
+					num = 3; wgt = 70; mul = 2; 
 					if (p_ptr->psubclass == PACT_DRAGON) 
 					{
 						if (p_ptr->lev >= 35) num = 5;

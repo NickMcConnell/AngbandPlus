@@ -751,13 +751,7 @@ void monster_death(int m_idx, bool drop_item)
 		if (p_ptr->msp > 0)
 		{
 			hp_player(20);
-			p_ptr->csp += 10;
-			if (p_ptr->csp > p_ptr->msp)
-			{
-				p_ptr->csp_frac = 0;
-				p_ptr->csp = p_ptr->msp;
-			}
-			p_ptr->redraw |= PR_MANA;
+			sp_player(10);
 		}
 		else
 			hp_player(30);

@@ -4879,7 +4879,8 @@ void do_cmd_store(void)
 		xp += MIN(MAX(xp / 20, 1000), 100000);
 		if ( !ironman_downward
 		  && p_ptr->max_plv <= town[p_ptr->town_num].store[which].last_lev
-		  && p_ptr->max_exp <= xp )
+		  && p_ptr->max_exp <= xp 
+		  && p_ptr->prace != RACE_ANDROID )
 		{
 			if (p_ptr->wizard)
 				msg_format("Rejecting store restock.  Lev = %d.  XP = %d.", town[p_ptr->town_num].store[which].last_lev, xp);

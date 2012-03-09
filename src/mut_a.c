@@ -736,6 +736,29 @@ void extra_noise_mut(int cmd, variant *res)
 	}
 }
 
+void fantastic_frenzy_mut(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Fantastic Frenzy", ""));
+		break;
+	case SPELL_GAIN_MUT:
+		msg_print(T("You feel a fantastic frenzy...", ""));
+		break;
+	case SPELL_LOSE_MUT:
+		msg_print(T("You no longer feel a fantastic frenzy.", ""));
+		break;
+	case SPELL_MUT_DESC:
+		var_set_string(res, T("You have the power of Fantastic Frenzy.", ""));
+		break;
+		break;
+	default:
+		massacre_spell(cmd, res);
+		break;
+	}
+}
+
 void fast_learner_mut(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1769,7 +1792,7 @@ void sacred_vitality_mut(int cmd, variant *res)
 		msg_print(T("You lose the power of Sacred Vitality!", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You gain +30% from all healing effects.", ""));
+		var_set_string(res, T("You gain a bonus to all healing effects.", ""));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -2366,7 +2389,7 @@ void weird_mind_mut(int cmd, variant *res)
 		msg_print(T("You feel susceptible to the Eldritch Horror again.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You are unaffected by the Eldritch Horror.", ""));
+		var_set_string(res, T("Your mind is weird.", ""));
 		break;
 	case SPELL_CALC_BONUS:
 		p_ptr->resist_conf = TRUE;

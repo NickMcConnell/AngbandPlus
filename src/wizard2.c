@@ -191,6 +191,11 @@ static void do_cmd_wiz_hack_chris1(void)
 		  || have_flag(forge.art_flags, TR_ORDER) )
 		{
 		}
+
+		if (have_flag(forge.art_flags, TR_DARKNESS))
+		{
+		/*	drop_near(&forge, -1, py, px); */
+		}
 		msg_format("%s (Cost: %d)", buf, value);
 	}
 

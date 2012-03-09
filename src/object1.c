@@ -2630,7 +2630,7 @@ info[i++] = "それは魔法抵抗力を下げる。";
 	/* Hack -- describe lite's */
 	if (o_ptr->tval == TV_LITE)
 	{
-		if (o_ptr->name2 == EGO_LITE_DARKNESS)
+		if (o_ptr->name2 == EGO_LITE_DARKNESS || have_flag(o_ptr->art_flags, TR_DARKNESS))
 		{
 #ifdef JP
 			info[i++] = "それは全く光らない。";
@@ -2638,15 +2638,7 @@ info[i++] = "それは魔法抵抗力を下げる。";
 			info[i++] = "It provides no light.";
 #endif
 
-			if (o_ptr->sval == SV_LITE_FEANOR)
-			{
-#ifdef JP
-				info[i++] = "それは明かりの半径を狭める(半径に-3)。";
-#else
-				info[i++] = "It decreases radius of light source by 3.";
-#endif
-			}
-			else if (o_ptr->sval == SV_LITE_LANTERN)
+			if (o_ptr->sval == SV_LITE_LANTERN)
 			{
 #ifdef JP
 				info[i++] = "それは明かりの半径を狭める(半径に-2)。";
@@ -2654,12 +2646,20 @@ info[i++] = "それは魔法抵抗力を下げる。";
 				info[i++] = "It decreases radius of light source by 2.";
 #endif
 			}
-			else
+			else if (o_ptr->sval == SV_LITE_TORCH)
 			{
 #ifdef JP
 				info[i++] = "それは明かりの半径を狭める(半径に-1)。";
 #else
 				info[i++] = "It decreases radius of light source by 1.";
+#endif
+			}
+			else
+			{
+#ifdef JP
+				info[i++] = "それは明かりの半径を狭める(半径に-3)。";
+#else
+				info[i++] = "It decreases radius of light source by 3.";
 #endif
 			}
 		}

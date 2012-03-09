@@ -866,7 +866,7 @@ static void _dragon_calc_bonuses(void)
 {
 	p_ptr->resist_fear = TRUE;
 	p_ptr->skill_thn += 100 * p_ptr->lev / 50;
-	if (p_ptr->lev > 14) p_ptr->levitation = TRUE; 
+	/*if (p_ptr->lev > 14) p_ptr->levitation = TRUE; */
 	p_ptr->stat_add[A_STR] += 5 * p_ptr->lev / 50;
 	p_ptr->weapon_info[0].to_h += 10 * p_ptr->lev / 50;
 	p_ptr->weapon_info[0].dis_to_h +=  10 * p_ptr->lev / 50;

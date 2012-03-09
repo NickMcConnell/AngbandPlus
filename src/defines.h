@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 88
+#define FAKE_VER_PATCH 89
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 88
+#define H_VER_PATCH 89
 #define H_VER_EXTRA 0
 
 
@@ -2968,6 +2968,7 @@
 #define SUMMON_VAMPIRE				77
 #define SUMMON_WIGHT				78
 #define SUMMON_LICH					79
+#define SUMMON_KRAKEN				80
 
 
 /*
@@ -3391,8 +3392,9 @@
 #define TR_SIGNATURE		   121
 #define TR_WILD				   122
 #define TR_ORDER               123
+#define TR_DARKNESS            124
 
-#define TR_FLAG_MAX            124
+#define TR_FLAG_MAX            125
 #define TR_FLAG_SIZE           4
 
 
@@ -5060,6 +5062,7 @@ extern int PlayerUID;
 #define MON_SANTACLAUS    733
 #define MON_LORD_CHAOS    737
 #define MON_TINDALOS      739
+#define MON_LESSER_KRAKEN 740
 #define MON_DEMILICH      742
 #define MON_PHOENIX		  743
 #define MON_NIGHTCRAWLER  744
@@ -5135,6 +5138,7 @@ extern int PlayerUID;
 #define MON_VENOM_WYRM    890
 #define MON_BAZOOKER      896
 #define MON_SHARD_VOR     897
+#define MON_SMALL_KRAKEN  903
 #define MON_MASTER_MYS    916
 #define MON_G_MASTER_MYS  917
 #define MON_IE            921

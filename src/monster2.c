@@ -972,6 +972,13 @@ static bool summon_specific_aux(int r_idx)
 			if (r_idx == MON_SHADOW_DEMON) okay = FALSE;
 			break;
 		}
+		case SUMMON_KRAKEN:
+		{
+			okay = (r_idx == MON_GREATER_KRAKEN 
+			     || r_idx == MON_LESSER_KRAKEN 
+				 || r_idx == MON_SMALL_KRAKEN) ? TRUE : FALSE;
+			break;
+		}
 		case SUMMON_VAMPIRE:
 		{
 			okay = (r_ptr->d_char == 'V') ? TRUE : FALSE;
