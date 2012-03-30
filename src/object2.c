@@ -3171,7 +3171,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SPELL_POWER:
 				{
 					int pv = m_bonus(3, level);
-					if (one_in_(30)) pv++;
+					while (one_in_(30)) pv++;
 					if (pv == 0) pv = 1;
 					o_ptr->pval = -pv;
 					return; /* No ego or artifacts, please!*/
@@ -3671,7 +3671,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_AMULET_SPELL_POWER:
 				{
 					int pv = m_bonus(3, level);
-					if (one_in_(30)) pv++;
+					while (one_in_(30)) pv++;
 					if (pv == 0) pv = 1;
 					o_ptr->pval = -pv;
 					return; /* No ego or artifacts, please!*/
@@ -4874,10 +4874,19 @@ static bool kind_is_good(int k_idx)
 		}
 		case TV_POTION:
 		{
-			if (k_ptr->sval == SV_POTION_RESISTANCE) return one_in_(5);
-			if (k_ptr->sval == SV_POTION_LIFE) return one_in_(5);
-			if (k_ptr->sval == SV_POTION_STAR_HEALING) return one_in_(5);
-			if (k_ptr->sval == SV_POTION_AUGMENTATION) return one_in_(10);
+			switch (k_ptr->sval)
+			{
+			case SV_POTION_RESISTANCE: return one_in_(5);
+			case SV_POTION_LIFE: return one_in_(5);
+			case SV_POTION_STAR_HEALING: return one_in_(5);
+			case SV_POTION_AUGMENTATION: return one_in_(10);
+			case SV_POTION_INC_STR:
+			case SV_POTION_INC_INT:
+			case SV_POTION_INC_WIS:
+			case SV_POTION_INC_DEX:
+			case SV_POTION_INC_CON:
+			case SV_POTION_INC_CHR: return one_in_(3);
+			}
 			return FALSE;
 		}
 		case TV_SCROLL:
@@ -5126,6 +5135,9 @@ bool make_gold(object_type *j_ptr)
 
 	/* Determine how much the treasure is "worth" */
 	j_ptr->pval = (base + (8L * randint1(base)) + randint1(8));
+
+	if (no_selling)
+		j_ptr->pval = j_ptr->pval * 3 / 2;
 
 	/* Success */
 	return (TRUE);

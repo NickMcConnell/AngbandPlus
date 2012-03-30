@@ -378,7 +378,7 @@ void do_cmd_go_down(void)
 			else
 			{
 				/* Create a way back */
-				if (p_ptr->enter_dungeon && down_num > 30 && one_in_(7))
+				if (p_ptr->enter_dungeon && down_num > 30 && one_in_(14))
 				{
 					/* Hack:  No stair scum */
 					prepare_change_floor_mode(CFM_SAVE_FLOORS | CFM_DOWN | CFM_RAND_PLACE | CFM_RAND_CONNECT);
@@ -4904,17 +4904,10 @@ msg_print("これはあまり良くない気がする。");
 			/* Increment the equip counter by hand */
 			equip_cnt++;
 
-			/* Recalculate bonuses */
 			p_ptr->update |= (PU_BONUS);
-
-			/* Recalculate torch */
 			p_ptr->update |= (PU_TORCH);
-
-			/* Recalculate mana XXX */
 			p_ptr->update |= (PU_MANA);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_EQUIP);
+			p_ptr->redraw |= (PR_EQUIPPY);
 		}
 		else
 		{

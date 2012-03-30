@@ -7,7 +7,7 @@
 /* Hack: Increase spell power! */
 int spell_power_aux(int pow, int bonus)
 {
-	return pow + pow*bonus/20;
+	return pow + pow*bonus/13;
 }
 
 int spell_power(int pow)
@@ -2625,11 +2625,11 @@ static cptr do_nature_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(3 + (plev - 1) / 5);
+			int dice = 3 + (plev - 1) / 5;
 			int sides = 4;
 			int range = spell_power(plev / 6 + 2);
 
-			if (info) return format("%s%dd%d %s%d", s_dam, dice, sides, s_rng, range);
+			if (info) return format("%s%dd%d %s%d", s_dam, spell_power(dice), sides, s_rng, range);
 
 			if (cast)
 			{
@@ -2637,7 +2637,7 @@ static cptr do_nature_spell(int spell, int mode)
 
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_beam(GF_ELEC, dir, damroll(dice, sides));
+				fire_beam(GF_ELEC, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;
@@ -2837,15 +2837,15 @@ static cptr do_nature_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(3 + (plev - 5) / 4);
+			int dice = 3 + (plev - 5) / 4;
 			int sides = 8;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(spell_power(dice), sides, 0);
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
-				fire_bolt_or_beam(beam_chance() - 10, GF_COLD, dir, damroll(dice, sides));
+				fire_bolt_or_beam(beam_chance() - 10, GF_COLD, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;
@@ -2886,15 +2886,15 @@ static cptr do_nature_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(5 + (plev - 5) / 4);
+			int dice = 5 + (plev - 5) / 4;
 			int sides = 8;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(spell_power(dice), sides, 0);
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
-				fire_bolt_or_beam(beam_chance() - 10, GF_FIRE, dir, damroll(dice, sides));
+				fire_bolt_or_beam(beam_chance() - 10, GF_FIRE, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;
@@ -2961,7 +2961,7 @@ static cptr do_nature_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!(summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, (PM_ALLOW_GROUP | PM_FORCE_PET))))
+				if (!(summon_specific(-1, py, px, spell_power(plev*2), SUMMON_ANIMAL_RANGER, (PM_ALLOW_GROUP | PM_FORCE_PET))))
 				{
 #ifdef JP
 					msg_print("動物は現れなかった。");
@@ -3194,7 +3194,7 @@ static cptr do_nature_spell(int spell, int mode)
 #endif
     
 		{
-			int dam = spell_power(70 + plev * 3 / 2);
+			int dam = spell_power(70 + plev * 2);
 			int rad = plev / 12 + 1;
 
 			if (info) return info_damage(0, 0, dam);
@@ -3218,7 +3218,7 @@ static cptr do_nature_spell(int spell, int mode)
 #endif
     
 		{
-			int dam = spell_power(90 + plev * 3 / 2);
+			int dam = spell_power(90 + plev * 2);
 			int rad = plev / 12 + 1;
 
 			if (info) return info_damage(0, 0, dam);
@@ -3242,7 +3242,7 @@ static cptr do_nature_spell(int spell, int mode)
 #endif
     
 		{
-			int dam = spell_power(100 + plev * 3 / 2);
+			int dam = spell_power(100 + plev * 2);
 			int rad = plev / 12 + 1;
 
 			if (info) return info_damage(0, 0, dam);
@@ -7328,16 +7328,16 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(3 + (plev - 1) / 5);
+			int dice = 3 + (plev - 1) / 5;
 			int sides = 4;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(spell_power(dice), sides, 0);
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_bolt_or_beam(beam_chance() - 10, GF_MISSILE, dir, damroll(dice, sides));
+				fire_bolt_or_beam(beam_chance() - 10, GF_MISSILE, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;
@@ -7439,16 +7439,16 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(6 + (plev - 5) / 4);
+			int dice = 6 + (plev - 5) / 4;
 			int sides = 8;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(spell_power(dice), sides, 0);
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_bolt_or_beam(beam_chance(), GF_NETHER, dir, damroll(dice, sides));
+				fire_bolt_or_beam(beam_chance(), GF_NETHER, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;
@@ -7465,7 +7465,7 @@ static cptr do_daemon_spell(int spell, int mode)
 		{
 			if (cast)
 			{
-				if (!summon_specific(-1, py, px, (plev * 3) / 2, SUMMON_MANES, (PM_ALLOW_GROUP | PM_FORCE_PET)))
+				if (!summon_specific(-1, py, px, spell_power(plev * 3 / 2), SUMMON_MANES, (PM_ALLOW_GROUP | PM_FORCE_PET)))
 				{
 #ifdef JP
 					msg_print("古代の死霊は現れなかった。");
@@ -7488,7 +7488,7 @@ static cptr do_daemon_spell(int spell, int mode)
     
 		{
 			int dice = 3;
-			int sides = spell_power(6);
+			int sides = 6;
 			int rad = (plev < 30) ? 2 : 3;
 			int base;
 
@@ -7496,18 +7496,18 @@ static cptr do_daemon_spell(int spell, int mode)
 			    p_ptr->pclass == CLASS_BLOOD_MAGE ||
 			    p_ptr->pclass == CLASS_HIGH_MAGE ||
 			    p_ptr->pclass == CLASS_SORCERER)
-				base = spell_power(plev + plev / 2);
+				base = plev + plev / 2;
 			else
-				base = spell_power(plev + plev / 4);
+				base = plev + plev / 4;
 
 
-			if (info) return info_damage(dice, sides, base);
+			if (info) return info_damage(dice, spell_power(sides), spell_power(base));
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_ball(GF_HELL_FIRE, dir, damroll(dice, sides) + base, rad);
+				fire_ball(GF_HELL_FIRE, dir, spell_power(damroll(dice, sides) + base), rad);
 			}
 		}
 		break;
@@ -7587,16 +7587,16 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int dice = spell_power(11 + (plev - 5) / 4);
+			int dice = 11 + (plev - 5) / 4;
 			int sides = 8;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(spell_power(dice), sides, 0);
 
 			if (cast)
 			{
 				if (!get_aim_dir(&dir)) return NULL;
 
-				fire_bolt_or_beam(beam_chance(), GF_PLASMA, dir, damroll(dice, sides));
+				fire_bolt_or_beam(beam_chance(), GF_PLASMA, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;

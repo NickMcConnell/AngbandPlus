@@ -1830,6 +1830,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	bool has_resistance = FALSE;
 	int lev = object_level;
 	bool is_falcon_sword = FALSE;
+	int     max_a = MAX(o_ptr->to_a, 30);
+	int     max_h = MAX(o_ptr->to_h, 30);
+	int     max_d = MAX(o_ptr->to_d, 30);
 
 	if (no_artifacts) return 0;
 	
@@ -2394,8 +2397,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			if (o_ptr->to_a < 7)
 				o_ptr->to_a += 3;			
 		}
-		if (o_ptr->to_a > 29)
-			o_ptr->to_a = 29;
+		if (o_ptr->to_a > max_a)
+			o_ptr->to_a = max_a;
 	}
 	else if (object_is_weapon_ammo(o_ptr))
 	{
@@ -2410,8 +2413,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			if (o_ptr->to_h < 7)
 				o_ptr->to_h += 3;
 		}
-		if (o_ptr->to_h > 29)
-			o_ptr->to_h = 29;
+		if (o_ptr->to_h > max_h)
+			o_ptr->to_h = max_h;
 
 		if (o_ptr->to_d < 20)
 		{
@@ -2422,8 +2425,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			if (o_ptr->to_d < 7)
 				o_ptr->to_d += 3;
 		}
-		if (o_ptr->to_d > 29)
-			o_ptr->to_d = 29;
+		if (o_ptr->to_d > max_d)
+			o_ptr->to_d = max_d;
 
 		if ((have_flag(o_ptr->art_flags, TR_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->art_flags, TR_BLESSED);
 	}

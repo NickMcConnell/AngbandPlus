@@ -3832,6 +3832,11 @@ static void store_sell(void)
 		q = "Give which item? ";
 #endif
 
+	else if (no_selling)
+	{
+		msg_print("Selling is prohibited!");
+		return;
+	}
 	else
 #ifdef JP
 		q = "どのアイテムを売りますか? ";
@@ -5022,7 +5027,8 @@ void do_cmd_store(void)
 			prt("x) 商品を調べる", 23 + xtra_stock,30);
 #else
 			prt("p) Purchase an item.", 21 + xtra_stock, 30);
-			prt("s) Sell an item.", 22 + xtra_stock, 30);
+			if (!no_selling)
+				prt("s) Sell an item.", 22 + xtra_stock, 30);
 			prt("x) eXamine an item in the shop", 23 + xtra_stock,30);
 #endif
 		}

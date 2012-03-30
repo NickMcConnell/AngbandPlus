@@ -5088,6 +5088,9 @@ static void dump_aux_options(FILE *fff)
 	if (no_egos)
 		fprintf(fff, "\n No Egos:            ENABLED");
 
+	if (no_selling)
+		fprintf(fff, "\n No Selling:         ENABLED");
+
 	fputc('\n', fff);
 
 	if (p_ptr->noscore)

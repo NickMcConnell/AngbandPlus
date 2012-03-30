@@ -315,6 +315,7 @@ bool ironman_quests; /* Random quests must be completed */
 bool random_artifacts;
 bool no_artifacts;
 bool no_egos;
+bool no_selling;
 
 /*** Easy Object Auto-Destroyer ***/
 

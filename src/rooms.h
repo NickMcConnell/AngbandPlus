@@ -57,7 +57,7 @@ struct room_info_type
         s16b prob[ROOM_T_MAX];
 
         /* Minimum level on which room can appear. */
-        byte min_level;
+        int min_level;
 };
 
 

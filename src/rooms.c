@@ -31,6 +31,9 @@
  * object or monster lists are already nearly full.  Rooms will not
  * appear above their minimum depth.  Tiny levels will not have space
  * for all the rooms you ask for.
+
+ * CTK: I've heavily hacked this ... OVERLAP, INNER_F, FRACAVE and CRYPT rooms
+ *      no longer spawn. I've toned down room sizes as well.
  */
 static room_info_type room_info_normal[ROOM_T_MAX] =
 {
@@ -43,8 +46,8 @@ static room_info_type room_info_normal[ROOM_T_MAX] =
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  3}, /*INNER_F  */
 	{{  0,  1,  1,  1,  2,  3,  5,  6,  8, 10, 13}, 10}, /*NEST     */
 	{{  0,  1,  1,  2,  3,  4,  6,  8, 10, 13, 16}, 10}, /*PIT      */
-	{{  0,  1,  1,  1,  2,  2,  3,  5,  6,  8, 10}, 10}, /*LESSER_V */
-	{{  0,  0,  1,  1,  1,  2,  2,  2,  3,  3,  4}, 20}, /*GREATER_V*/
+	{{  0,  0,  1,  1,  2,  2,  3,  5,  6,  8, 10}, 30}, /*LESSER_V */
+	{{  0,  0,  0,  0,  1,  2,  2,  2,  3,  3,  4}, 40}, /*GREATER_V*/
 	{{  0,100,200,300,400,500,600,700,800,900,999}, 10}, /*FRACAVE  */
 	{{  0,  1,  1,  1,  1,  1,  1,  1,  1,  2,  2}, 10}, /*RANDOM_V */
 	{{  0,  4,  8, 12, 16, 20, 24, 28, 32, 36, 40},  3}, /*OVAL     */
@@ -683,6 +686,8 @@ static bool build_type2(void)
 	bool		light;
 	cave_type   *c_ptr;
 
+return build_type1();
+
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&yval, &xval, 11, 25)) return FALSE;
 
@@ -822,7 +827,7 @@ static bool build_type3(void)
 	dy = rand_range(3, 4);
 
 	/* Pick max horizontal size (at most 15) */
-	dx = rand_range(3, 11);
+	dx = rand_range(3, 4);
 
 
 	/* Determine extents of the north/south room */
@@ -1062,6 +1067,7 @@ static bool build_type4(void)
 	bool        light;
 	cave_type   *c_ptr;
 
+return build_type1();
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&yval, &xval, 11, 25)) return FALSE;
@@ -3740,6 +3746,8 @@ static bool build_type9(void)
 
 	bool done, light, room;
 
+return build_type1();
+
 	/* get size: note 'Evenness'*/
 	xsize = randint1(22) * 2 + 6;
 	ysize = randint1(15) * 2 + 6;
@@ -5442,7 +5450,7 @@ static bool build_type11(void)
 	/* Occasional light */
 	if ((randint1(dun_level) <= 15) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS)) light = TRUE;
 
-	rad = randint0(9);
+	rad = randint0(5);
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&y0, &x0, rad * 2 + 1, rad * 2 + 1)) return FALSE;
@@ -5491,6 +5499,8 @@ static bool build_type12(void)
 	h2 = randint1(16);
 	h3 = randint1(32);
 	h4 = randint1(32) - 16;
+
+return build_type1();
 
 	/* Occasional light */
 	if ((randint1(dun_level) <= 5) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS)) light = TRUE;
@@ -5895,9 +5905,9 @@ static bool build_type14(void)
 
 	/* Pick a room size */
 	y1 = randint1(4);
-	x1 = randint1(11);
+	x1 = randint1(5);
 	y2 = randint1(3);
-	x2 = randint1(11);
+	x2 = randint1(5);
 
 	xsize = x1 + x2 + 1;
 	ysize = y1 + y2 + 1;

@@ -237,7 +237,7 @@ N:8:《フラキア》という
 E:'Frakir'
 I:45:32:1
 W:50:40:2:10000
-F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE |
+F:STR | INT | WIS | DEX | CON | CHR | LEVITATION | HIDE_TYPE |
 F:RES_POIS | ACTIVATE | SEE_INVIS | SEARCH | WARNING | INSTA_ART
 D:混沌の王子マーリンがログルスから生み出した意思を持った腕輪だ。
 D:普段は目に見えないが脈動して危険を知らせてくれる。装備するものが

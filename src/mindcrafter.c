@@ -8,12 +8,25 @@ void _precognition_spell(int cmd, variant *res)
 		var_set_string(res, T("Precognition", "霊視"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Detects visible monsters in your vicinity and more and more. Detects traps and "
-							  "doors at level 5, invisible monsters at level 15, items at level 30. And magic "
-							  "mapping at level 20. Lights and know the whole level at level 45. Gives telepathy "
-							  "at level 25.",
-							  "近くの全ての見えるモンスターを感知する。レベル5で罠/扉、15で透明なモンスター、30で財宝とアイテムを感知できるようになる。レベル20で周辺の地形を感知し、45でその階全体を永久に照らし、ダンジョン内のすべてのアイテムを感知する。レベル25で一定時間テレパシーを得る。"));
+	{
+		if (p_ptr->lev < 5)
+			var_set_string(res, "Detects visible monsters in your vicinity.");
+		else if (p_ptr->lev < 15)
+			var_set_string(res, "Detects visible monsters, traps, doors and stairs in your vicinity.");
+		else if (p_ptr->lev < 20)
+			var_set_string(res, "Detects monsters, traps, doors and stairs in your vicinity.");
+		else if (p_ptr->lev < 25)
+			var_set_string(res, "Detects monsters, traps, doors and stairs in your vicinity and maps nearby area.");
+		else if (p_ptr->lev < 30)
+			var_set_string(res, "Detects monsters, traps, doors and stairs in your vicinity and maps nearby area. Grants temporary ESP.");
+		else if (p_ptr->lev < 40)
+			var_set_string(res, "Detects monsters, traps, doors, stairs and objects in your vicinity and maps nearby area. Grants temporary ESP.");
+		else if (p_ptr->lev < 45)
+			var_set_string(res, "Detects monsters, traps, doors, stairs and objects in your vicinity and maps nearby area.");
+		else
+			var_set_string(res, "Detects monsters, traps, doors, stairs and objects in your vicinity and maps the entire level.");
 		break;
+	}
 	case SPELL_CAST:
 	{
 		int b = 0;
