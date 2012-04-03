@@ -3470,7 +3470,7 @@ void calc_bonuses(void)
 	/* Clear extra blows/shots */
 	extra_blows[0] = extra_blows[1] = extra_shots = 0;
 	if (p_ptr->tim_speed_essentia)
-		extra_shots += 1;
+		extra_shots += 10;
 
 	/* Clear the stat modifiers */
 	for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
@@ -3486,10 +3486,10 @@ void calc_bonuses(void)
 	p_ptr->weapon_info[1].dis_to_d = p_ptr->weapon_info[1].to_d = 0;
 
 	p_ptr->dis_to_h_b = p_ptr->to_h_b = 0;
+	p_ptr->dis_to_d_b = p_ptr->to_d_b = 0;
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
 	p_ptr->to_h_m = 0;
 	p_ptr->to_d_m = 0;
-	p_ptr->to_d_b = 0;
 	p_ptr->easy_2weapon = FALSE;
 	if (p_ptr->tim_genji) easy_2weapon = TRUE;
 	if (mut_present(MUT_AMBIDEXTROUS)) easy_2weapon = TRUE;
@@ -4427,7 +4427,8 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_IMPACT)) p_ptr->impact[(i == INVEN_RARM) ? 0 : 1] = TRUE;
 
 		/* Boost shots */
-		if (have_flag(flgs, TR_XTRA_SHOTS)) extra_shots++;
+		if (have_flag(flgs, TR_XTRA_SHOTS)) extra_shots += 10;
+		if (o_ptr->name2 == EGO_SNIPER) extra_shots += 5;
 
 		/* Various flags */
 		if (have_flag(flgs, TR_AGGRAVATE))   p_ptr->cursed |= TRC_AGGRAVATE;
@@ -4614,6 +4615,15 @@ void calc_bonuses(void)
 		bonus_to_h = o_ptr->to_h;
 		bonus_to_d = o_ptr->to_d;
 
+		/* Hack -- Sniper gloves apply damage bonus to missiles only */
+		if (o_ptr->name2 == EGO_SNIPER)
+		{
+			bonus_to_d = 0;
+			p_ptr->to_d_b += o_ptr->to_d;
+			if (object_is_known(o_ptr))
+				p_ptr->dis_to_d_b += o_ptr->to_d;
+		}
+
 		if (p_ptr->pclass == CLASS_NINJA)
 		{
 			if (o_ptr->to_h > 0) bonus_to_h = (o_ptr->to_h+1)/2;
@@ -4621,16 +4631,15 @@ void calc_bonuses(void)
 		}
 
 		/* To Bow and Natural attack */
-
-		/* Apply the bonuses to hit/damage */
 		p_ptr->to_h_b += bonus_to_h;
 		p_ptr->to_h_m += bonus_to_h;
-		p_ptr->to_d_m += bonus_to_d;
-		if (o_ptr->name1 != ART_MASTER_TONBERRY)
+
+		if ( o_ptr->name1 != ART_MASTER_TONBERRY
+		  && o_ptr->name2 != EGO_POWER )
 		{
 			p_ptr->to_d_b += bonus_to_d;
-			/*if (object_is_known(o_ptr))
-				p_ptr->dis_to_d_b += bonus_to_d;*/
+			if (object_is_known(o_ptr))
+				p_ptr->dis_to_d_b += bonus_to_d;
 		}
 
 		/* Apply the mental bonuses tp hit/damage, if known */
@@ -5420,6 +5429,7 @@ void calc_bonuses(void)
 				break;
 			}
 			case SV_CRIMSON:
+			case SV_RAILGUN:
 			case SV_HARP:
 			{
 				p_ptr->tval_ammo = TV_NO_AMMO;
@@ -5431,7 +5441,7 @@ void calc_bonuses(void)
 		if (o_ptr->k_idx && !p_ptr->heavy_shoot)
 		{
 			/* Extra shots */
-			p_ptr->num_fire += (extra_shots * 100);
+			p_ptr->num_fire += (extra_shots * 10);
 
 			/* Hack -- Rangers love Bows */
 			if ((p_ptr->pclass == CLASS_RANGER) &&
@@ -5699,6 +5709,8 @@ void calc_bonuses(void)
 
 			if (class_ptr != NULL && class_ptr->calc_weapon_bonuses != NULL)
 				class_ptr->calc_weapon_bonuses(o_ptr, info_ptr);
+
+			if (o_ptr->name1 == ART_EVISCERATOR && p_ptr->weapon_info[i].num_blow > 1) p_ptr->weapon_info[i].num_blow = 1;
 
 			/* Require at least one blow
 			   CTK: No ... negative attacks are now zero attacks!

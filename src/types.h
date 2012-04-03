@@ -1452,6 +1452,7 @@ struct player_type
 	weapon_info_t weapon_info[2];
 
 	s16b dis_to_h_b;	/* Known bonus to hit (bow) */
+	s16b dis_to_d_b;
 	s16b dis_to_a;		/* Known bonus to ac */
 
 	s16b dis_ac;		/* Known base ac */

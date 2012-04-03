@@ -1840,7 +1840,10 @@ static void display_player_middle(void)
 		show_tohit += (p_ptr->weapon_exp[0][o_ptr->sval] - (WEAPON_EXP_MASTER / 2)) / 200;
 
 	/* Range attacks */
-	display_player_one_line(ENTRY_SHOOT_HIT_DAM, format("(%+d,%+d)", show_tohit, show_todam), TERM_L_BLUE);
+	if (p_ptr->dis_to_d_b)
+		display_player_one_line(ENTRY_SHOOT_HIT_DAM, format("(%+d,%+d%+d)", show_tohit, show_todam, p_ptr->dis_to_d_b), TERM_L_BLUE);
+	else
+		display_player_one_line(ENTRY_SHOOT_HIT_DAM, format("(%+d,%+d)", show_tohit, show_todam), TERM_L_BLUE);
 
 	if (inventory[INVEN_BOW].k_idx)
 	{

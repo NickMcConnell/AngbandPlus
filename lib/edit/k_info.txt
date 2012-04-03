@@ -6569,6 +6569,20 @@ A:90/2
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
+N:692:TRANSLATE
+E:& Ring~:Eternal
+G:=:W
+I:45:59:0
+W:50:0:2:65000
+F:INSTA_ART
+
+N:693:TRANSLATE
+E:& Gun~
+G:}:r
+I:19:51:0
+W:15:0:100:1000
+F:SHOW_MODS | INSTA_ART
+
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval

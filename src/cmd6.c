@@ -5248,6 +5248,50 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				break;
 			}
 
+			case ART_KAMIKAZE_ROBE:
+			{
+				msg_print("Your robe glows crimson...");
+				set_shero(20 + randint0(20), FALSE);
+				set_fast(20 + randint0(20), FALSE);
+				o_ptr->timeout = 55;
+				break;
+			}
+			case ART_BALLISTA:
+			{
+				bool fired = FALSE;
+				msg_print("Your ballista glows black...");
+				ballista_hack = TRUE;
+				fired = do_cmd_fire();
+				ballista_hack = FALSE;
+				if (!fired) return;
+				o_ptr->timeout = 100;
+				break;
+			}
+			case ART_STOMPER:
+			{
+				msg_print("You stomp your foot down powerfully...");
+				earthquake(py, px, 10);
+				o_ptr->timeout = 35;
+				break;
+			}
+			case ART_RAILGUN:
+			{
+				msg_print("Your gun is covered with a blinding light...");
+				if (!get_aim_dir(&dir)) return;
+				fire_beam(GF_LITE, dir, 200);
+				o_ptr->timeout = 0; /* Every turn? */
+				break;
+			}
+			case ART_GONG:
+			{	
+				int dam = damroll(p_ptr->lev, 5);
+				msg_print("BOOOOOOOOOOOOOOOOOOONGGGGGGGGGGG!!!");
+				if (!p_ptr->resist_sound)
+					project(-1, 0, py, px, dam, GF_SOUND, PROJECT_KILL | PROJECT_HIDE, -1);
+				project(0, 18, py, px, dam*2, GF_SOUND, PROJECT_KILL | PROJECT_ITEM, -1);
+				o_ptr->timeout = 5 + randint1(5);
+				break;
+			}
 			case ART_NIMTHANC:
 			{
 #ifdef JP

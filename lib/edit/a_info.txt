@@ -4037,10 +4037,83 @@ F:TELEPATHY | PERMA_CURSE | QUESTITEM
 D:$It is a shriveled vestige of the once
 D:$great Emperor Lich.
 
+N:270:TRANSLATE
+E:'Cupid's Arrow'
+I:17:1:0
+W:35:35:2:2000
+P:0:1d4:0:0:0
+F:SHOW_MODS
+D:$This arrow is traditionally shot only by fat, scantly clad babies.
+
+N:271:TRANSLATE
+E:'Ballista'
+I:19:24:3
+W:30:15:110:60000
+P:0:2d1:10:24:0
+F:XTRA_MIGHT | ACTIVATE | HIDE_TYPE | SHOW_MODS
+F:STR | RES_CONF
+
+N:272:Translate
+E:of the Kamikaze Warrior
+I:36:2:5
+W:50:40:20:80000
+P:2:0d0:0:0:-20
+F:STR | DEX | HIDE_TYPE | ACTIVATE 
+F:SUST_STR | SUST_DEX | HOLD_LIFE | LEVITATION
+F:RES_FIRE | RES_POIS | RES_CONF | RES_SOUND | RES_NETHER
+F:NO_MAGIC
+D:$This robe is stained with the the blood of many fallen heros.
+D:$So much death. So much destruction. What could cause such a thing?
+
+N:273:TRANSLATE
+E:'Railgun'
+I:19:51:2
+W:85:150:100:80000
+P:0:0d0:25:25:0
+F:DEX | SPEED | SUST_DEX | IM_FIRE | RES_LITE | ACTIVATE
+F:SHOW_MODS | INSTA_ART
+
+N:274:TRANSLATE
+E:of the Ages
+I:45:59:4
+W:70:70:2:100000
+P:0:0d0:0:0:20
+F:CON | SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
+F:RES_TIME | HOLD_LIFE
+D:$Forged you know not when, this ring seems to have withstood the test of time.
+
+N:275:TRANSLATE
+E:'Eviscerator'
+I:23:4:0
+W:44:250:12:110000
+P:0:1d4:44:4:0
+F:VORPAL
+D:$A small dagger, impossibly sharp.
+
+N:276:TRANSLATE
+E:of the Bard
+I:30:2:4
+W:30:25:20:70000
+P:2:1d1:0:0:18
+F:DEX | CHR | STEALTH | RES_POIS | HIDE_TYPE
+
+N:277:TRANSLATE
+E:'Stomper'
+I:30:6:3
+W:30:25:80:85000
+P:6:1d1:0:0:21
+F:STR | CON | AGGRAVATE | RES_SHARDS | RES_CONF | RES_NEXUS | ACTIVATE
+
+N:278:TRANSLATE
+E:'Gong'
+I:34:5:4
+W:40:9:120:80000
+P:15:1d3:0:0:15
+F:STR | WIS | HOLD_LIFE | REFLECT | ACTIVATE
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost
-# P: base armor class : base damage : plus to-hit : plus to-dam : plus
-# to-ac
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
 # F: flag | flag |etc
 

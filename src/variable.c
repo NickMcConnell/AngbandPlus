@@ -1313,5 +1313,6 @@ travel_type travel;
 int snipe_type = SP_NONE;
 bool reset_concent = FALSE;   /* Concentration reset flag */
 bool is_fired = FALSE;
+bool ballista_hack = FALSE;
 
 int quest_mega_hack = 0;

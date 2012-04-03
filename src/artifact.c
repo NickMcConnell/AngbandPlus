@@ -1173,7 +1173,7 @@ static void random_slay(object_type *o_ptr)
 {
 	if (o_ptr->tval == TV_BOW)
 	{
-		if (o_ptr->sval == SV_CRIMSON)
+		if (o_ptr->sval == SV_CRIMSON || o_ptr->sval == SV_RAILGUN)
 		{
 			random_plus(o_ptr);
 			has_pval = TRUE;

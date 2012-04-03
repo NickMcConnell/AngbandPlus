@@ -2796,7 +2796,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	switch (p_ptr->pclass)
 	{
 	case CLASS_DUELIST:
-		if (c_ptr->m_idx == p_ptr->duelist_target_idx)
+		if (p_ptr->pclass == CLASS_DUELIST && c_ptr->m_idx == p_ptr->duelist_target_idx)
 			duelist_attack = TRUE;
 		break;
 
@@ -2894,8 +2894,12 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 	if (mode == WEAPONMASTER_CUNNING_STRIKE) num_blow = (num_blow + 1)/2;
 
-	/* Hack -- DOKUBARI always hit once */
+	/* Hack -- DOKUBARI always hit once 
+	   Note, this is set in calc_bonuses(), but the mode of attack (e.g Samurai's +2 attack cold strike)
+	   can alter the number of blows, so we need to duplicate these checks here!
+	*/
 	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DOKUBARI)) num_blow = 1;
+	if (o_ptr->name1 == ART_EVISCERATOR) num_blow = 1;
 
 	/* Attack once for each legal blow */
 	while ((num++ < num_blow) && !p_ptr->is_dead)
@@ -2943,6 +2947,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				((o_ptr->name1 == ART_VORPAL_BLADE) || 
 				 (o_ptr->name1 == ART_CHAINSWORD) ||
 				 (o_ptr->name1 == ART_MURAMASA)) ? 2 : 4;
+
+			if (o_ptr->name1 == ART_EVISCERATOR && !duelist_attack) num_blow++;
 
 			/* Sound */
 			sound(SOUND_HIT);
@@ -4205,6 +4211,8 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		{
 			backstab = FALSE; /* Clumsy! */
 			fuiuchi = FALSE; /* Clumsy! */
+
+			if (o_ptr->name1 == ART_EVISCERATOR && !duelist_attack && one_in_(2)) num_blow++;
 
 			if ((o_ptr->tval == TV_POLEARM) && (o_ptr->sval == SV_DEATH_SCYTHE) && one_in_(3))
 			{

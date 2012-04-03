@@ -241,6 +241,12 @@ static void do_cmd_wiz_hack_chris3(void)
 		new_cost = new_object_cost(&forge);
 		old_cost = object_value_real(&forge);
 
+		/*
+		if (forge.name2 == EGO_SNIPER)
+		{
+			drop_near(&forge, -1, py, px);
+		}*/
+
 		msg_format("  * %d, %d, `%s`", old_cost, new_cost, buf);
 	}
 }

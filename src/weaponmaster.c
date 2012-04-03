@@ -3499,6 +3499,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ TV_HAFTED, SV_JO_STAFF },
 	    { TV_HAFTED, SV_QUARTERSTAFF },
 		{ TV_HAFTED, SV_WIZSTAFF },
+		{ TV_HAFTED, SV_THREE_PIECE_ROD },
 		{ 0, 0 },
 	  },
 	  {

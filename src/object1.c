@@ -1128,6 +1128,16 @@ return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
 #endif
 
 		}
+		case ART_GONG:
+			return "a loud bong every 5+d5 turns";
+		case ART_STOMPER:
+			return "earthquake every 35 turns";
+		case ART_RAILGUN:
+			return "beam of light (200) every turn";
+		case ART_KAMIKAZE_ROBE:
+			return "berserk and haste every 55 turns";
+		case ART_BALLISTA:
+			return "piercing shot every 100 turns";
 		case ART_NIMTHANC:
 		{
 #ifdef JP

@@ -3984,7 +3984,17 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 								}
 							}
 						}
-						/* STICK TO */
+
+						/* Message */
+						message_pain(c_ptr->m_idx, tdam);
+
+						/* Anger the monster */
+						if (tdam > 0) anger_monster(m_ptr);
+
+						/* Artifact arrows stick to target. Note, we now do this
+						   after hurting/angering the monster since Cupid's Arrow
+						   might charm the target, while anger_monster() would set
+						   it back to being hostile. */
 						if (object_is_fixed_artifact(q_ptr))
 						{
 							char m_name[80];
@@ -3992,18 +4002,42 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 							monster_desc(m_name, m_ptr, 0);
 
 							stick_to = TRUE;
-	#ifdef JP
-							msg_format("%sは%sに突き刺さった！",o_name, m_name);
-	#else
-							msg_format("%^s have stuck into %s!",o_name, m_name);
-	#endif
+
+							/* If Cupid's Arrow charms the monster,
+							   having the arrow stick is highly annoying since
+							   you can't command your pets to drop objects they
+							   are carrying. */
+							if (q_ptr->name1 == ART_CUPIDS_ARROW && !(r_ptr->flags1 & RF1_UNIQUE))
+							{
+								if (!mon_save_p(m_ptr->r_idx, A_CHR))
+								{
+									if (!mon_save_p(m_ptr->r_idx, A_CHR))
+									{
+										if (!is_pet(m_ptr))
+										{
+											set_pet(m_ptr);
+											msg_format("%^s is charmed!", m_name);
+											stick_to = FALSE;
+										}
+										else if (!is_friendly(m_ptr))
+										{
+											set_friendly(m_ptr);
+											msg_format("%^s suddenly becomes friendly.", m_name);
+											stick_to = FALSE;
+										}
+									}
+									else if (!is_pet(m_ptr) && !is_friendly(m_ptr))
+									{
+										set_friendly(m_ptr);
+										msg_format("%^s suddenly becomes friendly.", m_name);
+										stick_to = FALSE;
+									}
+								}
+							}
+							
+							if (stick_to)
+								msg_format(T("%^s have stuck into %s!", "%sは%sに突き刺さった！"),o_name, m_name);
 						}
-
-						/* Message */
-						message_pain(c_ptr->m_idx, tdam);
-
-						/* Anger the monster */
-						if (tdam > 0) anger_monster(m_ptr);
 
 						/* Take note */
 						if (fear && m_ptr->ml)
@@ -4076,39 +4110,47 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 					}
 				}
 
-				/* Sniper */
-				if (snipe_type == SP_PIERCE)
+				/* The following effects (piercing and bouncing) should
+				   not take place when artifact ammo has stuck to a unique! */
+				if (!stick_to)
 				{
-					if(p_ptr->concent < 1) break;
-					p_ptr->concent--;
-					continue;
-				}
-
-				if (shoot_hack == SHOOT_PIERCE)
-				{
-					shoot_count++;
-					if (one_in_(shoot_count) || randint1(100) < p_ptr->lev)
-						continue;
-				}
-
-				if (shoot_hack == SHOOT_BOUNCE)
-				{
-					int dir = randint1(9);
-					if (dir != 5)
+					if (snipe_type == SP_PIERCE)
 					{
-						/* For now, only one bounce ... Consider allowing a chance
-						   of multiple bounces (e.g. one_in_(shoot_count)) or just
-						   letting the pebble bounce until it fails to hit a monster */
+						if(p_ptr->concent < 1) break;
+						p_ptr->concent--;
+						continue;
+					}
+
+					if (shoot_hack == SHOOT_PIERCE)
+					{
 						shoot_count++;
-						if (shoot_count <= 5)
+						if (one_in_(shoot_count) || randint1(100) < p_ptr->lev)
+							continue;
+					}
+
+					if (ballista_hack)
+						continue;
+
+					if (shoot_hack == SHOOT_BOUNCE)
+					{
+						int dir = randint1(9);
+						if (dir != 5)
 						{
-							tx = x + 99 * ddx[dir];
-							ty = y + 99 * ddy[dir];
-							do_cmd_fire_aux2(item, j_ptr, x, y, tx, ty);
-							return;
+							/* For now, only one bounce ... Consider allowing a chance
+							   of multiple bounces (e.g. one_in_(shoot_count)) or just
+							   letting the pebble bounce until it fails to hit a monster */
+							shoot_count++;
+							if (shoot_count <= 5)
+							{
+								tx = x + 99 * ddx[dir];
+								ty = y + 99 * ddy[dir];
+								do_cmd_fire_aux2(item, j_ptr, x, y, tx, ty);
+								return;
+							}
 						}
 					}
 				}
+
 				/* Stop looking */
 				break;
 			}
@@ -4193,8 +4235,6 @@ bool do_cmd_fire(void)
 	object_type *j_ptr;
 	cptr q, s;
 
-	is_fired = FALSE;	/* not fired yet */
-
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
 
@@ -4210,12 +4250,12 @@ bool do_cmd_fire(void)
 		return FALSE;
 	}
 
-	if (j_ptr->sval == SV_CRIMSON)
+	if (j_ptr->sval == SV_CRIMSON || j_ptr->sval == SV_RAILGUN)
 	{
 #ifdef JP
 		msg_print("この武器は発動して使うもののようだ。");
 #else
-		msg_print("You should activate Crimson instead.");
+		msg_print("You should activate your Gun instead.");
 #endif
 		flush();
 		return FALSE;
@@ -4255,22 +4295,23 @@ bool do_cmd_fire(void)
 	/* Fire the item */
 	result = do_cmd_fire_aux1(item, j_ptr);
 
-	if (!is_fired || p_ptr->pclass != CLASS_SNIPER) return FALSE;
-
-	/* Sniper actions after some shootings */
-	if (snipe_type == SP_AWAY)
+	if (p_ptr->pclass == CLASS_SNIPER)
 	{
-		teleport_player(10 + (p_ptr->concent * 2), 0L);
-	}
-	if (snipe_type == SP_FINAL)
-	{
-#ifdef JP
-		msg_print("射撃の反動が体を襲った。");
-#else
-		msg_print("A reactionary of shooting attacked you. ");
-#endif
-		(void)set_slow(p_ptr->slow + randint0(7) + 7, FALSE);
-		(void)set_stun(p_ptr->stun + randint1(25), FALSE);
+		/* Sniper actions after some shootings */
+		if (snipe_type == SP_AWAY)
+		{
+			teleport_player(10 + (p_ptr->concent * 2), 0L);
+		}
+		if (snipe_type == SP_FINAL)
+		{
+	#ifdef JP
+			msg_print("射撃の反動が体を襲った。");
+	#else
+			msg_print("A reactionary of shooting attacked you. ");
+	#endif
+			(void)set_slow(p_ptr->slow + randint0(7) + 7, FALSE);
+			(void)set_stun(p_ptr->stun + randint1(25), FALSE);
+		}
 	}
 
 	return result;

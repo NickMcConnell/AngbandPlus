@@ -6323,13 +6323,14 @@ s16b bow_energy(int sval)
 		/* Short Bow and Arrow */
 		case SV_SHORT_BOW:
 		{
-			energy = 10000;
+			energy = 8888;
 			break;
 		}
 
 		/* Long Bow and Arrow */
 		case SV_LONG_BOW:
 		case SV_CRIMSON:
+		case SV_RAILGUN:
 		case SV_HARP:
 		{
 			energy = 10000;
@@ -6368,12 +6369,12 @@ int bow_range(int sval)
 	switch (sval)
 	{
 	case SV_LIGHT_XBOW:
-		tdis = 7; /* somebody is adding 1 later ... */
+		tdis = 9; /* somebody is adding 1 later ... */
 		tdis += (p_ptr->concent + 1) / 2;	/* Snipers? */
 		break;
 
 	case SV_SHORT_BOW:
-		tdis = 7; /* somebody is adding 1 later ... */
+		tdis = 9; /* somebody is adding 1 later ... */
 		break;
 
 	default:

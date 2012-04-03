@@ -1521,6 +1521,21 @@ C:0:0:0:2
 W:0:120:0:100000
 F:BLOWS | STR | DEX | AGGRAVATE | ACTIVATE
 
+N:247:TRANSLATE
+E:of Prism
+X:23:15
+W:0:18:0:60
+C:5:5:0:0
+F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC
+F:IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
+
+N:248:TRANSLATE
+E:of the Sniper
+X:34:37
+W:0:36:0:50000
+C:5:5:0:5
+F:STEALTH | SHOW_MODS | HIDE_TYPE
+
 # N: serial number : ego type
 # X: inventory slot : rating
 # C: max to-hit : max to-dam : max to-ac : pval

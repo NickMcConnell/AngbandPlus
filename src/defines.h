@@ -1476,20 +1476,27 @@
 #define ART_BARD_ARROW          153
 
 
-#define ART_ZEUS		256
-#define ART_POSEIDON	257
-#define ART_HADES		258
-#define ART_ATHENA		259
-#define ART_ARES		260
-#define ART_HERMES		261
-#define ART_APOLLO		262
-#define ART_ARTEMIS		263
-#define ART_HEPHAESTUS	264
-#define ART_HERA		265
-#define ART_DEMETER		266
-#define ART_APHRODITE	267
+#define ART_ZEUS		    256
+#define ART_POSEIDON	    257
+#define ART_HADES		    258
+#define ART_ATHENA		    259
+#define ART_ARES		    260
+#define ART_HERMES		    261
+#define ART_APOLLO		    262
+#define ART_ARTEMIS		    263
+#define ART_HEPHAESTUS	    264
+#define ART_HERA		    265
+#define ART_DEMETER		    266
+#define ART_APHRODITE	    267
 #define ART_HAND_OF_VECNA	268
 #define ART_EYE_OF_VECNA	269
+#define ART_CUPIDS_ARROW    270
+#define ART_BALLISTA        271
+#define ART_KAMIKAZE_ROBE   272
+#define ART_RAILGUN         273
+#define ART_EVISCERATOR     275
+#define ART_STOMPER         277
+#define ART_GONG            278
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
@@ -1563,6 +1570,7 @@
 #define EGO_MAGIC_MASTERY       53
 #define EGO_WEAKNESS            54
 #define EGO_CLUMSINESS          55
+#define EGO_SNIPER             248
 
 /* Boots */
 #define EGO_SLOW_DESCENT        56
@@ -1932,6 +1940,7 @@
 #define SV_LIGHT_XBOW                   23	/* (x4) */
 #define SV_HEAVY_XBOW                   24	/* (x4) */
 #define SV_CRIMSON                      50	/* (x0) */
+#define SV_RAILGUN                      51	/* (x0) */
 #define SV_NAMAKE_BOW                   63	/* (x3) */
 #define SV_HARP							70  /* (x0) */
 
@@ -2243,6 +2252,7 @@
 #define SV_RING_FRODO                   56
 #define SV_RING_SPELL_POWER				57
 #define SV_RING_SPELL_CAP				58
+#define SV_RING_AGES                    59
 
 #define SV_EXPRESS_CARD                  0
 

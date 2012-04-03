@@ -1853,6 +1853,7 @@ extern travel_type travel;
 extern int snipe_type;
 extern bool reset_concent;   /* Concentration reset flag */
 extern bool is_fired;
+extern bool ballista_hack;
 
 /* snipe.c */
 extern void reset_concentration(bool msg);
