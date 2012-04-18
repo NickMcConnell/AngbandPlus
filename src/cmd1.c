@@ -2752,6 +2752,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	bool            zantetsu_mukou, e_j_mukou;
 	int				knock_out = 0;
 	int				dd, ds;
+	bool			hit_ct = 0;
 
 	if (!c_ptr->m_idx)
 	{
@@ -2905,7 +2906,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	while ((num++ < num_blow) && !p_ptr->is_dead)
 	{
 	bool do_whirlwind = FALSE;
-	bool did_knockback = FALSE;
 
 		/* Weaponmaster Whirlwind turns a normal strike into a sweeping whirlwind strike */
 		if (p_ptr->whirlwind && mode == 0)
@@ -2950,7 +2950,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 			if (o_ptr->name1 == ART_EVISCERATOR && !duelist_attack) num_blow++;
 
-			/* Sound */
+			hit_ct++;
 			sound(SOUND_HIT);
 
 			/* Uber mega-hack ... aren't they all?! */
@@ -3639,7 +3639,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				cave_type       *c_ptr2;
 				monster_type    *m_ptr2;
 				bool             fear2 = FALSE;
-				int				 ct = 10;
+				int				 ct = 0;
 
 				k *= 2;
 
@@ -3647,7 +3647,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				if (mon_take_hit(c_ptr->m_idx, k, fear, NULL))
 				{
 					*mdeath = TRUE;
-					ct += 5;
+					ct += 20;
 				}
 
 				msg_format("Your swing your %s about, reaping a harvest of death!", o_name);
@@ -3669,7 +3669,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (c_ptr2->m_idx && (m_ptr2->ml || cave_have_flag_bold(y2, x2, FF_PROJECT)))
 					{
 						if (mon_take_hit(c_ptr2->m_idx, k, &fear2, NULL))
-							ct += 5;
+							ct += 10;
 					}
 				}
 
@@ -3815,44 +3815,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					{
 						msg_format("%^s seems unable to run away.", m_name);
 						m_ptr->mflag2 |= MFLAG2_ENCLOSED;
-					}
-				}
-
-				if (mode == WEAPONMASTER_KNOCK_BACK)
-				{
-					int dir = calculate_dir(px, py, x, y);
-					if (dir != 5)
-					{
-						int ty = y, tx = x;
-						int oy = y, ox = x;
-
-						y += ddy[dir];
-						x += ddx[dir];
-						if (cave_empty_bold(y, x))
-						{
-							ty = y;
-							tx = x;
-						}
-						did_knockback = TRUE;
-						if (ty != oy || tx != ox)
-						{
-							int m_idx = cave[oy][ox].m_idx;
-
-							msg_format("You knock %s back!", m_name);
-							cave[oy][ox].m_idx = 0;
-							cave[ty][tx].m_idx = m_idx;
-							m_ptr->fy = ty;
-							m_ptr->fx = tx;
-	
-							update_mon(m_idx, TRUE);
-							lite_spot(oy, ox);
-							lite_spot(ty, tx);
-	
-							if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
-								p_ptr->update |= PU_MON_LITE;
-						}
-						else
-							msg_format("You fail to knock %s back.", m_name);
 					}
 				}
 
@@ -4285,10 +4247,54 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		if (mode == WEAPONMASTER_PIERCING_STRIKE) break;
 		if (mode == WEAPONMASTER_PROXIMITY_ALERT) break;
 		if (mode == WEAPONMASTER_WHIRLWIND) break;
-		if (mode == WEAPONMASTER_KNOCK_BACK && did_knockback) break;
 		if (mode == WEAPONMASTER_REAPING) break;
 		if (mode == WEAPONMASTER_ABSORB_SOUL) break;
 		if (mode == RAGEMAGE_AWESOME_BLOW) break;
+	}
+
+	if (mode == WEAPONMASTER_KNOCK_BACK && hit_ct)
+	{
+		int dir = calculate_dir(px, py, x, y);
+		if (dir != 5)
+		{
+			int i;
+			int msec = delay_factor * delay_factor * delay_factor;
+			for (i = 0; i < hit_ct; i++)
+			{
+				int ty = y, tx = x;
+				int oy = y, ox = x;
+
+				y += ddy[dir];
+				x += ddx[dir];
+				if (cave_empty_bold(y, x))
+				{
+					ty = y;
+					tx = x;
+				}
+				if (ty != oy || tx != ox)
+				{
+					int m_idx = cave[oy][ox].m_idx;
+
+					cave[oy][ox].m_idx = 0;
+					cave[ty][tx].m_idx = m_idx;
+					m_ptr->fy = ty;
+					m_ptr->fx = tx;
+	
+					Term_fresh();
+					update_mon(m_idx, TRUE);
+					lite_spot(oy, ox);
+					lite_spot(ty, tx);
+	
+					if (r_info[m_ptr->r_idx].flags7 & (RF7_LITE_MASK | RF7_DARK_MASK))
+						p_ptr->update |= PU_MON_LITE;
+					
+					Term_xtra(TERM_XTRA_DELAY, msec);
+					Term_fresh();
+				}
+				else
+					break;
+			}
+		}
 	}
 
 	/* Sleep counter ticks down in energy units ... Also, *lots* of code

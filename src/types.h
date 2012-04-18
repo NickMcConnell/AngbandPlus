@@ -1201,7 +1201,7 @@ struct player_type
 	s16b entrench_ct;
 	bool entrenched;
 	bool inven_prot;
-
+	
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
 	s16b tim_no_device;		/* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
 							

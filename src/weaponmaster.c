@@ -1246,7 +1246,7 @@ static void _piercing_strike_spell(int cmd, variant *res)
 		break;
 	case SPELL_ENERGY:
 		if (_get_toggle() != TOGGLE_PIERCING_STRIKE)
-			var_set_int(res, 0);	/* no charge for dismissing a technique */
+			var_set_int(res, 0);
 		else
 			var_set_int(res, 100);
 		break;
@@ -4503,10 +4503,10 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 			info_ptr->to_h -= 5;
 			info_ptr->dis_to_h -= 5;
 			break;
-		case TOGGLE_PIERCING_STRIKE:
+		/*case TOGGLE_PIERCING_STRIKE:
 			info_ptr->to_h -= 20;
 			info_ptr->dis_to_h -= 20;
-			break;
+			break;*/
 		case TOGGLE_TRIP:
 			info_ptr->to_h -= 30;
 			info_ptr->dis_to_h -= 30;
