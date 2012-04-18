@@ -178,6 +178,11 @@ static void rd_byte(byte *ip)
 	*ip = sf_get();
 }
 
+static void rd_bool(bool *ip)
+{
+	*ip = sf_get();
+}
+
 static void rd_u16b(u16b *ip)
 {
 	(*ip) = sf_get();
@@ -1525,6 +1530,31 @@ static void rd_extra(void)
 		p_ptr->tim_superstealth = 0;
 	else
 		rd_s16b(&p_ptr->tim_superstealth);
+
+	if (h_older_than(0, 0, 91, 1))
+	{
+		p_ptr->fasting = FALSE;
+		p_ptr->tim_sustain_str = 0;
+		p_ptr->tim_sustain_int = 0;
+		p_ptr->tim_sustain_wis = 0;
+		p_ptr->tim_sustain_dex = 0;
+		p_ptr->tim_sustain_con = 0;
+		p_ptr->tim_sustain_chr = 0;
+		p_ptr->tim_hold_life = 0;
+		p_ptr->tim_transcendence = 0;
+	}
+	else
+	{
+		rd_bool(&p_ptr->fasting);
+		rd_s16b(&p_ptr->tim_sustain_str);
+		rd_s16b(&p_ptr->tim_sustain_int);
+		rd_s16b(&p_ptr->tim_sustain_wis);
+		rd_s16b(&p_ptr->tim_sustain_dex);
+		rd_s16b(&p_ptr->tim_sustain_con);
+		rd_s16b(&p_ptr->tim_sustain_chr);
+		rd_s16b(&p_ptr->tim_hold_life);
+		rd_s16b(&p_ptr->tim_transcendence);
+	}
 
 	rd_s16b(&p_ptr->chaos_patron);
 

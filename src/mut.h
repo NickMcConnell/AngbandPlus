@@ -141,6 +141,7 @@ typedef enum {
 
 typedef bool (*mut_pred)(int mut_idx);
 extern bool mut_good_pred(int mut_idx);
+extern bool mut_bad_pred(int mut_idx);
 extern bool mut_human_pred(int mut_idx);
 extern bool mut_unlocked_pred(int mut_idx);
 

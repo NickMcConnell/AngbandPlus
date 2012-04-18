@@ -250,6 +250,15 @@ void reset_tim_flags(void)
 	p_ptr->tim_superstealth = 0;
 	p_ptr->tim_genji = 0;
 	p_ptr->tim_force = 0;
+	p_ptr->fasting = FALSE;
+	p_ptr->tim_sustain_str = 0;
+	p_ptr->tim_sustain_int = 0;
+	p_ptr->tim_sustain_wis = 0;
+	p_ptr->tim_sustain_dex = 0;
+	p_ptr->tim_sustain_con = 0;
+	p_ptr->tim_sustain_chr = 0;
+	p_ptr->tim_hold_life = 0;
+	p_ptr->tim_transcendence = 0;
 
 	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
 	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
@@ -351,6 +360,15 @@ void dispel_player(void)
 	set_tim_resist_curses(0, TRUE);
 	set_tim_armor_of_fury(0, TRUE);
 	set_tim_spell_turning(0, TRUE);
+
+	set_tim_sustain_str(0, TRUE);
+	set_tim_sustain_int(0, TRUE);
+	set_tim_sustain_wis(0, TRUE);
+	set_tim_sustain_dex(0, TRUE);
+	set_tim_sustain_con(0, TRUE);
+	set_tim_sustain_chr(0, TRUE);
+	set_tim_hold_life(0, TRUE);
+	set_tim_transcendence(0, TRUE);
 
 	set_tim_spurt(0, TRUE);
 	set_tim_speed_essentia(0, TRUE);
@@ -2039,6 +2057,7 @@ bool set_tim_spell_turning(int v, bool do_dec)
 	handle_stuff();
 	return TRUE;
 }
+
 
 bool set_tim_blood_rite(int v, bool do_dec)
 {
@@ -5816,7 +5835,7 @@ bool hp_player(int num)
 
 	if (mut_present(MUT_SACRED_VITALITY))
 	{
-		num += MIN(MAX(p_ptr->lev, num/3), num*2);
+		num += MIN(MAX(p_ptr->lev, num/3), num);
 		/*num = num * 13 / 10;*/
 	}
 
@@ -6662,6 +6681,13 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	}
 
 	/* Hurt the player */
+	if (p_ptr->tim_transcendence && p_ptr->csp > 0)
+	{
+		int sp = MIN(p_ptr->csp, damage);
+		sp_player(-sp);
+		damage -= sp;
+		damage = MAX(0, damage);
+	}
 	p_ptr->chp -= damage;
 	if(damage_type == DAMAGE_GENO && p_ptr->chp < 0)
 	{
@@ -7607,5 +7633,357 @@ bool choose_ele_immune(int turn)
 	}
 	/* Load screen */
 	screen_load();
+	return TRUE;
+}
+
+bool set_tim_sustain_str(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sustain_str)
+		{
+			if (p_ptr->tim_sustain_str > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your strength sustained.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sustain_str)
+		{
+			msg_print("Your strength is no longer sustained.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_sustain_str = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_sustain_int(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sustain_int)
+		{
+			if (p_ptr->tim_sustain_int > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your intelligence sustained.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sustain_int)
+		{
+			msg_print("Your intelligence is no longer sustained.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_sustain_int = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_sustain_wis(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sustain_wis)
+		{
+			if (p_ptr->tim_sustain_wis > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your wisdom sustained.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sustain_wis)
+		{
+			msg_print("Your wisdom is no longer sustained.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_sustain_wis = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_sustain_dex(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sustain_dex)
+		{
+			if (p_ptr->tim_sustain_dex > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your dexterity sustained.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sustain_dex)
+		{
+			msg_print("Your dexterity is no longer sustained.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_sustain_dex = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_sustain_con(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sustain_con)
+		{
+			if (p_ptr->tim_sustain_con > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your constitution sustained.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sustain_con)
+		{
+			msg_print("Your constitution is no longer sustained.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_sustain_con = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_sustain_chr(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sustain_chr)
+		{
+			if (p_ptr->tim_sustain_chr > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your charisma sustained.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sustain_chr)
+		{
+			msg_print("Your charisma is no longer sustained.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_sustain_chr = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_hold_life(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_hold_life)
+		{
+			if (p_ptr->tim_hold_life > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel a firm grip on your life force.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_hold_life)
+		{
+			msg_print("You lose your grip on your life force.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_hold_life = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_transcendence(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_transcendence)
+		{
+			if (p_ptr->tim_transcendence > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You transcend your lowly existence.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_transcendence)
+		{
+			msg_print("You are no longer transcendent.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_transcendence = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
 	return TRUE;
 }

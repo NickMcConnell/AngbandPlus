@@ -23,7 +23,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 		switch (randint1(4))
 		{
 		case 1:
-			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d + 25))
+			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d + 15))
 			{
 				/*msg_print("Boost ToHit?");*/
 				if (unique || one_in_(6))
@@ -38,7 +38,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 			break;
 
 		case 2:
-			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d + 25))
+			if ((r_ptr->level > o_ptr->to_h + o_ptr->to_d + 15))
 			{
 				/*msg_print("Boost ToDam?");*/
 				if (unique || one_in_(6))
@@ -53,7 +53,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 			break;
 
 		case 3:
-			if ((r_ptr->level > o_ptr->dd * o_ptr->ds + 25))
+			if ((r_ptr->level > o_ptr->dd * o_ptr->ds))
 			{
 				/*msg_print("Boost dd?");*/
 				if (one_in_((o_ptr->dd + 1) * (o_ptr->ds + 1)) && (unique || one_in_(6)))
@@ -68,7 +68,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 			break;
 
 		case 4:
-			if ((r_ptr->level > o_ptr->dd * o_ptr->ds + 25))
+			if ((r_ptr->level > o_ptr->dd * o_ptr->ds))
 			{
 				/*msg_print("Boost ds?");*/
 				if (one_in_((o_ptr->dd + 1) * (o_ptr->ds + 1)) && (unique || one_in_(6)))
@@ -173,7 +173,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 			  && o_ptr->dd * o_ptr->ds > 50 )
 			{  
 				o_ptr->curse_flags |= TRC_TY_CURSE;
-				msg_print("Your Rune Swords seeks to dominate you!");
+				msg_print("Your Rune Sword seeks to dominate you!");
 			}
 			else if ((o_ptr->curse_flags & TRC_AGGRAVATE) == 0
 				   && o_ptr->dd * o_ptr->ds > 30 )
@@ -182,7 +182,7 @@ static void _rune_sword_kill(object_type *o_ptr, monster_race *r_ptr)
 				msg_print("The thirst of your sword redoubles!");
 			}
 			else
-				msg_print("You rune sword grows more powerful!");
+				msg_print("Your rune sword grows more powerful!");
 		}
 	}
 	else

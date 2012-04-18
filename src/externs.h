@@ -1508,6 +1508,15 @@ extern bool set_tim_resist_curses(int v, bool do_dec);
 extern bool set_tim_armor_of_fury(int v, bool do_dec);
 extern bool set_tim_spell_turning(int v, bool do_dec);
 
+extern bool set_tim_sustain_str(int v, bool do_dec);
+extern bool set_tim_sustain_int(int v, bool do_dec);
+extern bool set_tim_sustain_wis(int v, bool do_dec);
+extern bool set_tim_sustain_dex(int v, bool do_dec);
+extern bool set_tim_sustain_con(int v, bool do_dec);
+extern bool set_tim_sustain_chr(int v, bool do_dec);
+extern bool set_tim_hold_life(int v, bool do_dec);
+extern bool set_tim_transcendence(int v, bool do_dec);
+
 extern bool set_multishadow(int v, bool do_dec);
 extern bool set_dustrobe(int v, bool do_dec);
 extern bool set_kabenuke(int v, bool do_dec);

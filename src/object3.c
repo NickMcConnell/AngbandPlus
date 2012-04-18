@@ -618,6 +618,20 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
 		}
 	}
 
+	if (have_flag(flgs, TR_DARKNESS))
+	{
+		if (p_ptr->pclass == CLASS_NINJA)
+			p = p * 5;
+		else
+			p = p / 5;
+
+		if (cost_calc_hook)
+		{
+			sprintf(dbg_msg, "  * No Tele: p = %d", p);
+			cost_calc_hook(dbg_msg);
+		}
+	}
+
 	if (have_flag(flgs, TR_NO_MAGIC))
 	{
 		p = p * 9 / 10;

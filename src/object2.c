@@ -8577,8 +8577,22 @@ static void add_essence(int mode)
 		}
 		p_ptr->magic_num1[es_ptr->essence] -= use_essence;
 		if (es_ptr->add == ESSENCE_ATTACK)
-		{   
-			if ((o_ptr->to_h >= 5 + 15*p_ptr->lev/50) && (o_ptr->to_d >= 5 + 15*p_ptr->lev/50))
+		{
+			int max = 5 + 15*p_ptr->lev/50;
+
+			/* Old: Everything could go to +15, +15
+			   New: Allow enchanting up to +20, +20, but this makes
+			        shooting a bit strong. So clip ammo at +10, +10 */
+			switch (o_ptr->tval)
+			{
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+				max = 10*p_ptr->lev/50;
+				break;
+			}
+
+			if ((o_ptr->to_h >= max) && (o_ptr->to_d >= max))
 			{
 #ifdef JP
 				msg_print("改良に失敗した。");
@@ -8590,8 +8604,8 @@ static void add_essence(int mode)
 			}
 			else
 			{
-				if (o_ptr->to_h < 5 + 15*p_ptr->lev/50) o_ptr->to_h++;
-				if (o_ptr->to_d < 5 + 15*p_ptr->lev/50) o_ptr->to_d++;
+				if (o_ptr->to_h < max) o_ptr->to_h++;
+				if (o_ptr->to_d < max) o_ptr->to_d++;
 			}
 		}
 		else if (es_ptr->add == ESSENCE_AC)

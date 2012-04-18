@@ -1207,6 +1207,16 @@ struct player_type
 							
 	s16b tim_superstealth;
 
+	bool fasting;
+	s16b tim_sustain_str;
+	s16b tim_sustain_int;
+	s16b tim_sustain_wis;
+	s16b tim_sustain_dex;
+	s16b tim_sustain_con;
+	s16b tim_sustain_chr;
+	s16b tim_hold_life;
+	s16b tim_transcendence;
+
 	/* Rune Knight: Some Rune effects might become general game mechanics, like Magic Resistance
 	   and Magic Absorption.  Also, let's consolidate the White Aura mutation with the Rune of
 	   Good Fortune into a cached Good Luck value */

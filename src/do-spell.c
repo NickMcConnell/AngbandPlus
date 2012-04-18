@@ -1175,7 +1175,6 @@ static cptr do_life_spell(int spell, int mode)
 	bool info = (mode == SPELL_INFO) ? TRUE : FALSE;
 	bool cast = (mode == SPELL_CAST) ? TRUE : FALSE;
 
-	int dir;
 	int plev = p_ptr->lev;
 
 	switch (spell)
@@ -1226,23 +1225,21 @@ static cptr do_life_spell(int spell, int mode)
 
 	case 2:
 #ifdef JP
-		if (name) return "軽傷";
-		if (desc) return "1体のモンスターに小ダメージを与える。抵抗されると無効。";
+		if (name) return "回復力強化";
+		if (desc) return "一定時間、回復力が増強される。";
 #else
-		if (name) return "Cause Light Wounds";
-		if (desc) return "Wounds a monster a little unless resisted.";
+		if (name) return "Regeneration";
+		if (desc) return "Gives regeneration ability for a while.";
 #endif
     
 		{
-			int dice = 3 + (plev - 1) / 5;
-			int sides = 4;
+			int base = spell_power(80);
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_duration(base, base);
 
 			if (cast)
 			{
-				if (!get_aim_dir(&dir)) return NULL;
-				fire_ball_hide(GF_WOUNDS, dir, spell_power(damroll(dice, sides)), 0);
+				set_tim_regen(base + randint1(base), FALSE);
 			}
 		}
 		break;
@@ -1346,6 +1343,12 @@ static cptr do_life_spell(int spell, int mode)
 			if (cast)
 			{
 				set_food(PY_FOOD_MAX - 1);
+				if (p_ptr->fasting)
+				{
+					msg_print("You break your fast.");
+					p_ptr->redraw |= PR_STATUS;
+					p_ptr->fasting = FALSE;
+				}
 			}
 		}
 		break;
@@ -1375,25 +1378,20 @@ static cptr do_life_spell(int spell, int mode)
 		break;
 
 	case 9:
-#ifdef JP
-		if (name) return "重傷";
-		if (desc) return "1体のモンスターに中ダメージを与える。抵抗されると無効。";
-#else
-		if (name) return "Cause Medium Wounds";
-		if (desc) return "Wounds a monster unless resisted.";
-#endif
+		if (name) return "Fasting";
+		if (desc) return "Begin a religious fast. In time, your god may restore you!";
     
+		if (cast)
 		{
-			int sides = 8 + (plev - 5) / 4;
-			int dice = 8;
-
-			if (info) return info_damage(dice, sides, 0);
-
-			if (cast)
+			if (p_ptr->fasting)
 			{
-				if (!get_aim_dir(&dir)) return NULL;
-				fire_ball_hide(GF_WOUNDS, dir, spell_power(damroll(sides, dice)), 0);
+				msg_print("You are already fasting. Perhaps you should pray as well?");
+				return NULL;
 			}
+			msg_print("You begin to fast.");
+			set_food(p_ptr->food/2);
+			p_ptr->redraw |= PR_STATUS;
+			p_ptr->fasting = TRUE;
 		}
 		break;
 
@@ -1585,46 +1583,68 @@ static cptr do_life_spell(int spell, int mode)
 		break;
 
 	case 19:
-#ifdef JP
-		if (name) return "凪の刻";
-		if (desc) return "視界内の全てのモンスターを魅了する。抵抗されると無効。";
-#else
-		if (name) return "Day of the Dove";
-		if (desc) return "Attempts to charm all monsters in sight.";
-#endif
+		if (name) return "Sustaining";
+		if (desc) return "Grants temporary stat sustains, depending on your level.";
     
 		{
-			int power = spell_power(plev * 2);
+			int dur = spell_power(p_ptr->lev);
 
-			if (info) return info_power(power);
+			if (info) return info_duration(dur, 0);
 
 			if (cast)
 			{
-				charm_monsters(power);
+				int num = p_ptr->lev / 7;
+
+				if (randint0(7) < num)
+				{
+					set_tim_hold_life(dur, FALSE);
+					num--;
+				}
+				if (randint0(6) < num)
+				{
+					set_tim_sustain_con(dur, FALSE);
+					num--;
+				}
+				if (randint0(5) < num)
+				{
+					set_tim_sustain_str(dur, FALSE);
+					num--;
+				}
+				if (randint0(4) < num)
+				{
+					set_tim_sustain_int(dur, FALSE);
+					num--;
+				}
+				if (randint0(3) < num)
+				{
+					set_tim_sustain_dex(dur, FALSE);
+					num--;
+				}
+				if (randint0(2) < num)
+				{
+					set_tim_sustain_wis(dur, FALSE);
+					num--;
+				}
+				if (num)
+				{
+					set_tim_sustain_chr(dur, FALSE);
+					num--;
+				}
+
 			}
 		}
 		break;
 
 	case 20:
-#ifdef JP
-		if (name) return "致命傷";
-		if (desc) return "1体のモンスターに大ダメージを与える。抵抗されると無効。";
-#else
-		if (name) return "Cause Critical Wounds";
-		if (desc) return "Wounds a monster critically unless resisted.";
-#endif
+		if (name) return "Cure Mutation";
+		if (desc) return "Remove a random mutation.";
     
+		if (cast)
 		{
-			int dice = 5 + (plev - 5) / 3;
-			int sides = 15;
-
-			if (info) return info_damage(dice, sides, 0);
-
-			if (cast)
-			{
-				if (!get_aim_dir(&dir)) return NULL;
-				fire_ball_hide(GF_WOUNDS, dir, spell_power(damroll(dice, sides)), 0);
-			}
+			if (one_in_(100/p_ptr->lev))
+				mut_lose_random(mut_bad_pred);
+			else
+				mut_lose_random(NULL);
 		}
 		break;
 
@@ -1651,24 +1671,16 @@ static cptr do_life_spell(int spell, int mode)
 		break;
 
 	case 22:
-#ifdef JP
-		if (name) return "真実の祭壇";
-		if (desc) return "現在の階を再構成する。";
-#else
-		if (name) return "Alter Reality";
-		if (desc) return "Recreates current dungeon level.";
-#endif
+		if (name) return "Transcendence";
+		if (desc) return "For a short while, any damage you receive will be absorbed by your spell points.";
     
 		{
-			int base = 15;
-			int sides = 20;
+			int dur = spell_power(p_ptr->lev/10);
 
-			if (info) return info_delay(base, sides);
+			if (info) return format("dur %d", dur);
 
 			if (cast)
-			{
-				alter_reality();
-			}
+				set_tim_transcendence(dur, FALSE);
 		}
 		break;
 
@@ -5081,7 +5093,7 @@ static cptr do_trump_spell(int spell, int mode)
 
 			if (cast)
 			{
-				if (get_check("Are you sure you wish to shuffle?"))
+				if (TRUE || get_check("Are you sure you wish to shuffle?"))
 					cast_shuffle();
 				else
 					return NULL;

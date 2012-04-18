@@ -47,6 +47,11 @@ static void wr_byte(byte v)
 	sf_put(v);
 }
 
+static void wr_bool(bool v)
+{
+	sf_put(v);
+}
+
 static void wr_u16b(u16b v)
 {
 	sf_put((byte)(v & 0xFF));
@@ -821,6 +826,16 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->dustrobe);
 
 	wr_s16b(p_ptr->tim_superstealth);
+
+	wr_bool(p_ptr->fasting);
+	wr_s16b(p_ptr->tim_sustain_str);
+	wr_s16b(p_ptr->tim_sustain_int);
+	wr_s16b(p_ptr->tim_sustain_wis);
+	wr_s16b(p_ptr->tim_sustain_dex);
+	wr_s16b(p_ptr->tim_sustain_con);
+	wr_s16b(p_ptr->tim_sustain_chr);
+	wr_s16b(p_ptr->tim_hold_life);
+	wr_s16b(p_ptr->tim_transcendence);
 
 	wr_s16b(p_ptr->chaos_patron);
 	for (i = 0; i < MUT_FLAG_SIZE; ++i)

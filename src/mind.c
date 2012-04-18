@@ -527,6 +527,9 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						/* Reduce failure rate by "effective" level adjustment */
 						chance -= 3 * (plev - spell.min_lev);
 
+						if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+							chance -= 5;
+
 						/* Reduce failure rate by INT/WIS adjustment */
 						chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
@@ -542,6 +545,9 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 
 						/* Extract the minimum failure rate */
 						minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+
+						if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+							minfail--;
 
 						/* Minimum failure rate */
 						if (chance < minfail) chance = minfail;
@@ -1979,6 +1985,7 @@ void do_cmd_mind(void)
 	int             old_csp = p_ptr->csp;
 	mind_type       spell;
 	bool            cast;
+	bool			failed = FALSE;
 	int             use_mind, mana_cost;
 #ifdef JP
 	cptr            p;
@@ -2065,6 +2072,9 @@ if (!get_check("それでも挑戦しますか? ")) return;
 		/* Reduce failure rate by "effective" level adjustment */
 		chance -= 3 * (plev - spell.min_lev);
 
+		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+			chance -= 5;
+
 		chance += p_ptr->to_m_chance;
 
 		/* Reduce failure rate by INT/WIS adjustment */
@@ -2081,6 +2091,9 @@ if (!get_check("それでも挑戦しますか? ")) return;
 		/* Extract the minimum failure rate */
 		minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
+		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+			minfail--;
+
 		/* Minimum failure rate */
 		if (chance < minfail) chance = minfail;
 
@@ -2095,6 +2108,7 @@ if (!get_check("それでも挑戦しますか? ")) return;
 	/* Failed spell */
 	if (randint0(100) < chance)
 	{
+		failed = TRUE;
 		if (flush_failure) flush();
 #ifdef JP
 msg_format("%sの集中に失敗した！",p);
@@ -2221,7 +2235,6 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 		if (!cast) return;
 	}
 
-
 	/* Take a turn */
 	energy_use = 100;
 	/* teleport from mirror costs small energy */
@@ -2249,18 +2262,24 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 	/* Sufficient mana */
 	else if (mana_cost <= old_csp)
 	{
-		/* Use some mana */
-		p_ptr->csp -= mana_cost;
+		if (failed && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
+		{
+		}
+		else
+		{
+			/* Use some mana */
+			p_ptr->csp -= mana_cost;
 
-		/* Limit */
-		if (p_ptr->csp < 0) p_ptr->csp = 0;
+			/* Limit */
+			if (p_ptr->csp < 0) p_ptr->csp = 0;
 
-        if ((use_mind == MIND_TIME_LORD) && (n == 14))
-        {
-			/* No mana left */
-			p_ptr->csp = 0;
-			p_ptr->csp_frac = 0;
-        }
+			if ((use_mind == MIND_TIME_LORD) && (n == 14))
+			{
+				/* No mana left */
+				p_ptr->csp = 0;
+				p_ptr->csp_frac = 0;
+			}
+		}
 	}
 
 	/* Over-exert the player */

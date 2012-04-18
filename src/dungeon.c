@@ -2319,10 +2319,51 @@ static void process_world_aux_timeout(void)
 	if (p_ptr->tim_spell_turning)
 		set_tim_spell_turning(p_ptr->tim_spell_turning - 1, TRUE);
 
+	if (p_ptr->tim_sustain_str)
+		set_tim_sustain_str(p_ptr->tim_sustain_str - 1, TRUE);
+
+	if (p_ptr->tim_sustain_int)
+		set_tim_sustain_int(p_ptr->tim_sustain_int - 1, TRUE);
+
+	if (p_ptr->tim_sustain_wis)
+		set_tim_sustain_wis(p_ptr->tim_sustain_wis - 1, TRUE);
+
+	if (p_ptr->tim_sustain_dex)
+		set_tim_sustain_dex(p_ptr->tim_sustain_dex - 1, TRUE);
+
+	if (p_ptr->tim_sustain_con)
+		set_tim_sustain_con(p_ptr->tim_sustain_con - 1, TRUE);
+
+	if (p_ptr->tim_sustain_chr)
+		set_tim_sustain_chr(p_ptr->tim_sustain_chr - 1, TRUE);
+
+	if (p_ptr->tim_hold_life)
+		set_tim_hold_life(p_ptr->tim_hold_life - 1, TRUE);
+
+	if (p_ptr->tim_transcendence)
+		set_tim_transcendence(p_ptr->tim_transcendence - 1, TRUE);
+
 	wild_decrement_counters();
 
 	if (p_ptr->pclass == CLASS_PSION)
 		psion_decrement_counters();
+
+	if (p_ptr->fasting && one_in_(7))
+	{
+		if (randint1(PY_FOOD_ALERT) > p_ptr->food)
+		{
+			switch (randint1(7))
+			{
+			case 1: do_res_stat(A_STR); break;
+			case 2: do_res_stat(A_INT); break;
+			case 3: do_res_stat(A_WIS); break;
+			case 4: do_res_stat(A_DEX); break;
+			case 5: do_res_stat(A_CON); break;
+			case 6: do_res_stat(A_CHR); break;
+			case 7: restore_level(); break;
+			}
+		}
+	}
 
 	/*** Poison and Stun and Cut ***/
 

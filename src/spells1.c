@@ -6497,8 +6497,7 @@ note = "には効果がなかった！";
 			}
 
 			/* Attempt a saving throw */
-			if (randint0(100 + dam) < (r_ptr->level + 50))
-			/*if (mon_save_p(m_ptr->r_idx, mp_ptr->spell_stat))*/
+			if (randint0(50 + dam*3) < (20 + r_ptr->level))
 			{
 
 #ifdef JP

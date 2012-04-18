@@ -3001,6 +3001,14 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 	if (IS_OPPOSE_POIS())
 		add_flag(flgs, TR_RES_POIS);
 
+	if (p_ptr->tim_sustain_str) add_flag(flgs, TR_SUST_STR);
+	if (p_ptr->tim_sustain_int) add_flag(flgs, TR_SUST_INT);
+	if (p_ptr->tim_sustain_wis) add_flag(flgs, TR_SUST_WIS);
+	if (p_ptr->tim_sustain_dex) add_flag(flgs, TR_SUST_DEX);
+	if (p_ptr->tim_sustain_con) add_flag(flgs, TR_SUST_CON);
+	if (p_ptr->tim_sustain_chr) add_flag(flgs, TR_SUST_CHR);
+	if (p_ptr->tim_hold_life) add_flag(flgs, TR_HOLD_LIFE);
+
 	if (p_ptr->special_attack & ATTACK_ACID)
 		add_flag(flgs, TR_BRAND_ACID);
 	if (p_ptr->special_attack & ATTACK_ELEC)

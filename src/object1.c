@@ -1477,7 +1477,7 @@ return "全耐性(20+d20ターン) : 111 ターン毎";
 #ifdef JP
 return "スリープ(II) : 55 ターン毎";
 #else
-			return "sleep II every 55 turns";
+			return "sleep monsters every 55 turns";
 #endif
 
 		}
@@ -1486,7 +1486,7 @@ return "スリープ(II) : 55 ターン毎";
 #ifdef JP
 return "魔力充填 : 70 ターン毎";
 #else
-			return "recharge item I every 70 turns";
+			return "recharge item every 70 turns";
 #endif
 
 		}

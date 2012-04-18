@@ -1608,6 +1608,18 @@ static hist_type bg[] =
 	{", and you firmly believe that you are a real one.", 95, 158, 0, 50},
 	{", and you are almost indistinguishable from a real one.", 100, 158, 0, 100},
 #endif
+
+	{"You are green ", 50, 159, 160, 2},
+	{"You are greenish-brown ", 100, 159, 160, 3},
+	
+	{"with a round belly", 50, 160, 161, 2},
+	{"with beady, yellow eyes", 99, 160, 161, 1},
+	{"with a gold star floating over your head", 100, 160, 161, 200},
+
+	{". You are sluggish.", 20, 161, 0, 3},
+	{". You are slow.", 40, 161, 0, 2},
+	{". You take your time.", 60, 161, 0, 2},
+	{". You prefer to wait for your prey to come to you.", 100, 161, 0, 3},
 };
 
 static cptr race_jouhou[MAX_RACES] =
@@ -2615,7 +2627,7 @@ static bool get_demigod_parent(void)
 
 	/* Choose */
 	k = -1;
-	cs = 0;
+	cs = p_ptr->psubrace;
 	os = MAX_DEMIGOD_TYPES;
 	while (1)
 	{
@@ -2655,6 +2667,10 @@ static bool get_demigod_parent(void)
 			k = randint0(MAX_DEMIGOD_TYPES);
 			break;
 		}
+		if (c == '8')
+		{
+			if (cs >= 5) cs -= 5;
+		}
 		if (c == '4')
 		{
 			if (cs > 0) cs--;
@@ -2662,6 +2678,10 @@ static bool get_demigod_parent(void)
 		if (c == '6')
 		{
 			if (cs < MAX_DEMIGOD_TYPES) cs++;
+		}
+		if (c == '2')
+		{
+			if ((cs + 5) <= MAX_DEMIGOD_TYPES) cs += 5;
 		}
 		k = (islower(c) ? A2I(c) : -1);
 		if ((k >= 0) && (k < MAX_DEMIGOD_TYPES))
@@ -3380,7 +3400,7 @@ static void get_history(void)
 		}
 		case RACE_TONBERRY:
 		{
-			chart = 4;
+			chart = 159;
 			break;
 		}
 		case RACE_HIGH_ELF:

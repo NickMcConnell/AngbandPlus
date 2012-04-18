@@ -4192,7 +4192,14 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 
 				for (k = 0; k < s_num_4; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_OLYMPIANS, (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE));
+					count += summon_specific(
+						m_idx, 
+						y, 
+						x, 
+						500 /*rlev - Hack: Olympain Summoning should never fail!*/, 
+						SUMMON_OLYMPIANS, 
+						(PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
+					);
 				}
 				if (blind && count)
 				{

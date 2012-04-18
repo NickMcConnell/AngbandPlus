@@ -426,6 +426,16 @@ static void prt_stat(int stat)
 #define BAR_RESIST_CURSES 119
 #define BAR_ARMOR_OF_FURY 120
 #define BAR_SPELL_TURNING 121
+#define BAR_FASTING 122
+#define BAR_SUSTAIN_STR 123
+#define BAR_SUSTAIN_INT 124
+#define BAR_SUSTAIN_WIS 125
+#define BAR_SUSTAIN_DEX 126
+#define BAR_SUSTAIN_CON 127
+#define BAR_SUSTAIN_CHR 128
+#define BAR_HOLD_LIFE 129
+#define BAR_TRANSCENDENCE 130
+
 
 static struct {
 	byte attr;
@@ -629,6 +639,15 @@ static struct {
 	{TERM_YELLOW, "RC", "Curses"},
 	{TERM_RED, "Fy", "Fury"},
 	{TERM_GREEN, "Tn", "Turning"},
+	{TERM_GREEN, "Fs", "Fasting"},
+	{TERM_YELLOW, "(Str", "SustStr"},
+	{TERM_YELLOW, "(Int", "SustInt"},
+	{TERM_YELLOW, "(Wis", "SustWis"},
+	{TERM_YELLOW, "(Dex", "SustDex"},
+	{TERM_YELLOW, "(Con", "SustCon"},
+	{TERM_YELLOW, "(Chr", "SustChr"},
+	{TERM_YELLOW, "(Lf", "HoldLife"},
+	{TERM_WHITE, "Tr", "Transcendence"},
 	{0, NULL, NULL}
 };
 #endif
@@ -923,6 +942,16 @@ static void prt_status(void)
 	if (p_ptr->tim_building_up) ADD_FLG(BAR_BUILD);
 	if (p_ptr->tim_vicious_strike) ADD_FLG(BAR_VICIOUS_STRIKE);
 	if (p_ptr->tim_enlarge_weapon) ADD_FLG(BAR_ENLARGE_WEAPON);
+
+	if (p_ptr->fasting) ADD_FLG(BAR_FASTING);
+	if (p_ptr->tim_sustain_str) ADD_FLG(BAR_SUSTAIN_STR);
+	if (p_ptr->tim_sustain_int) ADD_FLG(BAR_SUSTAIN_INT);
+	if (p_ptr->tim_sustain_wis) ADD_FLG(BAR_SUSTAIN_WIS);
+	if (p_ptr->tim_sustain_dex) ADD_FLG(BAR_SUSTAIN_DEX);
+	if (p_ptr->tim_sustain_con) ADD_FLG(BAR_SUSTAIN_CON);
+	if (p_ptr->tim_sustain_chr) ADD_FLG(BAR_SUSTAIN_CHR);
+	if (p_ptr->tim_hold_life) ADD_FLG(BAR_HOLD_LIFE);
+	if (p_ptr->tim_transcendence) ADD_FLG(BAR_TRANSCENDENCE);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)
@@ -3625,6 +3654,14 @@ void calc_bonuses(void)
 	if (p_ptr->mimic_form) tmp_rp_ptr = &mimic_info[p_ptr->mimic_form];
 	else tmp_rp_ptr = &race_info[p_ptr->prace];
 
+	if (p_ptr->tim_sustain_str) p_ptr->sustain_str = TRUE;
+	if (p_ptr->tim_sustain_int) p_ptr->sustain_int = TRUE;
+	if (p_ptr->tim_sustain_wis) p_ptr->sustain_wis = TRUE;
+	if (p_ptr->tim_sustain_dex) p_ptr->sustain_dex = TRUE;
+	if (p_ptr->tim_sustain_con) p_ptr->sustain_con = TRUE;
+	if (p_ptr->tim_sustain_chr) p_ptr->sustain_chr = TRUE;
+	if (p_ptr->tim_hold_life) p_ptr->hold_life = TRUE;
+
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = tmp_rp_ptr->infra;
 
@@ -4179,15 +4216,20 @@ void calc_bonuses(void)
 		p_ptr->slow_digest = TRUE;
 		p_ptr->regenerate = TRUE;
 		p_ptr->levitation = TRUE;
-		p_ptr->hold_life = TRUE;
+
+		if (p_ptr->special_defense & KATA_MUSOU)
+		{
+			p_ptr->hold_life = TRUE;
+			p_ptr->sustain_str = TRUE;
+			p_ptr->sustain_int = TRUE;
+			p_ptr->sustain_wis = TRUE;
+			p_ptr->sustain_con = TRUE;
+			p_ptr->sustain_dex = TRUE;
+			p_ptr->sustain_chr = TRUE;
+		}
+
 		p_ptr->telepathy = TRUE;
 		p_ptr->lite = TRUE;
-		p_ptr->sustain_str = TRUE;
-		p_ptr->sustain_int = TRUE;
-		p_ptr->sustain_wis = TRUE;
-		p_ptr->sustain_con = TRUE;
-		p_ptr->sustain_dex = TRUE;
-		p_ptr->sustain_chr = TRUE;
 		p_ptr->resist_acid = TRUE;
 		p_ptr->resist_elec = TRUE;
 		p_ptr->resist_fire = TRUE;
@@ -4704,23 +4746,23 @@ void calc_bonuses(void)
 	{
 		if (!(inventory[INVEN_BODY].k_idx))
 		{
-			p_ptr->to_a += (p_ptr->lev * 3) / 2;
-			p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
+			p_ptr->to_a += (p_ptr->lev * 5) / 3;
+			p_ptr->dis_to_a += (p_ptr->lev * 5) / 3;
 		}
 		if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
-		{
-			p_ptr->to_a += ((p_ptr->lev - 13) / 3);
-			p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
-		}
-		if (!(inventory[INVEN_LARM].k_idx) && (p_ptr->lev > 10))
 		{
 			p_ptr->to_a += ((p_ptr->lev - 8) / 3);
 			p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
 		}
+		if (!(inventory[INVEN_LARM].k_idx) && (p_ptr->lev > 10))
+		{
+			p_ptr->to_a += ((p_ptr->lev - 6) / 3);
+			p_ptr->dis_to_a += ((p_ptr->lev - 6) / 3);
+		}
 		if (!(inventory[INVEN_HEAD].k_idx) && (p_ptr->lev > 4))
 		{
-			p_ptr->to_a += (p_ptr->lev - 2) / 3;
-			p_ptr->dis_to_a += (p_ptr->lev -2) / 3;
+			p_ptr->to_a += (p_ptr->lev) / 3;
+			p_ptr->dis_to_a += (p_ptr->lev) / 3;
 		}
 		if (!(inventory[INVEN_HANDS].k_idx))
 		{
@@ -4729,8 +4771,8 @@ void calc_bonuses(void)
 		}
 		if (!(inventory[INVEN_FEET].k_idx))
 		{
-			p_ptr->to_a += (p_ptr->lev / 3);
-			p_ptr->dis_to_a += (p_ptr->lev / 3);
+			p_ptr->to_a += (p_ptr->lev / 2);
+			p_ptr->dis_to_a += (p_ptr->lev / 2);
 		}
 	}
 	if ( (p_ptr->pclass == CLASS_MONK && !heavy_armor())

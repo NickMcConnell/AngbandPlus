@@ -1973,12 +1973,31 @@ msg_format("%sは体力を回復したようだ。", m_name);
 
 			if (touched)
 			{
-				if ( weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS
+				bool do_retaliate = FALSE;
+
+				if (weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS)
+					do_retaliate = TRUE;
+				else if (p_ptr->pclass == CLASS_MONK && (empty_hands(TRUE) & EMPTY_HAND_RARM))
+				{
+					if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !mon_save_p(m_ptr->r_idx, A_DEX))
+						do_retaliate = TRUE;
+				}
+				else if (p_ptr->pclass == CLASS_FORCETRAINER && (empty_hands(TRUE) & EMPTY_HAND_RARM))
+				{
+					if (m_ptr->ml && !p_ptr->confused && !p_ptr->stun && !p_ptr->blind && !mon_save_p(m_ptr->r_idx, A_DEX) && one_in_(2))
+						do_retaliate = TRUE;
+				}
+
+				if ( do_retaliate
 				  && alive
 				  && !retaliation_hack /* Otherwise, we get a retaliatory cycle!!! */
 				  && !p_ptr->is_dead )
 				{
-					msg_format("You trade blows with %^s.", m_name);
+					if (weaponmaster_get_toggle() == TOGGLE_TRADE_BLOWS)
+						msg_format("You trade blows with %^s.", m_name);
+					else
+						msg_print("You retaliate.");
+
 					py_attack(m_ptr->fy, m_ptr->fx, WEAPONMASTER_RETALIATION);
 				}
 

@@ -444,6 +444,12 @@ bool mut_good_pred(int mut_idx)
 	return TRUE;
 }
 
+bool mut_bad_pred(int mut_idx)
+{
+	if (mut_rating(mut_idx) >= MUT_RATING_AVERAGE) return FALSE;
+	return TRUE;
+}
+
 bool mut_human_pred(int mut_idx)
 {
 	switch (mut_idx)
@@ -564,7 +570,7 @@ bool mut_lose_random(mut_pred pred)
 		}
 	}
 
-	msg_print("You feel strange.");
+	/*msg_print("You feel normal.");*/
 	return FALSE;
 }
 

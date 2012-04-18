@@ -599,6 +599,7 @@ void do_cmd_power(void)
 	spell_info spells[MAX_SPELLS];
 	int ct = 0; 
 	int choice = 0;
+	bool fail = FALSE;
 	race_t *race_ptr = get_race_t();
 	class_t *class_ptr = get_class_t();
 	
@@ -658,6 +659,7 @@ void do_cmd_power(void)
 		/* Check for Failure */
 		if (randint0(100) < spell->fail)
 		{
+			fail = TRUE;
 			sound(SOUND_FAIL); /* Doh! */
 			fail_spell(spell->fn);
 			if (flush_failure) flush();
@@ -674,7 +676,10 @@ void do_cmd_power(void)
 		energy_use = get_spell_energy(spell->fn);
 
 		/* Casting costs spill over into hit points */
-		if (p_ptr->csp < spell->cost)
+		if (fail && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+		{
+		}
+		else if (p_ptr->csp < spell->cost)
 		{
 			int cost = spell->cost - p_ptr->csp;
 			p_ptr->csp = 0;

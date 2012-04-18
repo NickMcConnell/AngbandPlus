@@ -148,6 +148,7 @@ static void do_cmd_wiz_hack_chris1(void)
 	int ct_blows = 0;
 	int ct_telepathy = 0;
 	int ct_aggravate = 0;
+	int ct_darkness = 0;
 	int i;
 	for (i = 0; i < ct; i++)
 	{
@@ -194,6 +195,7 @@ static void do_cmd_wiz_hack_chris1(void)
 
 		if (have_flag(forge.art_flags, TR_DARKNESS))
 		{
+			ct_darkness++;
 		/*	drop_near(&forge, -1, py, px); */
 		}
 		msg_format("%s (Cost: %d)", buf, value);
@@ -201,7 +203,9 @@ static void do_cmd_wiz_hack_chris1(void)
 
 	msg_format("Generated %d artifacts.  %d had immunity.  %d had speed.  %d had extra attacks.", ct, ct_immunity, ct_speed, ct_blows);
 	msg_format("%d had telepathy. %d had aggravation.", ct_telepathy, ct_aggravate);
+	msg_format("%d had darkness.", ct_darkness);
 	msg_format("%d would be immunities created.", ct_would_be_immunities);
+
 }
 
 static void do_cmd_wiz_hack_chris2(void)
