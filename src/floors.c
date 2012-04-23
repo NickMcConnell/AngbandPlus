@@ -358,6 +358,12 @@ static void preserve_pet(void)
 		party_mon[num].r_idx = 0;
 	}
 
+	if (rewind_time_hack)
+	{
+		rewind_time_hack = FALSE;
+		return;
+	}
+
 	if (p_ptr->riding)
 	{
 		monster_type *m_ptr = &m_list[p_ptr->riding];

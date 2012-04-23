@@ -4885,7 +4885,7 @@ static bool kind_is_good(int k_idx)
 			case SV_POTION_INC_WIS:
 			case SV_POTION_INC_DEX:
 			case SV_POTION_INC_CON:
-			case SV_POTION_INC_CHR: return one_in_(3);
+			case SV_POTION_INC_CHR: return one_in_(7);
 			}
 			return FALSE;
 		}

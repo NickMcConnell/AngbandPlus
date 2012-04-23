@@ -5706,7 +5706,7 @@ msg_print("中断しました。");
 			if (world_player && (p_ptr->energy_need > - 1000))
 			{
 				/* Redraw map */
-				p_ptr->redraw |= (PR_MAP);
+				p_ptr->redraw |= (PR_MAP | PR_STATUS);
 
 				/* Update monsters */
 				p_ptr->update |= (PU_MONSTERS);

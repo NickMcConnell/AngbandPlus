@@ -420,7 +420,8 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
 	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
 	{
 		fail -= 5;
-		min -= 1;
+		if (min > 0)
+			min -= 1;
 	}
 
 	if (fail < min) fail = min;

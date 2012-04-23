@@ -435,6 +435,7 @@ static void prt_stat(int stat)
 #define BAR_SUSTAIN_CHR 128
 #define BAR_HOLD_LIFE 129
 #define BAR_TRANSCENDENCE 130
+#define BAR_THE_WORLD 131
 
 
 static struct {
@@ -648,6 +649,7 @@ static struct {
 	{TERM_YELLOW, "(Chr", "SustChr"},
 	{TERM_YELLOW, "(Lf", "HoldLife"},
 	{TERM_WHITE, "Tr", "Transcendence"},
+	{TERM_L_BLUE, "ST", "Stop Time"},
 	{0, NULL, NULL}
 };
 #endif
@@ -952,6 +954,8 @@ static void prt_status(void)
 	if (p_ptr->tim_sustain_chr) ADD_FLG(BAR_SUSTAIN_CHR);
 	if (p_ptr->tim_hold_life) ADD_FLG(BAR_HOLD_LIFE);
 	if (p_ptr->tim_transcendence) ADD_FLG(BAR_TRANSCENDENCE);
+
+	if (world_player) ADD_FLG(BAR_THE_WORLD);
 
 	/* Hex spells */
 	if (p_ptr->realm1 == REALM_HEX)

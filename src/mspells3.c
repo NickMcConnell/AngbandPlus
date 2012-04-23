@@ -1334,7 +1334,7 @@ msg_print("Ìµ½ý¤Îµå¤Î¼öÊ¸¤ò¾§¤¨¤¿¡£");
 		p_ptr->energy_need -= 1000 + (100 + randint1(200)+200)*TURNS_PER_TICK/10;
 
 		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
+		p_ptr->redraw |= (PR_MAP | PR_STATUS);
 
 		/* Update monsters */
 		p_ptr->update |= (PU_MONSTERS);

@@ -4395,7 +4395,7 @@ s16b spell_chance(int spell, int use_realm)
 	{
 		if (minfail < 5) minfail = 5;
 	}
-	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA)
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA && minfail > 0)
 		minfail -= 1;
 
 	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */

@@ -485,7 +485,7 @@ void _the_world_spell(int cmd, variant *res)
 							  "時を止める。全MPを消費し、消費したMPに応じて長く時を止めていられる。"));
 		break;
 	case SPELL_INFO:
-		var_set_string(res, format(T("%ld acts.", "行動:%ld回"), (p_ptr->csp + 100-p_ptr->energy_need - 50)/100));
+		var_set_string(res, format(T("%ld acts.", "行動:%ld回"), MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/100, 5)));
 		break;
 	case SPELL_CAST:
 	{
@@ -504,10 +504,12 @@ void _the_world_spell(int cmd, variant *res)
 		   to figure the starting sp, and then bash sp down to 0. We can't use the 
 		   SPELL_COST_EXTRA mechanism here ... */
 		p_ptr->energy_need -= 1000 + (100 + (p_ptr->csp + 150) - 50)*TURNS_PER_TICK/10;
+		p_ptr->energy_need = MAX(-1550, p_ptr->energy_need);
+
 		p_ptr->csp = 0;
 		p_ptr->csp_frac = 0;
 
-		p_ptr->redraw |= (PR_MAP);
+		p_ptr->redraw |= (PR_MAP | PR_STATUS);
 		p_ptr->update |= (PU_MONSTERS);
 		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 		handle_stuff();

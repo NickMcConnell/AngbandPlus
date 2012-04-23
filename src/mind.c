@@ -281,7 +281,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 	{
 		switch (power)
 		{
-		case 14: sprintf(p, " %ld acts.", (p_ptr->csp + 100-p_ptr->energy_need - 50)/80); break;
+		case 14: sprintf(p, " %ld acts.", MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/80, 6)); break;
 		}
 		break;
 	}
@@ -546,7 +546,7 @@ put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind
 						/* Extract the minimum failure rate */
 						minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
-						if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+						if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA && minfail > 0) 
 							minfail--;
 
 						/* Minimum failure rate */
@@ -813,6 +813,8 @@ static void change_monster_race(int m_idx, int new_r_idx)
 
 /*	Time-Lords are unique in that their effects will work against unique monsters.
 */
+bool rewind_time_hack = FALSE;
+
 static bool time_lord_monster_save(monster_race* r_ptr, int power)
 {
 	if (r_ptr->flagsr & RFR_RES_ALL)
@@ -1125,6 +1127,7 @@ static bool cast_time_lord_spell(int spell)
 		break;
 
 	case 11: /* "Rewind Time" */
+	{
 		if (p_ptr->inside_arena || ironman_downward || !dun_level)
 		{
 			msg_print("Nothing happens.");
@@ -1132,6 +1135,7 @@ static bool cast_time_lord_spell(int spell)
 		}
 
 		if (!get_check("You will irreversibly alter the time line. Are you sure?")) return FALSE;
+		rewind_time_hack = TRUE; /* see preserve_pet() in floors.c */
 		recall_player(1);
 		process_world_aux_movement(); /* Hack! Recall Now, Now, Now!!! */
 
@@ -1164,7 +1168,7 @@ static bool cast_time_lord_spell(int spell)
 			check_experience();
 		}
 		break;
-
+	}
 	case 12: /* "Remembrance" */
 		do_res_stat(A_STR);
 		do_res_stat(A_INT);
@@ -1191,9 +1195,10 @@ static bool cast_time_lord_spell(int spell)
 
 		/* Hack */
 		p_ptr->energy_need -= 1000 + (100 + p_ptr->csp - 50)*TURNS_PER_TICK/8;
+		p_ptr->energy_need = MAX(-1650, p_ptr->energy_need);
 
 		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
+		p_ptr->redraw |= (PR_MAP | PR_STATUS);
 
 		/* Update monsters */
 		p_ptr->update |= (PU_MONSTERS);
@@ -2091,7 +2096,7 @@ if (!get_check("それでも挑戦しますか? ")) return;
 		/* Extract the minimum failure rate */
 		minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
-		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA) 
+		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_ATHENA && minfail > 0) 
 			minfail--;
 
 		/* Minimum failure rate */

@@ -4854,15 +4854,11 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 			{
 				case 1:
 				{
-					if (!mut_present(MUT_EVASION))
-					{
-	#ifdef JP
-						msg_print("降り注ぐ岩をうまく避けた！");
-	#else
-						msg_print("You nimbly dodge the blast!");
-	#endif
-						damage = 0;
-					}
+#ifdef JP
+					msg_print("降り注ぐ岩をうまく避けた！");
+#else
+					msg_print("You nimbly dodge the blast!");
+#endif
 					break;
 				}
 				case 2:

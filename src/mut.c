@@ -459,7 +459,7 @@ bool mut_human_pred(int mut_idx)
 	case MUT_SUBTLE_CASTING:
 	case MUT_PEERLESS_SNIPER:
 	case MUT_UNYIELDING:
-	/*case MUT_AMBIDEXTROUS:*/
+	case MUT_AMBIDEXTROUS:
 	case MUT_UNTOUCHABLE:
 	case MUT_LOREMASTER:
 	case MUT_ARCANE_MASTERY:

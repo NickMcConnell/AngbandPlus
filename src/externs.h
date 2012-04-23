@@ -210,7 +210,7 @@ extern bool multi_rew;
 extern char summon_kin_type;
 extern bool hack_mind;
 extern int quest_mega_hack;
-
+extern bool rewind_time_hack;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"

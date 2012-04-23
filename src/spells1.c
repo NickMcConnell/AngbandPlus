@@ -7249,11 +7249,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	/* Yes, it is as ugly as this ... sigh */
 	if (mut_present(MUT_EVASION) && hack_m_spell >= 96+8 && hack_m_spell <= 96+31)
 	{
-		if (randint0(100) < 70)
-		{
-			msg_print("You evade the attack!");
-			dam -= dam/3;
-		}
+		msg_print("You evade the attack!");
+		dam -= dam/3;
 	}
 
 	if ( p_ptr->pclass == CLASS_DUELIST
