@@ -3275,7 +3275,7 @@ D:太古の高僧の怨念がこもっている。
 
 # 綱鎧『化粧回し』
 N:204:『化粧回し』
-E:'Sumo wrestler's loincloth'
+E:'Sumo Wrestler's Loincloth'
 I:36:9:4
 W:20:10:60:50000
 P:4:0d0:0:0:0

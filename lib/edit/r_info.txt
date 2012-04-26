@@ -19856,7 +19856,7 @@ D:逆にその甘言に誑かされ、至福の地アマンへ兵を向け、
 D:それが結局はヌメノールを滅亡に導くことになる。
 
 N:979:大江山の鬼の王『酒呑童子』
-E:Shuten-douji, the King Ogre of Ooe-Mountain
+E:Shuten-douji, King Ogre of Ooe-Mountain
 G:O:o
 I:125:30d100:20:120:20
 W:47:3:999:15000:0:0
