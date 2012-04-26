@@ -241,8 +241,8 @@ static void _detect_magic_spell(int cmd, variant *res)
 		var_set_string(res, T("Detects nearby magic users and items.", ""));
 		break;
 	case SPELL_CAST:
-		detect_monsters_magical(25);
-		_detect_objects_ego(25);
+		detect_monsters_magical(DETECT_RAD_DEFAULT);
+		_detect_objects_ego(DETECT_RAD_DEFAULT);
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -262,7 +262,7 @@ static void _detect_magical_foes_spell(int cmd, variant *res)
 		var_set_string(res, T("Detects nearby magic users.", ""));
 		break;
 	case SPELL_CAST:
-		detect_monsters_magical(25);
+		detect_monsters_magical(DETECT_RAD_DEFAULT);
 		if (p_ptr->shero)
 			set_tim_esp_magical(20 + randint1(20), FALSE);
 		var_set_bool(res, TRUE);
@@ -903,7 +903,7 @@ static book_t _books[4] = {
 	{ "Northern Frights",
 		{{15,  8, 45, _crude_mapping_spell},
 	     {18, 18, 50, _resist_disenchantment_spell},
-	     {20, 30, 55, _awesome_blow_spell},
+	     {20, 50, 75, _awesome_blow_spell},
 	     {22, 15, 60, _spell_reaction_spell},
 	     {23, 21, 60, _greater_shout_spell},
 	     {25, 18, 60, _whirlwind_attack_spell},

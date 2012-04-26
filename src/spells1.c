@@ -7162,6 +7162,11 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	if (!who) return (FALSE);
 	if (who == p_ptr->riding) return (FALSE);
 
+	if (p_ptr->tim_spell_reaction && !p_ptr->fast)
+	{
+		set_fast(4, FALSE);
+	}
+
 	if ((p_ptr->reflect || ((p_ptr->special_defense & KATA_FUUJIN) && !p_ptr->blind)) && (flg & PROJECT_REFLECTABLE) && !one_in_(10))
 	{
 		byte t_y, t_x;
@@ -8589,12 +8594,6 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	if (p_ptr->riding && dam > 0)
 	{
 		rakubadam_p = (dam > 200) ? 200 : dam;
-	}
-
-	if (get_damage && p_ptr->tim_spell_reaction && !p_ptr->fast)
-	{
-		msg_print("You react to the attack!");
-		set_fast(2, FALSE);
 	}
 	
 	if (who > 0 && get_damage && p_ptr->tim_armor_of_fury)

@@ -3113,6 +3113,24 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
 	if (force)
 		mult = mult * 3 / 2 + 200;
 
+	switch (o_ptr->name1)
+	{
+	case ART_VORPAL_BLADE:
+	case ART_CHAINSWORD:
+	case ART_MURAMASA:
+		mult = mult * 5 / 3;
+		break;
+	default:
+	{
+		u32b flgs[TR_FLAG_SIZE];
+		object_flags(o_ptr, flgs);
+		if (have_flag(flgs, TR_VORPAL))
+			mult = mult * 11 / 9;
+	}
+	}
+		
+
+
 	/* Calculate the min and max damage figures */
 #ifdef JP
 sprintf(tmp_str, "１ターン: %d-%d ダメージ",
@@ -3233,6 +3251,7 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 	/* Effective dices */
 	int eff_dd = o_ptr->dd + p_ptr->weapon_info[0].to_dd;
 	int eff_ds = o_ptr->ds + p_ptr->weapon_info[0].to_ds;
+	int mult = 100;
 
 	/* Print the weapon name */
 	object_desc(o_name, o_ptr, OD_NAME_ONLY);
@@ -3271,6 +3290,22 @@ c_put_str(TERM_YELLOW, "可能なダメージ:", row+5, col);
 	c_put_str(TERM_YELLOW, "Possible Damage:", row+5, col);
 #endif
 
+	switch (o_ptr->name1)
+	{
+	case ART_VORPAL_BLADE:
+	case ART_CHAINSWORD:
+	case ART_MURAMASA:
+		mult = mult * 5 / 3;
+		break;
+	default:
+	{
+		u32b flgs[TR_FLAG_SIZE];
+		object_flags(o_ptr, flgs);
+		if (have_flag(flgs, TR_VORPAL))
+			mult = mult * 11 / 9;
+	}
+	}
+
 
 	/* Damage for one blow (if it hits) */
 #ifdef JP
@@ -3279,8 +3314,8 @@ sprintf(tmp_str, "攻撃一回につき %d-%d",
 	sprintf(tmp_str, "One Strike: %d-%d damage",
 #endif
 
-	    eff_dd + o_ptr->to_d + p_ptr->weapon_info[0].to_d,
-	    eff_ds * eff_dd + o_ptr->to_d + p_ptr->weapon_info[0].to_d);
+	    mult*eff_dd/100 + o_ptr->to_d + p_ptr->weapon_info[0].to_d,
+	    mult*eff_ds*eff_dd/100 + o_ptr->to_d + p_ptr->weapon_info[0].to_d);
 	put_str(tmp_str, row+6, col+1);
 
 	/* Damage for the complete attack (if all blows hit) */
@@ -3290,8 +3325,8 @@ sprintf(tmp_str, "１ターンにつき %d-%d",
 	sprintf(tmp_str, "One Attack: %d-%d damage",
 #endif
 
-	    p_ptr->weapon_info[0].num_blow * (eff_dd + o_ptr->to_d + p_ptr->weapon_info[0].to_d),
-	    p_ptr->weapon_info[0].num_blow * (eff_ds * eff_dd + o_ptr->to_d + p_ptr->weapon_info[0].to_d));
+	    p_ptr->weapon_info[0].num_blow * (mult*eff_dd/100 + o_ptr->to_d + p_ptr->weapon_info[0].to_d),
+	    p_ptr->weapon_info[0].num_blow * (mult*eff_ds*eff_dd/100 + o_ptr->to_d + p_ptr->weapon_info[0].to_d));
 	put_str(tmp_str, row+7, col+1);
 }
 

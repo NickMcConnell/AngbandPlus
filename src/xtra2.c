@@ -2992,7 +2992,6 @@ static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
 	return (da <= db);
 }
 
-
 /*
  * Sorting hook -- comp function -- by importance level of grids
  *

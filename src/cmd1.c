@@ -3763,13 +3763,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (dir != 5)
 					{
 						int ct = 0;
-						int max = 3;
+						int max = 6;
 						int m_idx = c_ptr->m_idx;
 						int ty = y, tx = x;
 						int oy = y, ox = x;
 						
 						if (p_ptr->shero)
-							max = 6;
+							max = 9;
 						
 						for (ct = 0; ct < max; ct++) 
 						{
