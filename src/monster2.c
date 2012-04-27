@@ -2008,7 +2008,6 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 
 			(void)strcat(desc, name);
 		}
-
 		/* It could be a normal, definite, monster */
 		else
 		{

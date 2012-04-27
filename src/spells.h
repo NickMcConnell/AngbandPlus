@@ -125,6 +125,7 @@ extern void detect_objects_spell(int cmd, variant *res);
 extern void detect_monsters_spell(int cmd, variant *res);
 extern void detect_traps_spell(int cmd, variant *res);
 extern void detect_treasure_spell(int cmd, variant *res);
+extern void detection_spell(int cmd, variant *res);
 extern void dimension_door_spell(int cmd, variant *res);
 extern void disintegrate_spell(int cmd, variant *res);
 extern void dispel_magic_spell(int cmd, variant *res);

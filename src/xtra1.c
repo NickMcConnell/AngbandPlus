@@ -436,6 +436,9 @@ static void prt_stat(int stat)
 #define BAR_HOLD_LIFE 129
 #define BAR_TRANSCENDENCE 130
 #define BAR_THE_WORLD 131
+#define BAR_DARK_STALKER 132
+#define BAR_NIMBLE_DODGE 133
+#define BAR_STEALTHY_SNIPE 134
 
 
 static struct {
@@ -650,6 +653,9 @@ static struct {
 	{TERM_YELLOW, "(Lf", "HoldLife"},
 	{TERM_WHITE, "Tr", "Transcendence"},
 	{TERM_L_BLUE, "ST", "Stop Time"},
+	{TERM_L_DARK, "DS", "Stalk"},
+	{TERM_L_BLUE, "ND", "Dodge"},
+	{TERM_UMBER, "SS", "Snipe"},
 	{0, NULL, NULL}
 };
 #endif
@@ -954,6 +960,10 @@ static void prt_status(void)
 	if (p_ptr->tim_sustain_chr) ADD_FLG(BAR_SUSTAIN_CHR);
 	if (p_ptr->tim_hold_life) ADD_FLG(BAR_HOLD_LIFE);
 	if (p_ptr->tim_transcendence) ADD_FLG(BAR_TRANSCENDENCE);
+
+	if (p_ptr->tim_dark_stalker) ADD_FLG(BAR_DARK_STALKER);
+	if (p_ptr->tim_nimble_dodge) ADD_FLG(BAR_NIMBLE_DODGE);
+	if (p_ptr->tim_stealthy_snipe) ADD_FLG(BAR_STEALTHY_SNIPE);
 
 	if (world_player) ADD_FLG(BAR_THE_WORLD);
 
@@ -2812,11 +2822,12 @@ static void calc_mana(void)
 		return;
 	}
 
-	if ((p_ptr->pclass == CLASS_MINDCRAFTER) ||
-	    (p_ptr->pclass == CLASS_PSION) ||
-	    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
-		(p_ptr->pclass == CLASS_RUNE_KNIGHT) ||
-	    (p_ptr->pclass == CLASS_BLUE_MAGE))
+	if (p_ptr->pclass == CLASS_MINDCRAFTER ||
+	    p_ptr->pclass == CLASS_PSION ||
+	    p_ptr->pclass == CLASS_MIRROR_MASTER ||
+		p_ptr->pclass == CLASS_RUNE_KNIGHT ||
+	    p_ptr->pclass == CLASS_BLUE_MAGE ||
+		p_ptr->pclass == CLASS_SCOUT)
 	{
 		levels = p_ptr->lev;
 	}
@@ -2958,6 +2969,7 @@ static void calc_mana(void)
 		case CLASS_PRIEST:
 		case CLASS_BARD:
 		case CLASS_TOURIST:
+		case CLASS_SCOUT:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight*2/3;
 			if (inventory[INVEN_LARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_LARM].weight*2/3;
@@ -3651,6 +3663,9 @@ void calc_bonuses(void)
 	p_ptr->entrenched = FALSE;
 	p_ptr->lightning_reflexes = FALSE;
 	p_ptr->inven_prot = FALSE;
+	p_ptr->ambush = FALSE;
+	p_ptr->peerless_stealth = FALSE;
+	p_ptr->open_terrain_ct = 0;
 
 	p_ptr->align = friend_align;
 
@@ -5533,6 +5548,14 @@ void calc_bonuses(void)
 				p_ptr->num_fire += (p_ptr->lev * 4);
 			}
 
+			if (p_ptr->pclass == CLASS_SCOUT &&
+			    !heavy_armor() &&
+				p_ptr->tval_ammo <= TV_BOLT &&
+				p_ptr->tval_ammo >= TV_SHOT)
+			{
+				p_ptr->num_fire += (p_ptr->lev * 3);
+			}
+
 			/* Snipers love Cross bows */
 			if ((p_ptr->pclass == CLASS_SNIPER) &&
 				(p_ptr->tval_ammo == TV_BOLT))
@@ -5631,6 +5654,9 @@ void calc_bonuses(void)
 
 				case CLASS_ROGUE:
 					num = 5; wgt = 40; mul = 3; break;
+
+				case CLASS_SCOUT:
+					num = 4; wgt = 70; mul = 2; break;
 
 				case CLASS_RANGER:
 					num = 5; wgt = 70; mul = 4; break;
@@ -6173,6 +6199,14 @@ void calc_bonuses(void)
 		p_ptr->skill_stl = MIN(p_ptr->skill_stl - 3, (p_ptr->skill_stl + 2) / 2);
 	}
 
+	/* Peerless Stealth is just like the Shadow Fairy, but can even negate the
+	   aggravation of Sexy characters! */
+	if (p_ptr->peerless_stealth && p_ptr->cursed & TRC_AGGRAVATE)
+	{
+		p_ptr->cursed &= ~(TRC_AGGRAVATE);
+		p_ptr->skill_stl = MIN(p_ptr->skill_stl - 3, (p_ptr->skill_stl + 2) / 2);
+	}
+
 	/* Limit Skill -- stealth from 0 to 30 */
 	if (p_ptr->skill_stl > 30) p_ptr->skill_stl = 30;
 	if (p_ptr->skill_stl < 0) p_ptr->skill_stl = 0;
@@ -6416,7 +6450,10 @@ void calc_bonuses(void)
 		p_ptr->old_riding_ryoute = p_ptr->riding_ryoute;
 	}
 
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_NINJA)) && (monk_armour_aux != monk_notify_aux))
+	if ((p_ptr->pclass == CLASS_MONK 
+	  || p_ptr->pclass == CLASS_FORCETRAINER
+	  || p_ptr->pclass == CLASS_NINJA
+	  || p_ptr->pclass == CLASS_SCOUT) && (monk_armour_aux != monk_notify_aux))
 	{
 		if (heavy_armor())
 		{
@@ -6983,7 +7020,13 @@ bool heavy_armor(void)
 {
 	u16b monk_arm_wgt = 0;
 
-	if ((p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_FORCETRAINER) && (p_ptr->pclass != CLASS_NINJA)) return FALSE;
+	if (p_ptr->pclass != CLASS_MONK
+	 && p_ptr->pclass != CLASS_FORCETRAINER
+	 && p_ptr->pclass != CLASS_NINJA
+	 && p_ptr->pclass != CLASS_SCOUT)
+	{
+		return FALSE;
+	}
 
 	/* Weight the armor */
 	if(inventory[INVEN_RARM].tval > TV_SWORD) monk_arm_wgt += inventory[INVEN_RARM].weight;

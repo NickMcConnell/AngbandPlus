@@ -3693,7 +3693,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 		new_cost = new_object_cost(&copy);
 
 		cost = (new_cost - old_cost) * 7;
-		if (cost == 0) cost = 1000;
+		if (cost <= 0) cost = 1000;
 
 		prt(format("  The price for the service will be %d.", cost), 7, 0);
 		if (!get_check("Do you pay?")) return FALSE;

@@ -299,6 +299,7 @@ static void sense_inventory1(void)
 
 		case CLASS_ROGUE:
 		case CLASS_NINJA:
+		case CLASS_SCOUT:
 		{
 			/* Okay sensing */
 			if (0 != randint0(20000L / (plev * plev + 40))) return;
@@ -527,6 +528,7 @@ static void sense_inventory2(void)
 		case CLASS_PRIEST:
 		case CLASS_BARD:
 		case CLASS_ROGUE:
+		case CLASS_SCOUT:
 		case CLASS_FORCETRAINER:
 		case CLASS_MINDCRAFTER:
 		case CLASS_PSION:
@@ -2342,6 +2344,15 @@ static void process_world_aux_timeout(void)
 
 	if (p_ptr->tim_transcendence)
 		set_tim_transcendence(p_ptr->tim_transcendence - 1, TRUE);
+
+	if (p_ptr->tim_dark_stalker)
+		set_tim_dark_stalker(p_ptr->tim_dark_stalker - 1, TRUE);
+
+	if (p_ptr->tim_nimble_dodge)
+		set_tim_nimble_dodge(p_ptr->tim_nimble_dodge - 1, TRUE);
+
+	if (p_ptr->tim_stealthy_snipe)
+		set_tim_stealthy_snipe(p_ptr->tim_stealthy_snipe - 1, TRUE);
 
 	wild_decrement_counters();
 
@@ -4422,7 +4433,8 @@ msg_print("ウィザードモード突入。");
 					 p_ptr->pclass == CLASS_MINDCRAFTER ||
 					 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 					 p_ptr->pclass == CLASS_WILD_TALENT ||
-					 p_ptr->pclass == CLASS_WEAPONMASTER)
+					 p_ptr->pclass == CLASS_WEAPONMASTER ||
+					 p_ptr->pclass == CLASS_SCOUT)
 			{
 				/* This is the preferred entry point ... I'm still working on
 				   coverting everything else */
@@ -4562,7 +4574,8 @@ msg_print("ウィザードモード突入。");
 							 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 							 p_ptr->pclass == CLASS_WILD_TALENT ||
 							 p_ptr->pclass == CLASS_WEAPONMASTER ||
-							 p_ptr->pclass == CLASS_RAGE_MAGE)
+							 p_ptr->pclass == CLASS_RAGE_MAGE ||
+							 p_ptr->pclass == CLASS_SCOUT)
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */

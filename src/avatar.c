@@ -226,6 +226,7 @@ void get_virtues(void)
 		break;
 	case CLASS_ROGUE:
 	case CLASS_SNIPER:
+	case CLASS_SCOUT:
 		p_ptr->vir_types[i++] = V_HONOUR;
 		break;
 	case CLASS_RANGER:

@@ -883,6 +883,7 @@ static bool anti_magic_check(void)
 		return one_in_(10);
 
 	case CLASS_ROGUE:
+	case CLASS_SCOUT:
 	case CLASS_RANGER:
 	case CLASS_PALADIN:
 	case CLASS_WARRIOR_MAGE:

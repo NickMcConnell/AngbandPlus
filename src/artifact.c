@@ -1895,6 +1895,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				break;
 			case CLASS_ROGUE:
 			case CLASS_NINJA:
+			case CLASS_SCOUT:
 				artifact_bias = BIAS_ROGUE;
 				warrior_artifact_bias = 85;
 				break;

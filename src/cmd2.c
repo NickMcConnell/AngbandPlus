@@ -1132,6 +1132,9 @@ static bool do_cmd_open_aux(int y, int x)
 			/* Open the door */
 			cave_alter_feat(y, x, FF_OPEN);
 
+			if (p_ptr->pclass == CLASS_SCOUT)
+				p_ptr->update |= PU_BONUS;
+
 			/* Sound */
 			sound(SOUND_OPENDOOR);
 
@@ -1163,6 +1166,9 @@ static bool do_cmd_open_aux(int y, int x)
 	{
 		/* Open the door */
 		cave_alter_feat(y, x, FF_OPEN);
+
+		if (p_ptr->pclass == CLASS_SCOUT)
+			p_ptr->update |= PU_BONUS;
 
 		/* Sound */
 		sound(SOUND_OPENDOOR);
@@ -1353,6 +1359,10 @@ static bool do_cmd_close_aux(int y, int x)
 			}
 			else
 			{
+
+				if (p_ptr->pclass == CLASS_SCOUT)
+					p_ptr->update |= PU_BONUS;
+
 				/* Sound */
 				sound(SOUND_SHUTDOOR);
 			}
@@ -3973,6 +3983,9 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 							if (!(m_ptr->smart & SM_TICKED_OFF))
 							{
 								if (mut_present(MUT_PEERLESS_SNIPER) && !one_in_(5))
+								{
+								}
+								else if (p_ptr->tim_stealthy_snipe)
 								{
 								}
 								else

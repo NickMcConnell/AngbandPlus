@@ -7252,11 +7252,28 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 	}
 
 	/* Yes, it is as ugly as this ... sigh */
-	if (mut_present(MUT_EVASION) && hack_m_spell >= 96+8 && hack_m_spell <= 96+31)
+	if (hack_m_spell >= 96+8 && hack_m_spell <= 96+31)
 	{
-		msg_print("You evade the attack!");
-		dam -= dam/3;
+		bool evaded = FALSE; /* Demigod Scout with Evasion talent *and* Nimble Dodge cast? */
+
+		if (p_ptr->tim_nimble_dodge)
+		{
+			int odds = 7 * p_ptr->open_terrain_ct;
+			if (randint0(100) < odds)
+			{
+				msg_print("You nimbly dodge the attack!");
+				dam = 0;
+				evaded = TRUE;
+			}
+		}
+
+		if (!evaded && mut_present(MUT_EVASION))
+		{
+			msg_print("You evade the attack!");
+			dam -= dam/3;
+		}		
 	}
+
 
 	if ( p_ptr->pclass == CLASS_DUELIST
 	  && p_ptr->duelist_target_idx == who )

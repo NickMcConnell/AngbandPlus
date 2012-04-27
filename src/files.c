@@ -2364,6 +2364,11 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_REGEN);
 		break;
 
+	case CLASS_SCOUT:
+		if (p_ptr->lev >= 35)
+			add_flag(flgs, TR_TELEPATHY);
+		break;
+
 	case CLASS_PSION:
 		if (psion_blending()) add_flag(flgs, TR_STEALTH);
 		if (psion_shielding()) add_flag(flgs, TR_FREE_ACT);
@@ -3008,6 +3013,7 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 	if (p_ptr->tim_sustain_con) add_flag(flgs, TR_SUST_CON);
 	if (p_ptr->tim_sustain_chr) add_flag(flgs, TR_SUST_CHR);
 	if (p_ptr->tim_hold_life) add_flag(flgs, TR_HOLD_LIFE);
+	if (p_ptr->tim_dark_stalker) add_flag(flgs, TR_STEALTH);
 
 	if (p_ptr->special_attack & ATTACK_ACID)
 		add_flag(flgs, TR_BRAND_ACID);

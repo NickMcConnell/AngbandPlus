@@ -42,6 +42,9 @@ class_t *result = NULL;
 	case CLASS_RUNE_KNIGHT:
 		result = rune_knight_get_class_t();
 		break;
+	case CLASS_SCOUT:
+		result = scout_get_class_t();
+		break;
 	case CLASS_WARLOCK:
 		result = warlock_get_class_t(psubclass);
 		break;

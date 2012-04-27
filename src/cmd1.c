@@ -2829,6 +2829,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		}
 		break;
 
+	case CLASS_SCOUT:
+		if (p_ptr->ambush && buki_motteruka(INVEN_RARM + hand) && !p_ptr->weapon_info[hand].icky_wield)
+		{
+			if (MON_CSLEEP(m_ptr) && m_ptr->ml)
+				backstab = TRUE;
+		}
+		break;
+
 	case CLASS_MONK:
 	case CLASS_FORCETRAINER:
 	case CLASS_BERSERKER:
@@ -2973,9 +2981,9 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			else if (stab_fleeing) msg_format("逃げる%sを背中から突き刺した！", m_name);
 			else if (!monk_attack) msg_format("%sを攻撃した。", m_name);
 #else
-			if (backstab) msg_format("You cruelly stab the helpless, sleeping %s!", m_name);
+			if (backstab) msg_format("You cruelly stab %s!", m_name);
 			else if (fuiuchi) msg_format("You make surprise attack, and hit %s with a powerful blow!", m_name);
-			else if (stab_fleeing) msg_format("You backstab the fleeing %s!",  m_name);
+			else if (stab_fleeing) msg_format("You backstab %s!",  m_name);
 			else if (duelist_attack) msg_format("You land a perfect strike against %s.", m_name);
 			else if (!monk_attack) msg_format("You hit %s.", m_name);
 #endif
@@ -3213,7 +3221,10 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				if (backstab)
 				{
-					k *= (3 + (p_ptr->lev / 20));
+					if (p_ptr->pclass == CLASS_SCOUT)
+						k *= 3;
+					else
+						k *= (3 + (p_ptr->lev / 20));
 				}
 				else if (fuiuchi)
 				{
@@ -3763,13 +3774,13 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					if (dir != 5)
 					{
 						int ct = 0;
-						int max = 6;
+						int max = 3;
 						int m_idx = c_ptr->m_idx;
 						int ty = y, tx = x;
 						int oy = y, ox = x;
 						
 						if (p_ptr->shero)
-							max = 9;
+							max = 6;
 						
 						for (ct = 0; ct < max; ct++) 
 						{
@@ -3777,8 +3788,17 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 							x += ddx[dir];
 							if (!cave_empty_bold(y, x))
 							{
+								int dam = 50;
+
+								if ( cave[y][x].m_idx 
+								  || cave_have_flag_bold(y, x, FF_TREE)
+								  || cave[y][x].feat == feat_rubble
+								  || cave[y][x].feat == feat_dark_pit )
+								{
+									dam = 25;
+								}
 								msg_format("%^s is wounded.", m_name);							
-								mon_take_hit(m_idx, 50 * (max - ct), fear, NULL);
+								mon_take_hit(m_idx, dam * (max - ct), fear, NULL);
 								break;
 							}
 							else
@@ -5102,8 +5122,11 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 		/* Update stuff */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE | PU_DISTANCE);
 
-		if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
-			p_ptr->update |= PU_BONUS;
+		{
+			class_t *class_ptr = get_class_t();
+			if (class_ptr && class_ptr->move_player)
+				class_ptr->move_player();
+		}
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
@@ -5812,11 +5835,6 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 
 		/* Move the player */
 		(void)move_player_effect(y, x, mpe_mode);
-		{
-			class_t *class_ptr = get_class_t();
-			if (class_ptr && class_ptr->move_player)
-				class_ptr->move_player();
-		}
 	}
 }
 

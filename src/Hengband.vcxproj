@@ -152,6 +152,7 @@
     <ClCompile Include="samurai.c" />
     <ClCompile Include="save.c" />
     <ClCompile Include="scores.c" />
+    <ClCompile Include="scout.c" />
     <ClCompile Include="skills.c" />
     <ClCompile Include="smith.c" />
     <ClCompile Include="snipe.c" />
@@ -275,6 +276,10 @@
     <None Include="..\lib\edit\v_info.txt" />
     <None Include="..\lib\edit\w_info.txt" />
     <None Include="..\lib\file\news.txt" />
+    <None Include="..\lib\pref\xtra-new.prf" />
+    <None Include="..\lib\pref\xtra-xxx.prf" />
+    <None Include="Makefile.am" />
+    <None Include="makefile.std" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

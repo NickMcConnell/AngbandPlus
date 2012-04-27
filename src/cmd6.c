@@ -2092,7 +2092,8 @@ msg_print("ダンジョンが揺れた...");
 				(p_ptr->pclass == CLASS_DUELIST) || 
 				(p_ptr->pclass == CLASS_RUNE_KNIGHT) ||
 				(p_ptr->pclass == CLASS_WILD_TALENT) ||
-				(p_ptr->pclass == CLASS_NINJA))
+				(p_ptr->pclass == CLASS_NINJA) ||
+				p_ptr->pclass == CLASS_SCOUT)
 			{
 				break;
 			}

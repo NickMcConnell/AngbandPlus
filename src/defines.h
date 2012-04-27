@@ -27,7 +27,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 92
+#define FAKE_VER_PATCH 93
 
 
 /*
@@ -45,8 +45,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 92
-#define H_VER_EXTRA 0
+#define H_VER_PATCH 93
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -823,8 +823,9 @@
 #define CLASS_NECROMANCER		37
 #define CLASS_PSION		        38
 #define CLASS_RAGE_MAGE	        39
+#define CLASS_SCOUT             40
 
-#define MAX_CLASS               40
+#define MAX_CLASS               41
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -2835,7 +2836,6 @@
 #define MD_ASSUME_VISIBLE 0x00000080 /* Assume the monster is visible */
 #define MD_TRUE_NAME      0x00000100 /* Chameleon's true name */
 #define MD_IGNORE_HALLU   0x00000200 /* Ignore hallucination, and penetrate shape change */
-
 
 /*
  * Bit flags for object_desc()

@@ -1861,6 +1861,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Rage-Mage ...)",
 
+"TRANSLATE(Scout ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1976,6 +1978,12 @@ static cptr class_jouhou[MAX_CLASS] =
 "The Rage Mage is part of a secret sect descending from the Barbarians "
 	"in response to their natural foes, the mages. As time passed, other "
 	"races have also begun to learn their arts.",
+
+"The scout is the vanguard of any attack, and excels at stealth and observation skills. "
+	"The scout is not the best at one-on-one combat, but is unparalleled at ambush "
+	"techniques to destroy groups of weak sentries. The scout is lightly armored, "
+	"and heavy armors disrupt their abilities. Furthermore, the scout can only effectively "
+	"dodge in open areas, being confined severely hampers the scout's defensive abilities.",
 	
 #endif
 };
@@ -2831,21 +2839,13 @@ static bool get_base_spell_power(void)
 						break;
 					}
 				}
-				if (c == '8')
-				{
-					if (cs >= 5) cs -= 5;
-				}
-				if (c == '4')
+				if (c == '4' || c == '8')
 				{
 					if (cs > 0) cs--;
 				}
-				if (c == '6')
+				if (c == '6' || c == '2')
 				{
 					if (cs < ct_choices) cs++;
-				}
-				if (c == '2')
-				{
-					if ((cs + 5) <= ct_choices) cs += 5;
 				}
 				k = (islower(c) ? A2I(c) : -1);
 				if ((k >= 0) && (k < ct_choices))
@@ -4532,6 +4532,13 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SWORD, SV_BROAD_SWORD },
 	},
+
+	{
+		/* Scout */
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+	},
 };
 
 
@@ -4965,9 +4972,9 @@ static bool get_player_class(void)
 	/* Extra info */
 	clear_from(10);
 #ifdef JP
-	put_str("注意：《職業》によってキャラクターの先天的な能力やボーナスが変化します。", 23, 5);
+	put_str("注意：《職業》によってキャラクターの先天的な能力やボーナスが変化します。", 25, 5);
 #else
-	put_str("Note: Your 'class' determines various intrinsic abilities and bonuses.", 23, 5);
+	put_str("Note: Your 'class' determines various intrinsic abilities and bonuses.", 25, 5);
 #endif
 
 	/* Dump classes */

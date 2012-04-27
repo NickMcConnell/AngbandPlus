@@ -1423,6 +1423,19 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_spell_turning);
 	}
 
+	if (h_older_than(0, 0, 93, 1))
+	{
+		p_ptr->tim_dark_stalker = 0;
+		p_ptr->tim_nimble_dodge = 0;
+		p_ptr->tim_stealthy_snipe = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_dark_stalker);
+		rd_s16b(&p_ptr->tim_nimble_dodge);
+		rd_s16b(&p_ptr->tim_stealthy_snipe);
+	}
+
 	if (h_older_than(0, 0, 54, 1))
 	{
 		wild_reset_counters();

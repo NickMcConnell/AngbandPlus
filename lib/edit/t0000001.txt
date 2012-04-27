@@ -538,12 +538,12 @@ F:@:FLOOR:3:0:0:0:24
 ##########################################################################
 # Rogue
 # Aglarang
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Rogue] [EQU [MOD $RANDOM27 5] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Rogue Scout] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:81
 
 # Buckland
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Rogue] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Rogue Scout] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:134
 
@@ -733,15 +733,15 @@ F:@:FLOOR:3:0:0:0:50
 
 ##########################################################################
 # Rage-Mage
-# Balli Stonehand
+# Falis
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Rage-Mage] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:103
+F:@:FLOOR:3:0:0:0:155
 
-# Falis
+# Balli Stonehand
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Rage-Mage] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
-F:@:FLOOR:3:0:0:0:155
+F:@:FLOOR:3:0:0:0:103
 
 # End of Class specific random Old Castle rewards ... phew!
 ##########################################################################

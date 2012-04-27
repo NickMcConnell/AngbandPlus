@@ -776,6 +776,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_resist_curses);
 	wr_s16b(p_ptr->tim_armor_of_fury);
 	wr_s16b(p_ptr->tim_spell_turning);
+
+	wr_s16b(p_ptr->tim_dark_stalker);
+	wr_s16b(p_ptr->tim_nimble_dodge);
+	wr_s16b(p_ptr->tim_stealthy_snipe);
 	
 	{
 		int i;

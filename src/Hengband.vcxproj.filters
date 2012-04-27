@@ -37,6 +37,12 @@
     <Filter Include="Edit\Stuff">
       <UniqueIdentifier>{efe867ac-761f-4d45-b6f5-7c8e4e99039a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Edit\Other Makefiles">
+      <UniqueIdentifier>{2955d3f9-db5f-4c1e-b59c-7a10a6e44cf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Edit\Preferences">
+      <UniqueIdentifier>{0601320d-1c06-4eb3-90fb-df8c0ccff565}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="artifact.c">
@@ -351,6 +357,9 @@
     <ClCompile Include="rage-mage.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="scout.c">
+      <Filter>Classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
@@ -611,6 +620,18 @@
     </None>
     <None Include="..\lib\file\news.txt">
       <Filter>Edit</Filter>
+    </None>
+    <None Include="Makefile.am">
+      <Filter>Edit\Other Makefiles</Filter>
+    </None>
+    <None Include="makefile.std">
+      <Filter>Edit\Other Makefiles</Filter>
+    </None>
+    <None Include="..\lib\pref\xtra-new.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\xtra-xxx.prf">
+      <Filter>Edit\Preferences</Filter>
     </None>
   </ItemGroup>
 </Project>

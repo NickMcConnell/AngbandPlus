@@ -370,6 +370,10 @@ void dispel_player(void)
 	set_tim_hold_life(0, TRUE);
 	set_tim_transcendence(0, TRUE);
 
+	set_tim_dark_stalker(0, TRUE);
+	set_tim_nimble_dodge(0, TRUE);
+	set_tim_stealthy_snipe(0, TRUE);
+
 	set_tim_spurt(0, TRUE);
 	set_tim_speed_essentia(0, TRUE);
 	/* Coming soon ... 
@@ -7986,4 +7990,136 @@ bool set_tim_transcendence(int v, bool do_dec)
 	p_ptr->update |= PU_BONUS;
 	handle_stuff();
 	return TRUE;
+}
+
+bool set_tim_dark_stalker(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_dark_stalker)
+		{
+			if (p_ptr->tim_dark_stalker > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You begin to stalk your prey.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_dark_stalker)
+		{
+			msg_print("You no longer stalk your prey.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_dark_stalker = v;
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+	return (TRUE);
+}
+
+bool set_tim_nimble_dodge(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_nimble_dodge)
+		{
+			if (p_ptr->tim_nimble_dodge > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You begin to dodge enemy breaths.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_nimble_dodge)
+		{
+			msg_print("You no longer dodge enemy breaths.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_nimble_dodge = v;
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+	return (TRUE);
+}
+
+bool set_tim_stealthy_snipe(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_stealthy_snipe)
+		{
+			if (p_ptr->tim_stealthy_snipe > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You are a stealthy sniper.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_stealthy_snipe)
+		{
+			msg_print("You are no longer a stealthy sniper.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_stealthy_snipe = v;
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+	return (TRUE);
 }

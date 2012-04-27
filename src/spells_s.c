@@ -459,7 +459,7 @@ void stone_to_mud_spell(int cmd, variant *res)
 		var_set_string(res, T("Stone to Mud", "´äÀĞÍÏ²ò"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "");
+		var_set_string(res, T("Turns one rock square to mud.", "ÊÉ¤òÍÏ¤«¤·¤Æ¾²¤Ë¤¹¤ë¡£"));
 		break;
 	case SPELL_CAST:
 	{

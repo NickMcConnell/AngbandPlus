@@ -1167,6 +1167,10 @@ struct player_type
 	s16b tim_spell_turning;
 	bool spell_turned;
 
+	s16b tim_dark_stalker;
+	s16b tim_nimble_dodge;
+	s16b tim_stealthy_snipe;
+
 	counter_t wild_counters[MAX_WILD_COUNTERS];	/* Wild Weapons */
 
 	bool sense_artifact;
@@ -1195,6 +1199,10 @@ struct player_type
 	s16b elaborate_defense;
 	s16b cloak_of_shadows;
 	bool lightning_reflexes;
+	
+	bool ambush;
+	bool peerless_stealth;
+	s16b open_terrain_ct;
 
 	s16b entrench_x;
 	s16b entrench_y;

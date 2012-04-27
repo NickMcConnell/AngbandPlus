@@ -3913,6 +3913,18 @@ player_class class_info[MAX_CLASS] =
 		7,  10, 15,  0,  0,  0, 15, 15,
 		3, 150, 40
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Scout",
+
+		{ 1, -1, 2, 3, 0, 0},
+		30, 33, 34, 6, 50, 24, 50, 50,
+		15, 11, 10, 0,  0,  0, 20, 20,
+		4, 130, 40
+	},
 };
 /*
  *      Title,
@@ -4493,6 +4505,7 @@ s32b realm_choices1[MAX_CLASS] =
 	CH_NECROMANCY,			/* Necromancer */
 	CH_NONE,				/* Psion */
 	CH_RAGE,                /* Rage-Mage */
+	CH_NONE,				/* Scout */
 };
 
 
@@ -4551,6 +4564,7 @@ s32b realm_choices2[MAX_CLASS] =
 	CH_NONE,                /* Necromancer */
 	CH_NONE,				/* Psion */
 	CH_NONE,                /* Rage-Mage */	
+	CH_NONE,				/* Scout */
 };
 
 
@@ -5646,6 +5660,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Berserk",
 		"Rage",
 		"Rage",
+	},
+	/* Scout */
+	{
+		"Runner",
+		"Sentry",
+		"Lookout",
+		"Courser",
+		"Tracker",
+		"Guide",
+		"Vanguard",
+		"Low Scout",
+		"High Scout",
+		"Scout Lord",
 	},
 };
 #endif

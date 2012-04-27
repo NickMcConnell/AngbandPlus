@@ -8,7 +8,7 @@ void heroism_spell(int cmd, variant *res)
 		var_set_string(res, T("Heroism", ""));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "");
+		var_set_string(res, "Temporarily grants increased combat prowess and great bravery.");
 		break;
 	case SPELL_CAST:
 		set_hero(randint1(25) + 25, FALSE);

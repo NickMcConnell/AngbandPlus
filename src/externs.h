@@ -1508,6 +1508,10 @@ extern bool set_tim_resist_curses(int v, bool do_dec);
 extern bool set_tim_armor_of_fury(int v, bool do_dec);
 extern bool set_tim_spell_turning(int v, bool do_dec);
 
+extern bool set_tim_dark_stalker(int v, bool do_dec);
+extern bool set_tim_nimble_dodge(int v, bool do_dec);
+extern bool set_tim_stealthy_snipe(int v, bool do_dec);
+
 extern bool set_tim_sustain_str(int v, bool do_dec);
 extern bool set_tim_sustain_int(int v, bool do_dec);
 extern bool set_tim_sustain_wis(int v, bool do_dec);
@@ -1991,6 +1995,9 @@ extern class_t *rune_knight_get_class_t(void);
 /* samurai.c */
 extern void samurai_concentration_spell(int cmd, variant *res);
 extern void samurai_posture_spell(int cmd, variant *res);
+
+/* scout.c */
+extern class_t *scout_get_class_t(void);
 
 /* skills.c */
 extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/

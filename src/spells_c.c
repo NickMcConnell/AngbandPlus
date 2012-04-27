@@ -735,6 +735,26 @@ void detect_treasure_spell(int cmd, variant *res)
 }
 bool cast_detect_treasure(void) { return cast_spell(detect_treasure_spell); }
 
+void detection_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Detection", "全感知"));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Detects all monsters, traps, doors, stairs, treasures and items in your vicinity.", "近くの全てのモンスター、罠、扉、階段、財宝、そしてアイテムを感知する。"));
+		break;
+	case SPELL_CAST:
+		detect_all(DETECT_RAD_DEFAULT);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void dimension_door_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -1099,6 +1119,7 @@ void draconian_breath_spell(int cmd, variant *res)
 					}
 					break;
 				case CLASS_ROGUE:
+				case CLASS_SCOUT:
 				case CLASS_NINJA:
 					if (one_in_(3))
 					{

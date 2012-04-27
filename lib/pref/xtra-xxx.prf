@@ -136,7 +136,7 @@ R:0:0xAB/0
 R:0:0xAA/0
 ?:[EQU $CLASS Mirror-Master]
 R:0:0xAD/0
-?:[EQU $CLASS Ninja]
+?:[EQU $CLASS Ninja Scout]
 R:0:0xAA/0
 ?:[EQU $CLASS Sniper]
 R:0:0xA8/0

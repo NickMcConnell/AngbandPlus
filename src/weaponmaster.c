@@ -4679,11 +4679,8 @@ static void _move_player(void)
 	}
 	else if (strcmp(_specialities[p_ptr->speciality1].name, "Diggers") == 0)
 	{
-	/*	handled in move_player_effect() since things like Phase Door don't trigger
-	    this fn.
 		if (p_ptr->speciality2_equip && p_ptr->lev >= 15)
 			p_ptr->update |= PU_BONUS;
-	*/
 	}
 }
 
