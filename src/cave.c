@@ -4713,6 +4713,9 @@ void cave_alter_feat(int y, int x, int action)
 	if (strcmp(weaponmaster_speciality1_name(), "Diggers") == 0)
 		p_ptr->update |= PU_BONUS;
 
+	if (p_ptr->pclass == CLASS_SCOUT)
+		p_ptr->update |= PU_BONUS;
+
 	if (!(feature_action_flags[action] & FAF_NO_DROP))
 	{
 		feature_type *old_f_ptr = &f_info[oldfeat];

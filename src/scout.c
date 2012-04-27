@@ -291,6 +291,7 @@ static bool _cave_is_open(int y, int x)
 	if (cave_have_flag_bold(y, x, FF_HURT_ROCK)) return FALSE;
 	if (cave[y][x].feat == feat_permanent) return FALSE;
 	if (cave[y][x].feat == feat_permanent_glass_wall) return FALSE;
+	if (cave[y][x].feat == feat_mountain) return FALSE;
 	return TRUE;
 }
 

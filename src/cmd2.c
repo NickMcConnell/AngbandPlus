@@ -1132,9 +1132,6 @@ static bool do_cmd_open_aux(int y, int x)
 			/* Open the door */
 			cave_alter_feat(y, x, FF_OPEN);
 
-			if (p_ptr->pclass == CLASS_SCOUT)
-				p_ptr->update |= PU_BONUS;
-
 			/* Sound */
 			sound(SOUND_OPENDOOR);
 
@@ -1166,9 +1163,6 @@ static bool do_cmd_open_aux(int y, int x)
 	{
 		/* Open the door */
 		cave_alter_feat(y, x, FF_OPEN);
-
-		if (p_ptr->pclass == CLASS_SCOUT)
-			p_ptr->update |= PU_BONUS;
 
 		/* Sound */
 		sound(SOUND_OPENDOOR);
@@ -1359,10 +1353,6 @@ static bool do_cmd_close_aux(int y, int x)
 			}
 			else
 			{
-
-				if (p_ptr->pclass == CLASS_SCOUT)
-					p_ptr->update |= PU_BONUS;
-
 				/* Sound */
 				sound(SOUND_SHUTDOOR);
 			}
