@@ -18,7 +18,7 @@
 #define WEIRD_LUCK      12
 #define BIAS_LUCK       20
 #define IM_LUCK         7
-#define IM_DEPTH		150
+#define IM_DEPTH		100
 bool immunity_hack = FALSE;
 int slaying_hack = 0;
 static bool has_pval;
@@ -436,7 +436,7 @@ static void random_slay(object_type *o_ptr);
 
 static bool double_check_immunity(object_type * o_ptr)
 {
-	if (randint1(IM_DEPTH) < (object_level - 60))
+	if (randint1(IM_DEPTH) < (object_level - 40))
 		return TRUE;
 	else if (immunity_hack)
 	{
@@ -1826,10 +1826,10 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	s32b    total_flags;
 	bool    a_cursed = FALSE;
 	int     warrior_artifact_bias = 0;
-	int i;
-	bool has_resistance = FALSE;
-	int lev = object_level;
-	bool is_falcon_sword = FALSE;
+	int     i;
+	bool    has_resistance = FALSE;
+	int     lev = object_level;
+	bool    is_falcon_sword = FALSE;
 	int     max_a = MAX(o_ptr->to_a, 30);
 	int     max_h = MAX(o_ptr->to_h, 30);
 	int     max_d = MAX(o_ptr->to_d, 30);
@@ -2107,6 +2107,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					add_flag(o_ptr->art_flags, TR_ACTIVATE);
 					o_ptr->timeout = 0;
 				}
+				else if (one_in_(77))
+				{
+					add_flag(o_ptr->art_flags, TR_SPELL_POWER);
+					add_flag(o_ptr->art_flags, TR_STR);
+					add_flag(o_ptr->art_flags, TR_DEX);
+					add_flag(o_ptr->art_flags, TR_CON);
+					has_pval = TRUE;
+				}
 				else
 				{
 					random_plus(o_ptr);
@@ -2230,6 +2238,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					add_flag(o_ptr->art_flags, TR_SUST_CHR);
 					add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
 				}
+				else if (one_in_(77))
+				{
+					add_flag(o_ptr->art_flags, TR_SPELL_POWER);
+					add_flag(o_ptr->art_flags, TR_STR);
+					add_flag(o_ptr->art_flags, TR_DEX);
+					add_flag(o_ptr->art_flags, TR_CON);
+					has_pval = TRUE;
+				}
 				else if (one_in_(2))
 				{
 					add_flag(o_ptr->art_flags, TR_SHOW_MODS);
@@ -2269,6 +2285,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				else if (one_in_(7))
 				{
 					add_flag(o_ptr->art_flags, TR_REFLECT);
+				}
+				else if (one_in_(77))
+				{
+					add_flag(o_ptr->art_flags, TR_SPELL_POWER);
+					add_flag(o_ptr->art_flags, TR_STR);
+					add_flag(o_ptr->art_flags, TR_DEX);
+					add_flag(o_ptr->art_flags, TR_CON);
+					has_pval = TRUE;
 				}
 				else if (one_in_(2))
 				{
@@ -2357,7 +2381,10 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		if (have_flag(o_ptr->art_flags, TR_BLOWS))
 		{
 			if (o_ptr->tval == TV_RING)
+			{
 				o_ptr->pval = 1;
+				if (one_in_(30)) o_ptr->pval++;
+			}
 			else
 			{
 				o_ptr->pval = randint1(2);
@@ -2377,12 +2404,20 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				o_ptr->pval++;
 			while (one_in_(WEIRD_LUCK))
 				o_ptr->pval++;
+
+			if (have_flag(o_ptr->art_flags, TR_SPELL_POWER))
+				o_ptr->pval = -o_ptr->pval;
 		}
 	}
-	if ((o_ptr->pval > 4) && !one_in_(WEIRD_LUCK))
+
+	if ((o_ptr->pval > 5) && !one_in_(WEIRD_LUCK))
+		o_ptr->pval = 5;
+
+	if ((o_ptr->pval > 4) && !one_in_(3))
 		o_ptr->pval = 4;
-	if ((o_ptr->pval > 6))
-		o_ptr->pval = 6; 
+	
+	if ((o_ptr->pval > 7))
+		o_ptr->pval = 7; 
 
 	/* give it some plusses... */
 	if (object_is_armour(o_ptr))
@@ -2485,7 +2520,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		}
 	}
 
-	if (((artifact_bias == BIAS_MAGE) || (artifact_bias == BIAS_INT)) && (o_ptr->tval == TV_GLOVES)) add_flag(o_ptr->art_flags, TR_FREE_ACT);
+	if ((artifact_bias == BIAS_MAGE || artifact_bias == BIAS_INT) 
+	  && (o_ptr->tval == TV_GLOVES)) 
+	{
+		add_flag(o_ptr->art_flags, TR_FREE_ACT);
+	}
 
 	if (o_ptr->tval == TV_BOW && o_ptr->sval == SV_HARP)
 	{
@@ -2543,7 +2582,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		else 
 		{
 			power_level = 3;
-			if (one_in_(8)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+			if (one_in_(12)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
 		}
 	}
 
@@ -3794,9 +3833,9 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 
 bool create_replacement_art(int a_idx, object_type *o_ptr)
 {
-	object_type		forge1;
-	object_type		forge2;
-	object_type		keeper;
+	object_type		forge1 = {0};
+	object_type		forge2 = {0};
+	object_type		keeper = {0};
 	int				base_power, best_power, power = 0;
 	int				old_level;
 	artifact_type  *a_ptr = &a_info[a_idx];
@@ -3832,7 +3871,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 	random_artifact_resistance(&forge1, a_ptr);
 
 	base_power = object_value_real(&forge1);
-	best_power = -100000;
+	best_power = -10000000;
 	power = 0;
 	old_level = object_level;
 

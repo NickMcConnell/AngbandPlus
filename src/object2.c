@@ -4790,8 +4790,8 @@ static bool kind_is_great(int k_idx)
 		}
 		case TV_POTION:
 		{
-			if (k_ptr->sval == SV_POTION_LIFE) return TRUE;
-			if (k_ptr->sval == SV_POTION_STAR_HEALING) return TRUE;
+			if (k_ptr->sval == SV_POTION_LIFE) return one_in_(3);
+			if (k_ptr->sval == SV_POTION_STAR_HEALING) return one_in_(3);
 			return FALSE;
 		}
 		case TV_WAND:

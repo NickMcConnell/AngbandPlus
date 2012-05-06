@@ -2397,34 +2397,42 @@ static void process_monster(int m_idx)
 	/* Are there its parent? */
 	if (m_ptr->parent_m_idx && !m_list[m_ptr->parent_m_idx].r_idx)
 	{
-		/* Its parent have gone, it also goes away. */
-
-		if (see_m)
+		/* Its parent have gone, it also goes away. 
+		   Hack: Only for pets.
+		*/
+		if (!is_pet(m_ptr))
 		{
-			char m_name[80];
-
-			/* Acquire the monster name */
-			monster_desc(m_name, m_ptr, 0);
-
-#ifdef JP
-			msg_format("%sは消え去った！", m_name);
-#else
-			msg_format("%^s disappears!", m_name);
-#endif
+			m_ptr->parent_m_idx = 0;
 		}
-
-		if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+		else 
 		{
-			char m_name[80];
+			if (see_m)
+			{
+				char m_name[80];
 
-			monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
-			do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_LOSE_PARENT, m_name);
+				/* Acquire the monster name */
+				monster_desc(m_name, m_ptr, 0);
+
+	#ifdef JP
+				msg_format("%sは消え去った！", m_name);
+	#else
+				msg_format("%^s disappears!", m_name);
+	#endif
+			}
+
+			if (record_named_pet && is_pet(m_ptr) && m_ptr->nickname)
+			{
+				char m_name[80];
+
+				monster_desc(m_name, m_ptr, MD_INDEF_VISIBLE);
+				do_cmd_write_nikki(NIKKI_NAMED_PET, RECORD_NAMED_PET_LOSE_PARENT, m_name);
+			}
+
+			/* Delete the monster */
+			delete_monster_idx(m_idx);
+
+			return;
 		}
-
-		/* Delete the monster */
-		delete_monster_idx(m_idx);
-
-		return;
 	}
 
 	/* Quantum monsters are odd */

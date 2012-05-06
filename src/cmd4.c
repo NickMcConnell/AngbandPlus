@@ -6671,13 +6671,17 @@ static void do_cmd_knowledge_artifacts(void)
 				object_prep(q_ptr, z);
 
 				/* Make it an artifact */
-				q_ptr->name1 = (byte)who[k];
+				q_ptr->name1 = who[k];
 
 				/* Display as if known */
 				q_ptr->ident |= IDENT_STORE;
 
 				/* Describe the artifact */
 				object_desc(base_name, q_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+			}
+			else
+			{
+				strcpy(base_name, "Unknown Artifact");
 			}
 
 			/* Hack -- Build the artifact name */

@@ -4015,8 +4015,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 							drain_heal = (drain_heal * mutant_regenerate_mod) / 100;
 
-							hp_player(drain_heal);
-							/* We get to keep some of it! */
+							hp_player_aux(drain_heal);
 						}
 					}
 				}

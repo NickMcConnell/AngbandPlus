@@ -14405,19 +14405,17 @@ D:動く必要がなく、強力な魔法で攻撃してくるのみである。
 
 #J0#
 N:751:カオス・ボルテックス
-E:Chaos vortex
-G:v:v
+E:Death vortex
+G:v:D
 I:140:32d20:100:80:0
 W:55:1:999:4000:0:0
-F:ATTR_MULTI | ATTR_ANY |
 F:FORCE_SLEEP | NEVER_BLOW | 
 F:RAND_50 | RAND_25 | CAN_FLY |
-F:EMPTY_MIND | BASH_DOOR | POWERFUL | 
-F:RES_CHAO | NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
-S:1_IN_6 | 
-S:BR_CHAO
-D:$Void, nothingness, spinning destructively.
-D:空虚で実体を持たない破壊的な渦巻きだ。
+F:EMPTY_MIND | BASH_DOOR | POWERFUL | KILL_WALL
+F:RES_TIME | RES_DISE | RES_NETH | NO_SLEEP | NO_FEAR | NO_STUN | NONLIVING
+S:1_IN_4 | 
+S:BR_TIME | BR_DISI | BR_NETH
+D:$Void, nothingness, spinning destructively. Run!
 
 #J0#
 N:752:エーテル・ボルテックス
@@ -21538,7 +21536,7 @@ D:南蛮王孟獲の妻だ。彼女は火の神の化身と言われている。
 D:その武勇を侮るな。
 
 N:1075:南蛮人『帯来洞主』
-E:Dailai Dongzhu, the Captain of Southerings
+E:Dailai Dongzhu, Captain of Southerings
 G:p:u
 I:110:22d10:20:35:20
 W:10:2:999:100:0:0

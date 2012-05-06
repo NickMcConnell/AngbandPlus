@@ -1105,7 +1105,7 @@ static bool cast_summon_greater_demon(void)
 	s = "捧げられる死体を持っていない。";
 #else
 	q = "Sacrifice which corpse? ";
-	s = "You have nothing to scrifice.";
+	s = "You have nothing to sacrifice.";
 #endif
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return FALSE;
 

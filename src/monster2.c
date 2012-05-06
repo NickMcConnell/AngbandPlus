@@ -382,8 +382,9 @@ static void compact_monsters_aux(int i1, int i2)
 	/* Hack -- Update the health bar */
 	if (p_ptr->health_who == i1) health_track(i2);
 
-	/* Hack -- Update parent index */
-	if (is_pet(m_ptr))
+	/* Hack -- Update parent index 
+	   Note, not just pets track their owner anymore ... */
+	/*if (is_pet(m_ptr))*/
 	{
 		for (i = 1; i < m_max; i++)
 		{
@@ -1532,6 +1533,7 @@ static int mysqrt(int n)
  * Note that if no monsters are "appropriate", then this function will
  * fail, and return zero, but this should *almost* never happen.
  */
+static bool _ignore_depth_hack = FALSE;
 
 s16b get_mon_num(int level)
 {
@@ -1611,7 +1613,8 @@ s16b get_mon_num(int level)
 	{
 		if (table[i].level > level) break; /* Monsters are sorted by depth */
 		table[i].prob3 = 0;
-		if (table[i].max_level < level) continue;
+
+		if (!_ignore_depth_hack && table[i].max_level < level) continue;
 
 		r_idx = table[i].index;
 		r_ptr = &r_info[r_idx];
@@ -3505,11 +3508,11 @@ msg_print("守りのルーンが壊れた！");
 
 	m_ptr->exp = 0;
 
-
-	/* Your pet summons its pet. */
-	if (who > 0 && is_pet(&m_list[who]))
+	if (who > 0)
 	{
-		mode |= PM_FORCE_PET;
+		/* Your pet summons its pet. */
+		if (is_pet(&m_list[who]))
+			mode |= PM_FORCE_PET;
 		m_ptr->parent_m_idx = who;
 	}
 	else
@@ -4393,6 +4396,20 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, u32b mode)
 
 	/* Pick a monster, using the level calculation */
 	r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+
+	/* Hack: For summoning spells, try again ignoring any 
+	         max depth restrictions. For example, Summon Manes
+	         should always work when cast. And for fairness,
+			 monsters gain the same consideration. 
+			 Note, we only do this on failure so that spells
+			 like Summon Animal will get beefier results! */
+	if (!r_idx && summon_specific_who)
+	{
+		_ignore_depth_hack = TRUE;
+		r_idx = get_mon_num((dun_level + lev) / 2 + 5);
+		_ignore_depth_hack = FALSE;
+	}
+
 	summon_cloned_okay = FALSE; /* This is a hack for RF6_S_UNIQUE ... get_mon_num() is much more widely used, however! */
 	                            /* place_monster_aux() will now handle setting the unique as "cloned" if appropriate */
 	/* Handle failure */

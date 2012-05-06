@@ -2577,6 +2577,9 @@ info[i++] = "それは二刀流での命中率を向上させる。";
 
 	}
 
+	if (o_ptr->name2 == EGO_SNIPER)
+		info[i++] = "It increases your shooting speed.";
+
 	if (have_flag(flgs, TR_EASY_SPELL))
 	{
 #ifdef JP

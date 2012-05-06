@@ -921,12 +921,11 @@ s32b armor_cost(object_type *o_ptr)
 		cost_calc_hook(dbg_msg);
 	}
 
-	/* +AC */
-	if (o_ptr->to_a <= 0) {} 
-	else if (o_ptr->to_a < 11)
+	/* +AC ... Note, negative ac should decrease the cost! */
+	if (ABS(o_ptr->to_a) < 11)
 		a += 200*o_ptr->to_a;
 	else
-		a += 1000 + 10*o_ptr->to_a*o_ptr->to_a;
+		a += 1000 + 10*o_ptr->to_a*ABS(o_ptr->to_a);
 
 	if (cost_calc_hook)
 	{
@@ -1293,6 +1292,23 @@ s32b weapon_cost(object_type *o_ptr)
 			sprintf(dbg_msg, "  * AC: p = %d", p);
 			cost_calc_hook(dbg_msg);
 		}
+	}
+
+	/* Hack: Broken swords should not be worth anything ... */
+	if (o_ptr->to_h < 0) 
+	{
+		if (ABS(o_ptr->to_h) <= 10)
+			p += 100 * o_ptr->to_h;
+		else
+			p += o_ptr->to_h * o_ptr->to_h * o_ptr->to_h;
+	}
+
+	if (o_ptr->to_d < 0) 
+	{
+		if (ABS(o_ptr->to_d) <= 10)
+			p += 200 * o_ptr->to_d;
+		else
+			p += 2* o_ptr->to_d * o_ptr->to_d * o_ptr->to_d;
 	}
 
 	p = _finalize_p(p, flgs, o_ptr);

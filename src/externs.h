@@ -1539,6 +1539,7 @@ extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool hp_player(int num);
+extern bool hp_player_aux(int num);
 extern bool sp_player(int num);
 extern bool do_dec_stat(int stat);
 extern bool do_res_stat(int stat);

@@ -750,11 +750,11 @@ void monster_death(int m_idx, bool drop_item)
 	{
 		if (p_ptr->msp > 0)
 		{
-			hp_player(20);
+			hp_player_aux(20);
 			sp_player(10);
 		}
 		else
-			hp_player(30);
+			hp_player_aux(30);
 	}
 
 	y = m_ptr->fy;
@@ -1596,6 +1596,11 @@ msg_print("地面に落とされた。");
 		number = 0;
 	}
 
+	if (m_ptr->parent_m_idx && r_ptr->r_akills > 1200)
+	{
+		number = 0;
+	}
+
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
 	{
@@ -1832,8 +1837,10 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 	/* Do division first to prevent overflaw */
 	s64b_div(&new_exp, &new_exp_frac, div_h, div_l);
 
-	/* Special penalty for mutiply-monster */
-	if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN))
+	/* Special penalty for mutiply-monster 
+	   Also, no more farming The Queen Ant for levelling
+	*/
+	if ((r_ptr->flags2 & RF2_MULTIPLY) || (m_ptr->r_idx == MON_DAWN) || m_ptr->parent_m_idx)
 	{
 		int monnum_penarty = r_ptr->r_akills / 800;
 		if (monnum_penarty > 8) monnum_penarty = 8;

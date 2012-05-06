@@ -5830,6 +5830,17 @@ bool res_stat(int stat)
  */
 bool hp_player(int num)
 {
+	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT || p_ptr->pclass == CLASS_BLOOD_MAGE)
+	{
+		num /= 2;		
+		if (num == 0)
+			return FALSE;
+	}
+	return hp_player_aux(num);
+}
+
+bool hp_player_aux(int num)
+{
 	int vir;
 	vir = virtue_number(V_VITALITY);
 	if (vir)
@@ -5840,14 +5851,6 @@ bool hp_player(int num)
 	if (mut_present(MUT_SACRED_VITALITY))
 	{
 		num += MIN(MAX(p_ptr->lev, num/3), num);
-		/*num = num * 13 / 10;*/
-	}
-
-	if (p_ptr->pclass == CLASS_BLOOD_KNIGHT || p_ptr->pclass == CLASS_BLOOD_MAGE)
-	{
-		num /= 2;		
-		if (num == 0)
-			return FALSE;
 	}
 
 	/* Healing needed */

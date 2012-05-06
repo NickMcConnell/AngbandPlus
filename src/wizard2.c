@@ -141,7 +141,7 @@ static void do_cmd_wiz_hack_chris1(void)
 
 	int a_idx = get_quantity("Which One? ", max_a_idx);
 	int k_idx = lookup_kind(a_info[a_idx].tval, a_info[a_idx].sval);
-	int ct = get_quantity("How Many?", 1000);
+	int ct = get_quantity("How Many?", 10000);
 	int ct_speed = 0;
 	int ct_immunity = 0;
 	int ct_would_be_immunities = 0;
@@ -149,14 +149,26 @@ static void do_cmd_wiz_hack_chris1(void)
 	int ct_telepathy = 0;
 	int ct_aggravate = 0;
 	int ct_darkness = 0;
+	int ct_spell_power = 0;
 	int i;
 	for (i = 0; i < ct; i++)
 	{
-		object_type forge;
+		object_type forge = {0};
 		char buf[MAX_NLEN];
 		int value;
 
-		create_replacement_art(a_idx, &forge);
+		if (1)
+		{
+			create_replacement_art(a_idx, &forge);
+		}
+		else
+		{
+			artifact_type  *a_ptr = &a_info[a_idx];
+			int				k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+			object_prep(&forge, k_idx);
+			create_artifact(&forge, CREATE_ART_GOOD);
+		}
 		identify_item(&forge);
 
 		forge.ident |= (IDENT_MENTAL); 
@@ -168,7 +180,16 @@ static void do_cmd_wiz_hack_chris1(void)
 		 || have_flag(forge.art_flags, TR_IM_FIRE)
 		 || have_flag(forge.art_flags, TR_IM_ELEC))
 		{
+			int ct = 0;
 			ct_immunity++;
+			
+			if (have_flag(forge.art_flags, TR_IM_ACID)) ct++;
+			if (have_flag(forge.art_flags, TR_IM_COLD)) ct++;
+			if (have_flag(forge.art_flags, TR_IM_FIRE)) ct++;
+			if (have_flag(forge.art_flags, TR_IM_ELEC)) ct++;
+
+		/*	if (ct > 0)
+				msg_format("%s (Cost: %d)", buf, value);*/
 		}
 
 		if (have_flag(forge.art_flags, TR_SPEED))
@@ -198,12 +219,18 @@ static void do_cmd_wiz_hack_chris1(void)
 			ct_darkness++;
 		/*	drop_near(&forge, -1, py, px); */
 		}
+
+		if (have_flag(forge.art_flags, TR_SPELL_POWER))
+		{
+			ct_spell_power++;
+		/*	drop_near(&forge, -1, py, px);*/
+		}
 		msg_format("%s (Cost: %d)", buf, value);
 	}
 
 	msg_format("Generated %d artifacts.  %d had immunity.  %d had speed.  %d had extra attacks.", ct, ct_immunity, ct_speed, ct_blows);
 	msg_format("%d had telepathy. %d had aggravation.", ct_telepathy, ct_aggravate);
-	msg_format("%d had darkness.", ct_darkness);
+	msg_format("%d had darkness. %d had spell power.", ct_darkness, ct_spell_power);
 	msg_format("%d would be immunities created.", ct_would_be_immunities);
 
 }
@@ -354,7 +381,7 @@ static void do_cmd_wiz_hack_chris4(void)
 	FILE	*fff = NULL;
 	char	buf[1024];
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Scoring6.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Scoring8.txt");
 	fff = my_fopen(buf, "w");
 
 	if (!fff)
@@ -364,7 +391,7 @@ static void do_cmd_wiz_hack_chris4(void)
 		return;
 	}
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "ScoringDetails6.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "ScoringDetails8.txt");
 	_wiz_dbg_file = my_fopen(buf, "w");
 	cost_calc_hook = _wiz_dbg_hook;
 
@@ -378,6 +405,25 @@ static void do_cmd_wiz_hack_chris4(void)
 	msg_print(NULL);
 }
 
+static void do_cmd_wiz_hack_chris5(void)
+{
+	int r_idx = 1102;
+	int i;
+
+	for (i = 0; i < 8; i++)
+	{
+		monster_race *r_ptr = &r_info[r_idx];
+		if (((r_ptr->flags1 & (RF1_UNIQUE)) ||
+				(r_ptr->flags7 & (RF7_NAZGUL))) &&
+			(r_ptr->cur_num >= r_ptr->max_num))
+		{
+			r_ptr->cur_num = 0;
+			r_ptr->max_num = 1;
+		}
+
+		summon_named_creature(0, py, px, r_idx, PM_ALLOW_SLEEP | PM_ALLOW_GROUP);
+	}
+}
 
 #ifdef MONSTER_HORDES
 
@@ -2414,6 +2460,10 @@ void do_cmd_debug(void)
 
 	case '4':
 		do_cmd_wiz_hack_chris4();
+		break;
+
+	case '5':
+		do_cmd_wiz_hack_chris5();
 		break;
 
 	/* Not a Wizard Command */

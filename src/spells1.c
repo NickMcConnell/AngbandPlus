@@ -7643,8 +7643,12 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 				}
 				if (!p_ptr->resist_chaos)
 				{
-					(void)set_image(p_ptr->image + randint1(10), FALSE);
-					if (one_in_(3))
+					/* Let's make mutation scumming a bit harder ... */
+					int count = mut_count(mut_unlocked_pred);
+
+					if (prace_is_(RACE_BEASTMAN)) count = 0;
+
+					if (one_in_(3 + count*count))
 					{
 #ifdef JP
 						msg_print("あなたの身体はカオスの力で捻じ曲げられた！");
@@ -7656,6 +7660,8 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 					}
 					if (p_ptr->pclass == CLASS_WILD_TALENT && one_in_(7))
 						wild_talent_scramble();
+
+					(void)set_image(p_ptr->image + randint1(10), FALSE);
 				}
 				if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
 				{

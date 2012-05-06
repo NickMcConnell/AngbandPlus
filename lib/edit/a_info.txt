@@ -377,8 +377,8 @@ D:高速通信に用いられた「遠望」の石だ。
 
 N:16:『クリムゾン』
 E:'Crimson'
-I:19:150:4
-W:60:150:100:100000
+I:19:50:4
+W:60:250:100:100000
 P:0:0d0:20:20:0
 F:SPEED | STEALTH | RES_NETHER |
 F:ACTIVATE | SHOW_MODS | INSTA_ART | XTRA_POWER | XTRA_H_RES
@@ -3503,7 +3503,7 @@ D:シャーウッドの森に住む義賊ロビン・フッドの弓だ。
 
 # from Slash'EM
 N:222:『ヘルファイア』
-E:of 'Hellfire'
+E:of Hellfire
 I:19:23:4
 W:30:15:110:60000
 P:0:2d1:15:17:0
