@@ -1201,6 +1201,7 @@ extern void unlite_room(int y1, int x1);
 extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
+extern bool fire_ball_aux(int typ, int dir, int dam, int rad, int xtra_flgs);
 extern bool fire_rocket(int typ, int dir, int dam, int rad);
 extern bool fire_ball_hide(int typ, int dir, int dam, int rad);
 extern bool fire_meteor(int who, int typ, int x, int y, int dam, int rad);

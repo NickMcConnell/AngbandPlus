@@ -6881,7 +6881,7 @@ static void do_cmd_knowledge_uniques(void)
  */
 static void do_cmd_knowledge_weapon_exp(void)
 {
-	int i, j, num, weapon_exp;
+	int i, j, num, weapon_exp, weapon_max;
 
 	FILE *fff;
 
@@ -6914,11 +6914,17 @@ static void do_cmd_knowledge_weapon_exp(void)
 					if ((k_ptr->tval == TV_BOW) && (k_ptr->sval == SV_RAILGUN)) continue;
 					if ((k_ptr->tval == TV_BOW) && (k_ptr->sval == SV_HARP)) continue;
 
-					weapon_exp = p_ptr->weapon_exp[4 - i][num];
+					weapon_exp = skills_weapon_current(TV_SWORD - i, num);
+					weapon_max = skills_weapon_max(TV_SWORD - i, num);
+					
 					strip_name(tmp, j);
 					fprintf(fff, "%-25s ", tmp);
-					if (!mut_present(MUT_WEAPON_SKILLS) && weapon_exp >= s_info[p_ptr->pclass].w_max[4 - i][num]) fprintf(fff, "!");
-					else fprintf(fff, " ");
+
+					if (weapon_exp >= weapon_max) 
+						fprintf(fff, "!");
+					else
+						fprintf(fff, " ");
+
 					fprintf(fff, "%s", exp_level_str[weapon_exp_level(weapon_exp)]);
 					if (cheat_xtra) fprintf(fff, " %d", weapon_exp);
 					fprintf(fff, "\n");

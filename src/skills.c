@@ -18,12 +18,15 @@ int skills_bow_max(int sval)
 	if (mut_present(MUT_WEAPON_SKILLS))
 		return WEAPON_EXP_MASTER;
 
+	if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS)
+		return WEAPON_EXP_MASTER;
+
 	return s_info[p_ptr->pclass].w_max[0][sval];
 }
 
 void skills_bow_gain(int sval)
 {
-	int max = skills_weapon_max(TV_BOW, sval);
+	int max = skills_bow_max(sval);
 	int cur = p_ptr->weapon_exp[0][sval];
 
 	if (cur < max)
@@ -59,6 +62,10 @@ int skills_weapon_current(int tval, int sval)
 
 int skills_weapon_max(int tval, int sval)
 {
+	/* Hack: In case somebody calls this instead of skills_bow_max() */
+	if (tval == TV_BOW && p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS)
+		return WEAPON_EXP_MASTER;
+
 	if (mut_present(MUT_WEAPON_SKILLS))
 		return WEAPON_EXP_MASTER;
 

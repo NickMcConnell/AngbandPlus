@@ -146,16 +146,20 @@ bool psion_process_monster(int m_idx)
 		if (psion_mon_save_p(m_ptr->r_idx, m_ptr->ego_whip_pow))
 		{
 			msg_format("%^s shakes off your ego whip!", m_name);
+			p_ptr->redraw |= PR_HEALTH;
 			m_ptr->ego_whip_ct = 0;
 			m_ptr->ego_whip_pow = 0;
 		}
 		else
 		{
 			msg_format("Your ego whip lashes %s!", m_name);
-			result = mon_take_hit(m_idx, 25*m_ptr->ego_whip_pow, &fear, NULL);
+			result = mon_take_hit(m_idx, spell_power(40*m_ptr->ego_whip_pow), &fear, NULL);
 			m_ptr->ego_whip_ct--;
 			if (!m_ptr->ego_whip_ct)
+			{
 				msg_format("Your ego whip on %s disappears.", m_name);
+				p_ptr->redraw |= PR_HEALTH;
+			}
 		}
 	}
 	return result;
@@ -241,7 +245,7 @@ static void _ego_whip_spell(int cmd, variant *res)
 		var_set_string(res, "Lash out against a single monster with psychic energy.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, spell_power(_power*25)));
+		var_set_string(res, info_damage(0, 0, spell_power(_power*40)));
 		break;
 	case SPELL_CAST:
 	{
@@ -252,7 +256,7 @@ static void _ego_whip_spell(int cmd, variant *res)
 		fire_ball(
 			GF_PSI_EGO_WHIP, 
 			dir, 
-			spell_power(_power*25),
+			spell_power(_power*40),
 			0
 		);
 
@@ -276,7 +280,7 @@ static void _energy_blast_spell(int cmd, variant *res)
 		var_set_string(res, "Fires an elemental ball.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(spell_power(_power*5 - 2), 6, 0));
+		var_set_string(res, info_damage(spell_power(_power*_power + 4*_power - 1), 6, 0));
 		break;
 	case SPELL_CAST:
 	{
@@ -294,11 +298,12 @@ static void _energy_blast_spell(int cmd, variant *res)
 		case 5: type = GF_ELEC; break;
 		}
 
-		fire_ball(
+		fire_ball_aux(
 			type, 
 			dir, 
-			spell_power(damroll(_power*5 - 2, 6)),
-			spell_power((1 + _power)/2)
+			spell_power(damroll(_power*_power + 4*_power - 1, 6)),
+			spell_power((1 + _power)/2),
+			PROJECT_FULL_DAM
 		);
 
 		var_set_bool(res, TRUE);
@@ -351,7 +356,7 @@ static void _mana_thrust_spell(int cmd, variant *res)
 		var_set_string(res, "Fires a bolt of pure mana.");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(spell_power(_power*5 - 2), 6, 0));
+		var_set_string(res, info_damage(spell_power(_power*_power + 4*_power - 1), 6, 0));
 		break;
 	case SPELL_CAST:
 	{
@@ -360,9 +365,9 @@ static void _mana_thrust_spell(int cmd, variant *res)
 		if (!get_aim_dir(&dir)) return;
 
 		if (_power == 5)
-			fire_beam(GF_MANA, dir, spell_power(damroll(_power*5 - 2, 6)));
+			fire_beam(GF_MANA, dir, spell_power(damroll(_power*_power + 4*_power - 1, 6)));
 		else
-			fire_bolt(GF_MANA, dir, spell_power(damroll(_power*5 - 2, 6)));
+			fire_bolt(GF_MANA, dir, spell_power(damroll(_power*_power + 4*_power - 1, 6)));
 
 		var_set_bool(res, TRUE);
 		break;
@@ -846,11 +851,12 @@ static void _psionic_storm_spell(int cmd, variant *res)
 		var_set_bool(res, FALSE);
 		if (!get_aim_dir(&dir)) return;
 
-		fire_ball(
+		fire_ball_aux(
 			GF_PSI_STORM, 
 			dir, 
 			spell_power(_power*150 - 50),
-			4 + _power
+			4 + _power,
+			PROJECT_FULL_DAM
 		);
 
 		var_set_bool(res, TRUE);
@@ -1224,7 +1230,7 @@ static void _calc_bonuses(void)
 	if (p_ptr->magic_num1[_SPEED])
 	{
 		if (!p_ptr->fast)
-			p_ptr->pspeed += 3*p_ptr->magic_num2[_SPEED];
+			p_ptr->pspeed += 4*p_ptr->magic_num2[_SPEED];
 	}
 	if (p_ptr->magic_num1[_FORTRESS])
 	{
@@ -1293,6 +1299,7 @@ static void _character_dump(FILE* file)
 			{
 				spell_info* current = &spells[i];
 				current->cost += get_spell_cost_extra(current->fn);
+				current->cost = calculate_cost(current->cost);
 				current->fail = MAX(current->fail, get_spell_fail_min(current->fn));
 			}
 

@@ -2004,11 +2004,12 @@ static void health_redraw(bool riding)
 		else if (pct >= 25) attr = TERM_ORANGE;
 		else if (pct >= 10) attr = TERM_L_RED;
 
-		/* Default to "unknown" */
 		Term_putstr(col, row, 12, TERM_WHITE, "[----------]");
 
-		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(col + 1, row, len, attr, "**********");
+		if (m_ptr->ego_whip_ct)
+			Term_putstr(col + 1, row, len, attr, "wwwwwwwwww");
+		else
+			Term_putstr(col + 1, row, len, attr, "**********");
 	}
 }
 
@@ -2880,6 +2881,8 @@ static void calc_mana(void)
 				case DEMIGOD_HADES:
 					if (mp_ptr->spell_stat == A_CHR)
 						adj -= 2;
+					if (mp_ptr->spell_stat == A_CON)
+						adj += 3;
 					break;
 				case DEMIGOD_APHRODITE:
 					if (mp_ptr->spell_stat == A_CHR)

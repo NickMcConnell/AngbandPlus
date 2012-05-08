@@ -377,7 +377,7 @@ static void preserve_pet(void)
 		}
 		else
 		{
-			/* Preserve the mount */
+			m_ptr->pack_idx = 0;
 			COPY(&party_mon[0], m_ptr, monster_type);
 
 			/* Delete from this floor */

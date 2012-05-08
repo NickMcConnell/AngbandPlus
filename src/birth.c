@@ -3331,7 +3331,9 @@ static void get_extra(bool roll_hitdie)
 	{
 		for (j = 0; j < 64; j++)
 		{
-			if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARES)
+			if (i == TV_BOW-TV_WEAPON_BEGIN && p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS)
+				p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
+			else if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARES)
 				p_ptr->weapon_exp[i][j] = WEAPON_EXP_BEGINNER;
 			else
 				p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_start[i][j];
@@ -4663,7 +4665,13 @@ void player_outfit(void)
 	{
 		_birth_object(TV_ARROW, SV_AMMO_NORMAL, rand_range(15, 20));
 	}
-	if (p_ptr->pclass == CLASS_RANGER)
+
+	if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS)
+	{
+		_birth_object(TV_BOW, SV_SHORT_BOW, 1);
+		_birth_object(TV_ARROW, SV_AMMO_NORMAL, rand_range(15, 20));
+	}
+	else if (p_ptr->pclass == CLASS_RANGER)
 	{
 		_birth_object(TV_BOW, SV_SHORT_BOW, 1);
 	}
@@ -4721,6 +4729,8 @@ void player_outfit(void)
 		/* Look up standard equipment */
 		tv = player_init[p_ptr->pclass][i][0];
 		sv = player_init[p_ptr->pclass][i][1];
+
+		if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_ARTEMIS && tv == TV_BOW && sv == SV_SHORT_BOW) continue;
 
 		if ((p_ptr->prace == RACE_ANDROID) && ((tv == TV_SOFT_ARMOR) || (tv == TV_HARD_ARMOR))) continue;
 		/* Hack to initialize spellbooks */

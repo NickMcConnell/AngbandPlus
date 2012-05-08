@@ -164,14 +164,7 @@ void clear_mind_spell(int cmd, variant *res)
 
 		msg_print(T("You feel your head clear a little.", "少し頭がハッキリした。"));
 
-		p_ptr->csp += (3 + p_ptr->lev/20);
-		if (p_ptr->csp >= p_ptr->msp)
-		{
-			p_ptr->csp = p_ptr->msp;
-			p_ptr->csp_frac = 0;
-		}
-
-		p_ptr->redraw |= (PR_MANA);
+		sp_player(3 + p_ptr->lev/20);
 		var_set_bool(res, TRUE);
 		break;
 	default:

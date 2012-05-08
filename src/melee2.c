@@ -2359,7 +2359,7 @@ static void process_monster(int m_idx)
 	}
 
 	if (p_ptr->pclass == CLASS_PSION)
-	{
+	{                                     /* v------ Ego Whip killed it! */
 		if (psion_process_monster(m_idx)) return;
 	}
 	
@@ -2839,7 +2839,7 @@ msg_format("%^s%s", m_name, monmessage);
 
 		if (ticked_off || is_glyph_grid(&cave[py][px]))
 			freq += (30 + r_ptr->level/5);
-		else if (m_ptr->pack_idx)
+		else if (pack_ptr)
 		{
 			switch (pack_ptr->ai)
 			{

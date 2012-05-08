@@ -686,8 +686,9 @@ static void do_cmd_wiz_change_aux(void)
 	{
 		for (i = 0;i < 64;i++)
 		{
+			int max = skills_weapon_max(TV_WEAPON_BEGIN + j, i);
 			p_ptr->weapon_exp[j][i] = tmp_s16b;
-			if (p_ptr->weapon_exp[j][i] > s_info[p_ptr->pclass].w_max[j][i]) p_ptr->weapon_exp[j][i] = s_info[p_ptr->pclass].w_max[j][i];
+			if (p_ptr->weapon_exp[j][i] > max) p_ptr->weapon_exp[j][i] = max;
 		}
 	}
 

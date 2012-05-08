@@ -2041,11 +2041,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 	/* Prevents problems with chain reactions of exploding monsters */
 	if (m_ptr->hp < 0) return (FALSE);
 
-	/* Reduce damage by distance 
-	   Hack:  The Eldritch Blast is a full damage radius 2 ball with no damage reduction! 
-	          Other Eldritch balls are all radius 0, so this will work fine for now.  */
-	if (typ != GF_ELDRITCH && typ != GF_PSI_BRAIN_SMASH && typ != GF_PSI_STORM)
+	/* Reduce damage by distance */
+	if (!(flg & PROJECT_FULL_DAM))
+	{
 		dam = (dam + r) / (r + 1);
+	}
 
 	/* Get the monster name (BEFORE polymorphing) */
 	monster_desc(m_name, m_ptr, 0);
@@ -5640,18 +5640,13 @@ note_dies = "はドロドロに溶けた！";
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (RFR_RES_ALL);
 				break;
 			}
-			if (psion_mon_save_p(m_ptr->r_idx, psion_power()))
-			{
-				note = T(" resists!", "には耐性がある！");
-				dam = 0;
-				m_ptr->ego_whip_ct = 0;
-				m_ptr->ego_whip_pow = 0;
-			}
-			else
-			{
-				m_ptr->ego_whip_ct = 5;
-				m_ptr->ego_whip_pow = psion_power();
-			}
+			/* Hack: No damage now ... simply latch the whip on and let process_monster()
+			   do the dirty work for us */
+			(void)set_monster_csleep(c_ptr->m_idx, 0);
+			m_ptr->ego_whip_ct = 5;
+			m_ptr->ego_whip_pow = psion_power();
+			p_ptr->redraw |= PR_HEALTH;
+			return TRUE;
 			break;
 		}
 

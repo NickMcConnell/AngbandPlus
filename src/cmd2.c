@@ -3823,35 +3823,40 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 					armour /= 10;
 				}
 
-				/* A painted target always hits */
-				if (p_ptr->painted_target && p_ptr->painted_target_idx == c_ptr->m_idx && p_ptr->painted_target_ct >= 3)
-					hit = TRUE;
+				/* A painted target (almost) always hits */
+				if ( p_ptr->painted_target 
+				  && p_ptr->painted_target_idx == c_ptr->m_idx 
+				  && p_ptr->painted_target_ct >= 3)
+				{
+					if (randint1(100) <= 95)
+						hit = TRUE;
+				}
 				else
 				{
 					/* Did we hit it? (penalize range) */
 					hit = test_hit_fire(chance - cur_dis, armour, m_ptr->ml);
+				}
 
-					if (p_ptr->painted_target)
+				if (p_ptr->painted_target)
+				{
+					if (shoot_hack == SHOOT_BOUNCE && shoot_count > 0)
 					{
-						if (shoot_hack == SHOOT_BOUNCE && shoot_count > 0)
-						{
-							/* A richochet from bouncing pebble should not reset the
-							   painted target */
-						}
-						else if (!hit)
-						{
-							p_ptr->painted_target_idx = 0;
-							p_ptr->painted_target_ct = 0;
-						}
-						else if (p_ptr->painted_target_idx == c_ptr->m_idx)
-						{
-							p_ptr->painted_target_ct++;
-						}
-						else
-						{
-							p_ptr->painted_target_idx = c_ptr->m_idx;
-							p_ptr->painted_target_ct = 1;
-						}
+						/* A richochet from bouncing pebble should not reset the
+							painted target */
+					}
+					else if (!hit)
+					{
+						p_ptr->painted_target_idx = 0;
+						p_ptr->painted_target_ct = 0;
+					}
+					else if (p_ptr->painted_target_idx == c_ptr->m_idx)
+					{
+						p_ptr->painted_target_ct++;
+					}
+					else
+					{
+						p_ptr->painted_target_idx = c_ptr->m_idx;
+						p_ptr->painted_target_ct = 1;
 					}
 				}
 

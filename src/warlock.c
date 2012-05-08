@@ -226,12 +226,15 @@ static void _burst_spell(int cmd, variant *res)
 
 		project_length = _warlock_range();
 		if (!get_aim_dir(&dir)) return;
-		
-		fire_ball(GF_ELDRITCH, 
-		          dir, 
-				  spell_power(damroll(_warlock_dice(), _warlock_sides())), 
-				  2);
 
+		fire_ball_aux(
+			GF_ELDRITCH, 
+		    dir, 
+			spell_power(damroll(_warlock_dice(), _warlock_sides())), 
+			2,
+			PROJECT_FULL_DAM
+		);
+		
 		var_set_bool(res, TRUE);
 		break;
 	}

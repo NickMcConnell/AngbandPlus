@@ -2637,6 +2637,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_RES_NETHER);
 			add_flag(flgs, TR_HOLD_LIFE);
 			add_flag(flgs, TR_SUST_CON);
+			add_flag(flgs, TR_FREE_ACT);
 			break;
 		case DEMIGOD_HEPHAESTUS:
 			add_flag(flgs, TR_RES_DISEN);
@@ -3810,7 +3811,7 @@ c_put_str(TERM_YELLOW, "¸½ºß", row, stat_col+35);
 				break;
 
 			case DEMIGOD_HADES:
-				if (i == A_CON) r_adj += 2;
+				if (i == A_CON) r_adj += 3;
 				if (i == A_CHR) r_adj -= 2;
 				break;
 

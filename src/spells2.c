@@ -5771,9 +5771,14 @@ msg_print("∞≈∞«§¨ ’§Í§Ú §§√§ø°£");
  */
 bool fire_ball(int typ, int dir, int dam, int rad)
 {
+	return fire_ball_aux(typ, dir, dam, rad, 0);
+}
+
+bool fire_ball_aux(int typ, int dir, int dam, int rad, int xtra_flgs)
+{
 	int tx, ty;
 
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | xtra_flgs;
 
 	if (typ == GF_CONTROL_LIVING) flg|= PROJECT_HIDE;
 	/* Use the given direction */

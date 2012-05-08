@@ -210,10 +210,11 @@ void _demigod_calc_bonuses(void)
 	case DEMIGOD_HADES:
 		p_ptr->resist_neth = TRUE;
 		p_ptr->hold_life = TRUE;
-		p_ptr->stat_add[A_CON] += 2;
+		p_ptr->stat_add[A_CON] += 3;
 		p_ptr->stat_add[A_CHR] -= 2;
 		p_ptr->sustain_con = TRUE;
 		p_ptr->skill_sav += 15;
+		p_ptr->free_act = TRUE;
 		break;
 	case DEMIGOD_ATHENA:
 		p_ptr->stat_add[A_INT] += 2;

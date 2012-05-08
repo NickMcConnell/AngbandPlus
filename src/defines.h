@@ -1,4 +1,5 @@
-/* File: defines.h */ 
+/* File: defines.h */
+
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -27,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 94
+#define FAKE_VER_PATCH 95
 
 
 /*
@@ -45,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 94
+#define H_VER_PATCH 95
 #define H_VER_EXTRA 0
 
 
@@ -2627,6 +2628,7 @@
 #define PROJECT_PATH        0x2000
 #define PROJECT_FAST        0x4000
 #define PROJECT_LOS         0x8000
+#define PROJECT_FULL_DAM    0x10000
 
 
 /*
