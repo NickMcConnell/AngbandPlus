@@ -1981,6 +1981,7 @@ extern bool psion_mindspring(void);
 extern bool psion_shielding(void);
 extern bool psion_speed(void);
 extern bool psion_weapon_graft(void);
+extern bool psion_check_dispel(void);
 
 /* rage_mage.c */
 extern void rage_mage_browse_spell(void);

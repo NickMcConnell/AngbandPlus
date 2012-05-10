@@ -2686,7 +2686,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_MISSILE, dir, damroll(2, 6));
+			fire_bolt(GF_MISSILE, dir, device_power(damroll(2, 6)));
 			o_ptr->timeout = 2;
 			break;
 		}
@@ -2700,7 +2700,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_POIS, dir, 12, 3);
+			fire_ball(GF_POIS, dir, device_power(12), 3);
 			o_ptr->timeout = randint0(4) + 4;
 			break;
 		}
@@ -2714,7 +2714,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_ELEC, dir, damroll(4, 8));
+			fire_bolt(GF_ELEC, dir, device_power(damroll(4, 8)));
 			o_ptr->timeout = randint0(5) + 5;
 			break;
 		}
@@ -2728,7 +2728,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_ACID, dir, damroll(5, 8));
+			fire_bolt(GF_ACID, dir, device_power(damroll(5, 8)));
 			o_ptr->timeout = randint0(6) + 6;
 			break;
 		}
@@ -2742,7 +2742,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_COLD, dir, damroll(6, 8));
+			fire_bolt(GF_COLD, dir, device_power(damroll(6, 8)));
 			o_ptr->timeout = randint0(7) + 7;
 			break;
 		}
@@ -2756,7 +2756,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_FIRE, dir, damroll(9, 8));
+			fire_bolt(GF_FIRE, dir, device_power(damroll(9, 8)));
 			o_ptr->timeout = randint0(8) + 8;
 			break;
 		}
@@ -2770,7 +2770,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, device_power(48), 2);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2784,7 +2784,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, device_power(72), 2);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2798,7 +2798,8 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			if (drain_life(dir, 100))
+			if (drain_life(dir, device_power(100)))
+				hp_player(device_power(100));
 			o_ptr->timeout = randint0(100) + 100;
 			break;
 		}
@@ -2812,7 +2813,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_COLD, dir, 100, 2);
+			fire_ball(GF_COLD, dir, device_power(100), 2);
 			o_ptr->timeout = 300;
 			break;
 		}
@@ -2826,7 +2827,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_ELEC, dir, 100, 3);
+			fire_ball(GF_ELEC, dir, device_power(100), 3);
 			o_ptr->timeout = 500;
 			break;
 		}
@@ -2840,7 +2841,8 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			drain_life(dir, 120);
+			if (drain_life(dir, device_power(120)))
+				hp_player(device_power(120));
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2850,8 +2852,8 @@ bool activate_random_artifact(object_type * o_ptr)
 			if (!get_aim_dir(&dir)) return FALSE;
 			for (dummy = 0; dummy < 3; dummy++)
 			{
-				if (drain_life(dir, 50))
-				hp_player(50);
+				if (drain_life(dir, device_power(50)))
+					hp_player(device_power(50));
 			}
 			o_ptr->timeout = 400;
 			break;
@@ -2866,7 +2868,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_bolt(GF_ARROW, dir, 150);
+			fire_bolt(GF_ARROW, dir, device_power(150));
 			o_ptr->timeout = randint0(90) + 90;
 			break;
 		}
@@ -2880,7 +2882,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_FIRE, dir, 120, 3);
+			fire_ball(GF_FIRE, dir, device_power(120), 3);
 			o_ptr->timeout = randint0(225) + 225;
 			break;
 		}
@@ -2894,7 +2896,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_COLD, dir, 200, 3);
+			fire_ball(GF_COLD, dir, device_power(200), 3);
 			o_ptr->timeout = randint0(325) + 325;
 			break;
 		}
@@ -2908,7 +2910,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			fire_ball(GF_ELEC, dir, 250, 3);
+			fire_ball(GF_ELEC, dir, device_power(250), 3);
 			o_ptr->timeout = randint0(425) + 425;
 			break;
 		}
@@ -2943,8 +2945,8 @@ bool activate_random_artifact(object_type * o_ptr)
 			if (!get_aim_dir(&dir)) return FALSE;
 			for (dummy = 0; dummy < 3; dummy++)
 			{
-				if (drain_life(dir, 100))
-				hp_player(100);
+				if (drain_life(dir, device_power(100)))
+					hp_player(device_power(100));
 			}
 
 			o_ptr->timeout = 400;
@@ -2974,7 +2976,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You launch a rocket!");
 #endif
 
-			fire_ball(GF_ROCKET, dir, 250 + plev*3, 2);
+			fire_ball(GF_ROCKET, dir, device_power(250 + plev*3), 2);
 			o_ptr->timeout = 400;
 			break;
 		}
@@ -2987,7 +2989,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It floods the area with goodness...");
 #endif
 
-			dispel_evil(p_ptr->lev * 5);
+			dispel_evil(device_power(p_ptr->lev * 5));
 			o_ptr->timeout = randint0(300) + 300;
 			break;
 		}
@@ -3000,7 +3002,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It floods the area with evil...");
 #endif
 
-			dispel_good(p_ptr->lev * 5);
+			dispel_good(device_power(p_ptr->lev * 5));
 			o_ptr->timeout = randint0(300) + 300;
 			break;
 		}
@@ -3014,7 +3016,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You breathe the elements.");
 #endif
 
-			fire_ball(GF_MISSILE, dir, 300, 4);
+			fire_ball(GF_MISSILE, dir, device_power(300), 4);
 			o_ptr->timeout = 500;
 			break;
 		}
@@ -3030,7 +3032,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			if (!get_aim_dir(&dir)) return FALSE;
-			confuse_monster(dir, 20);
+			confuse_monster(dir, device_power(20));
 			o_ptr->timeout = 15;
 			break;
 		}
@@ -3057,7 +3059,7 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_TERROR:
 		{
-			turn_monsters(40 + p_ptr->lev);
+			turn_monsters(device_power(40 + p_ptr->lev));
 			o_ptr->timeout = 3 * (p_ptr->lev + 10);
 			break;
 		}
@@ -3065,14 +3067,14 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_TELE_AWAY:
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
-			(void)fire_beam(GF_AWAY_ALL, dir, plev);
+			(void)fire_beam(GF_AWAY_ALL, dir, device_power(plev));
 			o_ptr->timeout = 200;
 			break;
 		}
 
 		case ACT_BANISH_EVIL:
 		{
-			if (banish_evil(100))
+			if (banish_evil(device_power(100)))
 			{
 #ifdef JP
 				msg_print("アーティファクトの力が邪悪を打ち払った！");
@@ -3093,7 +3095,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows deep blue...");
 #endif
 
-			(void)symbol_genocide(200, TRUE);
+			(void)symbol_genocide(device_power(200), TRUE);
 			o_ptr->timeout = 500;
 			break;
 		}
@@ -3106,7 +3108,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It lets out a long, shrill note...");
 #endif
 
-			(void)mass_genocide(200, TRUE);
+			(void)mass_genocide(device_power(200), TRUE);
 			o_ptr->timeout = 1000;
 			break;
 		}
@@ -3116,7 +3118,7 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_CHARM_ANIMAL:
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
-			(void)charm_animal(dir, plev);
+			(void)charm_animal(dir, device_power(plev));
 			o_ptr->timeout = 300;
 			break;
 		}
@@ -3124,7 +3126,7 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_CHARM_UNDEAD:
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
-			(void)control_one_undead(dir, plev);
+			(void)control_one_undead(dir, device_power(plev));
 			o_ptr->timeout = 333;
 			break;
 		}
@@ -3132,28 +3134,28 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_CHARM_OTHER:
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
-			(void)charm_monster(dir, plev);
+			(void)charm_monster(dir, device_power(plev));
 			o_ptr->timeout = 400;
 			break;
 		}
 
 		case ACT_CHARM_ANIMALS:
 		{
-			(void)charm_animals(plev * 2);
+			(void)charm_animals(device_power(plev * 2));
 			o_ptr->timeout = 500;
 			break;
 		}
 
 		case ACT_CHARM_OTHERS:
 		{
-			charm_monsters(plev * 2);
+			charm_monsters(device_power(plev * 2));
 			o_ptr->timeout = 750;
 			break;
 		}
 
 		case ACT_SUMMON_ANIMAL:
 		{
-			(void)summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, (PM_ALLOW_GROUP | PM_FORCE_PET));
+			(void)summon_specific(-1, py, px, device_power(plev), SUMMON_ANIMAL_RANGER, (PM_ALLOW_GROUP | PM_FORCE_PET));
 			o_ptr->timeout = 200 + randint1(300);
 			break;
 		}
@@ -3166,7 +3168,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You summon a phantasmal servant.");
 #endif
 
-			(void)summon_specific(-1, py, px, dun_level, SUMMON_PHANTOM, (PM_ALLOW_GROUP | PM_FORCE_PET));
+			(void)summon_specific(-1, py, px, device_power(dun_level), SUMMON_PHANTOM, (PM_ALLOW_GROUP | PM_FORCE_PET));
 			o_ptr->timeout = 200 + randint1(200);
 			break;
 		}
@@ -3180,7 +3182,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			if (pet) mode |= PM_FORCE_PET;
 			else mode |= PM_NO_PET;
 
-			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL, mode))
+			if (summon_specific((pet ? -1 : 0), py, px, device_power((plev * 3) / 2), SUMMON_ELEMENTAL, mode))
 			{
 #ifdef JP
 				msg_print("エレメンタルが現れた...");
@@ -3218,7 +3220,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			if (pet) mode |= PM_FORCE_PET;
 			else mode |= PM_NO_PET;
 
-			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_DEMON, mode))
+			if (summon_specific((pet ? -1 : 0), py, px, device_power((plev * 3) / 2), SUMMON_DEMON, mode))
 			{
 #ifdef JP
 				msg_print("硫黄の悪臭が充満した。");
@@ -3258,7 +3260,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			if (pet) mode |= PM_FORCE_PET;
 			else mode |= (PM_ALLOW_UNIQUE | PM_NO_PET);
 
-			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), type, mode))
+			if (summon_specific((pet ? -1 : 0), py, px, device_power((plev * 3) / 2), type, mode))
 			{
 #ifdef JP
 				msg_print("冷たい風があなたの周りに吹き始めた。それは腐敗臭を運んでいる...");
@@ -3291,7 +3293,7 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_CURE_LW:
 		{
 			(void)set_afraid(0, TRUE);
-			(void)hp_player(30);
+			(void)hp_player(device_power(30));
 			o_ptr->timeout = 10;
 			break;
 		}
@@ -3304,7 +3306,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It radiates deep purple...");
 #endif
 
-			hp_player(damroll(4, 8));
+			hp_player(device_power(damroll(4, 8)));
 			(void)set_cut((p_ptr->cut / 2) - 50, TRUE);
 			o_ptr->timeout = randint0(3) + 3;
 			break;
@@ -3370,7 +3372,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You feel a warm tingling inside...");
 #endif
 
-			(void)hp_player(700);
+			(void)hp_player(device_power(700));
 			(void)set_cut(0, TRUE);
 			o_ptr->timeout = 250;
 			break;
@@ -3390,7 +3392,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You feel much better...");
 #endif
 
-			(void)hp_player(1000);
+			(void)hp_player(device_power(1000));
 			(void)set_cut(0, TRUE);
 			o_ptr->timeout = 888;
 			break;
@@ -3400,7 +3402,7 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_ESP:
 		{
-			(void)set_tim_esp(randint1(30) + 25, FALSE);
+			(void)set_tim_esp(device_power(randint1(30) + 25), FALSE);
 			o_ptr->timeout = 200;
 			break;
 		}
@@ -3408,8 +3410,8 @@ bool activate_random_artifact(object_type * o_ptr)
 		case ACT_BERSERK:
 		{
 			(void)set_afraid(0, TRUE);
-			(void)set_hero(randint1(50) + 50, FALSE);
-			(void)set_blessed(randint1(50) + 50, FALSE);
+			(void)set_hero(device_power(randint1(50) + 50), FALSE);
+			(void)set_blessed(device_power(randint1(50) + 50), FALSE);
 			o_ptr->timeout = 100 + randint1(100);
 			break;
 		}
@@ -3423,7 +3425,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			k = 3 * p_ptr->lev;
-			(void)set_protevil(randint1(25) + k, FALSE);
+			(void)set_protevil(device_power(randint1(25) + k), FALSE);
 			o_ptr->timeout = randint0(225) + 225;
 			break;
 		}
@@ -3436,11 +3438,11 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows many colours...");
 #endif
 
-			(void)set_oppose_acid(randint1(40) + 40, FALSE);
-			(void)set_oppose_elec(randint1(40) + 40, FALSE);
-			(void)set_oppose_fire(randint1(40) + 40, FALSE);
-			(void)set_oppose_cold(randint1(40) + 40, FALSE);
-			(void)set_oppose_pois(randint1(40) + 40, FALSE);
+			(void)set_oppose_acid(device_power(randint1(40) + 40), FALSE);
+			(void)set_oppose_elec(device_power(randint1(40) + 40), FALSE);
+			(void)set_oppose_fire(device_power(randint1(40) + 40), FALSE);
+			(void)set_oppose_cold(device_power(randint1(40) + 40), FALSE);
+			(void)set_oppose_pois(device_power(randint1(40) + 40), FALSE);
 			o_ptr->timeout = 200;
 			break;
 		}
@@ -3453,7 +3455,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows bright green...");
 #endif
 
-			(void)set_fast(randint1(20) + 20, FALSE);
+			(void)set_fast(device_power(randint1(20) + 20), FALSE);
 			o_ptr->timeout = 250;
 			break;
 		}
@@ -3466,21 +3468,21 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows brightly...");
 #endif
 
-			(void)set_fast(randint1(75) + 75, FALSE);
+			(void)set_fast(device_power(randint1(75) + 75), FALSE);
 			o_ptr->timeout = randint0(200) + 200;
 			break;
 		}
 
 		case ACT_WRAITH:
 		{
-			set_wraith_form(randint1(plev / 2) + (plev / 2), FALSE);
+			set_wraith_form(device_power(randint1(plev / 2) + (plev / 2)), FALSE);
 			o_ptr->timeout = 1000;
 			break;
 		}
 
 		case ACT_INVULN:
 		{
-			(void)set_invuln(randint1(8) + 8, FALSE);
+			(void)set_invuln(device_power(randint1(8) + 8), FALSE);
 			o_ptr->timeout = 1000;
 			break;
 		}
@@ -3505,7 +3507,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It wells with clear light...");
 #endif
 
-			lite_area(damroll(2, 15), 3);
+			lite_area(device_power(damroll(2, 15)), 3);
 			o_ptr->timeout = randint0(10) + 10;
 			break;
 		}
@@ -3519,7 +3521,7 @@ bool activate_random_artifact(object_type * o_ptr)
 #endif
 
 			map_area(DETECT_RAD_MAP);
-			lite_area(damroll(2, 15), 3);
+			lite_area(device_power(damroll(2, 15)), 3);
 			o_ptr->timeout = randint0(50) + 50;
 			break;
 		}
@@ -3640,7 +3642,7 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_RECHARGE:
 		{
-			recharge(130);
+			recharge(device_power(130));
 			o_ptr->timeout = 70;
 			break;
 		}
@@ -3666,7 +3668,7 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("You open a dimensional gate. Choose a destination.");
 #endif
 
-			if (!dimension_door(p_ptr->lev / 2 + 10)) return FALSE;
+			if (!dimension_door(device_power(p_ptr->lev / 2 + 10))) return FALSE;
 			o_ptr->timeout = 100;
 			break;
 		}

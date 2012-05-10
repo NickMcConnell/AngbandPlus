@@ -916,6 +916,9 @@ bool dispel_check(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	/* TODO: Monsters should have to learn this! */
+	if (psion_mental_fortress() && !one_in_(12)) return FALSE;
+
 	/* Invulnabilty (including the song) */
 	if (IS_INVULN()) return (TRUE);
 
@@ -1010,6 +1013,8 @@ bool dispel_check(int m_idx)
 	{
 		if (MON_FAST(&m_list[p_ptr->riding])) return (TRUE);
 	}
+
+	if (psion_check_dispel()) return TRUE;
 
 	/* No need to cast dispel spell */
 	return (FALSE);
@@ -1891,7 +1896,10 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			if (blind) msg_format("%^s mumbles powerfully.", m_name);
 			else msg_format("%^s invokes a dispel magic.", m_name);
 #endif
-			if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
+			if (psion_check_foresight())
+			{
+			}
+			else if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
 				msg_print("You resist the effects!");
 			else if (psion_mental_fortress())
 				msg_print("Your mental fortress is impenetrable!");
@@ -1965,6 +1973,9 @@ else msg_format("%^sがロケットを発射した。", m_name);
 			
 			if (randint1(100) <= duelist_skill_sav(m_idx) - r_ptr->level/2)
 				msg_print("You resist the effects!");
+			else if (psion_check_foresight())
+			{
+			}
 			else if (mut_present(MUT_ONE_WITH_MAGIC) && one_in_(2))
 				msg_print("You resist the effects!");
 			else if (psion_mental_fortress())

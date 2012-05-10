@@ -4469,7 +4469,7 @@ static void do_cmd_activate_aux(int item)
 			{
 				msg_print("Your pendant crackles with power.");
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir, 555, 3);
+				fire_ball(GF_ELEC, dir, device_power(555), 3);
 				o_ptr->timeout = 5;
 				break;
 			}
@@ -4495,7 +4495,7 @@ static void do_cmd_activate_aux(int item)
 			case ART_ATHENA:
 			{
 				msg_print("Your spear glows red.");
-				recharge(200);
+				recharge(device_power(200));
 				o_ptr->timeout = 15;
 				break;
 			}
@@ -4509,8 +4509,8 @@ static void do_cmd_activate_aux(int item)
 			case ART_HERMES:
 			{
 				msg_print("Your boots shine.");
-				set_fast(randint1(75) + 75, FALSE);
-				dimension_door(p_ptr->lev / 2 + 10);
+				set_fast(device_power(randint1(75) + 75), FALSE);
+				dimension_door(device_power(p_ptr->lev / 2 + 10));
 				o_ptr->timeout = 100;
 				break;
 			}
@@ -4597,7 +4597,7 @@ static void do_cmd_activate_aux(int item)
 			case ART_DEMETER:
 			{
 				msg_print("Your torch engulfs you in a purifying flame!");
-				hp_player(500);
+				hp_player(device_power(500));
 				set_food(PY_FOOD_MAX - 1);
 				o_ptr->timeout = 100;
 				break;
@@ -4605,7 +4605,7 @@ static void do_cmd_activate_aux(int item)
 			case ART_APHRODITE:
 			{
 				msg_print("Your golden apple pulsates!");
-				summon_specific(-1, py, px, MIN(p_ptr->lev, dun_level), 0, (PM_ALLOW_GROUP | PM_FORCE_PET));
+				summon_specific(-1, py, px, device_power(MIN(p_ptr->lev, dun_level)), 0, (PM_ALLOW_GROUP | PM_FORCE_PET));
 				o_ptr->timeout = 25;
 				break;
 			}
@@ -4617,7 +4617,7 @@ static void do_cmd_activate_aux(int item)
 				msg_print("The phial wells with clear light...");
 #endif
 
-				lite_area(damroll(2, 15), 3);
+				lite_area(device_power(damroll(2, 15)), 3);
 				o_ptr->timeout = randint0(10) + 10;
 				break;
 			}
@@ -4631,7 +4631,7 @@ static void do_cmd_activate_aux(int item)
 #endif
 
 				map_area(DETECT_RAD_MAP);
-				lite_area(damroll(2, 15), 3);
+				lite_area(device_power(damroll(2, 15)), 3);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			}
@@ -4690,7 +4690,7 @@ if (get_check("帰還の力を使いますか？"))
 #endif
 
 				k = 3 * p_ptr->lev;
-				(void)set_protevil(randint1(25) + k, FALSE);
+				(void)set_protevil(device_power(randint1(25) + k), FALSE);
 				o_ptr->timeout = randint0(225) + 225;
 				break;
 			}
@@ -4703,7 +4703,7 @@ if (get_check("帰還の力を使いますか？"))
 				msg_print("The amulet floods the area with goodness...");
 #endif
 
-				dispel_evil(p_ptr->lev * 5);
+				dispel_evil(device_power(p_ptr->lev * 5));
 				o_ptr->timeout = randint0(200) + 200;
 				break;
 			}
@@ -4716,7 +4716,7 @@ if (get_check("帰還の力を使いますか？"))
 				msg_print("The mirror floods the area with goodness...");
 #endif
 
-				dispel_evil(p_ptr->lev * 5);
+				dispel_evil(device_power(p_ptr->lev * 5));
 				o_ptr->timeout = randint0(200) + 200;
 				break;
 			}
@@ -4730,7 +4730,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				if (drain_life(dir, 100))
+				if (drain_life(dir, device_power(100)))
 				o_ptr->timeout = randint0(100) + 100;
 				break;
 			}
@@ -4743,7 +4743,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("The ring glows brightly...");
 #endif
 
-				(void)set_fast(randint1(75) + 75, FALSE);
+				(void)set_fast(device_power(randint1(75) + 75), FALSE);
 				o_ptr->timeout = randint0(150) + 150;
 				break;
 			}
@@ -4757,7 +4757,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 300, 3);
+				fire_ball(GF_FIRE, dir, device_power(300), 3);
 				o_ptr->timeout = randint0(225) + 225;
 				break;
 			}
@@ -4771,7 +4771,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 400, 3);
+				fire_ball(GF_COLD, dir, device_power(400), 3);
 				o_ptr->timeout = randint0(325) + 325;
 				break;
 			}
@@ -4786,7 +4786,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir, 500, 3);
+				fire_ball(GF_ELEC, dir, device_power(500), 3);
 				o_ptr->timeout = randint0(425) + 425;
 				break;
 			}
@@ -4808,7 +4808,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 
 			case ART_RAZORBACK:
 			{
-				int num = damroll(5, 3);
+				int num = device_power(damroll(5, 3));
 				int y, x;
 				int attempts;
 
@@ -4832,7 +4832,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 						if (!player_bold(y, x)) break;
 					}
 
-					project(0, 3, y, x, 150, GF_ELEC,
+					project(0, 3, y, x, device_power(150), GF_ELEC,
 							  (PROJECT_THRU | PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
 				}
 
@@ -4849,7 +4849,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("You breathe the elements.");
 #endif
 
-				fire_ball(GF_MISSILE, dir, 300, 4);
+				fire_ball(GF_MISSILE, dir, device_power(300), 4);
 #ifdef JP
 				msg_print("鎧が様々な色に輝いた...");
 #else
@@ -4857,14 +4857,13 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				(void)set_afraid(0, TRUE);
-				(void)set_hero(randint1(50) + 50, FALSE);
-				(void)hp_player(10);
-				(void)set_blessed(randint1(50) + 50, FALSE);
-				(void)set_oppose_acid(randint1(50) + 50, FALSE);
-				(void)set_oppose_elec(randint1(50) + 50, FALSE);
-				(void)set_oppose_fire(randint1(50) + 50, FALSE);
-				(void)set_oppose_cold(randint1(50) + 50, FALSE);
-				(void)set_oppose_pois(randint1(50) + 50, FALSE);
+				(void)set_hero(device_power(randint1(50) + 50), FALSE);
+				(void)set_blessed(device_power(randint1(50) + 50), FALSE);
+				(void)set_oppose_acid(device_power(randint1(50) + 50), FALSE);
+				(void)set_oppose_elec(device_power(randint1(50) + 50), FALSE);
+				(void)set_oppose_fire(device_power(randint1(50) + 50), FALSE);
+				(void)set_oppose_cold(device_power(randint1(50) + 50), FALSE);
+				(void)set_oppose_pois(device_power(randint1(50) + 50), FALSE);
 				o_ptr->timeout = 400;
 				break;
 			}
@@ -4879,7 +4878,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("You feel much better...");
 #endif
 
-				(void)hp_player(1000);
+				(void)hp_player(device_power(1000));
 				(void)set_cut(0, TRUE);
 				o_ptr->timeout = 888;
 				break;
@@ -4913,8 +4912,8 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				(void)set_confused(0, TRUE);
 				(void)set_blind(0, TRUE);
 				(void)set_afraid(0, TRUE);
-				(void)set_hero(randint1(25) + 25, FALSE);
-				(void)hp_player(777);
+				(void)set_hero(device_power(randint1(25) + 25), FALSE);
+				(void)hp_player(device_power(777));
 				o_ptr->timeout = 300;
 				break;
 			}
@@ -4927,7 +4926,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("Your armor glows deep blue...");
 #endif
 
-				(void)symbol_genocide(200, TRUE);
+				(void)symbol_genocide(device_power(200), TRUE);
 				o_ptr->timeout = 500;
 				break;
 			}
@@ -4949,7 +4948,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 			case ART_TERROR:
 			case ART_STONEMASK:
 			{
-				turn_monsters(40 + p_ptr->lev);
+				turn_monsters(device_power(40 + p_ptr->lev));
 				o_ptr->timeout = 3 * (p_ptr->lev + 10);
 
 				break;
@@ -4980,7 +4979,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("You feel a warm tingling inside...");
 #endif
 
-				(void)hp_player(700);
+				(void)hp_player(device_power(700));
 				(void)set_cut(0, TRUE);
 				o_ptr->timeout = 250;
 				break;
@@ -4990,11 +4989,11 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 			{
 				msg_print("Your staff glows many colours...");
 
-				(void)set_oppose_acid(randint1(20) + 20, FALSE);
-				(void)set_oppose_elec(randint1(20) + 20, FALSE);
-				(void)set_oppose_fire(randint1(20) + 20, FALSE);
-				(void)set_oppose_cold(randint1(20) + 20, FALSE);
-				(void)set_oppose_pois(randint1(20) + 20, FALSE);
+				(void)set_oppose_acid(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_elec(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_fire(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_cold(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_pois(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = 111;
 				break;
 			}
@@ -5008,11 +5007,11 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_format("Your %s glows many colours...", o_ptr->name1 == ART_COLLUIN ? "cloak" : "armor");
 #endif
 
-				(void)set_oppose_acid(randint1(20) + 20, FALSE);
-				(void)set_oppose_elec(randint1(20) + 20, FALSE);
-				(void)set_oppose_fire(randint1(20) + 20, FALSE);
-				(void)set_oppose_cold(randint1(20) + 20, FALSE);
-				(void)set_oppose_pois(randint1(20) + 20, FALSE);
+				(void)set_oppose_acid(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_elec(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_fire(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_cold(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_pois(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = 111;
 				break;
 			}
@@ -5099,7 +5098,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("Your cloak glows bright yellow...");
 #endif
 
-				recharge(130);
+				recharge(device_power(130));
 				o_ptr->timeout = 70;
 				break;
 			}
@@ -5153,7 +5152,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
+				fire_bolt(GF_MISSILE, dir, device_power(damroll(2, 6)));
 				o_ptr->timeout = 2;
 				break;
 			}
@@ -5167,7 +5166,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(9, 8));
+				fire_bolt(GF_FIRE, dir, device_power(damroll(9, 8)));
 				o_ptr->timeout = randint0(8) + 8;
 				break;
 			}
@@ -5181,7 +5180,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_COLD, dir, damroll(6, 8));
+				fire_bolt(GF_COLD, dir, device_power(damroll(6, 8)));
 				o_ptr->timeout = randint0(7) + 7;
 				break;
 			}
@@ -5195,7 +5194,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+				fire_bolt(GF_ELEC, dir, device_power(damroll(4, 8)));
 				o_ptr->timeout = randint0(5) + 5;
 				break;
 			}
@@ -5209,7 +5208,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ACID, dir, damroll(5, 8));
+				fire_bolt(GF_ACID, dir, device_power(damroll(5, 8)));
 				o_ptr->timeout = randint0(6) + 6;
 				break;
 			}
@@ -5223,7 +5222,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ARROW, dir, 150);
+				fire_bolt(GF_ARROW, dir, device_power(150));
 				o_ptr->timeout = randint0(90) + 90;
 				break;
 			}
@@ -5236,7 +5235,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("Your boots glow bright green...");
 #endif
 
-				(void)set_fast(randint1(20) + 20, FALSE);
+				(void)set_fast(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = 200;
 				break;
 			}
@@ -5264,7 +5263,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(9, 8));
+				fire_bolt(GF_FIRE, dir, device_power(damroll(9, 8)));
 				o_ptr->timeout = randint0(8) + 8;
 				break;
 			}
@@ -5272,8 +5271,8 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 			case ART_KAMIKAZE_ROBE:
 			{
 				msg_print("Your robe glows crimson...");
-				set_shero(20 + randint0(20), FALSE);
-				set_fast(20 + randint0(20), FALSE);
+				set_shero(device_power(20 + randint0(20)), FALSE);
+				set_fast(device_power(20 + randint0(20)), FALSE);
 				o_ptr->timeout = 55;
 				break;
 			}
@@ -5299,7 +5298,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 			{
 				msg_print("Your gun is covered with a blinding light...");
 				if (!get_aim_dir(&dir)) return;
-				fire_beam(GF_LITE, dir, 200);
+				fire_beam(GF_LITE, dir, device_power(200));
 				o_ptr->timeout = 0; /* Every turn? */
 				break;
 			}
@@ -5308,8 +5307,8 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				int dam = damroll(p_ptr->lev, 5);
 				msg_print("BOOOOOOOOOOOOOOOOOOONGGGGGGGGGGG!!!");
 				if (!p_ptr->resist_sound)
-					project(-1, 0, py, px, dam, GF_SOUND, PROJECT_KILL | PROJECT_HIDE, -1);
-				project(0, 18, py, px, dam*2, GF_SOUND, PROJECT_KILL | PROJECT_ITEM, -1);
+					project(-1, 0, py, px, device_power(dam), GF_SOUND, PROJECT_KILL | PROJECT_HIDE, -1);
+				project(0, 18, py, px, device_power(dam*2), GF_SOUND, PROJECT_KILL | PROJECT_ITEM, -1);
 				o_ptr->timeout = 5 + randint1(5);
 				break;
 			}
@@ -5322,7 +5321,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_COLD, dir, damroll(6, 8));
+				fire_bolt(GF_COLD, dir, device_power(damroll(6, 8)));
 				o_ptr->timeout = randint0(7) + 7;
 				break;
 			}
@@ -5336,7 +5335,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+				fire_bolt(GF_ELEC, dir, device_power(damroll(4, 8)));
 				o_ptr->timeout = randint0(5) + 5;
 				break;
 			}
@@ -5350,7 +5349,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_POIS, dir, 12, 3);
+				fire_ball(GF_POIS, dir, device_power(12), 3);
 				o_ptr->timeout = randint0(4) + 4;
 				break;
 			}
@@ -5364,7 +5363,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_WATER, dir, 200, 3);
+				fire_ball(GF_WATER, dir, device_power(200), 3);
 				o_ptr->timeout = 250;
 				break;
 			}
@@ -5378,7 +5377,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 48, 2);
+				fire_ball(GF_COLD, dir, device_power(48), 2);
 				o_ptr->timeout = randint0(5) + 5;
 				break;
 			}
@@ -5435,7 +5434,7 @@ if (get_check("この階を去りますか？"))
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 100, 2);
+				fire_ball(GF_COLD, dir, device_power(100), 2);
 				o_ptr->timeout = 200;
 				break;
 			}
@@ -5448,7 +5447,7 @@ msg_print("暁の師団を召喚した。");
 				msg_print("You summon the Legion of the Dawn.");
 #endif
 
-				(void)summon_specific(-1, py, px, dun_level, SUMMON_DAWN, (PM_ALLOW_GROUP | PM_FORCE_PET));
+				(void)summon_specific(-1, py, px, device_power(dun_level), SUMMON_DAWN, (PM_ALLOW_GROUP | PM_FORCE_PET));
 				o_ptr->timeout = 500 + randint1(500);
 				break;
 			}
@@ -5462,7 +5461,7 @@ msg_print("暁の師団を召喚した。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 72, 2);
+				fire_ball(GF_FIRE, dir, device_power(72), 2);
 				o_ptr->timeout = 400;
 				break;
 			}
@@ -5476,7 +5475,8 @@ msg_print("暁の師団を召喚した。");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, 120);
+				if (drain_life(dir, device_power(120)))
+					hp_player(device_power(120));
 				o_ptr->timeout = 400;
 				break;
 			}
@@ -5490,7 +5490,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir, 100, 3);
+				fire_ball(GF_ELEC, dir, device_power(100), 3);
 				o_ptr->timeout = 200;
 				break;
 			}
@@ -5504,7 +5504,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 100, 3);
+				fire_ball(GF_COLD, dir, device_power(100), 3);
 				o_ptr->timeout = 200;
 				break;
 			}
@@ -5545,7 +5545,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("Your axe lets out a long, shrill note...");
 #endif
 
-				(void)mass_genocide(200, TRUE);
+				(void)mass_genocide(device_power(200), TRUE);
 				o_ptr->timeout = 1000;
 				break;
 			}
@@ -5558,7 +5558,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("Your battle axe radiates deep purple...");
 #endif
 
-				hp_player(damroll(4, 8));
+				hp_player(device_power(damroll(4, 8)));
 				(void)set_cut((p_ptr->cut / 2) - 50, TRUE);
 				o_ptr->timeout = randint0(3) + 3;
 				break;
@@ -5611,7 +5611,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				confuse_monster(dir, 20);
+				confuse_monster(dir, device_power(20));
 				o_ptr->timeout = 15;
 				break;
 			}
@@ -5625,7 +5625,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 72, 3);
+				fire_ball(GF_FIRE, dir, device_power(72), 3);
 				o_ptr->timeout = 100;
 				break;
 			}
@@ -5633,7 +5633,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_AEGIR:
 			{
 				msg_print("Your club shines golden ...");
-				set_mimic(25 + randint1(25), MIMIC_COLOSSUS, FALSE);
+				set_mimic(device_power(25 + randint1(25)), MIMIC_COLOSSUS, FALSE);
 				o_ptr->timeout = 500;
 				break;
 			}
@@ -5641,14 +5641,14 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_DEFENDER_OF_THE_CROWN:
 			{
 				msg_print("Your ball and chain goes 'boop' ...");
-				set_shield(randint1(30) + 20, FALSE);
+				set_shield(device_power(randint1(30) + 20), FALSE);
 				o_ptr->timeout = 300;
 				break;
 			}
 			case ART_MONKEY_KING:
 			{
 				msg_print("Your cudgel grows bigger ...");
-				set_tim_enlarge_weapon(5, FALSE);
+				set_tim_enlarge_weapon(device_power(5), FALSE);
 				o_ptr->timeout = 555;
 				break;
 			}
@@ -5661,7 +5661,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 120, 3);
+				fire_ball(GF_FIRE, dir, device_power(120), 3);
 				o_ptr->timeout = 15;
 				break;
 			}
@@ -5674,7 +5674,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("Your mace glows bright green...");
 #endif
 
-				(void)set_fast(randint1(20) + 20, FALSE);
+				(void)set_fast(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(100) + 100;
 				break;
 			}
@@ -5716,7 +5716,8 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, 90);
+				if (drain_life(dir, device_power(90)))
+					hp_player(device_power(90));
 				o_ptr->timeout = 70;
 				break;
 			}
@@ -5772,7 +5773,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				}
 
 				for (i = 0; i < num; i++)
-					project(0, p_ptr->lev/20+1, ty, tx, p_ptr->lev*p_ptr->lev*6/50, GF_ROCKET, flg, -1);
+					project(0, p_ptr->lev/20+1, ty, tx, device_power(p_ptr->lev*p_ptr->lev*6/50), GF_ROCKET, flg, -1);
 				o_ptr->timeout = 15;
 				break;
 			}
@@ -5889,7 +5890,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("You wind a mighty blast; your enemies tremble!");
 #endif
-				(void)turn_monsters((3 * p_ptr->lev / 2) + 10);
+				(void)turn_monsters(device_power((3 * p_ptr->lev / 2) + 10));
 				o_ptr->timeout = randint0(40) + 40;
 				break;
 			}
@@ -5900,7 +5901,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("You exterminate small life.");
 #endif
-				(void)dispel_monsters(4);
+				(void)dispel_monsters(device_power(4));
 				o_ptr->timeout = randint0(55) + 55;
 				break;
 			}
@@ -5912,7 +5913,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("A shrill wailing sound surrounds you.");
 #endif
-				(void)set_protevil(randint1(25) + p_ptr->lev, FALSE);
+				(void)set_protevil(device_power(randint1(25) + p_ptr->lev), FALSE);
 				o_ptr->timeout = randint0(200) + 200;
 				break;
 			}
@@ -5926,16 +5927,15 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("The robe pulsates with raw mana...");
 #endif
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_MANA, dir, 120);
+				fire_bolt(GF_MANA, dir, device_power(120));
 				o_ptr->timeout = randint0(120) + 120;
 				break;
 			}
 			case ART_HURIN:
 			{
-				(void)set_fast(randint1(50) + 50, FALSE);
-				hp_player(10);
+				(void)set_fast(device_power(randint1(50) + 50), FALSE);
 				set_afraid(0, TRUE);
-				set_hero(randint1(50) + 50, FALSE);
+				set_hero(device_power(randint1(50) + 50), FALSE);
 				o_ptr->timeout = randint0(200) + 100;
 				break;
 			}
@@ -5946,8 +5946,8 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("Your shield gleams with blinding light...");
 #endif
-				fire_ball(GF_LITE, 0, 300, 6);
-				confuse_monsters(3 * p_ptr->lev / 2);
+				fire_ball(GF_LITE, 0, device_power(300), 6);
+				confuse_monsters(device_power(3 * p_ptr->lev / 2));
 				o_ptr->timeout = 250;
 				break;
 			}
@@ -5958,7 +5958,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("Your card gleams with blinding light...");
 #endif
-				if (!recharge(1000)) return;
+				if (!recharge(device_power(1000))) return;
 				o_ptr->timeout = 200;
 				break;
 			}
@@ -5997,7 +5997,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_MANA, dir, 400, 4);
+				fire_ball(GF_MANA, dir, device_power(400), 4);
 				o_ptr->timeout = randint0(250) + 250;
 				break;
 			}
@@ -6054,7 +6054,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				if (pet) mode |= PM_FORCE_PET;
 				else mode |= PM_NO_PET;
 
-				if (summon_specific((pet ? -1 : 0), py, px, ((p_ptr->lev * 3) / 2), SUMMON_HOUND, mode))
+				if (summon_specific((pet ? -1 : 0), py, px, device_power((p_ptr->lev * 3) / 2), SUMMON_HOUND, mode))
 				{
 
 					if (pet)
@@ -6086,7 +6086,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_LITE, dir, 200, 3);
+				fire_ball(GF_LITE, dir, device_power(200), 3);
 				o_ptr->timeout = randint0(200) + 200;
 				break;
 			}
@@ -6175,8 +6175,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_AEGISFANG:
 			{
 				(void)set_afraid(0, TRUE);
-				set_hero(randint1(25)+25, FALSE);
-				hp_player(10);
+				set_hero(device_power(randint1(25)+25), FALSE);
 				o_ptr->timeout = randint0(30) + 30;
 				break;
 			}
@@ -6197,7 +6196,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_BOLISHOI:
 			{
 				if (!get_aim_dir(&dir)) return;
-				(void)charm_animal(dir, p_ptr->lev);
+				(void)charm_animal(dir, device_power(p_ptr->lev));
 
 				o_ptr->timeout = 200;
 				break;
@@ -6211,7 +6210,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("Your sword glows a pale blue...");
 #endif
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_COLD, dir, damroll(12, 8));
+				fire_bolt(GF_COLD, dir, device_power(damroll(12, 8)));
 				o_ptr->timeout = 50;
 				break;
 			}
@@ -6233,11 +6232,11 @@ msg_print("あなたの槍は電気でスパークしている...");
 #ifdef JP
 				msg_print("力強く四股を踏んだ。");
 #else
-				msg_print("You stamp. (as if you are in a ring.)");
+				msg_print("You stamp your feet (as if you are in a ring.)");
 #endif
 				(void)set_afraid(0, TRUE);
-				(void)set_hero(randint1(20) + 20, FALSE);
-				dispel_evil(p_ptr->lev * 3);
+				(void)set_hero(device_power(randint1(20) + 20), FALSE);
+				dispel_evil(device_power(p_ptr->lev * 3));
 				o_ptr->timeout = 100 + randint1(100);
 				break;
 			}
@@ -6248,7 +6247,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("Your cloak grows white.");
 #endif
-				(void)set_oppose_cold(randint1(20) + 20, FALSE);
+				(void)set_oppose_cold(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = 40 + randint1(40);
 				break;
 			}
@@ -6261,7 +6260,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				k = 3 * p_ptr->lev;
-				(void)set_protevil(randint1(25) + k, FALSE);
+				(void)set_protevil(device_power(randint1(25) + k), FALSE);
 				o_ptr->timeout = randint0(225) + 225;
 				break;
 			}
@@ -6301,7 +6300,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("The iron ball floods the area with goodness...");
 #endif
 
-				dispel_evil(p_ptr->lev * 5);
+				dispel_evil(device_power(p_ptr->lev * 5));
 				o_ptr->timeout = randint0(100) + 100;
 				break;
 			}
@@ -6333,7 +6332,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("Your amulet is coverd in pitch-darkness...");
 #endif
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_DARK, dir, 250, 4);
+				fire_ball(GF_DARK, dir, device_power(250), 4);
 				o_ptr->timeout = randint0(150) + 150;
 				break;
 			}
@@ -6345,7 +6344,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("Your collar harness is coverd in pitch-darkness...");
 #endif
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_DARK, dir, 250, 4);
+				fire_ball(GF_DARK, dir, device_power(250), 4);
 				o_ptr->timeout = randint0(150) + 150;
 				break;
 			}
@@ -6554,7 +6553,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("You breathe lightning.");
 #endif
 
-				fire_ball(GF_ELEC, dir, 100, -2);
+				fire_ball(GF_ELEC, dir, device_power(100), -2);
 				o_ptr->timeout = randint0(15) + 15;
 				break;
 			}
@@ -6567,7 +6566,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("You breathe frost.");
 #endif
 
-				fire_ball(GF_COLD, dir, 110, -2);
+				fire_ball(GF_COLD, dir, device_power(110), -2);
 				o_ptr->timeout = randint0(15) + 15;
 				break;
 			}
@@ -6580,7 +6579,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("You breathe acid.");
 #endif
 
-				fire_ball(GF_ACID, dir, 130, -2);
+				fire_ball(GF_ACID, dir, device_power(130), -2);
 				o_ptr->timeout = randint0(15) + 15;
 				break;
 			}
@@ -6593,7 +6592,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("You breathe poison gas.");
 #endif
 
-				fire_ball(GF_POIS, dir, 150, -2);
+				fire_ball(GF_POIS, dir, device_power(150), -2);
 				o_ptr->timeout = randint0(18) + 18;
 				break;
 			}
@@ -6606,7 +6605,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("You breathe fire.");
 #endif
 
-				fire_ball(GF_FIRE, dir, 200, -2);
+				fire_ball(GF_FIRE, dir, device_power(200), -2);
 				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
@@ -6632,7 +6631,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 					   ((chance == 2) ? GF_COLD :
 					    ((chance == 3) ? GF_ACID :
 					     ((chance == 4) ? GF_POIS : GF_FIRE)))),
-					  dir, 250, -2);
+					  dir, device_power(250), -2);
 				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
@@ -6645,7 +6644,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("You breathe confusion.");
 #endif
 
-				fire_ball(GF_CONFUSION, dir, 120, -2);
+				fire_ball(GF_CONFUSION, dir, device_power(120), -2);
 				o_ptr->timeout = randint0(18) + 18;
 				break;
 			}
@@ -6658,7 +6657,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("You breathe sound.");
 #endif
 
-				fire_ball(GF_SOUND, dir, 130, -2);
+				fire_ball(GF_SOUND, dir, device_power(130), -2);
 				o_ptr->timeout = randint0(18) + 18;
 				break;
 			}
@@ -6675,7 +6674,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-					  dir, 220, -2);
+					  dir, device_power(220), -2);
 				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
@@ -6692,7 +6691,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 #endif
 
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
-					  dir, 230, -2);
+					  dir, device_power(230), -2);
 				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
@@ -6715,7 +6714,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 				fire_ball(((chance == 1) ? GF_CHAOS :
 					   ((chance == 2) ? GF_DISENCHANT :
 					    ((chance == 3) ? GF_SOUND : GF_SHARDS))),
-					  dir, 250, -2);
+					  dir, device_power(250), -2);
 				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
@@ -6731,7 +6730,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 					   ((chance == 0 ? "light" : "darkness")));
 #endif
 
-				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, -2);
+				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, device_power(200), -2);
 				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
@@ -6744,7 +6743,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				msg_print("You breathe the elements.");
 #endif
 
-				fire_ball(GF_MISSILE, dir, 300, -3);
+				fire_ball(GF_MISSILE, dir, device_power(300), -3);
 				o_ptr->timeout = randint0(20) + 20;
 				break;
 			}
@@ -6767,81 +6766,80 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 			{
 			case EGO_RING_HERO:
 				(void)set_afraid(0, TRUE);
-				(void)set_hero(randint1(25) + 25, FALSE);
-				(void)hp_player(10);
+				(void)set_hero(device_power(randint1(25) + 25), FALSE);
 				o_ptr->timeout = randint1(100)+100;
 				break;
 			case EGO_RING_MAGIC_MIS:
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
+				fire_bolt(GF_MISSILE, dir, device_power(damroll(2, 6)));
 				o_ptr->timeout = 2;
 				break;
 			case EGO_RING_FIRE_BOLT:
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(9, 8));
+				fire_bolt(GF_FIRE, dir, device_power(damroll(9, 8)));
 				o_ptr->timeout = randint0(8) + 8;
 				break;
 			case EGO_RING_COLD_BOLT:
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_COLD, dir, damroll(6, 8));
+				fire_bolt(GF_COLD, dir, device_power(damroll(6, 8)));
 				o_ptr->timeout = randint0(7) + 7;
 				break;
 			case EGO_RING_ELEC_BOLT:
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, damroll(4, 8));
+				fire_bolt(GF_ELEC, dir, device_power(damroll(4, 8)));
 				o_ptr->timeout = randint0(5) + 5;
 				break;
 			case EGO_RING_ACID_BOLT:
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ACID, dir, damroll(5, 8));
+				fire_bolt(GF_ACID, dir, device_power(damroll(5, 8)));
 				o_ptr->timeout = randint0(6) + 6;
 				break;
 			case EGO_RING_MANA_BOLT:
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_MANA, dir, 120);
+				fire_bolt(GF_MANA, dir, device_power(120));
 				o_ptr->timeout = randint0(120)+120;
 				break;
 			case EGO_RING_FIRE_BALL:
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 100, 2);
+				fire_ball(GF_FIRE, dir, device_power(100), 2);
 				o_ptr->timeout = randint0(80) + 80;
 				break;
 			case EGO_RING_COLD_BALL:
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 100, 2);
+				fire_ball(GF_COLD, dir, device_power(100), 2);
 				o_ptr->timeout = randint0(80) + 80;
 				break;
 			case EGO_RING_ELEC_BALL:
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ELEC, dir, 100, 2);
+				fire_ball(GF_ELEC, dir, device_power(100), 2);
 				o_ptr->timeout = randint0(80) + 80;
 				break;
 			case EGO_RING_ACID_BALL:
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ACID, dir, 100, 2);
+				fire_ball(GF_ACID, dir, device_power(100), 2);
 				o_ptr->timeout = randint0(80) + 80;
 				break;
 			case EGO_RING_MANA_BALL:
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_MANA, dir, 250, 2);
+				fire_ball(GF_MANA, dir, device_power(250), 2);
 				o_ptr->timeout = 300;
 				break;
 			case EGO_RING_DRAGON_F:
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 200, -2);
+				fire_ball(GF_FIRE, dir, device_power(200), -2);
 				if (o_ptr->sval == SV_RING_FLAMES)
 				{
-					(void)set_oppose_fire(randint1(20) + 20, FALSE);
+					(void)set_oppose_fire(device_power(randint1(20) + 20), FALSE);
 					o_ptr->timeout = 200;
 				}
 				else o_ptr->timeout = 250;
 				break;
 			case EGO_RING_DRAGON_C:
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir, 200, -2);
+				fire_ball(GF_COLD, dir, device_power(200), -2);
 				if (o_ptr->sval == SV_RING_ICE)
 				{
-					(void)set_oppose_cold(randint1(20) + 20, FALSE);
+					(void)set_oppose_cold(device_power(randint1(20) + 20), FALSE);
 					o_ptr->timeout = 200;
 				}
 				else o_ptr->timeout = 250;
@@ -6852,12 +6850,12 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				o_ptr->timeout = 150;
 				break;
 			case EGO_RING_D_SPEED:
-				(void)set_fast(randint1(30) + 15, FALSE);
+				(void)set_fast(device_power(randint1(30) + 15), FALSE);
 				o_ptr->timeout = 100;
 				break;
 			case EGO_RING_BERSERKER:
 				(void)set_afraid(0, TRUE);
-				(void)set_shero(randint1(25) + 25, FALSE);
+				(void)set_shero(device_power(randint1(25) + 25), FALSE);
 				o_ptr->timeout = randint0(75)+75;
 				break;
 			case EGO_RING_TELE_AWAY:
@@ -6867,10 +6865,9 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				break;
 			case EGO_RING_TRUE:
 			{
-				int v = randint1(25)+25;
+				int v = device_power(randint1(25)+25);
 				(void)set_afraid(0, TRUE);
 				(void)set_hero(v, FALSE);
-				(void)hp_player(10);
 				(void)set_blessed(v, FALSE);
 				(void)set_oppose_acid(v, FALSE);
 				(void)set_oppose_elec(v, FALSE);
@@ -6895,32 +6892,32 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 		{
 			case SV_RING_ACID:
 			{
-				fire_ball(GF_ACID, dir, 100, 2);
-				(void)set_oppose_acid(randint1(20) + 20, FALSE);
+				fire_ball(GF_ACID, dir, device_power(100), 2);
+				(void)set_oppose_acid(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			}
 
 			case SV_RING_ICE:
 			{
-				fire_ball(GF_COLD, dir, 100, 2);
-				(void)set_oppose_cold(randint1(20) + 20, FALSE);
+				fire_ball(GF_COLD, dir, device_power(100), 2);
+				(void)set_oppose_cold(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			}
 
 			case SV_RING_FLAMES:
 			{
-				fire_ball(GF_FIRE, dir, 100, 2);
-				(void)set_oppose_fire(randint1(20) + 20, FALSE);
+				fire_ball(GF_FIRE, dir, device_power(100), 2);
+				(void)set_oppose_fire(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			}
 
 			case SV_RING_ELEC:
 			{
-				fire_ball(GF_ELEC, dir, 100, 2);
-				(void)set_oppose_elec(randint1(20) + 20, FALSE);
+				fire_ball(GF_ELEC, dir, device_power(100), 2);
+				(void)set_oppose_elec(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			}
@@ -6945,7 +6942,7 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				break;
 			case EGO_AMU_CHARM:
 				if (!get_aim_dir(&dir)) return;
-				charm_monster(dir, MAX(20, p_ptr->lev));
+				charm_monster(dir, device_power(MAX(20, p_ptr->lev)));
 				o_ptr->timeout = 200;
 				break;
 			case EGO_AMU_JUMP:
@@ -6959,23 +6956,23 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			case EGO_AMU_D_DOOR:
-				(void)dimension_door(p_ptr->lev / 2 + 10);
+				(void)dimension_door(device_power(p_ptr->lev / 2 + 10));
 				o_ptr->timeout = 200;
 				break;
 			case EGO_AMU_RES_FIRE_:
-				(void)set_oppose_fire(randint1(20) + 20, FALSE);
+				(void)set_oppose_fire(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			case EGO_AMU_RES_COLD_:
-				(void)set_oppose_cold(randint1(20) + 20, FALSE);
+				(void)set_oppose_cold(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			case EGO_AMU_RES_ELEC_:
-				(void)set_oppose_elec(randint1(20) + 20, FALSE);
+				(void)set_oppose_elec(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			case EGO_AMU_RES_ACID_:
-				(void)set_oppose_acid(randint1(20) + 20, FALSE);
+				(void)set_oppose_acid(device_power(randint1(20) + 20), FALSE);
 				o_ptr->timeout = randint0(50) + 50;
 				break;
 			case EGO_AMU_DETECTION:

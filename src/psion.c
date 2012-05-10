@@ -28,6 +28,17 @@ bool psion_weapon_graft(void)
 	return FALSE;
 }
 
+bool psion_check_dispel(void)
+{
+	if (p_ptr->pclass != CLASS_PSION) return FALSE;
+	if (p_ptr->magic_num1[_SPEED] > 0 && p_ptr->pspeed < 145 && p_ptr->magic_num2[_SPEED] > 2) return TRUE;
+	if (p_ptr->magic_num1[_SHIELDING] > 0) return TRUE;
+	if (p_ptr->magic_num1[_FORTRESS] > 0) return TRUE;
+	/*if (p_ptr->magic_num1[_MINDSPRING] > 0) return TRUE;*/
+	if (p_ptr->magic_num1[_FORESIGHT] > 0) return TRUE;
+	return FALSE;
+}
+
 bool psion_clarity(void)
 {
 	if (p_ptr->pclass != CLASS_PSION) return FALSE;
@@ -73,7 +84,7 @@ bool psion_backlash(void)
 int psion_backlash_dam(int dam)
 {
 	if (psion_backlash())
-		dam = dam * (10 + 30*p_ptr->magic_num2[_BACKLASH]) / 100;
+		dam = dam * (25 + 35*p_ptr->magic_num2[_BACKLASH]) / 100;
 	return dam;
 }
 
@@ -426,7 +437,7 @@ static void _mindspring_spell(int cmd, variant *res)
 			return;
 		}
 		msg_print("Your mindspring flows.");
-		p_ptr->magic_num1[_MINDSPRING] = spell_power(_power * 3);
+		p_ptr->magic_num1[_MINDSPRING] = spell_power(_power * 2);
 		p_ptr->magic_num2[_MINDSPRING] = _power;
 		p_ptr->update |= PU_BONUS;
 		p_ptr->redraw |= PR_STATUS;
@@ -940,11 +951,11 @@ static spell_info _spells[MAX_PSION_SPELLS] =
 	{ 30,  10, 60, _brain_smash_spell },
 
 	{ 40,  30, 70, _psionic_crafting_spell },
-	{ 40,  20, 60, _psionic_storm_spell },
+	{ 40,  20, 55, _psionic_storm_spell },
 	{ 40,  20, 50, _psionic_backlash_spell },
 
-	{ 50,  40, 30, _mental_fortress_spell },
-	{ 50,  40, 50, _mindspring_spell },
+	{ 50,  40, 40, _mental_fortress_spell },
+	{ 50,  40, 40, _mindspring_spell },
 	{ 50,  50, 40, _psionic_foresight_spell },
 };
 
@@ -1137,7 +1148,7 @@ void psion_dispel_player(void)
 	_clear_counter(_SPEED, "Your psionic speed fades.");	
 	_clear_counter(_BACKLASH, "Your mental revenge abates.");	
 	_clear_counter(_FORTRESS, "Your mental fortress collapses.");	
-	_clear_counter(_MINDSPRING, "Your mindspring dries up.");	
+	/*_clear_counter(_MINDSPRING, "Your mindspring dries up.");	*/
 	_clear_counter(_FORESIGHT, "Your foresight fades.");	
 }
 
@@ -1167,6 +1178,7 @@ static int _get_spells(spell_info* spells, int max)
 		if (p_ptr->spell_order[i] == 99) break;
 
 		base = &_spells[p_ptr->spell_order[i]];
+
 		if (base->level <= p_ptr->lev)
 		{
 			spell_info* current = &spells[ct];
@@ -1234,6 +1246,7 @@ static void _calc_bonuses(void)
 	}
 	if (p_ptr->magic_num1[_FORTRESS])
 	{
+		p_ptr->spell_power += 3;
 		p_ptr->resist_time = TRUE;
 		p_ptr->sustain_str = TRUE;
 		p_ptr->sustain_int = TRUE;
