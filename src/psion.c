@@ -1246,7 +1246,7 @@ static void _calc_bonuses(void)
 	}
 	if (p_ptr->magic_num1[_FORTRESS])
 	{
-		p_ptr->spell_power += 3;
+		p_ptr->spell_power += p_ptr->magic_num2[_FORTRESS];
 		p_ptr->resist_time = TRUE;
 		p_ptr->sustain_str = TRUE;
 		p_ptr->sustain_int = TRUE;
