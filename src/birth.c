@@ -1863,6 +1863,8 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "TRANSLATE(Scout ...)",
 
+"TRANSLATE(Mauler ...)",
+
 #else
 
 "A Warrior is a hack-and-slash character, who solves most of his problems by cutting them to pieces, but will occasionally fall back on the help of a magical device.  Unfortunately, many high-level devices may be forever beyond their use.",
@@ -1979,12 +1981,19 @@ static cptr class_jouhou[MAX_CLASS] =
 	"in response to their natural foes, the mages. As time passed, other "
 	"races have also begun to learn their arts.",
 
-"The scout is the vanguard of any attack, and excels at stealth and observation skills. "
-	"The scout is not the best at one-on-one combat, but is unparalleled at ambush "
-	"techniques to destroy groups of weak sentries. The scout is lightly armored, "
-	"and heavy armors disrupt their abilities. Furthermore, the scout can only effectively "
-	"dodge in open areas, being confined severely hampers the scout's defensive abilities.",
+"The Scout is the vanguard of any attack, and excels at stealth and observation skills. "
+	"The Scout is not the best at one-on-one combat, but is unparalleled at ambush "
+	"techniques to destroy groups of weak sentries. The Scout is lightly armored, "
+	"and heavy armors disrupt their abilities. Furthermore, the Scout can only effectively "
+	"dodge in open areas, being confined severely hampers the Scout's defensive abilities.",
 	
+"The Mauler favors extremely heavy weapons, and possesses powerful abilities whose "
+	"effectiveness depends on the weight of the weapon. While they only gain a limited "
+	"number of blows which can never be magically increased, they are capable of "
+	"hitting opponents very hard to make the most of each strike. The Mauler is "
+	"required to use both hands on a single weapon when wielding if they wish their "
+	"talents to function properly.",
+
 #endif
 };
 
@@ -4541,6 +4550,14 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 	},
+
+	{
+		/* Mauler */
+		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
+		{ TV_SWORD, SV_TWO_HANDED_SWORD }
+	},
+
 };
 
 
@@ -4717,7 +4734,7 @@ void player_outfit(void)
 		_birth_object(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 20));
 	}
 
-	if(p_ptr->pseikaku == SEIKAKU_SEXY)
+	if(p_ptr->pseikaku == SEIKAKU_SEXY && p_ptr->pclass != CLASS_MAULER)
 	{
 		player_init[p_ptr->pclass][2][0] = TV_HAFTED;
 		player_init[p_ptr->pclass][2][1] = SV_WHIP;

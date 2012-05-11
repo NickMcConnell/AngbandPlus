@@ -125,7 +125,7 @@ bool psion_foresight(void)
 bool psion_check_foresight(void)
 {
 	if (!psion_foresight()) return FALSE;
-	if (randint1(100) <= 13*p_ptr->magic_num2[_FORESIGHT] + 10) 
+	if (randint1(100) <= 12*p_ptr->magic_num2[_FORESIGHT] + 7)
 	{
 		msg_print("You saw that one coming!");
 		return TRUE;

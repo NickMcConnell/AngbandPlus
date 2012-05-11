@@ -191,6 +191,11 @@ F:!:FLOOR:3:0:42
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:126
 
+#Two-handed Flail
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Mauler] ]
+F:b:BUILDING_1:3:0:0:0:0:NONE:25
+F:!:FLOOR:3:0:51
+
 # Continue with quest 25
 ?:[EQU $QUEST14 4]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
@@ -407,6 +412,18 @@ F:@:FLOOR:3:0:0:0:248
 ?:[AND [EQU $QUEST27 3] [EQU $CLASS Duelist] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:174
+
+##########################################################################
+# Mauler
+# Nyoi-bou
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [EQU [MOD $RANDOM27 9] 0] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:157
+
+# Benkei
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Mauler] [GEQ [MOD $RANDOM27 9] 1] ]
+F:a:BUILDING_0:3
+F:@:FLOOR:3:0:0:0:152
 
 ##########################################################################
 # Weaponsmith

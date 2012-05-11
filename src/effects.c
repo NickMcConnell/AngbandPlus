@@ -2170,6 +2170,9 @@ msg_print("動きの素早さがなくなったようだ。");
 	/* Use the value */
 	p_ptr->fast = v;
 
+	if (mauler_get_toggle() == TOGGLE_DEATH_FORCE)
+		p_ptr->redraw |= PR_STATUS;
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
@@ -8119,6 +8122,94 @@ bool set_tim_stealthy_snipe(int v, bool do_dec)
 	}
 
 	p_ptr->tim_stealthy_snipe = v;
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+	return (TRUE);
+}
+
+bool set_tim_killing_spree(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_killing_spree)
+		{
+			if (p_ptr->tim_killing_spree > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You go on a killing spree!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_killing_spree)
+		{
+			msg_print("You have seen enough blood and suffering for now.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_killing_spree = v;
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+	return (TRUE);
+}
+
+bool set_tim_slay_sentient(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_slay_sentient)
+		{
+			if (p_ptr->tim_slay_sentient > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("Your weapon roars with thirsty glee!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_slay_sentient)
+		{
+			msg_print("Your weapon returns to normal.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_slay_sentient = v;
 	if (!notice) return (FALSE);
 	if (disturb_state) disturb(0, 0);
 	p_ptr->redraw |= (PR_STATUS);

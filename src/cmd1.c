@@ -262,12 +262,24 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 		if (!(p_ptr->resist_pois || IS_OPPOSE_POIS()) && (mult < 25))
 			mult = 25;
 
+		if (p_ptr->tim_slay_sentient && p_ptr->ryoute)
+		{
+			if (mult < 30) mult = 30;
+		}
+
 		if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (p_ptr->msp / 30)))
 		{
 			p_ptr->csp -= (1+(p_ptr->msp / 30));
 			p_ptr->redraw |= (PR_MANA);
 			mult = mult * 3 / 2 + 20;
 		}
+
+		if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute && p_ptr->fast >= 6)
+		{
+			set_fast(p_ptr->fast - 6, TRUE);
+			mult = mult * 3 / 2 + 20;
+		}
+
 		k *= mult;
 		k /= 10;
 	}
@@ -454,6 +466,15 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
 
 	/* Extract "blow" power */
 	i = (weight + (meichuu * 3 + plus * 5) + (p_ptr->lev * 3));
+
+	/* Mauler L45: Destroyer - +(W/20)% chance of crits 
+	   (e.g. a 40 lb heavy lance gets +20% chance to crit). */
+	if ( p_ptr->pclass == CLASS_MAULER
+	  && p_ptr->ryoute )
+	{
+		int pct = weight / 20;
+		i += roll * pct / 100;
+	}
 
 	/* Chance */
 	if ((randint1(roll) <= i) || (mode == HISSATSU_MAJIN) || (mode == HISSATSU_3DAN))
@@ -1278,6 +1299,10 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				if (mult == 10) mult = 40;
 				else if (mult < 60) mult = 60;
 			}
+			if (p_ptr->tim_slay_sentient && !(r_ptr->flags3 & RF3_NO_STUN) && p_ptr->ryoute)
+			{
+				if (mult < 30) mult = 30;
+			}
 			if (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force)
 			{
 				int cost = 0;
@@ -1293,6 +1318,11 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 					p_ptr->redraw |= (PR_MANA);
 					mult = mult * 3 / 2 + 20;
 				}
+			}
+			if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->fast >= 6 &&  p_ptr->ryoute)
+			{
+				set_fast(p_ptr->fast - 6, TRUE);
+				mult = mult * 3 / 2 + 20;
 			}
 
 			if (p_ptr->tim_blood_feast)
@@ -3695,6 +3725,17 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			{
 				*mdeath = TRUE;
 
+				/* Mauler L15: Splattering - Whenever you kill a monster, your last 
+				   strike damage is applied to all foes within radius 2 ball of recently 
+				   deceased enemy. */
+				if ( p_ptr->pclass == CLASS_MAULER
+				  && p_ptr->ryoute
+				  && p_ptr->lev >= 15 )
+				{
+					project(0, 2, y, x, k, 
+					        GF_BLOOD, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_FULL_DAM, -1);
+				}
+
 				if ( o_ptr->tval == TV_SWORD
 				  && o_ptr->sval == SV_RUNESWORD
 				  && monster_living(r_ptr) )
@@ -3768,7 +3809,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			}
 			else
 			{
-				if (mode == RAGEMAGE_AWESOME_BLOW)
+				if (mauler_get_toggle() == TOGGLE_CURSED_WOUNDS && p_ptr->ryoute)
+				{
+					int amt = (k+2)/3;
+					m_ptr->maxhp -= amt;
+					msg_format("%^s seems weakened.", m_name);
+				}
+
+				if (mode == MELEE_AWESOME_BLOW)
 				{
 					int dir = calculate_dir(px, py, x, y);
 					if (dir != 5)
@@ -3778,9 +3826,17 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						int m_idx = c_ptr->m_idx;
 						int ty = y, tx = x;
 						int oy = y, ox = x;
-						
-						if (p_ptr->shero)
-							max = 6;
+
+						if (p_ptr->pclass == CLASS_RAGE_MAGE)
+						{
+							if (p_ptr->shero)
+								max = 6;
+						}
+						else if (p_ptr->pclass == CLASS_MAULER)
+						{
+							int w = o_ptr->weight;
+							max = MIN(p_ptr->lev/5, w/40);
+						}
 						
 						for (ct = 0; ct < max; ct++) 
 						{
@@ -4268,7 +4324,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		if (mode == WEAPONMASTER_WHIRLWIND) break;
 		if (mode == WEAPONMASTER_REAPING) break;
 		if (mode == WEAPONMASTER_ABSORB_SOUL) break;
-		if (mode == RAGEMAGE_AWESOME_BLOW) break;
+		if (mode == MELEE_AWESOME_BLOW) break;
 	}
 
 	if (mode == WEAPONMASTER_KNOCK_BACK && hit_ct)
@@ -4359,8 +4415,14 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake)
 	{
-		earthquake(py, px, 10);
-		if (!cave[y][x].m_idx) *mdeath = TRUE;
+		if (mauler_get_toggle() == TOGGLE_NO_EARTHQUAKE && p_ptr->ryoute)
+		{
+		}
+		else
+		{
+			earthquake(py, px, 10);
+			if (!cave[y][x].m_idx) *mdeath = TRUE;
+		}
 	}
 
 	return success_hit;

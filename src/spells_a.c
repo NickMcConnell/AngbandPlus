@@ -230,6 +230,46 @@ void animate_dead_spell(int cmd, variant *res)
 	}
 }
 
+void awesome_blow_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Awesome Blow");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attack a monster with a single melee blow. If blow hits, does normal melee damage and propels the monster backwards.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir;
+		var_set_bool(res, FALSE);
+
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+		{
+			py_attack(y, x, MELEE_AWESOME_BLOW);
+		}
+		else
+		{
+			msg_print(T("There is no monster.", "€œ€ÎÊýžþ€Ë€Ï¥â¥ó¥¹¥¿¡Œ€Ï€€€Þ€»€ó¡£"));
+			return;
+		}
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void banish_evil_spell(int cmd, variant *res)
 {
 	switch (cmd)

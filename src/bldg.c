@@ -3165,6 +3165,10 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	{
 		print_force_weapon = TRUE;
 	}
+	else if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute && p_ptr->fast >= 6)
+	{
+		print_force_weapon = TRUE;
+	}
 
 	/* Print the relevant lines */
 #ifdef JP
@@ -3194,6 +3198,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	if (have_flag(flgs, TR_BRAND_POIS))  compare_weapon_aux2(o_ptr, blow, r++, col, 250, "ÆÇÂ°À­:", TERM_RED, print_force_weapon);
 #else
 	if (print_force_weapon)     compare_weapon_aux2(o_ptr, blow, r++, col, 100, "Force:", TERM_L_BLUE, print_force_weapon);
+	if (p_ptr->tim_slay_sentient)   compare_weapon_aux2(o_ptr, blow, r++, col, 300, "Sentient:", TERM_YELLOW, print_force_weapon);
 	if (have_flag(flgs, TR_KILL_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 400, "Animals:", TERM_YELLOW, print_force_weapon);
 	else if (have_flag(flgs, TR_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, blow, r++, col, 250, "Animals:", TERM_YELLOW, print_force_weapon);
 	if (have_flag(flgs, TR_KILL_EVIL))   compare_weapon_aux2(o_ptr, blow, r++, col, 350, "Evil:", TERM_YELLOW, print_force_weapon);

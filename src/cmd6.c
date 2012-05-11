@@ -1108,10 +1108,10 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 				if (chugger) dur *= 2;
 				if (set_fast(dur, FALSE)) ident = TRUE;
 			}
+			else if (p_ptr->pclass == CLASS_MAULER)
+				set_fast(p_ptr->fast + 10, FALSE);
 			else
-			{
-				(void)set_fast(p_ptr->fast + 5, FALSE);
-			}
+				set_fast(p_ptr->fast + 5, FALSE);
 			break;
 
 		case SV_POTION_RESIST_HEAT:
@@ -2099,7 +2099,8 @@ msg_print("ダンジョンが揺れた...");
 				(p_ptr->pclass == CLASS_RUNE_KNIGHT) ||
 				(p_ptr->pclass == CLASS_WILD_TALENT) ||
 				(p_ptr->pclass == CLASS_NINJA) ||
-				p_ptr->pclass == CLASS_SCOUT)
+				p_ptr->pclass == CLASS_SCOUT ||
+				p_ptr->pclass == CLASS_MAULER)
 			{
 				break;
 			}
@@ -5650,6 +5651,13 @@ msg_print("あなたの槍は電気でスパークしている...");
 				msg_print("Your cudgel grows bigger ...");
 				set_tim_enlarge_weapon(device_power(5), FALSE);
 				o_ptr->timeout = 555;
+				break;
+			}
+			case ART_MAUL_OF_VICE:
+			{
+				msg_print("You maul rends the fabric of space-time ...");
+				set_lightspeed(8, FALSE);
+				o_ptr->timeout = 888;
 				break;
 			}
 			case ART_GOTHMOG:

@@ -439,7 +439,12 @@ static void prt_stat(int stat)
 #define BAR_DARK_STALKER 132
 #define BAR_NIMBLE_DODGE 133
 #define BAR_STEALTHY_SNIPE 134
-
+#define BAR_WEAPON_AS_SHIELD 135
+#define BAR_CURSED_WOUNDS 136
+#define BAR_NO_EARTHQUAKE 137
+#define BAR_DEATH_FORCE 138
+#define BAR_KILLING_SPREE 139
+#define BAR_SLAY_SENTIENT 140
 
 static struct {
 	byte attr;
@@ -516,6 +521,9 @@ static struct {
 	{TERM_RED, "µÛ", "µÛ·ìÂÇ·â"},
 	{TERM_WHITE, "²ó", "²óÉü"},
 	{TERM_L_DARK, "´¶", "¼Ù°­´¶ÃÎ"},
+
+	ERROR(Todo: Translate all the new stuff!!)
+
 	{0, NULL, NULL}
 };
 #else
@@ -652,10 +660,16 @@ static struct {
 	{TERM_YELLOW, "(Chr", "SustChr"},
 	{TERM_YELLOW, "(Lf", "HoldLife"},
 	{TERM_WHITE, "Tr", "Transcendence"},
-	{TERM_L_BLUE, "ST", "Stop Time"},
+	{TERM_L_BLUE, "ST", "StopTime"},
 	{TERM_L_DARK, "DS", "Stalk"},
 	{TERM_L_BLUE, "ND", "Dodge"},
 	{TERM_UMBER, "SS", "Snipe"},
+	{TERM_L_BLUE, "WS", "Shield"},
+	{TERM_RED, "CW", "Wounds"},
+	{TERM_YELLOW, "Eq-", "NoQuake"},
+	{TERM_L_DARK, "DF", "DeathForce"},
+	{TERM_VIOLET, "KS", "*KILL*"},
+	{TERM_L_BLUE, "SS", "SlaySentient"},
 	{0, NULL, NULL}
 };
 #endif
@@ -921,6 +935,48 @@ static void prt_status(void)
 		if (p_ptr->entrenched) ADD_FLG(BAR_ENTRENCHED);
 	}
 
+	if (p_ptr->pclass == CLASS_MAULER)
+	{
+		switch (mauler_get_toggle())
+		{
+		case TOGGLE_WEAPON_AS_SHIELD:
+			ADD_FLG(BAR_WEAPON_AS_SHIELD);
+			break;
+		case TOGGLE_CURSED_WOUNDS:
+			ADD_FLG(BAR_CURSED_WOUNDS);
+			break;
+		case TOGGLE_NO_EARTHQUAKE:
+			ADD_FLG(BAR_NO_EARTHQUAKE);
+			break;
+		case TOGGLE_DEATH_FORCE:
+		{
+			int a = TERM_L_DARK;
+			if (p_ptr->ryoute)
+			{
+				if (p_ptr->fast >= 100)
+					a = TERM_RED;
+				else if (p_ptr->fast >= 50)
+					a = TERM_ORANGE;
+				else if (p_ptr->fast >= 20)
+					a = TERM_YELLOW;
+				else if (p_ptr->fast >= 6)
+					a = TERM_SLATE;
+			}
+			bar[BAR_DEATH_FORCE].attr = a;
+			if (p_ptr->wizard)
+			{
+				static char wizard_death_buf[100];
+				strnfmt(wizard_death_buf, 100, "DeathForce(%d)", p_ptr->fast);
+				bar[BAR_DEATH_FORCE].lstr = wizard_death_buf;
+			}
+			else
+				bar[BAR_DEATH_FORCE].lstr = "DeathForce";
+
+			ADD_FLG(BAR_DEATH_FORCE);
+			break;
+		}
+		}
+	}
 	if (p_ptr->pclass == CLASS_PSION)
 	{
 		if (psion_weapon_graft()) ADD_FLG(BAR_WEAPON_GRAFT);
@@ -964,6 +1020,9 @@ static void prt_status(void)
 	if (p_ptr->tim_dark_stalker) ADD_FLG(BAR_DARK_STALKER);
 	if (p_ptr->tim_nimble_dodge) ADD_FLG(BAR_NIMBLE_DODGE);
 	if (p_ptr->tim_stealthy_snipe) ADD_FLG(BAR_STEALTHY_SNIPE);
+
+	if (p_ptr->tim_killing_spree) ADD_FLG(BAR_KILLING_SPREE);
+	if (p_ptr->tim_slay_sentient) ADD_FLG(BAR_SLAY_SENTIENT);
 
 	if (world_player) ADD_FLG(BAR_THE_WORLD);
 
@@ -3671,6 +3730,7 @@ void calc_bonuses(void)
 	p_ptr->open_terrain_ct = 0;
 
 	p_ptr->align = friend_align;
+	p_ptr->maul_of_vice = FALSE;
 
 
 	if (p_ptr->mimic_form) tmp_rp_ptr = &mimic_info[p_ptr->mimic_form];
@@ -4369,6 +4429,8 @@ void calc_bonuses(void)
 	{
 		o_ptr = &inventory[i];
 		if (!o_ptr->k_idx) continue;
+		if (o_ptr->name1 == ART_MAUL_OF_VICE)
+			p_ptr->maul_of_vice = TRUE;
 		if (o_ptr->rune_flags & RUNE_ELEMENTAL_PROTECTION) 
 			p_ptr->rune_elem_prot = TRUE;
 		if (o_ptr->rune_flags & RUNE_GOOD_FORTUNE) 
@@ -4389,6 +4451,9 @@ void calc_bonuses(void)
 
 		p_ptr->cursed |= (o_ptr->curse_flags & (0xFFFFFFF0L));
 		if (o_ptr->name1 == ART_CHAINSWORD) p_ptr->cursed |= TRC_CHAINSWORD;
+
+		if (o_ptr->name1 == ART_MAUL_OF_VICE)
+			p_ptr->maul_of_vice = TRUE;
 
 		/* Runes */
 		if (o_ptr->rune_flags & RUNE_ABSORPTION)
@@ -4482,9 +4547,17 @@ void calc_bonuses(void)
 		/* Affect blows */
 		if (have_flag(flgs, TR_BLOWS))
 		{
-			if((i == INVEN_RARM || i == INVEN_RIGHT) && !p_ptr->ryoute) extra_blows[0] += o_ptr->pval;
-			else if((i == INVEN_LARM || i == INVEN_LEFT) && !p_ptr->ryoute) extra_blows[1] += o_ptr->pval;
-			else {extra_blows[0] += o_ptr->pval; extra_blows[1] += o_ptr->pval;}
+			if (p_ptr->pclass == CLASS_MAULER && o_ptr->pval > 0)
+			{
+				/*Mauler: Cannot gain Extra Blows from equipment 
+				  (penalties to blows, such as from Master Tonberry, still apply) */
+			}
+			else
+			{
+				if((i == INVEN_RARM || i == INVEN_RIGHT) && !p_ptr->ryoute) extra_blows[0] += o_ptr->pval;
+				else if((i == INVEN_LARM || i == INVEN_LEFT) && !p_ptr->ryoute) extra_blows[1] += o_ptr->pval;
+				else {extra_blows[0] += o_ptr->pval; extra_blows[1] += o_ptr->pval;}
+			}
 		}
 
 		/* Hack -- cause earthquakes */
@@ -5606,7 +5679,11 @@ void calc_bonuses(void)
 			/* Heavy weapon */
 			info_ptr->heavy_wield = TRUE;
 		}
-		else if (p_ptr->ryoute && (hold < o_ptr->weight/5)) p_ptr->omoi = TRUE;
+		else if (p_ptr->ryoute && (hold < o_ptr->weight/5)) 
+		{
+			if (p_ptr->pclass != CLASS_MAULER)
+				p_ptr->omoi = TRUE;
+		}
 
 		if ((i == 1) && (o_ptr->tval == TV_SWORD) && ((o_ptr->sval == SV_MAIN_GAUCHE) || (o_ptr->sval == SV_WAKIZASHI)))
 		{
@@ -5624,6 +5701,9 @@ void calc_bonuses(void)
 			{
 				case CLASS_WARRIOR:
 					num = 6; wgt = 70; mul = 5; break;
+
+				case CLASS_MAULER:
+					num = 3; wgt = 280; mul = 3; break;
 
 				case CLASS_BERSERKER:
 					num = 6; wgt = 70; mul = 7; break;

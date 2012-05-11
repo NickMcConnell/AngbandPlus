@@ -47,7 +47,7 @@
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
 #define H_VER_PATCH 96
-#define H_VER_EXTRA 0
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -825,8 +825,9 @@
 #define CLASS_PSION		        38
 #define CLASS_RAGE_MAGE	        39
 #define CLASS_SCOUT             40
+#define CLASS_MAULER            41
 
-#define MAX_CLASS               41
+#define MAX_CLASS               42
 
 /* Warlock Pacts ... stored in p_ptr->psubclass */
 #define PACT_UNDEAD		 0
@@ -1460,6 +1461,7 @@
 #define ART_AEGIR				251
 #define ART_DEFENDER_OF_THE_CROWN 252
 #define ART_MONKEY_KING			255
+#define ART_MAUL_OF_VICE        279
 
 /* Bows */
 #define ART_BELTHRONDING        124
@@ -5334,7 +5336,7 @@ extern int PlayerUID;
 #define WEAPONMASTER_SMITE_EVIL 45
 #define WEAPONMASTER_ABSORB_SOUL 46
 
-#define RAGEMAGE_AWESOME_BLOW 47
+#define MELEE_AWESOME_BLOW 47
 
 
 #define MAX_FRENZY_ITEMS 3
@@ -5788,6 +5790,11 @@ extern int PlayerUID;
 	#define TOGGLE_SHIELD_BASH      25
 	#define TOGGLE_BULWARK			26
 	#define TOGGLE_SHIELD_REVENGE	27
+
+	#define TOGGLE_WEAPON_AS_SHIELD 28
+	#define TOGGLE_CURSED_WOUNDS    29
+	#define TOGGLE_NO_EARTHQUAKE    30
+	#define TOGGLE_DEATH_FORCE      31
 
 /* Wild Counters */
 #define WILD_INFRAVISION 1

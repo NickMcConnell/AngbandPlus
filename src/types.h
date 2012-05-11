@@ -1171,6 +1171,10 @@ struct player_type
 	s16b tim_nimble_dodge;
 	s16b tim_stealthy_snipe;
 
+	s16b tim_killing_spree;
+	s16b tim_slay_sentient;
+	bool maul_of_vice;
+
 	counter_t wild_counters[MAX_WILD_COUNTERS];	/* Wild Weapons */
 
 	bool sense_artifact;

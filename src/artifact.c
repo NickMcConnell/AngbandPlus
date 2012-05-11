@@ -1876,6 +1876,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			case CLASS_BLOOD_KNIGHT:
 			case CLASS_WEAPONMASTER:
 			case CLASS_RUNE_KNIGHT:
+			case CLASS_MAULER:
 				artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_MAGE:
@@ -3915,6 +3916,7 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 	keeper.name3 = a_idx;
 	object_level = old_level;
 	object_copy(o_ptr, &keeper);
+	o_ptr->weight = forge1.weight;
 
 	return TRUE;
 }

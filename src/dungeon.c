@@ -247,6 +247,7 @@ static void sense_inventory1(void)
 		case CLASS_RUNE_KNIGHT:
 		case CLASS_WEAPONMASTER:
 		case CLASS_RAGE_MAGE:
+		case CLASS_MAULER:
 		{
 			/* Good sensing */
 			if (0 != randint0(9000L / (plev * plev + 40))) return;
@@ -495,6 +496,7 @@ static void sense_inventory2(void)
 		case CLASS_DUELIST:
 		case CLASS_WEAPONMASTER:
 		case CLASS_RAGE_MAGE:
+		case CLASS_MAULER:
 		{
 			return;
 		}
@@ -1965,6 +1967,8 @@ static void process_world_aux_timeout(void)
 
 	/*** Timeout Various Things ***/
 
+	process_maul_of_vice();
+
 	/* Mimic */
 	if (p_ptr->tim_mimic)
 	{
@@ -2353,6 +2357,12 @@ static void process_world_aux_timeout(void)
 
 	if (p_ptr->tim_stealthy_snipe)
 		set_tim_stealthy_snipe(p_ptr->tim_stealthy_snipe - 1, TRUE);
+
+	if (p_ptr->tim_killing_spree)
+		set_tim_killing_spree(p_ptr->tim_killing_spree - 1, TRUE);
+
+	if (p_ptr->tim_slay_sentient)
+		set_tim_slay_sentient(p_ptr->tim_slay_sentient - 1, TRUE);
 
 	wild_decrement_counters();
 
@@ -4434,7 +4444,8 @@ msg_print("ウィザードモード突入。");
 					 p_ptr->pclass == CLASS_RUNE_KNIGHT ||
 					 p_ptr->pclass == CLASS_WILD_TALENT ||
 					 p_ptr->pclass == CLASS_WEAPONMASTER ||
-					 p_ptr->pclass == CLASS_SCOUT)
+					 p_ptr->pclass == CLASS_SCOUT ||
+					 p_ptr->pclass == CLASS_MAULER)
 			{
 				/* This is the preferred entry point ... I'm still working on
 				   coverting everything else */
@@ -4575,7 +4586,8 @@ msg_print("ウィザードモード突入。");
 							 p_ptr->pclass == CLASS_WILD_TALENT ||
 							 p_ptr->pclass == CLASS_WEAPONMASTER ||
 							 p_ptr->pclass == CLASS_RAGE_MAGE ||
-							 p_ptr->pclass == CLASS_SCOUT)
+							 p_ptr->pclass == CLASS_SCOUT ||
+							 p_ptr->pclass == CLASS_MAULER)
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */

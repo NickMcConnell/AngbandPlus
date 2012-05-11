@@ -198,6 +198,7 @@ static s32b _activation_p(object_type *o_ptr)
 		case ART_AEGIR: return 25000;
 		case ART_DEFENDER_OF_THE_CROWN: return 10000;
 		case ART_MONKEY_KING: return 30000;
+		case ART_MAUL_OF_VICE: return 60000;
 		case ART_GOTHMOG: return 500;
 		case ART_TARATOL: return 15000;
 		case ART_ERIRIL: return 1200;

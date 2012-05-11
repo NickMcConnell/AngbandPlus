@@ -137,7 +137,7 @@ R:0:0x9A/0
 R:0:0x93/0
 ?:[EQU $CLASS Cavalry]
 R:0:0x96/0
-?:[EQU $CLASS Berserker Rage-Mage]
+?:[EQU $CLASS Berserker Rage-Mage Mauler]
 R:0:0x9A/0
 ?:[EQU $CLASS Weaponsmith]
 R:0:0x92/0

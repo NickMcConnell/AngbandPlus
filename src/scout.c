@@ -1,25 +1,6 @@
 #include "angband.h"
 
-void _foo_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Foo");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Perform a Bar.");
-		break;
-	case SPELL_CAST:
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-void _cavern_creation_spell(int cmd, variant *res)
+static void _cavern_creation_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
@@ -55,7 +36,7 @@ void _cavern_creation_spell(int cmd, variant *res)
 	}
 }
 
-void _dark_stalker_spell(int cmd, variant *res)
+static void _dark_stalker_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
@@ -75,7 +56,7 @@ void _dark_stalker_spell(int cmd, variant *res)
 	}
 }
 
-void _greater_whirlwind_attack_spell(int cmd, variant *res)
+static void _greater_whirlwind_attack_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
@@ -171,7 +152,7 @@ void _greater_whirlwind_attack_spell(int cmd, variant *res)
 }
 
 
-void _nimble_dodge_spell(int cmd, variant *res)
+static void _nimble_dodge_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{
@@ -191,7 +172,7 @@ void _nimble_dodge_spell(int cmd, variant *res)
 	}
 }
 
-void _stealthy_snipe_spell(int cmd, variant *res)
+static void _stealthy_snipe_spell(int cmd, variant *res)
 {
 	switch (cmd)
 	{

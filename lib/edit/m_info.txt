@@ -4777,6 +4777,43 @@ R:9:0
 # Necromancy
 R:10:0
 
+### Mauler ###
+N:41
+I:NONE:STR:0x00:0:99:0
+# Life
+R:0:0
+
+# Sorcery
+R:1:0
+
+# Nature
+R:2:0
+
+# Chaos
+R:3:0
+
+# Death
+R:4:0
+
+# Trump
+R:5:0
+
+# Arcane
+R:6:0
+
+# Craft
+R:7:0
+
+# Deamon
+R:8:0
+
+# Crusade
+R:9:0
+
+# Necromancy
+R:10:0
+
+
 
 # I:book:stat:xtra:type:first:weight
 # R:realm:readable

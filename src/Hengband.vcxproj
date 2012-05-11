@@ -121,6 +121,7 @@
     <ClCompile Include="magic_eater.c" />
     <ClCompile Include="main-win.c" />
     <ClCompile Include="mane.c" />
+    <ClCompile Include="mauler.c" />
     <ClCompile Include="melee1.c" />
     <ClCompile Include="melee2.c" />
     <ClCompile Include="menu.c" />

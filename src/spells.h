@@ -89,6 +89,7 @@ extern void android_bazooka_spell(int cmd, variant *res);
 extern void android_beam_cannon_spell(int cmd, variant *res);
 extern void android_rocket_spell(int cmd, variant *res);
 extern void animate_dead_spell(int cmd, variant *res);
+extern void awesome_blow_spell(int cmd, variant *res);
 extern void banish_evil_spell(int cmd, variant *res);
 extern void battle_frenzy_spell(int cmd, variant *res);
 extern void berserk_spell(int cmd, variant *res);

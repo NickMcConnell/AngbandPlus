@@ -211,6 +211,7 @@ void get_virtues(void)
 	{
 	case CLASS_WARRIOR:
 	case CLASS_SAMURAI:
+	case CLASS_MAULER:
 		p_ptr->vir_types[i++] = V_VALOUR;
 		p_ptr->vir_types[i++] = V_HONOUR;
 		break;

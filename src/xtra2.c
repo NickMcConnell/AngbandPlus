@@ -1982,6 +1982,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			}
 		}
 
+		if (p_ptr->tim_killing_spree)
+			set_fast(p_ptr->fast + 5, FALSE);
 
 		if (r_info[m_ptr->r_idx].flags7 & RF7_TANUKI)
 		{

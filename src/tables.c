@@ -3925,6 +3925,20 @@ player_class class_info[MAX_CLASS] =
 		15, 11, 10, 0,  0,  0, 20, 20,
 		4, 130, 40
 	},
+
+	{
+#ifdef JP
+		"TRANSLATE",
+#endif
+		"Mauler",
+
+		{ 6, 1, 0, -4, 3, 0},
+		25, 25, 35, 0, 14, 2, 70, 40,
+		12, 11, 12, 0,  0, 0, 30, 18,
+		9, 120, 40
+	},
+
+
 };
 /*
  *      Title,
@@ -4506,6 +4520,7 @@ s32b realm_choices1[MAX_CLASS] =
 	CH_NONE,				/* Psion */
 	CH_RAGE,                /* Rage-Mage */
 	CH_NONE,				/* Scout */
+	CH_NONE,				/* Mauler */
 };
 
 
@@ -4565,6 +4580,7 @@ s32b realm_choices2[MAX_CLASS] =
 	CH_NONE,				/* Psion */
 	CH_NONE,                /* Rage-Mage */	
 	CH_NONE,				/* Scout */
+	CH_NONE,				/* Mauler */
 };
 
 
@@ -5673,6 +5689,19 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Low Scout",
 		"High Scout",
 		"Scout Lord",
+	},
+	/* Mauler */
+	{
+		"Beginner",
+		"Beginner",
+		"Basher",
+		"Basher",
+		"Crusher",
+		"Crusher",
+		"Smasher",
+		"Smasher",
+		"Mauler",
+		"Mauler",
 	},
 };
 #endif

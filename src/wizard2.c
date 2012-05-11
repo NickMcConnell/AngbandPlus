@@ -226,6 +226,7 @@ static void do_cmd_wiz_hack_chris1(void)
 		/*	drop_near(&forge, -1, py, px);*/
 		}
 		msg_format("%s (Cost: %d)", buf, value);
+		/*drop_near(&forge, -1, py, px);*/
 	}
 
 	msg_format("Generated %d artifacts.  %d had immunity.  %d had speed.  %d had extra attacks.", ct, ct_immunity, ct_speed, ct_blows);

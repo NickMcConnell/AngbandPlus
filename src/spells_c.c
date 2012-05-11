@@ -973,6 +973,7 @@ void draconian_breath_spell(int cmd, variant *res)
 			switch (p_ptr->pclass)
 			{
 				case CLASS_WARRIOR:
+				case CLASS_MAULER:
 				case CLASS_BERSERKER:
 				case CLASS_RANGER:
 				case CLASS_TOURIST:

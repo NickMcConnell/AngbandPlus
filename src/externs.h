@@ -1513,6 +1513,9 @@ extern bool set_tim_dark_stalker(int v, bool do_dec);
 extern bool set_tim_nimble_dodge(int v, bool do_dec);
 extern bool set_tim_stealthy_snipe(int v, bool do_dec);
 
+extern bool set_tim_killing_spree(int v, bool do_dec);
+extern bool set_tim_slay_sentient(int v, bool do_dec);
+
 extern bool set_tim_sustain_str(int v, bool do_dec);
 extern bool set_tim_sustain_int(int v, bool do_dec);
 extern bool set_tim_sustain_wis(int v, bool do_dec);
@@ -1935,6 +1938,11 @@ extern class_t *force_trainer_get_class_t(void);
 /* magic_eater.c */
 extern void absorb_magic_spell(int cmd, variant *res);
 extern bool cast_absorb_magic(void);
+
+/* mauler.c */
+extern class_t *mauler_get_class_t(void);
+extern int mauler_get_toggle(void);
+extern void process_maul_of_vice(void);
 
 /* mindcrafter.c */
 extern class_t *mindcrafter_get_class_t(void);

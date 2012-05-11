@@ -1231,6 +1231,8 @@ return "巨大ファイア・ボール(72) : 100 ターン毎";
 		{
 			return "enlarge weapon every 555 turns";
 		}
+		case ART_MAUL_OF_VICE:
+			return "light speed every 888 turns";
 		case ART_GOTHMOG:
 		{
 #ifdef JP

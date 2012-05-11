@@ -4111,6 +4111,17 @@ W:40:9:120:80000
 P:15:1d3:0:0:15
 F:STR | WIS | HOLD_LIFE | REFLECT | ACTIVATE
 
+N:279:TRANSLATE
+E:'Great Maul of Vice'
+I:21:8:2
+W:60:88:700:500000
+P:0:8d8:8:8:8
+F:CON | CHR | VAMPIRIC | BRAND_ELEC | BRAND_POIS | ACTIVATE
+F:FREE_ACT | HOLD_LIFE | RES_NETHER | RES_NEXUS | RES_FEAR
+D:$This curious object is the favorite of many a female of every 
+D:$species. Those who find themselves in a proximity of one seem 
+D:$to constantly lose cash, and it seems impossible to leave its presence.
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

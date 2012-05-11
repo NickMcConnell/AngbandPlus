@@ -1436,6 +1436,17 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_stealthy_snipe);
 	}
 
+	if (h_older_than(0, 0, 96, 1))
+	{
+		p_ptr->tim_killing_spree = 0;
+		p_ptr->tim_slay_sentient = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_killing_spree);
+		rd_s16b(&p_ptr->tim_slay_sentient);
+	}
+
 	if (h_older_than(0, 0, 54, 1))
 	{
 		wild_reset_counters();

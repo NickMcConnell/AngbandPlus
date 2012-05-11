@@ -89,46 +89,6 @@ static void _armor_of_fury_spell(int cmd, variant *res)
 	}
 }
 
-static void _awesome_blow_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Awesome Blow");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Attack a monster with a single melee blow. If blow hits, does normal melee damage and propels the monster backwards.");
-		break;
-	case SPELL_CAST:
-	{
-		int y, x, dir;
-		var_set_bool(res, FALSE);
-
-		if (!get_rep_dir2(&dir)) return;
-		if (dir == 5) return;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-
-		if (cave[y][x].m_idx)
-		{
-			py_attack(y, x, RAGEMAGE_AWESOME_BLOW);
-		}
-		else
-		{
-			msg_print(T("There is no monster.", "€œ€ÎÊýžþ€Ë€Ï¥â¥ó¥¹¥¿¡Œ€Ï€€€Þ€»€ó¡£"));
-			return;
-		}
-
-		var_set_bool(res, TRUE);
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
 static void _barbarian_lore_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -903,7 +863,7 @@ static book_t _books[4] = {
 	{ "Northern Frights",
 		{{15,  8, 45, _crude_mapping_spell},
 	     {18, 18, 50, _resist_disenchantment_spell},
-	     {20, 30, 55, _awesome_blow_spell},
+	     {20, 30, 55, awesome_blow_spell},
 	     {22, 15, 60, _spell_reaction_spell},
 	     {23, 21, 60, _greater_shout_spell},
 	     {25, 18, 60, _whirlwind_attack_spell},
