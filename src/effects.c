@@ -374,6 +374,9 @@ void dispel_player(void)
 	set_tim_nimble_dodge(0, TRUE);
 	set_tim_stealthy_snipe(0, TRUE);
 
+	set_tim_killing_spree(0, TRUE);
+	set_tim_slay_sentient(0, TRUE);
+
 	set_tim_spurt(0, TRUE);
 	set_tim_speed_essentia(0, TRUE);
 	/* Coming soon ... 

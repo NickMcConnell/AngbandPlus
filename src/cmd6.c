@@ -5655,7 +5655,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 			}
 			case ART_MAUL_OF_VICE:
 			{
-				msg_print("You maul rends the fabric of space-time ...");
+				msg_print("Your maul rends the fabric of space-time ...");
 				set_lightspeed(8, FALSE);
 				o_ptr->timeout = 888;
 				break;

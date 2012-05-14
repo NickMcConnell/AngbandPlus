@@ -2469,17 +2469,17 @@ errr parse_e_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, rarity, pad2;
+		int level, rarity, max_level;
 		long cost;
 
 		/* Scan for the values */
 		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-				&level, &rarity, &pad2, &cost)) return (1);
+				&level, &rarity, &max_level, &cost)) return (1);
 
 		/* Save the values */
 		e_ptr->level = level;
 		e_ptr->rarity = rarity;
-		/* e_ptr->weight = wgt; */
+		e_ptr->max_level = max_level;
 		e_ptr->cost = cost;
 	}
 

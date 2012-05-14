@@ -920,6 +920,8 @@ bool dispel_check(int m_idx)
 	/* TODO: Monsters should have to learn this! */
 	if (psion_mental_fortress() && !one_in_(12)) return FALSE;
 
+	if (p_ptr->tim_slay_sentient) return TRUE;
+
 	/* Invulnabilty (including the song) */
 	if (IS_INVULN()) return (TRUE);
 

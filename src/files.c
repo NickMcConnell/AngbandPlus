@@ -2260,6 +2260,10 @@ static void display_player_various(void)
 					if (p_ptr->csp >= cost)
 						basedam = basedam * 7 / 2;
 				}
+				if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute && p_ptr->fast >= 6)
+				{
+					basedam = basedam * 7 / 2;
+				}
 			}
 			else basedam = 0;
 		}
@@ -7882,7 +7886,8 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 		if (!buf[0]) break;
 
 		/* Copy the line */
-		if (one_in_(counter + 1)) strcpy(output, buf);
+		if (one_in_(counter + 1)) 
+			strcpy(output, buf);
 	}
 
 	/* Close the file */

@@ -157,7 +157,7 @@ static void do_cmd_wiz_hack_chris1(void)
 		char buf[MAX_NLEN];
 		int value;
 
-		if (1)
+		if (0)
 		{
 			create_replacement_art(a_idx, &forge);
 		}
@@ -250,37 +250,84 @@ static void do_cmd_wiz_hack_chris2(void)
 	}
 }
 
-static void do_cmd_wiz_hack_chris3(void)
+static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 {
 	int k_idx = get_quantity("Enter k_idx: ", 1000);
-	int ct = get_quantity("How Many?", 1000);
-	int i;
-	for (i = 0; i < ct; i++)
+	int ct = get_quantity("How Many?", 10000);
+	int depths[] = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, -1 };
+	int i, j;
+	int counts[1024];
+
+	fprintf(file, "Lv\tEgo\tCt\n");
+
+	for (i = 0; ; i++)
 	{
-		object_type forge;
-		char buf[MAX_NLEN];
-		u32b flgs[TR_FLAG_SIZE];
-		u32b old_cost = 0, new_cost = 0;
+		int depth = depths[i];
+		if (depth < 0) break;
 
-		object_prep(&forge, k_idx);
-		apply_magic(&forge, dun_level, AM_GREAT);
+		dun_level = depth;
+		object_level = depth;
 
-		identify_item(&forge);
-		forge.ident |= (IDENT_MENTAL); 
-		object_desc(buf, &forge, 0);
-		object_flags(&forge, flgs);
-
-		new_cost = new_object_cost(&forge);
-		old_cost = object_value_real(&forge);
-
-		/*
-		if (forge.name2 == EGO_SNIPER)
+		for (j = 0; j < 1024; j++)
 		{
-			drop_near(&forge, -1, py, px);
-		}*/
+			counts[j] = 0;
+		}
 
-		msg_format("  * %d, %d, `%s`", old_cost, new_cost, buf);
+		for (j = 0; j < ct; j++)
+		{
+			object_type forge;
+			/*char buf[MAX_NLEN];
+			u32b flgs[TR_FLAG_SIZE];
+			u32b old_cost = 0, new_cost = 0; */
+
+			object_prep(&forge, k_idx);
+			apply_magic(&forge, depth, 0);
+
+			/*
+			identify_item(&forge);
+			forge.ident |= (IDENT_MENTAL); 
+			object_desc(buf, &forge, 0);
+			object_flags(&forge, flgs);*/
+
+			counts[forge.name2]++;
+		}
+
+		for (j = 1; j < 1024; j++)
+		{
+			if (counts[j])
+			{
+				fprintf(file, "%d\t%s\t%d\n", depth, e_name + e_info[j].name, counts[j]);
+			}
+		}
 	}
+}
+
+static void do_cmd_wiz_hack_chris3(void)
+{
+	int		fd = -1;
+	FILE	*fff = NULL;
+	char	buf[1024];
+	int old_dun_level = dun_level;
+	int old_object_level = object_level;
+
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Egos8.txt");
+	fff = my_fopen(buf, "w");
+
+	if (!fff)
+	{
+		prt("Failed!", 0, 0);
+		(void)inkey();
+		return;
+	}
+
+	do_cmd_wiz_hack_chris3_imp(fff);
+
+	dun_level = old_dun_level;
+	object_level = old_object_level;
+
+	my_fclose(fff);
+	msg_print("Successful.");
+	msg_print(NULL);
 }
 
 static void do_cmd_wiz_hack_chris4_imp(FILE* file)
@@ -371,6 +418,7 @@ static void do_cmd_wiz_hack_chris4_imp(FILE* file)
 }
 
 static FILE    *_wiz_dbg_file = NULL;
+
 static void _wiz_dbg_hook(cptr msg)
 {
 	fprintf(_wiz_dbg_file, "%s\n", msg);
@@ -424,6 +472,71 @@ static void do_cmd_wiz_hack_chris5(void)
 
 		summon_named_creature(0, py, px, r_idx, PM_ALLOW_SLEEP | PM_ALLOW_GROUP);
 	}
+}
+
+static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
+{
+	int a_idx, i;
+
+	if (replace)
+		fprintf(file, "L%d\nReplacement Artifacts\n\n\n", dun_level);
+	else
+		fprintf(file, "L%d\nRandom Artifacts (*NOT* Replacements!)\n\n\n", dun_level);
+
+	for (a_idx = 1; a_idx < max_a_idx; a_idx++)
+	{
+		for (i = 0; i < 30; i++)
+		{
+			object_type forge = {0};
+			char buf[MAX_NLEN];
+
+			if (replace)
+			{
+				create_replacement_art(a_idx, &forge);
+			}
+			else
+			{
+				artifact_type  *a_ptr = &a_info[a_idx];
+				int				k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+				if (!k_idx) continue;
+
+				object_prep(&forge, k_idx);
+				create_artifact(&forge, CREATE_ART_GOOD);
+			}
+			identify_item(&forge);
+
+			forge.ident |= (IDENT_MENTAL); 
+			object_desc(buf, &forge, 0);
+
+			fprintf(file, "%s\n", buf);
+		}
+		fprintf(file, "\n\n\n");
+	}
+}
+
+static void do_cmd_wiz_hack_chris6(void)
+{
+	int		fd = -1;
+	FILE	*fff = NULL;
+	char	buf[1024];
+	bool replace = get_check("Generate Replacement Artifacts?");
+
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Arts1.txt");
+	fff = my_fopen(buf, "w");
+
+	if (!fff)
+	{
+		prt("Failed!", 0, 0);
+		(void)inkey();
+		return;
+	}
+
+	do_cmd_wiz_hack_chris6_imp(fff, replace);
+
+	my_fclose(fff);
+	msg_print("Successful.");
+	msg_print(NULL);
 }
 
 #ifdef MONSTER_HORDES
@@ -2466,6 +2579,10 @@ void do_cmd_debug(void)
 
 	case '5':
 		do_cmd_wiz_hack_chris5();
+		break;
+
+	case '6':
+		do_cmd_wiz_hack_chris6();
 		break;
 
 	/* Not a Wizard Command */

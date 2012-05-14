@@ -30,7 +30,7 @@
 # N: serial number : ego type
 # X: inventory slot : rating
 # C: max to-hit : max to-dam : max to-ac : pval
-# W: depth : rarity : weight : cost
+# W: depth : rarity : max_depth : cost
 # F: flag | flag | etc
 
 # 'N' indicates the beginning of an entry. The serial number must
@@ -454,7 +454,7 @@ F:DEX
 N:56:忏芛及
 E:of Levitation
 X:35:7
-W:0:4:0:250
+W:0:4:50:250
 F:LEVITATION
 
 #J0#
@@ -462,28 +462,28 @@ F:LEVITATION
 #J0#
 N:57:レ太及
 E:of Stealth
-X:35:16
-W:0:6:0:500
+X:35:7
+W:0:6:50:500
 C:0:0:0:3
 F:STEALTH
 
 N:58:呾摦襞日內及
 E:of Free Action
 X:35:15
-W:0:9:0:1000
+W:0:9:30:1000
 F:FREE_ACT
 
 N:59:旦疋□玉及
 E:of Speed
-X:35:25
+X:35:55
 W:0:18:0:100000
 C:0:0:0:10
 F:SPEED | HIDE_TYPE
 
 N:60:譟泧及
 E:of Jumping
-X:35:15
-W:0:9:0:1000
+X:35:7
+W:0:9:30:1000
 F:ACTIVATE
 
 N:61:顆祥及
@@ -1483,8 +1483,8 @@ F:STEALTH | DEX | SPEED
 
 N:241:TRANSLATE
 E:of Thievery
-X:35:20
-W:0:4:0:20000
+X:35:30
+W:0:4:70:20000
 C:0:0:0:2
 F:STEALTH | DEX | SPEED
 

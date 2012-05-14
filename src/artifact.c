@@ -1978,13 +1978,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		a_cursed = TRUE;
 
 	powers = randint1(2) + m_bonus(5, lev);
-	if (powers < 2) powers = 2;
+	while (one_in_(powers) || one_in_(7 * 70/MAX(object_level, 1)) || one_in_(10 * 70/MAX(object_level, 1)))
+		powers++;
+
 	if (!a_cursed)
 	{
 		if (one_in_(WEIRD_LUCK))
-			powers += randint1(3);
-		if (p_ptr->pseikaku == SEIKAKU_LUCKY && one_in_(WEIRD_LUCK))
-			powers += randint1(3);
+			powers *= 2;
 	}
 
 	if (a_cursed) powers /= 2;
@@ -3758,7 +3758,8 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 			p_ptr->pclass == CLASS_CAVALRY || 
 			p_ptr->pclass == CLASS_BLOOD_KNIGHT || 
 			p_ptr->pclass == CLASS_WEAPONMASTER ||
-			p_ptr->pclass == CLASS_BERSERKER)
+			p_ptr->pclass == CLASS_BERSERKER ||
+			p_ptr->pclass == CLASS_MAULER )
 		{
 			give_power = TRUE;
 			give_resistance = TRUE;

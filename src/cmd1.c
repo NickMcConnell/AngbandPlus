@@ -264,7 +264,13 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 
 		if (p_ptr->tim_slay_sentient && p_ptr->ryoute)
 		{
-			if (mult < 30) mult = 30;
+			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_POSEIDON)
+			{
+			}
+			else if (mut_present(MUT_WEIRD_MIND))
+			{
+			}
+			else if (mult < 30) mult = 30;
 		}
 
 		if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (p_ptr->msp / 30)))
@@ -1299,9 +1305,16 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				if (mult == 10) mult = 40;
 				else if (mult < 60) mult = 60;
 			}
-			if (p_ptr->tim_slay_sentient && !(r_ptr->flags3 & RF3_NO_STUN) && p_ptr->ryoute)
+			if (p_ptr->tim_slay_sentient && p_ptr->ryoute)
 			{
-				if (mult < 30) mult = 30;
+				if (r_ptr->flags3 & RF3_NO_STUN)
+				{
+					if (is_original_ap_and_seen(m_ptr))	r_ptr->r_flags3 |= RF3_NO_STUN;
+				}
+				else
+				{
+					if (mult < 30) mult = 30;
+				}
 			}
 			if (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force)
 			{

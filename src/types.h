@@ -219,6 +219,7 @@ struct ego_item_type
 
 	byte level;			/* Minimum level */
 	byte rarity;		/* Object rarity */
+	byte max_level;     /* Maximum level. 0 => No restriction */
 
 	byte max_to_h;		/* Maximum to-hit bonus */
 	byte max_to_d;		/* Maximum to-dam bonus */

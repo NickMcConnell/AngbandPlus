@@ -2320,8 +2320,13 @@ static byte get_random_ego(byte slot, bool good)
 		if (e_ptr->slot == slot
 		    && ((good && e_ptr->rating) || (!good && !e_ptr->rating)) )
 		{
-			if (e_ptr->rarity)
-				total += (255 / e_ptr->rarity);
+			int rarity = e_ptr->rarity;
+			if (e_ptr->max_level && object_level > e_ptr->max_level)
+			{
+				rarity += 3*(object_level - e_ptr->max_level)/4;
+			}
+			if (rarity)
+				total += MAX(255 / rarity, 1);
 		}
 	}
 
@@ -2334,8 +2339,13 @@ static byte get_random_ego(byte slot, bool good)
 		if (e_ptr->slot == slot
 		    && ((good && e_ptr->rating) || (!good && !e_ptr->rating)) )
 		{
-			if (e_ptr->rarity)
-				value -= (255 / e_ptr->rarity);
+			int rarity = e_ptr->rarity;
+			if (e_ptr->max_level && object_level > e_ptr->max_level)
+			{
+				rarity += 3*(object_level - e_ptr->max_level)/4;
+			}
+			if (rarity)
+				value -= MAX(255 / rarity, 1);
 			if (value <= 0L) break;
 		}
 	}
@@ -4880,6 +4890,7 @@ static bool kind_is_good(int k_idx)
 			case SV_POTION_LIFE: return one_in_(5);
 			case SV_POTION_STAR_HEALING: return one_in_(5);
 			case SV_POTION_AUGMENTATION: return one_in_(10);
+			case SV_POTION_RESTORE_MANA: return one_in_(5);
 			case SV_POTION_INC_STR:
 			case SV_POTION_INC_INT:
 			case SV_POTION_INC_WIS:
