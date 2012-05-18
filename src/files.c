@@ -2667,7 +2667,6 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_SUST_DEX);
 			break;
 		case DEMIGOD_HERA:
-			add_flag(flgs, TR_SUST_WIS);
 			break;
 		case DEMIGOD_DEMETER:
 			add_flag(flgs, TR_REGEN);

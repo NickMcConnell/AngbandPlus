@@ -126,8 +126,6 @@ ANGBAND MENU
 		}
 
 		MENUITEM "&Sound", 410
-		MENUITEM "&Back ground pict", 440
-		MENUITEM "Choose BG pict", 441
 		MENUITEM "&HTML dump", 450
 	}
 

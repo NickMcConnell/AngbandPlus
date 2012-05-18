@@ -13,8 +13,6 @@ typedef struct {
 	HANDLE hDIB;
 	HANDLE hBitmap;
 	HANDLE hPalette;
-	BYTE   CellWidth;
-	BYTE   CellHeight;
 } DIBINIT;
 
 /* Read a DIB from a file */

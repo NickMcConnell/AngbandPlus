@@ -185,21 +185,12 @@
 #define IDM_OPTIONS_SOUND		410
 #define IDM_OPTIONS_SAVER		420
 #define IDM_OPTIONS_MAP			430
-#define IDM_OPTIONS_BG			440
-#define IDM_OPTIONS_OPEN_BG		441
 
 #define IDM_DUMP_SCREEN_HTML	450
 
 #define IDM_HELP_CONTENTS       901
 
 
-
-/*
- * This may need to be removed for some compilers XXX XXX XXX
- */
-#if 0
-#define STRICT
-#endif
 
 /*
  * Exclude parts of WINDOWS.H that are not needed
@@ -365,6 +356,9 @@ struct _term_data
 	cptr s;
 
 	HWND w;
+	HDC  hDC;
+	HBITMAP hBitmap;
+	RECT updateRect;
 
 	DWORD dwStyle;
 	DWORD dwExStyle;
@@ -407,17 +401,9 @@ struct _term_data
 	uint map_tile_hgt;
 
 	bool map_active;
-#if 1 /* #ifdef JP */
 	LOGFONT lf;
-#endif
 
 	bool posfix;
-
-/* bg */
-#if 0
-	char *bgfile;
-	int use_bg;
-#endif
 };
 
 
@@ -486,10 +472,6 @@ static HICON hIcon;
  */
 static HPALETTE hPal;
 
-/* bg */
-static HBITMAP hBG = NULL;
-static int use_bg = 0;
-static char bg_bitmap_file[1024] = "bg.bmp";
 
 #ifdef USE_SAVER
 
@@ -511,12 +493,16 @@ static bool can_use_graphics = FALSE;
 /*
  * The global bitmap
  */
-static DIBINIT infGraph;
+typedef struct {
+	DIBINIT tiles;
+	HDC     hdcTiles;
+	DIBINIT mask;
+	HDC     hdcMask;
+	int		width;
+	int		height;
+} graphics_t;
 
-/*
- * The global bitmap mask
- */
-static DIBINIT infMask;
+static graphics_t _graphics = {0};
 
 #endif /* USE_GRAPHICS */
 
@@ -559,9 +545,6 @@ static cptr AngList = "AngList";
 static cptr ANGBAND_DIR_XTRA_GRAF;
 static cptr ANGBAND_DIR_XTRA_SOUND;
 static cptr ANGBAND_DIR_XTRA_HELP;
-#if 0 /* #ifndef JP */
-static cptr ANGBAND_DIR_XTRA_FONT;
-#endif
 #ifdef USE_MUSIC
 static cptr ANGBAND_DIR_XTRA_MUSIC;
 #endif
@@ -623,7 +606,6 @@ static BYTE win_pal[256] =
 static bool special_key[256];
 static bool ignore_key[256];
 
-#if 1
 /*
  * Hack -- initialization list for "special_key"
  */
@@ -657,235 +639,7 @@ static byte ignore_key_list[] = {
 	VK_LMENU, VK_RMENU,
 	0	/* End of List */
 };
-#else
-/*
- * Hack -- initialization list for "special_key"
- *
- * We ignore the modifier keys (shift, control, alt, num lock, scroll lock),
- * and the normal keys (escape, tab, return, letters, numbers, etc), but we
- * catch the keypad keys (with and without numlock set, including keypad 5),
- * the function keys (including the "menu" key which maps to F10), and the
- * "pause" key (between scroll lock and numlock).  We also catch a few odd
- * keys which I do not recognize, but which are listed among keys which we
- * do catch, so they should be harmless to catch.
- */
-static byte special_key_list[] =
-{
-	VK_CLEAR,		/* 0x0C (KP<5>) */
 
-	VK_PAUSE,		/* 0x13 (pause) */
-
-	VK_PRIOR,		/* 0x21 (KP<9>) */
-	VK_NEXT,		/* 0x22 (KP<3>) */
-	VK_END,			/* 0x23 (KP<1>) */
-	VK_HOME,		/* 0x24 (KP<7>) */
-	VK_LEFT,		/* 0x25 (KP<4>) */
-	VK_UP,			/* 0x26 (KP<8>) */
-	VK_RIGHT,		/* 0x27 (KP<6>) */
-	VK_DOWN,		/* 0x28 (KP<2>) */
-	VK_SELECT,		/* 0x29 (?????) */
-	VK_PRINT,		/* 0x2A (?????) */
-	VK_EXECUTE,		/* 0x2B (?????) */
-	VK_SNAPSHOT,	/* 0x2C (?????) */
-	VK_INSERT,		/* 0x2D (KP<0>) */
-	VK_DELETE,		/* 0x2E (KP<.>) */
-	VK_HELP,		/* 0x2F (?????) */
-#if 0
-	VK_NUMPAD0,		/* 0x60 (KP<0>) */
-	VK_NUMPAD1,		/* 0x61 (KP<1>) */
-	VK_NUMPAD2,		/* 0x62 (KP<2>) */
-	VK_NUMPAD3,		/* 0x63 (KP<3>) */
-	VK_NUMPAD4,		/* 0x64 (KP<4>) */
-	VK_NUMPAD5,		/* 0x65 (KP<5>) */
-	VK_NUMPAD6,		/* 0x66 (KP<6>) */
-	VK_NUMPAD7,		/* 0x67 (KP<7>) */
-	VK_NUMPAD8,		/* 0x68 (KP<8>) */
-	VK_NUMPAD9,		/* 0x69 (KP<9>) */
-	VK_MULTIPLY,	/* 0x6A (KP<*>) */
-	VK_ADD,			/* 0x6B (KP<+>) */
-	VK_SEPARATOR,	/* 0x6C (?????) */
-	VK_SUBTRACT,	/* 0x6D (KP<->) */
-	VK_DECIMAL,		/* 0x6E (KP<.>) */
-	VK_DIVIDE,		/* 0x6F (KP</>) */
-#endif
-	VK_F1,			/* 0x70 */
-	VK_F2,			/* 0x71 */
-	VK_F3,			/* 0x72 */
-	VK_F4,			/* 0x73 */
-	VK_F5,			/* 0x74 */
-	VK_F6,			/* 0x75 */
-	VK_F7,			/* 0x76 */
-	VK_F8,			/* 0x77 */
-	VK_F9,			/* 0x78 */
-	VK_F10,			/* 0x79 */
-	VK_F11,			/* 0x7A */
-	VK_F12,			/* 0x7B */
-	VK_F13,			/* 0x7C */
-	VK_F14,			/* 0x7D */
-	VK_F15,			/* 0x7E */
-	VK_F16,			/* 0x7F */
-	VK_F17,			/* 0x80 */
-	VK_F18,			/* 0x81 */
-	VK_F19,			/* 0x82 */
-	VK_F20,			/* 0x83 */
-	VK_F21,			/* 0x84 */
-	VK_F22,			/* 0x85 */
-	VK_F23,			/* 0x86 */
-	VK_F24,			/* 0x87 */
-	0
-};
-#endif
-
-/* bg */
-static void delete_bg(void)
-{
-	if (hBG != NULL)
-	{
-		DeleteObject(hBG);
-		hBG = NULL;
-	}
-}
-
-static int init_bg(void)
-{
-	char * bmfile = bg_bitmap_file;
-
-	delete_bg();
-	if (use_bg == 0) return 0;
-
-	hBG = LoadImage(NULL, bmfile,  IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-	if (!hBG) {
-#ifdef JP
-		plog_fmt("壁紙用ビットマップ '%s' を読み込めません。", bmfile);
-#else
-		plog_fmt("Can't load the bitmap file '%s'.", bmfile);
-#endif
-		use_bg = 0;
-		return 0;
-	}
-#if 0 /* gomi */
-	HDC wnddc, dcimage, dcbg;
-	HBITMAP bmimage, bmimage_old, bmbg_old;
-	int i, j;
-
-	delete_bg();
-
-	wnddc = GetDC(hwnd);
-	dcimage = CreateCompatibleDC(wnddc);
-	dcbg = CreateCompatibleDC(wnddc);
-
-	bmimage = LoadImage(NULL, "bg.bmp", LR_LOADFROMFILE, 0, 0, 0);
-	if (!bmimage) quit("bg.bmpが読みこめない！");
-	bmimage_old = SelectObject(dcimage, bmimage);
-
-	CreateCompatibleBitmap();
-
-	ReleaseDC(hwnd, wnddc);
-#endif
-	use_bg = 1;
-	return 1;
-}
-
-static void DrawBG(HDC hdc, RECT *r)
-{
-	HDC hdcSrc;
-	HBITMAP hOld;
-	BITMAP bm;
-	int x = r->left, y = r->top;
-	int nx, ny, sx, sy, swid, shgt, cwid, chgt;
-	
-	if (!use_bg || !hBG)
-		return;
-
-	nx = x; ny = y;
-	GetObject(hBG, sizeof(bm), &bm);
-	swid = bm.bmWidth; shgt = bm.bmHeight;
-
-	hdcSrc = CreateCompatibleDC(hdc);
-	hOld = SelectObject(hdcSrc, hBG);
-
-	do {
-		sx = nx % swid;
-		cwid = MIN(swid - sx, r->right - nx);
-		do {
-			sy = ny % shgt;
-			chgt = MIN(shgt - sy, r->bottom - ny);
-				BitBlt(hdc, nx, ny, cwid, chgt, hdcSrc, sx, sy, SRCCOPY);
-			ny += chgt;
-		} while (ny < r->bottom);
-		ny = y;
-		nx += cwid;
-	} while (nx < r->right);
-	
-	SelectObject(hdcSrc, hOld);
-	DeleteDC(hdcSrc);
-}
-
-#if 0
-/*
- * Hack -- given a pathname, point at the filename
- */
-static cptr extract_file_name(cptr s)
-{
-	cptr p;
-
-	/* Start at the end */
-	p = s + strlen(s) - 1;
-
-	/* Back up to divider */
-	while ((p >= s) && (*p != ':') && (*p != '\\')) p--;
-
-	/* Return file name */
-	return (p+1);
-}
-#endif
-
-
-/*
- * Hack -- given a simple filename, extract the "font size" info
- *
- * Return a pointer to a static buffer holding the capitalized base name.
- */
-#if 0 /* #ifndef JP */
-static char *analyze_font(char *path, int *wp, int *hp)
-{
-	int wid, hgt;
-
-	char *s, *p;
-
-	/* Start at the end */
-	p = path + strlen(path) - 1;
-
-	/* Back up to divider */
-	while ((p >= path) && (*p != ':') && (*p != '\\')) --p;
-
-	/* Advance to file name */
-	++p;
-
-	/* Capitalize */
-	for (s = p; *s; ++s)
-	{
-		/* Capitalize (be paranoid) */
-		if (islower(*s)) *s = toupper(*s);
-	}
-
-	/* Find first 'X' */
-	s = my_strchr(p, 'X');
-
-	/* Extract font width */
-	wid = atoi(p);
-
-	/* Extract height */
-	hgt = s ? atoi(s+1) : 0;
-
-	/* Save results */
-	(*wp) = wid;
-	(*hp) = hgt;
-
-	/* Result */
-	return (p);
-}
-#endif
 
 
 /*
@@ -1038,6 +792,23 @@ static void validate_dir(cptr s, bool vital)
 	}
 }
 
+static void term_init_double_buffer(term_data *td)
+{
+	if (!td->hDC)
+		td->hDC = CreateCompatibleDC(NULL);
+
+	if (td->hBitmap) DeleteObject(td->hBitmap);
+
+	td->hBitmap = CreateCompatibleBitmap(
+		GetDC(NULL), 
+		td->size_wid,
+		td->size_hgt
+	);/*
+		td->cols * td->tile_wid + td->size_ow1 + td->size_ow2, 
+		td->rows * td->tile_hgt + td->size_oh1 + td->size_oh2
+	); */
+	SelectObject(td->hDC, td->hBitmap);
+}
 
 /*
  * Get the "size" for a window
@@ -1075,6 +846,7 @@ static void term_getsize(term_data *td)
 
 	/* See CreateWindowEx */
 	if (!td->w) return;
+	term_init_double_buffer(td);
 
 	/* Extract actual location */
 	GetWindowRect(td->w, &rc);
@@ -1114,23 +886,18 @@ static void save_prefs_aux(int i)
 #ifdef JP
 	strcpy(buf, td->lf.lfFaceName[0]!='\0' ? td->lf.lfFaceName : "ＭＳ ゴシック");
 #else
-#if 0
-	strcpy(buf, td->font_file ? td->font_file : "8X13.FON");
-#else
 	strcpy(buf, td->lf.lfFaceName[0]!='\0' ? td->lf.lfFaceName : "Courier");
-#endif
 #endif
 
 	WritePrivateProfileString(sec_name, "Font", buf, ini_file);
 
-#if 1 /* #ifdef JP */
 	wsprintf(buf, "%d", td->lf.lfWidth);
 	WritePrivateProfileString(sec_name, "FontWid", buf, ini_file);
 	wsprintf(buf, "%d", td->lf.lfHeight);
 	WritePrivateProfileString(sec_name, "FontHgt", buf, ini_file);
 	wsprintf(buf, "%d", td->lf.lfWeight);
 	WritePrivateProfileString(sec_name, "FontWgt", buf, ini_file);
-#endif
+
 	/* Bizarre */
 	strcpy(buf, td->bizarre ? "1" : "0");
 	WritePrivateProfileString(sec_name, "Bizarre", buf, ini_file);
@@ -1210,12 +977,6 @@ static void save_prefs(void)
 	strcpy(buf, arg_sound ? "1" : "0");
 	WritePrivateProfileString("Angband", "Sound", buf, ini_file);
 
-	/* bg */
-	strcpy(buf, use_bg ? "1" : "0");
-	WritePrivateProfileString("Angband", "BackGround", buf, ini_file);
-	WritePrivateProfileString("Angband", "BackGroundBitmap", 
-		bg_bitmap_file[0] != '\0' ? bg_bitmap_file : "bg.bmp", ini_file);
-
 	/* Save window prefs */
 	for (i = 0; i < MAX_TERM_DATA; ++i)
 	{
@@ -1251,11 +1012,7 @@ static void load_prefs_aux(int i)
 #ifdef JP
 	GetPrivateProfileString(sec_name, "Font", "ＭＳ ゴシック", tmp, 127, ini_file);
 #else
-#if 0
-	GetPrivateProfileString(sec_name, "Font", "8X13.FON", tmp, 127, ini_file);
-#else
 	GetPrivateProfileString(sec_name, "Font", "Courier", tmp, 127, ini_file);
-#endif
 #endif
 
 
@@ -1263,25 +1020,16 @@ static void load_prefs_aux(int i)
 	td->bizarre = (GetPrivateProfileInt(sec_name, "Bizarre", td->bizarre, ini_file) != 0);
 
 	/* Analyze font, save desired font name */
-#if 1 /* #ifdef JP */
 	td->font_want = string_make(tmp);
 	hgt = 15; wid = 0;
 	td->lf.lfWidth  = GetPrivateProfileInt(sec_name, "FontWid", wid, ini_file);
 	td->lf.lfHeight = GetPrivateProfileInt(sec_name, "FontHgt", hgt, ini_file);
 	td->lf.lfWeight = GetPrivateProfileInt(sec_name, "FontWgt", 0, ini_file);
-#else
-	td->font_want = string_make(analyze_font(tmp, &wid, &hgt));
-#endif
 
 
 	/* Tile size */
-#if 1 /* #ifdef JP */
 	td->tile_wid = GetPrivateProfileInt(sec_name, "TileWid", td->lf.lfWidth, ini_file);
 	td->tile_hgt = GetPrivateProfileInt(sec_name, "TileHgt", td->lf.lfHeight, ini_file);
-#else
-	td->tile_wid = GetPrivateProfileInt(sec_name, "TileWid", wid, ini_file);
-	td->tile_hgt = GetPrivateProfileInt(sec_name, "TileHgt", hgt, ini_file);
-#endif
 
 
 	/* Window size */
@@ -1323,10 +1071,6 @@ static void load_prefs(void)
 
 	/* Extract the "arg_sound" flag */
 	arg_sound = (GetPrivateProfileInt("Angband", "Sound", 0, ini_file) != 0);
-
-	/* bg */
-	use_bg = GetPrivateProfileInt("Angband", "BackGround", 0, ini_file);
-	GetPrivateProfileString("Angband", "BackGroundBitmap", "bg.bmp", bg_bitmap_file, 1023, ini_file);
 
 	/* Load window prefs */
 	for (i = 0; i < MAX_TERM_DATA; ++i)
@@ -1456,7 +1200,7 @@ static int new_palette(void)
 #ifdef USE_GRAPHICS
 
 	/* Check the bitmap palette */
-	hBmPal = infGraph.hPalette;
+	hBmPal = _graphics.tiles.hPalette;
 
 	/* Use the bitmap */
 	if (hBmPal)
@@ -1605,7 +1349,7 @@ static bool init_graphics(void)
 		path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, name);
 
 		/* Load the bitmap or quit */
-		if (!ReadDIB(data[0].w, buf, &infGraph))
+		if (!ReadDIB(data[0].w, buf, &_graphics.tiles))
 		{
 #ifdef JP
 			plog_fmt("ビットマップ '%s' を読み込めません。", name);
@@ -1616,9 +1360,12 @@ static bool init_graphics(void)
 			return (FALSE);
 		}
 
+		_graphics.hdcTiles = CreateCompatibleDC(NULL);
+		SelectObject(_graphics.hdcTiles, _graphics.tiles.hBitmap);
+
 		/* Save the new sizes */
-		infGraph.CellWidth = wid;
-		infGraph.CellHeight = hgt;
+		_graphics.width = wid;
+		_graphics.height = hgt;
 
 		if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
@@ -1626,11 +1373,14 @@ static bool init_graphics(void)
 			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "mask.bmp");
 
 			/* Load the bitmap or quit */
-			if (!ReadDIB(data[0].w, buf, &infMask))
+			if (!ReadDIB(data[0].w, buf, &_graphics.mask))
 			{
 				plog_fmt("Cannot read bitmap file '%s'", buf);
 				return (FALSE);
 			}
+
+			_graphics.hdcMask = CreateCompatibleDC(NULL);
+			SelectObject(_graphics.hdcMask, _graphics.mask.hBitmap);
 		}
 
 		/* Activate a palette */
@@ -1711,16 +1461,9 @@ static errr term_force_font(term_data *td, cptr path)
 {
 	int wid, hgt;
 
-#if 0 /* #ifndef JP */
-	int i;
-	char *base;
-	char buf[1024];
-#endif
-
 	/* Forget the old font (if needed) */
 	if (td->font_id) DeleteObject(td->font_id);
 
-#if 1 /* #ifdef JP */
 	/* Unused */
 	(void)path;
 
@@ -1729,67 +1472,6 @@ static errr term_force_font(term_data *td, cptr path)
 	wid = td->lf.lfWidth;
 	hgt = td->lf.lfHeight;
 	if (!td->font_id) return (1);
-#else
-	/* Forget old font */
-	if (td->font_file)
-	{
-		bool used = FALSE;
-
-		/* Scan windows */
-		for (i = 0; i < MAX_TERM_DATA; i++)
-		{
-			/* Don't check when closing the application */
-			if (!path) break;
-
-			/* Check "screen" */
-			if ((td != &data[i]) &&
-			    (data[i].font_file) &&
-			    (streq(data[i].font_file, td->font_file)))
-			{
-				used = TRUE;
-			}
-		}
-
-		/* Remove unused font resources */
-		if (!used) RemoveFontResource(td->font_file);
-
-		/* Free the old name */
-		string_free(td->font_file);
-
-		/* Forget it */
-		td->font_file = NULL;
-	}
-
-	/* No path given */
-	if (!path) return (1);
-
-	/* Local copy */
-	strcpy(buf, path);
-
-	/* Analyze font path */
-	base = analyze_font(buf, &wid, &hgt);
-
-	/* Verify suffix */
-	if (!suffix(base, ".FON")) return (1);
-
-	/* Verify file */
-	if (!check_file(buf)) return (1);
-
-	/* Load the new font */
-	if (!AddFontResource(buf)) return (1);
-
-	/* Save new font name */
-	td->font_file = string_make(base);
-
-	/* Remove the "suffix" */
-	base[strlen(base)-4] = '\0';
-
-	/* Create the font (using the 'base' of the font file name!) */
-	td->font_id = CreateFont(hgt, wid, 0, 0, FW_DONTCARE, 0, 0, 0,
-				 ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-				 CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
-				 FIXED_PITCH | FF_DONTCARE, base);
-#endif
 
 	/* Hack -- Unknown size */
 	if (!wid || !hgt)
@@ -1825,7 +1507,6 @@ static errr term_force_font(term_data *td, cptr path)
  */
 static void term_change_font(term_data *td)
 {
-#if 1 /* #ifdef JP */
 	CHOOSEFONT cf;
 
 	memset(&cf, 0, sizeof(cf));
@@ -1851,55 +1532,6 @@ static void term_change_font(term_data *td)
 		/* Resize the window */
 		term_window_resize(td);
 	}
-
-#else
-	OPENFILENAME ofn;
-
-	char tmp[1024] = "";
-
-	/* Extract a default if possible */
-	if (td->font_file) strcpy(tmp, td->font_file);
-
-	/* Ask for a choice */
-	memset(&ofn, 0, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = data[0].w;
-	ofn.lpstrFilter = "Angband Font Files (*.fon)\0*.fon\0";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFile = tmp;
-	ofn.nMaxFile = 128;
-	ofn.lpstrInitialDir = ANGBAND_DIR_XTRA_FONT;
-	ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-	ofn.lpstrDefExt = "fon";
-
-	/* Force choice if legal */
-	if (GetOpenFileName(&ofn))
-	{
-		/* Force the font */
-		if (term_force_font(td, tmp))
-		{
-			/* Access the standard font file */
-			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
-
-			/* Force the use of that font */
-			(void)term_force_font(td, tmp);
-		}
-
-		/* Assume not bizarre */
-		td->bizarre = FALSE;
-
-		/* Reset the tile info */
-		td->tile_wid = td->font_wid;
-		td->tile_hgt = td->font_hgt;
-
-		/* Analyze the font */
-		term_getsize(td);
-
-		/* Resize the window */
-		term_window_resize(td);
-	}
-#endif
-
 }
 
 /*
@@ -1959,32 +1591,6 @@ void Term_inversed_area(HWND hWnd, int x, int y, int w, int h)
 	SelectObject(hdc, oldBrush);
 	SelectObject(hdc, oldPen);
 }
-
-
-
-/*** Function hooks needed by "Term" ***/
-
-
-#if 0
-
-/*
- * Initialize a new Term
- */
-static void Term_init_win(term *t)
-{
-	/* XXX Unused */
-}
-
-
-/*
- * Nuke an old Term
- */
-static void Term_nuke_win(term *t)
-{
-	/* XXX Unused */
-}
-
-#endif
 
 
 /*
@@ -2198,6 +1804,56 @@ static errr Term_xtra_win_flush(void)
 	return (0);
 }
 
+/* Hack: Remember how much we need to blt later on ... */
+static bool _update_rect_is_valid(term_data *td)
+{
+	return td->updateRect.left >= 0;
+}
+
+static void _update_rect_reset(term_data *td)
+{
+	td->updateRect.left = -1;
+}
+
+static void _update_rect_enlarge(term_data *td, RECT *r)
+{
+	if (!_update_rect_is_valid(td))
+	{
+		td->updateRect.left = r->left;
+		td->updateRect.top = r->top;
+		td->updateRect.right = r->right;
+		td->updateRect.bottom = r->bottom;
+	}
+	else
+	{
+		td->updateRect.left = MIN(td->updateRect.left, r->left);
+		td->updateRect.top = MIN(td->updateRect.top, r->top);
+		td->updateRect.right = MAX(td->updateRect.right, r->right);
+		td->updateRect.bottom = MAX(td->updateRect.bottom, r->bottom);
+	}
+}
+
+static errr Term_xtra_win_fresh(void)
+{
+	term_data *td = (term_data*)(Term->data);
+
+	if (_update_rect_is_valid(td))
+	{
+		HDC dc;
+		int x = td->updateRect.left;
+		int y = td->updateRect.top;
+		int cx = td->updateRect.right - td->updateRect.left;
+		int cy = td->updateRect.bottom - td->updateRect.top;
+
+		dc = GetDC(td->w);
+		BitBlt(dc, x, y, cx, cy, td->hDC, x, y, SRCCOPY);
+		/*BitBlt(dc, 0, 0, td->size_wid, td->size_hgt, td->hDC, 0, 0, SRCCOPY);*/
+		ReleaseDC(td->w, dc);
+
+		_update_rect_reset(td);
+	}
+	return 0;
+}
 
 /*
  * Hack -- clear the screen
@@ -2208,7 +1864,7 @@ static errr Term_xtra_win_clear(void)
 {
 	term_data *td = (term_data*)(Term->data);
 
-	HDC hdc;
+	HDC hdc = td->hDC;
 	RECT rc;
 
 	/* Rectangle to erase */
@@ -2218,18 +1874,10 @@ static errr Term_xtra_win_clear(void)
 	rc.bottom = rc.top + td->rows * td->tile_hgt;
 
 	/* Erase it */
-	hdc = GetDC(td->w);
 	SetBkColor(hdc, RGB(0, 0, 0));
 	SelectObject(hdc, td->font_id);
 	ExtTextOut(hdc, 0, 0, ETO_OPAQUE, &rc, NULL, 0, NULL);
-
-	/* bg */
-	if (use_bg)
-	{
-		rc.left = 0; rc.top = 0;
-		DrawBG(hdc, &rc);
-	}
-	ReleaseDC(td->w, hdc);
+	_update_rect_enlarge(td, &rc);
 
 	/* Success */
 	return 0;
@@ -2373,6 +2021,11 @@ static errr Term_xtra_win(int n, int v)
 			return (Term_xtra_win_flush());
 		}
 
+		case TERM_XTRA_FRESH:
+		{
+			return (Term_xtra_win_fresh());
+		}
+
 		/* Clear the screen */
 		case TERM_XTRA_CLEAR:
 		{
@@ -2430,9 +2083,9 @@ static errr Term_curs_win(int x, int y)
 	rc.bottom = rc.top + tile_hgt;
 
 	/* Cursor is done as a yellow "box" */
-	hdc = GetDC(td->w);
+	hdc = td->hDC;
 	FrameRect(hdc, &rc, hbrYellow);
-	ReleaseDC(td->w, hdc);
+	_update_rect_enlarge(td, &rc);
 
 	/* Success */
 	return 0;
@@ -2472,9 +2125,9 @@ static errr Term_bigcurs_win(int x, int y)
 	rc.bottom = rc.top + tile_hgt;
 
 	/* Cursor is done as a yellow "box" */
-	hdc = GetDC(td->w);
+	hdc = td->hDC;
 	FrameRect(hdc, &rc, hbrYellow);
-	ReleaseDC(td->w, hdc);
+	_update_rect_enlarge(td, &rc);
 
 	/* Success */
 	return 0;
@@ -2499,20 +2152,15 @@ static errr Term_wipe_win(int x, int y, int n)
 	rc.top = y * td->tile_hgt + td->size_oh1;
 	rc.bottom = rc.top + td->tile_hgt;
 
-	hdc = GetDC(td->w);
+	hdc = td->hDC;
 	SetBkColor(hdc, RGB(0, 0, 0));
 	SelectObject(hdc, td->font_id);
-	/* bg */
-	if (use_bg)
-		DrawBG(hdc, &rc);
-	else
-		ExtTextOut(hdc, 0, 0, ETO_OPAQUE, &rc, NULL, 0, NULL);
-	ReleaseDC(td->w, hdc);
+	ExtTextOut(hdc, 0, 0, ETO_OPAQUE, &rc, NULL, 0, NULL);
+	_update_rect_enlarge(td, &rc);
 
 	/* Success */
 	return 0;
 }
-
 
 /*
  * Low level graphics.  Assumes valid input.
@@ -2531,7 +2179,6 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 	RECT rc;
 	HDC hdc;
 
-#if 1 /* #ifdef JP */
 	static HBITMAP  WALL;
 	static HBRUSH   myBrush, oldBrush;
 	static HPEN     oldPen;
@@ -2542,7 +2189,6 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 		myBrush = CreatePatternBrush(WALL);
 		init_done = TRUE;
 	}
-#endif
 
 	/* Total rectangle */
 	rc.left = x * td->tile_wid + td->size_ow1;
@@ -2550,8 +2196,10 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 	rc.top = y * td->tile_hgt + td->size_oh1;
 	rc.bottom = rc.top + td->tile_hgt;
 
+	_update_rect_enlarge(td, &rc);
+
 	/* Acquire DC */
-	hdc = GetDC(td->w);
+	hdc = td->hDC;
 
 	/* Background color */
 	SetBkColor(hdc, RGB(0, 0, 0));
@@ -2573,9 +2221,6 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 	/* Use the font */
 	SelectObject(hdc, td->font_id);
 	
-	/* bg */
-	if (use_bg) SetBkMode(hdc, TRANSPARENT);
-
 	/* Bizarre size */
 	if (td->bizarre ||
 	    (td->tile_hgt != td->font_hgt) ||
@@ -2586,9 +2231,6 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 		/* Erase complete rectangle */
 		ExtTextOut(hdc, 0, 0, ETO_OPAQUE, &rc, NULL, 0, NULL);
 		
-		/* bg */
-		if (use_bg) DrawBG(hdc, &rc);
-
 		/* New rectangle */
 		rc.left += ((td->tile_wid - td->font_wid) / 2);
 		rc.right = rc.left + td->font_wid;
@@ -2653,13 +2295,13 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 				rc.right += td->tile_wid;
 			}
 #else
-#if 1
 			if (*(s+i)==127){
 				oldBrush = SelectObject(hdc, myBrush);
 				oldPen = SelectObject(hdc, GetStockObject(NULL_PEN) );
 
 				/* Dump the wall */
 				Rectangle(hdc, rc.left, rc.top, rc.right+1, rc.bottom+1);
+				_update_rect_enlarge(td, &rc);
 
 				SelectObject(hdc, oldBrush);
 				SelectObject(hdc, oldPen);
@@ -2671,20 +2313,11 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 				/* Dump the text */
 				ExtTextOut(hdc, rc.left, rc.top, ETO_CLIPPED, &rc,
 				       s+i, 1, NULL);
-
+				_update_rect_enlarge(td, &rc);
 				/* Advance */
 				rc.left += td->tile_wid;
 				rc.right += td->tile_wid;
 			}
-#else
-			/* Dump the text */
-			ExtTextOut(hdc, rc.left, rc.top, 0, &rc,
-				   s+i, 1, NULL);
-
-			/* Advance */
-			rc.left += td->tile_wid;
-			rc.right += td->tile_wid;
-#endif
 #endif
 
 		}
@@ -2698,13 +2331,9 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
 			   s, n, NULL);
 	}
 
-	/* Release DC */
-	ReleaseDC(td->w, hdc);
-
 	/* Success */
 	return 0;
 }
-
 
 /*
  * Low level graphics.  Assumes valid input.
@@ -2729,13 +2358,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2, tw2;
 	int x3, y3;
-
-	HDC hdcMask;
-
 	HDC hdc;
-	HDC hdcSrc;
-	HBITMAP hbmSrcOld;
-
+	
 	/* Paranoia */
 	if (!use_graphics)
 	{
@@ -2744,8 +2368,8 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	}
 
 	/* Size of bitmap cell */
-	w1 = infGraph.CellWidth;
-	h1 = infGraph.CellHeight;
+	w1 = _graphics.width;
+	h1 = _graphics.height;
 
 	/* Size of window cell */
 	if (td->map_active)
@@ -2768,17 +2392,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	y2 = y * h2 + td->size_oh1;
 
 	/* Info */
-	hdc = GetDC(td->w);
-
-	/* More info */
-	hdcSrc = CreateCompatibleDC(hdc);
-	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
-
-	if (arg_graphics == GRAPHICS_ADAM_BOLT)
-	{
-		hdcMask = CreateCompatibleDC(hdc);
-		SelectObject(hdcMask, infMask.hBitmap);
-	}
+	hdc = td->hDC;
 
 	/* Draw attr/char pairs */
 	for (i = 0; i < n; i++, x2 += w2)
@@ -2803,13 +2417,13 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 			if ((w1 == tw2) && (h1 == h2))
 			{
 				/* Copy the terrain picture from the bitmap to the window */
-				BitBlt(hdc, x2, y2, tw2, h2, hdcSrc, x3, y3, SRCCOPY);
+				BitBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x3, y3, SRCCOPY);
 
 				/* Mask out the tile */
-				BitBlt(hdc, x2, y2, tw2, h2, hdcMask, x1, y1, SRCAND);
+				BitBlt(hdc, x2, y2, tw2, h2, _graphics.hdcMask, x1, y1, SRCAND);
 
 				/* Draw the tile */
-				BitBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, SRCPAINT);
+				BitBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x1, y1, SRCPAINT);
 			}
 
 			/* Need to stretch */
@@ -2819,16 +2433,16 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 				SetStretchBltMode(hdc, COLORONCOLOR);
 
 				/* Copy the terrain picture from the bitmap to the window */
-				StretchBlt(hdc, x2, y2, tw2, h2, hdcSrc, x3, y3, w1, h1, SRCCOPY);
+				StretchBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x3, y3, w1, h1, SRCCOPY);
 
 				/* Only draw if terrain and overlay are different */
 				if ((x1 != x3) || (y1 != y3))
 				{
 					/* Mask out the tile */
-					StretchBlt(hdc, x2, y2, tw2, h2, hdcMask, x1, y1, w1, h1, SRCAND);
+					StretchBlt(hdc, x2, y2, tw2, h2, _graphics.hdcMask, x1, y1, w1, h1, SRCAND);
 
 					/* Draw the tile */
-					StretchBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, w1, h1, SRCPAINT);
+					StretchBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x1, y1, w1, h1, SRCPAINT);
 				}
 			}
 		}
@@ -2838,7 +2452,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 			if ((w1 == tw2) && (h1 == h2))
 			{
 				/* Copy the picture from the bitmap to the window */
-				BitBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, SRCCOPY);
+				BitBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x1, y1, SRCCOPY);
 			}
 
 			/* Need to stretch */
@@ -2848,24 +2462,19 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 				SetStretchBltMode(hdc, COLORONCOLOR);
 
 				/* Copy the picture from the bitmap to the window */
-				StretchBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, w1, h1, SRCCOPY);
+				StretchBlt(hdc, x2, y2, tw2, h2, _graphics.hdcTiles, x1, y1, w1, h1, SRCCOPY);
 			}
 		}
+
+		{
+			RECT rc;
+			rc.left = x2;
+			rc.top = y2;
+			rc.right = x2 + tw2;
+			rc.bottom = y2 + h2;
+			_update_rect_enlarge(td, &rc);
+		}
 	}
-
-	/* Release */
-	SelectObject(hdcSrc, hbmSrcOld);
-	DeleteDC(hdcSrc);
-
-	if (arg_graphics == GRAPHICS_ADAM_BOLT)
-	{
-		/* Release */
-		SelectObject(hdcMask, hbmSrcOld);
-		DeleteDC(hdcMask);
-	}
-
-	/* Release */
-	ReleaseDC(td->w, hdc);
 
 #else /* USE_GRAPHICS */
 
@@ -2959,12 +2568,6 @@ static void term_data_link(term_data *td)
 	t->attr_blank = TERM_WHITE;
 	t->char_blank = ' ';
 
-#if 0
-	/* Prepare the init/nuke hooks */
-	t->init_hook = Term_init_win;
-	t->nuke_hook = Term_nuke_win;
-#endif
-
 	/* Prepare the template hooks */
 	t->user_hook = Term_user_win;
 	t->xtra_hook = Term_xtra_win;
@@ -2994,10 +2597,6 @@ static void init_windows(void)
 
 	term_data *td;
 
-#if 0 /* #ifndef JP */
-	char buf[1024];
-#endif
-
 	/* Main window */
 	td = &data[0];
 	WIPE(td, term_data);
@@ -3018,9 +2617,7 @@ static void init_windows(void)
 	td->pos_x = 7 * 30;
 	td->pos_y = 7 * 20;
 	td->posfix = FALSE;
-#if 1 /* #ifdef JP */
 	td->bizarre = TRUE;
-#endif
 	/* Sub windows */
 	for (i = 1; i < MAX_TERM_DATA; i++)
 	{
@@ -3038,9 +2635,7 @@ static void init_windows(void)
 		td->pos_x = (7 - i) * 30;
 		td->pos_y = (7 - i) * 20;
 		td->posfix = FALSE;
-#if 1 /* #ifdef JP */
-			td->bizarre = TRUE;
-#endif
+		td->bizarre = TRUE;
 	}
 
 
@@ -3070,7 +2665,6 @@ static void init_windows(void)
 	{
 		td = &data[i];
 
-#if 1 /* #ifdef JP */
 		strncpy(td->lf.lfFaceName, td->font_want, LF_FACESIZE);
 		td->lf.lfCharSet = DEFAULT_CHARSET;
 		td->lf.lfPitchAndFamily = FIXED_PITCH | FF_DONTCARE;
@@ -3078,27 +2672,6 @@ static void init_windows(void)
 		term_force_font(td, NULL);
 		td->tile_wid = td->font_wid;
 		td->tile_hgt = td->font_hgt;
-#else
-		/* Access the standard font file */
-		path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, td->font_want);
-
-		/* Activate the chosen font */
-		if (term_force_font(td, buf))
-		{
-			/* Access the standard font file */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
-
-			/* Force the use of that font */
-			(void)term_force_font(td, buf);
-
-			/* Oops */
-			td->tile_wid = 8;
-			td->tile_hgt = 13;
-
-			/* Assume not bizarre */
-			td->bizarre = FALSE;
-		}
-#endif
 
 
 		/* Analyze the font */
@@ -3126,7 +2699,7 @@ static void init_windows(void)
 #else
 		if (!td->w) quit("Failed to create sub-window");
 #endif
-
+		term_init_double_buffer(td);
 
 		if (td->visible)
 		{
@@ -3172,7 +2745,6 @@ static void init_windows(void)
 	if (!td->w) quit("Failed to create Angband window");
 #endif
 
-
 	term_data_link(td);
 	angband_term[0] = &td->t;
 	normsize.x = td->cols;
@@ -3185,6 +2757,7 @@ static void init_windows(void)
 	/* Bring main window back to top */
 	SetWindowPos(td->w, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
+	term_init_double_buffer(td);
 
 	/* New palette XXX XXX XXX */
 	(void)new_palette();
@@ -3398,8 +2971,6 @@ static void setup_menus(void)
 		      (arg_bigtile ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_SOUND,
 		      (arg_sound ? MF_CHECKED : MF_UNCHECKED));
-	CheckMenuItem(hm, IDM_OPTIONS_BG,
-		      (use_bg ? MF_CHECKED : MF_UNCHECKED));
 #ifndef JP
 	CheckMenuItem(hm, IDM_OPTIONS_SAVER,
 		      (hwndSaver ? MF_CHECKED : MF_UNCHECKED));
@@ -4051,72 +3622,6 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
-		/* bg */
-		case IDM_OPTIONS_BG:
-		{
-			/* Paranoia */
-			if (!inkey_flag)
-			{
-				plog("You may not do that right now.");
-				break;
-			}
-
-			/* Toggle "use_bg" */
-			use_bg = !use_bg;
-
-			init_bg();
-
-			/* React to changes */
-			Term_xtra_win_react();
-
-			/* Hack -- Force redraw */
-			Term_key_push(KTRL('R'));
-
-			break;
-		}
-
-		/* bg */
-		case IDM_OPTIONS_OPEN_BG:
-		{
-			/* Paranoia */
-			if (!inkey_flag)
-			{
-				plog("You may not do that right now.");
-				break;
-			}
-			else
-			{
-				memset(&ofn, 0, sizeof(ofn));
-				ofn.lStructSize = sizeof(ofn);
-				ofn.hwndOwner = data[0].w;
-				ofn.lpstrFilter = "Bitmap Files (*.bmp)\0*.bmp\0";
-				ofn.nFilterIndex = 1;
-				ofn.lpstrFile = bg_bitmap_file;
-				ofn.nMaxFile = 1023;
-				ofn.lpstrInitialDir = NULL;
-#ifdef JP
-				ofn.lpstrTitle = "壁紙を選んでね。";
-#else
-				ofn.lpstrTitle = "Choose wall paper.";
-#endif
-				ofn.Flags = OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-
-				if (GetOpenFileName(&ofn))
-				{
-					/* Load 'savefile' */
-					use_bg = 1;
-					init_bg();
-				}
-
-				/* React to changes */
-				Term_xtra_win_react();
-
-				/* Hack -- Force redraw */
-				Term_key_push(KTRL('R'));
-			}
-			break;
-		}
-
 		case IDM_DUMP_SCREEN_HTML:
 		{
 			static char buf[1024] = "";
@@ -4344,10 +3849,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 	PAINTSTRUCT ps;
 	HDC hdc;
 	term_data *td;
-#if 0
-	MINMAXINFO FAR *lpmmi;
-	RECT rc;
-#endif
 	int i;
 
 
@@ -4400,7 +3901,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			BeginPaint(hWnd, &ps);
 			if (td) term_data_redraw(td);
 			EndPaint(hWnd, &ps);
-			ValidateRect(hWnd, NULL);
 			return 0;
 		}
 
@@ -4619,6 +4119,9 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			return 0;
 		}
 
+		/*case WM_ERASEBKGND:
+			return 1;*/
+
 		case WM_COMMAND:
 		{
 			process_menus(LOWORD(wParam));
@@ -4677,6 +4180,10 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 						/* Resize the term */
 						Term_resize(td->cols, td->rows);
 
+						/* I'm going nuts here! Was td size data just always
+						   wrong before? Crazy Nuts :P */
+						term_getsize(td);
+						
 						/* Redraw later */
 						InvalidateRect(td->w, NULL, TRUE);
 					}
@@ -4778,10 +4285,6 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 #endif /* __MWERKS__ */
 {
 	term_data *td;
-#if 0
-	MINMAXINFO FAR *lpmmi;
-	RECT rc;
-#endif
 	PAINTSTRUCT ps;
 	HDC hdc;
 	int i;
@@ -4986,15 +4489,6 @@ LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
 			return 0;
 		}
 
-#if 0
-		case WM_ACTIVATE:
-		{
-			if (LOWORD(wParam) == WA_INACTIVE) break;
-
-			/* else fall through */
-		}
-#endif
-
 		case WM_LBUTTONDOWN:
 		case WM_MBUTTONDOWN:
 		case WM_RBUTTONDOWN:
@@ -5156,25 +4650,29 @@ static void hook_quit(cptr str)
 		term_force_font(&data[i], NULL);
 		if (data[i].font_want) string_free(data[i].font_want);
 		if (data[i].w) DestroyWindow(data[i].w);
+		if (data[i].hDC) DeleteDC(data[i].hDC);
+		if (data[i].hBitmap) DeleteObject(data[i].hBitmap);
 		data[i].w = 0;
+		data[i].hDC = 0;
+		data[i].hBitmap = 0;
 	}
 
 	/* Free the bitmap stuff */
 #ifdef USE_GRAPHICS
-	if (infGraph.hPalette) DeleteObject(infGraph.hPalette);
-	if (infGraph.hBitmap) DeleteObject(infGraph.hBitmap);
 
-	if (infMask.hPalette) DeleteObject(infMask.hPalette);
-	if (infMask.hBitmap) DeleteObject(infMask.hBitmap);
+	if (_graphics.tiles.hPalette) DeleteObject(_graphics.tiles.hPalette);
+	if (_graphics.tiles.hBitmap) DeleteObject(_graphics.tiles.hBitmap);
+	if (_graphics.hdcTiles) DeleteDC(_graphics.hdcTiles);
+
+	if (_graphics.mask.hPalette) DeleteObject(_graphics.mask.hPalette);
+	if (_graphics.mask.hBitmap) DeleteObject(_graphics.mask.hBitmap);
+	if (_graphics.hdcMask) DeleteDC(_graphics.hdcMask);
 
 #endif /* USE_GRAPHICS */
 
 	/*** Free some other stuff ***/
 
 	DeleteObject(hbrYellow);
-
-	/* bg */
-	delete_bg();
 
 	if (hPal) DeleteObject(hPal);
 
@@ -5268,25 +4766,6 @@ static void init_stuff(void)
 
 	/* Hack -- Validate the "news.txt" file */
 	validate_file(path);
-
-
-#if 0 /* #ifndef JP */
-	/* Build the "font" path */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "font");
-
-	/* Allocate the path */
-	ANGBAND_DIR_XTRA_FONT = string_make(path);
-
-	/* Validate the "font" directory */
-	validate_dir(ANGBAND_DIR_XTRA_FONT, TRUE);
-
-	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
-
-	/* Hack -- Validate the basic font */
-	validate_file(path);
-#endif
-
 
 #ifdef USE_GRAPHICS
 
@@ -5434,9 +4913,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 
 	/* Prepare the windows */
 	init_windows();
-
-	/* bg */
-	init_bg();
 
 	/* Activate hooks */
 	plog_aux = hook_plog;
