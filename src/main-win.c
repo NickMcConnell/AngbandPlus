@@ -358,6 +358,7 @@ struct _term_data
 	HWND w;
 	HDC  hDC;
 	HBITMAP hBitmap;
+	HBITMAP hOldBitmap;
 	RECT updateRect;
 
 	DWORD dwStyle;
@@ -794,20 +795,28 @@ static void validate_dir(cptr s, bool vital)
 
 static void term_init_double_buffer(term_data *td)
 {
-	if (!td->hDC)
-		td->hDC = CreateCompatibleDC(NULL);
+	HDC hdc;
 
-	if (td->hBitmap) DeleteObject(td->hBitmap);
+	if (!td->w) return;
 
+	if (td->hDC)
+	{
+		SelectObject(td->hDC, td->hOldBitmap);
+		DeleteObject(td->hBitmap);
+		DeleteDC(td->hDC);
+	}
+
+	hdc = GetDC(td->w);
+
+	td->hDC = CreateCompatibleDC(hdc);		
 	td->hBitmap = CreateCompatibleBitmap(
-		GetDC(NULL), 
+		hdc, 
 		td->size_wid,
 		td->size_hgt
-	);/*
-		td->cols * td->tile_wid + td->size_ow1 + td->size_ow2, 
-		td->rows * td->tile_hgt + td->size_oh1 + td->size_oh2
-	); */
-	SelectObject(td->hDC, td->hBitmap);
+	);
+	td->hOldBitmap = SelectObject(td->hDC, td->hBitmap);
+
+	ReleaseDC(td->w, hdc);
 }
 
 /*

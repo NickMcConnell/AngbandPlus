@@ -2575,9 +2575,9 @@ bool change_panel(int dy, int dx)
  *
  * "Update" forces a "full update" to take place.
  *
- * The map is reprinted if necessary, and "TRUE" is returned.
+ * The map is reprinted if necessary.
  */
-void verify_panel(void)
+void verify_panel_aux(u32b options)
 {
 	int y = py;
 	int x = px;
@@ -2598,8 +2598,8 @@ void verify_panel(void)
 	if (max_prow_min < 0) max_prow_min = 0;
 	if (max_pcol_min < 0) max_pcol_min = 0;
 
-		/* Center on player */
-	if (center_player && (center_running || !running))
+	/* Center on player */
+	if (options & PANEL_FORCE_CENTER)
 	{
 		/* Center vertically */
 		prow_min = y - hgt / 2;
@@ -2678,6 +2678,14 @@ void verify_panel(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+}
+
+void verify_panel(void)
+{
+	int options = 0;
+	if (center_player && (center_running || !running))
+		options |= PANEL_FORCE_CENTER;
+	verify_panel_aux(options);
 }
 
 

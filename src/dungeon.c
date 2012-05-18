@@ -4810,6 +4810,12 @@ msg_print("アリーナが魔法を吸収した！");
 			break;
 		}
 
+		case KTRL('L'):
+		{
+			verify_panel_aux(PANEL_FORCE_CENTER);
+			break;
+		}
+
 		/* Locate player on map */
 		case 'L':
 		{
