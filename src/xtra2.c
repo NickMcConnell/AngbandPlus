@@ -648,10 +648,8 @@ msg_print("魔法の階段が現れた...");
 			object_wipe(q_ptr);
 
 			/* Make a great object */
-			make_object(q_ptr, AM_GOOD | AM_GREAT);
-
-			/* Drop it in the dungeon */
-			(void)drop_near(q_ptr, -1, y, x);
+			if (make_object(q_ptr, AM_GOOD | AM_GREAT))
+				(void)drop_near(q_ptr, -1, y, x);
 		}
 	}
 }
@@ -979,10 +977,8 @@ msg_print("地面に落とされた。");
 				get_obj_num_hook = kind_is_book;
 
 			/* Make a book */
-			make_object(q_ptr, mo_mode);
-
-			/* Drop it in the dungeon */
-			(void)drop_near(q_ptr, -1, y, x);
+			if (make_object(q_ptr, mo_mode))
+				(void)drop_near(q_ptr, -1, y, x);
 		}
 		break;
 
@@ -1168,10 +1164,8 @@ msg_print("地面に落とされた。");
 				get_obj_num_hook = kind_is_cloak;
 
 				/* Make a cloak */
-				make_object(q_ptr, mo_mode);
-
-				/* Drop it in the dungeon */
-				(void)drop_near(q_ptr, -1, y, x);
+				if (make_object(q_ptr, mo_mode))
+					(void)drop_near(q_ptr, -1, y, x);
 			}
 			break;
 
@@ -1188,10 +1182,8 @@ msg_print("地面に落とされた。");
 				get_obj_num_hook = kind_is_polearm;
 
 				/* Make a poleweapon */
-				make_object(q_ptr, mo_mode);
-
-				/* Drop it in the dungeon */
-				(void)drop_near(q_ptr, -1, y, x);
+				if (make_object(q_ptr, mo_mode))
+					(void)drop_near(q_ptr, -1, y, x);
 			}
 			break;
 
@@ -1208,10 +1200,8 @@ msg_print("地面に落とされた。");
 				get_obj_num_hook = kind_is_armor;
 
 				/* Make a hard armor */
-				make_object(q_ptr, mo_mode);
-
-				/* Drop it in the dungeon */
-				(void)drop_near(q_ptr, -1, y, x);
+				if (make_object(q_ptr, mo_mode))
+					(void)drop_near(q_ptr, -1, y, x);
 			}
 			break;
 
@@ -1228,10 +1218,8 @@ msg_print("地面に落とされた。");
 				get_obj_num_hook = kind_is_hafted;
 
 				/* Make a hafted weapon */
-				make_object(q_ptr, mo_mode);
-
-				/* Drop it in the dungeon */
-				(void)drop_near(q_ptr, -1, y, x);
+				if (make_object(q_ptr, mo_mode))
+					(void)drop_near(q_ptr, -1, y, x);
 			}
 			break;
 
@@ -1248,10 +1236,8 @@ msg_print("地面に落とされた。");
 				get_obj_num_hook = kind_is_sword;
 
 				/* Make a sword */
-				make_object(q_ptr, mo_mode);
-
-				/* Drop it in the dungeon */
-				(void)drop_near(q_ptr, -1, y, x);
+				if (make_object(q_ptr, mo_mode))
+					(void)drop_near(q_ptr, -1, y, x);
 			}
 			break;
 		}

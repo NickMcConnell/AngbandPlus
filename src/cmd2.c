@@ -4720,7 +4720,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 				/* Hack -- Base damage from thrown object */
 				tdam = damroll(q_ptr->dd, q_ptr->ds);
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, 0, TRUE);
+				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, 0, 0, TRUE);
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 				if (q_ptr->to_d > 0)
 					tdam += q_ptr->to_d;

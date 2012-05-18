@@ -183,8 +183,13 @@ void _demigod_gain_level(int new_level)
 
 void _demigod_calc_bonuses(void)
 {
+	int i;
+
 	if (p_ptr->mimic_form)
 		return;
+
+	for (i = 0; i < 6; i++)
+		p_ptr->stat_add[i] += demigod_info[p_ptr->psubrace].adj[i];
 
 	switch (p_ptr->psubrace)
 	{
@@ -192,16 +197,8 @@ void _demigod_calc_bonuses(void)
 		p_ptr->resist_elec = TRUE;
 		p_ptr->sh_elec = TRUE;
 		p_ptr->levitation = TRUE;
-		p_ptr->stat_add[A_STR] += 1;
-		p_ptr->stat_add[A_INT] += 1;
-		p_ptr->stat_add[A_WIS] += 1;
-		p_ptr->stat_add[A_DEX] += 1;
-		p_ptr->stat_add[A_CON] += 1;
-		p_ptr->stat_add[A_CHR] += 1;
 		break;
 	case DEMIGOD_POSEIDON:
-		p_ptr->stat_add[A_STR] += 1;
-		p_ptr->stat_add[A_DEX] += 1;
 		p_ptr->resist_acid = TRUE;
 		p_ptr->resist_cold = TRUE;
 		p_ptr->resist_elec = TRUE;
@@ -210,21 +207,17 @@ void _demigod_calc_bonuses(void)
 	case DEMIGOD_HADES:
 		p_ptr->resist_neth = TRUE;
 		p_ptr->hold_life = TRUE;
-		p_ptr->stat_add[A_CON] += 3;
-		p_ptr->stat_add[A_CHR] -= 2;
 		p_ptr->sustain_con = TRUE;
 		p_ptr->skill_sav += 15;
 		p_ptr->free_act = TRUE;
 		break;
 	case DEMIGOD_ATHENA:
-		p_ptr->stat_add[A_INT] += 2;
 		p_ptr->sustain_int = TRUE;
 		break;
 	case DEMIGOD_ARES:
 	{
 		int dam = 5 + p_ptr->lev/7;
 
-		p_ptr->stat_add[A_STR] += 2;
 		p_ptr->sustain_str = TRUE;
 		p_ptr->to_a += 10 + p_ptr->lev/5;
 		p_ptr->dis_to_a += 10 + p_ptr->lev/5;
@@ -250,7 +243,6 @@ void _demigod_calc_bonuses(void)
 		/* cf calc_torch in xtra1.c for the 'extra light' */
 		break;
 	case DEMIGOD_ARTEMIS:
-		p_ptr->stat_add[A_DEX] += 2;
 		p_ptr->to_d_b += 5 + p_ptr->lev/7;
 		p_ptr->skill_thb += 15;
 		p_ptr->sustain_dex = TRUE;
@@ -264,7 +256,6 @@ void _demigod_calc_bonuses(void)
 		p_ptr->resist_time = TRUE;
 		break;
 	case DEMIGOD_APHRODITE:
-		p_ptr->stat_add[A_CHR] += 2;
 		p_ptr->sustain_chr = TRUE;
 		break;
 	}

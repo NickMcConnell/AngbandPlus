@@ -62,25 +62,25 @@ V:2.8.1
 N:4:耐酸の
 E:of Resist Acid
 X:31:16
-W:0:12:0:1000
+W:0:12:40:1000
 F:RES_ACID | IGNORE_ACID
 
 N:5:耐電の
 E:of Resist Lightning
 X:31:10
-W:0:12:0:400
+W:0:12:40:400
 F:RES_ELEC | IGNORE_ELEC
 
 N:6:耐火の
 E:of Resist Fire
 X:31:14
-W:0:9:0:800
+W:0:9:40:800
 F:RES_FIRE | IGNORE_FIRE
 
 N:7:耐冷の
 E:of Resist Cold
 X:31:12
-W:0:9:0:600
+W:0:9:40:600
 F:RES_COLD | IGNORE_COLD
 
 N:8:全耐性の
@@ -90,8 +90,6 @@ W:0:18:0:12500
 C:0:0:10:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
-
-# OnePower
 
 N:9:エルフの
 E:of Elvenkind
@@ -109,8 +107,6 @@ W:0:18:0:1500
 C:0:0:12:3
 F:STR |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-
-# OnePower
 
 N:11:永続の
 E:of Permanence
@@ -133,37 +129,52 @@ F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_CONF | RES_BLIND | RES_FEAR |
 F:FREE_ACT | SEE_INVIS | LEVITATION | REFLECT |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 13 (unused)
-
-# 14 (unused)
-
-# 15 (unused)
-
+N:13:TRANSLATE
+E:of High Resistance
+X:31:20
+W:50:24:0:12500
+C:0:0:10:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
 
 ### Shields ###
+N:14:エルフの
+E:of Elvenkind
+X:25:25
+W:50:18:0:15000
+C:0:0:10:3
+F:STEALTH | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
+
+N:15:TRANSLATE
+E:of High Resistance
+X:25:20
+W:50:24:0:12500
+C:0:0:10:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | XTRA_H_RES
 
 N:16:耐酸の
 E:of Resist Acid
 X:25:16
-W:0:18:0:1000
+W:0:8:40:1000
 F:RES_ACID | IGNORE_ACID
 
 N:17:耐電の
 E:of Resist Lightning
 X:25:10
-W:0:7:0:400
+W:0:7:40:400
 F:RES_ELEC | IGNORE_ELEC
 
 N:18:耐火の
 E:of Resist Fire
 X:25:14
-W:0:9:0:800
+W:0:9:40:800
 F:RES_FIRE | IGNORE_FIRE
 
 N:19:耐冷の
 E:of Resist Cold
 X:25:12
-W:0:7:0:600
+W:0:7:40:600
 F:RES_COLD | IGNORE_COLD
 
 N:20:全耐性の
@@ -196,31 +207,29 @@ F:RES_LITE | RES_DARK
 N:23:闇の
 E:of Darkness
 X:33:6
-W:0:18:0:800
+W:0:18:40:800
 F:LITE | RES_DARK
 
 N:24:知能の
 E:of Intelligence
 X:33:13
 C:0:0:0:2
-W:0:18:0:500
+W:0:18:50:500
 F:INT | SUST_INT
 
 N:25:賢明の
 E:of Wisdom
 X:33:13
-W:0:18:0:500
+W:0:18:50:500
 C:0:0:0:2
 F:WIS | SUST_WIS
 
 N:26:美貌の
 E:of Beauty
 X:33:8
-W:0:18:0:1000
+W:0:18:40:1000
 C:0:0:0:4
 F:CHR | SUST_CHR
-
-# OneAbility
 
 #J0#
 #J0# 名前の訳は都々目さんによる
@@ -252,21 +261,21 @@ F:WIS | CHR | SUST_WIS | SUST_CHR | XTRA_H_RES
 N:30:鋭敏の
 E:of Seeing
 X:33:8
-W:0:18:0:1000
+W:0:18:70:1000
 C:0:0:0:6
 F:SEARCH | RES_BLIND | SEE_INVIS
 
 N:31:赤外線視力の
 E:of Infravision
 X:33:11
-W:0:9:0:500
+W:0:9:20:500
 C:0:0:0:8
 F:INFRA | HIDE_TYPE
 
 N:32:光の
 E:of Light
 X:33:6
-W:0:18:0:500
+W:0:18:40:500
 F:LITE | RES_LITE
 
 N:33:テレパシーの
@@ -278,7 +287,7 @@ W:0:18:0:15000
 N:34:急速回復の
 E:of Regeneration
 X:33:10
-W:0:36:0:1500
+W:0:36:60:1500
 F:REGEN
 
 N:35:テレポートの
@@ -336,8 +345,6 @@ C:0:0:0:3
 F:STEALTH
 
 
-# OnePower
-
 N:42:至福の地アマンの
 E:of Aman
 X:32:20
@@ -346,7 +353,6 @@ C:0:0:20:3
 F:STEALTH | XTRA_H_RES
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# Aura, Fire
 #JZ#
 N:43:灼熱の
 E:of Immolation
@@ -379,7 +385,6 @@ W:0:36:0:0
 C:15:15:0:0
 F:AGGRAVATE | SHOW_MODS
 
-# Aura, Electricity
 #JZ#
 N:47:電撃の
 E:of Electricity
@@ -388,15 +393,13 @@ W:0:36:0:4000
 C:0:0:4:0
 F:IGNORE_ACID | IGNORE_ELEC | SH_ELEC | RES_ELEC
 
-
-
 ### Gloves ###
 
 N:48:麻痺知らずの
 E:of Free Action
 X:34:10
 F:FREE_ACT
-W:0:4:0:1000
+W:0:4:60:1000
 
 N:49:殺戮の
 E:of Slaying
@@ -408,7 +411,7 @@ F:SHOW_MODS
 N:50:俊敏の
 E:of Agility
 X:34:12
-W:0:9:0:1000
+W:0:9:70:1000
 C:0:0:0:5
 F:DEX | HIDE_TYPE
 
@@ -537,7 +540,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:66:(祝福)
 E:(Blessed)
 X:24:20
-W:0:36:0:5000
+W:0:36:60:5000
 C:0:0:0:3
 F:WIS | ESP_GOOD |
 F:BLESSED | XTRA_POWER
@@ -547,7 +550,7 @@ F:BLESSED | XTRA_POWER
 N:68:西方国の
 E:of Westernesse
 X:24:20
-W:0:36:0:15000
+W:0:36:80:15000
 C:5:5:0:2
 F:STR | DEX | CON | 
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
@@ -580,32 +583,32 @@ F:FORCE_WEAPON | SEE_INVIS
 N:72:溶解の
 E:of Melting
 X:24:15
-W:0:36:0:8000
+W:0:36:50:8000
 F:BRAND_ACID | RES_ACID | IGNORE_ACID
 
 N:73:電撃の
 E:of Shocking
 X:24:20
-W:0:36:0:4500
+W:0:36:70:4500
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 
 N:74:焼棄の
 E:of Burning
 X:24:20
-W:0:36:0:3000
+W:0:36:50:3000
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | LITE
 
 N:75:凍結の
 E:of Freezing
 X:24:15
-W:0:36:0:2500
+W:0:36:50:2500
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
 #JZ#
 N:76:毒殺の
 E:of Venom
 X:24:20
-W:0:36:0:4500
+W:0:36:50:4500
 F:BRAND_POIS | RES_POIS
 
 #JZ#
@@ -619,7 +622,7 @@ F:CHAOTIC | RES_CHAOS | IGNORE_ELEC | IGNORE_ACID | IGNORE_FIRE | XTRA_RES
 N:78:切れ味の
 E:of Sharpness
 X:24:20
-W:0:18:0:5000
+W:0:18:60:5000
 F:VORPAL | TUNNEL
 
 #JZ#
@@ -635,7 +638,7 @@ F:TUNNEL | IMPACT | ACTIVATE
 N:80:アニマルスレイヤーの
 E:of Slay Animal
 X:24:18
-W:0:23:0:3500
+W:0:23:40:3500
 F:SLAY_ANIMAL
 
 N:81:滅邪の
@@ -647,37 +650,37 @@ F:SLAY_EVIL
 N:82:アンデッドスレイヤーの
 E:of Slay Undead
 X:24:18
-W:0:23:0:3500
+W:0:23:70:3500
 F:SLAY_UNDEAD | HOLD_LIFE
 
 N:83:デーモンスレイヤーの
 E:of Slay Demon
 X:24:14
-W:0:23:0:2500
+W:0:23:70:2500
 F:SLAY_DEMON
 
 N:84:オークスレイヤーの
 E:of Slay Orc
 X:24:10
-W:0:15:0:2500
+W:0:15:20:2500
 F:SLAY_ORC
 
 N:85:トロルスレイヤーの
 E:of Slay Troll
 X:24:10
-W:0:15:0:2500
+W:0:15:30:2500
 F:SLAY_TROLL
 
 N:86:ジャイアントスレイヤーの
 E:of Slay Giant
 X:24:14
-W:0:15:0:2500
+W:0:15:40:2500
 F:SLAY_GIANT
 
 N:87:ドラゴンスレイヤーの
 E:of Slay Dragon
 X:24:18
-W:0:23:0:3500
+W:0:23:50:3500
 F:SLAY_DRAGON | XTRA_E_RES
 
 # The "Kill" brands (8)
@@ -713,21 +716,21 @@ F:INT | KILL_DEMON | ESP_DEMON
 N:92:*オークスレイヤー*の
 E:of *Slay* Orc
 X:24:14
-W:0:60:0:4000
+W:0:60:40:4000
 C:0:0:0:2
 F:DEX | KILL_ORC | ESP_ORC
 
 N:93:*トロルスレイヤー*の
 E:of *Slay* Troll
 X:24:14
-W:0:60:0:4000
+W:0:60:60:4000
 C:0:0:0:2
 F:STR | KILL_TROLL | ESP_TROLL
 
 N:94:*ジャイアントスレイヤー*の
 E:of *Slay* Giant
 X:24:16
-W:0:60:0:4000
+W:0:60:70:4000
 C:0:0:0:2
 F:STR | KILL_GIANT | ESP_GIANT
 
@@ -748,7 +751,7 @@ F:VAMPIRIC | HOLD_LIFE
 N:97:虹色の
 E:(Craft)
 X:24:25
-W:0:36:0:10000
+W:0:36:70:10000
 F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | LITE
 F:IGNORE_FIRE | IGNORE_COLD | IGNORE_ELEC
 
@@ -785,7 +788,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:101:人喰いの
 E:of Slay Human
 X:24:10
-W:0:23:0:2500
+W:0:23:40:2500
 F:SLAY_HUMAN
 
 N:102:モルグルの
@@ -1535,6 +1538,14 @@ X:34:37
 W:0:36:0:50000
 C:5:5:0:5
 F:STEALTH | SHOW_MODS | HIDE_TYPE
+
+#See object2 apply_magic for explanation of the weird 'C' values
+N:249:TRANSLATE
+E:of the Berserker
+X:34:37
+W:0:36:0:50000
+C:240:8:240:2
+F:BLOWS | SHOW_MODS | RES_FEAR
 
 # N: serial number : ego type
 # X: inventory slot : rating

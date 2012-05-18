@@ -1225,6 +1225,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* Place a wall */
 			cave_set_feat(y, x, feat_granite);
 
+			/* Observe */
+			if (c_ptr->info & (CAVE_MARK)) obvious = TRUE;
+
 			break;
 		}
 
@@ -1719,7 +1722,6 @@ note_kill = "壊れてしまった！";
 #endif
 
 				if (have_flag(flgs, TR_RES_CHAOS)) ignore = TRUE;
-				else if ((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_CHAOS)) ignore = TRUE;
 				break;
 			}
 
@@ -8291,7 +8293,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			{
 				msg_print("Your mental fortress is impenetrable!");
 			}
-			else if ( p_ptr->prace == RACE_DEMIGOD
+			else if ( prace_is_(RACE_DEMIGOD)
 					&& p_ptr->psubrace == DEMIGOD_HERA
 					&& randint1(100) > r_ptr->level - 2*(p_ptr->stat_ind[A_WIS] + 3))
 			{
@@ -8421,7 +8423,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			}
 			else
 			{
-				if ( p_ptr->prace == RACE_DEMIGOD
+				if ( prace_is_(RACE_DEMIGOD)
 				  && p_ptr->psubrace == DEMIGOD_HERA
 				  && randint1(100) > r_ptr->level - 2*(p_ptr->stat_ind[A_WIS] + 3))
 				{

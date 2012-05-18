@@ -2154,7 +2154,7 @@ static void _dagger_toss_imp2(_dagger_toss_info * info)
 				if (info->flying_dagger)
 					dd += p_ptr->lev/15;
 				tdam = damroll(dd, info->o_ptr->ds);				
-				tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, TRUE);
+				tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
 				tdam = critical_shot(info->o_ptr->weight, info->o_ptr->to_h, tdam);
 				tdam += info->o_ptr->to_d;
 				tdam *= info->mult;
@@ -2930,7 +2930,7 @@ static void _club_toss_imp(_club_toss_info * info)
 				/***** The Damage Calculation!!! *****/
 				dd = info->o_ptr->dd;
 				tdam = damroll(dd, info->o_ptr->ds);				
-				tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, TRUE);
+				tdam = tot_dam_aux(info->o_ptr, tdam, m_ptr, 0, 0, TRUE);
 				tdam = critical_shot(info->o_ptr->weight, info->o_ptr->to_h, tdam);
 				tdam += info->o_ptr->to_d;
 				tdam *= info->mult;

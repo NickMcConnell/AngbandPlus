@@ -78,6 +78,7 @@ char listsym[] =
 	'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
 	'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+	'!', '@', '#', '$',
 	'\0'
 };
 
@@ -3953,70 +3954,83 @@ demigod_type demigod_info[MAX_DEMIGOD_TYPES] =
 {
 	{"Minor God", 
 		"Fathered by a minor god, you gain no special powers.",
-		0},
+		0,
+		{0, 0, 0, 0, 0, 0}},
 	{"Zeus", 
 		"Zeus, King of the gods and ruler of Mount Olympus, god of the Sky "
 		"and Thunder, and nominal husband of Hera.  You inherit elemental "
 		"protection and increased stature.",
-		120},
+		120,
+		{1, 1, 1, 1, 1, 1}},
 	{"Poseidon", 
 		"Poseidon, Brother of Zeus, Lord of the Seas and Storm.  You inherit "
 		"elemental protection and corrosive attacks.",
-		120},
+		120,
+		{1, 0, 0, 1, 0, 0}},
 	{"Hades", 
 		"Hades, Ruler of the Underworld.  You gain resistance to nether forces and "
 		"increased fortitude.",
-		120},
+		120,
+		{0, 0, 0, 0, 3, -2}},
 	{"Athena", 
 		"Athena is the great goddess of wisdom and the protector of Athens. She was "
 		"born of Zeus and the Titan Metis, and her cunning far surpasses that of the "
 		"other deities.  You inherit great clarity of thought and magic.",
-		100},
+		100,
+		{0, 2, 0, 0, 0, 0}},
 	{"Ares", 
 		"Ares is the bold son of Zeus and Hera, whose very name is feared and respected "
 		"by warriors and citizens alike. His legendary combat prowess exceeds that of "
 		"Zeus and Poseidon, but he is less skilled in wiles than the other Olympians.  "
 		"You inherit exceptional bonuses to combat.",
-		100},
+		100,
+		{2, 0, 0, 0, 0, 0}},
 	{"Hermes", 
 		"Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians "
 		"to negotiate truces. With his Winged Sandals and his powerful magic, there "
 		"is no place barred from him, and there is no way to detain him.  You inherit "
 		"great powers of motion.",
-		100},
+		100,
+		{0, 0, 0, 0, 0, 0}},
 	{"Apollo", 
 		"Apollo has been variously recognized as a god of light and the sun, "
 		"truth and prophecy, medicine, healing, plague, music, poetry, arts, "
 		"archery, and more.  You inherit powers of illumination.",
-		80},
+		80,
+		{0, 0, 0, 0, 0, 0}},
 	{"Artemis", 
 		"Artemis was often described as the daughter of Zeus and Leto, and the "
 		"twin sister of Apollo. She was the Hellenic goddess of the hunt, wild "
 		"animals, wilderness, childbirth, virginity and young girls, bringing "
 		"and relieving disease in women; she often was depicted as a huntress "
 		"carrying a bow and arrows.  You inherit powers of archery.",
-		80},
+		80,
+		{0, 0, 0, 2, 0, 0}}, 
 	{"Hephaestus", 
 		"Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, "
 		"sculptors, metals, metallurgy, fire and volcanoes. Like other mythic smiths "
 		"but unlike most other gods, Hephaestus was lame, which gave him a "
 		"grotesque appearance in Greek eyes. He served as the blacksmith of the "
 		"gods.  You inherit powers of enchantment and protection.",
-		80},
+		80,
+		{0, 0, 0, 0, 0, 0}},
 	{"Hera", 
 		"Hera was the wife and one of three sisters of Zeus.  Her chief function "
 		"was as the goddess of women and marriage.  You inherit great clarity of "
 		"mind and capacity for magic.",
-		60},
+		60,
+		{0, 0, 2, 0, 0, 0}},
 	{"Demeter", 
 		"Demeter is the goddess of the harvest, who presided over grains, the "
 		"fertility of the earth, and the seasons.  You gain powers of regeneration, "
 		"healing, and temperance.",
-		60},
+		60,
+		{0, 0, 0, 0, 0, 0}},
 	{"Aphrodite", 
 		"Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation.  "
 		"You inherit her sex appeal!",
-		60},
+		60,
+		{0, 0, 0, 0, 0, 2}},
 };
 
 /* Warlock Pacts */
@@ -6991,6 +7005,9 @@ option_type option_info[] =
 	{ &leave_special,               TRUE,  OPT_PAGE_AUTODESTROY, 7, 1,
 	"leave_special",                "Auto-destroyer leaves items your race/class needs" },
 #endif
+
+	{ &leave_excellent,                 FALSE,  OPT_PAGE_AUTODESTROY, 7, 10,
+	"leave_excellent",                  "Auto-destroyer leaves unkown excellent items" },
 
 	/*** Play-record Options ***/
 

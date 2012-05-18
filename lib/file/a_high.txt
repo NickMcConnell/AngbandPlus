@@ -20,7 +20,7 @@ N: 3:BIAS_FIRE
 'Firewall'
 'Phoenix'
 'Rengoku-Kaen'
-of hellfire
+of Hellfire
 of Corona
 of Yama
 of Uriel

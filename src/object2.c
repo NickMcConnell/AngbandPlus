@@ -641,22 +641,17 @@ s16b get_obj_num(int level)
 		/* Objects are sorted by depth */
 		if (table[i].level > level) break;
 
-		/* Default */
 		table[i].prob3 = 0;
 
-		/* Access the index */
-		k_idx = table[i].index;
+		if (table[i].max_level && table[i].max_level < level) continue;
 
-		/* Access the actual kind */
+		k_idx = table[i].index;
 		k_ptr = &k_info[k_idx];
 
 		/* Hack -- prevent embedded chests */
 		if (opening_chest && (k_ptr->tval == TV_CHEST)) continue;
 
-		/* Accept */
 		table[i].prob3 = table[i].prob2;
-
-		/* Total */
 		total += table[i].prob3;
 	}
 
@@ -2150,9 +2145,8 @@ static bool make_artifact_special(object_type *o_ptr)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
-		/* Skip "empty" artifacts */
 		if (!a_ptr->name) continue;
-
+		if (a_ptr->cur_num) continue;
 		if (a_ptr->gen_flags & TRG_QUESTITEM) continue;
 		if (!(a_ptr->gen_flags & TRG_INSTA_ART)) continue;
 
@@ -2182,22 +2176,7 @@ static bool make_artifact_special(object_type *o_ptr)
 			if (!one_in_(d)) continue;
 		}
 
-		if (a_ptr->cur_num)
-		{
-			if (!random_artifacts) continue;
-			if (randint1(300) >= object_level) continue;
-			switch (a_ptr->tval)
-			{
-			case TV_RING:
-			case TV_LITE: 
-			case TV_AMULET:
-				continue;
-			default:
-				object_prep(o_ptr, lookup_kind(a_ptr->tval, a_ptr->sval));
-				create_artifact(o_ptr, CREATE_ART_GOOD);
-			}
-		}
-		else if (random_artifacts)
+		if (random_artifacts)
 		{
 			create_replacement_art(i, o_ptr);
 		}
@@ -2245,14 +2224,10 @@ static bool make_artifact(object_type *o_ptr)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
-		/* Skip "empty" items */
 		if (!a_ptr->name) continue;
-
+		if (a_ptr->cur_num) continue;
 		if (a_ptr->gen_flags & TRG_QUESTITEM) continue;
-
 		if (a_ptr->gen_flags & TRG_INSTA_ART) continue;
-
-		/* Must have the correct fields */
 		if (a_ptr->tval != o_ptr->tval) continue;
 		if (a_ptr->sval != o_ptr->sval) continue;
 
@@ -2268,22 +2243,7 @@ static bool make_artifact(object_type *o_ptr)
 
 		if (!one_in_(a_ptr->rarity)) continue;
 
-		if (a_ptr->cur_num)
-		{
-			if (!random_artifacts) continue;
-			if (randint1(300) >= object_level) continue;
-			switch (a_ptr->tval)
-			{
-			case TV_RING:
-			case TV_LITE: 
-			case TV_AMULET:
-				continue;
-			default:
-				object_prep(o_ptr, lookup_kind(a_ptr->tval, a_ptr->sval));
-				create_artifact(o_ptr, CREATE_ART_GOOD);
-			}
-		}
-		else if (random_artifacts)
+		if (random_artifacts)
 		{
 			create_replacement_art(i, o_ptr);
 		}
@@ -2325,6 +2285,10 @@ static byte get_random_ego(byte slot, bool good)
 			{
 				rarity += 3*(object_level - e_ptr->max_level)/4;
 			}
+			else if (e_ptr->level && object_level < e_ptr->level)
+			{
+				rarity += 3*(e_ptr->level - object_level)/4;
+			}
 			if (rarity)
 				total += MAX(255 / rarity, 1);
 		}
@@ -2343,6 +2307,10 @@ static byte get_random_ego(byte slot, bool good)
 			if (e_ptr->max_level && object_level > e_ptr->max_level)
 			{
 				rarity += 3*(object_level - e_ptr->max_level)/4;
+			}
+			else if (e_ptr->level && object_level < e_ptr->level)
+			{
+				rarity += 3*(e_ptr->level - object_level)/4;
 			}
 			if (rarity)
 				value -= MAX(255 / rarity, 1);
@@ -2861,6 +2829,12 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						if (one_in_(4))
 							add_flag(o_ptr->art_flags, TR_RES_POIS);
 						break;
+					case EGO_ARMOR_HIGH_RESISTANCE:
+					{
+						while (one_in_(3))
+							one_high_resistance(o_ptr);
+						break;
+					}
 					case EGO_ELVENKIND:
 						break;
 					case EGO_DWARVEN:
@@ -2914,6 +2888,12 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					if (!one_in_(3)) one_high_resistance(o_ptr);
 					if (one_in_(4)) add_flag(o_ptr->art_flags, TR_RES_POIS);
 					break;
+				case EGO_SHIELD_HIGH_RESISTANCE:
+				{
+					while (one_in_(3))
+						one_high_resistance(o_ptr);
+					break;
+				}
 				case EGO_REFLECTION:
 					if (o_ptr->sval == SV_MIRROR_SHIELD)
 						o_ptr->name2 = 0;
@@ -4643,6 +4623,13 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 		/* Hack -- apply extra bonuses if needed */
 		else
 		{
+			if (o_ptr->name2 == EGO_BERSERKER)
+			{
+				o_ptr->to_h = -10;
+				o_ptr->to_d = 10;
+				o_ptr->to_a = -10;
+			}
+
 			/* Hack -- obtain bonuses */
 			if (e_ptr->max_to_h)
 			{
@@ -4947,13 +4934,17 @@ bool make_object(object_type *j_ptr, u32b mode)
 	int prob, base;
 	byte obj_level;
 
+	/* Since object quality has improved, quantity must decrease. */
+	if (!(mode & AM_GREAT) && !(mode & AM_GOOD))
+	{
+		if (randint1(100) < 30 * object_level / 100) return FALSE;
+	}
 
 	/* Chance of "special object" */
 	prob = ((mode & AM_GOOD) ? 10 : 1000);
 
 	/* Base level for the object */
 	base = ((mode & AM_GOOD) ? (object_level + 10) : object_level);
-
 
 	/* Generate a special object, or a normal object */
 	if (!one_in_(prob) || !make_artifact_special(j_ptr))
@@ -7924,7 +7915,7 @@ static void drain_essence(void)
 	{
 		drain_value[TR_DEX] += 10;
 	}
-	if (old_name2 == EGO_2WEAPON)
+	if (old_name2 == EGO_GENJI)
 	{
 		drain_value[TR_DEX] += 20;
 	}

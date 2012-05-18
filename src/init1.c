@@ -2019,16 +2019,17 @@ errr parse_k_info(char *buf, header *head)
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')
 	{
-		int level, extra, wgt;
+		int level, extra, wgt, max_level;
 		long cost;
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-				&level, &extra, &wgt, &cost)) return (1);
+		if (5 != sscanf(buf+2, "%d:%d:%d:%d:%ld",
+				&level, &extra, &max_level, &wgt, &cost)) return (1);
 
 		/* Save the values */
 		k_ptr->level = level;
 		k_ptr->extra = extra;
+		k_ptr->max_level = max_level;
 		k_ptr->weight = wgt;
 		k_ptr->cost = cost;
 	}

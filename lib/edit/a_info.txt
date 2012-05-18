@@ -270,7 +270,7 @@ W:70:100:2:100000
 P:0:1d1:10:10:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | FREE_ACT | SEE_INVIS |
-F:SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | IM_FIRE |
+F:SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | IM_FIRE | BRAND_FIRE
 F:INSTA_ART
 D:$The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
 D:$of the three Rings of Power created by the Elves and hidden by them from 
@@ -289,7 +289,7 @@ P:0:1d1:11:11:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:LEVITATION | REGEN | SHOW_MODS |
-F:SUST_INT | SUST_WIS | IM_COLD |
+F:SUST_INT | SUST_WIS | IM_COLD | BRAND_COLD
 F:XTRA_POWER | INSTA_ART
 D:$The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
 D:$of the three Rings of Power created by the Elves and hidden by them from 
@@ -308,7 +308,7 @@ P:0:1d1:12:12:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:LEVITATION | SLOW_DIGEST | REGEN |
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC |
+F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | BRAND_ELEC
 F:INSTA_ART | XTRA_POWER
 D:$The Ring of Sapphire, with clear blue gems that shine like stars, 
 D:$glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
@@ -1021,10 +1021,9 @@ N:54:『パウアハッハ』
 E:'Paurhach'
 I:31:2:0
 W:10:20:25:15000
-P:2:1d1:0:0:15
-F:RES_FIRE | ACTIVATE
-D:$A firey set of gauntlets that can even shoot fire from the user's 
-D:$hands. 
+P:2:1d1:0:0:7
+F:RES_FIRE | BRAND_FIRE
+D:$A firey set of gauntlets that can even burn your opponent.
 D:シンダール語で「跳ねる炎の拳」の名を持つこの篭手は炎に
 D:包まれており、身に付ける者は火の球を撃ち出すことも出来る。
 
@@ -1047,10 +1046,10 @@ N:56:『パウラエゲン』
 E:'Pauraegen'
 I:31:2:0
 W:10:20:25:11000
-P:2:1d1:0:0:15
-F:RES_ELEC | ACTIVATE
-D:$A set of handgear with sparks surrounding it, able to fire 
-D:$bolts of electricity.
+P:2:1d1:0:0:7
+F:RES_ELEC | BRAND_ELEC
+D:$A set of handgear with sparks surrounding it, able to shock 
+D:$your opponent.
 D:シンダール語で「鋭き拳」を意味する名を持つこの籠手は常に
 D:火花を散らしていて、電撃の矢を放つことができる。
 
@@ -1061,9 +1060,9 @@ N:57:『パウアネン』
 E:'Paurnen'
 I:31:2:0
 W:10:20:25:12000
-P:2:1d1:0:0:15
-F:RES_ACID | ACTIVATE
-D:$A set of handgear so corrosive that it may fire bolts of acid.
+P:2:1d1:0:0:7
+F:RES_ACID | BRAND_ACID
+D:$A set of handgear so corrosive that dissolves your opponent.
 D:シンダール語で「水の拳」を意味する名を持つこの籠手は常に
 D:酸でてかっていて、酸の矢を放つことができる。
 
@@ -3053,9 +3052,9 @@ N:185:『パウアニンメン』
 E:'Paurnimmen'
 I:31:2:0
 W:10:20:25:13000
-P:2:1d1:0:0:15
-F:RES_COLD | ACTIVATE
-D:$A set of handgear so icy as to be able to fire frost bolts.
+P:2:1d1:0:0:7
+F:RES_COLD | BRAND_COLD
+D:$A set of handgear so icy as to be able to freeze your opponent.
 D:シンダール語で「白き拳」を意味する名を持つこの籠手は常に
 D:冷たく輝き、氷の矢を放つことができる。
 
@@ -4121,6 +4120,13 @@ F:FREE_ACT | HOLD_LIFE | RES_NETHER | RES_NEXUS | RES_FEAR
 D:$This curious object is the favorite of many a female of every 
 D:$species. Those who find themselves in a proximity of one seem 
 D:$to constantly lose cash, and it seems impossible to leave its presence.
+
+N:280:TRANSLATE
+E:of Destruction
+I:45:59:0
+W:90:70:2:100000
+P:0:0d0:20:20:-50
+F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_ACID | TY_CURSE | AGGRAVATE
 
 # N: serial number : item name
 # I: tval : sval : pval

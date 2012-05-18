@@ -3165,9 +3165,11 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	{
 		print_force_weapon = TRUE;
 	}
-	else if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute && p_ptr->fast >= 6)
+	else if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute)
 	{
-		print_force_weapon = TRUE;
+		int cost = 1 + (o_ptr->dd * o_ptr->ds) / 9;
+		if (p_ptr->fast >= cost)
+			print_force_weapon = TRUE;
 	}
 
 	/* Print the relevant lines */

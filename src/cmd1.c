@@ -280,10 +280,14 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 			mult = mult * 3 / 2 + 20;
 		}
 
-		if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute && p_ptr->fast >= 6)
+		if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute)
 		{
-			set_fast(p_ptr->fast - 6, TRUE);
-			mult = mult * 3 / 2 + 20;
+			int cost = 1 + (o_ptr->dd * o_ptr->ds) / 9;
+			if (p_ptr->fast >= cost)
+			{
+				set_fast(p_ptr->fast - cost, TRUE);
+				mult = mult * 3 / 2 + 20;
+			}
 		}
 
 		k *= mult;
@@ -574,7 +578,7 @@ int _chaos_slays[_MAX_CHAOS_SLAYS] = {
 	TR_BRAND_COLD,
 };	
 
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bool thrown)
+s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, int mode, bool thrown)
 {
 	int mult = 10;
 
@@ -941,6 +945,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 
 			/* Brand (Acid) */
 			if ( have_flag(flgs, TR_BRAND_ACID) 
+			  || p_ptr->weapon_info[hand].brand_acid
 			  || ((p_ptr->special_attack & ATTACK_ACID) && !thrown)
 			  || chaos_slay == TR_BRAND_ACID)
 			{
@@ -951,7 +956,9 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				else if (chaos_slay == TR_BRAND_ACID)
 				{
 					msg_format("%s is covered in acid.", o_name);
-					if (have_flag(flgs, TR_BRAND_ACID) || ((p_ptr->special_attack & (ATTACK_ACID)) && !thrown))
+					if ( have_flag(flgs, TR_BRAND_ACID) 
+					  || p_ptr->weapon_info[hand].brand_acid 
+					  || ((p_ptr->special_attack & (ATTACK_ACID)) && !thrown))
 					{
 						if (mult < 35) mult = 35;
 					}
@@ -968,6 +975,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 
 			/* Brand (Elec) */
 			if ( have_flag(flgs, TR_BRAND_ELEC) 
+			 || p_ptr->weapon_info[hand].brand_elec
 			 || ((p_ptr->special_attack & ATTACK_ELEC) && !thrown) 
 			 || mode == HISSATSU_ELEC
 			 || chaos_slay == TR_BRAND_ELEC )
@@ -979,7 +987,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				else if (chaos_slay == TR_BRAND_ELEC)
 				{
 					msg_format("%s is covered in electricity.", o_name);
-					if (have_flag(flgs, TR_BRAND_ELEC))
+					if (have_flag(flgs, TR_BRAND_ELEC) || p_ptr->weapon_info[hand].brand_elec)
 					{
 						if (mode == HISSATSU_ELEC)
 						{
@@ -1012,7 +1020,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				}
 				else
 				{
-					if (have_flag(flgs, TR_BRAND_ELEC))
+					if (have_flag(flgs, TR_BRAND_ELEC) || p_ptr->weapon_info[hand].brand_elec)
 					{
 						if (mode == HISSATSU_ELEC)
 						{
@@ -1043,6 +1051,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 
 			/* Brand (Fire) */
 			if ( have_flag(flgs, TR_BRAND_FIRE) 
+			 || p_ptr->weapon_info[hand].brand_fire
 			 || ((p_ptr->special_attack & ATTACK_FIRE) && !thrown) 
 			 || mode == HISSATSU_FIRE
 			 || chaos_slay == TR_BRAND_FIRE )
@@ -1055,7 +1064,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				{
 					int tmp = 0;
 					msg_format("%s is covered in fire.", o_name);
-					if (have_flag(flgs, TR_BRAND_FIRE))
+					if (have_flag(flgs, TR_BRAND_FIRE) || p_ptr->weapon_info[hand].brand_fire)
 					{
 						if (mode == HISSATSU_FIRE)
 							tmp = 45;
@@ -1088,7 +1097,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				else
 				{
 					int tmp = 0;
-					if (have_flag(flgs, TR_BRAND_FIRE))
+					if (have_flag(flgs, TR_BRAND_FIRE) || p_ptr->weapon_info[hand].brand_fire)
 					{
 						if (mode == HISSATSU_FIRE)
 							tmp = 35;
@@ -1121,6 +1130,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 
 			/* Brand (Cold) */
 			if ( have_flag(flgs, TR_BRAND_COLD) 
+			  || p_ptr->weapon_info[hand].brand_cold
 			  || ((p_ptr->special_attack & ATTACK_COLD) && !thrown) 
 			  || mode == HISSATSU_COLD
 			  || chaos_slay == TR_BRAND_COLD ) 
@@ -1133,7 +1143,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				{
 					int tmp = 0;
 					msg_format("%s is covered in frost.", o_name);
-					if (have_flag(flgs, TR_BRAND_COLD))
+					if (have_flag(flgs, TR_BRAND_COLD) || p_ptr->weapon_info[hand].brand_cold)
 					{
 						if (mode == HISSATSU_COLD)
 							tmp = 45;
@@ -1166,7 +1176,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 				else
 				{
 					int tmp = 0;
-					if (have_flag(flgs, TR_BRAND_COLD))
+					if (have_flag(flgs, TR_BRAND_COLD) || p_ptr->weapon_info[hand].brand_cold)
 					{
 						if (mode == HISSATSU_COLD)
 							tmp = 35;
@@ -1332,10 +1342,14 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bo
 					mult = mult * 3 / 2 + 20;
 				}
 			}
-			if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->fast >= 6 &&  p_ptr->ryoute)
+			if (mauler_get_toggle() == TOGGLE_DEATH_FORCE &&  p_ptr->ryoute)
 			{
-				set_fast(p_ptr->fast - 6, TRUE);
-				mult = mult * 3 / 2 + 20;
+				int cost = 1 + (o_ptr->dd * o_ptr->ds) / 9;
+				if (p_ptr->fast >= cost)
+				{
+					set_fast(p_ptr->fast - cost, TRUE);
+					mult = mult * 3 / 2 + 20;
+				}
 			}
 
 			if (p_ptr->tim_blood_feast)
@@ -3260,7 +3274,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					k = (dd + p_ptr->weapon_info[hand].to_dd) * (ds + p_ptr->weapon_info[hand].to_ds);
 				else
 					k = damroll(dd + p_ptr->weapon_info[hand].to_dd, ds + p_ptr->weapon_info[hand].to_ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr, mode, FALSE);
+				k = tot_dam_aux(o_ptr, k, m_ptr, hand, mode, FALSE);
 
 				if (backstab)
 				{

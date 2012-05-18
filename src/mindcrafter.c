@@ -12,13 +12,13 @@ void _precognition_spell(int cmd, variant *res)
 		if (p_ptr->lev < 5)
 			var_set_string(res, "Detects visible monsters in your vicinity.");
 		else if (p_ptr->lev < 15)
-			var_set_string(res, "Detects visible monsters, traps, doors and stairs in your vicinity.");
+			var_set_string(res, "Detects visible monsters, traps, and doors in your vicinity.");
 		else if (p_ptr->lev < 20)
-			var_set_string(res, "Detects monsters, traps, doors and stairs in your vicinity.");
+			var_set_string(res, "Detects monsters, traps, and doors in your vicinity.");
 		else if (p_ptr->lev < 25)
-			var_set_string(res, "Detects monsters, traps, doors and stairs in your vicinity and maps nearby area.");
+			var_set_string(res, "Detects monsters, traps, and doors in your vicinity and maps nearby area.");
 		else if (p_ptr->lev < 30)
-			var_set_string(res, "Detects monsters, traps, doors and stairs in your vicinity and maps nearby area. Grants temporary ESP.");
+			var_set_string(res, "Detects monsters, traps, and doors in your vicinity and maps nearby area. Grants temporary ESP.");
 		else if (p_ptr->lev < 40)
 			var_set_string(res, "Detects monsters, traps, doors, stairs and objects in your vicinity and maps nearby area. Grants temporary ESP.");
 		else if (p_ptr->lev < 45)

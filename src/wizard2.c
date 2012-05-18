@@ -276,18 +276,22 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 		for (j = 0; j < ct; j++)
 		{
 			object_type forge;
-			/*char buf[MAX_NLEN];
-			u32b flgs[TR_FLAG_SIZE];
-			u32b old_cost = 0, new_cost = 0; */
 
 			object_prep(&forge, k_idx);
 			apply_magic(&forge, depth, 0);
 
-			/*
-			identify_item(&forge);
-			forge.ident |= (IDENT_MENTAL); 
-			object_desc(buf, &forge, 0);
-			object_flags(&forge, flgs);*/
+			#if 0
+			if (forge.name2 == EGO_SHIELD_HIGH_RESISTANCE || forge.name2 == EGO_SHIELD_ELVENKIND)
+			{
+				char buf[MAX_NLEN];
+
+				identify_item(&forge);
+				forge.ident |= (IDENT_MENTAL); 
+				object_desc(buf, &forge, 0);
+				msg_print(buf);
+				/*drop_near(&forge, -1, py, px);*/
+			}
+			#endif
 
 			counts[forge.name2]++;
 		}
@@ -538,6 +542,97 @@ static void do_cmd_wiz_hack_chris6(void)
 	msg_print("Successful.");
 	msg_print(NULL);
 }
+
+static void do_cmd_wiz_hack_chris7_imp(FILE* file)
+{
+	int ct = get_quantity("How Many Thousands?", 1000);
+	int depths[] = { 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, -1 };
+	int i, j;
+	int counts[1024];
+	int good_counts[1024];
+
+	fprintf(file, "||Lv||Obj||Avg||Good||\n");
+
+	for (i = 0; ; i++)
+	{
+		int depth = depths[i];
+		if (depth < 0) break;
+
+		dun_level = depth;
+		object_level = depth;
+
+		for (j = 0; j < 1024; j++)
+		{
+			counts[j] = 0;
+			good_counts[j] = 0;
+		}
+
+		for (j = 0; j < ct * 1000; j++)
+		{
+			object_type forge;
+			int k;
+
+			object_wipe(&forge);
+			if (!make_object(&forge, 0)) continue;
+			identify_item(&forge);
+			forge.ident |= (IDENT_MENTAL); 
+
+			k = is_autopick(&forge);
+			if (k >= 0 && k < 1024)
+			{
+				counts[k]++;
+			}
+
+			object_wipe(&forge);
+			if (!make_object(&forge, AM_GOOD)) continue;
+			identify_item(&forge);
+			forge.ident |= (IDENT_MENTAL); 
+
+			k = is_autopick(&forge);
+			if (k >= 0 && k < 1024)
+			{
+				good_counts[k]++;
+			}
+		}
+
+		for (j = 1; j < 1024; j++)
+		{
+			if (counts[j] || good_counts[j])
+			{
+				fprintf(file, "||%d||%s||%d||%d||\n", depth, autopick_list[j].name, counts[j], good_counts[j]);
+			}
+		}
+	}
+}
+
+static void do_cmd_wiz_hack_chris7(void)
+{
+	int		fd = -1;
+	FILE	*fff = NULL;
+	char	buf[1024];
+	int old_dun_level = dun_level;
+	int old_object_level = object_level;
+
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Objects1.txt");
+	fff = my_fopen(buf, "w");
+
+	if (!fff)
+	{
+		prt("Failed!", 0, 0);
+		(void)inkey();
+		return;
+	}
+
+	do_cmd_wiz_hack_chris7_imp(fff);
+
+	dun_level = old_dun_level;
+	object_level = old_object_level;
+
+	my_fclose(fff);
+	msg_print("Successful.");
+	msg_print(NULL);
+}
+
 
 #ifdef MONSTER_HORDES
 
@@ -2583,6 +2678,10 @@ void do_cmd_debug(void)
 
 	case '6':
 		do_cmd_wiz_hack_chris6();
+		break;
+
+	case '7':
+		do_cmd_wiz_hack_chris7();
 		break;
 
 	/* Not a Wizard Command */

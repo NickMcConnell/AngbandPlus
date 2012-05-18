@@ -2651,13 +2651,28 @@ static bool get_demigod_parent(void)
 		if (cs != os)
 		{
 			put_str(cur, 12 + (os/5), 2 + 15 * (os%5));
+			put_str("                                   ", 3, 40);
+			
 			if(cs == MAX_DEMIGOD_TYPES)
+			{
 				sprintf(cur, "%c%c %s", '*', p2, "Random");
+				put_str("                                   ", 4, 40);
+				put_str("                                   ", 5, 40);
+			}
 			else
 			{
 				parent = demigod_info[cs].name;
 				str = parent;
 				sprintf(cur, "%c%c %s", I2A(cs), p2, str);
+
+				c_put_str(TERM_L_BLUE, str, 3, 40);
+				put_str(": Subrace modification", 3, 40+strlen(str));
+				put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
+				sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
+					demigod_info[cs].adj[0], demigod_info[cs].adj[1], demigod_info[cs].adj[2], 
+					demigod_info[cs].adj[3], demigod_info[cs].adj[4], demigod_info[cs].adj[5], 
+					demigod_info[cs].exp);
+				c_put_str(TERM_L_BLUE, buf, 5, 40);
 			}
 			c_put_str(TERM_YELLOW, cur, 12 + (cs/5), 2 + 15 * (cs%5));
 			os = cs;

@@ -1474,6 +1474,14 @@ msg_print("「オクレ兄さん！」");
 			ident = TRUE;
 			break;
 		
+		case SV_POTION_GIANT_STRENGTH:
+			if (set_tim_building_up(20 + randint1(20), FALSE)) ident = TRUE;
+			break;
+
+		case SV_POTION_STONE_SKIN:
+			if (set_shield(20 + randint1(20), FALSE)) ident = TRUE;
+			break;
+
 		case SV_POTION_POLYMORPH:
 		{
 			int count = mut_count(mut_unlocked_pred);
@@ -2139,46 +2147,21 @@ msg_print("ダンジョンが揺れた...");
 		}
 
 		/* New Hengband scrolls */
-		case SV_SCROLL_FIRE:
+		case SV_SCROLL_FOREST_CREATION:
 		{
-			fire_ball(GF_FIRE, 0, 666, 4);
-			/* Note: "Double" damage since it is centered on the player ... */
-			if (!(IS_OPPOSE_FIRE() || p_ptr->resist_fire || p_ptr->immune_fire))
-#ifdef JP
-take_hit(DAMAGE_NOESCAPE, 50+randint1(50), "炎の巻物", -1);
-#else
-				take_hit(DAMAGE_NOESCAPE, 50 + randint1(50), "a Scroll of Fire", -1);
-#endif
-
-			ident = TRUE;
+			if (tree_creation()) ident = TRUE;
 			break;
 		}
 
-
-		case SV_SCROLL_ICE:
+		case SV_SCROLL_WALL_CREATION:
 		{
-			fire_ball(GF_ICE, 0, 777, 4);
-			if (!(IS_OPPOSE_COLD() || p_ptr->resist_cold || p_ptr->immune_cold))
-#ifdef JP
-take_hit(DAMAGE_NOESCAPE, 100+randint1(100), "氷の巻物", -1);
-#else
-				take_hit(DAMAGE_NOESCAPE, 100 + randint1(100), "a Scroll of Ice", -1);
-#endif
-
-			ident = TRUE;
+			if (wall_stone()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_CHAOS:
+		case SV_SCROLL_VENGEANCE:
 		{
-			fire_ball(GF_CHAOS, 0, 1000, 4);
-			if (!p_ptr->resist_chaos)
-#ifdef JP
-take_hit(DAMAGE_NOESCAPE, 111+randint1(111), "ログルスの巻物", -1);
-#else
-				take_hit(DAMAGE_NOESCAPE, 111 + randint1(111), "a Scroll of Logrus", -1);
-#endif
-
+			set_tim_eyeeye(randint1(25) + 25, FALSE);
 			ident = TRUE;
 			break;
 		}
@@ -5155,62 +5138,6 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_MISSILE, dir, device_power(damroll(2, 6)));
 				o_ptr->timeout = 2;
-				break;
-			}
-
-			case ART_PAURHACH:
-			{
-#ifdef JP
-				msg_print("ガントレットが炎に覆われた...");
-#else
-				msg_print("Your gauntlets are covered in fire...");
-#endif
-
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, device_power(damroll(9, 8)));
-				o_ptr->timeout = randint0(8) + 8;
-				break;
-			}
-
-			case ART_PAURNIMMEN:
-			{
-#ifdef JP
-				msg_print("ガントレットが冷気に覆われた...");
-#else
-				msg_print("Your gauntlets are covered in frost...");
-#endif
-
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_COLD, dir, device_power(damroll(6, 8)));
-				o_ptr->timeout = randint0(7) + 7;
-				break;
-			}
-
-			case ART_PAURAEGEN:
-			{
-#ifdef JP
-				msg_print("ガントレットが火花に覆われた...");
-#else
-				msg_print("Your gauntlets are covered in sparks...");
-#endif
-
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, device_power(damroll(4, 8)));
-				o_ptr->timeout = randint0(5) + 5;
-				break;
-			}
-
-			case ART_PAURNEN:
-			{
-#ifdef JP
-				msg_print("ガントレットが酸に覆われた...");
-#else
-				msg_print("Your gauntlets are covered in acid...");
-#endif
-
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ACID, dir, device_power(damroll(5, 8)));
-				o_ptr->timeout = randint0(6) + 6;
 				break;
 			}
 

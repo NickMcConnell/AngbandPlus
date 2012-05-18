@@ -21900,7 +21900,7 @@ D:$He looks just like you!
 N:1096:TRANSLATE
 E:Zeus, King of the Olympians
 G:P:v
-I:132:150d100:30:150:15
+I:137:150d100:30:150:15
 W:90:10:999:60000:0:0
 B:HIT:UN_BONUS:12d12
 B:HIT:UN_BONUS:12d12
@@ -21916,7 +21916,7 @@ F:IM_FIRE | IM_COLD | IM_ACID | IM_POIS | IM_ELEC
 F:NO_STUN | NO_CONF | NO_FEAR | NO_SLEEP | POWERFUL
 S:1_IN_3 | 
 S:BR_ELEC | BR_DISE | HASTE | TELE_TO | S_KIN | SPECIAL
-S:PSY_SPEAR | DISPEL | ANTI_MAGIC | TPORT
+S:PSY_SPEAR | DISPEL | ANTI_MAGIC | TPORT | ROCKET | BR_CHAO
 D:$Zeus, King of the gods and ruler of Mount Olympus, god of the Sky
 D:$and Thunder, and nominal husband of Hera. He commands the
 D:$Olympians, and his wrath is fearsome. Flee his presence! Unless

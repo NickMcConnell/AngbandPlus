@@ -1989,6 +1989,7 @@ if (!num[0]) quit("町のアイテムがない！");
 				table[z].prob1 = p;
 				table[z].prob2 = p;
 				table[z].prob3 = p;
+				table[z].max_level = k_ptr->max_level;
 
 				/* Another entry complete for this locale */
 				aux[x]++;

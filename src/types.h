@@ -135,6 +135,7 @@ struct object_kind
 
 	byte level;			/* Level */
 	byte extra;			/* Something */
+	byte max_level;		/* Level */
 
 
 	byte d_attr;		/* Default object attribute */
@@ -865,6 +866,7 @@ typedef struct {
 	cptr name;
 	cptr desc;
 	int  exp;
+	s16b adj[6]; 
 } demigod_type;
 
 /*
@@ -1009,6 +1011,10 @@ struct player_seikaku
 	bool heavy_wield;
 	bool icky_wield;
 	bool riding_wield;
+	bool brand_fire;
+	bool brand_cold;
+	bool brand_elec;
+	bool brand_acid;
 } weapon_info_t;
 
 typedef struct player_type player_type;

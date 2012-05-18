@@ -164,10 +164,6 @@ static s32b _activation_p(object_type *o_ptr)
 		case ART_LUTHIEN: return 2000;
 		case ART_HEAVENLY_MAIDEN: return 1000;
 		case ART_CAMMITHRIM: return 300;
-		case ART_PAURHACH: return 300;
-		case ART_PAURNIMMEN: return 300;
-		case ART_PAURAEGEN: return 300;
-		case ART_PAURNEN: return 300;
 		case ART_FINGOLFIN: return 1000;
 		case ART_FEANOR: return 15000;
 		case ART_FLORA: return 400;
@@ -505,6 +501,20 @@ static s32b _abilities_q(u32b flgs[TR_FLAG_SIZE])
 
 }
 
+static s32b _brands_q(u32b flgs[TR_FLAG_SIZE])
+{
+	double cost = 0.0;
+	int count = 0;
+
+	/* These are what I would expect to pay */
+	cost += _check_flag_and_score(flgs, TR_BRAND_ACID, 12000, &count);
+	cost += _check_flag_and_score(flgs, TR_BRAND_ELEC, 15000, &count);
+	cost += _check_flag_and_score(flgs, TR_BRAND_FIRE, 8000, &count);
+	cost += _check_flag_and_score(flgs, TR_BRAND_COLD, 8000, &count);
+
+	return (u32b) cost;
+}
+
 static s32b _resistances_q(u32b flgs[TR_FLAG_SIZE])
 {
 	/*
@@ -752,6 +762,16 @@ s32b jewelry_cost(object_type *o_ptr)
 		cost_calc_hook(dbg_msg);
 	}
 
+	/* Brands */
+	q = _brands_q(flgs);
+	p += q + (q/10)*j/50;
+
+	if (cost_calc_hook && q)
+	{
+		sprintf(dbg_msg, "  * Brands: q = %d, p = %d", q, p);
+		cost_calc_hook(dbg_msg);
+	}
+
 	/* Other Bonuses */
 	y = 0;
 	if (have_flag(flgs, TR_SEARCH)) y += 100;
@@ -979,6 +999,16 @@ s32b armor_cost(object_type *o_ptr)
 		cost_calc_hook(dbg_msg);
 	}
 
+	/* Brands */
+	q = _brands_q(flgs);
+	p = a + q + (q/100)*a/relative_weight;
+
+	if (cost_calc_hook && q)
+	{
+		sprintf(dbg_msg, "  * Brands: q = %d, p = %d", q, p);
+		cost_calc_hook(dbg_msg);
+	}
+
 	/* Speed */
 	if (have_flag(flgs, TR_SPEED))
 	{
@@ -1054,7 +1084,7 @@ s32b armor_cost(object_type *o_ptr)
 	}
 
 	/* Genji? This will become TR_2WEAPON someday ... */
-	if (o_ptr->name2 == EGO_2WEAPON || o_ptr->name1 == ART_MASTER_TONBERRY)
+	if (o_ptr->name2 == EGO_GENJI || o_ptr->name1 == ART_MASTER_TONBERRY)
 	{
 		p += 20000;
 		if (cost_calc_hook)

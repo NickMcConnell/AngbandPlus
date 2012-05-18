@@ -1597,8 +1597,28 @@ static void auto_destroy_item(object_type *o_ptr, int autopick_idx)
 	if (!destroy) return;
 
 	/* Now decided to destroy */
-
 	disturb(0,0);
+	if (leave_excellent)
+	{
+		/* Experimental! Currently, players register *most* object types to be 
+		   destroyed and simply play the game ignoring excellent items, at least
+		   after a certain CL. This is an attempt to rescue use of excellent items
+		   without requiring hundreds of identify spells per level.
+		   Think of it like this: You begin to destroy the pair of soft leather boots, 
+		   but suddenly notice they are shinier than normal :D */
+		if ( !object_is_known(o_ptr) 
+		  && object_is_ego(o_ptr)
+		  && !(object_is_cursed(o_ptr) || object_is_broken(o_ptr)) )
+		{
+			byte feel = FEEL_EXCELLENT;
+			o_ptr->feeling = feel;
+			o_ptr->ident |= (IDENT_SENSE);
+			p_ptr->notice |= (PN_COMBINE);
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+			return;
+		}
+		/* End of Evil Experiment! */
+	}
 
 	/* Artifact? */
 	if (!can_player_destroy_object(o_ptr))

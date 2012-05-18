@@ -1875,7 +1875,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					}
 					else if (psion_mental_fortress())
 						msg_print("Your mental fortress is impenetrable!");
-					else if ( p_ptr->prace == RACE_DEMIGOD
+					else if ( prace_is_(RACE_DEMIGOD)
 						   && p_ptr->psubrace == DEMIGOD_HERA
 						   && randint1(100) > r_ptr->level - 2*(p_ptr->stat_ind[A_WIS] + 3))
 					{

@@ -2926,29 +2926,9 @@ static void calc_mana(void)
 		if (msp) 
 		{
 			int adj = rp_ptr->r_adj[mp_ptr->spell_stat];
-			if (p_ptr->prace == RACE_DEMIGOD)
-			{
-				switch (p_ptr->psubrace)
-				{
-				case DEMIGOD_ZEUS:
-					adj++;
-					break;
-				case DEMIGOD_ATHENA:
-					if (mp_ptr->spell_stat == A_INT)
-						adj += 2;
-					break;
-				case DEMIGOD_HADES:
-					if (mp_ptr->spell_stat == A_CHR)
-						adj -= 2;
-					if (mp_ptr->spell_stat == A_CON)
-						adj += 3;
-					break;
-				case DEMIGOD_APHRODITE:
-					if (mp_ptr->spell_stat == A_CHR)
-						adj += 2;
-					break;
-				}
-			}
+			if (prace_is_(RACE_DEMIGOD))
+				adj += demigod_info[p_ptr->psubrace].adj[mp_ptr->spell_stat];
+
 			msp += (msp * adj / 20);
 		}
 
@@ -3587,11 +3567,6 @@ void calc_bonuses(void)
 	p_ptr->dis_ac = p_ptr->ac = 0;
 
 	/* Clear the Displayed/Real Bonuses */
-	p_ptr->weapon_info[0].dis_to_h = p_ptr->weapon_info[0].to_h = 0;
-	p_ptr->weapon_info[1].dis_to_h = p_ptr->weapon_info[1].to_h = 0;
-	p_ptr->weapon_info[0].dis_to_d = p_ptr->weapon_info[0].to_d = 0;
-	p_ptr->weapon_info[1].dis_to_d = p_ptr->weapon_info[1].to_d = 0;
-
 	p_ptr->dis_to_h_b = p_ptr->to_h_b = 0;
 	p_ptr->dis_to_d_b = p_ptr->to_d_b = 0;
 	p_ptr->dis_to_a = p_ptr->to_a = 0;
@@ -3606,16 +3581,25 @@ void calc_bonuses(void)
 
 	p_ptr->to_m_chance = 0;
 
-	/* Clear the Extra Dice Bonuses */
-	p_ptr->weapon_info[0].to_dd = p_ptr->weapon_info[0].to_ds = 0;
-	p_ptr->weapon_info[1].to_dd = p_ptr->weapon_info[1].to_ds = 0;
+	for (i = 0; i < 2; i++)
+	{
+		p_ptr->weapon_info[i].dis_to_h = 0;
+		p_ptr->weapon_info[i].to_h = 0;
+		p_ptr->weapon_info[i].dis_to_d = 0;
+		p_ptr->weapon_info[i].to_d = 0;
+
+		p_ptr->weapon_info[i].to_dd = 0;
+		p_ptr->weapon_info[i].to_ds = 0;
+		p_ptr->weapon_info[i].brand_acid = FALSE;
+		p_ptr->weapon_info[i].brand_fire = FALSE;
+		p_ptr->weapon_info[i].brand_cold = FALSE;
+		p_ptr->weapon_info[i].brand_elec = FALSE;
+
+		p_ptr->weapon_info[i].num_blow = 1;
+	}
 
 	/* Start with "normal" speed */
 	p_ptr->pspeed = 110;
-
-	/* Start with a single blow per turn */
-	p_ptr->weapon_info[0].num_blow = 1;
-	p_ptr->weapon_info[1].num_blow = 1;
 
 	/* Start with a single shot per turn */
 	p_ptr->num_fire = 100;
@@ -4554,10 +4538,61 @@ void calc_bonuses(void)
 			}
 			else
 			{
-				if((i == INVEN_RARM || i == INVEN_RIGHT) && !p_ptr->ryoute) extra_blows[0] += o_ptr->pval;
-				else if((i == INVEN_LARM || i == INVEN_LEFT) && !p_ptr->ryoute) extra_blows[1] += o_ptr->pval;
-				else {extra_blows[0] += o_ptr->pval; extra_blows[1] += o_ptr->pval;}
+				if((i == INVEN_RARM || i == INVEN_RIGHT) && !p_ptr->ryoute) 
+					extra_blows[0] += o_ptr->pval;
+				else if((i == INVEN_LARM || i == INVEN_LEFT) && !p_ptr->ryoute) 
+					extra_blows[1] += o_ptr->pval;
+				else if (o_ptr->name2 == EGO_BERSERKER)
+				{
+					/* Hack: Berserker gloves only give bonus to leading hand! */
+					extra_blows[0] += o_ptr->pval; 
+				}
+				else 
+				{
+					extra_blows[0] += o_ptr->pval; 
+					extra_blows[1] += o_ptr->pval;
+				}
 			}
+		}
+
+		switch (i)
+		{
+		case INVEN_RIGHT: 
+			if (have_flag(flgs, TR_BRAND_FIRE))   p_ptr->weapon_info[0].brand_fire = TRUE;
+			if (have_flag(flgs, TR_BRAND_COLD))   p_ptr->weapon_info[0].brand_cold = TRUE;
+			if (have_flag(flgs, TR_BRAND_ELEC))   p_ptr->weapon_info[0].brand_elec = TRUE;
+			if (have_flag(flgs, TR_BRAND_ACID))   p_ptr->weapon_info[0].brand_acid = TRUE;
+			break;
+
+		case INVEN_LEFT:
+			if (have_flag(flgs, TR_BRAND_FIRE))   p_ptr->weapon_info[1].brand_fire = TRUE;
+			if (have_flag(flgs, TR_BRAND_COLD))   p_ptr->weapon_info[1].brand_cold = TRUE;
+			if (have_flag(flgs, TR_BRAND_ELEC))   p_ptr->weapon_info[1].brand_elec = TRUE;
+			if (have_flag(flgs, TR_BRAND_ACID))   p_ptr->weapon_info[1].brand_acid = TRUE;
+			break;
+
+		case INVEN_HANDS:
+			if (have_flag(flgs, TR_BRAND_FIRE))
+			{
+				p_ptr->weapon_info[0].brand_fire = TRUE;
+				p_ptr->weapon_info[1].brand_fire = TRUE;
+			}
+			if (have_flag(flgs, TR_BRAND_COLD))
+			{
+				p_ptr->weapon_info[0].brand_cold = TRUE;
+				p_ptr->weapon_info[1].brand_cold = TRUE;
+			}
+			if (have_flag(flgs, TR_BRAND_ELEC))
+			{
+				p_ptr->weapon_info[0].brand_elec = TRUE;
+				p_ptr->weapon_info[1].brand_elec = TRUE;
+			}
+			if (have_flag(flgs, TR_BRAND_ACID))
+			{
+				p_ptr->weapon_info[0].brand_acid = TRUE;
+				p_ptr->weapon_info[1].brand_acid = TRUE;
+			}
+			break;
 		}
 
 		/* Hack -- cause earthquakes */
@@ -4663,7 +4698,7 @@ void calc_bonuses(void)
 		if (have_flag(flgs, TR_SUST_CHR)) p_ptr->sustain_chr = TRUE;
 
 		if (o_ptr->name2 == EGO_YOIYAMI) yoiyami = TRUE;
-		if (o_ptr->name2 == EGO_2WEAPON) easy_2weapon = TRUE;
+		if (o_ptr->name2 == EGO_GENJI) easy_2weapon = TRUE;
 		if (o_ptr->name1 == ART_MASTER_TONBERRY) easy_2weapon = TRUE;
 		if (o_ptr->name2 == EGO_RING_RES_TIME) p_ptr->resist_time = TRUE;
 		if (o_ptr->name2 == EGO_RING_THROW) p_ptr->mighty_throw = TRUE;

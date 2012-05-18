@@ -366,6 +366,7 @@ extern bool leave_wanted;	/* Auto-destroyer leaves wanted corpses */
 extern bool leave_corpse;	/* Auto-destroyer leaves corpses and skeletons */
 extern bool leave_junk;	/* Auto-destroyer leaves junk */
 extern bool leave_special;	/* Auto-destroyer leaves items your race/class needs */
+extern bool leave_excellent;
 
 
 /*** Play-record Options ***/
@@ -721,7 +722,7 @@ extern bool random_opponent(int *y, int *x);
 extern bool test_hit_norm(int chance, int ac, int vis);
 extern s16b critical_shot(int weight, int plus, int dam);
 extern s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode);
-extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode, bool thrown);
+extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, int mode, bool thrown);
 extern void search(void);
 extern void py_pickup_aux(int o_idx);
 extern void carry(bool pickup);

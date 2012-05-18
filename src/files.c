@@ -2260,9 +2260,11 @@ static void display_player_various(void)
 					if (p_ptr->csp >= cost)
 						basedam = basedam * 7 / 2;
 				}
-				if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute && p_ptr->fast >= 6)
+				if (mauler_get_toggle() == TOGGLE_DEATH_FORCE && p_ptr->ryoute)
 				{
-					basedam = basedam * 7 / 2;
+					int cost = 1 + (o_ptr->dd * o_ptr->ds) / 9;
+					if (p_ptr->fast >= cost)
+						basedam = basedam * 7 / 2;
 				}
 			}
 			else basedam = 0;
@@ -2665,6 +2667,7 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 			add_flag(flgs, TR_SUST_DEX);
 			break;
 		case DEMIGOD_HERA:
+			add_flag(flgs, TR_SUST_WIS);
 			break;
 		case DEMIGOD_DEMETER:
 			add_flag(flgs, TR_REGEN);
@@ -3758,7 +3761,7 @@ put_str("ＭＰ  :", 8, 1);
  */
 static void display_player_stat_info(void)
 {
-	int i, e_adj;
+	int i;
 	int stat_col, stat;
 	int row, col;
 
@@ -3796,45 +3799,16 @@ c_put_str(TERM_YELLOW, "現在", row, stat_col+35);
 	/* Display the stats */
 	for (i = 0; i < 6; i++)
 	{
-		int r_adj;
+		int r_adj = 0, e_adj = 0, c_adj = 0;
 
-		if (p_ptr->mimic_form) r_adj = mimic_info[p_ptr->mimic_form].r_adj[i];
-		else r_adj = rp_ptr->r_adj[i];
-
-		if (p_ptr->prace == RACE_DEMIGOD)
+		if (p_ptr->mimic_form) 
+			r_adj = mimic_info[p_ptr->mimic_form].r_adj[i];
+		else
 		{
-			switch (p_ptr->psubrace)
-			{
-			case DEMIGOD_ZEUS:
-				r_adj++;
-				break;
+			r_adj = rp_ptr->r_adj[i];
 
-			case DEMIGOD_POSEIDON:
-				if (i == A_STR) r_adj += 1;
-				if (i == A_DEX) r_adj += 1;
-				break;
-
-			case DEMIGOD_HADES:
-				if (i == A_CON) r_adj += 3;
-				if (i == A_CHR) r_adj -= 2;
-				break;
-
-			case DEMIGOD_ATHENA:
-				if (i == A_INT) r_adj += 2;
-				break;
-
-			case DEMIGOD_ARES:
-				if (i == A_STR) r_adj += 2;
-				break;
-
-			case DEMIGOD_ARTEMIS:
-				if (i == A_DEX) r_adj += 2;
-				break;
-
-			case DEMIGOD_APHRODITE:
-				if (i == A_CHR) r_adj += 2;
-				break;
-			}
+			if (prace_is_(RACE_DEMIGOD))
+				r_adj += demigod_info[p_ptr->psubrace].adj[i];
 		}
 
 		/* Calculate equipment adjustment */
@@ -3869,8 +3843,22 @@ c_put_str(TERM_YELLOW, "現在", row, stat_col+35);
 			}
 		}
 
+		c_adj = cp_ptr->c_adj[i];
+		if (p_ptr->base_spell_power)
+		{
+			switch (i)
+			{
+			case A_INT:
+				c_adj += p_ptr->base_spell_power;
+				break;
+			case A_STR: case A_DEX: case A_CON:
+				c_adj -= p_ptr->base_spell_power;
+				break;
+			}
+		}
+
 		e_adj -= r_adj;
-		e_adj -= cp_ptr->c_adj[i];
+		e_adj -= c_adj;
 		e_adj -= ap_ptr->a_adj[i];
 
 		if (p_ptr->stat_cur[i] < p_ptr->stat_max[i])
@@ -3896,11 +3884,11 @@ c_put_str(TERM_YELLOW, "現在", row, stat_col+35);
 		/* Race, class, and equipment modifiers */
 		(void)sprintf(buf, "%3d", r_adj);
 		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + 13);
-		(void)sprintf(buf, "%3d", (int)cp_ptr->c_adj[i]);
+		(void)sprintf(buf, "%3d", c_adj);
 		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + 16);
 		(void)sprintf(buf, "%3d", (int)ap_ptr->a_adj[i]);
 		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + 19);
-		(void)sprintf(buf, "%3d", (int)e_adj);
+		(void)sprintf(buf, "%3d", e_adj);
 		c_put_str(TERM_L_BLUE, buf, row + i+1, stat_col + 22);
 
 		/* Actual maximal modified value */

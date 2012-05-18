@@ -1043,6 +1043,7 @@ bool leave_corpse;
 bool leave_junk;
 bool leave_chest;
 bool leave_special;
+bool leave_excellent;
 
 /* Nikki */
 bool record_fix_art;

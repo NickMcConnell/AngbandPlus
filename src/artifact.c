@@ -700,7 +700,7 @@ static void random_resistance(object_type * o_ptr)
 			add_flag(o_ptr->art_flags, TR_RES_FEAR);
 			if (one_in_(2)) return;
 		}
-		if (one_in_(5) && (!(have_flag(o_ptr->art_flags, TR_NO_MAGIC))))
+		if (one_in_(9) && (!(have_flag(o_ptr->art_flags, TR_NO_MAGIC))))
 		{
 			add_flag(o_ptr->art_flags, TR_NO_MAGIC);
 			if (one_in_(2)) return;
@@ -1978,7 +1978,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		a_cursed = TRUE;
 
 	powers = randint1(2) + m_bonus(5, lev);
-	while (one_in_(powers) || one_in_(7 * 70/MAX(object_level, 1)) || one_in_(10 * 70/MAX(object_level, 1)))
+
+	while (one_in_(powers) || one_in_(7 * 90/MAX(object_level, 1)) || one_in_(10 * 70/MAX(object_level, 1)))
 		powers++;
 
 	if (!a_cursed)
@@ -2360,8 +2361,12 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 						one_high_resistance(o_ptr);
 					break;
 				case 4:
-					random_misc(o_ptr);
-					break;
+					if (!(object_is_body_armour(o_ptr) || object_is_shield(o_ptr))
+					  || one_in_(3) )
+					{
+						random_misc(o_ptr);
+						break;
+					}
 				case 5: case 6: case 7: 
 					random_resistance(o_ptr);					
 					break;

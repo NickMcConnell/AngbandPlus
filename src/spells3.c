@@ -2467,6 +2467,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD)
 		return FALSE;
 
+	if (o_ptr->name2 == EGO_BERSERKER)
+		return FALSE;
+
 	/* Missiles are easy to enchant */
 	if ((o_ptr->tval == TV_BOLT) ||
 	    (o_ptr->tval == TV_ARROW) ||
