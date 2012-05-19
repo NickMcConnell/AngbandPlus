@@ -117,7 +117,7 @@ R:0:0x9C/0
 R:0:0x98/0
 ?:[EQU $CLASS Imitator]
 R:0:0x98/0
-?:[EQU $CLASS BeastMaster]
+?:[EQU $CLASS Beastmaster]
 R:0:0x96/0
 ?:[EQU $CLASS Sorcerer]
 R:0:0x93/0
@@ -131,7 +131,7 @@ R:0:0x96/0
 R:0:0x99/0
 ?:[EQU $CLASS Samurai]
 R:0:0x9A/0
-?:[EQU $CLASS ForceTrainer]
+?:[EQU $CLASS Force-Trainer]
 R:0:0x9A/0
 ?:[EQU $CLASS Blue-Mage]
 R:0:0x93/0

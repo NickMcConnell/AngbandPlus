@@ -6381,6 +6381,15 @@ static void edit_history(void)
 
 }
 
+cptr birth_get_race_desc(int i)
+{
+	return race_jouhou[i];
+}
+
+cptr birth_get_class_desc(int i)
+{
+	return class_jouhou[i];
+}
 
 /*
  * Helper function for 'player_birth()'

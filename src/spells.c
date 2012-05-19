@@ -139,6 +139,21 @@ cptr get_spell_desc(ang_spell spell)
 	return buf;
 }
 
+cptr get_spell_spoiler_name(ang_spell spell)
+{
+	static char buf[255];
+	variant v;
+	var_init(&v);
+	spell(SPELL_SPOIL_NAME, &v);
+	
+	if (var_is_null(&v))
+		spell(SPELL_NAME, &v);
+
+	sprintf(buf, "%s", var_get_string(&v));
+	var_clear(&v);
+	return buf;
+}
+
 /****************************************************************************************
  * UI Utilities
  *   choose_spell - prompt user with a list of spells, they choose one.

@@ -4792,7 +4792,7 @@ bool process_the_world(int num, int who, bool vs_player)
 		if (p_ptr->window) window_stuff();
 
 		/* Delay */
-		if (vs_player) Term_xtra(TERM_XTRA_DELAY, 500);
+		/*(if (vs_player) Term_xtra(TERM_XTRA_DELAY, 500);*/
 	}
 
 	/* Redraw map */

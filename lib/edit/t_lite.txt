@@ -68,12 +68,12 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:2
 F:!:FLOOR:3:0:42
 
 # Broad Spear
-?:[AND [EQU $QUEST1 3] [EQU $CLASS BeastMaster Cavalry] ]
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Beastmaster Cavalry] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:2
 F:!:FLOOR:3:0:543
 
 # Set of Gauntlets
-?:[AND [EQU $QUEST1 3] [EQU $CLASS Monk ForceTrainer] ]
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Monk Force-Trainer] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:2
 F:!:FLOOR:3:0:126
 
@@ -264,8 +264,8 @@ F:!:FLOOR:3:0:0:0:125
 F:b:BUILDING_1:3:0:0:0:0:NONE:15
 F:!:FLOOR:3:0:0:0:94
 
-# Quest 27 rewarding (BeastMaster gets The Lance of Eorlingas)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS BeastMaster] ]
+# Quest 27 rewarding (Beastmaster gets The Lance of Eorlingas)
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Beastmaster] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:15
 F:!:FLOOR:3:0:0:0:100
 
@@ -300,9 +300,9 @@ F:!:FLOOR:3:0:0:0:215
 F:b:BUILDING_1:3:0:0:0:0:NONE:15
 F:!:FLOOR:3:0:0:0:33
 
-# Quest 27 rewarding (Priest, Bard and ForceTrainer
+# Quest 27 rewarding (Priest, Bard and Force-Trainer
 # get The Palantir of Westernesse)
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Priest Bard ForceTrainer Mindcrafter] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Priest Bard Force-Trainer Mindcrafter] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:15
 F:!:FLOOR:3:0:0:0:15
 

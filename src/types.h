@@ -882,6 +882,7 @@ struct player_race
 #ifdef JP
 	cptr E_title;		/* ±Ñ¸ì¼ïÂ² */
 #endif
+
 	s16b r_adj[6];		/* Racial stat bonuses */
 
 	s16b r_dis;			/* disarming */
@@ -1947,7 +1948,7 @@ typedef void(*calc_weapon_bonuses_fn)(object_type *o_ptr, weapon_info_t *info_pt
 typedef caster_info*(*caster_info_fn)(void);
 typedef int(*get_spells_fn)(spell_info* spells, int max);
 typedef void(*gain_level_fn)(int new_level);
-typedef void(*character_dump_fn)(FILE* file);
+typedef void(*file_dump_fn)(FILE* file);
 typedef void(*player_action_fn)(int energy_use);
 
 typedef struct {
@@ -1984,7 +1985,8 @@ typedef struct {
 	get_spells_fn			get_spells;
 	get_spells_fn			get_powers;
 	gain_level_fn			gain_level; /* Only ever called when a new max level is achieved */
-	character_dump_fn		character_dump;
+	file_dump_fn			character_dump;
+	file_dump_fn			spoiler_dump;
 } class_t;
 
 typedef struct {

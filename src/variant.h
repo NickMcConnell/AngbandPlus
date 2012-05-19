@@ -27,6 +27,7 @@ typedef struct {
 extern void var_init(variant *var);
 extern void var_clear(variant *var);
 /*extern void var_copy(variant *src, variant *dest);*/
+extern bool var_is_null(variant *var);
 
 extern void var_set_int(variant *var, int n);
 extern void var_set_string(variant *var, cptr pc);

@@ -578,7 +578,7 @@ class_t *force_trainer_get_class_t(void)
 	skills_t bs = { 30,  34,  38,   4,  32,  24,  50,  40 };
 	skills_t xs = { 10,  11,  11,   0,   0,   0,  14,  15 };
 
-		me.name = "ForceTrainer";
+		me.name = "Force-Trainer";
 		me.desc = "A Force Trainer is a master of the spiritual Force.  They prefer fighting "
 		          "with neither weapon nor armor.  They are not as good fighters as are Monks, "
 				  "but they can use both magic and the spiritual Force.  Wielding weapons or "

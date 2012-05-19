@@ -1,4 +1,4 @@
-/* File: defines.h */ 
+/* File: defines.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 98
+#define FAKE_VER_PATCH 99
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 98
+#define H_VER_PATCH 99
 #define H_VER_EXTRA 0
 
 
@@ -647,6 +647,8 @@
 #define SPELL_PROCESS		13      /* Randomly activating mutations */
 #define SPELL_COLOR			14      /* Terminal Color for display */
 #define SPELL_FAIL_MIN		15
+#define SPELL_SPOIL_NAME    16
+#define SPELL_SPOIL_DESC    17
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"

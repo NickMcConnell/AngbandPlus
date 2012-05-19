@@ -27,6 +27,9 @@ void _precognition_spell(int cmd, variant *res)
 			var_set_string(res, "Detects monsters, traps, doors, stairs and objects in your vicinity and maps the entire level.");
 		break;
 	}
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Detects monsters (L1), traps and doors (L5), invisible monsters (L15) and items (L30). Gives magic mapping (L20) and telepathy (L25). Enlightens level (L45).");
+		break;
 	case SPELL_CAST:
 	{
 		int b = 0;
@@ -99,6 +102,9 @@ void _neural_blast_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Fires a beam or ball which inflicts psionic damage.", "精神攻撃のビームまたは球を放つ。"));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Fires a beam or ball (Radius 0) which inflicts (3 + (L-1)/4)d(3 + L/15) psionic damage.");
+		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(spell_power(3 + ((p_ptr->lev - 1) / 4)), (3 + p_ptr->lev / 15), 0));
 		break;
@@ -135,11 +141,17 @@ void _minor_displacement_spell(int cmd, variant *res)
 		else
 			var_set_string(res, T("Minor Displacement", "次元の瞬き"));
 		break;
+	case SPELL_SPOIL_NAME:
+		var_set_string(res, "Minor Displacement");
+		break;
 	case SPELL_DESC:
 		if (p_ptr->lev >= 45)
 			var_set_string(res, T("Attempt to teleport to a specific location.", ""));
 		else
 			var_set_string(res, T("Teleport short distance.", "近距離のテレポートをする。"));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Teleports the player (Range 10). At L45, gives dimension door instead (Range L/2 + 10).");
 		break;
 	case SPELL_CAST:
 	{
@@ -176,6 +188,9 @@ void _major_displacement_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Teleport long distance.", "遠距離のテレポートをする。"));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Teleports the player (Range L*5).");
+		break;
 	case SPELL_CAST:
 	{
 		teleport_player(p_ptr->lev * 5, 0L);
@@ -198,6 +213,9 @@ void _domination_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Stuns, confuses or scares a monster. Or attempts to charm all monsters in sight at level 30.",
 							  "レベル30未満で、モンスターを朦朧か混乱か恐怖させる球を放つ。レベル30以上で視界内の全てのモンスターを魅了する。抵抗されると無効。"));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Stuns, confuses or scares a monster. Or attempts to charm all monsters in sight at L30.");
 		break;
 	case SPELL_CAST:
 	{
@@ -231,6 +249,9 @@ void _pulverise_spell(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Fires a ball which hurts monsters with telekinesis.", "テレキネシスの球を放つ。"));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Fires a ball (Radius 0 or (L-20)/8 + 1) of Telekinesis (Damage (8 + (L-5)/4)d8).");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(spell_power(8 + ((p_ptr->lev - 5) / 4)), 8, 0));
@@ -268,6 +289,9 @@ void _character_armor_spell(int cmd, variant *res)
 							  "increased, the more number of resistances given.",
 							  "一定時間、ACを上昇させる。レベルが上がると、酸、炎、冷気、電撃、毒の耐性も得られる。"));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Gives Stone Skin, Resist Acid (L15), Resist Fire (L20), Resist Cold (L25), Resist Lightning (L30) and Resist Poison (L35).");
+		break;
 	case SPELL_CAST:
 	{
 		set_shield(spell_power(p_ptr->lev), FALSE);
@@ -295,6 +319,9 @@ void _psychometry_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Gives feeling of an item. Or identify an item at level 25.", "レベル25未満で、アイテムの雰囲気を知る。レベル25以上で、アイテムを鑑定する。"));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Pseudo-identifies and object. At L25, identifies and object instead.");
+		break;
 	case SPELL_CAST:
 	{
 		if (p_ptr->lev < 25)
@@ -320,6 +347,10 @@ void _mind_wave_spell(int cmd, variant *res)
 		var_set_string(res, T("Generate a ball centered on you which inflict monster with PSI damage. "
 							  "Or inflict all monsters with PSI damage at level 25.",
 							  "レベル25未満で、自分を中心とした精神攻撃の球を発生させる。レベル25以上で、視界内の全てのモンスターに対して精神攻撃を行う。"));
+		break;
+
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Generates a ball (Radius 2 + L/10) of psionic energy (Damage L*3). At L25, damages all monsters in line of sight instead (Damage 1d(L*((L-5)/10 + 1))).");
 		break;
 
 	case SPELL_INFO:
@@ -360,6 +391,9 @@ void _adrenaline_spell(int cmd, variant *res)
 							  "you already have heroism and temporary speed boost.",
 							  "恐怖と朦朧から回復し、ヒーロー気分かつ加速状態でなければHPが少し回復する。さらに、一定時間ヒーロー気分になり、加速する。"));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Removes fear and stun. Heals 10 + 1d(L*3/2). Grants heroism and haste.");
+		break;
 	case SPELL_CAST:
 	{
 		int dur = spell_power(10 + randint1((p_ptr->lev * 3) / 2));
@@ -393,6 +427,9 @@ void _telekinesis_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Pulls a distant item close to you.", "アイテムを自分の足元へ移動させる。"));		
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Fetch a nearby object (Weight <= L*15).");
+		break;
 	case SPELL_CAST:
 	{
 		int dir = 0;
@@ -420,6 +457,9 @@ void _psychic_drain_spell(int cmd, variant *res)
 		var_set_string(res, T("Fires a ball which damages monsters and absorbs monsters' mind power. "
 							  "Absorbing takes from 0 to 1.5 more turns.",
 							  "精神攻撃の球を放つ。モンスターに命中すると、0〜1.5ターン消費する。抵抗されなければ、MPが回復する。"));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Drain target monster (Damage (L/2)d6) to regain 5d(damage)/4 spell points. But this spell also consumes 1d150 extra energy.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(spell_power(p_ptr->lev/2), 6, 0));
@@ -455,6 +495,9 @@ void psycho_spear_spell(int cmd, variant *res)
 		var_set_string(res, T("Fires a beam of pure energy which penetrate the invulnerability barrier.",
 							  "無傷球をも切り裂く純粋なエネルギーのビームを放つ。"));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Fires a beam of pure energy (Damage L*4 + 1d(L*4)) which penetrates the invulnerability barrier.");
+		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(1, spell_power(p_ptr->lev * 4), spell_power(p_ptr->lev * 4)));
 		break;
@@ -481,7 +524,7 @@ void _the_world_spell(int cmd, variant *res)
 		var_set_string(res, T("The World", "完全な世界"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Stops time. Consumes all of your SP. The more consumes SP, the longer duration of spell.",
+		var_set_string(res, T("Spend all of your spell points to stop time. You gain a number of free moves depending on the amount of spell points spent.",
 							  "時を止める。全MPを消費し、消費したMPに応じて長く時を止めていられる。"));
 		break;
 	case SPELL_INFO:
@@ -647,6 +690,33 @@ static caster_info * _caster_info(void)
 	return &me;
 }
 
+static void _spoiler_dump(FILE* fff)
+{
+	int i;
+	variant vn, vd;
+	var_init(&vn);
+	var_init(&vd);
+
+	fprintf(fff, "\n== Spells ==\n");
+	fprintf(fff, "|| *Power* || *Lvl* || *Mana* || *Fail* || *Description* ||\n");
+	for (i = 0; i < MAX_MINDCRAFTER_SPELLS; i++)
+	{
+		spell_info *base = &_spells[i];
+
+		base->fn(SPELL_SPOIL_NAME, &vn);
+		if (var_is_null(&vn)) base->fn(SPELL_NAME, &vn);
+		
+		base->fn(SPELL_SPOIL_DESC, &vd);
+		if (var_is_null(&vd)) base->fn(SPELL_DESC, &vd);
+
+		fprintf(fff, "||%s||%d||%d||%d||`%s`||\n", 
+			var_get_string(&vn), base->level, base->cost, base->fail, var_get_string(&vd));
+	}
+
+	var_clear(&vn);
+	var_clear(&vd);
+}
+
 class_t *mindcrafter_get_class_t(void)
 {
 	static class_t me = {0};
@@ -678,6 +748,7 @@ class_t *mindcrafter_get_class_t(void)
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		me.get_powers = _get_powers;
+		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

@@ -18,6 +18,13 @@ void var_clear(variant *var)
 	var->tag = VAR_NULL;
 }
 
+bool var_is_null(variant *var)
+{
+	if (var->tag == VAR_NULL)
+		return TRUE;
+	return FALSE;
+}
+
 void var_set_int(variant *var, int n)
 {
 	var_clear(var);
@@ -88,7 +95,7 @@ int var_get_int(variant *var)
 
 cptr var_get_string(variant *var)
 {
-	cptr p = NULL;
+	cptr p = "";  /* Can one pass null string pointers to sprintf, et. al.? */
 	switch (var->tag)
 	{
 	case VAR_STRING_ALLOC:

@@ -73,12 +73,12 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:49
 
 # Broad Spear
-?:[AND [EQU $QUEST1 3] [EQU $CLASS BeastMaster Cavalry] ]
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Beastmaster Cavalry] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:543
 
 # Set of Gauntlets
-?:[AND [EQU $QUEST1 3] [EQU $CLASS Monk ForceTrainer] ]
+?:[AND [EQU $QUEST1 3] [EQU $CLASS Monk Force-Trainer] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:14
 F:!:FLOOR:3:0:126
 
@@ -187,7 +187,7 @@ F:!:FLOOR:3:0:54
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:42
 
-?:[AND [EQU $QUEST14 3] [EQU $CLASS BeastMaster Cavalry Ninja] ]
+?:[AND [EQU $QUEST14 3] [EQU $CLASS Beastmaster Cavalry Ninja] ]
 F:b:BUILDING_1:3:0:0:0:0:NONE:25
 F:!:FLOOR:3:0:126
 
@@ -497,13 +497,13 @@ F:@:FLOOR:3:0:0:0:94
 # Beastmaster
 # TODO
 # Eorlingas
-?:[AND [EQU $QUEST27 3] [EQU $CLASS BeastMaster] [EQU [MOD $RANDOM27 5] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Beastmaster] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:100
 
 # TODO
 # Eorlingas
-?:[AND [EQU $QUEST27 3] [EQU $CLASS BeastMaster] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Beastmaster] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:100
 
@@ -565,14 +565,14 @@ F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:134
 
 ##########################################################################
-# Monk, ForceTrainer
+# Monk, Force-Trainer
 # The Leather Jacket of Shiva's Avatar
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk ForceTrainer] [EQU [MOD $RANDOM27 5] 0] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk Force-Trainer] [EQU [MOD $RANDOM27 5] 0] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:26
 
 # Palantir
-?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk ForceTrainer] [GEQ [MOD $RANDOM27 5] 1] ]
+?:[AND [EQU $QUEST27 3] [EQU $CLASS Monk Force-Trainer] [GEQ [MOD $RANDOM27 5] 1] ]
 F:a:BUILDING_0:3
 F:@:FLOOR:3:0:0:0:15
 

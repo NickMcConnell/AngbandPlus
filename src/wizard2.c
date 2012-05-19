@@ -633,6 +633,371 @@ static void do_cmd_wiz_hack_chris7(void)
 	msg_print(NULL);
 }
 
+typedef void(*_file_fn)(FILE*);
+static void _wiki_file(cptr name, _file_fn fn)
+{
+	int		fd = -1;
+	FILE	*fff = NULL;
+	char	buf[1024];
+
+	/* HARD CODED!!! Sorry :( */
+	sprintf(buf, "c:\\src\\cheng\\chengband.wiki\\%s", name);
+	fff = my_fopen(buf, "w");
+
+	if (!fff)
+	{
+		path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
+		fff = my_fopen(buf, "w");
+
+		if (!fff)
+		{
+			prt("Failed!", 0, 0);
+			(void)inkey();
+			return;
+		}
+	}
+
+	fn(fff);
+
+	my_fclose(fff);
+	msg_print("Successful.");
+	msg_print(NULL);
+}
+
+static cptr _race_spoiler_page(int i)
+{
+	if (i == RACE_DEMIGOD)
+		return "DemigodParentage";
+	return 0;
+}
+
+static void _race_tbl1(FILE* fff)
+{
+	int i;
+	char buf[1024];
+
+	fprintf(fff, "#summary Automatically Generated (Do not make manual updates!)\n");
+	fprintf(fff, "\n= Stats =\n\n");
+	for (i = 0; i < MAX_RACES; i++)
+	{
+		player_race *race_ptr = &race_info[i];
+		cptr title = race_ptr->title;
+		cptr spoiler = _race_spoiler_page(i);
+
+		if (spoiler)
+			sprintf(buf, "[%s %s]", spoiler, title);
+		else
+			sprintf(buf, "%s", title);
+
+		if (i % 5 == 0)
+			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
+
+		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
+			buf, 
+			race_ptr->r_adj[0], race_ptr->r_adj[1], race_ptr->r_adj[2], 
+			race_ptr->r_adj[3], race_ptr->r_adj[4], race_ptr->r_adj[5], 
+			race_ptr->r_dis, race_ptr->r_dev, race_ptr->r_sav,
+			race_ptr->r_stl, race_ptr->r_srh, race_ptr->r_fos,
+			race_ptr->r_thn, race_ptr->r_thb, 
+			race_ptr->r_mhp, race_ptr->infra,
+			race_ptr->r_exp
+		);
+	}
+
+	fprintf(fff, "\n= Descriptions =\n\n");
+	for (i = 0; i < MAX_RACES; i++)
+	{
+		fprintf(fff, "*%s*\n", race_info[i].title);
+		fprintf(fff, "%s\n\n", birth_get_race_desc(i));
+	}
+
+}
+
+static cptr _class_spoiler_page(int i)
+{
+	switch (i)
+	{
+	case CLASS_WARRIOR: return "AutoWarriorSpoilers";
+	case CLASS_MAGE: return "AutoMageSpoilers";
+	case CLASS_PRIEST: return "AutoPriestSpoilers";
+	case CLASS_ROGUE: return "AutoRogueSpoilers";
+	case CLASS_RANGER: return "AutoRangerSpoilers";
+	case CLASS_PALADIN: return "AutoPaladinSpoilers";
+	case CLASS_WARRIOR_MAGE: return "AutoWarriorMageSpoilers";
+	case CLASS_CHAOS_WARRIOR: return "AutoChaosWarriorSpoilers";
+	case CLASS_MONK: return "AutoMonkSpoilers";
+	case CLASS_MINDCRAFTER: return "AutoMindcrafterSpoilers";
+	case CLASS_HIGH_MAGE: return "AutoHighMageSpoilers";
+	case CLASS_TOURIST: return "AutoTouristSpoilers";
+	case CLASS_RED_MAGE: return "AutoRedMageSpoilers";
+	case CLASS_SORCERER: return "AutoSorcererSpoilers";
+	
+	case CLASS_TIME_LORD: return "AutoTimeLordSpoilers";
+	case CLASS_ARCHAEOLOGIST: return "AutoArchaeologistSpoilers";
+	case CLASS_BLOOD_MAGE: return "AutoBloodMageSpoilers";
+	case CLASS_WILD_TALENT: return "AutoWildTalentSpoilers";
+
+	case CLASS_NECROMANCER: return "AutoNecromancerSpoilers";
+
+	case CLASS_MAULER: return "MaulerSpoilers";
+	case CLASS_PSION: return "PsionSpoilers";
+	case CLASS_SCOUT: return "ScoutSpoilers";
+	case CLASS_RAGE_MAGE: return "RageMageSpoilers";
+	case CLASS_WARLOCK: return "WarlockSpoilers";
+	case CLASS_WEAPONMASTER: return "WeaponmasterSpoilers";
+	case CLASS_RUNE_KNIGHT: return "RuneKnightSpoilers";
+	case CLASS_DUELIST: return "DuelistSpoilers";
+	case CLASS_BLOOD_KNIGHT: return "BloodKnightSpoilers";
+	}
+	return 0;
+}
+
+static void _class_tbl1(FILE* fff)
+{
+	int i;
+	char buf[1024];
+
+	fprintf(fff, "#summary Automatically Generated (Do not make manual updates!)\n");
+	fprintf(fff, "\n= Stats =\n\n");
+	for (i = 0; i < MAX_CLASS; i++)
+	{
+		player_class *class_ptr = &class_info[i];
+		cptr title = class_ptr->title;
+		cptr spoiler = _class_spoiler_page(i);
+
+		if (spoiler)
+			sprintf(buf, "[%s %s]", spoiler, title);
+		else
+			sprintf(buf, "%s", title);
+
+		if (i % 5 == 0)
+			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *Exp* || *Pet* ||\n");
+
+		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%d,%d||%d,%d||%d,%d||%3d||%3d||%3d||%d,%d||%d,%d||%3d||%4d||%3d||\n",
+			buf, 
+			class_ptr->c_adj[0], class_ptr->c_adj[1], class_ptr->c_adj[2], 
+			class_ptr->c_adj[3], class_ptr->c_adj[4], class_ptr->c_adj[5], 
+			class_ptr->c_dis, class_ptr->x_dis, 
+			class_ptr->c_dev, class_ptr->x_dev, 
+			class_ptr->c_sav, class_ptr->x_sav,
+			class_ptr->c_stl, 
+			class_ptr->c_srh, 
+			class_ptr->c_fos,
+			class_ptr->c_thn, class_ptr->x_thn, 
+			class_ptr->c_thb, class_ptr->x_thb, 
+			class_ptr->c_mhp,
+			class_ptr->c_exp,
+			class_ptr->pet_upkeep_div
+		);
+	}
+}
+
+static int _next_skill_desc(char *buf, int class_idx, int tv, int sv)
+{
+	int kval;
+
+	if (sv == -1) return -1;
+
+	for (;;)
+	{
+		sv++;
+		if (sv >= 64)
+		{
+			sprintf(buf, " || || ");;
+			return -1;
+		}
+
+		kval = lookup_kind(tv, sv);
+		if (kval)
+		{
+			int min = s_info[class_idx].w_start[tv-TV_WEAPON_BEGIN][sv];
+			int max = s_info[class_idx].w_max[tv-TV_WEAPON_BEGIN][sv];
+			char name[1024];
+
+			strip_name(name, kval);
+			sprintf(buf, " %s || %d || %d ", name, min, max);
+			return sv;
+		}
+	}
+
+	return -1;
+}
+
+static void _spell_info(char *buf, cptr name, magic_type *info)
+{
+	if (info->slevel == 99)
+		sprintf(buf, "%s||--||--||--", name);
+	else
+		sprintf(buf, "%s||%d||%d||%d", name, info->slevel, info->smana, info->sfail);
+}
+
+static void _class_spoilers(FILE* fff, int idx)
+{
+	int i;
+	int counters[5];
+	char bufs[5][1024];
+	
+	player_class *class_ptr = &class_info[idx];
+	player_magic *magic_ptr = &m_info[idx];
+
+	fprintf(fff, "#summary Automatically Generated (Do not make manual updates!)\n");
+	fprintf(fff, "= %s =\n\n", class_ptr->title);
+	fprintf(fff, "== Description ==\n");
+	fprintf(fff, "%s\n\n", birth_get_class_desc(idx));
+
+	if (magic_ptr->spell_stat)
+	{
+		int j,k;
+		bool first = TRUE;
+
+		for (i = 1; i <= MAX_MAGIC; i++)
+		{
+			int bit = (1 << (i-1));
+			bool ok = FALSE;
+			int max = 4;
+
+			if (idx == CLASS_RED_MAGE && i != REALM_NECROMANCY)
+			{
+				ok = TRUE;
+				max = 2;
+			}
+			if (idx == CLASS_SORCERER && i != REALM_NECROMANCY) ok = TRUE;
+			if (realm_choices1[idx] & bit) ok = TRUE;
+			if (realm_choices2[idx] & bit) ok = TRUE;
+
+			if (ok)
+			{
+				char books[4][1024];
+				int tval = TV_LIFE_BOOK + (i - 1);
+
+				if (first)
+				{
+					fprintf(fff, "\n== Spells ==\n");
+					first = FALSE;
+				}
+
+				for (k = 0; k < max; k++)
+				{
+					int sval = k;
+					int kval = lookup_kind(tval, sval);
+					sprintf(books[k], "%s", k_name + k_info[kval].name + 1);
+					books[k][strlen(books[k]) - 1] = '\0';
+				}
+
+				if (max == 2)
+				{
+					fprintf(fff, "|| *%s* || || || || || || || ||\n", realm_names[i]);
+					fprintf(fff, "|| *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* ||\n", books[0], books[1]);
+				}
+				else
+				{
+					fprintf(fff, "|| *%s* || || || || || || || || || || || || || || || ||\n", realm_names[i]);
+					fprintf(fff, "|| *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* ||\n", books[0], books[1], books[2], books[3]);
+				}
+
+				for (j = 0; j < 8; j++)
+				{
+					char names[4][1024];
+					char bufs[4][1024];
+
+					for (k = 0; k < max; k++)
+					{
+						int l = 8*k + j;
+						sprintf(names[k], "%s", do_spell(i, l, SPELL_NAME));
+
+						_spell_info(bufs[k], names[k], &magic_ptr->info[i-1][l]);
+					}
+
+					if (max == 2)
+						fprintf(fff, "||%s||%s||\n", bufs[0], bufs[1]);
+					else
+						fprintf(fff, "||%s||%s||%s||%s||\n", bufs[0], bufs[1], bufs[2], bufs[3]);
+				}
+			}
+		}
+	}
+
+	/* Hook for extra info */
+	{
+	class_t *class_ptr = get_class_t_aux(idx, 0);
+		if (class_ptr && class_ptr->spoiler_dump)
+			class_ptr->spoiler_dump(fff);
+	}
+
+	fprintf(fff, "\n== Skills ==\n");
+	fprintf(fff, "|| *Skill* || *Min* || *Max* ||\n");
+	fprintf(fff, "|| Martial Arts || %d || %d ||\n", s_info[idx].s_start[SKILL_MARTIAL_ARTS], s_info[idx].s_max[SKILL_MARTIAL_ARTS]);
+	fprintf(fff, "|| Dual Wielding || %d || %d ||\n", s_info[idx].s_start[SKILL_DUAL_WIELDING], s_info[idx].s_max[SKILL_DUAL_WIELDING]);
+	fprintf(fff, "|| Riding || %d || %d ||\n", s_info[idx].s_start[SKILL_RIDING], s_info[idx].s_max[SKILL_RIDING]);
+
+	fprintf(fff, "\n== Weapon Skills ==\n");
+
+	/* Yuk to get 5 tables in 1 side by side ... Sorry :( */
+	for (i = 0; i < 5; i++)
+		counters[i] = 0;
+
+	fprintf(fff, "\n|| *Bows* || *Min* || *Max* || *Diggers* || *Min* || *Max* || *Hafted* || *Min* || *Max* || *Polearms* || *Min* || *Max* || *Swords* || *Min* || *Max* ||\n");
+	for (;;)
+	{
+		for (i = 0; i < 5; i++)
+			counters[i] = _next_skill_desc(bufs[i], idx, TV_WEAPON_BEGIN + i, counters[i]);
+
+		if (counters[0] == -1 && counters[1] == -1 && counters[2] == -1 && counters[3] == -1 && counters[4] == -1)
+			break;
+
+		fprintf(fff, "|| %s || %s || %s || %s || %s ||\n", bufs[0], bufs[1], bufs[2], bufs[3], bufs[4]);
+	}
+}
+
+static void _warrior_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_WARRIOR); }
+static void _mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_MAGE); }
+static void _priest_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_PRIEST); }
+static void _rogue_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_ROGUE); }
+static void _ranger_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_RANGER); }
+static void _paladin_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_PALADIN); }
+static void _warrior_mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_WARRIOR_MAGE); }
+static void _chaos_warrior_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_CHAOS_WARRIOR); }
+static void _monk_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_MONK); }
+static void _mindcrafter_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_MINDCRAFTER); }
+static void _high_mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_HIGH_MAGE); }
+static void _tourist_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_TOURIST); }
+static void _red_mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_RED_MAGE); }
+static void _sorcerer_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_SORCERER); }
+
+static void _time_lord_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_TIME_LORD); }
+static void _archaeologist_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_ARCHAEOLOGIST); }
+static void _blood_mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_BLOOD_MAGE); }
+static void _wild_talent_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_WILD_TALENT); }
+
+static void _necromancer_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_NECROMANCER); }
+
+static void do_cmd_wiz_hack_chris8(void)
+{
+	_wiki_file("AutoRacesSpoilers.wiki", _race_tbl1);
+	_wiki_file("AutoClassesSpoilers.wiki", _class_tbl1);
+
+	_wiki_file("AutoWarriorSpoilers.wiki", _warrior_spoilers);
+	_wiki_file("AutoMageSpoilers.wiki", _mage_spoilers);
+	_wiki_file("AutoPriestSpoilers.wiki", _priest_spoilers);
+	_wiki_file("AutoRogueSpoilers.wiki", _rogue_spoilers);
+	_wiki_file("AutoRangerSpoilers.wiki", _ranger_spoilers);
+	_wiki_file("AutoPaladinSpoilers.wiki", _paladin_spoilers);
+	_wiki_file("AutoWarriorMageSpoilers.wiki", _warrior_mage_spoilers);
+	_wiki_file("AutoChaosWarriorSpoilers.wiki", _chaos_warrior_spoilers);
+	_wiki_file("AutoMonkSpoilers.wiki", _monk_spoilers);
+	_wiki_file("AutoMindcrafterSpoilers.wiki", _mindcrafter_spoilers);
+	_wiki_file("AutoHighMageSpoilers.wiki", _high_mage_spoilers);
+	_wiki_file("AutoTouristSpoilers.wiki", _tourist_spoilers);
+	_wiki_file("AutoRedMageSpoilers.wiki", _red_mage_spoilers);
+	_wiki_file("AutoSorcererSpoilers.wiki", _sorcerer_spoilers);
+
+	_wiki_file("AutoTimeLordSpoilers.wiki", _time_lord_spoilers);
+	_wiki_file("AutoArchaeologistSpoilers.wiki", _archaeologist_spoilers);
+	_wiki_file("AutoBloodMageSpoilers.wiki", _blood_mage_spoilers);
+	_wiki_file("AutoWildTalentSpoilers.wiki", _wild_talent_spoilers);
+
+	_wiki_file("AutoNecromancerSpoilers.wiki", _necromancer_spoilers);
+}
 
 #ifdef MONSTER_HORDES
 
@@ -2682,6 +3047,10 @@ void do_cmd_debug(void)
 
 	case '7':
 		do_cmd_wiz_hack_chris7();
+		break;
+
+	case '8':
+		do_cmd_wiz_hack_chris8();
 		break;
 
 	/* Not a Wizard Command */

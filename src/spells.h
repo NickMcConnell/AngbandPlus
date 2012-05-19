@@ -14,6 +14,7 @@ extern int get_spell_cost_extra(ang_spell spell);
 extern int get_spell_fail_min(ang_spell spell);
 extern cptr get_spell_name(ang_spell spell); /* buffer reset on each call */
 extern cptr get_spell_desc(ang_spell spell); /* buffer reset on each call */
+extern cptr get_spell_spoiler_name(ang_spell spell); /* buffer reset on each call */
 
 /* Public Spells:  I'm using the following system for placing code.
    This makes it easier to split a too large file, and easier to locate

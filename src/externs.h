@@ -657,6 +657,8 @@ extern void do_cmd_edit_autopick(void);
 /* birth.c */
 extern void add_history_from_pref_line(cptr t);
 extern void add_outfit(object_type *o_ptr);
+extern cptr birth_get_race_desc(int i);
+extern cptr birth_get_class_desc(int i);
 extern void player_birth(void);
 extern void get_max_stats(void);
 extern void get_height_weight(void);

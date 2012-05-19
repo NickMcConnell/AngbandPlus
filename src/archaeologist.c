@@ -463,6 +463,9 @@ static void _first_aid_spell(int cmd, variant *res)
 		else
 			var_set_string(res, "Heals HP and Stun.  Cures cuts, poison and blindness.  Restores Con, Chr and Str.");
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Heals HP and Stun.  Slows Poison (L12).  Cures cuts (L8), poison (L16) and blindness (L20).  Restores Con (L30), Chr (L40) and Str (L45).");
+		break;
 	case SPELL_INFO:
 		var_set_string(res, info_heal(0, 0, spell_power(p_ptr->lev)));
 		break;
@@ -529,6 +532,9 @@ static void _identify_spell(int cmd, variant *res)
 		else
 			var_set_string(res, "New Treasure!  You examine your new discovery and learn its deepest truths.");
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Identifies an object. At L25, fully identifies an object.");
+		break;
 	case SPELL_CAST:
 		{
 			bool b = TRUE;
@@ -563,6 +569,9 @@ static void _magic_blueprint_spell(int cmd, variant *res)
 			var_set_string(res, "A map to treasure!  Maps the entire level and detects traps, doors and objects.");
 		else
 			var_set_string(res, "A map to treasure!  Maps and lights the entire level and detects traps, doors and objects.");
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Maps nearby area or the entire level (L35). Detects treasure, traps (L20), doors (L20) and objects (25).");
 		break;
 	case SPELL_CAST:
 		{
@@ -650,6 +659,9 @@ static void _remove_curse_spell(int cmd, variant *res)
 			var_set_string(res, "Cursed Treasure!  Removes any weak curses from your equipment.");
 		else
 			var_set_string(res, "Cursed Treasure!  Removes any curses from your equipment.");
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Removes weak curses. At L40, also removes heavy curses.");
 		break;
 	case SPELL_CAST:
 		if (p_ptr->lev < 40)
@@ -819,6 +831,33 @@ static caster_info * _caster_info(void)
 	return &me;
 }
 
+static void _spoiler_dump(FILE* fff)
+{
+	int i;
+	variant vn, vd;
+	var_init(&vn);
+	var_init(&vd);
+
+	fprintf(fff, "\n== Spells ==\n");
+	fprintf(fff, "|| *Power* || *Lvl* || *Mana* || *Fail* || *Description* ||\n");
+	for (i = 0; i < MAX_ARCHAEOLOGIST_SPELLS; i++)
+	{
+		spell_info *base = &_spells[i];
+
+		base->fn(SPELL_SPOIL_NAME, &vn);
+		if (var_is_null(&vn)) base->fn(SPELL_NAME, &vn);
+		
+		base->fn(SPELL_SPOIL_DESC, &vd);
+		if (var_is_null(&vd)) base->fn(SPELL_DESC, &vd);
+
+		fprintf(fff, "||%s||%d||%d||%d||`%s`||\n", 
+			var_get_string(&vn), base->level, base->cost, base->fail, var_get_string(&vd));
+	}
+
+	var_clear(&vn);
+	var_clear(&vd);
+}
+
 class_t *archaeologist_get_class_t(void)
 {
 	static class_t me = {0};
@@ -849,6 +888,7 @@ class_t *archaeologist_get_class_t(void)
 		me.process_player = _process_player;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
+		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

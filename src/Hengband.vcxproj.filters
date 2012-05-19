@@ -43,6 +43,9 @@
     <Filter Include="Edit\Preferences">
       <UniqueIdentifier>{0601320d-1c06-4eb3-90fb-df8c0ccff565}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Edit\Help">
+      <UniqueIdentifier>{9a8ba6fa-15c5-419b-b854-a727c047c43b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="artifact.c">
@@ -635,6 +638,9 @@
     </None>
     <None Include="..\lib\pref\xtra-xxx.prf">
       <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\help\raceclas.txt">
+      <Filter>Edit\Help</Filter>
     </None>
   </ItemGroup>
 </Project>

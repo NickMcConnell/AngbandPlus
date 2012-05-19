@@ -3602,7 +3602,7 @@ player_class class_info[MAX_CLASS] =
 #ifdef JP
 		"Ëâ½Ã»È¤¤",
 #endif
-		"BeastMaster",
+		"Beastmaster",
 		{ 1, -1, -1, 1, 0, 2},
 		20, 25, 32, 2,  18, 16, 52, 63,
 		7,  10, 10, 0,  0,  0,  14, 25,
@@ -3684,7 +3684,7 @@ player_class class_info[MAX_CLASS] =
 #ifdef JP
 		"Îýµ¤½Ñ»Õ",
 #endif
-		"ForceTrainer",
+		"Force-Trainer",
 
 		{ 0, -1, 3, 2, 1, 1},
 		30, 34, 38, 4, 32, 24, 50, 40,
