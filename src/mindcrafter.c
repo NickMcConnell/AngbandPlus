@@ -320,7 +320,7 @@ void _psychometry_spell(int cmd, variant *res)
 		var_set_string(res, T("Gives feeling of an item. Or identify an item at level 25.", "レベル25未満で、アイテムの雰囲気を知る。レベル25以上で、アイテムを鑑定する。"));
 		break;
 	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Pseudo-identifies and object. At L25, identifies and object instead.");
+		var_set_string(res, "Pseudo-identifies and object. At L25, identifies an object instead.");
 		break;
 	case SPELL_CAST:
 	{
@@ -570,10 +570,7 @@ void _the_world_spell(int cmd, variant *res)
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
-
-#define MAX_MINDCRAFTER_SPELLS	14
-
-static spell_info _spells[MAX_MINDCRAFTER_SPELLS] = 
+static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
     { 1,   1,  15, _neural_blast_spell},
@@ -590,58 +587,37 @@ static spell_info _spells[MAX_MINDCRAFTER_SPELLS] =
     { 28, 10,  40, _psychic_drain_spell},
     { 35, 35,  75, psycho_spear_spell},
     { 45,150,  85, _the_world_spell},
+	{ -1, -1,  -1, NULL}
+};
+
+static power_info _powers[] =
+{
+	{ A_WIS, {15, 0, 30, clear_mind_spell}}, 
+	{ -1, {-1, -1, -1, NULL}}
 };
 
 static int _get_spells(spell_info* spells, int max)
 {
-	int i;
-	int ct = 0;
-	int stat_idx = p_ptr->stat_ind[A_WIS];
-	
-	for (i = 0; i < MAX_MINDCRAFTER_SPELLS; i++)
-	{
-		spell_info *base = &_spells[i];
-		if (ct >= max) break;
-		if (base->level <= p_ptr->lev)
-		{
-			spell_info* current = &spells[ct];
-			current->fn = base->fn;
-			current->level = base->level;
-			current->cost = base->cost;
-
-			current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);			
-			ct++;
-		}
-	}
-	return ct;
+	return get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_WIS]);
 }
 
 static int _get_powers(spell_info* spells, int max)
 {
-	int ct = 0;
-
-	spell_info* spell = &spells[ct++];
-	spell->level = 15;
-	spell->cost = 0;
-	spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_WIS]);
-	spell->fn = clear_mind_spell;
-
-	return ct;
+	return get_powers_aux(spells, max, _powers);
 }
 
 static void _calc_bonuses(void)
 {
-	if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
-	if (p_ptr->lev > 19) p_ptr->sustain_wis = TRUE;
-	if (p_ptr->lev > 29) p_ptr->resist_conf = TRUE;
-	if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
+	if (p_ptr->lev >= 10) p_ptr->resist_fear = TRUE;
+	if (p_ptr->lev >= 20) p_ptr->sustain_wis = TRUE;
+	if (p_ptr->lev >= 30) p_ptr->resist_conf = TRUE;
+	if (p_ptr->lev >= 40) p_ptr->telepathy = TRUE;
 }
 
 static void _on_fail(const spell_info *spell)
 {
 	if (randint1(100) < (spell->fail / 2))
 	{
-		/* Backfire */
 		int b = randint1(100);
 
 		if (b < 5)
@@ -665,7 +641,6 @@ static void _on_fail(const spell_info *spell)
 		}
 		else
 		{
-			/* Mana storm */
 			msg_print(T("Your mind unleashes its power in an uncontrollable storm!", "の力が制御できない氾流となって解放された！"));
 
 			project(PROJECT_WHO_UNCTRL_POWER, 2 + p_ptr->lev / 10, py, px, p_ptr->lev * 2,
@@ -692,29 +667,15 @@ static caster_info * _caster_info(void)
 
 static void _spoiler_dump(FILE* fff)
 {
-	int i;
-	variant vn, vd;
-	var_init(&vn);
-	var_init(&vd);
+	spoil_spells_aux(fff, _spells);
+	spoil_powers_aux(fff, _powers);
 
-	fprintf(fff, "\n== Spells ==\n");
-	fprintf(fff, "|| *Power* || *Lvl* || *Mana* || *Fail* || *Description* ||\n");
-	for (i = 0; i < MAX_MINDCRAFTER_SPELLS; i++)
-	{
-		spell_info *base = &_spells[i];
-
-		base->fn(SPELL_SPOIL_NAME, &vn);
-		if (var_is_null(&vn)) base->fn(SPELL_NAME, &vn);
-		
-		base->fn(SPELL_SPOIL_DESC, &vd);
-		if (var_is_null(&vd)) base->fn(SPELL_DESC, &vd);
-
-		fprintf(fff, "||%s||%d||%d||%d||`%s`||\n", 
-			var_get_string(&vn), base->level, base->cost, base->fail, var_get_string(&vd));
-	}
-
-	var_clear(&vn);
-	var_clear(&vd);
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "|| *Lvl* || *Ability* ||\n");
+	fprintf(fff, "|| 10 || Resist Fear ||\n");
+	fprintf(fff, "|| 20 || Sustain Wisdom ||\n");
+	fprintf(fff, "|| 30 || Resist Confusion ||\n");
+	fprintf(fff, "|| 40 || Telepathy ||\n");
 }
 
 class_t *mindcrafter_get_class_t(void)

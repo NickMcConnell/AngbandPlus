@@ -371,3 +371,166 @@ int get_class_powers(spell_info* spells, int max)
 
 	return ct;
 }
+
+/* 
+Helper for getting powers (cf. spoil_powers_aux)
+
+Sample usage:
+	static power_info _powers[] =
+	{
+		{ A_WIS, {15, 0, 30, clear_mind_spell}}, 
+		{ -1, {-1, -1, -1, NULL}}
+	};
+	...
+	static int _get_powers(spell_info* spells, int max)
+	{
+		return get_powers_aux(spells, max, _powers);
+	}
+	...
+	class_t *mindcrafter_get_class_t(void)
+	{
+	...
+		me.get_powers = _get_powers;
+	...
+	}
+*/
+int get_powers_aux(spell_info* spells, int max, power_info* table)
+{
+	int i;
+	int ct = 0;
+	
+	for (i = 0; ; i++)
+	{
+		power_info *base = &table[i];
+		
+		if (ct >= max) break;
+		if (!base->spell.fn) break;
+
+		if (base->spell.level <= p_ptr->lev)
+		{
+			spell_info* current = &spells[ct];
+			current->fn = base->spell.fn;
+			current->level = base->spell.level;
+			current->cost = base->spell.cost;
+
+			current->fail = calculate_fail_rate(
+				base->spell.level, 
+				base->spell.fail, 
+				p_ptr->stat_ind[base->stat]
+			);			
+			ct++;
+		}
+	}
+	return ct;
+}
+
+void spoil_powers_aux(FILE *fff, power_info *table)
+{
+	int i;
+	variant vn, vd;
+	var_init(&vn);
+	var_init(&vd);
+
+	fprintf(fff, "\n== Powers ==\n");
+	fprintf(fff, "||  || *Stat* || *Lvl* || *Mana* || *Fail* || *Description* ||\n");
+	for (i = 0; ; i++)
+	{
+		power_info *base = &table[i];		
+		if (!base->spell.fn) break;
+
+		base->spell.fn(SPELL_SPOIL_NAME, &vn);
+		if (var_is_null(&vn)) base->spell.fn(SPELL_NAME, &vn);
+		
+		base->spell.fn(SPELL_SPOIL_DESC, &vd);
+		if (var_is_null(&vd)) base->spell.fn(SPELL_DESC, &vd);
+
+		fprintf(fff, "||%s||%s||%d||%d||%d||`%s`||\n", 
+			var_get_string(&vn), 
+			stat_abbrev_true[base->stat],
+			base->spell.level, base->spell.cost, base->spell.fail, 
+			var_get_string(&vd)
+		);
+	}
+
+	var_clear(&vn);
+	var_clear(&vd);
+}
+
+
+/* 
+Helper for getting spells (cf. spoil_spells_aux)
+
+Sample usage:
+	static spell_info _spells[] = 
+	{
+		{ 1,   1,  15, _neural_blast_spell},
+		{ 2,   1,  20, _precognition_spell},
+		{ 3,   2,  25, _minor_displacement_spell},
+		...
+		{ -1, -1,  -1, NULL}
+	};
+	...
+	static int _get_spells(spell_info* spells, int max)
+	{
+		return get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_WIS]);
+	}
+	...
+	class_t *mindcrafter_get_class_t(void)
+	{
+	...
+		me.get_spells = _get_spells;
+	...
+	}
+*/
+int get_spells_aux(spell_info* spells, int max, spell_info* table, int stat_idx)
+{
+	int i;
+	int ct = 0;
+
+	for (i = 0; ; i++)
+	{
+		spell_info *base = &table[i];
+		if (ct >= max) break;
+		if (!base->fn) break;
+
+		if (base->level <= p_ptr->lev)
+		{
+			spell_info* current = &spells[ct];
+			current->fn = base->fn;
+			current->level = base->level;
+			current->cost = base->cost;
+
+			current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);			
+			ct++;
+		}
+	}
+	return ct;
+}
+
+void spoil_spells_aux(FILE *fff, spell_info *table)
+{
+	int i;
+	variant vn, vd;
+	var_init(&vn);
+	var_init(&vd);
+
+	fprintf(fff, "\n== Spells ==\n");
+	fprintf(fff, "||  || *Lvl* || *Mana* || *Fail* || *Description* ||\n");
+	for (i = 0; ; i++)
+	{
+		spell_info *base = &table[i];
+		if (!base->fn) break;
+
+		base->fn(SPELL_SPOIL_NAME, &vn);
+		if (var_is_null(&vn)) base->fn(SPELL_NAME, &vn);
+		
+		base->fn(SPELL_SPOIL_DESC, &vd);
+		if (var_is_null(&vd)) base->fn(SPELL_DESC, &vd);
+
+		fprintf(fff, "||%s||%d||%d||%d||`%s`||\n", 
+			var_get_string(&vn), base->level, base->cost, base->fail, var_get_string(&vd));
+	}
+
+	var_clear(&vn);
+	var_clear(&vd);
+}

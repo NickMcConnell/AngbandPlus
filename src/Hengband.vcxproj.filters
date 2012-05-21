@@ -366,6 +366,12 @@
     <ClCompile Include="mauler.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="races_a.c">
+      <Filter>Races</Filter>
+    </ClCompile>
+    <ClCompile Include="demigod.c">
+      <Filter>Races</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">

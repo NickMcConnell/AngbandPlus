@@ -100,6 +100,8 @@ extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
 extern cptr stat_names[6];
 extern cptr stat_names_reduced[6];
+extern cptr stat_abbrev_true[6];
+extern cptr stat_name_true[6];
 extern cptr window_flag_desc[32];
 extern option_type option_info[];
 extern cptr chaos_patrons[MAX_PATRON];
@@ -659,6 +661,8 @@ extern void add_history_from_pref_line(cptr t);
 extern void add_outfit(object_type *o_ptr);
 extern cptr birth_get_race_desc(int i);
 extern cptr birth_get_class_desc(int i);
+extern cptr birth_get_personality_desc(int i);
+extern cptr birth_get_realm_desc(int i);
 extern void player_birth(void);
 extern void get_max_stats(void);
 extern void get_height_weight(void);
@@ -1902,14 +1906,21 @@ extern bool multiply_barrier(int m_idx);
 
 /* races.c */
 extern race_t *get_race_t(void);
-extern race_t *get_race_t_aux(int prace);
+extern race_t *get_race_t_aux(int prace, int psubrace);
 extern int get_racial_powers(spell_info* spells, int max);
+
+extern race_t *demigod_get_race_t(int psubrace);
+extern race_t *human_get_race_t(void);
 
 /* classes.c */
 extern class_t *get_class_t(void);
 extern class_t *get_class_t_aux(int pclass, int psubclass);
 extern caster_info *get_caster_info(void);
 extern int get_class_powers(spell_info* spells, int max);
+extern int get_powers_aux(spell_info* spells, int max, power_info* table);
+extern void spoil_powers_aux(FILE *fff, power_info *table);
+extern int get_spells_aux(spell_info* spells, int max, spell_info* table, int stat_idx);
+extern void spoil_spells_aux(FILE *fff, spell_info *table);
 
 /* archaeologist.c */
 extern class_t *archaeologist_get_class_t(void);

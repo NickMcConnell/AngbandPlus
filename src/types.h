@@ -862,13 +862,6 @@ struct player_pact
 	cptr alliance;
 };
 
-typedef struct {
-	cptr name;
-	cptr desc;
-	int  exp;
-	s16b adj[6]; 
-} demigod_type;
-
 /*
  * Player racial info
  */
@@ -1920,6 +1913,12 @@ typedef struct {
 typedef void (*ang_spell_action)(const spell_info *spell);
 typedef int (*calc_fail_fn)(int fail);
 
+typedef struct {
+int			stat;
+spell_info	spell;
+} power_info;
+
+
 /* TODO: This needs some work ... I just hacked this together for now.
    I'm shooting for a single unified interface for choosing, browsing
    and casting spells */
@@ -1950,6 +1949,7 @@ typedef int(*get_spells_fn)(spell_info* spells, int max);
 typedef void(*gain_level_fn)(int new_level);
 typedef void(*file_dump_fn)(FILE* file);
 typedef void(*player_action_fn)(int energy_use);
+typedef void(*flags_fn)(u32b flgs[TR_FLAG_SIZE]);
 
 typedef struct {
 	s16b dis;			/* disarming */
@@ -1971,10 +1971,11 @@ typedef struct {
 	s16b					stats[MAX_STATS];
 	skills_t				base_skills;
 	skills_t				extra_skills; /* Prorata every 10 levels */
+	s16b					hd;
+	s16b					exp;
+	byte					pets;
+
 	birth_fn				birth;
-	s16b					mhp;			/* Class hit-dice adjustment */
-	s16b					exp;			/* Class experience factor */
-	byte					pets;			/* Pet upkeep divider */
 	process_player_fn		process_player; /* Called from process_player ... but player take 0 or more actions per call */
 	player_action_fn		player_action;  /* Called once per player action, so long as the action consumes energy */
 	move_player_fn			move_player;    /* Called every time the player actually moves */
@@ -1987,15 +1988,33 @@ typedef struct {
 	gain_level_fn			gain_level; /* Only ever called when a new max level is achieved */
 	file_dump_fn			character_dump;
 	file_dump_fn			spoiler_dump;
+	flags_fn                get_flags;
 } class_t;
 
 typedef struct {
-    cptr			name;
-	cptr			desc;
-	skills_t		skills;
-	birth_fn		birth;
-	calc_bonuses_fn	calc_bonuses;
-	get_spells_fn	get_powers;
-	gain_level_fn	gain_level; /* Only ever called when a new max level is achieved */
+    cptr					name;
+	cptr					desc;
+	s16b					stats[MAX_STATS];
+	skills_t				skills;
+	s16b					hd;
+	s16b					exp;
+	s16b					infra;
+	birth_fn				birth;
+	calc_bonuses_fn			calc_bonuses;
+	calc_weapon_bonuses_fn	calc_weapon_bonuses;
+	get_spells_fn			get_powers;
+	gain_level_fn			gain_level; /* Only ever called when a new max level is achieved */
+	file_dump_fn			character_dump;
+	file_dump_fn			spoiler_dump;
+	flags_fn                get_flags;
 } race_t;
+
+typedef struct {
+	cptr name;
+	cptr desc;
+	s16b adj[6]; 
+	skills_t skills;
+	s16b hd;
+	s16b exp;
+} demigod_type;
 

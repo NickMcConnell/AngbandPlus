@@ -633,6 +633,30 @@ static void do_cmd_wiz_hack_chris7(void)
 	msg_print(NULL);
 }
 
+void _strip_class_name(char *buf, int idx)
+{
+	char *t;
+	cptr str = class_info[idx].title;
+
+	for (t = buf; *str; str++)
+	{
+		if (*str != '-') *t++ = *str;
+	}
+	*t = '\0';
+}
+
+void _auto_class_spoiler_name(char *buf, int idx)
+{
+	char tmp[256];
+	_strip_class_name(tmp, idx);
+	sprintf(buf, "Auto%sSpoilers", tmp);
+}
+
+void _auto_realm_spoiler_name(char *buf, int idx)
+{
+	sprintf(buf, "Auto%sSpoilers", realm_names[idx]);
+}
+
 typedef void(*_file_fn)(FILE*);
 static void _wiki_file(cptr name, _file_fn fn)
 {
@@ -657,7 +681,11 @@ static void _wiki_file(cptr name, _file_fn fn)
 		}
 	}
 
+	fprintf(fff, "#summary Automatically Generated (Do not make manual updates!)\n");
 	fn(fff);
+	fprintf(fff, "\n\n_Automatically generated for Chengband %d.%d.%d._\n",
+		    FAKE_VER_MAJOR-10, FAKE_VER_MINOR, FAKE_VER_PATCH);
+
 
 	my_fclose(fff);
 	msg_print("Successful.");
@@ -667,7 +695,7 @@ static void _wiki_file(cptr name, _file_fn fn)
 static cptr _race_spoiler_page(int i)
 {
 	if (i == RACE_DEMIGOD)
-		return "DemigodParentage";
+		return "AutoDemigodSpoilers";
 	return 0;
 }
 
@@ -676,31 +704,31 @@ static void _race_tbl1(FILE* fff)
 	int i;
 	char buf[1024];
 
-	fprintf(fff, "#summary Automatically Generated (Do not make manual updates!)\n");
 	fprintf(fff, "\n= Stats =\n\n");
 	for (i = 0; i < MAX_RACES; i++)
 	{
-		player_race *race_ptr = &race_info[i];
-		cptr title = race_ptr->title;
+		player_race race = race_info[i]; /* Copy: I'm considering adding lines for each demigod subrace ... */
+		cptr title = race.title;
 		cptr spoiler = _race_spoiler_page(i);
+
+		if (i % 5 == 0)
+			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
 
 		if (spoiler)
 			sprintf(buf, "[%s %s]", spoiler, title);
 		else
 			sprintf(buf, "%s", title);
 
-		if (i % 5 == 0)
-			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
 
 		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
 			buf, 
-			race_ptr->r_adj[0], race_ptr->r_adj[1], race_ptr->r_adj[2], 
-			race_ptr->r_adj[3], race_ptr->r_adj[4], race_ptr->r_adj[5], 
-			race_ptr->r_dis, race_ptr->r_dev, race_ptr->r_sav,
-			race_ptr->r_stl, race_ptr->r_srh, race_ptr->r_fos,
-			race_ptr->r_thn, race_ptr->r_thb, 
-			race_ptr->r_mhp, race_ptr->infra,
-			race_ptr->r_exp
+			race.r_adj[0], race.r_adj[1], race.r_adj[2], 
+			race.r_adj[3], race.r_adj[4], race.r_adj[5], 
+			race.r_dis, race.r_dev, race.r_sav,
+			race.r_stl, race.r_srh, race.r_fos,
+			race.r_thn, race.r_thb, 
+			race.r_mhp, race.infra,
+			race.r_exp
 		);
 	}
 
@@ -710,35 +738,95 @@ static void _race_tbl1(FILE* fff)
 		fprintf(fff, "*%s*\n", race_info[i].title);
 		fprintf(fff, "%s\n\n", birth_get_race_desc(i));
 	}
-
 }
 
-static cptr _class_spoiler_page(int i)
+static void _demigod_wiki(FILE* fff)
+{ 
+	int i, j;
+
+	fprintf(fff, "_Note: This is the automatically generated spoiler page. For the design page, please go [DemigodParentage here]._\n\n");
+	fprintf(fff, "\n= Stats =\n\n");
+	fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *Exp* ||\n");
+	for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
+	{
+		player_race  race = race_info[RACE_DEMIGOD];
+		for (j = 0; j < 6; j++)
+			race.r_adj[j] += demigod_info[i].adj[j];
+			
+		race.r_dev += demigod_info[i].skills.dev;
+		race.r_dis += demigod_info[i].skills.dis;
+		race.r_sav += demigod_info[i].skills.sav;
+		race.r_stl += demigod_info[i].skills.stl;
+
+		race.r_srh += demigod_info[i].skills.srh;
+		race.r_fos += demigod_info[i].skills.fos;
+		race.r_thn += demigod_info[i].skills.thn;
+		race.r_thb += demigod_info[i].skills.thb;
+			
+		race.r_exp += demigod_info[i].exp;
+		race.r_mhp += demigod_info[i].hd;
+
+		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
+			demigod_info[i].name,
+			race.r_adj[0], race.r_adj[1], race.r_adj[2], 
+			race.r_adj[3], race.r_adj[4], race.r_adj[5],
+			race.r_dis, race.r_dev, race.r_sav,
+			race.r_stl, race.r_srh, race.r_fos,
+			race.r_thn, race.r_thb, 
+			race.r_mhp, 
+			race.r_exp
+		); 
+	}
+
+	for (i = 0; i < MAX_DEMIGOD_TYPES; i++) 
+	{
+		race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, i);
+
+		if (race_ptr)
+		{
+			fprintf(fff, "\n\n= %s =\n\n", demigod_info[i].name);
+			fprintf(fff, "%s\n", demigod_info[i].desc);
+
+			if (race_ptr->spoiler_dump)
+				race_ptr->spoiler_dump(fff);
+		}
+	}
+}
+
+
+static void _personality_tbl1(FILE* fff)
+{
+	int i;
+
+	fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *Exp* ||\n");
+	for (i = 0; i < MAX_SEIKAKU; i++)
+	{
+		player_seikaku *a_ptr = &seikaku_info[i];
+
+		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
+			a_ptr->title, 
+			a_ptr->a_adj[0], a_ptr->a_adj[1], a_ptr->a_adj[2], 
+			a_ptr->a_adj[3], a_ptr->a_adj[4], a_ptr->a_adj[5], 
+			a_ptr->a_dis, a_ptr->a_dev, a_ptr->a_sav,
+			a_ptr->a_stl, a_ptr->a_srh, a_ptr->a_fos,
+			a_ptr->a_thn, a_ptr->a_thb, 
+			a_ptr->a_mhp,
+			a_ptr->a_exp
+		);
+	}
+
+	fprintf(fff, "\n= Descriptions =\n\n");
+	for (i = 0; i < MAX_SEIKAKU; i++)
+	{
+		fprintf(fff, "*%s*\n", seikaku_info[i].title);
+		fprintf(fff, "%s\n\n", birth_get_personality_desc(i));
+	}
+}
+
+static cptr _class_design_page(int i)
 {
 	switch (i)
 	{
-	case CLASS_WARRIOR: return "AutoWarriorSpoilers";
-	case CLASS_MAGE: return "AutoMageSpoilers";
-	case CLASS_PRIEST: return "AutoPriestSpoilers";
-	case CLASS_ROGUE: return "AutoRogueSpoilers";
-	case CLASS_RANGER: return "AutoRangerSpoilers";
-	case CLASS_PALADIN: return "AutoPaladinSpoilers";
-	case CLASS_WARRIOR_MAGE: return "AutoWarriorMageSpoilers";
-	case CLASS_CHAOS_WARRIOR: return "AutoChaosWarriorSpoilers";
-	case CLASS_MONK: return "AutoMonkSpoilers";
-	case CLASS_MINDCRAFTER: return "AutoMindcrafterSpoilers";
-	case CLASS_HIGH_MAGE: return "AutoHighMageSpoilers";
-	case CLASS_TOURIST: return "AutoTouristSpoilers";
-	case CLASS_RED_MAGE: return "AutoRedMageSpoilers";
-	case CLASS_SORCERER: return "AutoSorcererSpoilers";
-	
-	case CLASS_TIME_LORD: return "AutoTimeLordSpoilers";
-	case CLASS_ARCHAEOLOGIST: return "AutoArchaeologistSpoilers";
-	case CLASS_BLOOD_MAGE: return "AutoBloodMageSpoilers";
-	case CLASS_WILD_TALENT: return "AutoWildTalentSpoilers";
-
-	case CLASS_NECROMANCER: return "AutoNecromancerSpoilers";
-
 	case CLASS_MAULER: return "MaulerSpoilers";
 	case CLASS_PSION: return "PsionSpoilers";
 	case CLASS_SCOUT: return "ScoutSpoilers";
@@ -752,12 +840,18 @@ static cptr _class_spoiler_page(int i)
 	return 0;
 }
 
+static cptr _class_spoiler_page(int i)
+{
+	static char buf[256];
+	_auto_class_spoiler_name(buf, i);
+	return buf;
+}
+
 static void _class_tbl1(FILE* fff)
 {
 	int i;
 	char buf[1024];
 
-	fprintf(fff, "#summary Automatically Generated (Do not make manual updates!)\n");
 	fprintf(fff, "\n= Stats =\n\n");
 	for (i = 0; i < MAX_CLASS; i++)
 	{
@@ -807,6 +901,8 @@ static int _next_skill_desc(char *buf, int class_idx, int tv, int sv)
 			return -1;
 		}
 
+		if (tv == TV_BOW && (sv == SV_CRIMSON || sv == SV_RAILGUN)) continue;
+
 		kval = lookup_kind(tv, sv);
 		if (kval)
 		{
@@ -831,16 +927,27 @@ static void _spell_info(char *buf, cptr name, magic_type *info)
 		sprintf(buf, "%s||%d||%d||%d", name, info->slevel, info->smana, info->sfail);
 }
 
+static void _spellbook_name(char *buf, int tval, int sval)
+{
+	int kval = lookup_kind(tval, sval);
+	strip_name(buf, kval);
+}
+
 static void _class_spoilers(FILE* fff, int idx)
 {
 	int i;
 	int counters[5];
 	char bufs[5][1024];
+	cptr design = _class_design_page(idx);
 	
 	player_class *class_ptr = &class_info[idx];
 	player_magic *magic_ptr = &m_info[idx];
 
-	fprintf(fff, "#summary Automatically Generated (Do not make manual updates!)\n");
+	if (design)
+	{
+		fprintf(fff, "_Note: This is the automatically generated spoiler page. For the design page, please go [%s here]._\n\n", design);
+	}
+
 	fprintf(fff, "= %s =\n\n", class_ptr->title);
 	fprintf(fff, "== Description ==\n");
 	fprintf(fff, "%s\n\n", birth_get_class_desc(idx));
@@ -878,20 +985,21 @@ static void _class_spoilers(FILE* fff, int idx)
 
 				for (k = 0; k < max; k++)
 				{
-					int sval = k;
-					int kval = lookup_kind(tval, sval);
-					sprintf(books[k], "%s", k_name + k_info[kval].name + 1);
-					books[k][strlen(books[k]) - 1] = '\0';
+					_spellbook_name(books[k], tval, k);
 				}
 
 				if (max == 2)
 				{
-					fprintf(fff, "|| *%s* || || || || || || || ||\n", realm_names[i]);
+					char spoil[256];
+					_auto_realm_spoiler_name(spoil, i);
+					fprintf(fff, "|| *[%s %s]* || || || || || || || ||\n", spoil, realm_names[i]);
 					fprintf(fff, "|| *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* ||\n", books[0], books[1]);
 				}
 				else
 				{
-					fprintf(fff, "|| *%s* || || || || || || || || || || || || || || || ||\n", realm_names[i]);
+					char spoil[256];
+					_auto_realm_spoiler_name(spoil, i);
+					fprintf(fff, "|| *[%s %s]* || || || || || || || || || || || || || || || ||\n", spoil, realm_names[i]);
 					fprintf(fff, "|| *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* || *%s* || *Lvl* || *Mana* || *Fail* ||\n", books[0], books[1], books[2], books[3]);
 				}
 
@@ -917,9 +1025,10 @@ static void _class_spoilers(FILE* fff, int idx)
 		}
 	}
 
-	/* Hook for extra info */
 	{
 	class_t *class_ptr = get_class_t_aux(idx, 0);
+
+		/* Hook for extra info */
 		if (class_ptr && class_ptr->spoiler_dump)
 			class_ptr->spoiler_dump(fff);
 	}
@@ -949,54 +1058,97 @@ static void _class_spoilers(FILE* fff, int idx)
 	}
 }
 
-static void _warrior_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_WARRIOR); }
-static void _mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_MAGE); }
-static void _priest_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_PRIEST); }
-static void _rogue_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_ROGUE); }
-static void _ranger_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_RANGER); }
-static void _paladin_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_PALADIN); }
-static void _warrior_mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_WARRIOR_MAGE); }
-static void _chaos_warrior_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_CHAOS_WARRIOR); }
-static void _monk_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_MONK); }
-static void _mindcrafter_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_MINDCRAFTER); }
-static void _high_mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_HIGH_MAGE); }
-static void _tourist_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_TOURIST); }
-static void _red_mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_RED_MAGE); }
-static void _sorcerer_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_SORCERER); }
+static int _class_idx_hack = 0;
+static void _class_wiki_imp(FILE* fff) { _class_spoilers(fff, _class_idx_hack); }
+static void _class_wiki_file(int idx)
+{
+	char buf[256];
+	char file_name[256];
+	_auto_class_spoiler_name(buf, idx);
+	sprintf(file_name, "%s.wiki", buf);
+	_class_idx_hack = idx;
+	_wiki_file(file_name, _class_wiki_imp);
+}
 
-static void _time_lord_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_TIME_LORD); }
-static void _archaeologist_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_ARCHAEOLOGIST); }
-static void _blood_mage_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_BLOOD_MAGE); }
-static void _wild_talent_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_WILD_TALENT); }
+static void _spell_tbl1(FILE* fff)
+{
+	int i;
+	char buf[256];
+	for (i = 1; i <= MAX_MAGIC; i++)
+	{
+		_auto_realm_spoiler_name(buf, i);
+		fprintf(fff, "*[%s %s]*\n", buf, realm_names[i]);
+		fprintf(fff, "%s\n\n", birth_get_realm_desc(i));
+	}
+}
 
-static void _necromancer_spoilers(FILE* fff) { _class_spoilers(fff, CLASS_NECROMANCER); }
+static void _realm_spoilers(FILE* fff, int idx)
+{
+	int i, j, k;
+	int tval = TV_LIFE_BOOK + (idx - 1);
+
+	fprintf(fff, "= *%s* =\n", realm_names[idx]);
+	for (i = 0; i < 4; i++)
+	{
+		char book_name[256];
+		char spell_name[256];
+		char spell_desc[1024];
+
+		_spellbook_name(book_name, tval, i);
+
+		fprintf(fff, "\n== *%s* ==\n", book_name);
+		for (j = 0; j < 8; j++)
+		{
+			cptr val;
+			k = 8*i + j;
+
+			/* do_spell() is old school. It uses a cptr to encode all the info.
+			   In case a verb is not handled, it returns "". BTW, NULL means
+			   that casting was canceled ... Also, the return value often
+			   (sometimes?) points to a global buffer so you need to know
+			   when this happens and act accordingly. */
+			val = do_spell(idx, k, SPELL_SPOIL_NAME);
+			if (strlen(val) == 0)
+				val = do_spell(idx, k, SPELL_NAME);
+			sprintf(spell_name, "`%s`", val);
+
+			val = do_spell(idx, k, SPELL_SPOIL_DESC);
+			if (strlen(val) == 0)
+				val = do_spell(idx, k, SPELL_DESC);
+			sprintf(spell_desc, "`%s`", val);
+
+			fprintf(fff, "  * %s: %s\n", spell_name, spell_desc);
+		}
+	}
+}
+
+static int _realm_idx_hack = 0;
+static void _realm_wiki_imp(FILE* fff) { _realm_spoilers(fff, _realm_idx_hack); }
+static void _realm_wiki_file(int idx)
+{
+	char buf[256];
+	char file_name[256];
+	_auto_realm_spoiler_name(buf, idx);
+	sprintf(file_name, "%s.wiki", buf);
+	_realm_idx_hack = idx;
+	_wiki_file(file_name, _realm_wiki_imp);
+}
 
 static void do_cmd_wiz_hack_chris8(void)
 {
+	int i;
 	_wiki_file("AutoRacesSpoilers.wiki", _race_tbl1);
+	_wiki_file("AutoDemigodSpoilers.wiki", _demigod_wiki);
+
 	_wiki_file("AutoClassesSpoilers.wiki", _class_tbl1);
+	_wiki_file("AutoPersonalitiesSpoilers.wiki", _personality_tbl1);
+	_wiki_file("AutoSpellsSpoilers.wiki", _spell_tbl1);
 
-	_wiki_file("AutoWarriorSpoilers.wiki", _warrior_spoilers);
-	_wiki_file("AutoMageSpoilers.wiki", _mage_spoilers);
-	_wiki_file("AutoPriestSpoilers.wiki", _priest_spoilers);
-	_wiki_file("AutoRogueSpoilers.wiki", _rogue_spoilers);
-	_wiki_file("AutoRangerSpoilers.wiki", _ranger_spoilers);
-	_wiki_file("AutoPaladinSpoilers.wiki", _paladin_spoilers);
-	_wiki_file("AutoWarriorMageSpoilers.wiki", _warrior_mage_spoilers);
-	_wiki_file("AutoChaosWarriorSpoilers.wiki", _chaos_warrior_spoilers);
-	_wiki_file("AutoMonkSpoilers.wiki", _monk_spoilers);
-	_wiki_file("AutoMindcrafterSpoilers.wiki", _mindcrafter_spoilers);
-	_wiki_file("AutoHighMageSpoilers.wiki", _high_mage_spoilers);
-	_wiki_file("AutoTouristSpoilers.wiki", _tourist_spoilers);
-	_wiki_file("AutoRedMageSpoilers.wiki", _red_mage_spoilers);
-	_wiki_file("AutoSorcererSpoilers.wiki", _sorcerer_spoilers);
+	for (i = 0; i < MAX_CLASS; i++)
+		_class_wiki_file(i);
 
-	_wiki_file("AutoTimeLordSpoilers.wiki", _time_lord_spoilers);
-	_wiki_file("AutoArchaeologistSpoilers.wiki", _archaeologist_spoilers);
-	_wiki_file("AutoBloodMageSpoilers.wiki", _blood_mage_spoilers);
-	_wiki_file("AutoWildTalentSpoilers.wiki", _wild_talent_spoilers);
-
-	_wiki_file("AutoNecromancerSpoilers.wiki", _necromancer_spoilers);
+	for (i = 1; i <= MAX_MAGIC; i++)
+		_realm_wiki_file(i);
 }
 
 #ifdef MONSTER_HORDES
@@ -1548,7 +1700,7 @@ void strip_name(char *buf, int k_idx)
 
 
 	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
+	while ((*str == ' ') || (*str == '&') || (*str == '[')) str++;
 
 	/* Copy useful chars */
 	for (t = buf; *str; str++)
@@ -1556,7 +1708,7 @@ void strip_name(char *buf, int k_idx)
 #ifdef JP
 		if (iskanji(*str)) {*t++ = *str++; *t++ = *str; continue;}
 #endif
-		if (*str != '~') *t++ = *str;
+		if (*str != '~' && *str != ']') *t++ = *str;
 	}
 
 	/* Terminate the new name */

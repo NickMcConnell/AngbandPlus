@@ -3955,83 +3955,96 @@ demigod_type demigod_info[MAX_DEMIGOD_TYPES] =
 {
 	{"Minor God", 
 		"Fathered by a minor god, you gain no special powers.",
-		0,
-		{0, 0, 0, 0, 0, 0}},
+		{0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 0},
 	{"Zeus", 
 		"Zeus, King of the gods and ruler of Mount Olympus, god of the Sky "
 		"and Thunder, and nominal husband of Hera.  You inherit elemental "
 		"protection and increased stature.",
-		120,
-		{1, 1, 1, 1, 1, 1}},
+		{1, 1, 1, 1, 1, 1},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 120},
 	{"Poseidon", 
 		"Poseidon, Brother of Zeus, Lord of the Seas and Storm.  You inherit "
 		"elemental protection and corrosive attacks.",
-		120,
-		{1, 0, 0, 1, 0, 0}},
+		{1, 0, 0, 1, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 120},
 	{"Hades", 
 		"Hades, Ruler of the Underworld.  You gain resistance to nether forces and "
 		"increased fortitude.",
-		120,
-		{0, 0, 0, 0, 3, -2}},
+		{0, 0, 0, 0, 3, -2},
+		{0, 0, 15, 0, 0, 0, 0, 0},
+		3, 120},
 	{"Athena", 
 		"Athena is the great goddess of wisdom and the protector of Athens. She was "
 		"born of Zeus and the Titan Metis, and her cunning far surpasses that of the "
 		"other deities.  You inherit great clarity of thought and magic.",
-		100,
-		{0, 2, 0, 0, 0, 0}},
+		{0, 2, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 100},
 	{"Ares", 
 		"Ares is the bold son of Zeus and Hera, whose very name is feared and respected "
 		"by warriors and citizens alike. His legendary combat prowess exceeds that of "
 		"Zeus and Poseidon, but he is less skilled in wiles than the other Olympians.  "
 		"You inherit exceptional bonuses to combat.",
-		100,
-		{2, 0, 0, 0, 0, 0}},
+		{2, 0, 0, 0, 0, 0},
+		{0, 0, -10, -2, 0, 0, 0, 0},
+		0, 100},
 	{"Hermes", 
 		"Hermes, the Messenger, is the extremely cunning diplomat used by the Olympians "
 		"to negotiate truces. With his Winged Sandals and his powerful magic, there "
 		"is no place barred from him, and there is no way to detain him.  You inherit "
 		"great powers of motion.",
-		100,
-		{0, 0, 0, 0, 0, 0}},
+		{0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 5, 0, 0, 0, 0},
+		0, 100},
 	{"Apollo", 
 		"Apollo has been variously recognized as a god of light and the sun, "
 		"truth and prophecy, medicine, healing, plague, music, poetry, arts, "
 		"archery, and more.  You inherit powers of illumination.",
-		80,
-		{0, 0, 0, 0, 0, 0}},
+		{0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 80},
 	{"Artemis", 
 		"Artemis was often described as the daughter of Zeus and Leto, and the "
 		"twin sister of Apollo. She was the Hellenic goddess of the hunt, wild "
 		"animals, wilderness, childbirth, virginity and young girls, bringing "
 		"and relieving disease in women; she often was depicted as a huntress "
 		"carrying a bow and arrows.  You inherit powers of archery.",
-		80,
-		{0, 0, 0, 2, 0, 0}}, 
+		{0, 0, 0, 2, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 15},
+		0, 80}, 
 	{"Hephaestus", 
 		"Hephaestus was the god of technology, blacksmiths, craftsmen, artisans, "
 		"sculptors, metals, metallurgy, fire and volcanoes. Like other mythic smiths "
 		"but unlike most other gods, Hephaestus was lame, which gave him a "
 		"grotesque appearance in Greek eyes. He served as the blacksmith of the "
 		"gods.  You inherit powers of enchantment and protection.",
-		80,
-		{0, 0, 0, 0, 0, 0}},
+		{0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 80},
 	{"Hera", 
 		"Hera was the wife and one of three sisters of Zeus.  Her chief function "
 		"was as the goddess of women and marriage.  You inherit great clarity of "
 		"mind and capacity for magic.",
-		60,
-		{0, 0, 2, 0, 0, 0}},
+		{0, 0, 2, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 60},
 	{"Demeter", 
 		"Demeter is the goddess of the harvest, who presided over grains, the "
 		"fertility of the earth, and the seasons.  You gain powers of regeneration, "
 		"healing, and temperance.",
-		60,
-		{0, 0, 0, 0, 0, 0}},
+		{0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 60},
 	{"Aphrodite", 
 		"Aphrodite is the Greek goddess of love, beauty, pleasure, and procreation.  "
 		"You inherit her sex appeal!",
-		60,
-		{0, 0, 0, 0, 0, 2}},
+		{0, 0, 0, 0, 0, 2},
+		{0, 0, 0, 0, 0, 0, 0, 0},
+		0, 60},
 };
 
 /* Warlock Pacts */
@@ -6008,6 +6021,7 @@ cptr color_names[16] =
 
 /*
  * Abbreviations of healthy stats
+ * Really? And what about not displaying for the character sheet? Sigh ...
  */
 cptr stat_names[6] =
 {
@@ -6018,6 +6032,17 @@ cptr stat_names[6] =
 #endif
 
 };
+
+cptr stat_name_true[6] =
+{
+	"Strength", "Intelligence", "Wisdom", "Dexterity", "Constitution", "Charisma"
+};
+
+cptr stat_abbrev_true[6] =
+{
+	"Str", "Int", "Wis", "Dex", "Con", "Chr"
+};
+
 
 /*
  * Abbreviations of damaged stats

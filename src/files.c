@@ -2357,10 +2357,18 @@ static void display_player_various(void)
 static void player_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	int i;
+	class_t *class_ptr = get_class_t();
+	race_t *race_ptr = get_race_t();
 
 	/* Clear */
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
+
+	if (class_ptr != NULL && class_ptr->get_flags)
+		class_ptr->get_flags(flgs);
+
+	if (race_ptr != NULL && race_ptr->get_flags)
+		race_ptr->get_flags(flgs);
 
 	/* Classes */
 	switch (p_ptr->pclass)
@@ -2626,57 +2634,6 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	{
 	switch (p_ptr->prace)
 	{
-	case RACE_DEMIGOD:
-		switch (p_ptr->psubrace)
-		{
-		case DEMIGOD_ZEUS:
-			add_flag(flgs, TR_RES_ELEC);
-			add_flag(flgs, TR_SH_ELEC);
-			add_flag(flgs, TR_LEVITATION);
-			break;
-		case DEMIGOD_POSEIDON:
-			add_flag(flgs, TR_RES_ACID);
-			add_flag(flgs, TR_RES_COLD);
-			add_flag(flgs, TR_RES_ELEC);
-			break;
-		case DEMIGOD_HADES:
-			add_flag(flgs, TR_RES_NETHER);
-			add_flag(flgs, TR_HOLD_LIFE);
-			add_flag(flgs, TR_SUST_CON);
-			add_flag(flgs, TR_FREE_ACT);
-			break;
-		case DEMIGOD_HEPHAESTUS:
-			add_flag(flgs, TR_RES_DISEN);
-			break;
-		case DEMIGOD_ATHENA:
-			add_flag(flgs, TR_SUST_INT);
-			break;
-		case DEMIGOD_ARES:
-			add_flag(flgs, TR_SUST_STR);
-			add_flag(flgs, TR_STEALTH);
-			break;
-		case DEMIGOD_HERMES:
-			add_flag(flgs, TR_SPEED);
-			add_flag(flgs, TR_STEALTH);
-			break;
-		case DEMIGOD_APOLLO:
-			add_flag(flgs, TR_RES_BLIND);
-			add_flag(flgs, TR_LITE);
-			break;
-		case DEMIGOD_ARTEMIS:
-			add_flag(flgs, TR_SUST_DEX);
-			break;
-		case DEMIGOD_HERA:
-			break;
-		case DEMIGOD_DEMETER:
-			add_flag(flgs, TR_REGEN);
-			add_flag(flgs, TR_SLOW_DIGEST);
-			break;
-		case DEMIGOD_APHRODITE:
-			add_flag(flgs, TR_SUST_CHR);
-			break;
-		}
-		break;
 	case RACE_TONBERRY:
 		add_flag(flgs, TR_SUST_STR);
 		add_flag(flgs, TR_SUST_CON);

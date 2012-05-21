@@ -617,7 +617,6 @@ static caster_info * _caster_info(void)
 	return &me;
 }
 
-static cptr _stat_names[6] = { "Str", "Int", "Wis", "Dex", "Con", "Chr" };
 static void _spoiler_dump(FILE* fff)
 {
 	int i, j, lv = 1;
@@ -629,18 +628,24 @@ static void _spoiler_dump(FILE* fff)
 	fprintf(fff, "The Wild-Talent gains one spell randomly from each group at the indicated level. Potions of New Life and Polymorph as well as Chaos attacks can scramble the Wild-Talent's powers.\n\n");
 	for (i = 0; i < _MAX_TALENTS; i++)
 	{
-		fprintf(fff, "|| *L%d Power* || *Stat* || *Lvl* || *Mana* || *Fail* ||\n", lv);
+		fprintf(fff, "|| *L%d Power* || *Stat* || *Lvl* || *Mana* || *Fail* || *Description* ||\n", lv);
 
 		for (j = 0; j < _MAX_TALENTS_PER_GROUP; j++)
 		{
 			talent_t *talent_ptr = &_talents[i][j];
 
 			if (talent_ptr->stat == -1) break;
+
 			talent_ptr->spell.fn(SPELL_SPOIL_NAME, &vn);
 			if (var_is_null(&vn)) talent_ptr->spell.fn(SPELL_NAME, &vn);
-			fprintf(fff, "||%s||%s||%d||%d||%d||\n", 
-				var_get_string(&vn), _stat_names[talent_ptr->stat], 
-				talent_ptr->spell.level, talent_ptr->spell.cost, talent_ptr->spell.fail
+
+			talent_ptr->spell.fn(SPELL_SPOIL_DESC, &vd);
+			if (var_is_null(&vd)) talent_ptr->spell.fn(SPELL_DESC, &vd);
+
+			fprintf(fff, "||%s||%s||%d||%d||%d||%s||\n", 
+				var_get_string(&vn), stat_abbrev_true[talent_ptr->stat], 
+				talent_ptr->spell.level, talent_ptr->spell.cost, talent_ptr->spell.fail,
+				var_get_string(&vd)
 			);
 		}
 		lv += 2;

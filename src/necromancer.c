@@ -53,7 +53,7 @@ class_t *necromancer_get_class_t(void)
 		me.stats[A_DEX] =  1;
 		me.stats[A_CON] = -1;
 		me.stats[A_CHR] =  1;
-		me.mhp = 1;
+		me.hd = 1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.calc_bonuses = _calc_bonuses;

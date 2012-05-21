@@ -212,9 +212,7 @@ static void _whirlwind_attack_spell(int cmd, variant *res)
  * Spell Table and Exports
  ****************************************************************/
 
-#define MAX_SCOUT_SPELLS	12
-
-static spell_info _spells[MAX_SCOUT_SPELLS] = 
+static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
     {  5,  2, 30, strafing_spell},
@@ -222,45 +220,26 @@ static spell_info _spells[MAX_SCOUT_SPELLS] =
 	{ 13,  8, 40, stone_to_mud_spell},
 	{ 17, 20, 50, magic_mapping_spell},
 	{ 21, 30, 60, _dark_stalker_spell},
-	
 	{ 25, 18, 50, _whirlwind_attack_spell},
 	{ 29, 25, 60, teleport_spell},
 	{ 33, 40, 55, _nimble_dodge_spell},
 	{ 37, 24, 45, _cavern_creation_spell},
 	{ 41, 70, 50, _stealthy_snipe_spell},
-
 	{ 45, 60, 70, clairvoyance_spell},
 	{ 49, 42, 65, _greater_whirlwind_attack_spell},
+	{ -1, -1, -1, NULL}
 };
 
 static int _get_spells(spell_info* spells, int max)
 {
-	int i;
 	int ct = 0;
-	int stat_idx = p_ptr->stat_ind[A_WIS];
 
 	if (heavy_armor())
 	{
 		msg_print("Your talents are disrupted!");
 		return 0;
-	}
-	
-	for (i = 0; i < MAX_SCOUT_SPELLS; i++)
-	{
-		spell_info *base = &_spells[i];
-		if (ct >= max) break;
-		if (base->level <= p_ptr->lev)
-		{
-			spell_info* current = &spells[ct];
-			current->fn = base->fn;
-			current->level = base->level;
-			current->cost = base->cost;
-
-			current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);			
-			ct++;
-		}
-	}
-
+	}	
+	ct = get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_WIS]);
 	if (ct == 0)
 		msg_print("You have no powers yet! Why not go kill stuff?");
 
@@ -359,6 +338,20 @@ static void _move_player(void)
 	p_ptr->update |= PU_BONUS;
 }
 
+static void _spoiler_dump(FILE* fff)
+{
+	spoil_spells_aux(fff, _spells);
+
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "|| *Lvl* || *Ability* || *Description* ||\n");
+	fprintf(fff, "|| 1 || Unfettered Body || `+((X+1)*(X+1)-41) AC` || \n");
+	fprintf(fff, "|| 15 || Unfettered Mind || `+((X+1)*(X+1)/2-20) saving throws` ||\n");
+	fprintf(fff, "|| 30 || Ambush || First strike against sleeping opponent does triple damage if it hits. ||\n");
+	fprintf(fff, "|| 35 || Telepathy ||  ||\n");
+	fprintf(fff, "|| 50 || Peerless Stealth || The Scout never aggravates, even if his equipment normally would cause him to aggravate (Stealth is instead halved, just like a Shadow Fairy). Even Sexy personality characters can have their aggravation canceled in this way. ||\n");
+	fprintf(fff, "\n_Where X is the number of open squares adjacent to the player._\n");
+}
+
 class_t *scout_get_class_t(void)
 {
 	static class_t me = {0};
@@ -389,6 +382,7 @@ class_t *scout_get_class_t(void)
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		me.move_player = _move_player;
+		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

@@ -1907,7 +1907,7 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "Samurai, masters of the art of the blade, are the next strongest fighters after Warriors.  Their spellpoints do not depend on level, but depend solely on wisdom, and they can use the technique Concentration to temporarily increase SP beyond its usual maximum value.  Samurai are not good at most other skills, and many magical devices may be too difficult for them to use.  Wisdom determines a Samurai's ability to use the special combat techniques available to him.",
 
-"A ForceTrainer is a master of the spiritual Force.  They prefer fighting with neither weapon nor armor.  They are not as good fighters as are Monks, but they can use both magic and the spiritual Force.  Wielding weapons or wearing heavy armor disturbs use of the Force.  Wisdom is a ForceTrainer's primary stat.",
+"A Force-Trainer is a master of the spiritual Force.  They prefer fighting with neither weapon nor armor.  They are not as good fighters as are Monks, but they can use both magic and the spiritual Force.  Wielding weapons or wearing heavy armor disturbs use of the Force.  Wisdom is a Force-Trainer's primary stat.",
 
 "A Blue-Mage is a spell caster that must live by his wits, as he cannot hope to simply hack his way through the dungeon like a warrior.  A major difference between the Mage and the Blue-Mage is the method of learning spells: Blue-Mages may learn spells from monsters by activating his Learning ability.  A Blue-Mage's prime statistic is Intelligence as this determines his spell casting ability. ",
 
@@ -2051,7 +2051,7 @@ static cptr seikaku_jouhou[MAX_SEIKAKU] =
 
 "A \"Patient\" person does things carefully.  Patient people have high constitution, and high resilience, but poor abilities in most other skills.  Also it directly influences your hit-points.",
 
-"\"munchkin\" is a personality for beginners.  It raises all your stats and skills.  With this personality, you can win the game easily, but gain little honor in doing so."
+"\"Munchkin\" is a personality for beginners.  It raises all your stats and skills.  With this personality, you can win the game easily, but gain little honor in doing so."
 #endif
 };
 
@@ -3377,8 +3377,8 @@ static void get_extra(bool roll_hitdie)
 	else
 		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
 
-	if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_HADES)
-		p_ptr->hitdie += 3;
+	if (p_ptr->prace == RACE_DEMIGOD)
+		p_ptr->hitdie += demigod_info[p_ptr->psubrace].hd;
 
 	/* Roll for hit point unless quick-start */
 	if (roll_hitdie) do_cmd_rerate_aux();
@@ -6389,6 +6389,16 @@ cptr birth_get_race_desc(int i)
 cptr birth_get_class_desc(int i)
 {
 	return class_jouhou[i];
+}
+
+cptr birth_get_personality_desc(int i)
+{
+	return seikaku_jouhou[i];
+}
+
+cptr birth_get_realm_desc(int i)
+{
+	return realm_jouhou[i-1];
 }
 
 /*

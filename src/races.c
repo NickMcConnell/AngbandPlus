@@ -1,110 +1,5 @@
 #include "angband.h"
 
-void _kiss_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Kiss", ""));
-		break;
-	case SPELL_DESC:
-		var_set_string(res, T("Attempt to charm an adjacent monster.", ""));
-		break;
-	case SPELL_COST_EXTRA:
-		var_set_int(res, p_ptr->lev * 2);
-		break;
-	case SPELL_CAST:
-	{
-		int y, x, dir = 0, m_idx;
-		var_set_bool(res, FALSE);
-		if (!get_rep_dir2(&dir)) return;
-		if (dir == 5) return;
-
-		y = py + ddy[dir];
-		x = px + ddx[dir];
-
-		m_idx = cave[y][x].m_idx;
-		if (m_idx)
-		{
-			monster_type *m_ptr = &m_list[m_idx];
-			char desc[MAX_NLEN];
-			monster_desc(desc, m_ptr, 0);
-			if (mon_save_p(m_ptr->r_idx, A_CHR))
-			{
-				set_monster_csleep(m_idx, 0);
-				if (is_hostile(m_ptr))
-				{
-					switch (randint1(10))
-					{
-					case 1:
-						msg_format("%^s says 'Impudent Strumpet!'", desc);
-						break;
-					case 2:
-						msg_format("%^s says 'Ewwww! Gross!!'", desc);
-						break;
-					case 3:
-						msg_format("%^s says 'You ain't my type!'", desc);
-						break;
-					default:
-						msg_format("%^s resists your charms.", desc);
-					}
-				}
-				else
-					msg_format("%^s ignores you.", desc);
-			}
-			else
-			{
-				if (is_pet(m_ptr))
-					msg_format("%^s slobbers on you affectionately.", desc);
-				else if (is_friendly(m_ptr))
-				{
-					set_pet(m_ptr);
-					msg_format("%^s is charmed!", desc);
-				}
-				else
-				{
-					set_friendly(m_ptr);
-					msg_format("%^s suddenly becomes friendly.", desc);
-				}
-			}
-			var_set_bool(res, TRUE);
-		}
-		else
-		{
-			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
-		}
-		break;
-	}
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-void _demeter_clw_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Cure Wounds", ""));
-		break;
-	case SPELL_DESC:
-		var_set_string(res, T("Heals cut and HP a little.", ""));
-		break;
-	case SPELL_INFO:
-		var_set_string(res, info_damage(p_ptr->lev/7 + 1, 10, 0));
-		break;
-	case SPELL_CAST:
-		hp_player(damroll(p_ptr->lev/7 + 1, 10));
-		set_cut(p_ptr->cut - 10, TRUE);
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
 static void _devour_flesh_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -128,273 +23,28 @@ static void _devour_flesh_spell(int cmd, variant *res)
 	}
 }
 
-void _shine_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Shine", ""));
-		break;
-	case SPELL_DESC:
-		var_set_string(res, T("Generates a large ball of sunlight.", ""));
-		break;
-	case SPELL_INFO:
-		var_set_string(res, info_damage(0, 0, p_ptr->lev * 6));
-		break;
-	case SPELL_CAST:
-		fire_ball(GF_LITE, 0, p_ptr->lev * 6 * 2, 5);
-		var_set_bool(res, TRUE);
-		break;
-	case SPELL_COST_EXTRA:
-		var_set_int(res, p_ptr->lev);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-/****************************************************************
- * Demigod
- ****************************************************************/
-
-void _demigod_gain_level(int new_level)
-{
-	if (new_level >= 20)
-	{
-		if (p_ptr->demigod_power[0] < 0)
-		{
-			int idx = mut_gain_choice(mut_human_pred);
-			mut_lock(idx);
-			p_ptr->demigod_power[0] = idx;
-		}
-	}
-
-	if (new_level >= 40)
-	{
-		if (p_ptr->demigod_power[1] < 0)
-		{
-			int idx = mut_gain_choice(mut_human_pred);
-			mut_lock(idx);
-			p_ptr->demigod_power[1] = idx;
-		}
-	}
-}
-
-void _demigod_calc_bonuses(void)
-{
-	int i;
-
-	if (p_ptr->mimic_form)
-		return;
-
-	for (i = 0; i < 6; i++)
-		p_ptr->stat_add[i] += demigod_info[p_ptr->psubrace].adj[i];
-
-	switch (p_ptr->psubrace)
-	{
-	case DEMIGOD_ZEUS:
-		p_ptr->resist_elec = TRUE;
-		p_ptr->sh_elec = TRUE;
-		p_ptr->levitation = TRUE;
-		break;
-	case DEMIGOD_POSEIDON:
-		p_ptr->resist_acid = TRUE;
-		p_ptr->resist_cold = TRUE;
-		p_ptr->resist_elec = TRUE;
-		/*p_ptr->resist_stun = TRUE; Handled as a hack elsewhere ... */
-		break;
-	case DEMIGOD_HADES:
-		p_ptr->resist_neth = TRUE;
-		p_ptr->hold_life = TRUE;
-		p_ptr->sustain_con = TRUE;
-		p_ptr->skill_sav += 15;
-		p_ptr->free_act = TRUE;
-		break;
-	case DEMIGOD_ATHENA:
-		p_ptr->sustain_int = TRUE;
-		break;
-	case DEMIGOD_ARES:
-	{
-		int dam = 5 + p_ptr->lev/7;
-
-		p_ptr->sustain_str = TRUE;
-		p_ptr->to_a += 10 + p_ptr->lev/5;
-		p_ptr->dis_to_a += 10 + p_ptr->lev/5;
-		p_ptr->weapon_info[0].to_d += dam;
-		p_ptr->weapon_info[1].to_d += dam;
-		p_ptr->to_d_m  += dam;
-		p_ptr->weapon_info[0].dis_to_d += dam;
-		p_ptr->weapon_info[1].dis_to_d += dam;
-		p_ptr->skill_sav -= 10;
-		p_ptr->skill_stl -= 2;
-		break;
-	}
-	case DEMIGOD_HEPHAESTUS:
-		p_ptr->resist_disen = TRUE;
-		break;
-	case DEMIGOD_HERMES:
-		p_ptr->skill_stl += 5;
-		p_ptr->pspeed += 2;
-		break;
-	case DEMIGOD_APOLLO:
-		p_ptr->resist_lite = TRUE;
-		p_ptr->resist_blind = TRUE;
-		/* cf calc_torch in xtra1.c for the 'extra light' */
-		break;
-	case DEMIGOD_ARTEMIS:
-		p_ptr->to_d_b += 5 + p_ptr->lev/7;
-		p_ptr->skill_thb += 15;
-		p_ptr->sustain_dex = TRUE;
-		break;
-	case DEMIGOD_HERA:
-		p_ptr->spell_cap += 3;
-		break;
-	case DEMIGOD_DEMETER:
-		p_ptr->regenerate = TRUE;
-		p_ptr->slow_digest = TRUE;
-		p_ptr->resist_time = TRUE;
-		break;
-	case DEMIGOD_APHRODITE:
-		p_ptr->sustain_chr = TRUE;
-		break;
-	}
-}
-
-int _demigod_get_powers(spell_info* spells, int max)
-{
-	int ct = 0;
-
-	if (p_ptr->mimic_form)
-		return 0;
-
-	switch (p_ptr->psubrace)
-	{
-	case DEMIGOD_APOLLO:
-	{
-		spell_info *spell = &spells[ct++];
-		spell->level = 1;
-		spell->cost = 10;
-		spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_CHR]);
-		spell->fn = _shine_spell;
-
-		spell = &spells[ct++];
-		spell->level = 5;
-		spell->cost = 3;
-		spell->fail = calculate_fail_rate(5, 50, p_ptr->stat_ind[A_INT]);
-		spell->fn = light_area_spell;
-
-		spell = &spells[ct++];
-		spell->level = 12;
-		spell->cost = 7;
-		spell->fail = calculate_fail_rate(12, 60, p_ptr->stat_ind[A_WIS]);
-		spell->fn = ray_of_sunlight_spell;
-
-		break;
-	}
-	case DEMIGOD_HERA:
-	{
-		spell_info *spell = &spells[ct++];
-		spell->level = 15;
-		spell->cost = 0;
-		spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_WIS]);
-		spell->fn = clear_mind_spell;
-		break;
-	}
-	case DEMIGOD_DEMETER:
-	{
-		spell_info *spell = &spells[ct++];
-		spell->level = 5;
-		spell->cost = 0;
-		spell->fail = calculate_fail_rate(spell->level, 60, p_ptr->stat_ind[A_WIS]);
-		spell->fn = _demeter_clw_spell;
-		break;
-	}
-	case DEMIGOD_ARES:
-	{
-		spell_info *spell = &spells[ct++];
-		spell->level = 10;
-		spell->cost = 10;
-		spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_STR]);
-		spell->fn = berserk_spell;
-		break;
-	}
-	case DEMIGOD_APHRODITE:
-	{
-		spell_info *spell = &spells[ct++];
-		spell->level = 1;
-		spell->cost = 10;
-		spell->fail = calculate_fail_rate(spell->level, 50, p_ptr->stat_ind[A_CHR]);
-		spell->fn = _kiss_spell;
-		break;
-	}
-	}
-	return ct;
-}
-race_t *demigod_get_race_t(void)
-{
-	static race_t me = {0};
-	static bool init = FALSE;
-
-	if (!init)
-	{
-		/* TODO */
-		me.gain_level = _demigod_gain_level;
-		me.calc_bonuses = _demigod_calc_bonuses;
-		me.get_powers = _demigod_get_powers;
-		init = TRUE;
-	}
-
-	return &me;
-}
-
-/****************************************************************
- * Human
- ****************************************************************/
-
-void _human_gain_level(int new_level)
-{
-	if (new_level >= 30)
-	{
-		if (p_ptr->demigod_power[0] < 0)
-		{
-			int idx = mut_gain_choice(mut_human_pred);
-			mut_lock(idx);
-			p_ptr->demigod_power[0] = idx;
-		}
-	}
-}
-
-race_t *human_get_race_t(void)
-{
-	static race_t me = {0};
-	static bool init = FALSE;
-
-	if (!init)
-	{
-		/* TODO */
-		me.gain_level = _human_gain_level;
-		init = TRUE;
-	}
-
-	return &me;
-}
 
 /****************************************************************
  * Public Entrypoints
  ****************************************************************/
-race_t *get_race_t_aux(int prace)
+race_t *get_race_t_aux(int prace, int psubrace)
 {
 	race_t *result = NULL;
 
-	switch (prace)
+	if (p_ptr->mimic_form)
 	{
-	case RACE_HUMAN:
-		result = human_get_race_t();
-		break;
-	case RACE_DEMIGOD:
-		result = demigod_get_race_t();
-		break;
+	}
+	else
+	{
+		switch (prace)
+		{
+		case RACE_HUMAN:
+			result = human_get_race_t();
+			break;
+		case RACE_DEMIGOD:
+			result = demigod_get_race_t(psubrace);
+			break;
+		}
 	}
 
 	return result;
@@ -402,7 +52,7 @@ race_t *get_race_t_aux(int prace)
 
 race_t *get_race_t(void)
 {
-	return get_race_t_aux(p_ptr->prace);
+	return get_race_t_aux(p_ptr->prace, p_ptr->psubrace);
 }
 
 /* HACK: This should be handled by the race_t entry point ...

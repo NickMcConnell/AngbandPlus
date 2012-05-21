@@ -6342,8 +6342,8 @@ void change_race(int new_race, cptr effect_msg)
 	else
 		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
 
-	if (p_ptr->prace == RACE_DEMIGOD && p_ptr->psubrace == DEMIGOD_HADES)
-		p_ptr->hitdie += 3;
+	if (p_ptr->prace == RACE_DEMIGOD)
+		p_ptr->hitdie += demigod_info[p_ptr->psubrace].hd;
 
 	do_cmd_rerate(FALSE);
 

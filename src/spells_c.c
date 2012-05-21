@@ -149,6 +149,9 @@ void clear_mind_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("", ""));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Player regains 3 + L/20 sp. This won't work if the player has any pets.");
+		break;
 	case SPELL_CAST:
 		var_set_bool(res, FALSE);
 		if (total_friends)

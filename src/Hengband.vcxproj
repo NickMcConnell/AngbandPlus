@@ -101,6 +101,7 @@
     <ClCompile Include="cmd4.c" />
     <ClCompile Include="cmd5.c" />
     <ClCompile Include="cmd6.c" />
+    <ClCompile Include="demigod.c" />
     <ClCompile Include="do-spell.c" />
     <ClCompile Include="duelist.c" />
     <ClCompile Include="dungeon.c" />
@@ -144,6 +145,7 @@
     <ClCompile Include="obj_kind.c" />
     <ClCompile Include="psion.c" />
     <ClCompile Include="races.c" />
+    <ClCompile Include="races_a.c" />
     <ClCompile Include="racial.c" />
     <ClCompile Include="rage-mage.c" />
     <ClCompile Include="readdib.c" />

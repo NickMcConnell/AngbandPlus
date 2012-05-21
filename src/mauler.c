@@ -1,24 +1,5 @@
 #include "angband.h"
 
-static void _foo_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, "Foo");
-		break;
-	case SPELL_DESC:
-		var_set_string(res, "Perform a Bar.");
-		break;
-	case SPELL_CAST:
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
 /****************************************************************
  * Helpers
  ****************************************************************/
@@ -247,8 +228,15 @@ static void _smash_ground_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "Create an earthquake by smashing your weapon powerfully on the ground.");
 		break;
+	case SPELL_CAST:
+	{
+		int w = inventory[INVEN_RARM].weight;
+		earthquake(py, px, w/40);
+		var_set_bool(res, TRUE);
+		break;
+	}
 	default:
-		earthquake_spell(cmd, res);
+		default_spell(cmd, res);
 		break;
 	}
 }
@@ -332,9 +320,7 @@ static void _weapon_as_shield_spell(int cmd, variant *res)
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
-#define MAX_MAULER_SPELLS	9
-
-static spell_info _spells[MAX_MAULER_SPELLS] = 
+static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
     {  5,  5, 40, _smash_wall_spell},
@@ -342,41 +328,25 @@ static spell_info _spells[MAX_MAULER_SPELLS] =
 	{ 15,  0,  0, _weapon_as_shield_spell},
 	{ 20,  0, 60, awesome_blow_spell},
 	{ 26,  0,  0, _cursed_wounds_spell},
-	
 	{ 32, 44, 50, _killing_spree_spell},
 	{ 38,  0,  0, _no_earthquake_spell},
 	{ 44,100, 90, _slay_sentient_spell},
 	{ 50,  0,  0, _death_force_spell},
+	{ -1, -1, -1, NULL}
 };
 
 static int _get_spells(spell_info* spells, int max)
 {
-	int i;
-	int ct = 0;
-	int stat_idx = p_ptr->stat_ind[A_STR];
+	int ct;
 
 	if (!p_ptr->ryoute)
 	{
 		msg_print("Rargh! You need to wield a single weapon with both hands to properly maul stuff!");
 		return 0;
 	}
+
+	ct = get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_STR]);
 	
-	for (i = 0; i < MAX_MAULER_SPELLS; i++)
-	{
-		spell_info *base = &_spells[i];
-		if (ct >= max) break;
-		if (base->level <= p_ptr->lev)
-		{
-			spell_info* current = &spells[ct];
-			current->fn = base->fn;
-			current->level = base->level;
-			current->cost = base->cost;
-
-			current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);			
-			ct++;
-		}
-	}
-
 	if (ct == 0)
 		msg_print("Rargh! Go maul something for more experience!");
 
@@ -451,6 +421,19 @@ static caster_info * _caster_info(void)
 	return &me;
 }
 
+static void _spoiler_dump(FILE* fff)
+{
+	spoil_spells_aux(fff, _spells);
+
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "|| *Lvl* || *Ability* || *Description* ||\n");
+	fprintf(fff, "|| 1 || Mighty || +(W/50)+(W/100)^2 todam. Str bonus to damage is doubled for weapons >= 20 pounds. || \n");
+	fprintf(fff, "|| 15 || Splattering || Whenever you kill a monster, your last strike damage is applied to all foes within radius 2 ball of recently deceased enemy. ||\n");
+	fprintf(fff, "|| 30 || Impact || +(W/250) to dice and sides of wielded weapon. ||\n");
+	fprintf(fff, "|| 45 || Destroyer || +(W/20)%% chance of crits (e.g. a 40 lb heavy lance gets +20%% chance to crit). ||\n");
+	fprintf(fff, "\n_Where W is your weapon's weight in tenths of a pound._\n");
+}
+
 class_t *mauler_get_class_t(void)
 {
 	static class_t me = {0};
@@ -483,6 +466,7 @@ class_t *mauler_get_class_t(void)
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
+		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 
