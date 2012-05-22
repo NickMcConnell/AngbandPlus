@@ -21,7 +21,6 @@
 void check_experience(void)
 {
 	bool level_reward = FALSE;
-	bool level_mutation = FALSE;
 	bool level_inc_stat = FALSE;
 	bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
 	int  old_lev = p_ptr->lev;
@@ -96,10 +95,6 @@ void check_experience(void)
 			    mut_present(MUT_CHAOS_GIFT))
 			{
 				level_reward = TRUE;
-			}
-			if (p_ptr->prace == RACE_BEASTMAN)
-			{
-				if (one_in_(5)) level_mutation = TRUE;
 			}
 			level_inc_stat = TRUE;
 
@@ -209,18 +204,6 @@ msg_format("レベル %d にようこそ。", p_ptr->lev);
 				do_inc_stat(choice - 'a');
 				screen_load();
 			}
-		}
-
-		if (level_mutation)
-		{
-#ifdef JP
-msg_print("あなたは変わった気がする...");
-#else
-			msg_print("You feel different...");
-#endif
-
-			mut_gain_random(NULL);
-			level_mutation = FALSE;
 		}
 
 		/*

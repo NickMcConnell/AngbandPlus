@@ -1473,7 +1473,7 @@ void explosive_rune_spell(int cmd, variant *res)
 		var_set_string(res, T("Explosive Rune", "爆発のルーン"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "");
+		var_set_string(res, "Sets a rune which will explode on a passing monster.");
 		break;
 	case SPELL_CAST:
 		msg_print(T("You carefully set an explosive rune...", "爆発のルーンを慎重に仕掛けた..."));

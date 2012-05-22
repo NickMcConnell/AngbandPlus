@@ -831,7 +831,10 @@ void throw_boulder_spell(int cmd, variant *res)
 		var_set_string(res, T("Throw Boulder", "´äÀÐÅê¤²¡Ê¥À¥á¡¼¥¸"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, "");
+		var_set_string(res, "Hurls a huge boulder at chosen target.");
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Hurls a huge boulder at chosen target for 3L damage.");
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, spell_power(3 * p_ptr->lev)));

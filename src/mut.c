@@ -414,6 +414,26 @@ int mut_get_powers(spell_info* spells, int max)
 {
 	int i;
 	int ct = 0;
+
+	if (mut_present(MUT_ASTRAL_GUIDE))
+	{
+		spell_info *spell = NULL;
+		if (ct >= max) return ct;
+		
+		spell = &spells[ct++];
+		spell->level = 5;
+		spell->cost = 2;
+		spell->fail = calculate_fail_rate(5, 50, p_ptr->stat_ind[A_DEX]);
+		spell->fn = phase_door_spell;
+
+		if (ct >= max) return ct;
+		
+		spell = &spells[ct++];
+		spell->level = 15;
+		spell->cost = 6;
+		spell->fail = calculate_fail_rate(15, 50, p_ptr->stat_ind[A_DEX]);
+		spell->fn = teleport_spell;
+	}
 	
 	for (i = 0; i < MAX_MUTATIONS; i++)
 	{

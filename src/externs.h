@@ -1819,6 +1819,7 @@ extern bool change_wild_mode(void);
 extern void spoil_random_artifact(cptr fname);
 
 /* wizard2.c */
+extern bool spoiler_hack;
 extern void strip_name(char *buf, int k_idx);
 
 /* avatar.c */
@@ -1909,8 +1910,45 @@ extern race_t *get_race_t(void);
 extern race_t *get_race_t_aux(int prace, int psubrace);
 extern int get_racial_powers(spell_info* spells, int max);
 
+extern race_t *amberite_get_race_t(void);
+extern race_t *barbarian_get_race_t(void);
+extern race_t *cyclops_get_race_t(void);
+extern race_t *dark_elf_get_race_t(void);
 extern race_t *demigod_get_race_t(int psubrace);
+extern race_t *draconian_get_race_t(void);
+extern race_t *dwarf_get_race_t(void);
+extern race_t *gnome_get_race_t(void);
+extern race_t *golem_get_race_t(void);
+extern race_t *half_giant_get_race_t(void);
+extern race_t *half_ogre_get_race_t(void);
+extern race_t *half_titan_get_race_t(void);
+extern race_t *half_troll_get_race_t(void);
+extern race_t *high_elf_get_race_t(void);
+extern race_t *hobbit_get_race_t(void);
 extern race_t *human_get_race_t(void);
+extern race_t *imp_get_race_t(void);
+extern race_t *klackon_get_race_t(void);
+extern race_t *kobold_get_race_t(void);
+extern race_t *mindflayer_get_race_t(void);
+extern race_t *nibelung_get_race_t(void);
+extern race_t *skeleton_get_race_t(void);
+extern race_t *snotling_get_race_t(void);
+extern race_t *tonberry_get_race_t(void);
+extern race_t *yeek_get_race_t(void);
+
+extern race_t *zombie_get_race_t(void);
+extern race_t *vampire_get_race_t(void);
+extern race_t *spectre_get_race_t(void);
+extern race_t *sprite_get_race_t(void);
+extern race_t *beastman_get_race_t(void);
+extern race_t *ent_get_race_t(void);
+extern race_t *archon_get_race_t(void);
+extern race_t *balrog_get_race_t(void);
+extern race_t *dunadan_get_race_t(void);
+extern race_t *shadow_fairy_get_race_t(void);
+extern race_t *kutar_get_race_t(void);
+extern race_t *android_get_race_t(void);
+
 
 /* classes.c */
 extern class_t *get_class_t(void);

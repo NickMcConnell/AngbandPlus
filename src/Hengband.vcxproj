@@ -146,6 +146,7 @@
     <ClCompile Include="psion.c" />
     <ClCompile Include="races.c" />
     <ClCompile Include="races_a.c" />
+    <ClCompile Include="races_k.c" />
     <ClCompile Include="racial.c" />
     <ClCompile Include="rage-mage.c" />
     <ClCompile Include="readdib.c" />

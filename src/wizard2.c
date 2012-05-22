@@ -633,7 +633,7 @@ static void do_cmd_wiz_hack_chris7(void)
 	msg_print(NULL);
 }
 
-void _strip_class_name(char *buf, int idx)
+static void _strip_class_name(char *buf, int idx)
 {
 	char *t;
 	cptr str = class_info[idx].title;
@@ -645,16 +645,35 @@ void _strip_class_name(char *buf, int idx)
 	*t = '\0';
 }
 
-void _auto_class_spoiler_name(char *buf, int idx)
+static void _strip_race_name(char *buf, int idx)
+{
+	char *t;
+	cptr str = race_info[idx].title;
+
+	for (t = buf; *str; str++)
+	{
+		if (*str != '-') *t++ = *str;
+	}
+	*t = '\0';
+}
+
+static void _auto_class_spoiler_name(char *buf, int idx)
 {
 	char tmp[256];
 	_strip_class_name(tmp, idx);
 	sprintf(buf, "Auto%sSpoilers", tmp);
 }
 
-void _auto_realm_spoiler_name(char *buf, int idx)
+static void _auto_realm_spoiler_name(char *buf, int idx)
 {
 	sprintf(buf, "Auto%sSpoilers", realm_names[idx]);
+}
+
+static void _auto_race_spoiler_name(char *buf, int idx)
+{
+	char tmp[256];
+	_strip_race_name(tmp, idx);
+	sprintf(buf, "Auto%sSpoilers", tmp);
 }
 
 typedef void(*_file_fn)(FILE*);
@@ -692,11 +711,18 @@ static void _wiki_file(cptr name, _file_fn fn)
 	msg_print(NULL);
 }
 
-static cptr _race_spoiler_page(int i)
+static cptr _race_design_page(int i)
 {
 	if (i == RACE_DEMIGOD)
-		return "AutoDemigodSpoilers";
+		return "DemigodParentage";
 	return 0;
+}
+
+static cptr _race_spoiler_page(int i)
+{
+	static char buf[256];
+	_auto_race_spoiler_name(buf, i);
+	return buf;
 }
 
 static void _race_tbl1(FILE* fff)
@@ -704,10 +730,31 @@ static void _race_tbl1(FILE* fff)
 	int i;
 	char buf[1024];
 
-	fprintf(fff, "\n= Stats =\n\n");
 	for (i = 0; i < MAX_RACES; i++)
 	{
-		player_race race = race_info[i]; /* Copy: I'm considering adding lines for each demigod subrace ... */
+		race_t *race_ptr = get_race_t_aux(i, 0);
+		cptr spoiler = _race_spoiler_page(i);
+		if (i % 5 == 0)
+			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
+
+		if (spoiler)
+			sprintf(buf, "[%s %s]", spoiler, race_ptr->name);
+		else
+			sprintf(buf, "%s", race_ptr->name);
+
+
+		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
+			buf, 
+			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
+			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
+			race_ptr->skills.thn, race_ptr->skills.thb,
+			race_ptr->hd, race_ptr->infra,
+			race_ptr->exp
+		);
+	/*  OLD
+		player_race race = race_info[i];
 		cptr title = race.title;
 		cptr spoiler = _race_spoiler_page(i);
 
@@ -730,13 +777,7 @@ static void _race_tbl1(FILE* fff)
 			race.r_mhp, race.infra,
 			race.r_exp
 		);
-	}
-
-	fprintf(fff, "\n= Descriptions =\n\n");
-	for (i = 0; i < MAX_RACES; i++)
-	{
-		fprintf(fff, "*%s*\n", race_info[i].title);
-		fprintf(fff, "%s\n\n", birth_get_race_desc(i));
+	*/
 	}
 }
 
@@ -745,6 +786,7 @@ static void _demigod_wiki(FILE* fff)
 	int i, j;
 
 	fprintf(fff, "_Note: This is the automatically generated spoiler page. For the design page, please go [DemigodParentage here]._\n\n");
+	fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%s&c=&n=&e=&s=0 View Ladder]\n", "Demigod");
 	fprintf(fff, "\n= Stats =\n\n");
 	fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *Exp* ||\n");
 	for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
@@ -777,6 +819,8 @@ static void _demigod_wiki(FILE* fff)
 			race.r_exp
 		); 
 	}
+
+	fprintf(fff, "\nDemigods gain [SpecialAbilities special abilities] of their choice at L20 and L40.\n");
 
 	for (i = 0; i < MAX_DEMIGOD_TYPES; i++) 
 	{
@@ -852,7 +896,6 @@ static void _class_tbl1(FILE* fff)
 	int i;
 	char buf[1024];
 
-	fprintf(fff, "\n= Stats =\n\n");
 	for (i = 0; i < MAX_CLASS; i++)
 	{
 		player_class *class_ptr = &class_info[i];
@@ -951,6 +994,8 @@ static void _class_spoilers(FILE* fff, int idx)
 	fprintf(fff, "= %s =\n\n", class_ptr->title);
 	fprintf(fff, "== Description ==\n");
 	fprintf(fff, "%s\n\n", birth_get_class_desc(idx));
+
+	fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=&c=%s&n=&e=&s=0 View Ladder]\n", class_ptr->title);
 
 	if (magic_ptr->spell_stat)
 	{
@@ -1134,9 +1179,51 @@ static void _realm_wiki_file(int idx)
 	_wiki_file(file_name, _realm_wiki_imp);
 }
 
+static void _race_spoilers(FILE *fff, int idx)
+{
+	race_t *race_ptr = get_race_t_aux(idx, 0);
+	if (!race_ptr)
+	{
+		fprintf(fff, "Under Construction\n");
+		return;
+	}
+
+	fprintf(fff, "= %s =\n\n", race_ptr->name);
+	fprintf(fff, "%s\n", race_ptr->desc);
+	fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%s&c=&n=&e=&s=0 View Ladder]\n", race_ptr->name);
+
+	fprintf(fff, "\n== Stats and Skills ==\n");
+	fprintf(fff, "|| *Stat* || *Adj* || *Skill* || *Amt* ||\n");
+	fprintf(fff, "|| Str || %d || Device || %d ||\n", race_ptr->stats[A_STR], race_ptr->skills.dev);
+	fprintf(fff, "|| Int || %d || Disarm || %d ||\n", race_ptr->stats[A_INT], race_ptr->skills.dis);
+	fprintf(fff, "|| Wis || %d || Save || %d ||\n", race_ptr->stats[A_WIS], race_ptr->skills.sav);
+	fprintf(fff, "|| Dex || %d || Stealth || %d ||\n", race_ptr->stats[A_DEX], race_ptr->skills.stl);
+	fprintf(fff, "|| Con || %d || Search || %d ||\n", race_ptr->stats[A_CON], race_ptr->skills.srh);
+	fprintf(fff, "|| Chr || %d || Frequency || %d ||\n", race_ptr->stats[A_CHR], race_ptr->skills.fos);
+	fprintf(fff, "|| HD || %d || Melee || %d ||\n", race_ptr->hd, race_ptr->skills.thn);
+	fprintf(fff, "|| Exp || %d%% || Bows || %d ||\n", race_ptr->exp, race_ptr->skills.thb);
+
+	if (race_ptr->spoiler_dump)
+		race_ptr->spoiler_dump(fff);
+}
+
+static int _race_idx_hack = 0;
+static void _race_wiki_imp(FILE* fff) { _race_spoilers(fff, _race_idx_hack); }
+static void _race_wiki_file(int idx)
+{
+	char buf[256];
+	char file_name[256];
+	_auto_race_spoiler_name(buf, idx);
+	sprintf(file_name, "%s.wiki", buf);
+	_race_idx_hack = idx;
+	_wiki_file(file_name, _race_wiki_imp);
+}
+
+bool spoiler_hack = FALSE;
 static void do_cmd_wiz_hack_chris8(void)
 {
 	int i;
+	spoiler_hack = TRUE;
 	_wiki_file("AutoRacesSpoilers.wiki", _race_tbl1);
 	_wiki_file("AutoDemigodSpoilers.wiki", _demigod_wiki);
 
@@ -1144,11 +1231,19 @@ static void do_cmd_wiz_hack_chris8(void)
 	_wiki_file("AutoPersonalitiesSpoilers.wiki", _personality_tbl1);
 	_wiki_file("AutoSpellsSpoilers.wiki", _spell_tbl1);
 
+	for (i = 0; i < MAX_RACES; i++)
+	{
+		if (i == RACE_DEMIGOD) continue;
+		_race_wiki_file(i);
+	}
+
 	for (i = 0; i < MAX_CLASS; i++)
 		_class_wiki_file(i);
 
 	for (i = 1; i <= MAX_MAGIC; i++)
 		_realm_wiki_file(i);
+
+	spoiler_hack = FALSE;
 }
 
 #ifdef MONSTER_HORDES
