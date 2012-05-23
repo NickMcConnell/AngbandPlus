@@ -1526,7 +1526,7 @@ static bool is_opt_confirm_destroy(object_type *o_ptr)
 
 	if (leave_special)
 	{
-		if (p_ptr->prace == RACE_DEMON || p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
+		if (p_ptr->prace == RACE_BALROG || p_ptr->realm1 == REALM_DAEMON || p_ptr->realm2 == REALM_DAEMON)
 		{
 			if (o_ptr->tval == TV_CORPSE &&
 			    o_ptr->sval == SV_CORPSE &&
@@ -5897,14 +5897,11 @@ static bool do_editor_command(text_body_type *tb, int com_id)
 	{
 		/* Insert a conditinal expression line */
 		char expression[80];
+		race_t *race_ptr = get_race_t();
 
 		/* Conditional Expression for Class and Race */
 		sprintf(expression, "?:[AND [EQU $RACE %s] [EQU $CLASS %s] [GEQ $LEVEL %02d]]", 
-#ifdef JP
-			rp_ptr->E_title, cp_ptr->E_title,
-#else
-			rp_ptr->title, cp_ptr->title,
-#endif
+			race_ptr->name, cp_ptr->title,
 			p_ptr->lev
 			);
 

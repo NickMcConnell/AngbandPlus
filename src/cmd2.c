@@ -2891,6 +2891,19 @@ void do_cmd_rest(void)
 	/* Paranoia */
 	if (command_arg > 9999) command_arg = 9999;
 
+	/* Mimickry blocks all regeneration (hp and sp)!
+	   We can either block this command since resting will stop
+	   immediately (cf process_player() in dungeon.c) or, more
+	   conveniently, we can stop mimicry, though this will tend
+	   to expose the player!
+	 */
+	if (mimic_no_regen())
+	{
+		mimic_race(MIMIC_NONE);
+	/*	msg_print("You cannot rest while maintaining your mimic form!");
+		return; */
+	}
+
 	if (p_ptr->special_defense & NINJA_S_STEALTH) set_superstealth(FALSE);
 
 	/* Take a turn XXX XXX XXX (?) */

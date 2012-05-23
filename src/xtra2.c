@@ -15,9 +15,139 @@
 #define REWARD_CHANCE 10
 
 
+ /* Experience required to advance from level to level + 1
+	Note the table is off by 1, so we encapsulate that fact.
+	(e.g. table[0] gives xp needed to go from L1 to L2!)
+	Also, the old code (cut and pasted multiple places) would
+	overflow once expfact got too high which is easily avoided.
+	Finally, Androids do it all differently!
+
+	To be sure everybody is doing it correctly, I moved the tables
+	here and renamed them!
+ */
+static s32b _player_exp[PY_MAX_LEVEL] =
+{
+	10,
+	25,
+	45,
+	70,
+	100,
+	140,
+	200,
+	280,
+	380,/*10*/
+	500,
+	650,
+	850,
+	1100,
+	1400,
+	1800,
+	2300,
+	2900,
+	3600,
+	4400,/*20*/
+	5400,
+	6800,
+	8400,
+	10200,
+	12500,
+	17500,
+	25000,
+	35000L,
+	50000L,
+	75000L,/*30*/
+	100000L,
+	150000L,
+	200000L,
+	275000L,
+	350000L,
+	450000L,
+	550000L,
+	700000L,
+	850000L,
+	1000000L,/*40*/
+	1250000L,
+	1500000L,
+	1800000L,
+	2100000L,
+	2400000L,
+	2700000L,
+	3000000L,
+	3500000L,
+	4000000L,
+	4500000L,/*50*/
+	5000000L
+};
+
+
+static s32b _player_exp_a[PY_MAX_LEVEL] =
+{
+	20,
+	50,
+	100,
+	170,
+	280,
+	430,
+	650,
+	950,
+	1400,/*10*/
+	1850,
+	2300,
+	2900,
+	3600,
+	4400,
+	5400,
+	6800,
+	8400,
+	10400,
+	12500,/*20*/
+	17500,
+	25000,
+	35000,
+	50000L,
+	75000L,
+	100000L,
+	150000L,
+	200000L,
+	275000L,
+	350000L,/*30*/
+	450000L,
+	550000L,
+	650000L,
+	800000L,
+	950000L,
+	1100000L,
+	1250000L,
+	1400000L,
+	1550000L,
+	1700000L,/*40*/
+	1900000L,
+	2100000L,
+	2300000L,
+	2550000L,
+	2800000L,
+	3050000L,
+	3300000L,
+	3700000L,
+	4100000L,
+	4500000L,/*50*/
+	5000000L
+};
+
+int exp_requirement(int level)
+{
+	bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
+	int base = (android ? _player_exp_a : _player_exp)[level-1];
+	if (base % 100 == 0)
+		return base / 100 * p_ptr->expfact;
+	else
+		return base * p_ptr->expfact / 100;
+}
+
 /*
  * Advance experience levels and print experience
  */
+
 void check_experience(void)
 {
 	bool level_reward = FALSE;
@@ -50,7 +180,7 @@ void check_experience(void)
 
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
-	       (p_ptr->exp < ((android ? player_exp_a : player_exp)[p_ptr->lev - 2] * p_ptr->expfact / 100L)))
+	       (p_ptr->exp < exp_requirement(p_ptr->lev - 1)))
 	{
 		/* Lose a level */
 		p_ptr->lev--;
@@ -70,7 +200,7 @@ void check_experience(void)
 
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
-	       (p_ptr->exp >= ((android ? player_exp_a : player_exp)[p_ptr->lev-1] * p_ptr->expfact / 100L)))
+	       (p_ptr->exp >= exp_requirement(p_ptr->lev)))
 	{
 		/* Gain a level */
 		p_ptr->lev++;
@@ -81,7 +211,10 @@ void check_experience(void)
 		if (p_ptr->lev > p_ptr->max_plv)
 		{
 			class_t *class_ptr = get_class_t();
-			race_t *race_ptr = get_race_t();
+			race_t *race_ptr = get_true_race_t(); /* So players don't miss if they Polymorph Demon, etc */
+
+			if (p_ptr->prace == RACE_DOPPELGANGER) /* But a doppelganger should use the mimicked race! */
+				race_ptr = get_race_t();
 
 			p_ptr->max_plv = p_ptr->lev;
 
@@ -3292,16 +3425,8 @@ static void evaluate_monster_exp(char *buf, monster_type *m_ptr)
 	s64b_div(&exp_mon, &exp_mon_frac, 0, (p_ptr->max_plv + 2));
 
 
-	/* Total experience value for next level
-	exp_adv = player_exp[p_ptr->lev -1] * p_ptr->expfact;
-	exp_adv_frac = 0;
-	s64b_div(&exp_adv, &exp_adv_frac, 0, 100); 
-
-	Note: The code above loops infinitely for an exp requirement of 18,000,000
-	When attempting to divide the scaled by 100 value of 1,800,000,000 by 100, the
-	highest order bit can not be located ... See s64b_div in z-util.c.
-	*/
-	exp_adv = (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
+	/* Total experience value for next level */
+	exp_adv = exp_requirement(p_ptr->lev);
 
 	/* Experience value need to get */
 	s64b_sub(&exp_adv, &exp_adv_frac, p_ptr->exp, p_ptr->exp_frac);

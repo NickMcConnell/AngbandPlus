@@ -863,54 +863,6 @@ struct player_pact
 };
 
 /*
- * Player racial info
- */
-
-typedef struct player_race player_race;
-
-struct player_race
-{
-	cptr title;			/* Type of race */
-
-#ifdef JP
-	cptr E_title;		/* ±Ñ¸ì¼ïÂ² */
-#endif
-
-	s16b r_adj[6];		/* Racial stat bonuses */
-
-	s16b r_dis;			/* disarming */
-	s16b r_dev;			/* magic devices */
-	s16b r_sav;			/* saving throw */
-	s16b r_stl;			/* stealth */
-	s16b r_srh;			/* search ability */
-	s16b r_fos;			/* search frequency */
-	s16b r_thn;			/* combat (normal) */
-	s16b r_thb;			/* combat (shooting) */
-
-	byte r_mhp;			/* Race hit-dice modifier */
-	s16b r_exp;			/* Race experience factor */
-
-	byte b_age;			/* base age */
-	byte m_age;			/* mod age */
-
-	byte m_b_ht;		/* base height (males) */
-	byte m_m_ht;		/* mod height (males) */
-	byte m_b_wt;		/* base weight (males) */
-	byte m_m_wt;		/* mod weight (males) */
-
-	byte f_b_ht;		/* base height (females) */
-	byte f_m_ht;		/* mod height (females)	  */
-	byte f_b_wt;		/* base weight (females) */
-	byte f_m_wt;		/* mod weight (females) */
-
-	byte infra;			/* Infra-vision	range */
-
-	u32b choice;        /* Legal class choices ... DEAD: We are over 32 classes these days ... */
-/*    byte choice_xtra;   */
-};
-
-
-/*
  * Player class info
  */
 
@@ -1040,11 +992,10 @@ struct player_type
 			     * characters (such as Amberite Paladins)
 			     */
 
-	s16b age;			/* Characters age */
-	s16b ht;			/* Height */
-	s16b wt;			/* Weight */
-	s16b sc;			/* Social Class */
-
+	s16b XXX1;
+	s16b XXX2;
+	s16b XXX3;
+	s16b XXX4;
 
 	s32b au;			/* Current Gold */
 
@@ -1133,7 +1084,7 @@ struct player_type
 	s16b tim_res_nether;	/* Timed -- Nether resistance */
 	s16b tim_res_time;	/* Timed -- Time resistance */
 	s16b tim_res_disenchantment;
-	byte mimic_form;
+	s16b mimic_form;
 	s16b tim_mimic;
 	s16b tim_sh_fire;
 	s16b tim_sh_holy;
@@ -2007,14 +1958,14 @@ typedef struct {
 	file_dump_fn			character_dump;
 	file_dump_fn			spoiler_dump;
 	flags_fn                get_flags;
+	flags_fn                get_immunities;
+	flags_fn                get_vulnerabilities;
+	u32b					flags;
+	bool                    mimic;
 } race_t;
 
 typedef struct {
 	cptr name;
 	cptr desc;
-	s16b adj[6]; 
-	skills_t skills;
-	s16b hd;
-	s16b exp;
 } demigod_type;
 

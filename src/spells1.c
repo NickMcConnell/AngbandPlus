@@ -7891,7 +7891,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 
 				dam *= 2;
 			}
-			else if (prace_is_(RACE_S_FAIRY))
+			else if (prace_is_(RACE_SHADOW_FAIRY))
 			{
 				dam = dam * 4 / 3;
 			}
@@ -8244,36 +8244,10 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 			if (fuzzy) msg_print("You are hit by something extremely cold!");
 #endif
 
-
-			if (p_ptr->mimic_form)
-			{
-				if (!(mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING))
-					get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
-			}
+			if (get_race_t()->flags & RACE_IS_NONLIVING)
+				dam = 0;
 			else
-			{
-
-			switch (p_ptr->prace)
-			{
-				/* Some races are immune */
-				case RACE_GOLEM:
-				case RACE_SKELETON:
-				case RACE_ZOMBIE:
-				case RACE_VAMPIRE:
-				case RACE_DEMON:
-				case RACE_SPECTRE:
-				{
-					dam = 0;
-					break;
-				}
-				/* Hurt a lot */
-				default:
-				{
-					get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
-					break;
-				}
-			}
-			}
+				get_damage = take_hit(DAMAGE_ATTACK, dam, killer, monspell);
 
 			break;
 		}

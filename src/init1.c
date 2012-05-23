@@ -4330,14 +4330,9 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 					v = "OFF";
 			}
 
-			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
-#ifdef JP
-				v = rp_ptr->E_title;
-#else
-				v = rp_ptr->title;
-#endif
+				get_true_race_t()->name;
 			}
 
 			/* Class */

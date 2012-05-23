@@ -160,8 +160,8 @@ cptr get_spell_spoiler_name(ang_spell spell)
  *   browse_spell - show spell list, user picks spells repeatedly.  describe each spell.
  ****************************************************************************************/
 
- static int _col_height(int ct)
- {
+static int _col_height(int ct)
+{
 	int  w, h;
 	int result = ct;
 
@@ -174,7 +174,7 @@ cptr get_spell_spoiler_name(ang_spell spell)
 	}
 
 	return result;
- }
+}
 
 static void _list_spells(spell_info* spells, int ct, int max_cost)
 {
@@ -410,6 +410,9 @@ int calculate_fail_rate(int level, int base_fail, int stat_idx)
 	if (caster_ptr && (caster_ptr->options & CASTER_NO_SPELL_FAIL))
 		return 0;
 
+	if (base_fail == 0)
+		return 0;
+
 	/* Adjust Fail Rate */
 	fail -= 3 * (p_ptr->lev - level);
 	fail += p_ptr->to_m_chance;
@@ -624,13 +627,20 @@ void do_cmd_power(void)
 		msg_print("You are too confused!");
 		return;
 	}
+
+	/* Hack ... Rethink this a bit, but the alternative of hacking into
+	   the 'm' command is a million times worse! 
+	   Doppelgangers need to be able to cancel their current mimicry.
+	   Also, add Mimic power back first so it always stays in the 'a' slot. */
+	if (race_ptr->mimic && p_ptr->prace == RACE_DOPPELGANGER)
+	{
+		ct += (get_true_race_t()->get_powers)(spells + ct, MAX_SPELLS - ct);
+	}
 	
-	if (race_ptr != NULL && race_ptr->get_powers != NULL)
+	if (race_ptr->get_powers != NULL)
 	{
 		ct += (race_ptr->get_powers)(spells + ct, MAX_SPELLS - ct);
 	}
-	/* Temp Hack during refactoring ... */
-	ct += get_racial_powers(spells + ct, MAX_SPELLS - ct);
 
 	if (class_ptr != NULL && class_ptr->get_powers != NULL)
 	{

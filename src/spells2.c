@@ -227,7 +227,7 @@ sprintf(Dummy, "現在の体力ランク : %d/100", percent);
 	info[i++] = "";
 	
 	/* Racial powers... */
-	if (p_ptr->mimic_form)
+	if (p_ptr->mimic_form != MIMIC_NONE)
 	{
 		switch (p_ptr->mimic_form)
 		{
@@ -516,7 +516,7 @@ info[i++] = "あなたは敵を眠らせる魔法の粉を投げることができる。(12 MP)";
 
 			}
 			break;
-		case RACE_DEMON:
+		case RACE_BALROG:
 #ifdef JP
 sprintf(Dummy, "あなたは %d ダメージの地獄か火炎のブレスを吐くことができる。(%d MP)", 3 * plev, 10+plev/3);
 #else
@@ -1693,7 +1693,7 @@ info[i++] = "あなたは閃光への耐性を持っている。";
 
 	}
 
-	if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_S_FAIRY) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
+	if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_SHADOW_FAIRY) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
 #ifdef JP
 info[i++] = "あなたは閃光に弱い。";

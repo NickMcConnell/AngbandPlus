@@ -1622,162 +1622,6 @@ static hist_type bg[] =
 	{". You prefer to wait for your prey to come to you.", 100, 161, 0, 3},
 };
 
-static cptr race_jouhou[MAX_RACES] =
-{
-#ifdef JP
-"人間は基本となるキャラクタです。他の全ての種族は人間と比較されます。人間はどんな職業に就くこともでき、どの職業でも平均的にこなせます。人間は寿命が短いため、レベル上昇が他のどんな種族よりも早くなる傾向があります。また、特別な修正や特性は持っていません。",
-  
-"ハーフエルフは人間より賢いですが、強くはありません。彼らは探索, 解除, 魔法防御, 隠密行動, 射撃, そして魔法道具使用でわずかに優れています。しかし武器の取り扱いはそう得意ではありません。ハーフエルフはどの職業に就くこともでき、生まれつきの特性はありません。",
-  
-"エルフは人間より良い魔法使いになれますが、戦闘は苦手です。彼らは人間やハーフエルフよりも頭が良く、高い賢さを持っています。エルフは探索, 解除, 知覚, 隠密行動, 射撃, そして魔法道具使用で優れていますが、武器の扱いは得意ではありません。彼らは生まれつき光に対する耐性を持っています。",
-  
-"ホビット、またはハーフリングは弓や投擲に長け、魔法防御も優れています。また、探索, 解除, 知覚, そして隠密行動でもとても良い能力を示します。そのため、彼らは優れた盗賊となることができます（しかし、「忍びの者」と呼ばれることを好みます）。ホビットは人間より遥かに貧弱で、戦士としてはてんでダメです。彼らはかなり良い赤外線視力を持っており、温血動物を離れた場所から見つけることができます。彼らは生命力を保持する力が強く、生命力吸収攻撃に対して耐性を持っています。",
-  
-"ノームはドワーフより小さいですが、ホビットよりは大きい種族です。彼らはホビット同様地表の洞穴のような家に住んでいます。ノームはとても良い魔法防御を持ち、探索, 解除, 知覚, 隠密行動でも優れています。彼らは人間より低い腕力を持ち、武器を持っての戦闘は苦手です。ノームはかなり良い赤外線視力を持っており、温血動物を離れた場所から見つけることができます。ノームは生まれつき麻痺に対する耐性を持っています。",
-  
-"ドワーフは頑固な坑夫であり、伝説の戦士です。彼らは人間にくらべ強くタフですが、知能は劣ります。しかし、長命ゆえに彼らは非常に賢いです。彼らは良い魔法防御を持ち、探索, 知覚, 戦闘, 射撃では優れています。彼らは一つ大きな欠点を持っています。ドワーフの隠密行動は絶望的に悪いです。彼らは決して盲目にはなりません。",
-  
-"ハーフオークはよい戦士になれますが、魔法は期待できません。彼らはドワーフと同じくらい隠密行動が悪く、また探索や解除, 知覚もひどいです。ハーフオークは醜く、店での買い物ではより高い金額を要求されがちです。彼らは地下に住むことを好むため、ハーフオークは暗闇に対する耐性を備えています。",
-  
-"ハーフトロルは信じられないほど強く、他の大部分の種族より大きなＨＰを持ちます。彼らは不運にもとても愚かです。彼らの探索, 解除, 知覚, 隠密行動は悪く、その外見はハーフオークがしかめっ面をするほど醜悪です。ハーフトロルは腕力が下がることがありません。レベルが上がると、彼らは再生能力を手にいれ、戦士ならばさらに遅消化能力も獲得します。",
-  
-"アンバライトは多くのアドバンテージを授けられた、うわさによれば不死の種族です。彼らは知覚, 戦闘, 射撃に優れており、他の面でもかなり熟練しています。事実上あらゆるものを見てきており、新鮮なものはほとんどないため、彼らの成長は他のどの種族より遅いものです。彼らはとてもタフで頑強であり、彼らの耐久力が下がることはありません。また、怪我をすぐに治す再生能力があります。",
-  
-"ハイエルフは世界の始まりから存在する不死の種族です。彼らは全てのスキルに熟達しており、強く、知的で非常に人気があります - 誰もが彼らのことを好いています。ハイエルフは見えないものを見ることができ、普通のエルフ同様光に対する耐性を持っています。しかし、彼らにとって未知のものはほとんどなく、経験を得ることは大変に困難です。",
-  
-"野蛮人は北方から来た頑強な種族です。彼らは激しく戦い、彼らの激怒は世界中で恐れられています。戦闘が彼らの人生です。彼らは恐れを知らず、ハーフトロルよりもすぐに狂暴に戦闘に入ってしまうことを学びます。しかし、野蛮人は魔法を疑っており、そのため魔法の道具を使うことはかなり大変なこととなっています。",
-  
-"ハーフオーガはハーフオークに似ていますが、それだけではありません。彼らは大きく、邪悪で愚かです。戦士としては彼らは必要な資質を全て持っており、また魔法使いになることさえできます。結局、彼らはオーガ・メイジに関係があり、レベルが十分に上がったら彼らから罠のルーンをセットするスキルを学ぶのです。ハーフオークのように、彼らは暗闇に対する耐性を持ち、ハーフトロル同様に腕力が下がることはありません。",
-  
-"半巨人は大変力強いのですが、呪文を唱えられるほど利口ではありません。彼らはよい戦闘能力を持ちますが、それ以外のことは苦手です。彼らの厚い皮膚は破片に対する耐性を持ちます。また、ハーフオーガやハーフトロル同様腕力を下げられることがありません。",
-  
-"巨大なタイタンと人間の子孫であり、この強大な生物は他のほぼ全ての種族よりはるかに勝っています。彼らは多種族にみられるような魅力的な特殊能力は持っていませんが、その大変大きなＨＰはそれを補ってあまりあります。半タイタンはそこそこのスキルを持っていますが、その巨大さゆえに罠の解除やこっそり歩くことは困難です。法と秩序を愛する彼らは、カオスに対する耐性を持っています。",
-  
-"一つ目ではありますが、サイクロプスは多くの二つの目を持つ生物以上に見ることができます。サイクロプスは非常に力強いのですが、知的であるとはちょっと言えません。彼らに比べれば、ハーフトロルの方がハンサムに見えるということは言うまでもありません。サイクロプスは戦闘, 射撃に優れていますが、その他の大部分のスキルは苦手です。サイクロプスは音に対する耐性を持っています。",
-  
-"イークは最も哀れな生物の一つであり、並のモンスターであっても不注意なイークならば徹底的に打ちのめせるほど肉体的には強くありませんが、彼らはかなり知的でいくらか賢い生物です。イークは戦闘スキルは苦手ですが、他の分野では優れています。彼らの皮膚は、時間とともに酸への耐性を増していき、レベルが十分に上がれば完全に免疫を持つようになります。",
-  
-"クラッコンは奇怪な半知的の昆虫型生物です。彼らはすばらしい戦士になれますが、精神的な能力はひどく制限されています。彼らは探索を除けば大部分のスキルをそこそこにこなします。クラッコンは決して混乱させられることがなく、レベルが上がるごとに速くなります。",
-  
-"コボルドは弱いゴブリンの種族です。彼らは毒を持った武器を好み、毒矢（無制限に供給されます）を投げる能力を身につけることができます。コボルドはそこそこの戦士になれますが、その他のスキルは軒並み悪いです。彼らは生まれつき毒に対する耐性を持っています。",
-  
-"嫌われ、迫害されてきた小人族です。彼らは大抵のスキルをそつなくこなします。洞穴居住者である彼らは、暗闇に悩まされることはありませんし、生まれつき持っている魔法のアイテムに対する嗜好のため、彼らは装備による魔法のボーナスを奪う効果に耐性を持っています。",
-  
-"闇の、洞穴に住む種族であるダークエルフは魔法の知識に対する長い伝統を持っています。ダークエルフは魔法の道具をうまく使うことができ、他の多くの種族より簡単に呪文を唱えられるだけの知能を持っています。その鋭い視覚によって、彼らはハイエルフ同様見えないものをみる能力を学びますが、それはある程度レベルが上がったときです。ダークエルフは暗闇に対する耐性を持っています。",
-  
-"ドラゴンのような特性を持った人間型種族です。彼らはレベルが上がるにつれ、新しい元素への耐性を手にいれます。ドラコニアンは優れた能力値を持ってゲームを開始でき、大抵のスキルをうまくこなせます。その翼で、彼らは簡単に落とし穴や溶岩、水を無傷で飛び越えることができます。",
-  
-"秘密主義の神秘的な古代種族です。彼らの文明はこの惑星上の何よりも古いかもしれません。その肉体的資質は決して誉められたものではありませんが、彼らの知能と賢さはマインドフレアを他のどんな種族よりも強力な魔法使いにします。マインドフレアの知能と賢さは下がることがなく、レベルが上がれば見えないものをみる能力、テレパシー能力を獲得します。",
-  
-"地獄からやってきた悪魔的な生物です。彼らは他の種族から毛嫌いされていますが、大抵の職業をかなりうまくこなすことができます。インプは生まれつき火に耐性を持っており、レベルが上がれば見えないものを見る能力を獲得します。",
-  
-"ゴーレムは泥のような生命のない材料からつくられ、生命を吹き込まれた人工的な生物です。彼らには思考というものがほとんどなく、そのため魔法に依存する職業では役立たずです。しかし戦士としては大変にタフです。彼らは毒に耐性を持ち、見えないものを見ることができ、さらに麻痺知らずです。レベルが上がれば、彼らは生命力吸収攻撃に耐性を持つようになります。ゴーレムは通常の食物からはほとんど栄養を摂取できませんが、代わりに魔法棒や杖から魔力を吸収して動力源にする事ができます。また、その頑丈な身体のため、ACにボーナスを得ることができ、さらに決して気絶させられることがありません。",
-  
-"スケルトンには2つのタイプが存在します。普通の戦士タイプと、リッチと呼ばれる呪文を使うスケルトンです。アンデッドである彼らは、毒や生命力吸収攻撃を心配する必要はありません。彼らは物体を知覚するのに眼を利用していないため、見えない物に騙されません。彼らの骨はとがった破片のようなものに耐性を持ち、レベルが上がれば冷気に対する耐性を獲得します。薬や食物の持つ効果はスケルトンの胃（存在しませんが）を通過することなくその力を発揮しますが、薬や食物自体は彼の顎を通り抜けて落ちてしまい、栄養を吸収することはできません。その代わりに魔法棒や杖から魔力を吸収してエネルギー源にする事ができます。",
-  
-"ゾンビはアンデッドであり、生命力吸収攻撃に耐性を持ち、スケルトンのようにレベルが上がれば冷気の耐性を獲得します。また、毒に耐性を持ち見えないものを見ることができます。（スケルトンとは違い）切る攻撃には弱いですが、地獄に対する耐性を持っています。ゴーレムのように、彼らは食物からほとんど栄養を摂取できませんが、代わりに魔法棒や杖から魔力を吸収してエネルギー源にする事ができます。",
-  
-"強力なアンデッドの一種である吸血鬼は、畏敬の念を呼び起こす外見をしています。アンデッドの例にもれず、彼らも生命力を吸収されることがなく、地獄に対する耐性を持っています。また、冷気と毒に対する耐性も備えています。しかし、新鮮な血液に常に飢えており、それは近くにいる生物から血液を吸うことによってのみ満たされます。この強力な生物は深刻な弱点を持っています。太陽光線（や光源）は彼らの破滅を意味します。幸運にも、吸血鬼はその身体から「暗黒の光」のオーラを放出しています。一方、暗闇は彼らをより強力にするものです。",
-  
-"幽霊は強力なアンデッドの一種です。彼らは不気味な緑色の光に包まれています。半物質的な存在である彼らは、壁を通り抜けることができますが、そのときには壁の密度によって傷つけられてしまいます。他のアンデッド同様、彼らも生命力を吸収されることがなく、見えないものを見ることができ、毒と冷気に対して耐性を備え、さらに地獄に対する耐性も持っています。レベルが十分に上がると彼らはテレパシーを獲得します。幽霊は卓越した魔法使いになることができますが、その身体的特性は非常に貧弱です。彼らは食物からほとんど栄養を摂取できませんが、代わりに魔法棒や杖から魔力を吸収してエネルギー源にする事ができます。",
-  
-"妖精は非常に小さいです。彼らは小さな翼を持ち、罠や危険な地形を飛び越えることができます。彼らは日光を大変好み、光に対する耐性を持っています。身体的にはもっとも貧弱な種族の一つですが、妖精は魔法の面で大変な才能を持っており、非常に熟練した魔法使いになることができます。高レベルではより速く飛ぶことができるようになります。",
-  
-"この種族はカオスによってつくられた冒涜的で嫌悪される存在です。彼らは独立した種族ではなく、人間型種族、大抵は人間がカオスによって歪められた存在、もしくは人間と獣の悪夢のような交配種です。全ての獣人はカオスに盲従しており、そのため混乱と音に対して耐性を備えていますが、純粋なログルスはまだ彼らに対し効果を持っています。獣人は混沌を好み、それは彼らをさらに歪めます。獣人は突然変異を起こしやすい性質を持っています。彼らがつくられたとき、ランダムな変異を受けます。その後、レベルが上がるごとに違う変異を受ける可能性があります。",
-  
-"エントは非常に強く、賢いですが、その巨大さゆえに罠の解除やこっそりと歩くことは苦手です。成長するにつれて腕力や耐久力が上がりますが、器用さは下がっていきます。彼らには大きな欠点があり、炎によって通常よりも大きなダメージを受けてしまいます。彼らは食物からほとんど栄養を摂取できませんが、代わりに薬等から水分を摂取する事で活動できます。",
-  
-"天使の上位種であるアルコンは、全てのスキルに熟達しており、強くて賢く、非常に人気があります。彼らは目に見えないものを見ることができ、その翼で罠や危険な地形を飛び越えることができます。しかし、非常に成長が遅いという欠点もあります。",
-  
-"悪魔の上位種であるバルログは、強く、知的で、またタフでもあります。しかし、彼らは神を信じようとはせず、プリーストには全く向いていません。炎と地獄、生命力吸収への耐性を持っており、レベルが上がれば見えないものを見る能力を獲得します。また、地獄や火炎のブレスを吐くこともできます。彼等はほとんどの技能で優れていますが、静かに歩くことは苦手です。彼らは食物からほとんど栄養を摂取できませんが、人間タイプを生贄にする事で精力を回復する事ができます。",
-  
-"ドゥナダンは西方から来た屈強な種族です。このいにしえの種族は全ての領域において人間の能力を凌駕し、特に耐久力に関してはそれが顕著です。しかしながらこの種族は全てに卓越していることが災いして、この世界には新しい経験といったものがほとんどなく、レベルを上げることが非常に困難です。彼らはとてもタフで頑強であり、彼らの耐久力が下がることはありません。",
-  
-"影フェアリーは人間よりやや大きい妖精族で、翼を持ち、罠や危険な地形を飛び越えることができます。しかし、彼らは日光を嫌い、閃光によって通常よりも大きなダメージを受けてしまいます。肉体的には非常に貧弱ですが、魔法の面では優れた能力を持っています。彼らにはすばらしい長所が一つあり、モンスターの反感をかうような強力なアイテムを装備してもモンスターを怒らせることがありません。ただしその場合でも隠密行動能力が下がり、また、自分自身の性格によって反感をかっている場合には効果がありません。",
-  
-"クターとしている無表情の謎の生物です。彼らは外見がかわいらしいため、魅力が高いです。彼らは混乱しません。なぜなら、混乱してもクターとしているため変わりないからです。しかも、そのクターとしている外見から敵に見つかりにくいです。しかし、彼らは注意力が少ないため探索や知覚能力は悪いです。彼らはレベルが上がると横に伸びてACを上げる技を覚えますが、伸びている間は魔法防御能力は低くなってしまいます。",
-  
-"アンドロイドは機械の身体を持つ人工的な存在です。魔法をうまく使うことはできませんが、戦士としては非常に優れています。彼らは他の種族のように経験値を得て成長するということはありません。身体に身につける装備によって成長します。ただし、指輪、アミュレット、光源は成長に影響しません。彼らは毒の耐性を持ち、麻痺知らずで、生命力を吸われることがありません。また、身体が頑丈なのでACにボーナスを得ます。しかし身体のいたるところに電子回路が組み込まれているため、電撃によって通常よりも大きなダメージを受けてしまいます。彼らは食物からほとんど動力を得られませんが、油を補給する事で動力源を得る事ができます。"
-
-#else
-
-"The human is the base character.  All other races are compared to them.  Humans can choose any class and are average at everything.  Humans tend to go up levels faster than most other races because of their shorter life spans.  No racial adjustments or intrinsics occur to characters choosing human.",
-
-"Tonberries are lizard-like creatures who possess enormous strength and have a preference for cleavers and large knives.  They are, however, sluggish in their movements and reactions; young and inexperienced tonberries are often preyed on by the other races.  They possess human-like intelligence, but rarely become mages due to their culture and physiology.",
-
-"The term demigod is commonly used to describe mythological figures whose one parent was a god and whose other parent was human; as such, demigods are human-god hybrids and are quite powerful.  Demigods receive special abilities depending on their parentage.",
-
-"Hobbits, or Halflings, are very good at bows, throwing, and have good saving throws.  They also are very good at searching, disarming, perception, and stealth; so they make excellent rogues, but prefer to be called burglars.  They are much weaker than humans, and no good at melee fighting.  Halflings have fair infravision, so they can detect warm creatures at a distance.  They have a strong hold on their life force, and are thus intrinsically resistant to life draining.",
-
-"Gnomes are smaller than dwarves but larger than Halflings.  They, like the hobbits, live in the earth in burrow-like homes.  Gnomes make excellent mages, and have very good saving throws.  They are good at searching, disarming, perception, and stealth.  They have lower strength than humans so they are not very good at fighting with hand weapons.  Gnomes have fair infra-vision, so they can detect warm-blooded creatures at a distance.  Gnomes are intrinsically protected against paralysis.",
-
-"Dwarves are the headstrong miners and fighters of legend.  Dwarves tend to be stronger and tougher but slower and less intelligent than humans.  Because they are so headstrong and are somewhat wise, they resist spells which are cast on them.  They are very good at searching, perception, fighting, and bows.  Dwarves  have a miserable stealth.  They can never be blinded.",
-
-"Snotlings are greenskins, and are cousins of Goblins and Orcs, smaller than the former and dumber than the latter, often used by them as cannon fodder, food or even cannon missiles. They are on the lowest rung of greenskin society and are bullied by all. Snotlings often wield mushrooms or sticks into battle.",
-
-"Half-Trolls are incredibly strong, and have more hit points than most other races.  They are also very stupid and slow.  They are bad at searching, disarming, perception, and stealth.  They are so ugly that a Half-Orc grimaces in their presence.  They also happen to be fun to run...  Half-trolls always have their strength sustained.  At higher levels, Half-Trolls regenerate wounds automatically, and if he or her is warrior slowly.",
-
-"The Amberites are a reputedly immortal race, who are endowed with numerous advantages in addition to their longevity.  They are very tough and their constitution cannot be reduced, and their ability to heal wounds far surpasses that of any other race.  Having seen virtually everything, very little is new to them, and they gain levels much slower than the other races.",
-
-"High-elves are a race of immortal beings dating from the beginning of time.  They are masters of all skills, and are strong and intelligent, although their wisdom is sometimes suspect.  High-elves begin their lives able to see the unseen, and resist light effects just like regular elves.  However, there are few things that they have not seen already, and experience is very hard for them to gain.",
-
-"Barbarians are hardy men of the north.  They are fierce in combat, and their wrath is feared throughout the world.  Combat is their life: they feel no fear, and they learn to enter battle frenzy at will even sooner than half-trolls.  Barbarians are, however, suspicious of magic, which makes magic devices fairly hard for them to use. ",
-
-"Half-Ogres are like Half-Orcs, only more so.  They are big, bad, and stupid.  For warriors, they have all the necessary attributes, and they can even become wizards: after all, they are related to Ogre Magi, from whom they have learned the skill of setting trapped runes once their level is high enough.  Like Half-Orcs, they resist darkness, and like Half-Trolls, they have their strength sustained.",
-
-"Half-Giants limited intelligence makes it difficult for them to become full spellcasters, but with their huge strength they make excellent warriors.  Their thick skin makes them resistant to shards, and like Half-Ogres and Half-Trolls, they have their strength sustained.",
-
-"Half-mortal descendants of the mighty titans, these immensely powerful creatures put almost any other race to shame.  They may lack the fascinating special powers of certain other races, but their enhanced attributes more than make up for that.  They learn to estimate the strengths of their foes, and their love for law and order makes them resistant to the effects of Chaos.",
-
-"With but one eye, a Cyclops can see more than many with two eyes.  They are headstrong, and loud noises bother them very little.  They are not quite qualified for the magic using professions, but as a certain Mr.  Ulysses can testify, their accuracy with thrown rocks can be deadly...",
-
-"Yeeks are among the most pathetic creatures.  Fortunately, their horrible screams can scare away less confident foes, and their skin becomes more and more resistant to acid, as they gain experience.  But having said that, even a mediocre monster can wipe the proverbial floor with an unwary Yeek.",
-
-"Klackons are bizarre semi-intelligent ant-like insectoid creatures.  They make great fighters, but their mental abilities are severely limited.  Obedient and well-ordered, they can never be confused.  They are also very nimble, and become faster as they advance levels.  They are also very acidic, inherently resisting acid, and capable of spitting acid at higher levels. ",
-
-"Kobolds are a weak goblin race.  They love poisoned weapons, and can learn to throw poisoned darts (of which they carry an unlimited supply).  They are also inherently resistant to poison, although they are not one of the more powerful races.",
-
-"The hated and persecuted race of nocturnal dwarves, these cave-dwellers are not much bothered by darkness.  Their natural inclination to magical items has made them immune to effects which could drain away magical energy.",
-
-"Another dark, cave-dwelling race, likewise unhampered by darkness attacks, the Dark Elves have a long tradition and knowledge of magic.  They have an inherent magic missile attack available to them at a low level.  With their keen sight, they also learn to see invisible things as their relatives High-Elves do, but at a higher level.",
-
-"A humanoid race with dragon-like attributes.  As they advance levels, they gain new elemental resistances (up to Poison Resistance), and they also have a breath weapon, which becomes more powerful with experience.  The exact type of the breath weapon depends on the Draconian's class and level.  With their wings, they can easily escape any pit trap unharmed.",
-
-"A secretive and mysterious ancient race.  Their civilization may well be older than any other on our planet, and their intelligence and wisdom are naturally sustained, and are so great that they enable Mind Flayers to become more powerful spellcasters than any other race, even if their physical attributes are a good deal less admirable.  As they advance levels, they gain the powers of See Invisible and Telepathy.",
-
-"A demon-creature from the nether-world, naturally resistant to fire attacks, and capable of learning fire bolt and fire ball attacks.  They are little loved by other races, but can perform fairly well in most professions.  As they advance levels, they gain the powers of See Invisible.",
-
-"A Golem is an artificial creature, built from a lifeless raw material like clay, and awakened to life.  They are nearly mindless, making them useless for professions which rely on magic, but as warriors they are very tough.  They are resistant to poison, they can see invisible things, and move freely.  At higher levels, they also become resistant to attacks which threaten to drain away their life force.  Golems gain very little nutrition from ordinary food, but can absorb mana from staves and wands as their power source.  Golems also gain a natural armor class bonus from their tough body.",
-
-"There are two types of skeletons: the ordinary, warrior-like skeletons, and the spell-using skeletons, which are also called liches.  As undead beings, skeletons need to worry very little about poison or attacks that can drain life.  They do not really use eyes for perceiving things, and are thus not fooled by invisibility.  Their bones are resistant to sharp shrapnel, and they will quickly become resistant to cold.  Although the magical effects of these will affect the skeleton even without entering the skeleton's (non-existent) belly, the potion or food itself will fall through the skeleton's jaws, giving no nutritional benefit.  They can absorb mana from staves and wands as their energy source.",
-
-"Much like Skeletons, Zombies too are undead horrors: they are resistant to life-draining attacks, and can learn to restore their life-force.  Like skeletons, they become resistant to cold-based attacks (actually earlier than skeletons), resist poison and can see invisible.  While still vulnerable to cuts (unlike skeletons), Zombies are resistant to Nether.  Like Golems, they gain very little nutrition from the food of mortals, but can absorb mana from staves and wands as their energy source.",
-
-"One of the mightier undead creatures, the Vampire is an awe-inspiring sight.  Yet this dread creature has a serious weakness: the bright rays of sun are its bane, and it will need to flee the surface to the deep recesses of earth until the sun finally sets.  Darkness, on the other hand, only makes the Vampire stronger.  As undead, the Vampire has a firm hold on its life force, and resists nether attacks.  The Vampire also resists cold and poison based attacks.  It is, however, susceptible to its perpetual hunger for fresh blood, which can only be satiated by sucking the blood from a nearby monster.",
-
-"Another powerful undead creature: the Spectre is a ghastly apparition, surrounded by an unearthly green glow.  They exist only partially on our plane of existence: half-corporeal, they can pass through walls, although the density of the wall will hurt them in the process of doing this.  As undead, they have a firm hold on their life force, see invisible, and resist poison and cold.  They also resist nether.  Spectres make superb spellcasters, but their physical form is very weak.  They gain very little nutrition from the food of mortals, but can absorb mana from staves and wands as their energy source.",
-
-"One of the several fairy races, Sprites are very small.  They have tiny wings and can fly over traps that may open up beneath them.  They enjoy sunlight intensely, and need worry little about light based attacks.  Although physically among the weakest races, Sprites are very talented in magic, and can become highly skilled wizards.  Sprites have the special power of spraying Sleeping Dust, and at higher levels they learn to fly faster.",
-
- "This race is a blasphemous abomination produced by Chaos.  It is not an independent race but rather a humanoid creature, most often a human, twisted by the Chaos, or a nightmarish crossbreed of a human and a beast.  All Beastmen are accustomed to Chaos so much that they are untroubled by confusion and sound, although raw logrus can still have effects on them.  Beastmen revel in chaos, as it twists them more and more.  Beastmen are subject to mutations: when they have been created, they receive a random mutation.  After that, every time they advance a level they have a small chance of gaining yet another mutation.",
-
-"The Ents are a powerful race dating from the beginning of the world, oldest of all animals or plants who inhabit Arda.  Spirits of the land, they were summoned to guard the forests of Middle-earth.  Being much like trees they are very clumsy but strong, and very susceptible to fire.  They gain very little nutrition from the food of mortals, but they can absorb water from potions as their nutrition.",
-
-"Archons are a higher class of angels.  They are good at all skills, and are strong, wise, and are a favorite with any people.  They are able to see the unseen, and their wings allow them to safely fly over traps and other dangerous places.  However, belonging to a higher plane as they do, the experiences of this world do not leave a strong impression on them and they gain levels slowly.",
-
-"Balrogs are a higher class of demons.  They are strong, intelligent and tough.  They do not believe in gods, and are not suitable for priest at all.  Balrog are resistant to fire and nether, and have a firm hold on their life force.  They also eventually learn to see invisible things.  They are good at almost all skills except stealth.  They gain very little nutrition from the food of mortals, and need human corpses as sacrifices to regain their vitality.",
-
-"Dunedain are a race of hardy men from the West.  This elder race surpasses human abilities in every field, especially constitution.  However, being men of the world, very little is new to them, and levels are very hard for them to gain.  Their constitution cannot be reduced. ",
-
-"Shadow Fairies are one of the several fairy races.  They have wings, and can fly over traps that may open up beneath them.  Shadow Fairies must beware of sunlight, as they are vulnerable to bright light.  They are physically weak, but have advantages in using magic and are amazingly stealthy.  Shadow Fairies have a wonderful advantage in that they never aggravate monsters (If their equipment normally aggravates monsters, they only suffer a penalty to stealth, but if they aggravate by their personality itself, the advantage will be lost).",
-
-"A Kutar is an expressionless animal-like living creature.  The word 'kuta' means 'absentmindedly' or 'vacantly'.  Their absentmindedness hurts their searching and perception skills, but renders them incapable of being confused.  Their unearthly calmness and serenity make them among the most stealthy of any race.  Kutars, although expressionless, are beautiful and so have a high charisma.  Members of this race can learn to expand their body horizontally.  This increases armour class, but renders them vulnerable to magical attacks.",
-
-"An android is a artificial creation with a body of machinery.  They are poor at spell casting, but they make excellent warriors.  They don't acquire experience like other races, but rather gain in power as they attach new equipment to their frame.  Rings, amulets, and lights do not influence growth.  Androids are resistant to poison, can move freely, and are immune to life-draining attacks.  Moreover, because of their hard metallic bodies, they get a bonus to AC.  Androids have electronic circuits throughout their body and must beware of electric shocks.  They gain very little nutrition from the food of mortals, but they can use flasks of oil as their energy source."
-
-#endif
-};
-
 static cptr class_jouhou[MAX_CLASS] =
 {
 #ifdef JP
@@ -2661,17 +2505,18 @@ static bool get_demigod_parent(void)
 			}
 			else
 			{
+				race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, cs);
 				parent = demigod_info[cs].name;
 				str = parent;
 				sprintf(cur, "%c%c %s", I2A(cs), p2, str);
 
 				c_put_str(TERM_L_BLUE, str, 3, 40);
-				put_str(": Subrace modification", 3, 40+strlen(str));
+				put_str(": Race modification", 3, 40+strlen(str));
 				put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
 				sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %+4d%% ",
-					demigod_info[cs].adj[0], demigod_info[cs].adj[1], demigod_info[cs].adj[2], 
-					demigod_info[cs].adj[3], demigod_info[cs].adj[4], demigod_info[cs].adj[5], 
-					demigod_info[cs].exp);
+					race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+					race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+					race_ptr->exp);
 				c_put_str(TERM_L_BLUE, buf, 5, 40);
 			}
 			c_put_str(TERM_YELLOW, cur, 12 + (cs/5), 2 + 15 * (cs%5));
@@ -3054,10 +2899,6 @@ static void save_prev_data(birther *birther_ptr)
 	birther_ptr->pseikaku = p_ptr->pseikaku;
 	birther_ptr->realm1 = p_ptr->realm1;
 	birther_ptr->realm2 = p_ptr->realm2;
-	birther_ptr->age = p_ptr->age;
-	birther_ptr->ht = p_ptr->ht;
-	birther_ptr->wt = p_ptr->wt;
-	birther_ptr->sc = p_ptr->sc;
 	birther_ptr->au = p_ptr->au;
 	birther_ptr->base_spell_power = p_ptr->base_spell_power;
 
@@ -3115,10 +2956,6 @@ static void load_prev_data(bool swap)
 	p_ptr->pseikaku = previous_char.pseikaku;
 	p_ptr->realm1 = previous_char.realm1;
 	p_ptr->realm2 = previous_char.realm2;
-	p_ptr->age = previous_char.age;
-	p_ptr->ht = previous_char.ht;
-	p_ptr->wt = previous_char.wt;
-	p_ptr->sc = previous_char.sc;
 	p_ptr->au = previous_char.au;
 	p_ptr->base_spell_power = previous_char.base_spell_power;
 
@@ -3310,18 +3147,21 @@ void get_max_stats(void)
 	p_ptr->redraw |= (PR_STATS);
 }
 
+int _race_exp_factor(void)
+{
+	if (p_ptr->prace == RACE_DOPPELGANGER)
+		return get_race_t()->exp;
+	return get_true_race_t()->exp;
+}
 int calc_exp_factor(void)
 {
 	int exp;
-	int r_exp = rp_ptr->r_exp;
+	int r_exp = _race_exp_factor();
 	int c_exp = cp_ptr->c_exp;
 	int a_exp = ap_ptr->a_exp;
 
 	if (p_ptr->prace == RACE_ANDROID) 
 		return r_exp;
-
-	if (p_ptr->prace == RACE_DEMIGOD)
-		r_exp += demigod_info[p_ptr->psubrace].exp;
 
 	exp = r_exp * c_exp / 100;
 	exp = exp * a_exp / 100;
@@ -3335,6 +3175,7 @@ int calc_exp_factor(void)
 static void get_extra(bool roll_hitdie)
 {
 	int i, j;
+	race_t *race_ptr = get_race_t();
 
 	p_ptr->expfact = calc_exp_factor();
 
@@ -3373,12 +3214,9 @@ static void get_extra(bool roll_hitdie)
 
 	/* Hitdice */
 	if (p_ptr->pclass == CLASS_SORCERER)
-		p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		p_ptr->hitdie = race_ptr->hd/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
 	else
-		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
-
-	if (p_ptr->prace == RACE_DEMIGOD)
-		p_ptr->hitdie += demigod_info[p_ptr->psubrace].hd;
+		p_ptr->hitdie = race_ptr->hd + cp_ptr->c_mhp + ap_ptr->a_mhp;
 
 	/* Roll for hit point unless quick-start */
 	if (roll_hitdie) do_cmd_rerate_aux();
@@ -3559,17 +3397,17 @@ static void get_history(void)
 			chart = 137;
 			break;
 		}
-		case RACE_ANGEL:
+		case RACE_ARCHON:
 		{
 			chart = 142;
 			break;
 		}
-		case RACE_DEMON:
+		case RACE_BALROG:
 		{
 			chart = 145;
 			break;
 		}
-		case RACE_S_FAIRY:
+		case RACE_SHADOW_FAIRY:
 		{
 			chart = 148;
 			break;
@@ -3620,10 +3458,6 @@ static void get_history(void)
 	if (social_class > 100) social_class = 100;
 	else if (social_class < 1) social_class = 1;
 
-	/* Save the social class */
-	p_ptr->sc = social_class;
-
-
 	/* Skip leading spaces */
 	for (s = buf; *s == ' '; s++) /* loop */;
 
@@ -3646,46 +3480,6 @@ static void get_history(void)
 }
 
 
-/*
- * Get character's height and weight
- */
-void get_height_weight(void)
-{
-	int h_percent; /* 身長が平均にくらべてどのくらい違うか. */
-
-	/* Calculate the height/weight for males */
-	if (p_ptr->psex == SEX_MALE)
-	{
-		p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
-		p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent /100
-				    , (int)(rp_ptr->m_m_wt) * h_percent / 300 );
-	}
-  
-	/* Calculate the height/weight for females */
-	else if (p_ptr->psex == SEX_FEMALE)
-	{
-		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
-		p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent /100
-				    , (int)(rp_ptr->f_m_wt) * h_percent / 300 );
-	}
-}
-
-
-/*
- * Computes character's age, height, and weight
- * by henkma
- */
-static void get_ahw(void)
-{
-	/* Get character's age */
-	p_ptr->age = rp_ptr->b_age + randint1(rp_ptr->m_age);
-
-	/* Get character's height and weight */
-	get_height_weight();
-}
-
 
 /*
  * Get the player's starting money
@@ -3695,7 +3489,7 @@ static void get_money(void)
 	int i, gold;
 
 	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint1(100) + 300;
+	gold = randint1(600) + randint1(100) + 300;
 	if (p_ptr->pclass == CLASS_TOURIST)
 	  gold += 2000;
 
@@ -3735,6 +3529,7 @@ static void birth_put_stats(void)
 	int col;
 	byte attr;
 	char buf[80];
+	race_t *race_ptr = get_race_t();
 
 
 	if (autoroller)
@@ -3744,7 +3539,7 @@ static void birth_put_stats(void)
 		for (i = 0; i < 6; i++)
 		{
 			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
+			j = race_ptr->stats[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
 
 			/* Obtain the current stat */
 			m = adjust_stat(p_ptr->stat_max[i], j);
@@ -3816,6 +3611,7 @@ static void player_wipe(void)
 
 	/* Hack -- zero the struct */
 	(void)WIPE(p_ptr, player_type);
+	p_ptr->mimic_form = MIMIC_NONE;
 
 	/* Wipe the history */
 	for (i = 0; i < 4; i++)
@@ -4637,7 +4433,7 @@ void player_outfit(void)
 		/* Vampires can drain blood of creatures */
 		break;
 
-	case RACE_DEMON:
+	case RACE_BALROG:
 		/* Demon can drain vitality from humanoid corpse */
 		get_mon_num_prep(monster_hook_human, NULL);
 
@@ -4811,6 +4607,8 @@ void player_outfit(void)
 
 /*
  * Player race
+ * TODO: Rewrite this to not rely on races existing for each number from 0..MAX_RACES
+ * TODO: There are getting to be too many choices. Perhaps add some grouping (humanoid, undead, ...)?
  */
 static bool get_player_race(void)
 {
@@ -4822,33 +4620,24 @@ static bool get_player_race(void)
 	char    buf[80], cur[80];
 
 
-	/* Extra info */
 	clear_from(10);
-#ifdef JP
-	put_str("注意：《種族》によってキャラクターの先天的な資質やボーナスが変化します。", 23, 5);
-#else
-	put_str("Note: Your 'race' determines various intrinsic factors and bonuses.", 23 ,5);
-#endif
+	put_str(T("Note: Your 'race' determines various intrinsic factors and bonuses.", 
+			  "注意：《種族》によってキャラクターの先天的な資質やボーナスが変化します。"),
+			23 ,5);
 
 	/* Dump races */
 	for (n = 0; n < MAX_RACES; n++)
 	{
-		/* Analyze */
-		rp_ptr = &race_info[n];
-		str = rp_ptr->title;
+		race_t *race_ptr = get_race_t_aux(n, 0);
+		str = race_ptr ? race_ptr->name : "Missing!";
 
-		/* Display */
 		if (n < 26)
 			sym[n] = I2A(n);
 		else
 			sym[n] = ('A' + n - 26);
-#ifdef JP
-		sprintf(buf, "%c%c%s", sym[n], p2, str);
-#else
-		sprintf(buf, "%c%c %s", sym[n], p2, str);
-#endif
-		put_str(buf, 12 + (n/5), 1 + 16 * (n%5));
 
+		sprintf(buf, T("%c%c %s", "%c%c%s"), sym[n], p2, str);
+		put_str(buf, 12 + (n/5), 1 + 16 * (n%5));
 	}
 
 #ifdef JP
@@ -4880,22 +4669,17 @@ static bool get_player_race(void)
 			}
 			else
 			{
-				rp_ptr = &race_info[cs];
-				str = rp_ptr->title;
-#ifdef JP
-				sprintf(cur, "%c%c%s", sym[cs], p2, str);
-				c_put_str(TERM_L_BLUE, rp_ptr->title, 3, 40);
-				put_str("の種族修正", 3, 40+strlen(rp_ptr->title));
-				put_str("腕力 知能 賢さ 器用 耐久 魅力 経験 ", 4, 40);
-#else
-				sprintf(cur, "%c%c %s", sym[cs], p2, str);
-				c_put_str(TERM_L_BLUE, rp_ptr->title, 3, 40);
-				put_str(": Race modification", 3, 40+strlen(rp_ptr->title));
-				put_str("Str  Int  Wis  Dex  Con  Chr   EXP ", 4, 40);
-#endif
+				race_t *race_ptr = get_race_t_aux(cs, 0);
+				str = race_ptr->name;
+				
+				sprintf(cur, T("%c%c %s", "%c%c%s"), sym[cs], p2, str);
+				c_put_str(TERM_L_BLUE, race_ptr->name, 3, 40);
+				put_str(T(": Race modification", "の種族修正"), 3, 40+strlen(race_ptr->name));
+				put_str(T("Str  Int  Wis  Dex  Con  Chr   EXP ", "腕力 知能 賢さ 器用 耐久 魅力 経験 "), 4, 40);
 				sprintf(buf, "%+3d  %+3d  %+3d  %+3d  %+3d  %+3d %4d%% ",
-					rp_ptr->r_adj[0], rp_ptr->r_adj[1], rp_ptr->r_adj[2], rp_ptr->r_adj[3],
-					rp_ptr->r_adj[4], rp_ptr->r_adj[5], (rp_ptr->r_exp));
+					race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+					race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+					race_ptr->exp);
 				c_put_str(TERM_L_BLUE, buf, 5, 40);
 			}
 			c_put_str(TERM_YELLOW, cur, 12 + (cs/5), 1 + 16 * (cs%5));
@@ -4987,10 +4771,8 @@ static bool get_player_race(void)
 	/* Set race */
 	p_ptr->prace = k;
 
-	rp_ptr = &race_info[p_ptr->prace];
-
 	/* Display */
-	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
+	c_put_str(TERM_L_BLUE, get_race_t()->name, 4, 15);
 
 	/* Success */
 	return TRUE;
@@ -5035,7 +4817,7 @@ static bool get_player_class(void)
 			switch (p_ptr->prace)
 			{
 			case RACE_ANDROID:
-			case RACE_DEMON:
+			case RACE_BALROG:
 			case RACE_ENT:
 			case RACE_GOLEM:
 			case RACE_IMP:
@@ -5494,6 +5276,7 @@ static bool get_stat_limits(void)
 	char c;
 	char buf[80], cur[80];
 	char inp[80];
+	race_t *race_ptr = get_race_t();
 
 	/* Clean up */
 	clear_from(10);
@@ -5521,7 +5304,7 @@ static bool get_stat_limits(void)
 		cval[i] = 3;
 
 		/* Race/Class bonus */
-		j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
+		j = race_ptr->stats[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
 
 		/* Obtain the "maximal" stat */
 		m = adjust_stat(17, j);
@@ -5574,7 +5357,7 @@ static bool get_stat_limits(void)
 
 		/* Prepare a prompt */
 		sprintf(buf, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s  %6s",
-			stat_names[i], cval[i], rp_ptr->r_adj[i], cp_ptr->c_adj[i],
+			stat_names[i], cval[i], race_ptr->stats[i], cp_ptr->c_adj[i],
 			ap_ptr->a_adj[i], inp, cur);
 		
 		/* Dump the prompt */
@@ -5611,7 +5394,7 @@ static bool get_stat_limits(void)
 			else
 			{
 				/* Race/Class bonus */
-				j = rp_ptr->r_adj[cs] + cp_ptr->c_adj[cs] + ap_ptr->a_adj[cs];
+				j = race_ptr->stats[cs] + cp_ptr->c_adj[cs] + ap_ptr->a_adj[cs];
 
 				/* Obtain the current stat */
 				m = adjust_stat(cval[cs], j);
@@ -5638,7 +5421,7 @@ static bool get_stat_limits(void)
 				
 				/* Prepare a prompt */
 				sprintf(cur, "%6s       %2d   %+3d  %+3d  %+3d  =  %6s",
-					stat_names[cs], cval[cs], rp_ptr->r_adj[cs],
+					stat_names[cs], cval[cs], race_ptr->stats[cs],
 					cp_ptr->c_adj[cs], ap_ptr->a_adj[cs], inp);
 				c_put_str(TERM_YELLOW, cur, 14 + cs, 10);
 			}
@@ -5746,313 +5529,6 @@ static bool get_stat_limits(void)
 		/* Save the minimum stat */
 		stat_limit[i] = cval[i];
 	}
-
-	return TRUE;
-}
-#endif
-
-#ifdef ALLOW_AUTOROLLER
-static bool get_chara_limits(void)
-{
-#define MAXITEMS 8
-
-	int i, j, m, cs, os;
-	int mval[MAXITEMS], cval[MAXITEMS];
-	int max_percent, min_percent;
-	char c;
-	char buf[80], cur[80];
-	cptr itemname[] = {
-#ifdef JP
-		"年齢",
-		"身長(インチ)",
-		"体重(ポンド)",
-		"社会的地位"
-#else
-		"age",
-		"height",
-		"weight",
-		"social class"
-#endif
-	};
-
-	/* Clean up */
-	clear_from(10);
-	
-	/* Prompt for the minimum stats */
-#ifdef JP
-	put_str("2/4/6/8で項目選択、+/-で値の増減、Enterで次へ", 11, 10);
-	put_str("注意：身長と体重の最大値/最小値ぎりぎりの値は非常に出現確率が低くなります。", 23, 2);
-#else
-	put_str("2/4/6/8 for Select, +/- for Change value, Enter for Goto next", 11, 10);
-	put_str("Caution: Values near minimum or maximum is extremery rare.", 23, 5);
-#endif
-	
-	if (p_ptr->psex == SEX_MALE)
-	{
-		max_percent = (int)(rp_ptr->m_b_ht+rp_ptr->m_m_ht*4-1) * 100 / (int)(rp_ptr->m_b_ht);
-		min_percent = (int)(rp_ptr->m_b_ht-rp_ptr->m_m_ht*4+1) * 100 / (int)(rp_ptr->m_b_ht);
-	}
-	else
-	{
-		max_percent = (int)(rp_ptr->f_b_ht+rp_ptr->f_m_ht*4-1) * 100 / (int)(rp_ptr->f_b_ht);
-		min_percent = (int)(rp_ptr->f_b_ht-rp_ptr->f_m_ht*4+1) * 100 / (int)(rp_ptr->f_b_ht);
-	}
-	
-#ifdef JP
-	put_str("体格/地位の最小値/最大値を設定して下さい。", 10, 10);
-	put_str("  項    目                 最小値  最大値", 13,20);
-#else
-	put_str(" Parameter                    Min     Max", 13,20);
-	put_str("Set minimum/maximum attribute.", 10, 10);
-#endif
-
-	/* Output the maximum stats */
-	for (i = 0; i < MAXITEMS; i++)
-	{
-		/* Obtain the "maximal" stat */
-		switch (i)
-		{
-		case 0:	/* Minimum age */
-			m = rp_ptr->b_age + 1;
-			break;
-		case 1:	/* Maximum age */
-			m = rp_ptr->b_age + rp_ptr->m_age;
-			break;
-
-		case 2:	/* Minimum height */
-			if (p_ptr->psex == SEX_MALE) m = rp_ptr->m_b_ht-rp_ptr->m_m_ht*4+1;
-			else m = rp_ptr->f_b_ht-rp_ptr->f_m_ht*4+1;
-			break;
-		case 3:	/* Maximum height */
-			if (p_ptr->psex == SEX_MALE) m = rp_ptr->m_b_ht+rp_ptr->m_m_ht*4-1;
-			else m = rp_ptr->f_b_ht+rp_ptr->f_m_ht*4-1;
-			break;
-		case 4:	/* Minimum weight */
-			if (p_ptr->psex == SEX_MALE) m = (rp_ptr->m_b_wt * min_percent / 100) - (rp_ptr->m_m_wt * min_percent / 75) +1;
-			else m = (rp_ptr->f_b_wt * min_percent / 100) - (rp_ptr->f_m_wt * min_percent / 75) +1;
-			break;
-		case 5:	/* Maximum weight */
-			if (p_ptr->psex == SEX_MALE) m = (rp_ptr->m_b_wt * max_percent / 100) + (rp_ptr->m_m_wt * max_percent / 75) -1;
-			else m = (rp_ptr->f_b_wt * max_percent / 100) + (rp_ptr->f_m_wt * max_percent / 75) -1;
-			break;
-		case 6:	/* Minimum social class */
-			m = 1;
-			break;
-		case 7:	/* Maximum social class */
-			m = 100;
-			break;
-		default:
-			m = 1;
-			break;
-		}
-		
-		/* Save the maximum or minimum */
-		mval[i] = m;
-		cval[i] = m;
-	}
-
-	for (i = 0; i < 4; i++)
-	{
-		/* Prepare a prompt */
-		sprintf(buf, "%-12s (%3d - %3d)", itemname[i], mval[i*2], mval[i*2+1]);
-
-		/* Dump the prompt */
-		put_str(buf, 14 + i, 20);
-
-		for (j = 0; j < 2; j++)
-		{
-			sprintf(buf, "     %3d", cval[i*2+j]);
-			put_str(buf, 14 + i, 45 + 8 * j);
-		}
-	}
-	
-	/* Get a minimum stat */
-	cs = 0;
-	os = MAXITEMS;
-	while (TRUE)
-	{
-		/* Move Cursol */
-		if (cs != os)
-		{
-#ifdef JP
-			const char accept[] = "決定する";
-#else
-			const char accept[] = "Accept";
-#endif
-			if(os == MAXITEMS)
-			{
-				c_put_str(TERM_WHITE, accept, 19, 35);
-			}
-			else
-			{
-				c_put_str(TERM_WHITE, cur, 14 + os/2, 45 + 8 * (os%2));
-			}
-			
-			if(cs == MAXITEMS)
-			{
-				c_put_str(TERM_YELLOW, accept, 19, 35);
-			}
-			else
-			{
-				/* Prepare a prompt */
-				sprintf(cur, "     %3d", cval[cs]);
-				c_put_str(TERM_YELLOW, cur, 14 + cs/2, 45 + 8 * (cs%2));
-			}
-			os = cs;
-		}
-		
-		/* Prompt for the minimum stats */
-		c = inkey();
-		switch (c){
-		case 'Q':
-			birth_quit();
-		case 'S':
-			return (FALSE);
-		case ESCAPE:
-			break; /*後でもう一回breakせんと*/
-		case ' ':
-		case '\r':
-		case '\n':
-			if(cs == MAXITEMS) break;
-			cs++;
-			c = '6';
-			break;
-		case '8':
-		case 'k':
-			if (cs-2 >= 0) cs -= 2;
-			break;
-		case '2':
-		case 'j':
-			if (cs < MAXITEMS) cs += 2;
-			if (cs > MAXITEMS) cs = MAXITEMS;
-			break;
-		case '4':
-		case 'h':
-			if (cs > 0) cs--;
-			break;
-		case '6':
-		case 'l':
-			if (cs < MAXITEMS) cs++;
-			break;
-		case '-':
-		case '<':
-			if (cs != MAXITEMS)
-			{
-				if(cs%2)
-				{
-					if(cval[cs] > cval[cs-1])
-					{
-						cval[cs]--;
-						os = 127;
-					}
-				}
-				else
-				{
-					if(cval[cs] > mval[cs])
-					{
-						cval[cs]--;
-						os = 127;
-					}
-				}
-			}
-			break;
-		case '+':
-		case '>':
-			if (cs != MAXITEMS)
-			{
-				if(cs%2)
-				{
-					if(cval[cs] < mval[cs])
-					{
-						cval[cs]++;
-						os = 127;
-					}
-				}
-				else
-				{
-					if(cval[cs] < cval[cs+1])
-					{
-						cval[cs]++;
-						os = 127;
-					}
-				}
-			}
-			break;
-		case 'm':
-			if(cs != MAXITEMS)
-			{
-				if(cs%2)
-				{
-					if(cval[cs] < mval[cs])
-					{
-						cval[cs] = mval[cs];
-						os = 127;
-					}
-				}
-				else
-				{
-					if(cval[cs] < cval[cs+1])
-					{
-						cval[cs] = cval[cs+1];
-						os = 127;
-					}
-				}
-			}
-			break;
-		case 'n':
-			if(cs != MAXITEMS)
-			{
-				if(cs%2)
-				{
-					if(cval[cs] > cval[cs-1])
-					{
-						cval[cs] = cval[cs-1];
-						os = 255;
-					}
-				}
-				else
-				{
-					if(cval[cs] > mval[cs])
-					{
-						cval[cs] = mval[cs];
-						os = 255;
-					}
-				}
-			}
-			break;
-		case '?':
-#ifdef JP
-			show_help("jbirth.txt#AutoRoller");
-#else
-			show_help("birth.txt#AutoRoller");
-#endif
-			break;
-		case '=':
-			screen_save();
-#ifdef JP
-			do_cmd_options_aux(OPT_PAGE_BIRTH, "初期オプション((*)はスコアに影響)");
-#else
-			do_cmd_options_aux(OPT_PAGE_BIRTH, "Birth Option((*)s effect score)");
-#endif
-
-			screen_load();
-			break;
-		default:
-			bell();
-			break;
-		}
-		if(c == ESCAPE || ((c == ' ' || c == '\r' || c == '\n') && cs == MAXITEMS))break;
-	}
-
-	/* Input the minimum stats */
-	chara_limit.agemin = cval[0];
-	chara_limit.agemax = cval[1];
-	chara_limit.htmin = cval[2];
-	chara_limit.htmax = cval[3];
-	chara_limit.wtmin = cval[4];
-	chara_limit.wtmax = cval[5];
-	chara_limit.scmin = cval[6];
-	chara_limit.scmax = cval[7];
 
 	return TRUE;
 }
@@ -6381,11 +5857,6 @@ static void edit_history(void)
 
 }
 
-cptr birth_get_race_desc(int i)
-{
-	return race_jouhou[i];
-}
-
 cptr birth_get_class_desc(int i)
 {
 	return class_jouhou[i];
@@ -6608,22 +6079,27 @@ static bool player_birth_aux(void)
 	{
 		char temp[80*10];
 		cptr t;
+		race_t *race_ptr = NULL;
 
 		if (!get_player_race()) return FALSE;
 
 		clear_from(10);
 
-		roff_to_buf(race_jouhou[p_ptr->prace], 74, temp, sizeof(temp));
-		t = temp;
-
-		for (i = 0; i< 10; i++)
+		race_ptr = get_race_t_aux(p_ptr->prace, 0);
+		if (race_ptr)
 		{
-			if(t[0] == 0)
-				break; 
-			else
+			roff_to_buf(race_ptr->desc, 74, temp, sizeof(temp));
+			t = temp;
+
+			for (i = 0; i< 10; i++)
 			{
-				prt(t, 12+i, 3);
-				t += strlen(t) + 1;
+				if(t[0] == 0)
+					break; 
+				else
+				{
+					prt(t, 12+i, 3);
+					t += strlen(t) + 1;
+				}
 			}
 		}
 #ifdef JP
@@ -6743,11 +6219,6 @@ static bool player_birth_aux(void)
 		if (!get_stat_limits()) return FALSE;
 	}
 
-	if (autochara)
-	{
-		if (!get_chara_limits()) return FALSE;
-	}
-
 #endif /* ALLOW_AUTOROLLER */
 
 	/* Clear */
@@ -6791,9 +6262,6 @@ static bool player_birth_aux(void)
 			/* Get a new character */
 			get_stats();
 
-			/* Roll for age/height/weight */
-			get_ahw();
-
 			/* Roll for social class */
 			get_history();
 		}
@@ -6834,7 +6302,7 @@ static bool player_birth_aux(void)
 				put_str(stat_names[i], 3+i, col);
 
 				/* Race/Class bonus */
-				j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
+				j = get_race_t()->stats[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i];
 
 				/* Obtain the current stat */
 				m = adjust_stat(stat_limit[i], j);
@@ -6892,19 +6360,8 @@ static bool player_birth_aux(void)
 			/* Break if "happy" */
 			if (accept)
 			{
-				/* Roll for age/height/weight */
-				get_ahw();
-
 				/* Roll for social class */
 				get_history();
-
-				if (autochara)
-				{
-					if ((p_ptr->age < chara_limit.agemin) || (p_ptr->age > chara_limit.agemax)) accept = FALSE;
-					if ((p_ptr->ht < chara_limit.htmin) || (p_ptr->ht > chara_limit.htmax)) accept = FALSE;
-					if ((p_ptr->wt < chara_limit.wtmin) || (p_ptr->wt > chara_limit.wtmax)) accept = FALSE;
-					if ((p_ptr->sc < chara_limit.scmin) || (p_ptr->sc > chara_limit.scmax)) accept = FALSE;
-				}
 				if (accept) break;
 			}
 
@@ -6934,9 +6391,6 @@ static bool player_birth_aux(void)
 				/* Check for a keypress */
 				if (inkey())
 				{
-					/* Roll for age/height/weight */
-					get_ahw();
-
 					/* Roll for social class */
 					get_history();
 
@@ -7207,7 +6661,6 @@ static bool ask_quick_start(void)
 	init_turn();
 
 	sp_ptr = &sex_info[p_ptr->psex];
-	rp_ptr = &race_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &m_info[p_ptr->pclass];
 	ap_ptr = &seikaku_info[p_ptr->pseikaku];
@@ -7301,7 +6754,7 @@ void player_birth(void)
 #ifdef JP
 	sprintf(buf,"                            種族に%sを選択した。", race_info[p_ptr->prace].title);
 #else
-	sprintf(buf,"                            choose %s race.", race_info[p_ptr->prace].title);
+	sprintf(buf,"                            choose %s race.", get_race_t()->name);
 #endif
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, buf);
 
@@ -7368,23 +6821,23 @@ void dump_yourself(FILE *fff)
 	char temp[80*10];
 	int i;
 	cptr t;
+	race_t *race_ptr = get_race_t();
 
 	if (!fff) return;
 
-	roff_to_buf(race_jouhou[p_ptr->prace], 78, temp, sizeof(temp));
-	fprintf(fff, "\n\n");
-#ifdef JP
-	fprintf(fff, "種族: %s\n", race_info[p_ptr->prace].title);
-#else
-	fprintf(fff, "Race: %s\n", race_info[p_ptr->prace].title);
-#endif
-	t = temp;
-	for (i = 0; i < 10; i++)
+	if (race_ptr)
 	{
-		if(t[0] == 0)
-			break; 
-		fprintf(fff, "%s\n",t);
-		t += strlen(t) + 1;
+		roff_to_buf(race_ptr->desc, 78, temp, sizeof(temp));
+		fprintf(fff, "\n\n");
+		fprintf(fff, T("Race: %s\n", "種族: %s\n"), race_ptr->name);
+		t = temp;
+		for (i = 0; i < 10; i++)
+		{
+			if(t[0] == 0)
+				break; 
+			fprintf(fff, "%s\n",t);
+			t += strlen(t) + 1;
+		}
 	}
 	roff_to_buf(class_jouhou[p_ptr->pclass], 78, temp, sizeof(temp));
 	fprintf(fff, "\n");

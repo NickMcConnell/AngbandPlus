@@ -604,9 +604,9 @@ static void wr_extra(void)
 	wr_byte(p_ptr->hitdie);
 	wr_u16b(p_ptr->expfact);
 
-	wr_s16b(p_ptr->age);
-	wr_s16b(p_ptr->ht);
-	wr_s16b(p_ptr->wt);
+	wr_s16b(0);
+	wr_s16b(0);
+	wr_s16b(0);
 
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_max[i]);
@@ -691,7 +691,7 @@ static void wr_extra(void)
 	wr_s16b(0);     /* oops */
 	wr_s16b(0);     /* oops */
 	wr_s16b(0);     /* oops */
-	wr_s16b(p_ptr->sc);
+	wr_s16b(0);     /* oops */
 	wr_s16b(p_ptr->concent);
 
 	wr_s16b(0);             /* old "rest" */
@@ -743,7 +743,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_res_nether);
 	wr_s16b(p_ptr->tim_res_time);
 	wr_s16b(p_ptr->tim_res_disenchantment);
-	wr_byte(p_ptr->mimic_form);
+	wr_s16b(p_ptr->mimic_form);
 	wr_s16b(p_ptr->tim_mimic);
 	wr_s16b(p_ptr->tim_sh_fire);
 	wr_s16b(p_ptr->tim_sh_holy);

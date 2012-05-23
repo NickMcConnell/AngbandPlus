@@ -103,6 +103,7 @@
     <ClCompile Include="cmd6.c" />
     <ClCompile Include="demigod.c" />
     <ClCompile Include="do-spell.c" />
+    <ClCompile Include="doppelganger.c" />
     <ClCompile Include="duelist.c" />
     <ClCompile Include="dungeon.c" />
     <ClCompile Include="effects.c" />

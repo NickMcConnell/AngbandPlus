@@ -1811,26 +1811,8 @@ bool make_attack_normal(int m_idx)
 					resist_drain = !drain_exp(d, d / 10, 50);
 
 					/* Heal the attacker? */
-					if (p_ptr->mimic_form)
-					{
-						if (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING)
-							resist_drain = TRUE;
-					}
-					else
-					{
-						switch (p_ptr->prace)
-						{
-						case RACE_ZOMBIE:
-						case RACE_VAMPIRE:
-						case RACE_SPECTRE:
-						case RACE_SKELETON:
-						case RACE_DEMON:
-						case RACE_GOLEM:
-						case RACE_ANDROID:
-							resist_drain = TRUE;
-							break;
-						}
-					}
+					if (get_race_t()->flags & RACE_IS_NONLIVING)
+						resist_drain = TRUE;
 
 					if ((damage > 5) && !resist_drain)
 					{

@@ -252,22 +252,11 @@ sprintf(tmp_val, "( %d 位以下 )", k + 1);
 			}
 
 			/* Dump some info */
-#ifdef JP
-/*sprintf(out_val, "%3d.%9s  %s%s%sという名の%sの%s (レベル %d)", */
-			sprintf(out_val, "%3d.%9s  %s%s%s - %s%s (レベル %d)",
-				place, the_score.pts,
-				seikaku_info[pa].title, (seikaku_info[pa].no ? "の" : ""),
-				the_score.who,
-				race_info[pr].title, class_info[pc].title,
-				clev);
-
-#else
 			sprintf(out_val, "%3d.%9s  %s %s the %s %s, Level %d",
 				place, the_score.pts,
 				seikaku_info[pa].title,
-				the_score.who, race_info[pr].title, class_info[pc].title,
+				the_score.who, get_race_t_aux(pr, 0)->name, class_info[pc].title,
 				clev);
-#endif
 
 
 			/* Append a "maximum level" */
@@ -730,26 +719,16 @@ msg_print("スコア・ファイルが使用できません。");
 		pr = atoi(the_score.p_r);
 		clev = atoi(the_score.cur_lev);
 
-#ifdef JP
-		sprintf(out_val, "   %3d) %sの%s (レベル %2d)",
-		    (m + 1), race_info[pr].title,the_score.who, clev);
-#else
 		sprintf(out_val, "%3d) %s the %s (Level %2d)",
-		    (m + 1), the_score.who, race_info[pr].title, clev);
-#endif
+		    (m + 1), the_score.who, get_race_t_aux(pr, 0)->name, clev);
 
 		prt(out_val, (m + 7), 0);
 		m++;
 		j++;
 	}
 
-#ifdef JP
-	sprintf(out_val, "あなた) %sの%s (レベル %2d)",
-	    race_info[p_ptr->prace].title,player_name, p_ptr->lev);
-#else
 	sprintf(out_val, "You) %s the %s (Level %2d)",
-	    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
-#endif
+	    player_name, get_race_t_aux(p_ptr->prace, p_ptr->psubrace)->name, p_ptr->lev);
 
 	prt(out_val, (m + 8), 0);
 
@@ -785,7 +764,7 @@ void race_score(int race_num)
 #ifdef JP
 sprintf(tmp_str,"最高の%s", race_info[race_num].title);
 #else
-	sprintf(tmp_str,"The Greatest of all the %s", race_info[race_num].title);
+	sprintf(tmp_str,"The Greatest of all the %s", get_race_t_aux(race_num, 0)->name);
 #endif
 
 	prt(tmp_str, 5, 15);
@@ -826,15 +805,9 @@ msg_print("スコア・ファイルが使用できません。");
 
 		if (pr == race_num)
 		{
-#ifdef JP
-		sprintf(out_val, "   %3d) %sの%s (レベル %2d)",
-			    (m + 1), race_info[pr].title, 
-				the_score.who,clev);
-#else
 			sprintf(out_val, "%3d) %s the %s (Level %3d)",
 			    (m + 1), the_score.who,
-			race_info[pr].title, clev);
-#endif
+			get_race_t_aux(pr, 0)->name, clev);
 
 			prt(out_val, (m + 7), 0);
 			m++;
@@ -846,13 +819,8 @@ msg_print("スコア・ファイルが使用できません。");
 	/* add player if qualified */
 	if ((p_ptr->prace == race_num) && (p_ptr->lev >= lastlev))
 	{
-#ifdef JP
-	sprintf(out_val, "あなた) %sの%s (レベル %2d)",
-		     race_info[p_ptr->prace].title,player_name, p_ptr->lev);
-#else
 		sprintf(out_val, "You) %s the %s (Level %3d)",
-		    player_name, race_info[p_ptr->prace].title, p_ptr->lev);
-#endif
+		    player_name, get_race_t_aux(p_ptr->prace, p_ptr->psubrace)->name, p_ptr->lev);
 
 		prt(out_val, (m + 8), 0);
 	}

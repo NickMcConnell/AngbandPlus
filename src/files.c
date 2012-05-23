@@ -1008,11 +1008,8 @@ cptr process_pref_file_expr(char **sp, char *fp)
 			/* Race */
 			else if (streq(b+1, "RACE"))
 			{
-#ifdef JP
-				v = rp_ptr->E_title;
-#else
-				v = rp_ptr->title;
-#endif
+				v = get_true_race_t()->name;
+			/*	v = get_race_t()->name; */
 			}
 
 			/* Class */
@@ -1570,10 +1567,10 @@ errr check_load_init(void)
 #define ENTRY_CLASS 35
 #define ENTRY_REALM 36
 #define ENTRY_PATRON 37
-#define ENTRY_AGE 38
-#define ENTRY_HEIGHT 39
-#define ENTRY_WEIGHT 40
-#define ENTRY_SOCIAL 41
+#define ENTRY_KILLS 38
+#define ENTRY_UNIQUES 39
+#define ENTRY_ARTIFACTS 40
+#define ENTRY_XXX4 41
 #define ENTRY_ALIGN 42
 #define ENTRY_EXP_ANDR 43
 #define ENTRY_EXP_TO_ADV_ANDR 44
@@ -1681,9 +1678,9 @@ static struct
 	{ 1,  5, -1, "Class    : "},
 	{ 1,  6, -1, "Magic    : "},
 	{ 1,  7, -1, "Patron   : "},
-	{29,  3, 21, "Age"},
-	{29,  4, 21, "Height"},
-	{29,  5, 21, "Weight"},
+	{29,  3, 21, "Kills"},
+	{29,  4, 21, "Uniques"},
+	{29,  5, 21, "Artifacts"},
 	{29,  6, 21, "Social Class"},
 	{29,  7, 21, "Align"},
 	{29, 14, 21, "Construction"},
@@ -1961,10 +1958,8 @@ static void display_player_middle(void)
 
 	if (p_ptr->lev >= PY_MAX_LEVEL)
 		display_player_one_line(e, "*****", TERM_L_GREEN);
-	else if (p_ptr->prace == RACE_ANDROID)
-		display_player_one_line(e, format("%ld", (s32b)(player_exp_a[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
 	else
-		display_player_one_line(e, format("%ld", (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)), TERM_L_GREEN);
+		display_player_one_line(e, format("%ld", exp_requirement(p_ptr->lev)), TERM_L_GREEN);
 
 	/* Dump gold */
 	display_player_one_line(ENTRY_GOLD, format("%ld", p_ptr->au), TERM_L_GREEN);
@@ -2550,90 +2545,6 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		break; /* Do nothing */
 	}
 
-	/* Races */
-	if (p_ptr->mimic_form)
-	{
-		switch(p_ptr->mimic_form)
-		{
-		case MIMIC_CLAY_GOLEM:
-			add_flag(flgs, TR_FREE_ACT);
-			add_flag(flgs, TR_HOLD_LIFE);
-			break;
-
-		case MIMIC_IRON_GOLEM:
-			add_flag(flgs, TR_FREE_ACT);
-			add_flag(flgs, TR_SEE_INVIS);
-			add_flag(flgs, TR_HOLD_LIFE);
-			add_flag(flgs, TR_RES_POIS);
-			add_flag(flgs, TR_SPEED);
-			break;
-
-		case MIMIC_MITHRIL_GOLEM:
-			add_flag(flgs, TR_FREE_ACT);
-			add_flag(flgs, TR_SEE_INVIS);
-			add_flag(flgs, TR_HOLD_LIFE);
-			add_flag(flgs, TR_RES_POIS);
-			add_flag(flgs, TR_RES_SHARDS);
-			add_flag(flgs, TR_SPEED);
-			add_flag(flgs, TR_REFLECT);
-			break;
-
-		case MIMIC_COLOSSUS:
-			add_flag(flgs, TR_FREE_ACT);
-			add_flag(flgs, TR_SEE_INVIS);
-			add_flag(flgs, TR_HOLD_LIFE);
-			add_flag(flgs, TR_RES_POIS);
-			add_flag(flgs, TR_RES_SHARDS);
-			add_flag(flgs, TR_RES_SOUND);
-			add_flag(flgs, TR_RES_DISEN);
-			add_flag(flgs, TR_SPEED);
-			add_flag(flgs, TR_REFLECT);
-			break;
-
-		case MIMIC_DEMON:
-			add_flag(flgs, TR_HOLD_LIFE);
-			add_flag(flgs, TR_RES_CHAOS);
-			add_flag(flgs, TR_RES_NETHER);
-			add_flag(flgs, TR_RES_FIRE);
-			add_flag(flgs, TR_SEE_INVIS);
-			add_flag(flgs, TR_SPEED);
-			break;
-		case MIMIC_DEMON_LORD:
-			add_flag(flgs, TR_HOLD_LIFE);
-			add_flag(flgs, TR_RES_CHAOS);
-			add_flag(flgs, TR_RES_NETHER);
-			add_flag(flgs, TR_RES_FIRE);
-			add_flag(flgs, TR_RES_COLD);
-			add_flag(flgs, TR_RES_ELEC);
-			add_flag(flgs, TR_RES_ACID);
-			add_flag(flgs, TR_RES_POIS);
-			add_flag(flgs, TR_RES_CONF);
-			add_flag(flgs, TR_RES_DISEN);
-			add_flag(flgs, TR_RES_NEXUS);
-			add_flag(flgs, TR_RES_FEAR);
-			add_flag(flgs, TR_IM_FIRE);
-			add_flag(flgs, TR_SH_FIRE);
-			add_flag(flgs, TR_SEE_INVIS);
-			add_flag(flgs, TR_TELEPATHY);
-			add_flag(flgs, TR_LEVITATION);
-			add_flag(flgs, TR_SPEED);
-			break;
-		case MIMIC_VAMPIRE:
-			add_flag(flgs, TR_HOLD_LIFE);
-			add_flag(flgs, TR_RES_DARK);
-			add_flag(flgs, TR_RES_NETHER);
-			if (p_ptr->pclass != CLASS_NINJA) add_flag(flgs, TR_LITE);
-			add_flag(flgs, TR_RES_POIS);
-			add_flag(flgs, TR_RES_COLD);
-			add_flag(flgs, TR_SEE_INVIS);
-			add_flag(flgs, TR_SPEED);
-			break;
-		}
-	}
-	else
-	{
-	}
-
 	/* Mutations */
 	if (mut_present(MUT_WEIRD_MIND))
 		add_flag(flgs, TR_RES_CONF);
@@ -2978,20 +2889,14 @@ static void known_obj_immunity(u32b flgs[TR_FLAG_SIZE])
 static void player_immunity(u32b flgs[TR_FLAG_SIZE])
 {
 	int i;
+	race_t *race_ptr = get_race_t();
 
 	/* Clear */
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
 
-	if (p_ptr->mimic_form == MIMIC_VAMPIRE || prace_is_(RACE_VAMPIRE))
-		add_flag(flgs, TR_RES_DARK);
-	if (p_ptr->mimic_form == MIMIC_DEMON_LORD)
-		add_flag(flgs, TR_RES_FIRE);
-	else if (prace_is_(RACE_YEEK) && p_ptr->lev > 19)
-		add_flag(flgs, TR_RES_ACID);
-
-	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
-		add_flag(flgs, TR_RES_LITE);
+	if (race_ptr->get_immunities)
+		race_ptr->get_immunities(flgs);
 
 	if (p_ptr->pclass == CLASS_WARLOCK && p_ptr->psubclass == PACT_DEMON && p_ptr->lev > 49)
 		add_flag(flgs, TR_RES_FIRE);
@@ -3020,10 +2925,14 @@ static void tim_player_immunity(u32b flgs[TR_FLAG_SIZE])
 static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	int i;
+	race_t *race_ptr = get_race_t();
 
 	/* Clear */
 	for (i = 0; i < TR_FLAG_SIZE; i++)
 		flgs[i] = 0L;
+
+	if (race_ptr->get_vulnerabilities)
+		race_ptr->get_vulnerabilities(flgs);
 
 	if (mut_present(MUT_VULN_ELEM) || (p_ptr->special_defense & KATA_KOUKIJIN))
 	{
@@ -3031,14 +2940,7 @@ static void player_vuln_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_ELEC);
 		add_flag(flgs, TR_RES_FIRE);
 		add_flag(flgs, TR_RES_COLD);
-	}
-	if (prace_is_(RACE_ANDROID))
-		add_flag(flgs, TR_RES_ELEC);
-	if (prace_is_(RACE_ENT))
-		add_flag(flgs, TR_RES_FIRE);
-	if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_S_FAIRY) ||
-	    (p_ptr->mimic_form == MIMIC_VAMPIRE))
-		add_flag(flgs, TR_RES_LITE);
+	}		
 }
 
 
@@ -3465,6 +3367,7 @@ static void display_player_misc_info(void)
 {
 	char	buf[80];
 	char	tmp[80];
+	race_t *race_ptr = get_race_t();
 
 	/* Display basics */
 #ifdef JP
@@ -3490,7 +3393,13 @@ put_str("職業  :", 5, 1);
 
 	c_put_str(TERM_L_BLUE, tmp, 1, 34);
 	c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 9);
-	c_put_str(TERM_L_BLUE, (p_ptr->mimic_form ? mimic_info[p_ptr->mimic_form].title : rp_ptr->title), 4, 9);
+
+	if (race_ptr->mimic)
+		sprintf(buf, "[%s]", race_ptr->name);
+	else
+		sprintf(buf, "%s", race_ptr->name);
+
+	c_put_str(TERM_L_BLUE, buf, 4, 9);
 	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 9);
 
 	/* Display extras */
@@ -3533,6 +3442,7 @@ static void display_player_stat_info(void)
 
 	object_type *o_ptr;
 	u32b flgs[TR_FLAG_SIZE];
+	race_t *race_ptr = get_race_t();
 
 	byte a;
 	char c;
@@ -3567,15 +3477,7 @@ c_put_str(TERM_YELLOW, "現在", row, stat_col+35);
 	{
 		int r_adj = 0, e_adj = 0, c_adj = 0;
 
-		if (p_ptr->mimic_form) 
-			r_adj = mimic_info[p_ptr->mimic_form].r_adj[i];
-		else
-		{
-			r_adj = rp_ptr->r_adj[i];
-
-			if (prace_is_(RACE_DEMIGOD))
-				r_adj += demigod_info[p_ptr->psubrace].adj[i];
-		}
+		r_adj = race_ptr->stats[i];
 
 		/* Calculate equipment adjustment */
 		e_adj = 0;
@@ -3880,12 +3782,105 @@ c_put_str(TERM_L_GREEN, "能力修正", row - 1, col);
  * Mode 3 = summary of various things (part 2)
  * Mode 4 = mutations
  */
+static int _kills(void)
+{
+	int i;
+	int result = 0;
+
+	for (i = 0; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			if (r_ptr->max_num == 0) result++;
+		}
+		else
+		{
+			result += r_ptr->r_pkills;
+		}
+	}
+
+	return result;
+}
+
+static int _uniques(void)
+{
+	int i;
+	int result = 0;
+
+	for (i = 0; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			if (r_ptr->max_num == 0) result++;
+		}
+	}
+
+	return result;
+}
+
+static int _artifacts(void)
+{
+	int i, y, x;
+	int result = 0;
+	s16b *skip;
+
+	C_MAKE(skip, max_a_idx, s16b);
+
+	/* This is hard ... don't leak information to the player
+	   when an artifact is on the current level but not yet found! */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			cave_type *c_ptr = &cave[y][x];
+			s16b this_o_idx, next_o_idx = 0;
+
+			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr = &o_list[this_o_idx];
+				next_o_idx = o_ptr->next_o_idx;
+
+				if (!object_is_fixed_artifact(o_ptr)) continue;
+				if (object_is_known(o_ptr)) continue;
+				skip[o_ptr->name1] = TRUE;
+			}
+		}
+	}
+
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		if (!o_ptr->k_idx) continue;
+		if (!object_is_fixed_artifact(o_ptr)) continue;
+		if (object_is_known(o_ptr)) continue;
+
+		skip[o_ptr->name1] = TRUE;
+	}
+
+	for (i = 0; i < max_a_idx; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+		bool count_it = TRUE;
+		if (!a_ptr->name) continue;
+		if (!a_ptr->cur_num) continue;
+		if (skip[i]) continue;
+		result++;
+	}
+
+	C_KILL(skip, max_a_idx, s16b);
+	return result;
+}
+
 void display_player(int mode)
 {
 	int i;
 
 	char	buf[80];
 	char	tmp[64];
+	race_t *race_ptr = get_race_t();
 
 
 	/* XXX XXX XXX */
@@ -3909,7 +3904,14 @@ void display_player(int mode)
 
 		display_player_one_line(ENTRY_NAME, tmp, TERM_L_BLUE);
 		display_player_one_line(ENTRY_SEX, sp_ptr->title, TERM_L_BLUE);
-		display_player_one_line(ENTRY_RACE, (p_ptr->mimic_form ? mimic_info[p_ptr->mimic_form].title : rp_ptr->title), TERM_L_BLUE);
+
+
+		if (race_ptr->mimic)
+
+			sprintf(buf, "[%s]", race_ptr->name);
+		else
+			sprintf(buf, "%s", race_ptr->name);
+		display_player_one_line(ENTRY_RACE, buf, TERM_L_BLUE);
 		display_player_one_line(ENTRY_CLASS, cp_ptr->title, TERM_L_BLUE);
 
 		if (p_ptr->prace == RACE_DEMIGOD)
@@ -3948,19 +3950,10 @@ void display_player(int mode)
 				display_player_one_line(ENTRY_PATRON, chaos_patrons[p_ptr->chaos_patron], TERM_L_BLUE);
 		}
 
-		/* Age, Height, Weight, Social */
-		/* 身長はセンチメートルに、体重はキログラムに変更してあります */
-#ifdef JP
-		display_player_one_line(ENTRY_AGE, format("%d才" ,(int)p_ptr->age), TERM_L_BLUE);
-		display_player_one_line(ENTRY_HEIGHT, format("%dcm" ,(int)((p_ptr->ht*254)/100)), TERM_L_BLUE);
-		display_player_one_line(ENTRY_WEIGHT, format("%dkg" ,(int)((p_ptr->wt*4536)/10000)), TERM_L_BLUE);
-		display_player_one_line(ENTRY_SOCIAL, format("%d  " ,(int)p_ptr->sc), TERM_L_BLUE);
-#else
-		display_player_one_line(ENTRY_AGE, format("%d" ,(int)p_ptr->age), TERM_L_BLUE);
-		display_player_one_line(ENTRY_HEIGHT, format("%d" ,(int)p_ptr->ht), TERM_L_BLUE);
-		display_player_one_line(ENTRY_WEIGHT, format("%d" ,(int)p_ptr->wt), TERM_L_BLUE);
-		display_player_one_line(ENTRY_SOCIAL, format("%d" ,(int)p_ptr->sc), TERM_L_BLUE);
-#endif
+		display_player_one_line(ENTRY_KILLS, format("%d" , _kills()), TERM_L_BLUE);
+		display_player_one_line(ENTRY_UNIQUES, format("%d" , _uniques()), TERM_L_BLUE);
+		if (!random_artifacts && !no_artifacts)
+			display_player_one_line(ENTRY_ARTIFACTS, format("%d" , _artifacts()), TERM_L_BLUE);
 		display_player_one_line(ENTRY_ALIGN, format("%s" ,your_alignment()), TERM_L_BLUE);
 
 
@@ -5047,11 +5040,7 @@ static void dump_aux_race_history(FILE *fff)
 	{
 		int i;
 
-#ifdef JP
-		fprintf(fff, "\n\n あなたは%sとして生まれた。", race_info[p_ptr->start_race].title);
-#else
-		fprintf(fff, "\n\n You were born as %s.", race_info[p_ptr->start_race].title);
-#endif
+		fprintf(fff, T("\n\n You were born as %s.", "\n\n あなたは%sとして生まれた。"), get_race_t_aux(p_ptr->start_race, 0)->name);
 		for (i = 0; i < MAX_RACES; i++)
 		{
 			if (p_ptr->start_race == i) continue;
@@ -5063,11 +5052,7 @@ static void dump_aux_race_history(FILE *fff)
 			{
 				if (!(p_ptr->old_race2 & 1L << (i-32))) continue;
 			}
-#ifdef JP
-			fprintf(fff, "\n あなたはかつて%sだった。", race_info[i].title);
-#else
-			fprintf(fff, "\n You were a %s before.", race_info[i].title);
-#endif
+			fprintf(fff, T("\n You were a %s before.", "\n あなたはかつて%sだった。"), get_race_t_aux(i, 0)->name);
 		}
 
 		fputc('\n', fff);
@@ -7703,9 +7688,9 @@ static errr counts_seek(int fd, u32b where, bool flag)
 	int i;
 
 #ifdef SAVEFILE_USE_UID
-	(void)sprintf(temp1, "%d.%s.%d%d%d", player_uid, savefile_base, p_ptr->pclass, p_ptr->pseikaku, p_ptr->age);
+	(void)sprintf(temp1, "%d.%s.%d%d%d", player_uid, savefile_base, p_ptr->pclass, p_ptr->pseikaku, 0);
 #else
-	(void)sprintf(temp1, "%s.%d%d%d", savefile_base, p_ptr->pclass, p_ptr->pseikaku, p_ptr->age);
+	(void)sprintf(temp1, "%s.%d%d%d", savefile_base, p_ptr->pclass, p_ptr->pseikaku, 0);
 #endif
 	for (i = 0; temp1[i]; i++)
 		temp1[i] ^= (i+1) * 63;

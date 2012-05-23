@@ -47,7 +47,7 @@
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
 #define H_VER_PATCH 99
-#define H_VER_EXTRA 0
+#define H_VER_EXTRA 1
 
 
 #define ANGBAND_2_8_1
@@ -753,12 +753,18 @@
 #define RACE_SPRITE             28
 #define RACE_BEASTMAN           29
 #define RACE_ENT                30
-#define RACE_ANGEL              31
-#define RACE_DEMON              32
+#define RACE_ARCHON             31
+#define RACE_BALROG             32
 #define RACE_DUNADAN            33
-#define RACE_S_FAIRY            34
+#define RACE_SHADOW_FAIRY       34
 #define RACE_KUTAR              35
 #define RACE_ANDROID            36
+#define RACE_DOPPELGANGER       37
+/*
+ * Maximum number of player "race" types (see "table.c", etc)
+ * Note other races exist, and use constants beginning at MIMIC_MIN
+ */
+#define MAX_RACES               38
 
 #define DEMIGOD_MINOR			0 	/* Demigod Parentage.  Modeled as a 'subrace' */
 #define DEMIGOD_ZEUS			1
@@ -777,10 +783,28 @@
 #define MAX_DEMIGOD_TYPES		13
 #define MAX_DEMIGOD_POWERS		5
 
-/*
- * Maximum number of player "race" types (see "table.c", etc)
- */
-#define MAX_RACES               37
+/* TODO */
+#define RACE_IS_NONLIVING 0x01
+#define RACE_IS_DEMON     0x02
+#define RACE_IS_UNDEAD    0x04
+
+/* Mimicry uses races too ... Its just that players
+   cannot choose these races during birth. */
+#define MIMIC_NONE			-1                  /* RACE_HUMAN is 0 and Dopplegangers can mimic humans! */
+
+#define MIMIC_MIN		    1000
+#define MIMIC_DEMON			MIMIC_MIN + 0
+#define MIMIC_DEMON_LORD	MIMIC_MIN + 1
+#define MIMIC_VAMPIRE		MIMIC_MIN + 2
+#define MIMIC_CLAY_GOLEM	MIMIC_MIN + 3
+#define MIMIC_IRON_GOLEM	MIMIC_MIN + 4
+#define MIMIC_MITHRIL_GOLEM	MIMIC_MIN + 5
+#define MIMIC_COLOSSUS		MIMIC_MIN + 6
+#define MIMIC_MAX           MIMIC_MIN + 6
+
+
+#define prace_is_(A) (p_ptr->mimic_form == (A) || (p_ptr->mimic_form == MIMIC_NONE && p_ptr->prace == (A)))
+
 
 
 /*
@@ -5512,27 +5536,6 @@ extern int PlayerUID;
 #define SAVE_MON_PACK_IDX     0x00010000
 #define SAVE_MON_AC			  0x00020000
 
-
-/*
- * Constant for kinds of mimic
- */
-#define MIMIC_NONE       0
-#define MIMIC_DEMON      1
-#define MIMIC_DEMON_LORD 2
-#define MIMIC_VAMPIRE    3
-#define MIMIC_CLAY_GOLEM 4
-#define MIMIC_IRON_GOLEM 5
-#define MIMIC_MITHRIL_GOLEM 6
-#define MIMIC_COLOSSUS   7
-
-
-#define MIMIC_FLAGS choice
-#define MIMIC_IS_NONLIVING 0x00000001
-#define MIMIC_IS_DEMON     0x00000002
-#define MIMIC_IS_UNDEAD    0x00000004
-
-
-#define prace_is_(A) (!p_ptr->mimic_form && (p_ptr->prace == A))
 
 /* Sub-alignment flags for neutral monsters */
 #define SUB_ALIGN_NEUTRAL 0x0000

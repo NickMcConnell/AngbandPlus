@@ -549,8 +549,7 @@ msg_print("あなたの飢えは新鮮な血によってのみ満たされる！");
 		/* Don't eat a staff/wand itself */
 		return;
 	}
-	else if ((prace_is_(RACE_DEMON) ||
-		 (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_DEMON)) &&
+	else if ((p_ptr->mimic_form == MIMIC_DEMON || p_ptr->mimic_form == MIMIC_DEMON_LORD || prace_is_(RACE_BALROG)) &&
 		 (o_ptr->tval == TV_CORPSE && o_ptr->sval == SV_CORPSE &&
 		  my_strchr("pht", r_info[o_ptr->pval].d_char)))
 	{
@@ -611,13 +610,7 @@ msg_print("食べ物がアゴを素通りして落ち、消えた！");
 
 		}
 	}
-	else if (prace_is_(RACE_GOLEM) ||
-		 prace_is_(RACE_ZOMBIE) ||
-		 prace_is_(RACE_ENT) ||
-		 prace_is_(RACE_DEMON) ||
-		 prace_is_(RACE_ANDROID) ||
-		 prace_is_(RACE_SPECTRE) ||
-		 (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING))
+	else if ((get_race_t()->flags & RACE_IS_NONLIVING) || prace_is_(RACE_ENT))
 	{
 #ifdef JP
 msg_print("生者の食物はあなたにとってほとんど栄養にならない。");
@@ -688,8 +681,7 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
 		if (o_ptr->tval == TV_STAFF || o_ptr->tval == TV_WAND)
 			return TRUE;
 	}
-	else if (prace_is_(RACE_DEMON) ||
-		 (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_DEMON))
+	else if (prace_is_(RACE_BALROG) || p_ptr->mimic_form == MIMIC_DEMON || p_ptr->mimic_form == MIMIC_DEMON_LORD)
 	{
 		if (o_ptr->tval == TV_CORPSE &&
 		    o_ptr->sval == SV_CORPSE &&
@@ -868,26 +860,20 @@ static void do_cmd_quaff_potion_aux(int item)
 			break;
 
 		case SV_POTION_SALT_WATER:
-#ifdef JP
-			msg_print("うぇ！思わず吐いてしまった。");
-#else
-			msg_print("The potion makes you vomit!");
-#endif
-
-			if (!(prace_is_(RACE_GOLEM) ||
-			      prace_is_(RACE_ZOMBIE) ||
-			      prace_is_(RACE_DEMON) ||
-			      prace_is_(RACE_ANDROID) ||
-			      prace_is_(RACE_SPECTRE) ||
-			      (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING)))
+			if (!(get_race_t()->flags & RACE_IS_NONLIVING))
 			{
+	#ifdef JP
+				msg_print("うぇ！思わず吐いてしまった。");
+	#else
+				msg_print("The potion makes you vomit!");
+	#endif
 				/* Only living creatures get thirsty */
 				(void)set_food(PY_FOOD_STARVE - 1);
-			}
 
-			(void)set_poisoned(0, TRUE);
-			(void)set_paralyzed(p_ptr->paralyzed + 4, FALSE);
-			ident = TRUE;
+				(void)set_poisoned(0, TRUE);
+				(void)set_paralyzed(p_ptr->paralyzed + 4, FALSE);
+				ident = TRUE;
+			}
 			break;
 
 		case SV_POTION_POISON:
@@ -1561,7 +1547,7 @@ msg_print("液体の一部はあなたのアゴを素通りして落ちた！");
 				break;
 			case RACE_GOLEM:
 			case RACE_ZOMBIE:
-			case RACE_DEMON:
+			case RACE_BALROG:
 			case RACE_SPECTRE:
 				set_food(p_ptr->food + ((q_ptr->pval) / 20));
 				break;

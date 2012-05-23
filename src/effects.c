@@ -228,7 +228,7 @@ void reset_tim_flags(void)
 	p_ptr->tim_res_nether = 0;
 	p_ptr->tim_res_time = 0;
 	p_ptr->tim_mimic = 0;
-	p_ptr->mimic_form = 0;
+	p_ptr->mimic_form = MIMIC_NONE;
 	p_ptr->tim_reflect = 0;
 	p_ptr->multishadow = 0;
 	p_ptr->dustrobe = 0;
@@ -280,7 +280,7 @@ void reset_tim_flags(void)
 	while(p_ptr->energy_need < 0) p_ptr->energy_need += ENERGY_NEED();
 	world_player = FALSE;
 
-	if (prace_is_(RACE_DEMON) && (p_ptr->lev > 44)) p_ptr->oppose_fire = 1;
+	if (prace_is_(RACE_BALROG) && (p_ptr->lev > 44)) p_ptr->oppose_fire = 1;
 	if ((p_ptr->pclass == CLASS_NINJA) && (p_ptr->lev > 44)) p_ptr->oppose_pois = 1;
 	if (p_ptr->pclass == CLASS_BERSERKER) p_ptr->shero = 1;
 
@@ -340,7 +340,14 @@ void dispel_player(void)
 	(void)set_oppose_cold(0, TRUE);
 	(void)set_oppose_pois(0, TRUE);
 	(void)set_ultimate_res(0, TRUE);
-	(void)set_mimic(0, 0, TRUE);
+	
+	/* Its important that doppelganger gets called correctly and not set_mimic()
+	   since we monkey with things like the experience factor! */
+	if (p_ptr->prace == RACE_DOPPELGANGER && p_ptr->mimic_form != MIMIC_NONE && !p_ptr->tim_mimic)
+		mimic_race(MIMIC_NONE);
+	else
+		(void)set_mimic(0, 0, TRUE);
+		
 	(void)set_ele_attack(0, 0);
 	(void)set_ele_immune(0, 0);
 	set_sanctuary(FALSE);
@@ -477,9 +484,9 @@ bool set_mimic(int v, int p, bool do_dec)
 			msg_print("You are no longer transformed.");
 #endif
 			if (p_ptr->mimic_form == MIMIC_DEMON) set_oppose_fire(0, TRUE);
-			p_ptr->mimic_form=0;
+			p_ptr->mimic_form= MIMIC_NONE;
 			notice = TRUE;
-			p = 0;
+			p = MIMIC_NONE;
 		}
 	}
 
@@ -1744,7 +1751,7 @@ bool set_tim_building_up(int v, bool do_dec)
 		}
 		else
 		{
-			msg_print("You feel your body is more developed now.");
+			msg_print("You become gigantic!");
 			notice = TRUE;
 		}
 	}
@@ -4688,7 +4695,7 @@ bool set_oppose_fire(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
-	if ((prace_is_(RACE_DEMON) && (p_ptr->lev > 44)) || (p_ptr->mimic_form == MIMIC_DEMON)) v = 1;
+	if ((prace_is_(RACE_BALROG) && (p_ptr->lev > 44)) || (p_ptr->mimic_form == MIMIC_DEMON)) v = 1;
 	/* Open */
 	if (v)
 	{
@@ -5094,11 +5101,7 @@ bool set_cut(int v, bool do_dec)
 
 	if (p_ptr->is_dead) return FALSE;
 
-	if ((p_ptr->prace == RACE_GOLEM ||
-	    p_ptr->prace == RACE_SKELETON ||
-	    p_ptr->prace == RACE_SPECTRE ||
-		(p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11)) &&
-	    !p_ptr->mimic_form)
+	if (get_race_t()->flags & RACE_IS_NONLIVING)
 		v = 0;
 
 	/* Mortal wound */
@@ -6290,7 +6293,7 @@ take_hit(DAMAGE_LOSELIFE, change / 2, "変化した傷", -1);
  */
 void change_race(int new_race, cptr effect_msg)
 {
-	cptr title = race_info[new_race].title;
+	cptr title = get_race_t_aux(new_race, 0)->name;
 	int  old_race = p_ptr->prace;
 
 	if (new_race == old_race) return;
@@ -6328,22 +6331,16 @@ void change_race(int new_race, cptr effect_msg)
 		p_ptr->old_race2 |= 1L << (p_ptr->prace-32);
 	}
 	p_ptr->prace = new_race;
-	rp_ptr = &race_info[p_ptr->prace];
+	p_ptr->psubrace = 0;
 
 	/* Experience factor */
 	p_ptr->expfact = calc_exp_factor();
 
-	/* Get character's height and weight */
-	get_height_weight();
-
 	/* Hitdice */
 	if (p_ptr->pclass == CLASS_SORCERER)
-		p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		p_ptr->hitdie = get_race_t()->hd/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
 	else
-		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
-
-	if (p_ptr->prace == RACE_DEMIGOD)
-		p_ptr->hitdie += demigod_info[p_ptr->psubrace].hd;
+		p_ptr->hitdie = get_race_t()->hd + cp_ptr->c_mhp + ap_ptr->a_mhp;
 
 	do_cmd_rerate(FALSE);
 
@@ -6489,7 +6486,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 		do
 		{
 			new_race = randint0(MAX_RACES);
-			expfact = race_info[new_race].r_exp;
+			expfact = get_race_t_aux(new_race, 0)->exp;
 		}
 		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID));
 
@@ -6709,7 +6706,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	}
 
 	/* Snotlings scare easy */
-	if (p_ptr->prace == RACE_SNOTLING && damage > 0)
+	if (prace_is_(RACE_SNOTLING) && damage > 0)
 	{
 		if ((p_ptr->resist_fear && !one_in_(7)) || randint0(100) < p_ptr->skill_sav)
 		{

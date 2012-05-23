@@ -2569,13 +2569,13 @@ void have_nightmare(int r_idx)
 
 	r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
 
-	if (!p_ptr->mimic_form)
+	if (p_ptr->mimic_form != MIMIC_NONE)
 	{
 		switch (p_ptr->prace)
 		{
 		/* Demons may make a saving throw */
 		case RACE_IMP:
-		case RACE_DEMON:
+		case RACE_BALROG:
 			if (saving_throw(20 + p_ptr->lev)) return;
 			break;
 		/* Undead may make a saving throw */
@@ -2589,13 +2589,14 @@ void have_nightmare(int r_idx)
 	}
 	else
 	{
+		race_t *race_ptr = get_race_t();
 		/* Demons may make a saving throw */
-		if (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_DEMON)
+		if (race_ptr->flags & RACE_IS_DEMON)
 		{
 			if (saving_throw(20 + p_ptr->lev)) return;
 		}
 		/* Undead may make a saving throw */
-		else if (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_UNDEAD)
+		else if (race_ptr->flags & RACE_IS_UNDEAD)
 		{
 			if (saving_throw(10 + p_ptr->lev)) return;
 		}

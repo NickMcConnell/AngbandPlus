@@ -167,24 +167,6 @@ static void _gain_level(int new_level)
 	}
 }
 
-static void _common_calc_bonuses(void)
-{
-	int i;
-
-	for (i = 0; i < 6; i++)
-		p_ptr->stat_add[i] += demigod_info[p_ptr->psubrace].adj[i];
-
-	p_ptr->skill_dev += demigod_info[p_ptr->psubrace].skills.dev;
-	p_ptr->skill_dis += demigod_info[p_ptr->psubrace].skills.dis;
-	p_ptr->skill_sav += demigod_info[p_ptr->psubrace].skills.sav;
-	p_ptr->skill_stl += demigod_info[p_ptr->psubrace].skills.stl;
-	
-	p_ptr->skill_srh += demigod_info[p_ptr->psubrace].skills.srh;
-	p_ptr->skill_fos += demigod_info[p_ptr->psubrace].skills.fos;
-	p_ptr->skill_thn += demigod_info[p_ptr->psubrace].skills.thn;
-	p_ptr->skill_thb += demigod_info[p_ptr->psubrace].skills.thb;
-}
-
 /****************************************************************
  * Aphrodite
  ****************************************************************/
@@ -195,7 +177,6 @@ static power_info _aphrodite_powers[] =
 };
 static void _aphrodite_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->sustain_chr = TRUE;
 }
 static int _aphrodite_get_powers(spell_info* spells, int max)
@@ -229,7 +210,6 @@ static power_info _apollo_powers[] =
 };
 static void _apollo_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->resist_lite = TRUE;
 	p_ptr->resist_blind = TRUE;
 	/* cf calc_torch in xtra1.c for the 'extra light' */
@@ -241,6 +221,10 @@ static int _apollo_get_powers(spell_info* spells, int max)
 static void _apollo_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 	add_flag(flgs, TR_RES_BLIND);
+	add_flag(flgs, TR_LITE);
+}
+static void _apollo_get_immunities(u32b flgs[TR_FLAG_SIZE])
+{
 	add_flag(flgs, TR_LITE);
 }
 static void _apollo_spoiler_dump(FILE *fff) 
@@ -264,8 +248,6 @@ static void _ares_calc_bonuses(void)
 {
 	int dam = 5 + p_ptr->lev/7;
 	int ac = 10 + p_ptr->lev/5;
-
-	_common_calc_bonuses();
 
 	p_ptr->sustain_str = TRUE;
 
@@ -301,7 +283,6 @@ static void _ares_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _artemis_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->to_d_b += 5 + p_ptr->lev/7;
 	p_ptr->sustain_dex = TRUE;
 }
@@ -324,7 +305,6 @@ static void _artemis_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _athena_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->sustain_int = TRUE;
 }
 static void _athena_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -350,7 +330,6 @@ static power_info _demeter_powers[] =
 };
 static void _demeter_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->regenerate = TRUE;
 	p_ptr->slow_digest = TRUE;
 	p_ptr->resist_time = TRUE;
@@ -379,7 +358,6 @@ static void _demeter_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _hades_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->resist_neth = TRUE;
 	p_ptr->hold_life = TRUE;
 	p_ptr->sustain_con = TRUE;
@@ -406,7 +384,6 @@ static void _hades_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _hephaestus_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->resist_disen = TRUE;
 }
 static void _hephaestus_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -431,7 +408,6 @@ static power_info _hera_powers[] =
 };
 static void _hera_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->spell_cap += 3;
 }
 static int _hera_get_powers(spell_info* spells, int max)
@@ -455,7 +431,6 @@ static void _hera_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _hermes_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->pspeed += 2;
 }
 static void _hermes_get_flags(u32b flgs[TR_FLAG_SIZE])
@@ -474,7 +449,6 @@ static void _hermes_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _poseidon_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->resist_acid = TRUE;
 	p_ptr->resist_cold = TRUE;
 	p_ptr->resist_elec = TRUE;
@@ -501,7 +475,6 @@ static void _poseidon_spoiler_dump(FILE *fff)
  ****************************************************************/
 static void _zeus_calc_bonuses(void)
 {
-	_common_calc_bonuses();
 	p_ptr->resist_elec = TRUE;
 	p_ptr->sh_elec = TRUE;
 	p_ptr->levitation = TRUE;
@@ -536,6 +509,17 @@ race_t *demigod_get_race_t(int psubrace)
 					"human-god hybrids and are quite powerful. Demigods receive special abilities "
 					"depending on their parentage.";
 		
+		me.infra = 0;
+
+		me.gain_level = _gain_level;
+		init = TRUE;
+	}
+
+	if (subrace_init != psubrace)
+	{
+		int i;
+		
+		/* Reset to Minor God */
 		me.stats[A_STR] =  1;
 		me.stats[A_INT] =  1;
 		me.stats[A_WIS] =  1;
@@ -554,93 +538,110 @@ race_t *demigod_get_race_t(int psubrace)
 
 		me.hd = 10;
 		me.exp = 220;
-		me.infra = 0;
 
-		me.gain_level = _gain_level;
-		init = TRUE;
-	}
+		me.calc_bonuses = NULL;
+		me.get_powers = NULL;
+		me.get_flags = NULL;
+		me.get_immunities = NULL;
+		me.spoiler_dump = NULL;
 
-	if (subrace_init != psubrace)
-	{
+		/* Override with New Type */
 		switch (psubrace)
 		{
 		case DEMIGOD_APHRODITE:
+			me.stats[A_CHR] += 2;
+			me.exp += 60;
 			me.calc_bonuses = _aphrodite_calc_bonuses;
 			me.get_powers = _aphrodite_get_powers;
 			me.get_flags = _aphrodite_get_flags;
 			me.spoiler_dump = _aphrodite_spoiler_dump;
 			break;
 		case DEMIGOD_APOLLO:
+			me.exp += 80;
 			me.calc_bonuses = _apollo_calc_bonuses;
 			me.get_powers = _apollo_get_powers;
 			me.get_flags = _apollo_get_flags;
+			me.get_immunities = _apollo_get_immunities;
 			me.spoiler_dump = _apollo_spoiler_dump;
 			break;
 		case DEMIGOD_ARES:
+			me.stats[A_STR] += 2;
+			me.skills.sav -= 10;
+			me.skills.stl -= 2;
+			me.exp += 100;
 			me.calc_bonuses = _ares_calc_bonuses;
 			me.get_powers = _ares_get_powers;
 			me.get_flags = _ares_get_flags;
 			me.spoiler_dump = _ares_spoiler_dump;
 			break;
 		case DEMIGOD_ARTEMIS:
+			me.stats[A_DEX] += 2;
+			me.skills.thb += 15;
+			me.exp += 80;
 			me.calc_bonuses = _artemis_calc_bonuses;
-			me.get_powers = NULL;
 			me.get_flags = _artemis_get_flags;
 			me.spoiler_dump = _artemis_spoiler_dump;
 			break;
 		case DEMIGOD_ATHENA:
+			me.stats[A_INT] += 2;
+			me.exp += 100;
 			me.calc_bonuses = _athena_calc_bonuses;
-			me.get_powers = NULL;
 			me.get_flags = _athena_get_flags;
 			me.spoiler_dump = _athena_spoiler_dump;
 			break;
 		case DEMIGOD_DEMETER:
+			me.exp += 60;
 			me.calc_bonuses = _demeter_calc_bonuses;
 			me.get_powers = _demeter_get_powers;
 			me.get_flags = _demeter_get_flags;
 			me.spoiler_dump = _demeter_spoiler_dump;
 			break;
 		case DEMIGOD_HADES:
+			me.stats[A_CON] += 3;
+			me.stats[A_CHR] -= 2;
+			me.skills.sav += 15;
+			me.hd += 3;
+			me.exp += 120;
 			me.calc_bonuses = _hades_calc_bonuses;
-			me.get_powers = NULL;
 			me.get_flags = _hades_get_flags;
 			me.spoiler_dump = _hades_spoiler_dump;
 			break;
 		case DEMIGOD_HEPHAESTUS:
+			me.exp += 80;
 			me.calc_bonuses = _hephaestus_calc_bonuses;
-			me.get_powers = NULL;
 			me.get_flags = _hephaestus_get_flags;
 			me.spoiler_dump = _hephaestus_spoiler_dump;
 			break;
 		case DEMIGOD_HERA:
+			me.stats[A_WIS] += 2;
+			me.exp += 60;
 			me.calc_bonuses = _hera_calc_bonuses;
 			me.get_powers = _hera_get_powers;
 			me.get_flags = _hera_get_flags;
 			me.spoiler_dump = _hera_spoiler_dump;
 			break;
 		case DEMIGOD_HERMES:
+			me.skills.stl += 5;
+			me.exp += 100;
 			me.calc_bonuses = _hermes_calc_bonuses;
-			me.get_powers = NULL;
 			me.get_flags = _hermes_get_flags;
 			me.spoiler_dump = _hermes_spoiler_dump;
 			break;
 		case DEMIGOD_POSEIDON:
+			me.stats[A_STR] += 1;
+			me.stats[A_DEX] += 1;
+			me.exp += 120;
 			me.calc_bonuses = _poseidon_calc_bonuses;
-			me.get_powers = NULL;
 			me.get_flags = _poseidon_get_flags;
 			me.spoiler_dump = _poseidon_spoiler_dump;
 			break;
 		case DEMIGOD_ZEUS:
+			for (i = 0; i < 6; i++)
+				me.stats[i]++;
+			me.exp += 120;
 			me.calc_bonuses = _zeus_calc_bonuses;
-			me.get_powers = NULL;
 			me.get_flags = _zeus_get_flags;
 			me.spoiler_dump = _zeus_spoiler_dump;
-			break;
-		default:
-			me.calc_bonuses = NULL;
-			me.get_powers = NULL;
-			me.get_flags = NULL;
-			me.spoiler_dump = NULL;
 			break;
 		}
 		

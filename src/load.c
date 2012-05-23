@@ -1117,9 +1117,7 @@ static void rd_extra(void)
 	rd_u16b(&p_ptr->expfact);
 
 	/* Age/Height/Weight */
-	rd_s16b(&p_ptr->age);
-	rd_s16b(&p_ptr->ht);
-	rd_s16b(&p_ptr->wt);
+	strip_bytes(6);
 
 	/* Read the stat info */
 	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max[i]);
@@ -1221,8 +1219,7 @@ static void rd_extra(void)
 	if (p_ptr->max_plv < p_ptr->lev) p_ptr->max_plv = p_ptr->lev;
 
 	/* More info */
-	strip_bytes(8);
-	rd_s16b(&p_ptr->sc);
+	strip_bytes(10);
 	rd_s16b(&p_ptr->concent);
 
 	/* Read the flags */
@@ -1288,9 +1285,19 @@ static void rd_extra(void)
 	else
 		rd_s16b(&p_ptr->tim_res_disenchantment);
 	
-	
-	rd_byte(&p_ptr->mimic_form);
-	rd_s16b(&p_ptr->tim_mimic);
+	if (h_older_than(0, 0, 99, 1))
+	{
+		byte tmp;
+		rd_byte(&tmp);
+		rd_s16b(&p_ptr->tim_mimic);
+		p_ptr->mimic_form = MIMIC_NONE;
+		p_ptr->tim_mimic = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->mimic_form);
+		rd_s16b(&p_ptr->tim_mimic);
+	}
 	rd_s16b(&p_ptr->tim_sh_fire);
 
 	rd_s16b(&p_ptr->tim_sh_holy);
@@ -2745,7 +2752,6 @@ note(format("ヒットポイント配列が大きすぎる(%u)！", tmp16u));
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Important -- Initialize the race/class */
-	rp_ptr = &race_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 	ap_ptr = &seikaku_info[p_ptr->pseikaku];
 

@@ -586,7 +586,7 @@ static struct {
 	{TERM_BLUE, "SEl", "SElec"},
 	{TERM_L_DARK, "SSh", "SShadow"},
 	{TERM_YELLOW, "EMi", "ExMight"},
-	{TERM_RED, "Bu", "BuildUp"},
+	{TERM_RED, "Gi", "Giant"},
 	{TERM_L_DARK, "AMl", "AntiMulti"},
 	{TERM_ORANGE, "AT", "AntiTele"},
 	{TERM_RED, "AM", "AntiMagic"},
@@ -1227,9 +1227,9 @@ static void prt_exp(void)
 		else
 		{
 #ifdef JP
-			(void)sprintf(out_val, "%7ld", (long)(player_exp [p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp);
+			(void)sprintf(out_val, "%7ld", exp_requirement(p_ptr->lev) - p_ptr->exp);
 #else      
-			(void)sprintf(out_val, "%8ld", (long)(player_exp [p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp);
+			(void)sprintf(out_val, "%8ld", exp_requirement(p_ptr->lev) - p_ptr->exp);
 #endif
 		}
 	}
@@ -2082,20 +2082,16 @@ static void prt_frame_basic(void)
 	int i;
 
 	/* Race and Class */
-	if (p_ptr->mimic_form)
 	{
-		char str[14];
-		my_strcpy(str, mimic_info[p_ptr->mimic_form].title, sizeof(str));
-		prt_field(str, ROW_RACE, COL_RACE);
+		char buf[100];
+		race_t *race_ptr = get_race_t();
+
+		if (race_ptr->mimic)
+			sprintf(buf, "[%s]", race_ptr->name);
+		else
+			sprintf(buf, "%s", race_ptr->name);
+		prt_field(buf, ROW_RACE, COL_RACE);
 	}
-	else
-	{
-		char str[14];
-		my_strcpy(str, rp_ptr->title, sizeof(str));
-		prt_field(str, ROW_RACE, COL_RACE);
-	}
-/*	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS); */
-/*	prt_field(ap_ptr->title, ROW_SEIKAKU, COL_SEIKAKU); */
 
 
 	/* Title */
@@ -2865,6 +2861,22 @@ static void calc_spells(void)
  *
  * This function induces status messages.
  */
+static int _racial_mana_adjust(int i)
+{               
+	int result = 0;
+	if (p_ptr->prace == RACE_DOPPELGANGER)
+	{
+		result = get_race_t()->stats[i];
+		if (result > 5) result = 5;
+		if (result < -5) result = -5;
+	}
+	else
+	{
+		result = get_true_race_t()->stats[i];
+	}
+	return result;
+}
+
 static void calc_mana(void)
 {
 	int		msp, levels, cur_wgt, max_wgt;
@@ -2907,7 +2919,7 @@ static void calc_mana(void)
 	if (p_ptr->pclass == CLASS_SAMURAI)
 	{
 		msp = (adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] + 10) * 2;
-		if (msp) msp += (msp * rp_ptr->r_adj[mp_ptr->spell_stat] / 20);
+		if (msp) msp += (msp * _racial_mana_adjust(mp_ptr->spell_stat) / 20);
 	}
 	else
 	{
@@ -2925,10 +2937,7 @@ static void calc_mana(void)
 
 		if (msp) 
 		{
-			int adj = rp_ptr->r_adj[mp_ptr->spell_stat];
-			if (prace_is_(RACE_DEMIGOD))
-				adj += demigod_info[p_ptr->psubrace].adj[mp_ptr->spell_stat];
-
+			int adj = _racial_mana_adjust(mp_ptr->spell_stat);
 			msp += (msp * adj / 20);
 		}
 
@@ -3240,7 +3249,7 @@ static void calc_mana(void)
 static void calc_hitpoints(void)
 {
 	int bonus, mhp;
-	byte tmp_hitdie;
+	race_t *race_ptr = get_race_t();
 
 	/* Un-inflate "half-hitpoint bonus per level" value */
 	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128) * p_ptr->lev / 4;
@@ -3248,13 +3257,15 @@ static void calc_hitpoints(void)
 	/* Calculate hitpoints */
 	mhp = p_ptr->player_hp[p_ptr->lev - 1];
 
-	if (p_ptr->mimic_form)
+	/* Rescale HP if player is mimicking another race */
+	if (race_ptr->mimic)
 	{
+		int hd;
 		if (p_ptr->pclass == CLASS_SORCERER)
-			tmp_hitdie = mimic_info[p_ptr->mimic_form].r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
+			hd = race_ptr->hd/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
 		else
-			tmp_hitdie = mimic_info[p_ptr->mimic_form].r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
-		mhp = mhp * tmp_hitdie / p_ptr->hitdie;
+			hd = race_ptr->hd + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		mhp = mhp * hd / p_ptr->hitdie;
 	}
 
 	if (p_ptr->pclass == CLASS_SORCERER)
@@ -3527,7 +3538,6 @@ void calc_bonuses(void)
 	bool            easy_2weapon = FALSE;
 	bool            riding_levitation = FALSE;
 	s16b this_o_idx, next_o_idx = 0;
-	player_race *tmp_rp_ptr;
 	class_t *class_ptr = get_class_t();
 	race_t *race_ptr = get_race_t();
 
@@ -3717,9 +3727,6 @@ void calc_bonuses(void)
 	p_ptr->maul_of_vice = FALSE;
 
 
-	if (p_ptr->mimic_form) tmp_rp_ptr = &mimic_info[p_ptr->mimic_form];
-	else tmp_rp_ptr = &race_info[p_ptr->prace];
-
 	if (p_ptr->tim_sustain_str) p_ptr->sustain_str = TRUE;
 	if (p_ptr->tim_sustain_int) p_ptr->sustain_int = TRUE;
 	if (p_ptr->tim_sustain_wis) p_ptr->sustain_wis = TRUE;
@@ -3729,34 +3736,34 @@ void calc_bonuses(void)
 	if (p_ptr->tim_hold_life) p_ptr->hold_life = TRUE;
 
 	/* Base infravision (purely racial) */
-	p_ptr->see_infra = tmp_rp_ptr->infra;
+	p_ptr->see_infra = race_ptr->infra;
 
 	/* Base skill -- disarming */
-	p_ptr->skill_dis = tmp_rp_ptr->r_dis + cp_ptr->c_dis + ap_ptr->a_dis;
+	p_ptr->skill_dis = race_ptr->skills.dis + cp_ptr->c_dis + ap_ptr->a_dis;
 
 	/* Base skill -- magic devices */
-	p_ptr->skill_dev = tmp_rp_ptr->r_dev + cp_ptr->c_dev + ap_ptr->a_dev;
+	p_ptr->skill_dev = race_ptr->skills.dev + cp_ptr->c_dev + ap_ptr->a_dev;
 
 	/* Base skill -- saving throw */
-	p_ptr->skill_sav = tmp_rp_ptr->r_sav + cp_ptr->c_sav + ap_ptr->a_sav;
+	p_ptr->skill_sav = race_ptr->skills.sav + cp_ptr->c_sav + ap_ptr->a_sav;
 
 	/* Base skill -- stealth */
-	p_ptr->skill_stl = tmp_rp_ptr->r_stl + cp_ptr->c_stl + ap_ptr->a_stl;
+	p_ptr->skill_stl = race_ptr->skills.stl + cp_ptr->c_stl + ap_ptr->a_stl;
 
 	/* Base skill -- searching ability */
-	p_ptr->skill_srh = tmp_rp_ptr->r_srh + cp_ptr->c_srh + ap_ptr->a_srh;
+	p_ptr->skill_srh = race_ptr->skills.srh + cp_ptr->c_srh + ap_ptr->a_srh;
 
 	/* Base skill -- searching frequency */
-	p_ptr->skill_fos = tmp_rp_ptr->r_fos + cp_ptr->c_fos + ap_ptr->a_fos;
+	p_ptr->skill_fos = race_ptr->skills.fos + cp_ptr->c_fos + ap_ptr->a_fos;
 
 	/* Base skill -- combat (normal) */
-	p_ptr->skill_thn = tmp_rp_ptr->r_thn + cp_ptr->c_thn + ap_ptr->a_thn;
+	p_ptr->skill_thn = race_ptr->skills.thn + cp_ptr->c_thn + ap_ptr->a_thn;
 
 	/* Base skill -- combat (shooting) */
-	p_ptr->skill_thb = tmp_rp_ptr->r_thb + cp_ptr->c_thb + ap_ptr->a_thb;
+	p_ptr->skill_thb = race_ptr->skills.thb + cp_ptr->c_thb + ap_ptr->a_thb;
 
 	/* Base skill -- combat (throwing) */
-	p_ptr->skill_tht = tmp_rp_ptr->r_thb + cp_ptr->c_thb + ap_ptr->a_thb;
+	p_ptr->skill_tht = race_ptr->skills.thb + cp_ptr->c_thb + ap_ptr->a_thb;
 
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
@@ -3962,109 +3969,6 @@ void calc_bonuses(void)
 
 	}
 
-	/***** Races ****/
-	if (p_ptr->mimic_form)
-	{
-		switch (p_ptr->mimic_form)
-		{
-		case MIMIC_CLAY_GOLEM:
-			p_ptr->free_act = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->to_a += 10;
-			p_ptr->dis_to_a += 10;
-			break;
-
-		case MIMIC_IRON_GOLEM:
-			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->pspeed -= 1;
-			p_ptr->to_a += 15;
-			p_ptr->dis_to_a += 15;
-			break;
-
-		case MIMIC_MITHRIL_GOLEM:
-			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->resist_shard = TRUE;
-			p_ptr->reflect = TRUE;
-			p_ptr->pspeed -= 2;
-			p_ptr->to_a += 20;
-			p_ptr->dis_to_a += 20;
-			break;
-
-		case MIMIC_COLOSSUS:
-			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->resist_shard = TRUE;
-			p_ptr->resist_sound = TRUE;
-			p_ptr->resist_disen = TRUE;
-			p_ptr->reflect = TRUE;
-			p_ptr->pspeed -= 5;
-			p_ptr->to_a += 40;
-			p_ptr->dis_to_a += 40;
-			break;
-
-		case MIMIC_DEMON:
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_chaos = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->resist_fire = TRUE;
-			p_ptr->oppose_fire = 1;
-			p_ptr->see_inv=TRUE;
-			p_ptr->pspeed += 3;
-			p_ptr->redraw |= PR_STATUS;
-			p_ptr->to_a += 10;
-			p_ptr->dis_to_a += 10;
-			p_ptr->align -= 200;
-			break;
-		case MIMIC_DEMON_LORD:
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_chaos = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->immune_fire = TRUE;
-			p_ptr->resist_acid = TRUE;
-			p_ptr->resist_fire = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_elec = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->resist_conf = TRUE;
-			p_ptr->resist_disen = TRUE;
-			p_ptr->resist_nexus = TRUE;
-			p_ptr->resist_fear = TRUE;
-			p_ptr->sh_fire = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->telepathy = TRUE;
-			p_ptr->levitation = TRUE;
-			p_ptr->kill_wall = TRUE;
-			p_ptr->pspeed += 5;
-			p_ptr->to_a += 20;
-			p_ptr->dis_to_a += 20;
-			p_ptr->align -= 200;
-			break;
-		case MIMIC_VAMPIRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->resist_cold = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->pspeed += 3;
-			p_ptr->to_a += 10;
-			p_ptr->dis_to_a += 10;
-			if (p_ptr->pclass != CLASS_NINJA) p_ptr->lite = TRUE;
-			break;
-		}
-	}
-	else
-	{
-	}
-
 	if (p_ptr->ult_res || (p_ptr->special_defense & KATA_MUSOU))
 	{
 		p_ptr->see_inv = TRUE;
@@ -4183,7 +4087,7 @@ void calc_bonuses(void)
 	for (i = 0; i < 6; i++)
 	{
 		/* Modify the stats for "race" */
-		p_ptr->stat_add[i] += (tmp_rp_ptr->r_adj[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i]);
+		p_ptr->stat_add[i] += (race_ptr->stats[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i]);
 	}
 
 
@@ -5293,7 +5197,7 @@ void calc_bonuses(void)
 		if (!(riding_r_ptr->flags2 & RF2_PASS_WALL)) p_ptr->pass_wall = FALSE;
 		if (riding_r_ptr->flags2 & RF2_KILL_WALL) p_ptr->kill_wall = TRUE;
 
-		if (p_ptr->skill_exp[GINOU_RIDING] < RIDING_EXP_SKILLED) j += (p_ptr->wt * 3 * (RIDING_EXP_SKILLED - p_ptr->skill_exp[GINOU_RIDING])) / RIDING_EXP_SKILLED;
+		if (p_ptr->skill_exp[GINOU_RIDING] < RIDING_EXP_SKILLED) j += (150 * 3 * (RIDING_EXP_SKILLED - p_ptr->skill_exp[GINOU_RIDING])) / RIDING_EXP_SKILLED;
 
 		/* Extract the "weight limit" */
 		i = 1500 + riding_r_ptr->level * 25;
@@ -6094,7 +5998,7 @@ void calc_bonuses(void)
 	p_ptr->skill_tht += ((cp_ptr->x_thb * p_ptr->lev / 10) + (ap_ptr->a_thb * p_ptr->lev / 50));
 
 
-	if ((prace_is_(RACE_S_FAIRY)) && (p_ptr->pseikaku != SEIKAKU_SEXY) && (p_ptr->cursed & TRC_AGGRAVATE))
+	if ((prace_is_(RACE_SHADOW_FAIRY)) && (p_ptr->pseikaku != SEIKAKU_SEXY) && (p_ptr->cursed & TRC_AGGRAVATE))
 	{
 		p_ptr->cursed &= ~(TRC_AGGRAVATE);
 		p_ptr->skill_stl = MIN(p_ptr->skill_stl - 3, (p_ptr->skill_stl + 2) / 2);
@@ -6647,10 +6551,14 @@ void redraw_stuff(void)
 
 	if (p_ptr->redraw & (PR_MISC))
 	{
+		char buf[100];
+		race_t *race_ptr = get_race_t();
 		p_ptr->redraw &= ~(PR_MISC);
-		prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
-/*		prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS); */
-
+		if (race_ptr->mimic)
+			sprintf(buf, "[%s]", race_ptr->name);
+		else
+			sprintf(buf, "%s", race_ptr->name);
+		prt_field(buf, ROW_RACE, COL_RACE);
 	}
 
 	if (p_ptr->redraw & (PR_TITLE))

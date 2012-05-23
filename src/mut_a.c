@@ -937,7 +937,7 @@ void fumbling_mut(int cmd, variant *res)
 
 			disturb(0, 0);
 			msg_print(T("You trip over your own feet!", "足がもつれて転んだ！"));
-			take_hit(DAMAGE_NOESCAPE, randint1(p_ptr->wt / 6), T("tripping", "転倒"), -1);
+			take_hit(DAMAGE_NOESCAPE, randint1(150 / 6), T("tripping", "転倒"), -1);
 			msg_print(NULL);
 
 			if (buki_motteruka(INVEN_RARM))

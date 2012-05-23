@@ -77,16 +77,12 @@ extern byte blows_table[12][12];
 extern arena_type arena_info[MAX_ARENA_MONS + 2];
 extern owner_type owners[MAX_STORES][MAX_OWNERS];
 extern byte extract_energy[200];
-extern s32b player_exp[PY_MAX_LEVEL];
-extern s32b player_exp_a[PY_MAX_LEVEL];
 extern player_sex sex_info[MAX_SEXES];
-extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
 extern player_pact pact_info[MAX_PACTS];
 extern demigod_type demigod_info[MAX_DEMIGOD_TYPES];
 extern magic_type technic_info[NUM_TECHNIC][32];
 extern player_seikaku seikaku_info[MAX_SEIKAKU];
-extern player_race mimic_info[];
 extern u32b fake_spell_flags[4];
 extern s32b realm_choices1[];
 extern s32b realm_choices2[];
@@ -485,7 +481,6 @@ extern char tval_to_char[128];
 extern cptr keymap_act[KEYMAP_MODES][256];
 extern player_type *p_ptr;
 extern player_sex *sp_ptr;
-extern player_race *rp_ptr;
 extern player_class *cp_ptr;
 extern player_seikaku *ap_ptr;
 extern player_magic *mp_ptr;
@@ -659,13 +654,11 @@ extern void do_cmd_edit_autopick(void);
 /* birth.c */
 extern void add_history_from_pref_line(cptr t);
 extern void add_outfit(object_type *o_ptr);
-extern cptr birth_get_race_desc(int i);
 extern cptr birth_get_class_desc(int i);
 extern cptr birth_get_personality_desc(int i);
 extern cptr birth_get_realm_desc(int i);
 extern void player_birth(void);
 extern void get_max_stats(void);
-extern void get_height_weight(void);
 extern void determine_random_questor(quest_type *q_ptr);
 extern void player_outfit(void);
 extern void dump_yourself(FILE *fff);
@@ -1577,6 +1570,7 @@ extern bool set_sanctuary(bool set);
 
 /* xtra2.c */
 extern void check_experience(void);
+extern int exp_requirement(int level);
 extern void check_quest_completion(monster_type *m_ptr);
 extern cptr extract_note_dies(monster_race *r_ptr);
 extern void monster_death(int m_idx, bool drop_item);
@@ -1821,6 +1815,7 @@ extern void spoil_random_artifact(cptr fname);
 /* wizard2.c */
 extern bool spoiler_hack;
 extern void strip_name(char *buf, int k_idx);
+extern cptr race_spoiler_page(int i);
 
 /* avatar.c */
 extern bool compare_virtue(int type, int num, int tekitou);
@@ -1906,17 +1901,29 @@ extern bool magic_barrier(int m_idx);
 extern bool multiply_barrier(int m_idx);
 
 /* races.c */
-extern race_t *get_race_t(void);
+extern race_t *get_race_t(void);      /* Actual Race (cf Mimics) */
+extern race_t *get_true_race_t(void); /* True Race */
 extern race_t *get_race_t_aux(int prace, int psubrace);
-extern int get_racial_powers(spell_info* spells, int max);
+
+/* Player Races */
+extern void mimic_race(int new_race);
+extern void mimic_upkeep(void);
+extern bool mimic_no_regen(void);
 
 extern race_t *amberite_get_race_t(void);
+extern race_t *android_get_race_t(void);
+extern race_t *archon_get_race_t(void);
+extern race_t *balrog_get_race_t(void);
 extern race_t *barbarian_get_race_t(void);
+extern race_t *beastman_get_race_t(void);
 extern race_t *cyclops_get_race_t(void);
 extern race_t *dark_elf_get_race_t(void);
 extern race_t *demigod_get_race_t(int psubrace);
+extern race_t *doppelganger_get_race_t(void);
 extern race_t *draconian_get_race_t(void);
+extern race_t *dunadan_get_race_t(void);
 extern race_t *dwarf_get_race_t(void);
+extern race_t *ent_get_race_t(void);
 extern race_t *gnome_get_race_t(void);
 extern race_t *golem_get_race_t(void);
 extern race_t *half_giant_get_race_t(void);
@@ -1929,25 +1936,28 @@ extern race_t *human_get_race_t(void);
 extern race_t *imp_get_race_t(void);
 extern race_t *klackon_get_race_t(void);
 extern race_t *kobold_get_race_t(void);
+extern race_t *kutar_get_race_t(void);
 extern race_t *mindflayer_get_race_t(void);
 extern race_t *nibelung_get_race_t(void);
+extern race_t *shadow_fairy_get_race_t(void);
 extern race_t *skeleton_get_race_t(void);
 extern race_t *snotling_get_race_t(void);
-extern race_t *tonberry_get_race_t(void);
-extern race_t *yeek_get_race_t(void);
-
-extern race_t *zombie_get_race_t(void);
-extern race_t *vampire_get_race_t(void);
 extern race_t *spectre_get_race_t(void);
 extern race_t *sprite_get_race_t(void);
-extern race_t *beastman_get_race_t(void);
-extern race_t *ent_get_race_t(void);
-extern race_t *archon_get_race_t(void);
-extern race_t *balrog_get_race_t(void);
-extern race_t *dunadan_get_race_t(void);
-extern race_t *shadow_fairy_get_race_t(void);
-extern race_t *kutar_get_race_t(void);
-extern race_t *android_get_race_t(void);
+extern race_t *tonberry_get_race_t(void);
+extern race_t *vampire_get_race_t(void);
+extern race_t *yeek_get_race_t(void);
+extern race_t *zombie_get_race_t(void);
+
+/* Mimic Forms */
+extern race_t *clay_golem_get_race_t(void);
+extern race_t *colossus_get_race_t(void);
+extern race_t *demon_get_race_t(void);
+extern race_t *demon_lord_get_race_t(void);
+extern race_t *iron_golem_get_race_t(void);
+extern race_t *mithril_golem_get_race_t(void);
+extern race_t *vampire_lord_get_race_t(void);
+
 
 
 /* classes.c */

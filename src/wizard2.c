@@ -648,7 +648,7 @@ static void _strip_class_name(char *buf, int idx)
 static void _strip_race_name(char *buf, int idx)
 {
 	char *t;
-	cptr str = race_info[idx].title;
+	cptr str = get_race_t_aux(idx, 0)->name;
 
 	for (t = buf; *str; str++)
 	{
@@ -718,7 +718,7 @@ static cptr _race_design_page(int i)
 	return 0;
 }
 
-static cptr _race_spoiler_page(int i)
+cptr race_spoiler_page(int i)
 {
 	static char buf[256];
 	_auto_race_spoiler_name(buf, i);
@@ -733,7 +733,7 @@ static void _race_tbl1(FILE* fff)
 	for (i = 0; i < MAX_RACES; i++)
 	{
 		race_t *race_ptr = get_race_t_aux(i, 0);
-		cptr spoiler = _race_spoiler_page(i);
+		cptr spoiler = race_spoiler_page(i);
 		if (i % 5 == 0)
 			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
 
@@ -753,37 +753,43 @@ static void _race_tbl1(FILE* fff)
 			race_ptr->hd, race_ptr->infra,
 			race_ptr->exp
 		);
-	/*  OLD
-		player_race race = race_info[i];
-		cptr title = race.title;
-		cptr spoiler = _race_spoiler_page(i);
+	}
+}
 
-		if (i % 5 == 0)
-			fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
+static void _mimic_race_tbl1(FILE* fff)
+{
+	int i;
+	char buf[1024];
+
+	fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *If* || *Exp* ||\n");
+
+	for (i = MIMIC_MIN; i <= MIMIC_MAX; i++)
+	{
+		race_t *race_ptr = get_race_t_aux(i, 0);
+		cptr spoiler = race_spoiler_page(i);
 
 		if (spoiler)
-			sprintf(buf, "[%s %s]", spoiler, title);
+			sprintf(buf, "[%s %s]", spoiler, race_ptr->name);
 		else
-			sprintf(buf, "%s", title);
+			sprintf(buf, "%s", race_ptr->name);
 
 
 		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
 			buf, 
-			race.r_adj[0], race.r_adj[1], race.r_adj[2], 
-			race.r_adj[3], race.r_adj[4], race.r_adj[5], 
-			race.r_dis, race.r_dev, race.r_sav,
-			race.r_stl, race.r_srh, race.r_fos,
-			race.r_thn, race.r_thb, 
-			race.r_mhp, race.infra,
-			race.r_exp
+			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
+			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
+			race_ptr->skills.thn, race_ptr->skills.thb,
+			race_ptr->hd, race_ptr->infra,
+			race_ptr->exp
 		);
-	*/
 	}
 }
 
 static void _demigod_wiki(FILE* fff)
 { 
-	int i, j;
+	int i;
 
 	fprintf(fff, "_Note: This is the automatically generated spoiler page. For the design page, please go [DemigodParentage here]._\n\n");
 	fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%s&c=&n=&e=&s=0 View Ladder]\n", "Demigod");
@@ -791,32 +797,16 @@ static void _demigod_wiki(FILE* fff)
 	fprintf(fff, "|| || *Str* || *Int* || *Wis* || *Dex* || *Con* || *Chr* || *Dis* || *Dev* || *Sav* || *Stl* || *Srh* || *Fos* || *Thn* || *Thb* || *HD* || *Exp* ||\n");
 	for (i = 0; i < MAX_DEMIGOD_TYPES; i++)
 	{
-		player_race  race = race_info[RACE_DEMIGOD];
-		for (j = 0; j < 6; j++)
-			race.r_adj[j] += demigod_info[i].adj[j];
-			
-		race.r_dev += demigod_info[i].skills.dev;
-		race.r_dis += demigod_info[i].skills.dis;
-		race.r_sav += demigod_info[i].skills.sav;
-		race.r_stl += demigod_info[i].skills.stl;
-
-		race.r_srh += demigod_info[i].skills.srh;
-		race.r_fos += demigod_info[i].skills.fos;
-		race.r_thn += demigod_info[i].skills.thn;
-		race.r_thb += demigod_info[i].skills.thb;
-			
-		race.r_exp += demigod_info[i].exp;
-		race.r_mhp += demigod_info[i].hd;
-
+		race_t *race_ptr = get_race_t_aux(RACE_DEMIGOD, i);
 		fprintf(fff, "||%s||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%3d||%4d||\n",
 			demigod_info[i].name,
-			race.r_adj[0], race.r_adj[1], race.r_adj[2], 
-			race.r_adj[3], race.r_adj[4], race.r_adj[5],
-			race.r_dis, race.r_dev, race.r_sav,
-			race.r_stl, race.r_srh, race.r_fos,
-			race.r_thn, race.r_thb, 
-			race.r_mhp, 
-			race.r_exp
+			race_ptr->stats[A_STR], race_ptr->stats[A_INT], race_ptr->stats[A_WIS], 
+			race_ptr->stats[A_DEX], race_ptr->stats[A_CON], race_ptr->stats[A_CHR], 
+			race_ptr->skills.dis, race_ptr->skills.dev, race_ptr->skills.sav,
+			race_ptr->skills.stl, race_ptr->skills.srh, race_ptr->skills.fos,
+			race_ptr->skills.thn, race_ptr->skills.thb,
+			race_ptr->hd,
+			race_ptr->exp
 		); 
 	}
 
@@ -1190,7 +1180,10 @@ static void _race_spoilers(FILE *fff, int idx)
 
 	fprintf(fff, "= %s =\n\n", race_ptr->name);
 	fprintf(fff, "%s\n", race_ptr->desc);
-	fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%s&c=&n=&e=&s=0 View Ladder]\n", race_ptr->name);
+	if (idx >= MIMIC_MIN)
+		fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%%5B%s%%5D&c=&n=&e=&s=0 View Ladder]\n", race_ptr->name);
+	else
+		fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=%s&c=&n=&e=&s=0 View Ladder]\n", race_ptr->name);
 
 	fprintf(fff, "\n== Stats and Skills ==\n");
 	fprintf(fff, "|| *Stat* || *Adj* || *Skill* || *Amt* ||\n");
@@ -1225,6 +1218,7 @@ static void do_cmd_wiz_hack_chris8(void)
 	int i;
 	spoiler_hack = TRUE;
 	_wiki_file("AutoRacesSpoilers.wiki", _race_tbl1);
+	_wiki_file("AutoMimicRacesSpoilers.wiki", _mimic_race_tbl1);
 	_wiki_file("AutoDemigodSpoilers.wiki", _demigod_wiki);
 
 	_wiki_file("AutoClassesSpoilers.wiki", _class_tbl1);
@@ -1234,6 +1228,11 @@ static void do_cmd_wiz_hack_chris8(void)
 	for (i = 0; i < MAX_RACES; i++)
 	{
 		if (i == RACE_DEMIGOD) continue;
+		_race_wiki_file(i);
+	}
+
+	for (i = MIMIC_MIN; i <= MIMIC_MAX; i++)
+	{
 		_race_wiki_file(i);
 	}
 
@@ -3302,7 +3301,8 @@ void do_cmd_debug(void)
 
 	/* Not a Wizard Command */
 	default:
-		msg_print("That is not a valid debug command.");
+		dispel_player();
+		/*msg_print("That is not a valid debug command.");*/
 		break;
 	}
 }

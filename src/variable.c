@@ -792,7 +792,6 @@ player_type *p_ptr = &p_body;
  * (sex, race, class, magic)
  */
 player_sex *sp_ptr;
-player_race *rp_ptr;
 player_class *cp_ptr;
 player_seikaku *ap_ptr;
 player_magic *mp_ptr;

@@ -1158,8 +1158,8 @@ static bool cast_time_lord_spell(int spell)
 			int amount = 0;
 			
 			if (p_ptr->lev < 3) break;
-			amount = player_exp[p_ptr->lev-2] * p_ptr->expfact / 100L;
-			amount -= player_exp[p_ptr->lev-3] * p_ptr->expfact / 100L;
+			amount = exp_requirement(p_ptr->lev-1);
+			amount -= exp_requirement(p_ptr->lev-2);
 			if (amount > 100000) amount = 100000;
 			if (amount > p_ptr->max_exp) amount = p_ptr->max_exp;
 			if (amount > p_ptr->exp) p_ptr->exp = 0;

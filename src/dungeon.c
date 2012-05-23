@@ -852,6 +852,7 @@ static void regenhp(int percent)
 
 	if (p_ptr->special_defense & KATA_KOUKIJIN) return;
 	if (p_ptr->action == ACTION_HAYAGAKE) return;
+	if (mimic_no_regen()) return;
 
 	/* Save the old hitpoints */
 	old_chp = p_ptr->chp;
@@ -907,6 +908,7 @@ static void regenmana(int percent)
 	s32b old_csp = p_ptr->csp;
 
 	if (p_ptr->pclass == CLASS_RUNE_KNIGHT || p_ptr->pclass == CLASS_RAGE_MAGE) return;
+	if (mimic_no_regen()) return;
 
 	/*
 	 * Excess mana will decay 32 times faster than normal
@@ -1968,6 +1970,9 @@ static void process_world_aux_timeout(void)
 	/*** Timeout Various Things ***/
 
 	process_maul_of_vice();
+
+	if (p_ptr->prace == RACE_DOPPELGANGER)
+		mimic_upkeep();
 
 	/* Mimic */
 	if (p_ptr->tim_mimic)
@@ -5201,8 +5206,11 @@ static void process_player(void)
 		if (resting == -1)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp >= p_ptr->msp || p_ptr->pclass == CLASS_RUNE_KNIGHT || p_ptr->pclass == CLASS_RAGE_MAGE))
+			if ((p_ptr->chp == p_ptr->mhp || mimic_no_regen()) &&
+			    (p_ptr->csp >= p_ptr->msp || 
+					p_ptr->pclass == CLASS_RUNE_KNIGHT || 
+					p_ptr->pclass == CLASS_RAGE_MAGE ||
+					mimic_no_regen()))
 			{
 				set_action(ACTION_NONE);
 			}
@@ -5212,8 +5220,11 @@ static void process_player(void)
 		else if (resting == -2)
 		{
 			/* Stop resting */
-			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp >= p_ptr->msp || p_ptr->pclass == CLASS_RUNE_KNIGHT || p_ptr->pclass == CLASS_RAGE_MAGE) &&
+			if ((p_ptr->chp == p_ptr->mhp || mimic_no_regen()) &&
+			    (p_ptr->csp >= p_ptr->msp || 
+					p_ptr->pclass == CLASS_RUNE_KNIGHT || 
+					p_ptr->pclass == CLASS_RAGE_MAGE ||
+					mimic_no_regen()) &&
 			    !p_ptr->blind && !p_ptr->confused &&
 			    !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !p_ptr->cut &&
@@ -6125,7 +6136,7 @@ static void load_all_pref_files(void)
 	process_pref_file(buf);
 
 	/* Access the "race" pref file */
-	sprintf(buf, "%s.prf", rp_ptr->title);
+	sprintf(buf, "%s.prf", get_true_race_t()->name);
 
 	/* Process that file */
 	process_pref_file(buf);
@@ -6816,12 +6827,6 @@ quit("セーブファイルが壊れています");
 				if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
 #endif
 				{
-					/* Mark social class, reset age, if needed */
-					if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
-
-					/* Increase age */
-					p_ptr->age++;
-
 					/* Mark savefile */
 					p_ptr->noscore |= 0x0001;
 

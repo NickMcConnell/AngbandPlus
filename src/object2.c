@@ -6885,7 +6885,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 	case GF_LITE:
 		if (p_ptr->resist_lite) dam /= 2; /* Worst case of 4 / (d4 + 7) */
 		if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) dam *= 2;
-		else if (prace_is_(RACE_S_FAIRY)) dam = dam * 4 / 3;
+		else if (prace_is_(RACE_SHADOW_FAIRY)) dam = dam * 4 / 3;
 		if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO) dam = 0;
 
 		/*
@@ -6950,28 +6950,10 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 		break;
 
 	case GF_DEATH_RAY:
-		if (p_ptr->mimic_form)
+		if (get_race_t()->flags & RACE_IS_NONLIVING)
 		{
-			if (mimic_info[p_ptr->mimic_form].MIMIC_FLAGS & MIMIC_IS_NONLIVING)
-			{
-				dam = 0;
-				ignore_wraith_form = TRUE;
-			}
-		}
-		else
-		{
-			switch (p_ptr->prace)
-			{
-			case RACE_GOLEM:
-			case RACE_SKELETON:
-			case RACE_ZOMBIE:
-			case RACE_VAMPIRE:
-			case RACE_DEMON:
-			case RACE_SPECTRE:
-				dam = 0;
-				ignore_wraith_form = TRUE;
-				break;
-			}
+			dam = 0;
+			ignore_wraith_form = TRUE;
 		}
 		break;
 

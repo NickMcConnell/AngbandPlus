@@ -234,7 +234,7 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 				case RACE_ZOMBIE:
 				case RACE_VAMPIRE:
 				case RACE_SPECTRE:
-				case RACE_DEMON:
+				case RACE_BALROG:
 				case RACE_DRACONIAN:
 					mult = 30;break;
 				default:

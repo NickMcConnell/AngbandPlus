@@ -342,7 +342,7 @@ void get_virtues(void)
 	case RACE_HIGH_ELF: case RACE_KUTAR:
 		p_ptr->vir_types[i++] = V_VITALITY;
 		break;
-	case RACE_HALF_GIANT: case RACE_GOLEM: case RACE_ANGEL: case RACE_DEMON:
+	case RACE_HALF_GIANT: case RACE_GOLEM: case RACE_ARCHON: case RACE_BALROG:
 		p_ptr->vir_types[i++] = V_JUSTICE;
 		break;
 	case RACE_HALF_TITAN:
@@ -354,7 +354,7 @@ void get_virtues(void)
 	case RACE_MIND_FLAYER:
 		p_ptr->vir_types[i++] = V_ENLIGHTEN;
 		break;
-	case RACE_DARK_ELF: case RACE_DRACONIAN: case RACE_S_FAIRY:
+	case RACE_DARK_ELF: case RACE_DRACONIAN: case RACE_SHADOW_FAIRY:
 		p_ptr->vir_types[i++] = V_ENCHANT;
 		break;
 	case RACE_NIBELUNG:

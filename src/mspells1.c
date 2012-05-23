@@ -943,11 +943,14 @@ bool dispel_check(int m_idx)
 	/* Berserk Strength */
 	if (IS_SHERO() && (p_ptr->pclass != CLASS_BERSERKER)) return (TRUE);
 
-	/* Demon Lord */
-	if (p_ptr->mimic_form == MIMIC_DEMON_LORD) return (TRUE);
+	/* Powerful Mimickry: Note Colossus and Demon-Lord have insane XP requirements,
+	   so will always trigger a dispel. */
+	if (p_ptr->mimic_form != MIMIC_NONE)
+	{
+		if (randint1(500) < get_race_t()->exp) return TRUE;
+	}
 
 	/* Craft Munckin Checks :) */
-	if (p_ptr->mimic_form == MIMIC_COLOSSUS) return TRUE;
 	if (p_ptr->tim_genji) return TRUE;
 	if (p_ptr->tim_force) return TRUE;
 	if (p_ptr->tim_enlarge_weapon) return TRUE;
@@ -962,7 +965,7 @@ bool dispel_check(int m_idx)
 
 	if (r_ptr->flags4 & RF4_BR_FIRE)
 	{
-		if (!((p_ptr->prace == RACE_DEMON) && p_ptr->lev > 44))
+		if (!((p_ptr->prace == RACE_BALROG) && p_ptr->lev > 44))
 		{
 			if (!p_ptr->immune_fire && (p_ptr->oppose_fire || music_singing(MUSIC_RESIST))) return (TRUE);
 			if (p_ptr->special_defense & DEFENSE_FIRE) return (TRUE);

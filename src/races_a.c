@@ -110,6 +110,10 @@ static void _android_get_flags(u32b flgs[TR_FLAG_SIZE])
 	add_flag(flgs, TR_SLOW_DIGEST);
 	add_flag(flgs, TR_HOLD_LIFE);
 }
+static void _android_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_RES_ELEC);
+}
 static void _android_spoiler_dump(FILE *fff)
 {
 	spoil_powers_aux(fff, _android_powers);
@@ -162,6 +166,7 @@ race_t *android_get_race_t(void)
 		me.calc_bonuses = _android_calc_bonuses;
 		me.get_powers = _android_get_powers;
 		me.get_flags = _android_get_flags;
+		me.get_vulnerabilities = _android_get_vulnerabilities;
 		me.spoiler_dump = _android_spoiler_dump;
 		init = TRUE;
 	}
@@ -223,6 +228,7 @@ race_t *archon_get_race_t(void)
 		me.hd = 11;
 		me.exp = 235;
 		me.infra = 3;
+		me.flags = RACE_IS_NONLIVING;
 
 		me.calc_bonuses = _archon_calc_bonuses;
 		me.get_flags = _archon_get_flags;
@@ -311,6 +317,7 @@ race_t *balrog_get_race_t(void)
 		me.hd = 12;
 		me.exp = 200;
 		me.infra = 5;
+		me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
 
 		me.calc_bonuses = _balrog_calc_bonuses;
 		me.get_powers = _balrog_get_powers;
@@ -468,6 +475,153 @@ race_t *beastman_get_race_t(void)
 }
 
 /****************************************************************
+ * Clay-Golem
+ ****************************************************************/
+static void _clay_golem_calc_bonuses(void)
+{
+	p_ptr->free_act = TRUE;
+	p_ptr->hold_life = TRUE;
+	p_ptr->to_a += 10;
+	p_ptr->dis_to_a += 10;
+}
+static void _clay_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_FREE_ACT);
+	add_flag(flgs, TR_HOLD_LIFE);
+}
+static void _clay_golem_spoiler_dump(FILE *fff)
+{
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "  * +10 to Armor Class\n");
+	fprintf(fff, "  * Free Action\n");
+	fprintf(fff, "  * Hold Life\n");
+}
+race_t *clay_golem_get_race_t(void)
+{
+	static race_t me = {0};
+	static bool init = FALSE;
+
+	if (!init)
+	{
+		me.name = "Clay-Golem";
+		me.desc = "";
+
+		me.stats[A_STR] =  2;
+		me.stats[A_INT] =  0;
+		me.stats[A_WIS] =  0;
+		me.stats[A_DEX] =  0;
+		me.stats[A_CON] =  2;
+		me.stats[A_CHR] = -2;
+		
+		me.skills.dis = -5;
+		me.skills.dev = -5;
+		me.skills.sav = 8;
+		me.skills.stl = -2;
+		me.skills.srh = -2;
+		me.skills.fos = 5;
+		me.skills.thn = 20;
+		me.skills.thb = 0;
+
+		me.hd = 11;
+		me.exp = 200;
+		me.infra = 2;
+
+		me.flags = RACE_IS_NONLIVING;
+
+		me.calc_bonuses = _clay_golem_calc_bonuses;
+		me.get_flags = _clay_golem_get_flags;
+		me.spoiler_dump = _clay_golem_spoiler_dump;
+		init = TRUE;
+	}
+
+	return &me;
+}
+
+/****************************************************************
+ * Colossus
+ ****************************************************************/
+static void _colossus_calc_bonuses(void)
+{
+	p_ptr->free_act = TRUE;
+	p_ptr->see_inv = TRUE;
+	p_ptr->hold_life = TRUE;
+	p_ptr->resist_pois = TRUE;
+	p_ptr->resist_shard = TRUE;
+	p_ptr->resist_sound = TRUE;
+	p_ptr->resist_disen = TRUE;
+	p_ptr->reflect = TRUE;
+	p_ptr->pspeed -= 5;
+	p_ptr->to_a += 40;
+	p_ptr->dis_to_a += 40;
+}
+static void _colossus_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_FREE_ACT);
+	add_flag(flgs, TR_SEE_INVIS);
+	add_flag(flgs, TR_HOLD_LIFE);
+	add_flag(flgs, TR_RES_POIS);
+	add_flag(flgs, TR_SPEED);
+	add_flag(flgs, TR_RES_SHARDS);
+	add_flag(flgs, TR_REFLECT);
+	add_flag(flgs, TR_RES_SOUND);
+	add_flag(flgs, TR_RES_DISEN);
+}
+static void _colossus_spoiler_dump(FILE *fff)
+{
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "  * -5 to Speed\n");
+	fprintf(fff, "  * +40 to Armor Class\n");
+	fprintf(fff, "  * Free Action\n");
+	fprintf(fff, "  * See Invisible\n");
+	fprintf(fff, "  * Hold Life\n");
+	fprintf(fff, "  * Resist Poison\n");
+	fprintf(fff, "  * Resist Sound\n");
+	fprintf(fff, "  * Resist Shards\n");
+	fprintf(fff, "  * Resist Disenchantment\n");
+	fprintf(fff, "  * Reflection\n");
+}
+race_t *colossus_get_race_t(void)
+{
+	static race_t me = {0};
+	static bool init = FALSE;
+
+	if (!init)
+	{
+		me.name = "Colossus";
+		me.desc = "";
+
+		me.stats[A_STR] =  7;
+		me.stats[A_INT] =  2;
+		me.stats[A_WIS] =  2;
+		me.stats[A_DEX] = -4;
+		me.stats[A_CON] =  7;
+		me.stats[A_CHR] =  4;
+		
+		me.skills.dis =  0;
+		me.skills.dev =  0;
+		me.skills.sav = 35;
+		me.skills.stl = -4;
+		me.skills.srh = -2;
+		me.skills.fos = 5;
+		me.skills.thn = 90;
+		me.skills.thb = -20;
+
+		me.hd = 15;
+		me.exp = 1000;
+		me.infra = 5;
+		me.flags = RACE_IS_NONLIVING;
+
+		me.calc_bonuses = _colossus_calc_bonuses;
+		me.get_flags = _colossus_get_flags;
+		me.spoiler_dump = _colossus_spoiler_dump;
+		init = TRUE;
+	}
+
+	return &me;
+}
+
+
+/****************************************************************
  * Cyclops
  ****************************************************************/
 static power_info _cyclops_powers[] =
@@ -607,6 +761,225 @@ race_t *dark_elf_get_race_t(void)
 		me.get_powers = _dark_elf_get_powers;
 		me.get_flags = _dark_elf_get_flags;
 		me.spoiler_dump = _dark_elf_spoiler_dump;
+		init = TRUE;
+	}
+
+	return &me;
+}
+
+/****************************************************************
+ * Demon (cf Polymorph Demon)
+ ****************************************************************/
+static power_info _demon_powers[] =
+{
+	{ A_CON, {15, 10, 70, demon_breath_spell}},
+	{ -1, {-1, -1, -1, NULL} }
+};
+static int _demon_get_powers(spell_info* spells, int max)
+{
+	return get_powers_aux(spells, max, _demon_powers);
+}
+static void _demon_calc_bonuses(void)
+{
+	p_ptr->hold_life = TRUE;
+	p_ptr->resist_chaos = TRUE;
+	p_ptr->resist_neth = TRUE;
+	p_ptr->resist_fire = TRUE;
+	p_ptr->oppose_fire = 1;
+	p_ptr->see_inv = TRUE;
+	p_ptr->pspeed += 3;
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->to_a += 10;
+	p_ptr->dis_to_a += 10;
+	p_ptr->align -= 200;
+}
+static void _demon_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_HOLD_LIFE);
+	add_flag(flgs, TR_RES_CHAOS);
+	add_flag(flgs, TR_RES_NETHER);
+	add_flag(flgs, TR_RES_FIRE);
+	add_flag(flgs, TR_SEE_INVIS);
+	add_flag(flgs, TR_SPEED);
+}
+static void _demon_spoiler_dump(FILE *fff)
+{
+	spoil_powers_aux(fff, _demon_powers);
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "  * +3 Speed\n");
+	fprintf(fff, "  * +10 Armor Class\n");
+	fprintf(fff, "  * Double Resist to Fire\n");
+	fprintf(fff, "  * Resist Nether\n");
+	fprintf(fff, "  * Resist Chaos\n");
+	fprintf(fff, "  * Hold Life\n");
+	fprintf(fff, "  * See Invisible\n");
+	fprintf(fff, "  * Immunity to Eldritch Horror\n");
+	fprintf(fff, "  * -200 Alignment\n");
+}
+race_t *demon_get_race_t(void)
+{
+	static race_t me = {0};
+	static bool init = FALSE;
+
+	if (!init)
+	{
+		me.name = "Demon";
+		me.desc = "";
+
+		me.stats[A_STR] =  5;
+		me.stats[A_INT] =  3;
+		me.stats[A_WIS] =  2;
+		me.stats[A_DEX] =  3;
+		me.stats[A_CON] =  4;
+		me.stats[A_CHR] = -6;
+		
+		me.skills.dis = -5;
+		me.skills.dev = 18;
+		me.skills.sav = 20;
+		me.skills.stl = -2;
+		me.skills.srh =  3;
+		me.skills.fos = 10;
+		me.skills.thn = 40;
+		me.skills.thb = 20;
+
+		me.hd = 12;
+		me.exp = 500;
+		me.infra = 5;
+		me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
+
+		me.calc_bonuses = _demon_calc_bonuses;
+		me.get_powers = _demon_get_powers;
+		me.get_flags = _demon_get_flags;
+		me.spoiler_dump = _demon_spoiler_dump;
+		init = TRUE;
+	}
+
+	return &me;
+}
+
+/****************************************************************
+ * Demon-Lord (cf Polymorph Demon-Lord)
+ ****************************************************************/
+static power_info _demon_lord_powers[] =
+{
+	{ A_CON, {15, 10, 70, demon_breath_spell}},
+	{ -1, {-1, -1, -1, NULL} }
+};
+static int _demon_lord_get_powers(spell_info* spells, int max)
+{
+	return get_powers_aux(spells, max, _demon_lord_powers);
+}
+static void _demon_lord_calc_bonuses(void)
+{
+	p_ptr->hold_life = TRUE;
+	p_ptr->resist_chaos = TRUE;
+	p_ptr->resist_neth = TRUE;
+	p_ptr->immune_fire = TRUE;
+	p_ptr->resist_acid = TRUE;
+	p_ptr->resist_fire = TRUE;
+	p_ptr->resist_cold = TRUE;
+	p_ptr->resist_elec = TRUE;
+	p_ptr->resist_pois = TRUE;
+	p_ptr->resist_conf = TRUE;
+	p_ptr->resist_disen = TRUE;
+	p_ptr->resist_nexus = TRUE;
+	p_ptr->resist_fear = TRUE;
+	p_ptr->sh_fire = TRUE;
+	p_ptr->see_inv = TRUE;
+	p_ptr->telepathy = TRUE;
+	p_ptr->levitation = TRUE;
+	p_ptr->kill_wall = TRUE;
+	p_ptr->pspeed += 5;
+	p_ptr->to_a += 20;
+	p_ptr->dis_to_a += 20;
+	p_ptr->align -= 200;
+}
+static void _demon_lord_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_HOLD_LIFE);
+	add_flag(flgs, TR_RES_CHAOS);
+	add_flag(flgs, TR_RES_NETHER);
+	add_flag(flgs, TR_RES_FIRE);
+	add_flag(flgs, TR_RES_COLD);
+	add_flag(flgs, TR_RES_ELEC);
+	add_flag(flgs, TR_RES_ACID);
+	add_flag(flgs, TR_RES_POIS);
+	add_flag(flgs, TR_RES_CONF);
+	add_flag(flgs, TR_RES_DISEN);
+	add_flag(flgs, TR_RES_NEXUS);
+	add_flag(flgs, TR_RES_FEAR);
+	add_flag(flgs, TR_IM_FIRE);
+	add_flag(flgs, TR_SH_FIRE);
+	add_flag(flgs, TR_SEE_INVIS);
+	add_flag(flgs, TR_TELEPATHY);
+	add_flag(flgs, TR_LEVITATION);
+	add_flag(flgs, TR_SPEED);
+}
+static void _demon_lord_get_immunities(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_RES_FIRE);
+}
+static void _demon_lord_spoiler_dump(FILE *fff)
+{
+	spoil_powers_aux(fff, _demon_lord_powers);
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "  * +5 Speed\n");
+	fprintf(fff, "  * +20 Armor Class\n");
+	fprintf(fff, "  * Immunity to Fire\n");
+	fprintf(fff, "  * Resist Cold\n");
+	fprintf(fff, "  * Resist Acid\n");
+	fprintf(fff, "  * Resist Electricity\n");
+	fprintf(fff, "  * Resist Poison\n");
+	fprintf(fff, "  * Resist Confusion\n");
+	fprintf(fff, "  * Resist Nether\n");
+	fprintf(fff, "  * Resist Nexus\n");
+	fprintf(fff, "  * Resist Chaos\n");
+	fprintf(fff, "  * Resist Disenchantment\n");
+	fprintf(fff, "  * Hold Life\n");
+	fprintf(fff, "  * Fiery Aura\n");
+	fprintf(fff, "  * See Invisible\n");
+	fprintf(fff, "  * Levitation\n");
+	fprintf(fff, "  * Telepathy\n");
+	fprintf(fff, "  * Immunity to Eldritch Horror\n");
+	fprintf(fff, "  * Steps Break Walls\n");
+	fprintf(fff, "  * -200 Alignment\n");
+}
+race_t *demon_lord_get_race_t(void)
+{
+	static race_t me = {0};
+	static bool init = FALSE;
+
+	if (!init)
+	{
+		me.name = "Demon-Lord";
+		me.desc = "";
+
+		me.stats[A_STR] = 20;
+		me.stats[A_INT] = 20;
+		me.stats[A_WIS] = 20;
+		me.stats[A_DEX] = 20;
+		me.stats[A_CON] = 20;
+		me.stats[A_CHR] = 20;
+		
+		me.skills.dis = 20;
+		me.skills.dev = 20;
+		me.skills.sav = 25;
+		me.skills.stl = -2;
+		me.skills.srh =  3;
+		me.skills.fos = 10;
+		me.skills.thn = 70;
+		me.skills.thb = 40;
+
+		me.hd = 14;
+		me.exp = 1500;
+		me.infra = 20;
+		me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
+
+		me.calc_bonuses = _demon_lord_calc_bonuses;
+		me.get_powers = _demon_lord_get_powers;
+		me.get_flags = _demon_lord_get_flags;
+		me.get_immunities = _demon_lord_get_immunities;
+		me.spoiler_dump = _demon_lord_spoiler_dump;
 		init = TRUE;
 	}
 
@@ -853,6 +1226,10 @@ static void _ent_calc_bonuses(void)
 static void _ent_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
 }
+static void _ent_get_vulnerabilities(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_RES_FIRE);
+}
 static void _ent_spoiler_dump(FILE *fff)
 {
 	spoil_powers_aux(fff, _ent_powers);
@@ -891,6 +1268,7 @@ race_t *ent_get_race_t(void)
 		me.calc_bonuses = _ent_calc_bonuses;
 		me.get_powers = _ent_get_powers;
 		me.get_flags = _ent_get_flags;
+		me.get_vulnerabilities = _ent_get_vulnerabilities;
 		me.spoiler_dump = _ent_spoiler_dump;
 		init = TRUE;
 	}
@@ -1061,6 +1439,7 @@ race_t *golem_get_race_t(void)
 		me.hd = 12;
 		me.exp = 185;
 		me.infra = 4;
+		me.flags = RACE_IS_NONLIVING;
 
 		me.calc_bonuses = _golem_calc_bonuses;
 		me.get_flags = _golem_get_flags;
@@ -1623,11 +2002,83 @@ race_t *imp_get_race_t(void)
 		me.hd = 10;
 		me.exp = 90;
 		me.infra = 3;
+		me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
 
 		me.calc_bonuses = _imp_calc_bonuses;
 		me.get_powers = _imp_get_powers;
 		me.get_flags = _imp_get_flags;
 		me.spoiler_dump = _imp_spoiler_dump;
+		init = TRUE;
+	}
+
+	return &me;
+}
+
+/****************************************************************
+ * Iron-Golem
+ ****************************************************************/
+static void _iron_golem_calc_bonuses(void)
+{
+	p_ptr->free_act = TRUE;
+	p_ptr->see_inv = TRUE;
+	p_ptr->hold_life = TRUE;
+	p_ptr->resist_pois = TRUE;
+	p_ptr->pspeed -= 1;
+	p_ptr->to_a += 15;
+	p_ptr->dis_to_a += 15;
+}
+static void _iron_golem_get_flags(u32b flgs[TR_FLAG_SIZE])
+{
+	add_flag(flgs, TR_FREE_ACT);
+	add_flag(flgs, TR_SEE_INVIS);
+	add_flag(flgs, TR_HOLD_LIFE);
+	add_flag(flgs, TR_RES_POIS);
+	add_flag(flgs, TR_SPEED);
+}
+static void _iron_golem_spoiler_dump(FILE *fff)
+{
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "  * -1 to Speed\n");
+	fprintf(fff, "  * +15 to Armor Class\n");
+	fprintf(fff, "  * Free Action\n");
+	fprintf(fff, "  * See Invisible\n");
+	fprintf(fff, "  * Hold Life\n");
+	fprintf(fff, "  * Resist Poison\n");
+}
+race_t *iron_golem_get_race_t(void)
+{
+	static race_t me = {0};
+	static bool init = FALSE;
+
+	if (!init)
+	{
+		me.name = "Iron-Golem";
+		me.desc = "";
+
+		me.stats[A_STR] =  3;
+		me.stats[A_INT] =  0;
+		me.stats[A_WIS] =  0;
+		me.stats[A_DEX] = -1;
+		me.stats[A_CON] =  3;
+		me.stats[A_CHR] = -2;
+		
+		me.skills.dis = -5;
+		me.skills.dev = -5;
+		me.skills.sav = 15;
+		me.skills.stl = -2;
+		me.skills.srh = -2;
+		me.skills.fos = 5;
+		me.skills.thn = 30;
+		me.skills.thb = -5;
+
+		me.hd = 12;
+		me.exp = 250;
+		me.infra = 3;
+		me.flags = RACE_IS_NONLIVING;
+
+		me.calc_bonuses = _iron_golem_calc_bonuses;
+		me.get_flags = _iron_golem_get_flags;
+		me.spoiler_dump = _iron_golem_spoiler_dump;
 		init = TRUE;
 	}
 

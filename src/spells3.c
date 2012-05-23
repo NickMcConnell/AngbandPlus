@@ -2686,7 +2686,7 @@ bool item_tester_hook_nameless_weapon_armour(object_type *o_ptr)
 {
 	if ( !object_is_weapon_armour_ammo(o_ptr)
 	  && !(o_ptr->tval == TV_LITE && o_ptr->sval == SV_LITE_FEANOR) 
-	  && !(p_ptr->prace == RACE_SNOTLING && object_is_mushroom(o_ptr)) )
+	  && !(prace_is_(RACE_SNOTLING) && object_is_mushroom(o_ptr)) )
 	{
 		return FALSE;
 	}
@@ -6112,7 +6112,7 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 			case RACE_DARK_ELF:
 			case RACE_MIND_FLAYER:
 			case RACE_KUTAR:
-			case RACE_S_FAIRY:
+			case RACE_SHADOW_FAIRY:
 				summon_kin_type = 'h';
 				break;
 			case RACE_SNOTLING:
@@ -6168,10 +6168,10 @@ bool summon_kin_player(int level, int y, int x, u32b mode)
 			case RACE_ENT:
 				summon_kin_type = '#';
 				break;
-			case RACE_ANGEL:
+			case RACE_ARCHON:
 				summon_kin_type = 'A';
 				break;
-			case RACE_DEMON:
+			case RACE_BALROG:
 				summon_kin_type = 'U';
 				break;
 			default:

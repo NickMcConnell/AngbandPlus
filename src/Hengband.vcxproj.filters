@@ -375,6 +375,9 @@
     <ClCompile Include="races_k.c">
       <Filter>Races</Filter>
     </ClCompile>
+    <ClCompile Include="doppelganger.c">
+      <Filter>Races</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
