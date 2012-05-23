@@ -202,7 +202,6 @@ void check_experience(void)
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
 	       (p_ptr->exp >= exp_requirement(p_ptr->lev)))
 	{
-		/* Gain a level */
 		p_ptr->lev++;
 
 		if (p_ptr->pclass == CLASS_WILD_TALENT) wild_talent_fix_up();
@@ -232,18 +231,11 @@ void check_experience(void)
 			level_inc_stat = TRUE;
 
 			do_cmd_write_nikki(NIKKI_LEVELUP, p_ptr->lev, NULL);
+
+			sound(SOUND_LEVEL);
+			msg_format(T("Welcome to level %d.", "レベル %d にようこそ。"), p_ptr->lev);
 		}
 
-		/* Sound */
-		sound(SOUND_LEVEL);
-
-		/* Message */
-#ifdef JP
-msg_format("レベル %d にようこそ。", p_ptr->lev);
-#else
-		msg_format("Welcome to level %d.", p_ptr->lev);
-
-#endif
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);

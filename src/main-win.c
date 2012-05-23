@@ -4378,6 +4378,10 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 				/* Resize the term */
 				Term_resize(td->cols, td->rows);
 
+				/* I'm going nuts here! Was td size data just always
+					wrong before? Crazy Nuts :P */
+				term_getsize(td);
+
 				/* Activate */
 				Term_activate(old_term);
 

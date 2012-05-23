@@ -1620,6 +1620,8 @@ static hist_type bg[] =
 	{". You are slow.", 40, 161, 0, 2},
 	{". You take your time.", 60, 161, 0, 2},
 	{". You prefer to wait for your prey to come to you.", 100, 161, 0, 3},
+
+	{"You have a plain, undistinguished appearance.", 100, 162, 0, 2},
 };
 
 static cptr class_jouhou[MAX_CLASS] =
@@ -3267,6 +3269,9 @@ static void get_history(void)
 			chart = 159;
 			break;
 		}
+		case RACE_DOPPELGANGER:
+			chart = 162;
+			break;
 		case RACE_HIGH_ELF:
 		{
 			chart = 7;

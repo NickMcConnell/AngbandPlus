@@ -4333,6 +4333,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			else if (streq(b+1, "RACE"))
 			{
 				get_true_race_t()->name;
+			/*	get_race_t()->name; */
 			}
 
 			/* Class */

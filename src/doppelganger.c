@@ -23,11 +23,8 @@ void mimic_race(int new_race)
 		}
 	}
 
-	if (old_race == RACE_BEASTMAN)
-	{
-		/* TODO: We could try to remember what we gained (what about level gains?), but this is probably OK */
-		mut_lose_all();
-	}
+	/* Shifting form causes mutations to vanish! */
+	mut_lose_all();
 
 	if (new_race == MIMIC_NONE)
 		msg_print("You resume your true form.");
@@ -79,9 +76,9 @@ static int _form_cost(int exp)
 
 static int _form_upkeep(int exp)
 {
-	int result = 1;
-	if (exp > 100)
-		result += (exp - 100)/25;
+	int result = 0;
+	if (exp >= 175)
+		result += 1 + (exp - 175)/25;
 	return result;
 }
 
@@ -476,6 +473,7 @@ static void _spoiler_dump(FILE *fff)
 	fprintf(fff, "  * While mimicking, a player will not regenerate.\n");
 	fprintf(fff, "  * If the player rests, they will revert to their true form.\n");
 	fprintf(fff, "  * To assume a new form, the player must first revert to their true form.\n");
+	fprintf(fff, "  * The player loses all mutations each time they shape shift.\n");
 }
 
 race_t *doppelganger_get_race_t(void)
