@@ -187,6 +187,9 @@ static void _ancient_protection_spell(int cmd, variant *res)
 		else
 			var_set_string(res, "Sets glyphs on nearby floors. Monsters cannot attack you if you are on a glyph, but can try to break glyph.");
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Sets a glyph on the floor beneath you. Monsters cannot attack you if you are on a glyph, but can try to break glyph. At L50, this spell also surrounds the player with 8 additional glyphs.");
+		break;
 	case SPELL_CAST:
 		warding_glyph();
 		if (p_ptr->lev >= 50)
@@ -613,6 +616,12 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "Curses all nearby monsters, doing great damage and various effects.");
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Curses all monsters in line of sight for MIN(8%+L+dL, 400) damage. Additional effects "
+								"include confusion (L46), slowing (L47), fear (L48), stun (L49) and stasis (L50). 20% "
+								"chance of summoning a Greater Mummy as a pet (50%) or enemy (50%). Player takes "
+								"L+dL damage as well.");
+		break;
 	case SPELL_CAST:
 		{
 			int power = spell_power(p_ptr->lev * 4);
@@ -717,9 +726,7 @@ static void _remove_obstacles_spell(int cmd, variant *res)
  * Spell Table and Exports
  ****************************************************************/
 
-#define MAX_ARCHAEOLOGIST_SPELLS	16
-
-static spell_info _spells[MAX_ARCHAEOLOGIST_SPELLS] = 
+static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
 	{  1,   3, 10, _extended_whip_spell },
@@ -738,30 +745,13 @@ static spell_info _spells[MAX_ARCHAEOLOGIST_SPELLS] =
 	{ 40, 150, 80, polish_shield_spell },
 	{ 42,  30, 50, _evacuation_spell },
 	{ 45,  50, 80, _pharaohs_curse_spell }, /* No wizardstaff.  No spell skills! So, 8% best possible fail.*/
+	{ -1,  -1, -1, NULL }
 };
 
 static int _get_spells(spell_info* spells, int max)
 {
-	int i;
-	int ct = 0;
 	int stat_idx = (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2;
-	
-	for (i = 0; i < MAX_ARCHAEOLOGIST_SPELLS; i++)
-	{
-		spell_info *base = &_spells[i];
-		if (ct >= max) break;
-		if (base->level <= p_ptr->lev)
-		{
-			spell_info* current = &spells[ct];
-			current->fn = base->fn;
-			current->level = base->level;
-			current->cost = base->cost;
-
-			current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);			
-			ct++;
-		}
-	}
-	return ct;
+	return get_spells_aux(spells, max, _spells, stat_idx);
 }
 
 static bool _is_favored_weapon(object_type *o_ptr)
@@ -833,29 +823,19 @@ static caster_info * _caster_info(void)
 
 static void _spoiler_dump(FILE* fff)
 {
-	int i;
-	variant vn, vd;
-	var_init(&vn);
-	var_init(&vd);
-
-	fprintf(fff, "\n== Spells ==\n");
-	fprintf(fff, "|| *Power* || *Lvl* || *Mana* || *Fail* || *Description* ||\n");
-	for (i = 0; i < MAX_ARCHAEOLOGIST_SPELLS; i++)
-	{
-		spell_info *base = &_spells[i];
-
-		base->fn(SPELL_SPOIL_NAME, &vn);
-		if (var_is_null(&vn)) base->fn(SPELL_NAME, &vn);
-		
-		base->fn(SPELL_SPOIL_DESC, &vd);
-		if (var_is_null(&vd)) base->fn(SPELL_DESC, &vd);
-
-		fprintf(fff, "||%s||%d||%d||%d||`%s`||\n", 
-			var_get_string(&vn), base->level, base->cost, base->fail, var_get_string(&vd));
-	}
-
-	var_clear(&vn);
-	var_clear(&vd);
+	spoil_spells_aux(fff, _spells);
+	fprintf(fff, "\nNote: The Archaeologist uses both Intelligence and Wisdom (averaged) when determining fail rates.\n");
+	
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "  * +L/10 to Infravision\n");
+	fprintf(fff, "  * +2L to Digging\n");
+	fprintf(fff, "  * See Invisible at L20\n");
+	fprintf(fff, "  * Resist Darkness at L38\n");
+	fprintf(fff, "  * Sense Artifacts (Range: 3+L/10)\n");
+	fprintf(fff, "  * The Archaeologist Favors Whips and Diggers\n");
+	fprintf(fff, "  * +1 Attack with Favored Weapons at L20\n");
+	fprintf(fff, "  * +1 Attack with Favored Weapons at L40\n");
+	fprintf(fff, "  * +10L/50 To Hit and Damage with Favored Weapons\n");
 }
 
 class_t *archaeologist_get_class_t(void)
@@ -875,6 +855,7 @@ class_t *archaeologist_get_class_t(void)
 				  "he is rarely lost or snared in traps. His powers of perception and detection are "
 				  "very great, as is his skill with arcane devices. At high levels he can use the "
 				  "dark magic of the entombed Pharaohs.";
+
 		me.stats[A_STR] = -1;
 		me.stats[A_INT] =  1;
 		me.stats[A_WIS] =  1;
@@ -883,6 +864,10 @@ class_t *archaeologist_get_class_t(void)
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 4;
+		me.exp = 75;
+		me.pets = 40;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.process_player = _process_player;

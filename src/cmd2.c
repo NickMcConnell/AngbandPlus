@@ -776,7 +776,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 		for (; nasty_tricks_count > 0; nasty_tricks_count--)
 		{
 			/* ...but a high saving throw does help a little. */
-			if (randint1(100+o_ptr->pval*2) > p_ptr->skill_sav)
+			if (randint1(100+o_ptr->pval*2) > p_ptr->skills.sav)
 			{
 #ifdef JP
 				if (one_in_(6)) take_hit(DAMAGE_NOESCAPE, damroll(5, 20), "ÇËÌÇ¤Î¥È¥é¥Ã¥×¤ÎÊõÈ¢", -1);
@@ -881,7 +881,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		flag = FALSE;
 
 		/* Get the "disarm" factor */
-		i = p_ptr->skill_dis;
+		i = p_ptr->skills.dis;
 
 		/* Penalize some conditions */
 		if (p_ptr->blind || no_lite()) i = i / 10;
@@ -1104,7 +1104,7 @@ static bool do_cmd_open_aux(int y, int x)
 	else if (f_ptr->power)
 	{
 		/* Disarm factor */
-		i = p_ptr->skill_dis;
+		i = p_ptr->skills.dis;
 
 		/* Penalize some conditions */
 		if (p_ptr->blind || no_lite()) i = i / 10;
@@ -1808,7 +1808,7 @@ bool easy_open_door(int y, int x)
 	else if (f_ptr->power)
 	{
 		/* Disarm factor */
-		i = p_ptr->skill_dis;
+		i = p_ptr->skills.dis;
 
 		/* Penalize some conditions */
 		if (p_ptr->blind || no_lite()) i = i / 10;
@@ -1898,7 +1898,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	energy_use = 100;
 
 	/* Get the "disarm" factor */
-	i = p_ptr->skill_dis;
+	i = p_ptr->skills.dis;
 
 	/* Penalize some conditions */
 	if (p_ptr->blind || no_lite()) i = i / 10;
@@ -2022,7 +2022,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 	bool more = FALSE;
 
 	/* Get the "disarm" factor */
-	int i = p_ptr->skill_dis;
+	int i = p_ptr->skills.dis;
 
 	int j;
 
@@ -2736,7 +2736,7 @@ void do_cmd_walk(bool pickup)
 		int tmp = 1000 + p_ptr->lev*10 - wilderness[py][px].level + 5;
 		if (tmp < 1) 
 			tmp = 1;
-		if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && randint0(tmp) < (21-p_ptr->skill_stl))
+		if (((wilderness[py][px].level + 5) > (p_ptr->lev / 2)) && randint0(tmp) < (21-p_ptr->skills.stl))
 		{
 			/* Inform the player of his horrible fate :=) */
 #ifdef JP
@@ -2897,11 +2897,29 @@ void do_cmd_rest(void)
 	   conveniently, we can stop mimicry, though this will tend
 	   to expose the player!
 	 */
-	if (mimic_no_regen())
+	if (mimic_no_regen() && command_arg < 0)
 	{
-		mimic_race(MIMIC_NONE);
-	/*	msg_print("You cannot rest while maintaining your mimic form!");
-		return; */
+		bool clear = TRUE;
+		if (command_arg == -2)
+		{
+			if (p_ptr->blind || 
+				p_ptr->confused ||
+			    p_ptr->poisoned ||
+				p_ptr->afraid ||
+			    p_ptr->stun ||
+				p_ptr->cut ||
+			    p_ptr->slow || 
+				p_ptr->paralyzed ||
+			    p_ptr->image ||
+				p_ptr->word_recall ||
+			    p_ptr->alter_reality)
+			{
+				clear = FALSE;
+			}
+		}
+
+		if (clear)
+			mimic_race(MIMIC_NONE);
 	}
 
 	if (p_ptr->special_defense & NINJA_S_STEALTH) set_superstealth(FALSE);
@@ -3581,9 +3599,9 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 	}
 
 	if ((j_ptr->sval == SV_LIGHT_XBOW) || (j_ptr->sval == SV_HEAVY_XBOW))
-		chance = (p_ptr->skill_thb + (p_ptr->weapon_exp[0][j_ptr->sval] / 400 + bonus) * BTH_PLUS_ADJ);
+		chance = (p_ptr->skills.thb + (p_ptr->weapon_exp[0][j_ptr->sval] / 400 + bonus) * BTH_PLUS_ADJ);
 	else
-		chance = (p_ptr->skill_thb + ((p_ptr->weapon_exp[0][j_ptr->sval] - (WEAPON_EXP_MASTER / 2)) / 200 + bonus) * BTH_PLUS_ADJ);
+		chance = (p_ptr->skills.thb + ((p_ptr->weapon_exp[0][j_ptr->sval] - (WEAPON_EXP_MASTER / 2)) / 200 + bonus) * BTH_PLUS_ADJ);
 
 	if (!no_energy)
 		energy_use = bow_energy(j_ptr->sval);

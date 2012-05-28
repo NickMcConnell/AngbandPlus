@@ -8,16 +8,17 @@ hengband_SOURCES = \
         archaeologist.c archer.c artifact.c autopick.c avatar.c \
         bard.c birth.c bldg.c blood_knight.c blood_mage.c blue_mage.c cavalry.c \
         cave.c chuukei.c classes.c cmd1.c cmd2.c cmd3.c cmd4.c \
-        cmd5.c cmd6.c do-spell.c duelist.c dungeon.c effects.c \
+        cmd5.c cmd6.c demigod.c doppelganger.c do-spell.c duelist.c dungeon.c effects.c \
         files.c flavor.c floors.c force_trainer.c generate.c grid.c hex.c hissatsu.c \
         inet.c init1.c init2.c japanese.c load.c magic_eater.c \
         main.c mane.c melee1.c melee2.c menu.c mind.c mindcrafter.c \
         mirror.c monk.c monster1.c monster2.c mspells1.c mspells2.c \
         mspells3.c mut.c mut_a.c necromancer.c ninja.c object1.c object2.c obj_kind.c \
-        main-gcu.c psion.c races.c racial.c report.c rooms.c rune_knight.c \
+        main-gcu.c psion.c races.c races_a.c races_k.c \
+		racial.c report.c rooms.c rune_knight.c \
         samurai.c save.c scores.c scout.c skills.c smith.c snipe.c spells.c spells1.c \
         spells2.c spells3.c spells_a.c spells_c.c spells_h.c spells_m.c spells_s.c\
-		store.c streams.c tables.c \
+		store.c streams.c tables.c time_lord.c \
         util.c variable.c variant.c warlock.c wild.c wild_talent.c \
         wizard1.c wizard2.c xtra1.c xtra2.c z-form.c z-rand.c \
         z-term.c z-util.c z-virt.c \

@@ -462,6 +462,10 @@ class_t *mauler_get_class_t(void)
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 9;
+		me.exp = 120;
+		me.pets = 40;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.caster_info = _caster_info;

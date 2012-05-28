@@ -1072,9 +1072,9 @@ static void _calc_bonuses(void)
 	
 	if (p_ptr->tim_resist_curses)
 	{
-		p_ptr->skill_sav += 20;
+		p_ptr->skills.sav += 20;
 		if (p_ptr->shero)
-			p_ptr->skill_sav += 20;
+			p_ptr->skills.sav += 20;
 	}
 }
 
@@ -1148,6 +1148,10 @@ class_t *rage_mage_get_class_t(void)
 		me.stats[A_CHR] = -2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 3;
+		me.exp = 150;
+		me.pets = 40;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.get_spells = _get_spells;
 		me.caster_info = _caster_info;

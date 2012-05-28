@@ -639,6 +639,10 @@ class_t *rune_knight_get_class_t(void)
 		me.stats[A_CHR] = 1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 3;
+		me.exp = 150;
+		me.pets = 35;
+
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		init = TRUE;

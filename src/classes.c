@@ -48,6 +48,9 @@ class_t *result = NULL;
 	case CLASS_SCOUT:
 		result = scout_get_class_t();
 		break;
+	case CLASS_TIME_LORD:
+		result = time_lord_get_class_t();
+		break;
 	case CLASS_WARLOCK:
 		result = warlock_get_class_t(psubclass);
 		break;
@@ -432,7 +435,7 @@ void spoil_powers_aux(FILE *fff, power_info *table)
 	var_init(&vd);
 
 	fprintf(fff, "\n== Powers ==\n");
-	fprintf(fff, "||  || *Stat* || *Lvl* || *Mana* || *Fail* || *Description* ||\n");
+	fprintf(fff, "||  || *Stat* || *Lvl* || *Cost* || *Fail* || *Description* ||\n");
 	for (i = 0; ; i++)
 	{
 		power_info *base = &table[i];		
@@ -515,7 +518,7 @@ void spoil_spells_aux(FILE *fff, spell_info *table)
 	var_init(&vd);
 
 	fprintf(fff, "\n== Spells ==\n");
-	fprintf(fff, "||  || *Lvl* || *Mana* || *Fail* || *Description* ||\n");
+	fprintf(fff, "||  || *Lvl* || *Cost* || *Fail* || *Description* ||\n");
 	for (i = 0; ; i++)
 	{
 		spell_info *base = &table[i];

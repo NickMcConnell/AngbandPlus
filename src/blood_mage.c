@@ -91,6 +91,10 @@ class_t *blood_mage_get_class_t(void)
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 5;
+		me.exp = 150;
+		me.pets = 30;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.caster_info = _caster_info;
 		/* TODO: This class uses spell books, so we are SOL

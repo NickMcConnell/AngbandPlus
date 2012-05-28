@@ -895,14 +895,14 @@ bool make_attack_normal(int m_idx)
 							if ( p_ptr->pclass == CLASS_WARLOCK
 							  && p_ptr->psubclass == PACT_DEMON
 							  && p_ptr->lev > 39 
-							  && saving_throw(p_ptr->skill_sav - r_ptr->level/2) )
+							  && saving_throw(p_ptr->skills.sav - r_ptr->level/2) )
 							{
 								msg_print("Energy begins to drain from your pack, but you resist!");
 								break;
 							}
 
 							if ( mut_present(MUT_DEMONIC_GRASP)
-							  && saving_throw(p_ptr->skill_sav - r_ptr->level/2) )
+							  && saving_throw(p_ptr->skills.sav - r_ptr->level/2) )
 							{
 								msg_print("Energy begins to drain from your pack, but you resist!");
 								break;
@@ -1411,7 +1411,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
+					else if (randint0(100 + r_ptr->level/2) < p_ptr->skills.sav)
 					{
 #ifdef JP
 						msg_print("しかし恐怖に侵されなかった！");
@@ -1458,7 +1458,7 @@ bool make_attack_normal(int m_idx)
 
 						obvious = TRUE;
 					}
-					else if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
+					else if (randint0(100 + r_ptr->level/2) < p_ptr->skills.sav)
 					{
 #ifdef JP
 						msg_print("しかし効力を跳ね返した！");

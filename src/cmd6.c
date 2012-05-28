@@ -2939,7 +2939,7 @@ static void do_cmd_use_staff_aux(int item)
 	if (lev > 50) lev = 50 + (lev - 50)/2;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills.dev;
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -3485,7 +3485,7 @@ static void do_cmd_aim_wand_aux(int item)
 	if (lev > 50) lev = 50 + (lev - 50)/2;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills.dev;
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -3932,7 +3932,7 @@ static void do_cmd_zap_rod_aux(int item)
 	lev = k_info[o_ptr->k_idx].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills.dev;
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
@@ -4343,7 +4343,7 @@ static void do_cmd_activate_aux(int item)
 	else if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) && o_ptr->name2) lev = e_info[o_ptr->name2].level;
 
 	/* Base chance of success */
-	chance = p_ptr->skill_dev;
+	chance = p_ptr->skills.dev;
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;

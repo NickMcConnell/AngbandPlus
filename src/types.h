@@ -152,8 +152,8 @@ struct object_kind
 
 
 	bool aware;			/* The player is "aware" of the item's effects */
-
 	bool tried;			/* The player has "tried" one of the items */
+	s32b count;
 };
 
 
@@ -862,6 +862,17 @@ struct player_pact
 	cptr alliance;
 };
 
+typedef struct {
+	s16b dis;			/* disarming */
+	s16b dev;			/* magic devices */
+	s16b sav;			/* saving throw */
+	s16b stl;			/* stealth */
+	s16b srh;			/* search ability */
+	s16b fos;			/* search frequency */
+	s16b thn;			/* combat (normal) */
+	s16b thb;			/* combat (shooting) */
+} skills_t;
+
 /*
  * Player class info
  */
@@ -877,23 +888,8 @@ struct player_class
 #endif
 	s16b c_adj[6];		/* Class stat modifier */
 
-	s16b c_dis;			/* class disarming */
-	s16b c_dev;			/* class magic devices */
-	s16b c_sav;			/* class saving throws */
-	s16b c_stl;			/* class stealth */
-	s16b c_srh;			/* class searching ability */
-	s16b c_fos;			/* class searching frequency */
-	s16b c_thn;			/* class to hit (normal) */
-	s16b c_thb;			/* class to hit (bows) */
-
-	s16b x_dis;			/* extra disarming */
-	s16b x_dev;			/* extra magic devices */
-	s16b x_sav;			/* extra saving throws */
-	s16b x_stl;			/* extra stealth */
-	s16b x_srh;			/* extra searching ability */
-	s16b x_fos;			/* extra searching frequency */
-	s16b x_thn;			/* extra to hit (normal) */
-	s16b x_thb;			/* extra to hit (bows) */
+	skills_t base_skills;
+	skills_t extra_skills;
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
@@ -913,14 +909,7 @@ struct player_seikaku
 
 	s16b a_adj[6];		/* seikaku stat bonuses */
 
-	s16b a_dis;			/* seikaku disarming */
-	s16b a_dev;			/* seikaku magic devices */
-	s16b a_sav;			/* seikaku saving throw */
-	s16b a_stl;			/* seikaku stealth */
-	s16b a_srh;			/* seikaku search ability */
-	s16b a_fos;			/* seikaku search frequency */
-	s16b a_thn;			/* seikaku combat (normal) */
-	s16b a_thb;			/* seikaku combat (shooting) */
+	skills_t skills;
 
 	s16b a_mhp;			/* Race hit-dice modifier */
 
@@ -1280,6 +1269,7 @@ struct player_type
 
 	bool playing;			/* True if player is playing */
 	bool leaving;			/* True if player is leaving */
+	int  leaving_method;
 
 	byte exit_bldg;			/* Goal obtained in arena? -KMW- */
 
@@ -1452,14 +1442,8 @@ struct player_type
 
 	s16b see_infra;		/* Infravision range */
 
-	s16b skill_dis;		/* Skill: Disarming */
-	s16b skill_dev;		/* Skill: Magic Devices */
-	s16b skill_sav;		/* Skill: Saving throw */
-	s16b skill_stl;		/* Skill: Stealth factor */
-	s16b skill_srh;		/* Skill: Searching ability */
-	s16b skill_fos;		/* Skill: Searching frequency */
-	s16b skill_thn;		/* Skill: To hit (normal) */
-	s16b skill_thb;		/* Skill: To hit (shooting) */
+	skills_t skills;
+
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
 
@@ -1901,17 +1885,6 @@ typedef void(*gain_level_fn)(int new_level);
 typedef void(*file_dump_fn)(FILE* file);
 typedef void(*player_action_fn)(int energy_use);
 typedef void(*flags_fn)(u32b flgs[TR_FLAG_SIZE]);
-
-typedef struct {
-	s16b dis;			/* disarming */
-	s16b dev;			/* magic devices */
-	s16b sav;			/* saving throw */
-	s16b stl;			/* stealth */
-	s16b srh;			/* search ability */
-	s16b fos;			/* search frequency */
-	s16b thn;			/* combat (normal) */
-	s16b thb;			/* combat (shooting) */
-} skills_t;
 
 /* Note: Most of this info is still not being used.  Be sure to
    double maintain tables in tables.c until I can get around to

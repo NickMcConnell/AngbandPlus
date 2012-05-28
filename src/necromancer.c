@@ -47,15 +47,19 @@ class_t *necromancer_get_class_t(void)
 					"awe inspiring, and may even kill foes with a single touch! "
 					"They forever hunt for the legendary Eye and Hand of Vecna in "
 					"order to complete their power.",
+		
 		me.stats[A_STR] = -2;
 		me.stats[A_INT] =  3;
 		me.stats[A_WIS] =  0;
 		me.stats[A_DEX] =  1;
 		me.stats[A_CON] = -1;
 		me.stats[A_CHR] =  1;
-		me.hd = 1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 1;
+		me.exp = 125;
+		me.pets = 10;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.get_powers = _get_powers;
 		init = TRUE;

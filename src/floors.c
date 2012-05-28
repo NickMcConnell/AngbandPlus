@@ -358,9 +358,10 @@ static void preserve_pet(void)
 		party_mon[num].r_idx = 0;
 	}
 
-	if (rewind_time_hack)
+	/* Nothing follows if you Rewind Time, not even your mount! */
+	if (p_ptr->leaving_method == LEAVING_REWIND_TIME)
 	{
-		rewind_time_hack = FALSE;
+		p_ptr->leaving_method = LEAVING_UNKOWN;
 		return;
 	}
 
@@ -383,6 +384,14 @@ static void preserve_pet(void)
 			/* Delete from this floor */
 			delete_monster_idx(p_ptr->riding);
 		}
+	}
+
+	/* Teleport Level and Alter Reality loses all pets except your mount, and no monsters may follow. */
+	if ( p_ptr->leaving_method == LEAVING_TELEPORT_LEVEL 
+	  || p_ptr->leaving_method == LEAVING_ALTER_REALITY )
+	{
+		p_ptr->leaving_method = LEAVING_UNKOWN;
+		return;
 	}
 
 	/*
@@ -503,6 +512,7 @@ static void preserve_pet(void)
 	   p_ptr->inside_arena = FALSE for most other circumstances!
 	*/
 	inside_arena = p_ptr->inside_arena;
+	p_ptr->leaving_method = LEAVING_UNKOWN;
 }
 
 

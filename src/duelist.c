@@ -67,7 +67,7 @@ cptr duelist_current_challenge(void)
 
 int duelist_skill_sav(int m_idx)
 {
-	int result = p_ptr->skill_sav;
+	int result = p_ptr->skills.sav;
 	if ( p_ptr->pclass == CLASS_DUELIST
 	  && p_ptr->duelist_target_idx == m_idx )
 	{
@@ -622,6 +622,10 @@ class_t *duelist_get_class_t(void)
 		me.stats[A_CHR] = -1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 2;
+		me.exp = 175;
+		me.pets = 35;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.caster_info = _caster_info;

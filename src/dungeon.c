@@ -3278,7 +3278,7 @@ static void update_dungeon_feeling(void)
 	if (p_ptr->inside_battle) return;
 
 	/* Extract delay time */
-	delay = MAX(10, 150 - p_ptr->skill_fos) * (150 - dun_level) * TURNS_PER_TICK / 100;
+	delay = MAX(10, 150 - p_ptr->skills.fos) * (150 - dun_level) * TURNS_PER_TICK / 100;
 
  	/* Not yet felt anything */
 	if (turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;
@@ -4429,9 +4429,8 @@ msg_print("ウィザードモード突入。");
 		{
 			if ( (p_ptr->pclass == CLASS_BERSERKER) ||
 			     (p_ptr->pclass == CLASS_NINJA) ||
-			     (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
-				 (p_ptr->pclass == CLASS_TIME_LORD)
-			     ) do_cmd_mind_browse();
+			     (p_ptr->pclass == CLASS_MIRROR_MASTER) )
+				do_cmd_mind_browse();
 			else if (p_ptr->pclass == CLASS_SMITH)
 				do_cmd_kaji(TRUE);
 			else if (p_ptr->pclass == CLASS_MAGIC_EATER)
@@ -4450,7 +4449,8 @@ msg_print("ウィザードモード突入。");
 					 p_ptr->pclass == CLASS_WILD_TALENT ||
 					 p_ptr->pclass == CLASS_WEAPONMASTER ||
 					 p_ptr->pclass == CLASS_SCOUT ||
-					 p_ptr->pclass == CLASS_MAULER)
+					 p_ptr->pclass == CLASS_MAULER ||
+					 p_ptr->pclass == CLASS_TIME_LORD )
 			{
 				/* This is the preferred entry point ... I'm still working on
 				   coverting everything else */
@@ -4564,8 +4564,7 @@ msg_print("ウィザードモード突入。");
 				{
 					if ((p_ptr->pclass == CLASS_BERSERKER) ||
 					    (p_ptr->pclass == CLASS_NINJA) ||
-					    (p_ptr->pclass == CLASS_MIRROR_MASTER) ||
-						(p_ptr->pclass == CLASS_TIME_LORD)
+					    (p_ptr->pclass == CLASS_MIRROR_MASTER) 
 					    )
 						do_cmd_mind();
 					else if (p_ptr->pclass == CLASS_IMITATOR)
@@ -4595,7 +4594,8 @@ msg_print("ウィザードモード突入。");
 							 p_ptr->pclass == CLASS_WEAPONMASTER ||
 							 p_ptr->pclass == CLASS_RAGE_MAGE ||
 							 p_ptr->pclass == CLASS_SCOUT ||
-							 p_ptr->pclass == CLASS_MAULER)
+							 p_ptr->pclass == CLASS_MAULER ||
+							 p_ptr->pclass == CLASS_TIME_LORD )
 					{
 						/* This is the preferred entrypoint for spells ...
 						   I'm still working on coverting everything else */

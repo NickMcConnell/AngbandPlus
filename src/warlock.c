@@ -849,7 +849,7 @@ int _aberration_get_powers(spell_info* spells, int max)
 static void _undead_calc_bonuses(void)
 {
 	p_ptr->resist_cold = TRUE;
-	p_ptr->skill_stl += 7 * p_ptr->lev/50;
+	p_ptr->skills.stl += 7 * p_ptr->lev/50;
 	if (p_ptr->lev > 14) p_ptr->resist_pois = TRUE;
 	p_ptr->stat_add[A_CON] += 5 * p_ptr->lev/50;
 	if (p_ptr->lev > 29) 
@@ -868,7 +868,7 @@ static void _undead_calc_bonuses(void)
 static void _dragon_calc_bonuses(void)
 {
 	p_ptr->resist_fear = TRUE;
-	p_ptr->skill_thn += 100 * p_ptr->lev / 50;
+	p_ptr->skills.thn += 100 * p_ptr->lev / 50;
 	/*if (p_ptr->lev > 14) p_ptr->levitation = TRUE; */
 	p_ptr->stat_add[A_STR] += 5 * p_ptr->lev / 50;
 	p_ptr->weapon_info[0].to_h += 10 * p_ptr->lev / 50;
@@ -915,7 +915,7 @@ static void _dragon_calc_bonuses(void)
 static void _angel_calc_bonuses(void)
 {
 	p_ptr->levitation = TRUE;
-	p_ptr->skill_sav += 30 * p_ptr->lev/50;
+	p_ptr->skills.sav += 30 * p_ptr->lev/50;
 	if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
 	p_ptr->stat_add[A_WIS] += 5 * p_ptr->lev/50;
 	if (p_ptr->lev > 34) p_ptr->reflect = TRUE;
@@ -924,7 +924,7 @@ static void _angel_calc_bonuses(void)
 static void _demon_calc_bonuses(void)
 {
 	p_ptr->resist_fire = TRUE;
-	p_ptr->skill_dev += 50 * p_ptr->lev/50;
+	p_ptr->skills.dev += 50 * p_ptr->lev/50;
 	if (p_ptr->lev > 14) p_ptr->hold_life = TRUE;
 	p_ptr->stat_add[A_INT] += 5 * p_ptr->lev/50;
 	if (p_ptr->lev > 44)
@@ -940,7 +940,7 @@ static void _aberration_calc_bonuses(void)
 		mut_gain(MUT_HORNS);
 		mut_lock(MUT_HORNS);
 	}
-	p_ptr->skill_thb += 100 * p_ptr->lev/50;
+	p_ptr->skills.thb += 100 * p_ptr->lev/50;
 	if (p_ptr->lev > 14)
 	{
 		/* only give it if they don't already have it */
@@ -1004,14 +1004,21 @@ class_t *warlock_get_class_t(int psubclass)
 		          "arcane creatures, rather than through careful study.  They can cast "
 				  "all magic they know at will without requiring any SP, and depending on "
 				  "the type of Warlock, have different abilities.";
+
 		me.stats[A_STR] = -2;
 		me.stats[A_INT] =  1;
 		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] = -1;
 		me.stats[A_CON] = -2;
 		me.stats[A_CHR] =  4;
+
 		me.base_skills = bs;
 		me.extra_skills = xs;
+
+		me.hd = 2;
+		me.exp = 125;
+		me.pets = 25;
+
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		init = TRUE;

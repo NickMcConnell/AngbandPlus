@@ -4782,7 +4782,7 @@ static bool kind_is_great(int k_idx)
 		{
 			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
 			if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
-			if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE);
+		/*	if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE); */
 			return (FALSE);
 		}
 		case TV_POTION:
@@ -4866,7 +4866,7 @@ static bool kind_is_good(int k_idx)
 		{
 			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
 			if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
-			if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE);
+		/*	if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE); */
 			return (FALSE);
 		}
 		case TV_POTION:
@@ -4984,6 +4984,7 @@ bool make_object(object_type *j_ptr, u32b mode)
 
 		/* Prepare the object */
 		object_prep(j_ptr, k_idx);
+		k_info[k_idx].count++;
 	}
 
 	/* Apply magic (allow artifacts) */
@@ -6968,7 +6969,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 
 	case GF_MIND_BLAST:
 	case GF_BRAIN_SMASH:
-		if (100 + rlev / 2 <= MAX(5, p_ptr->skill_sav))
+		if (100 + rlev / 2 <= MAX(5, p_ptr->skills.sav))
 		{
 			dam = 0;
 			ignore_wraith_form = TRUE;
@@ -6979,7 +6980,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 	case GF_CAUSE_2:
 	case GF_CAUSE_3:
 	case GF_HAND_DOOM:
-		if (100 + rlev / 2 <= p_ptr->skill_sav)
+		if (100 + rlev / 2 <= p_ptr->skills.sav)
 		{
 			dam = 0;
 			ignore_wraith_form = TRUE;
@@ -6987,7 +6988,7 @@ static void spell_damcalc(monster_type *m_ptr, int typ, int dam, int limit, int 
 		break;
 
 	case GF_CAUSE_4:
-		if ((100 + rlev / 2 <= p_ptr->skill_sav) && (m_ptr->r_idx != MON_KENSHIROU))
+		if ((100 + rlev / 2 <= p_ptr->skills.sav) && (m_ptr->r_idx != MON_KENSHIROU))
 		{
 			dam = 0;
 			ignore_wraith_form = TRUE;

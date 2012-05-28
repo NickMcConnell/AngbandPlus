@@ -345,7 +345,7 @@ void panic_hit_spell(int cmd, variant *res)
 		if (cave[y][x].m_idx)
 		{
 			py_attack(y, x, 0);
-			if (randint0(p_ptr->skill_dis) < 7)
+			if (randint0(p_ptr->skills.dis) < 7)
 				msg_print(T("You failed to teleport.", "うまく逃げられなかった。"));
 			else 
 				teleport_player(30, 0L);

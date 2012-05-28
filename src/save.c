@@ -338,7 +338,7 @@ static void wr_lore(int r_idx)
 /*
  * Write an "xtra" record
  */
-static void wr_xtra(int k_idx)
+static void wr_xtra_kind(int k_idx)
 {
 	byte tmp8u = 0;
 
@@ -348,6 +348,7 @@ static void wr_xtra(int k_idx)
 	if (k_ptr->tried) tmp8u |= 0x02;
 
 	wr_byte(tmp8u);
+	wr_s32b(k_ptr->count);
 }
 
 
@@ -1450,7 +1451,7 @@ static bool wr_savefile_new(void)
 	/* Dump the object memory */
 	tmp16u = max_k_idx;
 	wr_u16b(tmp16u);
-	for (i = 0; i < tmp16u; i++) wr_xtra(i);
+	for (i = 0; i < tmp16u; i++) wr_xtra_kind(i);
 
 	/* Dump the towns */
 	tmp16u = max_towns;

@@ -1381,7 +1381,7 @@ void search(void)
 
 
 	/* Start with base search ability */
-	chance = p_ptr->skill_srh;
+	chance = p_ptr->skills.srh;
 
 	/* Penalize various conditions */
 	if (p_ptr->blind || no_lite()) chance = chance / 10;
@@ -2663,7 +2663,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h_m;
 	bonus += (p_ptr->lev * 6 / 5);
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+	chance = (p_ptr->skills.thn + (bonus * BTH_PLUS_ADJ));
 
 	/* Test for hit */
 	if ((!(r_ptr->flags2 & RF2_QUANTUM) || !randint0(2)) && test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
@@ -2866,7 +2866,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	case CLASS_NINJA:
 		if (buki_motteruka(INVEN_RARM + hand) && !p_ptr->weapon_info[hand].icky_wield)
 		{
-			int tmp = p_ptr->lev * 6 + (p_ptr->skill_stl + 10) * 4;
+			int tmp = p_ptr->lev * 6 + (p_ptr->skills.stl + 10) * 4;
 			if (p_ptr->monlite && (mode != HISSATSU_NYUSIN)) tmp /= 3;
 			if (p_ptr->cursed & TRC_AGGRAVATE) tmp /= 2;
 			if (r_ptr->level > (p_ptr->lev * p_ptr->lev / 20 + 10)) tmp /= 3;
@@ -2939,7 +2939,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	if (mode == WEAPONMASTER_CUNNING_STRIKE) bonus += 20;
 	if (mode == WEAPONMASTER_SMITE_EVIL && hand == 0 && (r_ptr->flags3 & RF3_EVIL)) bonus += 200;
 
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
+	chance = (p_ptr->skills.thn + (bonus * BTH_PLUS_ADJ));
 	if (mode == HISSATSU_IAI) chance += 60;
 	if (p_ptr->special_defense & KATA_KOUKIJIN) chance += 150;
 
@@ -5258,7 +5258,7 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 		}
 
 		/* Spontaneous Searching */
-		if ((p_ptr->skill_fos >= 50) || (0 == randint0(50 - p_ptr->skill_fos)))
+		if ((p_ptr->skills.fos >= 50) || (0 == randint0(50 - p_ptr->skills.fos)))
 		{
 			search();
 		}

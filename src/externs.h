@@ -208,7 +208,6 @@ extern bool multi_rew;
 extern char summon_kin_type;
 extern bool hack_mind;
 extern int quest_mega_hack;
-extern bool rewind_time_hack;
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -2078,6 +2077,9 @@ extern class_t *scout_get_class_t(void);
 
 /* skills.c */
 extern skill_table *s_info; /* deprecated ... in process of removing naked table reads*/
+extern void skills_add(skills_t *dest, skills_t *src);
+extern void skills_scale(skills_t *dest, int num, int denom); 
+extern void skills_init(skills_t *dest);
 extern int skills_bow_current(int sval);
 extern int skills_bow_max(int sval);
 extern void skills_bow_gain(int sval);
@@ -2088,6 +2090,8 @@ extern bool skills_weapon_is_icky(int tval, int sval);
 
 /* smith.c */
 extern void smith_judgment_spell(int cmd, variant *res);
+
+extern class_t *time_lord_get_class_t(void);
 
 /* warlock.c */
 extern class_t *warlock_get_class_t(int psubclass);

@@ -1298,6 +1298,14 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->mimic_form);
 		rd_s16b(&p_ptr->tim_mimic);
 	}
+
+	/* Hack: Some of my savefiles are bad?? */
+	if ( p_ptr->prace != RACE_DOPPELGANGER
+	  && !p_ptr->tim_mimic )
+	{
+		p_ptr->mimic_form = MIMIC_NONE;
+	}
+
 	rd_s16b(&p_ptr->tim_sh_fire);
 
 	rd_s16b(&p_ptr->tim_sh_holy);
@@ -2520,6 +2528,11 @@ note(format("アイテムの種類が多すぎる(%u)！", tmp16u));
 
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+
+		if (h_older_than(0, 0, 100, 1))
+			k_ptr->count = 0;
+		else
+			rd_s32b(&k_ptr->count);
 	}
 #ifdef JP
 if (arg_fiddle) note("アイテムの記録をロードしました");

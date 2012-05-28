@@ -47,15 +47,16 @@ SRCS = \
 	archaeologist.c archer.c artifact.c autopick.c avatar.c bard.c \
 	birth.c bldg.c blood_knight.c blood_mage.c blue_mage.c cavalry.c cave.c \
 	chuukei.c classes.c cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-	do-spell.c duelist.c dungeon.c effects.c files.c flavor.c floors.c \
-	force_trainer.c generate.c grid.c hex.c hissatsu.c inet.c init1.c \
+	demigod.c doppelganger.c do-spell.c duelist.c dungeon.c effects.c files.c \
+	flavor.c floors.c force_trainer.c generate.c grid.c hex.c hissatsu.c inet.c init1.c \
 	init2.c japanese.c load.c magic_eater.c mane.c melee1.c \
 	melee2.c menu.c mind.c mindcrafter.c mirror.c monk.c monster1.c \
 	monster2.c mspells1.c mspells2.c mspells3.c mut.c mut_a.c ninja.c necromancer.c \
-	object1.c object2.c object3.c obj_kind.c psion.c races.c racial.c rage-mage.c report.c \
+	object1.c object2.c object3.c obj_kind.c psion.c races.c racial.c \
+	races_a.c races_k.c rage-mage.c report.c \
 	rooms.c rune_knight.c samurai.c save.c scores.c scout.c skills.c smith.c snipe.c spells.c \
 	spells1.c spells2.c spells3.c spells_a.c spells_c.c spells_h.c \
-	spells_m.c spells_s.c store.c streams.c tables.c util.c variable.c \
+	spells_m.c spells_s.c store.c streams.c tables.c time_lord.c util.c variable.c \
 	variant.c warlock.c weaponmaster.c wild.c wild_realm.c wild_talent.c wizard1.c \
 	wizard2.c xtra1.c xtra2.c z-form.c z-rand.c z-term.c z-util.c z-virt.c \
 	main-gcu.c main-x11.c main.c chuukei.c
@@ -63,16 +64,17 @@ SRCS = \
 OBJS = \
 	archaeologist.o archer.o artifact.o autopick.o avatar.o bard.o \
 	birth.o bldg.o blood_knight.o blue_mage.o blood_mage.o cavalry.o cave.o \
-	classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+	classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o demigod.o doppelganger.o \
 	do-spell.o duelist.o dungeon.o effects.o files.o flavor.o floors.o \
 	force_trainer.o generate.o grid.o hex.o hissatsu.o inet.o init1.o \
 	init2.o japanese.o load.o magic_eater.o mane.o melee1.o \
 	melee2.o menu.o mind.o mindcrafter.o mirror.o monk.o monster1.o \
 	monster2.o mspells1.o mspells2.o mspells3.o mut.o mut_a.o ninja.o necromancer.o \
-	object1.o object2.o object3.o obj_kind.o psion.o races.o racial.o rage-mage.o report.o \
+	object1.o object2.o object3.o obj_kind.o psion.o races.o racial.o \
+	races_a.o races_k.o rage-mage.o report.o \
 	rooms.o rune_knight.o samurai.o save.o scores.o scout.o skills.o smith.o snipe.o spells.o \
 	spells1.o spells2.o spells3.o spells_a.o spells_c.o spells_h.o \
-	spells_m.o spells_s.o store.o streams.o tables.o util.o variable.o \
+	spells_m.o spells_s.o store.o streams.o tables.o time_lord.o util.o variable.o \
 	variant.o warlock.o weaponmaster.o wild.o wild_realm.o wild_talent.o wizard1.o \
 	wizard2.o xtra1.o xtra2.o z-form.o z-rand.o z-term.o z-util.o z-virt.o \
 	main-x11.o main-gcu.o main.o chuukei.o
@@ -322,6 +324,8 @@ cmd3.o: cmd3.c $(INCS)
 cmd4.o: cmd4.c $(INCS)
 cmd5.o: cmd5.c $(INCS)
 cmd6.o: cmd6.c $(INCS)
+demigod.o: demigod.c $(INCS)
+doppelganger.o: doppelganger.c $(INCS)
 do-spell.o: do-spell.c $(INCS)
 duelist.o: duelist.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
@@ -367,6 +371,8 @@ object3.o: object3.c $(INCS)
 obj_kind.o: obj_kind.c $(INCS)
 psion.o: psion.c $(INCS)
 races.o: races.c $(INCS)
+races_a.o: races_a.c $(INCS)
+races_k.o: races_k.c $(INCS)
 racial.o: racial.c $(INCS)
 report.o: report.c $(INCS)
 rooms.o: rooms.c $(INCS) grid.h rooms.h generate.h
@@ -391,6 +397,7 @@ spells_s.o: spells_s.c $(INCS)
 store.o: store.c $(INCS)
 streams.o: streams.c $(INCS) grid.h generate.h
 tables.o: tables.c $(INCS)
+time_lord.o: time_lord.c $(INCS)
 util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
 variant.o: variant.c $(INCS)

@@ -2,6 +2,42 @@
 
 skill_table *s_info;
 
+void skills_add(skills_t *dest, skills_t *src)
+{
+	dest->dis += src->dis;
+	dest->dev += src->dev;
+	dest->sav += src->sav;
+	dest->stl += src->stl;
+	dest->srh += src->srh;
+	dest->fos += src->fos;
+	dest->thn += src->thn;
+	dest->thb += src->thb;
+}
+
+void skills_scale(skills_t *dest, int num, int denom)
+{
+	dest->dis = dest->dis * num / denom;
+	dest->dev = dest->dev * num / denom;
+	dest->sav = dest->sav * num / denom;
+	dest->stl = dest->stl * num / denom;
+	dest->srh = dest->srh * num / denom;
+	dest->fos = dest->fos * num / denom;
+	dest->thn = dest->thn * num / denom;
+	dest->thb = dest->thb * num / denom;
+}
+
+void skills_init(skills_t *dest)
+{
+	dest->dis = 0;
+	dest->dev = 0;
+	dest->sav = 0;
+	dest->stl = 0;
+	dest->srh = 0;
+	dest->fos = 0;
+	dest->thn = 0;
+	dest->thb = 0;
+}
+
 int skills_bow_current(int sval)
 {
 	int max = skills_weapon_max(TV_BOW, sval);

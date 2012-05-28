@@ -6427,7 +6427,7 @@ msg_print("生命力が体から吸い取られた気がする！");
 			lose_exp(p_ptr->exp / 16);
 			if (!one_in_(6)) break;
 		case 13: case 14: case 15: case 19: case 20:
-			if (stop_ty || (p_ptr->free_act && (randint1(125) < p_ptr->skill_sav)) || (p_ptr->pclass == CLASS_BERSERKER))
+			if (stop_ty || (p_ptr->free_act && (randint1(125) < p_ptr->skills.sav)) || (p_ptr->pclass == CLASS_BERSERKER))
 			{
 				/* Do nothing */ ;
 			}

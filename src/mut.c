@@ -475,6 +475,10 @@ bool mut_human_pred(int mut_idx)
 	switch (mut_idx)
 	{
 	case MUT_FAST_LEARNER:
+		/*?? if (p_ptr->prace != RACE_DOPPELGANGER)*/
+			return TRUE;
+		break;
+
 	case MUT_WEAPON_SKILLS:
 	case MUT_SUBTLE_CASTING:
 	case MUT_PEERLESS_SNIPER:

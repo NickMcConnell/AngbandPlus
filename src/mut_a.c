@@ -677,8 +677,8 @@ void extra_eyes_mut(int cmd, variant *res)
 		var_set_string(res, T("You have an extra pair of eyes (+15 search).", "あなたは余分に二つの目を持っている。(探索+15)"));
 		break;
 	case SPELL_CALC_BONUS:
-		p_ptr->skill_fos += 15;
-		p_ptr->skill_srh += 15;
+		p_ptr->skills.fos += 15;
+		p_ptr->skills.srh += 15;
 		break;
 	default:
 		default_spell(cmd, res);
@@ -728,7 +728,7 @@ void extra_noise_mut(int cmd, variant *res)
 		var_set_string(res, T("You make a lot of strange noise (-3 stealth).", "あなたは変な音を発している。(隠密-3)"));
 		break;
 	case SPELL_CALC_BONUS:
-		p_ptr->skill_stl -= 3;
+		p_ptr->skills.stl -= 3;
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1251,7 +1251,7 @@ void magic_resistance_mut(int cmd, variant *res)
 		var_set_string(res, T("You are resistant to magic.", "あなたは魔法への耐性をもっている。"));
 		break;
 	case SPELL_CALC_BONUS:
-		p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
+		p_ptr->skills.sav += (15 + (p_ptr->lev / 5));
 		break;
 	default:
 		default_spell(cmd, res);
@@ -1326,7 +1326,7 @@ void motion_mut(int cmd, variant *res)
 		break;
 	case SPELL_CALC_BONUS:
 		p_ptr->free_act = TRUE;
-		p_ptr->skill_stl += 1;
+		p_ptr->skills.stl += 1;
 		break;
 	default:
 		default_spell(cmd, res);

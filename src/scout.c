@@ -304,7 +304,7 @@ static void _calc_bonuses(void)
 	if (p_ptr->lev >= 1)
 	{
 		int amt = (ct + 1) * (ct + 1) / 2 - 20;
-		p_ptr->skill_sav += amt;
+		p_ptr->skills.sav += amt;
 	}
 
 	if (!disrupt && p_ptr->lev >= 20)
@@ -317,7 +317,7 @@ static void _calc_bonuses(void)
 		p_ptr->peerless_stealth = TRUE;
 
 	if (p_ptr->tim_dark_stalker)
-		p_ptr->skill_stl += 2 + p_ptr->lev/10;
+		p_ptr->skills.stl += 2 + p_ptr->lev/10;
 }
 
 static caster_info * _caster_info(void)
@@ -370,6 +370,7 @@ class_t *scout_get_class_t(void)
 					"armored, and heavy armors disrupt their abilities. Furthermore, the scout "
 					"can only effectively dodge in open areas, being confined severely hampers "
 					"the scout's defensive abilities.";
+
 		me.stats[A_STR] =  1;
 		me.stats[A_INT] = -1;
 		me.stats[A_WIS] =  2;
@@ -378,6 +379,10 @@ class_t *scout_get_class_t(void)
 		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 4;
+		me.exp = 130;
+		me.pets = 40;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;

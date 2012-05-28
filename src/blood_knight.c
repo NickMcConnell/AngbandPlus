@@ -1,6 +1,5 @@
 #include "angband.h"
 
-
 void _blood_flow_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -10,6 +9,9 @@ void _blood_flow_spell(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Cuts yourself.", ""));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, T("Gives player Light Cut (10) status, or increases current cut status by 20%, whichever is greater.", ""));
 		break;
 	case SPELL_CAST:
 	{
@@ -38,6 +40,9 @@ void _blood_sight_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Detects living creatures in the vicinity.", ""));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, T("Detects living creatures in the vicinity. At L30, gives temporary ESP Living for 30+d30 rounds.", ""));
+		break;
 	case SPELL_CAST:
 	{
 		if (p_ptr->lev < 30)
@@ -62,6 +67,9 @@ void _blood_spray_spell(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Cuts yourself, splattering nearby enemies.", ""));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, T("Generates a radius 3 blood ball centered on the player for 2*(3d5+L+L/5) damage. Radius is increased to 4 at L30.", ""));
 		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(3, 5, p_ptr->lev + p_ptr->lev/4));
@@ -118,6 +126,10 @@ void _blood_shield_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Gives bonus to AC depending on how wounded you are.  Grants reflection if you are really hurting.", ""));
 		break;
+
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Player gains 100*(MHP-CHP)/MHP to AC. If more than 60% wounded, player also gains reflection.");
+		break;
 	case SPELL_CAST:
 	{
 		set_tim_blood_shield(randint1(20) + 30, FALSE);
@@ -140,6 +152,9 @@ void _blood_seeking_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Gives slay living to your weapon.", ""));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "For 30+d30 rounds, the player's weapon will Slay Living (x2).");
+		break;
 	case SPELL_CAST:
 	{
 		set_tim_blood_seek(randint1(30) + 30, FALSE);
@@ -161,6 +176,9 @@ void _blood_rage_spell(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Enter a blood frenzy.  Gives speed and big bonuses to hit and damage.", ""));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "For L/2+d(L/2) rounds, player is hasted and berserk.");
 		break;
 	case SPELL_CAST:
 	{
@@ -186,6 +204,9 @@ void _blood_feast_spell(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("You begin to feast on your opponents blood, doing extra damage but at a cost to your own health.", ""));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "For 25+d25 rounds, each melee strike does +35 damage, but player takes 15 damage per strike.");
 		break;
 	case SPELL_CAST:
 	{
@@ -217,6 +238,9 @@ void _blood_revenge_spell(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Gives an aura of bloody revenge.  Monsters take damaged based on your cut status.", ""));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "For 5+d5 rounds, any foe that does X melee damage to the player takes X*C/100 damage in revenge, where C is the player's current cut status. However, this retaliatory damage is bounded between C/10 and 50 per strike.");
 		break;
 	case SPELL_CAST:
 	{
@@ -255,6 +279,11 @@ void _blood_pool_spell(int cmd, variant *res)
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Creates a macabre Potion of Healing made of your own blood.", ""));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Create a potion of blood. Player is limited to 30 such potions, and may neither "
+								"drop, throw nor sell them. Quaffing a potion of blood heals 100hp and cures "
+								"blindness, confusion, poison and stuns.");
 		break;
 	case SPELL_CAST:
 	{
@@ -302,6 +331,9 @@ void _blood_explosion_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, T("Damages all living creatures in sight at tremendous cost to your own health.", ""));
 		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "All living creatures in player's line of sight take 500 damage.");
+		break;
 	case SPELL_INFO:
 		var_set_string(res, info_damage(0, 0, 500));
 		break;
@@ -318,10 +350,33 @@ void _blood_explosion_spell(int cmd, variant *res)
 	}
 }
 
+void _cauterize_wounds_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Cauterize Wounds", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Cures cuts", ""));
+		break;
+	case SPELL_CAST:
+		set_cut(0, TRUE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
-#define MAX_BLOOD_KNIGHT_SPELLS	11
+static power_info _powers[] =
+{
+	{ A_CON, {30, 20, 50, _cauterize_wounds_spell} }, 
+	{ -1, { -1, -1, -1, NULL} }
+};
 
-static spell_info _spells[MAX_BLOOD_KNIGHT_SPELLS] = 
+static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
 	{  1,   1, 20, _blood_flow_spell },
@@ -335,36 +390,23 @@ static spell_info _spells[MAX_BLOOD_KNIGHT_SPELLS] =
 	{ 42, 60,   0, _blood_revenge_spell},
 	{ 45,200,   0, _blood_pool_spell},
 	{ 50,500,  60, _blood_explosion_spell},
+	{ -1, -1,  -1, NULL}
 }; 
 
 static int _get_spells(spell_info* spells, int max)
 {
-	int i;
-	int ct = 0;
-	int stat_idx = p_ptr->stat_ind[A_CON];
+	return get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_CON]);
+}
 
-	for (i = 0; i < MAX_BLOOD_KNIGHT_SPELLS; i++)
-	{
-		spell_info *base = &_spells[i];
-		if (ct >= max) break;
-		if (base->level <= p_ptr->lev)
-		{
-			spell_info* current = &spells[ct];
-			current->fn = base->fn;
-			current->level = base->level;
-			current->cost = base->cost;
-
-			current->fail = calculate_fail_rate(base->level, base->fail, stat_idx);			
-			ct++;
-		}
-	}
-	return ct;
+static int _get_powers(spell_info* spells, int max)
+{
+	return get_powers_aux(spells, max, _powers);
 }
 
 static void _calc_bonuses(void)
 {
 	p_ptr->regenerate = TRUE;
-	if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
+	if (p_ptr->lev >= 30) p_ptr->resist_fear = TRUE;
 
 	if (p_ptr->cut > 0)
 	{
@@ -425,7 +467,25 @@ static void _calc_bonuses(void)
 		p_ptr->weapon_info[0].dis_to_d += to_d;
 		p_ptr->weapon_info[1].dis_to_d += to_d;
 
-		p_ptr->skill_stl += to_stealth;
+		p_ptr->skills.stl += to_stealth;
+	}
+
+	if (p_ptr->tim_blood_shield)
+	{
+		int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
+		p_ptr->to_a += amt;
+		p_ptr->dis_to_a += amt;	
+		if (amt > 60)
+			p_ptr->reflect = TRUE;
+	}
+
+	if (p_ptr->tim_blood_feast)
+	{
+		p_ptr->weapon_info[0].to_d += 35;
+		p_ptr->weapon_info[1].to_d += 35;
+		p_ptr->to_d_m  += 35; /* Tentacles, beak, etc. */
+		p_ptr->weapon_info[0].dis_to_d += 35;
+		p_ptr->weapon_info[1].dis_to_d += 35;
 	}
 }
 
@@ -464,6 +524,37 @@ static caster_info * _caster_info(void)
 	return &me;
 }
 
+static void _spoiler_dump(FILE* fff)
+{
+	spoil_spells_aux(fff, _spells);
+	fprintf(fff, "\nCasting spells increases your cut status by the spell's level.\n");
+
+	spoil_powers_aux(fff, _powers);
+	
+	fprintf(fff, "\n== Abilities ==\n");
+	fprintf(fff, "  * Regeneration\n");
+	fprintf(fff, "  * Resist Fear at L30\n"); 
+	fprintf(fff, "  * All Healing Effects are Halved\n");
+
+	fprintf(fff, "\n\nThe Blood-Knight gains extra attacks depending on how wounded they are. The following numbers are cummulative!\n");
+	fprintf(fff, "|| *Health* || *Lvl* || *Extra Blows* ||\n");
+	fprintf(fff, "|| <100%% || 1 || +1 ||\n");
+	fprintf(fff, "|| <80%% || 13 || +1 ||\n");
+	fprintf(fff, "|| <60%% || 25 || +2 ||\n");
+	fprintf(fff, "|| <40%% || 37 || +2 ||\n");
+	fprintf(fff, "|| <20%% || 49 || +3 ||\n");
+
+	fprintf(fff, "\n\nThe Blood-Knight gains combat bonuses depending on how cut they are.\n");
+	fprintf(fff, "|| *Cuts* || *Min* || *Max* || *Bonus* ||\n");
+	fprintf(fff, "|| Graze || 1 || 9 || (+1, +1) ||\n");
+	fprintf(fff, "|| Light Cut || 10 || 24 || (+2, +2) ||\n");
+	fprintf(fff, "|| Bad Cut || 25 || 49 || (+4, +4) ||\n");
+	fprintf(fff, "|| Nasty Cut || 50 || 99 || (+6, +6) ||\n");
+	fprintf(fff, "|| Severe Cut || 100 || 199 || (+8, +8) ||\n");
+	fprintf(fff, "|| Deep Gash || 200 || 999 || (+15, +15) ||\n");
+	fprintf(fff, "|| Mortal Wound || 1000 || --- || (+25, +25) ||\n");
+}
+
 class_t *blood_knight_get_class_t(void)
 {
 	static class_t me = {0};
@@ -480,18 +571,27 @@ class_t *blood_knight_get_class_t(void)
 		          "a limited number of offense effects using his own health.  In addition to the "
 				  "HP cost, using an ability also causes bleeding/wounds, with an amount proportional "
 				  "to the cost of the ability.";
+
 		me.stats[A_STR] =  2;
 		me.stats[A_INT] = -2;
 		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] =  0;
 		me.stats[A_CON] =  3;
 		me.stats[A_CHR] = -3;
+		
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		
+		me.hd = 10;
+		me.exp = 150;
+		me.pets = 40;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
+		me.get_powers = _get_powers;
+		me.spoiler_dump = _spoiler_dump;
 		init = TRUE;
 	}
 

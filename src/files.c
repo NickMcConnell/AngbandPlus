@@ -1570,7 +1570,7 @@ errr check_load_init(void)
 #define ENTRY_KILLS 38
 #define ENTRY_UNIQUES 39
 #define ENTRY_ARTIFACTS 40
-#define ENTRY_XXX4 41
+#define ENTRY_OBJECTS 41
 #define ENTRY_ALIGN 42
 #define ENTRY_EXP_ANDR 43
 #define ENTRY_EXP_TO_ADV_ANDR 44
@@ -1681,7 +1681,7 @@ static struct
 	{29,  3, 21, "Kills"},
 	{29,  4, 21, "Uniques"},
 	{29,  5, 21, "Artifacts"},
-	{29,  6, 21, "Social Class"},
+	{29,  6, 21, "Objects"},
 	{29,  7, 21, "Align"},
 	{29, 14, 21, "Construction"},
 	{29, 16, 21, "Const to Adv"},
@@ -2149,12 +2149,12 @@ static void display_player_various(void)
 	if (mut_present(MUT_TRUNK))     muta_att++;
 	if (mut_present(MUT_TENTACLES)) muta_att++;
 
-	xthn = p_ptr->skill_thn + (p_ptr->to_h_m * BTH_PLUS_ADJ);
+	xthn = p_ptr->skills.thn + (p_ptr->to_h_m * BTH_PLUS_ADJ);
 
 	/* Shooting Skill (with current bow and normal missile) */
 	o_ptr = &inventory[INVEN_BOW];
 	tmp = p_ptr->to_h_b + o_ptr->to_h;
-	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
+	xthb = p_ptr->skills.thb + (tmp * BTH_PLUS_ADJ);
 
 	/* If the player is wielding one? */
 	if (o_ptr->k_idx)
@@ -2273,12 +2273,12 @@ static void display_player_various(void)
 
 	/* Basic abilities */
 
-	xdis = p_ptr->skill_dis;
-	xdev = p_ptr->skill_dev;
-	xsav = p_ptr->skill_sav;
-	xstl = p_ptr->skill_stl;
-	xsrh = p_ptr->skill_srh;
-	xfos = p_ptr->skill_fos;
+	xdis = p_ptr->skills.dis;
+	xdev = p_ptr->skills.dev;
+	xsav = p_ptr->skills.sav;
+	xstl = p_ptr->skills.stl;
+	xsrh = p_ptr->skills.srh;
+	xfos = p_ptr->skills.fos;
 
 
 	desc = likert(xthn, 12);
@@ -3443,6 +3443,7 @@ static void display_player_stat_info(void)
 	object_type *o_ptr;
 	u32b flgs[TR_FLAG_SIZE];
 	race_t *race_ptr = get_race_t();
+	class_t *class_ptr = get_class_t();
 
 	byte a;
 	char c;
@@ -3493,7 +3494,11 @@ c_put_str(TERM_YELLOW, "¸½ºß", row, stat_col+35);
 		if ((p_ptr->stat_max[i] > 18) && (p_ptr->stat_top[i] <= 18))
 			e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i] - 19) / 10 - 19;
 
-		c_adj = cp_ptr->c_adj[i];
+		if (class_ptr)
+			c_adj = class_ptr->stats[i];
+		else
+			c_adj = cp_ptr->c_adj[i];
+
 		if (p_ptr->base_spell_power)
 		{
 			switch (i)
@@ -3874,6 +3879,17 @@ static int _artifacts(void)
 	return result;
 }
 
+static int _objects(void)
+{
+	int result = 0;
+	int i;
+	for (i = 0; i < max_k_idx; i++)
+	{
+		object_kind *kind_ptr = &k_info[i];
+		result += kind_ptr->count;
+	}
+	return result;
+}
 void display_player(int mode)
 {
 	int i;
@@ -3954,6 +3970,7 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_UNIQUES, format("%d" , _uniques()), TERM_L_BLUE);
 		if (!random_artifacts && !no_artifacts)
 			display_player_one_line(ENTRY_ARTIFACTS, format("%d" , _artifacts()), TERM_L_BLUE);
+		display_player_one_line(ENTRY_OBJECTS, format("%d" , _objects()), TERM_L_BLUE);
 		display_player_one_line(ENTRY_ALIGN, format("%s" ,your_alignment()), TERM_L_BLUE);
 
 

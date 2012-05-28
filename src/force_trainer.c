@@ -593,6 +593,10 @@ class_t *force_trainer_get_class_t(void)
 		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 2;
+		me.exp = 135;
+		me.pets = 40;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;

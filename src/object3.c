@@ -1001,7 +1001,7 @@ s32b armor_cost(object_type *o_ptr)
 
 	/* Brands */
 	q = _brands_q(flgs);
-	p = a + q + (q/100)*a/relative_weight;
+	p += q + (q/100)*a/relative_weight;
 
 	if (cost_calc_hook && q)
 	{

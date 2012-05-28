@@ -245,19 +245,19 @@ cptr map_name(void)
  */
 static void prt_dungeon(void)
 {
-	cptr dungeon_name;
 	int col;
+	char buf[100];
 
 	/* Dump 13 spaces to clear */
 	c_put_str(TERM_WHITE, "             ", ROW_DUNGEON, COL_DUNGEON);
 
-	dungeon_name = map_name();
+	my_strcpy(buf, map_name(), 13);
 
-	col = COL_DUNGEON + 6 - strlen(dungeon_name)/2;
+	col = COL_DUNGEON + 6 - strlen(buf)/2;
 	if (col < 0) col = 0;
 
 	/* Dump the info itself */
-	c_put_str(TERM_L_UMBER, format("%s",dungeon_name),
+	c_put_str(TERM_L_UMBER, buf,
 		  ROW_DUNGEON, col);
 }
 
@@ -2083,14 +2083,18 @@ static void prt_frame_basic(void)
 
 	/* Race and Class */
 	{
-		char buf[100];
+		char buf1[100];
+		char buf2[100];
 		race_t *race_ptr = get_race_t();
-
 		if (race_ptr->mimic)
-			sprintf(buf, "[%s]", race_ptr->name);
+		{
+			sprintf(buf1, "[%s]", race_ptr->name);
+			my_strcpy(buf2, buf1, 13);
+		}
 		else
-			sprintf(buf, "%s", race_ptr->name);
-		prt_field(buf, ROW_RACE, COL_RACE);
+			my_strcpy(buf2, race_ptr->name, 13);
+
+		prt_field(buf2, ROW_RACE, COL_RACE);
 	}
 
 
@@ -3738,32 +3742,36 @@ void calc_bonuses(void)
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = race_ptr->infra;
 
-	/* Base skill -- disarming */
-	p_ptr->skill_dis = race_ptr->skills.dis + cp_ptr->c_dis + ap_ptr->a_dis;
+	/* calc_skills() */
+	{
+		skills_t c_base = {0};
+		skills_t c_extra = {0};
+		skills_t a_extra = ap_ptr->skills;
 
-	/* Base skill -- magic devices */
-	p_ptr->skill_dev = race_ptr->skills.dev + cp_ptr->c_dev + ap_ptr->a_dev;
+		if (class_ptr)
+		{
+			c_base = class_ptr->base_skills;
+			c_extra = class_ptr->extra_skills;
+		}
+		else
+		{
+			c_base = cp_ptr->base_skills;
+			c_extra = cp_ptr->extra_skills;
+		}
 
-	/* Base skill -- saving throw */
-	p_ptr->skill_sav = race_ptr->skills.sav + cp_ptr->c_sav + ap_ptr->a_sav;
+		skills_scale(&c_extra, p_ptr->lev, 10);
+		skills_scale(&a_extra, p_ptr->lev, 50);
 
-	/* Base skill -- stealth */
-	p_ptr->skill_stl = race_ptr->skills.stl + cp_ptr->c_stl + ap_ptr->a_stl;
-
-	/* Base skill -- searching ability */
-	p_ptr->skill_srh = race_ptr->skills.srh + cp_ptr->c_srh + ap_ptr->a_srh;
-
-	/* Base skill -- searching frequency */
-	p_ptr->skill_fos = race_ptr->skills.fos + cp_ptr->c_fos + ap_ptr->a_fos;
-
-	/* Base skill -- combat (normal) */
-	p_ptr->skill_thn = race_ptr->skills.thn + cp_ptr->c_thn + ap_ptr->a_thn;
-
-	/* Base skill -- combat (shooting) */
-	p_ptr->skill_thb = race_ptr->skills.thb + cp_ptr->c_thb + ap_ptr->a_thb;
+		skills_init(&p_ptr->skills);
+		skills_add(&p_ptr->skills, &c_base);
+		skills_add(&p_ptr->skills, &c_extra);
+		skills_add(&p_ptr->skills, &race_ptr->skills);
+		skills_add(&p_ptr->skills, &ap_ptr->skills);
+		skills_add(&p_ptr->skills, &a_extra);
+	}
 
 	/* Base skill -- combat (throwing) */
-	p_ptr->skill_tht = race_ptr->skills.thb + cp_ptr->c_thb + ap_ptr->a_thb;
+	p_ptr->skill_tht = p_ptr->skills.thb;
 
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
@@ -3865,25 +3873,6 @@ void calc_bonuses(void)
 		if (p_ptr->lev > 29) p_ptr->resist_chaos = TRUE;
 		if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
 		break;
-	case CLASS_TIME_LORD:
-		if (p_ptr->lev > 29) p_ptr->resist_time = TRUE;
-		p_ptr->pspeed += 3;
-		p_ptr->pspeed += (p_ptr->lev) / 7;
-		if (p_ptr->lev > 34) 
-		{
-			p_ptr->stat_add[A_STR] -= 2;
-			p_ptr->stat_add[A_DEX] -= 2;
-			p_ptr->stat_add[A_CON] -= 2;
-			p_ptr->pspeed += 3;
-		}
-		if (p_ptr->lev > 44) 
-		{
-			p_ptr->stat_add[A_STR] -= 2;
-			p_ptr->stat_add[A_DEX] -= 2;
-			p_ptr->stat_add[A_CON] -= 2;
-			p_ptr->pspeed += 3;
-		}
-		break;
 
 	case CLASS_MONK:
 	case CLASS_FORCETRAINER:
@@ -3934,7 +3923,7 @@ void calc_bonuses(void)
 		if (heavy_armor())
 		{
 			p_ptr->pspeed -= (p_ptr->lev) / 10;
-			p_ptr->skill_stl -= (p_ptr->lev)/10;
+			p_ptr->skills.stl -= (p_ptr->lev)/10;
 		}
 		else if ((!inventory[INVEN_RARM].k_idx || p_ptr->migite) &&
 			        (!inventory[INVEN_LARM].k_idx || p_ptr->hidarite))
@@ -3942,7 +3931,7 @@ void calc_bonuses(void)
 			p_ptr->pspeed += 3;
 			if (p_ptr->pseikaku != SEIKAKU_MUNCHKIN)
 				p_ptr->pspeed += (p_ptr->lev) / 10;
-			p_ptr->skill_stl += (p_ptr->lev)/10;
+			p_ptr->skills.stl += (p_ptr->lev)/10;
 
 			/* Free action if unencumbered at level 25 */
 			if  (p_ptr->lev > 24)
@@ -4020,15 +4009,6 @@ void calc_bonuses(void)
 		p_ptr->dis_to_a += 50;
 	}
 
-	if (p_ptr->tim_blood_shield)
-	{
-		int amt = 100 * (p_ptr->mhp - p_ptr->chp) / p_ptr->mhp; 
-		p_ptr->to_a += amt;
-		p_ptr->dis_to_a += amt;	
-		if (amt > 60)
-			p_ptr->reflect = TRUE;
-	}
-
 	if (p_ptr->tim_res_nether)
 	{
 		p_ptr->resist_neth = TRUE;
@@ -4086,8 +4066,10 @@ void calc_bonuses(void)
 	/* Apply the racial modifiers */
 	for (i = 0; i < 6; i++)
 	{
-		/* Modify the stats for "race" */
-		p_ptr->stat_add[i] += (race_ptr->stats[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i]);
+		if (class_ptr)
+			p_ptr->stat_add[i] += (race_ptr->stats[i] + class_ptr->stats[i] + ap_ptr->a_adj[i]);
+		else
+			p_ptr->stat_add[i] += (race_ptr->stats[i] + cp_ptr->c_adj[i] + ap_ptr->a_adj[i]);
 	}
 
 
@@ -4200,18 +4182,18 @@ void calc_bonuses(void)
 
 		if (have_flag(flgs, TR_MAGIC_MASTERY))
 		{
-		    p_ptr->skill_dev += 8*o_ptr->pval;
+		    p_ptr->skills.dev += 8*o_ptr->pval;
 			p_ptr->device_power += o_ptr->pval;
 		}
 
 		/* Affect stealth */
-		if (have_flag(flgs, TR_STEALTH)) p_ptr->skill_stl += o_ptr->pval;
+		if (have_flag(flgs, TR_STEALTH)) p_ptr->skills.stl += o_ptr->pval;
 
 		/* Affect searching ability (factor of five) */
-		if (have_flag(flgs, TR_SEARCH)) p_ptr->skill_srh += (o_ptr->pval * 5);
+		if (have_flag(flgs, TR_SEARCH)) p_ptr->skills.srh += (o_ptr->pval * 5);
 
 		/* Affect searching frequency (factor of five) */
-		if (have_flag(flgs, TR_SEARCH)) p_ptr->skill_fos += (o_ptr->pval * 5);
+		if (have_flag(flgs, TR_SEARCH)) p_ptr->skills.fos += (o_ptr->pval * 5);
 
 		/* Affect infravision */
 		if (have_flag(flgs, TR_INFRA)) p_ptr->see_infra += o_ptr->pval;
@@ -4686,7 +4668,7 @@ void calc_bonuses(void)
 	/* Hex bonuses */
 	if (p_ptr->realm1 == REALM_HEX)
 	{
-		if (hex_spelling_any()) p_ptr->skill_stl -= (1 + p_ptr->magic_num2[0]);
+		if (hex_spelling_any()) p_ptr->skills.stl -= (1 + p_ptr->magic_num2[0]);
 		if (hex_spelling(HEX_DETECT_EVIL)) p_ptr->esp_evil = TRUE;
 		if (hex_spelling(HEX_XTRA_MIGHT)) p_ptr->stat_add[A_STR] += 4;
 		if (hex_spelling(HEX_BUILDING))
@@ -4822,21 +4804,13 @@ void calc_bonuses(void)
 		p_ptr->weapon_info[1].dis_to_d += 3+(p_ptr->lev/5);
 		p_ptr->to_a -= 10;
 		p_ptr->dis_to_a -= 10;
-		p_ptr->skill_stl -= 7;
-		p_ptr->skill_dev -= 20;
-		p_ptr->skill_sav -= 30;
-		p_ptr->skill_srh -= 15;
-		p_ptr->skill_fos -= 15;
+		p_ptr->skills.stl -= 7;
+		p_ptr->skills.dev -= 20;
+		p_ptr->skills.sav -= 30;
+		p_ptr->skills.srh -= 15;
+		p_ptr->skills.fos -= 15;
 		p_ptr->skill_tht -= 20;
 		p_ptr->skill_dig += 30;
-	}
-	if (p_ptr->tim_blood_feast)
-	{
-		p_ptr->weapon_info[0].to_d += 35;
-		p_ptr->weapon_info[1].to_d += 35;
-		p_ptr->to_d_m  += 35; /* Tentacles, beak, etc. */
-		p_ptr->weapon_info[0].dis_to_d += 35;
-		p_ptr->weapon_info[1].dis_to_d += 35;
 	}
 
 	/* Temporary "fast" */
@@ -5953,55 +5927,28 @@ void calc_bonuses(void)
 	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCETRAINER) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(FALSE) == (EMPTY_HAND_RARM | EMPTY_HAND_LARM))) p_ptr->ryoute = FALSE;
 
 	/* Affect Skill -- stealth (bonus one) */
-	p_ptr->skill_stl += 1;
+	p_ptr->skills.stl += 1;
 
-	if (IS_TIM_STEALTH()) p_ptr->skill_stl += 99;
+	if (IS_TIM_STEALTH()) p_ptr->skills.stl += 99;
 
 	/* Affect Skill -- disarming (DEX and INT) */
-	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
-	p_ptr->skill_dis += adj_int_dis[p_ptr->stat_ind[A_INT]];
+	p_ptr->skills.dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
+	p_ptr->skills.dis += adj_int_dis[p_ptr->stat_ind[A_INT]];
 
 	/* Affect Skill -- magic devices (INT) */
-	p_ptr->skill_dev += adj_int_dev[p_ptr->stat_ind[A_INT]];
+	p_ptr->skills.dev += adj_int_dev[p_ptr->stat_ind[A_INT]];
 
 	/* Affect Skill -- saving throw (WIS) */
-	p_ptr->skill_sav += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
+	p_ptr->skills.sav += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
 
 	/* Affect Skill -- digging (STR) */
 	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
-
-	/* Affect Skill -- disarming (Level, by Class) */
-	p_ptr->skill_dis += ((cp_ptr->x_dis * p_ptr->lev / 10) + (ap_ptr->a_dis * p_ptr->lev / 50));
-
-	/* Affect Skill -- magic devices (Level, by Class) */
-	p_ptr->skill_dev += ((cp_ptr->x_dev * p_ptr->lev / 10) + (ap_ptr->a_dev * p_ptr->lev / 50));
-
-	/* Affect Skill -- saving throw (Level, by Class) */
-	p_ptr->skill_sav += ((cp_ptr->x_sav * p_ptr->lev / 10) + (ap_ptr->a_sav * p_ptr->lev / 50));
-
-	/* Affect Skill -- stealth (Level, by Class) */
-	p_ptr->skill_stl += (cp_ptr->x_stl * p_ptr->lev / 10);
-
-	/* Affect Skill -- search ability (Level, by Class) */
-	p_ptr->skill_srh += (cp_ptr->x_srh * p_ptr->lev / 10);
-
-	/* Affect Skill -- search frequency (Level, by Class) */
-	p_ptr->skill_fos += (cp_ptr->x_fos * p_ptr->lev / 10);
-
-	/* Affect Skill -- combat (normal) (Level, by Class) */
-	p_ptr->skill_thn += ((cp_ptr->x_thn * p_ptr->lev / 10) + (ap_ptr->a_thn * p_ptr->lev / 50));
-
-	/* Affect Skill -- combat (shooting) (Level, by Class) */
-	p_ptr->skill_thb += ((cp_ptr->x_thb * p_ptr->lev / 10) + (ap_ptr->a_thb * p_ptr->lev / 50));
-
-	/* Affect Skill -- combat (throwing) (Level, by Class) */
-	p_ptr->skill_tht += ((cp_ptr->x_thb * p_ptr->lev / 10) + (ap_ptr->a_thb * p_ptr->lev / 50));
 
 
 	if ((prace_is_(RACE_SHADOW_FAIRY)) && (p_ptr->pseikaku != SEIKAKU_SEXY) && (p_ptr->cursed & TRC_AGGRAVATE))
 	{
 		p_ptr->cursed &= ~(TRC_AGGRAVATE);
-		p_ptr->skill_stl = MIN(p_ptr->skill_stl - 3, (p_ptr->skill_stl + 2) / 2);
+		p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);
 	}
 
 	/* Peerless Stealth is just like the Shadow Fairy, but can even negate the
@@ -6009,23 +5956,23 @@ void calc_bonuses(void)
 	if (p_ptr->peerless_stealth && p_ptr->cursed & TRC_AGGRAVATE)
 	{
 		p_ptr->cursed &= ~(TRC_AGGRAVATE);
-		p_ptr->skill_stl = MIN(p_ptr->skill_stl - 3, (p_ptr->skill_stl + 2) / 2);
+		p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);
 	}
 
 	/* Limit Skill -- stealth from 0 to 30 */
-	if (p_ptr->skill_stl > 30) p_ptr->skill_stl = 30;
-	if (p_ptr->skill_stl < 0) p_ptr->skill_stl = 0;
+	if (p_ptr->skills.stl > 30) p_ptr->skills.stl = 30;
+	if (p_ptr->skills.stl < 0) p_ptr->skills.stl = 0;
 
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
 
-	if (p_ptr->anti_magic && (p_ptr->skill_sav < (90 + p_ptr->lev))) p_ptr->skill_sav = 90 + p_ptr->lev;
+	if (p_ptr->anti_magic && (p_ptr->skills.sav < (90 + p_ptr->lev))) p_ptr->skills.sav = 90 + p_ptr->lev;
 
-	if (p_ptr->tsubureru) p_ptr->skill_sav = 10;
+	if (p_ptr->tsubureru) p_ptr->skills.sav = 10;
 
-	if ((p_ptr->ult_res || IS_RESIST_MAGIC() || p_ptr->magicdef) && (p_ptr->skill_sav < (95 + p_ptr->lev))) p_ptr->skill_sav = 95 + p_ptr->lev;
+	if ((p_ptr->ult_res || IS_RESIST_MAGIC() || p_ptr->magicdef) && (p_ptr->skills.sav < (95 + p_ptr->lev))) p_ptr->skills.sav = 95 + p_ptr->lev;
 
-	if (down_saving) p_ptr->skill_sav /= 2;
+	if (down_saving) p_ptr->skills.sav /= 2;
 
 	/* Hack -- Each elemental immunity includes resistance */
 	if (p_ptr->immune_acid) p_ptr->resist_acid = TRUE;

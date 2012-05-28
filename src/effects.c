@@ -6708,7 +6708,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	/* Snotlings scare easy */
 	if (prace_is_(RACE_SNOTLING) && damage > 0)
 	{
-		if ((p_ptr->resist_fear && !one_in_(7)) || randint0(100) < p_ptr->skill_sav)
+		if ((p_ptr->resist_fear && !one_in_(7)) || randint0(100) < p_ptr->skills.sav)
 		{
 		}
 		else

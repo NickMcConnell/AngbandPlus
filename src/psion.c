@@ -1216,11 +1216,11 @@ static void _calc_bonuses(void)
 {
 	if (p_ptr->magic_num1[_BLENDING])
 	{
-		p_ptr->skill_stl += 2 * p_ptr->magic_num2[_BLENDING];
+		p_ptr->skills.stl += 2 * p_ptr->magic_num2[_BLENDING];
 		if ((p_ptr->cursed & TRC_AGGRAVATE) && p_ptr->magic_num2[_BLENDING] == 5)
 		{
 			p_ptr->cursed &= ~(TRC_AGGRAVATE);
-			p_ptr->skill_stl = MIN(p_ptr->skill_stl - 3, (p_ptr->skill_stl + 2) / 2);
+			p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);
 		}
 	}
 
@@ -1236,7 +1236,7 @@ static void _calc_bonuses(void)
 
 	if (p_ptr->magic_num1[_COMBAT])
 	{
-		p_ptr->skill_thn += 20*p_ptr->magic_num2[_COMBAT];
+		p_ptr->skills.thn += 20*p_ptr->magic_num2[_COMBAT];
 	}
 
 	if (p_ptr->magic_num1[_SPEED])
@@ -1369,9 +1369,12 @@ class_t *psion_get_class_t(void)
 		me.stats[A_DEX] = -1;
 		me.stats[A_CON] = -1;
 		me.stats[A_CHR] =  1;
-		me.hd = 2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 2;
+		me.exp = 150;
+		me.pets = 35;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.calc_weapon_bonuses = _calc_weapon_bonuses;
 		me.caster_info = _caster_info;

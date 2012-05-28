@@ -2525,7 +2525,7 @@ void have_nightmare(int r_idx)
 	}
 	else power *= 2;
 
-	if (saving_throw(p_ptr->skill_sav * 100 / power))
+	if (saving_throw(p_ptr->skills.sav * 100 / power))
 	{
 #ifdef JP
 		msg_format("夢の中で%sに追いかけられた。", m_name);
@@ -2606,7 +2606,7 @@ void have_nightmare(int r_idx)
 	if (p_ptr->rune_mind) return;
 
 	/* Mind blast */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skills.sav * 100 / power))
 	{
 		if (!p_ptr->resist_conf)
 		{
@@ -2620,7 +2620,7 @@ void have_nightmare(int r_idx)
 	}
 
 	/* Lose int & wis */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skills.sav * 100 / power))
 	{
 		do_dec_stat(A_INT);
 		do_dec_stat(A_WIS);
@@ -2628,7 +2628,7 @@ void have_nightmare(int r_idx)
 	}
 
 	/* Brain smash */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skills.sav * 100 / power))
 	{
 		if (!p_ptr->resist_conf)
 		{
@@ -2638,11 +2638,11 @@ void have_nightmare(int r_idx)
 		{
 			(void)set_paralyzed(p_ptr->paralyzed + randint0(4) + 4, FALSE);
 		}
-		while (!saving_throw(p_ptr->skill_sav))
+		while (!saving_throw(p_ptr->skills.sav))
 		{
 			(void)do_dec_stat(A_INT);
 		}
-		while (!saving_throw(p_ptr->skill_sav))
+		while (!saving_throw(p_ptr->skills.sav))
 		{
 			(void)do_dec_stat(A_WIS);
 		}
@@ -2655,7 +2655,7 @@ void have_nightmare(int r_idx)
 
 
 	/* Amnesia */
-	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	if (!saving_throw(p_ptr->skills.sav * 100 / power))
 	{
 		if (lose_all_info())
 		{
@@ -3232,7 +3232,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 static int hit_chance(int to_h, int ac)
 {
 	int chance = 0;
-	int meichuu = p_ptr->skill_thn + (p_ptr->weapon_info[0].to_h + to_h) * BTH_PLUS_ADJ;
+	int meichuu = p_ptr->skills.thn + (p_ptr->weapon_info[0].to_h + to_h) * BTH_PLUS_ADJ;
 
 	if (meichuu <= 0) return 5;
 

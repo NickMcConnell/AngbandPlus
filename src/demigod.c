@@ -154,6 +154,11 @@ static void _gain_level(int new_level)
 			mut_lock(idx);
 			p_ptr->demigod_power[0] = idx;
 		}
+		else if (!mut_present(p_ptr->demigod_power[0]))
+		{
+			mut_gain(p_ptr->demigod_power[0]);
+			mut_lock(p_ptr->demigod_power[0]);
+		}
 	}
 
 	if (new_level >= 40)
@@ -163,6 +168,11 @@ static void _gain_level(int new_level)
 			int idx = mut_gain_choice(mut_human_pred);
 			mut_lock(idx);
 			p_ptr->demigod_power[1] = idx;
+		}
+		else if (!mut_present(p_ptr->demigod_power[1]))
+		{
+			mut_gain(p_ptr->demigod_power[1]);
+			mut_lock(p_ptr->demigod_power[1]);
 		}
 	}
 }

@@ -2386,7 +2386,7 @@ static void process_monster(int m_idx)
 	/* Players hidden in shadow are almost imperceptible. -LM- */
 	if (p_ptr->special_defense & NINJA_S_STEALTH && !is_pet(m_ptr))
 	{
-		int tmp = p_ptr->lev*6+(p_ptr->skill_stl+10)*4;
+		int tmp = p_ptr->lev*6+(p_ptr->skills.stl+10)*4;
 		if (p_ptr->monlite) tmp /= 3;
 		if (p_ptr->cursed & TRC_AGGRAVATE) tmp /= 2;
 		if (r_ptr->level > (p_ptr->lev*p_ptr->lev/20+10)) tmp /= 3;
@@ -4695,7 +4695,7 @@ void process_monsters_mtimed(int mtimed_idx)
 	s16b *cur_mproc_list = mproc_list[mtimed_idx];
 
 	/* Hack -- calculate the "player noise" */
-	if (mtimed_idx == MTIMED_CSLEEP) csleep_noise = (1L << (30 - p_ptr->skill_stl));
+	if (mtimed_idx == MTIMED_CSLEEP) csleep_noise = (1L << (30 - p_ptr->skills.stl));
 
 	/* Process the monsters (backwards) */
 	for (i = mproc_max[mtimed_idx] - 1; i >= 0; i--)

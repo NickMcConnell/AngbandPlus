@@ -745,6 +745,7 @@ void teleport_level(int m_idx)
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
+			p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
 		}
 	}
 
@@ -771,6 +772,7 @@ void teleport_level(int m_idx)
 			/* Leaving */
 			p_ptr->inside_quest = 0;
 			p_ptr->leaving = TRUE;
+			p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
 		}
 	}
 	else if (go_up)
@@ -792,6 +794,7 @@ void teleport_level(int m_idx)
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
+			p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
 		}
 	}
 	else
@@ -815,6 +818,7 @@ void teleport_level(int m_idx)
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
+			p_ptr->leaving_method = LEAVING_TELEPORT_LEVEL;
 		}
 	}
 
@@ -986,6 +990,8 @@ if (get_check("ここは最深到達階より浅い階です。この階に戻って来ますか？ "))
 			p_ptr->recall_dungeon = select_dungeon;
 		}
 		p_ptr->word_recall = turns;
+		p_ptr->leaving_method = LEAVING_RECALL;
+
 #ifdef JP
 msg_print("回りの大気が張りつめてきた...");
 #else
@@ -1003,6 +1009,7 @@ msg_print("張りつめた大気が流れ去った...");
 		msg_print("A tension leaves the air around you...");
 #endif
 
+		p_ptr->leaving_method = LEAVING_UNKOWN;
 		p_ptr->redraw |= (PR_STATUS);
 	}
 	return TRUE;
@@ -1261,7 +1268,7 @@ void apply_nexus(monster_type *m_ptr)
 
 		case 6:
 		{
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skills.sav)
 			{
 #ifdef JP
 msg_print("しかし効力を跳ね返した！");
@@ -1279,7 +1286,7 @@ msg_print("しかし効力を跳ね返した！");
 
 		case 7:
 		{
-			if (randint0(100) < p_ptr->skill_sav)
+			if (randint0(100) < p_ptr->skills.sav)
 			{
 				msg_print(T("You resist the effects!", "しかし効力を跳ね返した！"));
 				break;
@@ -2069,6 +2076,7 @@ void alter_reality(void)
 		msg_print("The view around you begins to change...");
 #endif
 
+		p_ptr->leaving_method = LEAVING_ALTER_REALITY;
 		p_ptr->redraw |= (PR_STATUS);
 	}
 	else
@@ -2080,6 +2088,7 @@ void alter_reality(void)
 		msg_print("The view around you got back...");
 #endif
 
+		p_ptr->leaving_method = LEAVING_UNKOWN;
 		p_ptr->redraw |= (PR_STATUS);
 	}
 	return;

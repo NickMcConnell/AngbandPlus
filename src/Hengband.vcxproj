@@ -173,6 +173,7 @@
     <ClCompile Include="store.c" />
     <ClCompile Include="streams.c" />
     <ClCompile Include="tables.c" />
+    <ClCompile Include="time_lord.c" />
     <ClCompile Include="util.c" />
     <ClCompile Include="variable.c" />
     <ClCompile Include="variant.c" />

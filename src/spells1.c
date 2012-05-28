@@ -3238,7 +3238,7 @@ note_dies = "は蒸発した！";
 #endif
 
 					/* Saving throw */
-					if ((randint0(100 + r_ptr->level / 2) < p_ptr->skill_sav) && !CHECK_MULTISHADOW())
+					if ((randint0(100 + r_ptr->level / 2) < p_ptr->skills.sav) && !CHECK_MULTISHADOW())
 					{
 #ifdef JP
 						msg_print("しかし効力を跳ね返した！");
@@ -3374,7 +3374,7 @@ note_dies = "は蒸発した！";
 #endif
 
 					/* Saving throw */
-					if ((randint0(100 + r_ptr->level / 2) < p_ptr->skill_sav) && !CHECK_MULTISHADOW())
+					if ((randint0(100 + r_ptr->level / 2) < p_ptr->skills.sav) && !CHECK_MULTISHADOW())
 					{
 #ifdef JP
 						msg_print("あなたは効力を跳ね返した！");
@@ -3553,7 +3553,7 @@ note_dies = "は蒸発した！";
 #endif
 
 					/* Saving throw */
-					if (randint0(100 + r_ptr->level/2) < p_ptr->skill_sav)
+					if (randint0(100 + r_ptr->level/2) < p_ptr->skills.sav)
 					{
 #ifdef JP
 						msg_print("しかし効力を跳ね返した！");

@@ -1,4 +1,4 @@
-/* File: defines.h */ 
+/* File: defines.h */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 99
+#define FAKE_VER_PATCH 100
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 99
+#define H_VER_PATCH 100
 #define H_VER_EXTRA 1
 
 
@@ -237,9 +237,8 @@
 #define MIND_BERSERKER      0
 #define MIND_MIRROR_MASTER  1
 #define MIND_NINJUTSU       2
-#define MIND_TIME_LORD		3
 
-#define MIND_MAX_CLASSES	4
+#define MIND_MAX_CLASSES	3
 
 
 /*
@@ -5820,3 +5819,8 @@ extern int PlayerUID;
 #define WILD_WRAITH 13
 #define WILD_LIGHT_SPEED 14
 
+#define LEAVING_UNKOWN 0
+#define LEAVING_RECALL 1
+#define LEAVING_REWIND_TIME 2
+#define LEAVING_TELEPORT_LEVEL 3
+#define LEAVING_ALTER_REALITY 4

@@ -132,7 +132,7 @@ race_t *kobold_get_race_t(void)
 		me.skills.thb = -8;
 
 		me.hd = 9;
-		me.exp = 55;
+		me.exp = 90;
 		me.infra = 3;
 
 		me.calc_bonuses = _kobold_calc_bonuses;

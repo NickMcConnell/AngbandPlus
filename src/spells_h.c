@@ -290,11 +290,17 @@ void imp_fire_spell(int cmd, variant *res)
 		else
 			var_set_string(res, T("Fire Bolt", ""));
 		break;
+	case SPELL_SPOIL_NAME:
+		var_set_string(res, "Fire Bolt/Ball");
+		break;
 	case SPELL_DESC:
 		if (p_ptr->lev >= ball_lev)
-			var_set_string(res, T("", ""));
+			var_set_string(res, T("Generate a Fire Ball on chosen target.", ""));
 		else
-			var_set_string(res, T("", ""));
+			var_set_string(res, T("Hurls a fiery missile at chosen target.", ""));
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Fire Bolt for L damage. At L30, does a radius 2 Fire Ball for 2L damage instead.");
 		break;
 	case SPELL_INFO:
 		if (p_ptr->lev >= ball_lev)

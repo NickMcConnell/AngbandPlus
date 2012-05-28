@@ -1889,6 +1889,11 @@ race_t *hobbit_get_race_t(void)
 			mut_lock(idx);
 			p_ptr->demigod_power[0] = idx;
 		}
+		else if (!mut_present(p_ptr->demigod_power[0]))
+		{
+			mut_gain(p_ptr->demigod_power[0]);
+			mut_lock(p_ptr->demigod_power[0]);
+		}
 	}
 }
 

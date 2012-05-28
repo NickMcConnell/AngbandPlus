@@ -705,6 +705,10 @@ class_t *mindcrafter_get_class_t(void)
 		me.stats[A_CHR] =  2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		me.hd = 2;
+		me.exp = 125;
+		me.pets = 35;
+
 		me.calc_bonuses = _calc_bonuses;
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;

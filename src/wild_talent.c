@@ -671,14 +671,21 @@ class_t *wild_talent_get_class_t(void)
 		          "level up.  They are good fighters, and decent with magical devices, "
 				  "but their true forte is their vast array of potential random "
 				  "powers.  Except you never know what those might be!";
+		
 		me.stats[A_STR] = -1;
 		me.stats[A_INT] =  2;
 		me.stats[A_WIS] = -1;
 		me.stats[A_DEX] =  2;
 		me.stats[A_CON] = -2;
 		me.stats[A_CHR] = +3;
+		
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		
+		me.hd = 2;
+		me.exp = 110;
+		me.pets = 35;
+		
 		me.calc_bonuses = _calc_bonuses;
 		me.get_spells = _get_spells;
 		me.caster_info = _caster_info;

@@ -18,7 +18,8 @@ void mimic_race(int new_race)
 			{
 				mut_unlock(idx);
 				mut_lose(idx);
-				p_ptr->demigod_power[i] = -1;
+			/*	Lose the mutation, but not the choice!
+				p_ptr->demigod_power[i] = -1; */
 			}
 		}
 	}
@@ -119,9 +120,9 @@ bool mimic_no_regen(void)
 
 static _form_t _forms[] = 
 {
-	{  1, 30, RACE_KOBOLD }, 
-	{  3, 30, RACE_SNOTLING }, 
-	{  5, 30, RACE_YEEK }, 
+	{  1, 30, RACE_SNOTLING }, 
+	{  3, 30, RACE_YEEK }, 
+	{  5, 30, RACE_KOBOLD }, 
 	{  7, 40, RACE_IMP }, 
 	{  8, 40, RACE_HUMAN }, 
 	{  9, 40, RACE_SKELETON }, 
@@ -468,12 +469,18 @@ static void _spoiler_dump(FILE *fff)
 			);
 		}
 	}
+
 	fprintf(fff, "\n\n");
 	fprintf(fff, "  * Mimic fail rates are determined by Dexterity.\n");
 	fprintf(fff, "  * While mimicking, a player will not regenerate.\n");
 	fprintf(fff, "  * If the player rests, they will revert to their true form.\n");
 	fprintf(fff, "  * To assume a new form, the player must first revert to their true form.\n");
 	fprintf(fff, "  * The player loses all mutations each time they shape shift.\n");
+	fprintf(fff, "  * When mimicking a Beastman, the player will gain random mutations as if they "
+						"leveled up from 1 to their current level as a Beastman\n");
+	fprintf(fff, "  * When mimicking a Human or Demigod, the player may choose [SpecialAbilities abilities] "
+						"if appropriate. However, once this choice is made, it is remembered, and the same "
+						"choice will be used for all future transformations to this race.\n");
 }
 
 race_t *doppelganger_get_race_t(void)

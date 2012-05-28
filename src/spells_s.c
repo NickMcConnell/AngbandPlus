@@ -509,11 +509,17 @@ void summon_tree_spell(int cmd, variant *res)
 		else
 			var_set_string(res, "Summon Tree");
 		break;
+	case SPELL_SPOIL_NAME:
+		var_set_string(res, "Summon Tree");
+		break;
 	case SPELL_DESC:
 		if (p_ptr->lev >= 45)
 			var_set_string(res, "Attempts to summon many trees");
 		else
 			var_set_string(res, "Attempts to summon a tree.");
+		break;
+	case SPELL_SPOIL_DESC:
+		var_set_string(res, "Attempts to summon a tree. At L45, attempts to surround the player with trees.");
 		break;
 	case SPELL_CAST:
 		if (p_ptr->lev >= 45)

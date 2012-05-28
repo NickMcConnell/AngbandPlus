@@ -756,7 +756,7 @@ static void _industrious_mortician_spell(int cmd, variant *res)
 static int hit_chance(int to_h, int ac)
 {
 	int chance = 0;
-	int meichuu = p_ptr->skill_thn + (p_ptr->weapon_info[0].to_h + to_h) * BTH_PLUS_ADJ;
+	int meichuu = p_ptr->skills.thn + (p_ptr->weapon_info[0].to_h + to_h) * BTH_PLUS_ADJ;
 
 	if (meichuu <= 0) return 5;
 
@@ -912,7 +912,7 @@ void _circle_kick(void)
 	int dd = 1;
 	int ds = p_ptr->lev;
 	int bonus = p_ptr->to_h_m;
-	int chance = p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ);
+	int chance = p_ptr->skills.thn + (bonus * BTH_PLUS_ADJ);
 
 	if (inventory[INVEN_FEET].k_idx)
 		dd = k_info[inventory[INVEN_FEET].k_idx].ac;
@@ -4019,13 +4019,13 @@ void weaponmaster_adjust_skills(void)
 	if (_specialities[p_ptr->speciality1].slot1 == INVEN_BOW)
 	{
 		s16b tmp;
-		tmp = cp_ptr->c_thn;
-		cp_ptr->c_thn = cp_ptr->c_thb;
-		cp_ptr->c_thb = tmp;
+		tmp = cp_ptr->base_skills.thn;
+		cp_ptr->base_skills.thn = cp_ptr->base_skills.thb;
+		cp_ptr->base_skills.thb = tmp;
 
-		tmp = cp_ptr->x_thn;
-		cp_ptr->x_thn = cp_ptr->x_thb;
-		cp_ptr->x_thb = tmp;
+		tmp = cp_ptr->extra_skills.thn;
+		cp_ptr->extra_skills.thn = cp_ptr->extra_skills.thb;
+		cp_ptr->extra_skills.thb = tmp;
 	}
 }
 
@@ -4095,7 +4095,7 @@ static void _calc_bonuses(void)
 		if (spec2)
 		{
 			if (p_ptr->lev >= 10)
-				p_ptr->skill_stl += 2;
+				p_ptr->skills.stl += 2;
 
 			if (p_ptr->lev >= 30)
 				p_ptr->sneak_attack = TRUE;
@@ -4109,7 +4109,7 @@ static void _calc_bonuses(void)
 			case TOGGLE_SHADOW_STANCE:
 				p_ptr->to_d_b -= 10;
 				p_ptr->to_d_m -= 10;
-				p_ptr->skill_stl += p_ptr->lev/12;
+				p_ptr->skills.stl += p_ptr->lev/12;
 				break;
 			}
 		}
@@ -4241,7 +4241,7 @@ static void _calc_bonuses(void)
 
 			/* Stalwart: +20 saving throws */
 			if (p_ptr->lev >= 25)
-				p_ptr->skill_sav += 20;
+				p_ptr->skills.sav += 20;
 		}
 	}
 	else if (strcmp(_specialities[p_ptr->speciality1].name, "Staves") == 0)
@@ -4312,12 +4312,12 @@ static void _calc_bonuses(void)
 				if (_check_speciality2_aux(&inventory[INVEN_RARM]))
 				{
 					p_ptr->stat_add[A_CON] += inventory[INVEN_RARM].pval;
-					p_ptr->skill_stl += inventory[INVEN_RARM].pval;
+					p_ptr->skills.stl += inventory[INVEN_RARM].pval;
 				}
 				if (_check_speciality2_aux(&inventory[INVEN_LARM]))
 				{
 					p_ptr->stat_add[A_CON] += inventory[INVEN_LARM].pval;
-					p_ptr->skill_stl += inventory[INVEN_LARM].pval;
+					p_ptr->skills.stl += inventory[INVEN_LARM].pval;
 				}
 				break;
 
@@ -4839,8 +4839,14 @@ class_t *weaponmaster_get_class_t(void)
 		me.stats[A_DEX] =  1;
 		me.stats[A_CON] =  1;
 		me.stats[A_CHR] =  0;
+
 		me.base_skills = bs;
 		me.extra_skills = xs;
+		
+		me.hd = 6;
+		me.exp = 150;
+		me.pets = 40;
+		
 		me.caster_info = _caster_info;
 		me.get_spells = _get_spells;
 		me.birth = _on_birth;
