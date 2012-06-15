@@ -1780,7 +1780,7 @@ void carry(bool pickup)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match trap power against player armor.
  */
-static int check_hit(int power)
+static int _check_hit(int power)
 {
 	int k, ac;
 
@@ -2121,7 +2121,7 @@ static void hit_trap(bool break_trap)
 
 		case TRAP_SLOW:
 		{
-			if (check_hit(125))
+			if (_check_hit(125))
 			{
 #ifdef JP
 				msg_print("小さなダーツが飛んできて刺さった！");
@@ -2152,7 +2152,7 @@ static void hit_trap(bool break_trap)
 
 		case TRAP_LOSE_STR:
 		{
-			if (check_hit(125))
+			if (_check_hit(125))
 			{
 #ifdef JP
 				msg_print("小さなダーツが飛んできて刺さった！");
@@ -2183,7 +2183,7 @@ static void hit_trap(bool break_trap)
 
 		case TRAP_LOSE_DEX:
 		{
-			if (check_hit(125))
+			if (_check_hit(125))
 			{
 #ifdef JP
 				msg_print("小さなダーツが飛んできて刺さった！");
@@ -2214,7 +2214,7 @@ static void hit_trap(bool break_trap)
 
 		case TRAP_LOSE_CON:
 		{
-			if (check_hit(125))
+			if (_check_hit(125))
 			{
 #ifdef JP
 				msg_print("小さなダーツが飛んできて刺さった！");

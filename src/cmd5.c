@@ -1578,16 +1578,21 @@ msg_print("An infernal sound echoed.");
 		{
 			s16b cur_exp = p_ptr->spell_exp[(increment ? 32 : 0)+spell];
 			s16b exp_gain = 0;
-			
-			/* Hack: Prevent spell spamming.
-			   This is not perfect and will sometimes penalize the player (e.g. detection spells).
-			   But currently, players may cruise to the correct depth and cast spells meaninglessly
-			   thousands of times to gain experience. Also, no need to clutter up the savefile ...
-			   If players want to stop and restart the game, just let them :D
-			*/
-			static s32b last_pexp = 0; 
+			static s32b last_pexp = 0;
+			s32b last_turn = p_ptr->spell_turn[(increment ? 32 : 0)+spell];
 
-			if (last_pexp != p_ptr->exp)
+			/* Hack: Try to eliminate spell spamming for experience.
+			   The experience check is for blasting monsters with consecutive Mana Bursts
+			   which should be granting spell experience, provided one is damaging monsters.
+			   
+			   The turn check is for utility spells (Teleport & Detect tactics) since one
+			   might be doing a bunch of legitimate casting without fighting monsters.
+
+			   Note: Androids will probably always fail to pass the xp check! Hmm ...
+			   Note: One still might be able to macro up a cast followed by a rest command.
+			*/
+			if ( last_pexp != p_ptr->exp 
+			  || (!p_ptr->inside_quest && turn > last_turn + 50 + randint1(50)) )
 			{
 				if (cur_exp < SPELL_EXP_BEGINNER)
 					exp_gain += 60;
@@ -1607,8 +1612,9 @@ msg_print("An infernal sound echoed.");
 						exp_gain = 1;
 				}
 				p_ptr->spell_exp[(increment ? 32 : 0) + spell] += exp_gain;
-				last_pexp = p_ptr->exp;
 			}
+			last_pexp = p_ptr->exp;
+			p_ptr->spell_turn[(increment ? 32 : 0)+spell] = turn;
 		}
 	}
 

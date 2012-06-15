@@ -3970,7 +3970,7 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_UNIQUES, format("%d" , _uniques()), TERM_L_BLUE);
 		if (!random_artifacts && !no_artifacts)
 			display_player_one_line(ENTRY_ARTIFACTS, format("%d" , _artifacts()), TERM_L_BLUE);
-		display_player_one_line(ENTRY_OBJECTS, format("%d" , _objects()), TERM_L_BLUE);
+		display_player_one_line(ENTRY_OBJECTS, format("%d" , _objects()), TERM_L_BLUE); 
 		display_player_one_line(ENTRY_ALIGN, format("%s" ,your_alignment()), TERM_L_BLUE);
 
 

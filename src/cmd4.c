@@ -8169,6 +8169,7 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 	for (i = 0; i < per_page && (object_idx[object_top + i] >= 0); i++)
 	{
 		char o_name[80];
+		char buf[255];
 		byte a, c;
 		object_kind *flavor_k_ptr;
 
@@ -8210,7 +8211,8 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		}
 
 		/* Display the name */
-		c_prt(attr, o_name, row + i, col);
+		sprintf(buf, "%s (%d)", o_name, k_ptr->count);
+		c_prt(attr, buf, row + i, col);
 
 		/* Hack -- visual_list mode */
 		if (per_page == 1)

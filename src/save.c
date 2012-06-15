@@ -626,6 +626,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->lev);
 
 	for (i = 0; i < 64; i++) wr_s16b(p_ptr->spell_exp[i]);
+	for (i = 0; i < 64; i++) wr_s32b(p_ptr->spell_turn[i]);
 	for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) wr_s16b(p_ptr->weapon_exp[i][j]);
 	for (i = 0; i < 10; i++) wr_s16b(p_ptr->skill_exp[i]);
 	for (i = 0; i < 108; i++) wr_s32b(p_ptr->magic_num1[i]);

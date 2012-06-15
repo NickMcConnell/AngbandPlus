@@ -3595,11 +3595,9 @@ static void k_info_reset(void)
 	{
 		object_kind *k_ptr = &k_info[i];
 
-		/* Reset "tried" */
 		k_ptr->tried = FALSE;
-
-		/* Reset "aware" */
 		k_ptr->aware = FALSE;
+		k_ptr->count = 0;
 	}
 }
 

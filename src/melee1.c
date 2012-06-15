@@ -56,7 +56,7 @@ static int monster_critical(int dice, int sides, int dam)
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match monster power against player armor.
  */
-static int check_hit(int power, int level, int stun, int m_idx)
+int check_hit(int power, int level, int stun, int m_idx)
 {
 	int i, k, ac;
 

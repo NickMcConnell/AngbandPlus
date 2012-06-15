@@ -4514,7 +4514,7 @@ void print_spells(int target_spell, byte *spells, int num, int y, int x, int use
 	char            out_val[160];
 	byte            line_attr;
 	int             need_mana;
-	char            ryakuji[5];
+	char            ryakuji[15];
 	char            buf[256];
 	bool max = FALSE;
 	caster_info		*caster_ptr = get_caster_info();
@@ -4593,6 +4593,9 @@ put_str(buf, y, x + 29);
 			strncpy(ryakuji, exp_level_str[exp_level], 4);
 			ryakuji[3] = ']';
 			ryakuji[4] = '\0';
+
+			if (p_ptr->wizard)
+				sprintf(ryakuji, "[%d]", exp);
 		}
 
 		if (use_menu && target_spell)

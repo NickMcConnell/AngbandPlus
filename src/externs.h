@@ -954,6 +954,8 @@ extern errr rd_savefile_new(void);
 extern bool load_floor(saved_floor_type *sf_ptr, u32b mode);
 
 /* melee1.c */
+int check_hit(int power, int level, int stun, int m_idx);
+
 /* melee2.c */
 extern bool retaliation_hack;
 extern int retaliation_count;

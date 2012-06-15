@@ -1215,6 +1215,7 @@ struct player_type
 	byte spell_order[64];	  /* order spells learned/remembered/forgotten */
 
 	s16b spell_exp[64];       /* Proficiency of spells */
+	s32b spell_turn[64];      /* Turn last cast successfully, or 0 */
 	s16b weapon_exp[5][64];   /* Proficiency of weapons */
 	s16b skill_exp[10];       /* Proficiency of misc. skill */
 

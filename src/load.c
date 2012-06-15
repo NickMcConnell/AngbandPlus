@@ -1136,6 +1136,16 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->lev);
 
 	for (i = 0; i < 64; i++) rd_s16b(&p_ptr->spell_exp[i]);
+	if (h_older_than(0, 0, 100, 2))
+	{
+		for (i = 0; i < 64; i++) 
+			p_ptr->spell_turn[i] = 0;
+	}
+	else
+	{
+		for (i = 0; i < 64; i++) 
+			rd_s32b(&p_ptr->spell_turn[i]);
+	}
 	for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) rd_s16b(&p_ptr->weapon_exp[i][j]);
 	for (i = 0; i < 10; i++) rd_s16b(&p_ptr->skill_exp[i]);
 	for (i = 0; i < 108; i++) rd_s32b(&p_ptr->magic_num1[i]);

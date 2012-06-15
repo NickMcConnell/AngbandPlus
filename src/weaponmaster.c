@@ -3438,6 +3438,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 	    { TV_POLEARM, SV_TRIDENT },
 	    { TV_POLEARM, SV_LANCE },
 	    { TV_POLEARM, SV_HEAVY_LANCE },
+		{ TV_POLEARM, SV_TRIFURCATE_SPEAR },
 		{ 0, 0 },
 	  },
 	  {
