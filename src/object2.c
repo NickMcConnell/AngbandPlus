@@ -2118,6 +2118,19 @@ static void object_mention(object_type *o_ptr)
 	}
 }
 
+static void dragon_resist(object_type * o_ptr)
+{
+	do
+	{
+		if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_DRAGON_FANG && one_in_(3))
+			one_ele_slay(o_ptr);
+		else if (one_in_(4))
+			one_dragon_ele_resistance(o_ptr);
+		else
+			one_high_resistance(o_ptr);
+	}
+	while (one_in_(2));
+}
 
 /*
  * Mega-Hack -- Attempt to create one of the "Special Objects"
@@ -2417,6 +2430,14 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		case TV_POLEARM:
 		case TV_SWORD:
 		{
+			if (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_DRAGON_FANG)
+			{
+				/* Mention the item */
+				if (cheat_peek) object_mention(o_ptr);
+				dragon_resist(o_ptr);
+				if (!one_in_(3)) break;
+			}
+
 			/* Very Good */
 			if (power > 1)
 			{
@@ -2656,19 +2677,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			break;
 		}
 	}
-}
-
-
-static void dragon_resist(object_type * o_ptr)
-{
-	do
-	{
-		if (one_in_(4))
-			one_dragon_ele_resistance(o_ptr);
-		else
-			one_high_resistance(o_ptr);
-	}
-	while (one_in_(2));
 }
 
 
@@ -4522,7 +4530,14 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 			}
 			else 
 			{
-				if (power && !(o_ptr->sval == SV_DOKUBARI)) a_m_aux_1(o_ptr, lev, power);
+				if (!(o_ptr->sval == SV_DOKUBARI))
+				{
+					if ( power ||
+					     (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_DRAGON_FANG) )
+					{
+						a_m_aux_1(o_ptr, lev, power);
+					}
+				}
 			}
 			break;
 		}

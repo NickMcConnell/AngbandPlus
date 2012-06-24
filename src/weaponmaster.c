@@ -3405,6 +3405,7 @@ static _speciality _specialities[_MAX_SPECIALITIES] = {
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_SABRE },
 		{ TV_SWORD, SV_TANTO },
+		{ TV_SWORD, SV_DRAGON_FANG },
 		{ 0, 0 },
 	  },
 	  {

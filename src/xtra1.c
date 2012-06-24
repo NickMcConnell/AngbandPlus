@@ -3342,6 +3342,9 @@ static void calc_torch(void)
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
 
+	if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
+		p_ptr->cur_lite++;
+
 	/* Loop through all wielded items */
 	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
@@ -3392,8 +3395,6 @@ static void calc_torch(void)
 			}
 
 			if (o_ptr->name2 == EGO_LITE_SHINE) p_ptr->cur_lite++;
-			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APOLLO)
-				p_ptr->cur_lite++;
 
 			if (o_ptr->sval == SV_LITE_EYE)
 			{

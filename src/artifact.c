@@ -111,6 +111,18 @@ void one_ele_resistance(object_type *o_ptr)
 	}
 }
 
+void one_ele_slay(object_type *o_ptr)
+{
+	switch (randint0(5))
+	{
+		case  0: add_flag(o_ptr->art_flags, TR_BRAND_ACID); break;
+		case  1: add_flag(o_ptr->art_flags, TR_BRAND_COLD); break;
+		case  2: add_flag(o_ptr->art_flags, TR_BRAND_FIRE); break;
+		case  3: add_flag(o_ptr->art_flags, TR_BRAND_ELEC); break;
+		case  4: add_flag(o_ptr->art_flags, TR_BRAND_POIS); break;
+	}
+}
+
 
 /*
  * Choose one random element or poison resistance

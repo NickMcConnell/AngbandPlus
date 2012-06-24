@@ -4128,6 +4128,14 @@ W:90:70:2:100000
 P:0:0d0:20:20:-50
 F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_ACID | TY_CURSE | AGGRAVATE
 
+N:281:TRANSLATE
+E:of Ancalagon
+I:23:35:2
+W:60:50:20:100000
+P:0:3d8:16:16:0
+F:STR | DEX | BLOWS | BRAND_ACID | IM_ACID
+F:XTRA_H_RES | XTRA_RES_OR_POWER
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

@@ -97,7 +97,9 @@ void do_cmd_go_up(void)
 		      q_ptr->status != QUEST_STATUS_COMPLETED)))
 		{
 			if (q_ptr->type == QUEST_TYPE_RANDOM && ironman_quests)
+			{
 				go_up = TRUE;
+			}
 			else
 			{
 				msg_print("You can't come back here once you leave this floor.");

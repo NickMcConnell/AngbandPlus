@@ -1776,6 +1776,13 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 	bool            seen, pron;
 	bool            named = FALSE;
 
+	/* Hack: See Issue 116 */
+	if (m_ptr->nickname)
+	{
+		sprintf(desc, "%s", quark_str(m_ptr->nickname));
+		return;
+	}
+
 	r_ptr = &r_info[m_ptr->ap_r_idx];
 
 	/* Mode of MD_TRUE_NAME will reveal Chameleon's true name */

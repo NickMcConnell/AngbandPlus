@@ -694,6 +694,11 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
 		}
 	}
 
+	/* Negative values don't make much sense, and some code
+	   was using unsigned integers for values (e.g. Androids) */
+	if (p < 0)
+		p = 0;
+
 	if (cost_calc_hook)
 	{
 		sprintf(dbg_msg, "  * Result: %d", p);

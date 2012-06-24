@@ -2880,8 +2880,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	/* Note the discount, if any */
 	if (o_ptr->discount)
 	{
-		/* Hidden by real inscription unless in a store */
-		if (!tmp_val2[0] || (o_ptr->ident & IDENT_STORE))
+		/* Hidden by real inscription unless in a store 
+		if (!tmp_val2[0] || (o_ptr->ident & IDENT_STORE)) */
 		{
 			char discount_num_buf[4];
 

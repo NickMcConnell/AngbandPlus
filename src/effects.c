@@ -7083,7 +7083,7 @@ void gain_exp(s32b amount)
 void calc_android_exp(void)
 {
 	int i;
-	u32b total_exp = 0;
+	s32b total_exp = 0;
 	if (p_ptr->is_dead) return;
 
 	if (p_ptr->prace != RACE_ANDROID) return;
@@ -7093,7 +7093,7 @@ void calc_android_exp(void)
 		object_type *o_ptr = &inventory[i];
 		object_type forge;
 		object_type *q_ptr = &forge;
-		u32b value, exp;
+		s32b value, exp;
 		int level = MAX(k_info[o_ptr->k_idx].level - 8, 1);
 
 		if ((i == INVEN_RIGHT) || (i == INVEN_LEFT) || (i == INVEN_NECK) || (i == INVEN_LITE)) continue;

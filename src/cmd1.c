@@ -4678,9 +4678,11 @@ bool py_attack(int y, int x, int mode)
 					inc += 1;
 			}
 
-			p_ptr->skill_exp[GINOU_RIDING] = MIN(max, cur + inc);
-
-			p_ptr->update |= (PU_BONUS);
+			if (inc)
+			{
+				p_ptr->skill_exp[GINOU_RIDING] = MIN(max, cur + inc);
+				p_ptr->update |= PU_BONUS;
+			}
 		}
 	}
 
@@ -5244,6 +5246,12 @@ bool move_player_effect(int ny, int nx, u32b mpe_mode)
 			msg_print("You cannot run in here.");
 #endif
 			set_action(ACTION_NONE);
+
+			if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
+			{
+				msg_print("Your shadow stance is disrupted!");
+				weaponmaster_set_toggle(TOGGLE_NONE);
+			}
 		}
 	}
 
@@ -5468,7 +5476,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 	bool p_can_enter = player_can_enter(c_ptr->feat, CEM_P_CAN_ENTER_PATTERN);
 	bool p_can_kill_walls = FALSE;
 	bool stormbringer = FALSE;
-
+	bool shadow_strike = FALSE;
 	bool oktomove = TRUE;
 	bool do_past = FALSE;
 
@@ -5626,7 +5634,9 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 		else
 		{
 			py_attack(y, x, 0);
-			if (weaponmaster_get_toggle() != TOGGLE_SHADOW_STANCE)
+			if (weaponmaster_get_toggle() == TOGGLE_SHADOW_STANCE)
+				shadow_strike = TRUE;
+			else
 				oktomove = FALSE;
 		}
 	}
@@ -5735,7 +5745,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 		msg_format("You need to fly to go through the %s.", f_name + f_info[get_feat_mimic(c_ptr)].name);
 #endif
 
-		energy_use = 0;
+		if (!shadow_strike)
+			energy_use = 0;
 		running = 0;
 		oktomove = FALSE;
 	}
@@ -5747,7 +5758,13 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 	 */
 	else if (have_flag(f_ptr->flags, FF_TREE) && !p_can_kill_walls)
 	{
-		if ((p_ptr->pclass != CLASS_RANGER) && !p_ptr->levitation && (!p_ptr->riding || !(riding_r_ptr->flags8 & RF8_WILD_WOOD))) energy_use *= 2;
+		if ( p_ptr->pclass != CLASS_RANGER
+		  && !prace_is_(RACE_ENT) 
+		  && !p_ptr->levitation 
+		  && (!p_ptr->riding || !(riding_r_ptr->flags8 & RF8_WILD_WOOD))) 
+		{
+			energy_use *= 2;
+		}
 	}
 
 #ifdef ALLOW_EASY_DISARM /* TNB */
@@ -5818,7 +5835,10 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 #endif
 
 				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
-					energy_use = 0;
+				{
+					if (!shadow_strike)
+						energy_use = 0;
+				}
 			}
 
 			/* Wall (or secret door) */
@@ -5826,7 +5846,35 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 			{
 #ifdef ALLOW_EASY_OPEN
 				/* Closed doors */
-				if (easy_open && is_closed_door(feat) && easy_open_door(y, x)) return;
+				if (easy_open && is_closed_door(feat) && easy_open_door(y, x))
+				{
+					/* Hack. Try to deduce what happened since easy_open_door hides this.
+					   Try to repeat attempting to unlock the door, but do a quick check
+					   for jammed doors so we don't waste 99 turns. Also, only make
+					   99 attempts to pick the lock ... But using command_rep would be
+					   unwise since we will then run thru the door once we pick the lock! */
+					if (always_repeat)
+					{
+						static int _repeat_count = 0;
+
+						cave_type *c_ptr = &cave[y][x];
+						feature_type *f_ptr = &f_info[c_ptr->feat];
+
+						if (is_closed_door(c_ptr->feat) && have_flag(f_ptr->flags, FF_OPEN))
+						{
+							if (_repeat_count == 0)
+								_repeat_count = 99;
+							else
+								--_repeat_count;
+
+							if (_repeat_count)
+								command_rep = 1;
+						}
+						else
+							_repeat_count = 0;
+					}
+					return;
+				}
 #endif /* ALLOW_EASY_OPEN */
 
 #ifdef JP
@@ -5842,7 +5890,10 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 				 * typing mistakes should not cost you a turn...
 				 */
 				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
-					energy_use = 0;
+				{
+					if (!shadow_strike)
+						energy_use = 0;
+				}
 			}
 		}
 
@@ -5855,7 +5906,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 	{
 		if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
 		{
-			energy_use = 0;
+			if (!shadow_strike)
+				energy_use = 0;
 		}
 
 		/* To avoid a loop with running */
@@ -5873,7 +5925,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 		{
 			if (!process_warning(x, y))
 			{
-				energy_use = 25;
+				if (!shadow_strike)
+					energy_use = 25;
 				return;
 			}
 		}

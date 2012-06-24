@@ -1628,6 +1628,7 @@ extern bool immunity_hack;
 extern void one_sustain(object_type *o_ptr);
 extern void one_high_resistance(object_type *o_ptr);
 extern void one_lordly_high_resistance(object_type *o_ptr);
+extern void one_ele_slay(object_type *o_ptr);
 extern void one_ele_resistance(object_type *o_ptr);
 extern void one_dragon_ele_resistance(object_type *o_ptr);
 extern void one_low_esp(object_type *o_ptr);

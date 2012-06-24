@@ -21518,7 +21518,7 @@ D:$He is a junior brother of king of southerings Meng Huo.
 D:ÆîÈÚ²¦ÌÒ³Í¤ÎÄï¤À¡£ÉðÍ¦¤Ë¤ÏÂ¿¾¯¤Î¼«¿®¤¬¤¢¤ë¡£
 
 N:1074:²Ð¤Î¿À¡Ø½ËÍ»¡Ù
-E:Lady Zhurong, the Avater of Flame Spirit
+E:Lady Zhurong, the Avatar of Flame Spirit
 G:p:R
 I:115:24d11:20:45:20
 W:14:2:999:150:0:0
@@ -21780,7 +21780,7 @@ F:RAND_50 | RAND_25 | FORCE_MAXHP
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | AURA_REVENGE
 D:$This sluggish lizard-like being approaches you with a large knife brandished. 
 D:$You have trouble taking this monster seriously, as it repeatedly seems to trip 
-D:$over its own feet. Yet you don't remeber any tales of heroes who's fought one and lived...
+D:$over its own feet. Yet you don't remember any tales of heroes who's fought one and lived...
 
 #Note: AC does not reduce damage for EAT_ITEM attacks!
 N:1088:TRANSLATE

@@ -126,6 +126,7 @@ bool object_is_rare(object_type *o_ptr)
 		if (o_ptr->sval == SV_BLADE_OF_CHAOS ||
 		    o_ptr->sval == SV_DIAMOND_EDGE ||
 		    o_ptr->sval == SV_DOKUBARI ||
+			o_ptr->sval == SV_DRAGON_FANG ||
 		    o_ptr->sval == SV_HAYABUSA) return TRUE;
 		break;
 

@@ -1209,7 +1209,11 @@ void leave_quest_check(void)
 	    (quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 	{
 		/* Hack: Ironman quests *must* be completed! */
-		if (quest[leaving_quest].type == QUEST_TYPE_RANDOM && ironman_quests) return;
+		if (quest[leaving_quest].type == QUEST_TYPE_RANDOM && ironman_quests)
+		{
+			quest[leaving_quest].cur_num = 0; /* Quests get "reinforcements" */
+			return;
+		}
 
 		quest[leaving_quest].status = QUEST_STATUS_FAILED;
 		quest[leaving_quest].complev = (byte)p_ptr->lev;
@@ -5474,7 +5478,7 @@ msg_print("中断しました。");
 
 	/* Repeat until out of energy */
 	while (p_ptr->energy_need <= 0)
-	{
+	{	
 		p_ptr->window |= PW_PLAYER;
 		p_ptr->sutemi = FALSE;
 		p_ptr->counter = FALSE;
@@ -5601,7 +5605,6 @@ msg_print("中断しました。");
 			/* Process the command */
 			process_command();
 		}
-
 
 		/* Hack -- Pack Overflow */
 		pack_overflow();

@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 100
+#define FAKE_VER_PATCH 101
 
 
 /*
@@ -46,8 +46,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 100
-#define H_VER_EXTRA 2
+#define H_VER_PATCH 101
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -2066,6 +2066,7 @@
 #define SV_DOKUBARI                     32  /* 1d1 */
 #define SV_HAYABUSA                     33  /* 1d6 */
 #define SV_RUNESWORD					34  /* 0d0 */
+#define SV_DRAGON_FANG                  35  /* 1d8 */
 
 #define SV_FALCON_SWORD					33
 #define SV_POISON_NEEDLE				32

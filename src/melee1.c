@@ -300,7 +300,11 @@ bool make_attack_normal(int m_idx)
 		}
 
 		if (retaliation_hack)
+		{
 			msg_format("%^s retaliates!", m_name);
+			if (is_original_ap_and_seen(m_ptr))
+				r_ptr->r_flags2 |= RF2_AURA_REVENGE;
+		}
 
 		/* Extract the attack "power" */
 		power = mbe_info[effect].power;
