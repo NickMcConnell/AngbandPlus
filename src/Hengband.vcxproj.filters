@@ -657,5 +657,122 @@
     <None Include="..\lib\help\raceclas.txt">
       <Filter>Edit\Help</Filter>
     </None>
+    <None Include="..\lib\pref\Makefile.am">
+      <Filter>Edit</Filter>
+    </None>
+    <None Include="..\lib\pref\colors.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font-ami.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font-dos.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font-ibm.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font-mac.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font-mon.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font-win.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font-x11.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font-xxx.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\font.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-ami.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-dos.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-gcu.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-ibm.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-mac.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-new.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-win.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-x11.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-xaw.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf-xxx.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\graf.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pickpref.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\picktype.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-acn.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-ami.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-emx.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-gcu.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-key.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-mac.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-opt.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-win.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref-x11.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\pref.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\proxy.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\spell-xx.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\user-win.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\user.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
+    <None Include="..\lib\pref\xtra-gcu.prf">
+      <Filter>Edit\Preferences</Filter>
+    </None>
   </ItemGroup>
 </Project>

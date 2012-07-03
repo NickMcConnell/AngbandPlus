@@ -338,7 +338,6 @@ extern bool ironman_nightmare;	/* Nightmare mode(it isn't even remotely fair!)(*
 extern bool left_hander;	/* Left-Hander */
 extern bool preserve_mode;	/* Preserve artifacts (*) */
 extern bool autoroller;	/* Allow use of autoroller for stats (*) */
-extern bool autochara;	/* Autoroll for weight, height and social status */
 extern bool powerup_home;	/* Increase capacity of your home (*) */
 extern bool allow_friendly_monster; /* Allow monsters friendly to player */
 extern bool allow_hostile_monster; /* Allow monsters hostile to each other */
@@ -574,7 +573,7 @@ extern s16b kubi_r_idx[MAX_KUBI];
 extern s16b today_mon;
 extern bool write_level;
 extern u32b playtime;
-extern u32b start_time;
+extern time_t start_time;
 extern int tsuri_dir;
 extern bool sukekaku;
 extern bool new_mane;

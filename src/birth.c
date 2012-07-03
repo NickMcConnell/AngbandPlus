@@ -6210,7 +6210,7 @@ static bool player_birth_aux(void)
 
 	/*** Autoroll ***/
 
-	if (autoroller || autochara)
+	if (autoroller)
 	{
 		/* Clear fields */
 		auto_round = 0L;
@@ -6239,7 +6239,7 @@ static bool player_birth_aux(void)
 
 		col = 42;
 
-		if (autoroller || autochara)
+		if (autoroller)
 		{
 			Term_clear();
 
@@ -6317,7 +6317,7 @@ static bool player_birth_aux(void)
 		}
 
 		/* Auto-roll */
-		while (autoroller || autochara)
+		while (autoroller)
 		{
 			bool accept = TRUE;
 
@@ -6402,7 +6402,7 @@ static bool player_birth_aux(void)
 			}
 		}
 
-		if (autoroller || autochara) sound(SOUND_LEVEL);
+		if (autoroller) sound(SOUND_LEVEL);
 
 		/* Flush input */
 		flush();

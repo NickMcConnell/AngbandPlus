@@ -516,7 +516,7 @@ void demonic_grasp_mut(int cmd, variant *res)
 		msg_print(T("You lose your firm grasp on your magical devices.", ""));
 		break;
 	case SPELL_MUT_DESC:
-		var_set_string(res, T("You can resist charge draining.", ""));
+		var_set_string(res, T("You resist charge draining.", ""));
 		break;
 	default:
 		default_spell(cmd, res);

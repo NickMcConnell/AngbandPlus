@@ -3752,8 +3752,17 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 				case SV_AMULET_RESISTANCE:
 				{
-					if (one_in_(5)) one_high_resistance(o_ptr);
+				/*	if (one_in_(5)) one_high_resistance(o_ptr); */
 					if (one_in_(5)) add_flag(o_ptr->art_flags, TR_RES_POIS);
+				}
+				break;
+
+				case SV_AMULET_HIGH_RESISTANCE:
+				{
+					do
+					{
+						one_high_resistance(o_ptr);
+					} while (one_in_(3));
 				}
 				break;
 
@@ -5155,7 +5164,10 @@ bool make_gold(object_type *j_ptr)
 	j_ptr->pval = (base + (8L * randint1(base)) + randint1(8));
 
 	if (no_selling)
-		j_ptr->pval = j_ptr->pval * 3 / 2;
+	{
+		j_ptr->pval += j_ptr->pval / 2;
+		j_ptr->pval += j_ptr->pval * 2 * object_level / 100;
+	}
 
 	/* Success */
 	return (TRUE);

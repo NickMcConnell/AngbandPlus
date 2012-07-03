@@ -905,8 +905,7 @@ bool make_attack_normal(int m_idx)
 								break;
 							}
 
-							if ( mut_present(MUT_DEMONIC_GRASP)
-							  && saving_throw(p_ptr->skills.sav - r_ptr->level/2) )
+							if (mut_present(MUT_DEMONIC_GRASP))
 							{
 								msg_print("Energy begins to drain from your pack, but you resist!");
 								break;

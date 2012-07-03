@@ -6571,7 +6571,7 @@ quit("セーブファイルが壊れています");
 	world_monster = FALSE;
 	now_damaged = FALSE;
 	now_message = 0;
-	start_time = time(NULL) - 1;
+	start_time = time(NULL);
 	record_o_name[0] = '\0';
 
 	/* Reset map panel */

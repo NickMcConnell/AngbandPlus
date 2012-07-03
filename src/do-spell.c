@@ -6506,24 +6506,21 @@ static cptr do_arcane_spell(int spell, int mode)
 
 	case 25:
 #ifdef JP
-		if (name) return "エレメンタル召喚";
-		if (desc) return "1体のエレメンタルを召喚する。";
+		if (name) return "耐毒";
+		if (desc) return "一定時間、毒への耐性を得る。装備による耐性に累積する。";
 #else
-		if (name) return "Conjure Elemental";
-		if (desc) return "Summons an elemental.";
+		if (name) return "Resist Poison";
+		if (desc) return "Gives resistance to poison. This resistance can be added to which from equipment for more powerful resistance.";
 #endif
     
 		{
+			int base = spell_power(20);
+
+			if (info) return info_duration(base, base);
+
 			if (cast)
 			{
-				if (!summon_specific(-1, py, px, plev, SUMMON_ELEMENTAL, (PM_ALLOW_GROUP | PM_FORCE_PET)))
-				{
-#ifdef JP
-					msg_print("エレメンタルは現れなかった。");
-#else
-					msg_print("No Elementals arrive.");
-#endif
-				}
+				set_oppose_pois(randint1(base) + base, FALSE);
 			}
 		}
 		break;
@@ -6574,35 +6571,17 @@ static cptr do_arcane_spell(int spell, int mode)
 		break;
 
 	case 28:
-#ifdef JP
-		if (name) return "元素の球";
-		if (desc) return "炎、電撃、冷気、酸のどれかの球を放つ。";
-#else
-		if (name) return "Elemental Ball";
-		if (desc) return "Fires a ball of some elements.";
-#endif
-    
-		{
-			int dam = spell_power(75 + plev);
-			int rad = 2;
+		if (name) return T("Recharging", "魔力充填");
+		if (desc) return T("Recharges staves, wands or rods.", "杖/魔法棒の充填回数を増やすか、充填中のロッドの充填時間を減らす。");
 
-			if (info) return info_damage(0, 0, dam);
+		{
+			int power = spell_power(plev * 3 / 2);
+
+			if (info) return info_power(power);
 
 			if (cast)
 			{
-				int type;
-
-				if (!get_aim_dir(&dir)) return NULL;
-
-				switch (randint1(4))
-				{
-					case 1:  type = GF_FIRE;break;
-					case 2:  type = GF_ELEC;break;
-					case 3:  type = GF_COLD;break;
-					default: type = GF_ACID;break;
-				}
-
-				fire_ball(type, dir, dam, rad);
+				if (!recharge(power)) return NULL;
 			}
 		}
 		break;

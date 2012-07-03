@@ -6062,14 +6062,6 @@ option_type option_info[] =
 #endif
 
 #ifdef JP
-	{ &autochara,                   FALSE, OPT_PAGE_BIRTH, 6, 16,
-	"autochara",                   "体格/地位にオートローラー使用" },
-#else
-	{ &autochara,                   FALSE, OPT_PAGE_BIRTH, 6, 16,
-	"autochara",                    "Autoroll for weight, height and social status" },
-#endif
-
-#ifdef JP
 	{ &powerup_home,                TRUE,  OPT_PAGE_BIRTH, 4, 3,
 	"powerup_home",                 "我が家を拡張する(*)" },
 #else

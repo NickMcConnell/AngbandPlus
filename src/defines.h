@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 101
+#define FAKE_VER_PATCH 102
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 101
+#define H_VER_PATCH 102
 #define H_VER_EXTRA 0
 
 
@@ -2222,6 +2222,7 @@
 #define SV_AMULET_SPELL_POWER           30
 #define SV_AMULET_SPELL_CAP             31
 #define SV_AMULET_APHRODITE				32
+#define SV_AMULET_HIGH_RESISTANCE       33
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -4474,7 +4475,7 @@
 
 #define update_playtime() \
 {\
-	u32b tmp;\
+	time_t tmp;\
 	tmp = time(NULL);\
 	if (start_time)\
 		playtime += (tmp - start_time);\
