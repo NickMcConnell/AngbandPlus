@@ -2223,6 +2223,7 @@
 #define SV_AMULET_SPELL_CAP             31
 #define SV_AMULET_APHRODITE				32
 #define SV_AMULET_HIGH_RESISTANCE       33
+#define SV_AMULET_TRICKERY              34
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0

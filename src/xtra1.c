@@ -4219,15 +4219,10 @@ void calc_bonuses(void)
 					extra_blows[0] += o_ptr->pval;
 				else if((i == INVEN_LARM || i == INVEN_LEFT) && !p_ptr->ryoute) 
 					extra_blows[1] += o_ptr->pval;
-				else if (o_ptr->name2 == EGO_BERSERKER)
+				else /* Shiva's Jacket, Ares' Helm, Berserker Gloves */
 				{
-					/* Hack: Berserker gloves only give bonus to leading hand! */
+					/* Only give bonus to leading hand! */
 					extra_blows[0] += o_ptr->pval; 
-				}
-				else 
-				{
-					extra_blows[0] += o_ptr->pval; 
-					extra_blows[1] += o_ptr->pval;
 				}
 			}
 		}
@@ -5062,8 +5057,8 @@ void calc_bonuses(void)
 		if (p_ptr->tim_genji && skill < 7000)
 			skill = 7000;
 
-		penalty1 = ((100 - skill / 160) - (130 - inventory[INVEN_RARM].weight) / 8);
-		penalty2 = ((100 - skill / 160) - (130 - inventory[INVEN_LARM].weight) / 8);
+		penalty1 = ((120 - skill / 160) - (130 - inventory[INVEN_RARM].weight) / 8);
+		penalty2 = ((120 - skill / 160) - (130 - inventory[INVEN_LARM].weight) / 8);
 		if ((inventory[INVEN_RARM].name1 == ART_QUICKTHORN) && (inventory[INVEN_LARM].name1 == ART_TINYTHORN))
 		{
 			penalty1 = penalty1 / 2 - 5;

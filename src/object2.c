@@ -3695,6 +3695,17 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					break;
 				}
+				case SV_AMULET_TRICKERY:
+				{
+					o_ptr->pval = 1 + m_bonus(2, level);
+					if (power < 0)
+					{
+						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->curse_flags |= (TRC_CURSED);
+						o_ptr->pval = 0 - o_ptr->pval;
+					}
+					break;
+				}
 
 				/* Amulet of wisdom/charisma */
 				case SV_AMULET_INTELLIGENCE:

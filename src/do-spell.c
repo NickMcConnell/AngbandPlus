@@ -349,7 +349,7 @@ void cast_wonder(int dir)
 	}
 	else if (die < 106)
 	{
-		(void)destroy_area(py, px, 13 + randint0(5), FALSE);
+		(void)destroy_area(py, px, 13 + randint0(5), 2 * p_ptr->lev);
 	}
 	else if (die < 108)
 	{
@@ -504,7 +504,7 @@ static void cast_invoke_spirits(int dir)
 	}
 	else if (die < 106)
 	{
-		(void)destroy_area(py, px, 13 + randint0(5), FALSE);
+		(void)destroy_area(py, px, 13 + randint0(5), 2 * p_ptr->lev);
 	}
 	else if (die < 108)
 	{
@@ -3760,7 +3760,7 @@ static cptr do_chaos_spell(int spell, int mode)
 
 			if (cast)
 			{
-				destroy_area(py, px, base + randint1(sides), FALSE);
+				destroy_area(py, px, base + randint1(sides), spell_power(4 * p_ptr->lev));
 			}
 		}
 		break;
@@ -8768,7 +8768,7 @@ static cptr do_crusade_spell(int spell, int mode)
 
 			if (cast)
 			{
-				destroy_area(py, px, base + randint1(sides), FALSE);
+				destroy_area(py, px, base + randint1(sides), spell_power(4 * p_ptr->lev));
 			}
 		}
 		break;

@@ -496,7 +496,7 @@ static void _calamity_of_the_living_spell(int cmd, variant *res)
 		}
 		if (one_in_(3))
 		{
-			destroy_area(py, px, 12 + randint1(4), FALSE);
+			destroy_area(py, px, 12 + randint1(4), 4 * p_ptr->lev);
 		}
 		else
 		{

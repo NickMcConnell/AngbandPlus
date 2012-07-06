@@ -582,7 +582,7 @@ static void _shatter_device_spell(int cmd, variant *res)
 		
 		if (_object_is_(o_ptr, TV_STAFF, SV_STAFF_DESTRUCTION))
 		{
-			if (destroy_area(py, px, 15 + p_ptr->lev + randint0(11), FALSE))
+			if (destroy_area(py, px, 15 + p_ptr->lev + randint0(11), 4 * p_ptr->lev))
 				msg_print("The dungeon collapses...");
 			else
 				msg_print("The dungeon trembles.");

@@ -1192,10 +1192,10 @@ static int choose_attack_spell(int m_idx, byte spells[], byte num, bool ticked_o
 	/* Summon if possible (sometimes) */
 	if (summon_num)
 	{
-		int odds = 30;
+		int odds = 25;
 
 		if (ticked_off && attack_num)
-			odds = 20;
+			odds = 15;
 
 		if (randint0(100) < odds) return (summon[randint0(summon_num)]);
 	}
@@ -4925,7 +4925,7 @@ msg_print("不死の者が近くに現れるのが聞こえた。");
 			int non_unique_type = SUMMON_HI_UNDEAD;
 			u32b mode = (PM_ALLOW_GROUP | PM_ALLOW_UNIQUE);
 
-			if (r_ptr->level > 98 && one_in_(3))
+			if (r_ptr->level > 98 && one_in_(13))
 				mode |= PM_ALLOW_CLONED;
 
 			disturb(1, 0);

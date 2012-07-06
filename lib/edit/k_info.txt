@@ -6607,6 +6607,16 @@ W:50:0:0:3:25000
 A:50/6
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
+N:699:TRANSLATE
+E:Trickery:Golden
+G:":U
+I:40:34:2
+W:50:0:0:3:25000
+A:80/32
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:STEALTH | DEX | SPEED | SEARCH | SUST_DEX |
+F:RES_POIS | RES_NEXUS
+
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval

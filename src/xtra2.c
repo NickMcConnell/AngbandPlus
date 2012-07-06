@@ -1474,7 +1474,7 @@ msg_print("地面に落とされた。");
 
 		case MON_MASTER_TONBERRY:
 			a_idx = ART_MASTER_TONBERRY;
-			chance = 75;
+			chance = 50;
 			break;
 
 		case MON_ZEUS:
@@ -5826,7 +5826,7 @@ msg_print("「死と破壊こそ我が喜びなり！」");
 			msg_print("'Death and destruction! This pleaseth me!'");
 #endif
 
-			(void)destroy_area(py, px, 25, FALSE);
+			(void)destroy_area(py, px, 25, 3 * p_ptr->lev);
 #ifdef JP
 			reward = "ダンジョンが*破壊*された。";
 #else

@@ -2050,7 +2050,7 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 
 		case SV_SCROLL_STAR_DESTRUCTION:
 		{
-			if (destroy_area(py, px, 13 + randint0(5), FALSE))
+			if (destroy_area(py, px, 13 + randint0(5), 2000))
 				ident = TRUE;
 			else
 #ifdef JP
@@ -2271,7 +2271,7 @@ msg_print("巻物は煙を立てて消え去った！");
 				if (n < 10)
 				{
 					msg_print("Ooops!  That didn't work at all!");
-					destroy_area(py, px, 13 + randint0(5), FALSE);
+					destroy_area(py, px, 13 + randint0(5), 300);
 				}
 				else if (n < 15)
 				{
@@ -2824,7 +2824,7 @@ msg_print("ダンジョンが揺れた。");
 
 		case SV_STAFF_DESTRUCTION:
 		{
-			if (destroy_area(py, px, 13 + randint0(5), FALSE))
+			if (destroy_area(py, px, 13 + randint0(5), _device_power_hack(4 * p_ptr->lev, magic)))
 				ident = TRUE;
 
 			break;
@@ -6447,7 +6447,7 @@ msg_print("あなたの槍は電気でスパークしている...");
 
 	if (o_ptr->name2 == EGO_DAEMON)
 	{
-		destroy_area(py, px, 13 + randint0(5), FALSE);
+		destroy_area(py, px, 13 + randint0(5), device_power(4 * p_ptr->lev));
 		o_ptr->timeout = 100 + randint1(100);
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 		return;

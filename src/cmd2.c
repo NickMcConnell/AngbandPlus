@@ -3995,7 +3995,7 @@ void do_cmd_fire_aux2(int item, object_type *j_ptr, int sx, int sy, int tx, int 
 						lite_spot(ny, nx);
 					}
 
-					if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+					if (mon_take_hit(c_ptr->m_idx, tdam, &fear, NULL))
 					{
 						/* Dead monster ... abort firing additional shots */
 						i = num_shots;
@@ -4786,7 +4786,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 				tdam = mon_damage_mod(m_ptr, tdam, FALSE);
 
 				/* Hit the monster, check for death */
-				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, extract_note_dies(real_r_ptr(m_ptr))))
+				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, NULL))
 				{
 					/* Dead monster */
 				}

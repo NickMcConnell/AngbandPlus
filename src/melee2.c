@@ -2315,6 +2315,7 @@ static void process_monster(int m_idx)
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 	monster_race    *ap_r_ptr = &r_info[m_ptr->ap_r_idx];
+	class_t         *class_ptr = get_class_t();
 
 	int             i, d, oy, ox, ny, nx;
 
@@ -3540,12 +3541,8 @@ msg_format("%^s%s", m_name, monmessage);
 
 				/* Hack: Some classes have techniques to apply whenever a monster
 				   moves too close */
-				{
-				class_t *class_ptr = get_class_t();
-
-					if (class_ptr && class_ptr->move_monster)
-						class_ptr->move_monster(m_idx);
-				}
+				if (class_ptr && class_ptr->move_monster)
+					class_ptr->move_monster(m_idx);
 			}
 			else
 			{
@@ -4024,7 +4021,7 @@ void process_monsters(void)
 		hack_m_spell = 0;
 
 		/* Process the monster */
-		process_monster(i);
+		process_monster(i); 
 
 		reset_target(m_ptr);
 

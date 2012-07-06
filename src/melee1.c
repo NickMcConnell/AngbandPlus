@@ -321,8 +321,8 @@ bool make_attack_normal(int m_idx)
 			/* Hack -- Apply "protection from evil" */
 			if (IS_PROT_EVIL() &&
 			    (r_ptr->flags3 & RF3_EVIL) &&
-			    (p_ptr->lev * 3 / 2 >= rlev) &&
-			    ((randint0(100) + p_ptr->lev) > 50))
+				!mon_save_p(m_ptr->r_idx, A_WIS) &&
+				!one_in_(3))
 			{
 				/* Remember the Evil-ness */
 				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_EVIL;

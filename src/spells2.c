@@ -4339,15 +4339,16 @@ msg_print("これで全部です。");
  * The spell of destruction
  *
  * This spell "deletes" monsters (instead of "killing" them).
- *
- * Later we may use one function for both "destruction" and
- * "earthquake" by using the "full" to select "destruction".
  */
-bool destroy_area(int y1, int x1, int r, bool in_generate)
+bool destroy_area(int y1, int x1, int r, int power)
 {
 	int       y, x, k, t;
 	cave_type *c_ptr;
 	bool      flag = FALSE;
+	bool      in_generate = FALSE;
+
+	if (power < 0)
+		in_generate = TRUE;
 
 	/* Prevent destruction of quest levels and town */
 	if ((p_ptr->inside_quest && is_fixed_quest_idx(p_ptr->inside_quest)) || !dun_level)
@@ -4415,7 +4416,7 @@ bool destroy_area(int y1, int x1, int r, bool in_generate)
 					bool resist = FALSE;
 					
 					if (m_ptr->mflag2 & MFLAG2_NODESTRUCT) resist = TRUE;
-					else if (r_ptr->level > randint0(6*p_ptr->lev)) resist = TRUE;
+					else if (r_ptr->level > randint0(power)) resist = TRUE;
 					else if (m_ptr->r_idx == MON_POSEIDON) resist = TRUE;
 
 					if (resist)
