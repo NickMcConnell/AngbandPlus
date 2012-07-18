@@ -4221,8 +4221,15 @@ void calc_bonuses(void)
 					extra_blows[1] += o_ptr->pval;
 				else /* Shiva's Jacket, Ares' Helm, Berserker Gloves */
 				{
-					/* Only give bonus to leading hand! */
-					extra_blows[0] += o_ptr->pval; 
+					if (p_ptr->migite && p_ptr->hidarite)
+					{
+						extra_blows[0] += (o_ptr->pval + 1) / 2;
+						extra_blows[1] += o_ptr->pval / 2;
+					}
+					else
+					{
+						extra_blows[default_hand] += o_ptr->pval;
+					}
 				}
 			}
 		}

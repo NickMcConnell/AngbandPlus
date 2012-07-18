@@ -8060,7 +8060,7 @@ static cptr do_daemon_spell(int spell, int mode)
 #endif
     
 		{
-			int dam = spell_power(600);
+			int dam = spell_power(500);
 			int rad = 0;
 
 			if (info) return info_damage(0, 0, dam);
@@ -8826,7 +8826,7 @@ static cptr do_crusade_spell(int spell, int mode)
 #endif
     
 		{
-			int b_dam = spell_power(plev * 11);
+			int b_dam = spell_power(plev * 9);
 			int d_dam = spell_power(plev * 4);
 			int heal = spell_power(100);
 			int power = spell_power(plev * 4);
@@ -8845,7 +8845,7 @@ static cptr do_crusade_spell(int spell, int mode)
 				stun_monsters(power);
 				confuse_monsters(power);
 				turn_monsters(power);
-				stasis_monsters(power);
+				stasis_monsters(power/3);
 				hp_player(heal);
 			}
 		}

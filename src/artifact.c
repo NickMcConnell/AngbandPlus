@@ -1460,7 +1460,7 @@ static void random_slay(object_type *o_ptr)
 				add_flag(o_ptr->art_flags, TR_WILD);
 			else 
 			{
-				if (randint1(250) <= object_level)
+				if (randint1(2500) <= object_level)
 					add_flag(o_ptr->art_flags, TR_KILL_EVIL);
 				else
 					add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
@@ -2405,13 +2405,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			}
 			else
 			{
-				o_ptr->pval = randint1(2);
+				o_ptr->pval = m_bonus(2, lev);
 				if (one_in_(30)) o_ptr->pval++;
 				if (is_falcon_sword)
-				{
 					o_ptr->pval++;
-					if (one_in_(30)) o_ptr->pval++;
-				}
+
+				if (o_ptr->pval < 1)
+					o_ptr->pval = 1;
 			}
 		}
 		else
@@ -3774,7 +3774,7 @@ void random_artifact_resistance(object_type * o_ptr, artifact_type *a_ptr)
 		    p_ptr->pclass == CLASS_ARCHER || 
 			p_ptr->pclass == CLASS_CAVALRY || 
 			p_ptr->pclass == CLASS_BLOOD_KNIGHT || 
-			p_ptr->pclass == CLASS_WEAPONMASTER ||
+			p_ptr->pclass == CLASS_WEAPONMASTER || 
 			p_ptr->pclass == CLASS_BERSERKER ||
 			p_ptr->pclass == CLASS_MAULER )
 		{

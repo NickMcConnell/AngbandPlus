@@ -579,7 +579,10 @@ static void _bury_dead_spell(int cmd, variant *res)
 
 		set_blessed(p_ptr->blessed + turns, FALSE);
 		if (p_ptr->lev >= 15)
+		{
+			set_afraid(0, TRUE);
 			set_hero(p_ptr->hero + turns, FALSE);
+		}
 		if (p_ptr->lev >= 30)
 			set_fast(p_ptr->fast + turns, FALSE);
 		if (p_ptr->lev >= 35)
@@ -4295,8 +4298,15 @@ static void _calc_bonuses(void)
 				{
 					y = py + ddy_ddd[dir];
 					x = px + ddx_ddd[dir];
-					if (cave_have_flag_bold(y, x, FF_HURT_ROCK))
+
+					if (!in_bounds(y, x)) continue;
+
+					if ( cave_have_flag_bold(y, x, FF_HURT_ROCK)
+					  || cave[y][x].feat == feat_permanent 
+					  || cave[y][x].feat == feat_mountain )
+					{
 						count++;
+					}
 				}
 				p_ptr->to_a += 7*count;
 				p_ptr->dis_to_a += 7*count;

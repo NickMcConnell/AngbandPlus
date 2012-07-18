@@ -4708,7 +4708,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 				else if (o_ptr->name2 == EGO_CLOAK_THIEVERY)
 				{
 					o_ptr->pval = randint1(e_ptr->max_pval);
-					/*if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint1(2);*/
+					if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint0(2);
 				}
 				else
 				{
@@ -8615,6 +8615,14 @@ static void add_essence(int mode)
 				break;
 			}
 
+			if ( (o_ptr->tval == TV_BOW && o_ptr->sval == SV_HARP)
+			  || (o_ptr->tval == TV_SWORD && o_ptr->sval == SV_RUNESWORD) )
+			{
+				msg_print(T("You failed to enchant.", "改良に失敗した。"));
+				energy_use = 100;
+				return;
+			}
+
 			if ((o_ptr->to_h >= max) && (o_ptr->to_d >= max))
 			{
 #ifdef JP
@@ -8633,6 +8641,14 @@ static void add_essence(int mode)
 		}
 		else if (es_ptr->add == ESSENCE_AC)
 		{
+			if ( o_ptr->name1 == ART_KAMIKAZE_ROBE
+			  || o_ptr->name2 == EGO_BERSERKER )
+			{
+				msg_print(T("You failed to enchant.", "改良に失敗した。"));
+				energy_use = 100;
+				return;
+			}
+
 			if (o_ptr->to_a >= 5 + 15*p_ptr->lev/50)
 			{
 #ifdef JP
@@ -8784,7 +8800,7 @@ static void erase_essence(void)
 		o_ptr->to_h -= (o_ptr->xtra4>>8);
 		o_ptr->to_d -= (o_ptr->xtra4 & 0x000f);
 		o_ptr->xtra4 = 0;
-		if (o_ptr->to_h < 0) o_ptr->to_h = 0;
+		if (o_ptr->to_h < 0 && o_ptr->name2 != EGO_BERSERKER) o_ptr->to_h = 0;
 		if (o_ptr->to_d < 0) o_ptr->to_d = 0;
 	}
 	o_ptr->xtra3 = 0;

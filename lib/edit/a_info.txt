@@ -2339,7 +2339,7 @@ N:126:狂気の夢想家ブランドの
 E:of Brand
 I:19:23:5
 W:50:25:110:100000
-P:0:0d0:10:14:0
+P:0:0d0:15:19:0
 F:SPEED | RES_FIRE | XTRA_MIGHT | ACTIVATE | SHOW_MODS | XTRA_RES_OR_POWER
 D:トランプの魔力を自分の物にし、新たな宇宙を創造しようとした
 D:アンバーの王子ブランドが使っていたクロスボウだ。
@@ -3808,7 +3808,7 @@ D:$and only Maglor son of Feanor is said to come close to his skill.
 N:247:TRANSLATE
 E:of the Master Tonberry
 I:31:2:-3
-W:99:3:25:200000
+W:99:150:25:200000
 P:2:0d0:10:100:0
 F:FREE_ACT | SUST_STR | SUST_CON | RES_TIME | RES_DISEN
 F:BLOWS | SPEED

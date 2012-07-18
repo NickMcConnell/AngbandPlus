@@ -882,12 +882,25 @@ static void _tonberry_calc_bonuses(void)
 	p_ptr->sustain_con = TRUE;
 	p_ptr->resist_fear = TRUE;
 	p_ptr->pspeed -= 3;
-
-	p_ptr->weapon_info[0].to_d += dam;
-	p_ptr->weapon_info[1].to_d += dam;
 	p_ptr->to_d_m  += dam;
-	p_ptr->weapon_info[0].dis_to_d += dam;
-	p_ptr->weapon_info[1].dis_to_d += dam;
+
+	if (buki_motteruka(INVEN_LARM) && buki_motteruka(INVEN_RARM))
+	{
+		p_ptr->weapon_info[0].to_d += (dam + 1) / 2;
+		p_ptr->weapon_info[1].to_d += dam/2;
+		p_ptr->weapon_info[0].dis_to_d += (dam + 1) / 2;
+		p_ptr->weapon_info[1].dis_to_d += dam/2;
+	}
+	else if (buki_motteruka(INVEN_LARM)) /* Cursed in offhand, shield in leading hand */
+	{
+		p_ptr->weapon_info[1].to_d += dam;
+		p_ptr->weapon_info[1].dis_to_d += dam;
+	}
+	else
+	{
+		p_ptr->weapon_info[0].to_d += dam;
+		p_ptr->weapon_info[0].dis_to_d += dam;
+	}
 }
 static void _tonberry_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
