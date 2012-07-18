@@ -1882,7 +1882,8 @@ s16b lookup_kind(int tval, int sval)
 		if (sval != SV_ANY) continue;
 
 		/* Apply the randomizer */
-		if (!one_in_(++num)) continue;
+		++num;
+		if (!one_in_(num)) continue; /* beware the evil of macros! */
 
 		/* Use this value */
 		bk = k;
@@ -1893,16 +1894,6 @@ s16b lookup_kind(int tval, int sval)
 	{
 		return bk;
 	}
-
-#if 0
-	/* Oops */
-#ifdef JP
-	msg_format("アイテムがない (%d,%d)", tval, sval);
-#else
-	msg_format("No object (%d,%d)", tval, sval);
-#endif
-#endif
-
 
 	/* Oops */
 	return (0);
@@ -6115,7 +6106,7 @@ bool inven_carry_okay(object_type *o_ptr)
 
 	/* Empty slot? */
 	if (inven_cnt < INVEN_PACK) return (TRUE);
-
+	
 	/* Similar slot? */
 	for (j = 0; j < INVEN_PACK; j++)
 	{
@@ -6237,7 +6228,6 @@ s16b inven_carry(object_type *o_ptr)
 	int n = -1;
 
 	object_type *j_ptr;
-
 
 	/* Check for combining */
 	for (j = 0; j < INVEN_PACK; j++)

@@ -4461,7 +4461,9 @@ void player_outfit(void)
 		break;
 
 	case RACE_ANDROID:
-		object_prep(&forge, lookup_kind(TV_FLASK, SV_ANY));
+	{
+		int k_idx = lookup_kind(TV_FLASK, SV_ANY);
+		object_prep(&forge, k_idx);
 
 		/* Fuel with oil (move pval to xtra4) */
 		apply_magic(&forge, 1, AM_NO_FIXED_ART);
@@ -4470,7 +4472,7 @@ void player_outfit(void)
 		add_outfit(&forge);
 
 		break;
-
+	}
 	default:
 		_birth_object(TV_FOOD, SV_FOOD_RATION, rand_range(3, 7));
 	}
