@@ -2565,7 +2565,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				if (!o_ptr->art_name && o_ptr->name2 != EGO_WILD)
 				{
 					/* Hack -- Super-charge the damage dice */
-					if (o_ptr->dd * o_ptr->ds > 0 && one_in_(5 + 200/level))
+					if (o_ptr->dd * o_ptr->ds > 0 && one_in_(5 + 200/MAX(level, 1)))
 					{
 						do
 						{
