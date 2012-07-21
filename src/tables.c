@@ -2683,7 +2683,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
  * energy per turn, but then speed becomes very "expensive",
  * and you must get all the way to "Fast (+50)" to reach the
  * point of getting 45 energy per turn.  After that point,
- * furthur increases in speed are more or less pointless,
+ * further increases in speed are more or less pointless,
  * except to balance out heavy inventory.
  *                                             v---- Liar!! There are +80 speed monsters! :D
  * Note that currently the fastest monster is "Fast (+30)".

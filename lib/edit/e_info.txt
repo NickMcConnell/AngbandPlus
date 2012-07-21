@@ -1547,6 +1547,13 @@ W:0:36:0:50000
 C:240:8:240:2
 F:BLOWS | SHOW_MODS | RES_FEAR
 
+N:250:TRANSLATE
+E:to the Elements
+X:29:35
+W:0:0:0:20000
+C:0:0:0:0
+F:ACTIVATE | RES_POIS
+
 # N: serial number : ego type
 # X: inventory slot : rating
 # C: max to-hit : max to-dam : max to-ac : pval

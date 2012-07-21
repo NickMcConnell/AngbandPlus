@@ -2562,12 +2562,16 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				if (!o_ptr->art_name)
+				if (!o_ptr->art_name && o_ptr->name2 != EGO_WILD)
 				{
 					/* Hack -- Super-charge the damage dice */
-					if (o_ptr->dd * o_ptr->ds > 0)
+					if (o_ptr->dd * o_ptr->ds > 0 && one_in_(5 + 200/level))
 					{
-						while (one_in_(10L * o_ptr->dd * o_ptr->ds)) o_ptr->dd++;
+						do
+						{
+							o_ptr->dd++;
+						}
+						while (one_in_(o_ptr->dd * o_ptr->ds / 2));
 					}
 
 					/* Do *NOT* lower the damage dice!!!!! Weapons of Order ... sigh! */
@@ -3935,6 +3939,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						case SV_AMULET_RESISTANCE:
 							if (!one_in_(5)) break;
 							o_ptr->name2 = EGO_AMU_DEFENDER;
+							if (!one_in_(2)) break;
+							o_ptr->name2 = EGO_AMU_RESISTANCE;
 							break;
 						case SV_AMULET_TELEPATHY:
 							if (!one_in_(3)) break;
@@ -4903,7 +4909,7 @@ static bool kind_is_good(int k_idx)
 			case SV_POTION_LIFE: return one_in_(5);
 			case SV_POTION_STAR_HEALING: return one_in_(5);
 			case SV_POTION_AUGMENTATION: return one_in_(10);
-			case SV_POTION_RESTORE_MANA: return one_in_(5);
+		/*	case SV_POTION_RESTORE_MANA: return one_in_(5); */
 			case SV_POTION_INC_STR:
 			case SV_POTION_INC_INT:
 			case SV_POTION_INC_WIS:

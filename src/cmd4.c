@@ -8211,7 +8211,10 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 		}
 
 		/* Display the name */
-		sprintf(buf, "%s (%d)", o_name, k_ptr->count);
+		if (p_ptr->wizard)
+			sprintf(buf, "%s (%d)", o_name, k_ptr->count);
+		else
+			sprintf(buf, "%s", o_name);
 		c_prt(attr, buf, row + i, col);
 
 		/* Hack -- visual_list mode */

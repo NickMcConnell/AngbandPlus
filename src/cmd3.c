@@ -647,7 +647,7 @@ msg_print("クエストを達成した！");
 	}
 
 	/* The Stone Mask make the player turn into a vampire! */
-	if ((o_ptr->name1 == ART_STONEMASK) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->pclass != CLASS_BLOOD_KNIGHT))
+	if ((o_ptr->name1 == ART_STONEMASK) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID) && (p_ptr->pclass != CLASS_BLOOD_KNIGHT)  && (p_ptr->pclass != CLASS_BLOOD_MAGE))
 	{
 		/* Turn into a vampire */
 		change_race(RACE_VAMPIRE, "");

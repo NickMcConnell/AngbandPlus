@@ -318,6 +318,7 @@ static s32b _activation_p(object_type *o_ptr)
 			case EGO_AMU_RES_ELEC_:
 			case EGO_AMU_RES_ACID_: return 7000;
 			case EGO_AMU_DETECTION: return 4000;
+			case EGO_AMU_RESISTANCE: return 50000;
 			}
 		}
 	}

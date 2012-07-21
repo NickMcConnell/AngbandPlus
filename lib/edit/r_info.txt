@@ -1,4 +1,4 @@
-#JZ# Zangband 日本語訳: 板倉
+#JZ# Zangband 日本語訳: 板倉 
 #JZ# 「#J0#」で始まるコメントは日本語板 Angband のしとしんさんによる
 #JZ# もので、「#JZ#」で始まるコメントは日本語版 Zangband で新たに
 #JZ# 加わった項目です。日本語アングバンド同様、私（板倉）以外の方の
@@ -2911,6 +2911,7 @@ E:Dark elven mage
 G:h:v
 I:120:7d10:20:16:20
 W:10:1:40:50:700:375
+M:5:15 
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:MALE | 

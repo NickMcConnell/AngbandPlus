@@ -281,7 +281,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 			apply_magic(&forge, depth, 0);
 
 			#if 1
-			if (forge.name2 == EGO_BERSERKER)
+			if (forge.name2 == EGO_AMU_RESISTANCE)
 			{
 				char buf[MAX_NLEN];
 

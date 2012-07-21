@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 103
+#define FAKE_VER_PATCH 104
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 103
+#define H_VER_PATCH 104
 #define H_VER_EXTRA 0
 
 
@@ -393,7 +393,7 @@
 /*
  * Random energy
  */
-#define ENERGY_NEED() (randnor(100, 25))
+#define ENERGY_NEED() (randnor(100, 15))
 
 
 /*
@@ -1762,6 +1762,7 @@
 #define EGO_AMU_GREAT           235
 #define EGO_AMU_DETECTION       236
 #define EGO_AMU_NAIVETY         237
+#define EGO_AMU_RESISTANCE      250
 
 /* Activation effects for random artifacts */
 #define ACT_SUNLIGHT            1

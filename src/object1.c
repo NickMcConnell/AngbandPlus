@@ -2230,6 +2230,9 @@ return "サンダー・ボール (100) と電撃への耐性 : 50+d50 ターン毎";
 #else
 				return "blink every 10+d10 turns";
 #endif
+			case EGO_AMU_RESISTANCE:
+				return "resist elements every 75+d75 turns";
+
 			case EGO_AMU_TELEPORT:
 #ifdef JP
 				return "テレポート : 50+d50 ターン毎";

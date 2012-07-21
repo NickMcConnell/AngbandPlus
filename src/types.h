@@ -333,6 +333,8 @@ struct monster_race
 	u32b next_exp;
 
 	byte level;				/* Level of creature */
+	byte melee_level;
+	byte save_level;
 	byte rarity;			/* Rarity of creature */
 	s16b max_level;
 

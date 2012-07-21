@@ -610,6 +610,10 @@ msg_print("食べ物がアゴを素通りして落ち、消えた！");
 
 		}
 	}
+	else if (prace_is_(RACE_IMP))
+	{
+		(void)set_food(p_ptr->food + o_ptr->pval);
+	}
 	else if ((get_race_t()->flags & RACE_IS_NONLIVING) || prace_is_(RACE_ENT))
 	{
 #ifdef JP
@@ -6875,6 +6879,14 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 			case EGO_AMU_TELEPORT:
 				teleport_player(100, 0L);
 				o_ptr->timeout = randint0(50) + 50;
+				break;
+			case EGO_AMU_RESISTANCE:
+				(void)set_oppose_acid(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_elec(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_fire(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_cold(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_pois(device_power(randint1(20) + 20), FALSE);
+				o_ptr->timeout = randint0(75) + 75;
 				break;
 			case EGO_AMU_D_DOOR:
 				(void)dimension_door(device_power(p_ptr->lev / 2 + 10));

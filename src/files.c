@@ -2369,6 +2369,8 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 	switch (p_ptr->pclass)
 	{
 	case CLASS_WARRIOR:
+		if (p_ptr->lev > 29)
+			add_flag(flgs, TR_RES_FEAR);
 		if (p_ptr->lev > 44)
 			add_flag(flgs, TR_REGEN);
 		break;
@@ -3970,7 +3972,8 @@ void display_player(int mode)
 		display_player_one_line(ENTRY_UNIQUES, format("%d" , _uniques()), TERM_L_BLUE);
 		if (!random_artifacts && !no_artifacts)
 			display_player_one_line(ENTRY_ARTIFACTS, format("%d" , _artifacts()), TERM_L_BLUE);
-		display_player_one_line(ENTRY_OBJECTS, format("%d" , _objects()), TERM_L_BLUE); 
+		if (p_ptr->wizard)
+			display_player_one_line(ENTRY_OBJECTS, format("%d" , _objects()), TERM_L_BLUE); 
 		display_player_one_line(ENTRY_ALIGN, format("%s" ,your_alignment()), TERM_L_BLUE);
 
 

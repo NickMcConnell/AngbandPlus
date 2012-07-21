@@ -2734,6 +2734,17 @@ errr parse_r_info(char *buf, header *head)
 		r_ptr->ac = ac;
 		r_ptr->sleep = slp;
 	}
+	else if (buf[0] == 'M')
+	{
+		int m,s;
+
+		/* Scan for the other values */
+		if (2 != sscanf(buf+2, "%d:%d", &m, &s)) return (1);
+
+		/* Save the values */
+		r_ptr->melee_level = m;
+		r_ptr->save_level = s;
+	}
 
 	/* Process 'W' for "More Info" (one line only) */
 	else if (buf[0] == 'W')

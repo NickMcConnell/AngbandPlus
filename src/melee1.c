@@ -208,8 +208,11 @@ bool make_attack_normal(int m_idx)
 	if (!is_hostile(m_ptr)) return FALSE;
 
 	/* Extract the effective monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
-
+	rlev = r_ptr->melee_level;
+	if (!rlev)
+		rlev = r_ptr->level;
+	if (!rlev)
+		rlev = 1; /* Townies */
 
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);

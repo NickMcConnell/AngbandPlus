@@ -44,8 +44,11 @@ static cptr wd_his[3] =
 bool mon_save_p(int r_idx, int stat)
 {
 	int pl = p_ptr->lev * 2;
-	int ml = r_info[r_idx].level;
+	int ml = r_info[r_idx].save_level;
 	int s = 0;
+
+	if (!ml)
+		ml = r_info[r_idx].level;
 
 	/* Use linearized player stat for the power */
 	if (stat >= 0 && stat < 6) s = p_ptr->stat_ind[stat] + 3;

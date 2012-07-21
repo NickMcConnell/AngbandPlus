@@ -1681,19 +1681,19 @@ D:必要な時カオスの力で剣を異世界から取り寄せる。この剣もそうした物の
 D:一つだ。（R.ゼラズニイ、真世界アンバーシリーズ 6-10 巻）
 
 # The Blade of Chaos 'Doomcaller'
-# Was (-5) CON | HIDE_TYPE, +0 armor
 
 #J0# 日本語化, Ko
 #J0#N:91:『悪運招致者』
 N:91:『災いを招く者』
 E:'Doomcaller'
-I:23:30:0
+I:23:30:-5
 W:70:25:180:250000
-P:0:6d6:18:28:-50
+P:0:6d6:18:28:0
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL |
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:RES_CONF | RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS |
-F:SLAY_HUMAN | CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE
+F:SLAY_HUMAN | CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE | 
+F:CON | VAMPIRIC
 D:$This weapon of wrath, cursed with a violent anger, dives hungrily 
 D:$into the flesh of its enemies. It gathers shadows of death into its 
 D:$owner as they inflict wounds that will never heal.
