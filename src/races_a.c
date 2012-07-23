@@ -228,7 +228,6 @@ race_t *archon_get_race_t(void)
 		me.hd = 11;
 		me.exp = 235;
 		me.infra = 3;
-		me.flags = RACE_IS_NONLIVING;
 
 		me.calc_bonuses = _archon_calc_bonuses;
 		me.get_flags = _archon_get_flags;
@@ -2007,7 +2006,7 @@ race_t *imp_get_race_t(void)
 		me.hd = 10;
 		me.exp = 90;
 		me.infra = 3;
-		me.flags = RACE_IS_NONLIVING | RACE_IS_DEMON;
+		me.flags = RACE_IS_DEMON;
 
 		me.calc_bonuses = _imp_calc_bonuses;
 		me.get_powers = _imp_get_powers;

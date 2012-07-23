@@ -4997,7 +4997,22 @@ int show_inven(int target_item)
 		/* Grey out charging items */
 		if (o_ptr->timeout)
 		{
-			out_color[k] = TERM_L_DARK;
+			bool darken = TRUE;
+
+			if (o_ptr->tval == TV_ROD && o_ptr->number > 1)
+			{
+				int power;
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+				darken = FALSE;
+				if (k_ptr->pval == 0) k_ptr->pval = 1;
+				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+				if (power >= o_ptr->number)
+					darken = TRUE;
+			}
+
+			if (darken)
+				out_color[k] = TERM_L_DARK;
 		}
 
 		(void)strcpy(out_desc[k], o_name);

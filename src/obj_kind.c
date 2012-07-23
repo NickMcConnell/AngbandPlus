@@ -95,6 +95,9 @@ bool object_is_favorite(object_type *o_ptr)
 		break;
 	}
 
+	case CLASS_WEAPONMASTER:
+		return weaponmaster_is_favorite(o_ptr);
+
 	default:
 		/* All weapons are okay for non-special classes */
 		return TRUE;

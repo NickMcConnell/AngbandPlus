@@ -2781,7 +2781,7 @@ static void process_world_aux_curse(void)
 	}
 
 	if ((inventory[INVEN_RARM].name1 == ART_BLOODRIP || inventory[INVEN_LARM].name1 == ART_BLOODRIP) &&
-	    one_in_(2)) /* TODO: Tweak Frequency */
+	    one_in_(66))
 	{
 		/* TODO: Check whether object is known ... */
 		if (set_cut(p_ptr->cut + 66, FALSE))

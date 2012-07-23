@@ -446,6 +446,10 @@ msg_print("あなたの飢えは新鮮な血によってのみ満たされる！");
 	}
 	else if ((prace_is_(RACE_SKELETON) ||
 		  prace_is_(RACE_GOLEM) ||
+		  prace_is_(MIMIC_CLAY_GOLEM) ||
+		  prace_is_(MIMIC_IRON_GOLEM) ||
+		  prace_is_(MIMIC_MITHRIL_GOLEM) ||
+		  prace_is_(MIMIC_COLOSSUS) ||
 		  prace_is_(RACE_ZOMBIE) ||
 		  prace_is_(RACE_SPECTRE)) &&
 		 (o_ptr->tval == TV_STAFF || o_ptr->tval == TV_WAND))
@@ -610,10 +614,6 @@ msg_print("食べ物がアゴを素通りして落ち、消えた！");
 
 		}
 	}
-	else if (prace_is_(RACE_IMP))
-	{
-		(void)set_food(p_ptr->food + o_ptr->pval);
-	}
 	else if ((get_race_t()->flags & RACE_IS_NONLIVING) || prace_is_(RACE_ENT))
 	{
 #ifdef JP
@@ -679,6 +679,10 @@ static bool item_tester_hook_eatable(object_type *o_ptr)
 
 	if (prace_is_(RACE_SKELETON) ||
 	    prace_is_(RACE_GOLEM) ||
+		prace_is_(MIMIC_CLAY_GOLEM) ||
+		prace_is_(MIMIC_IRON_GOLEM) ||
+		prace_is_(MIMIC_MITHRIL_GOLEM) ||
+		prace_is_(MIMIC_COLOSSUS) ||
 	    prace_is_(RACE_ZOMBIE) ||
 	    prace_is_(RACE_SPECTRE))
 	{

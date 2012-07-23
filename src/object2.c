@@ -2888,7 +2888,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				switch (o_ptr->name2)
 				{
 				case EGO_ENDURANCE:
-					if (!one_in_(3)) one_high_resistance(o_ptr);
 					if (one_in_(4)) add_flag(o_ptr->art_flags, TR_RES_POIS);
 					break;
 				case EGO_SHIELD_HIGH_RESISTANCE:
@@ -3136,6 +3135,30 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
+				case SV_RING_WEAPONMASTERY:
+				{
+					o_ptr->pval = m_bonus(3, level);
+					if (one_in_(30)) o_ptr->pval++;
+					if (o_ptr->pval < 1) o_ptr->pval = 1;
+					if (power < 0)
+					{
+						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->curse_flags |= TRC_CURSED;
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
+					else if (one_in_(77))
+					{
+						switch (randint1(5))
+						{
+						case 1: add_flag(o_ptr->art_flags, TR_BRAND_ACID); break;
+						case 2: add_flag(o_ptr->art_flags, TR_BRAND_COLD); break;
+						case 3: add_flag(o_ptr->art_flags, TR_BRAND_FIRE); break;
+						case 4: add_flag(o_ptr->art_flags, TR_BRAND_ELEC); break;
+						case 5: add_flag(o_ptr->art_flags, TR_BRAND_POIS); break;
+						}
+					}
+					break;
+				}
 				case SV_RING_ATTACKS:
 				{
 					/* Stat bonus */

@@ -12604,6 +12604,37 @@ static int _necro_damroll(int dice, int sides, int base)
 	return damroll(dice, spell_power(sides)) + spell_power(base);
 }
 
+void on_p_hit_m(int m_idx)
+{
+	if (p_ptr->special_attack & ATTACK_CONFUSE)
+	{
+		monster_type *m_ptr = &m_list[m_idx];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		char          m_name[MAX_NLEN];
+
+		monster_desc(m_name, m_ptr, 0);
+
+		p_ptr->special_attack &= ~(ATTACK_CONFUSE);
+		msg_print(T("Your hands stop glowing.", "手の輝きがなくなった。"));
+		p_ptr->redraw |= (PR_STATUS);
+
+		if (r_ptr->flags3 & RF3_NO_CONF)
+		{
+			if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flags3 |= RF3_NO_CONF;
+			msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+		}
+		else if (randint0(100) < r_ptr->level)
+		{
+			msg_format(T("%^s is unaffected.", "%^sには効果がなかった。"), m_name);
+		}
+		else
+		{
+			msg_format(T("%^s appears confused.", "%^sは混乱したようだ。"), m_name);
+			(void)set_monster_confused(m_idx, MON_CONFUSED(m_ptr) + 10 + randint0(p_ptr->lev) / 5);
+		}
+	}
+}
+
 static bool _necro_do_touch(int type, int dice, int sides, int base)
 {
 	int x, y;
@@ -12641,13 +12672,26 @@ static bool _necro_do_touch(int type, int dice, int sides, int base)
 		if (!m_idx)
 		{
 			msg_print("There is no monster there.");
+			return FALSE;
 		}
 
 	}
 
 	if (m_idx)
 	{
-		int dam = _necro_damroll(dice, sides, base);
+		int dam;
+		monster_type *m_ptr = &m_list[m_idx];
+
+		if (!is_hostile(m_ptr) &&
+			!(p_ptr->stun || p_ptr->confused || p_ptr->image ||
+			IS_SHERO() || !m_ptr->ml))
+		{
+			if (!get_check("Really hit it? "))
+				return FALSE;
+		}
+
+		dam = _necro_damroll(dice, sides, base);
+		on_p_hit_m(m_idx);
 		touch_zap_player(m_idx);
 		if (fire_ball(type, dir, dam, 0))
 		{

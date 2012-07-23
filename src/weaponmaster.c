@@ -3642,6 +3642,11 @@ static bool _check_speciality1_equip(void)
 	return TRUE;
 }
 
+bool weaponmaster_is_favorite(object_type *o_ptr)
+{
+	return _check_speciality2_aux(o_ptr);
+}
+
 static bool _check_speciality2_aux(object_type *o_ptr)
 {
 	_object_kind kind = _specialities[p_ptr->speciality1].objects[p_ptr->speciality2];

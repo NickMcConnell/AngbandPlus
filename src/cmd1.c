@@ -222,6 +222,7 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 				case RACE_DUNADAN:
 				case RACE_BARBARIAN:
 				case RACE_BEASTMAN:
+				case RACE_DEMIGOD:
 					mult = 25;break;
 				case RACE_SNOTLING:
 				case RACE_HALF_TROLL:
@@ -236,6 +237,7 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 				case RACE_SPECTRE:
 				case RACE_BALROG:
 				case RACE_DRACONIAN:
+				case RACE_TONBERRY:
 					mult = 30;break;
 				default:
 					mult = 10;break;

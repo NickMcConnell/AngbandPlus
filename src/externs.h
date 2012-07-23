@@ -2107,6 +2107,7 @@ extern void weaponmaster_adjust_skills(void);
 extern cptr weaponmaster_speciality1_name(void);
 extern cptr weaponmaster_speciality2_name(void);
 extern int weaponmaster_specialty2_k_idx(void);
+extern bool weaponmaster_is_favorite(object_type *o_ptr);
 extern int weaponmaster_wield_hack(object_type *o_ptr);
 extern void weaponmaster_get_frenzy_items(void);
 extern void weaponmaster_do_wild_blade(void);

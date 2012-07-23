@@ -15,6 +15,7 @@ dragon boots
 dragon shield
 dragon helm
 dragon wings
+dragon fang
 
 ?:[EQU $CLASS Mage High-Mage]
 rod of cold balls#!s!d!k
@@ -45,6 +46,52 @@ wanted corpses or skeletons#Wanted!k!k!k
 # Pick up all magical items with unknown effects.
 #
 unaware items
+
+#
+# Turning on leave_excellent and we keep all egos by default
+# thanks to the following line, but you may want to narrow
+# down which egos to keep.
+# I use unidentified since I might want to auto-destroy weapons
+# of slay orc, or other useless egos, and that should trigger
+# after I identify the object.
+~unidentified ego
+
+# If you just want ego weapons:
+#~unidentified ego weapons
+
+# If you just want ego armors:
+#~unidentified ego armors
+
+# If you just want ego bolts:
+#~unidentified ego bolt
+
+
+#
+# I usually turn leave_excellent on and uncomment
+# the following 2 lines about midway thru the game.
+# Note that order is important. The line '~unidentified ego'
+# must come before '!unidentified weapons' since both will
+# match on an excellent dagger, for example. As always, first
+# match wins.
+#
+#!unidentified weapons
+#!unidentified armors
+
+# To summarize with an example:
+# [1] '!unidentified weapons' matches as I step onto a grid with an
+#     unknown dagger.
+# [2] When the game tries to destroy the dagger, it discovers it is an
+#     ego weapon, and notices that leave_excellent is turned on.
+# [3] The object then is pseudo-identified as 'excellent' and preferences
+#     are rescanned for a new match.
+# [4] The line '~unidentified ego' is found 
+#     (before '!unidentified weapons'), so the object is not destroyed.
+# [5] I identifiy the weapon, to find it is a Dagger of Slay Animal.
+# [6] The game rescans the preferences and finds the match of
+#     '(!common ego weapons:of slay animal' and destroys the weapon
+#
+
+
 
 #
 # Pick up an object if you have same objects in your inventory,

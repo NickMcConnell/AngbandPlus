@@ -6610,12 +6610,20 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:699:TRANSLATE
 E:Trickery:Golden
 G:":U
-I:40:34:2
+I:40:34:3
 W:50:0:0:3:25000
 A:80/32
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:STEALTH | DEX | SPEED | SEARCH | SUST_DEX |
 F:RES_POIS | RES_NEXUS
+
+N:700:TRANSLATE
+E:Weaponmastery:Gleaming
+G:=:y
+I:45:61:0
+W:50:0:0:2:7000
+A:50/12
+
 
 # N: serial number : & object name~
 # G: symbol : color
@@ -6624,3 +6632,8 @@ F:RES_POIS | RES_NEXUS
 # P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
 # A: depth/rarity : depth/rarity : etc
 # F: flag | flag | etc
+
+# D - Black        w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown

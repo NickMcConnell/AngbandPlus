@@ -2685,6 +2685,8 @@ static void process_monster(int m_idx)
 				int upkeep = calculate_upkeep();
 				if (upkeep > 80)
 					allow = FALSE;
+				if (p_ptr->pet_extra_flags & PF_NO_BREEDING)
+					allow = FALSE;
 			}
 			if (allow && multiply_monster(m_idx, FALSE, (is_pet(m_ptr) ? PM_FORCE_PET : 0)))
 			{

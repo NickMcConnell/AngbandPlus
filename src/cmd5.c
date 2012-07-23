@@ -2747,6 +2747,16 @@ void do_cmd_pet(void)
 		}
 	}
 
+	if (p_ptr->pet_extra_flags & PF_NO_BREEDING)
+	{
+		power_desc[num] = "no breeding (now On)";
+	}
+	else
+	{
+		power_desc[num] = "no breeding (now Off)";
+	}
+	powers[num++] = PET_NO_BREEDING;
+
 #ifdef ALLOW_REPEAT
 	if (!(repeat_pull(&i) && (i >= 0) && (i < num)))
 	{
@@ -2983,7 +2993,7 @@ void do_cmd_pet(void)
 			p_ptr->pet_follow_distance = PET_CLOSE_DIST;
 			pet_t_m_idx = 0;
 			break;
-		}
+		}		
 		/* "Follow Me" */
 		case PET_FOLLOW_ME:
 		{
@@ -3084,6 +3094,12 @@ void do_cmd_pet(void)
 			else p_ptr->pet_extra_flags |= (PF_RYOUTE);
 			p_ptr->update |= (PU_BONUS);
 			handle_stuff();
+			break;
+		}
+		case PET_NO_BREEDING:
+		{
+			if (p_ptr->pet_extra_flags & PF_NO_BREEDING) p_ptr->pet_extra_flags &= ~(PF_NO_BREEDING);
+			else p_ptr->pet_extra_flags |= PF_NO_BREEDING;
 			break;
 		}
 	}

@@ -1044,8 +1044,11 @@ static bool is_autopick_aux(object_type *o_ptr, autopick_type *entry, cptr o_nam
 
 	/*** Unidentified ***/
 	if (IS_FLG(FLG_UNIDENTIFIED)
-	    && (object_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
+	    && object_is_known(o_ptr))
 		return FALSE;
+	/*if (IS_FLG(FLG_UNIDENTIFIED)
+	    && (object_is_known(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
+		return FALSE;*/
 
 	/*** Identified ***/
 	if (IS_FLG(FLG_IDENTIFIED) && !object_is_known(o_ptr))
@@ -1605,7 +1608,12 @@ static void auto_destroy_item(object_type *o_ptr, int autopick_idx)
 		   after a certain CL. This is an attempt to rescue use of excellent items
 		   without requiring hundreds of identify spells per level.
 		   Think of it like this: You begin to destroy the pair of soft leather boots, 
-		   but suddenly notice they are shinier than normal :D */
+		   but suddenly notice they are shinier than normal :D 
+		   
+		   Addendum: We now pseudo-id the object as excellent, and reapply the
+		   auto-pick preferences. Unfortunately, not only is their too much junk in 
+		   Chengband, their is also too much "excellent" junk :)
+		   */
 		if ( !object_is_known(o_ptr) 
 		  && object_is_ego(o_ptr)
 		  && !(object_is_cursed(o_ptr) || object_is_broken(o_ptr)) )
@@ -1615,7 +1623,13 @@ static void auto_destroy_item(object_type *o_ptr, int autopick_idx)
 			o_ptr->ident |= (IDENT_SENSE);
 			p_ptr->notice |= (PN_COMBINE);
 			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-			return;
+
+			autopick_idx = is_autopick(o_ptr);
+			if (autopick_idx >= 0 &&
+				!(autopick_list[autopick_idx].action & DO_AUTODESTROY))
+			{
+				return;
+			}
 		}
 		/* End of Evil Experiment! */
 	}

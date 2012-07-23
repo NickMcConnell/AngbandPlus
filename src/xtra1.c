@@ -4509,6 +4509,9 @@ void calc_bonuses(void)
 				p_ptr->weapon_info[i-INVEN_RIGHT].dis_to_h += bonus_to_h;
 				p_ptr->weapon_info[i-INVEN_RIGHT].dis_to_d += bonus_to_d;
 			}
+
+			if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_WEAPONMASTERY)
+				p_ptr->weapon_info[i-INVEN_RIGHT].to_dd += o_ptr->pval;
 		}
 		else if (p_ptr->migite && p_ptr->hidarite)
 		{
@@ -4526,6 +4529,9 @@ void calc_bonuses(void)
 				p_ptr->weapon_info[0].dis_to_d += (bonus_to_d > 0) ? (bonus_to_d+1)/2 : bonus_to_d;
 				p_ptr->weapon_info[1].dis_to_d += (bonus_to_d > 0) ? bonus_to_d/2 : bonus_to_d;
 			}
+
+			if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_WEAPONMASTERY)
+				p_ptr->weapon_info[i-INVEN_RIGHT].to_dd += o_ptr->pval;
 		}
 		else
 		{
@@ -4539,6 +4545,9 @@ void calc_bonuses(void)
 				p_ptr->weapon_info[default_hand].dis_to_h += bonus_to_h;
 				p_ptr->weapon_info[default_hand].dis_to_d += bonus_to_d;
 			}
+
+			if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_WEAPONMASTERY)
+				p_ptr->weapon_info[default_hand].to_dd += o_ptr->pval;
 		}
 	}
 

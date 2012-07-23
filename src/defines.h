@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 105
+#define FAKE_VER_PATCH 106
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 105
+#define H_VER_PATCH 106
 #define H_VER_EXTRA 0
 
 
@@ -463,6 +463,7 @@
 #define PET_RIDING		14
 #define PET_NAME		15
 #define PET_RYOUTE		16
+#define PET_NO_BREEDING		17
 
 /*
  * Follow distances
@@ -481,6 +482,7 @@
 #define PF_SUMMON_SPELL 0x0010
 #define PF_BALL_SPELL   0x0020
 #define PF_RYOUTE       0x0040
+#define PF_NO_BREEDING  0x0080
 
 
 #define CAN_TWO_HANDS_WIELDING() (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))
@@ -2287,6 +2289,7 @@
 #define SV_RING_SPELL_CAP				58
 #define SV_RING_AGES                    59
 #define SV_RING_DESTRUCTION             60
+#define SV_RING_WEAPONMASTERY           61
 
 #define SV_EXPRESS_CARD                  0
 
