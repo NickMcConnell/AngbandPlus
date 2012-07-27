@@ -2546,6 +2546,9 @@ info[i++] = "それは二刀流での命中率を向上させる。";
 
 	}
 
+	if (have_flag(flgs, TR_WEAPONMASTERY))
+		info[i++] = "It increases the damage dice of your melee weapon.";
+
 	if (o_ptr->name2 == EGO_SNIPER)
 		info[i++] = "It increases your shooting speed.";
 

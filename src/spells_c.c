@@ -1506,6 +1506,29 @@ void eye_for_an_eye_spell(int cmd, variant *res)
 	}
 }
 
+void force_branding_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Force Branding", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Temporarily brands your weapon with force.", ""));
+		break;
+	case SPELL_CAST:
+	{
+		int base = spell_power(p_ptr->lev / 4);
+		set_tim_force(base + randint1(base), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void glyph_of_warding_spell(int cmd, variant *res)
 {
 	switch (cmd)

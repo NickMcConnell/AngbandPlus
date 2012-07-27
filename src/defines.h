@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 106
+#define FAKE_VER_PATCH 107
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 106
+#define H_VER_PATCH 107
 #define H_VER_EXTRA 0
 
 
@@ -3390,7 +3390,7 @@
 #define TR_WARNING             72     /* Warning */
 #define TR_HIDE_TYPE           73     /* Hide "pval" description */
 #define TR_SHOW_MODS           74     /* Always show Tohit/Todam */
-#define TR_XXX1                75     /* XXX1 */
+#define TR_WEAPONMASTERY       75     /* XXX1 */
 #define TR_LEVITATION          76     /* Feather Falling */
 #define TR_LITE                77     /* Permanent Light */
 #define TR_SEE_INVIS           78     /* See Invisible */

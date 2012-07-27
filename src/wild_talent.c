@@ -20,6 +20,43 @@ void detect_evil_spell(int cmd, variant *res)
 	}
 }
 
+void burning_strike_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Burning Strike");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Attacks a monster with more damage unless it has resistance to fire.");
+		break;
+	case SPELL_CAST:
+	{
+		int y, x, dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_rep_dir2(&dir)) return;
+		if (dir == 5) return;
+
+		y = py + ddy[dir];
+		x = px + ddx[dir];
+
+		if (cave[y][x].m_idx)
+		{
+			py_attack(y, x, HISSATSU_FIRE);
+			var_set_bool(res, TRUE);
+		}
+		else
+		{
+			msg_print(T("There is no monster.", "その方向にはモンスターはいません。"));
+		}
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void lightning_eagle_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -115,6 +152,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_CHR, "like a Warlock", {3, 5, 60, satisfy_hunger_spell}},
 		{ A_CHR, "like a Warlock", {3, 5, 40, light_area_spell}},
 		{ A_CHR, "like a Mutant", {3, 12, 40, hypnotic_gaze_spell}},		
+		{ A_WIS, "like a Priest", {3, 5, 40, bless_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL5: Middle Utility */
@@ -132,7 +170,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_CHR, "like a Warlock", {5, 5, 40, detect_monsters_spell}},
 		{ A_STR, "like a Berserker", {7, 5, 40, detect_menace_spell}},
 		{ A_INT, "like a Trump Mage", {7, 12, 50, telepathy_spell}},
-		{ A_STR, "like a Priest", {7, 5, 40, detect_evil_spell}},
+		{ A_WIS, "like a Priest", {7, 5, 40, detect_evil_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL9: Middle Offense */
@@ -175,6 +213,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_STR, "like a Cyclops", {17, 15, 50, throw_boulder_spell}},
 		{ A_STR, "like an Android", {17, 20, 40, android_bazooka_spell}},
 		{ A_CHR, "like a Dark Elven Warlock", {17, 15, 50, mana_bolt_I_spell}},
+		{ A_DEX, "like a Samurai", {17, 12, 40, burning_strike_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL19: Good Utility */
@@ -200,6 +239,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
         { A_WIS, "like a Zombie", {23, 30, 50, restore_life_spell}},
 		{ A_WIS, "like a Force-Trainer", {15, 0, 30, clear_mind_spell}},
 		{ A_CHR, "like a Warlock", {20, 20, 50, remove_curse_I_spell}},
+		{ A_WIS, "like a Priest", {20, 15, 50, cure_wounds_III_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL25: Good Offense */
@@ -259,6 +299,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_DEX, "like a Monk", {25, 0, 0, monk_posture_spell}},
 		{ A_DEX, "like a Samurai", {25, 0, 0, samurai_posture_spell}},
 		{ A_CON, "like a Mutant", {25, 10, 50, resist_elements_spell}},
+		{ A_INT, "like a Daemon Mage", {35, 40, 80, polymorph_demon_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL39: Great Utility */
@@ -284,6 +325,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_WIS, "like an Amberite", {40, 75, 75, pattern_mindwalk_spell}},
 		{ A_CHR, "like a Warlock", {35, 70, 60, destruction_spell}},
 		{ A_CHR, "like a Warlock", {40, 20, 65, dimension_door_spell}},
+		{ A_WIS, "like a Life Priest", {35, 70, 90, clairvoyance_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL45: Great Utility */
@@ -291,12 +333,15 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_INT, "like a Chaos Warrior", {40, 50, 60, confusing_lights_spell}},
 		{ A_WIS, "like an Evil Priest", {40, 40, 60, evocation_spell}},
 		{ A_STR, "like a Berserker", {40, 50, 80, massacre_spell}},
+		{ A_DEX, "like a Ninja", {40, 50, 80, hide_in_mud_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL47: General Awesomeness */
 	{
 		{ A_DEX, "like a Ninja", {40, 50, 50, super_stealth_spell}},
 		{ A_WIS, "like a Priest", {40, 50, 80, healing_II_spell}},
+		{ A_INT, "like a Hex Mage", {40, 50, 60, building_up_spell}},
+		{ A_INT, "like a Craft Mage", {47, 70, 70, polymorph_colossus_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL49: Capstone Offense */
@@ -305,6 +350,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_WIS, "like Raphael, the Messenger", {49, 50, 65, starburst_II_spell}},
 		{ A_STR, "like Oremorj, the Cyberdemon Lord", {49, 50, 65, rocket_II_spell}},
 		{ A_CON, "like Morgoth, Lord of Darkness", {49, 50, 70, mana_storm_II_spell}},
+		{ A_INT, "like a Craft Mage", {49, 50, 70, force_branding_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 };

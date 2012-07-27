@@ -139,7 +139,7 @@ void mana_storm_I_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Mana Storm", ""));
+		var_set_string(res, T("Mana Storm I", ""));
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Fires a large ball of pure mana.", ""));
@@ -170,7 +170,7 @@ void mana_storm_II_spell(int cmd, variant *res)
 	switch (cmd)
 	{
 	case SPELL_NAME:
-		var_set_string(res, T("Mana Storm", ""));
+		var_set_string(res, T("Mana Storm II", ""));
 		break;
 	case SPELL_DESC:
 		var_set_string(res, T("Fires a large ball of pure mana.", ""));
@@ -500,6 +500,58 @@ void polish_shield_spell(int cmd, variant *res)
 	}
 }
 bool cast_polish_shield(void) {	return cast_spell(polish_shield_spell); }
+
+void polymorph_colossus_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Polymorph Colossus", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Mimic a Colossus for a while. Loses abilities of original race and gets great abilities as a colossus.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(spell_power(15), spell_power(15)));
+		break;
+	case SPELL_CAST:
+	{
+		int base = spell_power(15);
+		set_mimic(base + randint1(base), MIMIC_COLOSSUS, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void polymorph_demon_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Polymorph Demon", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Mimic a demon for a while. Loses abilities of original race and gets abilities as a demon.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(spell_power(15), spell_power(15)));
+		break;
+	case SPELL_CAST:
+	{
+		int base = spell_power(10 + p_ptr->lev / 2);
+		set_mimic(base + randint1(base), MIMIC_DEMON, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
 
 void polymorph_demonlord_spell(int cmd, variant *res)
 {

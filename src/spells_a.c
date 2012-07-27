@@ -599,3 +599,22 @@ void breathe_fire_II_spell(int cmd, variant *res)
 	}
 }
 
+void building_up_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Building Up", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Increases your physical prowess", ""));
+		break;
+	case SPELL_CAST:
+		set_tim_building_up(20 + randint1(20), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}

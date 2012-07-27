@@ -22,6 +22,27 @@ void heroism_spell(int cmd, variant *res)
 }
 bool cast_heroism(void) { return cast_spell(heroism_spell); }
 
+void hide_in_mud_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Hide in Mud", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Gain the ability to pass into walls temporarily, as well as extra resistance to acid.");
+		break;
+	case SPELL_CAST:
+		set_kabenuke(randint1(p_ptr->lev/2) + p_ptr->lev/2, FALSE);
+		set_oppose_acid(p_ptr->lev, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void identify_spell(int cmd, variant *res)
 {
 	switch (cmd)

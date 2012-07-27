@@ -3146,7 +3146,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->curse_flags |= TRC_CURSED;
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
-					else if (one_in_(77))
+					else if (one_in_(30))
 					{
 						switch (randint1(5))
 						{

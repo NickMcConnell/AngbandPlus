@@ -267,11 +267,11 @@ N:10:《ナルヤ》という
 E:of Power (Narya)
 I:45:34:1
 W:70:100:2:100000
-P:0:1d1:10:10:0
+P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | FREE_ACT | SEE_INVIS |
 F:SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | IM_FIRE | BRAND_FIRE
-F:INSTA_ART
+F:INSTA_ART | WEAPONMASTERY
 D:$The Ring of Fire, set with a ruby that glows like flame.  Narya is one 
 D:$of the three Rings of Power created by the Elves and hidden by them from 
 D:$Sauron.
@@ -285,12 +285,12 @@ N:11:《ネンヤ》という
 E:of Power (Nenya)
 I:45:35:2
 W:80:140:2:200000
-P:0:1d1:11:11:0
+P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:LEVITATION | REGEN | SHOW_MODS |
 F:SUST_INT | SUST_WIS | IM_COLD | BRAND_COLD
-F:XTRA_POWER | INSTA_ART
+F:XTRA_POWER | INSTA_ART | WEAPONMASTERY
 D:$The Ring of Adamant, with a pure white stone as centerpiece.  Nenya is one 
 D:$of the three Rings of Power created by the Elves and hidden by them from 
 D:$Sauron.
@@ -304,12 +304,12 @@ N:12:《ヴィルヤ》という
 E:of Power (Vilya)
 I:45:36:3
 W:90:170:2:300000
-P:0:1d1:12:12:0
+P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
 F:LEVITATION | SLOW_DIGEST | REGEN |
 F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | BRAND_ELEC
-F:INSTA_ART | XTRA_POWER
+F:INSTA_ART | XTRA_POWER | WEAPONMASTERY
 D:$The Ring of Sapphire, with clear blue gems that shine like stars, 
 D:$glittering untouchable despite all that Morgoth ever wrought.  Vilya is 
 D:$one of the three Rings of Power created by the Elves and hidden by them 
@@ -324,7 +324,7 @@ N:13:《一つの指輪》という
 E:of Power (The One Ring)
 I:45:37:5
 W:100:255:2:5000000
-P:0:1d1:15:15:0
+P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | CURSED | HEAVY_CURSE | PERMA_CURSE |
 F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN | TY_CURSE |
@@ -332,7 +332,8 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
 F:SUST_STR | SUST_DEX | SUST_CON |
 F:SUST_INT | SUST_WIS | SUST_CHR |
 F:INSTA_ART | XTRA_POWER | XTRA_H_RES | SPELL_CAP
-F:ESP_DEMON | ESP_UNDEAD
+F:ESP_DEMON | ESP_UNDEAD | WEAPONMASTERY
+F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | BRAND_ACID
 D:$"One Ring to rule them all, One Ring to find them, One Ring to bring 
 D:$them all and in the darkness bind them."  Made of massive gold, and 
 D:$set with runes in the foul speech of Mordor, Isildur's Bane possesses 
@@ -2293,9 +2294,9 @@ D:その打撃は敵の肉体だけでなく精神をも打ち砕くことができる。
 
 N:123:『スレイヤー』
 E:'Slayer'
-I:23:28:2
+I:23:28:1
 W:30:60:260:200000
-P:0:4d5:15:15:0
+P:0:5d5:15:15:0
 F:BLOWS | VAMPIRIC | HOLD_LIFE | SLAY_UNDEAD | SLAY_EVIL | SLAY_HUMAN |
 F:REGEN | RES_FEAR | RES_BLIND | SLOW_DIGEST | SHOW_MODS
 D:数え切れないほどの首を落としてきたこの血に飢えた刃は

@@ -4510,7 +4510,7 @@ void calc_bonuses(void)
 				p_ptr->weapon_info[i-INVEN_RIGHT].dis_to_d += bonus_to_d;
 			}
 
-			if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_WEAPONMASTERY)
+			if (have_flag(flgs, TR_WEAPONMASTERY))
 				p_ptr->weapon_info[i-INVEN_RIGHT].to_dd += o_ptr->pval;
 		}
 		else if (p_ptr->migite && p_ptr->hidarite)
@@ -4530,7 +4530,7 @@ void calc_bonuses(void)
 				p_ptr->weapon_info[1].dis_to_d += (bonus_to_d > 0) ? bonus_to_d/2 : bonus_to_d;
 			}
 
-			if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_WEAPONMASTERY)
+			if (have_flag(flgs, TR_WEAPONMASTERY))
 				p_ptr->weapon_info[i-INVEN_RIGHT].to_dd += o_ptr->pval;
 		}
 		else
@@ -4546,7 +4546,7 @@ void calc_bonuses(void)
 				p_ptr->weapon_info[default_hand].dis_to_d += bonus_to_d;
 			}
 
-			if (o_ptr->tval == TV_RING && o_ptr->sval == SV_RING_WEAPONMASTERY)
+			if (have_flag(flgs, TR_WEAPONMASTERY))
 				p_ptr->weapon_info[default_hand].to_dd += o_ptr->pval;
 		}
 	}
@@ -5408,7 +5408,13 @@ void calc_bonuses(void)
 			switch (p_ptr->pclass)
 			{
 				case CLASS_WARRIOR:
-					num = 6; wgt = 70; mul = 5; break;
+					num = 6; wgt = 70; mul = 5; 
+					if (p_ptr->lev >= 40) 
+					{
+						mul = 6;
+						num++;
+					}
+					break;
 
 				case CLASS_MAULER:
 					num = 3; wgt = 280; mul = 3; break;
@@ -5430,6 +5436,7 @@ void calc_bonuses(void)
 					num = 3; wgt = 70; mul = 2; 
 					if (p_ptr->psubclass == PACT_DRAGON) 
 					{
+						mul = 4;
 						if (p_ptr->lev >= 35) num = 5;
 						else num = 4;
 					}
@@ -5559,8 +5566,7 @@ void calc_bonuses(void)
 			if (p_ptr->tim_speed_essentia)
 				p_ptr->weapon_info[i].num_blow += 2;
 			
-			if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->weapon_info[i].num_blow += (p_ptr->lev / 40);
-			else if (p_ptr->pclass == CLASS_BERSERKER)
+			if (p_ptr->pclass == CLASS_BERSERKER)
 			{
 				p_ptr->weapon_info[i].num_blow += (p_ptr->lev / 23);
 			}
