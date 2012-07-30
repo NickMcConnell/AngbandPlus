@@ -967,6 +967,32 @@ void resist_elements_spell(int cmd, variant *res)
 }
 bool cast_resist_elements(void) { return cast_spell(resist_elements_spell); }
 
+void resist_environment_spell(int cmd, variant *res)
+{
+	int base = spell_power(20);
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Resist Environment", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Gives resistance to fire, cold and electricity for a while. These resistances can be added to which from equipment for more powerful resistances.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(base, base));
+		break;
+	case SPELL_CAST:
+		set_oppose_cold(randint1(base) + base, FALSE);
+		set_oppose_fire(randint1(base) + base, FALSE);
+		set_oppose_elec(randint1(base) + base, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void resist_heat_cold_spell(int cmd, variant *res)
 {
 	int base = spell_power(20);

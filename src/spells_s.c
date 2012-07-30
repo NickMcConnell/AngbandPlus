@@ -829,6 +829,57 @@ void teleport_level_spell(int cmd, variant *res)
 }
 bool cast_teleport_level(void) { return cast_spell(teleport_level_spell); }
 
+void teleport_to_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Teleport To", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Teleport a visible monster next to you.");
+		break;
+	case SPELL_CAST:
+	{
+		monster_type *m_ptr;
+		monster_race *r_ptr;
+		char m_name[80];
+
+		if (!target_set(TARGET_KILL)) break;
+		if (!cave[target_row][target_col].m_idx) break;
+		if (!player_has_los_bold(target_row, target_col)) break;
+		if (!projectable(py, px, target_row, target_col)) break;
+
+		var_set_bool(res, TRUE);
+
+		m_ptr = &m_list[cave[target_row][target_col].m_idx];
+		r_ptr = &r_info[m_ptr->r_idx];
+		monster_desc(m_name, m_ptr, 0);
+		if (r_ptr->flagsr & RFR_RES_TELE)
+		{
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flagsr & RFR_RES_ALL))
+			{
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+				msg_format("%s is unaffected!", m_name);
+				break;
+			}
+			else if (r_ptr->level > randint1(100))
+			{
+				if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+				msg_format("%s resists!", m_name);
+				break;
+			}
+		}
+		msg_format("You command %s to return.", m_name);
+		teleport_monster_to(cave[target_row][target_col].m_idx, py, px, 100, TELEPORT_PASSIVE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void throw_boulder_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -855,6 +906,31 @@ void throw_boulder_spell(int cmd, variant *res)
 		var_set_bool(res, TRUE);
 		break;
 	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+void touch_of_confusion_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Touch of Confusion", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Attempts to confuse the next monster that you hit.", ""));
+		break;
+	case SPELL_CAST:
+		if (!(p_ptr->special_attack & ATTACK_CONFUSE))
+		{
+			msg_print("Your hands start glowing.");
+			p_ptr->special_attack |= ATTACK_CONFUSE;
+			p_ptr->redraw |= (PR_STATUS);
+		}
+		var_set_bool(res, TRUE);
+		break;
 	default:
 		default_spell(cmd, res);
 		break;

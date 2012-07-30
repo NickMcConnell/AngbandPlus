@@ -3686,9 +3686,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			{
 				case SV_AMULET_SPELL_POWER:
 				{
-					int pv = m_bonus(3, level);
-					while (one_in_(30)) pv++;
-					if (pv == 0) pv = 1;
+					int pv = 1 + m_bonus(4, level);
 					o_ptr->pval = -pv;
 					return; /* No ego or artifacts, please!*/
 				}
@@ -3696,7 +3694,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_AMULET_SPELL_CAP:
 				{
 					/* Stat bonus */
-					o_ptr->pval = 1 + m_bonus(3, level);
+					o_ptr->pval = 1 + m_bonus(4, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -4710,7 +4708,9 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 			{
 				if ((o_ptr->name2 == EGO_HA) && (have_flag(o_ptr->art_flags, TR_BLOWS)))
 				{
-					o_ptr->pval++;
+					o_ptr->pval = 1;
+					if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA))
+						o_ptr->pval++;
 					if ((lev > 60) && one_in_(3) && ((o_ptr->dd*(o_ptr->ds+1)) < 15)) o_ptr->pval++;
 				}
 				else if (o_ptr->name2 == EGO_ATTACKS)

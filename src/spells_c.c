@@ -363,7 +363,7 @@ void cure_wounds_III_spell(int cmd, variant *res)
 		var_set_string(res, T("Heals cut, stun and HP greatly.", "体力を大幅に回復させ、負傷と朦朧状態も全快する。"));
 		break;
 	case SPELL_INFO:
-		var_set_string(res, info_damage(8, spell_power(10), 0));
+		var_set_string(res, info_heal(8, spell_power(10), 0));
 		break;
 	case SPELL_CAST:
 		hp_player(spell_power(damroll(8, 10)));

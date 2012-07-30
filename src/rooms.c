@@ -32,7 +32,7 @@
  * appear above their minimum depth.  Tiny levels will not have space
  * for all the rooms you ask for.
 
- * CTK: I've heavily hacked this ... OVERLAP, INNER_F, FRACAVE and CRYPT rooms
+ * CTK: I've heavily hacked this ... OVERLAP, FRACAVE and CRYPT rooms
  *      no longer spawn. I've toned down room sizes as well.
  */
 static room_info_type room_info_normal[ROOM_T_MAX] =
@@ -1067,7 +1067,7 @@ static bool build_type4(void)
 	bool        light;
 	cave_type   *c_ptr;
 
-return build_type1();
+/*return build_type1();*/
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
 	if (!find_space(&yval, &xval, 11, 25)) return FALSE;
@@ -1432,11 +1432,12 @@ static bool vault_aux_jelly(int r_idx)
 
 	/* Validate the monster */
 	if (!vault_monster_okay(r_idx)) return (FALSE);
+	if (r_idx == MON_CAAWS || r_idx == MON_SHOGGOTH) return TRUE;
 
 	if ((r_ptr->flags2 & RF2_KILL_BODY) && !(r_ptr->flags1 & RF1_NEVER_BLOW)) return (FALSE);
 
 	/* Also decline evil jellies (like death molds and shoggoths) */
-	if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);
+	/*if (r_ptr->flags3 & (RF3_EVIL)) return (FALSE);*/
 
 	/* Require icky thing, jelly, mold, or mushroom */
 	if (!my_strchr("ijm,", r_ptr->d_char)) return (FALSE);

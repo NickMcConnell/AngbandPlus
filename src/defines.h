@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 107
+#define FAKE_VER_PATCH 108
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 107
+#define H_VER_PATCH 108
 #define H_VER_EXTRA 0
 
 
@@ -5092,6 +5092,7 @@ extern int PlayerUID;
 #define MON_IRON_LICH     666
 #define MON_JACK_SHADOWS  670
 #define MON_LLOIGOR       682
+#define MON_SHOGGOTH      685
 #define MON_DREADMASTER   690
 #define MON_DAWN          693
 #define MON_NAZGUL        696

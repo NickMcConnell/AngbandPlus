@@ -22164,6 +22164,31 @@ F:NO_STUN | NO_CONF | NO_FEAR | NO_SLEEP | POWERFUL
 S:1_IN_2 | 
 S:HEAL | BLINK | S_UNIQUE | S_KIN | TPORT
 
+N:1108:TRANSLATE
+E:Orc digger
+G:o:s
+I:110:20d9:20:32:30
+W:19:1:50:50:0:0
+B:HIT:HURT:1d11
+B:HIT:HURT:1d11
+F:MALE | 
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:EVIL | ORC | HURT_LITE | RES_DARK | KILL_WALL | MOVE_BODY
+D:$He is a hardy orc with a pick in hand.
+
+N:1109:TRANSLATE
+E:Exploding ant
+G:a:s
+I:115:20d10:14:49:40
+W:36:1:90:350:0:0
+B:EXPLODE:ACID:30d5
+F:FORCE_MAXHP | FRIENDS | DROP_CORPSE
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_ACID
+D:$A giant ant with a greatly enlarged mandibular gland.
+
+
 # N: serial number : monster name
 # G: symbol : color
 # I: speed : hit points : vision : armor class : alertness

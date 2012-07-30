@@ -194,7 +194,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 	/* CL13: Good Utility */
 	{
 		{ A_DEX, "like a Berserker", {10, 10, 50, recall_spell}},
-		{ A_INT, "like a Hobbit", {13, 10, 50, create_food_spell}},
+		{ A_INT, "like a Tengu", {13, 10, 50, teleport_to_spell}},
 		{ A_CHR, "like an Ent", {10, 20, 50, summon_tree_spell}},
 		{ A_INT, "like a Sprite", {7, 12, 50, sleeping_dust_spell}},
 		{ A_CON, "like a Mutant", {7, 12, 40, eat_rock_spell}},
@@ -240,6 +240,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_WIS, "like a Force-Trainer", {15, 0, 30, clear_mind_spell}},
 		{ A_CHR, "like a Warlock", {20, 20, 50, remove_curse_I_spell}},
 		{ A_WIS, "like a Priest", {20, 15, 50, cure_wounds_III_spell}},
+		{ A_WIS, "like a Ranger", {8, 7, 50, resist_environment_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL25: Good Offense */
@@ -248,6 +249,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_DEX, "like a Klackon", {9, 9, 40, spit_acid_spell}},
 		{ A_CON, "like a Balrog", {15, 10, 50, demon_breath_spell}},
 		{ A_WIS, "like a Blue-Mage", {20, 10,  40, brain_smash_spell}},
+		{ A_INT, "like a Chaos Warrior", {5, 4, 30, touch_of_confusion_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL27: Good Utility */
@@ -314,7 +316,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 	/* CL41: Great Offense */
 	{
 		{ A_STR, "like an Android", {40, 40, 70, android_rocket_spell}},
-		{ A_WIS, "like an Mindcrafter", {40, 40, 70, psycho_spear_spell}},
+		{ A_WIS, "like a Mindcrafter", {40, 40, 70, psycho_spear_spell}},
 		{ A_CON, "like The Destroyer", {40, 40, 70, breathe_disintegration_spell}},
 		{ A_CHR, "like an Eye Druj", {40, 35, 50, mana_bolt_II_spell}},
 		{ A_INT, "like Habu, The Champion of Chaos", {40, 40, 65, mana_storm_I_spell}},
@@ -324,7 +326,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 	{
 		{ A_WIS, "like an Amberite", {40, 75, 75, pattern_mindwalk_spell}},
 		{ A_CHR, "like a Warlock", {35, 70, 60, destruction_spell}},
-		{ A_CHR, "like a Warlock", {40, 20, 65, dimension_door_spell}},
+		{ A_CHR, "like a Warlock", {40, 50, 65, dimension_door_spell}},
 		{ A_WIS, "like a Life Priest", {35, 70, 90, clairvoyance_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
@@ -334,6 +336,7 @@ static talent_t _talents[_MAX_TALENTS][_MAX_TALENTS_PER_GROUP] =
 		{ A_WIS, "like an Evil Priest", {40, 40, 60, evocation_spell}},
 		{ A_STR, "like a Berserker", {40, 50, 80, massacre_spell}},
 		{ A_DEX, "like a Ninja", {40, 50, 80, hide_in_mud_spell}},
+		{ A_WIS, "like a Crusade Paladin", {44, 50, 80, eye_for_an_eye_spell}},
 		{ -1, NULL, {0, 0, 0, NULL}},
 	},
 	/* CL47: General Awesomeness */

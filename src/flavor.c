@@ -1487,7 +1487,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			else            basenm = "& # Ring~";
 #endif
 
-			if (!k_ptr->to_h && !k_ptr->to_d && (o_ptr->to_h || o_ptr->to_d)) show_weapon = TRUE;
+			if (!k_ptr->to_h && !k_ptr->to_d && (o_ptr->to_h || o_ptr->to_d)) 
+				show_weapon = TRUE;
 
 			break;
 		}

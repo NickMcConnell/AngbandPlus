@@ -1583,7 +1583,10 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		}
 
 		if (retaliation_hack)
-			msg_format("%^s retaliates!", m_name);
+		{
+			if (m_ptr->ml)
+				msg_format("%^s retaliates!", m_name);
+		}
 
 		/* Extract the attack "power" */
 		power = mbe_info[effect].power;
