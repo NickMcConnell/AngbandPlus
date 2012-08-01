@@ -4820,7 +4820,7 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 	/* Necromancer */
 	{
 		"Stenchseeker",
-		"Maledicter",
+		"Maledictor",
 		"Darkcaster",
 		"Blackmagicker",
 		"Deathling",

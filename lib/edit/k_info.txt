@@ -2358,7 +2358,7 @@ D:それは読むと地上にいる時は行ったことのあるダンジョンの最深階へ、
 D:ダンジョンにいる時は地上へと移動する。
 
 N:221:*破壊*:魎故 刀 命 直
-E:*Destruction*:denmung ishbul
+E:Destruction:denmung ishbul
 G:?:w
 I:70:41:0
 W:40:0:0:5:250
@@ -3272,7 +3272,7 @@ D:$It lights up nearby area or the current room permanently when you use it.
 D:それは使うと自分の周囲もしくは部屋全体を永久に照らす。
 
 N:307:*破壊*:ミズキの
-E:*Destruction*:Dogwood
+E:Destruction:Dogwood
 G:_:U
 I:55:29:5
 W:50:0:0:50:2500

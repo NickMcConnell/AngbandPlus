@@ -12,6 +12,31 @@
 
 #include "angband.h"
 
+bool _sort_comp_eater(vptr u, vptr v, int a, int b)
+{
+	/* char s[EATER_EXT][MAX_NLEN];*/
+	char* ss = (char*)u;
+	char* sa = ss + MAX_NLEN*a;
+	char* sb = ss + MAX_NLEN*b;
+	int   c = strcmp(sa, sb);
+
+	if (c > 0) return FALSE;
+	return TRUE;
+}
+
+void _sort_swap_eater(vptr u, vptr v, int a, int b)
+{
+	char tmp[MAX_NLEN];
+	/* char s[EATER_EXT][MAX_NLEN];*/
+	char* ss = (char*)u;
+	char* sa = ss + MAX_NLEN*a;
+	char* sb = ss + MAX_NLEN*b;
+
+	strcpy(tmp, sa);
+	strcpy(sa, sb);
+	strcpy(sb, tmp);
+}
+
 
 /*
  * You may or may not want to use the following "#undef".
@@ -4585,21 +4610,32 @@ static void dump_aux_class_special(FILE *fff)
 
 				k_idx = lookup_kind(tval, i);
 				if (!k_idx) continue;
-				sprintf(s[eat_num], "%23s (%2d)", (k_name + k_info[k_idx].name), magic_num);
+				sprintf(s[eat_num], "%-23s (%2d)", (k_name + k_info[k_idx].name), magic_num);
 				eat_num++;
 			}
 
 			/* Dump magic devices in this extent */
 			if (eat_num > 0)
 			{
-				for (i = 0; i < eat_num; i++)
+				int split = (eat_num + 1) / 2;
+
+				if (split < 10)
+					split = eat_num;
+
+				ang_sort_comp = _sort_comp_eater;
+				ang_sort_swap = _sort_swap_eater;
+				ang_sort(s, NULL, eat_num);
+				
+				for (i = 0; i < split; i++)
 				{
 					fputs(s[i], fff);
-					if (i % 3 < 2) fputs("    ", fff);
-					else fputs("\n", fff);
+					if (i + split < eat_num)
+					{
+						fputs("    ", fff);
+						fputs(s[i + split], fff);
+					}
+					fputs("\n", fff);
 				}
-
-				if (i % 3 > 0) fputs("\n", fff);
 			}
 			else /* Not found */
 			{
