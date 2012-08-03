@@ -2162,7 +2162,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 				    && (is_falcon_sword || !have_flag(o_ptr->art_flags, TR_BLOWS))
 					&& randint1(225) < lev)
 				{
-					int odds = o_ptr->dd * o_ptr->ds / 5;
+					int odds = o_ptr->dd * o_ptr->ds / 2;
 					if (odds < 3) odds = 3;
 					if (a_cursed && !one_in_(13)) break;
 					/* spiked code from EGO_SLAYING_WEAPON */

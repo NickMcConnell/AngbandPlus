@@ -1272,9 +1272,9 @@ D:装備するものは何故か毒の影響を受けない。
 #JZ#
 N:70:女魔術師フィオナの
 E:of Fiona
-I:23:4:2
+I:23:4:1
 W:10:40:12:50000
-P:0:2d4:6:9:0
+P:0:3d4:6:9:0
 F:DEX | HIDE_TYPE | SPEED | BLOWS | BRAND_COLD | RES_COLD |
 F:SEE_INVIS | SLOW_DIGEST | REGEN |
 F:ACTIVATE | SHOW_MODS | BRAND_POIS | THROW
@@ -2451,9 +2451,9 @@ D:知恵を授け敵を退ける素晴らしい宝石が取りつけられている。
 
 N:133:フーリン王の
 E:of Hurin
-I:22:10:3
+I:22:10:2
 W:30:30:180:120000
-P:0:2d6:10:12:2
+P:0:3d6:10:12:2
 F:CON | BLOWS | HIDE_TYPE | BRAND_ACID | SHOW_MODS
 F:SLAY_TROLL | SLAY_DEMON | ACTIVATE
 D:$"Hurin [...] wielded the axe two-handed, and it is sung that the axe
@@ -2546,9 +2546,9 @@ D:使用する者に災いをもたらす。
 
 N:140:『シルバーチャリオッツ』
 E:'Silver Chariot'
-I:23:7:2
+I:23:7:1
 W:30:15:75:100000
-P:0:2d6:17:12:0
+P:0:3d6:17:12:0
 F:DEX | BLOWS | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_DEMON |
 F:FREE_ACT | SEE_INVIS | SHOW_MODS | RES_DARK | RES_DISEN | SPEED
 
@@ -2904,10 +2904,10 @@ D:重いが武器としても使えない事はない。
 #英語名は適当です。エルリックサーガ８「薔薇の復讐」より。
 N:174:『すばやき刺』
 E:'Quickthorn'
-I:23:7:3
+I:23:7:2
 W:30:15:55:75000
 P:0:1d7:27:9:0
-F:DEX | BLOWS | SLAY_DEMON | RIDING
+F:DEX | BLOWS | SLAY_DEMON | RIDING | SPEED
 F:FREE_ACT | SEE_INVIS | SHOW_MODS | RES_CHAOS | RES_DISEN |
 D:復讐のため、三姉妹を探して時間流を旅する＜薔薇＞と呼ばれる女性の剣だ。
 D:恐るべき速度と狙いをはずさぬ正確さを秘めている。
@@ -2962,7 +2962,7 @@ D:を打ち払う。
 
 N:179:『エクスカリバー・ジュニア』
 E:'Excalibur Jr.'
-I:23:8:2
+I:23:8:1
 W:35:15:80:60000
 P:0:2d6:3:5:0
 F:BLOWS
@@ -3117,11 +3117,11 @@ D:このムチの音はどんな猛獣でも震え上がらせることができる。
 
 N:189:破壊の
 E:of Destruction
-I:23:33:3
+I:23:33:2
 W:70:8:30:100000
 P:0:3d6:-25:25:0
 F:STR | DEX | BLOWS | CHAOTIC | CURSED | HEAVY_CURSE | TY_CURSE | AGGRAVATE
-F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | BRAND_ACID | BRAND_POIS
+F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | BRAND_ACID | BRAND_POIS | SPEED
 D:強力な破壊力をほこる「はかいのつるぎ」と素早く攻撃を繰りだす
 D:「はやぶさのけん」を合わせた武器だ。この剣を使えば破壊神シドーを倒すことなど
 D:赤子の手を捻るようなものだ。
@@ -3867,9 +3867,9 @@ D:$your foes.
 
 N:253:TRANSLATE
 E:of Rygar
-I:21:12:2
+I:21:12:1
 W:50:50:150:150000
-P:0:2d9:12:20:5
+P:0:3d9:12:20:5
 F:STR | DEX | BLOWS | HIDE_TYPE | SLAY_HUMAN |
 F:SLAY_ANIMAL | SLAY_EVIL | SLAY_DRAGON | RES_FEAR | SEE_INVIS |
 F:FREE_ACT | SHOW_MODS | 
@@ -3889,9 +3889,9 @@ D:$his people from a fearsome demon.
 
 N:255:TRANSLATE
 E:Monkey King's Cudgel
-I:21:14:2
+I:21:14:1
 W:40:45:160:300000
-P:0:2d8:20:25:15
+P:0:2d11:20:25:15
 F:ACTIVATE | SLAY_ANIMAL | SLAY_DEMON | SLAY_UNDEAD |
 F:FREE_ACT | RES_SOUND | HOLD_LIFE | SUST_STR | SUST_DEX |
 F:BLOWS | SPEED | STR | DEX | CON | WIS
@@ -3980,7 +3980,7 @@ I:21:19:1
 W:90:127:300:555555
 P:0:5d6:0:0:0
 F:STR | DEX | CON | INT | WIS | CHR |
-F:SPEED | BLOWS | KILL_EVIL | KILL_DRAGON | KILL_UNDEAD | 
+F:SPEED | KILL_EVIL | KILL_DRAGON | KILL_UNDEAD | 
 F:KILL_DEMON | SLAY_HUMAN | SLAY_ANIMAL | SLAY_ORC | SLAY_TROLL | 
 F:SLAY_GIANT | BRAND_ACID | BRAND_COLD | BRAND_FIRE | BRAND_ELEC |
 F:VAMPIRIC | PERMA_CURSE | ACTIVATE | QUESTITEM
@@ -4131,7 +4131,7 @@ F:BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_ACID | TY_CURSE | AGGRAVATE
 
 N:281:TRANSLATE
 E:of Ancalagon
-I:23:35:2
+I:23:35:1
 W:60:50:20:100000
 P:0:3d8:16:16:0
 F:STR | DEX | BLOWS | BRAND_ACID | IM_ACID

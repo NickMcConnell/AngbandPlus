@@ -1524,7 +1524,7 @@ bool brand_weapon_aux(int ego_type, int item)
 		{
 		case EGO_SLAYING_WEAPON:
 		{
-			int odds = o_ptr->dd * o_ptr->ds / 5;
+			int odds = o_ptr->dd * o_ptr->ds / 2;
 			if (odds < 3) odds = 3;
 			if (one_in_(odds)) /* double damage */
 				o_ptr->dd *= 2;

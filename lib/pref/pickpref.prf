@@ -29,7 +29,7 @@ wizard cloak
 rod of healing
 staff of healing
 staff of speed
-staff of *destruction*#!u!s!d!k
+staff of destruction#!u!s!d!k
 
 diamond edge
 rune sword
@@ -107,6 +107,7 @@ collecting scroll
 collecting staff
 collecting wand
 (collecting items
+acquirement#!*
 
 #
 # Pick up important magical potions.
@@ -117,7 +118,8 @@ potion of wisdom#!k
 potion of dexterity#!k
 potion of constitution#!k
 potion of intelligence#!k
-potion of Charisma#!k
+potion of charisma#!k
+potion of augmentation#!k
 potion of life#!k!q
 potion of *healing*#!k!q
 potion of healing#!k!q
@@ -130,7 +132,7 @@ potion of speed#!k!q
 #
 ?:[NOT [EQU $CLASS Berserker]]
 scroll of artifact creation#!*
-scroll of *destruction*#!*
+scroll of destruction#!*
 scroll of mass genocide#!*
 scroll of genocide#!*
 ?:1
@@ -160,8 +162,8 @@ magical devices:wand
 Iron Spike#@v0
 
 # Define a macro to throw Iron Spikes on pressing the TAB key.
-A:\s\s\s\s\\v0*t
-P:\t
+#A:\s\s\s\s\\v0*t
+#P:\t
 ?:1
 
 #

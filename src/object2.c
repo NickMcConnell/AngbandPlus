@@ -2380,10 +2380,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->curse_flags |= TRC_CURSED;
 	}
 
-	/* Allow ego/artifact diamond edges :)
-	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return;
-	*/
-
+	/* Allow ego/artifact diamond edges :) */
+	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE) && !one_in_(7)) return;
+	
 	/* Analyze type */
 	switch (o_ptr->tval)
 	{
@@ -2487,7 +2486,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 				case EGO_SLAYING_WEAPON:
 				{
-					int odds = o_ptr->dd * o_ptr->ds / 5;
+					int odds = o_ptr->dd * o_ptr->ds / 2;
 					if (odds < 3) odds = 3;
 					if (one_in_(odds)) /* double damage */
 					{
@@ -4717,8 +4716,9 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 				{
 					o_ptr->pval = randint1(e_ptr->max_pval*lev/100+1);
 					if (o_ptr->pval > 3) o_ptr->pval = 3;
+					if (o_ptr->pval == 3 && !one_in_(o_ptr->dd * o_ptr->ds / 2)) o_ptr->pval = 2;
 					if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA))
-						o_ptr->pval += randint1(2);
+						o_ptr->pval += 1;
 				}
 				else if (o_ptr->name2 == EGO_BAT)
 				{
