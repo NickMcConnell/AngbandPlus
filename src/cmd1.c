@@ -272,7 +272,7 @@ static void death_scythe_miss(object_type *o_ptr, int hand, int mode)
 			else if (mut_present(MUT_WEIRD_MIND))
 			{
 			}
-			else if (mult < 30) mult = 30;
+			else if (mult < 20) mult = 20;
 		}
 
 		if ((have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) && (p_ptr->csp > (p_ptr->msp / 30)))
@@ -561,6 +561,80 @@ s16b critical_norm(int weight, int plus, int dam, s16b meichuu, int mode)
  * Slay Evil (x2), and Kill dragon (x5).
  */
 
+s16b tot_dam_aux_monk(int tdam, monster_type *m_ptr)
+{
+	int mult = 10;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	const int monk_elem_slay = 17;
+
+	if ( p_ptr->weapon_info[0].brand_acid
+		|| (p_ptr->special_attack & ATTACK_ACID) )
+	{
+		if (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK)
+		{
+			if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ACID_MASK);
+		}
+		else
+		{
+			if (mult < monk_elem_slay) mult = monk_elem_slay;
+		}
+	}
+
+	if ( p_ptr->weapon_info[0].brand_elec
+		|| (p_ptr->special_attack & ATTACK_ELEC) )
+	{
+		if (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK)
+		{
+			if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK);
+		}
+		else
+		{
+			if (mult < monk_elem_slay) mult = monk_elem_slay;
+		}
+	}
+
+	if ( p_ptr->weapon_info[0].brand_fire
+		|| (p_ptr->special_attack & ATTACK_FIRE) )
+	{
+		if (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK)
+		{
+			if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK);
+		}
+		else
+		{
+			if (mult < monk_elem_slay) mult = monk_elem_slay;
+		}
+	}
+
+	if ( p_ptr->weapon_info[0].brand_cold
+		|| (p_ptr->special_attack & ATTACK_COLD) )
+	{
+		if (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK)
+		{
+			if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_COLD_MASK);
+		}
+		else
+		{
+			if (mult < monk_elem_slay) mult = monk_elem_slay;
+		}
+	}
+
+	if ( p_ptr->weapon_info[0].brand_pois
+		|| (p_ptr->special_attack & ATTACK_POIS) )
+	{
+		if (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK)
+		{
+			if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= (r_ptr->flagsr & RFR_EFF_IM_POIS_MASK);
+		}
+		else
+		{
+			if (mult < monk_elem_slay) mult = monk_elem_slay;
+		}
+	}
+
+	return (tdam * mult / 10);
+}
+
 #define _MAX_CHAOS_SLAYS 14
 
 int _chaos_slays[_MAX_CHAOS_SLAYS] = {
@@ -612,9 +686,6 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			/* Blood Seeking should slay all living monsters.  Originally, I just
-			   amalgamated SLAY_ANIMAL, SLAY_ORC, SLAY_TROLL, etc, but there are
-			   plenty of living monsters that aren't effected by any existing slay.*/
 			if (p_ptr->tim_blood_seek && monster_living(r_ptr))
 			{
 				if (mult < 20) mult = 20;
@@ -1211,6 +1282,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 
 			/* Brand (Poison) */
 			if ( have_flag(flgs, TR_BRAND_POIS) 
+			  || p_ptr->weapon_info[hand].brand_pois
 			  || ((p_ptr->special_attack & ATTACK_POIS) && !thrown) 
 			  || mode == HISSATSU_POISON
 			  || chaos_slay == TR_BRAND_POIS )
@@ -1222,7 +1294,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 				else if (chaos_slay == TR_BRAND_POIS)
 				{
 					msg_format("%s is covered in poison.", o_name);
-					if (have_flag(flgs, TR_BRAND_POIS))
+					if (have_flag(flgs, TR_BRAND_POIS) || p_ptr->weapon_info[hand].brand_pois)
 					{
 						if (mode == HISSATSU_POISON)
 						{
@@ -1255,7 +1327,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 				}
 				else
 				{
-					if (have_flag(flgs, TR_BRAND_POIS))
+					if (have_flag(flgs, TR_BRAND_POIS) || p_ptr->weapon_info[hand].brand_pois)
 					{
 						if (mode == HISSATSU_POISON)
 						{
@@ -1325,7 +1397,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 				}
 				else
 				{
-					if (mult < 30) mult = 30;
+					if (mult < 20) mult = 20;
 				}
 			}
 			if (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force)
@@ -3151,7 +3223,10 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 				if (p_ptr->pclass == CLASS_FORCETRAINER) min_level = MAX(1, ma_ptr->min_level - 3);
 				else min_level = ma_ptr->min_level;
+
 				k = damroll(ma_ptr->dd + p_ptr->weapon_info[hand].to_dd, ma_ptr->ds + p_ptr->weapon_info[hand].to_ds);
+				k = tot_dam_aux_monk(k, m_ptr);
+
 				if (p_ptr->special_attack & ATTACK_SUIKEN) k *= 2;
 
 				if (ma_ptr->effect == MA_KNEE)

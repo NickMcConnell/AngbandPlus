@@ -6698,6 +6698,10 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		damage -= sp;
 		damage = MAX(0, damage);
 	}
+
+	if (p_ptr->wizard && damage > 10)
+		msg_format("You take %d damage.", damage);
+
 	p_ptr->chp -= damage;
 	if(damage_type == DAMAGE_GENO && p_ptr->chp < 0)
 	{
@@ -7485,16 +7489,6 @@ bool choose_ele_attack(void)
 	int num;
 
 	char choice;
-
-	if (!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
-	{
-#ifdef JP
-		msg_format("武器を持たないと魔法剣は使えない。");
-#else
-		msg_format("You cannot use temporary branding with no weapon.");
-#endif
-		return FALSE;
-	}
 
 	/* Save screen */
 	screen_save();

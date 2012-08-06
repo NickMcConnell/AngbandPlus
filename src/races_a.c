@@ -1004,7 +1004,7 @@ static void _draconian_calc_bonuses(void)
 	if (p_ptr->lev >= 10) p_ptr->resist_cold = TRUE;
 	if (p_ptr->lev >= 15) p_ptr->resist_acid = TRUE;
 	if (p_ptr->lev >= 20) p_ptr->resist_elec = TRUE;
-	if (p_ptr->lev >= 35) p_ptr->resist_pois = TRUE;
+	if (p_ptr->lev >= 30) p_ptr->resist_pois = TRUE;
 }
 static void _draconian_get_flags(u32b flgs[TR_FLAG_SIZE])
 {
@@ -1017,7 +1017,7 @@ static void _draconian_get_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_RES_ACID);
 	if (p_ptr->lev >= 20)
 		add_flag(flgs, TR_RES_ELEC);
-	if (p_ptr->lev >= 35)
+	if (p_ptr->lev >= 30)
 		add_flag(flgs, TR_RES_POIS);
 }
 static void _draconian_spoiler_dump(FILE *fff)
@@ -1029,7 +1029,7 @@ static void _draconian_spoiler_dump(FILE *fff)
 	fprintf(fff, "  * Resist Cold at L10\n");
 	fprintf(fff, "  * Resist Acid at L15\n");
 	fprintf(fff, "  * Resist Electricity at L20\n");
-	fprintf(fff, "  * Resist Poison at L35\n");
+	fprintf(fff, "  * Resist Poison at L30\n");
 }
 race_t *draconian_get_race_t(void)
 {

@@ -3609,6 +3609,7 @@ void calc_bonuses(void)
 		p_ptr->weapon_info[i].brand_fire = FALSE;
 		p_ptr->weapon_info[i].brand_cold = FALSE;
 		p_ptr->weapon_info[i].brand_elec = FALSE;
+		p_ptr->weapon_info[i].brand_pois = FALSE;
 
 		p_ptr->weapon_info[i].num_blow = 1;
 	}
@@ -4241,6 +4242,7 @@ void calc_bonuses(void)
 			if (have_flag(flgs, TR_BRAND_COLD))   p_ptr->weapon_info[0].brand_cold = TRUE;
 			if (have_flag(flgs, TR_BRAND_ELEC))   p_ptr->weapon_info[0].brand_elec = TRUE;
 			if (have_flag(flgs, TR_BRAND_ACID))   p_ptr->weapon_info[0].brand_acid = TRUE;
+			if (have_flag(flgs, TR_BRAND_POIS))   p_ptr->weapon_info[0].brand_pois = TRUE;
 			break;
 
 		case INVEN_LEFT:
@@ -4248,6 +4250,7 @@ void calc_bonuses(void)
 			if (have_flag(flgs, TR_BRAND_COLD))   p_ptr->weapon_info[1].brand_cold = TRUE;
 			if (have_flag(flgs, TR_BRAND_ELEC))   p_ptr->weapon_info[1].brand_elec = TRUE;
 			if (have_flag(flgs, TR_BRAND_ACID))   p_ptr->weapon_info[1].brand_acid = TRUE;
+			if (have_flag(flgs, TR_BRAND_POIS))   p_ptr->weapon_info[1].brand_pois = TRUE;
 			break;
 
 		case INVEN_HANDS:
@@ -4270,6 +4273,11 @@ void calc_bonuses(void)
 			{
 				p_ptr->weapon_info[0].brand_acid = TRUE;
 				p_ptr->weapon_info[1].brand_acid = TRUE;
+			}
+			if (have_flag(flgs, TR_BRAND_POIS))
+			{
+				p_ptr->weapon_info[0].brand_pois = TRUE;
+				p_ptr->weapon_info[1].brand_pois = TRUE;
 			}
 			break;
 		}
@@ -5527,7 +5535,7 @@ void calc_bonuses(void)
 
 			/* Hex - extra mights gives +1 bonus to max blows */
 			if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING)) { num++; wgt /= 2; mul += 2; }
-			if (p_ptr->tim_building_up) 
+			if (p_ptr->tim_building_up && p_ptr->pclass != CLASS_MAULER) 
 			{ 
 				if (num < 5 && p_ptr->lev >= 30) 
 					num++; 
@@ -5749,12 +5757,18 @@ void calc_bonuses(void)
 		}
 		else
 		{
-			if (blow_base > 12) p_ptr->weapon_info[0].num_blow++;
+			/*if (blow_base > 12) p_ptr->weapon_info[0].num_blow++;
 			if (blow_base > 22) p_ptr->weapon_info[0].num_blow++;
 			if (blow_base > 31) p_ptr->weapon_info[0].num_blow++;
 			if (blow_base > 39) p_ptr->weapon_info[0].num_blow++;
 			if (blow_base > 46) p_ptr->weapon_info[0].num_blow++;
 			if (blow_base > 53) p_ptr->weapon_info[0].num_blow++;
+			if (blow_base > 59) p_ptr->weapon_info[0].num_blow++;*/
+			if (blow_base > 12) p_ptr->weapon_info[0].num_blow++;
+			if (blow_base > 22) p_ptr->weapon_info[0].num_blow++;
+			if (blow_base > 31) p_ptr->weapon_info[0].num_blow++;
+			if (blow_base > 41) p_ptr->weapon_info[0].num_blow++;
+			if (blow_base > 51) p_ptr->weapon_info[0].num_blow++;
 			if (blow_base > 59) p_ptr->weapon_info[0].num_blow++;
 		}
 

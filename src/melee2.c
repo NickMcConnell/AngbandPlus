@@ -1204,38 +1204,44 @@ static bool get_moves(int m_idx, int *mm)
 		{
 			int i;
 
-			/* Find an empty square near the player to fill */
-			for (i = 0; i < 8; i++)
+			if (pack_ptr->leader_idx == m_idx || pack_ptr->count < 5)
 			{
-				/* Pick squares near player (semi-randomly) */
-				y2 = py + ddy_ddd[(m_idx + i) & 7];
-				x2 = px + ddx_ddd[(m_idx + i) & 7];
-
-				/* Already there? */
-				if ((m_ptr->fy == y2) && (m_ptr->fx == x2))
+				/* Skip pack processing and flow normally towards player ... */
+			}
+			else
+			{
+				/* Find an empty square near the player to fill */
+				for (i = 0; i < 8; i++)
 				{
-					/* Attack the player */
-					y2 = py;
-					x2 = px;
+					/* Pick squares near player (semi-randomly) */
+					y2 = py + ddy_ddd[(m_idx + i) & 7];
+					x2 = px + ddx_ddd[(m_idx + i) & 7];
 
+					/* Already there? */
+					if ((m_ptr->fy == y2) && (m_ptr->fx == x2))
+					{
+						/* Attack the player */
+						y2 = py;
+						x2 = px;
+
+						break;
+					}
+
+					if (!in_bounds2(y2, x2)) continue;
+
+					/* Ignore filled grids */
+					if (!monster_can_enter(y2, x2, r_ptr, 0)) continue;
+
+					/* Try to fill this hole */
 					break;
 				}
 
-				if (!in_bounds2(y2, x2)) continue;
+				/* Extract the new "pseudo-direction" */
+				y = m_ptr->fy - y2;
+				x = m_ptr->fx - x2;
 
-				/* Ignore filled grids */
-				if (!monster_can_enter(y2, x2, r_ptr, 0)) continue;
-
-				/* Try to fill this hole */
-				break;
+				done = TRUE;
 			}
-
-			/* Extract the new "pseudo-direction" */
-			y = m_ptr->fy - y2;
-			x = m_ptr->fx - x2;
-
-			/* Done */
-			done = TRUE;
 		}
 	}
 
@@ -3428,6 +3434,37 @@ msg_format("%^s%s", m_name, monmessage);
 			if (!p_ptr->riding_ryoute && !MON_MONFEAR(&m_list[p_ptr->riding])) do_move = FALSE;
 		}
 
+		if (r_ptr->level > 70 && do_move && r_ptr->flags2 & RF2_KILL_WALL)
+		{
+			int dir, x, y;
+			cave_type       *c_ptr;
+			feature_type    *f_ptr;
+			for (dir = 0; dir < 8; dir++)
+			{
+				y = ny + ddy_ddd[dir];
+				x = nx + ddx_ddd[dir];
+
+				if (!in_bounds(y, x)) continue;
+
+				c_ptr = &cave[y][x];
+				f_ptr = &f_info[c_ptr->feat];
+
+				if (have_flag(f_ptr->flags, FF_PERMANENT)) continue;
+
+				cave_alter_feat(y, x, FF_HURT_DISI);
+
+				if (m_ptr->r_idx == MON_GOTHMOG)
+				{
+					if (c_ptr->feat != feat_deep_lava)
+						cave_set_feat(y, x, feat_shallow_lava);
+				}
+			}
+
+			if (m_ptr->r_idx == MON_GOTHMOG)
+				cave_set_feat(ny, nx, feat_deep_lava);
+		}
+
+
 		if (did_kill_wall && do_move)
 		{
 			if (one_in_(GRINDNOISE))
@@ -3445,6 +3482,7 @@ msg_format("%^s%s", m_name, monmessage);
 					msg_print("There is a grinding sound.");
 #endif
 			}
+
 
 			cave_alter_feat(ny, nx, FF_HURT_DISI);
 

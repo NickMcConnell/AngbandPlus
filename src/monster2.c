@@ -395,6 +395,18 @@ static void compact_monsters_aux(int i1, int i2)
 		}
 	}
 
+	{
+		pack_info_t *pack_ptr = pack_info_ptr(i1);
+		if (pack_ptr)
+		{
+			if (pack_ptr->guard_m_idx == i1) /* Assumes pack is guarding one of its members! */
+				pack_ptr->guard_m_idx = i2;
+
+			if (pack_ptr->leader_idx == i1)
+				pack_ptr->leader_idx = i2;
+		}
+	}
+
 	/* Structure copy */
 	COPY(&m_list[i2], &m_list[i1], monster_type);
 

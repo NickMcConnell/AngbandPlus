@@ -952,6 +952,7 @@ struct player_seikaku
 	bool brand_cold;
 	bool brand_elec;
 	bool brand_acid;
+	bool brand_pois;
 } weapon_info_t;
 
 typedef struct player_type player_type;
