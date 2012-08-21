@@ -2898,9 +2898,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 	object_desc(o_name, o_ptr, OD_NAME_ONLY);
 
-	if (p_ptr->wizard)
-		msg_format("Attacking with %s", o_name);
-
 	if (p_ptr->painted_target)
 	{
 		p_ptr->painted_target_idx = 0;
@@ -3205,15 +3202,6 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					    !p_ptr->stun && !p_ptr->confused)
 					{
 						old_ptr = ma_ptr;
-
-						if (p_ptr->wizard && cheat_xtra)
-						{
-#ifdef JP
-							msg_print("攻撃を再選択しました。");
-#else
-							msg_print("Attack re-selected.");
-#endif
-						}
 					}
 					else
 					{

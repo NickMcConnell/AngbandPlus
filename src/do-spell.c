@@ -3323,21 +3323,19 @@ static cptr do_nature_spell(int spell, int mode)
 		break;
 
 	case 30:
-#ifdef JP
-		if (name) return "ÀºÎî¤Î¿Ï";
-		if (desc) return "Éð´ï¤Ë±ê¤«Îäµ¤¤ÎÂ°À­¤ò¤Ä¤±¤ë¡£";
-#else
-		if (name) return "Elemental Branding";
-		if (desc) return "Makes current weapon fire or frost branded.";
-#endif
+		if (name) return "Ice Bolt";
+		if (desc) return "Fires a bolt of ice.";
     
 		{
+			int dice = 5 + 15*plev/50;
+			int sides = 15;
+
+			if (info) return info_damage(spell_power(dice), sides, 0);
+
 			if (cast)
 			{
-				if (one_in_(2))
-					brand_weapon(EGO_BRAND_COLD);
-				else
-					brand_weapon(EGO_BRAND_FIRE);
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt(GF_ICE, dir, spell_power(damroll(dice, sides)));
 			}
 		}
 		break;

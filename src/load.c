@@ -2626,9 +2626,26 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 					/* Load quest monster index */
 					rd_s16b(&quest[i].r_idx);
 
-					if ((quest[i].type == QUEST_TYPE_RANDOM) && (!quest[i].r_idx))
+					if (quest[i].type == QUEST_TYPE_RANDOM)
 					{
-						determine_random_questor(&quest[i]);
+						if (!quest[i].r_idx || quest[i].r_idx == MON_NAZGUL)
+						{
+							quest_type      *q_ptr = &quest[i];
+							monster_race    *quest_r_ptr;
+							
+							determine_random_questor(q_ptr);
+							quest_r_ptr = &r_info[q_ptr->r_idx];
+							
+							if (quest_r_ptr->flags1 & RF1_UNIQUE)
+							{
+								quest_r_ptr->flags1 |= RF1_QUESTOR;
+								q_ptr->max_num = 1;
+							}
+							else
+							{
+								q_ptr->max_num = randint1(20) + 5;
+							}
+						}
 					}
 
 					/* Load quest item index */

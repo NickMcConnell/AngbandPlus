@@ -296,7 +296,7 @@ static void _empowered_spell(int cmd, variant *res)
 		break;
 	case SPELL_INFO:
 		var_set_string(res, 
-			format("dam %dd%d*1.5 (rng %d)", 
+			format("dam %dd%d*1.75 (rng %d)", 
 			       _warlock_dice(), 
 			       spell_power(_warlock_sides()), 
 					_warlock_range()));
@@ -312,7 +312,7 @@ static void _empowered_spell(int cmd, variant *res)
 		
 		fire_ball(GF_ELDRITCH, 
 		          dir, 
-				  spell_power(damroll(_warlock_dice(), _warlock_sides())*3/2), 
+				  spell_power(damroll(_warlock_dice(), _warlock_sides())*7/4), 
 				  0);
 		set_tim_no_spells(p_ptr->tim_no_spells + 1 + 1, FALSE);
 		var_set_bool(res, TRUE);

@@ -1603,7 +1603,8 @@ why = "モンスターが多すぎる";
 #ifdef JP
 if (why) msg_format("生成やり直し(%s)", why);
 #else
-		if (why) msg_format("Generation restarted (%s)", why);
+		if (why) 
+			msg_format("Generation restarted (%s)", why);
 #endif
 
 

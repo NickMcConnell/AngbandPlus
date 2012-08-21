@@ -3848,7 +3848,8 @@ static bool mon_hook_quest_nonunique(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	if (r_ptr->flags1 & RF1_UNIQUE) return FALSE;
-	if (r_ptr->flags1 & RF7_UNIQUE2) return FALSE;
+	if (r_ptr->flags7 & RF7_UNIQUE2) return FALSE;
+	if (r_ptr->flags7 & RF7_NAZGUL) return FALSE;
 
 	return TRUE;
 }
@@ -4362,7 +4363,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Scout */
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
+		{ TV_BOW, SV_LIGHT_XBOW },
 	},
 
 	{
