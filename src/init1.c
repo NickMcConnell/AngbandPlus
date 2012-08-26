@@ -12,7 +12,6 @@
 
 #include "angband.h"
 
-
 /*
  * This file is used to initialize various variables and arrays for the
  * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
@@ -2989,7 +2988,6 @@ errr parse_d_info(char *buf, header *head)
 
 	/* Current entry */
 	static dungeon_info_type *d_ptr = NULL;
-
 
 	/* Process 'N' for "New/Number/Name" */
 	if (buf[0] == 'N')

@@ -55,110 +55,21 @@ F:b:BUILDING_1:3:0:0:0:0:NONE:20
 ?:[EQU $QUEST20 2]
 F:b:BUILDING_1:3:0:0:0:0:NONE:20
 
-# Quest 20 rewarding, reward is a Rod of Detection, continue with quest 34
+# Quest 20 rewarding, reward is a Rod of Detection, continue with quest 24
 ?:[EQU $QUEST20 3]
-F:b:BUILDING_1:3:0:0:0:0:NONE:34
+F:b:BUILDING_1:3:0:0:0:0:NONE:24
 F:~:FLOOR:3:0:375
 
-# Quest 20 finished, continue with quest 34
+# Quest 20 finished, continue with quest 24
 ?:[EQU $QUEST20 4]
-F:b:BUILDING_1:3:0:0:0:0:NONE:34
+F:b:BUILDING_1:3:0:0:0:0:NONE:24
 
 # Quest 20 failed
 ?:[EQU $QUEST20 5]
 F:b:BUILDING_1:3:0:0:0:0:NONE:20
 
-# Quest 20 failed but done, continue with quest 34
+# Quest 20 failed but done, continue with quest 24
 ?:[EQU $QUEST20 6]
-F:b:BUILDING_1:3:0:0:0:0:NONE:34
-
-?:1
-
-############### Quest 34 - The Lonely Mountain ###############
-# Quest 34 untaken
-#?:[EQU $QUEST34 0]
-#F:b:BUILDING_1:3:0:0:0:0:NONE:34
-
-# Quest 34 assigned, entrance is quest entrance
-?:[EQU $QUEST34 1]
-F:y:QUEST_ENTER:3:0:0:0:0:NONE:34
-F:b:BUILDING_1:3:0:0:0:0:NONE:34
-
-# Quest 34 completed
-?:[EQU $QUEST34 2]
-F:b:BUILDING_1:3:0:0:0:0:NONE:34
-
-# Quest 34 rewarding
-?:[EQU $QUEST34 3]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:336
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Sorcery] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:336
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Craft] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:606
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Daemon] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:648
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Life] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:332
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Death] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:423
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Nature] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:381
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Chaos] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:385
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Trump] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:514
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Crusade] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:656
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Kendo] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:639
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Music] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:633
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Hex] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:665
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Necromancy] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:685
-
-?:[AND [EQU $QUEST34 3] [EQU $REALM1 Rage] ]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-F:~:FLOOR:3:0:690
-
-# Quest 34 finished, continue with quest 24
-?:[EQU $QUEST34 4]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-
-# Quest 34 failed
-?:[EQU $QUEST34 5]
-F:b:BUILDING_1:3:0:0:0:0:NONE:24
-
-# Quest 34 failed but done, continue with quest 24
-?:[EQU $QUEST34 6]
 F:b:BUILDING_1:3:0:0:0:0:NONE:24
 
 ?:1

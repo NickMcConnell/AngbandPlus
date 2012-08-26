@@ -1642,6 +1642,30 @@ msg_print("地面に落とされた。");
 				}
 			}
 
+			/* Hack: Lonely Mountain grants first realm's spellbook.
+			   I tried to do this in d_info.txt using ?:[EQU $REALM1 ...] but
+			   d_info.txt is processed before the save file is even loaded. */
+			if (k_idx = 336)
+			{
+				switch (p_ptr->realm1)
+				{
+				case REALM_NATURE: k_idx = 381; break;
+				case REALM_CRAFT: k_idx = 606; break;
+				case REALM_DAEMON: k_idx = 648; break;
+				case REALM_LIFE: k_idx = 332; break;
+				case REALM_DEATH: k_idx = 423; break;
+				case REALM_CHAOS: k_idx = 385; break;
+				case REALM_TRUMP: k_idx = 514; break;
+				case REALM_CRUSADE: k_idx = 656; break;
+				case REALM_HISSATSU: k_idx = 639; break;
+				case REALM_MUSIC: k_idx = 633; break;
+				case REALM_HEX: k_idx = 665; break;
+				case REALM_NECROMANCY: k_idx = 685; break;
+				case REALM_RAGE: k_idx = 690; break;
+				case REALM_ARCANE: k_idx = 519; break;
+				}
+			}
+
 			if (k_idx)
 			{
 				/* Get local object */
