@@ -5658,6 +5658,9 @@ option_type option_info[] =
 	"show_weights",                 "Show weights in object listings" },
 #endif
 
+	{ &show_discounts,                TRUE,  OPT_PAGE_TEXT, 0, 12,
+	"show_discounts",                 "Show discounts in object listings" },
+
 #ifdef JP
 	{ &show_item_graph,             TRUE,  OPT_PAGE_TEXT, 2, 0,
 	"show_item_graph",              "アイテムのシンボルを表示する" },

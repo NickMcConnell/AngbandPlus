@@ -1891,7 +1891,7 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			else msg_format("%^s throws a large rock.", m_name);
 #endif
  			sound(SOUND_MISS); /* (Sound substitute) Throwing a rock isn't a rocket sound anyway */ 
-			dam = (rlev * 4) + damroll(10, 10);
+			dam = (rlev * 4) + damroll(5+rlev/20, 5+rlev/20);
 			breath(y, x, m_idx, GF_SHARDS, dam, 1, FALSE, MS_THROW, learnable);
 			update_smart_learn(m_idx, DRS_SHARD);
 			break;

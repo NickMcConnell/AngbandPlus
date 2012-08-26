@@ -1653,7 +1653,7 @@ msg_print("地面に落とされた。");
 			/* Hack: Lonely Mountain grants first realm's spellbook.
 			   I tried to do this in d_info.txt using ?:[EQU $REALM1 ...] but
 			   d_info.txt is processed before the save file is even loaded. */
-			if (k_idx = 336)
+			if (k_idx == 336)
 			{
 				switch (p_ptr->realm1)
 				{

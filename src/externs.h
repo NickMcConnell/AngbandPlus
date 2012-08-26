@@ -274,6 +274,7 @@ extern bool always_show_list;	/* Always show list when choosing items */
 extern bool depth_in_feet;	/* Show dungeon level in feet */
 extern bool show_labels;	/* Show labels in object listings */
 extern bool show_weights;	/* Show weights in object listings */
+extern bool show_discounts;
 extern bool show_item_graph;	/* Show items graphics */
 extern bool equippy_chars;	/* Display 'equippy' chars */
 extern bool display_mutations;	/* Display mutations in 'C'haracter Display */

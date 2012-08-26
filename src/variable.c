@@ -241,6 +241,7 @@ bool always_show_list;	/* Always show list when choosing items */
 bool depth_in_feet;	/* Show dungeon level in feet */
 bool show_labels;	/* Show labels in object listings */
 bool show_weights;	/* Show weights in object listings */
+bool show_discounts;
 bool show_item_graph;	/* Show items graphics */
 bool equippy_chars;	/* Display 'equippy' chars */
 bool display_mutations;	/* Display mutations in 'C'haracter Display */
