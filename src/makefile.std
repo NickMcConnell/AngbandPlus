@@ -141,7 +141,6 @@ CC = gcc
 CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g -D"USE_X11" -D"USE_GCU" -I/usr/X11R6/include
 LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
-
 ##
 ## Variation -- Compile for Linux
 ##

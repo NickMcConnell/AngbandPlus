@@ -304,7 +304,6 @@
     <None Include="..\lib\pref\graf-xaw.prf" />
     <None Include="..\lib\pref\graf-xxx.prf" />
     <None Include="..\lib\pref\graf.prf" />
-    <None Include="..\lib\pref\Makefile.am" />
     <None Include="..\lib\pref\pickpref.prf" />
     <None Include="..\lib\pref\picktype.prf" />
     <None Include="..\lib\pref\pref-acn.prf" />

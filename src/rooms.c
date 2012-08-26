@@ -44,7 +44,7 @@ static room_info_type room_info_normal[ROOM_T_MAX] =
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  1}, /*OVERLAP  */
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  3}, /*CROSS    */
 	{{  1, 10, 20, 30, 40, 50, 60, 70, 80, 90,100},  3}, /*INNER_F  */
-	{{  0,  1,  1,  1,  2,  3,  5,  6,  8, 10, 13}, 10}, /*NEST     */
+	{{  0,  1,  1,  1,  3,  4,  6,  8, 10, 13, 16}, 10}, /*NEST     */
 	{{  0,  1,  1,  2,  3,  4,  6,  8, 10, 13, 16}, 10}, /*PIT      */
 	{{  0,  0,  1,  1,  2,  2,  3,  5,  6,  8, 10}, 30}, /*LESSER_V */
 	{{  0,  0,  0,  0,  1,  2,  2,  2,  3,  3,  4}, 40}, /*GREATER_V*/
@@ -2162,7 +2162,7 @@ static void ang_sort_swap_nest_mon_info(vptr u, vptr v, int a, int b)
  */
 static bool build_type5(void)
 {
-	int y, x, y1, x1, y2, x2, xval, yval;
+	int y, x, y1, x1, y2, x2, xval, yval,cy,cx;
 	int i;
 	nest_mon_info_type nest_mon_info[NUM_NEST_MON_TYPE];
 
@@ -2217,13 +2217,14 @@ static bool build_type5(void)
 	}
 
 	/* Find and reserve some space in the dungeon.  Get center of room. */
-	if (!find_space(&yval, &xval, 11, 25)) return FALSE;
+	cy = 2 + randint1(4);
+	cx = 6 + randint1(10);
 
-	/* Large room */
-	y1 = yval - 4;
-	y2 = yval + 4;
-	x1 = xval - 11;
-	x2 = xval + 11;
+	if (!find_space(&yval, &xval, 2*cy+3, 2*cx+3)) return FALSE;
+	y1 = yval - cy;
+	y2 = yval + cy;
+	x1 = xval - cx;
+	x2 = xval + cx;
 
 	/* Place the floor area */
 	for (y = y1 - 1; y <= y2 + 1; y++)
@@ -2304,9 +2305,9 @@ static bool build_type5(void)
 	}
 
 	/* Place some monsters */
-	for (y = yval - 2; y <= yval + 2; y++)
+	for (y = yval - (cy-2); y <= yval + (cy-2); y++)
 	{
-		for (x = xval - 9; x <= xval + 9; x++)
+		for (x = xval - (cx-2); x <= xval + (cx-2); x++)
 		{
 			int r_idx;
 

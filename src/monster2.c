@@ -1400,7 +1400,10 @@ static bool restrict_monster_to_dungeon(int r_idx)
 		if (r_ptr->flags9 & d_ptr->mflags9) return TRUE;
 		if (r_ptr->flagsr & d_ptr->mflagsr) return TRUE;
 		for (a = 0; a < 5; a++)
-			if (d_ptr->r_char[a] == r_ptr->d_char) return TRUE;
+		{
+			if (d_ptr->r_char[a] == r_ptr->d_char) 
+				return TRUE;
+		}
 
 		return FALSE;
 
@@ -1558,6 +1561,7 @@ s16b get_mon_num(int level)
 	monster_race	*r_ptr;
 
 	alloc_entry		*table = alloc_race_table;
+	bool         allow_unique = TRUE;
 
 	int pls_kakuritu, pls_level;
 	int hoge=mysqrt(level*10000L);
@@ -1582,6 +1586,10 @@ s16b get_mon_num(int level)
 		pls_level += 2;
 		level += 3;
 	}
+
+	/* Restrict uniques ... except for summoning, of course ;) */
+	if (unique_count && !summon_specific_who && !one_in_(unique_count))
+		allow_unique = FALSE;
 
 	/* Boost the level */
 	if ((level > 0) && !p_ptr->inside_battle && !(d_info[dungeon_type].flags1 & DF1_BEGINNER))
@@ -1648,6 +1656,9 @@ s16b get_mon_num(int level)
 				/* Serpent can "resurrect" uniques, but not weak ones! */
 				if (!summon_cloned_okay || r_ptr->level < 70) continue;
 			}
+
+			if ((r_ptr->flags1 & RF1_UNIQUE) && !allow_unique)
+				continue;
 
 			if ((r_ptr->flags7 & (RF7_UNIQUE2)) &&
 			    (r_ptr->cur_num >= 1))
@@ -1723,6 +1734,9 @@ s16b get_mon_num(int level)
 		/* Keep the "best" one */
 		if (table[i].level < table[j].level) i = j;
 	}
+
+	if (r_info[table[i].index].flags1 & RF1_UNIQUE)
+		unique_count++;
 
 	/* Result */
 	return (table[i].index);

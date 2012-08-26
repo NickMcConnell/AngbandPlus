@@ -5558,8 +5558,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 			{
 				p_ptr->wilderness_y--;
 				p_ptr->wilderness_x--;
-				p_ptr->oldpy = cur_hgt - 2;
-				p_ptr->oldpx = cur_wid - 2;
+				p_ptr->oldpy = cur_hgt - 3;
+				p_ptr->oldpx = cur_wid - 3;
 				ambush_flag = FALSE;
 			}
 
@@ -5567,8 +5567,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 			{
 				p_ptr->wilderness_y--;
 				p_ptr->wilderness_x++;
-				p_ptr->oldpy = cur_hgt - 2;
-				p_ptr->oldpx = 1;
+				p_ptr->oldpy = cur_hgt - 3;
+				p_ptr->oldpx = 2;
 				ambush_flag = FALSE;
 			}
 
@@ -5576,8 +5576,8 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 			{
 				p_ptr->wilderness_y++;
 				p_ptr->wilderness_x--;
-				p_ptr->oldpy = 1;
-				p_ptr->oldpx = cur_wid - 2;
+				p_ptr->oldpy = 2;
+				p_ptr->oldpx = cur_wid - 3;
 				ambush_flag = FALSE;
 			}
 
@@ -5585,15 +5585,15 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 			{
 				p_ptr->wilderness_y++;
 				p_ptr->wilderness_x++;
-				p_ptr->oldpy = 1;
-				p_ptr->oldpx = 1;
+				p_ptr->oldpy = 2;
+				p_ptr->oldpx = 2;
 				ambush_flag = FALSE;
 			}
 
 			else if (y == 0)
 			{
 				p_ptr->wilderness_y--;
-				p_ptr->oldpy = cur_hgt - 2;
+				p_ptr->oldpy = cur_hgt - 3;
 				p_ptr->oldpx = x;
 				ambush_flag = FALSE;
 			}
@@ -5601,7 +5601,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 			else if (y == MAX_HGT - 1)
 			{
 				p_ptr->wilderness_y++;
-				p_ptr->oldpy = 1;
+				p_ptr->oldpy = 2;
 				p_ptr->oldpx = x;
 				ambush_flag = FALSE;
 			}
@@ -5609,7 +5609,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 			else if (x == 0)
 			{
 				p_ptr->wilderness_x--;
-				p_ptr->oldpx = cur_wid - 2;
+				p_ptr->oldpx = cur_wid - 3;
 				p_ptr->oldpy = y;
 				ambush_flag = FALSE;
 			}
@@ -5617,7 +5617,7 @@ void move_player(int dir, bool do_pickup, bool break_trap)
 			else if (x == MAX_WID - 1)
 			{
 				p_ptr->wilderness_x++;
-				p_ptr->oldpx = 1;
+				p_ptr->oldpx = 2;
 				p_ptr->oldpy = y;
 				ambush_flag = FALSE;
 			}

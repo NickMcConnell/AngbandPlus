@@ -13,7 +13,7 @@
 
 # N:<index>:<name>
 # D:<long name>
-# W:<min depth>:<min depth>:<min player level>:<flags mode>:<min alloc>:<max alloc chance>:<obj good>:<obj great>:<pit>:<nest>
+# W:<min depth>:<max depth>:<min player level>:<flags mode>:<min alloc>:<max alloc chance>:<obj good>:<obj great>:<pit>:<nest>
 # L:<floor1>:<%1>:<floor2>:<%2>:<floor3>:<%3>:<tunnel%>
 # A:<wall1>:<%1>:<wall2>:<%2>:<wall3>:<%3>:<outer wall>:<inner wall>:<stream1>:<stream2>
 # F:<flags>
@@ -23,7 +23,7 @@
 # Note on the MONSTER_DIV_ dungeon flag
 # It defines the percentage of monsters affected by the restrictions
 # so MONSTER_PERCENT_70 will create 70% of restricted monsters and 30%
-# of absulutly random monsters.
+# of absolutly random monsters.
 # by default MONSTER_PERCENT_ is 0%
 
 # Note for <flags mode> :
@@ -67,12 +67,13 @@ E:Yeek cave
 D:$the entrance to the cave leading to the Yeek's den
 D:イークの住みかへと続く小さな洞穴
 P:48:5
-W:1:13:1:0:14:240:75:20:0x0000:0x0000
+W:1:13:1:3:14:240:75:20:0x0000:0x0000
 L:FLOOR:100:FLOOR:0:FLOOR:0:8
 A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
 F:FINAL_GUARDIAN_237 | FINAL_OBJECT_426
 F:NO_VAULT | BEGINNER
-F:MONSTER_DIV_0
+F:MONSTER_DIV_2
+M:R_CHAR_y
 
 N:3:オークの洞窟
 E:Orc cave
@@ -107,7 +108,7 @@ W:60:72:25:3:20:140:75:20:0x00a6:0x00c1
 L:DIRT:100:FLOOR:0:FLOOR:0:0
 A:GRANITE:90:DARK_PIT:10:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:DARK_PIT
 F:BIG | LAVA_RIVER | CAVERN | DESTROY
-F:MONSTER_DIV_10
+F:MONSTER_DIV_10 | FINAL_GUARDIAN_795 | FINAL_OBJECT_405
 F:CAVE | LAKE_LAVA | LAKE_TREE | LAKE_RUBBLE
 M:DRAGON | R_CHAR_dD
 
@@ -293,3 +294,28 @@ F:MONSTER_DIV_0 | ARENA | NO_CAVE | CURTAIN | GLASS_DOOR | GLASS_ROOM |
 M:INVISIBLE | HAS_LITE_1 | SELF_LITE_1 | HAS_LITE_2 | SELF_LITE_2 |
 M:HAS_DARK_1 | SELF_DARK_1 | HAS_DARK_2 | SELF_DARK_2
 S:BR_LITE | BR_DARK | BA_DARK | BA_LITE
+
+N:21:TRANSLATE
+E:Icky cave
+D:$the entrance to the Icky caves
+D:TRANSLATE
+P:50:5
+W:10:20:1:3:14:240:75:20:0x0000:0x0000
+L:SWAMP:20:GRASS:60:SHALLOW_WATER:20:8
+A:GRANITE:100:GRANITE:0:GRANITE:0:GRANITE:GRANITE:MAGMA_VEIN:QUARTZ_VEIN
+F:FINAL_GUARDIAN_909 | FINAL_OBJECT_147
+F:NO_VAULT
+F:MONSTER_DIV_32
+M:R_CHAR_ijM
+
+N:22:TRANSLATE
+E:Mount Olympus
+D:$the entrance to Mount Olympus
+D:TRANSLATE
+P:9:5
+W:90:120:50:3:14:160:95:40:0xFFFF:0xFFFF
+L:FLOOR:100:FLOOR:0:FLOOR:0:8
+A:PERMANENT:40:MOUNTAIN_WALL:0:GRANITE:60:GRANITE:GRANITE:NONE:NONE
+F:FINAL_GUARDIAN_1096
+F:MONSTER_DIV_8 | WATER_RIVER | CAVE | CAVERN | NO_DOORS | BIG
+M:GIANT | OLYMPIAN

@@ -657,9 +657,6 @@
     <None Include="..\lib\help\raceclas.txt">
       <Filter>Edit\Help</Filter>
     </None>
-    <None Include="..\lib\pref\Makefile.am">
-      <Filter>Edit</Filter>
-    </None>
     <None Include="..\lib\pref\colors.prf">
       <Filter>Edit\Preferences</Filter>
     </None>

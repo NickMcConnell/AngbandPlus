@@ -5260,7 +5260,7 @@ cptr window_flag_desc[32] =
 #ifdef JP
 	"ダンジョン全体図",
 #else
-	"Display overhead view",
+	"Display overhead view (*SLOW*)",
 #endif
 
 #ifdef JP

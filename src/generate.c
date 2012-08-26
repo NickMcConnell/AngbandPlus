@@ -788,15 +788,15 @@ static bool cave_gen(void)
 
 
 	/* Build maze */
-	if (d_info[dungeon_type].flags1 & DF1_MAZE)
+	if ((d_info[dungeon_type].flags1 & DF1_MAZE) || one_in_(50))
 	{
 		build_maze_vault(cur_wid/2-1, cur_hgt/2-1, cur_wid-4, cur_hgt-4, FALSE);
 
 		/* Place 3 or 4 down stairs near some walls */
-		if (!alloc_stairs(feat_down_stair, rand_range(2, 3), 3)) return FALSE;
+		if (!alloc_stairs(feat_down_stair, rand_range(4, 5), 3)) return FALSE;
 
 		/* Place 1 or 2 up stairs near some walls */
-		if (!alloc_stairs(feat_up_stair, 1, 3)) return FALSE;
+		if (!alloc_stairs(feat_up_stair, 1, 2)) return FALSE;
 	}
 
 	/* Build some rooms */
@@ -1454,6 +1454,7 @@ void clear_cave(void)
 	C_WIPE(o_list, o_max, object_type);
 	o_max = 1;
 	o_cnt = 0;
+	unique_count = 0;
 	
 	/* Note, when I replaced the above with wipe_o_list(), artifacts started spawning
 	   multiple times!
