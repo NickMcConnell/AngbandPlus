@@ -1878,15 +1878,22 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 			break;
 		}
 
-		/* RF4_BA_DISI */
+		/* RF4_THROW ... Shamelessly snagged from TinyAngband! Thanks guys :)
+		 */
 		case 96+1:
 		{
 			disturb(1, 0);
-			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s casts a ball of disintegration.", m_name);
-
-			dam = 250;
-			breath(y, x, m_idx, GF_DISINTEGRATE, dam, 5, FALSE, MS_BA_DISI, learnable);
+#ifdef JP
+			if (blind) msg_format("%^s「ふんっ！」", m_name);
+			else msg_format("%^sが大きな岩を投げた。", m_name);
+#else
+			if (blind) msg_format("%^s shouts, 'Haa!!'.", m_name);
+			else msg_format("%^s throws a large rock.", m_name);
+#endif
+ 			sound(SOUND_MISS); /* (Sound substitute) Throwing a rock isn't a rocket sound anyway */ 
+			dam = (rlev * 4) + damroll(10, 10);
+			breath(y, x, m_idx, GF_SHARDS, dam, 1, FALSE, MS_THROW, learnable);
+			update_smart_learn(m_idx, DRS_SHARD);
 			break;
 		}
 

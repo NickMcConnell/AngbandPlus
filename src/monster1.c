@@ -1224,7 +1224,7 @@ if (flags4 & (RF4_BA_NUKE))         {vp[vn] = " ¸ºÕ«ΩµÂ";color[vn++] = TERM_L_GR
 	if (flags4 & (RF4_BA_NUKE))         {vp[vn] = "produce balls of radiation";color[vn++] = TERM_L_GREEN;}
 #endif
 
-	if (flags4 & RF4_BA_DISI) {vp[vn] = "produce balls of disintegration";color[vn++] = TERM_SLATE;}
+	if (flags4 & RF4_THROW) {vp[vn] = "throw a large boulder";color[vn++] = TERM_SLATE;}
 
 #ifdef JP
 if (flags5 & (RF5_BA_MANA))         {vp[vn] = "À‚Œœ§ŒÕÚ";color[vn++] = TERM_L_BLUE;}

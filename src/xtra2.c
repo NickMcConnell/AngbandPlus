@@ -1403,6 +1403,14 @@ msg_print("地面に落とされた。");
 			chance = 20;
 			break;
 
+		case MON_SMEAGOL:
+		    if (one_in_(666))
+			{
+				a_idx = ART_POWER;
+				chance = 100;
+			}
+			break;
+
 		case MON_SAURON:
 			if (one_in_(10))
 			{

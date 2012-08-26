@@ -373,7 +373,7 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"BA_DISI",
+	"THROW",
 	"DISPEL",
 	"ROCKET",
 	"SHOOT",
