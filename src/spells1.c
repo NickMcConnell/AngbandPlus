@@ -2769,6 +2769,8 @@ note = "には耐性がある。";
 				break;
 			}
 			dam = spell_power(MIN(m_ptr->hp*8/100 + dam, 400));
+			if (p_ptr->lev >= 50)
+				dam += 50;
 			note = " is cursed by ancient pharaohs of long ago!";
 			break;
 		}

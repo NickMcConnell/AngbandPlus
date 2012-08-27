@@ -1975,6 +1975,8 @@ extern void spoil_spells_aux(FILE *fff, spell_info *table);
 
 /* archaeologist.c */
 extern class_t *archaeologist_get_class_t(void);
+extern bool archaeologist_is_favored_weapon(object_type *o_ptr);
+extern int archaeologist_spell_stat_idx(void);
 
 /* bard.c */
 extern void bard_start_singing(int spell, int song);

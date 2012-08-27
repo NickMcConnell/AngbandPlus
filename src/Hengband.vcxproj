@@ -281,6 +281,7 @@
     <None Include="..\lib\edit\t_pref.txt" />
     <None Include="..\lib\edit\v_info.txt" />
     <None Include="..\lib\edit\w_info.txt" />
+    <None Include="..\lib\file\monspeak.txt" />
     <None Include="..\lib\file\news.txt" />
     <None Include="..\lib\help\raceclas.txt" />
     <None Include="..\lib\pref\colors.prf" />

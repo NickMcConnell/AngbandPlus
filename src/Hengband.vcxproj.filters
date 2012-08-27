@@ -771,5 +771,8 @@
     <None Include="..\lib\pref\xtra-gcu.prf">
       <Filter>Edit\Preferences</Filter>
     </None>
+    <None Include="..\lib\file\monspeak.txt">
+      <Filter>Edit\Stuff</Filter>
+    </None>
   </ItemGroup>
 </Project>

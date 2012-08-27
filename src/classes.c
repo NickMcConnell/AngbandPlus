@@ -136,22 +136,6 @@ int get_class_powers(spell_info* spells, int max)
 			}
 			break;
 
-		case CLASS_ROGUE:
-		{
-			spell_info* spell = &spells[ct++];
-			spell->level = 8;
-			spell->cost = 12;
-			spell->fail = calculate_fail_rate(spell->level, 80, p_ptr->stat_ind[A_DEX]);
-			spell->fn = panic_hit_spell;
-
-			spell = &spells[ct++];
-			spell->level = 20;
-			spell->cost = 25;
-			spell->fail = calculate_fail_rate(spell->level, 70, p_ptr->stat_ind[A_DEX]);
-			spell->fn = explosive_rune_spell;
-			break;
-		}
-
 		case CLASS_RANGER:
 		case CLASS_SNIPER:
 		{

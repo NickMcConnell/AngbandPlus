@@ -326,7 +326,12 @@ static void _excavation_spell(int cmd, variant *res)
 	case SPELL_ENERGY:
 		{
 			int n = 200;
-			n -= 80 * p_ptr->lev / 50;	
+			
+			if (inventory[INVEN_RARM].tval == TV_DIGGING || inventory[INVEN_LARM].tval == TV_DIGGING)
+				n -= 120 * p_ptr->lev / 50;
+			else
+				n -= 80 * p_ptr->lev / 50;
+
 			var_set_int(res, n);
 		}
 		break;
@@ -494,28 +499,8 @@ static void _first_aid_spell(int cmd, variant *res)
 		var_set_bool(res, TRUE);
 		break;
 	case SPELL_COST_EXTRA:
-		{
-			int n = 0;
-			if (p_ptr->lev > 49)
-				n += 10;
-			if (p_ptr->lev > 44)
-				n += 4;
-			if (p_ptr->lev > 39)
-				n += 4;
-			if (p_ptr->lev > 29)
-				n += 4;
-			if (p_ptr->lev > 19)
-				n += 2;
-			if (p_ptr->lev > 15)
-				n += 2;
-			if (p_ptr->lev > 11)
-				n += 2;
-			if (p_ptr->lev > 7)
-				n += 2;
-			var_set_int(res, n);
-		}
+		var_set_int(res, p_ptr->lev / 5);
 		break;
-
 	default:
 		default_spell(cmd, res);
 		break;
@@ -634,8 +619,6 @@ static void _pharaohs_curse_spell(int cmd, variant *res)
 				turn_monsters(power);
 			if (p_ptr->lev >= 49)
 				stun_monsters(power);
-			if (p_ptr->lev >= 50)		/* originally, an extra 50hp damage was suggested */
-				stasis_monsters(power);
 			if (one_in_(5))
 			{
 				int mode = 0;
@@ -744,13 +727,18 @@ static spell_info _spells[] =
 	{ 35,  80, 70, _ancient_protection_spell },
 	{ 40, 150, 80, polish_shield_spell },
 	{ 42,  30, 50, _evacuation_spell },
-	{ 45,  50, 80, _pharaohs_curse_spell }, /* No wizardstaff.  No spell skills! So, 8% best possible fail.*/
+	{ 45,  50, 75, _pharaohs_curse_spell }, /* No wizardstaff.  No spell skills! So, 3% best possible fail.*/
 	{ -1,  -1, -1, NULL }
 };
 
+int archaeologist_spell_stat_idx(void)
+{
+	return (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2;
+}
+
 static int _get_spells(spell_info* spells, int max)
 {
-	int stat_idx = (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2;
+	int stat_idx = archaeologist_spell_stat_idx();
 	return get_spells_aux(spells, max, _spells, stat_idx);
 }
 
@@ -763,6 +751,11 @@ static bool _is_favored_weapon(object_type *o_ptr)
 		return TRUE;
 
 	return FALSE;
+}
+
+bool archaeologist_is_favored_weapon(object_type *o_ptr)
+{
+	return _is_favored_weapon(o_ptr);
 }
 
 static void _process_player(void)
@@ -800,11 +793,6 @@ static void _calc_weapon_bonuses(object_type *o_ptr, weapon_info_t *info_ptr)
 		info_ptr->dis_to_h += 10 * p_ptr->lev/50;
 		info_ptr->to_d += 10 * p_ptr->lev/50;
 		info_ptr->dis_to_d += 10 * p_ptr->lev/50;
-
-		if (p_ptr->lev >= 40)
-			info_ptr->num_blow += 2;
-		else if (p_ptr->lev >= 20)
-			info_ptr->num_blow += 1;
 	}
 }
 
@@ -833,8 +821,6 @@ static void _spoiler_dump(FILE* fff)
 	fprintf(fff, "  * Resist Darkness at L38\n");
 	fprintf(fff, "  * Sense Artifacts (Range: 3+L/10)\n");
 	fprintf(fff, "  * The Archaeologist Favors Whips and Diggers\n");
-	fprintf(fff, "  * +1 Attack with Favored Weapons at L20\n");
-	fprintf(fff, "  * +1 Attack with Favored Weapons at L40\n");
 	fprintf(fff, "  * +10L/50 To Hit and Damage with Favored Weapons\n");
 }
 
@@ -846,15 +832,16 @@ class_t *archaeologist_get_class_t(void)
 	/* static info never changes */
 	if (!init)
 	{           /* dis, dev, sav, stl, srh, fos, thn, thb */
-	skills_t bs = { 45,  50,  36,   4,  50,  32,  40,  20};
-	skills_t xs = { 15,  12,  10,   0,   0,   0,  11,  11};
+	skills_t bs = { 45,  50,  36,   4,  50,  32,  48,  35};
+	skills_t xs = { 15,  12,  10,   0,   0,   0,  13,  11};
 
 		me.name = "Archaeologist";
 		me.desc = "The Archaeologist is an erudite treasure hunter, seeking out the most valuable "
 		          "prizes that the dungeon has to offer. At home in subterranean caverns and vaults, "
 				  "he is rarely lost or snared in traps. His powers of perception and detection are "
 				  "very great, as is his skill with arcane devices. At high levels he can use the "
-				  "dark magic of the entombed Pharaohs.";
+				  "dark magic of the entombed Pharaohs. The powers of the Archaeologist are enhanced "
+				  "by both Intelligence and Wisdom.";
 
 		me.stats[A_STR] = -1;
 		me.stats[A_INT] =  1;
@@ -865,7 +852,7 @@ class_t *archaeologist_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.hd = 4;
-		me.exp = 75;
+		me.exp = 120;
 		me.pets = 40;
 
 		me.calc_bonuses = _calc_bonuses;

@@ -2930,7 +2930,7 @@ static void calc_mana(void)
 		/* Extract total mana */
 		if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
 		{
-			int stat_idx = (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS])/2;
+			int stat_idx = archaeologist_spell_stat_idx();
 			msp = adj_mag_mana[stat_idx] * (levels+3) / 4;
 		}
 		else
@@ -5493,8 +5493,15 @@ void calc_bonuses(void)
 					num = 4; wgt = 100; mul = 3; break;
 
 				case CLASS_ARCHAEOLOGIST:
-					num = 4; wgt = 70; mul = 3; break;
-
+				{
+					num = 5; wgt = 70; mul = 3; 
+					if (p_ptr->lev >= 40 && archaeologist_is_favored_weapon(o_ptr))
+					{
+						num++;
+						mul = 4;
+					}
+					break;
+				}
 				case CLASS_BLOOD_KNIGHT:
 					num = 3; wgt = 150; mul = 3; break;
 
