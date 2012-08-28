@@ -382,6 +382,8 @@ struct monster_race
 	u32b r_flags6;			/* Observed racial flags */
 	/* u32b r_flags7; */			/* Observed racial flags */
 	u32b r_flagsr;			/* Observed racial resistance flags */
+
+	byte stolen_ct;         /* For uniques in this lifetime only. Prevents PickPocket scumming of excellent drop uniques */
 };
 
 
@@ -622,6 +624,9 @@ struct monster_type
 
 	s16b parent_m_idx;
 	s16b pack_idx;
+
+	byte drop_ct;        
+	byte stolen_ct;
 
 	/* Hack below this point ... TODO: Clean up timed monster effects
 	   to use a linked list of { type; dur; extra; } or something similar.
@@ -1157,6 +1162,7 @@ struct player_type
 	s16b entrench_ct;
 	bool entrenched;
 	bool inven_prot;
+	bool quick_walk;
 	
 	s16b tim_no_spells;     /* Blocking spell usage is a side effect of Empowered Blast, but will become an evil monster ability */
 	s16b tim_no_device;		/* For a more powerful twist, this will block devices as well!  But that is really an evil death sentence :) */
@@ -1172,6 +1178,8 @@ struct player_type
 	s16b tim_sustain_chr;
 	s16b tim_hold_life;
 	s16b tim_transcendence;
+	s16b tim_quick_walk;
+	s16b tim_inven_prot;
 
 	/* Rune Knight: Some Rune effects might become general game mechanics, like Magic Resistance
 	   and Magic Absorption.  Also, let's consolidate the White Aura mutation with the Rune of

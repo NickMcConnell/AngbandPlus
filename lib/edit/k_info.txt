@@ -6622,6 +6622,40 @@ W:50:0:0:2:7000
 A:50/12
 F:WEAPONMASTERY
 
+N:701:TRANSLATE
+E:[Burglar's Handbook]
+G:?:o
+I:109:0:0
+W:10:0:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:702:TRANSLATE
+E:[Thieving Ways]
+G:?:o
+I:109:1:0
+W:20:0:0:30:1000
+A:20/1
+P:0:1d1:0:0:0
+
+N:703:TRANSLATE
+E:[Great Escapes]
+G:?:u
+I:109:2:0
+W:50:0:0:30:25000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:704:TRANSLATE
+E:[Book of Shadows]
+G:?:u
+I:109:3:0
+W:90:0:0:30:100000
+A:90/3
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval

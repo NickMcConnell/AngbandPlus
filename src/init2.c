@@ -1627,6 +1627,9 @@ static errr init_feat_variables(void)
 	/* Objects */
 	feat_glyph = f_tag_to_index_in_init("GLYPH");
 	feat_explosive_rune = f_tag_to_index_in_init("EXPLOSIVE_RUNE");
+	feat_rogue_trap1 = f_tag_to_index_in_init("ROGUE_TRAP_1");
+	feat_rogue_trap2 = f_tag_to_index_in_init("ROGUE_TRAP_2");
+	feat_rogue_trap3 = f_tag_to_index_in_init("ROGUE_TRAP_3");
 	feat_mirror = f_tag_to_index_in_init("MIRROR");
 
 	/* Doors */

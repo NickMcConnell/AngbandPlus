@@ -47,7 +47,7 @@
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
 #define H_VER_PATCH 112
-#define H_VER_EXTRA 0
+#define H_VER_EXTRA 3
 
 
 #define ANGBAND_2_8_1
@@ -410,7 +410,7 @@
 #define TURNS_PER_TICK    10L      /* Number of energy-gain-turns per ticks */
 #define MAX_DAYS          20000    /* Maximum days */
 #define BREAK_GLYPH       550      /* Rune of protection resistance */
-#define BREAK_MINOR_GLYPH 299      /* For explosive runes */
+#define BREAK_MON_TRAP    299      /* For explosive runes */
 #define BTH_PLUS_ADJ       3       /* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ  	   8       /* High value slows multiplication */
 #define MON_SUMMON_ADJ	   2       /* Adjust level of summoned creatures */
@@ -590,6 +590,7 @@
 #define CH_HISSATSU     0x10000
 #define CH_HEX          0x20000
 #define CH_RAGE         0x40000
+#define CH_BURGLARY     0x80000
 
 
 /*
@@ -613,7 +614,8 @@
 #define REALM_HISSATSU     17
 #define REALM_HEX          18
 #define REALM_RAGE         19
-#define MAX_REALM          19
+#define REALM_BURGLARY     20
+#define MAX_REALM          20
 
 #define VALID_REALM        (MAX_REALM + MAX_MAGIC - MIN_TECHNIC + 1)
 #define NUM_TECHNIC        (MAX_REALM - MIN_TECHNIC + 1)
@@ -1103,7 +1105,7 @@
 #define FF_SHAFT         101
 #define FF_MOUNTAIN      102
 #define FF_BLDG          103
-#define FF_MINOR_GLYPH   104
+#define FF_MON_TRAP      104
 #define FF_PATTERN       105
 #define FF_TOWN          106
 #define FF_ENTRANCE      107
@@ -1112,8 +1114,10 @@
 #define FF_TELEPORTABLE  110
 #define FF_CONVERT       111
 #define FF_GLASS         112
-
-#define FF_FLAG_MAX      113
+#define FF_ROGUE_TRAP_1  113
+#define FF_ROGUE_TRAP_2  114
+#define FF_ROGUE_TRAP_3  115
+#define FF_FLAG_MAX      116
 #define FF_FLAG_SIZE     (1 + ((FF_FLAG_MAX - 1) / 32))
 
 /* Which features are dynamic */
@@ -1922,6 +1926,7 @@
 #define TV_HISSATSU_BOOK 106
 #define TV_HEX_BOOK     107
 #define TV_RAGE_BOOK    108
+#define TV_BURGLARY_BOOK 109
 #define TV_GOLD         127     /* Gold can only be picked up by players */
 
 #define TV_EQUIP_BEGIN    TV_SHOT
@@ -3017,6 +3022,7 @@
 #define SUMMON_WIGHT				78
 #define SUMMON_LICH					79
 #define SUMMON_KRAKEN				80
+#define SUMMON_THIEF                81
 
 
 /*
@@ -3654,7 +3660,7 @@
 #define RF2_TAKE_ITEM       0x00400000  /* Monster can pick up items */
 #define RF2_KILL_ITEM       0x00800000  /* Monster can crush items */
 #define RF2_AURA_REVENGE	0x01000000  
-#define RF2_XXX2            0x02000000
+#define RF2_THIEF           0x02000000
 #define RF2_XXX3            0x04000000
 #define RF2_XXX4            0x08000000
 #define RF2_XXX5            0x10000000
@@ -5004,6 +5010,7 @@ extern int PlayerUID;
 #define MON_WOUNDED_BEAR  159
 #define MON_D_ELF_MAGE    178
 #define MON_D_ELF_WARRIOR 182
+#define MON_GIANT_PIRANHA 187
 #define MON_BLUE_HORROR   189
 #define MON_GOLD_COINS    195
 #define MON_VORPAL_BUNNY  205
@@ -5374,7 +5381,7 @@ extern int PlayerUID;
 #define WEAPONMASTER_ABSORB_SOUL 46
 
 #define MELEE_AWESOME_BLOW 47
-
+#define ROGUE_ASSASSINATE 48
 
 #define MAX_FRENZY_ITEMS 3
 

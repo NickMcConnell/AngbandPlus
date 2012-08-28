@@ -733,7 +733,7 @@ if (flags3 & RF3_AMBERITE)        hook_c_roff(TERM_VIOLET, "アンバーの王族の");
 #endif
 
 
-	if ((flags3 & (RF3_DRAGON | RF3_DEMON | RF3_GIANT | RF3_TROLL | RF3_ORC)) || (flags2 & (RF2_QUANTUM | RF2_HUMAN)))
+	if ((flags3 & (RF3_DRAGON | RF3_DEMON | RF3_GIANT | RF3_TROLL | RF3_ORC)) || (flags2 & (RF2_QUANTUM | RF2_HUMAN | RF2_THIEF)))
 	{
 	/* Describe the "race" */
 #ifdef JP
@@ -771,6 +771,8 @@ if (flags2 & RF2_HUMAN) hook_c_roff(TERM_L_WHITE, "人間");
 #else
 		if (flags2 & RF2_HUMAN) hook_c_roff(TERM_L_WHITE, " human");
 #endif
+
+		if (flags2 & RF2_THIEF) hook_c_roff(TERM_L_DARK, " thief");
 
 #ifdef JP
 if (flags2 & RF2_QUANTUM)  hook_c_roff(TERM_VIOLET, "量子生物");

@@ -800,6 +800,82 @@ cptr extract_note_dies(monster_race *r_ptr)
 #endif
 }
 
+byte get_monster_drop_ct(monster_type *m_ptr)
+{
+	int number = 0;
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	if ((r_ptr->flags1 & RF1_DROP_60) && (randint0(100) < 60)) number++;
+	if ((r_ptr->flags1 & RF1_DROP_90) && ((r_ptr->flags1 & RF1_UNIQUE) || randint0(100) < 90)) number++;
+	if  (r_ptr->flags1 & RF1_DROP_1D2) number += damroll(1, 2);
+	if  (r_ptr->flags1 & RF1_DROP_2D2) number += damroll(2, 2);
+	if  (r_ptr->flags1 & RF1_DROP_3D2) number += damroll(3, 2);
+	if  (r_ptr->flags1 & RF1_DROP_4D2) number += damroll(4, 2);
+
+	if ((m_ptr->smart & SM_CLONED) && !(r_ptr->flags1 & RF1_UNIQUE))
+		number = 0; /* Clones drop no stuff unless Cloning Pits */
+
+	if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena)
+		number = 0; /* Pets drop no stuff */
+
+	/* No more farming quartz veins for millions in gold */
+	if ((r_ptr->flags2 & RF2_MULTIPLY) && r_ptr->r_akills > 1200)
+		number = 0;
+
+	if (m_ptr->parent_m_idx && r_ptr->r_akills > 1200)
+		number = 0;
+
+	return number;
+}
+
+bool get_monster_drop(int m_idx, object_type *o_ptr)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	bool do_gold = (!(r_ptr->flags1 & RF1_ONLY_ITEM));
+	bool do_item = (!(r_ptr->flags1 & RF1_ONLY_GOLD));
+	bool cloned = (m_ptr->smart & SM_CLONED) ? TRUE : FALSE;
+	bool visible = ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE));
+	int force_coin = get_coin_type(m_ptr->r_idx);
+	u32b mo_mode = 0L;
+
+	if (cloned || is_pet(m_ptr))
+		return FALSE;
+
+	if (m_ptr->stolen_ct >= m_ptr->drop_ct)
+		return FALSE;
+
+	if (r_ptr->flags1 & RF1_DROP_GOOD) 
+		mo_mode |= AM_GOOD;
+	if (r_ptr->flags1 & RF1_DROP_GREAT) 
+		mo_mode |= AM_GREAT;
+
+	coin_type = force_coin;
+	object_level = (dun_level + r_ptr->level) / 2;
+	object_wipe(o_ptr);
+
+	if (do_gold && (!do_item || (randint0(100) < 50)))
+	{
+		if (!make_gold(o_ptr))
+			return FALSE;
+
+		if (visible)
+			lore_treasure(m_idx, 0, 1);
+	}
+	else
+	{
+		if (!make_object(o_ptr, mo_mode))
+			return FALSE;
+
+		if (visible)
+			lore_treasure(m_idx, 1, 0);
+	}
+
+	object_level = base_level;
+	coin_type = 0;
+
+	return TRUE;	
+}
 
 /*
  * Handle the "death" of a monster.
@@ -819,23 +895,13 @@ void monster_death(int m_idx, bool drop_item)
 {
 	int i, j, y, x;
 
-	int dump_item = 0;
-	int dump_gold = 0;
-
 	int number = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	bool visible = ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE));
-
 	u32b mo_mode = 0L;
 
-	bool do_gold = (!(r_ptr->flags1 & RF1_ONLY_ITEM));
-	bool do_item = (!(r_ptr->flags1 & RF1_ONLY_GOLD));
 	bool cloned = (m_ptr->smart & SM_CLONED) ? TRUE : FALSE;
-	int force_coin = get_coin_type(m_ptr->r_idx);
 
 	object_type forge;
 	object_type *q_ptr;
@@ -1671,6 +1737,7 @@ msg_print("地面に落とされた。");
 				case REALM_NECROMANCY: k_idx = 685; break;
 				case REALM_RAGE: k_idx = 690; break;
 				case REALM_ARCANE: k_idx = 519; break;
+				case REALM_BURGLARY: k_idx = 703; break;
 				}
 			}
 
@@ -1696,82 +1763,15 @@ msg_print("地面に落とされた。");
 	}
 
 	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & RF1_DROP_60) && (randint0(100) < 60)) number++;
-	if ((r_ptr->flags1 & RF1_DROP_90) && ((r_ptr->flags1 & RF1_UNIQUE) || randint0(100) < 90)) number++;
-	if  (r_ptr->flags1 & RF1_DROP_1D2) number += damroll(1, 2);
-	if  (r_ptr->flags1 & RF1_DROP_2D2) number += damroll(2, 2);
-	if  (r_ptr->flags1 & RF1_DROP_3D2) number += damroll(3, 2);
-	if  (r_ptr->flags1 & RF1_DROP_4D2) number += damroll(4, 2);
+	number = m_ptr->drop_ct - m_ptr->stolen_ct;
 
-	if (cloned && !(r_ptr->flags1 & RF1_UNIQUE))
-		number = 0; /* Clones drop no stuff unless Cloning Pits */
-
-	if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena)
-		number = 0; /* Pets drop no stuff */
 	if (!drop_item && (r_ptr->d_char != '$')) number = 0;
-
-	/* Hack -- handle creeping coins */
-	coin_type = force_coin;
-
-	/* Average dungeon and monster levels */
-	object_level = (dun_level + r_ptr->level) / 2;
-
-	/* No more farming quartz veins for millions in gold */
-	if ((r_ptr->flags2 & RF2_MULTIPLY) && r_ptr->r_akills > 1200)
-	{
-		number = 0;
-	}
-
-	if (m_ptr->parent_m_idx && r_ptr->r_akills > 1200)
-	{
-		number = 0;
-	}
 
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
 	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Wipe the object */
-		object_wipe(q_ptr);
-
-		/* Make Gold */
-		if (do_gold && (!do_item || (randint0(100) < 50)))
-		{
-			/* Make some gold */
-			if (!make_gold(q_ptr)) continue;
-
-			/* XXX XXX XXX */
-			dump_gold++;
-		}
-
-		/* Make Object */
-		else
-		{
-			/* Make an object */
-			if (!make_object(q_ptr, mo_mode)) continue;
-
-			/* XXX XXX XXX */
-			dump_item++;
-		}
-
-		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, y, x);
-	}
-
-	/* Reset the object level */
-	object_level = base_level;
-
-	/* Reset "coin" type */
-	coin_type = 0;
-
-
-	/* Take note of any dropped treasure */
-	if (visible && (dump_item || dump_gold))
-	{
-		/* Take notes on treasure */
-		lore_treasure(m_idx, dump_item, dump_gold);
+		if (get_monster_drop(m_idx, &forge))
+			drop_near(&forge, -1, y, x);
 	}
 
 	/* Only process "Quest Monsters" */

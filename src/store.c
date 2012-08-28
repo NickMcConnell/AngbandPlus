@@ -917,7 +917,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust > 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (cur_store_num == STORE_BLACK)
+		if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY)
 			price = price / 2;
 
 		/* Compute the final price (with rounding) */
@@ -935,7 +935,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust < 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (cur_store_num == STORE_BLACK)
+		if (cur_store_num == STORE_BLACK && p_ptr->realm1 != REALM_BURGLARY)
 			price = price * 2;
 
 		/* Compute the final price (with rounding) */
@@ -2060,14 +2060,22 @@ static void store_create(void)
 		/* Black Market */
 		if (cur_store_num == STORE_BLACK)
 		{
-			/* Pick a level for object/magic */
-			level = 25 + randint0(25);
+			if (one_in_(6))
+			{
+				i = lookup_kind(TV_BURGLARY_BOOK, randint0(2));
+				level = rand_range(1, STORE_OBJ_LEVEL);
+			}
+			else
+			{
+				/* Pick a level for object/magic */
+				level = 25 + randint0(25);
 
-			/* Random item (usually of given level) */
-			i = get_obj_num(level);
+				/* Random item (usually of given level) */
+				i = get_obj_num(level);
 
-			/* Handle failure */
-			if (!i) continue;
+				/* Handle failure */
+				if (!i) continue;
+			}
 		}
 
 		/* Normal Store */

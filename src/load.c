@@ -555,6 +555,17 @@ static void rd_monster(monster_type *m_ptr)
 
 	if (flags & SAVE_MON_AC) rd_s16b(&m_ptr->ac_adj);
 	else m_ptr->ac_adj = 0;
+
+	if (h_older_than(0, 0, 112, 1))
+	{
+		m_ptr->drop_ct = get_monster_drop_ct(m_ptr);
+		m_ptr->stolen_ct = 0;
+	}
+	else
+	{
+		rd_byte(&m_ptr->drop_ct);
+		rd_byte(&m_ptr->stolen_ct);
+	}
 }
 
 
@@ -655,8 +666,13 @@ static void rd_lore(int r_idx)
 	/* Location in saved floor */
 	rd_s16b(&r_ptr->floor_id);
 
-	/* Later (?) */
-	rd_byte(&tmp8u);
+	if (h_older_than(0, 0, 112, 2))
+	{
+		r_ptr->stolen_ct = 0;
+		rd_byte(&tmp8u);
+	}
+	else
+		rd_byte(&r_ptr->stolen_ct);
 
 	/* Uber Mega Hack */
 	if (r_ptr->r_flagsr & (RFR_PACT_MONSTER)) pact = TRUE;
@@ -1603,6 +1619,17 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_sustain_chr);
 		rd_s16b(&p_ptr->tim_hold_life);
 		rd_s16b(&p_ptr->tim_transcendence);
+	}
+
+	if (h_older_than(0, 0, 112, 3))
+	{
+		p_ptr->tim_quick_walk = 0;
+		p_ptr->tim_inven_prot = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_quick_walk);
+		rd_s16b(&p_ptr->tim_inven_prot);
 	}
 
 	rd_s16b(&p_ptr->chaos_patron);

@@ -3278,51 +3278,27 @@ msg_format("%^s%s", m_name, monmessage);
 				note_spot(ny, nx);
 			}
 		}
-		else if (do_move && is_explosive_rune_grid(c_ptr) &&
+		else if (do_move && is_mon_trap_grid(c_ptr) &&
 			 !((r_ptr->flags1 & RF1_NEVER_BLOW) && player_bold(ny, nx)))
 		{
-			/* Assume no move allowed */
 			do_move = FALSE;
 
-			/* Break the ward */
 			if (!is_pet(m_ptr))
 			{
-				/* Break the ward */
-				if (randint1(BREAK_MINOR_GLYPH * p_ptr->lev / 50) > r_ptr->level)
-				{
-					/* Describe observable breakage */
-					if (c_ptr->info & CAVE_MARK)
-					{
-#ifdef JP
-						msg_print("ルーンが爆発した！");
-#else
-						msg_print("The rune explodes!");
-#endif
+				int y, x;
+				y = m_ptr->fy;
+				x = m_ptr->fx;
+				hit_mon_trap(ny, nx, m_idx);
 
-						project(0, 2, ny, nx, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-					}
-				}
-				else
-				{
-#ifdef JP
-					msg_print("爆発のルーンは解除された。");
-#else
-					msg_print("An explosive rune was disarmed.");
-#endif
-				}
-
-				/* Forget the rune */
-				c_ptr->info &= ~(CAVE_MARK);
-
-				/* Break the rune */
-				c_ptr->info &= ~(CAVE_OBJECT);
-				c_ptr->mimic = 0;
-
-				note_spot(ny, nx);
-				lite_spot(ny, nx);
-
+				/* Killed Monster? */
 				if (!m_ptr->r_idx) return;
-				/* Allow movement */
+
+				/* Teleported Monster? */
+				if (m_ptr->fy != y || m_ptr->fx != x) return;
+
+				/* Slept/Confused/Stunned monster? */
+				if (MON_CONFUSED(m_ptr) || MON_STUNNED(m_ptr) || MON_CSLEEP(m_ptr)) return;
+
 				do_move = TRUE;
 			}
 		}

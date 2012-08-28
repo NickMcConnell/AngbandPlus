@@ -315,9 +315,6 @@ static void _calc_bonuses(void)
 
 	if (!disrupt && p_ptr->lev >= 50)
 		p_ptr->peerless_stealth = TRUE;
-
-	if (p_ptr->tim_dark_stalker)
-		p_ptr->skills.stl += 2 + p_ptr->lev/10;
 }
 
 static caster_info * _caster_info(void)

@@ -4987,7 +4987,7 @@ bool earthquake_aux(int cy, int cx, int r, int m_idx)
 
 							/* Hack -- no safety on glyph of warding */
 							if (is_glyph_grid(&cave[y][x])) continue;
-							if (is_explosive_rune_grid(&cave[y][x])) continue;
+							if (is_mon_trap_grid(&cave[y][x])) continue;
 
 							/* ... nor on the Pattern */
 							if (pattern_tile(y, x)) continue;

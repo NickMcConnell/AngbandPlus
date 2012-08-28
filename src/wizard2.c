@@ -1763,6 +1763,7 @@ static tval_desc tvals[] =
 	{ TV_HISSATSU_BOOK,     "Book of Kendo"        },
 	{ TV_HEX_BOOK,          "Hex Spellbook"        },
 	{ TV_RAGE_BOOK,         "Rage Spellbook"       },
+	{ TV_BURGLARY_BOOK,     "Thieve's Guide"       },
 	{ TV_PARCHMENT,         "Parchment" },
 	{ TV_WHISTLE,           "Whistle"	},
 	{ TV_SPIKE,             "Spikes"               },
@@ -2879,7 +2880,7 @@ static void do_cmd_wiz_create_feature(void)
 	f_ptr = &f_info[get_feat_mimic(c_ptr)];
 
 	if (have_flag(f_ptr->flags, FF_GLYPH) ||
-	    have_flag(f_ptr->flags, FF_MINOR_GLYPH))
+	    have_flag(f_ptr->flags, FF_MON_TRAP))
 		c_ptr->info |= (CAVE_OBJECT);
 	else if (have_flag(f_ptr->flags, FF_MIRROR))
 		c_ptr->info |= (CAVE_GLOW | CAVE_OBJECT);

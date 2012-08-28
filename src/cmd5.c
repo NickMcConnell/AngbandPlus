@@ -1340,6 +1340,12 @@ msg_format("その%sを%sのに十分なマジックポイントがない。",prayer,
 		}
 	}
 
+	/* Take a turn ... Note some spells might have variable
+		energy costs, so we allow them to override the default
+		value of 100 when handling SPELL_CAST.
+	*/
+	energy_use = 100;
+
 	/* Failed spell */
 	if (randint0(100) < chance)
 	{
@@ -1453,6 +1459,7 @@ msg_print("An infernal sound echoed.");
 			/* If we eagerly took mana for this spell, then put it back! */
 			if (take_mana > 0)
 				p_ptr->csp += take_mana;
+			energy_use = 0;
 			return;
 		}
 
@@ -1617,9 +1624,6 @@ msg_print("An infernal sound echoed.");
 			p_ptr->spell_turn[(increment ? 32 : 0)+spell] = turn;
 		}
 	}
-
-	/* Take a turn */
-	energy_use = 100;
 
 	/* In general, we already charged the players sp.  However, in the event the 
 	   player knowingly exceeded their csp, then, well, they get what they deserve!

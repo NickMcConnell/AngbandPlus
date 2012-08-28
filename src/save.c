@@ -275,6 +275,9 @@ static void wr_monster(monster_type *m_ptr)
 	if (flags & SAVE_MON_PARENT) wr_s16b(m_ptr->parent_m_idx);
 	if (flags & SAVE_MON_PACK_IDX) wr_s16b(m_ptr->pack_idx);
 	if (flags & SAVE_MON_AC) wr_s16b(m_ptr->ac_adj);
+
+	wr_byte(m_ptr->drop_ct);
+	wr_byte(m_ptr->stolen_ct);
 }
 
 
@@ -324,14 +327,9 @@ static void wr_lore(int r_idx)
 	wr_u32b(r_ptr->r_flagsr);
 
 
-	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
-
-	/* Location in saved floor */
 	wr_s16b(r_ptr->floor_id);
-
-	/* Later (?) */
-	wr_byte(0);
+	wr_byte(r_ptr->stolen_ct);
 }
 
 
@@ -845,6 +843,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_sustain_chr);
 	wr_s16b(p_ptr->tim_hold_life);
 	wr_s16b(p_ptr->tim_transcendence);
+	wr_s16b(p_ptr->tim_quick_walk);
+	wr_s16b(p_ptr->tim_inven_prot);
 
 	wr_s16b(p_ptr->chaos_patron);
 	for (i = 0; i < MUT_FLAG_SIZE; ++i)

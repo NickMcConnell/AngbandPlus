@@ -445,6 +445,8 @@ static void prt_stat(int stat)
 #define BAR_DEATH_FORCE 138
 #define BAR_KILLING_SPREE 139
 #define BAR_SLAY_SENTIENT 140
+#define BAR_QUICK_WALK 141
+#define BAR_INVEN_PROT 142
 
 static struct {
 	byte attr;
@@ -661,7 +663,7 @@ static struct {
 	{TERM_YELLOW, "(Lf", "HoldLife"},
 	{TERM_WHITE, "Tr", "Transcendence"},
 	{TERM_L_BLUE, "ST", "StopTime"},
-	{TERM_L_DARK, "DS", "Stalk"},
+	{TERM_L_DARK, "DS", "Stealth"},
 	{TERM_L_BLUE, "ND", "Dodge"},
 	{TERM_UMBER, "SS", "Snipe"},
 	{TERM_L_BLUE, "WS", "Shield"},
@@ -670,6 +672,8 @@ static struct {
 	{TERM_L_DARK, "DF", "DeathForce"},
 	{TERM_VIOLET, "KS", "*KILL*"},
 	{TERM_L_BLUE, "SS", "SlaySentient"},
+	{TERM_YELLOW, "QW", "Quickwalk"},
+	{TERM_L_BLUE, "IP", "InvenProt"},
 	{0, NULL, NULL}
 };
 #endif
@@ -1016,6 +1020,8 @@ static void prt_status(void)
 	if (p_ptr->tim_sustain_chr) ADD_FLG(BAR_SUSTAIN_CHR);
 	if (p_ptr->tim_hold_life) ADD_FLG(BAR_HOLD_LIFE);
 	if (p_ptr->tim_transcendence) ADD_FLG(BAR_TRANSCENDENCE);
+	if (p_ptr->tim_quick_walk) ADD_FLG(BAR_QUICK_WALK);
+	if (p_ptr->tim_inven_prot) ADD_FLG(BAR_INVEN_PROT);
 
 	if (p_ptr->tim_dark_stalker) ADD_FLG(BAR_DARK_STALKER);
 	if (p_ptr->tim_nimble_dodge) ADD_FLG(BAR_NIMBLE_DODGE);
@@ -2041,7 +2047,7 @@ static void health_redraw(bool riding)
 	}
 
 	/* Tracking a visible monster */
-	else
+	else if (m_ptr->maxhp > 0 && m_ptr->max_maxhp > 0)
 	{
 		/* Extract the "percent" of health */
 		int pct = 100L * m_ptr->hp / m_ptr->maxhp;
@@ -3729,6 +3735,8 @@ void calc_bonuses(void)
 	p_ptr->peerless_stealth = FALSE;
 	p_ptr->open_terrain_ct = 0;
 
+	p_ptr->quick_walk = FALSE;
+
 	p_ptr->align = friend_align;
 	p_ptr->maul_of_vice = FALSE;
 
@@ -3740,6 +3748,10 @@ void calc_bonuses(void)
 	if (p_ptr->tim_sustain_con) p_ptr->sustain_con = TRUE;
 	if (p_ptr->tim_sustain_chr) p_ptr->sustain_chr = TRUE;
 	if (p_ptr->tim_hold_life) p_ptr->hold_life = TRUE;
+	if (p_ptr->tim_inven_prot) p_ptr->inven_prot = TRUE;
+	if (p_ptr->tim_quick_walk) p_ptr->quick_walk = TRUE;
+
+	if (mut_present(MUT_FLEET_OF_FOOT)) p_ptr->quick_walk = TRUE;
 
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = race_ptr->infra;
@@ -5969,6 +5981,9 @@ void calc_bonuses(void)
 	p_ptr->skills.stl += 1;
 
 	if (IS_TIM_STEALTH()) p_ptr->skills.stl += 99;
+
+	if (p_ptr->tim_dark_stalker)
+		p_ptr->skills.stl += 2 + p_ptr->lev/10;
 
 	/* Affect Skill -- disarming (DEX and INT) */
 	p_ptr->skills.dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];

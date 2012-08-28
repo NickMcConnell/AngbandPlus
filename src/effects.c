@@ -259,6 +259,8 @@ void reset_tim_flags(void)
 	p_ptr->tim_sustain_chr = 0;
 	p_ptr->tim_hold_life = 0;
 	p_ptr->tim_transcendence = 0;
+	p_ptr->tim_quick_walk = 0;
+	p_ptr->tim_inven_prot = 0;
 
 	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
 	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
@@ -376,6 +378,8 @@ void dispel_player(void)
 	set_tim_sustain_chr(0, TRUE);
 	set_tim_hold_life(0, TRUE);
 	set_tim_transcendence(0, TRUE);
+	set_tim_quick_walk(0, TRUE);
+	set_tim_inven_prot(0, TRUE);
 
 	set_tim_dark_stalker(0, TRUE);
 	set_tim_nimble_dodge(0, TRUE);
@@ -8013,7 +8017,10 @@ bool set_tim_dark_stalker(int v, bool do_dec)
 		}
 		else
 		{
-			msg_print("You begin to stalk your prey.");
+			if (p_ptr->pclass == CLASS_ROGUE)
+				msg_print("You begin to tread softly.");
+			else
+				msg_print("You begin to stalk your prey.");
 			notice = TRUE;
 		}
 	}
@@ -8022,7 +8029,10 @@ bool set_tim_dark_stalker(int v, bool do_dec)
 	{
 		if (p_ptr->tim_dark_stalker)
 		{
-			msg_print("You no longer stalk your prey.");
+			if (p_ptr->pclass == CLASS_ROGUE)
+				msg_print("You no longer tread softly.");
+			else
+				msg_print("You no longer stalk your prey.");
 			notice = TRUE;
 		}
 	}
@@ -8210,4 +8220,92 @@ bool set_tim_slay_sentient(int v, bool do_dec)
 	p_ptr->update |= (PU_BONUS);
 	handle_stuff();
 	return (TRUE);
+}
+
+bool set_tim_quick_walk(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_quick_walk)
+		{
+			if (p_ptr->tim_quick_walk > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You move with great haste.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_quick_walk)
+		{
+			msg_print("You are no longer walking quickly.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_quick_walk = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
+}
+
+bool set_tim_inven_prot(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_inven_prot)
+		{
+			if (p_ptr->tim_inven_prot > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You feel your loot is safe.");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_inven_prot)
+		{
+			msg_print("Your loot feels exposed once again.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_inven_prot = v;
+	if (!notice) return FALSE;
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= PR_STATUS;
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+	return TRUE;
 }

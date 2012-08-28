@@ -750,7 +750,7 @@ static void get_out_monster(void)
 
 		/* Hack -- no teleport onto glyph of warding */
 		if (is_glyph_grid(&cave[ny][nx])) continue;
-		if (is_explosive_rune_grid(&cave[ny][nx])) continue;
+		if (is_mon_trap_grid(&cave[ny][nx])) continue;
 
 		/* ...nor onto the Pattern */
 		if (pattern_tile(ny, nx)) continue;

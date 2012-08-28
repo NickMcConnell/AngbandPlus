@@ -964,6 +964,9 @@ bool make_attack_normal(int m_idx)
 					/* Obvious */
 					obvious = TRUE;
 
+					if ((r_ptr->flags2 & RF2_THIEF) && is_original_ap_and_seen(m_ptr))
+						r_ptr->r_flags2 |= RF2_THIEF;
+
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
 					    (randint0(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
@@ -1045,6 +1048,9 @@ bool make_attack_normal(int m_idx)
 					if (MON_CONFUSED(m_ptr)) break;
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+
+					if ((r_ptr->flags2 & RF2_THIEF) && is_original_ap_and_seen(m_ptr))
+						r_ptr->r_flags2 |= RF2_THIEF;
 
 					/* Saving throw (unless paralyzed) based on dex and level */
 					if (!p_ptr->paralyzed &&
@@ -1168,6 +1174,9 @@ bool make_attack_normal(int m_idx)
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
 
+					if ((r_ptr->flags2 & RF2_THIEF) && is_original_ap_and_seen(m_ptr))
+						r_ptr->r_flags2 |= RF2_THIEF;
+
 					/* Steal some food */
 					for (k = 0; k < 10; k++)
 					{
@@ -1222,6 +1231,9 @@ bool make_attack_normal(int m_idx)
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
 					if (p_ptr->is_dead || CHECK_MULTISHADOW()) break;
+
+					if ((r_ptr->flags2 & RF2_THIEF) && is_original_ap_and_seen(m_ptr))
+						r_ptr->r_flags2 |= RF2_THIEF;
 
 					/* Drain fuel */
 					if ((o_ptr->xtra4 > 0) && (!object_is_fixed_artifact(o_ptr)))

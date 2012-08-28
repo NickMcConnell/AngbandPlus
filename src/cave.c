@@ -4775,17 +4775,226 @@ bool is_glyph_grid(cave_type *c_ptr)
 }
 
 
-/*
- *  Return TRUE if there is a mirror on the grid.
- */
-bool is_explosive_rune_grid(cave_type *c_ptr)
+bool is_mon_trap_grid(cave_type *c_ptr)
 {
-	if ((c_ptr->info & CAVE_OBJECT) && have_flag(f_info[c_ptr->mimic].flags, FF_MINOR_GLYPH))
+	if ((c_ptr->info & CAVE_OBJECT) && have_flag(f_info[c_ptr->mimic].flags, FF_MON_TRAP))
 		return TRUE;
 	else
 		return FALSE;
 }
 
+void hit_mon_trap(int y, int x, int m_idx)
+{
+	monster_type    *m_ptr = &m_list[m_idx];
+	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+	cave_type       *c_ptr = &cave[y][x];
+	char             m_name[MAX_NLEN];
+
+	if (!is_mon_trap_grid(c_ptr)) return; /* paranoia */
+
+	monster_desc(m_name, m_ptr, 0);
+
+	if (randint1(BREAK_MON_TRAP * p_ptr->lev / 50) > r_ptr->level)
+	{
+		if (c_ptr->info & CAVE_MARK)
+		{
+			if (have_flag(f_info[c_ptr->mimic].flags, FF_ROGUE_TRAP_1))
+			{
+				switch (randint1(9))
+				{
+				case 1: /* Sleep */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a small dart.", m_name);
+					project(0, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev, GF_OLD_SLEEP, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 2: /* Confuse */
+					if (m_ptr->ml)
+						msg_format("A gas of scintillating colors surrounds %s!", m_name);
+					project(0, 3, y, x, p_ptr->lev, GF_OLD_CONF, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 3: /* Slow */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a small dart.", m_name);
+					project(0, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev, GF_OLD_SLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 4: /* Teleport */
+					if (r_ptr->flagsr & RFR_RES_TELE)
+					{
+						if (is_original_ap_and_seen(m_ptr)) r_ptr->r_flagsr |= RFR_RES_TELE;
+						if (m_ptr->ml)
+							msg_format("%s resists teleportation.", m_name);
+					}
+					else
+					{
+						if (m_ptr->ml)
+							msg_format("%s disappears.", m_name);
+						teleport_away(m_idx, 100, TELEPORT_PASSIVE);
+					}
+					break;
+				case 5: /* Trap Door */
+					if (r_ptr->flags7 & RF7_CAN_FLY)
+					{
+						if (m_ptr->ml)
+							msg_format("%s flies over the trap door.", m_name);
+					}
+					else
+					{
+						if (m_ptr->ml)
+							msg_format("%s falls through the trap door.", m_name);
+						delete_monster_idx(m_idx);
+					}
+					break;
+				case 6: case 7: case 8: case 9: /* Arrow Trap */
+					if (m_ptr->ml)
+						msg_format("%s is hit by an arrow.", m_name);
+					project(0, 1, m_ptr->fy, m_ptr->fx, p_ptr->lev/2 + damroll(5, 5), GF_MISSILE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				}
+			}
+			else if (have_flag(f_info[c_ptr->mimic].flags, FF_ROGUE_TRAP_2))
+			{
+				switch (randint1(7))
+				{
+				case 1: /* Seeker Bolt */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a seeker bolt.", m_name);
+					project(0, 1, m_ptr->fy, m_ptr->fx, 4*(damroll(6, 5) + p_ptr->lev/2), GF_MISSILE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 2: /* Sound Ball */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a ball of sound.", m_name);
+					project(0, 2, y, x, 2*(damroll(10, 10) + p_ptr->lev), GF_SOUND, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 3: /* Shard Ball */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a large rock.", m_name);
+					project(0, 2, y, x, damroll(10, 10) + 3*p_ptr->lev, GF_SHARDS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 4: /* Elemental Balls */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a shower of elements.", m_name);
+					project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_FIRE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_COLD, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_ELEC, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_ACID, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					project(0, 2, y, x, 2*(damroll(7, 7) + p_ptr->lev/2), GF_POIS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 5: /* Disintegration Ball */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a disintegration ball.", m_name);
+					project(0, 5, y, x, 2*(damroll(10, 10) + 3*p_ptr->lev), GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 6: /* Stasis */
+					project(0, 1, m_ptr->fy, m_ptr->fx, 4*p_ptr->lev, GF_STASIS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 7: /* Piranha Trap */
+				{
+					int i, num;
+					msg_print("Your trap explodes and suddenly the room is filled with water and piranhas!");
+					project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					project(0, 10, y, x, 1, GF_WATER_FLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI | PROJECT_HIDE), -1);
+
+					num = 1 + p_ptr->lev/10;
+					for (i = 0; i < num; i++)
+					{
+						summon_specific(0, y, x, p_ptr->lev * 2, SUMMON_PIRANHAS, (PM_ALLOW_GROUP | PM_FORCE_PET));
+					}
+					break;
+				}
+				}
+			}
+			else if (have_flag(f_info[c_ptr->mimic].flags, FF_ROGUE_TRAP_3))
+			{
+				switch (randint1(6))
+				{
+				case 1: /* Bird Trap */
+				{
+					int i, num;
+					msg_format("Your trap explodes and suddenly a storm of birds swirls around %s!", m_name);
+					project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+
+					num = 1 + p_ptr->lev/10;
+					for (i = 0; i < num; i++)
+					{
+						summon_specific(0, y, x, p_ptr->lev * 2, SUMMON_BIRD, (PM_ALLOW_GROUP | PM_FORCE_PET));
+					}
+					break;
+				}
+				case 2: /* Hell Trap */
+				{
+					int i, num;
+					msg_print("Your trap explodes and suddenly the room is filled with fire and brimstone!");
+					project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					project(0, 10, y, x, 1, GF_LAVA_FLOW, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI | PROJECT_HIDE), -1);
+
+					num = 1 + p_ptr->lev/10;
+					for (i = 0; i < num; i++)
+					{
+						summon_specific(0, y, x, p_ptr->lev * 2, SUMMON_DEMON, (PM_ALLOW_GROUP | PM_FORCE_PET));
+					}
+					break;
+				}
+				case 3: /* Heavenly Trap */
+				{
+					int i, num;
+					msg_print("Your trap explodes and suddenly the room is filled with a heavenly choir singing!");
+					project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+
+					num = 1 + p_ptr->lev/10;
+					for (i = 0; i < num; i++)
+					{
+						summon_specific(0, y, x, p_ptr->lev * 2, SUMMON_ANGEL, (PM_ALLOW_GROUP | PM_FORCE_PET));
+					}
+					break;
+				}
+				case 4: /* Mana Storm */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a mana storm.", m_name);
+					project(0, 5, y, x, 2*400, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 5: /* Rocket */
+					if (m_ptr->ml)
+						msg_format("%s is hit by a Rocket.", m_name);
+					project(0, 5, y, x, 2*400, GF_SHARDS, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+					break;
+				case 6: /* Dragon Trap */
+				{
+					int i, num;
+					msg_format("Your trap explodes and suddenly ancient dragons surround %s!", m_name);
+					project(0, 10, y, x, 100, GF_DISINTEGRATE, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+
+					num = 1 + p_ptr->lev/10;
+					for (i = 0; i < num; i++)
+					{
+						summon_specific(0, y, x, p_ptr->lev * 2, SUMMON_HI_DRAGON, (PM_ALLOW_GROUP | PM_FORCE_PET));
+					}
+					break;
+				}
+				}
+			}
+			else
+			{
+				msg_print(T("The rune explodes!", "ルーンが爆発した！"));
+				project(0, 2, y, x, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
+			}
+		}
+	}
+	else
+	{
+		msg_print(T("Your trap was disarmed.", "爆発のルーンは解除された。"));
+	}
+
+	/* Forget the trap */
+	c_ptr->info &= ~(CAVE_MARK);
+
+	/* Break the trap */
+	c_ptr->info &= ~(CAVE_OBJECT);
+	c_ptr->mimic = 0;
+
+	note_spot(y, x);
+	lite_spot(y, x);
+
+}
 
 /*
  * Calculate "incremental motion". Used by project() and shoot().

@@ -3647,6 +3647,21 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (have_flag(flgs, TR_WILD))
 				wild_weapon_strike();
 
+			if (mode == ROGUE_ASSASSINATE)
+			{
+				if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE2) || mon_save_p(m_ptr->r_idx, A_DEX))
+				{
+					k = MAX(k*5, m_ptr->hp/2);
+					drain_result *= 2;
+					msg_format("You fatally injured %s!", m_name);
+				}
+				else
+				{
+					k = m_ptr->hp + 1;
+					msg_format("You hit %s on a fatal spot!", m_name);
+				}
+			}
+
 			if (p_ptr->pclass == CLASS_WEAPONMASTER)
 			{
 				if (mode == WEAPONMASTER_STRIKE_VULNERABILITY)
@@ -4417,6 +4432,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 		if (mode == WEAPONMASTER_REAPING) break;
 		if (mode == WEAPONMASTER_ABSORB_SOUL) break;
 		if (mode == MELEE_AWESOME_BLOW) break;
+		if (mode == ROGUE_ASSASSINATE) break;
 	}
 
 	if (mode == WEAPONMASTER_KNOCK_BACK && hit_ct)

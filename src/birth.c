@@ -1973,6 +1973,11 @@ static cptr realm_jouhou[VALID_REALM] =
 "The books of Rage describe various techniques. To learn a new technique, you must perform a ritual of rage, destroying the book in the process."
 	" Once learned, you may use techniques without requiring the corresponding Rage book, but you will need to find many copies of each book in order"
 	" to learn all of the techniques.",
+
+"Burglary is the preferred realm of rogues, allowing them to specialize in what they do best: Stealing! "
+	"This realm offers good detection and escapes, offers talents for picking pockets and setting traps, "
+	"and even allows for direct assassination of sleeping monsters. The books for this realm are only "
+	"available in the Black Market (or in the dungeon).",
 #endif
 };
 
@@ -2009,6 +2014,7 @@ static char realm_subinfo[VALID_REALM][128] =
 "Special attacks on melee.",
 "Good at obstacle and revenge.",
 "Good at destroying spellcasting foes.",
+"Good at stealth, stealing and escapes.",
 #endif
 };
 
@@ -2149,6 +2155,11 @@ static byte choose_realm(s32b choices, int *count)
 		(*count)++;
 		auto_select = REALM_RAGE;
 	}
+	if (choices & CH_BURGLARY)
+	{
+		(*count)++;
+		auto_select = REALM_BURGLARY;
+	}
 
 	clear_from(10);
 
@@ -2216,8 +2227,8 @@ static byte choose_realm(s32b choices, int *count)
 		if (cs != os)
 		{
 			c_put_str(TERM_WHITE, cur, 12 + (os/5), 2 + 15 * (os%5));
-			put_str("                                   ", 3, 40);
-			put_str("                                   ", 4, 40);
+			put_str("                                      ", 3, 40);
+			put_str("                                      ", 4, 40);
 
 			if(cs == n)
 			{
@@ -2758,9 +2769,9 @@ static bool get_player_realms(void)
 	int i, count;
 
 	/* Clean up infomation of modifications */
-	put_str("                                   ", 3, 40);
-	put_str("                                   ", 4, 40);
-	put_str("                                   ", 5, 40);
+	put_str("                                      ", 3, 40);
+	put_str("                                      ", 4, 40);
+	put_str("                                      ", 5, 40);
 
 	/* Select the first realm */
 	p_ptr->realm1 = REALM_NONE;
@@ -2777,9 +2788,9 @@ static bool get_player_realms(void)
 
 		/* Clean up*/
 		clear_from(10);
-		put_str("                                   ", 3, 40);
-		put_str("                                   ", 4, 40);
-		put_str("                                   ", 5, 40);
+		put_str("                                      ", 3, 40);
+		put_str("                                      ", 4, 40);
+		put_str("                                      ", 5, 40);
 
 		roff_to_buf(realm_jouhou[technic2magic(p_ptr->realm1)-1], 74, temp, sizeof(temp));
 		t = temp;
@@ -2840,9 +2851,9 @@ else
 
 			/* Clean up*/
 			clear_from(10);
-			put_str("                                   ", 3, 40);
-			put_str("                                   ", 4, 40);
-			put_str("                                   ", 5, 40);
+			put_str("                                      ", 3, 40);
+			put_str("                                      ", 4, 40);
+			put_str("                                      ", 5, 40);
 
 			roff_to_buf(realm_jouhou[technic2magic(p_ptr->realm2)-1], 74, temp, sizeof(temp));
 			t = temp;
@@ -3682,6 +3693,7 @@ static void player_wipe(void)
 
 		/* Clear all kills in this life */
 		r_ptr->r_akills = 0;
+		r_ptr->stolen_ct = 0;
 
 		/* Wipe out pact alliances from previous character 
 		   Currently, flagsr is only set to make the memory field

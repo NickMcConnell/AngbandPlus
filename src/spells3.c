@@ -33,7 +33,7 @@ static bool cave_monster_teleportable_bold(int m_idx, int y, int x, u32b mode)
 
 	/* Hack -- no teleport onto glyph of warding */
 	if (is_glyph_grid(c_ptr)) return FALSE;
-	if (is_explosive_rune_grid(c_ptr)) return FALSE;
+	if (is_mon_trap_grid(c_ptr)) return FALSE;
 
 	if (!(mode & TELEPORT_PASSIVE))
 	{
@@ -2126,34 +2126,28 @@ msg_print("床上のアイテムが呪文を跳ね返した。");
 }
 
 
-/*
- * Leave an "explosive rune" which prevents monster movement
- */
-bool explosive_rune(void)
+bool set_trap(int y, int x, int feature)
 {
-	/* XXX XXX XXX */
-	if (!cave_clean_bold(py, px))
-	{
-#ifdef JP
-msg_print("床上のアイテムが呪文を跳ね返した。");
-#else
-		msg_print("The object resists the spell.");
-#endif
+	if (!in_bounds(y, x)) return FALSE;
 
+	if (!cave_clean_bold(y, x))
+	{
+		if (y == py && x == px) /* Hack: I only want the message sometimes ... */
+			msg_print(T("The object resists the spell.", "床上のアイテムが呪文を跳ね返した。"));
 		return FALSE;
 	}
 
-	/* Create a glyph */
-	cave[py][px].info |= CAVE_OBJECT;
-	cave[py][px].mimic = feat_explosive_rune;
-
-	/* Notice */
-	note_spot(py, px);
-	
-	/* Redraw */
-	lite_spot(py, px);
+	cave[y][x].info |= CAVE_OBJECT;
+	cave[y][x].mimic = feature;
+	note_spot(y, x);
+	lite_spot(y, x);
 
 	return TRUE;
+}
+
+bool explosive_rune(void)
+{
+	return set_trap(py, px, feat_explosive_rune);
 }
 
 
@@ -4593,9 +4587,6 @@ put_str(buf, y, x + 29);
 			strncpy(ryakuji, exp_level_str[exp_level], 4);
 			ryakuji[3] = ']';
 			ryakuji[4] = '\0';
-
-			if (p_ptr->wizard)
-				sprintf(ryakuji, "[%d]", exp);
 		}
 
 		if (use_menu && target_spell)

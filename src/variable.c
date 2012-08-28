@@ -1215,6 +1215,9 @@ s16b feat_floor;
 /* Objects */
 s16b feat_glyph;
 s16b feat_explosive_rune;
+s16b feat_rogue_trap1;
+s16b feat_rogue_trap2;
+s16b feat_rogue_trap3;
 s16b feat_mirror;
 
 /* Doors */

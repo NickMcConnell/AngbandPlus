@@ -238,7 +238,7 @@ static cptr f_info_flags[] =
 	"SHAFT",
 	"MOUNTAIN",
 	"BLDG",
-	"MINOR_GLYPH",
+	"MON_TRAP",
 	"PATTERN",
 	"TOWN",
 	"ENTRANCE",
@@ -247,6 +247,9 @@ static cptr f_info_flags[] =
 	"TELEPORTABLE",
 	"CONVERT",
 	"GLASS",
+	"ROGUE_TRAP_1",
+	"ROGUE_TRAP_2",
+	"ROGUE_TRAP_3",
 };
 
 
@@ -319,7 +322,7 @@ static cptr r_info_flags2[] =
 	"TAKE_ITEM",
 	"KILL_ITEM",
 	"AURA_REVENGE",
-	"XXX",
+	"THIEF",
 	"XXX",
 	"XXX",
 	"XXX",

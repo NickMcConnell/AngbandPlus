@@ -1007,6 +1007,12 @@ static bool summon_specific_aux(int r_idx)
 			okay = (r_ptr->d_char == 'L' || r_idx == MON_DRACOLICH) ? TRUE : FALSE;
 			break;
 		}
+		case SUMMON_THIEF:
+		{
+			okay = (r_ptr->flags2 & (RF2_THIEF)) ? TRUE : FALSE;
+			break;
+		}
+
 		case SUMMON_UNIQUE:
 		{
 			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
@@ -1207,7 +1213,7 @@ static bool summon_specific_aux(int r_idx)
 
 		case SUMMON_PIRANHAS:
 		{
-			okay = (r_idx == MON_PIRANHA);
+			okay = (r_idx == MON_PIRANHA || r_idx == MON_GIANT_PIRANHA);
 			break;
 		}
 
@@ -3662,6 +3668,14 @@ msg_print("守りのルーンが壊れた！");
 	else if ((r_ptr->flags7 & RF7_HAS_LD_MASK) && !MON_CSLEEP(m_ptr))
 		p_ptr->update |= (PU_MON_LITE);
 
+	/* Pre-roll the number of monsters drops so that Rogues may pick pockets.
+	   What the drops actually are will be determined later.
+	 */
+	m_ptr->drop_ct = get_monster_drop_ct(m_ptr);
+	m_ptr->stolen_ct = 0;
+	if (r_ptr->flags1 & RF1_UNIQUE)
+		m_ptr->stolen_ct = r_ptr->stolen_ct;
+
 	/* Update the monster */
 	update_mon(c_ptr->m_idx, TRUE);
 
@@ -3753,42 +3767,8 @@ msg_print("守りのルーンが壊れた！");
 		}
 	}
 
-	if (is_explosive_rune_grid(c_ptr))
-	{
-		/* Break the ward */
-		if (randint1(BREAK_MINOR_GLYPH * p_ptr->lev / 50) > r_ptr->level)
-		{
-			/* Describe observable breakage */
-			if (c_ptr->info & CAVE_MARK)
-			{
-#ifdef JP
-msg_print("ルーンが爆発した！");
-#else
-				msg_print("The rune explodes!");
-#endif
-
-				project(0, 2, y, x, 2 * (p_ptr->lev + damroll(7, 7)), GF_MANA, (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP | PROJECT_NO_HANGEKI), -1);
-			}
-		}
-		else
-		{
-#ifdef JP
-msg_print("爆発のルーンは解除された。");
-#else
-			msg_print("An explosive rune was disarmed.");
-#endif
-		}
-
-		/* Forget the rune */
-		c_ptr->info &= ~(CAVE_MARK);
-
-		/* Break the rune */
-		c_ptr->info &= ~(CAVE_OBJECT);
-		c_ptr->mimic = 0;
-
-		note_spot(y, x);
-		lite_spot(y, x);
-	}
+	if (is_mon_trap_grid(c_ptr))
+		hit_mon_trap(y, x, c_ptr->m_idx);
 
 	/* Success */
 	return c_ptr->m_idx;
