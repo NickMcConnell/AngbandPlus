@@ -3299,7 +3299,10 @@ msg_format("%^s%s", m_name, monmessage);
 				/* Slept/Confused/Stunned monster? */
 				if (MON_CONFUSED(m_ptr) || MON_STUNNED(m_ptr) || MON_CSLEEP(m_ptr)) return;
 
-				do_move = TRUE;
+				/* Bug with traps that summon?? Better to cancel the move until I can figure
+				   out the issue.
+				 */
+				do_move = FALSE;
 			}
 		}
 
