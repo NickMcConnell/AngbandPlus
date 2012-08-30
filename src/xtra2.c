@@ -812,9 +812,6 @@ byte get_monster_drop_ct(monster_type *m_ptr)
 	if  (r_ptr->flags1 & RF1_DROP_3D2) number += damroll(3, 2);
 	if  (r_ptr->flags1 & RF1_DROP_4D2) number += damroll(4, 2);
 
-	if ((m_ptr->smart & SM_CLONED) && !(r_ptr->flags1 & RF1_UNIQUE))
-		number = 0; /* Clones drop no stuff unless Cloning Pits */
-
 	if (is_pet(m_ptr) || p_ptr->inside_battle || p_ptr->inside_arena)
 		number = 0; /* Pets drop no stuff */
 
@@ -834,12 +831,10 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	bool do_gold = (!(r_ptr->flags1 & RF1_ONLY_ITEM));
 	bool do_item = (!(r_ptr->flags1 & RF1_ONLY_GOLD));
-	bool cloned = (m_ptr->smart & SM_CLONED) ? TRUE : FALSE;
-	bool visible = ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE));
 	int force_coin = get_coin_type(m_ptr->r_idx);
 	u32b mo_mode = 0L;
 
-	if (cloned || is_pet(m_ptr))
+	if (is_pet(m_ptr))
 		return FALSE;
 
 	if (m_ptr->stolen_ct >= m_ptr->drop_ct)
@@ -858,17 +853,11 @@ bool get_monster_drop(int m_idx, object_type *o_ptr)
 	{
 		if (!make_gold(o_ptr))
 			return FALSE;
-
-		if (visible)
-			lore_treasure(m_idx, 0, 1);
 	}
 	else
 	{
 		if (!make_object(o_ptr, mo_mode))
 			return FALSE;
-
-		if (visible)
-			lore_treasure(m_idx, 1, 0);
 	}
 
 	object_level = base_level;
@@ -896,9 +885,14 @@ void monster_death(int m_idx, bool drop_item)
 	int i, j, y, x;
 
 	int number = 0;
+	int dump_item = 0;
+	int dump_gold = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	bool visible = ((m_ptr->ml && !p_ptr->image) || (r_ptr->flags1 & RF1_UNIQUE));
+
 	u32b mo_mode = 0L;
 
 	bool cloned = (m_ptr->smart & SM_CLONED) ? TRUE : FALSE;
@@ -1771,8 +1765,18 @@ msg_print("地面に落とされた。");
 	for (j = 0; j < number; j++)
 	{
 		if (get_monster_drop(m_idx, &forge))
+		{
+			if (forge.tval == TV_GOLD)
+				dump_gold++;
+			else
+				dump_item++;
+
 			drop_near(&forge, -1, y, x);
+		}
 	}
+
+	if (visible && (dump_item || dump_gold))
+		lore_treasure(m_idx, dump_item, dump_gold);
 
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & RF1_QUESTOR)) return;

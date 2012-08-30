@@ -13237,12 +13237,18 @@ static cptr _rogue_pick_pocket(void)
 	{
 		msg_print("Failed!");
 	}
+
+	if (is_friendly(m_ptr) || is_pet(m_ptr))
+	{
+		msg_format("%^s suddenly becomes hostile!", m_name);
+		set_hostile(m_ptr);
+	}
 	return "";
 }
 
 static cptr _rogue_negotiate(void)
 {
-	int           m_idx;
+	int           m_idx = 0;
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 	char          m_name[MAX_NLEN];
