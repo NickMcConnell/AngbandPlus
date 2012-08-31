@@ -6273,6 +6273,46 @@ static bool build_type15(void)
 }
 
 
+static bool build_type16(void)
+{
+	int rad, x, y, x0, y0, r_idx;
+	int light = FALSE;
+
+	/* Occasional light */
+	if ((randint1(dun_level) <= 15) && !(d_info[dungeon_type].flags1 & DF1_DARKNESS)) light = TRUE;
+
+	rad = 3+randint0(5);
+
+	/* Find and reserve some space in the dungeon.  Get center of room. */
+	if (!find_space(&y0, &x0, rad * 2 + 1, rad * 2 + 1)) return FALSE;
+
+	/* Make circular floor */
+	for (x = x0 - rad; x <= x0 + rad; x++)
+	{
+		for (y = y0 - rad; y <= y0 + rad; y++)
+		{
+			if (distance(y0, x0, y, x) <= rad - 1)
+			{
+				/* inside- so is floor */
+				place_floor_bold(y, x);
+			}
+			else if (distance(y0, x0, y, x) <= rad + 1)
+			{
+				/* make granite outside so arena works */
+				place_extra_bold(y, x);
+			}
+		}
+	}
+
+	r_idx = get_mon_num(dun_level);
+	if (r_idx) place_monster_aux(0, y0, x0, r_idx, PM_ALLOW_SLEEP);
+
+	/* Find visible outer walls and set to be FEAT_OUTER */
+	add_outer_wall(x0, y0, light, x0 - rad, y0 - rad, x0 + rad, y0 + rad);
+
+	return TRUE;
+}
+
 /*
  * Attempt to build a room of the given type at the given block
  *
@@ -6281,6 +6321,9 @@ static bool build_type15(void)
  */
 static bool room_build(int typ)
 {
+	if (dungeon_type == DUNGEON_ARENA)
+		return build_type16();
+	
 	/* Build a room */
 	switch (typ)
 	{

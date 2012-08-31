@@ -788,7 +788,8 @@ static bool cave_gen(void)
 
 
 	/* Build maze */
-	if ((d_info[dungeon_type].flags1 & DF1_MAZE) || one_in_(50))
+	if ( dungeon_type != DUNGEON_ARENA 
+	  && ((d_info[dungeon_type].flags1 & DF1_MAZE) || one_in_(150-dun_level)) )
 	{
 		build_maze_vault(cur_wid/2-1, cur_hgt/2-1, cur_wid-4, cur_hgt-4, FALSE);
 
@@ -1043,12 +1044,16 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
 		}
 	}
 
-	i += randint1(8);
 
-	/* Put some monsters in the dungeon */
-	for (i = (dun_level < 50 ? (i+k) : (i+k)*6/10); i > 0; i--)
+	if (dungeon_type != DUNGEON_ARENA)
 	{
-		(void)alloc_monster(0, PM_ALLOW_SLEEP);
+		i += randint1(8);
+
+		/* Put some monsters in the dungeon */
+		for (i = (dun_level < 50 ? (i+k) : (i+k)*6/10); i > 0; i--)
+		{
+			(void)alloc_monster(0, PM_ALLOW_SLEEP);
+		}
 	}
 
 	/* Place some traps in the dungeon */
@@ -1057,12 +1062,15 @@ msg_format("モンスター数基本値を %d から %d に減らします", small_tester, i);
 	/* Put some rubble in corridors (except NO_CAVE dungeon (Castle)) */
 	if (!(d_info[dungeon_type].flags1 & DF1_NO_CAVE)) alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint1(k));
 
-	/* Put some objects in rooms */
-	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ROOM, 3));
+	if (dungeon_type != DUNGEON_ARENA)
+	{
+		/* Put some objects in rooms */
+		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ROOM, 3));
 
-	/* Put some objects/gold in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ITEM, 3));
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
+		/* Put some objects/gold in the dungeon */
+		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, randnor(DUN_AMT_ITEM, 3));
+		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, randnor(DUN_AMT_GOLD, 3));
+	}
 
 	/* Set back to default */
 	object_level = base_level;

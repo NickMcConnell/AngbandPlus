@@ -1641,6 +1641,7 @@ s16b get_mon_num(int level)
 		table[i].prob3 = 0;
 
 		if (!_ignore_depth_hack && table[i].max_level < level) continue;
+		if (!summon_specific_who && dungeon_type == DUNGEON_ARENA && table[i].level < MIN(50, dun_level-5)) continue;
 
 		r_idx = table[i].index;
 		r_ptr = &r_info[r_idx];
@@ -4029,7 +4030,7 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 	place_monster_m_idx = hack_m_idx_ii;
 
 	/* Friends for certain monsters */
-	if (r_ptr->flags1 & RF1_FRIENDS)
+	if ((r_ptr->flags1 & RF1_FRIENDS) && dungeon_type != DUNGEON_ARENA)
 	{
 		int pack_idx = pack_info_pop();
 		pack_info_t *pack_ptr = &pack_info_list[pack_idx];
@@ -4080,7 +4081,8 @@ bool place_monster_aux(int who, int y, int x, int r_idx, u32b mode)
 			    (r_ptr->flags1 & RF1_ESCORTS))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(place_monster_m_idx, ny, nx, z, pack_idx, mode);
+				if (dungeon_type != DUNGEON_ARENA)
+					(void)place_monster_group(place_monster_m_idx, ny, nx, z, pack_idx, mode);
 			}
 		}
 		pack_choose_ai(m_idx);
@@ -4284,7 +4286,7 @@ msg_print("警告！新たなモンスターを配置できません。小さい階ですか？");
 
 
 #ifdef MONSTER_HORDES
-	if (randint1(5000) <= dun_level)
+	if (randint1(5000) <= dun_level && dungeon_type != DUNGEON_ARENA)
 	{
 		if (alloc_horde(y, x))
 		{

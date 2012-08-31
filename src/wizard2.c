@@ -281,7 +281,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 			apply_magic(&forge, depth, 0);
 
 			#if 1
-			if (forge.name2 == EGO_AMU_RESISTANCE)
+			if (forge.name2 == EGO_MIGHT)
 			{
 				char buf[MAX_NLEN];
 
@@ -289,7 +289,7 @@ static void do_cmd_wiz_hack_chris3_imp(FILE* file)
 				forge.ident |= (IDENT_MENTAL); 
 				object_desc(buf, &forge, 0);
 				msg_print(buf);
-				drop_near(&forge, -1, py, px);
+			/*	drop_near(&forge, -1, py, px); */
 			}
 			#endif
 

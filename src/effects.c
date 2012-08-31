@@ -300,6 +300,316 @@ void reset_tim_flags(void)
 	}
 }
 
+/* TODO: Timed player effects needs a complete rework ... */
+bool disenchant_player(void)
+{
+	int attempts = 200;
+	bool result = FALSE;
+	for (; attempts; attempts--)
+	{
+		switch (randint1(33))
+		{
+		case 1:
+			if (p_ptr->fast)
+			{
+				(void)set_fast(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 2:
+			if (p_ptr->lightspeed)
+			{
+				(void)set_lightspeed(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 3:
+			if (p_ptr->shield || p_ptr->tim_blood_shield)
+			{
+				(void)set_shield(0, TRUE);
+				set_tim_blood_shield(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 4:
+			if (p_ptr->blessed)
+			{
+				(void)set_blessed(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 5:
+			if (p_ptr->hero)
+			{
+				(void)set_hero(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 6:
+			if (p_ptr->shero)
+			{
+				(void)set_shero(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 7:
+			if (p_ptr->protevil)
+			{
+				(void)set_protevil(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 8:
+			if (p_ptr->invuln)
+			{
+				(void)set_invuln(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 9:
+			if (p_ptr->wraith_form)
+			{
+				(void)set_wraith_form(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 10:
+			if (p_ptr->kabenuke)
+			{
+				(void)set_kabenuke(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 11:
+			if (p_ptr->tim_res_nether)
+			{
+				(void)set_tim_res_nether(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 12:
+			if (p_ptr->tim_res_time)
+			{
+				(void)set_tim_res_time(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 13:
+			if (p_ptr->tim_res_disenchantment)
+			{
+				(void)set_tim_res_disenchantment(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 14:
+			if (p_ptr->tim_reflect)
+			{
+				(void)set_tim_reflect(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 15:
+			if (p_ptr->tim_esp || p_ptr->tim_blood_seek || p_ptr->tim_blood_sight)
+			{
+				(void)set_tim_esp(0, TRUE);
+				set_tim_blood_seek(0, TRUE);
+				set_tim_blood_sight(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 16:
+			if (p_ptr->tim_regen)
+			{
+				(void)set_tim_regen(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 17:
+			if (p_ptr->tim_eyeeye || p_ptr->tim_blood_revenge)
+			{
+				(void)set_tim_eyeeye(0, TRUE);
+				set_tim_blood_revenge(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 18:
+			if (p_ptr->magicdef)
+			{
+				(void)set_magicdef(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 19:
+			if (p_ptr->oppose_acid || p_ptr->oppose_cold || p_ptr->oppose_elec || p_ptr->oppose_fire || p_ptr->oppose_pois)
+			{
+				(void)set_oppose_acid(0, TRUE);
+				(void)set_oppose_elec(0, TRUE);
+				(void)set_oppose_fire(0, TRUE);
+				(void)set_oppose_cold(0, TRUE);
+				(void)set_oppose_pois(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 20:
+			if (p_ptr->ult_res)
+			{
+				(void)set_ultimate_res(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 21:
+			if (p_ptr->ele_attack)
+			{
+				(void)set_ele_attack(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 22:
+			if (p_ptr->ele_immune)
+			{
+				(void)set_ele_immune(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 23:
+			if (p_ptr->tim_genji)
+			{
+				(void)set_tim_genji(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 24:
+			if (p_ptr->tim_force)
+			{
+				(void)set_tim_force(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 25:
+			if (p_ptr->tim_building_up)
+			{
+				(void)set_tim_building_up(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 26:
+			if (p_ptr->tim_enlarge_weapon)
+			{
+				(void)set_tim_enlarge_weapon(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 27:
+			if (p_ptr->tim_quick_walk)
+			{
+				(void)set_tim_quick_walk(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 28:
+			if (p_ptr->tim_inven_prot)
+			{
+				(void)set_tim_inven_prot(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 29:
+			if (p_ptr->tim_dark_stalker)
+			{
+				(void)set_tim_dark_stalker(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 30:
+			if (p_ptr->tim_nimble_dodge)
+			{
+				(void)set_tim_nimble_dodge(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 31:
+			if (p_ptr->tim_stealthy_snipe)
+			{
+				(void)set_tim_stealthy_snipe(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 32:
+			if (p_ptr->tim_speed_essentia)
+			{
+				(void)set_tim_speed_essentia(0, TRUE);
+				result = TRUE;
+				if (one_in_(2)) return result;
+			}
+			break;
+		case 33:
+			if (music_singing_any() || hex_spelling_any())
+			{
+		#ifdef JP
+				cptr str = (music_singing_any()) ? "²Î" : "¼öÊ¸";
+		#else
+				cptr str = (music_singing_any()) ? "singing" : "spelling";
+		#endif
+				p_ptr->magic_num1[1] = p_ptr->magic_num1[0];
+				p_ptr->magic_num1[0] = 0;
+		#ifdef JP
+				msg_format("%s¤¬ÅÓÀÚ¤ì¤¿¡£", str);
+		#else
+				msg_format("Your %s is interrupted.", str);
+		#endif
+				p_ptr->action = ACTION_NONE;
+
+				/* Recalculate bonuses */
+				p_ptr->update |= (PU_BONUS | PU_HP);
+
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP | PR_STATUS | PR_STATE);
+
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+				p_ptr->energy_need += ENERGY_NEED();
+			}
+			break;
+		}
+	}
+
+	return result;
+}
 
 void dispel_player(void)
 {

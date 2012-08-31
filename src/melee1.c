@@ -841,15 +841,27 @@ bool make_attack_normal(int m_idx)
 				{
 					if (explode) break;
 
-					/* Allow complete resist */
-					if (!p_ptr->resist_disen && !CHECK_MULTISHADOW())
+					if (one_in_(3))
 					{
-						/* Apply disenchantment */
-						if (apply_disenchant(0))
+						if ((p_ptr->resist_disen || CHECK_MULTISHADOW()) && one_in_(2))
 						{
-							/* Hack -- Update AC */
-							update_stuff();
+						}
+						else if (disenchant_player())
+						{
 							obvious = TRUE;
+						}
+					}
+					else 
+					{
+						if (!p_ptr->resist_disen && !CHECK_MULTISHADOW())
+						{
+							/* Apply disenchantment */
+							if (apply_disenchant(0))
+							{
+								/* Hack -- Update AC */
+								update_stuff();
+								obvious = TRUE;
+							}
 						}
 					}
 
@@ -865,6 +877,8 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_UN_POWER:
 				{
+					bool drained = FALSE;
+
 					/* Take some damage */
 					damage = reduce_melee_dam_p(damage);
 					get_damage += take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
@@ -906,12 +920,14 @@ bool make_attack_normal(int m_idx)
 							  && saving_throw(p_ptr->skills.sav - r_ptr->level/2) )
 							{
 								msg_print("Energy begins to drain from your pack, but you resist!");
+								drained = TRUE;
 								break;
 							}
 
 							if (mut_present(MUT_DEMONIC_GRASP))
 							{
 								msg_print("Energy begins to drain from your pack, but you resist!");
+								drained = TRUE;
 								break;
 							}
 
@@ -921,6 +937,7 @@ bool make_attack_normal(int m_idx)
 #else
 							msg_print("Energy drains from your pack!");
 #endif
+							drained = TRUE;
 
 
 							/* Obvious */
@@ -945,6 +962,13 @@ bool make_attack_normal(int m_idx)
 							/* Done */
 							break;
 						}
+					}
+
+					if ( !drained 
+					  && !(prace_is_(RACE_BALROG) || prace_is_(MIMIC_DEMON) || prace_is_(MIMIC_DEMON_LORD)) )
+					{
+						msg_print("Food drains from your belly!");
+						set_food(MAX(0, MIN(p_ptr->food - 1000, p_ptr->food/2)));
 					}
 
 					break;

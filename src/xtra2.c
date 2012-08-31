@@ -1735,6 +1735,28 @@ msg_print("地面に落とされた。");
 				}
 			}
 
+			if (k_idx == 337)
+			{
+				switch (p_ptr->realm1)
+				{
+				case REALM_NATURE: k_idx = 382; break;
+				case REALM_CRAFT: k_idx = 607; break;
+				case REALM_DAEMON: k_idx = 649; break;
+				case REALM_LIFE: k_idx = 333; break;
+				case REALM_DEATH: k_idx = 424; break;
+				case REALM_CHAOS: k_idx = 386; break;
+				case REALM_TRUMP: k_idx = 515; break;
+				case REALM_CRUSADE: k_idx = 657; break;
+				case REALM_HISSATSU: k_idx = 640; break;
+				case REALM_MUSIC: k_idx = 634; break;
+				case REALM_HEX: k_idx = 666; break;
+				case REALM_NECROMANCY: k_idx = 686; break;
+				case REALM_RAGE: k_idx = 691; break;
+				case REALM_ARCANE: k_idx = 519; break;
+				case REALM_BURGLARY: k_idx = 704; break;
+				}
+			}
+
 			if (k_idx)
 			{
 				/* Get local object */

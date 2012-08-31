@@ -2992,9 +2992,21 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						else add_esp_weak(o_ptr, FALSE);
 						break;
 					case EGO_MAGI:
-					case EGO_MIGHT:
-					case EGO_REGENERATION:
+						if (one_in_(7))
+							add_flag(o_ptr->art_flags, TR_EASY_SPELL);
+						break;
 					case EGO_LORDLINESS:
+						if (one_in_(7))
+							add_flag(o_ptr->art_flags, TR_SPELL_CAP);
+						break;
+					case EGO_MIGHT:
+						if (one_in_(7))
+						{
+							o_ptr->to_h += randint1(7);
+							o_ptr->to_d += randint1(7);
+						}
+						break;
+					case EGO_REGENERATION:
 						break;
 					case EGO_SEEING:
 						if (one_in_(3))

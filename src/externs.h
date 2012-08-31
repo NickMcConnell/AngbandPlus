@@ -1465,6 +1465,7 @@ extern bool heavy_armor(void);
 extern void set_action(int typ);
 extern void reset_tim_flags(void);
 extern void dispel_player(void);
+extern bool disenchant_player(void);
 extern bool set_mimic(int v, int p, bool do_dec);
 extern bool set_blind(int v, bool do_dec);
 extern bool set_confused(int v, bool do_dec);

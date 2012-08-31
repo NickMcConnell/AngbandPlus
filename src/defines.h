@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 113
+#define FAKE_VER_PATCH 114
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 113
+#define H_VER_PATCH 114
 #define H_VER_EXTRA 0
 
 
@@ -5467,6 +5467,7 @@ extern int PlayerUID;
 #define DUNGEON_NO_MELEE 17
 #define DUNGEON_CHAMELEON 18
 #define DUNGEON_DARKNESS 19
+#define DUNGEON_ARENA    25
 
 
 #define DUNGEON_FEAT_PROB_NUM 3
