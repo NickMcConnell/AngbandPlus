@@ -22204,6 +22204,25 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_ACID
 D:$A giant ant with a greatly enlarged mandibular gland.
 
+N:1110:はぐれメタル
+E:Metal Babble
+G:j:s
+I:190:3d2:200:10000:0
+W:80:10:999:400000:0:0
+B:HIT:UN_BONUS:1d10
+B:HIT:UN_BONUS:1d10
+B:TOUCH:UN_POWER
+B:TOUCH:UN_POWER
+F:FORCE_SLEEP
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_3D2 | 
+F:DROP_GOOD | DROP_GREAT | CAN_SWIM | UNIQUE
+F:SMART | NONLIVING | COLD_BLOOD |
+F:RES_ALL | POWERFUL | KILL_EXP |
+F:NO_CONF | NO_SLEEP | NO_STUN | EMPTY_MIND | RES_TELE |
+S:1_IN_1 |
+S:BLINK | BO_MANA | BA_CHAO | BA_FIRE | TPORT  | PSY_SPEAR
+D:固い金属に包まれたスライムだ。
+
 
 # N: serial number : monster name
 # G: symbol : color

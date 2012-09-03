@@ -3308,7 +3308,7 @@ static void calc_hitpoints(void)
 	if (hex_spelling(HEX_BUILDING)) mhp += 60;
 	if (p_ptr->tim_building_up) 
 	{
-		mhp += 10 + p_ptr->lev;
+		mhp += 10 + p_ptr->lev/2;
 	}
 	if (mut_present(MUT_UNYIELDING))
 		mhp += 3 * p_ptr->lev / 2;
@@ -4690,8 +4690,7 @@ void calc_bonuses(void)
 
 	if (p_ptr->tim_building_up)
 	{
-		int amt = 2;
-		if (p_ptr->lev >= 30) amt = 4;
+		int amt = 4 * p_ptr->lev / 50; /* 13, 25, 38, 50 */
 		p_ptr->stat_add[A_STR] += amt;
 		p_ptr->stat_add[A_DEX] += amt;
 		p_ptr->stat_add[A_CON] += amt;
@@ -5556,12 +5555,24 @@ void calc_bonuses(void)
 			if (hex_spelling(HEX_XTRA_MIGHT) || hex_spelling(HEX_BUILDING)) { num++; wgt /= 2; mul += 2; }
 			if (p_ptr->tim_building_up && p_ptr->pclass != CLASS_MAULER) 
 			{ 
-				if (num < 5 && p_ptr->lev >= 30) 
+				if (num < 5 && p_ptr->lev >= 40) 
 					num++; 
 				wgt /= 2; 
 				mul += 2; 
 			}
-
+			/* Battle Magi (Craft) can get 4 blows on assuming the correct form */
+			else if (prace_is_(MIMIC_COLOSSUS))
+			{
+				if (num < 4) 
+					num++; 
+				wgt /= 2; 
+				mul += 2; 
+			}
+			else if (prace_is_(MIMIC_MITHRIL_GOLEM))
+			{
+				if (num < 4) 
+					num++; 
+			}
 			/* Enforce a minimum "weight" (tenth pounds) */
 			div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
 

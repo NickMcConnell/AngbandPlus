@@ -2074,6 +2074,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ, int flg, b
 			if (r_ptr->flagsr & RFR_RES_ALL)
 			{
 				if ( m_ptr->r_idx == MON_HAGURE
+				  || m_ptr->r_idx == MON_HAGURE2
 				  || who == 0 )
 				{
 					note = T(" is immune.", "には完全な耐性がある！");

@@ -1870,7 +1870,7 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 	{
 		/* Only the Metal Babble gets this
 		   Other magic immune monsters can be slain by melee and arrows */
-		if (m_ptr->r_idx == MON_HAGURE)
+		if (m_ptr->r_idx == MON_HAGURE || m_ptr->r_idx == MON_HAGURE2)
 		{
 			dam /= 100;
 			if ((dam == 0) && one_in_(3)) dam = 1;
@@ -1916,7 +1916,7 @@ int mon_damage_mod(monster_type *m_ptr, int dam, bool is_psy_spear)
 /* [2] Another monster is damaging monster */
 int mon_damage_mod_mon(monster_type *m_ptr, int dam, bool is_psy_spear)
 {
-	if (m_ptr->r_idx == MON_HAGURE && dam > 0)
+	if ( (m_ptr->r_idx == MON_HAGURE || m_ptr->r_idx == MON_HAGURE2) && dam > 0)
 	{
 		dam /= 100;
 		if ((dam == 0) && one_in_(3)) dam = 1;

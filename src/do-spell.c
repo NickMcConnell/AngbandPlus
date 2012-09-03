@@ -2760,25 +2760,16 @@ static cptr do_nature_spell(int spell, int mode)
 		break;
 
 	case 5:
-#ifdef JP
-		if (name) return "動物習し";
-		if (desc) return "動物1体を魅了する。抵抗されると無効。";
-#else
-		if (name) return "Animal Taming";
-		if (desc) return "Attempts to charm an animal.";
-#endif
+		if (name) return "Wind Walker";
+		if (desc) return "Grants temporary levitation.";
     
 		{
-			int power = spell_power(plev);
+			int dur = spell_power(30);
 
-			if (info) return info_power(power);
+			if (info) return info_duration(dur, dur);
 
 			if (cast)
-			{
-				if (!get_aim_dir(&dir)) return NULL;
-
-				charm_animal(dir, power);
-			}
+				set_tim_levitation(randint1(dur) + dur, FALSE);
 		}
 		break;
 
@@ -2939,7 +2930,7 @@ static cptr do_nature_spell(int spell, int mode)
 			int dice = 6;
 			int sides = 8;
 
-			if (info) return info_damage(dice, sides, 0);
+			if (info) return info_damage(dice, spell_power(sides), 0);
 
 			if (cast)
 			{
@@ -2950,7 +2941,7 @@ static cptr do_nature_spell(int spell, int mode)
 				msg_print("A line of sunlight appears.");
 #endif
 
-				lite_line(dir);
+				project_hook(GF_LITE_WEAK, dir, spell_power(damroll(6, 8)), PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL);
 			}
 		}
 		break;
@@ -2965,13 +2956,14 @@ static cptr do_nature_spell(int spell, int mode)
 #endif
     
 		{
-			int power = plev;
+			int power = spell_power(plev * 2);
 
 			if (info) return info_power(power);
 
 			if (cast)
 			{
-				slow_monsters();
+				/*slow_monsters();*/
+				project_hack(GF_OLD_SLOW, power);
 			}
 		}
 		break;
@@ -2981,23 +2973,37 @@ static cptr do_nature_spell(int spell, int mode)
 		if (name) return "動物召喚";
 		if (desc) return "動物を1体召喚する。";
 #else
-		if (name) return "Summon Animal";
-		if (desc) return "Summons an animal.";
+		if (name) return "Nature's Gate";
+		if (desc) return "Summons one or more animals. At higher levels, might summon hounds, reptiles or even an Ent!";
 #endif
     
+		if (cast)
 		{
-			if (cast)
+			bool success = FALSE;
+			if (plev < 30)
+				success = trump_summoning(1, TRUE, py, px, 0, SUMMON_ANIMAL_RANGER, PM_ALLOW_GROUP);
+			else if (plev < 47)
 			{
-				if (!(summon_specific(-1, py, px, spell_power(plev*2), SUMMON_ANIMAL_RANGER, (PM_ALLOW_GROUP | PM_FORCE_PET))))
+				switch (randint1(3))
 				{
-#ifdef JP
-					msg_print("動物は現れなかった。");
-#else
-					msg_print("No animals arrive.");
-#endif
+				case 1:
+					success = trump_summoning(1, TRUE, py, px, 0, SUMMON_HOUND, PM_ALLOW_GROUP);
+					break;
+				case 2:
+					success = trump_summoning(1, TRUE, py, px, 0, SUMMON_HYDRA, PM_ALLOW_GROUP);
+					break;
+				case 3:
+					success = trump_summoning((1 + (plev - 15)/ 10), TRUE, py, px, 0, SUMMON_ANIMAL_RANGER, PM_ALLOW_GROUP);
+					break;
 				}
-				break;
 			}
+			else
+			{
+				if (one_in_(5))
+					success = trump_summoning(1, TRUE, py, px, 0, SUMMON_ENT, PM_ALLOW_GROUP);
+			}
+			if (!success)
+				msg_print(T("No help arrives.", "動物は現れなかった。"));
 		}
 		break;
 
@@ -3108,27 +3114,6 @@ static cptr do_nature_spell(int spell, int mode)
 
 	case 20:
 #ifdef JP
-		if (name) return "動物友和";
-		if (desc) return "視界内の全ての動物を魅了する。抵抗されると無効。";
-#else
-		if (name) return "Animal Friendship";
-		if (desc) return "Attempts to charm all animals in sight.";
-#endif
-    
-		{
-			int power = spell_power(plev * 2);
-
-			if (info) return info_power(power);
-
-			if (cast)
-			{
-				charm_animals(power);
-			}
-		}
-		break;
-
-	case 21:
-#ifdef JP
 		if (name) return "試金石";
 		if (desc) return "アイテムの持つ能力を完全に知る。";
 #else
@@ -3144,7 +3129,7 @@ static cptr do_nature_spell(int spell, int mode)
 		}
 		break;
 
-	case 22:
+	case 21:
 #ifdef JP
 		if (name) return "石の壁";
 		if (desc) return "自分の周囲に花崗岩の壁を作る。";
@@ -3161,7 +3146,7 @@ static cptr do_nature_spell(int spell, int mode)
 		}
 		break;
 
-	case 23:
+	case 22:
 #ifdef JP
 		if (name) return "腐食防止";
 		if (desc) return "アイテムを酸で傷つかないよう加工する。";
@@ -3174,6 +3159,46 @@ static cptr do_nature_spell(int spell, int mode)
 			if (cast)
 			{
 				if (!rustproof()) return NULL;
+			}
+		}
+		break;
+
+	case 23:
+#ifdef JP
+		if (name) return "陽光召喚";
+		if (desc) return "自分を中心とした光の球を発生させる。さらに、その階全体を永久に照らし、ダンジョン内すべてのアイテムを感知する。";
+#else
+		if (name) return "Call Sunlight";
+		if (desc) return "Generates ball of light centered on you. Maps and lights whole dungeon level. Knows all objects location.";
+#endif
+    
+		{
+			int dam = spell_power(150);
+			int rad = 8;
+
+			if (info) return info_damage(0, 0, dam/2);
+
+			if (cast)
+			{
+				fire_ball(GF_LITE, 0, dam, rad);
+				chg_virtue(V_KNOWLEDGE, 1);
+				chg_virtue(V_ENLIGHTEN, 1);
+				wiz_lite(FALSE);
+
+				if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !p_ptr->resist_lite)
+				{
+#ifdef JP
+					msg_print("日光があなたの肉体を焦がした！");
+#else
+					msg_print("The sunlight scorches your flesh!");
+#endif
+
+#ifdef JP
+					take_hit(DAMAGE_NOESCAPE, 50, "日光", -1);
+#else
+					take_hit(DAMAGE_NOESCAPE, 50, "sunlight", -1);
+#endif
+				}
 			}
 		}
 		break;
@@ -3200,14 +3225,20 @@ static cptr do_nature_spell(int spell, int mode)
 		break;
 
 	case 25:
-		if (name) return "Summon Lake";
-		if (desc) return "Summons a body of fresh, delicious water.";
-		
-		if (cast)
+		if (name) return "Fire Storm";
+		if (desc) return "Fires a huge ball of fire.";
+    
 		{
-			fire_ball_hide(GF_WATER_FLOW, 0, 3, 8);
-			if (one_in_(3))
-				summon_specific(-1, py, px, spell_power(plev), SUMMON_KRAKEN, PM_FORCE_PET);
+			int dam = spell_power(60 + plev * 2);
+			int rad = plev / 12 + 1;
+
+			if (info) return info_damage(0, 0, dam);
+
+			if (cast)
+			{
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_FIRE, dir, dam, rad);
+			}
 		}
 		break;
 
@@ -3283,46 +3314,6 @@ static cptr do_nature_spell(int spell, int mode)
 		break;
 
 	case 29:
-#ifdef JP
-		if (name) return "陽光召喚";
-		if (desc) return "自分を中心とした光の球を発生させる。さらに、その階全体を永久に照らし、ダンジョン内すべてのアイテムを感知する。";
-#else
-		if (name) return "Call Sunlight";
-		if (desc) return "Generates ball of light centered on you. Maps and lights whole dungeon level. Knows all objects location.";
-#endif
-    
-		{
-			int dam = spell_power(150);
-			int rad = 8;
-
-			if (info) return info_damage(0, 0, dam/2);
-
-			if (cast)
-			{
-				fire_ball(GF_LITE, 0, dam, rad);
-				chg_virtue(V_KNOWLEDGE, 1);
-				chg_virtue(V_ENLIGHTEN, 1);
-				wiz_lite(FALSE);
-
-				if ((prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE)) && !p_ptr->resist_lite)
-				{
-#ifdef JP
-					msg_print("日光があなたの肉体を焦がした！");
-#else
-					msg_print("The sunlight scorches your flesh!");
-#endif
-
-#ifdef JP
-					take_hit(DAMAGE_NOESCAPE, 50, "日光", -1);
-#else
-					take_hit(DAMAGE_NOESCAPE, 50, "sunlight", -1);
-#endif
-				}
-			}
-		}
-		break;
-
-	case 30:
 		if (name) return "Ice Bolt";
 		if (desc) return "Fires a bolt of ice.";
     
@@ -3340,31 +3331,72 @@ static cptr do_nature_spell(int spell, int mode)
 		}
 		break;
 
-	case 31:
-#ifdef JP
-		if (name) return "自然の脅威";
-		if (desc) return "近くの全てのモンスターにダメージを与え、地震を起こし、自分を中心とした分解の球を発生させる。";
-#else
-		if (name) return "Nature's Wrath";
-		if (desc) return "Damages all monsters in sight. Makes quake. Generates disintegration ball centered on you.";
-#endif
+	case 30:
+		if (name) return "Gravity Storm";
+		if (desc) return "Fires a huge ball of gravity.";
     
 		{
-			int d_dam = spell_power(4 * plev);
-			int b_dam = spell_power((100 + plev) * 2);
-			int b_rad = spell_power(1 + plev / 12);
-			int q_rad = spell_power(20 + plev / 2);
+			int dam = spell_power(70 + plev * 2);
+			int rad = plev / 12 + 1;
 
-			if (info) return format("%s%d+%d", s_dam, d_dam, b_dam/2);
+			if (info) return info_damage(0, 0, dam);
 
 			if (cast)
 			{
-				dispel_monsters(d_dam);
-				earthquake(py, px, q_rad);
-				project(0, b_rad, py, px, b_dam, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM, -1);
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_ball(GF_GRAVITY, dir, dam, rad);
 			}
 		}
 		break;
+
+	case 31:
+		if (name) return "Nature's Wrath";
+		if (desc) return "You unleash Nature's full fury, the exact consequences of which can't be predicted.";
+
+		if (cast)
+		{
+			int i;
+			switch (randint1(6))
+			{
+			case 1: /* The original effect: Line of Sight damage, earthquake, disintegration ball */
+				msg_print("Nature's Fury is unleashed!");
+				dispel_monsters(spell_power(4 * plev));
+				earthquake(py, px, spell_power(20 + plev / 2));
+				project(0, spell_power(1 + plev / 12), py, px, spell_power((100 + plev) * 2), GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM, -1);
+				break;
+
+			case 2: /* Deadly bolt of lightning */
+				msg_print("Your hands crackle with electricity!");
+				if (!get_aim_dir(&dir)) return NULL;
+				fire_bolt(GF_ELEC, dir, spell_power(plev * 8));
+				break;
+
+			case 3: /* Immense thunderclap */
+				msg_print("There is a large thunderclap!");
+				project_hack(GF_SOUND, spell_power(plev * 5));
+				break;
+
+			case 4: /* Gravitational Wave */
+				msg_print("Space warps around you!");
+				project_hack(GF_GRAVITY, spell_power(plev * 4));
+				break;
+
+			case 5: /* Elemental Storm */
+				msg_print("You unleash the elements!");
+				project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_FIRE, PROJECT_KILL | PROJECT_ITEM, -1);
+				project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_COLD, PROJECT_KILL | PROJECT_ITEM, -1);
+				project(0, spell_power(1 + plev / 12), py, px, spell_power((120 + plev) * 2), GF_ELEC, PROJECT_KILL | PROJECT_ITEM, -1);
+				break;
+
+			case 6: /* Rock Storm */
+				msg_print("You fire a storm of boulders!");
+				if (!get_aim_dir(&dir)) return NULL;
+				for (i = 0; i < 3; i++)
+					fire_ball(GF_SHARDS, dir, spell_power(70 + plev), 1);
+				break;
+			}
+		}
+    	break;
 	}
 
 	return "";

@@ -891,6 +891,12 @@ static bool summon_specific_aux(int r_idx)
 			break;
 		}
 
+		case SUMMON_ENT:
+		{
+			okay = (r_idx == MON_ENT);
+			break;
+		}
+
 		case SUMMON_ANGEL:
 		{
 			okay = (r_ptr->d_char == 'A' && ((r_ptr->flags3 & RF3_EVIL) || (r_ptr->flags3 & RF3_GOOD)));

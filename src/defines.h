@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 114
+#define FAKE_VER_PATCH 115
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 114
+#define H_VER_PATCH 115
 #define H_VER_EXTRA 0
 
 
@@ -3023,6 +3023,7 @@
 #define SUMMON_LICH					79
 #define SUMMON_KRAKEN				80
 #define SUMMON_THIEF                81
+#define SUMMON_ENT                  82
 
 
 /*
@@ -5271,6 +5272,12 @@ extern int PlayerUID;
 #define MON_HERA		1105
 #define MON_DEMETER		1106
 #define MON_APHRODITE	1107
+/* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
+   monster or the dungeon never gets flagged as completed. Note, this messes up the needle 
+   code in py_attack_aux() since the needle doesn't work on uniques, but I think I have 
+   that fixed now ... sigh
+*/
+#define MON_HAGURE2        1110
 
 /* Maximum "Nazguls" number */
 #define MAX_NAZGUL_NUM 5
