@@ -3895,9 +3895,6 @@ void determine_random_questor(quest_type *q_ptr)
 	else
 		get_mon_num_prep(mon_hook_quest, NULL);
 
-	/* Prepare allocation table */
-	get_mon_num_prep(mon_hook_quest, NULL);
-
 	while (1)
 	{
 		int accept_lev = q_ptr->level + (q_ptr->level / 20);
@@ -3916,6 +3913,7 @@ void determine_random_questor(quest_type *q_ptr)
 		 * Random monster 5 - 10 levels out of depth
 		 * (depending on level)
 		 */
+		unique_count = 0; /* Hack! */
 		r_idx = get_mon_num(mon_lev);
 		r_ptr = &r_info[r_idx];
 

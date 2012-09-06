@@ -1874,7 +1874,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (o_ptr->pval) has_pval = TRUE;
 
-	if ((mode & CREATE_ART_SCROLL) || ((mode & CREATE_ART_GOOD) && one_in_(5)))
+	if ((mode & (CREATE_ART_SCROLL | CREATE_ART_GOOD)) && one_in_(4))
 	{
 		switch (p_ptr->pclass)
 		{
@@ -1900,32 +1900,32 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			case CLASS_BLOOD_MAGE:
 			case CLASS_NECROMANCER:
 				artifact_bias = BIAS_MAGE;
-				warrior_artifact_bias = 40;
+				warrior_artifact_bias = 20;
 				break;
 			case CLASS_PRIEST:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 60;
+				warrior_artifact_bias = 30;
 				break;
 			case CLASS_ROGUE:
 			case CLASS_NINJA:
 			case CLASS_SCOUT:
 				artifact_bias = BIAS_ROGUE;
-				warrior_artifact_bias = 85;
+				warrior_artifact_bias = 30;
 				break;
 			case CLASS_RANGER:
 			case CLASS_SNIPER:
 				artifact_bias = BIAS_RANGER;
-				warrior_artifact_bias = 70;
+				warrior_artifact_bias = 30;
 				break;
 			case CLASS_PALADIN:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 90;
+				warrior_artifact_bias = 60;
 				break;
 			case CLASS_WARRIOR_MAGE:
 			case CLASS_RED_MAGE:
 			case CLASS_PSION:
 				artifact_bias = BIAS_MAGE;
-				warrior_artifact_bias = 70;
+				warrior_artifact_bias = 20;
 				break;
 			case CLASS_CHAOS_WARRIOR:
 				artifact_bias = BIAS_CHAOS;
@@ -1934,28 +1934,28 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			case CLASS_MONK:
 			case CLASS_FORCETRAINER:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 70;
+				warrior_artifact_bias = 40;
 				break;
 			case CLASS_MINDCRAFTER:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 60;
+				warrior_artifact_bias = 20;
 				break;
 			case CLASS_BARD:
 				artifact_bias = BIAS_PRIESTLY;
-				warrior_artifact_bias = 60;
+				warrior_artifact_bias = 20;
 				break;
 			case CLASS_TOURIST:
 			case CLASS_ARCHAEOLOGIST:
 			case CLASS_TIME_LORD:
-				warrior_artifact_bias = 50;
+				warrior_artifact_bias = 20;
 				break;
 			case CLASS_IMITATOR:
 				artifact_bias = BIAS_RANGER;
-				warrior_artifact_bias = 60;
+				warrior_artifact_bias = 40;
 				break;
 			case CLASS_BEASTMASTER:
 				artifact_bias = BIAS_CHR;
-				warrior_artifact_bias = 70;
+				warrior_artifact_bias = 30;
 				break;
 			case CLASS_MIRROR_MASTER:
 				if (randint1(4) > 1) 
@@ -1975,7 +1975,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		}
 	}
 
-	if ((mode & CREATE_ART_GOOD) && (randint1(100) <= warrior_artifact_bias))
+	if ((mode & (CREATE_ART_SCROLL | CREATE_ART_GOOD)) && (randint1(100) <= warrior_artifact_bias))
 		artifact_bias = BIAS_WARRIOR;
 
 	strcpy(new_name, "");
@@ -1989,7 +1989,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	if (((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)) && object_is_cursed(o_ptr))
 		a_cursed = TRUE;
 
-	powers = randint1(2) + m_bonus(5, lev);
+	powers = randint1(5) + 1;
 
 	while (one_in_(powers) || one_in_(7 * 90/MAX(object_level, 1)) || one_in_(10 * 70/MAX(object_level, 1)))
 		powers++;
@@ -2237,6 +2237,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					add_flag(o_ptr->art_flags, TR_SPEED);
 					has_pval = TRUE;
 				}
+				else if (one_in_(200))
+				{
+					add_flag(o_ptr->art_flags, TR_WEAPONMASTERY);
+					has_pval = TRUE;
+				}
 				else if (one_in_(20) && randint1(150) < lev - 50)
 				{
 					add_flag(o_ptr->art_flags, TR_BLOWS);
@@ -2251,6 +2256,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					add_flag(o_ptr->art_flags, TR_SUST_CON);
 					add_flag(o_ptr->art_flags, TR_SUST_CHR);
 					add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
+					powers--;
 				}
 				else if (one_in_(77))
 				{
@@ -2388,14 +2394,6 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (has_pval)
 	{
-#if 0
-		add_flag(o_ptr->art_flags, TR_SHOW_MODS);
-
-		/* This one commented out by gw's request... */
-		if (!a_scroll)
-			add_flag(o_ptr->art_flags, TR_HIDE_TYPE);
-#endif
-
 		if (have_flag(o_ptr->art_flags, TR_BLOWS))
 		{
 			if (o_ptr->tval == TV_RING)
@@ -2405,37 +2403,26 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			}
 			else
 			{
-				o_ptr->pval = m_bonus(2, lev);
-				if (one_in_(30)) o_ptr->pval++;
+				o_ptr->pval = randint1(2);
 				if (is_falcon_sword)
 					o_ptr->pval++;
-
-				if (o_ptr->pval < 1)
-					o_ptr->pval = 1;
 			}
 		}
 		else
 		{
-			if (o_ptr->pval <= 0)
-				o_ptr->pval = m_bonus(4, lev) + 1;
-			else if (one_in_(5))
+			do
+			{
 				o_ptr->pval++;
-			while (one_in_(WEIRD_LUCK))
-				o_ptr->pval++;
-
-			if (have_flag(o_ptr->art_flags, TR_SPELL_POWER))
-				o_ptr->pval = -o_ptr->pval;
+			}
+			while (o_ptr->pval < randint1(5) || one_in_(o_ptr->pval));
 		}
 	}
 
-	if ((o_ptr->pval > 5) && !one_in_(WEIRD_LUCK))
-		o_ptr->pval = 5;
-
-	if ((o_ptr->pval > 4) && !one_in_(3))
+	if ((o_ptr->pval > 4) && !one_in_(WEIRD_LUCK))
 		o_ptr->pval = 4;
-	
-	if ((o_ptr->pval > 7))
-		o_ptr->pval = 7; 
+
+	if (have_flag(o_ptr->art_flags, TR_SPELL_POWER))
+		o_ptr->pval = -o_ptr->pval;
 
 	/* give it some plusses... */
 	if (object_is_armour(o_ptr))
@@ -2587,7 +2574,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		else 
 		{
 			power_level = 3;
-			if (one_in_(12)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+			if (one_in_(17)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
 		}
 	}
 
@@ -2600,7 +2587,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 		else 
 		{
 			power_level = 3;
-			if (one_in_(12)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+			if (one_in_(17)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
 		}
 	}
 
