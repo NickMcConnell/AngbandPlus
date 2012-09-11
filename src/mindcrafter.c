@@ -516,6 +516,37 @@ void psycho_spear_spell(int cmd, variant *res)
 	}
 }
 
+void _psycho_storm_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, T("Psycho-Storm", ""));
+		break;
+	case SPELL_DESC:
+		var_set_string(res, T("Fires a large ball of pure energy.", ""));
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_damage(10, spell_power(10), spell_power(p_ptr->lev * 7)));
+		break;
+	case SPELL_CAST:
+	{
+		int dir = 0;
+		var_set_bool(res, FALSE);
+		if (!get_aim_dir(&dir)) return;
+
+		fire_ball(GF_PSI_STORM, dir, spell_power(p_ptr->lev * 7 + damroll(10, 10)), 4);
+
+		var_set_bool(res, TRUE);
+		break;
+	}
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
+
 void _the_world_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -586,7 +617,8 @@ static spell_info _spells[] =
     { 26, 28,  60, _telekinesis_spell},
     { 28, 10,  40, _psychic_drain_spell},
     { 35, 35,  75, psycho_spear_spell},
-    { 45,150,  85, _the_world_spell},
+	{ 45, 50,  80, _psycho_storm_spell},
+    /*{ 45,150,  85, _the_world_spell}, Time manipulation is the province of the Time Lord!!*/
 	{ -1, -1,  -1, NULL}
 };
 

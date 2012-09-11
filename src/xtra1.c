@@ -3700,6 +3700,7 @@ void calc_bonuses(void)
 	p_ptr->warning = FALSE;
 	p_ptr->mighty_throw = FALSE;
 	p_ptr->see_nocto = FALSE;
+	p_ptr->easy_realm1 = REALM_NONE;
 
 	p_ptr->magic_absorption = 0;
 	p_ptr->magic_resistance = 0;
@@ -3863,8 +3864,42 @@ void calc_bonuses(void)
 	if (p_ptr->tim_superstealth)
 		p_ptr->see_nocto = TRUE;
 
-	if (inventory[INVEN_LITE].k_idx && inventory[INVEN_LITE].name1 == ART_EYE_OF_VECNA)
-		p_ptr->see_nocto = TRUE;
+	if (inventory[INVEN_LITE].k_idx)
+	{
+		switch (inventory[INVEN_LITE].name1)
+		{
+		case ART_EYE_OF_VECNA:
+			p_ptr->see_nocto = TRUE;
+			break;
+		case ART_STONE_OF_NATURE:
+			p_ptr->easy_realm1 = REALM_NATURE;
+			break;
+		case ART_STONE_OF_LIFE:
+			p_ptr->easy_realm1 = REALM_LIFE;
+			break;
+		case ART_STONE_OF_SORCERY:
+			p_ptr->easy_realm1 = REALM_SORCERY;
+			break;
+		case ART_STONE_OF_CHAOS:
+			p_ptr->easy_realm1 = REALM_CHAOS;
+			break;
+		case ART_STONE_OF_DEATH:
+			p_ptr->easy_realm1 = REALM_DEATH;
+			break;
+		case ART_STONE_OF_TRUMP:
+			p_ptr->easy_realm1 = REALM_TRUMP;
+			break;
+		case ART_STONE_OF_DAEMON:
+			p_ptr->easy_realm1 = REALM_DAEMON;
+			break;
+		case ART_STONE_OF_CRUSADE:
+			p_ptr->easy_realm1 = REALM_CRUSADE;
+			break;
+		case ART_STONE_OF_CRAFT:
+			p_ptr->easy_realm1 = REALM_CRAFT;
+			break;
+		}
+	}
 
 	switch (p_ptr->pclass)
 	{
@@ -5566,13 +5601,19 @@ void calc_bonuses(void)
 				if (num < 4) 
 					num++; 
 				wgt /= 2; 
-				mul += 2; 
+				mul = MAX(mul, 5);
 			}
 			else if (prace_is_(MIMIC_MITHRIL_GOLEM))
 			{
 				if (num < 4) 
 					num++; 
+				mul = MAX(mul, 4);
 			}
+			else if (prace_is_(MIMIC_CLAY_GOLEM) || prace_is_(MIMIC_IRON_GOLEM))
+			{
+				mul = MAX(mul, 3);
+			}
+
 			/* Enforce a minimum "weight" (tenth pounds) */
 			div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
 

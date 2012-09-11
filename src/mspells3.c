@@ -547,7 +547,7 @@ put_str("MP 失率 効果", y, x + 33);
 					/* Reduce failure rate by INT/WIS adjustment */
 					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[A_INT]] - 1);
 
-					chance = mod_spell_chance_1(chance);
+					chance = mod_spell_chance_1(chance, REALM_NONE);
 
 					need_mana = mod_need_mana(monster_powers[spellnum[i]].smana, 0, REALM_NONE);
 
@@ -570,7 +570,7 @@ put_str("MP 失率 効果", y, x + 33);
 					/* Always a 5 percent chance of working */
 					if (chance > 95) chance = 95;
 
-					chance = mod_spell_chance_2(chance);
+					chance = mod_spell_chance_2(chance, REALM_NONE);
 
 					/* Get info */
 					learned_info(comment, spellnum[i]);
@@ -1954,7 +1954,7 @@ if (!get_check("それでも挑戦しますか? ")) return FALSE;
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[A_INT]] - 1);
 
-	chance = mod_spell_chance_1(chance);
+	chance = mod_spell_chance_1(chance, REALM_NONE);
 
 	/* Not enough mana to cast */
 	if (need_mana > p_ptr->csp)
@@ -1975,7 +1975,7 @@ if (!get_check("それでも挑戦しますか? ")) return FALSE;
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
 
-	chance = mod_spell_chance_2(chance);
+	chance = mod_spell_chance_2(chance, REALM_NONE);
 
 	/* Failed spell */
 	if (randint0(100) < chance)

@@ -2453,6 +2453,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	bool    res = FALSE;
 	bool    a = object_is_artifact(o_ptr);
 	bool    force = (eflag & ENCH_FORCE);
+	int     minor_limit = MIN(2 + p_ptr->lev / 5, 5);
 
 
 	/* Large piles resist enchantment */
@@ -2491,10 +2492,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & ENCH_TOHIT)
 		{
 			int idx = o_ptr->to_h;
-			/*
-			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-				idx -= 3;*/
-
 			if (eflag & ENCH_PSI_HACK)
 			{
 				idx -= 2*(psion_power() - 1);
@@ -2504,6 +2501,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
 			else chance = enchant_table[idx];
+
+			if ((eflag & ENCH_MINOR_HACK) && idx >= minor_limit)
+				chance = 1000;
 
 			if (force || ((randint1(1000) > chance) && (!a || (randint0(100) < 50))))
 			{
@@ -2520,9 +2520,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & ENCH_TODAM)
 		{
 			int idx = o_ptr->to_d;
-			/*
-			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-				idx -= 3;*/
 			if (eflag & ENCH_PSI_HACK)
 			{
 				idx -= 2*(psion_power() - 1);
@@ -2532,6 +2529,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
 			else chance = enchant_table[idx];
+
+			if ((eflag & ENCH_MINOR_HACK) && idx >= minor_limit)
+				chance = 1000;
 
 			if (force || ((randint1(1000) > chance) && (!a || (randint0(100) < 50))))
 			{
@@ -2548,9 +2548,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & ENCH_TOAC)
 		{
 			int idx = o_ptr->to_a;
-			/*
-			if (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-				idx -= 3;*/
+
 			if (eflag & ENCH_PSI_HACK)
 			{
 				idx -= 2*(psion_power() - 1);
@@ -2560,6 +2558,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 			if (idx < 0) chance = 0;
 			else if (idx > 15) chance = 1000;
 			else chance = enchant_table[idx];
+
+			if ((eflag & ENCH_MINOR_HACK) && idx >= minor_limit)
+				chance = 1000;
 
 			if (force || ((randint1(1000) > chance) && (!a || (randint0(100) < 50))))
 			{
@@ -4268,6 +4269,11 @@ int mod_need_mana(int need_mana, int spell, int realm)
 #define MANA_DIV        4
 #define DEC_MANA_DIV    3
 
+	bool dec_mana = p_ptr->dec_mana;
+
+	if (p_ptr->easy_realm1 && realm == p_ptr->easy_realm1)
+		dec_mana = TRUE;
+
 	/* Realm magic */
 	if ((realm > REALM_NONE) && (realm <= MAX_REALM))
 	{
@@ -4276,7 +4282,7 @@ int mod_need_mana(int need_mana, int spell, int realm)
 		 * MANA_CONST is used to calculate need_mana effected from spell proficiency.
 		 */
 		need_mana = need_mana * (MANA_CONST + SPELL_EXP_EXPERT - experience_of_spell(spell, realm)) + (MANA_CONST - 1);
-		need_mana *= p_ptr->dec_mana ? DEC_MANA_DIV : MANA_DIV;
+		need_mana *= dec_mana ? DEC_MANA_DIV : MANA_DIV;
 		need_mana /= MANA_CONST * MANA_DIV;
 		if (need_mana < 1) need_mana = 1;
 	}
@@ -4302,15 +4308,20 @@ int mod_need_mana(int need_mana, int spell, int realm)
  * Modify spell fail rate
  * Using p_ptr->to_m_chance, p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
  */
-int mod_spell_chance_1(int chance)
+int mod_spell_chance_1(int chance, int realm)
 {
+	bool dec_mana = p_ptr->dec_mana;
+
+	if (realm && realm == p_ptr->easy_realm1)
+		dec_mana = TRUE;
+
 	chance += p_ptr->to_m_chance;
 
 	if (p_ptr->heavy_spell) chance += 20;
 
-	if (p_ptr->dec_mana && p_ptr->easy_spell) chance -= 4;
+	if (dec_mana && p_ptr->easy_spell) chance -= 4;
 	else if (p_ptr->easy_spell) chance -= 3;
-	else if (p_ptr->dec_mana) chance -= 2;
+	else if (dec_mana) chance -= 2;
 
 	if (mut_present(MUT_ARCANE_MASTERY))
 		chance -= 5;
@@ -4326,10 +4337,14 @@ int mod_spell_chance_1(int chance)
  * Using p_ptr->dec_mana, p_ptr->easy_spell and p_ptr->heavy_spell
  * Note: variable "chance" cannot be negative.
  */
-int mod_spell_chance_2(int chance)
+int mod_spell_chance_2(int chance, int realm)
 {
-	if (p_ptr->dec_mana) chance--;
+	bool dec_mana = p_ptr->dec_mana;
 
+	if (realm && realm == p_ptr->easy_realm1)
+		dec_mana = TRUE;
+
+	if (dec_mana) chance--;
 	if (p_ptr->heavy_spell) chance += 5;
 
 	return MAX(chance, 0);
@@ -4408,7 +4423,7 @@ s16b spell_chance(int spell, int use_realm)
 	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->weapon_info[0].icky_wield) chance += 25;
 	if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_SORCERER)) && p_ptr->weapon_info[1].icky_wield) chance += 25;
 
-	chance = mod_spell_chance_1(chance);
+	chance = mod_spell_chance_1(chance, use_realm);
 
 	/* Goodness or evilness gives a penalty to failure rate */
 	switch (use_realm)
@@ -4443,7 +4458,7 @@ s16b spell_chance(int spell, int use_realm)
 	}
 
 	/* Return the chance */
-	return mod_spell_chance_2(chance);
+	return mod_spell_chance_2(chance, use_realm);
 }
 
 

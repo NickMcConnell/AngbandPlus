@@ -2426,49 +2426,11 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	/* give it some plusses... */
 	if (object_is_armour(o_ptr))
-	{
-		if (o_ptr->to_a < 20)
-		{
-			int n = 5 + (lev/5) - o_ptr->to_a;
-			if (n > 0)
-				o_ptr->to_a += randint1(n);
-
-			o_ptr->to_a += m_bonus(15, lev);
-
-			if (o_ptr->to_a < 7)
-				o_ptr->to_a += 3;			
-		}
-		if (o_ptr->to_a > max_a)
-			o_ptr->to_a = max_a;
-	}
+		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
 	else if (object_is_weapon_ammo(o_ptr))
 	{
-		int n;
-
-		if (o_ptr->to_h < 20)
-		{
-			n = 5 + (lev/5) - o_ptr->to_h;
-			if (n > 0)
-				o_ptr->to_h += randint1(n);
-			o_ptr->to_h += m_bonus(10, lev);
-			if (o_ptr->to_h < 7)
-				o_ptr->to_h += 3;
-		}
-		if (o_ptr->to_h > max_h)
-			o_ptr->to_h = max_h;
-
-		if (o_ptr->to_d < 20)
-		{
-			n = 5 + (lev/5) - o_ptr->to_d;
-			if (n > 0)
-				o_ptr->to_d += randint1(n);
-			o_ptr->to_d += m_bonus(10, lev);
-			if (o_ptr->to_d < 7)
-				o_ptr->to_d += 3;
-		}
-		if (o_ptr->to_d > max_d)
-			o_ptr->to_d = max_d;
-
+		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
+		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
 		if ((have_flag(o_ptr->art_flags, TR_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->art_flags, TR_BLESSED);
 	}
 

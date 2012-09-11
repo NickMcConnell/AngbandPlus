@@ -4443,6 +4443,89 @@ static void do_cmd_activate_aux(int item)
 		/* Choose effect */
 		switch (o_ptr->name1)
 		{
+			case ART_STONE_OF_NATURE:
+			{
+				msg_print("Your stone hums softly.");
+				set_shield(device_power(randint1(30) + 20), FALSE);
+				o_ptr->timeout = 100;
+				break;
+			}
+			case ART_STONE_OF_LIFE:
+			{
+				msg_print("Your stone glows a pure white.");
+				do_res_stat(A_STR);
+				do_res_stat(A_INT);
+				do_res_stat(A_WIS);
+				do_res_stat(A_DEX);
+				do_res_stat(A_CON);
+				do_res_stat(A_CHR);
+				restore_level();
+				o_ptr->timeout = 500;
+				break;
+			}
+			case ART_STONE_OF_SORCERY:
+			{
+				msg_print("Your stone begins to vibrate rapidly.");
+				set_fast(device_power(randint1(30) + 20), FALSE);
+				o_ptr->timeout = 100;
+				break;
+			}
+			case ART_STONE_OF_CHAOS:
+			{
+				msg_print("Your stone shifts colors rapidly.");
+				if (!get_check("You will polymorph yourself. Are you sure? ")) return;
+				do_poly_self();			
+				o_ptr->timeout = 500;
+				break;
+			}
+			case ART_STONE_OF_DEATH:
+			{
+				msg_print("Your stone emits a foul breeze.");
+				animate_dead(0, py, px);
+				o_ptr->timeout = 666;
+				break;
+			}
+			case ART_STONE_OF_TRUMP:
+			{
+				if (mut_present(MUT_ASTRAL_GUIDE))
+					energy_use = 30;
+				teleport_player(200, 0);
+				o_ptr->timeout = 5;
+				break;
+			}
+			case ART_STONE_OF_DAEMON:
+			{
+				msg_print("Your stone glows a fiery red.");
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FIRE, dir, device_power(p_ptr->chp), 3);
+				o_ptr->timeout = 666;
+				break;
+			}
+			case ART_STONE_OF_CRUSADE:
+			{
+				msg_print("Your stone offers heavenly protection.");
+				set_protevil(device_power(randint1(25) + p_ptr->lev*3), FALSE);
+				o_ptr->timeout = 555;
+				break;
+			}
+			case ART_STONE_OF_CRAFT:
+			{
+				msg_print("Your stone glows many colors.");
+				(void)set_oppose_acid(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_elec(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_fire(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_cold(device_power(randint1(20) + 20), FALSE);
+				(void)set_oppose_pois(device_power(randint1(20) + 20), FALSE);
+				o_ptr->timeout = 100;
+				break;
+			}
+			case ART_STONE_OF_WAR:
+			{
+				msg_print("Your stone enrages you!");
+				set_shero(device_power(20 + randint0(20)), FALSE);
+				o_ptr->timeout = 100;
+				break;
+			}
 			case ART_ZEUS:
 			{
 				msg_print("Your pendant crackles with power.");
@@ -7565,7 +7648,7 @@ static int select_magic_eater(bool only_browse)
 				{
 					chance -= 3 * (p_ptr->lev - level);
 				}
-				chance = mod_spell_chance_1(chance);
+				chance = mod_spell_chance_1(chance, REALM_NONE);
 				chance = MAX(chance, adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]]);
 				/* Stunning makes spells harder */
 				if (p_ptr->stun > 50) chance += 25;
@@ -7573,7 +7656,7 @@ static int select_magic_eater(bool only_browse)
 
 				if (chance > 95) chance = 95;
 
-				chance = mod_spell_chance_2(chance);
+				chance = mod_spell_chance_2(chance, REALM_NONE);
 
 				col = TERM_WHITE;
 
@@ -7864,7 +7947,7 @@ msg_print("混乱していて唱えられない！");
 	{
 		chance -= 3 * (p_ptr->lev - level);
 	}
-	chance = mod_spell_chance_1(chance);
+	chance = mod_spell_chance_1(chance, REALM_NONE);
 	chance = MAX(chance, adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]]);
 	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
@@ -7872,7 +7955,7 @@ msg_print("混乱していて唱えられない！");
 
 	if (chance > 95) chance = 95;
 
-	chance = mod_spell_chance_2(chance);
+	chance = mod_spell_chance_2(chance, REALM_NONE);
 
 	if (randint0(100) < chance)
 	{

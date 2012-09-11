@@ -4138,6 +4138,87 @@ P:0:3d8:16:16:0
 F:STR | DEX | BLOWS | BRAND_ACID | IM_ACID
 F:XTRA_H_RES | XTRA_RES_OR_POWER
 
+N:282:TRANSLATE
+E:& Stone of Nature
+I:39:11:0
+W:50:50:20:100000
+P:0:1d1:0:0:5
+F:ACTIVATE | FULL_NAME
+D:$At first glance, it appears to be just an ordinary rock.
+D:$But as you grasp the stone it emits an earthly glow, and you
+D:$begin to feel yourself in tune with the world around you.
+
+N:283:TRANSLATE
+E:& Stone of Life
+I:39:12:0
+W:50:50:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME | HOLD_LIFE
+
+N:284:TRANSLATE
+E:& Sorcerer's Stone
+I:39:13:2
+W:50:50:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME | INT
+
+N:285:TRANSLATE
+E:& Stone of Chaos
+I:39:14:0
+W:50:50:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME | RES_CHAOS
+
+N:286:TRANSLATE
+E:& Stone of Death
+I:39:15:0
+W:50:50:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME | RES_NETHER
+
+N:287:TRANSLATE
+E:& Trump Card
+I:39:16:2
+W:50:50:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME | CHR
+
+N:288:TRANSLATE
+E:& Brimstone
+I:39:17:0
+W:50:50:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME
+
+N:289:TRANSLATE
+E:& Crusader's Stone
+I:39:18:2
+W:50:50:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME | WIS
+
+N:290:TRANSLATE
+E:& Stone of Craft
+I:39:19:2
+W:50:50:20:100000
+P:0:1d1:0:0:0
+F:ACTIVATE | FULL_NAME | SPEED
+
+#So Warriors don't feel neglected :)
+N:291:TRANSLATE
+E:& Stone of War
+I:39:20:0
+W:50:50:20:100000
+P:0:1d1:6:6:0
+F:ACTIVATE | FULL_NAME | FREE_ACT
+
+N:292:TRANSLATE
+E:of David
+I:16:0:0
+W:5:10:2:2000
+P:0:2d3:20:12:0
+F:KILL_GIANT
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

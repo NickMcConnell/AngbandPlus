@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 116
+#define FAKE_VER_PATCH 117
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 116
+#define H_VER_PATCH 117
 #define H_VER_EXTRA 0
 
 
@@ -1532,6 +1532,17 @@
 #define ART_STOMPER         277
 #define ART_GONG            278
 
+#define ART_STONE_OF_NATURE 282
+#define ART_STONE_OF_LIFE   283
+#define ART_STONE_OF_SORCERY 284
+#define ART_STONE_OF_CHAOS  285
+#define ART_STONE_OF_DEATH  286
+#define ART_STONE_OF_TRUMP  287
+#define ART_STONE_OF_DAEMON 288
+#define ART_STONE_OF_CRUSADE 289
+#define ART_STONE_OF_CRAFT  290
+#define ART_STONE_OF_WAR    291
+
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
 
@@ -2195,6 +2206,16 @@
 #define SV_LITE_PALANTIR                 8
 #define SV_LITE_FLY_STONE                9
 #define SV_LITE_EYE						10
+#define SV_LITE_NATURE                  11
+#define SV_LITE_LIFE                    12
+#define SV_LITE_SORCERY                 13
+#define SV_LITE_CHAOS                   14
+#define SV_LITE_DEATH                   15
+#define SV_LITE_TRUMP                   16
+#define SV_LITE_DAEMON                  17
+#define SV_LITE_CRUSADE                 18
+#define SV_LITE_CRAFT                   19
+#define SV_LITE_WAR                     20
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM                   0
@@ -2688,6 +2709,7 @@
 #define ENCH_TOAC       0x04 /* Enchant to AC */
 #define ENCH_FORCE      0x08 /* Force enchantment */
 #define ENCH_PSI_HACK   0x10
+#define ENCH_MINOR_HACK 0x20
 
 /*
  * Bit flags for the "target_set" function XXX XXX XXX

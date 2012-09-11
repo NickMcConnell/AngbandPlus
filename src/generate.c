@@ -789,7 +789,7 @@ static bool cave_gen(void)
 
 	/* Build maze */
 	if ( dungeon_type != DUNGEON_ARENA 
-	  && ((d_info[dungeon_type].flags1 & DF1_MAZE) || one_in_(150-dun_level)) )
+	  && ((d_info[dungeon_type].flags1 & DF1_MAZE) || (dun_level >= 30 && one_in_(150-dun_level))) )
 	{
 		build_maze_vault(cur_wid/2-1, cur_hgt/2-1, cur_wid-4, cur_hgt-4, FALSE);
 

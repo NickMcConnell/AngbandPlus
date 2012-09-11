@@ -5,6 +5,8 @@
 #include "angband.h"
 
 /* Hack: Increase spell power! */
+static int _current_realm_hack = 0;
+
 int spell_power_aux(int pow, int bonus)
 {
 	return pow + pow*bonus/13;
@@ -15,6 +17,8 @@ int spell_power(int pow)
 	int tmp = p_ptr->spell_power;
 	if (p_ptr->tim_blood_rite)
 		tmp += 7;
+	if (_current_realm_hack && _current_realm_hack == p_ptr->easy_realm1)
+		tmp += 2;
 	return spell_power_aux(pow, tmp);
 }
 
@@ -6707,23 +6711,62 @@ static cptr do_craft_spell(int spell, int mode)
 	switch (spell)
 	{
 	case 0:
-#ifdef JP
-		if (name) return "ÀÖ³°Àþ»ëÎÏ";
-		if (desc) return "°ìÄê»þ´Ö¡¢ÀÖ³°Àþ»ëÎÏ¤¬Áý¶¯¤µ¤ì¤ë¡£";
-#else
-		if (name) return "Infravision";
-		if (desc) return "Gives infravision for a while.";
-#endif
+		if (name) return "Minor Enchantment";
+		if (desc) return "Attempts to increase +to-hit, +to-dam of a weapon, or to increase +AC of armor.";
     
+		if (cast)
 		{
-			int base = spell_power(100);
+			int         item;
+			bool        okay = FALSE;
+			object_type *o_ptr;
+			char        o_name[MAX_NLEN];
 
-			if (info) return info_duration(base, base);
+			item_tester_hook = object_is_weapon_armour_ammo;
+			item_tester_no_ryoute = TRUE;
 
-			if (cast)
+			if (!get_item(&item, "Enchant which item? ", "You have nothing to enchant.", (USE_EQUIP | USE_INVEN | USE_FLOOR))) return NULL;
+
+			if (item >= 0)
+				o_ptr = &inventory[item];
+			else
+				o_ptr = &o_list[0 - item];
+
+			object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
+
+			if (object_is_weapon_ammo(o_ptr))
 			{
-				set_tim_infra(base + randint1(base), FALSE);
+				if (one_in_(2))
+				{
+					if (enchant(o_ptr, 1, ENCH_TOHIT | ENCH_MINOR_HACK)) okay = TRUE;
+				}
+				else
+				{
+					if (enchant(o_ptr, 1, ENCH_TODAM | ENCH_MINOR_HACK)) okay = TRUE;
+				}
 			}
+			else
+			{
+				if (enchant(o_ptr, 1, ENCH_TOAC | ENCH_MINOR_HACK)) okay = TRUE;			
+			}
+			
+
+			msg_format("%s %s glow%s brightly!",
+					((item >= 0) ? "Your" : "The"), o_name,
+					((o_ptr->number > 1) ? "" : "s"));
+
+			if (!okay)
+			{
+				if (flush_failure) flush();
+				msg_print("The enchantment failed.");
+				if (one_in_(3)) chg_virtue(V_ENCHANT, -1);
+			}
+			else
+			{
+				o_ptr->discount = 99;
+				chg_virtue(V_ENCHANT, 1);
+			}
+
+			calc_android_exp();
 		}
 		break;
 
@@ -6945,23 +6988,7 @@ static cptr do_craft_spell(int spell, int mode)
 			}
 		}
 		break;
-	/*
-		if (name) return "Building Up";
-		if (desc) return "Increases your physical prowess.";
-    
-		{
-			int base = spell_power(25);
 
-			if (info) return info_duration(base, base);
-
-			if (cast)
-			{
-				bool heal = !p_ptr->tim_building_up;
-				set_tim_building_up(randint1(base) + base, FALSE);
-			}
-		}
-		break;
-	*/
 	case 12:
 #ifdef JP
 		if (name) return "¼«¸ÊÊ¬ÀÏ";
@@ -7146,6 +7173,22 @@ static cptr do_craft_spell(int spell, int mode)
 		}
 		break;
 	}
+/*		if (name) return "Walk through Wall";
+		if (desc) return "Gives ability to pass walls for a while.";
+    
+		{
+			int base = spell_power(plev / 2);
+
+			if (info) return info_duration(base, base);
+
+			if (cast)
+			{
+				set_kabenuke(randint1(base) + base, FALSE);
+			}
+		}
+		break;
+		*/
+
 	case 21:
 		if (name) return T("Recharging", "ËâÎÏ½¼Å¶");
 		if (desc) return T("Recharges staves, wands or rods.", "¾ó/ËâË¡ËÀ¤Î½¼Å¶²ó¿ô¤òÁý¤ä¤¹¤«¡¢½¼Å¶Ãæ¤Î¥í¥Ã¥É¤Î½¼Å¶»þ´Ö¤ò¸º¤é¤¹¡£");
@@ -13873,24 +13916,29 @@ static cptr do_burglary_spell(int spell, int mode)
  */
 cptr do_spell(int realm, int spell, int mode)
 {
+	cptr result = NULL;
+
+	_current_realm_hack = realm;
+
 	switch (realm)
 	{
-	case REALM_LIFE:     return do_life_spell(spell, mode);
-	case REALM_SORCERY:  return do_sorcery_spell(spell, mode);
-	case REALM_NATURE:   return do_nature_spell(spell, mode);
-	case REALM_CHAOS:    return do_chaos_spell(spell, mode);
-	case REALM_DEATH:    return do_death_spell(spell, mode);
-	case REALM_TRUMP:    return do_trump_spell(spell, mode);
-	case REALM_ARCANE:   return do_arcane_spell(spell, mode);
-	case REALM_CRAFT:    return do_craft_spell(spell, mode);
-	case REALM_DAEMON:   return do_daemon_spell(spell, mode);
-	case REALM_CRUSADE:  return do_crusade_spell(spell, mode);
-	case REALM_MUSIC:    return do_music_spell(spell, mode);
-	case REALM_HISSATSU: return do_hissatsu_spell(spell, mode);
-	case REALM_HEX:      return do_hex_spell(spell, mode);
-	case REALM_NECROMANCY: return do_necromancy_spell(spell, mode);
-	case REALM_BURGLARY: return do_burglary_spell(spell, mode);
+	case REALM_LIFE:     result = do_life_spell(spell, mode); break;
+	case REALM_SORCERY:  result = do_sorcery_spell(spell, mode); break;
+	case REALM_NATURE:   result = do_nature_spell(spell, mode); break;
+	case REALM_CHAOS:    result = do_chaos_spell(spell, mode); break;
+	case REALM_DEATH:    result = do_death_spell(spell, mode); break;
+	case REALM_TRUMP:    result = do_trump_spell(spell, mode); break;
+	case REALM_ARCANE:   result = do_arcane_spell(spell, mode); break;
+	case REALM_CRAFT:    result = do_craft_spell(spell, mode); break;
+	case REALM_DAEMON:   result = do_daemon_spell(spell, mode); break;
+	case REALM_CRUSADE:  result = do_crusade_spell(spell, mode); break;
+	case REALM_MUSIC:    result = do_music_spell(spell, mode); break;
+	case REALM_HISSATSU: result = do_hissatsu_spell(spell, mode); break;
+	case REALM_HEX:      result = do_hex_spell(spell, mode); break;
+	case REALM_NECROMANCY: result = do_necromancy_spell(spell, mode); break;
+	case REALM_BURGLARY: result = do_burglary_spell(spell, mode); break;
 	}
 
-	return NULL;
+	_current_realm_hack = 0;
+	return result;
 }

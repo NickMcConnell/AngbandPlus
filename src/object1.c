@@ -1138,6 +1138,27 @@ return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
 			return "berserk and haste every 55 turns";
 		case ART_BALLISTA:
 			return "piercing shot every 100 turns";
+		case ART_STONE_OF_NATURE:
+			return "stoneskin every 100 turns";
+		case ART_STONE_OF_LIFE:
+			return "restoring every 500 turns";
+		case ART_STONE_OF_SORCERY:
+			return "haste self every 100 turns";
+		case ART_STONE_OF_CHAOS:
+			return "polymorph self every 500 turns";
+		case ART_STONE_OF_DEATH:
+			return "animate dead every 666 turns";
+		case ART_STONE_OF_TRUMP:
+			return "teleport self every 5 turns";
+		case ART_STONE_OF_DAEMON:
+			return "breath fire every 666 turns";
+		case ART_STONE_OF_CRUSADE:
+			return "protection from evil every 555 turns";
+		case ART_STONE_OF_CRAFT:
+			return "resistance every 100 turns";
+		case ART_STONE_OF_WAR:
+			return "berserk rage every 100 turns";
+
 		case ART_NIMTHANC:
 		{
 #ifdef JP
@@ -2500,7 +2521,25 @@ info[i++] = "それは投げた時ペットに変化する。";
 
 	}
 
-	/* Figurines, a hack */
+	if (o_ptr->name1 == ART_STONE_OF_NATURE)
+		info[i++] = "It greatly enhances Nature magic.";
+	if (o_ptr->name1 == ART_STONE_OF_LIFE)
+		info[i++] = "It greatly enhances Life magic.";
+	if (o_ptr->name1 == ART_STONE_OF_SORCERY)
+		info[i++] = "It greatly enhances Sorcery magic.";
+	if (o_ptr->name1 == ART_STONE_OF_CHAOS)
+		info[i++] = "It greatly enhances Chaos magic.";
+	if (o_ptr->name1 == ART_STONE_OF_DEATH)
+		info[i++] = "It greatly enhances Death magic.";
+	if (o_ptr->name1 == ART_STONE_OF_TRUMP)
+		info[i++] = "It greatly enhances Trump magic.";
+	if (o_ptr->name1 == ART_STONE_OF_DAEMON)
+		info[i++] = "It greatly enhances Daemon magic.";
+	if (o_ptr->name1 == ART_STONE_OF_CRUSADE)
+		info[i++] = "It greatly enhances Crusade magic.";
+	if (o_ptr->name1 == ART_STONE_OF_CRAFT)
+		info[i++] = "It greatly enhances Craft magic.";
+
 	if (o_ptr->name1 == ART_STONEMASK)
 	{
 #ifdef JP
