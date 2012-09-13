@@ -4619,23 +4619,23 @@ void calc_bonuses(void)
 	{
 		if (!(inventory[INVEN_BODY].k_idx))
 		{
-			p_ptr->to_a += (p_ptr->lev * 5) / 3;
-			p_ptr->dis_to_a += (p_ptr->lev * 5) / 3;
+			p_ptr->to_a += (p_ptr->lev * 3) / 2;
+			p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
 		}
 		if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
+		{
+			p_ptr->to_a += ((p_ptr->lev - 13) / 3);
+			p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
+		}
+		if (!(inventory[INVEN_LARM].k_idx) && (p_ptr->lev > 10))
 		{
 			p_ptr->to_a += ((p_ptr->lev - 8) / 3);
 			p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
 		}
-		if (!(inventory[INVEN_LARM].k_idx) && (p_ptr->lev > 10))
-		{
-			p_ptr->to_a += ((p_ptr->lev - 6) / 3);
-			p_ptr->dis_to_a += ((p_ptr->lev - 6) / 3);
-		}
 		if (!(inventory[INVEN_HEAD].k_idx) && (p_ptr->lev > 4))
 		{
-			p_ptr->to_a += (p_ptr->lev) / 3;
-			p_ptr->dis_to_a += (p_ptr->lev) / 3;
+			p_ptr->to_a += (p_ptr->lev - 2) / 3;
+			p_ptr->dis_to_a += (p_ptr->lev - 2) / 3;
 		}
 		if (!(inventory[INVEN_HANDS].k_idx))
 		{
@@ -4644,8 +4644,8 @@ void calc_bonuses(void)
 		}
 		if (!(inventory[INVEN_FEET].k_idx))
 		{
-			p_ptr->to_a += (p_ptr->lev / 2);
-			p_ptr->dis_to_a += (p_ptr->lev / 2);
+			p_ptr->to_a += (p_ptr->lev / 3);
+			p_ptr->dis_to_a += (p_ptr->lev / 3);
 		}
 	}
 	if ( (p_ptr->pclass == CLASS_MONK && !heavy_armor())

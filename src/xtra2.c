@@ -2013,6 +2013,10 @@ static void get_exp_from_mon(int dam, monster_type *m_ptr)
 		s64b_div(&new_exp, &new_exp_frac, 0, 3);
 	}
 
+	/* Intelligence affects learning! */
+	s64b_mul(&new_exp, &new_exp_frac, 0, adj_exp_gain[p_ptr->stat_ind[A_INT]]);
+	s64b_div(&new_exp, &new_exp_frac, 0, 100);
+
 	/* Gain experience */
 	gain_exp_64(new_exp, new_exp_frac);
 }

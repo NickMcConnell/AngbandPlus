@@ -1151,7 +1151,7 @@ return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
 		case ART_STONE_OF_TRUMP:
 			return "teleport self every 5 turns";
 		case ART_STONE_OF_DAEMON:
-			return "breath fire every 666 turns";
+			return "breathe fire every 666 turns";
 		case ART_STONE_OF_CRUSADE:
 			return "protection from evil every 555 turns";
 		case ART_STONE_OF_CRAFT:

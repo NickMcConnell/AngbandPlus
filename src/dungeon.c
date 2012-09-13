@@ -222,6 +222,11 @@ o_name, index_to_label(slot),game_inscriptions[feel]);
  *   Class 4 = Ranger  --> slow but heavy  (changed!)
  *   Class 5 = Paladin --> slow but heavy
  */
+static int _adj_pseudo_id(int num)
+{
+	return num * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
+}
+
 static void sense_inventory1(void)
 {
 	int         i;
@@ -250,7 +255,7 @@ static void sense_inventory1(void)
 		case CLASS_MAULER:
 		{
 			/* Good sensing */
-			if (0 != randint0(9000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -262,7 +267,7 @@ static void sense_inventory1(void)
 		case CLASS_SMITH:
 		{
 			/* Good sensing */
-			if (0 != randint0(6000L / (plev * plev + 50))) return;
+			if (0 != randint0(_adj_pseudo_id(6000) / (plev * plev + 50))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -279,7 +284,7 @@ static void sense_inventory1(void)
 		case CLASS_MAGIC_EATER:
 		{
 			/* Very bad (light) sensing */
-			if (0 != randint0(240000L / (plev + 5))) return;
+			if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5))) return;
 
 			/* Done */
 			break;
@@ -292,7 +297,7 @@ static void sense_inventory1(void)
 		case CLASS_WILD_TALENT:
 		{
 			/* Good (light) sensing */
-			if (0 != randint0(10000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(10000) / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -303,7 +308,7 @@ static void sense_inventory1(void)
 		case CLASS_SCOUT:
 		{
 			/* Okay sensing */
-			if (0 != randint0(20000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -315,7 +320,7 @@ static void sense_inventory1(void)
 		case CLASS_RANGER:
 		{
 			/* Bad sensing */
-			if (0 != randint0(95000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
 
 			/* Changed! */
 			heavy = TRUE;
@@ -328,7 +333,7 @@ static void sense_inventory1(void)
 		case CLASS_SNIPER:
 		{
 			/* Bad sensing */
-			if (0 != randint0(77777L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(77777) / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -341,7 +346,7 @@ static void sense_inventory1(void)
 		case CLASS_RED_MAGE:
 		{
 			/* Bad sensing */
-			if (0 != randint0(75000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(75000) / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -354,7 +359,7 @@ static void sense_inventory1(void)
 		case CLASS_MIRROR_MASTER:
 		{
 			/* Bad sensing */
-			if (0 != randint0(55000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(55000) / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -363,7 +368,7 @@ static void sense_inventory1(void)
 		case CLASS_CHAOS_WARRIOR:
 		{
 			/* Bad sensing */
-			if (0 != randint0(80000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(80000) / (plev * plev + 40))) return;
 
 			/* Changed! */
 			heavy = TRUE;
@@ -376,7 +381,7 @@ static void sense_inventory1(void)
 		case CLASS_FORCETRAINER:
 		{
 			/* Okay sensing */
-			if (0 != randint0(20000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -386,7 +391,7 @@ static void sense_inventory1(void)
 		case CLASS_ARCHAEOLOGIST:
 		{
 			/* Good sensing */
-			if (0 != randint0(20000L / ((plev+50)*(plev+50)))) return;
+			if (0 != randint0(_adj_pseudo_id(20000) / ((plev+50)*(plev+50)))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -398,7 +403,7 @@ static void sense_inventory1(void)
 		case CLASS_BEASTMASTER:
 		{
 			/* Bad sensing */
-			if (0 != randint0(65000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(65000) / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -509,7 +514,7 @@ static void sense_inventory2(void)
 		case CLASS_NINJA:
 		{
 			/* Very bad (light) sensing */
-			if (0 != randint0(240000L / (plev + 5))) return;
+			if (0 != randint0(_adj_pseudo_id(240000) / (plev + 5))) return;
 
 			/* Done */
 			break;
@@ -521,7 +526,7 @@ static void sense_inventory2(void)
 		case CLASS_MONK:
 		{
 			/* Bad sensing */
-			if (0 != randint0(95000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(95000) / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -538,7 +543,7 @@ static void sense_inventory2(void)
 		case CLASS_WILD_TALENT:
 		{
 			/* Good sensing */
-			if (0 != randint0(20000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(20000) / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -555,7 +560,7 @@ static void sense_inventory2(void)
 		case CLASS_ARCHAEOLOGIST:
 		{
 			/* Good sensing */
-			if (0 != randint0(9000L / (plev * plev + 40))) return;
+			if (0 != randint0(_adj_pseudo_id(9000) / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -564,7 +569,7 @@ static void sense_inventory2(void)
 		case CLASS_TOURIST:
 		{
 			/* Good sensing */
-			if (0 != randint0(20000L / ((plev+50)*(plev+50)))) return;
+			if (0 != randint0(_adj_pseudo_id(20000) / ((plev+50)*(plev+50)))) return;
 
 			/* Done */
 			break;
@@ -3290,6 +3295,8 @@ static void update_dungeon_feeling(void)
 
 	/* Extract delay time */
 	delay = MAX(10, 150 - p_ptr->skills.fos) * (150 - dun_level) * TURNS_PER_TICK / 100;
+
+	delay = delay * adj_pseudo_id[p_ptr->stat_ind[A_WIS]] / 100;
 
  	/* Not yet felt anything */
 	if (turn < p_ptr->feeling_turn + delay && !cheat_xtra) return;

@@ -38,7 +38,17 @@ static cptr wd_his[3] =
 #define plural(c,s,p) \
     (((c) == 1) ? (s) : (p))
 
+bool p_save_mon(int r_idx, int stat)
+{
+	int pl = p_ptr->lev;
+	int ml = r_info[r_idx].level;
+	int s = 0;
 
+	if (stat >= 0 && stat < 6) s = p_ptr->stat_ind[stat] + 3;
+
+	if (randint1(100) > ml - (pl + s)) return TRUE;
+	return FALSE;
+}
 
 /* Monster saving throws versus player attacks */
 bool mon_save_p(int r_idx, int stat)
