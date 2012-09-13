@@ -2529,12 +2529,15 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 	{
 		/* Percentage of fully healthy */
 		int percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
+		int n = 10;
+
+		n = n * adj_mon_fear[p_ptr->stat_ind[A_CHR]] / 100;
 
 		/*
-		 * Run (sometimes) if at 10% or less of max hit points,
+		 * Run (sometimes) if at n% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if ((randint1(10) >= percentage) ||
+		if ((randint1(n) >= percentage) ||
 		    ((dam >= m_ptr->hp) && (randint0(100) < 80)))
 		{
 			if (m_ptr->mflag2 & MFLAG2_ENCLOSED)

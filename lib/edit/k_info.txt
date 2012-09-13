@@ -4517,7 +4517,7 @@ E:Fear Resistance:Zircon
 G:=:U
 I:45:38:0
 W:10:0:30:2:300 
-A:10/2
+A:10/5
 F:RES_FEAR
 
 #JZ#

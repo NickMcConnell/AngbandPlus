@@ -38,16 +38,40 @@ static cptr wd_his[3] =
 #define plural(c,s,p) \
     (((c) == 1) ? (s) : (p))
 
+
+
+/* Coming up with a good saving throw algorithm is hard.
+   The following means the player saves 45.5% vs. a L100 monster.
+   Given RFear, they save 70.3% due to the double roll. But, they
+   also have a 70.3% chance of clearing the fear *before* their next
+   action (or at least of reducing it) and a 1.8% chance of a
+   bad fear effect (Actually, .297 * .018 or 1 in 200).
+
+   On the other end, a L10 warrior with 10 Chr saves 77.5% vs a L10 
+   Blue Horror. But recovery is only 21% (assuming no resist fear).
+
+   Contrast this with an approach like d100 > ML - (CL + CHR). The
+   Serpent scenario gives 90% save (nice) but the Blue Horror scenario
+   gives 100% saves. So early game, players tend to be immune to fear!
+*/
 bool p_save_fear(int ml)
 {
-	int pl = p_ptr->lev;
-	int s = p_ptr->stat_ind[A_CHR] + 3;
+	int pl = p_ptr->lev + (p_ptr->stat_ind[A_CHR] + 3);
 
-	if (ml <= 0 || ml > 100)
+	if (ml <= 0)
 		ml = 100;
 
-	if (randint1(100) > ml - (pl + s)) return TRUE;
-	if (p_ptr->resist_fear && randint1(100) > ml - (pl + s)) return TRUE;
+	if (randint1(ml) <= randint1(pl)) return TRUE;
+	if (p_ptr->resist_fear && randint1(ml) <= randint1(pl)) return TRUE;
+
+	return FALSE;
+}
+
+bool m_save_fear(int ml)
+{
+	int pl = p_ptr->lev + (p_ptr->stat_ind[A_CHR] + 3);
+
+	if (randint1(pl) <= randint1(ml)) return TRUE;
 
 	return FALSE;
 }

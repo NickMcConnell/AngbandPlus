@@ -5168,7 +5168,8 @@ note = "には耐性がある！";
 				do_fear = damroll(3, (dam / 2)) + 1;
 
 				/* Attempt a saving throw */
-				if (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+				/*if (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)*/
+				if (m_save_fear(r_ptr->level))
 				{
 					/* No obvious effect */
 #ifdef JP
@@ -5216,7 +5217,8 @@ note = "には耐性がある！";
 				do_fear = damroll(3, (dam / 2)) + 1;
 
 				/* Attempt a saving throw */
-				if (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)
+				/*if (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)*/
+				if (m_save_fear(r_ptr->level))
 				{
 					/* No obvious effect */
 #ifdef JP
@@ -5258,17 +5260,9 @@ note = "には耐性がある！";
 			do_fear = damroll(3, (dam / 2)) + 1;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			    (r_ptr->flags3 & (RF3_NO_FEAR)) ||
-			    (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			if ((r_ptr->flags3 & RF3_NO_FEAR) || m_save_fear(r_ptr->level))
 			{
-				/* No obvious effect */
-#ifdef JP
-note = "には効果がなかった！";
-#else
-				note = " is unaffected!";
-#endif
-
+				note = T(" is unaffected!", "には効果がなかった！");
 				obvious = FALSE;
 				do_fear = 0;
 			}

@@ -5488,14 +5488,14 @@ msg_print("中断しました。");
 
 	if (p_ptr->afraid)
 	{
-		if (p_save_fear(0))
+		if (p_save_fear(100))
 		{
-			if (p_save_fear(0))
+			if (p_save_fear(100))
 				set_afraid(0, TRUE);
 			else
 				decrease_afraid();
 		}
-		else if (p_ptr->afraid >= FEAR_SCARED && !p_save_fear(0))
+		else if (p_ptr->afraid >= FEAR_SCARED && !p_save_fear(25))
 		{
 			if (p_ptr->afraid >= FEAR_PETRIFIED)
 			{

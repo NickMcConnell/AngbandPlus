@@ -4038,6 +4038,41 @@ void process_monsters(void)
 			continue;
 		}
 
+		if (MON_MONFEAR(m_ptr))
+		{
+			if (m_save_fear(r_ptr->level))
+			{
+				bool recovered = FALSE;
+				if (m_save_fear(r_ptr->level))
+				{
+					set_monster_monfear(i, 0);
+					recovered = TRUE;
+				}
+				else
+				{
+					recovered = set_monster_monfear(i, 
+						MON_MONFEAR(m_ptr) - randint1(r_ptr->level / 20 + 1));
+				}
+
+				if (recovered && is_seen(m_ptr))
+				{
+					char m_name[80];
+					char m_poss[80];
+
+					monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
+					monster_desc(m_name, m_ptr, 0);
+
+					msg_format("%^s recovers %s courage.", m_name, m_poss);
+				}
+			}
+			else if (!m_save_fear(r_ptr->level + 20))
+			{
+				char m_name[80];
+				msg_format("%^s is scared stiff!", m_name);
+				continue;
+			}
+		}
+
 		/* Save global index */
 		hack_m_idx = i;
 		hack_m_spell = 0;
@@ -4652,31 +4687,6 @@ static void process_monsters_mtimed_aux(int m_idx, int mtimed_idx)
 		break;
 
 	case MTIMED_MONFEAR:
-		/* Reduce the fear */
-		if (set_monster_monfear(m_idx, MON_MONFEAR(m_ptr) - randint1(r_info[m_ptr->r_idx].level / 20 + 1)))
-		{
-			/* Visual note */
-			if (is_seen(m_ptr))
-			{
-				char m_name[80];
-#ifndef JP
-				char m_poss[80];
-
-				/* Acquire the monster possessive */
-				monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
-#endif
-
-				/* Acquire the monster name */
-				monster_desc(m_name, m_ptr, 0);
-
-				/* Dump a message */
-#ifdef JP
-				msg_format("%^sは勇気を取り戻した。", m_name);
-#else
-				msg_format("%^s recovers %s courage.", m_name, m_poss);
-#endif
-			}
-		}
 		break;
 
 	case MTIMED_INVULNER:
