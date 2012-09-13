@@ -1799,7 +1799,7 @@ info[i++] = "あなたは地獄の力への耐性を持っている。";
 #ifdef JP
 info[i++] = "あなたは全く恐怖を感じない。";
 #else
-		info[i++] = "You are completely fearless.";
+		info[i++] = "You are resistant to fear.";
 #endif
 
 	}

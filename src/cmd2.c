@@ -3456,6 +3456,14 @@ bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 		return FALSE;
 	}
 
+	if (p_ptr->afraid && !p_save_fear(5*p_ptr->afraid))
+	{
+		msg_print("You are too scared!");
+		energy_use = bow_energy(j_ptr->sval);
+		if (snipe_type == SP_AWAY) snipe_type = SP_NONE;
+		return FALSE;
+	}
+
 	do_cmd_fire_aux2(item, j_ptr, px, py, tx, ty);
 
 	/* Hack! Snotlings recoil when shooting ... */
@@ -4309,7 +4317,6 @@ bool do_cmd_fire(void)
 		return FALSE;
 	}
 
-
 	if (p_ptr->special_defense & KATA_MUSOU)
 	{
 		set_action(ACTION_NONE);
@@ -4489,6 +4496,15 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 	if (have_flag(o_ptr->art_flags, TR_SIGNATURE))
 	{
 		msg_print("You may not toss your signature item.  It is precious to you!");
+		return FALSE;
+	}
+
+	if (p_ptr->afraid && !p_save_fear(5*p_ptr->afraid))
+	{
+		msg_print("You are too scared!");
+		energy_use = 100;
+		if ((p_ptr->pclass == CLASS_ROGUE) || (p_ptr->pclass == CLASS_NINJA))
+			energy_use -= p_ptr->lev;
 		return FALSE;
 	}
 

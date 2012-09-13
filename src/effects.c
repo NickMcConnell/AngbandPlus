@@ -1103,87 +1103,134 @@ msg_print("やっと毒の痛みがなくなった。");
 	return (TRUE);
 }
 
+int fear_level(int afraid)
+{
+	if (afraid >= FEAR_PETRIFIED)
+		return FEAR_PETRIFIED;
+	if (afraid >= FEAR_TERRIFIED)
+		return FEAR_TERRIFIED;
+	if (afraid >= FEAR_SCARED)
+		return FEAR_SCARED;
+	if (afraid >= FEAR_NERVOUS)
+		return FEAR_NERVOUS;
+	if (afraid >= FEAR_UNEASY)
+		return FEAR_UNEASY;
 
-/*
- * Set "p_ptr->afraid", notice observable changes
- */
+	return FEAR_BOLD;
+}
+
+void decrease_afraid(void)
+{
+	int lvl = fear_level(p_ptr->afraid);
+	switch (lvl)
+	{
+	case FEAR_UNEASY:
+		set_afraid(FEAR_BOLD, TRUE);
+		break;
+
+	case FEAR_NERVOUS:
+		set_afraid(FEAR_UNEASY, TRUE);
+		break;
+
+	case FEAR_SCARED:
+		set_afraid(FEAR_NERVOUS, TRUE);
+		break;
+
+	case FEAR_TERRIFIED:
+		set_afraid(FEAR_SCARED, TRUE);
+		break;
+
+	case FEAR_PETRIFIED:
+		set_afraid(FEAR_TERRIFIED, TRUE);
+		break;
+	}
+}
+
 bool set_afraid(int v, bool do_dec)
 {
+	int old_aux, new_aux;
 	bool notice = FALSE;
-	if (!do_dec)
-		v = recalc_duration_neg(v);
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (p_ptr->is_dead) return FALSE;
 
-	/* Open */
-	if (v)
+	old_aux = fear_level(p_ptr->afraid);
+	new_aux = fear_level(v);
+
+	/* Increase Fear */
+	if (new_aux > old_aux)
 	{
-		if (!p_ptr->afraid)
+		switch (new_aux)
 		{
-#ifdef JP
-msg_print("何もかも恐くなってきた！");
-#else
+		case FEAR_UNEASY:
+			msg_print("You feel uneasy.");
+			break;
+
+		case FEAR_NERVOUS:
+			msg_print("You feel nervous.");
+			break;
+
+		case FEAR_SCARED:
+			msg_print("You are scared.");
+			break;
+
+		case FEAR_TERRIFIED:
 			msg_print("You are terrified!");
-#endif
+			break;
 
-			if (p_ptr->special_defense & KATA_MASK)
-			{
-#ifdef JP
-				msg_print("型が崩れた。");
-#else
-				msg_print("Your posture gets loose.");
-#endif
-				p_ptr->special_defense &= ~(KATA_MASK);
-				p_ptr->update |= (PU_BONUS);
-				p_ptr->update |= (PU_MONSTERS);
-				p_ptr->redraw |= (PR_STATE);
-				p_ptr->redraw |= (PR_STATUS);
-				p_ptr->action = ACTION_NONE;
-			}
-
-			notice = TRUE;
-			p_ptr->counter = FALSE;
-			chg_virtue(V_VALOUR, -1);
+		case FEAR_PETRIFIED:
+			msg_print("You are petrified!");
+			break;
 		}
-	}
 
-	/* Shut */
-	else
-	{
-		if (p_ptr->afraid)
+		if (p_ptr->special_defense & KATA_MASK)
 		{
-#ifdef JP
-msg_print("やっと恐怖を振り払った。");
-#else
-			msg_print("You feel bolder now.");
-#endif
-
-			notice = TRUE;
+			msg_print(T("Your posture gets loose.", "型が崩れた。"));
+			p_ptr->special_defense &= ~(KATA_MASK);
+			p_ptr->update |= (PU_BONUS);
+			p_ptr->update |= (PU_MONSTERS);
+			p_ptr->redraw |= (PR_STATE);
+			p_ptr->redraw |= (PR_STATUS);
+			p_ptr->action = ACTION_NONE;
 		}
+
+		notice = TRUE;
+		p_ptr->counter = FALSE;
+		chg_virtue(V_VALOUR, -1);
+	}
+	/* Decrease Fear */
+	else if (new_aux < old_aux)
+	{
+		switch (new_aux)
+		{
+		case FEAR_BOLD:
+			msg_print("You are no longer uneasy.");
+			break;
+		case FEAR_UNEASY:
+			msg_print("You are no longer nervous.");
+			break;
+		case FEAR_NERVOUS:
+			msg_print("You are no longer scared.");
+			break;
+		case FEAR_SCARED:
+			msg_print("You are no longer terrified.");
+			break;
+		case FEAR_TERRIFIED:
+			msg_print("You are no longer petrified.");
+			break;
+		}
+		notice = TRUE;
 	}
 
-	/* Use the value */
 	p_ptr->afraid = v;
-
-	/* Redraw status bar */
 	p_ptr->redraw |= (PR_STATUS);
-
-	/* Nothing to notice */
 	if (!notice) return (FALSE);
-
-	/* Disturb */
 	if (disturb_state) disturb(0, 0);
-
-	/* Handle stuff */
 	handle_stuff();
-
-	/* Result */
 	return (TRUE);
 }
-
 
 /*
  * Set "p_ptr->paralyzed", notice observable changes
@@ -7031,7 +7078,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		}
 		else
 		{
-			set_afraid(p_ptr->afraid + randint0(4) + 4, FALSE);
+			set_afraid(p_ptr->afraid + MIN(damage, FEAR_TERRIFIED), FALSE);
 		}
 	}
 

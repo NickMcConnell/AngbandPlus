@@ -425,7 +425,7 @@ static void cast_invoke_spirits(int dir)
 		msg_print("An unnamable evil brushes against your mind...");
 #endif
 
-		set_afraid(p_ptr->afraid + randint1(4) + 4, FALSE);
+		set_afraid(p_ptr->afraid + FEAR_TERRIFIED, FALSE);
 	}
 	else if (die < 26)
 	{

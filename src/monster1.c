@@ -38,15 +38,17 @@ static cptr wd_his[3] =
 #define plural(c,s,p) \
     (((c) == 1) ? (s) : (p))
 
-bool p_save_mon(int r_idx, int stat)
+bool p_save_fear(int ml)
 {
 	int pl = p_ptr->lev;
-	int ml = r_info[r_idx].level;
-	int s = 0;
+	int s = p_ptr->stat_ind[A_CHR] + 3;
 
-	if (stat >= 0 && stat < 6) s = p_ptr->stat_ind[stat] + 3;
+	if (ml <= 0 || ml > 100)
+		ml = 100;
 
 	if (randint1(100) > ml - (pl + s)) return TRUE;
+	if (p_ptr->resist_fear && randint1(100) > ml - (pl + s)) return TRUE;
+
 	return FALSE;
 }
 

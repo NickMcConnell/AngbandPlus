@@ -5761,6 +5761,13 @@ extern int PlayerUID;
 #define CUT_LIGHT          10
 #define CUT_GRAZE           1
 
+#define FEAR_BOLD           0
+#define FEAR_UNEASY         1
+#define FEAR_NERVOUS       30
+#define FEAR_SCARED        50
+#define FEAR_TERRIFIED    100
+#define FEAR_PETRIFIED   1000
+
 /* How to handle translations to different languages?
  * Personally, the constant conditional compilation approach is too
  * distracting for me.  I'm using T("In English", "In Japanese")

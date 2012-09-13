@@ -447,6 +447,12 @@ static void prt_stat(int stat)
 #define BAR_SLAY_SENTIENT 140
 #define BAR_QUICK_WALK 141
 #define BAR_INVEN_PROT 142
+#define BAR_CALM 143
+#define BAR_UNEASY 144
+#define BAR_NERVOUS 145
+#define BAR_SCARED 146
+#define BAR_TERRIFIED 147
+#define BAR_PETRIFIED 148
 
 static struct {
 	byte attr;
@@ -674,6 +680,11 @@ static struct {
 	{TERM_L_BLUE, "SS", "SlaySentient"},
 	{TERM_YELLOW, "QW", "Quickwalk"},
 	{TERM_L_BLUE, "IP", "InvenProt"},
+	{TERM_L_UMBER, "Un", "Uneasy"},
+	{TERM_YELLOW, "Nv", "Nervous"},
+	{TERM_ORANGE, "Sd", "Scared"},
+	{TERM_RED, "Tf", "Terrified"},
+	{TERM_VIOLET, "Pf", "Petrified"},
 	{0, NULL, NULL}
 };
 #endif
@@ -789,7 +800,27 @@ static void prt_status(void)
 	if (p_ptr->alter_reality) ADD_FLG(BAR_ALTER);
 
 	/* Afraid */
-	if (p_ptr->afraid) ADD_FLG(BAR_AFRAID);
+	if (p_ptr->afraid)
+	{
+		switch (fear_level(p_ptr->afraid))
+		{
+		case FEAR_UNEASY:
+			ADD_FLG(BAR_UNEASY);
+			break;
+		case FEAR_NERVOUS:
+			ADD_FLG(BAR_NERVOUS);
+			break;
+		case FEAR_SCARED:
+			ADD_FLG(BAR_SCARED);
+			break;
+		case FEAR_TERRIFIED:
+			ADD_FLG(BAR_TERRIFIED);
+			break;
+		case FEAR_PETRIFIED:
+			ADD_FLG(BAR_PETRIFIED);
+			break;
+		}
+	}
 
 	/* Resist time */
 	if (p_ptr->tim_res_time) ADD_FLG(BAR_RESTIME);

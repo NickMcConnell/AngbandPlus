@@ -466,7 +466,7 @@ static s32b _abilities_q(u32b flgs[TR_FLAG_SIZE])
 	cost += _check_flag_and_score(flgs, TR_LITE, 300, &count);
 	cost += _check_flag_and_score(flgs, TR_SLOW_DIGEST, 500, &count);
 	cost += _check_flag_and_score(flgs, TR_WARNING, 700, &count);
-	cost += _check_flag_and_score(flgs, TR_RES_FEAR, 700, &count);
+	cost += _check_flag_and_score(flgs, TR_RES_FEAR, 5000, &count);
 	cost += _check_flag_and_score(flgs, TR_ESP_ORC, 700, &count);
 	cost += _check_flag_and_score(flgs, TR_ESP_TROLL, 700, &count);
 	cost += _check_flag_and_score(flgs, TR_ESP_GIANT, 700, &count);
@@ -494,6 +494,7 @@ static s32b _abilities_q(u32b flgs[TR_FLAG_SIZE])
 	cost += _check_flag_and_score(flgs, TR_REFLECT, 15000, &count);
 	cost += _check_flag_and_score(flgs, TR_DEC_MANA, 20000, &count);
 	cost += _check_flag_and_score(flgs, TR_TELEPATHY, 25000, &count);
+	cost += _check_flag_and_score(flgs, TR_WEAPONMASTERY, 25000, &count);
 
 	/* Code later inflates based on item quality.  This factor is pure fudge */
 	cost /= 1.0;

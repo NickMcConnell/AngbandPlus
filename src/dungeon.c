@@ -2146,12 +2146,6 @@ static void process_world_aux_timeout(void)
 		(void)set_confused(p_ptr->confused - dec_count, TRUE);
 	}
 
-	/* Afraid */
-	if (p_ptr->afraid)
-	{
-		(void)set_afraid(p_ptr->afraid - dec_count, TRUE);
-	}
-
 	/* Fast */
 	if (p_ptr->fast)
 	{
@@ -2681,7 +2675,7 @@ static void process_world_aux_curse(void)
 		}
 		if ((p_ptr->cursed & TRC_COWARDICE) && one_in_(1500))
 		{
-			if (!p_ptr->resist_fear)
+			if (!p_save_fear(dun_level))
 			{
 				disturb(0, 0);
 #ifdef JP
@@ -4496,6 +4490,10 @@ msg_print("ウィザードモード突入。");
 				{
 					msg_print("Your spells are blocked!");
 				}
+				else if (p_ptr->afraid && !p_save_fear(p_ptr->afraid))
+				{
+					msg_print("You are too scared!");
+				}
 				else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) 
 					&& p_ptr->pclass != CLASS_BERSERKER 
 					&& p_ptr->pclass != CLASS_SMITH 
@@ -5488,6 +5486,39 @@ msg_print("中断しました。");
 		}
 	}
 
+	if (p_ptr->afraid)
+	{
+		if (p_save_fear(0))
+		{
+			if (p_save_fear(0))
+				set_afraid(0, TRUE);
+			else
+				decrease_afraid();
+		}
+		else if (p_ptr->afraid >= FEAR_SCARED && !p_save_fear(0))
+		{
+			if (p_ptr->afraid >= FEAR_PETRIFIED)
+			{
+				p_ptr->energy_need += 100 * TURNS_PER_TICK / 10;
+				msg_print("You are scared stiff!");
+				disturb(1, 0);
+			}
+			else if (p_ptr->afraid >= FEAR_TERRIFIED)
+			{
+				p_ptr->energy_need += 60 * TURNS_PER_TICK / 10;
+				msg_print("You shudder uncontrollably!");
+				disturb(1, 0);
+			}
+			else
+			{
+				p_ptr->energy_need += 30 * TURNS_PER_TICK / 10;
+				msg_print("You tremble in terror!");
+				disturb(1, 0);
+			}
+		}
+	}
+
+
 	/*** Handle actual user input ***/
 
 	/* Repeat until out of energy */
@@ -5522,7 +5553,6 @@ msg_print("中断しました。");
 		/* Assume free turn */
 		energy_use = 0;
 
-
 		if (p_ptr->inside_battle)
 		{
 			/* Place the cursor on the player */
@@ -5533,7 +5563,6 @@ msg_print("中断しました。");
 			/* Process the command */
 			process_command();
 		}
-
 		/* Paralyzed or Knocked Out */
 		else if (p_ptr->paralyzed || (p_ptr->stun >= 100))
 		{

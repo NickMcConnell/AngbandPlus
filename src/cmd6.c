@@ -129,9 +129,9 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_PARANOIA:
 			{
-				if (!p_ptr->resist_fear)
+				if (!p_save_fear(50))
 				{
-					if (set_afraid(p_ptr->afraid + randint0(10) + 10, FALSE))
+					if (set_afraid(p_ptr->afraid + FEAR_SCARED, FALSE))
 					{
 						ident = TRUE;
 					}
@@ -2942,6 +2942,12 @@ static void do_cmd_use_staff_aux(int item)
 		return;
 	}
 
+	if (p_ptr->afraid && !p_save_fear(p_ptr->afraid))
+	{
+		msg_print("You are too scared!");
+		return;
+	}
+
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
 	if (lev > 50) lev = 50 + (lev - 50)/2;
@@ -3488,6 +3494,12 @@ static void do_cmd_aim_wand_aux(int item)
 		return;
 	}
 
+	if (p_ptr->afraid && !p_save_fear(p_ptr->afraid))
+	{
+		msg_print("You are too scared!");
+		return;
+	}
+
 	/* Get the level */
 	lev = k_info[o_ptr->k_idx].level;
 	if (lev > 50) lev = 50 + (lev - 50)/2;
@@ -3933,6 +3945,12 @@ static void do_cmd_zap_rod_aux(int item)
 	if (p_ptr->tim_no_device)
 	{
 		msg_print("An evil power blocks your magic!");
+		return;
+	}
+
+	if (p_ptr->afraid && !p_save_fear(p_ptr->afraid))
+	{
+		msg_print("You are too scared!");
 		return;
 	}
 

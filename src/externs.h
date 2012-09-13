@@ -987,6 +987,7 @@ extern void monster_gain_exp(int m_idx, int s_idx);
 
 /* monster1.c */
 extern bool mon_save_p(int r_idx, int stat);
+extern bool p_save_fear(int ml);
 extern void roff_top(int r_idx);
 extern void screen_roff(int r_idx, int mode);
 extern void display_roff(int r_idx);
@@ -1473,6 +1474,8 @@ extern bool set_blind(int v, bool do_dec);
 extern bool set_confused(int v, bool do_dec);
 extern bool set_poisoned(int v, bool do_dec);
 extern bool set_afraid(int v, bool do_dec);
+extern void decrease_afraid(void);
+extern int fear_level(int afraid);
 extern bool set_paralyzed(int v, bool do_dec);
 extern bool set_image(int v, bool do_dec);
 extern bool set_fast(int v, bool do_dec);

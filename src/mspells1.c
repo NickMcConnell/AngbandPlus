@@ -3202,16 +3202,7 @@ else msg_format("%^sが恐ろしげな幻覚を作り出した。", m_name);
 			else msg_format("%^s casts a fearful illusion.", m_name);
 #endif
 
-			if (p_ptr->resist_fear)
-			{
-#ifdef JP
-msg_print("しかし恐怖に侵されなかった。");
-#else
-				msg_print("You refuse to be frightened.");
-#endif
-
-			}
-			else if (randint0(100 + rlev/2) < duelist_skill_sav(m_idx))
+			if (p_save_fear(rlev))
 			{
 #ifdef JP
 msg_print("しかし恐怖に侵されなかった。");
@@ -3222,7 +3213,7 @@ msg_print("しかし恐怖に侵されなかった。");
 			}
 			else
 			{
-				(void)set_afraid(p_ptr->afraid + randint0(4) + 4, FALSE);
+				(void)set_afraid(p_ptr->afraid + rlev, FALSE);
 			}
 			learn_spell(MS_SCARE);
 			update_smart_learn(m_idx, DRS_FEAR);

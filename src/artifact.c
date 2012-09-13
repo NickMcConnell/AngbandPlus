@@ -3259,7 +3259,6 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_CURE_LW:
 		{
-			(void)set_afraid(0, TRUE);
 			(void)hp_player(device_power(30));
 			o_ptr->timeout = 10;
 			break;
@@ -3287,7 +3286,6 @@ bool activate_random_artifact(object_type * o_ptr)
 			msg_print("It glows deep blue...");
 #endif
 
-			(void)set_afraid(0, TRUE);
 			(void)set_poisoned(0, TRUE);
 			o_ptr->timeout = 5;
 			break;

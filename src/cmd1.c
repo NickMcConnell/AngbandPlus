@@ -4688,7 +4688,7 @@ bool py_attack(int y, int x, int mode)
 		{
 			/* Duelist: Fearless Duel */
 		}
-		else
+		else if (!p_save_fear(5*p_ptr->afraid)) /* Attacking while scared is hard! */
 		{
 			/* Message */
 			if (m_ptr->ml)

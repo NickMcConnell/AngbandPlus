@@ -1444,17 +1444,7 @@ bool make_attack_normal(int m_idx)
 					{
 						/* Do nothing */
 					}
-					else if (p_ptr->resist_fear)
-					{
-#ifdef JP
-						msg_print("しかし恐怖に侵されなかった！");
-#else
-						msg_print("You stand your ground!");
-#endif
-
-						obvious = TRUE;
-					}
-					else if (randint0(100 + r_ptr->level/2) < p_ptr->skills.sav)
+					else if (p_save_fear(rlev))
 					{
 #ifdef JP
 						msg_print("しかし恐怖に侵されなかった！");
@@ -1466,7 +1456,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_afraid(p_ptr->afraid + 3 + randint1(rlev), FALSE))
+						if (set_afraid(p_ptr->afraid + rlev, FALSE))
 						{
 							obvious = TRUE;
 						}

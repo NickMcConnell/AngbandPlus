@@ -1311,7 +1311,7 @@ W:20:45:50:125000
 P:0:2d7:20:12:0
 F:STR | DEX | CON | SUST_CON | SUST_STR |
 F:REGEN | FREE_ACT | SEE_INVIS |
-F:RES_CHAOS | RES_NETHER | HOLD_LIFE | RES_FEAR |
+F:RES_CHAOS | RES_NETHER | HOLD_LIFE | 
 F:RES_COLD | BRAND_COLD |
 F:SLAY_DEMON | SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD |
 F:SLOW_DIGEST | SHOW_MODS | HIDE_TYPE | BLESSED | RIDING
@@ -1360,7 +1360,7 @@ E:'Nothung'
 I:23:16:4
 W:20:90:150:95000
 P:0:2d5:12:16:0
-F:SEARCH | BRAND_ELEC | SLAY_ORC | KILL_DRAGON | RES_FEAR |
+F:SEARCH | BRAND_ELEC | SLAY_ORC | KILL_DRAGON | 
 F:RES_ELEC | LITE | RES_FIRE | RES_POIS |
 F:SLOW_DIGEST | SHOW_MODS | RIDING
 D:「ノートゥングさ、その名は。ヴォータンがとねりこの幹
@@ -1465,7 +1465,7 @@ E:'Twilight'
 I:23:25:10
 W:30:15:250:0
 P:0:4d6:-40:-60:-50
-F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR |
+F:SPEED | IM_FIRE | RES_FIRE | BRAND_FIRE | RES_DISEN | 
 F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | TY_CURSE | LITE
 F:RANDOM_CURSE2
 D:北欧神話において炎の巨人スルトが世界に火を放った燃える剣だ。
@@ -1580,7 +1580,7 @@ F:STR | CON | HIDE_TYPE | CHAOTIC | REGEN | SLOW_DIGEST |
 F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC |
 F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS | ACTIVATE | SPEED |
 F:SUST_CON | SUST_STR | SUST_INT | SUST_WIS | RES_DARK |
-F:RES_DISEN | RES_FEAR | BLOWS
+F:RES_DISEN | BLOWS
 D:夜の剣グレイスワンダーと対をなす昼の剣で、トランプの魔力が込められている。
 D:「それは黄金の素晴らしい打出し模様が施された、長い濃緑色の鞘だった。
 D:そこから突き出ている剣の柄は金メッキされているらしく、柄頭には
@@ -1821,7 +1821,7 @@ W:15:40:100:80000
 P:0:3d9:15:15:0
 F:INT | WIS | INFRA | HIDE_TYPE | SEARCH | BRAND_FIRE |
 F:SLAY_GIANT | SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | SLAY_DRAGON |
-F:RES_FIRE | RES_LITE | HOLD_LIFE | RES_FEAR | LEVITATION |
+F:RES_FIRE | RES_LITE | HOLD_LIFE | LEVITATION |
 F:LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS | RIDING
 D:聖剣伝説において聖槍として知られているこの槍を持つ者は
 D:世界を支配すると言われている。（ワーグナー、「パルジファル」他）
@@ -1943,7 +1943,7 @@ I:22:28:10
 W:30:8:250:80000
 P:0:3d8:12:17:0
 F:SLAY_EVIL | TUNNEL | INFRA | SEARCH | SLAY_GIANT |
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_FEAR |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:SHOW_MODS
 D:$A massive axe with twin razor-sharp heads, so large that it usually 
 D:$requires two hands to wield, intricately engraved in gold with spells 
@@ -2061,7 +2061,7 @@ W:40:120:130:250000
 P:0:3d5:20:20:0
 F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA | RIDING |
 F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL |
-F:CHR | SUST_CHR | RES_FEAR | RES_LITE | RES_BLIND | REGEN | SHOW_MODS |
+F:CHR | SUST_CHR | RES_LITE | RES_BLIND | REGEN | SHOW_MODS |
 F:XTRA_RES_OR_POWER
 D:$Forged in the farthest East by a race of mighty spellcasters, this 
 D:$shiny pale sword gleams with the rays of rising sun as you invoke 
@@ -2298,7 +2298,7 @@ I:23:28:1
 W:30:60:260:200000
 P:0:5d5:15:15:0
 F:BLOWS | VAMPIRIC | HOLD_LIFE | SLAY_UNDEAD | SLAY_EVIL | SLAY_HUMAN |
-F:REGEN | RES_FEAR | RES_BLIND | SLOW_DIGEST | SHOW_MODS
+F:REGEN | RES_BLIND | SLOW_DIGEST | SHOW_MODS
 D:数え切れないほどの首を落としてきたこの血に飢えた刃は
 D:敵の血と魂を吸って手にする者の体を癒す。
 
@@ -2363,7 +2363,7 @@ E:'Kusanagi-no-tsurugi'
 I:23:20:3
 W:50:20:120:123456
 P:0:4d4:15:15:0
-F:STEALTH | DEX | RES_NETHER | RES_DISEN | RES_FEAR |
+F:STEALTH | DEX | RES_NETHER | RES_DISEN | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ACTIVATE |
 F:SLAY_EVIL | SLAY_ANIMAL | SLAY_DEMON | SLAY_DRAGON |
 F:SEE_INVIS | REGEN | BLESSED | LITE | SHOW_MODS
@@ -2475,7 +2475,7 @@ I:19:2:3
 W:40:35:20:50000
 P:0:2d1:19:15:0
 F:SPEED | XTRA_MIGHT |
-F:RES_FEAR | RES_BLIND | RES_CONF | SHOW_MODS | XTRA_RES_OR_POWER
+F:RES_BLIND | RES_CONF | SHOW_MODS | XTRA_RES_OR_POWER
 D:$A sling granting extraordinary clarity of mind amidst darkness and 
 D:$confusion, and which hurls shot with deadly speed.
 D:このスリングは暗闇と混乱のただ中に於いてさえ驚くほど明晰な思考を可能にし、
@@ -2604,7 +2604,7 @@ W:45:14:30:100000
 P:0:4d3:20:10:10
 F:STEALTH | SUST_STR | SUST_DEX | SUST_CON |
 F:SPEED | RES_FIRE | BRAND_FIRE |
-F:SLAY_ANIMAL | SLAY_DRAGON | RES_FEAR | FREE_ACT |
+F:SLAY_ANIMAL | SLAY_DRAGON | FREE_ACT |
 F:REGEN | SHOW_MODS | HIDE_TYPE
 D:伝説の格闘家の霊力が宿った強力なヌンチャクだ。
 D:拳法を操る者が手にすれば自らの体の一部のように
@@ -2671,7 +2671,7 @@ E:of Benkei
 I:22:9:4
 W:40:20:400:98765
 P:0:3d6:5:23:5
-F:STR | CON | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_TROLL | RES_FEAR |
+F:STR | CON | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_TROLL | 
 F:FREE_ACT | REGEN | SHOW_MODS
 D:後に義経に仕えた怪僧・武蔵坊弁慶は、この大薙刀を得物に武力を振るい、
 D:五条大橋の上で999本の刀を狩った。
@@ -2734,7 +2734,7 @@ I:23:20:4
 W:30:90:120:200000
 P:0:3d4:28:22:-30
 F:DEX | CHAOTIC | CURSED | HEAVY_CURSE | TUNNEL | AGGRAVATE | BLOWS |
-F:RES_CONF | RES_CHAOS | RES_FEAR | RES_DISEN | NO_TELE
+F:RES_CONF | RES_CHAOS | RES_DISEN | NO_TELE
 
 N:159:太公望の
 E:of Taikobo
@@ -2763,7 +2763,7 @@ W:35:70:350:250000
 P:0:4d9:6:23:10
 F:STR | DEX | HIDE_TYPE | SEARCH | FREE_ACT | SLAY_HUMAN |
 F:SLAY_TROLL | SLAY_GIANT | SLAY_ANIMAL | SLAY_ORC | RES_FIRE | RES_COLD |
-F:RES_ELEC | RES_ACID | RES_FEAR | SHOW_MODS | RIDING
+F:RES_ELEC | RES_ACID | SHOW_MODS | RIDING
 D:徳川四天王の１人本多忠勝の愛用の槍だ。
 D:その切れ味は穂先に止まった蜻蛉が切れて落ちるほどである。
 
@@ -2955,7 +2955,7 @@ E:of Samson
 I:21:1:3
 W:10:20:50:40000
 P:0:3d4:8:10:0
-F:STR | CON | RES_FEAR | SEE_INVIS | SLAY_EVIL | SLAY_UNDEAD
+F:STR | CON | SEE_INVIS | SLAY_EVIL | SLAY_UNDEAD
 D:怪力サムソンがペルシア人兵士の包囲を撃ち破ったときに使っていた
 D:棍棒。骨でできているために軽く、その聖なる力は邪悪なモンスター
 D:を打ち払う。
@@ -2967,7 +2967,7 @@ W:35:15:80:60000
 P:0:2d6:3:5:0
 F:BLOWS
 F:SLAY_UNDEAD | SLAY_DRAGON | SLAY_ANIMAL |
-F:RES_FIRE | RES_FEAR | BLESSED | 
+F:RES_FIRE | BLESSED | 
 F:SLOW_DIGEST | SHOW_MODS
 D:かの宝剣エクスカリバーに似た作りの、少し小型の剣だ。
 D:自分のことを「E.J.」と呼び、ごくたまに話もする。
@@ -3180,7 +3180,7 @@ E:of Shuten-douji
 I:21:16:6
 W:40:40:350:100000
 P:0:4d7:0:20:10
-F:STR | RES_FEAR
+F:STR
 D:大江山の鬼の首領たる酒呑童子の重い金棒だ。
 
 N:195:『ゴールデンハンマー』
@@ -3202,7 +3202,7 @@ E:of Perseus
 I:34:3:2
 W:30:10:65:45000
 P:5:1d2:0:0:15
-F:STR | RES_ACID | RES_COLD | RES_FEAR |
+F:STR | RES_ACID | RES_COLD | 
 F:REFLECT | SUST_STR | 
 D:蛇の髪を持つメドゥーサの石化の睨みも、この反射の盾の前には
 D:効果がなかった。
@@ -3280,7 +3280,7 @@ I:36:9:4
 W:20:10:60:50000
 P:4:0d0:0:0:0
 F:STR | CON | SUST_STR | SUST_CON |
-F:RES_FEAR | FREE_ACT | ACTIVATE
+F:FREE_ACT | ACTIVATE
 D:遥か東の国のスモー戦士が身につける正装だ。
 D:その豪華な宝飾は力強さを感じさせる。
 
@@ -3327,7 +3327,7 @@ W:30:40:100:100000
 P:0:3d3:11:22:0
 F:STR | DEX | CHR | TUNNEL | BLESSED |
 F:SLAY_EVIL | SLAY_DRAGON | SLAY_ORC | SLAY_GIANT | SLAY_DEMON |
-F:RES_COLD | SEE_INVIS | RES_FEAR | REGEN
+F:RES_COLD | SEE_INVIS | REGEN
 D:バトルハンマー氏族のドワーフの長にして、伝説の都ミスリル・ホールの王、
 D:ブルーノー・バトルハンマーの生涯最高傑作だ。
 D:「なるほどね」ドリッズドは、ハンマーをブルーノーに返した。
@@ -3559,7 +3559,7 @@ E:Spectral Dragon Scale Mail
 I:38:3:0
 W:75:30:100:350000
 P:40:2d4:-2:0:20
-F:SH_COLD | RES_COLD | RES_POIS | RES_CONF | RES_FEAR |
+F:SH_COLD | RES_COLD | RES_POIS | RES_CONF | 
 F:RES_NETHER | RES_NEXUS | RES_DISEN |
 F:SEE_INVIS | HOLD_LIFE | LEVITATION |
 F:CURSED | HEAVY_CURSE | DRAIN_EXP | FULL_NAME
@@ -3576,7 +3576,7 @@ P:0:3d7:12:10:0
 F:BLESSED | STR | WIS |
 F:SLAY_EVIL | SLAY_UNDEAD | KILL_DEMON |
 F:SEE_INVIS | REGEN | INFRA |
-F:RES_ACID | RES_COLD | RES_DARK | RES_FEAR
+F:RES_ACID | RES_COLD | RES_DARK
 D:$This lajatang looks like a staff because it has only a 
 D:$blade which looks like a half moon. Sha Wujing helped a 
 D:$long journy of Tang Sanzang with it.
@@ -3603,7 +3603,7 @@ E:'Taro Dachi'
 I:23:27:4
 W:40:25:300:120000
 P:0:9d4:0:0:-5
-F:STR | RES_FEAR | VORPAL |
+F:STR | VORPAL |
 F:SLAY_HUMAN | SLAY_ORC | SLAY_TROLL | SLAY_GIANT
 D:$Asakura's captain Naotaka Magara defeated a lot of soldiers
 D:$with this large katana.
@@ -3625,7 +3625,7 @@ I:23:6:1
 W:15:15:20:50000
 P:0:2d5:-2:13:0
 F:DEX | BLOWS | SPEED | HIDE_TYPE |
-F:BRAND_COLD | BRAND_POIS | VORPAL | RES_FEAR
+F:BRAND_COLD | BRAND_POIS | VORPAL
 D:猛毒の刃を持つ鋭い匕首だ。斬られればたちまち死に至るだろう。
 D:燕の刺客荊軻は、この匕首を用いて秦の始皇帝の暗殺を試みた。
 D:いまもその執念が宿る。
@@ -3724,7 +3724,7 @@ E:of Sam
 I:32:2:1
 W:20:1:15:15000
 P:2:0d0:1:1:7
-F:CON | HIDE_TYPE | RES_FEAR | SPEED
+F:CON | HIDE_TYPE | SPEED
 D:$Sam was brave and trustworthy companion of Frodo.
 D:$With this cap, you feel able to face the dangers
 D:$ahead with a steady hand and a noble heart.
@@ -3752,7 +3752,7 @@ W:60:4:70:200000
 P:28:1d4:1:1:7
 F:STEALTH | WIS | INT | SEE_INVIS | DEX | CHR | SPEED |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | RES_DARK | RES_DISEN |
-F:XTRA_H_RES | RES_FEAR
+F:XTRA_H_RES
 D:$"Also there is this!" said Bilbo, bringing out a parcel which seemed
 D:$to be rather heavy for its size. He unwound several folds of old cloth,
 D:$and held up a small shirt of mail. It was close-woven of many rings,
@@ -3789,7 +3789,7 @@ W:80:5:40:200000
 P:0:0d0:0:0:0
 F:STR | INT | CHR | ACTIVATE |
 F:SUST_STR | SUST_INT | SUST_CHR | FREE_ACT | HOLD_LIFE |
-F:RES_DARK | RES_NETHER | RES_FEAR | RES_BLIND
+F:RES_DARK | RES_NETHER | RES_BLIND
 D:$Maglor, son of Feanor and Nerdanel, was the greatest poet and bard of the Noldor.
 #http://en.wikipedia.org/wiki/Maglor
 
@@ -3844,7 +3844,7 @@ E:of Aegir
 I:21:1:4
 W:50:50:300:150000
 P:0:3d8:13:20:10
-F:STR | CON | RES_FEAR | RES_COLD | SLAY_EVIL | SLAY_UNDEAD
+F:STR | CON | RES_COLD | SLAY_EVIL | SLAY_UNDEAD
 F:SLAY_DEMON | BRAND_COLD | ACTIVATE
 D:$The mighty black stone club of the sea-god Aegir, crafted from 
 D:$hot magma quarried from a volcano in the blackest depths of his 
@@ -3871,7 +3871,7 @@ I:21:12:1
 W:50:50:150:150000
 P:0:3d9:12:20:5
 F:STR | DEX | BLOWS | HIDE_TYPE | SLAY_HUMAN |
-F:SLAY_ANIMAL | SLAY_EVIL | SLAY_DRAGON | RES_FEAR | SEE_INVIS |
+F:SLAY_ANIMAL | SLAY_EVIL | SLAY_DRAGON | SEE_INVIS |
 F:FREE_ACT | SHOW_MODS | 
 D:$This curious weapon with an oversized head seems to flail out with
 D:$amazing ease. In fact, it seems to leap out several times on its own
