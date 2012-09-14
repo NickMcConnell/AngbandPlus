@@ -2258,6 +2258,11 @@ static void process_world_aux_timeout(void)
 		(void)set_tim_speed_essentia(p_ptr->tim_speed_essentia - 1, TRUE);
 	}
 
+	if (p_ptr->tim_shrike)
+	{
+		(void)set_tim_shrike(p_ptr->tim_shrike - 1, TRUE);
+	}
+
 	if (p_ptr->tim_spurt)
 	{
 		(void)set_tim_spurt(p_ptr->tim_spurt - 1, TRUE);
@@ -5671,8 +5676,10 @@ msg_print("中断しました。");
 			}
 			else
 			{
-				/* There is some randomness of needed energy */
-				p_ptr->energy_need += (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
+				int amt = (s16b)((s32b)energy_use * ENERGY_NEED() / 100L);
+			/*	if (p_ptr->wizard)
+					msg_format("Used %d energy.", amt);*/
+				p_ptr->energy_need += amt;
 			}
 
 			/* Hack -- constant hallucination */
@@ -5733,7 +5740,7 @@ msg_print("中断しました。");
 							monster_desc(m_name, m_ptr, 0);
 							msg_format("You behold the terrifying visage of %s!", m_name);
 							r_ptr->r_flags2 |= RF2_AURA_FEAR;
-							set_afraid(p_ptr->afraid + r_ptr->level/m_ptr->cdis, FALSE);
+							set_afraid(p_ptr->afraid + r_ptr->level/MAX(1, m_ptr->cdis-2), FALSE);
 						}
 					}
 				}

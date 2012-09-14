@@ -153,6 +153,9 @@ void clear_mind_spell(int cmd, variant *res)
 		var_set_string(res, "Player regains 3 + L/20 sp. This won't work if the player has any pets.");
 		break;
 	case SPELL_CAST:
+	{
+		int amt;
+
 		var_set_bool(res, FALSE);
 		if (total_friends)
 		{
@@ -167,9 +170,15 @@ void clear_mind_spell(int cmd, variant *res)
 
 		msg_print(T("You feel your head clear a little.", "少し頭がハッキリした。"));
 
-		sp_player(3 + p_ptr->lev/20);
+		if (p_ptr->pclass == CLASS_PSION) /* Testing ... */
+			amt = 3 + p_ptr->lev/10;
+		else
+			amt = 3 + p_ptr->lev/20;
+
+		sp_player(amt);
 		var_set_bool(res, TRUE);
 		break;
+	}
 	default:
 		default_spell(cmd, res);
 		break;

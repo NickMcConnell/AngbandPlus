@@ -2516,7 +2516,7 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 			if (!p_save_fear(r_ptr->level))
 			{
 				r_ptr->r_flags2 |= RF2_AURA_FEAR;
-				set_afraid(p_ptr->afraid + r_ptr->level/m_ptr->cdis, FALSE);
+				set_afraid(p_ptr->afraid + r_ptr->level/MAX(1, m_ptr->cdis), FALSE);
 			}
 		}
 	}

@@ -2977,7 +2977,7 @@ void update_mon(int m_idx, bool full)
 					monster_desc(m_name, m_ptr, 0);
 					msg_format("You behold the terrifying visage of %s!", m_name);
 					r_ptr->r_flags2 |= RF2_AURA_FEAR;
-					set_afraid(p_ptr->afraid + r_ptr->level/m_ptr->cdis, FALSE);
+					set_afraid(p_ptr->afraid + r_ptr->level/MAX(1, m_ptr->cdis), FALSE);
 				}
 			}
 

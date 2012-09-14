@@ -418,8 +418,11 @@ static void _haste_self_spell(int cmd, variant *res)
 	case SPELL_SPOIL_DESC:
 		var_set_string(res, "Grants +15 speed for 10+d(3L/2) rounds.");
 		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(10, p_ptr->lev * 3 / 2));
+		break;
 	case SPELL_CAST:
-		set_fast(10 + randint1((p_ptr->lev * 3) / 2), FALSE);
+		set_fast(10 + randint1(p_ptr->lev * 3 / 2), FALSE);
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -534,6 +537,32 @@ static void _rewind_time_spell(int cmd, variant *res)
 	}
 }
 
+static void _shrike_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Time Mastery");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "You control the rate of the flow of time. Many actions require the normal "
+		                    "passage of time, such as attacking, casting spells or using magical devices. "
+							"But other actions, such as movement, reading scrolls or quaffing potions, "
+							"are performed much more quickly.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(5, 5));
+		break;
+	case SPELL_CAST:
+		set_tim_shrike(5 + randint1(5), FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 static void _slow_monster_spell(int cmd, variant *res)
 {
 	switch (cmd)
@@ -602,10 +631,13 @@ static void _speed_essentia_spell(int cmd, variant *res)
 		var_set_string(res, "Increases your melee and missile attacks for a bit.");
 		break;
 	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Grants +2 attacks and +1 shots for 3 rounds.");
+		var_set_string(res, "Grants +2 attacks and +1 shots for 3 + (L-43)/3 rounds.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, format("dur %d", 3 + (p_ptr->lev - 43)/3));
 		break;
 	case SPELL_CAST:
-		set_tim_speed_essentia(3, FALSE);
+		set_tim_speed_essentia(3 + (p_ptr->lev - 43)/3, FALSE);
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -628,7 +660,7 @@ void _stop_time_spell(int cmd, variant *res)
 		var_set_string(res, "Stops time for (SP+50)/80 actions (but no more than 6 free actions).");
 		break;
 	case SPELL_INFO:
-		var_set_string(res, format(T("%ld acts.", "行動:%ld回"), MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/80, 6)));
+		var_set_string(res, format(T("%ld acts.", "行動:%ld回"), MIN((p_ptr->csp + 100-p_ptr->energy_need - 50)/100, 5)));
 		break;
 	case SPELL_CAST:
 	{
@@ -646,8 +678,8 @@ void _stop_time_spell(int cmd, variant *res)
 		/* Note: We pay the casting cost up front these days.  So, add back the 150
 		   to figure the starting sp, and then bash sp down to 0. We can't use the 
 		   SPELL_COST_EXTRA mechanism here ... */
-		p_ptr->energy_need -= 1000 + (100 + (p_ptr->csp + 150) - 50)*TURNS_PER_TICK/8;
-		p_ptr->energy_need = MAX(-1650, p_ptr->energy_need);
+		p_ptr->energy_need -= 1000 + (100 + (p_ptr->csp + 150) - 50)*TURNS_PER_TICK/10;
+		p_ptr->energy_need = MAX(-1550, p_ptr->energy_need);
 
 		p_ptr->csp = 0;
 		p_ptr->csp_frac = 0;
@@ -734,11 +766,14 @@ static void _time_spurt_spell(int cmd, variant *res)
 	case SPELL_DESC:
 		var_set_string(res, "Gives a very short speed boost.");
 		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(3, 3));
+		break;
 	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Grants +5 speed for 2+d2 rounds. This speed boost does not stack with Haste Self.");
+		var_set_string(res, "Grants +5 speed for 3+d3 rounds. This speed boost does not stack with Haste Self.");
 		break;
 	case SPELL_CAST:
-		set_tim_spurt(spell_power(2 + randint1(2)), FALSE);
+		set_tim_spurt(spell_power(3 + randint1(3)), FALSE);
 		var_set_bool(res, TRUE);
 		break;
 	default:
@@ -750,7 +785,6 @@ static void _time_spurt_spell(int cmd, variant *res)
 /****************************************************************
  * Spell Table and Exports
  ****************************************************************/
-
 static spell_info _spells[] = 
 {
     /*lvl cst fail spell */
@@ -767,8 +801,9 @@ static spell_info _spells[] =
 	{ 30, 20, 50, _temporal_prison_spell},
 	{ 35, 90, 70, _rewind_time_spell},
 	{ 40, 80, 70, _remembrance_spell},
-	{ 45, 60, 60, _speed_essentia_spell},
-	{ 50,150, 65, _stop_time_spell},
+	{ 43, 60, 70, _speed_essentia_spell},
+	{ 47, 70, 75, _shrike_spell},
+/*	{ 50,150, 70, _stop_time_spell}, */
 	{ -1, -1, -1, NULL}
 };
 

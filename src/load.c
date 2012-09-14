@@ -1488,6 +1488,15 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->tim_slay_sentient);
 	}
 
+	if (h_older_than(0, 0, 119, 1))
+	{
+		p_ptr->tim_shrike = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_shrike);
+	}
+
 	if (h_older_than(0, 0, 54, 1))
 	{
 		wild_reset_counters();

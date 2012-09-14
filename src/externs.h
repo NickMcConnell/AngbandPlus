@@ -1505,6 +1505,7 @@ extern bool set_tim_sh_holy(int v, bool do_dec);
 extern bool set_tim_eyeeye(int v, bool do_dec);
 extern bool set_tim_spurt(int v, bool do_dec);
 extern bool set_tim_speed_essentia(int v, bool do_dec);
+extern bool set_tim_shrike(int v, bool do_dec);
 extern bool set_tim_blood_rite(int v, bool do_dec);
 extern bool set_tim_blood_shield(int v, bool do_dec);
 extern bool set_tim_blood_seek(int v, bool do_dec);
@@ -2060,6 +2061,8 @@ extern void quick_walk_spell(int cmd, variant *res);
 
 /* psion.c */
 extern class_t *psion_get_class_t(void);
+
+extern int psion_spell_stat_idx(void);
 extern int psion_backlash_dam(int dam);
 extern bool psion_check_foresight(void);
 extern void psion_decrement_counters(void);

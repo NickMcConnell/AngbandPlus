@@ -700,6 +700,7 @@ void dispel_player(void)
 
 	set_tim_spurt(0, TRUE);
 	set_tim_speed_essentia(0, TRUE);
+	set_tim_shrike(0, TRUE);
 	/* Coming soon ... 
 	set_tim_slow_digest(0, TRUE);
 	set_tim_crystal_skin(0, TRUE);
@@ -1472,6 +1473,53 @@ bool set_tim_speed_essentia(int v, bool do_dec)
 	handle_stuff();
 
 	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_shrike(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Don't rescale the duration ... this is a very
+	   powerful Time-Lord spell and should only work
+	   for a very short time.  Thx.
+	if (!do_dec)
+		v = recalc_duration_pos(v);*/
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (p_ptr->is_dead) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_shrike)
+		{
+			if (p_ptr->tim_shrike > v && !do_dec) return FALSE;
+		}
+		else
+		{
+			msg_print("You control the flow of time!");
+			notice = TRUE;
+		}
+	}
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_shrike)
+		{
+			msg_print("You no longer control time's flow.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_shrike = v;
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->redraw |= (PR_STATUS);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
 	return (TRUE);
 }
 

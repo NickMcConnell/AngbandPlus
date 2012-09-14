@@ -2723,7 +2723,10 @@ void do_cmd_walk(bool pickup)
 		if (p_ptr->wild_mode) energy_use *= ((MAX_HGT + MAX_WID) / 2);
 		
 		if (p_ptr->action == ACTION_HAYAGAKE) energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
-		if (p_ptr->quick_walk)  energy_use /= 2;
+		
+		if (!p_ptr->wild_mode && p_ptr->tim_shrike) energy_use /= 3;
+		else if (p_ptr->quick_walk)  energy_use /= 2;
+			
 
 		/* Actually move the character */
 		move_player(dir, pickup, FALSE);

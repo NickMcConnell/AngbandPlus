@@ -3895,7 +3895,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 						msg_print("Your chosen target is vanquished!");
 				}
 
-				if ((p_ptr->pclass == CLASS_BERSERKER || mut_present(MUT_FANTASTIC_FRENZY)) && energy_use)
+				if ((p_ptr->pclass == CLASS_BERSERKER || mut_present(MUT_FANTASTIC_FRENZY) || p_ptr->tim_shrike) && energy_use)
 				{
 					if (p_ptr->migite && p_ptr->hidarite)
 					{

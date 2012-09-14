@@ -783,6 +783,7 @@ static void wr_extra(void)
 
 	wr_s16b(p_ptr->tim_killing_spree);
 	wr_s16b(p_ptr->tim_slay_sentient);
+	wr_s16b(p_ptr->tim_shrike);
 	
 	{
 		int i;

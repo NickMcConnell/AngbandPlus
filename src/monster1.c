@@ -61,6 +61,7 @@ bool p_save_fear(int ml)
 	if (ml <= 0)
 		ml = 100;
 
+	if (p_ptr->pclass == CLASS_BERSERKER) return TRUE;
 	if (randint1(ml) <= randint1(pl)) return TRUE;
 	if (p_ptr->resist_fear && randint1(ml) <= randint1(pl)) return TRUE;
 

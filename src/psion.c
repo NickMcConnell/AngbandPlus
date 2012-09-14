@@ -6,6 +6,11 @@ static int _power = 1;
 
 int psion_power(void) { return _power; }
 
+int psion_spell_stat_idx(void)
+{
+	return MAX(p_ptr->stat_ind[A_INT], MAX(p_ptr->stat_ind[A_WIS], p_ptr->stat_ind[A_CHR]));
+}
+
 /* Magic Number Indices 
 	p_ptr->magic_num1 functions as a timer for the effect.
 	p_ptr->magic_num2 remembers the power of the effect.
@@ -137,7 +142,7 @@ bool psion_mon_save_p(int r_idx, int power)
 {
 	int pl = p_ptr->lev;
 	int ml = r_info[r_idx].level;
-	int s = p_ptr->stat_ind[A_INT] + 3;
+	int s = psion_spell_stat_idx() + 3;
 
 	if (ml + randint1(100) > pl + s + power*14) return TRUE;
 	return FALSE;
@@ -1159,7 +1164,7 @@ static int _get_powers(spell_info* spells, int max)
 	spell_info* spell = &spells[ct++];
 	spell->level = 15;
 	spell->cost = 0;
-	spell->fail = calculate_fail_rate(spell->level, 30, p_ptr->stat_ind[A_INT]);
+	spell->fail = calculate_fail_rate(spell->level, 30, psion_spell_stat_idx());
 	spell->fn = clear_mind_spell;
 
 	return ct;
@@ -1169,6 +1174,7 @@ static int _get_spells(spell_info* spells, int max)
 {
 	int i, ct = 0;
 	int num = _num_spells_allowed();
+	int stat = psion_spell_stat_idx();
 
 	for (i = 0; i < num; i++)
 	{
@@ -1205,7 +1211,7 @@ static int _get_spells(spell_info* spells, int max)
 			}
 
 			current->cost = cost;
-			current->fail = calculate_fail_rate(base->level, fail, p_ptr->stat_ind[A_INT]);
+			current->fail = calculate_fail_rate(base->level, fail, stat);
 			ct++;
 		}
 	}

@@ -452,6 +452,7 @@ static void prt_stat(int stat)
 #define BAR_SCARED 145
 #define BAR_TERRIFIED 146
 #define BAR_PETRIFIED 147
+#define BAR_SHRIKE 148
 
 static struct {
 	byte attr;
@@ -684,6 +685,7 @@ static struct {
 	{TERM_ORANGE, "Sd", "Scared"},
 	{TERM_RED, "Tf", "Terrified"},
 	{TERM_VIOLET, "Pf", "Petrified"},
+	{TERM_YELLOW, "Sk", "Shrike"},
 	{0, NULL, NULL}
 };
 #endif
@@ -870,6 +872,7 @@ static void prt_status(void)
 
 	if (p_ptr->tim_spurt) ADD_FLG(BAR_TIME_SPURT);
 	if (p_ptr->tim_speed_essentia) ADD_FLG(BAR_SPEED_ESSENTIA);
+	if (p_ptr->tim_shrike) ADD_FLG(BAR_SHRIKE);
 	if (p_ptr->tim_blood_shield) ADD_FLG(BAR_BLOOD_SHIELD);
 	if (p_ptr->tim_blood_seek) ADD_FLG(BAR_BLOOD_SEEK);
 	if (p_ptr->tim_blood_sight) ADD_FLG(BAR_BLOOD_SIGHT);
@@ -2903,17 +2906,28 @@ static void calc_spells(void)
  */
 static int _racial_mana_adjust(int i)
 {               
-	int result = 0;
+	int     result = 0;
+	race_t *race_ptr;
+
+	/* When doppelgangers mimic, their assumed form affects their mana */
 	if (p_ptr->prace == RACE_DOPPELGANGER)
+		race_ptr = get_race_t();
+	/* but when anybody else mimics, we continue to use their true original race */
+	else
+		race_ptr = get_true_race_t();
+	
+	/* psion's best racial modifier wins */
+	if (p_ptr->pclass == CLASS_PSION)
 	{
-		result = get_race_t()->stats[i];
-		if (result > 5) result = 5;
-		if (result < -5) result = -5;
+		result = MAX(race_ptr->stats[A_INT], 
+					MAX(race_ptr->stats[A_WIS], race_ptr->stats[A_CHR]));
 	}
 	else
-	{
-		result = get_true_race_t()->stats[i];
-	}
+		result = race_ptr->stats[i];
+
+	if (result > 5) result = 5;
+	if (result < -5) result = -5;
+
 	return result;
 }
 
@@ -2967,6 +2981,11 @@ static void calc_mana(void)
 		if (p_ptr->pclass == CLASS_ARCHAEOLOGIST)
 		{
 			int stat_idx = archaeologist_spell_stat_idx();
+			msp = adj_mag_mana[stat_idx] * (levels+3) / 4;
+		}
+		else if (p_ptr->pclass == CLASS_PSION)
+		{
+			int stat_idx = psion_spell_stat_idx();
 			msp = adj_mag_mana[stat_idx] * (levels+3) / 4;
 		}
 		else
@@ -5225,7 +5244,7 @@ void calc_bonuses(void)
 		/* Hack: Berserking now prorates damage bonus when dual wielding unless
 		   player has Genji bonus.
 		*/
-		if (IS_SHERO() && !easy_2weapon && !p_ptr->easy_2weapon)
+		if (IS_SHERO() && !easy_2weapon && !p_ptr->easy_2weapon && p_ptr->pclass != CLASS_BERSERKER)
 		{
 			to_d = 3+(p_ptr->lev/5);
 			p_ptr->weapon_info[0].to_d -= to_d/2;

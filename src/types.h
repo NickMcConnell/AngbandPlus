@@ -1124,6 +1124,8 @@ struct player_type
 	s16b tim_slay_sentient;
 	bool maul_of_vice;
 
+	s16b tim_shrike;  /* cf Hyperion by Dan Simmons */
+
 	counter_t wild_counters[MAX_WILD_COUNTERS];	/* Wild Weapons */
 
 	bool sense_artifact;

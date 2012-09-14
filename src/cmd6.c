@@ -755,7 +755,7 @@ static void do_cmd_quaff_potion_aux(int item)
 
 
 	/* Take a turn */
-	if (mut_present(MUT_POTION_CHUGGER))
+	if (mut_present(MUT_POTION_CHUGGER) || p_ptr->tim_shrike)
 	{
 		energy_use = 30;
 		chugger = TRUE;
@@ -1683,9 +1683,13 @@ static void do_cmd_read_scroll_aux(int item, bool known)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Take a turn */
-	energy_use = 100;
+	if (/*mut_present(MUT_SPEED_READER) ||*/ p_ptr->tim_shrike)
+	{
+		energy_use = 30;
+	}
+	else
+		energy_use = 100;
 
 	/* Hack: Block devices *after* consuming player energy */
 	if (p_ptr->tim_no_device)
