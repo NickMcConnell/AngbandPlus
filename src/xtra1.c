@@ -447,12 +447,11 @@ static void prt_stat(int stat)
 #define BAR_SLAY_SENTIENT 140
 #define BAR_QUICK_WALK 141
 #define BAR_INVEN_PROT 142
-#define BAR_CALM 143
-#define BAR_UNEASY 144
-#define BAR_NERVOUS 145
-#define BAR_SCARED 146
-#define BAR_TERRIFIED 147
-#define BAR_PETRIFIED 148
+#define BAR_UNEASY 143
+#define BAR_NERVOUS 144
+#define BAR_SCARED 145
+#define BAR_TERRIFIED 146
+#define BAR_PETRIFIED 147
 
 static struct {
 	byte attr;

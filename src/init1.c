@@ -323,7 +323,7 @@ static cptr r_info_flags2[] =
 	"KILL_ITEM",
 	"AURA_REVENGE",
 	"THIEF",
-	"XXX",
+	"AURA_FEAR",
 	"XXX",
 	"XXX",
 	"XXX",

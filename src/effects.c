@@ -1206,19 +1206,7 @@ bool set_afraid(int v, bool do_dec)
 		switch (new_aux)
 		{
 		case FEAR_BOLD:
-			msg_print("You are no longer uneasy.");
-			break;
-		case FEAR_UNEASY:
-			msg_print("You are no longer nervous.");
-			break;
-		case FEAR_NERVOUS:
-			msg_print("You are no longer scared.");
-			break;
-		case FEAR_SCARED:
-			msg_print("You are no longer terrified.");
-			break;
-		case FEAR_TERRIFIED:
-			msg_print("You are no longer petrified.");
+			msg_print("Your fears finally subside.");
 			break;
 		}
 		notice = TRUE;

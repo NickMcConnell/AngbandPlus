@@ -56,7 +56,7 @@ static cptr wd_his[3] =
 */
 bool p_save_fear(int ml)
 {
-	int pl = p_ptr->lev + (p_ptr->stat_ind[A_CHR] + 3);
+	int pl = p_ptr->lev + adj_stat_save[p_ptr->stat_ind[A_CHR]];
 
 	if (ml <= 0)
 		ml = 100;
@@ -69,7 +69,7 @@ bool p_save_fear(int ml)
 
 bool m_save_fear(int ml)
 {
-	int pl = p_ptr->lev + (p_ptr->stat_ind[A_CHR] + 3);
+	int pl = p_ptr->lev + adj_stat_save[p_ptr->stat_ind[A_CHR]];
 
 	if (randint1(pl) <= randint1(ml)) return TRUE;
 
@@ -878,6 +878,8 @@ else                            hooked_roff("モンスター");
 
 	if (flags2 & RF2_AURA_REVENGE)
 		hook_c_roff(TERM_VIOLET, format("%^s retaliates when struck.  ", wd_he[msex]));
+	if (flags2 & RF2_AURA_FEAR)
+		hook_c_roff(TERM_VIOLET, format("%^s inspires fear.  ", wd_he[msex]));
 
 	if ((flags2 & RF2_AURA_FIRE) && (flags2 & RF2_AURA_ELEC) && (flags3 & RF3_AURA_COLD))
 	{

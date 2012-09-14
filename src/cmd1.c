@@ -2852,6 +2852,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 {
 	int		num = 0, k, bonus, chance, vir;
 	int     to_h = 0, to_d = 0;
+	int     touch_ct = 0;
 	cave_type       *c_ptr = &cave[y][x];
 
 	monster_type    *m_ptr = 0;
@@ -4094,6 +4095,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			if (k > 0) anger_monster(m_ptr);
 
 			touch_zap_player(c_ptr->m_idx);
+			touch_ct++;
 
 			/* Are we draining it?  A little note: If the monster is
 			dead, the drain does not work... */
@@ -4520,6 +4522,19 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			chg_virtue(V_UNLIFE, 1);
 		}
 	}
+
+	if (touch_ct && !(*mdeath))
+	{
+		if (r_ptr->flags2 & RF2_AURA_FEAR)
+		{
+			if (!p_save_fear(r_ptr->level))
+			{
+				r_ptr->r_flags2 |= RF2_AURA_FEAR;
+				set_afraid(p_ptr->afraid + r_ptr->level, FALSE);
+			}
+		}
+	}
+
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake)
 	{
@@ -4564,6 +4579,8 @@ bool random_opponent(int *y, int *x)
 	}
 	return FALSE;
 }
+
+bool melee_hack = FALSE;
 
 bool py_attack(int y, int x, int mode)
 {
@@ -4712,6 +4729,8 @@ bool py_attack(int y, int x, int mode)
 			return FALSE;
 		}
 	}
+
+	melee_hack = TRUE;
 
 	if (MON_CSLEEP(m_ptr)) /* It is not honorable etc to attack helpless victims */
 	{
@@ -5010,6 +5029,7 @@ bool py_attack(int y, int x, int mode)
 		int y = 0, x = 0, i, dir = 0;
 		cave_type *c_ptr;
 
+		melee_hack = FALSE;
 		for (i = 1; i <= 2; i++) /* TODO: Tweak the number of attempts */
 		{
 			dir = randint0(8);
@@ -5026,6 +5046,8 @@ bool py_attack(int y, int x, int mode)
 		}
 		return TRUE;
 	}
+
+	melee_hack = FALSE;
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml && !mdeath)

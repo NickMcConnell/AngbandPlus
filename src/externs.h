@@ -16,6 +16,8 @@
  */
 
 
+extern bool melee_hack;
+
 /*
  * Automatically generated "variable" declarations
  */
@@ -58,6 +60,7 @@ extern byte adj_chr_gold[];
 extern byte adj_pseudo_id[];
 extern byte adj_exp_gain[];
 extern s16b adj_mon_fear[];
+extern s16b adj_stat_save[];
 extern byte warlock_damage_sides[];
 extern byte adj_int_dev[];
 extern byte adj_wis_sav[];

@@ -2509,7 +2509,17 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		/* Monster is dead */
 		return (TRUE);
 	}
-
+	else if (!melee_hack)
+	{
+		if (r_ptr->flags2 & RF2_AURA_FEAR)
+		{
+			if (!p_save_fear(r_ptr->level))
+			{
+				r_ptr->r_flags2 |= RF2_AURA_FEAR;
+				set_afraid(p_ptr->afraid + r_ptr->level/m_ptr->cdis, FALSE);
+			}
+		}
+	}
 
 #ifdef ALLOW_FEAR
 
@@ -2548,13 +2558,8 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 			}
 			else
 			{
-				/* Hack -- note fear */
 				(*fear) = TRUE;
-
-				/* XXX XXX XXX Hack -- Add some timed fear */
-				(void)set_monster_monfear(m_idx, (randint1(10) +
-						  (((dam >= m_ptr->hp) && (percentage > 7)) ?
-						   20 : ((11 - percentage) * 5))));
+				set_monster_monfear(m_idx, randint1(10) + 20);
 			}
 		}
 	}

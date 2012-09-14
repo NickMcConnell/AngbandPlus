@@ -3684,7 +3684,7 @@
 #define RF2_KILL_ITEM       0x00800000  /* Monster can crush items */
 #define RF2_AURA_REVENGE	0x01000000  
 #define RF2_THIEF           0x02000000
-#define RF2_XXX3            0x04000000
+#define RF2_AURA_FEAR       0x04000000
 #define RF2_XXX4            0x08000000
 #define RF2_XXX5            0x10000000
 #define RF2_XXX6            0x20000000

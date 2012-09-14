@@ -5715,6 +5715,29 @@ msg_print("中断しました。");
 				}
 			}
 
+			{
+				for (i = 1; i < m_max; i++)
+				{
+					monster_type *m_ptr = &m_list[i];
+					monster_race *r_ptr;
+
+					if (!m_ptr->r_idx) continue;
+					if (!m_ptr->ml) continue;
+
+					r_ptr = &r_info[m_ptr->ap_r_idx];
+					if (r_ptr->flags2 & RF2_AURA_FEAR)
+					{
+						if (!p_save_fear(r_ptr->level/MAX(1, m_ptr->cdis-2)))
+						{
+							char m_name[80];
+							monster_desc(m_name, m_ptr, 0);
+							msg_format("You behold the terrifying visage of %s!", m_name);
+							r_ptr->r_flags2 |= RF2_AURA_FEAR;
+							set_afraid(p_ptr->afraid + r_ptr->level/m_ptr->cdis, FALSE);
+						}
+					}
+				}
+			}
 
 			/* Handle monster detection */
 			if (repair_monsters)

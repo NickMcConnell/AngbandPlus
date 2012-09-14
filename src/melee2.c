@@ -4040,10 +4040,15 @@ void process_monsters(void)
 
 		if (MON_MONFEAR(m_ptr))
 		{
-			if (m_save_fear(r_ptr->level))
+			int lvl = r_ptr->level;
+
+			if (!m_ptr->ml) /* Player may not exert their force of will out of sight! */
+				lvl += adj_stat_save[p_ptr->stat_ind[A_CHR]];
+
+			if (m_save_fear(lvl))
 			{
 				bool recovered = FALSE;
-				if (m_save_fear(r_ptr->level))
+				if (m_save_fear(lvl))
 				{
 					set_monster_monfear(i, 0);
 					recovered = TRUE;
@@ -4065,10 +4070,14 @@ void process_monsters(void)
 					msg_format("%^s recovers %s courage.", m_name, m_poss);
 				}
 			}
-			else if (!m_save_fear(r_ptr->level + 20))
+			else if (!m_save_fear(lvl + 20))
 			{
-				char m_name[80];
-				msg_format("%^s is scared stiff!", m_name);
+				if (is_seen(m_ptr))
+				{
+					char m_name[80];
+					monster_desc(m_name, m_ptr, 0);
+					msg_format("%^s is scared stiff!", m_name);
+				}
 				continue;
 			}
 		}
