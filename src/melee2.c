@@ -4040,15 +4040,10 @@ void process_monsters(void)
 
 		if (MON_MONFEAR(m_ptr))
 		{
-			int lvl = r_ptr->level;
-
-			if (!m_ptr->ml) /* Player may not exert their force of will out of sight! */
-				lvl += adj_stat_save[p_ptr->stat_ind[A_CHR]];
-
-			if (m_save_fear(lvl))
+			if (m_save_fear(m_ptr))
 			{
 				bool recovered = FALSE;
-				if (m_save_fear(lvl))
+				if (m_save_fear(m_ptr))
 				{
 					set_monster_monfear(i, 0);
 					recovered = TRUE;
@@ -4070,7 +4065,7 @@ void process_monsters(void)
 					msg_format("%^s recovers %s courage.", m_name, m_poss);
 				}
 			}
-			else if (!m_save_fear(lvl + 20))
+			else if (!m_save_fear(m_ptr) && !m_save_fear(m_ptr))
 			{
 				if (is_seen(m_ptr))
 				{

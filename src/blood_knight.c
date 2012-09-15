@@ -185,7 +185,6 @@ void _blood_rage_spell(int cmd, variant *res)
 		int dur = randint1(p_ptr->lev/2) + p_ptr->lev/2;
 		set_fast(dur, FALSE);
 		set_shero(dur, FALSE);
-		set_afraid(0, TRUE);
 		var_set_bool(res, TRUE);
 		break;
 	}

@@ -3374,7 +3374,6 @@ bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_BERSERK:
 		{
-			(void)set_afraid(0, TRUE);
 			(void)set_hero(device_power(randint1(50) + 50), FALSE);
 			(void)set_blessed(device_power(randint1(50) + 50), FALSE);
 			o_ptr->timeout = 100 + randint1(100);

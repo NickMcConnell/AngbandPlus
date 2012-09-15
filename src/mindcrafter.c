@@ -392,14 +392,13 @@ void _adrenaline_spell(int cmd, variant *res)
 							  "恐怖と朦朧から回復し、ヒーロー気分かつ加速状態でなければHPが少し回復する。さらに、一定時間ヒーロー気分になり、加速する。"));
 		break;
 	case SPELL_SPOIL_DESC:
-		var_set_string(res, "Removes fear and stun. Heals 10 + 1d(L*3/2). Grants heroism and haste.");
+		var_set_string(res, "Removes stun. Heals 10 + 1d(L*3/2). Grants heroism and haste.");
 		break;
 	case SPELL_CAST:
 	{
 		int dur = spell_power(10 + randint1((p_ptr->lev * 3) / 2));
 		bool heal = !IS_FAST() || !IS_HERO(); /* Prevent spamming this as a weak healing spell */
 
-		set_afraid(0, TRUE);
 		set_stun(0, TRUE);
 
 		set_hero(dur, FALSE);

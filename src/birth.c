@@ -4102,7 +4102,7 @@ static byte player_init[MAX_CLASS][3][2] =
 {
 	{
 		/* Warrior */
-		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
+		{ TV_RING, SV_RING_STR },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_SWORD, SV_BROAD_SWORD }
 	},
@@ -4270,7 +4270,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Weaponsmith */
-		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
+		{ TV_RING, SV_RING_STR },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_POLEARM, SV_BROAD_AXE }
 	},
@@ -4318,7 +4318,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 	{
 		/* Duelist */
-		{ TV_RING, SV_RING_RES_FEAR },
+		{ TV_RING, SV_RING_STR },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 		{ TV_SWORD, SV_RAPIER },
 	},
@@ -4378,7 +4378,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Mauler */
-		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
+		{ TV_RING, SV_RING_STR },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_SWORD, SV_TWO_HANDED_SWORD }
 	},
@@ -4581,11 +4581,6 @@ void player_outfit(void)
 		if (tv == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
 		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
 
-		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
-		    p_ptr->prace == RACE_BARBARIAN)
-			/* Barbarians do not need a ring of resist fear */
-			sv = SV_RING_SUSTAIN_STR;
-
 		else if (tv == TV_RING && sv == SV_RING_SUSTAIN_INT &&
 		    p_ptr->prace == RACE_MIND_FLAYER)
 		  {
@@ -4613,6 +4608,10 @@ void player_outfit(void)
 			if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_SWORD && sv == SV_BROAD_SWORD)
 				rune_add(&forge, RUNE_ABSORPTION, FALSE);
 		}
+
+		if (tv == TV_RING && sv == SV_RING_STR)
+			forge.pval = 1;
+
 		add_outfit(&forge);
 	}
 

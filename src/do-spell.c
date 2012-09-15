@@ -4665,7 +4665,6 @@ static cptr do_death_spell(int spell, int mode)
 			{
 				set_shero(randint1(base) + base, FALSE);
 				hp_player(30);
-				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -4735,7 +4734,6 @@ static cptr do_death_spell(int spell, int mode)
 			{
 				set_hero(randint1(b_base) + b_base, FALSE);
 				set_blessed(randint1(b_base) + b_base, FALSE);
-				set_afraid(0, TRUE);
 				set_fast(randint1(sp_sides) + sp_base, FALSE);
 			}
 		}
@@ -6867,7 +6865,6 @@ static cptr do_craft_spell(int spell, int mode)
 			if (cast)
 			{
 				set_hero(randint1(base) + base, FALSE);
-				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -6984,7 +6981,6 @@ static cptr do_craft_spell(int spell, int mode)
 			{
 				set_shero(randint1(base) + base, FALSE);
 				hp_player(30);
-				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -7837,7 +7833,7 @@ static cptr do_daemon_spell(int spell, int mode)
 		if (desc) return "恐怖を取り除き、一定時間、炎と冷気の耐性、炎のオーラを得る。耐性は装備による耐性に累積する。";
 #else
 		if (name) return "Devil Cloak";
-		if (desc) return "Removes fear. Gives resistance to fire and cold, and aura of fire. These resistances can be added to which from equipment for more powerful resistances.";
+		if (desc) return "Gives resistance to fire and cold, and aura of fire. These resistances can be added to which from equipment for more powerful resistances.";
 #endif
     
 		{
@@ -7852,7 +7848,6 @@ static cptr do_daemon_spell(int spell, int mode)
 				set_oppose_fire(dur, FALSE);
 				set_oppose_cold(dur, FALSE);
 				set_tim_sh_fire(dur, FALSE);
-				set_afraid(0, TRUE);
 				break;
 			}
 		}
@@ -8002,7 +7997,7 @@ static cptr do_daemon_spell(int spell, int mode)
 		if (desc) return "一定時間、ヒーロー気分になる。";
 #else
 		if (name) return "Raise the Morale";
-		if (desc) return "Removes fear, and gives bonus to hit and 10 more HP for a while.";
+		if (desc) return "Gives bonus to hit and 10 more HP for a while.";
 #endif
     
 		{
@@ -8013,8 +8008,6 @@ static cptr do_daemon_spell(int spell, int mode)
 			if (cast)
 			{
 				set_hero(randint1(base) + base, FALSE);
-				hp_player(10);
-				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -8537,7 +8530,7 @@ static cptr do_crusade_spell(int spell, int mode)
 		if (desc) return "視界内の邪悪な存在に大きなダメージを与え、体力を回復し、毒、恐怖、朦朧状態、負傷から全快する。";
 #else
 		if (name) return "Holy Word";
-		if (desc) return "Damages all evil monsters in sight, heals HP somewhat, and completely heals poison, fear, stun and cut status.";
+		if (desc) return "Damages all evil monsters in sight, heals HP somewhat, and completely heals poison, stun and cut status.";
 #endif
     
 		{
@@ -8554,7 +8547,6 @@ static cptr do_crusade_spell(int spell, int mode)
 			{
 				dispel_evil(randint1(dam_sides));
 				hp_player(heal);
-				set_afraid(0, TRUE);
 				set_poisoned(0, TRUE);
 				set_stun(0, TRUE);
 				set_cut(0, TRUE);
@@ -8768,7 +8760,6 @@ static cptr do_crusade_spell(int spell, int mode)
 			{
 				set_hero(randint1(base) + base, FALSE);
 				hp_player(10);
-				set_afraid(0, TRUE);
 			}
 		}
 		break;
@@ -10010,7 +10001,6 @@ static cptr do_music_spell(int spell, int mode)
 			msg_print("You chant a powerful, heroic call to arms...");
 #endif
 			(void)hp_player(10);
-			(void)set_afraid(0, TRUE);
 
 			/* Recalculate hitpoints */
 			p_ptr->update |= (PU_HP);
@@ -13174,7 +13164,6 @@ static cptr do_necromancy_spell(int spell, int mode)
 				summon_specific(-1, my, mx, power, what, (PM_ALLOW_GROUP | PM_FORCE_PET | PM_HASTE));
 			}
 			set_fast(randint1(sp_sides) + sp_base, FALSE);
-			set_afraid(0, TRUE);
 		}
 		break;
 

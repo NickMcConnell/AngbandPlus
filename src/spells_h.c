@@ -12,7 +12,6 @@ void heroism_spell(int cmd, variant *res)
 		break;
 	case SPELL_CAST:
 		set_hero(randint1(25) + 25, FALSE);
-		set_afraid(0, TRUE);
 		var_set_bool(res, TRUE);
 		break;
 	default:

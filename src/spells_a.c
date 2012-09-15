@@ -359,7 +359,7 @@ void battle_frenzy_spell(int cmd, variant *res)
 		var_set_string(res, T("Battle Frenzy", "¶¸ÍðÀï»Î"));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Gives another bonus to hit and HP, immunity to fear for a while. Hastes you. But decreases AC.", "¶¸Àï»Î²½¤·¡¢¶²ÉÝ¤ò½üµî¤·¡¢²ÃÂ®¤¹¤ë¡£"));
+		var_set_string(res, T("Gives another bonus to hit and HP, resistance to fear for a while. Hastes you. But decreases AC.", "¶¸Àï»Î²½¤·¡¢¶²ÉÝ¤ò½üµî¤·¡¢²ÃÂ®¤¹¤ë¡£"));
 		break;
 	case SPELL_CAST:
 	{
@@ -368,7 +368,6 @@ void battle_frenzy_spell(int cmd, variant *res)
 		int sp_sides = 20 + p_ptr->lev / 2;
 
 		set_shero(randint1(b_base) + b_base, FALSE);
-		set_afraid(0, TRUE);
 		set_fast(randint1(sp_sides) + sp_base, FALSE);
 
 		var_set_bool(res, TRUE);
@@ -402,7 +401,6 @@ void berserk_spell(int cmd, variant *res)
 	case SPELL_CAST:
 	{
 		msg_print("Raaagh!  You feel like hitting something.");
-		set_afraid(0, TRUE);
 		set_shero(10 + randint1(p_ptr->lev), FALSE);
 		var_set_bool(res, TRUE);
 		break;

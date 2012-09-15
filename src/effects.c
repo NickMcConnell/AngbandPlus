@@ -6245,10 +6245,40 @@ bool hp_player(int num)
 	return hp_player_aux(num);
 }
 
+#define HURT_0   0
+#define HURT_25 25
+#define HURT_50 50
+#define HURT_65 65
+#define HURT_80 80
+#define HURT_90 90
+#define HURT_95 95
+
+static int _get_hurt_level(int chp)
+{
+	int pct = (p_ptr->mhp - MAX(chp, 0)) * 100 / p_ptr->mhp;
+
+	if (pct >= HURT_95)
+		return HURT_95;
+	if (pct >= HURT_90)
+		return HURT_90;
+	if (pct >= HURT_80)
+		return HURT_80;
+	if (pct >= HURT_65)
+		return HURT_65;
+	if (pct >= HURT_50)
+		return HURT_50;
+	if (pct >= HURT_25)
+		return HURT_25;
+
+	return HURT_0;
+}
+
 bool hp_player_aux(int num)
 {
-	int vir;
-	vir = virtue_number(V_VITALITY);
+	int vir = virtue_number(V_VITALITY);
+	int old_hurt = _get_hurt_level(p_ptr->chp);
+	int new_hurt;
+
 	if (vir)
 	{
 		num = num * (p_ptr->virtues[vir - 1] + 1250) / 1250;
@@ -6328,6 +6358,13 @@ msg_print("ひじょうに気分が良くなった。");
 			msg_print("You feel very good.");
 #endif
 
+		}
+
+		if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE)
+		{
+			new_hurt = _get_hurt_level(p_ptr->chp);
+			if (new_hurt < old_hurt && (!new_hurt || p_save_fear(FEAR_DEFAULT_LEVEL)))
+				decrease_afraid();
 		}
 
 		/* Notice */
@@ -6950,7 +6987,6 @@ msg_format("%sの構成が変化した！", p_ptr->prace == RACE_ANDROID ? "機械" : "内臓
 	}
 }
 
-
 /*
  * Decreases players hit points and sets death flag if necessary
  *
@@ -6964,6 +7000,8 @@ msg_format("%sの構成が変化した！", p_ptr->prace == RACE_ANDROID ? "機械" : "内臓
 int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 {
 	int old_chp = p_ptr->chp;
+	int old_hurt = _get_hurt_level(p_ptr->chp);
+	int new_hurt;
 
 	char death_message[1024];
 	char tmp[80];
@@ -7096,6 +7134,7 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		damage = MAX(0, damage);
 	}
 
+	
 	if (p_ptr->wizard && damage > 10)
 		msg_format("You take %d damage.", damage);
 
@@ -7106,18 +7145,21 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		p_ptr->chp = 0;
 	}
 
-	/* Snotlings scare easy */
-	if (prace_is_(RACE_SNOTLING) && damage > 0)
+	/* Player Fear */
+	if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE)
 	{
-		if ((p_ptr->resist_fear && !one_in_(7)) || randint0(100) < p_ptr->skills.sav)
+		new_hurt = _get_hurt_level(p_ptr->chp);
+		if (new_hurt > old_hurt)
 		{
-		}
-		else
-		{
-			set_afraid(p_ptr->afraid + MIN(damage, FEAR_TERRIFIED), FALSE);
+			if ( !p_save_fear(FEAR_DEFAULT_LEVEL)
+			  || (new_hurt > HURT_50 && !p_save_fear(FEAR_DEFAULT_LEVEL)) )
+			{
+				set_afraid(p_ptr->afraid + new_hurt, FALSE);
+			}
+			else
+				msg_format("You stand your ground!");
 		}
 	}
-
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
 

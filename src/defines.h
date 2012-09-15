@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 119
+#define FAKE_VER_PATCH 120
 
 
 /*
@@ -46,8 +46,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 119
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 120
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -4080,7 +4080,7 @@
 
 #define RF5_WORTHY_ATTACK_MASK \
 	(RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | \
-	 RF5_MIND_BLAST | RF5_BRAIN_SMASH)
+	 RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_SCARE)
 
 #define RF6_ATTACK_MASK \
 	(RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | \
@@ -5767,6 +5767,8 @@ extern int PlayerUID;
 #define FEAR_SCARED        50
 #define FEAR_TERRIFIED    100
 #define FEAR_PETRIFIED   1000
+
+#define FEAR_DEFAULT_LEVEL (MIN(dun_level + 2, 127))
 
 /* How to handle translations to different languages?
  * Personally, the constant conditional compilation approach is too

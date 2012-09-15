@@ -580,7 +580,6 @@ static void _bury_dead_spell(int cmd, variant *res)
 		set_blessed(p_ptr->blessed + turns, FALSE);
 		if (p_ptr->lev >= 15)
 		{
-			set_afraid(0, TRUE);
 			set_hero(p_ptr->hero + turns, FALSE);
 		}
 		if (p_ptr->lev >= 30)

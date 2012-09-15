@@ -2680,7 +2680,7 @@ static void process_world_aux_curse(void)
 		}
 		if ((p_ptr->cursed & TRC_COWARDICE) && one_in_(1500))
 		{
-			if (!p_save_fear(dun_level))
+			if (!p_save_fear(FEAR_DEFAULT_LEVEL))
 			{
 				disturb(0, 0);
 #ifdef JP
@@ -4494,10 +4494,12 @@ msg_print("ウィザードモード突入。");
 				else if (p_ptr->tim_no_spells)
 				{
 					msg_print("Your spells are blocked!");
+					energy_use = 100;
 				}
-				else if (p_ptr->afraid && !p_save_fear(p_ptr->afraid))
+				else if (p_ptr->afraid && !p_save_fear(p_ptr->afraid/2))
 				{
 					msg_print("You are too scared!");
+					energy_use = 100;
 				}
 				else if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) 
 					&& p_ptr->pclass != CLASS_BERSERKER 
@@ -5493,14 +5495,14 @@ msg_print("中断しました。");
 
 	if (p_ptr->afraid)
 	{
-		if (p_save_fear(100))
+		if (p_save_fear(FEAR_DEFAULT_LEVEL + p_ptr->afraid / 10))
 		{
-			if (p_save_fear(100))
+			if (p_save_fear(FEAR_DEFAULT_LEVEL + p_ptr->afraid))
 				set_afraid(0, TRUE);
 			else
 				decrease_afraid();
 		}
-		else if (p_ptr->afraid >= FEAR_SCARED && !p_save_fear(25))
+		else if (p_ptr->afraid >= FEAR_SCARED && !p_save_fear(FEAR_DEFAULT_LEVEL/4))
 		{
 			if (p_ptr->afraid >= FEAR_PETRIFIED)
 			{
@@ -5734,6 +5736,7 @@ msg_print("中断しました。");
 					r_ptr = &r_info[m_ptr->ap_r_idx];
 					if (r_ptr->flags2 & RF2_AURA_FEAR)
 					{
+						if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
 						if (!p_save_fear(r_ptr->level/MAX(1, m_ptr->cdis-2)))
 						{
 							char m_name[80];

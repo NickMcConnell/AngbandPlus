@@ -129,7 +129,7 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_PARANOIA:
 			{
-				if (!p_save_fear(50))
+				if (!p_save_fear(FEAR_DEFAULT_LEVEL*2))
 				{
 					if (set_afraid(p_ptr->afraid + FEAR_SCARED, FALSE))
 					{
@@ -1132,7 +1132,6 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 		{
 			int dur = 25 + randint1(25);
 			if (chugger) dur *= 2;
-			if (set_afraid(0, TRUE)) ident = TRUE;
 			if (set_hero(p_ptr->hero + dur, FALSE)) ident = TRUE;
 			if (hp_player(10)) ident = TRUE;
 			break;
@@ -1141,7 +1140,6 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 		{
 			int dur = 25 + randint1(25);
 			if (chugger) dur *= 2;
-			if (set_afraid(0, TRUE)) ident = TRUE;
 			if (set_shero(p_ptr->shero + dur, FALSE)) ident = TRUE;
 			if (hp_player(30)) ident = TRUE;
 			break;
@@ -2805,7 +2803,6 @@ static int staff_effect(int sval, bool *use_charge, bool magic, bool known)
 			k = 3 * p_ptr->lev;
 			if (set_protevil((magic ? 0 : p_ptr->protevil) + randint1(25) + k, FALSE)) ident = TRUE;
 			if (set_poisoned(0, TRUE)) ident = TRUE;
-			if (set_afraid(0, TRUE)) ident = TRUE;
 			if (hp_player(50)) ident = TRUE;
 			if (set_stun(0, TRUE)) ident = TRUE;
 			if (set_cut(0, TRUE)) ident = TRUE;
@@ -4939,7 +4936,6 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("Your armor glows many colours...");
 #endif
 
-				(void)set_afraid(0, TRUE);
 				(void)set_hero(device_power(randint1(50) + 50), FALSE);
 				(void)set_blessed(device_power(randint1(50) + 50), FALSE);
 				(void)set_oppose_acid(device_power(randint1(50) + 50), FALSE);
@@ -4994,7 +4990,6 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				(void)set_stun(0, TRUE);
 				(void)set_confused(0, TRUE);
 				(void)set_blind(0, TRUE);
-				(void)set_afraid(0, TRUE);
 				(void)set_hero(device_power(randint1(25) + 25), FALSE);
 				(void)hp_player(device_power(777));
 				o_ptr->timeout = 300;
@@ -5325,7 +5320,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 			{
 				msg_print("Your gun is covered with a blinding light...");
 				if (!get_aim_dir(&dir)) return;
-				fire_beam(GF_LITE, dir, device_power(200));
+				fire_beam(GF_LITE, dir, device_power(300));
 				o_ptr->timeout = 0; /* Every turn? */
 				break;
 			}
@@ -5968,7 +5963,6 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_HURIN:
 			{
 				(void)set_fast(device_power(randint1(50) + 50), FALSE);
-				set_afraid(0, TRUE);
 				set_hero(device_power(randint1(50) + 50), FALSE);
 				o_ptr->timeout = randint0(200) + 100;
 				break;
@@ -6208,7 +6202,6 @@ msg_print("あなたの槍は電気でスパークしている...");
 			case ART_MATOI:
 			case ART_AEGISFANG:
 			{
-				(void)set_afraid(0, TRUE);
 				set_hero(device_power(randint1(25)+25), FALSE);
 				o_ptr->timeout = randint0(30) + 30;
 				break;
@@ -6268,7 +6261,6 @@ msg_print("あなたの槍は電気でスパークしている...");
 #else
 				msg_print("You stamp your feet (as if you are in a ring.)");
 #endif
-				(void)set_afraid(0, TRUE);
 				(void)set_hero(device_power(randint1(20) + 20), FALSE);
 				dispel_evil(device_power(p_ptr->lev * 3));
 				o_ptr->timeout = 100 + randint1(100);
@@ -6799,7 +6791,6 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 			switch (o_ptr->name2)
 			{
 			case EGO_RING_HERO:
-				(void)set_afraid(0, TRUE);
 				(void)set_hero(device_power(randint1(25) + 25), FALSE);
 				o_ptr->timeout = randint1(100)+100;
 				break;
@@ -6888,7 +6879,6 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 				o_ptr->timeout = 100;
 				break;
 			case EGO_RING_BERSERKER:
-				(void)set_afraid(0, TRUE);
 				(void)set_shero(device_power(randint1(25) + 25), FALSE);
 				o_ptr->timeout = randint0(75)+75;
 				break;
@@ -6900,7 +6890,6 @@ msg_print("あなたはエレメントのブレスを吐いた。");
 			case EGO_RING_TRUE:
 			{
 				int v = device_power(randint1(25)+25);
-				(void)set_afraid(0, TRUE);
 				(void)set_hero(v, FALSE);
 				(void)set_blessed(v, FALSE);
 				(void)set_oppose_acid(v, FALSE);

@@ -59,7 +59,7 @@ extern byte adj_mag_stat[];
 extern byte adj_chr_gold[];
 extern byte adj_pseudo_id[];
 extern byte adj_exp_gain[];
-extern s16b adj_mon_fear[];
+extern s16b adj_fear_m[];
 extern s16b adj_stat_save[];
 extern byte warlock_damage_sides[];
 extern byte adj_int_dev[];
@@ -992,7 +992,7 @@ extern void monster_gain_exp(int m_idx, int s_idx);
 /* monster1.c */
 extern bool mon_save_p(int r_idx, int stat);
 extern bool p_save_fear(int ml);
-extern bool m_save_fear(int ml);
+extern bool m_save_fear(monster_type *m_ptr);
 extern void roff_top(int r_idx);
 extern void screen_roff(int r_idx, int mode);
 extern void display_roff(int r_idx);

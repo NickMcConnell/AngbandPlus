@@ -2541,7 +2541,7 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		int percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
 		int n = 10;
 
-		n = n * adj_mon_fear[p_ptr->stat_ind[A_CHR]] / 100;
+		n = n * adj_fear_m[p_ptr->stat_ind[A_CHR]] / 100;
 
 		/*
 		 * Run (sometimes) if at n% or less of max hit points,

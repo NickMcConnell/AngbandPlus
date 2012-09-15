@@ -623,7 +623,7 @@ class_t *duelist_get_class_t(void)
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.hd = 2;
-		me.exp = 175;
+		me.exp = 150;
 		me.pets = 35;
 
 		me.calc_bonuses = _calc_bonuses;

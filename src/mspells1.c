@@ -3191,6 +3191,7 @@ else msg_format("%^sがマジック・ミサイルの呪文を唱えた。", m_name);
 		/* RF5_SCARE */
 		case 128+27:
 		{
+			int lvl = rlev;
 			if (!direct) return (FALSE);
 			disturb(1, 0);
 #ifdef JP
@@ -3205,7 +3206,10 @@ else msg_format("%^sが恐ろしげな幻覚を作り出した。", m_name);
 			else msg_format("%^s casts a fearful illusion.", m_name);
 #endif
 
-			if (p_save_fear(rlev))
+			if (r_ptr->flags2 & RF2_POWERFUL)
+				lvl += 10;
+	
+			if (p_save_fear(lvl))
 			{
 #ifdef JP
 msg_print("しかし恐怖に侵されなかった。");
