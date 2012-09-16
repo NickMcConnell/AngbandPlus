@@ -37,6 +37,14 @@
 #define is_outer_grid(C) ((C)->info & CAVE_OUTER)
 #define is_solid_grid(C) ((C)->info & CAVE_SOLID)
 
+#define place_rubble_bold(Y, X) \
+{ \
+	set_cave_feat(Y,X,feat_rubble); \
+	cave[Y][X].info &= ~(CAVE_MASK); \
+	add_cave_info(Y,X,CAVE_FLOOR); \
+	delete_monster(Y, X); \
+}
+
 #define place_floor_bold(Y, X) \
 { \
 	set_cave_feat(Y,X,floor_type[randint0(100)]); \

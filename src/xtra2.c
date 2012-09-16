@@ -2509,73 +2509,9 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		/* Monster is dead */
 		return (TRUE);
 	}
-	else if (!melee_hack)
-		fear_p_hurt_m(m_ptr);
 
-#ifdef ALLOW_FEAR
-
-	/* Mega-Hack -- Pain cancels fear */
-	if (MON_MONFEAR(m_ptr) && (dam > 0))
-	{
-		/* Cure fear */
-		if (set_monster_monfear(m_idx, MON_MONFEAR(m_ptr) - randint1(dam)))
-		{
-			/* No more fear */
-			(*fear) = FALSE;
-		}
-	}
-
-	/* Sometimes a monster gets scared by damage */
-	if (!MON_MONFEAR(m_ptr) && !(r_ptr->flags3 & (RF3_NO_FEAR)))
-	{
-		/* Percentage of fully healthy */
-		int percentage = (100L * m_ptr->hp) / m_ptr->maxhp;
-		int n = 10;
-
-		n = n * adj_fear_m[p_ptr->stat_ind[A_CHR]] / 100;
-
-		/*
-		 * Run (sometimes) if at n% or less of max hit points,
-		 * or (usually) when hit for half its current hit points
-		 */
-		if ((randint1(n) >= percentage) ||
-		    ((dam >= m_ptr->hp) && (randint0(100) < 80)))
-		{
-			if (m_ptr->mflag2 & MFLAG2_ENCLOSED)
-			{
-				char m_name[80];
-				monster_desc(m_name, m_ptr, 0);
-				msg_format("%^s is enclosed and unable to run away!", m_name);
-			}
-			else
-			{
-				(*fear) = TRUE;
-				set_monster_monfear(m_idx, randint1(10) + 20);
-			}
-		}
-	}
-
-#endif
-
-#if 0
-	if (p_ptr->riding && (p_ptr->riding == m_idx) && (dam > 0))
-	{
-		char m_name[80];
-
-		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0);
-
-		if (m_ptr->hp > m_ptr->maxhp/3) dam = (dam + 1) / 2;
-		if (rakuba((dam > 200) ? 200 : dam, FALSE))
-		{
-#ifdef JP
-msg_format("%^sに振り落とされた！", m_name);
-#else
-				msg_format("%^s has thrown you off!", m_name);
-#endif
-		}
-	}
-#endif
+	if (fear_p_hurt_m(m_idx, dam))
+		(*fear) = TRUE;
 
 	/* Not dead yet */
 	return (FALSE);

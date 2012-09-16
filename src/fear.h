@@ -29,7 +29,6 @@ extern bool fear_allow_shoot(void);
 
 /* Some monsters inspire fear (RF2_AURA_FEAR) */
 extern void fear_p_touch_m(monster_type *m_ptr);
-extern void fear_p_hurt_m(monster_type *m_ptr);
 extern void fear_process_p(void);
 extern void fear_update_m(monster_type *m_ptr);
 
@@ -43,8 +42,9 @@ extern void fear_recover_p(void);
 /* Taking damage can be very frightening */
 extern void fear_heal_p(int old_hp, int new_hp);
 extern void fear_hurt_p(int old_hp, int new_hp);
-extern void fear_hurt_m(monster_type *m_ptr);
 
+/* Monster Fear */
+extern bool fear_p_hurt_m(int m_idx, int dam);
 extern bool fear_process_m(int m_idx);
 
 #endif

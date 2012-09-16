@@ -370,11 +370,14 @@ void fear_p_touch_m(monster_type *m_ptr)
 	}
 }
 
-void fear_p_hurt_m(monster_type *m_ptr)
+bool fear_p_hurt_m(int m_idx, int dam)
 {
+	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
+	bool          result = FALSE;
 
-	if (r_ptr->flags2 & RF2_AURA_FEAR)
+	/* Apply Aura of Fear to the Player for non-melee damage */
+	if (!melee_hack && (r_ptr->flags2 & RF2_AURA_FEAR))
 	{
 		int r_level = _r_level(r_ptr);
 		if (!fear_save_p(r_level))
@@ -383,6 +386,37 @@ void fear_p_hurt_m(monster_type *m_ptr)
 			fear_add_p(r_level/MAX(1, m_ptr->cdis - 2));
 		}
 	}
+
+	/* Mega-Hack -- Pain cancels fear */
+	if (MON_MONFEAR(m_ptr) && (dam > 0))
+		set_monster_monfear(m_idx, MON_MONFEAR(m_ptr) - randint1(dam));
+
+	if (!MON_MONFEAR(m_ptr) && !(r_ptr->flags3 & (RF3_NO_FEAR)))
+	{
+		int percentage = (100 * m_ptr->hp) / m_ptr->maxhp;
+		int n = 10;
+
+		n = n * adj_fear_m[p_ptr->stat_ind[A_CHR]] / 100;
+
+		if ((n >= percentage) || (dam >= m_ptr->hp && randint0(100) < 80))
+		{
+			if (!fear_save_m(m_ptr))
+			{
+				if (m_ptr->mflag2 & MFLAG2_ENCLOSED)
+				{
+					char m_name[80];
+					monster_desc(m_name, m_ptr, 0);
+					msg_format("%^s is enclosed and unable to run away!", m_name);
+				}
+				else
+				{
+					result = TRUE;
+					set_monster_monfear(m_idx, randint1(10) + 20);
+				}
+			}
+		}
+	}
+	return result;
 }
 
 void fear_terrify_p(monster_type *m_ptr)
@@ -497,7 +531,7 @@ void fear_heal_p(int old_hp, int new_hp)
 
 void fear_hurt_p(int old_hp, int new_hp)
 {
-	if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE && p_ptr->afraid)
+	if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE)
 	{
 		int old_hurt = _get_hurt_level(old_hp);
 		int new_hurt = _get_hurt_level(new_hp);
@@ -513,3 +547,4 @@ void fear_hurt_p(int old_hp, int new_hp)
 		}
 	}
 }
+

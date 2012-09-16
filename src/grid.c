@@ -135,6 +135,12 @@ void place_random_door(int y, int x, bool room)
 	/* Initialize mimic info */
 	c_ptr->mimic = 0;
 
+	if (dungeon_type == DUNGEON_ARENA)
+	{
+		place_rubble_bold(y, x);
+		return;
+	}
+
 	if (d_info[dungeon_type].flags1 & DF1_NO_DOORS)
 	{
 		place_floor_bold(y, x);
