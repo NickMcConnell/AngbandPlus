@@ -46,6 +46,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Fear">
+      <UniqueIdentifier>{f78a9cb7-ba45-4e09-ad31-ba50889dae18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="artifact.c">
@@ -381,6 +384,9 @@
     <ClCompile Include="time_lord.c">
       <Filter>Classes</Filter>
     </ClCompile>
+    <ClCompile Include="fear.c">
+      <Filter>Fear</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="angband.h">
@@ -463,6 +469,9 @@
     </ClInclude>
     <ClInclude Include="variant.h">
       <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="fear.h">
+      <Filter>Fear</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

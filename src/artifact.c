@@ -2403,7 +2403,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			}
 			else
 			{
-				o_ptr->pval = randint1(2);
+				o_ptr->pval = 1;
+				if (one_in_(15)) o_ptr->pval++;
 				if (is_falcon_sword)
 					o_ptr->pval++;
 			}

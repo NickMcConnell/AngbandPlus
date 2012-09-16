@@ -47,7 +47,7 @@ SRCS = \
 	archaeologist.c archer.c artifact.c autopick.c avatar.c bard.c \
 	birth.c bldg.c blood_knight.c blood_mage.c blue_mage.c cavalry.c cave.c \
 	chuukei.c classes.c cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-	demigod.c doppelganger.c do-spell.c duelist.c dungeon.c effects.c files.c \
+	demigod.c doppelganger.c do-spell.c duelist.c dungeon.c effects.c fear.c files.c \
 	flavor.c floors.c force_trainer.c generate.c grid.c hex.c hissatsu.c inet.c init1.c \
 	init2.c japanese.c load.c magic_eater.c mane.c mauler.c melee1.c \
 	melee2.c menu.c mind.c mindcrafter.c mirror.c monk.c monster1.c \
@@ -65,7 +65,7 @@ OBJS = \
 	archaeologist.o archer.o artifact.o autopick.o avatar.o bard.o \
 	birth.o bldg.o blood_knight.o blue_mage.o blood_mage.o cavalry.o cave.o \
 	classes.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o demigod.o doppelganger.o \
-	do-spell.o duelist.o dungeon.o effects.o files.o flavor.o floors.o \
+	do-spell.o duelist.o dungeon.o effects.o fear.o files.o flavor.o floors.o \
 	force_trainer.o generate.o grid.o hex.o hissatsu.o inet.o init1.o \
 	init2.o japanese.o load.o magic_eater.o mane.o mauler.o melee1.o \
 	melee2.o menu.o mind.o mindcrafter.o mirror.o monk.o monster1.o \
@@ -329,6 +329,7 @@ do-spell.o: do-spell.c $(INCS)
 duelist.o: duelist.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
 effects.o: effects.c $(INCS)
+fear.o: fear.c fear.h $(INCS)
 files.o: files.c $(INCS)
 flavor.o: flavor.c $(INCS)
 floors.o: floors.c $(INCS)

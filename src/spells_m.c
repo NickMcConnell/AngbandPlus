@@ -385,7 +385,7 @@ void pattern_mindwalk_spell(int cmd, variant *res)
 		set_stun(0, TRUE);
 		set_cut(0, TRUE);
 		set_blind(0, TRUE);
-		set_afraid(0, TRUE);
+		fear_clear_p();
 		do_res_stat(A_STR);
 		do_res_stat(A_INT);
 		do_res_stat(A_WIS);
@@ -855,7 +855,7 @@ void remove_fear_spell(int cmd, variant *res)
 		var_set_string(res, "");
 		break;
 	case SPELL_CAST:
-		set_afraid(0, TRUE);
+		fear_clear_p();
 		var_set_bool(res, TRUE);
 		break;
 	default:

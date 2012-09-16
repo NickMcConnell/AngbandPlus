@@ -2510,16 +2510,7 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		return (TRUE);
 	}
 	else if (!melee_hack)
-	{
-		if (r_ptr->flags2 & RF2_AURA_FEAR)
-		{
-			if (!p_save_fear(r_ptr->level))
-			{
-				r_ptr->r_flags2 |= RF2_AURA_FEAR;
-				set_afraid(p_ptr->afraid + r_ptr->level/MAX(1, m_ptr->cdis), FALSE);
-			}
-		}
-	}
+		fear_p_hurt_m(m_ptr);
 
 #ifdef ALLOW_FEAR
 

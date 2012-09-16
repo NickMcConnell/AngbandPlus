@@ -129,13 +129,8 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_PARANOIA:
 			{
-				if (!p_save_fear(FEAR_DEFAULT_LEVEL*2))
-				{
-					if (set_afraid(p_ptr->afraid + FEAR_SCARED, FALSE))
-					{
-						ident = TRUE;
-					}
-				}
+				if (!fear_save_p(fear_threat_level()))
+					ident = fear_add_p(FEAR_SCARED);
 				break;
 			}
 
@@ -267,7 +262,11 @@ static void do_cmd_eat_food_aux(int item)
 
 			case SV_FOOD_CURE_PARANOIA:
 			{
-				if (set_afraid(0, TRUE)) ident = TRUE;
+				if (p_ptr->afraid)
+				{
+					fear_clear_p();
+					ident = TRUE;
+				}
 				break;
 			}
 
@@ -1092,7 +1091,11 @@ msg_print("恐ろしい光景が頭に浮かんできた。");
 			break;
 
 		case SV_POTION_BOLDNESS:
-			if (set_afraid(0, TRUE)) ident = TRUE;
+			if (p_ptr->afraid)
+			{
+				fear_clear_p();
+				ident = TRUE;
+			}
 			break;
 
 		case SV_POTION_SPEED:
@@ -2943,7 +2946,7 @@ static void do_cmd_use_staff_aux(int item)
 		return;
 	}
 
-	if (p_ptr->afraid && !p_save_fear(p_ptr->afraid))
+	if (!fear_allow_device())
 	{
 		msg_print("You are too scared!");
 		return;
@@ -3495,7 +3498,7 @@ static void do_cmd_aim_wand_aux(int item)
 		return;
 	}
 
-	if (p_ptr->afraid && !p_save_fear(p_ptr->afraid))
+	if (!fear_allow_device())
 	{
 		msg_print("You are too scared!");
 		return;
@@ -3949,7 +3952,7 @@ static void do_cmd_zap_rod_aux(int item)
 		return;
 	}
 
-	if (p_ptr->afraid && !p_save_fear(p_ptr->afraid))
+	if (!fear_allow_device())
 	{
 		msg_print("You are too scared!");
 		return;
@@ -5270,7 +5273,7 @@ msg_print("あなたはフラキアに敵を締め殺すよう命じた。");
 				msg_print("Your boots glow deep blue...");
 #endif
 
-				(void)set_afraid(0, TRUE);
+				fear_clear_p();
 				(void)set_poisoned(0, TRUE);
 				o_ptr->timeout = 5;
 				break;

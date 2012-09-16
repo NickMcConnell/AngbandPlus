@@ -53,6 +53,7 @@
 #include "mut.h"
 #include "spells.h"
 #include "menu.h"
+#include "fear.h"
 
 /***** Some copyright messages follow below *****/
 

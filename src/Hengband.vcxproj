@@ -107,6 +107,7 @@
     <ClCompile Include="duelist.c" />
     <ClCompile Include="dungeon.c" />
     <ClCompile Include="effects.c" />
+    <ClCompile Include="fear.c" />
     <ClCompile Include="files.c" />
     <ClCompile Include="flavor.c" />
     <ClCompile Include="floors.c" />
@@ -196,6 +197,7 @@
     <ClInclude Include="angband.h" />
     <ClInclude Include="defines.h" />
     <ClInclude Include="externs.h" />
+    <ClInclude Include="fear.h" />
     <ClInclude Include="generate.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="h-basic.h" />

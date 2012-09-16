@@ -4524,16 +4524,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	}
 
 	if (touch_ct && !(*mdeath))
-	{
-		if (r_ptr->flags2 & RF2_AURA_FEAR)
-		{
-			if (!p_save_fear(r_ptr->level))
-			{
-				r_ptr->r_flags2 |= RF2_AURA_FEAR;
-				set_afraid(p_ptr->afraid + r_ptr->level, FALSE);
-			}
-		}
-	}
+		fear_p_touch_m(m_ptr);
 
 	/* Mega-Hack -- apply earthquake brand */
 	if (do_quake)
@@ -4705,7 +4696,7 @@ bool py_attack(int y, int x, int mode)
 		{
 			/* Duelist: Fearless Duel */
 		}
-		else if (!p_save_fear(5*p_ptr->afraid)) /* Attacking while scared is hard! */
+		else if (!fear_allow_melee())
 		{
 			/* Message */
 			if (m_ptr->ml)

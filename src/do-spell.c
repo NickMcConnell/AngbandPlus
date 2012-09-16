@@ -425,7 +425,7 @@ static void cast_invoke_spirits(int dir)
 		msg_print("An unnamable evil brushes against your mind...");
 #endif
 
-		set_afraid(p_ptr->afraid + FEAR_TERRIFIED, FALSE);
+		fear_add_p(FEAR_TERRIFIED);
 	}
 	else if (die < 26)
 	{
@@ -8238,12 +8238,8 @@ static cptr do_crusade_spell(int spell, int mode)
 		if (desc) return "Removes fear.";
 #endif
     
-		{
-			if (cast)
-			{
-				set_afraid(0, TRUE);
-			}
-		}
+		if (cast)
+			fear_clear_p();
 		break;
 
 	case 3:
@@ -8952,7 +8948,7 @@ static cptr do_crusade_spell(int spell, int mode)
 				set_blessed(randint1(base) + base, FALSE);
 				set_fast(randint1(sp_sides) + sp_base, FALSE);
 				set_protevil(randint1(base) + base, FALSE);
-				set_afraid(0, TRUE);
+				fear_clear_p();
 			}
 		}
 		break;
@@ -9241,7 +9237,7 @@ static cptr do_music_spell(int spell, int mode)
 #endif
 
 			(void)hp_player(10);
-			(void)set_afraid(0, TRUE);
+			fear_clear_p();
 
 			/* Recalculate hitpoints */
 			p_ptr->update |= (PU_HP);

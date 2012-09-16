@@ -4038,44 +4038,7 @@ void process_monsters(void)
 			continue;
 		}
 
-		if (MON_MONFEAR(m_ptr))
-		{
-			if (m_save_fear(m_ptr))
-			{
-				bool recovered = FALSE;
-				if (m_save_fear(m_ptr))
-				{
-					set_monster_monfear(i, 0);
-					recovered = TRUE;
-				}
-				else
-				{
-					recovered = set_monster_monfear(i, 
-						MON_MONFEAR(m_ptr) - randint1(r_ptr->level / 20 + 1));
-				}
-
-				if (recovered && is_seen(m_ptr))
-				{
-					char m_name[80];
-					char m_poss[80];
-
-					monster_desc(m_poss, m_ptr, MD_PRON_VISIBLE | MD_POSSESSIVE);
-					monster_desc(m_name, m_ptr, 0);
-
-					msg_format("%^s recovers %s courage.", m_name, m_poss);
-				}
-			}
-			else if (!m_save_fear(m_ptr) && !m_save_fear(m_ptr))
-			{
-				if (is_seen(m_ptr))
-				{
-					char m_name[80];
-					monster_desc(m_name, m_ptr, 0);
-					msg_format("%^s is scared stiff!", m_name);
-				}
-				continue;
-			}
-		}
+		if (!fear_process_m(i)) continue;
 
 		/* Save global index */
 		hack_m_idx = i;

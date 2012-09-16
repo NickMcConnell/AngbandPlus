@@ -784,7 +784,7 @@ static bool pattern_effect(void)
 		(void)set_stun(0, TRUE);
 		(void)set_cut(0, TRUE);
 		(void)set_blind(0, TRUE);
-		(void)set_afraid(0, TRUE);
+		fear_clear_p();
 		(void)do_res_stat(A_STR);
 		(void)do_res_stat(A_INT);
 		(void)do_res_stat(A_WIS);
@@ -2680,7 +2680,7 @@ static void process_world_aux_curse(void)
 		}
 		if ((p_ptr->cursed & TRC_COWARDICE) && one_in_(1500))
 		{
-			if (!p_save_fear(FEAR_DEFAULT_LEVEL))
+			if (!fear_save_p(fear_threat_level()))
 			{
 				disturb(0, 0);
 #ifdef JP
@@ -2689,7 +2689,7 @@ static void process_world_aux_curse(void)
 				msg_print("It's so dark... so scary!");
 #endif
 
-				set_afraid(p_ptr->afraid + 13 + randint1(26), FALSE);
+				fear_add_p(FEAR_SCARED);
 			}
 		}
 		/* Teleport player */
@@ -4496,7 +4496,7 @@ msg_print("ウィザードモード突入。");
 					msg_print("Your spells are blocked!");
 					energy_use = 100;
 				}
-				else if (p_ptr->afraid && !p_save_fear(p_ptr->afraid/2))
+				else if (!fear_allow_magic())
 				{
 					msg_print("You are too scared!");
 					energy_use = 100;
@@ -5493,38 +5493,7 @@ msg_print("中断しました。");
 		}
 	}
 
-	if (p_ptr->afraid)
-	{
-		if (p_save_fear(FEAR_DEFAULT_LEVEL + p_ptr->afraid / 10))
-		{
-			if (p_save_fear(FEAR_DEFAULT_LEVEL + p_ptr->afraid))
-				set_afraid(0, TRUE);
-			else
-				decrease_afraid();
-		}
-		else if (p_ptr->afraid >= FEAR_SCARED && !p_save_fear(FEAR_DEFAULT_LEVEL/4))
-		{
-			if (p_ptr->afraid >= FEAR_PETRIFIED)
-			{
-				p_ptr->energy_need += 100 * TURNS_PER_TICK / 10;
-				msg_print("You are scared stiff!");
-				disturb(1, 0);
-			}
-			else if (p_ptr->afraid >= FEAR_TERRIFIED)
-			{
-				p_ptr->energy_need += 60 * TURNS_PER_TICK / 10;
-				msg_print("You shudder uncontrollably!");
-				disturb(1, 0);
-			}
-			else
-			{
-				p_ptr->energy_need += 30 * TURNS_PER_TICK / 10;
-				msg_print("You tremble in terror!");
-				disturb(1, 0);
-			}
-		}
-	}
-
+	fear_recover_p();
 
 	/*** Handle actual user input ***/
 
@@ -5724,30 +5693,7 @@ msg_print("中断しました。");
 				}
 			}
 
-			{
-				for (i = 1; i < m_max; i++)
-				{
-					monster_type *m_ptr = &m_list[i];
-					monster_race *r_ptr;
-
-					if (!m_ptr->r_idx) continue;
-					if (!m_ptr->ml) continue;
-
-					r_ptr = &r_info[m_ptr->ap_r_idx];
-					if (r_ptr->flags2 & RF2_AURA_FEAR)
-					{
-						if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
-						if (!p_save_fear(r_ptr->level/MAX(1, m_ptr->cdis-2)))
-						{
-							char m_name[80];
-							monster_desc(m_name, m_ptr, 0);
-							msg_format("You behold the terrifying visage of %s!", m_name);
-							r_ptr->r_flags2 |= RF2_AURA_FEAR;
-							set_afraid(p_ptr->afraid + r_ptr->level/MAX(1, m_ptr->cdis-2), FALSE);
-						}
-					}
-				}
-			}
+			fear_process_p();
 
 			/* Handle monster detection */
 			if (repair_monsters)
@@ -6975,7 +6921,7 @@ quit("セーブファイルが壊れています");
 					(void)set_blind(0, TRUE);
 					(void)set_confused(0, TRUE);
 					(void)set_poisoned(0, TRUE);
-					(void)set_afraid(0, TRUE);
+					fear_clear_p();
 					(void)set_paralyzed(0, TRUE);
 					(void)set_image(0, TRUE);
 					(void)set_stun(0, TRUE);

@@ -1104,123 +1104,6 @@ msg_print("やっと毒の痛みがなくなった。");
 	return (TRUE);
 }
 
-int fear_level(int afraid)
-{
-	if (afraid >= FEAR_PETRIFIED)
-		return FEAR_PETRIFIED;
-	if (afraid >= FEAR_TERRIFIED)
-		return FEAR_TERRIFIED;
-	if (afraid >= FEAR_SCARED)
-		return FEAR_SCARED;
-	if (afraid >= FEAR_NERVOUS)
-		return FEAR_NERVOUS;
-	if (afraid >= FEAR_UNEASY)
-		return FEAR_UNEASY;
-
-	return FEAR_BOLD;
-}
-
-void decrease_afraid(void)
-{
-	int lvl = fear_level(p_ptr->afraid);
-	switch (lvl)
-	{
-	case FEAR_UNEASY:
-		set_afraid(FEAR_BOLD, TRUE);
-		break;
-
-	case FEAR_NERVOUS:
-		set_afraid(FEAR_UNEASY, TRUE);
-		break;
-
-	case FEAR_SCARED:
-		set_afraid(FEAR_NERVOUS, TRUE);
-		break;
-
-	case FEAR_TERRIFIED:
-		set_afraid(FEAR_SCARED, TRUE);
-		break;
-
-	case FEAR_PETRIFIED:
-		set_afraid(FEAR_TERRIFIED, TRUE);
-		break;
-	}
-}
-
-bool set_afraid(int v, bool do_dec)
-{
-	int old_aux, new_aux;
-	bool notice = FALSE;
-
-	/* Hack -- Force good values */
-	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
-
-	if (p_ptr->is_dead) return FALSE;
-
-	old_aux = fear_level(p_ptr->afraid);
-	new_aux = fear_level(v);
-
-	/* Increase Fear */
-	if (new_aux > old_aux)
-	{
-		switch (new_aux)
-		{
-		case FEAR_UNEASY:
-			msg_print("You feel uneasy.");
-			break;
-
-		case FEAR_NERVOUS:
-			msg_print("You feel nervous.");
-			break;
-
-		case FEAR_SCARED:
-			msg_print("You are scared.");
-			break;
-
-		case FEAR_TERRIFIED:
-			msg_print("You are terrified!");
-			break;
-
-		case FEAR_PETRIFIED:
-			msg_print("You are petrified!");
-			break;
-		}
-
-		if (p_ptr->special_defense & KATA_MASK)
-		{
-			msg_print(T("Your posture gets loose.", "型が崩れた。"));
-			p_ptr->special_defense &= ~(KATA_MASK);
-			p_ptr->update |= (PU_BONUS);
-			p_ptr->update |= (PU_MONSTERS);
-			p_ptr->redraw |= (PR_STATE);
-			p_ptr->redraw |= (PR_STATUS);
-			p_ptr->action = ACTION_NONE;
-		}
-
-		notice = TRUE;
-		p_ptr->counter = FALSE;
-		chg_virtue(V_VALOUR, -1);
-	}
-	/* Decrease Fear */
-	else if (new_aux < old_aux)
-	{
-		switch (new_aux)
-		{
-		case FEAR_BOLD:
-			msg_print("Your fears finally subside.");
-			break;
-		}
-		notice = TRUE;
-	}
-
-	p_ptr->afraid = v;
-	p_ptr->redraw |= (PR_STATUS);
-	if (!notice) return (FALSE);
-	if (disturb_state) disturb(0, 0);
-	handle_stuff();
-	return (TRUE);
-}
-
 /*
  * Set "p_ptr->paralyzed", notice observable changes
  */
@@ -6245,39 +6128,10 @@ bool hp_player(int num)
 	return hp_player_aux(num);
 }
 
-#define HURT_0   0
-#define HURT_25 25
-#define HURT_50 50
-#define HURT_65 65
-#define HURT_80 80
-#define HURT_90 90
-#define HURT_95 95
-
-static int _get_hurt_level(int chp)
-{
-	int pct = (p_ptr->mhp - MAX(chp, 0)) * 100 / p_ptr->mhp;
-
-	if (pct >= HURT_95)
-		return HURT_95;
-	if (pct >= HURT_90)
-		return HURT_90;
-	if (pct >= HURT_80)
-		return HURT_80;
-	if (pct >= HURT_65)
-		return HURT_65;
-	if (pct >= HURT_50)
-		return HURT_50;
-	if (pct >= HURT_25)
-		return HURT_25;
-
-	return HURT_0;
-}
-
 bool hp_player_aux(int num)
 {
 	int vir = virtue_number(V_VITALITY);
-	int old_hurt = _get_hurt_level(p_ptr->chp);
-	int new_hurt;
+	int old_hp = p_ptr->chp;
 
 	if (vir)
 	{
@@ -6360,12 +6214,7 @@ msg_print("ひじょうに気分が良くなった。");
 
 		}
 
-		if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE && p_ptr->afraid)
-		{
-			new_hurt = _get_hurt_level(p_ptr->chp);
-			if (new_hurt < old_hurt && p_save_fear(FEAR_DEFAULT_LEVEL))
-				decrease_afraid();
-		}
+		fear_heal_p(old_hp, p_ptr->chp);
 
 		/* Notice */
 		return (TRUE);
@@ -7000,8 +6849,6 @@ msg_format("%sの構成が変化した！", p_ptr->prace == RACE_ANDROID ? "機械" : "内臓
 int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 {
 	int old_chp = p_ptr->chp;
-	int old_hurt = _get_hurt_level(p_ptr->chp);
-	int new_hurt;
 
 	char death_message[1024];
 	char tmp[80];
@@ -7145,21 +6992,8 @@ int take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 		p_ptr->chp = 0;
 	}
 
-	/* Player Fear */
-	if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE)
-	{
-		new_hurt = _get_hurt_level(p_ptr->chp);
-		if (new_hurt > old_hurt)
-		{
-			if ( !p_save_fear(FEAR_DEFAULT_LEVEL)
-			  || (new_hurt > HURT_50 && !p_save_fear(FEAR_DEFAULT_LEVEL)) )
-			{
-				set_afraid(p_ptr->afraid + new_hurt, FALSE);
-			}
-			else
-				msg_format("You stand your ground!");
-		}
-	}
+	fear_hurt_p(old_chp, p_ptr->chp);
+
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
 

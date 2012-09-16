@@ -471,7 +471,7 @@ void cowardice_mut(int cmd, variant *res)
 		{
 			disturb(0, 0);
 			msg_print(T("It's so dark... so scary!", "とても暗い... とても恐い！"));
-			set_afraid(p_ptr->afraid + 13 + randint1(26), FALSE);
+			fear_add_p(FEAR_SCARED);
 		}
 		break;
 	default:

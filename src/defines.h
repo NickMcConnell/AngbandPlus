@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 121
+#define FAKE_VER_PATCH 122
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 121
+#define H_VER_PATCH 122
 #define H_VER_EXTRA 0
 
 
@@ -5760,15 +5760,6 @@ extern int PlayerUID;
 #define CUT_BAD            25
 #define CUT_LIGHT          10
 #define CUT_GRAZE           1
-
-#define FEAR_BOLD           0
-#define FEAR_UNEASY         1
-#define FEAR_NERVOUS       30
-#define FEAR_SCARED        50
-#define FEAR_TERRIFIED    100
-#define FEAR_PETRIFIED   1000
-
-#define FEAR_DEFAULT_LEVEL (MIN(dun_level + 2, 127))
 
 /* How to handle translations to different languages?
  * Personally, the constant conditional compilation approach is too

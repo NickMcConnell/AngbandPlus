@@ -803,7 +803,7 @@ static void prt_status(void)
 	/* Afraid */
 	if (p_ptr->afraid)
 	{
-		switch (fear_level(p_ptr->afraid))
+		switch (fear_level_p())
 		{
 		case FEAR_UNEASY:
 			ADD_FLG(BAR_UNEASY);

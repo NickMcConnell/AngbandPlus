@@ -3275,7 +3275,7 @@ note_dies = "は蒸発した！";
 #endif
 
 									else
-										set_afraid(p_ptr->afraid + 3 + randint1(dam), FALSE);
+										fear_add_p(FEAR_SCARED);
 									break;
 								}
 								default:
@@ -3586,7 +3586,7 @@ note_dies = "は蒸発した！";
 #endif
 
 								else
-									set_afraid(p_ptr->afraid + dam, FALSE);
+									fear_add_p(dam);
 							}
 						}
 					}
@@ -5169,7 +5169,7 @@ note = "には耐性がある！";
 
 				/* Attempt a saving throw */
 				/*if (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)*/
-				if (m_save_fear(m_ptr))
+				if (fear_save_m(m_ptr))
 				{
 					/* No obvious effect */
 #ifdef JP
@@ -5218,7 +5218,7 @@ note = "には耐性がある！";
 
 				/* Attempt a saving throw */
 				/*if (r_ptr->level > randint1((dam - 10) < 1 ? 1 : (dam - 10)) + 10)*/
-				if (m_save_fear(m_ptr))
+				if (fear_save_m(m_ptr))
 				{
 					/* No obvious effect */
 #ifdef JP
@@ -5260,7 +5260,7 @@ note = "には耐性がある！";
 			do_fear = damroll(3, (dam / 2)) + 1;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags3 & RF3_NO_FEAR) || m_save_fear(m_ptr))
+			if ((r_ptr->flags3 & RF3_NO_FEAR) || fear_save_m(m_ptr))
 			{
 				note = T(" is unaffected!", "には効果がなかった！");
 				obvious = FALSE;

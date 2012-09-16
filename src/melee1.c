@@ -1444,22 +1444,10 @@ bool make_attack_normal(int m_idx)
 					{
 						/* Do nothing */
 					}
-					else if (p_save_fear(rlev))
-					{
-#ifdef JP
-						msg_print("しかし恐怖に侵されなかった！");
-#else
-						msg_print("You stand your ground!");
-#endif
-
-						obvious = TRUE;
-					}
 					else
 					{
-						if (set_afraid(p_ptr->afraid + rlev, FALSE))
-						{
-							obvious = TRUE;
-						}
+						fear_terrify_p(m_ptr);
+						obvious = TRUE;
 					}
 
 					/* Learn about the player */

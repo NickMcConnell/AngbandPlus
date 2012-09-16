@@ -2578,7 +2578,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)set_blind(0, TRUE);
 	(void)set_confused(0, TRUE);
 	(void)set_poisoned(0, TRUE);
-	(void)set_afraid(0, TRUE);
+	fear_clear_p();
 	(void)set_paralyzed(0, TRUE);
 	(void)set_image(0, TRUE);
 	(void)set_stun(0, TRUE);

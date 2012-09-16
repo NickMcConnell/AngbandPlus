@@ -3459,7 +3459,7 @@ bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 		return FALSE;
 	}
 
-	if (p_ptr->afraid && !p_save_fear(3*p_ptr->afraid))
+	if (!fear_allow_shoot())
 	{
 		msg_print("You are too scared!");
 		energy_use = bow_energy(j_ptr->sval)/p_ptr->num_fire;
@@ -4502,7 +4502,7 @@ bool do_cmd_throw_aux(int mult, bool boomerang, int shuriken)
 		return FALSE;
 	}
 
-	if (p_ptr->afraid && !p_save_fear(3*p_ptr->afraid))
+	if (!fear_allow_shoot())
 	{
 		msg_print("You are too scared!");
 		energy_use = 100;
