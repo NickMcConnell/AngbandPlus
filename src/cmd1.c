@@ -4152,7 +4152,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 
 						if (cheat_xtra || p_ptr->wizard)
 						{
-							msg_format("Draining left: %d  amount: %d", drain_left, drain_heal);
+						/*	msg_format("Draining left: %d  amount: %d", drain_left, drain_heal); */
 						}
 
 						if (drain_left)

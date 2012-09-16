@@ -3462,7 +3462,7 @@ bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 	if (p_ptr->afraid && !p_save_fear(3*p_ptr->afraid))
 	{
 		msg_print("You are too scared!");
-		energy_use = bow_energy(j_ptr->sval);
+		energy_use = bow_energy(j_ptr->sval)/p_ptr->num_fire;
 		if (snipe_type == SP_AWAY) snipe_type = SP_NONE;
 		return FALSE;
 	}

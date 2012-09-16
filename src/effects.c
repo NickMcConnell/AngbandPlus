@@ -6360,10 +6360,10 @@ msg_print("ひじょうに気分が良くなった。");
 
 		}
 
-		if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE)
+		if (p_ptr->pclass != CLASS_BLOOD_KNIGHT && p_ptr->pclass != CLASS_BLOOD_MAGE && p_ptr->afraid)
 		{
 			new_hurt = _get_hurt_level(p_ptr->chp);
-			if (new_hurt < old_hurt && (!new_hurt || p_save_fear(FEAR_DEFAULT_LEVEL)))
+			if (new_hurt < old_hurt && p_save_fear(FEAR_DEFAULT_LEVEL))
 				decrease_afraid();
 		}
 
