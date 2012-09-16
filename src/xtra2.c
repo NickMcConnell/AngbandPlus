@@ -2510,6 +2510,13 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 		return (TRUE);
 	}
 
+	/* Mega-Hack -- Pain cancels fear */
+	if (MON_MONFEAR(m_ptr) && (dam > 0))
+	{
+		if (set_monster_monfear(m_idx, MON_MONFEAR(m_ptr) - randint1(dam)))
+			(*fear) = FALSE;
+	}
+
 	if (fear_p_hurt_m(m_idx, dam))
 		(*fear) = TRUE;
 

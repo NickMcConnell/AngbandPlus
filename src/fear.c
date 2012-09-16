@@ -387,10 +387,6 @@ bool fear_p_hurt_m(int m_idx, int dam)
 		}
 	}
 
-	/* Mega-Hack -- Pain cancels fear */
-	if (MON_MONFEAR(m_ptr) && (dam > 0))
-		set_monster_monfear(m_idx, MON_MONFEAR(m_ptr) - randint1(dam));
-
 	if (!MON_MONFEAR(m_ptr) && !(r_ptr->flags3 & (RF3_NO_FEAR)))
 	{
 		int percentage = (100 * m_ptr->hp) / m_ptr->maxhp;
