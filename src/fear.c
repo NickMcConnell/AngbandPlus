@@ -329,12 +329,12 @@ void fear_process_p(void)
 		monster_race *r_ptr;
 		
 		if (!m_ptr->r_idx) continue;		
-		if (!m_ptr->ml) return;
+		if (!m_ptr->ml) continue;
 		
 		r_ptr = &r_info[m_ptr->ap_r_idx];
 
-		if (!(r_ptr->flags2 & RF2_AURA_FEAR)) return;
-		if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return;
+		if (!(r_ptr->flags2 & RF2_AURA_FEAR)) continue;
+		if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) continue;
 
 		r_level = _r_level(r_ptr);
 		if (!fear_save_p(r_level/MAX(1, m_ptr->cdis-2)))
