@@ -621,7 +621,7 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
 		}
 	}
 
-	if (have_flag(flgs, TR_NO_TELE))
+	if (have_flag(flgs, TR_NO_TELE) && o_ptr->tval != TV_AMULET)
 	{
 		p = p * 7 / 10;
 		if (cost_calc_hook)
@@ -645,7 +645,7 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
 		}
 	}
 
-	if (have_flag(flgs, TR_NO_MAGIC))
+	if (have_flag(flgs, TR_NO_MAGIC) && o_ptr->tval != TV_AMULET)
 	{
 		p = p * 9 / 10;
 		if (cost_calc_hook)
@@ -761,6 +761,8 @@ s32b jewelry_cost(object_type *o_ptr)
 
 	/* Abilities */
 	q = _abilities_q(flgs);
+	if (have_flag(flgs, TR_NO_MAGIC)) q += 20000;
+	if (have_flag(flgs, TR_NO_TELE)) q += 10000;
 	p += q + (q/10)*j/50;
 
 	if (cost_calc_hook)
@@ -997,6 +999,8 @@ s32b armor_cost(object_type *o_ptr)
 
 	/* Abilities */
 	q = _abilities_q(flgs);
+	if (o_ptr->name2 == EGO_SNIPER)
+		q += 20000;
 	p += q + (q/100)*a/relative_weight;
 	/*p += q*(1+a/20000);*/
 

@@ -12,7 +12,6 @@ typedef struct monster_type monster_type;
 
 extern int  fear_level_p(void);
 extern void fear_clear_p(void);
-extern void fear_decrease_p(void);
 extern bool fear_add_p(int amount);
 extern bool fear_set_p(int amount);
 
@@ -24,7 +23,7 @@ extern bool fear_save_m(monster_type *m_ptr);
 /* Fear restricts player options */
 extern bool fear_allow_device(void);
 extern bool fear_allow_magic(void);
-extern bool fear_allow_melee(void);
+extern bool fear_allow_melee(int m_idx);
 extern bool fear_allow_shoot(void);
 
 /* Some monsters inspire fear (RF2_AURA_FEAR) */

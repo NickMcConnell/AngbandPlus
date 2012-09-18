@@ -16,6 +16,29 @@ int _get_level(int amount)
 	return FEAR_BOLD;
 }
 
+int _decrement_level(int lvl)
+{
+	switch (lvl)
+	{
+	case FEAR_UNEASY: return FEAR_BOLD;
+	case FEAR_NERVOUS: return FEAR_UNEASY;
+	case FEAR_SCARED: return FEAR_NERVOUS;
+	case FEAR_TERRIFIED: return FEAR_SCARED;
+	case FEAR_PETRIFIED: return FEAR_TERRIFIED;
+	}
+	return FEAR_BOLD;
+}
+
+static void _decrease_p(int lvls)
+{
+	int lvl = fear_level_p();
+	
+	for (;lvls; lvls--)
+		lvl = _decrement_level(lvl);
+
+	fear_set_p(lvl);
+}
+
 int  fear_level_p(void)
 {
 	return _get_level(p_ptr->afraid);
@@ -24,33 +47,6 @@ int  fear_level_p(void)
 void fear_clear_p(void)
 {
 	fear_set_p(0);
-}
-
-void fear_decrease_p(void)
-{
-	int lvl = fear_level_p();
-	switch (lvl)
-	{
-	case FEAR_UNEASY:
-		fear_set_p(FEAR_BOLD);
-		break;
-
-	case FEAR_NERVOUS:
-		fear_set_p(FEAR_UNEASY);
-		break;
-
-	case FEAR_SCARED:
-		fear_set_p(FEAR_NERVOUS);
-		break;
-
-	case FEAR_TERRIFIED:
-		fear_set_p(FEAR_SCARED);
-		break;
-
-	case FEAR_PETRIFIED:
-		fear_set_p(FEAR_TERRIFIED);
-		break;
-	}
 }
 
 bool fear_add_p(int amount)
@@ -116,7 +112,7 @@ bool fear_set_p(int v)
 	}
 
 	p_ptr->afraid = v;
-	p_ptr->redraw |= PR_STATUS;
+	p_ptr->redraw |= PR_FEAR;
 	if (!notice) return FALSE;
 	if (disturb_state) disturb(0, 0);
 	handle_stuff();
@@ -199,9 +195,20 @@ bool fear_allow_magic(void)
 	return TRUE;
 }
 
-bool fear_allow_melee(void)
+bool fear_allow_melee(int m_idx)
 {
-	if (p_ptr->afraid && !fear_save_p(5*p_ptr->afraid)) return FALSE;
+	if (p_ptr->afraid)
+	{
+		if ( p_ptr->pclass == CLASS_DUELIST
+			&& p_ptr->lev >= 5
+			&& p_ptr->duelist_target_idx == m_idx )
+		{
+			/* Duelist: Fearless Duel */
+			if (!fear_save_p(p_ptr->afraid)) return FALSE;
+		}
+		else if (!fear_save_p(3*p_ptr->afraid)) 
+			return FALSE;
+	}
 	return TRUE;
 }
 
@@ -281,12 +288,14 @@ void fear_recover_p(void)
 		int threat = fear_threat_level();
 		if (fear_save_p(threat + p_ptr->afraid / 10))
 		{
-			if (fear_save_p(threat + p_ptr->afraid))
-				fear_clear_p();
-			else
-				fear_decrease_p();
+			int lvls = 1;
+
+			while (lvls < 3 && fear_save_p(threat + p_ptr->afraid))
+				lvls++;
+
+			_decrease_p(lvls);
 		}
-		else if (p_ptr->afraid >= FEAR_SCARED && !fear_save_p(threat/4))
+		else if (p_ptr->afraid >= FEAR_SCARED && !fear_save_p((threat + p_ptr->afraid)/6))
 		{
 			if (p_ptr->afraid >= FEAR_PETRIFIED)
 			{
@@ -311,19 +320,21 @@ void fear_recover_p(void)
 }
 
 /* Handle the Terrifying Aura of Fear! */
-#define _AURA_ML   0x01
-#define _AURA_LOS  0x02
-
-static void _apply_aura_p(monster_type *m_ptr, int options)
+void fear_process_p(void)
 {
-	monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
-
-	if (r_ptr->flags2 & RF2_AURA_FEAR)
+	int i, r_level;
+	for (i = 1; i < m_max; i++)
 	{
-		int r_level;
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr;
+		
+		if (!m_ptr->r_idx) continue;		
+		if (!m_ptr->ml) return;
+		
+		r_ptr = &r_info[m_ptr->ap_r_idx];
 
-		if ((options & _AURA_ML) && !m_ptr->ml) return;
-		if ((options & _AURA_LOS) && !projectable(py, px, m_ptr->fy, m_ptr->fx)) return;
+		if (!(r_ptr->flags2 & RF2_AURA_FEAR)) return;
+		if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return;
 
 		r_level = _r_level(r_ptr);
 		if (!fear_save_p(r_level/MAX(1, m_ptr->cdis-2)))
@@ -337,22 +348,21 @@ static void _apply_aura_p(monster_type *m_ptr, int options)
 	}
 }
 
-void fear_process_p(void)
-{
-	int i;
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		if (!m_ptr->r_idx) continue;
-		_apply_aura_p(m_ptr, _AURA_ML | _AURA_LOS);
-	}
-}
-
 void fear_update_m(monster_type *m_ptr)
 {
 	monster_race *r_ptr = &r_info[m_ptr->ap_r_idx];
-	if (r_ptr->flags2 & RF2_AURA_FEAR)
-		_apply_aura_p(m_ptr, _AURA_ML);
+	if ((r_ptr->flags2 & RF2_AURA_FEAR) && m_ptr->ml)
+	{
+		int r_level = _r_level(r_ptr);
+		if (!fear_save_p(r_level))
+		{
+			char m_name[80];
+			monster_desc(m_name, m_ptr, 0);
+			msg_format("You behold the terrifying visage of %s!", m_name);
+			r_ptr->r_flags2 |= RF2_AURA_FEAR;
+			fear_add_p(r_level);
+		}
+	}
 }
 
 void fear_p_touch_m(monster_type *m_ptr)
@@ -471,7 +481,7 @@ bool fear_process_m(int m_idx)
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
 			}
 		}
-		else if (!fear_save_m(m_ptr) && !fear_save_m(m_ptr))
+		else if (one_in_(13) && !fear_save_m(m_ptr))
 		{
 			if (is_seen(m_ptr))
 			{
@@ -521,7 +531,7 @@ void fear_heal_p(int old_hp, int new_hp)
 		int new_hurt = _get_hurt_level(new_hp);
 
 		if (new_hurt < old_hurt && fear_save_p(fear_threat_level()))
-			fear_decrease_p();
+			_decrease_p(1);
 	}
 }
 

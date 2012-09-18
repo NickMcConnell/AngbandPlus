@@ -2818,6 +2818,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
  */
 
 static int drain_left = MAX_VAMPIRIC_DRAIN;
+bool melee_hack = FALSE;
+static bool fear_stop = FALSE;
 
 static int calculate_dir(int sx, int sy, int tx, int ty)
 {
@@ -3043,6 +3045,32 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	while ((num++ < num_blow) && !p_ptr->is_dead)
 	{
 	bool do_whirlwind = FALSE;
+
+		/* We now check fear on every blow, and only lose energy equal to the number of blows attempted.
+		   Monsters with AURA_FEAR can induce fear any time the player damages them!
+		 */
+		if (p_ptr->afraid)
+		{
+			if (!fear_allow_melee(c_ptr->m_idx))
+			{
+				if (m_ptr->ml)
+					msg_format(T("You are too afraid to attack %s!", "恐くて%sを攻撃できない！"), m_name);
+				else
+					msg_format (T("There is something scary in your way!", "そっちには何か恐いものがいる！"));
+
+				fear_stop = TRUE;
+				if (p_ptr->migite && p_ptr->hidarite)
+				{
+					if (hand) energy_use = energy_use*3/5+energy_use*num*2/(p_ptr->weapon_info[hand].num_blow*5);
+					else energy_use = energy_use*num*3/(p_ptr->weapon_info[hand].num_blow*5);
+				}
+				else
+				{
+					energy_use = energy_use*num/p_ptr->weapon_info[hand].num_blow;
+				}
+				break;
+			}
+		}
 
 		/* Weaponmaster Whirlwind turns a normal strike into a sweeping whirlwind strike */
 		if (p_ptr->whirlwind && mode == 0)
@@ -4488,7 +4516,7 @@ static bool py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 	if (knock_out && !(*mdeath))
 		set_monster_csleep(c_ptr->m_idx, MON_CSLEEP(m_ptr) + 500);
 
-	if (weaponmaster_get_toggle() == TOGGLE_TRIP && mode == 0 && !(*mdeath))
+	if (weaponmaster_get_toggle() == TOGGLE_TRIP && mode == 0 && !(*mdeath) && !fear_stop)
 	{
 		if (test_hit_norm(chance, MON_AC(r_ptr, m_ptr), m_ptr->ml))
 		{
@@ -4570,8 +4598,6 @@ bool random_opponent(int *y, int *x)
 	}
 	return FALSE;
 }
-
-bool melee_hack = FALSE;
 
 bool py_attack(int y, int x, int mode)
 {
@@ -4686,49 +4712,13 @@ bool py_attack(int y, int x, int mode)
 		}
 	}
 
-
-	/* Handle player fear */
-	if (p_ptr->afraid)
-	{
-		if ( p_ptr->pclass == CLASS_DUELIST
-		  && p_ptr->lev >= 5
-		  && p_ptr->duelist_target_idx == c_ptr->m_idx )
-		{
-			/* Duelist: Fearless Duel */
-		}
-		else if (!fear_allow_melee())
-		{
-			/* Message */
-			if (m_ptr->ml)
-#ifdef JP
-				msg_format("恐くて%sを攻撃できない！", m_name);
-#else
-				msg_format("You are too afraid to attack %s!", m_name);
-#endif
-
-			else
-#ifdef JP
-				msg_format ("そっちには何か恐いものがいる！");
-#else
-				msg_format ("There is something scary in your way!");
-#endif
-
-			/* Disturb the monster */
-			(void)set_monster_csleep(c_ptr->m_idx, 0);
-
-			/* Done */
-			return FALSE;
-		}
-	}
-
-	melee_hack = TRUE;
-
 	if (MON_CSLEEP(m_ptr)) /* It is not honorable etc to attack helpless victims */
 	{
 		if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_COMPASSION, -1);
 		if (!(r_ptr->flags3 & RF3_EVIL) || one_in_(5)) chg_virtue(V_HONOUR, -1);
 	}
 
+	/* TODO: Skills should be applied later ... */
 	if (p_ptr->migite && p_ptr->hidarite)
 	{
 		if ((p_ptr->skill_exp[GINOU_NITOURYU] < s_info[p_ptr->pclass].s_max[GINOU_NITOURYU]) && ((p_ptr->skill_exp[GINOU_NITOURYU] - 1000) / 200 < r_ptr->level))
@@ -4745,7 +4735,6 @@ bool py_attack(int y, int x, int mode)
 		}
 	}
 
-	/* Gain riding experience */
 	if (p_ptr->riding)
 	{
 		int cur = p_ptr->skill_exp[GINOU_RIDING];
@@ -4781,6 +4770,9 @@ bool py_attack(int y, int x, int mode)
 
 	drain_left = MAX_VAMPIRIC_DRAIN;
 	retaliation_count = 0;
+	melee_hack = TRUE;
+	fear_stop = FALSE;
+
 	if (weaponmaster_get_toggle() == TOGGLE_FRENZY_STANCE)
 	{
 		object_type rarm, larm;
@@ -4793,56 +4785,62 @@ bool py_attack(int y, int x, int mode)
 		if (p_ptr->migite) 
 			py_attack_aux(y, x, &fear, &mdeath, 0, mode);
 
-		drain_left = MAX_VAMPIRIC_DRAIN;
-		if (p_ptr->hidarite && !mdeath) 
-			py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+		if (!fear_stop)
+		{
+			drain_left = MAX_VAMPIRIC_DRAIN;
+			if (p_ptr->hidarite && !mdeath) 
+				py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+		}
 
 		/* Attack with inventory weapons as if single wielding */
 		/* Sorry, no more vampirism!! */
-		weaponmaster_get_frenzy_items();
-		for (i = 0; i < MAX_FRENZY_ITEMS; i++)
+		if (!fear_stop)
 		{
-			int item = frenzy_items[i];
-			object_type copy, blank;
+			weaponmaster_get_frenzy_items();
+			for (i = 0; i < MAX_FRENZY_ITEMS; i++)
+			{
+				int item = frenzy_items[i];
+				object_type copy, blank;
 
-			object_wipe(&blank);
+				object_wipe(&blank);
 			
-			if (item < 0) break;
-			if (mdeath) break;
+				if (item < 0) break;
+				if (mdeath) break;
 			
-			object_copy(&copy, &inventory[item]);
-			copy.number = 1;
-			object_copy(&inventory[INVEN_RARM], &copy);
-			if (p_ptr->hidarite)
-				object_copy(&inventory[INVEN_LARM], &blank);
+				object_copy(&copy, &inventory[item]);
+				copy.number = 1;
+				object_copy(&inventory[INVEN_RARM], &copy);
+				if (p_ptr->hidarite)
+					object_copy(&inventory[INVEN_LARM], &blank);
 
+				p_ptr->update |= PU_BONUS;
+				handle_stuff();
+
+				py_attack_aux(y, x, &fear, &mdeath, 0, mode);
+			}
+			for (j = 0; j < i; j++)
+			{
+				int item = frenzy_items[j];
+				if (object_is_artifact(&inventory[item]))
+				{
+					 if (one_in_(3))
+					 {
+						blast_object(&inventory[item]);
+					 }
+				}
+				else
+				{
+					inven_item_increase(item, -1);
+					inven_item_describe(item);
+					inven_item_optimize(item);
+				}	
+			}
+
+			object_copy(&inventory[INVEN_RARM], &rarm);
+			object_copy(&inventory[INVEN_LARM], &larm);
 			p_ptr->update |= PU_BONUS;
 			handle_stuff();
-
-			py_attack_aux(y, x, &fear, &mdeath, 0, mode);
 		}
-		for (j = 0; j < i; j++)
-		{
-			int item = frenzy_items[j];
-			if (object_is_artifact(&inventory[item]))
-			{
-				 if (one_in_(3))
-				 {
-					blast_object(&inventory[item]);
-				 }
-			}
-			else
-			{
-				inven_item_increase(item, -1);
-				inven_item_describe(item);
-				inven_item_optimize(item);
-			}	
-		}
-
-		object_copy(&inventory[INVEN_RARM], &rarm);
-		object_copy(&inventory[INVEN_LARM], &larm);
-		p_ptr->update |= PU_BONUS;
-		handle_stuff();
 	}
 	else if (weaponmaster_get_toggle() == TOGGLE_MANY_STRIKE && mode == 0)
 	{
@@ -4866,7 +4864,7 @@ bool py_attack(int y, int x, int mode)
 					Term_fresh();
 				}
 				py_attack_aux(y, x, &fear, &mdeath, 0, WEAPONMASTER_MANY_STRIKE);
-				if (!random_opponent(&y, &x))
+				if (fear_stop || !random_opponent(&y, &x))
 				{
 					stop = TRUE;
 					break;
@@ -4890,7 +4888,7 @@ bool py_attack(int y, int x, int mode)
 					Term_fresh();
 				}
 				py_attack_aux(y, x, &fear, &mdeath, 1, WEAPONMASTER_MANY_STRIKE);
-				if (!random_opponent(&y, &x)) break;
+				if (fear_stop || !random_opponent(&y, &x)) break;
 			}
 		}
 	}
@@ -4943,12 +4941,12 @@ bool py_attack(int y, int x, int mode)
 					else
 						Term_xtra(TERM_XTRA_DELAY, msec);
 					
-					if (!py_attack_aux(ny, nx, &fear, &mdeath, 0, WEAPONMASTER_PIERCING_STRIKE)) break;
+					if (!py_attack_aux(ny, nx, &fear, &mdeath, 0, WEAPONMASTER_PIERCING_STRIKE) || fear_stop) break;
 				}
 			}
 		}
 		drain_left = MAX_VAMPIRIC_DRAIN;
-		if (p_ptr->hidarite)
+		if (p_ptr->hidarite && !fear_stop)
 		{
 			for (i = 0; i < p_ptr->weapon_info[1].num_blow; i++)
 			{
@@ -4988,34 +4986,36 @@ bool py_attack(int y, int x, int mode)
 					else
 						Term_xtra(TERM_XTRA_DELAY, msec);
 					
-					if (!py_attack_aux(ny, nx, &fear, &mdeath, 1, WEAPONMASTER_PIERCING_STRIKE)) break;
+					if (!py_attack_aux(ny, nx, &fear, &mdeath, 1, WEAPONMASTER_PIERCING_STRIKE) || fear_stop) break;
 				}
 			}
 		}
 	}
 	else
 	{
+		if (p_ptr->migite) 
+			py_attack_aux(y, x, &fear, &mdeath, 0, mode);
+		
 		drain_left = MAX_VAMPIRIC_DRAIN;
-		if (p_ptr->migite) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
-		drain_left = MAX_VAMPIRIC_DRAIN;
-		if (p_ptr->hidarite && !mdeath) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
+		if (p_ptr->hidarite && !mdeath && !fear_stop) 
+			py_attack_aux(y, x, &fear, &mdeath, 1, mode);
 	}
 
 	/* Mutations which yield extra 'natural' attacks */
-	if (!mdeath)
+	if (!mdeath && !fear_stop)
 	{
-		if (mut_present(MUT_HORNS) && !mdeath)
+		if (mut_present(MUT_HORNS) && !mdeath && !fear_stop)
 			natural_attack(c_ptr->m_idx, MUT_HORNS, &fear, &mdeath);
-		if (mut_present(MUT_BEAK) && !mdeath)
+		if (mut_present(MUT_BEAK) && !mdeath && !fear_stop)
 			natural_attack(c_ptr->m_idx, MUT_BEAK, &fear, &mdeath);
-		if (mut_present(MUT_SCORPION_TAIL) && !mdeath)
+		if (mut_present(MUT_SCORPION_TAIL) && !mdeath && !fear_stop)
 			natural_attack(c_ptr->m_idx, MUT_SCORPION_TAIL, &fear, &mdeath);
-		if (mut_present(MUT_TRUNK) && !mdeath)
+		if (mut_present(MUT_TRUNK) && !mdeath && !fear_stop)
 			natural_attack(c_ptr->m_idx, MUT_TRUNK, &fear, &mdeath);
-		if (mut_present(MUT_TENTACLES) && !mdeath)
+		if (mut_present(MUT_TENTACLES) && !mdeath && !fear_stop)
 			natural_attack(c_ptr->m_idx, MUT_TENTACLES, &fear, &mdeath);
 	}
-	else if (p_ptr->cleave)
+	else if (p_ptr->cleave && !fear_stop)
 	{
 		int y = 0, x = 0, i, dir = 0;
 		cave_type *c_ptr;
@@ -5043,16 +5043,8 @@ bool py_attack(int y, int x, int mode)
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml && !mdeath)
 	{
-		/* Sound */
 		sound(SOUND_FLEE);
-
-		/* Message */
-#ifdef JP
-		msg_format("%^sは恐怖して逃げ出した！", m_name);
-#else
-		msg_format("%^s flees in terror!", m_name);
-#endif
-
+		msg_format(T("%^s flees in terror!", "%^sは恐怖して逃げ出した！"), m_name);
 	}
 
 	if ((p_ptr->special_defense & KATA_IAI) && ((mode != HISSATSU_IAI) || mdeath))

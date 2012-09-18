@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 122
+#define FAKE_VER_PATCH 123
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 122
+#define H_VER_PATCH 123
 #define H_VER_EXTRA 0
 
 
@@ -899,10 +899,10 @@
 /*#define ROW_SEIKAKU		4 */
 /*#define COL_SEIKAKU      	0*/	/* <seikaku> */
 
-#define ROW_DAY                 21
+#define ROW_DAY                 22
 #define COL_DAY                 0       /* day */
 
-#define ROW_DUNGEON             22
+#define ROW_DUNGEON             23
 #define COL_DUNGEON             0       /* dungeon */
 
 #define ROW_LEVEL               3
@@ -952,6 +952,9 @@
 
 #define ROW_STATE               20
 #define COL_STATE                7      /* <state> */
+
+#define ROW_FEAR                 21
+#define COL_FEAR                0  
 
 #define ROW_SPEED               (-1)
 #define COL_SPEED               (-24)      /* "Slow (-NN)" or "Fast (+NN)" */
@@ -2848,7 +2851,7 @@
 #define PR_BASIC        0x02000000L     /* Display Basic Info */
 #define PR_MAP          0x04000000L     /* Display Map */
 #define PR_WIPE         0x08000000L     /* Hack -- Total Redraw */
-#define PR_BLOOD_POINTS 0x10000000L
+#define PR_FEAR         0x10000000L
 /* xxx */
 /* xxx */
 /* xxx */

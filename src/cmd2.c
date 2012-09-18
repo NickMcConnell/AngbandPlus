@@ -3419,6 +3419,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
  *
  * Note that Bows of "Extra Shots" give an extra shot.
  */
+#define SIGN(x) ((x) > 0 ? 1 : ((x) < 0 ? -1: 0))
 bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 {
 	int dir;
@@ -3476,12 +3477,48 @@ bool do_cmd_fire_aux1(int item, object_type *j_ptr)
 
 		if (dir == 5)
 		{
+			int dx = tx - px;
+			int dy = ty - py;
+			int sx = SIGN(dx);
+			int sy = SIGN(dy);
+			int mx = ABS(dx);
+			int my = ABS(dy);
+						
 			ny = py;
 			nx = px;
-			if (ty > py) ny--;
-			if (ty < py) ny++;
-			if (tx > px) nx--;
-			if (tx < px) nx++;
+
+			if (mx == my)
+			{
+				if (player_can_enter(cave[ny-sy][nx-sx].feat, 0))
+				{
+					nx -= sx;
+					ny -= sy;
+				}
+				else if (player_can_enter(cave[ny][nx-sx].feat, 0))
+					nx -= sx;
+				else if (player_can_enter(cave[ny-sy][nx].feat, 0))
+					ny -= sy;
+			}
+			else if (mx > my)
+			{
+				nx -= sx;
+				if (randint0(mx) < my)
+				{
+					ny -= sy;
+					if (!player_can_enter(cave[ny][nx].feat, 0))
+						ny += sy;
+				}
+			}
+			else
+			{
+				ny -= sy;
+				if (randint0(my) < mx)
+				{
+					nx -= sx;
+					if (!player_can_enter(cave[ny][nx].feat, 0))
+						nx += sx;
+				}					
+			}
 		}
 		else
 		{

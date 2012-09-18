@@ -4824,7 +4824,16 @@ msg_print("アリーナが魔法を吸収した！");
 		/* Use racial power */
 		case 'U':
 		{
-			if (!p_ptr->wild_mode) do_cmd_power();
+			if (!p_ptr->wild_mode) 
+			{
+				if (!fear_allow_magic())
+				{
+					msg_print("You are too scared!");
+					energy_use = 100;
+				}
+				else
+					do_cmd_power();
+			}
 			break;
 		}
 

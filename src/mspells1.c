@@ -272,7 +272,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 	if (smart & (SM_RES_FEAR))
 	{
-		f5 &= ~(RF5_SCARE);
+	/*	f5 &= ~(RF5_SCARE); */
 	}
 
 	if (smart & (SM_RES_CONF))

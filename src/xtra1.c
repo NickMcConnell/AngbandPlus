@@ -447,12 +447,7 @@ static void prt_stat(int stat)
 #define BAR_SLAY_SENTIENT 140
 #define BAR_QUICK_WALK 141
 #define BAR_INVEN_PROT 142
-#define BAR_UNEASY 143
-#define BAR_NERVOUS 144
-#define BAR_SCARED 145
-#define BAR_TERRIFIED 146
-#define BAR_PETRIFIED 147
-#define BAR_SHRIKE 148
+#define BAR_SHRIKE 143
 
 static struct {
 	byte attr;
@@ -680,11 +675,6 @@ static struct {
 	{TERM_L_BLUE, "SS", "SlaySentient"},
 	{TERM_YELLOW, "QW", "Quickwalk"},
 	{TERM_L_BLUE, "IP", "InvenProt"},
-	{TERM_L_UMBER, "Un", "Uneasy"},
-	{TERM_YELLOW, "Nv", "Nervous"},
-	{TERM_ORANGE, "Sd", "Scared"},
-	{TERM_RED, "Tf", "Terrified"},
-	{TERM_VIOLET, "Pf", "Petrified"},
 	{TERM_YELLOW, "Sk", "Shrike"},
 	{0, NULL, NULL}
 };
@@ -799,29 +789,6 @@ static void prt_status(void)
 
 	/* Alter realiry */
 	if (p_ptr->alter_reality) ADD_FLG(BAR_ALTER);
-
-	/* Afraid */
-	if (p_ptr->afraid)
-	{
-		switch (fear_level_p())
-		{
-		case FEAR_UNEASY:
-			ADD_FLG(BAR_UNEASY);
-			break;
-		case FEAR_NERVOUS:
-			ADD_FLG(BAR_NERVOUS);
-			break;
-		case FEAR_SCARED:
-			ADD_FLG(BAR_SCARED);
-			break;
-		case FEAR_TERRIFIED:
-			ADD_FLG(BAR_TERRIFIED);
-			break;
-		case FEAR_PETRIFIED:
-			ADD_FLG(BAR_PETRIFIED);
-			break;
-		}
-	}
 
 	/* Resist time */
 	if (p_ptr->tim_res_time) ADD_FLG(BAR_RESTIME);
@@ -1433,23 +1400,31 @@ static void prt_sp(void)
 	c_put_str(color, tmp, ROW_CURSP, COL_CURSP + 8);
 }
 
-static void prt_blood_points(void)
+static void prt_fear(void)
 {
-	return;
+	int lvl = fear_level_p();
 
-	/*
-	char tmp[32];
-	byte color = TERM_L_GREEN;
-
-	if (p_ptr->pclass != CLASS_BLOOD_KNIGHT) return;
-
-	* For now, I'm showing blood points where mana would normally
-	   be displayed.  Only Blood Knights currently use these, and
-	   they don't have mana *
-	put_str("BP", ROW_CURSP, COL_CURSP);
-	sprintf(tmp, "%4ld", p_ptr->blood_points);
-	c_put_str(color, tmp, ROW_CURSP, COL_CURSP+3);
-	*/
+	switch (lvl)
+	{
+	case FEAR_BOLD:
+		put_str(               "          ", ROW_FEAR, COL_FEAR);
+		break;
+	case FEAR_UNEASY:
+		c_put_str(TERM_L_UMBER,"Uneasy    ", ROW_FEAR, COL_FEAR);
+		break;
+	case FEAR_NERVOUS:
+		c_put_str(TERM_YELLOW, "Nervous   ", ROW_FEAR, COL_FEAR);
+		break;
+	case FEAR_SCARED:
+		c_put_str(TERM_ORANGE, "Scared    ", ROW_FEAR, COL_FEAR);
+		break;
+	case FEAR_TERRIFIED:
+		c_put_str(TERM_RED,    "Terrified ", ROW_FEAR, COL_FEAR);
+		break;
+	case FEAR_PETRIFIED:
+		c_put_str(TERM_VIOLET, "Petrified ", ROW_FEAR, COL_FEAR);
+		break;
+	}
 }
 
 
@@ -2156,8 +2131,6 @@ static void prt_frame_basic(void)
 	/* Spellpoints */
 	prt_sp();
 
-	prt_blood_points();
-
 	/* Gold */
 	prt_gold();
 
@@ -2178,6 +2151,7 @@ static void prt_frame_extra(void)
 	/* Cut/Stun */
 	prt_cut();
 	prt_stun();
+	prt_fear();
 
 	/* Food */
 	prt_hunger();
@@ -6716,12 +6690,6 @@ void redraw_stuff(void)
 		prt_sp();
 	}
 
-	if (p_ptr->redraw & PR_BLOOD_POINTS)
-	{
-		p_ptr->redraw &= ~PR_BLOOD_POINTS;
-		prt_blood_points();
-	}
-
 	if (p_ptr->redraw & (PR_GOLD))
 	{
 		p_ptr->redraw &= ~(PR_GOLD);
@@ -6750,7 +6718,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_EXTRA))
 	{
 		p_ptr->redraw &= ~(PR_EXTRA);
-		p_ptr->redraw &= ~(PR_CUT | PR_STUN);
+		p_ptr->redraw &= ~(PR_CUT | PR_STUN | PR_FEAR);
 		p_ptr->redraw &= ~(PR_HUNGER);
 		p_ptr->redraw &= ~(PR_STATE | PR_SPEED | PR_STUDY | PR_IMITATION | PR_STATUS);
 		prt_frame_extra();
@@ -6766,6 +6734,12 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_STUN);
 		prt_stun();
+	}
+
+	if (p_ptr->redraw & PR_FEAR)
+	{
+		p_ptr->redraw &= ~PR_FEAR;
+		prt_fear();
 	}
 
 	if (p_ptr->redraw & (PR_HUNGER))
