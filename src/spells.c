@@ -244,6 +244,9 @@ static void _list_spells(spell_info* spells, int ct, int max_cost)
 		if (spell->cost > max_cost)
 			attr = TERM_L_DARK;
 
+		if (spell->level > p_ptr->lev)
+			attr = TERM_L_DARK;
+
 		if (i < col_height)
 		{
 			c_prt(attr, temp, y + i + 1, x);

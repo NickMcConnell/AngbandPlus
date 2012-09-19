@@ -926,13 +926,11 @@ bool make_attack_normal(int m_idx)
 							  && p_ptr->lev > 39 
 							  /*&& saving_throw(p_ptr->skills.sav - r_ptr->level/2)*/ )
 							{
-								msg_print("Energy begins to drain from your pack, but you resist!");
 								break;
 							}
 
 							if (mut_present(MUT_DEMONIC_GRASP))
 							{
-								msg_print("Energy begins to drain from your pack, but you resist!");
 								break;
 							}
 
@@ -961,7 +959,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					if ( !drained 
-					  && !(prace_is_(RACE_BALROG) || prace_is_(MIMIC_DEMON) || prace_is_(MIMIC_DEMON_LORD)) )
+					  && !(prace_is_(RACE_BALROG) || prace_is_(RACE_SKELETON) || prace_is_(MIMIC_DEMON) || prace_is_(MIMIC_DEMON_LORD)) )
 					{
 						msg_print("Food drains from your belly!");
 						set_food(MAX(0, MIN(p_ptr->food - 1000, p_ptr->food/2)));
