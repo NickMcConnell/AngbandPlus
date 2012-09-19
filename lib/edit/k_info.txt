@@ -5824,8 +5824,8 @@ N:607:[¸ç¤ê¤Î½ñ]
 E:[Spiritual Enlightenment]
 G:?:U
 I:97:3:0
-W:90:0:0:30:100000
-A:90/3
+W:95:0:0:30:100000
+A:95/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 

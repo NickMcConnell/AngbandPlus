@@ -448,6 +448,8 @@ static void prt_stat(int stat)
 #define BAR_QUICK_WALK 141
 #define BAR_INVEN_PROT 142
 #define BAR_SHRIKE 143
+#define BAR_SH_ELEMENTS 144
+#define BAR_WEAPONMASTERY 145
 
 static struct {
 	byte attr;
@@ -676,6 +678,8 @@ static struct {
 	{TERM_YELLOW, "QW", "Quickwalk"},
 	{TERM_L_BLUE, "IP", "InvenProt"},
 	{TERM_YELLOW, "Sk", "Shrike"},
+	{TERM_YELLOW, "SE", "SElem"},
+	{TERM_L_BLUE, "Wp", "Weapon"},
 	{0, NULL, NULL}
 };
 #endif
@@ -825,6 +829,8 @@ static void prt_status(void)
 	if (p_ptr->special_defense & NINJA_S_STEALTH) ADD_FLG(BAR_SUPERSTEALTH);
 
 	if (p_ptr->tim_sh_fire) ADD_FLG(BAR_SHFIRE);
+	if (p_ptr->tim_sh_elements) ADD_FLG(BAR_SH_ELEMENTS);
+	if (p_ptr->tim_weaponmastery) ADD_FLG(BAR_WEAPONMASTERY);
 
 	/* tim stealth */
 	if (IS_TIM_STEALTH()) ADD_FLG(BAR_STEALTH);
@@ -4093,6 +4099,14 @@ void calc_bonuses(void)
 	{
 		p_ptr->sh_fire = TRUE;
 	}
+
+	if (p_ptr->tim_sh_elements)
+	{
+		p_ptr->sh_fire = TRUE;
+		p_ptr->sh_cold = TRUE;
+		p_ptr->sh_elec = TRUE;
+	}
+
 	if (p_ptr->tim_res_time)
 	{
 		p_ptr->resist_time = TRUE;
@@ -4752,6 +4766,7 @@ void calc_bonuses(void)
 		p_ptr->stat_add[A_STR] += amt;
 		p_ptr->stat_add[A_DEX] += amt;
 		p_ptr->stat_add[A_CON] += amt;
+		p_ptr->skills.thn += 60*p_ptr->lev/50;
 	}
 
 	/* Hex bonuses */
@@ -5453,6 +5468,9 @@ void calc_bonuses(void)
 			info_ptr->dis_to_h -= 20;
 			info_ptr->to_h -= 20;
 		}
+
+		if (p_ptr->tim_weaponmastery)
+			info_ptr->to_dd += p_ptr->lev/23;
 
 		/* It is hard to hold a heavy weapon */
 		if (hold < o_ptr->weight / 10)

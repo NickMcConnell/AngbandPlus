@@ -1133,7 +1133,7 @@ return "ファイア・ボルト(9d8) : 8+d8 ターン毎";
 		case ART_STOMPER:
 			return "earthquake every 35 turns";
 		case ART_RAILGUN:
-			return "beam of light (200) every turn";
+			return "beam of light (300) every turn";
 		case ART_KAMIKAZE_ROBE:
 			return "berserk and haste every 55 turns";
 		case ART_BALLISTA:
@@ -3326,7 +3326,7 @@ info[i++] = "それは生命力吸収に対する耐性を授ける。";
 #ifdef JP
 info[i++] = "それは恐怖への完全な耐性を授ける。";
 #else
-		info[i++] = "It makes you completely fearless.";
+		info[i++] = "It provides resistance to fear.";
 #endif
 
 	}

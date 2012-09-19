@@ -2475,6 +2475,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 				case EGO_ARCANE:
 					o_ptr->pval = -randint1(2);
+					if (one_in_(30))
+						o_ptr->pval--;
 					o_ptr->to_h = -10;
 					o_ptr->to_d = -10;
 					break;

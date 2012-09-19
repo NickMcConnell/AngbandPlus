@@ -740,6 +740,29 @@ void telekinesis_spell(int cmd, variant *res)
 }
 bool cast_telekinesis(void) { return cast_spell(telekinesis_spell); }
 
+void telepathy_spell(int cmd, variant *res)
+{
+	switch (cmd)
+	{
+	case SPELL_NAME:
+		var_set_string(res, "Telepathy");
+		break;
+	case SPELL_DESC:
+		var_set_string(res, "Gives telepathy for a while.");
+		break;
+	case SPELL_INFO:
+		var_set_string(res, info_duration(25, 30));
+		break;
+	case SPELL_CAST:
+		set_tim_esp(randint1(25) + 30, FALSE);
+		var_set_bool(res, TRUE);
+		break;
+	default:
+		default_spell(cmd, res);
+		break;
+	}
+}
+
 void teleport_other_spell(int cmd, variant *res)
 {
 	switch (cmd)

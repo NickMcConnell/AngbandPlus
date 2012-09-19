@@ -1078,12 +1078,14 @@ struct player_type
 	s16b lightspeed;
 	s16b tsubureru;
 	s16b magicdef;
-	s16b tim_res_nether;	/* Timed -- Nether resistance */
-	s16b tim_res_time;	/* Timed -- Time resistance */
+	s16b tim_res_nether;
+	s16b tim_res_time;
 	s16b tim_res_disenchantment;
 	s16b mimic_form;
 	s16b tim_mimic;
 	s16b tim_sh_fire;
+	s16b tim_sh_elements;
+	s16b tim_weaponmastery;
 	s16b tim_sh_holy;
 	s16b tim_eyeeye;
 

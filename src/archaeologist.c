@@ -733,7 +733,8 @@ static spell_info _spells[] =
 
 int archaeologist_spell_stat_idx(void)
 {
-	return (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2;
+	/*return (p_ptr->stat_ind[A_INT] + p_ptr->stat_ind[A_WIS]) / 2;*/
+	return p_ptr->stat_ind[A_WIS];
 }
 
 static int _get_spells(spell_info* spells, int max)
@@ -841,14 +842,14 @@ class_t *archaeologist_get_class_t(void)
 				  "he is rarely lost or snared in traps. His powers of perception and detection are "
 				  "very great, as is his skill with arcane devices. At high levels he can use the "
 				  "dark magic of the entombed Pharaohs. The powers of the Archaeologist are enhanced "
-				  "by both Intelligence and Wisdom.";
+				  "by Wisdom.";
 
 		me.stats[A_STR] = -1;
 		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  1;
+		me.stats[A_WIS] =  2;
 		me.stats[A_DEX] =  1;
 		me.stats[A_CON] = -1;
-		me.stats[A_CHR] =  1;
+		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.hd = 4;

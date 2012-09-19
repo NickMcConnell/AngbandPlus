@@ -746,6 +746,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->mimic_form);
 	wr_s16b(p_ptr->tim_mimic);
 	wr_s16b(p_ptr->tim_sh_fire);
+	wr_s16b(p_ptr->tim_sh_elements);
+	wr_s16b(p_ptr->tim_weaponmastery);
 	wr_s16b(p_ptr->tim_sh_holy);
 	wr_s16b(p_ptr->tim_eyeeye);
 

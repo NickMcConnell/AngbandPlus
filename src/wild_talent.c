@@ -94,27 +94,6 @@ void lightning_eagle_spell(int cmd, variant *res)
 	}
 }
 
-void telepathy_spell(int cmd, variant *res)
-{
-	switch (cmd)
-	{
-	case SPELL_NAME:
-		var_set_string(res, T("Telepathy", "テレパシー"));
-		break;
-	case SPELL_DESC:
-		var_set_string(res, T("Gives telepathy for a while.", "一定時間、テレパシー能力を得る。"));
-		break;
-	case SPELL_CAST:
-		set_tim_esp(randint1(30) + 25, FALSE);
-		var_set_bool(res, TRUE);
-		break;
-	default:
-		default_spell(cmd, res);
-		break;
-	}
-}
-
-
 /*
  * We are using p_ptr->magic_num to remember talents.
  * 0 indicates no talent for this group, so we always subtract

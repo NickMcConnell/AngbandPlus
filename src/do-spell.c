@@ -6933,17 +6933,15 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 9:
-		if (name) return "Polymorph Clay Golem";
-		if (desc) return "You lose the benefits of your current race and become a clay golem.";
+		if (name) return "Elemental Cloak";
+		if (desc) return "You gain protective elemental auras for a short time.";
 		{
 			int base = spell_power(10 + plev / 2);
 
 			if (info) return info_duration(base, base);
 
 			if (cast)
-			{
-				set_mimic(base + randint1(base), MIMIC_CLAY_GOLEM, FALSE);
-			}
+				set_tim_sh_elements(randint1(base) + base, FALSE);
 		}
 		break;
 
@@ -7025,17 +7023,15 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 14:
-		if (name) return "Polymorph Iron Golem";
-		if (desc) return "You lose the benefits of your current race and become an iron golem.";
+		if (name) return "Giant Strength";
+		if (desc) return "For a short time, you grow to a gigantic height and gain great powers of combat.";
 		{
-			int base = spell_power(10 + plev / 2);
+			int base = spell_power(5 + plev / 10);
 
 			if (info) return info_duration(base, base);
 
 			if (cast)
-			{
-				set_mimic(base + randint1(base), MIMIC_IRON_GOLEM, FALSE);
-			}
+				set_tim_building_up(randint1(base) + base, FALSE);
 		}
 		break;
 
@@ -7152,38 +7148,29 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 20:
-	{
-		int amt = spell_power(plev*3/2);
-		if (name) return "Curing";
-		if (desc) return "Cures cuts, stuns, and hallucination.  Heals hp a bit.";
-		if (info) return info_heal(0, 0, amt);
-		if (cast)
-		{
-			hp_player(amt);
-			set_blind(0, TRUE);
-			set_poisoned(0, TRUE);
-			set_confused(0, TRUE);
-			set_stun(0, TRUE);
-			set_cut(0, TRUE);
-			set_image(0, TRUE);
-		}
-		break;
-	}
-/*		if (name) return "Walk through Wall";
-		if (desc) return "Gives ability to pass walls for a while.";
+		if (name) return "Whirlwind Attack";
+		if (desc) return "Attacks all adjacent monsters.";
     
 		{
-			int base = spell_power(plev / 2);
-
-			if (info) return info_duration(base, base);
-
 			if (cast)
 			{
-				set_kabenuke(randint1(base) + base, FALSE);
+				int y = 0, x = 0;
+				cave_type       *c_ptr;
+				monster_type    *m_ptr;
+				int dir;
+
+				for (dir = 0; dir < 8; dir++)
+				{
+					y = py + ddy_ddd[dir];
+					x = px + ddx_ddd[dir];
+					c_ptr = &cave[y][x];
+					m_ptr = &m_list[c_ptr->m_idx];
+					if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
+						py_attack(y, x, 0);
+				}
 			}
 		}
 		break;
-		*/
 
 	case 21:
 		if (name) return T("Recharging", "魔力充填");
@@ -7202,17 +7189,15 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 22:
-		if (name) return "Polymorph Mithril Golem";
-		if (desc) return "You lose the benefits of your current race and become a mithril golem.";
+		if (name) return "Weaponmastery";
+		if (desc) return "For a short time, your melee weapon becomes more deadly.";
 		{
-			int base = spell_power(10 + plev / 2);
+			int base = spell_power(3 + plev / 10);
 
 			if (info) return info_duration(base, base);
 
 			if (cast)
-			{
-				set_mimic(base + randint1(base), MIMIC_MITHRIL_GOLEM, FALSE);
-			}
+				set_tim_weaponmastery(randint1(base) + base, FALSE);
 		}
 		break;
 
@@ -7262,26 +7247,17 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 25:
-		if (name) return "Whirlwind Attack";
-		if (desc) return "Attacks all adjacent monsters.";
+		if (name) return "Walk through Wall";
+		if (desc) return "Gives ability to pass walls for a while.";
     
 		{
+			int base = spell_power(plev / 3);
+
+			if (info) return info_duration(base, base);
+
 			if (cast)
 			{
-				int y = 0, x = 0;
-				cave_type       *c_ptr;
-				monster_type    *m_ptr;
-				int dir;
-
-				for (dir = 0; dir < 8; dir++)
-				{
-					y = py + ddy_ddd[dir];
-					x = px + ddx_ddd[dir];
-					c_ptr = &cave[y][x];
-					m_ptr = &m_list[c_ptr->m_idx];
-					if (c_ptr->m_idx && (m_ptr->ml || cave_have_flag_bold(y, x, FF_PROJECT)))
-						py_attack(y, x, 0);
-				}
+				set_kabenuke(randint1(base) + base, FALSE);
 			}
 		}
 		break;
@@ -7333,16 +7309,22 @@ static cptr do_craft_spell(int spell, int mode)
 		break;
 
 	case 29:
-		if (name) return "Polymorph Colossus";
-		if (desc) return "You lose the benefits of your current race and become a colossus.";
+#ifdef JP
+		if (name) return "属性への免疫";
+		if (desc) return "一定時間、冷気、炎、電撃、酸のいずれかに対する免疫を得る。";
+#else
+		if (name) return "Immunity";
+		if (desc) return "Gives an immunity to fire, cold, electricity or acid for a while.";
+#endif
+    
 		{
-			int base = spell_power(10 + plev / 2);
+			int base = spell_power(13);
 
 			if (info) return info_duration(base, base);
 
 			if (cast)
 			{
-				set_mimic(base + randint1(base), MIMIC_COLOSSUS, FALSE);
+				if (!choose_ele_immune(base + randint1(base))) return NULL;
 			}
 		}
 		break;
@@ -7354,6 +7336,7 @@ static cptr do_craft_spell(int spell, int mode)
 		{
 		int base = spell_power(plev / 4);
 
+			if (info) return info_duration(base, base);
 			if (cast)
 			{
 				set_tim_genji(base + randint1(base), FALSE);
@@ -7368,6 +7351,7 @@ static cptr do_craft_spell(int spell, int mode)
 		{
 		int base = spell_power(plev / 4);
 
+			if (info) return info_duration(base, base);
 			if (cast)
 			{
 				set_tim_force(base + randint1(base), FALSE);

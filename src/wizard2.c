@@ -975,6 +975,7 @@ static void _class_spoilers(FILE* fff, int idx)
 	
 	player_class *class_ptr = &class_info[idx];
 	player_magic *magic_ptr = &m_info[idx];
+	class_t      *class_ptr2 = get_class_t_aux(idx, 0);
 
 	if (design)
 	{
@@ -983,7 +984,10 @@ static void _class_spoilers(FILE* fff, int idx)
 
 	fprintf(fff, "= %s =\n\n", class_ptr->title);
 	fprintf(fff, "== Description ==\n");
-	fprintf(fff, "%s\n\n", birth_get_class_desc(idx));
+	if (class_ptr2)
+		fprintf(fff, "%s\n\n", class_ptr2->desc);
+	else
+		fprintf(fff, "%s\n\n", birth_get_class_desc(idx));
 
 	fprintf(fff, "\n\n[http://angband.oook.cz/ladder-browse.php?v=Chengband&r=&c=%s&n=&e=&s=0 View Ladder]\n", class_ptr->title);
 

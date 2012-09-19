@@ -795,12 +795,6 @@ int _demon_get_powers(spell_info* spells, int max)
 	spell->fn = teleport_spell;
 
 	spell = &spells[ct++];
-	spell->level = 30;
-	spell->cost = 20;
-	spell->fail = calculate_fail_rate(30, 60, p_ptr->stat_ind[A_CHR]);
-	spell->fn = teleport_level_spell;
-
-	spell = &spells[ct++];
 	spell->level = 35;
 	spell->cost = 40;
 	spell->fail = calculate_fail_rate(35, 70, p_ptr->stat_ind[A_CHR]);
@@ -820,10 +814,16 @@ int _aberration_get_powers(spell_info* spells, int max)
 	spell->fn = detect_monsters_spell;
 
 	spell = &spells[ct++];
-	spell->level = 20;
+	spell->level = 15;
 	spell->cost = 10;
-	spell->fail = calculate_fail_rate(20, 40, p_ptr->stat_ind[A_CHR]);
+	spell->fail = calculate_fail_rate(15, 40, p_ptr->stat_ind[A_CHR]);
 	spell->fn = detect_doors_stairs_traps_spell;
+
+	spell = &spells[ct++];
+	spell->level = 20;
+	spell->cost = 20;
+	spell->fail = calculate_fail_rate(20, 50, p_ptr->stat_ind[A_CHR]);
+	spell->fn = magic_mapping_spell;
 
 	spell = &spells[ct++];
 	spell->level = 30;
@@ -832,10 +832,10 @@ int _aberration_get_powers(spell_info* spells, int max)
 	spell->fn = polymorph_self_spell;
 
 	spell = &spells[ct++];
-	spell->level = 35;
-	spell->cost = 20;
-	spell->fail = calculate_fail_rate(35, 50, p_ptr->stat_ind[A_CHR]);
-	spell->fn = magic_mapping_spell;
+	spell->level = 45;
+	spell->cost = 0;
+	spell->fail = 0;
+	spell->fn = create_ammo_spell;
 
 	spell = &spells[ct++];
 	spell->level = 50;
@@ -925,6 +925,7 @@ static void _demon_calc_bonuses(void)
 {
 	p_ptr->resist_fire = TRUE;
 	p_ptr->skills.dev += 50 * p_ptr->lev/50;
+	p_ptr->device_power += 5 * p_ptr->lev/50;
 	if (p_ptr->lev > 14) p_ptr->hold_life = TRUE;
 	p_ptr->stat_add[A_INT] += 5 * p_ptr->lev/50;
 	if (p_ptr->lev > 44)
@@ -935,44 +936,10 @@ static void _demon_calc_bonuses(void)
 
 static void _aberration_calc_bonuses(void)
 {
-	if (!mut_present(MUT_HORNS))
-	{
-		mut_gain(MUT_HORNS);
-		mut_lock(MUT_HORNS);
-	}
+	p_ptr->resist_chaos = TRUE;
 	p_ptr->skills.thb += 100 * p_ptr->lev/50;
-	if (p_ptr->lev > 14)
-	{
-		/* only give it if they don't already have it */
-		if (!mut_present(MUT_BEAK))
-		{
-			mut_gain(MUT_BEAK);
-			mut_lock(MUT_BEAK);
-		}
-	}
-	/* only remove it if they got it from us ... hey, they could have used !Poly */
-	else if (mut_present(MUT_BEAK) && mut_locked(MUT_BEAK))
-	{
-		mut_unlock(MUT_BEAK);
-		mut_lose(MUT_BEAK);
-	}
-	if (p_ptr->lev > 14)
-	{
-		/* only give it if they don't already have it */
-		if (!mut_present(MUT_TENTACLES))
-		{
-			mut_gain(MUT_TENTACLES);
-			mut_lock(MUT_TENTACLES);
-		}
-	}
-	/* only remove it if they got it from us ... hey, they could have used !Poly */
-	else if (mut_present(MUT_TENTACLES) && mut_locked(MUT_TENTACLES))
-	{
-		mut_unlock(MUT_TENTACLES);
-		mut_lose(MUT_TENTACLES);
-	}
 	p_ptr->stat_add[A_DEX] += 5 * p_ptr->lev/50;
-	if (p_ptr->lev > 44) p_ptr->telepathy = TRUE;	/* Easier then granting MUT3_ESP :) */
+	if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;	/* Easier then granting MUT3_ESP :) */
 }
 
 static caster_info * _caster_info(void)

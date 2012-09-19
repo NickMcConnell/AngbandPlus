@@ -166,6 +166,11 @@ bool nemesis_hack = FALSE;
 bool retaliation_hack = FALSE;
 int retaliation_count = 0;
 
+static int _aura_dam_p(void)
+{
+	return 2 + damroll(1 + (p_ptr->lev / 10), 2 + (p_ptr->lev / 10));
+}
+
 /*
  * Attack the player via physical attacks.
  */
@@ -910,6 +915,8 @@ bool make_attack_normal(int m_idx)
 							/* Don't heal more than max hp */
 							heal = MIN(heal, m_ptr->maxhp - m_ptr->hp);
 
+							obvious = TRUE;
+
 							/* Hack: Resist Charge Drain 
 							   We could make this a general ability, but for now,
 							   high level Demon Warlocks get this at CL40
@@ -917,31 +924,20 @@ bool make_attack_normal(int m_idx)
 							if ( p_ptr->pclass == CLASS_WARLOCK
 							  && p_ptr->psubclass == PACT_DEMON
 							  && p_ptr->lev > 39 
-							  && saving_throw(p_ptr->skills.sav - r_ptr->level/2) )
+							  /*&& saving_throw(p_ptr->skills.sav - r_ptr->level/2)*/ )
 							{
 								msg_print("Energy begins to drain from your pack, but you resist!");
-								drained = TRUE;
 								break;
 							}
 
 							if (mut_present(MUT_DEMONIC_GRASP))
 							{
 								msg_print("Energy begins to drain from your pack, but you resist!");
-								drained = TRUE;
 								break;
 							}
 
-							/* Message */
-#ifdef JP
-							msg_print("ザックからエネルギーが吸い取られた！");
-#else
-							msg_print("Energy drains from your pack!");
-#endif
+							msg_print(T("Energy drains from your pack!", "ザックからエネルギーが吸い取られた！"));
 							drained = TRUE;
-
-
-							/* Obvious */
-							obvious = TRUE;
 
 							/* Heal the monster */
 							m_ptr->hp += heal;
@@ -1215,6 +1211,7 @@ bool make_attack_normal(int m_idx)
 
 						/* Skip non-food objects */
 						if ((o_ptr->tval != TV_FOOD) && !((o_ptr->tval == TV_CORPSE) && (o_ptr->sval))) continue;
+						if (object_is_artifact(o_ptr)) continue;
 
 						/* Get a description */
 						object_desc(o_name, o_ptr, (OD_OMIT_PREFIX | OD_NAME_ONLY));
@@ -2036,7 +2033,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				{
 					if (!(r_ptr->flagsr & RFR_EFF_IM_FIRE_MASK))
 					{
-						int dam = damroll(2, 6);
+						int dam = _aura_dam_p();
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -2068,7 +2065,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				{
 					if (!(r_ptr->flagsr & RFR_EFF_IM_ELEC_MASK))
 					{
-						int dam = damroll(2, 6);
+						int dam = _aura_dam_p();
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -2100,7 +2097,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				{
 					if (!(r_ptr->flagsr & RFR_EFF_IM_COLD_MASK))
 					{
-						int dam = damroll(2, 6);
+						int dam = _aura_dam_p();
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);
@@ -2133,7 +2130,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 				{
 					if (!(r_ptr->flagsr & RFR_EFF_RES_SHAR_MASK))
 					{
-						int dam = damroll(2, 6);
+						int dam = _aura_dam_p();
 
 						/* Modify the damage */
 						dam = mon_damage_mod(m_ptr, dam, FALSE);

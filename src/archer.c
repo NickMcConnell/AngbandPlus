@@ -300,7 +300,7 @@ void create_ammo_spell(int cmd, variant *res)
 		var_set_string(res, T("Create Ammo", ""));
 		break;
 	case SPELL_DESC:
-		var_set_string(res, T("Create arrows, bolts are shots.", ""));
+		var_set_string(res, T("Create arrows, bolts or shots.", ""));
 		break;
 	case SPELL_CAST:
 		var_set_bool(res, do_cmd_archer());

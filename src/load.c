@@ -1333,6 +1333,16 @@ static void rd_extra(void)
 	}
 
 	rd_s16b(&p_ptr->tim_sh_fire);
+	if (h_older_than(0, 0, 124, 1))
+	{
+		p_ptr->tim_sh_elements = 0;
+		p_ptr->tim_weaponmastery = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->tim_sh_elements);
+		rd_s16b(&p_ptr->tim_weaponmastery);
+	}
 
 	rd_s16b(&p_ptr->tim_sh_holy);
 	rd_s16b(&p_ptr->tim_eyeeye);

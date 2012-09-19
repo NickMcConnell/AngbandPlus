@@ -224,6 +224,7 @@ extern void super_stealth_spell(int cmd, variant *res);
 extern void swap_pos_spell(int cmd, variant *res);
 extern void sword_dance_spell(int cmd, variant *res);
 extern void take_photo_spell(int cmd, variant *res);
+extern void telepathy_spell(int cmd, variant *res);
 extern void telekinesis_spell(int cmd, variant *res);
 extern void teleport_spell(int cmd, variant *res);
 extern void teleport_level_spell(int cmd, variant *res);

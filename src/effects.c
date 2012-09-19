@@ -642,6 +642,8 @@ void dispel_player(void)
 	(void)set_tim_levitation(0, TRUE);
 	(void)set_tim_sh_touki(0, TRUE);
 	(void)set_tim_sh_fire(0, TRUE);
+	(void)set_tim_sh_elements(0, TRUE);
+	(void)set_tim_weaponmastery(0, TRUE);
 	(void)set_tim_sh_holy(0, TRUE);
 	(void)set_tim_eyeeye(0, TRUE);
 	(void)set_magicdef(0, TRUE);
@@ -8577,4 +8579,82 @@ bool set_tim_inven_prot(int v, bool do_dec)
 	p_ptr->update |= PU_BONUS;
 	handle_stuff();
 	return TRUE;
+}
+
+bool set_tim_sh_elements(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (p_ptr->is_dead) return FALSE;
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (v)
+	{
+		if (p_ptr->tim_sh_elements && !do_dec)
+		{
+			if (p_ptr->tim_sh_elements > v) return FALSE;
+		}
+		else if (!p_ptr->tim_sh_elements)
+		{
+			msg_print("You are enveloped in the elements!");
+			notice = TRUE;
+		}
+	}
+	else
+	{
+		if (p_ptr->tim_sh_elements)
+		{
+			msg_print("Your elemental cloak has vanished.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_sh_elements = v;
+	p_ptr->redraw |= (PR_STATUS);
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+	return (TRUE);
+}
+
+bool set_tim_weaponmastery(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	if (p_ptr->is_dead) return FALSE;
+	if (!do_dec)
+		v = recalc_duration_pos(v);
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (v)
+	{
+		if (p_ptr->tim_weaponmastery && !do_dec)
+		{
+			if (p_ptr->tim_weaponmastery > v) return FALSE;
+		}
+		else if (!p_ptr->tim_weaponmastery)
+		{
+			msg_print("Your weapon seems more powerful!");
+			notice = TRUE;
+		}
+	}
+	else
+	{
+		if (p_ptr->tim_weaponmastery)
+		{
+			msg_print("Your weapon returns to normal.");
+			notice = TRUE;
+		}
+	}
+
+	p_ptr->tim_weaponmastery = v;
+	p_ptr->redraw |= (PR_STATUS);
+	if (!notice) return (FALSE);
+	if (disturb_state) disturb(0, 0);
+	p_ptr->update |= (PU_BONUS);
+	handle_stuff();
+	return (TRUE);
 }

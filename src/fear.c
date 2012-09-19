@@ -119,7 +119,12 @@ bool fear_set_p(int v)
 	return TRUE;
 }
 
-/* Odds that 1dL1 <= 1dL2 */
+/* Odds that 1dL1 <= 1dL2 
+   Addendum: I worked out closed forms for the odds
+   that 1dM <= 1dN. There are 2 cases:
+   [1] M<=N: p = (2N-M+1)/2N
+   [2] M>N:  p = (N+1)/2M
+ */
 static double _save_odds(int l1, int l2)
 {
 	double w1 = 1.0/(double)l1;
@@ -232,6 +237,8 @@ bool fear_save_p(int ml)
 	if (inventory[INVEN_HEAD].name1 == ART_ARES) return TRUE;
 
 	pl = p_ptr->lev + adj_stat_save[p_ptr->stat_ind[A_CHR]];
+	if (pl < 1) pl = 1;
+
 	if (prace_is_(RACE_SNOTLING)) ml *= 2;
 
 	if (randint1(ml) <= randint1(pl)) result = TRUE;
@@ -266,6 +273,8 @@ bool fear_save_m(monster_type *m_ptr)
 	/* Player may not exert their force of will out of sight! */
 	if (projectable(py, px, m_ptr->fy, m_ptr->fx))
 		pl += adj_stat_save[p_ptr->stat_ind[A_CHR]];
+
+	if (pl <= 1) return TRUE;
 
 	if (randint1(pl) <= randint1(ml)) result = TRUE;
 
@@ -481,7 +490,7 @@ bool fear_process_m(int m_idx)
 				msg_format("%^s recovers %s courage.", m_name, m_poss);
 			}
 		}
-		else if (one_in_(13) && !fear_save_m(m_ptr))
+		else if (one_in_(3) && !fear_save_m(m_ptr))
 		{
 			if (is_seen(m_ptr))
 			{

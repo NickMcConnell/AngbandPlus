@@ -1819,12 +1819,9 @@ take_hit(DAMAGE_NOESCAPE, damage, "冷気のオーラ", -1);
 
 				if (dam > p_ptr->chp)
 					dam = p_ptr->chp;
-
-				if (p_ptr->wizard)
-					msg_format("%d passwall damage (Was %d)", dam, old);
 			}
 			else
-				dam = 1 + (p_ptr->lev/5);
+				dam = MAX(1 + (p_ptr->lev/5), 1 + p_ptr->mhp/24);
 
 			take_hit(DAMAGE_NOESCAPE, dam, dam_desc, -1);
 		}
@@ -2070,6 +2067,12 @@ static void process_world_aux_timeout(void)
 	{
 		(void)set_tim_sh_fire(p_ptr->tim_sh_fire - 1, TRUE);
 	}
+
+	if (p_ptr->tim_sh_elements)
+		set_tim_sh_elements(p_ptr->tim_sh_elements - 1, TRUE);
+
+	if (p_ptr->tim_weaponmastery)
+		set_tim_weaponmastery(p_ptr->tim_weaponmastery - 1, TRUE);
 
 	/* Timed sh_holy */
 	if (p_ptr->tim_sh_holy)
