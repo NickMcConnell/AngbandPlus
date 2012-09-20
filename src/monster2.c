@@ -1675,9 +1675,8 @@ s16b get_mon_num(int level)
 		if (!p_ptr->inside_battle && !chameleon_change_m_idx)
 		{
 			/* Hack -- "unique" monsters must be "unique" */
-			if (((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			     (r_ptr->flags7 & (RF7_NAZGUL))) &&
-			    (r_ptr->cur_num >= r_ptr->max_num))
+			if ( ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_NAZGUL) || (r_idx == MON_CAMELOT_KNIGHT)) 
+			  && r_ptr->cur_num >= r_ptr->max_num)
 			{
 				/* Serpent can "resurrect" uniques, but not weak ones! */
 				if (!summon_cloned_okay || r_ptr->level < 70) continue;
@@ -4128,7 +4127,12 @@ bool place_monster(int y, int x, u32b mode)
 
 	/* Pick a monster */
 	r_idx = get_mon_num(monster_level);
-
+#if defined _DEBUG
+	if ((r_info[r_idx].flags2 & RF2_CAMELOT))
+	{
+		msg_print("Camelot!!");
+	}
+#endif
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 

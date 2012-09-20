@@ -2527,6 +2527,7 @@ if (arg_fiddle) note("メッセージをロードしました");
 
 		/* Hack -- Non-unique Nazguls are semi-unique */
 		else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = MAX_NAZGUL_NUM;
+		else if (i == MON_CAMELOT_KNIGHT) r_ptr->max_num = 10;
 	}
 
 	/* Monster Memory */
