@@ -1624,7 +1624,7 @@ B:HIT:HURT:2d4
 F:MALE | GOOD | HAS_LITE_1 | HUMAN |
 F:FORCE_SLEEP | 
 F:DROP_60 | WILD_ALL | DROP_SKELETON | DROP_CORPSE |
-F:OPEN_DOOR | BASH_DOOR | EAT_GIVE_WIS | EAT_LOSE_INT
+F:OPEN_DOOR | BASH_DOOR | EAT_GIVE_WIS | EAT_LOSE_INT | KNIGHT
 S:1_IN_9 | 
 S:SCARE | CAUSE_1
 D:$An adventurer both devoutly religious and skillful in combat. 
@@ -2408,7 +2408,7 @@ W:8:2:40:20:500:1038
 B:HIT:HURT:2d4
 B:HIT:HURT:2d4
 F:MALE | GOOD | WILD_ALL | DROP_SKELETON | DROP_CORPSE
-F:FORCE_SLEEP | HAS_LITE_2 | HUMAN |
+F:FORCE_SLEEP | HAS_LITE_2 | HUMAN | KNIGHT
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_9 | 
@@ -13133,7 +13133,7 @@ F:IM_POIS | IM_FIRE | IM_ELEC | IM_ACID | IM_COLD | GOOD | HUMAN | HAS_LITE_2 |
 F:RES_LITE | RES_DARK | RES_NETH | RES_SHAR | RES_SOUN |
 F:RES_CHAO | RES_NEXU | RES_DISE | RES_TIME | RES_TELE |
 F:DROP_SKELETON | DROP_CORPSE | NO_SLEEP | NO_CONF | NO_STUN |
-F:DROP_1D2 | DROP_90 | DROP_60 | FRIENDS | REFLECTING |
+F:DROP_1D2 | DROP_90 | DROP_60 | FRIENDS | REFLECTING | KNIGHT
 F:MALE | OPEN_DOOR | BASH_DOOR | FORCE_MAXHP
 S:1_IN_12
 S:HEAL 
@@ -15416,9 +15416,9 @@ F:FORCE_SLEEP | FORCE_MAXHP | EVIL | SMART | DROP_CORPSE
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:NO_SLEEP | NO_CONF | NO_STUN | IM_POIS | IM_COLD | IM_FIRE | IM_ACID
 S:1_IN_3
-S:BR_NEXU | BR_CHAO | HOLD | SLOW | BR_INER | BA_NUKE |
+S:BR_NEXU | BR_CHAO | HOLD | SLOW | BR_INER | BA_NUKE | 
 S:MIND_BLAST | BRAIN_SMASH | CONF | BLIND | TELE_TO | HEAL |
-S:TELE_AWAY | TELE_LEVEL | TPORT | S_UNDEAD | S_DEMON | DRAIN_MANA
+S:TELE_AWAY | TELE_LEVEL | TPORT | S_KIN | DRAIN_MANA
 D:$"Young with the youth that is outside time, and with a beauteous
 D:$bearded face, curved, smiling lips, Olympian brow; and dense locks 
 D:$waving and poppy-crowned."
@@ -19175,7 +19175,7 @@ B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:MALE | HUMAN |
 F:FORCE_SLEEP | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE
+F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE | KNIGHT
 F:GOOD
 S:1_IN_8 | 
 S:CONF | HOLD | CAUSE_3 | HEAL
@@ -20871,7 +20871,7 @@ B:HIT:HURT:10d5
 F:MALE | FORCE_MAXHP | HUMAN |
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART |
-F:GOOD | NO_SLEEP | HAS_LITE_1 |
+F:GOOD | NO_SLEEP | HAS_LITE_1 | KNIGHT
 S:1_IN_4 | 
 S:HEAL | SCARE | CAUSE_3 | CAUSE_4 | HASTE | BLIND | S_ANGEL
 D:$It seems that the more devout the person, the more likely they are to cross 
@@ -20894,7 +20894,7 @@ B:HIT:HURT:4d5
 B:HIT:HURT:4d5
 F:MALE | GOOD | HUMAN |
 F:DROP_1D2 | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | KNIGHT
 S:1_IN_4 | 
 S:HEAL | CAUSE_1 | CAUSE_2 | SLOW | SCARE | BLIND
 D:$A warrior for a holy cause. Unfortunately, his god is not yours, and there is 
@@ -22035,7 +22035,7 @@ F:SMART | TAKE_ITEM | BASH_DOOR | HAS_LITE_2 |
 F:OLYMPIAN | REGENERATE |
 F:DROP_CORPSE | POWERFUL | CAN_SWIM
 F:IM_FIRE | IM_COLD | IM_ACID | IM_POIS | IM_ELEC
-F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR
+F:NO_STUN | NO_CONF | NO_SLEEP | AURA_FEAR | NO_FEAR
 S:1_IN_5 | 
 S:TELE_TO | SPECIAL
 D:$Ares is the bold son of Zeus and Hera, whose very name is
@@ -22230,6 +22230,227 @@ S:1_IN_1 |
 S:BLINK | BO_MANA | BA_CHAO | BA_FIRE | TPORT  | PSY_SPEAR
 D:固い金属に包まれたスライムだ。
 
+N:1111:TRANSLATE
+E:Arthur Pendragon
+G:p:r
+I:120:60d20:30:90:15
+W:32:3:999:2000:0:0
+B:HIT:HURT:4d8
+B:HIT:HURT:4d8
+B:HIT:BLIND:2d8
+B:HIT:CONFUSE:2d8
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY | REFLECTING |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT
+F:SMART | TAKE_ITEM | OPEN_DOOR | CAN_SWIM |
+F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_POIS | IM_ELEC |
+F:NO_CONF | NO_SLEEP | CAMELOT | KNIGHT | HAS_LITE_1
+S:1_IN_4 | 
+S:SHOOT | TPORT | HEAL | BO_FIRE | BA_ACID |
+S:SHRIEK | HASTE | TELE_TO | S_KIN
+D:$Arthur Pendragon, who wields the Sword in the Stone and
+D:$rules the Knights of Camelot.  He charges at you with
+D:$righteous vengeance for upsetting his realm.
+
+N:1112:TRANSLATE
+E:Sir Lancelot
+G:p:b
+I:125:65d20:30:120:15
+W:30:3:999:1800:0:0
+B:SLASH:TERRIFY:20d1
+B:SLASH:TERRIFY:20d1
+B:SLASH:TERRIFY:20d1
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
+F:DROP_2D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
+F:SMART | TAKE_ITEM | OPEN_DOOR | 
+F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC |
+F:NO_FEAR | NO_SLEEP | AURA_REVENGE | CAMELOT | KNIGHT | HAS_LITE_1
+S:1_IN_6 | 
+S:TELE_TO | HEAL | S_KIN
+D:$The strongest of the Knights, Lancelot is also the most handsome,
+D:$and leaves a trail of broken hearts in his wake.  Fated never 
+D:$to be with his true love Guinevere, Lancelot nevertheless protects
+D:$her whenever he needs to, even if it means destroying Camelot
+
+N:1113:TRANSLATE
+E:Sir Gawain
+G:p:o
+I:122:40d20:30:90:15
+W:29:3:999:1800:0:0
+B:HIT:CONFUSE:14d6
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
+F:DROP_2D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
+F:SMART | TAKE_ITEM | OPEN_DOOR | 
+F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_FIRE | IM_POIS | IM_ACID | IM_ACID |
+F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
+S:1_IN_3 | 
+S:SHOOT | BO_MANA | BLINK | TPORT | S_KIN
+D:$The second strongest of the Round Table, Gawain is usually
+D:$the voice of reason.
+
+N:1114:TRANSLATE
+E:Sir Galahad
+G:p:g
+I:124:50d20:30:110:15
+W:28:3:999:1800:0:0
+B:SLASH:TERRIFY:15d1
+B:HIT:CONFUSE:4d6
+B:HIT:BLIND:3d8
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
+F:SMART | TAKE_ITEM | OPEN_DOOR | REFLECTING |
+F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_FIRE | IM_ELEC | IM_COLD | IM_POIS | IM_ACID |
+F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
+S:1_IN_5 | 
+S:SHOOT | TELE_TO | TPORT | S_KIN
+D:$Sir Galahad the Pure takes after his father Lancelot in his
+D:$combat abilities and after his mother Elaine in his calm.  He
+D:$is the one who finally completed the Quest for the Holy Grail.
+
+N:1115:TRANSLATE
+E:Sir Gareth
+G:p:g
+I:120:50d20:30:80:15
+W:28:3:999:1800:0:0
+B:HIT:BLIND:4d6
+B:HIT:BLIND:4d6
+B:HIT:HURT:3d8
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
+F:SMART | TAKE_ITEM | OPEN_DOOR |
+F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_FIRE | IM_ELEC | IM_COLD |
+F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
+S:1_IN_5 | 
+S:SHOOT | BO_ELEC | HASTE | TELE_TO | TPORT | S_KIN
+D:$The protege of Lancelot and the younger brother of Gawain,
+D:$Gareth served as a Nexus of the Round Table, and after his
+D:$death, Camelot itself soon dissolved.
+
+N:1116:TRANSLATE
+E:Sir Kay
+G:p:u
+I:117:30d20:30:60:15
+W:22:3:999:1000:0:0
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:HURT:3d6
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
+F:SMART | TAKE_ITEM | OPEN_DOOR |
+F:EVIL | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_FIRE |
+F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
+S:1_IN_6 | 
+S:BO_FIRE | BLINK | TPORT | S_KIN
+D:$The weakest and most petty of the knights, Kay is often bullying
+D:$squires and pages, forcing them to do demeaning tasks.  Several
+D:$of the Knights in their youths suffered Kay.
+
+N:1117:TRANSLATE
+E:Camelot Knight
+G:p:w
+I:120:70d20:30:80:15
+W:26:1:999:1400:0:0
+B:HIT:BLIND:4d6
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+F:MALE | FORCE_SLEEP | MOVE_BODY |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | CAN_SWIM |
+F:SMART | TAKE_ITEM | OPEN_DOOR |
+F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_FIRE | IM_ACID | 
+F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
+S:1_IN_6 | 
+S:SHOOT | BO_FIRE | TELE_TO | BLINK | TPORT | S_KIN
+D:$A Knight of the Round Table of King Arthur's Court.
+
+N:1118:TRANSLATE
+E:Morgana Le Fay
+G:p:r
+I:122:35d20:30:90:15
+W:35:3:999:2500:0:0
+B:HIT:CONFUSE:2d6
+B:HIT:UN_BONUS:1d12
+B:HIT:PARALYZE:1d10
+B:HIT:LOSE_CON:1d8
+F:UNIQUE | FEMALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
+F:SMART | TAKE_ITEM | OPEN_DOOR | POWERFUL
+F:GOOD | EVIL | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_FIRE | IM_POIS | IM_ELEC | IM_ACID | IM_ACID |
+F:NO_SLEEP | NO_CONF | AURA_FEAR | CAMELOT | SELF_DARK_1
+S:1_IN_2 | 
+S:BO_MANA | TPORT | HEAL | HASTE | BA_WATE
+D:$The great keeper of Pagan traditions, Morgana Le Fay
+D:$is seen as a savior by some, and a witch by many.  She
+D:$refused to let her lands be invaded by Christianity,
+D:$and took to arms against her brother and lover.
+
+N:1119:TRANSLATE
+E:Mordred
+G:p:r
+I:122:55d20:30:90:15
+W:32:3:999:1800:0:0
+B:SLASH:TERRIFY:20d1
+B:HIT:CONFUSE:4d8
+B:HIT:PARALYZE:3d10
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
+F:SMART | TAKE_ITEM | OPEN_DOOR | POWERFUL
+F:GOOD | EVIL | HUMAN | REGENERATE | DROP_CORPSE |
+F:IM_ELEC | IM_ACID | IM_ACID |
+F:NO_SLEEP | NO_CONF | AURA_REVENGE | CAMELOT | SELF_DARK_1
+S:1_IN_6 | 
+S:BO_MANA | TPORT | HEAL | HASTE | BA_WATE
+D:$A mighty spellsword and the son of Morgana Le Fay,
+D:$Mordred is prophesized to unite the lands after
+D:$the fall of Camelot.
+
+N:1120:TRANSLATE
+E:Fearmaster
+G:p:u
+I:120:100d10:20:80:20
+W:29:3:80:1000:120000:1112
+B:HIT:TERRIFY:4d8
+B:HIT:TERRIFY:4d8
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:DROP_SKELETON | DROP_CORPSE | HUMAN |
+F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
+F:NO_FEAR | AURA_FEAR
+S:1_IN_3 | SCARE
+D:$A human, covered in bleached leather and decorated with
+D:$bones of foes defeated.  The sight of him puts fear 
+D:$into your heart.
+
+N:1121:TRANSLATE
+E:Grand Fearlord
+G:p:U
+I:135:50d100:20:120:20
+W:65:3:127:25000:0:0
+B:HIT:TERRIFY:8d10
+B:HIT:TERRIFY:8d10
+B:HIT:TERRIFY:8d10
+B:HIT:TERRIFY:8d10
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
+F:DROP_SKELETON | DROP_CORPSE | HUMAN |
+F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
+F:NO_FEAR | AURA_FEAR | POWERFUL
+S:1_IN_2 | SCARE | S_KIN | TELE_TO
+D:$A human, covered in bone armor and decorated with the
+D:$shriveled, preserved eyeballs of foes defeated.  The 
+D:$sight of him strikes terror into your soul.
 
 # N: serial number : monster name
 # G: symbol : color

@@ -6736,6 +6736,13 @@ W:50:0:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
+N:715:TRANSLATE
+E:& Goblet~:Golden
+G:":y
+I:40:35:0
+W:40:0:0:3:60000
+F:INSTA_ART
+
 # N: serial number : & object name~
 # G: symbol : color
 # I: tval : sval : pval

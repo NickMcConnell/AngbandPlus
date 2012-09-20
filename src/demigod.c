@@ -294,6 +294,7 @@ static void _ares_spoiler_dump(FILE *fff)
 static void _artemis_calc_bonuses(void)
 {
 	p_ptr->to_d_b += 5 + p_ptr->lev/7;
+	p_ptr->dis_to_d_b += 5 + p_ptr->lev/7;
 	p_ptr->sustain_dex = TRUE;
 }
 static void _artemis_get_flags(u32b flgs[TR_FLAG_SIZE])

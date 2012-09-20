@@ -1661,6 +1661,24 @@ msg_print("地面に落とされた。");
 			a_idx = ART_ROBIN_HOOD;
 			chance = 5;
 			break;
+
+		case MON_ARTHUR:
+			if (one_in_(20))
+			{
+				a_idx = ART_EXCALIBUR;
+				chance = 100;
+			}
+			else
+			{
+				a_idx = ART_EXCALIBUR_J;
+				chance = 25;
+			}
+			break;
+
+		case MON_GALAHAD:
+			a_idx = ART_HOLY_GRAIL;
+			chance = 10;
+			break;
 		}
 
 		if ((a_idx > 0) && ((randint0(100) < chance) || p_ptr->wizard))

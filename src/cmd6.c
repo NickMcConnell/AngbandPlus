@@ -4465,6 +4465,14 @@ static void do_cmd_activate_aux(int item)
 		/* Choose effect */
 		switch (o_ptr->name1)
 		{
+			case ART_HOLY_GRAIL:
+			{
+				msg_print("You drink from the holy grail!");
+				hp_player(50);
+				set_resist_magic(device_power(10 + randint1(10)), FALSE);
+				o_ptr->timeout = 12;
+				break;
+			}
 			case ART_STONE_OF_NATURE:
 			{
 				msg_print("Your stone hums softly.");

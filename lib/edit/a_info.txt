@@ -4219,6 +4219,13 @@ W:5:10:2:2000
 P:0:2d3:20:12:0
 F:KILL_GIANT
 
+N:293:TRANSLATE
+E:Goblet 'Holy Grail'
+I:40:35:3
+W:40:30:3:60000
+F:HIDE_TYPE | ACTIVATE | INSTA_ART | FULL_NAME
+F:WIS | CHR | RES_NETHER
+
 # N: serial number : item name
 # I: tval : sval : pval
 # W: depth : rarity : weight : cost

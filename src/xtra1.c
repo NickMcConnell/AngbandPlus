@@ -448,8 +448,7 @@ static void prt_stat(int stat)
 #define BAR_QUICK_WALK 141
 #define BAR_INVEN_PROT 142
 #define BAR_SHRIKE 143
-#define BAR_SH_ELEMENTS 144
-#define BAR_WEAPONMASTERY 145
+#define BAR_WEAPONMASTERY 144
 
 static struct {
 	byte attr;
@@ -678,7 +677,6 @@ static struct {
 	{TERM_YELLOW, "QW", "Quickwalk"},
 	{TERM_L_BLUE, "IP", "InvenProt"},
 	{TERM_YELLOW, "Sk", "Shrike"},
-	{TERM_YELLOW, "SE", "SElem"},
 	{TERM_L_BLUE, "Wp", "Weapon"},
 	{0, NULL, NULL}
 };
@@ -829,7 +827,14 @@ static void prt_status(void)
 	if (p_ptr->special_defense & NINJA_S_STEALTH) ADD_FLG(BAR_SUPERSTEALTH);
 
 	if (p_ptr->tim_sh_fire) ADD_FLG(BAR_SHFIRE);
-	if (p_ptr->tim_sh_elements) ADD_FLG(BAR_SH_ELEMENTS);
+	if (p_ptr->tim_sh_elements)
+	{
+		ADD_FLG(BAR_SHFIRE);
+		if (p_ptr->lev >= 25)	
+			ADD_FLG(BAR_SHCOLD);
+		if (p_ptr->lev >= 35)
+			ADD_FLG(BAR_SHELEC);
+	}
 	if (p_ptr->tim_weaponmastery) ADD_FLG(BAR_WEAPONMASTERY);
 
 	/* tim stealth */
@@ -3804,6 +3809,8 @@ void calc_bonuses(void)
 		}
 
 		skills_scale(&c_extra, p_ptr->lev, 10);
+
+		a_extra.stl = 0; /* Hengband never gave extra personality stealth with level ... */
 		skills_scale(&a_extra, p_ptr->lev, 50);
 
 		skills_init(&p_ptr->skills);
@@ -4103,8 +4110,10 @@ void calc_bonuses(void)
 	if (p_ptr->tim_sh_elements)
 	{
 		p_ptr->sh_fire = TRUE;
-		p_ptr->sh_cold = TRUE;
-		p_ptr->sh_elec = TRUE;
+		if (p_ptr->lev >= 25)
+			p_ptr->sh_cold = TRUE;
+		if (p_ptr->lev >= 35)
+			p_ptr->sh_elec = TRUE;
 	}
 
 	if (p_ptr->tim_res_time)

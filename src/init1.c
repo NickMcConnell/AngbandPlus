@@ -324,8 +324,8 @@ static cptr r_info_flags2[] =
 	"AURA_REVENGE",
 	"THIEF",
 	"AURA_FEAR",
-	"XXX",
-	"XXX",
+	"CAMELOT",
+	"KNIGHT",
 	"XXX",
 	"HUMAN",
 	"QUANTUM"

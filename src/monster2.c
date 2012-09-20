@@ -955,6 +955,19 @@ static bool summon_specific_aux(int r_idx)
 			okay = (r_ptr->flags3 & (RF3_OLYMPIAN)) ? TRUE : FALSE;
 			break;
 		}
+		case SUMMON_CAMELOT:
+		{
+			if ((r_ptr->flags2 & RF2_CAMELOT) && (r_ptr->flags2 & RF2_KNIGHT))
+				okay = TRUE;
+			else
+				okay = FALSE;
+			break;
+		}
+		case SUMMON_NIGHTMARE:
+		{
+			okay = (r_idx == MON_NIGHTMARE) ? TRUE : FALSE;
+			break;
+		}
 		case SUMMON_RAT:
 		{
 			okay = (r_ptr->d_char == 'r') ? TRUE : FALSE;

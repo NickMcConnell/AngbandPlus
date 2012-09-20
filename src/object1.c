@@ -1094,6 +1094,8 @@ return "Ì¤ÄêµÁ";
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
+		case ART_HOLY_GRAIL:
+			return "Heal 50hp and Resist Magic every 12 turns";
 		case ART_ZEUS:
 			return "Lightning Storm (555) every 5 turns";
 		case ART_POSEIDON:

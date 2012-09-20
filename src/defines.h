@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 124
+#define FAKE_VER_PATCH 125
 
 
 /*
@@ -46,8 +46,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 124
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 125
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1
@@ -1546,6 +1546,8 @@
 #define ART_STONE_OF_CRAFT  290
 #define ART_STONE_OF_WAR    291
 
+#define ART_HOLY_GRAIL      293
+
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
 
@@ -2256,6 +2258,7 @@
 #define SV_AMULET_APHRODITE				32
 #define SV_AMULET_HIGH_RESISTANCE       33
 #define SV_AMULET_TRICKERY              34
+#define SV_AMULET_HOLY_GRAIL            35
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                      0
@@ -3049,6 +3052,8 @@
 #define SUMMON_KRAKEN				80
 #define SUMMON_THIEF                81
 #define SUMMON_ENT                  82
+#define SUMMON_CAMELOT              83
+#define SUMMON_NIGHTMARE            84
 
 
 /*
@@ -3688,8 +3693,8 @@
 #define RF2_AURA_REVENGE	0x01000000  
 #define RF2_THIEF           0x02000000
 #define RF2_AURA_FEAR       0x04000000
-#define RF2_XXX4            0x08000000
-#define RF2_XXX5            0x10000000
+#define RF2_CAMELOT         0x08000000
+#define RF2_KNIGHT          0x10000000
 #define RF2_XXX6            0x20000000
 #define RF2_HUMAN           0x40000000  /* Human */
 #define RF2_QUANTUM         0x80000000  /* Monster has quantum behavior */
@@ -5114,6 +5119,7 @@ extern int PlayerUID;
 #define MON_SERAPH        605
 #define MON_KAVLAX        616
 #define MON_ETTIN         621
+#define MON_NIGHTMARE     622
 #define MON_VAMPIRE_LORD  623
 #define MON_JUBJUB        640
 #define MON_CLUB_DEMON    648
@@ -5167,6 +5173,7 @@ extern int PlayerUID;
 #define MON_CHAOS_HOUND   779
 #define MON_ULT_BEHOLDER  781
 #define MON_SHAMBLER      786
+#define MON_HYPNOS        787
 #define MON_BLEYS         789
 #define MON_FIONA         791
 #define MON_SKY_DRAKE     793
@@ -5297,12 +5304,18 @@ extern int PlayerUID;
 #define MON_HERA		1105
 #define MON_DEMETER		1106
 #define MON_APHRODITE	1107
+
 /* The Metal Babble guards the Arena dungeon, but this requires the guardian to be a unique
    monster or the dungeon never gets flagged as completed. Note, this messes up the needle 
    code in py_attack_aux() since the needle doesn't work on uniques, but I think I have 
    that fixed now ... sigh
 */
 #define MON_HAGURE2        1110
+
+#define MON_ARTHUR		1111
+#define MON_GALAHAD     1114
+#define MON_CAMELOT_KNIGHT 1117
+#define MON_GRAND_FEARLORD 1121
 
 /* Maximum "Nazguls" number */
 #define MAX_NAZGUL_NUM 5

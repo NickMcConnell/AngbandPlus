@@ -4234,6 +4234,75 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 				}
 				break;
 			}
+			else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT)
+			{
+				disturb(1, 0);
+				if (blind) msg_format("%^s mumbles.", m_name);
+				else msg_format("%^s magically summons Knights!", m_name);
+
+				for (k = 0; k < s_num_4; k++)
+				{
+					count += summon_specific(
+						m_idx, 
+						y, 
+						x, 
+						rlev, 
+						SUMMON_KNIGHTS, 
+						(PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
+					);
+				}
+				if (blind && count)
+				{
+					msg_print("You hear brave beings appear nearby.");
+				}
+				break;
+			}
+			else if (r_ptr->flags2 & RF2_CAMELOT)
+			{
+				disturb(1, 0);
+				if (blind) msg_format("%^s mumbles.", m_name);
+				else msg_format("%^s magically summons Knights of the Round Table!", m_name);
+
+				for (k = 0; k < s_num_4; k++)
+				{
+					count += summon_specific(
+						m_idx, 
+						y, 
+						x, 
+						rlev, 
+						SUMMON_CAMELOT, 
+						(PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
+					);
+				}
+				if (blind && count)
+				{
+					msg_print("You hear noble beings appear nearby.");
+				}
+				break;
+			}
+			else if (m_ptr->r_idx == MON_GRAND_FEARLORD || m_ptr->r_idx == MON_HYPNOS)
+			{
+				disturb(1, 0);
+				if (blind) msg_format("%^s mumbles.", m_name);
+				else msg_format("%^s magically summons your worst nightmares!", m_name);
+
+				for (k = 0; k < s_num_4; k++)
+				{
+					count += summon_specific(
+						m_idx, 
+						y, 
+						x, 
+						rlev, 
+						SUMMON_NIGHTMARE, 
+						(PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
+					);
+				}
+				if (blind && count)
+				{
+					msg_print("You hear terrifying things appear nearby.");
+				}
+				break;
+			}
 			disturb(1, 0);
 			if (m_ptr->r_idx == MON_SERPENT || m_ptr->r_idx == MON_ZOMBI_SERPENT)
 			{

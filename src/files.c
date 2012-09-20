@@ -2787,8 +2787,10 @@ static void tim_player_flags(u32b flgs[TR_FLAG_SIZE])
 	if (p_ptr->tim_sh_elements)
 	{
 		add_flag(flgs, TR_SH_FIRE);
-		add_flag(flgs, TR_SH_COLD);
-		add_flag(flgs, TR_SH_ELEC);
+		if (p_ptr->lev >= 25)
+			add_flag(flgs, TR_SH_COLD);
+		if (p_ptr->lev >= 35)
+			add_flag(flgs, TR_SH_ELEC);
 	}
 	if (p_ptr->ult_res)
 	{
