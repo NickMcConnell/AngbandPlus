@@ -1,0 +1,67 @@
+====Updated Quiver FAQ/Info sheet  Th 11-18-93 version================
+:INTRODUCTION:
+
+The quiver would allow missle ammo (ie. shots, arrows, bolts, etc.) to
+be stored in the equiptment list for more convenient (f)iring/(t)hrowing
+using a separate fire_from_quiver command.
+
+Please consider that IMHO the addition of a quiver is not an unbalancing
+addition, because it is more of a convenience than a new ability like
+targetting or recharging rods.  I would compare it with the running code
+which speeds play, but does not give any extra power to a character.
+
+I have decided to go with (s)hoot from quiver and (I)nvestigate for the 
+time being, since I like that (s)hooting requires only one key and the 
+change of (s)earch a turn to (I)nvestigate a turn seems worth this cost. 
+
+:GENERAL INFO:
+
+Q: If you steal a slot what is the point of having a separate quiver at
+all??
+A: Any missile ammo can be stored in the quiver, at the expense of a slot,
+making it available to a separate fire_from_quiver command.  The usefulness
+of this is that you can target a monster, then blast him with one command,
+There is no need to type '*' to make sure your using ammo rather than 
+treasure and you don't even have to specify the slot to use.  Compare these
+command strings: "t*v<dir>" or "tv<dir>" versus "s<dir>".  If you have
+and use targetting you can even skip specifying a direction.  This makes
+using the missle weapons as easy as easy as using mage/priest bolt spells
+and prevents the accidental loss of artifacts/valuables.  This may not
+seem like much, but my experience is that many people consider using 
+missle weapons to be too much fuss and too potentially dangerous (it only
+takes one mistyped key to throw something valuable/necessary by mistake
+even for the careful player).
+
+Q: So all of this actually works?!
+A: Some more testing is needed, but, at the expense of some coding ugliness
+(something otherwise lacking in UMoria/Anband ;) ), all of this works just
+fine.
+[a bit of the coding ugliness has been fixed -DGK]
+
+:GENERAL NOTES:
+
+The quiver unloads itself when emptied so all you need to do is load, aim,
+fire.  You simply (w)ield/wear missle ammos to load the quiver, then fire
+with the fire_from_quiver command (CRTL-S for now), or unload with a (t)ake
+off or (T)ake off command.  You can, of course, (d)rop missle ammo from 
+the quiver straight to the dungeon floor.
+
+Differences from the PMoria quiver:
+1) You can pick-up ammo that has missed target and it will stack with that
+already in the quiver.  This was a _major_ ommission of PMoria IMHO.
+2) FAngband has the Morgul targetting code!  This means that for the first 
+time you can potentially pump a monster with missle ammo with one keystroke!!
+3) The quiver is added at the top of the equipment list rather than the
+bottom.
+
+Note, however, that to simplify coding a scroll of Enchant Weapon or
+*Enchant Weapon* enchants whatever is being wielded if something is being
+wielded or whatever is in the quiver otherwise.  Be sure to unwield your 
+weapon _before_ reading the enchant scroll if you want the _ammo_ enchanted.  
+I have chosen this arrangement so missle ammo can still be improved by 
+enchantment.  In non-quiver Angband you can wield missle ammo to enchant it, 
+but in FAngband with the quiver missle ammo always goes in the quiver when 
+you (w)ield/wear it.  I figured missle weapons are much less useful if you 
+cannot better the ammo you find.
+
+                                            John L. Spetz

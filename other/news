@@ -1,0 +1,21 @@
+                         ******************************
+                         **  Angband 2.4.Frog-knows  **
+                         ******************************
+            Based on Umoria: Copyright (c) 1985 Robert Alan Koeneke
+                       Copyright (c) 1989 James E. Wilson
+                            PC FAngband release 1.00
+
+                  Hacked By: Alex Cutler, Andy Astrand
+                  Further Hacks By: Sean Marsh, Geoff Hill
+                  PC Port and Yet More Hacks By: Charles Teague
+                  Renaming and Even More Hacks By: David G. Kahane
+                  With TC++ Color Code By: Justin Anderson
+                  And Miscellaneous Patches By: Lots of Helpful People
+News:
+    *  Priests (and Paladins) need spellbooks to learn spells.
+    *  Angband now has the targetting code from Morgul!  Use '*' to target.
+    *  Lots o' new stuff.  See FAngband.Chg for details. -DGK
+Bugs:
+    *  Bug reports: email dgk4@po.cwru.edu
+    *  Probing sometimes completely ignores a monster.
+    *  Sometimes "special offers" in the stores seem to be ignored.

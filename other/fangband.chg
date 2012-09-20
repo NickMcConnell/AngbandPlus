@@ -1,0 +1,166 @@
+1) Ethan A. Merritt's code for multiple bowshots by rangers (though not
+   multiple slingshots for hobbits)
+2) Addition of Triple Crossbows (basically, Light Crossbows that shoot three
+   bolts (and no less) in a round)
+3) Composite Bows returned to the code;
+4) Shawn A. Collenburg's deferred feelings code.  Basically, you no longer
+   get level feelings as soon as you enter a level; the feeling is stored,
+   and, depending on your actions, is eventually revealed to the player.
+   Generally a feeling happens when a third to half the level is explored,
+   earlier if the feeling is a "special" one.
+5) The fix for warrior-identification (so the correct slot is indicated);
+6) Priests using edged weapons will suffer a penalty (25%) to prayer success
+   rate, not to-hit and damage;
+7) Blessed blades that priests can use without penalty and increase wisdom
+   added.  Holy Avengers can also be used without penalty.
+8) "Blessed blade" attribute added to several artifacts;
+9) Law DSM becomes Shadow DSM (Resist Darkness, Nether),
+   Balance DSM becomes Crystal DSM (Resist Shards),
+   Shining DSM becomes Pseudo DSM (only a name change)
+10) Power DSM removed; Celestial DSM dropped by Tiamat.
+11) Wide-range permanent light (from Phial, rods, staves, spells, scrolls)
+12) Light spells (and scrolls, rods, staves, and the Phial) do a small amount
+    of damage to creatures normally hurt by light within their radius;
+13) New resistance rings (Nexus Resistance, Nether Resistance, Chaos
+    Resistance);
+14) John L. Spetz's Rod of Wall Building;
+15) John L. Spetz's diff to add a random "higher" resistance to armor/shields
+    of Elvenkind and Robes of the Magi;
+16) Meteor, Holy Orb, Plasma, Ice, Shards, Force, Sound, and Mana can destroy
+    certain types of items (like Frost, Acid, Fire, and Lightning already
+    did);
+17) Certain (kobolds, skeletons, yeeks, demons, orcs, ogres, liches and
+    trolls) uniques appear with escorts;
+18) Accents added to the names of many artifacts (this is #ifdef'd in... I'll
+    be posting two PC executables, on the off chance someone has nonstandard
+    code pages).  This isn't going to port at all, and it's kind of a pity.
+19) Whips can be ego weapons other than a simple "of Fire".  Also, Whips (2d6)
+    of Fire are now worth more than Whips (1d6) of Fire.
+20) Rings of Flame [+x], Acid [+x], and Ice [+x] now have varying bonuses to
+    AC;
+21) Heroic and Godly ratings added above Superb;
+22) Mana penalties for encumbrance are now based on armor weight as opposed to
+    armor base AC;
+23) 5 pound minimum for computing number of hits with melee weapons removed;
+24) Mages get their number of attacks per round halved (don't explode, y'all,
+    they get more than adequate compensation);
+25) Enchantment/Remove Curse overhaul:
+     a) *Enchant (Weapon/Armor)* can enchant to a rating 5 higher than normal
+	before having the (usual) miserable success rates;
+     b) Artifacts resist enchantment an additional 50% of the time (to balance
+	out (26), below);
+     c) Enchanting an item will not remove a curse on it, merely reduce the
+	penalties;
+     d) Remove Curse will remove the {cursed} inscription;
+     e) *Remove Curse* is required to unwield Calris, Mormegil, and weapons of
+	Morgul;
+     f) Auto-Identification no longer reduces the cost of an item to -1 (so
+	they're still salable... once the curse is removed);
+26) Artifacts have 2/3 chance to resist damage from acid and disenchantment;
+27) E-type monsters (elementals and such, that is) are damaged/destroyed the
+    same way undead and demons are;
+28) For all you people who like to use the 'g'et key, money
+    is automatically grabbed, and a 'You see <whatever item>'
+    message is displayed whenever you walk on to an item.
+29) Ball and bolt spells are more colorful (fire is red, yellow,
+    and white, instead of just red, for example);
+30) Featherfall provides partial resistance to gravity breath;
+31) destroy_area (from Word of Destruction, staves of *Destruction*, and such)
+    no longer destroys artifacts;
+32) Sets of Cestus are replaced with Sets of Cesti (Cestus is -singular-,
+    dammit! :) )
+33) Confuse Monster has an incremental effect based on player level;
+34) Ball spells can have various radii (for example, Ice Storm and Wands of
+    Dragon's (Breath/Frost/Flame) have a radius of 3);
+35) Equippy characters (so you can immediately see your beating on monsters
+    with swords as opposed to shovels) added as an option;
+36) Nearly all orcs, trolls, and undead can now be hurt by light;
+37) Rings of Extra Attacks (+1), and occasionally (+2), that increase the
+    number of attacks per round;
+38) Weapons of Speed (+1) through (+3), that also increase the number of
+    attacks per round.  Only lighter weapons can have the higher plusses.
+39) Thrown artifacts do not vanish; they'll either destroy the item they land
+    on if it's not an artifact, staircase, or store door, or do a random walk
+    if it is.
+40) Slightly altered UMoria 5.5 enchantment code added, so that weapons'
+    maximum +todam is the same as the maximum normal damage.  I did add a
+    cap (+20) on this so that Aglarang, the Glaive of Pain, etc. don't get
+    too far out of control.
+41) The annoying "HEY! Monster stuck in rock!" message has been removed.
+42) Monster fear is go.  Critically injured monsters ( < 10% hp) have a
+    chance of fleeing; Turn Undead causes fear as opposed to confusion.
+43) I added a couple of spells, namely Wizard Lock (works like spiking) and
+    Cone of Cold (like Spear of Light, but with cold) for mages, and Spiritual
+    Hammer (like magic-missile, but does less damage and can daze monsters)
+    and Cause Fear (like confuse monster, but different) for priests.
+44) Added "destroyed" levels (about one out of fifteen), where there are
+    several heavily damaged areas (as per Word of Destruction) and there's
+    a much greater chance of getting a player ghost.
+45) Added lava rivers that appear on about one level out of ten.
+    Basically, what happens with these is monsters that are not immune
+    to fire and can not phase through walls try not to step on the stuff,
+    and take damage if they do; the player takes fire damage from lava-
+    wading (go figure :) ), and many items tend to burn when thrown into
+    the stuff.  These should add some much-needed variety; I'm considering
+    tossing in some more special level types.
+46) Polymorph and Mass Polymorph changed, so that there's a greater chance
+    of getting a monster of approximately the same level as the original;
+47) Added more resistances to several artifacts; Resist Nexus, in particular,
+    is a lot more common.
+48) Gave the extra attack attribute to several artifacts (Elvagil, Haradekket,
+    Careth Asdriag, Gilettar, and Sting).  Also replaced the Ringil's Speed
+    attribute with three extra attacks.
+
+---Release of beta version 0.90: Nov 17 1993---
+
+49) Dungeon-found amulets, rings, staves, wands, rods, scrolls, potions,
+    mushrooms, and hairy molds retain their descriptions when identified;
+    i.e., you might find a "Crystal Amulet of Wisdom (+1)" instead of the
+    mundane, store-bought "Amulet of Wisdom (+1)".
+50) Bugfixes.  Most notably, you will no longer appear in lava immediately
+    upon entering a level, and items dropped or thrown into lava will burn
+    correctly.
+51) Special feelings are saved with the character; you will be able to
+    save and restore without fear of losing your feeling.
+52) Gauntlets of Free Action will not reduce a mage's mana, is the same
+    manner that Gauntlets of Agility don't.
+53) Fear enhancements:  Monsters will flee not only if reduced to 10% of
+    their hit points, but also if they are hit with a single blow for more
+    than half their current hit points.  Also, if cornered, monsters will
+    turn to fight instead of cheerfully standing there, facing a wall, until
+    killed.  I also patched over a consequence of the monster heal bug
+    (which is still out there... I haven't been able to find its cause,
+    either :( ) that would occasionally let gruesome software bugs kill
+    the player.
+54) I added (a somewhat modified form of) John Spetz's quiver code.
+55) Triple Crossbows are now a bit rarer, and a good deal less accurate on
+    the second and third bolts shot.  Triple Crossbows of Might or
+    Accuracy are now much rarer.
+56) I added a few choice mage spells into Wrath of God in exchange for
+    Dispel Undead/Evil.
+57) I played around a bit with monster resistances and made them more
+    logical (to my mind).  There remain very few monsters that now
+    resist everything.
+58) Wider temporary light has been implemented.  Torches are unchanged;
+    lanterns and the Arkenstone of Thrain have a light radius of two;
+    the Phial of Galadriel and the Star of Elendil have a light radius
+    of three.
+59) I added a bit of code that turned off the cursor except when awaiting
+    a keypress.  The flickering was hardly noticable in normal Angband and
+    tolerable in FAngband 0.90 with wide-radius explosions, but was
+    unbearable with wide-radius light.
+60) Added an option, Quick Messages, which, when enabled, allow you to
+    bypass the -more- prompt with any key, as opposed to just Escape, Space,
+    or Enter.  This is particularly useful when surrounded by lots of
+    wimpy monsters who like to miss you a lot, and you want to just hold
+    down '4' to beat on the monster to the left of you without having to
+    stop and pound on the space bar to get rid of the annoying -more-
+    messages.  (Doesn't -that- sound incoherent.)
+61) Added an option, Delay Speed, that controls the rate of animation
+    (bolt spells, thrown objects, and explosions).  This can range from
+    1 to 10; the old rate is 5.  Higher numbers yield quicker animation.
+62) Rings of Resist Fear have been added for the struggling warriors.
+    A few more wands and scrolls have also been tossed in.
+63) Elemental Branding will no longer work with missile weapons.  It will,
+    however, still work with missile ammo.
+
