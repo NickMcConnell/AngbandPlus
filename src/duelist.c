@@ -619,7 +619,7 @@ class_t *duelist_get_class_t(void)
 		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] =  2;
 		me.stats[A_CON] = -3;
-		me.stats[A_CHR] = -1;
+		me.stats[A_CHR] =  2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.hd = 2;

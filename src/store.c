@@ -904,7 +904,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
 
 	/* Add in the charisma factor */
-	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	factor += adj_gold[p_ptr->stat_ind[A_WIS]];
 
 
 	/* Shop is buying */

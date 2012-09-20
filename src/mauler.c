@@ -456,10 +456,10 @@ class_t *mauler_get_class_t(void)
 
 		me.stats[A_STR] =  6;
 		me.stats[A_INT] =  1;
-		me.stats[A_WIS] =  0;
+		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] = -4;
 		me.stats[A_CON] =  3;
-		me.stats[A_CHR] =  0;
+		me.stats[A_CHR] =  2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.hd = 9;

@@ -4274,6 +4274,20 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 						(PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
 					);
 				}
+				if (!count) /* In case they are all dead ... */
+				{
+					for (k = 0; k < s_num_4; k++)
+					{
+						count += summon_specific(
+							m_idx, 
+							y, 
+							x, 
+							rlev, 
+							SUMMON_KNIGHTS, 
+							(PM_ALLOW_GROUP | PM_ALLOW_UNIQUE)
+						);
+					}
+				}
 				if (blind && count)
 				{
 					msg_print("You hear noble beings appear nearby.");

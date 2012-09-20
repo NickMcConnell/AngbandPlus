@@ -85,6 +85,8 @@ bool fear_set_p(int v)
 	if (new_lvl > old_lvl)
 	{
 		msg_format("You feel %s.", _get_level_name(new_lvl));
+		if (old_lvl <= FEAR_SCARED && !fear_save_p(v/5))
+			do_dec_stat(A_CHR);
 		if (p_ptr->special_defense & KATA_MASK)
 		{
 			msg_print(T("Your posture gets loose.", "型が崩れた。"));

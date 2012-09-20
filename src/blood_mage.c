@@ -85,10 +85,10 @@ class_t *blood_mage_get_class_t(void)
 
 		me.stats[A_STR] = -4;
 		me.stats[A_INT] =  3;
-		me.stats[A_WIS] =  0;
+		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] =  1;
 		me.stats[A_CON] =  2;
-		me.stats[A_CHR] =  1;
+		me.stats[A_CHR] = -2;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.hd = 5;

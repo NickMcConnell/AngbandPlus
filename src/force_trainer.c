@@ -590,7 +590,7 @@ class_t *force_trainer_get_class_t(void)
 		me.stats[A_WIS] =  3;
 		me.stats[A_DEX] =  2;
 		me.stats[A_CON] =  1;
-		me.stats[A_CHR] =  1;
+		me.stats[A_CHR] =  0;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.hd = 2;

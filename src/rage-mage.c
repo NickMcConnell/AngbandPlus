@@ -1142,10 +1142,10 @@ class_t *rage_mage_get_class_t(void)
 					"races have also begun to learn their arts. ";
 		me.stats[A_STR] =  3;
 		me.stats[A_INT] = -2;
-		me.stats[A_WIS] =  0;
+		me.stats[A_WIS] = -2;
 		me.stats[A_DEX] = -2;
 		me.stats[A_CON] =  2;
-		me.stats[A_CHR] = -2;
+		me.stats[A_CHR] =  1;
 		me.base_skills = bs;
 		me.extra_skills = xs;
 		me.hd = 3;

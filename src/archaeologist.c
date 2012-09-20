@@ -813,7 +813,6 @@ static caster_info * _caster_info(void)
 static void _spoiler_dump(FILE* fff)
 {
 	spoil_spells_aux(fff, _spells);
-	fprintf(fff, "\nNote: The Archaeologist uses both Intelligence and Wisdom (averaged) when determining fail rates.\n");
 	
 	fprintf(fff, "\n== Abilities ==\n");
 	fprintf(fff, "  * +L/10 to Infravision\n");

@@ -609,7 +609,6 @@ race_t *demigod_get_race_t(int psubrace)
 			break;
 		case DEMIGOD_HADES:
 			me.stats[A_CON] += 3;
-			me.stats[A_CHR] -= 2;
 			me.skills.sav += 15;
 			me.hd += 3;
 			me.exp += 120;

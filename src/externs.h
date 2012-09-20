@@ -56,7 +56,7 @@ extern byte adj_mag_study[];
 extern byte adj_mag_mana[];
 extern byte adj_mag_fail[];
 extern byte adj_mag_stat[];
-extern byte adj_chr_gold[];
+extern byte adj_gold[];
 extern byte adj_pseudo_id[];
 extern byte adj_exp_gain[];
 extern s16b adj_fear_m[];

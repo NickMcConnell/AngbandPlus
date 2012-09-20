@@ -2591,7 +2591,7 @@ R:10:0
 
 ### Sorcerer ###
 N:14
-I:SORCERY:INT:0x01:0:1:40
+I:SORCERY:CHR:0x01:0:1:40
 # Life
 R:0:1
 T:1:1:30:4  #0
@@ -3959,7 +3959,7 @@ R:10:0
 
 ### Time Lord ###
 N:28
-I:LIFE:INT:0x00:0:1:400
+I:LIFE:CHR:0x00:0:1:400
 # Life
 R:0:0
 

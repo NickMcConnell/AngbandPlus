@@ -5561,25 +5561,6 @@ msg_print("致命的な傷を負ってしまった。");
 
 		/* Notice */
 		notice = TRUE;
-
-		if (randint1(1000) < v || one_in_(16))
-		{
-			if ((p_ptr->pclass == CLASS_BLOOD_KNIGHT || p_ptr->pclass == CLASS_BLOOD_MAGE) && !one_in_(2))
-			{
-				/* Let's tone down the scarring for blood knights, already */
-			}
-			else if (!p_ptr->sustain_chr)
-			{
-#ifdef JP
-msg_print("ひどい傷跡が残ってしまった。");
-#else
-				msg_print("You have been horribly scarred.");
-#endif
-
-
-				do_dec_stat(A_CHR);
-			}
-		}
 	}
 
 	/* Decrease cut */
@@ -6312,7 +6293,7 @@ static cptr desc_stat_neg[] =
 	"naive",
 	"clumsy",
 	"sickly",
-	"ugly"
+	"insecure"
 #endif
 
 };

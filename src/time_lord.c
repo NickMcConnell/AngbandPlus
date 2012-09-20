@@ -809,7 +809,7 @@ static spell_info _spells[] =
 
 static int _get_spells(spell_info* spells, int max)
 {
-	return get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_INT]);
+	return get_spells_aux(spells, max, _spells, p_ptr->stat_ind[A_CHR]);
 }
 
 static void _calc_bonuses(void)
@@ -918,11 +918,11 @@ class_t *time_lord_get_class_t(void)
 	}
 
 	me.stats[A_STR] =  0;
-	me.stats[A_INT] =  3;
+	me.stats[A_INT] =  0;
 	me.stats[A_WIS] =  1;
 	me.stats[A_DEX] =  0;
 	me.stats[A_CON] =  0;
-	me.stats[A_CHR] =  1;
+	me.stats[A_CHR] =  3;
 	if (!spoiler_hack)
 	{
 		int amount = 0;
