@@ -2353,9 +2353,6 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		char            m_name[80];
 		monster_race    *r_ptr = &r_info[m_ptr->ap_r_idx];
 
-		/* Hack: Strong characters immune to weak monsters */
-		if (p_ptr->lev > r_ptr->level + 10) return;
-
 		power = r_ptr->level / 2;
 
 		monster_desc(m_name, m_ptr, 0);
@@ -2455,10 +2452,11 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 		return;
 	}
 
-	if (!saving_throw(p_ptr->skills.sav - power)) /* Lose int & wis */
+	if (!saving_throw(p_ptr->skills.sav - power))
 	{
 		do_dec_stat(A_INT);
 		do_dec_stat(A_WIS);
+		do_dec_stat(A_CHR);
 		return;
 	}
 
