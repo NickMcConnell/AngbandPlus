@@ -174,6 +174,7 @@ void artifact_check()
 	    if (THRAIN) fprintf(file1, "The Arkenstone of Thrain\n");
 	    if (RAZORBACK) fprintf(file1, "Razorback\n");
 	    if (BLADETURNER) fprintf(file1, "Bladeturner\n");
+	    if (ROBEMED) fprintf(file1, "Robe of Enlightement\n");
           }
 	(void) fclose(file1);
 	prt("Done...", 0, 0);
@@ -301,7 +302,18 @@ void change_character()
     }
   else
     return;
-
+  prt("(3 - 118) Luck     = ", 0, 0);
+  if (get_string(tmp_str, 0, 25, 3))
+    {
+      tmp_val = atoi(tmp_str);
+      if ((tmp_val > 2) && (tmp_val < 119))
+	{
+	  a_ptr[A_LUC] = tmp_val;
+	  (void) res_stat(A_LUC);
+	}
+    }
+  else
+   return;
   m_ptr = &py.misc;
   prt("(1 - 32767) Hit points = ", 0, 0);
   if (get_string(tmp_str, 0, 25, 5))
@@ -639,8 +651,8 @@ void wizard_create()
       break;
     case 'M':
     case 'm':
-      prt("Spellbook or Prayerbook?    : ", 0, 0);
-      prt("[S]pellbook, [P]rayerbook.", 1, 0);
+      prt("Spellbook, Prayerbook, or Monkbook?    : ", 0, 0);
+      prt("[S]pellbook, [P]rayerbook, [M]onkbook", 1, 0);
       if (!get_com((char *)0, &ch))
 	{restore_screen();return;}
       switch (ch) {
@@ -651,6 +663,10 @@ void wizard_create()
       case 'S':
       case 's':
 	i_ptr->tval=TV_MAGIC_BOOK;
+	break;
+      case 'M':
+      case 'm':
+	i_ptr->tval=TV_MONK_BOOK;
 	break;
       default:
 	restore_screen();

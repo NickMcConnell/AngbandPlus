@@ -59,10 +59,6 @@ long time();
 char *malloc();
 #endif
 
-#ifndef SET_UID
-#include <sys/stat.h>
-#endif
-
 /* these are used for the save file, to avoid having to pass them to every
    procedure */
 static FILE *fileptr;
@@ -211,7 +207,6 @@ static int sv_write()
   wr_long(DEATHWREAKER);
   wr_long(AVAVIR);
   wr_long(TARATOL);
-
   wr_long(DOR_LOMIN);
   wr_long(NENYA);
   wr_long(NARYA);
@@ -256,6 +251,7 @@ static int sv_write()
   wr_long(BARAHIR);
   wr_long(RAZORBACK);
   wr_long(BLADETURNER);
+  wr_long(ROBEMED);
 
   for (i=0; i<MAX_QUESTS; i++)
     wr_long(quests[i]);
@@ -304,6 +300,7 @@ static int sv_write()
   wr_short((int16u)m_ptr->srh);
   wr_short((int16u)m_ptr->fos);
   wr_short((int16u)m_ptr->bth);
+  wr_short((int16u)m_ptr->bth2);
   wr_short((int16u)m_ptr->bthb);
   wr_short((int16u)m_ptr->mana);
   wr_short((int16u)m_ptr->mhp);
@@ -331,13 +328,14 @@ static int sv_write()
     wr_string (m_ptr->history[i]);
 
   s_ptr = &py.stats;
-  wr_shorts(s_ptr->max_stat, 6);
-  wr_shorts(s_ptr->cur_stat, 6);
-  wr_shorts((int16u *)s_ptr->mod_stat, 6);
-  wr_shorts(s_ptr->use_stat, 6);
+  wr_shorts(s_ptr->max_stat, 7);
+  wr_shorts(s_ptr->cur_stat, 7);
+  wr_shorts((int16u *)s_ptr->mod_stat, 7);
+  wr_shorts(s_ptr->use_stat, 7);
 
   f_ptr = &py.flags;
   wr_long(f_ptr->status);
+  wr_byte(f_ptr->dodge);
   wr_short((int16u)f_ptr->rest);
   wr_short((int16u)f_ptr->blind);
   wr_short((int16u)f_ptr->paralysis);
@@ -368,6 +366,12 @@ static int sv_write()
   wr_short((int16u)f_ptr->word_recall);
   wr_short((int16u)f_ptr->see_infra);
   wr_short((int16u)f_ptr->tim_infra);
+  wr_byte(f_ptr->tim_invis);
+  wr_byte(f_ptr->tohit);
+  wr_byte(f_ptr->ac_mod);
+  wr_byte(f_ptr->todam);
+  wr_byte(f_ptr->whichone);
+  wr_byte(f_ptr->tspeed);
   wr_byte(f_ptr->see_inv);
   wr_byte(f_ptr->teleport);
   wr_byte(f_ptr->free_act);
@@ -897,6 +901,7 @@ int *generate;
       rd_long(&BARAHIR);
       rd_long(&RAZORBACK);
       rd_long(&BLADETURNER);
+      rd_long(&ROBEMED);
       if (to_be_wizard) prt("Loaded Armour Artifacts", 3, 0);
       put_qio();
 
@@ -990,6 +995,7 @@ int *generate;
 	  rd_short((int16u *)&m_ptr->srh);
 	  rd_short((int16u *)&m_ptr->fos);
 	  rd_short((int16u *)&m_ptr->bth);
+	  rd_short((int16u *)&m_ptr->bth2);
 	  rd_short((int16u *)&m_ptr->bthb);
 	  rd_short((int16u *)&m_ptr->mana);
 	  rd_short((int16u *)&m_ptr->mhp);
@@ -1017,13 +1023,14 @@ int *generate;
 	    rd_string (m_ptr->history[i]);
 
 	  s_ptr = &py.stats;
-	  rd_shorts(s_ptr->max_stat, 6);
-	  rd_shorts(s_ptr->cur_stat, 6);
-	  rd_shorts((int16u *)s_ptr->mod_stat, 6);
-	  rd_shorts(s_ptr->use_stat, 6);
+	  rd_shorts(s_ptr->max_stat, 7);
+	  rd_shorts(s_ptr->cur_stat, 7);
+	  rd_shorts((int16u *)s_ptr->mod_stat, 7);
+	  rd_shorts(s_ptr->use_stat, 7);
 
 	  f_ptr = &py.flags;
 	  rd_long(&f_ptr->status);
+	  rd_byte(&f_ptr->dodge);
 	  rd_short((int16u *)&f_ptr->rest);
 	  rd_short((int16u *)&f_ptr->blind);
 	  rd_short((int16u *)&f_ptr->paralysis);
@@ -1054,6 +1061,12 @@ int *generate;
 	  rd_short((int16u *)&f_ptr->word_recall);
 	  rd_short((int16u *)&f_ptr->see_infra);
 	  rd_short((int16u *)&f_ptr->tim_infra);
+	  rd_byte(&f_ptr->tim_invis);
+          rd_byte(&f_ptr->tohit);
+          rd_byte(&f_ptr->ac_mod);
+          rd_byte(&f_ptr->todam);
+          rd_byte(&f_ptr->whichone);
+	  rd_byte(&f_ptr->tspeed);
 	  rd_byte(&f_ptr->see_inv);
 	  rd_byte(&f_ptr->teleport);
 	  rd_byte(&f_ptr->free_act);
@@ -1151,6 +1164,7 @@ int *generate;
 	      || (version_min == 1 && patch_level >= 3)) {
 	    rd_long(&time_saved);
 #ifndef SET_UID
+#ifndef WANT_BACKUP
 	    if (!to_be_wizard) {
 	      if (time_saved > (statbuf.st_ctime+100) ||
 		  time_saved < (statbuf.st_ctime-100)) {
@@ -1158,6 +1172,7 @@ int *generate;
 		    goto error;
 		  }
 	    }
+#endif
 #endif
 	  }
 
@@ -1173,7 +1188,7 @@ int *generate;
 		goto error;
               }
 	      prt("Attempting a resurrection!", 0, 0);
-	      if (py.misc.chp < 0)
+	      if (py.misc.chp < min_hp)
 		{
 		  py.misc.chp =	 0;
 		  py.misc.chp_frac = 0;

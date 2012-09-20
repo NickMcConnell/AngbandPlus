@@ -31,6 +31,8 @@
 #define ANGBAND_WIZ       LIBDIR"/files/wizards"
 #define ANGBAND_SAV       LIBDIR"/save"
 
+#define WANT_BACKUP
+
 /*#define ANNOY 142*/
 /* #define SET_UID */
 
@@ -129,14 +131,6 @@ char *index();
    of lint errors. */
 #define RTPC_NO_NLS
 #endif
-
-#ifdef SECURE
-extern int PlayerUID;
-#define getuid() PlayerUID
-#define geteuid() PlayerUID
-#endif
-
-
 
 
 

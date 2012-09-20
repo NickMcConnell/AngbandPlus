@@ -12,7 +12,7 @@ describe_mon_type desc_list[MAX_CREATURES] = {
 when it sees one"},
 {"Singing, happy drunk", "It makes you glad to be sober"},
 {"Mean looking mercenary", "No job is too low for it"},
-{"Battle scarred veteran", "It doesn't take to strangers kindly"},
+{"Feldisham, the Guard", "He wears glistening metal armor, a large sword, and a mean expression"},
 {"Grey mushroom patch", "Yum! It looks quite tasty"},
 {"Giant yellow centipede", "It is about four-foot long and carnivorous"},
 {"Giant white centipede", "It is about four-foot long and carnivorous"},

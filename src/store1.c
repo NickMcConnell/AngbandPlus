@@ -40,7 +40,7 @@ register inven_type *i_ptr;
   if (i_ptr->ident & ID_DAMD)
     value = 0;
   else if (((i_ptr->tval >= TV_BOW) && (i_ptr->tval <= TV_SWORD)) ||
-	   ((i_ptr->tval >= TV_BOOTS) && (i_ptr->tval <= TV_SOFT_ARMOR)))
+	   ((i_ptr->tval >= TV_BOOTS) && (i_ptr->tval <= TV_ROBE)))
     {	/* Weapons and armor	*/
       if (!known2_p(i_ptr))
 	value = object_list[i_ptr->index].cost;
@@ -330,7 +330,7 @@ void store_init()
   register store_type *s_ptr;
 
   i = MAX_OWNERS / MAX_STORES;
-  for (j = 0; j < MAX_STORES; j++)
+  for (j = 0; j <= MAX_STORES; j++)
     {
       s_ptr = &store[j];
       s_ptr->owner = MAX_STORES*(randint(i)-1) + j;
@@ -352,20 +352,29 @@ void store_init()
 static void store_create(store_num)
 int store_num;
 {
-  register int i, tries;
+  register int i, tries, real_store;
   int cur_pos, dummy;
   register store_type *s_ptr;
   register inven_type *t_ptr;
 
   tries = 0;
   cur_pos = popt();
+  real_store=store_num;
+  if (real_store==8)
+   real_store-=2; /* Need to skip Home AND Black Market */
   s_ptr = &store[store_num];
   do
     {
-      if (store_num!=6) {
-	i = store_choice[store_num][randint(STORE_CHOICES)-1];
+      if (store_num != 7)
+      {
+	i = store_choice[real_store][randint(STORE_CHOICES)-1];
+        /* If the Black Market, do something special */
+	if (store_num==6) /* Black Market Time! */
+	   i = randint(MAX_DUNGEON_OBJ);
 	invcopy(&t_list[cur_pos], i);
 	magic_treasure(cur_pos, OBJ_TOWN_LEVEL, FALSE, TRUE);
+        if (store_num==6) /* Black Markets have POWERFUL items! */
+         magic_treasure(cur_pos, 50, FALSE, TRUE);
 	t_ptr = &t_list[cur_pos];
 	if (store_check_num(t_ptr, store_num))
 	  {
@@ -379,7 +388,6 @@ int store_num;
 		store_carry(store_num, &dummy, t_ptr);
 		tries = 10;
 	      }
-	  }
 	tries++;
       } else {
 	i = get_obj_num(40, FALSE);
@@ -399,8 +407,9 @@ int store_num;
 	      }
 	  }
 	tries++;
-      }	
-    }
+       }
+      }
+   }
   while (tries <= 3);
   pusht((int8u)cur_pos);
 }
@@ -408,19 +417,21 @@ int store_num;
 int special_offer(i_ptr) 
   inven_type *i_ptr;
 {
-  if (randint(30)==1) {
+  int luc;
+  luc=luck()/4;
+  if (randint(30-luc)==1) {
     i_ptr->cost = (i_ptr->cost*3)/4;
     if (i_ptr->cost < 1) i_ptr->cost=1;
     inscribe(i_ptr, "25% discount");
-  } else if (randint(150)==1) {
+  } else if (randint(150-luc*2)==1) {
     i_ptr->cost /= 2;
     if (i_ptr->cost < 1) i_ptr->cost=1;
     inscribe(i_ptr, "50% discount");
-  } else if (randint(300)==1) {
+  } else if (randint(300-luc*4)==1) {
     i_ptr->cost /= 4;
     if (i_ptr->cost < 1) i_ptr->cost=1;
     inscribe(i_ptr, "75% discount");
-  } else if (randint(500)==1) {
+  } else if (randint(500-luc*5)==1) {
     i_ptr->cost /= 10;
     if (i_ptr->cost < 1) i_ptr->cost=1;
     inscribe(i_ptr, "to clear");
@@ -433,8 +444,10 @@ void store_maint()
   register int i, j;
   register store_type *s_ptr;
 
-  for (i = 0; i < (MAX_STORES-1); i++)
+  for (i = 0; i <= (MAX_STORES-1); i++)
     {
+      if (i!=7)
+      {
       s_ptr = &store[i];
       s_ptr->insult_cur = 0;
       if (s_ptr->store_ctr >= STORE_MIN_INVEN)
@@ -454,6 +467,7 @@ void store_maint()
 	  while (--j >= 0)
 	    store_create(i);
 	}
+      }
     }
 }
 

@@ -13,6 +13,8 @@
 #ifdef ANGBAND_HOU
 /* Operating hours for ANGBAND				-RAK-	*/
 /*	 X = Open; . = Closed					*/
+int min_hp;
+
 char  days[7][29] = { "SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
 		    "MON:XXXXXXXX.........XXXXXXX",
 		    "TUE:XXXXXXXX.........XXXXXXX",
@@ -28,7 +30,7 @@ store_type store[MAX_STORES];
 /* Note: Store owners should be added in groups, one for each store    */
 owner_type owners[MAX_OWNERS] = {
 {"Rincewind the Chicken  (Human)      General Store",
-	  250,	175,  108,    4, 0, 12},
+	 3500,	175,  108,    4, 0, 12},
 {"Mauglin the Grumpy     (Dwarf)      Armoury"	    ,
 	32000,	200,  112,    4, 5,  5},
 {"Arndal Beast-Slayer    (Half-Elf)   Weaponsmith"  ,
@@ -43,8 +45,10 @@ owner_type owners[MAX_OWNERS] = {
         32000,	250,  190,    10, 0, 5},
 {"Your home"   ,
 	    1,    1,    1,    1, 1, 1},
+{"Dojin the Honorable    (Human)      Dojo"         ,
+        15000,  130,  120,    5, 3, 30},
 {"Bilbo the Friendly     (Hobbit)     General Store",
-	  200,	170,  108,    5, 3, 15},
+	 4000,	170,  108,    5, 3, 15},
 {"Darg-Low the Grim      (Human)      Armoury"	    ,
 	10000,	190,  111,    4, 0,  9},
 {"Oglign Dragon-Slayer   (Dwarf)      Weaponsmith"  ,
@@ -59,8 +63,10 @@ owner_type owners[MAX_OWNERS] = {
 	32000,	250,  190,    10, 6, 5},
 {"Your sweet abode"   ,
 	    1,    1,    1,    1, 1, 1},
+{"Ronin the Patient      (Elf)        Dojo"         ,
+        13500,  190,  130,    6, 4, 35},
 {"Lyar-el the Comely     (Elf)        General Store",
-	  300,	165,  107,    6, 2, 18},
+	 3000,	165,  107,    6, 2, 18},
 {"Decado the Handsome    (Human)      Armoury",
 	25000,  200,  112,    4, 5, 10},
 {"Ithyl-Mak the Beastly  (Half-Troll) Weaponsmith"  ,
@@ -74,7 +80,9 @@ owner_type owners[MAX_OWNERS] = {
 {"Drago the Fair?        (Elf)        Black Market" ,
 	32000,	250,  190,    10, 2, 5},
 {"Your house"   ,
-	    1,    1,    1,    1, 1, 1}
+	    1,    1,    1,    1, 1, 1},
+{"Gandros the Neutral    (Half-Elf)   Dojo"         ,
+        12000,   140,  105,    3, 2, 30}
 };
 
 /* Buying and selling adjustments for character race VS store	*/
@@ -115,7 +123,11 @@ int16u store_choice[MAX_STORES][STORE_CHOICES] = {
  MDO+9,MDO+10,MDO+11,MDO+12,MDO+13,MDO+15,MDO+15,173,174,175,185,185,185,206},
 	/* Magic-User store*/
 {330,331,332,333,330,331,332,333,326,293,293,299,303,301,302,318,326,
- 282,277,279,292,164,167,168,153,137,142,326,328,299}
+ 282,277,279,292,164,167,168,153,137,142,326,328,299},
+        /* Note:  Black Market has ANYTHING, while Home has nothing */
+        /* Dojo */
+{349, 349, 350,101,101,102,MDO,MDO,350,351,351,352,352,349, 85, 85, 350,
+ 220, 220, 220,102,102,123,123,91,91,268,92,268,93} 
 };
 
 #ifndef MAC
@@ -125,13 +137,14 @@ int16u store_choice[MAX_STORES][STORE_CHOICES] = {
 extern int general_store(), armory(), weaponsmith(), temple(),
   alchemist(), magic_shop();
 
+int dojo();
 int blackmarket();
 int home();
 
 /* Each store will buy only certain items, based on TVAL */
 int (*store_buy[MAX_STORES])() = {
        general_store, armory, weaponsmith, temple, alchemist, magic_shop,
-       blackmarket, home};
+       blackmarket, home, dojo};
 #endif
 
 /* Following are arrays for descriptive pieces			*/

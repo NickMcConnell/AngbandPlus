@@ -14,11 +14,12 @@
 int door_creation();
 int detect_enchantment();
 int stair_creation();
+void player_breathe(void);
 
 /* Throw a magic spell					-RAK-	*/
 void cast()
 {
-  int i, j, item_val, dir;
+  int i, j, item_val, dir, spell;
   int choice, chance, result;
   register struct flags *f_ptr;
   register struct misc *p_ptr;
@@ -26,7 +27,9 @@ void cast()
   register spell_type *m_ptr;
 
   free_turn_flag = TRUE;
-  if (py.flags.blind > 0)
+  if (py.misc.pclass == 7) /* Dragons (M)ake breath weapon */
+   (void) player_breathe();
+  else if (py.flags.blind > 0)
     msg_print("You can't see to read your spell book!");
   else if (no_light())
     msg_print("You have no light to read by.");
@@ -38,6 +41,9 @@ void cast()
     msg_print("But you are not carrying any spell-books!");
   else if (get_item(&item_val, "Use which spell-book?", i, j, 0))
     {
+      spell=(py.misc.lev)*(class[py.misc.pclass].magicity+
+			   race[py.misc.prace].base_mag)/200;
+      /* Determines effective spell level */
       result = cast_spell("Cast which spell?", item_val, &choice, &chance);
       if (py.flags.stun>50) chance+=25;
       else if (py.flags.stun>0) chance+=15;
@@ -58,7 +64,7 @@ void cast()
 		case 1:
 		  if (get_dir(NULL, &dir))
 		    fire_bolt(GF_MAGIC_MISSILE, dir, char_row, char_col,
-			      damroll(2, 6), spell_names[0]);
+			      damroll(2, 7+(spell/5)),spell_names[0]);
 		  break;
 		case 2:
 		  (void) detect_monsters();
@@ -90,7 +96,7 @@ void cast()
 		case 9:
 		  if (get_dir(NULL, &dir))
 		    fire_ball(GF_POISON_GAS, dir, char_row, char_col,
-			      10+(py.misc.lev/2),
+			      15+(spell/2),
 			      spell_names[8]);
 		  break;
 		case 10:
@@ -100,7 +106,7 @@ void cast()
 		case 11:
 		  if (get_dir(NULL, &dir))
 		    fire_bolt(GF_LIGHTNING, dir, char_row, char_col,
-			      damroll(3+((py.misc.lev-5)/4),8)
+			      damroll(4+((spell-5)/4),8)
 			      , spell_names[10]);
 		  break;
 		case 12:
@@ -114,18 +120,18 @@ void cast()
 		  (void) cure_poison();
 		  break;
 		case 15:
-		  teleport((int)(py.misc.lev*5));
+		  teleport((int)(spell*5));
 		  break;
 		case 16:
 		  if (get_dir(NULL, &dir)) {
- 		     msg_print("A line of blue shimmering light appears.");
-		     light_line(dir, char_row, char_col);
+ 		     fire_bolt(GF_MAGIC_MISSILE, dir, char_row, char_col,
+			       damroll(5+(spell-5)/4,8),"Mana Bolt");
 		  }
         	  break;
 		case 17:
 		  if (get_dir(NULL, &dir))
 		    fire_bolt(GF_FROST, dir, char_row, char_col,
-			      damroll(5+((py.misc.lev-5)/4),8),
+			      damroll(5+((spell-5)/4),8),
 			      spell_names[16]);
 		  break;
 		case 18:
@@ -136,10 +142,10 @@ void cast()
 		  create_food();
 		  break;
 		case 20:
-		  (void) recharge(5);
+		  (void) recharge(30+spell/2);
 		  break;
 		case 21:
-		  (void) sleep_monsters1(char_row, char_col);
+		  (void) sleep_monsters2();
 		  break;
 		case 22:
 		  if (get_dir(NULL, &dir))
@@ -149,12 +155,15 @@ void cast()
 		  (void) ident_spell();
 		  break;
 		case 24:
-		  (void) sleep_monsters2();
+		  if (get_dir(NULL, &dir))
+		    fire_ball(GF_LIGHTNING, dir, char_row, char_col,
+			      50+spell/3,
+			      "Lightning Ball");
 		  break;
 		case 25:
 		  if (get_dir(NULL, &dir))
 		    fire_bolt(GF_FIRE, dir, char_row, char_col,
-			      damroll(8+((py.misc.lev-5)/4),8),
+			      damroll(9+((spell-7)/3),8),
 			      spell_names[24]);
 		  break;
 		case 26:
@@ -164,11 +173,11 @@ void cast()
 		case 27:
 		  if (get_dir(NULL, &dir))
 		    fire_ball(GF_FROST, dir, char_row, char_col,
-			      30+(py.misc.lev),
+			      35+(spell),
 			      spell_names[26]);
 		  break;
 		case 28:
-		  (void) recharge(40);
+		  (void) recharge(50+spell);
 		  break;
 		case 29:
 		  if (get_dir(NULL, &dir))
@@ -177,21 +186,23 @@ void cast()
 		case 30:
 		  f_ptr = &py.flags;
 		  if (f_ptr->fast <= 0)
-		    f_ptr->fast += randint(20) + py.misc.lev;
+		    f_ptr->fast += randint(20) + spell;
 		  else
 		    f_ptr->fast += randint(5);
 		  break;
 		case 31:
 		  if (get_dir(NULL, &dir))
 		    fire_ball(GF_FIRE, dir, char_row, char_col
-			      ,55+(py.misc.lev),
+			      ,60+(spell),
 			      spell_names[30]);
 		  break;
 		case 32:
 		  destroy_area(char_row, char_col);
 		  break;
 		case 33:
-		  (void) genocide(TRUE);
+		  if (get_dir(NULL, &dir))
+		    fire_bolt(GF_MAGIC_MISSILE, dir, char_row, char_col,
+			      200+spell*2,"Disruption Effect");
 		  break;
 		case 34: /*door creation*/
 		  (void) door_creation();
@@ -199,50 +210,58 @@ void cast()
 		case 35: /* Stair creation */
 		  (void) stair_creation();
 		  break;
-		case 36: /* Teleport level */
-		  (void) tele_level();
-		  break;
-		case 37: /* Earthquake */
-		  earthquake();
-		  break;
-		case 38: /* Word of Recall */
+		case 36: /* Word of Recall */
 		  if (py.flags.word_recall == 0)
 		    py.flags.word_recall = 25 + randint(30);
 		  msg_print("The air about you becomes charged.");
 		  break;
+		case 37: /* Invisibility */
+		  if (py.flags.tim_invis) /* Make it a LOT weaker */
+		    py.flags.tim_invis+=20+randint(20);
+		  else /* Become Invisible */
+		    {
+		     msg_print("You see your body fade away.");
+		     py.flags.tim_invis+=50+randint(spell*2);
+		     prt_speed();
+		    }
+		  detect_inv2(30+randint(30));
+		  break;
+		case 38: /* Mass Sleep */
+		  mass_sleep();
+		  break;
 		case 39: /* Acid Bolt */
 		  if (get_dir(NULL, &dir))
 		    fire_bolt(GF_ACID, dir, char_row, char_col,
-			      damroll(6+((py.misc.lev-5)/4), 8)
+			      damroll(7+((spell-5)/4), 9)
 			      , "Acid Bolt");
 		  break;
 		case 40: /* Cloud kill */
 		  if (get_dir(NULL, &dir))
 		    fire_ball(GF_POISON_GAS, dir, char_row, char_col,
-			      40+(py.misc.lev/2),
+			      50+spell,
 			      "Deadly Cloud");
 		  break;
 		case 41: /* Acid Ball */
 		  if (get_dir(NULL, &dir))
 		    fire_ball(GF_ACID, dir, char_row, char_col,
-			      40+(py.misc.lev),
+			      60+spell,
 			      "Acid Ball");
 		  break;
 		case 42: /* Ice Storm */
 		  if (get_dir(NULL, &dir))
 		    fire_ball(GF_FROST, dir, char_row, char_col,
-			      70+(py.misc.lev),
+			      80+spell,
 			      "Ice Storm");
 		  break;
 		case 43: /* Meteor Swarm */
 		  if (get_dir(NULL, &dir))
 		    fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col,
-			      65+(py.misc.lev),
+			      100+spell*2,
 			      "Meteor Swarm");
 		  break;
 		case 44: /* Hellfire */
 		  if (get_dir(NULL, &dir))
-		    fire_ball(GF_HOLY_ORB, dir, char_row, char_col, 300,
+		    fire_ball(GF_HOLY_ORB, dir, char_row, char_col, 350,
 			      "Hellfire");
 		  break;
                 case 45: /*Detect Evil */
@@ -252,7 +271,7 @@ void cast()
                   (void) detect_enchantment();
                   break;
                 case 47:
-                  recharge(100);
+                  recharge(100+spell);
                   break;
                 case 48:
 		  (void) genocide(TRUE);
@@ -294,7 +313,7 @@ void cast()
                   break;
                 case 58:
 		  if (py.flags.fast <= 0)
-		    py.flags.fast += randint(30)+30+py.misc.lev;
+		    py.flags.fast += randint(30)+30+spell;
 		  else
 		    py.flags.fast += randint(5);
 		  break;
@@ -345,4 +364,92 @@ void cast()
 	    }
 	}
     }
+}
+
+/* We have the player lose HP when he breathes, since he is only 1/2 Dragon,
+and so players don't breathe all day */
+void player_breathe()
+{
+ int tmp,dir;
+ tmp=randint(GF_HOLY_ORB); /* Pick a random "type" to breathe */
+ if (py.misc.timeout < (55-py.misc.lev))
+ {
+  msg_print("Your breath isn't ready yet.");
+  return;
+ }
+  switch(py.misc.prace)
+    {
+    case 0:  /* Humans = Shards */
+     if (get_dir(NULL, &dir))
+       {
+       fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col,
+	      py.misc.chp/3,"Shard Breath");
+        py.misc.chp-=((py.misc.chp/3)*randint(5)/10);
+	py.misc.timeout=0;
+       }
+     break;
+    case 1: case 2: case 9: /* Half-Elves, Elves, High Elves */
+    if (get_dir(NULL, &dir))
+      {
+	fire_ball(GF_LIGHTNING, dir, char_row, char_col,
+		py.misc.chp/3,"Lightning Breath");
+	py.misc.timeout=0;
+        py.misc.chp-=((py.misc.chp/3)*randint(5)/10);
+       }
+     break;
+    case 3:  /* Halflings = Confusion */
+     if (get_dir(NULL, &dir))
+       {
+       fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col,
+		 py.misc.chp/3,"Confusion Breath");
+	py.misc.timeout=0;
+        py.misc.chp-=((py.misc.chp/3)*randint(5)/10);
+       }
+     break;
+    case 4:  /* Gnomes = Chaos */
+     if (get_dir(NULL, &dir))
+       {
+       fire_ball(tmp, dir, char_row, char_col,
+		 py.misc.chp/3,"Chaos Breath");
+	py.misc.timeout=0;
+        py.misc.chp-=((py.misc.chp/3)*randint(5)/10);
+       }
+     break;
+    case 5: /* Dwarves = Darkness */
+     if (get_dir(NULL, &dir))
+       {
+       fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col,
+		 py.misc.chp/3,"Darkness Breath");
+	py.misc.timeout=0;
+        py.misc.chp-=((py.misc.chp/3)*randint(5)/10);
+       }
+     break;
+    case 6: /* 1/3 Orc = Ice */
+     if (get_dir(NULL, &dir))
+       {
+       fire_ball(GF_FROST, dir, char_row, char_col,
+		 py.misc.chp/3,"Frosty Breath");
+	py.misc.timeout=0;
+        py.misc.chp-=((py.misc.chp/3)*randint(5)/10);
+       }
+     break;
+   case 7: /* 1/3 Troll = Fire */
+     if (get_dir(NULL, &dir))
+       {
+       fire_ball(GF_FIRE, dir, char_row, char_col,
+		 py.misc.chp/3,"Firey Breath");
+	py.misc.timeout=0;
+        py.misc.chp-=((py.misc.chp/3)*randint(5)/10);
+       }
+     break;
+   case 8: /* Dunedian = Sound */
+     if (get_dir(NULL, &dir))
+       {
+       fire_ball(GF_MAGIC_MISSILE, dir, char_row, char_col,
+		 py.misc.chp/3,"Sonic Breath");
+	py.misc.timeout=0;
+        py.misc.chp-=((py.misc.chp/3)*randint(5)/10);
+       }
+     break;
+   }
 }

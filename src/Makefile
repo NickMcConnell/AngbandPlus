@@ -3,12 +3,13 @@
 # LIBDIR is where the other files (score, news, hours) will be put
 # OBJDIR is where the object files will be put
 
-THISDIR = /home/staff/greyhelm/games/angband
+THISDIR = /home/17/petitc/public/angband
+COMPDIR = .
 
-SRCDIR = $(THISDIR)/src
-OBJDIR = $(THISDIR)/obj
-LIBDIR = $(THISDIR)/lib
-BINDIR = $(THISDIR)/bin
+SRCDIR = $(COMPDIR)
+OBJDIR = $(COMPDIR)
+LIBDIR = $(THISDIR)
+BINDIR = $(THISDIR)
 
 CFLAGS = -g -fwritable-strings -DLIBDIR=\"$(LIBDIR)\" 
 CC = gcc
@@ -18,14 +19,14 @@ SOURCES = main.c misc1.c misc2.c store1.c files.c io.c create.c desc.c\
 	potions.c prayer.c save.c staffs.c wands.c scrolls.c spells.c\
 	wizard.c store2.c signals.c moria1.c moria2.c monsters.c\
 	treasure.c variable.c rnd.c recall.c unix.c undef.c\
-	player.c tables.c describe_mon.c rods.c
+	player.c tables.c describe_mon.c rods.c monk.c
 
 OBJECTS = main.o misc1.o misc2.o store1.o files.o io.o create.o desc.o\
 	generate.o sets.o dungeon.o creature.o death.o eat.o help.o magic.o\
 	potions.o prayer.o save.o staffs.o wands.o scrolls.o spells.o\
 	wizard.o store2.o signals.o moria1.o moria2.o monsters.o\
 	treasure.o variable.o rnd.o recall.o unix.o undef.o\
-	player.o tables.o describe_mon.o rods.o
+	player.o tables.o describe_mon.o rods.o monk.o
 
 SRCS = $(SOURCES:%.c=$(SRCDIR)/%.c)
 
@@ -43,10 +44,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $(SRCDIR)/$*.c -o $@
 
 angband: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(BINDIR)/angband -lcurses -ltermcap -lrpcsvc
-	@chgrp games $(BINDIR)/$(PROGRAM)
-	@chmod a+x  $(BINDIR)/$(PROGRAM)
-	@chmod 4770 $(BINDIR)/$(PROGRAM)
+	$(CC) $(CFLAGS) $(OBJS) -o $(BINDIR)/angband -lcurses -ltermcap
 
 clean:;
 	rm -f $(OBJDIR)/*.o $(BINDIR)/core $(OBJDIR)/core ./core
@@ -101,5 +99,8 @@ rods.o: constant.h types.h externs.h config.h monster.h
 wands.o: constant.h types.h externs.h config.h monster.h
 wizard.o: constant.h types.h externs.h config.h
 describe_mon.o: monster.h externs.h types.h
+monk.o: constant.h types.h externs.h config.h monster.h
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
+
+

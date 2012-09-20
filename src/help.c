@@ -53,7 +53,7 @@ void ident_char()
       case '6': prt("6 - Entrance to Magic-Users store.", 0, 0); break;
       case '7': prt("7 - Entrance to the Healers.", 0, 0); break;
       case '8': prt("8 - Entrance to your home.", 0, 0); break;
-	/* case '9': prt("9 - Not used.", 0, 0);  break;*/
+      case '9': prt("9 - Entrance to the Dojo", 0, 0);  break;
       case ':': prt(": - Rubble.", 0, 0); break;
       case ';': prt("; - A loose rock.", 0, 0); break;
       case '<': prt("< - An up staircase.", 0, 0); break;

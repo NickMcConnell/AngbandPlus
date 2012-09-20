@@ -147,9 +147,9 @@ void use()
 	    teleport(100);
 	    ident = TRUE;
 	    break;
-	  case ST_EARTH:
+	  case ST_MSLEEP:
 	    ident = TRUE;
-	    earthquake();
+	    mass_sleep();
 	    break;
           case ST_SUMMON:
 	    ident = FALSE;

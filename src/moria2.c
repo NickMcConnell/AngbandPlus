@@ -22,14 +22,23 @@
 #include <strings.h>
 #endif
 
+/* These are here so the attack2 routine can use them, too */
 
+  int k, blows;
+  int crptr, monptr, tot_tohit, base_tohit;
+  vtype m_name, out_val;
+  inven_type *i_ptr;
+  struct misc *p_ptr;
+  int did_die; /* If >0, critter died; don't do other attack */
+
+
+void attack2(int);
 #if defined(LINT_ARGS)
 static int look_ray(int, int, int);
 static int look_see(int, int, int *);
 static void hit_trap(int, int);
 static void carry(int, int, int);
 static int summon_object(int, int, int, int);
-static void py_attack(int, int);
 static void chest_trap(int, int);
 static void inven_throw(int, struct inven_type *);
 static void facts(struct inven_type *, int *, int *, int *, int *);
@@ -243,7 +252,9 @@ int y, x;
     case 108: /* Home */
       enter_store(7);
       break;
-
+    case 109: /* Dojo */
+      enter_store(8);
+      break;
     default:
       msg_print("Unknown trap value.");
       break;
@@ -299,10 +310,12 @@ int *sn, *sc;
       result = get_spell(spell, i, sn, sc, prompt, first_spell);
       if (result && magic_spell[py.misc.pclass-1][*sn].smana > py.misc.cmana)
 	{
-	  if (py.misc.pclass)
+	  if (class[py.misc.pclass].spell==MAGE)
 	    result = get_check("You summon your limited strength to cast this one! Confirm?");
-	  else
+	  else if (class[py.misc.pclass].spell==PRIEST)
 	    result = get_check("The gods may think you presumptuous for this! Confirm?");
+	  else
+	    result = get_check("You feel you could hurt yourself.  Confirm?");
 	}
     }
   return(result);
@@ -854,15 +867,15 @@ int monptr, dam;
 
 
 /* Player attacks a (poor, defenseless) creature	-RAK-	*/
-static void py_attack(y, x)
-int y, x;
+void py_attack(y, x, special)
+int y, x, special; /* Special means we do an elemental attack, monks only */
 {
-  register int k, blows;
-  int crptr, monptr, tot_tohit, base_tohit;
-  vtype m_name, out_val;
-  register inven_type *i_ptr;
-  register struct misc *p_ptr;
-
+  inven_type temp;
+  short int twohanded;
+  twohanded=0; /* If !=0, we fight 2-handed */
+  if (inventory[INVEN_ARM].tval!=TV_SHIELD &&
+      inventory[INVEN_ARM].tval!=TV_NOTHING) /* Fighting 2-handed! */
+    twohanded=1;
   crptr = cave[y][x].cptr;
   monptr = m_list[crptr].mptr;
   m_list[crptr].csleep = 0;
@@ -883,19 +896,88 @@ int y, x;
       blows = 2;
       tot_tohit = -3;
     }
+  /* If we're using a heavy weapon and using shield, penalize player */
+  did_die=0;
+  if (i_ptr->weight >=180 && inventory[INVEN_ARM].tval==TV_SHIELD)
+    tot_tohit-=5; /* Ugh! This weapon is too heavy! */
+  /* Warriors get greater hits/round if have a heavy weapon >12 lbs; rogues
+     for a light weapon <5 lbs */
+  if (py.misc.pclass==0 && (i_ptr->weight >=120))
+    blows+=py.misc.lev/10+1;
+  else if (py.misc.pclass==3 && (i_ptr->weight <=50))
+    blows+=py.misc.lev/8+1;
+  else if (py.misc.pclass==3 && (i_ptr->weight >120))
+    blows-=2; /* But rogues do less attacks if using heavy weapon */
+  else if (py.misc.pclass==1)
+    blows-=2;
+  else if (py.misc.pclass==6) /* Monks get LOTS of blows/round */
+  {
+   if (i_ptr->tval == TV_NOTHING) /* Only with bare hands */
+    blows=2+py.misc.lev/8; /* Max blows = 8 */
+   else /* ONE blow */
+    blows=1;
+  }
+  else if (py.misc.pclass==7) /* Dragons have claws, though */
+  {
+   blows=2+py.misc.lev/7; /* Max blows = 9 */
+  }
+  if (blows<1)
+   blows=1;
   if ((i_ptr->tval >= TV_SLING_AMMO) && (i_ptr->tval <= TV_ARROW))
     /* Fix for arrows */
     blows = 1;
   p_ptr = &py.misc;
   tot_tohit += p_ptr->ptohit;
   /* if creature not lit, make it more difficult to hit */
+  if (!twohanded)
+  {
   if (m_list[crptr].ml)
     base_tohit = p_ptr->bth;
   else
     base_tohit = (p_ptr->bth / 2) - (tot_tohit * (BTH_PLUS_ADJ-1))
       - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH] / 2);
+   }
+  else
+    {
+    if (m_list[crptr].ml)
+      base_tohit = p_ptr->bth2;
+    else
+      base_tohit = (p_ptr->bth2 / 2) - (tot_tohit * (BTH_PLUS_ADJ-1))
+        - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH2] / 2);
 
-  /* Loop for number of blows,	trying to hit the critter.	  */
+    }
+ /* Now we can call ANOTHER routine to attack---this permits 2-handed
+     fighting */
+  if (!twohanded)
+   attack2(blows);
+  else
+    {
+     /* Must recalc base tohit with our stat */
+      base_tohit=p_ptr->bth2;
+      if (m_list[crptr].ml)
+	base_tohit=(p_ptr->bth2/2) - (tot_tohit * (BTH_PLUS_ADJ-1))
+	  - (p_ptr->lev * class_level_adj[p_ptr->pclass][CLA_BTH2] / 2);
+     attack2(blows);
+     temp=inventory[INVEN_WIELD]; /* Exchange the weapons */
+     inventory[INVEN_WIELD]=inventory[INVEN_ARM];
+     inventory[INVEN_ARM]=temp;
+     py_bonuses(inventory[INVEN_ARM],-1);
+     py_bonuses(inventory[INVEN_WIELD],1);
+     blows = attack_blows((int)i_ptr->weight, &tot_tohit);
+     if (!did_die) /* Don't hit a dead critter */
+       attack2(blows); /* And attack with the other in this round */
+     temp=inventory[INVEN_WIELD]; /* Exchange them back to get normal */
+     inventory[INVEN_WIELD]=inventory[INVEN_ARM];
+     inventory[INVEN_ARM]=temp;
+     py_bonuses(inventory[INVEN_ARM],-1);
+     py_bonuses(inventory[INVEN_WIELD],1);
+    }
+}
+
+void attack2(blows)
+int blows;
+{
+  /* Do the attacks */
   do
     {
       if (test_hit(base_tohit, (int)p_ptr->lev, tot_tohit,
@@ -905,14 +987,39 @@ int y, x;
 	  msg_print(out_val);  Old message system*/
 	  if (i_ptr->tval != TV_NOTHING)
 	    {
-	      k = pdamroll(i_ptr->damage);
-	      k = tot_dam(i_ptr, k, monptr);
-	      k = critical_blow((int)i_ptr->weight, tot_tohit, k, CLA_BTH);
+             if (m_list[crptr].csleep==0 || py.misc.pclass!=3)
+	      {
+	       k = pdamroll(i_ptr->damage);
+	       k = tot_dam(i_ptr, k, monptr);
+               if (py.misc.pclass==6) /* Monks do ZERO damage with weapon */
+                k = 0;
+	       k = critical_blow((int)i_ptr->weight, tot_tohit, k, CLA_BTH);
+	      } /* Rogue Backstabbing Attack Below! */
+              else
+	      {
+               k = pdamroll(i_ptr->damage)*(1+py.misc.lev/9);
+               k = tot_dam(i_ptr, k,monptr);
+               k = critical_blow((int) i_ptr->weight, tot_tohit, k,
+				 CLA_BTH + 40 + py.misc.lev*2);
+	      }
 	    }
 	  else			      /* Bare hands!?  */
 	    {
-	      k = damroll(1, 1);
+             if (py.misc.pclass!=6 && py.misc.pclass!=7)
+	     {
+	      k = damroll(py.misc.lev/15+1, py.misc.lev/10+1);
 	      k = critical_blow(1, 0, k, CLA_BTH);
+	     }
+             else if (py.misc.pclass==7)
+	       {
+                k = damroll(1+py.misc.lev/26,10+py.misc.lev/15);
+		k = critical_blow(1, 0, k, CLA_BTH);
+	       }
+             else /* Monks do LOTS of damage */
+	     {
+              k = damroll(1+py.misc.lev/8,3+py.misc.lev/7)+py.flags.todam*4;
+              k = critical_blow(1, 0, k, CLA_BTH+py.flags.tohit*2);
+	     }
 	    }
 	  k += p_ptr->ptodam;
 /* temp new message */
@@ -979,7 +1086,6 @@ int y, x;
     }
   while (blows >= 1);
 }
-
 
 /* Moves player from one space to another.		-RAK-	*/
 /* Note: This routine has been pre-declared; see that for argument*/
@@ -1101,7 +1207,7 @@ int dir, do_pickup;
 	  else
 	    {
 	      if (py.flags.afraid < 1)		/* Coward?	*/
-		py_attack(y, x);
+		py_attack(y, x, 0); /* 0 = regular attack */
 	      else				/* Coward!	*/
 		msg_print("You are too afraid!");
 	    }
@@ -1431,12 +1537,12 @@ int dir;
 
       /* let the player attack the creature */
       if (py.flags.afraid < 1)
-	py_attack(y, x);
+	py_attack(y, x, 0);
       else
 	msg_print("You are too afraid!");
     }
-  else if (i_ptr->tval != TV_NOTHING)
-    {
+  else if (i_ptr->tval != TV_NOTHING || py.misc.pclass==6 || py.misc.pclass==7)
+    { /* Monks/Dragons can dig with their bare hands */
       if (TR_TUNNEL & i_ptr->flags)
 	tabil += 25 + i_ptr->p1*50;
       else
@@ -1446,7 +1552,10 @@ int dir;
 	  /* divide by two so that digging without shovel isn't too easy */
 	  tabil >>= 1;
 	}
-
+       if (py.misc.pclass==6)
+         tabil=25+py.misc.lev*3; /*   Boy can we dig well as a monk! */
+       if (py.misc.pclass==7)
+	 tabil=10+py.misc.lev; /* Dragons' claws aren't that hard */
       /* Regular walls; Granite, magma intrusion, quartz vein  */
       /* Don't forget the boundary walls, made of titanium (255)*/
       switch(c_ptr->fval)
@@ -1569,7 +1678,7 @@ void disarm_trap()
 	      if ((tot + 100 - level) > randint(100))
 		{
 		  msg_print("You have disarmed the trap.");
-		  py.misc.exp += i_ptr->p1;
+		  py.misc.exp += (i_ptr->p1*(1+9*(py.misc.pclass==3)));
 		  (void) delete_object(y, x);
 		  /* make sure we move onto the trap even if confused */
 		  tmp = py.flags.confused;
@@ -1610,7 +1719,7 @@ confused */
 			i_ptr->name2 = SN_DISARMED;
 		      msg_print("You have disarmed the chest.");
 		      known2(i_ptr);
-		      py.misc.exp += level;
+		      py.misc.exp += (level*(1+4*(py.misc.pclass==3)));
 		      prt_experience();
 		    }
 		  else if ((tot > 5) && (randint(tot) > 5))
@@ -1909,8 +2018,10 @@ register int x, y;
 int *transparent;
 {
   char *dstring, *string, query;
+  char mon_strength[20];
   register cave_type *c_ptr;
   register int j;
+  long hp_frac;
   bigvtype out_val, tmp_str;
 
   if (x < 0 || y < 0 || y > x)
@@ -1938,10 +2049,24 @@ int *transparent;
   if (gl_rock == 0 && c_ptr->cptr > 1 && m_list[c_ptr->cptr].ml)
     {
       j = m_list[c_ptr->cptr].mptr;
-      (void) sprintf(out_val, "%s %s %s. [(r)ecall]",
+      hp_frac = m_list[c_ptr->cptr].hp;
+      hp_frac = hp_frac*100;
+      hp_frac = hp_frac / (c_list[j].hd[0]*c_list[j].hd[1]);
+     /* ### */
+      if (hp_frac>60)
+       strcpy(mon_strength,"healthy");
+      else if (hp_frac>45)
+       strcpy(mon_strength,"scratched");
+      else if (hp_frac>30)
+       strcpy(mon_strength,"wounded");
+      else if (hp_frac>15)
+       strcpy(mon_strength,"badly wounded");
+      else
+       strcpy(mon_strength,"nearly dead");
+      (void) sprintf(out_val, "%s %s %s (%s). [(r)ecall]",
 		     dstring,
 		     is_a_vowel( c_list[j].name[0] ) ? "an" : "a",
-		     c_list[j].name);
+		     c_list[j].name,mon_strength);
       dstring = "It is on";
       prt(out_val, 0, 0);
       move_cursor_relative(y, x);
@@ -2345,13 +2470,15 @@ int y, x;
       - (py.misc.lev * class_level_adj[py.misc.pclass][CLA_BTH] / 2);
 
   if (test_hit(base_tohit, (int)py.misc.lev,
-	       (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH))
+	       (int)py.stats.use_stat[A_DEX], (int)c_ptr->ac, CLA_BTH+
+	       (py.flags.ac_mod==-1)*30))
     {
       (void) sprintf(out_val, "You hit %s.", m_name);
       msg_print(out_val);
       k = pdamroll(inventory[INVEN_ARM].damage);
       k = critical_blow((int)(inventory[INVEN_ARM].weight / 4
-			      + py.stats.use_stat[A_STR]), 0, k, CLA_BTH);
+			      + py.stats.use_stat[A_STR]), 0, k, CLA_BTH+
+			(py.flags.ac_mod==-1)*30);
       k += py.misc.wt/60 + 3;
 
       /* See if we done it in.				     */

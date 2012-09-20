@@ -2221,12 +2221,12 @@ int store_num, y, x;
   int cur_pos, tmp;
   register cave_type *c_ptr;
 
-  yval	   = y*10 + 5;
-  xval	   = x*14 + 12;
+  yval	   = y*9 + 5;
+  xval	   = x*10 + 12;
   y_height = yval - randint(3);
-  y_depth  = yval + randint(4);
-  x_left   = xval - randint(4);
-  x_right  = xval + randint(4);
+  y_depth  = yval + randint(3);
+  x_left   = xval - randint(2);
+  x_right  = xval + randint(2);
   for (i = y_height; i <= y_depth; i++)
     for (j = x_left; j <= x_right; j++)
       cave[i][j].fval	 = BOUNDARY_WALL;
@@ -2279,7 +2279,7 @@ static void mlink()
 /* Town logic flow for generation of new town		*/
 static void town_gen()
 {
-  register int i, j, l, m;
+  register int i, j, l, m, max;
   register cave_type *c_ptr;
   int rooms[MAX_STORES], k;
 
@@ -2287,13 +2287,16 @@ static void town_gen()
   for (i = 0; i < MAX_STORES; i++)
     rooms[i] = i;
   l = MAX_STORES;
+  max=5;
   for (i = 0; i < 2; i++)
-    for (j = 0; j < 4; j++)
+    for (j = 0; j < max; j++)
       {
 	k = randint(l) - 1;
 	build_store(rooms[k], i, j);
 	for (m = k; m < l-1; m++)
 	  rooms[m] = rooms[m+1];
+	if (i>0)
+	  max=4;
 	l--;
       }
   fill_cave(DARK_FLOOR);

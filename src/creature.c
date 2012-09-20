@@ -32,8 +32,38 @@ static void mon_move(int, int32u *);
 static int check_mon_lite(int, int);
 #endif
 
+int do_invis(creature_type *);
 static shatter_quake();
 static br_wall();
+
+
+
+int do_invis(c_ptr)
+creature_type *c_ptr;
+{
+  register int inv,lvl,mlv;
+  if (py.flags.tim_invis>0)
+    inv=1;
+  else
+    inv=0;
+  inv*=py.misc.lev;
+  /* Code to handle permanent invisbility, via py.flags.invisible was
+     removed---permanent invisibility WAY too powerful */
+  mlv=c_ptr->level;
+  if (c_ptr->cdefense & CD_NO_SLEEP)
+    mlv+=10; /* REAL hard to trick such critters */
+  if (c_ptr->cdefense & CD_DRAGON)
+    mlv+=20;
+  if (c_ptr->cdefense & CD_UNDEAD)
+    mlv+=20; /* Yeah, RIGHT you're gonna trick these guys */
+  if (c_ptr->cdefense & CD_ORC)
+    mlv-=15; /* Duh!  What's invisibility? */
+  if (c_ptr->cdefense & UNIQUE || c_ptr->cmove & CM_WIN)
+    inv=0; /* Powerful critters see through the illusion */
+  if (randint(mlv+15) > lvl)
+    inv=0; /* Higher level critters MAY detect you */
+  return inv;
+}
 
 /* Updates screen when monsters move about		-RAK-	*/
 void update_mon(monptr)
@@ -347,8 +377,8 @@ static int monster_critical(dice, sides, dam)
 static void make_attack(monptr)
 int monptr;
 {
-  int attype, adesc, adice, asides;
-  int i, j, damage, flag, attackn, notice, visible;
+  int attype, adesc, adice, asides, efac;
+  int i, j, damage, flag, attackn, notice, visible, inv;
   int shatter = FALSE;
   int CUT=FALSE, STUN=FALSE;
   int32 gold;
@@ -366,6 +396,7 @@ int monptr;
 
   m_ptr = &m_list[monptr];
   r_ptr = &c_list[m_ptr->mptr];
+  inv=(do_invis(r_ptr)>0); /* This conveys a minus tohit */
 
   if (r_ptr->cdefense & DESTRUCT)
     shatter= TRUE;
@@ -408,60 +439,71 @@ int monptr;
 	  adesc = 99;
 	}
       p_ptr = &py.misc;
+      efac=p_ptr->pac;
+      if (py.flags.dodge) /* Dodge attempt---if fails, have LOWER ac */
+	if (randint(250)>do_dodge())
+	  {
+	  msg_print("You stumble while trying to dodge!");
+          efac-=50; /* You're vunerable */
+	  }
+         else
+	   efac+=py.misc.lev/2+randint(py.misc.lev+50);
+           /* Get a NICE AC bonus */
+      efac+=30*inv; /* +30 ac since you're invisible, but ONLY to hit */
       switch(attype)
 	{
 	case 1:	      /*Normal attack  */
-	  if (test_hit(60, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(60, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 2:	      /*Lose Strength*/
-	  if (test_hit(-3, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(-3, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 3:	      /*Confusion attack*/
-	  if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(10, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 4:	      /*Fear attack    */
-	  if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(10, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 5:	      /*Fire attack    */
-	  if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(10, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 6:	      /*Acid attack    */
-	  if (test_hit(0, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(0, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 7:	      /*Cold attack    */
-	  if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(10, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 8:	      /*Lightning attack*/
-	  if (test_hit(10, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(10, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 9:	      /*Corrosion attack*/
-	  if (test_hit(0, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(0, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 10:      /*Blindness attack*/
-	  if (test_hit(2, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(2, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 11:      /*Paralysis attack*/
-	  if (test_hit(2, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(2, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
@@ -478,32 +520,32 @@ int monptr;
 	    flag = TRUE;
 	  break;
 	case 14:      /*Poison	       */
-	  if (test_hit(5, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(5, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 15:      /*Lose dexterity*/
-	  if (test_hit(0, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(0, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 16:      /*Lose constitution*/
-	  if (test_hit(0, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(0, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 17:      /*Lose intelligence*/
-	  if (test_hit(2, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(2, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 18:      /*Lose wisdom*/
-	  if (test_hit(2, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(2, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 19:      /*Lose experience*/
-	  if (test_hit(5, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(5, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
@@ -511,28 +553,28 @@ int monptr;
 	  flag = TRUE;
 	  break;
 	case 21:      /*Disenchant	  */
-	  if (test_hit(20, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(20, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 22:      /*Eat food	  */
-	  if (test_hit(5, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(5, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 23:      /*Eat light	  */
-	  if (test_hit(5, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if (test_hit(5, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 		       CLA_MISC_HIT))
 	    flag = TRUE;
 	  break;
 	case 24:      /*Eat charges	  */
-	  if ((test_hit(15, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if ((test_hit(15, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 			CLA_MISC_HIT)) &&
 	      (inven_ctr > 0))	/* check to make sure an object exists */
 	    flag = TRUE;
 	  break;
         case 25:     /*Drain all stats   */
-	  if ((test_hit(2, (int)r_ptr->level, 0, p_ptr->pac+p_ptr->ptoac,
+	  if ((test_hit(2, (int)r_ptr->level, 0, efac+p_ptr->ptoac,
 			CLA_MISC_HIT)))
 	    flag = TRUE;
 	  break;
@@ -678,7 +720,8 @@ int monptr;
 	    case 4:    /*Fear attack	*/
 	      f_ptr = &py.flags;
 	      take_hit(damage, ddesc);
-	      if (player_saves() || (py.misc.pclass==1 && randint(3)==1))
+	      if (player_saves() || (py.misc.pclass==1 && randint(3)==1) ||
+		  (py.misc.pclass==0 && randint(5)<(py.misc.lev/10+1)))
 		msg_print("You stand your ground!");
 	      else if (f_ptr->afraid < 1)
 		{
@@ -715,7 +758,8 @@ int monptr;
 	    case 10:	/*Blindness attack*/
 	      f_ptr = &py.flags;
 	      take_hit(damage, ddesc);
-	      if (!py.flags.blindness_resist) {
+	      if (!py.flags.blindness_resist ||
+		  (randint(60-py.misc.lev)<20 && py.misc.pclass==0)) {
 	        if (f_ptr->blind < 1)
 		  {
 		    f_ptr->blind += 10 + randint((int)r_ptr->level);
@@ -748,8 +792,10 @@ int monptr;
 	      break;
 	    case 12:	/*Steal Money	  */
 	      if ((py.flags.paralysis < 1) &&
-		  (randint(168) < py.stats.use_stat[A_DEX]))
-		  /* immune to steal at 18/150 */
+		  (randint(168) < (py.stats.use_stat[A_DEX]+
+				   ((py.misc.pclass==3)*(10+py.misc.lev)))))
+		  /* immune to steal at 18/150.  Also greater resistance if
+		     are a Rogue */
 		msg_print("You quickly protect your money pouch!");
 	      else
 		{
@@ -770,7 +816,8 @@ int monptr;
 	      break;
 	    case 13:	/*Steal Object	 */
 	      if ((py.flags.paralysis < 1) &&
-		  (randint(168) < py.stats.use_stat[A_DEX]))
+		  (randint(168) < (py.stats.use_stat[A_DEX]+
+				   ((py.misc.pclass==3)*(10+py.misc.lev)))))
 		  /* immune to steal at 18/150 change */
 		msg_print("You grab hold of your backpack!");
 	      else
@@ -815,7 +862,9 @@ int monptr;
 	    case 16:	/*Lose constitution */
 	      f_ptr = &py.flags;
 	      take_hit(damage, ddesc);
-	      if (f_ptr->sustain_con)
+	      if (player_saves())
+		msg_print("Your body remains healthy.");
+	      else if (f_ptr->sustain_con)
 		msg_print("Your body resists the effects of the disease.");
 	      else
 		{
@@ -829,6 +878,8 @@ int monptr;
 	      msg_print("You have trouble thinking clearly.");
 	      if (f_ptr->sustain_int)
 		msg_print("But your mind quickly clears.");
+	      else if (player_saves())
+		msg_print("But your mind remains intelligent.");
 	      else
 		(void) dec_stat (A_INT);
 	      break;
@@ -837,6 +888,8 @@ int monptr;
 	      take_hit(damage, ddesc);
 	      if (f_ptr->sustain_wis)
 		msg_print("Your wisdom is sustained.");
+	      else if (player_saves())
+		msg_print("Your mind retains its wisdom!");
 	      else
 		{
 		  msg_print("Your wisdom is drained.");
@@ -845,7 +898,9 @@ int monptr;
 	      break;
 	    case 19:	/*Lose experience  */
 	      f_ptr = &py.flags;
-	      if (f_ptr->hold_life && randint(5)>1)
+	      if ((f_ptr->hold_life && randint(5)>1) || 
+		  (py.misc.pclass==0 && randint(6)<(py.misc.lev/7+1))
+		  || (py.misc.pclass==3 && randint(10)<py.misc.lev/6+1))
 		msg_print("You keep hold of your life force!");
 	      else
 		{
@@ -972,10 +1027,14 @@ int monptr;
               msg_print("You have trouble thinking clearly.");
               if (f_ptr->sustain_int)
                 msg_print("But your mind quickly clears.");
+	      else if (player_saves())
+		msg_print("But your mind feels the same.");
               else
                 (void) dec_stat (A_INT);
               if (f_ptr->sustain_wis)
                 msg_print("Your wisdom is sustained.");
+	      else if (player_saves())
+		msg_print("Your wisdom sustains itself!");
               else
 	      {
                 msg_print("Your wisdom is drained.");
@@ -2127,7 +2186,7 @@ static void mon_cast_spell(monptr, took_turn)
 	case 64:
 	  (void) strcat(cdesc, "breathes Nexus.");
 	  msg_print(cdesc);
-	  if (py.flags.nexus_resist) {
+	  if (py.flags.nexus_resist || player_saves()) {
 	    breath(GF_MAGIC_MISSILE, char_row, char_col,
 		  ((m_ptr->hp/3)>167?167:(m_ptr->hp/3)), ddesc, monptr);
 	  }
@@ -2596,7 +2655,7 @@ static void mon_move(monptr, rcmove)
 int monptr;
 int32u *rcmove;
 {
-  register int i, j;
+  register int i, j, inv, lvl,mlv;
   int k, move_test, dir;
   register creature_type *r_ptr;
   register monster_type *m_ptr;
@@ -2604,6 +2663,7 @@ int32u *rcmove;
 
   m_ptr = &m_list[monptr];
   r_ptr = &c_list[m_ptr->mptr];
+  inv=do_invis(r_ptr);
   /* Does the critter multiply?				   */
   if ((r_ptr->cmove & CM_MULTIPLY) && (MAX_MON_MULT >= mon_tot_mult) &&
       (((py.flags.rest!=-1) && ((py.flags.rest % MON_MULT_ADJ) == 0)) ||
@@ -2674,7 +2734,7 @@ int32u *rcmove;
       return;  /* monster movement finished */
     }
   /* Creature is confused?  Chance it becomes un-confused  */
-  else if (m_ptr->confused)
+  else if (m_ptr->confused || inv)
     {
       mm[0] = randint(9);
       mm[1] = randint(9);
@@ -2765,9 +2825,10 @@ int32u *rcmove;
 void creatures(attack)
 int attack;
 {
-  register int i, k;
+  register int i, k, inv, mlv, lvl;
   register monster_type *m_ptr;
   recall_type *r_ptr;
+  creature_type *c_ptr;
   int32u notice, rcmove;
   int wake, ignore;
   vtype cdesc;
@@ -2797,6 +2858,8 @@ int attack;
 	    while (k > 0)
 	      {
 		k--;
+		c_ptr=&c_list[m_ptr->mptr];
+		do_invis(c_ptr);
 		wake = FALSE;
 		ignore = FALSE;
 		rcmove = 0;
@@ -2806,12 +2869,13 @@ int attack;
 		      if (py.flags.aggravate)
 			m_ptr->csleep = 0;
 		      else if ((py.flags.rest == 0 && py.flags.paralysis < 1)
-			       || (randint(50) == 1))
+			       || (randint(50) == 1) || inv)
 			{
 			  notice = randint(1024);
 			  if ((notice*notice*notice) <= (1L << (29 - py.misc.stl)))
 			    {
-			      m_ptr->csleep -= (100 / m_ptr->cdis);
+			      m_ptr->csleep -= (100/(inv*20+m_ptr->cdis));
+			      /* Invisible guys SEEM farther away WRT sleep */
 			      if (m_ptr->csleep > 0)
 				ignore = TRUE;
 			      else

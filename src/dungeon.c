@@ -148,6 +148,15 @@ void dungeon()
       /* Increment turn counter			*/
       turn++;
 #ifndef MAC
+      if (py.flags.whichone<0)
+	{
+	  ++py.flags.whichone;
+	  if (!py.flags.whichone)
+	    {
+	      msg_print("You feel the energy leave your body.");
+	      calc_bonuses();
+	    }
+	}
       /* The Mac ignores the game hours file		*/
       /* Check for game hours			       */
       if (((turn % 100) == 1) && !check_time())
@@ -171,8 +180,8 @@ void dungeon()
 	  }
 #endif
 
-      /* turn over the store contents every, say, 1000 turns */
-      if ((dun_level != 0) && ((turn % 1000) == 0)) {
+      /* turn over the store contents every, say, 300 turns */
+      if ((dun_level != 0) && ((turn % 300) == 0)) {
 	if (peek) msg_print("Store update: ");
 	store_maint();
 	if (peek) msg_print("Complete ");
@@ -225,6 +234,8 @@ void dungeon()
 
       /* Update counters and messages			*/
       /* Check food status	       */
+      if (py.misc.timeout<400)
+       ++py.misc.timeout; /* Get breath weapon ready */
       regen_amount = PLAYER_REGEN_NORMAL;
       if (f_ptr->food < PLAYER_FOOD_ALERT)
 	{
@@ -260,7 +271,7 @@ void dungeon()
 	}
       /* Food consumption	*/
       /* Note: Speeded up characters really burn up the food!  */
-      if (f_ptr->speed < 0)
+      if (f_ptr->speed < 0 || f_ptr->tspeed > 0)
 	f_ptr->food -=	f_ptr->speed*f_ptr->speed;
       f_ptr->food -= f_ptr->food_digested;
       if (f_ptr->food < 0)
@@ -365,7 +376,7 @@ void dungeon()
 	prt_cut();
 	if (f_ptr->cut<=0) {
 	  f_ptr->cut=0;
-	  if (py.misc.chp>=0)
+	  if (py.misc.chp>=min_hp)
 	    msg_print("Your wound heals.");
 	}
       }
@@ -742,6 +753,13 @@ void dungeon()
 	      creatures (FALSE);
 	    }
 	}
+      /* Timed invisibility */
+      if (py.flags.tim_invis > 0)
+	{
+	  --py.flags.tim_invis; 
+	  if (!py.flags.tim_invis)
+	    prt_speed(); /* This keeps us up to date on invisibility status */
+	}
       /* Timed infra-vision    */
       if (f_ptr->tim_infra > 0)
 	{
@@ -875,6 +893,7 @@ void dungeon()
 		      (i_ptr->tval==TV_DIGGING) ||
 		      (i_ptr->tval==TV_SLING_AMMO) ||
 		      (i_ptr->tval==TV_SOFT_ARMOR) ||
+		      (i_ptr->tval==TV_ROBE) ||
 		      (i_ptr->tval==TV_HARD_ARMOR) ||
 		      (i_ptr->tval==TV_HELM) ||
 		      (i_ptr->tval==TV_BOOTS) ||
@@ -894,7 +913,7 @@ void dungeon()
 	  }
 	}
 
-      /* Warriors, Rogues and paladins inbuilt ident */
+      /* Warriors, Rogues, Paladins and Monks inbuilt ident */
       if (((py.misc.pclass==0) && (f_ptr->confused == 0) &&
 	  (randint((int)(9000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))
 	  ||
@@ -902,7 +921,10 @@ void dungeon()
 	  (randint((int)(20000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))
 	  ||
 	  ((py.misc.pclass==5) && (f_ptr->confused == 0) &&
-	  (randint((int)(80000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))) {
+	  (randint((int)(80000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))
+	  ||
+	  ((py.misc.pclass==6) && (f_ptr->confused == 0) &&
+	  (randint((int)(25000/(py.misc.lev*py.misc.lev+40)) + 1) == 1))) {
 	  vtype tmp_str;
 	  char *value_check();
 
@@ -913,6 +935,7 @@ void dungeon()
 	    /* if in inventory, succeed 1 out of 5 times,
 	    if in equipment list, always succeed! */
 	    if (((i_ptr->tval==TV_SOFT_ARMOR) ||
+		 (i_ptr->tval==TV_ROBE) ||
 		 (i_ptr->tval==TV_HARD_ARMOR) ||
 		 (i_ptr->tval==TV_SWORD) ||
 		 (i_ptr->tval==TV_HAFTED) ||
@@ -1155,6 +1178,9 @@ char com_val;
     case ' ':
     case '!':
       break;
+    case '`':  /* Stop doing a karate technique */
+      com_val = '`';
+      break;
     case '.':
       if (get_dir(NULL, &dir_val))
 	switch (dir_val)
@@ -1252,7 +1278,10 @@ char com_val;
       com_val = 'P';
       break;
     case 'c':
+      break;
     case 'd':
+      com_val = ']';
+      break;
     case 'e':
       break;
     case 'f':
@@ -1352,7 +1381,8 @@ register inven_type *t_ptr;
       t_ptr->tval!=TV_DIGGING && t_ptr->tval!=TV_SPIKE &&
       t_ptr->tval!=TV_SLING_AMMO && t_ptr->tval!=TV_BOLT &&
       t_ptr->tval!=TV_ARROW && t_ptr->tval!=TV_BOW &&
-      t_ptr->tval!=TV_POLEARM && t_ptr->tval!=TV_HAFTED)
+      t_ptr->tval!=TV_POLEARM && t_ptr->tval!=TV_HAFTED &&
+      t_ptr->tval!=TV_ROBE)
       return 0;
   if (t_ptr->tohit > 0 || t_ptr->todam > 0 || t_ptr->toac > 0)
     return 1;
@@ -1416,6 +1446,7 @@ char com_val;
   int dir_val, do_pickup;
   int y, x, i, j;
   vtype out_val, tmp_str;
+  char technique[20],tstr[40];
   register struct flags *f_ptr;
 
   /* hack for move without pickup.  Map '-' to a movement command. */
@@ -1447,6 +1478,33 @@ char com_val;
 
   switch(com_val)
     {
+    case '`':   /* Stop doing a karate technique */
+      if (py.misc.pclass!=6)
+	msg_print("You don't know any karate techniques.");
+      else if (py.flags.whichone<=0)
+	msg_print("You aren't doing a karate technique right now.");
+      else
+	{
+	 strcpy(technique,spell_names[(py.flags.whichone&0x7F)+MONK_OFFSET]);
+	 sprintf(tstr,"Press 'Y' to stop doing %s.",technique);
+	 msg_print(tstr);
+	 technique[0]=inkey();
+	 if (technique[0]=='y' || technique[0]=='Y')
+	   {
+	     py.flags.whichone=0;
+	     py.flags.ac_mod=0;
+	     py.flags.tohit=0;
+	     py.flags.todam=0;
+	     (void) calc_bonuses();
+	     if (py.flags.tspeed)
+	       {
+		 py.flags.tspeed=0;
+		 change_speed(1); /* Slow him down */
+		 prt_speed();
+	       }
+	   }
+       }
+      break;
     case 'Q':	/* (Q)uit		(^K)ill */
       flush();
       if ((!total_winner)?get_check("Do you really want to quit?")
@@ -1755,6 +1813,11 @@ char com_val;
       break;
     case 'c':		/* (c)lose an object */
       closeobject();
+      break;
+    case ']':
+      py.flags.dodge=1-py.flags.dodge;
+      prt_speed(); /* Let player know he's dodging */
+      calc_bonuses();
       break;
     case 'd':		/* (d)rop something */
       inven_command('d');
@@ -2200,8 +2263,8 @@ static void activate() {
   flag=FALSE;
   redraw=FALSE;
   num=0;
-  first=0;
-  for (i=22; i<(INVEN_ARRAY_SIZE-1); i++) {
+  first=0; /* i=22 is what it started at */
+  for (i=0; i<(INVEN_ARRAY_SIZE-1); i++) {
     if ((inventory[i].flags2 & TR_ACTIVATE) && (known2_p(&(inventory[i])))) {
       num++;
       if (!flag) first=i;
@@ -2754,7 +2817,10 @@ static void activate() {
 	  } else if (class[m_ptr->pclass].spell == PRIEST) {
 	    calc_spells(A_WIS);
 	    calc_mana(A_WIS);
-	  }
+	  } else if (class[m_ptr->pclass].spell == MONK) {
+            calc_spells(A_DEX);
+            calc_mana(A_DEX);
+          }
 	  prt_level();
 	  prt_title();
 	  take_hit((py.misc.chp>2)?py.misc.chp/2:0, "malignant aura");
@@ -3027,6 +3093,16 @@ static void activate() {
 	py.flags.fast += randint(100) + 50;
 	inventory[i].timeout=200;
 	break;
+      case (SPECIAL_OBJ+11):
+        msg_print("A white aura envelops the robe.");
+	(void) remove_fear();
+        py.flags.confused=0;
+	py.flags.blind=0;
+        py.flags.cut=0;
+	py.misc.cmana=py.misc.mana;
+	msg_print("You feel totally refreshed.");
+	inventory[i].timeout=500;
+        break;
       default:
 	(void) sprintf(tmp2, "Inventory num %d, index %d", i,
 		       inventory[i].index);
@@ -3043,14 +3119,17 @@ static void examine_book()
 {
   int32u j1;
   int32u j2;
-  int i, k, item_val, flag;
+  int i, k, item_val, flag,temp;
   int spell_index[63];
   register inven_type *i_ptr;
   register spell_type *s_ptr;
   char tmp[100];
-
-  if (!find_range(TV_MAGIC_BOOK, TV_PRAYER_BOOK, &i, &k))
-    msg_print("You are not carrying any books.");
+  if (class[py.misc.pclass].spell != MONK)
+    temp=find_range(TV_MAGIC_BOOK, TV_PRAYER_BOOK, &i, &k);
+  else
+   temp=find_range(TV_MONK_BOOK, TV_NEVER, &i, &k);
+  if (!temp)
+      msg_print("You are not carrying any books.");
   else if (py.flags.blind > 0)
     msg_print("You can't see to read your spell book!");
   else if (no_light())
@@ -3069,6 +3148,11 @@ static void examine_book()
       else if (class[py.misc.pclass].spell == PRIEST)
 	{
 	  if (i_ptr->tval != TV_PRAYER_BOOK)
+	    flag = FALSE;
+	}
+      else if (class[py.misc.pclass].spell == MONK)
+        {
+          if (i_ptr->tval != TV_MONK_BOOK)
 	    flag = FALSE;
 	}
       else

@@ -62,6 +62,7 @@ int set_flammable(inven_type *e) /* changed -CFT */
 	{
 	case TV_ARROW: case TV_BOW: case TV_HAFTED: case TV_POLEARM:
 	case TV_BOOTS: case TV_GLOVES: case TV_CLOAK: case TV_SOFT_ARMOR:
+	case TV_ROBE:
         if ((e->flags2 & TR_ARTIFACT)   /* shouldn't kill artifacts -CFT */
         || (e->flags & TR_RES_FIRE) /* can't check outside, because flags */
         || (e->flags2 & TR_IM_FIRE)) /* used differently in potions/etc */
@@ -92,6 +93,7 @@ int set_acid_affect(inven_type *e) /* changed -CFT */
       case TV_BOLT: case TV_ARROW:
  case TV_BOW: case TV_HAFTED: case TV_POLEARM: case TV_BOOTS:
  case TV_GLOVES: case TV_CLOAK: case TV_SOFT_ARMOR:
+	case TV_ROBE:
         if ((e->flags2 & TR_ARTIFACT)   /* shouldn't kill artifacts -CFT */
         || (e->flags & TR_RES_ACID) /* can't check outside, because flags */
         || (e->flags2 & TR_IM_ACID)) /* used differently in potions/etc */
@@ -137,6 +139,7 @@ int set_acid_destroy(inven_type *e) /* changed -CFT */
 	case TV_ARROW: case TV_BOW: case TV_HAFTED: case TV_POLEARM:
 	case TV_BOOTS: case TV_GLOVES: case TV_CLOAK: case TV_HELM:
       case TV_SHIELD: case TV_HARD_ARMOR: case TV_SOFT_ARMOR:
+	case TV_ROBE:
         if ((e->flags2 & TR_ARTIFACT)   /* shouldn't kill artifacts -CFT */
         || (e->flags & TR_RES_ACID) /* can't check outside, because flags */
         || (e->flags2 & TR_IM_ACID)) /* used differently in potions/etc */
@@ -157,6 +160,7 @@ int set_fire_destroy(inven_type *e) /* changed -CFT */
 	{
 	case TV_ARROW: case TV_BOW: case TV_HAFTED: case TV_POLEARM:
 	case TV_BOOTS: case TV_GLOVES: case TV_CLOAK: case TV_SOFT_ARMOR:
+	case TV_ROBE:
          if ((e->flags2 & TR_ARTIFACT)   /* shouldn't kill artifacts -CFT */
         || (e->flags & TR_RES_FIRE) /* can't check outside, because flags */
         || (e->flags2 & TR_IM_FIRE)) /* used differently in potions/etc */
@@ -177,12 +181,24 @@ int element;
   switch(element)
     {
     case TV_DIGGING: case TV_BOOTS: case TV_CLOAK: case TV_FOOD:
-    case TV_FLASK: case TV_LIGHT: case TV_SPIKE:
+    case TV_FLASK: case TV_LIGHT: case TV_SPIKE: case TV_ROBE:
       return(TRUE);
     }
   return(FALSE);
 }
 
+
+int dojo(element)
+int element;
+{
+ switch(element)
+   {
+   case TV_BOOTS: case TV_CLOAK: case TV_FOOD: case TV_ROBE:
+   case TV_LIGHT: case TV_FLASK: case TV_MONK_BOOK:
+     return(TRUE);
+   }
+ return(FALSE);
+}
 
 int armory(element)
 int element;
@@ -190,7 +206,7 @@ int element;
   switch(element)
     {
     case TV_BOOTS: case TV_GLOVES: case TV_HELM: case TV_SHIELD:
-    case TV_HARD_ARMOR: case TV_SOFT_ARMOR:
+    case TV_HARD_ARMOR: case TV_SOFT_ARMOR: case TV_ROBE:
       return(TRUE);
     }
   return(FALSE);

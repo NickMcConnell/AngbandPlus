@@ -140,10 +140,10 @@ creature_type c_list[MAX_CREATURES] = {
 			    ,(NONE8),(EVIL),(NONE8),(NONE8)
 			    ,0,250,10,20,11,'p',{5,8},{9,0,0,0},0,1},
 
-{"Battle scarred veteran"   ,(CARRY_GOLD|CARRY_OBJ|HAS_90|
-			      MV_ATT_NORM|MV_40|THRO_DR|PICK_UP)
-			    ,(NONE8),(NONE8),(NONE8),(NONE8)
-			    ,0,250,10,30,11,'p',{7,8},{15,0,0,0},0,1},
+{"Feldisham, the Guard"     ,(HAS_2D2|HAS_90|
+			      MV_ATT_NORM|THRO_DR|PICK_UP)
+			    ,(NONE8), (UNIQUE|GOOD|CHARM_SLEEP),(NONE8),(NONE8)
+			    ,50,250,10,40,11,'p',{7,6},{15,0,0,0},1,1},
 
 {"Grey mold"		   ,(MV_ONLY_ATT),(NONE8),(CHARM_SLEEP|ANIMAL),(NONE8)
 			   ,(NONE8),3,0,2,1,11,'m',{1,2},{3,3,0,0},1,1},
@@ -3055,7 +3055,7 @@ struct m_attack_type monster_attacks[N_MONS_ATTS] = {
 /* 0 */	{0, 0, 0, 0},	{1, 1, 1, 2},	{1, 1, 1, 3},	{1, 1, 1, 4},
 	{1, 1, 1, 5},	{1, 1, 1, 6},	{1, 1, 1, 7},	{1, 1, 1, 8},
 	{1, 1, 1, 9},	{1, 1, 1, 10},	{1, 1, 1, 12},	{1, 1, 2, 2},
-	{1, 1, 2, 3},	{1, 1, 2, 4},	{1, 1, 2, 5},	{1, 1, 2, 6},
+	{1, 1, 2, 3},	{1, 1, 2, 4},	{1, 1, 2, 5},	{1, 1, 2, 7},
 	{1, 1, 2, 8},	{1, 1, 3, 4},	{1, 1, 3, 5},	{1, 1, 3, 6},
 /* 20 */{1, 1, 3, 8},	{1, 1, 4, 3},	{1, 1, 4, 6},	{1, 1, 5, 5},
 	{1, 2, 1, 1},	{1, 2, 1, 2},	{1, 2, 1, 3},	{1, 2, 1, 4},

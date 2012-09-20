@@ -376,6 +376,7 @@ static int top_twenty()
   /*  to write to it while we are using it */
   if (0 != flock(highscore_fd, LOCK_EX))
     {
+      printf("\n");
       perror("Error gaining lock for score file");
       exit_game();
     }

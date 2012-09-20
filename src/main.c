@@ -134,7 +134,7 @@ FINGOLFIN, ANARION, POWER, PHIAL, BELEG, DAL, PAURHACH, PAURNIMMEN, PAURAEGEN,
 PAURNEN, CAMMITHRIM, CAMBELEG, INGWE, CARLAMMAS, HOLHENNETH, AEGLIN, CAMLOST,
 NIMLOTH, NAR, BERUTHIEL, GORLIM, ELENDIL, THORIN, CELEBORN, THRAIN,
 GONDOR, THINGOL, THORONGIL, LUTHIEN, TUOR, ROHAN, TULKAS, NECKLACE, BARAHIR,
-CASPANION, RAZORBACK, BLADETURNER;
+CASPANION, RAZORBACK, BLADETURNER, ROBEMED;
 
 /* Unique Monster Flags */
 /* Initialize, restore, and get the ball rolling.	-RAK-	*/
@@ -327,8 +327,11 @@ char *argv[];
      hence, this code is not necessary */
 #endif
 
+  strcpy(string,getenv("HOME"));
+  (void) sprintf(savefile, "%s/angband.save",string);
+/*
   (void) sprintf(savefile, "%s/%d%s", ANGBAND_SAV, player_uid, py.misc.name);
-
+*/
 
 /* This restoration of a saved character may get ONLY the monster memory. In
    this case, get_char returns false. It may also resurrect a dead character
@@ -352,7 +355,7 @@ char *argv[];
     change_name();
 
     /* could be restoring a dead character after a signal or HANGUP */
-    if (py.misc.chp < 0)
+    if (py.misc.chp < min_hp)
       death = TRUE;
   } else {  /* Create character */
       /* Unique Weapons, Armour and Rings */
@@ -456,6 +459,7 @@ char *argv[];
       CASPANION=0;
       RAZORBACK=0;
       BLADETURNER=0;
+      ROBEMED=0;
       NARYA=0;
       NENYA=0;
       VILYA=0;
@@ -491,6 +495,12 @@ char *argv[];
 	  calc_spells(A_WIS);
 	  clear_screen(); /* force out the 'learn prayer' message */
 	  calc_mana(A_WIS);
+	}
+      else if (class[py.misc.pclass].spell == MONK)
+        {         /* Monk realm */
+	  calc_spells(A_DEX);
+	  clear_screen();
+	  calc_mana(A_DEX);
 	}
         if (!_new_log())
 	{

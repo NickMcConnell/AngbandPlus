@@ -58,7 +58,7 @@ SOULKEEPER, FINGOLFIN, ANARION, POWER, PHIAL, BELEG, DAL, PAURHACH,
 PAURNIMMEN, PAURAEGEN, PAURNEN, CAMMITHRIM, CAMBELEG, INGWE, CARLAMMAS,
 HOLHENNETH, AEGLIN, CAMLOST, NIMLOTH, NAR, BERUTHIEL, GORLIM, ELENDIL,
 THORIN, CELEBORN, THRAIN, GONDOR, THINGOL, THORONGIL, LUTHIEN, TUOR, ROHAN,
-TULKAS, NECKLACE, BARAHIR, CASPANION, RAZORBACK, BLADETURNER;
+TULKAS, NECKLACE, BARAHIR, CASPANION, RAZORBACK, BLADETURNER, ROBEMED;
 
 /* Brand new extra effecient and kind way to add unique monsters... HOORAY!! */
 extern struct unique_mon u_list[MAX_CREATURES];
@@ -67,6 +67,7 @@ extern int quests[MAX_QUESTS];
 
 
 /* global flags */
+extern int min_hp; /* Min HP player can have before dying */
 extern int good_item_flag;      /* True if an artifact has been created... */
 extern int LOAD;
 extern int new_level_flag;	  /* Next level when true  */
@@ -241,6 +242,9 @@ extern int16u normal_table[NORMAL_TABLE_SIZE];
 /* dungeon.c */
 extern char last_command;  /* Memory of previous command. */
 /* moria1.c */
+
+extern int do_dodge(void);
+
 /* Track if temporary light about player.  */
 extern int light_flag;
 
@@ -263,6 +267,7 @@ extern char	moriatop[], moriasav[];
 void create_character(void);
 
 /* creature.c */
+int do_invis(creature_type *);
 void update_mon(int);
 int movement_rate(int16);
 int multiply_monster(int, int, int, int);
@@ -349,6 +354,7 @@ void screen_map(void);
 
 /* magic.c */
 void cast(void);
+void player_breathe(void);
 
 /* main.c */
 int main(int, char **);
@@ -391,6 +397,7 @@ void magic_treasure(int, int);
 void set_options(void);
 
 /* misc2.c */
+int luck(void);
 void place_trap(int, int, int);
 void place_rubble(int, int);
 void place_gold(int, int);
@@ -472,6 +479,10 @@ int find_range(int, int, int *, int *);
 void teleport(int);
 void check_view(void);
 
+/* monk.c */
+
+void monk(void);
+
 /* monsters.c */
 
 /* moria1.c */
@@ -530,6 +541,7 @@ void disarm_trap(void);
 void look(void);
 void throw_object(void);
 void bash(void);
+void py_attack(int, int, int);
 
 #ifdef MSDOS
 /* ms_misc.c */
@@ -611,6 +623,7 @@ void restore_signals(void);
 /* spells.c */
 void monster_name(char *, struct monster_type *, struct creature_type *);
 void lower_monster_name(char *, struct monster_type *, struct creature_type *);
+void mass_sleep(void);
 int sleep_monsters1(int, int);
 int detect_treasure(void);
 int detect_object(void);

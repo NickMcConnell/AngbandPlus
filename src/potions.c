@@ -128,7 +128,7 @@ void quaff()
 		}
 	      break;
 	    case 13:
-	      ident = hp_player(damroll(2, 7));
+	      ident = hp_player(damroll(3, 7));
 	      if (py.flags.cut>0) {
 		py.flags.cut-=10;
 		if (py.flags.cut<0) py.flags.cut=0;
@@ -137,7 +137,7 @@ void quaff()
 	      }
 	      break;
 	    case 14:
-	      ident = hp_player(damroll(4, 7));
+	      ident = hp_player(damroll(6, 7));
 	      if (py.flags.cut>0) {
 		py.flags.cut=(py.flags.cut/2)-50;
 		if (py.flags.cut<0) py.flags.cut=0;
@@ -146,7 +146,7 @@ void quaff()
 	      }
 	      break;
 	    case 15:
-	      ident = hp_player(damroll(6, 7));
+	      ident = hp_player(damroll(8, 7));
 	      if (py.flags.cut>0) {
 		py.flags.cut=0;
 		ident = TRUE;
@@ -206,13 +206,15 @@ void quaff()
 	      break;
 	    case 19:
 	      f_ptr = &py.flags;
-	      if (!f_ptr->free_act)
+	      if (!f_ptr->tim_invis)
 		{
-		  /* paralysis must == 0, otherwise could not drink potion */
-		  msg_print("You fall asleep.");
-		  f_ptr->paralysis += randint(4) + 4;
+		  msg_print("You feel your body fade away.");
+		  f_ptr->tim_invis += randint(30) + 30;
 		  ident = TRUE;
 		}
+	      else
+		f_ptr->tim_invis+=10+randint(10);
+	      detect_inv2(30+randint(30));
 	      break;
 	    case 20:
 	      f_ptr = &py.flags;

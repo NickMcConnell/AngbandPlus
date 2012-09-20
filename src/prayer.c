@@ -16,7 +16,7 @@
 /* Pray like HELL.					-RAK-	*/
 void pray()
 {
-  int i, j, item_val, dir;
+  int i, j, item_val, dir, spell;
   int choice, chance, result;
   register spell_type *s_ptr;
   register struct misc *m_ptr;
@@ -24,7 +24,9 @@ void pray()
   register inven_type *i_ptr;
 
   free_turn_flag = TRUE;
-  if (py.flags.blind > 0)
+  if (class[py.misc.pclass].spell==MONK)
+    monk(); /* Do monk techniques */
+  else if (py.flags.blind > 0)
     msg_print("You can't see to read your prayer!");
   else if (no_light())
     msg_print("You have no light to read by.");
@@ -38,6 +40,8 @@ void pray()
     msg_print ("You are not carrying any Holy Books!");
   else if (get_item(&item_val, "Use which Holy Book?", i, j, 0))
     {
+      spell=py.misc.lev*(class[py.misc.pclass].magicity+
+			 race[py.misc.prace].base_mag)/200;
       result = cast_spell("Recite which prayer?", item_val, &choice, &chance);
       if (result < 0)
 	msg_print("You don't know any prayers in that book.");
@@ -49,7 +53,7 @@ void pray()
 	  if (py.flags.stun>50) chance+=25;
 	  else if (py.flags.stun>0) chance+=15;
 	  if (randint(100) < chance)
-	    msg_print("You lost your concentration!");
+	    msg_print("Your god ignores your prayer!");
 	  else
 	    {
 	      /* Prayers.					*/
@@ -59,15 +63,15 @@ void pray()
 		  (void) detect_evil();
 		  break;
 		case 2:
-		  (void) hp_player(damroll(3, 3));
+		  (void) hp_player(damroll(3+spell/8, 3+spell/5));
 		  if (py.flags.cut>0) {
 		    py.flags.cut-=10;
 		    if (py.flags.cut<0) py.flags.cut=0;
-		    msg_print("You wounds heal.");
+		    msg_print("Your wounds heal.");
 		  }
 		  break;
 		case 3:
-		  bless(randint(12)+12);
+		  bless(randint(12)+5+spell/4*2);
 		  break;
 		case 4:
 		  (void) remove_fear();
@@ -82,28 +86,28 @@ void pray()
 		  (void) detect_sdoor();
 		  break;
 		case 8:
-		  (void) slow_poison();
+		  (void) cure_poison();
 		  break;
 		case 9:
 		  if (get_dir(NULL, &dir))
 		    (void) confuse_monster(dir, char_row, char_col);
 		  break;
 		case 10:
-		  teleport((int)(py.misc.lev*3));
+		  teleport((int)(spell*3));
 		  break;
 		case 11:
-		  (void) hp_player(damroll(4, 4));
+		  (void) hp_player(damroll(4+spell/5, 5+spell/8));
 		  if (py.flags.cut>0) {
 		    py.flags.cut=(py.flags.cut/2)-20;
 		    if (py.flags.cut<0) py.flags.cut=0;
-		    msg_print("You wounds heal.");
+		    msg_print("Your wounds heal.");
 		  }
 		  break;
 		case 12:
-		  bless(randint(24)+24);
+		  bless(randint(24)+20+spell);
 		  break;
 		case 13:
-		  (void) sleep_monsters1(char_row, char_col);
+                  (void) dispel_creature(ANIMAL,(int)4*spell);
 		  break;
 		case 14:
 		  create_food();
@@ -132,23 +136,32 @@ void pray()
 		  f_ptr->resist_cold += randint(10) + 10;
 		  break;
 		case 17:
-		  (void) cure_poison();
+		  if (!py.flags.word_recall)
+		  {
+		   msg_print("The air around you becomes charged.");
+		   py.flags.word_recall = 20 + randint(20);
+		  }
 		  break;
 		case 18:
 		  if (get_dir(NULL, &dir))
 		    fire_ball(GF_HOLY_ORB, dir, char_row, char_col,
-			      (int)(damroll(3,6)+py.misc.lev),
+			      (int)(damroll(3,6)+spell*3/2),
 			      "Black Sphere");
 		  break;
 		case 19:
-		  (void) hp_player(damroll(8, 4));
+		  (void) hp_player(damroll(5+spell/5, 5+spell/6));
 		  if (py.flags.cut>0) {
 		    py.flags.cut=0;
-		    msg_print("You wounds heal.");
+		    msg_print("Your wounds heal.");
 		  }
 		  break;
 		case 20:
-		  detect_inv2(randint(24)+24);
+		  if (py.flags.tim_invis>0)
+		    py.flags.tim_invis+=5+randint(5);
+		  else
+		    py.flags.tim_invis+=15+spell+randint(24);
+		  detect_inv2(randint(24)+15+spell);
+		  prt_speed(); /* Let player know he's invisible */
 		  break;
 		case 21:
 		  (void) protect_evil();
@@ -160,23 +173,23 @@ void pray()
 		  map_area();
 		  break;
 		case 24:
-		  (void) hp_player(damroll(16, 4));
+		  (void) hp_player(damroll(10+spell/9, 4+spell/8));
 		  if (py.flags.cut>0) {
 		    py.flags.cut=0;
-		    msg_print("You wounds heal.");
+		    msg_print("Your wounds heal.");
 		  }
 		  break;
 		case 25:
 		  (void) turn_undead();
 		  break;
 		case 26:
-		  bless(randint(48)+48);
+		  (void) dispel_creature(DRAGON, (int)(4*spell));
 		  break;
 		case 27:
-		  (void) dispel_creature(UNDEAD, (int)(3*py.misc.lev));
+		  (void) dispel_creature(UNDEAD, (int)(3*spell));
 		  break;
 		case 28:
-		  (void) hp_player(200);
+		  (void) hp_player(200+spell*5);
 		  if (py.flags.stun>0) {
 		    if (py.flags.stun>50) {
 		      py.misc.ptohit+=20;
@@ -194,13 +207,13 @@ void pray()
 		  }
 		  break;
 		case 29:
-		  (void) dispel_creature(EVIL, (int)(3*py.misc.lev));
+		  (void) dispel_creature(EVIL, (int)(3*spell));
 		  break;
 		case 30:
 		  warding_glyph();
 		  break;
 		case 31:
-		  (void) dispel_creature(EVIL, (int)(4*py.misc.lev));
+		  (void) dispel_creature(EVIL, (int)(4*spell));
 		  (void) remove_fear();
 		  (void) cure_poison();
 		  (void) hp_player(1000);
@@ -236,18 +249,18 @@ void pray()
 		  wizard_light(TRUE);
 		  break;
 		case 37:
-		  (void) hp_player(damroll(8, 4));
-		  if (py.flags.cut>0) {
-		    py.flags.cut=0;
-		    msg_print("You wounds heal.");
-		  }
+		  py.flags.resist_heat+=10+spell+randint(10+spell);
+		  py.flags.resist_cold+=10+spell+randint(10+spell);
+		  py.flags.resist_light+=10+spell+randint(10+spell);
+		  py.flags.resist_poison+=10+spell+randint(10+spell);
+		  py.flags.resist_acid+=10+spell+randint(10+spell);
 		  break;
 		case 38:
-		  (void) hp_player(damroll(16, 4));
-		  if (py.flags.cut>0) {
-		    py.flags.cut=0;
-		    msg_print("You wounds heal.");
-		  }
+                  py.flags.shield+=20+randint(spell/2);
+                  calc_bonuses();
+		  prt_pac();
+                  calc_mana(A_WIS);
+		  msg_print("The essence of your god surrounds you!");
 		  break;
 		case 39:
 		  (void) hp_player(2000);
@@ -285,10 +298,10 @@ void pray()
 		  (void) restore_level();
 		  break;
 		case 42: /* dispel undead */
-		  (void) dispel_creature(UNDEAD, (int)(4*py.misc.lev));
+		  (void) dispel_creature(UNDEAD, (int)(4*spell));
 		  break;
 		case 43: /* dispel evil */
-		  (void) dispel_creature(EVIL, (int)(4*py.misc.lev));
+		  (void) dispel_creature(EVIL, (int)(4*spell));
 		  break;
 		case 44: /* banishment */
 		  if (banish_creature(EVIL, 100))
@@ -389,29 +402,73 @@ void pray()
 		  }
 		  break;
 		case 52: /* Elemental brand */
-		  i_ptr = &inventory[INVEN_WIELD];
+		  if (randint(2)==1)
+		    i_ptr = &inventory[INVEN_WIELD];
+		  else
+		    i_ptr = &inventory[INVEN_ARM]; /* Bless Shield */
 		  if (i_ptr->tval != TV_NOTHING &&
 		      i_ptr->name2 == SN_NULL)
 		    {
-		      int hot = randint(2)-1;
+		      int hot = randint(100)-1;
 		      char tmp_str[100], out_val[100];
 
 		      objdes(tmp_str, i_ptr, FALSE);
-		      if (hot) {
+		      if (hot<40) {
 			sprintf(out_val,
 				"Your %s is covered in a fiery shield!",
 				tmp_str);
 			i_ptr->name2 |= SN_FT;
-			i_ptr->flags |= (TR_FLAME_TONGUE|TR_RES_FIRE);
-		      } else {
+			if (i_ptr->tval!=TV_SHIELD)
+			  i_ptr->flags |= (TR_FLAME_TONGUE|TR_RES_FIRE);
+			else
+			  i_ptr->flags |= TR_RES_FIRE;
+		      } else if (hot<80) {
 			sprintf(out_val,"Your %s glows deep, icy blue!",
 				tmp_str);
 			i_ptr->name2 |= SN_FB;
-			i_ptr->flags |= (TR_FROST_BRAND|TR_RES_COLD);
+			if (i_ptr->tval != TV_SHIELD)
+			  i_ptr->flags |= (TR_FROST_BRAND|TR_RES_COLD);
+			else
+			  i_ptr->flags |= TR_RES_COLD;
 		      }
+		       else /* SPECIAL ego weapon */
+			 {
+			   sprintf(out_val,"Your %s glows a blinding gold!",
+				   tmp_str);
+			   if (i_ptr->tval!=TV_SHIELD)
+			    {
+			      i_ptr->name2 |= SN_DF;
+			      i_ptr->flags |= (TR_RES_COLD|TR_RES_FIRE|
+					       TR_RES_LIGHT|TR_RES_ACID|
+					       TR_SUST_STAT|TR_SEE_INVIS|
+					       TR_FREE_ACT|TR_STEALTH);
+			      i_ptr->flags2 |=(TR_RES_CONF|TR_RES_LT|
+					       TR_RES_CHAOS|TR_RES_SHARDS|
+					       TR_RES_NETHER|
+					       TR_RES_BLIND|TR_RES_SOUND|
+					       TR_RES_NEXUS|TR_RES_DISENCHANT);
+			      i_ptr->p1 = 2+randint(3);
+			      i_ptr->toac += 5 + randint(5);
+			      i_ptr->tohit+=2;
+			      i_ptr->tohit+=2;
+			      i_ptr->cost += 13000;
+			    }
+			   else /* Shield */
+			     {
+			       i_ptr->name2 |= SN_PROTECTION;
+			       i_ptr->cost += 15000;
+			       i_ptr->toac += 25 + randint(20);
+			       i_ptr->flags |= (TR_FREE_ACT|TR_HOLD_LIFE|
+						TR_SEE_INVIS|TR_RES_ACID|
+						TR_SUST_STAT);
+			       i_ptr->flags2|= (TR_IM_POISON|TR_RES_CONF|
+						TR_RES_DARK|TR_EXTRAHP);
+			       i_ptr->p1 = 2;
+			     }
+			 }
 		      msg_print(out_val);
-		      i_ptr->tohit+=3+randint(3);
-		      i_ptr->todam+=3+randint(3);
+		      i_ptr->tohit+=4+randint(4);
+		      i_ptr->todam+=4+randint(4);
 		      i_ptr->flags &= ~TR_CURSED;
 		      calc_bonuses ();
 		    } else {
@@ -422,7 +479,7 @@ void pray()
 		  teleport(10);
 		  break;
 		case 54: /* teleport */
-		  teleport((int)(py.misc.lev*8));
+		  teleport((int)(spell*8));
 		  break;
 		case 55: /* teleport away */
 		  if (get_dir(NULL, &dir))
@@ -431,10 +488,14 @@ void pray()
 		case 56: /* teleport level */
 		  (void) tele_level();
 		  break;
-		case 57: /* word of recall */
-		  if (py.flags.word_recall == 0)
-		    py.flags.word_recall = 25 + randint(30);
-		  msg_print("The air about you becomes charged.");
+		case 57: /* Resist Death */
+		  if (py.flags.whichone<0)
+		    py.flags.whichone-=10+randint(10+spell/4);
+		  else
+		    {
+		      msg_print("You feel energy surge through your body.");
+		      py.flags.whichone=-40+randint(30+spell);
+		    }
 		  break;
 		case 58: /* alter reality */
 		  new_level_flag = TRUE;

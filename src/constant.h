@@ -73,8 +73,8 @@
 #define DUN_UNUSUAL	 200  /*was 300 Level/x chance of unusual room	 */
 
 /* Store constants						*/
-#define MAX_OWNERS	 24   /* Number of owners to choose from       */
-#define MAX_STORES	 8    /* Number of different stores	       */
+#define MAX_OWNERS	 27   /* Number of owners to choose from       */
+#define MAX_STORES	 9    /* Number of different stores	       */
 #define STORE_INVEN_MAX	 24   /* Max number of discrete objs in inven  */
 #define STORE_CHOICES	 30   /* NUMBER of items to choose stock from  */
 #define STORE_MAX_INVEN	 18   /* Max diff objs in stock for auto buy   */
@@ -93,7 +93,7 @@
 #define OBJ_GREAT      11     /* 1/n Chance of item being a Great Item */
 
 /* Number of dungeon objects */
-#define MAX_DUNGEON_OBJ  423
+#define MAX_DUNGEON_OBJ  425
 
 /* Note that the following constants are all related, if you change one,
    you must also change all succeeding ones.  Also, player_init[] and
@@ -105,7 +105,7 @@
 #define OBJ_UP_STAIR		(MAX_DUNGEON_OBJ+26)
 #define OBJ_DOWN_STAIR		(MAX_DUNGEON_OBJ+27)
 #define OBJ_STORE_DOOR  	(MAX_DUNGEON_OBJ+28)
-#define OBJ_TRAP_LIST		(MAX_DUNGEON_OBJ+36)
+#define OBJ_TRAP_LIST		(MAX_DUNGEON_OBJ+37)
 #define OBJ_RUBBLE		(MAX_DUNGEON_OBJ+54)
 #define OBJ_MUSH		(MAX_DUNGEON_OBJ+55)
 #define OBJ_SCARE_MON		(MAX_DUNGEON_OBJ+56)
@@ -116,7 +116,7 @@
 /*Special start for rings amulets etc... */
 #define SPECIAL_OBJ             (MAX_DUNGEON_OBJ+79)
   /* Number of objects for universe*/
-#define MAX_OBJECTS             (MAX_DUNGEON_OBJ+90)
+#define MAX_OBJECTS             (MAX_DUNGEON_OBJ+91)
 
 #define OBJECT_IDENT_SIZE 1024 /*was 7*64, see object_offset() in desc.c,
 				 could be MAX_OBJECTS o_o() rewritten
@@ -186,7 +186,7 @@
 #define MAX_PLAYER_LEVEL  50  /* Maximum possible character level      */
 #define MAX_EXP	    99999999L  /* Maximum amount of experience -CJS- */
 #define MAX_RACES	  10   /* Number of defined races	       */
-#define MAX_CLASS	  6   /* Number of defined classes	       */
+#define MAX_CLASS	  8   /* Number of defined classes	       */
 #define USE_DEVICE	  3   /* x> Harder devices x< Easier devices   */
 #define MAX_BACKGROUND	  128 /* Number of types of histories for univ */
 #define PLAYER_FOOD_FULL 10000/* Getting full			       */
@@ -211,7 +211,9 @@
 /* this depends on the fact that CLA_SAVE values are all the same, if not,
    then should add a separate column for this */
 #define CLA_MISC_HIT	4
-#define MAX_LEV_ADJ	5
+#define CLA_BTH2        5  /* 2-handed fighting */
+#define CLA_DODGE       6  /* Dodging ability */
+#define MAX_LEV_ADJ	7
 
 /* Base to hit constants					*/
 #define BTH_PLUS_ADJ	 3    /* Adjust BTH per plus-to-hit	*/
@@ -238,6 +240,7 @@
 #define A_DEX 3
 #define A_CON 4
 #define A_CHR 5
+#define A_LUC 6
 
 /* some systems have a non-ANSI definition of this, so undef it first */
 #undef CTRL
@@ -282,10 +285,12 @@
 #define NONE	0
 #define MAGE	1
 #define PRIEST	2
+#define MONK    3
 
 /* offsets to spell names in spell_names[] array */
 #define SPELL_OFFSET	0
 #define PRAYER_OFFSET	63
+#define MONK_OFFSET     126
 
 /* definitions for the psuedo-normal distribution generation */
 #define NORMAL_TABLE_SIZE	256
@@ -392,6 +397,9 @@
 #define TR_RES_BLIND	0x00800000L
 #define TR_RES_NETHER   0x01000000L
 #define TR_ARTIFACT     0x02000000L
+#define TR_INVISIBLE    0x04000000L
+#define TR_INVISIBLE2   0x08000000L /* MUCH more powerful */
+#define TR_EXTRAHP      0x10000000L /* Can get negative HP for a time */
 
 /* definitions for chests */
 #define CH_LOCKED	0x00000001L
@@ -686,7 +694,8 @@
 #define SN_TARATOL	       174
 #define SN_RAZORBACK	       175
 #define SN_BLADETURNER	       176
-#define SN_ARRAY_SIZE	       177 /* must be at end of this list */
+#define SN_ROBEMED             177
+#define SN_ARRAY_SIZE	       178 /* must be at end of this list */
 
 /* defines for treasure type values (tval) */
 #define TV_NEVER	-1 /* used by find_range() for non-search */
@@ -716,12 +725,14 @@
 #define TV_SHIELD	34
 #define TV_HARD_ARMOR	35
 #define TV_SOFT_ARMOR	36
+#define TV_ROBE         37
 /* max tval that uses the TR_* flags */
 #define TV_MAX_ENCHANT	39
 #define TV_AMULET	40
 #define TV_RING		45
 /* max tval for wearable items */
 #define TV_MAX_WEAR	50
+#define TV_MONK         51 
 #define TV_STAFF	55
 #define TV_WAND		65
 #define TV_ROD		66
@@ -733,6 +744,7 @@
 #define TV_FOOD 	80
 #define TV_MAGIC_BOOK	90
 #define TV_PRAYER_BOOK	91
+#define TV_MONK_BOOK    92
 /* objects with tval above this are never picked up by monsters */
 #define TV_MAX_OBJECT	99
 #define TV_GOLD		100
@@ -832,7 +844,7 @@
 #define ST_TRE_LC       4L
 #define ST_OBJ_LC     	5L
 #define ST_TELE		6L
-#define ST_EARTH       	7L
+#define ST_MSLEEP       7L
 #define ST_SUMMON       8L
 #define ST_DEST		9L
 #define ST_STAR		10L

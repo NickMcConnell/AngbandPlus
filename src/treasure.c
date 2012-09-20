@@ -271,10 +271,10 @@ treasure_type object_list[MAX_OBJECTS] = {
     0,	1000,	7,   1,  30,	0,   0,	 0,   0, {1,1}	, 47, 0},
 {"& Jewel Encrusted Crown"	,0x00000000L,	TV_HELM, ']',	/*100*/
     0,	2000,	8,   1,  40,	0,   0,	 0,   0, {1,1}	, 50, 0},
-{"& Robe"			,0x00000000L,	TV_SOFT_ARMOR, '(',/*101*/
-    0,	   4,	1,   1,  20,	0,   0,	 2,   0, {0,0}	,  1, 0},
-{"& Robe"		        ,0x00000000L,	TV_SOFT_ARMOR, '(',/*102*/
-    0,	   4,	6,   1,  20,	0,   0,	 2,   0, {0,0}	,  50, 0},
+{"& Sacred Robe"		,0x01C00084L,	TV_ROBE, '(',/*101*/
+    0,	5000,	1,   1,  20,	0,   0,	20,   0, {0,0}	, 50, 0},
+{"& Robe"		        ,0x00000000L,	TV_ROBE, '(',/*102*/
+    0,	   4,	6,   1,  20,	0,   0,	 3,   0, {0,0}	,  5, 0},
 {"Soft Leather Armour"		,0x00000000L,	TV_SOFT_ARMOR, '(',/*103*/
     0,	  18,	2,   1,  80,	0,   0,	 4,   0, {0,0}	,  2, 0},
 {"Soft Studded Leather"		,0x00000000L,	TV_SOFT_ARMOR, '(',/*104*/
@@ -379,8 +379,8 @@ treasure_type object_list[MAX_OBJECTS] = {
     0,	 500,	21,   1,   2,	0,   0,	 0,   0, {0,0}	, 10, 0},
 {"Aggravate Monster"		,0x80000200L,	TV_RING, '=',	/*154*/
     0,	   0,	22,   1,   2,	0,   0,	 0,   0, {0,0}	,  7, 0},
-{"See Invisible"		,0x01000000L,	TV_RING, '=',	/*155*/
-    0,	 340,	23,   1,   2,	0,   0,	 0,   0, {0,0}	, 30, 0},
+{"*Invisiblity*"		,0x01000000L,	TV_RING, '=',	/*155*/
+    0,	 340,	23,   1,   2,	0,   0,	 0,   0, {0,0}	, 30, 0x04000000L},
 {"Sustain Strength"		,0x00400000L,	TV_RING, '=',	/*156*/
     1,	 750,	24,   1,   2,	0,   0,	 0,   0, {0,0}	, 28, 0},
 {"Sustain Intelligence"		,0x00400000L,	TV_RING, '=',	/*157*/
@@ -559,8 +559,8 @@ treasure_type object_list[MAX_OBJECTS] = {
     0,	 8000,	83,   1,   4,	0,   0,	 0,   0, {1,1}	, 30, 0},
 {"Experience"		        ,0x00020000L,	TV_POTION1, '!',/*244*/
     0,	25000,	84,   1,   4,	0,   0,	 0,   0, {1,1}	, 65, 0},
-{"Sleep"			,0x00040000L,	TV_POTION1, '!',/*245*/
-  100,	   0,	85,   1,   4,	0,   0,	 0,   0, {1,1}	,  0, 0},
+{"Invisibility"			,0x00040000L,	TV_POTION1, '!',/*245*/
+  100,	 500,	85,   1,   4,	0,   0,	 0,   0, {1,1}	, 20, 0},
 {"Blindness"			,0x00080000L,	TV_POTION1, '!',/*246*/
     0,	   0,	86,   1,   4,	0,   0,	 0,   0, {1,1}	,  0, 0},
 {"Confusion"			,0x00100000L,	TV_POTION1, '!',/*247*/
@@ -677,8 +677,8 @@ treasure_type object_list[MAX_OBJECTS] = {
     0,	 200,	4,   1,  50,	0,   0,	 0,   0, {1,2}	,  5, 0},
 {"Teleportation"		,ST_TELE,	TV_STAFF, '_',	/*303*/
     0,	2000,	5,   1,  50,	0,   0,	 0,   0, {1,2}	, 20, 0},
-{"Earthquakes"			,ST_EARTH,	TV_STAFF, '_',	/*304*/
-    0,	 350,	6,   1,  50,	0,   0,	 0,   0, {1,2}	, 40, 0},
+{"*Sleep Monsters*"		,ST_MSLEEP,	TV_STAFF, '_',	/*304*/
+    0,	8000,	6,   1,  50,	0,   0,	 0,   0, {1,2}	, 40, 0},
 {"Summoning"			,ST_SUMMON,	TV_STAFF, '_',	/*305*/
     0,	   0,	7,   1,  50,	0,   0,	 0,   0, {1,2}	, 10, 0},
 {"Summoning"			,ST_SUMMON,	TV_STAFF, '_',	/*306*/
@@ -767,20 +767,20 @@ treasure_type object_list[MAX_OBJECTS] = {
     0,	   0,	4,   1,   2,	0,   0,	 0,   0, {1,1}	,  0, 0},
 {"some shards of pottery"	,0x00000000L,	 TV_MISC, '~',	/*348*/
     0,	   0,	5,   1,   5,	0,   0,	 0,   0, {1,1}	,  0, 0},
-{"& Human Skeleton"		,0x00000000L,	 TV_MISC, 's',	/*349*/
-    0,	   0,	7,   1,  50,	0,   0,	 0,   0, {1,1}	,  1, 0},
-{"& Dwarf Skeleton"		,0x00000000L,	 TV_MISC, 's',	/*350*/
-    0,	   0,	8,   1,  60,	0,   0,	 0,   0, {1,1}	,  1, 0},
-{"& Elf Skeleton"		,0x00000000L,	 TV_MISC, 's',	/*351*/
-    0,	   0,	9,   1,  40,	0,   0,	 0,   0, {1,1}	,  1, 0},
-{"& Gnome Skeleton"		,0x00000000L,	 TV_MISC, 's',	/*352*/
-    0,	   0,	10,   1,  25,	0,   0,	 0,   0, {1,1}	,  1, 0},
-{"& broken set of teeth"	,0x00000000L,	 TV_MISC, 's',	/*353*/
-    0,	   0,	11,   1,   3,	0,   0,	 0,   0, {1,5}	,  0, 0},
-{"& large broken bone"		,0x00000000L,	 TV_MISC, 's',	/*354*/
-    0,	   0,	12,   1,   2,	0,   0,	 0,   0, {1,1}	,  0, 0},
-{"& broken stick"		,0x00000000L,	 TV_MISC, '~',	/*355*/
-    0,	   0,	13,   1,   3,	0,   0,	 0,   0, {1,1}	,  0, 0},
+{"[Early Techniques]"	        ,0x000001FFL,	TV_MONK_BOOK, '?',/*349*/
+    0,	  35,	64,   1,  30,   0,   0,	 0,   0, {1,1}	, 5, 0, 0x00000000L},
+{"[Moderate Defense]"	        ,0x0003FE00L,	TV_MONK_BOOK, '?',/*350*/
+    0,	 150,	65,   1,  30,   0,   0,	 0,   0, {1,1}	, 10, 0, 0x00000000L},
+{"[Essential Meditations]"	,0x03FC0000L,	TV_MONK_BOOK, '?',/*351*/
+    0,	 400,	66,   1,  30,   0,   0,	 0,   0, {1,1}	, 15, 0, 0x00000000L},
+{"[Book of Harmonies]"	        ,0x7C000000L,	TV_MONK_BOOK, '?',/*352*/
+    0,	 900,	67,   1,  30,   0,   0,	 0,   0, {1,1}	, 20, 0, 0x00000000L},
+{"[Combat Mastery]"	        ,0x00000000L,	TV_MONK_BOOK, '?',/*353*/
+    0,	9000,	72,   1,  30,   0,   0,	 0,   0, {1,1}	, 70, 0, 0x00007C00L},
+{"[Ways of the Ninja]"     	,0x00000000L,	TV_MONK_BOOK, '?',/*354*/
+    0,	2000,	68,   1,  30,   0,   0,	 0,   0, {1,1}	, 30, 0, 0x0000001FL},
+{"[Mental Unity]"	        ,0x00000000L,	TV_MONK_BOOK, '?',/*355*/
+    0,	4000,	69,   1,  30,   0,   0,	 0,   0, {1,1}	, 40, 0, 0x000003E0L},
 {"Light"			,RD_LT,	        TV_ROD, '-',	/*356*/
     0,	 600,	0,   1,  15,	0,   0,	 0,   0, {1,1}	, 12, 0, 0x800L},
 {"Lightning Bolts"		,RD_LT_BLTS,	TV_ROD , '-',	/*357*/
@@ -838,15 +838,15 @@ treasure_type object_list[MAX_OBJECTS] = {
 {"[Raal's Tome of Destruction]"  ,0x00000000L,	TV_MAGIC_BOOK, '?',/*383*/
     0,	 100000, 72,   1,  30,  0,  0,	0, 0, {1,1},     100, 4, 0x0000FC0L},
 {"[Ethereal Openings]"         	,0x00000000L,	TV_PRAYER_BOOK, '?',/*384*/
-    0,	 7000,	68,   1,  30,   0,   0,	 0,   0, {1,1}	, 30, 0, 0x3F00000L},
+    0,	 3000,	68,   1,  30,   0,   0,	 0,   0, {1,1}	, 15, 0, 0x3F00000L},
 {"[Godly Insights]"           	,0x00000000L,	TV_PRAYER_BOOK, '?',/*385*/
-    0,	 9000,	69,   1,  30,   0,   0,	 0,   0, {1,1}	, 50, 0, 0x000000FL},
+    0,	 5000,	69,   1,  30,   0,   0,	 0,   0, {1,1}	, 30, 0, 0x000000FL},
 {"[Purifications and Healing]" 	,0x00000000L,	TV_PRAYER_BOOK, '?',/*386*/
-    0,	 25000,	70,   1,  30,   0,   0,	 0,   0, {1,1}	, 60, 0, 0x00001F0L},
+    0,	 8000,	70,   1,  30,   0,   0,	 0,   0, {1,1}	, 40, 0, 0x00001F0L},
 {"[Holy Infusions]"            ,0x00000000L,	TV_PRAYER_BOOK, '?',/*388*/
-    0,	50000,	71,   1,  30,   0,   0,	 0,   0, {1,1}	, 80, 3, 0x00FC000L},
+    0,	12000,	71,   1,  30,   0,   0,	 0,   0, {1,1}	, 50, 3, 0x00FC000L},
 {"[Wrath of God]"              ,0x00000000L,	TV_PRAYER_BOOK, '?',/*387*/
-    0,	100000,	72,   1,  30,   0,   0,	 0,   0, {1,1}	, 100, 4, 0x0003E00L},
+    0,	20000,	72,   1,  30,   0,   0,	 0,   0, {1,1}	, 60, 4, 0x0003E00L},
 {"Blue Dragon Scale Mail"        ,0x02100000L,	TV_HARD_ARMOR, '[',/*389*/
     0,	35000,	17,   1, 200,  -2,   0,	30,   10, {2,4}	, 40, 8, 0x00000800L},
 {"White Dragon Scale Mail"       ,0x00300000L,	TV_HARD_ARMOR, '[',/*390*/
@@ -867,56 +867,58 @@ treasure_type object_list[MAX_OBJECTS] = {
     0,	  10,	27,   1,  12,	0,   0,	 0,   0, {1,4}	,  20, 0},
 {"& Short sword"		,0x00000000L,	TV_SWORD, '|',	/*398*/
     0,	  90,	28,   1,  80,	0,   0,	 0,   0, {1,7}	,  6, 0},
-
 /* ADD NEW ITEMS HERE!!!!!!!!! */
-
-{"*Enlightenment*"		,0x00008000L,	TV_POTION2, '!',/*399*/
+{"[External Knowledge]"         ,0x00000000L,   TV_MONK_BOOK, '?',/*399*/
+    0,  6000,   70,   1,  30,   0,   0,  0,   0, {1,1}  , 50, 0, 0x000F8000L},
+{"[Opening Pathways]"           ,0x00000000L,   TV_MONK_BOOK, '?', /*400*/
+    0,  8000,   71,   1,  30,   0,   0,  0,   0, {1,1}  , 60, 0, 0x01F00000L},
+{"*Enlightenment*"		,0x00008000L,	TV_POTION2, '!',/*401*/
     0,	80000,  94,   1,   4,	0,   0,	 0,   0, {1,1}	, 70, 4},
-{"Detonations"		        ,0x00010000L,	TV_POTION2, '!',/*400*/
-    0,  10000,  97,   1,   4,	0,   0,	 0,   0, {25,25}, 60, 6},
-{"Death"                	,0x00020000L,	TV_POTION2, '!',/*401*/
-    0,	    0,  109,   1,   4,	0,   0,	 0,   0, {1,1}	, 55, 2},
-{"Life"                 	,0x00040000L,	TV_POTION2, '!',/*402*/
+{"Detonations"		        ,0x00010000L,	TV_POTION2, '!',/*402*/
+    0,  10000,  97,   1,   4,	0,   0,	 0,   0, {40,40}, 60, 6},
+{"Death"                	,0x00020000L,	TV_POTION2, '!',/*403*/
+    0,	    0,  109,   1,   4,	0,   0,	 0,   0, {25,25}, 55, 2},
+{"Life"                 	,0x00040000L,	TV_POTION2, '!',/*404*/
     0,	 5000,  110,   1,   4,	0,   0,	 0,   0, {1,1}	, 60, 3},
-{"Augmentation" 		,0x00080000L,	TV_POTION2, '!',/*403*/
+{"Augmentation" 		,0x00080000L,	TV_POTION2, '!',/*405*/
     0,  60000,  111,   1,   4,	0,   0,	 0,   0, {1,1}	, 40,12},
-{"Ruination"    		,0x00100000L,	TV_POTION2, '!',/*404*/
+{"Ruination"    		,0x00100000L,	TV_POTION2, '!',/*406*/
     0,	    0,  112,   1,   4,	0,   0,	 0,   0, {1,1}	, 40,12},
-{"Illumination" 		,RD_ILLUME,     TV_ROD, '-',	/*405*/
+{"Illumination" 		,RD_ILLUME,     TV_ROD, '-',	/*407*/
     0,	1000,  22,   1,  15,	0,   0,	 0,   0, {1,1}	, 20, 5, 0x800L},
-{"Probing"			,RD_PROBE,	TV_ROD,	'-',	/*406*/
+{"Probing"			,RD_PROBE,	TV_ROD,	'-',	/*408*/
     0,	4000,  23,   1,  15,    0,   0,  0,   0, {1,1}  , 40, 4, 0x800L},
-{"Probing"			,ST_PROBE,	TV_STAFF,  '_', /*407*/
+{"Probing"			,ST_PROBE,	TV_STAFF,  '_', /*409*/
     0,  2000,  30,   1,  50,    0,   0,  0,   0, {1,2}  , 30, 1},
-{"Bronze Dragon Scale Mail"	,0x00100000L,  TV_HARD_ARMOR, '[',/*408*/
+{"Bronze Dragon Scale Mail"	,0x00100000L,  TV_HARD_ARMOR, '[',/*410*/
     0, 30000,  23,   1, 200,   -2,   0, 30,  10, {2,4} , 55,8, 0x00008800L},
-{"Gold Dragon Scale Mail"	,0x00100000L,  TV_HARD_ARMOR, '[',/*409*/
+{"Gold Dragon Scale Mail"	,0x00100000L,  TV_HARD_ARMOR, '[',/*411*/
     0, 40000,  24,   1, 200,   -2,   0, 30,  10, {2,4} , 65,8, 0x00010800L},
-{"Recall"			,RD_RECALL,	TV_ROD, '-',	/*410*/
+{"Recall"			,RD_RECALL,	TV_ROD, '-',	/*412*/
     0,  4000,  24,   1,  15,    0,   0,  0,   0, {1,1} , 30,  4, 0x800L},
-{"& Cloak"		        ,0x00000000L,  TV_CLOAK,   '(', /*411*/
+{"& Cloak"		        ,0x00000000L,  TV_CLOAK,   '(', /*413*/
     0,     3,   1,   1,  10,    0,   0,  1,   0, {0,0},  20,  0},
-{"Acquirement"			,0x00000400L, TV_SCROLL2, '?', /*412*/
+{"Acquirement"			,0x00000400L, TV_SCROLL2, '?', /*414*/
     0, 100000,104,   1,   5,    0,   0,  0,   0, {0,0},  20,  10},
-{"*Acquirement*"		,0x00000800L, TV_SCROLL2, '?', /*413*/
+{"*Acquirement*"		,0x00000800L, TV_SCROLL2, '?', /*415*/
     0, 200000,105,   1,   5,    0,   0,  0,   0, {0,0},  60,  15},
-{"Free Action"			,0x00800000L, TV_RING,  '=',  /*414*/
+{"Free Action"			,0x00800000L, TV_RING,  '=',  /*416*/
     0,   1500, 37,   1,   2,    0,   0,  0,   0, {0,0},  30,   0},
-{"Chaos Dragon Scale Mail"	,0x00100000L,  TV_HARD_ARMOR, '[',/*415*/
+{"Chaos Dragon Scale Mail"	,0x00100000L,  TV_HARD_ARMOR, '[',/*417*/
     0, 70000,  25,   1, 200,   -2,   0, 30,  10, {2,4}, 75, 20, 0x00180800L},
-{"Law Dragon Scale Mail"	,0x00100000L,  TV_HARD_ARMOR, '[',/*416*/
+{"Law Dragon Scale Mail"	,0x00100000L,  TV_HARD_ARMOR, '[',/*418*/
     0, 80000,  26,   1, 200,   -2,   0, 30,  10, {2,4}, 80, 20, 0x00210800L},
-{"Balance Dragon Scale Mail"    ,0x00100000L,  TV_HARD_ARMOR, '[',/*417*/
+{"Balance Dragon Scale Mail"    ,0x00100000L,  TV_HARD_ARMOR, '[',/*419*/
     0,100000,  27,   1, 200,   -2,   0, 30,  10, {2,4}, 90, 20, 0x00390800L},
-{"Shining Dragon Scale Mail"    ,0x00100000L,  TV_HARD_ARMOR, '[',/*418*/
+{"Shining Dragon Scale Mail"    ,0x00100000L,  TV_HARD_ARMOR, '[',/*420*/
     0, 60000,  28,   1, 200,   -2,   0, 30,  10, {2,4}, 65, 12, 0x00060800L},
-{"Power Dragon Scale Mail"      ,0x12380000L,  TV_HARD_ARMOR, '[',/*419*/
+{"Power Dragon Scale Mail"      ,0x12380000L,  TV_HARD_ARMOR, '[',/*421*/
     0,300000,  29,   1, 200,   -3,   0, 40,  15, {2,4}, 110,  40, 0x017E0800L},
-{"Enlightenment"		,0x00200000L,	TV_POTION2, '!',/*420*/
+{"Enlightenment"		,0x00200000L,	TV_POTION2, '!',/*422*/
     0,	800,  113,   1,   4,	0,   0,	 0,   0, {1,1}	, 25, 0},
-{"Self Knowledge"               ,0x00400000L,   TV_POTION2, '!', /*421*/
+{"Self Knowledge"               ,0x00400000L,   TV_POTION2, '!', /*423*/
     0, 2000,  114,   1,   4,     0,   0,  0,   0, {1,1},   40, 0},
-{"*Healing*"                    ,0x00800000L,   TV_POTION2, '!', /*422*/
+{"*Healing*"                    ,0x00800000L,   TV_POTION2, '!', /*424*/
     0, 1500,  115,   1,   4,     0,   0,  0,   0, {1,1},   40, 3},
 
 /* end of Dungeon items */
@@ -1004,52 +1006,52 @@ treasure_type object_list[MAX_OBJECTS] = {
     0,	   0, 107,   1,   0,	0,   0,	 0,   0, {0,0}	,  0, 0},
 {"Home"  			,0x00000000L, TV_STORE_DOOR, '8',
     0,	   0, 108,   1,   0,	0,   0,	 0,   0, {0,0}	,  0, 0},
+{"Dojo"                         ,0x00000000L, TV_STORE_DOOR, '9',
+    0,     0, 109,   1,   0,    0,   0,  0,   0, {0,0}  ,  0, 0},
 /* end store door */
 /* Traps are just Nasty treasures.				*/
 /* Traps: Level represents the relative difficulty of disarming;	*/
 /* and P1 represents the experienced gained when disarmed*/
-{"an open pit"			,0x00000000L, TV_VIS_TRAP, ' ',	/* +36 */
-    1,	   0,	1,   1,   0,	0,   0,	 0,   0, {2,6}	,50, 0},
 {"an arrow trap"		,0x00000000L, TV_INVIS_TRAP, '^',
-    3,	   0,	2,   1,   0,	0,   0,	 0,   0, {1,8}	,90, 0},
+    3,	   0,	2,   1,   0,	0,   0,	 0,   0, {3,9}	,90, 0},
 {"a covered pit"		,0x00000000L, TV_INVIS_TRAP, '^',
-    2,	   0,	3,   1,   0,	0,   0,	 0,   0, {2,6}	,60, 0},
+    2,	   0,	3,   1,   0,	0,   0,	 0,   0, {3,6}	,60, 0},
 {"a trap door"			,0x00000000L, TV_INVIS_TRAP, '^',
-    5,	   0,	4,   1,   0,	0,   0,	 0,   0, {2,8}	,75, 0},
+    5,	   0,	4,   1,   0,	0,   0,	 0,   0, {3,8}	,75, 0},
 {"a gas trap"			,0x00000000L, TV_INVIS_TRAP, '^',
     3,	   0,	5,   1,   0,	0,   0,	 0,   0, {1,4}	,95, 0},
 {"a loose rock"			,0x00000000L, TV_INVIS_TRAP, ';',
     0,	   0,	6,   1,   0,	0,   0,	 0,   0, {0,0}	,10, 0},
 {"a dart trap"			,0x00000000L, TV_INVIS_TRAP, '^',
-    5,	   0,	7,   1,   0,	0,   0,	 0,   0, {1,4}	,110, 0},
+    5,	   0,	7,   1,   0,	0,   0,	 0,   0, {3,5}	,110, 0},
 {"a strange rune"		,0x00000000L, TV_INVIS_TRAP, '^',
     5,	   0,	8,   1,   0,	0,   0,	 0,   0, {0,0}	,90, 0},
 {"some loose rock"		,0x00000000L, TV_INVIS_TRAP, '^',
-    5,	   0,	9,   1,   0,	0,   0,	 0,   0, {2,6}	,90, 0},
+    5,	   0,	9,   1,   0,	0,   0,	 0,   0, {4,5}	,90, 0},
 {"a gas trap"			,0x00000000L, TV_INVIS_TRAP, '^',
    10,	   0,	10,   1,   0,	0,   0,	 0,   0, {1,4}	,105, 0},
 {"a strange rune"		,0x00000000L, TV_INVIS_TRAP, '^', /* +46 */
     5,	   0,	11,   1,   0,	0,   0,	 0,   0, {0,0}	,90, 0},
 {"a blackened spot"		,0x00000000L, TV_INVIS_TRAP, '^',
-   10,	   0,	12,   1,   0,	0,   0,	 0,   0, {4,6}	,110, 0},
+   10,	   0,	12,   1,   0,	0,   0,	 0,   0, {6,6}	,110, 0},
 {"some corroded rock"		,0x00000000L, TV_INVIS_TRAP, '^',
-   10,	   0,	13,   1,   0,	0,   0,	 0,   0, {4,6}	,110, 0},
+   10,	   0,	13,   1,   0,	0,   0,	 0,   0, {6,6}	,110, 0},
 {"a gas trap"			,0x00000000L, TV_INVIS_TRAP, '^',
-    5,	   0,	14,   1,   0,	0,   0,	 0,   0, {2,6}	,105, 0},
+    5,	   0,	14,   1,   0,	0,   0,	 0,   0, {3,6}	,105, 0},
 {"a gas trap"			,0x00000000L, TV_INVIS_TRAP, '^',
-    5,	   0,	15,   1,   0,	0,   0,	 0,   0, {1,4}	,110, 0},
+    5,	   0,	15,   1,   0,	0,   0,	 0,   0, {2,4}	,110, 0},
 {"a gas trap"			,0x00000000L, TV_INVIS_TRAP, '^',
-    5,	   0,	16,   1,   0,	0,   0,	 0,   0, {1,8}	,105, 0},
+    5,	   0,	16,   1,   0,	0,   0,	 0,   0, {2,8}	,105, 0},
 {"a dart trap"			,0x00000000L, TV_INVIS_TRAP, '^',
-    5,	   0,	17,   1,   0,	0,   0,	 0,   0, {1,8}	,110, 0},
+    5,	   0,	17,   1,   0,	0,   0,	 0,   0, {3,8}	,110, 0},
 {"a dart trap"			,0x00000000L, TV_INVIS_TRAP, '^',/* +53 */
-    5,	   0,	18,   1,   0,	0,   0,	 0,   0, {1,8}	,110, 0},
+    5,	   0,	18,   1,   0,	0,   0,	 0,   0, {3,8}	,110, 0},
 /* rubble */
 {"some rubble"			,0x00000000L, TV_RUBBLE, ':',	/* +54 */
     0,	   0,	1,   1,   0,	0,   0,	 0,   0, {0,0}	,  0, 0},
 /* mush */
-{"& pint~ of fine grade mush"	,0x00000000L, TV_FOOD, ',',	/* +55 */
- 3500,	   0,  97,   1,   1,   0,   0,   0,   0, {1,1}  ,  1, 0},
+{"& large pepperoni pizza~"	,0x00000000L, TV_FOOD, ',',	/* +55 */
+ 9000,	   0,  97,   1,  10,   0,   0,   0,   0, {1,1}  ,  1, 0},
 /* Special trap	*/
 {"a strange rune"		,0x00000000L, TV_VIS_TRAP, '^',	/* +56 */
     0,	   0,	99,   1,   0,	0,   0,	 0,   0, {0,0}	, 10, 0},
@@ -1109,7 +1111,7 @@ treasure_type object_list[MAX_OBJECTS] = {
 {"Power named Vilya"		,0x01C008BFL,	TV_RING, '=',	/*468*/
     3,	300000,	33,   1,   2,	0,   0,	 0,   0, {0,0}	, 100, 0, 0x02000A08L},
 {"Power"			,0x83A80A3FL,	TV_RING, '=',	/*469*/
-    5,5000000,	34,   1,   2,	0,   0,	 0,   0, {0,0}	, 110, 0, 0x02000BC0L},
+    5,5000000,	34,   1,   2,	0,   0,	 0,   0, {0,0}	, 110, 0, 0x0A000BC0L},
 {"The Phial of Galadriel"        ,0x00000000L,	TV_LIGHT, '~',	   /*470*/
     0,	10000,	4,    1,  10,	0,   0,	 0,   0, {1,1}	,  1, 0, 0x02000C00L},
 {"Ingwe"                         ,0x43380024L,  TV_AMULET, '"',    /*471*/
@@ -1125,7 +1127,9 @@ treasure_type object_list[MAX_OBJECTS] = {
 {"the Dwarves"			 ,0x41800811L,  TV_AMULET,  '"',  /*476*/
     3,  75000,  12,   1,   3,   0,   0,  0,   0, {0,0},    70, 0,0x02000000L},
 {"Barahir"			 ,0x1000003FL,  TV_RING,   '=',   /*477*/
-    1,  65000,  36,   1,   2,   0,   0,  0,   0, {0,0},    50, 0,0x02000000L}
+    1,  65000,  36,   1,   2,   0,   0,  0,   0, {0,0},    50, 0,0x02000000L},
+{"Robe of Enlightenment"         ,0x03D00088L,  TV_ROBE,   ')',   /*478*/
+    1,  20000,  63,   1,  60,   0,   0, 10,   0, {0,0},    40, 0,0x03BFE920L}
 };
 #endif
 
@@ -1189,6 +1193,7 @@ char *special_names[SN_ARRAY_SIZE] = {
 	"named Osondir",	"named Turmil",		"of Caspanion",
 	"named Til-i-arc",	"named Deathwreaker",	"named Avavir",
 	"named Taratol",        "named Razorback",      "named Bladeturner",
+        "of Enlightement"
 };
 
 int16 sorted_objects[MAX_DUNGEON_OBJ];

@@ -253,7 +253,7 @@ int *item;
   i_ptr = &inventory[*item];
 
   if ((i_ptr->flags & TR_CURSED) && (i_ptr->tval != TV_MAGIC_BOOK) &&
-      (i_ptr->tval != TV_PRAYER_BOOK))
+      (i_ptr->tval != TV_PRAYER_BOOK) && (i_ptr->tval != TV_MONK_BOOK))
     add_inscribe(i_ptr, ID_DAMD);
 
   if (!known1_p(i_ptr))
@@ -369,6 +369,7 @@ int pref;
     case  TV_HELM:
     case  TV_SHIELD:
     case  TV_HARD_ARMOR:
+    case  TV_ROBE:
     case  TV_SOFT_ARMOR:
       break;
     case  TV_AMULET:
@@ -465,6 +466,10 @@ int pref;
     case  TV_PRAYER_BOOK:
       modstr = basenm;
       basenm = "& Holy Book~ of Prayers %s";
+      break;
+    case TV_MONK_BOOK:
+      modstr = basenm;
+      basenm = "& Book~ of Karate Techniques %s";
       break;
     case TV_OPEN_DOOR:
     case TV_CLOSED_DOOR:

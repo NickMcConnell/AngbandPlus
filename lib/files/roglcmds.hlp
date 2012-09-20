@@ -21,7 +21,7 @@ Command summary: (@ is optional count, ~ is direction, ^R redraws, ESC aborts)
 @ CTRL-P  Previous message review   |	{	Inscribe an object.
 @ -  ~	  Move without pickup.	    |	?	Type this page.
 @ CTRL	~ Tunnel in a direction.    |	CTRL-X	Save character and exit.
-@ SHIFT ~ Run in direction.	    | @ ~	For movement.
+  ]	  Start/Stop Dodging	    |   `       Stop doing karate technique
 Directions:     y  k  u
 		h  .  l  [. is stay]
 		b  j  n

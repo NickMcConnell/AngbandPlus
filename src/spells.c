@@ -2133,6 +2133,25 @@ int mass_genocide(spell)
   return(result);
 }
 
+/* Puts ALL creatures on a level to asleep */
+void mass_sleep()
+{
+ register int i;
+  register monster_type *m_ptr;
+  register creature_type *r_ptr;
+  vtype out_val;
+
+    for (i = mfptr - 1; i >= MIN_MONIX; i--)
+      {
+	m_ptr = &m_list[i];
+	r_ptr = &c_list[m_ptr->mptr];
+	if (r_ptr->cdefense & CHARM_SLEEP) /* Put it to sleep */
+	  m_ptr->csleep+=800+randint(py.misc.lev*10);
+      }
+
+ msg_print("A hush falls over the level.");
+}
+
 /* Delete all creatures of a given type from level.	-RAK-	*/
 /* This does not keep creatures of type from appearing later.	 */
 /* NOTE : Winning creatures can not be genocided. */
@@ -2683,7 +2702,7 @@ int damage;
 	  c_recall[m_ptr->mptr].r_cdefense |= cflag;
 	  monster_name (m_name, m_ptr, r_ptr);
 	  visible = m_ptr->ml;  /* set this before call mon_take_hit */
-	  k = mon_take_hit (i, randint(damage));
+	  k = mon_take_hit (i, damroll(4,randint(damage/4)));
 	  if (visible)
 	    {
 	      if (k >= 0)
@@ -2796,6 +2815,18 @@ void lose_wis()
 }
 
 
+/* Lose a luck point */
+void lose_luc()
+{
+  if (luck()<randint(100))
+    {
+     (void) dec_stat(A_LUC);
+     msg_print("You feel unlucky.");
+    }
+
+  else
+   msg_print("You felt unlucky for an instant, but not anymore.");
+}
 /* Lose a dexterity point.				-RAK-	*/
 void lose_dex()
 {
@@ -2872,6 +2903,11 @@ int32 amount;
 	{
 	  calc_spells(A_WIS);
 	  calc_mana(A_WIS);
+	}
+      else
+	{
+         calc_spells(A_DEX);
+	 calc_mana(A_DEX);
 	}
       prt_level();
       prt_title();

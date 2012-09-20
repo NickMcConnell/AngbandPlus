@@ -9,8 +9,6 @@
 #include <utmp.h>
 #include <stdio.h>
 #include <string.h>
-#include <rpcsvc/rstat.h>
-#include <rpcsvc/rusers.h>
 #include <errno.h>
 #include <sys/file.h>
 #include <sys/param.h>
@@ -26,28 +24,6 @@ int maxusers, maxload; 		/* Limits */
 int g_access();
 void unlock();
 void log_game();
-
-/* Get load average - if this (or the user count) fail, we assume zero */
-int load_average()
-{
-  struct statstime stb;
-
-  if (rstat("localhost", &stb) == -1)             /* stats for ourselves */
-    return 0;
-  else
-    return (int) stb.avenrun[2]/FSCALE;           /* Return 15 min load */
-}
-
-/* Count the number of users */
-int users()
-{
-int count = 0;
-if ((count = rnusers("localhost")) == -1)
-  return 0;
-else
-  return count;
-}
-
 
 /* Scan the list of directories looking for the game */
 int game_exists(gamename)
@@ -69,22 +45,7 @@ int game_exists(gamename)
 
 int restrictions()
 {
-  FILE *fp;
-  char temphost[10], thishost[10], discard[80];
-
-  (void)gethostname(thishost, sizeof thishost);	/* get host */
-  if ((fp=fopen(RESTRICT_FILE,"r")) == (FILE *)NULL)
-    return 0;		      /* No file == no restrictions */
-
-  do {
-    if (fscanf(fp, "%s%d%d", temphost, &maxload, &maxusers) == EOF)
-      return 0;			/* No entry == no restrictions */
-    if (temphost[0]=='#')
-      (void)fgets(discard, sizeof discard, fp); /* Comment */
-  } while (strcmp(temphost,thishost)); /* Until we've found ourselves */
-
-  (void)fclose(fp);
-  return 1;
+  return 0;
 }
 
 
@@ -107,25 +68,6 @@ main(argc,argv)
     exit(1);
   }
 
-  if ((count=users()) >= maxusers) {
-    (void)printf("NO GAMES - TOO MANY USERS\n\n");
-    (void)printf("Number of users on this machine   ...... %d\n",count);
-    (void)printf("Number of users to disable games  ...... %d\n",maxusers);
-    (void)printf("Please try later\n");
-    exit(1);
-  }
-
-  if ((load=load_average()) >= 300) {
-    (void)printf("Current load average ..... %d\n",load);
-    (void)printf("So obviously something is fished.\n");
-  }
-
-  else if ((load=load_average()) >= maxload) {
-    (void)printf("NO GAMES - LOAD TOO HIGH\n\n");
-    (void)printf("Current load average ..... %d\n",load);
-    (void)printf("Load to disable games .... %d\n",maxload);
-    (void)printf("Please try later\n");
-    exit(1);
   }
 
  nochecks:

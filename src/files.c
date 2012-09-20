@@ -329,7 +329,7 @@ int file_character(filename1)
 char *filename1;
 {
   register int i;
-  int j, xbth, xbthb, xfos, xsrh, xstl, xdis, xsave, xdev;
+  int j, xbth, xbthb, xfos, xsrh, xstl, xdis, xsave, xdev, xmag, xbth2, xdodge;
   vtype xinfra;
   int fd;
   register FILE *file1;
@@ -406,9 +406,13 @@ char *filename1;
       p_ptr = &py.misc;
       xbth = p_ptr->bth + p_ptr->ptohit * BTH_PLUS_ADJ
 	+ (class_level_adj[p_ptr->pclass][CLA_BTH] * p_ptr->lev);
+      xbth2 = p_ptr->bth2 + p_ptr->ptohit * BTH_PLUS_ADJ
+	+ (class_level_adj[p_ptr->pclass][CLA_BTH2] * p_ptr->lev);
       xbthb = p_ptr->bthb + p_ptr->ptohit * BTH_PLUS_ADJ
 	+ (class_level_adj[p_ptr->pclass][CLA_BTHB] * p_ptr->lev);
       /* this results in a range from 0 to 29 */
+      xdodge=do_dodge();
+      xmag=(class[py.misc.pclass].magicity+race[py.misc.prace].base_mag)/200;
       xfos = 40 - p_ptr->fos;
       if (xfos < 0)
 	xfos = 0;
@@ -433,6 +437,9 @@ char *filename1;
       (void) fprintf(file1, "   Searching   : %s\n", likert(xsrh, 6));
       (void) fprintf(file1, " Saving Throw: %-10s", likert(xsave, 6));
       (void) fprintf(file1, "   Magic Device: %-10s", likert(xdev, 6));
+      (void) fprintf(file1, " Two-Handed    : %-10s", likert(xbth2,12));
+      (void) fprintf(file1, "   Magicity    : %-10s", likert(xmag, 21));
+      (void) fprintf(file1, "   Dodging     : %-10s", likert(xdodge,14));
       (void) fprintf(file1, "   Infra-Vision: %s\n\n", xinfra);
       /* Write out the character's history     */
       (void) fprintf(file1, "Character Background\n");

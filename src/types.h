@@ -176,6 +176,7 @@ typedef struct player_type
       int16 srh;	/* Chance in search	*/
       int16 fos;	/* Frenq of search	*/
       int16 bth;	/* Base to hit		*/
+      int16 bth2;       /* Base to two-handed hit */
       int16 bthb;	/* BTH with bows	*/
       int16 mana;	/* Mana points		*/
       int16 mhp;	/* Max hit pts		*/
@@ -198,19 +199,28 @@ typedef struct player_type
       int16 cmana;	/* Cur mana pts		*/
       int16u cmana_frac; /* Cur mana fraction * 2^16 */
       int16 chp;	/* Cur hit pts		*/
+      int16 timeout;    /* Timeout for breath weapon */
       int16u chp_frac;	/* Cur hit fraction * 2^16 */
       char history[4][60]; /* History record	*/
     } misc;
   /* Stats now kept in arrays, for more efficient access. -CJS- */
   struct stats
     {
-      int16u max_stat[6];	/* What is restored */
-      int8u cur_stat[6];	/* What is natural */
-      int16 mod_stat[6];	/* What is modified, may be +/- */
-      int16u use_stat[6];	/* What is used */
+      int16u max_stat[7];	/* What is restored */
+      int8u cur_stat[7];	/* What is natural */
+      int16 mod_stat[7];	/* What is modified, may be +/- */
+      int16u use_stat[7];	/* What is used */
     } stats;
   struct flags
     {
+      short int ac_mod;         /* Magical mod to AC   */
+      short int tohit;          /* Magical mod tohit   */
+      short int todam;          /* Same, to damage     */
+      int8u tim_invis;          /* Timed invisibility  */
+      int8u invisible;          /* Item invisibility   */
+      int8u tspeed;             /* Monk Hasting        */
+      int8u dodge;              /* Dodging an attack   */
+      short int whichone;       /* What karate type    */
       int32u status;		/* Status of player    */
       int16 rest;		/* Rest counter	       */
       int16 blind;		/* Blindness counter   */
@@ -300,6 +310,7 @@ typedef struct race_type
   int16 dex_adj;
   int16 con_adj;
   int16 chr_adj;
+  int16 luc_adj;
   int8u b_age;	       /* Base age of character		*/
   int8u m_age;	       /* Maximum age of character	*/
   int8u m_b_ht;	      /* base height for males		*/
@@ -321,6 +332,10 @@ typedef struct race_type
   int8u infra;	       /* See infra-red			*/
   int8u b_exp;	       /* Base experience factor	*/
   int8u rtclass;       /* Bit field for class types	*/
+  int8u base_ac;       /* Base AC for this race         */
+  short int base_mag;  /* Base magic level modifier     */
+  int8u bth2;          /* Base to 2-handed fighting     */
+  int8u bdodge;        /* Base dodging */
 } race_type;
 
 typedef struct class_type
@@ -340,9 +355,14 @@ typedef struct class_type
   int16 madj_dex;	/* Class modifier for dexterity */
   int16 madj_con;	/* Class modifier for constitution*/
   int16 madj_chr;	/* Class modifier for charisma	*/
+  int16 madj_luc;       /* Class modifier for luck */
   int8u spell;		/* class use mage spells	*/
   int8u m_exp;		/* Class experience factor	*/
   int8u first_spell_lev;/* First level where class can use spells. */
+  int8u magicity;       /* How magical--affects spell failure rate AND
+			   spell effectiveness */
+  int8u mbth2;          /* Mod to 2-handed fighting */
+  int8u mdodge;      /* Mod to dodging */
 } class_type;
 
 typedef struct background_type

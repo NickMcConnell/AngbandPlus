@@ -30,31 +30,36 @@ struct previous {
   int16u dex;
   int16u con;
   int16u chr;
+  int16u luc;
   int16u sc;
   char history[4][60];
   background_type bg;
 } prev;
 
+
+short autoroll; /* If >0, we are autorolling */
+int minstat[6]; /* Min stats, for autoroll */
+static char statstr[]="StrIntWisDexConChrLuc";
 extern int peek;
 
 /* Generates character's stats				-JWT-	*/
 static void get_stats()
 {
   register int i, tot;
-  int dice[18];
+  int dice[21];
 
   do
     {
       tot = 0;
-      for (i = 0; i < 18; i++)
+      for (i = 0; i < 21; i++)
 	{
 	  dice[i] = randint (3 + i % 3);  /* Roll 3,4,5 sided dice once each */
 	  tot += dice[i];
 	}
     }
-  while (tot <= 42 || tot >= 54);
+  while (tot <= 52 || tot >= 72);
 
-  for (i = 0; i < 6; i++)
+  for (i = 0; i < 7; i++)
     py.stats.max_stat[i] = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
 }
 
@@ -107,15 +112,18 @@ static int get_prev_stats() {
   py.stats.cur_stat[3]=(py.stats.max_stat[3]=prev.dex);
   py.stats.cur_stat[4]=(py.stats.max_stat[4]=prev.con);
   py.stats.cur_stat[5]=(py.stats.max_stat[5]=prev.chr);
+  py.stats.cur_stat[6]=(py.stats.max_stat[6]=prev.luc);
   set_use_stat(0);
   set_use_stat(1);
   set_use_stat(2);
   set_use_stat(3);
   set_use_stat(4);
   set_use_stat(5);
+  set_use_stat(6);
   py.misc.ptodam = todam_adj();
   py.misc.ptohit = tohit_adj();
   py.misc.pac    = toac_adj();
+  py.misc.timeout = 400; /* So we can breathe first time in */
   prev.str=0;
   return 1;
 }
@@ -134,6 +142,7 @@ static void get_all_stats ()
   prev.dex = (int16u)py.stats.max_stat[3];
   prev.con = (int16u)py.stats.max_stat[4];
   prev.chr = (int16u)py.stats.max_stat[5];
+  prev.luc = (int16u)py.stats.max_stat[6];
   p_ptr = &py;
   r_ptr = &race[p_ptr->misc.prace];
   get_stats ();
@@ -143,7 +152,8 @@ static void get_all_stats ()
   change_stat (A_DEX, r_ptr->dex_adj);
   change_stat (A_CON, r_ptr->con_adj);
   change_stat (A_CHR, r_ptr->chr_adj);
-  for (j = 0; j < 6; j++)
+  change_stat (A_LUC, r_ptr->luc_adj);
+  for (j = 0; j < 7; j++)
     {
       py.stats.cur_stat[j] = py.stats.max_stat[j];
       set_use_stat (j);
@@ -151,6 +161,7 @@ static void get_all_stats ()
 
   p_ptr->misc.srh    = r_ptr->srh;
   p_ptr->misc.bth    = r_ptr->bth;
+  p_ptr->misc.bth2   = r_ptr->bth2;
   p_ptr->misc.bthb   = r_ptr->bthb;
   p_ptr->misc.fos    = r_ptr->fos;
   p_ptr->misc.stl    = r_ptr->stl;
@@ -438,8 +449,9 @@ static void get_class()
   change_stat (A_DEX, c_ptr->madj_dex);
   change_stat (A_CON, c_ptr->madj_con);
   change_stat (A_CHR, c_ptr->madj_chr);
+  change_stat (A_LUC, c_ptr->madj_luc);
 
-  for(i = 0; i < 6; i++)
+  for(i = 0; i < 7; i++)
     {
       p_ptr->stats.cur_stat[i] = p_ptr->stats.max_stat[i];
       set_use_stat(i);
@@ -492,6 +504,7 @@ static void get_class()
   }
 
   m_ptr->bth += c_ptr->mbth;
+  m_ptr->bth2 += c_ptr->mbth2;
   m_ptr->bthb += c_ptr->mbthb;	/*RAK*/
   m_ptr->srh += c_ptr->msrh;
   m_ptr->disarm += c_ptr->mdis;
@@ -535,7 +548,7 @@ void rerate() {
 static void get_class_choice()
 {
   register int i, j;
-  int k, l, m, min_value, max_value;
+  int k, l, m, min_value, max_value,cstat;
   int cl[MAX_CLASS], exit_flag;
   register struct misc *m_ptr;
   register player_type *p_ptr;
@@ -588,6 +601,29 @@ static void get_class_choice()
 
 	}
     } while (!exit_flag);
+ put_buffer("Press 'Y' if you want to autoroll",22,2);
+ for(exit_flag=0;exit_flag<=5;exit_flag++)
+  minstat[exit_flag]=0; /* Accept anything */
+ autoroll=0;
+ s=inkey();
+ if (s=='y' || s=='Y')
+ {
+  clear_from (15);
+  autoroll=1;
+  put_buffer("Please enter minimum value for:",15,6);
+  for(cstat=0;cstat<6;cstat++) /* Luck is random, still */
+  {
+  strncpy(tmp_str,statstr+cstat*3,3);
+  tmp_str[3]=0; /* Keep it nice and clean */
+  strcat(tmp_str,":");
+  put_buffer(tmp_str,17+cstat,2);
+  while (!get_string(tmp_str,17+cstat,6,3)); /* Wait for something */
+  minstat[cstat]=atoi(tmp_str);  
+  if (minstat[cstat]<2) minstat[cstat]=2;
+  if (minstat[cstat]>118) minstat[cstat]=118;
+  }
+  clear_from(15); /* Make a fresh screen */
+ } 
 }
 
 
@@ -609,6 +645,7 @@ static void get_money()
   tmp = monval (a_ptr[A_STR]) + monval (a_ptr[A_INT])
       + monval (a_ptr[A_WIS]) + monval (a_ptr[A_CON])
       + monval (a_ptr[A_DEX]);
+  /* Luck doesn't figure in */
 
   gold = py.misc.sc*6 + randint (25) + 325;	/* Social Class adj */
   gold -= tmp;					/* Stat adj */
@@ -626,25 +663,42 @@ static void get_money()
 /*							-JWT-	*/
 void create_character()
 {
-  register int exit_flag = 1;
+  register int exit_flag = 1,holding,loop,bye;
   register char c;
+  char turns[6];
   class_type *c_ptr;
 
+  min_hp=0; /* Just so we don't die immediately */
   put_character();
   choose_race();
   get_sex();
   get_class_choice();
   
   /* here we start a loop giving a player a choice of characters -RGM- */
-  get_all_stats (); 
-  get_history();
-  get_ahw();
-  print_history();
-  put_misc1();
-  get_class();
-  put_stats();
+  holding=0;
+  while(holding<20000) /* 20000 turns max */
+  {
+   bye=1;
+   get_all_stats(); 
+   get_history();
+   get_ahw();
+   get_class();
+  ++holding; /* Prevents waiting for ungodly stats */
+  for(loop=0;loop<6;loop++)
+   if (py.stats.max_stat[loop]<minstat[loop])
+    bye=0; /* Don't leave yet */
+  if (bye)
+   holding=22000; /* Got one! */
+  }
+   clear_from (13);
+   calc_bonuses(); /* So we see class bonuses as well */
+   print_history();
+   put_misc1();
+   put_stats();
 
   clear_from (20);
+  if (!autoroll) /* ONLY show this if we didn't autoroll */
+  {
   put_buffer("Hit space: Reroll, ^P: Previous or ESC: Accept: ", 20, 2);
   do
     {
@@ -659,6 +713,7 @@ void create_character()
 	print_history();
 	put_misc1();
 	get_class();
+        calc_bonuses(); /* To see class bonuses as well */
 	put_stats();
       } else if (c == CTRL('P')) {
 	if (get_prev_stats()) {
@@ -675,7 +730,7 @@ void create_character()
       }
     }		    /* done with stats generation */
   while (exit_flag == 1);
-
+ }
   get_money();
   put_stats();
   put_misc2();
@@ -687,4 +742,8 @@ void create_character()
   /* expensive CPU wise.						*/
   pause_exit(23, PLAYER_EXIT_PAUSE);
 }
+
+
+
+
 

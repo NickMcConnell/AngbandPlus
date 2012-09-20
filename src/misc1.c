@@ -114,21 +114,7 @@ void reset_seed()
 /* Check the day-time strings to see if open		-RAK-	*/
 int check_time()
 {
-  long clock;
-  register struct tm *tp;
-  struct statstime st;
-
-  clock = time((long *)0);
-  tp = localtime(&clock);
-  if (days[tp->tm_wday][tp->tm_hour+4] != 'X') {
-    return FALSE;
-  } else {
-    if (!rstat("localhost", &st)) {
-      if (((int) ((double)st.avenrun[2]/(double) FSCALE)) >= (int)LOAD)
-	return FALSE;
-    }
-  }
-  return TRUE;
+ return TRUE;
 }
 
 
@@ -3741,10 +3727,14 @@ void magic_treasure(x, level, good, not_unique)
 int x, level, good, not_unique;
 {
   register inven_type *t_ptr;
-  register int chance, special, cursed, i;
+  register int chance, special, cursed, i, luc;
   int tmp;
 
-  chance = OBJ_BASE_MAGIC + level;
+  luc = luck()/2; /* Only a slight modifiation */
+  if (luc>50)
+   luc=50;
+  level=level+luc/5; /* Extreme good luck makes better items */
+  chance = OBJ_BASE_MAGIC + level + luc;
   if (chance > OBJ_BASE_MAX)
     chance = OBJ_BASE_MAX;
   special = chance / OBJ_DIV_SPECIAL;
@@ -3760,6 +3750,7 @@ int x, level, good, not_unique;
   switch (t_ptr->tval)
     {
     case TV_SHIELD: case TV_HARD_ARMOR: case TV_SOFT_ARMOR:
+    case TV_ROBE:
       if ((t_ptr->index>=389 && t_ptr->index<=394)
       || (t_ptr->index>=408 && t_ptr->index<=409)
       || (t_ptr->index>=415 && t_ptr->index<=419)) {
@@ -3909,17 +3900,17 @@ int x, level, good, not_unique;
 		  if (peek) msg_print("Holy Avenger");
 		  rating += 26;
 		  t_ptr->flags |= (TR_SEE_INVIS|TR_SUST_STAT|TR_SLAY_UNDEAD|
-				   TR_SLAY_EVIL|TR_STR);
-		  t_ptr->flags2 |= TR_SLAY_DEMON;
-		  t_ptr->tohit += 5;
-		  t_ptr->todam += 5;
-		  t_ptr->toac  += randint(4);
+				   TR_SLAY_EVIL|TR_STR|TR_SLAY_X_DRAGON);
+		  t_ptr->flags2 |= TR_SLAY_DEMON|TR_SLAY_ORC;
+		  t_ptr->tohit += 8;
+		  t_ptr->todam += 8;
+		  t_ptr->toac  += randint(8);
 		  /* the value in p1 is used for strength increase */
 		  /* p1 is also used for sustain stat */
 		  t_ptr->p1    = randint(4);
 		  t_ptr->name2 = SN_HA;
 		  t_ptr->cost += t_ptr->p1*500;
-		  t_ptr->cost += 10000;
+		  t_ptr->cost += 20000;
 		  t_ptr->cost *= 2;
 		  break;
 		case 2:	/* Defender	 */
@@ -3930,6 +3921,10 @@ int x, level, good, not_unique;
 		  t_ptr->flags |= (TR_FFALL|TR_RES_LIGHT|TR_SEE_INVIS
 				   |TR_FREE_ACT|TR_RES_COLD|TR_RES_ACID
 				   |TR_RES_FIRE|TR_REGEN|TR_STEALTH);
+		  t_ptr->flags2|= (TR_RES_CONF|TR_RES_LT|TR_RES_CHAOS|
+				   TR_RES_SHARDS|TR_RES_NETHER|TR_RES_BLIND|
+				   TR_RES_SOUND|TR_RES_NEXUS|
+				   TR_RES_DISENCHANT);
 		  t_ptr->tohit += 3;
 		  t_ptr->todam += 3;
 		  t_ptr->toac  += 5 + randint(5);
@@ -3937,7 +3932,7 @@ int x, level, good, not_unique;
 		  /* the value in p1 is used for stealth */
 		  t_ptr->p1    = randint(3);
 		  t_ptr->cost += t_ptr->p1*500;
-		  t_ptr->cost += 7500;
+		  t_ptr->cost += 13000;
 		  t_ptr->cost *= 2;
 		  break;
 		case 3: case 4:   /* Flame Tongue  */
