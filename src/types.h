@@ -977,7 +977,7 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
-	byte pseikaku;		/* Seikaku index */
+	byte personality;		/* Seikaku index */
 	byte realm1;        /* First magic realm */
 	byte realm2;        /* Second magic realm */
 	byte psubclass;		/* e.g. Pacts on Warlocks*/
@@ -1487,7 +1487,7 @@ struct birther
 	byte psubrace;
 	byte pclass;       /* Class index */
 	byte psubclass;	   /* Subclass index */
-	byte pseikaku;     /* Seikaku index */
+	byte personality;     /* Seikaku index */
 	byte realm1;       /* First magic realm */
 	byte realm2;       /* Second magic realm */
 

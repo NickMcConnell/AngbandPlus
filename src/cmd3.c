@@ -502,7 +502,7 @@ msg_print("クエストを達成した！");
 		}
 	}
 
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
+	if (p_ptr->personality == PERS_MUNCHKIN)
 	{
 		identify_item(o_ptr);
 

@@ -6740,7 +6740,7 @@ N:715:TRANSLATE
 E:& Goblet~:Golden
 G:":y
 I:40:35:0
-W:40:0:0:3:60000
+W:30:0:0:3:60000
 F:INSTA_ART
 
 # N: serial number : & object name~

@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 125
+#define FAKE_VER_PATCH 126
 
 
 /*
@@ -46,7 +46,7 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 125
+#define H_VER_PATCH 126
 #define H_VER_EXTRA 0
 
 
@@ -866,18 +866,18 @@
 #define PACT_ABERRATION	 4
 #define MAX_PACTS		 5
 
-#define SEIKAKU_FUTUU	 0
-#define SEIKAKU_CHIKARA	 1
-#define SEIKAKU_KIREMONO 2
-#define SEIKAKU_SHIAWASE 3
-#define SEIKAKU_SUBASI	 4
-#define SEIKAKU_INOCHI	 5
-#define SEIKAKU_COMBAT	 6
-#define SEIKAKU_NAMAKE	 7
-#define SEIKAKU_SEXY	 8
-#define SEIKAKU_LUCKY	 9
-#define SEIKAKU_GAMAN	 10
-#define SEIKAKU_MUNCHKIN 11
+#define PERS_ORDINARY	 0
+#define PERS_MIGHTY  	 1
+#define PERS_SHREWD      2
+#define PERS_PIOUS       3
+#define PERS_NIMBLE  	 4
+#define PERS_FEARLESS	 5
+#define PERS_COMBAT	     6
+#define PERS_LAZY	     7
+#define PERS_SEXY	     8
+#define PERS_LUCKY	     9
+#define PERS_PATIENT	 10
+#define PERS_MUNCHKIN    11
 
 /*** Screen Locations ***/
 
@@ -5315,6 +5315,7 @@ extern int PlayerUID;
 #define MON_ARTHUR		1111
 #define MON_GALAHAD     1114
 #define MON_CAMELOT_KNIGHT 1117
+#define MAX_CAMELOT_KNIGHT_NUM 10
 #define MON_GRAND_FEARLORD 1121
 
 /* Maximum "Nazguls" number */

@@ -340,7 +340,7 @@ bool test_hit_fire(int chance, int ac, int vis)
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
 
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
+	if (p_ptr->personality == PERS_LAZY)
 		if (one_in_(20)) return (FALSE);
 
 	/* Never hit */
@@ -373,7 +373,7 @@ bool test_hit_norm(int chance, int ac, int vis)
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
 
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
+	if (p_ptr->personality == PERS_LAZY)
 		if (one_in_(20)) return (FALSE);
 
 	/* Wimpy attack never hits */
@@ -1592,7 +1592,7 @@ void py_pickup_aux(int o_idx)
 	/* Delete the object */
 	delete_object_idx(o_idx);
 
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN || mut_present(MUT_LOREMASTER))
+	if (p_ptr->personality == PERS_MUNCHKIN || mut_present(MUT_LOREMASTER))
 	{
 		bool old_known = identify_item(o_ptr);
 
@@ -1611,7 +1611,7 @@ void py_pickup_aux(int o_idx)
 
 	/* Message */
 #ifdef JP
-	if ((o_ptr->name1 == ART_CRIMSON) && (p_ptr->pseikaku == SEIKAKU_COMBAT))
+	if ((o_ptr->name1 == ART_CRIMSON) && (p_ptr->personality == PERS_COMBAT))
 	{
 		msg_format("こうして、%sは『クリムゾン』を手に入れた。", player_name);
 		msg_print("しかし今、『混沌のサーペント』の放ったモンスターが、");
@@ -1864,7 +1864,7 @@ static int _check_hit(int power)
 	/* Hack -- 5% hit, 5% miss */
 	if (k < 10) return (k < 5);
 
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
+	if (p_ptr->personality == PERS_LAZY)
 		if (one_in_(20)) return (TRUE);
 
 	/* Paranoia -- No power */
@@ -1924,7 +1924,7 @@ static void hit_trap(bool break_trap)
 			{
 #ifdef JP
 				msg_print("落とし戸に落ちた！");
-				if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+				if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
 					msg_print("くっそ〜！");
 #else
 				msg_print("You have fallen through a trap door!");

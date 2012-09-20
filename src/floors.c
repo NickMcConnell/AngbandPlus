@@ -1450,7 +1450,7 @@ void change_floor(void)
 	character_dungeon = TRUE;
 
 	/* Hack -- Munchkin characters always get whole map */
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
+	if (p_ptr->personality == PERS_MUNCHKIN)
 		wiz_lite((bool)(p_ptr->pclass == CLASS_NINJA));
 
 	/* Remember when this level was "created" */

@@ -5075,7 +5075,7 @@ void do_cmd_feeling(void)
 	/* Display the feeling */
 	if (p_ptr->good_luck || p_ptr->pclass == CLASS_ARCHAEOLOGIST)
 		msg_print(do_cmd_feeling_text_lucky[p_ptr->feeling]);
-	else if (p_ptr->pseikaku == SEIKAKU_COMBAT ||
+	else if (p_ptr->personality == PERS_COMBAT ||
 		 inventory[INVEN_BOW].name1 == ART_CRIMSON)
 		msg_print(do_cmd_feeling_text_combat[p_ptr->feeling]);
 	else

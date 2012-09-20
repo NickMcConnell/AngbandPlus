@@ -1925,7 +1925,7 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 				if (p_ptr->riding) dispel_monster_status(p_ptr->riding);
 
 	#ifdef JP
-				if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+				if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
 					msg_print("やりやがったな！");
 	#endif
 				learn_spell(MS_DISPEL);
@@ -4030,7 +4030,7 @@ msg_format("%^sがあなたを引き戻した。", m_name);
 
 #ifdef JP
 msg_format("%^sにテレポートさせられた。", m_name);
-			if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+			if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
 				msg_print("くっそ〜");
 #else
 			msg_format("%^s teleports you away.", m_name);

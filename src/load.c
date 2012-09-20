@@ -663,6 +663,9 @@ static void rd_lore(int r_idx)
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
 
+	if (h_older_than(0, 0, 126, 0) && r_idx == MON_CAMELOT_KNIGHT)
+		r_ptr->max_num = MAX_CAMELOT_KNIGHT_NUM;
+
 	/* Location in saved floor */
 	rd_s16b(&r_ptr->floor_id);
 
@@ -1052,7 +1055,7 @@ static void load_quick_start(void)
 		previous_char.pclass = 0;
 	else
 		rd_byte(&previous_char.psubclass);
-	rd_byte(&previous_char.pseikaku);
+	rd_byte(&previous_char.personality);
 	rd_byte(&previous_char.realm1);
 	rd_byte(&previous_char.realm2);
 
@@ -1118,7 +1121,7 @@ static void rd_extra(void)
 	/* Class/Race/Seikaku/Gender/Spells */
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->pclass);
-	rd_byte(&p_ptr->pseikaku);
+	rd_byte(&p_ptr->personality);
 	rd_byte(&p_ptr->psex);
 	rd_byte(&p_ptr->realm1);
 	rd_byte(&p_ptr->realm2);
@@ -1690,7 +1693,7 @@ static void rd_extra(void)
 
 		if (h_older_than(0, 0, 7, 1))
 		{
-			if (p_ptr->pseikaku == SEIKAKU_LUCKY)
+			if (p_ptr->personality == PERS_LUCKY)
 				mut_lock(MUT_GOOD_LUCK);
 		}
 	}
@@ -2527,7 +2530,7 @@ if (arg_fiddle) note("メッセージをロードしました");
 
 		/* Hack -- Non-unique Nazguls are semi-unique */
 		else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = MAX_NAZGUL_NUM;
-		else if (i == MON_CAMELOT_KNIGHT) r_ptr->max_num = 10;
+		else if (i == MON_CAMELOT_KNIGHT) r_ptr->max_num = MAX_CAMELOT_KNIGHT_NUM;
 	}
 
 	/* Monster Memory */
@@ -2840,7 +2843,7 @@ note(format("ヒットポイント配列が大きすぎる(%u)！", tmp16u));
 
 	/* Important -- Initialize the race/class */
 	cp_ptr = &class_info[p_ptr->pclass];
-	ap_ptr = &seikaku_info[p_ptr->pseikaku];
+	ap_ptr = &seikaku_info[p_ptr->personality];
 
 	/* Important -- Initialize the magic */
 	mp_ptr = &m_info[p_ptr->pclass];

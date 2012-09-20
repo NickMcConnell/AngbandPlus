@@ -2909,7 +2909,7 @@ static void save_prev_data(birther *birther_ptr)
 	birther_ptr->psubrace = p_ptr->psubrace;
 	birther_ptr->pclass = p_ptr->pclass;
 	birther_ptr->psubclass = p_ptr->psubclass;
-	birther_ptr->pseikaku = p_ptr->pseikaku;
+	birther_ptr->personality = p_ptr->personality;
 	birther_ptr->realm1 = p_ptr->realm1;
 	birther_ptr->realm2 = p_ptr->realm2;
 	birther_ptr->au = p_ptr->au;
@@ -2966,7 +2966,7 @@ static void load_prev_data(bool swap)
 	p_ptr->psubrace = previous_char.psubrace;
 	p_ptr->pclass = previous_char.pclass;
 	p_ptr->psubclass = previous_char.psubclass;
-	p_ptr->pseikaku = previous_char.pseikaku;
+	p_ptr->personality = previous_char.personality;
 	p_ptr->realm1 = previous_char.realm1;
 	p_ptr->realm2 = previous_char.realm2;
 	p_ptr->au = previous_char.au;
@@ -3217,7 +3217,7 @@ static void get_extra(bool roll_hitdie)
 				p_ptr->weapon_exp[i][j] = s_info[p_ptr->pclass].w_start[i][j];
 		}
 	}
-	if ((p_ptr->pseikaku == SEIKAKU_SEXY) && (p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] < WEAPON_EXP_BEGINNER))
+	if ((p_ptr->personality == PERS_SEXY) && (p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] < WEAPON_EXP_BEGINNER))
 	{
 		p_ptr->weapon_exp[TV_HAFTED-TV_WEAPON_BEGIN][SV_WHIP] = WEAPON_EXP_BEGINNER;
 	}
@@ -3522,9 +3522,9 @@ static void get_money(void)
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
 
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
+	if (p_ptr->personality == PERS_LAZY)
 		gold /= 2;
-	else if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
+	else if (p_ptr->personality == PERS_MUNCHKIN)
 		gold = 10000000;
 	if (p_ptr->prace == RACE_ANDROID) gold /= 5;
 
@@ -4540,7 +4540,7 @@ void player_outfit(void)
 	}
 	else if (p_ptr->pclass == CLASS_TOURIST)
 	{
-		if (p_ptr->pseikaku != SEIKAKU_SEXY)
+		if (p_ptr->personality != PERS_SEXY)
 		{
 			_birth_object(TV_SHOT, SV_AMMO_LIGHT, rand_range(15, 20));
 		}
@@ -4561,7 +4561,7 @@ void player_outfit(void)
 		_birth_object(TV_BOLT, SV_AMMO_NORMAL, rand_range(15, 20));
 	}
 
-	if(p_ptr->pseikaku == SEIKAKU_SEXY && p_ptr->pclass != CLASS_MAULER)
+	if(p_ptr->personality == PERS_SEXY && p_ptr->pclass != CLASS_MAULER)
 	{
 		player_init[p_ptr->pclass][2][0] = TV_HAFTED;
 		player_init[p_ptr->pclass][2][1] = SV_WHIP;
@@ -4598,7 +4598,7 @@ void player_outfit(void)
 		}
 
 		/* Hack: Rune-Knights begin with an Absorption Rune on their broad sword (or whip if sexy) */
-		if(p_ptr->pseikaku == SEIKAKU_SEXY)
+		if(p_ptr->personality == PERS_SEXY)
 		{
 			if (p_ptr->pclass == CLASS_RUNE_KNIGHT && tv == TV_HAFTED && sv == SV_WHIP)
 				rune_add(&forge, RUNE_ABSORPTION, FALSE);
@@ -5092,7 +5092,7 @@ static bool get_player_seikaku(void)
 
 	/* Get a seikaku */
 	k = -1;
-	cs = p_ptr->pseikaku;
+	cs = p_ptr->personality;
 	os = MAX_SEIKAKU;
 	while (1)
 	{
@@ -5264,8 +5264,8 @@ static bool get_player_seikaku(void)
 	}
 
 	/* Set seikaku */
-	p_ptr->pseikaku = k;
-	ap_ptr = &seikaku_info[p_ptr->pseikaku];
+	p_ptr->personality = k;
+	ap_ptr = &seikaku_info[p_ptr->personality];
 #ifdef JP
 	strcpy(tmp, ap_ptr->title);
 	if(ap_ptr->no == 1)
@@ -6172,7 +6172,7 @@ static bool player_birth_aux(void)
 	if (!get_player_subclass()) return FALSE;
 
 	/* Choose the players seikaku */
-	p_ptr->pseikaku = 0;
+	p_ptr->personality = 0;
 	while(1)
 	{
 		char temp[80*8];
@@ -6181,7 +6181,7 @@ static bool player_birth_aux(void)
 		if (!get_player_seikaku()) return FALSE;
 
 		clear_from(10);
-		roff_to_buf(seikaku_jouhou[p_ptr->pseikaku], 74, temp, sizeof(temp));
+		roff_to_buf(seikaku_jouhou[p_ptr->personality], 74, temp, sizeof(temp));
 		t = temp;
 
 		for (i = 0; i< 6; i++)
@@ -6678,7 +6678,7 @@ static bool ask_quick_start(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &m_info[p_ptr->pclass];
-	ap_ptr = &seikaku_info[p_ptr->pseikaku];
+	ap_ptr = &seikaku_info[p_ptr->personality];
 
 	/* Calc hitdie, but don't roll */
 	get_extra(FALSE);
@@ -6791,9 +6791,9 @@ void player_birth(void)
 	}
 
 #ifdef JP
-	sprintf(buf,"                            拉呈に%sを联买した。", seikaku_info[p_ptr->pseikaku].title);
+	sprintf(buf,"                            拉呈に%sを联买した。", seikaku_info[p_ptr->personality].title);
 #else
-	sprintf(buf,"                            choose %s.", seikaku_info[p_ptr->pseikaku].title);
+	sprintf(buf,"                            choose %s.", seikaku_info[p_ptr->personality].title);
 #endif
 	do_cmd_write_nikki(NIKKI_BUNSHOU, 1, buf);
 
@@ -6869,12 +6869,12 @@ void dump_yourself(FILE *fff)
 		fprintf(fff, "%s\n",t);
 		t += strlen(t) + 1;
 	}
-	roff_to_buf(seikaku_jouhou[p_ptr->pseikaku], 78, temp, sizeof(temp));
+	roff_to_buf(seikaku_jouhou[p_ptr->personality], 78, temp, sizeof(temp));
 	fprintf(fff, "\n");
 #ifdef JP
-	fprintf(fff, "拉呈: %s\n", seikaku_info[p_ptr->pseikaku].title);
+	fprintf(fff, "拉呈: %s\n", seikaku_info[p_ptr->personality].title);
 #else
-	fprintf(fff, "Pesonality: %s\n", seikaku_info[p_ptr->pseikaku].title);
+	fprintf(fff, "Pesonality: %s\n", seikaku_info[p_ptr->personality].title);
 #endif
 	t = temp;
 	for (i = 0; i < 6; i++)

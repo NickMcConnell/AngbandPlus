@@ -1201,7 +1201,7 @@ msg_print("地面に落とされた。");
 	case MON_MORGOTH:
 	case MON_ONE_RING:
 		/* Reward for "lazy" player */
-		if (p_ptr->pseikaku == SEIKAKU_NAMAKE)
+		if (p_ptr->personality == PERS_LAZY)
 		{
 			int a_idx = 0;
 			artifact_type *a_ptr = NULL;
@@ -2211,6 +2211,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 			/* When the player kills a Nazgul, it stays dead */
 			else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num--;
+			else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT) r_ptr->max_num--;
 		}
 
 		/* Handle Packs ... Check Morale */
@@ -2414,7 +2415,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 		else if (!m_ptr->ml)
 		{
 #ifdef JP
-			if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+			if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
 				msg_format("せっかくだから%sを殺した。", m_name);
 			else
 msg_format("%sを殺した。", m_name);
@@ -2445,7 +2446,7 @@ msg_format("%sを殺した。", m_name);
 			else
 			{
 #ifdef JP
-				if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+				if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
 					msg_format("せっかくだから%sを倒した。", m_name);
 				else
 msg_format("%sを倒した。", m_name);
@@ -2459,7 +2460,7 @@ msg_format("%sを倒した。", m_name);
 		else
 		{
 #ifdef JP
-			if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
+			if ((p_ptr->personality == PERS_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
 				msg_format("せっかくだから%sを葬り去った。", m_name);
 			else
 msg_format("%sを葬り去った。", m_name);

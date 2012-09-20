@@ -508,7 +508,7 @@ errr top_twenty(void)
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
 	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
-	sprintf(the_score.p_a, "%2d", p_ptr->pseikaku);
+	sprintf(the_score.p_a, "%2d", p_ptr->personality);
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
@@ -630,7 +630,7 @@ strcpy(the_score.day, "º£Æü");
 	sprintf(the_score.sex, "%c", (p_ptr->psex ? 'm' : 'f'));
 	sprintf(the_score.p_r, "%2d", p_ptr->prace);
 	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
-	sprintf(the_score.p_a, "%2d", p_ptr->pseikaku);
+	sprintf(the_score.p_a, "%2d", p_ptr->personality);
 
 	/* Save the level and such */
 	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);

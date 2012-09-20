@@ -2985,7 +2985,7 @@ static void calc_mana(void)
 			msp += (msp * adj / 20);
 		}
 
-		if (msp && (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)) msp += msp/2;
+		if (msp && (p_ptr->personality == PERS_MUNCHKIN)) msp += msp/2;
 
 		/* Hack: High mages et. al. have a 25% mana bonus */
 		if (msp && 
@@ -3820,6 +3820,8 @@ void calc_bonuses(void)
 		skills_add(&p_ptr->skills, &ap_ptr->skills);
 		skills_add(&p_ptr->skills, &a_extra);
 	}
+	if (p_ptr->personality == PERS_FEARLESS)
+		p_ptr->resist_fear = TRUE;
 
 	/* Base skill -- combat (throwing) */
 	p_ptr->skill_tht = p_ptr->skills.thb;
@@ -3964,7 +3966,7 @@ void calc_bonuses(void)
 		/* Unencumbered Monks become faster every 10 levels */
 		if (!(heavy_armor()))
 		{
-			if (p_ptr->pseikaku != SEIKAKU_MUNCHKIN)
+			if (p_ptr->personality != PERS_MUNCHKIN)
 				p_ptr->pspeed += (p_ptr->lev) / 10;
 
 			/* Free action if unencumbered at level 25 */
@@ -4014,7 +4016,7 @@ void calc_bonuses(void)
 			        (!inventory[INVEN_LARM].k_idx || p_ptr->hidarite))
 		{
 			p_ptr->pspeed += 3;
-			if (p_ptr->pseikaku != SEIKAKU_MUNCHKIN)
+			if (p_ptr->personality != PERS_MUNCHKIN)
 				p_ptr->pspeed += (p_ptr->lev) / 10;
 			p_ptr->skills.stl += (p_ptr->lev)/10;
 
@@ -4122,15 +4124,15 @@ void calc_bonuses(void)
 	}
 
 	/* Sexy Gal */
-	if (p_ptr->pseikaku == SEIKAKU_SEXY) p_ptr->cursed |= (TRC_AGGRAVATE);
-	if (p_ptr->pseikaku == SEIKAKU_NAMAKE) p_ptr->to_m_chance += 10;
-	if (p_ptr->pseikaku == SEIKAKU_KIREMONO) p_ptr->to_m_chance -= 3;
-	if ((p_ptr->pseikaku == SEIKAKU_GAMAN) || (p_ptr->pseikaku == SEIKAKU_CHIKARA)) p_ptr->to_m_chance++;
+	if (p_ptr->personality == PERS_SEXY) p_ptr->cursed |= (TRC_AGGRAVATE);
+	if (p_ptr->personality == PERS_LAZY) p_ptr->to_m_chance += 10;
+	if (p_ptr->personality == PERS_SHREWD) p_ptr->to_m_chance -= 3;
+	if ((p_ptr->personality == PERS_PATIENT) || (p_ptr->personality == PERS_MIGHTY)) p_ptr->to_m_chance++;
 
 	/* Lucky man 
 	   TODO: This will become a birth event!
 	*/
-	if ( p_ptr->pseikaku == SEIKAKU_LUCKY
+	if ( p_ptr->personality == PERS_LUCKY
 	  && !mut_present(MUT_GOOD_LUCK) )
 	{
 		mut_gain(MUT_GOOD_LUCK);
@@ -4140,7 +4142,7 @@ void calc_bonuses(void)
 	if (mut_present(MUT_GOOD_LUCK))
 		p_ptr->good_luck = TRUE;
 
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
+	if (p_ptr->personality == PERS_MUNCHKIN)
 	{
 		p_ptr->resist_blind = TRUE;
 		p_ptr->resist_conf  = TRUE;
@@ -6101,7 +6103,7 @@ void calc_bonuses(void)
 	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
 
 
-	if ((prace_is_(RACE_SHADOW_FAIRY)) && (p_ptr->pseikaku != SEIKAKU_SEXY) && (p_ptr->cursed & TRC_AGGRAVATE))
+	if ((prace_is_(RACE_SHADOW_FAIRY)) && (p_ptr->personality != PERS_SEXY) && (p_ptr->cursed & TRC_AGGRAVATE))
 	{
 		p_ptr->cursed &= ~(TRC_AGGRAVATE);
 		p_ptr->skills.stl = MIN(p_ptr->skills.stl - 3, (p_ptr->skills.stl + 2) / 2);

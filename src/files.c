@@ -2625,9 +2625,9 @@ static void player_flags(u32b flgs[TR_FLAG_SIZE])
 		add_flag(flgs, TR_FREE_ACT);
 	}
 
-	if (p_ptr->pseikaku == SEIKAKU_SEXY)
+	if (p_ptr->personality == PERS_SEXY)
 		add_flag(flgs, TR_AGGRAVATE);
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN)
+	if (p_ptr->personality == PERS_MUNCHKIN)
 	{
 		add_flag(flgs, TR_RES_BLIND);
 		add_flag(flgs, TR_RES_CONF);
@@ -6748,7 +6748,7 @@ long total_points(void)
 			point = point / 5;
 	}
 
-	if ((p_ptr->pseikaku == SEIKAKU_MUNCHKIN) && point)
+	if ((p_ptr->personality == PERS_MUNCHKIN) && point)
 	{
 		point = 1;
 		if (p_ptr->total_winner) point = 2;
@@ -7753,9 +7753,9 @@ static errr counts_seek(int fd, u32b where, bool flag)
 	int i;
 
 #ifdef SAVEFILE_USE_UID
-	(void)sprintf(temp1, "%d.%s.%d%d%d", player_uid, savefile_base, p_ptr->pclass, p_ptr->pseikaku, 0);
+	(void)sprintf(temp1, "%d.%s.%d%d%d", player_uid, savefile_base, p_ptr->pclass, p_ptr->personality, 0);
 #else
-	(void)sprintf(temp1, "%s.%d%d%d", savefile_base, p_ptr->pclass, p_ptr->pseikaku, 0);
+	(void)sprintf(temp1, "%s.%d%d%d", savefile_base, p_ptr->pclass, p_ptr->personality, 0);
 #endif
 	for (i = 0; temp1[i]; i++)
 		temp1[i] ^= (i+1) * 63;

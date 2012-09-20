@@ -4379,7 +4379,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 {
 	int i, rolls, f1, f2, power;
 
-	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN) lev += randint0(p_ptr->lev/2+10);
+	if (p_ptr->personality == PERS_MUNCHKIN) lev += randint0(p_ptr->lev/2+10);
 
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
@@ -4394,7 +4394,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 	f2 = f1 * 2 / 3;
 
 	/* Maximal chance of being "great" */
-	if ((p_ptr->pseikaku != SEIKAKU_MUNCHKIN) && (f2 > d_info[dungeon_type].obj_great))
+	if ((p_ptr->personality != PERS_MUNCHKIN) && (f2 > d_info[dungeon_type].obj_great))
 		f2 = d_info[dungeon_type].obj_great;
 
 	if (p_ptr->good_luck)
@@ -4639,7 +4639,7 @@ void apply_magic(object_type *o_ptr, int lev, u32b mode)
 
 	if ((o_ptr->tval == TV_SOFT_ARMOR) &&
 	    (o_ptr->sval == SV_ABUNAI_MIZUGI) &&
-	    (p_ptr->pseikaku == SEIKAKU_SEXY || (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)))
+	    (p_ptr->personality == PERS_SEXY || (prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_APHRODITE)))
 	{
 		o_ptr->pval = 3;
 		add_flag(o_ptr->art_flags, TR_STR);

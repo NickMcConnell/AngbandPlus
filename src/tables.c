@@ -3579,7 +3579,7 @@ player_seikaku seikaku_info[MAX_SEIKAKU] =
 		"Fearless",
 		{  2,  1,  1,  -1,  -1,  0 },
 		{-5,  5,  -2,  0,  2,  -2,  10,  10},
-		-1, 1, 0, 90
+		-1, 1, 0, 135
 	},
 
 	{
