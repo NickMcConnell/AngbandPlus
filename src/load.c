@@ -663,8 +663,15 @@ static void rd_lore(int r_idx)
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
 
-	if (h_older_than(0, 0, 126, 0) && r_idx == MON_CAMELOT_KNIGHT)
-		r_ptr->max_num = MAX_CAMELOT_KNIGHT_NUM;
+	if (h_older_than(0, 0, 127, 1) && r_idx == MON_CAMELOT_KNIGHT)
+	{
+		int num = MAX_CAMELOT_KNIGHT_NUM;
+		num -= r_ptr->r_akills;
+		if (num < 0)
+			num = 0;
+		r_ptr->max_num = num;
+	}
+
 
 	/* Location in saved floor */
 	rd_s16b(&r_ptr->floor_id);
@@ -2530,7 +2537,8 @@ if (arg_fiddle) note("メッセージをロードしました");
 
 		/* Hack -- Non-unique Nazguls are semi-unique */
 		else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num = MAX_NAZGUL_NUM;
-		else if (i == MON_CAMELOT_KNIGHT) r_ptr->max_num = MAX_CAMELOT_KNIGHT_NUM;
+		else if (i == MON_CAMELOT_KNIGHT) 
+			r_ptr->max_num = MAX_CAMELOT_KNIGHT_NUM;
 	}
 
 	/* Monster Memory */

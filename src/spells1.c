@@ -7996,7 +7996,7 @@ static bool project_p(int who, cptr who_name, int r, int y, int x, int dam, int 
 							case 3: k = A_WIS; act = "wise"; break;
 							case 4: k = A_DEX; act = "agile"; break;
 							case 5: k = A_CON; act = "hale"; break;
-							case 6: k = A_CHR; act = "beautiful"; break;
+							case 6: k = A_CHR; act = "confident"; break;
 #endif
 						}
 

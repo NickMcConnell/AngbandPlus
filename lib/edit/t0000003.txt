@@ -166,11 +166,11 @@ F:k:BUILDING_10:3:0:0:0:0:NONE:29
 ?:[EQU $QUEST29 2]
 F:k:BUILDING_10:3:0:0:0:0:NONE:29
 
-# Quest 29 rewarding, reward is Ring of See Invisible
+# Quest 29 rewarding, reward is Ring of Free Action
 # continue with quest 30
 ?:[EQU $QUEST29 3]
 F:k:BUILDING_10:3:0:0:0:0:NONE:30
-F:@:FLOOR:3:0:155
+F:@:FLOOR:3:0:144
 
 # Quest 29 finished, continue with quest 30
 ?:[EQU $QUEST29 4]
@@ -198,11 +198,11 @@ F:k:BUILDING_10:3:0:0:0:0:NONE:30
 ?:[EQU $QUEST30 2]
 F:k:BUILDING_10:3:0:0:0:0:NONE:30
 
-# Quest 30 rewarding, reward is Ring of Free Action
+# Quest 30 rewarding, reward is Ring of See Invisible
 # no new quest available
 ?:[EQU $QUEST30 3]
 F:k:BUILDING_10:3
-F:@:FLOOR:3:0:144
+F:@:FLOOR:3:0:155
 
 # Quest 30 finished, no new quest available
 ?:[EQU $QUEST30 4]

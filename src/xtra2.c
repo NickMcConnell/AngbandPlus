@@ -2211,7 +2211,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 			/* When the player kills a Nazgul, it stays dead */
 			else if (r_ptr->flags7 & RF7_NAZGUL) r_ptr->max_num--;
-			else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT) r_ptr->max_num--;
+			else if (m_ptr->r_idx == MON_CAMELOT_KNIGHT) 
+			{
+				if (r_ptr->max_num)
+					r_ptr->max_num--;
+			}
 		}
 
 		/* Handle Packs ... Check Morale */

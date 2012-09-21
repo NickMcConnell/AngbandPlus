@@ -1768,7 +1768,7 @@ bool make_attack_normal(int m_idx)
 									case A_WIS: act = "wise"; break;
 									case A_DEX: act = "agile"; break;
 									case A_CON: act = "hale"; break;
-									case A_CHR: act = "beautiful"; break;
+									case A_CHR: act = "confident"; break;
 #endif
 
 								}

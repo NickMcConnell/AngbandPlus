@@ -113,13 +113,13 @@
 ?:[EQU $QUEST_NUMBER 28]
 %:q0000028.txt
 
-# The Mimic's Treasure
-?:[EQU $QUEST_NUMBER 29]
-%:q0thief1.txt
-
 # Tengu and Death Swords
-?:[EQU $QUEST_NUMBER 30]
+?:[EQU $QUEST_NUMBER 29]
 %:q0thief2.txt
+
+# The Mimic's Treasure
+?:[EQU $QUEST_NUMBER 30]
+%:q0thief1.txt
 
 # Old Man Willow Quest
 ?:[EQU $QUEST_NUMBER 31]

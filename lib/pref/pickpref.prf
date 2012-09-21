@@ -6,7 +6,7 @@ potion of resist#!k!q
 potion of restore mana#!k!q
 
 ring of speed
-ring of extra att
+ring of weaponmastery
 
 power dragon
 balance dragon
@@ -16,6 +16,10 @@ dragon shield
 dragon helm
 dragon wings
 dragon fang
+elven cloak
+armors:dragon
+mirror shield
+weapons:poison needle
 
 ?:[EQU $CLASS Mage High-Mage]
 rod of cold balls#!s!d!k
@@ -120,6 +124,11 @@ potion of constitution#!k
 potion of intelligence#!k
 potion of charisma#!k
 potion of augmentation#!k
+potion of experience
+potion of polymorph#!k
+potion of new life#!*!*
+potion of self knowledge#!k
+potion of giant strength#!k
 potion of life#!k!q
 potion of *healing*#!k!q
 potion of healing#!k!q

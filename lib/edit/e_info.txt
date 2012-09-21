@@ -225,7 +225,7 @@ C:0:0:0:2
 F:WIS | SUST_WIS
 
 N:26:ÈþËÆ¤Î
-E:of Beauty
+E:of Ego
 X:33:8
 W:0:18:40:1000
 C:0:0:0:4
