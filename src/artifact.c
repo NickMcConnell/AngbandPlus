@@ -1860,6 +1860,9 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	slaying_hack = 0;
 	has_pval = FALSE;
 
+	if (o_ptr->tval == TV_BOW && o_ptr->sval == SV_HARP)
+		has_pval = TRUE;
+
 	/* Hack for Demeter. Torches start with a pval of 4000! Not sure about lanterns ... */
 	if (o_ptr->tval == TV_LITE /*&& o_ptr->sval == SV_LITE_TORCH*/)
 		o_ptr->pval = 0;

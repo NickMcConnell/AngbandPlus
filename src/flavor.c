@@ -1398,7 +1398,7 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 
 		case TV_BOW:
 		{
-			if (o_ptr->sval != SV_HARP)
+			if (o_ptr->sval != SV_HARP && o_ptr->sval != SV_CRIMSON && o_ptr->sval != SV_RAILGUN)
 				show_weapon = TRUE;
 
 			break;
@@ -2400,6 +2400,8 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	/* Bows get a special "damage string" */
 	case TV_BOW:
 		if (o_ptr->sval == SV_HARP) break;
+		if (o_ptr->sval == SV_CRIMSON) break;
+		if (o_ptr->sval == SV_RAILGUN) break;
 
 		/* Mega-Hack -- Extract the "base power" */
 		power = bow_tmul(o_ptr->sval);
@@ -2422,8 +2424,11 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 	/* Add the weapon bonuses */
 	if (known)
 	{
+		if (o_ptr->tval == TV_BOW && (o_ptr->sval == SV_HARP || o_ptr->sval == SV_CRIMSON || o_ptr->sval == SV_RAILGUN))
+		{
+		}
 		/* Show the tohit/todam on request */
-		if (show_weapon)
+		else if (show_weapon)
 		{
 			t = object_desc_chr(t, ' ');
 			t = object_desc_chr(t, p1);

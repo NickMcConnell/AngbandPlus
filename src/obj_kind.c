@@ -268,10 +268,6 @@ bool object_is_jewelry(object_type *o_ptr)
 	case TV_RING:
 	case TV_AMULET:
 		return TRUE;
-
-	case TV_LITE:
-		if  (o_ptr->sval > SV_LITE_LANTERN)
-			return TRUE;
 	}
 
 	return FALSE;

@@ -1139,6 +1139,7 @@ extern void do_cmd_kaji(bool only_browse);
 typedef void (*debug_hook)(cptr msg);
 extern debug_hook cost_calc_hook;
 extern s32b weapon_cost(object_type *o_ptr);
+extern s32b bow_cost(object_type *o_ptr);
 extern s32b armor_cost(object_type *o_ptr);
 extern s32b jewelry_cost(object_type *o_ptr);
 extern s32b new_object_cost(object_type *o_ptr);

@@ -5656,7 +5656,7 @@ E:& Gun~
 G:}:r
 I:19:50:0
 W:15:0:0:100:1000
-F:SHOW_MODS | INSTA_ART
+F:INSTA_ART
 
 N:589:Ра
 E:& Crystal Ball~
@@ -6562,7 +6562,7 @@ E:& Gun~
 G:}:r
 I:19:51:0
 W:15:0:0:100:1000
-F:SHOW_MODS | INSTA_ART
+F:INSTA_ART
 
 N:694:TRANSLATE
 E:& Ring~:Pulsating

@@ -1151,8 +1151,9 @@ s32b object_value_real(object_type *o_ptr)
 	   So use the new algorithms whenever possible.
 	*/
 	if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr);
+	if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr);
 	if (object_is_armour(o_ptr)) return armor_cost(o_ptr);
-	if (object_is_jewelry(o_ptr)) return jewelry_cost(o_ptr);
+	if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr);
 
 	/* OK, here's the old pricing algorithm :( 
 	   Note this algorithm cheats for artifacts by relying on cost
