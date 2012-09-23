@@ -6269,7 +6269,7 @@ static cptr desc_stat_pos[] =
 #ifdef JP
 "Èþ¤·¤¯"
 #else
-	"cute"
+	"self-confident"
 #endif
 
 };

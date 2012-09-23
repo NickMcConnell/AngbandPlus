@@ -1626,8 +1626,10 @@ bool brand_weapon_aux(int ego_type, int item)
 				add_flag(o_ptr->art_flags, TR_RES_POIS);
 			if (one_in_(3))
 				add_flag(o_ptr->art_flags, TR_WARNING);
-			
-			one_high_resistance(o_ptr);
+			if (one_in_(3))
+				add_flag(o_ptr->art_flags, TR_LEVITATION);
+			if (one_in_(13))
+				add_flag(o_ptr->art_flags, TR_REGEN);
 			o_ptr->pval = randint1(4);
 			break;
 

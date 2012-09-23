@@ -1146,9 +1146,6 @@ s32b object_value_real(object_type *o_ptr)
 	u32b flgs[TR_FLAG_SIZE];
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	
-	/* Hack -- "worthless" items */
-	if (!k_info[o_ptr->k_idx].cost) return (0L);
 
 	/* Dave has been kind enough to come up with much better scoring.
 	   So use the new algorithms whenever possible.
@@ -1163,6 +1160,9 @@ s32b object_value_real(object_type *o_ptr)
 	   poorly.  Also, try comparing the code calculated cost to
 	   the human one in a_info.txt some time.  The new algorithms
 	   are much nicer. */
+
+	/* Hack -- "worthless" items */
+	if (!k_info[o_ptr->k_idx].cost) return (0L);
 
 	/* Base cost */
 	value = k_info[o_ptr->k_idx].cost;
@@ -2458,6 +2458,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						add_flag(o_ptr->art_flags, TR_RES_POIS);
 					if (one_in_(3))
 						add_flag(o_ptr->art_flags, TR_WARNING);
+					if (one_in_(3))
+						add_flag(o_ptr->art_flags, TR_LEVITATION);
+					if (one_in_(13))
+						add_flag(o_ptr->art_flags, TR_REGEN);
 					break;
 				case EGO_KILL_DRAGON:
 					if (one_in_(3))

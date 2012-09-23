@@ -631,20 +631,6 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
 		}
 	}
 
-	if (have_flag(flgs, TR_DARKNESS))
-	{
-		if (p_ptr->pclass == CLASS_NINJA)
-			p = p * 5;
-		else
-			p = p / 5;
-
-		if (cost_calc_hook)
-		{
-			sprintf(dbg_msg, "  * No Tele: p = %d", p);
-			cost_calc_hook(dbg_msg);
-		}
-	}
-
 	if (have_flag(flgs, TR_NO_MAGIC) && o_ptr->tval != TV_AMULET)
 	{
 		p = p * 9 / 10;
@@ -667,7 +653,7 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
 
 	if (have_flag(flgs, TR_TY_CURSE))
 	{
-		p = p * 5 / 10;
+		p = p * 8 / 10;
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * AFC: p = %d", p);
@@ -677,7 +663,7 @@ s32b _finalize_p(s32b p, u32b flgs[TR_FLAG_SIZE], object_type *o_ptr)
 
 	if (o_ptr->curse_flags & TRC_PERMA_CURSE)
 	{
-		p = p * 5 / 10;
+		p = p * 8 / 10;
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * Perm Curse: p = %d", p);
@@ -1130,8 +1116,8 @@ s32b weapon_cost(object_type *o_ptr)
 	/* Base Cost calculated from expected damage output */
 	w = _avg_dam(o_ptr) * _avg_dam(o_ptr) * 278 / 10;
 
-	if (o_ptr->to_h <= 0 && o_ptr->to_d <= 0)
-		w /= 3;
+	/*if (o_ptr->to_h < 0 && o_ptr->to_d < 0)
+		w /= 3; */
 
 	if (cost_calc_hook)
 	{
@@ -1171,8 +1157,10 @@ s32b weapon_cost(object_type *o_ptr)
 	if (have_flag(flgs, TR_BRAND_FIRE)) y += 20;
 	if (have_flag(flgs, TR_BRAND_COLD)) y += 20;
 
-	if (have_flag(flgs, TR_KILL_EVIL)) y += 80;
-	else if (have_flag(flgs, TR_SLAY_EVIL)) y += 40;
+/*	if (have_flag(flgs, TR_KILL_EVIL)) y += 80;
+	else if (have_flag(flgs, TR_SLAY_EVIL)) y += 40;*/
+	if (have_flag(flgs, TR_KILL_EVIL)) w = w * 7/2;
+	else if (have_flag(flgs, TR_SLAY_EVIL)) w = w * 2;
 
 	if (have_flag(flgs, TR_CHAOTIC)) y += 35;
 	/* Order is handled by damage dice: if (have_flag(flgs, TR_ORDER)) y += 35;*/
@@ -1213,13 +1201,13 @@ s32b weapon_cost(object_type *o_ptr)
 	else if (o_ptr->to_h <= 10)
 		w += 100 * o_ptr->to_h;
 	else
-		w += o_ptr->to_h * o_ptr->to_h * o_ptr->to_h;
+		w += 10 * o_ptr->to_h * o_ptr->to_h;
 
 	if (o_ptr->to_d < 0) {}
 	else if (o_ptr->to_d <= 10)
 		w += 200 * o_ptr->to_d;
 	else
-		w += 2* o_ptr->to_d * o_ptr->to_d * o_ptr->to_d;
+		w += 20 * o_ptr->to_d * o_ptr->to_d;
 
 	if (cost_calc_hook)
 	{
@@ -1239,7 +1227,7 @@ s32b weapon_cost(object_type *o_ptr)
 	}
 
 	/* Resistances */
-	q = _resistances_q(flgs);
+	q = _resistances_q(flgs)/3;
 	p = w + q + (q/100)*w/200;
 	/*p = w + q*(1+w/20000);*/
 
@@ -1250,7 +1238,7 @@ s32b weapon_cost(object_type *o_ptr)
 	}
 
 	/* Abilities */
-	q = _abilities_q(flgs);
+	q = _abilities_q(flgs)/3;
 	p += q + (q/100)*w/400;
 	/*p += q*(1+w/20000);*/
 
@@ -1263,7 +1251,7 @@ s32b weapon_cost(object_type *o_ptr)
 	/* Speed */
 	if (have_flag(flgs, TR_SPEED))
 	{
-		p += _speed_p(o_ptr->pval);
+		p += _speed_p(o_ptr->pval)/3;
 
 		if (cost_calc_hook)
 		{
@@ -1273,7 +1261,7 @@ s32b weapon_cost(object_type *o_ptr)
 	}
 
 	/* Stats */
-	q = _stats_q(flgs, o_ptr->pval);
+	q = _stats_q(flgs, o_ptr->pval)/3;
 	if (q != 0)
 	{
 		p += q + (q/100)*w/100;
@@ -1336,7 +1324,8 @@ s32b weapon_cost(object_type *o_ptr)
 		}
 	}
 
-	/* Hack: Broken swords should not be worth anything ... */
+	/* Hack: Broken swords should not be worth anything ...
+	   REDO ... Consider Twilight
 	if (o_ptr->to_h < 0) 
 	{
 		if (ABS(o_ptr->to_h) <= 10)
@@ -1351,7 +1340,7 @@ s32b weapon_cost(object_type *o_ptr)
 			p += 200 * o_ptr->to_d;
 		else
 			p += 2* o_ptr->to_d * o_ptr->to_d * o_ptr->to_d;
-	}
+	}*/
 
 	p = _finalize_p(p, flgs, o_ptr);
 	return p;

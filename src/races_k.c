@@ -204,7 +204,7 @@ race_t *kutar_get_race_t(void)
 		me.skills.thb = -5;
 
 		me.hd = 11;
-		me.exp = 200;
+		me.exp = 175;
 		me.infra = 0;
 
 		me.calc_bonuses = _kutar_calc_bonuses;

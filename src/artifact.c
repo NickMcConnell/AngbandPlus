@@ -1349,6 +1349,8 @@ static void random_slay(object_type *o_ptr)
 			add_flag(o_ptr->art_flags, TR_SLAY_HUMAN);
 			break;
 		case 5:
+			add_flag(o_ptr->art_flags, TR_SLAY_EVIL);
+			break;
 		case 6:
 			add_flag(o_ptr->art_flags, TR_SLAY_ORC);
 			break;
@@ -1392,7 +1394,10 @@ static void random_slay(object_type *o_ptr)
 				random_slay(o_ptr);
 			break;
 		case 20:
-			add_flag(o_ptr->art_flags, TR_IMPACT);
+			if (o_ptr->tval == TV_HAFTED || o_ptr->tval == TV_DIGGING)
+				add_flag(o_ptr->art_flags, TR_IMPACT);
+			else
+				random_slay(o_ptr);
 			break;
 		case 21:
 			add_flag(o_ptr->art_flags, TR_BRAND_FIRE);
@@ -1855,6 +1860,10 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	slaying_hack = 0;
 	has_pval = FALSE;
 
+	/* Hack for Demeter. Torches start with a pval of 4000! Not sure about lanterns ... */
+	if (o_ptr->tval == TV_LITE /*&& o_ptr->sval == SV_LITE_TORCH*/)
+		o_ptr->pval = 0;
+
 	if (lev == 0 && quest_mega_hack)
 		lev = quest[quest_mega_hack].level;
 
@@ -1874,7 +1883,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if (o_ptr->pval) has_pval = TRUE;
 
-	if ((mode & (CREATE_ART_SCROLL | CREATE_ART_GOOD)) && one_in_(4))
+	if ((mode & (CREATE_ART_SCROLL/* | CREATE_ART_GOOD*/)) && one_in_(4))
 	{
 		switch (p_ptr->pclass)
 		{
@@ -2004,6 +2013,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	if ((o_ptr->tval == TV_LITE && o_ptr->sval != SV_LITE_JUDGE) || o_ptr->tval == TV_AMULET)
 	{
+		if (powers > 3) powers = (powers+1)/2;
 		if (powers > 5) powers = 5;
 	}
 
@@ -2415,7 +2425,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 			{
 				o_ptr->pval++;
 			}
-			while (o_ptr->pval < randint1(5) || one_in_(o_ptr->pval));
+			while (o_ptr->pval < randint1(5) || one_in_(o_ptr->pval+1));
 		}
 	}
 
@@ -3803,42 +3813,19 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 {
 	object_type		forge1 = {0};
 	object_type		forge2 = {0};
-	object_type		keeper = {0};
-	int				base_power, best_power, power = 0;
+	object_type		best = {0}, worst = {0};
+	int				base_power, best_power, power = 0, worst_power = 10000000;
 	int				old_level;
 	artifact_type  *a_ptr = &a_info[a_idx];
-	int				k_idx, i;
+	int				i;
 
 	if (!a_ptr->name) return FALSE;
 	if (no_artifacts) return FALSE;
 
-	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-	if (!k_idx) return FALSE;
-
-	/* Make the original artifact so we can get a target score for the replacement.
-	   Don't trust a_ptr->cost too much (We'll average) */
-	object_prep(&forge1, k_idx);
-	forge1.name1 = a_idx;
-
-	forge1.pval = a_ptr->pval;
-	forge1.ac = a_ptr->ac;
-	forge1.dd = a_ptr->dd;
-	forge1.ds = a_ptr->ds;
-	forge1.to_a = a_ptr->to_a;
-	forge1.to_h = a_ptr->to_h;
-	forge1.to_d = a_ptr->to_d;
-	forge1.weight = a_ptr->weight;
-
-	if (a_ptr->gen_flags & TRG_CURSED) forge1.curse_flags |= (TRC_CURSED);
-	if (a_ptr->gen_flags & TRG_HEAVY_CURSE) forge1.curse_flags |= (TRC_HEAVY_CURSE);
-	if (a_ptr->gen_flags & TRG_PERMA_CURSE) forge1.curse_flags |= (TRC_PERMA_CURSE);
-	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE0)) forge1.curse_flags |= get_curse(0, &forge1);
-	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE1)) forge1.curse_flags |= get_curse(1, &forge1);
-	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) forge1.curse_flags |= get_curse(2, &forge1);
-
-	random_artifact_resistance(&forge1, a_ptr);
-
+	/* Score the Original */
+	if (!create_named_art_aux(a_idx, &forge1)) return FALSE;
 	base_power = object_value_real(&forge1);
+	
 	best_power = -10000000;
 	power = 0;
 	old_level = object_level;
@@ -3846,34 +3833,34 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 	if (object_level < a_ptr->level)
 		object_level = a_ptr->level;
 
-	/* Roll a few times, attempting to come close in power to the original */
-	for (i = 0; i < 7; i++)
+/*	for (i = 0; i < 1+m_bonus(2, object_level); i++)
 	{
-		object_prep(&forge2, k_idx);
+		object_prep(&forge2, forge1.k_idx);
 		create_artifact(&forge2, CREATE_ART_GOOD);
-		power = object_value_real(&forge2) - k_info[k_idx].cost;
+		power = object_value_real(&forge2);
+
 		if (power > best_power)
 		{
-			object_copy(&keeper, &forge2);
+			object_copy(&best, &forge2);
 			best_power = power;
 		}
 		if (power > base_power * 7 / 10)
 			break;
 	}
 
-	if (best_power < base_power * 3 / 10)
+	if (best_power < base_power * 4 / 10)
 	{
-		for (i = 0; i < 12; i++)
+		for (i = 0; i < 15; i++)
 		{
-			object_prep(&forge2, k_idx);
+			object_prep(&forge2, forge1.k_idx);
 			create_artifact(&forge2, CREATE_ART_GOOD);
-			power = object_value_real(&forge2) - k_info[k_idx].cost;
+			power = object_value_real(&forge2);
 			if (power > best_power)
 			{
 				object_copy(&keeper, &forge2);
 				best_power = power;
 			}
-			if (power > base_power * 3 / 10)
+			if (power > base_power * 4 / 10)
 				break;
 		}
 	}
@@ -3883,12 +3870,83 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 	object_copy(o_ptr, &keeper);
 	o_ptr->weight = forge1.weight;
 
+*/
+	for (i = 0; i < 10000; i++)
+	{
+		object_prep(&forge2, forge1.k_idx);
+		create_artifact(&forge2, CREATE_ART_GOOD);
+		power = object_value_real(&forge2);
+
+		if (power > best_power)
+		{
+			object_copy(&best, &forge2);
+			best_power = power;
+		}
+		if (power < worst_power)
+		{
+			object_copy(&worst, &forge2);
+			worst_power = power;
+		}
+
+		if (power > base_power * 7 / 10 && power < base_power * 2)
+		{
+			object_level = old_level;
+			object_copy(o_ptr, &forge2);
+			o_ptr->name3 = a_idx;
+			o_ptr->weight = forge1.weight;
+			return TRUE;
+		}
+	}
+
+	/* Failed! Return best or worst */
+	object_level = old_level;
+	if (worst_power > base_power)
+		object_copy(o_ptr, &worst);
+	else
+		object_copy(o_ptr, &best);
+
+	o_ptr->name3 = a_idx;
+	o_ptr->weight = forge1.weight;
+
 	return TRUE;
 }
 
 /*
  * Create the artifact of the specified number
  */
+bool create_named_art_aux(int a_idx, object_type *o_ptr)
+{
+	int k_idx;
+	artifact_type *a_ptr = &a_info[a_idx];
+
+	if (!a_ptr->name) return FALSE;
+	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+	if (!k_idx) return FALSE;
+
+	object_prep(o_ptr, k_idx);
+
+	o_ptr->name1 = a_idx;
+	o_ptr->pval = a_ptr->pval;
+	o_ptr->ac = a_ptr->ac;
+	o_ptr->dd = a_ptr->dd;
+	o_ptr->ds = a_ptr->ds;
+	o_ptr->to_a = a_ptr->to_a;
+	o_ptr->to_h = a_ptr->to_h;
+	o_ptr->to_d = a_ptr->to_d;
+	o_ptr->weight = a_ptr->weight;
+
+	if (a_ptr->gen_flags & TRG_CURSED) o_ptr->curse_flags |= (TRC_CURSED);
+	if (a_ptr->gen_flags & TRG_HEAVY_CURSE) o_ptr->curse_flags |= (TRC_HEAVY_CURSE);
+	if (a_ptr->gen_flags & TRG_PERMA_CURSE) o_ptr->curse_flags |= (TRC_PERMA_CURSE);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE0)) o_ptr->curse_flags |= get_curse(0, o_ptr);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE1)) o_ptr->curse_flags |= get_curse(1, o_ptr);
+	if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) o_ptr->curse_flags |= get_curse(2, o_ptr);
+
+	random_artifact_resistance(o_ptr, a_ptr);
+
+	return TRUE;
+}
+
 bool create_named_art(int a_idx, int y, int x)
 {
 	if (no_artifacts) return FALSE;
@@ -3902,49 +3960,8 @@ bool create_named_art(int a_idx, int y, int x)
 	else
 	{
 		object_type forge;
-		object_type *q_ptr;
-		int i;
-
-		artifact_type *a_ptr = &a_info[a_idx];
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Ignore "empty" artifacts */
-		if (!a_ptr->name) return FALSE;
-
-		/* Acquire the "kind" index */
-		i = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-		/* Oops */
-		if (!i) return FALSE;
-
-		/* Create the artifact */
-		object_prep(q_ptr, i);
-
-		/* Save the name */
-		q_ptr->name1 = a_idx;
-
-		/* Extract the fields */
-		q_ptr->pval = a_ptr->pval;
-		q_ptr->ac = a_ptr->ac;
-		q_ptr->dd = a_ptr->dd;
-		q_ptr->ds = a_ptr->ds;
-		q_ptr->to_a = a_ptr->to_a;
-		q_ptr->to_h = a_ptr->to_h;
-		q_ptr->to_d = a_ptr->to_d;
-		q_ptr->weight = a_ptr->weight;
-
-		/* Hack -- extract the "cursed" flag */
-		if (a_ptr->gen_flags & TRG_CURSED) q_ptr->curse_flags |= (TRC_CURSED);
-		if (a_ptr->gen_flags & TRG_HEAVY_CURSE) q_ptr->curse_flags |= (TRC_HEAVY_CURSE);
-		if (a_ptr->gen_flags & TRG_PERMA_CURSE) q_ptr->curse_flags |= (TRC_PERMA_CURSE);
-		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE0)) q_ptr->curse_flags |= get_curse(0, q_ptr);
-		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE1)) q_ptr->curse_flags |= get_curse(1, q_ptr);
-		if (a_ptr->gen_flags & (TRG_RANDOM_CURSE2)) q_ptr->curse_flags |= get_curse(2, q_ptr);
-
-		random_artifact_resistance(q_ptr, a_ptr);
-
-		return drop_near(q_ptr, -1, y, x) ? TRUE : FALSE;
+		if (create_named_art_aux(a_idx, &forge))
+			return drop_near(&forge, -1, y, x) ? TRUE : FALSE;
 	}
+	return FALSE;
 }

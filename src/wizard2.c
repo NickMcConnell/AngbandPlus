@@ -150,6 +150,7 @@ static void do_cmd_wiz_hack_chris1(void)
 	int ct_aggravate = 0;
 	int ct_darkness = 0;
 	int ct_spell_power = 0;
+	int ct_pval = 0;
 	int i;
 	for (i = 0; i < ct; i++)
 	{
@@ -157,7 +158,7 @@ static void do_cmd_wiz_hack_chris1(void)
 		char buf[MAX_NLEN];
 		int value;
 
-		if (0)
+		if (1)
 		{
 			create_replacement_art(a_idx, &forge);
 		}
@@ -174,6 +175,7 @@ static void do_cmd_wiz_hack_chris1(void)
 		forge.ident |= (IDENT_MENTAL); 
 		object_desc(buf, &forge, 0);
 		value = object_value_real(&forge);
+		ct_pval += forge.pval;
 
 		if (have_flag(forge.art_flags, TR_IM_ACID)
 		 || have_flag(forge.art_flags, TR_IM_COLD)
@@ -231,8 +233,9 @@ static void do_cmd_wiz_hack_chris1(void)
 
 	msg_format("Generated %d artifacts.  %d had immunity.  %d had speed.  %d had extra attacks.", ct, ct_immunity, ct_speed, ct_blows);
 	msg_format("%d had telepathy. %d had aggravation.", ct_telepathy, ct_aggravate);
-	msg_format("%d had darkness. %d had spell power.", ct_darkness, ct_spell_power);
+/*	msg_format("%d had darkness. %d had spell power.", ct_darkness, ct_spell_power); */
 	msg_format("%d would be immunities created.", ct_would_be_immunities);
+	msg_format("%.2f average pval.", (double)ct_pval/(double)ct);
 
 }
 
@@ -481,19 +484,43 @@ static void do_cmd_wiz_hack_chris5(void)
 static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
 {
 	int a_idx, i;
+	int ct = 30;
+	int dummy_name = quark_add("");
+	double qual_tot = 0.0, qual = 0.0;
+	int a_ct = 0;
+	s16b old_level = object_level;
+
+	ct = get_quantity("How Many of Each? ", 100);
 
 	if (replace)
-		fprintf(file, "L%d\nReplacement Artifacts\n\n\n", dun_level);
+		fprintf(file, "Replacement Artifacts\n\n\n");
 	else
-		fprintf(file, "L%d\nRandom Artifacts (*NOT* Replacements!)\n\n\n", dun_level);
+		fprintf(file, "Random Artifacts (*NOT* Replacements!)\n\n\n");
 
 	for (a_idx = 1; a_idx < max_a_idx; a_idx++)
 	{
-		for (i = 0; i < 30; i++)
-		{
-			object_type forge = {0};
-			char buf[MAX_NLEN];
+		object_type forge = {0};
+		char buf[MAX_NLEN];
+		int pow_base = 0;
+		int pow_tot = 0;
+		int pow = 0;
+		int pval_tot = 0;
+		int speed_tot = 0;
 
+		if (!create_named_art_aux(a_idx, &forge)) continue;
+		pow_base = object_value_real(&forge);
+		identify_item(&forge);
+		object_level = a_info[a_idx].level;
+
+		forge.ident |= (IDENT_MENTAL); 
+		object_desc(buf, &forge, 0);
+
+		fprintf(file, "====================================================================================================\n");
+		fprintf(file, "%d:%s Score = %d\n", a_idx, buf, pow_base);
+		fprintf(file, "====================================================================================================\n");
+
+		for (i = 0; i < ct; i++)
+		{
 			if (replace)
 			{
 				create_replacement_art(a_idx, &forge);
@@ -508,15 +535,45 @@ static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
 				object_prep(&forge, k_idx);
 				create_artifact(&forge, CREATE_ART_GOOD);
 			}
+			pow = object_value_real(&forge);
+			pow_tot += pow;
+			pval_tot += forge.pval;
+			if (have_flag(forge.art_flags, TR_SPEED))
+				speed_tot += forge.pval;
 			identify_item(&forge);
 
 			forge.ident |= (IDENT_MENTAL); 
+			forge.art_name = dummy_name;
 			object_desc(buf, &forge, 0);
 
-			fprintf(file, "%s\n", buf);
+			fprintf(file, "%s (%.1f%%)\n", buf, (double)pow/(double)pow_base*100.0);
+		}
+		fprintf(file, "\npval = %.2f\nspeed = %.2f\n", (double)pval_tot/(double) ct, (double)speed_tot/(double)ct);
+		if (pow_base)
+		{
+			qual = ((double)pow_tot/(double)ct)/(double)pow_base;
+
+			if (qual > 10.0)
+			{
+				fprintf(file, "quality = %.1f%% (Discard High)\n", qual*100.0);
+			}
+			else if (replace && qual < 0.15)
+			{
+				fprintf(file, "quality = %.1f%% (Discard Low)\n", qual*100.0);
+			}
+			else
+			{
+				a_ct++;
+				qual_tot += qual;
+				fprintf(file, "quality = %.1f%%\n", qual*100.0);
+			}
 		}
 		fprintf(file, "\n\n\n");
 	}
+
+	fprintf(file, "Total: %.1f%%\n", qual_tot/(double)a_ct*100.0);
+
+	object_level = old_level;
 }
 
 static void do_cmd_wiz_hack_chris6(void)
@@ -526,7 +583,7 @@ static void do_cmd_wiz_hack_chris6(void)
 	char	buf[1024];
 	bool replace = get_check("Generate Replacement Artifacts?");
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Arts1.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Arts5.txt");
 	fff = my_fopen(buf, "w");
 
 	if (!fff)

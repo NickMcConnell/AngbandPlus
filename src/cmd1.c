@@ -660,6 +660,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	int chaos_slay = 0;
+	bool hephaestus_hack = FALSE;
 
 	u32b flgs[TR_FLAG_SIZE];
 	char o_name[MAX_NLEN];
@@ -1400,6 +1401,12 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 					if (mult < 20) mult = 20;
 				}
 			}
+			if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+			{
+				hephaestus_hack = TRUE;
+				mult += 10;
+			}
+
 			if (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force)
 			{
 				int cost = 0;
@@ -1425,6 +1432,10 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 					mult = mult * 3 / 2 + 20;
 				}
 			}
+			if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS && !hephaestus_hack)
+			{
+				mult += 10;
+			}
 
 			if (p_ptr->tim_blood_feast)
 			{
@@ -1433,8 +1444,6 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s16b hand, i
 			break;
 		}
 	}
-	if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
-		mult += 10;
 	if (mult > 150) mult = 150;
 
 	/* Return the total damage */

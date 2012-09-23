@@ -3023,6 +3023,7 @@ static int breakage_chance(object_type *o_ptr)
 static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 10;
+	bool hephaestus_hack = FALSE;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -3369,6 +3370,12 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
 
+			if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+			{
+				hephaestus_hack = TRUE;
+				mult += 5;
+			}
+
 			if ( (have_flag(flgs, TR_FORCE_WEAPON) || p_ptr->tim_force) 
 			  && (p_ptr->csp > (p_ptr->msp / 30)))
 			{
@@ -3377,7 +3384,7 @@ static s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				mult = mult * 5 / 2;
 			}
 
-			if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS)
+			if (mult > 10 && prace_is_(RACE_DEMIGOD) && p_ptr->psubrace == DEMIGOD_HEPHAESTUS && !hephaestus_hack)
 				mult += 5;
 			break;
 		}

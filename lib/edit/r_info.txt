@@ -22290,7 +22290,7 @@ F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
 F:IM_FIRE | IM_POIS | IM_ACID | IM_ACID |
 F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
 S:1_IN_3 | 
-S:SHOOT | BO_MANA | BLINK | TPORT | S_KIN
+S:SHOOT | BO_MANA | BLINK | TPORT | S_KIN | HEAL
 D:$The second strongest of the Round Table, Gawain is usually
 D:$the voice of reason.
 
@@ -22299,9 +22299,9 @@ E:Sir Galahad
 G:p:g
 I:124:50d20:30:110:15
 W:28:3:999:1800:0:0
-B:SLASH:TERRIFY:15d1
-B:HIT:CONFUSE:4d6
-B:HIT:BLIND:3d8
+B:SLASH:TERRIFY:25d1
+B:HIT:CONFUSE:2d6
+B:HIT:BLIND:2d8
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
@@ -22310,7 +22310,7 @@ F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
 F:IM_FIRE | IM_ELEC | IM_COLD | IM_POIS | IM_ACID |
 F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
 S:1_IN_5 | 
-S:SHOOT | TELE_TO | TPORT | S_KIN
+S:SHOOT | TELE_TO | TPORT | S_KIN | HEAL
 D:$Sir Galahad the Pure takes after his father Lancelot in his
 D:$combat abilities and after his mother Elaine in his calm.  He
 D:$is the one who finally completed the Quest for the Holy Grail.
@@ -22320,9 +22320,9 @@ E:Sir Gareth
 G:p:g
 I:120:50d20:30:80:15
 W:28:3:999:1800:0:0
-B:HIT:BLIND:4d6
-B:HIT:BLIND:4d6
-B:HIT:HURT:3d8
+B:HIT:BLIND:8d6
+B:HIT:BLIND:2d8
+B:HIT:HURT:2d8
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
@@ -22331,7 +22331,7 @@ F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
 F:IM_FIRE | IM_ELEC | IM_COLD |
 F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
 S:1_IN_5 | 
-S:SHOOT | BO_ELEC | HASTE | TELE_TO | TPORT | S_KIN
+S:SHOOT | BO_ELEC | HASTE | TELE_TO | TPORT | S_KIN | HEAL
 D:$The protege of Lancelot and the younger brother of Gawain,
 D:$Gareth served as a Nexus of the Round Table, and after his
 D:$death, Camelot itself soon dissolved.
@@ -22362,9 +22362,9 @@ E:Camelot Knight
 G:p:w
 I:120:70d20:30:80:15
 W:26:3:999:1400:0:0
-B:HIT:BLIND:4d6
-B:HIT:HURT:3d8
-B:HIT:HURT:3d8
+B:HIT:BLIND:6d8
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
 F:MALE | FORCE_SLEEP | MOVE_BODY |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | CAN_SWIM |
 F:SMART | TAKE_ITEM | OPEN_DOOR |
@@ -22372,7 +22372,7 @@ F:GOOD | HUMAN | REGENERATE | DROP_CORPSE |
 F:IM_FIRE | IM_ACID | 
 F:NO_SLEEP | NO_CONF | CAMELOT | KNIGHT | HAS_LITE_1
 S:1_IN_6 | 
-S:SHOOT | BO_FIRE | TELE_TO | BLINK | TPORT | S_KIN
+S:SHOOT | BO_FIRE | TELE_TO | BLINK | TPORT | S_KIN | HEAL
 D:$A Knight of the Round Table of King Arthur's Court.
 
 N:1118:TRANSLATE
@@ -22389,7 +22389,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
 F:SMART | TAKE_ITEM | OPEN_DOOR | POWERFUL
 F:GOOD | EVIL | HUMAN | REGENERATE | DROP_CORPSE |
-F:IM_FIRE | IM_POIS | IM_ELEC | IM_ACID | IM_ACID |
+F:IM_FIRE | IM_POIS | IM_ELEC | IM_ACID | IM_COLD |
 F:NO_SLEEP | NO_CONF | AURA_FEAR | CAMELOT | SELF_DARK_1
 S:1_IN_2 | 
 S:BO_MANA | TPORT | HEAL | HASTE | BA_WATE
@@ -22411,7 +22411,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | CAN_SWIM |
 F:SMART | TAKE_ITEM | OPEN_DOOR | POWERFUL
 F:GOOD | EVIL | HUMAN | REGENERATE | DROP_CORPSE |
-F:IM_ELEC | IM_ACID | IM_ACID |
+F:IM_ELEC | IM_ACID | IM_COLD |
 F:NO_SLEEP | NO_CONF | AURA_REVENGE | CAMELOT | SELF_DARK_1
 S:1_IN_6 | 
 S:BO_MANA | TPORT | HEAL | HASTE | BA_WATE
@@ -22452,6 +22452,29 @@ S:1_IN_2 | SCARE | S_KIN | TELE_TO
 D:$A human, covered in bone armor and decorated with the
 D:$shriveled, preserved eyeballs of foes defeated.  The 
 D:$sight of him strikes terror into your soul.
+
+N:1122:TRANSLATE
+E:The Questing Beast
+G:q:v
+I:125:40d25:77:90:1
+W:35:7:999:2500:0:0
+B:KICK:CONFUSE:4d4
+B:KICK:TERRIFY:6d6
+B:DROOL:POISON:5d5
+F:UNIQUE | FEMALE | GOOD | EVIL | NONLIVING | RIDING |
+F:FORCE_MAXHP | OPEN_DOOR | BASH_DOOR | 
+F:ONLY_ITEM | DROP_GOOD | DROP_GREAT | DROP_2D2 |
+F:SMART | REGENERATE | NO_CONF | NO_SLEEP |
+F:IM_ACID | IM_ELEC | IM_FIRE | IM_POIS | IM_COLD | CAMELOT
+S:1_IN_3 |
+S:BLINK | HEAL | SHRIEK | SCARE | CONF | BLIND |
+S:MIND_BLAST | BR_CHAO | BR_NEXU
+D:$Beast Glatisant, the Barking Beast, is a strange creature
+D:$indeed. It has the head of a snake, the body of a leopard,
+D:$the haunches of a lion, and the feet of a deer. A great
+D:$noise rumbles from its belly, a barking like "thirty couple
+D:$hounds questing."
+#Description help from wikipedia
 
 # N: serial number : monster name
 # G: symbol : color
