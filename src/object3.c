@@ -369,7 +369,7 @@ static s32b _stats_q(u32b flgs[TR_FLAG_SIZE], int pval)
 	if (ct == 3) y -= 15;
 	else if (ct == 2) y -= 5;
 
-	if (have_flag(flgs, TR_MAGIC_MASTERY)) y += 6;
+	if (have_flag(flgs, TR_MAGIC_MASTERY)) y += 9;
 	if (have_flag(flgs, TR_STEALTH)) y += 6;
 
 	if (y != 0)
@@ -393,18 +393,16 @@ static s32b _speed_p(int pval)
 
 	switch (pval)
 	{
-	case 1: result = 20000; break;
-	case 2: result = 50000; break;
-	case 3: result = 90000; break;
-	case 4: result = 125000; break;
-	case 5: result = 160000; break;
+	case 1: result = 10000; break;
+	case 2: result = 20000; break;
+	case 3: result = 35000; break;
+	case 4: result = 60000; break;
+	case 5: result = 90000; break;
 	default:
 		if (pval < 0)
 			result = 10000 * pval; /* Otherwise, we destroy values for Chainsword */
-		else if (pval <= 10)
-			result = 40000*(pval - 1);
 		else
-			result = 125000 + 25000*pval;
+			result = 90000 + 40000*(pval - 5);
 		break;
 	}
 	return result;
@@ -743,7 +741,7 @@ s32b jewelry_cost(object_type *o_ptr)
 
 	/* Abilities */
 	q = _abilities_q(flgs);
-	if (have_flag(flgs, TR_NO_MAGIC)) q += 10000;
+	if (have_flag(flgs, TR_NO_MAGIC)) q += 7000;
 	if (have_flag(flgs, TR_NO_TELE)) q += 5000;
 	p += q;
 
@@ -793,7 +791,7 @@ s32b jewelry_cost(object_type *o_ptr)
 
 	if (have_flag(flgs, TR_BLOWS))
 	{
-		p += 30000 * o_ptr->pval;
+		p += 90 * 1000 * o_ptr->pval;
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * Blows: p = %d", p);
@@ -878,7 +876,6 @@ s32b armor_cost(object_type *o_ptr)
 	s32b a, y, q, p;
 	u32b flgs[TR_FLAG_SIZE];
 	char dbg_msg[512];
-	s32b relative_weight;
 
 	object_flags(o_ptr, flgs);
 
@@ -892,35 +889,6 @@ s32b armor_cost(object_type *o_ptr)
 		cost_calc_hook(dbg_msg);
 	}
 
-	/* Ad hoc relative weight factor ... Otherwise, shields and gloves
-	   always score very poorly relative to heavy armor with similar
-	   abilities 
-	   */
-	switch (o_ptr->tval)
-	{
-	case TV_SHIELD:
-		relative_weight = 40;
-		break;
-
-	case TV_BOOTS:
-		relative_weight = 40;
-		break;
-
-	case TV_HELM:
-		relative_weight = 40;
-		break;
-		
-	case TV_GLOVES:
-		relative_weight = 25;
-		break;
-
-	default:
-		relative_weight = 100;
-		break;
-	}
-
-
-	
 	/* Base Cost */
 	y = o_ptr->ac;
 	a = y * y * 15;
@@ -970,8 +938,8 @@ s32b armor_cost(object_type *o_ptr)
 	} */
 
 	/* Resistances */
-	q = _resistances_q(flgs)/3;
-	p = a + q + (q/100)*a/relative_weight;
+	q = _resistances_q(flgs);
+	p = a + q;
 
 	if (cost_calc_hook)
 	{
@@ -983,8 +951,7 @@ s32b armor_cost(object_type *o_ptr)
 	q = _abilities_q(flgs);
 	if (o_ptr->name2 == EGO_SNIPER)
 		q += 20000;
-	p += q + (q/100)*a/relative_weight;
-	/*p += q*(1+a/20000);*/
+	p += q;
 
 	if (cost_calc_hook)
 	{
@@ -994,7 +961,7 @@ s32b armor_cost(object_type *o_ptr)
 
 	/* Brands */
 	q = _brands_q(flgs);
-	p += q + (q/100)*a/relative_weight;
+	p += q;
 
 	if (cost_calc_hook && q)
 	{
@@ -1018,8 +985,7 @@ s32b armor_cost(object_type *o_ptr)
 	q = _stats_q(flgs, o_ptr->pval);
 	if (q != 0)
 	{
-		p += q + (q/100)*a/(relative_weight/2);
-		/*p += q*(1 + a/8000);*/
+		p += q;
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * Stats/Stealth: q = %d, p = %d", q, p);
@@ -1043,7 +1009,7 @@ s32b armor_cost(object_type *o_ptr)
 	if (have_flag(flgs, TR_BLOWS))
 	{
 		if (o_ptr->pval > 0)
-			p += 90000 * o_ptr->pval;
+			p += 90 * 1000 * o_ptr->pval;
 		else
 			p += 40000 * o_ptr->pval; /* Master Tonberry */
 
@@ -1144,8 +1110,7 @@ s32b weapon_cost(object_type *o_ptr)
 		if (have_flag(flgs, TR_BRAND_FIRE)) s += (1.5 * .1);
 		if (have_flag(flgs, TR_BRAND_COLD)) s += (1.5 * .1);
 		
-		if (have_flag(flgs, TR_CHAOTIC)) s += 0.6;
-		if (have_flag(flgs, TR_VAMPIRIC)) s += 0.6;
+		if (have_flag(flgs, TR_CHAOTIC)) s += 0.4;
 
 		if (have_flag(flgs, TR_KILL_EVIL)) s += (2.5 * 0.8);
 		else if (have_flag(flgs, TR_SLAY_EVIL)) s += (1.0 * 0.8);
@@ -1174,8 +1139,16 @@ s32b weapon_cost(object_type *o_ptr)
 		if (have_flag(flgs, TR_BLOWS))
 			d += (d + 15.0)*o_ptr->pval/6.0;
 
+		if (have_flag(flgs, TR_VAMPIRIC)) 
+			d *= 1.1;
+
 		w = d * d * d;
 
+		if (have_flag(flgs, TR_VAMPIRIC)) 
+			w += 5000;
+
+		if (have_flag(flgs, TR_CHAOTIC)) 
+			w += 3000;
 
 		if (have_flag(flgs, TR_IMPACT)) 
 			w += 250;
@@ -1220,11 +1193,7 @@ s32b weapon_cost(object_type *o_ptr)
 	/* Speed */
 	if (have_flag(flgs, TR_SPEED))
 	{
-		if (o_ptr->pval > 0)
-			p += _speed_p(o_ptr->pval)/2; /* Hack for Replacement Arts ... */
-		else
-			p += _speed_p(o_ptr->pval);
-
+		p += _speed_p(o_ptr->pval);
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * Speed: p = %d", p);

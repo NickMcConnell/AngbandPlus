@@ -1868,7 +1868,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_damage = FALSE;
 	int     lev = object_level;
 	bool    is_falcon_sword = FALSE;
-	int     max_a = MAX(o_ptr->to_a, 30);
+	int     max_a = MAX(o_ptr->to_a, 40);
 	int     max_h = MAX(o_ptr->to_h, 32);
 	int     max_d = MAX(o_ptr->to_d, 32);
 

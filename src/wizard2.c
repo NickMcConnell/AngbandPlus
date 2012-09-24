@@ -610,7 +610,7 @@ static void do_cmd_wiz_hack_chris6(void)
 	char	buf[1024];
 	bool replace = get_check("Generate Replacement Artifacts?");
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Arts9.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Arts8.txt");
 	fff = my_fopen(buf, "w");
 
 	if (!fff)
