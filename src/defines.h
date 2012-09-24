@@ -28,7 +28,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 10
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 127
+#define FAKE_VER_PATCH 128
 
 
 /*
@@ -46,8 +46,8 @@
  */
 #define H_VER_MAJOR 0
 #define H_VER_MINOR 0
-#define H_VER_PATCH 127
-#define H_VER_EXTRA 1
+#define H_VER_PATCH 128
+#define H_VER_EXTRA 0
 
 
 #define ANGBAND_2_8_1

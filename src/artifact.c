@@ -10,6 +10,9 @@
 
 #include "angband.h"
 
+static void random_resistance(object_type * o_ptr);
+static void random_slay(object_type *o_ptr);
+
 
 /* Chance of using syllables to form the name instead of the "template" files */
 #define SINDARIN_NAME   10
@@ -416,12 +419,17 @@ static void random_plus(object_type * o_ptr)
 		add_flag(o_ptr->art_flags, TR_INFRA);
 		break;
 	case 19:
-		add_flag(o_ptr->art_flags, TR_SPEED);
-		if (!artifact_bias && one_in_(11))
-			artifact_bias = BIAS_ROGUE;
+		if (!object_is_melee_weapon(o_ptr) || one_in_(3))
+		{
+			add_flag(o_ptr->art_flags, TR_SPEED);
+			if (!artifact_bias && one_in_(11))
+				artifact_bias = BIAS_ROGUE;
+		}
+		else
+			random_plus(o_ptr);
 		break;
 	case 20: case 21:
-		if (one_in_(3))
+		if ((!object_is_melee_weapon(o_ptr) || one_in_(3)) && one_in_(3))
 			add_flag(o_ptr->art_flags, TR_SPEED);
 		else
 			add_flag(o_ptr->art_flags, TR_TUNNEL);
@@ -432,9 +440,14 @@ static void random_plus(object_type * o_ptr)
 		{
 			if (slaying_hack == 0)
 			{
-				add_flag(o_ptr->art_flags, TR_BLOWS);
-				if (!artifact_bias && one_in_(11))
-					artifact_bias = BIAS_WARRIOR;
+				if (one_in_(3))
+				{
+					add_flag(o_ptr->art_flags, TR_BLOWS);
+					if (!artifact_bias && one_in_(11))
+						artifact_bias = BIAS_WARRIOR;
+				}
+				else
+					random_slay(o_ptr);
 			}
 			else
 				random_plus(o_ptr);
@@ -442,9 +455,6 @@ static void random_plus(object_type * o_ptr)
 		break;
 	}
 }
-
-static void random_resistance(object_type * o_ptr);
-static void random_slay(object_type *o_ptr);
 
 static bool double_check_immunity(object_type * o_ptr)
 {
@@ -520,7 +530,7 @@ static bool double_check_immunity(object_type * o_ptr)
 				o_ptr->to_d += 5 + randint1(10);
 				break;
 			case 7: case 8:
-				o_ptr->to_a += 5 + randint1(10);
+			/*	o_ptr->to_a += 5 + randint1(10); */
 				add_flag(o_ptr->art_flags, TR_FREE_ACT);
 				add_flag(o_ptr->art_flags, TR_SEE_INVIS);
 				add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
@@ -1434,9 +1444,20 @@ static void random_slay(object_type *o_ptr)
 				artifact_bias = BIAS_NECROMANTIC;
 			break;
 		case 27:
-			add_flag(o_ptr->art_flags, TR_FORCE_WEAPON);
-			if (!artifact_bias)
-				artifact_bias = (one_in_(2) ? BIAS_MAGE : BIAS_PRIESTLY);
+			if (have_flag(o_ptr->art_flags, TR_KILL_EVIL) && !one_in_(100))
+			{
+				random_slay(o_ptr);
+			}
+			else if (have_flag(o_ptr->art_flags, TR_SLAY_EVIL) && !one_in_(20))
+			{
+				random_slay(o_ptr);
+			}
+			else
+			{
+				add_flag(o_ptr->art_flags, TR_FORCE_WEAPON);
+				if (!artifact_bias)
+					artifact_bias = (one_in_(2) ? BIAS_MAGE : BIAS_PRIESTLY);
+			}
 			break;
 		case 28:
 			add_flag(o_ptr->art_flags, TR_CHAOTIC);
@@ -1844,12 +1865,12 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	bool    a_cursed = FALSE;
 	int     warrior_artifact_bias = 0;
 	int     i;
-	bool    has_resistance = FALSE;
+	bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_damage = FALSE;
 	int     lev = object_level;
 	bool    is_falcon_sword = FALSE;
 	int     max_a = MAX(o_ptr->to_a, 30);
-	int     max_h = MAX(o_ptr->to_h, 30);
-	int     max_d = MAX(o_ptr->to_d, 30);
+	int     max_h = MAX(o_ptr->to_h, 32);
+	int     max_d = MAX(o_ptr->to_d, 32);
 
 	if (no_artifacts) return 0;
 	
@@ -2206,6 +2227,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 						while (one_in_(o_ptr->ds));
 					}			
 				}
+				else if (!boosted_damage && randint1(225) < lev)
+				{
+					o_ptr->to_h = 20 + randint1(12);
+					o_ptr->to_d = 20 + randint1(12);
+					boosted_damage = TRUE;
+					powers--;
+				}
 				else
 					random_resistance(o_ptr);
 				break;
@@ -2250,7 +2278,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					add_flag(o_ptr->art_flags, TR_SPEED);
 					has_pval = TRUE;
 				}
-				else if (one_in_(200))
+				else if (one_in_(100))
 				{
 					add_flag(o_ptr->art_flags, TR_WEAPONMASTERY);
 					has_pval = TRUE;
@@ -2377,6 +2405,15 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 					{
 						add_flag(o_ptr->art_flags, TR_LEVITATION);
 					}
+					else if (!boosted_ac && randint1(225) < lev)
+					{
+						o_ptr->to_a = 20 + randint1(20);
+						if (object_is_body_armour(o_ptr) && one_in_(7))
+							o_ptr->ac += 5;
+
+						boosted_ac = TRUE;
+						powers--;
+					}
 					else if (o_ptr->tval == TV_GLOVES && one_in_(2))
 					{
 						add_flag(o_ptr->art_flags, TR_SHOW_MODS);
@@ -2440,11 +2477,22 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 
 	/* give it some plusses... */
 	if (object_is_armour(o_ptr))
+	{
 		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
+		if (o_ptr->to_a > max_a)
+			o_ptr->to_a = max_a;
+	}
 	else if (object_is_weapon_ammo(o_ptr))
 	{
 		o_ptr->to_h += randint1(o_ptr->to_h > 19 ? 1 : 20 - o_ptr->to_h);
 		o_ptr->to_d += randint1(o_ptr->to_d > 19 ? 1 : 20 - o_ptr->to_d);
+
+		if (o_ptr->to_h > max_h)
+			o_ptr->to_h = max_h;
+
+		if (o_ptr->to_d > max_d)
+			o_ptr->to_d = max_d;
+
 		if ((have_flag(o_ptr->art_flags, TR_WIS)) && (o_ptr->pval > 0)) add_flag(o_ptr->art_flags, TR_BLESSED);
 	}
 
@@ -3827,6 +3875,15 @@ bool create_replacement_art(int a_idx, object_type *o_ptr)
 
 	/* Score the Original */
 	if (!create_named_art_aux(a_idx, &forge1)) return FALSE;
+	if (object_is_weapon_ammo(&forge1))
+	{
+		forge1.to_h = MAX(10, forge1.to_h);
+		forge1.to_d = MAX(10, forge1.to_d);
+	}
+	if (object_is_armour(&forge1))
+	{
+		forge1.to_a = MAX(10, forge1.to_a);
+	}
 	base_power = object_value_real(&forge1);
 	
 	best_power = -10000000;

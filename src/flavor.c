@@ -813,6 +813,7 @@ static flag_insc_table flag_insc_misc[] =
 	{ "Bs", TR_BLESSED, -1 },
 	{ "Ty", TR_TY_CURSE, -1 },
 	{ "Ds", TR_DARKNESS, -1 },
+	{ "Wm", TR_WEAPONMASTERY, -1 },
 	{ NULL, 0, -1 }
 };
 

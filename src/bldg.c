@@ -3643,81 +3643,98 @@ static bool eval_ac(int iAC)
 /*
  * Enchant item
  */
+typedef struct _enchant_choice_s { int amt; int cost; } _enchant_choice_t;
+static cptr _enchant_text(menu_choices choices, int which) {
+	_enchant_choice_t *ptr = (_enchant_choice_t *)choices;
+	ptr += which;
+	return format("+%2d %9dgp", ptr->amt, ptr->cost);
+}
+static int _enchant_color(menu_choices choices, int which) {
+	_enchant_choice_t *ptr = (_enchant_choice_t *)choices;
+	ptr += which;
+	if (ptr->cost > p_ptr->au) return TERM_L_DARK;
+	return TERM_WHITE;	
+}
+
 static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 {
 	int         i, item;
 	bool        okay = FALSE;
 	object_type *o_ptr;
-	object_type copy;
 	cptr        q, s;
-	int         maxenchant = (p_ptr->lev / 5);
+	int         maxenchant = 12;
 	char        tmp_str[MAX_NLEN];
-	int old_cost, new_cost;
 
 	clear_bldg(4, 18);
 
 	prt(format("  Based on your skill, we can improve up to +%d.", maxenchant), 5, 0);
 	prt(format("  The price for the service will depend on the item you choose."), 7, 0);
 
+	/* Which Item? Client sets item_tester_hook! */
 	item_tester_no_ryoute = TRUE;
-
-	/* Get an item */
-#ifdef JP
-	q = "どのアイテムを改良しますか？";
-	s = "改良できるものがありません。";
-#else
-	q = "Improve which item? ";
-	s = "You have nothing to improve.";
-#endif
-
+	q = T("Improve which item? ", "どのアイテムを改良しますか？");
+	s = T("You have nothing to improve.", "改良できるものがありません。");
 	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return (FALSE);
-
-	/* Get the item (in the pack) */
 	o_ptr = &inventory[item];
 
 	if (o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT || o_ptr->tval == TV_SHOT)
+		maxenchant = (p_ptr->lev / 5);
+
+	/* Streamline. Nothing is more fun then enchanting Twilight (-40,-60)->(+10, +10), I 
+	   admit. But other players might not share my love of carpal tunnel syndrome! */
 	{
-	}
-	else
-	{
-		old_cost = new_object_cost(o_ptr);
+		int idx = -1;
+		int old_cost = new_object_cost(o_ptr);
+		_enchant_choice_t choices[25];
+		object_type copy = {0};
+		menu_list_t menu = { "Enchant How Much?", NULL, 
+							 "Amt      Cost", _enchant_text, NULL, _enchant_color, 
+							 choices, 25 };
+
 		object_copy(&copy, o_ptr);
-
-		for (i = 0; i < to_hit; i++)
+				
+		for (i = 0; i < 25; i++) /* TODO: Option for max. But +25 a pop is enough perhaps? */
 		{
-			if (copy.to_h < maxenchant)
-				copy.to_h++;
-		}
-		for (i = 0; i < to_dam; i++)
-		{
-			if (copy.to_d < maxenchant)
-				copy.to_d++;
-		}
-		for (i = 0; i < to_ac; i++)
-		{
-			if (copy.to_a < maxenchant)
-				copy.to_a++;
-		}
-		new_cost = new_object_cost(&copy);
+			bool ok = FALSE;
+			
+			choices[i].amt = i+1;
 
-		cost = (new_cost - old_cost) * 7;
-		if (cost <= 0) cost = 1000;
+			if (to_hit && copy.to_h < maxenchant) {copy.to_h++; ok = TRUE;}
+			if (to_dam && copy.to_d < maxenchant) {copy.to_d++; ok = TRUE;}
+			if (to_ac && copy.to_a < maxenchant) {copy.to_a++; ok = TRUE;}
 
-		prt(format("  The price for the service will be %d.", cost), 7, 0);
-		if (!get_check("Do you pay?")) return FALSE;
+			if (!ok) break;
+
+			if (o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT || o_ptr->tval == TV_SHOT)
+			{
+				choices[i].cost = (i+1)*cost*o_ptr->number;
+			}
+			else
+				choices[i].cost = (new_object_cost(&copy) - old_cost)*7;
+		}
+		if (!i)
+		{
+			object_desc(tmp_str, o_ptr, 0);
+			msg_format("%^s can not be further improved.", tmp_str);
+			return FALSE;
+		}
+
+		menu.count = i;
+		idx = menu_choose(&menu);
+		if (idx < 0) return FALSE;
+		
+		if (to_hit) to_hit = choices[idx].amt;
+		if (to_dam) to_dam = choices[idx].amt;
+		if (to_ac) to_ac = choices[idx].amt;
+		cost = choices[idx].cost;
 	}
 
 	/* Check if the player has enough money */
-	if (p_ptr->au < (cost * o_ptr->number))
+	if (p_ptr->au < cost)
 	{
 		object_desc(tmp_str, o_ptr, OD_NAME_ONLY);
-#ifdef JP
-		msg_format("%sを改良するだけのゴールドがありません！", tmp_str);
-#else
-		msg_format("You do not have the gold to improve %s!", tmp_str);
-#endif
-
-		return (FALSE);
+		msg_format(T("You do not have the gold to improve %s!", "%sを改良するだけのゴールドがありません！"), tmp_str);
+		return FALSE;
 	}
 
 	/* Enchant to hit */
@@ -3726,10 +3743,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 		if (o_ptr->to_h < maxenchant)
 		{
 			if (enchant(o_ptr, 1, (ENCH_TOHIT | ENCH_FORCE)))
-			{
 				okay = TRUE;
-				break;
-			}
 		}
 	}
 
@@ -3739,10 +3753,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 		if (o_ptr->to_d < maxenchant)
 		{
 			if (enchant(o_ptr, 1, (ENCH_TODAM | ENCH_FORCE)))
-			{
 				okay = TRUE;
-				break;
-			}
 		}
 	}
 
@@ -3752,43 +3763,27 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 		if (o_ptr->to_a < maxenchant)
 		{
 			if (enchant(o_ptr, 1, (ENCH_TOAC | ENCH_FORCE)))
-			{
 				okay = TRUE;
-				break;
-			}
 		}
 	}
 
-	/* Failure */
 	if (!okay)
 	{
-		/* Flush */
 		if (flush_failure) flush();
-
-		/* Message */
-#ifdef JP
-		msg_print("改良に失敗した。");
-#else
-		msg_print("The improvement failed.");
-#endif
-
+		msg_print(T("The improvement failed.", "改良に失敗した。"));
 		return (FALSE);
 	}
 	else
 	{
 		object_desc(tmp_str, o_ptr, OD_NAME_AND_ENCHANT);
 #ifdef JP
-		msg_format("＄%dで%sに改良しました。", cost * o_ptr->number, tmp_str);
+		msg_format("＄%dで%sに改良しました。", cost, tmp_str);
 #else
-		msg_format("Improved into %s for %d gold.", tmp_str, cost * o_ptr->number);
+		msg_format("Improved into %s for %d gold.", tmp_str, cost);
 #endif
 
-		/* Charge the money */
-		p_ptr->au -= (cost * o_ptr->number);
-
+		p_ptr->au -= cost;
 		if (item >= INVEN_RARM) calc_android_exp();
-
-		/* Something happened */
 		return (TRUE);
 	}
 }

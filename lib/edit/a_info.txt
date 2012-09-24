@@ -3808,7 +3808,7 @@ D:$and only Maglor son of Feanor is said to come close to his skill.
 
 N:247:TRANSLATE
 E:of the Master Tonberry
-I:31:2:-3
+I:31:2:-2
 W:99:150:25:200000
 P:2:0d0:10:100:0
 F:FREE_ACT | SUST_STR | SUST_CON | RES_TIME | RES_DISEN

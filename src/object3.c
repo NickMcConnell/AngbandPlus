@@ -584,13 +584,10 @@ static s32b _resistances_q(u32b flgs[TR_FLAG_SIZE])
 	cost += _check_flag_and_score(flgs, TR_RES_DISEN, 15000, &count);
 	cost += _check_flag_and_score(flgs, TR_RES_TIME, 25000, &count);
 
-	cost += _check_flag_and_score(flgs, TR_IM_ACID, 30000, &count);
-	cost += _check_flag_and_score(flgs, TR_IM_ELEC, 40000, &count);
-	cost += _check_flag_and_score(flgs, TR_IM_FIRE, 30000, &count);
-	cost += _check_flag_and_score(flgs, TR_IM_COLD, 40000, &count);
-
-	/* Code later inflates based on armour quality.  This factor is pure fudge */
-	cost /= 3.0;
+	cost += _check_flag_and_score(flgs, TR_IM_ACID, 100000, &count);
+	cost += _check_flag_and_score(flgs, TR_IM_ELEC, 130000, &count);
+	cost += _check_flag_and_score(flgs, TR_IM_FIRE, 120000, &count);
+	cost += _check_flag_and_score(flgs, TR_IM_COLD, 140000, &count);
 
 	return (u32b) cost;
 }
@@ -736,7 +733,7 @@ s32b jewelry_cost(object_type *o_ptr)
 
 	/* Resistances */
 	q = _resistances_q(flgs);
-	p = j + q + (q/10)*j/35;
+	p = j + q;
 
 	if (cost_calc_hook)
 	{
@@ -746,9 +743,9 @@ s32b jewelry_cost(object_type *o_ptr)
 
 	/* Abilities */
 	q = _abilities_q(flgs);
-	if (have_flag(flgs, TR_NO_MAGIC)) q += 20000;
-	if (have_flag(flgs, TR_NO_TELE)) q += 10000;
-	p += q + (q/10)*j/50;
+	if (have_flag(flgs, TR_NO_MAGIC)) q += 10000;
+	if (have_flag(flgs, TR_NO_TELE)) q += 5000;
+	p += q;
 
 	if (cost_calc_hook)
 	{
@@ -758,7 +755,7 @@ s32b jewelry_cost(object_type *o_ptr)
 
 	/* Brands */
 	q = _brands_q(flgs);
-	p += q + (q/10)*j/50;
+	p += q;
 
 	if (cost_calc_hook && q)
 	{
@@ -774,7 +771,7 @@ s32b jewelry_cost(object_type *o_ptr)
 	if (y != 0)
 	{
 		q = y*o_ptr->pval;
-		p += q + (q/10)*j/50;
+		p += q;
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * Other Crap: y = %d, q = %d, p = %d", y, q, p);
@@ -818,7 +815,7 @@ s32b jewelry_cost(object_type *o_ptr)
 	q = _stats_q(flgs, o_ptr->pval);
 	if (q != 0)
 	{
-		p += q + (q/10)*j/50;
+		p += q;
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * Stats/Stealth: q = %d, p = %d", q, p);
@@ -973,7 +970,7 @@ s32b armor_cost(object_type *o_ptr)
 	} */
 
 	/* Resistances */
-	q = _resistances_q(flgs);
+	q = _resistances_q(flgs)/3;
 	p = a + q + (q/100)*a/relative_weight;
 
 	if (cost_calc_hook)
@@ -1042,28 +1039,6 @@ s32b armor_cost(object_type *o_ptr)
 		}
 	}
 
-	/* (+x,+y) */
-	if (o_ptr->to_h != 0 || o_ptr->to_d != 0)
-	{
-		double x = o_ptr->to_h * ABS(o_ptr->to_h);
-		double y = o_ptr->to_d * ABS(o_ptr->to_d);
-		double p2 = p;
-
-		p2 = p2 * (2000.0 + x + 3.0*y)/2000.0 + 30.0*x + 100.0 * y;
-		p = (s32b) p2;
-
-	/*	p = (p/100)*(2000 + x + 3*y)/20 + 30*x + 100*y; */
-
-	/*	p += 1000 * o_ptr->to_h;
-		p += 2000 * o_ptr->to_d; */
-		
-		if (cost_calc_hook)
-		{
-			sprintf(dbg_msg, "  * (+x,+y): p = %d", p);
-			cost_calc_hook(dbg_msg);
-		}
-	}
-
 	/* Extra Attacks */
 	if (have_flag(flgs, TR_BLOWS))
 	{
@@ -1090,6 +1065,28 @@ s32b armor_cost(object_type *o_ptr)
 		}
 	}
 
+	/* (+x,+y) */
+	if (o_ptr->to_h != 0 || o_ptr->to_d != 0)
+	{
+		double x = o_ptr->to_h * ABS(o_ptr->to_h);
+		double y = o_ptr->to_d * ABS(o_ptr->to_d);
+		double p2 = p;
+
+		p2 = p2 * (2000.0 + x + 3.0*y)/2000.0 + 30.0*x + 100.0 * y;
+		p = (s32b) p2;
+
+	/*	p = (p/100)*(2000 + x + 3*y)/20 + 30*x + 100*y; */
+
+	/*	p += 1000 * o_ptr->to_h;
+		p += 2000 * o_ptr->to_d; */
+		
+		if (cost_calc_hook)
+		{
+			sprintf(dbg_msg, "  * (+x,+y): p = %d", p);
+			cost_calc_hook(dbg_msg);
+		}
+	}
+
 	p = _finalize_p(p, flgs, o_ptr);
 	return p;
 }
@@ -1111,12 +1108,82 @@ s32b weapon_cost(object_type *o_ptr)
 		sprintf(dbg_msg, "Scoring `%s` ...", buf);
 		cost_calc_hook(dbg_msg);
 	}
+	{
+		double d = (double)o_ptr->dd * ((double)o_ptr->ds + 1.0)/2;
+		double s = 1.0;
 
-	/* Base Cost calculated from expected damage output */
-	w = _avg_dam(o_ptr) * _avg_dam(o_ptr) * 278 / 10;
+		/* Figure average damage per strike. Not really because we are stacking slays
+		   albeit weighted by my off the cuff estimates of utility */
+		if (have_flag(flgs, TR_KILL_ORC)) s += (4.0 * .01);
+		else if (have_flag(flgs, TR_SLAY_ORC)) s += (2.0 * .01);
 
-	/*if (o_ptr->to_h < 0 && o_ptr->to_d < 0)
-		w /= 3; */
+		if (have_flag(flgs, TR_KILL_TROLL)) s += (4.0 * .02);
+		else if (have_flag(flgs, TR_SLAY_TROLL)) s += (2.0 * .02);
+
+		if (have_flag(flgs, TR_KILL_ANIMAL)) s += (3.0 * .025);
+		else if (have_flag(flgs, TR_SLAY_ANIMAL)) s += (1.5 * .025);
+
+		if (have_flag(flgs, TR_KILL_HUMAN)) s += (3.0 * .1);
+		else if (have_flag(flgs, TR_SLAY_HUMAN)) s += (1.5 * .1);
+
+		if (have_flag(flgs, TR_KILL_UNDEAD)) s += (4.0 * .1);
+		else if (have_flag(flgs, TR_SLAY_UNDEAD)) s += (2.0 * .1);
+
+		if (have_flag(flgs, TR_KILL_DEMON)) s += (4.0 * .15);
+		else if (have_flag(flgs, TR_SLAY_DEMON)) s += (2.0 * .15);
+
+		if (have_flag(flgs, TR_KILL_GIANT)) s += (4.0 * .075);
+		else if (have_flag(flgs, TR_SLAY_GIANT)) s += (2.0 * 0.075);
+
+		if (have_flag(flgs, TR_KILL_DRAGON)) s += (4.0 * .1);
+		else if (have_flag(flgs, TR_SLAY_DRAGON)) s += (2.0 * .1);
+
+		if (have_flag(flgs, TR_BRAND_POIS)) s += (1.5 * .1);
+		if (have_flag(flgs, TR_BRAND_ACID)) s += (1.5 * .15);
+		if (have_flag(flgs, TR_BRAND_ELEC)) s += (1.5 * .2);
+		if (have_flag(flgs, TR_BRAND_FIRE)) s += (1.5 * .1);
+		if (have_flag(flgs, TR_BRAND_COLD)) s += (1.5 * .1);
+		
+		if (have_flag(flgs, TR_CHAOTIC)) s += 0.6;
+		if (have_flag(flgs, TR_VAMPIRIC)) s += 0.6;
+
+		if (have_flag(flgs, TR_KILL_EVIL)) s += (2.5 * 0.8);
+		else if (have_flag(flgs, TR_SLAY_EVIL)) s += (1.0 * 0.8);
+
+		if (have_flag(flgs, TR_FORCE_WEAPON))
+		{
+			s = (s * 1.50 + 2.0) * 0.25 + s * 0.75;
+		}
+
+		if (have_flag(flgs, TR_VORPAL))
+		{
+			if ( o_ptr->art_name == ART_VORPAL_BLADE 
+			  || o_ptr->art_name == ART_CHAINSWORD
+			  || o_ptr->art_name == ART_MURAMASA )
+			{
+				s *= 1.67;
+			}
+			else
+				s *= 1.22;
+		}
+
+		d = d*s + (double)o_ptr->to_d;
+		if (d < 1.0)
+			d = 1.0;
+
+		if (have_flag(flgs, TR_BLOWS))
+			d += (d + 15.0)*o_ptr->pval/6.0;
+
+		w = d * d * d;
+
+
+		if (have_flag(flgs, TR_IMPACT)) 
+			w += 250;
+	
+		if (have_flag(flgs, TR_WILD))
+			w += 10000;
+
+	}
 
 	if (cost_calc_hook)
 	{
@@ -1124,111 +1191,15 @@ s32b weapon_cost(object_type *o_ptr)
 		cost_calc_hook(dbg_msg);
 	}
 
-	/* Slays and Brands */
-	y = 0;
-	if (have_flag(flgs, TR_KILL_ORC)) y += 14;
-	else if (have_flag(flgs, TR_SLAY_ORC)) y += 10;
-
-	if (have_flag(flgs, TR_KILL_TROLL)) y += 14;
-	else if (have_flag(flgs, TR_SLAY_TROLL)) y += 10;
-
-	if (have_flag(flgs, TR_KILL_ANIMAL)) y += 14;
-	else if (have_flag(flgs, TR_SLAY_ANIMAL)) y += 10;
-
-	if (have_flag(flgs, TR_KILL_HUMAN)) y += 28;
-	else if (have_flag(flgs, TR_SLAY_HUMAN)) y += 20;
-
-	if (have_flag(flgs, TR_KILL_UNDEAD)) y += 28;
-	else if (have_flag(flgs, TR_SLAY_UNDEAD)) y += 20;
-
-	if (have_flag(flgs, TR_KILL_DEMON)) y += 28;
-	else if (have_flag(flgs, TR_SLAY_DEMON)) y += 20;
-
-	if (have_flag(flgs, TR_KILL_GIANT)) y += 28;
-	else if (have_flag(flgs, TR_SLAY_GIANT)) y += 20;
-
-	if (have_flag(flgs, TR_KILL_DRAGON)) y += 28;
-	else if (have_flag(flgs, TR_SLAY_DRAGON)) y += 20;
-
-	if (have_flag(flgs, TR_BRAND_POIS)) y += 20;
-	if (have_flag(flgs, TR_BRAND_ACID)) y += 20;
-	if (have_flag(flgs, TR_BRAND_ELEC)) y += 20;
-	if (have_flag(flgs, TR_BRAND_FIRE)) y += 20;
-	if (have_flag(flgs, TR_BRAND_COLD)) y += 20;
-
-/*	if (have_flag(flgs, TR_KILL_EVIL)) y += 80;
-	else if (have_flag(flgs, TR_SLAY_EVIL)) y += 40;*/
-	if (have_flag(flgs, TR_KILL_EVIL)) w = w * 7/2;
-	else if (have_flag(flgs, TR_SLAY_EVIL)) w = w * 2;
-
-	if (have_flag(flgs, TR_CHAOTIC)) y += 35;
-	/* Order is handled by damage dice: if (have_flag(flgs, TR_ORDER)) y += 35;*/
-	if (have_flag(flgs, TR_IMPACT)) y += 10;
-
-	if (y > 0)
-		w = w*5*y/(50+y);
-
-	if (have_flag(flgs, TR_FORCE_WEAPON))
-		w = w*3;
-
-	if (have_flag(flgs, TR_VAMPIRIC))
-		w = w*14/10;
-
-	if (have_flag(flgs, TR_WILD))
-		w = w + 10000;
-
-	if (have_flag(flgs, TR_VORPAL))
-	{
-		if ( o_ptr->art_name == ART_VORPAL_BLADE 
-		  || o_ptr->art_name == ART_CHAINSWORD
-		  || o_ptr->art_name == ART_MURAMASA )
-		{
-			w = w*3;
-		}
-		else
-			w = w*14/10;
-	}
-
-	if (cost_calc_hook)
-	{
-		sprintf(dbg_msg, "  * Slays: y = %d, w = %d", y, w);
-		cost_calc_hook(dbg_msg);
-	}
-
-	/* (+x,+y) */
-	if (o_ptr->to_h < 0) {}
-	else if (o_ptr->to_h <= 10)
+	if (o_ptr->to_h <= 10)
 		w += 100 * o_ptr->to_h;
 	else
 		w += 10 * o_ptr->to_h * o_ptr->to_h;
 
-	if (o_ptr->to_d < 0) {}
-	else if (o_ptr->to_d <= 10)
-		w += 200 * o_ptr->to_d;
-	else
-		w += 20 * o_ptr->to_d * o_ptr->to_d;
-
-	if (cost_calc_hook)
-	{
-		sprintf(dbg_msg, "  * (+x,+y): w = %d", w);
-		cost_calc_hook(dbg_msg);
-	}
-
-	/* Extra Attacks */
-	if (have_flag(flgs, TR_BLOWS))
-	{
-		w = w * (1 + o_ptr->pval * ABS(o_ptr->pval) / 4) + 10000 * o_ptr->pval;
-		if (cost_calc_hook)
-		{
-			sprintf(dbg_msg, "  * Blows: w = %d", w);
-			cost_calc_hook(dbg_msg);
-		}
-	}
 
 	/* Resistances */
-	q = _resistances_q(flgs)/3;
-	p = w + q + (q/100)*w/200;
-	/*p = w + q*(1+w/20000);*/
+	q = _resistances_q(flgs)/2;
+	p = w + q;
 
 	if (cost_calc_hook)
 	{
@@ -1237,9 +1208,8 @@ s32b weapon_cost(object_type *o_ptr)
 	}
 
 	/* Abilities */
-	q = _abilities_q(flgs)/3;
-	p += q + (q/100)*w/400;
-	/*p += q*(1+w/20000);*/
+	q = _abilities_q(flgs)/2;
+	p += q;
 
 	if (cost_calc_hook)
 	{
@@ -1250,7 +1220,10 @@ s32b weapon_cost(object_type *o_ptr)
 	/* Speed */
 	if (have_flag(flgs, TR_SPEED))
 	{
-		p += _speed_p(o_ptr->pval)/3;
+		if (o_ptr->pval > 0)
+			p += _speed_p(o_ptr->pval)/2; /* Hack for Replacement Arts ... */
+		else
+			p += _speed_p(o_ptr->pval);
 
 		if (cost_calc_hook)
 		{
@@ -1260,11 +1233,10 @@ s32b weapon_cost(object_type *o_ptr)
 	}
 
 	/* Stats */
-	q = _stats_q(flgs, o_ptr->pval)/3;
+	q = _stats_q(flgs, o_ptr->pval)/2;
 	if (q != 0)
 	{
-		p += q + (q/100)*w/100;
-		/*p += q*(1 + w/10000);*/
+		p += q;
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * Stats/Stealth: q = %d, p = %d", q, p);
@@ -1290,8 +1262,7 @@ s32b weapon_cost(object_type *o_ptr)
 	if (y != 0)
 	{
 		q = y*o_ptr->pval;
-		p += q + (q/100)*w/300;
-		/*p += q*(1 + w/30000);*/
+		p += q;
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * Other Crap: y = %d, q = %d, p = %d", y, q, p);
@@ -1314,7 +1285,8 @@ s32b weapon_cost(object_type *o_ptr)
 	/* AC Bonus */
 	if (o_ptr->to_a != 0)
 	{
-		p += 500*o_ptr->to_a + o_ptr->to_a * ABS(o_ptr->to_a) * 30;
+	/*	p += 500*o_ptr->to_a + o_ptr->to_a * ABS(o_ptr->to_a) * 30; */
+		p += 500*o_ptr->to_a;
 
 		if (cost_calc_hook)
 		{
@@ -1323,24 +1295,11 @@ s32b weapon_cost(object_type *o_ptr)
 		}
 	}
 
-	/* Hack: Broken swords should not be worth anything ...
-	   REDO ... Consider Twilight
-	if (o_ptr->to_h < 0) 
-	{
-		if (ABS(o_ptr->to_h) <= 10)
-			p += 100 * o_ptr->to_h;
-		else
-			p += o_ptr->to_h * o_ptr->to_h * o_ptr->to_h;
-	}
+	if (object_allow_two_hands_wielding(o_ptr))
+		p += 75;
 
-	if (o_ptr->to_d < 0) 
-	{
-		if (ABS(o_ptr->to_d) <= 10)
-			p += 200 * o_ptr->to_d;
-		else
-			p += 2* o_ptr->to_d * o_ptr->to_d * o_ptr->to_d;
-	}*/
-
+	p += o_ptr->weight;
+	
 	p = _finalize_p(p, flgs, o_ptr);
 	return p;
 }
@@ -1434,7 +1393,7 @@ s32b bow_cost(object_type *o_ptr)
 	}
 
 	/* Resistances */
-	q = _resistances_q(flgs);
+	q = _resistances_q(flgs)/2;
 	p = w + q + (q/100)*w/200;
 	/*p = w + q*(1+w/20000);*/
 
@@ -1528,7 +1487,7 @@ s32b new_object_cost(object_type *o_ptr)
 {
 	if (object_is_melee_weapon(o_ptr)) return weapon_cost(o_ptr);
 	else if (o_ptr->tval == TV_BOW) return bow_cost(o_ptr);
-	else if (object_is_armour(o_ptr)) return armor_cost(o_ptr);
+	else if (object_is_armour(o_ptr) || object_is_shield(o_ptr)) return armor_cost(o_ptr);
 	else if (object_is_jewelry(o_ptr) || (o_ptr->tval == TV_LITE && object_is_artifact(o_ptr))) return jewelry_cost(o_ptr);
 	return 0;
 }

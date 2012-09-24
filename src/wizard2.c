@@ -129,18 +129,9 @@ static void wiz_create_named_art(int a_idx)
  */
 static void do_cmd_wiz_hack_chris1(void)
 {
-/*	if (p_ptr->pclass == CLASS_BLUE_MAGE)
-	{
-		int i;
-
-		for (i = 0; i < 108; ++i)
-			p_ptr->magic_num2[i] = 1;
-
-		msg_print("There ... now wasn't that easier?");
-	} */
-
 	int a_idx = get_quantity("Which One? ", max_a_idx);
 	int k_idx = lookup_kind(a_info[a_idx].tval, a_info[a_idx].sval);
+	s16b dummy_name = quark_add("");
 	int ct = get_quantity("How Many?", 10000);
 	int ct_speed = 0;
 	int ct_immunity = 0;
@@ -151,7 +142,22 @@ static void do_cmd_wiz_hack_chris1(void)
 	int ct_darkness = 0;
 	int ct_spell_power = 0;
 	int ct_pval = 0;
+	int pow_base = 0;
 	int i;
+
+	{
+		object_type forge = {0};
+		char buf[MAX_NLEN];
+
+		if (!create_named_art_aux(a_idx, &forge)) return;
+		pow_base = object_value_real(&forge);
+		identify_item(&forge);
+
+		forge.ident |= (IDENT_MENTAL); 
+		object_desc(buf, &forge, 0);
+
+		msg_format("Replacing %s (Cost: %d):", buf, pow_base);
+	}
 	for (i = 0; i < ct; i++)
 	{
 		object_type forge = {0};
@@ -173,6 +179,7 @@ static void do_cmd_wiz_hack_chris1(void)
 		identify_item(&forge);
 
 		forge.ident |= (IDENT_MENTAL); 
+		forge.art_name = dummy_name;
 		object_desc(buf, &forge, 0);
 		value = object_value_real(&forge);
 		ct_pval += forge.pval;
@@ -227,8 +234,9 @@ static void do_cmd_wiz_hack_chris1(void)
 			ct_spell_power++;
 		/*	drop_near(&forge, -1, py, px);*/
 		}
-		msg_format("%s (Cost: %d)", buf, value);
+		msg_format(" %d) %s (%.1f%%)", i+1, buf, (double)value/(double)pow_base*100.0);
 		/*drop_near(&forge, -1, py, px);*/
+		/*value = object_value_real(&forge);*/
 	}
 
 	msg_format("Generated %d artifacts.  %d had immunity.  %d had speed.  %d had extra attacks.", ct, ct_immunity, ct_speed, ct_blows);
@@ -506,8 +514,21 @@ static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
 		int pow = 0;
 		int pval_tot = 0;
 		int speed_tot = 0;
+		int att_tot = 0;
 
 		if (!create_named_art_aux(a_idx, &forge)) continue;
+		if (replace)
+		{
+			if (object_is_weapon_ammo(&forge))
+			{
+				forge.to_h = MAX(10, forge.to_h);
+				forge.to_d = MAX(10, forge.to_d);
+			}
+			if (object_is_armour(&forge))
+			{
+				forge.to_a = MAX(10, forge.to_a);
+			}
+		}
 		pow_base = object_value_real(&forge);
 		identify_item(&forge);
 		object_level = a_info[a_idx].level;
@@ -540,6 +561,8 @@ static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
 			pval_tot += forge.pval;
 			if (have_flag(forge.art_flags, TR_SPEED))
 				speed_tot += forge.pval;
+			if (have_flag(forge.art_flags, TR_BLOWS))
+				att_tot += forge.pval;
 			identify_item(&forge);
 
 			forge.ident |= (IDENT_MENTAL); 
@@ -548,7 +571,11 @@ static void do_cmd_wiz_hack_chris6_imp(FILE *file, bool replace)
 
 			fprintf(file, "%s (%.1f%%)\n", buf, (double)pow/(double)pow_base*100.0);
 		}
-		fprintf(file, "\npval = %.2f\nspeed = %.2f\n", (double)pval_tot/(double) ct, (double)speed_tot/(double)ct);
+		fprintf(file, "\npval = %.2f\n", (double)pval_tot/(double) ct);
+		fprintf(file, "speed = %.2f\n", (double)speed_tot/(double)ct);
+		if (att_tot)
+			fprintf(file, "blows = %.2f\n", (double)att_tot/(double)ct);
+
 		if (pow_base)
 		{
 			qual = ((double)pow_tot/(double)ct)/(double)pow_base;
@@ -583,7 +610,7 @@ static void do_cmd_wiz_hack_chris6(void)
 	char	buf[1024];
 	bool replace = get_check("Generate Replacement Artifacts?");
 
-	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Arts7.txt");
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "Arts9.txt");
 	fff = my_fopen(buf, "w");
 
 	if (!fff)

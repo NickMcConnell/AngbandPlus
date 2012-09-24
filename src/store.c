@@ -2277,6 +2277,12 @@ static void display_entry(int pos)
 #endif
 
 		}
+		if (p_ptr->wizard)
+		{
+			int score = new_object_cost(o_ptr);
+			(void)sprintf(out_val, "%9d ", score);
+			put_str(out_val, i+6, 76);
+		}
 	}
 
 	/* Describe an item (fully) in a store */
@@ -2334,7 +2340,13 @@ static void display_entry(int pos)
 			if (!noneedtobargain(x)) x += x / 10;
 
 			/* Actually draw the price (with tax) */
-			(void)sprintf(out_val, "%9ld  ", (long)x);
+			if (p_ptr->wizard)
+			{
+				 int score = new_object_cost(o_ptr);
+				 (void)sprintf(out_val, "%9ld %9d ", (long)x, score);
+			}
+			else
+				(void)sprintf(out_val, "%9ld  ", (long)x);
 			put_str(out_val, i+6, 68);
 		}
 
@@ -2475,6 +2487,9 @@ static void display_store(void)
 #endif
 
 		}
+
+		if (p_ptr->wizard)
+			put_str("Score", 5, 80);
 	}
 
 	/* The "Home" is special */
@@ -2506,6 +2521,8 @@ static void display_store(void)
 #endif
 
 		}
+		if (p_ptr->wizard)
+			put_str("Score", 5, 80);
 	}
 
 	/* Normal stores */
@@ -2548,6 +2565,9 @@ static void display_store(void)
 #else
 		put_str("Price", 5, 72);
 #endif
+
+		if (p_ptr->wizard)
+			put_str("Score", 5, 82);
 
 	}
 
@@ -4863,7 +4883,7 @@ void do_cmd_store(void)
 		--store_bottom;
 	}
 
-	if ( mut_present(MUT_MERCHANTS_FRIEND) 
+	if ( (mut_present(MUT_MERCHANTS_FRIEND) || p_ptr->wizard)
 	  && which != STORE_HOME
 	  && which != STORE_MUSEUM )
 	{
