@@ -1242,37 +1242,8 @@ msg_print("地面に落とされた。");
 
 	case MON_SERPENT:
 		if (!drop_chosen_item) break;
-		if (no_artifacts) break;
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Mega-Hack -- Prepare to make "Grond" */
-		object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_GROND));
-
-		/* Mega-Hack -- Mark this item as "Grond" */
-		q_ptr->name1 = ART_GROND;
-
-		/* Mega-Hack -- Actually create "Grond" */
-		apply_magic(q_ptr, -1, AM_GOOD | AM_GREAT);
-
-		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, y, x);
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Mega-Hack -- Prepare to make "Chaos" */
-		object_prep(q_ptr, lookup_kind(TV_CROWN, SV_CHAOS));
-
-		/* Mega-Hack -- Mark this item as "Chaos" */
-		q_ptr->name1 = ART_CHAOS;
-
-		/* Mega-Hack -- Actually create "Chaos" */
-		apply_magic(q_ptr, -1, AM_GOOD | AM_GREAT);
-
-		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, y, x);
+		create_named_art(ART_GROND, py, px);
+		create_named_art(ART_CHAOS, py, px);
 		break;
 
 	case MON_B_DEATH_SWORD:

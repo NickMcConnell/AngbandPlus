@@ -852,13 +852,11 @@ s32b jewelry_cost(object_type *o_ptr)
 	/* (+x,+y) */
 	if (o_ptr->to_h != 0 || o_ptr->to_d != 0)
 	{
-		double x = o_ptr->to_h * ABS(o_ptr->to_h);
-		double y = o_ptr->to_d * ABS(o_ptr->to_d);
-		double p2 = p;
+		int x = o_ptr->to_h * ABS(o_ptr->to_h);
+		int y = o_ptr->to_d * ABS(o_ptr->to_d);
 
-		p2 = p2 * (400.0 + x)/400.0 + 20.0*x;
-		p2 = p2 * (250.0 + y)/250.0 + 40.0*y;
-		p = (s32b) p2;
+		p += 100 * x;
+		p += 300 * y;
 
 		if (cost_calc_hook)
 		{
@@ -892,8 +890,6 @@ s32b armor_cost(object_type *o_ptr)
 	/* Base Cost */
 	y = o_ptr->ac;
 	a = y * y * 15;
-	if (o_ptr->to_a <= 0)
-		a /= 3;
 
 	if (cost_calc_hook)
 	{
@@ -902,10 +898,7 @@ s32b armor_cost(object_type *o_ptr)
 	}
 
 	/* +AC ... Note, negative ac should decrease the cost! */
-	if (ABS(o_ptr->to_a) < 11)
-		a += 200*o_ptr->to_a;
-	else
-		a += 1000 + 10*o_ptr->to_a*ABS(o_ptr->to_a);
+	a += 500*o_ptr->to_a + 20 * o_ptr->to_a * ABS(o_ptr->to_a);
 
 	if (cost_calc_hook)
 	{
@@ -1008,10 +1001,7 @@ s32b armor_cost(object_type *o_ptr)
 	/* Extra Attacks */
 	if (have_flag(flgs, TR_BLOWS))
 	{
-		if (o_ptr->pval > 0)
-			p += 90 * 1000 * o_ptr->pval;
-		else
-			p += 40000 * o_ptr->pval; /* Master Tonberry */
+		p += 300 * 1000 * o_ptr->pval; /* Just for show ... Shiva's Jacket and Ares */
 
 		if (cost_calc_hook)
 		{
@@ -1034,18 +1024,12 @@ s32b armor_cost(object_type *o_ptr)
 	/* (+x,+y) */
 	if (o_ptr->to_h != 0 || o_ptr->to_d != 0)
 	{
-		double x = o_ptr->to_h * ABS(o_ptr->to_h);
-		double y = o_ptr->to_d * ABS(o_ptr->to_d);
-		double p2 = p;
+		int x = o_ptr->to_h * ABS(o_ptr->to_h);
+		int y = o_ptr->to_d * ABS(o_ptr->to_d);
 
-		p2 = p2 * (2000.0 + x + 3.0*y)/2000.0 + 30.0*x + 100.0 * y;
-		p = (s32b) p2;
+		p += 100 * x;
+		p += 300 * y;
 
-	/*	p = (p/100)*(2000 + x + 3*y)/20 + 30*x + 100*y; */
-
-	/*	p += 1000 * o_ptr->to_h;
-		p += 2000 * o_ptr->to_d; */
-		
 		if (cost_calc_hook)
 		{
 			sprintf(dbg_msg, "  * (+x,+y): p = %d", p);

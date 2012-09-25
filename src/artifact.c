@@ -419,17 +419,12 @@ static void random_plus(object_type * o_ptr)
 		add_flag(o_ptr->art_flags, TR_INFRA);
 		break;
 	case 19:
-		if (!object_is_melee_weapon(o_ptr) || one_in_(3))
-		{
-			add_flag(o_ptr->art_flags, TR_SPEED);
-			if (!artifact_bias && one_in_(11))
-				artifact_bias = BIAS_ROGUE;
-		}
-		else
-			random_plus(o_ptr);
+		add_flag(o_ptr->art_flags, TR_SPEED);
+		if (!artifact_bias && one_in_(11))
+			artifact_bias = BIAS_ROGUE;
 		break;
 	case 20: case 21:
-		if ((!object_is_melee_weapon(o_ptr) || one_in_(3)) && one_in_(3))
+		if (one_in_(3))
 			add_flag(o_ptr->art_flags, TR_SPEED);
 		else
 			add_flag(o_ptr->art_flags, TR_TUNNEL);
@@ -530,7 +525,7 @@ static bool double_check_immunity(object_type * o_ptr)
 				o_ptr->to_d += 5 + randint1(10);
 				break;
 			case 7: case 8:
-			/*	o_ptr->to_a += 5 + randint1(10); */
+				o_ptr->to_a += 5 + randint1(10);
 				add_flag(o_ptr->art_flags, TR_FREE_ACT);
 				add_flag(o_ptr->art_flags, TR_SEE_INVIS);
 				add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
@@ -1868,7 +1863,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	bool    has_resistance = FALSE, boosted_ac = FALSE, boosted_damage = FALSE;
 	int     lev = object_level;
 	bool    is_falcon_sword = FALSE;
-	int     max_a = MAX(o_ptr->to_a, 40);
+	int     max_a = MAX(o_ptr->to_a, 30);
 	int     max_h = MAX(o_ptr->to_h, 32);
 	int     max_d = MAX(o_ptr->to_d, 32);
 
@@ -2479,6 +2474,7 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	if (object_is_armour(o_ptr))
 	{
 		o_ptr->to_a += randint1(o_ptr->to_a > 19 ? 1 : 20 - o_ptr->to_a);
+
 		if (o_ptr->to_a > max_a)
 			o_ptr->to_a = max_a;
 	}
@@ -2593,8 +2589,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	{
 		/* For armors */
 		if (a_cursed) power_level = 0;
-		else if (total_flags < 15000) power_level = 1;
-		else if (total_flags < 35000) power_level = 2;
+		else if (total_flags < 50000) power_level = 1;
+		else if (total_flags < 90000) power_level = 2;
 		else 
 		{
 			power_level = 3;
@@ -2606,8 +2602,8 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	{
 		/* For weapons */
 		if (a_cursed) power_level = 0;
-		else if (total_flags < 15000) power_level = 1;
-		else if (total_flags < 35000) power_level = 2;
+		else if (total_flags < 50000) power_level = 1;
+		else if (total_flags < 90000) power_level = 2;
 		else 
 		{
 			power_level = 3;
@@ -4014,8 +4010,8 @@ bool create_named_art(int a_idx, int y, int x)
 	if (random_artifacts)
 	{
 		object_type forge;
-		create_replacement_art(a_idx, &forge);
-		return drop_near(&forge, -1, y, x) ? TRUE : FALSE;
+		if (create_replacement_art(a_idx, &forge))
+			return drop_near(&forge, -1, y, x) ? TRUE : FALSE;
 	}
 	else
 	{

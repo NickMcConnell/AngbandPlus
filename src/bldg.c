@@ -3662,7 +3662,8 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	bool        okay = FALSE;
 	object_type *o_ptr;
 	cptr        q, s;
-	int         maxenchant = 12;
+	int         maxenchant = 15;
+	int         mul = 1;
 	char        tmp_str[MAX_NLEN];
 
 	clear_bldg(4, 18);
@@ -3684,7 +3685,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	   admit. But other players might not share my love of carpal tunnel syndrome! */
 	{
 		int idx = -1;
-		int old_cost = new_object_cost(o_ptr);
+		int old_cost;
 		_enchant_choice_t choices[25];
 		object_type copy = {0};
 		menu_list_t menu = { "Enchant How Much?", NULL, 
@@ -3692,16 +3693,39 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 							 choices, 25 };
 
 		object_copy(&copy, o_ptr);
+		copy.curse_flags = 0;
+		remove_flag(o_ptr->art_flags, TR_AGGRAVATE);
+		remove_flag(o_ptr->art_flags, TR_NO_TELE);
+		remove_flag(o_ptr->art_flags, TR_NO_MAGIC);
+		remove_flag(o_ptr->art_flags, TR_DRAIN_EXP);
+		remove_flag(o_ptr->art_flags, TR_TY_CURSE);
+		old_cost = new_object_cost(&copy);
 				
 		for (i = 0; i < 25; i++) /* TODO: Option for max. But +25 a pop is enough perhaps? */
 		{
 			bool ok = FALSE;
+			int  v = 0, m = 5;
 			
 			choices[i].amt = i+1;
 
-			if (to_hit && copy.to_h < maxenchant) {copy.to_h++; ok = TRUE;}
-			if (to_dam && copy.to_d < maxenchant) {copy.to_d++; ok = TRUE;}
-			if (to_ac && copy.to_a < maxenchant) {copy.to_a++; ok = TRUE;}
+			if (to_hit && copy.to_h < maxenchant) {copy.to_h++; ok = TRUE; v = MAX(v, copy.to_h);}
+			if (to_dam && copy.to_d < maxenchant) {copy.to_d++; ok = TRUE; v = MAX(v, copy.to_d);}
+			if (to_ac && copy.to_a < maxenchant) {copy.to_a++; ok = TRUE; v = MAX(v, copy.to_a);}
+
+			if (v > 10)
+			{
+				if (to_ac)
+				{
+					int j;
+					for (j = 10; j < v; j++)
+						m = m * 3 / 2;
+				}
+				else
+					m += v - 10;
+			}
+
+			if (object_is_artifact(o_ptr))
+				m *= 3;
 
 			if (!ok) break;
 
@@ -3710,7 +3734,10 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 				choices[i].cost = (i+1)*cost*o_ptr->number;
 			}
 			else
-				choices[i].cost = (new_object_cost(&copy) - old_cost)*7;
+			{
+				int new_cost = new_object_cost(&copy);
+				choices[i].cost = (new_cost - old_cost)*m;
+			}
 		}
 		if (!i)
 		{
