@@ -3662,7 +3662,7 @@ static bool enchant_item(int cost, int to_hit, int to_dam, int to_ac)
 	bool        okay = FALSE;
 	object_type *o_ptr;
 	cptr        q, s;
-	int         maxenchant = 15;
+	int         maxenchant = 5 + (p_ptr->lev / 5);
 	int         mul = 1;
 	char        tmp_str[MAX_NLEN];
 

@@ -2589,12 +2589,13 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	{
 		/* For armors */
 		if (a_cursed) power_level = 0;
-		else if (total_flags < 50000) power_level = 1;
-		else if (total_flags < 90000) power_level = 2;
+		else if (total_flags < 30000) power_level = 1;
+		else if (total_flags < 70000) power_level = 2;
 		else 
 		{
 			power_level = 3;
 			if (one_in_(17)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+			if (one_in_(5)) add_flag(o_ptr->art_flags, TR_HOLD_LIFE);
 		}
 	}
 
@@ -2602,12 +2603,14 @@ s32b create_artifact(object_type *o_ptr, u32b mode)
 	{
 		/* For weapons */
 		if (a_cursed) power_level = 0;
-		else if (total_flags < 50000) power_level = 1;
-		else if (total_flags < 90000) power_level = 2;
+		else if (total_flags <  50000) power_level = 1;
+		else if (total_flags < 100000) power_level = 2;
 		else 
 		{
 			power_level = 3;
 			if (one_in_(17)) add_flag(o_ptr->art_flags, TR_AGGRAVATE);
+			if (one_in_(5)) add_flag(o_ptr->art_flags, TR_FREE_ACT);
+			if (one_in_(5)) add_flag(o_ptr->art_flags, TR_SEE_INVIS);
 		}
 	}
 

@@ -890,6 +890,8 @@ s32b armor_cost(object_type *o_ptr)
 	/* Base Cost */
 	y = o_ptr->ac;
 	a = y * y * 15;
+	if (o_ptr->to_a <= 3 && !object_is_artifact(o_ptr) && !object_is_ego(o_ptr))
+		a /= 3;
 
 	if (cost_calc_hook)
 	{

@@ -2472,6 +2472,7 @@ bool screen_object(object_type *o_ptr, u32b mode)
 	char temp[70 * 20];
 	cptr            info[128];
 	char o_name[MAX_NLEN];
+	char replacement_name[MAX_NLEN];
 	int wid, hgt;
 
 	int trivial_info = 0;
@@ -4034,6 +4035,12 @@ info[i++] = "それはあなたの魔力を吸い取る。";
 			info[i++] = "It cannot be harmed by cold.";
 #endif
 		}
+	}
+
+	if (o_ptr->name3)
+	{
+		sprintf(replacement_name, "It reminds you of the artifact %s.", a_name + a_info[o_ptr->name3].name);
+		info[i++] = replacement_name;
 	}
 
 	if (mode & SCROBJ_FORCE_DETAIL) trivial_info = 0;

@@ -167,7 +167,7 @@ N:7:恐怖除去:紅色の
 E:Cure Paranoia:Dark Red
 G:,:r
 I:80:14:500
-W:10:0:30:1:25
+W:10:0:0:1:25
 A:10/1
 D:$It removes fear when you eat it.
 D:それは食べると恐怖を取り除く。
@@ -1917,7 +1917,7 @@ E:Enchant Weapon To-Hit:mipay sun
 G:?:w
 I:70:17:0
 W:15:0:0:5:250
-A:15/1
+#A:15/1
 D:$It increases a weapon's to-hit when you read it.
 D:それは読むと武器の命中修正を強化する。
 
@@ -1926,7 +1926,7 @@ E:Enchant Weapon To-Dam:batuni blaame
 G:?:w
 I:70:18:0
 W:15:0:0:5:250
-A:15/1
+#A:15/1
 D:$It increases a weapon's to-dam when you read it.
 D:それは読むと武器のダメージ修正を強化する。
 
@@ -1935,7 +1935,7 @@ E:Enchant Armor:rolsan triple
 G:?:w
 I:70:16:0
 W:15:0:0:5:250
-A:15/1
+#A:15/1
 D:$It increases an armour's to-AC when you read it.
 D:それは読むと防具のAC修正を強化する。
 
