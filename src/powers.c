@@ -610,7 +610,7 @@ static void power_activate(int power)
 					msg_print("You are already in town!");
 				else
 				{
-					msg_print("You enter the straight road and fly beside the world. ");
+					msg_print("You enter the straight road and fly beside the world.");
 					p_ptr->energy -= 100;
 					p_ptr->word_recall = 1;
 				}
@@ -620,7 +620,7 @@ static void power_activate(int power)
 
 	case PWR_GROW_TREE:
 		{
-			msg_print("You made the trees grow!");
+			msg_print("You make the trees grow!");
 			grow_trees((plev / 8 < 1) ? 1 : plev / 8);
 		}
 		break;
@@ -764,7 +764,7 @@ static void power_activate(int power)
 				else
 					msg_print("You can only hypnotize monsters that can't move.");
 			}
-			else msg_print("There is no pet here !");
+			else msg_print("There is no pet here!");
 		}
 		break;
 
@@ -1151,7 +1151,7 @@ static void power_activate(int power)
 			}
 			else
 			{
-				msg_print("You don't see any monster in this direction");
+				msg_print("You don't see any monster in this direction.");
 				msg_print(NULL);
 			}
 		}
@@ -1202,7 +1202,7 @@ static void power_activate(int power)
 			{
 				/* Delete the monster, rather than killing it. */
 				delete_monster_idx(c_ptr->m_idx);
-				msg_print("The evil creature vanishes in a puff of sulfurous smoke!");
+				msg_print("The evil creature vanishes in a puff of sulphurous smoke!");
 			}
 			else
 			{

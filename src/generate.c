@@ -4804,7 +4804,7 @@ static void build_cavern(void)
 	while (!done)
 	{
 		/* Testing values for these parameters: feel free to adjust */
-		grd = 2 ^ (randint(4) + 4);
+		grd = 1 << (randint(4) + 4);
 
 		/* Want average of about 16 */
 		roug = randint(8) * randint(4);
@@ -4850,7 +4850,7 @@ static void build_type10(int by0, int bx0)
 		 */
 
 		/* Testing values for these parameters feel free to adjust */
-		grd = 2 ^ (randint(4));
+		grd = 1 << (randint(4));
 
 		/* Want average of about 16 */
 		roug = randint(8) * randint(4);
@@ -5411,7 +5411,7 @@ static void build_cave_vault(int x0, int y0, int xsiz, int ysiz)
 	while (!done)
 	{
 		/* Testing values for these parameters feel free to adjust */
-		grd = 2 ^ rand_int(4);
+		grd = 1 << rand_int(4);
 
 		/* Want average of about 16 */
 		roug = randint(8) * randint(4);
@@ -8229,7 +8229,7 @@ static bool cave_gen(void)
 
 		m_idx = cave[oy][ox].m_idx;
 
-		if (!m_idx && wizard) cmsg_print(TERM_L_RED, "WARNING: COUlD not place guardian");
+		if (!m_idx && wizard) cmsg_print(TERM_L_RED, "WARNING: Could not place guardian.");
 
 		/*
 		 * If guardian is successfully created and his/her/its

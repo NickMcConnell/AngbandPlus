@@ -28,4 +28,5 @@ Dexterity      -2
 Constitution   +1   
 Charisma       -4      
 Hit Dice       +1 side
+Spell Points   +0%
 Exp penalty    +100%

@@ -196,7 +196,7 @@ bool quest_poison_drop_hook(char *fmt)
 				if (cave[y][x].feat == FEAT_TAINTED_WATER) cave_set_feat(y, x, FEAT_SHAL_WATER);
 			}
 
-		cmsg_print(TERM_YELLOW, "Well done, the water seems to be clean now.");
+		cmsg_print(TERM_YELLOW, "Well done! The water seems to be clean now.");
 
 		cquest.status = QUEST_STATUS_COMPLETED;
 

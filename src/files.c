@@ -6512,7 +6512,7 @@ void close_game(void)
 		wipe_saved();
 
 		/* Save memories */
-		if (!save_player()) msg_print("death save failed!");
+		if (!save_player()) msg_print("Death save failed!");
 
 		/* You are dead */
 		print_tomb();

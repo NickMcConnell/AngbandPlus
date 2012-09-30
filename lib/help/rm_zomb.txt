@@ -18,6 +18,7 @@ Dexterity      +1
 Constitution   +4   
 Charisma       -5      
 Hit Dice       +3 sides
+Spell Points   -30%
 Exp Penalty    +45%
 
 #####GRacial Skill Modifiers:

@@ -1,4 +1,5 @@
-.cvsignore
+.sconsign
+.gdb_history
 makefile
 tome
 tolua

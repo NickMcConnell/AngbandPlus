@@ -55,7 +55,7 @@ void do_get_new_obj(int y, int x)
 			/* Drop it in the dungeon */
 			drop_near(q_ptr[res], -1, y + 1, x);
 
-			cmsg_print(TERM_YELLOW, "There Noble Hero, I put it there. Thanks again!");
+			cmsg_print(TERM_YELLOW, "There, Noble Hero. I put it there. Thanks again!");
 			break;
 		}
 	}
@@ -138,17 +138,17 @@ void hero_death(s32b m_idx, s32b r_idx)
 	random_quests[dun_level].done = TRUE;
 
 	cmsg_print(TERM_YELLOW, "The adventurer steps out of the shadows and picks up his sword:");
-	cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
+	cmsg_print(TERM_YELLOW, "'Ah! My sword! My trusty sword! Thanks.");
 
 	if (!can_create_companion())
 	{
-		cmsg_print(TERM_YELLOW, "I must go on my own way now");
-		cmsg_print(TERM_YELLOW, "But before I can help your skills.'");
+		cmsg_print(TERM_YELLOW, "I must go on my own way now.");
+		cmsg_print(TERM_YELLOW, "But before I go, I can help your skills.'");
 		cmsg_print(TERM_YELLOW, "He touches your forehead.");
 		do_get_new_skill();
 		return;
 	}
-	cmsg_print(TERM_YELLOW, "If you wish I can help you in your adventures.'");
+	cmsg_print(TERM_YELLOW, "If you wish, I can help you in your adventures.'");
 
 	/* Flush input */
 	flush();
@@ -255,7 +255,7 @@ bool quest_random_feeling_hook(char *fmt)
 	if (is_randhero())
 	{
 		cmsg_format(TERM_YELLOW, "A strange man wrapped in a dark cloak steps out of the shadows:");
-		cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
+		cmsg_format(TERM_YELLOW, "'Oh, please help me! A horrible %s stole my sword! I'm nothing without it.'", r_info[random_quests[dun_level].r_idx].name + r_name);
 	}
 	else
 		cmsg_format(TERM_YELLOW, "You hear someone shouting: 'Leave me alone, stupid %s'", r_info[random_quests[dun_level].r_idx].name + r_name);

@@ -2600,7 +2600,7 @@ void store_purchase(void)
 	/* Museum? */
 	if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM)
 	{
-		msg_print("You cannot take items from museum!");
+		msg_print("You cannot take items from the museum!");
 		return;
 	}
 
@@ -3096,7 +3096,7 @@ void store_sell(void)
 	if (!store_check_num(q_ptr))
 	{
 		if (cur_store_num == 7) msg_print("Your home is full.");
-		else if (museum) msg_print("Museum is full.");
+		else if (museum) msg_print("The museum is full.");
 		else msg_print("I have not the room in my store to keep it.");
 		return;
 	}
@@ -3315,7 +3315,7 @@ void store_examine(void)
 	if (st_ptr->stock_num <= 0)
 	{
 		if (cur_store_num == 7) msg_print("Your home is empty.");
-		else if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) msg_print("Museum is empty.");
+		else if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) msg_print("The museum is empty.");
 		else msg_print("I am currently out of stock.");
 		return;
 	}
@@ -3359,13 +3359,15 @@ void store_examine(void)
 	/* Describe */
 	msg_format("Examining %s...", o_name);
 
-	/* Describe it fully */
-	if (o_ptr->tval < TV_BOOK)
+	/* Show the object's powers. */
+	if (!object_out_desc(o_ptr, NULL, FALSE, TRUE))
 	{
-		if (!object_out_desc(o_ptr, NULL, FALSE, TRUE)) msg_print("You see nothing special.");
-		/* Books are read */
+		msg_print("You see nothing special.");
 	}
-	else
+
+	/* Show spell listing for instruments, daemonwear and spellbooks. */
+	if ((o_ptr->tval == TV_INSTRUMENT) || (o_ptr->tval == TV_DAEMON_BOOK)
+	    || (o_ptr->tval == TV_BOOK))
 	{
 		do_cmd_browse_aux(o_ptr);
 	}
@@ -4480,7 +4482,7 @@ static void pay_for_requested_item(int value, object_type *q_ptr)
 		{
 			if (store_carry(q_ptr) != -1)
 			{
-				msg_print("The item has arrived to the Black Market.");
+				msg_print("The item has arrived in the Black Market.");
 				p_ptr->au -= value;
 
 				p_ptr->redraw |= PR_GOLD;

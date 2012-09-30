@@ -563,7 +563,7 @@ void shriek_effect()
 	case 8:
 	case 9:
 		{
-			msg_print("You made a high pitched shriek!");
+			msg_print("You make a high-pitched shriek!");
 			aggravate_monsters(1);
 
 			break;
@@ -571,7 +571,7 @@ void shriek_effect()
 	case 2:
 	case 6:
 		{
-			msg_print("Oups! You call a monster.");
+			msg_print("Oops! You call a monster.");
 			summon_specific(p_ptr->py, p_ptr->px, max_dlv[dungeon_type], 0);
 
 			break;
@@ -2218,7 +2218,7 @@ u32b get_school_spell(cptr do_what, cptr check_fct, s16b force_book)
 		/* If it can be wielded, it must */
 		if ((wield_slot(o_ptr) != -1) && (item < INVEN_WIELD) && (f5 & TR5_WIELD_CAST))
 		{
-			msg_format("You cannot %s from that object, it must be wielded first.", do_what);
+			msg_format("You cannot %s from that object; it must be wielded first.", do_what);
 			return -1;
 		}
 	}

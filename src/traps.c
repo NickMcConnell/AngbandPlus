@@ -117,17 +117,17 @@ static bool do_trap_teleport_away(object_type *i_ptr, s16b y, s16b x)
 		if (player_has_los_bold(y1, x1))
 		{
 			lite_spot(y1, x1);
-			msg_format("The %s suddenly stands elsewhere", o_name);
+			msg_format("The %s suddenly stands elsewhere.", o_name);
 
 		}
 		else
 		{
-			msg_format("You suddenly don't see the %s anymore!", o_name);
+			msg_format("You suddenly don't see the %s any more!", o_name);
 		}
 	}
 	else
 	{
-		msg_print("You hear something move");
+		msg_print("You hear something move.");
 	}
 	return (ident);
 }
@@ -687,7 +687,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		/* Bitter Regret Trap */
 	case TRAP_OF_BITTER_REGRET:
 		{
-			msg_print("An age-old and hideous sounding spell reverbs of the walls.");
+			msg_print("An age-old and hideous-sounding spell reverberates off the walls.");
 
 			ident |= dec_stat(A_DEX, 25, TRUE);
 			ident |= dec_stat(A_WIS, 25, TRUE);
@@ -701,14 +701,14 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		/* Bowel Cramps Trap */
 	case TRAP_OF_BOWEL_CRAMPS:
 		{
-			msg_print("A wretched smelling gas cloud upsets your stomach.");
+			msg_print("A wretched-smelling gas cloud upsets your stomach.");
 
 			(void)set_food(PY_FOOD_STARVE - 1);
 			(void)set_poisoned(0);
 
 			if (!p_ptr->free_act)
 			{
-				(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10);
+				(void)set_paralyzed(p_ptr->paralyzed + rand_int(dun_level) + 6);
 			}
 			ident = TRUE;
 			break;
@@ -880,7 +880,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 			else if (p_ptr->msp == 0)
 			{
 				/* no sense saying this unless you never have mana */
-				msg_format("Suddenly you feel glad you're only a %s",
+				msg_format("Suddenly you feel glad you're a mere %s",
 				           spp_ptr->title + c_name);
 			}
 			else
@@ -953,7 +953,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 				                (j_ptr->pval == SV_ROD_RECALL))
 				{
 					j_ptr->timeout = 0;  /* a long time */
-					if (!ident) msg_print("You feel the air stabilize around you.");
+					if (!ident) msg_print("You feel the air stabilise around you.");
 					ident = TRUE;
 				}
 			}
@@ -1019,7 +1019,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 				p_ptr->update |= (PU_BONUS);
 				p_ptr->update |= (PU_TORCH);
 				p_ptr->update |= (PU_MANA);
-				msg_print("You somehow feel an other person.");
+				msg_print("You somehow feel like another person.");
 			}
 			else
 			{
@@ -1602,7 +1602,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 				if (!message)
 				{
-					msg_print("You are startled a lot by a sudden sound.");
+					msg_print("You are greatly startled by a sudden sound.");
 					message = TRUE;
 				}
 				ident = TRUE;
@@ -1802,7 +1802,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		/* -SC- */
 	case TRAP_OF_FEMINITY:
 		{
-			msg_print("Gas sprouts out... you feel you transmute.");
+			msg_print("Gas sprouts out... you feel yourself transmute.");
 			p_ptr->psex = SEX_FEMALE;
 			sp_ptr = &sex_info[p_ptr->psex];
 			ident = TRUE;
@@ -1812,7 +1812,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 	case TRAP_OF_MASCULINITY:
 		{
-			msg_print("Gas sprouts out... you feel you transmute.");
+			msg_print("Gas sprouts out... you feel yourself transmute.");
 			p_ptr->psex = SEX_MALE;
 			sp_ptr = &sex_info[p_ptr->psex];
 			ident = TRUE;
@@ -1822,7 +1822,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 	case TRAP_OF_NEUTRALITY:
 		{
-			msg_print("Gas sprouts out... you feel you transmute.");
+			msg_print("Gas sprouts out... you feel yourself transmute.");
 			p_ptr->psex = SEX_NEUTER;
 			sp_ptr = &sex_info[p_ptr->psex];
 			ident = TRUE;
@@ -1832,8 +1832,8 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 	case TRAP_OF_AGING:
 		{
-			msg_print("Colors are scintillating around you, "
-			          "you see your past running before your eyes.");
+			msg_print("Colors are scintillating around you. "
+			          "You see your past running before your eyes.");
 			p_ptr->age += randint((rp_ptr->b_age + rmp_ptr->b_age) / 2);
 			ident = TRUE;
 			trap_hit(trap);
@@ -1844,7 +1844,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		{
 			s16b tmp;
 
-			msg_print("Heavy fumes sprout out... you feel you transmute.");
+			msg_print("Heavy fumes sprout out... you feel yourself transmute.");
 			if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht + rmp_ptr->f_b_ht;
 			else tmp = rp_ptr->m_b_ht + rmp_ptr->m_b_ht;
 
@@ -1858,7 +1858,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		{
 			s16b tmp;
 
-			msg_print("Heavy fumes sprout out... you feel you transmute.");
+			msg_print("Heavy fumes sprout out... you feel yourself transmute.");
 			if (p_ptr->psex == SEX_FEMALE) tmp = rp_ptr->f_b_ht + rmp_ptr->f_b_ht;
 			else tmp = rp_ptr->m_b_ht + rmp_ptr->m_b_ht;
 
@@ -1874,7 +1874,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		{
 			if (p_ptr->pgod == 0)
 			{
-				msg_format("Suddenly you feel glad you're only a %s", spp_ptr->title + c_name);
+				msg_format("Suddenly you feel glad you're a mere %s", spp_ptr->title + c_name);
 			}
 			else
 			{
@@ -1892,7 +1892,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		{
 			if (p_ptr->pgod == 0)
 			{
-				msg_format("Suddenly you feel glad you're only a %s", spp_ptr->title + c_name);
+				msg_format("Suddenly you feel glad you're a mere %s", spp_ptr->title + c_name);
 			}
 			else
 			{

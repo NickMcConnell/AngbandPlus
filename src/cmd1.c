@@ -2426,7 +2426,7 @@ void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr,
 			/* 25% chance of getting destroyed */
 			if (magik(25) && allow_shatter)
 			{
-				msg_print("Your weapon is destroyed !");
+				msg_print("Your weapon is destroyed!");
 				inven_item_increase(INVEN_WIELD + weap, -1);
 				inven_item_optimize(INVEN_WIELD + weap);
 
@@ -2448,7 +2448,7 @@ void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr,
 			/* 1/1000 chance of getting destroyed */
 			if (!rand_int(1000) && allow_shatter)
 			{
-				msg_print("Your weapon is destroyed !");
+				msg_print("Your weapon is destroyed!");
 				inven_item_increase(INVEN_WIELD + weap, -1);
 				inven_item_optimize(INVEN_WIELD + weap);
 
@@ -2823,7 +2823,7 @@ void py_attack(int y, int x, int max_blow)
 						/* May it clone the monster ? */
 						if ((f4 & TR4_CLONE) && magik(30))
 						{
-							msg_format("Oh no ! Your weapon clones %^s!",
+							msg_format("Oh no! Your weapon clones %^s!",
 							           m_name);
 							multiply_monster(c_ptr->m_idx, FALSE, TRUE);
 						}
@@ -4752,7 +4752,7 @@ void do_cmd_pet(void)
 
 	if (p_ptr->confused)
 	{
-		msg_print("You are too confused to command your pets");
+		msg_print("You are too confused to command your pets.");
 		energy_use = 0;
 		return;
 	}
@@ -4977,7 +4977,7 @@ void do_cmd_pet(void)
 
 			if (cave[jj][ii].m_idx)
 			{
-				msg_print("Target selected");
+				msg_print("Target selected.");
 
 				for (i = m_max - 1; i >= 1; i--)
 				{
@@ -5173,7 +5173,7 @@ bool do_cmd_integrate_body()
 
 	if (!p_ptr->disembodied)
 	{
-		msg_print("You are already in a body");
+		msg_print("You are already in a body.");
 		return FALSE;
 	}
 
@@ -5189,7 +5189,7 @@ bool do_cmd_integrate_body()
 
 	if (o_ptr->sval != SV_CORPSE_CORPSE)
 	{
-		msg_print("You must select a corpse");
+		msg_print("You must select a corpse.");
 		return FALSE;
 	}
 
@@ -5292,7 +5292,7 @@ bool execute_inscription(byte i, byte y, byte x)
 	{
 	case INSCRIP_LIGHT:
 		{
-			msg_print("The inscription shines in a bright light !");
+			msg_print("The inscription shines in a bright light!");
 			lite_room(y, x);
 
 			break;
@@ -5308,7 +5308,7 @@ bool execute_inscription(byte i, byte y, byte x)
 
 	case INSCRIP_STORM:
 		{
-			msg_print("The inscription releases a powerful storm !");
+			msg_print("The inscription releases a powerful storm!");
 			project(0, 3, y, x, damroll(10, 10),
 			        GF_ELEC, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM |
 			        PROJECT_KILL | PROJECT_JUMP);
@@ -5420,7 +5420,7 @@ bool execute_inscription(byte i, byte y, byte x)
 
 	case INSCRIP_BLACK_FIRE:
 		{
-			msg_print("The inscription releases a blast of hellfire !");
+			msg_print("The inscription releases a blast of hellfire!");
 			project(0, 3, y, x, 200,
 			        GF_HELL_FIRE, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM |
 			        PROJECT_KILL | PROJECT_JUMP);

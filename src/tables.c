@@ -3283,8 +3283,8 @@ power_type powers_type_init[POWER_MAX_INIT] =
 	{
 		"detect curses",
 		"You can feel the danger of evil magic.",
-		"You can feel evil magics.",
-		"You can no longer feel evil magics.",
+		"You can feel evil magic.",
+		"You can no longer feel evil magic.",
 		7, 14, A_WIS, 14,
 	},
 	{
@@ -3302,7 +3302,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		18, 20, A_CON, 18,
 	},
 	{
-		"midas touch",
+		"Midas touch",
 		"You can turn ordinary items to gold.",
 		"You gain the Midas touch.",
 		"You lose the Midas touch.",
@@ -3409,15 +3409,15 @@ power_type powers_type_init[POWER_MAX_INIT] =
 	{
 		"detect doors and traps",
 		"You can detect hidden doors and traps.",
-		"You grow an affinity for traps.",
+		"You develop an affinity for traps.",
 		"You no longer can detect hidden doors and traps.",
 		5, 3, A_WIS, 10,
 	},
 	{
 		"create food",
 		"You can create food.",
-		"Your cooking skills greatly improves.",
-		"Your cooking skills returns to a normal level.",
+		"Your cooking skills greatly improve.",
+		"Your cooking skills return to a normal level.",
 		15, 10, A_INT, 10,
 	},
 	{
@@ -3437,7 +3437,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 	{
 		"stone to mud",
 		"You can destroy walls.",
-		"You could destroy walls.",
+		"You can destroy walls.",
 		"You cannot destroy walls anymore.",
 		20, 10, A_STR, 12,
 	},
@@ -3452,7 +3452,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		"magic missile",
 		"You can cast magic missiles.",
 		"You suddenly understand the basics of magic.",
-		"You forgot the basics of magic.",
+		"You forget the basics of magic.",
 		2, 2, A_INT, 9,
 	},
 	{
@@ -3571,7 +3571,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		"lay trap",
 		"You can lay monster traps.",
 		"You suddenly understand how rogues work.",
-		"You no longer suddenly understand how rogues work.",
+		"You no longer understand how rogues work.",
 		1, 1, A_DEX, 1,
 	},
 	{
@@ -3591,7 +3591,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 	{
 		"turn into a bear",
 		"You can turn into a bear.",
-		"You suddenly gain beornings powers.",
+		"You suddenly gain beorning powers.",
 		"You can no longer shapeshift into a bear.",
 		2, 5, A_CON, 5,
 	},
@@ -4477,7 +4477,7 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_TRAPKIT,
-		"Trapping kits are used with the trapping skill to set "
+		"Trapping kits are used with the trapping ability to set "
 		"deadly monster traps."
 	},
 	{

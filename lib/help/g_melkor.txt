@@ -39,6 +39,7 @@ grant. There are three prayers all told, which are:
 1. [[[[[BCurse] (Level 1)
    It curses a monster, reducing its melee power
    At level 5 it can be auto-casted (with no piety cost) while fighting
+   if your piety is over 5000.
    At level 15 it also reduces armor
    At level 25 it also reduces speed
    At level 35 it also reduces max life (but it is never fatal)

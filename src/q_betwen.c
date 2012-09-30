@@ -17,7 +17,7 @@ bool quest_between_move_hook(char *fmt)
 	if ((c_ptr->feat == FEAT_SHOP) && (c_ptr->special == 27))
 	{
 		cmsg_print(TERM_YELLOW, "Turgon is there.");
-		cmsg_print(TERM_YELLOW, "'Ah, thank you noble hero, now please return to Minas Anor to finish the link.'");
+		cmsg_print(TERM_YELLOW, "'Ah, thank you, noble hero! Now please return to Minas Anor to finish the link.'");
 
 		cquest.status = QUEST_STATUS_COMPLETED;
 

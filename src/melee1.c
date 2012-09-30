@@ -579,7 +579,7 @@ bool carried_make_attack_normal(int r_idx)
 					else
 					{
 						/* Message */
-						cmsg_print(TERM_VIOLET, "You feel the dark powers trying to twisting your body, they fail.");
+						cmsg_print(TERM_VIOLET, "You feel the dark powers trying to twisting your body, but they fail.");
 					}
 
 					break;
@@ -1908,7 +1908,7 @@ bool make_attack_normal(int m_idx, byte divis)
 					else
 					{
 						/* Message */
-						cmsg_print(TERM_VIOLET, "You feel the dark powers trying to twisting your body, they fail.");
+						cmsg_print(TERM_VIOLET, "You feel the dark powers trying to twisting your body, but they fail.");
 					}
 
 					break;

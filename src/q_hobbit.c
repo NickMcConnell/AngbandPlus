@@ -76,7 +76,7 @@ bool quest_hobbit_give_hook(char *fmt)
 
 	if ((o_ptr->tval != TV_SCROLL) || (o_ptr->sval != SV_SCROLL_WORD_OF_RECALL)) return (FALSE);
 
-	msg_print("Oh thank you noble one!");
+	msg_print("'Oh, thank you, noble one!'");
 	msg_print("Merton Proudfoot reads the scroll and is recalled to the safety of his home.");
 
 	delete_monster_idx(m_idx);

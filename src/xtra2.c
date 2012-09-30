@@ -317,7 +317,7 @@ bool set_absorb_soul(int v)
 	{
 		if (!p_ptr->absorb_soul)
 		{
-			cmsg_print(TERM_L_DARK, "You start absorbing souls of your foes.");
+			cmsg_print(TERM_L_DARK, "You start absorbing the souls of your foes.");
 			notice = TRUE;
 		}
 	}
@@ -327,7 +327,7 @@ bool set_absorb_soul(int v)
 	{
 		if (p_ptr->absorb_soul)
 		{
-			cmsg_print(TERM_L_DARK, "You stop absorbing souls of dead foes.");
+			cmsg_print(TERM_L_DARK, "You stop absorbing the souls of dead foes.");
 			notice = TRUE;
 		}
 	}
@@ -415,7 +415,7 @@ bool set_prob_travel(int v)
 	{
 		if (!p_ptr->prob_travel)
 		{
-			msg_print("You feel unstable.");
+			msg_print("You feel instable.");
 			notice = TRUE;
 		}
 	}
@@ -996,7 +996,7 @@ bool set_oppose_ld(int v)
 	{
 		if (!p_ptr->oppose_ld)
 		{
-			msg_print("You feel protected against the light's fluctuation.");
+			msg_print("You feel protected against light's fluctuation.");
 			notice = TRUE;
 		}
 	}
@@ -1006,7 +1006,7 @@ bool set_oppose_ld(int v)
 	{
 		if (p_ptr->oppose_ld)
 		{
-			msg_print("You are no longer protected against the light's fluctuation.");
+			msg_print("You are no longer protected against light's fluctuation.");
 			notice = TRUE;
 		}
 	}
@@ -4568,7 +4568,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			int curses = 2 + randint(5);
 
-			cmsg_format(TERM_VIOLET, "%^s puts a terrible morgothian curse on you!", m_name);
+			cmsg_format(TERM_VIOLET, "%^s puts a terrible Morgothian curse on you!", m_name);
 			curse_equipment_dg(100, 50);
 
 			do
@@ -7438,10 +7438,10 @@ bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *
 		   (o_ptr->tval == TV_ROD_MAIN && strstr(name, "rod of")))
 		{
 #if 0 // DGDGDGDG
-			/* You can't wish for a wish ! */
+			/* You can't wish for a wish! */
 			if ((o_ptr->tval == TV_STAFF) && (o_ptr->sval == SV_STAFF_WISHING))
 			{
-				msg_format("You cannot %s for a wish !", what);
+				msg_format("You cannot %s for a wish!", what);
 				return FALSE;
 			}
 #endif
@@ -7581,10 +7581,10 @@ void make_wish(void)
 
 	clean_wish_name(buf, name);
 
-	/* You can't wish for a wish ! */
+	/* You can't wish for a wish! */
 	if (strstr(name, "wish"))
 	{
-		msg_print("You can't wish for a wish !");
+		msg_print("You can't wish for a wish!");
 		return;
 	}
 

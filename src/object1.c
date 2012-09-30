@@ -397,6 +397,7 @@ static bool object_easy_know(int i)
 	case TV_CORPSE:
 	case TV_HYPNOS:
 	case TV_SPIKE:
+	case TV_JUNK:
 		{
 			return (TRUE);
 		}
@@ -2169,7 +2170,17 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if ((f4 & TR4_LEVELS) && known)
 	{
 		t = object_desc_str(t, " (E:");
-		t = object_desc_num(t, o_ptr->exp);
+		if (exp_need)
+		{
+			s32b need;
+			/* Formula from check_experience_obj(). */
+			need = player_exp[o_ptr->elevel - 1] * 5 / 2;
+			t = object_desc_num(t, need - o_ptr->exp);
+		}
+		else
+		{
+			t = object_desc_num(t, o_ptr->exp);
+		}
 		t = object_desc_str(t, ", L:");
 		t = object_desc_num(t, o_ptr->elevel);
 		t = object_desc_chr(t, ')');
@@ -3819,7 +3830,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 		if (f4 & (TR4_DG_CURSE))
 		{
-			text_out("It carries an ancient morgothian curse.  ");
+			text_out("It carries an ancient Morgothian curse.  ");
 		}
 		if (f4 & (TR4_CLONE))
 		{

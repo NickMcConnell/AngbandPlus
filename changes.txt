@@ -1,55 +1,70 @@
-T.o.M.E 2.3.2 aka "Unrealized Reality" changes
+T.o.M.E 2.3.3 aka "Realized Unreality" changes
 
 Interface changes:
-- If easy_disarm is off, don't trigger known traps while walking normally.
-  Added a new extended command "blunder" to let players trigger traps on
-  purpose. -- gwooledge
-- Lots of documentation, spelling and grammar fixes, including:
-  * the now-outdated race/class ability tables, replaced with skill tables
-  * the missing documentation for the set of extended commands
-  * far too many others to mention here
+- Miscellaneous documentation, spelling and grammar fixes. -- gwooledge
+- Update AC display after fixing armor in the buildings. -- gwooledge
+- Fix damage display for Thaumaturgy ball spells. -- gwooledge
+- Honor exp_need option when displaying object experience. -- gwooledge
+- Restored and updated some missing help files. -- gwooledge
+- Handling of Command key modified in Mac OS X UI.  It should be accessible
+  in macros now if it wasn't before -- Neil
+
+Gameplay changes:
+- Lost sword quest rewards always give a minimum skill modifier of 0.3.
   -- gwooledge
-- Added sanity and speed to the character screen (and hence the text dump).
-  Consolidated HP and SP into one line to make room. -- gwooledge
-- Allow shopping to use the correct keys in roguelike mode. -- gwooledge
-- Push a certain potion type a little deeper into the dungeon -- Neil
-- Make piety display light blue when praying, to make it easier to tell
-  when you're praying. -- gwooledge
-- Don't display ordinary resists when there's also an immunity to the same
-  element, in an object description. -- gwooledge
-- Display the (colored) character for uniques in the Known Uniques list (~2).
+- (Mass) Genocide damage is applied all at once to avoid bug #228.
   -- gwooledge
-- Add "Check abilities" extended command/macro.  This gives roguelike keyset
-  players a way to access the ability screen other than "\N", although it's
-  still one more keystroke than "\N" is.... -- gwooledge
-- Clean up some offensive messages, patch courtesy of 'The Fury' -- Neil
-- Include the resistances grid on character sheets dumped on death.
-  This makes them consistent with the ones generated before death, and
-  is more informative and useful for post mortem analyses. -- gwooledge
-- Examining a totem will recall the monster it summons -- Neil
-- Examining a corpse will recall the monster it was -- Neil
+
+Monster changes:
+- Kavlax should be many-headed. -- gwooledge
+- Regular (non-Joke, non-Cth, non-Z) monsters should not breathe nuke,
+  because it has a side effect we don't want in ToME -- Neil
 
 Object changes:
-- Prevent random artifact bolts from giving extra blows -- Neil
-- Correct the types of certain artifact trap sets to match their weights
-  and descriptions. -- gwooledge
-- Potions of Cure Insanity were too cheap. -- gwooledge
+- Removed pointless slays, brands, and bonuses on Pick of Erebor --  Neil
+- When examining books, demonology equipment and instruments in stores, show
+  both the object's powers and its spells. -- gwooledge
+- Junk should stack just like skeletons.  Patch by StarweaverBlue.
+  -- gwooledge
+- Mac OS X builds now put all the game data into the bundle, storing all
+  user data in the user's Library (some preferences in
+  Library/Preferences/net.t-o-m-e.tome.plist, the rest in
+  Library/Application Support/ToME. -- Neil
 
 Player changes:
-- Warriors no longer get a secret special three bonus blows spread over the
-  50 character levels.  The three blows are now tied to Weaponmastery.
-  Module authors should adjust accordingly, or their warriors may get three
-  blows they didn't have before. -- Neil
+- All new partial summon upkeep formula -- neil
+
+Dungeon changes:
+- Edit one vault to open up some inaccessible rooms -- Neil
+- A certain early trap should be less deadly (and appear a bit later).
+  -- gwooledge
 
 Bug fixes:
-- Don't allow trap doors on quest levels or on chests. -- gwooledge
-- Update view after high-powered globe of light. -- gwooledge
-- Don't allow use of stairs (any < or > movement command) while rooted
-  to the floor (by the Yavanna spell). -- gwooledge
-- Try again to keep traps from wrecking a certain plot element -- Neil
-- Fix module file handling for multi-user installs.  Now character sheets,
-  automatizer file, and the rest will be read and written in
-  ~/.tome/2.3/modulename as they should. -- Neil
-- Try harder to save persistent levels when recalling out -- Neil
-- Fix all sub-racial skill bonuses, along with Maia racial skill bonuses
-  -- Neil
+- Alchemy: disallow repowering double-ego items, unless the character has
+  the artifact creation ability.  Based on patch by Andrey Egoshin.
+  -- gwooledge
+- Lost sword quest skill reward probabilities were computed incorrectly.
+  Fix suggested by Dan Rosenberry. -- gwooledge
+- Don't let a player trick the Valar by getting drained and re-gaining
+  levels -- Neil
+- Don't allow Runecraft and Thaumaturgy spells to go explode inside walls
+  and seep through --  Neil
+- When consuming magic essences, don't stop prematurely.  Based on patch
+  by Andrey Egoshin. -- gwooledge
+- Upkeep cost for partial summons was not always charged. -- gwooledge
+- Some staves were being generated with the wrong tval, causing several bugs
+  including (but not limited to) staves being unrechargeable. -- gwooledge
+- Saving throw was not calculated correctly. -- gwooledge
+- Disallow negative experience alchemy abuses.  Based on patch by Andrey
+  Egoshin. -- gwooledge
+- Nonliving and undead pets won't be angered by lack of breathable air.
+  -- gwooledge
+- Don't use the "POSIX" setuid calls on Mac OS X, as they apparently break
+  compilation -- neil
+- Certain monster spells were hard-coded for the wrong number of equipment
+  slots. -- gwooledge
+- Incorrect operator used in cave generation code.  Effect unknown, but it
+  *might* possibly fix some of the Orc cave crashes.-- gwooledge
+- Don't allow uniques or quest monsters to just disappear to the move of
+  another monster -- Neil
+- Attempt to work around some crashes in the fractal cave generator -- Neil

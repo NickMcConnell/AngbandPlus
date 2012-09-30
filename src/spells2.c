@@ -4875,6 +4875,7 @@ bool project_hack(int typ, int dam)
  */
 void project_meteor(int radius, int typ, int dam, u32b flg)
 {
+	cave_type *c_ptr;
 	int x, y, dx, dy, d, count = 0, i;
 	int b = radius + randint(radius);
 	for (i = 0; i < b; i++)
@@ -4889,7 +4890,14 @@ void project_meteor(int radius, int typ, int dam, u32b flg)
 			dy = (p_ptr->py > y) ? (p_ptr->py - y) : (y - p_ptr->py);
 			/* Approximate distance */
 			d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
-			if ((d <= 5) && (player_has_los_bold(y, x))) break;
+			c_ptr = &cave[y][x];
+			/* Check distance */
+			if ((d <= 5) &&
+			/* Check line of sight */
+			    (player_has_los_bold(y, x)) &&
+			/* But don't explode IN a wall, letting the player attack through walls */
+			    !(c_ptr->info & CAVE_WALL))
+				break;
 		}
 		if (count >= 1000) break;
 		project(0, 2, y, x, dam, typ, PROJECT_JUMP | flg);
@@ -5165,6 +5173,7 @@ bool genocide_aux(bool player_cast, char typ)
 	int i;
 	bool result = FALSE;
 	int msec = delay_factor * delay_factor * delay_factor;
+	int dam = 0;
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < m_max; i++)
@@ -5211,9 +5220,27 @@ bool genocide_aux(bool player_cast, char typ)
 
 		if (player_cast)
 		{
-			/* Take damage */
-			take_hit(randint(4), "the strain of casting Genocide");
+			/* Keep track of damage */
+			dam += randint(4);
 		}
+
+		/* Handle */
+		handle_stuff();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Delay */
+		Term_xtra(TERM_XTRA_DELAY, msec);
+
+		/* Take note */
+		result = TRUE;
+	}
+
+	if (player_cast)
+	{
+		/* Take damage */
+		take_hit(dam, "the strain of casting Genocide");
 
 		/* Visual feedback */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
@@ -5229,12 +5256,6 @@ bool genocide_aux(bool player_cast, char typ)
 
 		/* Fresh */
 		Term_fresh();
-
-		/* Delay */
-		Term_xtra(TERM_XTRA_DELAY, msec);
-
-		/* Take note */
-		result = TRUE;
 	}
 
 	return (result);
@@ -5266,10 +5287,9 @@ bool genocide(bool player_cast)
 bool mass_genocide(bool player_cast)
 {
 	int i;
-
 	bool result = FALSE;
-
 	int msec = delay_factor * delay_factor * delay_factor;
+	int dam = 0;
 
 	if (dungeon_flags2 & DF2_NO_GENO) return (FALSE);
 
@@ -5325,10 +5345,29 @@ bool mass_genocide(bool player_cast)
 
 		if (player_cast)
 		{
-			/* Hack -- visual feedback */
-			take_hit(randint(3), "the strain of casting Mass Genocide");
+			/* Keep track of damage. */
+			dam += randint(3);
 		}
 
+		/* Handle */
+		handle_stuff();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Delay */
+		Term_xtra(TERM_XTRA_DELAY, msec);
+
+		/* Note effect */
+		result = TRUE;
+	}
+
+	if (player_cast)
+	{
+		/* Take damage */
+		take_hit(dam, "the strain of casting Mass Genocide");
+
+		/* Visual feedback */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Redraw */
@@ -5342,12 +5381,6 @@ bool mass_genocide(bool player_cast)
 
 		/* Fresh */
 		Term_fresh();
-
-		/* Delay */
-		Term_xtra(TERM_XTRA_DELAY, msec);
-
-		/* Note effect */
-		result = TRUE;
 	}
 
 	return (result);
@@ -7194,7 +7227,7 @@ void activate_dg_curse(void)
 		case 4:
 		case 5:
 		case 6:
-			msg_print("Oh ! You feel that the curse is replicating itself!");
+			msg_print("Oh! You feel that the curse is replicating itself!");
 			curse_equipment_dg(100, 50 * randint(2));
 			if (randint(8) != 1) break;
 		case 7:
@@ -7210,7 +7243,7 @@ void activate_dg_curse(void)
 			lose_exp(p_ptr->exp / 12);
 			if (rand_int(2))
 			{
-				msg_print("You feel the coldness of the black breath attacking you!");
+				msg_print("You feel the coldness of the Black Breath attacking you!");
 				p_ptr->black_breath = TRUE;
 			}
 			if (randint(8) != 1) break;
@@ -7234,7 +7267,7 @@ void activate_dg_curse(void)
 		case 19:
 		case 20:
 			{
-				msg_print("Wohhh! you see 10 little Morgoths dancing before you!");
+				msg_print("Woah! You see 10 little Morgoths dancing before you!");
 				set_confused(p_ptr->confused + randint(13 * 2));
 				if (rand_int(2)) stop_dg = TRUE;
 			}
@@ -7737,7 +7770,7 @@ void change_wild_mode(void)
 {
 	if (p_ptr->immovable && !p_ptr->wild_mode)
 	{
-		msg_print("Hum, blinking there will take time.");
+		msg_print("Hmm, blinking there will take time.");
 	}
 
 	if (p_ptr->word_recall && !p_ptr->wild_mode)

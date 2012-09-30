@@ -2400,7 +2400,7 @@ static bool quaff_potion(int tval, int sval, int pval, int pval2)
 
 		case SV_POTION_MUTATION:
 			{
-				msg_print("You feel the dark corruptions of Morgoth coming over you !");
+				msg_print("You feel the dark corruptions of Morgoth coming over you!");
 				gain_random_corruption(0);
 				ident = TRUE;
 				break;
@@ -2961,7 +2961,7 @@ void do_cmd_read_scroll(void)
 
 	if (no_lite())
 	{
-		msg_print("You have no light to read by.");
+		msg_print("You have no light by which to read.");
 		return;
 	}
 
@@ -3091,7 +3091,7 @@ void do_cmd_read_scroll(void)
 					if (!fates[i].fate) continue;
 					if (fates[i].know) continue;
 
-					msg_print("A message appeared on the scroll. It says:");
+					msg_print("A message appears on the scroll. It says:");
 					msg_print(NULL);
 
 					fate_desc(buf, i);
@@ -3122,7 +3122,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 			{
-				msg_print("There is a high pitched humming noise.");
+				msg_print("There is a high-pitched humming noise.");
 				aggravate_monsters(1);
 
 				ident = TRUE;
@@ -4820,7 +4820,7 @@ int ring_of_power()
 
 		if (rand_int(3) == 0)
 		{
-			msg_print("You call the fire of the Mount Doom!");
+			msg_print("You call the fire of Mount Doom!");
 			fire_ball(GF_METEOR, dir, 600, 4);
 		}
 		else
@@ -5085,7 +5085,7 @@ void do_cmd_activate(void)
 			/* Still need to check timeouts because there is another counter */
 			if (o_ptr->timeout)
 			{
-				msg_print("The first spell is still charging ");
+				msg_print("The first spell is still charging!");
 				return;
 			}
 
@@ -5097,7 +5097,7 @@ void do_cmd_activate(void)
 			/* Still need to check timeouts because there is another counter */
 			if (o_ptr->xtra2)
 			{
-				msg_print("The second spell is still charging !");
+				msg_print("The second spell is still charging!");
 				return;
 			}
 
@@ -5806,7 +5806,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 					if (summon_specific_friendly(p_ptr->py, p_ptr->px, ((plev * 3) / 2),
 					                             SUMMON_THUNDERLORD, (bool)(plev == 50 ? TRUE : FALSE)))
 					{
-						msg_print("A Thunderlord comes from the thin air!");
+						msg_print("A Thunderlord comes from thin air!");
 						msg_print("'I will help you in your difficult task.'");
 					}
 				}

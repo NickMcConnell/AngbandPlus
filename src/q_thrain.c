@@ -33,10 +33,10 @@ bool quest_thrain_death_hook(char *fmt)
 
 	cquest.status = QUEST_STATUS_FINISHED;
 	cmsg_print(TERM_YELLOW, "Thrain speaks:");
-	cmsg_print(TERM_YELLOW, "'Ah at last you came to me! but... I fear it is too late for me.");
+	cmsg_print(TERM_YELLOW, "'Ah, at last you came to me!  But... I fear it is too late for me.");
 	cmsg_print(TERM_YELLOW, "However your quest continues, you must beware for the Necromancer");
 	cmsg_print(TERM_YELLOW, "is in fact Sauron, the Dark Lord! He stole the Ring of Durin and tortured");
-	cmsg_print(TERM_YELLOW, "me ... arrgh ... please make him pay!'");
+	cmsg_print(TERM_YELLOW, "me... arrgh... please make him pay!'");
 
 	/* Look for Thrain */
 	for (r = m_max - 1; r >= 1; r--)

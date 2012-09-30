@@ -227,7 +227,7 @@ maximal legal value.
 [[[[[GWish (W)]
         Makes all your wishes come true.
 
-        Read the *****/wishing.txt*0[wishing spoiler] to see how these work.
+        Read the *****wishing.txt*0[wishing spoiler] to see how these work.
 ~~~~~47
 [[[[[GXP boost (x)]
         Use the "Command count", aka 0, to specify the increment,

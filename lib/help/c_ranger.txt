@@ -18,8 +18,8 @@ Wisdom           +0
 Dexterity        +2
 Constitution     +1
 Charisma         +1
-Bonus Blows       0
 Hit Die          +d4
+Spell Points     +0%
 Exp Penalty      30%
 
 #####GStarting Skills:

@@ -81,6 +81,10 @@ add_quest
 				or (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN) or (quest(GOD_QUEST).status == QUEST_STATUS_FAILED)
 				or (god_quest.quests_given >= god_quest.MAX_NUM_GOD_QUESTS) or (give_god_quest == FALSE)
 				or ((current_dungeon_idx == god_quest.DUNGEON_GOD) and (dun_level > 0)) or (player.lev <= god_quest.dun_minplev) then
+					-- Don't let a player get quests with trickery
+					if player.lev > god_quest.dun_minplev then
+						god_quest.dun_minplev = player.lev
+					end
 					return
 				else
 					-- each god has different characteristics, so the quests are differnet depending on your god
@@ -115,7 +119,7 @@ add_quest
 
 					cmsg_print(TERM_YELLOW, "'I have a task for thee.")
 					cmsg_print(TERM_YELLOW, "Centuries ago an ancient relic of mine was broken apart.")
-					cmsg_print(TERM_YELLOW, "The pieces of it hath been lost in fallen temples.")
+					cmsg_print(TERM_YELLOW, "The pieces of it have been lost in fallen temples.")
 					cmsg_print(TERM_YELLOW, "Thou art to find my lost temple and retrieve a piece of the relic.")
 					cmsg_print(TERM_YELLOW, "When thy task is done, thou art to lift it in the air and call upon my name.")
 					cmsg_print(TERM_YELLOW, "I shall then come to reclaim what is mine!")
@@ -135,7 +139,6 @@ add_quest
 					-- then we'd have trouble if someone levelled up in the dungeon!
 					god_quest.dun_mindepth = player.lev*2/3
 					god_quest.dun_maxdepth = god_quest.dun_mindepth + 4
-					god_quest.dun_minplev = player.lev
 				end
 			end
 		end,

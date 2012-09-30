@@ -3876,7 +3876,7 @@ void calc_bonuses(bool silent)
 	p_ptr->skill_dev += get_skill_scale(SKILL_DEVICE, 20);
 
 	/* Affect Skill -- saving throw (WIS) */
-	p_ptr->skill_sav += adj_wis_sav[get_skill_scale(SKILL_SPIRITUALITY, 37)];
+	p_ptr->skill_sav += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
 
 	/* Affect Skill -- digging (STR) */
 	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
@@ -4022,7 +4022,7 @@ void calc_bonuses(bool silent)
 		p_ptr->sensible_fire = FALSE;
 
 	/* Minimum saving throw */
-	if(p_ptr->skill_sav <= 0)
+	if(p_ptr->skill_sav <= 10)
 		p_ptr->skill_sav = 10;
 	else
 		p_ptr->skill_sav += 10;

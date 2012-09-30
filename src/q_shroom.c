@@ -116,8 +116,8 @@ bool quest_shroom_give_hook(char *fmt)
 	                (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 	{
 		cquest.status = QUEST_STATUS_FAILED_DONE;
-		msg_print("My puppy!  My poor, defenseless puppy...");
-		msg_print("YOU MURDERER ! Out of my sight !");
+		msg_print("My puppy!  My poor, defenceless puppy...");
+		msg_print("YOU MURDERER!  Out of my sight!");
 		delete_monster_idx(m_idx);
 
 		del_hook(HOOK_GIVE, quest_shroom_give_hook);
@@ -204,8 +204,8 @@ bool quest_shroom_speak_hook(char *fmt)
 		                (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 		{
 			cquest.status = QUEST_STATUS_FAILED_DONE;
-			msg_print("My puppy!  My poor, defenseless puppy...");
-			msg_print("YOU MURDERER ! Out of my sight !");
+			msg_print("My puppy!  My poor, defenceless puppy...");
+			msg_print("YOU MURDERER!  Out of my sight!");
 			delete_monster_idx(m_idx);
 
 			del_hook(HOOK_GIVE, quest_shroom_give_hook);
@@ -235,7 +235,7 @@ bool quest_shroom_chat_hook(char *fmt)
 		msg_print("The rain, a dark horrible rain, began so I had to return to my home.");
 		msg_print("But when I came back my dogs were all mad and didn't let me near the field.");
 		msg_print("Could you please bring me back all the mushrooms that have grown in my field");
-		msg_print("to the west of Bree ? Please try to not harm my dogs, they are so lovely...");
+		msg_print("to the west of Bree? Please try to not harm my dogs. They are so lovely...");
 
 		cquest.status = QUEST_STATUS_TAKEN;
 		quest[QUEST_SHROOM].init(QUEST_SHROOM);
@@ -248,8 +248,8 @@ bool quest_shroom_chat_hook(char *fmt)
 		                (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 		{
 			cquest.status = QUEST_STATUS_FAILED_DONE;
-			msg_print("My puppy ! my poor, defenseless puppy...");
-			msg_print("YOU MURDERER ! Out of my sight !");
+			msg_print("My puppy!  My poor, defenceless puppy...");
+			msg_print("YOU MURDERER!  Out of my sight!");
 			delete_monster_idx(m_idx);
 
 			del_hook(HOOK_GIVE, quest_shroom_give_hook);

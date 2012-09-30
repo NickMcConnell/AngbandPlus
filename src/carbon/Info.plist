@@ -6,8 +6,8 @@
     <key>CFBundleExecutable</key><string>tome</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleSignature</key><string>PrnA</string>
-    <key>CFBundleVersion</key><string>2.2.0</string>
-    <key>CFBundleShortVersionString</key><string>220</string>
+    <key>CFBundleVersion</key><string>2.3.3</string>
+    <key>CFBundleShortVersionString</key><string>233</string>
     <key>CFBundleIconFile</key><string>Angband</string>
     <key>CFBundleIdentifier</key><string>net.t-o-m-e.tome</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>

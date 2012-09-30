@@ -246,7 +246,7 @@ typedef unsigned int u32b;
 #define HOOK_GIVE	       11
 
 /** @def HOOK_CHAR_DUMP
- * @brief Add a line to the character dump.
+ * @brief Add a line to the character sheet.
  * @note (see files.c)
  */
 #define HOOK_CHAR_DUMP	  12

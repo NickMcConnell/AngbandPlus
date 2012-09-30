@@ -375,7 +375,7 @@ OBJS = $(LUAOBJS) $(TOLUAOBJS) $(BASEOBJS)
 
 # Force recreation of stub files when lua source files are updated
 # To be included in dependency rules
-TOLUADEP = $(TOLUASRCS) lua/tolua.c lua/tolualua.c
+TOLUADEP = $(TOLUA) $(TOLUASRCS) lua/tolua.c lua/tolualua.c
 
 #
 # IRC support

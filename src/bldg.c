@@ -1236,6 +1236,7 @@ static bool fix_item(int istart, int iend, int ispecific, bool iac,
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->update |= (PU_BONUS);
 	}
 	clear_bldg(5, 18);
 

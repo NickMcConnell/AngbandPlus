@@ -305,7 +305,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 
 		ra_ptr = &ra_info[ra_idx];
 
-		if (wizard) msg_format("Additing randart power: %d", ra_idx);
+		if (wizard) msg_format("Adding randart power: %d", ra_idx);
 
 		total_power += ra_ptr->value;
 

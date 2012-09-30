@@ -5827,3 +5827,87 @@ becomes 0, allowing spells to summon fiery blades and such
 [B]- Don't use weaponmastery combat when weaponmastery skill is negative -- Neil
 
 [V]  T.o.M.E 2.3.1 aka "2.3.0.1"
+
+2005/05/19
+[I]- If easy_disarm is off, don't trigger known traps while walking normally.
+     Added a new extended command "blunder" to let players trigger traps on
+     purpose. -- gwooledge
+[I]- Lots of documentation, spelling and grammar fixes, including:
+     * the now-outdated race/class ability tables, replaced with skill tables
+     * the missing documentation for the set of extended commands
+     * far too many others to mention here
+     -- gwooledge
+
+2005/05/20
+[I]- Added sanity and speed to the character screen (and hence the text dump).
+     Consolidated HP and SP into one line to make room. -- gwooledge
+
+2005/05/21
+[B]- Don't allow trap doors on quest levels or on chests. -- gwooledge
+[I]- Allow shopping to use the correct keys in roguelike mode. -- gwooledge
+
+2005/05/22
+[B]- Update view after high-powered globe of light. -- gwooledge
+
+2005/05/26
+[I]- Push a certain potion type a little deeper into the dungeon -- Neil
+[I]- Make piety display light blue when praying, to make it easier to tell
+     when you're praying. -- gwooledge
+
+2005/06/02
+[I]- Don't display ordinary resists when there's also an immunity to the same
+     element, in an object description. -- gwooledge
+[B]- Don't allow use of stairs (any < or > movement command) while rooted
+     to the floor (by the Yavanna spell). -- gwooledge
+
+2005/06/04
+[I]- Display the (colored) character for uniques in the Known Uniques list (~2).
+     -- gwooledge
+
+2005/06/05
+[I]- Add "Check abilities" extended command/macro.  This gives roguelike keyset
+     players a way to access the ability screen other than "\N", although it's
+     still one more keystroke than "\N" is.... -- gwooledge
+
+2005/06/11
+[B]- Try again to keep traps from wrecking a certain plot element -- Neil
+
+2005/06/18
+[B]- Fix module file handling for multi-user installs.  Now character sheets,
+     automatizer file, and the rest will be read and written in
+     ~/.tome/2.3/modulename as they should. -- Neil
+
+2005/06/19
+[B]- Try harder to save persistent levels when recalling out -- Neil
+[B]- Fix all sub-racial skill bonuses, along with Maia racial skill bonuses
+     -- Neil
+[O]- Prevent random artifact bolts from giving extra blows -- Neil
+
+2005/06/21
+[O]- Correct the types of certain artifact trap sets to match their weights
+     and descriptions. -- gwooledge
+
+2005/07/13
+[I]- Clean up some offensive messages, patch courtesy of 'The Fury' -- Neil
+
+2005/07/14
+[I]- Include the resistances grid on character sheets dumped on death.
+     This makes them consistent with the ones generated before death, and
+     is more informative and useful for post mortem analyses. -- gwooledge
+
+2005/07/15
+[P]- Warriors no longer get a secret special three bonus blows spread over the
+     50 character levels.  The three blows are now tied to Weaponmastery.
+
+     Module authors should adjust accordingly, or their warriors may get three
+     blows they didn't have before. -- Neil
+
+2005/07/16
+[O]- Potions of Cure Insanity were too cheap. -- gwooledge
+
+2005/07/24
+[I]- Examining a totem will recall the monster it summons -- Neil
+[I]- Examining a corpse will recall the monster it was -- Neil
+
+2005/07/27
+[V]  T.o.M.E 2.3.2 aka "Unrealized Reality"

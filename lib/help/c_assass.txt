@@ -10,15 +10,15 @@ trapping and disarming as their more "peaceful" counterparts.
 Assassins have access to the schools of *****m_convey.txt*0[Conveyance], *****m_divin.txt*0[Divination] and *****m_tempo.txt*0[Temporal] magic.
 
 #####GStarting Stat Modifiers
-Strength       +2
-Intelligence   +1
-Wisdom         -2
-Dexterity      +3
-Constitution   +1
-Charisma       -1
-Bonus Blows    0
-Hit Die        +d6
-Exp Penalty    25%
+Strength         +2
+Intelligence     +1
+Wisdom           -2
+Dexterity        +3
+Constitution     +1
+Charisma         -1
+Hit Die          +d6
+Spell Points     +0%
+Exp Penalty      25%
 
 #####GStarting Skills
 #####BSkill                   Start Level     Skill Point Gains

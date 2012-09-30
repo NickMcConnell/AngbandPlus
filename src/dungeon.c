@@ -1375,7 +1375,7 @@ static void process_world(void)
 				closing_flag++;
 
 				/* Message */
-				msg_print("The gates to ANGBAND are closing...");
+				msg_print("The gates to Middle Earth are closing...");
 				msg_print("Please finish up and/or save your game.");
 			}
 
@@ -1383,7 +1383,7 @@ static void process_world(void)
 			else
 			{
 				/* Message */
-				msg_print("The gates to ANGBAND are now closed.");
+				msg_print("The gates to Middle Earth are now closed.");
 
 				/* Stop playing */
 				alive = FALSE;
@@ -1450,7 +1450,7 @@ static void process_world(void)
 			else
 			{
 				/* Message */
-				msg_print("The sun has fallen.");
+				msg_print("The sun has set.");
 
 				/* Hack -- Scan the town */
 				for (y = 0; y < cur_hgt; y++)
@@ -2800,12 +2800,12 @@ static void process_world(void)
 	/* Arg cannot breath? */
 	if ((dungeon_flags2 & DF2_WATER_BREATH) && (!p_ptr->water_breath))
 	{
-		cmsg_print(TERM_L_RED, "You cannot breathe water, you suffocate!");
+		cmsg_print(TERM_L_RED, "You cannot breathe water!  You suffocate!");
 		take_hit(damroll(3, p_ptr->lev), "suffocating");
 	}
 	if ((dungeon_flags2 & DF2_NO_BREATH) && (!p_ptr->magical_breath))
 	{
-		cmsg_print(TERM_L_RED, "There is no air there! You suffocate!");
+		cmsg_print(TERM_L_RED, "There is no air there!  You suffocate!");
 		take_hit(damroll(3, p_ptr->lev), "suffocating");
 	}
 
@@ -2944,12 +2944,20 @@ static void process_world(void)
 	/* Partial summons drain mana */
 	if (p_ptr->maintain_sum)
 	{
-		p_ptr->csp -= p_ptr->maintain_sum / 100;
+		u32b oldcsp = p_ptr->csp;
+		p_ptr->csp -= p_ptr->maintain_sum / 10000;
 
 		if (p_ptr->csp < 0)
 		{
 			p_ptr->csp = 0;
 			disturb(0, 0);
+
+			p_ptr->maintain_sum = 0;
+		}
+		else
+		{
+			/* Leave behind any fractional sp */
+			p_ptr->maintain_sum -= (oldcsp - p_ptr->csp) * 10000;
 		}
 
 		/* Redraw */
@@ -3355,7 +3363,7 @@ static void process_world(void)
 		/* Cannot WoR out of death fate levels */
 		else if (dungeon_type == DUNGEON_DEATH)
 		{
-			cmsg_print(TERM_L_DARK, "You are fated to die here, FIGHT for your life!");
+			cmsg_print(TERM_L_DARK, "You are fated to die here.  FIGHT for your life!");
 			p_ptr->word_recall = 0;
 		}
 
@@ -5197,6 +5205,8 @@ static void dungeon(void)
 	command_arg = 0;
 	command_dir = 0;
 
+	/* Make sure partial summoning counter is initialized. */
+	p_ptr->maintain_sum = 0;
 
 	/* Cancel the target */
 	target_who = 0;
@@ -5949,7 +5959,7 @@ void play_game(bool new_game)
 				/* You are doomed */
 			case FATE_DIE:
 				{
-					cmsg_print(TERM_L_DARK, "You were fated to die here, DIE!");
+					cmsg_print(TERM_L_DARK, "You were fated to die here.  DIE!");
 
 					/* You shall perish there */
 					dungeon_type = DUNGEON_DEATH;

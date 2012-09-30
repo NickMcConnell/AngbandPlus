@@ -201,7 +201,7 @@ D:You already regret trying this...
 F:FLOOR | CHEST | DOOR
 
 N:33:Bowel Cramps Trap
-I:1:90:20:1:3:0d0:r
+I:1:90:20:1:6:0d0:r
 D:Your stomach twists with a sharp pang!
 F:FLOOR | CHEST | DOOR
 

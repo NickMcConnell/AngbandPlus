@@ -17,11 +17,11 @@ bool quest_one_move_hook(char *fmt)
 		/* The mirror of Galadriel */
 		if ((c_ptr->feat != FEAT_SHOP) || (c_ptr->special != 23)) return (FALSE);
 
-		cmsg_print(TERM_YELLOW, "You meet Galadriel, she seems worried.");
+		cmsg_print(TERM_YELLOW, "You meet Galadriel; she seems worried.");
 		cmsg_print(TERM_YELLOW, "'So it was Sauron that lurked in Dol Guldur...'");
-		cmsg_print(TERM_YELLOW, "'The Enemy is growing in power, Morgoth will be unreachable as long'");
+		cmsg_print(TERM_YELLOW, "'The Enemy is growing in power. Morgoth will be unreachable as long'");
 		cmsg_print(TERM_YELLOW, "'as his most powerful servant, Sauron, lives. But the power of Sauron'");
-		cmsg_print(TERM_YELLOW, "'lies in the One Ring, our only hope is that you find it'");
+		cmsg_print(TERM_YELLOW, "'lies in the One Ring. Our only hope is that you find it'");
 		cmsg_print(TERM_YELLOW, "'and destroy it. I know it will tempt you, but *NEVER* use it'");
 		cmsg_print(TERM_YELLOW, "'or it will corrupt you forever.'");
 
@@ -46,11 +46,11 @@ bool quest_one_move_hook(char *fmt)
 		}
 
 		cmsg_print(TERM_YELLOW, "'Without the destruction of the ring, Sauron's death can only be temporary'");
-		cmsg_print(TERM_YELLOW, "'When you have it bring it to Mount Doom, in Mordor,'");
+		cmsg_print(TERM_YELLOW, "'When you have it, bring it to Mount Doom, in Mordor,'");
 		cmsg_print(TERM_YELLOW, "'to destroy it in the Great Fire where it was forged.'");
-		cmsg_print(TERM_YELLOW, "'I do not know where to find it, seek it through Middle-earth. Maybe there'");
-		cmsg_print(TERM_YELLOW, "'are other people that might know'");
-		cmsg_print(TERM_YELLOW, "'Do not forget, the Ring must be cast back into the fires of Mount Doom!'");
+		cmsg_print(TERM_YELLOW, "'I do not know where to find it. Seek it through Middle-earth. Maybe there'");
+		cmsg_print(TERM_YELLOW, "'are other people that might know.'");
+		cmsg_print(TERM_YELLOW, "'Do not forget: the Ring must be cast back into the fires of Mount Doom!'");
 
 		GOD(GOD_MELKOR)
 		{
@@ -112,16 +112,16 @@ bool quest_one_wield_hook(char *fmt)
 	/* Flush input */
 	flush();
 
-	if (!get_check("You were warned not to wear it, are you sure?")) return TRUE;
+	if (!get_check("You were warned not to wear it; are you sure?")) return TRUE;
 	/* Flush input */
 	flush();
 
-	if (!get_check("You were warned not to wear it, are you *REALLY* sure?")) return TRUE;
+	if (!get_check("You were warned not to wear it; are you *REALLY* sure?")) return TRUE;
 
 	/* Flush input */
 	flush();
 
-	if (!get_check("You were *WARNED* not to wear it, are you *R*E*A*L*L*Y* sure?")) return TRUE;
+	if (!get_check("You were *WARNED* not to wear it; are you *R*E*A*L*L*Y* sure?")) return TRUE;
 
 	cmsg_print(TERM_YELLOW, "As you put it on your finger you feel #Ddark powers #ysapping your soul.");
 	cmsg_print(TERM_YELLOW, "The ring firmly binds to your finger!");
@@ -183,7 +183,7 @@ bool quest_one_die_hook(char *fmt)
 		}
 		else
 		{
-			cmsg_print(TERM_YELLOW, "The One Ring finanly drags you totaly to the shadow world.");
+			cmsg_print(TERM_YELLOW, "The One Ring finally drags you totally to the shadow world.");
 			cmsg_print(TERM_YELLOW, "Your mortal existence ends there.");
 			strcpy(died_from, "being drawn to the shadow world");
 		}
@@ -214,7 +214,7 @@ bool quest_one_identify_hook(char *fmt)
 
 		if ((o_ptr->name1 == ART_POWER) && (!object_known_p(o_ptr)))
 		{
-			cmsg_print(TERM_YELLOW, "You finally found the One Ring, source of Sauron power, and key to");
+			cmsg_print(TERM_YELLOW, "You finally found the One Ring, source of Sauron's power, and key to");
 			cmsg_print(TERM_YELLOW, "its destruction. Remember, bring it to Mount Doom and destroy it.");
 			cmsg_print(TERM_YELLOW, "And *NEVER* use it.");
 		}

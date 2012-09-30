@@ -37,7 +37,7 @@ type AngbandSignature as 'STR ';
 
 resource AngbandSignature (0, "Owner resource", purgeable)
 {
-	"T.o.M.E. 2.1.0"
+	"T.o.M.E. 2.3.3"
 };
 
 
@@ -621,7 +621,7 @@ resource 'DITL' (128, purgeable)
 			disabled,
 
 			/* title */
-			"T.o.M.E. 2.1.0"
+			"T.o.M.E. 2.3.3"
 		},
 
 		/** item #3 **/

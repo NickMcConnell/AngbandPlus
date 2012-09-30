@@ -149,7 +149,7 @@ YAVANNA_UPROOT = add_spell
 			return TRUE
 	end,
 	["info"] =      function()
-			return ""
+			return "lev "..(30 + get_level(YAVANNA_UPROOT, 70))
 	end,
 	["desc"] =      {
 			"Awakes a tree to help you battle the forces of Morgoth",

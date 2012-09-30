@@ -19,7 +19,7 @@ void do_cmd_immovable_special(void);
  */
 static bool do_cmd_bash_altar(int y, int x)
 {
-	msg_print("Are you mad ? You want to anger the gods ?");
+	msg_print("Are you mad? You want to anger the gods?");
 	return (FALSE);
 }
 
@@ -176,7 +176,7 @@ void do_cmd_go_up(void)
 
 		if (dungeon_flags2 & DF2_NO_EASY_MOVE)
 		{
-			msg_print("Some powerfull force prevents your from teleporting.");
+			msg_print("Some powerful force prevents your from teleporting.");
 			return;
 		}
 
@@ -2749,7 +2749,7 @@ static void do_cmd_walk_jump(int pickup, bool disarm)
 		p_ptr->oldpy = MAX_HGT / 2;
 
 		/* Inform the player of his horrible fate :=) */
-		msg_print("You are ambushed !");
+		msg_print("You are ambushed!");
 	}
 
 	/* Cancel repeat unless we may continue */
@@ -3148,7 +3148,7 @@ void do_cmd_fire(void)
 	/* Require a launcher */
 	if (!j_ptr->tval)
 	{
-		msg_print("You have nothing to fire with.");
+		msg_print("You have nothing with which to fire.");
 		return;
 	}
 
@@ -4788,7 +4788,7 @@ void do_cmd_sacrifice(void)
 
 						p_ptr->hp_mod -= 10;
 						take_hit(10, "self sacrifice to Melkor");
-						msg_print("Your life slips away, Melkor seems happier.");
+						msg_print("Your life slips away, and Melkor seems happier.");
 						inc_piety(GOD_MELKOR, x * 300);
 						p_ptr->update |= (PU_HP);
 					}
@@ -4796,7 +4796,7 @@ void do_cmd_sacrifice(void)
 					else
 					{
 						take_hit(10, "self sacrifice to Melkor");
-						msg_print("Your life slips away, your arms grow stronger.");
+						msg_print("Your life slips away, and your arms grow stronger.");
 						p_ptr->melkor_sacrifice++;
 						p_ptr->update |= (PU_BONUS | PU_HP);
 					}
@@ -5128,7 +5128,7 @@ void do_cmd_steal()
 
 			screen_load();
 
-			msg_print("Oops ! The monster is now really *ANGRY*.");
+			msg_print("Oops! The monster is now really *ANGRY*!");
 
 			return;
 		}

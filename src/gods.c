@@ -51,7 +51,7 @@ void follow_god(int god, bool silent)
 	/* Poor unbelievers, i'm so mean ... BOUHAHAHA */
 	if (get_skill(SKILL_ANTIMAGIC))
 	{
-		msg_print("Don't be silly, you don't believe in gods.");
+		msg_print("Don't be silly; you don't believe in gods.");
 		return;
 	}
 

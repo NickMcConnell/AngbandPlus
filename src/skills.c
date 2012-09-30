@@ -1308,7 +1308,7 @@ void do_get_new_skill()
 			i = rand_int(max_a);
 
 			/* Does it pass the check? */
-			if (!magik(s_info[i].random_gain_chance))
+			if (!magik(s_info[available_skills[i]].random_gain_chance))
 				continue;
 		}
 		while (used[available_skills[i]]);
@@ -1318,7 +1318,12 @@ void do_get_new_skill()
 
 		if (s_ptr->mod)
 		{
-			if (s_ptr->mod < 500)
+			if (s_ptr->mod < 300)
+			{
+				val[max] = 1000;
+				mod[max] = 300 - s_ptr->mod;
+			}
+			else if (s_ptr->mod < 500)
 			{
 				val[max] = s_ptr->mod * 1;
 				mod[max] = 100;

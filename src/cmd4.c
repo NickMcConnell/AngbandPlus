@@ -744,7 +744,7 @@ bool change_option(cptr name, bool value)
 		}
 	}
 
-	cmsg_format(TERM_VIOLET, "Warning, change_option could'nt find option '%s'", name);
+	cmsg_format(TERM_VIOLET, "Warning, change_option couldn't find option '%s'.", name);
 	return FALSE;
 }
 
@@ -1210,7 +1210,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("Options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -4747,7 +4747,7 @@ void do_cmd_time()
 char *macro_recorder_current = NULL;
 void macro_recorder_start()
 {
-	msg_print("Starting macro recording, press this key again to stop. Note that if the action you want to record accepts the @ key, use it, it will remove your the need to inscribe stuff.");
+	msg_print("Starting macro recording, press this key again to stop. Note that if the action you want to record accepts the @ key, use it; it will remove your the need to inscribe stuff.");
 	C_MAKE(macro_recorder_current, 1, char);
 	macro_recorder_current[0] = '\0';
 }
@@ -4789,7 +4789,7 @@ void macro_recorder_stop()
 		/* Prompt */
 		C_MAKE(str, (strlen(macro) + 1) * 3, char);
 		ascii_to_text(str, macro);
-		msg_format("Added a macro '%s', if you want it to stay permanently press @ now and dump macros to a file.", str);
+		msg_format("Added a macro '%s'. If you want it to stay permanently, press @ now and dump macros to a file.", str);
 		C_FREE(str, (strlen(macro) + 1) * 3, char);
 	}
 

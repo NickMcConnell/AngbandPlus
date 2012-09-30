@@ -108,17 +108,8 @@
 /*
  * This flag enables the "POSIX" methods for "SAFE_SETUID".
  */
-#ifdef _POSIX_SAVED_IDS
+#if defined(_POSIX_SAVED_IDS) && !(defined(SUNOS) && !defined(SOLARIS)) && !defined(__APPLE__)
 # define SAFE_SETUID_POSIX
-#endif
-
-
-/*
- * Prevent problems on (non-Solaris) Suns using "SAFE_SETUID".
- * The SAFE_SETUID code is weird, use it at your own risk...
- */
-#if defined(SUNOS) && !defined(SOLARIS)
-# undef SAFE_SETUID_POSIX
 #endif
 
 
@@ -398,6 +389,15 @@
 #define PRIVATE_USER_PATH "~/.tome"
 #endif /* SET_UID && !MACH_O_CARBON */
 
+/*
+ * Where to put the user's files on the Mac
+ */
+#if defined(MACH_O_CARBON)
+#define PRIVATE_USER_PATH "~/Library/Application Support/ToME"
+#define PRIVATE_USER_PATH_DATA
+#define PRIVATE_USER_PATH_APEX
+#define PRIVATE_USER_PATH_MODULES
+#endif
 
 /*
  * On multiuser systems, add the "uid" to savefile names

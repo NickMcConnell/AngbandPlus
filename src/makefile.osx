@@ -1,50 +1,22 @@
-# File: makefile.osx
+BUNDLENAME = ToME
+BUNDLEDIR = ../$(BUNDLENAME).app
+CONTENTSDIR = $(BUNDLEDIR)/Contents
+BINDIR = $(CONTENTSDIR)/MacOS
+RESOURCEDIR = $(CONTENTSDIR)/Resources
+LIBDIR = $(RESOURCEDIR)
 
-# This is not a very "nice" Makefile, but it usually works.
-#
-# Based on makefile.std.  I think I could merge it with makefile.std,
-# but keep it here because the port doesn't use main.c
+CC = MACOSX_DEPLOYMENT_TARGET="10.1" cc
 
-# If you are able to construct "main-xxx.c" and/or "Makefile.xxx"
-# files for a currently unsupported system, please send them to me
-# (rr9@angband.org) for inclusion in future versions.
-
-# Comment out this line if you don't want Lua scripting
-LUA=TRUE
-
-# Comment out this line if you don't want the IRC support
-# Doesn't work with my Carbon port -- pelpel
-# IRC=TRUE
-
-# Name of the game
-APPNAME = T.o.M.E.
-# Bundle of the game (it must be a directory whose name ends in ".app")
-APPBNDL = ../$(APPNAME).app
-# A bundle must have this subdirectory structure
-APPCONT = $(APPBNDL)/Contents
-APPBIN = $(APPCONT)/MacOS
-APPRES = $(APPCONT)/Resources
-
-# Additional files for this port
-# Please copy graphics tiles (8x8.png, 16x16.png and mask.png) into $(APPRES),
-# if you have them ready.
-ICONFILES = Angband.icns Save.icns Edit.icns Data.icns
-PLISTSRC = Tome-plist.xml
-RESSRCS = Carbon.r
-# RESSRCS = Carbon.r Sound.r
-RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O
-
-# Mach-O Carbon with Resource Manager resources (see main-crb.c)
-COPTS = -Wall -O1 -g -fpascal-strings
-INCLUDES =
-DEFINES = -DUSE_MACOSX -DMACH_O_CARBON -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DTOME
+COPTS = -Wall -Os -g -pipe -fpascal-strings
+#-Wno-deprecated-declarations
+DEFINES = -DUSE_MACOSX -DMACH_O_CARBON \
+	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK \
+	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY -DSUPPORT_GAMMA
 LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
 
-### End of configurable section ###
-
-#
-# The "source" and "object" files.
-#
+# Universal binary support
+COPTS += -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc
+LIBS += -arch i386 -arch ppc -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk
 
 BASESRCS = \
   main-crb.c \
@@ -114,14 +86,12 @@ OBJS = $(BASEOBJS)
 # Compiler options
 #
 
-CFLAGS = $(COPTS) $(PROFILECOPTS) $(INCLUDES) $(DEFINES) -DDEFAULT_PATH=\"$(LIBDIR)\"
+CFLAGS = $(COPTS) $(INCLUDES) $(DEFINES)
 
 
 #
 # Lua support
 #
-
-ifdef LUA
 
 INCLUDES += -Ilua -I.
 DEFINES += -DUSE_LUA
@@ -130,62 +100,43 @@ OBJS = $(LUAOBJS) $(TOLUAOBJS) $(BASEOBJS)
 
 # Force recreation of stub files when lua source files are updated
 # To be included in dependency rules
-TOLUADEP = $(TOLUASRCS) lua/tolua.c lua/tolualua.c
-
-endif
-
-
-#
-# IRC support
-#
-
-ifdef IRC
-
-IRC_SERVER=irc.worldirc.org
-IRC_PORT=6667
-IRC_CHANNEL=\#tome
-
-DEFINES += \
-	-DIRC_SERVER=\"$(IRC_SERVER)\" \
-	-DIRC_PORT=\"$(IRC_PORT)\" \
-	-DIRC_CHANNEL=\"$(IRC_CHANNEL)\"
-
-endif
-
+TOLUADEP = $(TOLUASRCS) lua/tolua.c lua/tolualua.c $(TOLUA)
 
 # Build the binary. The new base target.
 #
 
 TARGET = tome
 
-ifdef LUA
 TOLUA = ./tolua
-endif
 
-default: $(TOLUA) $(TARGET) $(ICONFILES) $(RESSRCS) $(PLISTSRC)
-	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
-	[ -d $(APPCONT) ] || mkdir $(APPCONT)
-	[ -d $(APPBIN) ]  || mkdir $(APPBIN)
-	[ -d $(APPRES) ]  || mkdir $(APPRES)
-	install -m 755 $(TARGET) $(APPBIN)
-	install -m 644 $(ICONFILES) $(APPRES)
-	/Developer/Tools/Rez $(RFLAGS) -o $(APPRES)/$(TARGET).rsrc $(RESSRCS)
-	install -m 644 $(PLISTSRC) $(APPCONT)/Info.plist
-	/Developer/Tools/SetFile -a B $(APPBNDL)
+default: $(TOLUA) $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(PROFILELDFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 $(TOLUA): $(TOLUAOBJS) lua/tolua.c lua/tolualua.c
-	$(CC) $(CFLAGS) $(PROFILELDFLAGS) $(LDFLAGS) -o $@ $(TOLUAOBJS) lua/tolua.c lua/tolualua.c $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(TOLUAOBJS) lua/tolua.c lua/tolualua.c $(LIBS)
+
+install: default
+	[ -d $(BUNDLEDIR) ] || mkdir $(BUNDLEDIR)
+	[ -d $(CONTENTSDIR) ] || mkdir $(CONTENTSDIR)
+	[ -d $(BINDIR) ]  || mkdir $(BINDIR)
+	[ -d $(RESOURCEDIR) ]  || mkdir $(RESOURCEDIR)
+	install -m 755 $(TARGET) $(BINDIR)
+	install -m 644 carbon/*.icns $(RESOURCEDIR)
+	/Developer/Tools/Rez -i /Developer/Headers/FlatCarbon -d MACH_O -o $(RESOURCEDIR)/tome.rsrc carbon/Carbon.r
+	install -m 644 carbon/Info.plist $(CONTENTSDIR)/Info.plist
+	/Developer/Tools/SetFile -a B $(BUNDLEDIR)
+	rsync -r --exclude="*CVS*" --exclude="*xtra/graf*" --exclude="*xtra/font*" ../lib/* $(RESOURCEDIR)
+	rsync ../lib/mods/*.lua $(RESOURCEDIR)/core
+	rsync ../lib/xtra/graf/*.png $(RESOURCEDIR)
 
 #
 # Clean up old junk
 #
 
 clean:
-	rm -f *.bak *.o
-
+	rm -f *.bak *.o lua/*.o w_*.c $(TOLUA) $(TARGET)
 
 #
 # Generate dependancies automatically
@@ -201,7 +152,7 @@ depend:
 #
 # Quests
 #
-plots.o: q_rand.c q_main.c q_one.c \
+plots.o: q_rand.c q_main.c q_one.c q_ultrag.c q_ultrae.c \
 	q_thief.c q_hobbit.c q_nazgul.c q_troll.c q_wight.c \
 	q_spider.c q_poison.c \
 	q_eol.c q_nirna.c q_invas.c \
@@ -211,8 +162,6 @@ plots.o: q_rand.c q_main.c q_one.c \
 #
 # Lua library compilation rules
 #
-
-ifdef LUA
 
 w_mnster.c: monster.pkg $(TOLUADEP)
 	$(TOLUA) -n monster -o w_mnster.c monster.pkg
@@ -240,7 +189,5 @@ w_quest.c: quest.pkg $(TOLUADEP)
 
 w_dun.c: dungeon.pkg $(TOLUA)
 	$(TOLUA) -n dungeon -o w_dun.c dungeon.pkg
-
-endif
 
 # DO NOT DELETE THIS LINE - make depend depends on it.

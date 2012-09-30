@@ -386,11 +386,7 @@
  * I introduced rather crude hack to clip all character drawings within
  * their bounding rects. If you don't like this, please comment out the line
  * #define CLIP_HACK
- * below. The alternative, #define OVERWRITE_HACK, is based on Julian Lighton's
- * brilliant suggestion, but it doesn't work as expected. This is because
- * DrawText can render the same character with _different_ pixel width,
- * depending on relative position of a character to the pen. Fonts do look
- * very nice on the Mac, but too nice I'd say, in case of Angband.
+ * below.
  *
  * The check for return values of AEProcessAppleEvent is removed,
  * because it results in annoying dialogues on OS X, also because
@@ -481,8 +477,96 @@
 
 #include "angband.h"
 
-
 #if defined(MACINTOSH) || defined(MACH_O_CARBON)
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Check and create if needed the directory dirpath
+ */
+bool private_check_user_directory(cptr dirpath)
+{
+	/* Is this used anywhere else in *bands? */
+	struct stat stat_buf;
+
+	int ret;
+
+	/* See if it already exists */
+	ret = stat(dirpath, &stat_buf);
+
+	/* It does */
+	if (ret == 0)
+	{
+		/* Now we see if it's a directory */
+		if ((stat_buf.st_mode & S_IFMT) == S_IFDIR) return (TRUE);
+
+		/*
+		 * Something prevents us from create a directory with
+		 * the same pathname
+		 */
+		return (FALSE);
+	}
+
+	/* No - this maybe the first time. Try to create a directory */
+	else
+	{
+		/* Create the ~/.ToME directory */
+		ret = mkdir(dirpath, 0700);
+
+		/* An error occured */
+		if (ret == -1) return (FALSE);
+
+		/* Success */
+		return (TRUE);
+	}
+}
+
+/*
+ * Check existence of ".ToME/" directory in the user's
+ * home directory or try to create it if it doesn't exist.
+ * Returns FALSE if all the attempts fail.
+ */
+static bool check_create_user_dir(void)
+{
+	char dirpath[1024];
+	char versionpath[1024];
+	char savepath[1024];
+#ifdef PRIVATE_USER_PATH_DATA
+	char datapath[1024];
+#endif
+#ifdef PRIVATE_USER_PATH_APEX
+	char apexpath[1024];
+#endif
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+	strcpy(versionpath, dirpath);
+	strcat(versionpath, USER_PATH_VERSION);
+	strcpy(savepath, versionpath);
+	strcat(savepath, "/save");
+#ifdef PRIVATE_USER_PATH_DATA
+	strcpy(datapath, versionpath);
+	strcat(datapath, "/data");
+#endif
+#ifdef PRIVATE_USER_PATH_APEX
+	strcpy(apexpath, versionpath);
+	strcat(apexpath, "/apex");
+#endif
+
+	return /* don't forget, the dirpath muts come first */
+	       private_check_user_directory(dirpath) &&
+	       private_check_user_directory(versionpath) &&
+#ifdef PRIVATE_USER_PATH_DATA
+	       private_check_user_directory(datapath) &&
+#endif
+#ifdef PRIVATE_USER_PATH_APEX
+	       private_check_user_directory(apexpath) &&
+#endif
+	       private_check_user_directory(savepath);
+}
+
+#endif /* PRIVATE_USER_PATH */
+
 
 /*
  * Variant-dependent features:
@@ -511,14 +595,12 @@
 # define USE_TRANSPARENCY
 #endif /* ANGBAND30X */
 
-#ifdef TOME
 # define USE_DOUBLE_TILES
 # define SAVEFILE_SCREEN
 # define ANG281_RESET_VISUALS
 # define ALLOW_BIG_SCREEN
 # define HAS_SCORE_MENU
 # define ANGBAND_CREATOR 'PrnA'
-#endif /* TOME */
 
 /* Default creator signature */
 #ifndef ANGBAND_CREATOR
@@ -541,19 +623,6 @@
  * make 68K ports even slower, I won't do so there.
  */
 #define CLIP_HACK /* */
-
-/*
- * Another redraw artifact killer, based on suggestion by Julian Lighton
- */
-/* #define OVERWRITE_HACK */
-
-/* These hacks can co-exist, but I don't like overkill */
-#ifdef OVERWRITE_HACK
-# ifdef CLIP_HACK
-# undef CLIP_HACK
-# endif
-#endif
-
 
 /*
  * To cope with pref file related problems.  It no longer has to be acculate,
@@ -2722,53 +2791,6 @@ static errr Term_curs_mac(int x, int y)
 }
 
 
-#ifdef OVERWRITE_HACK
-
-/*
- * Low level graphics helper (Assumes valid input)
- *
- * Based on suggestion by Julian Lighton
- *
- * Overwrite "n" old characters starting at	(x,y)
- * with the same ones in the background colour
- */
-static void Term_wipe_mac_aux(int x, int y, int n)
-{
-	term_data *td = (term_data*)(Term->data);
-
-	int xp, yp;
-
-	const char *cp;
-
-	static RGBColor black = {0x0000, 0x0000, 0x0000};
-
-
-	/* Hack - Black, blacker, blackest-- */
-	if (td->last != -2) RGBForeColor(&black);
-
-	/* Hack - force later RGBForeColor switching */
-	td->last = -2;
-
-	/* Mega-Hack - use old screen image kept inside the term package */
-	cp = &(Term->old->c[y][x]);
-
-	/* Starting pixel */
-	xp = x * td->tile_wid + td->tile_o_x + td->size_ow1;
-	yp = y * td->tile_hgt + td->tile_o_y + td->size_oh1;
-
-	/* Move to the correct location */
-	MoveTo(xp, yp);
-
-	/* Draw the character */
-	if (n == 1) DrawChar(*cp);
-
-	/* Draw the string */
-	else DrawText(cp, 0, n);
-}
-
-#endif /* OVERWRITE_HACK */
-
-
 /*
  * Low level graphics (Assumes valid input)
  *
@@ -2780,17 +2802,6 @@ static errr Term_wipe_mac(int x, int y, int n)
 
 	term_data *td = (term_data*)(Term->data);
 
-
-#ifdef OVERWRITE_HACK
-
-	/*
-	 * Hack - overstrike the leftmost character with
-	 * the background colour. This doesn't interfere with
-	 * the graphics modes, because they set always_pict.
-	 */
-	Term_wipe_mac_aux(x, y, 1);
-
-#endif /* OVERWRITE_HACK */
 
 	/* Erase the block of characters */
 	r.left = x * td->tile_wid + td->size_ow1;
@@ -2819,11 +2830,6 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
 
 	term_data *td = (term_data*)(Term->data);
 
-
-#ifdef OVERWRITE_HACK
-	/* Hack - overstrike with background colour. Is 1 enough? */
-	Term_wipe_mac_aux(x, y, n);
-#endif /* OVERWRITE_HACK */
 
 	/* Set the color */
 	term_data_color(td, a);
@@ -3108,15 +3114,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		{
 			int xp, yp;
 
-#ifdef OVERWRITE_HACK
-			/*
-			 * Hack - overstrike with the background colour
-			 * Utterly useless in the graphics mode, but it only affects
-			 * performance slightly...
-			 */
-			Term_wipe_mac_aux(x + i, y, 1);
-#endif /* OVERWRITE_HACK */
-
 #ifdef CLIP_HACK
 			/* Hack - avoid writing outside of dst_r */
 			ClipRect(&dst_r);
@@ -3257,23 +3254,13 @@ static char *locate_lib(char *buf, size_t size)
 	if (CFStringGetCString(main_str, buf, size, kTextEncodingUS_ASCII) == FALSE)
 		goto ret;
 
-	/* Find the last '/' in the pathname */
-	p = strrchr(buf, '/');
-
-	/* Paranoia - cannot happen */
-	if (p == NULL) goto ret;
-
-	/* Remove the trailing path */
-	*p = '\0';
-
 	/*
-	 * Paranoia - bounds check, with 5 being the length of "/lib/"
-	 * and 1 for terminating '\0'.
+	 * Paranoia - bounds check
 	 */
-	if (strlen(buf) + 5 + 1 > size) goto ret;
+	if (strlen(buf) + 25 + 1 > size) goto ret;
 
-	/* Append "/lib/" */
-	strcat(buf, "/lib/");
+	/* Location of the data */
+	strcat(buf, "/Contents/Resources/");
 
 	/* Set result */
 	res = buf;
@@ -4110,7 +4097,6 @@ static void init_menubar(void)
 
 	/* Apple menu (id 128) - we don't have to do anything */
 
-
 #ifndef USE_NIB
 
 	/* File menu (id 129) - Aqua provides Quit menu for us */
@@ -4316,7 +4302,6 @@ static void init_menubar(void)
 	}
 
 #endif /* !USE_NIB */
-
 
 	/* Update the menu bar */
 	DrawMenuBar();
@@ -4585,8 +4570,8 @@ static void setup_menus(void)
 		CheckMenuItem(submenu, ITEM_16X16, (graf_mode == GRAF_MODE_16X16));
 
 		/* Item "32x32" */
-		EnableMenuItem(submenu, ITEM_32X32);
-		CheckMenuItem(submenu, ITEM_32X32, (graf_mode == GRAF_MODE_32X32));
+		/*EnableMenuItem(submenu, ITEM_32X32);
+		CheckMenuItem(submenu, ITEM_32X32, (graf_mode == GRAF_MODE_32X32));*/
 
 #ifdef USE_DOUBLE_TILES
 
@@ -5206,9 +5191,7 @@ static void menu(long mc)
 
 					/* Toggle "use_bigtile" */
 					use_bigtile = !use_bigtile;
-#ifdef TOME
 					arg_bigtile = use_bigtile;
-#endif
 
 					/* Activate */
 					Term_activate(td->t);
@@ -5617,6 +5600,7 @@ static bool CheckEvents(bool wait)
 			/* Command + "normal key" -> menu action */
 			if (mx && (ck < 64))
 			{
+#ifdef MENU_SHORTCUTS
 				/* Hack -- Prepare the menus */
 				setup_menus();
 
@@ -5628,8 +5612,23 @@ static bool CheckEvents(bool wait)
 
 				/* Done */
 				break;
-			}
+#else
+				/* Begin special trigger */
+				Term_keypress(31);
 
+				/* Send some modifier keys */
+				if (mc) Term_keypress('C');
+				if (ms) Term_keypress('S');
+				if (mo) Term_keypress('O');
+				if (mx) Term_keypress('X');
+
+				/* Enqueue the keypress */
+				Term_keypress(ch);
+
+				/* Terminate the trigger */
+				Term_keypress(13);
+#endif
+			}
 
 			/* Hide the mouse pointer */
 			ObscureCursor();
@@ -6110,7 +6109,6 @@ static void init_stuff(void)
 	topleft.v = r.top;
 	topleft.h = r.left;
 
-
 	/* Default to the "lib" folder with the application */
 #ifdef MACH_O_CARBON
 	if (locate_lib(path, sizeof(path)) == NULL) quit(NULL);
@@ -6227,7 +6225,6 @@ int main(void)
 	/* Get more Masters -- it is not recommended by Apple, should go away */
 	MoreMasterPointers(numberOfMasters);
 
-
 	/* Check for existence of Carbon */
 	err = Gestalt(gestaltCarbonVersion, &response);
 
@@ -6297,7 +6294,6 @@ int main(void)
 
 #endif /* !MACH_O_CARBON */
 
-
 	/* Mark ourself as the file creator */
 	_fcreator = ANGBAND_CREATOR;
 
@@ -6365,6 +6361,10 @@ int main(void)
 	/* Note the "system" */
 	ANGBAND_SYS = "mac";
 
+#ifdef PRIVATE_USER_PATH
+	if (check_create_user_dir() == FALSE)
+		quit("Cannot create directory " PRIVATE_USER_PATH);
+#endif
 
 	/* Initialize */
 	init_stuff();
