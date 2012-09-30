@@ -388,9 +388,6 @@ void recalc_skills_theory(s16b *invest, s32b *base_val, s32b *base_mod, s32b *bo
 
 		/* It cannot exceed SKILL_MAX */
 		if (s_info[i].value > SKILL_MAX) s_info[i].value = SKILL_MAX;
-
-		/* It cannot go below 0 */
-		if (s_info[i].value < 0) s_info[i].value = 0;
 	}
 
 	/* Then we modify related skills */
@@ -415,9 +412,6 @@ void recalc_skills_theory(s16b *invest, s32b *base_val, s32b *base_mod, s32b *bo
 			{
 				/* Increase / decrease with a % */
 				s32b val = s_info[j].value + (invest[i] * s_info[j].mod * s_info[i].action[j] / 100);
-
-				/* Skill value cannot be negative */
-				if (val < 0) val = 0;
 
 				/* It cannot exceed SKILL_MAX */
 				if (val > SKILL_MAX) val = SKILL_MAX;
@@ -636,7 +630,7 @@ s16b get_melee_skills()
 
 	for (i = 0; i < MAX_MELEE; i++)
 	{
-		if (s_info[melee_skills[i]].value && (!s_info[melee_skills[i]].hidden))
+		if ((s_info[melee_skills[i]].value > 0) && (!s_info[melee_skills[i]].hidden))
 		{
 			melee_bool[i] = TRUE;
 			j++;

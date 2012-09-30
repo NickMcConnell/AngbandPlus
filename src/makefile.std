@@ -447,6 +447,7 @@ dist: clean
 	cp ../credits.txt $(DIST_TARGET)
 	cp ../tome.ini $(DIST_TARGET)
 	cp ../angdos.cfg $(DIST_TARGET)
+	rm -f $(DIST_TARGET)/src/tome $(DIST_TARGET)/src/tolua
 	find $(DIST_TARGET) -name '*~' -exec rm {} \;
 	find $(DIST_TARGET)/lib/data/ -name '*.raw' -exec rm {} \;
 	find $(DIST_TARGET)/lib/xtra/graf/ -name '*.gif' -exec rm {} \;

@@ -426,7 +426,7 @@ static bool do_extra(int flag)
 		if (i < old_max_s_idx)
 		{
 			do_u32b(&s_info[i].value, flag);
-			do_u16b(&s_info[i].mod, flag);
+			do_u32b(&s_info[i].mod, flag);
 			do_byte(&s_info[i].dev, flag);
 			do_byte(&s_info[i].hidden, flag);
 			do_u32b(&s_info[i].uses, flag);
@@ -461,10 +461,10 @@ static bool do_extra(int flag)
 	   Converted it to be the alchemist's
 	   known artifact flags.
 	   Note that the ego flags and the gained levels
-	   record are recorded here too, but we use the 
+	   record are recorded here too, but we use the
 	   _ver_ format to protect save file compatablity.
 	   Note that the other alchemist knowledge (item types known)
-	   is stored in do_aux, and is a bit flag in a previously 
+	   is stored in do_aux, and is a bit flag in a previously
 	   unused bit.
 	   */
 	for (i = 0; i < 6 ; ++i)
@@ -1137,7 +1137,7 @@ bool load_player(void)
 
 	/* Verify the existance of the savefile */
 	if ((!file_exist(savefile))
-#ifdef SAFER_PANICS 
+#ifdef SAFER_PANICS
 	                && (!file_exist(panic_fname))
 #endif /* SAFER_PANICS */
 	   )
@@ -1458,7 +1458,7 @@ bool load_player(void)
 
 /*
  * Size-aware read/write routines for the savefile, do all their
- * work through sf_get and sf_put. 
+ * work through sf_get and sf_put.
  */
 
 static void do_byte(byte *v, int flag)
@@ -2758,6 +2758,7 @@ static bool do_dungeon(int flag)
 	/*** Objects ***/
 
 	if (flag == LS_SAVE) compact_objects(0);
+	if (flag == LS_SAVE) compact_monsters(0);
 	if (flag == LS_SAVE)
 	{
 		tmp16b = o_max;
@@ -2835,7 +2836,6 @@ static bool do_dungeon(int flag)
 
 	/*** Monsters ***/
 
-	if (flag == LS_SAVE) compact_monsters(0);
 	if (flag == LS_SAVE) tmp16b = m_max;
 	/* Read the monster count */
 	do_u16b(&tmp16b, flag);
