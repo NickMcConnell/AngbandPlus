@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/19 15:38:13 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/16 17:41:06 $ */
 /* File: init1.c */
 
 /* Purpose: Initialization (part 1) -BEN- */
@@ -361,8 +361,8 @@ static cptr r_info_flags7[] =
 	"CAN_FLY",
 	"FRIENDLY",
 	"SILLY",
-	"XXX7X5",
-	"XXX7X6",
+	"LITE_1",
+	"LITE_2",
 	"XXX7X7",
 	"XXX7X8",
 	"XXX7X9",
@@ -559,7 +559,7 @@ static cptr k_info_flags3[] =
 	"XXX4",
 	"NO_TELE",
 	"NO_MAGIC",
-	"WRAITH",
+	"XXX7",
 	"TY_CURSE",
 	"EASY_KNOW",
 	"HIDE_TYPE",
@@ -599,8 +599,34 @@ static cptr w_info_flags[] =
 	"WASTE1",
 	"WASTE2",
 	"SWAMP1",
-	"SWAMP2",
+	"SWAMP2"
 };
+
+/*
+ * Field info-flags
+ */
+
+static cptr t_info_flags[] =
+{
+	"TEMP",
+	"FEAT",
+	"VIS",
+	"MARK",
+	"TRANS",
+	"NO_LOOK",
+	"NFT_LOOK",
+	"MERGE",
+	"NO_ENTER",
+	"NO_MAGIC",
+	"NO_OBJECT",
+	"PERM",
+	"XXX11",
+	"XXX12",
+	"XXX13",
+	"XXX14"
+};
+
+
 
 /*
  * Convert a "color letter" into an "actual" color
@@ -2437,7 +2463,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 
 /*
- * Grab one flag in an wild_type from a textual string
+ * Grab one flag in wild_type from a textual string
  */
 static errr grab_one_wild_flag(wild_gen_data_type *w_ptr, cptr what)
 {
@@ -2660,7 +2686,302 @@ errr init_w_info_txt(FILE *fp, char *buf)
 	return (0);
 }
 
+/*
+ * Grab one info-flag from a textual string
+ */
+static errr grab_one_info_flag(field_thaum *t_ptr, cptr what)
+{
+	int i;
 
+	/* Check flags */
+	for (i = 0; i < 16; i++)
+	{
+		if (streq(what, t_info_flags[i]))
+		{
+			t_ptr->info |= (1 << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown field info-flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
+/*
+ * Grab one field action flag from a textual string
+ */
+static errr grab_one_action_flag(field_thaum *t_ptr, char *what)
+{
+	int i, location;
+
+	char *t;
+
+	t = what;
+
+	/* Split the string into two bits using the comma seperator */
+	while (!((*t == '\0') || (*t == ',')))
+	{
+		/* Increment the pointer */
+		t++;
+	}
+
+	/* t should point to a comma, or to a NULL */
+	if (!(*t))
+	{
+		/* The string had no comma */
+		return (1);
+	}
+
+	/*
+	 * Hack - convert the comma to a zero
+	 * so 'what' is just the location string.
+	 */
+	*t = 0;
+
+	/* Move over one character to point to the function name */
+	t++;
+
+	/* Get location */
+	location = atoi(what);
+
+	/* Bounds checking */
+	if ((location < 0) || (location >= FIELD_ACTION_MAX) || !(*t))
+	{
+		/* error */
+		return (1);
+	}
+
+	/* Check flags */
+	for (i = 0; i < FIELD_ACTION_TYPES; i++)
+	{
+		if (streq(t, f_action[i].func))
+		{
+			t_ptr->action[location] = f_action[i].action;
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown field info-flag '%s'.", t);
+
+	/* Error */
+	return (1);
+}
+
+
+/*
+ * Initialize the field "thaumatergical" arrays,
+ *  by parsing an ascii "template" file
+ */
+errr init_t_info_txt(FILE *fp, char *buf)
+{
+	char *s, *t;
+
+	u16b i = 0;
+
+	/* Current entry */
+	field_thaum *t_ptr = NULL;
+
+	/* Just before the first line */
+	error_line = -1;
+
+	/* The last index used */
+	error_idx = -1;
+
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+		/* Process 'N' for "Number" (one line only) */
+		if (buf[0] == 'N')
+		{
+			/* Length of name string */
+			u16b length;
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i < error_idx) return (4);
+
+			/* Check to see if there is room in array */
+			if (i > max_t_idx - 1) return (7);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* point to new position in array */
+			t_ptr = &t_info[i];
+
+
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (1);
+
+			/* Name + /0 on the end */
+			length = strlen(s) + 1;
+
+			/* Make some room */
+			C_MAKE(t, length, char);
+
+			if (!t) return (7); /* Out of memory */
+
+			/* Add the name */
+			t_ptr->name = strcpy(t, s);
+			continue;
+		}
+
+		/* Process 'G' for "Graphics" (one line only) */
+		if (buf[0] == 'G')
+		{
+			int tmp;
+
+			/* Paranoia */
+			if (!buf[2]) return (1);
+			if (!buf[3]) return (1);
+			if (!buf[4]) return (1);
+
+			/* Extract the color */
+			tmp = color_char_to_attr(buf[4]);
+
+			/* Paranoia */
+			if (tmp < 0) return (1);
+
+			/* Save the default values */
+			t_ptr->d_attr = tmp;
+			t_ptr->d_char = buf[2];
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'W' for extra information (one line only) */
+		if (buf[0] == 'W')
+		{
+			int priority, type, counter;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+				&priority, &type, &counter)) return (1);
+
+			/* Save the values */
+			t_ptr->priority = (byte) priority;
+			t_ptr->type = (byte) type;
+			t_ptr->count_init = (s16b) counter;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'I' for "Info Flags" (multiple lines) */
+		if (buf[0] == 'I')
+		{
+			/* Parse every entry */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_info_flag(t_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'D' for "Data" (one line only) */
+		if (buf[0] == 'D')
+		{
+			int d0, d1, d2, d3, d4, d5, d6, d7;
+
+			/* Scan for the values */
+			if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+				&d0, &d1, &d2, &d3, &d4, &d5, &d6, &d7))
+					return (1);
+
+			/* Save the values */
+			t_ptr->data_init[0] = d0;
+			t_ptr->data_init[1] = d1;
+			t_ptr->data_init[2] = d2;
+			t_ptr->data_init[3] = d3;
+			t_ptr->data_init[4] = d4;
+			t_ptr->data_init[5] = d5;
+			t_ptr->data_init[6] = d6;
+			t_ptr->data_init[7] = d7;
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Process 'F' for "Field action Functions" (multiple lines) */
+		if (buf[0] == 'F')
+		{
+			/* Parse every entry */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+				if (0 != grab_one_action_flag(t_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (6);
+
+	}
+
+	/* Success */
+	return (0);
+}
 
 
 
@@ -3188,7 +3509,15 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 			}
 
 			/* Terrain special */
-			c_ptr->f_idx = letter[idx].special;
+
+
+			/*
+			 * Look into this later - you must create a field
+			 * before you place it somewhere.
+			 */
+			#if 0
+			c_ptr->fld_idx = letter[idx].special;
+			#endif /* 0 */
 		}
 
 		(*y)++;
@@ -3296,16 +3625,16 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				/* cur_wid = panels_x * SCREEN_WID; */
 
 				/* Choose a panel row */
-				max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+				max_panel_rows = max_hgt;
 				if (max_panel_rows < 0) max_panel_rows = 0;
 
 				/* Choose a panel col */
-				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+				max_panel_cols = max_wid;
 				if (max_panel_cols < 0) max_panel_cols = 0;
 
 				/* Assume illegal panel */
-				panel_row = max_panel_rows;
-				panel_col = max_panel_cols;
+				panel_row_min = max_panel_rows;
+				panel_col_min = max_panel_cols;
 
 				/* Place player in a quest level */
 				if (p_ptr->inside_quest)
@@ -3340,14 +3669,10 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 	{
 		if (tokenize(buf+2, 2, zz, 0) == 2)
 		{
-			/* Maximum towns */
-			if (zz[0][0] == 'T')
-			{
-				max_towns = atoi(zz[1]);
-			}
+
 
 			/* Maximum quests */
-			else if (zz[0][0] == 'Q')
+			if (zz[0][0] == 'Q')
 			{
 				max_quests = atoi(zz[1]);
 			}
@@ -3400,6 +3725,18 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				max_m_idx = atoi(zz[1]);
 			}
 
+			/* Maximum t_idx */
+			else if (zz[0][0] == 'T')
+			{
+				max_t_idx = atoi(zz[1]);
+			}
+
+			/* Maximum fld_idx */
+			else if (zz[0][0] == 'D')
+			{
+				max_fld_idx = atoi(zz[1]);
+			}
+
 			/* Wilderness data */
 			else if (zz[0][0] == 'W')
 			{
@@ -3414,6 +3751,10 @@ static errr process_dungeon_file_aux(char *buf, int ymin, int xmin, int ymax, in
 				/* Maximum wild gen types */
 				if (zz[0][1] == 'T')
 					max_w_block = atoi(zz[1]);
+
+				/* Maximum towns */
+				if (zz[0][1] == 'P')
+					max_towns = atoi(zz[1]);
 			}
 
 			return (0);

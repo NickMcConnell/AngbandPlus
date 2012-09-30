@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/30 12:55:59 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/01 13:01:57 $ */
 /* File: z-term.c */
 
 /*
@@ -513,42 +513,35 @@ void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
 void Term_queue_char(int x, int y, byte a, char c)
 #endif /* USE_TRANSPARENCY */
 {
-	byte *scr_aa = Term->scr->a[y];
-	char *scr_cc = Term->scr->c[y];
-
-	int oa = scr_aa[x];
-	int oc = scr_cc[x];
+	term_win *scrn = Term->scr; 
+	
+	byte *scr_aa = &scrn->a[y][x];
+	char *scr_cc = &scrn->c[y][x];
 
 #ifdef USE_TRANSPARENCY
 
-	byte *scr_taa = Term->scr->ta[y];
-	char *scr_tcc = Term->scr->tc[y];
-
-	int ota = scr_taa[x];
-	int otc = scr_tcc[x];
-
-	/* Don't change is the terrain value is 0 */
-	if (!ta) ta = ota;
-	if (!tc) tc = otc;
+	byte *scr_taa = &scrn->ta[y][x];
+	char *scr_tcc = &scrn->tc[y][x];
 
 	/* Hack -- Ignore non-changes */
-	if ((oa == a) && (oc == c) && (ota == ta) && (otc == tc)) return;
+	if ((*scr_aa == a) && (*scr_cc == c) &&
+		 (*scr_taa == ta) && (*scr_tcc == tc)) return;
 
 #else /* USE_TRANSPARENCY */
 
 	/* Hack -- Ignore non-changes */
-	if ((oa == a) && (oc == c)) return;
+	if ((*scr_aa == a) && (*scr_cc == c)) return;
 
 #endif /* USE_TRANSPARENCY */
 
 	/* Save the "literal" information */
-	scr_aa[x] = a;
-	scr_cc[x] = c;
+	*scr_aa = a;
+	*scr_cc = c;
 
 #ifdef USE_TRANSPARENCY
 
-	scr_taa[x] = ta;
-	scr_tcc[x] = tc;
+	*scr_taa = ta;
+	*scr_tcc = tc;
 
 #endif /* USE_TRANSPARENCY */
 
@@ -560,6 +553,103 @@ void Term_queue_char(int x, int y, byte a, char c)
 	if (x < Term->x1[y]) Term->x1[y] = x;
 	if (x > Term->x2[y]) Term->x2[y] = x;
 }
+
+
+/*
+ * Mentally draw a string of attr/chars at a given location
+ *
+ * Assumes given location and values are valid.
+ *
+ * This function is designed to be fast, with no consistancy checking.
+ * It is used to update the map in the game.
+ */
+#ifdef USE_TRANSPARENCY
+void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc)
+#else /* USE_TRANSPARENCY */
+void Term_queue_line(int x, int y, int n, byte *a, char *c)
+#endif /* USE_TRANSPARENCY */
+{
+	term_win *scrn = Term->scr;
+
+	int x1 = -1;
+	int x2 = -1;
+
+	byte *scr_aa = &scrn->a[y][x];
+	char *scr_cc = &scrn->c[y][x];
+
+#ifdef USE_TRANSPARENCY
+
+	byte *scr_taa = &scrn->ta[y][x];
+	char *scr_tcc = &scrn->tc[y][x];
+
+#endif /* USE_TRANSPARENCY */
+
+	while (n--)
+	{
+
+#ifdef USE_TRANSPARENCY
+
+		/* Hack -- Ignore non-changes */
+		if ((*scr_aa == *a) && (*scr_cc == *c) &&
+		 	(*scr_taa == *ta) && (*scr_tcc == *tc))
+		{
+			x++;
+			a++;
+			c++;
+			ta++;
+			tc++;
+			scr_aa++;
+			scr_cc++;
+			scr_taa++;
+			scr_tcc++;
+			continue;
+		}
+
+		/* Save the "literal" information */
+		*scr_taa++ = *ta++;
+		*scr_tcc++ = *tc++;
+
+#else /* USE_TRANSPARENCY */
+
+		/* Hack -- Ignore non-changes */
+		if ((*scr_aa == *a) && (*scr_cc == *c))
+		{
+			x++;
+			a++;
+			c++;
+			scr_aa++;
+			scr_cc++;
+			continue;
+		}
+
+#endif /* USE_TRANSPARENCY */
+
+		/* Save the "literal" information */
+		*scr_aa++ = *a++;
+		*scr_cc++ = *c++;
+
+		/* Track minimum changed column */
+		if (x1 < 0) x1 = x;
+
+		/* Track maximum changed column */
+		x2 = x;
+
+		x++;
+	}
+
+	/* Expand the "change area" as needed */
+	if (x1 >= 0)
+	{
+		/* Check for new min/max row info */
+		if (y < Term->y1) Term->y1 = y;
+		if (y > Term->y2) Term->y2 = y;
+
+		/* Check for new min/max col info in this row */
+		if (x1 < Term->x1[y]) Term->x1[y] = x1;
+		if (x2 > Term->x2[y]) Term->x2[y] = x2;
+	}
+}
+
 
 
 /*
@@ -1755,7 +1845,7 @@ errr Term_erase(int x, int y, int n)
 		scr_tcc[x] = 0;
 #endif /* USE_TRANSPARENCY */
 
-		/* Track minumum changed column */
+		/* Track minimum changed column */
 		if (x1 < 0) x1 = x;
 
 		/* Track maximum changed column */
@@ -1860,6 +1950,47 @@ errr Term_redraw(void)
 }
 
 
+/*
+ * Redraw part of a widow.
+ */
+errr Term_redraw_section(int x1, int y1, int x2, int y2)
+{
+	int i, j;
+
+	char *c_ptr;
+
+	/* Bounds checking */
+	if (y2 >= Term->hgt) y2 = Term->hgt - 1;
+	if (x2 >= Term->wid) x2 = Term->wid - 1;
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
+
+	/* Set y limits */
+	Term->y1 = y1;
+	Term->y2 = y2;
+
+	/* Set the x limits */
+	for (i = Term->y1; i <= Term->y2; i++)
+	{
+		Term->x1[i] = x1;
+		Term->x2[i] = x2;
+
+		c_ptr = Term->old->c[i];
+
+		/* Clear the section so it is redrawn */
+		for (j = x1; j <= x2; j++)
+		{
+			/* Hack - set the old character to "none" */
+			c_ptr[j] = 0;
+		}
+	}
+
+	/* Hack -- Refresh */
+	Term_fresh();
+
+	/* Success */
+	return (0);
+}
 
 
 
@@ -2206,10 +2337,8 @@ errr Term_resize(int w, int h)
 	term_win *hold_mem;
 	term_win *hold_tmp;
 
-
 	/* Resizing is forbidden */
 	if (Term->fixed_shape) return (-1);
-
 
 	/* Ignore illegal changes */
 	if ((w < 1) || (h < 1)) return (-1);

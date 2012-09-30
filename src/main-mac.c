@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/02/02 15:50:20 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 12:10:27 $ */
 /* File: main-mac.c */
 
 /* Purpose: Simple support for MACINTOSH Angband */
@@ -665,7 +665,7 @@ static void term_data_color(term_data *td, int a)
 		color.red = (rv | (rv << 8));
 		color.green = (gv | (gv << 8));
 		color.blue = (bv | (bv << 8));
-	
+
 		/* Activate the color */
 		RGBForeColor(&color);
 
@@ -740,8 +740,18 @@ static void term_data_check_font(term_data *td)
 static void term_data_check_size(term_data *td)
 {
 	/* Minimal window size */
-	if (td->cols < 1) td->cols = 1;
-	if (td->rows < 1) td->rows = 1;
+	if (td == &data[0])
+	{
+		/* The main window has a minimum size */
+		if (td->cols < 80) td->cols = 80;
+		if (td->rows < 24) td->rows = 24;
+	}
+	else
+	{
+		/* Otherwise use min size is 1x1 */
+		if (td->cols < 1) td->cols = 1;
+		if (td->rows < 1) td->rows = 1;
+	}
 
 	/* Minimal tile size */
 	if (td->tile_wid < 4) td->tile_wid = 4;
@@ -963,7 +973,7 @@ static OSErr BenSWCreateGWorldFromPict(
 	OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
 
 	/* Create a GWorld */
-	err = NewGWorld(&tempGWorld, depth, &pictRect, nil, 
+	err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
 					theGDH, noNewDevice);
 
 	/* Success */
@@ -989,7 +999,7 @@ static OSErr BenSWCreateGWorldFromPict(
 
 	/* Restore GWorld */
 	SetGWorld(saveGWorld, saveGDevice);
-	
+
 	/* Success */
 	return (0);
 }
@@ -1001,7 +1011,7 @@ static OSErr BenSWCreateGWorldFromPict(
 static errr globe_init(void)
 {
 	OSErr err;
-	
+
 	GWorldPtr tempPictGWorldP;
 
 	PicHandle newPictH;
@@ -1073,7 +1083,7 @@ static errr globe_nuke(void)
 		frameP = NULL;
 	}
 
-	/* Flush events */	
+	/* Flush events */
 	FlushEvents(everyEvent, 0);
 
 	/* Success */
@@ -1152,7 +1162,7 @@ static void Term_init_mac(term *t)
 		/* Obtain the rect */
 		tempRect = td->w->portRect;
 
-		/* Obtain the global rect */	
+		/* Obtain the global rect */
 		globalRect = tempRect;
 		LocalToGlobal((Point*)&globalRect.top);
 		LocalToGlobal((Point*)&globalRect.bottom);
@@ -1243,7 +1253,7 @@ static errr Term_xtra_mac_react(void)
 #ifdef ANGBAND_LITE_MAC
 
 	/* Nothing */
-	
+
 #else /* ANGBAND_LITE_MAC */
 
 	/* Handle sound */
@@ -2503,7 +2513,7 @@ static void init_menubar(void)
 	for (i = 8; i <= 32; i += ((i / 16) + 1))
 	{
 		Str15 buf;
-		
+
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2523,7 +2533,7 @@ static void init_menubar(void)
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		Str15 buf;
-		
+
 		/* Describe the item */
 		sprintf((char*)buf + 1, "%.15s", angband_term_name[i]);
 		buf[0] = strlen((char*)buf + 1);
@@ -2560,7 +2570,7 @@ static void init_menubar(void)
 	for (i = 4; i <= 32; i++)
 	{
 		Str15 buf;
-		
+
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2754,7 +2764,7 @@ static void setup_menus(void)
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
 	}
-	
+
 	/* Active window */
 	if (td)
 	{
@@ -3230,7 +3240,7 @@ static void menu(long mc)
 			/* Mapped */
 			td->mapped = TRUE;
 
-			/* Link */	
+			/* Link */
 			term_data_link(i);
 
 			/* Mapped (?) */
@@ -3720,6 +3730,7 @@ static bool CheckEvents(bool wait)
 		case mouseDown:
 		{
 			int code;
+			int window;
 
 			/* Analyze click location */
 			code = FindWindow(event.where, &w);
@@ -3731,7 +3742,11 @@ static bool CheckEvents(bool wait)
 				if (!data[i].t) continue;
 
 				/* Notice matches */
-				if (data[i].w == w) td = &data[i];
+				if (data[i].w == w)
+				{
+					td = &data[i];
+					window = i;
+				}
 			}
 
 			/* Analyze */
@@ -3814,6 +3829,8 @@ static bool CheckEvents(bool wait)
 
 					term *old = Term;
 
+					bool redraw_it = TRUE;
+
 					/* Oops */
 					if (!td) break;
 
@@ -3844,10 +3861,40 @@ static bool CheckEvents(bool wait)
 					Term_activate(td->t);
 
 					/* Hack -- Resize the term */
-					Term_resize(td->cols, td->rows);
+					if (Term_resize(td->cols, td->rows) == 1) redraw_it = FALSE;
 
 					/* Resize and Redraw */
 					term_data_resize(td);
+
+					/* Reset map size if required */
+					if (window == 0)
+					{
+						/* Mega-Hack -- no panel yet */
+						panel_row_min = 0;
+						panel_row_max = 0;
+						panel_col_min = 0;
+						panel_col_max = 0;
+
+						/* Reset the panels */
+						map_panel_size();
+
+
+						if (character_dungeon)
+						{
+							verify_panel();
+						}
+					}
+
+					/* Only redraw if everything is initialised */
+					if (character_dungeon && redraw_it)
+					{
+						/* Activate term zero for the redraw */
+						Term_activate(data[0].t);
+
+						/* redraw */
+						do_cmd_redraw_term(window);
+					}
+
 					term_data_redraw(td);
 
 					/* Restore */
@@ -4235,7 +4282,7 @@ int main(void)
 # if defined(powerc) || defined(__powerc)
 
 	/* Assume System 7 */
-	
+
 	/* Assume Color Quickdraw */
 
 # else

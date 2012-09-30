@@ -1,8 +1,6 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/04/17 12:30:56 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/05 11:09:20 $
 # File: misc.txt
 
-# Maximum number of towns
-M:T:20
 
 # Maximum number of quests
 M:Q:100
@@ -15,6 +13,9 @@ M:WN:250
 
 # Maximum number of wilderness block generation types
 M:WT:300
+
+# Maximum number of "places" in the wilderness
+M:WP:20
 
 # Maximum number of monsters in r_info.txt
 M:R:885
@@ -41,4 +42,10 @@ M:O:512
 # Maximum size for "m_list[]"
 # Increase this if you get lots of 'Generation restarted (too many monsters)' messages.
 M:M:1024
+
+# Maximum number of fields in the dungeon at one time
+M:D:256
+
+# Maximum number of field types in t_info.txt
+M:T:34
 

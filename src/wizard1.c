@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/09 08:35:26 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/06 12:33:09 $ */
 /* File: wizard1.c */
 
 /* Purpose: Spoiler generation -BEN- */
@@ -113,7 +113,6 @@ static grouper group_item[] =
 
 	{ TV_FIGURINE,      "Magical Figurines" },
 	{ TV_STATUE,        "Statues" },
-	{ TV_CORPSE,        "Corpses" },
 
 	{ TV_SPIKE,         "Various" },
 	{ TV_LITE,          NULL },
@@ -572,7 +571,6 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_SH_ELEC,            "Electric Aura" },
 	{ TR3_NO_TELE,            "Prevent Teleportation" },
 	{ TR3_NO_MAGIC,           "Anti-Magic" },
-	{ TR3_WRAITH,             "Wraith Form" },
 	{ TR3_FEATHER,            "Levitation" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_TELEPATHY,          "ESP" },
@@ -1545,7 +1543,7 @@ static void spoil_mon_info(cptr fname)
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
-	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7;
 
 	u16b why = 2;
 	s16b *who;
@@ -1612,6 +1610,7 @@ static void spoil_mon_info(cptr fname)
 		flags4 = r_ptr->flags4;
 		flags5 = r_ptr->flags5;
 		flags6 = r_ptr->flags6;
+		flags7 = r_ptr->flags7;
 		breath = FALSE;
 		magic = FALSE;
 
@@ -1964,6 +1963,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+		if (flags7 & (RF7_LITE_1 | RF7_LITE_2)) vp[vn++] = "carrys a light";
 
 		if (vn)
 		{

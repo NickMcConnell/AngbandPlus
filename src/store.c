@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:56 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/12 11:20:55 $ */
 /* File: store.c */
 
 /* Purpose: Store commands */
@@ -1840,8 +1840,6 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 
 	char	out_val[160];
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the item index */
 	if (repeat_pull(com_val))
 	{
@@ -1852,8 +1850,6 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -1894,11 +1890,7 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 	/* Cancel */
 	if (command == ESCAPE) return (FALSE);
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(*com_val);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -3159,12 +3151,8 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	if (rogue_like_commands && command_cmd == 'l')
 	{
@@ -3644,9 +3632,6 @@ void do_cmd_store(void)
 		town[p_ptr->town_num].store[which].type = which;
 	}
 
-	/* Forget the lite */
-	forget_lite();
-
 	/* Forget the view */
 	forget_view();
 
@@ -3844,7 +3829,7 @@ void do_cmd_store(void)
 
 
 	/* Update everything */
-	p_ptr->update |= (PU_VIEW | PU_LITE);
+	p_ptr->update |= (PU_VIEW);
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Redraw entire screen */

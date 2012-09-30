@@ -1,5 +1,5 @@
 N:*:Default
-98
+97
 'Idspispopd'
 'Purple Rain'
 'Uhl Khakhaas'
@@ -62,7 +62,6 @@ of Agony
 of Morgue
 of Low Blow
 'Stunner'
-'Waffen-SS'
 of Misery
 'Virus'
 'Whiplash'

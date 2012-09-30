@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/22 15:19:21 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/20 23:38:38 $ */
 /* File: flavor.c */
 
 /* Purpose: Object flavor code */
@@ -85,7 +85,7 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Swastika"
+	"Copper", "Rosetted"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -103,7 +103,7 @@ static byte amulet_col[MAX_AMULETS] =
 static cptr staff_adj[MAX_WOODS] =
 {
 	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
-	"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
+	"Cottonwood", "Cypress", "Dogwood", "Elm", "Willow",
 	"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
@@ -915,24 +915,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-		/* Corpses */
-		case TV_CORPSE:
-		{
-			modstr = r_name + r_ptr->name;
-
-			if (r_ptr->flags1 & RF1_UNIQUE)
-			{
-				sprintf(tmp_val2, "%s %s", basenm, "of #");
-			}
-			else
-			{
-				sprintf(tmp_val2, "& # %s", basenm + 2);
-			}
-
-			basenm = tmp_val2;
-			break;
-		}
-
 		/* Missiles/ Bows/ Weapons */
 		case TV_SHOT:
 		case TV_BOLT:
@@ -1201,12 +1183,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 		/* Hack -- The only one of its kind */
 		else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
-		{
-			t = object_desc_str(t, "The ");
-		}
-
-		/* Unique corpses are unique */
-		else if ((o_ptr->tval == TV_CORPSE) && (r_ptr->flags1 & RF1_UNIQUE))
 		{
 			t = object_desc_str(t, "The ");
 		}
@@ -1702,11 +1678,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 		else
 		{
-			/* calc effects of energy */
-			avgdam *= p_ptr->num_fire;
+			/* calc effects of energy  x2 */
+			avgdam *= (1 + p_ptr->num_fire);
 
 			/* rescale */
-			avgdam /= 2 * energy_use;
+			avgdam /= 4 * energy_use;
 			t = object_desc_num(t, avgdam);
 		}
 

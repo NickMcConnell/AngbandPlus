@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/19 15:38:08 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/16 09:55:32 $ */
 /* File: birth.c */
 
 /* Purpose: create a player character */
@@ -1423,22 +1423,28 @@ static void get_history(void)
  * Computes character's age, height, and weight
  */
 static void get_ahw(void)
-{
+{	
+	int h_percent; 
+
 	/* Calculate the age */
 	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
-
+	
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
 	{
 		p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = randnor(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
+		p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent / 100,
+			(int)(rp_ptr->m_m_wt) * h_percent / 300 );
 	}
-
 	/* Calculate the height/weight for females */
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
 		p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = randnor(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+		
+		h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
+		p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent / 100,
+			(int)(rp_ptr->f_m_wt) * h_percent / 300 );
 	}
 }
 
@@ -1472,47 +1478,6 @@ static void get_money(void)
 	p_ptr->au = gold;
 }
 
-
-
-#if 0
-/*
- * Display stat values, subset of "put_stats()"
- *
- * See 'display_player()' for screen layout constraints.
- */
-static void birth_put_stats(void)
-{
-	int i, p;
-	int col = 42;
-	byte attr;
-	char buf[80];
-
-
-	/* Put the stats (and percents) */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Put the stat */
-		cnv_stat(stat_use[i], buf);
-		c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
-
-		/* Put the percent */
-		if (stat_match[i])
-		{
-			p = 1000L * stat_match[i] / auto_round;
-			attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
-			sprintf(buf, "%3d.%d%%", p/10, p%10);
-			c_put_str(attr, buf, 3+i, col+13);
-		}
-
-		/* Never happened */
-		else
-		{
-			c_put_str(TERM_RED, "(NONE)", 3+i, col+13);
-		}
-	}
-}
-
-#endif /* 0 */
 
 /*
  * Clear all the global "character" data
@@ -2107,7 +2072,6 @@ static bool get_player_class(void)
 	p_ptr->pclass = k;
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
-	str = cp_ptr->title;
 
 	/* Display */
 	put_str("Class       :", 5, 1);
@@ -2137,9 +2101,6 @@ static bool player_birth_aux_1(void)
 
 	char ch;
 
-#if 0
-	char p1 = '(';
-#endif
 	char p2 = ')';
 
 	char buf[80];
@@ -2212,7 +2173,7 @@ static bool player_birth_aux_1(void)
 		}
 
 		if (ch == 'S') return (FALSE);
-		k = (islower(ch) ? A2I(ch) : -1);
+
 		if (ch == ESCAPE) ch = '*';
 		if (ch == '*')
 		{
@@ -2235,7 +2196,6 @@ static bool player_birth_aux_1(void)
 	/* Set sex */
 	p_ptr->psex = k;
 	sp_ptr = &sex_info[p_ptr->psex];
-	str = sp_ptr->title;
 
 	/* Sex */
 	put_str("Sex         :", 3, 1);
@@ -2455,7 +2415,13 @@ static bool player_birth_aux_2(void)
 
 	/* Roll for social class */
 	get_history();
+	
+	/* Hack -- get a chaos patron even if you are not a chaos warrior */
+	p_ptr->chaos_patron = (s16b)rand_int(MAX_PATRON);
 
+	p_ptr->muta1 = 0;
+	p_ptr->muta2 = 0;
+	p_ptr->muta3 = 0;
 
 	/* Interact */
 	while (1)
@@ -2550,14 +2516,6 @@ static bool player_birth_aux_2(void)
 
 		/* Done */
 		if (ch == ESCAPE) break;
-
-#if 0
-		/* Increase mode */
-		if (ch == 'h')
-		{
-			mode = (mode + 1) % DISPLAY_PLAYER_MAX;
-		}
-#endif
 
 		/* Prev stat */
 		if (ch == '8')

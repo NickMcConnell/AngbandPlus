@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/18 10:15:58 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/29 09:02:55 $ */
 /* File: z-term.h */
 
 /*
@@ -280,8 +280,12 @@ extern errr Term_xtra(int n, int v);
 
 #ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
+
+extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc);
 #else /* USE_TRANSPARENCY */
 extern void Term_queue_char(int x, int y, byte a, char c);
+
+extern void Term_queue_line(int x, int y, int n, byte *a, char *c);
 #endif /* USE_TRANSPARENCY */
 
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
@@ -297,6 +301,7 @@ extern errr Term_putstr(int x, int y, int n, byte a, cptr s);
 extern errr Term_erase(int x, int y, int n);
 extern errr Term_clear(void);
 extern errr Term_redraw(void);
+extern errr Term_redraw_section(int x1, int y1, int x2, int y2);
 
 extern errr Term_get_cursor(int *v);
 extern errr Term_get_size(int *w, int *h);

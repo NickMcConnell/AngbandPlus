@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/17 05:29:39 $ */
 /* File: spells2.c */
 
 /* Purpose: Spell code (part 2) */
@@ -78,7 +77,7 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
-	for (v_nr = 0; v_nr < 8; v_nr++)
+	for (v_nr = 0; v_nr < MAX_PLAYER_VIRTUES; v_nr++)
 	{
 		char v_name[20];
 		char vir_desc[80];
@@ -1320,7 +1319,7 @@ void report_magics(void)
 
 
 /*
- * Detect all traps on current panel
+ * Detect all traps in range
  */
 bool detect_traps(void)
 {
@@ -1328,33 +1327,29 @@ bool detect_traps(void)
 	bool            detect = FALSE;
 	cave_type       *c_ptr;
 
+	/* Save center of detection radius */
+	p_ptr->detectx = px;
+	p_ptr->detecty = py;
+	
+	/* Have detected traps on this level */
+	p_ptr->detected = TRUE;
 
-	/* Scan the current panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+
+	/* Scan a radius MAX_DETECT circle */
+	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
 		{
 			if (!in_bounds2(y, x)) continue;
+
+			if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 			/* Access the grid */
 			c_ptr = area(y,x);
 
-			/* Detect invisible traps */
-			if (c_ptr->feat == FEAT_INVIS)
-			{
-				/* Pick a trap */
-				pick_trap(y, x);
-			}
-
 			/* Detect traps */
-			if (is_trap(c_ptr->feat))
+			if (field_detect_type(c_ptr->fld_idx, FTYPE_TRAP))
 			{
-				/* Hack -- Memorize */
-				c_ptr->info |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
 				/* Obvious */
 				detect = TRUE;
 			}
@@ -1374,7 +1369,7 @@ bool detect_traps(void)
 
 
 /*
- * Detect all doors on current panel
+ * Detect all doors in range
  */
 bool detect_doors(void)
 {
@@ -1385,12 +1380,14 @@ bool detect_doors(void)
 	cave_type *c_ptr;
 
 
-	/* Scan the panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	/* Scan a radius MAX_DETECT circle */
+	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
 		{
 			if (!in_bounds2(y, x)) continue;
+
+			if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 			c_ptr = area(y,x);
 
@@ -1402,10 +1399,9 @@ bool detect_doors(void)
 			}
 
 			/* Detect doors */
-			if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			     (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
-			    ((c_ptr->feat == FEAT_OPEN) ||
-			     (c_ptr->feat == FEAT_BROKEN)))
+			if ((c_ptr->feat == FEAT_CLOSED) ||
+			    (c_ptr->feat == FEAT_OPEN) ||
+			     (c_ptr->feat == FEAT_BROKEN))
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -1431,7 +1427,7 @@ bool detect_doors(void)
 
 
 /*
- * Detect all stairs on current panel
+ * Detect all stairs in range
  */
 bool detect_stairs(void)
 {
@@ -1442,12 +1438,14 @@ bool detect_stairs(void)
 	cave_type *c_ptr;
 
 
-	/* Scan the panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	/* Scan a radiuc MAX_DETECT circle */
+	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
 		{
 			if (!in_bounds2(y, x)) continue;
+
+			if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 			c_ptr = area(y,x);
 
@@ -1479,7 +1477,7 @@ bool detect_stairs(void)
 
 
 /*
- * Detect any treasure on the current panel
+ * Detect any treasure in range
  */
 bool detect_treasure(void)
 {
@@ -1490,12 +1488,14 @@ bool detect_treasure(void)
 	cave_type *c_ptr;
 
 
-	/* Scan the current panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	/* Scan a radius MAX_DETECT circle */
+	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = px - MAX_DETECT; x <= px + MAX_DETECT; x++)
 		{
 			if (!in_bounds2(y, x)) continue;
+
+			if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 			c_ptr = area(y,x);
 
@@ -1537,7 +1537,7 @@ bool detect_treasure(void)
 
 
 /*
- * Detect all "gold" objects on the current panel
+ * Detect all "gold" objects in range
  */
 bool detect_objects_gold(void)
 {
@@ -1561,8 +1561,7 @@ bool detect_objects_gold(void)
 		y = o_ptr->iy;
 		x = o_ptr->ix;
 
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect "gold" objects */
 		if (o_ptr->tval == TV_GOLD)
@@ -1595,7 +1594,7 @@ bool detect_objects_gold(void)
 
 
 /*
- * Detect all "normal" objects on the current panel
+ * Detect all "normal" objects in range
  */
 bool detect_objects_normal(void)
 {
@@ -1619,8 +1618,7 @@ bool detect_objects_normal(void)
 		y = o_ptr->iy;
 		x = o_ptr->ix;
 
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect "real" objects */
 		if (o_ptr->tval != TV_GOLD)
@@ -1653,7 +1651,7 @@ bool detect_objects_normal(void)
 
 
 /*
- * Detect all "magic" objects on the current panel.
+ * Detect all "magic" objects in range.
  *
  * This will light up all spaces with "magic" items, including artifacts,
  * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
@@ -1683,8 +1681,7 @@ bool detect_objects_magic(void)
 		y = o_ptr->iy;
 		x = o_ptr->ix;
 
-		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Examine the tval */
 		tv = o_ptr->tval;
@@ -1732,7 +1729,7 @@ bool detect_objects_magic(void)
 
 
 /*
- * Detect all "normal" monsters on the current panel
+ * Detect all "normal" monsters in range
  */
 bool detect_monsters_normal(void)
 {
@@ -1754,8 +1751,7 @@ bool detect_monsters_normal(void)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect all non-invisible monsters */
 		if ((!(r_ptr->flags2 & RF2_INVISIBLE)) ||
@@ -1788,7 +1784,7 @@ bool detect_monsters_normal(void)
 
 
 /*
- * Detect all "invisible" monsters around the player
+ * Detect all "invisible" monsters in range
  */
 bool detect_monsters_invis(void)
 {
@@ -1808,8 +1804,7 @@ bool detect_monsters_invis(void)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect invisible monsters */
 		if (r_ptr->flags2 & RF2_INVISIBLE)
@@ -1849,7 +1844,7 @@ bool detect_monsters_invis(void)
 
 
 /*
- * Detect all "evil" monsters on current panel
+ * Detect all "evil" monsters in range
  */
 bool detect_monsters_evil(void)
 {
@@ -1870,8 +1865,7 @@ bool detect_monsters_evil(void)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & RF3_EVIL)
@@ -1915,7 +1909,7 @@ bool detect_monsters_evil(void)
 
 
 /*
- * Detect all (string) monsters on current panel
+ * Detect all (string) monsters in range
  */
 bool detect_monsters_string(cptr Match)
 {
@@ -1936,8 +1930,7 @@ bool detect_monsters_string(cptr Match)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect monsters with the same symbol */
 		if (strchr(Match, r_ptr->d_char))
@@ -1998,8 +1991,7 @@ bool detect_monsters_xxx(u32b match_flag)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & (match_flag))
@@ -2234,6 +2226,52 @@ bool dispel_demons(int dam)
 {
 	return (project_hack(GF_DISP_DEMON, dam));
 }
+
+
+/*
+ * Raise the dead
+ */
+bool raise_dead(int y, int x, bool pet)
+{
+	s16b i;
+	int fx, fy;
+
+	bool    obvious = FALSE;
+	bool 	want_pet = FALSE;
+
+	cave_type *c_ptr;
+
+	/* Check all (nearby) fields */
+	for (i = 1; i < fld_max; i++)
+	{
+		field_type *f_ptr = &fld_list[i];
+
+		/* Paranoia -- Skip missing objects */
+		if (!f_ptr->t_idx) continue;
+
+		/* Want a corpse / skeleton */
+		if (!(f_ptr->t_idx == FT_CORPSE)
+			 || (f_ptr->t_idx == FT_SKELETON)) continue;
+		
+		/* Location */
+		fy = f_ptr->fy;
+		fx = f_ptr->fx;
+
+		/* Require line of sight */
+		if (!los(fy, fx, y, x)) continue;
+		
+		c_ptr = area(fy, fx);
+
+		if (player_has_los_grid(c_ptr)) obvious = TRUE;
+		
+		/* Raise Corpses / Skeletons */
+		field_hook_special(&c_ptr->fld_idx, FTYPE_CORPSE, (void *) &want_pet);
+	}
+
+	/* Result */
+	return (obvious);
+}
+
 
 
 /*
@@ -2629,11 +2667,11 @@ bool destroy_area(int y1, int x1, int r, int full)
 	}
 
 
-	/* Mega-Hack -- Forget the view and lite */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+	/* Mega-Hack -- Forget the view */
+	p_ptr->update |= (PU_UN_VIEW);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);
@@ -2675,7 +2713,7 @@ bool earthquake(int cy, int cx, int r)
 	bool            hurt = FALSE;
 	cave_type       *c_ptr;
 	bool            map[32][32];
-
+	field_mon_test	mon_enter_test;
 
 	/* Prevent destruction of quest levels and town */
 	if (p_ptr->inside_quest || !dun_level)
@@ -2753,6 +2791,12 @@ bool earthquake(int cy, int cx, int r)
 
 			/* Important -- Skip "quake" grids */
 			if (map[16+y-cy][16+x-cx]) continue;
+		
+			/* Check for a field that blocks movement */
+			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
+			{
+				continue;
+			}
 
 			/* Count "safe" grids */
 			sn++;
@@ -2820,14 +2864,18 @@ bool earthquake(int cy, int cx, int r)
 				}
 			}
 
-			/* Save the old location */
+			/* Save old location */
 			oy = py;
 			ox = px;
 
-			/* Move the player to the safe location */
+			/* Process fields under the player. */
+			field_hook(&area(py, px)->fld_idx,
+				 FIELD_ACT_PLAYER_LEAVE, NULL);
+
+			/* Move the player */
 			py = sy;
 			px = sx;
-
+			
 			if (!dun_level)
 			{
 				/* Scroll wilderness */
@@ -2835,6 +2883,10 @@ bool earthquake(int cy, int cx, int r)
 				p_ptr->wilderness_y = py;
 				move_wild();
 			}
+		
+			/* Process fields under the player. */
+			field_hook(&area(py, px)->fld_idx,
+				 FIELD_ACT_PLAYER_ENTER, NULL);
 
 			/* Redraw the old spot */
 			lite_spot(oy, ox);
@@ -2912,10 +2964,27 @@ bool earthquake(int cy, int cx, int r)
 
 							/* Skip non-empty grids */
 							if (!cave_empty_grid(c_ptr)) continue;
-
-							/* Hack -- no safety on glyph of warding */
-							if (c_ptr->feat == FEAT_GLYPH) continue;
-							if (c_ptr->feat == FEAT_MINOR_GLYPH) continue;
+							
+							/* Check for a field that blocks movement */
+							if (fields_have_flags(c_ptr->fld_idx,
+									 FIELD_INFO_NO_ENTER)) continue;
+							
+							/* 
+							 * Test for fields that will not allow this
+							 * specific monster to pass. (i.e. Glyph of warding)
+							 */
+		 
+							/* Initialise info to pass to action functions */
+							mon_enter_test.m_ptr = NULL;
+							mon_enter_test.do_move = TRUE;
+		
+							/* Call the hook */
+							field_hook(&c_ptr->fld_idx,
+								 FIELD_ACT_MON_ENTER_TEST, 
+								 (void *)&mon_enter_test);
+			 
+							/* Get result */
+							if (!mon_enter_test.do_move) continue;
 
 							/* ... nor on the Pattern */
 							if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
@@ -3057,11 +3126,11 @@ bool earthquake(int cy, int cx, int r)
 	}
 
 
-	/* Mega-Hack -- Forget the view and lite */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+	/* Mega-Hack -- Forget the view */
+	p_ptr->update |= (PU_UN_VIEW);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -3212,7 +3281,7 @@ static void cave_temp_room_unlite(void)
 			c_ptr->info &= ~(CAVE_GLOW);
 
 			/* Hack -- Forget "boring" grids */
-			if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_WALL_INVIS))
+			if (c_ptr->feat == FEAT_FLOOR)
 			{
 				/* Forget the grid */
 				c_ptr->info &= ~(CAVE_MARK);
@@ -3519,6 +3588,8 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 
 /*
  * Switch position with a monster.
+ *
+ * This function allows the player to teleport into a wall!
  */
 bool teleport_swap(int dir)
 {
@@ -3569,11 +3640,19 @@ bool teleport_swap(int dir)
 
 	sound(SOUND_TELEPORT);
 
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx, FIELD_ACT_PLAYER_LEAVE, NULL);
+	
+	/* Process fields under the monster. */
+	field_hook(&area(m_ptr->fy, m_ptr->fx)->fld_idx,
+		 FIELD_ACT_MONSTER_LEAVE, m_ptr);
+		 
+	/* Move monster */
 	area(py,px)->m_idx = c_ptr->m_idx;
 
 	/* Update the old location */
 	c_ptr->m_idx = 0;
-
+	
 	/* Move the monster */
 	m_ptr->fy = py;
 	m_ptr->fx = px;
@@ -3584,16 +3663,7 @@ bool teleport_swap(int dir)
 
 	tx = m_ptr->fx;
 	ty = m_ptr->fy;
-
-	/* Update the monster (new location) */
-	update_mon(area(ty, tx)->m_idx, TRUE);
-
-	/* Redraw the old grid */
-	lite_spot(ty, tx);
-
-	/* Redraw the new grid */
-	lite_spot(py, px);
-
+	
 	if (!dun_level)
 	{
 		/* Scroll wilderness */
@@ -3601,12 +3671,36 @@ bool teleport_swap(int dir)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
+	
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx,
+		FIELD_ACT_PLAYER_ENTER, NULL);
+
+	/* Update the monster (new location) */
+	update_mon(area(ty, tx)->m_idx, TRUE);
+	
+	/* Process fields under the monster. */
+	field_hook(&area(m_ptr->fy, m_ptr->fx)->fld_idx,
+		FIELD_ACT_MONSTER_ENTER, (void *) m_ptr);
+
+	/* Redraw the old grid */
+	lite_spot(ty, tx);
+
+	/* Redraw the new grid */
+	lite_spot(py, px);
 
 	/* Check for new panel (redraw map) */
 	verify_panel();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_FLOW);
+
+	/* Notice changes in view */
+	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+	{
+		/* Update some things */
+		p_ptr->update |= (PU_MON_LITE);
+	}
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -3728,14 +3822,14 @@ bool wizard_lock(int dir)
 bool destroy_door(int dir)
 {
 	u16b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
-	return (project_hook(GF_KILL_DOOR, dir, 0, flg));
+	return (project_hook(GF_KILL_DOOR, dir, 60, flg));
 }
 
 
 bool disarm_trap(int dir)
 {
 	u16b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
-	return (project_hook(GF_KILL_TRAP, dir, 0, flg));
+	return (project_hook(GF_KILL_TRAP, dir, 60, flg));
 }
 
 
@@ -3859,7 +3953,7 @@ bool wall_stone(void)
 	bool dummy = (project(0, 1, py, px, 0, GF_STONE_WALL, flg));
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_FLOW);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);
@@ -4205,7 +4299,7 @@ void wall_breaker(void)
 
 
 /*
- * Detect all "nonliving", "undead" or "demonic" monsters on current panel
+ * Detect all "nonliving", "undead" or "demonic" monsters in range
  */
 bool detect_monsters_nonliving(void)
 {
@@ -4225,8 +4319,8 @@ bool detect_monsters_nonliving(void)
 		y = m_ptr->fy;
 		x = m_ptr->fx;
 
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		/* Only detect monsters in range */
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
 
 		/* Detect non-living monsters */
 		if (!monster_living(r_ptr))

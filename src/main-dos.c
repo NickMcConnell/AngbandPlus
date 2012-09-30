@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/22 15:19:24 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 12:10:26 $ */
 /* File: main-dos.c */
 
 /*
@@ -1635,6 +1635,9 @@ static bool init_windows(void)
 
 	char buf[128];
 
+	int rows;
+	int cols;
+
 	/* Section name */
 	sprintf(section, "Mode-%d", resolution);
 
@@ -1661,8 +1664,29 @@ static bool init_windows(void)
 		td->y = get_config_int(section, "y", 0);
 
 		/* Rows and cols of term */
-		td->rows = get_config_int(section, "rows", 24);
-		td->cols = get_config_int(section, "cols", 80);
+		rows = get_config_int(section, "rows", 24);
+		cols = get_config_int(section, "cols", 80);
+
+		/* Paranoia */
+		if (rows > 256) rows = 256;
+		if (cols > 256) cols = 256;
+
+		/* The main window must be at least 80x24 */
+		if (i == 0)
+		{
+			if (rows < 24) rows = 24;
+			if (cols < 80) cols = 80;
+		}
+		else
+		{
+			/* Other windows can be as small as 1x1 */
+			if (rows < 1) rows = 1;
+			if (cols < 1) cols = 1;
+		}
+
+		/* Configure the term */
+		td->rows = rows;
+		td->cols = cols;
 
 		/* Tile size */
 		td->tile_wid = get_config_int(section, "tile_wid", 8);
@@ -1715,6 +1739,19 @@ static bool init_windows(void)
 		/* Link the term */
 		term_data_link(td);
 		angband_term[i] = &td->t;
+
+		/* Reset map size if required */
+		if (i == 0)
+		{
+			/* Mega-Hack -- no panel yet */
+			panel_row_min = 0;
+			panel_row_max = 0;
+			panel_col_min = 0;
+			panel_col_max = 0;
+
+			/* Reset the panels */
+			map_panel_size();
+		}
 	}
 
 	/* Success */
@@ -2062,13 +2099,6 @@ static void play_song(void)
 
 /*
  * Attempt to initialize this file
- *
- * Hack -- we assume that "blank space" should be "white space"
- * (and not "black space" which might make more sense).
- *
- * Note the use of "((x << 2) | (x >> 4))" to "expand" a 6 bit value
- * into an 8 bit value, without losing much precision, by using the 2
- * most significant bits as the least significant bits in the new value.
  *
  * We should attempt to "share" bitmaps (and fonts) between windows
  * with the same "tile" size.  XXX XXX XXX

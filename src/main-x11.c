@@ -32,61 +32,61 @@
  * The following shell script can be used to launch Angband, assuming that
  * it was extracted into "~/Angband", and compiled using "USE_X11", on a
  * Linux machine, with a 1280x1024 screen, using 6 windows (with the given
- * characteristics), with gamma correction of "180" (1 / 1.80), and without
- * graphics (add "-g" for graphics).  Just copy this comment into a file,
- * remove the leading " * " characters (and the head/tail of this comment),
- * and make the file executable.
- * 
+ * characteristics), with gamma correction of 1.8 -> (1 / 1.8) * 256 = 142,
+ * and without graphics (add "-g" for graphics).  Just copy this comment
+ * into a file, remove the leading " * " characters (and the head/tail of
+ * this comment), and make the file executable.
+ *
  *
  * #!/bin/csh
- * 
+ *
  * # Describe attempt
  * echo "Launching angband..."
  * sleep 2
- * 
+ *
  * # Main window
  * setenv ANGBAND_X11_FONT_0 10x20
  * setenv ANGBAND_X11_AT_X_0 5
  * setenv ANGBAND_X11_AT_Y_0 510
- * 
+ *
  * # Message window
  * setenv ANGBAND_X11_FONT_1 8x13
  * setenv ANGBAND_X11_AT_X_1 5
  * setenv ANGBAND_X11_AT_Y_1 22
  * setenv ANGBAND_X11_ROWS_1 35
- * 
+ *
  * # Inventory window
  * setenv ANGBAND_X11_FONT_2 8x13
  * setenv ANGBAND_X11_AT_X_2 635
  * setenv ANGBAND_X11_AT_Y_2 182
  * setenv ANGBAND_X11_ROWS_3 23
- * 
+ *
  * # Equipment window
  * setenv ANGBAND_X11_FONT_3 8x13
  * setenv ANGBAND_X11_AT_X_3 635
  * setenv ANGBAND_X11_AT_Y_3 22
  * setenv ANGBAND_X11_ROWS_3 12
- * 
+ *
  * # Monster recall window
  * setenv ANGBAND_X11_FONT_4 6x13
  * setenv ANGBAND_X11_AT_X_4 817
  * setenv ANGBAND_X11_AT_Y_4 847
  * setenv ANGBAND_X11_COLS_4 76
  * setenv ANGBAND_X11_ROWS_4 11
- * 
+ *
  * # Object recall window
  * setenv ANGBAND_X11_FONT_5 6x13
  * setenv ANGBAND_X11_AT_X_5 817
  * setenv ANGBAND_X11_AT_Y_5 520
  * setenv ANGBAND_X11_COLS_5 76
  * setenv ANGBAND_X11_ROWS_5 24
- * 
+ *
  * # The build directory
  * cd ~/Angband
  *
  * # Gamma correction
- * setenv ANGBAND_X1_GAMMA 128
- * 
+ * setenv ANGBAND_X11_GAMMA 142
+ *
  * # Launch Angband
  * ./src/angband -mx11 -- -n6 &
  *
@@ -1605,7 +1605,7 @@ static errr CheckEvent(bool wait)
 	infowin *iwin = NULL;
 
 	int i, x, y;
-
+	int window = 0;
 
 	/* Do not wait unless requested */
 	if (!wait && !XPending(Metadpy->dpy)) return (1);
@@ -1629,6 +1629,7 @@ static errr CheckEvent(bool wait)
 		{
 			td = &data[i];
 			iwin = td->win;
+			window = i;
 			break;
 		}
 	}
@@ -1719,14 +1720,26 @@ static errr CheckEvent(bool wait)
 
 		case Expose:
 		{
+			int x1, x2, y1, y2;
+
 			/* Ignore "extra" exposes */
-			if (xev->xexpose.count) break;
+			/*if (xev->xexpose.count) break;*/
 
 			/* Clear the window */
-			Infowin_wipe();
+			/*Infowin_wipe();*/
+
+			x1 = (xev->xexpose.x - Infowin->ox)/Infofnt->wid;
+			x2 = (xev->xexpose.x + xev->xexpose.width -
+				 Infowin->ox)/Infofnt->wid;
+
+			y1 = (xev->xexpose.y - Infowin->oy)/Infofnt->hgt;
+			y2 = (xev->xexpose.y + xev->xexpose.height -
+				 Infowin->oy)/Infofnt->hgt;
+
+			Term_redraw_section(x1, y1, x2, y2);
 
 			/* Redraw */
-			Term_redraw();
+			/*Term_redraw();*/
 
 			break;
 		}
@@ -1753,6 +1766,8 @@ static errr CheckEvent(bool wait)
 			int ox = Infowin->ox;
 			int oy = Infowin->oy;
 
+			bool redraw_it = TRUE;
+
 			/* Save the new Window Parms */
 			Infowin->x = xev->xconfigure.x;
 			Infowin->y = xev->xconfigure.y;
@@ -1763,20 +1778,23 @@ static errr CheckEvent(bool wait)
 			cols = ((Infowin->w - (ox + ox)) / td->fnt->wid);
 			rows = ((Infowin->h - (oy + oy)) / td->fnt->hgt);
 
-			/* Paranoia */
-			if (td == &data[0]) cols = 80;
-			if (td == &data[0]) rows = 24;
-
 			/* Hack -- minimal size */
 			if (cols < 1) cols = 1;
 			if (rows < 1) rows = 1;
+
+			if (window == 0)
+			{
+				/* Hack the main window must be at least 80x24 */
+				if (cols < 80) cols = 80;
+				if (rows < 24) rows = 24;
+			}
 
 			/* Desired size of window */
 			wid = cols * td->fnt->wid + (ox + ox);
 			hgt = rows * td->fnt->hgt + (oy + oy);
 
 			/* Resize the Term (if needed) */
-			Term_resize(cols, rows);
+			if (Term_resize(cols, rows) == 1) redraw_it = FALSE;
 
 			/* Resize the windows if any "change" is needed */
 			if ((Infowin->w != wid) || (Infowin->h != hgt))
@@ -1784,6 +1802,34 @@ static errr CheckEvent(bool wait)
 				/* Resize window */
 				Infowin_set(td->win);
 				Infowin_resize(wid, hgt);
+			}
+
+			/* Reset map size if required */
+			if (window == 0)
+			{
+				/* Mega-Hack -- no panel yet */
+				panel_row_min = 0;
+				panel_row_max = 0;
+				panel_col_min = 0;
+				panel_col_max = 0;
+
+				/* Reset the panels */
+				map_panel_size();
+				
+				if (character_dungeon)
+				{
+					verify_panel();
+				}
+			}
+
+			/* Only redraw if everything is initialised */
+			if (character_dungeon && redraw_it)
+			{
+				/* Activate term zero for the redraw */
+				Term_activate(&data[0].t);
+
+				/* redraw */
+				do_cmd_redraw_term(window);
 			}
 
 			break;
@@ -1832,8 +1878,6 @@ static errr Term_xtra_x11_react(void)
 {
 	int i;
 
-	return(0);
-	
 	if (Metadpy->color)
 	{
 		/* Check the colors */
@@ -2014,7 +2058,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		/* For extra speed - cache these values */
 		x2 = (tc&0x7F) * td->fnt->wid;
 		y2 = (ta&0x7F) * td->fnt->hgt;
-		
+
 		/* Optimise the common case */
 		if ((x1 == x2) && (y1 == y2))
 		{
@@ -2024,7 +2068,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		  	        td->tiles,
 		  	        x1, y1,
 		  	        x, y,
-		  	        td->fnt->wid, td->fnt->hgt);	
+		  	        td->fnt->wid, td->fnt->hgt);
 		}
 		else
 		{
@@ -2042,7 +2086,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 						/* Output from the terrain */
 						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
 					}
-					
+
 					/* Store into the temp storage. */
 					XPutPixel(td->TmpImage, k, l, pixel);
 				}
@@ -2086,8 +2130,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 static errr term_data_init(term_data *td, int i)
 {
 	term *t = &td->t;
-
-	bool fixed = (i == 0);
 
 	cptr name = angband_term_name[i];
 
@@ -2189,22 +2231,24 @@ static errr term_data_init(term_data *td, int i)
 	str = getenv(buf);
 	y = (str != NULL) ? atoi(str) : -1;
 
+	/* Window specific cols */
+	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) cols = val;
 
-	if (!fixed)
+	/* Window specific rows */
+	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) rows = val;
+
+	/* Hack the main window must be at least 80x24 */
+	if (!i)
 	{
-		/* Window specific cols */
-		sprintf(buf, "ANGBAND_X11_COLS_%d", i);
-		str = getenv(buf);
-		val = (str != NULL) ? atoi(str) : -1;
-		if (val > 0) cols = val;
-
-		/* Window specific rows */
-		sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
-		str = getenv(buf);
-		val = (str != NULL) ? atoi(str) : -1;
-		if (val > 0) rows = val;
+		if (cols < 80) cols = 80;
+		if (rows < 24) rows = 24;
 	}
-
 
 	/* Window specific inner border offset (ox) */
 	sprintf(buf, "ANGBAND_X11_IBOX_%d", i);
@@ -2225,7 +2269,7 @@ static errr term_data_init(term_data *td, int i)
 	Infofnt_init_data(font);
 
 	/* Hack -- key buffer size */
-	num = (fixed ? 1024 : 16);
+	num = ((i == 0) ? 1024 : 16);
 
 	/* Assume full size windows */
 	wid = cols * td->fnt->wid + (ox + ox);
@@ -2267,24 +2311,26 @@ static errr term_data_init(term_data *td, int i)
 	/* Oops */
 	if (sh == NULL) quit("XAllocSizeHints failed");
 
-	/* Fixed window size */
-	if (fixed)
+	/* Main window has a differing minimum size */
+	if (i == 0)
 	{
-		/* Fixed size */
+		/* Main window min size is 80x24 */
 		sh->flags = PMinSize | PMaxSize;
-		sh->min_width = sh->max_width = wid;
-		sh->min_height = sh->max_height = hgt;
+		sh->min_width = 80 * td->fnt->wid + (ox + ox);
+		sh->min_height = 24 * td->fnt->hgt + (oy + oy);
+		sh->max_width = 255 * td->fnt->wid + (ox + ox);
+		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}
 
-	/* Variable window size */
+	/* Other windows can be shrunk to 1x1 */
 	else
 	{
-		/* Variable size */
+		/* Other windows */
 		sh->flags = PMinSize | PMaxSize;
 		sh->min_width = td->fnt->wid + (ox + ox);
 		sh->min_height = td->fnt->hgt + (oy + oy);
-		sh->max_width = 256 * td->fnt->wid + (ox + ox);
-		sh->max_height = 256 * td->fnt->hgt + (oy + oy);
+		sh->max_width = 255 * td->fnt->wid + (ox + ox);
+		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}
 
 	/* Resize increment */
@@ -2370,11 +2416,13 @@ errr init_x11(int argc, char *argv[])
 			continue;
 		}
 
+#ifdef USE_GRAPHICS
 		if (prefix(argv[i], "-s"))
 		{
 			smoothRescaling = FALSE;
 			continue;
 		}
+#endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
 		{
@@ -2535,8 +2583,8 @@ errr init_x11(int argc, char *argv[])
 			jj = (depth - 1) >> 2;
 			while (jj >>= 1) ii <<= 1;
 			total = td->fnt->wid * td->fnt->hgt * ii;
-			
-			
+
+
 			TmpData = (char *)malloc(total);
 
 			td->TmpImage = XCreateImage(dpy,visual,depth,

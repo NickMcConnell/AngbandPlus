@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/15 12:25:22 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/02 00:41:31 $ */
 /* File: bldg.c */
 
 /*
@@ -342,6 +342,28 @@ int random_quest_number(int level)
 	/* Nope */
 	return 0;
 }
+
+/* Count the number of random quests chosen */
+int number_of_quests(void)
+{
+	int i, j;
+
+	/* Clear the counter */
+	i = 0;
+
+	for (j = MIN_RANDOM_QUEST; j < MAX_RANDOM_QUEST + 1; j++)
+	{
+		if (quest[j].status != QUEST_STATUS_UNTAKEN)
+		{
+			/* Increment count of quests taken. */
+			i++;
+		}
+	}
+
+	/* Return the number of quests taken */
+	return (i);
+}
+
 
 #if 0
 
@@ -1208,7 +1230,7 @@ static void town_history(void)
  * the current +dam of the player.
  */
 static void compare_weapon_aux2(object_type *o_ptr, int numblows,
-                                int r, int c, cptr attr, byte color)
+                                int r, int c, cptr attr, byte color, byte slay)
 {
 	char tmp_str[80];
 	long maxdam, mindam;
@@ -1224,6 +1246,9 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows,
 		mindam = (100 - deadliness_conversion[ABS(dambonus)]);
 	else
 		mindam = 0;
+	
+	/* Include effects of slaying bonus */
+	mindam = (mindam * slay) / 10;
 
 	/* Effect of damage dice */
 	maxdam = mindam * (o_ptr->ds * o_ptr->dd);
@@ -1262,20 +1287,20 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Print the relevant lines */
-	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Animals:", TERM_YELLOW);
-	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Evil:", TERM_YELLOW);
-	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Undead:", TERM_YELLOW);
-	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Demons:", TERM_YELLOW);
-	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Orcs:", TERM_YELLOW);
-	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Trolls:", TERM_YELLOW);
-	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Giants:", TERM_YELLOW);
-	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Dragons:", TERM_YELLOW);
-	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Dragons:", TERM_YELLOW);
-	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Acid:", TERM_RED);
-	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Elec:", TERM_RED);
-	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Fire:", TERM_RED);
-	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Cold:", TERM_RED);
-	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Poison:", TERM_RED);
+	if (f1 & TR1_SLAY_ANIMAL) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Animals:", TERM_YELLOW, 17);
+	if (f1 & TR1_SLAY_EVIL)   compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Evil:", TERM_YELLOW, 15);
+	if (f1 & TR1_SLAY_UNDEAD) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Undead:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_DEMON)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Demons:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_ORC)    compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Orcs:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_TROLL)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Trolls:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_GIANT)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Giants:", TERM_YELLOW, 20);
+	if (f1 & TR1_SLAY_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Dragons:", TERM_YELLOW, 20);
+	if (f1 & TR1_KILL_DRAGON) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Dragons:", TERM_YELLOW, 30);
+	if (f1 & TR1_BRAND_ACID)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Acid:", TERM_RED, 20);
+	if (f1 & TR1_BRAND_ELEC)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Elec:", TERM_RED, 20);
+	if (f1 & TR1_BRAND_FIRE)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Fire:", TERM_RED, 20);
+	if (f1 & TR1_BRAND_COLD)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Cold:", TERM_RED, 20);
+	if (f1 & TR1_BRAND_POIS)  compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, "Poison:", TERM_RED, 20);
 }
 
 
@@ -2027,9 +2052,6 @@ void do_cmd_bldg(void)
 		p_ptr->oldpx = px;
 	}
 
-	/* Forget the lite */
-	forget_lite();
-
 	/* Forget the view */
 	forget_view();
 
@@ -2095,7 +2117,7 @@ void do_cmd_bldg(void)
 	Term_clear();
 
 	/* Update the visuals */
-	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_BONUS | PU_LITE);
+	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_BONUS);
 
 	/* Redraw entire screen */
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MAP);

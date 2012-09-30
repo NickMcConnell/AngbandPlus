@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: topiy $ on $Date: 2000/06/19 05:54:57 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/29 03:09:21 $ */
 /* File: dungeon.c */
 
 /* Purpose: Angband game engine */
@@ -1219,7 +1219,8 @@ static void process_world(void)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_DEEP_WATER) && !p_ptr->ffall)
+	else if (((c_ptr->feat == FEAT_DEEP_WATER) ||
+		(c_ptr->feat == FEAT_OCEAN_WATER)) && !p_ptr->ffall)
 	{
 		if (p_ptr->total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
 		{
@@ -1271,6 +1272,11 @@ static void process_world(void)
 			take_hit(1 + (p_ptr->lev / 5), dam_desc);
 		}
 	}
+
+	/* 
+	 * Fields you are standing on may do something.
+	 */
+	field_hook(&c_ptr->fld_idx, FIELD_ACT_PLAYER_ON, NULL);
 
 	/* Nightmare mode activates the TY_CURSE at midnight */
 	if (ironman_nightmare)
@@ -1511,18 +1517,10 @@ static void process_world(void)
 
 	regen_amount = (regen_amount * mutant_regenerate_mod) / 100;
 
-	/* Regenerate Hit Points if needed */
-	if ((p_ptr->chp < p_ptr->mhp) && !cave_no_regen)
+	/* Regenerate Hit Points */
+	if (p_ptr->chp < p_ptr->mhp)
 	{
-		if ((c_ptr->feat < FEAT_PATTERN_END) &&
-		    (c_ptr->feat >= FEAT_PATTERN_START))
-		{
-			regenhp(regen_amount / 5); /* Hmmm. this should never happen? */
-		}
-		else
-		{
-			regenhp(regen_amount);
-		}
+		regenhp(regen_amount);
 	}
 
 
@@ -2167,6 +2165,9 @@ static void process_world(void)
 		/* Get the object */
 		o_ptr = &inventory[i];
 
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* TY Curse */
@@ -2215,10 +2216,6 @@ static void process_world(void)
 			}
 		}
 
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
 		/* Recharge activatable objects */
 		if (o_ptr->timeout > 0)
 		{
@@ -2254,8 +2251,11 @@ static void process_world(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Must have a timeout */
+		if (!o_ptr->timeout) continue;
+
 		/* Examine all charging rods or stacks of charging rods. */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		if (o_ptr->tval == TV_ROD)
 		{
 			/* Determine how many rods are charging. */
 			temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
@@ -2300,15 +2300,56 @@ static void process_world(void)
 
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
+		
+		/* Exit if not in dungeon */
+		if (o_ptr->held_m_idx) continue;
+
+		field_hook(&area(o_ptr->iy, o_ptr->ix)->fld_idx,
+			 FIELD_ACT_OBJECT_ON, (void *) o_ptr);
+
+		if (!o_ptr->timeout) continue;
 
 		/* Recharge rods on the ground.  No messages. */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		if (o_ptr->tval == TV_ROD)
 		{
 			/* Charge it */
 			o_ptr->timeout -= o_ptr->number;
 
 			/* Boundary control. */
 			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+		}
+		else
+		{
+			/* Decrease counter */
+			o_ptr->timeout--;
+
+			/* Notice changes */
+			if (!o_ptr->timeout)
+			{
+				if (ironman_nightmare)
+				{
+					/* Make a monster nearby if possible */
+					if (summon_named_creature(o_ptr->iy, o_ptr->ix,
+						 o_ptr->pval, FALSE, FALSE, FALSE))
+					{
+						monster_type *m_ptr = &m_list[hack_m_idx_ii];
+
+						if (player_can_see_bold(m_ptr->fy, m_ptr->fx))
+						{
+							msg_format("The %s rises.");
+						}
+
+						/* Set the cloned flag, so no treasure is dropped */
+						m_ptr->smart |= SM_CLONED;
+					}
+				}
+
+				/* Assume that no corpse is in a monsters inventory. */
+
+				/* The corpse/skeleton is destroyed */
+				floor_item_increase(i, -1);
+				floor_item_optimize(i);
+			}
 		}
 	}
 
@@ -2525,12 +2566,8 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Handle repeating the last command */
 	repeat_check();
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Parse the command */
 	switch (command_cmd)
@@ -2689,32 +2726,14 @@ static void process_command(void)
 		/* Move (usually pick up things) */
 		case ';':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 			do_cmd_walk(FALSE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
 			break;
 		}
 
 		/* Move (usually do not pick up) */
 		case '-':
 		{
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
 			do_cmd_walk(TRUE);
-
-#else /* ALLOW_EASY_DISARM -- TNB */
-
-			do_cmd_walk(!always_pickup);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
 			break;
 		}
 
@@ -2821,13 +2840,6 @@ static void process_command(void)
 		case 'j':
 		{
 			do_cmd_spike();
-			break;
-		}
-
-		/* Bash a door */
-		case 'B':
-		{
-			do_cmd_bash();
 			break;
 		}
 
@@ -3668,9 +3680,15 @@ static void process_energy(void)
 		/* process monster with even more energy first */
 		process_monsters(p_ptr->energy + 1);
 
-		/* Process the player */
-		process_player();
+		/* Process the player while still alive */
+		if (!p_ptr->leaving)
+		{
+			process_player();
+		}
 	}
+
+	/* Process the fields */
+	process_fields();
 }
 
 
@@ -3712,10 +3730,7 @@ static void dungeon(void)
 
 	/* Check visual effects */
 	shimmer_monsters = TRUE;
-	shimmer_objects = TRUE;
 	repair_monsters = TRUE;
-	repair_objects = TRUE;
-
 
 	/* Disturb */
 	disturb(1, 0);
@@ -3788,15 +3803,10 @@ static void dungeon(void)
 	verify_panel();
 
 	/* Validate the panel */
-	if (center_player || (vanilla_town && !dun_level))
+	if (vanilla_town && !dun_level)
 	{
 		panel_bounds_center();
 	}
-	else
-	{
-		panel_bounds();
-	}
-
 
 	/* Flush messages */
 	msg_print(NULL);
@@ -3836,7 +3846,7 @@ static void dungeon(void)
 	window_stuff();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_DISTANCE);
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_DISTANCE | PU_MON_LITE);
 
 	/* Update stuff */
 	update_stuff();
@@ -3903,6 +3913,13 @@ static void dungeon(void)
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
+
+		/* Hack -- Compact the field list occasionally */
+		if (fld_cnt + 32 > max_fld_idx) compact_fields(64);
+
+		/* Hack -- Compress the field list occasionally */
+		if (fld_cnt + 32 < fld_max) compact_fields(0);
+
 		/*
 		 * Add energy to player and monsters.
 		 * Those with the most energy move first.
@@ -3963,6 +3980,8 @@ static void dungeon(void)
 		/* Hack -- Notice death or departure */
 		if (!alive || death) break;
 
+		/* Handle "leaving" */
+		if (p_ptr->leaving) break;
 
 		/* Process the world */
 		process_world();
@@ -4084,9 +4103,6 @@ void play_game(bool new_game)
 		quit("main window is too small");
 	}
 
-	/* Forbid resizing */
-	Term->fixed_shape = TRUE;
-
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
 
@@ -4096,6 +4112,11 @@ void play_game(bool new_game)
 	 */
 	if (init_w_info()) quit("Cannot initialize wilderness");
 
+	/* Initialize field info */
+	if (init_t_info()) quit("Cannot initialize fields");
+	
+	
+	
 	/* Attempt to load */
 	if (!load_player())
 	{
@@ -4207,12 +4228,12 @@ void play_game(bool new_game)
 		seed_town = 0;
 	}
 
-	/* Hack - if note file exists, load it */
-	if (!new_game && take_notes)
-	{
-		add_note_type(NOTE_ENTER_DUNGEON);
-	}
-
+	/* Reset the visual mappings */
+	reset_visuals();
+	
+	/* Init the fields */
+	init_fields();
+	
 	/* Normal machine (process player name) */
 	if (savefile[0])
 	{
@@ -4223,6 +4244,12 @@ void play_game(bool new_game)
 	else
 	{
 		process_player_name(TRUE);
+	}
+
+	/* Hack - if note file exists, load it */
+	if (!new_game && take_notes)
+	{
+		add_note_type(NOTE_ENTER_DUNGEON);
 	}
 
 	/* Flash a message */
@@ -4250,22 +4277,10 @@ void play_game(bool new_game)
 
 #endif
 
-	/* Reset the visual mappings */
-	reset_visuals();
-
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
-
-	/* Window stuff */
-	window_stuff();
-
-
 	/* Load the "pref" files */
 	load_all_pref_files();
+	
+	
 
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
@@ -4274,9 +4289,18 @@ void play_game(bool new_game)
 	/* Initialize vault info */
 	if (init_v_info()) quit("Cannot initialize vaults");
 
+	
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
+	/* Window stuff */
+	p_ptr->window |= (PW_MONSTER);
+	
+	/* Window stuff */
+	window_stuff();
 
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
@@ -4296,6 +4320,18 @@ void play_game(bool new_game)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) death = TRUE;
 
+	/* Resize / init the map */
+	map_panel_size();
+
+	/* Verify the (possibly resized) panel */
+	verify_panel();
+	
+	/* Update some stuff not stored in the savefile any more */
+	p_ptr->update |= (PU_VIEW | PU_MON_LITE);
+
+	/* Update stuff */
+	update_stuff();
+	
 	/* Process */
 	while (TRUE)
 	{
@@ -4333,9 +4369,6 @@ void play_game(bool new_game)
 		/* Cancel the health bar */
 		health_track(0);
 
-		/* Forget the lite */
-		forget_lite();
-
 		/* Forget the view */
 		forget_view();
 
@@ -4345,6 +4378,7 @@ void play_game(bool new_game)
 		/* Erase the old cave */
 		wipe_o_list();
 		wipe_m_list();
+		wipe_f_list();
 
 		change_level(dun_level);
 
@@ -4416,9 +4450,9 @@ void play_game(bool new_game)
 				/* Do not die */
 				death = FALSE;
 
-				dun_level = 0;				
+				dun_level = 0;
 				change_level(dun_level);
-				
+
 				p_ptr->inside_arena = 0;
 				leaving_quest = 0;
 				p_ptr->inside_quest = 0;

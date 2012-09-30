@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/24 10:30:16 $ */
 /* File: variable.c */
 
 /* Purpose: Angband variables */
@@ -108,8 +107,11 @@ bool death;				/* True if player has died */
 s16b running;			/* Current counter for running, if any */
 s16b resting;			/* Current counter for resting, if any */
 
-s16b cur_hgt;			/* Current dungeon height */
-s16b cur_wid;			/* Current dungeon width */
+s16b min_hgt;			/* Current y bounds of area() */
+s16b max_hgt;
+s16b min_wid;			/* Current x bounds of area() */
+s16b max_wid;
+
 s16b dun_level;			/* Current dungeon level */
 s16b num_repro;			/* Current reproducer count */
 
@@ -144,10 +146,8 @@ s16b coin_type;			/* Hack -- force coin type */
 bool opening_chest;		/* Hack -- prevent chest generation */
 
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
-bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
 bool repair_monsters;	/* Hack -- optimize detect monsters */
-bool repair_objects;	/* Hack -- optimize detect objects */
 
 s16b inven_nxt;			/* Hack -- unused */
 bool hack_mind;
@@ -163,8 +163,12 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+s16b fld_max = 1;			/* Number of allocated fields */
+s16b fld_cnt = 0;			/* Number of live fields */
+
 s16b hack_m_idx = 0;	/* Hack -- see "process_monsters()" */
 s16b hack_m_idx_ii = 0;
+s16b *hack_fld_ptr = NULL; /* Hack -- see "fields.c" */
 bool multi_rew = FALSE;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
@@ -217,6 +221,7 @@ bool disturb_panel;			/* Disturb whenever map panel changes */
 bool disturb_state;			/* Disturn whenever player state changes */
 bool disturb_minor;			/* Disturb whenever boring things happen */
 bool disturb_other;			/* Disturb whenever various things happen */
+bool disturb_traps;			/* Disturb whenever you move out of detect radius */
 
 bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
@@ -225,7 +230,7 @@ bool small_levels;		/* Allow unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
-bool silly_monsters;		/* Allow silly monsters to be generated. */
+bool silly_monsters;		/* Allow the silly monsters to be generated */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
@@ -333,16 +338,26 @@ bool good_item_flag;		/* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
+bool fake_monochrome;	/* Use fake monochrome for effects */
+
 
 /*
  * Dungeon size info
  */
 
 s16b max_panel_rows, max_panel_cols;
-s16b panel_row, panel_col;
 s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;
+
+byte *mp_a = NULL;
+char *mp_c = NULL;
+	
+#ifdef USE_TRANSPARENCY
+byte *mp_ta = NULL;
+char *mp_tc = NULL;
+#endif /* USE_TRANSPARENCY */
+
 
 /*
  * Player location in dungeon
@@ -351,7 +366,7 @@ s16b py;
 s16b px;
 
 /*
- * Targetting variables
+ * Targeting variables
  */
 s16b target_who;
 s16b target_col;
@@ -391,12 +406,6 @@ char history[4][60];
 char savefile[1024];
 
 
-/*
- * Array of grids lit by player lite (see "cave.c")
- */
-s16b lite_n;
-s16b lite_y[LITE_MAX];
-s16b lite_x[LITE_MAX];
 
 /*
  * Array of grids viewable to the player (see "cave.c")
@@ -411,6 +420,14 @@ s16b view_x[VIEW_MAX];
 s16b temp_n;
 s16b temp_y[TEMP_MAX];
 s16b temp_x[TEMP_MAX];
+
+
+/*
+ * Array of grids for use in monster lighting effects (see "cave.c")
+ */
+s16b lite_n = 0;
+s16b lite_y[LITE_MAX];
+s16b lite_x[LITE_MAX];
 
 
 /*
@@ -636,13 +653,6 @@ cave_type *cave[MAX_HGT];
 
 cave_type *(*area)(int, int);
 
-/* Function pointer that points to the relevant in_bounds fn. */
-bool (*in_bounds)(int, int);
-
-/* Function pointer that points to the relevant in_bounds2 fn. */
-bool (*in_bounds2)(int, int);
-
-
 /*
  * Variables used to access the scrollable wilderness.
  * This is designed to be as fast as possible - whilst using as little
@@ -685,6 +695,12 @@ object_type *o_list;
  * The array of dungeon monsters [max_m_idx]
  */
 monster_type *m_list;
+
+/*
+ * The array of fields [max_fld_idx]
+ */
+field_type *fld_list;
+
 
 
 /*
@@ -846,6 +862,10 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
+/*
+ * The field thaumatergical array
+ */
+field_thaum *t_info;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -984,17 +1004,11 @@ bool (*get_obj_num_hook)(int k_idx);
 bool monk_armour_aux;
 bool monk_notify_aux;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
+
+/* Easy patch flags */
 bool easy_open;
-#endif /* ALLOW_EASY_OPEN -- TNB */
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
 bool easy_disarm;
-#endif /* ALLOW_EASY_DISARM -- TNB */
-
-#ifdef ALLOW_EASY_FLOOR /* TNB */
 bool easy_floor;
-#endif /* ALLOW_EASY_FLOOR -- TNB */
 
 bool use_command;
 bool center_player;
@@ -1003,6 +1017,8 @@ bool avoid_center;
 /* Auto-destruction options */
 bool destroy_worthless;
 
+/* Monster lighting effects */
+bool monster_light;
 
 /*
  * Buildings
@@ -1054,6 +1070,17 @@ u16b max_o_idx;
  * Maximum number of monsters in the level
  */
 u16b max_m_idx;
+
+/*
+ * Maximum number of fields on the level
+ */
+u16b max_fld_idx;
+
+/*
+ * Maximum number of field types
+ */
+u16b max_t_idx;
+
 
 /*
  * Maximum size of the wilderness

@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/22 12:35:03 $ */
 /* File: generate.c */
 
 /* Purpose: Dungeon generation */
@@ -122,7 +121,7 @@ dun_data *dun;
 /*
  * Places some staircases near walls
  */
-static void alloc_stairs(int feat, int num, int walls)
+static bool alloc_stairs(int feat, int num, int walls)
 {
 	int         y, x, i, j, flag;
 	cave_type   *c_ptr;
@@ -130,15 +129,15 @@ static void alloc_stairs(int feat, int num, int walls)
 	if (feat == FEAT_LESS)
 	{
 		/* No up stairs in town or in ironman mode */
-		if (ironman_downward || !dun_level) return;
+		if (ironman_downward || !dun_level) return TRUE;
 	}
 	else if (feat == FEAT_MORE)
 	{
 		/* No downstairs on quest levels */
-		if ((dun_level > 1) && quest_number(dun_level)) return;
+		if ((dun_level > 1) && quest_number(dun_level)) return TRUE;
 
 		/* No downstairs at the bottom */
-		if (dun_level >= MAX_DEPTH - 1) return;
+		if (dun_level >= MAX_DEPTH - 1) return TRUE;
 	}
 
 	/* Place "num" stairs */
@@ -148,11 +147,11 @@ static void alloc_stairs(int feat, int num, int walls)
 		for (flag = FALSE; !flag; )
 		{
 			/* Try several times, then decrease "walls" */
-			for (j = 0; !flag && j <= 3000; j++)
+			for (j = 0; !flag && j <= 10000; j++)
 			{
 				/* Pick a random grid */
-				y = rand_int(cur_hgt);
-				x = rand_int(cur_wid);
+				y = rand_range(min_hgt, max_hgt - 1);
+				x = rand_range(min_wid, max_wid - 1);
 
 				/* Access the grid */
 				c_ptr = &cave[y][x];
@@ -173,10 +172,23 @@ static void alloc_stairs(int feat, int num, int walls)
 				flag = TRUE;
 			}
 
+			/* If cannot find a blank spot - exit */
+			if (!walls)
+			{
+				/* Placed at least one. */
+				if (i > 0) return TRUE;
+
+				/* Couldn't place any stairs */
+				return FALSE;
+			}
+
 			/* Require fewer walls */
-			if (walls) walls--;
+			walls--;
 		}
 	}
+
+	/* Done */
+	return TRUE;
 }
 
 
@@ -200,8 +212,8 @@ static void alloc_object(int set, int typ, int num)
 			dummy++;
 
 			/* Location */
-			y = rand_int(cur_hgt);
-			x = rand_int(cur_wid);
+			y = rand_range(min_hgt, max_hgt - 1);
+			x = rand_range(min_wid, max_wid - 1);
 
 			c_ptr = &cave[y][x];
 
@@ -260,7 +272,9 @@ static void alloc_object(int set, int typ, int num)
 
 			case ALLOC_TYP_INVIS:
 			{
-				place_invis_wall(y, x);
+				/* Create invisible wall */
+				cave_set_feat(y, x, FEAT_FLOOR);
+				(void) place_field(y, x, FT_WALL_INVIS);
 				break;
 			}
 		}
@@ -395,8 +409,8 @@ static bool cave_gen(void)
 	/* Global data */
 	dun = &dun_body;
 
-	if (!max_panel_rows) max_vault_ok--;
-	if (!max_panel_cols) max_vault_ok--;
+	if (max_panel_rows < 67) max_vault_ok--;
+	if (max_panel_cols < 34) max_vault_ok--;
 
 	/* Randomize the dungeon creation values */
 	dun_rooms = rand_range(DUN_ROOMS_MIN, DUN_ROOMS_MAX);
@@ -417,9 +431,9 @@ static bool cave_gen(void)
 
 
 	/* Hack -- Start with basic granite */
-	for (y = 0; y < cur_hgt; y++)
+	for (y = min_hgt; y < max_hgt; y++)
 	{
-		for (x = 0; x < cur_wid; x++)
+		for (x = min_wid; x < max_wid; x++)
 		{
 			cave_type *c_ptr = &cave[y][x];
 
@@ -431,7 +445,6 @@ static bool cave_gen(void)
 		}
 	}
 
-#ifdef ALLOW_CAVERNS_AND_LAKES
 	/* Possible "destroyed" level */
 	if ((dun_level > 15) && (rand_int(DUN_DEST) == 0) && (small_levels))
 	{
@@ -470,14 +483,13 @@ static bool cave_gen(void)
 
 		build_cavern();
 	}
-#endif /* ALLOW_CAVERNS_AND_LAKES */
 
 	/* Hack -- No destroyed "quest" levels */
 	if (quest_number(dun_level)) destroyed = FALSE;
 
 	/* Actual maximum number of rooms on this level */
-	dun->row_rooms = cur_hgt / BLOCK_HGT;
-	dun->col_rooms = cur_wid / BLOCK_WID;
+	dun->row_rooms = (max_hgt - min_hgt) / BLOCK_HGT;
+	dun->col_rooms = (max_wid - min_hgt) / BLOCK_WID;
 
 	/* Initialize the room table */
 	for (y = 0; y < dun->row_rooms; y++)
@@ -517,10 +529,11 @@ static bool cave_gen(void)
 		if (ironman_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
 		{
 			/* Roll for room type */
-			k = (ironman_rooms ? 0 : rand_int(100));
+			k = rand_int(100);
 
 			/* Attempt a very unusual room */
-			if (ironman_rooms || (rand_int(DUN_UNUSUAL) < dun_level))
+			if ((ironman_rooms && (rand_int(DUN_UNUSUAL) < dun_level * 2)) ||
+				 (rand_int(DUN_UNUSUAL) < dun_level))
 			{
 #ifdef FORCE_V_IDX
 				if (room_build(y, x, 8)) continue;
@@ -600,7 +613,8 @@ static bool cave_gen(void)
 	{
 		while (randint(DUN_MOS_DEN) == 1)
 		{
-			place_trees(randint(cur_wid - 2), randint(cur_hgt - 2));
+			place_trees(rand_range(min_wid, max_wid - 1),
+				 rand_range(min_hgt, max_hgt - 1));
 		}
 	}
 
@@ -633,36 +647,36 @@ static bool cave_gen(void)
 	}
 
 	/* Special boundary walls -- Top */
-	for (x = 0; x < cur_wid; x++)
+	for (x = min_wid; x < max_wid; x++)
 	{
-		cave_type *c_ptr = &cave[0][x];
+		cave_type *c_ptr = &cave[min_hgt][x];
 
 		/* Clear previous contents, add "solid" perma-wall */
 		c_ptr->feat = FEAT_PERM_SOLID;
 	}
 
 	/* Special boundary walls -- Bottom */
-	for (x = 0; x < cur_wid; x++)
+	for (x = min_wid; x < max_wid; x++)
 	{
-		cave_type *c_ptr = &cave[cur_hgt-1][x];
+		cave_type *c_ptr = &cave[max_hgt - 1][x];
 
 		/* Clear previous contents, add "solid" perma-wall */
 		c_ptr->feat = FEAT_PERM_SOLID;
 	}
 
 	/* Special boundary walls -- Left */
-	for (y = 0; y < cur_hgt; y++)
+	for (y = min_hgt; y < max_hgt; y++)
 	{
-		cave_type *c_ptr = &cave[y][0];
+		cave_type *c_ptr = &cave[y][min_wid];
 
 		/* Clear previous contents, add "solid" perma-wall */
 		c_ptr->feat = FEAT_PERM_SOLID;
 	}
 
 	/* Special boundary walls -- Right */
-	for (y = 0; y < cur_hgt; y++)
+	for (y = min_hgt; y < max_hgt; y++)
 	{
-		cave_type *c_ptr = &cave[y][cur_wid-1];
+		cave_type *c_ptr = &cave[y][max_wid - 1];
 
 		/* Clear previous contents, add "solid" perma-wall */
 		c_ptr->feat = FEAT_PERM_SOLID;
@@ -728,6 +742,9 @@ static bool cave_gen(void)
 
 			/* Access the grid */
 			c_ptr = &cave[y][x];
+			
+			/* Deleting a locked or jammed door is problematical */
+			clear_icky_door(c_ptr);
 
 			/* Clear previous contents (if not a lake), add a floor */
 			if ((c_ptr->feat < FEAT_DEEP_WATER) ||
@@ -746,6 +763,9 @@ static bool cave_gen(void)
 
 			/* Access the grid */
 			c_ptr = &cave[y][x];
+			
+			/* Deleting a locked or jammed door is problematical */
+			clear_icky_door(c_ptr);
 
 			/* Clear previous contents, add up floor */
 			c_ptr->feat = FEAT_FLOOR;
@@ -791,10 +811,10 @@ static bool cave_gen(void)
 	}
 
 	/* Place 3 or 4 down stairs near some walls */
-	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
+	if (!alloc_stairs(FEAT_MORE, rand_range(3, 4), 3)) return FALSE;
 
 	/* Place 1 or 2 up stairs near some walls */
-	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
+	if (!alloc_stairs(FEAT_LESS, rand_range(1, 2), 3)) return FALSE;
 
 	/* Handle the quest monster placements */
 	for (i = 0; i < max_quests; i++)
@@ -831,8 +851,8 @@ static bool cave_gen(void)
 						/* Find an empty grid */
 						while (TRUE)
 						{
-							y = rand_int(cur_hgt);
-							x = rand_int(cur_wid);
+							y = rand_range(min_hgt, max_hgt - 1);
+							x = rand_range(min_wid, max_wid - 1);
 
 							/* Access the grid */
 							c_ptr = &cave[y][x];
@@ -874,12 +894,12 @@ static bool cave_gen(void)
 	i = MIN_M_ALLOC_LEVEL;
 
 	/* To make small levels a bit more playable */
-	if (cur_hgt < MAX_HGT || cur_wid < MAX_WID)
+	if (max_hgt < MAX_HGT || max_wid < MAX_WID)
 	{
 		int small_tester = i;
 
-		i = (i * cur_hgt) / MAX_HGT;
-		i = (i * cur_wid) / MAX_WID;
+		i = (i * max_hgt) / MAX_HGT;
+		i = (i * max_wid) / MAX_WID;
 		i += 1;
 
 		if (i > small_tester) i = small_tester;
@@ -919,9 +939,9 @@ static bool cave_gen(void)
 	if (empty_level && ((randint(DARK_EMPTY) != 1) || (randint(100) > dun_level)))
 	{
 		/* Lite the cave */
-		for (y = 0; y < cur_hgt; y++)
+		for (y = min_hgt; y < max_hgt; y++)
 		{
-			for (x = 0; x < cur_wid; x++)
+			for (x = min_hgt; x < max_wid; x++)
 			{
 				cave[y][x].info |= (CAVE_GLOW);
 			}
@@ -935,127 +955,6 @@ static bool cave_gen(void)
 	return TRUE;
 }
 
-#if 0
-
-/*
- * Builds the arena after it is entered -KMW-
- */
-static void build_arena(void)
-{
-	int yval, y_height, y_depth, xval, x_left, x_right;
-	register int i, j;
-
-	yval = SCREEN_HGT / 2;
-	xval = SCREEN_WID / 2;
-	y_height = yval - 10 + SCREEN_HGT;
-	y_depth = yval + 10 + SCREEN_HGT;
-	x_left = xval - 32 + SCREEN_WID;
-	x_right = xval + 32 + SCREEN_WID;
-
-	for (i = y_height; i <= y_height + 5; i++)
-		for (j = x_left; j <= x_right; j++)
-		{
-			cave[i][j].feat = FEAT_PERM_EXTRA;
-			cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-	for (i = y_depth; i >= y_depth - 5; i--)
-		for (j = x_left; j <= x_right; j++)
-		{
-			cave[i][j].feat = FEAT_PERM_EXTRA;
-			cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-	for (j = x_left; j <= x_left + 17; j++)
-		for (i = y_height; i <= y_depth; i++)
-		{
-			cave[i][j].feat = FEAT_PERM_EXTRA;
-			cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-	for (j = x_right; j >= x_right - 17; j--)
-		for (i = y_height; i <= y_depth; i++)
-		{
-			cave[i][j].feat = FEAT_PERM_EXTRA;
-			cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-
-	cave[y_height+6][x_left+18].feat = FEAT_PERM_EXTRA;
-	cave[y_height+6][x_left+18].info |= (CAVE_GLOW | CAVE_MARK);
-	cave[y_depth-6][x_left+18].feat = FEAT_PERM_EXTRA;
-	cave[y_depth-6][x_left+18].info |= (CAVE_GLOW | CAVE_MARK);
-	cave[y_height+6][x_right-18].feat = FEAT_PERM_EXTRA;
-	cave[y_height+6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK);
-	cave[y_depth-6][x_right-18].feat = FEAT_PERM_EXTRA;
-	cave[y_depth-6][x_right-18].info |= (CAVE_GLOW | CAVE_MARK);
-
-	i = y_height + 5;
-	j = xval + SCREEN_WID;
-	cave[i][j].feat = FEAT_BLDG_HEAD + 2;
-	cave[i][j].info |= (CAVE_GLOW | CAVE_MARK);
-	player_place(i + 1, j);
-}
-
-
-/*
- * Town logic flow for generation of arena -KMW-
- */
-static void arena_gen(void)
-{
-	int y, x;
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
-	bool daytime;
-
-	/* Day time */
-	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
-		daytime = TRUE;
-
-	/* Night time */
-	else
-		daytime = FALSE;
-
-	/* Start with solid walls */
-	for (y = 0; y < MAX_HGT; y++)
-	{
-		for (x = 0; x < MAX_WID; x++)
-		{
-			/* Create "solid" perma-wall */
-			cave[y][x].feat = FEAT_PERM_SOLID;
-
-			/* Illuminate and memorize the walls */
-			cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
-		}
-	}
-
-	/* Then place some floors */
-	for (y = qy + 1; y < qy + SCREEN_HGT - 1; y++)
-	{
-		for (x = qx + 1; x < qx + SCREEN_WID - 1; x++)
-		{
-			/* Create empty floor */
-			cave[y][x].feat = FEAT_FLOOR;
-
-			/* Darken and forget the floors */
-			cave[y][x].info &= ~(CAVE_GLOW | CAVE_MARK);
-
-			/* Day time */
-			if (daytime)
-			{
-				/* Perma-Lite */
-				cave[y][x].info |= (CAVE_GLOW);
-
-				/* Memorize */
-				if (view_perma_grids) cave[y][x].info |= (CAVE_MARK);
-			}
-		}
-	}
-
-	build_arena();
-
-	place_monster_aux(py + 5, px, arena_monsters[p_ptr->arena_number],
-	    FALSE, FALSE, FALSE, FALSE);
-}
-
-#endif
-
 
 #if 0
 
@@ -1068,9 +967,9 @@ static void quest_gen(void)
 
 
 	/* Start with perm walls */
-	for (y = 0; y < cur_hgt; y++)
+	for (y = min_hgt; y < max_hgt; y++)
 	{
-		for (x = 0; x < cur_wid; x++)
+		for (x = min_wid; x < max_wid; x++)
 		{
 			cave[y][x].feat = FEAT_PERM_SOLID;
 		}
@@ -1091,6 +990,71 @@ static void quest_gen(void)
 
 #endif
 
+static int map_wid_old = 66;
+
+
+void map_panel_size(void)
+{
+	int wid, hgt;
+
+
+	/* Only if the map exists */
+	if (!character_dungeon) return;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	/* Offset */
+	wid -= COL_MAP + 1;
+
+	/* reset panels */
+	if (dun_level)
+	{
+		/* Determine number of panels (dungeon) */
+		max_panel_rows = max_hgt - min_hgt;
+		max_panel_cols = max_wid - min_wid;
+	}
+	else
+	{
+		/* Determine number of panels (wilderness) */
+		max_panel_rows = max_wild * 16;
+		max_panel_cols = max_wild * 16;
+	}
+
+	/* Assume illegal panel */
+	panel_row_min = max_panel_rows;
+	panel_col_min = max_panel_cols;
+	
+	/* Kill previous size of line */
+	
+#ifdef USE_TRANSPARENCY
+	/* String of terrain characters along one row of the map */
+	if (mp_ta) C_KILL(mp_ta, map_wid_old, byte);
+	if (mp_tc) C_KILL(mp_tc, map_wid_old, char);
+	
+#endif /* USE_TRANSPARENCY */	
+	
+	/* String of characters along one row of the map */
+	if (mp_a) C_KILL(mp_a, map_wid_old, byte);
+	if (mp_c) C_KILL(mp_c, map_wid_old, char);
+	
+	/* Save size */
+	map_wid_old = wid;
+	
+	/* Make the new lines */
+
+#ifdef USE_TRANSPARENCY
+	/* String of terrain characters along one row of the map */
+	C_MAKE(mp_ta, wid, byte);
+	C_MAKE(mp_tc, wid, char);
+	
+#endif /* USE_TRANSPARENCY */	
+	
+	/* String of characters along one row of the map */
+	C_MAKE(mp_a, wid, byte);
+	C_MAKE(mp_c, wid, char);
+}
+
 /* Make a real level */
 static bool level_gen(cptr *why)
 {
@@ -1102,24 +1066,23 @@ static bool level_gen(cptr *why)
 		if (cheat_room)
 		  msg_print("A 'small' dungeon level.");
 
-		do
+		while (TRUE)
 		{
-			level_height = randint(MAX_HGT/SCREEN_HGT);
-			level_width = randint(MAX_WID/SCREEN_WID);
+			level_height = randint(MAX_HGT / BLOCK_HGT);
+			level_width = randint(MAX_WID / BLOCK_WID);
+			
+			/* Exit if larger than one screen, but less than normal dungeon */
+			if ((level_height < (MAX_HGT / BLOCK_HGT)) &&
+				(level_height >= (22 / BLOCK_HGT)) &&
+				(level_width < (MAX_WID / BLOCK_WID)) &&
+				(level_width >= (66 / BLOCK_WID))) break;
 		}
-		while ((level_height == MAX_HGT/SCREEN_HGT) &&
-			   (level_width == MAX_WID/SCREEN_WID));
 
-		cur_hgt = level_height * SCREEN_HGT;
-		cur_wid = level_width * SCREEN_WID;
-
-		/* Determine number of panels */
-		max_panel_rows = level_height * 2 - 2;
-		max_panel_cols = level_width * 2 - 2;
-
-		/* Assume illegal panel */
-		panel_row = max_panel_rows;
-		panel_col = max_panel_cols;
+		/* Get bounds of dungeon */
+		min_hgt = 0;
+		max_hgt = level_height * BLOCK_HGT;
+		min_wid = 0;
+		max_wid = level_width * BLOCK_WID;
 
 		if (cheat_room)
 		  msg_format("X:%d, Y:%d.", max_panel_cols, max_panel_rows);
@@ -1127,16 +1090,10 @@ static bool level_gen(cptr *why)
 	else
 	{
 		/* Big dungeon */
-		cur_hgt = MAX_HGT;
-		cur_wid = MAX_WID;
-
-		/* Determine number of panels */
-		max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-		max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
-
-		/* Assume illegal panel */
-		panel_row = max_panel_rows;
-		panel_col = max_panel_cols;
+		min_hgt = 0;
+		max_hgt = MAX_HGT;
+		min_wid = 0;
+		max_wid = MAX_WID;
 	}
 
 	/* Make a dungeon */
@@ -1183,7 +1140,6 @@ void generate_cave(void)
 {
 	int y, x, num;
 
-
 	/* Build the wilderness */
 	if (!dun_level)
 	{
@@ -1193,19 +1149,14 @@ void generate_cave(void)
 		px = (s16b)p_ptr->wilderness_x;
 		py = (s16b)p_ptr->wilderness_y;
 
-		/* Determine number of panels */
-		max_panel_rows = (max_wild * 16 / SCREEN_HGT) * 2;
-		max_panel_cols = (max_wild * 16 / SCREEN_WID) * 2;
-
-		/* Assume illegal panel */
-		panel_row = max_panel_rows;
-		panel_col = max_panel_cols;
+		/* The "dungeon" is ready */
+		character_dungeon = TRUE;
+		
+		/* Reset map panels */
+		map_panel_size();
 
 		/* Add monsters to the wilderness */
 		repopulate_wilderness();
-
-		/* The "dungeon" is ready */
-		character_dungeon = TRUE;
 
 		return;
 	}
@@ -1252,15 +1203,6 @@ void generate_cave(void)
 #endif /* MONSTER_FLOW */
 			}
 		}
-
-		/* Mega-Hack -- no player yet */
-		px = py = 0;
-
-		/* Mega-Hack -- no panel yet */
-		panel_row_min = 0;
-		panel_row_max = 0;
-		panel_col_min = 0;
-		panel_col_max = 0;
 
 		/* Set the base level */
 		base_level = dun_level;
@@ -1359,10 +1301,29 @@ void generate_cave(void)
 
 		/* Wipe the monsters */
 		wipe_m_list();
+
+		/* Wipe the fields */
+		wipe_f_list();
 	}
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
+	
+	/* Reset map panels */
+	map_panel_size();
+	
+	/* Verify the panel */
+	verify_panel();
+	
+	/* Remove the CAVE_ROOM flags... reused as CAVE_MNLT */
+	for (x = min_wid; x < max_wid; x++)
+	{
+		for(y = min_hgt; y < max_hgt; y++)
+		{
+			/* Clear the flag */
+			cave[y][x].info &= ~(CAVE_ROOM);
+		}
+	}
 
 	/* Remember when this level was "created" */
 	old_turn = turn;

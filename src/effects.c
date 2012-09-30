@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/08 03:39:41 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/08 10:16:13 $ */
 /* File: effects.c */
 
 /* Purpose: effects of various "objects" */
@@ -16,7 +16,7 @@
 /*
  * Set "p_ptr->blind", notice observable changes
  *
- * Note the use of "PU_UN_LITE" and "PU_UN_VIEW", which is needed to
+ * Note the use of "PU_UN_VIEW", which is needed to
  * memorize any terrain features which suddenly become "visible".
  * Note that blindness is currently the only thing which can affect
  * "player_can_see_bold()".
@@ -62,8 +62,8 @@ bool set_blind(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
-	/* Fully update the visuals */
-	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE | PU_VIEW | PU_LITE | PU_MONSTERS);
+	/* Fully update the visuals - hack set torch to be radius 0 */
+	p_ptr->update |= (PU_UN_VIEW | PU_VIEW | PU_MONSTERS | PU_TORCH);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -1393,7 +1393,7 @@ bool set_stun(int v)
 			break;
 		}
 
-		/* 
+		/*
 		 * XXX XXX Hack -
 		 * Mindcrafters cannot get this effect when
 		 * casting a spell.  It really doesn't make sense.
@@ -1403,7 +1403,7 @@ bool set_stun(int v)
 		 * explained away by their "superior mental skills" or
 		 * something...
 		 */
-		if ((randint(1000) < v || randint(16) == 1) && 
+		if ((randint(1000) < v || randint(16) == 1) &&
 		 (!(p_ptr->pclass == CLASS_MINDCRAFTER)))
 		{
 			msg_print("A vicious blow hits your head.");
@@ -2496,7 +2496,7 @@ void do_poly_self(void)
 		}
 		while ((new_race == p_ptr->prace) && (expfact > goalexpfact));
 
-		if (effect_msg[0])
+		if (!effect_msg[0])
 		{
 			msg_format("You turn into a%s %s!",
 			    (((new_race == RACE_AMBERITE) ||

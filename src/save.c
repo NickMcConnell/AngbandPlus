@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/19 15:38:14 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/18 09:00:57 $ */
 /* File: save.c */
 
 /* Purpose: interact with savefiles */
@@ -659,6 +659,57 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(0);
 }
 
+/*
+ * Write a "field" record
+ */
+static void wr_field(field_type *f_ptr)
+{
+	int i;
+
+	wr_s16b(f_ptr->t_idx);
+
+	/* Location */
+	wr_s16b(f_ptr->fy);
+	wr_s16b(f_ptr->fx);
+
+	/* Info flags */
+	wr_u16b(f_ptr->info);
+
+	/* Counter */
+	wr_s16b(f_ptr->counter);
+
+	/* Data */
+	for (i = 0; i < 8; i++)
+	{
+		wr_byte(f_ptr->data[i]);
+	}
+
+
+#ifdef USE_SCRIPT
+	{
+		cptr python_field = field_save_callback(f_ptr);
+		if (python_field && *python_field)
+		{
+			wr_s32b(strlen(python_field));
+			wr_string(python_field);
+			string_free(python_field);
+		}
+		else
+		{
+			/* No Python field */
+			wr_s32b(0);
+		}
+	}
+#else /* USE_SCRIPT */
+
+	/* No Python object */
+	wr_s32b(0);
+
+#endif /* USE_SCRIPT */
+}
+
+
+
 
 /*
  * Write a "lore" record
@@ -1024,12 +1075,12 @@ static void wr_extra(void)
 	wr_u32b(p_ptr->muta2);
 	wr_u32b(p_ptr->muta3);
 
-	for (i = 0; i<8; i++)
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
 		wr_s16b(p_ptr->virtues[i]);
 	}
 
-	for (i = 0; i<8; i++)
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
 		wr_s16b(p_ptr->vir_types[i]);
 	}
@@ -1074,6 +1125,13 @@ static void wr_extra(void)
 
 	/* Current turn */
 	wr_s32b(turn);
+	
+	/* Trap detection status */
+	wr_byte(p_ptr->detected);
+	
+	/* Coords of last trap detection spell */
+	wr_s16b(p_ptr->detecty);
+	wr_s16b(p_ptr->detectx);
 }
 
 /*
@@ -1085,11 +1143,9 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 	int y, x;
 
 	byte tmp8u;
-	u16b tmp16s;
 
 	byte count;
 	byte prev_char;
-	s16b prev_s16b;
 
 	cave_type *c_ptr;
 
@@ -1217,48 +1273,7 @@ static void save_map(int ymax, int ymin, int xmax, int xmin)
 		wr_byte((byte)count);
 		wr_byte((byte)prev_char);
 	}
-
-
-	/*** Simple "Run-Length-Encoding" of cave ***/
-
-	/* Note that this will induce two wasted bytes */
-	count = 0;
-	prev_s16b = 0;
-
-	/* Dump the cave */
-	for (y = ymin; y < ymax; y++)
-	{
-		for (x = xmin; x < xmax; x++)
-		{
-			/* Get the cave */
-			c_ptr = area(y,x);
-
-			/* Extract a byte */
-			tmp16s = c_ptr->f_idx;
-
-			/* If the run is broken, or too full, flush it */
-			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
-			{
-				wr_byte((byte)count);
-				wr_u16b(prev_s16b);
-				prev_s16b = tmp16s;
-				count = 1;
-			}
-
-			/* Continue the run */
-			else
-			{
-				count++;
-			}
-		}
-	}
-
-	/* Flush the data (if any) */
-	if (count)
-	{
-		wr_byte((byte)count);
-		wr_u16b(prev_s16b);
-	}
+	
 }
 
 /*
@@ -1311,6 +1326,9 @@ static void save_wild_data(void)
 static void wr_dungeon(void)
 {
 	int i;
+	
+	int cur_wid = max_wid;
+	int cur_hgt = max_hgt;
 
 	/*** Basic info ***/
 
@@ -1320,8 +1338,8 @@ static void wr_dungeon(void)
 	wr_u16b(num_repro);
 	wr_u16b(py);
 	wr_u16b(px);
-	wr_u16b(cur_hgt);
-	wr_u16b(cur_wid);
+	wr_u16b(max_hgt);
+	wr_u16b(max_wid);
 	wr_u16b(max_panel_rows);
 	wr_u16b(max_panel_cols);
 
@@ -1331,7 +1349,7 @@ static void wr_dungeon(void)
 	if (dun_level)
 	{
 		/* Save dungeon map */
-		save_map(cur_hgt, 0, cur_wid, 0);
+		save_map(max_hgt, min_hgt, max_wid, min_wid);
 
 		/* Save wilderness map */
 		change_level(0);
@@ -1340,6 +1358,10 @@ static void wr_dungeon(void)
 		         wild_grid.x_max, wild_grid.x_min);
 
 		change_level(dun_level);
+		
+		/* Restore bounds */
+		max_hgt = cur_hgt;
+		max_wid = cur_wid;
 	}
 	else
 	{
@@ -1350,8 +1372,12 @@ static void wr_dungeon(void)
 
 	/* Compact the objects */
 	compact_objects(0);
+
 	/* Compact the monsters */
 	compact_monsters(0);
+
+	/* Compact the fields */
+	compact_fields(0);
 
 	/*** Dump objects ***/
 
@@ -1381,6 +1407,20 @@ static void wr_dungeon(void)
 
 		/* Dump it */
 		wr_monster(m_ptr);
+	}
+
+	/*** Dump the fields ***/
+
+	/* Total fields */
+	wr_u16b(fld_max);
+
+	/* Dump the fields */
+	for (i = 1; i < fld_max; i++)
+	{
+		field_type *f_ptr = &fld_list[i];
+
+		/* Dump it */
+		wr_field(f_ptr);
 	}
 }
 
@@ -1597,7 +1637,7 @@ static bool wr_savefile_new(void)
 		/* Type */
 		wr_u16b(town[i].type);
 
-		/* Locatation */
+		/* Location */
 		wr_byte(town[i].x);
 		wr_byte(town[i].y);
 

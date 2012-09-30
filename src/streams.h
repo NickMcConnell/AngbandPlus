@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: ebock $ on $Date: 1999/12/05 06:11:15 $
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/25 11:27:04 $
  *
  * File: streams.h
  * Purpose: header file for streams.c. This is only used in generate.c.
@@ -14,8 +14,10 @@
 
 
 /* Externs */
-
 extern void add_river(int feat1, int feat2);
 extern void build_streamer(int feat, int chance);
 extern void place_trees(int x,int y);
 extern void destroy_level(void);
+extern void build_lake(int type);
+extern void build_cavern(void);
+

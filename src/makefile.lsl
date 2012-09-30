@@ -1,14 +1,21 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/06 01:45:53 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/04 10:50:06 $
 # File: Makefile.lsl
 
 # Purpose: Makefile for Linux + SVGA library
+#
+#
+# Do not use this makefile unless you want to play as root in the console.
+# (This file is officially depreciated...)
+#
+# Use makefile.std instead.  It will work "out of the box" on most machines.
+# (Although you may need to change the architecture type.)
 
 SRCS = \
   z-util.c z-virt.c z-form.c z-rand.c z-term.c \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c \
+  melee1.c melee2.c save.c files.c fields.c\
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load.c \
   wizard1.c wizard2.c grid.c streams.c rooms.c \
@@ -24,7 +31,7 @@ OBJS = \
   variable.o tables.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o \
+  melee1.o melee2.o save.o files.o fields.o\
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load.o \
   wizard1.o wizard2.o grid.o streams.o rooms.o \
@@ -99,6 +106,7 @@ cmd5.o: cmd5.c $(INCS)
 cmd6.o: cmd6.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
 effects.o: effects.c $(INCS)
+fields.o: fields.c $(INCS)
 files.o: files.c $(INCS)
 flavor.o: flavor.c $(INCS)
 generate.o: generate.c $(INCS) generate.h grid.h rooms.h streams.h

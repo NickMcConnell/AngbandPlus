@@ -23,8 +23,6 @@
  * create big performance problems for some really old X terminals (such
  * as 3/50's running Xkernel).
  *
- * None of the windows notice when they are resized.  XXX XXX XXX
- *
  * Initial framework (and some code) by Ben Harrison (benh@phial.com).
  *
  * Most of this file is by Torbjorn Lindgren (tl@cd.chalmers.se).
@@ -133,6 +131,36 @@ typedef struct AngbandClassRec *AngbandWidgetClass;
 typedef struct AngbandClassPart AngbandClassPart;
 typedef struct AngbandClassRec AngbandClassRec;
 
+typedef struct term_data term_data;
+
+
+/*
+ * A structure for each "term"
+ */
+struct term_data
+{
+	term t;
+
+	AngbandWidget widget;
+};
+
+
+/*
+ * Maximum number of windows
+ */
+#define MAX_TERM_DATA 8
+
+
+/*
+ * An array of term_data's
+ */
+static term_data data[MAX_TERM_DATA];
+
+
+/*
+ * Current number of windows open
+ */
+static int num_term = MAX_TERM_DATA;
 
 /*
  * New fields for the Angband widget record
@@ -257,6 +285,7 @@ static void Redisplay(AngbandWidget w, XEvent *event, Region region);
 static Boolean SetValues(AngbandWidget current, AngbandWidget request,
                          AngbandWidget wnew, ArgList args, Cardinal *num_args);
 static void Destroy(AngbandWidget widget);
+static void Resize_term(AngbandWidget wnew);
 
 /*
  * Forward declaration for internal functions
@@ -298,7 +327,7 @@ AngbandClassRec angbandClassRec =
 		/* compress_enterleave  */      TRUE,
 		/* visible_interest     */      FALSE,
 		/* destroy              */      (XtWidgetProc) Destroy,
-		/* resize               */      NULL,
+		/* resize               */      (XtWidgetProc) Resize_term,
 		/* expose               */      (XtExposeProc) Redisplay,
 		/* set_values           */      (XtSetValuesFunc) SetValues,
 		/* set_values_hook      */      NULL,
@@ -447,7 +476,7 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		 	      widget->angband.fontheight);
 		}
 		else
-		{		
+		{
 			/* Mega Hack^2 - assume the top left corner is "black" */
 			blank = XGetPixel(widget->angband.tiles,
 				 0, widget->angband.fontheight * 6);
@@ -532,13 +561,13 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 	                                angband_color_table[0][1],
 	                                angband_color_table[0][2],
 	                                angband_color_table[0][3]);
-	
+
 	/* Default foreground pixel */
 	unsigned long fg = create_pixel(dpy,
 	                                angband_color_table[1][1],
 	                                angband_color_table[1][2],
 	                                angband_color_table[1][3]);
-	
+
 	/* Fix the background color */
 	wnew->core.background_pixel = bg;
 
@@ -553,7 +582,7 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 	gcv.font = wnew->angband.fnt->fid;
 	gcv.graphics_exposures = FALSE;
 	gcv.background = bg;
-	
+
 	for (i = 0; i < NUM_COLORS; i++)
 	{
 		unsigned long pixel;
@@ -579,7 +608,7 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 		}
 
 		gcv.foreground = pixel;
-		
+
 		/* Copy */
 		gcv.function = 3;
 
@@ -589,11 +618,11 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 		                              &gcv);
 	}
 
-	/* Create a special GC for highlighting */	
+	/* Create a special GC for highlighting */
 	gcv.foreground = (BlackPixelOfScreen(XtScreen((Widget)wnew)) ^
 	                  WhitePixelOfScreen(XtScreen((Widget)wnew)));
 	gcv.background = 0;
-	
+
 	gcv.function = GXxor;
 	wnew->angband.gc[COLOR_XOR] = XtGetGC((Widget)wnew,
 	                                      (GCFunction | GCForeground | GCBackground |
@@ -635,16 +664,145 @@ static void Destroy(AngbandWidget widget)
 }
 
 
+static void Resize_term(AngbandWidget wnew)
+{
+	int cols, rows, wid, hgt;
+
+	int ox = wnew->angband.internal_border;
+	int oy = wnew->angband.internal_border;
+
+	bool redraw_it = TRUE;
+
+	int i;
+	term_data *old_td = (term_data*)(Term->data);
+	term_data *td = &data[0];
+
+	/* Hack - Find the term to activate */
+	for (i = 0; i < num_term; i++)
+	{
+		td = &data[i];
+
+		/* Have we found it? */
+		if (td->widget == wnew) break;
+
+		/* Paranoia:  none of the widgets matched */
+		if (!td) return;
+	}
+
+	/* Activate the proper Term */
+	Term_activate(&td->t);
+
+	/* Determine "proper" number of rows/cols */
+	cols = ((wnew->core.width - (ox + ox)) / wnew->angband.fontwidth);
+	rows = ((wnew->core.height - (oy + oy)) / wnew->angband.fontheight);
+
+	/* Hack -- minimal size */
+	if (cols < 1) cols = 1;
+	if (rows < 1) rows = 1;
+
+	if (i == 0)
+	{
+		/* Hack the main window must be at least 80x24 */
+		if (cols < 80) cols = 80;
+		if (rows < 24) rows = 24;
+	}
+
+	/* Desired size of window */
+	wid = cols * wnew->angband.fontwidth + (ox + ox);
+	hgt = rows * wnew->angband.fontheight + (oy + oy);
+
+	/* Resize the Term (if needed) */
+	if (Term_resize(cols, rows) == 1) redraw_it = FALSE;
+
+	/* Reset map size if required */
+	if (i == 0)
+	{
+		/* Mega-Hack -- no panel yet */
+		panel_row_min = 0;
+		panel_row_max = 0;
+		panel_col_min = 0;
+		panel_col_max = 0;
+
+		/* Reset the panels */
+		map_panel_size();
+		
+		if (character_dungeon)
+		{
+			verify_panel();
+		}
+	}
+
+	/* Only redraw if everything is initialised */
+	if (character_dungeon && redraw_it)
+	{
+		/* Activate term zero for the redraw */
+		Term_activate(&data[0].t);
+
+		/* redraw */
+		do_cmd_redraw_term(i);
+	}
+
+
+	/* Activate the old term */
+	Term_activate(&old_td->t);
+}
+
 /*
  * Procedure Redisplay() is called as the result of an Expose event.
  * Use the redraw callback to do a full redraw
  */
-static void Redisplay(AngbandWidget widget, XEvent *event, Region region)
+static void Redisplay(AngbandWidget wnew, XEvent *xev, Region region)
 {
+	int x1, x2, y1, y2;
+
+	int i;
+
+	term_data *old_td = (term_data*)(Term->data);
+	term_data *td = &data[0];
+
+	/* Hack - Find the term to activate */
+	for (i = 0; i < num_term; i++)
+	{
+		td = &data[i];
+
+		/* Have we found it? */
+		if (td->widget == wnew) break;
+
+		/* Paranoia:  none of the widgets matched */
+		if (!td) return;
+	}
+
+	/* Activate the proper Term */
+	Term_activate(&td->t);
+
+	/* Find the bounds of the exposed region */
+
+	/*
+	 * This probably could be obtained from the Region parameter -
+	 * but I don't know anything about XAW.
+	 */
+	x1 = (xev->xexpose.x - wnew->angband.internal_border)
+		/wnew->angband.fontwidth;
+	x2 = (xev->xexpose.x + xev->xexpose.width -
+		wnew->angband.internal_border)/wnew->angband.fontwidth;
+
+	y1 = (xev->xexpose.y - wnew->angband.internal_border)
+		/wnew->angband.fontheight;
+	y2 = (xev->xexpose.y + xev->xexpose.height -
+		wnew->angband.internal_border)/wnew->angband.fontheight;
+
+	Term_redraw_section(x1, y1, x2, y2);
+
+	/* Activate the old term */
+	Term_activate(&old_td->t);
+
+
+#if 0
 	if (XtHasCallbacks((Widget)widget, XtNredrawCallback) == XtCallbackHasSome)
 	{
 		XtCallCallbacks((Widget)widget, XtNredrawCallback, NULL);
 	}
+#endif /* 0 */
 }
 
 
@@ -832,10 +990,6 @@ static XFontStruct *getFont(AngbandWidget widget,
 
 
 
-/*
- * Maximum number of windows
- */
-#define MAX_TERM_DATA 8
 
 
 /*
@@ -844,33 +998,6 @@ static XFontStruct *getFont(AngbandWidget widget,
 #define TERM_FALLBACKS 6
 
 
-/*
- * Forward declare
- */
-typedef struct term_data term_data;
-
-
-/*
- * A structure for each "term"
- */
-struct term_data
-{
-	term t;
-
-	AngbandWidget widget;
-};
-
-
-/*
- * An array of term_data's
- */
-static term_data data[MAX_TERM_DATA];
-
-
-/*
- * Current number of windows open
- */	
-static int num_term = MAX_TERM_DATA;
 
 /*
  * The names of the term_data's
@@ -897,8 +1024,8 @@ Arg specialArgs[TERM_FALLBACKS] =
 	{ XtNstartColumns, 80},
 	{ XtNminRows,      24},
 	{ XtNminColumns,   80},
-	{ XtNmaxRows,      24},
-	{ XtNmaxColumns,   80}
+	{ XtNmaxRows,      255},
+	{ XtNmaxColumns,   255}
 };
 
 
@@ -911,8 +1038,8 @@ Arg defaultArgs[TERM_FALLBACKS] =
 	{ XtNstartColumns, 80},
 	{ XtNminRows,      1},
 	{ XtNminColumns,   1},
-	{ XtNmaxRows,      256},
-	{ XtNmaxColumns,   256}
+	{ XtNmaxRows,      255},
+	{ XtNmaxColumns,   255}
 };
 
 
@@ -1160,7 +1287,7 @@ static void Term_xtra_xaw_react_aux(term_data *td)
 	int depth = DefaultDepthOfScreen(XtScreen((Widget) wnew));
 
 	int i;
-	
+
 	/* See if any colors need to be changed */
 	for (i = 0; i < NUM_COLORS; i++)
 	{
@@ -1172,7 +1299,7 @@ static void Term_xtra_xaw_react_aux(term_data *td)
 			    (wnew->angband.color[i][3] != angband_color_table[i][3]))
 			{
 				unsigned long pixel;
-				
+
 				/* Save new values */
 				wnew->angband.color[i][0] = angband_color_table[i][0];
 				wnew->angband.color[i][1] = angband_color_table[i][1];
@@ -1185,7 +1312,7 @@ static void Term_xtra_xaw_react_aux(term_data *td)
 				                     wnew->angband.color[i][2],
 				                     wnew->angband.color[i][3]);
 
-				
+
 				/* Change */
 				XSetForeground(dpy, wnew->angband.gc[i], pixel);
 			}
@@ -1200,7 +1327,7 @@ static void Term_xtra_xaw_react_aux(term_data *td)
 static errr Term_xtra_xaw_react(void)
 {
 	int i;
-	
+
 	/* Initialize the windows */
 	for (i = 0; i < num_term; i++)
 	{
@@ -1366,14 +1493,45 @@ static void term_raise(term_data *td)
  */
 static errr term_data_init(term_data *td, Widget topLevel,
                            int key_buf, String name,
-                           ArgList widget_arg, Cardinal widget_arg_no)
+                           ArgList widget_arg, Cardinal widget_arg_no, int i)
 {
 	Widget parent;
 	term *t = &td->t;
 
+	int cols = 80;
+	int rows = 24;
+
+	char buf[80];
+	cptr str;
+
+	int val;
+
 	/* Create the shell widget */
 	parent = XtCreatePopupShell(name, topLevelShellWidgetClass, topLevel,
 	                            NULL, 0);
+
+	/* Window specific cols */
+	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) cols = val;
+
+	/* Window specific rows */
+	sprintf(buf, "ANGBAND_X11_ROWS_%d", i);
+	str = getenv(buf);
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) rows = val;
+
+	/* Hack the main window must be at least 80x24 */
+	if (i == 0)
+	{
+		if (cols < 80) cols = 80;
+		if (rows < 24) rows = 24;
+	}
+
+	/* Reset the initial size */
+	widget_arg[0].value = rows;
+	widget_arg[1].value = cols;
 
 	/* Create the interior widget */
 	td->widget = (AngbandWidget)
@@ -1381,7 +1539,7 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	                      parent, widget_arg, widget_arg_no);
 
 	/* Initialize the term (full size) */
-	term_init(t, 80, 24, key_buf);
+	term_init(t, cols, rows, key_buf);
 
 	/* Use a "soft" cursor */
 	t->soft_cursor = TRUE;
@@ -1415,6 +1573,8 @@ static errr term_data_init(term_data *td, Widget topLevel,
 
 	/* Activate (important) */
 	Term_activate(t);
+
+	Resize_term(td->widget);
 
 	return 0;
 }
@@ -1457,11 +1617,13 @@ errr init_xaw(int argc, char *argv[])
 			continue;
 		}
 
+#ifdef USE_GRAPHICS
 		if (prefix(argv[i], "-s"))
 		{
 			smoothRescaling = FALSE;
 			continue;
 		}
+#endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
 		{
@@ -1505,7 +1667,7 @@ errr init_xaw(int argc, char *argv[])
 
 		term_data_init(td, topLevel, 1024, termNames[i],
 		               (i == 0) ? specialArgs : defaultArgs,
-		               TERM_FALLBACKS);
+		               TERM_FALLBACKS, i);
 
 		angband_term[i] = Term;
 	}
@@ -1604,8 +1766,8 @@ errr init_xaw(int argc, char *argv[])
 			while (jj >>= 1) ii <<= 1;
 			total = td->widget->angband.fontwidth *
 				 td->widget->angband.fontheight * ii;
-			
-			
+
+
 			TmpData = (char *)malloc(total);
 
 			td->widget->angband.TmpImage = XCreateImage(dpy,

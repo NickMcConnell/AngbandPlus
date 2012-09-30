@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/24 10:30:15 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/13 02:31:45 $ */
 /* File: tables.c */
 
 /* Purpose: Angband Tables */
@@ -90,94 +90,94 @@ cptr color_char = "dwsorgbuDWvyRGBU";
 
 
 /*
- * Stat Table (INT/WIS) -- Number of half-spells per level
+ * Stat Table (INT/WIS) -- Number of spells at level 50
  */
 byte adj_mag_study[] =
 {
 	0	/* 3 */,
-	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	2	/* 15 */,
-	2	/* 16 */,
-	2	/* 17 */,
-	2	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
-	3	/* 18/50-18/59 */,
-	3	/* 18/60-18/69 */,
-	3	/* 18/70-18/79 */,
-	3	/* 18/80-18/89 */,
-	4	/* 18/90-18/99 */,
-	4	/* 18/100-18/109 */,
-	4	/* 18/110-18/119 */,
-	5	/* 18/120-18/129 */,
-	5	/* 18/130-18/139 */,
-	5	/* 18/140-18/149 */,
-	5	/* 18/150-18/159 */,
-	5	/* 18/160-18/169 */,
-	5	/* 18/170-18/179 */,
-	5	/* 18/180-18/189 */,
-	5	/* 18/190-18/199 */,
-	5	/* 18/200-18/209 */,
-	6	/* 18/210-18/219 */,
-	6	/* 18/220+ */
+	5	/* 4 */,
+	10	/* 5 */,
+	15	/* 6 */,
+	20	/* 7 */,
+	25	/* 8 */,
+	30	/* 9 */,
+	35	/* 10 */,
+	40	/* 11 */,
+	45	/* 12 */,
+	50	/* 13 */,
+	52	/* 14 */,
+	54	/* 15 */,
+	56	/* 16 */,
+	58	/* 17 */,
+	60	/* 18/00-18/09 */,
+	62	/* 18/10-18/19 */,
+	64	/* 18/20-18/29 */,
+	66	/* 18/30-18/39 */,
+	68	/* 18/40-18/49 */,
+	70	/* 18/50-18/59 */,
+	75	/* 18/60-18/69 */,
+	80	/* 18/70-18/79 */,
+	85	/* 18/80-18/89 */,
+	90	/* 18/90-18/99 */,
+	95	/* 18/100-18/109 */,
+	100	/* 18/110-18/119 */,
+	105	/* 18/120-18/129 */,
+	110	/* 18/130-18/139 */,
+	115	/* 18/140-18/149 */,
+	120	/* 18/150-18/159 */,
+	125	/* 18/160-18/169 */,
+	130	/* 18/170-18/179 */,
+	135	/* 18/180-18/189 */,
+	140	/* 18/190-18/199 */,
+	145	/* 18/200-18/209 */,
+	150	/* 18/210-18/219 */,
+	155	/* 18/220+ */
 };
 
 
 /*
- * Stat Table (INT/WIS) -- extra half-mana-points per level
+ * Stat Table (INT/WIS) -- extra mana at level 50 divided by 2.
  */
 byte adj_mag_mana[] =
 {
-	0       /* 3 */,
-	0       /* 4 */,
-	0       /* 5 */,
-	0       /* 6 */,
-	0       /* 7 */,
-	1       /* 8 */,
-	2       /* 9 */,
-	2       /* 10 */,
-	2       /* 11 */,
-	2       /* 12 */,
-	2       /* 13 */,
-	2       /* 14 */,
-	2       /* 15 */,
-	2       /* 16 */,
-	2       /* 17 */,
-	3       /* 18/00-18/09 */,
-	3       /* 18/10-18/19 */,
-	3       /* 18/20-18/29 */,
-	3       /* 18/30-18/39 */,
-	3       /* 18/40-18/49 */,
-	4       /* 18/50-18/59 */,
-	4       /* 18/60-18/69 */,
-	5       /* 18/70-18/79 */,
-	6       /* 18/80-18/89 */,
-	7       /* 18/90-18/99 */,
-	8       /* 18/100-18/109 */,
-	9       /* 18/110-18/119 */,
-	10      /* 18/120-18/129 */,
-	11      /* 18/130-18/139 */,
-	12      /* 18/140-18/149 */,
-	13      /* 18/150-18/159 */,
-	14      /* 18/160-18/169 */,
-	15      /* 18/170-18/179 */,
-	16      /* 18/180-18/189 */,
-	16      /* 18/190-18/199 */,
-	17      /* 18/200-18/209 */,
-	17      /* 18/210-18/219 */,
-	18      /* 18/220+ */
+	0        /* 3 */,
+	0        /* 4 */,
+	2        /* 5 */,
+	5        /* 6 */,
+	7        /* 7 */,
+	12       /* 8 */,
+	15       /* 9 */,
+	17       /* 10 */,
+	20       /* 11 */,
+	22       /* 12 */,
+	25       /* 13 */,
+	27       /* 14 */,
+	30       /* 15 */,
+	31       /* 16 */,
+	33       /* 17 */,
+	35       /* 18/00-18/09 */,
+	37       /* 18/10-18/19 */,
+	40       /* 18/20-18/29 */,
+	42       /* 18/30-18/39 */,
+	47       /* 18/40-18/49 */,
+	52       /* 18/50-18/59 */,
+	57       /* 18/60-18/69 */,
+	62       /* 18/70-18/79 */,
+	75       /* 18/80-18/89 */,
+	87       /* 18/90-18/99 */,
+	100      /* 18/100-18/109 */,
+	112      /* 18/110-18/119 */,
+	125      /* 18/120-18/129 */,
+	137      /* 18/130-18/139 */,
+	150      /* 18/140-18/149 */,
+	162      /* 18/150-18/159 */,
+	175      /* 18/160-18/169 */,
+	187      /* 18/170-18/179 */,
+	200      /* 18/180-18/189 */,
+	205      /* 18/190-18/199 */,
+	210      /* 18/200-18/209 */,
+	215      /* 18/210-18/219 */,
+	220      /* 18/220+ */
 };
 
 
@@ -977,7 +977,7 @@ byte adj_con_mhp[] =
 	128 + -3	/* 4 */,
 	128 + -2	/* 5 */,
 	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
+	128 + -1	/* 7 */,
 	128 + 0	/* 8 */,
 	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
@@ -988,15 +988,15 @@ byte adj_con_mhp[] =
 	128 + 1	/* 15 */,
 	128 + 1	/* 16 */,
 	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 4	/* 18/10-18/19 */,
+	128 + 2	/* 18/00-18/09 */,
+	128 + 3	/* 18/10-18/19 */,
 	128 + 4	/* 18/20-18/29 */,
 	128 + 4	/* 18/30-18/39 */,
-	128 + 4	/* 18/40-18/49 */,
+	128 + 5	/* 18/40-18/49 */,
 	128 + 5	/* 18/50-18/59 */,
-	128 + 5	/* 18/60-18/69 */,
+	128 + 6	/* 18/60-18/69 */,
 	128 + 6	/* 18/70-18/79 */,
-	128 + 6	/* 18/80-18/89 */,
+	128 + 7	/* 18/80-18/89 */,
 	128 + 7	/* 18/90-18/99 */,
 	128 + 8	/* 18/100-18/109 */,
 	128 + 9	/* 18/110-18/119 */,
@@ -5952,23 +5952,17 @@ option_type option_info[] =
 	{ &expand_list,                 TRUE, 1, 1, 5,
 	"expand_list",                  "Expand the power of the list commands" },
 
-#ifdef ALLOW_EASY_OPEN
 	{ &easy_open,                   TRUE, 1, 5, 7,
 	"easy_open",                    "Automatically open doors" },
-#endif /* ALLOW_EASY_OPEN */
 
-#ifdef ALLOW_EASY_DISARM
 	{ &easy_disarm,                 TRUE, 1, 5, 8,
 	"easy_disarm",                  "Automatically disarm traps" },
-#endif /* ALLOW_EASY_DISARM */
 
 	{ &auto_haggle,                 TRUE, 1, 1, 0,
 	"auto_haggle",                  "Auto-haggle in stores" },
 
-#ifdef ALLOW_EASY_FLOOR /* TNB */
 	{ &easy_floor,                  FALSE, 1, 5, 9,
 	"easy_floor",                   "Display floor stacks in a list" },
-#endif /* ALLOW_EASY_FLOOR -- TNB */
 
 	{ &use_command,                 FALSE, 1, 5, 10,
 	"use_command",                  "Allow unified use command" },
@@ -6005,6 +5999,9 @@ option_type option_info[] =
 
 	{ &disturb_other,               TRUE, 2, 0, 25,
 	"disturb_other",                "Disturb whenever random things happen" },
+
+	{ &disturb_traps,               TRUE, 2, 0, 28,
+	"disturb_traps",                "Disturb when you leave detection radius" },
 
 	{ &alert_failure,               FALSE, 2, 0, 27,
 	"alert_failure",                "Alert user to various failures" },
@@ -6137,7 +6134,7 @@ option_type option_info[] =
 
 	{ &stupid_monsters,             FALSE, 6, 5, 2,
 	"stupid_monsters",              "Monsters behave stupidly" },
-	
+
 	{ &silly_monsters,             TRUE, 6, 6, 17,
 	"silly_monsters",              "Allow silly monsters" },
 
@@ -6203,6 +6200,9 @@ option_type option_info[] =
 
 	{ &destroy_worthless,           FALSE, 8, 7, 0,
 	"destroy_worthless",            "Auto-destroy known worthless items" },
+	
+	{ &monster_light,           FALSE, 8, 7, 1,
+	"monster_light",            "Allow monsters to carry lights" },
 
 
 	/*** End of Table ***/
@@ -6490,3 +6490,146 @@ cptr silly_attacks[MAX_SILLY_ATTACK] =
 	"disbelieves",
 	"molests"
 };
+
+/* Field function's + names */
+field_action f_action[FIELD_ACTION_TYPES] =
+{
+	/* Null - Do absolutely nothing */
+	{NULL, "nothing"}, 
+	
+	/* Test - Do absolutely nothing */
+	{field_action_nothing, "field_action_nothing"},
+	
+	/* Delete the field */
+	{field_action_delete, "field_action_delete"},
+	
+	/* Glyph of warding function */
+	{field_action_glyph_warding, "field_action_glyph_warding"},
+	
+	/* Explosive rune function */
+	{field_action_glyph_explode, "field_action_glyph_explode"},
+	
+	/* Corpse decay function */
+	{field_action_corpse_decay, "field_action_corpse_decay"},
+	
+	/* Initialise corpse on load of savefile */
+	{field_action_corpse_load, "field_action_corpse_load"},
+	
+	/* Corpse init function */
+	{field_action_corpse_init, "field_action_corpse_init"},
+	
+	/* Corpse raising function for spell */
+	{field_action_corpse_raise, "field_action_corpse_raise"},
+	
+	/* Function returning name of the monster the corpse once was. */
+	{field_action_corpse_look, "field_action_corpse_look"},
+	
+	/* Tunnel into a "standard" wall to pass */
+	{field_action_wall_tunnel, "field_action_wall_tunnel"},
+	
+	/* Interact with grid 'tunnels' */
+	{field_action_interact_tunnel, "field_action_interact_tunnel"},
+	
+	/* Interact with grid 'disarms' */
+	{field_action_interact_disarm, "field_action_interact_disarm"},
+	
+	/* Interact with grid 'opens' */
+	{field_action_interact_open, "field_action_interact_open"},
+		
+	/* Trap init function */
+	{field_action_trap_init, "field_action_trap_init"},
+	
+	/* Trap disarming function */
+	{field_action_trap_disarm, "field_action_trap_disarm"},
+	
+	/* Trapdoor */
+	{field_action_hit_trap_door, "field_action_hit_trap_door"},
+	
+	/* Pit */
+	{field_action_hit_trap_pit, "field_action_hit_trap_pit"},
+	
+	/* Spiked Pit */
+	{field_action_hit_trap_spike, "field_action_hit_trap_spike"},
+	
+	/* Poisoned Spiked Pit */
+	{field_action_hit_trap_poison_pit, "field_action_hit_trap_poison_pit"},
+	
+	/* Curse Trap */
+	{field_action_hit_trap_curse, "field_action_hit_trap_curse"},
+	
+	/* Teleport Trap */
+	{field_action_hit_trap_teleport, "field_action_hit_trap_teleport"},
+	
+	/* Elemental Trap */
+	{field_action_hit_trap_element, "field_action_hit_trap_element"},
+	
+	/* Elemental Ball Trap */
+	{field_action_hit_trap_ba_element, "field_action_hit_trap_ba_element"},
+	
+	/* Gas Trap */
+	{field_action_hit_trap_gas, "field_action_hit_trap_gas"},
+	
+	/* Trap Trap */
+	{field_action_hit_trap_traps, "field_action_hit_trap_trap"},
+	
+	/* Temp Drain Stat Trap */
+	{field_action_hit_trap_temp_stat, "field_action_hit_trap_temp_stat"},
+	
+	/* Perm Drain Stat Trap */
+	{field_action_hit_trap_perm_stat, "field_action_hit_trap_perm_stat"},
+	
+	/* Lose XP Trap */
+	{field_action_hit_trap_lose_xp, "field_action_hit_trap_lose_xp"},
+	
+	/* Disenchant Trap */
+	{field_action_hit_trap_disenchant, "field_action_hit_trap_disenchant"},
+	
+	/* Drop Item Trap */
+	{field_action_hit_trap_drop_item, "field_action_hit_trap_drop_item"},
+	
+	/* Mutation Trap */
+	{field_action_hit_trap_mutate, "field_action_hit_trap_mutate"},
+	
+	/* New Life Trap */
+	{field_action_hit_trap_new_life, "field_action_hit_trap_new_life"},
+	
+	/* Light sucking Trap */
+	{field_action_hit_trap_no_lite, "field_action_hit_trap_no_lite"},
+	
+	/* Hunger Trap */
+	{field_action_hit_trap_hunger, "field_action_hit_trap_hunger"},
+	
+	/* Gold destruction Trap */
+	{field_action_hit_trap_no_gold, "field_action_hit_trap_no_gold"},
+	
+	/* Haste Monster Trap */
+	{field_action_hit_trap_haste_mon, "field_action_hit_trap_haste_monster"},
+	
+	/* Raise Monster Trap */
+	{field_action_hit_trap_raise_mon, "field_action_hit_trap_raise_mon"},
+	
+	/* Drain charges Trap */
+	{field_action_hit_trap_drain_magic, "field_action_hit_trap_drain_magic"},
+	
+	/* Aggravate Monster Trap */
+	{field_action_hit_trap_aggravate, "field_action_hit_trap_aggravate"},
+	
+	/* Summon Monster Trap */
+	{field_action_hit_trap_summon, "field_action_hit_trap_summon"},
+	
+	/* Lose Memory Trap */
+	{field_action_hit_trap_lose_memory, "field_action_hit_trap_lose_memory"},
+	
+	/* Attempt to unlock a door */
+	{field_action_door_unlock, "field_action_door_unlock"},
+		
+	/* Attempt to bash a door */
+	{field_action_door_bash, "field_action_door_bash"},
+	
+	/* Monster attemts to enter locked door */
+	{field_action_door_lock_monster, "field_action_door_lock_monster"},
+	
+	/* Monster attemts to enter jammed door */
+	{field_action_door_jam_monster, "field_action_door_jam_monster"}
+};
+

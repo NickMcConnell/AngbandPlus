@@ -49,7 +49,7 @@ static bool exist_virtue(int type)
 	int i;
 
 	/* Search */
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
 		if (p_ptr->vir_types[i] == type) return TRUE;
 	}
@@ -111,7 +111,7 @@ void get_virtues(void)
 	int i, j;
 
 	/* Reset */
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
 		p_ptr->virtues[i] = 0;
 		p_ptr->vir_types[i] = 0;
@@ -305,9 +305,9 @@ void get_virtues(void)
 	}
 
 	/* Eliminate doubles */
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
-		for (j = i + 1; j < 8; j++)
+		for (j = i + 1; j < MAX_PLAYER_VIRTUES; j++)
 		{
 			if ((p_ptr->vir_types[j] != 0) &&
 				(p_ptr->vir_types[j] == p_ptr->vir_types[i]))
@@ -316,7 +316,7 @@ void get_virtues(void)
 	}
 
 	/* Fill in the blanks */
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
 		if (p_ptr->vir_types[i] == 0) get_random_virtue(i);
 	}
@@ -327,7 +327,7 @@ void chg_virtue(int virtue, int amount)
 {
 	int i;
 
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
 		if (p_ptr->vir_types[i] == virtue)
 		{
@@ -357,7 +357,7 @@ void dump_virtues(FILE * OutFile)
 
 	if (!OutFile) return;
 
-	for (v_nr = 0; v_nr < 8; v_nr++)
+	for (v_nr = 0; v_nr < MAX_PLAYER_VIRTUES; v_nr++)
 	{
 		char v_name[20];
 

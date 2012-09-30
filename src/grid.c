@@ -1,5 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:46 $
- *
+/*
  * File: grid.c
  * Purpose: low-level dungeon creation primitives
  */
@@ -16,6 +15,23 @@
 #include "generate.h"
 #include "grid.h"
 
+void clear_icky_door(cave_type *c_ptr)
+{
+	s16b *fld_ptr;
+	
+	/* Want a closed door terrain */
+	if (c_ptr->feat != FEAT_CLOSED) return;
+	
+	/* See if there is a door field here */
+	fld_ptr = field_is_type(&c_ptr->fld_idx, FTYPE_DOOR);
+	
+	if (*fld_ptr)
+	{
+		/* There is - delete it */
+		delete_field_ptr(fld_ptr);
+	}
+}
+
 
 /*
  * Returns random co-ordinates for player/monster/object
@@ -31,8 +47,8 @@ bool new_player_spot(void)
 	while (max_attempts--)
 	{
 		/* Pick a legal spot */
-		y = rand_range(1, cur_hgt - 2);
-		x = rand_range(1, cur_wid - 2);
+		y = rand_range(min_hgt, max_hgt - 1);
+		x = rand_range(min_wid, max_wid - 1);
 
 		c_ptr = &cave[y][x];
 
@@ -112,11 +128,15 @@ void place_random_door(int y, int x)
 {
 	int tmp;
 
+	/* Making a door on top of a door is problematical */
+	clear_icky_door(&cave[y][x]);	
+	
 	/* Invisible wall */
 	if (ironman_nightmare && !rand_int(666))
 	{
 		/* Create invisible wall */
-		cave_set_feat(y, x, FEAT_WALL_INVIS);
+		cave_set_feat(y, x, FEAT_FLOOR);
+		(void) place_field(y, x, FT_WALL_INVIS);
 		return;
 	}
 
@@ -160,32 +180,33 @@ void place_closed_door(int y, int x)
 	if (ironman_nightmare && !rand_int(666))
 	{
 		/* Create invisible wall */
-		cave_set_feat(y, x, FEAT_WALL_INVIS);
+		cave_set_feat(y, x, FEAT_FLOOR);
+		(void) place_field(y, x, FT_WALL_INVIS);
 		return;
 	}
 
 	/* Choose an object */
 	tmp = rand_int(400);
-
+	
 	/* Closed doors (300/400) */
 	if (tmp < 300)
 	{
 		/* Create closed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+		cave_set_feat(y, x, FEAT_CLOSED);
 	}
 
 	/* Locked doors (99/400) */
 	else if (tmp < 399)
 	{
 		/* Create locked door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
+		make_lockjam_door(y, x, randint(10) + dun_level / 10, FALSE);
 	}
 
 	/* Stuck doors (1/400) */
 	else
 	{
 		/* Create jammed door */
-		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
+		make_lockjam_door(y, x, randint(5) + dun_level / 10, TRUE);
 	}
 }
 
@@ -458,23 +479,28 @@ bool get_is_floor(int x, int y)
 /* Set a square to be floor.  (Includes range checking.) */
 void set_floor(int x, int y)
 {
+	cave_type *c_ptr;
+	
 	if (!in_bounds(y, x))
 	{
 		/* Out of bounds */
 		return;
 	}
 
-	if (cave[y][x].info & CAVE_ROOM)
+	c_ptr = &cave[y][x];
+	
+	if (c_ptr->info & CAVE_ROOM)
 	{
 		/* A room border don't touch. */
 		return;
 	}
 
 	/* Set to be floor if is a wall (don't touch lakes). */
-	if (cave[y][x].feat == FEAT_WALL_EXTRA)
-		cave[y][x].feat = FEAT_FLOOR;
+	if (c_ptr->feat == FEAT_WALL_EXTRA)
+	{
+		c_ptr->feat = FEAT_FLOOR;
+	}
 }
-
 
 
 /*
@@ -1119,4 +1145,821 @@ bool build_tunnel2(int x1, int y1, int x2, int y2, int type, int cutoff)
 		/* Hack - ignore return value so avoid infinite loops */
 		return TRUE;
 	}
+}
+
+
+/*
+ * Structure to hold all "fill" data
+ */
+
+typedef struct fill_data_type fill_data_type;
+
+struct fill_data_type
+{
+	/* area size */
+	int xmin;
+	int ymin;
+	int xmax;
+	int ymax;
+
+	/* cutoffs */
+	int c1;
+	int c2;
+	int c3;
+
+	/* features to fill with */
+	int feat1;
+	int feat2;
+	int feat3;
+
+	/* number of filled squares */
+	int amount;
+};
+
+static fill_data_type fill_data;
+
+
+/* Store routine for the fractal cave generator */
+/* this routine probably should be an inline function or a macro. */
+static void store_height(int x, int y, int val)
+{
+	/* if on boundary set val > cutoff so walls are not as square */
+	if (((x == fill_data.xmin) || (y == fill_data.ymin) ||
+	     (x == fill_data.xmax) || (y == fill_data.ymax)) &&
+	    (val <= fill_data.c1)) val = fill_data.c1 + 1;
+
+	/* store the value in height-map format */
+	cave[y][x].feat = val;
+
+	return;
+}
+
+
+/*
+* Explanation of the plasma fractal algorithm:
+*
+* A grid of points is created with the properties of a 'height-map'
+* This is done by making the corners of the grid have a random value.
+* The grid is then subdivided into one with twice the resolution.
+* The new points midway between two 'known' points can be calculated
+* by taking the average value of the 'known' ones and randomly adding
+* or subtracting an amount proportional to the distance between those
+* points.  The final 'middle' points of the grid are then calculated
+* by averaging all four of the originally 'known' corner points.  An
+* random amount is added or subtracted from this to get a value of the
+* height at that point.  The scaling factor here is adjusted to the
+* slightly larger distance diagonally as compared to orthogonally.
+*
+* This is then repeated recursively to fill an entire 'height-map'
+* A rectangular map is done the same way, except there are different
+* scaling factors along the x and y directions.
+*
+* A hack to change the amount of correlation between points is done using
+* the grd variable.  If the current step size is greater than grd then
+* the point will be random, otherwise it will be calculated by the
+* above algorithm.  This makes a maximum distance at which two points on
+* the height map can affect each other.
+*
+* How fractal caves are made:
+*
+* When the map is complete, a cut-off value is used to create a cave.
+* Heights below this value are "floor", and heights above are "wall".
+* This also can be used to create lakes, by adding more height levels
+* representing shallow and deep water/ lava etc.
+*
+* The grd variable affects the width of passages.
+* The roug variable affects the roughness of those passages
+*
+* The tricky part is making sure the created cave is connected.  This
+* is done by 'filling' from the inside and only keeping the 'filled'
+* floor.  Walls bounding the 'filled' floor are also kept.  Everything
+* else is converted to the normal granite FEAT_WALL_EXTRA.
+ */
+
+
+/*
+ *  Note that this uses the cave.feat array in a very hackish way
+ *  the values are first set to zero, and then each array location
+ *  is used as a "heightmap"
+ *  The heightmap then needs to be converted back into the "feat" format.
+ *
+ *  grd=level at which fractal turns on.  smaller gives more mazelike caves
+ *  roug=roughness level.  16=normal.  higher values make things more convoluted
+ *    small values are good for smooth walls.
+ *  size=length of the side of the square cave system.
+ */
+void generate_hmap(int y0, int x0, int xsiz, int ysiz, int grd, int roug, int cutoff)
+{
+	int xhsize, yhsize, xsize, ysize, maxsize;
+
+	/*
+	 * fixed point variables- these are stored as 256 x normal value
+	 * this gives 8 binary places of fractional part + 8 places of normal part
+	 */
+
+	u16b xstep, xhstep, ystep, yhstep;
+	u16b xstep2, xhstep2, ystep2, yhstep2;
+	u16b i, j, ii, jj, diagsize, xxsize, yysize;
+
+	/* Cache for speed */
+	u16b xm, xp, ym, yp;
+
+	/* redefine size so can change the value if out of range */
+	xsize = xsiz;
+	ysize = ysiz;
+
+	/* Paranoia about size of the system of caves */
+	if (xsize > 254) xsize = 254;
+	if (xsize < 4) xsize = 4;
+	if (ysize > 254) ysize = 254;
+	if (ysize < 4) ysize = 4;
+
+	/* get offsets to middle of array */
+	xhsize = xsize / 2;
+	yhsize = ysize / 2;
+
+	/* fix rounding problem */
+	xsize = xhsize * 2;
+	ysize = yhsize * 2;
+
+	/* get limits of region */
+	fill_data.xmin = x0 - xhsize;
+	fill_data.ymin = y0 - yhsize;
+	fill_data.xmax = x0 + xhsize;
+	fill_data.ymax = y0 + yhsize;
+
+	/* Store cutoff in global for quick access */
+	fill_data.c1 = cutoff;
+
+	/*
+	* Scale factor for middle points:
+	* About sqrt(2) * 256 - correct for a square lattice
+	* approximately correct for everything else.
+	*/
+	diagsize = 362;
+
+	/* maximum of xsize and ysize */
+	maxsize = (xsize > ysize) ? xsize : ysize;
+
+	/* Clear the section */
+	for (i = 0; i <= xsize; i++)
+	{
+		for (j = 0; j <= ysize; j++)
+		{
+			/* 255 is a flag for "not done yet" */
+			cave[(int)(fill_data.ymin + j)][(int)(fill_data.xmin + i)].feat = 255;
+			/* Clear icky flag because may be redoing the cave */
+			cave[(int)(fill_data.ymin + j)][(int)(fill_data.xmin + i)].info &= ~(CAVE_ICKY);
+		}
+	}
+
+	/* Boundaries are walls */
+	cave[fill_data.ymin][fill_data.xmin].feat = maxsize;
+	cave[fill_data.ymax][fill_data.xmin].feat = maxsize;
+	cave[fill_data.ymin][fill_data.xmax].feat = maxsize;
+	cave[fill_data.ymax][fill_data.xmax].feat = maxsize;
+
+	/* Set the middle square to be an open area. */
+	cave[y0][x0].feat = 0;
+
+	/* Initialize the step sizes */
+	xstep = xhstep = xsize * 256;
+	ystep = yhstep = ysize * 256;
+	xxsize = xsize * 256;
+	yysize = ysize * 256;
+
+	/*
+	 * Fill in the rectangle with fractal height data -
+	 * like the 'plasma fractal' in fractint.
+	 */
+	while ((xhstep > 256) || (yhstep > 256))
+	{
+		/* Halve the step sizes */
+		xstep = xhstep;
+		xhstep /= 2;
+		ystep = yhstep;
+		yhstep /= 2;
+
+		/* cache well used values */
+		xstep2 = xstep / 256;
+		ystep2 = ystep / 256;
+
+		xhstep2 = xhstep / 256;
+		yhstep2 = yhstep / 256;
+
+		/* middle top to bottom. */
+		for (i = xhstep; i <= xxsize - xhstep; i += xstep)
+		{
+			for (j = 0; j <= yysize; j += ystep)
+			{
+				/* cache often used values */
+				ii = i / 256 + fill_data.xmin;
+				jj = j / 256 + fill_data.ymin;
+
+				/* Test square */
+				if (cave[jj][ii].feat == 255)
+				{
+					if (xhstep2 > grd)
+					{
+						/* If greater than 'grid' level then is random */
+						store_height(ii, jj, randint(maxsize));
+					}
+			  	 	else
+					{
+						/* Average of left and right points +random bit */
+						store_height(ii, jj,
+							(cave[jj][fill_data.xmin + (i - xhstep) / 256].feat
+							 + cave[jj][fill_data.xmin + (i + xhstep) / 256].feat) / 2
+							 + (randint(xstep2) - xhstep2) * roug / 16);
+					}
+				}
+			}
+		}
+
+
+		/* middle left to right. */
+		for (j = yhstep; j <= yysize - yhstep; j += ystep)
+		{
+			for (i = 0; i <= xxsize; i += xstep)
+		   	{
+				/* cache often used values */
+				ii = i / 256 + fill_data.xmin;
+				jj = j / 256 + fill_data.ymin;
+
+				/* Test square */
+				if (cave[jj][ii].feat == 255)
+				{
+					if (xhstep2 > grd)
+					{
+						/* If greater than 'grid' level then is random */
+						store_height(ii, jj, randint(maxsize));
+					}
+		   			else
+					{
+						/* Average of up and down points +random bit */
+						store_height(ii, jj,
+							(cave[fill_data.ymin + (j - yhstep) / 256][ii].feat
+							+ cave[fill_data.ymin + (j + yhstep) / 256][ii].feat) / 2
+							+ (randint(ystep2) - yhstep2) * roug / 16);
+					}
+				}
+			}
+		}
+
+		/* center. */
+		for (i = xhstep; i <= xxsize - xhstep; i += xstep)
+		{
+			for (j = yhstep; j <= yysize - yhstep; j += ystep)
+			{
+			   	/* cache often used values */
+				ii = i / 256 + fill_data.xmin;
+				jj = j / 256 + fill_data.ymin;
+
+				/* Test square */
+				if (cave[jj][ii].feat == 255)
+				{
+					if (xhstep2 > grd)
+					{
+						/* If greater than 'grid' level then is random */
+						store_height(ii, jj, randint(maxsize));
+					}
+		   			else
+					{
+						/* Cache reused values. */
+						xm = fill_data.xmin + (i - xhstep) / 256;
+						xp = fill_data.xmin + (i + xhstep) / 256;
+						ym = fill_data.ymin + (j - yhstep) / 256;
+						yp = fill_data.ymin + (j + yhstep) / 256;
+
+						/*
+						 * Average over all four corners + scale by diagsize to
+						 * reduce the effect of the square grid on the shape of the fractal
+						 */
+						store_height(ii, jj,
+							(cave[ym][xm].feat + cave[yp][xm].feat
+							+ cave[ym][xp].feat + cave[yp][xp].feat) / 4
+							+ (randint(xstep2) - xhstep2) * (diagsize / 16) / 256 * roug);
+					}
+				}
+			}
+		}
+	}
+}
+
+
+static bool hack_isnt_wall(int y, int x, int c1, int c2, int c3,
+	 int feat1, int feat2, int feat3)
+{
+	cave_type *c_ptr = &cave[y][x];
+	/*
+	 * function used to convert from height-map back to the
+	 *  normal angband cave format
+	 */
+	if (c_ptr->info & CAVE_ICKY)
+	{
+		/* already done */
+		return FALSE;
+	}
+	else
+	{
+		/* Show that have looked at this square */
+		c_ptr->info |= (CAVE_ICKY);
+
+		/* Use cutoffs c1-c3 to allocate regions of floor /water/ lava etc. */
+		if (c_ptr->feat <= c1)
+		{
+			/* 25% of the time use the other tile : it looks better this way */
+			if (randint(100) < 75)
+			{
+				c_ptr->feat = feat1;
+				return TRUE;
+			}
+			else
+			{
+				c_ptr->feat = feat2;
+				return TRUE;
+			}
+		}
+		else if (c_ptr->feat <= c2)
+		{
+			/* 25% of the time use the other tile : it looks better this way */
+			if (randint(100) < 75)
+			{
+				c_ptr->feat = feat2;
+				return TRUE;
+			}
+			else
+			{
+				c_ptr->feat = feat1;
+				return TRUE;
+			}
+		}
+		else if (c_ptr->feat <= c3)
+		{
+			c_ptr->feat = feat3;
+			return TRUE;
+		}
+		
+		/* if greater than cutoff then is a wall */
+		else
+		{
+			c_ptr->feat = FEAT_WALL_OUTER;
+			return FALSE;
+		}
+	}
+}
+
+
+/*
+ * Fill the fractal height-map using the features specified in in fill_data.
+ *
+ * This routine is similar to the method used to update the monster flow
+ * information.  It uses the temp grids as a circular queue.
+ */
+static void cave_fill(int y, int x)
+{
+	int i, j, d;
+	int ty, tx;
+		
+	int flow_tail = 1;
+	int flow_head = 0;
+	
+	
+	/*** Start Grid ***/
+
+	/* Enqueue that entry */
+	temp_y[0] = y;
+	temp_x[0] = x;
+	
+	
+	/* Now process the queue */
+	while (flow_head != flow_tail)
+	{
+		/* Extract the next entry */
+		ty = temp_y[flow_head];
+		tx = temp_x[flow_head];
+
+		/* Forget that entry */
+		if (++flow_head == TEMP_MAX) flow_head = 0;
+
+		/* Add the "children" */
+		for (d = 0; d < 8; d++)
+		{
+			int old_head = flow_tail;
+
+			/* Child location */
+			j = ty + ddy_ddd[d];
+			i = tx + ddx_ddd[d];
+			
+			/* Paranoia Don't leave the cave */
+			if (!in_bounds(j, i)) return;
+
+			/* If within bounds */
+			if ((i > fill_data.xmin) && (i < fill_data.xmax)
+				&& (j > fill_data.ymin) && (j < fill_data.ymax))
+			{
+				/* If not a wall or floor done before */
+				if (hack_isnt_wall(j, i,
+					fill_data.c1, fill_data.c2, fill_data.c3,
+					fill_data.feat1, fill_data.feat2, fill_data.feat3))
+		 		{
+					
+					/* Enqueue that entry */
+					temp_y[flow_tail] = j;
+					temp_x[flow_tail] = i;
+
+					/* Advance the queue */
+					if (++flow_tail == TEMP_MAX) flow_tail = 0;
+
+					/* Hack -- Overflow by forgetting new entry */
+					if (flow_tail == flow_head)
+					{
+						flow_tail = old_head;
+					}
+					else
+					{
+						/* keep tally of size of cave system */
+						(fill_data.amount)++;
+					}
+				}
+			}
+			else
+			{
+				/* affect boundary */
+				cave[j][i].info |= CAVE_ICKY;
+			}
+		}
+	}
+}
+
+
+bool generate_fracave(int y0, int x0, int xsize, int ysize, int cutoff,
+	 bool light, bool room)
+{
+	int x, y, i, xhsize, yhsize;
+	cave_type *c_ptr;
+
+	/* offsets to middle from corner */
+	xhsize = xsize / 2;
+	yhsize = ysize / 2;
+
+
+	/*
+	 * select region connected to center of cave system
+	 * this gets rid of alot of isolated one-sqaures that
+	 * can make teleport traps instadeaths...
+	 */
+
+	/* cutoffs */
+	fill_data.c1 = cutoff;
+	fill_data.c2 = 0;
+	fill_data.c3 = 0;
+
+	/* features to fill with */
+	fill_data.feat1 = FEAT_FLOOR;
+	fill_data.feat2 = FEAT_FLOOR;
+	fill_data.feat3 = FEAT_FLOOR;
+
+	/* number of filled squares */
+	fill_data.amount = 0;
+
+	cave_fill(y0, x0);
+
+	/* if tally too small, try again */
+	if (fill_data.amount < 10)
+	{
+		/* too small - clear area and try again later */
+		for (x = 0; x <= xsize; ++x)
+		{
+			for (y = 0; y <= ysize; ++y)
+			{
+				c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
+				
+				c_ptr->feat = FEAT_WALL_EXTRA;
+				c_ptr->info &= ~(CAVE_ICKY | CAVE_ROOM);
+			}
+		}
+		return FALSE;
+	}
+
+	/*
+	 * Do boundarys-check to see if they are next to a filled region
+	 * If not then they are set to normal granite
+	 * If so then they are marked as room walls.
+	 */
+	for (i = 0; i <= xsize; ++i)
+	{
+		/* top boundary */
+		c_ptr = &cave[0 + y0 - yhsize][i + x0 - xhsize];
+		
+		if ((c_ptr->info & CAVE_ICKY) && (room))
+		{
+			/* Next to a 'filled' region? - set to be room walls */
+			c_ptr->feat = FEAT_WALL_OUTER;
+			
+			if (light) c_ptr->info |= (CAVE_GLOW);
+			
+			c_ptr->info |= (CAVE_ROOM);
+			c_ptr->feat = FEAT_WALL_OUTER;
+		}
+		else
+		{
+			/* set to be normal granite */
+			cave[y0 + 0 - yhsize][x0 + i - xhsize].feat = FEAT_WALL_EXTRA;
+		}
+		
+		/* clear the icky flag-don't need it any more */
+		c_ptr->info &= ~(CAVE_ICKY);
+
+		/* bottom boundary */
+		c_ptr = &cave[ysize + y0 - yhsize][i + x0 - xhsize];
+		if ((c_ptr->info & CAVE_ICKY) && (room))
+		{
+			/* Next to a 'filled' region? - set to be room walls */
+			c_ptr->feat = FEAT_WALL_OUTER;
+			
+			if (light) c_ptr->info |= (CAVE_GLOW);
+			
+			c_ptr->info |= (CAVE_ROOM);
+			c_ptr->feat = FEAT_WALL_OUTER;
+		}
+		else
+		{
+			/* set to be normal granite */
+			c_ptr->feat = FEAT_WALL_EXTRA;
+		}
+
+		/* clear the icky flag-don't need it any more */
+		c_ptr->info &= ~(CAVE_ICKY);
+	}
+
+	/* Do the left and right boundaries minus the corners (done above) */
+	for (i = 1; i < ysize; ++i)
+	{
+		/* left boundary */
+		c_ptr = &cave[i + y0 - yhsize][0 + x0 - xhsize];
+		
+		if ((c_ptr->info & CAVE_ICKY) && room)
+		{
+			/* room boundary */
+			c_ptr->feat = FEAT_WALL_OUTER;
+			
+			if (light) c_ptr->info |= (CAVE_GLOW);
+			c_ptr->info |= (CAVE_ROOM);
+			c_ptr->feat = FEAT_WALL_OUTER;
+		}
+		else
+		{
+			/* outside room */
+			c_ptr->feat = FEAT_WALL_EXTRA;
+		}
+		
+		/* clear icky flag -done with it */
+		c_ptr->info &= ~(CAVE_ICKY);
+		
+		/* right boundary */
+		c_ptr = &cave[i + y0 - yhsize][xsize + x0 - xhsize];
+		if ((c_ptr->info & CAVE_ICKY) && room)
+		{
+			/* room boundary */
+			c_ptr->feat = FEAT_WALL_OUTER;
+			
+			if (light) c_ptr->info |= (CAVE_GLOW);
+			
+			c_ptr->info |= (CAVE_ROOM);
+			c_ptr->feat = FEAT_WALL_OUTER;
+		}
+		else
+		{
+			/* outside room */
+			c_ptr->feat = FEAT_WALL_EXTRA;
+		}
+
+		/* clear icky flag -done with it */
+		c_ptr->info &= ~(CAVE_ICKY);
+	}
+
+
+	/* Do the rest: convert back to the normal format */
+	for (x = 1; x < xsize; ++x)
+	{
+		for (y = 1; y < ysize; ++y)
+		{
+			c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
+			
+			if (c_ptr->info & CAVE_ICKY)
+			{
+				/* Clear the icky flag in the filled region */
+				c_ptr->info &= ~CAVE_ICKY;
+				
+				if (c_ptr->feat == FEAT_FLOOR)
+				{
+					/* Set appropriate flags */
+					if (light) c_ptr->info |= (CAVE_GLOW);
+					if (room) c_ptr->info |= (CAVE_ROOM);
+				}
+				else if (c_ptr->feat == FEAT_WALL_OUTER)
+				{
+					/* Walls */
+					if (light) c_ptr->info |= (CAVE_GLOW);
+					if (room)
+					{
+						c_ptr->info |= (CAVE_ROOM);
+					}
+					else
+					{
+						c_ptr->feat = FEAT_WALL_EXTRA;
+						c_ptr->info &= ~(CAVE_ROOM);
+					}
+				}
+				else
+				{
+					/* Clear the unconnected regions */
+					c_ptr->feat = FEAT_WALL_EXTRA;
+					c_ptr->info &= ~(CAVE_ROOM);
+				}
+			}
+			else
+			{
+				/* Clear the unconnected regions */
+				c_ptr->feat = FEAT_WALL_EXTRA;
+				c_ptr->info &= ~(CAVE_ROOM);
+			}
+		}
+	}
+
+	/*
+	 * XXX XXX XXX There is a slight problem when tunnels pierce the caves:
+	 * Extra doors appear inside the system.  (Its not very noticeable
+	 * though.) This can be removed by "filling" from the outside in.
+	 * This allows a separation from FEAT_WALL_OUTER with FEAT_WALL_INNER.
+	 * (Internal walls are  F.W.OUTER instead.) The extra effort for what
+	 * seems to be only a minor thing (even non-existant if you think of the
+	 * caves not as normal rooms, but as holes in the dungeon), doesn't seem
+	 * worth it.
+	 */
+
+	return TRUE;
+}
+
+bool generate_lake(int y0, int x0, int xsize, int ysize,
+	 int c1, int c2, int c3, int type)
+{
+	int x, y, i, xhsize, yhsize;
+	int feat1, feat2, feat3;
+
+	cave_type *c_ptr;
+
+	/* offsets to middle from corner */
+	xhsize = xsize / 2;
+	yhsize = ysize / 2;
+
+	/* Get features based on type */
+	switch (type)
+	{
+		case 1:{
+				/* Lava */
+				feat1 = FEAT_DEEP_LAVA;
+				feat2 = FEAT_SHAL_LAVA;
+				feat3 = FEAT_FLOOR;
+				}; break;
+		case 2:{
+				/* Water */
+				feat1 = FEAT_DEEP_WATER;
+				feat2 = FEAT_SHAL_WATER;
+				feat3 = FEAT_FLOOR;
+				}; break;
+		case 3: {
+				/* Collapsed cave */
+				feat1 = FEAT_FLOOR;
+				feat2 = FEAT_FLOOR;
+				feat3 = FEAT_RUBBLE;
+				}; break;
+		case 4: {
+				/* Earth vault */
+				feat1 = FEAT_RUBBLE;
+				feat2 = FEAT_FLOOR;
+				feat3 = FEAT_RUBBLE;
+				}; break;
+		case 5: {
+				/* Air vault */
+				feat1 = FEAT_FLOOR;
+				feat2 = FEAT_TREES;
+				feat3 = FEAT_FLOOR;
+				}; break;
+		case 6: {
+				/* Water vault */
+				feat1 = FEAT_SHAL_WATER;
+				feat2 = FEAT_DEEP_WATER;
+				feat3 = FEAT_SHAL_WATER;
+				}; break;
+		case 7: {
+				/* Fire Vault */
+				feat1 = FEAT_SHAL_LAVA;
+				feat2 = FEAT_DEEP_LAVA;
+				feat3 = FEAT_SHAL_LAVA;
+				}; break;
+
+		/* Paranoia */
+		default: return FALSE;
+	}
+
+	/*
+	 * select region connected to center of cave system
+	 * this gets rid of alot of isolated one-sqaures that
+	 * can make teleport traps instadeaths...
+	 */
+
+	/* cutoffs */
+	fill_data.c1 = c1;
+	fill_data.c2 = c2;
+	fill_data.c3 = c3;
+
+	/* features to fill with */
+	fill_data.feat1 = feat1;
+	fill_data.feat2 = feat2;
+	fill_data.feat3 = feat3;
+
+	/* number of filled squares */
+	fill_data.amount = 0;
+
+	/* select region connected to center of cave system
+	* this gets rid of alot of isolated one-sqaures that
+	* can make teleport traps instadeaths... */
+	cave_fill(y0, x0);
+
+	/* if tally too small, try again */
+	if (fill_data.amount < 10)
+	{
+		/* too small -clear area and try again later */
+		for (x = 0; x <= xsize; ++x)
+		{
+			for (y = 0; y <= ysize; ++y)
+			{
+				c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
+				
+				c_ptr->feat = FEAT_WALL_EXTRA;
+				c_ptr->info &= ~(CAVE_ICKY);
+			}
+		}
+		return FALSE;
+	}
+
+	/* Do boundarys- set to normal granite */
+	for (i = 0; i <= xsize; ++i)
+	{
+		c_ptr = &cave[y0 + 0 - yhsize][x0 + i - xhsize];		
+		
+		c_ptr->feat = FEAT_WALL_EXTRA;
+		c_ptr->info &= ~(CAVE_ICKY);		
+
+		c_ptr = &cave[y0 + ysize - yhsize][x0 + i - xhsize];
+		
+		c_ptr->feat = FEAT_WALL_EXTRA;
+		c_ptr->info &= ~(CAVE_ICKY);
+	}
+
+	/* Do the left and right boundaries minus the corners (done above) */
+
+	for (i = 1; i < ysize; ++i)
+	{
+		c_ptr = &cave[y0 + i - yhsize][x0 + 0 - xhsize];		
+		
+		c_ptr->feat = FEAT_WALL_EXTRA;
+		c_ptr->info &= ~(CAVE_ICKY);		
+
+		c_ptr = &cave[y0 + i - yhsize][x0 + xsize - xhsize];
+		
+		c_ptr->feat = FEAT_WALL_EXTRA;
+		c_ptr->info &= ~(CAVE_ICKY);
+	}
+
+
+	/* Do the rest: convert back to the normal format */
+	for (x = 1; x < xsize; ++x)
+	{
+		for (y = 1; y < ysize; ++y)
+		{
+			c_ptr = &cave[y0 + y - yhsize][x0 + x - xhsize];
+			
+			/* Fill unconnected regions with granite */
+			if ((!(c_ptr->info & CAVE_ICKY)) || (c_ptr->feat == FEAT_WALL_OUTER))
+			{
+				c_ptr->feat = FEAT_WALL_EXTRA;
+			}
+
+			/* turn off icky flag (no longer needed.) */
+			c_ptr->info &= ~(CAVE_ICKY | CAVE_ROOM);
+
+			/* Light lava and trees */
+			if ((c_ptr->feat == FEAT_DEEP_LAVA) ||
+				(c_ptr->feat == FEAT_SHAL_LAVA) ||
+				(c_ptr->feat == FEAT_TREES))
+			{
+				c_ptr->info |= CAVE_GLOW;
+			}
+		}
+	}
+
+	return TRUE;
 }

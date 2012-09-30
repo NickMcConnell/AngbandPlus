@@ -188,7 +188,7 @@ this problem.
 Most of the artifacts in ZAngband have some random features, and some
 are even completely random, so you have to find out what an artifact
 does by yourself. Try reading a scroll of *Identify* (the stars are
-important), of use 'Research item' service offered by some buildings
+important), or use 'Research item' service offered by some buildings
 in the towns. Many spellcasting classes get the *Identify* spell at
 higher levels. You can also sell artifacts to a store and buy it back
 immediatly, but this will cost you a lot of money.

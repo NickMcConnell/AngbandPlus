@@ -4,7 +4,7 @@
  * Original Author: Jon Taylor (taylorj@gaia.ecs.csus.edu)
  * Update by: Dennis Payne (dulsi@identicalsoftware.com)
  * Version: 1.4.0, 12/05/99
- * 
+ *
  * Some of the ideas in this code came from main-win.c by Skirmantas Kligys
  * (kligys@scf.usc.edu).
  ****************************************************************************/
@@ -98,40 +98,40 @@ void *read_bmp_file ()
   BITMAPCOREHEADER bch;
   PICINFO *pp;
   pp=malloc(sizeof(PICINFO));
-  
+
   bmap = NULL;
   pal = NULL;
-  
+
   /* Build the "graf" path */
   path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
 
   /* Allocate the path */
   ANGBAND_DIR_XTRA_GRAF = string_make(path);
-    
+
   sprintf (path, "%s/8x13.bmp", ANGBAND_DIR_XTRA_GRAF);
   if (!(infile = fopen (path, "r"))) {
     printf ("Unable to load bitmap data file %s, bailing out....\n",path);
     exit (-1);
   }
-  
+
   buf=(unsigned char *) malloc (54);
   fread (buf, 1, 26, infile);
   memcpy (&bch, buf + 14, 12);
-  
+
   if (bch.bcSize == 40) { /* Truly MS_Windows 3.x ?*/
     fread (buf + 26, 1, 28, infile);/* Then we need the rest */
     memcpy (&bih, buf + 14, 40);
     iswindows = TRUE;
   } else iswindows = FALSE;
 
-  p = malloc (768);  
+  p = malloc (768);
   pal = p;
 
   if (iswindows) { /*  MS_Windows 3.x */
     pp->width = w = bih.biWidth;
     pp->height = h = bih.biHeight;
     pp->bpp = bih.biBitCount;
-    
+
     /* Here the "offbits" -  we need 'em for the
      * palette size - e.g. XV uses different sizes
      */
@@ -146,7 +146,7 @@ void *read_bmp_file ()
   bh = pp->height;
 
   if ((pp->bpp >> 3) < 3) output_type = 1;
-  
+
   /* w is the size of a horizontal line in bytes
    * bih.biWidth is the number of valid pixels in a line
    * the latter one is passed to vgadisp.c as pp->width
@@ -169,7 +169,7 @@ void *read_bmp_file ()
 
   if ((pp->bpp == 24) && (output_type == 3)) dummy = 3;
   else dummy = 1;
-  
+
   bmap = malloc (w * (h + 2) * dummy);
   memset (bmap, 0, w * (h + 2) * dummy);
 
@@ -216,7 +216,7 @@ void *read_bmp_file ()
       /* 4bit non compressed */
       ptr = pal;
       for (i = 0; i < palsize; i++)
-       { 
+       {
 	 fread (ptr + 3 * i, 1, 3, infile);
 	 if (iswindows)
 	   fread (&dummy, 1, 1, infile);
@@ -227,7 +227,7 @@ void *read_bmp_file ()
        }
       ptr = bmap;
       if ((!iswindows) || (bih.biCompression == 0))
-       { 
+       {
 	 for (j = h - 1; j >= 0; j--)
 	   for (i = 0, count = 0; i < (w / 2); i++)
 	   {
@@ -363,7 +363,7 @@ void *read_bmp_file ()
        }
       pp->numcols= 256;
       break;
-      
+
     }
 
   free (buf);
@@ -375,7 +375,7 @@ static int flip (unsigned char * image, unsigned int w, unsigned int h)
 {
   unsigned int i;
   unsigned char *hptr;
-  
+
   hptr = (unsigned char *) malloc (w);
   for (i = 0; i < (h / 2); i++)
     {
@@ -525,12 +525,12 @@ static errr term_xtra_svgalib (int n, int v)
  ***************************************************************************/
 static errr term_curs_svgalib (int x, int y)
 {
- gl_fillbox (x*CHAR_W,y*CHAR_H,CHAR_W,CHAR_H,15); 
+ gl_fillbox (x*CHAR_W,y*CHAR_H,CHAR_W,CHAR_H,15);
  return(0);
 }
 
 /****************************************************************************
- * Low-level graphics routine (assumes valid input) 
+ * Low-level graphics routine (assumes valid input)
  * Erases a rectangular block of characters from (x,y) to (x+w,y+h)
  ***************************************************************************/
 static errr term_wipe_svgalib (int x,int y,int n)
@@ -547,7 +547,7 @@ errr term_text_svgalib (int x, int y, int n, unsigned char a, cptr s)
 {
  term_wipe_svgalib (x,y,n);
  gl_colorfont (8,12,COLOR_OFFSET + (a & 0x0F)/*pal_trans[a]*/,font);
- gl_writen (x*CHAR_W,y*CHAR_H,n,(char *)s);    
+ gl_writen (x*CHAR_W,y*CHAR_H,n,(char *)s);
  return(0);
 }
 
@@ -591,16 +591,16 @@ static void term_init_svgalib (term *t)
 
   VGAMODE=G1024x768x256; /* Hardwire this mode in for now */
   VIRTUAL=1;
-  
+
   vga_init();
-  
+
   /* Set up the bitmap buffer context */
   gl_setcontextvgavirtual(VGAMODE);
   buffer=gl_allocatecontext();
   gl_getcontext(buffer);
   term_load_bitmap(); /* Load bitmap into virtual screen */
   VGAMODE=G640x480x256; /* Hardwire this mode in for now */
-  
+
   /* Set up the physical screen context */
   if (vga_setmode(VGAMODE) < 0)
   {
@@ -613,7 +613,7 @@ static void term_init_svgalib (term *t)
   gl_enablepageflipping (screen);
   setpal(); /* Set up palette colors */
   initfont(); /* Load the character font data */
-  
+
   gl_setwritemode(WRITEMODE_OVERWRITE);  /* Color 0 isn't transparent */
 }
 
@@ -623,7 +623,7 @@ static void term_init_svgalib (term *t)
  ***************************************************************************/
 static void term_nuke_svgalib (term *t)
 {
-  vga_setmode (TEXT); 
+  vga_setmode (TEXT);
 }
 
 /****************************************************************************

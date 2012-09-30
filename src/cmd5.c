@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/17 05:29:40 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/12 11:20:50 $ */
 /* File: cmd5.c */
 
 /* Purpose: Spell/Prayer commands */
@@ -38,8 +38,6 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	int         use_realm = (realm_2 ? p_ptr->realm2 : p_ptr->realm1);
 	cptr        p = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
 	{
@@ -50,8 +48,6 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Extract spells */
 	for (spell = 0; spell < 32; spell++)
@@ -202,11 +198,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	/* Save the choice */
 	(*sn) = spell;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);
@@ -1359,24 +1351,18 @@ static bool cast_chaos_spell(int spell)
 		break;
 	case 25: /* Meteor Swarm */
 		{
-			int x, y, dx, dy, d;
+			int x, y;
 			int b = 10 + randint(10);
 			for (i = 0; i < b; i++)
 			{
 				int count = 0;
 
-				while (TRUE)
+				while (count < 1000)
 				{
 					count++;
-					if (count > 1000) break;
+					
 					x = px - 5 + randint(10);
 					y = py - 5 + randint(10);
-
-					dx = (px > x) ? (px - x) : (x - px);
-					dy = (py > y) ? (py - y) : (y - py);
-
-					/* Approximate distance */
-					d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
 
 					/* paranoia */
 					if (!in_bounds(y, x)) continue;
@@ -1387,10 +1373,10 @@ static bool cast_chaos_spell(int spell)
 					if (!player_has_los_grid(c_ptr)) continue;
 
 					/* if close enough - exit */
-					if (d < 6) break;
+					if (distance(py, px, y, x) < 6) break;
 				}
 
-				if (count > 1000) break;
+				if (count >= 1000) break;
 
 				project(0, 2, y, x, (plev * 3) / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
 			}

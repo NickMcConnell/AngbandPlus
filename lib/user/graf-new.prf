@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/04/26 10:35:52 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/04 09:11:05 $
 # File: graf-new.prf
 
 #
@@ -528,7 +528,7 @@ F:71:0x81/0x98
 # Pattern exit
 F:72:0x81/0x9B
 
-# corrupted section of the Pattern
+# corrupted section of the Pattern  (Is this right?  I don't think it is. -SF-)
 F:73:0x81/0x9E
 
 # General Store
@@ -4724,6 +4724,107 @@ R:861:0xA1/0x99
 # The Serpent of Chaos
 R:862:0xB4/0x8D
 
+
+# Fields are initialised here.  (Note that some don't need tiles.)
+
+# Invisible Wall
+# no tile.
+
+# Glyph of warding.
+T:2:0x8D/0x95
+
+# Explosive rune.
+T:3:0x83/0x9A
+
+# Corpse
+T:4:0xB4/0x91
+
+# Skeleton
+T:5:0x8E/0x96
+
+# Trapdoor
+T:6:0x81/0x8C
+
+# Pit
+T:7:0x81/0x89
+
+# Spiked Pit
+T:8:0x81/0x89
+
+# Poison Pit
+T:9:0x81/0x89
+
+# Evil Rune
+T:10:0x81/0x8F
+
+# Strange Rune
+T:11:0x81/0x92
+
+# Discoloured Spot
+T:12:0x81/0x86
+
+# Discoloured Spot
+T:13:0x81/0x86
+
+# Gas Trap
+T:14:0x81/0x83
+
+# Compact Rune
+T:15:0x81/0x92
+
+# Dart Trap
+T:16:0x81/0x80
+
+# Dart Trap
+T:17:0x81/0x80
+
+# Twisted Rune
+T:18:0x81/0x8F
+
+# Geometric Rune
+T:19:0x81/0x92
+
+# Glowing Rune
+T:20:0x83/0x8D
+
+# Jagged Rune
+T:21:0x81/0x92
+
+# Fractured Rune
+T:22:0x81/0x92
+
+# Faded Rune
+T:23:0x82/0x80
+
+# Flashing Rune
+T:24:0x83/0x8D
+
+# Weird Rune
+T:25:0x82/0x80
+
+# Shimmering Rune
+T:26:0x83/0x8D
+
+# Smelly Rune
+T:27:0x82/0x80
+
+# Intricate Rune
+T:28:0x83/0x8D
+
+# Bright Rune
+T:29:0x83/0x8D
+
+# Blurry Rune
+T:30:0x82/0x80
+
+# Spiral Rune
+T:31:0x81/0x8F
+
+# Locked Door
+T:32:0x82/0x83
+
+# Jammed Door
+T:33:0x82/0x83
 
 # Load the special player pictures
 %:xtra-new.prf

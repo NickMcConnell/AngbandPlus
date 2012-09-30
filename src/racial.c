@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/24 10:25:13 $ */
 /* File: racial.c */
 
 /* Purpose: Racial powers (and mutations) */
@@ -517,7 +516,7 @@ static void cmd_racial_power_aux(s32b command)
 				x = px + ddx[dir];
 
 				/* Paranoia */
-				if(!in_bounds2(y, x)) break;
+				if (!in_bounds2(y, x)) break;
 
 				c_ptr = area(y, x);
 

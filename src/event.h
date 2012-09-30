@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/04/26 16:57:16 $ */
 #include "angband.h"
 #include "Python.h"
 
@@ -78,6 +77,12 @@ extern bool get_object_tried_callback(object_type *o_ptr);
 extern bool free_object_kind_list_callback(void);
 extern bool init_object_kind_list_callback(void);
 
+/* Field callbacks */
+extern void field_delete_callback(field_type *f_ptr);
+extern PyObject* field_copy_callback(field_type *f_ptr, field_type *g_ptr);
+extern cptr field_save_callback(field_type *f_ptr);
+extern PyObject* field_load_callback(char *code);
+
 extern bool use_skill_callback(void);
 
 /* Script callbacks */
@@ -126,5 +131,6 @@ extern cptr get_script_window_line(int line);
 #define USE_SKILL_EVENT              40
 #define GET_SCRIPT_WINDOW_LINE_EVENT 41
 #define PLAY_GAME_EVENT              42
+#define FIELD_LOAD_EVENT             43
 
-#define MAX_EVENT                    43
+#define MAX_EVENT                    44

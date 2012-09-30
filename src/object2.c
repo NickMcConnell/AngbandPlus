@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:51 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/16 17:41:06 $ */
 /* File: object2.c */
 
 /* Purpose: Object code, part 2 */
@@ -969,7 +969,6 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_XXX4) total += 0;
 	if (f3 & TR3_NO_TELE) total += 1500;
 	if (f3 & TR3_NO_MAGIC) total += 1500;
-	if (f3 & TR3_WRAITH) total += 250000;
 	if (f3 & TR3_TY_CURSE) total -= 15000;
 	if (f3 & TR3_EASY_KNOW) total += 0;
 	if (f3 & TR3_HIDE_TYPE) total += 0;
@@ -1482,15 +1481,11 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			return (0);
 		}
 
-		/* Figurines and Corpses */
+		/* Figurines */
 		case TV_FIGURINE:
-		case TV_CORPSE:
 		{
-			/* Same monster */
-			if (o_ptr->pval != j_ptr->pval) return (0);
-
-			/* Assume okay */
-			break;
+			/* Never okay */
+			return (0);
 		}
 
 		/* Food and Potions and Scrolls */
@@ -3640,59 +3635,6 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			break;
 		}
 
-		case TV_CORPSE:
-		{
-			int i = 1;
-			int check;
-
-			u32b match = 0;
-
-			monster_race *r_ptr;
-
-			if (o_ptr->sval == SV_SKELETON)
-			{
-				match = RF9_DROP_SKELETON;
-			}
-			else if (o_ptr->sval == SV_CORPSE)
-			{
-				match = RF9_DROP_CORPSE;
-			}
-
-			/* Pick a random non-unique monster race */
-			while (1)
-			{
-				i = randint(max_r_idx - 1);
-
-				r_ptr = &r_info[i];
-
-				check = (dun_level < r_ptr->level) ? (r_ptr->level - dun_level) : 0;
-
-				/* Ignore dead monsters */
-				if (!r_ptr->rarity) continue;
-
-				/* Ignore corpseless monsters */
-				if (!(r_ptr->flags9 & match)) continue;
-
-				/* No uniques */
-				if (r_ptr->flags1 & RF1_UNIQUE) continue;
-
-				/* Prefer less out-of-depth monsters */
-				if (rand_int(check)) continue;
-
-				break;
-			}
-
-			o_ptr->pval = i;
-
-			if (cheat_peek)
-			{
-				msg_format("Corpse of %s, depth +%d",
-							  r_name + r_ptr->name, check - 1);
-			}
-
-			break;
-		}
-
 		case TV_STATUE:
 		{
 			int i = 1;
@@ -4254,7 +4196,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	/* Apply magic (allow artifacts) */
 	apply_magic(j_ptr, object_level, TRUE, good, great, FALSE);
 
-	/* Hack -- generate multiple spikes/missiles */
+	/* Hack -- generate multiple spikes/missiles/ mushrooms */
 	switch (j_ptr->tval)
 	{
 		case TV_SPIKE:
@@ -4262,7 +4204,17 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			j_ptr->number = (byte)damroll(6, 7);
+			j_ptr->number = (byte)damroll(10, 8);
+		}
+		break;
+		
+		case TV_FOOD:
+		{
+			if (j_ptr->sval < SV_FOOD_BISCUIT)
+			{
+				/* mushrooms appear in clumps */
+				j_ptr->number = (byte)randint(6);
+			}
 		}
 	}
 
@@ -4505,7 +4457,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	int dy, dx;
 	int ty, tx;
 
-	s16b o_idx;
+	s16b o_idx = 0;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -4588,6 +4540,12 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			    (c_ptr->feat != FEAT_SHAL_ACID) &&
 			    ((c_ptr->feat & 0xF8) != 0x08) &&
 			    ((c_ptr->feat & 0x80) != 0x80)) continue;
+			
+			/* Check to see if fields dissallow placement */
+			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_OBJCT))
+			{
+				continue;
+			}
 
 			/* No objects */
 			k = 0;
@@ -4672,18 +4630,9 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Random locations */
 		else
 		{
-			if (!dun_level)
-			{
 				/* Pick a location */
-				ty = wild_grid.y_min + rand_int(WILD_GRID_SIZE * 16);
-				tx = wild_grid.x_min + rand_int(WILD_GRID_SIZE * 16);
-			}
-			else
-			{
-				/* Pick a location */
-				ty = rand_int(cur_hgt);
-				tx = rand_int(cur_wid);
-			}
+				ty = rand_range(min_hgt, max_hgt - 1);
+				tx = rand_range(min_wid, max_wid - 1);
 		}
 
 		/* Grid */
@@ -4699,6 +4648,10 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		    (c_ptr->feat != FEAT_SHAL_ACID) &&
 		    ((c_ptr->feat & 0xF8) != 0x08) &&
 		    ((c_ptr->feat & 0x80) != 0x80)) continue;
+			
+					
+		/* Check to see if fields dissallow placement */
+		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_OBJCT)) continue;
 
 		/* Bounce to that location */
 		by = ty;
@@ -4723,7 +4676,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		     (j_ptr->tval == TV_SCROLL) ||
 		     (j_ptr->tval == TV_WAND)))
 		{
-			/* only display messages if player thows */
+			/* only display messages if player throws */
 			if (!chance)
 			{
 				/* Message */
@@ -4741,11 +4694,11 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		/* Check to see if the object will disappear in water. */
 		if ((c_ptr->feat == FEAT_SHAL_WATER) && (j_ptr->tval == TV_RING))
 		{
-			/* only display messages if player thows */
+			/* only display messages if player throws */
 			if (!chance)
 			{
 				/* Message */
-				msg_format("The %s disappear%.",
+				msg_format("The %s disappear%s.",
 					o_name, (plural ? "" : "s"));
 			}
 
@@ -4773,6 +4726,9 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		{
 			/* Combine the items */
 			object_absorb(o_ptr, j_ptr);
+			
+			/* Get the pointer to the stack */
+			o_idx = this_o_idx;
 
 			/* Success */
 			done = TRUE;
@@ -4783,7 +4739,7 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	}
 
 	/* Get new object */
-	o_idx = o_pop();
+	if (!done) o_idx = o_pop();
 
 	/* Failure */
 	if (!done && !o_idx)
@@ -4847,6 +4803,10 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 		msg_print("You feel something roll beneath your feet.");
 	}
 
+	/* Fields may interact with an object in some way */
+	field_hook(&area(by, bx)->fld_idx, FIELD_ACT_OBJECT_DROP,
+		 (void *) &o_list[o_idx]);
+	
 	/* XXX XXX XXX */
 
 	/* Result */
@@ -4889,95 +4849,6 @@ void acquirement(int y1, int x1, int num, bool great, bool known)
 	}
 }
 
-
-#define MAX_TRAPS		17
-
-static int trap_num[MAX_TRAPS] =
-{
-	FEAT_TRAP_TRAPDOOR,
-	FEAT_TRAP_PIT,
-	FEAT_TRAP_SPIKED_PIT,
-	FEAT_TRAP_POISON_PIT,
-	FEAT_TRAP_TY_CURSE,
-	FEAT_TRAP_TELEPORT,
-	FEAT_TRAP_FIRE,
-	FEAT_TRAP_ACID,
-	FEAT_TRAP_SLOW,
-	FEAT_TRAP_LOSE_STR,
-	FEAT_TRAP_LOSE_DEX,
-	FEAT_TRAP_LOSE_CON,
-	FEAT_TRAP_BLIND,
-	FEAT_TRAP_CONFUSE,
-	FEAT_TRAP_POISON,
-	FEAT_TRAP_SLEEP,
-	FEAT_TRAP_TRAPS,
-};
-
-
-/*
- * Hack -- instantiate a trap
- *
- * XXX XXX XXX This routine should be redone to reflect trap "level".
- * That is, it does not make sense to have spiked pits at 50 feet.
- * Actually, it is not this routine, but the "trap instantiation"
- * code, which should also check for "trap doors" on quest levels.
- */
-void pick_trap(int y, int x)
-{
-	int feat;
-
-	cave_type *c_ptr = area(y,x);
-
-	/* Paranoia */
-	if (c_ptr->feat != FEAT_INVIS) return;
-
-	/* Pick a trap */
-	while (1)
-	{
-		/* Hack -- pick a trap */
-		feat = trap_num[rand_int(MAX_TRAPS)];
-
-		/* Accept non-trapdoors */
-		if (feat != FEAT_TRAP_TRAPDOOR) break;
-
-		/* Hack -- no trap doors on special levels */
-		if (p_ptr->inside_arena || quest_number(dun_level)) continue;
-
-		/* Hack -- no trap doors on the deepest level */
-		if (dun_level >= MAX_DEPTH-1) continue;
-
-		break;
-	}
-
-	/* Activate the trap */
-	cave_set_feat(y, x, feat);
-}
-
-
-/*
- * Places a random trap at the given location.
- *
- * The location must be a legal, naked, floor grid.
- *
- * Note that all traps start out as "invisible" and "untyped", and then
- * when they are "discovered" (by detecting them or setting them off),
- * the trap is "instantiated" as a visible, "typed", trap.
- */
-void place_trap(int y, int x)
-{
-	cave_type *c_ptr;
-
-	/* Paranoia -- verify location */
-	if (!in_bounds(y, x)) return;
-
-	c_ptr = area(y, x);
-
-	/* Require empty, clean, floor grid */
-	if (!cave_naked_grid(c_ptr)) return;
-
-	/* Place an invisible trap */
-	cave_set_feat(y, x, FEAT_INVIS);
-}
 
 
 /*

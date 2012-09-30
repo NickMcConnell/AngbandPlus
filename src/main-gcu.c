@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/04 10:26:30 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/16 17:41:06 $ */
 /* File: main-gcu.c */
 
 /*
@@ -38,7 +38,7 @@
  * This file will attempt to redefine the screen colors to conform to
  * standard Angband colors.  It will only do so if the terminal type
  * indicates that it can do so.  See the page:
- * 
+ *
  *     http://www.umr.edu/~keldon/ang-patch/ncurses_color.html
  *
  * for information on this.
@@ -884,7 +884,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 /*
  * Create a window for the given "term_data" argument.
  */
-static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
+static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, int i)
 {
 	term *t = &td->t;
 
@@ -927,6 +927,19 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
 	/* Activate it */
 	Term_activate(t);
 
+	/* Reset map size if required */
+	if (i == 0)
+	{
+		/* Mega-Hack -- no panel yet */
+		panel_row_min = 0;
+		panel_row_max = 0;
+		panel_col_min = 0;
+		panel_col_max = 0;
+
+		/* Reset the panels */
+		map_panel_size();
+	}
+
 	/* Success */
 	return (0);
 }
@@ -966,7 +979,7 @@ errr init_gcu(int argc, char *argv[])
 #ifdef USE_GRAPHICS
 	/* Set graphics flag */
 	use_graphics = FALSE;
-	
+
 	/* Use the graphical wall tiles? */
 	use_blocks = arg_graphics;
 #endif
@@ -1069,38 +1082,38 @@ errr init_gcu(int argc, char *argv[])
 	{
 		int rows, cols, y, x;
 
+		/* Hack - the main window is huge */
+		cols = 80 + (COLS - 80) / 4;
+		rows = 24 + (LINES - 24) / 2;
+
 		/* Decide on size and position */
 		switch (i)
 		{
 			/* Upper left */
 			case 0:
-				rows = 24;
-				cols = 80;
 				y = x = 0;
 				break;
 
 			/* Lower left */
-			case 1:
-				rows = LINES - 25;
-				cols = 80;
-				y = 25;
+			case 1:				
+				y = rows + 1;
 				x = 0;
+				rows = LINES - (rows + 1);
 				break;
 
 			/* Upper right */
-			case 2:
-				rows = 24;
-				cols = COLS - 81;
+			case 2:				
 				y = 0;
-				x = 81;
+				x = cols + 1;
+				cols = COLS - (cols + 1);
 				break;
 
 			/* Lower right */
-			case 3:
-				rows = LINES - 25;
-				cols = COLS - 81;
-				y = 25;
-				x = 81;
+			case 3:				
+				y = rows + 1;
+				x = cols + 1;
+				rows = LINES - (rows + 1);
+				cols = COLS - (cols + 1);				
 				break;
 
 			/* XXX */
@@ -1113,7 +1126,7 @@ errr init_gcu(int argc, char *argv[])
 		if (rows <= 0 || cols <= 0) continue;
 
 		/* Create a term */
-		term_data_init_gcu(&data[next_win], rows, cols, y, x);
+		term_data_init_gcu(&data[next_win], rows, cols, y, x, i);
 
 		/* Remember the term */
 		angband_term[next_win] = &data[next_win].t;

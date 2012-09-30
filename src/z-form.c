@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:09:01 $ */
 /* File: z-form.c */
 
 /* Purpose: Low level text formatting -BEN- */
@@ -557,6 +556,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 			case 's':
 			{
 				cptr arg;
+				char arg2[1024];
 
 				/* Access next argument */
 				arg = va_arg(vp, cptr);
@@ -564,8 +564,12 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 				/* Hack -- convert NULL to EMPTY */
 				if (!arg) arg = "";
 
+				/* Prevent buffer overflows */
+				strncpy(arg2, arg, 1024);
+				arg2[1023] = '\0';
+
 				/* Format the argument */
-				sprintf(tmp, aux, arg);
+				sprintf(tmp, aux, arg2);
 
 				/* Done */
 				break;

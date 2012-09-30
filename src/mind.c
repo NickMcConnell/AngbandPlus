@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/22 15:19:27 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/01 03:20:06 $ */
 /* File: mind.c */
 
 /* Purpose: Mindcrafter code */
@@ -49,7 +49,7 @@ void mindcraft_info(char *p, int power)
 		case 6:  sprintf(p, " dur %d", plev);  break;
 		case 7:  break;
 		case 8:  sprintf(p, " dam %d", plev * ((plev - 5) / 10 + 1)); break;
-		case 9:  sprintf(p, " dur 11-%d", plev + plev / 2);  break;
+		case 9:  sprintf(p, " dur 11-%d", plev + plev / 2 + 10);  break;
 		case 10: sprintf(p, " dam %dd6", plev / 2);  break;
 		case 11: sprintf(p, " dam %d", plev * (plev > 39 ? 4: 3)); break;
 	}
@@ -90,8 +90,6 @@ static int get_mindcraft_power(int *sn)
 	/* Assume cancelled */
 	*sn = (-1);
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	/* Get the spell, if available */
 	if (repeat_pull(sn))
 	{
@@ -102,8 +100,6 @@ static int get_mindcraft_power(int *sn)
 			return (TRUE);
 		}
 	}
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Nothing chosen yet */
 	flag = FALSE;
@@ -258,11 +254,7 @@ static int get_mindcraft_power(int *sn)
 	/* Save the choice */
 	(*sn) = i;
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT -- TNB */
 
 	/* Success */
 	return (TRUE);

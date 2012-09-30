@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/27 10:27:49 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/10/02 00:41:31 $ */
 /* File: misc.c */
 
 /* Purpose: misc code */
@@ -622,7 +622,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), 23, COL_DEPTH);
+	prt(format("%7s", depths), Term->hgt - 1, COL_DEPTH);
 }
 
 
@@ -634,37 +634,37 @@ static void prt_hunger(void)
 	/* Fainting / Starving */
 	if (p_ptr->food < PY_FOOD_FAINT)
 	{
-		c_put_str(TERM_RED, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_RED, "Weak  ", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Weak */
 	else if (p_ptr->food < PY_FOOD_WEAK)
 	{
-		c_put_str(TERM_ORANGE, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_ORANGE, "Weak  ", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Hungry */
 	else if (p_ptr->food < PY_FOOD_ALERT)
 	{
-		c_put_str(TERM_YELLOW, "Hungry", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_YELLOW, "Hungry", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Normal */
 	else if (p_ptr->food < PY_FOOD_FULL)
 	{
-		c_put_str(TERM_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_L_GREEN, "      ", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Full */
 	else if (p_ptr->food < PY_FOOD_MAX)
 	{
-		c_put_str(TERM_L_GREEN, "Full  ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_L_GREEN, "Full  ", Term->hgt - 1, COL_HUNGRY);
 	}
 
 	/* Gorged */
 	else
 	{
-		c_put_str(TERM_GREEN, "Gorged", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_GREEN, "Gorged", Term->hgt - 1, COL_HUNGRY);
 	}
 }
 
@@ -676,11 +676,11 @@ static void prt_blind(void)
 {
 	if (p_ptr->blind)
 	{
-		c_put_str(TERM_ORANGE, "Blind", ROW_BLIND, COL_BLIND);
+		c_put_str(TERM_ORANGE, "Blind", Term->hgt - 1, COL_BLIND);
 	}
 	else
 	{
-		put_str("     ", ROW_BLIND, COL_BLIND);
+		put_str("     ", Term->hgt - 1, COL_BLIND);
 	}
 }
 
@@ -692,11 +692,11 @@ static void prt_confused(void)
 {
 	if (p_ptr->confused)
 	{
-		c_put_str(TERM_ORANGE, "Confused", ROW_CONFUSED, COL_CONFUSED);
+		c_put_str(TERM_ORANGE, "Confused", Term->hgt - 1, COL_CONFUSED);
 	}
 	else
 	{
-		put_str("        ", ROW_CONFUSED, COL_CONFUSED);
+		put_str("        ", Term->hgt - 1, COL_CONFUSED);
 	}
 }
 
@@ -708,11 +708,11 @@ static void prt_afraid(void)
 {
 	if (p_ptr->afraid)
 	{
-		c_put_str(TERM_ORANGE, "Afraid", ROW_AFRAID, COL_AFRAID);
+		c_put_str(TERM_ORANGE, "Afraid", Term->hgt - 1, COL_AFRAID);
 	}
 	else
 	{
-		put_str("      ", ROW_AFRAID, COL_AFRAID);
+		put_str("      ", Term->hgt - 1, COL_AFRAID);
 	}
 }
 
@@ -724,11 +724,11 @@ static void prt_poisoned(void)
 {
 	if (p_ptr->poisoned)
 	{
-		c_put_str(TERM_ORANGE, "Poisoned", ROW_POISONED, COL_POISONED);
+		c_put_str(TERM_ORANGE, "Poisoned", Term->hgt - 1, COL_POISONED);
 	}
 	else
 	{
-		put_str("        ", ROW_POISONED, COL_POISONED);
+		put_str("        ", Term->hgt - 1, COL_POISONED);
 	}
 }
 
@@ -845,7 +845,7 @@ static void prt_state(void)
 	}
 
 	/* Display the info (or blanks) */
-	c_put_str(attr, text, ROW_STATE, COL_STATE);
+	c_put_str(attr, text, Term->hgt - 1, COL_STATE);
 }
 
 
@@ -877,7 +877,7 @@ static void prt_speed(void)
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format("%-14s", buf), Term->hgt - 1, COL_SPEED);
 }
 
 
@@ -885,11 +885,11 @@ static void prt_study(void)
 {
 	if (p_ptr->new_spells)
 	{
-		put_str("Study", ROW_STUDY, 64);
+		put_str("Study", Term->hgt - 1, 64);
 	}
 	else
 	{
-		put_str("     ", ROW_STUDY, COL_STUDY);
+		put_str("     ", Term->hgt - 1, COL_STUDY);
 	}
 }
 
@@ -964,7 +964,7 @@ static void prt_stun(void)
  *
  * The "monster health bar" provides visual feedback on the "health"
  * of the monster currently being "tracked".  There are several ways
- * to "track" a monster, including targetting it, attacking it, and
+ * to "track" a monster, including targeting it, attacking it, and
  * affecting it (and nobody else) with a ranged attack.
  *
  * Display the monster health bar (affectionately known as the
@@ -974,8 +974,6 @@ static void prt_stun(void)
  */
 static void health_redraw(void)
 {
-
-#ifdef DRS_SHOW_HEALTH_BAR
 
 	/* Not tracking */
 	if (!p_ptr->health_who)
@@ -1048,9 +1046,6 @@ static void health_redraw(void)
 		/* Dump the current "health" (use '*' symbols) */
 		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
 	}
-
-#endif
-
 }
 
 
@@ -1346,7 +1341,7 @@ static void fix_overhead(void)
 		/* No offset from player */
 		cx = 0;
 		cy = 0;
-		
+
 		/* Redraw map */
 		display_map(&cy, &cx);
 
@@ -1496,7 +1491,7 @@ static void calc_spells(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2);
+	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 50);
 
 
 	/* Assume none known */
@@ -1748,28 +1743,7 @@ static void calc_mana(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2;
-
-	/* Hack - the weak spellcasters get half as much mana (rounded up) in Oangband. */
-	/* But this is not Oangband... */
-#if 0
-	switch (p_ptr->pclass)
-	{
-		case CLASS_ROGUE:
-		case CLASS_RANGER:
-		case CLASS_PALADIN:
-		case CLASS_MONK:
-		case CLASS_CHAOS_WARRIOR:
-		{
-			msp = (msp + 1) / 2;
-			break;
-		}
-		default:
-		{
-			break;
-		}
-	}
-#endif
+	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 25;
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
@@ -1827,7 +1801,11 @@ static void calc_mana(void)
 		/* Encumbered */
 		p_ptr->cumber_armor = TRUE;
 
-		/* Subtract a percentage of maximum mana. */
+		/*
+		 * Subtract a percentage of maximum mana.
+		 * The addition of one is to make sure the
+		 * mana total is decreased by some amount.
+		 */
 		switch (p_ptr->pclass)
 		{
 			/* For these classes, mana is halved if armour
@@ -1835,7 +1813,7 @@ static void calc_mana(void)
 			case CLASS_MAGE:
 			case CLASS_HIGH_MAGE:
 			{
-				msp -= msp * (cur_wgt - max_wgt) / 600;
+				msp -= msp * (cur_wgt - max_wgt) / 600 + 1;
 				break;
 			}
 
@@ -1843,7 +1821,7 @@ static void calc_mana(void)
 			case CLASS_PRIEST:
 			case CLASS_MINDCRAFTER:
 			{
-				msp -= msp * (cur_wgt - max_wgt) / 800;
+				msp -= msp * (cur_wgt - max_wgt) / 800 + 1;
 				break;
 			}
 
@@ -1852,7 +1830,7 @@ static void calc_mana(void)
 			case CLASS_RANGER:
 			case CLASS_MONK:
 			{
-				msp -= msp * (cur_wgt - max_wgt) / 1000;
+				msp -= msp * (cur_wgt - max_wgt) / 1000 + 1;
 				break;
 			}
 
@@ -1861,14 +1839,14 @@ static void calc_mana(void)
 			case CLASS_CHAOS_WARRIOR:
 			case CLASS_WARRIOR_MAGE:
 			{
-				msp -= msp * (cur_wgt - max_wgt) / 1200;
+				msp -= msp * (cur_wgt - max_wgt) / 1200 + 1;
 				break;
 			}
 
 			/* For new classes created, but not yet added to this formula. */
 			default:
 			{
-				msp -= msp * (cur_wgt - max_wgt) / 800;
+				msp -= msp * (cur_wgt - max_wgt) / 800 + 1;
 				break;
 			}
 		}
@@ -2046,9 +2024,7 @@ static void calc_torch(void)
 
 	}
 
-	/* max radius is 5 without rewriting other code -- */
-	/* see cave.c:update_lite() and defines.h:LITE_MAX */
-	if (p_ptr->cur_lite > 5) p_ptr->cur_lite = 5;
+	/* The old radius 5 limit is no more... */
 
 	/*
 	 * Check if the player doesn't have a lite source,
@@ -2064,16 +2040,29 @@ static void calc_torch(void)
 		/* Reduce the lite radius if needed */
 		if (p_ptr->cur_lite > 1) p_ptr->cur_lite = 1;
 	}
+	
+	/*
+	 * Hack - blindness gives a torch radius of zero.
+	 * This speeds up the map_info() function.
+	 */
+	if (p_ptr->blind)
+	{
+		/* No light */
+		p_ptr->cur_lite = 0;
+	}
 
 	/* Notice changes in the "lite radius" */
 	if (p_ptr->old_lite != p_ptr->cur_lite)
 	{
-		/* Update the lite */
-		p_ptr->update |= (PU_LITE);
+		/* Update the view */
+		p_ptr->update |= (PU_VIEW);
 
 		/* Update the monsters */
 		p_ptr->update |= (PU_MONSTERS);
 
+		/* Redraw the map */
+		p_ptr->redraw |= (PR_MAP);
+		
 		/* Remember the old lite */
 		p_ptr->old_lite = p_ptr->cur_lite;
 	}
@@ -2445,7 +2434,7 @@ void calc_bonuses(void)
 						p_ptr->pspeed += (p_ptr->lev) / 10;
 
 				/* Free action if unencumbered at level 25 */
-				if  ((p_ptr->lev > 24) && !monk_heavy_armor())
+				if ((p_ptr->lev > 24) && !monk_heavy_armor())
 					p_ptr->free_act = TRUE;
 				break;
 		}
@@ -2864,7 +2853,6 @@ void calc_bonuses(void)
 		if (f3 & (TR3_FEATHER))     p_ptr->ffall = TRUE;
 		if (f2 & (TR2_FREE_ACT))    p_ptr->free_act = TRUE;
 		if (f2 & (TR2_HOLD_LIFE))   p_ptr->hold_life = TRUE;
-		if (f3 & (TR3_WRAITH))      set_wraith_form(20);
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -3715,40 +3703,18 @@ void update_stuff(void)
 
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
-
-
-	if (p_ptr->update & (PU_UN_LITE))
-	{
-		p_ptr->update &= ~(PU_UN_LITE);
-		forget_lite();
-	}
-
-	if (p_ptr->update & (PU_UN_VIEW))
-	{
-		p_ptr->update &= ~(PU_UN_VIEW);
-		forget_view();
-	}
-
-
+	
 	if (p_ptr->update & (PU_VIEW))
 	{
-		p_ptr->update &= ~(PU_VIEW);
+		p_ptr->update &= ~(PU_VIEW);		
 		update_view();
 	}
-
-	if (p_ptr->update & (PU_LITE))
-	{
-		p_ptr->update &= ~(PU_LITE);
-		update_lite();
-	}
-
 
 	if (p_ptr->update & (PU_FLOW))
 	{
 		p_ptr->update &= ~(PU_FLOW);
 		update_flow();
 	}
-
 
 	if (p_ptr->update & (PU_DISTANCE))
 	{
@@ -3761,6 +3727,12 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_MONSTERS);
 		update_monsters(FALSE);
+	}
+	
+	if ((p_ptr->update & (PU_MON_LITE)) && monster_light)
+	{
+		p_ptr->update &= ~(PU_MON_LITE);
+		update_mon_lite();
 	}
 }
 
@@ -4099,25 +4071,3 @@ bool monk_heavy_armor(void)
 
 	return (monk_arm_wgt > (100 + (p_ptr->lev * 4)));
 }
-
-/* Count the number of random quests chosen */
-int number_of_quests(void)
-{
-	int i, j;
-
-	/* Clear the counter */
-	i = 0;
-
-	for (j = MIN_RANDOM_QUEST; j < MAX_RANDOM_QUEST; j++)
-	{
-		if (quest[j].status != QUEST_STATUS_UNTAKEN)
-		{
-			/* Increment count of quests taken. */
-			i++;
-		}
-	}
-
-	/* Return the number of quests taken */
-	return (i);
-}
-

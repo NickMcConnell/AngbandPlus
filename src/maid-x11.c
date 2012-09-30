@@ -8,8 +8,6 @@
  * are included in all such copies.
  */
 
-#include <math.h>
-
 
 /*
  * This file defines some "XImage" manipulation functions for X11.
@@ -65,95 +63,11 @@
 #define IsSpecialKey(keysym) \
   ((unsigned)(keysym) >= 0xFF00)
 
-#ifdef SUPPORT_ANGBAND_X11_GAMMA
 
-/* Table of gamma values */
-static byte gamma_table[256];
-
-/* Table of ln(x) * 256 for x going from 0 -> 255 */
-static s16b gamma_helper[256] =
-{
-0,-1420,-1242,-1138,-1065,-1007,-961,-921,-887,-857,-830,-806,-783,-762,-744,-726,
--710,-694,-679,-666,-652,-640,-628,-617,-606,-596,-586,-576,-567,-577,-549,-541,
--532,-525,-517,-509,-502,-495,-488,-482,-475,-469,-463,-457,-451,-455,-439,-434,
--429,-423,-418,-413,-408,-403,-398,-394,-389,-385,-380,-376,-371,-367,-363,-359,
--355,-351,-347,-343,-339,-336,-332,-328,-325,-321,-318,-314,-311,-308,-304,-301,
--298,-295,-291,-288,-285,-282,-279,-276,-273,-271,-268,-265,-262,-259,-257,-254,
--251,-248,-246,-243,-241,-238,-236,-233,-231,-228,-226,-223,-221,-219,-216,-214,
--212,-209,-207,-205,-203,-200,-198,-196,-194,-192,-190,-188,-186,-184,-182,-180,
--178,-176,-174,-172,-170,-168,-166,-164,-162,-160,-158,-156,-155,-153,-151,-149,
--147,-146,-144,-142,-140,-139,-137,-135,-134,-132,-130,-128,-127,-125,-124,-122,
--120,-119,-117,-116,-114,-112,-111,-109,-108,-106,-105,-103,-102,-100,-99,-97,
--96,-95,-93,-92,-90,-89,-87,-86,-85,-83,-82,-80,-79,-78,-76,-75,
--74,-72,-71,-70,-68,-67,-66,-65,-63,-62,-61,-59,-58,-57,-56,-54,
--53,-52,-51,-50,-48,-47,-46,-45,-44,-42,-41,-40,-39,-38,-37,-35,
--34,-33,-32,-31,-30,-29,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,
--17,-16,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1
-};
-
-
-/* 
- * Build the gamma table so that floating point isn't needed.
- * 
- * Note gamma goes from 0->256.  The old value of 100 is now 128.
- */
-static void build_gamma_table(byte gamma)
-{
-	int i, n;
-	
-	/*
-	 * value is the current sum.
-	 * diff is the new term to add to the series.
-	 */
-	long value, diff;
-	
-	/* Hack - convergence is bad in this case. */
-	gamma_table[0] = 0;
-	
-	for(i = 1; i < 256; i++)
-	{
-		/* 
-		 * Initialise the Taylor series
-		 *
-		 * value and diff have been scaled by 256
-		 */
-		
-		n = 1;
-		value = 255 * 256;
-		diff = ((long) gamma_helper[i]) * gamma;
-		
-		while (diff)
-		{
-			value += diff;
-			n++;
-			
-			
-			/*
-			 * Use the following identiy to calculate the gamma table.
-			 * exp(x) = 1 + x + x^2/2 + x^3/(2*3) + x^4/(2*3*4) +...
-			 *
-			 * n is the current term number.
-			 * 
-			 * The gamma_helper array contains a table of
-			 * ln(x/256) * 256
-			 * This is used because a^b = exp(b*ln(a))
-			 *
-			 * In this case:
-			 * a is i / 256
-			 * b is gamma / 256.
-			 */
-			diff = (((diff * gamma_helper[i]) / 256) * gamma) / ((long)(256 * n));
-		}
-		
-		/* 
-		 * Store the value in the table so that the
-		 * floating point pow function isn't needed .
-		 */
-		gamma_table[i] = value / 256;		
-	}
-}
-
-#endif /* SUPPORT_ANGBAND_X11_GAMMA */
+#ifdef SUPPORT_GAMMA
+static bool gamma_table_ready = FALSE;
+static int gamma_val = 0;
+#endif /* SUPPORT_GAMMA */
 
 
 /*
@@ -167,31 +81,33 @@ static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
 
 	XColor xcolour;
 
-#ifdef SUPPORT_ANGBAND_X11_GAMMA
+#ifdef SUPPORT_GAMMA
 
-	bool checked = FALSE;
-	int gamma = 0;
+	
 
-	if (!checked)
+	if (!gamma_table_ready)
 	{
 		cptr str = getenv("ANGBAND_X11_GAMMA");
-		if (str != NULL) gamma = atoi(str);
-		checked = TRUE;
-		build_gamma_table(gamma);
+		if (str != NULL) gamma_val = atoi(str);
+
+		gamma_table_ready = TRUE;
+
+		/* Only need to build the table if gamma exists */
+		if (gamma_val) build_gamma_table(gamma_val);
 	}
 
 	/* Hack -- Gamma Correction */
-	if (gamma > 0)
+	if (gamma_val > 0)
 	{
 		red = gamma_table[red];
 		green = gamma_table[green];
 		blue = gamma_table[blue];
 	}
 
-#endif /* SUPPORT_ANGBAND_X11_GAMMA */
+#endif /* SUPPORT_GAMMA */
 
 	/* Build the color */
-	
+
 	xcolour.red = red * 255;
 	xcolour.green = green * 255;
 	xcolour.blue = blue * 255;
@@ -212,20 +128,16 @@ static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
 
 /*
  * The Win32 "BITMAPFILEHEADER" type.
- *
- * Note the "bfAlign" field, which is a complete hack to ensure that the
- * "u32b" fields in the structure get aligned.  Thus, when reading this
- * header from the file, we must be careful to skip this field.
  */
 typedef struct BITMAPFILEHEADER
 {
-	u16b bfAlign;    /* HATE this */
 	u16b bfType;
 	u32b bfSize;
 	u16b bfReserved1;
 	u16b bfReserved2;
 	u32b bfOffBits;
 } BITMAPFILEHEADER;
+
 
 /*
  * The Win32 "BITMAPINFOHEADER" type.
@@ -255,6 +167,34 @@ typedef struct RGBQUAD
 } RGBQUAD;
 
 
+/*** Helper functions for system independent file loading. ***/
+
+static byte get_byte(FILE *fff)
+{
+	/* Get a character, and return it */
+	return (getc(fff) & 0xFF);
+}
+
+static void rd_byte(FILE *fff, byte *ip)
+{
+	*ip = get_byte(fff);
+}
+
+static void rd_u16b(FILE *fff, u16b *ip)
+{
+	(*ip) = get_byte(fff);
+	(*ip) |= ((u16b)(get_byte(fff)) << 8);
+}
+
+static void rd_u32b(FILE *fff, u32b *ip)
+{
+	(*ip) = get_byte(fff);
+	(*ip) |= ((u32b)(get_byte(fff)) << 8);
+	(*ip) |= ((u32b)(get_byte(fff)) << 16);
+	(*ip) |= ((u32b)(get_byte(fff)) << 24);
+}
+
+
 /*
  * Read a Win32 BMP file.
  *
@@ -273,8 +213,6 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 	BITMAPFILEHEADER fileheader;
 	BITMAPINFOHEADER infoheader;
-
-	vptr fileheaderhack = (vptr)((char *)(&fileheader) + 2);
 
 	XImage *Res = NULL;
 
@@ -301,10 +239,24 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 	}
 
 	/* Read the "BITMAPFILEHEADER" */
-	fread(fileheaderhack, sizeof(fileheader) - 2, 1, f);
+	rd_u16b(f, &(fileheader.bfType));
+	rd_u32b(f, &(fileheader.bfSize));
+	rd_u16b(f, &(fileheader.bfReserved1));
+	rd_u16b(f, &(fileheader.bfReserved2));
+	rd_u32b(f, &(fileheader.bfOffBits));
 
 	/* Read the "BITMAPINFOHEADER" */
-	fread(&infoheader, sizeof(infoheader), 1, f);
+	rd_u32b(f, &(infoheader.biSize));
+	rd_u32b(f, &(infoheader.biWidth));
+	rd_u32b(f, &(infoheader.biHeight));
+	rd_u16b(f, &(infoheader.biPlanes));
+	rd_u16b(f, &(infoheader.biBitCount));
+	rd_u32b(f, &(infoheader.biCompresion));
+	rd_u32b(f, &(infoheader.biSizeImage));
+	rd_u32b(f, &(infoheader.biXPelsPerMeter));
+	rd_u32b(f, &(infoheader.biYPelsPerMeter));
+	rd_u32b(f, &(infoheader.biClrUsed));
+	rd_u32b(f, &(infoheader.biClrImportand));
 
 	/* Verify the header */
 	if (feof(f) ||
@@ -324,8 +276,12 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 	{
 		RGBQUAD clrg;
 
-		fread(&clrg, 4, 1, f);
-		
+		/* Read an "RGBQUAD" */
+		rd_byte(f, &(clrg.b));
+		rd_byte(f, &(clrg.g));
+		rd_byte(f, &(clrg.r));
+		rd_byte(f, &(clrg.filler));
+
 		/* Analyze the color */
 		clr_pixels[i] = create_pixel(dpy, clrg.r, clrg.g, clrg.b);
 	}

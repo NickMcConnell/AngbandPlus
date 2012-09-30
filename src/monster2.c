@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/24 10:30:14 $ */
 /* File: monster2.c */
 
 /* Purpose: misc code for monsters */
@@ -465,7 +464,7 @@ errr get_mon_num_prep(monster_hook_type monster_hook,
 		alloc_entry *entry = &alloc_race_table[i];
 
 		/* Accept monsters which pass the restriction, if any */
-		
+
 		/*
 		 * Hack - check for silly monsters here.
 		 * This makes more sense then adding the test to every
@@ -937,12 +936,12 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 
 void sanity_blast(monster_type *m_ptr, bool necro)
 {
-
 #if 0
-	/* This variable is only needed for the (disabled) 
+	/* This variable is only needed for the (disabled)
 	insanity mutations */
 	bool happened = FALSE;
-#endif 
+#endif
+
 	int power = 100;
 
 	if (!necro)
@@ -1054,18 +1053,13 @@ void sanity_blast(monster_type *m_ptr, bool necro)
 		{
 			(void)set_image(p_ptr->image + rand_int(250) + 150);
 		}
-		return;
 	}
 
 	/* Permanent stat drains *REMOVED* completely. They sucked. --ty */
-
-	else 
-
+	else
 	{
-
 		if (lose_all_info())
 			msg_print("You forget everything in your utmost terror!");
-		return;
 	}
 
 #if 0
@@ -1503,6 +1497,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	monster_race	*r_ptr = &r_info[r_idx];
 
 	cptr		name = (r_name + r_ptr->name);
+	field_mon_test	mon_enter_test;
 
 
 	/* Verify location */
@@ -1518,17 +1513,10 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 		 ((c_ptr->feat & 0x60) == 0x60)) &&
 		 (!((c_ptr->m_idx) || (c_ptr == area(py, px)))))) return FALSE;
 
-	/* Hack -- no creation on glyph of warding */
-	if (c_ptr->feat == FEAT_GLYPH) return (FALSE);
-	if (c_ptr->feat == FEAT_MINOR_GLYPH) return (FALSE);
-
 	/* Nor on the Pattern */
 	if ((c_ptr->feat >= FEAT_PATTERN_START) &&
 	    (c_ptr->feat <= FEAT_PATTERN_XTRA2))
 		return (FALSE);
-
-	/* Nor on invisible walls */
-	if (c_ptr->feat == FEAT_WALL_INVIS) return (FALSE);
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -1557,6 +1545,29 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 		/* Cannot create */
 		return (FALSE);
 	}
+	
+	/* Check to see if fields dissallow placement */
+	if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
+	{ 
+		/* Cannot create */
+		return(FALSE);
+	}
+	
+	/* 
+	 * Test for fields that will not allow monsters to
+	 * be generated on them.  (i.e. Glyph of warding)
+	 */
+		 
+	/* Initialise information to pass to action functions */
+	mon_enter_test.m_ptr = NULL;
+	mon_enter_test.do_move = TRUE;
+		
+	/* Call the hook */
+	field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
+		 (void *) &mon_enter_test);
+			 
+	/* Get result */
+	if (!mon_enter_test.do_move) return (FALSE);
 
 
 	/* Powerful monster */
@@ -2075,18 +2086,9 @@ bool alloc_monster(int dis, bool slp)
 	/* Find a legal, distant, unoccupied, space */
 	while (attempts_left--)
 	{
-		if (!dun_level)
-		{
-			/* Pick a location */
-			y = wild_grid.y_min + rand_int(WILD_GRID_SIZE * 16);
-			x = wild_grid.x_min + rand_int(WILD_GRID_SIZE * 16);
-		}
-		else
-		{
-			/* Pick a location */
-			y = rand_int(cur_hgt);
-			x = rand_int(cur_wid);
-		}
+		/* Pick a location */
+		y = rand_range(min_hgt, max_hgt - 1);
+		x = rand_range(min_wid, max_wid - 1);
 
 		/* Require empty floor grid (was "naked") */
 		c_ptr = area(y, x);
@@ -2456,6 +2458,7 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, boo
 {
 	int i, x, y, r_idx;
 	cave_type *c_ptr;
+	field_mon_test	mon_enter_test;
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
@@ -2473,14 +2476,30 @@ bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, boo
 		c_ptr = area(y, x);
 		if (!cave_empty_grid(c_ptr)) continue;
 
-		/* Hack -- no summon on glyph of warding */
-		if (c_ptr->feat == FEAT_GLYPH) continue;
-		if (c_ptr->feat == FEAT_MINOR_GLYPH) continue;
-
 		/* ... nor on the Pattern */
 		if ((c_ptr->feat >= FEAT_PATTERN_START) &&
 			 (c_ptr->feat <= FEAT_PATTERN_XTRA2))
 			continue;
+		
+		/* Check for a field that blocks movement */
+		if (fields_have_flags(c_ptr->fld_idx,
+			FIELD_INFO_NO_ENTER)) continue;
+							
+		/* 
+		 * Test for fields that will not allow this
+		 * specific monster to pass. (i.e. Glyph of warding)
+		 */
+		 
+		/* Initialise info to pass to action functions */
+		mon_enter_test.m_ptr = NULL;
+		mon_enter_test.do_move = TRUE;
+		
+		/* Call the hook */
+		field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST, 
+			 (void *)&mon_enter_test);
+			 
+		/* Get result */
+		if (!mon_enter_test.do_move) continue;
 
 		/* Okay */
 		break;
@@ -2919,8 +2938,6 @@ void message_pain(int m_idx, int dam)
  */
 void update_smart_learn(int m_idx, int what)
 {
-#ifdef DRS_SMART_OPTIONS
-
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -3027,9 +3044,6 @@ void update_smart_learn(int m_idx, int what)
 		if (p_ptr->reflect) m_ptr-> smart |= (SM_IMM_REFLECT);
 		break;
 	}
-
-#endif /* DRS_SMART_OPTIONS */
-
 }
 
 
@@ -3038,6 +3052,8 @@ void update_smart_learn(int m_idx, int what)
  */
 bool player_place(int y, int x)
 {
+#if 0 /* This is never used */
+
 	/* Paranoia XXX XXX */
 	if (area(y, x)->m_idx != 0) return FALSE;
 
@@ -3052,6 +3068,8 @@ bool player_place(int y, int x)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
+	
+#endif /* 0 */
 
 	/* Success */
 	return TRUE;

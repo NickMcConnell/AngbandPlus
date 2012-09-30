@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/19 15:38:09 $ */
 /* File: defines.h */
 
 /* Purpose: global constants and macro definitions */
@@ -40,7 +39,7 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 11
+#define SAVEFILE_VERSION 18
 
 /* Added for ZAngband */
 #ifdef USE_SCRIPT
@@ -52,7 +51,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 5
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_PATCH 2
 #endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
@@ -74,33 +73,6 @@
  * Probably hard-coded to 11, see "generate.c"
  */
 #define BLOCK_WID	11
-
-
-/*
- * Number of grids in each panel (vertically)
- * Must be a multiple of BLOCK_HGT
- */
-#define PANEL_HGT	11
-
-/*
- * Number of grids in each panel (horizontally)
- * Must be a multiple of BLOCK_WID
- */
-#define PANEL_WID	33
-
-
-/*
- * Number of grids used to display the dungeon (vertically).
- * Must be a multiple of 11, probably hard-coded to 22.
- */
-#define SCREEN_HGT      22
-
-/*
- * Number of grids used to display the dungeon (horizontally).
- * Must be a multiple of 33, probably hard-coded to 66.
- */
-#define SCREEN_WID      66
-
 
 /*
  * Maximum dungeon height in grids, must be a multiple of SCREEN_HGT,
@@ -391,14 +363,6 @@
  */
 #define MAX_DEPTH       128
 
-
-/*
- * Maximum size of the "lite" array (see "cave.c")
- * Note that the "lite radius" will NEVER exceed 5, and even if the "lite"
- * was rectangular, we would never require more than 128 entries in the array.
- */
-#define LITE_MAX 128
-
 /*
  * Maximum size of the "view" array (see "cave.c")
  * Note that the "view radius" will NEVER exceed 20, and even if the "view"
@@ -408,14 +372,21 @@
 
 /*
  * Maximum size of the "temp" array (see "cave.c")
- * We must be as large as "VIEW_MAX" and "LITE_MAX" for proper functioning
- * of "update_view()" and "update_lite()".  We must also be as large as the
+ * We must be as large as "VIEW_MAX" for proper functioning
+ * of "update_view()".  We must also be as large as the
  * largest illuminatable room, but no room is larger than 800 grids.  We
  * must also be large enough to allow "good enough" use as a circular queue,
- * to calculate monster flow, but note that the flow code is "paranoid".
+ * to calculate monster flow.  The larger size is due to use as a circular
+ * queue for the fractal caves patch fill routine.
  */
-#define TEMP_MAX 1536
+#define TEMP_MAX 2000
 
+/*
+ * Maximum number of squares lit by monsters.
+ * (Note that squares far away from the player do not need to
+ * be stored.)
+ */
+#define LITE_MAX 2500
 
 /*
  * Number of keymap modes
@@ -575,6 +546,7 @@
 /*
  * More maximum values
  */
+#define MAX_DETECT		30		/* Maximum detection range */
 #define MAX_SIGHT       20      /* Maximum view distance */
 #define MAX_RANGE       18      /* Maximum range (spells, etc) */
 
@@ -837,8 +809,8 @@
 #define ROW_INFO                20
 #define COL_INFO                0       /* "xxxxxxxxxxxx" */
 
-#define ROW_MAP						0
-#define COL_MAP                  12
+#define ROW_MAP						1
+#define COL_MAP                  13
 
 #define ROW_CUT                 21
 #define COL_CUT                 0       /* <cut> */
@@ -846,31 +818,22 @@
 #define ROW_STUN                22
 #define COL_STUN                0       /* <stun> */
 
-#define ROW_HUNGRY              23
 #define COL_HUNGRY              0       /* "Weak" / "Hungry" / "Full" / "Gorged" */
 
-#define ROW_BLIND               23
 #define COL_BLIND               7       /* "Blind" */
 
-#define ROW_CONFUSED    23
 #define COL_CONFUSED    13      /* "Confused" */
 
-#define ROW_AFRAID              23
 #define COL_AFRAID              22      /* "Afraid" */
 
-#define ROW_POISONED    23
 #define COL_POISONED    29      /* "Poisoned" */
 
-#define ROW_STATE               23
 #define COL_STATE               38      /* <state> */
 
-#define ROW_SPEED               23
 #define COL_SPEED               49      /* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_STUDY               23
 #define COL_STUDY               64      /* "Study" */
 
-#define ROW_DEPTH               23
 #define COL_DEPTH               70      /* "Lev NNN" / "NNNN ft" */
 
 
@@ -887,8 +850,8 @@
 
 /* Various */
 #define FEAT_FLOOR              0x01
-#define FEAT_INVIS              0x02
-#define FEAT_GLYPH              0x03
+/* #define FEAT_INVIS              0x02 Now is a field */
+/* #define FEAT_GLYPH              0x03 Now is a field */
 #define FEAT_OPEN               0x04
 #define FEAT_BROKEN             0x05
 #define FEAT_LESS               0x06
@@ -907,28 +870,38 @@
 #define FEAT_PEBBLES		0x0E
 #define FEAT_SOLID_LAVA		0x0F
 
+#if 0  /* Traps are now fields */
+	/* Traps */
+	#define FEAT_TRAP_TRAPDOOR      0x10
+	#define FEAT_TRAP_PIT           0x11
+	#define FEAT_TRAP_SPIKED_PIT    0x12
+	#define FEAT_TRAP_POISON_PIT    0x13
+	#define FEAT_TRAP_TY_CURSE      0x14
+	#define FEAT_TRAP_TELEPORT      0x15
+	#define FEAT_TRAP_FIRE          0x16
+	#define FEAT_TRAP_ACID          0x17
+	#define FEAT_TRAP_SLOW          0x18
+	#define FEAT_TRAP_LOSE_STR      0x19
+	#define FEAT_TRAP_LOSE_DEX      0x1A
+	#define FEAT_TRAP_LOSE_CON      0x1B
+	#define FEAT_TRAP_BLIND         0x1C
+	#define FEAT_TRAP_CONFUSE       0x1D
+	#define FEAT_TRAP_POISON        0x1E
+	#define FEAT_TRAP_SLEEP         0x1F
 
-/* Traps */
-#define FEAT_TRAP_TRAPDOOR      0x10
-#define FEAT_TRAP_PIT           0x11
-#define FEAT_TRAP_SPIKED_PIT    0x12
-#define FEAT_TRAP_POISON_PIT    0x13
-#define FEAT_TRAP_TY_CURSE      0x14
-#define FEAT_TRAP_TELEPORT      0x15
-#define FEAT_TRAP_FIRE          0x16
-#define FEAT_TRAP_ACID          0x17
-#define FEAT_TRAP_SLOW          0x18
-#define FEAT_TRAP_LOSE_STR      0x19
-#define FEAT_TRAP_LOSE_DEX      0x1A
-#define FEAT_TRAP_LOSE_CON      0x1B
-#define FEAT_TRAP_BLIND         0x1C
-#define FEAT_TRAP_CONFUSE       0x1D
-#define FEAT_TRAP_POISON        0x1E
-#define FEAT_TRAP_SLEEP         0x1F
+#endif /* 0 */
 
 /* Doors */
-#define FEAT_DOOR_HEAD          0x20
-#define FEAT_DOOR_TAIL          0x2F
+/* #define FEAT_DOOR_HEAD          0x20 Locked and jammed */
+/* #define FEAT_DOOR_TAIL          0x2F doors are now fields */
+
+#define FEAT_CLOSED				0x20
+
+
+/* A big gap for expansion */
+
+
+
 
 /* Extra */
 #define FEAT_SECRET             0x30
@@ -953,7 +926,7 @@
 #define FEAT_PERM_SOLID         0x3F
 
 /* Glyph */
-#define FEAT_MINOR_GLYPH        0x40
+/* #define FEAT_MINOR_GLYPH        0x40 Now is a field */
 
 /* Pattern */
 #define FEAT_PATTERN_START      0x41
@@ -975,13 +948,13 @@
 #define FEAT_SHAL_WATER         0x54
 #define FEAT_DEEP_LAVA          0x55
 #define FEAT_SHAL_LAVA          0x56
-#define FEAT_DARK_PIT           0x57
+/* #define FEAT_DARK_PIT           0x57 Now is a field */
 #define FEAT_DIRT               0x58
 #define FEAT_GRASS              0x59
 
-#define FEAT_TRAP_TRAPS         0x5A
+/* #define FEAT_TRAP_TRAPS		0x5A	Now is a field */
 
-#define FEAT_WALL_INVIS		0x5B
+/* #define FEAT_WALL_INVIS		0x5B	Now is a field */
 
 #define FEAT_OCEAN_WATER	0x5C
 #define FEAT_DEEP_ACID		0x5D
@@ -989,34 +962,34 @@
 #define FEAT_TREE_WATER		0x5F
 
 /* Terrain semi-transparent*/
-#define FEAT_TREES              0x60
-#define FEAT_MOUNTAIN           0x61
+#define FEAT_TREES          0x60
+#define FEAT_MOUNTAIN       0x61
 #define FEAT_SNOW_MOUNTAIN	0x62
 #define FEAT_BOULDER		0x63
 #define FEAT_PINE_TREE		0x64
 #define FEAT_SNOW_TREE		0x65
 #define FEAT_OBELISK		0x66
-#define FEAT_PILLAR		0x67
+#define FEAT_PILLAR         0x67
 
 /* Feature 0x68 - 0x6F unused */
 
 /* Impassible terrains */
-#define FEAT_FENCE		0x70
-#define FEAT_WELL		0x71
-#define FEAT_FOUNTAIN		0x72
-#define FEAT_JUNGLE		0x73
+#define FEAT_FENCE		    0x70
+#define FEAT_WELL		    0x71
+#define FEAT_FOUNTAIN       0x72
+#define FEAT_JUNGLE		    0x73
 /* Buildings - removed (replaced with fields) */
 
 /* Slow "floor" terrains */
 
-#define FEAT_BUSH		0x80
+#define FEAT_BUSH		    0x80
 #define FEAT_DEAD_BUSH		0x81
 #define FEAT_GRASS_LONG		0x82
 #define FEAT_ROCK_GEN		0x83
 #define FEAT_ROCK_SNOW		0x84
 #define FEAT_TREE_GEN		0x85
 #define FEAT_TREE_SNOW		0x86
-#define FEAT_SNOW		0x87
+#define FEAT_SNOW		    0x87
 #define FEAT_DEEP_SWAMP		0x88
 #define FEAT_SHAL_SWAMP		0x89
 
@@ -1032,6 +1005,40 @@
 #define WILD_INFO_DUMMY1	0x40
 #define WILD_INFO_DUMMY2	0x80
 
+/*** Field Thaumatergical types - (see "fields.c" and t_info.txt) ***/
+#define FT_WALL_INVIS		0x0001
+#define FT_GLYPH_WARDING	0x0002
+#define FT_GLYPH_EXPLODE	0x0003
+#define FT_CORPSE			0x0004
+#define FT_SKELETON			0x0005
+#define FT_TRAP_DOOR		0x0006
+#define FT_TRAP_PIT			0x0007
+#define FT_TRAP_SPIKE_PIT	0x0008
+#define FT_TRAP_POISON_PIT	0x0009
+#define FT_TRAP_CURSE		0x000A
+#define FT_TRAP_TELEPORT	0x000B
+#define FT_TRAP_ELEMENT		0x000C
+#define FT_TRAP_BA_ELEMENT	0x000D
+#define FT_TRAP_GAS			0x000E
+#define FT_TRAP_TRAPS		0x000F
+#define FT_TRAP_TEMP_STAT	0x0010
+#define FT_TRAP_PERM_STAT	0x0011
+#define FT_TRAP_LOSE_XP		0x0012
+#define FT_TRAP_DISENCHANT	0x0013
+#define FT_TRAP_DROP_ITEM	0x0014
+#define FT_TRAP_MUTATE		0x0015
+#define FT_TRAP_NEW_LIFE	0x0016
+#define FT_TRAP_NO_LITE		0x0017
+#define FT_TRAP_HUNGER		0x0018
+#define FT_TRAP_NO_GOLD		0x0019
+#define FT_TRAP_HASTE_MON	0x001A
+#define FT_TRAP_RAISE_MON	0x001B
+#define FT_TRAP_DRAIN_MAGIC	0x001C
+#define FT_TRAP_AGGRAVATE	0x001D
+#define FT_TRAP_SUMMON		0x001E
+#define FT_TRAP_LOSE_MEMORY	0x001F
+#define FT_LOCK_DOOR		0x0020
+#define FT_JAM_DOOR			0x0021
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -1426,10 +1433,6 @@
  * This value is the primary means by which items are sorted in the
  * player inventory, followed by "sval" and "cost".
  *
- * Note that a "BOW" with tval = 19 and sval S = 10*N+P takes a missile
- * weapon with tval = 16+N, and does (xP) damage when so combined.  This
- * fact is not actually used in the source, but it kind of interesting.
- *
  * Note that as of 2.7.8, the "item flags" apply to all items, though
  * only armor and weapons and a few other items use any of these flags.
  */
@@ -1441,7 +1444,7 @@
 #define TV_CHEST         7      /* Chests ('~') */
 #define TV_FIGURINE      8      /* Magical figurines */
 #define TV_STATUE        9      /* Statue, what a silly object... */
-#define TV_CORPSE       10      /* Corpses and Skeletons, specific */
+/*#define TV_CORPSE       10  */    /* Corpses are now fields */
 #define TV_SHOT         16      /* Ammo for slings */
 #define TV_ARROW        17      /* Ammo for bows */
 #define TV_BOLT         18      /* Ammo for x-bows */
@@ -1495,10 +1498,6 @@
 #define SV_IVORY_STATUE			7
 #define SV_MITHRIL_STATUE		8
 #define SV_ORNATE_STATUE		9
-
-/* The "sval" codes for TV_CORPSE */
-#define SV_SKELETON 				0
-#define SV_CORPSE					1
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT                    0	/* pebbles, flight arrows */
@@ -2055,7 +2054,8 @@
 #define CAVE_TEMP       0x40    /* temp flag */
 #define CAVE_XTRA       0x80    /* misc flag */
 
-
+/* Hack - reuse CAVE_ROOM */
+#define CAVE_MNLT		0x08	/* Illuminated by monster */
 
 /*
  * Bit flags for the "project()" function
@@ -2069,6 +2069,7 @@
  *   KILL: Affect each monster in the "blast area" in some way
  *   HIDE: Hack -- disable "visual" feedback from projection
  *   FRND: Stop if hit a friendly monster / player.
+ *	 MFLD: Make fields using GF_XXX value as type.
  */
 #define PROJECT_JUMP    0x0001
 #define PROJECT_BEAM    0x0002
@@ -2079,6 +2080,7 @@
 #define PROJECT_KILL    0x0040
 #define PROJECT_HIDE    0x0080
 #define PROJECT_FRND	0x0100
+#define PROJECT_MFLD	0x0200
 
 /*
  * Bit flags for the "enchant()" function
@@ -2095,13 +2097,13 @@
  *      LOOK: Describe grid fully
  *      XTRA: Currently unused flag
  *      GRID: Select from all grids
- *	HOST: Select hostile creatures only.
+ *		HOST: Select hostile creatures only.
  */
 #define TARGET_KILL             0x01
 #define TARGET_LOOK             0x02
 #define TARGET_XTRA             0x04
 #define TARGET_GRID             0x08
-#define TARGET_HOST		0x10
+#define TARGET_HOST				0x10
 
 
 /*
@@ -2169,10 +2171,9 @@
 /* xxx (many) */
 /* xxx (many) */
 #define PU_UN_VIEW      0x00010000L     /* Forget view */
-#define PU_UN_LITE      0x00020000L     /* Forget lite */
 /* xxx (many) */
 #define PU_VIEW         0x00100000L     /* Update view */
-#define PU_LITE         0x00200000L     /* Update lite */
+#define PU_MON_LITE		0x00200000L		/* Monster illumination */
 /* xxx */
 #define PU_MONSTERS     0x01000000L     /* Update monsters */
 #define PU_DISTANCE     0x02000000L     /* Update distances */
@@ -2274,7 +2275,7 @@
 #define SUMMON_PHANTOM              47
 #define SUMMON_ELEMENTAL            48
 #define SUMMON_BLUE_HORROR          49
-#define SUMMON_GHB						50
+#define SUMMON_GHB		    50 /* Not actually used */
 
 
 
@@ -2559,7 +2560,7 @@
 #define TR3_XXX4                0x00000008L     /* Later */
 #define TR3_NO_TELE             0x00000010L     /* Anti-teleportation */
 #define TR3_NO_MAGIC            0x00000020L     /* Anti-magic */
-#define TR3_WRAITH              0x00000040L     /* Wraithform */
+#define TR3_XXX7                0x00000040L     /* Later */
 #define TR3_TY_CURSE            0x00000080L     /* The Ancient Curse */
 #define TR3_EASY_KNOW           0x00000100L     /* Aware -> Known */
 #define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
@@ -2894,6 +2895,8 @@
 #define RF7_CAN_FLY             0x00000004  /* Monster can fly */
 #define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
 #define RF7_SILLY               0x00000010  /* Monster is "silly" */
+#define RF7_LITE_1				0x00000020	/* Monster carries a small lite */
+#define RF7_LITE_2				0x00000040	/* Monster carries a large lite */
 
 /*
  * Monster race wilderness flags
@@ -2917,7 +2920,7 @@
 #define RF8_WILD_SHORE          0x00010000
 #define RF8_WILD_OCEAN          0x00020000
 #define RF8_WILD_GRASS          0x00040000
-#define RF8_WILD_TOWN		0x00080000
+#define RF8_WILD_TOWN           0x00080000
 #define RF8_DUNGEON_01          0x00100000
 #define RF8_DUNGEON_02          0x00200000
 #define RF8_DUNGEON_03          0x00400000
@@ -2939,7 +2942,6 @@
 #define RF8_WILD                0x000700FF
 
 
-
 /*
  * Monster drop info
  */
@@ -2959,7 +2961,7 @@
 
 #define RF6_INT_MASK \
    (RF6_BLINK | RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
-    RF6_HEAL | RF6_INVULNER | RF6_HASTE | RF6_TRAPS | \
+    RF6_HEAL | RF6_INVULNER | RF6_HASTE | RF6_TRAPS | RF6_RAISE_DEAD | \
     RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
@@ -2979,6 +2981,44 @@
 
 #define RF6_BOLT_MASK \
    0L
+
+/*
+ * Spells that hurt the player directly
+ */
+#define RF4_ATTACK_MASK \
+	(RF4_ROCKET | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4 | \
+	 RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS | \
+	 RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | RF4_BR_CONF | RF4_BR_SOUN | \
+	 RF4_BR_CHAO | RF4_BR_DISE | RF4_BR_NEXU | RF4_BR_TIME | RF4_BR_INER | \
+	 RF4_BR_GRAV | RF4_BR_SHAR | RF4_BR_PLAS | RF4_BR_WALL | RF4_BR_MANA | \
+	 RF4_BA_NUKE | RF4_BR_NUKE | RF4_BA_CHAO | RF4_BR_DISI)
+
+#define RF5_ATTACK_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | RF5_BA_POIS | \
+	 RF5_BA_NETH | RF5_BA_WATE | RF5_BA_MANA | RF5_BA_DARK | \
+	 RF5_MIND_BLAST | RF5_BRAIN_SMASH | RF5_CAUSE_1 | RF5_CAUSE_2 | \
+	 RF5_CAUSE_3 | RF5_CAUSE_4 | RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | \
+	 RF5_BO_COLD | RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_ATTACK_MASK \
+	(RF6_HAND_DOOM)
+
+
+
+/*
+ * Spells that allow the caster to escape
+ */
+#define RF4_ESCAPE_MASK \
+	(0L)
+
+#define RF5_ESCAPE_MASK \
+	(0L)
+
+#define RF6_ESCAPE_MASK \
+	(RF6_BLINK | RF6_TPORT | RF6_TELE_AWAY | RF6_TELE_LEVEL)
+
+
 
 /*
  * Hack -- 'ball' spells that may hurt friends
@@ -3040,7 +3080,7 @@
 	RF5_SCARE | RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
 
 #define RF6_ANNOY_MASK \
-	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
+	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET | RF6_RAISE_DEAD)
 
 
 /*
@@ -3056,7 +3096,7 @@
 	(RF6_HASTE)
 
 /*
- * Spells that increase the caster's relative speed
+ * Spells that give invulnerability
  */
 #define RF4_INVULN_MASK \
 	(0L)
@@ -3249,14 +3289,24 @@
 
 /*
  * Determines if a map location is currently "on screen" -RAK-
- * Note that "panel_contains(Y,X)" always implies "in_bounds2(Y,X)".
  */
 #define panel_contains(Y,X) \
   (((Y) >= panel_row_min) && ((Y) <= panel_row_max) && \
    ((X) >= panel_col_min) && ((X) <= panel_col_max))
 
+/*
+ * Determine is a map location is fully inside the outer walls.
+ */
+#define in_bounds(Y,X) \
+	(((Y) > min_hgt) && ((X) > min_wid)\
+	 && ((Y) < max_hgt - 1) && ((X) < max_wid - 1))
 
-
+/*
+ * Determine is a map location is on or inside the outer walls.
+ */
+#define in_bounds2(Y,X) \
+	(((Y) >= min_hgt) && ((X) >= min_wid)\
+	 && ((Y) < max_hgt) && ((X) < max_wid))
 /*
  * Determine if a "legal" grid is a "floor" grid
  *
@@ -3342,6 +3392,7 @@
 	  ((C)->feat == FEAT_DIRT)) && \
 	  ((C)->o_idx == 0) && \
 	  ((C)->m_idx == 0) && \
+	  ((C)->fld_idx == 0) && \
 	  !((C) == area(py, px)))
 
 
@@ -3528,6 +3579,13 @@ extern int PlayerUID;
 
 #define MAX_VIRTUE 18
 
+/*
+ * Number of virtues the player can have
+ * ToDo: Check if changing this value breaks anything
+ * (apart from savefile compatibility).
+ */
+#define MAX_PLAYER_VIRTUES 8
+
 
 /*
  * Hack -- attempt to reduce various values
@@ -3542,15 +3600,6 @@ extern int PlayerUID;
 # undef MESSAGE_BUF
 # define MESSAGE_BUF    4096
 #endif
-
-
-/*
- * Road flags
- */
-#define ROAD_NORTH	1
-#define ROAD_SOUTH	2
-#define ROAD_EAST	4
-#define ROAD_WEST	8
 
 
 /*
@@ -3628,7 +3677,7 @@ extern int PlayerUID;
 /*
  * Quest flags
  */
-#define QUEST_FLAG_SILENT  0x01 /* no messages fro completion */
+#define QUEST_FLAG_SILENT  0x01 /* no messages for completion */
 #define QUEST_FLAG_PRESET  0x02 /* quest is outside the main dungeon */
 #define QUEST_FLAG_ONCE    0x04 /* quest is marked finished after leaving */
 
@@ -3681,47 +3730,58 @@ extern int PlayerUID;
  */
 #define FIELD_INFO_TEMP		0x0001	/* Temporary field - use counter */
 #define FIELD_INFO_FEAT		0x0002	/* Terrain feature based field */
-#define FIELD_INFO_ATTR		0x0004	/* Use attr */
-#define FIELD_INFO_CHAR		0x0008	/* Use char */
-#define FIELD_INFO_RAND		0x0010	/* Randomize first 4 data values */
-#define FIELD_INFO_FLAGS	0x0020	/* Affects targets flags */
-#define FIELD_INFO_DUMMY5	0x0040
-#define FIELD_INFO_DUMMY6	0x0080
-#define FIELD_INFO_DUMMY7	0x0100
-#define FIELD_INFO_DUMMY8	0x0200
-#define FIELD_INFO_DUMMY9	0x0400
-#define FIELD_INFO_DUMMY10	0x0800
+#define FIELD_INFO_VIS		0x0004	/* Has attr / char */
+#define FIELD_INFO_MARK		0x0008	/* Known */
+#define FIELD_INFO_TRANS	0x0010	/* Tile uses 16x16 transparency effects */
+#define FIELD_INFO_NO_LOOK	0x0020	/* Do not describe when looked at */
+#define FIELD_INFO_NFT_LOOK	0x0040  /* Do not describe feat when looked at */
+#define FIELD_INFO_MERGE	0x0080  /* Merge counter with similar fields */ 
+#define FIELD_INFO_NO_ENTER	0x0100  /* Grid blocks player entry */
+#define FIELD_INFO_NO_MAGIC	0x0200  /* Grid blocks magic */
+#define FIELD_INFO_NO_OBJCT	0x0400  /* Grid cannot hold objects */
+#define FIELD_INFO_PERM		0x0800	/* Grid is not affected by disintegrate */
 #define FIELD_INFO_DUMMY11	0x1000
 #define FIELD_INFO_DUMMY12	0x2000
 #define FIELD_INFO_DUMMY13	0x4000
+#define FIELD_INFO_DUMMY14  0x8000
 
-#define FTYPE_TRAP	1
-#define FTYPE_DOOR	2
-#define FTYPE_BUILD	3
-#define FTYPE_FIELD	4
-#define FTYPE_OBJ	5
-#define FTYPE_MON	6
+#define FTYPE_NOTHING	0
+#define FTYPE_TRAP		1
+#define FTYPE_DOOR		2
+#define FTYPE_BUILD		3
+#define FTYPE_FEAT		4
+#define FTYPE_QUEST		5
+#define FTYPE_FIELD		6
+#define FTYPE_CORPSE	7
+#define FTYPE_MISC		8
 
 /*
  * Field Actions
  */
-#define FIELD_ACT_INIT		0	/* Initialise the field data */
-#define FIELD_ACT_ALWAYS	1	/* Every turn */
+#define FIELD_ACT_INIT			0	/* Initialise the field data */
+#define FIELD_ACT_LOAD			1	/* Loading Initialisation */
 #define FIELD_ACT_PLAYER_ENTER	2	/* Player walks onto square */
-#define FIELD_ACT_PLAYER_ON	3	/* Player is on square */
+#define FIELD_ACT_PLAYER_ON		3	/* Player is on square */
 #define FIELD_ACT_PLAYER_LEAVE	4	/* Player leaves square */
 #define FIELD_ACT_MONSTER_ENTER	5	/* Monster walks onto square */
 #define FIELD_ACT_MONSTER_ON	6	/* Monster is on square */
 #define FIELD_ACT_MONSTER_LEAVE	7	/* Monster leaves square */
 #define FIELD_ACT_OBJECT_DROP	8	/* Object lands on square */
-#define FIELD_ACT_OBJECT_ON	9	/* Object is on square */
-#define FIELD_ACT_MAGIC_PASS	10	/* bolt/beam/ball spell tries to pass this field */
+#define FIELD_ACT_OBJECT_ON		9	/* Object is on square */
+#define FIELD_ACT_INTERACT		10  /* Type-specific interation */
 #define FIELD_ACT_MAGIC_TARGET	11	/* Targeting this square */
-#define FIELD_ACT_COMPACT	12	/* Compaction if too many */
-#define FIELD_ACT_EXIT		13	/* Field is destroyed */
-#define FIELD_ACT_RECALC	14	/* Recalculating monster / object flags */
+#define FIELD_ACT_LOOK			12	/* Hook for name of field when looking */
+#define FIELD_ACT_EXIT			13	/* Field is destroyed */
+#define FIELD_ACT_MONSTER_AI	14	/* Monster AI hook */
+#define FIELD_ACT_SPECIAL		15	/* Special, type specific action */
+#define FIELD_ACT_INTERACT_TEST	16	/* Test for type of player interaction */
+#define FIELD_ACT_MON_ENTER_TEST 17 /* Monster attempts to enter grid */
 
-#define FIELD_ACTION_MAX	15	/* The last action + 1 */
+#define FIELD_ACTION_MAX		18	/* The last action + 1 */
+
+
+#define FIELD_ACTION_TYPES  46 /* Number of FIELD_ACT functions in tables.c */
+
 
 
 /*
@@ -3731,5 +3791,6 @@ extern int PlayerUID;
 #define DISPLAY_PLAYER_HISTORY		1	/* standard display with history */
 #define DISPLAY_PLAYER_SUMMARY		2	/* summary of various things */
 
-#define DISPLAY_PLAYER_MAX			3
+#define DISPLAY_PLAYER_MAX		3
+
 

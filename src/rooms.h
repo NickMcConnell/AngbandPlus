@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/01/26 15:02:00 $
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/25 11:27:04 $
  *
  * File: rooms.h
  * Purpose: Header file for rooms.c, used only in generate.c
@@ -14,9 +14,5 @@
 
 
 /* Externs */
-#ifdef ALLOW_CAVERNS_AND_LAKES
-extern void build_lake(int type);
-extern void build_cavern(void);
-#endif /* ALLOW_CAVERNS_AND_LAKES */
 
 extern bool room_build(int y0, int x0, int typ);

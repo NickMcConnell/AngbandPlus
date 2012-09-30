@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/02/02 15:50:23 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/31 10:53:42 $ */
 /* File: main-mac.c */
 
 /* Purpose: Simple support for MACINTOSH Angband */
@@ -740,8 +740,18 @@ static void term_data_check_font(term_data *td)
 static void term_data_check_size(term_data *td)
 {
 	/* Minimal window size */
-	if (td->cols < 1) td->cols = 1;
-	if (td->rows < 1) td->rows = 1;
+	if (td == &data[0])
+	{
+		/* The main window has a minimum size */
+		if (td->cols < 80) td->cols = 80;
+		if (td->rows < 24) td->rows = 24;
+	}
+	else
+	{
+		/* Otherwise use min size is 1x1 */
+		if (td->cols < 1) td->cols = 1;
+		if (td->rows < 1) td->rows = 1;
+	}
 
 	/* Minimal tile size */
 	if (td->tile_wid < 4) td->tile_wid = 4;
@@ -1093,9 +1103,9 @@ static OSErr BenSWCreateGWorldFromPict(
 
 		/* Obtain size rectangle */
 		pictRect.left = 0;
-		pictRect.right = SCREEN_WID * kGrafWidth;
+		pictRect.right = map_wid * kGrafWidth;
 		pictRect.top = 0;
-		pictRect.bottom = SCREEN_HGT * kGrafHeight;
+		pictRect.bottom = map_hgt * kGrafHeight;
 		
 		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
 
@@ -3937,6 +3947,7 @@ static bool CheckEvents(bool wait)
 		case mouseDown:
 		{
 			int code;
+			int window;
 
 			/* Analyze click location */
 			code = FindWindow(event.where, &w);
@@ -3948,7 +3959,11 @@ static bool CheckEvents(bool wait)
 				if (!data[i].t) continue;
 
 				/* Notice matches */
-				if (data[i].w == w) td = &data[i];
+				if (data[i].w == w)
+				{
+					td = &data[i];
+					window = i;
+				}
 			}
 
 			/* Analyze */
@@ -4030,6 +4045,8 @@ static bool CheckEvents(bool wait)
 					int x, y;
 
 					term *old = Term;
+					
+					bool redraw_it = TRUE;
 
 					/* Oops */
 					if (!td) break;
@@ -4061,10 +4078,43 @@ static bool CheckEvents(bool wait)
 					Term_activate(td->t);
 
 					/* Hack -- Resize the term */
-					Term_resize(td->cols, td->rows);
+					if (Term_resize(td->cols, td->rows) == 1) redraw_it = FALSE;
 
 					/* Resize and Redraw */
 					term_data_resize(td);
+					
+					/* Reset map size if required */
+					if (window == 0)
+					{				
+						/* Recalculate map size */
+						map_hgt = td->rows - 2;
+						map_wid = td->cols - 14;
+				
+						/* Mega-Hack -- no panel yet */
+						panel_row_min = 0;
+						panel_row_max = 0;
+						panel_col_min = 0;
+						panel_col_max = 0;
+				
+						/* Reset the panels */
+						map_panel_size();
+				
+						if (character_dungeon)
+						{
+							verify_panel();
+						}
+					}
+						
+					/* Only redraw if everything is initialised */
+					if (character_dungeon && redraw_it)
+					{			
+						/* Activate term zero for the redraw */
+						Term_activate(data[0].t);
+				
+						/* redraw */
+						do_cmd_redraw_term(window);
+					}
+					
 					term_data_redraw(td);
 
 					/* Restore */

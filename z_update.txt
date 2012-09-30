@@ -2,6 +2,65 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.5.2:
+-Added monster lighting effects.  This is similar to the monster
+ lighting patch from APW, however it is much more efficient.  Also,
+ there are three possible light radii instead of one.
+-Corpses now are dropped by monsters when they die.  These
+ decay over time, and cannot be picked up.  Some monsters have spells
+ that raise all corpses in LOS.
+-Removed the bash command.  Use the open command to open stuck doors.
+-Completely rewritten traps code.  The types of traps are now level
+ dependent.  There are new types, and some old types are nastier.
+-Added a version of the big screen patch.
+-Items are *identified* in death chardump.
+-Fur cloaks are cheaper.
+-Changed the shots per round display.  Changed the formula for extra
+ shots.  Large numbers of "extra shots" are less powerful now.
+-Beastmen going up multiple levels get an increased chance to get a
+ mutation.
+-Many optimizations to the monster AI.
+-Speedups to the term code allows quick redrawing of rectangular
+ sections of windows.  This speeds up redrawing as other windows move
+ in front of terms.
+-Major optimisation of functions in cave.c  The game may be twice as
+ fast in some situations.
+-Fixed bug in the anti-double-move patch.
+-Fixed various bugs in dungeon generation.  Toned down the
+ "unusual rooms" option.  It now makes unusual rooms, not vaults.
+-Ammo is found in bigger piles, and is easier to enchant.  Mushrooms
+ are found in clumps.
+-Grid bugs are less common now.
+-Mushrooms of cure serious wounds now weight as much as every other
+ mushroom.
+-You can now drown in the ocean.
+-Iron spikes are lighter now.  The stuck door formulae have changed. 
+-Weapons of poisoning are now known as weapons of venom.
+-Sting now gets +2 attacks.
+-Fixed a bug in the range of fired ammo.
+-Fixed problems with the meteor storm spell.
+-Moved Earth hounds to the intended depth.
+-Fixed several bugs in the note-taking code.
+-Fixed "scroll of Logrus" typo.
+-Changed projection functions to give information only if hit squares
+ are in LOS.  This fixes bugs with identification of wands of "stone
+ to mud".
+-Fixed the confusion activation direction problem.
+-Fixed some long standing bugs in the monster flow code.
+-Finally fixed the last of the problems with the fractal caves patch.
+ The game shouldn't crash on dungeon creation any more.
+-Wilderness panel initialisation fix.  This should stop the empty
+ screens appearing in vanilla town mode.
+-Fixed problems with bounds checking in random vaults.
+-Cleaned up the "Easy Patch".  The code is now integrated much better
+ with the normal behaviour of the game.
+-Chaos warriors are now initialised properly with the point-based
+ birth system.
+-Fixed inconsistancy between monster-monster and monster-player spells.
+-Fixed the weaponmaster code.  (The building isn't used though.)
+-Updated makefiles for CygWin and LCC and removed unused parts of the
+ source code.
+
 ZAngband 2.5.1:
 -Removed some compiler warnings.
 -Documentation updates.
@@ -9,8 +68,7 @@ ZAngband 2.5.1:
 -CHECK_MODIFICATION_TIME should now work correctly for Macs.
 -Added a SILLY flag to r_info.txt.  This will allow people to turn
  off 'silly' monsters via a birth option.
--Sanity blasts have been switched back on but toned down until the
- special buildings return.
+-Sanity blasts have been switched back on but toned down.
 -The 'wasting disease' permanent stat drain has been removed.
 -Displaying the character history is now possible by pressing 'h'
  when rolling the character (not yet in point-based mode).
@@ -30,16 +88,16 @@ ZAngband 2.5.1:
 -Fixed a bug that messed up objects on the floor when rerolling them
  in debug mode.
 -Fixed the vanilla town bug where the stores / home were not saved.
--Fixed a problem withthe 'Cheat Death' option.
+-Fixed a problem with the 'Cheat Death' option.
 -Fixed a buffer-overrun with long notes.
--Fixed rounding error with fractional monster experience points shown in
- monster memory.
+-Fixed rounding error with fractional monster experience points shown
+ in monster memory.
 -Fixed a problem with life ratings and racial intrinsics being
  mixed up in the self-knowledge scrren.
 -Fixed a problem with generating full monster spoilers.
 -Fixed some problems with the monster fleeing code.
 -Added some monster AI optimizations from standard Angband.
--Corrected some silly messages when failing trump summonng spells.
+-Corrected some silly messages when failing trump summoning spells.
 -Mindcrafters can no longer get the 'viscous blow' effect when failing
  to use their powers.
 -Reduced the multiplier for the throwing mutation it was way too

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:39:00 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/13 00:28:49 $ */
 /* File: spells3.c */
 
 /* Purpose: Spell code (part 3) */
@@ -35,8 +35,11 @@ bool teleport_away(int m_idx, int dis)
 	bool look = TRUE;
 
 	monster_type *m_ptr = &m_list[m_idx];
-	cave_type *c_ptr;
-
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	cave_type *c_ptr = NULL;
+	
+	field_mon_test	mon_enter_test;
+	
 	/* Paranoia */
 	if (!m_ptr->r_idx) return (FALSE);
 
@@ -77,17 +80,35 @@ bool teleport_away(int m_idx, int dis)
 			if (!in_bounds(ny, nx)) continue;
 
 			c_ptr = area(ny, nx);
-
+			
+			/* Check for a field that blocks movement */
+			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
+			{
+				continue;
+			}
+			
 			/* Require "empty" floor space */
 			if (!cave_empty_grid(c_ptr)) continue;
-
-			/* Hack -- no teleport onto glyph of warding */
-			if (c_ptr->feat == FEAT_GLYPH) continue;
-			if (c_ptr->feat == FEAT_MINOR_GLYPH) continue;
 
 			/* ...nor onto the Pattern */
 			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
 			    (c_ptr->feat <= FEAT_PATTERN_XTRA2)) continue;
+				
+			/* 
+			 * Test for fields that will not allow monsters to
+			 * be generated on them.  (i.e. Glyph of warding)
+			 */
+		 
+			/* Initialise information to pass to action functions */
+			mon_enter_test.m_ptr = NULL;
+			mon_enter_test.do_move = TRUE;
+		
+			/* Call the hook */
+			field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
+				 (void *) &mon_enter_test);
+			 
+			/* Get result */
+			if (!mon_enter_test.do_move) continue;
 
 			/* No teleporting into vaults and such */
 			if (!(p_ptr->inside_quest || p_ptr->inside_arena))
@@ -112,6 +133,10 @@ bool teleport_away(int m_idx, int dis)
 
 	/* Sound */
 	sound(SOUND_TPOTHER);
+	
+	/* Process fields under the monster. */
+	field_hook(&c_ptr->fld_idx,
+			 FIELD_ACT_MONSTER_LEAVE, (void *) m_ptr);
 
 	/* Update the new location */
 	area(ny,nx)->m_idx = m_idx;
@@ -122,15 +147,26 @@ bool teleport_away(int m_idx, int dis)
 	/* Move the monster */
 	m_ptr->fy = ny;
 	m_ptr->fx = nx;
-
+	
 	/* Update the monster (new location) */
 	update_mon(m_idx, TRUE);
-
+	
+	/* Process fields under the monster. */
+	field_hook(&c_ptr->fld_idx,
+			 FIELD_ACT_MONSTER_ENTER, (void *) m_ptr);
+	
 	/* Redraw the old grid */
 	lite_spot(oy, ox);
 
 	/* Redraw the new grid */
 	lite_spot(ny, nx);
+	
+	/* Notice changes in view */
+	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+	{
+		/* Update some things */
+		p_ptr->update |= (PU_MON_LITE);
+	}
 
 	return (TRUE);
 }
@@ -147,8 +183,9 @@ void teleport_to_player(int m_idx)
 	int dis = 2;
 	bool look = TRUE;
 	monster_type *m_ptr = &m_list[m_idx];
-	cave_type *c_ptr;
-
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	cave_type *c_ptr = NULL;
+	field_mon_test	mon_enter_test;
 
 	/* Paranoia */
 	if (!m_ptr->r_idx) return;
@@ -189,13 +226,31 @@ void teleport_to_player(int m_idx)
 			if (!in_bounds(ny, nx)) continue;
 
 			c_ptr = area(ny, nx);
+			
+			/* Check for a field that blocks movement */
+			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
+			{
+				continue;
+			}
+			
+			/* 
+			 * Test for fields that will not allow monsters to
+			 * be generated on them.  (i.e. Glyph of warding)
+			 */
+		 
+			/* Initialise information to pass to action functions */
+			mon_enter_test.m_ptr = NULL;
+			mon_enter_test.do_move = TRUE;
+		
+			/* Call the hook */
+			field_hook(&c_ptr->fld_idx, FIELD_ACT_MON_ENTER_TEST,
+				 (void *) &mon_enter_test);
+			 
+			/* Get result */
+			if (!mon_enter_test.do_move) continue;
 
 			/* Require "empty" floor space */
 			if (!cave_empty_grid(c_ptr)) continue;
-
-			/* Hack -- no teleport onto glyph of warding */
-			if (c_ptr->feat == FEAT_GLYPH) continue;
-			if (c_ptr->feat == FEAT_MINOR_GLYPH) continue;
 
 			/* ...nor onto the Pattern */
 			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
@@ -222,6 +277,10 @@ void teleport_to_player(int m_idx)
 
 	/* Sound */
 	sound(SOUND_TPOTHER);
+	
+	/* Process fields under the monster. */
+	field_hook(&c_ptr->fld_idx,
+			 FIELD_ACT_MONSTER_LEAVE, (void *) m_ptr);
 
 	/* Update the new location */
 	area(ny,nx)->m_idx = m_idx;
@@ -232,15 +291,26 @@ void teleport_to_player(int m_idx)
 	/* Move the monster */
 	m_ptr->fy = ny;
 	m_ptr->fx = nx;
-
+	
 	/* Update the monster (new location) */
 	update_mon(m_idx, TRUE);
+	
+	/* Process fields under the monster. */
+	field_hook(&c_ptr->fld_idx,
+			 FIELD_ACT_MONSTER_ENTER, (void *) m_ptr);
 
 	/* Redraw the old grid */
 	lite_spot(oy, ox);
 
 	/* Redraw the new grid */
 	lite_spot(ny, nx);
+	
+	/* Notice changes in view */
+	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
+	{
+		/* Update some things */
+		p_ptr->update |= (PU_MON_LITE);
+	}
 }
 
 
@@ -311,6 +381,12 @@ void teleport_player(int dis)
 			if (!(cave_naked_grid(c_ptr) ||
 			    ((c_ptr->feat & 0x60) == 0x60))) continue;
 
+			/* Check for a field that blocks movement */
+			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER))
+			{
+				continue;
+			}
+			
 			/* No teleporting into vaults and such */
 			if (c_ptr->info & CAVE_ICKY) continue;
 
@@ -334,14 +410,18 @@ void teleport_player(int dis)
 	/* Sound */
 	sound(SOUND_TELEPORT);
 
-	/* Save the old location */
+	/* Save old location */
 	oy = py;
 	ox = px;
+
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx,
+		 FIELD_ACT_PLAYER_LEAVE, NULL);
 
 	/* Move the player */
 	py = y;
 	px = x;
-
+	
 	if (!dun_level)
 	{
 		/* Scroll wilderness */
@@ -349,6 +429,10 @@ void teleport_player(int dis)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
+		
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx,
+		 FIELD_ACT_PLAYER_ENTER, NULL);
 
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
@@ -394,7 +478,7 @@ void teleport_player(int dis)
 	verify_panel();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -439,7 +523,10 @@ void teleport_player_to(int ny, int nx)
 
 		/* Accept "naked" floor grids */
 		c_ptr = area(y, x);
-		if (cave_naked_grid(c_ptr)) break;
+		
+		/* Can enter grid? */
+		if (cave_naked_grid(c_ptr) && !(fields_have_flags(c_ptr->fld_idx,
+				 FIELD_INFO_NO_ENTER))) break;
 
 		/* Occasionally advance the distance */
 		if (++ctr > (4 * dis * dis + 4 * dis + 1))
@@ -452,14 +539,18 @@ void teleport_player_to(int ny, int nx)
 	/* Sound */
 	sound(SOUND_TELEPORT);
 
-	/* Save the old location */
+	/* Save old location */
 	oy = py;
 	ox = px;
+
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx,
+		 FIELD_ACT_PLAYER_LEAVE, NULL);
 
 	/* Move the player */
 	py = y;
 	px = x;
-
+	
 	if (!dun_level)
 	{
 		/* Scroll wilderness */
@@ -467,6 +558,10 @@ void teleport_player_to(int ny, int nx)
 		p_ptr->wilderness_y = py;
 		move_wild();
 	}
+		
+	/* Process fields under the player. */
+	field_hook(&area(py, px)->fld_idx,
+		 FIELD_ACT_PLAYER_ENTER, NULL);
 
 	/* Redraw the old spot */
 	lite_spot(oy, ox);
@@ -478,7 +573,7 @@ void teleport_player_to(int ny, int nx)
 	verify_panel();
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
@@ -1062,14 +1157,14 @@ bool warding_glyph(void)
 	cave_type *c_ptr = area(py, px);
 
 	/* XXX XXX XXX */
-	if (!cave_clean_grid(c_ptr))
+	if (!cave_naked_grid(c_ptr))
 	{
 		msg_print("The object resists the spell.");
 		return FALSE;
 	}
 
-	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_GLYPH);
+	/* Add the glyph here as a field */
+	(void) place_field(py, px, FT_GLYPH_WARDING);
 
 	return TRUE;
 }
@@ -1083,14 +1178,14 @@ bool explosive_rune(void)
 	cave_type *c_ptr = area(py, px);
 
 	/* XXX XXX XXX */
-	if (!cave_clean_grid(c_ptr))
+	if (!cave_naked_grid(c_ptr))
 	{
 		msg_print("The object resists the spell.");
 		return FALSE;
 	}
 
-	/* Create a glyph */
-	cave_set_feat(py, px, FEAT_MINOR_GLYPH);
+	/* Add the glyph here as a field */
+	(void) place_field(py, px, FT_GLYPH_EXPLODE);
 
 	return TRUE;
 }
@@ -1494,7 +1589,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	    (o_ptr->tval == TV_ARROW) ||
 	    (o_ptr->tval == TV_SHOT))
 	{
-		prob = prob / 20;
+		prob = prob / 50;
 	}
 
 	/* Try "n" times */
@@ -1717,6 +1812,10 @@ bool artifact_scroll(void)
 			msg_print("Not enough enough energy to enchant more than one object!");
 			msg_format("%d of your %s %s destroyed!", (o_ptr->number) - 1,
 			           o_name, ((o_ptr->number > 2) ? "were" : "was"));
+			
+			/* Change the weight */
+			p_ptr->total_weight -= ((o_ptr->number - 1) * o_ptr->weight);
+			
 			o_ptr->number = 1;
 		}
 
@@ -1761,12 +1860,6 @@ static void good_luck(object_type *o_ptr)
 
 		/* Apply good magic (allow artifacts, good, great if an ego-item, no curse) */
 		apply_magic(o_ptr, dun_level, TRUE, TRUE, great, FALSE);
-	}
-
-	/* Objects duplicate sometimes */
-	if (!rand_int(777) && (o_ptr->number < 99))
-	{
-		o_ptr->number++;
 	}
 }
 
@@ -3071,7 +3164,6 @@ static void spell_info(char *p, int spell, int realm)
 	/* Default */
 	strcpy(p, "");
 
-#ifdef DRS_SHOW_SPELL_INFO
 	{
 		int plev = p_ptr->lev;
 
@@ -3239,7 +3331,6 @@ static void spell_info(char *p, int spell, int realm)
 				sprintf(p, "Unknown type: %d.", realm);
 		}
 	}
-#endif /* DRS_SHOW_SPELL_INFO */
 }
 
 

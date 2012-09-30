@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/17 00:41:10 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/16 17:41:06 $ */
 /* File: wizard2.c */
 
 /* Purpose: Wizard commands */
@@ -558,12 +558,12 @@ static void wiz_display_item(object_type *o_ptr)
 	prt("+------------FLAGS3------------+", 10, j+32);
 	prt("fe      ehsi  st    iiiiadta  hp", 11, j+32);
 	prt("il   n taihnf ee    ggggcregb vr", 12, j+32);
-	prt("re  nowysdose eld   nnnntalrl ym", 13, j+32);
-	prt("ec  omrcyewta ieirmsrrrriieaeccc", 14, j+32);
-	prt("aa  taauktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-	prt("uu  egirnyoahivaeggoclioaeoasrrr", 16, j+32);
-	prt("rr  litsopdretitsehtierltxrtesss", 17, j+32);
-	prt("aa  echewestreshtntsdcedeptedeee", 18, j+32);
+	prt("re  no ysdose eld   nnnntalrl ym", 13, j+32);
+	prt("ec  om cyewta ieirmsrrrriieaeccc", 14, j+32);
+	prt("aa  ta uktmatlnpgeihaefcvnpvsuuu", 15, j+32);
+	prt("uu  eg rnyoahivaeggoclioaeoasrrr", 16, j+32);
+	prt("rr  li sopdretitsehtierltxrtesss", 17, j+32);
+	prt("aa  ec ewestreshtntsdcedeptedeee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
 
@@ -618,7 +618,6 @@ static tval_desc tvals[] =
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FIGURINE,          "Magical Figurine"     },
 	{ TV_STATUE,            "Statue"               },
-	{ TV_CORPSE,            "Corpse"               },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
 	{ TV_JUNK,              "Junk"                 },
@@ -1131,6 +1130,9 @@ static void wiz_quantity_item(object_type *o_ptr)
 		/* Paranoia */
 		if (tmp_int < 1) tmp_int = 1;
 		if (tmp_int > 99) tmp_int = 99;
+		
+		/* Add the weight */
+		p_ptr->total_weight += ((tmp_int - o_ptr->number) * o_ptr->weight);
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
@@ -1949,7 +1951,7 @@ void do_cmd_debug(void)
 		case '=':
 		output_monster_matlab();
 		break;
-#endif  /* MATLAB */
+#endif /* MATLAB */
 
 		/* Hack -- Help */
 		case '?':
@@ -2022,9 +2024,9 @@ void do_cmd_debug(void)
 		(void)ident_spell();
 		break;
 
-		/* Monster Integrity */
+		/* Fields Integrity */
 		case 'I':
-		(void)test_mon_wild_integrity();
+		(void)test_field_data_integrity();
 		break;
 
 		/* Go up or down in the dungeon */
@@ -2103,16 +2105,11 @@ void do_cmd_debug(void)
 		/* Make every dungeon square "known" to test streamers -KMW- */
 		case 'u':
 		{
-			/* Only make squares glow in dungeon. */
-			/* Daytime in the wilderness does this for you outside. */
-			if (dun_level)
+			for (y = min_hgt; y < max_hgt; y++)
 			{
-				for (y = 0; y < cur_hgt; y++)
+				for (x = min_wid; x < max_wid; x++)
 				{
-					for (x = 0; x < cur_wid; x++)
-					{
-						area(y, x)->info |= (CAVE_GLOW | CAVE_MARK);
-					}
+					area(y, x)->info |= (CAVE_GLOW | CAVE_MARK);
 				}
 			}
 

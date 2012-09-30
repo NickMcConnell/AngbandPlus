@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/18 03:50:32 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/14 10:36:34 $ */
 /* File: init2.c */
 
 /* Purpose: Initialization (part 2) -BEN- */
@@ -1924,17 +1924,66 @@ errr init_w_info(void)
 		quit("Error in 'w_info.txt' file.");
 	}
 
+	/* Success */
+	return (0);
+}
 
-	/*
-	 * Make wilderness type 0 have a char/attr
-	 * so the overhead map looks good in vanilla town mode.
-	 */
-	wild_gen_data[0].w_attr = TERM_GREEN;
-	wild_gen_data[0].w_char = '.';
+/*
+ * Initialize the field data structures
+ */
+errr init_t_info(void)
+{
+	errr err;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+	/* Later must add in python support. */
+	C_MAKE(t_info, max_t_idx, field_thaum);
+	C_MAKE(fld_list, max_fld_idx, field_type);
+	
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "t_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 't_info.txt' file.");
+
+	/* Parse the file */
+	err = init_t_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < PARSE_ERROR_MAX)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 't_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 't_info.txt' file.");
+	}
 
 	/* Success */
 	return (0);
 }
+
 
 
 
@@ -2664,6 +2713,11 @@ static errr init_other(void)
 		C_MAKE(wild[i], max_wild_size, wild_type);
 	}
 
+	/*** Prepare "vinfo" array ***/
+
+	/* Used by "update_view()" */
+	(void)vinfo_init();
+
 
 	/*** Prepare the various "bizarre" arrays ***/
 
@@ -3200,6 +3254,9 @@ void init_angband(void)
 	/* Process that file */
 	process_pref_file(buf);
 
+	/* Initialise the fake monochrome flag */
+	fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm")) ? TRUE:FALSE;
+	
 	/* Done */
 	note("[Initialization complete]");
 }

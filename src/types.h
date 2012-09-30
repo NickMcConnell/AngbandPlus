@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/18 03:59:07 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/09/29 14:06:50 $ */
 /* File: types.h */
 
 /* Purpose: global type declarations */
@@ -460,7 +460,7 @@ struct cave_type
 
 	s16b m_idx;		/* Monster in this grid */
 
-	s16b f_idx;		/* Field in this grid */
+	s16b fld_idx;		/* Field in this grid */
 
 	byte mimic;		/* Feature to mimic */
 
@@ -751,8 +751,6 @@ struct object_type
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
-	
-	s16b att_f_idx;		/* Field affect attached (if any) */
 
 #ifdef USE_SCRIPT
 	PyObject *python;
@@ -820,27 +818,22 @@ struct monster_type
 	bool ml;			/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
-	
-	s16b att_f_idx;	/* Magic affect attached to monster */
-
-#ifdef WDT_TRACK_OPTIONS
-
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
-#endif /* WDT_TRACK_OPTIONS */
-
-#ifdef DRS_SMART_OPTIONS
 
 	u32b smart;			/* Field for "smart_learn" */
-
-#endif /* DRS_SMART_OPTIONS */
-
 };
+
+/* Forward declare */
+typedef struct field_type field_type;
+
+/*
+ * A function pointer to an action.  The function takes two values:
+ * 1) a pointer to the index of the field that is undergoing the action.
+ * 2) a pointer to a structure cast to void that contains the
+ *	information the action needs to complete its job.
+ */
+typedef void (*field_action_type)(s16b *field_ptr, void*);
+
+
 
 /*
  * The thaumaturgical list of fields.
@@ -859,32 +852,24 @@ struct field_thaum
 	byte f_attr;			/* attribute */
 	char f_char;			/* character */
 	
+	byte d_attr;			/* Default attribute */
+	char d_char;			/* Default char */
+
 	byte priority;			/* LOS priority higher = more visible */
-	
+
 	byte type;			/* Type of field */
-	
+
 	s16b count_init;		/* Counter for timed effects */
 
-	s16b action[FIELD_ACTION_MAX]; /* Function indexs for the actions */
-	
+	field_action_type action[FIELD_ACTION_MAX]; /* Function indexs for the actions */
+
 	/* Storage space for the actions to interact with. */
 	byte data_init[8];
-	
+
 	u16b info;			/* Information flags */
-	
+
 	char *name;			/* The name of the field */
 };
-
-
-typedef struct field_type field_type;
-
-/*
- * A function pointer to an action.  The function takes two values:
- * 1) the field that is undergoing the action.
- * 2) a pointer to a structure cast to void that contains the
- *	information the action needs to complete its job.
- */
-typedef void (*field_action_type)(field_type *f_ptr, void*);
 
 
 /*
@@ -907,36 +892,89 @@ typedef void (*field_action_type)(field_type *f_ptr, void*);
  * way.
  */
 struct field_type
-{	
+{
 	byte f_attr;			/* attribute */
 	char f_char;			/* character */
-	
+
 	s16b t_idx;			/* field type index */
 
 	s16b fy;			/* Y location on map */
 	s16b fx;			/* X location on map */
-	
-	s16b att_o_idx;			/* Attached to an object */
-
-	s16b att_m_idx;			/* Attached to a monster */
 
 	s16b next_f_idx;		/* Pointer to next field in list */
-	
+
 	u16b info;			/* quick access flags */
-	
-	
+
 	s16b counter;			/* Counter for timed effects */
-	
-	
+
 	/* Storage space for the actions to interact with. */
-	byte data[8];			
-	
+	byte data[8];
+
 	field_action_type action[FIELD_ACTION_MAX]; /* Function pointers for the actions */
-	
+
 	byte priority;			/* LOS priority higher = more visible */
+
+#ifdef USE_SCRIPT
+	PyObject *python;
+#endif /* USE_SCRIPT */
+};
+
+/*
+ * This is the type of the array that is used to parse t_info.txt
+ * It contains the functions fields call + the names of those functions.
+ * This means that an index to the array can be used to save what
+ * fields do (in field_thaum_type).
+ */
+
+typedef struct field_action field_action;
+
+struct field_action
+{
+	field_action_type action;	/* The function to call */
+	char *func;			/* The name of the function */
 };
 
 
+/* 
+ * Structure required to pass infomation to the
+ * FIELD_ACT_MAGIC_TARGET action functions.
+ */
+typedef struct field_magic_target field_magic_target;
+
+struct field_magic_target
+{
+	int who;	/* The source */
+	int dist;	/* Distance from the center of the explosion */
+	int dam;	/* Damage parameter */
+	int typ;	/* GF type of interaction */
+	bool notice; /* Does the player notice? */
+};
+
+/* 
+ * Structure required to pass infomation to the
+ * FIELD_ACT_MON_ENTER_TEST action functions.
+ */
+typedef struct field_mon_test field_mon_test;
+
+struct field_mon_test
+{
+	monster_type *m_ptr; /* The monster */
+	bool do_move; /* Does the monster enter this grid? */
+};
+
+typedef struct field_trap_type field_trap_type;
+
+struct field_trap_type
+{
+	/* Field type */
+	u16b t_idx;
+	
+	/* Average level found on */
+	byte level;
+	
+	/* Randomise data[3] */
+	byte rand;
+};
 
 
 /*
@@ -1337,8 +1375,8 @@ struct player_type
 	u32b muta2;
 	u32b muta3;
 
-	s16b virtues[8];
-	s16b vir_types[8];
+	s16b virtues[MAX_PLAYER_VIRTUES];
+	s16b vir_types[MAX_PLAYER_VIRTUES];
 
 	s16b word_recall;	/* Word of recall counter */
 
@@ -1495,6 +1533,10 @@ struct player_type
 	bool leaving_dungeon;	/* True if player is leaving the dungeon */
 
 	s32b align;				/* Good/evil/neutral */
+	
+	s16b detectx;			/* Coords of last detect traps casting */
+	s16b detecty;
+	bool detected;			/* Have cast detect_traps on this level */
 };
 
 

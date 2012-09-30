@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/13 11:02:03 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/06 08:04:00 $
 # File: e_info.txt
 
 
@@ -472,7 +472,7 @@ X:24:15
 W:0:0:0:750
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
-N:76:of Poisoning
+N:76:of Venom
 X:24:20
 W:0:0:0:1500
 F:BRAND_POIS | RES_POIS

@@ -1,0 +1,377 @@
+# File: t_info.txt
+
+# Defines the field types.
+
+# Later this will be replaced by Python code.
+
+# === Understanding t_info.txt ===
+
+# N: serial number : field name
+# G: symbol : color
+# W: priority : type : counter initial value 
+# I: flag | flag | flag
+# D: Data[8] 
+# F: location,function | location,function | location,function
+
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.  It also is used to store the name of
+# the field.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Dark Gray    w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Black        W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'W' describes extra information about the field.  Priority decides
+# which field is visually "on top".  Type is a number which describes
+# whether the field is a trap, door, building, magic wall etc.
+# Counter initial value is used for timed effects / effects with counters.
+
+# 'I' is a set 'info' flags describing the type of field.  These are mostly
+# used for "quick" recall of information.  (Most other things probably can
+# be stored in the data[] array if required.)
+
+# 'D' 8 bytes of data for the field.  How this is used depends on the
+# functions called in the 'F' section below.
+
+# 'F' The list of functions used by the field.  "Location" refurs to the
+# entry in the action[] array.  See defines.h for the various action types.
+# Note the lack of space between the two parts.  The comma is the seperator.
+
+
+##### Something special #####
+
+# Nothing
+N:0:Nothing
+G:@:w
+W:0:0:0
+D:0:0:0:0:0:0:0:0
+
+# Invisible Wall
+N:1:blank
+G:.:w
+W:0:4:0
+I:FEAT | NO_LOOK | NO_ENTER | NO_MAGIC | NO_OBJECT
+D:0:0:0:0:0:0:0:0
+F:10,field_action_wall_tunnel | 11,field_action_delete
+F:16,field_action_interact_tunnel
+
+# Glyph of Warding
+N:2:glyph of warding
+G:;:y
+W:100:6:0
+I:FEAT | VIS | NO_OBJECT | TRANS
+D:0:0:0:0:0:0:0:0
+F:17,field_action_glyph_warding
+
+# Explosive Rune
+N:3:explosive Rune
+G:*:R
+W:100:6:0
+I:FEAT | VIS | NO_OBJECT | TRANS
+D:0:0:0:0:0:0:0:0
+F:17,field_action_glyph_explode
+
+# Corpse
+N:4:corpse
+G:~:v
+W:150:7:100
+I:TEMP | FEAT | VIS
+D:0:0:0:0:0:0:0:0
+F:0,field_action_corpse_init | 1,field_action_corpse_load
+F:12,field_action_corpse_look | 13,field_action_corpse_decay
+F:15,field_action_corpse_raise
+
+# Skeleton
+N:5:skeleton
+G:~:w
+W:150:7:100
+I:TEMP | FEAT | VIS
+D:0:0:0:0:0:0:0:0
+F:0,field_action_corpse_init | 1,field_action_corpse_load
+F:12,field_action_corpse_look | 13,field_action_corpse_decay
+F:15,field_action_corpse_raise
+
+# Trapdoor
+N:6:trap door
+G:^:w
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:6:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_door
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# Pit
+N:7:pit
+G:^:s
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:5:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_pit
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# Spiked Pit
+N:8:spiked pit
+G:^:s
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:10:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_spike
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# Poison Pit
+N:9:spiked pit
+G:^:s
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:15:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_poison_pit
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# evil rune
+N:10:evil rune
+G:^:G
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:12:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_curse
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# strange rune
+N:11:strange rune
+G:^:o
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:20:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_teleport
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# discolored spot
+N:12:discolored spot
+G:^:u
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:8:125:0:5:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_element
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# discolored spot
+N:13:discolored spot
+G:^:u
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:20:125:0:5:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_ba_element
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# gas trap
+N:14:gas trap
+G:^:g
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:7:125:0:5:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_gas
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# compact rune
+N:15:compact rune
+G:^:D
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:25:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_trap
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# dart trap
+N:16:dart trap
+G:^:r
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:11:125:0:3:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_temp_stat
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# dart trap
+N:17:dart trap
+G:^:r
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:30:125:0:6:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_perm_stat
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# twisted rune
+N:18:twisted rune
+G:^:U
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:35:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_lose_xp
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# geometric rune
+N:19:geometric rune
+G:^:v
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:12:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_disenchant
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# glowing rune
+N:20:glowing rune
+G:^:y
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:24:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_drop_item
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# jagged rune
+N:21:jagged rune
+G:^:b
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:20:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_mutate
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# fractured rune
+N:22:fractured rune
+G:^:b
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:40:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_new_life
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# faded rune
+N:23:faded rune
+G:^:D
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:2:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_no_lite
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# flashing rune
+N:24:flashing rune
+G:^:R
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:2:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_hunger
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# weird rune
+N:25:weird rune
+G:^:B
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:13:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_no_gold
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# shimmering rune
+N:26:shimmering rune
+G:^:b
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:10:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_haste_monster
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# smelly rune
+N:27:smelly rune
+G:^:b
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:8:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_raise_mon
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# intricate rune
+N:28:intricate rune
+G:^:v
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:27:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_drain_magic
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# bright rune
+N:29:bright rune
+G:^:W
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:10:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_aggravate
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# blurry rune
+N:30:blurry rune
+G:^:b
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:10:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_summon
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# spiral rune
+N:31:spiral rune
+G:^:W
+W:100:1:0
+I:FEAT | TRANS | NO_OBJECT
+D:15:125:0:0:0:0:0:0
+F:0,field_action_trap_init | 2,field_action_hit_trap_lose_memory
+F:10,field_action_trap_disarm | 15,field_action_trap_disarm
+F:16,field_action_interact_disarm
+
+# Locked door
+N:32:locked door
+G:+:U
+W:100:2:0
+I:NO_LOOK | MERGE | VIS
+D:0:0:0:0:0:0:0:0
+F:10,field_action_door_unlock
+F:15,field_action_delete | 16,field_action_interact_open
+F:17,field_action_door_lock_monster
+
+# Jammed door
+N:33:stuck door
+G:+:U
+W:100:2:0
+I:NO_LOOK | MERGE | VIS
+D:15:1:0:0:0:0:0:0
+F:10,field_action_door_bash
+F:15,field_action_delete | 16,field_action_interact_disarm
+F:17,field_action_door_jam_monster

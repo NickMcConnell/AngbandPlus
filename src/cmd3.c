@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/05/25 12:14:40 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/08/12 11:20:50 $ */
 /* File: cmd3.c */
 
 /* Purpose: Inventory commands */
@@ -22,16 +22,8 @@ void do_cmd_inven(void)
 {
 	char out_val[160];
 
-
 	/* Note that we are in "inventory" mode */
-	command_wrk = FALSE;
-
-#ifdef ALLOW_EASY_FLOOR
-
-	/* Note that we are in "inventory" mode */
-	if (easy_floor) command_wrk = (USE_INVEN);
-
-#endif /* ALLOW_EASY_FLOOR */
+	command_wrk = (USE_INVEN);
 
 	/* Save screen */
 	screen_save();
@@ -83,16 +75,8 @@ void do_cmd_equip(void)
 {
 	char out_val[160];
 
-
 	/* Note that we are in "equipment" mode */
-	command_wrk = TRUE;
-
-#ifdef ALLOW_EASY_FLOOR
-
-	/* Note that we are in "equipment" mode */
-	if (easy_floor) command_wrk = (USE_EQUIP);
-
-#endif /* ALLOW_EASY_FLOOR */
+	command_wrk = (USE_EQUIP);
 
 	/* Save the screen */
 	screen_save();
@@ -1065,12 +1049,18 @@ void do_cmd_look(void)
  */
 void do_cmd_locate(void)
 {
-	int		dir, y1, x1, y2, x2;
+	int dir, y1, x1, y2, x2;
+	int wid, hgt;
+	char tmp_val[80];
+	char out_val[160];
 
-	char	tmp_val[80];
 
-	char	out_val[160];
-
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+	
+	/* Offset */
+	wid -= COL_MAP + 1;
+	hgt -= ROW_MAP + 1;
 
 	/* Start at current panel */
 	y2 = y1 = panel_row_min;
@@ -1094,8 +1084,8 @@ void do_cmd_locate(void)
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
 		        "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
-		        y2 / (SCREEN_HGT / 2), y2 % (SCREEN_HGT / 2),
-		        x2 / (SCREEN_WID / 2), x2 % (SCREEN_WID / 2), tmp_val);
+		        y2 / (hgt / 2), y2 % (hgt / 2),
+		        x2 / (wid / 2), x2 % (wid / 2), tmp_val);
 
 		/* Assume no direction */
 		dir = 0;

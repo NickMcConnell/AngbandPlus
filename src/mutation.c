@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/24 10:25:13 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/11 11:21:04 $ */
 /* File: mutation.c */
 
 /* Purpose: Mutation effects (and racial powers) */
@@ -1908,7 +1908,7 @@ void mutation_power_aux(u32b power)
 			{
 				int x, y, ox, oy;
 				cave_type *c_ptr;
-
+				
 				if (!get_rep_dir(&dir,FALSE)) break;
 				y = py + ddy[dir];
 				x = px + ddx[dir];
@@ -1942,7 +1942,7 @@ void mutation_power_aux(u32b power)
 				}
 				else
 				{
-					if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+					if ((c_ptr->feat >= FEAT_CLOSED) &&
 						(c_ptr->feat <= FEAT_RUBBLE))
 					{
 						(void)set_food(p_ptr->food + 3000);
@@ -1960,12 +1960,18 @@ void mutation_power_aux(u32b power)
 				}
 				(void)wall_to_mud(dir);
 
+				/* Save old location */
 				oy = py;
 				ox = px;
 
+				/* Process fields under the player. */
+				field_hook(&area(py, px)->fld_idx,
+					 FIELD_ACT_PLAYER_LEAVE, NULL);
+
+				/* Move the player */
 				py = y;
 				px = x;
-
+				
 				if (!dun_level)
 				{
 					/* Scroll wilderness */
@@ -1973,15 +1979,20 @@ void mutation_power_aux(u32b power)
 					p_ptr->wilderness_y = py;
 					move_wild();
 				}
+		
+				/* Process fields under the player. */
+				field_hook(&area(py, px)->fld_idx,
+			 		FIELD_ACT_PLAYER_ENTER, NULL);
 
 				lite_spot(py, px);
 				lite_spot(oy, ox);
 
 				verify_panel();
 
-				p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+				p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
 				p_ptr->update |= (PU_DISTANCE);
 				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+				
 			}
 			break;
 

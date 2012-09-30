@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/06/19 15:38:13 $ */
 /* File: load.c */
 
 /* Purpose: support for loading savefiles -BEN- */
@@ -706,6 +705,13 @@ static void rd_item(object_type *o_ptr)
 		return;
 	}
 
+	/* Mega-Hack... Corpses became fields */
+	if ((o_ptr->tval == 10) && (sf_version < 15))
+	{
+		/* Hack - get rid of it. */
+		o_ptr->tval = 0;
+		return;
+	}
 
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))
@@ -1024,6 +1030,49 @@ static void rd_monster(monster_type *m_ptr)
 
 
 
+static void rd_field(field_type *f_ptr)
+{
+	s32b tmp32s;
+	int i;
+	
+	s16b t_idx;
+
+	/* Type */
+	rd_s16b(&t_idx);
+	
+	/* Prepare the field */
+	field_prep(f_ptr, t_idx);
+
+	/* Location */
+	rd_s16b(&f_ptr->fy);
+	rd_s16b(&f_ptr->fx);
+
+	/* Info flags */
+	rd_u16b(&f_ptr->info);
+
+	/* Counter */
+	rd_s16b(&f_ptr->counter);
+
+	/* Data */
+	for (i = 0; i < 8; i++)
+	{
+		rd_byte(&f_ptr->data[i]);
+	}
+
+	rd_s32b(&tmp32s);
+#ifdef USE_SCRIPT
+	if (tmp32s)
+	{
+		char *python_field = (char*) malloc(tmp32s + 1);
+		rd_string(python_field, tmp32s + 1);
+		f_ptr->python = field_load_callback(python_field);
+		free(python_field);
+	}
+#else /* USE_SCRIPT */
+	strip_bytes(tmp32s);
+#endif /* USE_SCRIPT */
+
+}
 
 
 /*
@@ -1400,6 +1449,7 @@ static void rd_ghost(void)
 }
 
 
+static bool player_detected = FALSE;
 
 
 /*
@@ -1617,12 +1667,12 @@ static void rd_extra(void)
 		}
 		else
 		{
-			for (i = 0; i < 8; i++)
+			for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 			{
 				rd_s16b(&p_ptr->virtues[i]);
 			}
 
-			for (i = 0; i < 8; i++)
+			for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 			{
 				rd_s16b(&p_ptr->vir_types[i]);
 			}
@@ -1675,6 +1725,16 @@ static void rd_extra(void)
 
 	/* Current turn */
 	rd_s32b(&turn);
+	
+	if (sf_version > 17)
+	{
+		/* Get trap detection status */
+		rd_byte((byte *)&player_detected);
+		
+		/* Get location of detection */
+		rd_s16b(&p_ptr->detecty);
+		rd_s16b(&p_ptr->detectx);
+	}
 }
 
 
@@ -1836,6 +1896,72 @@ static void rd_messages(void)
 #define OLD_GRID_WALL_GRANITE   0x0003  /* Granite wall */
 
 
+static void clean_square(int y, int x, cave_type *c_ptr)
+{
+	/* Hack - the wilderness is cleaned in the fix_tile() function */
+	if (!dun_level) return;
+	
+	/* Get rid of pre-fields terrain */
+	if (sf_version < 17)
+	{
+		/* Invisible wall */
+		if (c_ptr->feat == 0x5B)
+		{
+			/* Get rid of it */
+			c_ptr->feat = FEAT_NONE;
+					
+			/* Add the invisible wall here as a field */
+			(void) place_field(y, x, FT_WALL_INVIS);
+		}
+				
+		/* Glyph of warding */
+		if (c_ptr->feat == 0x03)
+		{
+			/* Get rid of it */
+			c_ptr->feat = FEAT_NONE;
+					
+			/* Add the glyph here as a field */
+			(void) place_field(y, x, FT_GLYPH_WARDING);
+		}
+				
+		/* Explosive Rune */
+		if (c_ptr->feat == 0x40)
+		{
+			/* Get rid of it */
+			c_ptr->feat = FEAT_NONE;
+					
+			/* Add the glyph here as a field */
+			(void) place_field(y, x, FT_GLYPH_EXPLODE);
+		}
+				
+		/* Traps */
+		if ((c_ptr->feat == 0x02) ||
+			(c_ptr->feat >= 0x10 && c_ptr->feat <=0x1F) ||
+			(c_ptr->feat == 0x5A))
+		{
+			/* Get rid of it */
+			c_ptr->feat = FEAT_NONE;
+					
+			/* Hack- Add a trap here as a field */
+			place_trap(y, x);
+		}
+				
+		/* Doors */
+		if ((c_ptr->feat > 0x20) && (c_ptr->feat < 0x28))
+		{
+			/* Locked door */
+			make_lockjam_door(y, x, randint(10) + dun_level / 10, FALSE);
+		}
+				
+		if ((c_ptr->feat >= 0x28) && (c_ptr->feat <= 0x2F))
+		{
+			/* Stuck door */
+			make_lockjam_door(y, x, randint(10) + dun_level / 10, TRUE);
+		}
+	}
+}
+
+
 /*
  * Read pre-2.8.0 dungeon info
  *
@@ -1860,8 +1986,8 @@ static errr rd_dungeon_aux(void)
 
 
 	/* Only read as necessary */
-	ymax = cur_hgt;
-	xmax = cur_wid;
+	ymax = max_hgt;
+	xmax = max_wid;
 
 	if (dun_level)
 	{
@@ -2125,7 +2251,7 @@ static errr rd_dungeon_aux(void)
 					{
 						k = (0 - q_ptr->pval) / 2;
 						if (k > 7) k = 7;
-						k = FEAT_DOOR_HEAD + 0x08 + k;
+						k = 0x28 + k;
 					}
 
 					/* Locked door */
@@ -2133,7 +2259,7 @@ static errr rd_dungeon_aux(void)
 					{
 						k = q_ptr->pval / 2;
 						if (k > 7) k = 7;
-						k = FEAT_DOOR_HEAD + k;
+						k = 0x20 + k;
 					}
 
 					break;
@@ -2219,139 +2345,139 @@ static errr rd_dungeon_aux(void)
 				/* Glyph of Warding */
 				case 459:
 				{
-					k = FEAT_GLYPH;
+					k = 0x03;
 					break;
 				}
 
 				/* Trap -- Pit */
 				case 460:
 				{
-					k = FEAT_TRAP_PIT;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Spiked Pit */
 				case 461:
 				{
-					k = FEAT_TRAP_SPIKED_PIT;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Trap Door */
 				case 462:
 				{
-					k = FEAT_TRAP_TRAPDOOR;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Gas -- Sleep */
 				case 463:
 				{
-					k = FEAT_TRAP_SLEEP;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Loose rock */
 				case 464:
 				{
-					k = FEAT_TRAP_PIT;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Dart -- lose str */
 				case 465:
 				{
-					k = FEAT_TRAP_LOSE_STR;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Teleport */
 				case 466:
 				{
-					k = FEAT_TRAP_TELEPORT;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Falling rock */
 				case 467:
 				{
-					k = FEAT_TRAP_POISON_PIT;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Dart -- lose dex */
 				case 468:
 				{
-					k = FEAT_TRAP_LOSE_DEX;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Summoning */
 				case 469:
 				{
-					k = FEAT_TRAP_TY_CURSE;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Fire */
 				case 470:
 				{
-					k = FEAT_TRAP_FIRE;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Acid */
 				case 471:
 				{
-					k = FEAT_TRAP_ACID;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Gas -- poison */
 				case 472:
 				{
-					k = FEAT_TRAP_POISON;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Gas -- blind */
 				case 473:
 				{
-					k = FEAT_TRAP_BLIND;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Gas -- confuse */
 				case 474:
 				{
-					k = FEAT_TRAP_CONFUSE;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Dart -- slow */
 				case 475:
 				{
-					k = FEAT_TRAP_SLOW;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Dart -- lose con */
 				case 476:
 				{
-					k = FEAT_TRAP_LOSE_CON;
+					k = 0x02;
 					break;
 				}
 
 				/* Trap -- Arrow */
 				case 477:
 				{
-					k = FEAT_TRAP_SLOW;
+					k = 0x02;
 					break;
 				}
 			}
 
 			/* Hack -- handle "invisible traps" */
-			if (invis) k = FEAT_INVIS;
+			if (invis) k = 0x02;
 
 			/* Set new bits */
 			c_ptr->feat = k;
@@ -2480,17 +2606,19 @@ static errr rd_dungeon_aux(void)
 
 
 	/* Hack -- clean up the dungeon */
-	for (y = 0; y < cur_hgt; y++)
+	for (y = min_hgt; y < max_hgt; y++)
 	{
-		for (x = 0; x < cur_wid; x++)
+		for (x = min_wid; x < max_wid; x++)
 		{
 			cave_type *c_ptr = area(y,x);
+			
+			/* Fix the square */
+			clean_square(y, x, c_ptr);
 
 			/* Hack -- convert nothing-ness into floors */
 			if (!c_ptr->feat) c_ptr->feat = FEAT_FLOOR;
 		}
 	}
-
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
@@ -2498,6 +2626,57 @@ static errr rd_dungeon_aux(void)
 
 	/* Success */
 	return (0);
+}
+
+
+static void fix_tile(cave_type *c_ptr)
+{
+	/* Get rid of pre-fields terrain */
+	if (sf_version < 17)
+	{
+		/* Invisible wall */
+		if (c_ptr->feat == 0x5B)
+		{
+			/* Get rid of it */
+			c_ptr->feat = FEAT_FLOOR;
+		}
+				
+		/* Glyph of warding */
+		if (c_ptr->feat == 0x03)
+		{
+			/* Get rid of it */
+			c_ptr->feat = FEAT_FLOOR;
+		}
+				
+		/* Explosive Rune */
+		if (c_ptr->feat == 0x40)
+		{
+			/* Get rid of it */
+			c_ptr->feat = FEAT_FLOOR;
+		}
+				
+		/* Traps */
+		if ((c_ptr->feat == 0x02) ||
+			(c_ptr->feat >= 0x10 && c_ptr->feat <=0x1F) ||
+			(c_ptr->feat == 0x5A))
+		{
+			/* Get rid of it */
+			c_ptr->feat = FEAT_FLOOR;
+		}
+				
+		/* Doors */
+		if ((c_ptr->feat > 0x20) && (c_ptr->feat < 0x28))
+		{
+			/* Locked door -> closed door*/
+			c_ptr->feat = FEAT_CLOSED;
+		}
+				
+		if ((c_ptr->feat >= 0x28) && (c_ptr->feat <= 0x2F))
+		{
+			/* Stuck door -> closed door*/
+			c_ptr->feat = FEAT_CLOSED;
+		}
+	}
 }
 
 
@@ -2528,8 +2707,8 @@ static void load_map(int ymax, int ymin, int xmax, int xmin)
 			/* Access the cave */
 			c_ptr = area(y,x);
 
-			/* Extract "info" */
-			c_ptr->info = tmp8u;
+			/* Extract "info" (without the CAVE_ROOM flag set)*/
+			c_ptr->info = (tmp8u & ~(CAVE_MNLT | CAVE_VIEW));
 
 			/* Advance/Wrap */
 			if (++x >= xmax)
@@ -2561,6 +2740,9 @@ static void load_map(int ymax, int ymin, int xmax, int xmin)
 
 			/* Extract "feat" */
 			c_ptr->feat = tmp8u;
+			
+			/* Quick hack to fix various removed features */
+			fix_tile(c_ptr);
 
 			/* Advance/Wrap */
 			if (++x >= xmax)
@@ -2609,30 +2791,34 @@ static void load_map(int ymax, int ymin, int xmax, int xmin)
 
 		/*** Run length decoding ***/
 
-		/* Load the dungeon data */
-		for (x = xmin, y = ymin; y < ymax; )
+		/* This isn't stored in later versions. */
+		if (sf_version < 15)
 		{
-			/* Grab RLE info */
-			rd_byte(&count);
-			rd_s16b(&tmp16s);
-
-			/* Apply the RLE info */
-			for (i = count; i > 0; i--)
+			/* Load the dungeon data */
+			for (x = xmin, y = ymin; y < ymax; )
 			{
-				/* Access the cave */
-				c_ptr = area(y,x);
+				/* Grab RLE info */
+				rd_byte(&count);
+				rd_s16b(&tmp16s);
 
-				/* Extract "feat" */
-				c_ptr->f_idx = tmp16s;
-
-				/* Advance/Wrap */
-				if (++x >= xmax)
+				/* Apply the RLE info */
+				for (i = count; i > 0; i--)
 				{
-					/* Wrap */
-					x = xmin;
+					/* Access the cave */
+					c_ptr = area(y,x);
+
+					/* Extract field */
+					c_ptr->fld_idx = 0;
 
 					/* Advance/Wrap */
-					if (++y >= ymax) break;
+					if (++x >= xmax)
+					{
+						/* Wrap */
+						x = xmin;
+
+						/* Advance/Wrap */
+						if (++y >= ymax) break;
+					}
 				}
 			}
 		}
@@ -2721,6 +2907,15 @@ static void load_wild_data(void)
 				wild_cache[i + WILD_GRID_SIZE * j];
 		}
 	}
+	
+	/* If not in dungeon - reset the bounds */
+	if (!dun_level)
+	{
+		min_hgt = wild_grid.y_min;
+		max_hgt = wild_grid.y_max;
+		min_wid = wild_grid.x_min;
+		max_wid = wild_grid.x_max;
+	}
 }
 
 
@@ -2733,10 +2928,15 @@ static void load_wild_data(void)
 static errr rd_dungeon(void)
 {
 	int i;
-
+	int wid, hgt;
 	u16b limit;
 	cave_type *c_ptr;
 	u16b dun_level_backup, px_back, py_back;
+
+	s16b cur_wid, cur_hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
 
 	/*** Basic info ***/
 
@@ -2759,6 +2959,22 @@ static errr rd_dungeon(void)
 	rd_s16b(&cur_wid);
 	rd_s16b(&max_panel_rows);
 	rd_s16b(&max_panel_cols);
+	
+	/* Assume we are in the dungeon */
+	max_hgt = cur_hgt;
+	min_hgt = 0;
+	max_wid = cur_wid;
+	min_wid = 0;
+	
+	if (sf_version < 12)
+	{
+		max_panel_cols = max_panel_cols * (wid - COL_MAP - 1) / 2;
+		max_panel_rows = max_panel_rows * (hgt - ROW_MAP - 1) / 2;
+		
+		/* Reset the panel */
+		panel_row_min = max_panel_rows;
+		panel_col_min = max_panel_cols;
+	}
 
 	/* Old method */
 	if (older_than(2, 8, 0))
@@ -2816,6 +3032,12 @@ static errr rd_dungeon(void)
 			         wild_grid.x_max, wild_grid.x_min);
 
 			change_level(dun_level);
+			
+			/* Restore the bounds */
+			max_hgt = cur_hgt;
+			min_hgt = 0;
+			max_wid = cur_wid;
+			min_wid = 0;
 		}
 		else
 		{
@@ -2956,6 +3178,48 @@ static errr rd_dungeon(void)
 		r_ptr->cur_num++;
 	}
 
+	if (sf_version > 11)
+	{
+
+		/*** Fields ***/
+
+		/* Read the field count */
+		rd_u16b(&limit);
+
+		/* Verify maximum */
+		if (limit >= max_fld_idx)
+		{
+			note(format("Too many (%d) field entries!", limit));
+			return (151);
+		}
+
+		/* Read the fields */
+		for (i = 1; i < limit; i++)
+		{
+			int fld_idx;
+
+			field_type temp_field;
+			field_type *f_ptr = &temp_field;
+
+			/* Read the field */
+			rd_field(f_ptr);
+
+			/* Access the fields location */
+			c_ptr = area(f_ptr->fy, f_ptr->fx);
+
+			/* Build a stack */
+			fld_idx = field_add(f_ptr, &c_ptr->fld_idx);
+
+			/* Oops */
+			if (i != fld_idx)
+			{
+				note(format("Field allocation error (%d <> %d)", i, fld_idx));
+				return (152);
+			}
+		}
+	}
+
+
 	/*** Success ***/
 
 	/* Regenerate the dungeon for old savefiles and corrupted panic-saves */
@@ -2982,11 +3246,28 @@ static errr rd_dungeon(void)
 			/* refresh wilderness */
 			character_dungeon = FALSE;
 		}
-
+		
 		/* enter the level */
 		change_level(dun_level);
+		
+		if (dun_level)
+		{
+			/* Restore the bounds */
+			max_hgt = cur_hgt;
+			min_hgt = 0;
+			max_wid = cur_wid;
+			min_wid = 0;
+		}
 	}
-
+	
+	/* 
+	 * Set the trap detected flag.
+	 *
+	 * This is done here because it needs to be below all calls
+	 * to "change_level()"
+	 */
+	 p_ptr->detected = player_detected;
+	
 	/* Success */
 	return (0);
 }

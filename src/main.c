@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/01/09 00:14:40 $ */
 /* File: main.c */
 
 /*
@@ -84,6 +83,10 @@ extern unsigned _ovrbuffer = 0x1500;
  *
  * Note that the "path" must be "Angband:" for the Amiga, and it
  * is ignored for "VM/ESA", so I just combined the two.
+ *
+ * Make sure that the path doesn't overflow the buffer.  We have
+ * to leave enough space for the path separator, directory, and
+ * filenames.
  */
 static void init_stuff(void)
 {
@@ -102,7 +105,10 @@ static void init_stuff(void)
 	tail = getenv("ANGBAND_PATH");
 
 	/* Use the angband_path, or a default */
-	strcpy(path, tail ? tail : DEFAULT_PATH);
+	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
+
+	/* Make sure it's terminated */
+	path[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
@@ -425,9 +431,11 @@ int main(int argc, char *argv[])
 			{
 				if (!argv[i][2]) goto usage;
 #ifdef ANGBAND_2_8_1
-				strcpy(player_name, &argv[i][2]);
+				strncpy(player_name, &argv[i][2], 32);
+				player_name[31] = '\0';
 #else /* ANGBAND_2_8_1 */
-				strcpy(op_ptr->full_name, &argv[i][2]);
+				strncpy(op_ptr->full_name, &argv[i][2], 32);
+				op_ptr->full_name[31] = '\0';
 #endif /* ANGBAND_2_8_1 */
 				break;
 			}

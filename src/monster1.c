@@ -1,4 +1,3 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/06/04 04:17:16 $ */
 /* File: monster1.c */
 
 /* Purpose: describe monsters (using monster memory) */
@@ -115,9 +114,9 @@ static void roff_aux(int r_idx, int remem)
 	int             speed = (ironman_nightmare) ? r_ptr->speed + 5 : r_ptr->speed;
 	bool            breath = FALSE;
 	bool            magic = FALSE;
-	u32b            flags1, flags2, flags3, flags4, flags5, flags6;
+	u32b            flags1, flags2, flags3, flags4, flags5, flags6, flags7;
 	int             vn = 0;
-	cptr            vp[64];
+	cptr            vp[80];
 	monster_race    save_mem;
 
 	/* Descriptions */
@@ -187,6 +186,7 @@ static void roff_aux(int r_idx, int remem)
 	flags4 = (r_ptr->flags4 & r_ptr->r_flags4);
 	flags5 = (r_ptr->flags5 & r_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & r_ptr->r_flags6);
+	flags7 = (r_ptr->flags7);
 
 
 	/* Assume some "obvious" flags */
@@ -823,6 +823,7 @@ static void roff_aux(int r_idx, int remem)
 	if (flags2 & RF2_KILL_BODY) vp[vn++] = "destroy weaker monsters";
 	if (flags2 & RF2_TAKE_ITEM) vp[vn++] = "pick up objects";
 	if (flags2 & RF2_KILL_ITEM) vp[vn++] = "destroy objects";
+	if (flags7 & (RF7_LITE_1 | RF7_LITE_2)) vp[vn++] = "light the dungeon";
 
 	/* Describe special abilities. */
 	if (vn)

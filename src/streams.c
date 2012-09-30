@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/05/30 10:58:12 $
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/09/25 11:27:04 $
  *
  * File: streams.c
  * Purpose: Used by dungeon generation. This file holds all the
@@ -108,6 +108,9 @@ static void recursive_river(int x1, int y1, int x2, int y2, int feat1, int feat2
 						/* Do not convert permanent features */
 						if (cave_perma_grid(c_ptr)) continue;
 
+						/* Deleting a locked / jammed door is problematical */
+						clear_icky_door(c_ptr);
+						
 						/*
 						 * Clear previous contents, add feature
 						 * The border mainly gets feat2, while the center gets feat1
@@ -146,8 +149,8 @@ void add_river(int feat1, int feat2)
 
 
 	/* Hack -- Choose starting point */
-	y2 = randint(cur_hgt / 2 - 2) + cur_hgt / 2;
-	x2 = randint(cur_wid / 2 - 2) + cur_wid / 2;
+	y2 = rand_range(min_hgt + 1, max_hgt - 2);
+	x2 = rand_range(min_wid + 1, max_wid - 2);
 
 	/* Hack -- Choose ending point somewhere on boundary */
 	switch(randint(4))
@@ -155,29 +158,29 @@ void add_river(int feat1, int feat2)
 		case 1:
 		{
 			/* top boundary */
-			x1 = randint(cur_wid-2)+1;
-			y1 = 1;
+			x1 = rand_range(min_wid + 1, max_wid - 2);
+			y1 = min_hgt + 1;
 			break;
 		}
 		case 2:
 		{
 			/* left boundary */
-			x1 = 1;
-			y1 = randint(cur_hgt-2)+1;
+			x1 = min_wid + 1;
+			y1 = rand_range(min_hgt + 1, max_hgt - 2);
 			break;
 		}
 		case 3:
 		{
 			/* right boundary */
-			x1 = cur_wid-1;
-			y1 = randint(cur_hgt-2)+1;
+			x1 = max_wid - 2;
+			y1 = rand_range(min_hgt + 1, max_hgt - 2);
 			break;
 		}
 		case 4:
 		{
 			/* bottom boundary */
-			x1 = randint(cur_wid-2)+1;
-			y1 = cur_hgt-1;
+			x1 = rand_range(min_wid + 1, max_wid - 2);
+			y1 = max_hgt - 2;
 			break;
 		}
 	}
@@ -212,8 +215,8 @@ void build_streamer(int feat, int chance)
 	cave_type *c_ptr;
 
 	/* Hack -- Choose starting point */
-	y = rand_spread(cur_hgt / 2, 10);
-	x = rand_spread(cur_wid / 2, 15);
+	y = rand_spread(max_hgt / 2, (max_hgt / 2 > 10? 10: max_hgt / 2));
+	x = rand_spread(max_wid / 2, (max_wid / 2 > 15? 15: max_wid / 2));
 
 	/* Choose a random compass direction */
 	dir = ddd[rand_int(8)];
@@ -290,6 +293,9 @@ void place_trees(int x, int y)
 			/* Want square to be in the circle and accessable. */
 			if (in_bounds(j, i) && (distance(j, i, y, x) < 4) && !cave_perma_grid(c_ptr))
 			{
+				/* Deleting a locked or jammed door is problematical */
+				clear_icky_door(c_ptr);
+				
 				/*
 				 * Clear previous contents, add feature
 				 * The border mainly gets trees, while the center gets rubble
@@ -335,8 +341,8 @@ void destroy_level(void)
 	for (n = 0; n < randint(5); n++)
 	{
 		/* Pick an epi-center */
-		x1 = rand_range(5, cur_wid - 1 - 5);
-		y1 = rand_range(5, cur_hgt - 1 - 5);
+		x1 = rand_range(min_wid + 5, max_wid - 1 - 5);
+		y1 = rand_range(min_hgt + 5, max_hgt - 1 - 5);
 
 		/* Big area of affect */
 		for (y = (y1 - 15); y <= (y1 + 15); y++)
@@ -363,6 +369,9 @@ void destroy_level(void)
 				{
 					/* Delete objects */
 					delete_object(y, x);
+					
+					/* Deleting a locked or jammed door is problematical */
+					clear_icky_door(c_ptr);
 
 					/* Wall (or floor) type */
 					t = rand_int(200);
@@ -403,5 +412,98 @@ void destroy_level(void)
 				}
 			}
 		}
+	}
+}
+
+
+/*
+ * Builds a cave system in the center of the dungeon.
+ */
+void build_cavern(void)
+{
+	int grd, roug, cutoff, xsize, ysize, x0, y0;
+	bool done, light;
+
+	light = done = FALSE;
+	if (dun_level <= randint(50)) light = TRUE;
+
+	/* Make a cave the size of the dungeon */
+	xsize = max_wid - 1;
+	ysize = max_hgt - 1;
+	x0 = xsize / 2;
+	y0 = ysize / 2;
+
+	/* Paranoia: make size even */
+	xsize = x0 * 2;
+	ysize = y0 * 2;
+
+	while (!done)
+	{
+		/* testing values for these parameters: feel free to adjust */
+		grd = randint(4) + 4;
+
+		/* want average of about 16 */
+		roug = randint(8) * randint(4);
+
+		/* about size/2 */
+		cutoff = xsize / 2;
+
+		 /* make it */
+		generate_hmap(y0 + 1, x0 + 1, xsize, ysize, grd, roug, cutoff);
+
+		/* Convert to normal format+ clean up */
+		done = generate_fracave(y0 + 1, x0 + 1, xsize, ysize, cutoff, light, FALSE);
+	}
+}
+
+/*
+ * makes a lake/collapsed cave system in the center of the dungeon
+ */
+void build_lake(int type)
+{
+	int grd, roug, xsize, ysize, x0, y0;
+	bool done = FALSE;
+	int c1, c2, c3;
+
+	/* paranoia - exit if lake type out of range. */
+	if ((type < 1) || (type > 7))
+	{
+		msg_format("Invalid lake type (%d)", type);
+		return;
+	}
+
+	/* Make the size of the dungeon */
+	xsize = max_wid - 1;
+	ysize = max_hgt - 1;
+	x0 = xsize / 2;
+	y0 = ysize / 2;
+
+	/* Paranoia: make size even */
+	xsize = x0 * 2;
+	ysize = y0 * 2;
+
+	while (!done)
+	{
+		/* testing values for these parameters: feel free to adjust */
+		grd = randint(3) + 4;
+
+		/* want average of about 16 */
+		roug = randint(8) * randint(4);
+
+		/* Make up size of various componants */
+		/* Floor */
+		c3 = 3 * xsize / 4;
+
+		/* Deep water/lava */
+		c1 = rand_int(c3 / 2) + rand_int(c3 / 2) - 5;
+
+		/* Shallow boundary */
+		c2 = (c1 + c3) / 2;
+
+		/* make it */
+		generate_hmap(y0 + 1, x0 + 1, xsize, ysize, grd, roug, c3);
+
+		/* Convert to normal format+ clean up */
+		done = generate_lake(y0 + 1, x0 + 1, xsize, ysize, c1, c2, c3, type);
 	}
 }
