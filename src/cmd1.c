@@ -954,6 +954,9 @@ void carry(int pickup)
 					
 			/* Paranoia XXX XXX XXX */
 			msg_print(NULL);
+			
+			/* Describe the object */
+			object_desc(o_name, o_ptr, TRUE, 3);
 					
 			sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
 					
@@ -1536,8 +1539,8 @@ void py_attack(int y, int x)
 		/* Toggle flag */
 		m_ptr->smart &= ~(SM_MIMIC);
 		
-		/* It is in the monster list now */
-		update_mon_vis(m_ptr->r_idx, 1);
+		/* It is in the monster list now if visible */
+		if (m_ptr->ml) update_mon_vis(m_ptr->r_idx, 1);
 		
 		/* We've spotted it */
 		msg_format("You've found %s!", m_name2);

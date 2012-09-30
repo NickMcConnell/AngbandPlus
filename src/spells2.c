@@ -868,7 +868,6 @@ bool detect_doors(void)
 	bool detect = FALSE;
 
 	cave_type *c_ptr;
-	monster_type *m_ptr;
 
 	/* Scan a radius MAX_DETECT circle */
 	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
@@ -902,31 +901,6 @@ bool detect_doors(void)
 				/* Obvious */
 				detect = TRUE;
 			}
-			
-			/* Hack - look for door mimics */
-			if (c_ptr->m_idx)
-			{
-				m_ptr = &m_list[c_ptr->m_idx];
-				
-				/* Door mimic? */
-				if ((m_ptr->smart & SM_MIMIC) &&
-					 (r_info[m_ptr->r_idx].d_char == '+'))
-				{
-					/* Clear the mimic flag */
-					m_ptr->smart &= ~(SM_MIMIC);
-					
-					/* It is in the monster list now */
-					update_mon_vis(m_ptr->r_idx, 1);
-					
-					/* Hack -- Detect monster */
-					m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-					
-					/* Update the monster */
-					update_mon(m_ptr->r_idx, FALSE);
-					
-					detect = TRUE;
-				}
-			}
 		}
 	}
 
@@ -954,7 +928,6 @@ bool detect_stairs(void)
 	bool detect = FALSE;
 
 	cave_type *c_ptr;
-	monster_type *m_ptr;
 
 	/* Scan a radiuc MAX_DETECT circle */
 	for (y = py - MAX_DETECT; y <= py + MAX_DETECT; y++)
@@ -979,31 +952,6 @@ bool detect_stairs(void)
 
 				/* Obvious */
 				detect = TRUE;
-			}
-			
-			/* Hack - look for stair mimics */
-			if (c_ptr->m_idx)
-			{
-				m_ptr = &m_list[c_ptr->m_idx];
-				
-				/* Stair mimic? */
-				if ((m_ptr->smart & SM_MIMIC) &&
-					 (r_info[m_ptr->r_idx].d_char == '>'))
-				{
-					/* Clear the mimic flag */
-					m_ptr->smart &= ~(SM_MIMIC);
-					
-					/* It is in the monster list now */
-					update_mon_vis(m_ptr->r_idx, 1);
-					
-					/* Hack -- Detect monster */
-					m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-					
-					/* Update the monster */
-					update_mon(m_ptr->r_idx, FALSE);
-					
-					detect = TRUE;
-				}
 			}
 		}
 	}
@@ -1126,32 +1074,6 @@ bool detect_objects_gold(void)
 			/* Detect */
 			detect = TRUE;
 		}
-#if 0		
-		/* Hack - look for coins mimics */
-		if (c_ptr->m_idx)
-		{
-			m_ptr = &m_list[m_idx];
-				
-			/* Coins mimic? */
-			if ((m_ptr->smart & SM_MIMIC) &&
-				 (r_info[m_ptr->r_idx].d_char == '$'))
-			{
-				/* Clear the mimic flag */
-				m_ptr->smart &= ~(SM_MIMIC);
-				
-				/* It is in the monster list now */
-				update_mon_vis(m_ptr->r_idx, 1);
-					
-				/* Hack -- Detect monster */
-				m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-					
-				/* Update the monster */
-				update_mon(i, FALSE);
-					
-				detect = TRUE;
-			}
-		}
-#endif /* 0 */
 	}
 
 	/* Describe */
@@ -1212,33 +1134,6 @@ bool detect_objects_normal(void)
 			/* Detect */
 			detect = TRUE;
 		}
-#if 0		
-		/* Hack - look for object mimics */
-		if (c_ptr->m_idx)
-		{
-			m_ptr = &m_list[m_idx];
-				
-			/* Mimic? */
-			if ((m_ptr->smart & SM_MIMIC) &&
-				 (strchr("$(=?!|", r_info[m_ptr->r_idx].d_char)))
-			{
-				/* Clear the mimic flag */
-				m_ptr->smart &= ~(SM_MIMIC);
-				
-				/* It is in the monster list now */
-				update_mon_vis(m_ptr->r_idx, 1);
-					
-				/* Hack -- Detect monster */
-				m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-					
-				/* Update the monster */
-				update_mon(i, FALSE);
-					
-				detect = TRUE;
-			}
-		}
-#endif /* 0 */
-
 	}
 
 	/* Describe */
@@ -1323,33 +1218,6 @@ bool detect_objects_magic(void)
 			/* Detect */
 			detect = TRUE;
 		}
-#if 0
-		
-		/* Hack - look for object mimics */
-		if (c_ptr->m_idx)
-		{
-			m_ptr = &m_list[m_idx];
-				
-			/* Mimic? */
-			if ((m_ptr->smart & SM_MIMIC) &&
-				 (strchr("=?!", r_info[m_ptr->r_idx].d_char)))
-			{
-				/* Clear the mimic flag */
-				m_ptr->smart &= ~(SM_MIMIC);
-				
-				/* It is in the monster list now */
-				update_mon_vis(m_ptr->r_idx, 1);
-					
-				/* Hack -- Detect monster */
-				m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-				
-				/* Update the monster */
-				update_mon(i, FALSE);
-					
-				detect = TRUE;
-			}
-		}
-#endif /* 0 */
 	}
 
 	/* Describe */
@@ -1390,10 +1258,10 @@ bool detect_monsters_normal(void)
 		x = m_ptr->fx;
 
 		if (distance(px, py, x, y) > MAX_DETECT) continue;
-		
-		/* Not mimics */
-		if (m_ptr->smart & SM_MIMIC) continue;
 
+		/* Do not detect mimics */
+		if (m_ptr->smart & (SM_MIMIC)) continue;
+		
 		/* Detect all non-invisible monsters */
 		if ((!(r_ptr->flags2 & RF2_INVISIBLE)) ||
 		    p_ptr->see_inv || p_ptr->tim_invis)
@@ -1766,12 +1634,8 @@ bool project_hack(int typ, int dam)
 		/* Remove mark */
 		m_ptr->mflag &= ~(MFLAG_TEMP);
 
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
 		/* Jump directly to the target monster */
-		if (project(0, 0, y, x, dam, typ, flg)) obvious = TRUE;
+		if (project(0, 0, m_ptr->fy, m_ptr->fx, dam, typ, flg)) obvious = TRUE;
 	}
 
 	/* Result */
@@ -3419,8 +3283,8 @@ bool project_hook(int typ, int dir, int dam, u16b flg)
 	flg |= (PROJECT_THRU);
 
 	/* Use the given direction */
-	tx = p_ptr->px + ddx[dir];
-	ty = p_ptr->py + ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
+	ty = p_ptr->py + 99 * ddy[dir];
 
 	/* Hack -- Use an actual "target" */
 	if (!ironman_moria && (dir == 5) && target_okay())

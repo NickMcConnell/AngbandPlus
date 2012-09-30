@@ -1,0 +1,8 @@
+# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
+# File: pref-ami.prf
+
+#
+# This file contains various default macros for use with
+# the executable built from "main-ami.c".
+#
+

@@ -3565,9 +3565,6 @@ static void calc_bonuses(void)
 		if (p_ptr->icky_wield)
 		{
 			msg_print("You do not feel comfortable with your weapon.");
-
-			if (hack_mind)
-				chg_virtue(V_FAITH, -1);
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{
@@ -3585,11 +3582,6 @@ static void calc_bonuses(void)
 		if (p_ptr->monk_armour_stat)
 		{
 			msg_print("The weight of your armor disrupts your balance.");
-
-			if (hack_mind)
-			{
-				chg_virtue(V_HARMONY, -1);
-			}
 		}
 		else
 			msg_print("You regain your balance.");

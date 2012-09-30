@@ -21,23 +21,21 @@ objects from the dungeon may also appear in town and you should also
 review the comprehensive listing of all the various symbols which can
 be found in the dungeon section (see dungeon.txt#MapSymbols [2]).
 
-  Terrain                             Shops     
-  -------                             -----
-  # (Green)        A Tree             1   Entrance to General Store
-  # (Light Blue)   Shallow Water      2   Entrance to Armory
-  # (Dark Blue)    Deep Water         3   Entrance to Weapon Smith
-  # (Orange)       Shallow Lava       4   Entrance to Temple
-  # (Red)          Deep Lava          5   Entrance to Alchemy Shop
-  ^ (Brown)        Mountains          6   Entrance to Magic Shop
-  . (White)        Floor / Road       7   Entrance to the Black Market
-  . (Brown)        Dirt               8   Entrance to your Home
-  . (Green)        Grass              9   Entrance to the Bookstore
-  > (White)        Dungeon Entrance
-  > (Yellow)       Quest Entrance
-  < (Yellow)       Quest Exit
+  Terrains
+  -------
+  %     Trees and shrubs
+  ~     Water/Lava terrains
+  :     Rubble/Stone terrains
+  ;     Grasses and swamps
+  .     Floor terrains (road, dirt, sand, mud, etc)
+  ^     Mountains
+  >     Dungeon entrance
+  #     Town walls
+  +     Town gates
+  [0-9] Shops and buildings
 
-Note that trees, water (deep and shallow) and lava (deep and shallow)
-may also appear in the dungeon.
+
+Note that some of these terrains may also appear in the dungeon.
 
 
 ***** <TownLevel>
@@ -53,64 +51,54 @@ on a 24-hour basis.
 Later versions of Zangband have introduced a dramatically extended town
 level to the game. In addition to the basic town and the standard nine
 shops, new buildings and multiple towns separated by a wilderness were
-added. Fixed quests (see below [3]) were also added to the game and
-could be begun by entering certain buildings in the town(s).
+added. 
 
 While most people welcome these new additions, they are not for
-everyone and consequently, there are three possible town options in
-Zangband - the 'Standard' town(s), the 'Lite' town and the 'Vanilla'
-town. The default is the standard town and the lite town and the
-vanilla town options can be selected by pressing '=' during character
-generation. (see option.txt#StartUp [4])
+everyone and consequently, there are two possible town options in
+Zangband - the 'Standard' town(s) and the 'Vanilla' town. The default
+is the standard town. The vanilla town option can be selected during
+character generation. (see option.txt#StartUp [3])
 
 Your choice of town is fixed for the duration of your character's
 life and will be the new default for future characters created with
-that savefile. This of course may be changed by again pressing '='
-during the creation of your next character.
+that savefile. This of course may be changed during the creation of
+your next character.
 
 ***** <StandardTown>
 --- The 'Standard' Town ---
 
-The 'standard' town consists of a 10x10 square world. Each square
-(actually a rectangle) is the size of a standard Zangband dungeon level
-and contains themed wilderness terrain (mountainous areas, oceans,
-plains, etc). There are several towns located in various parts of the
-world and each town is situated in its own wilderness square.
+The 'standard' town consists of a large world which contains themed
+wilderness terrain (mountainous areas, oceans, plains, etc). There are
+several towns located in various parts of the world. The wilderness is
+not uninhabited and can be dangerous indeed for the unwary. As a
+general rule, the further your character gets from civilization the
+more cautious he or she should be.  Your character will start in a
+relatively harmless area of the wilderness.
 
-The wilderness is not uninhabited and can be dangerous indeed for the
-unwary. As a general rule, the further your character gets from
-civilization the more cautious he or she should be.
+Towns vary in size and will contain a differing selection of shops.
+The starting town will contain an entrance to the dungeon and a
+Dungeon Supplies store which carries all the basic items you need to
+get through the first few levels of the game.  As your character gains
+levels, you will need to journey into the wilderness seeking other
+towns and cities to purchase and sell higher-level objects.
 
-Each of the towns contains the standard nine shops where you can
-purchase your supplies for your trips into the dungeon and sell the
-items you have collected. There are also special buildings offering
-services for a fee. The services available and the prices charged may
-vary from town to town so it can be worth hunting around for the best
-prices.
-
-Selection of the standard option also allows the creation of the
-buildings from which the various fixed quests begin.
-
-
-***** <LiteTown>
---- The 'Lite' Town ---
-
-The 'Lite' town option creates a 1x1 wilderness square containing a
-single town. This town contains the nine standard shops, the special
-buildings and access to a limited wilderness. The fixed quests are also
-available. This option is intended to be used by players who want to
-take advantage of the special buildings and fixed quests but don't want
-the large 10x10 wilderness and by players who need a smaller wilderness
-for computer efficiency reasons.
+Zangband contains more than 100 different kinds of shops each with
+different themes. Specialist stores may stock powerful items but
+usually at steep premiums.  Note that some shops offer services, rather
+than products. You should also note that the largere towns, do not
+contain entrances to the dungeon.  You must be within a certain
+proximity to a dungeon entrance for spells and scrolls which teleport
+you to the dungeon to work.
 
 
 ***** <VanillaTown>
 --- The 'Vanilla' Town ---
 
-The vanilla town consists of the nine standard shops only and an
+The vanilla town consists of nine shops (including a home) and an
 impenetrable wall which surrounds the town. There are no other
-embellishments. The special buildings and the fixed quests are
-unavailable if you select this option as is the wilderness.
+embellishments. The nine shops available are similar to those in
+standard Angband (withth addition of a book store) and are designed to
+be sufficient for an entire game of Zangband.
 
 
 ***** <Townspeople>
@@ -145,14 +133,14 @@ Your character will begin his adventure with some basic supplies, and
 some extra gold with which to purchase more supplies at the town
 stores. You may enter any open store and barter with the owner for
 items you can afford by simply moving onto the entrance, which is
-represented by a number from 1 to 9.
+represented by a number from 0 to 9.
 
 Once inside a store, you will see the name and race of the store owner,
 the name of the store, the maximum amount of cash that the store owner
 will pay for any one item, and the store inventory, listed along with
 tentative prices, which will become "fixed" (at the "final offer")
 should you ever manage to haggle a store owner down to his final offer
-(see below [5]).
+(see below [4]).
 
 You will also see an (incomplete) list of available commands. Note that
 many of the commands which work in the dungeon work in the stores as
@@ -175,6 +163,13 @@ bought it they will immediately identify the object. If it is a good
 object, they will add it to their inventory. If it was a bad bargain,
 they simply throw the item away. In any case, you may receive some
 knowledge of the item if another is encountered.
+
+Note that in Zangband, store owners will buy more items than they sell.
+Consequently, it is possible to sell an item to a shopkeeper and not
+to have it appear in the store's inventory of things to sell.  If you
+plan to buy somehting back at a later date, make sure you sell the item
+in a store that stocks such items.
+
 
 ***** <Bartering>
 --- Bartering ---
@@ -228,129 +223,52 @@ the cap on the store owner's purse.
 ***** <TheShops>
 === List of Shops ===
 
-The General Store ("1")
-     The General Store sells foods, drinks, some clothing, torches,
-     lamps, oil, shovels, picks, and spikes. All of these items and
-     some others can be sold back to the General store for money.
+Junk Stores ("0")
+     Junk stores stock, lets face it, junk.  But you may occasionally
+     find smoething of use within them.
 
-The Armory ("2")
-     The Armory is where the town's armor is fashioned. All sorts of
-     protective gear may be bought and sold here.
+General Suplies Stores ("1")
+     General stores typically stock basic necessities for entering the
+     dungeon such as food, drink, some clothing, torches, lamps, oil,
+     shovels, picks, and spikes. Some general stores (notably the
+     "Dungeon Supplies" store) may also sell basic magical items.
 
-The Weaponsmith's Shop ("3")
-     The Weaponsmith's Shop is where the town's weapons are fashioned.
+Armour Stores ("2")
+     Armour stores are where the town's armor is fashioned. All sorts
+     of protective gear may be bought and sold here.
+
+Weapons Stores ("3")
+     Weapons stores are where the town's weapons are fashioned.
      Hand and missile weapons may be purchased and sold here, along
      with arrows, bolts, and shots.
 
-The Temple ("4")
-     The Temple deals in healing and restoration potions, as well as
-     bless scrolls, word of recall scrolls, some approved priestly
-     weapons, as well as books of Life magic for priests and paladins.
 
-The Alchemy shop ("5")
-     The Alchemy Shop deals in all types of potions and scrolls.
+Alchemy Stores ("5")
+     Alchemy Stores deal in all types of potions and scrolls and
+     magical books.
 
-The Magic User's Shop ("6")
-     The Magic User's Shop deals in all sorts of rings, wands, amulets,
+Magic User's Stores ("6")
+     Magic User's Stores deal in all sorts of rings, wands, amulets,
      and staves, as well as some magic books.
-
-The Black Market ("7")
-     The Black Market will sell and buy anything at extortionate
-     prices. However, it occasionally has VERY good items in it. The
-     The Black Market may also sometimes sell items in stacks making it
-     easier to purchase useful items in bulk. Unfortunately, the
-     shopkeepers are not known for their tolerance...
 
 Your Home ("8")
      This is your house where you can store objects that you cannot
      carry on your travels, or will need at a later date.
 
-The Bookstore ("9")
-    The Bookstore deals in all sorts of magical books. You can purchase
-    and sell spellbooks for the spellcasters here.
-
-***** <Buildings>
-=== Special Buildings ===
-
-In addition to the shops, the Standard and Lite town options will cause
-special buildings to be generated. The buildings vary from town to town
-significantly both in terms of their name and the services they offer.
-Each town contains an Inn where the player may obtain food (assuming
-food does them any good) and rest for the night. Each town also
-contains a building which houses the local ruler.
-
-In addition to the inn and the ruler's house or castle, other buildings
-might include libraries where you can research objects and monsters,
-guilds for the various classes and magic realms, gambling dens and
-casinos, temples, healers and more. Note that some buildings such as
-guilds may offer preferential prices to members of their guild or offer
-services which are only available to their guild. Some building owners
-may offer preferential treatment to their own race or to a group of
-races.
-
---- Note for development versions 2.5.x ---
-
-Note that special buildings were turned off for the earlier 2.5.x
-development versions while the wilderness code was extensively revised.
-They have started to make a reappearance in version 2.5.3 and currently
-include shops where you can enchant your equipment, recharge and
-identify items, get maps of the wilderness, and add and cure mutations.
+Special Buildings ("7" and "9")
+     Special buildings provide services at a price.
 
 
-***** <FixedQuests>
-=== Fixed Quests ===
-
-At least one building in each town available in the Standard and Lite
-towns will offer the player the opportunity to undertake a quest. Such
-quests typically fall under the following categories: kill a certain
-number of a certain type of monster (for example kill 10 orcs), kill
-all the monsters in the quest level, retrieve a certain object, and
-escape from the quest level.
-
-When you request a quest, you will be given a brief description of the
-quest and your objective and also an indication of its danger level (a
-number which represents the dungeon level equivalence of the quest).
-Note that the danger indication can be somewhat misleading since the
-fixed nature of the quests allows you to apply tactics learned through
-several attempts to the same situation often making successive attempts
-easier. It also allows the quest designers to set up some particularly
-nasty ambushes!
-
-Once you have accepted a quest an quest entrance will appear and you
-may enter the quest level. Note that you do not have to enter the quest
-at that time and can delay entering until much later in the game should
-you wish. Many of the quests only allow you to attempt them once per
-game and you should therefore not enter them until you are confident in
-your ability to succeed.
-
-Whether you complete a quest or fail it, upon leaving the quest level
-return to the person who assigned the quest and report. If you were
-successful you may receive a reward which will normally be waiting
-for you outside the building when you leave however the rewards may
-take other forms. If you failed, you will receive a damning review of
-your performance. Note that you may not request another quest from that
-person until you have collected your reward or reported your failure.
-
-Note that to avoid some ugly abuses available to players, the Genocide,
-Mass-Genocide and *Destruction* spells are prevented from working
-inside fixed quests.
-
---- Note for development versions 2.5.x ---
-
-Note that fixed quests were turned off for the earlier 2.5.x
-development versions while the relevant code was extensively revised.
-This process is ongoing.
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: February 5, 2001
+Last update: May 25, 2001
 
 
 ***** Begin Hyperlinks
 ***** [1] command.txt
 ***** [2] dungeon.txt#MapSymbols
-***** [3] town.txt#FixedQuests
-***** [4] option.txt#StartUp
-***** [5] town.txt#Bartering
+***** [3] option.txt#StartUp
+***** [4] town.txt#Bartering

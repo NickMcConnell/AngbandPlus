@@ -143,7 +143,7 @@ Elf
      disarming, perception, stealth, bows, and magic, but they are not
      as good at hand weapons. They resist light effects intrinsically.
  
-Hobbits
+Hobbit
      Hobbits, or Halflings, are very good at bows, throwing, and have
      good saving throws. They also are very good at searching,
      disarming, perception, and stealth; so they make excellent rogues
@@ -980,7 +980,7 @@ High Mage     30+7  36+13 30+9   2    15/20       10+15  10+10
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: February 19, 2001
+Last update: May 25, 2001
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt

@@ -184,13 +184,13 @@ typedef struct named_num named_num;
 
 struct named_num
 {
-	cptr name;		/* The name of this thing */
-	int num;			/* A number associated with it */
+	cptr name;	/* The name of this thing */
+	int num;	/* A number associated with it */
 };
 
 
 /* Index of spell type names */
-static named_num gf_desc[] =
+static const named_num gf_desc[] =
 {
 	{"GF_ELEC", 				GF_ELEC				},
 	{"GF_POIS", 				GF_POIS				},
@@ -334,7 +334,7 @@ static named_num gf_desc[] =
  * Specify the set of colors to use when drawing a zapped spell
  *   Z:<type>:<str>
  */
-errr process_pref_file_aux(char *buf)
+errr process_pref_file_command(char *buf)
 {
 	int i, j, n1, n2;
 
@@ -567,7 +567,14 @@ errr process_pref_file_aux(char *buf)
 				option_info[i].o_val = FALSE;
 
 				/* Save the change */
-				init_options(OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+				if (character_generated)
+				{
+					init_options(OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+				}
+				else
+				{
+					init_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+				}
 
 				return (0);
 			}
@@ -589,7 +596,14 @@ errr process_pref_file_aux(char *buf)
 				option_info[i].o_val = TRUE;
 
 				/* Save the change */
-				init_options(OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+				if (character_generated)
+				{
+					init_options(OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+				}
+				else
+				{
+					init_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+				}
 
 				return (0);
 			}
@@ -863,31 +877,25 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 
 
 /*
- * Process the "user pref file" with the given name
- *
- * See the function above for a list of legal "commands".
- *
- * We also accept the special "?" and "%" directives, which
- * allow conditional evaluation and filename inclusion.
+ * Open the "user pref file" and parse it.
  */
-errr process_pref_file(cptr name)
+static errr process_pref_file_aux(cptr name)
 {
 	FILE *fp;
 
 	char buf[1024];
 
-	int num = -1;
+	char old[1024];
+
+	int line = -1;
 
 	errr err = 0;
 
 	bool bypass = FALSE;
 
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
-
 	/* Open the file */
-	fp = my_fopen(buf, "r");
+	fp = my_fopen(name, "r");
 
 	/* No such file */
 	if (!fp) return (-1);
@@ -897,7 +905,7 @@ errr process_pref_file(cptr name)
 	while (0 == my_fgets(fp, buf, 1024))
 	{
 		/* Count lines */
-		num++;
+		line++;
 
 
 		/* Skip "empty" lines */
@@ -908,6 +916,10 @@ errr process_pref_file(cptr name)
 
 		/* Skip comments */
 		if (buf[0] == '#') continue;
+
+
+		/* Save a copy */
+		strcpy(old, buf);
 
 
 		/* Process "?:<expr>" */
@@ -946,7 +958,7 @@ errr process_pref_file(cptr name)
 
 
 		/* Process the line */
-		err = process_pref_file_aux(buf);
+		err = process_pref_file_command(buf);
 
 		/* Oops */
 		if (err) break;
@@ -956,9 +968,11 @@ errr process_pref_file(cptr name)
 	/* Error */
 	if (err)
 	{
-		/* Useful error message */
-		msg_format("Error %d in line %d of file '%s'.", err, num, name);
-		msg_format("Parsing '%s'", buf);
+		/* Print error message */
+		/* ToDo: Add better error messages */
+		msg_format("Error %d in line %d of file '%s'.", err, line, name);
+		msg_format("Parsing '%s'", old);
+		msg_print(NULL);
 	}
 
 	/* Close the file */
@@ -970,6 +984,40 @@ errr process_pref_file(cptr name)
 
 
 
+/*
+ * Process the "user pref file" with the given name
+ *
+ * See the functions above for a list of legal "commands".
+ *
+ * We also accept the special "?" and "%" directives, which
+ * allow conditional evaluation and filename inclusion.
+ */
+errr process_pref_file(cptr name)
+{
+	char buf[1024];
+
+	errr err = 0;
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_PREF, name);
+
+	/* Process the pref file */
+	err = process_pref_file_aux(buf);
+
+	/* Stop at parser errors, but not at non-existing file */
+	if (err < 1)
+	{
+		/* Build the filename */
+		path_build(buf, 1024, ANGBAND_DIR_USER, name);
+
+		/* Process the pref file */
+		err = process_pref_file_aux(buf);
+	}
+
+	/* Result */
+	return (err);
+}
 
 
 
@@ -2690,14 +2738,8 @@ errr file_character(cptr name, bool full)
 	}
 
 
-#ifndef FAKE_VERSION
-	/* Begin dump */
-	fprintf(fff, "  [Zangband %d.%d.%d Character Dump]\n\n",
-			  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-#else
-	fprintf(fff, "  [Zangband %d.%d.%d Character Dump]\n\n",
-			  FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#endif
+	fprintf(fff, "  [%s %s Character Dump]\n\n",
+	        VERSION_NAME, VERSION_STRING);
 
 	/* Display player */
 	display_player(DISPLAY_PLAYER_STANDARD);
@@ -3306,8 +3348,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[ZAngband %d.%d.%d, %s, Line %d/%d]",
-		           FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH,
+		prt(format("[%s %s, %s, Line %d/%d]",
+		           VERSION_NAME, VERSION_STRING,
 		           caption, line, size), 0, 0);
 
 		/* Prompt -- with menu */

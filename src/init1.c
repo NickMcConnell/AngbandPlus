@@ -172,7 +172,7 @@ static cptr r_info_flags2[] =
 	"SHAPECHANGER",
 	"ATTR_ANY",
 	"POWERFUL",
-	"ELDRITCH_HORROR",
+	"XXX2X1",
 	"AURA_FIRE",
 	"AURA_ELEC",
 	"OPEN_DOOR",
@@ -238,7 +238,7 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"QUESTOR2",
+	"ELDRITCH_HORROR",
 	"XXX3X4",
 	"ROCKET",
 	"ARROW_1",

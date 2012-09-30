@@ -370,7 +370,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	 * Hack - chests are not on this list...
 	 * this prevents chests from nesting.
 	 */
-	switch (randint1(7))
+	switch (randint1(8))
 	{
 		case 1:
 		{
@@ -428,8 +428,8 @@ static void chest_death(int y, int x, s16b o_idx)
 		}
 		default:
 		{
-			/* Junk - this shouldn't happen */
-			tval = TV_JUNK;
+			/* Match anything */
+			tval = TV_ANY;
 			sval = SV_ANY;
 		}
 	}
@@ -453,7 +453,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	if (!o_ptr->pval) number = 0;
 
 	/* Determine the "value" of the items */
-	object_level = ABS(o_ptr->pval) + 10;
+	object_level = ABS(o_ptr->pval);
 
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
@@ -475,7 +475,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		else
 		{
 			/* Make a good themed object */
-			if (!make_object(q_ptr, 20, dun_theme)) continue;
+			if (!make_object(q_ptr, 15, dun_theme)) continue;
 		}
 
 #ifdef USE_SCRIPT
@@ -2741,7 +2741,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 			 * except from rangers.
 			 */
 			else if ((c_ptr->feat == FEAT_TREES) &&
-					 (p_ptr->pclass == CLASS_RANGER))
+					 (p_ptr->pclass != CLASS_RANGER))
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}
@@ -3175,7 +3175,7 @@ void do_cmd_throw_aux(int mult)
 			 * except from rangers.
 			 */
 			else if ((c_ptr->feat == FEAT_TREES) &&
-			         (p_ptr->pclass == CLASS_RANGER))
+			         (p_ptr->pclass != CLASS_RANGER))
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}

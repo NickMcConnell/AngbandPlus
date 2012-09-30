@@ -77,6 +77,9 @@ void init_file_paths(char *path)
 {
 	char *tail;
 
+#ifdef PRIVATE_USER_PATH
+	char buf[1024];
+#endif /* PRIVATE_USER_PATH */
 
 	/*** Free everything ***/
 
@@ -92,6 +95,7 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_FILE);
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);
+	string_free(ANGBAND_DIR_PREF);
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
@@ -119,6 +123,7 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_FILE = string_make("");
 	ANGBAND_DIR_HELP = string_make("");
 	ANGBAND_DIR_INFO = string_make("");
+	ANGBAND_DIR_PREF = string_make("");
 	ANGBAND_DIR_SAVE = string_make("");
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
@@ -162,12 +167,28 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_INFO = string_make(path);
 
 	/* Build a path name */
+	strcpy(tail, "pref");
+	ANGBAND_DIR_PREF = string_make(path);
+
+	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
+
+#ifdef PRIVATE_USER_PATH
+
+	/* Build the path to the user specific directory */
+	path_build(buf, 1024, PRIVATE_USER_PATH, VERSION_NAME);
+
+	/* Build a relative path name */
+	ANGBAND_DIR_USER = string_make(buf);
+
+#else /* PRIVATE_USER_PATH */
 
 	/* Build a path name */
 	strcpy(tail, "user");
 	ANGBAND_DIR_USER = string_make(path);
+
+#endif /* PRIVATE_USER_PATH */
 
 	/* Build a path name */
 	strcpy(tail, "xtra");
@@ -2051,13 +2072,13 @@ static errr init_other(void)
 	}
 
 	/* Allocate cache of wilderness blocks */
-	for (i = 0; i < WILD_BLOCKS ; i++)
+	for (i = 0; i < WILD_BLOCKS; i++)
 	{
 		/* Allocate block */
 		C_MAKE(wild_cache[i], WILD_BLOCK_SIZE, cave_type*);
 
 		/* Allocate rows of a block */
-		for (j = 0; j < WILD_BLOCK_SIZE ; j++)
+		for (j = 0; j < WILD_BLOCK_SIZE; j++)
 		{
 			C_MAKE(wild_cache[i][j], WILD_BLOCK_SIZE, cave_type);
 		}
@@ -2071,7 +2092,7 @@ static errr init_other(void)
 	/* Allocate the wilderness itself */
 	C_MAKE(wild, max_wild_size, wild_type*);
 
-	for (i = 0; i < max_wild_size ; i++)
+	for (i = 0; i < max_wild_size; i++)
 	{
 		/* Allocate one row of the wilderness */
 		C_MAKE(wild[i], max_wild_size, wild_type);

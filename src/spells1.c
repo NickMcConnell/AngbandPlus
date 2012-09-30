@@ -147,7 +147,7 @@ static byte spell_color(int type)
  *
  * If the distance is not "one", we (may) return "*".
  */
-static void bolt_pict(int y, int x, int ny, int nx, int typ, byte *a, byte *c)
+void bolt_pict(int y, int x, int ny, int nx, int typ, byte *a, byte *c)
 {
 	int base;
 
@@ -2868,8 +2868,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Toggle flag */
 		m_ptr->smart &= ~(SM_MIMIC);
 		
-		/* It is in the monster list now */
-		update_mon_vis(m_ptr->r_idx, 1);
+		/* It is in the monster list now if visible */
+		if (m_ptr->ml) update_mon_vis(m_ptr->r_idx, 1);
 		
 		/* We've spotted it */
 		msg_format("You've found %s!", m_name);
@@ -4657,7 +4657,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 					}
 
 					/* Recursion... */
-					project(area(y,x)->m_idx, 0, t_y, t_x,  dam, typ, flg);
+					project(area(y, x)->m_idx, 0, t_y, t_x,  dam, typ, flg);
 				}
 				else
 				{

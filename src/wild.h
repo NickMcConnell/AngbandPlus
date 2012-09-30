@@ -37,6 +37,9 @@
 #define TOWN_WID	66
 #define TOWN_HGT	22
 
+/* Starting town has pre-defined stores */
+#define START_STORE_NUM		6
+
 
 /* Road constants used to define with of the path */
 #define ROAD_LEVEL		(WILD_BLOCK_SIZE * 150)

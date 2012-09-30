@@ -1947,7 +1947,7 @@ s16b quark_add(cptr str)
 		i = compact_quarks();
 		
 		/* Paranoia - no room? */
-		if (!i) return(0);
+		if (!i) return (0);
 		
 		/* Delete the old quark */
 		string_free(quark__str[i]);
@@ -3709,3 +3709,78 @@ void build_gamma_table(int gamma)
 }
 
 #endif /* SUPPORT_GAMMA */
+
+/*
+ * Get the name of the default font to use for the term.
+ */
+cptr get_default_font(int term_num)
+{
+	cptr font;
+	
+	char buf[80];
+	
+	/* Window specific font name */
+	sprintf(buf, "ANGBAND_X11_FONT_%d", term_num);
+
+	/* Check environment for that font */
+	font = getenv(buf);
+
+	/* Check environment for "base" font */
+	if (!font) font = getenv("ANGBAND_X11_FONT");
+
+	/* No environment variables, use default font */
+	if (!font)
+	{
+		switch (term_num)
+		{
+			case 0:
+			{
+				font = DEFAULT_X11_FONT_0;
+			}
+			break;
+			case 1:
+			{
+				font = DEFAULT_X11_FONT_1;
+			}
+			break;
+			case 2:
+			{
+				font = DEFAULT_X11_FONT_2;
+			}
+			break;
+			case 3:
+			{
+				font = DEFAULT_X11_FONT_3;
+			}
+			break;
+			case 4:
+			{
+				font = DEFAULT_X11_FONT_4;
+			}
+			break;
+			case 5:
+			{
+				font = DEFAULT_X11_FONT_5;
+			}
+			break;
+			case 6:
+			{
+				font = DEFAULT_X11_FONT_6;
+			}
+			break;
+			case 7:
+			{
+				font = DEFAULT_X11_FONT_7;
+			}
+			break;
+			default:
+			{
+				font = DEFAULT_X11_FONT;
+			}
+		}
+	}
+	
+	return (font);
+}
+
+

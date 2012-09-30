@@ -3160,9 +3160,6 @@ static void dungeon(void)
 	/* Set the base level */
 	base_level = p_ptr->depth;
 
-	/* Reset various flags */
-	hack_mind = FALSE;
-
 	/* Not leaving */
 	p_ptr->leaving = FALSE;
 
@@ -3222,7 +3219,10 @@ static void dungeon(void)
 
 	/* Option -- no connected stairs */
 	if (!dungeon_stair) p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
-
+	
+	/* Nightmare mode is no fun... */
+	if (ironman_nightmare) p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+	
 	/* Option -- no up stairs */
 	if (ironman_downward) p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 
@@ -3245,6 +3245,9 @@ static void dungeon(void)
 			{
 				cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
 			}
+
+			/* Mark the stairs as known */
+			c_ptr->info |= (CAVE_MARK);
 		}
 
 		/* Cancel the stair request */
@@ -3339,8 +3342,6 @@ static void dungeon(void)
 
 	/* Reset the object generation level */
 	object_level = base_level;
-
-	hack_mind = TRUE;
 
 	/* Main loop */
 	while (TRUE)

@@ -2010,19 +2010,29 @@ void identify_item(object_type *o_ptr)
 
 static bool item_tester_unknown(const object_type *o_ptr)
 {
-	if (object_known_p(o_ptr))
-		return FALSE;
-	else
-		return TRUE;
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	
+	/* Check to see if we don't know the flavor */
+	if (k_ptr->flavor && !k_ptr->aware) return (TRUE);
+	
+	/* Check to see if we have identified the item */
+	if (object_known_p(o_ptr)) return (FALSE);
+	
+	return (TRUE);
 }
 
 
 static bool item_tester_unknown_star(const object_type *o_ptr)
 {
-	if (o_ptr->ident & IDENT_MENTAL)
-		return FALSE;
-	else
-		return TRUE;
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+	
+	/* Check to see if we don't know the flavor */
+	if (k_ptr->flavor && !k_ptr->aware) return (TRUE);
+	
+	/* Check to see if we have identified the item */
+	if (o_ptr->ident & IDENT_MENTAL) return (FALSE);
+	
+	return (TRUE);
 }
 
 
@@ -2775,7 +2785,7 @@ bool potion_smash_effect(int who, int y, int x, int k_idx)
 		case SV_POTION_RESIST_HEAT:
 		case SV_POTION_RESIST_COLD:
 		case SV_POTION_HEROISM:
-		case SV_POTION_BESERK_STRENGTH:
+		case SV_POTION_BERSERK_STRENGTH:
 		case SV_POTION_RESTORE_EXP:
 		case SV_POTION_RES_STR:
 		case SV_POTION_RES_INT:
@@ -3410,7 +3420,14 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 		line_attr = TERM_WHITE;
 
 		/* Analyze the spell */
-		if ((realm + 1 == p_ptr->realm1) ?
+		if ((realm + 1 != p_ptr->realm1) && (realm + 1 != p_ptr->realm2))
+		{
+			comment = " uncastable";
+			line_attr = TERM_SLATE;
+		}
+
+		/* We know these books */
+		else if ((realm + 1 == p_ptr->realm1) ?
 		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
 		    ((p_ptr->spell_forgotten2 & (1L << spell))))
 		{
@@ -4302,3 +4319,92 @@ void map_wilderness(int radius, s32b x, s32b y)
 		}
 	}
 }
+
+
+void sanity_blast(const monster_type *m_ptr)
+{
+	int power = 100;
+
+	char  m_name[80];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	power = r_ptr->level + 10;
+
+	monster_desc(m_name, m_ptr, 0);
+
+	if (!(r_ptr->flags1 & RF1_UNIQUE))
+	{
+		if (r_ptr->flags1 & RF1_FRIENDS)
+		power /= 2;
+	}
+	else power *= 2;
+
+	/* Can we see it? */
+	if (!m_ptr->ml) return; 
+
+	/* Paranoia */
+	if (!(r_ptr->flags4 & RF4_ELDRITCH_HORROR)) return;
+
+	/* Pet eldritch horrors are safe most of the time */
+	if (is_pet(m_ptr) && !one_in_(8)) return;
+
+	/* Do we pass the saving throw? */
+	if (saving_throw(p_ptr->skill_sav * 100 / power)) return;
+
+	if (p_ptr->image)
+	{
+		/* Something silly happens... */
+		msg_format("You behold the %s visage of %s!",
+			funny_desc[randint0(MAX_SAN_FUNNY)], m_name);
+
+		if (one_in_(3))
+		{
+			msg_print(funny_comments[randint0(MAX_SAN_COMMENT)]);
+			p_ptr->image = p_ptr->image + randint1(r_ptr->level);
+		}
+
+		/* Never mind; we can't see it clearly enough */
+		return;
+	}
+
+	/* Something frightening happens... */
+	msg_format("You behold the %s visage of %s!",
+		horror_desc[randint0(MAX_SAN_HORROR)], m_name);
+
+	/* Monster memory */
+	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
+
+	/* Demon characters are unaffected */
+	if (p_ptr->prace == RACE_IMP) return;
+
+	/* Undead characters are 50% likely to be unaffected */
+	if (((p_ptr->prace == RACE_SKELETON) ||
+	    (p_ptr->prace == RACE_ZOMBIE) ||
+	    (p_ptr->prace == RACE_VAMPIRE) ||
+	    (p_ptr->prace == RACE_SPECTRE)) &&
+		saving_throw(25 + p_ptr->lev)) return;
+
+	/* Mind blast */
+	if (!saving_throw(p_ptr->skill_sav * 100 / power))
+	{
+		if ((!p_ptr->resist_fear) || one_in_(5))
+		{
+			/* Get afraid, even if have resist fear! */
+			(void)set_afraid(p_ptr->afraid + rand_range(10, 20));
+		}
+		if (!p_ptr->resist_chaos)
+		{
+			(void)set_image(p_ptr->image + rand_range(150, 400));
+		}
+		return;
+	}
+
+	if (lose_all_info())
+	{
+		msg_print("You forget everything in your utmost terror!");
+	}
+
+	p_ptr->update |= PU_BONUS;
+	handle_stuff();
+}
+

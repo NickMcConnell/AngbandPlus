@@ -259,9 +259,23 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF4_XXX2X4 */
+			/* RF4_ELDRITCH_HORROR */
 			case 96+1:
 			{
+				if (known)
+				{
+					if (see_m)
+					{
+						msg_format("%^s stares at %s.", m_name, t_name);
+					}
+					else
+					{
+						p_ptr->mon_fight = TRUE;
+					}
+				}
+
+				wake_up = TRUE;
+				
 				break;
 			}
 
@@ -2901,7 +2915,7 @@ bool monst_spell_monst(int m_idx)
 		}
 
 		/* Remember what the monster did, if we saw it */
-		if (see_m)
+		if (m_ptr->ml)
 		{
 			/* Look to see if we've spotted a mimic */
 			if (m_ptr->smart & SM_MIMIC)

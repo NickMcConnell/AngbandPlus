@@ -8,14 +8,14 @@ Please choose one of the following online help files:
     (3) Game Play Options               (option.txt#GamePlay)
     (4) Efficiency Options              (option.txt#Efficiency)
     (5) Display Options                 (option.txt#Display)
-    (6) Arificial Intelligence Options  (option.txt#AI)
-    (7) Testing Options                 (option.txt#Testing)
-    (8) Base Delay Factor               (option.txt#BaseDelay)
-    (9) Hitpoint Warning                (option.txt#Hitpoint)
-    (a) Autosave Options                (option.txt#Autosave)
-    (b) Window Flags                    (option.txt#Window)
+    (6) Birth Options                   (option.txt#StartUp)
+    (7) Arificial Intelligence Options  (option.txt#AI)
+    (8) Testing Options                 (option.txt#Testing)
+    (9) Base Delay Factor               (option.txt#BaseDelay)
+    (a) Hitpoint Warning                (option.txt#Hitpoint)
+    (b) Autosave Options                (option.txt#Autosave)
+    (c) Window Flags                    (option.txt#Window)
     (d) Cheating Options                (option.txt#Cheating)
-    (d) Start-Up Options                (option.txt#StartUp)
 
     (?) Help System Commands            (helpinfo.txt)
 
@@ -26,11 +26,11 @@ Please choose one of the following online help files:
 ***** [3] option.txt#GamePlay
 ***** [4] option.txt#Efficiency
 ***** [5] option.txt#Display
-***** [6] option.txt#AI
-***** [7] option.txt#Testing
-***** [8] option.txt#BaseDelay
-***** [9] option.txt#HitPoint
-***** [a] option.txt#Autosave
-***** [b] option.txt#Window
-***** [c] option.txt#Cheating
-***** [d] option.txt#StartUp
+***** [6] option.txt#StartUp
+***** [7] option.txt#AI
+***** [8] option.txt#Testing
+***** [9] option.txt#BaseDelay
+***** [a] option.txt#HitPoint
+***** [b] option.txt#Autosave
+***** [c] option.txt#Window
+***** [d] option.txt#Cheating

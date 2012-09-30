@@ -161,7 +161,7 @@ static long total_points(void)
 	if (vanilla_town) mult += 5;
 	
 	/* so are hard quests */
-	if (ironman_hard_quests) mult += 10;
+	if (ironman_hard_quests) mult += number_of_quests() / 2;
 
 	/* Not too much of a reward since some people like playing with this. */
 	if (ironman_small_levels) mult += 5;
@@ -239,7 +239,8 @@ void display_scores_aux(int from, int to, int note, const high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Zangband Hall of Fame", 0, 0);
+		sprintf(tmp_val, "                %s Hall of Fame", VERSION_NAME);
+		put_str(tmp_val, 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)

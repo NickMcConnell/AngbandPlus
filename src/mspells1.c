@@ -904,9 +904,12 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX2X4 */
+		/* RF4_ELDRITCH_HORROR */
 		case 96+1:
 		{
+			if (!direct || !seen) break;
+			disturb(TRUE);
+			sanity_blast(m_ptr);
 			break;
 		}
 
@@ -2340,8 +2343,8 @@ bool make_attack_spell(int m_idx)
 			/* Toggle flag */
 			m_ptr->smart &= ~(SM_MIMIC);
 			
-			/* It is in the monster list now */
-			update_mon_vis(m_ptr->r_idx, 1);
+			/* It is in the monster list now if visible */
+			if (m_ptr->ml) update_mon_vis(m_ptr->r_idx, 1);
 		
 			/*Hack - no need for a message */
 		}

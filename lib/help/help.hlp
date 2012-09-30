@@ -15,8 +15,7 @@ Please choose one of the following online help files:
     (a) Zangband Commands              (command.hlp)
     (b) Zangband Options               (option.hlp)
     (c) User Preference Files          (pref.hlp)
-    (d) The Zangband Newbie Guide      (tang.txt)
-    (e) Zangband Spoilers              (spoiler.hlp)
+    (d) Zangband Spoilers              (spoiler.hlp)
 
 
 ***** [0] general.hlp
@@ -32,5 +31,4 @@ Please choose one of the following online help files:
 ***** [a] command.hlp
 ***** [b] option.hlp
 ***** [c] pref.hlp
-***** [d] tang.txt
-***** [e] spoiler.hlp
+***** [d] spoiler.hlp

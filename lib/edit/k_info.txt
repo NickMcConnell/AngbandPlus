@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/05/06 02:15:22 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/05/19 04:45:17 $
 # File: k_info.txt
 
 
@@ -263,7 +263,7 @@ F:SHOW_MODS | TUNNEL
 N:29:& No-dachi~
 G:|:W
 I:23:27:0
-W:61:0:190:579
+W:61:0:190:1000
 A:61/3:80/1
 P:0:5d4:0:0:0
 F:SHOW_MODS
@@ -3793,7 +3793,7 @@ F:SHOW_MODS
 N:543:& Broad Spear~
 G:/:w
 I:22:7:0
-W:60:0:100:240
+W:60:0:100:450
 A:60/2
 P:0:1d20:0:0:0
 F:SHOW_MODS
@@ -3857,7 +3857,7 @@ F:SHOW_MODS
 N:551:& Fauchard~
 G:/:s
 I:22:6:0
-W:82:0:155:300
+W:82:0:155:700
 A:82/1
 P:0:1d25:0:0:0
 F:SHOW_MODS
@@ -3881,7 +3881,7 @@ F:SHOW_MODS
 N:554:& Basillard~
 G:|:w
 I:23:9:0
-W:42:0:80:220
+W:42:0:80:550
 A:42/1
 P:0:1d15:0:0:0
 F:SHOW_MODS
@@ -3889,7 +3889,7 @@ F:SHOW_MODS
 N:555:& Ninjato~
 G:|:s
 I:23:19:0
-W:52:0:100:265
+W:52:0:100:600
 A:52/1
 P:0:1d18:0:0:0
 F:SHOW_MODS

@@ -694,7 +694,7 @@ monsters.
 Original   : (??) and Leon Marrick
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Last update: May 25, 2001
 
 ***** Begin Hyperlinks
 ***** [1] commdesc.txt#ThrowFire

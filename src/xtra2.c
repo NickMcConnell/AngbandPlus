@@ -3206,7 +3206,7 @@ bool get_aim_dir(int *dp)
 	dir = p_ptr->command_dir;
 
 	/* Hack -- auto-target if requested */
-	if (use_old_target && target_okay()) dir = 5;
+	if (use_old_target && !ironman_moria && target_okay()) dir = 5;
 
 	if (repeat_pull(dp))
 	{

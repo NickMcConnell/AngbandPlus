@@ -7,6 +7,23 @@ applicable. A more complete description of the course of Zangband
 development can be obtained by reviewing z_update.txt.
 
 
+=== Zangband 2.6.0 ===
+
+The first stable release after the beginning of the 2.5.x development
+branch.  Zangband 2.6.0 featured an enormous, randomly generated
+wilderness with towns of varying sizes and flavour.  Over 100 new shop
+and building types were introduced as well as numerous new terrain
+types.  As with the earlier 2.5.x versions, the wilderness scrolls
+seemlessly as you explore.  Also imported from the 2.5.x branch were
+several things designed to make the dungeon experience smoother and
+more enoyable. This includes a redistribution of monsters and objects
+to make the danger/reward levels of the dungeon increase smoothly with
+character progression and a reworking of object generation to ensure
+that items generated are more useful to the player.  The other major
+change in this version was he permanent switching on of the monster AI
+functions which had previously been included as options.
+
+
 === Zangband 2.5.0 ===
 
 This development release was unique in that it first included a new,
@@ -672,4 +689,4 @@ Angband Version 2.7   :  1/1/95  Ben Harrison
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 30, 1999
+Last update: May 25, 2001

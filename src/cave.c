@@ -240,8 +240,6 @@ bool los(int y1, int x1, int y2, int x2)
 }
 
 
-
-
 /*
  * Calculate incremental motion
  *
@@ -283,11 +281,11 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2, int *slope, int *sq)
 	 */
 	dist = distance(y1, x1, y2, x2);
 	
-	if (dist > MAX_RANGE)
+	if (dist > MAX_SIGHT)
 	{
 		/* Rescale */
-		dx = (dx * MAX_RANGE) / dist;
-		dy = (dy * MAX_RANGE) / dist;
+		dx = (dx * MAX_SIGHT) / dist;
+		dy = (dy * MAX_SIGHT) / dist;
 	}
 	
 	/* Extract the absolute offset */
@@ -325,17 +323,18 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2, int *slope, int *sq)
 		
 				c_ptr = area(yy, xx);
 			
-				if (cave_los_grid(c_ptr))
-				{
-					/* Advance along ray */
-					(*sq)++;
-				}
-				else
+				/* Is the square not occupied by a monster, and passable? */
+				if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
 				{
 					/* Advance to the best position we have not looked at yet */
 					temp = project_data[*slope][*sq].slope;
 					*sq = project_data[*slope][*sq].square;
 					*slope = temp;
+				}
+				else
+				{
+					/* Advance along ray */
+					(*sq)++;
 				}
 			}
 			
@@ -361,17 +360,18 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2, int *slope, int *sq)
 		
 				c_ptr = area(yy, xx);
 		
-				if (cave_los_grid(c_ptr))
-				{
-					/* Advance along ray */
-					(*sq)++;
-				}
-				else
+				/* Is the square not occupied by a monster, and passable? */
+				if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
 				{
 					/* Advance to the best position we have not looked at yet */
 					temp = project_data[*slope][*sq].slope;
 					*sq = project_data[*slope][*sq].square;
 					*slope = temp;
+				}
+				else
+				{
+					/* Advance along ray */
+					(*sq)++;
 				}
 			}
 			
@@ -471,11 +471,13 @@ static bool project_stop(cave_type *c_ptr, u16b flg)
 		{
 			if (flg & (PROJECT_STOP))
 			{
+				/* Bolt spell is stopped by a monster */
 				return (TRUE);
 			}
 			
 			if ((flg & (PROJECT_FRND)) && is_pet(&m_list[c_ptr->m_idx]))
 			{
+				/* Try not to affect friendly monsters */
 				return (TRUE);
 			}
 		}
@@ -487,45 +489,6 @@ static bool project_stop(cave_type *c_ptr, u16b flg)
 	/* Blocked */	
 	return (TRUE);
 }
-
-
-/*
- * Does this square stop a projection in a 'bad' way?
- *
- * We are trying to make the "best" projection for the player.
- * If we use the other routine, then monsters will not be hit,
- * even when we want them to be.
- */
-static bool project_gen(cave_type *c_ptr, u16b flg)
-{
-	if (cave_los_grid(c_ptr))
-	{
-		/* Require fields do not block magic */
-		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_MAGIC))
-		{
-			return (TRUE);
-		}
-		
-		/* Is the square occupied by a monster? */
-		if (c_ptr->m_idx != 0)
-		{
-			/* Do _not_ stop with the project stop option */
-			
-			if ((flg & (PROJECT_FRND)) && is_pet(&m_list[c_ptr->m_idx]))
-			{
-				return (TRUE);
-			}
-		}
-		
-		/* Seems ok */
-		return (FALSE);
-	}
-	
-	/* Blocked */	
-	return (TRUE);
-}
-
-
 
 
 /*
@@ -578,11 +541,11 @@ sint project_path(coord *gp, int y1, int x1, int y2, int x2, u16b flg)
 	 */
 	dist = distance(y1, x1, y2, x2);
 	
-	if (dist > MAX_RANGE)
+	if (dist > MAX_SIGHT)
 	{
 		/* Rescale */
-		dx = (dx * MAX_RANGE) / dist;
-		dy = (dy * MAX_RANGE) / dist;
+		dx = (dx * MAX_SIGHT) / dist;
+		dy = (dy * MAX_SIGHT) / dist;
 	}
 	
 	/* Extract the absolute offset */
@@ -619,7 +582,7 @@ sint project_path(coord *gp, int y1, int x1, int y2, int x2, u16b flg)
 			
 			c_ptr = area(y, x);
 			
-			if (project_gen(c_ptr, flg))
+			if (project_stop(c_ptr, flg))
 			{
 				/* Advance to the best position we have not looked at yet */
 				temp = project_data[sl][sq].slope;
@@ -658,7 +621,7 @@ sint project_path(coord *gp, int y1, int x1, int y2, int x2, u16b flg)
 			
 			c_ptr = area(y, x);
 		
-			if (project_gen(c_ptr, flg))
+			if (project_stop(c_ptr, flg))
 			{
 				/* Advance to the best position we have not looked at yet */
 				temp = project_data[sl][sq].slope;
@@ -680,7 +643,7 @@ sint project_path(coord *gp, int y1, int x1, int y2, int x2, u16b flg)
 	}
 	
 	/* Scan over squares along path */
-	for (sq = 0; sq < MAX_RANGE; sq++)
+	for (sq = 0; (sq < MAX_RANGE) && (sq < slope_count[sl]); sq++)
 	{
 		if (ay < ax)
 		{
@@ -694,7 +657,14 @@ sint project_path(coord *gp, int y1, int x1, int y2, int x2, u16b flg)
 			x = x1 + sx * project_data[sl][sq].y;
 			y = y1 + sy * project_data[sl][sq].x;
 		}
-	
+		
+		/* Stop if out of bounds */
+		if (!in_bounds(y, x))
+		{
+			sq--;
+			break;
+		}
+		
 		/* Save the square */
 		gp[sq].x = x;
 		gp[sq].y = y;
@@ -705,17 +675,21 @@ sint project_path(coord *gp, int y1, int x1, int y2, int x2, u16b flg)
 			if ((x == x2) && (y == y2)) break;
 		}
 
-		/* Stop if out of bounds */
-		if (!in_bounds(y, x)) break;
-
 		c_ptr = area(y, x);
 		
 		/* Does the grid stop projection? */
 		if (project_stop(c_ptr, flg)) break;
 	}
+	
+	/* Include the last square */
+	sq++;
+	
+	/* Paranoia */
+	if (sq > MAX_RANGE) sq = MAX_RANGE;
+	if (sq >= slope_count[sl]) sq = slope_count[sl] - 1;
 
-	/* Length (never more than MAX_RANGE) */
-	return (MIN(sq + 1, MAX_RANGE));
+	/* Length */
+	return (sq);
 }
 
 
@@ -854,7 +828,7 @@ bool player_can_see_bold(int y, int x)
 	if (c_ptr->info & (CAVE_LITE)) return (TRUE);
 
 	/* Require line of sight to the grid */
-	if (!player_has_los_grid(c_ptr)) return (FALSE);
+	if (!(c_ptr->info & (CAVE_VIEW))) return (FALSE);
 
 	/* Require "perma-lite" of the grid or monster lit grid */
 	if (!(c_ptr->info & (CAVE_GLOW | CAVE_MNLT))) return (FALSE);
@@ -2813,6 +2787,9 @@ void do_cmd_view_map(void)
 			/* Hilite the player */
 			move_cursor(cy, cx);
 
+			/* Draw it */
+			Term_fresh();
+			
 			/* Get a response */
 			d = get_keymap_dir(inkey());
 
@@ -3526,7 +3503,14 @@ errr vinfo_init(void)
 	 * Add in the final information in the projection table.
 	 *
 	 * We need to know where to go to if the current square
-	 * is blocked.  This will be the first slope that does
+	 * is blocked.
+	 *
+	 * This is calculated in the following way:
+	 *
+	 * First, we need to find the first slope that does not
+	 * include the current square.
+	 *
+	 *  This will be the first slope that does
 	 * not contain this square.  The position along that slope
 	 * will be the first square that is not already scanned
 	 * by the current slope.
@@ -4149,8 +4133,6 @@ void update_mon_lite(void)
 
 	s16b fx, fy;
 
-	s16b end_temp;
-
 	/* Blindness check */
 	if (p_ptr->blind)
 	{
@@ -4355,10 +4337,7 @@ void update_mon_lite(void)
 			}
 		}
 	}
-
-	/* Save end of list of new squares */
-	end_temp = temp_n;
-
+	
 	/*
 	 * Look at old set flags to see if there are any changes.
 	 */
@@ -4373,16 +4352,24 @@ void update_mon_lite(void)
 		c_ptr = area(fy, fx);
 
 		/* It it no longer lit? */
-		if (!(c_ptr->info & CAVE_MNLT) && player_has_los_grid(c_ptr))
+		if (!(c_ptr->info & CAVE_MNLT))
 		{
-			/* It is now unlit */
-			note_spot(fy, fx);
+			/* Clear the temp flag for the old lit grids */
+			c_ptr->info &= ~(CAVE_TEMP);
+			
+			if (c_ptr->info & (CAVE_VIEW))
+			{
+				/* Do we have a monster on this square? */
+				if (c_ptr->m_idx)
+				{
+					/* Update the monster */
+					update_mon(c_ptr->m_idx, FALSE);
+				}
+			
+				/* It is now unlit */
+				note_spot(fy, fx);	
+			}
 		}
-
-		/* Add to end of temp array */
-		temp_x[temp_n] = fx;
-		temp_y[temp_n] = fy;
-		temp_n++;
 	}
 
 	/* Clear the lite array */
@@ -4399,32 +4386,30 @@ void update_mon_lite(void)
 		/* Point to grid */
 		c_ptr = area(fy, fx);
 
-		if (i >= end_temp)
+		if (c_ptr->info & CAVE_TEMP)
 		{
-			/* Clear the temp flag for the old lit grids */
+			/* Clear the temp flag for the old lit grids that are still lit */
 			c_ptr->info &= ~(CAVE_TEMP);
 		}
-		else
+		
+		/* Is the square newly lit and visible? */
+		else if (c_ptr->info & (CAVE_VIEW))
 		{
-			/* The is the square newly lit and visible? */
-			if ((c_ptr->info & (CAVE_VIEW | CAVE_TEMP)) == CAVE_VIEW)
+			/* Do we have a monster on this square? */
+			if (c_ptr->m_idx)
 			{
-				/* Do we have a monster on this square? */
-				if (c_ptr->m_idx)
-				{
-					/* Update the monster */
-					update_mon(c_ptr->m_idx, FALSE);
-				}
-				
-				/* It is now lit */
-				note_spot(fy, fx);
+				/* Update the monster */
+				update_mon(c_ptr->m_idx, FALSE);
 			}
-
-			/* Save in the monster lit array */
-			lite_x[lite_n] = fx;
-			lite_y[lite_n] = fy;
-			lite_n++;
+			
+			/* It is now lit */
+			note_spot(fy, fx);
 		}
+		
+		/* Save in the monster lit array */
+		lite_x[lite_n] = fx;
+		lite_y[lite_n] = fy;
+		lite_n++;
 	}
 
 	/* Finished with temp_n */

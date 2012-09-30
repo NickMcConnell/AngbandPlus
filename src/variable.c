@@ -114,8 +114,7 @@ bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 
 bool repair_monsters;	/* Hack -- optimize detect monsters */
 
-/* Are these needed? */
-bool hack_mind;
+/* Is this needed? */
 bool hack_mutation;
 
 s16b o_max = 1;			/* Number of allocated objects */
@@ -351,7 +350,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Zangband",
+	VERSION_NAME,
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -753,6 +752,12 @@ cptr ANGBAND_DIR_HELP;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_INFO;
+
+/*
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
 
 /*
  * Savefiles for current characters (binary)

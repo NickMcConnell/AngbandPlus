@@ -2798,7 +2798,27 @@ void do_cmd_cast(void)
 		{
 			if ((sval == 3) && one_in_(2))
 			{
-				sanity_blast(0, TRUE);
+				msg_print("Your sanity is shaken by reading the Necronomicon!");
+				
+				/* Mind blast */
+				if (!saving_throw(p_ptr->skill_sav * 100))
+				{
+					if (!p_ptr->resist_confu)
+					{
+						(void)set_confused(p_ptr->confused + rand_range(4, 8));
+					}
+					if (!p_ptr->resist_chaos && one_in_(3))
+					{
+						(void)set_image(p_ptr->image + rand_range(150, 400));
+					}
+				}
+
+				/* Lose int & wis */
+				else if (!saving_throw(p_ptr->skill_sav * 100))
+				{
+					do_dec_stat(A_INT);
+					do_dec_stat(A_WIS);
+				}
 			}
 			else
 			{
@@ -2939,7 +2959,8 @@ void do_cmd_cast(void)
  */
 void do_cmd_pray(void)
 {
-	msg_print("Praying is not used in Zangband. Use magic spell casting instead.");
+	msg_format("Praying is not used in %s. Use magic spell casting instead.",
+	           VERSION_NAME);
 }
 
 

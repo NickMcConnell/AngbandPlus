@@ -944,9 +944,10 @@ bool field_detect_type(s16b fld_idx, byte typ)
 		/* Get field */
 		f_ptr = &fld_list[fld_idx];
 
-		/* Is it the correct type + invisible? */
+		/* Is it the correct type? */
 		if (t_info[f_ptr->t_idx].type == typ)
 		{
+			/* Is it invisible? */
 			if (!(f_ptr->info & FIELD_INFO_VIS))
 			{
 				/* Now is visible + known */
@@ -954,6 +955,11 @@ bool field_detect_type(s16b fld_idx, byte typ)
 				
 				/* Lookable */
 				f_ptr->info &= ~(FIELD_INFO_NO_LOOK);
+			}
+			else
+			{
+				/* We know it now */
+				f_ptr->info |= (FIELD_INFO_MARK);
 			}
 
 			/* We found something */
@@ -1676,7 +1682,7 @@ void field_action_corpse_load(s16b *field_ptr, vptr nothing)
 	(void) nothing;
 	
 	/* Initialise the graphic */
-	if (streq(ANGBAND_GRAF, "new"))
+	if (use_graphics && streq(ANGBAND_GRAF, "new"))
 	{
 		/* Hack - get new tile via offset table */
 		f_ptr->f_char += corpse_type(r_ptr->d_char);
@@ -1704,7 +1710,7 @@ void field_action_corpse_init(s16b *field_ptr, vptr input)
 	f_ptr->data[2] = m_ptr->r_idx % 256;
 	
 	/* Initialise the graphic */
-	if (streq(ANGBAND_GRAF, "new"))
+	if (use_graphics && streq(ANGBAND_GRAF, "new"))
 	{
 		/* Hack - get new tile via offset table */
 		f_ptr->f_char += corpse_type(r_ptr->d_char);

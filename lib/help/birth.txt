@@ -22,16 +22,21 @@ any prompt (with the exception of the autoroller (see below [1]) prompt
 and the prompt for the number of random quests (see below [2])).
 
 
-***** <StartUp>
-=== Start-up Options ===
+***** <BirthOptions>
+=== Birth Options ===
 
 During character generation you may press '=' at any time to access
-the start-up options. A more detailed description of the various
-start-up options can be found in the section on the Options Page
-(see option.txt#StartUp [3]). Perhaps one of the most important
-features of the start-up options is the ability to decide what type of
+the options screen. A more detailed description of the various options
+can be found in the section on the Options Page (see option.txt [3]).
+Here you may set yout 'Birth options' which are options set at birth
+and which cannot be changed again during the game. Note that you may
+change your birth option preferences in game but these will only have
+effect in your next character. Perhaps one of the most important
+features of the birth options is the ability to decide what type of
 town level you want. The various town options are discussed on the Town
-page (see dungeon.txt#TownLevel [4]).
+page (see town.txt#TownLevel [4]). Another important decision to make
+is whether you wish to use the Autoroller (see below [1]) or the point-
+based character generation system (see below [d]).
 
 
 ***** <CharAttributes>
@@ -244,6 +249,19 @@ random character at a time and then display it for you to either accept
 or reject. The 'r', 'p' and 'Esc' keys will work as outlined above.
 
 
+***** <PointBased>
+=== Point-based Character Generation ===
+This alternative method of determining your starting statistics gives
+you 48 'points' which may be 'spent' on increasing your statistics
+according to your own preference.  Using this system you are better
+able to customize your character but may not get such high individual
+statistics as are possible with th auto-roller. Note that as your stats
+get higher it takes more points to increase them further. Also note
+that should you choose not to spend all your points, you will be given
+100 gold pieces for each unused point subject to an upper limit of 600
+gold pieces.
+
+
 ***** <LifeRating>
 === Life Ratings ===
 
@@ -303,13 +321,13 @@ a magical item although there is some variance from this.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: March 20, 2000
+Last update: May 24, 2001
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt#AutoRoller
 ***** [2] birth.txt#RandomQuests
-***** [3] option.txt#StartUp
-***** [4] dungeon.txt#TownLevel
+***** [3] option.txt
+***** [4] town.txt#TownLevel
 ***** [5] charattr.txt#TheRaces
 ***** [6] charattr.txt#TheClasses
 ***** [7] magic.txt#MagicRealms
@@ -318,4 +336,5 @@ Last update: March 20, 2000
 ***** [a] charattr.txt#StatBonusTable
 ***** [b] birth.txt#LifeRating
 ***** [c] birth.txt#CharName
+***** [d] birth.txt#PointBased
 

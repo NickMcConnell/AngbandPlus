@@ -1075,7 +1075,7 @@ void do_cmd_options(byte flags)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt(format("%s options", VERSION_NAME), 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -1374,7 +1374,7 @@ void do_cmd_pref(void)
 	if (!get_string("Pref: ", buf, 80)) return;
 
 	/* Process that pref command */
-	(void)process_pref_file_aux(buf);
+	(void)process_pref_file_command(buf);
 }
 
 
@@ -2841,16 +2841,8 @@ void do_cmd_note(void)
  */
 void do_cmd_version(void)
 {
-
 	/* Silly message */
-#ifndef FAKE_VERSION
-	msg_format("You are playing Angband %d.%d.%d.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-#else
-	msg_format("You are playing Zangband %d.%d.%d.",
-	            FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
-#endif
-
+	msg_format("You are playing %s %s.", VERSION_NAME, VERSION_STRING);
 }
 
 
@@ -3430,6 +3422,7 @@ static void do_cmd_knowledge_kill_count(void)
 	char file_name[1024];
 
 	s32b Total = 0;
+	s32b temp;
 
 	int i, n;
 
@@ -3519,6 +3512,10 @@ static void do_cmd_knowledge_kill_count(void)
 			fprintf(fff, "You have defeated %lu enemies.\n\n", Total);
 	}
 
+	/* Save total kills for later */
+	temp = Total;
+	
+	/* Zero out total so we can calculate kills of known monsters */
 	Total = 0;
 
 	/* Scan the monster races */
@@ -3572,6 +3569,17 @@ static void do_cmd_knowledge_kill_count(void)
 	fprintf(fff, "   Total: %lu creature%s killed.\n",
 	        Total, (Total == 1 ? "" : "s"));
 
+	/* Subtract off monsters you know you have killed */
+	temp -= Total;
+	
+	/* Have we killed any monsters we did not see? */
+	if (temp)
+	{
+		fprintf(fff, "\n");
+		fprintf(fff, " Unseen: %lu creature%s killed.\n",
+	       temp, (temp == 1 ? "" : "s"));
+	}
+	
 	/* Free the "who" array */
 	C_KILL(who, max_r_idx, u16b);
 

@@ -134,7 +134,7 @@ extern long atol();
 #include <stdarg.h>
 
 /* Include maid-x11.c */
-#if defined(USE_X11) || defined(USE_XAW) || defined(US_XPJ)
+#if defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ)
 	#define USE_XMAID
 #endif 
 
@@ -196,5 +196,8 @@ extern errr init_vme(void);
 extern errr init_lsl(void);
 #endif
 
+#ifdef USE_GTK
+extern errr init_gtk(int, char**);
+#endif
 
 #endif /* INCLUDED_H_SYSTEM_H */

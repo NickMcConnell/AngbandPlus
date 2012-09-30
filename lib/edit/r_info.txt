@@ -4510,15 +4510,17 @@ D:A sentient section of wall.
 N:327:Ghast
 G:z:U
 I:110:9d10:40:20:20
-W:30:1:0:3048
+W:30:10:0:3048
 O:20:40:30
 B:KICK:HURT:3d3
 B:KICK:HURT:9d1
 B:BITE:HURT:6d2
 F:DROP_60 | WILD_DUNGEON_01
 F:NO_SLEEP | NO_CONF | UNDEAD | EVIL | IM_POIS | IM_COLD | 
-F:COLD_BLOOD | HURT_LITE | CAN_SWIM | ELDRITCH_HORROR
+F:COLD_BLOOD | HURT_LITE | CAN_SWIM
 F:BASH_DOOR | OPEN_DOOR
+S:1_IN_10
+S:ELDRITCH_HORROR
 D:A repulsive being which leaps on long hind legs like a kangaroo. 
 D:Its face is curiously human despite the absence of a nose, a 
 D:forehead, and "other important particulars".
@@ -6120,15 +6122,15 @@ D:lion's body.
 N:434:Shantak
 G:B:D
 I:120:25d14:12:27:10
-W:42:2:0:6907
+W:42:20:0:6907
 O:0:0:0
 B:BITE:HURT:1d6
 B:BITE:HURT:1d6
 B:BITE:HURT:1d6
 F:WILD_DUNGEON_01
-F:ANIMAL | IM_ACID | EVIL | ELDRITCH_HORROR | CAN_FLY | DROP_CORPSE
+F:ANIMAL | IM_ACID | EVIL | CAN_FLY | DROP_CORPSE
 S:1_IN_6
-S:SCARE | HASTE
+S:SCARE | HASTE | ELDRITCH_HORROR
 D:A scaly bird larger than an elephants, with a horse-like head.
 
 N:435:Colbran
@@ -6409,15 +6411,17 @@ D:clean, and you are the biggest spot of dirt in sight.
 N:452:Deep one
 G:u:g
 I:120:26d12:20:25:20
-W:46:5:0:10573
+W:46:20:0:10573
 O:20:80:0
 B:CLAW:POISON:2d4
 B:CLAW:POISON:2d4
 B:BITE:HURT:4d4
 F:FRIENDS | WILD_DUNGEON_01 | WILD_SHORE | DROP_CORPSE
 F:RAND_25 | DROP_90 |
-F:CAN_SWIM | BASH_DOOR | ELDRITCH_HORROR | RES_TELE |
+F:CAN_SWIM | BASH_DOOR | RES_TELE |
 F:EVIL | DEMON | IM_FIRE | IM_POIS | RES_WATE
+S:1_IN_10
+S:ELDRITCH_HORROR
 D:"I thought their predominant color was a greyish-green, 
 D:though they had white bellies. They were mostly shiny and 
 D:slippery, but the ridges of their backs were scaly. Their 
@@ -6462,16 +6466,16 @@ D:He is a white troll with powerfully clawed hands.
 N:455:Dhole
 G:w:s
 I:110:49d12:14:64:25
-W:46:4:0:23716
+W:46:20:0:23716
 O:0:0:0
 B:SPIT:ACID:1d8
 B:ENGULF:ACID:2d8
 B:CRUSH:HURT:4d8
 F:WILD_DUNGEON_01
-F:ANIMAL | EVIL | KILL_WALL | IM_ACID | ELDRITCH_HORROR |
+F:ANIMAL | EVIL | KILL_WALL | IM_ACID
 F:CAN_SWIM | FORCE_MAXHP | DROP_CORPSE
 S:1_IN_6
-S:BR_ACID
+S:BR_ACID | ELDRITCH_HORROR |
 D:A gigantic worm dripping with acid. "...even as he looked, one 
 D:reared up several hundred feet and leveled a bleached, viscous end 
 D:at him."
@@ -7004,19 +7008,18 @@ D:It has two small eyestalks and a large central eye.
 N:489:Bokrug
 G:R:g
 I:110:11d68:20:35:50
-W:45:7:0:34314
+W:45:30:0:34314
 O:20:0:80
 B:BITE:HURT:2d5
 B:CRUSH:HURT:2d10
 B:CRUSH:HURT:2d10
 F:UNIQUE | CAN_SPEAK | WILD_DUNGEON_01
-F:FORCE_MAXHP | NONLIVING |
-F:ESCORT | ESCORTS | ELDRITCH_HORROR |
+F:FORCE_MAXHP | NONLIVING | ESCORT | ESCORTS |
 F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | CAN_SWIM |
 F:EVIL | IM_COLD | IM_POIS | DEMON
 S:1_IN_5
-S:S_UNDEAD | MIND_BLAST | CAUSE_3 | SCARE | BO_WATE | S_KIN
+S:S_UNDEAD | MIND_BLAST | CAUSE_3 | SCARE | BO_WATE | S_KIN | ELDRITCH_HORROR
 D:A lizard-like Great Old One worshipped by the men of Sarnath.
 
 N:490:Biclops
@@ -7767,27 +7770,31 @@ D:itself struggles to banish it.
 N:535:Leng spider
 G:S:v
 I:120:26d14:12:25:40
-W:51:4:0:15770
+W:51:40:0:15770
 O:0:0:0
 B:BITE:POISON:3d6
 B:STING:POISON:3d6
-F:WEIRD_MIND | BASH_DOOR | FRIENDS | ELDRITCH_HORROR | DROP_CORPSE
+F:WEIRD_MIND | BASH_DOOR | FRIENDS | DROP_CORPSE
 F:ANIMAL | EVIL | WILD_DUNGEON_01 | WILD_WASTE1 | WILD_WASTE2
+S:1_IN_10
+S:ELDRITCH_HORROR
 D:Bloated purple spiders with long, bristly legs.
 
 N:536:Star vampire
 G:V:r
 I:120:23d25:20:20:10
-W:55:2:0:24375
+W:55:20:0:24375
 O:0:0:0
 B:CLAW:LOSE_STR:4d4
 B:BITE:EXP_VAMP:4d4
 B:CLAW:LOSE_STR:4d4
 B:BITE:EXP_VAMP:4d4
 F:WILD_DUNGEON_01
-F:EVIL | ELDRITCH_HORROR | IM_FIRE | IM_ELEC | IM_POIS |
+F:EVIL | IM_FIRE | IM_ELEC | IM_POIS |
 F:NONLIVING | CAN_FLY |
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN
+S:1_IN_10
+S:ELDRITCH_HORROR
 D:"It was red and dripping; an immensity of pulsing, moving jelly;
 D:a scarlet blob with myriad tentacular trunks that waved and waved. 
 D:There were suckers on the tips of the appendages, and these were 
@@ -8383,7 +8390,7 @@ D:A gaunt figure, clothed in black robes.
 N:572:The Greater hell magic mushroom were-quylthulg
 G:Q:s
 I:120:19d50:50:40:50
-W:54:3:0:74777
+W:54:30:0:74777
 O:0:50:50
 B:GAZE:EXP_VAMP:4d8
 B:GAZE:EXP_VAMP:4d8
@@ -8393,13 +8400,13 @@ F:WILD_DUNGEON_01
 F:FORCE_MAXHP | FORCE_SLEEP | UNIQUE | NO_STUN | NO_CONF |
 F:NO_SLEEP| EVIL | IM_ACID | IM_FIRE | IM_POIS | 
 F:IM_COLD | RES_NETH | RES_WATE | RES_PLAS | RES_DISE | SMART |
-F:RES_NEXU | NONLIVING | RES_TELE | KILL_WALL | ELDRITCH_HORROR |
+F:RES_NEXU | NONLIVING | RES_TELE | KILL_WALL |
 F:BASH_DOOR | DEMON | COLD_BLOOD | ANIMAL | CAN_SWIM |
 F:DROP_GOOD | DROP_GREAT | ONLY_ITEM | DROP_1D2 | SILLY
 S:1_IN_3 | 
 S:BLINK | SLOW | SCARE | DARKNESS | HEAL | ANIM_DEAD
 S:TPORT | TELE_AWAY | HASTE | S_MONSTER | DRAIN_MANA |
-S:S_UNDEAD | S_DEMON | S_DRAGON | S_KIN
+S:S_UNDEAD | S_DEMON | S_DRAGON | S_KIN |ELDRITCH_HORROR
 D:This unholy abomination will crush you too. Flee while you can! 
 
 N:573:Lord Borel of Hendrake
@@ -8522,17 +8529,17 @@ D:You have not seen it yet.
 N:580:Flying polyp
 G:l:R
 I:115:35d7:90:35:10
-W:55:2:0:20673
+W:55:20:0:20673
 O:0:0:0
 B:CRUSH:PARALYZE:7d4
 B:CRUSH:PARALYZE:7d4
 B:CRUSH:PARALYZE:7d4
 F:WILD_DUNGEON_01
 F:PASS_WALL | INVISIBLE | FORCE_MAXHP | RES_DISE | 
-F:IM_POIS | IM_COLD | IM_ACID | ELDRITCH_HORROR |
+F:IM_POIS | IM_COLD | IM_ACID |
 F:NO_CONF | NO_SLEEP | EVIL | CAN_FLY |
 S:1_IN_7
-S:BR_WALL |
+S:BR_WALL | ELDRITCH_HORROR |
 D:"They were only partly material and had the power of aerial motion, 
 D:despite the absence of wings... Suggestions of monstrous plasticity 
 D:and of temporary lapses of visibility..."
@@ -8778,38 +8785,38 @@ D:A vastly intelligent whale from the stars.
 N:595:Father Dagon
 G:u:g
 I:120:19d75:12:40:50
-W:60:3:0:174629
+W:60:30:0:174629
 O:50:50:0
 B:CLAW:POISON:8d4
 B:CLAW:POISON:8d4
 B:BITE:HURT:8d8
 F:ESCORT | WILD_DUNGEON_01
 F:DROP_60 | DROP_1D2 | DROP_GOOD | ONLY_ITEM | DROP_CORPSE
-F:CAN_SWIM | BASH_DOOR | ELDRITCH_HORROR | RES_TELE | CAN_SPEAK |
+F:CAN_SWIM | BASH_DOOR | RES_TELE | CAN_SPEAK |
 F:EVIL | DEMON | IM_FIRE | IM_COLD | IM_POIS | RES_WATE |
 F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | POWERFUL |
 F:NO_CONF | NO_SLEEP |
 S:1_IN_7 | 
-S:S_KIN | S_DEMON | BO_WATE | BA_WATE | BO_ACID | BA_ACID 
+S:S_KIN | S_DEMON | BO_WATE | BA_WATE | BO_ACID | BA_ACID | ELDRITCH_HORROR |
 D:The king of the deep ones. "Vast, Polyphemous-like, and loathsome, it 
 D:darted like a stupendous monster of nightmares..."
 
 N:596:Mother Hydra
 G:u:g
 I:120:19d75:12:60:50
-W:60:3:0:224876
+W:60:30:0:224876
 O:0:50:50
 B:CLAW:POISON:8d4
 B:CLAW:POISON:8d4
 B:BITE:HURT:8d8
 F:ESCORT | WILD_DUNGEON_01
 F:DROP_60 | DROP_1D2 | DROP_GOOD | ONLY_ITEM | DROP_CORPSE
-F:CAN_SWIM | BASH_DOOR | ELDRITCH_HORROR | RES_TELE | CAN_SPEAK |
+F:CAN_SWIM | BASH_DOOR | RES_TELE | CAN_SPEAK |
 F:EVIL | DEMON | IM_FIRE | IM_COLD | IM_POIS | RES_WATE |
 F:UNIQUE | FEMALE | FORCE_SLEEP | FORCE_MAXHP | POWERFUL |
 F:NO_CONF | NO_SLEEP |
 S:1_IN_7 | 
-S:S_HYDRA | S_DEMON | DARKNESS | BA_WATE | BO_ACID | BA_ACID 
+S:S_HYDRA | S_DEMON | DARKNESS | BA_WATE | BO_ACID | BA_ACID | ELDRITCH_HORROR
 D:The queen of the deep ones. "Vast, Polyphemous-like, and loathsome, it 
 D:darted like a stupendous monster of nightmares..."
 
@@ -9013,17 +9020,17 @@ D:shadow.  It reaches out at you.
 N:608:Nightgaunt
 G:U:D
 I:110:24d7:20:25:80
-W:59:2:0:44690
+W:59:20:0:44690
 O:50:0:50
 B:STING:LOSE_STR:1d5
 B:TOUCH:PARALYZE:3d4
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_DUNGEON_01
-F:ONLY_ITEM | DROP_60 | ELDRITCH_HORROR |
+F:ONLY_ITEM | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
 F:EVIL | DEMON | 
 F:IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
-S:BLIND | CONF | BO_FIRE
+S:BLIND | CONF | BO_FIRE | ELDRITCH_HORROR |
 D:"Shocking and uncouth black things with smooth, oily, whale-like 
 D:surfaces, unpleasant horns that curved inward toward each other, 
 D:bat wings whose beating made no sound, ugly prehensile paws, and 
@@ -9237,12 +9244,12 @@ B:CRUSH:SHATTER:8d6
 B:TOUCH:LOSE_CON:1d2
 B:TOUCH:LOSE_CON:1d2
 F:WILD_DUNGEON_01
-F:IM_FIRE | RES_PLAS | IM_COLD | IM_POIS | ELDRITCH_HORROR | RES_TELE
+F:IM_FIRE | RES_PLAS | IM_COLD | IM_POIS | RES_TELE
 F:KILL_WALL | ONLY_GOLD | DROP_1D2 | DROP_2D2 | CAN_SWIM | DROP_CORPSE
 F:EVIL | FORCE_MAXHP
 S:1_IN_5 | 
 S:SCARE | CONF | HOLD | S_DEMON | 
-S:MIND_BLAST | HEAL | HASTE | FORGET | BRAIN_SMASH
+S:MIND_BLAST | HEAL | HASTE | FORGET | BRAIN_SMASH | ELDRITCH_HORROR |
 D:"Flowing tentacles and a pulpy gray-black elongated sack of a body... 
 D:no distinguishing features at all other than the reaching, groping 
 D:tentacles. Or was there -- yes! -- a lump in the upper body of 
@@ -9854,7 +9861,7 @@ D:He looks like a skeleton enveloped in flames.
 N:655:Ubbo-Sathla, the Unbegotten Source
 G:j:W
 I:120:20d70:90:40:10
-W:61:3:0:393731
+W:61:30:0:393731
 O:30:50:0
 B:CRUSH:ACID:5d5
 B:HIT:POISON:5d5
@@ -9862,10 +9869,12 @@ B:CRUSH:ACID:5d5
 B:HIT:POISON:5d5
 F:WILD_DUNGEON_01
 F:UNIQUE | CAN_SPEAK | NO_STUN | NO_SLEEP | NO_CONF |
-F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | ESCORT |
+F:FORCE_SLEEP | FORCE_MAXHP | ESCORT |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | REGENERATE |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | KILL_BODY |
 F:EVIL | HURT_FIRE | IM_COLD | IM_POIS | CAN_SWIM
+S:1_IN_10
+S:ELDRITCH_HORROR
 D:"There, in the gray beginning of Earth, the formless mass that was 
 D:Ubbo-Sathla reposed amid the slime and the vapors. Headless, 
 D:without organs or members..."
@@ -9935,17 +9944,17 @@ D:fingers.
 N:659:Byakhee
 G:U:D
 I:110:45d7:20:20:80
-W:61:3:0:51395
+W:61:30:0:51395
 O:0:50:50
 B:CLAW:LOSE_STR:3d4
 B:BITE:EXP_20:3d4
 F:FORCE_SLEEP | FORCE_MAXHP | FRIENDS | WILD_DUNGEON_01
-F:ONLY_ITEM | DROP_1D2 | ELDRITCH_HORROR |
+F:ONLY_ITEM | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
 F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BO_FIRE | 
-S:S_DEMON | CONF
+S:S_DEMON | CONF | ELDRITCH_HORROR |
 D:"There flapped rhythmically a horde of tame, trained, hybrid 
 D:winged things... not altogether crows, nor moles, nor buzzards, 
 D:nor ants, nor decomposed human beings, but something I cannot 
@@ -9994,20 +10003,20 @@ D:of an Archon; fewer still live to tell the tale after attacking one.
 N:662:Formless spawn of Tsathoggua
 G:U:D
 I:110:22d14:20:25:80
-W:61:2:0:59025
+W:61:20:0:59025
 O:40:50:0
 B:HIT:ACID:2d4
 B:HIT:ACID:2d4
 B:CRUSH:HURT:3d4
 B:BITE:ACID:6d6
 F:WILD_DUNGEON_01
-F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | NONLIVING |
+F:FORCE_SLEEP | FORCE_MAXHP | NONLIVING |
 F:ONLY_ITEM | DROP_90 | REGENERATE | RES_TELE
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_SWIM |
 F:EVIL | DEMON | NO_CONF | NO_SLEEP | HURT_FIRE | IM_POIS
 S:1_IN_9 | 
 S:BO_FIRE | BO_ACID | 
-S:S_DEMON | MIND_BLAST | DARKNESS | 
+S:S_DEMON | MIND_BLAST | DARKNESS | ELDRITCH_HORROR |
 D:"...living things that oozed along stone channels... 
 D:But they were not toads like Tsathoggua himself. Far worse -- 
 D:they were amorphous lumps of viscous black slime that took 
@@ -10016,19 +10025,19 @@ D:temporary shapes for various purposes."
 N:663:Hunting horror
 G:U:D
 I:110:30d13:20:45:80
-W:63:2:0:63680
+W:63:20:0:63680
 O:50:40:0
 B:BITE:LOSE_DEX:1d3
 B:BITE:POISON:1d3
 B:CRUSH:HURT:9d4
 F:WILD_DUNGEON_01
-F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR |
+F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | CAN_FLY |
 F:EVIL | DEMON | HURT_LITE | IM_POIS | 
 F:IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_9 |
-S:BLIND | CONF | S_DEMON | BR_DARK
+S:BLIND | CONF | S_DEMON | BR_DARK | ELDRITCH_HORROR
 D:"And in the air there were great viperine creatures, 
 D:which had curiously distorted heads, and grotesquely great 
 D:clawed appendages, supporting themselves with ease by the aid 
@@ -10285,18 +10294,18 @@ D:itself in unearthly shadows.
 N:677:Dark young of Shub-Niggurath
 G:#:D
 I:120:9d100:20:37:80
-W:64:2:0:58876
+W:64:20:0:58876
 O:0:50:30
 B:CRUSH:HURT:5d6
 B:CRUSH:HURT:5d6
 B:BITE:LOSE_STR:1d6
 B:BITE:LOSE_STR:1d6
-F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | WILD_DUNGEON_01
+F:FORCE_SLEEP | FORCE_MAXHP | WILD_DUNGEON_01
 F:ONLY_ITEM | DROP_90 | NONLIVING | CAN_SWIM |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | HURT_LITE |
 F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_9 | 
-S:BLIND | CAUSE_2 | 
+S:BLIND | CAUSE_2 | ELDRITCH_HORROR |
 S:S_DEMON | HEAL 
 D:"Something black in the road, something that wasn't a tree. 
 D:Something big and black and ropy, just squatting there, waiting, 
@@ -10364,7 +10373,7 @@ D:sinister wizard who created them: 'Bruce! Bruce..!'
 N:681:Chaugnar Faugn, Horror from the Hills
 G:q:D
 I:110:30d70:10:62:90
-W:65:4:0:283038
+W:65:40:0:283038
 O:0:0:0
 B:CRUSH:HURT:10d10
 B:CRUSH:HURT:10d10
@@ -10372,13 +10381,13 @@ B:BITE:LOSE_CON:8d2
 B:BITE:LOSE_CON:8d1
 F:UNIQUE | CAN_SPEAK | EVIL | DEMON | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE |
-F:ELDRITCH_HORROR | POWERFUL | CAN_SWIM
+F:POWERFUL | CAN_SWIM
 F:IM_FIRE | IM_COLD | IM_POIS | 
 F:HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:HOLD | CAUSE_4 | CONF | SCARE | FORGET | BRAIN_SMASH |
-S:MIND_BLAST | CAUSE_3 | S_DEMON | S_MONSTERS
+S:MIND_BLAST | CAUSE_3 | S_DEMON | S_MONSTERS | ELDRITCH_HORROR
 D:"The ears were webbed and tentacled, the trunk terminated in 
 D:a huge flaring disk at least a foot in diameter... Its forelimbs 
 D:were bent stiffly at the elbow, and its hands... rested palms 
@@ -10387,18 +10396,18 @@ D:upward on its lap."
 N:682:Lloigor
 G:v:B
 I:120:70d15:20:50:20
-W:63:2:0:166480
+W:63:20:0:166480
 O:90:0:10
 B:ENGULF:LOSE_CON:4d10
 B:ENGULF:LOSE_CON:4d10
 B:ENGULF:LOSE_CON:4d10
-F:FORCE_SLEEP | ELDRITCH_HORROR | PASS_WALL | FORCE_MAXHP | WILD_DUNGEON_01
+F:FORCE_SLEEP | PASS_WALL | FORCE_MAXHP | WILD_DUNGEON_01
 F:INVISIBLE | DROP_3D2 | CAN_FLY | EVIL |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | NONLIVING |
 F:SMART | IM_FIRE | IM_COLD | IM_POIS
 S:1_IN_4 | 
 S:BR_WALL | TELE_AWAY | BR_GRAV |
-S:S_KIN | MIND_BLAST | BLIND | BLINK
+S:S_KIN | MIND_BLAST | BLIND | BLINK | ELDRITCH_HORROR |
 D:"Invisible ones from the stars... They sometimes took forms... 
 D:but existed as vortices of power in their natural state."
 
@@ -10424,18 +10433,18 @@ D:A frost giant chieftain, unusually smart for a giant.
 N:684:Quachil Uttaus, Treader of the Dust
 G:z:D
 I:120:50d50:30:40:15
-W:61:3:0:769103
+W:61:30:0:769103
 O:0:0:100
 B:CLAW:HURT:40d1
 B:TOUCH:TIME:1d50
 B:TOUCH:TIME:1d50
-F:ESCORT | UNIQUE | IM_COLD | ELDRITCH_HORROR | RES_NETH |
+F:ESCORT | UNIQUE | IM_COLD | RES_NETH |
 F:FORCE_SLEEP | FORCE_MAXHP | WILD_DUNGEON_01 | CAN_SWIM
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | KILL_BODY | DROP_GREAT |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | UNDEAD | DEMON | REGENERATE |
 S:1_IN_3 | 
-S:BR_TIME | SLOW | HASTE | HEAL 
+S:BR_TIME | SLOW | HASTE | HEAL | ELDRITCH_HORROR |
 D:"It was a figure no larger than a young child, but sere and 
 D:shriveled as some millenial mummy. Its hairless head, its 
 D:unfeatured face, borne on a neck of skeleton thinness, were 
@@ -10447,7 +10456,7 @@ D:ankylosed in posture of an eternal dreadful groping."
 N:685:Shoggoth
 G:j:D
 I:140:50d14:100:40:20
-W:64:2:0:105903
+W:64:20:0:105903
 O:0:0:0
 B:CRUSH:ACID:5d6
 B:CRUSH:ACID:5d6
@@ -10456,8 +10465,10 @@ B:CRUSH:HURT:9d9
 F:REGENERATE | KILL_ITEM | CAN_SPEAK | WILD_DUNGEON_01
 F:BASH_DOOR | EVIL | DEMON | NO_CONF | NO_FEAR | NO_SLEEP |
 F:KILL_BODY | CAN_SWIM |
-F:FORCE_MAXHP | FORCE_SLEEP | HURT_LITE | POWERFUL | ELDRITCH_HORROR | 
+F:FORCE_MAXHP | FORCE_SLEEP | HURT_LITE | POWERFUL | 
 F:IM_ACID | IM_FIRE | RES_PLAS | IM_POIS | IM_ELEC | RES_TELE
+S:1_IN_10
+S:ELDRITCH_HORROR | 
 D:"The nightmare, plastic column of fetid, black iridescence oozed 
 D:tightly onward... A shapeless congerie of protoplasmic bubbles, 
 D:faintly self-luminous and with myriads of temporary eyes forming 
@@ -10644,7 +10655,7 @@ D:A humanoid form, black as night, advancing steadily and unstoppably.
 N:695:Zoth-Ommog
 G:R:u
 I:120:25d70:12:25:50
-W:65:4:0:344652
+W:65:40:0:344652
 O:0:0:0
 B:CRUSH:HURT:25d3
 B:CRUSH:HURT:25d3
@@ -10652,13 +10663,13 @@ B:BITE:LOSE_DEX:2d10
 B:BITE:LOSE_CON:2d10
 F:UNIQUE | CAN_SPEAK | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:RAND_25 | CAN_SWIM | ELDRITCH_HORROR |
+F:RAND_25 | CAN_SWIM |
 F:KILL_ITEM | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_ACID | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
 S:S_MONSTER | SCARE | CAUSE_4 | S_HYDRA | S_SPIDER | 
-S:BA_NETH | BA_POIS | BA_ACID | CAUSE_3 | HOLD | MIND_BLAST
+S:BA_NETH | BA_POIS | BA_ACID | CAUSE_3 | HOLD | MIND_BLAST | ELDRITCH_HORROR
 D:"A body shaped like a road-based, truncated cone. A flat, blunt, 
 D:wedge-shaped, vaguely reptilian head surmounts this conical torso, 
 D:and the head is almost entirely hidden behind swirling tresses. 
@@ -10858,17 +10869,17 @@ D:surrounded by a sickly green glow.
 N:706:Yibb-Tstll the Patient One
 G:P:D
 I:120:41d55:30:50:20
-W:72:2:0:1359700
+W:72:20:0:1359700
 O:0:0:100
 B:TOUCH:LOSE_ALL:1d166
 B:TOUCH:LOSE_ALL:1d166
-F:FORCE_SLEEP | ELDRITCH_HORROR | NEVER_MOVE | REGENERATE | WILD_DUNGEON_01
+F:FORCE_SLEEP | NEVER_MOVE | REGENERATE | WILD_DUNGEON_01
 F:DROP_3D2 | CAN_FLY | DROP_GOOD | ONLY_ITEM |
 F:POWERFUL | EVIL | CAN_SPEAK | UNIQUE | FORCE_MAXHP |
 F:SMART | IM_FIRE | IM_COLD | IM_ACID | IM_POIS
 S:1_IN_4 | 
 S:BR_NUKE | S_DEMON | DARKNESS | S_UNDEAD | ANIM_DEAD 
-S:BR_NEXU | BR_CHAO | TELE_TO
+S:BR_NEXU | BR_CHAO | TELE_TO | ELDRITCH_HORROR
 D:"There, about the pulsating body of the Ancient One, hugely 
 D:winged reptilian creatures without faces cluttered and clutched 
 D:at a multitude of blackly writhing, pendulous breasts! (Its eyes) 
@@ -10878,19 +10889,20 @@ D:the whole rotten surface of Yib-Tstll's pulpy, glistening head!"
 N:707:Ghatanothoa
 G:H:D
 I:120:70d30:20:50:20
-W:73:2:0:533562
+W:73:20:0:533562
 O:0:0:100
 B:CLAW:LOSE_INT:5d10
 B:CLAW:LOSE_WIS:5d10
 B:BITE:CONFUSE:5d10
 F:WILD_DUNGEON_01
-F:FORCE_SLEEP | ELDRITCH_HORROR | PASS_WALL | UNIQUE | FORCE_MAXHP
+F:FORCE_SLEEP | PASS_WALL | UNIQUE | FORCE_MAXHP
 F:INVISIBLE | DROP_3D2 | CAN_FLY | DROP_GOOD | ONLY_ITEM |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | EVIL |
 F:SMART | IM_FIRE | IM_COLD | IM_ELEC
 S:1_IN_4 | 
 S:BR_WALL | TELE_AWAY | BR_GRAV | TELE_LEVEL | S_DEMON | S_UNDEAD |
 S:BRAIN_SMASH | HASTE | BLIND | BLINK | BR_INER | CAUSE_3 | CAUSE_4
+S:ELDRITCH_HORROR |
 D:The chief among the creatures known as Lloigor. Ghatanothoa has 
 D:assumed a shape which is too horrible to describe: "Nothing I could say 
 D:could even adumbrate the loathsome, unholy, non-human, extra-galactic 
@@ -11002,18 +11014,18 @@ D:The oldest of all ents, a respected and feared ancient creature.
 N:714:Zhar the Twin Obscenity
 G:R:D
 I:120:35d100:30:60:15
-W:68:3:0:613125
+W:68:30:0:613125
 O:20:0:80
 B:CRUSH:HURT:23d10
 B:CRUSH:HURT:23d10
 B:CRUSH:HURT:23d10
 F:WILD_DUNGEON_01
-F:FORCE_SLEEP | FORCE_MAXHP | UNIQUE | ELDRITCH_HORROR |
+F:FORCE_SLEEP | FORCE_MAXHP | UNIQUE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | KILL_BODY |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
 F:EVIL
 S:1_IN_6
-S:S_DEMON | SHRIEK | CONF | SCARE | MIND_BLAST | BLIND 
+S:S_DEMON | SHRIEK | CONF | SCARE | MIND_BLAST | BLIND | ELDRITCH_HORROR
 D:"The thing that crouched in the weird green dusk was a living mass 
 D:of shuddering horror, a ghastly mountain of sensate, quivering 
 D:flesh, whose tentacles, far-flung in the dim reaches of the 
@@ -11389,7 +11401,7 @@ D:of course!
 N:734:Eihort, the Thing in the Labyrinth
 G:j:R
 I:120:33d70:50:45:10
-W:74:3:0:1908660
+W:74:30:0:1908660
 O:0:0:100
 B:BITE:PARALYZE:8d1
 B:CRUSH:HURT:10d10
@@ -11397,13 +11409,13 @@ B:CRUSH:HURT:10d10
 B:CRUSH:HURT:10d10
 F:WILD_DUNGEON_01
 F:UNIQUE | CAN_SPEAK | ESCORT | REGENERATE | CAN_SWIM
-F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR |
+F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL |IM_ACID | IM_COLD | IM_POIS | 
 F:HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_4 | 
-S:S_UNDEAD | S_DEMON | S_MONSTER | BLINK | BA_ACID | FORGET
+S:S_UNDEAD | S_DEMON | S_MONSTER | BLINK | BA_ACID | FORGET | ELDRITCH_HORROR
 D:"Then came pale movement in the well, and something clambered 
 D:up from the dark, a bloated blanched oval supported on myriad 
 D:fleshless legs. Eyes formed in the gelatinous oval and stared 
@@ -11412,7 +11424,7 @@ D:at him."
 N:735:The King in Yellow
 G:L:y
 I:120:32d70:90:50:10
-W:69:3:0:1646708
+W:69:30:0:1646708
 O:50:0:40
 B:CRUSH:HURT:12d12
 B:CRUSH:HURT:12d12
@@ -11420,14 +11432,14 @@ B:GAZE:LOSE_WIS:5d10
 B:GAZE:TERRIFY:5d10
 F:WILD_DUNGEON_01
 F:UNIQUE | MALE | CAN_SPEAK | ATTR_MULTI | ATTR_ANY |
-F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | CAN_SWIM
+F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM
 F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | 
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
 F:HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_2 | 
 S:S_DEMON | S_UNDEAD | S_KIN | SCARE | CAUSE_3 | CAUSE_4 | ANIM_DEAD 
-S:TELE_AWAY | TPORT | BRAIN_SMASH | CONF
+S:TELE_AWAY | TPORT | BRAIN_SMASH | CONF | ELDRITCH_HORROR
 D:The King in Yellow is an Avatar of Hastur: "He has no 
 D:face, and is twice as tall as a man. He wears pointed shoes under 
 D:his tattered, fantastically colored robes, and a streamer of silk 
@@ -11437,7 +11449,7 @@ D:to be winged; at others, haloed."
 N:736:Great unclean one
 G:U:g
 I:120:124d40:30:75:20
-W:74:3:0:970684
+W:74:30:0:970684
 O:50:0:50
 B:BITE:DISEASE:10d10
 B:BITE:ACID:10d10
@@ -11445,13 +11457,13 @@ B:BITE:POISON:10d10
 B:BITE:CONFUSE:10d10
 F:WILD_DUNGEON_01
 F:DEMON | EVIL | NONLIVING | CAN_SWIM |
-F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_1D2 | ELDRITCH_HORROR |
+F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | SMART | POWERFUL | DROP_GOOD | KILL_BODY |
 F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 F:KILL_ITEM 
 S:1_IN_3
 S:BR_ACID | BR_POIS | BR_NUKE | SCARE | ANIM_DEAD 
-S:CAUSE_3 | CAUSE_4 | S_DEMON | S_UNDEAD 
+S:CAUSE_3 | CAUSE_4 | S_DEMON | S_UNDEAD | ELDRITCH_HORROR
 D:This disgusting demon resembles a shambling pile of rotting 
 D:green flesh, with dozens of mouths drooling and leaving a 
 D:trail of foul-smelling goo behind. Nurgle must be 
@@ -11624,20 +11636,20 @@ D:down your spine as you face it.
 N:745:Lord of Change
 G:B:v
 I:130:38d70:30:75:20
-W:82:3:0:1549705
+W:82:20:0:1549705
 O:0:0:100
 B:CLAW:CONFUSE:10d10
 B:CLAW:CONFUSE:10d10
 B:BITE:BLIND:12d12
 F:WILD_DUNGEON_01
 F:DEMON | EVIL | ATTR_MULTI | DROP_GOOD | MOVE_BODY | NONLIVING |
-F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | ELDRITCH_HORROR |
+F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | SMART | POWERFUL | CAN_FLY |
 F:IM_ACID | IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_3
 S:MIND_BLAST | BA_CHAO | SCARE | BRAIN_SMASH | DRAIN_MANA |
 S:S_HOUND | S_DEMON | S_DRAGON | TPORT | HASTE | CONF |
-S:TELE_AWAY | FORGET 
+S:TELE_AWAY | FORGET | ELDRITCH_HORROR
 D:The most powerful of Tzeentch's servitors. This demon looks like 
 D:a huge bird-creature, with the head of a predatory bird and 
 D:fantastically multi-coloured wings. 
@@ -11645,20 +11657,20 @@ D:fantastically multi-coloured wings.
 N:746:Keeper of Secrets
 G:H:v
 I:130:45d70:30:75:20
-W:75:3:0:1112735
+W:75:20:0:1112735
 O:0:0:100
 B:HIT:CONFUSE:10d10
 B:HIT:TERRIFY:10d10
 B:HIT:BLIND:10d10
 B:HIT:TERRIFY:10d10
 F:DEMON | EVIL | DROP_GOOD | NONLIVING | CAN_SWIM | WILD_DUNGEON_01
-F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | ELDRITCH_HORROR |
+F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 |
 F:OPEN_DOOR | BASH_DOOR | SMART | POWERFUL | MOVE_BODY |
 F:IM_ACID | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3
 S:SCARE | BRAIN_SMASH | DRAIN_MANA | 
 S:BR_CONF | S_DEMON | S_UNDEAD | TPORT | HEAL |
-S:TELE_AWAY
+S:TELE_AWAY | ELDRITCH_HORROR
 D:This demonic keeper of forbidden secrets looks like a hairless 
 D:minotaur with extra arms, decorated with tattoos and nose rings. 
 D:It is the embodiment of Slaanesh's perverted magic.
@@ -11666,20 +11678,20 @@ D:It is the embodiment of Slaanesh's perverted magic.
 N:747:Shudde M'ell
 G:w:s
 I:125:70d40:20:45:20
-W:71:2:0:400176
+W:71:20:0:400176
 O:50:0:40
 B:CRUSH:SHATTER:55d2
 B:CRUSH:SHATTER:55d2
 B:TOUCH:LOSE_CON:1d2
 B:TOUCH:LOSE_CON:1d2
 F:WILD_DUNGEON_01
-F:IM_FIRE | RES_PLAS | IM_COLD | IM_POIS | ELDRITCH_HORROR | RES_TELE
+F:IM_FIRE | RES_PLAS | IM_COLD | IM_POIS | RES_TELE
 F:KILL_WALL | ONLY_GOLD | DROP_3D2 | CAN_SWIM |
 F:EVIL | FORCE_MAXHP | SMART | UNIQUE
 S:1_IN_5 | 
 S:SCARE | CONF | HOLD | S_DEMON | S_KIN |
 S:HEAL | HASTE | FORGET | BRAIN_SMASH 
-S:BR_DARK | BR_ACID | BR_DISE
+S:BR_DARK | BR_ACID | BR_DISE | ELDRITCH_HORROR
 D:The most powerful and most evil of all Chthonians. 
 D:"A great gray thing a mile long chanting and exuding strange acids... 
 D:charging through the depths of the earth at a fantastic speed, in a 
@@ -11867,21 +11879,21 @@ D:you truly realize how insignificant you are.
 N:757:Hastur the Unspeakable
 G:H:b
 I:120:55d71:20:75:10
-W:76:4:0:2287116
+W:76:40:0:2287116
 O:30:30:30
 B:CRUSH:HURT:14d8
 B:CRUSH:HURT:14d8
 B:BITE:EXP_80:6d6
 B:BITE:EXP_80:6d6
 F:WILD_DUNGEON_01
-F:UNIQUE | ELDRITCH_HORROR | CAN_SWIM | EVIL | UNDEAD |
+F:UNIQUE | CAN_SWIM | EVIL | UNDEAD |
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_SPEAK | AURA_ELEC |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | POWERFUL | NONLIVING |
 F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_4 | DRAIN_MANA |
-S:BRAIN_SMASH | BA_WATE | S_DEMON | HASTE |
+S:BRAIN_SMASH | BA_WATE | S_DEMON | HASTE | ELDRITCH_HORROR
 S:TPORT | TELE_AWAY | TELE_TO | HEAL | BR_DARK | BR_NETH
 D:Its form is partially that of a 
 D:reptile, partially that of a gigantic octopus. It will destroy you.
@@ -11889,16 +11901,18 @@ D:reptile, partially that of a gigantic octopus. It will destroy you.
 N:758:Bloodthirster
 G:U:r
 I:144:45d70:30:90:20
-W:77:3:0:1051325
+W:77:30:0:1051325
 O:0:100:0
 B:HIT:HURT:50d1
 B:HIT:HURT:50d1
 B:HIT:HURT:25d2
 F:WILD_DUNGEON_01
 F:DEMON | EVIL | DROP_GOOD | REGENERATE | CAN_FLY | NONLIVING |
-F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | ELDRITCH_HORROR |
+F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | RES_NETH | RES_NEXU | RES_TELE | MOVE_BODY |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_10
+S:ELDRITCH_HORROR |
 D:Khorne's mightiest servant, a winged hound-demon walking on 
 D:two paws and wielding a mighty axe and a whip in the other 
 D:two. Intelligent, bloodthirsty eyes behold you from inside 
@@ -11922,13 +11936,13 @@ D:magical bacteria that make it pulse in a foul and degrading way.
 N:760:Nyogtha, the Thing that Should not Be
 G:j:D
 I:130:55d70:20:60:20
-W:74:2:0:992732
+W:74:20:0:992732
 O:50:0:40
 B:CRUSH:ACID:10d6
 B:CRUSH:ACID:10d6
 B:CRUSH:ACID:10d6
 B:CRUSH:HURT:16d16
-F:UNIQUE | ELDRITCH_HORROR | WILD_DUNGEON_01
+F:UNIQUE | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_SPEAK | SMART | CAN_SWIM |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
 F:REGENERATE | KILL_ITEM |
@@ -11936,7 +11950,7 @@ F:BASH_DOOR | EVIL | NO_CONF | NO_SLEEP | KILL_BODY |
 F:HURT_LITE | POWERFUL | RES_NETH | NONLIVING |
 F:IM_ACID | IM_FIRE | RES_PLAS | IM_POIS | IM_COLD | RES_TELE
 S:1_IN_5 |
-S:BRAIN_SMASH | MIND_BLAST | HASTE | TPORT |
+S:BRAIN_SMASH | MIND_BLAST | HASTE | TPORT | ELDRITCH_HORROR |
 S:S_DEMON | S_UNDEAD | S_HI_UNDEAD | S_KIN |
 S:BR_DARK | BR_NUKE | BR_ACID | BR_POIS
 D:"...a little finger of blackness crept out from beneath its edge 
@@ -11946,7 +11960,7 @@ D:a frightful gelatinous mass."
 N:761:Ahtu, Avatar of Nyarlathotep
 G:#:D
 I:130:38d110:30:60:15
-W:72:3:0:912350
+W:72:30:0:912350
 O:0:30:60
 B:CRUSH:HURT:13d13
 B:CRUSH:FIRE:10d10
@@ -11956,10 +11970,10 @@ F:WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | UNIQUE | CAN_SPEAK |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | MOVE_BODY |
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
-F:EVIL | DEMON | NONLIVING | ELDRITCH_HORROR | CAN_SWIM
+F:EVIL | DEMON | NONLIVING | CAN_SWIM
 S:1_IN_6
 S:BR_FIRE | S_DEMON | CAUSE_4 | BR_PLAS | BR_NETH | BRAIN_SMASH |
-S:S_UNDEAD | BA_DARK 
+S:S_UNDEAD | BA_DARK | ELDRITCH_HORROR |
 D:"Higher already than the giants of the forest ringing it, the 
 D:fifty-foot-thick column... sprouted a ring of tendrils, ruddy and 
 D:golden and glittering overall with inclusions of quartz."
@@ -12093,7 +12107,7 @@ D:of Glaurung can match him.
 N:767:Daoloth, the Render of the Veils
 G:U:s
 I:120:72d70:20:62:70
-W:76:3:0:2263842
+W:76:30:0:2263842
 O:0:0:100
 B:TOUCH:CONFUSE:5d12
 B:TOUCH:CONFUSE:5d12
@@ -12102,11 +12116,12 @@ B:TOUCH:CONFUSE:5d12
 F:UNIQUE | CAN_SPEAK |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | WILD_DUNGEON_01
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
-F:IM_ACID | IM_FIRE | IM_POIS | IM_COLD | ELDRITCH_HORROR |
+F:IM_ACID | IM_FIRE | IM_POIS | IM_COLD |
 F:NEVER_MOVE | RES_NEXU | REFLECTING | PASS_WALL |
 F:NO_CONF | NO_SLEEP | EVIL 
 S:1_IN_3 | 
 S:TELE_AWAY | S_MONSTERS | TELE_LEVEL | BR_NEXU | TPORT | BLINK
+S:ELDRITCH_HORROR
 D:"Not shapeless, but so complex that the eye could recognize no 
 D:describable shape. There were hemispheres and shining metal, 
 D:coupled by long plastic rods. The rods were of a flat gray color, 
@@ -12549,12 +12564,12 @@ D:waving and poppy-crowned."
 N:788:Glaaki
 G:l:g
 I:130:52d70:20:75:10
-W:86:2:0:2209610
+W:86:20:0:2209610
 O:0:0:100
 B:STING:HURT:20d1
 B:STING:DISEASE:20d1
 B:CRUSH:HURT:3d20
-F:UNIQUE | CAN_SPEAK | ATTR_MULTI | ELDRITCH_HORROR | WILD_DUNGEON_01
+F:UNIQUE | CAN_SPEAK | ATTR_MULTI | WILD_DUNGEON_01
 F:RES_NEXU | RES_WATE | CAN_SWIM | REGENERATE |
 F:FORCE_SLEEP | FORCE_MAXHP | EVIL | SMART | DEMON |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
@@ -12562,7 +12577,7 @@ F:NO_SLEEP | NO_CONF | NO_STUN |
 F:IM_POIS | IM_COLD | IM_ACID
 S:1_IN_5
 S:BA_WATE | S_HYDRA | S_DRAGON | S_DEMON | SCARE |
-S:BLIND | CONF | CAUSE_4 | BR_POIS
+S:BLIND | CONF | CAUSE_4 | BR_POIS | ELDRITCH_HORROR
 D:"From an oval body protruded countless thin, pointed spines of 
 D:multi-colored metal; at the more rounded end of the oval a 
 D:circular, thick-lipped mouth formed the center of a spongy 
@@ -12734,13 +12749,13 @@ D:opponent, her five heads breathing death to all who stand against her.
 N:796:The Norsa
 G:H:B
 I:130:70d100:20:62:70
-W:85:4:0:2216192
+W:85:40:0:2216192
 O:50:0:50
 B:CRUSH:ACID:8d12
 B:CRUSH:FIRE:8d12
 B:CRUSH:ELEC:8d12
 B:CRUSH:POISON:10d14
-F:ATTR_MULTI | ELDRITCH_HORROR | DROP_CORPSE | WILD_DUNGEON_01
+F:ATTR_MULTI | DROP_CORPSE | WILD_DUNGEON_01
 F:UNIQUE | CAN_SPEAK | AURA_FIRE | AURA_ELEC | AURA_COLD |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_GREAT |
@@ -12748,7 +12763,7 @@ F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:EVIL |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
-S:BLIND | CONF | SCARE | 
+S:BLIND | CONF | SCARE | ELDRITCH_HORROR
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | 
 S:S_HI_DRAGON | S_MONSTERS
 D:An elephantine horror with five trunks, each capable of breathing 
@@ -12758,13 +12773,13 @@ D:face the fury of a thousand raging lions than the Norsa!
 N:797:Rhan-Tegoth
 G:S:b
 I:130:90d70:20:62:70
-W:91:4:0:8029276
+W:91:40:0:8029276
 O:0:50:50
 B:CLAW:HURT:8d12
 B:CRUSH:LOSE_STR:5d12
 B:CLAW:HURT:8d12
 B:CRUSH:ACID:5d12
-F:ELDRITCH_HORROR | CAN_SWIM | EVIL | WILD_DUNGEON_01
+F:CAN_SWIM | EVIL | WILD_DUNGEON_01
 F:UNIQUE | CAN_SPEAK | AURA_FIRE | AURA_ELEC |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
@@ -12772,7 +12787,7 @@ F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | RES_WATE
 S:1_IN_5 | 
 S:S_DEMON | BR_ACID | S_UNDEAD | S_KIN | CONF | SCARE |
-S:MIND_BLAST | BR_CONF 
+S:MIND_BLAST | BR_CONF | ELDRITCH_HORROR |
 D:"An almost globular torso, with six long, sinuous limbs terminating 
 D:in clab-like claws. From the upper end a subsidiary globe bulged 
 D:forward bubble-like; its triangle of three staring, fishy eyes, 
@@ -12871,7 +12886,7 @@ D:throbs and writhes.
 N:803:Null the Living Void
 G:.:d
 I:110:50d70:30:50:20
-W:88:2:0:2174083
+W:88:20:0:2174083
 O:0:0:0
 B:TOUCH:LOSE_ALL:6d16
 B:TOUCH:EXP_VAMP:6d16
@@ -12879,11 +12894,11 @@ B:TOUCH:UN_POWER:6d16
 F:WILD_DUNGEON_01
 F:PASS_WALL | NO_CONF | NO_SLEEP | NONLIVING | IM_ACID | CAN_FLY
 F:SMART | EVIL |
-F:ELDRITCH_HORROR | IM_COLD | RES_NETH | NO_STUN | UNIQUE |
+F:IM_COLD | RES_NETH | NO_STUN | UNIQUE |
 F:REGENERATE | FORCE_MAXHP
 S:1_IN_5
 S:BR_NETH | BRAIN_SMASH | SCARE | S_UNDEAD | S_HI_UNDEAD |
-S:DRAIN_MANA | HEAL | ANIM_DEAD
+S:DRAIN_MANA | HEAL | ANIM_DEAD | ELDRITCH_HORROR |
 D:A black hole in the fabric of reality. It simply is not there.
 
 N:804:Vecna, the Emperor Lich
@@ -12936,13 +12951,13 @@ D:in forgotten evils, his atrocities numerous and sickening.
 N:806:Tsathoggua, the Sleeper of N'kai
 G:r:D
 I:130:66d70:30:40:100
-W:94:4:0:4434430
+W:94:40:0:4434430
 O:0:50:50
 B:CRUSH:LOSE_ALL:5d6
 B:CRUSH:ACID:5d6
 B:CRUSH:LOSE_ALL:5d6
 B:CRUSH:ACID:5d6
-F:UNIQUE | CAN_SPEAK | RES_TELE | ELDRITCH_HORROR | WILD_DUNGEON_01
+F:UNIQUE | CAN_SPEAK | RES_TELE | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_1D2 | 
 F:ONLY_ITEM | DROP_GOOD | MOVE_BODY | CAN_SWIM
 F:SMART | BASH_DOOR | 
@@ -12950,7 +12965,7 @@ F:EVIL | IM_POIS | IM_ACID | IM_COLD |
 F:NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:S_DEMON | S_MONSTERS | S_UNDEAD | HOLD | SCARE | MIND_BLAST |
-S:BR_ACID | BR_NETH | CAUSE_4 
+S:BR_ACID | BR_NETH | CAUSE_4 | ELDRITCH_HORROR |
 D:"...the formless bulking of a couchant mass. And the mass stirred 
 D:a little... and put forth with infinite slothfulness a huge and 
 D:toad-shaped head. And the head opened its eyes very slowly, as if 
@@ -13009,19 +13024,19 @@ D:have a foul and deadly breath.
 N:809:Atlach-Nacha, the Spider God
 G:S:D
 I:120:130d70:8:80:80
-W:92:1:0:7793280
+W:92:20:0:7793280
 O:60:0:40
 B:BITE:POISON:3d9
 B:BITE:LOSE_STR:3d9
 B:STING:POISON:2d5
 B:STING:LOSE_STR:2d5
-F:UNIQUE | CAN_SPEAK | ELDRITCH_HORROR | RES_TELE | WILD_DUNGEON_01
+F:UNIQUE | CAN_SPEAK | RES_TELE | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:SMART | BASH_DOOR | MOVE_BODY | NONLIVING |
 F:ANIMAL | EVIL | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 |
-S:SCARE | BLIND | CONF | HOLD | BR_POIS |
+S:SCARE | BLIND | CONF | HOLD | BR_POIS | ELDRITCH_HORROR |
 S:DARKNESS | BA_DARK | BR_DARK | S_SPIDER | S_DEMON
 D:"...there was a kind of face on the squat ebon body, low down amid 
 D:the several-jointed legs. The face peered up with a weird expression 
@@ -13030,13 +13045,13 @@ D:of doubt and inquiry..."
 N:810:Y'golonac
 G:H:R
 I:120:130d70:8:80:80
-W:87:1:0:3034746
+W:87:20:0:3034746
 O:0:0:100
 B:TOUCH:LOSE_INT:1d20
 B:BITE:HURT:40d1
 B:TOUCH:LOSE_WIS:1d20
 B:BITE:HURT:40d1
-F:UNIQUE | CAN_SPEAK | ELDRITCH_HORROR | RES_TELE | WILD_DUNGEON_01
+F:UNIQUE | CAN_SPEAK | RES_TELE | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD |
 F:SMART | BASH_DOOR | MOVE_BODY | NONLIVING |
@@ -13044,7 +13059,7 @@ F:EVIL | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 |
 S:SCARE | BLIND | CONF | HOLD | HASTE | DRAIN_MANA |
 S:CAUSE_3 | CAUSE_4 | DARKNESS | FORGET | S_DEMON | S_HOUND |
-S:TPORT | TELE_TO
+S:TPORT | TELE_TO | ELDRITCH_HORROR
 D:"He saw why the shadow on the frosted pane yesterday had been 
 D:headless and he screamed... but before he could scream out his 
 D:protest his breath was cut off, as the hands descended on his 
@@ -13124,20 +13139,20 @@ D:jutted from his belt near his right tip."
 N:814:Yig, Father of Serpents
 G:R:g
 I:130:167d30:100:62:15
-W:92:1:0:6122160
+W:92:20:0:6122160
 O:80:0:20
 B:CLAW:POISON:8d10
 B:CLAW:POISON:8d10
 B:CRUSH:HURT:8d15
 B:BITE:HURT:2d50
 F:UNIQUE | MALE | CAN_SPEAK | SMART | RES_TELE | ANIMAL | WILD_DUNGEON_01
-F:ESCORT | ESCORTS | CAN_SWIM | ELDRITCH_HORROR |
+F:ESCORT | ESCORTS | CAN_SWIM | 
 F:OPEN_DOOR | BASH_DOOR |
 F:FORCE_SLEEP | FORCE_MAXHP | NO_CONF | NO_SLEEP |
 F:DROP_4D2 | DROP_GOOD | ONLY_ITEM |
 F:EVIL | IM_POIS | IM_ACID | IM_ELEC | REGENERATE |
 S:1_IN_4 |
-S:BR_POIS | BR_NUKE | BR_ACID | S_HYDRA | S_KIN | S_DEMON |
+S:BR_POIS | BR_NUKE | BR_ACID | S_HYDRA | S_KIN | S_DEMON | ELDRITCH_HORROR |
 D:"The half-human father of serpents... the snake-god of the central 
 D:plains tribes -- presumably the primal source of the more 
 D:southerly Quetzalcoatl or Kukulcan -- was odd, half-anthropomorphic 
@@ -13316,7 +13331,7 @@ D:monster, until it can greedily dine on your remains.
 N:823:Cthugha, the Living Flame
 G:E:R
 I:133:38d100:30:50:20
-W:95:3:0:4243900
+W:95:30:0:4243900
 O:0:0:100
 B:TOUCH:BLIND
 B:TOUCH:FIRE:12d10
@@ -13324,11 +13339,11 @@ B:TOUCH:FIRE:12d10
 B:TOUCH:FIRE:12d10
 F:UNIQUE | RES_TELE | AURA_FIRE | IM_FIRE | CAN_FLY | RES_PLAS | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | NONLIVING |
-F:ONLY_ITEM | DROP_2D2 | SMART | ELDRITCH_HORROR |
+F:ONLY_ITEM | DROP_2D2 | SMART  |
 F:EVIL | KILL_ITEM | KILL_BODY |
 F:NO_CONF | NO_SLEEP | NO_FEAR | LITE_2
 S:1_IN_4 | 
-S:BR_FIRE | S_KIN
+S:BR_FIRE | S_KIN | ELDRITCH_HORROR
 D:"But even though we had shielded our eyes, it was impossible not 
 D:to see the great amorphous shapes streaming skyward from the 
 D:accursed place, nor the equally great being hovering like a cloud 
@@ -13388,13 +13403,13 @@ D:is fated never to die by the hand of mortal man.
 N:826:Cyaegha
 G:e:D
 I:130:64d70:90:60:10
-W:96:3:0:10216860
+W:96:30:0:10216860
 O:20:50:30
 B:CRUSH:HURT:15d15
 B:CRUSH:HURT:15d15
 B:CRUSH:HURT:15d15
 B:CRUSH:HURT:15d15
-F:UNIQUE | CAN_SPEAK | RES_TELE | ELDRITCH_HORROR | CAN_FLY | WILD_DUNGEON_01
+F:UNIQUE | CAN_SPEAK | RES_TELE | CAN_FLY | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
@@ -13402,7 +13417,7 @@ F:EVIL | DEMON | IM_ACID | IM_ELEC |
 F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TELE_AWAY | BLIND | HOLD | SCARE | BRAIN_SMASH | 
-S:BR_DARK | BA_DARK | BR_NETH | HAND_DOOM | FORGET |
+S:BR_DARK | BA_DARK | BR_NETH | HAND_DOOM | FORGET | ELDRITCH_HORROR |
 S:S_HI_UNDEAD | S_DEMON | S_MONSTERS | S_HYDRA
 D:"...it was a gigantic eye staring down at them. Around the eye, 
 D:the sky split; deep clefts opened through which the darkness 
@@ -13435,20 +13450,20 @@ D:as he decides your fate.
 N:828:Ithaqua the Windwalker
 G:Y:B
 I:140:55d70:40:62:10
-W:89:2:0:2779364
+W:89:20:0:2779364
 O:0:0:100
 B:CLAW:COLD:12d12
 B:CLAW:COLD:12d12
 B:CRUSH:HURT:12d12
 B:CRUSH:HURT:12d12
-F:UNIQUE | CAN_SPEAK | ESCORT | ELDRITCH_HORROR | RES_TELE | WILD_DUNGEON_01
+F:UNIQUE | CAN_SPEAK | ESCORT | RES_TELE | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | AURA_COLD |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | AURA_ELEC |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | NONLIVING |
 F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_ELEC | 
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:BO_MANA | SCARE | BR_COLD | S_DEMON | BO_ELEC | BA_ELEC |
+S:BO_MANA | SCARE | BR_COLD | S_DEMON | BO_ELEC | BA_ELEC | ELDRITCH_HORROR
 S:MIND_BLAST | CAUSE_4 | BA_CHAO | BA_WATE | S_HI_UNDEAD | S_KIN
 D:The Wendigo, moving so fast that you can see little except two 
 D:glowing eyes burning with hatred. "The stars had been blotted out... 
@@ -13539,7 +13554,7 @@ D:Fear its anger, for its devastation is unmatched!
 N:833:Abhoth, Source of Uncleanness
 G:J:G
 I:130:60d105:50:75:0
-W:94:3:0:6986252
+W:94:30:0:6986252
 O:0:0:100
 B:TOUCH:ACID:11d11
 B:TOUCH:DISEASE:11d11
@@ -13549,11 +13564,11 @@ F:ONLY_ITEM | DROP_1D2 | CAN_SWIM | WILD_DUNGEON_01
 F:DROP_GOOD | DROP_GREAT |
 F:CAN_SPEAK | EVIL | UNIQUE | NEVER_MOVE | FORCE_MAXHP | FORCE_SLEEP |
 F:IM_ACID | IM_POIS | IM_ELEC | RES_NETH | RES_WATE | RES_NEXU 
-F:NO_FEAR | NO_CONF | NO_SLEEP | DEMON | SMART | ELDRITCH_HORROR |
+F:NO_FEAR | NO_CONF | NO_SLEEP | DEMON | SMART  |
 F:COLD_BLOOD | RES_DISE | NO_STUN
 S:1_IN_6 |
 S:S_MONSTERS | S_DEMON | S_HI_DRAGON | S_HI_UNDEAD | HEAL |
-S:TELE_AWAY | TPORT | CAUSE_4 | BRAIN_SMASH | DRAIN_MANA
+S:TELE_AWAY | TPORT | CAUSE_4 | BRAIN_SMASH | DRAIN_MANA | ELDRITCH_HORROR
 S:BR_NUKE | BR_POIS | BR_CHAO | BR_NEXU | ANIM_DEAD
 D:"...in the pool [there was] a grayish, horrid mass that nearly choked 
 D:it from rim to rim. Here, it seemed, was the ultimate source of all 
@@ -13609,21 +13624,21 @@ D:giants and fight against the other gods of Asgard.
 N:836:Star-spawn of Cthulhu
 G:U:G
 I:130:75d70:90:45:90
-W:95:2:0:10146695
+W:95:20:0:10146695
 O:0:0:100
 B:CLAW:POISON:1d30
 B:CLAW:ACID:1d30
 B:TOUCH:UN_POWER:1d10
 B:CRUSH:UN_BONUS:2d33
 F:WILD_DUNGEON_01
-F:RAND_25 | KILL_ITEM | OPEN_DOOR | BASH_DOOR | RES_NETH | ELDRITCH_HORROR |
+F:RAND_25 | KILL_ITEM | OPEN_DOOR | BASH_DOOR | RES_NETH |
 F:DROP_3D2 | ONLY_ITEM | FORCE_SLEEP | FORCE_MAXHP |
 F:EVIL | DEMON | IM_POIS | IM_ACID | IM_ELEC | RES_TELE | NONLIVING |
 F:POWERFUL | IM_FIRE | CAN_SWIM | NO_CONF | DROP_GOOD
 S:1_IN_3
 S:SCARE | CONF | S_DEMON | S_UNDEAD | DRAIN_MANA | BR_ACID |
 S:BR_FIRE | TPORT | S_MONSTERS | BRAIN_SMASH | BR_NETH |
-S:HEAL | MIND_BLAST | BA_NUKE | ANIM_DEAD
+S:HEAL | MIND_BLAST | BA_NUKE | ANIM_DEAD | ELDRITCH_HORROR
 D:The last remnants of sanity threaten to leave your brain as you 
 D:behold this titanic bat-winged, octopus-headed unholy abomination. 
 D:"They all lay in stone houses in their great city of R'lyeh, 
@@ -13722,7 +13737,7 @@ D:enormous wolf inhabited with a human spirit.  He is chief of all his kind.
 N:841:Shuma-Gorath
 G:e:G
 I:130:85d70:50:75:0
-W:91:3:0:9847852
+W:91:30:0:9847852
 O:0:0:100
 B:CRUSH:HURT:12d12
 B:CRUSH:HURT:12d12
@@ -13732,33 +13747,33 @@ F:ONLY_ITEM | DROP_60 | CAN_SWIM | WILD_DUNGEON_01
 F:DROP_GOOD | DROP_GREAT |
 F:CAN_SPEAK | EVIL | UNIQUE | NEVER_MOVE | FORCE_MAXHP | FORCE_SLEEP |
 F:IM_ACID | IM_POIS | IM_COLD | IM_ELEC | RES_NETH | RES_WATE | RES_NEXU 
-F:NO_FEAR | NO_CONF | NO_SLEEP | DEMON | SMART | ELDRITCH_HORROR |
+F:NO_FEAR | NO_CONF | NO_SLEEP | DEMON | SMART |
 F:COLD_BLOOD | RES_DISE | NO_STUN
 S:1_IN_2 |
 S:FORGET | HEAL | HAND_DOOM | BA_MANA | TPORT | TELE_AWAY |
 S:TELE_LEVEL | CONF | BLIND | BRAIN_SMASH | DRAIN_MANA |
 S:S_MONSTERS | S_KIN | S_CYBER | S_HOUND | S_HYDRA | S_DEMON |
-S:S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON | ANIM_DEAD
+S:S_UNIQUE | S_HI_UNDEAD | S_HI_DRAGON | ANIM_DEAD | ELDRITCH_HORROR
 D:Shuma-Gorath is one of the immortal lords of chaos. The true form of 
 D:this blasphemous horror is a huge, all-seeing eye surrounded by tentacles.
 
 N:842:Tulzscha, the Green Flame
 G:E:G
 I:130:70d100:90:50:50
-W:98:4:0:8000172
+W:98:40:0:8000172
 O:0:100:0
 B:HIT:HURT:2d50
 B:HIT:HURT:2d50
 B:HIT:HURT:2d50
 B:HIT:HURT:2d50
 F:WILD_DUNGEON_01
-F:RAND_25 | EVIL | DEMON | AURA_FIRE | AURA_COLD | ELDRITCH_HORROR |
+F:RAND_25 | EVIL | DEMON | AURA_FIRE | AURA_COLD |
 F:DROP_3D2 | DROP_GOOD | ONLY_ITEM | RES_TELE | 
 F:IM_POIS | IM_FIRE | FORCE_SLEEP | FORCE_MAXHP | NONLIVING |
 F:IM_COLD | IM_ELEC | RES_NEXU | RES_NETH | RES_PLAS |
 F:REGENERATE | UNIQUE | CAN_FLY | LITE_2
 S:1_IN_3 |
-S:BR_NEXU | BR_NETH | BR_COLD | BR_FIRE
+S:BR_NEXU | BR_NETH | BR_COLD | BR_FIRE | ELDRITCH_HORROR
 D:"A belching column of sick greenish flame... spouting volcanically 
 D:from the depths profound and inconceivable, casting no shadows as 
 D:healthy flame should, and coating the nitrous stone with a nasty, 
@@ -13807,19 +13822,19 @@ D:risen from the grave to continue his foul plots and schemes.
 N:845:Yog-Sothoth, the All-in-One
 G:j:v
 I:130:66d70:100:50:20
-W:97:3:0:5543202
+W:97:30:0:5543202
 O:0:0:100
 B:TOUCH:HURT:40d5
 B:TOUCH:LOSE_CON:16d2
 B:TOUCH:LOSE_CON:16d2
 F:WILD_DUNGEON_01
-F:UNIQUE | CAN_SPEAK | SMART | ELDRITCH_HORROR | RES_TELE
+F:UNIQUE | CAN_SPEAK | SMART | RES_TELE
 F:PASS_WALL | FORCE_SLEEP | FORCE_MAXHP | AURA_ELEC | AURA_FIRE |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | ATTR_MULTI | ATTR_ANY | AURA_COLD |
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | NONLIVING | CAN_FLY |
 F:EVIL | IM_ACID | IM_ELEC | IM_POIS | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 |
-S:BO_MANA | BRAIN_SMASH | BA_MANA | S_MONSTERS | S_CYBER |
+S:BO_MANA | BRAIN_SMASH | BA_MANA | S_MONSTERS | S_CYBER | ELDRITCH_HORROR
 S:BA_CHAO | S_DEMON | S_HI_UNDEAD | S_HOUND | BR_MANA | BR_DISI
 D:"Great globes of light massing towards the opening... the breaking 
 D:apart of the nearest globes, and the protoplasmic flesh that 
@@ -13877,14 +13892,14 @@ D:encountered in our world. It can crush stars with its might.
 N:848:Shub-Niggurath, Black Goat of the Woods
 G:U:D
 I:130:65d70:100:50:20
-W:96:3:0:8665296
+W:96:30:0:8665296
 O:0:0:100
 B:CRUSH:LOSE_WIS:20d5
 B:CRUSH:LOSE_INT:20d5
 B:BITE:LOSE_STR:10d2
 B:BITE:LOSE_CON:10d2
 F:WILD_DUNGEON_01
-F:UNIQUE | CAN_SPEAK | FEMALE | ELDRITCH_HORROR | AURA_ELEC | RES_TELE
+F:UNIQUE | CAN_SPEAK | FEMALE | AURA_ELEC | RES_TELE
 F:ATTR_MULTI | FORCE_SLEEP | FORCE_MAXHP | PASS_WALL | ATTR_ANY | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | NONLIVING | CAN_FLY |
 F:SMART | OPEN_DOOR | BASH_DOOR | REGENERATE | DEMON | AURA_COLD 
@@ -13892,7 +13907,7 @@ F:EVIL | IM_ACID | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | CAN_SWIM
 S:1_IN_3 |
 S:BO_MANA | BRAIN_SMASH | BA_DARK | S_MONSTERS |
 S:CAUSE_4 | HEAL | BR_CHAO | BR_CONF | BR_POIS | BR_NUKE |
-S:BA_CHAO | S_DEMON | S_HI_UNDEAD | S_UNIQUE | ANIM_DEAD
+S:BA_CHAO | S_DEMON | S_HI_UNDEAD | S_UNIQUE | ANIM_DEAD | ELDRITCH_HORROR
 D:This horrendous outer god looks like a writhing cloudy mass filled 
 D:with mouths and tentacles.
 
@@ -13942,14 +13957,14 @@ D:deadly opponent in combat.
 N:851:Nyarlathotep, the Crawling Chaos
 G:U:r
 I:130:90d70:100:50:20
-W:95:3:0:9000435
+W:95:30:0:9000435
 O:0:50:50
 B:CRUSH:LOSE_CON:30d4
 B:CRUSH:LOSE_STR:30d4
 B:GAZE:LOSE_INT:1d50
 B:GAZE:LOSE_WIS:1d50
 F:WILD_DUNGEON_01
-F:UNIQUE | CAN_SPEAK | ELDRITCH_HORROR | RES_TELE | NONLIVING |
+F:UNIQUE | CAN_SPEAK | RES_TELE | NONLIVING |
 F:FORCE_SLEEP | FORCE_MAXHP | PASS_WALL | DEMON | RES_NEXU | CAN_SWIM
 F:SHAPECHANGER | ATTR_MULTI | ATTR_ANY | MALE | AURA_ELEC |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT |
@@ -13957,7 +13972,7 @@ F:SMART | OPEN_DOOR | BASH_DOOR | REGENERATE | AURA_COLD |
 F:EVIL | IM_ACID | IM_POIS | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 |
 S:TELE_AWAY | TELE_TO | TELE_LEVEL | TPORT | BR_NEXU | BA_CHAO |
-S:BA_MANA | BA_FIRE | S_MONSTERS | BRAIN_SMASH | MIND_BLAST |
+S:BA_MANA | BA_FIRE | S_MONSTERS | BRAIN_SMASH | MIND_BLAST | ELDRITCH_HORROR
 S:CAUSE_4 | HASTE | S_HI_UNDEAD | S_HI_DRAGON | ANIM_DEAD
 S:S_ANGEL | S_DEMON | HEAL | S_SPIDER | S_HOUND | S_CYBER | HAND_DOOM
 D:Nyarlathothep is the messenger, the heart and the soul of the outer gods. 
@@ -13971,13 +13986,13 @@ D:the languid sparkle of capricious humor."
 N:852:Azathoth, Seething Nuclear Chaos
 G:E:B
 I:130:70d99:100:75:100
-W:98:3:0:9671094
+W:98:30:0:9671094
 O:50:0:50
 B:CRUSH:HURT:35d5
 B:CRAWL:ACID:35d5
 B:CRUSH:HURT:35d5
 B:CRAWL:ACID:35d5
-F:UNIQUE | ELDRITCH_HORROR | RES_TELE | WILD_DUNGEON_01
+F:UNIQUE  | RES_TELE | WILD_DUNGEON_01
 F:FORCE_SLEEP | FORCE_MAXHP | DEMON | AURA_FIRE | AURA_ELEC |
 F:ATTR_MULTI | ESCORTS | ESCORT | POWERFUL | ATTR_ANY | NONLIVING |
 F:KILL_ITEM | KILL_WALL | CAN_SWIM | AURA_COLD |
@@ -13985,7 +14000,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | RES_DISE |
 F:STUPID | OPEN_DOOR | BASH_DOOR | REGENERATE | EMPTY_MIND |
 F:EVIL | IM_ACID | IM_POIS | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_5 |
-S:S_DEMON | BR_CHAO | BR_DISE | BR_MANA | BA_WATE | BR_DISI
+S:S_DEMON | BR_CHAO | BR_DISE | BR_MANA | BA_WATE | BR_DISI | ELDRITCH_HORROR
 D:"That last amorphous blight of nethermost confusion which 
 D:blasphemes and bubbles at the centre of all infinity -- 
 D:the boundless daemon sultan Azathoth, whose name no lips 
@@ -14084,14 +14099,14 @@ D:saved his master from Ungoliant's rage.
 N:857:Great Cthulhu
 G:U:g
 I:130:70d100:100:70:100
-W:99:2:0:10759746
+W:99:20:0:10759746
 O:0:50:50
 B:CRUSH:HURT:50d4
 B:CLAW:UN_POWER:15d2
 B:CLAW:UN_BONUS:15d2
 B:TOUCH:DISEASE:100d1
 F:WILD_DUNGEON_01
-F:UNIQUE | CAN_SPEAK | DEMON | ELDRITCH_HORROR | NONLIVING |
+F:UNIQUE | CAN_SPEAK | DEMON  | NONLIVING |
 F:FORCE_SLEEP | FORCE_MAXHP | ESCORT | ESCORTS | SMART | RES_PLAS | RES_NEXU |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | REGENERATE | RES_NETH |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
@@ -14102,7 +14117,7 @@ S:TPORT | SCARE | BLIND | MIND_BLAST | BRAIN_SMASH | DRAIN_MANA |
 S:BR_POIS | BR_ACID | BR_FIRE | CONF | DARKNESS | FORGET | S_HI_UNDEAD |
 S:BR_NUKE | BR_NETH | BR_CHAO | BR_DISE | BR_DARK | BR_PLAS | BR_CONF
 S:BR_NEXU | S_DEMON | S_CYBER | S_KIN | BR_DISI | HAND_DOOM
-S:ANIM_DEAD
+S:ANIM_DEAD | ELDRITCH_HORROR
 D:This creature is death incarnate. "A monster of vaguely anthropoid 
 D:outline, but with an octopus-like head whose face was a mass of 
 D:feelers, a scaly, rubbery-looking body, prodigious claws on hind 
@@ -14279,7 +14294,7 @@ B:SPORE:CONFUSE:2d4
 B:SPORE:TERRIFY:2d4
 F:NEVER_MOVE | WILD_DUNGEON_01
 F:STUPID | WEIRD_MIND | ATTR_MULTI | ATTR_ANY | QUANTUM | 
-F:ELDRITCH_HORROR | MULTIPLY | FRIENDS | 
+F:MULTIPLY | FRIENDS | 
 F:IM_ACID | IM_COLD | IM_POIS | DROP_CORPSE
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN
 S:1_IN_2 |
@@ -14371,9 +14386,11 @@ B:TOUCH:TERRIFY:5d5
 B:BITE:HURT:8d4
 F:CHAR_CLEAR | CHAR_MIMIC | ATTR_CLEAR | FORCE_SLEEP |
 F:SMART | INVISIBLE | COLD_BLOOD | EMPTY_MIND |
-F:ELDRITCH_HORROR | OPEN_DOOR | ANIMAL | NO_FEAR |
+F:OPEN_DOOR | ANIMAL | NO_FEAR |
 F:NO_STUN | NO_CONF | NO_SLEEP | CAN_SWIM |
 F:WILD_DUNGEON_01 | WILD_FOREST1 | WILD_FOREST2 | WILD_MOUNT1 |
+S:1_IN_10
+S:ELDRITCH_HORROR |
 D:"The Behinder flung itself on his shoulders. Then I knew why
 D: nobody's supposed to see one. I wish I hadn't. To this day I
 D: can see it, plain as a fence at noon, and forever I will be

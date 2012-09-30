@@ -2399,17 +2399,19 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 
 					case EGO_SLAYING_WEAPON:
 					{
-						while (one_in_(o_ptr->dd) && (o_ptr->dd < 10))
-						{
-							o_ptr->dd++;
-						}
+						o_ptr->ds++;
 						
 						while (one_in_(o_ptr->ds) && (o_ptr->ds < 10))
 						{
 							o_ptr->ds++;
 						}
 						
-
+						while (one_in_(o_ptr->dd) && (o_ptr->dd < 10)
+							 && (o_ptr->ds < 10))
+						{
+							o_ptr->dd++;
+						}
+						
 						if (one_in_(5))
 						{
 							o_ptr->flags1 |= TR1_BRAND_POIS;
@@ -3826,7 +3828,7 @@ byte kind_is_match(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Does the tval match? */
-	if (k_ptr->tval != match_tv) return (0);
+	if ((match_tv != TV_ANY) && (k_ptr->tval != match_tv)) return (0);
 
 	/* Does the sval match? */
 	if ((match_sv == SV_ANY) || (k_ptr->sval == match_sv)) return (100);
@@ -3950,6 +3952,9 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 
 	/* Base level for the object */
 	base = object_level + delta_level;
+	
+	/* Paranoia - don't let this get too high */
+	if (base > 110) base = 110;
 
 	/* Hack - Set flags based on delta_level */
 	if (delta_level > 15)

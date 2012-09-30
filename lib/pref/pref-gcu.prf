@@ -1,0 +1,135 @@
+# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
+# File: pref-gcu.prf
+
+#
+# This file may be included by "pref.prf", when using "main-gcu.prf".
+#
+# It contains macro definitions to allow the VT100 cursor keys to be
+# recognized by Angband.  This will also make the "escape" key take a
+# few seconds to recognize, so you may want to use the "`" key instead.
+#
+
+
+### VT100 Keypad ###
+
+
+# Special keypad keys (delete, insert)
+
+A:.
+P:\e[3~
+
+A:0
+P:\e[2~
+
+
+# Numerical keypad keys (map to appropriate number)
+
+A:1
+P:\e[4~
+P:\e[F
+
+A:2
+P:\e[B
+
+A:3
+P:\e[6~
+
+A:4
+P:\e[D
+
+A:5
+P:\e[G
+
+A:6
+P:\e[C
+
+A:7
+P:\e[1~
+P:\e[H
+
+A:8
+P:\e[A
+
+A:9
+P:\e[5~
+
+# Ctrl - Numerical keypad
+
+A:+0
+P:\e[0C~
+
+A:+1
+P:\e[1C~
+
+A:+2
+P:\e[2C~
+
+A:+3
+P:\e[3C~
+
+A:+4
+P:\e[4C~
+
+A:+5
+P:\e[5C~
+
+A:+6
+P:\e[6C~
+
+A:+7
+P:\e[7C~
+
+A:+8
+P:\e[8C~
+
+A:+9
+P:\e[9C~
+
+# Shift - Numerical keypad
+
+A:\\.1
+P:\e[1S~
+
+A:\\.2
+P:\e[2S~
+
+A:\\.3
+P:\e[3S~
+
+A:\\.4
+P:\e[4S~
+
+A:\\.5
+P:\e[5S~
+
+A:\\.6
+P:\e[6S~
+
+A:\\.7
+P:\e[7S~
+
+A:\\.8
+P:\e[8S~
+
+A:\\.9
+P:\e[9S~
+
+A:\\.0
+P:\e[0S~
+
+
+# Basic function keys (F1 - F4)
+
+A:\e
+P:\eOP
+
+A:\e
+P:\eOQ
+
+A:\e
+P:\eOR
+
+A:\e
+P:\eOS
+
+

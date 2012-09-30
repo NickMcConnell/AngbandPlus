@@ -810,7 +810,6 @@ static Boolean SetValues(AngbandWidget current, AngbandWidget request,
 	(void) args;
 	(void) num_args;
 	
-	
 	/* Handle font change */
 	if (wnew->angband.font != current->angband.font)
 	{
@@ -847,14 +846,14 @@ static Boolean SetValues(AngbandWidget current, AngbandWidget request,
 			/* Steal the old GC */
 			wnew->angband.gc[i] = current->angband.gc[i];
 			current->angband.gc[i] = NULL;
-
+			
 			/* Be sure the correct font is ready */
 			XSetFont(dpy, wnew->angband.gc[i], wnew->angband.fnt->fid);
-		}
 
-		/* Steal the old GC */
-		wnew->angband.gc[NUM_COLORS] = current->angband.gc[NUM_COLORS];
-		current->angband.gc[NUM_COLORS] = NULL;
+			/* Steal the old GC */
+			wnew->angband.gc[NUM_COLORS] = current->angband.gc[NUM_COLORS];
+			current->angband.gc[NUM_COLORS] = NULL;
+		}
 	}
 
 
@@ -976,7 +975,7 @@ static XFontStruct *getFont(AngbandWidget widget,
 /*
  * Number of fallback resources per window
  */
-#define TERM_FALLBACKS 8
+#define TERM_FALLBACKS 7
 
 
 
@@ -1007,8 +1006,7 @@ Arg specialArgs[TERM_FALLBACKS] =
 	{ XtNminColumns,   80},
 	{ XtNmaxRows,      255},
 	{ XtNmaxColumns,   255},
-	{ XtNinternalBorder, 2},
-	{ XtNfont,			 (unsigned long) DEFAULT_X11_FONT}
+	{ XtNinternalBorder, 2}
 };
 
 
@@ -1023,8 +1021,7 @@ Arg defaultArgs[TERM_FALLBACKS] =
 	{ XtNminColumns,     1},
 	{ XtNmaxRows,        255},
 	{ XtNmaxColumns,     255},
-	{ XtNinternalBorder, 2},
-	{ XtNfont,			 (unsigned long) DEFAULT_X11_FONT}
+	{ XtNinternalBorder, 2}
 };
 
 
@@ -1503,7 +1500,6 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	cptr str;
 
 	int val;
-	cptr font;
 	
 	/* Create the shell widget */
 	parent = XtCreatePopupShell(name, topLevelShellWidgetClass, topLevel,
@@ -1546,71 +1542,6 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) widget_arg[6].value = val;
 
-		
-	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
-
-	/* Check environment for that font */
-	font = getenv(buf);
-
-	/* Check environment for "base" font */
-	if (!font) font = getenv("ANGBAND_X11_FONT");
-
-	/* No environment variables, use default font */
-	if (!font)
-	{
-		switch (i)
-		{
-			case 0:
-			{
-				font = DEFAULT_X11_FONT_0;
-			}
-			break;
-			case 1:
-			{
-				font = DEFAULT_X11_FONT_1;
-			}
-			break;
-			case 2:
-			{
-				font = DEFAULT_X11_FONT_2;
-			}
-			break;
-			case 3:
-			{
-				font = DEFAULT_X11_FONT_3;
-			}
-			break;
-			case 4:
-			{
-				font = DEFAULT_X11_FONT_4;
-			}
-			break;
-			case 5:
-			{
-				font = DEFAULT_X11_FONT_5;
-			}
-			break;
-			case 6:
-			{
-				font = DEFAULT_X11_FONT_6;
-			}
-			break;
-			case 7:
-			{
-				font = DEFAULT_X11_FONT_7;
-			}
-			break;
-			default:
-			{
-				font = DEFAULT_X11_FONT;
-			}
-		}
-	}
-
-	widget_arg[7].value = (unsigned long) font;
-
-
 	/* Create the interior widget */
 	td->widget = (AngbandWidget)
 	XtCreateManagedWidget(name, angbandWidgetClass,
@@ -1646,11 +1577,67 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	/* Realize the widget */
 	XtRealizeWidget(parent);
 
+	/* Have we redefined the font? */
+	if (streq(td->widget->angband.font, DEFAULT_X11_FONT))
+	{
+		XFontStruct *fnt;
+		
+		/* Check if the font exists */
+		fnt = getFont(td->widget, (String) get_default_font(i), FALSE);
+
+		/* The font didn't exist */
+		if (fnt == NULL)
+		{
+			XtWarning("Couldn't find the requested font!");
+		}
+		else
+		{
+			int height, width;
+
+			/* Free the old font */
+			XFreeFont(XtDisplay((Widget)td->widget), td->widget->angband.fnt);
+				
+			/* Update font information */
+			td->widget->angband.fontheight = fnt->ascent + fnt->descent;
+			td->widget->angband.fontwidth = fnt->max_bounds.width;
+			td->widget->angband.fontascent = fnt->ascent;
+				
+			for (i = 0; i < NUM_COLORS; i++)
+			{
+				/* Be sure the correct font is ready */
+				XSetFont(XtDisplay((Widget)td->widget),
+					 td->widget->angband.gc[i], fnt->fid);
+			}
+				
+			/* Get the window shape */
+			height = (td->widget->angband.start_rows *
+				td->widget->angband.fontheight +
+				2 * td->widget->angband.internal_border);
+			width = (td->widget->angband.start_columns *
+				td->widget->angband.fontwidth +
+				2 * td->widget->angband.internal_border);
+				
+			/* Request a change to the new shape */
+			if (XtMakeResizeRequest((Widget)td->widget,
+				 width, height, NULL, NULL) == XtGeometryNo)
+			{
+				/* Not allowed */
+				XtWarning("Size change denied!");
+			}
+			else
+			{
+				/* Recalculate size hints */
+				calculateSizeHints(td->widget);
+			}
+		}
+	}
+
 	/* Make it visible */
 	XtPopup(parent, XtGrabNone);
 
 	/* Activate (important) */
 	Term_activate(t);
+
 
 	Resize_term(td->widget);
 

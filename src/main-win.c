@@ -4377,6 +4377,7 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_FILE);
 	validate_dir(ANGBAND_DIR_HELP);
 	validate_dir(ANGBAND_DIR_INFO);
+	validate_dir(ANGBAND_DIR_PREF);
 	validate_dir(ANGBAND_DIR_SAVE);
 	validate_dir(ANGBAND_DIR_USER);
 	validate_dir(ANGBAND_DIR_XTRA);

@@ -143,6 +143,16 @@ wild_building_type wild_build[MAX_CITY_BUILD] =
 	{0, FT_BUILD_HEALER,		BT_BUILD,	250, 250, 200, 20},
 };
 
+/* The stores in the starting town */
+static int wild_first_town[START_STORE_NUM] =
+{
+	BUILD_STAIRS,
+	BUILD_STORE_HOME,
+	BUILD_SUPPLIES0,
+	BUILD_WARHALL0,
+	BUILD_STORE_TEMPLE,
+	BUILD_STORE_MAGIC
+};
 
 /* Find a place for the player */
 static void place_player_start(s32b *x, s32b *y, u16b this_town)
@@ -179,7 +189,7 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 		total +=  build[i] * 20;
 
 		/* calculate probability based on location */
-		wild_build[i].gen = ((u16b) MAX_SHORT / total);
+		wild_build[i].gen = (u16b)(MAX_SHORT / total);
 	}
 
 	/* Effects for cities */
@@ -202,8 +212,8 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 	{
 		for (i = 0; i < MAX_CITY_BUILD; i++)
 		{
-			/* Only stairs and stores in small towns. */
-			if (wild_build[i].type != BT_STORE)
+			/* No 'filler' buildings in small towns. */
+			if (wild_build[i].type == BT_GENERAL)
 			{
 				wild_build[i].gen = 0;
 			}
@@ -267,7 +277,7 @@ static void general_init(int town_num, int store_num, byte general_type)
 byte build_x[WILD_BLOCK_SIZE * WILD_BLOCK_SIZE];
 byte build_y[WILD_BLOCK_SIZE * WILD_BLOCK_SIZE];
 static byte build_pop[WILD_BLOCK_SIZE * WILD_BLOCK_SIZE];
-static u16b build_count;
+static byte build_count;
 
 
 /*
@@ -809,16 +819,24 @@ static void init_towns(int xx, int yy)
 		}
 	}
 	
-	/* Hack - add a supplies store to the starting town */
+	/* Hack - the starting town uses pre-defined stores */
 	for (i = 0; i < town[best_town].numstores; i++)
 	{
-		/* We need to have stairs */
-		if (town[best_town].store[i].type == BUILD_STAIRS) continue;
-
-		/* Hack - make a supplies store */
-		store_init(best_town, i, BUILD_SUPPLIES0);
-
-		break;
+		if (i == 0)
+		{
+			/* Hack - make stairs */
+			store_init(best_town, i, wild_first_town[i]);
+		}
+		else if (i < START_STORE_NUM)
+		{
+			/* Hack - use the pre-defined stores */
+			store_init(best_town, i, wild_first_town[i]);
+		}
+		else
+		{
+			/* Blank spot */
+			general_init(best_town, i, BUILD_NONE);
+		}
 	}
 
 	/* Build starting city / town */

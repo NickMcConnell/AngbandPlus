@@ -32,11 +32,11 @@ to something you are more comfortable with.
  
 --- Features that do not block line of sight ---
  
-  .   A floor space                   # (Green)        A Tree
-  .   A trap (hidden)                 # (Light Blue)   Shallow Water
-  ^   A trap (known)                  # (Dark Blue)    Deep Water
-  ;   A glyph of warding              # (Orange)       Shallow Lava
-  '   An open door                    # (Red)          Deep Lava
+  .   A floor space                   % (Green)        A Tree
+  .   A trap (hidden)                 ~ (Light Blue)   Shallow Water
+  ^   A trap (known)                  ~ (Dark Blue)    Deep Water
+  ;   A glyph of warding              ~ (Orange)       Shallow Lava
+  '   An open door                    ~ (Red)          Deep Lava
   '   A broken door
   <   A staircase up
   >   A staircase down

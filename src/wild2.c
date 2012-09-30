@@ -702,7 +702,7 @@ void draw_city(u16b town_num)
 	/* Generate plasma factal */
 	clear_temp_block();
 	set_temp_corner_val(WILD_BLOCK_SIZE * 64);
-	set_temp_mid(WILD_BLOCK_SIZE * town[town_num].pop);
+	set_temp_mid((u16b)(WILD_BLOCK_SIZE * town[town_num].pop));
 	frac_block();
 
 	/* Find area outside the city */
@@ -846,7 +846,7 @@ void draw_city(u16b town_num)
 	for (build = 0; count; build++)
 	{
 		/* Pick a square */
-		i = randint0(count);
+		i = (byte)randint0(count);
 
 		/* Draw the building */
 		draw_building(0, build_x[i], build_y[i], build, town_num);

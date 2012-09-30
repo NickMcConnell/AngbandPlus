@@ -1135,7 +1135,7 @@ static bool vault_aux_cthulhu(int r_idx)
 	if (!vault_monster_okay(r_idx)) return (FALSE);
 
 	/* Require eldritch horror */
-	if (!(r_ptr->flags2 & RF2_ELDRITCH_HORROR)) return (FALSE);
+	if (!(r_ptr->flags4 & RF4_ELDRITCH_HORROR)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -2863,7 +2863,7 @@ static void build_maze_vault(int x0, int y0, int xsize, int ysize)
  * a way to get in even if the vault abuts a side of the dungeon.
  */
 static void build_mini_c_vault(int x0, int y0, int xsize, int ysize)
- {
+{
  	int dy, dx;
  	int y1, x1, y2, x2, y, x, total;
 	int m, n, num_vertices;

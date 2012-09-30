@@ -197,7 +197,7 @@ XImage *ReadBMP(Display *dpy, char *Name)
 
 	int i, j;
 
-	u16b x, y;
+	u32b x, y;
 
 	unsigned long clr_pixels[256];
 
@@ -282,7 +282,7 @@ XImage *ReadBMP(Display *dpy, char *Name)
 
 	for (y = 0; y < infoheader.biHeight; y++)
 	{
-		int y2 = infoheader.biHeight - y - 1;
+		u32b y2 = infoheader.biHeight - y - 1;
 
 		for (x = 0; x < infoheader.biWidth; x++)
 		{
@@ -293,8 +293,12 @@ XImage *ReadBMP(Display *dpy, char *Name)
 
 			if (infoheader.biBitCount == 24)
 			{
-				int c2 = getc(f);
-				int c3 = getc(f);
+				int c3, c2 = getc(f);
+				
+				/* Verify not at end of file XXX XXX */
+				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
+				
+				c3 = getc(f);
 
 				/* Verify not at end of file XXX XXX */
 				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
@@ -852,6 +856,5 @@ XImage *ResizeImage(Display *dpy, XImage *Im,
 }
 
 #endif /* USE_GRAPHICS */
-
 
 #endif /* USE_XMAID */

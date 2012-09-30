@@ -13,7 +13,6 @@ Many monsters have the same letter symbol and sometimes color on the
 screen. The exact species or type of creature can be discovered by
 'l'ooking at it (see commdesc.txt#Looking [1]). 
  
-  $   Creeping Coins                  ,   Mushroom Patch
   a   Giant Ant                       A   Angelic being
   b   Giant Bat                       B   Bird
   c   Giant Centipede                 C   Canine
@@ -25,7 +24,7 @@ screen. The exact species or type of creature can be discovered by
   i   Icky-Thing                      I   Insect
   j   Jelly                           J   Snake
   k   Kobold                          K   Killer Beetle
-  l   Giant Louse                     L   Lich
+  l   Aquatic monster                 L   Lich
   m   Mold                            M   Multi-Headed Hydra
   n   Naga                            N   (unused)
   o   Orc                             O   Ogre
@@ -40,7 +39,8 @@ screen. The exact species or type of creature can be discovered by
   x   (unused)                        X   Xorn/Xaren
   y   Yeek                            Y   Yeti
   z   Zombie/Mummy                    Z   Zephyr Hound
-  ~   Aquatic monsters
+  $   Creeping Coins                  ,   Mushroom Patch
+  %   Ent, Huorn                      #   Fumes
 
 Note that some monsters disguise themselves by assuming the shape (ie.
 symbol) of common objects found in the dungeon. These include the
@@ -174,11 +174,8 @@ Some of the monsters in the dungeons of Zangband are so fearsome to
 look upon that doing so can have serious repurcussions. When you meet
 one of these sanity blasting monsters, one of several nasty things
 may happen to you. These include having your intelligence and/or your
-wisdom temporarily or permanently reduced and becoming confused. In 
-the worst case, your character may become subject to one of a small
-number of mutations affecting your brain such as becoming subject to
-random beserker fits, becoming sporadically scared for no reason or
-becoming moronic.
+wisdom temporarily reduced, becoming scared or confused, or suffering
+an attack of amnesia.
 
 
 ***** <Pets>
@@ -242,7 +239,7 @@ not be commanded using the pet commands.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 29, 2000
+Last update: May 25, 2001
 
 ***** Begin Hyperlinks
 ***** [1] commdesc.txt#Looking

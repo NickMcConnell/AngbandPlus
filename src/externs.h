@@ -149,7 +149,6 @@ extern int leaving_quest;
 extern s16b store_cache_num;
 extern store_type **store_cache;
 extern char summon_kin_type;
-extern bool hack_mind;
 extern bool hack_mutation;
 extern bool track_follow;
 extern bool track_target;
@@ -287,6 +286,7 @@ extern cptr ANGBAND_DIR_SCRIPT;
 extern cptr ANGBAND_DIR_FILE;
 extern cptr ANGBAND_DIR_HELP;
 extern cptr ANGBAND_DIR_INFO;
+extern cptr ANGBAND_DIR_PREF;
 extern cptr ANGBAND_DIR_SAVE;
 extern cptr ANGBAND_DIR_USER;
 extern cptr ANGBAND_DIR_XTRA;
@@ -481,7 +481,7 @@ extern s16b tokenize(char *buf, s16b num, char **tokens, int mode);
 extern void display_player(int mode);
 extern void do_cmd_character(void);
 extern errr file_character(cptr name, bool full);
-extern errr process_pref_file_aux(char *buf);
+extern errr process_pref_file_command(char *buf);
 extern errr process_pref_file(cptr name);
 extern void print_equippy(void);
 extern errr check_time_init(void);
@@ -554,7 +554,6 @@ extern void create_name(int type, char *name);
 extern cptr horror_desc[MAX_SAN_HORROR];
 extern cptr funny_desc[MAX_SAN_FUNNY];
 extern cptr funny_comments[MAX_SAN_COMMENT];
-extern void sanity_blast(const monster_type *m_ptr, bool necro);
 extern void delete_monster_idx(int i);
 extern void delete_monster(int y, int x);
 extern void compact_monsters(int size);
@@ -719,6 +718,7 @@ extern void remove_loc(void);
 
 /* spells1.c */
 extern void take_hit(int damage, cptr kb_str);
+extern void bolt_pict(int y, int x, int ny, int nx, int typ, byte *a, byte *c);
 extern int dist_to_line(int y, int x, int y1, int x1, int y2, int x2);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg);
 
@@ -871,7 +871,7 @@ extern bool brand_bolts(void);
 extern bool polymorph_monster(int y, int x);
 extern bool dimension_door(void);
 extern void map_wilderness(int radius, s32b x, s32b y);
-
+extern void sanity_blast(const monster_type *m_ptr);
 
 /* store.c */
 extern bool allocate_store(store_type *st_ptr);
@@ -963,6 +963,8 @@ extern void repeat_check(void);
 extern byte gamma_table[256];
 extern void build_gamma_table(int gamma);
 #endif /* SUPPORT_GAMMA */
+
+extern cptr get_default_font(int term_num);
 
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);

@@ -2035,7 +2035,7 @@ static errr rd_dungeon(void)
 		wipe_f_list();
 		
 		/* Hack - do not load data into wilderness */
-		change_level(p_ptr->depth);
+		change_level(1);
 
 		/* Load dungeon map */
 		load_map(cur_hgt, 0, cur_wid, 0);

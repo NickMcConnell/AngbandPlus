@@ -2,6 +2,65 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+ZAngband 2.6.0:
+- The starting town has a fixed list of stores now.
+- Changed how the sanity-blasting effect of monsters works.  It will
+  only happen if you can see the monster.  Stats will not be drained.
+  However, you may become afraid, even if you have resist fear.
+- Made sanity blasting monsters much rarer.
+- Included 'unseen' monsters as a category in the kill-count list.
+- The rare book store now stocks more normal books, and less dungeon
+  ones.
+- Nightmare mode is slightly harder.
+- Splitted the 'lib/user/' folder into 'lib/pref/' for the default
+  pref files that are distributed with the game, and 'lib/user/'
+  (or ~/.angband/ZAngband/ on multi-user systems) for files created
+  by the user.
+- Changed object distribution from chests.
+- Added an alpha-quality gtk port.
+- Scrolls of protection are now preserved when an object on the floor
+  (including the scroll itself when reading it from the floor) prevents
+  the creation of the rune.
+- Halved the price of the 'identify pack' service at the Zymurgist.
+- Small towns can now have special buildings (like an inn).
+- Updated and added lots of tiles for the 8x8 and 16x16 graphics modes.
+- Updated the documentation.
+- Prevented object levels from getting too high and producing lots of
+  potions of new life at deeper levels.
+- Fixed the problem in stores with examining spell books from realms that
+  you do not belong to.
+- Fixed several bugs in new projection code.
+- Fixed a bug in the monster lighting code.
+- Fixed bug that prevented loading of version 2.4.0 savefiles.
+- Fixed score abuse when you had zero hard quests.
+- Fixed a problem with identify not being useable on items whose flavour
+  you have forgotten.
+- Corrected the prices of some weapons.
+- The game will now return the standard error-exit code of the system
+  when an error occurs.
+- Charisma didn't affect building prices in the right way.
+- Fixed a problem with the xaw port not reading font information from
+  .Xdefaults.
+- Re-detecting forgotten traps works properly now.
+- The 'use old target by default' and 'equippy chars' options are now
+  disabled in Moria mode.
+- The default birth options for new characters can now be set from *.prf
+  files.
+- The used staircases is now marked as known when entering a new level.
+- Refulling a latern from another latern in the inventory will now
+  correctly update the inventory and equipment windows.
+- Corpses are now correctly updated when switching Adam Bolt's tiles off.
+- Fixed annoying lack of redraw when moving about the wilderness map
+  quickly.
+- Rangers were *worse* at shooting a monster in a tree than other classes.
+- Added some extra checking in the bitmap loading code.
+- Fixed a bug with mimics in the 'visible monsters' window.
+- Fixed bug with the fake_monochrome flag not being updated when the
+  graphics type changes.
+- Fixed display of item to be picked up when covered with gold, when
+  several options were set in a certain way.
+- The race- and class-specific player icons work now with the 8x8 tiles.
+
 ZAngband 2.5.6:
 - Shifted store names over so that the long ones fit along with the
   maximum price.

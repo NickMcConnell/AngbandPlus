@@ -89,6 +89,9 @@ void reset_visuals(void)
 		process_pref_file("font.prf");
 	}
 
+	/* Reset the fake monochrome flag */
+	fake_monochrome = (!use_graphics || streq(ANGBAND_SYS, "ibm")) ? TRUE:FALSE;
+	
 	/* Fields have to notice the change of visuals. */
 	init_fields();
 }
@@ -2201,7 +2204,9 @@ void show_inven(void)
 		/* Fake monochrome */
 		if (!use_color || ironman_moria)
 		{
+			/* Hack - no equippy char */
 			a = TERM_WHITE;
+			c = ' ';
 		}
 
 		Term_draw(col + 3, j + 1, a, c);
@@ -2339,7 +2344,9 @@ void show_equip(void)
 		/* Fake monochrome */
 		if (!use_color || ironman_moria)
 		{
-			out_color[k] = TERM_WHITE;
+			/* Hack - no equippy char */
+			a = TERM_WHITE;
+			c = ' ';
 		}
 
 		Term_draw(col + 3, j + 1, a, c);

@@ -476,7 +476,7 @@ static void roff_aux(int r_idx, int remem)
 		}
 
 		/* Describe the "quality" */
-		if (flags2 & RF2_ELDRITCH_HORROR) roff(" sanity-blasting");
+		if (flags2 & RF2_XXX_1)			  roff(" some property");
 		if (flags3 & RF3_ANIMAL)          roff(" natural");
 		if (flags3 & RF3_EVIL)            roff(" evil");
 		if (flags3 & RF3_GOOD)            roff(" good");
@@ -577,7 +577,7 @@ static void roff_aux(int r_idx, int remem)
 
 	/* Collect inate attacks */
 	if (flags4 & RF4_SHRIEK)  vp[vn++] = "shriek for help";
-	if (flags4 & RF4_XXX3)    vp[vn++] = "do something";
+	if (flags4 & RF4_ELDRITCH_HORROR) vp[vn++] = "blast your sanity";
 	if (flags4 & RF4_ROCKET)  vp[vn++] = "shoot a rocket";
 	if (flags4 & RF4_ARROW_1) vp[vn++] = "fire an arrow";
 	if (flags4 & RF4_ARROW_2) vp[vn++] = "fire arrows";

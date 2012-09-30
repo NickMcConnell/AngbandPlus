@@ -2999,67 +2999,8 @@ static errr term_data_init(term_data *td, int i)
 
 	XSizeHints *sh;
 
-
-	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
-
-	/* Check environment for that font */
-	font = getenv(buf);
-
-	/* Check environment for "base" font */
-	if (!font) font = getenv("ANGBAND_X11_FONT");
-
-	/* No environment variables, use default font */
-	if (!font)
-	{
-		switch (i)
-		{
-			case 0:
-			{
-				font = DEFAULT_X11_FONT_0;
-			}
-			break;
-			case 1:
-			{
-				font = DEFAULT_X11_FONT_1;
-			}
-			break;
-			case 2:
-			{
-				font = DEFAULT_X11_FONT_2;
-			}
-			break;
-			case 3:
-			{
-				font = DEFAULT_X11_FONT_3;
-			}
-			break;
-			case 4:
-			{
-				font = DEFAULT_X11_FONT_4;
-			}
-			break;
-			case 5:
-			{
-				font = DEFAULT_X11_FONT_5;
-			}
-			break;
-			case 6:
-			{
-				font = DEFAULT_X11_FONT_6;
-			}
-			break;
-			case 7:
-			{
-				font = DEFAULT_X11_FONT_7;
-			}
-			break;
-			default:
-			{
-				font = DEFAULT_X11_FONT;
-			}
-		}
-	}
+	/* Get default font for this term */
+	font = get_default_font(i);
 
 	/* Window specific location (x) */
 	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);

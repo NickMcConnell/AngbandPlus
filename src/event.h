@@ -1,7 +1,7 @@
 #include "angband.h"
 #include "Python.h"
 
-
+#ifdef USE_SCRIPT
 extern void new_game_callback(void);
 extern void load_game_callback(char *data);
 extern cptr save_game_callback(void);
@@ -77,15 +77,15 @@ extern bool init_object_kind_list_callback(void);
 /* Field callbacks */
 extern void field_delete_callback(field_type *f_ptr);
 extern PyObject* field_copy_callback(field_type *f_ptr, field_type *g_ptr);
-extern cptr field_save_callback(const field_type *f_ptr);
 extern PyObject* field_load_callback(char *code);
+extern cptr field_save_callback(const field_type *f_ptr);
 
 extern bool use_skill_callback(void);
 extern bool process_command_callback(char command);
 
 /* Script callbacks */
 extern cptr get_script_window_line(int line);
-
+#endif /* USE_SCRIPT */
 
 #define NEW_GAME_EVENT                1
 #define LOAD_GAME_EVENT               2

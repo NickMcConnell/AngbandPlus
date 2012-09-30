@@ -70,7 +70,7 @@ void have_nightmare(int r_idx)
 	msg_format("You behold the %s visage of %s!",
 				  horror_desc[randint0(MAX_SAN_HORROR)], desc);
 
-	r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
+	r_ptr->r_flags4 |= RF4_ELDRITCH_HORROR;
 
 	switch(p_ptr->prace)
 	{
@@ -242,7 +242,7 @@ bool get_nightmare(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Require eldritch horrors */
-	if (!(r_ptr->flags2 & (RF2_ELDRITCH_HORROR))) return (FALSE);
+	if (!(r_ptr->flags4 & (RF4_ELDRITCH_HORROR))) return (FALSE);
 
 	/* Require high level */
 	if (r_ptr->level <= p_ptr->lev) return (FALSE);
@@ -411,7 +411,7 @@ static void display_build(const field_type *f_ptr, const store_type *b_ptr)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 	
-	factor = ((300 - factor) * bo_ptr->inflate) / 100;
+	factor = ((factor + 100) * bo_ptr->inflate) / 100;
 
 	Term_clear();
 	sprintf(tmp_str, "%s (%s) %s", owner_name, race_name, build_name);
@@ -1258,7 +1258,7 @@ static int critical_prob_aux(int x, int r)
 	 */
 	int n = x + 1 - (r - 100);
 
-	if (n <= 0) return(100 * x);
+	if (n <= 0) return (100 * x);
 
 	if (n <= 100) return (100 * x - n * (n - 1) / 2);
 
@@ -1301,7 +1301,7 @@ static int critical_prob(int to_h, int r1, int r2)
 	int prob1, prob2;
 	int chance = p_ptr->skill_thn + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
 
-	if (chance <= 0) return(0);
+	if (chance <= 0) return (0);
 	
 	prob1 = critical_prob_aux(chance, r1);
 	
@@ -1932,7 +1932,7 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 	
-	factor = ((300 - factor) * bo_ptr->inflate) / 100;
+	factor = ((factor + 100) * bo_ptr->inflate) / 100;
 	
 	field_hook(&area(p_ptr->py, p_ptr->px)->fld_idx,
 		 FIELD_ACT_STORE_ACT2, (vptr) &factor);
@@ -1966,7 +1966,7 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 	}
 
 	/* Process the building-specific commands */
-	if (process_build_hook(f_ptr, b_ptr)) return(FALSE);
+	if (process_build_hook(f_ptr, b_ptr)) return (FALSE);
 	
 	/* Parse the command */
 	switch (p_ptr->command_cmd)

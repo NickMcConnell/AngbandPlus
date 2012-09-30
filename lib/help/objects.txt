@@ -275,11 +275,14 @@ Table 2 - Strong Pseudo-Id
     -------------------------------------------------
     terrible       a cursed artifact
     worthless      a cursed ego item
+    tainted        a cursed, "excellent" item
     cursed         a cursed item
-    average        an average item
-    good           an enchanted item
+    dubious        a cursed, enchanted item
+    bad            an item with negative plusses
+    special        a non-cursed artifact
     excellent      a good ego item
-    special        an non-cursed artifact
+    good           an enchanted item
+    average        an average item
 
 
 Table 3 - Weak Pseudo-Id
@@ -391,15 +394,6 @@ Note: In non-preserve mode, you can still find artifacts on
 levels that did not give a special feeling but these will always
 be the result of a monster dropping them.
 
---- The '~' Command ---
-
-By pressing '~' and choosing the option for artifacts, you can see
-what fixed (but not random) artifacts you have found so far. In
-non-preserve mode, this option will also show which fixed (but not
-random) artifacts you have missed. However, in this case, it will
-show nothing about fixed artifacts on the current dungeon level but
-not yet found and as a result is often best used on the town level.
-
 --- Random Artifacts ---
 
 In addition to the standard artifacts which are potentially available
@@ -411,6 +405,7 @@ Note that random artifacts can be both good and bad and of greatly
 varying quality. Unlike standard artifacts, the in-game spoilers will
 not contain details of their special powers and so you must *identify*
 if you wish to ascertain this information.
+
 
 ***** <RandomAbilities>
 === Random Abilities of Objects ===
@@ -752,7 +747,7 @@ Light Sources ('~')
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: June 2, 2000
+Last update: May 25, 2001
 
 ***** Begin Hyperlinks
 ***** [1] option.txt#UserInterface

@@ -1520,7 +1520,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 			if (act && see_either)
 			{
 				/* Look to see if we've spotted a mimic */
-				if ((m_ptr->smart & SM_MIMIC) && see_m)
+				if ((m_ptr->smart & SM_MIMIC) && m_ptr->ml)
 				{
 					char m_name2[80];
 		
@@ -1538,7 +1538,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 				}
 
 				/* Look to see if we've spotted a mimic */
-				if ((t_ptr->smart & SM_MIMIC) && see_t)
+				if ((t_ptr->smart & SM_MIMIC) && t_ptr->ml)
 				{
 					char t_name2[80];
 		

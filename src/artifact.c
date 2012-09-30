@@ -816,7 +816,7 @@ static int random_slay(object_type *o_ptr, int artifact_bias)
 			break;
 			
 		case BIAS_PRIESTLY:
-			if((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM) &&
+			if ((o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM) &&
 			  !(o_ptr->flags3 & TR3_BLESSED))
 	  		{
 				/* A free power for "priestly" random artifacts */
@@ -1529,7 +1529,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	if (o_ptr->dd && o_ptr->ds)
 	{
-		while (one_in_(10L * o_ptr->dd * o_ptr->ds) && (o_ptr->dd < 10))
+		while (one_in_(10L * o_ptr->dd * o_ptr->ds) && (o_ptr->ds < 10))
 		{
 			o_ptr->dd++;
 		}

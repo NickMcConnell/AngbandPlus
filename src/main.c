@@ -50,7 +50,6 @@ static void quit_hook(cptr s)
 }
 
 
-
 /*
  * Set the stack size (for the Amiga)
  */
@@ -68,6 +67,43 @@ __near long __stack = 32768L;
 extern unsigned _stklen = 32768U;
 extern unsigned _ovrbuffer = 0x1500;
 #endif
+
+
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+static void create_user_dir(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+	/* Drop privs */
+	safe_setuid_drop();
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, 1024, dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+	/* Grab privs */
+	safe_setuid_grab();
+}
+
+#endif /* PRIVATE_USER_PATH */
+
 
 /*
  * Initialize and verify the file paths, and the score file.
@@ -318,6 +354,14 @@ static void game_usage(void)
 #ifdef USE_VME
 	puts("  -mvme    To use VME (VAX/ESA)");
 #endif /* USE_VME */
+
+#ifdef USE_GTK
+	puts("  -mgtk    To use GTK toolkit");
+	puts("  --       Sub options");
+	/* puts("  -- -d    Set display name"); */
+	/* puts("  -- -s    Turn off smoothscaling graphics"); */
+	puts("  -- -n#   Number of terms to use");
+#endif /* USE_VME */
 				
 	/* Actually abort the process */
 	quit(NULL);
@@ -437,6 +481,13 @@ int main(int argc, char *argv[])
 #else /* ANGBAND_2_8_1 */
 	user_name(op_ptr->full_name, player_uid);
 #endif /* ANGBAND_2_8_1 */
+
+#ifdef PRIVATE_USER_PATH
+
+	/* Create a directory for the users files. */
+	create_user_dir();
+
+#endif /* PRIVATE_USER_PATH */
 
 #endif /* SET_UID */
 
@@ -621,6 +672,15 @@ int main(int argc, char *argv[])
 			ANGBAND_SYS = "xpj";
 			done = TRUE;
 		}
+	}
+#endif
+
+
+#ifdef USE_GTK
+	/* Attempt to use the "main-gtk.c" support */
+	if (!done && (!mstr || (streq(mstr, "gtk"))))
+	{
+		init_gtk(argc, argv);
 	}
 #endif
 
