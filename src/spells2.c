@@ -367,6 +367,9 @@ void identify_pack(void)
 		/* Process the appropriate hooks */
 		process_hooks(HOOK_IDENTIFY, "(d,s)", i, "normal");
 	}
+
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
 
 /*
@@ -406,6 +409,10 @@ void identify_pack_fully(void)
 		/* Process the appropriate hooks */
 		process_hooks(HOOK_IDENTIFY, "(d,s)", i, "full");
 	}
+
+	p_ptr->update |= (PU_BONUS);
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
 
 /*
@@ -4440,9 +4447,6 @@ bool identify_fully(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-
-	/* Handle stuff */
-	handle_stuff();
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);

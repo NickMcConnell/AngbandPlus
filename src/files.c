@@ -6016,7 +6016,7 @@ void race_score(int race_num)
 
 	/* rr9: TODO - pluralize the race */
 	sprintf(tmp_str, "The Greatest of all the %s", rp_name + race_info[race_num].title);
-	prt(tmp_str, 5, 15);
+	prt(tmp_str, 5, 3);
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
@@ -6047,7 +6047,7 @@ void race_score(int race_num)
 	m = 0;
 	j = 0;
 
-	while ((m < 10) || (j < MAX_HISCORES))
+	while ((m < 10) && (j < i))
 	{
 		if (highscore_seek(j)) break;
 		if (highscore_read(&the_score)) break;

@@ -95,16 +95,15 @@ bool quest_thrain_gen_hook(char *fmt)
 	int ystart;
 	int y2, x2, yval, xval;
 	int y1, x1, xsize, ysize;
-	cave_type *c_ptr;
 	monster_type *m_ptr;
-
-	by0 = get_next_arg(fmt);
-	bx0 = get_next_arg(fmt);
 
 	if (dungeon_type != DUNGEON_DOL_GULDUR) return (FALSE);
 	if (cquest.data[0] != dun_level) return (FALSE);
 	if (cquest.data[1]) return (FALSE);
 	if ((cquest.status < QUEST_STATUS_TAKEN) || (cquest.status >= QUEST_STATUS_FINISHED)) return (FALSE);
+
+	by0 = get_next_arg(fmt);
+	bx0 = get_next_arg(fmt);
 
 	/* Pick a room size */
 	xsize = 0;
@@ -120,18 +119,16 @@ bool quest_thrain_gen_hook(char *fmt)
 	/* Get corner values */
 	y1 = yval - ysize / 2;
 	x1 = xval - xsize / 2;
-	y2 = yval + (ysize) / 2;
-	x2 = xval + (xsize) / 2;
+	y2 = y1 + ysize - 1;
+	x2 = x1 + xsize - 1;
 
 	/* Place a full floor under the room */
-	for (y = y1 - 1; y <= y2 + 1; y++)
+	for (y = y1; y <= y2; y++)
 	{
-		for (x = x1 - 1; x <= x2 + 1; x++)
+		for (x = x1; x <= x2; x++)
 		{
-			c_ptr = &cave[y][x];
 			cave_set_feat(y, x, floor_type[rand_int(100)]);
-			c_ptr->info |= (CAVE_ROOM);
-			c_ptr->info |= (CAVE_GLOW);
+			cave[y][x].info |= (CAVE_ROOM|CAVE_GLOW);
 		}
 	}
 

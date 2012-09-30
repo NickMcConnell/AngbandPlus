@@ -223,7 +223,7 @@ pressing the control key, by typing a caret ("^") followed by the key.
 This is useful for specifying control-key commands which might be caught
 by the operating system as explained above.
 ~~~~~79
-        Pressing [[[[[Gbackslash ("\")] before a command will bypass all keymaps,
+        Pressing [[[[[Gbackslash ("\\")] before a command will bypass all keymaps,
 and the next keypress will be interpreted as an "underlying command" key,
 unless it is a caret ("^"), in which case the keypress after that will be
 turned into a control-key and interpreted as a command in the underlying

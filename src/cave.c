@@ -2214,7 +2214,7 @@ void lite_spot(int y, int x)
 # ifdef USE_EGO_GRAPHICS
 
 		/* Examine the grid */
-		map_info(y, x, &a, &c, &ta, &tc, &ea, &ec);
+		map_info(y, x, &a, (char*)&c, &ta, &tc, &ea, &ec);
 
 		/* Hack -- Queue it */
 		Term_queue_char(panel_col_of(x), y - panel_row_prt, a, c, ta, tc, ea, ec);
@@ -5224,7 +5224,9 @@ int random_quest_number()
 {
 	if ((dun_level >= 1) && (dun_level < MAX_RANDOM_QUEST) &&
 	                (dungeon_flags1 & DF1_PRINCIPAL) &&
-	                (random_quests[dun_level].type) && (!is_randhero()))
+	                (random_quests[dun_level].type) &&
+					(!random_quests[dun_level].done) &&
+					(!is_randhero(dun_level)))
 	{
 		return dun_level;
 	}

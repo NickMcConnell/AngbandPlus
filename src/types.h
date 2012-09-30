@@ -1020,8 +1020,8 @@ struct owner_type
 
 	byte insult_max;                /* Insult limit */
 
-	s32b races[2][2];                  /* Liked/hated races */
-	s32b classes[2][2];                /* Liked/hated classes */
+	u32b races[2][2];                  /* Liked/hated races */
+	u32b classes[2][2];                /* Liked/hated classes */
 
 	s16b costs[3];                  /* Costs for liked people */
 };
@@ -1610,7 +1610,8 @@ struct player_type
 	s16b disrupt_shield;/* Timed disruption shield */
 	s16b parasite;      /* Timed parasite */
 	s16b parasite_r_idx;/* Timed parasite monster */
-	u32b loan, loan_time;/* Timer -- loan */
+	s32b loan;			/* Amount of loan */
+	s32b loan_time;		/* Timer -- time to payback loan */
 	s16b absorb_soul;   /* Timed soul absordtion */
 	s16b tim_magic_breath;      /* Magical breathing -- can breath anywhere */
 	s16b tim_water_breath;      /* Water breathing -- can breath underwater */

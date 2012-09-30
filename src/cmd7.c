@@ -1819,7 +1819,8 @@ void display_activation_info(int num)
 
 void select_an_activation(void)
 {
-	int i, lev, wid, hgt, max, begin = 0, sel = 0;
+	int i, lev, wid, hgt, begin = 0, sel = 0;
+	u32b max;
 	cptr act_list[150];  /* currently, ~127 hardcoded activations */
 	int act_ref[150];
 	char c;
@@ -1873,7 +1874,7 @@ void select_an_activation(void)
 		else if (c == '2')
 		{
 			sel++;
-			if (sel >= max)
+			if (sel >= (s32b)max)
 			{
 				sel = 0;
 				begin = 0;
@@ -2938,10 +2939,9 @@ void alchemist_recipe_book(void)
 
 				if (alchemist_recipes[al_idx].tval == 1)
 				{
-
 					if (alchemist_known_egos[alchemist_recipes[al_idx].sval / 32]
-					                & (1 << (alchemist_recipes[al_idx].sval % 32)) ) ;
-					essence[alchemist_recipes[al_idx].sval_essence] = TRUE;
+					                & (1 << (alchemist_recipes[al_idx].sval % 32)) )
+						essence[alchemist_recipes[al_idx].sval_essence] = TRUE;
 					continue;
 				}
 
@@ -3600,7 +3600,7 @@ void alchemist_gain_level(int lev)
  */
 void alchemist_check_level()
 {
-	int lev = get_skill(SKILL_ALCHEMY);
+	u32b lev = get_skill(SKILL_ALCHEMY);
 	if ( alchemist_gained > lev )
 		return;
 	/*Paranoia*/
@@ -7726,8 +7726,19 @@ void do_cmd_symbiotic(void)
 				if ((m_idx = place_monster_one(y, x, o_ptr->pval, 0, FALSE, MSTATUS_PET)) == 0) return;
 
 				/* TODO fix this hack hack hack hackity hack with ToME 3 flags */
+				/* Have to be careful here; releasing the symbiote into a
+                 * dungeon with leveled monsters will level the symbiote
+                 * before we can get hold of it. We'll be nice and use the
+                 * larger of the saved exp and the exp that the newly-generated
+                 * monster starts with. */
 				m_ptr = &m_list[m_idx];
-				monster_gain_exp(m_idx, o_ptr->exp, TRUE);
+				if (m_ptr->exp < o_ptr->exp)
+				{
+					m_ptr->exp = o_ptr->exp;
+					monster_check_experience(m_idx, TRUE);
+					if (m_ptr->level != o_ptr->elevel)
+						cmsg_format(TERM_VIOLET, "ERROR: level-%d HYPNOS becomes level-%d symbiote", o_ptr->elevel, m_ptr->level);
+				}
 				m_ptr->hp = o_ptr->pval2;
 				m_ptr->maxhp = o_ptr->pval3;
 

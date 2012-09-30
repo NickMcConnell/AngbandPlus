@@ -308,6 +308,9 @@ found in some towns. These Buildings (represented by +'s) include:
 #####GPaladin guild
      Some healing and enchantments available.
 
+#####GThe Mathom House
+     Donate important, but unwanted items you find in the dungeon.
+
 
 ~~~~~1|Wilderness
 #####R=== The Wilderness and the Wilderness Map ===

@@ -2707,7 +2707,7 @@ void calc_bonuses(bool silent)
 	int i, j, hold;
 	int old_invis;
 	int old_speed;
-	int old_telepathy;
+	u32b old_telepathy;
 	int old_see_inv;
 	int old_dis_ac;
 	int old_dis_to_a;
@@ -2897,9 +2897,6 @@ void calc_bonuses(bool silent)
 	/* Base Luck */
 	p_ptr->luck_cur = p_ptr->luck_base;
 
-	/* Let the scripts do what they need */
-	process_hooks(HOOK_CALC_BONUS, "()");
-
 	/* Mimic override body's bonuses */
 	if (p_ptr->mimic_form)
 	{
@@ -2909,6 +2906,9 @@ void calc_bonuses(bool silent)
 	{
 		calc_body_bonus();
 	}
+
+	/* Let the scripts do what they need */
+	process_hooks(HOOK_CALC_BONUS, "()");
 
 	/* The powers gived by the wielded monster */
 	calc_wield_monster();

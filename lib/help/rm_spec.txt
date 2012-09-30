@@ -17,8 +17,8 @@ Spectres gain almost no nutrition from ordinary food.
 
 #####GStat Modifiers
 Strength       -5   
-Intelligence   +4   
-Wisdom         +4   
+Intelligence   +2   
+Wisdom         +2   
 Dexterity      +2   
 Constitution   -3   
 Charisma       -6      

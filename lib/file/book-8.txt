@@ -11,11 +11,11 @@
 	good infravision, see invisible, and it casts a x5 strength
 	dispel evil.
 
-  The Amulet of Carlammas (+3)
+  The Amulet of Carlammas (+2)
 	This fiery amulet protects from  flame,    casts protection
 	from evil and increases your constitution.
 
-  The Phial of Galadriel
+  The Phial of Galadriel (+4)
 	This wonderful object is an infinite light source, and once
 	identified it can light up rooms. 
 
@@ -38,8 +38,8 @@
 
   The Ring of Power 'Vilya' (+3)
 	This was kept by Gil-galad who gave it to Elrond.
-	This gives immunity to lightning and poison.  Plus three to
-	all your stats.  Casts very powerful lightning balls.
+	This gives immunity to lightning and resists poison.  Plus three
+	to all your stats.  Casts very powerful lightning balls.
 
   Rumors exist of  a Ring of Power known as the One Ring, which was
   made  to master  the other Rings of Power.   Its  powers are what

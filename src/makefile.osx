@@ -137,12 +137,12 @@ IMAGENAME := ToME $(APPVERSION)
 IMAGEPATH := /Volumes/$(IMAGENAME)
 
 image: install
-	[ -d "$(IMAGEPATH)" ] && diskutil unmount "$(IMAGEPATH)" || true
+	[ -d "$(IMAGEPATH)" ] && diskutil eject "$(IMAGEPATH)" || true
 
 	hdiutil create -fs HFS+ -volname "$(IMAGENAME)" -ov -type SPARSE -attach "$(IMAGENAME)"
 	cp -r "$(BUNDLEDIR)" ../changes.txt ../credits.txt ../changes.old "$(IMAGEPATH)"
 	cp carbon/Image-DS_Store "$(IMAGEPATH)/.DS_Store"
-	diskutil unmount "$(IMAGEPATH)"
+	diskutil eject "$(IMAGEPATH)"
 
 	rm -f "$(IMAGENAME).dmg"
 	hdiutil convert "$(IMAGENAME).sparseimage" -format UDZO -o "$(IMAGENAME)"

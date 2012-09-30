@@ -2091,10 +2091,10 @@ that's an old Divia suggestion
   trigger) as traps to confuse, poison, teleport, genocide, ... unwary monsters.
   But standing next to a trap with area effects will hurt the player, too.
   There are also traps that shoot ammo: hidden catapults, bows and xbows.
-  
+
   Some monsters can disarm traps, and a monster that has disarmed one of your
   traps will learn how to disarm all of them...
-  
+
   Ammo Traps can have (+hit,+dam) just like bows. They can also be enchanted.
   All traps can have a [+AC] showing how hard it is to disarm it.
   There are also ego and artifact traps.
@@ -2888,7 +2888,7 @@ becomes 0, allowing spells to summon fiery blades and such
 
 20/11/2001
 [G]- Traps have been tweaked down to be a bit less deadly, thanks Runescrye
-[P]- Summoner class! Thanks to Luc French for the idea and quite a bit of 
+[P]- Summoner class! Thanks to Luc French for the idea and quite a bit of
      the code
 [I]- New splash screen made by Jans
 
@@ -3470,7 +3470,7 @@ becomes 0, allowing spells to summon fiery blades and such
      stack infinitely. It's dangerous, and, in fact, players were totally
      safe from traps (messages said "You set off...", but traps were never
      activated) -- pelpel
-[B]- Black breath could crash the game (it's really evil, isn't it :) 
+[B]- Black breath could crash the game (it's really evil, isn't it :)
      Thanks Kevin W. Thomas for the patch -- pelpel
 [m]- Ego graphics code now only tries to use graphics overlays for
      monsters and players if and only if 16x16 tiles are used -- pelpel
@@ -3698,7 +3698,7 @@ becomes 0, allowing spells to summon fiery blades and such
 
 12/05/2002
 [m]- Some, if not all, command line options are documented -- pelpel
-[B]- Full map command displayed only half of current dungeon level when 
+[B]- Full map command displayed only half of current dungeon level when
      bigtile mode is used.  Thanks for Takeshi Mogami for tha patch
      -- Kusunose
 
@@ -3746,7 +3746,7 @@ becomes 0, allowing spells to summon fiery blades and such
 
 09/07/2002
 [B]- Cancelling a scroll of reset recall didn't work.  -- Kusunose
-[O]- Reset recall now lists all the dungeons a player has visited and 
+[O]- Reset recall now lists all the dungeons a player has visited and
      additionally allow a player to select by name. -- Kusunose
 
 13/07/2002
@@ -3773,7 +3773,7 @@ becomes 0, allowing spells to summon fiery blades and such
      Robert Ruehlmann -- pelpel
 
 22/07/2002
-[m]- More lua documentation fixes, particularly adding square brackets to field 
+[m]- More lua documentation fixes, particularly adding square brackets to field
      names on lines that would allow this without mucking up colour formatting.
      -- fearoffours
 
@@ -4283,7 +4283,7 @@ becomes 0, allowing spells to summon fiery blades and such
 02/12/2002
 [m]- Skill updates for more character classes in the help files. -- masmarangio
 [m]- Automatizer tutorial added. -- fearoffours
-[G]- God quest relic is now inscribed to prevent automatizer 'accidents' 
+[G]- God quest relic is now inscribed to prevent automatizer 'accidents'
      -- fearoffours
 
 02/12/2002
@@ -4310,17 +4310,17 @@ becomes 0, allowing spells to summon fiery blades and such
 
 06/12/2002
 [B]- Staves are properly fireproofed now. -- fearoffours
-[m]- God quest gets more clues to the location, and they're printed in the 
+[m]- God quest gets more clues to the location, and they're printed in the
      'Ctrl-Q'uest screen. I'm too nice. -- fearoffours
 
 07/12/2002
 [I]- Added the extended command #quest (or #Q for short) to get quest list
      because some prts catch the CTRL+Q combo
-[m]- Added contextual help for wands/staves, also added a section in the help 
+[m]- Added contextual help for wands/staves, also added a section in the help
      about it. --fearoffours
 [m]- Some small help file updates (Muar becomes Durin's Bane) -- masmarangio
-[m]- Added full mindcrafting spell info in the same form as other schools of 
-     magic. Removed help on the Music skill, as this will not be included for 
+[m]- Added full mindcrafting spell info in the same form as other schools of
+     magic. Removed help on the Music skill, as this will not be included for
      2.1.0. Added some other help stuff. -- fearoffours
 
 08/12/2002
@@ -4362,7 +4362,7 @@ becomes 0, allowing spells to summon fiery blades and such
 [I]- Added OBJ_FOUND_SELFMADE for items that were created by the player.
      Alchemist should also use it (not changed yet). Replaced the plain
      description "in the Town" for items fond on the surface -- masmarangio
-     
+
 14/12/2002
 [O]- Monster traps are disarmed by GF_KILL_TRAP and GF_KILL_DOOR -- masmarangio
 [m]- The description of ACT_DEST_DOOR includes traps, better description of
@@ -4468,7 +4468,7 @@ becomes 0, allowing spells to summon fiery blades and such
 [P]- Boulder throwing skill :) For Ents .. Don't get used to it as I don't know
      if I'll let it in
 [B]- Destruction cannot kill quest monsters
-[B]- The lost temple (god quest) dungeon really cannot be generated in 
+[B]- The lost temple (god quest) dungeon really cannot be generated in
      inaccessible places now. -- fearoffours
 [I]- Unidentified objects are marked in slate(the inventory letter)
 
@@ -4512,7 +4512,7 @@ becomes 0, allowing spells to summon fiery blades and such
 [m]- wizard1.c: Added IS_CVS to header, create artifacts at 25, not 35, added
      index in Essence Spoiler. essences.txt: new spoiler file -- masmarangio
 [m]- cmd1.c: removed a compiler warning. caves.c: simplified a test -- masmarangio
-[m]- Info on spell-power and multi-school-spell interaction, typo fix in 
+[m]- Info on spell-power and multi-school-spell interaction, typo fix in
      m_mindcr.txt -- fearoffours
 
 31/12/2002
@@ -4539,7 +4539,7 @@ becomes 0, allowing spells to summon fiery blades and such
 03/01/2003
 [B]- wizard2.c: Some bound checks to prevent crashes -- masmarangio
 [B]- cmd7.c: Fixed reduced capacity of ego rods -- masmarangio
-[B]- object1.c: Added a "It cannot be destroyed" msg in place of "it has blah% 
+[B]- object1.c: Added a "It cannot be destroyed" msg in place of "it has blah%
      chance of breaking upon hit" for artifact ammo. thanks lemming for fix
      -- fearoffours
 
@@ -4569,7 +4569,7 @@ becomes 0, allowing spells to summon fiery blades and such
 [G]- Princess now offer 3 reward and the player selects one
 
 06/01/2003
-[B]- cmd7.c: Fixing three bugs in Alchemy: Extracting from double ego items and 
+[B]- cmd7.c: Fixing three bugs in Alchemy: Extracting from double ego items and
      from stacks of staves, as well as generating all leeched empty items.
      Problems may still arise when you leech a stack of objects from the floor
      and essences get dropped over them. Boomerangs can be enchanted now.
@@ -4589,7 +4589,7 @@ becomes 0, allowing spells to summon fiery blades and such
 [P]- p_info.txt: Updated, compacted history-chart. Trolls, Orcs, Elves with new
      entries, some other small changes. Deleted the unused races -- masmarangio
 [m]- Added Activations to essence spoiler, new help file created -- masmarangio
-[B]- Reset the pval of extracted rings and amulets, prevent creation of cursed 
+[B]- Reset the pval of extracted rings and amulets, prevent creation of cursed
      empty items -- masmarangio
 [B]- Make ego staves / wands of nothing extractable, disallow empowering of ego
      items / artifacts that are not wearable (e.g. staves) -- masmarangio
@@ -4718,7 +4718,7 @@ becomes 0, allowing spells to summon fiery blades and such
      display_scores_aux, which I regard first-degree Mega-Hack -- pelpel
 [G]- Wielding the One Ring now has real disadvantages, you've been warned :)
      What ? I didn't mention what disadvantages ? Oh yes, I didn't.
-[G]- Bump required level and difficulty rating of Minas Anor quest, as the 
+[G]- Bump required level and difficulty rating of Minas Anor quest, as the
      trees changes have made it just a little harder. -- neil
 
 23/01/2003
@@ -4751,10 +4751,10 @@ becomes 0, allowing spells to summon fiery blades and such
      is higher
 
 30/01/2003
-[B]- Possibly the relic in the god quest couldn't have been generated. 
+[B]- Possibly the relic in the god quest couldn't have been generated.
      Wasn't me honest guv. -- fearoffours
 [G]- The lost temples for god quests now have harder monsters to make the piety
-     gain rather more substantial and obvious I hope. Deeper monsters appear 
+     gain rather more substantial and obvious I hope. Deeper monsters appear
      as player clvl increases. -- fearoffours
 [m]- Help file corrections on Music skill. -- fearoffours
 
@@ -4777,7 +4777,7 @@ becomes 0, allowing spells to summon fiery blades and such
 [B]- Chaging the melee style did not update bonuses.  Thanks to kobayasi for
      the patch.  -- Kusunose
 [B]- <sval> in automatizer worked even when the player was not aware of
-     the object.  It was possible to use this as a free ID. Thanks to 
+     the object.  It was possible to use this as a free ID. Thanks to
      kobayasi for the patch.  -- Kusunose
 
 24/02/2003
@@ -4800,7 +4800,7 @@ becomes 0, allowing spells to summon fiery blades and such
 
 02/03/2003
 [m]- Fixed a typo in The Dragon Helm of Turin Turambar  -- WeZ
-[G]- Fixed the teleport-level ability of Deathmolds, so they 
+[G]- Fixed the teleport-level ability of Deathmolds, so they
      can teleport out of a dungeon, instead of getting a
      message saying there's only air above them.  -- WeZ
 
@@ -4870,7 +4870,7 @@ becomes 0, allowing spells to summon fiery blades and such
      "Chudus" -- neil
 [B]- Those who can breathe water or don't need to breathe at all should not
      drown in pools of water, as pointed out by "Zonk" -- neil
-[B]- Fix Rods of Simplicity for those who need it most, as pointed out by 
+[B]- Fix Rods of Simplicity for those who need it most, as pointed out by
      "Zizzo" -- neil
 
 03/04/2003
@@ -4973,9 +4973,9 @@ becomes 0, allowing spells to summon fiery blades and such
 02/05/2003
 [P]- Shots now pierce when they used to ricochet in random directions -- neil
 [P]- Piercing shots are now togglable -- neil
-[G]- Singing happy drunks will freely accept alcoholic beverages from you. 
+[G]- Singing happy drunks will freely accept alcoholic beverages from you.
      -- fearoffours
-[m]- Class helpfiles updated to reflect some changes in skill allocation. 
+[m]- Class helpfiles updated to reflect some changes in skill allocation.
      -- fearoffours
 [I]- Turned on by default the linear stats display
 [m]- Chris Hadgis submitetd the first documented package of the ToME API!
@@ -5031,7 +5031,7 @@ becomes 0, allowing spells to summon fiery blades and such
      on -- neil
 
 21/05/2003
-[I]- The player now gets warned during race/class/subrace selection that a 
+[I]- The player now gets warned during race/class/subrace selection that a
      class is experimental. -- neil
 
 23/05/2003
@@ -5078,7 +5078,7 @@ becomes 0, allowing spells to summon fiery blades and such
 [O]- Ingeborg S. Norden's artifact bolts added -- neil
 [P]- Trapping is now an ability instead of a skill. Rogues, but not Assassins,
      start with it -- neil
-[m]- Help updated to reflect new abilities. Deathmold question added to FAQ. 
+[m]- Help updated to reflect new abilities. Deathmold question added to FAQ.
      -- fearoffours
 
 06/06/2003
@@ -5097,7 +5097,7 @@ becomes 0, allowing spells to summon fiery blades and such
      rare -- neil
 
 10/06/2003
-[G]- The god quest is a (little) bit more forgiving about the direction the 
+[G]- The god quest is a (little) bit more forgiving about the direction the
      dungeon lies in, and you also get an approximation of it's distance.
      -- fearoffours
 
@@ -5134,13 +5134,13 @@ becomes 0, allowing spells to summon fiery blades and such
 22/06/2003
 [B]- Potions of Cure Water are inscribed for you to prevent mishaps with
      the automatizer -- neil
-[B]- Don't let people travel with extra limbs, to prevent them losing 
+[B]- Don't let people travel with extra limbs, to prevent them losing
      weapons by mistake -- neil
 [B]- Allow hypnosis of companions, make hypnosis failure messages more
      useful - neil
 
 23/06/2003
-[m]- Mimicry help. Magic help now has it's own menu, other minor help 
+[m]- Mimicry help. Magic help now has it's own menu, other minor help
      updates. -- fearoffours
 
 29/06/2003
@@ -5406,7 +5406,7 @@ becomes 0, allowing spells to summon fiery blades and such
 07/02/2004
 [m] - Backport of old helpfile updates: no Geomancy for Alchemists and Rune-
       crafters, updated luck spoiler, corruption spoiler in crpt_aux.lua, a
-      link in skills.txt, an example in automatizer.txt. 
+      link in skills.txt, an example in automatizer.txt.
       monsters3.c: changed 'golem' to 'creature', since the Mind Steal Spell
       also allows to control a monster. -- masmarangio
 
@@ -5414,15 +5414,15 @@ becomes 0, allowing spells to summon fiery blades and such
 [m]- Capitalisation in the names of junkarts -- masmarangio
 
 13/02/2004
-[m]- mindcraft_info: Corrected and expanded the info for mindcraft powers 
+[m]- mindcraft_info: Corrected and expanded the info for mindcraft powers
      -- masmarangio
 [m]- Small corrections in luck spoiler, description of Manwe's Blessing and
      m_mimic.txt -- masmarangio
 
 19/02/2004
-[B]- God quest will no longer give inaccurate or misleading directions. It 
-     also will now give directions from two static features, and an 
-     approximate, relative distance from each of those points. 
+[B]- God quest will no longer give inaccurate or misleading directions. It
+     also will now give directions from two static features, and an
+     approximate, relative distance from each of those points.
      -- fearoffours
 
 [V]  T.o.M.E 2.2.6 "Won't Get Fooled Again"
@@ -6009,3 +6009,19 @@ becomes 0, allowing spells to summon fiery blades and such
      another monster -- Neil
 
 14/12/2005 - ToME 2.3.3 "Realized Unreality"
+
+15/10/2006
+[B]- Remove buggy trap of Stair Movement -- Neil
+
+12/12/2005
+[B]- Fix typo in one monster's flags - Iain
+
+31/1/2005
+[I]- Fix window position saving on Mac OS, patch by John Love-Jensen
+     -- Neil
+
+19/2/2005
+[B]- Fix word wrapping in character sheet, patch from "ZizzoTheInfinite"
+     -- Neil
+
+[V]  T.o.M.E 2.3.4 aka "An Unexpected Party"

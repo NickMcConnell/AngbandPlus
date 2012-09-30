@@ -33,7 +33,7 @@ static bool do_savefile_aux(int);
 static void junkinit(void);
 static void morejunk(void);
 static bool do_inventory(int);
-static bool do_dungeon(int);
+static bool do_dungeon(int, bool);
 static void do_grid(int);
 static void my_sentinel(char *, u16b, int);
 
@@ -222,7 +222,7 @@ void do_quick_start(int flag)
 
 	do_s16b(&previous_char.chaos_patron, flag);
 	do_u32b(&previous_char.weapon, flag);
-	do_byte(&previous_char.quick_ok, flag);
+	do_byte((byte*)&previous_char.quick_ok, flag);
 
 	for (i = 0; i < 4; i++) do_string(previous_char.history[i], 60, flag);
 }
@@ -248,12 +248,12 @@ static void do_subrace(int flag)
 	if (flag == LS_LOAD)
 		strcpy(sr_ptr->desc + rmp_text, buf);
 
-	do_byte(&sr_ptr->place, flag);
+	do_byte((byte*)&sr_ptr->place, flag);
 
 	for (i = 0; i < 6; i++)
 		do_s16b(&sr_ptr->r_adj[i], flag);
 
-	do_byte(&sr_ptr->luck, flag);
+	do_byte((byte*)&sr_ptr->luck, flag);
 	do_s16b(&sr_ptr->mana, flag);
 
 	do_s16b(&sr_ptr->r_dis, flag);
@@ -265,29 +265,29 @@ static void do_subrace(int flag)
 	do_s16b(&sr_ptr->r_thn, flag);
 	do_s16b(&sr_ptr->r_thb, flag);
 
-	do_byte(&sr_ptr->r_mhp, flag);
+	do_byte((byte*)&sr_ptr->r_mhp, flag);
 	do_s16b(&sr_ptr->r_exp, flag);
 
-	do_byte(&sr_ptr->b_age, flag);
-	do_byte(&sr_ptr->m_age, flag);
+	do_byte((byte*)&sr_ptr->b_age, flag);
+	do_byte((byte*)&sr_ptr->m_age, flag);
 
-	do_byte(&sr_ptr->m_b_ht, flag);
-	do_byte(&sr_ptr->m_m_ht, flag);
-	do_byte(&sr_ptr->f_b_ht, flag);
-	do_byte(&sr_ptr->f_m_ht, flag);
+	do_byte((byte*)&sr_ptr->m_b_ht, flag);
+	do_byte((byte*)&sr_ptr->m_m_ht, flag);
+	do_byte((byte*)&sr_ptr->f_b_ht, flag);
+	do_byte((byte*)&sr_ptr->f_m_ht, flag);
 
-	do_byte(&sr_ptr->m_b_wt, flag);
-	do_byte(&sr_ptr->m_m_wt, flag);
-	do_byte(&sr_ptr->f_b_wt, flag);
-	do_byte(&sr_ptr->f_m_wt, flag);
+	do_byte((byte*)&sr_ptr->m_b_wt, flag);
+	do_byte((byte*)&sr_ptr->m_m_wt, flag);
+	do_byte((byte*)&sr_ptr->f_b_wt, flag);
+	do_byte((byte*)&sr_ptr->f_m_wt, flag);
 
-	do_byte(&sr_ptr->infra, flag);
+	do_byte((byte*)&sr_ptr->infra, flag);
 
 	for (i = 0; i < 4; i++)
 		do_s16b(&sr_ptr->powers[i], flag);
 
 	for (i = 0; i < BODY_MAX; i++)
-		do_byte(&sr_ptr->body_parts[i], flag);
+		do_byte((byte*)&sr_ptr->body_parts[i], flag);
 
 	do_u32b(&sr_ptr->flags1, flag);
 	do_u32b(&sr_ptr->flags2, flag);
@@ -304,13 +304,13 @@ static void do_subrace(int flag)
 	}
 
 	do_byte(&sr_ptr->g_attr, flag);
-	do_byte(&sr_ptr->g_char, flag);
+	do_byte((byte*)&sr_ptr->g_char, flag);
 
 	for (i = 0; i < MAX_SKILLS; i++)
 	{
-		do_byte(&sr_ptr->skill_basem[i], flag);
+		do_byte((byte*)&sr_ptr->skill_basem[i], flag);
 		do_u32b(&sr_ptr->skill_base[i], flag);
-		do_byte(&sr_ptr->skill_modm[i], flag);
+		do_byte((byte*)&sr_ptr->skill_modm[i], flag);
 		do_s16b(&sr_ptr->skill_mod[i], flag);
 	}
 }
@@ -367,11 +367,11 @@ static bool do_extra(int flag)
 	{
 		for (j = 0; j < tmp16s; j++)
 		{
-			do_byte(&special_lvl[j][i], flag);
+			do_byte((byte*)&special_lvl[j][i], flag);
 		}
 	}
 
-	do_byte(&generate_special_feeling, flag);
+	do_byte((byte*)&generate_special_feeling, flag);
 
 	/* Load the quick start data */
 	do_quick_start(flag);
@@ -425,16 +425,16 @@ static bool do_extra(int flag)
 	{
 		if (i < old_max_s_idx)
 		{
-			do_u32b(&s_info[i].value, flag);
-			do_u32b(&s_info[i].mod, flag);
-			do_byte(&s_info[i].dev, flag);
-			do_byte(&s_info[i].hidden, flag);
+			do_s32b(&s_info[i].value, flag);
+			do_s32b(&s_info[i].mod, flag);
+			do_byte((byte*)&s_info[i].dev, flag);
+			do_byte((byte*)&s_info[i].hidden, flag);
 			do_u32b(&s_info[i].uses, flag);
 		}
 		else
 		{
 			do_u32b(&tmp32u, flag);
-			do_u16b(&tmp16s, flag);
+			do_s16b(&tmp16s, flag);
 			do_byte(&tmp8u, flag);
 			do_byte(&tmp8u, flag);
 			do_u32b(&tmp32u, flag);
@@ -451,7 +451,7 @@ static bool do_extra(int flag)
 
 	for (i = 0; i < tmp16s; ++i)
 	{
-		do_byte(&ab_info[i].acquired, flag);
+		do_byte((byte*)&ab_info[i].acquired, flag);
 	}
 
 	do_s16b(&p_ptr->luck_base, flag);
@@ -468,17 +468,17 @@ static bool do_extra(int flag)
 	   unused bit.
 	   */
 	for (i = 0; i < 6 ; ++i)
-		do_s32b(&alchemist_known_artifacts[i], flag);
+		do_u32b(&alchemist_known_artifacts[i], flag);
 
 	for (i = 0; i < 32 ; ++i)
-		do_s32b(&alchemist_known_egos[i], flag);
+		do_u32b(&alchemist_known_egos[i], flag);
 
-	do_s32b(&alchemist_gained, flag);
+	do_u32b(&alchemist_gained, flag);
 
-	do_u32b(&p_ptr->au, flag);
+	do_s32b(&p_ptr->au, flag);
 
-	do_u32b(&p_ptr->max_exp, flag);
-	do_u32b(&p_ptr->exp, flag);
+	do_s32b(&p_ptr->max_exp, flag);
+	do_s32b(&p_ptr->exp, flag);
 	do_u16b(&p_ptr->exp_frac, flag);
 	do_s16b(&p_ptr->lev, flag);
 
@@ -488,7 +488,7 @@ static bool do_extra(int flag)
 	do_s16b(&p_ptr->arena_number, flag);
 	do_s16b(&p_ptr->inside_arena, flag);
 	do_s16b(&p_ptr->inside_quest, flag);
-	do_byte(&p_ptr->exit_bldg, flag);
+	do_byte((byte*)&p_ptr->exit_bldg, flag);
 
 
 	/* Save/load spellbinder */
@@ -525,7 +525,7 @@ static bool do_extra(int flag)
 	{
 		do_byte(&random_quests[i].type, flag);
 		do_s16b(&random_quests[i].r_idx, flag);
-		do_byte(&random_quests[i].done, flag);
+		do_byte((byte*)&random_quests[i].done, flag);
 	}
 
 	do_s16b(&p_ptr->oldpx, flag);
@@ -555,7 +555,7 @@ static bool do_extra(int flag)
 
 	/* Gods */
 	do_s32b(&p_ptr->grace, flag);
-	do_byte(&p_ptr->praying, flag);
+	do_byte((byte*)&p_ptr->praying, flag);
 	do_s16b(&p_ptr->melkor_sacrifice, flag);
 	do_byte(&p_ptr->pgod, flag);
 
@@ -577,8 +577,8 @@ static bool do_extra(int flag)
 	if ((flag == LS_LOAD) && (p_ptr->max_plv < p_ptr->lev))
 		p_ptr->max_plv = p_ptr->lev;
 
-	do_byte(&(p_ptr->help.enabled), flag);
-	do_s32b(&(p_ptr->help.help1), flag);
+	do_byte((byte*)&(p_ptr->help.enabled), flag);
+	do_u32b(&(p_ptr->help.help1), flag);
 
 	/* More info */
 	tmp16s = 0;
@@ -643,13 +643,17 @@ static bool do_extra(int flag)
 	do_s16b(&p_ptr->tim_esp, flag);
 	do_s16b(&p_ptr->tim_wraith, flag);
 	do_s16b(&p_ptr->tim_ffall, flag);
+	do_ver_s16b(&p_ptr->tim_fly, SAVEFILE_VERSION, 0, flag);
 	do_s16b(&p_ptr->tim_fire_aura, flag);
+	do_ver_s16b(&p_ptr->tim_poison, SAVEFILE_VERSION, 0, flag);
 	do_s16b(&p_ptr->resist_magic, flag);
 	do_s16b(&p_ptr->tim_invisible, flag);
 	do_s16b(&p_ptr->tim_inv_pow, flag);
 	do_s16b(&p_ptr->tim_mimic, flag);
 	do_s16b(&p_ptr->lightspeed, flag);
 	do_s16b(&p_ptr->tim_lite, flag);
+	do_ver_s16b(&p_ptr->tim_regen, SAVEFILE_VERSION, 0, flag);
+	do_ver_s16b(&p_ptr->tim_regen_pow, SAVEFILE_VERSION, 0, flag);
 	do_s16b(&p_ptr->holy, flag);
 	do_s16b(&p_ptr->walk_water, flag);
 	do_s16b(&p_ptr->tim_mental_barrier, flag);
@@ -663,8 +667,8 @@ static bool do_extra(int flag)
 	do_s16b(&p_ptr->disrupt_shield, flag);
 	do_s16b(&p_ptr->parasite, flag);
 	do_s16b(&p_ptr->parasite_r_idx, flag);
-	do_u32b(&p_ptr->loan, flag);
-	do_u32b(&p_ptr->loan_time, flag);
+	do_s32b(&p_ptr->loan, flag);
+	do_s32b(&p_ptr->loan_time, flag);
 	do_s16b(&p_ptr->absorb_soul, flag);
 
 	do_s16b(&p_ptr->chaos_patron, flag);
@@ -684,13 +688,13 @@ static bool do_extra(int flag)
 	}
 
 	do_byte(&p_ptr->confusing, flag);
-	do_byte(&p_ptr->black_breath, flag);
-	do_byte(&fate_flag, flag);
+	do_byte((byte*)&p_ptr->black_breath, flag);
+	do_byte((byte*)&fate_flag, flag);
 	do_byte(&p_ptr->searching, flag);
 	do_byte(&p_ptr->maximize, flag);
 	do_byte(&p_ptr->preserve, flag);
 	do_byte(&p_ptr->special, flag);
-	do_byte(&ambush_flag, flag);
+	do_byte((byte*)&ambush_flag, flag);
 	do_byte(&p_ptr->allow_one_death, flag);
 	do_s16b(&p_ptr->xtra_spells, flag);
 
@@ -719,10 +723,10 @@ static bool do_extra(int flag)
 	do_u32b(&p_ptr->race_extra7, flag);
 
 	do_u16b(&p_ptr->body_monster, flag);
-	do_byte(&p_ptr->disembodied, flag);
+	do_byte((byte*)&p_ptr->disembodied, flag);
 
 	/* Are we in astral mode? */
-	do_byte(&p_ptr->astral, flag);
+	do_byte((byte*)&p_ptr->astral, flag);
 
 	if (flag == LS_SAVE) tmp16s = POWER_MAX_INIT;
 	do_s16b(&tmp16s, flag);
@@ -730,21 +734,21 @@ static bool do_extra(int flag)
 		note(format("Too many (%u) powers!", tmp16s));
 	if (flag == LS_SAVE) tmp16s = POWER_MAX_INIT;
 	for (i = 0; i < tmp16s; i++)
-		do_byte(&p_ptr->powers_mod[i], flag);
+		do_byte((byte*)&p_ptr->powers_mod[i], flag);
 
 	skip_ver_byte(100, flag);
 
 	/* The tactic */
-	do_byte(&p_ptr->tactic, flag);
+	do_byte((byte*)&p_ptr->tactic, flag);
 
 	/* The movement */
-	do_byte(&p_ptr->movement, flag);
+	do_byte((byte*)&p_ptr->movement, flag);
 
 	/* The comapnions killed */
 	do_s16b(&p_ptr->companion_killed, flag);
 
 	/* The fate */
-	do_byte(&p_ptr->no_mortal, flag);
+	do_byte((byte*)&p_ptr->no_mortal, flag);
 
 	/* The bounties */
 	for (i = 0; i < MAX_BOUNTIES; i++)
@@ -837,7 +841,7 @@ void save_dungeon(void)
 #endif /* BZ_SAVES */
 
 	/* Save the dungeon */
-	do_dungeon(LS_SAVE);
+	do_dungeon(LS_SAVE, TRUE);
 
 	/* Done */
 #ifdef BZ_SAVES
@@ -1589,10 +1593,10 @@ static void do_string(char *str, int max, int flag)
 	{
 		while (*str)
 		{
-			do_byte(str, flag);
+			do_byte((byte*)str, flag);
 			str++;
 		}
-		do_byte(str, flag); 		/* Output a terminator */
+		do_byte((byte*)str, flag); 		/* Output a terminator */
 		return;
 	}
 	printf("FATAL: do_string passed flag %d\n", flag);
@@ -2083,7 +2087,7 @@ static void do_monster(monster_type *m_ptr, int flag)
 	do_byte(&m_ptr->speed, flag);
 	do_byte(&m_ptr->level, flag);
 	do_s16b(&m_ptr->ac, flag);
-	do_s32b(&m_ptr->exp, flag);
+	do_u32b(&m_ptr->exp, flag);
 	do_s16b(&m_ptr->target, flag);
 
 	do_s16b(&m_ptr->bleeding, flag);
@@ -2104,7 +2108,7 @@ static void do_monster(monster_type *m_ptr, int flag)
 
 	/* Mind */
 	tmp = (m_ptr->mind) ? TRUE : FALSE;
-	do_byte(&tmp, flag);
+	do_byte((byte*)&tmp, flag);
 	if (tmp)
 	{
 		if (flag == LS_LOAD)
@@ -2115,7 +2119,7 @@ static void do_monster(monster_type *m_ptr, int flag)
 
 	/* Special race */
 	tmp = (m_ptr->sr_ptr) ? TRUE : FALSE;
-	do_byte(&tmp, flag);
+	do_byte((byte*)&tmp, flag);
 	if (tmp)
 	{
 		if (flag == LS_LOAD)
@@ -2130,7 +2134,7 @@ static void do_monster(monster_type *m_ptr, int flag)
 
 		do_s16b(&m_ptr->sr_ptr->ac, flag);
 
-		do_u16b(&m_ptr->sr_ptr->sleep, flag);
+		do_s16b(&m_ptr->sr_ptr->sleep, flag);
 		do_byte(&m_ptr->sr_ptr->aaf, flag);
 		do_byte(&m_ptr->sr_ptr->speed, flag);
 
@@ -2141,15 +2145,15 @@ static void do_monster(monster_type *m_ptr, int flag)
 		do_byte(&m_ptr->sr_ptr->freq_inate, flag);
 		do_byte(&m_ptr->sr_ptr->freq_spell, flag);
 
-		do_s32b(&m_ptr->sr_ptr->flags1, flag);
-		do_s32b(&m_ptr->sr_ptr->flags2, flag);
-		do_s32b(&m_ptr->sr_ptr->flags3, flag);
-		do_s32b(&m_ptr->sr_ptr->flags4, flag);
-		do_s32b(&m_ptr->sr_ptr->flags5, flag);
-		do_s32b(&m_ptr->sr_ptr->flags6, flag);
-		do_s32b(&m_ptr->sr_ptr->flags7, flag);
-		do_s32b(&m_ptr->sr_ptr->flags8, flag);
-		do_s32b(&m_ptr->sr_ptr->flags9, flag);
+		do_u32b(&m_ptr->sr_ptr->flags1, flag);
+		do_u32b(&m_ptr->sr_ptr->flags2, flag);
+		do_u32b(&m_ptr->sr_ptr->flags3, flag);
+		do_u32b(&m_ptr->sr_ptr->flags4, flag);
+		do_u32b(&m_ptr->sr_ptr->flags5, flag);
+		do_u32b(&m_ptr->sr_ptr->flags6, flag);
+		do_u32b(&m_ptr->sr_ptr->flags7, flag);
+		do_u32b(&m_ptr->sr_ptr->flags8, flag);
+		do_u32b(&m_ptr->sr_ptr->flags9, flag);
 
 		/* Attacks */
 		for (i = 0; i < 4; i++)
@@ -2166,10 +2170,10 @@ static void do_monster(monster_type *m_ptr, int flag)
 		do_byte(&m_ptr->sr_ptr->level, flag);
 		do_byte(&m_ptr->sr_ptr->rarity, flag);
 
-		do_byte(&m_ptr->sr_ptr->d_char, flag);
+		do_byte((byte*)&m_ptr->sr_ptr->d_char, flag);
 		do_byte(&m_ptr->sr_ptr->d_attr, flag);
 
-		do_byte(&m_ptr->sr_ptr->x_char, flag);
+		do_byte((byte*)&m_ptr->sr_ptr->x_char, flag);
 		do_byte(&m_ptr->sr_ptr->x_attr, flag);
 
 		do_s16b(&m_ptr->sr_ptr->max_num, flag);
@@ -2230,7 +2234,7 @@ static void do_lore(int r_idx, int flag)
 	/* Read the "Racial" monster tmp16b per level */
 	do_s16b(&r_ptr->max_num, flag);
 
-	do_byte(&r_ptr->on_saved, flag);
+	do_byte((byte*)&r_ptr->on_saved, flag);
 
 	if (flag == LS_LOAD)
 	{
@@ -2383,8 +2387,8 @@ static void do_options(int flag)
 		do_u16b(&c, LS_SAVE);
 	}
 
-	do_byte(&autosave_l, flag);
-	do_byte(&autosave_t, flag);
+	do_byte((byte*)&autosave_l, flag);
+	do_byte((byte*)&autosave_t, flag);
 	do_s16b(&autosave_freq, flag);
 
 	if (flag == LS_LOAD)
@@ -2525,7 +2529,7 @@ static void do_spells(int i, int flag)
 	do_byte(&s_ptr->dam_sides, flag);
 	do_byte(&s_ptr->dam_dice, flag);
 	do_byte(&s_ptr->level, flag);
-	do_byte(&s_ptr->untried, flag);
+	do_byte((byte*)&s_ptr->untried, flag);
 }
 
 
@@ -2681,7 +2685,7 @@ static void do_messages(int flag)   /* FIXME! We should be able to unify this be
  * The monsters/objects must be loaded in the same order
  * that they were stored, since the actual indexes matter.
  */
-static bool do_dungeon(int flag)
+static bool do_dungeon(int flag, bool no_companions)
 {
 	int i;
 
@@ -2712,7 +2716,7 @@ static bool do_dungeon(int flag)
 
 	/* Spell effects */
 	tmp16b = MAX_EFFECTS;
-	do_s16b(&tmp16b, flag);
+	do_u16b(&tmp16b, flag);
 
 	if ((flag == LS_LOAD) && (tmp16b > MAX_EFFECTS))
 	{
@@ -2721,13 +2725,13 @@ static bool do_dungeon(int flag)
 
 	for (i = 0; i < tmp16b; ++i)
 	{
-		do_u16b(&effects[i].type, flag);
-		do_u16b(&effects[i].dam, flag);
-		do_u16b(&effects[i].time, flag);
+		do_s16b(&effects[i].type, flag);
+		do_s16b(&effects[i].dam, flag);
+		do_s16b(&effects[i].time, flag);
 		do_u32b(&effects[i].flags, flag);
-		do_u16b(&effects[i].cx, flag);
-		do_u16b(&effects[i].cy, flag);
-		do_u16b(&effects[i].rad, flag);
+		do_s16b(&effects[i].cx, flag);
+		do_s16b(&effects[i].cy, flag);
+		do_s16b(&effects[i].rad, flag);
 	}
 
 	/* TO prevent bugs with evolving dungeons */
@@ -2762,9 +2766,25 @@ static bool do_dungeon(int flag)
 	if (flag == LS_SAVE)
 	{
 		tmp16b = o_max;
+	
+		if (no_companions)
+		{
+			for (i = 1; i < o_max; i++)
+			{
+				object_type *o_ptr = &o_list[i];
+
+				if (o_ptr->held_m_idx && (m_list[o_ptr->held_m_idx].status == MSTATUS_COMPANION)) tmp16b--;
+			}
+		}
+
+		/* Item count */
+		do_u16b(&tmp16b, flag);
+
+		tmp16b = o_max;
 	}
-	/* Item count */
-	do_u16b(&tmp16b, flag);
+	else
+		/* Read item count */
+		do_u16b(&tmp16b, flag);
 
 	/* Verify maximum */
 	if ((flag == LS_LOAD) && (tmp16b > max_o_idx))
@@ -2783,6 +2803,9 @@ static bool do_dungeon(int flag)
 		if (flag == LS_SAVE)
 		{
 			o_ptr = &o_list[i];
+			/* Don't save objects held by companions when no_companions is set */
+			if (no_companions && o_ptr->held_m_idx && (m_list[o_ptr->held_m_idx].status == MSTATUS_COMPANION)) continue;
+
 			do_item(o_ptr, LS_SAVE);
 			continue; 			/* Saving is easy */
 		}
@@ -2836,9 +2859,28 @@ static bool do_dungeon(int flag)
 
 	/*** Monsters ***/
 
-	if (flag == LS_SAVE) tmp16b = m_max;
-	/* Read the monster count */
-	do_u16b(&tmp16b, flag);
+	if (flag == LS_SAVE)
+	{
+		tmp16b = m_max;
+
+		if (no_companions)
+		{
+			for (i = 1; i < m_max; i++)
+			{
+				monster_type *m_ptr = &m_list[i];
+
+				if (m_ptr->status == MSTATUS_COMPANION) tmp16b--;
+			}
+		}
+
+		/* Write the monster count */
+		do_u16b(&tmp16b, flag);
+
+		tmp16b = m_max;
+	}
+	else
+		/* Read the monster count */
+		do_u16b(&tmp16b, flag);
 
 	/* Validate */
 	if ((flag == LS_LOAD) && (tmp16b > max_m_idx))
@@ -2857,6 +2899,10 @@ static bool do_dungeon(int flag)
 		if (flag == LS_SAVE)
 		{
 			m_ptr = &m_list[i];
+
+			/* Don't save companions when no_companions is set */
+			if (no_companions && m_ptr->status == MSTATUS_COMPANION) continue;
+
 			do_monster(m_ptr, LS_SAVE);
 			continue; 			/* Easy to save a monster */
 		}
@@ -2896,7 +2942,8 @@ static bool do_dungeon(int flag)
 
 	/* Read the kept monsters */
 
-	if (flag == LS_SAVE) tmp16b = max_m_idx;
+	tmp16b = (flag == LS_SAVE && !no_companions) ? max_m_idx : 0;
+
 	/* Read the monster count */
 	do_u16b(&tmp16b, flag);
 
@@ -2961,7 +3008,7 @@ bool load_dungeon(char *ext)
 #endif /* BZ_SAVES */
 
 	/* Read the dungeon */
-	if (!do_dungeon(LS_LOAD))
+	if (!do_dungeon(LS_LOAD, FALSE))
 	{
 		dun_level = old_dun;
 		dungeon_type = old_dungeon_type;
@@ -3015,7 +3062,7 @@ void do_fate(int i, int flag)
 	do_s16b(&fates[i].r_idx, flag);
 	do_s16b(&fates[i].count, flag);
 	do_s16b(&fates[i].time, flag);
-	do_byte(&fates[i].know, flag);
+	do_byte((byte*)&fates[i].know, flag);
 }
 
 /*
@@ -3093,7 +3140,7 @@ static bool do_savefile_aux(int flag)
 	if ((flag == LS_LOAD) && (arg_fiddle)) note("Loaded Randomizer Info");
 
 	/* Automatizer state */
-	do_byte(&automatizer_enabled, flag);
+	do_byte((byte*)&automatizer_enabled, flag);
 
 	/* Then the options */
 	do_options(flag);
@@ -3167,7 +3214,7 @@ static bool do_savefile_aux(int flag)
 
 		for (i = 0; i < max_towns; i++)
 		{
-			do_byte(&town_info[i].destroyed, flag);
+			do_byte((byte*)&town_info[i].destroyed, flag);
 
 			if (i >= TOWN_RANDOM)
 			{
@@ -3240,8 +3287,8 @@ static bool do_savefile_aux(int flag)
 		/* Position in the wilderness */
 		do_s32b(&p_ptr->wilderness_x, flag);
 		do_s32b(&p_ptr->wilderness_y, flag);
-		do_byte(&p_ptr->wild_mode, flag);
-		do_byte(&p_ptr->old_wild_mode, flag);
+		do_byte((byte*)&p_ptr->wild_mode, flag);
+		do_byte((byte*)&p_ptr->old_wild_mode, flag);
 
 		{
 			s32b wild_x_size, wild_y_size;
@@ -3268,7 +3315,7 @@ static bool do_savefile_aux(int flag)
 				{
 					do_u32b(&wild_map[j][i].seed, flag);
 					do_u16b(&wild_map[j][i].entrance, flag);
-					do_byte(&wild_map[j][i].known, flag);
+					do_byte((byte*)&wild_map[j][i].known, flag);
 				}
 			}
 		}
@@ -3345,7 +3392,7 @@ static bool do_savefile_aux(int flag)
 	/* fate flags */
 	for (i = 0; i < tmp16u; i++)
 	{
-		do_byte(&t_info[i].ident, flag);
+		do_byte((byte*)&t_info[i].ident, flag);
 	}
 	if ((flag == LS_LOAD) && (arg_fiddle)) note("Loaded Traps");
 
@@ -3362,7 +3409,7 @@ static bool do_savefile_aux(int flag)
 
 	/* Read the inscription flag */
 	for (i = 0; i < tmp16u; i++)
-		do_byte(&inscription_info[i].know, flag);
+		do_byte((byte*)&inscription_info[i].know, flag);
 	if ((flag == LS_LOAD) && arg_fiddle) note("Loaded Inscriptions");
 
 
@@ -3417,7 +3464,7 @@ static bool do_savefile_aux(int flag)
 	do_u16b(&real_max, flag);
 	for (i = 0; i < real_max; i++)
 	{
-		do_byte(&reals[i], flag);
+		do_byte((byte*)&reals[i], flag);
 	}
 
 	/* Read the stores */
@@ -3439,7 +3486,7 @@ static bool do_savefile_aux(int flag)
 	C_FREE(reals, max_towns, bool);
 
 	if (flag == LS_SAVE) tmp32u = extra_savefile_parts;
-	do_s32b(&tmp32u, flag);
+	do_u32b(&tmp32u, flag);
 	if (flag == LS_SAVE)
 	{
 		/* Save the stuff */
@@ -3468,12 +3515,12 @@ static bool do_savefile_aux(int flag)
 	{
 		/* Dead players have no dungeon */
 		if (flag == LS_LOAD) note("Restoring Dungeon...");
-		if ((flag == LS_LOAD) && (!do_dungeon(LS_LOAD)))
+		if ((flag == LS_LOAD) && (!do_dungeon(LS_LOAD, FALSE)))
 		{
 			note("Error reading dungeon data");
 			return (FALSE);
 		}
-		if (flag == LS_SAVE) do_dungeon(LS_SAVE);
+		if (flag == LS_SAVE) do_dungeon(LS_SAVE, FALSE);
 		my_sentinel("Before ghost data", 435, flag);
 		my_sentinel("After ghost data", 320, flag);
 	}
@@ -3675,7 +3722,7 @@ static void do_grid(int flag)
 	int i = 0, y = 0, x = 0;
 	byte count = 0;
 	byte tmp8u = 0;
-	u16b tmp16s = 0;
+	s16b tmp16s = 0;
 	cave_type *c_ptr;
 	byte prev_char = 0;
 	s16b prev_s16b = 0;
@@ -3750,7 +3797,7 @@ static void do_grid(int flag)
 						case 5:
 						case 6:
 						case 8:
-							do_u16b(&prev_s16b, LS_SAVE);
+							do_s16b(&prev_s16b, LS_SAVE);
 							prev_s16b = tmp16s;
 							break;
 
@@ -3779,7 +3826,7 @@ static void do_grid(int flag)
 				case 5:
 				case 6:
 				case 8:
-					do_u16b(&prev_s16b, LS_SAVE);
+					do_s16b(&prev_s16b, LS_SAVE);
 					break;
 
 				case 1:
@@ -3902,27 +3949,27 @@ void register_savefile(int num)
 	extra_savefile_parts += (num > 0) ? num : 0;
 }
 
-void save_number_key(char *key, s32b val)
+void save_number_key(char *key, u32b val)
 {
 	byte len = strlen(key);
 
 	do_byte(&len, LS_SAVE);
 	while (*key)
 	{
-		do_byte(key, LS_SAVE);
+		do_byte((byte*)key, LS_SAVE);
 		key++;
 	}
 	do_u32b(&val, LS_SAVE);
 }
 
-void load_number_key(char *key, s32b *val)
+void load_number_key(char *key, u32b *val)
 {
 	byte len, i = 0;
 
 	do_byte(&len, LS_LOAD);
 	while (i < len)
 	{
-		do_byte(&key[i], LS_LOAD);
+		do_byte((byte*)&key[i], LS_LOAD);
 		i++;
 	}
 	key[i] = '\0';

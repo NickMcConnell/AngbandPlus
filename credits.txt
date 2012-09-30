@@ -52,6 +52,7 @@ drop me a line please) in no particular order:
 - Furiosity for some missing item descriptions
 - SimonSorc for bugfixes
 - Greg Wooledge <greg@wooledge.org> for still more bug fixes
+- Phillip Neiswanger for tons of bug fixes and mainly 2.3.5 and possibly 2.4.0
 
 - All that I forgot in the list, hit me a bit then email me to get added
 

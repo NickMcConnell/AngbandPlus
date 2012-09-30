@@ -569,7 +569,7 @@ bool zsock_write_unix(ip_connection *conn, cptr str, int *size)
 	if (conn->server) return FALSE;
 	if (!conn->connected) return FALSE;
 
-	if ((*size = send(*c, str, (!*size) ? strlen(str) : *size, 0)) <= 0)
+	if ((*size = send(*c, str, (!*size) ? (s32b)strlen(str) : *size, 0)) <= 0)
 	{
 		/* Oups connection died! */
 		if (conn->lost_conn) conn->lost_conn(conn);
@@ -626,7 +626,7 @@ bool zsock_accept_unix(ip_connection *conn, ip_connection *child)
 	int *s = conn->socket;
 	int sock;
 	struct sockaddr_in sin;
-	int len;
+	unsigned int len;
 
 	if (!conn->server) return FALSE;
 	if (!conn->connected) return FALSE;

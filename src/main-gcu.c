@@ -811,7 +811,7 @@ static errr Term_xtra_gcu(int n, int v)
 			if (!directory)
 				return 1;
 
-			while (entry = readdir(directory))
+			while ((entry = readdir(directory)))
 			{
 				char file[PATH_MAX + NAME_MAX + 2];
 				struct stat filedata;

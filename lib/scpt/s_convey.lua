@@ -58,8 +58,9 @@ DISARM = add_spell
 			return ""
 	end,
 	["desc"] =	{
-			"Destroys doors and disarms traps",
-			"At level 10 it unlocks doors and disarms traps",
+			"Destroys doors and traps",
+			"At level 10 it destroys doors and traps, then reveals and unlocks any secret",
+			"doors"
 	}
 }
 

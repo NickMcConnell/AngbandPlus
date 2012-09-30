@@ -489,7 +489,7 @@ are listed in the following table.
            Hermit      -3   +1   +1   -3   -3   +1      -3         +20%
            Lost Soul    0    0    0    0    0    0      +0         +0%
            Skeleton     0   -2   -2    0   +1   -4      +0         +45%
-           Spectre     -5   +1   +1   +2   -3   -6      -4         +80%
+           Spectre     -5   +2   +2   +2   -3   -6      -4         +80%
            Vampire     +3   +2   -3   -2   +1   -4      +1         +100%
            Zombie      +2   -6   -6   +1   +4   -5      +3         +45%
 

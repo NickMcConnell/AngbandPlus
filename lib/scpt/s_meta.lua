@@ -204,7 +204,11 @@ TIMER_INERTIA_CONTROL = new_timer
 	["delay"] = 10,
 	["callback"] = function()
 		-- Don't cast a controlled spell in wilderness mode
-		if (player.inertia_controlled_spell ~= -1) and (player.wild_mode == FALSE) then
+		if player.antimagic then
+			msg_print("Your anti-magic field disrupts any magic attempts.")
+		elseif player.anti_magic then
+			msg_print("Your anti-magic shell disrupts any magic attempts.")
+		elseif (player.inertia_controlled_spell ~= -1) and (player.wild_mode == FALSE) then
 			__spell_spell[player.inertia_controlled_spell]()
 		end
 	end,

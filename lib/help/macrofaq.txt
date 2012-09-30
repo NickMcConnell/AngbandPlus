@@ -1618,10 +1618,6 @@ both macros and keymaps.
 This isn't an actual command, but a character with a special meaning
 inside command strings. {^*} will confirm all actions for the item.
 
-#####B{=g}
-This inscription will cause an item of the same kind to be picked up
-from the floor without prompting.
-
 ~~~~~38
 #####R======================================================================
 #####R9. Pref files

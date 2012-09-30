@@ -1344,6 +1344,19 @@ bool carried_make_attack_normal(int r_idx)
 	return (TRUE);
 }
 
+/*
+ * Give unprotected player the Black Breath with a 1 in (chance) probability
+ *
+ */
+void black_breath_attack(int chance)
+{
+	if (!p_ptr->protundead && randint(chance) == 1)
+	{
+		 msg_print("Your foe calls upon your soul!");
+		 msg_print("You feel the Black Breath slowly draining you of life...");
+		 p_ptr->black_breath = TRUE;
+	}
+}
 
 /*
  * Attack the player via physical attacks.
@@ -1830,29 +1843,16 @@ bool make_attack_normal(int m_idx, byte divis)
 			 */
 			if (r_ptr->flags7 & RF7_NAZGUL)
 			{
-				if (magik(25) && !p_ptr->protundead)
-				{
-					msg_print("Your foe calls upon your soul!");
-					msg_print("You feel the Black Breath slowly draining you of life...");
-					p_ptr->black_breath = TRUE;
-				}
+				black_breath_attack(4);
 			}
 			else if ((m_ptr->level >= 35) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
-			                (r_ptr->flags1 & (RF1_UNIQUE)) &&
-			                (randint(300 - m_ptr->level) == 1) && !p_ptr->protundead)
-
+					    (r_ptr->flags1 & (RF1_UNIQUE)))
 			{
-				msg_print("Your foe calls upon your soul!");
-				msg_print("You feel the Black Breath slowly draining you of life...");
-				p_ptr->black_breath = TRUE;
+				black_breath_attack(300 - m_ptr->level);
 			}
-
-			else if ((m_ptr->level >= 40) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
-			                (randint(450 - m_ptr->level) == 1) && !p_ptr->protundead)
+			else if ((m_ptr->level >= 40) && (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
-				msg_print("Your foe calls upon your soul!");
-				msg_print("You feel the Black Breath slowly draining you of life...");
-				p_ptr->black_breath = TRUE;
+				black_breath_attack(450 - m_ptr->level);
 			}
 
 			/* Hack -- assume all attacks are obvious */

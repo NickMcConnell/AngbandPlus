@@ -1,15 +1,20 @@
-static int randquest_hero[] = { 20, 13, 15, 16, 9, 17, 18, -1 };
+static int randquest_hero[] = { 20, 13, 15, 16, 9, 17, 18, 8, -1 };
 
-bool is_randhero()
+bool is_randhero(int level)
 {
 	int i;
+	bool result = FALSE;
 
 	for (i = 0; randquest_hero[i] != -1; i++)
-		if (random_quests[dun_level].type == randquest_hero[i]) break;
-	if (randquest_hero[i] != -1)
-		return (TRUE);
-	else
-		return (FALSE);
+	{
+		if (random_quests[level].type == randquest_hero[i])
+		{
+			result = TRUE;
+			break;
+		}
+	}
+
+	return result;
 }
 
 void do_get_new_obj(int y, int x)
@@ -124,7 +129,6 @@ void princess_death(s32b m_idx, s32b r_idx)
 
 			do_get_new_obj(y, x);
 
-			random_quests[dun_level].type = 0;
 			random_quests[dun_level].done = TRUE;
 
 			break;
@@ -134,7 +138,6 @@ void princess_death(s32b m_idx, s32b r_idx)
 
 void hero_death(s32b m_idx, s32b r_idx)
 {
-	random_quests[dun_level].type = 0;
 	random_quests[dun_level].done = TRUE;
 
 	cmsg_print(TERM_YELLOW, "The adventurer steps out of the shadows and picks up his sword:");
@@ -221,6 +224,7 @@ bool quest_random_death_hook(char *fmt)
 	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
+	if (random_quests[dun_level].done) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
 	if (random_quests[dun_level].r_idx != r_idx) return (FALSE);
 
@@ -230,7 +234,7 @@ bool quest_random_death_hook(char *fmt)
 	quest[QUEST_RANDOM].data[0]++;
 	if (quest[QUEST_RANDOM].data[0] == random_quests[dun_level].type)
 	{
-		if (is_randhero())
+		if (is_randhero(dun_level))
 			hero_death(m_idx, r_idx);
 		else
 			princess_death(m_idx, r_idx);
@@ -249,10 +253,11 @@ bool quest_random_feeling_hook(char *fmt)
 	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
+	if (random_quests[dun_level].done) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
 	if (!dun_level) return (FALSE);
 
-	if (is_randhero())
+	if (is_randhero(dun_level))
 	{
 		cmsg_format(TERM_YELLOW, "A strange man wrapped in a dark cloak steps out of the shadows:");
 		cmsg_format(TERM_YELLOW, "'Oh, please help me! A horrible %s stole my sword! I'm nothing without it.'", r_info[random_quests[dun_level].r_idx].name + r_name);
@@ -268,8 +273,9 @@ bool quest_random_gen_hero_hook(char *fmt)
 	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
+	if (random_quests[dun_level].done) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
-	if (!is_randhero()) return (FALSE);
+	if (!is_randhero(dun_level)) return (FALSE);
 
 	i = random_quests[dun_level].type;
 
@@ -297,17 +303,17 @@ bool quest_random_gen_hook(char *fmt)
 	int ystart;
 	int y2, x2, yval, xval;
 	int y1, x1, xsize, ysize;
-	cave_type *c_ptr;
-
-	by0 = get_next_arg(fmt);
-	bx0 = get_next_arg(fmt);
 
 	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
+	if (random_quests[dun_level].done) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
 	if (quest[QUEST_RANDOM].data[1]) return (FALSE);
-	if (is_randhero()) return (FALSE);
+	if (is_randhero(dun_level)) return (FALSE);
+
+	by0 = get_next_arg(fmt);
+	bx0 = get_next_arg(fmt);
 
 	/* Pick a room size */
 	xsize = 0;
@@ -323,18 +329,16 @@ bool quest_random_gen_hook(char *fmt)
 	/* Get corner values */
 	y1 = yval - ysize / 2;
 	x1 = xval - xsize / 2;
-	y2 = yval + (ysize) / 2;
-	x2 = xval + (xsize) / 2;
+	y2 = y1 + ysize - 1;
+	x2 = x1 + xsize - 1;
 
 	/* Place a full floor under the room */
-	for (y = y1 - 1; y <= y2 + 1; y++)
+	for (y = y1; y <= y2; y++)
 	{
-		for (x = x1 - 1; x <= x2 + 1; x++)
+		for (x = x1; x <= x2; x++)
 		{
-			c_ptr = &cave[y][x];
 			cave_set_feat(y, x, floor_type[rand_int(100)]);
-			c_ptr->info |= (CAVE_ROOM);
-			c_ptr->info |= (CAVE_GLOW);
+			cave[y][x].info |= (CAVE_ROOM|CAVE_GLOW);
 		}
 	}
 
@@ -383,16 +387,45 @@ bool quest_random_gen_hook(char *fmt)
 }
 bool quest_random_dump_hook(char *fmt)
 {
-	int i, p = 0;
+	static char *number[] = 
+	{ "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" };
+	int i, valid = 0, lscnt = 0, pcnt = 0;
 
 	for (i = 0; i < MAX_RANDOM_QUEST; i++)
 	{
-		if (random_quests[i].done) p++;
+		if (random_quests[i].type)
+		{
+			valid++;
+			if (random_quests[i].done)
+			{
+				if (is_randhero(i))
+					lscnt++;
+				else
+					pcnt++;
+			}
+		}
 	}
 
-	if (p > 1) fprintf(hook_file, "\n You saved %d princesses.", p);
-	else if (p == 1) fprintf(hook_file, "\n You saved one princess.");
-	else fprintf(hook_file, "\n You saved no princesses.");
+	if (valid)
+	{
+		if (pcnt > 10)
+			fprintf(hook_file, "\n You have completed %d princess quests.", pcnt);
+		else if (pcnt > 1)
+			fprintf(hook_file, "\n You have completed %s princess quests.", number[pcnt-2]);
+		else if (pcnt == 1)
+			fprintf(hook_file, "\n You have completed one princess quest.");
+		else
+			fprintf(hook_file, "\n You haven't completed a single princess quest.");
+
+		if (lscnt > 10)
+			fprintf(hook_file, "\n You have completed %d lost sword quests.", pcnt);
+		else if (lscnt > 1)
+			fprintf(hook_file, "\n You have completed %s lost sword quests.", number[pcnt-2]);
+		else if (lscnt == 1)
+			fprintf(hook_file, "\n You have completed one lost sword quest.");
+		else
+			fprintf(hook_file, "\n You haven't completed a single lost sword quest.");
+	}
 
 	return (FALSE);
 }

@@ -1114,6 +1114,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 			s16b cnt = 0;
 			s16b cnt_seen = 0;
 			s16b tmps, tmpx;
+			s16b tmpspecial, tmpspecial2;
 			u32b tmpf;
 			bool seen = FALSE;
 			s16b index_x[20], index_y[20];  /* 20 stairs per level is enough? */
@@ -1171,11 +1172,17 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 					tmpx = cv_ptr2->mimic;
 					tmps = cv_ptr2->info;
 					tmpf = cv_ptr2->feat;
+					tmpspecial = cv_ptr2->special;
+					tmpspecial2 = cv_ptr2->special2;
 					cave[cy][cx].mimic = cv_ptr->mimic;
 					cave[cy][cx].info = cv_ptr->info;
+					cave[cy][cx].special = cv_ptr->special;
+					cave[cy][cx].special2 = cv_ptr->special2;
 					cave_set_feat(cy, cx, cv_ptr->feat);
 					cv_ptr->mimic = tmpx;
 					cv_ptr->info = tmps;
+					cv_ptr->special = tmpspecial;
+					cv_ptr->special2 = tmpspecial2;
 					cave_set_feat(index_y[i], index_x[i], tmpf);
 
 					/* if we are placing walls in rooms, make them rubble instead */
@@ -3154,7 +3161,7 @@ bool mon_hit_trap(int m_idx)
 
 						/* Apply slays, brand, critical hits */
 						dam = tot_dam_aux(load_o_ptr, dam, m_ptr, &special);
-						dam = critical_shot(load_o_ptr->weight, load_o_ptr->to_h, dam);
+						dam = critical_shot(load_o_ptr->weight, load_o_ptr->to_h, dam, SKILL_ARCHERY);
 
 						/* No negative damage */
 						if (dam < 0) dam = 0;

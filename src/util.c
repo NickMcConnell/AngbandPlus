@@ -219,6 +219,14 @@ errr path_parse(char *buf, int max, cptr file)
 	/* Hack -- no long user names */
 	if (s && (s >= u + sizeof(user))) return (1);
 
+#ifdef GETLOGIN_BROKEN
+	/* Ask the environment for the home directory */
+	u = getenv("HOME");
+
+	if (!u) return (1);
+
+	(void)strcpy(buf, u);
+#else
 	/* Extract a user name */
 	if (s)
 	{
@@ -240,6 +248,7 @@ errr path_parse(char *buf, int max, cptr file)
 
 	/* Make use of the info */
 	(void)strcpy(buf, pw->pw_dir);
+#endif
 
 	/* Append the rest of the filename, if any */
 	if (s) (void)strcat(buf, s);
@@ -278,6 +287,19 @@ errr path_parse(char *buf, int max, cptr file)
 */
 errr path_temp(char *buf, int max)
 {
+#ifdef WINDOWS
+	static u32b tmp_counter;
+	static char valid_characters[] =
+			"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	char rand_ext[4];
+
+	rand_ext[0] = valid_characters[rand_int(sizeof (valid_characters))];
+	rand_ext[1] = valid_characters[rand_int(sizeof (valid_characters))];
+	rand_ext[2] = valid_characters[rand_int(sizeof (valid_characters))];
+	rand_ext[3] = '\0';
+	strnfmt(buf, max, "%s/t_%ud.%s", ANGBAND_DIR_XTRA, tmp_counter, rand_ext);
+	tmp_counter++;
+#else 
 	cptr s;
 
 	/* Temp file */
@@ -288,7 +310,7 @@ errr path_temp(char *buf, int max)
 
 	/* Format to length */
 	strnfmt(buf, max, "%s", s);
-
+#endif
 	/* Success */
 	return (0);
 }
@@ -867,7 +889,7 @@ errr fd_lock(int fd, int what)
 */
 errr fd_seek(int fd, huge n)
 {
-	huge p;
+	s32b p;
 
 	/* Verify fd */
 	if (fd < 0) return ( -1);
@@ -879,7 +901,7 @@ errr fd_seek(int fd, huge n)
 	if (p < 0) return (1);
 
 	/* Failure */
-	if (p != n) return (1);
+	if ((huge)p != n) return (1);
 
 	/* Success */
 	return (0);
@@ -933,7 +955,7 @@ errr fd_read(int fd, char *buf, huge n)
 #endif
 
 	/* Read the final piece */
-	if (read(fd, buf, n) != n) return (1);
+	if ((huge)read(fd, buf, n) != n) return (1);
 
 	/* Success */
 	return (0);
@@ -966,7 +988,7 @@ errr fd_write(int fd, cptr buf, huge n)
 #endif
 
 	/* Write the final piece */
-	if (write(fd, buf, n) != n) return (1);
+	if ((huge)write(fd, buf, n) != n) return (1);
 
 	/* Success */
 	return (0);
@@ -4258,7 +4280,7 @@ u32b get_number(u32b def, u32b max, int y, int x, char *cmd)
 				bell();
 
 				/* Limit */
-				res = (max + 1 == 0) ? 0 - 1 : max;
+				res = (max + 1 == 0) ? (u32b)(0 - 1) : max;
 			}
 
 			/* Stop count at maximum */
@@ -4338,13 +4360,11 @@ byte count_bits(u32b array)
 /* Return the lowered string */
 void strlower(char *buf)
 {
-	byte i = 0;
+	u16b i;
 
-	while ((buf[i] != 0) && (i < 256))
+	for (i = 0; (buf[i] != 0) && (i < 256) ;i++)
 	{
 		if (isupper(buf[i])) buf[i] = tolower(buf[i]);
-
-		i++;
 	}
 }
 
@@ -4770,10 +4790,10 @@ void display_list(int y, int x, int h, int w, cptr title, cptr *list, int max, i
  */
 bool input_box(cptr text, int y, int x, char *buf, int max)
 {
-	int smax;
+	int smax = strlen(text);
 
-	if (max < strlen(text)) smax = strlen(text) + 1;
-	else smax = max + 1;
+	if (max > smax) smax = max;
+	smax++;
 
 	draw_box(y - 1, x - (smax / 2), 3, smax);
 	c_put_str(TERM_WHITE, text, y, x - (strlen(text) / 2));
@@ -4781,6 +4801,7 @@ bool input_box(cptr text, int y, int x, char *buf, int max)
 	Term_gotoxy(x - (smax / 2) + 1, y + 1);
 	return askfor_aux(buf, max);
 }
+
 /*
  * Creates a msg bbox and ask a question
  */

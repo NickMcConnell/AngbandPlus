@@ -7549,7 +7549,7 @@ void summon_maint(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 
 	/* Can you pay? */
-	if ((p_ptr->maintain_sum / 10000) > p_ptr->csp)
+	if ((s32b)(p_ptr->maintain_sum / 10000) > p_ptr->csp)
 	{
 		char m_name[80];
 

@@ -3412,8 +3412,9 @@ static void hook_plog(cptr str)
  * Process File-Quit menu command
  */
 static void quit_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	/* Save current game */
 	save_game_gtk();
@@ -3427,8 +3428,9 @@ static void quit_event_handler(
  * Process File-Save menu command
  */
 static void save_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	/* Save current game */
 	save_game_gtk();
@@ -3465,8 +3467,9 @@ static void destroy_sub_event_handler(
  * Process File-New menu command
  */
 static void new_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	if (game_in_progress)
 	{
@@ -3594,12 +3597,11 @@ static void font_ok_callback(
  * Process Options-Font-* menu command
  */
 static void change_font_event_handler(
-        GtkWidget *widget,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *widget)
 {
 	GtkWidget *font_selector;
-
-	gchar *spacings[] = { "c", "m", NULL };
 
 	font_selector = gtk_font_selection_dialog_new("Select font");
 #if 0 // DGDGDGDG
@@ -3651,10 +3653,11 @@ static void change_font_event_handler(
  * Process Terms-* menu command - hide/show terminal window
  */
 static void term_event_handler(
-        GtkWidget *widget,
-        gpointer user_data)
+		gpointer user_data,
+        guint user_action,
+        GtkWidget *widget)
 {
-	term_data *td = (term_data *)user_data;
+	term_data *td = &data[user_action];
 
 	/* We don't mess with the Angband window */
 	if (td == &data[0]) return;
@@ -3680,8 +3683,9 @@ static void term_event_handler(
  * setup / remove backing store for each term
  */
 static void change_backing_store_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	int i;
 
@@ -3703,11 +3707,12 @@ static void change_backing_store_event_handler(
  * and let Term_xtra react to the change.
  */
 static void change_graf_mode_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	/* Set request according to user selection */
-	graf_mode_request = (int)user_data;
+	graf_mode_request = (int)user_action;
 
 	/*
 	 * Hack - force redraw
@@ -3721,11 +3726,12 @@ static void change_graf_mode_event_handler(
  * Set dither_mode according to user selection
  */
 static void change_dith_mode_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	/* Set request according to user selection */
-	dith_mode = (int)user_data;
+	dith_mode = (int)user_action;
 
 	/*
 	 * Hack - force redraw
@@ -3738,8 +3744,9 @@ static void change_dith_mode_event_handler(
  * Toggles the graphics tile scaling mode (Fast/Smooth)
  */
 static void change_smooth_mode_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	/* (Try to) toggle the smooth rescaling mode */
 	smooth_rescaling_request = !smooth_rescaling;
@@ -3755,8 +3762,9 @@ static void change_smooth_mode_event_handler(
 # ifdef USE_DOUBLE_TILES
 
 static void change_wide_tile_mode_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	term *old = Term;
 	term_data *td = &data[0];
@@ -3806,8 +3814,9 @@ static void change_wide_tile_mode_event_handler(
  * Toggles the boolean value of use_transparency
  */
 static void change_trans_mode_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_aciton,
+        GtkWidget *was_clicked)
 {
 	/* Toggle the transparency mode */
 	use_transparency = !use_transparency;
@@ -3857,8 +3866,9 @@ static void file_ok_callback(
  * Process File-Open menu command
  */
 static void open_event_handler(
-        GtkButton *was_clicked,
-        gpointer user_data)
+        gpointer user_data,
+		guint user_action,
+        GtkWidget *was_clicked)
 {
 	GtkWidget *file_selector;
 	char buf[1024];
@@ -4480,106 +4490,106 @@ static GtkItemFactoryEntry main_menu_items[] =
 {
 	/* "File" menu */
 	{ "/File", NULL,
-	  NULL, 0, "<Branch>"
+	  NULL, 0, "<Branch>", NULL
 	},
 #ifndef SAVEFILE_SCREEN
 	{ "/File/New", "<mod1>N",
-	  new_event_handler, 0, NULL },
+	  new_event_handler, 0, NULL, NULL },
 	{ "/File/Open", "<mod1>O",
-	  open_event_handler, 0, NULL },
+	  open_event_handler, 0, NULL, NULL },
 	{ "/File/sep1", NULL,
-	  NULL, 0, "<Separator>" },
+	  NULL, 0, "<Separator>", NULL },
 #endif /* !SAVEFILE_SCREEN */
 	{ "/File/Save", "<mod1>S",
-	  save_event_handler, 0, NULL },
+	  save_event_handler, 0, NULL, NULL },
 	{ "/File/Quit", "<mod1>Q",
-	  quit_event_handler, 0, NULL },
+	  quit_event_handler, 0, NULL, NULL },
 
 	/* "Terms" menu */
 	{ "/Terms", NULL,
-	  NULL, 0, "<Branch>" },
+	  NULL, 0, "<Branch>", NULL },
 	/* XXX XXX XXX NULL's are replaced by the program */
 	{ NULL, "<mod1>0",
-	  term_event_handler, (guint)&data[0], "<CheckItem>" },
+	  term_event_handler, 0, "<CheckItem>", NULL },
 	{ NULL, "<mod1>1",
-	  term_event_handler, (guint)&data[1], "<CheckItem>" },
+	  term_event_handler, 1, "<CheckItem>", NULL },
 	{ NULL, "<mod1>2",
-	  term_event_handler, (guint)&data[2], "<CheckItem>" },
+	  term_event_handler, 2, "<CheckItem>", NULL },
 	{ NULL, "<mod1>3",
-	  term_event_handler, (guint)&data[3], "<CheckItem>" },
+	  term_event_handler, 3, "<CheckItem>", NULL },
 	{ NULL, "<mod1>4",
-	  term_event_handler, (guint)&data[4], "<CheckItem>" },
+	  term_event_handler, 4, "<CheckItem>", NULL },
 	{ NULL, "<mod1>5",
-	  term_event_handler, (guint)&data[5], "<CheckItem>" },
+	  term_event_handler, 5, "<CheckItem>", NULL },
 	{ NULL, "<mod1>6",
-	  term_event_handler, (guint)&data[6], "<CheckItem>" },
+	  term_event_handler, 6, "<CheckItem>", NULL },
 	{ NULL, "<mod1>7",
-	  term_event_handler, (guint)&data[7], "<CheckItem>" },
+	  term_event_handler, 7, "<CheckItem>", NULL },
 
 	/* "Options" menu */
 	{ "/Options", NULL,
-	  NULL, 0, "<Branch>" },
+	  NULL, 0, "<Branch>", NULL },
 
 	/* "Font" submenu */
 	{ "/Options/Font", NULL,
-	  NULL, 0, "<Branch>" },
+	  NULL, 0, "<Branch>", NULL },
 	/* XXX XXX XXX Again, NULL's are filled by the program */
 	{ NULL, NULL,
-	  change_font_event_handler, (guint)&data[0], NULL },
+	  change_font_event_handler, 0, NULL, NULL },
 	{ NULL, NULL,
-	  change_font_event_handler, (guint)&data[1], NULL },
+	  change_font_event_handler, 1, NULL, NULL },
 	{ NULL, NULL,
-	  change_font_event_handler, (guint)&data[2], NULL },
+	  change_font_event_handler, 2, NULL, NULL },
 	{ NULL, NULL,
-	  change_font_event_handler, (guint)&data[3], NULL },
+	  change_font_event_handler, 3, NULL, NULL },
 	{ NULL, NULL,
-	  change_font_event_handler, (guint)&data[4], NULL },
+	  change_font_event_handler, 4, NULL, NULL },
 	{ NULL, NULL,
-	  change_font_event_handler, (guint)&data[5], NULL },
+	  change_font_event_handler, 5, NULL, NULL },
 	{ NULL, NULL,
-	  change_font_event_handler, (guint)&data[6], NULL },
+	  change_font_event_handler, 6, NULL, NULL },
 	{ NULL, NULL,
-	  change_font_event_handler, (guint)&data[7], NULL },
+	  change_font_event_handler, 7, NULL, NULL },
 
 #ifdef USE_GRAPHICS
 
 	/* "Graphics" submenu */
 	{ "/Options/Graphics", NULL,
-	  NULL, 0, "<Branch>" },
+	  NULL, 0, "<Branch>", NULL },
 	{ "/Options/Graphics/None", NULL,
-	  change_graf_mode_event_handler, GRAF_MODE_NONE, "<CheckItem>" },
+	  change_graf_mode_event_handler, GRAF_MODE_NONE, "<CheckItem>", NULL },
 	{ "/Options/Graphics/Old", NULL,
-	  change_graf_mode_event_handler, GRAF_MODE_OLD, "<CheckItem>" },
+	  change_graf_mode_event_handler, GRAF_MODE_OLD, "<CheckItem>", NULL },
 	{ "/Options/Graphics/New", NULL,
-	  change_graf_mode_event_handler, GRAF_MODE_NEW, "<CheckItem>" },
+	  change_graf_mode_event_handler, GRAF_MODE_NEW, "<CheckItem>", NULL },
 # ifdef USE_DOUBLE_TILES
 	{ "/Options/Graphics/sep3", NULL,
-	  NULL, 0, "<Separator>" },
+	  NULL, 0, "<Separator>", NULL },
 	{ "/Options/Graphics/Wide tiles", NULL,
-	  change_wide_tile_mode_event_handler, 0, "<CheckItem>" },
+	  change_wide_tile_mode_event_handler, 0, "<CheckItem>", NULL },
 # endif  /* USE_DOUBLE_TILES */
 	{ "/Options/Graphics/sep1", NULL,
-	  NULL, 0, "<Separator>" },
+	  NULL, 0, "<Separator>", NULL },
 	{ "/Options/Graphics/Dither if <= 8bpp", NULL,
-	  change_dith_mode_event_handler, GDK_RGB_DITHER_NORMAL, "<CheckItem>" },
+	  change_dith_mode_event_handler, GDK_RGB_DITHER_NORMAL, "<CheckItem>", NULL },
 	{ "/Options/Graphics/Dither if <= 16bpp", NULL,
-	  change_dith_mode_event_handler, GDK_RGB_DITHER_MAX, "<CheckItem>" },
+	  change_dith_mode_event_handler, GDK_RGB_DITHER_MAX, "<CheckItem>", NULL },
 	{ "/Options/Graphics/sep2", NULL,
-	  NULL, 0, "<Separator>" },
+	  NULL, 0, "<Separator>", NULL },
 	{ "/Options/Graphics/Smoothing", NULL,
-	  change_smooth_mode_event_handler, 0, "<CheckItem>" },
+	  change_smooth_mode_event_handler, 0, "<CheckItem>", NULL },
 # ifdef USE_TRANSPARENCY
 	{ "/Options/Graphics/Transparency", NULL,
-	  change_trans_mode_event_handler, 0, "<CheckItem>" },
+	  change_trans_mode_event_handler, 0, "<CheckItem>", NULL },
 # endif  /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
 	/* "Misc" submenu */
 	{ "/Options/Misc", NULL,
-	  NULL, 0, "<Branch>" },
+	  NULL, 0, "<Branch>", NULL },
 	{ "/Options/Misc/Backing store", NULL,
-	  change_backing_store_event_handler, 0, "<CheckItem>" },
+	  change_backing_store_event_handler, 0, "<CheckItem>", NULL },
 };
 
 
@@ -4629,13 +4639,13 @@ static void setup_menu_paths(void)
 		strnfmt(buf, 64, "/Terms/%s", angband_term_name[i]);
 
 		/* XXX XXX Store it in the menu definition */
-		(cptr)term_entry[i].path = string_make(buf);
+		term_entry[i].path = (gchar*)string_make(buf);
 
 		/* XXX XXX Build the real path name to the entry */
 		strnfmt(buf, 64, "/Options/Font/%s", angband_term_name[i]);
 
 		/* XXX XXX Store it in the menu definition */
-		(cptr)font_entry[i].path = string_make(buf);
+		font_entry[i].path = (gchar*)string_make(buf);
 	}
 }
 

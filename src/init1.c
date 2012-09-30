@@ -2693,7 +2693,7 @@ errr init_player_info_txt(FILE *fp, char *buf)
 		/* Process 'C' for "Class choice flags" (multiple lines) */
 		if ((buf[0] == 'S') && (buf[2] == 'C'))
 		{
-			s32b choice[2] = {0, 0}, z;
+			u32b choice[2] = {0, 0}, z;
 
 			/* Parse every entry */
 			for (s = buf + 6; *s; )

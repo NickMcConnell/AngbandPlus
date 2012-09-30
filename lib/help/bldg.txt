@@ -39,6 +39,7 @@ rigged, just naturally difficult.
 your magical items for a fee.
 [[[[[GInner temple/Priests Circle:] A place of healing.
 [[[[[GPaladin guild:] Some healing and enchantments available.
+[[[[[GThe Mathom House:] Donate your unwanted items to this museum.
 ... and several more!
 
 Some of the places have been known to give out quests to adventurers they 

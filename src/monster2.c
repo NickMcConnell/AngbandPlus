@@ -28,7 +28,7 @@ void monster_check_experience(int m_idx, bool silent)
 
 	/* Gain levels while possible */
 	while ((m_ptr->level < MONSTER_LEVEL_MAX) &&
-	                (m_ptr->exp >= (MONSTER_EXP(m_ptr->level + 1))))
+	                (m_ptr->exp >= (u32b)(MONSTER_EXP(m_ptr->level + 1))))
 	{
 		/* Gain a level */
 		m_ptr->level++;

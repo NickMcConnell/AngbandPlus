@@ -89,8 +89,6 @@ void do_cmd_go_up(void)
 
 	cave_type *c_ptr;
 
-	char i;
-
 	int oldl = dun_level;
 
 	dungeon_info_type *d_ptr = &d_info[dungeon_type];
@@ -98,16 +96,6 @@ void do_cmd_go_up(void)
 
 	/* Player grid */
 	c_ptr = &cave[p_ptr->py][p_ptr->px];
-
-	/* test if on special level */
-	if ((dungeon_flags2 & DF2_ASK_LEAVE))
-	{
-		prt("Leave this unique level forever (y/n) ? ", 0, 0);
-		flush();
-		i = inkey();
-		prt("", 0, 0);
-		if (i != 'y') return;
-	}
 
 	/* Can we ? */
 	if (process_hooks(HOOK_STAIR, "(s)", "up")) return;
@@ -119,17 +107,17 @@ void do_cmd_go_up(void)
 		{
 			go_up = TRUE;
 		}
+		else if ((dungeon_flags2 & DF2_ASK_LEAVE))
+		{
+			go_up = get_check("Leave this unique level forever? ");
+		}
+		else if (confirm_stairs)
+		{
+			go_up = get_check("Really leave the level? ");
+		}
 		else
 		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-					go_up = TRUE;
-			}
-			else
-			{
-				go_up = TRUE;
-			}
+			go_up = TRUE;
 		}
 	}
 
@@ -140,17 +128,17 @@ void do_cmd_go_up(void)
 		{
 			go_up = TRUE;
 		}
+		else if ((dungeon_flags2 & DF2_ASK_LEAVE))
+		{
+			go_up = get_check("Leave this unique level forever? ");
+		}
+		else if (confirm_stairs)
+		{
+			go_up_many = get_check("Really leave the level? ");
+		}
 		else
 		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-					go_up_many = TRUE;
-			}
-			else
-			{
-				go_up_many = TRUE;
-			}
+			go_up_many = TRUE;
 		}
 	}
 
@@ -158,6 +146,10 @@ void do_cmd_go_up(void)
 	else if (c_ptr->feat == FEAT_QUEST_EXIT)
 	{
 		leaving_quest = p_ptr->inside_quest;
+
+		if ((dungeon_flags2 & DF2_ASK_LEAVE) &&
+				!get_check("Leave this unique level forever? "))
+			return;
 
 		p_ptr->inside_quest = c_ptr->special;
 		dun_level = 0;
@@ -3456,7 +3448,7 @@ void do_cmd_fire(void)
 
 					/* Apply special damage XXX XXX XXX */
 					tdam = tot_dam_aux(q_ptr, tdam, m_ptr, &special);
-					tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+					tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam, SKILL_ARCHERY);
 
 					/* No negative damage */
 					if (tdam < 0) tdam = 0;
@@ -3870,7 +3862,7 @@ void do_cmd_throw(void)
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, &special);
-				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam, o_ptr->sval == SV_BOULDER ? SKILL_BOULDER : SKILL_ARCHERY);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -4200,7 +4192,7 @@ void do_cmd_boomerang(void)
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(q_ptr, tdam, m_ptr, &special);
-				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
+				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam, SKILL_ARCHERY);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;

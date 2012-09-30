@@ -1195,13 +1195,13 @@ static void player_outfit(void)
 
 
 /* Possible number(and layout) or random quests */
-#define MAX_RANDOM_QUESTS_TYPES ((7 * 3) + (7 * 1))
+#define MAX_RANDOM_QUESTS_TYPES ((8 * 3) + (8 * 1))
 int random_quests_types[MAX_RANDOM_QUESTS_TYPES] =
 {
-	1, 5, 6, 10, 11, 12, 14,          /* Princess type */
-	1, 5, 6, 10, 11, 12, 14,          /* Princess type */
-	1, 5, 6, 10, 11, 12, 14,          /* Princess type */
-	20, 13, 15, 16, 9, 17, 18,          /* Hero Sword Quest */
+	1, 5, 6, 7, 10, 11, 12, 14,          /* Princess type */
+	1, 5, 6, 7, 10, 11, 12, 14,          /* Princess type */
+	1, 5, 6, 7, 10, 11, 12, 14,          /* Princess type */
+	20, 13, 15, 16, 9, 17, 18, 8,        /* Hero Sword Quest */
 };
 
 /* Enforce OoD monsters until this level */
@@ -1332,7 +1332,7 @@ static void gen_random_quests(int n)
 	dungeon_type = old_type;
 }
 
-int dump_classes(s16b *classes, int sel, u32b *restrict)
+int dump_classes(s16b *classes, int sel, u32b *restrictions)
 {
 	int n = 0;
 
@@ -1373,7 +1373,7 @@ int dump_classes(s16b *classes, int sel, u32b *restrict)
 			        cp_ptr->flags1 & PR1_EXPERIMENTAL ? "\nEXPERIMENTAL" : "");
 			print_desc(desc);
 
-			if (!(restrict[classes[n] / 32] & BIT(classes[n])) ||
+			if (!(restrictions[classes[n] / 32] & BIT(classes[n])) ||
 			                cp_ptr->flags1 & PR1_EXPERIMENTAL)
 				c_put_str(TERM_BLUE, buf, 18 + (n / 4), 1 + 20 * (n % 4));
 			else
@@ -1381,7 +1381,7 @@ int dump_classes(s16b *classes, int sel, u32b *restrict)
 		}
 		else
 		{
-			if (!(restrict[classes[n] / 32] & BIT(classes[n])) ||
+			if (!(restrictions[classes[n] / 32] & BIT(classes[n])) ||
 			                cp_ptr->flags1 & PR1_EXPERIMENTAL)
 				c_put_str(TERM_SLATE, buf, 18 + (n / 4), 1 + 20 * (n % 4));
 			else
@@ -1646,7 +1646,7 @@ static bool player_birth_aux_ask()
 
 	int racem[100], max_racem = 0;
 
-	u32b restrict[2];
+	u32b restrictions[2];
 
 	cptr str;
 
@@ -2018,7 +2018,7 @@ static bool player_birth_aux_ask()
 		int z;
 
 		for (z = 0; z < 2; z++)
-			restrict[z] = (rp_ptr->choice[z] | rmp_ptr->pclass[z]) & (~rmp_ptr->mclass[z]);
+			restrictions[z] = (rp_ptr->choice[z] | rmp_ptr->pclass[z]) & (~rmp_ptr->mclass[z]);
 
 		if (max_mc_idx > 1)
 		{
@@ -2071,7 +2071,7 @@ static bool player_birth_aux_ask()
 		{
 			/* Dump classes */
 			sel = 0;
-			n = dump_classes(class_types, sel, restrict);
+			n = dump_classes(class_types, sel, restrictions);
 
 			/* Get a class */
 			while (1)
@@ -2099,7 +2099,7 @@ static bool player_birth_aux_ask()
 				{
 					sel += 4;
 					if (sel >= n) sel %= 4;
-					dump_classes(class_types, sel, restrict);
+					dump_classes(class_types, sel, restrictions);
 				}
 				else if (c == '8')
 				{
@@ -2107,19 +2107,19 @@ static bool player_birth_aux_ask()
 					if (sel < 0) sel = n - 1 -( ( -sel) % 4);
 					/* C's modulus operator does not have defined
 					 results for negative first values. Damn. */
-					dump_classes(class_types, sel, restrict);
+					dump_classes(class_types, sel, restrictions);
 				}
 				else if (c == '6')
 				{
 					sel++;
 					if (sel >= n) sel = 0;
-					dump_classes(class_types, sel, restrict);
+					dump_classes(class_types, sel, restrictions);
 				}
 				else if (c == '4')
 				{
 					sel--;
 					if (sel < 0) sel = n - 1;
-					dump_classes(class_types, sel, restrict);
+					dump_classes(class_types, sel, restrictions);
 				}
 				else if (c == '\r')
 				{
@@ -2132,7 +2132,7 @@ static bool player_birth_aux_ask()
 
 		/* Set class */
 #ifdef RESTRICT_COMBINATIONS
-		if (!(restrict & BIT(k)))
+		if (!(restrictions & BIT(k)))
 		{
 			noscore |= 0x0020;
 			message_add(MESSAGE_MSG, " ", TERM_VIOLET);
@@ -3085,15 +3085,39 @@ static bool player_birth_aux()
 {
 	char c;
 
+	int i, j;
+
 	int y = 0, x = 0;
 
 	char old_history[4][60];
 
-	int i, j;
-
-
 	/* Ask */
 	if (!player_birth_aux_ask()) return (FALSE);
+
+	for (i = 1; i < max_s_idx; i++)
+		s_info[i].dev = FALSE;
+	for (i = 1; i < max_s_idx; i++)
+	{
+		s32b value = 0, mod = 0;
+
+		compute_skills(&value, &mod, i);
+
+		init_skill(value, mod, i);
+
+		/* Develop only revelant branches */
+		if (s_info[i].value || s_info[i].mod)
+		{
+			int z = s_info[i].father;
+
+			while (z != -1)
+			{
+				s_info[z].dev = TRUE;
+				z = s_info[z].father;
+				if (z == 0)
+					break;
+			}
+		}
+	}
 
 	if (do_quick_start)
 	{
@@ -3371,30 +3395,6 @@ void player_birth(void)
 	/* Finish skills */
 	p_ptr->skill_points = 0;
 	p_ptr->skill_last_level = 1;
-	for (i = 1; i < max_s_idx; i++)
-		s_info[i].dev = FALSE;
-	for (i = 1; i < max_s_idx; i++)
-	{
-		s32b value = 0, mod = 0;
-
-		compute_skills(&value, &mod, i);
-
-		init_skill(value, mod, i);
-
-		/* Develop only revelant branches */
-		if (s_info[i].value || s_info[i].mod)
-		{
-			int z = s_info[i].father;
-
-			while (z != -1)
-			{
-				s_info[z].dev = TRUE;
-				z = s_info[z].father;
-				if (z == 0)
-					break;
-			}
-		}
-	}
 
 	recalc_skills(FALSE);
 

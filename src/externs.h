@@ -699,7 +699,7 @@ extern void do_cmovie_insert(void);
 extern void attack_special(monster_type *m_ptr, s32b special, int dam);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool test_hit_norm(int chance, int ac, int vis);
-extern s16b critical_shot(int weight, int plus, int dam);
+extern s16b critical_shot(int weight, int plus, int dam, int skill);
 extern s16b critical_norm(int weight, int plus, int dam, int weapon_tval, bool *done_crit);
 extern s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, s32b *special);
 extern void search(void);
@@ -1015,8 +1015,8 @@ extern void save_dungeon(void);
 extern bool save_player(void);
 extern bool load_player(void);
 extern errr rd_savefile_new(void);
-extern void load_number_key(char *key, s32b *val);
-extern void save_number_key(char *key, s32b val);
+extern void load_number_key(char *key, u32b *val);
+extern void save_number_key(char *key, u32b val);
 
 /* melee1.c */
 /* melee2.c */
@@ -1129,6 +1129,7 @@ extern bool info_spell;
 extern char spell_txt[50];
 extern bool grab_tval_desc(int tval);
 extern void init_match_theme(obj_theme theme);
+extern bool kind_is_artifactable(int k_idx);
 extern bool kind_is_good(int k_idx);
 extern int kind_is_legal_special;
 extern bool kind_is_legal(int k_idx);

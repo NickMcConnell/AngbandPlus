@@ -45,7 +45,7 @@
 
 #define ANGBAND_2_8_1
 
-#define SAVEFILE_VERSION 103
+#define SAVEFILE_VERSION 104
 
 /*
  * This value is not currently used

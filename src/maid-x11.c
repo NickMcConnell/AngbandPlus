@@ -23,7 +23,6 @@
  * which will have already "included" several relevant header files.
  */
 
-
 #ifndef IsModifierKey
 
 /*
@@ -235,7 +234,7 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 	int i, j;
 
-	int x, y;
+	u32b x, y;
 
 	unsigned long clr_pixels[256];
 

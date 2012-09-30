@@ -133,48 +133,12 @@ DEFINES = -DUSE_X11 \
 LIBS = -L/usr/X11R6/lib -lX11
 
 ##
-## Variation -- Only support "main-gtk2.c" (not "main-gcu.c, main-x11.c")
-## this variation uses pkg-config and gnu make
-##
-#COPTS = -Wall -O1 -pipe -g
-#INCLUDES = $(shell pkg-config --cflags-only-I gtk+-2.0)
-#DEFINES = -DUSE_GTK2 -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
-#LIBS = $(shell pkg-config --libs gtk+-2.0)
-#GTK_SRC_FILE= main-gtk2.c
-#GTK_OBJ_FILE= main-gtk2.o
-
-##
-## Variation -- Only support "main-gtk2.c" (not "main-gcu.c, main-x11.c")
-## this variation uses pkg-config
-##
-#COPTS = -Wall -O1 -pipe -g
-#INCLUDES = `pkg-config --cflags-only-I gtk+-2.0`
-#DEFINES = -DUSE_GTK2 -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
-#LIBS = `pkg-config --libs gtk+-2.0`
-#GTK_SRC_FILE= main-gtk2.c
-#GTK_OBJ_FILE= main-gtk2.o
-
-##
 ## Variation -- Only support "main-gtk.c" (not "main-gcu.c, main-x11.c")
-## this variation uses pkg-config
-##
-#COPTS = -Wall -O1 -pipe -g
-#INCLUDES = `pkg-config --cflags-only-I gtk+-2.0`
-#DEFINES = -DUSE_GTK -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
-#LIBS = `pkg-config --libs gtk+-2.0`
-#GTK_SRC_FILE= main-gtk.c
-#GTK_OBJ_FILE= main-gtk.o
-
-##
-## Variation -- Only support "main-gtk.c" (not "main-gcu.c, main-x11.c")
-## this variation uses gtk-config
 ##
 #COPTS = -Wall -O1 -pipe -g
 #INCLUDES = `gtk-config --cflags`
 #DEFINES = -DUSE_GTK -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS = `gtk-config --libs`
-#GTK_SRC_FILE= main-gtk.c
-#GTK_OBJ_FILE= main-gtk.o
 
 ##
 ## Variation -- Both "main-x11.c" and "main-gcu.c" in a single executable.
@@ -290,6 +254,8 @@ LIBS = -L/usr/X11R6/lib -lX11
 #	-DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS
 #LIBS = -lX11 -lcurses -ltermcap -lsun
 
+
+
 ##
 ## Variation -- compile for Dec ALPHA OSF/1 v2.0
 ##
@@ -320,19 +286,6 @@ LIBS = -L/usr/X11R6/lib -lX11
 #DEFINES = -DUSE_GCU
 #LIBS = -lcurses -ltermcap
 
-#
-# Variation -- compile for 64 bit machines where the size of long is 64 bits.
-#
-# On some machines it may be necessary to change the -L directory so that
-# it points at a library directory containing 64-bit libraries. For example,
-# on Suse 10.x you need to change it to:  -L/usr/X11R6/lib64.
-#
-#COPTS = -Wall -O1 -pipe -g
-#INCLUDES = -I/usr/X11R6/include
-#DEFINES = -DLUA_NUM_TYPE=int -DUSE_X11 \
-#		-DUSE_EGO_GRAPHICS -DUSE_TRANSPARAENCY -DSUPPORT_GAMMA \
-#		-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK
-#LIBS = -L/usr/X11R6/lib -LX11
 
 ### End of configurable section ###
 
@@ -341,7 +294,7 @@ LIBS = -L/usr/X11R6/lib -lX11
 #
 
 BASESRCS = \
-  $(GTK_SRC_FILE) main-gcu.c main-x11.c main-xaw.c main-sdl.c main-dmy.c \
+  main-gtk.c main-gcu.c main-x11.c main-xaw.c main-sdl.c main-dmy.c \
   z-rand.c z-util.c z-form.c z-virt.c z-term.c z-sock.c \
   variable.c tables.c plots.c util.c cave.c dungeon.c \
   melee1.c melee2.c modules.c \
@@ -357,7 +310,7 @@ BASESRCS = \
   wizard2.c init2.c birth.c wizard1.c init1.c main.c
 
 BASEOBJS = \
-  $(GTK_OBJ_FILE) main-gcu.o main-x11.o main-xaw.o main-sdl.o main-dmy.o \
+  main-gtk.o main-gcu.o main-x11.o main-xaw.o main-sdl.o main-dmy.o \
   z-rand.o z-util.o z-form.o z-virt.o z-term.o z-sock.o \
   variable.o tables.o plots.o util.o cave.o dungeon.o \
   melee1.o melee2.o modules.o \
@@ -422,7 +375,7 @@ OBJS = $(LUAOBJS) $(TOLUAOBJS) $(BASEOBJS)
 
 # Force recreation of stub files when lua source files are updated
 # To be included in dependency rules
-TOLUADEP = $(TOLUA) $(TOLUASRCS) lua/tolua.c lua/tolualua.c
+TOLUADEP = $(TOLUASRCS) lua/tolua.c lua/tolualua.c
 
 #
 # IRC support

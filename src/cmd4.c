@@ -246,7 +246,8 @@ void do_cmd_message_one(void)
  */
 void do_cmd_messages(void)
 {
-	int i, j, k, n, q;
+	int i, j, k, n;
+	u32b q;
 	int wid, hgt;
 
 	char shower[80];
@@ -334,7 +335,7 @@ void do_cmd_messages(void)
 		if (k == '4')
 		{
 			/* Scroll left */
-			q = (q >= wid / 2) ? (q - wid / 2) : 0;
+			q = (q >= ((u32b)wid / 2)) ? (q - wid / 2) : 0;
 
 			/* Success */
 			continue;
@@ -4290,10 +4291,11 @@ static void do_cmd_knowledge_quests(void)
 				if (!(dungeon_flags1 & DF1_PRINCIPAL)) continue;
 				if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) continue;
 				if (!random_quests[dun_level].type) continue;
+				if (random_quests[dun_level].done) continue;
 				if (p_ptr->inside_quest) continue;
 				if (!dun_level) continue;
 
-				if (!is_randhero())
+				if (!is_randhero(dun_level))
 				{
 					fprintf(fff, "#####yCaptured princess!\n");
 					fprintf(fff, "A princess is being held prisoner and tortured here!\n");

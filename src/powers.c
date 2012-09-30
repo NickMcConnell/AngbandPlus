@@ -1174,7 +1174,10 @@ static void power_activate(int power)
 
 	case PWR_RECALL:
 		{
-			recall_player(21, 15);
+			if (!(dungeon_flags2 & DF2_ASK_LEAVE) || ((dungeon_flags2 & DF2_ASK_LEAVE) && !get_check("Leave this unique level forever? ")))
+			{
+				recall_player(21, 15);
+			}
 		}
 		break;
 

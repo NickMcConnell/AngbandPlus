@@ -355,6 +355,9 @@ AngbandClassRec angbandClassRec =
 	/* Simple class fields initialization */
 	{
 		/* change_sensitive     */      XtInheritChangeSensitive
+#ifndef OLDXAW
+										, NULL
+#endif
 	},
 	/* Angband class fields initialization */
 	{
@@ -377,6 +380,22 @@ WidgetClass angbandWidgetClass = (WidgetClass) &angbandClassRec;
 /*
  * Public procedures
  */
+
+/*
+ * Simple routine to save the state of the game when the display connection
+ * is broken. Remember, you cannot do anything in this function that will
+ * generate X protocol requests.
+ */
+static int x_io_error_handler(Display *d)
+{
+	/* We have nothing to save */
+	if (!character_generated) return 0;
+
+	save_dungeon();
+	save_player();
+
+	return 0;
+}
 
 
 /*
@@ -1838,6 +1857,7 @@ errr init_xaw(int argc, char *argv[])
 	topLevel = XtAppInitialize(&appcon, "Angband", NULL, 0, &argc, argv,
 	                           fallback, NULL, 0);
 
+	XSetIOErrorHandler(x_io_error_handler);
 
 	/* Initialize the windows */
 	for (i = 0; i < num_term; i++)

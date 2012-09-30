@@ -1951,7 +1951,7 @@ I:14:59:3
 W:60:10:20:100000
 P:0:3d4:0:0:0
 F:CHR | SPEED | WIS | SEE_INVIS | RES_SOUND | STEALTH | LUCK
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ESP_UNIQUE |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | ESP_UNIQUE | WIELD_CAST
 D:This harp that once belonged to Maglor makes those who use it seem 
 D:more forceful and convincing.  It is also said that those who have 
 D:used it found themselves walking faster, as if to an unheard beat.
@@ -1964,7 +1964,7 @@ I:14:58:2
 W:40:10:15:80000
 P:0:3d4:0:0:0
 F:CHR | SPEED | WIS | SEE_INVIS | RES_SOUND | STEALTH | LUCK
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | WIELD_CAST
 D:The drum is decorated with the images of the stars, the clouds, the 
 D:Sun guided by Arien and the Moon with Tilion.  It imparts to the 
 D:wearer an echo of the beauty of the sky, and protects him from the 
@@ -1979,7 +1979,7 @@ I:14:59:1
 W:20:10:10:50000
 P:0:3d4:0:0:0
 F:CHR | SPEED | WIS | RES_SOUND | STEALTH | LUCK
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | WIELD_CAST
 D:A pretty harp that makes those who play it beautiful, wise and 
 D:fast.
 
@@ -2002,7 +2002,7 @@ N:141:of the Druedain
 I:14:58:4
 W:19:10:15:10000
 P:0:3d4:0:0:0
-F:ACTIVATE | STEALTH | SEARCH | INFRA | RES_POIS | RES_DARK
+F:ACTIVATE | STEALTH | SEARCH | INFRA | RES_POIS | RES_DARK | WIELD_CAST
 a:HARDCORE=DRUEDAIN
 D:The fabled Drum of the Druedain that will protect those who play it 
 D:from darkness and poison attacks.  It also aids in the seeing of 
@@ -2015,7 +2015,7 @@ N:142:of Rohan
 I:14:60:2
 W:14:10:15:80000
 P:0:3d4:0:0:0
-F:ACTIVATE | CHR | WIS | ESP_DRAGON
+F:ACTIVATE | CHR | WIS | ESP_DRAGON | WIELD_CAST
 a:HARDCORE=ROHAN
 D:A horn carved from the bones of the Dragon of Ered-Mithrin, this 
 D:heirloom of the House of Eorl bestows to its user the gifts of 
@@ -2028,7 +2028,7 @@ N:143:of Helm
 I:14:60:2
 W:16:10:15:15000
 P:0:3d4:0:0:0
-F:ACTIVATE | STR | CON | IM_COLD | RES_NETHER | RES_FEAR
+F:ACTIVATE | STR | CON | IM_COLD | RES_NETHER | RES_FEAR | WIELD_CAST
 a:HARDCORE=HELM
 D:Heedless of cold, fearless of darkness -- besiegers fled at the wind 
 D:of the solitary coming of King Helm Hammerhand, proclaimed by a single 
@@ -2041,7 +2041,7 @@ N:144:of Boromir
 I:14:60:3
 W:18:10:15:18000
 P:0:3d4:0:0:0
-F:ACTIVATE | STR | CON | RES_FEAR | RES_FIRE | AGGRAVATE
+F:ACTIVATE | STR | CON | RES_FEAR | RES_FIRE | AGGRAVATE | WIELD_CAST
 a:HARDCORE=BOROMIR
 D:Boromir's horn gives courage and endurance to the wearer, provided he does 
 D:not wish to travel in secrecy: for it must always sound when its wielder 

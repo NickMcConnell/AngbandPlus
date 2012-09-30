@@ -1665,9 +1665,8 @@ bool bldg_process_command(store_type *s_ptr, int i)
 	}
 
 	/* action restrictions */
-	if (((ba_ptr->action_restr == 1) && (!is_state(s_ptr, STORE_LIKED) ||
-	                                     !is_state(s_ptr, STORE_NORMAL))) ||
-	                ((ba_ptr->action_restr == 2) && (!is_state(s_ptr, STORE_LIKED))))
+	if (((ba_ptr->action_restr == 1) && (is_state(s_ptr, STORE_LIKED))) ||
+	    ((ba_ptr->action_restr == 2) && (!is_state(s_ptr, STORE_LIKED))))
 	{
 		msg_print("You have no right to choose that!");
 		msg_print(NULL);
@@ -2035,56 +2034,70 @@ bool bldg_process_command(store_type *s_ptr, int i)
 
 	case BACT_GET_LOAN:
 		{
-			s32b i, price, req;
+			s32b i, req;
+			char prompt[80];
 
 			if (p_ptr->loan)
 			{
 				msg_print("You already have a loan!");
 				break;
 			}
-			for (i = price = 0; i < INVEN_TOTAL; i++)
-				price += object_value_real(&p_ptr->inventory[i]);
-			price += p_ptr->au;
 
-			if (price > p_ptr->loan - 30000) price = p_ptr->loan - 30000;
+			req = p_ptr->au;
 
-			msg_format("You have a loan of %i.", p_ptr->loan);
+			for (i = 0; i < INVEN_TOTAL; i++)
+				req += object_value_real(&p_ptr->inventory[i]);
 
-			req = get_quantity("How much would you like to get? ", price);
 			if (req > 100000) req = 100000;
+			if ((req + p_ptr->au) > PY_MAX_GOLD) req = PY_MAX_GOLD - p_ptr->au;
 
-			p_ptr->loan += req;
-			p_ptr->au += req;
-			if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
-			p_ptr->loan_time += req;
+			strnfmt(prompt, sizeof (prompt),
+					"How much would you like to get (0-%ld) ?", req);
 
-			msg_format("You receive %i gold pieces", req);
+			req = get_quantity(prompt, req);
 
-			paid = TRUE;
+			if (req)
+			{
+				p_ptr->loan += req;
+				p_ptr->au += req;
+				p_ptr->loan_time += req;
+
+				msg_format("You receive %i gold pieces", req);
+
+				paid = TRUE;
+			}
+			else
+				msg_format("You did not request any money!");
+
 			break;
 		}
 
 	case BACT_PAY_BACK_LOAN:
 		{
 			s32b req;
+			char prompt[80];
+
+			if (p_ptr->loan)
+			{
+				msg_format("You have nothing to payback!");
+				break;
+			}
 
 			msg_format("You have a loan of %i.", p_ptr->loan);
 
-			req = get_quantity("How much would you like to pay back?", p_ptr->loan);
+			req = ((p_ptr->loan + bcost) > p_ptr->au) ? p_ptr->au - bcost : p_ptr->loan;
 
-			if (req > p_ptr->au) req = p_ptr->au;
-			if (req > p_ptr->loan) req = p_ptr->loan;
+			strnfmt(prompt, sizeof (prompt),
+					"How much would you like to pay back (0-%ld) ?", req);
+
+			req = get_quantity(prompt, req);
 
 			p_ptr->loan -= req;
 			p_ptr->au -= req;
 
-			if (p_ptr->loan_time)
-				p_ptr->loan_time = MAX(p_ptr->loan / 2, p_ptr->loan_time);
-
 			if (!p_ptr->loan) p_ptr->loan_time = 0;
 
 			msg_format("You pay back %i gold pieces", req);
-
 			paid = TRUE;
 			break;
 		}

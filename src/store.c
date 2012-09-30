@@ -2865,9 +2865,6 @@ void store_purchase(void)
 
 					/* Start over */
 					store_top = 0;
-
-					/* Redraw everything */
-					display_inventory();
 				}
 
 				/* The item is gone */
@@ -2875,17 +2872,10 @@ void store_purchase(void)
 				{
 					/* Pick the correct screen */
 					if (store_top >= st_ptr->stock_num) store_top -= 12;
-
-					/* Redraw everything */
-					display_inventory();
 				}
 
-				/* Item is still here */
-				else
-				{
-					/* Redraw the item */
-					display_entry(item);
-				}
+				/* Redraw everything */
+				display_inventory();
 			}
 
 			/* Player cannot afford it */

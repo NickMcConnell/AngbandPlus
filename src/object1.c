@@ -1268,100 +1268,83 @@ static char *object_desc_str(char *t, cptr s)
 	return (t);
 }
 
+/*
+ * Do the actual conversion of a number for object_desc_num() and
+ * object_desc_int().
+ */
+static char *convert_number(char *result, u32b num)
+{
+	char *tp;
+	char temp[11];
 
+	tp = temp;
+	*tp = '0' + (num % 10);
+	for (num /= 10; num != 0; num /= 10)
+	{
+		*++tp = '0' + (num % 10);
+	}
+
+	while (tp != temp)
+	{
+		*result++ = *tp--;
+	}
+	*result++ = *tp;
+	*result = '\0';
+
+	return result;
+}
 
 /*
  * Print a nnumber "n" into a string "t", as if by
  * sprintf(t, "%u", n), and return a pointer to the terminator.
  */
-static char *object_desc_num(char *t, int n)
+static char *object_desc_num(char *result, s32b num)
 {
-	uint p;
+	u32b n;
 
-	if (n < 0)
+	if (num < 0)
 	{
-		*t++ = '-';
-		n *= -1;
+		*result++ = '-';
+		n = -num;
 	}
-	/* Find "size" of "n" */
-	for (p = 1; n >= p * 10; p = p * 10) /* loop */;
-
-	/* Dump each digit */
-	while (p >= 1)
-	{
-		/* Dump the digit */
-		*t++ = '0' + n / p;
-
-		/* Remove the digit */
-		n = n % p;
-
-		/* Process next digit */
-		p = p / 10;
-	}
-
-	/* Terminate */
-	*t = '\0';
+	else
+		n = num;
 
 	/* Result */
-	return (t);
+	return convert_number(result, n);
 }
 
-
-
-
 /*
- * Print an signed number "v" into a string "t", as if by
+ * Print an signed number "num" into a string "result", as if by
  * sprintf(t, "%+d", n), and return a pointer to the terminator.
  * Note that we always print a sign, either "+" or "-".
  */
-static char *object_desc_int(char *t, sint v)
+static char *object_desc_int(char *result, s32b num)
 {
-	uint p, n;
+	u32b n;
 
 	/* Negative */
-	if (v < 0)
+	if (num < 0)
 	{
 		/* Take the absolute value */
-		n = 0 - v;
+		n = -num;
 
 		/* Use a "minus" sign */
-		*t++ = '-';
+		*result++ = '-';
 	}
-
 	/* Positive (or zero) */
 	else
 	{
 		/* Use the actual number */
-		n = v;
+		n = num;
 
 		/* Use a "plus" sign */
-		*t++ = '+';
+		*result++ = '+';
 	}
-
-	/* Find "size" of "n" */
-	for (p = 1; n >= p * 10; p = p * 10) /* loop */;
-
-	/* Dump each digit */
-	while (p >= 1)
-	{
-		/* Dump the digit */
-		*t++ = '0' + n / p;
-
-		/* Remove the digit */
-		n = n % p;
-
-		/* Process next digit */
-		p = p / 10;
-	}
-
-	/* Terminate */
-	*t = '\0';
 
 	/* Result */
-	return (t);
+	return convert_number(result, n);
 }
-
-
 
 /*
  * Creates a description of the item "o_ptr", and stores it in "out_val".
@@ -1412,7 +1395,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 {
 	bool hack_name = FALSE;
 	cptr basenm, modstr;
-	int power, indexx;
+	int indexx;
 
 	bool aware = FALSE;
 	bool known = FALSE;
@@ -1432,6 +1415,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	char tmp_val[160];
 	char tmp_val2[90];
 
+	s32b power;
 	u32b f1, f2, f3, f4, f5, esp;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
@@ -2983,7 +2967,7 @@ void describe_device(object_type *o_ptr)
  * Print the level something was found on
  *
  */
-const cptr object_out_desc_where_found(s16b level, s16b dungeon)
+static cptr object_out_desc_where_found(s16b level, s16b dungeon)
 {
 	static char str[80];
 
@@ -5364,6 +5348,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 
 	int floor_num, floor_list[23], floor_top = 0;
 
+	k = 0;
 #ifdef ALLOW_REPEAT
 
 	/* Get the item index */
@@ -6402,6 +6387,27 @@ void py_pickup_floor(int pickup)
 	/* Try to grab ammo */
 	pickup_ammo();
 
+	/* Mega Hack -- If we have auto-Id, do an ID sweep *before* squleching,
+	 * so that we don't have to walk over things twice to get them
+	 * squelched.  --dsb */
+	if (p_ptr->auto_id)
+	{
+		this_o_idx = cave[p_ptr->py][p_ptr->px].o_idx;
+
+		for (; this_o_idx; this_o_idx = next_o_idx)
+		{
+			/* Aquire the object */
+			o_ptr = &o_list[this_o_idx];
+
+			/* Acquire the next object index */
+			next_o_idx = o_ptr->next_o_idx;
+
+			/* Identify Object */
+			object_aware(o_ptr);
+			object_known(o_ptr);
+		}
+	}
+
 	/* Squeltch the floor */
 	squeltch_grid();
 
@@ -6410,12 +6416,6 @@ void py_pickup_floor(int pickup)
 	{
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
-
-		if (p_ptr->auto_id)
-		{
-			object_aware(o_ptr);
-			object_known(o_ptr);
-		}
 
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;

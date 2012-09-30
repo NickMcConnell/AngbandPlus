@@ -1067,8 +1067,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	}
 	if (f3 & TR3_AGGRAVATE) total -= 10000;
 	if (f3 & TR3_BLESSED) total += 750;
-	if (f3 & TR3_CURSED) total -= 5000;
-	if (f3 & TR3_HEAVY_CURSE) total -= 12500;
+	if ((f3 & TR3_CURSED) && (o_ptr->ident & IDENT_CURSED)) total -= 5000;
+	if ((f3 & TR3_HEAVY_CURSE) && (o_ptr->ident & IDENT_CURSED)) total -= 12500;
 	if (f3 & TR3_PERMA_CURSE) total -= 15000;
 	if (f3 & TR3_FEATHER) total += 1250;
 	if (f4 & TR4_FLY) total += 10000;
@@ -4783,6 +4783,36 @@ bool kind_is_good(int k_idx)
 	return (FALSE);
 }
 
+/*
+* Determine if template is suitable for building a randart -- dsb
+*/
+bool kind_is_artifactable(int k_idx)
+{
+	int i, j;
+	object_kind *k_ptr = &k_info[k_idx];
+
+	if (kind_is_good(k_idx))
+	{
+		/* We consider the item artifactable if there is at least one
+		* randart power in ra_info that could be added to this item. */
+		for (i = 0; i < max_ra_idx; i++)
+		{
+			randart_part_type *ra_ptr = &ra_info[i];
+
+			for (j = 0; j < 20; j++)
+			{
+				if (ra_ptr->tval[j] != k_ptr->tval) continue;
+				if (ra_ptr->min_sval[j] > k_ptr->sval) continue;
+				if (ra_ptr->max_sval[j] < k_ptr->sval) continue;
+				/* Winner */
+				return TRUE;
+			}
+		}
+	}
+
+	/* No match. Too bad. */
+	return FALSE;
+}
 
 
 /*

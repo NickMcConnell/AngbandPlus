@@ -257,7 +257,7 @@ void dump_skills(FILE *fff)
 			strcat(buf, format(" - %s", s_info[i].name + s_name));
 		}
 
-		fprintf(fff, "%-49s%s%02ld.%03ld [%01d.%03d]",
+		fprintf(fff, "%-49s%s%02ld.%03ld [%01ld.%03ld]",
 		        buf, s_info[i].value < 0 ? "-" : " ",
 			ABS(s_info[i].value) / SKILL_STEP,
 			ABS(s_info[i].value) % SKILL_STEP,
@@ -650,6 +650,7 @@ s16b get_melee_skills()
 static void choose_melee()
 {
 	int i, j, z = 0;
+	int force_drop = FALSE, style_unchanged = FALSE;
 
 	character_icky = TRUE;
 	Term_save();
@@ -677,6 +678,13 @@ static void choose_melee()
 
 		for (i = 0, z = 0; z < A2I(c); i++)
 			if (melee_bool[i]) z++;
+
+		if (p_ptr->melee_style == melee_skills[melee_num[z]])
+		{
+			style_unchanged = TRUE;
+			break;
+		}
+
 		for (i = INVEN_WIELD; p_ptr->body_parts[i - INVEN_WIELD] == INVEN_WIELD; i++)
 		{
 			if (p_ptr->inventory[i].k_idx)
@@ -688,9 +696,9 @@ static void choose_melee()
 					msg_format("Hmmm, your %s seems to be cursed.", name);
 					break;
 				}
-				else
+				else if (INVEN_PACK == inven_takeoff(i, 255, force_drop))
 				{
-					inven_takeoff(i, 255, FALSE);
+					force_drop = TRUE;
 				}
 			}
 		}
@@ -710,6 +718,11 @@ static void choose_melee()
 
 	Term_load();
 	character_icky = FALSE;
+
+	if (style_unchanged)
+	{
+		msg_format("You are already using %s.", melee_names[melee_num[z]]);
+	}
 }
 
 void select_default_melee()

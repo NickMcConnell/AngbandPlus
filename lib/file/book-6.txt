@@ -14,7 +14,7 @@
        lets you see invisible and be immune to paralyzation.  Being
        made of white eog, it is capable of casting Ice Storms.
 
-  The Longsword 'Anduril' (2d5) (+10,+15) [+5]
+  The Longsword 'Anduril' (3d5) (+10,+15) [+5]
        The  Sword of Aragorn  the  Dunadan  Ranger  and  King.   It 
        increases your  strength  to  match  true  Kingly  strength,
        increases  armour class by +5. Being the 'Flame of the West'
@@ -24,7 +24,7 @@
        blade, that  Fire  Balls  can  be  cast  from  its   searing
        surface.
 
-  The Lead-filled Mace 'Grond' (10d8) (+5,+25)
+  The Lead-filled Mace 'Grond' (9d9) (+25,+25) [+10]
        The Hammer  of  the  Underworld,  this  is  Morgoth's  chief
        weapon. It weighs so much that it  slows  anything  of  less
        than godly status. It is so awesome that it  aggravates  all  
@@ -43,7 +43,7 @@
        strength to wield it, regenerates your  hit  points and mana 
        at no extra cost and allows you to be free of paralyzation.
 
-  The Two-Handed Sword 'Mormegil' (3d6) (-40,-60)
+  The Two-Handed Sword 'Mormegil' (6d7) (0,0) [-20]
        This evil black sword is heavily cursed, slowing its wielder
        and aggravating all that see it...
 
@@ -91,14 +91,14 @@
 	This amazing bow of fire hastes its  wielder  and  brands
 	all bolts with its element.
 
-  The Bastard Sword 'Calris' (3d4) (-20,+20)
+  The Bastard Sword 'Calris' (5d4) (-20,+20)
        This sword of Lungorthin the Balrog of White  Flame,  is  an
        evil cursed sword that needs great mastering to control  its
        powers. If mastered it can execute dragons, slay other  evil
        including demons and trolls, this naturally aggravates them.
        Also it gives its wielder far greater internal constitution.
 
-  The Spear 'Aeglos' (1d20) (+15,+25) [+5]
+  The Spear 'Aeglos' (3d6) (+15,+25) [+5]
        This  Snow-thorn of Gil-Galad the  High-Elf,  delivers  very
        deep cold-criticals, while  protecting  you  from  cold  and
        increasing  your armour class.  Being  elvish  it  naturally 
@@ -156,7 +156,7 @@
        This fiery staff slays animals and resists fire, doing times
        fire criticals. It also increases the wielders intelligence.
 
-  The Blade of Chaos 'Doomcaller' (5d8) (+18,+28)
+  The Blade of Chaos 'Doomcaller' (6d5) (+18,+28) [-50]
        This deadly blade  calls  doom  to  all  who  see  it,  this 
        naturally aggravates them. It shows you  wherever a creature
        is,  be  it  invisible  or  blocked  by  a  wall. It resists
@@ -164,7 +164,7 @@
        and troll. It delivers cold criticals, but severely  impedes
        its wielders health.
 
-  The Three Daggers, 'Narthanc', 'Nimthanc', 'Dethanc' (1d4) (+4,+2)
+  The Three Daggers, 'Narthanc', 'Nimthanc', 'Dethanc' (1d4) (+4,+6)
        These elemental daggers  of  flame,  frost, and  electricity
        respectively do  their    elemental  criticals,  and  defend  
        against them.  They also cast bolts of their element often.
@@ -173,7 +173,7 @@
        This ancient, and poisonous  dagger  casts  stinking  clouds
        with great frequency.
 
-  The Dagger 'Belangil' (3d2) (+6,+9)
+  The Dagger 'Belangil' (2d4) (+6,+9)
        This nimble weapon of cold increases the wielder's dexterity
        and regeneration, while slowing  digestion.  Being  of  dark 
        origins it see alls invisible and casts frost balls.
@@ -203,11 +203,11 @@
        It protects from falls and the invisible, and slays orcs and
        trolls.
 
-  The Glaive of Pain (8d6) (+0,+28)
+  The Glaive of Pain (9d6) (+0,+30)
        This weapon is designed to cause pain  to  anything  without 
        discrimination.
 
-  The Lance of the Eorlingas (2d12) (+3,+21)
+  The Lance of the Eorlingas (3d8) (+3,+21)
        This heavy lance is suprisingly easy  to  control,  allowing 
        slaughter of orcs, trolls and other evil (visible or not).
 
@@ -216,7 +216,7 @@
        (visible or not),  while  greatly  increasing  the  wielders
        internal constitution.
 
-  The Trident of Wrath (4d9) (+21,+24)
+  The Trident of Wrath (3d8) (+16,+18)
        This extremely heavy and dangerous trident belonging to  the
        greatest Maiar spirit,  Osse,  slaughters  evil  and  undead
        without mercy wherever they hide, and increases the wielder's
@@ -247,7 +247,7 @@
        This executer slays evil, invisible undead, dragons,  giants
        orcs and trolls.
 
-  The Flail 'Totila' (2d9) (+6,+8) (+2)
+  The Flail 'Totila' (3d6) (+6,+8) (+2)
        This flaming flail slays evil  in  stealth.  It  also  casts 
        confusion.
 
@@ -255,7 +255,7 @@
        This roguish sword  gives  better  regeneration  and  slower
        digestion, slaying all animals with uncanny speed.
 
-  The Katana 'Aglarang' (6d8) (+0,+0)
+  The Katana 'Aglarang' (8d4) (+0,+0)
        This super-light and sharp  katana   greatly  increases  the
        wielders dexterity and sustains it. Rarely does the  wielder
        get less than four attacks a round with  it,  and  often  as

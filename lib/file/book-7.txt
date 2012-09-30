@@ -62,8 +62,8 @@
   Mithril Chain Mail of Belegennon [28,+20]
        This Chain Mail Resists and makes you stealthy.
 
-  The Iron Helm of Dor-Lomin [5,+20]
-       This is the Dragon Helm of  Turin Turumbar.  It is  rumored
+  The Iron Helm of Dor-Lomin [8,+20]
+       This is the Dragon Helm of  Turin Turambar.  It is  rumored
        that its wearer will never die in combat.   It  resists all
        and sees all, and increases all fighting stats.
 
@@ -91,7 +91,7 @@
 
   The Hard Leather Cap of Thranduil [2,+10]
        This acid resistant leather is a thinker's cap.  Increasing
-       wisdom and intelligence it also gives telepathy.
+       wisdom and intelligence.
 
   The Metal Cap of Thengel [3,+12]
        This cap of the Rohan King Thengel, gives kingly wisdom and
@@ -100,7 +100,7 @@
   The Steel Helm 'Hammerhand' [6,+20]
        This warriors' helm increases the fighting stats.
 
-  The Large Leather Shield of Celefarn [4,+20]
+  The Large Leather Shield of Celegorm [4,+20]
        A quality shield of Resistance.
 
   The Pair of Metal Shod Boots of Thror [6,+20]

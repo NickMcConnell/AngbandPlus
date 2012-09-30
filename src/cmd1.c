@@ -79,14 +79,14 @@ bool test_hit_norm(int chance, int ac, int vis)
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-s16b critical_shot(int weight, int plus, int dam)
+s16b critical_shot(int weight, int plus, int dam, int skill)
 {
 	int i, k;
 
 
 	/* Extract "shot" power */
 	i = (weight + ((p_ptr->to_h + plus) * 4) +
-	     get_skill_scale(SKILL_ARCHERY, 100));
+	     get_skill_scale(skill, 100));
 	i += 50 * p_ptr->xtra_crit;
 	i += luck( -100, 100);
 
@@ -2264,29 +2264,31 @@ static void py_attack_hand(int *k, monster_type *m_ptr, s32b *special)
 	if ((r_ptr->flags3 & RF3_UNDEAD) ||
 	                (r_ptr->flags3 & RF3_NONLIVING)) resist_stun += 88;
 
-	/* Attempt 'times' */
-	for (times = 0; times < (plev < 7 ? 1 : plev / 7); times++)
+	if (plev)
 	{
-		do
+		for (times = 0; times < (plev < 7 ? 1 : plev / 7); times++)
 		{
-			ma_ptr = &blow_table[(randint(max)) - 1];
-		}
-		while ((ma_ptr->min_level > plev) || (randint(plev) < ma_ptr->chance));
-
-		/* keep the highest level attack available we found */
-		if ((ma_ptr->min_level > old_ptr->min_level) &&
-		                !(p_ptr->stun || p_ptr->confused))
-		{
-			old_ptr = ma_ptr;
-
-			if (wizard && cheat_xtra)
+			do
 			{
-				msg_print("Attack re-selected.");
+				ma_ptr = &blow_table[(randint(max)) - 1];
 			}
-		}
-		else
-		{
-			ma_ptr = old_ptr;
+			while ((ma_ptr->min_level > plev) || (randint(plev) < ma_ptr->chance));
+
+			/* keep the highest level attack available we found */
+			if ((ma_ptr->min_level > old_ptr->min_level) &&
+			                !(p_ptr->stun || p_ptr->confused))
+			{
+				old_ptr = ma_ptr;
+
+				if (wizard && cheat_xtra)
+				{
+					msg_print("Attack re-selected.");
+				}
+			}
+			else
+			{
+				ma_ptr = old_ptr;
+			}
 		}
 	}
 

@@ -16,6 +16,7 @@ CORRUPT_BALROG_AURA = add_corruption
 	{
 		[HOOK_CALC_BONUS] = function()
 			player.xtra_f3 = bor(player.xtra_f3, TR3_SH_FIRE)
+			player.xtra_f3 = bor(player.xtra_f3, TR3_LITE1)
 		end,
 		[HOOK_READ] = function(obj)
 			if magik(5) == TRUE then
@@ -90,6 +91,13 @@ CORRUPT_BALROG_FORM = add_corruption
 	},
 	["hooks"]       =
 	{
+		[HOOK_CALC_BONUS] = function()
+			player.xtra_f2 = bor(player.xtra_f2, TR2_IM_ACID)
+			player.xtra_f2 = bor(player.xtra_f2, TR2_IM_FIRE)
+			player.xtra_f2 = bor(player.xtra_f2, TR2_IM_ELEC)
+			player.xtra_f2 = bor(player.xtra_f2, TR2_RES_DARK)
+			player.xtra_f2 = bor(player.xtra_f2, TR2_RES_CHAOS)
+		end,
 		[HOOK_CALC_POWERS] = function()
 			player.add_power(PWR_BALROG)
 		end,
@@ -214,6 +222,9 @@ CORRUPT_RANDOM_TELEPORT = add_corruption
 	-- No oppose field, it will be automatically set when we declare the anti-telep corruption to oppose us
 	["hooks"]       =
 	{
+		[HOOK_CALC_BONUS] = function()
+			player.xtra_f3 = bor(player.xtra_f3, TR3_TELEPORT)
+		end,
 		[HOOK_PROCESS_WORLD] = function()
 			if rand_int(300) == 1 then
 				if magik(70) == TRUE then

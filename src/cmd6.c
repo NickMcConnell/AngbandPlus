@@ -3216,9 +3216,16 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_WORD_OF_RECALL:
 			{
-				recall_player(21, 15);
+				if ((dungeon_flags2 & DF2_ASK_LEAVE) && !get_check("Leave this unique level forever? "))
+				{
+					used_up = FALSE;
+				}
+				else
+				{
+					recall_player(21, 15);
 
-				ident = TRUE;
+					ident = TRUE;
+				}
 
 				break;
 			}
@@ -4456,9 +4463,16 @@ void do_cmd_zap_rod(void)
 
 	case SV_ROD_RECALL:
 		{
-			recall_player(21, 15);
+			if ((dungeon_flags2 & DF2_ASK_LEAVE) && !get_check("Leave this unique level forever? "))
+			{
+				use_charge = FALSE;
+			}
+			else
+			{
+				recall_player(21, 15);
 
-			ident = TRUE;
+				ident = TRUE;
+			}
 
 			break;
 		}
@@ -6957,11 +6971,14 @@ turn_monsters(40 + p_ptr->lev);
 
 		case ACT_RECALL:
 			{
-				if (!doit) return "word of recall every 200 turns";
-				msg_print("It glows soft white...");
-				recall_player(20,15);
+				if (!(dungeon_flags2 & DF2_ASK_LEAVE) || ((dungeon_flags2 & DF2_ASK_LEAVE) && !get_check("Leave this unique level forever? ")))
+				{
+					if (!doit) return "word of recall every 200 turns";
+					msg_print("It glows soft white...");
+					recall_player(20,15);
 
-				o_ptr->timeout = 200;
+					o_ptr->timeout = 200;
+				}
 
 				break;
 			}

@@ -135,4 +135,7 @@ extern long atol();
 
 #endif
 
-
+/* There was a bug introduced in 10.4.11; working around it */
+#ifdef __APPLE__
+#define GETLOGIN_BROKEN
+#endif
