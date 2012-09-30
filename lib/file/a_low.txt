@@ -70,14 +70,14 @@ N: 8:BIAS_WIS
 'Confession'
 'Soul Helper'
 with Amulet
-wrote the Buddhist Scriptures
+of the Buddhist Scriptures
 of Angel
 
 N:16:BIAS_ROGUE
 N: 9:BIAS_DEX
 8
-'Speedy'
-'Escaper'
+'Speed'
+of Escapee
 'Accelerator'
 of Hide-and-Seek
 of the Joker

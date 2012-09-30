@@ -192,7 +192,7 @@ static bool alloc_stairs(int feat, int num, int walls)
  */
 static void alloc_object(int set, int typ, int num)
 {
-	int y, x, k;
+	int y = 0, x = 0, k;
 	int dummy = 0;
 	cave_type *c_ptr;
 
@@ -1460,37 +1460,37 @@ static void place_pet(void)
 {
 	int i;
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
-		p_ptr->jouba = m_pop();
-		if (p_ptr->jouba)
+		p_ptr->riding = m_pop();
+		if (p_ptr->riding)
 		{
-			monster_type *m_ptr = &m_list[p_ptr->jouba];
+			monster_type *m_ptr = &m_list[p_ptr->riding];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			cave[py][px].m_idx = p_ptr->jouba;
-			m_ptr->r_idx = jouba_mon.r_idx;
+			cave[py][px].m_idx = p_ptr->riding;
+			m_ptr->r_idx = riding_mon.r_idx;
 			m_ptr->fy = py;
 			m_ptr->fx = px;
-			m_ptr->cdis = jouba_mon.cdis;
-			m_ptr->mflag = jouba_mon.mflag;
-			m_ptr->mflag2 = jouba_mon.mflag2;
+			m_ptr->cdis = riding_mon.cdis;
+			m_ptr->mflag = riding_mon.mflag;
+			m_ptr->mflag2 = riding_mon.mflag2;
 			m_ptr->ml = TRUE;
-			m_ptr->hp = jouba_mon.hp;
-			m_ptr->maxhp = jouba_mon.maxhp;
-			m_ptr->max_maxhp = jouba_mon.max_maxhp;
-			m_ptr->mspeed = jouba_mon.mspeed;
-			m_ptr->fast = jouba_mon.fast;
-			m_ptr->slow = jouba_mon.slow;
-			m_ptr->stunned = jouba_mon.stunned;
-			m_ptr->confused = jouba_mon.confused;
-			m_ptr->monfear = jouba_mon.monfear;
-			m_ptr->invulner = jouba_mon.invulner;
-			m_ptr->smart = jouba_mon.smart;
+			m_ptr->hp = riding_mon.hp;
+			m_ptr->maxhp = riding_mon.maxhp;
+			m_ptr->max_maxhp = riding_mon.max_maxhp;
+			m_ptr->mspeed = riding_mon.mspeed;
+			m_ptr->fast = riding_mon.fast;
+			m_ptr->slow = riding_mon.slow;
+			m_ptr->stunned = riding_mon.stunned;
+			m_ptr->confused = riding_mon.confused;
+			m_ptr->monfear = riding_mon.monfear;
+			m_ptr->invulner = riding_mon.invulner;
+			m_ptr->smart = riding_mon.smart;
 			m_ptr->csleep = 0;
-			m_ptr->nickname = jouba_mon.nickname;
-			m_ptr->energy = jouba_mon.energy;
-			m_ptr->exp = jouba_mon.exp;
+			m_ptr->nickname = riding_mon.nickname;
+			m_ptr->energy = riding_mon.energy;
+			m_ptr->exp = riding_mon.exp;
 			set_pet(m_ptr);
 
 			if ((r_ptr->flags1 & RF1_FORCE_SLEEP) && !ironman_nightmare)
@@ -1503,7 +1503,7 @@ static void place_pet(void)
 			}
 
 			/* Update the monster */
-			update_mon(p_ptr->jouba, TRUE);
+			update_mon(p_ptr->riding, TRUE);
 
 			r_ptr->cur_num++;
 
@@ -1517,18 +1517,18 @@ static void place_pet(void)
 		{
 			char m_name[80];
 
-			monster_desc(m_name, &jouba_mon, 0);
+			monster_desc(m_name, &riding_mon, 0);
 #ifdef JP
 msg_format("%sとはぐれてしまった。", m_name);
 #else
 			msg_format("You have lost sight of %s.", m_name);
 #endif
-			if (record_named_pet && jouba_mon.nickname)
+			if (record_named_pet && riding_mon.nickname)
 			{
-				monster_desc(m_name, &jouba_mon, 0x08);
+				monster_desc(m_name, &riding_mon, 0x08);
 				do_cmd_write_nikki(NIKKI_NAMED_PET, 5, m_name);
 			}
-			p_ptr->jouba = 0;
+			p_ptr->riding = 0;
 		}
 	}
 

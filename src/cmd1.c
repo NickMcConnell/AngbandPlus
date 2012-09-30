@@ -345,12 +345,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 
 				if (mult < 50) mult = 50;
 
-				if (((o_ptr->name1 == ART_AEGLIN) &&
-#ifdef JP
-				    strstr(E_r_name + r_ptr->E_name, "Fafner")))
-#else
-				    strstr(r_name + r_ptr->name, "Fafner")))
-#endif
+				if ((o_ptr->name1 == ART_AEGLIN) && (m_ptr->r_idx == MON_FAFNER))
 					mult *= 3;
 			}
 
@@ -533,7 +528,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr, int mode)
 				if (mult == 10) mult = 40;
 				else if (mult < 60) mult = 60;
 			}
-			if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_RIRYOKU) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+			if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 			{
 				p_ptr->csp -= (1+(o_ptr->dd * o_ptr->ds / 5));
 				p_ptr->redraw |= (PR_MANA);
@@ -1154,6 +1149,12 @@ int is_autopick(object_type *o_ptr)
 		/*** アイテムのカテゴリ指定予約語 ***/
 		if (!strncmp(str, "items",5)) len = 5;
 		
+		else if (!strncmp(str, "artifacts", 9)){
+			if ((object_known_p(o_ptr) || object_aware_p(o_ptr)) 
+			    && (artifact_p(o_ptr) || o_ptr->art_name))
+				len = 9;
+		}
+
 		else if (!strncmp(str, "weapons", 7)){
 			switch( o_ptr->tval ){
 			case TV_BOW:
@@ -1234,10 +1235,10 @@ int is_autopick(object_type *o_ptr)
 			 o_ptr->tval == TV_CLOAK) len = 6;
 		else if (!strncmp(str, "helms", 5) &&
 			 (o_ptr->tval == TV_CROWN || o_ptr->tval == TV_HELM)) len = 5;
-		else if (!strncmp(str, "gloves", 7) &&
-			 o_ptr->tval == TV_GLOVES) len = 7;
-		else if (!strncmp(str, "boots", 6) &&
-			 o_ptr->tval == TV_BOOTS) len = 6;
+		else if (!strncmp(str, "gloves", 6) &&
+			 o_ptr->tval == TV_GLOVES) len = 6;
+		else if (!strncmp(str, "boots", 5) &&
+			 o_ptr->tval == TV_BOOTS) len = 5;
 
 		str += len;
 		if (*str == 0)
@@ -1308,30 +1309,30 @@ static bool is_autopick2( object_type *o_ptr) {
 /*
  * Automatically destroy items in this grid.
  */
-static bool is_opt_auto_destroy(object_type *o_ptr)
+static bool is_opt_confirm_destroy(object_type *o_ptr)
 {
 	if (!destroy_items) return FALSE;
 
 	/* Known to be worthless? */
-	if (destroy_worth)
+	if (leave_worth)
 		if (object_value(o_ptr) > 0) return FALSE;
 	
-	if (destroy_equip)
+	if (leave_equip)
 		if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_DRAG_ARMOR)) return FALSE;
 	
-	if (destroy_chest)
+	if (leave_chest)
 		if ((o_ptr->tval == TV_CHEST) && o_ptr->pval) return FALSE;
 	
-	if (destroy_kubi)
+	if (leave_wanted)
 	{
 		if (o_ptr->tval == TV_CORPSE
 		    && object_is_shoukinkubi(o_ptr)) return FALSE;
 	}
 	
-	if (destroy_corpse)
+	if (leave_corpse)
 		if (o_ptr->tval == TV_CORPSE) return FALSE;
 	
-	if (destroy_junk)
+	if (leave_junk)
 		if ((o_ptr->tval == TV_SKELETON) || (o_ptr->tval == TV_BOTTLE) || (o_ptr->tval == TV_JUNK) || (o_ptr->tval == TV_STATUE)) return FALSE;
 	
 	if (o_ptr->tval == TV_GOLD) return FALSE;
@@ -1384,7 +1385,7 @@ static void auto_pickup_items(cave_type *c_ptr)
 			continue;
 		}
 		
-		else if ((idx == -1 && is_opt_auto_destroy(o_ptr)) ||
+		else if ((idx == -1 && is_opt_confirm_destroy(o_ptr)) ||
 			 (!always_pickup && (idx != -1 && autopick_action[idx] == DO_AUTODESTROY)))
 		{
 			disturb(0,0);
@@ -2590,7 +2591,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				    m_name);
 			else
 			{
-				if (!(((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1)))
+				if (!(((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1)))
 #ifdef JP
 			msg_format("%sを攻撃した。", m_name);
 #else
@@ -2651,7 +2652,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
-			if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
+			if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
 			{
 				int special_effect = 0, stun_effect = 0, times = 0, max_times;
 				int min_level = 1;
@@ -2679,7 +2680,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					do
 					{
 						ma_ptr = &ma_blows[rand_int(MAX_MA)];
-						if ((p_ptr->pclass == CLASS_KI) && (ma_ptr->min_level > 1)) min_level = ma_ptr->min_level + 3;
+						if ((p_ptr->pclass == CLASS_FORCE) && (ma_ptr->min_level > 1)) min_level = ma_ptr->min_level + 3;
 						else min_level = ma_ptr->min_level;
 					}
 					while ((min_level > p_ptr->lev) ||
@@ -2707,7 +2708,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 					}
 				}
 
-				if (p_ptr->pclass == CLASS_KI) min_level = MAX(1, ma_ptr->min_level - 3);
+				if (p_ptr->pclass == CLASS_FORCE) min_level = MAX(1, ma_ptr->min_level - 3);
 				else min_level = ma_ptr->min_level;
 				k = damroll(ma_ptr->dd, ma_ptr->ds);
 				if (p_ptr->special_attack & ATTACK_SUIKEN) k *= 2;
@@ -2812,7 +2813,7 @@ static void py_attack_aux(int y, int x, bool *fear, bool *mdeath, s16b hand, int
 			else if (o_ptr->k_idx)
 			{
 				k = damroll(o_ptr->dd, o_ptr->ds);
-				if (p_ptr->jouba)
+				if (p_ptr->riding)
 				{
 					if((o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
 					{
@@ -3452,7 +3453,7 @@ msg_format("刃が%sの急所を貫いた！", m_name);
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois) && (mult < 3))
 						mult = mult * 5 / 2;
 
-					if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_RIRYOKU) && (p_ptr->csp > (p_ptr->msp / 30)))
+					if ((p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEPON) && (p_ptr->csp > (p_ptr->msp / 30)))
 					{
 						p_ptr->csp -= (1+(p_ptr->msp / 30));
 						p_ptr->redraw |= (PR_MANA);
@@ -3668,21 +3669,21 @@ bool py_attack(int y, int x, int mode)
 		}
 	}
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
-		int joubalevel = r_info[m_list[p_ptr->jouba].r_idx].level;
-		if ((skill_exp[GINOU_JOUBA] < skill_exp_settei[p_ptr->pclass][GINOU_JOUBA][1]) && ((skill_exp[GINOU_JOUBA] - 1000) / 200 < r_info[m_ptr->r_idx].level) && (skill_exp[GINOU_JOUBA]/100 - 2000 < joubalevel))
-			skill_exp[GINOU_JOUBA]++;
-		if ((skill_exp[GINOU_JOUBA] < skill_exp_settei[p_ptr->pclass][GINOU_JOUBA][1]) && (skill_exp[GINOU_JOUBA]/100 < joubalevel))
+		int ridinglevel = r_info[m_list[p_ptr->riding].r_idx].level;
+		if ((skill_exp[GINOU_RIDING] < skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1]) && ((skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_ptr->r_idx].level) && (skill_exp[GINOU_RIDING]/100 - 2000 < ridinglevel))
+			skill_exp[GINOU_RIDING]++;
+		if ((skill_exp[GINOU_RIDING] < skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1]) && (skill_exp[GINOU_RIDING]/100 < ridinglevel))
 		{
-			if (joubalevel*100 > (skill_exp[GINOU_JOUBA] + 1500))
-				skill_exp[GINOU_JOUBA] += (1+(joubalevel - skill_exp[GINOU_JOUBA]/100 - 15));
-			else skill_exp[GINOU_JOUBA]++;
+			if (ridinglevel*100 > (skill_exp[GINOU_RIDING] + 1500))
+				skill_exp[GINOU_RIDING] += (1+(ridinglevel - skill_exp[GINOU_RIDING]/100 - 15));
+			else skill_exp[GINOU_RIDING]++;
 		}
 		p_ptr->update |= (PU_BONUS);
 	}
 
-	jouba_t_m_idx = c_ptr->m_idx;
+	riding_t_m_idx = c_ptr->m_idx;
 	if (p_ptr->migite) py_attack_aux(y, x, &fear, &mdeath, 0, mode);
 	if (p_ptr->hidarite && !mdeath) py_attack_aux(y, x, &fear, &mdeath, 1, mode);
 
@@ -4080,7 +4081,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 		p_can_pass_walls = FALSE;
 	}
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
 		cave[py][px].m_idx = 0;
 	}
@@ -4235,7 +4236,7 @@ void move_player(int dir, int do_pickup, bool break_trap)
 	}
 
 #endif /* ALLOW_EASY_DISARM -- TNB */
-	else if (p_ptr->jouba && (r_info[m_list[p_ptr->jouba].r_idx].flags1 & RF1_NEVER_MOVE))
+	else if (p_ptr->riding && (r_info[m_list[p_ptr->riding].r_idx].flags1 & RF1_NEVER_MOVE))
 	{
 #ifdef JP
 		msg_print("動けない！");
@@ -4247,12 +4248,12 @@ void move_player(int dir, int do_pickup, bool break_trap)
 		disturb(0, 0);
 	}
 
-	else if (p_ptr->jouba && m_list[p_ptr->jouba].monfear)
+	else if (p_ptr->riding && m_list[p_ptr->riding].monfear)
 	{
 		char m_name[80];
 
 		/* Acquire the monster name */
-		monster_desc(m_name, &m_list[p_ptr->jouba], 0);
+		monster_desc(m_name, &m_list[p_ptr->riding], 0);
 
 		/* Dump a message */
 #ifdef JP
@@ -4264,13 +4265,13 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		disturb(0, 0);
 	}
 
-	else if (p_ptr->jouba && p_ptr->jouba_ryoute)
+	else if (p_ptr->riding && p_ptr->riding_ryoute)
 	{
 		oktomove = FALSE;
 		disturb(0, 0);
 	}
 
-	else if ((p_ptr->jouba && (r_info[m_list[p_ptr->jouba].r_idx].flags7 & RF7_AQUATIC)) && (c_ptr->feat != FEAT_SHAL_WATER) && (c_ptr->feat != FEAT_DEEP_WATER))
+	else if ((p_ptr->riding && (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_AQUATIC)) && (c_ptr->feat != FEAT_SHAL_WATER) && (c_ptr->feat != FEAT_DEEP_WATER))
 	{
 #ifdef JP
 		msg_print("陸上に上がれない。");
@@ -4282,7 +4283,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		disturb(0, 0);
 	}
 
-	else if ((p_ptr->jouba && !(r_info[m_list[p_ptr->jouba].r_idx].flags7 & (RF7_AQUATIC | RF7_CAN_SWIM | RF7_CAN_FLY))) && (c_ptr->feat == FEAT_DEEP_WATER))
+	else if ((p_ptr->riding && !(r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_AQUATIC | RF7_CAN_SWIM | RF7_CAN_FLY))) && (c_ptr->feat == FEAT_DEEP_WATER))
 	{
 #ifdef JP
 		msg_print("水上に行けない。");
@@ -4294,7 +4295,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		disturb(0, 0);
 	}
 
-	else if ((p_ptr->jouba && (r_info[m_list[p_ptr->jouba].r_idx].flags2 & (RF2_AURA_FIRE)) && !(r_info[m_list[p_ptr->jouba].r_idx].flags7 & (RF7_CAN_FLY))) && (c_ptr->feat == FEAT_SHAL_WATER))
+	else if ((p_ptr->riding && (r_info[m_list[p_ptr->riding].r_idx].flags2 & (RF2_AURA_FIRE)) && !(r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_FLY))) && (c_ptr->feat == FEAT_SHAL_WATER))
 	{
 #ifdef JP
 		msg_print("水上に行けない。");
@@ -4306,7 +4307,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		disturb(0, 0);
 	}
 
-	else if ((p_ptr->jouba && !(r_info[m_list[p_ptr->jouba].r_idx].flags7 & (RF7_CAN_FLY)) && !(r_info[m_list[p_ptr->jouba].r_idx].flags3 & (RF3_IM_FIRE))) && ((c_ptr->feat == FEAT_SHAL_LAVA) || (c_ptr->feat == FEAT_DEEP_LAVA)))
+	else if ((p_ptr->riding && !(r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_FLY)) && !(r_info[m_list[p_ptr->riding].r_idx].flags3 & (RF3_IM_FIRE))) && ((c_ptr->feat == FEAT_SHAL_LAVA) || (c_ptr->feat == FEAT_DEEP_LAVA)))
 	{
 #ifdef JP
 		msg_print("溶岩の上に行けない。");
@@ -4318,10 +4319,10 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		disturb(0, 0);
 	}
 
-	else if (p_ptr->jouba && m_list[p_ptr->jouba].stunned && one_in_(2))
+	else if (p_ptr->riding && m_list[p_ptr->riding].stunned && one_in_(2))
 	{
 		char m_name[80];
-		monster_desc(m_name, &m_list[p_ptr->jouba], 0);
+		monster_desc(m_name, &m_list[p_ptr->riding], 0);
 #ifdef JP
 		msg_format("%sが朦朧としていてうまく動けない！",m_name);
 #else
@@ -4515,7 +4516,7 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 		py = y;
 		px = x;
 
-		if (p_ptr->jouba && (r_info[m_list[p_ptr->jouba].r_idx].flags2 & RF2_KILL_WALL))
+		if (p_ptr->riding && (r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_KILL_WALL))
 		{
 			if (cave[py][px].feat > FEAT_SECRET && cave[py][px].feat < FEAT_PERM_SOLID)
 			{
@@ -4727,11 +4728,11 @@ msg_format("%sが恐怖していて制御できない。", m_name);
 			hit_trap(break_trap);
 		}
 	}
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
-		m_list[p_ptr->jouba].fy = py;
-		m_list[p_ptr->jouba].fx = px;
-		cave[py][px].m_idx = p_ptr->jouba;
+		m_list[p_ptr->riding].fy = py;
+		m_list[p_ptr->riding].fx = px;
+		cave[py][px].m_idx = p_ptr->riding;
 		update_mon(cave[py][px].m_idx, TRUE);
 		p_ptr->update |= (PU_MON_LITE);
 	}

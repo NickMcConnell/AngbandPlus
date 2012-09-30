@@ -3564,11 +3564,11 @@ msg_print("この花崗岩はとてもおいしい！");
 				py = y;
 				px = x;
 
-				if (p_ptr->jouba)
+				if (p_ptr->riding)
 				{
-					m_list[p_ptr->jouba].fy = py;
-					m_list[p_ptr->jouba].fx = px;
-					cave[py][px].m_idx = p_ptr->jouba;
+					m_list[p_ptr->riding].fy = py;
+					m_list[p_ptr->riding].fx = px;
+					cave[py][px].m_idx = p_ptr->riding;
 					cave[oy][ox].m_idx = 0;
 					update_mon(cave[py][px].m_idx, TRUE);
 				}

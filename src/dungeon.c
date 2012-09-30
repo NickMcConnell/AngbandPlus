@@ -249,7 +249,7 @@ static void sense_inventory1(void)
 			case CLASS_WARRIOR:
 			case CLASS_ARCHER:
 			case CLASS_SAMURAI:
-			case CLASS_KIHEI:
+			case CLASS_FORCEHEI:
 			{
 				/* Good sensing */
 				if (0 != rand_int(9000L / (plev * plev + 40))) return;
@@ -261,7 +261,7 @@ static void sense_inventory1(void)
 				break;
 			}
 
-			case CLASS_KAJI:
+			case CLASS_SMITH:
 			{
 				/* Good sensing */
 				if (0 != rand_int(6000L / (plev * plev + 50))) return;
@@ -286,7 +286,7 @@ static void sense_inventory1(void)
 			}
 
 			case CLASS_PRIEST:
-			case CLASS_HARPER:
+			case CLASS_BARD:
 			{
 				/* Good (light) sensing */
 				if (0 != rand_int(10000L / (plev * plev + 40))) return;
@@ -365,7 +365,7 @@ static void sense_inventory1(void)
 			}
 
 			case CLASS_MONK:
-			case CLASS_KI:
+			case CLASS_FORCE:
 			{
 				/* Okay sensing */
 				if (0 != rand_int(20000L / (plev * plev + 40))) return;
@@ -386,7 +386,7 @@ static void sense_inventory1(void)
 				break;
 			}
 
-			case CLASS_MONOMANE:
+			case CLASS_IMITATOR:
 			case CLASS_BLUE_MAGE:
 			{
 				/* Bad sensing */
@@ -503,16 +503,16 @@ static void sense_inventory2(void)
 			case CLASS_WARRIOR:
 			case CLASS_ARCHER:
 			case CLASS_SAMURAI:
-			case CLASS_KIHEI:
+			case CLASS_FORCEHEI:
 			case CLASS_BERSERKER:
 			{
 				return;
 			}
 
-			case CLASS_KAJI:
+			case CLASS_SMITH:
 			case CLASS_PALADIN:
 			case CLASS_CHAOS_WARRIOR:
-			case CLASS_MONOMANE:
+			case CLASS_IMITATOR:
 			case CLASS_BEASTMASTER:
 			case CLASS_NINJA:
 			{
@@ -536,9 +536,9 @@ static void sense_inventory2(void)
 			}
 
 			case CLASS_PRIEST:
-			case CLASS_HARPER:
+			case CLASS_BARD:
 			case CLASS_ROGUE:
-			case CLASS_KI:
+			case CLASS_FORCE:
 			case CLASS_MINDCRAFTER:
 			{
 				/* Good sensing */
@@ -1025,7 +1025,7 @@ static void regen_monsters(void)
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == i) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == i) p_ptr->redraw |= (PR_UHEALTH);
 		}
 	}
 }
@@ -1394,7 +1394,7 @@ static void check_music()
 	int shouhimana;
 
         /* Music singed by player */
-        if(p_ptr->pclass != CLASS_HARPER) return;
+        if(p_ptr->pclass != CLASS_BARD) return;
         if(!p_ptr->magic_num1[0] && !p_ptr->magic_num1[1]) return;
 
         s_ptr = &technic_info[REALM_MUSIC - MIN_TECHNIC - 1][p_ptr->magic_num2[0]];
@@ -1488,7 +1488,7 @@ static void process_world(void)
 		/* Count all hostile monsters */
 		for (i2 = 0; i2 < cur_wid; ++i2)
 			for (j2 = 0; j2 < cur_hgt; j2++)
-				if ((cave[j2][i2].m_idx > 0) && (cave[j2][i2].m_idx != p_ptr->jouba))
+				if ((cave[j2][i2].m_idx > 0) && (cave[j2][i2].m_idx != p_ptr->riding))
 				{
 					number_mon++;
 					win_m_idx = cave[j2][i2].m_idx;
@@ -1910,12 +1910,12 @@ take_hit(DAMAGE_NOESCAPE, randint(p_ptr->lev), "溺れ", -1);
 		}
 	}
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
 		int damage;
-		if ((r_info[m_list[p_ptr->jouba].r_idx].flags2 & RF2_AURA_FIRE) && !p_ptr->immune_fire)
+		if ((r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_FIRE) && !p_ptr->immune_fire)
 		{
-			damage = r_info[m_list[p_ptr->jouba].r_idx].level / 2;
+			damage = r_info[m_list[p_ptr->riding].r_idx].level / 2;
 			if (prace_is_(RACE_ENT)) damage += damage/3;
 			if (p_ptr->resist_fire) damage = damage / 3;
 			if (p_ptr->oppose_fire) damage = damage / 3;
@@ -1927,9 +1927,9 @@ take_hit(DAMAGE_NOESCAPE, damage, "炎のオーラ", -1);
 			take_hit(DAMAGE_NOESCAPE, damage, "Fire aura", -1);
 #endif
 		}
-		if ((r_info[m_list[p_ptr->jouba].r_idx].flags2 & RF2_AURA_ELEC) && !p_ptr->immune_elec)
+		if ((r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_AURA_ELEC) && !p_ptr->immune_elec)
 		{
-			damage = r_info[m_list[p_ptr->jouba].r_idx].level / 2;
+			damage = r_info[m_list[p_ptr->riding].r_idx].level / 2;
 			if (p_ptr->resist_elec) damage = damage / 3;
 			if (p_ptr->oppose_elec) damage = damage / 3;
 #ifdef JP
@@ -1940,9 +1940,9 @@ take_hit(DAMAGE_NOESCAPE, damage, "電気のオーラ", -1);
 			take_hit(DAMAGE_NOESCAPE, damage, "Elec aura", -1);
 #endif
 		}
-		if ((r_info[m_list[p_ptr->jouba].r_idx].flags3 & RF3_AURA_COLD) && !p_ptr->immune_cold)
+		if ((r_info[m_list[p_ptr->riding].r_idx].flags3 & RF3_AURA_COLD) && !p_ptr->immune_cold)
 		{
-			damage = r_info[m_list[p_ptr->jouba].r_idx].level / 2;
+			damage = r_info[m_list[p_ptr->riding].r_idx].level / 2;
 			if (p_ptr->resist_cold) damage = damage / 3;
 			if (p_ptr->oppose_cold) damage = damage / 3;
 #ifdef JP
@@ -4162,7 +4162,7 @@ msg_print("ウィザードモード突入。");
 			     (p_ptr->pclass == CLASS_NINJA) ||
 			     (p_ptr->pclass == CLASS_MIRROR_MASTER) 
 			     ) do_cmd_mind_browse();
-			else if (p_ptr->pclass == CLASS_KAJI)
+			else if (p_ptr->pclass == CLASS_SMITH)
 				do_cmd_kaji(TRUE);
 			else do_cmd_browse();
 			break;
@@ -4174,7 +4174,7 @@ msg_print("ウィザードモード突入。");
 			/* -KMW- */
 			if (!p_ptr->wild_mode)
 			{
-			if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_KAJI))
+			if (dun_level && (d_info[dungeon_type].flags1 & DF1_NO_MAGIC) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
 			{
 #ifdef JP
 msg_print("ダンジョンが魔法を吸収した！");
@@ -4184,7 +4184,7 @@ msg_print("ダンジョンが魔法を吸収した！");
 
 				msg_print(NULL);
 			}
-			else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_KAJI))
+			else if (p_ptr->anti_magic && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH))
 			{
 #ifdef JP
 cptr which_power = "魔法";
@@ -4199,7 +4199,7 @@ which_power = "超能力";
 					which_power = "psionic powers";
 #endif
 
-				else if (p_ptr->pclass == CLASS_MONOMANE)
+				else if (p_ptr->pclass == CLASS_IMITATOR)
 #ifdef JP
 which_power = "ものまね";
 #else
@@ -4260,7 +4260,7 @@ msg_format("狂戦士化していて頭が回らない！");
 				    (p_ptr->pclass == CLASS_MIRROR_MASTER) 
 				    )
 					do_cmd_mind();
-				else if (p_ptr->pclass == CLASS_MONOMANE)
+				else if (p_ptr->pclass == CLASS_IMITATOR)
 					do_cmd_mane(FALSE);
 				else if (p_ptr->pclass == CLASS_MAGIC_EATER)
 					do_cmd_magic_eater();
@@ -4268,7 +4268,7 @@ msg_format("狂戦士化していて頭が回らない！");
 					do_cmd_hissatsu();
 				else if (p_ptr->pclass == CLASS_BLUE_MAGE)
 					do_cmd_cast_learned();
-				else if (p_ptr->pclass == CLASS_KAJI)
+				else if (p_ptr->pclass == CLASS_SMITH)
 					do_cmd_kaji(FALSE);
 				else
 					do_cmd_cast();
@@ -4910,9 +4910,9 @@ msg_print("中断しました。");
 		}
 	}
 
-	if (p_ptr->jouba && !p_ptr->confused && !p_ptr->blind)
+	if (p_ptr->riding && !p_ptr->confused && !p_ptr->blind)
 	{
-		monster_type *m_ptr = &m_list[p_ptr->jouba];
+		monster_type *m_ptr = &m_list[p_ptr->riding];
 
 		if (m_ptr->csleep)
 		{
@@ -4928,7 +4928,7 @@ msg_format("%^sを起こした。", m_name);
 #else
 			msg_format("You have waked %s up.", m_name);
 #endif
-			if (p_ptr->health_who == p_ptr->jouba) p_ptr->redraw |= (PR_HEALTH);
+			if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= (PR_HEALTH);
 			p_ptr->redraw |= (PR_UHEALTH);
 		}
 
@@ -4937,7 +4937,7 @@ msg_format("%^sを起こした。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_JOUBA])
+			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->stunned;
@@ -4967,7 +4967,7 @@ msg_format("%^sを朦朧状態から立ち直らせた。", m_name);
 #else
 				msg_format("%^s is no longer stunned.", m_name);
 #endif
-				if (p_ptr->health_who == p_ptr->jouba) p_ptr->redraw |= (PR_HEALTH);
+				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= (PR_HEALTH);
 				p_ptr->redraw |= (PR_UHEALTH);
 			}
 		}
@@ -4977,7 +4977,7 @@ msg_format("%^sを朦朧状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_JOUBA])
+			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->confused;
@@ -5007,7 +5007,7 @@ msg_format("%^sを混乱状態から立ち直らせた。", m_name);
 #else
 				msg_format("%^s is no longer confused.", m_name);
 #endif
-				if (p_ptr->health_who == p_ptr->jouba) p_ptr->redraw |= (PR_HEALTH);
+				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= (PR_HEALTH);
 				p_ptr->redraw |= (PR_UHEALTH);
 			}
 		}
@@ -5017,7 +5017,7 @@ msg_format("%^sを混乱状態から立ち直らせた。", m_name);
 			int d = 1;
 
 			/* Make a "saving throw" against stun */
-			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_JOUBA])
+			if (rand_int(r_info[m_ptr->r_idx].level) < skill_exp[GINOU_RIDING])
 			{
 				/* Recover fully */
 				d = m_ptr->monfear;
@@ -5047,7 +5047,7 @@ msg_format("%^sを恐怖から立ち直らせた。", m_name);
 #else
 				msg_format("%^s is no longer fear.", m_name);
 #endif
-				if (p_ptr->health_who == p_ptr->jouba) p_ptr->redraw |= (PR_HEALTH);
+				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= (PR_HEALTH);
 				p_ptr->redraw |= (PR_UHEALTH);
 			}
 		}
@@ -5065,7 +5065,7 @@ msg_format("%^sを恐怖から立ち直らせた。", m_name);
 	{
 		(void)set_lightspeed(p_ptr->lightspeed - 1, TRUE);
 	}
-	if ((p_ptr->pclass == CLASS_KI) && (p_ptr->magic_num1[0]))
+	if ((p_ptr->pclass == CLASS_FORCE) && (p_ptr->magic_num1[0]))
 	{
 		if (p_ptr->magic_num1[0] < 40)
 		{
@@ -5391,7 +5391,7 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 							update_mon(i, FALSE);
 
 							if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
-							if (p_ptr->jouba == i) p_ptr->redraw |= (PR_UHEALTH);
+							if (p_ptr->riding == i) p_ptr->redraw |= (PR_UHEALTH);
 
 							/* Redraw regardless */
 							lite_spot(m_ptr->fy, m_ptr->fx);
@@ -5399,7 +5399,7 @@ msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
 					}
 				}
 			}
-			if (p_ptr->pclass == CLASS_MONOMANE)
+			if (p_ptr->pclass == CLASS_IMITATOR)
 			{
 				if (mane_num > (p_ptr->lev > 44 ? 3 : p_ptr->lev > 29 ? 2 : 1))
 				{
@@ -5486,7 +5486,7 @@ static void dungeon(bool load_game)
 	/* Cancel the target */
 	target_who = 0;
 	pet_t_m_idx = 0;
-	jouba_t_m_idx = 0;
+	riding_t_m_idx = 0;
 	ambush_flag = FALSE;
 
 	/* Cancel the health bar */
@@ -5674,7 +5674,7 @@ msg_print("試合開始！");
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT))
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT))
 		p_ptr->magic_num1[0] = MUSIC_DETECT;
 
 	/* Hack -- notice death or departure */
@@ -5833,13 +5833,13 @@ msg_print("試合開始！");
 	}
 
 	if (alive) {
-		if (p_ptr->jouba)
+		if (p_ptr->riding)
 		{
-			COPY(&jouba_mon, &m_list[p_ptr->jouba], monster_type);
+			COPY(&riding_mon, &m_list[p_ptr->riding], monster_type);
 		}
 		else
 		{
-			jouba_mon.r_idx = 0;
+			riding_mon.r_idx = 0;
 		}
 		for(num = 0; num < 20; num++)
 		{
@@ -5851,7 +5851,7 @@ msg_print("試合開始！");
 			
 			if (!m_ptr->r_idx) continue;
 			if (!is_pet(m_ptr)) continue;
-			if (i == p_ptr->jouba) continue;
+			if (i == p_ptr->riding) continue;
 			if (m_ptr->nickname && (player_has_los_bold(m_ptr->fy, m_ptr->fx) || los(m_ptr->fy, m_ptr->fx, py, px)))
 			{
 				if (distance(py, px, m_ptr->fy, m_ptr->fx) > 3) continue;
@@ -5875,14 +5875,14 @@ msg_print("試合開始！");
 				if (!m_ptr->r_idx) continue;
 				if (!is_pet(m_ptr)) continue;
 				if (!m_ptr->nickname) continue;
-				if (p_ptr->jouba == i) continue;
+				if (p_ptr->riding == i) continue;
 				
 				monster_desc(m_name, m_ptr, 0x88);
 				do_cmd_write_nikki(NIKKI_NAMED_PET, 4, m_name);
 			}
 		}
 	}
-	if (p_ptr->jouba) p_ptr->jouba = -1;
+	if (p_ptr->riding) p_ptr->riding = -1;
 
 	write_level = TRUE;
 }
@@ -6223,14 +6223,14 @@ quit("セーブファイルが壊れています");
 		do_cmd_write_nikki(NIKKI_GAMESTART, 1, "                            ---- Restart Game ----");
 #endif
 
-		if (p_ptr->jouba)
+		if (p_ptr->riding)
 		{
-			p_ptr->jouba = 0;
+			p_ptr->riding = 0;
 			for(i = m_max; i > 0; i--)
 			{
 				if ((m_list[i].fy == py) && (m_list[i].fx == px))
 				{
-					p_ptr->jouba = i;
+					p_ptr->riding = i;
 					break;
 				}
 			}
@@ -6356,10 +6356,10 @@ if (init_v_info()) quit("建築物初期化不能");
 
 	if (p_ptr->prace == RACE_ANDROID) calc_android_exp();
 
-	if (new_game && ((p_ptr->pclass == CLASS_KIHEI) || (p_ptr->pclass == CLASS_BEASTMASTER)))
+	if (new_game && ((p_ptr->pclass == CLASS_FORCEHEI) || (p_ptr->pclass == CLASS_BEASTMASTER)))
 	{
 		monster_type *m_ptr;
-		int pet_r_idx = ((p_ptr->pclass == CLASS_KIHEI) ? MON_HORSE : MON_YASE_HORSE);
+		int pet_r_idx = ((p_ptr->pclass == CLASS_FORCEHEI) ? MON_HORSE : MON_YASE_HORSE);
 		monster_race *r_ptr = &r_info[pet_r_idx];
 		place_monster_aux(py, px - 1, pet_r_idx,
 				  FALSE, FALSE, TRUE, TRUE, TRUE, FALSE);

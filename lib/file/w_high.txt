@@ -21,12 +21,11 @@ of Mortal Venom
 of Radioactivity
 
 N: 3:BIAS_FIRE
-8
+7
 'Red Storm'
 (*Defender*)
 'Phoenix'
 'Fire Bland'
-'Ragnarok'
 'Exodus'
 of Allah
 of Prominence

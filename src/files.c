@@ -1406,14 +1406,14 @@ static void display_player_middle(void)
 		else if(p_ptr->ryoute)
 			Term_putstr(1, 9, -1, TERM_WHITE, "打撃修正(両手)");
 		else
-			Term_putstr(1, 9, -1, TERM_WHITE, (hidarikiki ? "打撃修正(左手)" : "打撃修正(右手)"));
+			Term_putstr(1, 9, -1, TERM_WHITE, (left_hander ? "打撃修正(左手)" : "打撃修正(右手)"));
 #else
 		if(!buki_motteruka(INVEN_RARM) && !buki_motteruka(INVEN_LARM))
-			Term_putstr(1, 9, -1, TERM_WHITE, "Melee(bare)");
+			Term_putstr(1, 9, -1, TERM_WHITE, "Melee(bare h.)");
 		else if(p_ptr->ryoute)
 			Term_putstr(1, 9, -1, TERM_WHITE, "Melee(2hands)");
 		else
-			Term_putstr(1, 9, -1, TERM_WHITE, (hidarikiki ? "Melee(Left)" : "Melee(Right)"));
+			Term_putstr(1, 9, -1, TERM_WHITE, (left_hander ? "Melee(Left)" : "Melee(Right)"));
 #endif
 		Term_putstr(15, 9, -1, TERM_L_BLUE, format("%11s", buf));
 	}
@@ -1434,7 +1434,7 @@ static void display_player_middle(void)
 
 		/* Dump the bonuses to hit/dam */
 #ifdef JP
-		Term_putstr(1, 10, -1, TERM_WHITE, (hidarikiki ? "打撃修正(右手)" : "打撃修正(左手)"));
+		Term_putstr(1, 10, -1, TERM_WHITE, (left_hander ? "打撃修正(右手)" : "打撃修正(左手)"));
 #else
 		Term_putstr(1, 10, -1, TERM_WHITE, "Melee(Left)");
 #endif
@@ -1542,7 +1542,7 @@ static void display_player_middle(void)
 #ifdef JP
 	Term_putstr(1, 12, -1, TERM_WHITE, "射撃武器倍率");
 #else
-	Term_putstr(1, 12, -1, TERM_WHITE, "Coefficient");
+	Term_putstr(1, 12, -1, TERM_WHITE, "Shoot Power");
 #endif
 	Term_putstr(15, 12, -1, TERM_L_BLUE, format("%11s", buf));
 
@@ -1635,6 +1635,8 @@ prt_lnum("所持金     ", p_ptr->au, 13, 28, TERM_L_GREEN);
 
 #ifdef JP
 prt_lnum("ターン数   ", MAX(turn_real(turn),0), 14, 28, TERM_L_GREEN  );
+#else
+prt_lnum("Total turn ", MAX(turn_real(turn),0), 14, 28, TERM_L_GREEN  );
 #endif
 
 #ifdef JP
@@ -1950,7 +1952,7 @@ static void display_player_various(void)
 	for(i = 0; i< 2; i++)
 	{
 		damage[i] = p_ptr->dis_to_d[i]*100;
-		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI)) && (empty_hands(TRUE) > 1))
+		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE)) && (empty_hands(TRUE) > 1))
 		{
 			int level = p_ptr->lev;
 			if (i)
@@ -1958,7 +1960,7 @@ static void display_player_various(void)
 				damage[i] = 0;
 				break;
 			}
-			if (p_ptr->pclass == CLASS_KI) level = MAX(1, level - 3);
+			if (p_ptr->pclass == CLASS_FORCE) level = MAX(1, level - 3);
 			if (p_ptr->special_defense & KAMAE_BYAKKO)
 				basedam = monk_ave_damage[level][1];
 			else if (p_ptr->special_defense & (KAMAE_GENBU | KAMAE_SUZAKU))
@@ -1985,9 +1987,9 @@ static void display_player_various(void)
 				basedam *= 11;
 				basedam /= 9;
 			}
-			if (object_known_p(o_ptr) && (p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_RIRYOKU) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
+			if (object_known_p(o_ptr) && (p_ptr->pclass != CLASS_SAMURAI) && (f1 & TR1_FORCE_WEPON) && (p_ptr->csp > (o_ptr->dd * o_ptr->ds / 5)))
 				basedam = basedam * 7 / 2;
-			if (p_ptr->jouba && (o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
+			if (p_ptr->riding && (o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
 				basedam = basedam*(o_ptr->dd+2)/o_ptr->dd;
 		}
 		damage[i] += basedam;
@@ -2159,7 +2161,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_FEAR);
 		break;
 	case CLASS_MONK:
-	case CLASS_KI:
+	case CLASS_FORCE:
 		if ((p_ptr->lev > 9) && !heavy_armor())
 			(*f1) |= TR1_SPEED;
 		if ((p_ptr->lev>24) && !heavy_armor())
@@ -2191,7 +2193,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		if (p_ptr->lev > 39)
 			(*f3) |= (TR3_TELEPATHY);
 		break;
-	case CLASS_HARPER:
+	case CLASS_BARD:
 		(*f2) |= (TR2_RES_SOUND);
 		break;
 	case CLASS_BERSERKER:
@@ -2843,7 +2845,7 @@ static void display_player_flag_aux(int row, int col, char *header,
 	if (im_f[1] & flag1) c_put_str(TERM_WHITE, "*", row, col);
 
 	/* Vulnerability */
-	if (vuln) c_put_str(TERM_RED, "x", row, col + 1);
+	if (vuln) c_put_str(TERM_RED, "v", row, col + 1);
 }
 
 
@@ -2883,16 +2885,16 @@ display_player_flag_aux(row+7, col, "耐破片:", 2, TR2_RES_SHARDS, 0, im_f[1], vu
 display_player_flag_aux(row+8, col, "耐盲目:", 2, TR2_RES_BLIND, 0, im_f[1], vul_f[1]);
 display_player_flag_aux(row+9, col, "耐混乱:", 2, TR2_RES_CONF, 0, im_f[1], vul_f[1]);
 #else
-	display_player_flag_aux(row+0, col, "Acid :", 2, TR2_RES_ACID, TR2_IM_ACID, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+1, col, "Elec :", 2, TR2_RES_ELEC, TR2_IM_ELEC, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+2, col, "Fire :", 2, TR2_RES_FIRE, TR2_IM_FIRE, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+3, col, "Cold :", 2, TR2_RES_COLD, TR2_IM_COLD, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+4, col, "Poisn:", 2, TR2_RES_POIS, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+5, col, "Light:", 2, TR2_RES_LITE, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+6, col, "Dark :", 2, TR2_RES_DARK, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+7, col, "Shard:", 2, TR2_RES_SHARDS, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+8, col, "Blind:", 2, TR2_RES_BLIND, 0, im_f[1], vul_f[1]);
-	display_player_flag_aux(row+9, col, "Conf :", 2, TR2_RES_CONF, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+0, col, "Acid  :", 2, TR2_RES_ACID, TR2_IM_ACID, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+1, col, "Elec  :", 2, TR2_RES_ELEC, TR2_IM_ELEC, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+2, col, "Fire  :", 2, TR2_RES_FIRE, TR2_IM_FIRE, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+3, col, "Cold  :", 2, TR2_RES_COLD, TR2_IM_COLD, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+4, col, "Poison:", 2, TR2_RES_POIS, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+5, col, "Light :", 2, TR2_RES_LITE, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+6, col, "Dark  :", 2, TR2_RES_DARK, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+7, col, "Shard :", 2, TR2_RES_SHARDS, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+8, col, "Blind :", 2, TR2_RES_BLIND, 0, im_f[1], vul_f[1]);
+	display_player_flag_aux(row+9, col, "Conf  :", 2, TR2_RES_CONF, 0, im_f[1], vul_f[1]);
 #endif
 
 
@@ -4021,81 +4023,16 @@ put_str("守護魔神    :", 7, 1);
 	}
 }
 
-
-
-/*
- * Hack -- Dump a character description file
- *
- * XXX XXX XXX Allow the "full" flag to dump additional info,
- * and trigger its usage from various places in the code.
- */
-errr file_character(cptr name, bool full)
+errr make_character_dump(FILE *fff)
 {
 	int		i, x, y;
 	byte		a;
 	char		c;
 	cptr		paren = ")";
-	int			fd = -1;
-	FILE		*fff = NULL;
 	store_type  *st_ptr;
 	char		o_name[MAX_NLEN];
 	char		buf[1024];
 	cptr            disp_align;
-
-	/* Drop priv's */
-	safe_setuid_drop();
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Check for existing file */
-	fd = fd_open(buf, O_RDONLY);
-
-	/* Existing file */
-	if (fd >= 0)
-	{
-		char out_val[160];
-
-		/* Close the file */
-		(void)fd_close(fd);
-
-		/* Build query */
-#ifdef JP
-(void)sprintf(out_val, "現存するファイル %s に上書きしますか? ", buf);
-#else
-		(void)sprintf(out_val, "Replace existing file %s? ", buf);
-#endif
-
-
-		/* Ask */
-		if (get_check(out_val)) fd = -1;
-	}
-
-	/* Open the non-existing file */
-	if (fd < 0) fff = my_fopen(buf, "w");
-
-	/* Grab priv's */
-	safe_setuid_grab();
-
-
-	/* Invalid file */
-	if (!fff)
-	{
-		/* Message */
-#ifdef JP
-msg_format("キャラクタ情報のファイルへの書き出しに失敗しました！");
-#else
-		msg_format("Character dump failed!");
-#endif
-
-		msg_print(NULL);
-
-		/* Error */
-		return (-1);
-	}
 
 
 #ifndef FAKE_VERSION
@@ -4214,19 +4151,19 @@ msg_format("キャラクタ情報のファイルへの書き出しに失敗しました！");
 
 			if (!m_ptr->r_idx) continue;
 			if (!is_pet(m_ptr)) continue;
-			if (!m_ptr->nickname && (p_ptr->jouba != i)) continue;
+			if (!m_ptr->nickname && (p_ptr->riding != i)) continue;
 			if (!pet)
 			{
 #ifdef JP
-fprintf(fff, "\n  [主なペット]\n\n");
+				fprintf(fff, "\n  [主なペット]\n\n");
 #else
-		fprintf(fff, "\n\n  [leading pets]\n\n");
+				fprintf(fff, "\n  [leading pets]\n\n");
 #endif
 				pet = TRUE;
 			}
 			monster_desc(pet_name, m_ptr, 0x88);
 			fprintf(fff, "%s", pet_name);
-			if (p_ptr->jouba == i)
+			if (p_ptr->riding == i)
 #ifdef JP
 				fprintf(fff, " 乗馬中");
 #else
@@ -4240,9 +4177,9 @@ fprintf(fff, "\n  [主なペット]\n\n");
 	if (death && !total_winner)
 	{
 #ifdef JP
-fprintf(fff, "\n  [死ぬ直前のメッセージ]\n\n");
+		fprintf(fff, "\n  [死ぬ直前のメッセージ]\n\n");
 #else
-		fprintf(fff, "\n\n  [Last messages]\n\n");
+		fprintf(fff, "\n  [Last messages]\n\n");
 #endif
 		for (i = MIN(message_num(), 15); i >= 0; i--)
 		{
@@ -4252,7 +4189,7 @@ fprintf(fff, "\n  [死ぬ直前のメッセージ]\n\n");
 	}
 
 #ifdef JP
-fprintf(fff, "\n  [その他の情報]        \n");
+	fprintf(fff, "\n  [その他の情報]        \n");
 #else
 	fprintf(fff, "\n  [Miscellaneous information]\n");
 #endif
@@ -4277,20 +4214,20 @@ fprintf(fff, "\n  [その他の情報]        \n");
 #ifdef JP
 		fprintf(fff, "   %c%-12s: %3d 階\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
 #else
-		fprintf(fff, "   %c%-12s: level %3d\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
+		fprintf(fff, "   %c%-16s: level %3d\n", seiha ? '!' : ' ', d_name+d_info[y].name, max_dlv[y]);
 #endif
 	}
 
 	if (preserve_mode)
 #ifdef JP
-fprintf(fff, "\n 保存モード:         ON");
+		fprintf(fff, "\n 保存モード:         ON");
 #else
 		fprintf(fff, "\n Preserve Mode:      ON");
 #endif
 
 	else
 #ifdef JP
-fprintf(fff, "\n 保存モード:         OFF");
+		fprintf(fff, "\n 保存モード:         OFF");
 #else
 		fprintf(fff, "\n Preserve Mode:      OFF");
 #endif
@@ -4320,28 +4257,28 @@ fprintf(fff, "\n 保存モード:         OFF");
 
 	if (ironman_small_levels)
 #ifdef JP
-fprintf(fff, "\n 小さいダンジョン:   ALWAYS");
+		fprintf(fff, "\n 小さいダンジョン:   ALWAYS");
 #else
 		fprintf(fff, "\n Small Levels:       ALWAYS");
 #endif
 
 	else if (always_small_levels)
 #ifdef JP
-fprintf(fff, "\n 小さいダンジョン:   ON");
+		fprintf(fff, "\n 小さいダンジョン:   ON");
 #else
 		fprintf(fff, "\n Small Levels:       ON");
 #endif
 
 	else if (small_levels)
 #ifdef JP
-fprintf(fff, "\n 小さいダンジョン:   ENABLED");
+		fprintf(fff, "\n 小さいダンジョン:   ENABLED");
 #else
 		fprintf(fff, "\n Small Levels:       ENABLED");
 #endif
 
 	else
 #ifdef JP
-fprintf(fff, "\n 小さいダンジョン:   OFF");
+		fprintf(fff, "\n 小さいダンジョン:   OFF");
 #else
 		fprintf(fff, "\n Small Levels:       OFF");
 #endif
@@ -4349,14 +4286,14 @@ fprintf(fff, "\n 小さいダンジョン:   OFF");
 
 	if (vanilla_town)
 #ifdef JP
-fprintf(fff, "\n 元祖の町のみ: ON");
+		fprintf(fff, "\n 元祖の町のみ: ON");
 #else
 		fprintf(fff, "\n Vanilla Town:       ON");
 #endif
 
 	else if (lite_town)
 #ifdef JP
-fprintf(fff, "\n 小規模な町:         ON");
+		fprintf(fff, "\n 小規模な町:         ON");
 #else
 		fprintf(fff, "\n Lite Town:          ON");
 #endif
@@ -4364,7 +4301,7 @@ fprintf(fff, "\n 小規模な町:         ON");
 
 	if (ironman_shops)
 #ifdef JP
-fprintf(fff, "\n 店なし:             ON");
+		fprintf(fff, "\n 店なし:             ON");
 #else
 		fprintf(fff, "\n No Shops:           ON");
 #endif
@@ -4372,7 +4309,7 @@ fprintf(fff, "\n 店なし:             ON");
 
 	if (ironman_downward)
 #ifdef JP
-fprintf(fff, "\n 階段を上がれない:   ON");
+		fprintf(fff, "\n 階段を上がれない:   ON");
 #else
 		fprintf(fff, "\n Diving only:        ON");
 #endif
@@ -4380,7 +4317,7 @@ fprintf(fff, "\n 階段を上がれない:   ON");
 
 	if (ironman_rooms)
 #ifdef JP
-fprintf(fff, "\n 普通でない部屋を生成:         ON");
+		fprintf(fff, "\n 普通でない部屋を生成:         ON");
 #else
 		fprintf(fff, "\n Unusual rooms:      ON");
 #endif
@@ -4388,7 +4325,7 @@ fprintf(fff, "\n 普通でない部屋を生成:         ON");
 
 	if (ironman_nightmare)
 #ifdef JP
-fprintf(fff, "\n 悪夢モード:         ON");
+		fprintf(fff, "\n 悪夢モード:         ON");
 #else
 		fprintf(fff, "\n Nightmare Mode:     ON");
 #endif
@@ -4424,20 +4361,34 @@ fprintf(fff, "\n 悪夢モード:         ON");
 
 	if (p_ptr->arena_number == 99)
 	{
+#ifdef JP
 		fprintf(fff, "\n 闘技場: 敗北\n");
+#else
+		fprintf(fff, "\n Arena: defeated\n");
+#endif
 	}
 	else if (p_ptr->arena_number > MAX_ARENA_MONS+2)
 	{
+#ifdef JP
 		fprintf(fff, "\n 闘技場: 真のチャンピオン\n");
+#else
+		fprintf(fff, "\n Arena: True Champion\n");
+#endif
 	}
 	else if (p_ptr->arena_number > MAX_ARENA_MONS-1)
 	{
+#ifdef JP
 		fprintf(fff, "\n 闘技場: チャンピオン\n");
+#else
+		fprintf(fff, "\n Arena: Champion\n");
+#endif
 	}
 	else
 	{
 #ifdef JP
-fprintf(fff, "\n 闘技場:   %2d勝\n", (p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number));
+		fprintf(fff, "\n 闘技場:   %2d勝\n", (p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number));
+#else
+		fprintf(fff, "\n Arena:   %2d victor%s\n", (p_ptr->arena_number > MAX_ARENA_MONS ? MAX_ARENA_MONS : p_ptr->arena_number), (p_ptr->arena_number>1) ? "ies" : "y");
 #endif
 	}
 
@@ -4655,24 +4606,22 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 		/* Header with name of the town */
 #ifdef JP
 		fprintf(fff, "  [ 我が家のアイテム ]\n");
-		x=1;
 #else
 		fprintf(fff, "  [Home Inventory]\n");
 #endif
-
+		x=1;
 
 		/* Dump all available items */
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
+			if ((i % 12) == 0)
 #ifdef JP
-                if ((i % 12) == 0) fprintf(fff, "\n ( %d ページ )\n", x++);
+				fprintf(fff, "\n ( %d ページ )\n", x++);
+#else
+			        fprintf(fff, "\n ( page %d )\n", x++);
+#endif
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-#else
-			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
-#endif
-
 		}
 
 		/* Add an empty line */
@@ -4689,11 +4638,10 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 		/* Header with name of the town */
 #ifdef JP
 		fprintf(fff, "  [ 博物館のアイテム ]\n");
-		x=1;
 #else
 		fprintf(fff, "  [Museum]\n");
 #endif
-
+		x=1;
 
 		/* Dump all available items */
 		for (i = 0; i < st_ptr->stock_num; i++)
@@ -4703,8 +4651,9 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 #else
+                if ((i % 12) == 0) fprintf(fff, "\n ( page %d )\n", x++);
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
+			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 #endif
 
 		}
@@ -4713,6 +4662,77 @@ fprintf(fff, "  [ キャラクタの持ち物 ]\n\n");
 		fprintf(fff, "\n\n");
 	}
 
+	return 0;
+}
+
+/*
+ * Hack -- Dump a character description file
+ *
+ * XXX XXX XXX Allow the "full" flag to dump additional info,
+ * and trigger its usage from various places in the code.
+ */
+errr file_character(cptr name, bool full)
+{
+	int		fd = -1;
+	FILE		*fff = NULL;
+	char		buf[1024];
+
+	/* Drop priv's */
+	safe_setuid_drop();
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Check for existing file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Existing file */
+	if (fd >= 0)
+	{
+		char out_val[160];
+
+		/* Close the file */
+		(void)fd_close(fd);
+
+		/* Build query */
+#ifdef JP
+(void)sprintf(out_val, "現存するファイル %s に上書きしますか? ", buf);
+#else
+		(void)sprintf(out_val, "Replace existing file %s? ", buf);
+#endif
+
+
+		/* Ask */
+		if (get_check(out_val)) fd = -1;
+	}
+
+	/* Open the non-existing file */
+	if (fd < 0) fff = my_fopen(buf, "w");
+
+	/* Grab priv's */
+	safe_setuid_grab();
+
+
+	/* Invalid file */
+	if (!fff)
+	{
+		/* Message */
+#ifdef JP
+msg_format("キャラクタ情報のファイルへの書き出しに失敗しました！");
+#else
+		msg_format("Character dump failed!");
+#endif
+
+		msg_print(NULL);
+
+		/* Error */
+		return (-1);
+	}
+
+	(void)make_character_dump(fff);
 
 	/* Close it */
 	my_fclose(fff);
@@ -7011,7 +7031,11 @@ s32b counts_read(int where)
 	s32b count = 0;
 	char buf[1024];
 
+#ifdef JP
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info_j.raw");
+#else
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info.raw");
+#endif
 	fd = fd_open(buf, O_RDONLY);
 
 	if (counts_seek(fd, where, FALSE) ||
@@ -7028,7 +7052,11 @@ errr counts_write(int where, s32b count)
 	int fd;
 	char buf[1024];
 
+#ifdef JP
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info_j.raw");
+#else
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info.raw");
+#endif
 	fd = fd_open(buf, O_RDWR);
 	if (fd < 0)
 	{

@@ -77,13 +77,7 @@ extern cptr realm_names[];
 extern cptr E_realm_names[];
 #endif
 extern cptr spell_names[VALID_REALM][32];
-#ifdef JP
-extern cptr E_spell_names[VALID_REALM][32];               /* ±Ñ¸ì¼öÊ¸Ì¾ */
-#endif
 extern int chest_traps[64];
-#ifdef JP
-extern cptr E_player_title[MAX_CLASS][PY_MAX_LEVEL/5];  /* ±Ñ¸ì¾Î¹æÌ¾ */
-#endif
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
 extern cptr stat_names[6];
@@ -91,9 +85,6 @@ extern cptr stat_names_reduced[6];
 extern cptr window_flag_desc[32];
 extern option_type option_info[];
 extern cptr chaos_patrons[MAX_PATRON];
-#ifdef JP
-extern cptr E_chaos_patrons[MAX_PATRON];
-#endif
 extern int chaos_stats[MAX_PATRON];
 extern int chaos_rewards[MAX_PATRON][20];
 extern martial_arts ma_blows[MAX_MA];
@@ -251,7 +242,7 @@ extern bool send_score;
 extern bool skip_mutations;     /* Skip mutations screen in 'C'haracter display */
 extern bool plain_descriptions;
 extern bool stupid_monsters;
-extern bool auto_destroy;
+extern bool confirm_destroy;
 extern bool wear_confirm;
 extern bool confirm_stairs;
 extern bool disturb_pets;
@@ -265,7 +256,7 @@ extern bool stack_force_notes;
 extern bool stack_force_costs;
 extern bool view_reduce_lite;
 extern bool view_reduce_view;
-extern bool auto_haggle;
+extern bool manual_haggle;
 extern bool auto_scum;
 extern bool expand_look;
 extern bool expand_list;
@@ -290,18 +281,18 @@ extern bool player_symbols;
 extern bool equippy_chars;
 extern bool use_command;
 extern bool center_player;
-extern bool avoid_center;
+extern bool center_running;
 extern bool display_pick;
 extern bool display_nopick;
 extern bool display_destroy;
 extern bool destroy_items;
-extern bool destroy_worth;
-extern bool destroy_equip;
-extern bool destroy_kubi;
-extern bool destroy_corpse;
-extern bool destroy_junk;
+extern bool leave_worth;
+extern bool leave_equip;
+extern bool leave_wanted;
+extern bool leave_corpse;
+extern bool leave_junk;
 extern bool destroy_items;
-extern bool destroy_chest;
+extern bool leave_chest;
 extern bool record_fix_art;
 extern bool record_rand_art;
 extern bool record_destroy_uniq;
@@ -510,7 +501,7 @@ extern bool terrain_streams;
 extern bool munchkin_death;
 extern bool ironman_rooms;
 extern bool ironman_nightmare;
-extern bool hidarikiki;
+extern bool left_hander;
 extern bool preserve_mode;
 extern bool autoroller;
 extern bool autochara;
@@ -535,10 +526,10 @@ extern int battle_odds;
 extern int kakekin;
 extern u32b mon_odds[4];
 extern int pet_t_m_idx;
-extern int jouba_t_m_idx;
+extern int riding_t_m_idx;
 extern s16b kubi_r_idx[MAX_KUBI];
 extern s16b today_mon;
-extern monster_type jouba_mon;
+extern monster_type riding_mon;
 extern monster_type party_mon[20];
 extern bool write_level;
 extern u32b playtime;
@@ -694,7 +685,7 @@ extern void stop_singing(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern bool rakuba(int dam, bool force);
-extern bool do_jouba(bool force);
+extern bool do_riding(bool force);
 extern int calculate_upkeep(void);
 extern void do_cmd_pet_dismiss(void);
 extern void do_cmd_pet(void);
@@ -797,11 +788,6 @@ extern void monster_gain_exp(int m_idx, int s_idx);
 extern s32b gain_energy(void);
 
 /* monster1.c */
-#ifdef JP
-extern void jverb1( const char *in , char *out);
-extern void jverb2( const char *in , char *out);
-extern void jverb3( const char *in , char *out);
-#endif
 extern void screen_roff(int r_idx, int remember);
 extern void display_roff(int r_idx);
 extern void create_name(int type, char *name);
@@ -1495,6 +1481,9 @@ extern void dump_virtues(FILE * OutFile);
 #ifdef JP
 /* japanese.c */
 extern unsigned char *sindarin_to_kana(unsigned char *sindarin);
+extern void jverb1( const char *in , char *out);
+extern void jverb2( const char *in , char *out);
+extern void jverb3( const char *in , char *out);
 extern void jverb( const char *in , char *out , int flag);
 extern char* strstr_j(cptr str1, cptr str2);
 extern size_t mb_strlcpy(char *dst, const char *src, size_t size);

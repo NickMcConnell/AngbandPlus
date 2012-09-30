@@ -789,7 +789,7 @@ static void prt_status(void)
 #ifdef JP
 		c_put_str(TERM_L_RED, "オ", ROW_STATBAR, COL_STATBAR+56);
 #else
-		c_put_str(TERM_L_RED, "Af", ROW_STATBAR, COL_STATBAR+56);
+		c_put_str(TERM_L_RED, "Sf", ROW_STATBAR, COL_STATBAR+56);
 #endif
 	}
 	else if (p_ptr->tim_stealth || music_singing(MUSIC_STEALTH))
@@ -1412,17 +1412,17 @@ static void prt_speed(void)
 	/* Fast */
 	if (i > 110)
 	{
-		if (p_ptr->jouba)
+		if (p_ptr->riding)
 		{
-			if (m_list[p_ptr->jouba].fast && !m_list[p_ptr->jouba].slow) attr = TERM_L_BLUE;
-			else if (m_list[p_ptr->jouba].slow && !m_list[p_ptr->jouba].fast) attr = TERM_VIOLET;
+			if (m_list[p_ptr->riding].fast && !m_list[p_ptr->riding].slow) attr = TERM_L_BLUE;
+			else if (m_list[p_ptr->riding].slow && !m_list[p_ptr->riding].fast) attr = TERM_VIOLET;
 			else attr = TERM_GREEN;
 		}
 		else if ((is_fast && !p_ptr->slow) || p_ptr->lightspeed) attr = TERM_YELLOW;
 		else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
 		else attr = TERM_L_GREEN;
 #ifdef JP
-		sprintf(buf, "%s(+%d)", (p_ptr->jouba ? "乗馬" : "加速"), (i - 110));
+		sprintf(buf, "%s(+%d)", (p_ptr->riding ? "乗馬" : "加速"), (i - 110));
 #else
 		sprintf(buf, "Fast(+%d)", (i - 110));
 #endif
@@ -1432,22 +1432,22 @@ static void prt_speed(void)
 	/* Slow */
 	else if (i < 110)
 	{
-		if (p_ptr->jouba)
+		if (p_ptr->riding)
 		{
-			if (m_list[p_ptr->jouba].fast && !m_list[p_ptr->jouba].slow) attr = TERM_L_BLUE;
-			else if (m_list[p_ptr->jouba].slow && !m_list[p_ptr->jouba].fast) attr = TERM_VIOLET;
+			if (m_list[p_ptr->riding].fast && !m_list[p_ptr->riding].slow) attr = TERM_L_BLUE;
+			else if (m_list[p_ptr->riding].slow && !m_list[p_ptr->riding].fast) attr = TERM_VIOLET;
 			else attr = TERM_RED;
 		}
 		else if (is_fast && !p_ptr->slow) attr = TERM_YELLOW;
 		else if (p_ptr->slow && !is_fast) attr = TERM_VIOLET;
 		else attr = TERM_L_UMBER;
 #ifdef JP
-		sprintf(buf, "%s(-%d)", (p_ptr->jouba ? "乗馬" : "減速"), (110 - i));
+		sprintf(buf, "%s(-%d)", (p_ptr->riding ? "乗馬" : "減速"), (110 - i));
 #else
 		sprintf(buf, "Slow(-%d)", (110 - i));
 #endif
 	}
-	else if (p_ptr->jouba)
+	else if (p_ptr->riding)
 	{
 		attr = TERM_GREEN;
 #ifdef JP
@@ -1482,7 +1482,7 @@ static void prt_study(void)
 
 static void prt_mane(void)
 {
-	if (p_ptr->pclass == CLASS_MONOMANE)
+	if (p_ptr->pclass == CLASS_IMITATOR)
 	{
 		if (mane_num)
 		{
@@ -1715,30 +1715,30 @@ static void health_redraw(void)
 
 
 
-static void jouba_health_redraw(void)
+static void riding_health_redraw(void)
 {
 
 #ifdef DRS_SHOW_HEALTH_BAR
 
 	/* Not tracking */
-	if (!p_ptr->jouba)
+	if (!p_ptr->riding)
 	{
 		/* Erase the health bar */
-		Term_erase(COL_JOUBA_INFO, ROW_JOUBA_INFO, 12);
+		Term_erase(COL_RIDING_INFO, ROW_RIDING_INFO, 12);
 	}
 
 	/* Tracking a hallucinatory monster */
 	else if (p_ptr->image)
 	{
 		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_JOUBA_INFO, ROW_JOUBA_INFO, 12, TERM_WHITE, "[----------]");
+		Term_putstr(COL_RIDING_INFO, ROW_RIDING_INFO, 12, TERM_WHITE, "[----------]");
 	}
 
 	/* Tracking a dead monster (???) */
 	else if (!m_list[p_ptr->health_who].hp < 0)
 	{
 		/* Indicate that the monster health is "unknown" */
-		Term_putstr(COL_JOUBA_INFO, ROW_JOUBA_INFO, 12, TERM_WHITE, "[----------]");
+		Term_putstr(COL_RIDING_INFO, ROW_RIDING_INFO, 12, TERM_WHITE, "[----------]");
 	}
 
 	/* Tracking a visible monster */
@@ -1746,7 +1746,7 @@ static void jouba_health_redraw(void)
 	{
 		int pct, pct2, len;
 
-		monster_type *m_ptr = &m_list[p_ptr->jouba];
+		monster_type *m_ptr = &m_list[p_ptr->riding];
 
 		/* Default to almost dead */
 		byte attr = TERM_RED;
@@ -1780,10 +1780,10 @@ static void jouba_health_redraw(void)
 		len = (pct2 < 10) ? 1 : (pct2 < 90) ? (pct2 / 10 + 1) : 10;
 
 		/* Default to "unknown" */
-		Term_putstr(COL_JOUBA_INFO, ROW_JOUBA_INFO, 12, TERM_WHITE, "[----------]");
+		Term_putstr(COL_RIDING_INFO, ROW_RIDING_INFO, 12, TERM_WHITE, "[----------]");
 
 		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(COL_JOUBA_INFO + 1, ROW_JOUBA_INFO, len, attr, "**********");
+		Term_putstr(COL_RIDING_INFO + 1, ROW_RIDING_INFO, len, attr, "**********");
 	}
 
 #endif
@@ -1835,7 +1835,7 @@ static void prt_frame_basic(void)
 
 	/* Special */
 	health_redraw();
-	jouba_health_redraw();
+	riding_health_redraw();
 }
 
 
@@ -2647,7 +2647,7 @@ static void calc_mana(void)
 		case CLASS_HIGH_MAGE:
 		case CLASS_BLUE_MAGE:
 		case CLASS_MONK:
-		case CLASS_KI:
+		case CLASS_FORCE:
 		case CLASS_SORCERER:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight;
@@ -2657,7 +2657,7 @@ static void calc_mana(void)
 
 		/* Mana halved if armour is 40 pounds over weight limit. */
 		case CLASS_PRIEST:
-		case CLASS_HARPER:
+		case CLASS_BARD:
 		case CLASS_TOURIST:
 		{
 			if (inventory[INVEN_RARM].tval <= TV_SWORD) cur_wgt += inventory[INVEN_RARM].weight*2/3;
@@ -2727,8 +2727,8 @@ static void calc_mana(void)
 			case CLASS_PRIEST:
 			case CLASS_MINDCRAFTER:
 			case CLASS_BEASTMASTER:
-			case CLASS_HARPER:
-			case CLASS_KI:
+			case CLASS_BARD:
+			case CLASS_FORCE:
 			case CLASS_TOURIST:
 			case CLASS_MIRROR_MASTER:
 			{
@@ -3285,8 +3285,8 @@ void calc_bonuses(void)
 	/* Base skill -- digging */
 	p_ptr->skill_dig = 0;
 
-	if (buki_motteruka(INVEN_RARM) && (empty_hands(FALSE) & 0x00000001) && ((inventory[INVEN_RARM].weight > 99) || (inventory[INVEN_RARM].tval == TV_POLEARM)) && (!p_ptr->jouba || (p_ptr->pet_extra_flags & PF_RYOUTE))) p_ptr->ryoute = TRUE;
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) == 3) && (!p_ptr->jouba || (p_ptr->pet_extra_flags & PF_RYOUTE))) p_ptr->ryoute = TRUE;
+	if (buki_motteruka(INVEN_RARM) && (empty_hands(FALSE) & 0x00000001) && ((inventory[INVEN_RARM].weight > 99) || (inventory[INVEN_RARM].tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))) p_ptr->ryoute = TRUE;
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) == 3) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE))) p_ptr->ryoute = TRUE;
 	if (buki_motteruka(INVEN_RARM) || !buki_motteruka(INVEN_LARM)) p_ptr->migite = TRUE;
 	if (buki_motteruka(INVEN_LARM)) p_ptr->hidarite = TRUE;
 
@@ -3325,7 +3325,7 @@ void calc_bonuses(void)
 				if (p_ptr->lev > 39) p_ptr->telepathy = TRUE;
 				break;
 			case CLASS_MONK:
-			case CLASS_KI:
+			case CLASS_FORCE:
 				/* Unencumbered Monks become faster every 10 levels */
 				if (!(heavy_armor()))
 				{
@@ -3343,7 +3343,7 @@ void calc_bonuses(void)
 				p_ptr->to_a -= 50;
 				p_ptr->dis_to_a -= 50;
 				break;
-			case CLASS_HARPER:
+			case CLASS_BARD:
 				p_ptr->resist_sound = TRUE;
 				break;
 			case CLASS_SAMURAI:
@@ -3747,11 +3747,11 @@ void calc_bonuses(void)
 			p_ptr->pspeed += (p_ptr->lev) / 10 + 5;
 	}
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
-		if (!(r_info[m_list[p_ptr->jouba].r_idx].flags2 & RF2_PASS_WALL))
+		if (!(r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_PASS_WALL))
 			p_ptr->pass_wall = FALSE;
-		if (r_info[m_list[p_ptr->jouba].r_idx].flags2 & RF2_KILL_WALL)
+		if (r_info[m_list[p_ptr->riding].r_idx].flags2 & RF2_KILL_WALL)
 			p_ptr->pass_wall = TRUE;
 	}
 	if (music_singing(MUSIC_WALL)) p_ptr->kill_wall = TRUE;
@@ -4141,7 +4141,7 @@ void calc_bonuses(void)
 	}
 
 	/* Monks get extra ac for armour _not worn_ */
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI)) && !heavy_armor())
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE)) && !heavy_armor())
 	{
 		if (!(inventory[INVEN_BODY].k_idx))
 		{
@@ -4549,26 +4549,26 @@ void calc_bonuses(void)
 	/* Extract the "weight limit" (in tenth pounds) */
 	i = weight_limit();
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
-		int speed = m_list[p_ptr->jouba].mspeed;
-		if (m_list[p_ptr->jouba].mspeed > 110)
+		int speed = m_list[p_ptr->riding].mspeed;
+		if (m_list[p_ptr->riding].mspeed > 110)
 		{
-			p_ptr->pspeed = 110 + ((speed-110)*(skill_exp[GINOU_JOUBA]*3 + p_ptr->lev*160L - 10000L)/(22000L));
+			p_ptr->pspeed = 110 + ((speed-110)*(skill_exp[GINOU_RIDING]*3 + p_ptr->lev*160L - 10000L)/(22000L));
 			if (p_ptr->pspeed < 110) p_ptr->pspeed = 110;
 		}
 		else
 		{
 			p_ptr->pspeed = speed;
 		}
-		if (m_list[p_ptr->jouba].fast) p_ptr->pspeed += 10;
-		if (m_list[p_ptr->jouba].slow) p_ptr->pspeed -= 10;
-		if (r_info[m_list[p_ptr->jouba].r_idx].flags7 & RF7_CAN_FLY) p_ptr->ffall = TRUE;
-		if (r_info[m_list[p_ptr->jouba].r_idx].flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
+		if (m_list[p_ptr->riding].fast) p_ptr->pspeed += 10;
+		if (m_list[p_ptr->riding].slow) p_ptr->pspeed -= 10;
+		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & RF7_CAN_FLY) p_ptr->ffall = TRUE;
+		if (r_info[m_list[p_ptr->riding].r_idx].flags7 & (RF7_CAN_SWIM | RF7_AQUATIC)) p_ptr->can_swim = TRUE;
 
-		if (skill_exp[GINOU_JOUBA] < 2000) j += (p_ptr->wt*3*(2000 - skill_exp[GINOU_JOUBA]))/2000;
+		if (skill_exp[GINOU_RIDING] < 2000) j += (p_ptr->wt*3*(2000 - skill_exp[GINOU_RIDING]))/2000;
 
-		i = 3000 + r_info[m_list[p_ptr->jouba].r_idx].level * 50;
+		i = 3000 + r_info[m_list[p_ptr->riding].r_idx].level * 50;
 	}
 
 	/* XXX XXX XXX Apply "encumbrance" from weight */
@@ -4672,7 +4672,7 @@ void calc_bonuses(void)
 				p_ptr->num_fire += (p_ptr->lev * 4);
 			}
 
-			if ((p_ptr->pclass == CLASS_KIHEI) &&
+			if ((p_ptr->pclass == CLASS_FORCEHEI) &&
 			    (p_ptr->tval_ammo == TV_ARROW))
 			{
 				p_ptr->num_fire += (p_ptr->lev * 3);
@@ -4714,7 +4714,7 @@ void calc_bonuses(void)
 		/* Assume not heavy */
 		p_ptr->heavy_wield[i] = FALSE;
 		p_ptr->icky_wield[i] = FALSE;
-		p_ptr->jouba_wield[i] = FALSE;
+		p_ptr->riding_wield[i] = FALSE;
 
 		if (!buki_motteruka(INVEN_RARM+i)) {p_ptr->num_blow[i]=1;continue;}
 		/* It is hard to hold a heavy weapon */
@@ -4779,7 +4779,7 @@ void calc_bonuses(void)
 					num = 5; wgt = 70; mul = 4; break;
 
 				/* Kaji */
-				case CLASS_KAJI:
+				case CLASS_SMITH:
 					num = 5; wgt = 150; mul = 5; break;
 
 				/* Warrior-Mage */
@@ -4799,16 +4799,16 @@ void calc_bonuses(void)
 				case CLASS_TOURIST:
 					num = 4; wgt = 100; mul = 3; break;
 
-				/* Monomaneshi */
-				case CLASS_MONOMANE:
+				/* Imitator */
+				case CLASS_IMITATOR:
 					num = 5; wgt = 70; mul = 4; break;
 
 				/* Beastmaster */
 				case CLASS_BEASTMASTER:
 					num = 5; wgt = 70; mul = 3; break;
 
-				case CLASS_KIHEI:
-					if ((p_ptr->jouba) && (f2 & TR2_JOUBA)) {num = 5; wgt = 70; mul = 4;}
+				case CLASS_FORCEHEI:
+					if ((p_ptr->riding) && (f2 & TR2_RIDING)) {num = 5; wgt = 70; mul = 4;}
 					else {num = 5; wgt = 100; mul = 3;}
 					break;
 
@@ -4818,11 +4818,11 @@ void calc_bonuses(void)
 
 				/* Archer, Magic eater */
 				case CLASS_ARCHER:
-				case CLASS_HARPER:
+				case CLASS_BARD:
 					num = 4; wgt = 70; mul = 2; break;
 
-				/* Renkijutusi */
-				case CLASS_KI:
+				/* ForceTrainer */
+				case CLASS_FORCE:
 					num = 4; wgt = 60; mul = 2; break;
 
 				/* Mirror Master */
@@ -4937,49 +4937,49 @@ void calc_bonuses(void)
 				p_ptr->dis_to_d[i] -= 10;
 			}
 		}
-		if (p_ptr->jouba)
+		if (p_ptr->riding)
 		{
 			if ((o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
 			{
 				p_ptr->to_h[i] +=15;
 				p_ptr->dis_to_h[i] +=15;
 			}
-			else if (!(f2 & TR2_JOUBA))
+			else if (!(f2 & TR2_RIDING))
 			{
 				int penalty;
-				if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_KIHEI))
+				if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_FORCEHEI))
 				{
 					penalty = 5;
 				}
 				else
 				{
-					penalty = r_info[m_list[p_ptr->jouba].r_idx].level - skill_exp[GINOU_JOUBA] / 80;
+					penalty = r_info[m_list[p_ptr->riding].r_idx].level - skill_exp[GINOU_RIDING] / 80;
 					penalty += 30;
 					if (penalty < 30) penalty = 30;
 				}
 				p_ptr->to_h[i] -= penalty;
 				p_ptr->dis_to_h[i] -= penalty;
 
-				/* Jouba weapon */
-				p_ptr->jouba_wield[i] = TRUE;
+				/* Riding weapon */
+				p_ptr->riding_wield[i] = TRUE;
 			}
 		}
 	}
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
 		int penalty = 0;
 
-		p_ptr->jouba_ryoute = FALSE;
-		if (p_ptr->ryoute || !empty_hands(FALSE)) p_ptr->jouba_ryoute = TRUE;
+		p_ptr->riding_ryoute = FALSE;
+		if (p_ptr->ryoute || !empty_hands(FALSE)) p_ptr->riding_ryoute = TRUE;
 
-		if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_KIHEI))
+		if ((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_FORCEHEI))
 		{
 			if (p_ptr->tval_ammo != TV_ARROW) penalty = 5;
 		}
 		else
 		{
-			penalty = r_info[m_list[p_ptr->jouba].r_idx].level - skill_exp[GINOU_JOUBA] / 80;
+			penalty = r_info[m_list[p_ptr->riding].r_idx].level - skill_exp[GINOU_RIDING] / 80;
 			penalty += 30;
 			if (penalty < 30) penalty = 30;
 		}
@@ -4989,12 +4989,12 @@ void calc_bonuses(void)
 	}
 
 	/* Different calculation for monks with empty hands */
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) > 1))
 	{
 		int blow_base = p_ptr->lev + adj_dex_blow[p_ptr->stat_ind[A_DEX]];
 		p_ptr->num_blow[0] = 0;
 
-		if (p_ptr->pclass == CLASS_KI)
+		if (p_ptr->pclass == CLASS_FORCE)
 		{
 			if (blow_base > 18) p_ptr->num_blow[0]++;
 			if (blow_base > 31) p_ptr->num_blow[0]++;
@@ -5085,7 +5085,7 @@ void calc_bonuses(void)
 				p_ptr->dis_to_h[i] -= 40;
 				p_ptr->icky_wield[i] = TRUE;
 			}
-			else if ((p_ptr->pclass == CLASS_KI) && !(weapon_exp_settei[CLASS_KI][inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval][1]))
+			else if ((p_ptr->pclass == CLASS_FORCE) && !(weapon_exp_settei[CLASS_FORCE][inventory[INVEN_RARM+i].tval-TV_BOW][inventory[INVEN_RARM+i].sval][1]))
 			{
 				p_ptr->to_h[i] -= 40;
 				p_ptr->dis_to_h[i] -= 40;
@@ -5111,7 +5111,7 @@ void calc_bonuses(void)
 	}
 
 	/* Temporary lightspeed */
-	if ((p_ptr->lightspeed && !p_ptr->jouba) || (p_ptr->pspeed > 209))
+	if ((p_ptr->lightspeed && !p_ptr->riding) || (p_ptr->pspeed > 209))
 	{
 		p_ptr->pspeed = 209;
 	}
@@ -5151,7 +5151,7 @@ void calc_bonuses(void)
 		p_ptr->dis_to_d[0] += MAX(bonus_to_d,1);
 	}
 
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) == 3)) p_ptr->ryoute = FALSE;
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_BERSERKER)) && (empty_hands(TRUE) == 3)) p_ptr->ryoute = FALSE;
 
 	/* Affect Skill -- stealth (bonus one) */
 	p_ptr->skill_stl += 1;
@@ -5308,10 +5308,10 @@ void calc_bonuses(void)
 		}
 
 		/* Take note when "heavy weapon" changes */
-		if (p_ptr->old_jouba_wield[i] != p_ptr->jouba_wield[i])
+		if (p_ptr->old_riding_wield[i] != p_ptr->riding_wield[i])
 		{
 			/* Message */
-			if (p_ptr->jouba_wield[i])
+			if (p_ptr->riding_wield[i])
 			{
 #ifdef JP
 				msg_print("この武器は乗馬中に使うにはむかないようだ。");
@@ -5320,7 +5320,7 @@ void calc_bonuses(void)
 #endif
 
 			}
-			else if (!p_ptr->jouba)
+			else if (!p_ptr->riding)
 			{
 #ifdef JP
 				msg_print("この武器は徒歩で使いやすい。");
@@ -5339,7 +5339,7 @@ void calc_bonuses(void)
 
 			}
 			/* Save it */
-			p_ptr->old_jouba_wield[i] = p_ptr->jouba_wield[i];
+			p_ptr->old_riding_wield[i] = p_ptr->riding_wield[i];
 		}
 
 		/* Take note when "illegal weapon" changes */
@@ -5382,10 +5382,10 @@ void calc_bonuses(void)
 		}
 	}
 
-	if (p_ptr->jouba && (p_ptr->old_jouba_ryoute != p_ptr->jouba_ryoute))
+	if (p_ptr->riding && (p_ptr->old_riding_ryoute != p_ptr->riding_ryoute))
 	{
 		/* Message */
-		if (p_ptr->jouba_ryoute)
+		if (p_ptr->riding_ryoute)
 		{
 #ifdef JP
 			msg_print("両手がふさがっていて馬を操れない。");
@@ -5402,10 +5402,10 @@ void calc_bonuses(void)
 #endif
 		}
 
-		p_ptr->old_jouba_ryoute = p_ptr->jouba_ryoute;
+		p_ptr->old_riding_ryoute = p_ptr->riding_ryoute;
 	}
 
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_NINJA)) && (monk_armour_aux != monk_notify_aux))
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_NINJA)) && (monk_armour_aux != monk_notify_aux))
 	{
 		if (heavy_armor())
 		{
@@ -5783,7 +5783,7 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_UHEALTH))
 	{
 		p_ptr->redraw &= ~(PR_UHEALTH);
-		jouba_health_redraw();
+		riding_health_redraw();
 	}
 
 
@@ -5826,7 +5826,7 @@ void redraw_stuff(void)
 		prt_speed();
 	}
 
-	if (p_ptr->pclass == CLASS_MONOMANE)
+	if (p_ptr->pclass == CLASS_IMITATOR)
 	{
 		if (p_ptr->redraw & (PR_MANE))
 		{
@@ -5953,7 +5953,7 @@ void handle_stuff(void)
 s16b empty_hands(bool is_monk)
 {
 	s16b kaerichi = 0;
-	if (is_monk && (p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_KI) && (p_ptr->pclass != CLASS_BERSERKER)) return FALSE;
+	if (is_monk && (p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_FORCE) && (p_ptr->pclass != CLASS_BERSERKER)) return FALSE;
 
 	if (!(inventory[INVEN_RARM].k_idx)) kaerichi +=2;
 	if (!(inventory[INVEN_LARM].k_idx)) kaerichi +=1;
@@ -5965,7 +5965,7 @@ bool heavy_armor(void)
 {
 	u16b monk_arm_wgt = 0;
 
-	if ((p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_KI) && (p_ptr->pclass != CLASS_NINJA)) return FALSE;
+	if ((p_ptr->pclass != CLASS_MONK) && (p_ptr->pclass != CLASS_FORCE) && (p_ptr->pclass != CLASS_NINJA)) return FALSE;
 
 	/* Weight the armor */
 	if(inventory[INVEN_RARM].tval > TV_SWORD) monk_arm_wgt += inventory[INVEN_RARM].weight;

@@ -714,5 +714,7 @@
 #define USE_FRAKIR
 
 #ifndef HAVE_CONFIG_H
+#ifndef MSDOS
 #define WORLD_SCORE
+#endif
 #endif /* HAVE_CONFIG_H */

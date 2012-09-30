@@ -1078,7 +1078,7 @@ msg_print("その方向にはモンスターはいません。");
 			break;
 		}
 		case CLASS_MINDCRAFTER:
-		case CLASS_KI:
+		case CLASS_FORCE:
 		{
 			if (total_friends)
 			{
@@ -1126,7 +1126,7 @@ msg_print("少し頭がハッキリした。");
 			}
 			break;
 		}
-		case CLASS_MONOMANE:
+		case CLASS_IMITATOR:
 		{
 			if (racial_aux(30, 100, A_DEX, 30))
 			{
@@ -1171,7 +1171,7 @@ msg_print("少し頭がハッキリした。");
 			}
 			break;
 		}
-		case CLASS_HARPER:
+		case CLASS_BARD:
 		{
 			if (racial_aux(1, 0, A_CHR, 0))
 			{
@@ -1262,7 +1262,7 @@ msg_print("武器を持たないといけません。");
 			}
 			break;
 		}
-		case CLASS_KIHEI:
+		case CLASS_FORCEHEI:
 		{
 			if (racial_aux(10, 0, A_STR, 10))
 			{
@@ -1271,13 +1271,13 @@ msg_print("武器を持たないといけません。");
 				monster_race *r_ptr;
 				int rlev;
 
-				if (p_ptr->jouba)
+				if (p_ptr->riding)
 				{
 					msg_print("今は乗馬中だ。");
 					return FALSE;
 				}
-				if (!do_jouba(TRUE)) return TRUE;
-				m_ptr = &m_list[p_ptr->jouba];
+				if (!do_riding(TRUE)) return TRUE;
+				m_ptr = &m_list[p_ptr->riding];
 				r_ptr = &r_info[m_ptr->r_idx];
 				monster_desc(m_name, m_ptr, 0);
 				msg_format("%sに乗った。",m_name);
@@ -1285,7 +1285,7 @@ msg_print("武器を持たないといけません。");
 				rlev = r_ptr->level;
 				if (r_ptr->flags1 & RF1_UNIQUE) rlev = rlev * 3 / 2;
 				if (rlev > 60) rlev = 60+(rlev-60)/2;
-				if ((randint(skill_exp[GINOU_JOUBA]/120+p_ptr->lev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !p_ptr->inside_battle && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < p_ptr->lev*3/2+rand_int(p_ptr->lev/5)))
+				if ((randint(skill_exp[GINOU_RIDING]/120+p_ptr->lev*2/3) > rlev) && one_in_(2) && !p_ptr->inside_arena && !p_ptr->inside_battle && !(r_ptr->flags7 & (RF7_GUARDIAN)) && !(r_ptr->flags1 & (RF1_QUESTOR)) && (rlev < p_ptr->lev*3/2+rand_int(p_ptr->lev/5)))
 				{
 					msg_format("%sを手なずけた。",m_name);
 					set_pet(m_ptr);
@@ -1316,7 +1316,7 @@ msg_print("武器を持たないといけません。");
 			}
 			break;
 		}
-		case CLASS_KAJI:
+		case CLASS_SMITH:
 		{
 			if (racial_aux(5, 15, A_INT, 20))
 			{
@@ -1798,9 +1798,9 @@ cptr Type_desc = ((Type == GF_COLD) ? "冷気" : "炎");
 						case CLASS_BERSERKER:
 						case CLASS_RANGER:
 						case CLASS_TOURIST:
-						case CLASS_MONOMANE:
+						case CLASS_IMITATOR:
 						case CLASS_ARCHER:
-						case CLASS_KAJI:
+						case CLASS_SMITH:
 							if (randint(3) == 1)
 							{
 								Type = GF_MISSILE;
@@ -1875,7 +1875,7 @@ Type_desc = "カオス";
 							break;
 						case CLASS_MONK:
 						case CLASS_SAMURAI:
-						case CLASS_KI:
+						case CLASS_FORCE:
 							if (randint(3) != 1)
 							{
 								Type = GF_CONFUSION;
@@ -1965,7 +1965,7 @@ Type_desc = "毒";
 
 							}
 							break;
-						case CLASS_HARPER:
+						case CLASS_BARD:
 							if (randint(3) != 1)
 							{
 								Type = GF_SOUND;
@@ -2498,7 +2498,7 @@ strcpy(power_desc[num].name, "百裂拳");
 		break;
 	}
 	case CLASS_MINDCRAFTER:
-	case CLASS_KI:
+	case CLASS_FORCE:
 	{
 #ifdef JP
 strcpy(power_desc[num].name, "明鏡止水");
@@ -2536,7 +2536,7 @@ strcpy(power_desc[num].name, "真・鑑定");
 		power_desc[num++].number = -4;
 		break;
 	}
-	case CLASS_MONOMANE:
+	case CLASS_IMITATOR:
 	{
 #ifdef JP
 strcpy(power_desc[num].name, "倍返し");
@@ -2555,7 +2555,7 @@ strcpy(power_desc[num].name, "倍返し");
 #ifdef JP
 strcpy(power_desc[num].name, "生物支配");
 #else
-		strcpy(power_desc[num].name, "dominate a living");
+		strcpy(power_desc[num].name, "dominate a living thing");
 #endif
 
 		power_desc[num].level = 1;
@@ -2565,7 +2565,7 @@ strcpy(power_desc[num].name, "生物支配");
 #ifdef JP
 strcpy(power_desc[num].name, "真・生物支配");
 #else
-		strcpy(power_desc[num].name, "dominate livings");
+		strcpy(power_desc[num].name, "dominate living things");
 #endif
 
 		power_desc[num].level = 30;
@@ -2602,7 +2602,7 @@ strcpy(power_desc[num].name, "魔力の取り込み");
 		power_desc[num++].number = -3;
 		break;
 	}
-	case CLASS_HARPER:
+	case CLASS_BARD:
 	{
 #ifdef JP
 strcpy(power_desc[num].name, "歌を止める");
@@ -2668,7 +2668,7 @@ strcpy(power_desc[num].name, "ラーニング");
 		power_desc[num++].number = -3;
 		break;
 	}
-	case CLASS_KIHEI:
+	case CLASS_FORCEHEI:
 	{
 #ifdef JP
 strcpy(power_desc[num].name, "荒馬ならし");
@@ -2730,7 +2730,7 @@ strcpy(power_desc[num].name, "静水");
 		power_desc[num++].number = -4;
 		break;
 	}
-	case CLASS_KAJI:
+	case CLASS_SMITH:
 	{
 #ifdef JP
 strcpy(power_desc[num].name, "目利き");

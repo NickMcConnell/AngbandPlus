@@ -1136,7 +1136,7 @@ static void wr_extra(void)
 
 	wr_s16b(today_mon);
 	wr_s16b(p_ptr->today_mon);
-	wr_s16b(p_ptr->jouba);
+	wr_s16b(p_ptr->riding);
 
 	wr_u32b(playtime);
 

@@ -1908,7 +1908,7 @@ if (flags2 & RF2_KILL_ITEM) vp[vn++] = "アイテムを壊す";
 #endif
 
 	}
-	if (flags7 & RF7_JOUBA)
+	if (flags7 & RF7_RIDING)
 	{
 #ifdef JP
 		c_roff(TERM_SLATE, format("%^sに乗ることができる。", wd_he[msex]));
@@ -2076,9 +2076,9 @@ if (flags3 & RF3_RES_NETH) {vp[vn] = "地獄";color[vn++] = TERM_L_DARK;}
 #endif
 
 #ifdef JP
-if ((flags3 & RF3_RES_WATE) || ((r_ptr->d_char == 'E') && prefix(r_ptr->E_name+E_r_name, "W")) || (r_idx == MON_UNMAKER)) {vp[vn] = "水";color[vn++] = TERM_BLUE;}
+if (flags3 & RF3_RES_WATE) {vp[vn] = "水";color[vn++] = TERM_BLUE;}
 #else
-if ((flags3 & RF3_RES_WATE) || ((r_ptr->d_char == 'E') && prefix(r_ptr->name+r_name, "W")) || (r_idx == MON_UNMAKER)) {vp[vn] = "water";color[vn++] = TERM_BLUE;}
+if (flags3 & RF3_RES_WATE) {vp[vn] = "water";color[vn++] = TERM_BLUE;}
 #endif
 
 #ifdef JP
@@ -3051,7 +3051,7 @@ case RBE_DR_MANA:  q = "魔力を奪う"; break;
 	 * Notice "Quest" monsters, but only if you
 	 * already encountered the monster.
 	 */
-	if ((flags1 & RF1_QUESTOR) && (r_ptr->r_sights) && (r_ptr->max_num) && ((r_idx == MON_OBERON) || (r_idx == MON_SERPENT)))
+	if ((flags1 & RF1_QUESTOR) && (cheat_know || ((r_ptr->r_sights) && (r_ptr->max_num) && ((r_idx == MON_OBERON) || (r_idx == MON_SERPENT)))))
 	{
 #ifdef JP
 		c_roff(TERM_VIOLET, "あなたはこのモンスターを殺したいという強い欲望を感じている...");

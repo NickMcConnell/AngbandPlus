@@ -194,7 +194,7 @@ static grouper group_item[] =
 	{ TV_ENCHANT_BOOK,  "Books (Craft)" },
 	{ TV_DAEMON_BOOK,   "Books (Daemon)" },
 	{ TV_MUSIC_BOOK,    "Song Books" },
-	{ TV_HISSATSU_BOOK, "Books (Samurai Arts)" },
+	{ TV_HISSATSU_BOOK, "Books (Kendo)" },
 #endif
 
 #ifdef JP
@@ -660,7 +660,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_COLD,         "Åà·ë" },
 	{ TR1_BRAND_POIS,         "ÆÇ»¦" },
 
-	{ TR1_RIRYOKU,            "ÍýÎÏ" },
+	{ TR1_FORCE_WEPON,            "ÍýÎÏ" },
 	{ TR1_CHAOTIC,            "º®ÆÙ" },
 	{ TR1_VAMPIRIC,           "µÛ·ì" },
 	{ TR1_IMPACT,             "ÃÏ¿Ì" },
@@ -672,7 +672,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_COLD,         "Frost Brand" },
 	{ TR1_BRAND_POIS,         "Poisoned" },
 
-	{ TR1_RIRYOKU,            "Riryoku" },
+	{ TR1_FORCE_WEPON,            "Force" },
 	{ TR1_CHAOTIC,            "Mark of Chaos" },
 	{ TR1_VAMPIRIC,           "Vampiric" },
 	{ TR1_IMPACT,             "Earthquake impact on hit" },

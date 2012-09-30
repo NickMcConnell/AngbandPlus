@@ -627,7 +627,7 @@ static tval_desc tvals[] =
 	{ TV_ENCHANT_BOOK,      "Craft Spellbook"},
 	{ TV_DAEMON_BOOK,       "Daemon Spellbook"},
 	{ TV_MUSIC_BOOK,        "Music Spellbook"      },
-	{ TV_HISSATSU_BOOK,     "Book of Samurai Arts" },
+	{ TV_HISSATSU_BOOK,     "Book of Kendo" },
 	{ TV_PARCHEMENT,        "Parchement" },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
@@ -1597,7 +1597,7 @@ static void do_cmd_wiz_zap(void)
 		/* Delete nearby monsters */
 		if (m_ptr->cdis <= MAX_SIGHT)
 		{
-			if (i == p_ptr->jouba)
+			if (i == p_ptr->riding)
 			{
 				rakuba(-1, FALSE);
 				p_ptr->redraw |= (PR_EXTRA);
@@ -1623,7 +1623,7 @@ static void do_cmd_wiz_zap_all(void)
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		if (i == p_ptr->jouba)
+		if (i == p_ptr->riding)
 		{
 			rakuba(-1, FALSE);
 			p_ptr->redraw |= (PR_EXTRA);

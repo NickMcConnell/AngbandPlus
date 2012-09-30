@@ -53,7 +53,7 @@ cptr spell_categoly_name(int tval)
  */
 
 bool select_spellbook=FALSE;
-bool select_renkijutsu=FALSE;
+bool select_the_force=FALSE;
 
 static int get_spell(int *sn, cptr prompt, int sval, bool known, int use_realm)
 {
@@ -372,7 +372,7 @@ static bool item_tester_learn_spell(object_type *o_ptr)
 	}
 
 	if ((o_ptr->tval < TV_LIFE_BOOK) || (o_ptr->tval > (TV_LIFE_BOOK + MAX_REALM - 1))) return (FALSE);
-	if ((o_ptr->tval == TV_MUSIC_BOOK) && (p_ptr->pclass == CLASS_HARPER)) return (TRUE);
+	if ((o_ptr->tval == TV_MUSIC_BOOK) && (p_ptr->pclass == CLASS_BARD)) return (TRUE);
 	else if (!is_magic(tval2realm(o_ptr->tval))) return FALSE;
 	if ((REALM1_BOOK == o_ptr->tval) || (REALM2_BOOK == o_ptr->tval)) return (TRUE);
 	if (choices & (0x0001 << (tval2realm(o_ptr->tval) - 1))) return (TRUE);
@@ -438,17 +438,17 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 #endif
 
         select_spellbook=TRUE;
-	if (p_ptr->pclass == CLASS_KI)
-		select_renkijutsu = TRUE;
+	if (p_ptr->pclass == CLASS_FORCE)
+		select_the_force = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))){
             select_spellbook = FALSE;
-	    select_renkijutsu = FALSE;
+	    select_the_force = FALSE;
             return;
         }
         select_spellbook = FALSE;
-	select_renkijutsu = FALSE;
+	select_the_force = FALSE;
 
-	if (item == 1111) { /* renkijutsu */
+	if (item == 1111) { /* the_force */
 	    do_cmd_mind_browse();
 	    return;
 	} else
@@ -521,7 +521,11 @@ s = "ÆÉ¤á¤ëËÜ¤¬¤Ê¤¤¡£";
 
 			/* Notify that there's nothing to see, and wait. */
 			if (use_realm == REALM_HISSATSU)
+#ifdef JP
 				prt("ÆÉ¤á¤ëµ»¤¬¤Ê¤¤¡£", 0, 0);
+#else
+				prt("No techniques to browse.", 0, 0);
+#endif
 			else
 #ifdef JP
 				prt("ÆÉ¤á¤ë¼öÊ¸¤¬¤Ê¤¤¡£", 0, 0);
@@ -3533,7 +3537,7 @@ msg_print("¤¢¤Ê¤¿¤ÏÀ¸¤­¤Æ¤¤¤ë¥«¡¼¥É¤ËÊÑ¤ï¤Ã¤¿¡£");
 		return (choose_ele_immune(13 + randint(13)));
 		break;
 	default:
-		msg_format("You cast an unknown Enchantment spell: %d.", spell);
+		msg_format("You cast an unknown Craft spell: %d.", spell);
 		msg_print(NULL);
 	}
 
@@ -3853,7 +3857,7 @@ take_hit(DAMAGE_USELIFE, 20 + randint(30), "·ì¤Î¼ö¤¤", -1);
 
 void stop_singing(void)
 {
-	if (p_ptr->pclass != CLASS_HARPER) return;
+	if (p_ptr->pclass != CLASS_BARD) return;
 
 	if (p_ptr->magic_num1[1])
 	{
@@ -4338,7 +4342,7 @@ msg_print("ÌÜ¤¬¸«¤¨¤Ê¤¤¡ª");
 #else
 		msg_print("You cannot see!");
 #endif
-		if (p_ptr->pclass == CLASS_KI)
+		if (p_ptr->pclass == CLASS_FORCE)
 		    do_cmd_mind();
 		return;
 	}
@@ -4374,17 +4378,17 @@ s = "¼öÊ¸½ñ¤¬¤Ê¤¤¡ª";
 #endif
 
         select_spellbook=TRUE;
-	if (p_ptr->pclass == CLASS_KI)
-		select_renkijutsu = TRUE;
+	if (p_ptr->pclass == CLASS_FORCE)
+		select_the_force = TRUE;
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))){
             select_spellbook = FALSE;
-	    select_renkijutsu = FALSE;
+	    select_the_force = FALSE;
             return;
         }
         select_spellbook = FALSE;
-	select_renkijutsu = FALSE;
+	select_the_force = FALSE;
 
-	if (item == 1111) { /* renkijutsu */
+	if (item == 1111) { /* the_force */
 	    do_cmd_mind();
 	    return;
 	} else
@@ -4806,8 +4810,8 @@ static bool ang_sort_comp_pet_dismiss(vptr u, vptr v, int a, int b)
 	monster_race *r_ptr1 = &r_info[m_ptr1->r_idx];
 	monster_race *r_ptr2 = &r_info[m_ptr2->r_idx];
 
-	if (w1 == p_ptr->jouba) return TRUE;
-	if (w2 == p_ptr->jouba) return FALSE;
+	if (w1 == p_ptr->riding) return TRUE;
+	if (w2 == p_ptr->riding) return FALSE;
 
 	if (m_ptr1->nickname && !m_ptr2->nickname) return TRUE;
 	if (m_ptr2->nickname && !m_ptr1->nickname) return FALSE;
@@ -4848,11 +4852,11 @@ int calculate_upkeep(void)
 			total_friends++;
 			if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				if (p_ptr->pclass == CLASS_KIHEI)
+				if (p_ptr->pclass == CLASS_FORCEHEI)
 				{
-					if (p_ptr->jouba == m_idx)
+					if (p_ptr->riding == m_idx)
 						total_friend_levels += (r_ptr->level+5)*2;
-					else if (!have_a_unique && (r_info[m_ptr->r_idx].flags7 & RF7_JOUBA))
+					else if (!have_a_unique && (r_info[m_ptr->r_idx].flags7 & RF7_RIDING))
 						total_friend_levels += (r_ptr->level+5)*7/2;
 					else
 						total_friend_levels += (r_ptr->level+5)*10;
@@ -4931,7 +4935,7 @@ void do_cmd_pet_dismiss(void)
 		{
 			bool delete_this = FALSE;
 			char friend_name[80];
-			bool kakunin = ((pet_ctr == p_ptr->jouba) || (m_ptr->nickname));
+			bool kakunin = ((pet_ctr == p_ptr->riding) || (m_ptr->nickname));
 			monster_desc(friend_name, m_ptr, 0x80);
 
 			if (all_pets && !kakunin)
@@ -5000,7 +5004,7 @@ sprintf(check_friend, "%s¤òÊü¤·¤Þ¤¹¤«¡© [Yes/No/All(%dÉ¤)]", friend_name, max_pe
 
 			if (delete_this)
 			{
-				if (pet_ctr == p_ptr->jouba)
+				if (pet_ctr == p_ptr->riding)
 				{
 #ifdef JP
 msg_format("%s¤«¤é¹ß¤ê¤¿¡£", friend_name);
@@ -5008,7 +5012,7 @@ msg_format("%s¤«¤é¹ß¤ê¤¿¡£", friend_name);
 					msg_format("You have got off %s. ", friend_name);
 #endif
 
-					p_ptr->jouba = 0;
+					p_ptr->riding = 0;
 
 					/* Update the monsters */
 					p_ptr->update |= (PU_BONUS | PU_MONSTERS);
@@ -5041,10 +5045,10 @@ bool rakuba(int dam, bool force)
 	int i, y, x, oy, ox;
 	int sn = 0, sy = 0, sx = 0;
 	char m_name[80];
-	monster_type *m_ptr = &m_list[p_ptr->jouba];
+	monster_type *m_ptr = &m_list[p_ptr->riding];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	if (!p_ptr->jouba) return FALSE;
+	if (!p_ptr->riding) return FALSE;
 	if (p_ptr->wild_mode) return FALSE;
 
 	if (dam >= 0 || force)
@@ -5052,19 +5056,19 @@ bool rakuba(int dam, bool force)
 		if (!force)
 		{
 			int level = r_ptr->level;
-			if (p_ptr->jouba_ryoute) level += 20;
-			if ((dam/2 + r_ptr->level) > (skill_exp[GINOU_JOUBA]/30+10))
+			if (p_ptr->riding_ryoute) level += 20;
+			if ((dam/2 + r_ptr->level) > (skill_exp[GINOU_RIDING]/30+10))
 			{
-				if((skill_exp[GINOU_JOUBA] < skill_exp_settei[p_ptr->pclass][GINOU_JOUBA][1]) && skill_exp_settei[p_ptr->pclass][GINOU_JOUBA][1] > 1000)
+				if((skill_exp[GINOU_RIDING] < skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1]) && skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1] > 1000)
 				{
-					if (r_ptr->level*100 > (skill_exp[GINOU_JOUBA] + 1500))
-						skill_exp[GINOU_JOUBA] += (1+(r_ptr->level - skill_exp[GINOU_JOUBA]/100 - 15));
-					else skill_exp[GINOU_JOUBA]++;
+					if (r_ptr->level*100 > (skill_exp[GINOU_RIDING] + 1500))
+						skill_exp[GINOU_RIDING] += (1+(r_ptr->level - skill_exp[GINOU_RIDING]/100 - 15));
+					else skill_exp[GINOU_RIDING]++;
 				}
 			}
-			if (rand_int(dam/2 + level*2) < (skill_exp[GINOU_JOUBA]/30+10))
+			if (rand_int(dam/2 + level*2) < (skill_exp[GINOU_RIDING]/30+10))
 			{
-				if ((((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_KIHEI)) && !p_ptr->jouba_ryoute) || !one_in_(p_ptr->lev*(p_ptr->jouba_ryoute ? 2 : 3)+30))
+				if ((((p_ptr->pclass == CLASS_BEASTMASTER) || (p_ptr->pclass == CLASS_FORCEHEI)) && !p_ptr->riding_ryoute) || !one_in_(p_ptr->lev*(p_ptr->riding_ryoute ? 2 : 3)+30))
 				{
 					return FALSE;
 				}
@@ -5125,9 +5129,9 @@ msg_format("%s¤«¤é¿¶¤êÍî¤È¤µ¤ì¤½¤¦¤Ë¤Ê¤Ã¤Æ¡¢ÊÉ¤Ë¤Ö¤Ä¤«¤Ã¤¿¡£",m_name);
 		verify_panel();
 	}
 
-	p_ptr->jouba = 0;
+	p_ptr->riding = 0;
 	p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
-	p_ptr->jouba_ryoute = p_ptr->old_jouba_ryoute = FALSE;
+	p_ptr->riding_ryoute = p_ptr->old_riding_ryoute = FALSE;
 
 	calc_bonuses();
 
@@ -5164,7 +5168,7 @@ msg_format("%s¤«¤éÍî¤Á¤¿¤¬¡¢¶õÃæ¤Ç¤¦¤Þ¤¯ÂÎÀª¤òÎ©¤ÆÄ¾¤·¤ÆÃåÃÏ¤·¤¿¡£",m_name);
 	return TRUE;
 }
 
-bool do_jouba(bool force)
+bool do_riding(bool force)
 {
 	int oy, ox, x, y, dir = 0;
 	cave_type *c_ptr;
@@ -5175,7 +5179,7 @@ bool do_jouba(bool force)
 	x = px + ddx[dir];
 	c_ptr = &cave[y][x];
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
 		/* Skip non-empty grids */
 		if (!cave_empty_bold2(y, x) || c_ptr->m_idx)
@@ -5187,9 +5191,9 @@ msg_print("¤½¤Á¤é¤Ë¤Ï¹ß¤ê¤é¤ì¤Þ¤»¤ó¡£");
 #endif
 			return FALSE;
 		}
-		p_ptr->jouba = 0;
+		p_ptr->riding = 0;
 		p_ptr->pet_extra_flags &= ~(PF_RYOUTE);
-		p_ptr->jouba_ryoute = p_ptr->old_jouba_ryoute = FALSE;
+		p_ptr->riding_ryoute = p_ptr->old_riding_ryoute = FALSE;
 	}
 	else
 	{
@@ -5225,7 +5229,7 @@ msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ï¥Ú¥Ã¥È¤Ç¤Ï¤¢¤ê¤Þ¤»¤ó¡£");
 
 			return FALSE;
 		}
-		if (!(r_info[m_ptr->r_idx].flags7 & RF7_JOUBA))
+		if (!(r_info[m_ptr->r_idx].flags7 & RF7_RIDING))
 		{
 #ifdef JP
 msg_print("¤½¤Î¥â¥ó¥¹¥¿¡¼¤Ë¤Ï¾è¤ì¤Ê¤µ¤½¤¦¤À¡£");
@@ -5265,7 +5269,7 @@ msg_print("¤½¤Î¾ì½ê¤Ë¤Ï¥â¥ó¥¹¥¿¡¼¤Ï¤¤¤Þ¤»¤ó¡£");
 
 			return FALSE;
 		}
-		if (r_info[m_ptr->r_idx].level > randint((skill_exp[GINOU_JOUBA]/50 + p_ptr->lev/2 +20)))
+		if (r_info[m_ptr->r_idx].level > randint((skill_exp[GINOU_RIDING]/50 + p_ptr->lev/2 +20)))
 		{
 #ifdef JP
 msg_print("¤¦¤Þ¤¯¾è¤ì¤Ê¤«¤Ã¤¿¡£");
@@ -5289,7 +5293,7 @@ msg_format("%s¤òµ¯¤³¤·¤¿¡£", m_name);
 #endif
 		}
 
-		p_ptr->jouba = c_ptr->m_idx;
+		p_ptr->riding = c_ptr->m_idx;
 	}
 
 	/* Save the old location */
@@ -5649,7 +5653,7 @@ power_desc[num] = "Î¥¤ì¤Æ¤¤¤í";
 	}
 	powers[num++] = PET_BALL_SPELL;
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
 #ifdef JP
 		power_desc[num] = "¥Ú¥Ã¥È¤«¤é¹ß¤ê¤ë";
@@ -5667,7 +5671,7 @@ power_desc[num] = "Î¥¤ì¤Æ¤¤¤í";
 #endif
 
 	}
-	powers[num++] = PET_JOUBA;
+	powers[num++] = PET_RIDING;
 
 #ifdef JP
 	power_desc[num] = "¥Ú¥Ã¥È¤ËÌ¾Á°¤ò¤Ä¤±¤ë¡£";
@@ -5677,7 +5681,7 @@ power_desc[num] = "Î¥¤ì¤Æ¤¤¤í";
 
 	powers[num++] = PET_NAME;
 
-	if (p_ptr->jouba && buki_motteruka(INVEN_RARM) && (empty_hands(FALSE) & 0x00000001) && ((inventory[INVEN_RARM].weight > 99) || (inventory[INVEN_RARM].tval == TV_POLEARM)))
+	if (p_ptr->riding && buki_motteruka(INVEN_RARM) && (empty_hands(FALSE) & 0x00000001) && ((inventory[INVEN_RARM].weight > 99) || (inventory[INVEN_RARM].tval == TV_POLEARM)))
 	{
 		if (p_ptr->pet_extra_flags & PF_RYOUTE)
 		{
@@ -5985,9 +5989,9 @@ strnfmt(out_val, 78, "(¥³¥Þ¥ó¥É %c-%c¡¢'*'=°ìÍ÷¡¢ESC=½ªÎ») ¥³¥Þ¥ó¥É¤òÁª¤ó¤Ç¤¯¤À¤
 			break;
 		}
 
-		case PET_JOUBA:
+		case PET_RIDING:
 		{
-			do_jouba(FALSE);
+			do_riding(FALSE);
 			break;
 		}
 

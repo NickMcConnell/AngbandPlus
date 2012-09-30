@@ -35,6 +35,10 @@
 #      to leave this kind of object on the floor.  Otherwise, your character 
 #      will automatically attempt to pick up the object.
 #
+#      Notes:
+#      If you want to disable the effect of the '!' indicator temporally, 
+#      use 'always_pickup' option.
+#
 #
 #    Keywords:
 #           After the command letter may come one or more keywords.  They are:
@@ -59,8 +63,10 @@
 #      second            : Second one of four spellbooks in each realm match.
 #      third             : Third one of four spellbooks in each realm match.
 #      fourth            : Fourth one of four spellbooks in each realm match.
+#
 #      items             : All items match. Use it with an adjective for 
 #                          readability (i.e. "unaware items").
+#      artifacts         : All artifacts match.
 #      weapons           : All weapons including missile weapons match.
 #      armors            : All armors match.
 #      missiles          : Arrows, bolts, and shots match.
@@ -143,9 +149,9 @@
 #       [nameless] [unaware] [worthless] [dice boosted] [more than nn dice] 
 #       [wanted] [unique monster's] [human] [unreadable] 
 #       [first realm's] [second realm's] [first] [second] [third] [fourth] 
-#       [items | weapons | armors | missiles | magical devices | lights | 
-#        junks | spellbooks | hafted weapons | shields | bows | rings |  
-#        amulets | suits | cloaks | helms | gloves | boots] :]
+#       [items | artifacts | weapons | armors | missiles | magical devices | 
+#        lights | junks | spellbooks | hafted weapons | shields | bows | 
+#        rings | amulets | suits | cloaks | helms | gloves | boots] :]
 #      [[^]part-of-item-name] [#auto-inscription-string]
 #    
 #    
@@ -202,7 +208,7 @@
 #        $REALM1
 #         Returns player's first magic realm
 #          Life, Sorcery, Nature, Chaos, Death, Trump
-#          Arcane, Craft, Daemon, Music, Samurai-Arts
+#          Arcane, Craft, Daemon, Music, Kendo
 #        $REALM2
 #         Returns player's second magic realm
 #        $LEVEL

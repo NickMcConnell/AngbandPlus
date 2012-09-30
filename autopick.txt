@@ -60,6 +60,7 @@
 #      ただし、頭に ! がついている場合はそのアイテムを自動的に破壊します。
 #      また、頭に ~ がついている場合はそのアイテムは拾うことも破壊することもせずに
 #      そのまま床に残します。
+#      (注意! always_pickup オプションが有効の時は !と書いたアイテムでも拾います。)
 #
 #      picktype.prf の先頭から順番に優先的に評価するので、不要なものの破壊の
 #      設定の下にその他のアイテムを拾う設定を書いたり、高級なアイテムを拾う設定
@@ -93,6 +94,7 @@
 #    
 #      〜の部分では、アイテムの種類を表す以下のようなキーワードが特別扱いになります
 #        ・アイテム : すべてのアイテムが対象になります。
+#	 ・アーティファクト : 判明しているアーティファクトが対象になります。
 #        ・武器 : 武器が対象になります。
 #        ・防具 : 防具が対象になります。
 #        ・矢 : 矢、クロスボウの矢、石、弾が対象になります。
@@ -132,8 +134,8 @@
 #          [未判明の] [無価値の] [ダイス目の違う] [ダイス目nn以上の]
 #          [賞金首の] [ユニーク・モンスターの] [人間の]
 #	   [読めない] [第一領域の] [第二領域の] [n冊目の]
-#          [アイテム|武器|防具|矢|光源|魔法アイテム|がらくた|魔法書|
-#	    鈍器|盾|弓|指輪|アミュレット|鎧|クローク|兜|籠手|靴] :]
+#          [アイテム|アーティファクト|武器|防具|矢|光源|魔法アイテム|がらくた|
+#	    魔法書|鈍器|盾|弓|指輪|アミュレット|鎧|クローク|兜|籠手|靴] :]
 #         [[^]その他の文字列] [#自動刻み文字列]
 #    
 #      ☆ Tips
@@ -192,15 +194,15 @@
 #          Warrior, Mage, Priest, Rogue, Ranger, Paladin, Warrior-Mage,
 #          Chaos-Warrior, Monk, Mindcrafter, High-Mage, Tourist, Imitator,
 #          BeastMaster, Sorcerer, Archer, Magic-Eater, Bard, Red-Mage, Samurai,
-#          ForceTrainer, Blue-Mage, Cavalry, Berserker, Weaponsmith, Mirror-Master,
-#	   Ninja
+#          ForceTrainer, Blue-Mage, Cavalry, Berserker, Weaponsmith,
+#	   Mirror-Master, Ninja
 #          のどれか
 #        $PLAYER
 #          プレイヤーの名前を返す。
 #        $REALM1
 #          魔法領域を英語名で返す。
 #          Life, Sorcery, Nature, Chaos, Death, Trump
-#          Arcane, Enchantment, Daemon, Music, Bugei
+#          Arcane, Craft, Daemon, Music, Kendo
 #          のどれか
 #        $REALM2
 #          第２魔法領域を英語名で返す。
@@ -307,7 +309,7 @@
 ?:1
 
 #複雑な例（誰も使わないでしょう。このままコピーする場合以外は…）
-?:[AND [GEQ $LEVEL 20] [IOR [EQU $REALM1 Life] [EQU $REALM2 Life] [EQU $REALM1 Nature] [EQU $REALM2 Nature] [EQU $REALM1 Enchantment] [EQU $REALM2 Enchantment]]]
+?:[AND [GEQ $LEVEL 20] [IOR [EQU $REALM1 Life] [EQU $REALM2 Life] [EQU $REALM1 Nature] [EQU $REALM2 Nature] [EQU $REALM1 Craft] [EQU $REALM2 Craft]]]
 !空腹充足
 !食料
 !スライムモルド

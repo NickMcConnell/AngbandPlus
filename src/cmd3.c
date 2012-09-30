@@ -46,13 +46,13 @@ void do_cmd_inven(void)
 	item_tester_full = FALSE;
 
 #ifdef JP
-        sprintf(out_val, "持ち物： 合計 %3d.%1d kg (限界の%d%%) コマンド: ",
+        sprintf(out_val, "持ち物： 合計 %3d.%1d kg (限界の%ld%%) コマンド: ",
             lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
             (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) 
 / 2));
 #else
-	sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
-	    p_ptr->total_weight / 10, p_ptr->total_weight % 10,
+	sprintf(out_val, "Inventory: carrying %d.%d pounds (%ld%% of capacity). Command: ",
+	    (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
 	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2));
 #endif
 
@@ -116,13 +116,13 @@ void do_cmd_equip(void)
 
 	/* Build a prompt */
 #ifdef JP
-        sprintf(out_val, "装備： 合計 %3d.%1d kg (限界の%d%%) コマンド: ",
+        sprintf(out_val, "装備： 合計 %3d.%1d kg (限界の%ld%%) コマンド: ",
             lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
             (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) 
 / 2));
 #else
-	sprintf(out_val, "Equipment: carrying %d.%d pounds (%d%% of capacity). Command: ",
-	    p_ptr->total_weight / 10, p_ptr->total_weight % 10,
+	sprintf(out_val, "Equipment: carrying %d.%d pounds (%ld%% of capacity). Command: ",
+	    (int)(p_ptr->total_weight / 10), (int)(p_ptr->total_weight % 10),
 	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2));
 #endif
 
@@ -325,7 +325,7 @@ s = "おっと。";
 #ifdef JP
 		if (!get_check("二刀流で戦いますか？"))
 #else
-		if (!get_check("Two sword fencing? "))
+		if (!get_check("Dual wielding? "))
 #endif
 		{
 			slot = INVEN_RARM;
@@ -484,7 +484,7 @@ msg_print("クエストを達成した！");
 	/* Where is the item now */
 	if (slot == INVEN_RARM)
 	{
-		if((o_ptr->tval != TV_SHIELD) && (o_ptr->tval != TV_CAPTURE) && (o_ptr->tval != TV_CARD) && (empty_hands(FALSE) & 0x00000001) && ((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->jouba || (p_ptr->pet_extra_flags & PF_RYOUTE)))
+		if((o_ptr->tval != TV_SHIELD) && (o_ptr->tval != TV_CAPTURE) && (o_ptr->tval != TV_CARD) && (empty_hands(FALSE) & 0x00000001) && ((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
 #ifdef JP
 			act = "を両手で構えた";
 #else
@@ -492,7 +492,7 @@ msg_print("クエストを達成した！");
 #endif
 		else
 #ifdef JP
-			act = (hidarikiki ? "を左手に装備した" : "を右手に装備した");
+			act = (left_hander ? "を左手に装備した" : "を右手に装備した");
 #else
 			act = "You are wielding";
 #endif
@@ -501,7 +501,7 @@ msg_print("クエストを達成した！");
 	else if (slot == INVEN_LARM)
 	{
 #ifdef JP
-		act = (hidarikiki ? "を右手に装備した" : "を左手に装備した");
+		act = (left_hander ? "を右手に装備した" : "を左手に装備した");
 #else
 		act = "You are wielding";
 #endif
@@ -654,7 +654,7 @@ void kamaenaoshi(int item)
 		inven_item_increase(INVEN_LARM,-1);
 		inven_item_optimize(INVEN_LARM);
 		object_desc(o_name, o_ptr, TRUE, 3);
-		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->jouba || (p_ptr->pet_extra_flags & PF_RYOUTE)))
+		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
 #ifdef JP
 			msg_format("%sを両手で構えた。", o_name );
 #else
@@ -662,16 +662,16 @@ void kamaenaoshi(int item)
 #endif
 		 else
 #ifdef JP
-			msg_format("%sを%sで構えた。", o_name, (hidarikiki ? "左手" : "右手"));
+			msg_format("%sを%sで構えた。", o_name, (left_hander ? "左手" : "右手"));
 #else
-			msg_format("You are wielding %s with %s hand.", o_name, (hidarikiki ? "left":"right") );
+			msg_format("You are wielding %s with %s hand.", o_name, (left_hander ? "left":"right") );
 #endif
 	}
 	else if ((item == INVEN_LARM) && buki_motteruka(INVEN_RARM))
 	{
 		o_ptr = &inventory[INVEN_RARM];
 		object_desc(o_name, o_ptr, TRUE, 3);
-		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->jouba || (p_ptr->pet_extra_flags & PF_RYOUTE)))
+		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->riding || (p_ptr->pet_extra_flags & PF_RYOUTE)))
 #ifdef JP
 			msg_format("%sを両手で構えた。", o_name );
 #else
@@ -996,7 +996,7 @@ void do_cmd_destroy(void)
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		if (auto_destroy || (object_value(o_ptr) > 0))
+		if (confirm_destroy || (object_value(o_ptr) > 0))
 		{
 			/* Make a verification */
 #ifdef JP
@@ -1332,7 +1332,7 @@ static flag_insc_table flag_insc_immune[] =
 };
 
 static flag_insc_table flag_insc_resistance[] =
-{
+{5~
 	{ "酸", "Ac", TR2_RES_ACID, 2, TR2_IM_ACID },
 	{ "電", "El", TR2_RES_ELEC, 2, TR2_IM_ELEC },
 	{ "火", "Fi", TR2_RES_FIRE, 2, TR2_IM_FIRE },
@@ -1354,7 +1354,7 @@ static flag_insc_table flag_insc_resistance[] =
 
 static flag_insc_table flag_insc_misc[] =
 {
-	{ "魔力", "Dm", TR3_DEC_MANA, 3, 0 },
+	{ "魔力", "Ma", TR3_DEC_MANA, 3, 0 },
 	{ "投", "Th", TR2_THROW, 2, 0 },
 	{ "反", "Rf", TR2_REFLECT, 2, 0 },
 	{ "麻", "Fa", TR2_FREE_ACT, 2, 0 },
@@ -1364,7 +1364,8 @@ static flag_insc_table flag_insc_misc[] =
 	{ "遅", "Sd", TR3_SLOW_DIGEST, 3, 0 },
 	{ "活", "Rg", TR3_REGEN, 3, 0 },
 	{ "浮", "Lv", TR3_FEATHER, 3, 0 },
-	{ "明", "Xl", TR3_LITE, 3, 0 },
+	{ "明", "Lu", TR3_LITE, 3, 0 },
+        { "倍", "Xm", TR3_XTRA_MIGHT, 3, 0 },
 	{ "射", "Xs", TR3_XTRA_SHOTS, 3, 0 },
 	{ "怒", "Ag", TR3_AGGRAVATE, 3, 0 },
 	{ "祝", "Bs", TR3_BLESSED, 3, 0 },
@@ -1395,7 +1396,7 @@ static flag_insc_table flag_insc_brand[] =
 	{ "吸", "V", TR1_VAMPIRIC, 1, 0 },
 	{ "震", "Q", TR1_IMPACT, 1, 0 },
 	{ "切", "S", TR1_VORPAL, 1, 0 },
-	{ "理", "M", TR1_RIRYOKU, 1, 0 },
+	{ "理", "M", TR1_FORCE_WEPON, 1, 0 },
 	{ NULL, NULL, 0, 0, 0 }
 };
 
@@ -1474,7 +1475,7 @@ static flag_insc_table flag_insc_resistance[] =
 
 static flag_insc_table flag_insc_misc[] =
 {
-  	{ "Dm", TR3_DEC_MANA, 3, 0 },
+  	{ "Ma", TR3_DEC_MANA, 3, 0 },
   	{ "Th", TR2_THROW, 2, 0 },
   	{ "Rf", TR2_REFLECT, 2, 0 },
   	{ "Fa", TR2_FREE_ACT, 2, 0 },
@@ -1484,7 +1485,8 @@ static flag_insc_table flag_insc_misc[] =
   	{ "Sd", TR3_SLOW_DIGEST, 3, 0 },
   	{ "Rg", TR3_REGEN, 3, 0 },
   	{ "Lv", TR3_FEATHER, 3, 0 },
-  	{ "Xl", TR3_LITE, 3, 0 },
+  	{ "Lu", TR3_LITE, 3, 0 },
+	{ "Xm", TR3_XTRA_MIGHT, 3, 0 },
   	{ "Xs", TR3_XTRA_SHOTS, 3, 0 },
   	{ "Ag", TR3_AGGRAVATE, 3, 0 },
   	{ "Bs", TR3_BLESSED, 3, 0 },
@@ -1518,7 +1520,7 @@ static flag_insc_table flag_insc_brand[] =
   	{ "V", TR1_VAMPIRIC, 1, 0 },
   	{ "Q", TR1_IMPACT, 1, 0 },
   	{ "S", TR1_VORPAL, 1, 0 },
-  	{ "M", TR1_RIRYOKU, 1, 0 },
+  	{ "M", TR1_FORCE_WEPON, 1, 0 },
   	{ NULL, 0, 0, 0 }
 };
 
@@ -2728,8 +2730,17 @@ void do_cmd_query_symbol(void)
 	else if (sym == KTRL('M'))
 	{
 		all = TRUE;
-		if (!get_string("名前(英語の場合小文字で可)",temp, 70)) temp[0]=0;
-		else sprintf(buf, "名前:%sにマッチ",temp);
+#ifdef JP
+		if (!get_string("名前(英語の場合小文字で可)",temp, 70))
+			temp[0]=0;
+		else
+			sprintf(buf, "名前:%sにマッチ",temp);
+#else
+		if (!get_string("Name:",temp, 70))
+			temp[0]=0;
+		else
+			sprintf(buf, "List of '%s'",temp);
+#endif
 	}
 	else if (ident_info[i])
 	{

@@ -571,7 +571,7 @@ X:24:15
 W:0:0:0:12000
 C:3:3:0:2
 F:INT | WIS |
-F:RIRYOKU | SEE_INVIS
+F:FORCE_WEPON | SEE_INVIS
 
 # The "Elemental" brands (4) (6)
 
@@ -1049,14 +1049,14 @@ C:0:0:0:0
 F:ACTIVATE
 
 N:160:ブリザードの
-E:of Frost ball
+E:of Blizzard
 X:26:10
 W:40:0:0:1500
 C:0:0:0:0
 F:ACTIVATE
 
 N:161:雷球の
-E:of Elec ball
+E:of Ball Lightning
 X:26:10
 W:40:0:0:1500
 C:0:0:0:0
@@ -1070,7 +1070,7 @@ C:0:0:0:0
 F:ACTIVATE
 
 N:163:魔力の嵐の
-E:of Mana ball
+E:of Mana Storm
 X:26:25
 W:100:0:0:8000
 C:0:0:0:0
@@ -1132,7 +1132,7 @@ C:0:0:0:0
 F:LITE
 
 N:172:完全モンスター感知の
-E:of Monster Detection Fully
+E:of Observe Monster
 X:26:5
 W:30:0:0:1000
 C:0:0:0:0
@@ -1165,7 +1165,7 @@ W:30:0:0:500
 C:0:5:0:0
 
 N:177:耐光の
-E:of Resist lite
+E:of Resist light
 X:26:10
 W:30:0:0:2000
 C:0:0:0:0

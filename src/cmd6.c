@@ -577,7 +577,7 @@ static void do_cmd_quaff_potion_aux(int item)
 		return;
 	}
 
-        if((p_ptr->pclass == CLASS_HARPER) && p_ptr->magic_num1[0])
+        if((p_ptr->pclass == CLASS_BARD) && p_ptr->magic_num1[0])
         {
                 stop_singing();
         }
@@ -1534,7 +1534,7 @@ static void do_cmd_read_scroll_aux(int item)
 		return;
 	}
 
-        if((p_ptr->pclass == CLASS_HARPER) && p_ptr->magic_num1[0])
+        if((p_ptr->pclass == CLASS_BARD) && p_ptr->magic_num1[0])
         {
                 stop_singing();
         }
@@ -1885,7 +1885,7 @@ msg_print("ダンジョンが揺れた...");
 
 		case SV_SCROLL_SPELL:
 		{
-			if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_MONOMANE) || (p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_MAGIC_EATER) || (p_ptr->pclass == CLASS_RED_MAGE) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_BLUE_MAGE) || (p_ptr->pclass == CLASS_KIHEI) || (p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_KAJI) || (p_ptr->pclass == CLASS_MIRROR_MASTER)) break;
+			if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_IMITATOR) || (p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_SORCERER) || (p_ptr->pclass == CLASS_ARCHER) || (p_ptr->pclass == CLASS_MAGIC_EATER) || (p_ptr->pclass == CLASS_RED_MAGE) || (p_ptr->pclass == CLASS_SAMURAI) || (p_ptr->pclass == CLASS_BLUE_MAGE) || (p_ptr->pclass == CLASS_FORCEHEI) || (p_ptr->pclass == CLASS_BERSERKER) || (p_ptr->pclass == CLASS_SMITH) || (p_ptr->pclass == CLASS_MIRROR_MASTER)) break;
 			p_ptr->add_spells++;
 			p_ptr->update |= (PU_SPELLS);
 			ident = TRUE;

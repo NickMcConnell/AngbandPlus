@@ -478,7 +478,7 @@ Monsters behave stupidly    [stupid_monsters]
     you could try turning stupid_monsters on. Or buying that Pentium II
     so you can run Zangband. :-)
 
-No query to destroy known worthless items    [auto_destroy]
+No query to destroy known worthless items    [confirm_destroy]
     It can sometimes be annoying that the Destroy command asks for
     confirmation when you are attempting to destroy a Broken sword
     {cursed}. If this option is set, no confirmation will be asked if

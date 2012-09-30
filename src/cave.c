@@ -1522,7 +1522,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							c = 248;
 							break;
 						case CLASS_PRIEST:
-						case CLASS_HARPER:
+						case CLASS_BARD:
 							if (p_ptr->lev < 20)
 								a = TERM_L_BLUE;
 							else
@@ -1544,7 +1544,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_L_DARK;
 							break;
 						case CLASS_WARRIOR:
-						case CLASS_KAJI:
+						case CLASS_SMITH:
 						case CLASS_BERSERKER:
 						case CLASS_SAMURAI:
 							if (p_ptr->lev < 20)
@@ -1554,7 +1554,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							break;
 						case CLASS_MONK:
 						case CLASS_MINDCRAFTER:
-						case CLASS_KI:
+						case CLASS_FORCE:
 						case CLASS_MIRROR_MASTER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
@@ -1635,7 +1635,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								p_ptr->pclass == CLASS_HIGH_MAGE ||
 								p_ptr->pclass == CLASS_SORCERER ||
 								p_ptr->pclass == CLASS_MONK ||
-								p_ptr->pclass == CLASS_KI ||
+								p_ptr->pclass == CLASS_FORCE ||
 								p_ptr->pclass == CLASS_BLUE_MAGE ||
 								p_ptr->pclass == CLASS_MIRROR_MASTER ||
 								p_ptr->pclass == CLASS_MINDCRAFTER)
@@ -1707,7 +1707,7 @@ void print_rel(char c, byte a, int y, int x)
 		{
 			if (world_monster) a = TERM_DARK;
 			else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-			else if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
+			else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
 		}
 
@@ -1886,7 +1886,7 @@ void display_dungeon(void)
 				{
 					if (world_monster) a = TERM_DARK;
 					else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-					else if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
+					else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
 					else if (p_ptr->wraith_form) a = TERM_L_DARK;
 				}
 
@@ -1954,7 +1954,7 @@ void lite_spot(int y, int x)
 		{
 			if (world_monster) a = TERM_DARK;
 			else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-			else if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
+			else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
 		}
 
@@ -2010,7 +2010,7 @@ void prt_map(void)
 			{
 				if (world_monster) a = TERM_DARK;
 				else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-				else if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
+				else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
 
@@ -2025,7 +2025,7 @@ void prt_map(void)
 			{
 				if (world_monster) a = TERM_DARK;
 				else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-				else if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
+				else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
 
@@ -2098,7 +2098,7 @@ void prt_path(int y, int x)
 			{
 				if (world_monster) a = TERM_DARK;
 				else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-				else if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
+				else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
 
@@ -2122,7 +2122,7 @@ void prt_path(int y, int x)
 			{
 				if (world_monster) a = TERM_DARK;
 				else if (p_ptr->invuln || world_player) a = TERM_WHITE;
-				else if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
+				else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) a = TERM_WHITE;
 				else if (p_ptr->wraith_form) a = TERM_L_DARK;
 			}
 
@@ -2256,7 +2256,7 @@ static cptr simplify_list[][2] =
 	{"Amulet of ", "\""},
 	{"Scroll of ", "?"},
 	{"Wand of "  , "-"},
-	{"Rod of "   , "R "},
+	{"Rod of "   , "-"},
 	{"Staff of " , "_"},
 	{"Potion of ", "!"},
 	{" Spellbook ",""},
@@ -2276,7 +2276,7 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 	char *c = buf;
 	int len = 0;
 
-	object_desc(buf, autopick_obj, FALSE, 0);
+	object_desc(buf, o_ptr, FALSE, 0);
 
 	for (c = buf; *c; c++)
 	{
@@ -2319,7 +2319,8 @@ static void display_shortened_item_name(object_type *o_ptr, int y)
 		}
 	}
 	*c='\0';
-	put_str(buf,y,0); 
+//	put_str(buf,y,0); 
+	Term_putstr(0, y, 12, tval_to_attr[o_ptr->tval % 128], buf);
 }
 
 /*
@@ -2464,7 +2465,7 @@ void display_map(int *cy, int *cx)
 			{
 				if (world_monster) ta = TERM_DARK;
 				else if (p_ptr->invuln || world_player) ta = TERM_WHITE;
-				else if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) ta = TERM_WHITE;
+				else if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN)) ta = TERM_WHITE;
 				else if (p_ptr->wraith_form) ta = TERM_L_DARK;
 			}
 
@@ -3393,11 +3394,19 @@ void update_mon_lite(void)
 		{
 			if (p_ptr->monlite)
 			{
+#ifdef JP
 				msg_print("影の覆いが薄れた気がする。");
+#else
+				msg_print("Your mantle of shadow become thin.");
+#endif
 			}
 			else
 			{
+#ifdef JP
 				msg_print("影の覆いが濃くなった！");
+#else
+				msg_print("Your mantle of shadow restored its original darkness.");
+#endif
 			}
 		}
 	}
@@ -4786,7 +4795,7 @@ void disturb(int stop_search, int unused_flag)
 		running = 0;
 
 		/* Check for new panel if appropriate */
-		if (center_player && !avoid_center) verify_panel();
+		if (center_player && !center_running) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

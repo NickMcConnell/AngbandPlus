@@ -47,7 +47,7 @@ Y:alert_hitpoint
 
 ##### Game-Play #####
 
-Y:auto_haggle
+Y:manual_haggle
 X:auto_scum
 X:stack_force_notes
 X:stack_force_costs
@@ -94,7 +94,7 @@ Y:equippy_chars
 X:skip_mutations
 X:plain_descriptions
 X:stupid_monsters
-X:auto_destroy
+X:confirm_destroy
 Y:confirm_wear
 X:confirm_stairs
 X:easy_open
@@ -102,7 +102,7 @@ X:easy_disarm
 X:easy_floor
 X:use_command
 X:center_player
-Y:avoid_center
+Y:center_running
 
 
 ##### Birth #####
@@ -113,7 +113,7 @@ Y:terrain_streams
 Y:preserve_mode
 Y:autoroller
 X:autochara
-X:hidarikiki
+X:left_hander
 
 ##### Ironman #####
 
@@ -136,12 +136,12 @@ Y:display_pick
 X:display_nopick
 X:display_destroy
 X:destroy_items
-Y:destroy_worth
-X:destroy_equip
-Y:destroy_chest
-Y:destroy_kubi
-X:destroy_corpse
-X:destroy_junk
+Y:leave_worth
+X:leave_equip
+Y:leave_chest
+Y:leave_wanted
+X:leave_corpse
+X:leave_junk
 
 ##### nikki #####
 Y:record_fix_art

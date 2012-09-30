@@ -200,8 +200,8 @@ void delete_monster_idx(int i)
 	if (i == p_ptr->health_who) health_track(0);
 
 	if (pet_t_m_idx == i ) pet_t_m_idx = 0;
-	if (jouba_t_m_idx == i) jouba_t_m_idx = 0;
-	if (p_ptr->jouba == i) p_ptr->jouba = 0;
+	if (riding_t_m_idx == i) riding_t_m_idx = 0;
+	if (p_ptr->riding == i) p_ptr->riding = 0;
 
 	/* Monster is gone */
 	cave[y][x].m_idx = 0;
@@ -310,10 +310,10 @@ static void compact_monsters_aux(int i1, int i2)
 
 	/* Hack -- Update the target */
 	if (pet_t_m_idx == i1) pet_t_m_idx = i2;
-	if (jouba_t_m_idx == i1) jouba_t_m_idx = i2;
+	if (riding_t_m_idx == i1) riding_t_m_idx = i2;
 
-	/* Hack -- Update the jouba */
-	if (p_ptr->jouba == i1) p_ptr->jouba = i2;
+	/* Hack -- Update the riding */
+	if (p_ptr->riding == i1) p_ptr->riding = i2;
 
 	/* Hack -- Update the health bar */
 	if (p_ptr->health_who == i1) health_track(i2);
@@ -378,7 +378,7 @@ void compact_monsters(int size)
 			/* Hack -- High level monsters start out "immune" */
 			if (r_ptr->level > cur_lev) continue;
 
-			if (i == p_ptr->jouba) continue;
+			if (i == p_ptr->riding) continue;
 
 			/* Ignore nearby monsters */
 			if ((cur_dis > 0) && (m_ptr->cdis < cur_dis)) continue;
@@ -470,7 +470,7 @@ void wipe_m_list(void)
 	/* Hack -- no more target */
 	target_who = 0;
 	pet_t_m_idx = 0;
-	jouba_t_m_idx = 0;
+	riding_t_m_idx = 0;
 
 	/* Hack -- no more tracking */
 	health_track(0);
@@ -558,8 +558,9 @@ static int summon_specific_hostile = TRUE;
 static bool summon_unique_okay = FALSE;
 
 
-static bool summon_specific_aux(monster_race *r_ptr)
+static bool summon_specific_aux(int r_idx)
 {
+	monster_race *r_ptr = &r_info[r_idx];
 	bool okay = FALSE;
 
 	/* Check our requirements */
@@ -702,22 +703,13 @@ static bool summon_specific_aux(monster_race *r_ptr)
 
 		case SUMMON_KIN:
 		{
-			okay = ((r_ptr->d_char == summon_kin_type) &&
-#ifdef JP
-!strstr((E_r_name + r_ptr->E_name), "Hagure"));
-#else
-!strstr((r_name + r_ptr->name), "Hagure"));
-#endif
+			okay = ((r_ptr->d_char == summon_kin_type) && (r_idx != MON_HAGURE));
 			break;
 		}
 
 		case SUMMON_DAWN:
 		{
-#ifdef JP
-			okay = (strstr((E_r_name + r_ptr->E_name),"the Dawn") ? TRUE : FALSE);
-#else
-			okay = (strstr((r_name + r_ptr->name),"the Dawn") ? TRUE : FALSE);
-#endif
+			okay = (r_idx == MON_DAWN);
 			break;
 		}
 
@@ -755,21 +747,13 @@ static bool summon_specific_aux(monster_race *r_ptr)
 
 		case SUMMON_PHANTOM:
 		{
-#ifdef JP
-			okay = (strstr((E_r_name + r_ptr->E_name),"Phantom") ? TRUE : FALSE);
-#else
-			okay = (strstr((r_name + r_ptr->name),"Phantom") ? TRUE : FALSE);
-#endif
+			okay = (r_idx == MON_PHANTOM_B || r_idx == MON_PHANTOM_W);
 			break;
 		}
 
 		case SUMMON_BLUE_HORROR:
 		{
-#ifdef JP
-			okay = (strstr((E_r_name + r_ptr->E_name),"lue horror") ? TRUE : FALSE);
-#else
-			okay = (strstr((r_name + r_ptr->name),"lue horror") ? TRUE : FALSE);
-#endif
+			okay = (r_idx == MON_BLUE_HORROR);
 			break;
 		}
 
@@ -817,21 +801,13 @@ static bool summon_specific_aux(monster_race *r_ptr)
 
 		case SUMMON_MANES:
 		{
-#ifdef JP
-			okay = (strstr((E_r_name + r_ptr->E_name),"Manes") ? TRUE : FALSE);
-#else
-			okay = (strstr((r_name + r_ptr->name),"Manes") ? TRUE : FALSE);
-#endif
+			okay = (r_idx == MON_MANES);
 			break;
 		}
 
 		case SUMMON_LOUSE:
 		{
-#ifdef JP
-			okay = (strstr((E_r_name + r_ptr->E_name),"louse") ? TRUE : FALSE);
-#else
-			okay = (strstr((r_name + r_ptr->name),"louse") ? TRUE : FALSE);
-#endif
+			okay = (r_idx == MON_LOUSE);
 			break;
 		}
 	}
@@ -1667,7 +1643,7 @@ if (!get_rnd_line("silly_j.txt", m_ptr->r_idx, silly_name))
 				(void)sprintf(desc, "%s?", name);
 #endif
 			}
-			else if ((cave[m_ptr->fy][m_ptr->fx].m_idx == p_ptr->jouba) || !p_ptr->inside_battle)
+			else if ((cave[m_ptr->fy][m_ptr->fx].m_idx == p_ptr->riding) || !p_ptr->inside_battle)
 				(void)strcpy(desc, name);
 			else
 #ifdef JP
@@ -2354,7 +2330,7 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 			/* Hack -- Count "fresh" sightings */
 			if ((m_ptr->mflag2 & MFLAG_KAGE) && (r_info[MON_KAGE].r_sights < MAX_SHORT))
@@ -2390,7 +2366,7 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 			/* Disturb on disappearance */
 			if (disturb_move)
@@ -2507,7 +2483,7 @@ void choose_new_monster(int m_idx, bool born, int r_idx)
 			}
 			if (born && !old_unique && summon_specific_type)
 			{
-				if (!summon_specific_aux(r_ptr)) continue;
+				if (!summon_specific_aux(r_idx)) continue;
 			}
 			break;
 		}
@@ -2520,10 +2496,10 @@ void choose_new_monster(int m_idx, bool born, int r_idx)
 	lite_spot(m_ptr->fy, m_ptr->fx);
 	if (born) return;
 
-	if (m_idx == p_ptr->jouba)
+	if (m_idx == p_ptr->riding)
 	{
 		msg_format("突然%sが変身した。", old_m_name);
-		if (!(r_ptr->flags7 & RF7_JOUBA))
+		if (!(r_ptr->flags7 & RF7_RIDING))
 			if (rakuba(0, TRUE)) msg_print("地面に落とされた。");
 	}
 
@@ -2837,11 +2813,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	m_ptr->maxhp = m_ptr->max_maxhp;
 
 	/* And start out fully healthy */
-#ifdef JP
-	if (strstr((E_r_name + r_ptr->E_name), "wounded"))
-#else
-	if (strstr((r_name + r_ptr->name), "wounded"))
-#endif
+	if (m_ptr->r_idx == MON_WOUNDED_BEAR)
 		m_ptr->hp = m_ptr->maxhp / 2;
 	else m_ptr->hp = m_ptr->maxhp;
 
@@ -3272,7 +3244,7 @@ bool place_monster(int y, int x, bool slp, bool grp)
 
 bool alloc_horde(int y, int x)
 {
-	monster_race *r_ptr;
+	monster_race *r_ptr = NULL;
 	int r_idx;
 	int m_idx;
 	int attempts = 1000;
@@ -3294,11 +3266,7 @@ bool alloc_horde(int y, int x)
 
 		if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
-#ifdef JP
-if (strstr((E_r_name + r_ptr->E_name), "Hagure")) continue;
-#else
-		if (strstr((r_name + r_ptr->name), "Hagure")) continue;
-#endif
+		if (r_idx == MON_HAGURE) continue;
 		break;
 	}
 	if (attempts < 1) return FALSE;
@@ -3485,7 +3453,7 @@ static bool summon_specific_okay(int r_idx)
 
 	if ((r_ptr->flags7 & RF7_CHAMELEON) && (d_info[dungeon_type].flags1 & DF1_CHAMELEON)) return TRUE;
 
-	return (summon_specific_aux(r_ptr));
+	return (summon_specific_aux(r_idx));
 }
 
 

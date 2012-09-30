@@ -337,7 +337,6 @@ struct monster_race
 	u32b name;				/* Name (offset) */
 #ifdef JP
         u32b E_name;                    /* ±Ñ¸ìÌ¾ (offset) */
-#define XM_name (english_monster ? E_name : name)
 #endif
 	u32b text;				/* Text (offset) */
 
@@ -1152,7 +1151,7 @@ struct player_type
 
 	s16b food;			/* Current nutrition */
 
-	s16b total_weight;		/* Total weight being carried */
+	u32b total_weight;		/* Total weight being carried */
 
 	u32b special_attack;	/* Special attack capacity -LM- */
 	u32b special_defense;	/* Special block capacity -LM- */
@@ -1175,8 +1174,8 @@ struct player_type
 	bool old_heavy_wield[2];
 	bool old_heavy_shoot;
 	bool old_icky_wield[2];
-	bool old_jouba_wield[2];
-	bool old_jouba_ryoute;
+	bool old_riding_wield[2];
+	bool old_riding_ryoute;
 	bool old_monlite;
 
 	s16b old_lite;		/* Old radius of lite (if any) */
@@ -1190,8 +1189,8 @@ struct player_type
 	bool heavy_wield[2];	/* Heavy weapon */
 	bool heavy_shoot;	/* Heavy shooter */
 	bool icky_wield[2];	/* Icky weapon */
-	bool jouba_wield[2];	/* Jouba weapon */
-	bool jouba_ryoute;	/* Jouba weapon */
+	bool riding_wield[2];	/* Riding weapon */
+	bool riding_ryoute;	/* Riding weapon */
 	bool monlite;
 
 	s16b cur_lite;		/* Radius of lite (if any) */
@@ -1332,7 +1331,7 @@ struct player_type
 	s32b align;				/* Good/evil/neutral */
 	s16b today_mon;
 
-	s16b jouba;
+	s16b riding;
 	byte knowledge;
 	s32b visit;
 
@@ -1390,7 +1389,7 @@ struct mind_power
 	mind_type info[MAX_MIND_POWERS];
 };
 
-/* Monomaneshi */
+/* Imitator */
 
 typedef struct monster_power monster_power;
 struct monster_power

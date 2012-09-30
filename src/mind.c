@@ -467,7 +467,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 #endif
 	    break;
 	  }
-	case CLASS_KI:
+	case CLASS_FORCE:
 	  {
 	    use_mind = MIND_KI;
 #ifdef JP
@@ -645,7 +645,7 @@ put_str("名前", y, x + 5);
 #ifdef JP
 put_str(format("Lv   %s   失率 効果", ((use_mind == MIND_BERSERKER) || (use_mind == MIND_NINJUTSU)) ? "HP" : "MP"), y, x + 35);
 #else
-				put_str("Lv Mana   Fail Info", y, x + 35);
+put_str(format("Lv   %s   Fail Info", ((use_mind == MIND_BERSERKER) || (use_mind == MIND_NINJUTSU)) ? "HP" : "MP"), y, x + 35);
 #endif
 				has_weapon[0] = buki_motteruka(INVEN_RARM);
 				has_weapon[1] = buki_motteruka(INVEN_LARM);
@@ -1035,9 +1035,9 @@ msg_print("なに？");
 
 /*
  * do_cmd_cast calls this function if the player's class
- * is 'renkijutusi'.
+ * is 'ForceTrainer'.
  */
-static bool cast_renki_spell(int spell)
+static bool cast_force_spell(int spell)
 {
 	int             dir;
 	int             plev = p_ptr->lev;
@@ -1197,7 +1197,7 @@ msg_format("%sはもう減速されていない。", m_name);
 #endif
 		}
 		p_ptr->redraw |= (PR_HEALTH);
-		if (p_ptr->jouba == cave[target_row][target_col].m_idx) p_ptr->redraw |= (PR_UHEALTH);
+		if (p_ptr->riding == cave[target_row][target_col].m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 		break;
 	}
@@ -1451,7 +1451,7 @@ static bool cast_berserk_spell(int spell)
 		break;
 	case 1:
 	{
-		if (p_ptr->jouba)
+		if (p_ptr->riding)
 		{
 #ifdef JP
 			msg_print("乗馬中には無理だ。");
@@ -1722,20 +1722,66 @@ msg_print("その方向にはモンスターはいません。");
 	case 12:
 	{
 		monster_type *m_ptr;
+		int m_idx;
 		char m_name[80];
+		int i;
+		int path_n;
+		u16b path_g[512];
+		int ty,tx;
 
 		if (!target_set(TARGET_KILL)) return FALSE;
-		if (!cave[target_row][target_col].m_idx) break;
+		m_idx = cave[target_row][target_col].m_idx;
+		if (!m_idx) break;
 		if (!player_has_los_bold(target_row, target_col)) break;
-		m_ptr = &m_list[cave[target_row][target_col].m_idx];
+		m_ptr = &m_list[m_idx];
 		monster_desc(m_name, m_ptr, 0);
 #ifdef JP
-msg_format("%sを引き戻した。", m_name);
+		msg_format("%sを引き戻した。", m_name);
 #else
-			msg_format("You commands %s to return.", m_name);
+		msg_format("You pull back %s.", m_name);
 #endif
 
-		teleport_to_player(cave[target_row][target_col].m_idx, 100);
+		path_n = project_path(path_g, MAX_RANGE, target_row, target_col, py, px, 0);
+		ty = target_row, tx = target_col;
+		for (i = 1; i < path_n; i++)
+		{
+			int ny = GRID_Y(path_g[i]);
+			int nx = GRID_X(path_g[i]);
+			
+			if (in_bounds(ny, nx) && cave_empty_bold(ny, nx) &&
+			    cave[ny][nx].feat != FEAT_GLYPH &&
+			    cave[ny][nx].feat != FEAT_MINOR_GLYPH &&
+			    !(cave[ny][nx].feat >= FEAT_PATTERN_START &&
+			      cave[ny][nx].feat <= FEAT_PATTERN_XTRA2))
+			{
+				ty = ny;
+				tx = nx;
+			}
+		}
+		/* Update the old location */
+		cave[target_row][target_col].m_idx = 0;
+
+	        /* Update the new location */
+		cave[ty][tx].m_idx = m_idx;
+
+		/* Move the monster */
+		m_ptr->fy = ty;
+		m_ptr->fx = tx;
+
+		/* Wake the monster up */
+		m_ptr->csleep = 0;
+
+		/* Update the monster (new location) */
+		update_mon(m_idx, TRUE);
+
+		/* Redraw the old grid */
+		lite_spot(target_row, target_col);
+
+		/* Redraw the new grid */
+		lite_spot(ty, tx);
+
+		p_ptr->update |= (PU_MON_LITE);
+
 		break;
 	}
 	case 13:
@@ -1843,7 +1889,7 @@ msg_print("混乱していて集中できない！");
 	switch(p_ptr->pclass)
 	{
 		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;p = "精神";break;
-		case CLASS_KI:          use_mind = MIND_KI;p = "気";break;
+		case CLASS_FORCE:          use_mind = MIND_KI;p = "気";break;
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;p = "怒り";break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;p = "鏡魔法";break;
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;p = "精神";break;
@@ -1853,7 +1899,7 @@ msg_print("混乱していて集中できない！");
 	switch(p_ptr->pclass)
 	{
 		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;break;
-		case CLASS_KI:          use_mind = MIND_KI;break;
+		case CLASS_FORCE:          use_mind = MIND_KI;break;
 		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;break;
 		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;break;
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;break;
@@ -2082,7 +2128,7 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 			break;
 		case MIND_KI:
 			/* Cast the spell */
-			cast = cast_renki_spell(n);
+			cast = cast_force_spell(n);
 			break;
 		case MIND_BERSERKER:
 			/* Cast the spell */
@@ -2205,7 +2251,7 @@ void do_cmd_mind_browse(void)
 	int use_mind = 0;
 
 	if (p_ptr->pclass == CLASS_MINDCRAFTER) use_mind = MIND_MINDCRAFTER;
-	else if (p_ptr->pclass == CLASS_KI) use_mind = MIND_KI;
+	else if (p_ptr->pclass == CLASS_FORCE) use_mind = MIND_KI;
 	else if (p_ptr->pclass == CLASS_BERSERKER) use_mind = MIND_BERSERKER;
 	else if (p_ptr->pclass == CLASS_NINJA) use_mind = MIND_NINJUTSU;
 	else if (p_ptr->pclass == CLASS_MIRROR_MASTER)

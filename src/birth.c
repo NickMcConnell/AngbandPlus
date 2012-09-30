@@ -1803,11 +1803,9 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "Tourists have visited this world for the purpose of sightseeing. Their fighting skills is bad, and they cannot cast powerful spells. They are the most difficult class to win the game with. Intelligence determines a tourist's spell casting ability.",
 
-"Imitators have enough fighting skills to survive, but rely on their ability to imitate monster actions after the monster itself. Dexterity determines general imitation ability, but a stat related to the specific action is often also taken into account.",
+"Imitators have enough fighting skills to survive, but rely on their ability to imitate monster spells.  When monsters in line of sight use spells, they are added to a temporary spell list which the imitator can choose among.  Spells should be imitated quickly, because timing and situation are everything.  An imitator can only repeat a spell once each time he observes it.  Dexterity determines general imitation ability, but a stat related to the specific action is often also taken into account.",
 
-"Beastmasters are in tune with the minds of the creatures of the world of Hengband. They are very good at riding, and have enough fighting ability. They use monsters which summoned or dominated by him as his hands and feet. Beastmasters can cast trump magic, and very good at summoning spell, but they can not summon non-living creatures. Charisma determines a Beastmaster's spell casting ability.
-
-Beastmasters are in tune with the minds of the creatures of the Pits of Angband. They have the ability to summon a limited number of pets every level, dependent on their level and their Charisma. However, they are limited to blunt weapons like Whips and Maces.",
+"Beastmasters are in tune with the minds of the creatures of the world of Hengband. They are very good at riding, and have enough fighting ability. They use monsters which summoned or dominated by him as his hands and feet. Beastmasters can cast trump magic, and very good at summoning spell, but they can not summon non-living creatures. Charisma determines a Beastmaster's spell casting ability.",
 
 "Sorcerers are the all-around best magicians, being able to cast any spell from most magic realms without having to learn it. On the downside, they are the worst fighters in the dungeon, being unable to use any weapon but a Wizardstaff.",
 
@@ -1819,19 +1817,19 @@ Beastmasters are in tune with the minds of the creatures of the Pits of Angband.
 
 "Red-Mages can use almost all spells from lower rank spellbooks of most realms without having to learn it. At higher level, they develop the powerful ability \"Double Magic\". However, they have large penalties in the mana costs, minimum levels, and failure rates of spells, and they cannot use any spells from higher rank spellbooks. They are not bad at using magical devices and magic resistance, and are decent fighter, but are bad at other skills. A red-mage's prime statistic is intelligence.",
 
-"Samurai, masters of the weapon-based martial arts, are the next strongest fighters after Warriors. Their spellpoints do not depend on the their level, but depend solely on wisdom, and they can use Concentration techniques to temporarily increase SP beyond its usual maximum value. Samurai are not good at most other skills, and many magical devices may be too difficult for them to use. Wisdom determines a Samurai's ability to use his techniques.",
+"Samurai, masters of the art of the blade, are the next strongest fighters after Warriors. Their spellpoints do not depend on level, but depend solely on wisdom, and they can use the technique Concentration to temporarily increase SP beyond its usual maximum value. Samurai are not good at most other skills, and many magical devices may be too difficult for them to use. Wisdom determines a Samurai's ability to use the special combat techniques available to him.",
 
 "A ForceTrainer is a master of the spiritual Force. They prefer fighting with neither weapon nor armor. They are not as good fighters as are Monks, but they can use both magic and the spiritual Force. Wielding weapons or wearing heavy armor disturbs use of the Force. Wisdom is a ForceTrainer's primary stat.",
 
-"A Blue-Mage is a spell caster that must live by his wits, as he cannot hope to simply hack his way through the dungeon like a warrior. A big difference between the Mage and the Blue-Mage is the method of learning spells: Blue-Mage must receive monster spells, which activates his ability to learn spells from monsters. A Blur-Mage's prime statistic is Intelligence as this determines his spell casting ability. ",
+"A Blue-Mage is a spell caster that must live by his wits, as he cannot hope to simply hack his way through the dungeon like a warrior. A major difference between the Mage and the Blue-Mage is the method of learning spells: Blue-Mages may learn spells from monsters by activating his Learning ability. A Blue-Mage's prime statistic is Intelligence as this determines his spell casting ability. ",
 
 "Cavalry ride on horses into battle. Although they cannot cast spells, they are proud of their overwhelming offensive strength on horseback. They are good at shooting. At high levels, they learn to forcibly saddle and tame wild monsters. Since they take pride in the body and the soul, they don't use magical devices well.",
 
-"A Berserker is a fearful fighter indeed, immune to fear and paralysis. At high levels, Berserkers can reflect bolt spells with their tough flesh. Furthermore, they can fight without weapons, can remove cursed equipment by force, and can use some techniques even when surrounded by an anti-magic barrier. Berserkers, however, cannot use any magical devices or read any scrolls, and are hopeless at all non-combat skills. Since Berserker Amberite or Spectres are quite easy to *win* with, their scores are lowered.",
+"A Berserker is a fearful fighter indeed, immune to fear and paralysis. At high levels, Berserkers can reflect bolt spells with their tough flesh. Furthermore, they can fight without weapons, can remove cursed equipment by force, and can even use their special combat techniques when surrounded by an anti-magic barrier. Berserkers, however, cannot use any magical devices or read any scrolls, and are hopeless at all non-combat skills. Since Berserker Amberite or Spectres are quite easy to *win* with, their scores are lowered.",
 
 "A Weaponsmith can improve weapons and armors for him or herself. They can extract the essences of special effects from weapons or armors which have various special abilities, and can add these essences to another weapon or armor. They are good at fighting, but cannot cast spells, and are poor at skills such as stealth or magic defense.",
 
-"Mirror-Master are spell casters; like other mages, they must live by their wits. They can create magical mirrors, and employ them in the casting of Mirror-Magic spells. A Mirror-Master standing on a mirror has greater ability and, for example, can perform quick teleports. The maximum number of Magical Mirrors which can be controlled simultaneously depends on the level. Intelligence determines a Mirror-Master's spell casting ability.",
+"Mirror-Masters are spell casters; like other mages, they must live by their wits. They can create magical mirrors, and employ them in the casting of Mirror-Magic spells. A Mirror-Master standing on a mirror has greater ability and, for example, can perform quick teleports. The maximum number of Magical Mirrors which can be controlled simultaneously depends on the level. Intelligence determines a Mirror-Master's spell casting ability.",
 
 "A Ninja is a fearful assassin lurking in darkness.  He or she can navigate effectively with no light source, catch enemies unawares, and kill with a single blow. Ninjas can use Ninjutsu, and are good at locating hidden traps and doors, disarming traps and picking locks. Since heavy armors, heavy weapons, or shields will restrict their motion greatly, they prefer light clothes, and become faster and more stealthy as they gain levels. A Ninja knows no fear and, at high level, becomes almost immune to poison and able to see invisible things. Dexterity determines a Ninja's ability to use Ninjutsu."
 #endif
@@ -1941,7 +1939,7 @@ static cptr realm_jouhou[VALID_REALM] =
 
 "Music magic shows various effects as sing song. There is two type of song; the one which shows effects instantly and the other one shows effect continuously until SP runs out. But the latter type has a limit; only one song can be sing at the same time.",
 
-"The books of Martial arts describes various combat technique. it need to read the books when one studys the techniques, but it doesn't need to take around the books to use the techniques after one momorizes it. It need a weapon wielded to use the techniques."
+"The books of Kendo describes various combat technique. it need to read the books when one studys the techniques, but it doesn't need to take around the books to use the techniques after one momorizes it. It need a weapon wielded to use the techniques."
 #endif
 };
 
@@ -2045,6 +2043,8 @@ static byte choose_realm(s32b choices, int *count)
 		auto_select = REALM_HISSATSU;
 	}
 
+	clear_from(14);
+
 	/* Auto-select the realm */
 	if ((*count) < 2) return auto_select;
 
@@ -2061,7 +2061,6 @@ static byte choose_realm(s32b choices, int *count)
 	}
 
 	/* Extra info */
-	clear_from(14);
 #ifdef JP
 	Term_putstr(5, 14, -1, TERM_WHITE,
 		    "魔法の領域の選択によりあなたが習得する呪文のタイプが決まります。");
@@ -2189,11 +2188,12 @@ static bool get_player_realms(void)
 		if (count < 2)
 		{
 #ifdef JP
-			msg_print("何か押して下さい");
+			prt("何かキーを押してください", 0, 0);
 #else
-			msg_print("Hit space key.");
+			prt("Hit any key.", 0, 0);
 #endif
-			msg_print(NULL);
+			(void)inkey();
+			prt("", 0, 0);
 			break;
                 }
 else
@@ -2244,11 +2244,12 @@ put_str("Magic       :", 6, 1);
 			if (count < 2)
 			{
 #ifdef JP
-				msg_print("何か押して下さい");
+				prt("何かキーを押してください", 0, 0);
 #else
-				msg_print("Hit space key.");
+				prt("Hit any key.", 0, 0);
 #endif
-				msg_print(NULL);
+				(void)inkey();
+				prt("", 0, 0);
 				break;
 			}
 #ifdef JP
@@ -2572,7 +2573,7 @@ static void get_extra(void)
 	if (p_ptr->prace == RACE_ANDROID) p_ptr->expfact = rp_ptr->r_exp;
 	else p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
+	if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
 		p_ptr->expfact -= 15;
 
 	/* Initialize arena and rewards information -KMW- */
@@ -3276,7 +3277,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Monomaneshi */
+		/* Imitator */
 		{ TV_POTION, SV_POTION_SPEED },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_SWORD, SV_SHORT_SWORD}
@@ -3332,7 +3333,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Renkijutusi */
+		/* ForceTrainer */
 		{ TV_SORCERY_BOOK, 0 },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_POTION, SV_POTION_RESTORE_MANA }
@@ -3487,7 +3488,7 @@ void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-	if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_KIHEI))
+	if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->pclass == CLASS_FORCEHEI))
 	{
 		/* Hack -- Give the player some arrows */
 		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
@@ -4007,9 +4008,9 @@ sprintf(buf, "%c%c%s%s", select, p2, str, mod);
 	while (1)
 	{
 #ifdef JP
-sprintf(buf, "職業を選んで下さい (%c-0) '*'でランダム、'='で初期オプション設定: ", I2A(0));
+sprintf(buf, "職業を選んで下さい (%c-%c) '*'でランダム、'='で初期オプション設定: ", I2A(0), '0'+n-CLASS_NINJA);
 #else
-		sprintf(buf, "Choose a class (%c-%c), * for random, or = for options: ", I2A(0), I2A(n-1));
+		sprintf(buf, "Choose a class (%c-%c), * for random, or = for options: ", I2A(0), '0'+n-CLASS_NINJA);
 #endif
 
 		put_str(buf, 16, 2);
@@ -4671,7 +4672,11 @@ do_cmd_options_aux(6, "初期オプション((*)はスコアに影響)");
 			}
 
 			/* Prepare a prompt */
+#ifdef JP
 			sprintf(buf, "%-13s%-20s", (i < 2 ? "身長(インチ)" : i < 4 ? "体重(ポンド)" : "地位"), inp);
+#else
+			sprintf(buf, "%-13s%-20s", (i < 2 ? "height" : i < 4 ? "wight" : "social class"), inp);
+#endif
 
 			/* Dump the prompt */
 			put_str(buf, 16 + i, 5);
@@ -5364,6 +5369,8 @@ void dump_yourself(FILE *fff)
 {
 	unsigned char temp[80*8];
 	int i;
+	cptr t;
+
 	if (!fff) return;
 
 	roff_to_buf(race_jouhou[p_ptr->prace], 78, temp);
@@ -5373,9 +5380,9 @@ void dump_yourself(FILE *fff)
 #else
 	fprintf(fff, "Race: %s\n", race_info[p_ptr->prace].title);
 #endif
+	t = temp;
 	for (i = 0; i < 8; i++)
 	{
-		cptr t = temp;
 		if(t[0] == 0)
 			break; 
 		fprintf(fff, "%s\n",t);
@@ -5388,9 +5395,9 @@ void dump_yourself(FILE *fff)
 #else
 	fprintf(fff, "Class: %s\n", class_info[p_ptr->pclass].title);
 #endif
+	t = temp;
 	for (i = 0; i < 8; i++)
 	{
-		cptr t = temp;
 		if(t[0] == 0)
 			break; 
 		fprintf(fff, "%s\n",t);
@@ -5403,9 +5410,9 @@ void dump_yourself(FILE *fff)
 #else
 	fprintf(fff, "Pesonality: %s\n", seikaku_info[p_ptr->pseikaku].title);
 #endif
+	t = temp;
 	for (i = 0; i < 6; i++)
 	{
-		cptr t = temp;
 		if(t[0] == 0)
 			break; 
 		fprintf(fff, "%s\n",t);
@@ -5420,9 +5427,9 @@ void dump_yourself(FILE *fff)
 #else
 		fprintf(fff, "Realm: %s\n", realm_names[p_ptr->realm1]);
 #endif
+		t = temp;
 		for (i = 0; i < 6; i++)
 		{
-			cptr t = temp;
 			if(t[0] == 0)
 				break; 
 			fprintf(fff, "%s\n",t);
@@ -5438,9 +5445,9 @@ void dump_yourself(FILE *fff)
 #else
 		fprintf(fff, "Realm: %s\n", realm_names[p_ptr->realm2]);
 #endif
+		t = temp;
 		for (i = 0; i < 6; i++)
 		{
-			cptr t = temp;
 			if(t[0] == 0)
 				break; 
 			fprintf(fff, "%s\n",t);

@@ -235,7 +235,7 @@ void learned_info(char *p, int power)
 
 
 /*
- * Allow user to choose a monomane.
+ * Allow user to choose a imitation.
  *
  * If a valid spell is chosen, saves it in '*sn' and returns TRUE
  * If the user hits escape, returns FALSE, and set '*sn' to -1
@@ -410,9 +410,9 @@ cptr            p = "魔法";
 	}
 	else if (mode == 5)
 	{
-		f4 = ~(RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK | RF4_SUMMON_MASK | RF4_INDIRECT_MASK | RF4_JOUBA_MASK);
-		f5 = ~(RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | RF5_SUMMON_MASK | RF5_INDIRECT_MASK | RF5_JOUBA_MASK);
-		f6 = (~(RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | RF6_SUMMON_MASK | RF6_INDIRECT_MASK | RF6_JOUBA_MASK)) | (RF6_TRAPS | RF6_DARKNESS);
+		f4 = ~(RF4_BOLT_MASK | RF4_BEAM_MASK | RF4_BALL_MASK | RF4_SUMMON_MASK | RF4_INDIRECT_MASK | RF4_RIDING_MASK);
+		f5 = ~(RF5_BOLT_MASK | RF5_BEAM_MASK | RF5_BALL_MASK | RF5_SUMMON_MASK | RF5_INDIRECT_MASK | RF5_RIDING_MASK);
+		f6 = (~(RF6_BOLT_MASK | RF6_BEAM_MASK | RF6_BALL_MASK | RF6_SUMMON_MASK | RF6_INDIRECT_MASK | RF6_RIDING_MASK)) | (RF6_TRAPS | RF6_DARKNESS);
 	}
 
 	for (i = 0, num = 0; i < 32; i++)
@@ -724,7 +724,7 @@ put_str("MP 失率 効果", y, x + 33);
 
 /*
  * do_cmd_cast calls this function if the player's class
- * is 'monomaneshi'.
+ * is 'imitator'.
  */
 static bool cast_learned_spell(int spell, bool success)
 {
@@ -792,7 +792,7 @@ msg_format("%sはもう減速されていない。", m_name);
 #endif
 		}
 		p_ptr->redraw |= (PR_HEALTH);
-		if (p_ptr->jouba == cave[target_row][target_col].m_idx) p_ptr->redraw |= (PR_UHEALTH);
+		if (p_ptr->riding == cave[target_row][target_col].m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 		break;
 	}
@@ -1456,7 +1456,7 @@ msg_format("%sには耐性がある！", m_name);
 #ifdef JP
 msg_format("%sを引き戻した。", m_name);
 #else
-		msg_format("You commands %s to return.", m_name);
+		msg_format("You command %s to return.", m_name);
 #endif
 
 		teleport_to_player(cave[target_row][target_col].m_idx, 100);
@@ -1901,7 +1901,7 @@ msg_print("何も現れなかった。");
 
 /*
  * do_cmd_cast calls this function if the player's class
- * is 'monomaneshi'.
+ * is 'imitator'.
  */
 bool do_cmd_cast_learned(void)
 {

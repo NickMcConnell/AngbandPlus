@@ -855,19 +855,9 @@ static void home_carry(store_type *st_ptr, object_type *o_ptr)
 	}
 
 	/* No space? */
-#ifdef JP
-	/*
-	 * 隠し機能: オプション powerup_home が設定されていると
-	 *           我が家が 20 ページまで使える
-	 */
 	if (st_ptr->stock_num >= STORE_INVEN_MAX * 10) {
 		return;
 	}
-#else
-	if (st_ptr->stock_num >= STORE_INVEN_MAX) return;
-#endif
-
-
 
 	/* Determine the "value" of the item */
 	value = object_value(o_ptr);
@@ -1302,8 +1292,8 @@ static void rd_extra(void)
 	for (i = 0; i < 10; i++) rd_s16b(&skill_exp[i]);
 	if (z_older_than(10, 4, 1))
 	{
-		if (p_ptr->pclass != CLASS_BEASTMASTER) skill_exp[GINOU_JOUBA] /= 2;
-		skill_exp[GINOU_JOUBA] = MIN(skill_exp[GINOU_JOUBA], skill_exp_settei[p_ptr->pclass][GINOU_JOUBA][1]);
+		if (p_ptr->pclass != CLASS_BEASTMASTER) skill_exp[GINOU_RIDING] /= 2;
+		skill_exp[GINOU_RIDING] = MIN(skill_exp[GINOU_RIDING], skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1]);
 	}
 	if (z_older_than(10, 3, 14))
 	{
@@ -1315,7 +1305,7 @@ static void rd_extra(void)
 		for (i = 0; i < 108; i++) rd_s32b(&p_ptr->magic_num1[i]);
 		for (i = 0; i < 108; i++) rd_byte(&p_ptr->magic_num2[i]);
 	}
-	if ((p_ptr->pclass == CLASS_HARPER) && p_ptr->magic_num1[0]) p_ptr->action = ACTION_SING;
+	if ((p_ptr->pclass == CLASS_BARD) && p_ptr->magic_num1[0]) p_ptr->action = ACTION_SING;
 
 	if (z_older_than(11, 0, 7))
 	{
@@ -1735,11 +1725,11 @@ note(format("の中", tmp16s));
 
 	if (z_older_than(10,0,7))
 	{
-		p_ptr->jouba = 0;
+		p_ptr->riding = 0;
 	}
 	else
 	{
-		rd_s16b(&p_ptr->jouba);
+		rd_s16b(&p_ptr->riding);
 	}
 
 	if (z_older_than(10,1,2))
@@ -2583,9 +2573,9 @@ note(format("クエストが多すぎる(%u)！", max_quests_load));
 					{
 						rd_byte(&quest[i].dungeon);
 					}
-
 					/* Mark uniques */
-					if (r_info[quest[i].r_idx].flags1 & RF1_UNIQUE)
+					if (quest[i].status == QUEST_STATUS_TAKEN || quest[i].status == QUEST_STATUS_UNTAKEN)
+						if (r_info[quest[i].r_idx].flags1 & RF1_UNIQUE)
 							r_info[quest[i].r_idx].flags1 |= RF1_QUESTOR;
 				}
 			}

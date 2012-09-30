@@ -1531,7 +1531,6 @@ static int home_carry(object_type *o_ptr)
 	}
 
 	/* No space? */
-#ifdef JP
 	/*
 	 * 隠し機能: オプション powerup_home が設定されていると
 	 *           我が家が 20 ページまで使える
@@ -1547,10 +1546,6 @@ static int home_carry(object_type *o_ptr)
 			return (-1);
 		}
 	}
-#else
-	if (st_ptr->stock_num >= st_ptr->stock_size) return (-1);
-#endif
-
 
 
 	/* Determine the "value" of the item */
@@ -2001,7 +1996,7 @@ static bool noneedtobargain(s32b minprice)
 static void updatebargain(s32b price, s32b minprice, int num)
 {
 	/* Hack -- auto-haggle */
-	if (!auto_haggle) return;
+	if (!manual_haggle) return;
 
 	/* Cheap items are "boring" */
 	if ((minprice/num) < 10L) return;
@@ -2142,7 +2137,7 @@ static void display_entry(int pos)
 		}
 
 		/* Display a "taxed" cost */
-		else if (!auto_haggle)
+		else if (!manual_haggle)
 		{
 			/* Extract the "minimum" price */
 			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
@@ -2716,7 +2711,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 	noneed = noneedtobargain(final_ask);
 
 	/* No need to haggle */
-	if (noneed || !auto_haggle)
+	if (noneed || !manual_haggle)
 	{
 		/* No need to haggle */
 		if (noneed)
@@ -2931,7 +2926,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	purse = (s32b)(ot_ptr->max_cost);
 
 	/* No need to haggle */
-	if (noneed || !auto_haggle || (final_ask >= purse))
+	if (noneed || !manual_haggle || (final_ask >= purse))
 	{
 		/* No reason to haggle */
 		if (final_ask >= purse)
@@ -4092,13 +4087,16 @@ static void store_process_command(void)
 			break;
 		}
 
-#ifdef JP
 		/* 日本語版追加 */
 		/* 1 ページ戻るコマンド: 我が家のページ数が多いので重宝するはず By BUG */
 		case '-':
 		{
 			if (st_ptr->stock_num <= 12) {
+#ifdef JP
 				msg_print("これで全部です。");
+#else
+				msg_print("Entire inventory is shown.");
+#endif
 			}
 			else{
 				store_top -= 12;
@@ -4110,7 +4108,7 @@ static void store_process_command(void)
 			}
 			break;
 		}
-#endif
+
 		/* Browse */
 		case ' ':
 		{
@@ -4126,7 +4124,6 @@ static void store_process_command(void)
 			else
 			{
 				store_top += 12;
-#ifdef JP
                                 /*
                                  * 隠しオプション(powerup_home)がセットされていないときは
                                  * 我が家では 2 ページまでしか表示しない
@@ -4144,9 +4141,6 @@ static void store_process_command(void)
                                 {
                                         if (store_top >= st_ptr->stock_num) store_top = 0;
                                 }
-#else
-				if (store_top >= st_ptr->stock_num) store_top = 0;
-#endif
 
 				display_inventory();
 			}
@@ -4555,9 +4549,11 @@ void do_cmd_store(void)
 		if (st_ptr->stock_num > 12)
 		{
 #ifdef JP
+			prt(" -)前ページ", 22, 0);
 			prt(" スペース) 次ページ", 23, 0);
 #else
-			prt(" SPACE) Next page of stock", 23, 0);
+			prt(" -) Previous page", 22, 0);
+			prt(" SPACE) Next page", 23, 0);
 #endif
 
 		}
@@ -4665,10 +4661,15 @@ void do_cmd_store(void)
 			{
 				/* Message */
 #ifdef JP
-				if (cur_store_num == STORE_MUSEUM) msg_print("ザックからアイテムがあふれそうなので、あわてて博物館から出た...");
-				msg_print("ザックからアイテムがあふれそうなので、あわてて店から出た...");
+				if (cur_store_num == STORE_MUSEUM)
+					msg_print("ザックからアイテムがあふれそうなので、あわてて博物館から出た...");
+				else
+					msg_print("ザックからアイテムがあふれそうなので、あわてて店から出た...");
 #else
-				msg_print("Your pack is so full that you flee the store...");
+				if (cur_store_num == STORE_MUSEUM)
+					msg_print("Your pack is so full that you flee the Museum...");
+				else
+					msg_print("Your pack is so full that you flee the store...");
 #endif
 
 

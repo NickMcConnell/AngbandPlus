@@ -1543,7 +1543,7 @@ void do_cmd_options_aux(int page, cptr info)
 #ifdef JP
 	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "以下のオプションは、自動破壊を使用するときのみ有効", 7, 6);
 #else
-	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "The following options are effective only when using auto-destroy-items option.", 7, 6);
+	if (page == PAGE_AUTODESTROY) c_prt(TERM_YELLOW, "Following options will protect items from easy auto-destroyer.", 7, 3);
 #endif
 
 	/* Interact with the player */
@@ -4850,7 +4850,7 @@ static void do_cmd_knowledge_inven(void)
 #ifdef JP
 	  strcpy(where, "装");
 #else
-	  strcpy(where, "Eq");
+	  strcpy(where, "E ");
 #endif
 	  for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	    {
@@ -4861,7 +4861,7 @@ static void do_cmd_knowledge_inven(void)
 #ifdef JP
 	  strcpy(where, "持");
 #else
-	  strcpy(where, "Hv");
+	  strcpy(where, "I ");
 #endif
 	  for (i = 0; i < INVEN_PACK; i++)
 	    {
@@ -4875,7 +4875,7 @@ static void do_cmd_knowledge_inven(void)
 #ifdef JP
 	  strcpy(where, "家");
 #else
-	  strcpy(where, "Hm");/*nanka*/
+	  strcpy(where, "H ");/*nanka*/
 #endif
 	      
 	  /* Dump all available items */
@@ -5839,7 +5839,11 @@ static void do_cmd_knowledge_skill_exp(void)
 	FILE *fff;
 
 	char file_name[1024];
+#ifdef JP
 	char skill_name[3][17]={"マーシャルアーツ", "二刀流          ", "乗馬            "};
+#else
+	char skill_name[3][20]={"martial arts    ", "dual wielding   ", "riding          "};
+#endif
 
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
@@ -5855,7 +5859,7 @@ static void do_cmd_knowledge_skill_exp(void)
 
 	for (i = 0; i < 3; i++)
 	{
-		if(i == GINOU_JOUBA)
+		if(i == GINOU_RIDING)
 		{
 			if(skill_exp[i]<500) shougou=0;
 			else if(skill_exp[i]<2000) shougou=1;
@@ -6061,7 +6065,7 @@ static void do_cmd_knowledge_pets(void)
 			t_friends++;
 			monster_desc(pet_name, m_ptr, 0x88);
 			fprintf(fff, "%s (%s)", pet_name, look_mon_desc(i));
-			if (p_ptr->jouba == i)
+			if (p_ptr->riding == i)
 #ifdef JP
 				fprintf(fff, " 乗馬中");
 #else
@@ -6628,7 +6632,11 @@ static void do_cmd_knowledge_quests(void)
 	    return;
 	}
 
+#ifdef JP
 	fprintf(fff, "《遂行中のクエスト》\n");
+#else
+	fprintf(fff, "< Current Quest >\n");
+#endif
 
 	for (i = 1; i < max_quests; i++)
 	{
@@ -6673,23 +6681,50 @@ static void do_cmd_knowledge_quests(void)
 						r_ptr = &r_info[quest[i].r_idx];
 						strcpy(name, r_name + r_ptr->name);
 						if (quest[i].max_num > 1)
+						{
+#ifdef JP
 							sprintf(note," - %d 体の%sを倒す。(あと %d 体)",quest[i].max_num, name, quest[i].max_num-quest[i].cur_num);
+#else
+							plural_aux(name);
+							sprintf(note," - kill %d %s, have killed %d.",quest[i].max_num, name, quest[i].cur_num);
+#endif
+						}
 						else
+#ifdef JP
 							sprintf(note," - %sを倒す。",name);
+#else
+							sprintf(note," - kill %s.",name);
+#endif
 					}
 					else if (quest[i].type == QUEST_TYPE_KILL_NUMBER)
 					{
+#ifdef JP
 						sprintf(note," - %d 体のモンスターを倒す。(あと %d 体)",quest[i].max_num, quest[i].max_num-quest[i].cur_num);
+#else
+						sprintf(note," - Kill %d monsters, have killed %d.",quest[i].max_num, quest[i].cur_num);
+#endif
 					}
 					else if (quest[i].type == QUEST_TYPE_FIND_ARTIFACT)
 					{
 						strcpy(name, a_name + a_info[quest[i].k_idx].name);
+#ifdef JP
 						sprintf(note," - %sを見つけ出す。", name);
+#else
+						sprintf(note," - Find out %s.", name);
+#endif
 					}
 					else if (quest[i].type == QUEST_TYPE_FIND_EXIT)
+#ifdef JP
 						sprintf(note," - 探索する。");
+#else
+						sprintf(note," - Search.");
+#endif
 					else if (quest[i].type == QUEST_TYPE_KILL_ALL)
+#ifdef JP
 						sprintf(note," - 全てのモンスターを倒す。");
+#else
+						sprintf(note," - Kill all monsters.");
+#endif
 				}
 
 				/* Print the quest info */
@@ -6770,9 +6805,17 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 	/* Print the current random quest  */
 	if (rand_tmp_str[0]) fprintf(fff, rand_tmp_str);
 
+#ifdef JP
 	if (!total) fprintf(fff, "なし\n");
+#else
+	if (!total) fprintf(fff, "Nothing.\n");
+#endif
 
+#ifdef JP
 	fprintf(fff, "\n《達成したクエスト》\n");
+#else
+	fprintf(fff, "\n< Completed Random Quest >\n");
+#endif
 	total = 0;
 	for (i = 1; i < max_quests; i++)
 	{
@@ -6826,9 +6869,17 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 			fprintf(fff, tmp_str);
 		}
 	}
+#ifdef JP
 	if (!total) fprintf(fff, "なし\n");
+#else
+	if (!total) fprintf(fff, "Nothing.\n");
+#endif
 
+#ifdef JP
 	fprintf(fff, "\n《失敗したクエスト》\n");
+#else
+	fprintf(fff, "\n< Failed Random Quest >\n");
+#endif
 	total = 0;
 	for (i = 1; i < max_quests; i++)
 	{
@@ -6881,10 +6932,18 @@ sprintf(rand_tmp_str,"%s (%d 階) - %sを倒す。\n",
 			fprintf(fff, tmp_str);
 		}
 	}
+#ifdef JP
 	if (!total) fprintf(fff, "なし\n");
+#else
+	if (!total) fprintf(fff, "Nothing.\n");
+#endif
 
 	if (wizard) {
+#ifdef JP
 	fprintf(fff, "\n《残りのランダムクエスト》\n");
+#else
+	fprintf(fff, "\n< Remaining Random Quest >\n");
+#endif
 	total = 0;
 	for (i = 1; i < max_quests; i++)
 	{

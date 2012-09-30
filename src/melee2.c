@@ -40,10 +40,10 @@ static bool get_enemy_dir(int m_idx, int *mm)
 
 	monster_type *t_ptr;
 
-	if (jouba_t_m_idx && (m_ptr->fx == px) && (m_ptr->fy == py))
+	if (riding_t_m_idx && (m_ptr->fx == px) && (m_ptr->fy == py))
 	{
-		y = m_list[jouba_t_m_idx].fy;
-		x = m_list[jouba_t_m_idx].fx;
+		y = m_list[riding_t_m_idx].fy;
+		x = m_list[riding_t_m_idx].fx;
 	}
 	else if (is_pet(m_ptr) && pet_t_m_idx)
 	{
@@ -100,7 +100,7 @@ static bool get_enemy_dir(int m_idx, int *mm)
 			/* Monster must be 'an enemy' */
 			if (!are_enemies(m_ptr, t_ptr)) continue;
 
-			can_pass_wall = (((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->jouba) || (p_ptr->pass_wall))) || ((r_ptr->flags2 & RF2_KILL_WALL) && (m_idx != p_ptr->jouba)));
+			can_pass_wall = (((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall))) || ((r_ptr->flags2 & RF2_KILL_WALL) && (m_idx != p_ptr->riding)));
 
 			/* Monster must be projectable if we can't pass through walls */
 			if (!can_pass_wall &&
@@ -211,12 +211,12 @@ void mon_take_hit_mon(bool is_psy_spear, int m_idx, int dam, bool *fear, cptr no
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-	if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+	if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
-	if (p_ptr->jouba && (m_idx == p_ptr->jouba)) disturb(1, 0);
+	if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
 	if (m_ptr->invulner && rand_int(PENETRATE_INVULNERABILITY))
 	{
@@ -397,7 +397,7 @@ msg_format("%^sは殺された。", m_name);
 		}
 	}
 
-	if (p_ptr->jouba && (p_ptr->jouba == m_idx) && (dam > 0))
+	if (p_ptr->riding && (p_ptr->riding == m_idx) && (dam > 0))
 	{
 		char m_name[80];
 
@@ -536,7 +536,7 @@ static bool get_moves_aux(int m_idx, int *yp, int *xp)
 	if (stupid_monsters) return (FALSE);
 
 	/* Monster can go through rocks */
-	if ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->jouba) || (p_ptr->pass_wall))) return (FALSE);
+	if ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall))) return (FALSE);
 	if (r_ptr->flags2 & RF2_KILL_WALL) return (FALSE);
 	if (!cave_floor_bold(py, px) && (cave[py][px].feat != FEAT_TREES)) return (FALSE);
 
@@ -1037,7 +1037,7 @@ static bool get_moves(int m_idx, int *mm)
 		(void)get_moves_aux(m_idx, &y2, &x2);
 	}
 
-	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->jouba) || (p_ptr->pass_wall)));
+	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
 
 	/* Extract the "pseudo-direction" */
 	y = m_ptr->fy - y2;
@@ -1419,7 +1419,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		mon_fight = TRUE;
 	}
 
-	if (p_ptr->jouba && (m_idx == p_ptr->jouba)) disturb(1, 0);
+	if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -1982,7 +1982,7 @@ act = "%sにむかって歌った。";
 
 						/* Redraw (later) if needed */
 						if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-						if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+						if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 						/* Special message */
 						if (see_m && did_heal)
@@ -2228,7 +2228,7 @@ static void process_monster(int m_idx)
 
 	bool            fear;
 
-	if ((m_idx == p_ptr->jouba) && !(r_ptr->flags7 & RF7_JOUBA))
+	if ((m_idx == p_ptr->riding) && !(r_ptr->flags7 & RF7_RIDING))
 	{
 		if (rakuba(0, TRUE))
 		{
@@ -2236,7 +2236,7 @@ static void process_monster(int m_idx)
 			msg_print("地面に落とされた。");
 #else
 			char m_name[80];
-			monster_desc(m_name, &m_list[p_ptr->jouba], 0);
+			monster_desc(m_name, &m_list[p_ptr->riding], 0);
 			msg_format("You have fallen from %s.", m_name);
 #endif
 		}
@@ -2316,7 +2316,7 @@ msg_print("少しの間悲しい気分になった。");
 
 	if ((is_pet(m_ptr) || is_friendly(m_ptr)) && ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE_7)) && !p_ptr->inside_battle)
 	{
-		static int jouba_pinch = 0;
+		static int riding_pinch = 0;
 
 		if (m_ptr->hp < m_ptr->maxhp/3)
 		{
@@ -2324,20 +2324,20 @@ msg_print("少しの間悲しい気分になった。");
 			char m_name[80];
 			monster_desc(m_name, m_ptr, 0);
 
-			if (m_idx == p_ptr->jouba && jouba_pinch < 2)
+			if (m_idx == p_ptr->riding && riding_pinch < 2)
 			{
 #ifdef JP
 msg_format("%sは傷の痛さの余りあなたの束縛から逃れようとしている。", m_name);
 #else
 					msg_format("%^s seems to be in so much pain, and trying to escape from your restriction.", m_name);
 #endif
-				jouba_pinch++;
+				riding_pinch++;
 				level_teleport = FALSE;
 				disturb(1, 0);
 			}
 			else if (m_ptr->ml)
 			{
-				if (m_idx == p_ptr->jouba)
+				if (m_idx == p_ptr->riding)
 				{
 #ifdef JP
 msg_format("%sはあなたの束縛から脱出した。", m_name);
@@ -2369,7 +2369,7 @@ msg_format("%^sが消え去った。", m_name);
 			{
 				delete_monster_idx(m_idx);
 
-				if (m_idx == p_ptr->jouba)
+				if (m_idx == p_ptr->riding)
 				{
 					if (rakuba(-1, FALSE))
 					{
@@ -2384,7 +2384,7 @@ msg_print("地面に落とされた。");
 			}
 		}
 		else
-			if (m_idx == p_ptr->jouba) jouba_pinch = 0;
+			if (m_idx == p_ptr->riding) riding_pinch = 0;
 			
 	}
 
@@ -2452,7 +2452,7 @@ msg_format("%^sが目を覚ました。", m_name);
 
 					/* Redraw the health bar */
 					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-					if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+					if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 					if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2))
 						p_ptr->update |= (PU_MON_LITE);
@@ -2512,7 +2512,7 @@ msg_format("%^sは朦朧状態から立ち直った。", m_name);
 #endif
 
 				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 			}
 		}
 
@@ -2556,7 +2556,7 @@ msg_format("%^sは混乱から立ち直った。", m_name);
 #endif
 
 				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 			}
 		}
 	}
@@ -2583,7 +2583,7 @@ msg_format("%^sはもう無敵でない。", m_name);
 
 			m_ptr->energy -= 100;
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 		}
 	}
 
@@ -2608,7 +2608,7 @@ msg_format("%^sはもう加速されていない。", m_name);
 #endif
 
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 		}
 	}
 
@@ -2633,11 +2633,11 @@ msg_format("%^sはもう減速されていない。", m_name);
 #endif
 
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 		}
 	}
 
-	if (p_ptr->jouba == m_idx)
+	if (p_ptr->riding == m_idx)
 	{
 		p_ptr->update |= (PU_BONUS);
 	}
@@ -2756,12 +2756,7 @@ msg_format("%^sは勇気を取り戻した。", m_name);
 	if (!p_ptr->inside_battle)
 	{
 		/* Hack! "Cyber" monster makes noise... */
-#ifdef JP
-if (strstr((E_r_name + r_ptr->E_name), "Cyber") &&
-#else
-		if (strstr((r_name + r_ptr->name), "Cyber") &&
-#endif
-
+		if (m_ptr->r_idx == MON_CYBER &&
 		    (randint(CYBERNOISE) == 1) &&
 		    !m_ptr->ml && (m_ptr->cdis <= MAX_SIGHT))
 		{
@@ -2847,7 +2842,7 @@ msg_format("%^s%s", m_name, monmessage);
 	 */
 	if (monst_spell_monst(m_idx)) return;
 
-	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->jouba) || (p_ptr->pass_wall)));
+	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->riding) || (p_ptr->pass_wall)));
 
 	/* Hack -- Assume no movement */
 	mm[0] = mm[1] = mm[2] = mm[3] = 0;
@@ -3063,7 +3058,7 @@ msg_format("%^s%s", m_name, monmessage);
 		}
 
 		/* Monster destroys walls (and doors) */
-		else if ((r_ptr->flags2 & RF2_KILL_WALL) && (m_idx != p_ptr->jouba))
+		else if ((r_ptr->flags2 & RF2_KILL_WALL) && (m_idx != p_ptr->riding))
 		{
 			/* Eat through walls/doors/rubble */
 			do_move = TRUE;
@@ -3296,7 +3291,7 @@ msg_print("爆発のルーンは解除された。");
 		/* The player is in the way.  Attack him. */
 		if (do_move && (ny == py) && (nx == px))
 		{
-			if (!p_ptr->jouba || one_in_(2))
+			if (!p_ptr->riding || one_in_(2))
 			{
 				/* Do the attack */
 				(void)make_attack_normal(m_idx);
@@ -3330,7 +3325,7 @@ msg_print("爆発のルーンは解除された。");
 			if (((r_ptr->flags2 & (RF2_KILL_BODY)) &&
 				  (r_ptr->mexp * r_ptr->level > z_ptr->mexp * z_ptr->level) &&
 				  (cave_floor_grid(c_ptr)) &&
-			     (c_ptr->m_idx != p_ptr->jouba)) ||
+			     (c_ptr->m_idx != p_ptr->riding)) ||
 				 are_enemies(m_ptr, m2_ptr) || m_ptr->confused)
 			{
 				do_move = FALSE;
@@ -3349,7 +3344,7 @@ msg_print("爆発のルーンは解除された。");
 			else if ((r_ptr->flags2 & RF2_MOVE_BODY) &&
 				(r_ptr->mexp > z_ptr->mexp) && cave_floor_grid(c_ptr) &&
 				(cave_floor_grid(&cave[m_ptr->fy][m_ptr->fx])) &&
-				 (c_ptr->m_idx != p_ptr->jouba))
+				 (c_ptr->m_idx != p_ptr->riding))
 			{
 				/* Allow movement */
 				do_move = TRUE;
@@ -3383,9 +3378,9 @@ msg_print("爆発のルーンは解除された。");
 			do_move = FALSE;
 		}
 
-		if (m_idx == p_ptr->jouba)
+		if (m_idx == p_ptr->riding)
 		{
-			if (!p_ptr->jouba_ryoute && !(m_list[p_ptr->jouba].monfear)) do_move = FALSE;
+			if (!p_ptr->riding_ryoute && !(m_list[p_ptr->riding].monfear)) do_move = FALSE;
 		}
 
 		/* Creature has been allowed move */
@@ -3437,7 +3432,7 @@ msg_print("爆発のルーンは解除された。");
 			/* Update the monster */
 			update_mon(m_idx, TRUE);
 
-			if (p_ptr->jouba == m_idx)
+			if (p_ptr->riding == m_idx)
 			{
 				py = ny;
 				px = nx;
@@ -3449,7 +3444,7 @@ msg_print("爆発のルーンは解除された。");
 			/* Redraw the new grid */
 			lite_spot(ny, nx);
 
-			if (p_ptr->jouba == m_idx)
+			if (p_ptr->riding == m_idx)
 			{
 				verify_panel();
 
@@ -3619,7 +3614,7 @@ msg_format("%^sが%sを破壊した。", m_name, o_name);
 
 
 	/* If we haven't done anything, try casting a spell again */
-	if (!do_turn && !do_move && !m_ptr->monfear && !stupid_monsters && !(p_ptr->jouba == m_idx) && aware)
+	if (!do_turn && !do_move && !m_ptr->monfear && !stupid_monsters && !(p_ptr->riding == m_idx) && aware)
 	{
 		/* Cast spell */
 		if (make_attack_spell(m_idx)) return;
@@ -3861,7 +3856,7 @@ void process_monsters(void)
 		if (!test) continue;
 
 
-		if (p_ptr->jouba == i)
+		if (p_ptr->riding == i)
 			speed = p_ptr->pspeed;
 		else
 		{
@@ -4031,7 +4026,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 	if (!r_ptr->next_exp) return;
 
 	new_exp = s_ptr->mexp * s_ptr->level / (r_ptr->level + 2);
-	if (m_idx == p_ptr->jouba) new_exp = (new_exp + 1) / 2;
+	if (m_idx == p_ptr->riding) new_exp = (new_exp + 1) / 2;
 	if (!dun_level) new_exp /= 5;
 	m_ptr->exp += new_exp;
 	if (m_ptr->mflag2 & MFLAG_CHAMELEON) return;
@@ -4093,7 +4088,7 @@ void monster_gain_exp(int m_idx, int s_idx)
 		update_mon(m_idx, FALSE);
 		lite_spot(m_ptr->fy, m_ptr->fx);
 	}
-	if (m_idx == p_ptr->jouba) p_ptr->update |= PU_BONUS;
+	if (m_idx == p_ptr->riding) p_ptr->update |= PU_BONUS;
 }
 
 

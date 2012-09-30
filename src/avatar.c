@@ -281,7 +281,7 @@ void get_virtues()
       p_ptr->vir_types[i++] = V_INDIVIDUALISM;
       break;
     case CLASS_MONK:
-    case CLASS_KI:
+    case CLASS_FORCE:
       p_ptr->vir_types[i++] = V_FAITH;
       p_ptr->vir_types[i++] = V_HARMONY;
       p_ptr->vir_types[i++] = V_TEMPERANCE;
@@ -303,7 +303,7 @@ void get_virtues()
       p_ptr->vir_types[i++] = V_ENLIGHTEN;
       p_ptr->vir_types[i++] = V_CHANCE;
       break;
-    case CLASS_MONOMANE:
+    case CLASS_IMITATOR:
       p_ptr->vir_types[i++] = V_CHANCE;
       break;
     case CLASS_BLUE_MAGE:
@@ -319,11 +319,11 @@ void get_virtues()
       p_ptr->vir_types[i++] = V_ENCHANT;
       p_ptr->vir_types[i++] = V_KNOWLEDGE;
       break;
-    case CLASS_HARPER:
+    case CLASS_BARD:
       p_ptr->vir_types[i++] = V_HARMONY;
       p_ptr->vir_types[i++] = V_COMPASSION;
       break;
-    case CLASS_KIHEI:
+    case CLASS_FORCEHEI:
       p_ptr->vir_types[i++] = V_VALOUR;
       p_ptr->vir_types[i++] = V_HARMONY;
       break;
@@ -331,7 +331,7 @@ void get_virtues()
       p_ptr->vir_types[i++] = V_VALOUR;
       p_ptr->vir_types[i++] = V_INDIVIDUALISM;
       break;
-    case CLASS_KAJI:
+    case CLASS_SMITH:
       p_ptr->vir_types[i++] = V_HONOUR;
       p_ptr->vir_types[i++] = V_KNOWLEDGE;
       break;

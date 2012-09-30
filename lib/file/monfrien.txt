@@ -32,61 +32,60 @@ asks if you have seen his dogs.
 mumbles something about mushrooms.
 
 N:19:Lion Heart
-16
-'Logic of previous post office that is not clear in meaning is not translate well to K*izumi Cabinet!'
-'I am not a entertainer but a politician.'
-is singing a song - 'As K*izumi as the day is long...'
-'I will dutch Liberal Democratic Party.'
-'Here's a present for you. A compact disc of X-JAPAN!'
-is singing a song - 'Forever...'
-'A hard worker disport him(her)self.'
-'Electors aren't fervent unless the hopeful isn't fervent.'
-'I go to the poll in 29 because you said that Liberal Democratic Party is good.'
-'Perfect circle, round, round, Perfect circle.'
-'You fight with enduring the pain! It impressed me!'
-'After this, various bafflements and oppositions comes.'
-'Everything that goes against my cabinet is "OPPOSITION INFLUENCE".'
-'The Privatization of Post Office! Are railroads and telephone systems  done away with privatization?'
-'Turnaroud of the economy does not come without structural change.'
-'The belief -A pain of today makes affluence of tommorow- '
+24
+says, 'We must stand up with firm resolve to strive for the eradication of terrorism, together with other nations of the world'
+says, 'Japan supports the U.S. position that it will not bow to terrorism. Ithink it is only natural for President Bush to hunt down the culprits and take firm steps against this serious crime.'
+says, 'The terrorist acts are extremely heinous and outrageous and cannot be forgiven.'
+says, 'It is a challenge not only to the U.S. but also to democracy, and I am outraged.'
+says, 'Japan-U.S. alliance is becoming bigger and bigger.'
+says, 'Not only for borth countries, but in the Asia-Pacific region and the entire world.'
+says, 'The safe society is crumbling and this is a significant incident.'
+### says, 'Logic of previous the Ministry of Posts and Telecommunications that is not clear in meaning is not translate well to K*izumi Cabinet!'
+### says, 'I am not a entertainer but a politician.'
+sings, 'As K*izumi as the day is long...'
+says, 'I don't think there's any going back to what politics was in this country even three weeks ago.'
+says, 'What will the prime minister do if the anti-reform forces within the Liveral Democratic Party regain power?'
+says, 'People are driving the LDP members, and the LDP members are driveing the party. That is a total reversal of the past.'
+says, 'No pain, no gain.'
+says, 'Here's a present for you. A compact disc of X-JAPAN!'
+sings, 'Forever...'
+is composing haiku, 'Liberal Democrats, You said it's good, Let's go voting.'
+says, 'Perfect circle, round, round, Perfect circle.'
+says, 'You stuck it out despite the pain. I was thrilled. Congratulations.'
+says, 'The illegal entry was one thing and the abduction issue was another, although I think it is necessary for the government to take sufficient measures toward families of the abducted people.'
+says, 'I am starting with the issue that is the most difficalt and which draws the strongest resistance.'
+says, 'Though the ministry is making a hard effort to consider reforms, all of you will just have to wait and see.'
+says, 'People call me a eccentric, but I am a man of reform.'
+says, 'Structural reforms without sanctuaries.'
+says, 'No structural reforms, no economic recovery.'
+says, 'The belief -A pain of today makes affluence of tommorow- '
 
 N:1059:Noborta Kesyta
 2
-'Haw iz my 100,000,000 gold kasino?'
-'I speek cleerly, My speech is anbiguity.'
+says, 'Haw iz my 100,000,000 gold kasino?'
+says, 'I speek cleerly, My speech is anbiguity.'
 
 N:1060:Mori troll
-29
-'Nippon(Japan), it is God-Land with Emperor. All citizen should accept this.'
-'40% of Electors not decide. It is very good that they do not go to the polls.'
-'I didn't agree about Imperial Rescript on Education, it is supernational.'
-'Imperial Rescript on Education has a universal philosophy.'
-'I am elected because I think a great deal of God.'
-'When I visited a country region, all farmaers suddenly came back to their houses as soon as they found me.'
-'I cannot deny that Osaka is called as a city of "Gabage".Those who live in Osaka always think only earning money, and they are not really insincere.'
-'In U.S., power outage calls gangs and bumpmen.'
-'Expo in Okinawa...'
-'Success of Expo is Obuchi's long-cherished wish.'
-'I'll fight battlefront for you. Please keep safe of this block country.'
-'Japanese Communist Party says that they don't change their philosophy. They don't accept Emperor system, Japan Self-Defense Forces and Japan-U.S. Security Treaty.'
-'How keep safe of Japan and KOKUTAI(It sometimes stands for Emperor system) of Japan? EmperorDemocratic Party of Japan must be hard pressed.'
-'We cannot ally with Japanese Communist Party.'
-'It is not slip of the tongue, It is not anyting.'
-'Korean Peninsula is divided to two ethnic group.'
-'On talking about God, I get an earful again...'
-'This should not be said political condition. We should be national government...'
-'Sorry, at that time.'
-'It is very nice for me to come. why? It gather stream. ("gather strem" is "*MORI*agaru" in Japanese.)'
-'What is PHS? Is it new kind of call phone?'
-'I'm not fool.'
-'I know what is my talk.'
-'Berry fine today.'
-'My inadequacy expression give rise to a misunderstanding, I examine my conscience and beg all citizens pardon for it.'
-'I think I didn't mistake.'
-'A person who cannot use computer is ,use foul language, fugitive from justice.'
-'Mind education in independent scholl is better than one in common school.'
-'It is OK that crude oil flow to Kyushu island.'
-'foo are yu?'
+17
+says, 'We hope the Japanese people acknowledge that Japan is a divine nation centering on the emperor.'
+says, 'Lowbrow sex industries are always created first in Osaka. Excuse my language, but it is a spittoon.'
+says, 'When there was a Y2K problem, the Japanese bought water and noodles. Americans bought pistols and guns.'
+says, 'If a blackout happens in America, gangsters and murderers will always come out. It is that kind of society.'
+says, 'I don't have the intention to do a job like this for long.'
+says, 'In rugby, one person doesn't become a star, one person plays for all and all play for one.'
+says, 'None of the Party executives, which whom I met Saturday night, think that I announced my resignation. '
+says, 'The Japanese media have decided that that's what happend, and they feel they have to keep writing that regardless of what we actually said.'
+says, 'How would I be able to leave the country when we must do everything to have the budget pass?'
+says, 'I have been mistreated by the media as if I'm baby picked up under an overpass.'
+blurts out, 'How then could we ensure Japan's public safety and secure the nation's "kokutai"?'
+# the word "kokutai" was often used before and during World War II and denotes the fundamental character of the country as one with the Emperor as its core.
+# Maybe, "kokutai" should be transrated into "national polity"
+says, 'It was not a slip of the tongue. I didn't say I have retracted it.'
+says, 'Sorry, at that time.'
+says, 'I'm not fool.'
+says, 'Berry fine today.'
+says, 'I think I didn't mistake.'
+says, 'foo are yu?'
 
 N:53:Grip, Farmer Maggot's dog
 N:54:Wolf, Farmer Maggot's dog
@@ -95,8 +94,8 @@ N:55:Fang, Farmer Maggot's dog
 
 N:772:Gandalf the Grey
 2
-'Don't space out. Cover me! Bogan!'
-'I'll invoke fire magic. Attack concurrently with me!'
+says, 'Don't space out. Cover me! Bogan!'
+says, 'I'll invoke fire magic. Attack concurrently with me!'
 
 N:921:Internet Exploder
 2
@@ -105,10 +104,10 @@ throws off some dorky packets.
 
 N:1004:Pip, the Braver from Another World
 4
-'Fire-ball!'
-'Fire-finger1!'
-'Fire-finger2!'
-'Blockhead!'
+shouts, 'Fire-ball!'
+shouts, 'Fire-finger1!'
+shouts, 'Fire-finger2!'
+shouts, 'Blockhead!'
 
 #N:63:Smeagol
 #N:135:Mughash the Kobold Lord

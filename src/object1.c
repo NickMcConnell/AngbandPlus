@@ -1894,7 +1894,7 @@ return "巨大スター・ボール(200) : 200+d200 ターン毎";
 #ifdef JP
 return "例のアレ : 150+d150 ターン毎";
 #else
-			return "hekeke every 150+d150 turns";
+			return "reveal your identity every 150+d150 turns";
 #endif
 
 		}
@@ -1903,7 +1903,7 @@ return "例のアレ : 150+d150 ターン毎";
 #ifdef JP
 return "拍子木を打ちならす : いつでも";
 #else
-			return "hekeke every turn";
+			return "beat wooden clappers every turn";
 #endif
 
 		}
@@ -2623,20 +2623,29 @@ info[i++] = "それは魔法抵抗力を下げる。";
 	}
 
 	if (o_ptr->tval == TV_STATUE)
-	  {
-	    monster_race *r_ptr = &r_info[o_ptr->pval];
-#ifdef JP
-	    if (strstr( E_r_name + r_ptr->E_name,"Bull Gates") || strstr( E_r_name + r_ptr->E_name,"Internet"))
-#else
-	    if (strstr( r_name + r_ptr->name,"Bull Gates") || strstr( r_name + r_ptr->name,"Internet"))
-#endif
-	      info[i++] = "それは部屋に飾ると恥ずかしい。";
-	    else if ( r_ptr->flags2 & (RF2_ELDRITCH_HORROR))
-	      info[i++] = "それは部屋に飾ると恐い。";
-	    else
-	      info[i++] = "それは部屋に飾ると楽しい。";
-	  }
+	{
+		monster_race *r_ptr = &r_info[o_ptr->pval];
 
+		if (o_ptr->pval == MON_BULLGATES)
+#ifdef JP
+			info[i++] = "それは部屋に飾ると恥ずかしい。";
+#else
+			info[i++] = "It is shameful.";
+#endif
+		else if ( r_ptr->flags2 & (RF2_ELDRITCH_HORROR))
+#ifdef JP
+			info[i++] = "それは部屋に飾ると恐い。";
+#else
+		info[i++] = "It is fearful.";
+#endif
+		else
+#ifdef JP
+			info[i++] = "それは部屋に飾ると楽しい。";
+#else
+		info[i++] = "It is cheerful.";
+#endif
+	}
+	
 	/* Hack -- describe lite's */
 	if (o_ptr->tval == TV_LITE)
 	{
@@ -2730,7 +2739,7 @@ info[i++] = "それは長いターン明かりを授ける。";
 
 	/* And then describe it fully */
 
-	if (f2 & (TR2_JOUBA))
+	if (f2 & (TR2_RIDING))
 	{
 		if ((o_ptr->tval == TV_POLEARM) && ((o_ptr->sval == SV_LANCE) || (o_ptr->sval == SV_HEAVY_LANCE)))
 #ifdef JP
@@ -3041,7 +3050,7 @@ info[i++] = "それは自然界の動物に対して特に恐るべき力を発揮する。";
 
 	}
 
-	if (f1 & (TR1_RIRYOKU))
+	if (f1 & (TR1_FORCE_WEPON))
 	{
 #ifdef JP
 info[i++] = "それは使用者の魔力を使って攻撃する。";
@@ -3806,13 +3815,13 @@ cptr mention_use(int i)
 	switch (i)
 	{
 #ifdef JP
-case INVEN_RARM: p = p_ptr->ryoute ? " 両手" : (hidarikiki ? " 左手" : " 右手"); break;
+case INVEN_RARM: p = p_ptr->ryoute ? " 両手" : (left_hander ? " 左手" : " 右手"); break;
 #else
 		case INVEN_RARM: p = "Wielding"; break;
 #endif
 
 #ifdef JP
-case INVEN_LARM:   p = (hidarikiki ? " 右手" : " 左手"); break;
+case INVEN_LARM:   p = (left_hander ? " 右手" : " 左手"); break;
 #else
 		case INVEN_LARM:   p = "On arm"; break;
 #endif
@@ -3824,13 +3833,13 @@ case INVEN_BOW:   p = "射撃用"; break;
 #endif
 
 #ifdef JP
-case INVEN_LEFT:  p = (hidarikiki ? "右手指" : "左手指"); break;
+case INVEN_LEFT:  p = (left_hander ? "右手指" : "左手指"); break;
 #else
 		case INVEN_LEFT:  p = "On left hand"; break;
 #endif
 
 #ifdef JP
-case INVEN_RIGHT: p = (hidarikiki ? "左手指" : "右手指"); break;
+case INVEN_RIGHT: p = (left_hander ? "左手指" : "右手指"); break;
 #else
 		case INVEN_RIGHT: p = "On right hand"; break;
 #endif
@@ -3945,13 +3954,13 @@ cptr describe_use(int i)
 	switch (i)
 	{
 #ifdef JP
-case INVEN_RARM: p = p_ptr->ryoute ? " 両手に装備している" : (hidarikiki ? " 左手に装備している" : " 右手に装備している"); break;
+case INVEN_RARM: p = p_ptr->ryoute ? " 両手に装備している" : (left_hander ? " 左手に装備している" : " 右手に装備している"); break;
 #else
 		case INVEN_RARM: p = "attacking monsters with"; break;
 #endif
 
 #ifdef JP
-case INVEN_LARM:   p = (hidarikiki ? " 右手に装備している" : " 左手に装備している"); break;
+case INVEN_LARM:   p = (left_hander ? " 右手に装備している" : " 左手に装備している"); break;
 #else
 		case INVEN_LARM:   p = "wearing on your arm"; break;
 #endif
@@ -3963,13 +3972,13 @@ case INVEN_BOW:   p = "射撃用に装備している"; break;
 #endif
 
 #ifdef JP
-case INVEN_LEFT:  p = (hidarikiki ? "右手の指にはめている" : "左手の指にはめている"); break;
+case INVEN_LEFT:  p = (left_hander ? "右手の指にはめている" : "左手の指にはめている"); break;
 #else
 		case INVEN_LEFT:  p = "wearing on your left hand"; break;
 #endif
 
 #ifdef JP
-case INVEN_RIGHT: p = (hidarikiki ? "左手の指にはめている" : "右手の指にはめている"); break;
+case INVEN_RIGHT: p = (left_hander ? "左手の指にはめている" : "右手の指にはめている"); break;
 #else
 		case INVEN_RIGHT: p = "wearing on your right hand"; break;
 #endif
@@ -4997,7 +5006,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	/* See cmd5.c */
 	extern bool select_spellbook;
-	extern bool select_renkijutsu;
+	extern bool select_the_force;
 
 	int menu_line = (use_menu ? 1 : 0);
 	int max_inven = 0;
@@ -5014,7 +5023,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
-	        if (*cp == 1111) { /* renkijutsu */
+	        if (*cp == 1111) { /* the_force */
 		    item_tester_tval = 0;
 		    item_tester_hook = NULL;
 		    return (TRUE);
@@ -5145,7 +5154,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Done */
 		done = TRUE;
 
-		if (select_renkijutsu) {
+		if (select_the_force) {
 		    *cp = 1111;
 		    item = TRUE;
 		}
@@ -5296,11 +5305,11 @@ if (!command_see && !use_menu) strcat(out_val, " '*'一覧,");
 			/* Append */
 #ifdef JP
 if (equip) strcat(out_val, format(" %s 装備品,", use_menu ? "'4'or'6'" : "'/'"));
-else if (select_renkijutsu)
+else if (select_the_force)
 	strcat(out_val, " 'w'練気術,");
 #else
 if (equip) strcat(out_val, format(" %s for Equip,", use_menu ? "4 or 6" : "/"));
-else if (select_renkijutsu)
+else if (select_the_force)
 	strcat(out_val, " w for the Force,");
 #endif
 
@@ -5460,7 +5469,7 @@ if (allow_floor) strcat(out_val, " '-'床上,");
 			}
 		        case 'w':
 			{
-				if (select_renkijutsu) {
+				if (select_the_force) {
 					*cp = 1111;
 					item = TRUE;
 					done = TRUE;
@@ -5662,7 +5671,7 @@ if (other_query_flag && !verify("本当に", k)) continue;
 
 		        case 'w':
 			{
-				if (select_renkijutsu) {
+				if (select_the_force) {
 					*cp = 1111;
 					item = TRUE;
 					done = TRUE;
@@ -6016,7 +6025,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	int floor_num, floor_list[23], floor_top = 0;
 
 	extern bool select_spellbook;
-	extern bool select_renkijutsu;
+	extern bool select_the_force;
 
 	int menu_line = (use_menu ? 1 : 0);
 	int max_inven = 0;
@@ -6027,7 +6036,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Get the item index */
 	if (repeat_pull(cp))
 	{
-	        if (*cp == 1111) { /* renkijutsu */
+	        if (*cp == 1111) { /* the_force */
 		    item_tester_tval = 0;
 		    item_tester_hook = NULL;
 		    return (TRUE);
@@ -6156,7 +6165,7 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 		/* Done */
 		done = TRUE;
 
-		if (select_renkijutsu) {
+		if (select_the_force) {
 		    *cp = 1111;
 		    item = TRUE;
 		}
@@ -6327,7 +6336,7 @@ if (allow_equip)
 	}
 	else strcat(out_val, " '/' 装備品,");
 }
-else if (select_renkijutsu)
+else if (select_the_force)
 	strcat(out_val, " 'w'練気術,");
 #else
 if (allow_equip)
@@ -6341,7 +6350,7 @@ if (allow_equip)
 	}
 	else strcat(out_val, " / for Equip,");
 }
-else if (select_renkijutsu)
+else if (select_the_force)
 	strcat(out_val, " w for the Force,");
 #endif
 
@@ -6712,7 +6721,7 @@ strcat(out_val, " '/'装備品,");
 			}
 		        case 'w':
 			{
-				if (select_renkijutsu) {
+				if (select_the_force) {
 					*cp = 1111;
 					item = TRUE;
 					done = TRUE;
@@ -6966,7 +6975,7 @@ strcat(out_val, " '/'装備品,");
 
 		        case 'w':
 			{
-				if (select_renkijutsu) {
+				if (select_the_force) {
 					*cp = 1111;
 					item = TRUE;
 					done = TRUE;

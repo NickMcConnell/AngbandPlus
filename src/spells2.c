@@ -726,7 +726,7 @@ info[i++] = "あなたは通常の2倍の攻撃を行うことができる。(30 MP)";
 			}
 			break;
 		case CLASS_MINDCRAFTER:
-		case CLASS_KI:
+		case CLASS_FORCE:
 			if (plev > 14)
 			{
 #ifdef JP
@@ -751,7 +751,7 @@ info[i++] = "あなたはアイテムを完全に鑑定することができる。(20 MP)";
 #endif
 			}
 			break;
-		case CLASS_MONOMANE:
+		case CLASS_IMITATOR:
 			if (plev > 29)
 			{
 #ifdef JP
@@ -817,7 +817,7 @@ info[i++] = "あなたは相手に使われた魔法を学ぶことができる。";
 			info[i++] = "You can study spells which your enemy casts on you.";
 #endif
 			break;
-		case CLASS_KIHEI:
+		case CLASS_FORCEHEI:
 			if (plev > 9)
 			{
 #ifdef JP
@@ -2798,7 +2798,7 @@ info[i++] = "あなたの武器はドラゴンに対して特に強い力を発揮する。";
 
 		}
 
-		if (f1 & (TR1_RIRYOKU))
+		if (f1 & (TR1_FORCE_WEPON))
 		{
 #ifdef JP
 info[i++] = "あなたの武器はMPを使って攻撃する。";
@@ -3224,7 +3224,7 @@ bool detect_traps(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
 
 	/* Describe */
 	if (detect)
@@ -3290,7 +3290,7 @@ bool detect_doors(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
 
 	/* Describe */
 	if (detect)
@@ -3349,7 +3349,7 @@ bool detect_stairs(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
 
 	/* Describe */
 	if (detect)
@@ -3413,7 +3413,7 @@ bool detect_treasure(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
 
 	/* Describe */
 	if (detect)
@@ -3477,7 +3477,7 @@ bool detect_objects_gold(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
 
 	/* Describe */
 	if (detect)
@@ -3544,7 +3544,7 @@ bool detect_objects_normal(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
 
 	/* Describe */
 	if (detect)
@@ -3701,7 +3701,7 @@ bool detect_monsters_normal(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
 
 	/* Describe */
 	if (flag)
@@ -3770,7 +3770,7 @@ bool detect_monsters_invis(int range)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
 
 	/* Describe */
 	if (flag)
@@ -4046,7 +4046,7 @@ bool detect_monsters_string(int range, cptr Match)
 		}
 	}
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
 
 	/* Describe */
 	if (flag)
@@ -4393,7 +4393,7 @@ else if (sleep) msg_print("何かが突如興奮したような騒々しい音が遠くに聞こえた！"
 	if (speed) msg_print("You feel a sudden stirring nearby!");
 	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
 #endif
-	if (p_ptr->jouba) p_ptr->update |= PU_BONUS;
+	if (p_ptr->riding) p_ptr->update |= PU_BONUS;
 }
 
 
@@ -4446,7 +4446,7 @@ while(!get_com("どの種類(文字)のモンスターを抹殺しますか: ", &typ, FALSE));
 
 		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
 
-		else if (i == p_ptr->jouba) angry = TRUE;
+		else if (i == p_ptr->riding) angry = TRUE;
 
 		else if (player_cast && (r_ptr->level > rand_int(power))) angry = TRUE;
 
@@ -4575,7 +4575,7 @@ bool mass_genocide(int power, int player_cast)
 
 		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
 
-		else if (i == p_ptr->jouba) angry = TRUE;
+		else if (i == p_ptr->riding) angry = TRUE;
 
 		else if (player_cast && (r_ptr->level > rand_int(power))) angry = TRUE;
 
@@ -4707,7 +4707,7 @@ bool mass_genocide_undead(int power, int player_cast)
 
 		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
 
-		else if (i == p_ptr->jouba) angry = TRUE;
+		else if (i == p_ptr->riding) angry = TRUE;
 
 		else if (player_cast && (r_ptr->level > rand_int(power))) angry = TRUE;
 
@@ -4851,7 +4851,7 @@ bool probing(void)
 #ifdef JP
 sprintf(buf,"%s ... HP:%d/%d AC:%d 速度:%s%d 経験:", m_name, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
 #else
-sprintf(buf, "%s ... HP:%d/%d AC:%d speed:%s%d 経験:", m_name, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
+sprintf(buf, "%s ... HP:%d/%d AC:%d speed:%s%d exp:", m_name, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
 #endif
 			if (r_ptr->next_r_idx)
 			{
@@ -4862,11 +4862,19 @@ sprintf(buf, "%s ... HP:%d/%d AC:%d speed:%s%d 経験:", m_name, m_ptr->hp, m_ptr-
 				strcat(buf, "xxx ");
 			}
 
+#ifdef JP
 			if (m_ptr->csleep) strcat(buf,"睡眠 ");
 			if (m_ptr->stunned) strcat(buf,"朦朧 ");
 			if (m_ptr->monfear) strcat(buf,"恐怖 ");
 			if (m_ptr->confused) strcat(buf,"混乱 ");
 			if (m_ptr->invulner) strcat(buf,"無敵 ");
+#else
+			if (m_ptr->csleep) strcat(buf,"sleeping ");
+			if (m_ptr->stunned) strcat(buf,"stunned ");
+			if (m_ptr->monfear) strcat(buf,"scared ");
+			if (m_ptr->confused) strcat(buf,"confused ");
+			if (m_ptr->invulner) strcat(buf,"invulnerable ");
+#endif
 			buf[strlen(buf)-1] = '\0';
 			prt(buf,0,0);
 
@@ -5314,14 +5322,14 @@ msg_print("あなたは床と壁との間に挟まれてしまった！");
 			py = sy;
 			px = sx;
 
-			if (p_ptr->jouba)
+			if (p_ptr->riding)
 			{
 				int tmp;
 				tmp = cave[py][px].m_idx;
 				cave[py][px].m_idx = cave[oy][ox].m_idx;
 				cave[oy][ox].m_idx = tmp;
-				m_list[p_ptr->jouba].fy = py;
-				m_list[p_ptr->jouba].fx = px;
+				m_list[p_ptr->riding].fy = py;
+				m_list[p_ptr->riding].fx = px;
 				update_mon(cave[py][px].m_idx, TRUE);
 			}
 
@@ -5363,7 +5371,7 @@ if (damage) take_hit(DAMAGE_ATTACK, damage, "地震", -1);
 			/* Access the grid */
 			c_ptr = &cave[yy][xx];
 
-			if (c_ptr->m_idx == p_ptr->jouba) continue;
+			if (c_ptr->m_idx == p_ptr->riding) continue;
 
 			/* Process monsters */
 			if (c_ptr->m_idx)
@@ -5603,7 +5611,7 @@ void discharge_minion(bool force)
 		if (!m_ptr->r_idx || !is_pet(m_ptr)) continue;
 		if (m_ptr->nickname) okay = FALSE;
 	}
-	if (!okay || p_ptr->jouba)
+	if (!okay || p_ptr->riding)
 	{
 		if (!get_check("本当に全ペットを爆破しますか？"))
 			return;
@@ -6107,7 +6115,7 @@ msg_print("不思議な力がテレポートを防いだ！");
 		return FALSE;
 	}
 
-	if (!c_ptr->m_idx || (c_ptr->m_idx == p_ptr->jouba))
+	if (!c_ptr->m_idx || (c_ptr->m_idx == p_ptr->riding))
 	{
 #ifdef JP
 msg_print("それとは場所を交換できません。");
@@ -6154,7 +6162,7 @@ msg_print("テレポートを邪魔された！");
 	cave[py][px].m_idx = c_ptr->m_idx;
 
 	/* Update the old location */
-	c_ptr->m_idx = p_ptr->jouba;
+	c_ptr->m_idx = p_ptr->riding;
 
 	/* Move the monster */
 	m_ptr->fy = (byte)py;
@@ -6164,10 +6172,10 @@ msg_print("テレポートを邪魔された！");
 	px = tx;
 	py = ty;
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
-		m_list[p_ptr->jouba].fy = ty;
-		m_list[p_ptr->jouba].fx = tx;
+		m_list[p_ptr->riding].fy = ty;
+		m_list[p_ptr->riding].fx = tx;
 
 		/* Update the monster (new location) */
 		update_mon(cave[ty][tx].m_idx, TRUE);

@@ -946,7 +946,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	count = 0;
 	if (f1 & TR1_CHAOTIC) {total += 5000;count++;}
 	if (f1 & TR1_VAMPIRIC) {total += 6500;count++;}
-	if (f1 & TR1_RIRYOKU) {tmp_cost += 2500;count++;}
+	if (f1 & TR1_FORCE_WEPON) {tmp_cost += 2500;count++;}
 	if (f1 & TR1_SLAY_ANIMAL) {tmp_cost += 1800;count++;}
 	if (f1 & TR1_SLAY_EVIL) {tmp_cost += 2300;count++;}
 	if (f1 & TR1_SLAY_UNDEAD) {tmp_cost += 1800;count++;}
@@ -972,7 +972,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_SUST_DEX) total += 850;
 	if (f2 & TR2_SUST_CON) total += 850;
 	if (f2 & TR2_SUST_CHR) total += 250;
-	if (f2 & TR2_JOUBA) total += 0;
+	if (f2 & TR2_RIDING) total += 0;
 	if (f2 & TR2_XXX2) total += 0;
 	if (f2 & TR2_THROW) total += 5000;
 	if (f2 & TR2_FREE_ACT) total += 4500;
@@ -2495,7 +2495,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					}
 					case 41: case 42:
 					{
-						o_ptr->name2 = EGO_RIRYOKU;
+						o_ptr->name2 = EGO_FORCE_WEPON;
 						break;
 					}
 					default: /* 2 slots for TV_SWORD and TV_HAFTED */
@@ -7290,7 +7290,7 @@ s = "抽出できるアイテムがありません。";
 		}
 	}
 
-	if ((old_f1 & TR1_RIRYOKU) && !(new_f1 & TR1_RIRYOKU))
+	if ((old_f1 & TR1_FORCE_WEPON) && !(new_f1 & TR1_FORCE_WEPON))
 	{
 		drain_value[ESSENCE_INT-1] += 5;
 		drain_value[ESSENCE_WIS-1] += 5;
@@ -7898,7 +7898,7 @@ s = "改良できるアイテムがありません。";
 #ifdef JP
 				sprintf(tmp, "いくつ付加しますか？ (1-%d): ", limit);
 #else
-				sprintf(tmp, "Enchant how meny? (1-%d): ", limit);
+				sprintf(tmp, "Enchant how many? (1-%d): ", limit);
 #endif
 				strcpy(tmp_val, "1");
 
@@ -7934,7 +7934,7 @@ s = "改良できるアイテムがありません。";
 #ifdef JP
 			if (!get_string(format("いくつ付加しますか？ (1-%d):", p_ptr->lev/7+3), tmp_val, 2)) return;
 #else
-			if (!get_string(format("Enchant how meny? (1-%d):", p_ptr->lev/7+3), tmp_val, 2)) return;
+			if (!get_string(format("Enchant how many? (1-%d):", p_ptr->lev/7+3), tmp_val, 2)) return;
 #endif
 			val = atoi(tmp_val);
 			if (val > p_ptr->lev/7+3) val = p_ptr->lev/7+3;

@@ -857,7 +857,7 @@ bool make_attack_normal(int m_idx)
 
 							/* Redraw (later) if needed */
 							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-							if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+							if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 							/* Uncharge */
 							o_ptr->pval = 0;
@@ -996,6 +996,8 @@ bool make_attack_normal(int m_idx)
 					/* Find an item */
 					for (k = 0; k < 10; k++)
 					{
+						s16b o_idx;
+
 						/* Pick an item */
 						i = rand_int(INVEN_PACK);
 
@@ -1024,105 +1026,46 @@ bool make_attack_normal(int m_idx)
 
 						chg_virtue(V_SACRIFICE, 1);
 
-						/* Option */
-						if (1)
+
+						/* Make an object */
+						o_idx = o_pop();
+						
+						/* Success */
+						if (o_idx)
 						{
-							s16b o_idx;
-
-							/* Make an object */
-							o_idx = o_pop();
-
-							/* Success */
-							if (o_idx)
+							object_type *j_ptr;
+							
+							/* Get new object */
+							j_ptr = &o_list[o_idx];
+							
+							/* Copy object */
+							object_copy(j_ptr, o_ptr);
+							
+							/* Modify number */
+							j_ptr->number = 1;
+							
+							/* Hack -- If a rod or wand, allocate total
+							 * maximum timeouts or charges between those
+							 * stolen and those missed. -LM-
+							 */
+							if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
 							{
-								object_type *j_ptr;
-
-								/* Get new object */
-								j_ptr = &o_list[o_idx];
-
-								/* Copy object */
-								object_copy(j_ptr, o_ptr);
-
-								/* Modify number */
-								j_ptr->number = 1;
-
-								/* Hack -- If a rod or wand, allocate total
-								 * maximum timeouts or charges between those
-								 * stolen and those missed. -LM-
-								 */
-								if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-								{
-									k_ptr = &k_info[o_ptr->k_idx];
-									j_ptr->pval = o_ptr->pval / o_ptr->number;
-									o_ptr->pval -= j_ptr->pval;
-								}
-
-								/* Forget mark */
-								j_ptr->marked = FALSE;
-
-								/* Memorize monster */
-								j_ptr->held_m_idx = m_idx;
-
-								/* Build stack */
-								j_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-								/* Build stack */
-								m_ptr->hold_o_idx = o_idx;
+								k_ptr = &k_info[o_ptr->k_idx];
+								j_ptr->pval = o_ptr->pval / o_ptr->number;
+								o_ptr->pval -= j_ptr->pval;
 							}
-						}
-						else
-						{
-#ifdef JP
-if (strstr((E_r_name + r_ptr->E_name), "black market")
-#else
-							if (strstr((r_name + r_ptr->name), "black market")
-#endif
-
-							    && randint(2) != 1)
-							{
-								s16b o_idx;
-
-								/* Make an object */
-								o_idx = o_pop();
-
-								/* Success */
-								if (o_idx)
-								{
-									object_type *j_ptr;
-									if (cheat_xtra || cheat_peek)
-#ifdef JP
-									msg_print("ブラックマーケットに品物を移動中... ");
-#else
-									msg_print("Moving object to black market...");
-#endif
-
-
-									/* Get new object */
-									j_ptr = &o_list[o_idx];
-
-									/* Copy object */
-									object_copy(j_ptr, o_ptr);
-
-									/* Modify number */
-									j_ptr->number = 1;
-
-									/* Hack -- If a rod or wand, allocate total
-									 * maximum timeouts or charges between those
-									 * stolen and those missed. -LM-
-									 */
-									if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
-									{
-										k_ptr = &k_info[o_ptr->k_idx];
-										j_ptr->pval = o_ptr->pval / o_ptr->number;
-										o_ptr->pval -= j_ptr->pval;
-									}
-
-									/* Forget mark */
-									j_ptr->marked = FALSE;
-
-									move_to_black_market(j_ptr);
-								}
-							}
+							
+							/* Forget mark */
+							j_ptr->marked = FALSE;
+							
+							/* Memorize monster */
+							j_ptr->held_m_idx = m_idx;
+							
+							/* Build stack */
+							j_ptr->next_o_idx = m_ptr->hold_o_idx;
+							
+							/* Build stack */
+							m_ptr->hold_o_idx = o_idx;
 						}
 
 						/* Steal the items */
@@ -1334,7 +1277,9 @@ if (strstr((E_r_name + r_ptr->E_name), "black market")
 						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
 						{
 #ifdef JP
-							if(strstr(E_r_name + r_ptr->E_name, "Dio")) msg_print("どうだッ！この血の目潰しはッ！");
+							if(m_ptr->r_idx == MON_DIO) msg_print("どうだッ！この血の目潰しはッ！");
+#else
+							/* nanka */
 #endif
 							obvious = TRUE;
 						}
@@ -1943,7 +1888,7 @@ msg_print("生命力が体から吸い取られた気がする！");
 
 						/* Redraw (later) if needed */
 						if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-						if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+						if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 						/* Special message */
 						if ((m_ptr->ml) && (did_heal))
@@ -2276,10 +2221,10 @@ msg_format("%sは体力を回復したようだ。", m_name);
 			}
 		}
 
-		if (p_ptr->jouba && damage)
+		if (p_ptr->riding && damage)
 		{
 			char m_name[80];
-			monster_desc(m_name, &m_list[p_ptr->jouba], 0);
+			monster_desc(m_name, &m_list[p_ptr->riding], 0);
 			if (rakuba((damage > 200) ? 200 : damage, FALSE))
 			{
 #ifdef JP

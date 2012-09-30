@@ -1653,7 +1653,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 #ifdef JP
 				basenm = "& Éð·Ý¤Î½ñ#";
 #else
-				basenm = "& Book~ of Samurai Arts #";
+				basenm = "& Book~ of Kendo #";
 #endif
 
 			break;

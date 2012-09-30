@@ -41,7 +41,7 @@ static void curse_artifact(object_type * o_ptr)
 	if (randint(2) == 1) o_ptr->art_flags3 |= TR3_TELEPORT;
 	else if (randint(3) == 1) o_ptr->art_flags3 |= TR3_NO_TELE;
 
-	if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->pclass != CLASS_ARCHER) && (p_ptr->pclass != CLASS_KIHEI) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_KAJI) && (randint(3) == 1))
+	if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->pclass != CLASS_ARCHER) && (p_ptr->pclass != CLASS_FORCEHEI) && (p_ptr->pclass != CLASS_BERSERKER) && (p_ptr->pclass != CLASS_SMITH) && (randint(3) == 1))
 		o_ptr->art_flags3 |= TR3_NO_MAGIC;
 
 	o_ptr->ident |= IDENT_CURSED;
@@ -1038,7 +1038,7 @@ static void random_slay(object_type *o_ptr, bool is_scroll)
 					artifact_bias = BIAS_NECROMANTIC;
 				break;
 			case 32:
-				o_ptr->art_flags1 |= TR1_RIRYOKU;
+				o_ptr->art_flags1 |= TR1_FORCE_WEPON;
 				/*  if (is_scroll) msg_print("It looks consuming your MP!");*/
 				if (!artifact_bias)
 					artifact_bias = ((randint(2)==1) ? BIAS_MAGE : BIAS_PRIESTLY);
@@ -1477,8 +1477,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			case CLASS_BERSERKER:
 			case CLASS_ARCHER:
 			case CLASS_SAMURAI:
-			case CLASS_KIHEI:
-			case CLASS_KAJI:
+			case CLASS_FORCEHEI:
+			case CLASS_SMITH:
 				artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_MAGE:
@@ -1515,17 +1515,17 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				warrior_artifact_bias = 40;
 				break;
 			case CLASS_MONK:
-			case CLASS_KI:
+			case CLASS_FORCE:
 				artifact_bias = BIAS_PRIESTLY;
 				break;
 			case CLASS_MINDCRAFTER:
-			case CLASS_HARPER:
+			case CLASS_BARD:
 				if (randint(5) > 2) artifact_bias = BIAS_PRIESTLY;
 				break;
 			case CLASS_TOURIST:
 				if (randint(5) > 2) artifact_bias = BIAS_WARRIOR;
 				break;
-			case CLASS_MONOMANE:
+			case CLASS_IMITATOR:
 				if (randint(2) > 1) artifact_bias = BIAS_RANGER;
 				break;
 			case CLASS_BEASTMASTER:
@@ -1667,7 +1667,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		o_ptr->to_h = 0;
 		o_ptr->to_d = 0;
 		o_ptr->art_flags1 &= ~(TR1_BLOWS);
-		o_ptr->art_flags1 &= ~(TR1_RIRYOKU);
+		o_ptr->art_flags1 &= ~(TR1_FORCE_WEPON);
 		o_ptr->art_flags1 &= ~(TR1_SLAY_ANIMAL);
 		o_ptr->art_flags1 &= ~(TR1_SLAY_EVIL);
 		o_ptr->art_flags1 &= ~(TR1_SLAY_UNDEAD);
@@ -2831,7 +2831,7 @@ void random_artifact_resistance(object_type * o_ptr)
 
 	if (o_ptr->name1 == ART_TERROR) /* Terror Mask is for warriors... */
 	{
-		if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_ARCHER || p_ptr->pclass == CLASS_KIHEI || p_ptr->pclass == CLASS_BERSERKER)
+		if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_ARCHER || p_ptr->pclass == CLASS_FORCEHEI || p_ptr->pclass == CLASS_BERSERKER)
 		{
 			give_power = TRUE;
 			give_resistance = TRUE;

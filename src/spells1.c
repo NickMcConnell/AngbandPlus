@@ -1698,12 +1698,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ , int flg)
 
 	char killer [80];
 
-#ifdef JP
-	cptr name = (E_r_name + r_ptr->E_name);
-#else
-	cptr name = (r_name + r_ptr->name);
-#endif
-
 	/* Is the monster "seen"? */
 	bool seen = m_ptr->ml;
 
@@ -1773,7 +1767,7 @@ cptr note_dies = "は死んだ。";
 
 	/* Never affect projector */
 	if (who && (c_ptr->m_idx == who)) return (FALSE);
-	if ((c_ptr->m_idx == p_ptr->jouba) && !who && !(typ == GF_OLD_HEAL) && !(typ == GF_OLD_SPEED) && !(typ == GF_STAR_HEAL)) return (FALSE);
+	if ((c_ptr->m_idx == p_ptr->riding) && !who && !(typ == GF_OLD_HEAL) && !(typ == GF_OLD_SPEED) && !(typ == GF_STAR_HEAL)) return (FALSE);
 	if (sukekaku && ((m_ptr->r_idx == MON_SUKE) || (m_ptr->r_idx == MON_KAKU))) return FALSE;
 
 	/* Don't affect already death monsters */
@@ -1817,7 +1811,7 @@ note_dies = "を倒した。";
 #endif
 	}
 
-	if (p_ptr->jouba && (c_ptr->m_idx == p_ptr->jouba)) disturb(1, 0);
+	if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) disturb(1, 0);
 
 	/* Analyze the damage type */
 	switch (typ)
@@ -2232,15 +2226,7 @@ note = "はいくらか耐性を示した。";
 				if (seen) r_ptr->r_flags3 |= (RF3_RES_ALL);
 				break;
 			}
-			if ((r_ptr->d_char == 'E') &&
-#ifdef JP
-   (prefix(name, "W") ||
-   (strstr((E_r_name + r_ptr->E_name), "Unmaker"))))
-#else
-			   (prefix(name, "W") ||
-			   (strstr((r_name + r_ptr->name), "Unmaker"))))
-#endif
-
+			if (m_ptr->r_idx == MON_WATER_ELEM || m_ptr->r_idx == MON_UNMAKER)
 			{
 #ifdef JP
 note = "には完全な耐性がある。";
@@ -2555,7 +2541,7 @@ note = "の動きが遅くなった。";
 #endif
 					}
 					m_ptr->slow = MIN(200, m_ptr->slow + 50);
-					if (c_ptr->m_idx == p_ptr->jouba)
+					if (c_ptr->m_idx == p_ptr->riding)
 						p_ptr->update |= (PU_BONUS);
 				}
 			}
@@ -2637,7 +2623,7 @@ note = "には耐性がある！";
 
 			if (!resist_tele) do_dist = 10;
 			else do_dist = 0;
-			if (p_ptr->jouba && (c_ptr->m_idx == p_ptr->jouba)) do_dist = 0;
+			if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_dist = 0;
 
 			if (r_ptr->flags4 & (RF4_BR_GRAV))
 			{
@@ -2671,7 +2657,7 @@ note = "の動きが遅くなった。";
 #endif
 					}
 					m_ptr->slow = MIN(200, m_ptr->slow + 50);
-					if (c_ptr->m_idx == p_ptr->jouba)
+					if (c_ptr->m_idx == p_ptr->riding)
 						p_ptr->update |= (PU_BONUS);
 				}
 
@@ -3026,7 +3012,7 @@ note_dies = "の精神は崩壊し、肉体は抜け殻となった。";
 			}
 			if (one_in_(4))
 			{
-				if (p_ptr->jouba && (c_ptr->m_idx == p_ptr->jouba)) do_dist = 0;
+				if (p_ptr->riding && (c_ptr->m_idx == p_ptr->riding)) do_dist = 0;
 				else do_dist = 7;
 			}
 
@@ -3489,12 +3475,7 @@ msg_format("%^sは勇気を取り戻した。", m_name);
 					chg_virtue(V_COMPASSION, 1);
 			}
 
-#ifdef JP
-if (strstr((E_r_name + r_ptr->E_name),"leper"))
-#else
-			if (strstr((r_name + r_ptr->name),"leper"))
-#endif
-
+			if (m_ptr->r_idx == MON_LEPER)
 			{
 				heal_leper = TRUE;
 				chg_virtue(V_COMPASSION, 5);
@@ -3505,7 +3486,7 @@ if (strstr((E_r_name + r_ptr->E_name),"leper"))
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == c_ptr->m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == c_ptr->m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == c_ptr->m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 			/* Message */
 #ifdef JP
@@ -3537,7 +3518,7 @@ note = "の動きが速くなった。";
 			}
 			m_ptr->fast = MIN(200, m_ptr->fast + 100);
 
-			if (c_ptr->m_idx == p_ptr->jouba)
+			if (c_ptr->m_idx == p_ptr->riding)
 				p_ptr->update |= (PU_BONUS);
 
 			if (r_ptr->flags1 & RF1_UNIQUE)
@@ -3593,7 +3574,7 @@ note = "の動きが遅くなった。";
 				}
 				m_ptr->slow = MIN(200, m_ptr->slow + 50);
 
-				if (c_ptr->m_idx == p_ptr->jouba)
+				if (c_ptr->m_idx == p_ptr->riding)
 					p_ptr->update |= (PU_BONUS);
 			}
 
@@ -5032,7 +5013,7 @@ note_dies = "の精神は崩壊し、肉体は抜け空となった。";
 				do_conf = rand_int(8) + 8;
 				do_stun = rand_int(8) + 8;
 				m_ptr->slow = MIN(200, m_ptr->slow + 10);
-				if (c_ptr->m_idx == p_ptr->jouba)
+				if (c_ptr->m_idx == p_ptr->riding)
 					p_ptr->update |= (PU_BONUS);
 			}
 			break;
@@ -5281,7 +5262,7 @@ msg_format("%sを捕えた！",m_name);
 					cap_nickname = quark_add(quark_str(m_list[c_ptr->m_idx].nickname));
 				else
 					cap_nickname = 0;
-				if (c_ptr->m_idx == p_ptr->jouba)
+				if (c_ptr->m_idx == p_ptr->riding)
 				{
 					if (rakuba(-1, FALSE))
 					{
@@ -5441,7 +5422,7 @@ note = "の動きが遅くなった。";
 					}
 					m_ptr->slow = MIN(200, m_ptr->slow + 50);
 
-					if (c_ptr->m_idx == p_ptr->jouba)
+					if (c_ptr->m_idx == p_ptr->riding)
 						p_ptr->update |= (PU_BONUS);
 				}
 			}
@@ -5535,7 +5516,7 @@ note = "には効果がなかった！";
 				break;
 			}
 
-			if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_UNIQUE2)) || (c_ptr->m_idx == p_ptr->jouba)) || p_ptr->inside_arena || p_ptr->inside_quest)
+			if (((r_ptr->flags1 & (RF1_UNIQUE | RF1_QUESTOR)) || (r_ptr->flags7 & (RF7_UNIQUE2)) || (c_ptr->m_idx == p_ptr->riding)) || p_ptr->inside_arena || p_ptr->inside_quest)
 			{
 				dam = 0;
 				angry = TRUE;
@@ -5582,8 +5563,11 @@ note = "には効果がなかった！";
 
 		case GF_PHOTO:
 		{
+#ifdef JP
 			msg_format("%sを写真に撮った。",m_name);
-
+#else
+			msg_format("You take a photograph of %s.",m_name);
+#endif
 			/* Hurt by light */
 			if (r_ptr->flags3 & (RF3_HURT_LITE))
 			{
@@ -5658,7 +5642,7 @@ note_dies = "は光を受けてしぼんでしまった！";
 	/* Quest monsters cannot be polymorphed */
 	if (r_ptr->flags1 & RF1_QUESTOR) do_poly = FALSE;
 
-	if (p_ptr->jouba & (c_ptr->m_idx == p_ptr->jouba)) do_poly = FALSE;
+	if (p_ptr->riding & (c_ptr->m_idx == p_ptr->riding)) do_poly = FALSE;
 
 	/* "Unique" and "quest" monsters can only be "killed" by the player. */
 	if (((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags7 & RF7_UNIQUE_7) || (r_ptr->flags1 & RF1_QUESTOR)) && !p_ptr->inside_battle)
@@ -5868,7 +5852,7 @@ note = "は弱くなったようだ。";
 	{
 		/* Redraw (later) if needed */
 		if (p_ptr->health_who == c_ptr->m_idx) p_ptr->redraw |= (PR_HEALTH);
-		if (p_ptr->jouba == c_ptr->m_idx) p_ptr->redraw |= (PR_UHEALTH);
+		if (p_ptr->riding == c_ptr->m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 		/* Wake the monster up */
 		m_ptr->csleep = 0;
@@ -6158,7 +6142,7 @@ msg_print("生命力が体から吸い取られた気がする！");
 		}
 	}
 
-	if (p_ptr->jouba && (p_ptr->jouba == c_ptr->m_idx) && (dam > 0))
+	if (p_ptr->riding && (p_ptr->riding == c_ptr->m_idx) && (dam > 0))
 	{
 		if (m_ptr->hp > m_ptr->maxhp/3) dam = (dam + 1) / 2;
 		rakubadam_m = (dam > 200) ? 200 : dam;
@@ -6247,7 +6231,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad,
 	/* Player is not here */
 	if ((x != px) || (y != py)) return (FALSE);
 
-	if ((p_ptr->special_defense & NINJA_KAWARIMI) && dam && (rand_int(55) < (p_ptr->lev*3/5+20)) && who && (who != p_ptr->jouba))
+	if ((p_ptr->special_defense & NINJA_KAWARIMI) && dam && (rand_int(55) < (p_ptr->lev*3/5+20)) && who && (who != p_ptr->riding))
 	{
 		kawarimi(TRUE);
 		return FALSE;
@@ -6255,7 +6239,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad,
 
 	/* Player cannot hurt himself */
 	if (!who) return (FALSE);
-	if (who == p_ptr->jouba) return (FALSE);
+	if (who == p_ptr->riding) return (FALSE);
 
 	if ((p_ptr->reflect || p_ptr->tim_reflect || ((p_ptr->special_defense & KATA_FUUJIN) && !p_ptr->blind)) && !a_rad && (randint(10) != 1) && (typ != GF_PSY_SPEAR))
 	{
@@ -7300,7 +7284,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 		}
 	}
 
-	if (p_ptr->jouba && dam > 0)
+	if (p_ptr->riding && dam > 0)
 	{
 		rakubadam_p = (dam > 200) ? 200 : dam;
 	}
@@ -7310,7 +7294,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 	disturb(1, 0);
 
 
-	if ((p_ptr->special_defense & NINJA_KAWARIMI) && dam && who && (who != p_ptr->jouba))
+	if ((p_ptr->special_defense & NINJA_KAWARIMI) && dam && who && (who != p_ptr->riding))
 	{
 		kawarimi(FALSE);
 		return obvious;
@@ -8749,11 +8733,11 @@ else msg_print("攻撃は跳ね返った！");
 		}
 	}
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
 		char m_name[80];
 
-		monster_desc(m_name, &m_list[p_ptr->jouba], 0);
+		monster_desc(m_name, &m_list[p_ptr->riding], 0);
 
 		if (rakubadam_m > 0)
 		{
@@ -8766,7 +8750,7 @@ msg_format("%^sに振り落とされた！", m_name);
 #endif
 			}
 		}
-		if (p_ptr->jouba && rakubadam_p > 0)
+		if (p_ptr->riding && rakubadam_p > 0)
 		{
 			if(rakuba(rakubadam_p, FALSE))
 			{

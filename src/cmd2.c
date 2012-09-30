@@ -3200,7 +3200,7 @@ void do_cmd_rest(void)
 
 	set_action(ACTION_NONE);
 
-	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] || p_ptr->magic_num1[1]))
+	if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] || p_ptr->magic_num1[1]))
 	{
 		stop_singing();
 	}
@@ -3452,13 +3452,9 @@ s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 				if (mult < 30) mult = 30;
 
-				if (((o_ptr->name1 == ART_BARD_ARROW) &&
-#ifdef JP
-				     strstr(E_r_name + r_ptr->E_name, "Smaug")&&
-#else
-				     strstr(r_name + r_ptr->name, "Smaug")&&
-#endif
-				     (inventory[INVEN_BOW].name1 == ART_BARD)))
+				if ((o_ptr->name1 == ART_BARD_ARROW) &&
+				    (m_ptr->r_idx == MON_SMAUG) &&
+				    (inventory[INVEN_BOW].name1 == ART_BARD))
 					mult *= 5;
 			}
 
@@ -3556,7 +3552,7 @@ s16b tot_dam_aux_shot(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 			}
 
-			if ((f1 & TR1_RIRYOKU) && (p_ptr->csp > (p_ptr->msp / 30)))
+			if ((f1 & TR1_FORCE_WEPON) && (p_ptr->csp > (p_ptr->msp / 30)))
 			{
 				p_ptr->csp -= (1+(p_ptr->msp / 30));
 				p_ptr->redraw |= (PR_MANA);
@@ -3862,11 +3858,11 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				}
 			}
 
-			if (p_ptr->jouba)
+			if (p_ptr->riding)
 			{
-				if (skill_exp[GINOU_JOUBA] < skill_exp_settei[p_ptr->pclass][GINOU_JOUBA][1] && ((skill_exp[GINOU_JOUBA] - 1000) / 200 < r_info[m_list[p_ptr->jouba].r_idx].level) && one_in_(2))
+				if (skill_exp[GINOU_RIDING] < skill_exp_settei[p_ptr->pclass][GINOU_RIDING][1] && ((skill_exp[GINOU_RIDING] - 1000) / 200 < r_info[m_list[p_ptr->riding].r_idx].level) && one_in_(2))
 				{
-					skill_exp[GINOU_JOUBA]+=1;
+					skill_exp[GINOU_RIDING]+=1;
 					p_ptr->update |= (PU_BONUS);
 				}
 			}

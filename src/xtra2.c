@@ -232,31 +232,22 @@ msg_print("あなたは変わった気がする...");
  *
  * XXX XXX XXX Note the use of actual "monster names"
  */
-static int get_coin_type(monster_race *r_ptr)
+static int get_coin_type(int r_idx)
 {
-#ifdef JP
-	cptr name = (E_r_name + r_ptr->E_name);
-#else
-	cptr name = (r_name + r_ptr->name);
-#endif
-
+	monster_race    *r_ptr = &r_info[r_idx];
 
 	/* Analyze "coin" monsters */
 	if (r_ptr->d_char == '$')
 	{
 		/* Look for textual clues */
-		if (strstr(name, " copper ")) return (2);
-		if (strstr(name, " silver ")) return (5);
-		if (strstr(name, " gold ")) return (10);
-		if (strstr(name, " mithril ")) return (16);
-		if (strstr(name, " adamantite ")) return (17);
-
-		/* Look for textual clues */
-		if (strstr(name, "Copper ")) return (2);
-		if (strstr(name, "Silver ")) return (5);
-		if (strstr(name, "Gold ")) return (10);
-		if (strstr(name, "Mithril ")) return (16);
-		if (strstr(name, "Adamantite ")) return (17);
+		switch (r_idx)
+		{
+		case MON_COPPER_COINS: return (2);
+		case MON_SILVER_COINS: return (5);
+		case MON_GOLD_COINS: return (10);
+		case MON_MITHRIL_COINS: return (16);
+		case MON_ADAMANT_COINS: return (17);
+		}
 	}
 
 	/* Assume nothing */
@@ -660,11 +651,6 @@ void monster_death(int m_idx, bool drop_item)
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-#ifdef JP
-	cptr mon_name = E_r_name + r_ptr->E_name;
-#else
-	cptr mon_name = r_name + r_ptr->name;
-#endif
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE));
 
@@ -674,7 +660,7 @@ void monster_death(int m_idx, bool drop_item)
 	bool do_gold = (!(r_ptr->flags1 & RF1_ONLY_ITEM));
 	bool do_item = (!(r_ptr->flags1 & RF1_ONLY_GOLD));
 	bool cloned = FALSE;
-	int force_coin = get_coin_type(r_ptr);
+	int force_coin = get_coin_type(m_ptr->r_idx);
 
 	object_type forge;
 	object_type *q_ptr;
@@ -821,7 +807,7 @@ msg_print("勝利！チャンピオンへの道を進んでいる。");
 		if (record_arena) do_cmd_write_nikki(NIKKI_ARENA, p_ptr->arena_number, m_name);
 	}
 
-	if (m_idx == p_ptr->jouba)
+	if (m_idx == p_ptr->riding)
 	{
 		if (rakuba(-1, FALSE))
 		{
@@ -890,7 +876,7 @@ msg_print("地面に落とされた。");
 	 * Mega^3-hack: killing a 'Warrior of the Dawn' is likely to
 	 * spawn another in the fallen one's place!
 	 */
-	if (strstr(mon_name, "the Dawn") &&
+	if (m_ptr->r_idx == MON_DAWN &&
 	    !(p_ptr->inside_arena || p_ptr->inside_battle))
 	{
 		if (randint(7) != 1)
@@ -922,7 +908,7 @@ msg_print("地面に落とされた。");
 	}
 
 	/* Pink horrors are replaced with 2 Blue horrors */
-	else if (strstr(mon_name, "ink horror") &&
+	else if (m_ptr->r_idx == MON_PINK_HORROR &&
 		 !(p_ptr->inside_arena || p_ptr->inside_battle))
 	{
 		bool notice = FALSE;
@@ -948,7 +934,7 @@ msg_print("地面に落とされた。");
 
 	}
 	/* One more ultra-hack: An Unmaker goes out with a big bang! */
-	else if (strstr(mon_name, "Unmaker"))
+	else if (m_ptr->r_idx == MON_UNMAKER)
 
 	{
 		int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
@@ -956,7 +942,7 @@ msg_print("地面に落とされた。");
 	}
 
 	/* Bloodletters of Khorne may drop a blade of chaos */
-	else if (strstr(mon_name, "Bloodletter") &&
+	else if (m_ptr->r_idx == MON_BLOODLETTER &&
 
 	         (randint(100) < 15) &&
 	    !(p_ptr->inside_arena || p_ptr->inside_battle))
@@ -977,7 +963,7 @@ msg_print("地面に落とされた。");
 		(void)drop_near(q_ptr, -1, y, x);
 	}
 
-	else if (strstr(mon_name, "Raal") &&
+	else if (m_ptr->r_idx == MON_RAAL &&
 	    (dun_level > 9) &&
 	    !(p_ptr->inside_arena || p_ptr->inside_battle))
 	{
@@ -1007,7 +993,7 @@ msg_print("地面に落とされた。");
 		(void)drop_near(q_ptr, -1, y, x);
 	}
 
-	else if (strstr(mon_name, "Broken death sword") &&
+	else if (m_ptr->r_idx == MON_B_DEATH_SWORD &&
 	    !(p_ptr->inside_arena || p_ptr->inside_battle))
 	{
 		/* Get local object */
@@ -1128,7 +1114,7 @@ msg_print("地面に落とされた。");
 		(void)drop_near(q_ptr, -1, y, x);
 	}
 
-	else if ((strstr(mon_name, "Golden Angel") || (strstr(mon_name, "Silver Angel") && !((r_ptr->r_pkills+1)%5))) && !(p_ptr->inside_arena || p_ptr->inside_battle))
+	else if ((m_ptr->r_idx == MON_A_GOLD || (m_ptr->r_idx == MON_A_SILVER && !((r_ptr->r_pkills+1)%5))) && !(p_ptr->inside_arena || p_ptr->inside_battle))
 	{
 		/* Get local object */
 		q_ptr = &forge;
@@ -1148,7 +1134,7 @@ msg_print("地面に落とされた。");
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (r_ptr->flags1 & RF1_DROP_CHOSEN)
 	{
-		if (strstr(mon_name, "The Serpent of Chaos"))
+		if (m_ptr->r_idx == MON_SERPENT)
 
 		{
 			/* Get local object */
@@ -1194,7 +1180,7 @@ msg_print("地面に落とされた。");
 			byte a_idx = 0;
 			int chance = 0;
 
-			if (strstr(mon_name, "Oberon,"))
+			if (m_ptr->r_idx == MON_OBERON)
 			{
 				if (randint(3) == 1)
 				{
@@ -1207,9 +1193,9 @@ msg_print("地面に落とされた。");
 					chance = 50;
 				}
 			}
-			else if ((strstr(mon_name, "Unicorn of Order") ||
-				 strstr(mon_name, "Morgoth") ||
-				 strstr(mon_name, "Plain Gold Ring"))
+			else if ((m_ptr->r_idx == MON_UNICORN_ORD ||
+				 m_ptr->r_idx == MON_MORGOTH ||
+				 m_ptr->r_idx == MON_ONE_RING)
 				&& (p_ptr->pseikaku == SEIKAKU_NAMAKE))
 			{
 				do
@@ -1232,37 +1218,37 @@ msg_print("地面に落とされた。");
 				}
 				while (a_info[a_idx].cur_num);
 			}
-			else if (strstr(mon_name, "Greater hell-beast"))
+			else if (m_ptr->r_idx == MON_GHB)
 			{
 				a_idx = ART_GHB;
 				chance = 100;
 			}
-			else if (strstr(mon_name, "Stormbringer"))
+			else if (m_ptr->r_idx == MON_STORMBRINGER)
 			{
 				a_idx = ART_STORMBRINGER;
 				chance = 100;
 			}
-			else if (strstr(mon_name, "Combat-Echizen"))
+			else if (m_ptr->r_idx == MON_ECHIZEN)
 			{
 				a_idx = ART_CRIMSON;
 				chance = 50;
 			}
-			else if (strstr(mon_name, "Gandalf"))
+			else if (m_ptr->r_idx == MON_GANDALF)
 			{
 				a_idx = ART_ICANUS;
 				chance = 20;
 			}
-			else if (strstr(mon_name, "Yamata-no-Orochi"))
+			else if (m_ptr->r_idx == MON_OROCHI)
 			{
 				a_idx = ART_KUSANAGI;
 				chance = 25;
 			}
-			else if (strstr(mon_name, "Barimen"))
+			else if (m_ptr->r_idx == MON_DWORKIN)
 			{
 				a_idx = ART_THRAIN;
 				chance = 20;
 			}
-			else if (strstr(mon_name, "Sauron,"))
+			else if (m_ptr->r_idx == MON_SAURON)
 			{
 				if (randint(10) == 1)
 				{
@@ -1275,7 +1261,7 @@ msg_print("地面に落とされた。");
 					chance = 100;
 				}
 			}
-			else if (strstr(mon_name, "Brand, "))
+			else if (m_ptr->r_idx == MON_BRAND)
 			{
 				if (randint(3) != 1)
 				{
@@ -1288,7 +1274,7 @@ msg_print("地面に落とされた。");
 					chance = 33;
 				}
 			}
-			else if (strstr(mon_name, "Corwin,"))
+			else if (m_ptr->r_idx == MON_CORWIN)
 			{
 				if (randint(3) != 1)
 				{
@@ -1301,90 +1287,90 @@ msg_print("地面に落とされた。");
 					chance = 33;
 				}
 			}
-			else if (strstr(mon_name, "Surtur"))
+			else if (m_ptr->r_idx == MON_SURTUR)
 			{
 				a_idx = ART_MORMEGIL;
 				chance = 66;
 			}
-			else if (strstr(mon_name, "Saruman of"))
+			else if (m_ptr->r_idx == MON_SARUMAN)
 			{
 				a_idx = ART_ELENDIL;
 				chance = 33;
 			}
-			else if (strstr(mon_name, "Fiona the"))
+			else if (m_ptr->r_idx == MON_FIONA)
 			{
 				a_idx = ART_BELANGIL;
 				chance = 50;
 			}
-			else if (strstr(mon_name, "Julian, "))
+			else if (m_ptr->r_idx == MON_JULIAN)
 			{
 				a_idx = ART_CELEBORN;
 				chance = 45;
 			}
-			else if (strstr(mon_name, "Klings"))
+			else if (m_ptr->r_idx == MON_KLING)
 			{
 				a_idx = ART_OROME;
 				chance = 40;
 			}
-			else if (strstr(mon_name, "Groo"))
+			else if (m_ptr->r_idx == MON_GOEMON)
 			{
 				a_idx = ART_ZANTETSU;
 				chance = 75;
 			}
-			else if (strstr(mon_name, "Hagen,"))
+			else if (m_ptr->r_idx == MON_HAGEN)
 			{
 				a_idx = ART_NIMLOTH;
 				chance = 66;
 			}
-			else if (strstr(mon_name, "Caine,"))
+			else if (m_ptr->r_idx == MON_CAIN)
 			{
 				a_idx = ART_ANGRIST;
 				chance = 50;
 			}
-			else if (strstr(mon_name, "Bull Gates"))
+			else if (m_ptr->r_idx == MON_BULLGATES)
 			{
 				a_idx = ART_WINBLOWS;
 				chance = 66;
 			}
-			else if (strstr(mon_name, "Lungorthin"))
+			else if (m_ptr->r_idx == MON_LUNGORTHIN)
 			{
 				a_idx = ART_CALRIS;
 				chance = 50;
 			}
-			else if (strstr(mon_name, "Jack of"))
+			else if (m_ptr->r_idx == MON_JACK_SHADOWS)
 			{
 				a_idx = ART_JACK;
 				chance = 15;
 			}
-			else if (strstr(mon_name, "Dio"))
+			else if (m_ptr->r_idx == MON_DIO)
 			{
 				a_idx = ART_STONEMASK;
 				chance = 20;
 			}
-			else if (strstr(mon_name, "Beld"))
+			else if (m_ptr->r_idx == MON_BELD)
 			{
 				a_idx = ART_SOULCRUSH;
 				chance = 20;
 			}
-			else if (strstr(mon_name, "Pip"))
+			else if (m_ptr->r_idx == MON_PIP)
 			{
 				a_idx = ART_EXCALIBUR_J;
 				chance = 50;
 			}
 
-			else if (strstr(mon_name, "Shuten"))
+			else if (m_ptr->r_idx == MON_SHUTEN)
 			{
 				a_idx = ART_SHUTEN_DOJI;
 				chance = 33;
 			}
 
-			else if (strstr(mon_name, "Gothmog"))
+			else if (m_ptr->r_idx == MON_GOTHMOG)
 			{
 				a_idx = ART_GOTHMOG;
 				chance = 33;
 			}
 
-			else if (strstr(mon_name, "Fundin"))
+			else if (m_ptr->r_idx == MON_FUNDIN)
 			{
 				a_idx = ART_FUNDIN;
 				chance = 10;
@@ -1519,8 +1505,7 @@ msg_print("地面に落とされた。");
 	if (p_ptr->inside_battle) return;
 
 	/* Winner? */
-	if (strstr(mon_name, "Serpent of Chaos"))
-
+	if (m_ptr->r_idx == MON_SERPENT)
 	{
 		/* Total winner */
 		total_winner = TRUE;
@@ -1751,11 +1736,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-#ifdef JP
-	cptr mon_name = E_r_name + r_ptr->E_name;
-#else
-	cptr mon_name = r_name + r_ptr->name;
-#endif
+
 	monster_type    exp_mon;
 
 	/* Innocent until proven otherwise */
@@ -1774,7 +1755,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-	if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+	if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
@@ -1829,12 +1810,7 @@ msg_format("%^sは恐ろしい血の呪いをあなたにかけた！", m_name);
 			if (!get_rnd_line("mondeath.txt", m_ptr->r_idx, line_got))
 #endif
 
-#ifdef JP
-msg_format("%^s %s", m_name, line_got);
-#else
-				msg_format("%^s says: %s", m_name, line_got);
-#endif
-
+				msg_format("%^s %s", m_name, line_got);
 		}
 
 		if (!(d_info[dungeon_type].flags1 & DF1_BEGINNER))
@@ -1870,10 +1846,7 @@ msg_format("%^s %s", m_name, line_got);
 		if ((r_ptr->flags1 & RF1_UNIQUE) & (randint(3)==1))
 			chg_virtue(V_INDIVIDUALISM, -1);
 
-if ((strstr(mon_name,"beggar")) ||
-
-(strstr(mon_name,"leper")))
-
+		if (m_ptr->r_idx == MON_BEGGAR || m_ptr->r_idx == MON_LEPER)
 		{
 			chg_virtue(V_COMPASSION, -1);
 		}
@@ -2180,7 +2153,7 @@ msg_format("%sの首には賞金がかかっている。", m_name);
 #endif
 
 #if 0
-	if (p_ptr->jouba && (p_ptr->jouba == m_idx) && (dam > 0))
+	if (p_ptr->riding && (p_ptr->riding == m_idx) && (dam > 0))
 	{
 		char m_name[80];
 
@@ -2299,7 +2272,7 @@ void verify_panel(void)
 	int x = px;
 
 	/* Center on player */
-	if (center_player && (avoid_center || !running))
+	if (center_player && (center_running || !running))
 	{
 		int prow_min;
 		int pcol_min;
@@ -2540,7 +2513,7 @@ bool target_able(int m_idx)
 	/* Monster must be visible */
 	if (!m_ptr->ml) return (FALSE);
 
-	if (p_ptr->jouba && (p_ptr->jouba == m_idx)) return (TRUE);
+	if (p_ptr->riding && (p_ptr->riding == m_idx)) return (TRUE);
 
 	/* Monster must be projectable */
 	if (!projectable(py, px, m_ptr->fy, m_ptr->fx)) return (FALSE);
@@ -2848,7 +2821,7 @@ static void target_set_prepare(int mode)
 	/* Sort the positions */
 	ang_sort(temp_x, temp_y, temp_n);
 
-	if (p_ptr->jouba && target_pet && (temp_n > 1) && (mode & (TARGET_KILL)))
+	if (p_ptr->riding && target_pet && (temp_n > 1) && (mode & (TARGET_KILL)))
 	{
 		byte tmp;
 
@@ -3035,7 +3008,7 @@ Term_addstr(-1, TERM_WHITE, format("  [r思 %s]", info));
 						cptr attitude;
 						cptr tekitou;
 
-						if (p_ptr->jouba && (p_ptr->jouba == c_ptr->m_idx))
+						if (p_ptr->riding && (p_ptr->riding == c_ptr->m_idx))
 						{
 							 tekitou = "(ペット)";
 						}
@@ -3044,7 +3017,7 @@ Term_addstr(-1, TERM_WHITE, format("  [r思 %s]", info));
 							 tekitou = "";
 						}
 
-						if (is_pet(m_ptr) && (p_ptr->jouba != c_ptr->m_idx))
+						if (is_pet(m_ptr) && (p_ptr->riding != c_ptr->m_idx))
 #ifdef JP
 attitude = " (ペット) ";
 #else
@@ -4295,9 +4268,9 @@ if (!get_com("方向 (ESCで中断)? ", &ch, TRUE)) break;
 			dir = ddd[rand_int(8)];
 		}
 	}
-	else if (p_ptr->jouba)
+	else if (p_ptr->riding)
 	{
-		monster_type *m_ptr = &m_list[p_ptr->jouba];
+		monster_type *m_ptr = &m_list[p_ptr->riding];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		if (m_ptr->confused)
@@ -4336,7 +4309,7 @@ msg_print("あなたは混乱している。");
 		else
 		{
 			char m_name[80];
-			monster_type *m_ptr = &m_list[p_ptr->jouba];
+			monster_type *m_ptr = &m_list[p_ptr->riding];
 
 			monster_desc(m_name, m_ptr, 0);
 			if (m_ptr->confused)
@@ -4898,7 +4871,7 @@ msg_print("「汝、より強き敵を必要とせり！」");
 #ifdef JP
 			reward = "モンスターを召喚された。";
 #else
-			reward = "summoning meny hostile monsters";
+			reward = "summoning many hostile monsters";
 #endif
 			break;
 		case REW_DO_HAVOC:

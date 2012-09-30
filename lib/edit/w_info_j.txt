@@ -153,8 +153,8 @@ W:P:48:5
 W:F:#:0
 
 # Town 1
-#W:F:1:1:0:1:0:Town
-W:F:1:1:0:1:0:³¹
+W:E:1:1:0:1:0:Town
+W:J:1:1:0:1:0:³¹
 
 # Wilderness layout
 W:D:###

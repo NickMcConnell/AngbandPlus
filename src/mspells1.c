@@ -879,9 +879,9 @@ static bool dispel_check(int m_idx)
 	/* Light speed */
 	if (p_ptr->lightspeed && (m_ptr->mspeed < 136)) return (TRUE);
 
-	if (p_ptr->jouba && (m_list[p_ptr->jouba].mspeed < 135))
+	if (p_ptr->riding && (m_list[p_ptr->riding].mspeed < 135))
 	{
-		if (m_list[p_ptr->jouba].fast) return (TRUE);
+		if (m_list[p_ptr->riding].fast) return (TRUE);
 	}
 
 	/* No need to cast dispel spell */
@@ -1593,7 +1593,7 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 #endif
 
 			}
-			if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0]))
+			if ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0]))
 			{
 				p_ptr->magic_num1[1] = p_ptr->magic_num1[0];
 				p_ptr->magic_num1[0] = 0;
@@ -1614,13 +1614,13 @@ msg_format("%^sがかん高い金切り声をあげた。", m_name);
 
 				p_ptr->energy -= 100;
 			}
-			if (p_ptr->jouba)
+			if (p_ptr->riding)
 			{
-				m_list[p_ptr->jouba].invulner = 0;
-				m_list[p_ptr->jouba].fast = 0;
-				m_list[p_ptr->jouba].slow = 0;
+				m_list[p_ptr->riding].invulner = 0;
+				m_list[p_ptr->riding].fast = 0;
+				m_list[p_ptr->riding].slow = 0;
 				p_ptr->update |= PU_BONUS;
-				if (p_ptr->health_who == p_ptr->jouba) p_ptr->redraw |= PR_HEALTH;
+				if (p_ptr->health_who == p_ptr->riding) p_ptr->redraw |= PR_HEALTH;
 				p_ptr->redraw |= (PR_UHEALTH);
 			}
 			if ((p_ptr->pseikaku == SEIKAKU_COMBAT) || (inventory[INVEN_BOW].name1 == ART_CRIMSON))
@@ -2320,8 +2320,17 @@ else msg_format("%^sがサンダー・ボールの呪文を唱えた。", m_name);
 
 			if (m_ptr->r_idx == MON_ROLENTO)
 			{
-if (blind) msg_format("%^sが何かを投げた。", m_name);
-else msg_format("%^sが手榴弾を投げた。", m_name);
+#ifdef JP
+				if (blind)
+					msg_format("%sが何かを投げた。", m_name);
+				else 
+					msg_format("%sは手榴弾を投げた。", m_name);
+#else
+				if (blind)
+					msg_format("%^s throws something.", m_name);
+				else
+					msg_format("%^s throws a hand grenade.", m_name);
+#endif
 			}
 			else
 			{
@@ -2533,7 +2542,7 @@ msg_format("%^sに精神エネルギーを吸い取られてしまった！", m_name);
 
 					/* Redraw (later) if needed */
 					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-					if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+					if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 					/* Special message */
 					if (seen)
@@ -3350,7 +3359,7 @@ msg_format("%^sの動きが速くなった。", m_name);
 #endif
 			}
 			m_ptr->fast = MIN(200, m_ptr->fast + 100);
-			if (p_ptr->jouba == m_idx) p_ptr->update |= PU_BONUS;
+			if (p_ptr->riding == m_idx) p_ptr->update |= PU_BONUS;
 			break;
 		}
 
@@ -3473,7 +3482,7 @@ msg_format("%^sは体力を回復したようだ。", m_name);
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 			/* Cancel fear */
 			if (m_ptr->monfear)
@@ -3521,7 +3530,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 				m_ptr->invulner = randint(4) + 4;
 
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-			if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+			if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 			break;
 		}
 
@@ -3568,7 +3577,7 @@ msg_format("%^sがテレポートした。", m_name);
 					{
 						object_flags(o_ptr, &f1, &f2, &f3);
 
-						if((f3 & TR3_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT) || (p_ptr->pclass == CLASS_MONOMANE))
+						if((f3 & TR3_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT) || (p_ptr->pclass == CLASS_IMITATOR))
 						{
 							if(get_check("ついていきますか？"))
 							{
@@ -3765,7 +3774,7 @@ if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
 #ifdef JP
 else msg_format("%^sが光の剣を放った。", m_name);
 #else
-			else msg_format("%^s released a Psycho-Spear.", m_name);
+			else msg_format("%^s throw a Psycho-Spear.", m_name);
 #endif
 
 			dam = (r_ptr->flags2 & RF2_POWERFUL) ? (randint(rlev * 2) + 150) : (randint(rlev * 3 / 2) + 100);
@@ -3885,34 +3894,32 @@ else msg_format("%^sが死者復活の呪文を唱えた。", m_name);
 			if (m_ptr->r_idx == MON_ROLENTO)
 			{
 #ifdef JP
-if (blind) msg_format("%^sが何か大量に投げた。", m_name);
+				if (blind)
+					msg_format("%^sが何か大量に投げた。", m_name);
+				else 
+					msg_format("%^sは手榴弾をばらまいた。", m_name);
 #else
-				if (blind) msg_format("%^s spreads something.", m_name);
-#endif
-
-#ifdef JP
-				else msg_format("%^sは手榴弾をばらまいた。",
-					m_name);
-#else
-				else msg_format("%^s throws some hand grenades.",
-					m_name);
+				if (blind)
+					msg_format("%^s spreads something.", m_name);
+				else
+					msg_format("%^s throws some hand grenades.", m_name);
 #endif
 			}
 			else
 			{
 #ifdef JP
-if (blind) msg_format("%^sが何かをつぶやいた。", m_name);
-#else
-				if (blind) msg_format("%^s mumbles.", m_name);
-#endif
-
-#ifdef JP
-				else msg_format("%^sは魔法で%sを召喚した。",
+				if (blind)
+					msg_format("%^sが何かをつぶやいた。", m_name);
+				else
+					msg_format("%^sは魔法で%sを召喚した。",
 					m_name,
 					((r_ptr->flags1) & RF1_UNIQUE ?
 					"手下" : "仲間"));
 #else
-				else msg_format("%^s magically summons %s %s.",
+				if (blind)
+					msg_format("%^s mumbles.", m_name);
+				else
+					msg_format("%^s magically summons %s %s.",
 					m_name, m_poss,
 					((r_ptr->flags1) & RF1_UNIQUE ?
 					"minions" : "kin"));
@@ -4519,7 +4526,7 @@ msg_print("多くの力強いものが間近に現れた音が聞こえる。");
 		learn_spell(thrown_spell - 96);
 	}
 
-	if (seen && maneable && !world_monster && (p_ptr->pclass == CLASS_MONOMANE))
+	if (seen && maneable && !world_monster && (p_ptr->pclass == CLASS_IMITATOR))
 	{
 		if (thrown_spell != 167)
 		{

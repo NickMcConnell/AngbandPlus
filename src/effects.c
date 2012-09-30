@@ -209,14 +209,14 @@ void reset_tim_flags(void)
 	if ((p_ptr->pclass == CLASS_NINJA) && (p_ptr->lev > 44)) p_ptr->oppose_pois = 1;
 	if (p_ptr->pclass == CLASS_BERSERKER) p_ptr->shero = 1;
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
-		m_list[p_ptr->jouba].fast = 0;
-		m_list[p_ptr->jouba].slow = 0;
-		m_list[p_ptr->jouba].invulner = 0;
+		m_list[p_ptr->riding].fast = 0;
+		m_list[p_ptr->riding].slow = 0;
+		m_list[p_ptr->riding].invulner = 0;
 	}
 
-	if (p_ptr->pclass == CLASS_HARPER)
+	if (p_ptr->pclass == CLASS_BARD)
 	{
 		p_ptr->magic_num1[0] = 0;
 		p_ptr->magic_num2[0] = 0;
@@ -794,7 +794,7 @@ msg_print("素早く動けるようになった！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->fast && !p_ptr->lightspeed && ((p_ptr->pclass != CLASS_HARPER) || ((p_ptr->magic_num1[0] != MUSIC_SPEED) && (p_ptr->magic_num1[0] != MUSIC_SHERO))))
+		if (p_ptr->fast && !p_ptr->lightspeed && ((p_ptr->pclass != CLASS_BARD) || ((p_ptr->magic_num1[0] != MUSIC_SPEED) && (p_ptr->magic_num1[0] != MUSIC_SHERO))))
 		{
 #ifdef JP
 msg_print("動きの素早さがなくなったようだ。");
@@ -1204,7 +1204,7 @@ msg_print("高潔な気分になった！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->blessed && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_BLESS)))
+		if (p_ptr->blessed && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_BLESS)))
 		{
 #ifdef JP
 msg_print("高潔な気分が消え失せた。");
@@ -1273,7 +1273,7 @@ msg_print("ヒーローになった気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->hero && ((p_ptr->pclass != CLASS_HARPER) || ((p_ptr->magic_num1[0] != MUSIC_HERO) && (p_ptr->magic_num1[0] != MUSIC_SHERO))))
+		if (p_ptr->hero && ((p_ptr->pclass != CLASS_BARD) || ((p_ptr->magic_num1[0] != MUSIC_HERO) && (p_ptr->magic_num1[0] != MUSIC_SHERO))))
 		{
 #ifdef JP
 msg_print("ヒーローの気分が消え失せた。");
@@ -1593,7 +1593,7 @@ msg_print("無敵だ！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_INVULN)))
+		if (p_ptr->invuln && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_INVULN)))
 		{
 #ifdef JP
 msg_print("無敵ではなくなった。");
@@ -1673,7 +1673,7 @@ msg_print("意識が広がった気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_esp && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_MIND)))
+		if (p_ptr->tim_esp && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_MIND)))
 		{
 #ifdef JP
 msg_print("意識は元に戻った。");
@@ -1958,7 +1958,7 @@ msg_print("足音が小さくなった！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_stealth && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_STEALTH)))
+		if (p_ptr->tim_stealth && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_STEALTH)))
 		{
 #ifdef JP
 msg_print("足音が大きくなった。");
@@ -2914,7 +2914,7 @@ msg_print("酸への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_acid && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_acid && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("酸への耐性が薄れた気がする。");
@@ -2980,7 +2980,7 @@ msg_print("電撃への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_elec && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_elec && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("電撃への耐性が薄れた気がする。");
@@ -3047,7 +3047,7 @@ msg_print("火への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_fire && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_fire && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("火への耐性が薄れた気がする。");
@@ -3113,7 +3113,7 @@ msg_print("冷気への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_cold && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_cold && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("冷気への耐性が薄れた気がする。");
@@ -3180,7 +3180,7 @@ msg_print("毒への耐性がついた気がする！");
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_pois && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		if (p_ptr->oppose_pois && ((p_ptr->pclass != CLASS_BARD) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
 #ifdef JP
 msg_print("毒への耐性が薄れた気がする。");
@@ -4701,7 +4701,7 @@ msg_print("奇妙なくらい普通になった気がする。");
 		/* Experience factor */
 		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
+		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_FORCE) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
 			p_ptr->expfact -= 15;
 
 
@@ -4845,7 +4845,7 @@ bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 	/* Mega-Hack -- Apply "invulnerability" */
 	if ((damage_type != DAMAGE_USELIFE) && (damage_type != DAMAGE_LOSELIFE))
 	{
-		if ((p_ptr->invuln || ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN))) && (damage < 9000))
+		if ((p_ptr->invuln || ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == MUSIC_INVULN))) && (damage < 9000))
 		{
 			if (damage_type == DAMAGE_FORCE)
 			{

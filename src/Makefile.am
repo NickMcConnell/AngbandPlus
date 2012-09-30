@@ -26,6 +26,7 @@ hengband_SOURCES = \
 
 EXTRA_hengband_SOURCES = \
 	angband.ico angband.rc ang_eng.rc maid-x11.c main-mac.c main-win.c \
-	makefile.bcc make-jap.bcc makefile.std makefile-jp.std readdib.c script.c wall.bmp
-
+	makefile.bcc makefile.std readdib.c script.c wall.bmp \
+	make-jap.bcc makefile-jp.std main-mac-carbon.c \
+	makefile.ibm main-ibm.c
 CFLAGS = @CFLAGS@ -Wall -fno-strength-reduce

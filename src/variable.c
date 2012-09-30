@@ -236,7 +236,7 @@ bool equippy_chars;		/* Back by popular demand... */
 bool skip_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
-bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
+bool confirm_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
@@ -245,7 +245,7 @@ bool disturb_pets;		/* Pets moving nearby disturb us */
 
 /* Option Set 3 -- Game-Play */
 
-bool auto_haggle;			/* Auto-haggle in stores */
+bool manual_haggle;			/* Auto-haggle in stores */
 
 bool auto_scum;				/* Auto-scum for good levels */
 
@@ -978,7 +978,7 @@ bool easy_floor;
 
 bool use_command;
 bool center_player;
-bool avoid_center;
+bool center_running;
 
 bool display_pick;
 bool display_nopick;
@@ -986,12 +986,12 @@ bool display_destroy;
 
 /* Auto-destruction options */
 bool destroy_items;
-bool destroy_worth;
-bool destroy_equip;
-bool destroy_kubi;
-bool destroy_corpse;
-bool destroy_junk;
-bool destroy_chest;
+bool leave_worth;
+bool leave_equip;
+bool leave_wanted;
+bool leave_corpse;
+bool leave_junk;
+bool leave_chest;
 
 /* Nikki */
 bool record_fix_art;
@@ -1131,7 +1131,7 @@ bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
 bool munchkin_death;          /* Ask for saving death */
 bool ironman_rooms;           /* Always generate very unusual rooms */
 bool ironman_nightmare;			/* Play the game in Nightmare mode */
-bool hidarikiki;
+bool left_hander;
 bool preserve_mode;
 bool autoroller;
 bool autochara;
@@ -1167,12 +1167,12 @@ int kakekin;
 u32b mon_odds[4];
 
 int pet_t_m_idx;
-int jouba_t_m_idx;
+int riding_t_m_idx;
 
 s16b kubi_r_idx[MAX_KUBI];
 s16b today_mon;
 
-monster_type jouba_mon;
+monster_type riding_mon;
 monster_type party_mon[20];
 
 bool write_level;

@@ -294,11 +294,11 @@ bool monst_spell_monst(int m_idx)
 			f6 &= ~((RF6_BLINK | RF6_TPORT | RF6_TELE_AWAY));
 		}
 
-		if (m_idx == p_ptr->jouba)
+		if (m_idx == p_ptr->riding)
 		{
-			f4 &= ~(RF4_JOUBA_MASK);
-			f5 &= ~(RF5_JOUBA_MASK);
-			f6 &= ~(RF6_JOUBA_MASK);
+			f4 &= ~(RF4_RIDING_MASK);
+			f5 &= ~(RF5_RIDING_MASK);
+			f6 &= ~(RF6_RIDING_MASK);
 		}
 
 		if (!(p_ptr->pet_extra_flags & PF_ATTACK_SPELL) && pet)
@@ -316,7 +316,7 @@ bool monst_spell_monst(int m_idx)
 		}
 
 		/* Prevent collateral damage */
-		if (!(p_ptr->pet_extra_flags & PF_BALL_SPELL) && pet && (m_idx != p_ptr->jouba))
+		if (!(p_ptr->pet_extra_flags & PF_BALL_SPELL) && pet && (m_idx != p_ptr->riding))
 		{
 			if(distance(py, px, y, x) <= rad)
 			{
@@ -443,7 +443,7 @@ bool monst_spell_monst(int m_idx)
 		/* Can the player be aware of this attack? */
 		known = (m_ptr->cdis <= MAX_SIGHT) || (t_ptr->cdis <= MAX_SIGHT);
 
-		if (p_ptr->jouba && (m_idx == p_ptr->jouba)) disturb(1, 0);
+		if (p_ptr->riding && (m_idx == p_ptr->riding)) disturb(1, 0);
 
 		/* Check for spell failure (inate attacks never fail) */
 		if ((thrown_spell >= 128) && m_ptr->stunned && one_in_(2))
@@ -2142,7 +2142,7 @@ msg_format("%^sには効果がなかった。", t_name);
 
 						/* Redraw (later) if needed */
 						if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-						if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+						if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 						/* Special message */
 						if (see_m)
@@ -3122,7 +3122,7 @@ if (see_m) msg_format("%^sの動きが速くなった。", m_name);
 
 				}
 				m_ptr->fast = MIN(200, m_ptr->fast + 100);
-				if (p_ptr->jouba == m_idx) p_ptr->update |= PU_BONUS;
+				if (p_ptr->riding == m_idx) p_ptr->update |= PU_BONUS;
 				break;
 			}
 
@@ -3253,7 +3253,7 @@ msg_format("%^sは体力を回復したようだ。", m_name);
 
 				/* Redraw (later) if needed */
 				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 
 				/* Cancel fear */
 				if (m_ptr->monfear)
@@ -3297,7 +3297,7 @@ msg_format("%sは無傷の球の呪文を唱えた。", m_name);
 				if (!m_ptr->invulner) m_ptr->invulner = randint(4) + 4;
 
 				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-				if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
+				if (p_ptr->riding == m_idx) p_ptr->redraw |= (PR_UHEALTH);
 				break;
 			}
 
@@ -3350,7 +3350,7 @@ msg_format("%^sがテレポートした。", m_name);
 						{
 							object_flags(o_ptr, &f1, &f2, &f3);
 
-							if((f3 & TR3_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT) || (p_ptr->pclass == CLASS_MONOMANE))
+							if((f3 & TR3_TELEPORT) || (p_ptr->muta1 & MUT1_VTELEPORT) || (p_ptr->pclass == CLASS_IMITATOR))
 							{
 								if(get_check("ついていきますか？"))
 								{
@@ -3375,8 +3375,8 @@ msg_format("%^sがテレポートした。", m_name);
 			{
 #if 0
 				int who = 0;
-				if(strstr(E_r_name + r_ptr->E_name, "Dio Brando")) who = 1;
-				else if(strstr(E_r_name + r_ptr->E_name, "Wong")) who = 3;
+				if(m_ptr->r_idx = MON_DIO) who = 1;
+				else if(m_ptr->r_idx = MON_WONG) who = 3;
 				dam = who;
 				if(!process_the_world(randint(2)+2, who, los(py, px, m_ptr->fy, m_ptr->fx))) return (FALSE);
 #endif
@@ -3467,7 +3467,7 @@ msg_format("%^sは耐性を持っている！", t_name);
 
 				if (!resists_tele)
 				{
-					if (t_idx == p_ptr->jouba) teleport_player(MAX_SIGHT * 2 + 5);
+					if (t_idx == p_ptr->riding) teleport_player(MAX_SIGHT * 2 + 5);
 					else teleport_away(t_idx, MAX_SIGHT * 2 + 5, FALSE);
 				}
 
@@ -4222,7 +4222,7 @@ msg_format("%^sは恐怖して逃げ出した！", t_name);
 
 		}
 
-		if (see_m && maneable && !world_monster && !p_ptr->blind && (p_ptr->pclass == CLASS_MONOMANE))
+		if (see_m && maneable && !world_monster && !p_ptr->blind && (p_ptr->pclass == CLASS_IMITATOR))
 		{
 			if (thrown_spell != 167)
 			{

@@ -365,7 +365,7 @@
 #ifdef JP
 #define MAX_SILLY_ATTACK 41
 #else
-#define MAX_SILLY_ATTACK 28
+#define MAX_SILLY_ATTACK 29
 #endif
 
 #define MIND_MINDCRAFTER    0
@@ -553,7 +553,7 @@
 #define PET_ATTACK_SPELL		       11
 #define PET_SUMMON_SPELL		       12
 #define PET_BALL_SPELL		               13
-#define PET_JOUBA			       14
+#define PET_RIDING			       14
 #define PET_NAME			       15
 #define PET_RYOUTE			       16
 
@@ -826,19 +826,19 @@
 #define CLASS_MINDCRAFTER        9
 #define CLASS_HIGH_MAGE         10
 #define CLASS_TOURIST           11
-#define CLASS_MONOMANE          12
+#define CLASS_IMITATOR          12
 #define CLASS_BEASTMASTER       13
 #define CLASS_SORCERER          14
 #define CLASS_ARCHER            15
 #define CLASS_MAGIC_EATER       16
-#define CLASS_HARPER            17
+#define CLASS_BARD              17
 #define CLASS_RED_MAGE          18
 #define CLASS_SAMURAI           19
-#define CLASS_KI                20
+#define CLASS_FORCE             20
 #define CLASS_BLUE_MAGE         21
-#define CLASS_KIHEI             22
+#define CLASS_FORCEHEI          22
 #define CLASS_BERSERKER         23
-#define CLASS_KAJI              24
+#define CLASS_SMITH             24
 #define CLASS_MIRROR_MASTER     25
 #define CLASS_NINJA             26
 
@@ -908,8 +908,8 @@
 #define ROW_CURSP               15
 #define COL_CURSP               0       /* "Cur SP xxxxx" */
 
-#define ROW_JOUBA_INFO          16
-#define COL_JOUBA_INFO          0       /* "xxxxxxxxxxxx" */
+#define ROW_RIDING_INFO          16
+#define COL_RIDING_INFO          0       /* "xxxxxxxxxxxx" */
 
 #define ROW_INFO                17
 #define COL_INFO                0       /* "xxxxxxxxxxxx" */
@@ -1417,7 +1417,7 @@
 #define EGO_WEST                68
 #define EGO_ATTACKS             69
 #define EGO_SLAYING_WEAPON      70
-#define EGO_RIRYOKU             71
+#define EGO_FORCE_WEPON             71
 #define EGO_BRAND_ACID          72
 #define EGO_BRAND_ELEC          73
 #define EGO_BRAND_FIRE          74
@@ -2889,7 +2889,7 @@
 #define TR1_CON                 0x00000010L     /* CON += "pval" */
 #define TR1_CHR                 0x00000020L     /* CHR += "pval" */
 #define TR1_MAGIC_MASTERY       0x00000040L     /* Later */
-#define TR1_RIRYOKU             0x00000080L     /* Later */
+#define TR1_FORCE_WEPON             0x00000080L     /* Later */
 #define TR1_STEALTH             0x00000100L     /* Stealth += "pval" */
 #define TR1_SEARCH              0x00000200L     /* Search += "pval" */
 #define TR1_INFRA               0x00000400L     /* Infra += "pval" */
@@ -2921,7 +2921,7 @@
 #define TR2_SUST_DEX            0x00000008L
 #define TR2_SUST_CON            0x00000010L
 #define TR2_SUST_CHR            0x00000020L
-#define TR2_JOUBA               0x00000040L     /* Later */
+#define TR2_RIDING               0x00000040L     /* Later */
 #define TR2_XXX2                0x00000080L     /* Later */
 #define TR2_IM_ACID             0x00000100L
 #define TR2_IM_ELEC             0x00000200L
@@ -3293,7 +3293,7 @@
 #define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
 #define RF7_UNIQUE_7            0x00000010  /* Is a "Nazgul" unique */
 #define RF7_UNIQUE2             0x00000020  /* uso unique */
-#define RF7_JOUBA               0x00000040  /* Can jouba */
+#define RF7_RIDING               0x00000040  /* Can riding */
 #define RF7_KAGE                0x00000080  /* Is kage */
 #define RF7_HAS_LITE_1          0x00000100  /* Monster carries light */
 #define RF7_SELF_LITE_1         0x00000200  /* Monster lights itself */
@@ -3375,13 +3375,13 @@
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_AMBERITES | RF6_S_UNIQUE)
 
 
-#define RF4_JOUBA_MASK \
+#define RF4_RIDING_MASK \
   (RF4_SHRIEK)
 
-#define RF5_JOUBA_MASK \
+#define RF5_RIDING_MASK \
    0L
 
-#define RF6_JOUBA_MASK \
+#define RF6_RIDING_MASK \
    (RF6_BLINK | RF6_TPORT | RF6_TRAPS | RF6_DARKNESS | RF6_SPECIAL)
 
 
@@ -4224,7 +4224,7 @@ extern int PlayerUID;
 
 #define GINOU_SUDE       0
 #define GINOU_NITOURYU   1
-#define GINOU_JOUBA      2
+#define GINOU_RIDING      2
 
 #define NO_TOWN 6
 #define SECRET_TOWN 5
@@ -4360,13 +4360,32 @@ extern int PlayerUID;
 #define MS_S_UNIQUE       95
 
 
+#define MON_BEGGAR        12
+#define MON_LEPER         13
+#define MON_BLACK_MARKET  14
+#define MON_GHB           39
+#define MON_NOV_PRIEST    45
 #define MON_GRIP          53
 #define MON_WOLF          54
 #define MON_FANG          55
+#define MON_LOUSE         69
+#define MON_COPPER_COINS  85
+#define MON_NOV_PALADIN   97
 #define MON_GREEN_G       100
+#define MON_NOV_PRIEST_G  109
+#define MON_SILVER_COINS  117
+#define MON_MANES         128
 #define MON_LOST_SOUL     133
 #define MON_ROBIN_HOOD    138
+#define MON_NOV_PALADIN_G 147
+#define MON_PHANTOM_W     152
+#define MON_WOUNDED_BEAR  159
+#define MON_BLUE_HORROR   189
+#define MON_GOLD_COINS    195
 #define MON_VORPAL_BUNNY  205
+#define MON_PRIEST        225
+#define MON_MITHRIL_COINS 239
+#define MON_PINK_HORROR   242
 #define MON_UMBER_HULK    283
 #define MON_SHAGRAT       314
 #define MON_GORBAG        315
@@ -4375,15 +4394,24 @@ extern int PlayerUID;
 #define MON_ARCH_VILE     357
 #define MON_COLD_VOR      358
 #define MON_ENERGY_VOR    359
+#define MON_HAGEN         383
 #define MON_PHANTOM_B     385
+#define MON_ANGEL         417
+#define MON_ADAMANT_COINS 423
 #define MON_BARNEY        441
+#define MON_ARCHANGEL     456
 #define MON_GHOST         477
 #define MON_NINJA         485
 #define MON_LOG_MASTER    498
+#define MON_GOEMON        505
+#define MON_CHERUB        511
+#define MON_WATER_ELEM    512
 #define MON_JURT          517
 #define MON_LICH          518
+#define MON_BLOODLETTER   523
 #define MON_GRAV_HOUND    540
 #define MON_REVENANT      555
+#define MON_RAAL          557
 #define MON_COLOSSUS      558
 #define MON_CRYPT_THING   577
 #define MON_NEXUS_VOR     587
@@ -4391,17 +4419,23 @@ extern int PlayerUID;
 #define MON_TIME_VOR      589
 #define MON_MANDOR        598
 #define MON_SHIM_VOR      600
+#define MON_SERAPH        605
 #define MON_KAVLAX        616
 #define MON_JUBJUB        640
 #define MON_CLUB_DEMON    648
 #define MON_MASTER_LICH   658
 #define MON_RINALDO       660
+#define MON_ARCHON        661
 #define MON_UND_BEHOLDER  664
+#define MON_JACK_SHADOWS  670
 #define MON_LLOIGOR       682
 #define MON_DREADMASTER   690
 #define MON_DAWN          693
 #define MON_NAZGUL        696
+#define MON_SMAUG         697
 #define MON_STORMBRINGER  698
+#define MON_ULTRA_PALADIN 699
+#define MON_FAFNER        712
 #define MON_TIME_HOUND    725
 #define MON_PLASMA_HOUND  726
 #define MON_BULLGATES     732
@@ -4412,17 +4446,23 @@ extern int PlayerUID;
 #define MON_NIGHTCRAWLER  744
 #define MON_CHAOS_VOR     751
 #define MON_AETHER_VOR    752
+#define MON_FUNDIN        762
+#define MON_DWORKIN       763
 #define MON_NIGHTWALKER   768
 #define MON_RAPHAEL       769
+#define MON_SARUMAN       771
+#define MON_GANDALF       772
+#define MON_BRAND         773
 #define MON_SHADOWLORD    774
 #define MON_ARCHLICH      776
 #define MON_CHAOS_HOUND   779
 #define MON_ULT_BEHOLDER  781
 #define MON_SHAMBLER      786
 #define MON_BLEYS         789
-#define MON_CAIN          799
+#define MON_FIONA         791
 #define MON_SKY_DRAKE     793
 #define MON_JULIAN        794
+#define MON_CAIN          799
 #define MON_GERARD        807
 #define MON_UNGOLIANT     808
 #define MON_ATLACH_NACHA  809
@@ -4432,21 +4472,27 @@ extern int PlayerUID;
 #define MON_ERIC          813
 #define MON_UNMAKER       815
 #define MON_CYBER         816
+#define MON_KLING         819
+#define MON_CORWIN        820
 #define MON_ANGMAR        825
 #define MON_CANTORAS      830
 #define MON_GODZILLA      832
 #define MON_SPAWN_CTH     836
+#define MON_SURTUR        837
 #define MON_TARRASQUE     838
+#define MON_LUNGORTHIN    839
 #define MON_CYBER_KING    843
 #define MON_WYRM_POWER    847
 #define MON_NODENS        849
 #define MON_DESTROYER     855
+#define MON_GOTHMOG       856
 #define MON_G_CTHULHU     857
 #define MON_SAURON        858
 #define MON_UNICORN_ORD   859
 #define MON_OBERON        860
 #define MON_MORGOTH       861
 #define MON_SERPENT       862
+#define MON_ONE_RING      864
 #define MON_CAAWS         866
 #define MON_CULVERIN      867
 #define MON_HAGURE        871
@@ -4470,21 +4516,27 @@ extern int PlayerUID;
 #define MON_BANOR         933
 #define MON_LUPART        934
 #define MON_KENSHIROU     936
+#define MON_PLANETAR      942
+#define MON_SOLAR         943
 #define MON_BIKETAL       945
 #define MON_RICH          948
 #define MON_IKETA         949
+#define MON_B_DEATH_SWORD 953
 #define MON_YASE_HORSE    955
 #define MON_HORSE         956
 #define MON_BOTEI         963
 #define MON_KAGE          964
 #define MON_JAIAN         967
+#define MON_BELD          973
 #define MON_THAT_BAT      975
+#define MON_SHUTEN        979
 #define MON_HOUOU         988
 #define MON_KIRIN         989
 #define MON_BAHAMUT       1000
 #define MON_SUKE          1001
 #define MON_KAKU          1002
 #define MON_GHOST_Q       1003
+#define MON_PIP           1004
 #define MON_A_GOLD        1010
 #define MON_A_SILVER      1011
 #define MON_ROLENTO       1013
@@ -4492,6 +4544,7 @@ extern int PlayerUID;
 #define MON_SHURYUUDAN    1023
 #define MON_WAHHA         1031
 #define MON_DEBBY         1032
+#define MON_PALADIN       1038
 #define MON_CHAMELEON     1040
 #define MON_CHAMELEON_K   1041
 #define MON_LOUSY         1063
@@ -4547,7 +4600,7 @@ extern int PlayerUID;
 
 #define MUSIC_DETECT            101
 
-#define music_singing(X) ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == X))
+#define music_singing(X) ((p_ptr->pclass == CLASS_BARD) && (p_ptr->magic_num1[0] == X))
 
 #define HISSATSU_NONE   0
 #define HISSATSU_2      1

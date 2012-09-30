@@ -449,7 +449,7 @@ static bool cast_hissatsu_spell(int spell)
 	}
 	case 6:
 	{
-		if (p_ptr->jouba)
+		if (p_ptr->riding)
 		{
 #ifdef JP
 			msg_print("乗馬中には無理だ。");
@@ -468,7 +468,7 @@ static bool cast_hissatsu_spell(int spell)
 	}
 	case 7:
 	{
-		if (p_ptr->jouba)
+		if (p_ptr->riding)
 		{
 #ifdef JP
 			msg_print("乗馬中には無理だ。");
@@ -935,14 +935,14 @@ static bool cast_hissatsu_spell(int spell)
 					py = y;
 					px = x;
 
-					if (p_ptr->jouba)
+					if (p_ptr->riding)
 					{
 						int tmp;
 						tmp = cave[py][px].m_idx;
 						cave[py][px].m_idx = cave[oy][ox].m_idx;
 						cave[oy][ox].m_idx = tmp;
-						m_list[p_ptr->jouba].fy = py;
-						m_list[p_ptr->jouba].fx = px;
+						m_list[p_ptr->riding].fy = py;
+						m_list[p_ptr->riding].fx = px;
 						update_mon(cave[py][px].m_idx, TRUE);
 					}
 

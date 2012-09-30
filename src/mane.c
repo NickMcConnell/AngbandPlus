@@ -68,7 +68,7 @@ void mane_info(char *p, int power, int dam)
 
 
 /*
- * Allow user to choose a monomane.
+ * Allow user to choose a imitation.
  *
  * If a valid spell is chosen, saves it in '*sn' and returns TRUE
  * If the user hits escape, returns FALSE, and set '*sn' to -1
@@ -289,7 +289,7 @@ put_str("失率 効果", y, x + 36);
 
 /*
  * do_cmd_cast calls this function if the player's class
- * is 'monomaneshi'.
+ * is 'imitator'.
  */
 static bool use_mane(int spell)
 {
@@ -351,7 +351,7 @@ msg_format("%sはもう減速されていない。", m_name);
 #endif
 		}
 		p_ptr->redraw |= (PR_HEALTH);
-		if (p_ptr->jouba == cave[target_row][target_col].m_idx) p_ptr->redraw |= (PR_HEALTH);
+		if (p_ptr->riding == cave[target_row][target_col].m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 		break;
 	}
@@ -1297,7 +1297,7 @@ msg_print("特別な強敵を召喚した！");
 
 /*
  * do_cmd_cast calls this function if the player's class
- * is 'monomaneshi'.
+ * is 'imitator'.
  */
 bool do_cmd_mane(bool baigaesi)
 {

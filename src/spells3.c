@@ -350,14 +350,14 @@ msg_print("不思議な力がテレポートを防いだ！");
 	py = y;
 	px = x;
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
 		int tmp;
 		tmp = cave[py][px].m_idx;
 		cave[py][px].m_idx = cave[oy][ox].m_idx;
 		cave[oy][ox].m_idx = tmp;
-		m_list[p_ptr->jouba].fy = py;
-		m_list[p_ptr->jouba].fx = px;
+		m_list[p_ptr->riding].fy = py;
+		m_list[p_ptr->riding].fx = px;
 		update_mon(cave[py][px].m_idx, TRUE);
 	}
 
@@ -477,14 +477,14 @@ msg_print("不思議な力がテレポートを防いだ！");
 	py = y;
 	px = x;
 
-	if (p_ptr->jouba)
+	if (p_ptr->riding)
 	{
 		int tmp;
 		tmp = cave[py][px].m_idx;
 		cave[py][px].m_idx = cave[oy][ox].m_idx;
 		cave[oy][ox].m_idx = tmp;
-		m_list[p_ptr->jouba].fy = py;
-		m_list[p_ptr->jouba].fx = px;
+		m_list[p_ptr->riding].fy = py;
+		m_list[p_ptr->riding].fx = px;
 		update_mon(cave[py][px].m_idx, TRUE);
 	}
 
@@ -1887,7 +1887,7 @@ s = "金に変えられる物がありません。";
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		if (auto_destroy || (object_value(o_ptr) > 0))
+		if (confirm_destroy || (object_value(o_ptr) > 0))
 		{
 			/* Make a verification */
 #ifdef JP
@@ -3663,7 +3663,7 @@ void display_spell_list(void)
 	if (p_ptr->pclass == CLASS_RED_MAGE) return;
 
 	/* Mindcrafter spell-list */
-	if ((p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_KI))
+	if ((p_ptr->pclass == CLASS_MINDCRAFTER) || (p_ptr->pclass == CLASS_FORCE))
 	{
 		int             i;
 		int             y = 1;
@@ -3689,7 +3689,7 @@ put_str("Lv   MP 失率 効果", y, x + 35);
 		switch(p_ptr->pclass)
 		{
 			case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;break;
-			case CLASS_KI:          use_mind = MIND_KI;break;
+			case CLASS_FORCE:          use_mind = MIND_KI;break;
 			default:                use_mind = 0;break;
 		}
 
@@ -3872,8 +3872,8 @@ s16b spell_chance(int spell, int realm)
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
-	if (p_ptr->jouba)
-		chance += (MAX(r_info[m_list[p_ptr->jouba].r_idx].level-skill_exp[GINOU_JOUBA]/100-10,0));
+	if (p_ptr->riding)
+		chance += (MAX(r_info[m_list[p_ptr->riding].r_idx].level-skill_exp[GINOU_RIDING]/100-10,0));
 
 	if (p_ptr->pclass == CLASS_SORCERER)
 		shouhimana = s_ptr->smana*2200 + 2399;
@@ -4226,7 +4226,7 @@ static void spell_info(char *p, int spell, int realm)
 		}
 		break;
 		
-	case 7: /* Enchantment */
+	case 7: /* Craft */
 		switch (spell)
 		{
 		case 0: sprintf(p, " %s100+d100", s_dur); break;
@@ -5414,7 +5414,7 @@ bool polymorph_monster(int y, int x)
 
 	if (p_ptr->inside_arena || p_ptr->inside_battle) return (FALSE);
 
-	if ((p_ptr->jouba == c_ptr->m_idx) || (m_ptr->mflag2 & MFLAG_KAGE)) return (FALSE);
+	if ((p_ptr->riding == c_ptr->m_idx) || (m_ptr->mflag2 & MFLAG_KAGE)) return (FALSE);
 
 	/* Get the monsters attitude */
 	friendly = is_friendly(m_ptr);

@@ -3580,9 +3580,9 @@ typedef struct
 special_menu_naiyou special_menu_info[] =
 {
 	{"超能力/特殊能力", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
-	{"ものまね/特殊能力", 0, 0, MENU_CLASS, CLASS_MONOMANE},
+	{"ものまね/特殊能力", 0, 0, MENU_CLASS, CLASS_IMITATOR},
 	{"必殺技/特殊能力", 0, 0, MENU_CLASS, CLASS_SAMURAI},
-	{"練気術/魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_KI},
+	{"練気術/魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_FORCE},
 	{"鏡魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
 	{"広域マップ(<)", 2, 6, MENU_WILD, FALSE},
 	{"通常マップ(>)", 2, 7, MENU_WILD, TRUE},
@@ -3592,9 +3592,9 @@ special_menu_naiyou special_menu_info[] =
 special_menu_naiyou special_menu_info[] =
 {
 	{"MindCraft/Special", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
-	{"Imitation/Special", 0, 0, MENU_CLASS, CLASS_MONOMANE},
+	{"Imitation/Special", 0, 0, MENU_CLASS, CLASS_IMITATOR},
 	{"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
-	{"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_KI},
+	{"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_FORCE},
 	{"MirrorMagic/Special", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
 	{"Enter global map(<)", 2, 6, MENU_WILD, FALSE},
 	{"Enter local map(>)", 2, 7, MENU_WILD, TRUE},

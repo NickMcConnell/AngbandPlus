@@ -5,45 +5,45 @@ N:55:Fang, Farmer Maggot's dog
 
 N:63:Smeagol
 1
-'We hates, hates, hatesss!'
+says, 'We hates, hates, hatesss!'
 
 N:393:It
 1
-'It's appalling.'
+says, 'It's appalling.'
 
 N:573:Lord Borel
 1
-'Oh, basely done! I had hoped for better of thee!'
+says, 'Oh, basely done! I had hoped for better of thee!'
 
 N:670:Jack of Shadows
 1
-'I'll get even! Next time I see you, Death is yours!'
+says, 'I'll get even! Next time I see you, Death is yours!'
 
 N:732:Bull Gates
 1
-'Empire Micro$oft is eternal!'
+says, 'Empire Micro$oft is eternal!'
 
 N:764:Uriel, Angel of Fire
 N:765:Azriel, Angel of Death
 N:769:Raphael, the Messenger
 1
-'My God, Please visit a punishment upon this anrighteous sinner!'
+says, 'My God, Please visit a punishment upon this unrighteous sinner!'
 
 N:780:Vlad Dracula, Prince of Darkness
 1
-'Faugh, I'll be back...so long as human psyche has a blackness. Ho-ho.'
+says, 'Faugh, I'll be back...so long as human psyche has a blackness. Ho-ho.'
 
 N:873:Combat-Echizen, SEKKAKUDAKARA
 1
-'Oh. No.'
+says shiftlessly, 'Oh. No.'
 
 N:878:Dio Brando
 1
-'This CAN'T be happening! I am Dying....!!!!!'
+shouts, 'This CAN'T be happening! I am Dying....!!!!!'
 
 N:880:Wong, Master of Time
 1
-'This CAN'T be happening!'
+shouts, 'This CAN'T be happening!'
 
 N:921:Internet Exploder
 1
@@ -51,11 +51,11 @@ was deleted.
 
 N:931:Caldarm the third
 1
-'I desire peace ... for all people... '
+says, 'I desire peace ... for all people... '
 
 N:936:Kenshirou of hokuto
 1
-'JuliaAAAAAAA!!!'
+shouts, 'JuliaAAAAAAA!!!'
 
 N:1004:Pip, the Braver from Another World
 1
@@ -67,8 +67,8 @@ points at himself and shouts, 'I finished my life with no regrets!'
 
 N:1063:lousy, the King of louses
 1
-'Ah, Hengband is too difficult!'
+says, 'Ah, Hengband is too difficult!'
 
 N:*:Default
 1
-'AAAARRRGGGHHH!!!'
+shouts, 'AAAARRRGGGHHH!!!'

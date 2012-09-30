@@ -240,6 +240,14 @@ sprintf(tmp_val, "( %d 位以下 )", k + 1);
 			for (gold = the_score.gold; isspace(*gold); gold++) /* loop */;
 			for (aged = the_score.turns; isspace(*aged); aged++) /* loop */;
 
+			/* Clean up standard encoded form of "when" */
+			if ((*when == '@') && strlen(when) == 9)
+			{
+				sprintf(tmp_val, "%.4s-%.2s-%.2s",
+				        when + 1, when + 5, when + 7);
+				when = tmp_val;
+			}
+
 			/* Dump some info */
 #ifdef JP
 //sprintf(out_val, "%3d.%9s  %s%s%sという名の%sの%s (レベル %d)",
@@ -441,9 +449,9 @@ bool send_world_score(bool do_send)
 				return FALSE;
 			}
 #ifdef JP
-			prt("完了", 0, 0);
+			prt("完了。何かキーを押してください。", 0, 0);
 #else
-			prt("Completed.", 0, 0);
+			prt("Completed.  Hit any key.", 0, 0);
 #endif
 			(void)inkey();
 		}
@@ -491,7 +499,9 @@ errr top_twenty(void)
 	(void)sprintf(the_score.day, "%-.6s %-.2s", ctime(&ct) + 4, ctime(&ct) + 22);
 #else
 	/* Save the date in standard form (8 chars) */
-	(void)strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
+//	(void)strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
+	/* Save the date in standard encoded form (9 chars) */
+	strftime(the_score.day, 10, "@%Y%m%d", localtime(&ct));
 #endif
 
 	/* Save the player name (15 chars) */
@@ -745,12 +755,12 @@ msg_print("スコア・ファイルが使用できません。");
 	(void)fd_close(highscore_fd);
 	highscore_fd = -1;
 #ifdef JP
-msg_print("何かキーを押すとゲームに戻ります");
+	prt("何かキーを押すとゲームに戻ります",0,0);
 #else
-	msg_print("Hit any key to continue");
+	prt("Hit any key to continue",0,0);
 #endif
 
-	msg_print(NULL);
+	(void)inkey();
 
 	for (j = 5; j < 18; j++) prt("", j, 0);
 	screen_load();
