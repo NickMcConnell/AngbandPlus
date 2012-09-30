@@ -3384,6 +3384,12 @@ static void process_world(void)
 				is_autosave = FALSE;
 			}
 
+			/* Make SURE that persistent levels are saved
+			 * I don't know if this is needed, but I'm getting reports,
+			 * so I'm adding this extra save -- Neil
+			 */
+			save_dungeon();
+
 			/* Count down towards recall */
 			p_ptr->word_recall--;
 
@@ -3750,7 +3756,7 @@ static void process_command(void)
 		{
 			if (do_control_walk()) break;
 
-			do_cmd_walk(always_pickup);
+			do_cmd_walk(always_pickup, TRUE);
 
 			break;
 		}
@@ -3760,7 +3766,7 @@ static void process_command(void)
 		{
 			if (do_control_walk()) break;
 
-			do_cmd_walk(!always_pickup);
+			do_cmd_walk(!always_pickup, TRUE);
 
 			break;
 		}
@@ -3845,12 +3851,16 @@ static void process_command(void)
 			object_type *o_ptr;
 			u32b f1 = 0 , f2 = 0 , f3 = 0, f4 = 0, f5 = 0, esp = 0;
 
+
 			/* Check for light being wielded */
 			o_ptr = &p_ptr->inventory[INVEN_LITE];
 			/* Burn some fuel in the current lite */
 			if (o_ptr->tval == TV_LITE)
 				/* Extract the item flags */
 				object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+			/* Cannot move if rooted in place */
+			if (p_ptr->tim_roots) break;
 
 			if (p_ptr->control) break;
 			/* Normal cases */
@@ -3913,6 +3923,9 @@ static void process_command(void)
 		/* Go down staircase */
 	case '>':
 		{
+			/* Cannot move if rooted in place */
+			if (p_ptr->tim_roots) break;
+
 			if (p_ptr->control) break;
 			/* Normal cases */
 			if (!p_ptr->wild_mode)
@@ -4637,6 +4650,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Check abilities. */
+	case CMD_SHOW_ABILITY:
+		{
+			do_cmd_ability();
+			break;
+		}
+
 		/* Save a html screenshot. */
 	case CMD_DUMP_HTML:
 		{
@@ -4651,7 +4671,12 @@ static void process_command(void)
 			do_cmd_macro_recorder();
 			break;
 		}
-
+	case CMD_BLUNDER:
+		{
+			if (do_control_walk()) break;
+			do_cmd_walk(always_pickup, FALSE);
+			break;
+		}
 		/* Hack -- Unknown command */
 	default:
 		{

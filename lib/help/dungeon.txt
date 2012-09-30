@@ -146,7 +146,7 @@ There are a few different towns around the world map, and your starting town
 will eventually become too small for you (if you survive the dangers of the
 dungeon). Other towns will have some different facilities, and you can find 
 your way to other towns by reading the "Adventurer's Guide to Middle-earth" 
-parchment that *every* character begins the game with.
+parchment with which *every* character begins the game.
 
 
 #####R=== Townspeople ===
@@ -203,22 +203,22 @@ You will also see an (incomplete) list of available commands. Note that
 many of the commands which work in the dungeon work in the stores as well,
 but some do not, especially those which involve "using" objects.
 
-Stores do not always have everything in stock. As the game progresses,
-they may get new items so check from time to time. Also, if you sell them
+Stores do not always have everything in stock. As the game progresses, they
+may get new items, so check back from time to time. Also, if you sell them
 an item, it may get sold to a customer while you are adventuring, so don't
-always expect to be able to get back everything you have sold. Note that
-the inventory of a store will not change while you are in town, even if you
-save the game and return. You must spend time in the dungeon if you wish
-the store owner to clear out his stock and acquire new items. If you have
+always expect to be able to get back everything you have sold.  If you have
 a lot of spare gold, you can purchase every item in a store, which will
-induce the store owner to bring out new stock, and perhaps even retire.
+induce the store owner to bring out new stock, and perhaps even retire.  If
+you are low on funds (and morals), you may attempt to steal an item from
+the store, but beware -- if you are caught, the store owner will not let you
+back in for a very long time.
 
 Store owners will not buy harmful or useless items. If an object is
 unidentified, they will pay you some base price for it. Once they have
 bought it they will immediately identify the object. If it is a good object,
 they will add it to their inventory. If it was a bad bargain, they simply
 throw the item away. In any case, you may receive some knowledge of the
-item if another is encountered.
+item in case another is encountered.
 
 #####GThe General Store ("1")
      The General Store sells foods, drinks, some clothing, torches, lamps,
@@ -252,8 +252,8 @@ item if another is encountered.
      not known for their tolerance...
 
 #####GYour Home ("8")
-     This is your house where  you  can  store  objects  that you 
-     cannot carry on your travels, or will need at a  later date.
+     This is your house where you can store objects that you cannot carry
+     on your travels, or will need at a later date.
 
 #####GThe Bookstore ("9")
      The Bookstore deals in all sorts of magical books. You can purchase
@@ -265,7 +265,7 @@ In addition to the basic stores, there are some special buildings that can be
 found in some towns. These Buildings (represented by +'s) include:
 
 #####GMayor's Office/Castle
-     The home office for the town, adventurer's looking for work besides 
+     The home office for the town. Adventurers looking for work besides 
      exploring the dungeon should hunt in here.
 
 #####GPet Shop
@@ -295,8 +295,8 @@ found in some towns. These Buildings (represented by +'s) include:
      For information of all kinds.
 
 #####GGambling House
-     Read the *****/bgambling.txt*0[rules ("b")] before paying. And, the games 
-     are not rigged, just naturally difficult.
+     Read the *****/bgambling.txt*0[rules ("b")] before paying. The games are
+     not rigged, just naturally difficult.
 
 #####GTower of Magery/Wizards Spire
      The wizards will identify your items or recharge your magical items for 
@@ -323,10 +323,10 @@ A new character should not try to go at Mordor or Angband as their first
 dungeon (well, not if you wish to survive your first step, anyway)! 
 
 As well as these (and other) locations, the wilderness can be a good place
-to go when you are seeking a change to the scenery of the dungeons, or just
+to go when you are seeking a change from the scenery of the dungeons, or just
 a bit of fast experience.
 
-Be warned - some creatures found in the Wilderness can be quite dangerous, 
+Be warned - some creatures found in the wilderness can be quite dangerous, 
 and travel through the wilderness can be time-consuming. If you are wishing 
 to simply move to another town, there is an overview map (called the 
 "Wilderness Map") that can be travelled through by going up "<" from the 
@@ -343,15 +343,15 @@ All of the special locations can be seen as downstairs (">") on the
 Wilderness Map and towns as "*"s. This makes it *much* easier to find your
 way from one interesting place to another.
 
-The "Adventurer's Guide to Middle-earth" (a parchment that *every* 
-character begins the game with) contains details about the towns and
-some of the dungeons, including rough directions on how to get there.
+The "Adventurer's Guide to Middle-earth" (a parchment with which *every* 
+character begins the game) contains details about the towns and some of
+the dungeons, including rough directions on how to get there.
 
 ~~~~~06|Dungeons|In the dungeon
 #####R=== Within The Dungeon ===
 
 Once your character is adequately supplied with food, light, armor, and
-weapons, he is ready to enter Barrow Downs. Move on top of the `>' symbol 
+weapons, he is ready to enter Barrow Downs. Move on top of the ">" symbol 
 and use the "Down" command (">").
 
 Your character will enter a maze of interconnecting staircases and finally
@@ -371,12 +371,12 @@ survive many horrible and challenging encounters to find the treasure lying
 about and take it safely back to the town to sell.
 
 ~~~~~23|Light
-There are two sources for light once inside the dungeon. Permanent light
+There are two sources for light once inside the dungeon: permanent light
 which has been magically placed within rooms, and a light source carried by
-the player. If neither is present, the character will be unable to see. This 
-will affect searching, picking locks, disarming traps, reading scrolls, 
-casting spells, browsing books, etc. So be very careful not to run out of
-light!
+the player (or some of the monsters). If neither is present, the character
+will be unable to see. This will affect searching, picking locks, disarming
+traps, reading scrolls, casting spells, browsing books, etc. So be very
+careful not to run out of light!
 
 A character must wield a torch or lamp in order to supply his own light. A
 torch or lamp burns fuel as it is used, and once it is out of fuel, it stops
@@ -405,10 +405,10 @@ pack is full, then your pack will "overflow" and the most recently added
 item will fall out and onto the ground. You will be warned about any command
 that seems likely to induce this behaviour.
 
-You are, however, limited in the total amount of weight that you can carry.
-As you approach this value, you become slower, making it easier for monsters
-to chase you. Note that there is no upper bound on how much you can carry,
-if you do not mind being slow. Your weight limit is determined by your
+You are, in addition, limited in the total amount of weight that you can
+carry. As you approach this value, you become slower, making it easier for
+monsters to chase you. Note that there is no upper bound on how much you can
+carry, if you do not mind being slow. Your weight limit is determined by your
 strength.
 
 Objects do not block the line of sight, but may stack on top of one another, 
@@ -454,8 +454,8 @@ One item in particular will be discussed here. [[[[[BThe scroll of "Word of]
 [[[[[BRecall"] can be found within the dungeon, or bought at the temple in 
 town. It acts in two manners, depending upon your current location. If read
 within the dungeon, it will teleport you back to town. If read in town, it
-will teleport you back down to the deepest level of the dungeon which your
-character has previously been on. This makes the scroll very useful for
+will teleport you back down to the deepest level of the dungeon to which your
+character has previously journeyed. This makes the scroll very useful for
 getting back to the deeper levels of the dungeon. Once the scroll has been
 read it takes a while for the spell to act, so don't expect it to save you
 in a crisis. Reading a second scroll before the first has had a chance to
@@ -494,23 +494,24 @@ and weapons by increasing the *****skills.txt*01[Combat] skill. You can increase
 to sense particularly well enchanted magical items (potions, scrolls. wands 
 etc) by increasing your *****skills.txt*21[Magic] skill. If you increase these 
 high enough, you will gain a special method of "sensing" your 
-inventory/equipment items, which tells you if an item is "good" or "cursed", 
-but also if it is "average", "special", "excellent", "terrible" or "worthless".
+inventory/equipment items, which tells you not only whether an item is "good"
+or "cursed", but also if it is "average", "special", "excellent", "terrible" or
+"worthless".
+
 ~~~~~21|Objects|Colour of inventory slot letter
 The colour of the letter that identifies each item in your backpack can tell 
 you something about their magical status. Grey indicates the item has not been 
 identified yet. After identification, the colour changes to one of the 
-following: white, indicating it is normal; b;ue indicates it is an ego-item 
+following: white, indicating it is normal; blue indicates it is an ego-item 
 (pseudo-id's as {excellent}); yellow indicates it is an artifact {special}; 
 green shows it is an artifact which is part of a set.
 
 It is rumoured that rings of power and extra rare spell books may be found
-deeper in the dungeon...
+deeper in the dungeon....
 
 And lastly, a final warning: not all objects are what they seem. The line
 between tasty food and annoying mushroom is a fine one, and sometimes a
 potion will reach out and bite you...
-
 ~~~~~09|Objects|Cursed Objects
 ~~~~~10|Cursed Objects
 #####R=== Cursed Objects ===
@@ -518,7 +519,7 @@ potion will reach out and bite you...
 Some objects, mainly armour and weapons, have had curses laid upon them.
 These horrible objects will look like any other normal item, but will
 detract from your character's stats or abilities if worn. They will also
-be impossible to remove until a remove curse is done. In fact some are
+be impossible to remove until the curse is removed. In fact some are
 so badly cursed that even this will not work, and more potent methods are
 needed.
 
@@ -541,11 +542,12 @@ The higher the number, the better the digging ability of the tool. Diggers are
 effective against rubble, trees, and many walls. Rubble and veins may hide 
 treasure; trees do not.
 
-You dig in something with the dig (shift + t) command. Thorough digging removes 
-one ASCII square (i.e. tile) of what is being dug. This may require multiple 
-attempts depending on how good your digger is. Once the square is removed, you 
-will be informed if you found anything there. If another diggable square exists 
-beyond the area you just dug, you can begin the process again.
+You dig in something with the tunnel (shift + t) command. Thorough digging
+removes one ASCII square (i.e. tile) of what is being dug. This may require
+multiple attempts depending on how good your digger is (and how high your
+strength is). Once the square is removed, you will be informed if you found
+anything there. If another diggable square exists beyond the area you just dug,
+you can begin the process again.
 
 Some dungeons contain rich strikes which may be found only by mining it out of 
 the walls. Quartz veins are the richest, yielding the most metals and gems, but 
@@ -554,7 +556,7 @@ much harder to dig through than quartz or magma veins, so it is much faster to
 follow a vein exactly and dig around the granite. There is also a game option 
 for highlighting magma and quartz within the walls, which makes this easier.
 
-If the Character has a scroll, staff, or spell of treasure location, she can 
+If the character has a scroll, staff, or spell of treasure location, she can 
 immediately locate all strikes of treasure within a vein shown on the screen. 
 This makes mining much easier and more profitable. 
 ~~~~~12|Dungeons|Doors, Passages, Rooms and Staircases
@@ -570,17 +572,18 @@ itself (either "<" or ">".)
 In flat environments such as forests, Ways replace staircases. On the map, Ways 
 are identical to staircases and behave the same way.
 
-Yellow down stairs and Ways are quest entrances.
+Yellow down stairs and Ways are quest entrances (although not every quest
+is reached by such means).
 
 Shafts are also represented by "<" or ">", but are brown. They work similarly 
-to stairs and Ways, but if you use one, you might traverse more than dungeon 
-level all in one go as a result. 
+to stairs and Ways, but if you use one, you might traverse more than one
+dungeon level all in one go as a result. 
 
 Stairs, impenetrable walls, and shop entrances like titanium walls, and the 
 doors into shops, cannot be destroyed by any means (although their location can 
 occasionally change under the right circumstances).
 ~~~~~23|Void jumpgates
-A void jumpgate appears on your map as a violet '+'. Jumpgates always occur in 
+A void jumpgate appears on your map as a violet "+". Jumpgates always occur in 
 pairs. To activate a jumpgate, stand on it and type ">". You will instantly 
 appear on top of its paired jumpgate, which will be somewhere else on the same 
 dungeon level.
@@ -594,7 +597,7 @@ Secret doors always look like granite walls, just like traps always look
 like normal floors.
 
 Creatures in the dungeon will generally know and use these secret doors, and
-can often be counted on to leave them open behind them when they pass 
+can sometimes be counted on to leave them open behind them when they pass 
 through.
 
 For historical reasons, secret doors are never locked.
@@ -603,13 +606,13 @@ For historical reasons, secret doors are never locked.
 ~~~~~19|Companions
 ~~~~~20|Monsters|Pets
 #####R=== Pets and Companions ===
-You may, in the course of a game acquire friendly monsters who will help you 
+You may, in the course of a game, acquire friendly monsters who will help you 
 defeat enemies. There are several different types of these, you can determine 
 which your monster is by 'l'ooking at it.
 [[[[[vneutral] This monster will not help you by attacking other monsters, but nor 
         will it attack you.
 [[[[[vco-aligned] This monster will attack other enemy monsters, but you will not 
-           gain any experience for it's kills.
+           gain any experience for its kills.
 [[[[[vpet] This monster will kill things for you. The amount of experience you gain 
     from its kills is determined by the level of your *****skills.txt*42[Monster-lore] skill. 
     This monster will gain levels and experience of its own, but cannot travel 
@@ -618,16 +621,17 @@ which your monster is by 'l'ooking at it.
           pets, but will also follow you from one dungeon level to the next. If 
           you successfully complete an adventurer quest for a lost sword and let 
           him join you, he will become a companion. Once again the amount of 
-          experience you gain from a companions kill depends upon your 
+          experience you gain from a companion's kill depends upon your 
           Monster-lore skill.
-Your Monster-lore skill also determines the maximum amount of pets and 
+
+Your Monster-lore skill also determines the maximum number of pets and 
 companions you can have at any one time.
 
 Pets, companions and co-aligned creatures cannot deliver killing blows to 
 uniques or quest monsters. You must do this yourself!
 
-You can give commands to pets and companions to make them more useful, using the 
-'P' command. The list of available commands is as follows:
+You can give commands to pets and companions to make them more useful, using
+the "P" command. The list of available commands is as follows:
 [[[[[vdismiss companions] Dismisses your companions. They can be difficult to get rid
                    of any other way.
 [[[[[vdismiss pets] Dismisses pets. You will be given the opportunity to dismiss all 
@@ -656,20 +660,20 @@ You can give commands to pets and companions to make them more useful, using the
 
 In ToME you will be required to complete a certain number of quests. Your 
 first quest is to discover the true nature of the evil lurking in the Tower of 
-Dol Goldur near Mirkwood
+Dol Goldur near Mirkwood.
 
-Each quest may lead on to others, and many quests can be postponed until when 
+Each quest may lead on to others, and most quests can be postponed until when 
 you feel ready to tackle them. Simply explore other dungeons until you feel you
 have gained enough experience to tackle your next task. Other quests are 
 optional and can be used for further experience. 
 
-When you are ready to retire, simply "commit suicide" ("^Q") to have your
-character entered into the high score list as a winner. Note that until you
-retire, you can still be killed, so you may want to retire before wandering
-into a hoard of nasties...
+Once you have finished your final quest, when you are ready to retire, simply
+"commit suicide" ("^Q") to have your character entered into the high score list
+as a winner. Note that until you retire, you can still be killed, so you may
+want to retire before wandering into a hoard of nasties....
 
 You may also like to make a character sheet of your winning character (by 
-going through the "C"haracter screen and choosing "f"ile, and posting in the
+going through the "C"haracter screen and choosing "f"ile), and post in the
 rec.games.roguelike.angband newsgroup with a text copy of the dump pasted
 into the post. Include details about anything major that happened to your
 character - did they find a ring of speed (+10) on dungeon level 2? Or had 
@@ -694,6 +698,6 @@ but the new player will find his monster memory containing all the experience
 of past incarnations.
 
 In this way, death in ToME is permanent. You cannot simply 'reload at the last 
-save' as in most other contemporary games. Death is permanent. Just as it is 
-in real life in fact.
+save' as in most other contemporary games. Death is permanent, just as it is 
+in real life.
 

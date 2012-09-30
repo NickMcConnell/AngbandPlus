@@ -34,11 +34,6 @@ Return         | Activate the selected link
 /              | Search for a string (e.g. "word")
 -------------------------------------------------------------------
 
-There are other sources for help playing ToME. Try 
-http://forum.t-o-m-e.net and http://wiki.t-o-m-e.net . We also have an irc 
-channel #tome on the worldirc and freenode networks (they are linked) which is 
-fairly low traffic.
-
-
-
-
+There are other sources for help playing ToME. Try http://forum.t-o-m-e.net
+and http://wiki.t-o-m-e.net . We also have an IRC channel #tome on the
+worldirc and freenode networks (they are linked) which is fairly low traffic.

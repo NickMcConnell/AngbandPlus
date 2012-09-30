@@ -884,7 +884,7 @@ static void build_store_hidden(int n, int yy, int xx)
 /* Return a list of stores */
 static int get_shops(int *rooms)
 {
-	int n, num = 0;
+	int i, n, num = 0;
 
 	for (n = 0; n < max_st_idx; n++)
 	{
@@ -900,6 +900,10 @@ static int get_shops(int *rooms)
 		if (st_info[n].flags1 & SF1_VERY_RARE) chance -= 30;
 
 		if (!magik(chance)) continue;
+
+		for (i = 0; i < num; ++i)
+			if (rooms[i] == n)
+				continue;
 
 		if (st_info[n].flags1 & SF1_RANDOM) rooms[num++] = n;
 	}
@@ -986,7 +990,7 @@ static bool create_townpeople_hook(int r_idx)
  */
 static void town_gen_hack(int t_idx, int qy, int qx)
 {
-	int y, x, k, floor, num = 0;
+	int y, x, floor, num = 0;
 	bool (*old_get_mon_num_hook)(int r_idx);
 
 	int *rooms;
@@ -1016,15 +1020,11 @@ static void town_gen_hack(int t_idx, int qy, int qx)
 		/* Place four stores per row */
 		for (x = 0; x < 4; x++)
 		{
-			/* Pick a random unplaced store */
-			k = ((num <= 1) ? 0 : rand_int(num));
-
-			/* Build that store at the proper location */
-			build_store(qy, qx, rooms[k], y, x);
-
-			/* Shift the stores down, remove one store */
-			if ( num == 0 ) num = 1;
-			rooms[k] = rooms[--num];
+			if(--num > -1)
+			{
+				/* Build that store at the proper location */
+				build_store(qy, qx, rooms[num], y, x);
+			}
 		}
 	}
 	C_FREE(rooms, max_st_idx, int);
@@ -1081,7 +1081,7 @@ static void town_gen_hack(int t_idx, int qy, int qx)
 
 static void town_gen_circle(int t_idx, int qy, int qx)
 {
-	int y, x, cy, cx, rad, floor, k, num = 0;
+	int y, x, cy, cx, rad, floor, num = 0;
 	bool (*old_get_mon_num_hook)(int r_idx);
 
 	int *rooms;
@@ -1156,15 +1156,11 @@ static void town_gen_circle(int t_idx, int qy, int qx)
 		/* Place four stores per row */
 		for (x = 0; x < 4; x++)
 		{
-			/* Pick a random unplaced store */
-			k = ((num <= 1) ? 0 : rand_int(num));
-
-			/* Build that store at the proper location */
-			build_store_circle(qy, qx, rooms[k], y, x);
-
-			/* Shift the stores down, remove one store */
-			if ( num == 0 ) num = 1;
-			rooms[k] = rooms[--num];
+			if(--num > -1)
+			{
+				/* Build that store at the proper location */
+				build_store_circle(qy, qx, rooms[num], y, x);
+			}
 		}
 	}
 	C_FREE(rooms, max_st_idx, int);
@@ -1217,7 +1213,7 @@ static void town_gen_circle(int t_idx, int qy, int qx)
 
 static void town_gen_hidden(int t_idx, int qy, int qx)
 {
-	int y, x, n, k, num = 0, i;
+	int y, x, n, num = 0, i;
 
 	int *rooms;
 
@@ -1231,9 +1227,6 @@ static void town_gen_hidden(int t_idx, int qy, int qx)
 	/* Place k stores */
 	for (i = 0; i < n; i++)
 	{
-		/* Pick a random unplaced store */
-		k = ((num <= 1) ? 0 : rand_int(num));
-
 		/* Find a good spot */
 		while (TRUE)
 		{
@@ -1243,12 +1236,11 @@ static void town_gen_hidden(int t_idx, int qy, int qx)
 			if (cave_empty_bold(y, x)) break;
 		}
 
-		/* Build that store at the proper location */
-		build_store_hidden(rooms[k], y, x);
-
-		/* Shift the stores down, remove one store */
-		if ( num == 0 ) num = 1;
-		rooms[k] = rooms[--num];
+		if(--num > -1)
+		{
+			/* Build that store at the proper location */
+			build_store_hidden(rooms[num], y, x);
+		}
 	}
 	C_FREE(rooms, max_st_idx, int);
 }

@@ -415,7 +415,7 @@ bool set_prob_travel(int v)
 	{
 		if (!p_ptr->prob_travel)
 		{
-			msg_print("You feel instable.");
+			msg_print("You feel unstable.");
 			notice = TRUE;
 		}
 	}
@@ -852,7 +852,7 @@ bool set_tim_res_time(int v)
 	{
 		if (!p_ptr->tim_res_time)
 		{
-			msg_print("You are now protected against the space-time distortions.");
+			msg_print("You are now protected against space-time distortions.");
 			notice = TRUE;
 		}
 	}
@@ -862,7 +862,7 @@ bool set_tim_res_time(int v)
 	{
 		if (p_ptr->tim_res_time)
 		{
-			msg_print("You are no longer protected against the space-time distortions.");
+			msg_print("You are no longer protected against space-time distortions.");
 			notice = TRUE;
 		}
 	}
@@ -1981,7 +1981,7 @@ bool set_walk_water(int v)
 	{
 		if (!p_ptr->walk_water)
 		{
-			msg_print("You feel strangely insubmersible!");
+			msg_print("You feel strangely buoyant!");
 			notice = TRUE;
 		}
 	}
@@ -1991,7 +1991,7 @@ bool set_walk_water(int v)
 	{
 		if (p_ptr->walk_water)
 		{
-			msg_print("You are no longer insubmersible.");
+			msg_print("You feel much less buoyant.");
 			notice = TRUE;
 		}
 	}
@@ -2049,7 +2049,7 @@ bool set_shero(int v)
 	{
 		if (p_ptr->shero)
 		{
-			msg_print("You feel less Berserk.");
+			msg_print("You feel less berserk.");
 			notice = TRUE;
 
 			/* Redraw map */
@@ -2888,7 +2888,7 @@ bool set_tim_regen(int v, int p)
 	{
 		if (!p_ptr->tim_regen)
 		{
-			msg_print("Your body regeneration abilities greatly increase!");
+			msg_print("Your body regenerates much more quickly!");
 			notice = TRUE;
 		}
 	}
@@ -2899,7 +2899,7 @@ bool set_tim_regen(int v, int p)
 		if (p_ptr->tim_regen)
 		{
 			p = 0;
-			msg_print("Your body regeneration abilities becomes normal again.");
+			msg_print("Your body regenerates much more slowly.");
 			notice = TRUE;
 		}
 	}
@@ -4320,7 +4320,7 @@ void monster_death(int m_idx)
 		int xx = x, yy = y;
 		int attempts = 100;
 
-		cmsg_print(TERM_VIOLET, "This monster was under the protection of a great wyrm of power!");
+		cmsg_print(TERM_VIOLET, "This monster was under the protection of a Great Wyrm of Power!");
 
 		do
 		{
@@ -7590,7 +7590,7 @@ void make_wish(void)
 
 	if (test_object_wish(name, o_ptr, &forge, "wish"))
 	{
-		msg_print("Your wish become truth!");
+		msg_print("Your wish becomes truth!");
 
 		/* Give it to the player */
 		drop_near(o_ptr, -1, p_ptr->py, p_ptr->px);
@@ -7674,7 +7674,7 @@ void make_wish(void)
 
 					/* Create the monster */
 					if (place_monster_one(wy, wx, i, j, FALSE, mstatus))
-						msg_print("Your wish become truth!");
+						msg_print("Your wish becomes truth!");
 
 					/* Don't search any more */
 					return;

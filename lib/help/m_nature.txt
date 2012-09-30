@@ -9,18 +9,18 @@ are rumours of a "Tome of the Tree" which contains all the nature school
 spells within its bindings.
 
 Worshipping the Goddess Yavanna Kementari also gives the ability to cast spells
-from the nature school at a level of 1/2 of your prayer level. e.g. If the skill
+from the nature school at a level of 1/2 of your prayer level. E.g. if the skill
 "Spirituality: Prayer" is at level 10, you can cast up to level 5 nature school
 spells.
 
 #####GNature Spells
-There are five spells available for the nature school. These Spells are:
+There are five spells available for the nature school. These spells are:
 1. [[[[[GGrow Trees] (dual school level 6)
    Makes trees grow extremely quickly around you.
 #####v   Your Nature and Temporal skills must have reached a combined average level 
 #####v   of 6 in order to cast this spell.
 2. [[[[[GHealing] (school level 10)
-   Heals a percent of hitpoints.
+   Heals a portion of your hitpoints.
 3. [[[[[GRecovery] (school level 15)
    Reduces the length of time that you are poisoned.
    At spell level 5 it cures poison and cuts.
@@ -47,7 +47,7 @@ There are five spells available for the nature school. These Spells are:
 #####GUdun spells that can be cast with Nature skill
 
 1. [[[[[DGenocide] (dual school level 25)
-   Genocides all monsters of a race on the level.
+   Genocides all monsters of a specified race on the level.
    At level 10 it can genocide all monsters near you.
 #####v   Your Nature and Udun skills must have reached a combined average level 
 #####v   of 25 in order to cast this spell.

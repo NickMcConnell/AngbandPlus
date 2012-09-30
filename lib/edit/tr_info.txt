@@ -212,7 +212,7 @@ F:FLOOR | CHEST | DOOR
 
 N:35:Aggravation Trap
 I:2:100:50:2:3:0d0:o
-D:Your hear a high pitched humming noise...
+D:Your hear a high-pitched humming noise...
 F:FLOOR | CHEST | DOOR
 
 N:36:Multiplication Trap
@@ -227,13 +227,13 @@ F:FLOOR | CHEST
 
 N:38:Summon Fast Quylthulgs Trap
 I:8:50:10:10:25:0d0:v
-D:Parts of the owner seems to return from somewhere else, you slow in awe.
+D:Parts of the owner seem to return from somewhere else, as you slow in awe.
 F:FLOOR | CHEST | DOOR
 
 N:39:Trap of Sinking
 I:2:50:0:0:3:0d0:w
 D:A trapdoor opens up under you!
-F:FLOOR | CHEST | DOOR
+F:FLOOR | DOOR
 
 N:40:Trap of Mana Drain
 I:4:100:50:3:4:0d0:r
@@ -267,7 +267,7 @@ F:FLOOR | CHEST | DOOR
 
 N:46:Trap of Sliding
 I:8:50:50:4:8:0d0:r
-D:You feet seem to have a life of their own!
+D:Your feet seem to have a life of their own!
 F:FLOOR | CHEST | DOOR
 
 N:47:Trap of Charges Drain
@@ -764,7 +764,7 @@ F:FLOOR | CHEST | DOOR | LEVEL3
 
 N:167:Psi Drain Trap
 I:6:80:5:6:15:8d10:r
-D:You suddenly can't think so clear any more...
+D:You suddenly can't think clearly any more...
 F:FLOOR | CHEST | DOOR | LEVEL3
 
 # Ball Traps
@@ -786,7 +786,7 @@ F:FLOOR | CHEST | DOOR | LEVEL3
 
 N:170:Acquirement Trap
 I:1:40:5:5:18:0d0:v
-D:Woh !
+D:Woah!
 F:FLOOR | DOOR
 
 # More bolt traps
@@ -803,7 +803,7 @@ F:FLOOR | CHEST | DOOR | LEVEL1
 
 N:173:Greater Acid Bolt Trap
 I:3:60:5:3:6:6d6:g
-D:A jet of acid shoots out at you! It Burns hard!
+D:A jet of acid shoots out at you! It burns severely!
 F:FLOOR | CHEST | DOOR | LEVEL1
 
 N:174:Greater Cold Bolt Trap

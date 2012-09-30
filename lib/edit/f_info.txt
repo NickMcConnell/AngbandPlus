@@ -419,7 +419,7 @@ F:DONT_NOTICE_RUNNING
 N:64:explosive rune
 G:*:R
 F:FLOOR | CAN_LEVITATE | CAN_FLY | NOTICE | SUPPORT_LIGHT
-D:0:This rune seems instable.
+D:0:This rune seems unstable.
 
 N:65:Straight Road startpoint
 G:*:w

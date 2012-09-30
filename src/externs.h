@@ -706,7 +706,7 @@ extern void search(void);
 extern void carry(int pickup);
 extern void py_attack(int y, int x, int max_blow);
 extern bool player_can_enter(byte feature);
-extern void move_player(int dir, int do_pickup);
+extern void move_player(int dir, int do_pickup, bool disarm);
 extern void move_player_aux(int dir, int do_pickup, int run, bool disarm);
 extern void run_step(int dir);
 extern void step_effects(int y, int x, int do_pickup);
@@ -735,7 +735,7 @@ extern void do_cmd_disarm(void);
 extern void do_cmd_bash(void);
 extern void do_cmd_alter(void);
 extern void do_cmd_spike(void);
-extern void do_cmd_walk(int pickup);
+extern void do_cmd_walk(int pickup, bool disarm);
 extern void do_cmd_stay(int pickup);
 extern void do_cmd_run(void);
 extern void do_cmd_rest(void);
@@ -1033,6 +1033,7 @@ extern void curse_equipment_dg(int chance, int heavy_chance);
 /* monster1.c */
 extern void screen_roff(int r_idx, int ego, int remember);
 extern void display_roff(int r_idx, int ego);
+extern void monster_description_out(int r_idx, int ego);
 
 /* monster2.c */
 extern void monster_set_level(int m_idx, int level);
@@ -1513,6 +1514,8 @@ extern bool get_check(cptr prompt);
 extern bool get_com(cptr prompt, char *command);
 extern s32b get_quantity(cptr prompt, s32b max);
 extern void pause_line(int row);
+extern char request_command_ignore_keymaps[];
+extern bool request_command_inven_mode;
 extern void request_command(int shopping);
 extern bool is_a_vowel(int ch);
 extern int get_keymap_dir(char ch);

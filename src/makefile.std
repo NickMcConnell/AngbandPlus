@@ -102,9 +102,9 @@ CC = gcc
 # PROFILELDFLAGS = -pg
 
 #
-# Standard version (see main-x11.c and main-gcu.c)
+# Standard version (see main-x11.c)
 #
-# This version supports both "X11" and "curses" in a single executable.
+# This version supports "X11" only.
 #
 # You may have to add various X11 include/library directories to the
 # "INCLUDES", if your machine places files in a weird location
@@ -130,7 +130,7 @@ INCLUDES = -I/usr/X11R6/include
 DEFINES = -DUSE_X11 \
 	-DUSE_EGO_GRAPHICS -DUSE_TRANSPARENCY -DSUPPORT_GAMMA \
 	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK
-LIBS = -lX11 -L/usr/X11R6/lib
+LIBS = -L/usr/X11R6/lib -lX11
 
 ##
 ## Variation -- Only support "main-gtk.c" (not "main-gcu.c, main-x11.c")
@@ -140,13 +140,19 @@ LIBS = -lX11 -L/usr/X11R6/lib
 #DEFINES = -DUSE_GTK -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
 #LIBS = `gtk-config --libs`
 
-#
-# Variation -- Only support "main-x11.c" (not "main-gcu.c")
+##
+## Variation -- Both "main-x11.c" and "main-gcu.c" in a single executable.
+##
+## Your Unix system's curses library may be called "-lcurses" instead of
+## "-lncurses", and you may also need to add "-ltermlib" to the end of the
+## LIBS on some platforms.
 #
 #COPTS = -Wall -O1 -pipe -g
 #INCLUDES = -I/usr/X11R6/include
-#DEFINES = -DUSE_X11 -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA
-#LIBS = -lX11 -L/usr/X11R6/lib
+#DEFINES = -DUSE_X11 -DUSE_GCU -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS \
+#	-DUSE_TRANSPARENCY -DSUPPORT_GAMMA \
+#	-DUSE_PRECISE_CMOVIE -DUSE_UNIXSOCK
+#LIBS = -L/usr/X11R6/lib -lX11 -lncurses
 
 
 ##
@@ -431,11 +437,11 @@ install: default
 #
 
 clean:
-	rm -f *.bak *.o lua/*.o w_*.c
+	rm -f *.bak *.o lua/*.o w_*.c $(TOLUA) $(TARGET)
 
 
 # Make a src dist
-TARGET_VERSION=`fgrep '[V]' ../changes.txt | sed 's/\[V\]-\s*T.o.M.E \(.\).\(.\).\(.\) .*/\1\2\3/g'`
+TARGET_VERSION=`fgrep '[V]' ../changes.txt | sed 's/\[V\]-*\s*T.o.M.E \(.\).\(.\).\(.\) .*/\1\2\3/g'`
 DIST_TARGET_VERSION=../dist/tome-$(TARGET_VERSION)-src
 DIST_TARGET=../dist/tome-xxx-src
 dist: clean

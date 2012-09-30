@@ -9,10 +9,10 @@ useless for any other class. Alchemists use essences to create magical
 items for them to use.
 
 They can be either found on the floor while exploring the dungeon, or
-extracted from other magical items the alchemist finds during their
+extracted from other magical items the alchemist finds during his
 adventures.
 
-To create an artifact, the alchemist will have to have first learnt the 
+To create an artifact, the alchemist will first have to have learnt the 
 Artifact Creation ability. This ability costs 70 skill points (yes, 70, 
 it's a very powerful ability!). And you need an alchemy skill of at least 
 40, plus INT and WIS at 35 (thats 18/170 in non-linear form).
@@ -23,7 +23,7 @@ enough, uses that experience to add abilities to the artifact. The
 alchemist can allow the artifact to continue to gain experience, thus
 keeping open the option to add more abilities later. This requires a
 similar amount of magic essence, but does not require the sacrifice of
-other hit points.
+more hit points.
 
 Note that the experience you gain is divided among the artifacts that you
 have as well as going to yourself, so you will gain levels more slowly when
@@ -55,7 +55,7 @@ These are: Acidic, Shocking, Fiery, Frozen, Venomous, and Chaotic weapons,
 Resist Fire armour, and light sources of Fearlessness.
 
 At skill level 10 you will gain knowledge of digging ego items, if you have
-selected the option 'always  generate very unusual rooms' (ironman_rooms).
+selected the option "always generate very unusual rooms" (ironman_rooms).
 
 At skill level 15 you can create ego wands, staves, rings, etc.
 
@@ -67,7 +67,7 @@ don't require any exotic ingredients beyond a single corpse of any type.
 Between skill levels 25 and 50, you will steadily gain the ability to set
 more and more flags.
 
-To finalise an artifact, you 'P'ower it, and select the powers you want.
+To finalise an artifact, you "P"ower it, and select the powers you want.
 Powers are divided into the following six categories:
 *****essences.txt*03[Stats, Sustains, Luck, Speed, Vision, etc.]
 *****essences.txt*04[Misc. (Auras, Light, See Invisibility, etc.)]
@@ -93,7 +93,7 @@ lvl     xp   Power
 25     1000  Sustain Charisma         Ring of Sustain Charisma
 40    50000  Speed                    Ring of Speed
 38   150000  Extra Attacks            Ring of Extra Attacks
-32     5000  Stealthy                 Left Insole from an Used Soft Boot
+32     5000  Stealthy                 Left Insole from a Used Soft Boot
 29     2000  Adds to Searching        Filthy Rag
  6     1000  Helps Infravision        Brass Lantern
 30     1000  Lucky                    Rabbit's Left Forefoot

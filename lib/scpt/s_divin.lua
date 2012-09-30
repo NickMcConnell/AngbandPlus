@@ -49,11 +49,17 @@ IDENTIFY = add_spell
 				local obvious
 				obvious = identify_pack()
 				obvious = is_obvious(fire_ball(GF_IDENTIFY, 0, 1, get_level(IDENTIFY, 3)), obvious)
+				if obvious == TRUE then
+					player.notice = bor(player.notice, PN_COMBINE, PN_REORDER)
+				end
 				return obvious
 			elseif get_level(IDENTIFY, 50) >= 17 then
 				local obvious
 				obvious = identify_pack()
 				obvious = is_obvious(fire_ball(GF_IDENTIFY, 0, 1, 0), obvious)
+				if obvious == TRUE then
+					player.notice = bor(player.notice, PN_COMBINE, PN_REORDER)
+				end
 				return obvious
 			else
 				if ident_spell() == TRUE then return TRUE else return end

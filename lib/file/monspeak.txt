@@ -71,7 +71,7 @@ says, 'No AH! Don't hurtsis us.'
 
 N:135:Mughash the Kobold Lord
 4
-says, 'I may be a kobold, but I'll kick your arse!'
+says, 'I may be a kobold, but I can beat you!'
 says, 'Feel my wrath, fool!'
 says, 'Death and destruction make me happy!'
 snickers evilly.
@@ -82,7 +82,7 @@ begs for mercy.
 N:137:Wormtongue, Agent of Saruman
 6
 whines and sniggers.
-leafs through 'Pervert Magazine.'
+leafs through 'Cowards Monthly.'
 whispers nasty things.
 says, 'I'll slaughter you slowly...'
 giggles as he fingers his knife.
@@ -111,8 +111,8 @@ says, 'Money? Sure, take it all back!'
 N:180:Orfax, Son of Boldor
 N:237:Boldor, King of the Yeeks
 5
-wonders aloud about your sexual orientation.
-spouts torrents of obscenities.
+wonders aloud about the quality of your weapon.
+spouts torrents of taunts.
 shouts, 'YEEK! YEEK! YEEK!'
 says, 'I'll teach you to respect yeeks!'
 says, 'Feel lucky, punk?'
@@ -124,7 +124,7 @@ N:200:Hobbes the Tiger
 4
 says, 'Why were people put here? TIGER FOOD!'
 says, 'Yum! Adventurer sandwiches!'
-says, 'I killed Calvin, now I'll kill YOU!'
+says, 'I ate Calvin, now I'll eat YOU!'
 says, 'I'll make your short life nasty and brutish!'
 1
 yells, 'Ow! Get me back to the comics!'
@@ -156,8 +156,8 @@ says, 'I love being psychotic!'
 says, 'My brain's on fire with the feeling to kill!'
 says, 'I shall torture you slowly.'
 calls you a scum-sucking pig-dog.
-says, 'I shall have my way with your women!'
-says, 'You're not so tough, buttmunch!'
+says, 'I shall break you!'
+says, 'You're not so tough, loser!'
 says, 'Heh-heh, heh-heh, killing people is cool.'
 6
 screams, 'Hey, orcs have rights too!'
@@ -238,7 +238,7 @@ says, 'NT is the solution for ALL your needs!'
 hacks out some code and calls it a Service Pack.
 says, 'We don't have a monopoly... Mac OS still exists!'
 wonders if he should buy a small country.
-says, 'Where will we let you go today?  HELL!'
+says, 'Where will we let you go today?  The Recycle Bin!'
 cackles diabolically.
 3
 sobs, 'OK, Linux doesn't suck. Let me live?'
@@ -249,7 +249,7 @@ N:733:Santa Claus
 8
 says, 'Ho ho ho! You're gonna die!'
 says, 'You're gettin' COAL in your stocking!'
-says, 'On Smasher, on Whoop-Ass, now dash away all!'
+says, 'On Smasher, on Crasher, now dash away all!'
 chortles sadistically.
 says, 'You're on the Naughty List!'
 says, 'No presents for you, ever!'
@@ -308,8 +308,8 @@ snorts, 'A mere mortal dares challenge my might? HA!'
 says, 'Not another one! I just finished chewing on the last!'
 wonders aloud how many XP you're worth.
 leafs through 'Evil Geniuses For Dummies'.
-mutters, 'Another damn loser to kill...'
-says, 'Hell shall claim your remains!'
+mutters, 'Another darn loser to kill...'
+says, 'Angband shall claim your remains!'
 says, 'Another 12 skulls and I get that reward from the Boss!'
 yawns at your pathetic efforts to kill him.
 says, 'Minions, slaughter this fool!'
@@ -331,7 +331,7 @@ N:861:Dark God, the Mighty Coder of Hell
 6
 says 'Hullo'.
 emits a low 'hmmmm'.
-screams 'I came from the Hell for YOU!'
+screams 'I came from the Hells for YOU!'
 laughs out loudly.
 mutters something about bugs.
 asks you about the new version.

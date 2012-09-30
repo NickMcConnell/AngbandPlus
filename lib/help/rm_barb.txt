@@ -35,4 +35,3 @@ Spirituality            0.200           [0.000]
 A barbarian character begins the game with:
     Some rations
     Some torches
-    

@@ -4,7 +4,7 @@
 #####R=== Symbiants ===
 
 #####GDescription
-Symbiants live in harmony with all of the monsters that do not move;
+Symbiants live in harmony with all of the monsters that do not move:
 the Mushrooms, Molds, Floating Eyes, and such. They can hypnotise these
 creatures and then form a symbiotic relationship. Using other symbiotic
 powers, they can even use the magical abilities of their pets.
@@ -55,7 +55,7 @@ Depending on the monster, this does nothing except protect the player
 slightly (the worn monster takes some of the damage the player would
 otherwise) or grant some very powerful attacks and summons.
 Their "spells" are used by the 'm' command; as their Symbiosis skill
-raises, they automatically gain more powers.
+increases, they automatically gain more powers.
 For more detail about the specific powers, look here: *****m_symbio.txt*0[Symbiosis]
 ~~~~~03|Symbiant|Naming your symbiote
 #####GNaming your symbiote

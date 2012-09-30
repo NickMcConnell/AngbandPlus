@@ -5,10 +5,10 @@
 #####GDescription
 Another dark, cave-dwelling race, likewise unhampered by darkness attacks,
 the Dark Elves have a long tradition and knowledge of magic. With their 
-intelligence they can become superb mages or priests, and they have an 
-inherent magic missile attack available to them at a low level. With their
-keen sight, they also learn to see invisible things as their relatives 
-High-Elves do, but at a higher level.
+intelligence and wisdom they can become superb mages or priests, and they
+have an inherent magic missile attack available to them at a low level. With
+their keen sight, they also learn to see invisible things as their relatives 
+the High-Elves do, but at a higher level.
 
 #####GStat Modifiers
 Strength        -1   

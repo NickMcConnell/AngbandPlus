@@ -1,7 +1,55 @@
-T.o.M.E 2.3.1 aka "And Now For a Word" changes
+T.o.M.E 2.3.2 aka "Unrealized Reality" changes
+
+Interface changes:
+- If easy_disarm is off, don't trigger known traps while walking normally.
+  Added a new extended command "blunder" to let players trigger traps on
+  purpose. -- gwooledge
+- Lots of documentation, spelling and grammar fixes, including:
+  * the now-outdated race/class ability tables, replaced with skill tables
+  * the missing documentation for the set of extended commands
+  * far too many others to mention here
+  -- gwooledge
+- Added sanity and speed to the character screen (and hence the text dump).
+  Consolidated HP and SP into one line to make room. -- gwooledge
+- Allow shopping to use the correct keys in roguelike mode. -- gwooledge
+- Push a certain potion type a little deeper into the dungeon -- Neil
+- Make piety display light blue when praying, to make it easier to tell
+  when you're praying. -- gwooledge
+- Don't display ordinary resists when there's also an immunity to the same
+  element, in an object description. -- gwooledge
+- Display the (colored) character for uniques in the Known Uniques list (~2).
+  -- gwooledge
+- Add "Check abilities" extended command/macro.  This gives roguelike keyset
+  players a way to access the ability screen other than "\N", although it's
+  still one more keystroke than "\N" is.... -- gwooledge
+- Clean up some offensive messages, patch courtesy of 'The Fury' -- Neil
+- Include the resistances grid on character sheets dumped on death.
+  This makes them consistent with the ones generated before death, and
+  is more informative and useful for post mortem analyses. -- gwooledge
+- Examining a totem will recall the monster it summons -- Neil
+- Examining a corpse will recall the monster it was -- Neil
+
+Object changes:
+- Prevent random artifact bolts from giving extra blows -- Neil
+- Correct the types of certain artifact trap sets to match their weights
+  and descriptions. -- gwooledge
+- Potions of Cure Insanity were too cheap. -- gwooledge
+
+Player changes:
+- Warriors no longer get a secret special three bonus blows spread over the
+  50 character levels.  The three blows are now tied to Weaponmastery.
+  Module authors should adjust accordingly, or their warriors may get three
+  blows they didn't have before. -- Neil
 
 Bug fixes:
-- Fix loading and saving of skills, I hope.  Unfortunately this breaks save
-  compatiability, though.  The saves must be deleted again. -- Neil
-- Fix negative skills -- Neil
-- Don't use weaponmastery combat when weaponmastery skill is negative -- Neil
+- Don't allow trap doors on quest levels or on chests. -- gwooledge
+- Update view after high-powered globe of light. -- gwooledge
+- Don't allow use of stairs (any < or > movement command) while rooted
+  to the floor (by the Yavanna spell). -- gwooledge
+- Try again to keep traps from wrecking a certain plot element -- Neil
+- Fix module file handling for multi-user installs.  Now character sheets,
+  automatizer file, and the rest will be read and written in
+  ~/.tome/2.3/modulename as they should. -- Neil
+- Try harder to save persistent levels when recalling out -- Neil
+- Fix all sub-racial skill bonuses, along with Maia racial skill bonuses
+  -- Neil

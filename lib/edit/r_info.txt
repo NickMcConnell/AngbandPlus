@@ -1872,7 +1872,7 @@ F:EVIL | UNDEAD | IM_POIS | IM_COLD |
 F:NO_CONF | NO_SLEEP | HURT_LITE | BASEANGBAND | NO_CUT
 S:1_IN_10
 S:CAUSE_1 | S_UNDEAD
-D:A frightening skeletal figures in a black robe. 
+D:A frightening skeletal figure in a black robe. 
 
 N:125:Rotting corpse
 G:z:R
@@ -2241,7 +2241,7 @@ F:MALE |
 F:DROP_1D2 | WILD_TOO | WILD_WOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE | 
 F:EVIL | MORTAL | BASEANGBAND | HAS_LITE
-D:He is after your cash! 
+D:He is after your possessions! 
 
 N:151:Hunting hawk
 G:B:u
@@ -3351,7 +3351,7 @@ S:HEAL | BLIND | DARKNESS | CONF | CAUSE_2
 D:"Great greyish-white slippery things which could expand and 
 D:contract at will, and whose principle shape... was that of a 
 D:sort of toad without any eyes, but with a curious vibrating mass 
-D:of short pink tentacles on the end of its blung, vague snout." 
+D:of short pink tentacles on the end of its blunt, vague snout." 
 
 N:224:Master yeek
 G:y:g
@@ -3971,7 +3971,7 @@ F:MALE | WILD_TOO |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE | 
 F:EVIL | ORC | MORTAL | BASEANGBAND | HAS_LITE
-D:He is a hideous deformed cross-breed with man and orc, combining man's 
+D:He is a hideous deformed cross-breed of man and orc, combining man's 
 D:strength and cunning with orcish evil.  The traitorous wizard Saruman is 
 D:generally believed to be responsible for this abomination. 
 
@@ -7045,7 +7045,7 @@ F:MALE |
 F:FRIENDS | DROP_60 | WILD_TOO | WILD_WASTE | DROP_SKELETON | DROP_CORPSE | 
 F:OPEN_DOOR | BASH_DOOR | SUSCEP_FIRE | REGENERATE | 
 F:EVIL | TROLL | IM_COLD | HURT_LITE | BASEANGBAND
-D:He is a white troll with powerfully clawed hands. 
+D:He is a white troll with powerful clawed hands. 
 
 N:455:Dhole
 G:w:s
@@ -7139,7 +7139,7 @@ F:EVIL | DRAGON | IM_ELEC | BASEANGBAND | ATTR_MULTI
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_ELEC
-D:It has a form that legends are made of. Its still-tender scales are a 
+D:It has a form out of legend. Its still-tender scales are a 
 D:deep blue in hue. Sparks crackle along its length. 
 
 N:460:Young white dragon
@@ -7158,7 +7158,7 @@ F:EVIL | DRAGON | IM_COLD | BASEANGBAND | ATTR_MULTI
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_COLD
-D:It has a form that legends are made of. Its still-tender scales are a 
+D:It has a form out of legend. Its still-tender scales are a 
 D:frosty white in hue. Icy blasts of cold air come from it as it breathes. 
 
 N:461:Young green dragon
@@ -7177,7 +7177,7 @@ F:EVIL | DRAGON | IM_POIS | BASEANGBAND | ATTR_MULTI
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_POIS
-D:It has a form that legends are made of. Its still-tender scales are a 
+D:It has a form out of legend. Its still-tender scales are a 
 D:deep green in hue. Foul gas seeps through its scales. 
 
 N:462:Young bronze dragon
@@ -7196,7 +7196,7 @@ F:EVIL | DRAGON | NO_CONF | BASEANGBAND | ATTR_MULTI
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_CONF
-D:It has a form that legends are made of. Its still-tender scales are a 
+D:It has a form out of legend. Its still-tender scales are a 
 D:rich bronze hue, and its shape masks its true form. 
 
 N:463:Aklash
@@ -7294,7 +7294,7 @@ B:BITE:HURT:4d10
 F:CAN_FLY | UNIQUE | FORCE_MAXHP | DROP_CORPSE | CAN_SPEAK |
 F:WILD_ONLY | WILD_MOUNTAIN | WILD_VOLCANO | PET | 
 F:ANIMAL | GOOD | BASEANGBAND
-D:Among the mightiest of birds, Thorondor is the messenger the Valar, and 
+D:Among the mightiest of birds, Thorondor is the messenger of the Valar, and 
 D:brings news of Middle-earth to Valinor itself.  Nothing that can be seen 
 D:from the airs of the world is hidden from him. 
 
@@ -7344,7 +7344,7 @@ F:INVISIBLE | OPEN_DOOR | BASH_DOOR |
 F:EVIL | DRAGON | NO_CONF | NO_SLEEP | BASEANGBAND | ATTR_MULTI
 S:1_IN_6 | 
 S:BR_NETH | SLOW | CONF | SCARE | DARKNESS
-D:It is a dragon-like form wrapped in shadow.  Glowing red eyes shine out in 
+D:It is a dragon-like form wrapped in shadow.  Glowing red eyes shine in 
 D:the dark, and it is surrounded by an aura of unearthly cold that chills 
 D:the soul rather than the body. 
 
@@ -7624,7 +7624,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR |
 F:MORTAL | BASEANGBAND
 S:1_IN_6 | 
 S:FORGET | CAUSE_2 | HOLD | SLOW
-D:A lesser relative of the beholder:  a globular body with a large toothy mouth, 
+D:A lesser relative of the beholder: a globular body with a large toothy mouth, 
 D:a large central eye, and four smaller eyes on stalks protruding from the top 
 D:of its body. 
 
@@ -8538,7 +8538,7 @@ S:1_IN_5 |
 S:BR_GRAV
 D:Unfettered by the usual constraints of gravity, these unnatural creatures 
 D:are walking on the walls and even the ceiling!  The earth suddenly feels 
-D:rather less solid as you see gravity warp all round these monsters. 
+D:rather less solid as you see gravity warp all around these monsters. 
 
 N:541:Acidic cytoplasm
 G:j:s
@@ -8593,7 +8593,7 @@ F:ANIMAL | NO_CONF | NO_SLEEP
 F:MORTAL | BASEANGBAND
 S:1_IN_5 | 
 S:BR_WALL
-D:A deep brown shape is visible before you, its canine form strikes you with 
+D:A deep brown shape is visible before you, its canine form striking you with 
 D:an almost physical force. The dungeon floor buckles as if struck by a 
 D:powerful blow as it stalks towards you. 
 
@@ -8646,7 +8646,7 @@ F:EVIL | DRAGON | IM_ACID | BASEANGBAND | ATTR_MULTI
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_ACID
-D:It has a form that legends are made of. Its still-tender scales are a 
+D:It has a form out of legend. Its still-tender scales are a 
 D:darkest black hue. Acid drips from its body. 
 
 N:547:Mumak
@@ -8829,7 +8829,7 @@ F:IM_POIS | NO_CONF | NO_SLEEP | BASEANGBAND | HAS_LITE
 S:1_IN_8 | 
 S:SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS
-D:It has a form that legends are made of. Beautiful scales of shimmering 
+D:It has a form out of legend. Beautiful scales of shimmering 
 D:and magical colours cover it. 
 
 N:557:Raal's Tome of Destruction
@@ -8886,7 +8886,7 @@ F:EVIL | DRAGON | BASEANGBAND | NO_STUN | HAS_LITE | ATTR_MULTI
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_SOUN
-D:It has a form that legends are made of. Its still-tender scales are a 
+D:It has a form out of legend. Its still-tender scales are a 
 D:tarnished gold hue, and light is reflected from its form. 
 
 N:560:Mature blue dragon
@@ -8961,7 +8961,7 @@ F:EVIL | DRAGON | IM_FIRE | BASEANGBAND | HAS_LITE | ATTR_MULTI
 S:1_IN_10 | 
 S:SCARE | 
 S:BR_FIRE
-D:It has a form that legends are made of. Its still-tender scales are a 
+D:It has a form out of legend. Its still-tender scales are a 
 D:deepest red hue. Heat radiates from its form. 
 
 N:564:Nightblade
@@ -10160,8 +10160,8 @@ S:HEAL | TELE_TO | BLIND | CONF | CAUSE_3 | DARKNESS | FORGET | HOLD |
 S:S_MONSTER | S_MONSTERS | S_DEMON | TPORT | BA_NETH | MIND_BLAST |
 S:S_KIN
 D:One of the oldest and most powerful dark elves, Malekith is a master 
-D:sorcerer devoted to evil. The left side of his face is pale, the other 
-D:one is dark. His hair is long and white. 
+D:sorcerer devoted to evil. The left side of his face is pale, and the other 
+D:is dark. His hair is long and white. 
 
 N:629:Shadowfax, steed of Gandalf
 G:q:v
@@ -10298,8 +10298,8 @@ F:MORTAL | BASEANGBAND | HAS_LITE
 S:1_IN_2 | 
 S:BLIND | 
 S:S_DRAGON
-D:This elusive female spellcaster has a special affinity for dragons, whom 
-D:she rarely fights without. 
+D:This elusive female spellcaster has a special affinity for dragons, without
+D:whom she rarely fights.
 
 N:637:Ranger chieftain
 G:p:W
@@ -10780,7 +10780,7 @@ S:HEAL | BLINK | TELE_TO | BLIND | CONF | CAUSE_4 | DARKNESS |
 S:BA_NETH | BA_ELEC | BA_ACID | BA_FIRE | BA_COLD | BO_MANA |  
 S:S_MONSTERS | S_UNDEAD | S_DRAGON | S_DEMON
 D:A lord of the Teleri, Eol is a mighty metalsmith, the first 
-D:one to ever forge weapons of meteorite iron.  His dark 
+D:one ever to forge weapons of meteorite iron.  His dark 
 D:countenance glares at you in disdain. 
 
 N:661:Archon
@@ -11101,7 +11101,7 @@ F:DRAGON | NO_CONF | NO_SLEEP | BASEANGBAND | ATTR_MULTI
 S:1_IN_6 | 
 S:BLIND | CONF | 
 S:BR_LITE | BR_DARK | BR_CONF
-D:A huge dragon emanating from the ethereal plane, this terrible dragon is 
+D:A huge dragon emanating from the ethereal plane, this terrible creature is 
 D:a master of light and dark. Its form disappears from sight as it cloaks 
 D:itself in unearthly shadows. 
 
@@ -11447,7 +11447,7 @@ F:EVIL | DRAGON | IM_COLD | NO_CONF | BASEANGBAND | HAS_LITE
 S:1_IN_4 | 
 S:CONF | CAUSE_3 | 
 S:BR_COLD
-D:An ancient and wise Dragon. Scatha has grown clever over the long years. 
+D:An ancient and wise dragon, Scatha has grown clever over the long years. 
 D:His scales are covered with frost, and his breath sends a shower of ice 
 D:into the air. 
 
@@ -11555,8 +11555,8 @@ S:CONF | CAUSE_3 |
 S:BR_FIRE
 D:Smaug is one of the Uruloki that still survive, a fire-drake of immense 
 D:cunning and intelligence.  His speed through air is matched by few other 
-D:dragons, his dragonfire is what legends are made of, and his hide is 
-D:armoured with diamonds: he is believed to be the greatest dragon still 
+D:dragons, his dragonfire is legendary, and his hide is 
+D:armoured with diamonds. He is believed to be the greatest dragon still 
 D:surviving into the Third Age. 
 
 N:698:The Stormbringer
@@ -11777,7 +11777,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | PET | SUSCEP_FIRE |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | MOVE_BODY |
 F:SMART | TAKE_ITEM | KILL_WALL | BASH_DOOR |
 F:GOOD | BASEANGBAND | NO_CUT
-D:A tree-herd:  a sentient, moving tree. Its wrath is fearsome, and it could 
+D:A tree-herd: a sentient, moving tree. Its wrath is fearsome, and it could 
 D:split stones and even the very rock of Isengard with its roots. 
 
 N:709:Hru
@@ -11831,7 +11831,7 @@ F:FORCE_SLEEP | NEVER_MOVE | CAN_SWIM |
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | BASEANGBAND | NO_CUT
 D:It is the epitome of all that is evil, in a mold. Its lifeless form draws 
-D:power from sucking the souls of those that approach it, a nimbus of pure 
+D:power from sucking the souls of those that approach it; a nimbus of pure 
 D:evil surrounds it. Luckily for you, it can't move... 
 
 N:712:Fafner the Dragon
@@ -11938,7 +11938,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR |
 F:MORTAL | BASEANGBAND
 S:1_IN_9
 S:BR_FIRE
-D:A great water-beast, with an almost unpenetrable skin. 
+D:A great water-beast, with an almost impenetrable skin. 
 
 N:717:Garm, Guardian of Hel
 G:C:b
@@ -12419,7 +12419,7 @@ F:MORTAL | BASEANGBAND
 S:1_IN_5 | 
 S:BR_NETH
 D:A pale green hound. Pulsing red lines and strange fluorescent light 
-D:hints at internal organs best left to the imagination. 
+D:hint at internal organs best left to the imagination. 
 
 N:740:Lesser kraken
 G:~:G
@@ -12525,7 +12525,7 @@ S:1_IN_4 |
 S:BLIND | SCARE | BRAIN_SMASH | 
 S:BO_MANA | BO_NETH | BA_NETH | BR_NETH | S_UNDEAD
 D:This intensely evil creature bears the form of a gargantuan black worm. 
-D:Its gaping maw is a void of blackness, acid drips from its steely hide. 
+D:Its gaping maw is a void of blackness, and acid drips from its steely hide. 
 D:It is like nothing you have ever seen before, and a terrible chill runs 
 D:down your spine as you face it. 
 
@@ -12945,7 +12945,7 @@ S:TELE_TO | BLIND |
 S:BO_FIRE | BO_MANA | BA_FIRE | 
 S:BR_FIRE | BR_PLAS | 
 S:S_ANGEL
-D:A creature of godly appearance, you dare not challenge Uriel's supremacy. 
+D:A creature of godly appearance. You dare not challenge Uriel's supremacy. 
 D:Those who stood against him before are but a memory, cremated by his 
 D:mastery of elemental fire.
 
@@ -13266,8 +13266,9 @@ F:ANIMAL | MORTAL | BASEANGBAND |
 S:1_IN_5 | 
 S:CAUSE_4 | 
 S:BR_CHAO
-D:"Beware the Jabberwock, my son! The jaws that bite, the claws that catch!" 
-D:Run and run quickly, for death incarnate chases behind you! 
+D:'Twas brillig, and the slithy toves / Did gyre and gimble in the wabe: /
+D:All mimsy were the borogoves, / And the mome raths outgrabe. /
+D:"Beware the Jabberwock, my son! / The jaws that bite, the claws that catch!" 
 
 N:779:Chaos hound
 G:Z:v
@@ -13960,7 +13961,7 @@ S:TPORT | TELE_TO
 D:"He saw why the shadow on the frosted pane yesterday had been 
 D:headless and he screamed... but before he could scream out his 
 D:protest his breath was cut off, as the hands descended on his 
-D:face and the wed ret mouths opened in their palms." 
+D:face and the wet red mouths opened in their palms." 
 
 N:811:Aether hound
 G:Z:v
@@ -15111,7 +15112,7 @@ S:BRAIN_SMASH | FORGET | BO_ICEE | BO_MANA | BO_PLAS |
 S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | BA_CHAO | 
 S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_HI_DRAGON | S_WRAITH | S_UNIQUE | 
 S:HAND_DOOM | ANIM_DEAD
-D:Mighty in spells and enchantments,he created the One Ring. 
+D:Mighty in spells and enchantments, he created the One Ring. 
 D:His eyes glow with power and with his gaze he seeks to destroy 
 D:your soul. He has many servants, and rarely fights without them. 
 
@@ -15404,9 +15405,10 @@ F:FORCE_MAXHP | DROP_CORPSE |
 F:DROP_GOOD | DROP_GREAT | DROP_60 | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | PASS_WALL | NO_SLEEP | NO_STUN | NO_CONF |
 F:EVIL | UNDEAD | JOKEANGBAND | NO_CUT
-D:The leader of the horsemen of the apocalypse, before you lies Death. 
-D:A bony skeleton in a huge dark robe wielding a great scythe, Death rides 
-D:a horse of purest black and comes to bring your death. 
+D:"And I looked, and behold a pale horse: and his name that sat on him was
+D:Death, and Hell followed with him. And power was given unto them over the
+D:fourth part of the earth, to kill with sword, and with hunger, and with
+D:death, and with the beasts of the earth."
 
 N:876:Famine
 G:G:U
@@ -16157,7 +16159,7 @@ B:STING:POISON:2d5
 B:STING:POISON:2d5
 F:ANIMAL | EVIL | AQUATIC | IM_POIS | WILD_TOO | COLD_BLOOD | 
 F:MORTAL | BASEANGBAND
-D:An intelligent devil ray of the depths. 
+D:An intelligent devil-ray of the depths. 
 
 N:926:Ixitxachitl priest
 G:~:s
@@ -16185,7 +16187,7 @@ F:ANIMAL | EVIL | AQUATIC | RES_NETH | IM_POIS | WILD_TOO |
 F:BASEANGBAND | COLD_BLOOD
 S:1_IN_6
 S:HEAL | SCARE | CAUSE_3 | BLIND | FORGET | HASTE
-D:A devil ray of the depths, with vampiric powers. 
+D:A devil-ray of the depths, with vampiric powers. 
 
 N:928:Mathilde, the Science Student
 G:h:y
@@ -16662,7 +16664,7 @@ S:1_IN_2 |
 S:TELE_LEVEL | BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA | 
 S:BA_FIRE | BA_COLD | BA_NETH | ANIM_DEAD | 
 S:S_HI_UNDEAD | S_KIN
-D:He was the warrior-king of the East, now a ringwraith. Khamul is a powerful opponent, his skill in 
+D:He was the warrior-king of the East, now a Ringwraith. Khamul is a powerful opponent, his skill in 
 D:combat awesome and his form twisted by evil cunning. 
 
 N:954:The Witch-King of Angmar
@@ -16685,7 +16687,7 @@ S:1_IN_2 |
 S:TELE_AWAY | BLIND | HOLD | SCARE | CAUSE_3 | BRAIN_SMASH | 
 S:BO_MANA | BA_NETH | S_WRAITH | 
 S:S_KIN | S_HI_UNDEAD | S_HI_DRAGON | S_MONSTERS | ANIM_DEAD
-D:The Chief of the Ringwraiths. A fell being of devastating power. His 
+D:The Chief of the Ringwraiths. A fell being of devastating power, his 
 D:spells are lethal and his combat blows crushingly hard. He moves at 
 D:speed, and commands legions of evil to do his bidding. It is said that he 
 D:is fated never to die by the hand of mortal man.
@@ -17053,7 +17055,7 @@ F:MORTAL | BASEANGBAND | ATTR_MULTI
 S:MULTIPLY | 
 S:1_IN_6 | BR_CONF
 D:You thought dragons used eggs, but this worm has the scales, and the bad 
-D:breath, and the fiery eyes, of a real Dragon. Its scales glitter in 
+D:breath, and the fiery eyes, of a real dragon. Its scales glitter in 
 D:a multitude of perplexing and distracting ways. 
 
 N:977:Gold dragon worm
@@ -17073,7 +17075,7 @@ F:MORTAL | BASEANGBAND | ATTR_MULTI
 S:MULTIPLY | 
 S:1_IN_6 | BR_SOUN
 D:You thought dragons used eggs, but this worm has the scales, and the bad 
-D:breath, and the fiery eyes, of a real Dragon. You can feel the air itself 
+D:breath, and the fiery eyes, of a real dragon. You can feel the air itself 
 D:vibrating as you near it. 
 
 N:978:Moldoux, the Defenceless Mold
@@ -17165,7 +17167,7 @@ S:BR_NETH | HASTE | TRAPS | FORGET | BR_DISE | BR_TIME | MIND_BLAST |
 S:HEAL | TPORT | TELE_TO | CAUSE_1 | CAUSE_2 | CAUSE_3 | CAUSE_4 | BLIND |
 S:CONF | SLOW | HOLD | S_ANGEL | S_UNIQUE
 D:A woman of mind-shattering beauty, none can match her beauty. She is perfect, 
-D:and totaly evil. She loves nothing but herself and her evilness is as 
+D:and totally evil. She loves nothing but herself and her evil is as 
 D:great as her beauty. No one can stand against her, even DarkGod. 
 D:As you see her approaching, you feel your heart breaking. 
 D:She is the perfection, don't even try against her; you will surely lose 
@@ -17664,7 +17666,7 @@ F:EVIL | IM_POIS |
 F:MORTAL | BASEANGBAND | HAS_LITE
 S:1_IN_6 | MISSILE | HEAL | CAUSE_1 | CONF
 D:Where Mughash is the strongest of his kind, his consort Vort is the 
-D:wisest:  she is her tribe's chief shamaness. 
+D:wisest: she is her tribe's chief shamaness. 
 
 N:1008:Giant black louse
 G:I:D
@@ -17966,7 +17968,7 @@ F:MORTAL | BASEANGBAND | ATTR_MULTI
 S:MULTIPLY | 
 S:1_IN_6 | BR_ELEC
 D:You thought dragons used eggs, but this worm has the scales, and the bad  
-D:breath, and the fiery eyes, of a real Dragon. Sparks fly from its jaws.
+D:breath, and the fiery eyes, of a real dragon. Sparks fly from its jaws.
 
 N:1024:White dragon worm
 G:w:W
@@ -17985,7 +17987,7 @@ F:MORTAL | BASEANGBAND | ATTR_MULTI
 S:MULTIPLY | 
 S:1_IN_6 | BR_COLD
 D:You thought dragons used eggs, but this worm has the scales, and the bad  
-D:breath, and the fiery eyes, of a real Dragon. Its breath condenses in the air.
+D:breath, and the fiery eyes, of a real dragon. Its breath condenses in the air.
 
 N:1025:Green dragon worm
 G:w:G
@@ -18004,7 +18006,7 @@ F:MORTAL | BASEANGBAND | ATTR_MULTI
 S:MULTIPLY | 
 S:1_IN_6 | BR_POIS
 D:You thought dragons used eggs, but this worm has the scales, and the bad 
-D:breath, and the fiery eyes, of a real Dragon. You can smell foul gases 
+D:breath, and the fiery eyes, of a real dragon. You can smell foul gases 
 D:on its breath.
 
 N:1026:Black dragon worm
@@ -18024,7 +18026,7 @@ F:MORTAL | BASEANGBAND | ATTR_MULTI
 S:MULTIPLY | 
 S:1_IN_6 | BR_ACID
 D:You thought dragons used eggs, but this worm has the scales, and the bad  
-D:breath, and the fiery eyes, of a real Dragon. Acidic drool drips from its jaws.
+D:breath, and the fiery eyes, of a real dragon. Acidic drool drips from its jaws.
 
 N:1027:Red dragon worm
 G:w:R
@@ -18043,7 +18045,7 @@ F:MORTAL | BASEANGBAND | ATTR_MULTI
 S:MULTIPLY | 
 S:1_IN_6 | BR_FIRE
 D:You thought dragons used eggs, but this worm has the scales, and the bad  
-D:breath, and the fiery eyes, of a real Dragon. Smoke comes from its mouth. 
+D:breath, and the fiery eyes, of a real dragon. Smoke comes from its mouth. 
 
 N:1028:Multi-hued dragon worm
 G:w:v
@@ -18062,7 +18064,7 @@ F:MORTAL | BASEANGBAND
 S:MULTIPLY | 
 S:1_IN_6 | BR_ELEC | BR_COLD | BR_FIRE | BR_ACID | BR_POIS
 D:You thought dragons used eggs, but this worm has the scales, and the bad 
-D:breath, and the fiery eyes, of a real Dragon. Its scales shimmer different 
+D:breath, and the fiery eyes, of a real dragon. Its scales shimmer different 
 D:colours as you watch. 
 
 N:1029:The Minotaur of the Labyrinth
@@ -18095,7 +18097,7 @@ F:OPEN_DOOR | BASH_DOOR | FEMALE | POWERFUL | SPECIAL_GENE | REFLECTING |
 F:EVIL | ANIMAL | IM_ELEC | IM_FIRE | IM_ACID | IM_POIS | ESCORT | 
 F:MORTAL | BASEANGBAND | EMPTY_MIND | UNIQUE | NO_CONF
 S:1_IN_2 | BR_POIS | S_KIN
-D:Queen and Mother of the sandworms, fear her and her prolific children. 
+D:Queen and mother of the sandworms, fear her and her prolific children. 
 
 N:1031:Sandworm
 G:w:y

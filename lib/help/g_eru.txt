@@ -32,7 +32,7 @@ to cast rather than your spellpoints, and the level of spells that Eru will
 permit you to use is determined by your Prayer skill - how skillful you are
 in asking for his help without offending him! 
 
-There is a special book - called the "Holy Tome of Eru Iluvatar" which 
+There is a special book called the "Holy Tome of Eru Iluvatar" which 
 contains instructions for the procedure for each of the prayers Eru will 
 grant. There are four prayers all told, which are:
 1. [[[[[BSee the Music] (Level 1)

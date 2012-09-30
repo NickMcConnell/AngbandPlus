@@ -5817,3 +5817,13 @@ becomes 0, allowing spells to summon fiery blades and such
 [O]- No more blessed boomerangs -- neil
 
 [V]  T.o.M.E 2.3.0 aka "One more try to get Mages working"
+
+10/12/2004
+[B]- Fix loading and saving of skills, I hope.  Unfortunately this breaks save
+     compatiability, though.  The saves must be deleted again. -- Neil
+
+29/12/2004
+[B]- Fix negative skills -- Neil
+[B]- Don't use weaponmastery combat when weaponmastery skill is negative -- Neil
+
+[V]  T.o.M.E 2.3.1 aka "2.3.0.1"

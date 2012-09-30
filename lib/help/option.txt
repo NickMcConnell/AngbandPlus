@@ -2,53 +2,54 @@
 ~~~~~05|Options
 #####R=== Options and Effects (ToME 2.1.x) ===
 
-Most of the "options" are accessible through the '=' command, which provides
-an interface to the various "sets" of options available to the player.
+Most of the options are accessible through the '=' command, which provides
+an interface to the various sets of options available to the player.
 
 In the descriptions below, each option is listed as the textual summary
-which is shown on the "options" screen, plus the internal name of the
+which is shown on the options screen, plus the internal name of the
 option in brackets, followed by a textual description of the option.
 
 Note that the internal name of the option can be used in user pref files
-to force the option to a given setting, see *****command.txt*105["command.txt"] for more info.
+to force the option to a given setting; see *****command.txt*105["command.txt"] for more info.
 
-Various concepts are mentioned in the descriptions below, including "disturb",
+Various concepts are mentioned in the descriptions below, including "disturb"
 (cancel any running, resting, or repeated commands, which are in progress),
 "flush" (forget any keypresses waiting in the keypress queue, including any
-macros in progress), "fresh" (dump any pending output to the screen).
+macros in progress), and "fresh" (dump any pending output to the screen).
 
 ~~~~~06|Options|Startup
 #####R=== Birth/Startup Options ===
 
 The birth or startup options are only able to be changed during character
-creation, and can be accessed by typing = during the creation process. They
+creation, and can be accessed by typing '=' during the creation process. They
 can also be viewed from the option menu while playing, but not changed then.
 
 #####GMaximise stats    [maximize]
-    Maximise causes the "race" and "class" stat bonuses to be applied as
-    "equipment" bonuses.  This usually makes the character harder at the
+    Maximise causes the race and class stat bonuses to be applied like
+    equipment bonuses.  This usually makes the character harder at the
     beginning of the game, but easier later on, since the stats are no longer
-    limited to a "natural" value of "18/100".
+    limited to a "natural" value of 28 (18/100).
 
 #####GPreserve artifacts    [preserve]
     Preserve artifacts cancels all level feelings of the "special" variety,
-    but allows "missed" artifacts to be "saved" by wandering monsters and
+    but allows missed artifacts to be "saved" by wandering monsters and
     found again at a later time.  This only works for non-identified artifacts.
 
 #####GSpecify 'minimal' stats    [autoroll]
     Uses the standard autoroller for character creation. This allows the player
-    to specify a series of minimum values for the stats, and the game will keep
-    rerolling until it achieves them (or 1 million rolls, whichever comes first).
-    Be warned however, that there is a maximum power permitted for a starting
-    character. Setting one stat to near maximum is easily achievable, 2 is
-    reasonable, but 3 would require the remaining 3 stats to be near their
-    minimum values.
+    to specify a set of minimum values for the stats, and the game will keep
+    rerolling until it achieves them (or 1 million rolls, whichever comes
+    first).  Be warned, however, that there is a maximum total power permitted
+    for a starting character. Setting one stat to near maximum is easily
+    achievable; 2 is reasonable; but 3 would require the remaining 3 stats to
+    be near their minimum values.
 
 #####GGenerate character using a point system    [point_based]
-    Allows the player to split a certain amount of points around their stats. It
-    results in the player being able to get one or two really high stats, at the
-    expense of other not-so-important stats. Unused points convert into starting
-    gold for the player.
+    Allows the player to distribute a certain number of points among her stats.
+    It results in the player being able to get one or two really high stats, at
+    the expense of other not-so-important stats; or to have a well-rounded
+    character who is above average (but not great) in all stats. Unused points
+    convert into starting gold for the player.
 
 #####GGenerate persistent dungeons    [permanent_levels]
     Setting this option means that level 1 of the dungeon will always have
@@ -56,10 +57,11 @@ can also be viewed from the option menu while playing, but not changed then.
 
 #####GAlways generate very unusual rooms    [ironman_rooms]
     Tries to place a special room or vault on every dungeon level. Very fun,
-    but extremely deadly - imagine that GCV with Lokkak on dungeon level 1!
+    but extremely deadly - imagine that Greater Checkerboard Vault with Lokkak
+    on dungeon level 1!
 
 #####GAllow notes to be written to a file    [take_notes]
-    Allows any player written notes (with the "|" command) to be written to
+    Allows any player-written notes (with the "|" command) to be written to
     a file and kept (instead of being put in the message list).
 
 #####GAutomatically note important events    [auto_notes]
@@ -67,7 +69,7 @@ can also be viewed from the option menu while playing, but not changed then.
     each time you gain a level, kill a unique, find an artifact, etc.
 
 #####GFast autoroller (NOT on multiuser systems)    [fast_autoroller]
-    The normal autoroller has a built in delay that help prevent it from
+    The normal autoroller has a built-in delay that helps prevent it from
     overloading a system. This option reduces that delay, allowing characters
     to be rolled in a much shorter time, but should not be used on multiuser
     systems.
@@ -76,7 +78,7 @@ can also be viewed from the option menu while playing, but not changed then.
     Allows monsters flagged as being some of DarkGod's jokes to be generated.
 
 #####GAlways make small levels    [always_small_level]
-    Overwrites the in-game option of small_levels, generating smaller levels
+    Overrides the in-game option of small_levels, generating smaller levels
     whenever possible.
 
 #####GYou can receive fates, good or bad    [fate_option]
@@ -104,12 +106,13 @@ off at will during the course of the game.
     No longer used.
 
 #####GPrompt before picking things up    [carry_query_flag]
-    Forces the game to ask you if you want to pick something up when you
-    do something that would normally cause the item to be picked up.
+    Forces the game to ask you for confirmation when you do something that
+    would normally cause an item to be picked up.
 ~~~~~4
 #####GUse old target by default    [use_old_target]
-    Forces all commands which normally ask for a "direction" to use the
-    current "target" if there is one.  Use of this option can be dangerous
+    Forces all commands which normally ask for a direction to use the
+    current target if there is one.  If the current target is a monster, it
+    becomes unset when that monster dies.  Use of this option can be dangerous
     if you target locations on the ground, unless you clear them when done.
 
 #####GPick things up by default    [always_pickup]
@@ -120,15 +123,15 @@ off at will during the course of the game.
 
 #####GPrompt before picking up heavy objects   [prompt_pickup_heavy]
     Generates a prompt whenever the character tries to pick up an item that
-    would slow them down.
+    would slow him down.
 
 #####GRepeat obvious commands    [always_repeat]
-    Tells the game that when you attempt to "open" a door or chest, "bash"
-    a door, "tunnel" through walls, or "disarm" traps or chests, that you
-    wish to "repeat" the command 99 times (see *****command.txt*0["command.txt"]).
+    Tells the game that when you attempt to open a door or chest, bash
+    a door, tunnel through walls, or disarm traps or chests, that you
+    wish to repeat the command 99 times (see *****command.txt*0["command.txt"]).
 
 #####GShow dungeon level in feet    [depth_in_feet]
-    Display the dungeon depth in "feet" instead of as an actual level (one
+    Display the dungeon depth in "feet" instead of as a level number (one
     level is equivalent to 50'). This also affects the monster memory display.
 
 #####GMerge inscriptions when stacking    [stack_force_notes]
@@ -142,9 +145,9 @@ off at will during the course of the game.
     may cause you to lose "value", but will give you optimal pack usage.
 
 #####GShow labels in object lists    [show_labels]
-    Display the "labels" for objects in the "equipment" list, and in any
-    "special" window which is displaying the "equipment".  These labels
-    indicate what the player is "using" the object for, such as "wielding"
+    Display the "labels" for objects in the equipment list, and in any
+    special window which is displaying the equipment.  These labels
+    indicate what the player is using the object for, such as "wielding"
     or "wearing" (in a given location).  After you have played for a while,
     this information is no longer useful, and can be annoying.
     Note that in ToME this option no longer controls the "plain
@@ -152,36 +155,36 @@ off at will during the course of the game.
     under "ToME Options".
 
 #####GShow weights in object lists    [show_weights]
-    Display the weights of objects in the "inventory" and "equipment" lists,
-    and in "stores", and in any "special" window which is displaying any of
+    Display the weight of objects in the inventory and equipment lists,
+    and in stores, and in any special window which is displaying any of
     these lists.
 
 #####GShow graphics in inventory list   [show_inven_graph]
-    Display the graphics of objects in the "inventory" list, and in any "special"
-    window which is displaying the "inventory" list.
+    Display the graphics of objects in the inventory list, and in any special
+    window which is displaying the inventory list.
 
 #####GShow graphics in equipment list   [show_equip_graph]
-    Display the graphics of objects in the "equipment" list, and in any "special"
-    window which is displaying the "equipment" list.
+    Display the graphics of objects in the equipment list, and in any special
+    window which is displaying the equipment list.
 
 #####GShow graphics in stores   [show_store_graph]
-    Display the graphics of objects in the "store" list.
+    Display the graphics of objects in the store list.
 
 #####GShow choices in certain sub-windows    [show_choices]
-    Indicate legal choices in "special" windows which display lists.
+    Indicate legal choices in special windows which display lists.
 
 #####GShow details in certain sub-windows    [show_details]
-    Indicate extra details in "special" windows, currently used to activate
-    the display of "death counts" and "monster descriptions" when recalling
+    Indicate extra details in special windows, currently used to activate
+    the display of death counts and monster descriptions when recalling
     details about a monster.
 
 #####GAudible bell (on errors, etc)    [ring_bell]
-    Attempt to make a "bell" noise when various "errors" occur.
+    Attempt to make a "bell" noise when various errors occur.
 
 #####GUse color if possible (slow)    [use_color]
-    This option enables the software support for "color".  Since this makes
+    This option enables the software support for colour.  Since this makes
     the game slower, you should always disable this option if you are using
-    a machine which is not capable of using color.
+    a machine which is not capable of using colours.
 
 ~~~~~09|Options|Disturbance
 #####R=== Option Set 2 -- Disturbance ===
@@ -193,11 +196,12 @@ off at will during the course of the game.
     Ignore open doors when running.
 
 #####GRun past known corners    [find_cut]
-    Cut sharply around "known" corners when running.  This will result in
-    "faster" running, but may cause you to run into a "lurking" monster.
+    Cut sharply around known corners when running.  This will result in
+    faster running, but may cause you to run into a lurking monster.
 
 #####GRun into potential corners    [find_examine]
-    Fully explore "potential corners" in hallways.
+    Fully explore potential corners in hallways.  This is strongly
+    recommended if your light source has a small radius (e.g. a torch).
 
 #####GDisturb whenever any monster moves    [disturb_move]
     Disturb the player when any monster moves, appears, or disappears.
@@ -209,16 +213,16 @@ off at will during the course of the game.
     Disturb the player when any viewable monster moves, whenever any
     monster becomes viewable for the first time, and also whenever any
     viewable monster becomes no longer viewable.  This option ignores
-    the existence of "telepathy" for the purpose of determining whether
-    a monster is "viewable".  See also the "view_reduce_view" option.
+    the existence of telepathy for the purpose of determining whether
+    a monster is viewable.  See also the "view_reduce_view" option.
 
 #####GDisturb whenever map panel changes    [disturb_panel]
-    This option causes you to be disturbed by the screen "scrolling",
-    as it does when you get close to the "edge" of the screen.
+    This option causes you to be disturbed (stop running) when the screen
+    scrolls, as it does when you get close to the edge of the visible screen.
 
 #####GDisturb whenever leaving trap-detected area    [disturb_detect]
     This option causes you to be disturbed whenever you are leaving
-    a trap-detected area.
+    a trap-detected area.  This option is strongly recommended.
 
 #####GDisturb whenever player state changes    [disturb_state]
     This option causes you to be disturbed whenever the player state
@@ -227,35 +231,33 @@ off at will during the course of the game.
 #####GDisturb whenever boring things happen    [disturb_minor]
     This option causes you to be disturbed by various boring things,
     including monsters bashing down doors, inventory feelings, and
-    beginning to run out of fuel.
+    beginning to run out of light-source fuel.
 
 #####GDisturb whenever random things happen    [disturb_other]
-    In ToME, uncursed teleporting items may teleport you around
-    sometimes, asking for your confirmation (and possibly disturbing
-    your rest). If you unset this option, they will stop asking you
-    and teleporting you randomly. Cursed items will neither ask for
-    confirmation nor stop teleporting you even if this option is
-    unset.
+    In ToME, uncursed teleporting items may teleport you around sometimes,
+    asking for your confirmation (and possibly disturbing your rest). If you
+    unset this option, they will stop asking you and teleporting you randomly.
+    Cursed items will neither ask for confirmation nor stop teleporting you
+    even if this option is unset.  (You may also inscribe an item with {.}
+    to suppress its random-teleportation power, unless it is cursed.)
 
 #####GAlert user to critical hitpoints    [alert_hitpoint]
     Produce a "bell" noise, and flushes all pending input, when your hitpoints
-    reach the "critical point" chosen elsewhere, preventing stupid deaths.
+    reach the warning point chosen elsewhere, preventing stupid deaths.
 
 #####GAlert user to various failures    [alert_failure]
     Produce a "bell" noise, and flushes all pending input, when various
-    "failures" occur, as described above.
+    failures occur, as described above.
 
 #####GGet last words when the character dies    [last_words]
-    Display a  random line  from  the "death.txt"  file when  your  character
+    Display a random line  from  the "death.txt" file when your character
     dies. If this option is not selected, the "You die." message is displayed
     instead.
 
 #####GAllow shopkeepers and uniques to speak    [speak_unique]
-    If this option is in use, shopkeepers may sometimes whisper rumours  to
-    you. Also certain monsters start boasting as they attack you, and, when
-    they die, they say their 'last words'. A speaking monster may also  (if
-    the option is selected) be wanted by the law, in which case you get the
-    reward if you kill it.
+    If this option is in use, shopkeepers may sometimes whisper rumours to
+    you. Also certain monsters start boasting as they attack you, and when
+    they die, they say their "last words".
 
 #####GNo query to destroy known worthless items    [auto_destroy]
     It can sometimes be annoying that the Destroy command asks for confirmation
@@ -274,7 +276,7 @@ off at will during the course of the game.
     Some players (such as myself) often accidentally press the '<' key
     and exit a Special feeling level. If this option is set, the program
     asks for confirmation before you go up or down the stairs. Others may
-    find the prompt annoying, they should of course not set this option. :-)
+    find the prompt annoying; they should of course not set this option. :-)
 
 #####GDisturb when visible pets move    [disturb_pets]
     The player may wish that some of the disturbance options do not apply
@@ -284,10 +286,16 @@ off at will during the course of the game.
     want your pets to disturb you like normal monsters, set this option.
 
 #####GAutomatically open doors    [easy_open]
-    Opens (and unlocks) doors by walking into them.
+    Opens (and unlocks) doors by walking into them.  Also, if you are adjacent
+    to only one known door, using the "o"pen command will not prompt you for
+    a direction.
 
 #####GAutomatically disarm traps    [easy_disarm]
-    Disarms traps by walking into/over them.
+    Attempts to disarm traps by walking into/over them.  Also, if you are
+    adjacent to only one known trap, using the "D"isarm command will not
+    prompt you for a direction.  If your disarming ability is particularly
+    low, you should probably not enable this option, because you will often
+    fail to disarm the traps, and sometimes trigger them.
 
 #####GAutomatically tunnel walls    [easy_tunnel]
     Automatically tunnels into walls by walking into them.
@@ -296,7 +304,7 @@ off at will during the course of the game.
 #####R=== Option Set 3 -- Game-play ===
 
 #####GAuto-haggle in stores    [auto_haggle]
-    Disable "haggling" in stores, resulting in a ten percent sales tax
+    Disable haggling in stores, resulting in a ten percent sales tax
     on items which you would have otherwise been forced to haggle for.
     When this option is on, all prices listed in stores will be the
     actual price that you pay for an item, as opposed to the price
@@ -307,7 +315,7 @@ off at will during the course of the game.
     in the dungeon.  This option may be extremely slow on some machines,
     especially deep in the dungeon.  The minimum "goodness" of the level
     is based on the dungeon level, so the deeper you go, the better the
-    level will be.  A lot of people consider this option to be cheating.
+    level will be.
 
 #####GAllow weapons and armor to stack    [stack_allow_items]
     Allow identical weapons and armor to be combined into a stack.  This
@@ -317,20 +325,20 @@ off at will during the course of the game.
 
 #####GAllow wands/staffs/rods to stack    [stack_allow_wands]
     Allow identical wands/staffs/rods to be combined into a stack.  This
-    may force the items to be "unstacked" to use them, which may result
-    in "overflow" of the stack.  Also, the entire stack can be recharged
+    may force the items to be unstacked to use them, which may result
+    in overflow of the pack.  Also, the entire stack can be recharged
     (and possibly destroyed) at the same time.
 
 #####GExpand the power of the look command    [expand_look]
-    Expand the "look" command to allow the user to "look" at grids which
+    Expand the "l"ook command to allow the user to look at grids which
     are not actually in view of the player, allowing the examination of
     objects/monsters which have only been detected by spells, or sensed
     via telepathy.
 
 #####GExpand the power of the list commands    [expand_list]
-    Expand the "listing" commands so that they "wrap" at the "edges" of
-    the appropriate list.  This allows the "look" and "target" commands
-    to "cycle" through all appropriate grids forever, and the "identify
+    Expand the "listing" commands so that they wrap at the edges of
+    the appropriate list.  This allows the "l"ook and "t"arget commands
+    to cycle through all appropriate grids forever, and the "identify
     symbol" to browse through all of the monsters of a given type.
 
 #####GMap remembers all perma-lit grids    [view_perma_grids]
@@ -341,35 +349,35 @@ off at will during the course of the game.
     allows the player to always know which lit floor grids are in line
     of sight, but this is better accomplished by the "view_bright_lite"
     option.  Note that any non-floor grids which is seen by the player
-    are always memorised, and "object" which is seen by the player is
+    are always memorised, and any object which is seen by the player is
     memorised independently from the memorisation of the grid itself.
 
 #####GMap remembers all torch-lit grids    [view_torch_grids]
-    Memorize all (torch-lit) floor grids which are seen by the player.
+    Memorise all (torch-lit) floor grids which are seen by the player.
     This option not only allows you to keep track of which floor grids
-    have been explored, but also which ones are "dark", because the use
-    of this option activates a special "color scheme" for the display of
-    floor grids, in which "dark" grids are drawn in "dark gray", "lit"
-    grids are drawn in "white", and (if the "view_bright_lite" option is
-    set) "lit" grids which are also in line of sight are drawn in "orange".
-    Note that grids which are currently "torch-lit" are considered to be
-    "lit", and are thus drawn in "white", unless the "view_yellow_lite"
-    option is set, in which case they are drawn in "yellow".
+    have been explored, but also which ones are dark, because the use
+    of this option activates a special color scheme for the display of
+    floor grids, in which dark grids are drawn in dark grey, lit grids
+    are drawn in white, and (if the "view_bright_lite" option is set)
+    lit grids which are also in line of sight are drawn in orange.  Note
+    that grids which are currently torch-lit are considered to be "lit",
+    and are thus drawn in white, unless the "view_yellow_lite" option is
+    set, in which case they are drawn in yellow.
 
 #####GAllow some monsters to carry light    [monster_lite]
     This option allows some monsters to carry light sources around with them,
     lighting up the space around them. It can also allow you to see when some
     monsters are heading your way before they reach the bend in the corridor
-    that you are hiding behind . . .
+    where you are hiding in ambush....
 
 #####GGenerate dungeons with aligned rooms    [dungeon_align]
-    Force all rooms to be "aligned" with the "panel" divisions.  This results
-    in a much "prettier" dungeon, but may result in fewer greater vaults.
+    Force all rooms to be aligned with the "panel" divisions.  This results
+    in a much prettier dungeon, but may result in fewer greater vaults.
 
 #####GGenerate dungeons with connected stairs    [dungeon_stair]
-    Always generate a staircase back to the level you came from, if you used
-    a staircase to get to the level.  This is more "realistic", and "safer",
-    but less of a "challenge" for some people.
+    Always generate a staircase back to the level whence you came, if you used
+    a staircase to get to the level.  This is more "realistic", and safer,
+    but less of a challenge for some people.
 
 #####GMonsters chase current location (v.slow)    [flow_by_sound]
     Allow monsters to make paths to the player when they are nearby.  This
@@ -386,19 +394,19 @@ off at will during the course of the game.
     compiled in on all platforms.
 
 #####GPlain object descriptions    [plain_descriptions]
-    In ToME, this option disables "full" names for identified
-    'flavored' objects, in other words, if this option is not in use, an
-    identified Potion of Speed could be listed (for example) as a
-    Blue Potion of Speed. If you prefer simpler, less verbose
-    descriptions, set this option.
+    In ToME, this option disables "full" names for identified flavoured
+    objects; in other words, if this option is not in use, an identified
+    Potion of Speed could be listed (for example) as a Blue Potion of Speed.
+    If you prefer simpler, less verbose descriptions, set this option.
 
 #####GMonsters learn from their mistakes    [smart_learn]
     Allow monsters to learn what spell attacks you are resistant to,
     and to use this information to choose the best attacks.
 
 #####GMonsters exploit players weaknesses    [smart_cheat]
-    Allow monsters to know what spell attacks you are resistant to,
-    and to use this information to choose the best attacks.
+    Allow monsters to know what spell attacks you are resistant to, without
+    first having to observe such an attack upon you, and to use this
+    information to choose the best attacks.
 
 #####GMonsters behave stupidly    [stupid_monsters]
     ToME incorporates Keldon Jones' improved monster Artificial
@@ -408,13 +416,14 @@ off at will during the course of the game.
     really stupid monster AI.
     Note that the new AI is a bit processing power expensive. If you have
     an old computer (386sx) and ToME is running too slowly, you could
-    try turning stupid_monsters on. Or buying that Pentium II so you can
+    try turning stupid_monsters on. Or dumpster-dive for a Pentium so you can
     run ToME. :-)
 
 #####GAllow unusually small dungeon levels    [small_levels]
     This option enables the creation of levels of varying sizes. Levels
-    that are as small as the town level (i.e. 1 'screen') are possible,
-    yet they can be dangerous, especially for a low level character.
+    that are as small as one "screen" (80x24) are possible, and they can be
+    quite dangerous, especially for a low level character, because they have
+    as many monsters and traps as their full-sized counterparts.
     Note that this option has the side effect of enabling / disabling
     'destroyed' levels (they are enabled if small levels are).
 
@@ -423,7 +432,7 @@ off at will during the course of the game.
     use, levels which have empty floor instead of solid rock may also
     be created (somewhat reminiscent of Nethack's "big-room" levels).
     These levels can be extremely deadly, especially with breathing
-    monsters (since there are few obstructions to shield). Arena levels
+    monsters (since there are few obstructions to shield you). Arena levels
     may have vaults, nests and pits in them like normal levels. Some
     arena levels are dark when they are created, but most are lit.
 
@@ -431,8 +440,8 @@ off at will during the course of the game.
 #####R=== Option Set 4 -- Efficiency ===
 
 #####GReduce lite-radius when running    [view_reduce_lite]
-    Reduce the "radius" of the player's "lite" to that of a "torch"
-    when the player is "running", which makes running more "efficient",
+    Reduce the radius of the player's light to that of a torch (radius 1)
+    when the player is running, which makes running more efficient (CPU-wise),
     but is extremely annoying.  Certain older versions of Angband used
     this behavior always, so "purists" should turn it on.
 
@@ -451,17 +460,17 @@ off at will during the course of the game.
 
 #####GAvoid processing special colors    [avoid_other]
     Avoid processing the "multi-hued" or "clear" attributes of monsters.
-    This will cause all "multi-hued" monsters to appear "violet" and all
-    "clear" monsters to appear "white", and will cause "trappers" and
-    "lurkers" to be visible on some machines, but it may greatly increase
-    efficiency especially when telepathy is active.  Certain systems may
-    choose to set this option if they are unable to support the special
-    "color" processing, but if they handle graphics "correctly", by using
-    attr/char pairs with the "high bits" set, then not only will the game
-    correctly avoid using any "dangerous" color processing, but it will
-    allow such processing to occur when it is not dangerous.  So if you
-    are using graphics, and you use a "normal" attr/char for the "floor"
-    grids, then you can use the "special lighting effects" for floors.
+    This will cause all multi-hued monsters to appear violet and all
+    clear monsters to appear white, and will cause trappers and lurkers to
+    be visible on some machines, but it may greatly increase efficiency
+    especially when telepathy is active.  Certain systems may choose to set
+    this option if they are unable to support the special color processing,
+    but if they handle graphics "correctly", by using attr/char pairs with
+    the "high bits" set, then not only will the game correctly avoid using
+    any "dangerous" color processing, but it will allow such processing to
+    occur when it is not dangerous.  So if you are using graphics, and you
+    use a normal attr/char for the floor grids, then you can use the
+    "special lighting effects" for floors.
 
 #####GFlush input on various failures    [flush_failure]
     This option forces the game to flush all pending input whenever various
@@ -491,7 +500,7 @@ off at will during the course of the game.
     This option forces the game to flush all output after not only every
     player command, but also after every round of processing monsters and
     objects, which will give you maximal information, but may slow down
-    the game a lot, especially on slower machines, and on faster machines
+    the game a lot, especially on slower machines; and on faster machines
     you normally do not have a chance to see the results anyway.
 
 #####GFlush output after every message    [fresh_message]
@@ -500,7 +509,7 @@ off at will during the course of the game.
     may slow down the game somewhat.
 
 #####GCompress messages in savefiles    [compress_savefile]
-    Compress the savefile, by only saving the most recent "messages" that
+    Compress the savefile, by only saving the most recent messages that
     the player has received.  This can cut the size of the savefile by a
     drastic amount, but will result in the loss of message information.
 ~~~~~2
@@ -518,31 +527,31 @@ off at will during the course of the game.
 #####GUse special colors for 'viewable' grids    [view_bright_lite]
     This option causes special colors to be used for non "viewable" grids
     in certain situations (see "view_granite_lite" and "view_special_lite").
-    When this option is set, floor grids which are normally drawn in "white"
-    but which are not currently "viewable" by the player are instead drawn
-    in "dark gray".  This makes the "viewable" grids to appear "brighter"
-    than the others, allowing the player to easily determine which floor
-    grids are in "line of sight".  Turning this option off will probably
-    increase the speed of the game.
+    When this option is set, floor grids which are normally drawn in white
+    but which are not currently viewable by the player are instead drawn
+    in dark grey.  This makes the viewable grids appear brighter than the
+    others, allowing the player to easily determine which floor grids are
+    in line of sight.  Turning this option off will probably increase the
+    speed of the game.
 
 #####GUse special colors for wall grids (slow)    [view_granite_lite]
-    This option activates a special color scheme for all "wall" grids which
-    are normally drawn in "white" (as walls and rubble normally are).  When
-    the player is blind, we use "dark gray", else if the grid is torch-lit,
-    we use "yellow" (or "white") depending on the "view_yellow_lite" option,
+    This option activates a special color scheme for all wall grids which
+    are normally drawn in white (as walls and rubble normally are).  When
+    the player is blind, we use dark grey, else if the grid is torch-lit,
+    we use yellow (or white, depending on the "view_yellow_lite" option),
     else if the "view_bright_lite" option is set, and the grid is not in line
     of sight, or the grid is dark, or the grid is only "partially" lit, then
-    we use "gray", otherwise we use the normal "white".  Turning this option
+    we use grey, otherwise we use the normal white.  Turning this option
     off will probably increase the speed of the game.
 
 #####GUse special colors for floor grids (slow)    [view_special_lite]
-    This option activates a special color scheme for all "floor" grids which
-    are normally drawn in "white" (as they normally are).  When the player is
-    blind, we use "dark gray", else if the grid is torch-lit, we use "yellow"
-    (or "white") depending on the "view_yellow_lite" option, else if the grid
-    is "dark", we use "dark gray", else if the "view_bright_lite" option is
-    set, and the grid is not in line of sight, we use "gray", otherwise we
-    use the normal "white".  Turning this option off will probably increase
+    This option activates a special color scheme for all floor grids which
+    are normally drawn in white (as they normally are).  When the player is
+    blind, we use dark grey, else if the grid is torch-lit, we use yellow
+    (or white, depending on the "view_yellow_lite" option), else if the grid
+    is dark, we use dark grey, else if the "view_bright_lite" option is
+    set, and the grid is not in line of sight, we use grey, otherwise we
+    use the normal white.  Turning this option off will probably increase
     the speed of the game.
 
 #####GCentre the view on the player (very slow)    [center_player]
@@ -555,41 +564,44 @@ off at will during the course of the game.
 Features which are unique to ToME are collected in this menu.
 
 #####GIngame contextual help    [ingame_help]
-    Setting this option allows the game to trigger a help message the first time
-    you come across an item or some other trigger. Very useful for new players,
-    more experienced players may wish to switch this option off.
+    Setting this option allows the game to trigger a help message the first
+    time you come across an item or some other trigger. This is very useful
+    for new players.  More experienced players may wish to switch this option
+    off.
 
 #####GShow the experience needed for the next level    [exp_need]
-    Setting this option to yes alters the display of experience on the left of
+    Setting this option alters the display of experience on the left of
     the main screen to the experience needed to reach the next character level,
     instead of the character's current total experience.
 
 #####GUse the old(Z) coloring scheme(reload the game)    [old_colors]
-    Setting this option to yes toggles the ASCII game color display from the
-    standard Angband monster colors to the Z-based monster colors. Since this
-    alters the display and monster memory display, you need to reload the game
-    when you alter this setting before it will display the new colors.
+    Setting this option toggles the ASCII game colour display from the
+    standard Angband monster colours to the Zangband-based monster colours.
+    Since this alters the display and monster memory display, you need to
+    reload the game when you alter this setting before it will display the
+    new colours.
 
 #####GAutomatically clear '-more-' prompts    [auto_more]
-    Setting this option to yes automatically clears any messages from the top
-    of the window. Be warned that this could be dangerous - as you don't
+    Setting this option automatically clears any messages from the top
+    of the window. Be warned that this could be dangerous, as you don't
     actually get to see the messages unless you use ^P.
 
 #####GPlayer char represent his/her health    [player_char_health]
-    Setting this option to yes only affects the player character when playing
-    in ASCII. As the player becomes injured, their icon changes to a figure
-    representing the percentage of health remaining, for example if they are
-    down to 68% of their maximum hitpoints, their character will be a '6'
-    instead of a '@'. The character used only starts changing once the player
-    has lost at least 30% of their maximum hitpoints.
+    Setting this option only affects the game when playing without tiles.
+    As the player becomes injured, his icon changes to a figure representing
+    the percentage of health remaining; for example if he is down to 68% of
+    his maximum hitpoints, his character will be a '6' instead of an '@'.
+    The character used only starts changing once the player has lost at
+    least 30% of his maximum hitpoints.
 
 #####GStats are represented in a linear way    [linear_stats]
-    Setting this option to yes alters the display of character stats from
-    3-18/220 to 3-38.
+    Setting this option alters the display of character stats. The default
+    is 3 to 40 (linear), but the older 3 to 18/220 (Moria/Angband style) is
+    retained for players who prefer it.
 
 #####GIn option windows, just omit the select char    [inventory_no_move]
     If this option is set, the equipment/inventory windows don't move items
-    around when a prompt ask for an item.
+    around when a prompt asks for an item.
 
 
 #####R=== Stacking Options ===
@@ -611,8 +623,8 @@ user pref files (see *****command.txt*105["command.txt"]).
 ~~~~~13|Options|Base Delay Factor
 #####R=== Base Delay Factor ===
 
-The "delay_factor" value, if non-zero, is used to "slow down" the game, which is
-useful to allow you to "observe" the temporal effects of bolt, beam, and ball
+The "delay_factor" value, if non-zero, is used to slow down the game, which is
+useful to allow you to observe the temporal effects of bolt, beam, and ball
 attacks.  The actual delay is equal to "delay_factor" cubed, in milliseconds.
 Frequently used factors are 2 or 3.
 
@@ -621,15 +633,15 @@ Frequently used factors are 2 or 3.
 
 The "hitpoint_warn" value, if non-zero, is the percentage of maximal hitpoints
 at which the player is warned that he may die.  It is also used as the cut-off
-for using red to display both hitpoints and mana. It is entered as a value
+for using red to display hitpoints, mana and sanity. It is entered as a value
 between 0 and 9 (0% and 90%).
 
 ~~~~~15|Options|Autosave
 #####R=== Autosave Options ===
 
 Ideally, the game should be so stable that these options are not needed
-at all. However, even if the game were 100% reliable (which it, to be frank,
-probably is not), the user might forget to and his hardware could fail
+at all. However, even if the game were 100% reliable (which, to be frank, it
+probably is not), the user might forget to save, and his hardware could fail
 him. For all of these reasons, you may want to use these options:
 
 #####GAutosave when entering new levels    [autosave_l]
@@ -640,13 +652,12 @@ him. For all of these reasons, you may want to use these options:
 
 #####GTimed autosave    [autosave_t]
         If this option is set, the program will attempt to save your
-        character every n game turns, where n is the "frequency".
-        To set frequency press n: it will increase the frequency
-        to the next category (and from 25000 to 0), the categories
-        being every 50, 100, 250, 500, 1000, 2500, 5000, 10000 and
-        25000 turns. Note that the frequency must be higher than 0
-        and the "Timed autosave" set to "yes" for timed autosaves
-        to take place.
+        character every n game turns, where n is the "frequency".  To set
+	frequency, press n: it will increase the frequency to the next
+	category, these being every 50, 100, 250, 500, 1000, 2500, 5000,
+	10000 or 25000 turns. (After 25000, pressing n again will cycle back
+	to 0.) Note that the frequency must be higher than 0 and the
+	"Timed autosave" set to "yes" for timed autosaves to take place.
 
 ~~~~~16|Options|Automatizer
 #####R=== The Automatizer ===
@@ -659,7 +670,8 @@ amount of loot to have to sort through. This *****automat.txt*0[Tutorial] may he
 ~~~~~17|Options|Window Flags
 #####R=== Window Flags ===
 
-Selects what kind of information is displayed in which window.
+Selects what kind of information is displayed in which window, on platforms
+which use multiple windows.
 
 You can select a window to be able to toggle between 2 different
 sets of information (e.g. Basic Character stats and monster recall)
@@ -689,16 +701,15 @@ by pressing the "y" key over the second display option.
 ~~~~~19|Options|Dump/Load Options
 #####R=== Dump Options ===
 
-Allows the player to save their options to a file (defaults to charname.prf)
-so that they can reload them into other character files.
+Allows the player to save the options to a file (defaults to charname.prf)
+so that they can be reloaded into other character files.
 
 
 #####R=== Load Options ===
 
-Allows the player to load a preference file saved through the "Dump Options"
+Allows you to load a preference file saved through the "Dump Options"
 command in another character file, hence saving all the initial time of having
 to reset all the options every time you wish to play.
 
 
-+++ Ben +++ (Updated by Dark God and Dawnmist for ToME)
-
++++ Ben +++ (Updated by Dark God and Dawnmist et al. for ToME)

@@ -79,7 +79,7 @@ bool quest_one_drop_hook(char *fmt)
 	if (o_ptr->name1 != ART_POWER) return FALSE;
 	if (cave[p_ptr->py][p_ptr->px].feat != FEAT_GREAT_FIRE) return FALSE;
 
-	cmsg_print(TERM_YELLOW, "You throw the One Ring in the #RGreat Fire#y, it is rapidly consumed");
+	cmsg_print(TERM_YELLOW, "You throw the One Ring into the #RGreat Fire#y; it is rapidly consumed");
 	cmsg_print(TERM_YELLOW, "by the searing flames.");
 	cmsg_print(TERM_YELLOW, "You feel the powers of evil weakening.");
 	cmsg_print(TERM_YELLOW, "Now you can go onto the hunt for Sauron!");

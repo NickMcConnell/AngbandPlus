@@ -8,7 +8,7 @@ The Mindcrafter is a priest who uses the powers of mind instead of magic.
 These abilities vary from simple extrasensory perception to mental domination of
 others. Since these powers are developed by the practice of certain
 disciplines, a Mindcrafter requires no spellbooks to use them.
-The Mindcrafter uses the Mindcraft skill to determine how well he / she can
+The Mindcrafter uses the Mindcraft skill to determine how well she can
 perform these psychic "spells", and available powers are simply determined by
 the skill level. In combat a Mindcrafter is roughly the equivalent of a
 priest.
@@ -46,8 +46,8 @@ Perfect casting             1
 
 #####GMindcraft Powers
 Although the powers of a Mindcrafter may seem like magic, this is not
--- strictly speaking --  the case. They are mental powers, independent
-of the ordinary sources of magic. Consequently,  Mindcrafters are not
+-- strictly speaking -- the case. They are mental powers, independent
+of the ordinary sources of magic. Consequently, Mindcrafters are not
 interested in 'magic' and learn no spells. These mental powers can be
 accessed through the "m" command, and you can find a full list of their 
 powers in the *****m_mindcr.txt*0[Mindcraft powers] document.

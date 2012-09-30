@@ -3,7 +3,7 @@
 ~~~~~02|Mindcrafter|Mindcraft powers
 ~~~~~03|Skills|Mindcraft - Spell Info
 #####R === ToME Magic - Mindcraft ===
-Mindcrafting uses the power of the brain to cast it's spells. Therefore neither
+Mindcrafting uses the power of the mind to cast its spells. Therefore neither
 books nor light are necessary, and as the mindcrafter's skill increases, so do
 the powers of his mind.
 
@@ -13,7 +13,7 @@ as usual through the *****skills.txt*21[Magic] skill.
 
 1. [[[[[sPrecognition] (Level 1) Cost:1
    Detects monster minds around you.
-   At level 5 it also detects traps
+   At level 5 it also detects traps.
    At level 15 it also allows you to see invisible monsters for a time.
    At level 20 it maps out the surrounding area.
    At level 25 it gives you ESP for a time.
@@ -28,10 +28,10 @@ as usual through the *****skills.txt*21[Magic] skill.
    Teleports you a good distance. 
    At level 30 it also banishes the monsters around you.
 5. [[[[[sDomination] (Level 9) Cost:7
-   It attempts to dominate the minds of your foes, scaring them.
+   Attempts to dominate the minds of your foes, scaring them.
    At level 30 it attempts to charm monsters.
 6. [[[[[sPulverise] (Level 11) Cost:7
-   Fires pure sound at your opponent, crushing their brains.
+   Fires pure sound at your opponents, crushing their bodies.
 7. [[[[[sCharacter Armour] (Level 13) Cost:12
    Raises a physical shield around your body.
    At level 15 it also grants resistance to acid.
@@ -48,7 +48,7 @@ as usual through the *****skills.txt*21[Magic] skill.
 10.[[[[[sAdrenaline Channeling] (Level 23) Cost:15
    Heals you, hastes you and cures you.
 11.[[[[[sPsychic Drain] (Level 25) Cost:10
-   Drains the life of your foes and into your mana reserves.
+   Drains the life of your foes into your mana reserves.
 12.[[[[[sTelekinesis] (Level 28) Cost:20
    Projects a wave of pure telekinetic force from your body, damaging and maybe 
-   banishing monsters
+   banishing monsters.

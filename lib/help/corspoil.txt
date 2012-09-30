@@ -117,8 +117,8 @@ It is not removable.
 
 [[[[[BVampiric Strength]
   Your body seems somewhat dead
-  In this near undead state it has improved strength, constitution and intelligence
-  But reduced dexterity, wisdom and charisma.
+  In this near-undead state it has improved strength, constitution and
+  intelligence, but also reduced dexterity, wisdom and charisma.
 [[[[[GGain message: Your body seems more dead than alive.]
 It is not removable.
 It depends on:

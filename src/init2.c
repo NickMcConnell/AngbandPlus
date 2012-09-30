@@ -213,6 +213,7 @@ void init_file_paths(char *path)
 
 #ifdef PRIVATE_USER_PATH
 
+	/* synchronize with module_reset_dir */
 	{
 		char user_path[1024];
 

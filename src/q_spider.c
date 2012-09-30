@@ -56,7 +56,7 @@ bool quest_spider_death_hook(char *fmt)
 		/* Yavanna LOVES saving forests */
 		GOD(GOD_YAVANNA)
 		{
-			cmsg_print(TERM_L_GREEN, "You feel the gentle touch of Yavanna, she is smiling at you.");
+			cmsg_print(TERM_L_GREEN, "You feel the gentle touch of Yavanna, as she smiles at you.");
 			inc_piety(GOD_YAVANNA, 6000);
 		}
 

@@ -6,7 +6,7 @@
 
 #####GDescription
 A Paladin is a warrior-priest at the service of *****g_tulkas.txt*0[Tulkas]. As such, his duty
-is to ever be vigilant against the forces of evil and even seek and destroy
+is to be ever vigilant against the forces of evil and even seek and destroy
 those monsters which are evil to the core, especially the foulest
 spawns of hell. Luckily, his quest is eased by the blessing bestowed
 by Tulkas himself.

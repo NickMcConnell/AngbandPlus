@@ -9,7 +9,7 @@
 
 #####R====== ToME Brief History =======
 
-When Zangband came to it 2.2.0 version I (DarkGod) was an Angband winner and
+When Zangband came to its 2.2.0 version I (DarkGod) was an Angband winner and
 I had been a C programmer for a long time, so I decided to take the sources
 and to try to code my own variant. At this time I was reading the Pern
 novels from Anne McCaffrey and I found them *VERY* good, so I decided to
@@ -27,7 +27,7 @@ Now, in PernAngband 5.x.x, PernAngband is a thriving Angband variant
 with plenty of unique features.
 
 Then came some legal problems with Anne McCaffrey estate and ubisoft and
-I had to remove the Pern stuff, so the game got rename to ToME,
+I had to remove the Pern stuff, so the game got renamed to ToME,
 the Troubles of Middle Earth.
 ~~~~~02
 #####R=== Zangband History and Information ===
@@ -94,7 +94,7 @@ programmers:
 	for bugreports, patches, bugfixes, and ideas.
 
 
-ZAngband 2.1.0c was Topi's last version, he has got a job and and
+ZAngband 2.1.0c was Topi's last version, he has got a job and
 doesn't have enough time anymore to continue work on ZAngband.
 He asked for a new maintainer and I was the one to take over the task.
 May I introduce myself, my name is Robert Ruehlmann, I'm the creator
@@ -352,5 +352,3 @@ Angband Version 2.5   : 12/05/93 Charles Swiger.
 Angband Version 2.6   :  9/04/94
 
 Angband Version 2.7   :  1/1/95  Ben Harrison
-
-

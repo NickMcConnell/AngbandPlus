@@ -123,7 +123,7 @@ F:INSTA_ART
 a:HARDCORE=DIM_DOOR
 Z:swap position
 D:The mighty ring of the Thunderlord Flare that makes the wearer 
-D:strong and healthy.  It was once a ring of power and has been 
+D:strong and healthy.  Once a ring of power, it was
 D:given to Flare by Celegorm when he arrived on Middle-earth with a full nest 
 D:of Thunderlords.
 
@@ -238,7 +238,7 @@ P:0:1d1:0:0:0
 F:INSTA_ART | LITE1
 D:A powerful stone that provides a strong light for any who 
 D:wields it. It is rumoured that it may even protect the wearer from 
-D:the passing of the time.
+D:the passing of time.
 
 
 # This artifact has a low artifact level to prevent it being worthless for
@@ -315,8 +315,8 @@ F:HOLD_LIFE | SUST_CON | ESP_UNDEAD | RES_CONF | RES_FEAR |
 F:RES_ACID | RES_COLD | RES_DARK | RES_NETHER | RES_NEXUS | RES_CHAOS | 
 F:ACTIVATE
 a:HARDCORE=CURE_1000
-D:A suit of imperishable adamant, with conquerable strength to endure evil 
-D:and disruptive magics, that protects the life force of its wearer like 
+D:A suit of imperishable adamant, with unconquerable strength to endure evil 
+D:and disruptive magics, that protects the life force of its wearer as 
 D:nothing else can.
 
 
@@ -375,7 +375,7 @@ F:RES_DISEN | ACTIVATE
 a:HARDCORE=GENOCIDE
 D:A shimmering suit of true-silver, forged long ago by dwarven smiths of 
 D:legend.  It gleams with purest white as you gaze upon it, and mighty are 
-D:it powers to protect and banish.
+D:its powers to protect and banish.
 
 
 # The Chain Mail of Arvedui
@@ -566,7 +566,7 @@ W:10:2:20:22000
 P:3:1d1:0:0:12
 F:WIS | CHR | RES_CONF | HIDE_TYPE | LUCK
 D:A ridged helmet made of steel, and embossed with scenes of valour in fine-
-D:engraved silver.  It grants the wearer nobility, clearness of thought and 
+D:engraved silver.  It grants the wearer nobility, clarity of thought and 
 D:understanding.
 
 
@@ -637,7 +637,7 @@ F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | RES_ELEC | RES_CHAOS |
 F:LITE1 | SEE_INVIS | REGEN | ACTIVATE
 a:HARDCORE=CURE_700
 D:The shining winged circlet brought by Elendil from dying Numenor, emblem of 
-D:Gondor though an age of the world.
+D:Gondor through an age of the world.
 
 
 # The Jewel Encrusted Crown of Numenor
@@ -895,8 +895,8 @@ W:30:25:80:15000
 P:6:1d1:0:0:20
 F:STR | CON | HIDE_TYPE | SPEED | RES_FEAR | CLIMB
 D:Sturdy footwear of leather and steel as enduring as the long-suffering 
-D:Dwarven King-in-exile who wore them.  Of dwarven make, the wearer of 
-D:these boots will be completely at home in the mountains.
+D:Dwarven King-in-exile who wore them.  Of dwarven make, these boots will
+D:make their wearer completely at home in the mountains.
 
 
 # The Seeker Arrow of Bard
@@ -1440,7 +1440,7 @@ F:STR | DEX | SPEED | HIDE_TYPE | RES_FEAR |
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | SEE_INVIS | SHOW_MODS
 F:MUST2H
 f:MUST2H
-D:"Forth Eorlingas!".  To the field of Cormallen came Eorl the Young 
+D:"Forth Eorlingas!"  To the field of Cormallen came Eorl the Young 
 D:to save beleaguered Gondor, and from his lance fled massive trolls 
 D:and dire wolves.
 
@@ -1994,7 +1994,7 @@ F:STR | TUNNEL | SUST_STR | HIDE_TYPE | LITE1 | ACTIVATE | CLIMB
 F:SLAY_ORC | SLAY_TROLL | SLAY_DEMON | BRAND_ACID | 
 F:RES_CHAOS | RES_LITE | RES_DARK
 a:HARDCORE=EREBOR
-D:A pick that provides a magical light to see by while tunnelling.
+D:A pick that provides a magical light by which to see while tunnelling.
 
 
 # The Drum of the Druedain
@@ -2007,7 +2007,7 @@ F:ACTIVATE | STEALTH | SEARCH | INFRA | RES_POIS | RES_DARK
 a:HARDCORE=DRUEDAIN
 D:The fabled Drum of the Druedain that will protect those who play it 
 D:from darkness and poison attacks.  It also aids in the seeing of 
-D:warm blooded creatures.
+D:warm-blooded creatures.
 
 
 # The Horn of Rohan
@@ -2059,7 +2059,7 @@ P:0:3d8:14:19:0
 F:BRAND_FIRE | IM_FIRE | CHR | ACTIVATE | SHOW_MODS | CURSED | TY_CURSE
 a:HARDCORE=AXE_GOTHMOG
 D:The black axe of Gothmog, which struck Fingon at Nirnaeth.  Mighty 
-D:spells of evil make it unsafe in any hands but of the original wielder.
+D:spells of evil make it unsafe in any hands but those of its original wielder.
 
 
 # The Seeker Arrow of Gondor
@@ -2100,7 +2100,7 @@ W:50:120:20:60000
 P:-30:0d0:0:0:-20
 F:LUCK | HIDE_TYPE |
 F:FREE_ACT | DRAIN_HP | DRAIN_MANA
-D:Once created by a powerful wizard this robe to grant him incredible luck... 
+D:A powerful wizard once created this robe to grant him incredible luck....
 D:It seems he forgot to wear it.
 
 
@@ -2272,10 +2272,10 @@ D:and makes audible whispers from the deceased.
 
 ### note prices and rarities may have to be adjusted ###
 
-# The Bolt (Catapult ?) Trap Set of Ahromarwar 
+# The Catapult Trap Set of Ahromarwar 
 
 N:161:of Ahromarwar
-I:46:3:3
+I:46:1:3
 W:20:10:40:20000
 P:0:0d0:25:15:30
 F:STEALTH | AUTOMATIC_99 | XTRA_MIGHT | HIDE_TYPE
@@ -2295,10 +2295,10 @@ D:A magical trap, armed with a wand.  Unaccountably, its victims keep
 D:on coming back for more...
 
 
-# The Arrow (Bolt ?) Trap Set 'Merlion Karc's Demonbane'
+# The Bolt Trap Set 'Merlion Karc's Demonbane'
 
 N:163:'Merlion Karc's Demonbane'
-I:46:2:2
+I:46:3:2
 W:20:20:200:20000
 P:0:0d0:17:27:37
 F:STEALTH | XTRA_SHOTS | XTRA_MIGHT | HIDE_TYPE | ONLY_DEMON
@@ -2622,7 +2622,7 @@ N:201:
 I:9:1:0
 W:200:1:10:0
 P:0:1d1:0:0:0
-F:INSTA_ART 
+F:INSTA_ART | SPECIAL_GENE
 
 
 # The Palantir of Orthanc
@@ -2857,7 +2857,7 @@ F:HIDE_TYPE | SHOW_MODS | SPECIAL_GENE
 D:A ghastly axe with the soul of a demon lord trapped inside, this horrifying 
 D:creation reverberates with the screams of the damned.  As you gaze into its 
 D:glassy, translucent blade, it seems that endless sulphrous wastelands 
-D:stretch away from you into the distance, obscured, by sheets of fire.
+D:stretch away from you into the distance, obscured by sheets of fire.
 
 
 # The Set of Cesti 'Skycleaver'

@@ -2,11 +2,11 @@
 ~~~~~01|Help|Spoiled FAQ
 ~~~~~02|FAQ - contains spoilers
 #####R                             ToME Spoiler FAQ
-#####R                     Updated for version 2.2.x
+#####R                     Updated for version 2.3.x
 
 #####G------------------------------------------------------------------------------
 
-This page contains significant spoilers. Don;t browse it unless you want some 
+This page contains significant spoilers. Don't browse it unless you want some 
 parts of the game ruined, but don't expect the spoilers to spoil you completely!
 
 ~~~~~06|Spoilers|Merton the lost Hobbit quest
@@ -29,9 +29,10 @@ needed to get back to the town?
 #####GQ: I'm trying to find the Poisoned water quest at Lothlorien, but cannot
 #####G   find the quest entrance!
 
-A: This quest is located in the wilderness. To the west of Lothlorien is 4 
+A: This quest is located in the wilderness. To the west of Lothlorien are 4 
 water squares in an upside down L shape. One of these squares will contain the
-quest. (Viewed from the Wilderness map).
+quest. (Viewed from the Wilderness map).  There is no yellow > sign, so don't
+bother looking for one.
 ~~~~~20|Spoilers|God Quest - directions
 ~~~~~23|Gods|Quest - Spoilers
 #####G------------------------------------------------------------------------------
@@ -50,8 +51,9 @@ somewhere in the quadrant that is between the south and east axes.
 A: It [[[[[BIS] there. However, when your god told you to look for it VERY  
 carefully, s/he meant it. Regardless of your game settings, the relic will only
 be created once in the temple, at a random place. If you have searched the 
-whole temple once over, and not located it, someone else has found it before 
-you, and it is lost forever.
+whole temple once over, and not located it, then you have missed it, and it is
+lost forever.  Each temple has 5 dungeon levels, and the relic might be on
+any of these 5 levels.
 ~~~~~22|Spoilers|God Quest - how many?
 #####G------------------------------------------------------------------------------
 #####GQ: Apparently my god has lost another piece of his relic and wants me to go 

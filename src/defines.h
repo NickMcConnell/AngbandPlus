@@ -37,8 +37,8 @@
  */
 
 #ifndef IS_CVS
-/*#define IS_CVS          ""*/
 #define IS_CVS          ""
+/*#define IS_CVS          ""*/
 #endif
 
 #define USER_PATH_VERSION "/2.3"
@@ -4694,6 +4694,8 @@ extern int PlayerUID;
 #define CMD_DUMP_HTML	-8186
 #define CMD_MACRO    	-8185
 #define CMD_QUEST    	-8184
+#define CMD_BLUNDER	-8183
+#define CMD_SHOW_ABILITY -8182
 
 #define CLI_MAX	128
 

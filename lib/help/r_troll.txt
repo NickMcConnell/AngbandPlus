@@ -3,12 +3,13 @@
 #####R=== Trolls ===
 
 #####GDescription
-Trolls are incredibly strong, and have more hit points than most other character
-races, so they make great warriors. They are also very stupid and slow. They are
-bad at searching, disarming, perception, and stealth. They are so ugly that an
-Orc grimaces in their presence. They also happen to be fun to play...
-Trolls always have their strength sustained. At higher levels, Trolls learn to 
-enter a berserk fury, and regenerate wounds automatically.
+Trolls are incredibly strong, and have more hit points than most other
+character races, so they make great warriors, and marginal priests. They
+are also very stupid and clumsy. They are bad at searching, disarming,
+perception, and stealth. They are so ugly that an orc grimaces in their
+presence. They also happen to be fun to play.... Trolls always have
+their strength sustained. At higher levels, trolls learn to enter a
+berserk fury, and regenerate from their wounds automatically.
 
 #####GStat Modifiers
 Strength        +4   

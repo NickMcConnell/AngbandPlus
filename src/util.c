@@ -3659,6 +3659,19 @@ void pause_line(int row)
 */
 static char request_command_buffer[256];
 
+/*
+* Mega-Hack -- characters for which keymaps should be ignored in
+* request_command().  This MUST have at least twice as many characters as
+* there are building actions in the actions[] array in store_info_type.
+*/
+#define MAX_IGNORE_KEYMAPS 12
+char request_command_ignore_keymaps[MAX_IGNORE_KEYMAPS];
+
+/*
+* Mega-Hack -- flag set by do_cmd_{inven,equip}() to allow keymaps in
+* auto-command mode.
+*/
+bool request_command_inven_mode = FALSE;
 
 
 /*
@@ -3730,8 +3743,14 @@ void request_command(int shopping)
 			/* Forget it */
 			command_new = 0;
 
-			/* Hack - bypass keymaps. Does this break inven/equip? */
-			if (!inkey_next) inkey_next = "";
+			/* Hack - bypass keymaps, unless asked not to */
+			if (!inkey_next && !request_command_inven_mode)
+			{
+				inkey_next = "";
+			}
+
+			/* Mega-Hack -- turn off this flag immediately */
+			request_command_inven_mode = FALSE;
 		}
 
 		/* Get a keypress in "command" mode */
@@ -3873,6 +3892,17 @@ void request_command(int shopping)
 		/* Look up applicable keymap */
 		act = keymap_act[mode][(byte)(cmd)];
 
+		/* Mega-Hack -- Ignore certain keymaps */
+		if (shopping && cmd > 0)
+		{
+			for (i = 0; i < MAX_IGNORE_KEYMAPS; i++)
+				if (cmd == request_command_ignore_keymaps[i])
+				{
+					act = NULL;
+					break;
+				}
+		}
+
 		/* Apply keymap if not inside a keymap already */
 		if (act && !inkey_next)
 		{
@@ -3908,10 +3938,6 @@ void request_command(int shopping)
 			command_arg = 99;
 		}
 	}
-
-	/* Shopping */
-	if (shopping == 1)
-	{}
 
 	/* Hack -- Scan equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)

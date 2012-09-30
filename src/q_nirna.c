@@ -52,8 +52,8 @@ bool quest_nirnaeth_finish_hook(char *fmt)
 	/* Killed at least 2/3 of them ? better reward ! */
 	if (cquest.data[1] >= (2 * cquest.data[0] / 3))
 	{
-		c_put_str(TERM_YELLOW, "Not only you found a way out but you also destroyed a good", 8, 0);
-		c_put_str(TERM_YELLOW, "number of trolls ! Thanks you so much, take this gold please.", 9, 0);
+		c_put_str(TERM_YELLOW, "Not only did you found a way out, but you also destroyed a good", 8, 0);
+		c_put_str(TERM_YELLOW, "number of trolls! Thank you so much. Take this gold please.", 9, 0);
 		c_put_str(TERM_YELLOW, "I also grant you access to the royal jewelry shop!", 10, 0);
 
 		p_ptr->au += 200000;

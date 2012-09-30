@@ -3679,13 +3679,37 @@ static void do_cmd_knowledge_uniques(void)
 				/* Print a message */
 				if (dead)
 				{
-					fprintf(fff, "#####R %-70s is dead\n",
-					        (r_name + r_ptr->name));
+					/* Don't print the unique's ASCII symbol
+					 * if use_graphics is on. */
+					if (use_graphics)
+					{
+						fprintf(fff, "[[[[[R%-70s is dead]\n",
+					        	(r_name + r_ptr->name));
+					}
+					else
+					{
+						fprintf(fff, "[[[[[%c%c] [[[[[R%-68s is dead]\n",
+							conv_color[r_ptr->d_attr],
+							r_ptr->d_char,
+					        	(r_name + r_ptr->name));
+					}
 				}
 				else
 				{
-					fprintf(fff, " %-70s is alive\n",
-					        (r_name + r_ptr->name));
+					/* Don't print the unique's ASCII symbol
+					 * if use_graphics is on. */
+					if (use_graphics)
+					{
+						fprintf(fff, "[[[[[w%-70s is alive]\n",
+					        	(r_name + r_ptr->name));
+					}
+					else
+					{
+						fprintf(fff, "[[[[[%c%c] [[[[[w%-68s is alive]\n",
+							conv_color[r_ptr->d_attr],
+							r_ptr->d_char,
+					        	(r_name + r_ptr->name));
+					}
 				}
 			}
 		}

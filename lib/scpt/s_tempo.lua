@@ -120,7 +120,8 @@ ESSENCESPEED = add_spell
 		       	return "dur "..(10 + get_level(ESSENCESPEED, 50)).."+d10 speed "..(5 + get_level(ESSENCESPEED, 20))
 	end,
 	["desc"] =	{
-			"Magically increases the passing of time around you",
+			"Magically decreases the passing of time around you, making you move faster with",
+			"respect to the rest of the universe."
 	}
 }
 
@@ -155,7 +156,7 @@ BANISHMENT = add_spell
 		     	return "power "..(40 + get_level(BANISHMENT, 160))
 	end,
 	["desc"] =	{
-			"Disrupt the space/time continuum in your area and teleports all monsters away",
-			"At level 15 it also may lock them in a time bubble for some turns"
+			"Disrupts the space/time continuum in your area and teleports all monsters away.",
+			"At level 15 it may also lock them in a time bubble for a while."
 	}
 }

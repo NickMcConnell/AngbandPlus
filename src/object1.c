@@ -3536,19 +3536,19 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			vp[vn++] = "life draining";
 		}
-		if (f2 & (TR2_RES_ACID))
+		if ((f2 & (TR2_RES_ACID)) && !(f2 & (TR2_IM_ACID)))
 		{
 			vp[vn++] = "acid";
 		}
-		if (f2 & (TR2_RES_ELEC))
+		if ((f2 & (TR2_RES_ELEC)) && !(f2 & (TR2_IM_ELEC)))
 		{
 			vp[vn++] = "electricity";
 		}
-		if (f2 & (TR2_RES_FIRE))
+		if ((f2 & (TR2_RES_FIRE)) && !(f2 & (TR2_IM_FIRE)))
 		{
 			vp[vn++] = "fire";
 		}
-		if (f2 & (TR2_RES_COLD))
+		if ((f2 & (TR2_RES_COLD)) && !(f2 & (TR2_IM_COLD)))
 		{
 			vp[vn++] = "cold";
 		}
@@ -3580,7 +3580,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			vp[vn++] = "shards";
 		}
-		if (f2 & (TR2_RES_NETHER))
+		if ((f2 & (TR2_RES_NETHER)) && !(f4 & (TR4_IM_NETHER)))
 		{
 			vp[vn++] = "nether";
 		}
@@ -3916,6 +3916,16 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 					text_out("% chance to break upon hit.");
 				}
 				display_ammo_damage(o_ptr);
+			}
+
+			/* Monster recall for totems and corpses */
+			if (o_ptr->tval == TV_TOTEM)
+			{
+				monster_description_out(o_ptr->pval, 0);
+			}
+			if (o_ptr->tval == TV_CORPSE)
+			{
+				monster_description_out(o_ptr->pval2, 0);
 			}
 		}
 

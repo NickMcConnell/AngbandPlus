@@ -76,7 +76,7 @@ k:10:Archery
 N:6:Touch of death
 D:Your melee blows can insta-kill, but you only receive 1/3 of the experience
 D:Prereq: Necromancy@50, Combat@40, DEX@30, STR@30
-A:100:Activate touch of deah
+A:100:Activate touch of death
 I:15
 k:50:Necromancy
 k:40:Combat

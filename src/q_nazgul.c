@@ -41,9 +41,9 @@ bool quest_nazgul_finish_hook(char *fmt)
 
 	if (q_idx != QUEST_NAZGUL) return FALSE;
 
-	c_put_str(TERM_YELLOW, "I believe he will not come back! Thanks you.", 8, 0);
-	c_put_str(TERM_YELLOW, "Some time ago a ranger gave me this,", 9, 0);
-	c_put_str(TERM_YELLOW, "I believe this will help you on your quest.", 10, 0);
+	c_put_str(TERM_YELLOW, "I believe he will not come back! Thank you.", 8, 0);
+	c_put_str(TERM_YELLOW, "Some time ago a ranger gave me this.", 9, 0);
+	c_put_str(TERM_YELLOW, "I believe it will help you on your quest.", 10, 0);
 
 	q_ptr = &forge;
 	object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_ATHELAS));

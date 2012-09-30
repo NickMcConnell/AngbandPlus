@@ -1614,20 +1614,15 @@ static void roff_aux(int r_idx, int ego, int remem)
 	}
 }
 
-
-
-
-
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-static void roff_top(int r_idx, int ego)
+static void roff_name(int r_idx, int ego)
 {
 	monster_race *r_ptr = race_info_idx(r_idx, ego);
 
 	byte	a1, a2;
 	char	c1, c2;
-
 
 	/* Access the chars */
 	c1 = r_ptr->d_char;
@@ -1640,12 +1635,6 @@ static void roff_top(int r_idx, int ego)
 	/* Hack -- fake monochrome */
 	if (!use_color) a1 = TERM_WHITE;
 	if (!use_color) a2 = TERM_WHITE;
-
-	/* Clear the top line */
-	Term_erase(0, 0, 255);
-
-	/* Reset the cursor */
-	Term_gotoxy(0, 0);
 
 	/* A title (use "The" for non-uniques) */
 	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
@@ -1677,7 +1666,19 @@ static void roff_top(int r_idx, int ego)
 	Term_addstr( -1, TERM_WHITE, "'):");
 }
 
+/*
+ * Hack -- Display the "name" and "attr/chars" of a monster race on top
+ */
+static void roff_top(int r_idx, int ego)
+{
+	/* Clear the top line */
+	Term_erase(0, 0, 255);
 
+	/* Reset the cursor */
+	Term_gotoxy(0, 0);
+
+	roff_name(r_idx, ego);
+}
 
 /*
  * Hack -- describe the given monster race at the top of the screen
@@ -1697,8 +1698,14 @@ void screen_roff(int r_idx, int ego, int remember)
 	roff_top(r_idx, ego);
 }
 
-
-
+/*
+ * Ddescribe the given monster race at the current pos of the "term" window
+ */
+void monster_description_out(int r_idx, int ego)
+{
+	roff_name(r_idx, ego);
+	roff_aux(r_idx, ego, 0);
+}
 
 /*
  * Hack -- describe the given monster race in the current "term" window

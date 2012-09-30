@@ -2953,8 +2953,6 @@ bool make_attack_spell(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = race_inf(m_ptr);
 	char m_name[80];
-	char m_poss[80];
-	char ddesc[80];
 	bool no_inate = FALSE;
 	int x, y;
 
@@ -3003,7 +3001,6 @@ bool make_attack_spell(int m_idx)
 
 	/* Not allowed to cast spells */
 	if (!chance) return (FALSE);
-
 
 	if (stupid_monsters)
 	{
@@ -3125,12 +3122,6 @@ bool make_attack_spell(int m_idx)
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0x00);
 
-	/* Get the monster possessive ("his"/"her"/"its") */
-	monster_desc(m_poss, m_ptr, 0x22);
-
-	/* Hack -- Get the "died from" name */
-	monster_desc(ddesc, m_ptr, 0x88);
-
 	if (stupid_monsters)
 	{
 		/* Choose a spell to cast */
@@ -3159,13 +3150,27 @@ bool make_attack_spell(int m_idx)
 		}
 	}
 
-	/* Can the player disrupt it's punny attempts ? */
+	/* Can the player disrupt its puny attempts? */
 	if ((p_ptr->antimagic_dis >= m_ptr->cdis) && (magik(p_ptr->antimagic)) && (thrown_spell >= 128))
 	{
-		msg_format("Your anti-magic field disrupts %^s spell.", m_name);
+		char m_poss[80];
+
+		/* Get monster's possessive noun form ("the Illusionist's") */
+		monster_desc(m_poss, m_ptr, 0x06);
+
+		msg_format("Your anti-magic field disrupts %s spell.", m_poss);
 	}
 	else
 	{
+		char m_poss[80];
+		char ddesc[80];
+
+		/* Get the monster possessive ("his"/"her"/"its") */
+		monster_desc(m_poss, m_ptr, 0x22);
+
+		/* Hack -- Get the "died from" name */
+		monster_desc(ddesc, m_ptr, 0x88);
+
 		/* Cast the spell. */
 		switch (thrown_spell)
 		{

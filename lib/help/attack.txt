@@ -31,7 +31,7 @@ Melee attacks are handled as such:
                 Certain rings (accuracy, slaying) may also grants a bonus 
                         or penalty to-hit
                 Your Tactic setting may give bonuses o penalties to-hit
-                        (to change it, press 'C' and then 't'or'T')
+                        (to change it, press 'C' and then 't' or 'T')
                 Other temporary effects (berserk, etc) might affect your
                         chance to hit
                 The armor rating of the monster you're attacking makes a
@@ -42,6 +42,8 @@ Melee attacks are handled as such:
                 Your class and level might affect how many blows you get
                 The weight of the weapon very likely will affect how many 
                         blows you get
+		Certain skills (e.g. Swordmastery) may affect how many blows
+			you get with particular weapons
                 Enchantments on your weapon might also affect how many 
                         blows you get (this is rare)
                 Certain very rare rings (of attacks) may also affect how 
@@ -90,7 +92,8 @@ at dodging will often find heavy armor cumbersome, too.
 Armor has a base rating and an enchantment rating. The base rating is constant
 for the type of armor (e.g. paper armor always has a base rating of 4), and 
 the enchantment depends on the item. There are also ways to further enchant
-armor you have. Certain very powerful enchantments grant resistances.
+armor you have. Certain very powerful enchantments grant resistances to
+specific forms of magical attacks.
 ~~~~~04|Attacking Monsters|Resistances
 ~~~~~05|Armor|Resistances
 #####R=== Resistances and typed attacks===
@@ -103,10 +106,10 @@ particular attack is ineffective.
 ~~~~~06|Attacking Monsters|Damage Effect type (Fire/cold/nether etc)
 ~~~~~09|Damage Effects
 #####GLow attacks
-      Fire - Destroys weapons, armor, scrolls, and staves. Reduces strength
+      Fire - Destroys weapons, armor, scrolls, and staves. Reduces strength.
       Cold - Shatters potions. 
-      Elec - Reduces dexterity, destroys rings.
-      Acid - Reduces bonuses on equipped armor, reduces charisma
+      Elec - Reduces dexterity, destroys rings and wands.
+      Acid - Reduces bonuses on equipped armor, reduces charisma.
 
 #####GMiddle attacks
       Poison - Player becomes poisoned
@@ -118,7 +121,7 @@ particular attack is ineffective.
       Nether - Drains experience
       Nexus - Scrambles statistics, teleports player randomly
       Disenchantment - Reduces bonuses on equipped items
-      Chaos - Polymorphs or corrupts player
+      Chaos - Confuses, drains life, causes hallucination, and more
       Sound - Shatters potions
       Shards - Cuts player
 
@@ -127,8 +130,8 @@ particular attack is ineffective.
       Ice - Stuns player, shatters potions
       Plasma - Stuns player, otherwise same as fire attacks
       Force - Pushes player a few squares back
-      Inertia - Slows player, pushes them a few squares back
-      Gravity - Same as Inertia
+      Inertia - Slows player
+      Gravity - Slows and teleports player a few squares
       Disintegration - Destroys items on ground, destroys walls
       Mana - Destroys items on ground
 ~~~~~07|Monsters|Monster Memory

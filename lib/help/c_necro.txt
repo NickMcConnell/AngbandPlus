@@ -75,6 +75,6 @@ The greatest Necromancers even gain the ability to survive their own
 death: when they should be killed, they instead turn into a ghostly
 being; they then receive a set number of Death Points, which are in
 all respects similar to hit points except that they go automatically
-down each turn. If the Necromancer manages to kill a certain amount
-of creatures before his Death Points reach 0 he is returned to life,
+down each turn. If the Necromancer manages to kill a certain number
+of creatures before his Death Points reach 0 he is returned to life;
 otherwise his will dissipates and he finally achieves true death.

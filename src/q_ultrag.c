@@ -29,12 +29,12 @@ bool quest_ultra_good_move_hook(char *fmt)
 		cmsg_print(TERM_YELLOW, "'Morgoth's reign of terror is over at last!'");
 		cmsg_print(TERM_YELLOW, "'His spirit has been banished to the Void where he cannot do much harm.'");
 		cmsg_print(TERM_YELLOW, "'We can never thank you enough, hero!'");
-		cmsg_print(TERM_L_BLUE, "Although everything seems alright, Galadriel seems a little subdued.");
-		cmsg_print(TERM_YELLOW, "'The spirit of Morgoth is not destroyed however, only banished.'");
+		cmsg_print(TERM_L_BLUE, "Although everything seems all right, Galadriel seems a little subdued.");
+		cmsg_print(TERM_YELLOW, "'The spirit of Morgoth is not destroyed however -- only banished.'");
 		cmsg_print(TERM_YELLOW, "'He can still control his allies left on Arda.'");
 		cmsg_print(TERM_YELLOW, "'Maybe... maybe there could be a way to remove the threat of evil forever.'");
 		cmsg_print(TERM_YELLOW, "'Somebody would have to go into the Void to do it.'");
-		cmsg_print(TERM_YELLOW, "'But going there is certain death, we cannot ask it of anyone.'");
+		cmsg_print(TERM_YELLOW, "'But going there is certain death; we cannot ask it of anyone.'");
 		cmsg_print(TERM_YELLOW, "'But you may choose, of your own free will, to attempt it...'");
 		cmsg_print(TERM_L_BLUE, "Galadriel plainly presents the choice that now lies before you:");
 
@@ -49,8 +49,8 @@ bool quest_ultra_good_move_hook(char *fmt)
 
 		if (!get_check("Will you stay on Arda and lead a happy life?"))
 		{
-			cmsg_print(TERM_YELLOW, "'So be it, I will open a portal to the Void.'");
-			cmsg_print(TERM_YELLOW, "'But you must know this, the portal can only lead one way.'");
+			cmsg_print(TERM_YELLOW, "'So be it. I will open a portal to the Void.'");
+			cmsg_print(TERM_YELLOW, "'But you must know this: the portal can only lead one way.'");
 			cmsg_print(TERM_YELLOW, "'It will close once you enter, so as not to permit the horrors'");
 			cmsg_print(TERM_YELLOW, "'that lurk in the Void to enter Arda. Your only way to come back'");
 			cmsg_print(TERM_YELLOW, "'is to defeat the spirit of Morgoth, known as Melkor.'");

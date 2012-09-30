@@ -3,12 +3,11 @@
 #####R=== Humans ===
 
 #####GDescription
-Humans act as a baseline race -- All other races are compared to them. 
+Humans act as a baseline race -- all other races are compared to them. 
 Humans can choose any class and are average at everything. Humans tend to 
 go up levels faster than most other races because of their shorter life 
 spans. No racial adjustments or intrinsics occur to characters choosing 
-human.
+the human race.
 
 #####GStat Modifiers
 None - Humans are the base race.
-

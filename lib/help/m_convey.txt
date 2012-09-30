@@ -6,10 +6,10 @@
 
 The conveyance school of magic contains spells where the forces of space are
 manipulated by the spell. There are rumours of a "Tome of of Translocation"
-which contains all the conveyance school spells within it's bindings.
+which contains all the conveyance school spells within its bindings.
 
 Worshipping the God Manwe Sulimo also gives the ability to cast spells from
-the conveyance school at a level of 1/2 of your prayer level. e.g. If the
+the conveyance school at a level of 1/2 of your prayer level. E.g. if the
 skill "Spirituality: Prayer" is at level 10, you can cast up to level 5
 conveyance school spells.
 
@@ -19,7 +19,7 @@ There are six spells available for the conveyance school. These Spells are:
    Teleports you on a small scale range.
    At spell level 30 it creates void jumpgates.
 2. [[[[[sDisarm] (school level 3)
-   Destroys doors and disarms traps.
+   Destroys doors and disarms traps in adjacent tiles.
    At spell level 10 it unlocks doors and disarms traps.
 3. [[[[[sTeleportation] (school level 10)
    Teleports you around the level.
@@ -29,14 +29,14 @@ There are six spells available for the conveyance school. These Spells are:
    At spell level 10 it turns into a ball.
    At spell level 20 it teleports all monsters in sight.
 5. [[[[[sRecall] (school level 30)
-   Cast on yourself it will recall you to the surface/dungeon.
-   Cast at a monster you will swap positions with the monster.
-   Cast at an object it will fetch the object to you (note that you must have
+   Cast on yourself, it will recall you to the surface/dungeon.
+   Cast at a monster, it will make you swap positions with the monster.
+   Cast at an object, it will fetch the object to you (note that you must have
       an empty space under your feet for the object to fall onto).
 6. [[[[[sProbability Travel] (school level 35)
    Renders you unstable.  When you hit a wall you travel through it and
-     instantly appear on the other side of it. You can also float up and down
-     at will
+   instantly appear on the other side of it. You can also float up and down
+   at will.
 
 #####GAir spells that can be cast with Conveyance skill
 
@@ -49,7 +49,7 @@ There are six spells available for the conveyance school. These Spells are:
 #####GTemporal spells that can be cast with Conveyance skill
 
 1. [[[[[sBanishment] (dual school level 30)
-   Disrupt the space/time continuum in your area and teleports all monsters
+   Disrupts the space/time continuum in your area and teleports all monsters
       away.
    At spell level 15 it also may lock them in a time bubble for some turns.
 #####v   Your Temporal and Conveyance skills must have reached a combined average level 

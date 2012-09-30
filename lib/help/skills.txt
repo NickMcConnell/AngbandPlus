@@ -2,25 +2,24 @@
 ~~~~~55|Skills
 #####R=== ToME Skills System ===
 One of the big differences between standard "Vanilla" Angband and ToME is the
-implementation of a skill system where the player can choose what skills they
-shall improve as their character progresses. As such, many abilities such as
+implementation of a skill system where the player can choose what skills she
+will improve as her character progresses. As such, many abilities such as
 spell casting, fighting and trap disarming *do not* increase automatically -
 the player must choose to use skill points to improve those abilities. This
 gives the player the chance to tailor a character to suit their playing style
 with a lot more flexibility than has existed with a fixed progression system
-in the past. However, not all types of players are able to gain skills to the
-same degree; while a fighter can learn some magic, he's unlikely to become
-as good at it as a mage can. So the amount of skill points required to raise
-a skill to the next level vary according to the starting "type" of character.
+in the past. However, not all types of characters are able to gain skills to
+the same degree; while a fighter can learn some magic, he's unlikely to become
+as good at it as a mage can. So the number of skill points required to raise
+a skill to the next level varies according to the starting "type" of character.
 
 You can also spend skill points in "one-off purchase" *****ability.txt*0[Abilities]. 
 ~~~~~56|Skills|Screen
 #####GThe Skills Menu
-Each time a character gains a level of experience, you receive 6 skill points
-to spread around as you wish. To use these skill points, you need to access
-the skills menu ("G" for both keysets). This opens up a long list of
-abilities that can be improved.
-The menu may look something like this:
+Each time you gain a level of experience, you receive 6 skill points to spread
+around as you wish. To use these skill points, you need to access the skills
+menu ("G" for both keysets). This opens up a long list of abilities that can
+be improved.  The menu may look something like this:
 
 &&&&&w w w w w w w w w w w w w w w w w w w w w w w w w w w w wTwowMwEw wSwkwiwlwlwsw wSwcwrwewewnw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 &&&&&BEBnBtBeBrW WtWoW WdWeWvWeWlWoWpW WaW WbWrWaWnWcWhW,W BuBpW/BdBoBwBnW WtWoW WmWoWvWeW,W BrBiBgBhBtW/BlBeBfBtW WtWoW WmWoWdWiWfWyW,W B?W WfWoWrW WhWeWlWpw w w w
@@ -46,31 +45,36 @@ first line lets you know if you have any available skill points to spend, and
 how many there are. Following that are 2 description lines for the currently
 selected skill - in this case they are describing the "Combat" skill. When
 looking at the list of skills, there are a few different colours used - the
-light green coloured skill (which also has it's starting character in square
+light green coloured skill (which also has its starting character in square
 brackets []) is the currently selected one - Combat in the example above.
-Skills that you cannot learn are omitted in the list. Skills that you are
-capable of learning but as yet have not are coloured in orange, while skills
-that you have some knowledge of are white.
+Skills that you cannot learn are omitted from the list. Skills that you are
+capable of learning, but as yet have not, are coloured in orange, while skills
+of which you have some knowledge are shown in white.
 
 At the end of each skill is a pair of numbers. The first represents your
 current level of knowledge in the skill, and the second how much an advance
 in this knowledge investing one skill point in this skill would produce. So,
-in the above example, if the player invested one skillpoint in their combat
-skill, the skill would increase from 02.000 to 02.800. This improvement is 
-based on a fraction of a skill point. For example, a skill point put into 
-Weaponmastery raises Combat by 0.5 skill points. So a Warrior investing a skill 
-point into Weaponmastery would have his Combat skill raised by 0.5 * [0.800] 
-while a Runecrafter would have his Combat skill raised by 0.5 * [0.200].
+in the above example, if the player invested one skill point in their Combat
+skill, the skill would increase from 02.000 to 02.800.
+
+In addition, investing in some skills may raise your knowledge in others.
+This improvement is based on the modifier in the related class (the one which
+gets the free points).  For example, a skill point put into Weaponmastery
+raises Combat by 0.5 skill points. This is actually multiplied by the skill
+modifier that your character has in the Combat skill.  For example, a
+Swordmaster investing a skill point into Weaponmastery would have his Combat
+skill raised by 0.5 * [0.900] while a Runecrafter would have his Combat
+skill raised by 0.5 * [0.200].
 
 As well as this, skills are grouped together in similar types. Looking under
-the combat skill, there are subtypes of weaponmastery, archery and antimagic.
+the Combat skill, there are subtypes of Weaponmastery, Archery and Antimagic.
 An increase of one of these subskills may also increase the main skill by a
 small amount. You can tell which skills have subskills by the + (or -) in front
 of their name. The + indicates that there are more skills within this category.
 To open a skill category up, move the cursor up/down until the skill category
 is green, then hit the "Enter" key. Likewise, the - indicates that the category
 is already opened, and selecting this and hitting the "Enter" key will close it
-up again. Skills which don't have usable subskills start with a "."
+up again. Skills which don't have usable subskills start with a ".".
 
 To spend points on a skill (including skill categories), use the left/right
 arrow (right arrow or "6" adds one skill point, left arrow or "4" removes
@@ -85,14 +89,14 @@ All skills have a maximum level of 50, and as long as you can learn a skill,
 and have enough skill points to pump into it, it is theoretically possible to 
 get it to level 50 no matter what your race, class or how you learned it. 
 
-Each skill affects you character differently. It may be worth getting one or 
-more of your characters skills to 50, it may not be worth investing [[[[[Bany] skill 
-points in some other skills. As general and personal advice, which may not work 
-for you, I'd say concentrate on a few skills, and leave the others empty. Just 
-because you [[[[[Bcan] learn a skill, it doesn't mean you have to. It often plays 
-to have a plan ("I'm going to make this assassin the stealthiest, most 
-able-dodging, backstabber around. I'm not going to bother with trapping or 
-thieving ability") which you can stick to for the whole game. 
+Each skill affects your character differently. It may be worth getting one or 
+more of your characters skills to 50, but it may not be worth investing [[[[[Bany]
+skill points in some other skills. As general and personal advice, which may
+not work for you, I'd say concentrate on a few skills, and leave the others
+empty. Just because you [[[[[Bcan] learn a skill, it doesn't mean you have to.
+It often pays to have a plan ("I'm going to make this assassin the
+stealthiest, most able-dodging, backstabber around. I'm not going to bother
+with trapping or thieving ability") which you can stick to for the whole game. 
 ~~~~~57|Skills|List of skills
 #####GThe Skills Themselves
 So you want to know what each of the skills do so that you can decide how to
@@ -146,7 +150,7 @@ and Polearm-mastery.
 ~~~~~03|Skills|Sword-mastery
 [[[[[BSword-mastery]
 This skill is a sub-skill of the Weaponmastery skill. It affects your ability
-to use blade weapons (e.g. daggers, swords). Spending 1 skill point on your
+to use bladed weapons (e.g. daggers, swords). Spending 1 skill point on your
 Sword-mastery skill adds 0.25 bonus skill points to your Weaponmastery skill
 and adds 0.07 bonus skill points to your Combat skill.
 
@@ -154,7 +158,7 @@ Critical-hits is a sub-skill of Sword-mastery.
 ~~~~~04|Skills|Critical-Hits
 [[[[[BCritical-hits]
 This skill is a sub-skill of the Sword-mastery skill. It affects your ability
-to deal critical hits to monsters using a blade weapon that weighs less than 5
+to deal critical hits to monsters using a bladed weapon that weighs less than 5
 pounds. Spending one skill point on your Critical-hits skill also increases
 your Sword-mastery skill by 0.05 skill points.
 ~~~~~05|Skills|Axe-mastery
@@ -227,6 +231,9 @@ This skill is a sub-skill of the Combat skill. It affects your general ability
 to fight using martial arts. In order to utilise it, you must be capable of
 using a weapon in the first place, but choose not to. Spending 1 skill point
 on your Barehand-combat skill adds 0.5 bonus skill points to your Combat skill.
+Barehand-combat fighters develop stronger and faster attacks, and also gain
+speed bonuses, as they advance in skill.  However, they cannot use this skill
+whilst wearing heavy armour.
 ~~~~~61|Skills|Bearform-combat
 [[[[[BBearform-combat]
 This skill is a sub-skill of the Combat skill. It affects your ability to fight 
@@ -252,14 +259,14 @@ items that require [Self]Magic-Device are affected. At higher levels you gain
 the ability to detect traps and disrupt all teleportation.
 ~~~~~14|Skills|Sneakiness
 [[[[[BSneakiness]
-The sneakiness skill affects things like your searching ability.
+The sneakiness skill affects your searching and perception abilities.
 
 Sub-skills of Sneakiness include Stealth, Disarming, Trapping, Backstab,
 Stealing and Dodging.
 ~~~~~15|Skills|Stealth
 [[[[[BStealth]
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
-to move around the dungeon quietly so that you are not noticed by it's
+to move around the dungeon quietly so that you are not noticed by its
 inhabitants. Spending 1 skill point on your Stealth skill adds 0.15 bonus
 skill points to your Sneakiness skill.
 ~~~~~16|Skills|Disarming
@@ -274,15 +281,16 @@ ability.
 [[[[[BBackstab]
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
 to sneak up on monsters and do extra damage to them before they wake up.
-Spending 1 skill point on your Backstab skill adds 0.05 bonus skill points
-to your Sneakiness skill.
+It also affects monsters who have turned to flee from you.  Spending 1 skill
+point on your Backstab skill adds 0.05 bonus skill points to your Sneakiness
+skill.
 ~~~~~19|Skills|Stealing
 [[[[[BStealing]
 This skill is a sub-skill of the Sneakiness skill. It affects your ability
-to steal items from monsters and shops. Be careful when stealing from shops, 
-if you're caught, the shopkeeper will close his doors to you and not open 
-them again. I have heard that shop keepers do not stay in one shop forever 
-though. Spending 1 skill point on your Stealing skill adds 0.15 bonus skill 
+to steal items from monsters and shops. Be careful when stealing from shops;
+if you're caught, the shopkeeper will close his doors to you and not open
+them again. I have heard that shop keepers do not stay in one shop forever
+though. Spending 1 skill point on your Stealing skill adds 0.15 bonus skill
 points to your Sneakiness skill.
 ~~~~~20|Skills|Dodging
 [[[[[BDodging]
@@ -294,7 +302,7 @@ the effect of the skill obsolete. Spending 1 skill point on your Dodging skill
 adds 0.1 bonus skill points to your Sneakiness skill.
 ~~~~~21|Skills|Magic
 [[[[[BMagic]
-The magic skill affects your general use of magic items, the amount of mana
+The Magic skill affects your general use of magic items, the amount of mana
 you can handle, and in general your ability to do magic. It can also affect
 the strength of wands and staffs.
 
@@ -345,7 +353,7 @@ sorcery skill (i.e. if sorcery is 12.500, hit points get modified by -12.5%).
 [[[[[BMana]
 This skill is a sub-skill of the Magic skill. It gives access to spells
 within the *****m_mana.txt*0[mana] school, and as it increases so does the casting level of
-spells already attained in the school. For example, if you have level one in
+spells already attained in the school. For example, if you have level 1 in
 the mana school, you could cast "Manathrust" at a casting level of 1. For
 every skill level you add to Mana, Manathrust will become more powerful,
 adding 1 casting level to the spell. Spending 1 skill point on your Mana
@@ -356,7 +364,7 @@ This skill is a subskill of the Magic skill. It gives access to spells
 within the *****m_geoman.txt*0[Geomancy] school, and as it increases so does the casting level of
 spells already attained in the school. Most spells from this school rely 
 on the Fire, Water, Air and Earth skills as well. Spending 1 skill point 
-on your Geomancy skill adds 0.05 bonus skill points to your Fire, Water, 
+on your Geomancy skill adds 0.45 bonus skill points to your Fire, Water, 
 Air and Earth skills.
 ~~~~~25|Skills|Fire
 [[[[[BFire]
@@ -464,11 +472,10 @@ magical items.
 
 Investing in the Alchemy skill? You might be interested in the *****ability.txt*09[Artifact Creation] 
 ability.
-
 ~~~~~38|Skills|Spirituality
 [[[[[BSpirituality]
 The spirituality skill influences things which have a "helping hand" from the
-Gods - like your saving throw, and the general spirituality skills.
+Gods, like your saving throw, and the general spirituality skills.
 
 Sub-skills of Spirituality are Prayer, Mindcraft and Music.
 ~~~~~39|Skills|Prayer
@@ -510,7 +517,7 @@ Monster-lore skill.
 ~~~~~44|Skills|Corpse-preservation
 [[[[[BCorpse-preservation]
 This skill is a sub-skill of the Monster-lore skill. It affects your ability
-to kill monsters without destroying their corpse, so the corpse will be
+to kill monsters without destroying their bodies, so the corpses will be
 available to use. Spending 1 skill point on your Corpse-preservation skill
 adds 0.1 bonus skill points to your Monster-lore skill.
 ~~~~~45|Skills|Possession

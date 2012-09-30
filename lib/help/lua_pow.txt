@@ -11,7 +11,7 @@ You *must* download and install my lua example files from
 so.
 
 The (commented) accompanying script file for this tutorial is 
-lib\scrpt\pheonix.lua. Open it in your text editor!
+lib\scpt\pheonix.lua. Open it in your text editor!
 
 #####R=== The Racial Power ===
 
@@ -206,7 +206,7 @@ the example scripts, this has all been done for you.
 
 #####R=== A quick word about comments ===
 
-One of the reason Angband has so many variants is because the source code is 
+One of the reasons Angband has so many variants is because the source code is 
 clearly commented. Almost every line of code has an accompanying comment, 
 explaining what that line does. It's good practice to add comments to any code 
 or script you write. It's helpful to others who are learning, anyone who takes 

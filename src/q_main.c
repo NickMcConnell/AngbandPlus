@@ -38,7 +38,7 @@ bool quest_morgoth_hook(char *fmt)
 		{
 			cmsg_print(TERM_L_GREEN, "*** CONGRATULATIONS ***");
 			cmsg_print(TERM_L_GREEN, "You have banished Morgoth's foul spirit from Ea, and as you watch, a cleansing");
-			cmsg_print(TERM_L_GREEN, "winds roars through the dungeon, dispersing the nether mists around where the");
+			cmsg_print(TERM_L_GREEN, "wind roars through the dungeon, dispersing the nether mists around where the");
 			cmsg_print(TERM_L_GREEN, "body fell. You feel thanks, and a touch of sorrow, from the Valar");
 			cmsg_print(TERM_L_GREEN, "for your deed. You will be forever heralded, your deed forever legendary.");
 			cmsg_print(TERM_L_GREEN, "You may retire (commit suicide) when you are ready.");

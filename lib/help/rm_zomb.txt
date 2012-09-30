@@ -3,11 +3,11 @@
 #####R=== Zombie Race ===
 
 #####GDescription
-Much like Skeletons, Zombies too are undead horrors: they are resistant to
+Much like Skeletons, zombies too are undead horrors: they are resistant to
 life-draining attacks, they become resistant to cold-based attacks (actually
 earlier than skeletons), resist poison and can see invisible, while being still
 vulnerable to cuts (unlike skeletons). They also gain very little nutrition from
-the food of mortals. However, Zombies are, as the name implies, practically
+the food of mortals. However, zombies are, as the name implies, practically
 mindless.
 
 #####GStat Modifiers

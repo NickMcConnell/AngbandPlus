@@ -979,7 +979,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 				if (!j_ptr->k_idx) continue;
 
-				/* Do not allow this trap to remove the One Ring */
+				/* Do not allow this trap to touch the One Ring */
 				object_flags(j_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 				if(f3 & TR3_PERMA_CURSE) continue;
 
@@ -990,6 +990,10 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 					k_ptr = &p_ptr->inventory[j];
 
 					if (!k_ptr->k_idx) continue;
+
+					/* Do not allow this trap to touch the One Ring */
+					object_flags(k_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+					if(f3 & TR3_PERMA_CURSE) continue;
 
 					/* this is a crude hack, but it prevent wielding 6 torches... */
 					if (k_ptr->number > 1) continue;
@@ -2025,10 +2029,14 @@ void place_trap(int y, int x)
 
 		/*
 		 * Hack -- No trap door at the bottom of dungeon or in flat
-		 * (non dungeon) places
+		 * (non dungeon) places or on quest levels
 		 */
-		if (((d_ptr->maxdepth == dun_level) || (dungeon_flags1 & DF1_FLAT)) &&
-		                (trap == TRAP_OF_SINKING)) continue;
+		if ((trap == TRAP_OF_SINKING) &&
+		    ((d_ptr->maxdepth == dun_level) ||
+		     (dungeon_flags1 & DF1_FLAT) || (is_quest(dun_level))) )
+		{
+			continue;
+		}
 
 		/* How probable is this trap */
 		if (rand_int(100) < t_ptr->probability)

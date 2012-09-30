@@ -66,7 +66,7 @@ C:D:1:Hero
 C:D:1:Baron
 C:D:1:Duke
 C:D:1:Lord
-C:S:5:-2:-2:2:2:-1:0:3
+C:S:5:-2:-2:2:2:-1:0:0
 C:K:10:10:0:1:10:10:10:10
 C:X:0:0:0:0:0:0:0:0
 C:B:4:30:5
@@ -165,8 +165,8 @@ C:a:O:23:33:1d1
 C:a:g:Nobody
 
 C:a:N:Demonologist
-C:a:D:Masters of the school of demonology, they both trained in melee
-C:a:D:fighting than using demon spells to enhance their combat potential.
+C:a:D:Masters of the school of demonology, they are trained in both melee
+C:a:D:fighting and using demon spells to enhance their combat potential.
 C:a:O:115:55:1d1
 C:a:k:+0:-50:Combat
 C:a:k:+0:-100:Weaponmastery
@@ -304,7 +304,7 @@ C:a:O:36:2:1d1
 C:a:O:111:50:1d1
 
 C:a:N:Necromancer
-C:a:D:The master of the death.
+C:a:D:The master of death, and undeath
 C:a:k:+0:+100:Weaponmastery
 C:a:k:+0:+200:Combat
 C:a:k:+1000:+300:Necromancy
@@ -343,7 +343,7 @@ C:a:O:23:4:1d1
 C:a:O:111:50:1d1
 
 C:a:N:Alchemist
-C:a:D:An alchemists can quickly create powerful magic items through the correct use
+C:a:D:Alchemists can quickly create powerful magic items through the correct use
 C:a:D:of the essences of magic they can extract from magical objects.
 C:a:k:+2000:+0:Magic
 C:a:k:+0:-600:Spell-power
@@ -441,7 +441,7 @@ C:a:g:Tulkas
 C:a:g:Yavanna Kementari
 
 C:N:3:Rogue
-C:D:0:Rogues are masters of tricks, they can steal from shops and monsters
+C:D:0:Rogues are masters of tricks. They can steal from shops and monsters,
 C:D:0:and lure monsters into deadly monster traps.
 C:D:1:Cutpurse
 C:D:1:Robber
@@ -514,13 +514,13 @@ C:g:All Gods
 C:b:10:Extra Max Blow(1)
 
 C:a:N:Rogue
-C:a:D:Rogues are masters of tricks, they can steal from shops and monsters
+C:a:D:Rogues are masters of tricks. They can steal from shops and monsters,
 C:a:D:and lure monsters into deadly monster traps.
 C:a:b:1:Trapping
 C:a:O:46:1:1d1
 
 C:a:N:Assassin
-C:a:D:Assassins are stealthy killers
+C:a:D:Assassins are stealthy killers.
 C:a:k:+0:+100:Combat
 C:a:k:+0:+100:Weaponmastery
 C:a:k:+0:+300:Sword-mastery
@@ -537,7 +537,7 @@ C:a:k:+0:-1800:Stealing
 C:a:k:+0:-800:Magic-Device
 
 C:N:4:Loremaster
-C:D:0:Loremasters are skilled in most combat and monster skills
+C:D:0:Loremasters are skilled in most combat and monster skills.
 C:D:1:Apprentice
 C:D:1:Apprentice
 C:D:1:Initiate
@@ -574,14 +574,14 @@ C:k:+0:+300:Music
 C:g:All Gods
 
 C:a:N:Loremaster
-C:a:D:Loremasters are skilled in most combat and monster skills
+C:a:D:Loremasters are skilled in most combat and monster skills.
 C:a:O:21:3:1d1
 C:a:O:36:6:1d1
 C:a:O:19:2:1d1
 C:a:O:16:0:3d10
 
 C:a:N:Possessor
-C:a:D:Only the soul matters, a possessor can abandon his/her current body to
+C:a:D:Only the soul matters; a possessor can abandon his/her current body to
 C:a:D:incarnate in the body of a dead monster, thus gaining its powers
 C:a:D:and weaknesses.
 C:a:O:71:37:1d1
@@ -600,7 +600,7 @@ C:a:k:+0:-500:Symbiosis
 C:a:k:+0:-500:Mimicry
 
 C:a:N:Mimic
-C:a:D:Disguise is the way of the mimic, through the use of cloaks of mimicry
+C:a:D:Disguise is the way of the mimic. Through the use of cloaks of mimicry
 C:a:D:they can change shape for a limited time. They also can temporarily
 C:a:D:change part of their anatomy.
 C:a:O:71:37:1d1
@@ -658,7 +658,7 @@ C:a:k:+0:-500:Symbiosis
 C:a:k:+0:-500:Mimicry
 
 C:a:N:Monk
-C:a:D:Barehanded, lightly armoured fighters they wreak havoc with
+C:a:D:Barehanded, lightly armoured fighters, they wreak havoc with
 C:a:D:their bare fists, and can also use a few prayers.
 C:a:O:71:37:1d1
 C:a:O:36:4:1d1
@@ -766,7 +766,7 @@ C:a:k:+1000:+700:Summoning
 
 C:a:N:Dark-Priest
 C:a:D:A priest that serves Melkor Bauglir to bring chaos
-C:a:D:and destruction to Arda
+C:a:D:and destruction to Arda.
 C:a:O:21:5:1d1
 C:a:g:Melkor Bauglir
 C:a:k:+0:+200:Prayer
@@ -788,7 +788,7 @@ C:a:k:+0:+900:Barehand-combat
 C:a:b:1:Extra Max Blow(1)
 
 C:a:N:Mindcrafter
-C:a:D:A priest learned to tap in his own mental powers
+C:a:D:A priest who has learned to tap in his own mental powers
 C:a:O:21:5:1d1
 C:a:g:Eru Iluvatar
 C:a:g:Manwe Sulimo
@@ -941,7 +941,7 @@ R:k:+2000:+000:Archery
 
 R:N:4:Gnome
 R:D:Related to dwarves, Gnomes are between Dwarves and Hobbits in size.
-R:D:Very good at magic use they are poor as fighters.
+R:D:Very good at magic use, they are poor as fighters.
 R:S:-1:2:0:2:1:-2:2
 R:K:10:12:12:3:6:13:-8:12
 R:P:8:135:4:13
@@ -1411,7 +1411,7 @@ S:A:DeathMold | Yeek | Wood-Elf | Maia |
 # Just a place holder, the actualy setting are done with corruptions, see
 # corrupt.lua and player.lua
 S:N:1:Vampire
-S:D:B:Vampires are powerful undead, wielding great powers they still fear the
+S:D:B:Vampires are powerful undead, wielding great powers. They still fear the
 S:D:B:sunlight and cannot easily satiate their hunger.
 S:S:0:0:0:0:0:0:0:100
 S:K:0:0:0:0:0:0:0:0
@@ -1442,13 +1442,13 @@ S:R:1:0
 S:F:SEE_INVIS | HOLD_LIFE | 
 S:F:SLOW_DIGEST | RES_COLD | RES_POIS | RES_NETHER | 
 S:O:70:32:2d3
-R:k:+200:+000:Disarming
-R:k:+800:+000:Magic-Device
-R:k:+700:+000:Spirituality
-R:k:+2000:+000:Stealth
-R:k:+200:+000:Sneakiness
-R:k:-500:+000:Weaponmastery
-R:k:-200:+000:Archery
+S:k:+200:+000:Disarming
+S:k:+800:+000:Magic-Device
+S:k:+700:+000:Spirituality
+S:k:+2000:+000:Stealth
+S:k:+200:+000:Sneakiness
+S:k:-500:+000:Weaponmastery
+S:k:-200:+000:Archery
 
 S:N:3:Skeleton
 S:D:B:Yet an other kind of undead. Their physical 'body' is not very vulnerable
@@ -1468,13 +1468,13 @@ S:F:RES_POIS | RES_SHARDS |
 S:R:10:0
 S:F:RES_COLD | 
 S:O:70:32:2d3
-R:k:-500:+000:Disarming
-R:k:-500:+000:Magic-Device
-R:k:+500:+000:Spirituality
-R:k:-1000:+000:Stealth
-R:k:-100:+000:Sneakiness
-R:k:+800:+000:Weaponmastery
-R:k:+000:+000:Archery
+S:k:-500:+000:Disarming
+S:k:-500:+000:Magic-Device
+S:k:+500:+000:Spirituality
+S:k:-1000:+000:Stealth
+S:k:-100:+000:Sneakiness
+S:k:+800:+000:Weaponmastery
+S:k:+000:+000:Archery
 
 S:N:4:Zombie
 S:D:B:Strong and dumb is a zombie.
@@ -1494,16 +1494,16 @@ S:F:SLOW_DIGEST | RES_POIS |
 S:R:5:0
 S:F:RES_COLD | 
 S:O:70:32:2d3
-R:k:-200:+000:Disarming
-R:k:-200:+000:Magic-Device
-R:k:+500:+000:Spirituality
-R:k:-1000:+000:Stealth
-R:k:-100:+000:Sneakiness
-R:k:+500:+000:Weaponmastery
-R:k:+000:+000:Archery
+S:k:-200:+000:Disarming
+S:k:-200:+000:Magic-Device
+S:k:+500:+000:Spirituality
+S:k:-1000:+000:Stealth
+S:k:-100:+000:Sneakiness
+S:k:+500:+000:Weaponmastery
+S:k:+000:+000:Archery
 
 S:N:5:Barbarian
-S:D:A:Hardy members of their race they are strong fighters but poor spellcasters.
+S:D:A:Hardy members of their race, they are strong fighters but poor spellcasters.
 S:S:2:-3:-2:1:1:-3:1:50
 S:K:-2:-10:2:-2:0:1:12:5
 S:P:1:25:0
@@ -1513,13 +1513,13 @@ S:A:Human | Dwarf | Orc | Troll | Half-Ogre | Beorning |
 S:C:F:Mage
 S:R:10:0
 S:F:RES_FEAR | 
-R:k:-200:+000:Disarming
-R:k:-1000:+000:Magic-Device
-R:k:+200:+000:Spirituality
-R:k:-2000:+000:Stealth
-R:k:+000:+000:Sneakiness
-R:k:+1200:+000:Weaponmastery
-R:k:+500:+000:Archery
+S:k:-200:+000:Disarming
+S:k:-1000:+000:Magic-Device
+S:k:+200:+000:Spirituality
+S:k:-2000:+000:Stealth
+S:k:+000:+000:Sneakiness
+S:k:+1200:+000:Weaponmastery
+S:k:+500:+000:Archery
 
 S:N:6:Hermit
 S:D:A:Through years of isolation hermits can manage to increase their mana
@@ -1533,13 +1533,13 @@ S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf |
 S:A:Dunadan | High-Elf | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | 
 S:A:Thunderlord | DeathMold | Yeek | Wood-Elf | Maia | 
 S:C:F:Warrior | Archer
-R:k:+500:+000:Disarming
-R:k:+1000:+000:Magic-Device
-R:k:+500:+000:Spirituality
-R:k:+3000:+000:Stealth
-R:k:+400:+000:Sneakiness
-R:k:-500:+000:Weaponmastery
-R:k:-500:+000:Archery
+S:k:+500:+000:Disarming
+S:k:+1000:+000:Magic-Device
+S:k:+500:+000:Spirituality
+S:k:+3000:+000:Stealth
+S:k:+400:+000:Sneakiness
+S:k:-500:+000:Weaponmastery
+S:k:-500:+000:Archery
 
 S:N:8:LostSoul
 S:D:A:In some very rare occasions souls can come back from the Halls of Mandos.
@@ -1612,7 +1612,7 @@ H:10:100:2:3:140:of the Royal Blood Line.
 
 H:11:20:3:50:20:You are the black sheep of the family.  
 H:12:80:3:50:55:You are a credit to the family.  
-H:13:100:3:50:60:You are a well liked child.  
+H:13:100:3:50:60:You are a well-liked child.  
 
 H:14:25:4:1:40:Your mother was of the Avari.  
 H:15:40:4:1:50:Your father was of the Avari.  
@@ -1862,7 +1862,7 @@ H:202:95:88:18:100:a Petty-Dwarf Shaman.
 H:203:100:88:18:100:Mim, Betrayer of Turin.  
 
 H:204:85:89:90:50:You are one of many Manwe Maia.  
-H:205:100:89:90:60:You are the one of the most known Manwe Maia.  
+H:205:100:89:90:60:You are the one of the most famous Manwe Maia.  
 
 H:206:90:90:93:100:Your eagle looks very good.  
 H:207:100:90:93:120:Your eagle is splendid.  
@@ -1896,8 +1896,8 @@ H:229:40:95:96:50:You are of the third generation of the Ents.
 H:230:60:95:96:60:You are of the second generation of the Ents.  
 H:231:100:95:96:80:You are one of the first beings who awoke on Arda.  
 
-H:232:50:96:0:50:You have green skin and unflexible members.
-H:233:100:96:0:50:You have brown skin and unflexible members.
+H:232:50:96:0:50:You have green skin and inflexible members.
+H:233:100:96:0:50:You have brown skin and inflexible members.
 
 H:234:10:100:101:30:You were born in dirty bilge-water, 
 H:235:20:100:101:35:You were born in dirty straw, 

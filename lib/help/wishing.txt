@@ -21,5 +21,4 @@ what is able to be wished for. These rules are as follows:
    orc").
 6. You cannot wish for unique monsters.
 7. You can wish the monster to have a specific flag - a pet, or a foe. 
-   Possible flags include: enemy, neutral, friendly, pet, companion
-   
+   Possible flags include: enemy, neutral, friendly, pet, companion.

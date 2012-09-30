@@ -1426,6 +1426,9 @@ static void display_player_middle(void)
 	int show_todam = p_ptr->dis_to_d;
 
 	object_type *o_ptr = &p_ptr->inventory[INVEN_WIELD];
+	char num[7];
+	byte color;
+	int speed;
 
 
 	/* Hack -- add in weapon info if known */
@@ -1481,56 +1484,110 @@ static void display_player_middle(void)
 
 	if (p_ptr->necro_extra & CLASS_UNDEAD)
 	{
-		prt_num("Max Death Points ", p_ptr->mhp, 9, 52, TERM_L_BLUE, "   ");
-
+		put_str("Death Points ", 9, 52);
 		if (p_ptr->chp >= p_ptr->mhp)
 		{
-			prt_num("Cur Death Points ", p_ptr->chp, 10, 52, TERM_L_BLUE, "   ");
+			color = TERM_L_BLUE;
 		}
 		else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
 		{
-			prt_num("Cur Death Points ", p_ptr->chp, 10, 52, TERM_VIOLET, "   ");
+			color = TERM_VIOLET;
 		}
 		else
 		{
-			prt_num("Cur Death Points ", p_ptr->chp, 10, 52, TERM_L_RED, "   ");
+			color = TERM_L_RED;
 		}
+		(void)sprintf(num, "%6ld", (long)p_ptr->chp);
+		c_put_str(color, num, 9, 65);
+		put_str("/", 9, 71);
+		(void)sprintf(num, "%6ld", (long)p_ptr->mhp);
+		c_put_str(TERM_L_BLUE, num, 9, 72);
 	}
 	else
 	{
-		prt_num("Max Hit Points ", p_ptr->mhp, 9, 52, TERM_L_GREEN, "   ");
-
+		put_str("Hit Points   ", 9, 52);
 		if (p_ptr->chp >= p_ptr->mhp)
 		{
-			prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_L_GREEN, "   ");
+			color = TERM_L_GREEN;
 		}
 		else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
 		{
-			prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_YELLOW, "   ");
+			color = TERM_YELLOW;
 		}
 		else
 		{
-			prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_RED, "   ");
+			color = TERM_RED;
 		}
+		(void)sprintf(num, "%6ld", (long)p_ptr->chp);
+		c_put_str(color, num, 9, 65);
+		put_str("/", 9, 71);
+		(void)sprintf(num, "%6ld", (long)p_ptr->mhp);
+		c_put_str(TERM_L_GREEN, num, 9, 72);
 	}
 
-	prt_num("Max SP (Mana)  ", p_ptr->msp, 11, 52, TERM_L_GREEN, "   ");
-
+	put_str("Spell Points ", 10, 52);
 	if (p_ptr->csp >= p_ptr->msp)
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_L_GREEN, "   ");
+		color = TERM_L_GREEN;
 	}
 	else if (p_ptr->csp > (p_ptr->msp * hitpoint_warn) / 10)
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_YELLOW, "   ");
+		color = TERM_YELLOW;
 	}
 	else
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_RED, "   ");
+		color = TERM_RED;
 	}
+	(void)sprintf(num, "%6ld", (long)p_ptr->csp);
+	c_put_str(color, num, 10, 65);
+	put_str("/", 10, 71);
+	(void)sprintf(num, "%6ld", (long)p_ptr->msp);
+	c_put_str(TERM_L_GREEN, num, 10, 72);
+
+	put_str("Sanity       ", 11, 52);
+	if (p_ptr->csane >= p_ptr->msane)
+	{
+		color = TERM_L_GREEN;
+	}
+	else if (p_ptr->csane > (p_ptr->msane * hitpoint_warn) / 10)
+	{
+		color = TERM_YELLOW;
+	}
+	else
+	{
+		color = TERM_RED;
+	}
+	(void)sprintf(num, "%6ld", (long)p_ptr->csane);
+	c_put_str(color, num, 11, 65);
+	put_str("/", 11, 71);
+	(void)sprintf(num, "%6ld", (long)p_ptr->msane);
+	c_put_str(TERM_L_GREEN, num, 11, 72);
 
 	if (p_ptr->pgod != GOD_NONE)
-		prt_num("Piety          ", p_ptr->grace, 13, 52, TERM_L_GREEN, "   ");
+	{
+		prt_num("Piety          ", p_ptr->grace, 12, 52, TERM_L_GREEN, "     ");
+	}
+
+	put_str("Speed           ", 13, 52);
+	speed = p_ptr->pspeed;
+	/* Hack -- Visually "undo" the Search Mode Slowdown */
+	if (p_ptr->searching) speed += 10;
+	if (speed > 110)
+	{
+		char s[11];
+		(void)sprintf(s, "Fast (+%d)", speed - 110);
+		c_put_str(TERM_L_GREEN, s, 13, (speed >= 120) ? 68 : 69);
+	}
+	else if (speed < 110)
+	{
+		char s[11];
+		(void)sprintf(s, "Slow (-%d)", 110 - speed);
+		c_put_str(TERM_L_UMBER, s, 13, (speed <= 100) ? 68 : 69);
+	}
+	else
+	{
+		put_str("Normal", 13, 72);
+	}
 }
 
 
@@ -2275,7 +2332,7 @@ static cptr object_flag_names[192] =
 	"Res Cold",
 	"Res Pois",
 	"Res Fear",
-	"Res Lite",
+	"Res Light",
 	"Res Dark",
 	"Res Blind",
 	"Res Conf",
@@ -2290,7 +2347,7 @@ static cptr object_flag_names[192] =
 
 	"Aura Fire",
 	"Aura Elec",
-	NULL,
+	"Auto Curse",
 	NULL,
 	"NoTeleport",
 	"AntiMagic",
@@ -3266,36 +3323,32 @@ errr file_character(cptr name, bool full)
 		        days, (days == 1) ? "" : "s");
 	}
 
+	fprintf (fff, "\n\n");
 
-
-	/* If requesting a full version use the self-knowledge */
+	/* Emit the self-knowledge lines, even though they duplicate the
+	   information in the grids (below), because they contain information
+	   that's not in the grids (racial abilities, luck, etc.). */
 	if (full)
 	{
-		fprintf (fff, "\n\n");
-
 		self_knowledge(fff);
+		fprintf(fff, "\n\n");
 	}
-	/* If not use the boring and bad looking grid */
-	else
-	{
-		fprintf (fff, "\n\n");
 
-		/* adds and slays */
-		display_player (2);
-		file_character_print_grid(fff, FALSE, TRUE);
+	/* adds and slays */
+	display_player (2);
+	file_character_print_grid(fff, FALSE, TRUE);
 
-		/* sustains and resistances */
-		display_player (3);
-		file_character_print_grid(fff, TRUE, FALSE);
+	/* sustains and resistances */
+	display_player (3);
+	file_character_print_grid(fff, TRUE, FALSE);
 
-		/* stuff */
-		display_player (4);
-		file_character_print_grid(fff, FALSE, FALSE);
+	/* stuff */
+	display_player (4);
+	file_character_print_grid(fff, FALSE, FALSE);
 
-		/* a little bit of stuff */
-		display_player (5);
-		file_character_print_grid(fff, FALSE, FALSE);
-	}
+	/* a little bit of stuff */
+	display_player (5);
+	file_character_print_grid(fff, FALSE, FALSE);
 
 	/* Dump corruptions */
 	if (got_corruptions())

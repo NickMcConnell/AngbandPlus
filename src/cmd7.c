@@ -133,7 +133,7 @@ bool get_magic_power(int *sn, magic_power *powers, int max_powers,
 
 	int y = 2;
 
-	int x = 20;
+	int x = 18;
 
 	int minfail = 0;
 
@@ -5205,11 +5205,11 @@ void do_cmd_archer(void)
 
 	if (get_skill(SKILL_ARCHERY) >= 20)
 	{
-		strnfmt(com, 80, "Create [S]hots, Create [A]rrow or Create [B]olt? ");
+		strnfmt(com, 80, "Create [S]hots, [A]rrows or [B]olts? ");
 	}
 	else if (get_skill(SKILL_ARCHERY) >= 10)
 	{
-		strnfmt(com, 80, "Create [S]hots or Create [A]rrow? ");
+		strnfmt(com, 80, "Create [S]hots or [A]rrows? ");
 	}
 	else
 	{

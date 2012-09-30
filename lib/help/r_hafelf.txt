@@ -3,7 +3,7 @@
 #####R=== Half-Elves ===
 
 #####GDescription
-Half-elves tend to be smarter and faster than humans, but not as strong. 
+Half-elves tend to be smarter and more agile than humans, but not as tough.
 Half-elves are slightly better at searching, disarming, saving throws, 
 stealth, bows, and magic, but they are not as good at hand weapons. Half-
 elves may choose any class and do not receive any intrinsic abilities.

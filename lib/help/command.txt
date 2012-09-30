@@ -98,7 +98,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*20[k  Destroy an item]                      *****command.txt*21[K  Cure meat]
  *****command.txt*22[l  Look around]                          *****command.txt*23[L  Look around dungeon by sector]
  *****command.txt*24[m  Cast a spell / use mental power]      *****command.txt*25[M  Full dungeon map]
- *****command.txt*85[n  Repeat last command]                  *****command.txt*99[N  Abilities Screen]  
+ *****command.txt*85[n  Repeat last command]                  *****command.txt*91[N  Abilities Screen]  
  *****command.txt*26[o  Open a door or chest]                 *****command.txt*27[O  Sacrifice at an altar]
  *****command.txt*28[p  Pray to your god (if any)]            *****command.txt*29[P  Pet commands]
  *****command.txt*30[q  Quaff a potion]                       *****command.txt*31[Q  Quit (commit suicide)]
@@ -113,7 +113,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*45[z  Zap a rod]                            *****command.txt*46[Z  Steal]
  *****command.txt*47[!  Interact with system]                *****debug.txt*101[^A  (special - debug command)]
  *****command.txt*49[@  Interact with macros]                ^B  (unused)
- #  (unused)                            ^C  (special - break)
+ *****command.txt*89[#  Begin extended command]              ^C  (special - break)
  *****command.txt*97[$  Record macros]                       ^D  (unused)
  *****command.txt*51[%  Interact with visuals]               *****command.txt*52[^E  Toggle choice window]
  ^  (special - control key)             *****command.txt*53[^F  Repeat level feeling]
@@ -181,7 +181,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*54[&  Interact with colors]                *****command.txt*27[^G  Sacrifice at an altar]
  *****command.txt*55[*  Target monster or location]          *****command.txt*95[^H  (tunnel - west)]
  *****command.txt*96[(  Chat]                                ^I  (special - tab)
- )  (unused)                            *****command.txt*95[^J  (tunnel - south)]
+ *****command.txt*89[)  Begin extended command]              *****command.txt*95[^J  (tunnel - south)]
  *****command.txt*58[{  Inscribe an object]                  *****command.txt*95[^K  (tunnel - north)]
  *****command.txt*59[}  Uninscribe an object]                *****command.txt*95[^L  (tunnel - east)]
  [*****command.txt*46[  Steal]                               *****command.txt*95[^M  (tunnel - south)]
@@ -736,8 +736,8 @@ for a quantity will convert any "letters" into the maximal legal value.
         Use this command to access the skills menu and spend the skill points
         you gain at each new character level to increase the range of things 
         your character is able to do.
-~~~~~99
-[[[[[GGain new abilites (N)]
+~~~~~91
+[[[[[GGain new abilities (N)]
         Use this command to access the Abilities menu and spend the skill points
         you gain at each new character level to increase the range of things 
         your character is able to do.
@@ -1239,6 +1239,10 @@ for a quantity will convert any "letters" into the maximal legal value.
 ~~~~~98
 [[[[[GTake html screenshot (^\])]
 	Creates an html screenshot of the current screen.
+~~~~~89
+[[[[[GBegin extended command (#)]
+	Begins an extended command.  Type "help" or "?" at the prompt for a
+	list of these commands.
 
 -- 
 Original: Alexander Cutler and Andy Astrand

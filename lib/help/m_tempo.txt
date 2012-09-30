@@ -6,10 +6,10 @@
 
 The temporal school of magic contains spells where magic is used to meddle
 in the relationship between time and space. There are rumours of a "Tome of
-the Time" which contains all the temporal school spells within it's bindings.
+the Time" which contains all the temporal school spells within its bindings.
 
 Worshipping the Goddess Yavanna Kementari also gives the ability to cast spells
-from the temporal school at a level of 1/6 of your prayer level. e.g. If the
+from the temporal school at a level of 1/6 of your prayer level. E.g. if the
 skill "Spirituality: Prayer" is at level 12, you can cast up to level 2
 temporal school spells.
 
@@ -24,10 +24,11 @@ There are four spells available for the temporal school. These Spells are:
    Magically slows down the passing of time around a monster.
    At level 20 it affects a zone.
 3. [[[[[sEssence of Speed] (school level 15)
-   Magically increases the passing of time around you.
+   Magically decreases the passing of time around you, allowing you to move
+   and act more quickly with respect to the rest of the universe.
 4. [[[[[sBanishment] (school level 30)
-   Disrupt the space/time continuum in your area and teleports all monsters
-      away.
+   Disrupts the space/time continuum in your area and teleports all monsters
+   away.
    At spell level 15 it also may lock them in a time bubble for some turns.
 #####v   Your Temporal and Conveyance skills must have reached a combined average level 
 #####v   of 30 in order to cast this spell.

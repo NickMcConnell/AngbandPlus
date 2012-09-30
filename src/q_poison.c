@@ -106,7 +106,7 @@ bool quest_poison_finish_hook(char *fmt)
 
 	if (q_idx != QUEST_POISON) return FALSE;
 
-	c_put_str(TERM_YELLOW, "The water is clean again ! Thanks you so much.", 8, 0);
+	c_put_str(TERM_YELLOW, "The water is clean again! Thank you so much.", 8, 0);
 	c_put_str(TERM_YELLOW, "The beautiful Mallorns are safe. Take this as a proof of our gratitude.", 9, 0);
 
 	q_ptr = &forge;

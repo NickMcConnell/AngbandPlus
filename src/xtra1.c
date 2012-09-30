@@ -148,10 +148,8 @@ static void prt_piety(void)
 
 	sprintf(tmp, "%9ld", p_ptr->grace);
 
-	if (p_ptr->praying)
-		c_put_str(TERM_L_GREEN, tmp, ROW_PIETY, COL_PIETY + 3);
-	else
-		c_put_str(TERM_GREEN, tmp, ROW_PIETY, COL_PIETY + 3);
+	c_put_str((p_ptr->praying) ? TERM_L_BLUE : TERM_GREEN, tmp, ROW_PIETY,
+		COL_PIETY + 3);
 }
 
 
@@ -3637,11 +3635,15 @@ void calc_bonuses(bool silent)
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
 
+		/* Special class bonus blows */
 		p_ptr->num_blow += p_ptr->lev * cp_ptr->extra_blows / 50;
 
-
+		/* Weapon specialization bonus blows */
 		if (get_weaponmastery_skill() != -1)
 			p_ptr->num_blow += get_skill_scale(get_weaponmastery_skill(), 2);
+
+		/* Bonus blows for plain weaponmastery skill */
+		p_ptr->num_blow += get_skill_scale(SKILL_MASTERY, 3);
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;

@@ -5,10 +5,10 @@
 #####GDescription
 The Thunderlords are supremely powerful spirits created by Manwe Sulimo,
 each riding a Great Eagle. They have the ability to conjure powerful 
-thunderbolts, they are telepathic, and gain the ability to use the
+thunderbolts, they are telepathic, and they gain the ability to use the
 Straight Road, which can carry them to any location they have previously been.
-Due to their special clothing, they can resist elemental damage.
-However, they take a very long time to gain levels as both rider and eagle must
+Due to their special clothing, they can resist elemental damage.  However,
+they take a very long time to gain levels as both rider and eagle must
 accumulate experience.
 
 #####GStat Modifiers

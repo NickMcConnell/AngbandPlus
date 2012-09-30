@@ -7,11 +7,11 @@
 The Udun school of magic contains spells where the corrupted forces of Melkor
 Bauglir are used to create the final spell effect. There are rumours of an
 "Unholy Tome of the Hellflame" which contains all the Udun school spells within
-it's bindings.
+its bindings.
 
-The Udun school is available only to a worshipper of *****g_melkor.txt*0[Melkor Bauglir]. They will also
+The Udun school is available only to worshippers of *****g_melkor.txt*0[Melkor Bauglir]. They will also
 need some proficiency in the magic schools of Mana, Nature, Conveyance, and Fire
-(or alternatively Sorcery) to cast the Udun spells. On the other hand the spell
+(or alternatively Sorcery) to cast the Udun spells. On the other hand, the spell
 power of Udun spells is greatly increased by the level of the caster.
 
 #####DUdun Spells
@@ -21,7 +21,7 @@ There are four spells available for the Udun school. These spells are:
 #####v   Your Udun and Mana skills must have reached a combined average level 
 #####v   of 1 in order to cast this spell.
 2. [[[[[DGenocide] (dual school level 25)
-   Genocides all monsters of a race on the level.
+   Genocides all monsters of a specified race on the level.
    At level 10 it can genocide all monsters near you.
 #####v   Your Udun and Nature skills must have reached a combined average level 
 #####v   of 25 in order to cast this spell.

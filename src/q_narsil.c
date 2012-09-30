@@ -34,8 +34,8 @@ bool quest_narsil_move_hook(char *fmt)
 	cmsg_print(TERM_YELLOW, "What you have is really the sword that was broken.");
 	cmsg_print(TERM_YELLOW, "I will get it reforged...");
 	cmsg_print(TERM_L_BLUE, "Aragorn leaves for a few hours then comes back...");
-	cmsg_print(TERM_YELLOW, "Here it is, Anduril the sword that was forged and is");
-	cmsg_print(TERM_YELLOW, "reforged again, take it, you will surely need it for your quest.");
+	cmsg_print(TERM_YELLOW, "Here it is, Anduril, the sword that was forged and is");
+	cmsg_print(TERM_YELLOW, "reforged again. Take it; you will surely need it for your quest.");
 
 	object_prep(o_ptr, lookup_kind(TV_SWORD, SV_LONG_SWORD));
 	o_ptr->name1 = ART_ANDURIL;

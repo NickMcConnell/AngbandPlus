@@ -710,7 +710,7 @@ static bool inn_comm(int cmd)
 			/* Vampires rest during daytime */
 			if (vampire && nighttime)
 			{
-				msg_print("The rooms are available only at daylight for the Undeads.");
+				msg_print("The rooms are available only during daylight for your kind.");
 				msg_print(NULL);
 				return (FALSE);
 			}
@@ -720,7 +720,7 @@ static bool inn_comm(int cmd)
 			{
 				msg_print("You need a healer, not a room.");
 				msg_print(NULL);
-				msg_print("Sorry, but don't want anyone dying in here.");
+				msg_print("Sorry, but I don't want anyone dying in here.");
 				return (FALSE);
 			}
 

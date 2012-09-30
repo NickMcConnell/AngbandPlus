@@ -33,7 +33,7 @@ to cast rather than your spellpoints, and the level of spells that Melkor will
 permit you to use is determined by your Prayer skill - how skillful you are
 in asking for his help without offending him!
 
-There is a special book - called the "Corrupted Tome of Melkor" which 
+There is a special book called the "Corrupted Tome of Melkor" which 
 contains instructions for the procedure for each of the prayers Melkor will
 grant. There are three prayers all told, which are:
 1. [[[[[BCurse] (Level 1)

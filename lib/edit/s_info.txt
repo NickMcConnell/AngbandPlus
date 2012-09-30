@@ -29,7 +29,7 @@ V:2.0.0
 ################################## MAGIC ##################################
 
 N:56:Magic-Device
-D:Ease the use of magical devices, such as wands, staves and rods.
+D:Eases the use of magical devices, such as wands, staves and rods
 D:It also helps pseudo-id of magic objects
 I:1000
 F:RANDOM_GAIN
@@ -149,7 +149,7 @@ I:1000
 F:RANDOM_GAIN
 
 N:15:Magic
-D:General ability to do magic, also affect mana reserves and
+D:General ability to do magic, also affects mana reserves and
 D:magic device ability. Helps pseudo-id of magic objects
 A:19:Copy a spell
 I:1000
@@ -195,8 +195,8 @@ f:Thaumaturgy:Magic%6
 ################################## COMBAT ##################################
 
 N:16:Combat
-D:General ability to fight and to pseudo-id armours and weapons.
-D:It also allows to use heavier armours without penalties
+D:General ability to fight and to pseudo-id armour and weapons
+D:It also allows the use of heavier armour without penalties
 I:1000
 F:RANDOM_GAIN
 
@@ -322,8 +322,8 @@ I:1000
 F:RANDOM_GAIN
 
 N:53:Prayer
-D:Ability to learn and use spells from the gods schools
-D:Spells use the wisdom stat
+D:Ability to learn and use spells from the gods' schools
+D:Spells use the wisdom stat and cost piety instead of mana
 A:17:Cast a spell
 I:1000
 
@@ -453,7 +453,7 @@ F:RANDOM_GAIN
 G:60
 
 N:49:Corpse-preservation
-D:Ability to not destroy the monster corpse when killing them
+D:Ability not to destroy the monsters' corpses when killing them
 I:0
 
 N:50:Possession

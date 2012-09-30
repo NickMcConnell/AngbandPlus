@@ -18,11 +18,10 @@ game turns, which corresponds to 1 normal speed player turn, there is a
 1 in 50,000 chance of gaining a fate. When this fate is chosen, there is a
 7/18 chance of being fated to find a specific mundane item on a specific
 dungeon level. A more belligerent spirit will, 7/18 of the time, summon a
-malicious monster to do battle a specific dungeon level. There
-is a 1/9 chance to be destined to find an artifact on a given
-level. There is also a 1/18 chance that you will meet your demise on a given
-level. Finally, there is a 1/18 chance of becoming invulnerable to attacks
-from mortals.
+malicious monster to do battle on a specific dungeon level. There is a 1/9
+chance to be destined to find an artifact on a given level.  There is also
+a 1/18 chance that you will meet your demise on a given level. Finally, there
+is a 1/18 chance of becoming invulnerable to attacks from mortals.
 
 Whenever a level is being chosen for a fate, it is always chosen within 20
 levels of your current recall depth. Items, monsters, and artifacts are all

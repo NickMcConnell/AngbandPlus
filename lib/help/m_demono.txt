@@ -4,7 +4,7 @@
 ~~~~~03|Skills|Demonology - Spell Info
 #####R === ToME Magic - Demonology ===
 
-Available only to demonologists, or those sufficiently corrupted with
+Available only to Demonologists, or those sufficiently corrupted with
 demon-like powers, this school contains spells where demonic energies
 are used to create mainly devastating effects.
 
@@ -22,7 +22,7 @@ the Demonologist to cast spells; each piece of equipment holds three spells.
 2. [[[[[oDemon Madness] (school level 10)
    Fire 2 balls in opposite directions of randomly chaos, confusion or charm.
 3. [[[[[oDemon Field] (school level 20)
-   Fires a cloud of deadly nexus over a radius of 7.
+   Fires a lingering cloud of deadly nexus over a radius of 7.
 
 #####oDemonshield spells
 1. [[[[[oDoom Shield] (school level 1)

@@ -32,9 +32,9 @@ add_quest
 					print_hook("The temple lies very close to "..home..", \n")
 				end
 				if home2_axis ~= "close" then
-					print_hook( "and "..home2_distance.." to the "..home2_axis.." of "..home2..", I can feel it.' \n")
+					print_hook( "and "..home2_distance.." to the "..home2_axis.." of "..home2..".\n")
 				else
-					print_hook("and very close to "..home2..", I can feel it.' \n")
+					print_hook("and very close to "..home2..".\n")
 				end					
 				print_hook("\n")
 			end

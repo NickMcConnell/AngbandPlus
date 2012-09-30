@@ -29,6 +29,7 @@ GLOBELIGHT = add_spell
 		end
 		if get_level(GLOBELIGHT, 50) >= 15 then
 			obvious = is_obvious(fire_ball(GF_LITE, 0, 10 + get_level(GLOBELIGHT, 100), 5 + get_level(GLOBELIGHT, 6)), obvious)
+			player.update = bor(player.update, PU_VIEW)
 		end
 		return obvious
 	end,

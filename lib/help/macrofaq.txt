@@ -180,7 +180,7 @@ them to a trigger key which can help. These are called macros or keymaps.
 The most obvious use for these in ToME is for mage-types, especially sorcerors, 
 who rely on their spells for just about everything. Typing mbaa*t in order to 
 fire a Manathrust is fine if you only have to do it once or twice, but can 
-quickly get annoying when you're doing every move. Far easier to assign that 
+quickly get annoying when you're doing it every move. Far easier to assign that
 sequence of keypresses to a single trigger key which you can then press as many 
 times as you need. (Until your SP run out of course!)
 
@@ -207,7 +207,7 @@ room and there's a nasty small kobold. What do we do?
 10)                 (choose trigger key)
 11) @               opens macro saving/loading screen
 12) 2               appends macros to a file
-13)                 (choose a name for the file eg sorceror.prf)
+13)                 (choose a name for the file, e.g. sorceror.prf)
 14)                 (Hit Enter)
 15)                 (Hit Esc to exit the editor)
 
@@ -218,7 +218,9 @@ cast at the targetted monster.
 This technique can be used for all the other skills as well (Use Mindcraft, 
 Forge Ammo) etc.
 
-[[[[[B*]If you answer no the recorder continues recording keypresses. If you know you have made a mistake, you need to answer yes, and then not save the macro!
+[[[[[B*]If you answer no the recorder continues recording keypresses. If
+you know you have made a mistake, you need to answer yes, and then not
+save the macro!
 
 ~~~~~12
 #####G----------------------------------------------------------------------
@@ -248,7 +250,7 @@ inscriptions used, and one of the most useful.
 4) !*   Don't do anything with this item without verifying
 5)      (Hit Enter)
 
-This inscription is commonly used on Scrolls of Recall,...
+This inscription is commonly used on Scrolls of Word of Recall...
 ~~~~~8
 #####G----------------------------------------------------------------------
 #####G2.4 Saving these macros and keymaps for reuse
@@ -277,7 +279,7 @@ remove the duplicate macros and keymaps added. These will be added
 after the headers "# Automatic macro dump" and "# Automatic keymap
 dump". The ones you added will be the very last ones in the list. The
 others are the entire set of keymaps and macros from all other prefs
-loaded. (This step isn't necessary, but is very helpful)
+loaded. (This step isn't necessary, but is very helpful.)
 
 ~~~~~32
 #####R======================================================================
@@ -299,7 +301,7 @@ Example: The Nice Shiny Armor (-3) [35,+25] {resDk,resDis,A:Geno}
 
 Inscriptions can "number" an item so that you don't have to know where
 it is in your inventory.
-Example: inscribing your spellbooks {@r1} lets you use '1' at the prompt
+Example: inscribing your scrolls {@r1} lets you use '1' at the prompt
 for which scroll to read, instead of having to use the inventory letter,
 which can change unnoticed.
 
@@ -308,6 +310,12 @@ labeling of items independent of inventory position.
 
 Note that the game produces "fake" inscriptions, which look like real
 inscriptions, but are really just displayed the same way (e.g. "cursed").
+
+Finally, if you are in symbiosis with another creature, you can name it by
+inscribing it with "#named SomeName" (the word "#named" must be entered
+literally at the start of the inscription).  This will tell the game that
+your symbiotic partner should be referred to by its name, rather than simply
+"Your white jelly".  This has no effect on game play other than the aesthetic.
 
 #####G----------------------------------------------------------------------
 #####G3.2 Macros
@@ -390,7 +398,7 @@ depends on whether the *****option.txt*1[option (quick_messages)] is set. Then t
 will start executing in the middle of its action string, with equally
 dangerous results as in the above case. Note that some messages caused
 by a command are quite rare, and others could be produced by a game
-state change like becoming hungry that has nothing to do the command.
+state change like becoming hungry that has nothing to do with the command.
 
 These types of problems are more common when using an action such as
 auto-firing where a trigger key is repeatedly pressed.
@@ -444,7 +452,7 @@ need to rest, it can be used to swap it with another helm.
 
 Inscribing weapons with {@w1@w0}, {@w2@w0} allows directly wielding a
 specific one. If you don't want that ability, you can just inscribe
-both with {w0}. These can also be inscribed as just {@1@0} and {@2@0}
+both with {@w0}. These can also be inscribed as just {@1@0} and {@2@0}
 if you don't inscribe any other items with numbers, although this is
 not recommended.
 
@@ -552,7 +560,7 @@ k   - Kill item
 \s  - skip the "you destroy the <item>" message.
 
 Destroy a single item on floor below you. Doesn't prompt for a count.
-This won't work for piles, which will prompt you  for the item. Works
+This won't work for piles, which will prompt you for the item. Works
 correctly when (quick_messages) is off, because there is no prompt
 for how many to destroy.
 
@@ -588,10 +596,10 @@ the yes/no question "Really destroy a <item>?", and the following "ay"
 will aim a rod, and then ignore the 'y' key press, and the final escape
 will cancel the aiming. Works correctly when (quick_messages) is off.
 When (quick_messages) is on, and there is no pile, the 'a' will cancel
-the message, and the following 'y' will be passed thru as an
+the message, and the following 'y' will be passed through as an
 unimplemented command, and the space will cancel the error message.
 
-Backspaces "\\" may be required to keep the 'y's from being
+Backslashes "\\" may be required to keep the 'y's from being
 interpreted as keymaps in case 'y' has been assigned one.
 
 #####G----------------------------------------------------------------------

@@ -13,7 +13,7 @@ ingame_help
 	["desc"] =
 	{
 		"Void Jumpgates can be entered by pressing the > key. They will transport",
-		"you to an other jumpgate, but beware of the cold damage that might kill you.",
+		"you to another jumpgate, but beware of the cold damage that might kill you.",
 	}
 }
 
@@ -23,7 +23,7 @@ ingame_help
 	["event"] =     function(y, x) if cave(y, x).feat == FEAT_FOUNTAIN then return TRUE end end,
 	["desc"] =
 	{
-		"Fountains are always magical, you can quaff from them by pressing H.",
+		"Fountains are always magical. You can quaff from them by pressing H.",
 		"Beware that unlike potions they cannot be identified.",
 	}
 }
@@ -34,10 +34,11 @@ ingame_help
 	["event"] =     function(y, x) if cave(y, x).o_idx ~= 0 then return TRUE end end,
 	["desc"] =
 	{
-		"So you found your first item, nice eh ? Now when you stumble across",
-		"objects you can pick them up by pressing g, and if you are wondering",
-		"what they do press I to get some basic information.",
-		"You may also want to identify them with scrolls, staves, rods or spells.",
+		"So you found your first item! Nice, eh? Now when you stumble across",
+		"objects, you can pick them up by pressing g, and if you are wondering",
+		"what they do, press I (then *, then the letter for the item) to get",
+		"some basic information. You may also want to identify them with scrolls,",
+		"staves, rods or spells.",
 	}
 }
 
@@ -49,7 +50,7 @@ ingame_help
 	{
 		"Altars are the way to reach the Valar, powers of the world,",
 		"usualy called Gods. You can press O to become a follower.",
-		"Beware that once you follow a god it is not allowed to change.",
+		"Beware that once you follow a god, you are not allowed to change.",
 		"For an exact description of what gods do and want, read the documentation."
 	}
 }
@@ -64,8 +65,8 @@ ingame_help
 	["desc"] =
 	{
 		"Ahh wilderness travel... The overview mode will allow you to travel",
-		"fast, but that comes to the cost of GREATLY increased food cunsumption.",
-		"So you should really watch your hungriness status.",
+		"fast, but that comes to the cost of GREATLY increased food consumption.",
+		"So you should bring lots of food and really watch your hunger status.",
 		"To enter the overview mode, press < while in the wilderness.",
 	}
 }
@@ -76,9 +77,9 @@ ingame_help
 	["event"] =     function(y, x) if player.lev > 1 then return TRUE end end,
 	["desc"] =
 	{
-		"Ok so you now gained a level, and you got skill points to spend.",
+		"Ok, so you now gained a level, and you have skill points to spend.",
 		"To do so simply press G to learn skills. Reading the documentation",
-		"about skills and abilities is also very recommended.",
+		"about skills and abilities is also strongly recommended.",
 	}
 }
 
@@ -89,7 +90,7 @@ ingame_help
 	["desc"] =
 	{
 		"Ah, this is a stair, or a way into something. Press > to enter it.",
-		"But be ready to fight what lies within for it could not be too friendly.",
+		"But be ready to fight what lies within, for it might not be too friendly.",
 	}
 }
 
@@ -98,7 +99,7 @@ ingame_help
 	["callback"] =  "monster_chat",
 	["desc"] =
 	{
-		"Somebody is speaking at you it seems. You can talk back with the Y key.",
+		"Somebody is speaking to you it seems. You can talk back with the Y key.",
 		"This can lead to quests. You can also give items to 'monsters' with the y key.",
 	}
 }
@@ -113,15 +114,15 @@ ingame_help
 		"to get used to how to play. I have prepared a #vparchment#y for you to #vread#y.",
 		"Press r, then space then select it. You can also check the documentation",
 		"by pressing ? at (nearly) any time.",
-		"The first place you can explore is Barrow-downs, go to the west of town",
-		"you should see a #v>#y there.",
+		"The first place you can explore is Barrow-downs. Go to the west of town",
+		"and you should see a #v>#y there.",
 		"If you miss any of this you can press ctrl+p to see your message log.",
-		"Now I must reveal your task here, you are on a quest to investigate",
+		"Now I must reveal your task here. You are on a quest to investigate",
 		"the dreadful tower of Dol Guldur in the Mirkwood forest to see what evil",
 		"lurks there, but beware, you are not yet ready.",
-		"If you do not want me to bother you anymore with tips, press = then in the",
-		"ToME options and deactivate ingame_help option.",
-		"You can see your quest log by pressing ctrl+q, now go to your destiny!",
+		"If you do not want me to bother you any more with tips, press = then go",
+		"into the ToME options and deactivate the ingame_help option.",
+		"You can see your quest log by pressing ctrl+q. Now go to your destiny!",
 	}
 }
 
@@ -306,10 +307,10 @@ ingame_help
 			end,
 	["desc"] =
 	{
-		"Ah an item that can contain a spell. To use it you must have some levels of",
+		"Ah, an item that can contain a spell. To use it you must have some levels of",
 		"Magic skill and then you get the option to copy a spell when pressing m.",
 		"Then just select which spell to copy and to which object. Note that doing so",
-		"is permanent, the spell cannot be removed or changed later.",
+		"is permanent; the spell cannot be removed or changed later.",
 	}
 }
 
@@ -319,7 +320,7 @@ ingame_help
 	["event"] =     function(obj, idx) if obj.tval == TV_BATERIE then return TRUE end end,
 	["desc"] =
 	{
-		"Ah, an essence, those magical containers stores energies. They are used",
+		"Ah, an essence! Those magical containers stores energies. They are used",
 		"with the Alchemy skill to create or modify the powers of items.",
 	}
 }
@@ -330,7 +331,7 @@ ingame_help
 	["event"] =     function(obj, idx) if obj.tval == TV_RUNE1 or obj.tval == TV_RUNE2 then return TRUE end end,
 	["desc"] =
 	{
-		"Ah, a rune, runes are used with the Runecraft skill to allow you to",
+		"Ah, a rune! Runes are used with the Runecraft skill to allow you to",
 		"create spells on your own.",
 	}
 }
@@ -341,9 +342,9 @@ ingame_help
 	["event"] =     function(obj, idx) if obj.tval == TV_ROD_MAIN then return TRUE end end,
 	["desc"] =
 	{
-		"This is a rod. You will need to attach a rod tip to it before you ",
-		"can use it. This main part of the rod may give the rod bonuses ",
-		"like quicker charging time, or a larger capacity for charges. ",
+		"This is a rod. You will need to attach a rod tip to it before you",
+		"can use it. This main part of the rod may give the rod bonuses",
+		"like quicker charging time, or a larger capacity for charges.",
 	}
 }
 
@@ -353,9 +354,9 @@ ingame_help
 	["event"] =     function(obj, idx) if obj.tval == TV_ROD then return TRUE end end,
 	["desc"] =
 	{
-		"You've found a rod-tip! You will need to attach it to a rod base ",
-		"before you can use it. Once it has been attatched (use the 'z' key) ",
-		"you cannot unattach it! The rod tip will determine the effect of ",
+		"You've found a rod-tip! You will need to attach it to a rod base",
+		"before you can use it. Once it has been attatched (use the 'z' key)",
+		"you cannot unattach it! The rod tip will determine the effect of",
 		"the rod. To use your rod, 'z'ap it once it has been assembled.",
 	}
 }
@@ -366,10 +367,10 @@ ingame_help
 	["event"] =     function(obj, idx) if obj.tval == TV_TRAPKIT then return TRUE end end,
 	["desc"] =
 	{
-		"Ooooh, a trapping kit. If you have ability in the trapping skill, ",
-		"you can lay this trap (via the 'm' key) to harm unsuspecting foes. ",
-		"You'll generally need either some ammo or magic device depending  ",
-		"on the exact type of traps.",
+		"Ooooh, a trapping kit. If you have ability in the trapping skill,",
+		"you can lay this trap (via the 'm' key) to harm unsuspecting foes.",
+		"You'll generally need either some ammo or magic device depending",
+		"on the exact type of trap kit.",
 	}
 }
 
@@ -379,7 +380,7 @@ ingame_help
 	["event"] =     function() if game.started and (get_melee_skills() > 1) then return TRUE end end,
 	["desc"] =
 	{
-		"Ah you now possess more than one melee type, to switch between them press 'm'",
+		"Ah, you now possess more than one melee type. To switch between them press m",
 		"and select the switch melee type option.",
 	}
 }
@@ -390,9 +391,9 @@ ingame_help
 	["event"] =     function(obj, idx) if obj.tval == TV_WAND or obj.tval == TV_STAFF then return TRUE end end,
 	["desc"] =
 	{
-		"You've found a magical device, either a staff or a wand. Each staff ",
-		"contains a spell, often from one of the primary magic schools. There ",
-		"is lots of information you can find about this object if you identify ",
+		"You've found a magical device, either a staff or a wand. Each staff",
+		"contains a spell, often from one of the primary magic schools. There",
+		"is a lot of information you can find about this object if you identify",
 		"it and 'I'nspect it. Check the help file on Magic for more about these.",
 	}
 }
@@ -403,7 +404,7 @@ ingame_help
 	["event"] =     function(y, x) if player.lev >= 20 then return TRUE end end,
 	["desc"] =
 	{
-		"I see you are now at least level 20, nice. If you want to gloat about your",
+		"I see you are now at least level 20. Nice! If you want to gloat about your",
 		"character you could press 'C' then 'f' to make a character dump and post it to",
 		"http://angband.oook.cz/ where it will end up in the ladder.",
 	}

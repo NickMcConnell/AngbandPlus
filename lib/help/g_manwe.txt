@@ -30,7 +30,7 @@ to cast rather than your spellpoints, and the level of spells that Manwe will
 permit you to use is determined by your Prayer skill - how skillful you are
 in asking for his help without offending him!
 
-There is a special book - called the "Holy Tome of Manwe Sulimo" which
+There is a special book called the "Holy Tome of Manwe Sulimo" which
 contains instructions for the procedure for each of the prayers Manwe will
 grant. There are four prayers all told, which are:
 1. [[[[[BManwe's Blessing] (Level 1)

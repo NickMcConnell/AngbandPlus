@@ -52,8 +52,17 @@ An Archer begins the game with:
 #####GCreating AMmo
 Archers automatically gain the *****ability.txt*07[Ammo Creation] ability when they reach character 
 level 2. (Other classes can purchase this ability when they have enough skill 
-points.) This ability is accessed via the 'm' command. You need dungeon junk to 
-make ammo. Each type of ammo requires certain kinds of junk. The first type of 
-ammo you can make is pebbles; as you increase in skill you'll be able to make 
-other types.
+points.) This ability is accessed via the 'm' command.  The first type of 
+ammo you can make is sling ammo (pebbles or shots); as you increase in skill
+you'll be able to make other arrows (bow ammo) or bolts (crossbow ammo).
 
+Shots (or other sling ammo) are created from rubble piles found in the dungeons
+and other places.  To make shots, stand next to a rubble pile, activate the
+ammo creation ability from the 'm' menu, select 's'hots, then specify the
+direction to the rubble pile, which will be consumed during the ammo creation.
+Arrows or bolts are made from "junk" items ('~' symbol, such as shards of
+pottery) that you can find in the dungeons and other places.  To make arrows or
+bolts, assuming you have sufficient Archery skill, you must have the junk item
+in your inventory or on the ground at your feet.  Specify the junk item after
+selecting 'a'rrows or 'b'olts from the ammo creation menu, and it will be
+consumed and replaced with a stack of ammo.

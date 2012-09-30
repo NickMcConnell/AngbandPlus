@@ -257,8 +257,10 @@ void dump_skills(FILE *fff)
 			strcat(buf, format(" - %s", s_info[i].name + s_name));
 		}
 
-		fprintf(fff, "%-50s%02ld.%03ld [%01d.%03d]",
-		        buf, s_info[i].value / SKILL_STEP, s_info[i].value % SKILL_STEP,
+		fprintf(fff, "%-49s%s%02ld.%03ld [%01d.%03d]",
+		        buf, s_info[i].value < 0 ? "-" : " ",
+			ABS(s_info[i].value) / SKILL_STEP,
+			ABS(s_info[i].value) % SKILL_STEP,
 		        s_info[i].mod / 1000, s_info[i].mod % 1000);
 	}
 
@@ -323,9 +325,12 @@ void print_skills(int table[MAX_SKILLS][2], int max, int sel, int start)
 			      j + 7 - start, table[j][1] * 4);
 		}
 		c_prt(color,
-		      format("%02ld.%03ld [%01d.%03d]",
-		             s_info[i].value / SKILL_STEP, s_info[i].value % SKILL_STEP,
-		             s_info[i].mod / 1000, s_info[i].mod % 1000),
+		      format("%s%02ld.%03ld [%01d.%03d]",
+		             s_info[i].value < 0 ? "-" : " ",
+			     ABS(s_info[i].value) / SKILL_STEP,
+			     ABS(s_info[i].value) % SKILL_STEP,
+			     ABS(s_info[i].mod) / 1000,
+			     ABS(s_info[i].mod) % 1000),
 		      j + 7 - start, 60);
 	}
 }

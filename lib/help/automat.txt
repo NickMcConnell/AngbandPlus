@@ -23,12 +23,12 @@ of money and a decent weapon, you'll be interested in destroying {average} and
 things providing you are of a certain level.
 
 #####GSounds quite cool, but wha...
-STOP RIGHT THERE! I haven't finished yet! Lets look at some other examples. Most
-of the time, scrolls of darkness are pretty useless. Unless you are a vampire,
-or an alchemist, right? So you might think it was no good to add auto-destroy of
-scrolls of darkness to the automatizer. But you'd be wrong, for you can add
-rules that are dependent on certain conditions, like that you are of a certain
-race, or class.
+STOP RIGHT THERE! I haven't finished yet! Let's look at some other examples.
+Most of the time, scrolls of darkness are pretty useless. Unless you are a
+vampire, or an alchemist, right? So you might think it was no good to add
+auto-destroy of scrolls of darkness to the automatizer. But you'd be wrong, for
+you can add rules that are dependent on certain conditions, like that you are
+of a certain race, or class.
 
 #####GHey this is sounding good. What if it destroys my artifacts?
 It can't. Artifacts can never be destroyed, by the automatizer. However, watch
@@ -45,18 +45,18 @@ Well the very simplest way is as follows. When you hit 'k' (^D in the roguelike
 keyset) to destroy an item, you'll see that one option is "$ new automatizer
 rule(OFF)". If you want to destroy all future items like that that you find,
 then hit the $ key. You'll see that (OFF) changes to (ON). Now pick the item you
-want to destroy. Lets say it is a Potion of Salt Water. You would now, as
+want to destroy. Let's say it is a Potion of Salt Water. You would now, as
 normal, see a message "You destroy a Potion of Salt Water". Following this you
 get a prompt, "Destroy all of the same [T]ype, [F]amily, or [N]ame, also use
-[S]tatus (no)?". Lets take the easy one first and hit 'n' to go with name.
+[S]tatus (no)?". Let's take the easy one first and hit 'n' to go with name.
 You'll now see a message, "Rule added, please go to the automatizer screen
-(press = then T) to save the modified ruleset". Lets do that then shall we. If
+(press = then T) to save the modified ruleset". Let's do that then, shall we. If
 this is the first time you have used the automatizer with this savefile, you'll
-be asked to enable it as you hit T. Confirm that you would like to enable it
+be asked to enable it as you hit T. Confirm that you would like to enable it,
 otherwise it won't work.
 
 #####GWhat's the point in having it disabled then?
-Well lets say you spotted something that you weren't sure how it would be
+Well let's say you spotted something that you weren't sure how it would be
 affected by your rules, but didn't want to destroy it; you could just disable
 the automatizer for a moment and check it over before deciding what to do with
 it and switching the automatizer back on.
@@ -86,7 +86,7 @@ tags (</name>), and that everything between those tags is affected by that
 rule.
 
 #####GXML? HTML? What is this? Isn't ToME enough acronyms to be going on with?
-OK, so you don't know anything about mark-up languages, it's no problem. Lets
+OK, so you don't know anything about mark-up languages, it's no problem. Let's
 take a look at the automatizer screen bit by bit, starting with the instructions
 bottom right.
 
@@ -95,7 +95,7 @@ different rule name is highlighted in the left hand window, and that rule is
 displayed in the right hand window.
 tab to switch to the rule window. Does what it says on the tin: switches to the
 rule window (the right hand pane) to allow editing of existing rules.
-u/d to move rules. pressing 'u' or 'd' will move the rule up or down the order
+u/d to move rules. Pressing 'u' or 'd' will move the rule up or down the order
 displayed in the left hand window. Purely for cosmetic reasons.
 new rule. Adds the beginning of a new rule.
 rename rule. This is handy, as every rule added from the destroy prompt (as
@@ -108,7 +108,7 @@ game.
 k to disable the automatizer. Disables the automatizer, preserving the rules you
 have made.
 
-#####GYeah yeah so what about the rule window on the right hand side itself
+#####GYeah yeah, so what about the rule window on the right hand side itself?
 OK, here we go. This is the real juicy stuff.
 
 Anything inside pointy brackets (greater than and less than signs) is called a
@@ -143,7 +143,7 @@ Nice and simple huh?
 
 #####GYes Yes, very simple. It doesn't look very advanced at the moment.
 Well, we've barely scratched the surface.
-Lets take a look at those other options we got at the destroy prompt. Lets say
+Let's take a look at those other options we got at the destroy prompt. Let's say
 I was at a stage in the game where I wanted to be able to switch on an auto-
 destroy for all swords that pseudo-id'd as {average}. So let's say I have a
 dagger in my backpack, and I want to create an auto-destroy rule for that and
@@ -267,8 +267,8 @@ Of course you could always rename your rule to make things clearer.
 
 #####GOK so you mentioned something about setting rules up that happen only if a
 #####Gplayer is a certain level?
-Yeah, good point. Well lets develop our destroy average swords rule for the
-moment. Lets say we always wanted to destroy average swords by the time we got
+Yeah, good point. Well, let's develop our destroy average swords rule for the
+moment. Let's say we always wanted to destroy average swords by the time we got
 to character level 20. They don't earn enough gold to make it worth carrying
 back to town, and we'll have a better weapon by then anyway. So here we are in
 the automatizer screen, with the destroy sword rule displaying in the right hand
@@ -291,8 +291,8 @@ bottom change:
 &&&&&B\B-B-B-B-B-B-B-B-B-B-B-B-B-B-B/w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
 
 You can see the <rule> tags have changed to purple, indicating they are the
-active ones, that all key presses will act upon. Lets just quickly scoot through
-these new commands:
+active ones, that all key presses will act upon. Let's just quickly scoot
+through these new commands:
 up/down/left/right to navigate rule: These will change which clause is active,
 enabling you to delete that clause, or add further clauses inside that one if it
 so allows it.
@@ -306,13 +306,13 @@ that one. Therefore if the <rule> tags are active, the whole rule will be
 deleted. Beware!
 
 So if we now hit our right arrow we see that the <and> tags are active. We can
-now add a new clause here. lets do so by pressing 'a'. You'll now see a list of
+now add a new clause here. Let's do so by pressing 'a'. You'll now see a list of
 different types of clauses you can add, which you simply scroll through using up
 and down keys, and select by hitting enter. A brief description of the selected
 clause is shown in the right hand window. Scroll down to the 'level' rule type
-and hit enter. You'll be asked to enter a player level. Lets go for 20. You'll
+and hit enter. You'll be asked to enter a player level. Let's go for 20. You'll
 then be asked for a maximum level, put 50, as we want the rule to be true from
-level 20 and upwards. You'll now see out rule displays as:
+level 20 and upwards. You'll now see our rule displays as:
 
 &&&&&B/B-B-B-B-BRBuBlBeBsB-B-B-B-B-B/B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B\
 &&&&&B|gdgegsgtgrgogyB B B B B B w B|G<GrGuGlGeB BnBaBmBew=w"ydyeysytyryoyyw"B BtByBpBew=w"ydyeysytyryoyyw"G>B B B B B B B B B B B B B B B B B B B B B B B B B B B w B|
@@ -370,11 +370,11 @@ swords at character level 35, have a look at this, rather more complicated rule.
 
 #####GWoah! What the heck is that?!
 OK ok slow down a minute. Look at it carefully and a clause at a time. It's not
-difficult. Lets take it from the top. It's a destroying rule called swords. It
+difficult. Let's take it from the top. It's a destroying rule called swords. It
 opens with some <and> tags. The object must be a sword (tval 23). Now we have an
 OR tag, so we know that there are going to be some options:
 option 1: the player is between level 0 and level 50, and the sword pseudo id's
-as either cursed or terrible.
+as either cursed or worthless.
 option 2: the player is above character level 15, and the sword pseudo id's as
 average.
 option 3: the player is above character level 25, and the sword pseudo id's as
@@ -395,11 +395,11 @@ wrong. Don't mess about in there if you feel unsure of what you're doing though.
 
 #####GSo what about those examples you gave up above? Like destroying scrolls of
 #####Gdarkness unless you are a vampire or an alchemist?
-OK, lets add this rule from scratch rather than from the destroy item prompt.
+OK, let's add this rule from scratch rather than from the destroy item prompt.
 In the automatizer screen, hit 'n' for new rule. It asks for a name and a type
 of rule (destroy/pickup/nothing). I called my rule "? of darkness", and it's a
 destroy rule. It is worthwhile thinking at this point how the rule is going to
-be structured, for very complicated rules pen and paper may help. We're going to
+be structured; for very complicated rules pen and paper may help. We're going to
 need to define the object (either by name, or by tval and sval) then we're going
 to say unless the player race modifier is vampire, or the player class is
 alchemist. So we are obviously going to have more than one clause, and the
@@ -412,7 +412,7 @@ spell it correctly!
 With the <and> tags still highlighted we now want to add our "unless vampire or
 alchemist" clause. Seeing as this is an "unless" type clause, we start with a
 <not> tag. So again, 'a'dd a new clause, and select <not>.
-Now make the <not tag active by moving right and down with the cursor keys. We
+Now make the <not> tag active by moving right and down with the cursor keys. We
 want "EITHER vampire or alchemist" so we include <or> tags, again by moving
 across to make the <not> tags active and 'a'dding a new <or> clause. Then select
 the <or> tags and 'a'dd a new <subrace> clause. Enter 'vampire'.

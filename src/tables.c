@@ -3694,7 +3694,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		"Morgoth",
 		{
 			"Your final quest is the ultimate quest that has always been",
-			"required of you. You must enter the last level of Angband, where",
+			"required of you. You must enter the fetid depths of Angband, where",
 			"Morgoth is waiting. Travel deep, and defeat this source of all our",
 			"problems.  Be prepared, be patient, and good luck. May the light",
 			"shine on you.",
@@ -3794,9 +3794,9 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		FALSE,
 		"The Dark Horseman",
 		{
-			"A dark cloaked horseman has been spotted several time in town.",
-			"He carries an aura of fear with him and people seems to get sick",
-			"where he goes.  Please do something, but be careful...",
+			"A dark-cloaked horseman has been spotted several times in town.",
+			"He carries an aura of fear with him and people seem to get sick",
+			"wherever he goes.  Please do something, but be careful...",
 			"",
 			"",
 			"",

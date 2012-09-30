@@ -46,7 +46,7 @@ A Summoner starts the game with:
 ~~~~~04|Skills|Summoning - Summoning powers
 #####GSummoning
 [[[[[BThe summoner's powers of invocation are accessed using the 'm' key.]
-In order to invoke a monster, a summoner must posses a related totem.
+In order to invoke a monster, a summoner must possess a related totem.
 
 There are two kinds of summoning, decided by the totem used:
 
@@ -64,7 +64,7 @@ totem used in the summoning.
 
 [[[[[BTotem Creation]
 In order to summon any creature, the Summoner needs a totem. Totems cannot be 
-found, they must be created through a special process which involves taking 
+found; they must be created through a special process which involves taking 
 the corpse of a creature (the summoner need not have been involved in the 
 death of the creature in question), and extracting certain essences from it.
 

@@ -19,7 +19,6 @@ void module_reset_dir(cptr dir, cptr new_path)
 
 	if (!strcmp(dir, "apex")) d = &ANGBAND_DIR_APEX;
 	if (!strcmp(dir, "bone")) d = &ANGBAND_DIR_BONE;
-	if (!strcmp(dir, "cmov")) d = &ANGBAND_DIR_CMOV;
 	if (!strcmp(dir, "core")) d = &ANGBAND_DIR_CORE;
 	if (!strcmp(dir, "dngn")) d = &ANGBAND_DIR_DNGN;
 	if (!strcmp(dir, "data")) d = &ANGBAND_DIR_DATA;
@@ -27,16 +26,29 @@ void module_reset_dir(cptr dir, cptr new_path)
 	if (!strcmp(dir, "file")) d = &ANGBAND_DIR_FILE;
 	if (!strcmp(dir, "help")) d = &ANGBAND_DIR_HELP;
 	if (!strcmp(dir, "info")) d = &ANGBAND_DIR_INFO;
-	if (!strcmp(dir, "note")) d = &ANGBAND_DIR_NOTE;
 	if (!strcmp(dir, "scpt")) d = &ANGBAND_DIR_SCPT;
 	if (!strcmp(dir, "patch")) d = &ANGBAND_DIR_PATCH;
 	if (!strcmp(dir, "pref")) d = &ANGBAND_DIR_PREF;
-	if (!strcmp(dir, "user")) d = &ANGBAND_DIR_USER;
 	if (!strcmp(dir, "xtra")) d = &ANGBAND_DIR_XTRA;
+	if (!strcmp(dir, "user")) d = &ANGBAND_DIR_USER;
+	if (!strcmp(dir, "note")) d = &ANGBAND_DIR_NOTE;
+	if (!strcmp(dir, "cmov")) d = &ANGBAND_DIR_CMOV;
 #ifndef PRIVATE_USER_PATH
 	if (!strcmp(dir, "save")) d = &ANGBAND_DIR_SAVE;
 #else /* PRIVATE_USER_PATH */
-	if (!strcmp(dir, "save"))
+	if (!strcmp(dir, "user") ||
+	    !strcmp(dir, "note") ||
+	    !strcmp(dir, "cmov"))
+	{
+		char user_path[1024];
+		/* copied from init_file_paths */
+		path_parse(user_path, 1024, PRIVATE_USER_PATH);
+		strcat(user_path, USER_PATH_VERSION);
+		strnfmt(buf, 1024, "%s%s%s", user_path, PATH_SEP, new_path);
+		string_free(*d);
+		*d = string_make(buf);
+	}
+	else if (!strcmp(dir, "save"))
 	{
 		d = &ANGBAND_DIR_SAVE;
 

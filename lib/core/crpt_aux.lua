@@ -195,8 +195,8 @@ are unable to resist these powers, they become corrupted. Corruptions can
 change their physical or mental abilities, some of which can be good, and
 some bad. Most corruptions will affect you permanently, although some only 
 operate when they are activated (whether by player choice or as a random 
-event). You can check which corruptions do you have in the knowledge screen 
-6 (accessed through the '~' menu) or in a character dump.
+event). You can check which corruptions you have in the knowledge screen 6
+(accessed through the '~' menu) or in a character dump.
 
 #####GGaining and (not) losing corruptions
 There are several ways that you can become corrupted.

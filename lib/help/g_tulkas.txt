@@ -24,7 +24,7 @@ cast rather than your spellpoints, and the level of spells that Tulkas will
 permit you to use is determined by your Prayer skill - how skillful you are
 in asking for his help without offending him!
 
-There is a special book - called the "War Tome of Tulkas" which contains 
+There is a special book called the "War Tome of Tulkas" which contains 
 instructions for the procedure for each of the prayers Tulkas will grant. 
 There are three prayers all told, which are:
 1. [[[[[BDivine Aim] (Level 1)

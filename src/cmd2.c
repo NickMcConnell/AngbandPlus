@@ -2358,8 +2358,8 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 		/* Sound */
 		sound(SOUND_OPENDOOR);
 
-		/* Hack -- Fall through the door */
-		move_player(dir, always_pickup);
+		/* Hack -- Fall through the door. Can't disarm while falling. */
+		move_player_aux(dir, always_pickup, 0, FALSE);
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_MON_LITE);
@@ -2697,7 +2697,7 @@ void do_cmd_spike(void)
 }
 
 
-void do_cmd_walk_jump(int pickup)
+static void do_cmd_walk_jump(int pickup, bool disarm)
 {
 	int dir;
 
@@ -2724,7 +2724,7 @@ void do_cmd_walk_jump(int pickup)
 		energy_use = 100;
 
 		/* Actually move the character */
-		move_player(dir, pickup);
+		move_player(dir, pickup, disarm);
 
 		/* Allow more walking */
 		more = TRUE;
@@ -2760,7 +2760,7 @@ void do_cmd_walk_jump(int pickup)
 /*
  * Support code for the "Walk" and "Jump" commands
  */
-void do_cmd_walk(int pickup)
+void do_cmd_walk(int pickup, bool disarm)
 {
 	/* Move (usually pickup) */
 
@@ -2770,7 +2770,7 @@ void do_cmd_walk(int pickup)
 	}
 	else
 	{
-		do_cmd_walk_jump(pickup);
+		do_cmd_walk_jump(pickup, disarm);
 	}
 }
 
@@ -4471,7 +4471,7 @@ void do_cmd_unwalk()
 	else if (((feat >= FEAT_QUEST_ENTER) && (feat <= FEAT_QUEST_UP)) ||
 	                ((feat >= FEAT_LESS) && (feat <= FEAT_MORE)))
 	{
-		move_player(dir, always_pickup);
+		move_player(dir, always_pickup, TRUE);
 		more = FALSE;
 	}
 
@@ -4488,7 +4488,7 @@ void do_cmd_unwalk()
 			while (dir == 5);
 		}
 
-		move_player(dir, always_pickup);
+		move_player(dir, always_pickup, TRUE);
 	}
 
 	/* Walking semantics */

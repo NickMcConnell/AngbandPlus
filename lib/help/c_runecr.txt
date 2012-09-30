@@ -5,7 +5,7 @@
 #####GDescription
 Instead of using spellbooks like the other spellcasters they instead 
 use mystic runes. To cast a spell they select a primary rune of the 
-elements, fire, cold, etc. and they also chose a set of secondary runes,
+elements (fire, cold, etc.) and they also choose a set of secondary runes,
 which shape the effect of the first one. The secondary runes include 
 Self, Arrow, Ray, ... and Armageddon. After that they chose the amount 
 of mana to use and the spell is cast! But the more secondary runes they

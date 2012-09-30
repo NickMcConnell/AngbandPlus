@@ -269,6 +269,10 @@ L:-8186:html-dump:Save an html screenshot
 L:-8186:D
 L:-8184:quest:Show quest list
 L:-8184:Q
+L:-8183:blunder:Walk without disarming
+L:-8183:B
+L:-8182:ability:Check abilities
+L:-8182:A
 L:y:give:Give an object to a monster
 L:Y:chat:Talk to a monster
 L:j:jam:Jam a door

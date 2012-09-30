@@ -89,12 +89,12 @@ static cptr desc_insult[] =
 {
 	"insults you!",
 	"insults your mother!",
-	"gives you the finger!",
+	"jumps around you!",
 	"humiliates you!",
 	"defiles you!",
 	"dances around you!",
-	"makes obscene gestures!",
-	"moons you!!!"
+	"makes obnoxious gestures!",
+	"pokes you!!!"
 };
 
 

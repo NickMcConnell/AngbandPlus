@@ -5,8 +5,8 @@ POWER_INVISIBILITY = add_power
 {
 	["name"] =      "invisibility",
 	["desc"] =      "You are able melt into the shadows to become invisible.",
-	["desc_get"] =  "You suddently become able to melt in the shadows.",
-	["desc_lose"] = "You loose your shadow melting ability.",
+	["desc_get"] =  "You suddenly become able to melt into the shadows.",
+	["desc_lose"] = "You lose your shadow-melting ability.",
 	["level"] =     30,
 	["cost"] =      10,
 	["stat"] =      A_DEX,
@@ -16,13 +16,13 @@ POWER_INVISIBILITY = add_power
 	end,
 }
 
--- Web power, for the mouse mimic shape
+-- Web power, for the spider mimic shape
 POWER_WEB = add_power
 {
 	["name"] =      "web",
 	["desc"] =      "You are able throw a thick and very resistant spider web.",
-	["desc_get"] =  "You suddently become able to weave webs.",
-	["desc_lose"] = "You lose your web weaving capability.",
+	["desc_get"] =  "You suddenly become able to weave webs.",
+	["desc_lose"] = "You lose your web-weaving capability.",
 	["level"] =     25,
 	["cost"] =      30,
 	["stat"] =      A_DEX,

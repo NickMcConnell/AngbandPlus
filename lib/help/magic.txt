@@ -7,7 +7,7 @@
 For the basics of how to use skills, please see *****skills.txt*0[Using Skills].
 
 In ToME you have a basic *****skills.txt*21[Magic] skill. This skill is one of the most
-important one for a spellcaster, since it is responsible for how much mana you
+important ones for a spellcaster, since it is responsible for how much mana you
 have. You can never have too much of it. If you like magical devices, the
 Magical Device skill is also important, since it controls the Magical
 Device ability of your character. This ability again dictates the fail rates
@@ -21,17 +21,17 @@ schools:
      *****m_convey.txt*0[Conveyance]     *****m_divin.txt*0[Divination]      *****m_tempo.txt*0[Temporal]
      *****m_mind.txt*0[Mind]           *****m_nature.txt*0[Nature]
 
-Other magical skills, generally being used primarily by characters of a specific
-class are:
+Other magical skills, generally being used primarily by characters of a
+specific class, are:
      *****m_demono.txt*0[Demonology]     *****m_necrom.txt*0[Necromancy]      *****skills.txt*36[Runecraft]
      *****m_thaum.txt*0[Thaumaturgy]    *****skills.txt*49[Alchemy]         *****m_geoman.txt*0[Geomancy]
 
-The *****m_demono.txt*0[Demonology] skill is primarily  used by *****c_demono.txt*0[Demonologists] for their special
+The *****m_demono.txt*0[Demonology] skill is primarily used by *****c_demono.txt*0[Demonologists] for their special
 spells, whereas the *****m_necrom.txt*0[Necromancy] skill is used by *****c_necro.txt*0[Necromancers] for their own set
 of special spells.
 The same goes for *****skills.txt*36[Runecraft], which is used by *****c_runecr.txt*0[Runecrafters] to allow use of more
-difficult runes or rune-combinations. *****m_thaum.txt*0[Thaumaturgy] gives you a randomly chosen
-attack spell, and as such each game with it will be different. *****c_geoman.txt*0[Geomancers]
+difficult runes or rune-combinations. *****m_thaum.txt*0[Thaumaturgy] gives you randomly chosen
+attack spells, and as such each game with it will be different. *****c_geoman.txt*0[Geomancers]
 harness the powers of the elements using *****m_geoman.txt*0[Geomancy]. Lastly we have
 *****skills.txt*49[Alchemy], which is used by *****c_alchem.txt*0[Alchemists].
 
@@ -47,14 +47,14 @@ whereas other *****c_priest.txt*0[Priests] and *****c_mindcr.txt*0[Mindcrafters]
 access to *****m_music.txt*0[Songs], which affect creatures in ways that can appear to be magical.
 
 The 11 different primary schools give you access to different spells of
-variable usefulness. The way they work is that by adding skill points to a
+variable usefulness. The way they work is that adding skill points to a
 specific school will enable you to get higher level spells for that specific
 school. By level requirements for a specific spell you could actually say skill
 requirement, since they correlate exactly. Let's take a simple example:
 If you have the *****m_mana.txt*0[Mana] school skill at level 24.000, it means you can use any
 spell in the mana school up to and including those requiring level 24. [[[[[BThere are]
 [[[[[Balso some spells requiring a certain skill level in two schools, and there is a]
-[[[[[Bpossibility of spells requiring three or more. For these kind of spells the ]
+[[[[[Bpossibility of spells requiring three or more. For this kind of spells the ]
 [[[[[Bspell level is determined by taking an average of the necessary skills. ]
 When calculating spell level for spells which require more than one school, 
 sorcery (or god-granted access) can be used in place of the primary schools in 
@@ -78,15 +78,15 @@ Manathrust costs 1 mana and does 4d2 damage, while at level 24 it costs 12
 mana and does a whopping 27d10 damage.
 
 The *****skills.txt*23[Sorcery] skill is a nice skill, since it gives you
-access to all the 11 primary schools of magic, just as if you'd spend an equal
+access to all the 11 primary schools of magic, just as if you'd spent an equal
 amount of skill points in all the skills. It's available to any mage character,
 but only a *****c_sorcer.txt*0[Sorceror] will be able to be proficient in it. Also, having this
 skill at level 1 will give you a hitpoint-penalty of 1%, all the way up to
-skill level 50, with a hitpoint-penalty of 50%. There is also a ToHit and a
-ToDam penalty in here too.
+skill level 50, with a hitpoint-penalty of 50%. There are also ToHit and ToDam
+penalties for sorcery, so don't choose sorcery if you plan to do much fighting.
 
 There is also the *****skills.txt*22[Spell Power] skill. This skill is rather nice, since it
-will augment the spells you already have access to. The distinction between this
+will augment the power of spells you already know. The distinction between this
 and the others, is that it will not grant you new spells, but instead increases
 the levels of spells. At level 50 it grants 20 extra spell levels. [[[[[BThis skill ]
 [[[[[Bonly affects the 11 primary schools] (Mana, Earth, Air, Fire, Water, Meta, 
@@ -136,8 +136,8 @@ a spell level of 1 + (14 - 5 + 1) = 11. This is calculated from the formula:
 spell level = staff bonus + (magic device - minimum magic device + 1)).
 However given that the maximum spell level with this staff is 10, you'll be
 casting with a spell level of 10.
-As you get deeper into the dungeons, the bonuses and maximum spell levels
-increase.
+As you get deeper into the dungeons, you will find sticks with higher bonuses
+and maximum spell levels.
 
                                      Written by: vrak AKA Per-Arne Holtmon Akoe
                                   Wands and Staves section added by fearoffours

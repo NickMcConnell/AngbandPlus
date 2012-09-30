@@ -20,6 +20,3 @@ Constitution    0
 Charisma        0       
 Hit Dice Sides  10         
 Exp Penalty     +0%
-
-
-

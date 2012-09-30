@@ -3517,6 +3517,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 		return;
 	}
 
+	/* Don't step on known traps. */
+	else if (disarm && (c_ptr->info & (CAVE_TRDT)) && !(p_ptr->confused || p_ptr->stun || p_ptr->image))
+	{
+		msg_print("You stop to avoid triggering the trap.");
+		energy_use = 0;
+		oktomove = FALSE;
+	}
+
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
 	/* Player can't enter ? soo bad for him/her ... */
@@ -3869,9 +3877,9 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 	}
 }
 
-void move_player(int dir, int do_pickup)
+void move_player(int dir, int do_pickup, bool disarm)
 {
-	move_player_aux(dir, do_pickup, 0, TRUE);
+	move_player_aux(dir, do_pickup, 0, disarm);
 }
 
 

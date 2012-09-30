@@ -7,8 +7,8 @@ Possessors are unusual; they aren't good fighters, and they can't cast
 magic. Their special ability is that of being able to leave their 
 bodies and inhabit corpses. While "in" a corpse, the Possessor gains 
 the abilities of the monster, and their hit points and the monster's 
-are averaged. While in the incorporeal form between bodies, they have 
-only one hitpoint. 
+are averaged. (Most monsters have no, or very few, spell points.)  While
+in the incorporeal form between bodies, they have only one hitpoint.
 
 #####GStarting Stat Modifiers
 Strength         +1

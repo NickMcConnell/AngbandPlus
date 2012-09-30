@@ -12,5 +12,3 @@ No changes to stats.
 A classical character begins the game with:
     Some rations
     Some torches
-
-

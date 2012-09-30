@@ -2,34 +2,35 @@
 ~~~~~01|Help|FAQ - Spoiler free
 ~~~~~02|FAQ - Spoiler free
 #####R                             ToME FAQ
-#####R                     Updated for version 2.2.x
+#####R                     Updated for version 2.3.x
 
 #####G------------------------------------------------------------------------------
 
 #####R=== Differences Between ToME and Vanilla Angband ===
 
-The first main difference a new player to ToME will need to be aware of
-is that it has implemented a skills based system where instead of the 
-adventurer automatically improving in their abilities as they become more
-experienced, they get 5 skill points to spend on their character's abilities
-and can therefore customise what type of character they play. See the *****skills.txt*0[skills] 
-help file for details
+The first main difference a new player to ToME will need to be aware of is
+that it has implemented a skills based system.  Instead of the adventurer
+automatically improving in his abilities as he becomes more experienced,
+he gets 6 skill points to spend on his skills, allowing the player to
+customise what type of character she will play. See the *****skills.txt*0[skills] help file
+for details.
 
 A second major difference is that the main dungeon from Angband has been split 
-into 4 "dungeons", each of which cover a different portion of the dungeon's 
-levels. Each of these 4 dungeons are located either in or near one of the four 
-main towns so that the character can keep stocked up on supplies. As the 
-adventurer advances in ability, they will need to travel overland to the next 
+into 4 "dungeons", each of which covers a different portion of the Angband
+dungeon's levels. Each of these 4 dungeons is located either in or near one of
+the four main towns so that the character can keep stocked up on supplies. As
+the adventurer advances in ability, he will need to travel overland to the next
 town/dungeon, which is most easily carried out using the wilderness map ("<" 
-from town level). As well as these main places, there are a number of 
-additional dungeons which the character may or may not choose to enter, which 
-can have guardians, contain specific artifacts, or just be used as an 
+from town level). As well as these main places, there are a number of
+additional dungeons which the character may or may not choose to enter, which
+can have guardians, contain specific artifacts, or just be used as an
 alternative place to enjoy gaining experience. Note that not all of the places
 are actually "dungeons" - some are caves, forests, etc.
 
 ToME also offers the player the ability to undertake a series of quests. 
 Random quests can be specified during start-up, and involve rescuing a princess 
-from a group of monsters within the dungeon. If you do not wish to play with 
+from a group of monsters within the dungeon, or recovering a lost sword from
+(you guessed it...) a group of monsters. If you do not wish to play with 
 random quests, simply specify "0" when asked how many you want during character 
 generation. Other "fixed" quests are also available from the towns (whether 
 random quests are enabled or not), usually given by the town leaders upon the 
@@ -37,7 +38,7 @@ request of the adventurer. It is not required for any adventurer to undertake
 the fixed quests, but they can result in some nice rewards.
 
 The third main difference between Vanilla Angband and ToME is the difference 
-in character classes and races, as well as a very different  magic system. 
+in character classes and races, as well as a very different magic system. 
 See the help files on *****birth.txt*0[Creating a character] and the *****magic.txt*0[magic] system. 
 Class abilities (generally referred to as skills) are generally accessed 
 through the 'm' command. Most racial abilities, or corruptions, are accessed 
@@ -46,7 +47,7 @@ through the "U" command.
 To balance the expansion in things like player abilities and customisation, the 
 list of both monsters and items has also been expanded. Be warned that items 
 which were by default safe in Vanilla are not necessarily safe in ToME (a 
-certain early artifact comes to mind here ...), and picking on defenceless 
+certain early artifact comes to mind here...), and picking on defenceless 
 creatures is frowned upon....
 
 Happy adventuring!
@@ -60,11 +61,11 @@ A: ToME introduces a new system of gods.
 You can find altars only in Lothlorien and in the dungeon.
 The ones on the surface are dedicated to the good Valar (Eru, Manwe, Tulkas and
 Yavanna), while altars found in the dungeons are "sacred" for Melkor.
-You can use altars to convert yourself to a certain Vala by the "O"
-command while standing on them. Beware, this works only if you don't already
-have a God and as a new convert, your God won't like you that much.
-Melkor also uses his altars as a mean of collecting sacrifices from his devotees;
-this function is likewise accomplished by the "O" command.
+You can use altars to convert yourself to the service of a specific Vala by
+using the "O" command while standing on them. Beware, this works only if you
+don't already have a God, and as a new convert, your God won't like you that
+much.  Melkor also uses his altars as a mean of collecting sacrifices from his
+devotees; this function is likewise accomplished by the "O" command.
 
 Read *****gods.txt*0[gods.txt] for more information about Gods.
 ~~~~~05|Fountains
@@ -81,7 +82,7 @@ potion and hence the type of fountain) by using the 'H' command and answering
 'F' at the prompt.  The game will then ask you to choose bottles and how many
 bottles you want to fill.  You can find empty bottles on the dungeon and
 drinking pints of fine ale/wine will give you emtpy bottles; if you are 
-trained in the Alchemy, you can reuse bottles after quaffing potions as well.
+trained in Alchemy, you can reuse bottles after quaffing potions as well.
 
 #####G------------------------------------------------------------------------------
 #####GQ: I got killed by a Great Wyrm of Power at 50'!!! What happened?
@@ -97,7 +98,7 @@ A: You've found an unusual artifact that cannot be wielded, but always
 has a sometimes-useful activation.  It will not be listed in the known
 artifact list and its activation is chosen randomly. It would probably be
 wise for this kind of artifact be *identified* before use, as the
-activation can be something very nasty...
+activation can be something very nasty....
 
 To activate it, use the normal Activation command, but when prompted for which 
 item to activate change to the backpack instead of wielded equipment.
@@ -106,39 +107,38 @@ item to activate change to the backpack instead of wielded equipment.
 #####G------------------------------------------------------------------------------
 #####GQ: I keep coming across "essences" and "runes". What are they? 
 
-Essences are the *****c_alchem.txt*0[Alchemists] friend, and you can only use them if you have 
-access to the *****skills.txt*49[alchemy] skill. 
+Essences are the *****c_alchem.txt*0[Alchemist's] friend, and you can only use them if you
+have access to the *****skills.txt*49[Alchemy] skill. 
 Runes are used to cast and store spells of varying types. *****c_runecr.txt*0[Runecrafters] are the
 class who are most proficient at using these. You can only use them if you 
-have access to the *****skills.txt*36[Runecrafting] skill
+have access to the *****skills.txt*36[Runecrafting] skill.
 ~~~~~12|Homes
 #####G------------------------------------------------------------------------------
 #####GQ: Where can I store all my equipment? Theere's not enough room in my
 #####Ginventory? And what happened to the thieves quest in Bree?
 
-And nor is there supposed to be enough room in your backpack. It's not 
+Nor is there supposed to be enough room in your backpack. It's not 
 bottomless you know! If you go talk to the Mayor in Bree, he might let you know 
 about a slight problem that there's been in town. If you can clear up the 
-problem, you may find yourself with someone extra to keep your stuff. I've 
-heard tell that there are other similiar problems in other towns in 
-Middle-Earth. 
+problem, you may find yourself with somewhere extra to keep your stuff. I've 
+heard tell that there are similiar problems in other towns in Middle-Earth. 
 ~~~~~13|Fates|Prophets
 #####G------------------------------------------------------------------------------
 #####GQ: I spent 500 gp at the Prophet but she said nothing. Is that a bug ?
 
 A: No. Nor is it because Prophets are swindlers. She said nothing
-because you have no fate at this moment.  You gain fate while playing, and
+because you have no fate at this moment.  You gain fates while playing, and
 will be warned by a message such as "You feel your fate has changed".  A fate
 can be useless like finding a broken skull at level 30, deadly like dying at
-level 56, or really useful like to never die by the hand of a mortal.
+level 56, or really useful like never dying by the hand of a mortal.
 ~~~~~14|Mathilde
 #####G------------------------------------------------------------------------------
 #####GQ: Who is Mathilde, the Science Student whom I see every so often in the
 #####G   town?
 
-A: Most of the time she laughs and giggles, she has no loot on her, and
+A: Most of the time she laughs and giggles. She has no loot on her, and
 she's never done you any harm. So leave her be - even if she should
-happen to shout "Drop dead, creep!".
+happen to shout "Drop dead, creep!"
 ~~~~~15|Wrists hurting
 #####G------------------------------------------------------------------------------
 #####GQ: My wrists hurt a lot when playing the game. Should I take precautions?
@@ -167,7 +167,7 @@ on one to activate it.
 #####G------------------------------------------------------------------------------
 #####GQ: When it panic saves it reloads an old savefile !!
 
-A: Now the panic saves use a different file to save, savefile.pnc
+A: Now the panic saves use a different file to save, savefile.pnc.
 This file will be loaded first, if present, when the game is started.
 If it loads successfully, save the game immediately. Otherwise, delete
 the panic save, and your old (non-panic) savefile should be safe.
@@ -177,7 +177,7 @@ the panic save, and your old (non-panic) savefile should be safe.
 #####GQ: Farmer Maggot / Melinda Proudfoot keep shouting at me, and I cannot
 #####G   kill them.
 
-A: Both these people need to talk to you about something. Have a chat to them 
+A: Both these people need to talk to you about something. Have a chat with them 
 (check the file *****command.txt*96[command.txt] for how to chat).
 ~~~~~09|Sentient weapons
 #####G------------------------------------------------------------------------------
@@ -195,25 +195,23 @@ chance to confer extra attacks or the power of causing earthquakes and so on.
 #####G------------------------------------------------------------------------------
 #####GQ: What or who is Fumblefingers? How do I get his quests?
 
-A: FF is short for Fumblefingers, the name that some players give to the adventurer
-who keeps having his sword stolen by monsters and asking you to find it for
-him. So named because he often seems to lose it to molds and other creatures
-you wouldn't expect to be able to pickpocket!
-During birth you'll be asked to specify a number of random quests you would like 
-to attempt to complete. Some of these quests will take the form of princess quests, 
-others will be fumble-finger quests. If you complete the task he sets you 
-sucessfully, he'll offer to join you as a companion. If you do not want him to 
-join you, he'll offer to teach you some new skills. Quite handy.
+A: FF is short for Fumblefingers, the name that some players give to the
+adventurer who keeps having his sword stolen by monsters and asking you to
+find it for him. So named because he often seems to lose it to molds and
+other creatures you wouldn't expect to be able to pickpocket!  During birth
+you'll be asked to specify a number of random quests you would like to
+attempt to complete. Some of these quests will take the form of princess
+quests, others will be fumble-finger quests. If you complete the task he
+sets you sucessfully, he'll offer to join you as a companion. If you do not
+want him to join you, he'll offer to teach you some new skills. Quite handy.
 ~~~~~26|Random quests are not working.
 #####G------------------------------------------------------------------------------
 #####GQ: Where has the option gone to set the number of random quests?
 #####G   Why aren't there any after the Barrow-downs?
 
-A: Turning on either of the options "Allow permanent dungeon levels" or "Always 
-create special rooms" will disable random quests.
-Random quests can only be found in the four main dungeons (Barrowdowns, Mirkwood, 
-Mordor and Angband). 
-
+A: Turning on either of the options "Allow permanent dungeon levels" or "Always
+create special rooms" will disable random quests.  Random quests can only be
+found in the four main dungeons (Barrowdowns, Mirkwood, Mordor and Angband). 
 ~~~~~27|Weird display
 ~~~~~28|Floor tiles displaying incorrectly
 #####G------------------------------------------------------------------------------
@@ -242,24 +240,25 @@ shift+7, type '4', and modify the gamma correction there.
 #####G------------------------------------------------------------------------------
 #####GQ: Why don't you make X class less powerful or Y class more powerful?
 
-A: ToME the player determines how hard the game is. Classes, races, and 
+A: In ToME the player determines how hard the game is. Classes, races, and 
 subraces are neither meant nor desired to be equal in game difficulty. So no, 
 we won't make Axemasters more powerful just to "balance them out", nor will we 
-make Sorcerors weaker.  
+make Sorcerors weaker.
 ~~~~~31|I keep dying!
 #####G------------------------------------------------------------------------------
 #####GQ: Why do I always start in a terribly difficult, very deep dungeon instead of 
 #####G a town? Is the game really this hard?
 
 A: You have chosen a "Lost soul" character subrace. That's where Lost souls 
-start. They tend to die very quickly, so don't choose them if you're new to ToME. 
+start. They tend to die very quickly, so don't choose them if you're new to
+ToME. 
 ~~~~~32|Invisible character
 #####G------------------------------------------------------------------------------
 #####GQ: My character is invisible. That's great, but how do I know where she is if 
 #####G I can't see her?!
 
 A: You could seek for a way to see invisible things.
-You could go to game options:
+You could also go to game options:
     1. Type = (game options)
     2. Type 4 (efficiency options)
     3. Arrow down to 'hilite the player with the cursor'
@@ -270,7 +269,7 @@ You could go to game options:
 #####G picking it all up, moving it, or destroying it all?
 A:
     1. Stand on the pile in question
-    2. Type shift + i (examine)
+    2. Type shift + I (inspect)
     3. Type - (examine items on floor)
     4. Type * (expand list of items on floor)
     5. (as needed) Type letter associated with item to look at it more closely.
@@ -297,7 +296,8 @@ If you're new to ToME, understand that your characters are going to die a lot.
 Be prepared for that. In fact, take advantage of it by using the various 
 characters you run to experiment and learn the game's various facets.
 
-Try a warrior. A Dunadan Swordmaster is an excellent combination of race and class.
+Try a warrior. A Dunadan Swordmaster is an excellent combination of race and
+class.
 
 Try a priest. A Rohan Knight Paladin gives you some magic to go with strong 
 combat, but your terrible stealth will give you a tougher time in some respects.
@@ -325,8 +325,8 @@ they offer an attractive range of experiences for the new player.
 #####GQ: I'm getting killed a lot. Can you recommend some starting options to 
 #####G make my chances a little better?
 
-A: Realize that getting killed a lot is to be expected. Having said that, try this:
-At character creation:
+A: Realize that getting killed a lot is to be expected. Having said that, try
+this. At character creation:
     1. Turn off "always generate very unusual rooms".
     2. Turn off joke monsters.
     3. Turn off "always make small levels".
@@ -353,10 +353,10 @@ quests to choose?
 
 I think this is another area where the beginner should mix it up. The early 
 items from princesses are a great benefit to beginners, but coming to rely on 
-those can be a problem when it comes time to enter deep dungeons and the real nasty 
-quests begin.
+those can be a problem when it comes time to enter deep dungeons and the real
+nasty quests begin.
 
-Also, high counts, especially, 98 quests can be very frustrating for a beginner 
+Also high counts, especially 98 quests, can be very frustrating for a beginner 
 when it puts an especially difficult quest on dungeon level 1 or 2.
 
 ~~~~~37|Anti-magic Amulets and the Anti-magic shell
@@ -365,9 +365,17 @@ when it puts an especially difficult quest on dungeon level 1 or 2.
 
 A: No. The Anti-magic shell of the Amulet of Anti-magic has nothing to do with 
 the Anti-magic field given off by the skill and Dark Swords. 
+
+~~~~~38|Beornings and Bearform-combat
+#####G------------------------------------------------------------------------------
+#####GQ: My Beorning character doesn't have Bearform-combat! Why?
+
+A: You cannot put points into Bearform-combat unless you are transformed
+into a bear.  Use the racial power ('U' in the original keyset, 'O' in
+roguelike) to transform first.
+
 #####G------------------------------------------------------------------------------
 #####GQ: The game is so slow...
 
 A: Yeah :(
 Try disabling the various options marked as (slow)
-

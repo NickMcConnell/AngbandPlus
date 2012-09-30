@@ -5,13 +5,13 @@
 #####R=== Druids ===
 
 #####GDescription
-When Melkor first dug up Utumno and Angband, rivers polluted and gave birth to
-dark clouds of stinging insects; animals changed into dark, horrible horned
-things and the forests themselves screamed in horror at their corruption.
+When Melkor first dug up Utumno and Angband, rivers were polluted and gave
+birth to dark clouds of stinging insects; animals changed into dark, horrible
+horned things and the forests themselves screamed in horror at their corruption.
 
 *****g_yavann.txt*0[Yavanna] heard this scream and gave to some of the children of Eru the strength
 to defend Nature; at first Ents were chosen, but later on other races were
-allowed to thread the path of the Druid.
+allowed to tread the path of the Druid.
 
 The embodiment of life itself, a Druid is a true force of nature and nothing
 can prevent him from completing his final quest: returning Angband to the

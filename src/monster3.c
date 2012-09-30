@@ -647,7 +647,7 @@ void do_cmd_companion()
 
 	if (!can_create_companion())
 	{
-		msg_print("You cannot get anymore companion.");
+		msg_print("You cannot have any more companions.");
 		return;
 	}
 

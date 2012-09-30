@@ -18,8 +18,9 @@ first have your *****skills.txt*34[Nature] skill at 20 or greater, and then it w
 skill points to buy. This means you have to "save up" enough skill points in
 order to be able to afford this ability.
 
-You can access the Ability screen by pressing 'N'. Scroll up and down the 
-abilities and then navigate right to buy selected ability.
+You can access the Ability screen by pressing 'N' (in the original keyset, or
+'\N' in the roguelike keyset). Scroll up and down the abilities and then
+navigate right to buy selected ability.
 
 Adapt your character with skills and abilities in order to make it unique, 
 playable, and maybe even powerful enough to win the game!

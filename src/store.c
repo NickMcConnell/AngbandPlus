@@ -46,9 +46,9 @@ static cptr comment_2b[MAX_COMMENT_2B] =
 	"That's a pittance!  I want %s gold pieces.",
 	"That's an insult!  I want %s gold pieces.",
 	"As if!  How about %s gold pieces?",
-	"My arse!  How about %s gold pieces?",
+	"My gosh!  How about %s gold pieces?",
 	"May the fleas of 1000 orcs molest you!  Try %s gold pieces.",
-	"May your most favourite parts go moldy!  Try %s gold pieces.",
+	"May your most favourite weapons rust!  Try %s gold pieces.",
 	"May Morgoth find you tasty!  Perhaps %s gold pieces?",
 	"Your mother was an Ogre!  Perhaps %s gold pieces?"
 };
@@ -234,7 +234,7 @@ static void say_comment_6(void)
 static cptr comment_7a[MAX_COMMENT_7A] =
 {
 	"Arrgghh!",
-	"You bastard!",
+	"You moron!",
 	"You hear someone sobbing...",
 	"The shopkeeper howls in agony!"
 };
@@ -243,9 +243,9 @@ static cptr comment_7a[MAX_COMMENT_7A] =
 
 static cptr comment_7b[MAX_COMMENT_7B] =
 {
-	"Damn!",
+	"Darn!",
 	"You fiend!",
-	"The shopkeeper curses at you.",
+	"The shopkeeper yells at you.",
 	"The shopkeeper glares at you."
 };
 
@@ -3405,19 +3405,6 @@ static bool store_process_command(void)
 
 #endif /* ALLOW_REPEAT -- TNB */
 
-	if (rogue_like_commands && command_cmd == 'l')
-	{
-		command_cmd = 'x'; 	/* hack! */
-	}
-	if (rogue_like_commands && command_cmd == 'B')
-	{
-		command_cmd = 'f';       /* kwt */
-	}
-	if (rogue_like_commands && command_cmd == 'z')
-	{
-		command_cmd = 'a';       /* kwt */
-	}
-
 	for (i = 0; i < 6; i++)
 	{
 		ba_ptr = &ba_info[st_info[st_ptr->st_idx].actions[i]];
@@ -3825,6 +3812,16 @@ void do_cmd_store(void)
 	/* Display the store */
 	display_store();
 
+	/* Mega-Hack -- Ignore keymaps on store action letters */
+	for (i = 0; i < 6; i++)
+	{
+		store_action_type *ba_ptr =
+			&ba_info[st_info[st_ptr->st_idx].actions[i]];
+		request_command_ignore_keymaps[2*i] = ba_ptr->letter;
+		request_command_ignore_keymaps[2*i+1] = ba_ptr->letter_aux;
+
+	}
+
 	/* Do not leave */
 	leave_store = FALSE;
 
@@ -3976,6 +3973,8 @@ void do_cmd_store(void)
 	/* Hack -- Cancel "see" mode */
 	command_see = FALSE;
 
+	/* Mega-Hack -- Clear the 'ignore-keymaps' list */
+	memset(request_command_ignore_keymaps, 0, 12);
 
 	/* Flush messages XXX XXX XXX */
 	msg_print(NULL);
@@ -4284,6 +4283,15 @@ void do_cmd_home_trump(void)
 	/* Display the store */
 	display_store();
 
+	/* Mega-Hack -- Ignore keymaps on store action letters */
+	for (i = 0; i < 6; i++)
+	{
+		store_action_type *ba_ptr =
+			&ba_info[st_info[st_ptr->st_idx].actions[i]];
+		request_command_ignore_keymaps[2*i] = ba_ptr->letter;
+		request_command_ignore_keymaps[2*i+1] = ba_ptr->letter_aux;
+	}
+
 	/* Do not leave */
 	leave_store = FALSE;
 
@@ -4435,6 +4443,8 @@ void do_cmd_home_trump(void)
 	/* Hack -- Cancel "see" mode */
 	command_see = FALSE;
 
+	/* Mega-Hack -- Clear the 'ignore-keymaps' list */
+	memset(request_command_ignore_keymaps, 0, 12);
 
 	/* Flush messages XXX XXX XXX */
 	msg_print(NULL);

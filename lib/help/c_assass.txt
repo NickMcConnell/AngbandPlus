@@ -2,7 +2,7 @@
 ~~~~~02|Classes|Assassin
 #####R=== Assassins ===
 #####GDescription
-Assassin are similar to Rogues, but have trained their combat abilities more
+Assassins are similar to Rogues, but have trained their combat abilities more
 extensively by neglecting the study of magic. They also tend to be more stealthy
 and careful in their dungeon exploration, but aren't so good at stealing,
 trapping and disarming as their more "peaceful" counterparts.

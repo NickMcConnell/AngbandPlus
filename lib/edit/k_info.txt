@@ -38,7 +38,7 @@ G:,:d
 I:80:1:500
 W:5:0:1:0
 A:5/1
-D:'E'ating this mushrooms will blind you if you eat it. You cannot cast magic 
+D:'E'ating this mushrooms will blind you. You cannot cast magic 
 D:or see monsters when you are blinded. You can still use magic items or
 D:quaff potions.
 
@@ -47,7 +47,7 @@ G:,:d
 I:80:2:500
 W:5:0:1:0
 A:5/1
-D:'E'ating this mushroom will make you scared if you eat it.
+D:'E'ating this mushroom will make you scared.
 D:You will not be able to hit your enemies in combat if you're scared.
 
 N:3:Confusion
@@ -198,8 +198,8 @@ G:,:d
 I:80:16:500
 W:15:0:1:75
 A:15/1
-D:'E'ating this mushroom will heal an amount of hit points. Your hit points
-D:need healing when they are displayed in yellow.
+D:'E'ating this mushroom will heal several hit points. Your hit points
+D:need healing when they are displayed in yellow or red.
 
 ##### Normal Food #####
 
@@ -215,21 +215,21 @@ N:22:& Hard Biscuit~
 G:,:U
 I:80:32:500
 W:0:0:2:1
-D:It doesn't look great, and 'E'ating it will only fill your stomach a bit.
+D:It doesn't look great, and 'E'ating it will only fill your stomach a bit,
 D:for a short time.
 
 N:23:& Strip~ of Venison
 G:,:u
 I:80:33:1500
 W:0:0:2:2
-D:It looks great, and 'E'ating will fill your stomach well.
+D:It looks great, and 'E'ating it will fill your stomach well.
 
 N:24:& Slime Mold~
 G:,:g
 I:80:36:3000
 W:1:0:5:2
 A:1/1
-D:It looks disgusting, if you really want to you can 'E'at it.
+D:It looks disgusting, but if you really want to you can 'E'at it.
 D:Not an incredible taste experience, but that'd be asking a bit much.
 
 # New - now Lembas works as a scroll of Satisfy Hunger
@@ -373,7 +373,7 @@ A:3/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 D:This blade is sinuously curved and tipped with a harpoon-like end.
-D:This blade has a large handguard and was designed as an off-hand weapon,
+D:This blade has a large handguard and was designed as an off-hand weapon.
 D:This short but cruel blade is a favourite among orcs.
 
 N:39:& Cutlass~
@@ -463,7 +463,7 @@ W:5:0:75:48
 A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
-D:It's the favourite weapon of strong mages and thieves, the blade is
+D:It's the favourite weapon of strong mages and thieves. The blade is
 D:about twenty inches long. It's very easy to handle, although it is a lot less
 D:efficient than the longer and heavier designs.
 
@@ -543,7 +543,7 @@ A:5/1
 P:0:2d4:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
-D:This weapon is is club ending in a sphere. The sphere is studded
+D:This weapon is a club ending in a sphere. The sphere is studded
 D:with metal shards, and thus can both crush and cut your adversary.
 
 N:54:& Quarterstaff~
@@ -839,8 +839,8 @@ W:55:0:2:20
 A:55/2:80/2
 P:0:4d4:0:0:0
 F:SHOW_MODS
-D:Precision-made arrows, which allow to hit precisely the vulnerable place of an
-D:opponent one aimed at. You can use it for 'f'iring a bow.
+D:A precision-made arrow, which allows you to hit precisely the most vulnerable
+D:place of an opponent. You can use it for 'f'iring a bow.
 
 N:80:& Bolt~
 G:{:s
@@ -849,8 +849,7 @@ W:3:0:3:2
 A:3/1:25/1:60/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
-D:Short metal arrows, to be fired with crossbows. You can use it for 'f'iring a
-D:crossbow.
+D:A short metal arrow, to be 'f'ired with a crossbow.
 
 N:81:& Seeker Bolt~
 G:{:B
@@ -859,8 +858,8 @@ W:65:0:3:25
 A:65/2:90/2
 P:0:4d5:0:0:0
 F:SHOW_MODS
-D:Precision-made arrows, which allow to hit exactly the vulnerable place of an
-D:opponent one aimed at. You can use it for 'f'iring a bow.
+D:A precision-made bolt, which allows you to hit exactly the most vulnerable
+D:place of an opponent. You can use it for 'f'iring a crossbow.
 
 N:82:& Rounded Pebble~
 G:{:s
@@ -870,7 +869,7 @@ A:0/1:10/2
 P:0:1d2:0:0:0
 F:SHOW_MODS
 D:Small round stones. When fired with a sling, they could even hurt a giant.
-D:You can use it for 'f'iring a sling.
+D:You can use them for 'f'iring a sling.
 
 N:83:& Iron Shot~
 G:{:s
@@ -879,7 +878,7 @@ W:3:0:5:2
 A:3/1:40/2
 P:0:1d4:0:0:0
 F:SHOW_MODS
-D:Metal balls, made for shooting with slings. You can use it for 'f'iring a
+D:Metal balls, made for shooting with slings. You can use them for 'f'iring a
 D:sling.
 
 ##### Shovels and Picks #####
@@ -936,7 +935,7 @@ P:0:1d3:0:0:0
 F:TUNNEL
 f:TUNNEL
 D:Although orcs tend to dig rather untidy mines and overcome difficulties in
-D:this work less by skill rather than mere stubbornness, they have amassed
+D:this work less by skill than mere stubbornness, they have amassed
 D:quite some expertise in mining, which has gone into this digging tool.
 
 N:89:& Dwarven Pick~
@@ -1194,7 +1193,7 @@ I:37:15:0
 W:45:0:380:1350
 A:45/1
 P:25:2d4:-3:0:0
-D:A suit of armour made of metal plates, covering the body, arms and upper legs
+D:A suit of armour made of metal plates, covering the body, arms and upper legs.
 D:A very effective but very heavy armour.
 
 N:117:& Ribbed Plate Armour~
@@ -1222,7 +1221,7 @@ W:60:0:300:15000
 A:60/3
 P:35:2d4:-3:0:0
 F:IGNORE_ACID
-D:A full suit of plate armour, fashioned from the rare truesilver. Only the
+D:A full suit of plate armour, fashioned from the rare true-silver. Only the
 D:dwarves know the secret of making armour or weapons of this metal.
 
 N:120:& Mithril Chain Mail~
@@ -1233,7 +1232,7 @@ A:55/3
 P:28:1d4:-1:0:0
 F:IGNORE_ACID
 D:A suit of chain mail, made by dwarven smiths from the rare and precious metal
-D:also called true silver.
+D:also called true-silver.
 
 N:121:& Double Chain Mail~
 G:[:s
@@ -1880,7 +1879,7 @@ W:50:0:5:500
 A:50/2:90/4
 D:This scroll is inscribed with a powerful protective incantation. When read, this will erect a
 D:strong magical ward around the location you currently stand on. Be aware that this magic is
-D:easily disturbed by already present structures and can thus not work where an object is lying or
+D:easily disturbed by already present structures and thus cannot work where an object is lying, or
 D:on a trap.
 
 N:191:*Remove Curse*
@@ -2135,7 +2134,7 @@ I:70:41:0
 W:40:0:5:250
 A:40/1
 D:This scroll is inscribed with a mighty conjuration which wrecks the dungeon all around you.
-D:Monsters and objects will be annihilated by this blast, only completely indestructible things can
+D:Monsters and objects will be annihilated by this blast; only completely indestructible things can
 D:withstand it.
 
 ##### Potions #####
@@ -2327,8 +2326,8 @@ W:15:0:4:300
 A:15/1:30/1:60/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
-D:This blessed potion greatly heals you and also cures many other ailments you might suffer
-D:from.
+D:This blessed potion greatly heals you and also cures many other ailments from
+D:which you might suffer.
 
 N:243:Constitution
 G:!:d
@@ -3035,7 +3034,7 @@ A:50/4
 P:0:1d1:0:0:0
 F:FULL_NAME | EASY_KNOW
 D:This book seems to flicker strangely. It's one of those books
-D:with an annoying tendency to disappear when you need them and
+D:with an annoying tendency to disappear when you need it and
 D:reappear in the unlikeliest places. As you hold it, you start
 D:to understand what conveyance really means.
 
@@ -3243,7 +3242,7 @@ I:66:23:35
 W:25:0:15:2500
 A:25/1
 P:0:1d1:0:0:0
-D:A small but extremely cold shard of ice will fly from this rod to the enemy you zap it at.
+D:A small but extremely cold shard of ice will fly from this rod to your enemy.
 
 N:359:Fire Bolts
 G:-:d
@@ -3251,7 +3250,7 @@ I:66:22:40
 W:30:0:15:3000
 A:30/1
 P:0:1d1:0:0:0
-D:This rod fires a magical flaming arrow at your foe, burning them.
+D:This rod fires a magical flaming arrow at your foe, burning it.
 
 N:360:Polymorph
 G:-:d
@@ -3259,7 +3258,7 @@ I:66:19:25
 W:35:0:15:1200
 A:35/1
 P:0:1d1:0:0:0
-D:This rod of change will cause its target creature to mutate into someone else.
+D:This rod of change will cause its target creature to mutate into something else.
 
 N:361:Slow Monster
 G:-:d
@@ -3267,7 +3266,7 @@ I:66:17:25
 W:30:0:15:1500
 A:30/1
 P:0:1d1:0:0:0
-D:This obstructive rod will slow the creature it hits.
+D:This obstructive rod emits an energy bolt which will slow the creature it hits.
 
 N:362:Sleep Monster
 G:-:d
@@ -3323,7 +3322,7 @@ I:66:26:60
 W:75:0:15:5000
 A:75/1
 P:0:1d1:0:0:0
-D:This rod will cause a small storm of flame to rage in a a small circular area of your destination.
+D:This rod will cause a small storm of flame to rage in a small circular area of your choice.
 
 N:369:Acid Balls
 G:-:d
@@ -4429,7 +4428,7 @@ A:15/2
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE | LITE2
 f:LITE2
-D:Made by the Dwarves, this lantern provides light in the
+D:Made by the dwarves, this lantern provides light in the
 D:darkest recesses of the earth.
 
 N:526:& Splint Mail~
@@ -4521,7 +4520,7 @@ I:36:8:0
 W:15:0:110:400
 A:15/1
 P:8:1d1:-1:0:0
-D:A hard leather armour made from the thick hide of a Rhinoceros.
+D:A hard leather armour made from the thick hide of a rhinoceros.
 
 N:536:& Leather Jacket~
 G:(:U
@@ -4655,7 +4654,7 @@ A:18/2
 P:0:1d10:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
-D:It is a type of glaive with two scrolly hooks on the back
+D:It is a type of glaive with two ornate hooks on the back
 D:of the blade. It is typically 8 to 9 feet long.
 
 N:552:& Guisarme~
@@ -4688,7 +4687,7 @@ A:15/3
 P:0:1d8:0:0:0
 F:SHOW_MODS
 D:This is a two-edged dagger with a long blade. A favourite among travellers
-D:and warriors alike, because it can be worn comfortably with plain clothes
+D:and warriors alike, it can be worn comfortably with plain clothes
 D:as well as armour.
 
 ### Trapping Kits
@@ -4965,7 +4964,7 @@ N:585:Corruption
 G:!:d
 I:71:10:0
 W:3:0:4:0
-A:3/1:13/1:23/1
+A:20/1:30/1:40/1
 P:0:1d1:0:0:0
 F:FOUNTAIN
 D:This concoction of toxic wastes will strangely warp your shape.
@@ -5190,7 +5189,7 @@ W:20:0:10:0
 A:30/1
 P:0:1d1:0:0:0
 F:DECAY
-D:2 eyes, 2 ears, a mouth, some hair, yep, that's a head.
+D:2 eyes, 2 ears, a mouth, some hair -- yep, that's a head.
 
 N:644:skull
 G:~:U
@@ -5324,7 +5323,7 @@ D:This drink will cure you even of serious mental disorders.
 N:660:Cure Insanity
 G:!:d
 I:72:17:0
-W:25:5:4:30
+W:25:5:4:300
 A:25/3
 P:0:1d1:0:0:0
 F:FOUNTAIN
@@ -5652,8 +5651,9 @@ G:,:g
 I:80:40:0
 W:25:5:2:450
 A:25/2:55/1:85/1
-D:'When the black wind blows/when the darkness grows/then come Athelas!, Athelas!, hope
-D: for the dying/in the King's hands lying.'
+D:'When the black breath blows / And death's shadow grows /
+D:And all lights pass / Come Athelas! Come Athelas! /
+D:Life to the dying / In the King's hands lying.'
 
 # XXX
 # XXX
@@ -5735,7 +5735,7 @@ W:0:0:5:0
 A:0/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
-D:Half a clay jar, how many failed artists have taken refuge in these dungeons?
+D:Half a clay jar -- how many failed artists have taken refuge in these dungeons?
 
 N:727:& Broken Stick~
 G:~:r
@@ -5846,7 +5846,7 @@ W:50:0:30:25000
 A:50/4
 P:0:1d1:0:0:0
 F:FULL_NAME | EASY_KNOW
-D:This tome seems to have trouble to decide whether it really exists now. Its flickering pages
+D:This tome seems to have trouble deciding whether it really exists now. Its flickering pages
 D:contain all that is known about the currents of time.
 
 N:757:& Spellbook~ of #
@@ -5873,7 +5873,7 @@ W:50:0:30:25000
 A:50/4
 P:0:1d1:0:0:0
 F:FULL_NAME | EASY_KNOW
-D:This tome has no pages, knowledge is transferred to you if you simply
+D:This tome has no pages; knowledge is transferred to you if you simply
 D:hold it.
 
 N:760:& Holy Tome~ of Eru Iluvatar
@@ -6004,7 +6004,7 @@ A:100/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:SPECIAL_GENE
-D:A large gem that seems somehow immaterial and is filled with a strange insubstantial...power?
+D:A large gem that seems somehow immaterial and is filled with a strange insubstantial... power?
 
 # Rod Tip of Home Summoning: now an artifact
 #N:776:& Great Rod Tip~ of Home Summoning
@@ -6136,8 +6136,8 @@ W:10:0:150:500
 A:10/1
 P:0:4d6:0:0:0
 F:SHOW_MODS | SLAY_DEMON | WIELD_CAST
-D:This blade has been taken from the corpse of a demon,
-D:some demonic energy is still coursing through it, helping
+D:This blade has been taken from the corpse of a demon.
+D:Some demonic energy is still coursing through it, helping
 D:you slay other demons.
 
 N:789:& Demonshield~
@@ -6147,8 +6147,8 @@ W:15:0:70:500
 A:15/1
 P:5:1d1:0:0:0
 F:REGEN | WIELD_CAST
-D:This shield has been taken from the corpse of a demon,
-D:some demonic energy is still coursing through it, giving
+D:This shield has been taken from the corpse of a demon.
+D:Some demonic energy is still coursing through it, giving
 D:life to any that wield it.
 
 N:790:& Demonhorn~
@@ -6224,7 +6224,7 @@ W:50:0:15:1600
 A:50/5
 P:0:1d1:0:0:0
 D:The mithril of this rod comes from very deep, too deep. Unknown powers have been
-D:infused in this rod, making it the second most powerful type of rods on Middle-earth.
+D:infused in this rod, making it the second most powerful type of rod on Middle-earth.
 
 N:800:& Adamantite Rod~ of#
 G:-:v

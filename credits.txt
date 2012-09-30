@@ -51,6 +51,7 @@ drop me a line please) in no particular order:
 - Maylith for lots of help with the documentation, especially on the wiki
 - Furiosity for some missing item descriptions
 - SimonSorc for bugfixes
+- Greg Wooledge <greg@wooledge.org> for still more bug fixes
 
 - All that I forgot in the list, hit me a bit then email me to get added
 

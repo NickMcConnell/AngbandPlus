@@ -4,7 +4,7 @@
 ~~~~~03|Skills|Mimicry - mimicry powers
 #####R === ToME Magic - Mimicry ===
 Mimics can alter their form using special cloaks called cloaks of mimicry.
-Even if this ability can give them access to increased stats, regeneration,
+Even though this ability can give them access to increased stats, regeneration,
 speed and resistances, there is always the risk of the shape-change going
 horribly wrong, turning the character into an abomination for some time.
 Also, you should keep in mind that any racial power or stat modifier is
@@ -27,8 +27,7 @@ as usual through the *****skills.txt*21[Magic] skill.
 3. [[[[[sLegs Mimicry] (Level 25) Cost:20
    Gives you an additional set of legs for a time.
 4. [[[[[sWall Mimicry] (Level 30) Cost:40
-   Allows you to move within walls, and [[[[[Bonly] walls for a time.
+   Allows you to move within walls, and [[[[[Bonly] walls, for a time.
 [[[[[v    Be careful you don't get stuck in a wall when it runs out.]
 5. [[[[[sArms Mimicry] (Level 35) Cost:100
    Gives you an additional set of arms for a time.
-   

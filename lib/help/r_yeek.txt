@@ -5,7 +5,7 @@
 #####GDescription
 Yeeks are the least powerful of all the races. They suffer disadvantages 
 in nearly all skills and attributes but to compensate they learn (and thus
-gain levels) extremely quickly.
+gain levels) extremely quickly. "Live fast, die young!"
 
 #####GStat Modifiers
 Strength        -5   

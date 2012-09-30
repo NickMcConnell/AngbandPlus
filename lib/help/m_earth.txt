@@ -6,12 +6,12 @@
 
 The earth school of magic contains spells where the element of earth is used
 to create the final spell effect. There are rumours of a "Tome of the
-Impenetrable Earth" which contains all the earth school spells within it's
+Impenetrable Earth" which contains all the earth school spells within its
 bindings.
 
 Worshipping the God Tulkas or the Goddess Yavanna Kementari also gives the
 ability to cast spells from the earth school, at a level of 4/5 or 1/2,
-respectively, of your prayer level. e.g. If the skill "Spirituality: Prayer"
+respectively, of your prayer level. E.g. if the skill "Spirituality: Prayer"
 is at level 10, a worshipper of Tulkas can cast up to level 8 earth school
 spells, whereas a worshipper of Yavanna can cast up to level 5 earth school
 spells.
