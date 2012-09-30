@@ -71,12 +71,12 @@ static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*
 {
 	int             i;
 	int             num = 0;
-	int             y = 1;
+        int             y = 2;
 	int             x = 20;
 	int             minfail = 0;
 	int             plev = p_ptr->lev;
 	int             chance = 0;
-	int             ask;
+        int             info;
 	char            choice;
 	char            out_val[160];
 	char            comment[80];
@@ -117,27 +117,28 @@ static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*
 	}
 
 	/* Build a prompt (accept all spells) */
-    strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
-		p, I2A(0), I2A(num - 1), p);
+        strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit, %c-%c=Info) Use which %s? ",
+                p, I2A(0), I2A(num - 1), toupper(I2A(0)), toupper(I2A(num - 1)), p);
+
+        /* Save the screen */
+        Term_save();
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
 		/* Request redraw */
-        if ((choice == ' ') || (choice == '*') || (choice == '?'))
+                if ((choice == ' ') || (choice == '*') || (choice == '?'))
 		{
-            /* Show the list */
+                        /* Show the list */
 			if (!redraw)
 			{
-                char psi_desc[80];
+                                char psi_desc[80];
 
 				/* Show list */
 				redraw = TRUE;
 
-				/* Save the screen */
-				Term_save();
-
 				/* Display a list of spells */
+                                prt("", 1, x);
 				prt("", y, x);
 				put_str("Name", y, x + 5);
 				put_str("Lv Mana Fail Info", y, x + 35);
@@ -150,43 +151,43 @@ static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*
 					if (spell.min_lev > plev)   break;
 
 					chance = spell.fail;
-                    /* Reduce failure rate by "effective" level adjustment */
-                    chance -= 3 * (p_ptr->lev - spell.min_lev);
+                                        /* Reduce failure rate by "effective" level adjustment */
+                                        chance -= 3 * (p_ptr->lev - spell.min_lev);
 
-                    /* Reduce failure rate by INT/WIS adjustment */
-                    chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+                                        /* Reduce failure rate by INT/WIS adjustment */
+                                        chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
 
 					/* Not enough mana to cast */
 					if (spell.mana_cost > p_ptr->csp)
 					{
-                        chance += 5 * (spell.mana_cost - p_ptr->csp);
+                                                chance += 5 * (spell.mana_cost - p_ptr->csp);
 					}
 
-                    /* Extract the minimum failure rate */
-                    minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+                                        /* Extract the minimum failure rate */
+                                        minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
 					/* Minimum failure rate */
-                    if (chance < minfail) chance = minfail;
+                                        if (chance < minfail) chance = minfail;
 
 					/* Stunning makes spells harder */
-                    if (p_ptr->stun > 50) chance += 25;
-                    else if (p_ptr->stun) chance += 15;
+                                        if (p_ptr->stun > 50) chance += 25;
+                                        else if (p_ptr->stun) chance += 15;
 
-                    /* Always a 5 percent chance of working */
+                                        /* Always a 5 percent chance of working */
 					if (chance > 95) chance = 95;
 
 					/* Get info */
                                         power_info(comment, i);
 
 					/* Dump the spell --(-- */
-                    sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
-                        I2A(i), spell.name,
-                        spell.min_lev, spell.mana_cost, chance, comment);
-                    prt(psi_desc, y + i + 1, x);
+                                        sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
+                                            I2A(i), spell.name,
+                                            spell.min_lev, spell.mana_cost, chance, comment);
+                                        prt(psi_desc, y + i + 1, x);
 				}
 
 				/* Clear the bottom line */
-				prt("", y + i + 1, x);
+                                prt("", y + i + 1, x);
 			}
 
 			/* Hide the list */
@@ -204,10 +205,10 @@ static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*
 		}
 
 		/* Note verify */
-		ask = (isupper(choice));
+                info = (isupper(choice));
 
 		/* Lowercase */
-		if (ask) choice = tolower(choice);
+                if (info) choice = tolower(choice);
 
 		/* Extract request */
 		i = (islower(choice) ? A2I(choice) : -1);
@@ -222,16 +223,15 @@ static int get_magic_power(int *sn, magic_power *powers, int max_powers, void (*
 		/* Save the spell index */
                 spell = powers[i];
 
-        /* Verify it */
-		if (ask)
+                /* Provides info */
+                if (info)
 		{
-			char tmp_val[160];
+                        c_prt(TERM_L_BLUE, spell.desc, 1, 0);
 
-			/* Prompt */
-            strnfmt(tmp_val, 78, "Use %s? ", powers[i].name);
-
-			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
+                        /* Restore the screen */
+                        inkey();
+                        Term_load();
+                        continue;
 		}
 
 		/* Stop the loop */
@@ -284,7 +284,7 @@ void do_cmd_mindcraft(void)
         /* No magic */
         if (p_ptr->antimagic)
         {
-                msg_print("Your anti-magic field disrupts any magic attemps.");
+                msg_print("Your anti-magic field disrupts any magic attempts.");
                 return;
         }
 
@@ -472,7 +472,7 @@ void do_cmd_mindcraft(void)
 			break;
 		case 6:
 			/* Character Armour */
-                        set_shield(p_ptr->shield + plev, 50);
+                        set_shield(p_ptr->shield + plev, 50, 0);
 			if (plev > 14) set_oppose_acid(p_ptr->oppose_acid + plev);
 			if (plev > 19) set_oppose_fire(p_ptr->oppose_fire + plev);
 			if (plev > 24) set_oppose_cold(p_ptr->oppose_cold + plev);
@@ -602,12 +602,9 @@ static int get_mimic_chance(int c)
 
 void do_cmd_mimic_lore()
 {
-        int             item;
         int chance;
 
 	object_type	*o_ptr;
-
-	cptr q, s;
 
         if (p_ptr->blind || no_lite()) {
                 msg_print("You cannot see!");
@@ -621,67 +618,64 @@ void do_cmd_mimic_lore()
 
         if(!p_ptr->mimic_form){
 
-	/* Restrict choices to potions */
-        item_tester_tval = TV_MIMIC_BOOK;
+        o_ptr = &inventory[INVEN_OUTER];
 
-	/* Get an item */
-        q = "Use which book? ";
-        s = "You have no book of lore.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+        if ((o_ptr->tval != TV_CLOAK) || (o_ptr->sval < 100))
+        {
+                msg_print("You are not wearing any cloaks of mimicry.");
+                return;
+        }
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+        chance = get_mimic_chance(((o_ptr->sval - 100) * 2) + 50);
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+        if (chance > 75)
+        {
+                msg_print("You feel uneasy with this shape-change.");
+                if (!get_check("Try it anyway? "))
+                {
+                        return;
+                }
+        }
 
-        chance = get_mimic_chance((o_ptr->sval*2)+50);
+        if (randint(100) < chance)
+        {
+                msg_print("Your shape-change goes horribly wrong!");
 
-  if (chance > 75) {
-    msg_print("You feel uneasy with this shape-change.");
-    if (!get_check("Try it anyway? "))
-    {
-      return;
-    }
-  }
+                if (randint(100) < p_ptr->skill_sav)
+                {
+                        msg_print("You manage to wrest your body back under control.");
+                }
+                else
+                {
+                        set_mimic(30, MIMIC_ABOMINATION);
 
-  if (randint(100) < chance) {
-    msg_print("Your shape-change goes horribly wrong!");
-
-    if (randint(100) < p_ptr->skill_sav) {
-      msg_print("You manage to wrest your body back under control.");
-    } else {
-      set_mimic(60,MIMIC_ABOMINATION);
                         /* Redraw title */
                         p_ptr->redraw |= (PR_TITLE);
                         /* Recalculate bonuses */
                         p_ptr->update |= (PU_BONUS);
-    }
-  } else {
-      set_mimic(o_ptr->pval,o_ptr->sval);
-                        /* Redraw title */
-                        p_ptr->redraw |= (PR_TITLE);
-                        /* Recalculate bonuses */
-                        p_ptr->update |= (PU_BONUS);
-  }
+                }
+        }
+        else
+        {
+                set_mimic(k_info[o_ptr->k_idx].pval2, (o_ptr->sval - 100));
+
+                /* Redraw title */
+                p_ptr->redraw |= (PR_TITLE);
+                /* Recalculate bonuses */
+                p_ptr->update |= (PU_BONUS);
+        }
 
         }
         else
         {
                 msg_print("You are already transformed !");
-                if(p_ptr->mimic_form!=MIMIC_ABOMINATION){
+                if (p_ptr->mimic_form != MIMIC_ABOMINATION)
+                {
                         if (!(get_check("Turn into an abomination to cancel ? ")))
                         {
                                 return;
                         }
-                        p_ptr->mimic_form=MIMIC_ABOMINATION;
-                        p_ptr->tim_mimic=20;
+                        set_mimic(5, MIMIC_ABOMINATION);
                         /* Redraw title */
                         p_ptr->redraw |= (PR_TITLE);
                         /* Recalculate bonuses */
@@ -705,7 +699,7 @@ void do_cmd_mimic(void)
         /* No magic */
         if (p_ptr->antimagic)
         {
-                msg_print("Your anti-magic field disrupts any magic attemps.");
+                msg_print("Your anti-magic field disrupts any magic attempts.");
                 return;
         }
 
@@ -955,6 +949,8 @@ int Beastmaster_Summon[25]={
                 SUMMON_HOUND,
                 SUMMON_ANIMAL,
                 SUMMON_ANIMAL_RANGER,
+                SUMMON_PHANTOM,
+                SUMMON_PHANTOM,
                 SUMMON_DRAGON,
                 SUMMON_DRAGON,
                 SUMMON_ELEMENTAL,
@@ -969,11 +965,9 @@ int Beastmaster_Summon[25]={
                 SUMMON_BIZARRE3,
                 SUMMON_HI_UNDEAD_NO_UNIQUES,
                 SUMMON_HI_UNDEAD_NO_UNIQUES,
-                SUMMON_CYBER,
-                SUMMON_CYBER,
-                SUMMON_CYBER,
-                SUMMON_PHANTOM,
-                SUMMON_PHANTOM
+                SUMMON_HI_DEMON,
+                SUMMON_HI_DEMON,
+                SUMMON_HI_DEMON,
 };
 
 void do_cmd_beastmaster(void)
@@ -988,7 +982,7 @@ void do_cmd_beastmaster(void)
 		/* Access the monster */
 		m_ptr = &m_list[i];
 
-		if (is_pet(m_ptr))
+                if (m_ptr->status == MSTATUS_PET)
 		{
                         p_ptr->class_extra1++;
 		}
@@ -1021,6 +1015,9 @@ static bool item_tester_hook_powerable(object_type *o_ptr)
 {
         int i;
 
+        /* No artifacts */
+        if (artifact_p(o_ptr)) return (FALSE);
+
         for(i = 0; i < 9; i++)
                 if((alchemist_recipes[alchemist_baterie].item[i].ctval==o_ptr->tval)&&(alchemist_recipes[alchemist_baterie].item[i].csval==o_ptr->sval)) return TRUE;
 
@@ -1036,21 +1033,27 @@ static bool item_tester_hook_powerable(object_type *o_ptr)
 static bool item_tester_hook_extractable(object_type *o_ptr)
 {
         object_kind *k_ptr = &k_info[o_ptr->k_idx];
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+        /* No artifacts */
+        if (artifact_p(o_ptr)) return (FALSE);
+
+        /* No cursed things */
+        if (cursed_p(o_ptr)) return (FALSE);
 
         if(((o_ptr->tval == TV_POTION)||
-        (o_ptr->tval == TV_POTION2)||
-        ((o_ptr->tval == TV_WAND) && (!(f4 & TR4_RECHARGED))) ||
-        ((o_ptr->tval == TV_STAFF) && (!(f4 & TR4_RECHARGED))) ||
-        (o_ptr->tval == TV_RING)||
-        (o_ptr->tval == TV_AMULET)||
-        (o_ptr->tval == TV_SCROLL)||
-        ((o_ptr->tval == TV_ROD_MAIN) && o_ptr->pval)||
-        (o_ptr->tval == TV_ROD))
-        &&(!k_ptr->know)) return TRUE;
+           (o_ptr->tval == TV_POTION2)||
+           ((o_ptr->tval == TV_WAND) && (!(f4 & TR4_RECHARGED))) ||
+           ((o_ptr->tval == TV_STAFF) && (!(f4 & TR4_RECHARGED))) ||
+           (o_ptr->tval == TV_RING)||
+           (o_ptr->tval == TV_AMULET)||
+           (o_ptr->tval == TV_SCROLL)||
+           ((o_ptr->tval == TV_ROD_MAIN) && o_ptr->pval)||
+           (o_ptr->tval == TV_ROD))
+           && (!k_ptr->know)) return TRUE;
 
 	/* Assume not */
 	return (FALSE);
@@ -1125,6 +1128,128 @@ void rod_tip_extract(object_type *o_ptr, int item)
         p_ptr->window |= (PW_INVEN);
 }
 
+static bool magic_essence()
+{
+        int i;
+        int j = 0;
+
+        for (i = 0; i < INVEN_WIELD; i++)
+        {
+                object_type *o_ptr = &inventory[i];
+
+                /* Count the magic essenses */
+                if (o_ptr->k_idx && (o_ptr->tval == TV_BATERIE) && (o_ptr->sval == SV_BATERIE_MAGIC)) j += o_ptr->number;
+        }
+
+        if (j >= p_ptr->lev)
+        {
+                /* Consume them */
+                msg_print("All your magic essences are absorbed in the effort.");
+
+                for (i = 0; i < INVEN_WIELD; i++)
+                {
+                        object_type *o_ptr = &inventory[i];
+
+                        if (o_ptr->k_idx && (o_ptr->tval == TV_BATERIE) && (o_ptr->sval == SV_BATERIE_MAGIC))
+                        {
+                                inven_item_increase(i, -255);
+                                inven_item_describe(i);
+                                inven_item_optimize(i);
+                        }
+                }
+
+                return TRUE;
+        }
+        else return FALSE;
+}
+
+/* Begin & finish an art */
+void do_cmd_toggle_artifact(bool finish)
+{
+        object_type *q_ptr;
+        char o_name[80];
+        int item;
+        cptr q, s;
+
+        if (!finish)
+        {
+                bool okay = TRUE;
+
+                msg_print("Creating an artifact will result into a permanent loss of 1 hp.");
+                if (!get_check("Are you sure you want to do that?")) return;
+
+                if (!magic_essence())
+                {
+                        msg_format("You need %d magic essenses.", p_ptr->lev);
+                        return;
+                }
+                /* Restrict choices to artifactable items */
+                item_tester_hook = item_tester_hook_artifactable;
+
+                /* Get an item */
+                q = "Use which item? ";
+                s = "You have nothing to use.";
+                if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+                /* Get the item (in the pack) */
+                if (item >= 0)
+                {
+                        q_ptr = &inventory[item];
+                }
+
+                /* Get the item (on the floor) */
+                else
+                {
+                        q_ptr = &o_list[0 - item];
+                }
+
+                /* Description */
+                object_desc(o_name, q_ptr, FALSE, 0);
+
+                if (artifact_p(q_ptr))
+                {
+                        msg_format("The %s %s already %s!",
+                            o_name, ((q_ptr->number > 1) ? "are" : "is"),
+                            ((q_ptr->number > 1) ? "artifacts" : "an artifact"));
+                        okay = FALSE;
+                }
+
+                else if (q_ptr->name2)
+                {
+                        msg_format("The %s %s already %s!",
+                            o_name, ((q_ptr->number > 1) ? "are" : "is"),
+                            ((q_ptr->number > 1) ? "ego items" : "an ego item"));
+                        okay = FALSE;
+                }
+
+                else
+                {
+                        if (q_ptr->number > 1)
+                        {
+                                msg_print("Not enough energy to enchant more than one object!");
+                                msg_format("%d of your %s %s destroyed!",(q_ptr->number)-1, o_name, (q_ptr->number>2?"were":"was"));
+                                q_ptr->number = 1;
+                        }
+                        okay = TRUE;
+                }
+
+                if(!okay) return;
+
+                /* he/she got warned */
+                p_ptr->hp_mod -= 1;
+
+                /* Ok toggle it */
+                q_ptr->art_flags4 |= TR4_ART_EXP;
+
+                p_ptr->update |= (PU_HP);
+                p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+        }
+        else
+        {
+                do_cmd_create_artifact();
+        }
+}
+
 /*
  * do_cmd_cast calls this function if the player's class
  * is 'alchemist'.
@@ -1148,7 +1273,7 @@ void do_cmd_alchemist(void)
         /* No magic */
         if (p_ptr->antimagic)
         {
-                msg_print("Your anti-magic field disrupts any magic attemps.");
+                msg_print("Your anti-magic field disrupts any magic attempts.");
                 return;
         }
 
@@ -1163,8 +1288,8 @@ void do_cmd_alchemist(void)
                 return;
         }
 
-        if(p_ptr->lev > 29)
-                sprintf(com, "[A]dd, [E]xtract a power or [C]reate an artifact ?");
+        if(p_ptr->lev >= 25)
+                sprintf(com, "[A]dd, [E]xtract a power, [C]reate an artifact or Ac[T]ivate an Artifact ?");
         else
                 sprintf(com, "[A]dd, [E]xtract a power ?");
 
@@ -1191,9 +1316,14 @@ void do_cmd_alchemist(void)
                         ext = 2;
                         break;
                 }
-                if ((ch == 'C' || ch == 'c') && (p_ptr->lev > 29))
+                if ((ch == 'C' || ch == 'c') && (p_ptr->lev >= 25))
                 {
                         ext = 3;
+                        break;
+                }
+                if ((ch == 'T' || ch == 't') && (p_ptr->lev >= 25))
+                {
+                        ext = 4;
                         break;
                 }
         }
@@ -1261,6 +1391,7 @@ void do_cmd_alchemist(void)
                                         goto fin_alchemist;
                                 }
                                 q_ptr->name2=alchemist_recipes[a].ego[alchemist_num].ego;
+                                apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
                                 if(alchemist_recipes[a].ego[alchemist_num].enchant & ALCHEMIST_ENCHANT_DAM){
                                         q_ptr->to_h=rand_int(4+p_ptr->lev/5)+1;
                                         q_ptr->to_d=rand_int(4+p_ptr->lev/5)+1;
@@ -1477,8 +1608,13 @@ fin_alchemist_2:
         }
 
         /*******Create an artifact*******/
-        }else if(ext == 3){
-                do_cmd_create_artifact();
+        }else if(ext == 3)
+        {
+                do_cmd_toggle_artifact(FALSE);
+        }
+        else if(ext == 4)
+        {
+                do_cmd_toggle_artifact(TRUE);
         }
 
 	/* Window stuff */
@@ -1563,7 +1699,7 @@ void do_cmd_pray(void) {
   level = interpret_grace() - interpret_favor();
   name = deity_info[p_ptr->pgod-1].name;
 
-  if (((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_PRIOR)) && magik(30)) {
+  if ((p_ptr->pclass == CLASS_PRIEST) && magik(30)) {
     level++;
   }
 
@@ -1690,6 +1826,7 @@ static void print_spell_batch(int batch, int max) {
 
 static random_spell* select_spell_from_batch(int batch, bool quick) {
   char tmp[160];
+  char out_val[30];
   char which;
   int mut_max = 10;
   random_spell* ret;
@@ -1728,8 +1865,11 @@ static random_spell* select_spell_from_batch(int batch, bool quick) {
       which = tolower(inkey());
 
       if (islower(which) && A2I(which) <= mut_max) {
-	get_string("Name this power: ", 
-                   random_spells[batch*10+A2I(which)].name, 29);
+	strcpy(out_val, random_spells[batch*10+A2I(which)].name);
+	if (get_string("Name this power: ", out_val, 29))
+	{
+	  strcpy(random_spells[batch*10+A2I(which)].name, out_val);
+	}
 	prt(tmp, 0, 0);
       } else {
 	bell();
@@ -1741,8 +1881,11 @@ static random_spell* select_spell_from_batch(int batch, bool quick) {
       which = tolower(inkey());
 
       if (islower(which) && A2I(which) <= mut_max) {
-	get_string("Comment this power: ",
-                   random_spells[batch*10+A2I(which)].desc, 29);
+	strcpy(out_val, random_spells[batch*10+A2I(which)].desc);
+	if (get_string("Comment this power: ", out_val, 29))
+	{
+		strcpy(random_spells[batch*10+A2I(which)].desc, out_val);
+	}
 	prt(tmp, 0, 0);
       } else {
 	bell();
@@ -1825,7 +1968,7 @@ void do_cmd_powermage(void)
         /* No magic */
         if (p_ptr->antimagic)
         {
-                msg_print("Your anti-magic field disrupts any magic attemps.");
+                msg_print("Your anti-magic field disrupts any magic attempts.");
                 return;
         }
 
@@ -1853,6 +1996,10 @@ void do_cmd_powermage(void)
 
                 msg_format("A cloud of %s appears above you.", sfail);
 		sound(SOUND_FAIL);
+
+		/* Let time pass */
+		if(is_magestaff()) energy_use = 80;
+		else energy_use = 100;
 
                 return;
 	}
@@ -1916,14 +2063,13 @@ void do_cmd_powermage(void)
 /*
  * Cast a spell
  */
-void cast_magic_spell(int spell)
+void cast_magic_spell(int spell, byte level)
 {
         int  dir;
         int  beam;
         int  plev = p_ptr->lev;
-        byte to_s2 = p_ptr->to_s / 2;
-
-        to_s2 = (to_s2==0)?1:to_s2;
+        byte to_s = level + p_ptr->to_s;
+        long dam, rad;
 
         /* Hack -- chance of "beam" instead of "bolt" */
         beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
@@ -1934,32 +2080,47 @@ void cast_magic_spell(int spell)
 		{
 			case 0:
 			{
+                                dam = apply_power_dice(4, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 3+((plev-1)/5), dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
-                                                  damroll(3 + ((plev - 1) / 5), 4) * to_s2);
+                                                  damroll(3 + ((plev - 1) / 5), dam));
 				break;
 			}
 
 			case 1:
 			{
+                                if (info_spell) return;
 				(void)detect_monsters_normal();
 				break;
 			}
 
 			case 2:
 			{
-                                teleport_player(10 * to_s2);
+                                dam = apply_power_dice(10, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " range %ld", dam);
+                                        return;
+                                }
+                                teleport_player(dam);
 				break;
 			}
 
 			case 3:
 			{
-                                (void)lite_area(damroll(2, (plev / 2)) * to_s2, (plev / 10) + 1 + to_s2);
+                                if (info_spell) return;
+                                (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1 + to_s);
 				break;
 			}
 
 			case 4:
 			{
+                                if (info_spell) return;
 				(void)detect_treasure();
 				(void)detect_objects_gold();
 				break;
@@ -1967,19 +2128,27 @@ void cast_magic_spell(int spell)
 
 			case 5:
 			{
-                                (void)hp_player(damroll(2 * p_ptr->to_s, 8));
-				(void)set_cut(p_ptr->cut - 15);
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal 2d%ld", dam);
+                                        return;
+                                }
+                                (void)hp_player(damroll(2, dam));
+                                (void)set_cut(p_ptr->cut - 15 - to_s);
 				break;
 			}
 
 			case 6:
 			{
+                                if (info_spell) return;
 				(void)detect_objects_normal();
 				break;
 			}
 
 			case 7:
 			{
+                                if (info_spell) return;
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -1988,35 +2157,56 @@ void cast_magic_spell(int spell)
 
 			case 8:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(10 + (plev/2), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir,
-                                          10 + (plev / 2) * to_s2, 2 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 9:
 			{
+                                dam = apply_power_dam(plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " power %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
-                                (void)confuse_monster(dir, plev * to_s2);
+                                (void)confuse_monster(dir, dam);
 				break;
 			}
 
 			case 10:
 			{
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 3+((plev-5)/4), dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-                                                  damroll(3+((plev-5)/4), 8) * to_s2);
+                                                  damroll(3+((plev-5)/4), dam));
 				break;
 			}
 
 			case 11:
 			{
+                                if (info_spell) return;
 				(void)destroy_doors_touch();
 				break;
 			}
 
 			case 12:
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)sleep_monster(dir);
 				break;
@@ -2024,18 +2214,26 @@ void cast_magic_spell(int spell)
 
 			case 13:
 			{
+                                if (info_spell) return;
 				(void)set_poisoned(0);
 				break;
 			}
 
 			case 14:
 			{
-                                teleport_player(plev * 5 * to_s2);
+                                dam = apply_power_dam(plev * 5, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " range %ld", dam);
+                                        return;
+                                }
+                                teleport_player(dam);
 				break;
 			}
 
 			case 15:
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				msg_print("A line of blue shimmering light appears.");
 				lite_line(dir);
@@ -2044,14 +2242,21 @@ void cast_magic_spell(int spell)
 
 			case 16:
 			{
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 5+((plev-5)/4), dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_COLD, dir,
-                                                  damroll(5+((plev-5)/4), 8) * to_s2);
+                                                  damroll(5+((plev-5)/4), dam));
 				break;
 			}
 
 			case 17:
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)wall_to_mud(dir);
 				break;
@@ -2059,24 +2264,28 @@ void cast_magic_spell(int spell)
 
 			case 18:
 			{
+                                if (info_spell) return;
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			}
 
 			case 19:
 			{
+                                if (info_spell) return;
 				(void)recharge(5);
 				break;
 			}
 
 			case 20:
 			{
+                                if (info_spell) return;
 				(void)sleep_monsters_touch();
 				break;
 			}
 
 			case 21:
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)poly_monster(dir);
 				break;
@@ -2084,26 +2293,35 @@ void cast_magic_spell(int spell)
 
 			case 22:
 			{
+                                if (info_spell) return;
 				(void)ident_spell();
 				break;
 			}
 
 			case 23:
 			{
+                                if (info_spell) return;
 				(void)sleep_monsters();
 				break;
 			}
 
 			case 24:
 			{
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 8+((plev-5)/4), dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam, GF_FIRE, dir,
-                                                  damroll(8+((plev-5)/4), 8) * to_s2);
+                                                  damroll(8+((plev-5)/4), dam));
 				break;
 			}
 
 			case 25:
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)slow_monster(dir);
 				break;
@@ -2111,20 +2329,29 @@ void cast_magic_spell(int spell)
 
 			case 26:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(30 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir,
-                                          30 + (plev) * to_s2, 2 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 27:
 			{
+                                if (info_spell) return;
 				(void)recharge(40);
 				break;
 			}
 
 			case 28:
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)teleport_monster(dir);
 				break;
@@ -2132,63 +2359,83 @@ void cast_magic_spell(int spell)
 
 			case 29:
 			{
+                                dam = apply_power_dam(plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
 				if (!p_ptr->fast)
 				{
-                                        (void)set_fast(randint(20) + plev + to_s2);
+                                        (void)set_fast(randint(20) + dam);
 				}
 				else
 				{
-                                        (void)set_fast(p_ptr->fast + randint(5) + to_s2);
+                                        (void)set_fast(p_ptr->fast + randint(5));
 				}
 				break;
 			}
 
 			case 30:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(55 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir,
-                                          55 + (plev) * to_s2, 2 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 31:
 			{
+                                if (info_spell) return;
 				destroy_area(py, px, 15, TRUE);
 				break;
 			}
 
 			case 32:
 			{
+                                if (info_spell) return;
                                 (void)genocide(TRUE);
 				break;
 			}
 
 			case 33:
 			{
+                                if (info_spell) return;
 				(void)door_creation();
 				break;
 			}
 
 			case 34:
 			{
+                                if (info_spell) return;
 				(void)stair_creation();
 				break;
 			}
 
 			case 35:
 			{
+                                if (info_spell) return;
 				(void)teleport_player_level();
 				break;
 			}
 
 			case 36:
 			{
+                                if (info_spell) return;
 				earthquake(py, px, 10);
 				break;
 			}
 
 			case 37:
 			{
+                                if (info_spell) return;
 				if (special_flag)
 				{
 				msg_print("No recall on special levels..");
@@ -2210,214 +2457,330 @@ void cast_magic_spell(int spell)
 
 			case 38:
 			{
+                                dam = apply_power_dam(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 6+((plev-5)/4), dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam, GF_ACID, dir,
-                                                  damroll(6+((plev-5)/4), 8) * to_s2);
+                                                  damroll(6+((plev-5)/4), dam));
 				break;
 			}
 
 			case 39:
 			{
+                                rad = apply_power_dice(3, to_s, 1);
+                                dam = apply_power_dam(20 + (plev / 2), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir,
-                                          20 + (plev / 2) * to_s2, 3 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 40:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(40 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ACID, dir,
-                                          40 + (plev) * to_s2, 2 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 41:
 			{
+                                rad = apply_power_dice(3, to_s, 1);
+                                dam = apply_power_dam(70 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir,
-                                          70 + (plev) * to_s2, 3 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 42:
 			{
+                                rad = apply_power_dice(3, to_s, 1);
+                                dam = apply_power_dam(65 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_METEOR, dir,
-                                          65 + (plev) * to_s2, 3 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 43:
 			{
+                                rad = apply_power_dice(3, to_s, 1);
+                                dam = apply_power_dam(300 + (plev * 2), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_MANA, dir,
-                                          300 + (plev * 2) * to_s2, 3 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 44:
 			{
+                                if (info_spell) return;
 				(void)detect_monsters_evil();
 				break;
 			}
 
 			case 45:
 			{
+                                if (info_spell) return;
 				(void)detect_objects_magic();
 				break;
 			}
 
 			case 46:
 			{
+                                if (info_spell) return;
 				recharge(100);
 				break;
 			}
 
 			case 47:
 			{
+                                if (info_spell) return;
                                 (void)genocide(TRUE);
 				break;
 			}
 
 			case 48:
 			{
+                                if (info_spell) return;
                                 (void)mass_genocide(TRUE);
 				break;
 			}
 
 			case 49:
 			{
-                                (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20 + to_s2);
+                                dam = apply_power_dam(20, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
+                                (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + dam);
 				break;
 			}
 
 			case 50:
 			{
-                                (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20 + to_s2);
+                                dam = apply_power_dam(20, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
+                                (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + dam);
 				break;
 			}
 
 			case 51:
 			{
-                                (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20 + to_s2);
+                                dam = apply_power_dam(20, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
+                                (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + dam);
 				break;
 			}
 
 			case 52:
 			{
-                                (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20 + to_s2);
+                                dam = apply_power_dam(20, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
+                                (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + dam);
 				break;
 			}
 
 			case 53:
 			{
-                                (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20 + to_s2);
-                                (void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20 + to_s2);
-                                (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20 + to_s2);
-                                (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20 + to_s2);
-                                (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20 + to_s2);
+                                dam = apply_power_dam(20, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
+                                (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + dam);
+                                (void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + dam);
+                                (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + dam);
+                                (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + dam);
+                                (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + dam);
 				break;
 			}
 
 			case 54:
 			{
-                                (void)hp_player(10 * to_s2);
-                                (void)set_hero(p_ptr->hero + randint(25) + 25 + to_s2);
+                                if (info_spell) return;
+                                dam = apply_power_dice(10, to_s, 2);
+                                (void)hp_player(dam);
+                                (void)set_hero(p_ptr->hero + randint(25) + 25 + to_s);
 				(void)set_afraid(0);
 				break;
 			}
 
 			case 55:
 			{
-                                (void)set_shield(p_ptr->shield + randint(20) + 30 + to_s2, 50 + to_s2);
+                                dam = apply_power_dam(30, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
+                                (void)set_shield(p_ptr->shield + randint(20) + dam, 50 + to_s, 0);
 				break;
 			}
 
 			case 56:
 			{
-                                (void)hp_player(30 * to_s2);
-                                (void)set_shero(p_ptr->shero + randint(25) + 25 + to_s2);
+                                if (info_spell) return;
+                                dam = apply_power_dam(30, to_s, 1);
+                                (void)hp_player(dam);
+                                (void)set_shero(p_ptr->shero + randint(25) + 25 + to_s);
 				(void)set_afraid(0);
 				break;
 			}
 
 			case 57:
 			{
+                                dam = apply_power_dam(30 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d30", dam);
+                                        return;
+                                }
 				if (!p_ptr->fast)
 				{
-                                        (void)set_fast(randint(30) + 30 + plev + to_s2);
+                                        (void)set_fast(randint(30) + dam);
 				}
 				else
 				{
-                                        (void)set_fast(p_ptr->fast + randint(10) + to_s2);
+                                        (void)set_fast(p_ptr->fast + randint(10));
 				}
 				break;
 			}
 
 			case 58:
 			{
-                                (void)set_invuln(p_ptr->invuln + randint(8) + 8 + to_s2);
+                                dam = apply_power_dice(5, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d8", dam);
+                                        return;
+                                }
+                                (void)set_invuln(p_ptr->invuln + randint(8) + dam);
 				break;
 			}
-	       default:
-                 msg_format("You cast an unknown Magic spell: %d.", spell);
-		 msg_print(NULL);
+                        default:
+                                if (info_spell) return;
+                                msg_format("You cast an unknown Magic spell: %d.", spell);
+                                msg_print(NULL);
+                                break;
 		}
 }
 
 /*
  * Pray a prayer
  */
-void cast_prayer_spell(int spell)
+void cast_prayer_spell(int spell, byte level)
 {
         int dir;
 	int plev = p_ptr->lev;
-        int to_s2 = p_ptr->to_s /2;
-
-        to_s2 = (to_s2==0)?1:to_s2;
+        int to_s = level + p_ptr->to_s;
+        long dam, rad;
 
 		switch (spell)
 		{
 			case 0:
 			{
+                                if (info_spell) return;
 				(void)detect_monsters_evil();
 				break;
 			}
 
 			case 1:
 			{
-                                (void)hp_player(damroll(2 * to_s2, 10));
-				(void)set_cut(p_ptr->cut - 10);
+                                dam = apply_power_dice(2, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal %ldd10", dam);
+                                        return;
+                                }
+                                (void)hp_player(damroll(dam, 10));
+                                (void)set_cut(p_ptr->cut - 10 - dam);
 				break;
 			}
 
 			case 2:
 			{
-                                (void)set_blessed(p_ptr->blessed + randint(12) + 12 + to_s2);
+                                dam = apply_power_dur(12, to_s, 2);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d12", dam);
+                                        return;
+                                }
+                                (void)set_blessed(p_ptr->blessed + randint(12) + dam);
 				break;
 			}
 
 			case 3:
 			{
+                                if (info_spell) return;
 				(void)set_afraid(0);
 				break;
 			}
 
 			case 4:
 			{
-                                (void)lite_area(damroll(2, (plev / 2)) * to_s2, (plev / 10) + 1);
+                                if (info_spell) return;
+                                (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 				break;
 			}
 
 			case 5:
 			{
+                                if (info_spell) return;
 				(void)detect_traps();
 				break;
 			}
 
 			case 6:
 			{
+                                if (info_spell) return;
 				(void)detect_doors();
 				(void)detect_stairs();
 				break;
@@ -2425,12 +2788,14 @@ void cast_prayer_spell(int spell)
 
 			case 7:
 			{
+                                if (info_spell) return;
 				(void)set_poisoned(p_ptr->poisoned / 2);
 				break;
 			}
 
 			case 8:
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)fear_monster(dir, plev);
 				break;
@@ -2438,98 +2803,158 @@ void cast_prayer_spell(int spell)
 
 			case 9:
 			{
-                                teleport_player(plev * 3 * to_s2);
+                                dam = apply_power_dam(plev * 3, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " range %ld", dam);
+                                        return;
+                                }
+                                teleport_player(dam);
 				break;
 			}
 
 			case 10:
 			{
-                                (void)hp_player(damroll(4 * to_s2, 10));
+                                dam = apply_power_dice(4, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal %ldd10", dam);
+                                        return;
+                                }
+                                (void)hp_player(damroll(dam, 10));
 				(void)set_cut((p_ptr->cut / 2) - 20);
 				break;
 			}
 
 			case 11:
 			{
-                                (void)set_blessed(p_ptr->blessed + randint(24) + 24 + to_s2);
+                                dam = apply_power_dam(24, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d24", dam);
+                                        return;
+                                }
+                                (void)set_blessed(p_ptr->blessed + randint(24) + dam);
 				break;
 			}
 
 			case 12:
 			{
+                                if (info_spell) return;
 				(void)sleep_monsters_touch();
 				break;
 			}
 
 			case 13:
 			{
+                                if (info_spell) return;
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			}
 
 			case 14:
 			{
+                                if (info_spell) return;
 				remove_curse();
 				break;
 			}
 
 			case 15:
 			{
-                                (void)set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10 + to_s2);
-                                (void)set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10 + to_s2);
+                                dam = apply_power_dur(10, to_s, 2);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d10", dam);
+                                        return;
+                                }
+                                (void)set_oppose_fire(p_ptr->oppose_fire + randint(10) + dam);
+                                (void)set_oppose_cold(p_ptr->oppose_cold + randint(10) + dam);
 				break;
 			}
 
 			case 16:
 			{
+                                if (info_spell) return;
 				(void)set_poisoned(0);
 				break;
 			}
 
 			case 17:
 			{
+                                rad = apply_power_dice((plev < 30)?2:3, to_s, 1);
+                                dam = apply_power_dam(plev + (plev / 2), to_s, 2);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam 3d6+%ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
                                 fire_ball(GF_HOLY_FIRE, dir,
-                                          (damroll(3, 6) + plev * to_s2 +           
-					   (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
-                                          ((plev < 30) ? 2 : 3) + to_s2);
+                                          damroll(3, 6) + dam,
+                                          ((plev < 30) ? 2 : 3));
 				break;
 			}
 
 			case 18:
 			{
-                                (void)hp_player(damroll(6 * to_s2, 10));
+                                dam = apply_power_dice(6, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal %ldd10", dam);
+                                        return;
+                                }
+                                (void)hp_player(damroll(dam, 10));
 				(void)set_cut(0);
 				break;
 			}
 
 			case 19:
 			{
-                                (void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24 + to_s2);
+                                dam = apply_power_dam(24, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d24", dam);
+                                        return;
+                                }
+                                (void)set_tim_invis(p_ptr->tim_invis + randint(24) + dam);
 				break;
 			}
 
 			case 20:
 			{
-                                (void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev + to_s2);
+                                dam = apply_power_dam(3 * plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d25", dam);
+                                        return;
+                                }
+                                (void)set_protevil(p_ptr->protevil + randint(25) + dam);
 				break;
 			}
 
 			case 21:
 			{
+                                if (info_spell) return;
 				earthquake(py, px, 10);
 				break;
 			}
 
 			case 22:
 			{
+                                if (info_spell) return;
 				map_area();
 				break;
 			}
 
 			case 23:
 			{
-                                (void)hp_player(damroll(8 * to_s2, 10));
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal %ldd10", dam);
+                                        return;
+                                }
+                                (void)hp_player(damroll(dam, 10));
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -2537,25 +2962,44 @@ void cast_prayer_spell(int spell)
 
 			case 24:
 			{
+                                if (info_spell) return;
 				(void)turn_undead();
 				break;
 			}
 
 			case 25:
 			{
-                                (void)set_blessed(p_ptr->blessed + randint(48) + 48 + to_s2);
+                                dam = apply_power_dam(48, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal %ld+d48", dam);
+                                        return;
+                                }
+                                (void)set_blessed(p_ptr->blessed + randint(48) + dam);
 				break;
 			}
 
 			case 26:
 			{
-                                (void)dispel_undead(plev * 3 * to_s2);
+                                dam = apply_power_dam(plev * 3, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
+                                (void)dispel_undead(dam);
 				break;
 			}
 
 			case 27:
 			{
-                                (void)hp_player(300 * to_s2);
+                                dam = apply_power_dam(300, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal %ld", dam);
+                                        return;
+                                }
+                                (void)hp_player(dam);
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -2563,20 +3007,33 @@ void cast_prayer_spell(int spell)
 
 			case 28:
 			{
-				(void)dispel_evil(plev * 3);
+                                dam = apply_power_dam(plev * 3, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
+                                (void)dispel_evil(dam);
 				break;
 			}
 
 			case 29:
 			{
+                                if (info_spell) return;
 				warding_glyph();
 				break;
 			}
 
 			case 30:
 			{
-                                (void)dispel_evil(plev * 4 * to_s2);
-                                (void)hp_player(1000 * to_s2);
+                                dam = apply_power_dam(plev * 4, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
+                                (void)dispel_evil(dam);
+                                (void)hp_player(1000);
 				(void)set_afraid(0);
 				(void)set_poisoned(0);
 				(void)set_stun(0);
@@ -2586,44 +3043,61 @@ void cast_prayer_spell(int spell)
 
 			case 31:
 			{
+                                if (info_spell) return;
 				(void)detect_monsters_normal();
 				break;
 			}
 
 			case 32:
 			{
+                                if (info_spell) return;
 				(void)detect_all();
 				break;
 			}
 
 			case 33:
 			{
+                                if (info_spell) return;
 				(void)ident_spell();
 				break;
 			}
 
 			case 34:
 			{
+                                if (info_spell) return;
 				(void)probing();
 				break;
 			}
 
 			case 35:
 			{
+                                if (info_spell) return;
 				wiz_lite();
 				break;
 			}
 
 			case 36:
 			{
-                                (void)hp_player(damroll(4 * to_s2, 10));
+                                dam = apply_power_dice(4, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal %ldd10", dam);
+                                        return;
+                                }
+                                (void)hp_player(damroll(dam, 10));
 				(void)set_cut(0);
 				break;
 			}
 
 			case 37:
 			{
-                                (void)hp_player(damroll(8 * to_s2, 10));
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " heal %ldd10", dam);
+                                        return;
+                                }
+                                (void)hp_player(damroll(dam, 10));
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -2631,7 +3105,13 @@ void cast_prayer_spell(int spell)
 
 			case 38:
 			{
-                                (void)hp_player(2000 * to_s2);
+                                dam = apply_power_dam(2000, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
+                                (void)hp_player(dam);
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -2639,6 +3119,7 @@ void cast_prayer_spell(int spell)
 
 			case 39:
 			{
+                                if (info_spell) return;
 				(void)do_res_stat(A_STR);
 				(void)do_res_stat(A_INT);
 				(void)do_res_stat(A_WIS);
@@ -2650,25 +3131,44 @@ void cast_prayer_spell(int spell)
 
 			case 40:
 			{
+                                if (info_spell) return;
 				(void)restore_level();
 				break;
 			}
 
 			case 41:
 			{
-                                (void)dispel_undead(plev * 4 * to_s2);
+                                dam = apply_power_dam(plev * 4, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
+                                (void)dispel_undead(dam);
 				break;
 			}
 
 			case 42:
 			{
-                                (void)dispel_evil(plev * 4 * to_s2);
+                                dam = apply_power_dam(plev * 4, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
+                                (void)dispel_evil(dam);
 				break;
 			}
 
 			case 43:
 			{
-                                if (banish_evil(100 * to_s2))
+                                dam = apply_power_dam(100, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " power %ld", dam);
+                                        return;
+                                }
+                                if (banish_evil(dam))
 				{
 					msg_print("The power of your god banishes evil!");
 				}
@@ -2677,67 +3177,93 @@ void cast_prayer_spell(int spell)
 
 			case 44:
 			{
+                                if (info_spell) return;
 				destroy_area(py, px, 15, TRUE);
 				break;
 			}
 
 			case 45:
 			{
+                                dam = apply_power_dam(200, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
-                                drain_life(dir, 200 * to_s2);
+                                drain_life(dir, dam);
 				break;
 			}
 
 			case 46:
 			{
+                                if (info_spell) return;
 				(void)destroy_doors_touch();
 				break;
 			}
 
 			case 47:
 			{
+                                if (info_spell) return;
 				(void)recharge(15);
 				break;
 			}
 
 			case 48:
 			{
+                                if (info_spell) return;
 				(void)remove_all_curse();
 				break;
 			}
 
 			case 49:
 			{
+                                if (info_spell) return;
                                 (void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0, 0);
 				break;
 			}
 
 			case 50:
 			{
+                                if (info_spell) return;
                                 (void)enchant_spell(0, 0, rand_int(3) + 2, 0);
 				break;
 			}
 
 			case 51:
 			{
+                                if (info_spell) return;
                                 brand_weapon(0);
 				break;
 			}
 
 			case 52:
 			{
-                                teleport_player(10 * to_s2);
+                                dam = apply_power_dice(10, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " range %ld", dam);
+                                        return;
+                                }
+                                teleport_player(dam);
 				break;
 			}
 
 			case 53:
 			{
-                                teleport_player(plev * 8 * to_s2);
+                                dam = apply_power_dam(plev * 8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " range %ld", dam);
+                                        return;
+                                }
+                                teleport_player(dam);
 				break;
 			}
 
 			case 54:
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)teleport_monster(dir);
 				break;
@@ -2745,12 +3271,14 @@ void cast_prayer_spell(int spell)
 
 			case 55:
 			{
+                                if (info_spell) return;
 				(void)teleport_player_level();
 				break;
 			}
 
 			case 56:
 			{
+                                if (info_spell) return;
 				if (special_flag)
 				{
 					msg_print("No recall on special levels...");
@@ -2772,6 +3300,7 @@ void cast_prayer_spell(int spell)
 
 			case 57:
 			{
+                                if (info_spell) return;
 				msg_print("The world changes!");
                                 if (autosave_l)
                                 {
@@ -2880,12 +3409,12 @@ void brand_ammo (int brand_type, int bolts_only)
                 if (r < 50)
 		{
 			aura_name = "fiery";
-			aura_type = EGO_FLAME;
+                        aura_type = EGO_FLAME;
 		}
                 else
 		{
 			aura_name = "frosty";
-			aura_type = EGO_FROST;
+                        aura_type = EGO_FROST;
 		}
 
 		if (o_ptr->tval == TV_BOLT)
@@ -2899,6 +3428,8 @@ void brand_ammo (int brand_type, int bolts_only)
 			ammo_name, aura_name);
 		msg_print (msg);
 		o_ptr->name2 = aura_type;
+                /* Apply the ego */
+                apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
 		enchant (o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
 	}
 	else
@@ -2928,15 +3459,13 @@ void summon_monster(int sumtype)
 /*
  * Cast an illusionist spell
  */
-void cast_illusion_spell(int spell)
+void cast_illusion_spell(int spell, byte level)
 {
         int dir;
         int beam;
 	int plev = p_ptr->lev;
-        int to_s2=p_ptr->to_s/2;
-        int mto_s2=p_ptr->to_s/2;
-
-        mto_s2 = (mto_s2==0)?1:mto_s2;
+        int to_s = level + p_ptr->to_s;
+        long dam, rad;
 
 		/* Hack -- chance of "beam" instead of "bolt" */
                 beam = plev;
@@ -2946,33 +3475,48 @@ void cast_illusion_spell(int spell)
 		{
 			case 0:
 			{
+                                dam = apply_power_dice(4, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 2+((plev-1)/5), dam);
+                                        return;
+                                }
 					/* confusion bolt -KMW- */
 	 				if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam-10, GF_CONFUSION, dir,
-                                            damroll(2 + ((plev - 1) / 5), 4 * mto_s2));
+                                            damroll(2 + ((plev - 1) / 5), dam));
 					break;
 			}
 
 			case 1: /* detect monsters */
 			{
+                                if (info_spell) return;
 				(void)detect_monsters_normal();
 				break;
 			}
 
 			case 2: /* phase door */
 			{
-                                teleport_player(10 + p_ptr->to_s);
+                                dam = apply_power_dice(10, to_s, 2);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " range %ld", dam);
+                                        return;
+                                }
+                                teleport_player(dam);
 				break;
 			}
 
 			case 3: /* light area */
 			{
-                                (void)lite_area(damroll(2, (plev / 2) * mto_s2), (plev / 10) + 1);
+                                if (info_spell) return;
+                                (void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 				break;
 			}
 
 			case 4: /* treasure detection */
 			{
+                                if (info_spell) return;
 				(void)detect_treasure();
 				(void)detect_objects_gold();
 				break;
@@ -2980,6 +3524,7 @@ void cast_illusion_spell(int spell)
 
 			case 5:
 			{
+                                if (info_spell) return;
 					/* fear -KMW- */
 					(void)do_fear_monster();
 					break;
@@ -2987,12 +3532,14 @@ void cast_illusion_spell(int spell)
 
 			case 6: /* object detection */
 			{
+                                if (info_spell) return;
 				(void)detect_objects_normal();
 				break;
 			}
 
 			case 7: /* find hidden traps/doors */
 			{
+                                if (info_spell) return;
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -3001,22 +3548,36 @@ void cast_illusion_spell(int spell)
 
 			case 8: /* stinking cloud */
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(10 + (plev / 2), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir,
-                                          10 + (plev / 2) * mto_s2, 2 + to_s2);
+                                          dam, rad);
 				break;
 			}
 
 			case 9:
 			{
+                                dam = apply_power_dur(200, to_s, 5);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d100", dam);
+                                        return;
+                                }
 					/* infravision */
 					if (p_ptr->tim_infra == 0)
-                                        set_tim_infra(p_ptr->tim_infra + 200 + randint(100) + p_ptr->to_s);
+                                                set_tim_infra(p_ptr->tim_infra + dam + randint(100));
 					break;
 			}
 
 			case 10:
 			{
+                                if (info_spell) return;
 					/* sleep */
 					(void)do_sleep_monster();
 					break;
@@ -3024,27 +3585,36 @@ void cast_illusion_spell(int spell)
 
 			case 11: /* trap/door destruction */
 			{
+                                if (info_spell) return;
 				(void)destroy_doors_touch();
 				break;
 			}
 
 			case 12:
 			{
+                                rad = apply_power_dice(3, to_s, 1);
+                                dam = apply_power_dam(10 + (plev), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* fog cloud -KMW- */
 					if (!get_aim_dir(&dir)) return;
-                                        fire_ball(GF_POIS, dir,
-                                            10 + (plev / 2) * mto_s2, 3 + p_ptr->to_s);
+                                        fire_ball(GF_POIS, dir, dam, rad);
 					break;
 			}
 
 			case 13: /* cure poison */
 			{
+                                if (info_spell) return;
 				(void)set_poisoned(0);
 				break;
 			}
 
 			case 14:
 			{
+                                if (info_spell) return;
 					/* satisfy hunger */
 					(void)set_food(PY_FOOD_MAX - 1);
 					break;
@@ -3052,6 +3622,7 @@ void cast_illusion_spell(int spell)
 
 			case 15:
 			{
+                                if (info_spell) return;
 					/* shadow door */
 					(void)door_creation();
 					break;
@@ -3059,15 +3630,22 @@ void cast_illusion_spell(int spell)
 
 			case 16:
 			{
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 5+((plev-6)/4), dam);
+                                        return;
+                                }
 					/* shadow monster */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt(GF_FORCE, dir,
-                                            damroll(5+((plev-6)/4), 8 * mto_s2));
+                                            damroll(5+((plev-6)/4), dam));
 					break;
 			}
 
 			case 17: /* turn stone to mud */
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)wall_to_mud(dir);
 				break;
@@ -3076,29 +3654,48 @@ void cast_illusion_spell(int spell)
 			case 18:
 			{
 					/* detect invisible */
-                                        (void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24 + p_ptr->to_s);
+                                dam = apply_power_dam(24, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d24", dam);
+                                        return;
+                                }
+                                        (void)set_tim_invis(p_ptr->tim_invis + randint(24) + dam);
 					break;
 			}
 
 			case 19: /* recharge item */
 			{
-                                (void)recharge((plev * 2) * mto_s2);
+                                dam = apply_power_dam(plev * 2, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " power %ld", dam);
+                                        return;
+                                }
+                                (void)recharge((plev * 2));
 				break;
 			}
 
 			case 20: /* brand ammo */
 			{
+                                if (info_spell) return;
 					(void)brand_ammo(1,0);
 					break;
 			}
 
 			case 21:
 			{
+                                dam = apply_power_dice(5, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 2+((plev-5)/4), dam);
+                                        return;
+                                }
 					/* spear of light */
 					if (!get_aim_dir(&dir)) return;
 					msg_print("A line of blue shimmering light appears.");
 					fire_beam(GF_LITE, dir,
-                                            damroll(2+((plev-5)/4), 6 * mto_s2));
+                                            damroll(2+((plev-5)/4), dam));
 					lite_line(dir);
 					break;
 			}
@@ -3106,22 +3703,36 @@ void cast_illusion_spell(int spell)
 			case 22:
 			{
 					/* chaos */
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(25 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
-                                            25 + plev * mto_s2, 2 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
 			case 23:
 			{
 					/* mental barrier */
-                                        set_mental_barrier(p_ptr->tim_mental_barrier + 100 + p_ptr->to_s);
+                                dam = apply_power_dam(70, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld", dam);
+                                        return;
+                                }
+                                        set_mental_barrier(p_ptr->tim_mental_barrier + dam);
 					msg_print("Your wisdom and intelligence cannot be changed!");
 					break;
 			}
 
 			case 24:
 			{
+                                if (info_spell) return;
 					/* true sight */
 					map_area();
 					break;
@@ -3129,6 +3740,7 @@ void cast_illusion_spell(int spell)
 
 			case 25: /* slow monster */
 			{
+                                if (info_spell) return;
 				if (!get_aim_dir(&dir)) return;
 				(void)slow_monster(dir);
 				break;
@@ -3136,38 +3748,64 @@ void cast_illusion_spell(int spell)
 
 			case 26:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(35 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* shadow ball */
 					if (!get_aim_dir(&dir)) return;
-                                        fire_ball(GF_DARK, dir, 35 + (plev) * mto_s2, 2 + to_s2);
+                                        fire_ball(GF_DARK, dir, dam, rad);
 			}
 
 			case 27:
 			{
+                                dam = apply_power_dice(7, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 8+((plev-5)/4), dam);
+                                        return;
+                                }
 					/* bolt of darkness */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_DARK, dir,
-                                            damroll(8+((plev-5)/4), 8 * mto_s2));
+                                            damroll(8+((plev-5)/4), dam));
 					break;
 			}
 
 			case 28:
 			{
 					/* shadowform */
-                                        (void)set_shadow(p_ptr->wraith_form + plev + randint(24) + p_ptr->to_s);
+                                dam = apply_power_dur(5, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d10", dam);
+                                        return;
+                                }
+                                        (void)set_shadow(p_ptr->tim_wraith + plev + randint(10));
 					break;
 			}
 
 			case 29: /* haste self */
 			{
+                                dam = apply_power_dam(plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
 				if (!p_ptr->fast)
-                                        (void)set_fast(randint(20) + plev + p_ptr->to_s);
+                                        (void)set_fast(randint(20) + dam);
 				else
-                                        (void)set_fast(p_ptr->fast + randint(5) + p_ptr->to_s);
+                                        (void)set_fast(p_ptr->fast + randint(5));
 				break;
 			}
 
 			case 30:
 			{
+                                if (info_spell) return;
 					/* prismatic wall */
 					warding_glyph();
 					break;
@@ -3175,23 +3813,37 @@ void cast_illusion_spell(int spell)
 
 			case 31:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(40 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* prismatic spray */
 					if (!get_aim_dir(&dir)) return;
-                                        fire_ball(GF_LITE, 5, 40 + (plev) * mto_s2, 2 + to_s2);
+                                        fire_ball(GF_LITE, 5, dam, rad);
 					fire_beam(GF_LITE, dir,
-                                            damroll(8+((plev-5)/4), 8 * mto_s2));
+                                            damroll(8+((plev-5)/4), 8));
 					break;
 			}
 
 			case 32:
 			{
+                                dam = apply_power_dam(30, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d30", dam);
+                                        return;
+                                }
 					/* chromatic shield */
-                                        (void)set_shield(p_ptr->shield + randint(30) + 30 + p_ptr->to_s, 50 + to_s2);
+                                        (void)set_shield(p_ptr->shield + randint(30) + dam, 50 + to_s, 0);
 					break;
 			}
 
 			case 33:
 			{
+                                if (info_spell) return;
 					/* wizard lock */
                                         do_cmd_spike();
 					break;
@@ -3199,15 +3851,23 @@ void cast_illusion_spell(int spell)
 
 			case 34:
 			{
+                                rad = apply_power_dice(5, to_s, 1);
+                                dam = apply_power_dam(50 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* bedlam */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
-                                            50 + plev * ((!p_ptr->to_s)?1:p_ptr->to_s), 10 + (to_s2 / 3));
+                                            dam, rad);
 					break;
 			}
 
 			case 35:
 			{
+                                if (info_spell) return;
 					/* word of recall */
                                         recall_player();
                                         break;
@@ -3215,6 +3875,7 @@ void cast_illusion_spell(int spell)
 
 			case 36:
 			{
+                                if (info_spell) return;
 					/* detect enchantment */
 					(void)detect_objects_magic();
 					break;
@@ -3222,6 +3883,7 @@ void cast_illusion_spell(int spell)
 
 			case 37:
 			{
+                                if (info_spell) return;
 					/* probing */
 					(void)probing();
 					break;
@@ -3229,15 +3891,23 @@ void cast_illusion_spell(int spell)
 
 			case 38:
 			{
+                                rad = apply_power_dice(10, to_s, 1);
+                                dam = apply_power_dam(50 + plev, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* sunfire */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_LITE, dir,
-                                            50 + plev * mto_s2, 10 + (to_s2 / 3));
+                                            dam, rad);
 					break;
 			}
 
 			case 39: /* the bigbys that are duplicates - warding, slow etc. shoudl act all aroundplayer */
 			{
+                                if (info_spell) return;
 					/* Bigby's Interposing Hand */
 					warding_glyph();
 					break;
@@ -3245,24 +3915,37 @@ void cast_illusion_spell(int spell)
 
 			case 40:
 			{
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 2+((plev-5)/4), dam);
+                                        return;
+                                }
 					/* Bigby's Phantom Hand */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_CONFUSION, dir,
-                                            damroll(2+((plev-5)/4), 8 * mto_s2));
+                                            damroll(2+((plev-5)/4), dam));
 					break;
 			}
 
 			case 41:
 			{
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 6+((plev-5)/4), dam);
+                                        return;
+                                }
 					/* Bigby's Forceful Hand */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt_or_beam(beam, GF_FORCE, dir,
-                                            damroll(6+((plev-5)/4), 8 * mto_s2));
+                                            damroll(6+((plev-5)/4), dam));
 					break;
 			}
 
 			case 42:
 			{
+                                if (info_spell) return;
 					/* Bigby's Grasping Hand */
 					if (!get_aim_dir(&dir)) return;
 					(void)slow_monster(dir);
@@ -3271,88 +3954,150 @@ void cast_illusion_spell(int spell)
 
 			case 43:
 			{
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 10+((plev-5)/4), dam);
+                                        return;
+                                }
 					/* Bigby's Clenched Fist */
 					if (!get_aim_dir(&dir)) return;
 					fire_beam(GF_FORCE, dir,
-                                            damroll(10+((plev-5)/4), 8 * mto_s2));
+                                            damroll(10+((plev-5)/4), dam));
 					break;
 			}
 
 			case 44:
 			{
+                                dam = apply_power_dice(8, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %dd%ld", 12+((plev-5)/4), dam);
+                                        return;
+                                }
 					/* Bigby's Crushing Hand */
 					/* want to have this last two turns */
 					if (!get_aim_dir(&dir)) return;
 					fire_bolt(GF_GRAVITY, dir,
-                                            damroll(12+((plev-5)/4), 8 * mto_s2));
+                                            damroll(12+((plev-5)/4), dam));
 					break;
 			}
 
 			case 45:
 			{
+                                rad = apply_power_dice(3, to_s, 1);
+                                dam = apply_power_dam(300 + (plev * 2), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* force blast */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_FORCE, 5,
-                                            300 + (plev * 2) * mto_s2, 3 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
 			case 46:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(30 + (plev * 6), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* Sphere of Light */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_LITE, dir,
-                                            30 + (plev) * mto_s2, 2 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
 			case 47:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(35 + (plev * 6), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* sphere of darkness */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, dir,
-                                            35 + (plev) * mto_s2, 2 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
 			case 48:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(40 + (plev * 6), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* sphere of confusion */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CONFUSION, dir,
-                                            40 + (plev) * mto_s2, 2 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
 			case 49:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(45 + (plev * 6), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* sphere of chaos */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_CHAOS, dir,
-                                            45 + (plev) * mto_s2, 2 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
 			case 50:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(50 + (plev * 6), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* sphere of sound */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_SOUND, dir,
-                                            50 + (plev) * mto_s2, 2 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
 			case 51:
 			{
+                                rad = apply_power_dice(2, to_s, 1);
+                                dam = apply_power_dam(80 + (plev * 6), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* explosion */
 					if (!get_aim_dir(&dir)) return;
                                         fire_ball(GF_SHARDS, dir,
-                                            80 + (plev) * mto_s2, 2 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
 			case 52:
 			{
+                                if (info_spell) return;
 					/* remove fear */
 					(void)set_afraid(0);
 					break;
@@ -3360,62 +4105,112 @@ void cast_illusion_spell(int spell)
 
 			case 53:
 			{
+                                dam = apply_power_dur(20, to_s, 4);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
 					/* resist light & dark */
-                                        (void)set_oppose_ld(p_ptr->oppose_ld + randint(20) + 20 + p_ptr->to_s);
+                                        (void)set_oppose_ld(p_ptr->oppose_ld + randint(20) + dam);
 					break;
 			}
 
 			case 54:
 			{
+                                dam = apply_power_dur(20, to_s, 4);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
 					/* resist poison */
-                                        (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20 + p_ptr->to_s);
+                                        (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + dam);
 					break;
 			}
 
 			case 55:
 			{
+                                dam = apply_power_dur(20, to_s, 4);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
 					/* resist chaos & confusion */
-                                        (void)set_oppose_cc(p_ptr->oppose_cc + randint(20) + 20 + p_ptr->to_s);
+                                        (void)set_oppose_cc(p_ptr->oppose_cc + randint(20) + dam);
 					break;
 			}
 
 			case 56:
 			{
+                                dam = apply_power_dur(20, to_s, 4);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
 					/* resist sound & shards */
-                                        (void)set_oppose_ss(p_ptr->oppose_ss + randint(20) + 20 + p_ptr->to_s);
+                                        (void)set_oppose_ss(p_ptr->oppose_ss + randint(20) + dam);
 					break;
 			}
 
 			case 57:
 			{
+                                dam = apply_power_dur(20, to_s, 4);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d20", dam);
+                                        return;
+                                }
 					/* resist nexus */
-                                        (void)set_oppose_nex(p_ptr->oppose_nex + randint(20) + 20 + p_ptr->to_s);
+                                        (void)set_oppose_nex(p_ptr->oppose_nex + randint(20) + dam);
 					break;
 			}
 
 			case 58:
 			{
+                                dam = apply_power_dur(24, to_s, 4);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dur %ld+d24", dam);
+                                        return;
+                                }
 					/* Invisibility */
-                                        (void)set_invis(p_ptr->tim_invis + randint(24) + p_ptr->to_s + 24, 30);
+                                        (void)set_invis(p_ptr->tim_invis + randint(24) + dam, 30);
 					break;
 			}
 
 			case 59:
 			{
+                                rad = apply_power_dice(10, to_s, 1);
+                                dam = apply_power_dam(30 + (plev * 3), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* shadow monsters */
 					if (!get_aim_dir(&dir)) return;
-                                        fire_ball(GF_DARK, 5, 30 + (plev) * mto_s2, 2 + to_s2);
+                                        fire_ball(GF_DARK, 5, dam, rad);
 					fire_beam(GF_FORCE, dir,
-                                            damroll(6+((plev-5)/4), 8 * mto_s2));
+                                            damroll(6+((plev-5)/4), 8));
 					break;
 			}
 
 			case 60:
 			{
+                                rad = apply_power_dice(3, to_s, 1);
+                                dam = apply_power_dam(40 + (plev * 5), to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* shadow ball */
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DARK, dir,
-                                            40 + (plev) * mto_s2, 2 + to_s2);
+                                            dam, rad);
 					break;
 			}
 
@@ -3423,6 +4218,9 @@ void cast_illusion_spell(int spell)
 			{
 				/* life for mana */
 				int m = 0;
+
+                                if (info_spell) return;
+
 				m = get_quantity("How much mana?",999);
 				if (!m) return;
 				if (m<0) return;
@@ -3440,13 +4238,20 @@ void cast_illusion_spell(int spell)
 
 			case 62:
 			{
+                                dam = apply_power_dam(plev * 7, to_s, 1);
+                                if (info_spell)
+                                {
+                                        sprintf(spell_txt, " dam %ld", dam);
+                                        return;
+                                }
 					/* shadow gate */
-                                        teleport_player(plev * 7 * mto_s2);
+                                        teleport_player(dam);
 					break;
 			}
 
 			case 63:
 			{
+                                if (info_spell) return;
 					/* summon shadows */
 					summon_monster(SUMMON_SHADOWS);
 					break;
@@ -3462,7 +4267,7 @@ void do_cmd_possessor()
         /* No magic */
         if (p_ptr->antimagic)
         {
-                msg_print("Your anti-magic field disrupts any magic attemps.");
+                msg_print("Your anti-magic field disrupts any magic attempts.");
                 return;
         }
 
@@ -3486,12 +4291,12 @@ void do_cmd_possessor()
         }
         if(ext == 1)
         {
-                monster_race *r_ptr = &r_info[p_ptr->body_monster];
+                use_symbiotic_power(p_ptr->body_monster, TRUE, FALSE, FALSE);
 
-                if (use_symbiotic_power(p_ptr->body_monster, TRUE, TRUE) &&
-                    (rand_int(100) < (r_ptr->freq_inate + r_ptr->freq_spell + p_ptr->lev) * 3 / 2))
+                if (p_ptr->csp < 0)
                 {
-                        use_symbiotic_power(p_ptr->body_monster, TRUE, FALSE);
+                        msg_print("You lose control of your body!");
+                        do_cmd_leave_body(FALSE);
                 }
         }
 
@@ -3770,7 +4575,7 @@ void do_cmd_necromancer(void)
         /* No magic */
         if (p_ptr->antimagic)
         {
-                msg_print("Your anti-magic field disrupts any magic attemps.");
+                msg_print("Your anti-magic field disrupts any magic attempts.");
                 return;
         }
 
@@ -4005,44 +4810,16 @@ void do_cmd_necromancer(void)
 	p_ptr->window |= (PW_SPELL);
 }
 
-void do_cmd_unbeliever()
-{
-        if (p_ptr->pclass != CLASS_UNBELIEVER)
-                return;
-
-        if (p_ptr->lev < 20)
-        {
-                msg_print("You must be at least level 20 to be able to disrupt the magic continuum.");
-                return;
-        }
-
-        if (p_ptr->class_extra6 & CLASS_ANTIMAGIC)
-        {
-                p_ptr->class_extra6 &= ~CLASS_ANTIMAGIC;
-                msg_print("You stop disrupting the magic continuum.");
-        }
-        else
-        {
-                p_ptr->class_extra6 |= CLASS_ANTIMAGIC;
-                msg_print("You start disrupting the magic continuum.");
-        }
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-}
-
 /*
  * Cast a daemon spell -SC-
  */
-void cast_daemon_spell(int spell)
+void cast_daemon_spell(int spell, byte level)
 {
         int dir;
         int beam;
 	int plev = p_ptr->lev;
-        int to_s2=p_ptr->to_s/2;
-        int mto_s2=p_ptr->to_s/2;
-	
-        mto_s2 = (mto_s2==0)?1:mto_s2;
+        int to_s = level + p_ptr->to_s;
+        long dam, rad;
 	
 	/* Hack -- chance of "beam" instead of "bolt" */
 	beam = plev;
@@ -4051,57 +4828,114 @@ void cast_daemon_spell(int spell)
 	switch (spell)
 	{
 		case 0: /* Detect Good */
+                        if (info_spell) return;
 			(void)detect_monsters_good();
 			break;
 		case 1: /* Phase Door */
-			teleport_player(10 * mto_s2);
+                        dam = apply_power_dice(10, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " range %ld", dam);
+                                return;
+                        }
+                        teleport_player(dam);
 			break;
 		case 2: /* Resist Fire */
-			set_oppose_fire(p_ptr->oppose_fire + 10 + rand_int(10) + mto_s2);
+                        dam = apply_power_dur(10, to_s, 2);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d10", dam);
+                                return;
+                        }
+                        set_oppose_fire(p_ptr->oppose_fire + dam + rand_int(10));
 			break;	
 		case 3: /* Unearthly Blessing */
 		{
 			int dur;
-			
-			dur = randint(8) + to_s2 + 8;
+
+                        dam = apply_power_dice(8, to_s, 4);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d8", dam);
+                                return;
+                        }
+
+                        dur = randint(8) + dam;
 			set_blessed(p_ptr->blessed + dur);
-			set_shield(p_ptr->shield + dur, 10 + to_s2);
+                        set_shield(p_ptr->shield + dur, 10 + to_s, 0);
 			set_afraid(0);
 			break;
 		}
 		case 4: /* Steal Thoughts */
+                        rad = apply_power_dice(3 + (plev / 10), to_s, 1);
+                        dam = apply_power_dice(2 + (plev / 5), to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dam %ldd5", dam);
+                                return;
+                        }
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_CONFUSION, dir, damroll(2 + (plev/5) + to_s2, 5), 3+plev/10);
+                        fire_ball(GF_CONFUSION, dir, damroll(dam, 5), rad);
 			break;
 		case 5: /* Demon Eyes */
 		{
-			int dur = 14 + randint(14) + to_s2;
-			
+                        int dur = randint(14);
+
+                        dam = apply_power_dur(14, to_s, 3);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d14", dam);
+                                return;
+                        }
+                        dur += dam;
+
 			set_tim_invis(p_ptr->tim_invis + dur);
 			set_tim_esp(p_ptr->tim_esp + dur);
 			break;
 		}
 		case 6: /* Mend Flesh */
-			hp_player(damroll(4*mto_s2, 10));
+                        dam = apply_power_dice(4, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " heal %ldd10", dam);
+                                return;
+                        }
+                        hp_player(damroll(dam, 10));
 			set_cut(0);
 			break;
 		case 7: /* Vision */
+                        if (info_spell) return;
 			map_area();
 			break;
 		case 8: /* Detect Angels and Demons */
+                        if (info_spell) return;
 			detect_monsters_xxx(RF3_DEMON);
 			detect_monsters_xxx(RF3_GOOD);
 			break;	
 		case 9: /* Protection from Good */
-			set_protgood(p_ptr->protgood + randint(20) + 4 * plev + to_s2);
+                        dam = apply_power_dur(5 + plev, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d20", dam);
+                                return;
+                        }
+                        set_protgood(p_ptr->protgood + randint(20) + dam);
 			break;
 		case 10: /* Invisibility */
-			set_invis(p_ptr->tim_invisible + randint(25) + p_ptr->to_s, 25);
+                        dam = apply_power_dur(5, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d25", dam);
+                                return;
+                        }
+                        set_invis(p_ptr->tim_invisible + randint(25) + dam, 25);
 			break;
 		case 11: /* Manes Summoning */
 		{
 			int xx = px, yy = py, i;
 			
+                        if (info_spell) return;
+
 			for (i=0; i<plev/5; i++)
 			{
 				scatter(&yy, &xx, py, px, 5, 0);
@@ -4111,23 +4945,46 @@ void cast_daemon_spell(int spell)
 		}
 		case 12: /* Demoncloak */
 		{
-			int dur=randint(20) + 20 + to_s2;
-			
+                        int dur = randint(20);
+
+                        dam = apply_power_dur(20, to_s, 7);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d20", dam);
+                                return;
+                        }
+                        dur += dam;
+
 			set_oppose_fire(p_ptr->oppose_fire + dur);
 			set_oppose_cold(p_ptr->oppose_cold + dur);
-			set_shield(p_ptr->shield + dur, 40 + to_s2);
+                        set_shield(p_ptr->shield + dur, 40 + to_s, 0);
 			set_lite(p_ptr->lite + dur);
 			set_afraid(0);
 			break;
 		}
 		case 13: /* Breath Fire */
+                        rad = apply_power_dice(3, to_s, 1);
+                        dam = apply_power_dam(40 + (plev / 6), to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dam %ld", dam);
+                                return;
+                        }
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_FIRE, dir, 40+(plev/6)*mto_s2, 3+to_s2);
+                        fire_ball(GF_FIRE, dir, dam, rad);
 			break;
 		case 14: /* Fire Blade */
 		{
-			int dur=randint(25) + 25 + p_ptr->to_s;
-			
+                        int dur=randint(25);
+
+                        dam = apply_power_dam(15, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d25", dam);
+                                return;
+                        }
+                        dur += dam;
+
 			set_tim_fire_aura(p_ptr->tim_fire_aura + dur);
 			set_fast(dur);
 			set_blessed(p_ptr->blessed + dur);
@@ -4136,8 +4993,13 @@ void cast_daemon_spell(int spell)
 		}
 		case 15: /* Circle of Madness */
 		{
-			int dam = 20 + plev * mto_s2;
-			int rad = 2 + mto_s2;
+                        rad = apply_power_dice(2, to_s, 1);
+                        dam = apply_power_dam(20 + plev, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dam 3*%ld", dam);
+                                return;
+                        }
 			
 			fire_ball(GF_CHAOS, 0, dam, rad);
 			fire_ball(GF_CONF_DAM, 0, dam, rad);
@@ -4145,32 +5007,47 @@ void cast_daemon_spell(int spell)
 			break;
 		}
 		case 16: /* Bladecalm */
+                        if (info_spell) return;
 			break;
 		case 17: /* Control Demons */
-			charm_demons(100 * mto_s2);
+                        dam = apply_power_dam(100, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " power %ld", dam);
+                                return;
+                        }
+                        charm_demons(dam);
 			break;
 		case 18: /* Revive */
-			fire_ball(GF_RAISE_DEMON, 0, 1, 2 + to_s2 + (plev / 5));
+                        if (info_spell) return;
+                        fire_ball(GF_RAISE_DEMON, 0, 1, 2 + to_s + (plev / 5));
 			break;
 		case 19: /* Trap Demonsoul */
+                        dam = apply_power_dice(8, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " power %dd%ld", 20+((plev-5)/4), dam);
+                                return;
+                        }
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_TRAP_DEMONSOUL, dir,
-					  damroll(20+((plev-5)/4), 8 + to_s2));
+                                          damroll(20+((plev-5)/4), dam));
 			break;
 		case 20: /* Discharge Minions */
 		{
 			int i, y, x;
-			
+
+                        if (info_spell) return;
+
 			/* Affect all pets */
 			for (i = 1; i < m_max; i++)
 			{
 				monster_type *m_ptr = &m_list[i];
-                                monster_race *r_ptr = race_inf(m_ptr);
 				bool tmp;
 				int dam;
 				
 				/* Skip dead monsters and non-pets */
-				if (!is_pet(m_ptr)||!m_ptr->r_idx) continue;
+                                if ((m_ptr->status != MSTATUS_PET)||!m_ptr->r_idx) continue;
 				
 				/* Location */
 				y = m_ptr->fy;
@@ -4182,56 +5059,112 @@ void cast_daemon_spell(int spell)
                                 mon_take_hit(i, m_ptr->hp + 1, &tmp, " explodes.");
 				
 				/* Create the explosion */
-				project(0, 2+(r_ptr->level/20), y,
+                                project(0, 2+(m_ptr->level/20), y,
 					x, dam, GF_PLASMA, 
 					PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL);
 			}
 			break;
 		}
 		case 21: /* Summon Demons */
-			summon_specific_friendly(py, px, (plev*3)*mto_s2/2, SUMMON_DEMON, FALSE);
+                        if (info_spell) return;
+                        summon_specific_friendly(py, px, (plev*3)/2, SUMMON_DEMON, FALSE);
 			break;
 		case 22: /* Rain of Lava */
-			fire_ball(GF_FIRE, 0, 40 + plev * mto_s2, 2 + to_s2);
-			fire_ball(GF_LAVA_FLOW, 0, 5 + (plev / 5) + to_s2, 2 + to_s2);
+                        rad = apply_power_dice(2, to_s, 1);
+                        dam = apply_power_dam(40 + plev, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dam %ld", dam);
+                                return;
+                        }
+                        fire_ball(GF_FIRE, 0, dam, rad);
+                        fire_ball(GF_LAVA_FLOW, 0, 5 + (plev / 5) + to_s, rad);
 			break;
 		case 23: /* Kiss of the Succubus */
+                        rad = apply_power_dice(3, to_s, 1);
+                        dam = apply_power_dam(150 + plev, to_s, 3);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dam %ld", dam);
+                                return;
+                        }
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_NEXUS, dir, 150 + plev*mto_s2, 3 + to_s2 + plev/20);
+                        fire_ball(GF_NEXUS, dir, dam, rad);
 			take_hit(50, "The Kiss of the Succubus");
 			break;
 		case 24: /* Immortality */
-			set_tim_res_time(p_ptr->tim_res_time + 30 + randint(30) + to_s2);
+                        dam = apply_power_dam(30, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d30", dam);
+                                return;
+                        }
+                        set_tim_res_time(p_ptr->tim_res_time + dam + randint(30));
 			break;
 		case 25: /* Glyph of Warding */
+                        if (info_spell) return;
 			warding_glyph();
 			break;
 		case 26: /* Lava Storm */
+                        rad = apply_power_dice(4, to_s, 1);
+                        dam = apply_power_dam(60 + plev, to_s, 6);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dam %ld", dam);
+                                return;
+                        }
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_FIRE, dir, 60 + plev * mto_s2, 4 + to_s2);
-			fire_ball(GF_LAVA_FLOW, 0, 10 + (plev / 2) + mto_s2, 4 + to_s2);
+                        fire_ball(GF_FIRE, dir, dam, rad);
+                        fire_ball(GF_LAVA_FLOW, 0, 10 + (plev / 2) + to_s, rad);
 			break;
 		case 27: /* Demonform */
-			set_mimic(p_ptr->tim_mimic + 15 + randint(15) + to_s2, MIMIC_DEMON_LORD);
+                        dam = apply_power_dur(15, to_s, 3);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d15", dam);
+                                return;
+                        }
+                        set_mimic(p_ptr->tim_mimic + dam + randint(15), MIMIC_DEMON_LORD);
 			break;
 		case 28: /* Unholy word */
-			dispel_living(plev * 4 * mto_s2);
-			hp_player(1000 * mto_s2);
+                        rad = apply_power_dam(plev * 4, to_s, 1);
+                        dam = apply_power_dam(1000, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " heal %ld", dam);
+                                return;
+                        }
+                        dispel_living(rad);
+                        hp_player(dam);
 			set_afraid(0);
 			set_poisoned(0);
 			set_stun(0);
 			set_cut(0);
 			break;
 		case 29: /* Hellfire */
+                        rad = apply_power_dice(3, to_s, 1);
+                        dam = apply_power_dam(250, to_s, 1);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dam %ld", dam);
+                                return;
+                        }
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_HELL_FIRE, dir, 250 * mto_s2, 3 + to_s2);
-			fire_ball(GF_HELL_FIRE, 10-dir, 250 * mto_s2, 3 + to_s2);
+                        fire_ball(GF_HELL_FIRE, dir, dam, rad);
+                        fire_ball(GF_HELL_FIRE, 10-dir, dam, rad);
 			break;
 		case 30: /* Armageddon */
+                        if (info_spell) return;
 			mass_genocide(TRUE);
 			break;
 		case 31: /* Shield of the Damned */
-			set_invuln(p_ptr->invuln + randint(10) + 10 + to_s2);
+                        dam = apply_power_dur(10, to_s, 5);
+                        if (info_spell)
+                        {
+                                sprintf(spell_txt, " dur %ld+d10", dam);
+                                return;
+                        }
+                        set_invuln(p_ptr->invuln + randint(10) + dam);
 			break;
 		default:
 			msg_format("You cast an unknown Daemon spell: %d.", spell);
@@ -4394,7 +5327,7 @@ int rune_exec(rune_spell *spell, int cost)
 
         power = spell->mana;
 
-        if ((power * cost / 100) > p_ptr->csp - (power_rune * (p_ptr->lev / 5)))
+        if ((cost) && (power * cost / 100) > p_ptr->csp - (power_rune * (p_ptr->lev / 5)))
         {
                 power = p_ptr->csp - (power_rune * (p_ptr->lev / 5));
                 mana_used = power + (power_rune * (p_ptr->lev / 5));
@@ -4710,6 +5643,7 @@ static void print_runespell_batch(int batch, int max)
 static rune_spell* select_runespell_from_batch(int batch, bool quick, int *s_idx)
 {
   char tmp[160];
+  char out_val[30];
   char which;
   int mut_max = 10;
   rune_spell* ret;
@@ -4750,8 +5684,11 @@ static rune_spell* select_runespell_from_batch(int batch, bool quick, int *s_idx
       which = tolower(inkey());
 
       if (islower(which) && A2I(which) <= mut_max) {
-	get_string("Name this power: ", 
-                   rune_spells[batch*10+A2I(which)].name, 29);
+        strcpy(out_val, rune_spells[batch*10+A2I(which)].name);
+        if (get_string("Name this power: ", out_val, 29))
+        {
+          strcpy(rune_spells[batch*10+A2I(which)].name, out_val);
+        }
 	prt(tmp, 0, 0);
       } else {
 	bell();
@@ -4838,7 +5775,7 @@ void do_cmd_rune_cast()
         /* No magic */
         if (p_ptr->antimagic)
         {
-                msg_print("Your anti-magic field disrupts any magic attemps.");
+                msg_print("Your anti-magic field disrupts any magic attempts.");
                 return;
         }
 
@@ -4907,7 +5844,7 @@ void do_cmd_runestone()
         /* No magic */
         if (p_ptr->antimagic)
         {
-                msg_print("Your anti-magic field disrupts any magic attemps.");
+                msg_print("Your anti-magic field disrupts any magic attempts.");
                 return;
         }
 
@@ -5223,6 +6160,83 @@ void do_cmd_runecrafter()
                 /* Cast a Runestone */
                 case 5:
                         do_cmd_runestone();
+                        break;
+        }
+}
+
+void do_cmd_unbeliever_antimagic()
+{
+        if (p_ptr->lev < 20)
+        {
+                msg_print("You must be at least level 20 to be able to disrupt the magic continuum.");
+                return;
+        }
+
+        if (p_ptr->class_extra6 & CLASS_ANTIMAGIC)
+        {
+                p_ptr->class_extra6 &= ~CLASS_ANTIMAGIC;
+                msg_print("You stop disrupting the magic continuum.");
+        }
+        else
+        {
+                p_ptr->class_extra6 |= CLASS_ANTIMAGIC;
+                msg_print("You start disrupting the magic continuum.");
+        }
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+}
+
+
+/* Detect traps + kill traps */
+void do_cmd_unbeliever()
+{
+        int ext = 0;
+        char ch;
+
+        if (p_ptr->pclass != CLASS_UNBELIEVER)
+                return;
+
+        /* Select what to do */
+        while (TRUE)
+        {
+                if (!get_com("Disrupt [C]ontinuum or [D]etect Traps", &ch))
+                {
+                        ext = 0;
+                        break;
+                }
+                if (ch == 'C' || ch == 'c')
+                {
+                        ext = 1;
+                        break;
+                }
+                if (ch == 'D' || ch == 'd')
+                {
+                        ext = 2;
+                        break;
+                }
+        }
+
+        switch (ext)
+        {
+                case 1:
+                        do_cmd_unbeliever_antimagic();
+                        break;
+
+                /* Detect */
+                case 2:
+                        if (p_ptr->lev >= 25)
+                        {
+                                detect_traps();
+                                if (p_ptr->lev >= 35)
+                                {
+                                        destroy_doors_touch();
+                                }
+                        }
+                        else
+                        {
+                                msg_print("You cannot use your detection abilities yet.");
+                        }
                         break;
         }
 }

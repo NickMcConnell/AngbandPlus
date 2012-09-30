@@ -1,0 +1,36 @@
+#####R=== Priests ===
+
+#####GDescription
+A Priest is a character of holy devotion. They explore the dungeon only
+to destroy the evil that lurks within, and if treasure just happens to 
+fall into their packs, well, so much more to the glory of their church!
+Priests receive their spells from a deity, and thus do not choose which
+spells they will learn. They are familiar with magical devices, 
+preferring to call them instruments of their god, but are not as good 
+as a mage in their use. Priests have good saving throws, and make 
+decent fighters, preferring blunt weapons over edged ones. Wisdom and 
+
+#####GPrimary Stats
+Wisdom (spellcasting stat)
+Charisma
+
+#####GMagic Usage
+Priests may select two realms of magic, one major and one minor. 
+Priests can learn up to 64 spells. However, they do not choose which 
+spells they learn, but the spells are granted to them by greater powers 
+(without a money-back guarantee).
+
+For their first realm, they have a choice of the *****m_valar.txt*0[Valarin], *****m_nether.txt*0[Nether] or 
+*****m_prayer.txt*0[Prayer magic realms].
+
+For their second realm, they may choose either the *****m_crusad.txt*0[Crusade] or the 
+*****m_illus.txt*0[Illusion] realm of magic.
+
+#####GStarting Equipment
+A priest begins the game with:
+    L1 spellbooks of chosen realms
+    A mace
+If they are *very* lucky they may also begin with:
+    scrolls of dispel evil
+    
+	

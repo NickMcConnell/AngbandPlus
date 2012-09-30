@@ -390,10 +390,23 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
 
+	/* Hack - merchants have better prices */
+	if (p_ptr->pclass == CLASS_MERCHANT)
+		factor -= p_ptr->lev/2;
 
 	/* Shop is buying */
 	if (flip)
 	{
+                /* Mega Hack^3 */
+                switch (o_ptr->tval)
+                {
+                        case TV_SHOT:
+                        case TV_ARROW:
+                        case TV_BOLT:
+                                price /= 5;
+                                break;
+                }
+
 		/* Adjust for greed */
 		adjust = 100 + (300 - (greed + factor));
 
@@ -481,7 +494,6 @@ static void mass_produce(object_type *o_ptr)
                 case TV_CRUSADE_BOOK:
                 case TV_SIGALDRY_BOOK:
                 case TV_SYMBIOTIC_BOOK:
-                case TV_MIMIC_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_MAGIC_BOOK:
                 case TV_PRAYER_BOOK:
@@ -711,8 +723,8 @@ static bool store_check_num(object_type *o_ptr)
 
 static bool is_blessed(object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4, esp;
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        u32b f1, f2, f3, f4, f5, esp;
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 	if (f3 & TR3_BLESSED) return (TRUE);
 	else return (FALSE);
 }
@@ -857,13 +869,13 @@ static bool store_will_buy(object_type *o_ptr)
                                 case TV_CRUSADE_BOOK:
                                 case TV_SIGALDRY_BOOK:
                                 case TV_SYMBIOTIC_BOOK:
-                                case TV_MIMIC_BOOK:
                                 case TV_MUSIC_BOOK:
                                 case TV_MAGIC_BOOK:
                                 case TV_ILLUSION_BOOK:
                                 case TV_TRIBAL_BOOK:
 				case TV_DAEMON_BOOK:
                                 case TV_DRUID_BOOK:
+				case TV_SPIRIT_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -896,13 +908,13 @@ static bool store_will_buy(object_type *o_ptr)
                                                 case TV_SIGALDRY_BOOK:
                                                 case TV_SYMBIOTIC_BOOK:
                                                 case TV_MUSIC_BOOK:
-                                                case TV_MIMIC_BOOK:
                                                 case TV_MAGIC_BOOK:
                                                 case TV_PRAYER_BOOK:
                                                 case TV_ILLUSION_BOOK:
                                                 case TV_TRIBAL_BOOK:
                                                 case TV_DAEMON_BOOK:
                                                 case TV_DRUID_BOOK:
+						case TV_SPIRIT_BOOK:
 					break;
 				default:
 					return (FALSE);
@@ -1287,6 +1299,12 @@ static bool kind_is_storeok(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+        if (k_info[k_idx].flags3 & TR3_NORM_ART)
+		return( FALSE );
+
+        if (k_info[k_idx].flags3 & TR3_INSTA_ART)
+		return( FALSE );
+
         if (!kind_is_legal(k_idx)) return FALSE;
 
         if (k_ptr->tval != store_tval) return (FALSE);
@@ -1332,6 +1350,7 @@ static void store_create(void)
 
 			/* Handle failure */
 			if (!i) continue;
+
 		}
 
 		/* Normal Store */
@@ -1341,6 +1360,10 @@ static void store_create(void)
                         item = rand_int(st_info[st_ptr->st_idx].table_num);
                         i = st_info[st_ptr->st_idx].table[item][0];
                         chance = st_info[st_ptr->st_idx].table[item][1];
+
+			/* Don't allow k_info artifacts */
+			if ( k_info[i].flags3 & TR3_NORM_ART )
+				continue;
 
                         /* Does it passes the rarity check ? */
                         if (!magik(chance)) continue;
@@ -1384,6 +1407,9 @@ static void store_create(void)
                         if (!i) continue;
 		}
 
+		/* Don't allow k_info artifacts */
+		if ( k_info[i].flags3 & TR3_NORM_ART )
+			continue;
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -1397,8 +1423,11 @@ static void store_create(void)
 		/* Hack -- Charge lite's */
 		if (q_ptr->tval == TV_LITE)
 		{
-			if (q_ptr->sval == SV_LITE_TORCH) q_ptr->pval = FUEL_TORCH / 2;
-			if (q_ptr->sval == SV_LITE_LANTERN) q_ptr->pval = FUEL_LAMP / 2;
+                        u32b f1, f2, f3, f4, f5, esp;
+
+                        object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+                        if (f4 & TR4_FUEL_LITE) q_ptr->timeout = k_info[q_ptr->k_idx].pval2 / 2;
 		}
 
 
@@ -1685,8 +1714,9 @@ void display_store(void)
 	/* The "Home" is special */
 	if (cur_store_num == 7)
 	{
-		/* Put the owner name */
-		put_str("Your Home", 3, 30);
+                /* Put the owner name -- mega hack */
+                if ((p_ptr->pclass == CLASS_MERCHANT) && (p_ptr->town_num == TOWN_RANDOM)) put_str("Hole Contents", 3, 30);
+                else put_str("Your Home", 3, 30);
 
 		/* Label the item descriptions */
 		put_str("Item Description", 5, 3);
@@ -3000,6 +3030,16 @@ void store_sell(void)
 	}
 
 
+	/* Hack -- Cannot put a portable hole into home */
+	if ((p_ptr->pclass == CLASS_MERCHANT) &&
+	    (o_ptr->tval == TV_TOOL) && (o_ptr->sval == SV_PORTABLE_HOLE))
+	{
+		msg_print("Putting it into your home has extra-dimensional problems");
+		
+		return;
+	}
+
+	
 	/* Assume one item */
 	amt = 1;
 
@@ -3249,7 +3289,7 @@ void store_examine(void)
    /* Describe it fully */
    if (!check_book_realm(o_ptr->tval))
    {
-        if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+        if (!identify_fully_aux(o_ptr, NULL)) msg_print("You see nothing special.");
    /* Books are read */
    }
    else
@@ -3809,7 +3849,6 @@ void do_cmd_store(void)
 		if (st_ptr->store_open >= turn) leave_store = TRUE;
 	}
 
-
 	/* Free turn XXX XXX XXX */
 	energy_use = 0;
 
@@ -4309,3 +4348,71 @@ void do_cmd_home_trump(void)
 	p_ptr->window |= (PW_OVERHEAD);
 }
 
+static void pay_for_requested_item(int value, object_type *q_ptr)
+{
+	msg_format("It'll cost %i gold pieces. ", value);
+	
+	if (get_check("Do you wish to pay?"))
+	{
+		if (p_ptr->au < value)
+			msg_print("You don't have enough money for it.");
+		else
+		{
+			if (store_carry(q_ptr) != -1)
+			{
+				msg_print("The item has arrived to the Black Market.");
+				p_ptr->au -= value;
+				
+				p_ptr->redraw |= PR_GOLD;
+			}
+			else
+				msg_print("There isn't enough room for it.");
+		}
+	}
+}
+
+/*
+ * Request item for merchants
+ */
+void store_request_item(void)
+{
+        char buf[80], name[80];
+        object_type forge, *q_ptr = &forge;
+	store_type *ost_ptr = st_ptr;
+	
+	/* Paranoia */
+        if (p_ptr->pclass != CLASS_MERCHANT)
+        {
+                st_ptr = ost_ptr;
+                return;
+        }
+
+	/* Get the Black Market */
+	st_ptr = &town[p_ptr->town_num].store[6];
+	
+        /* Make an empty string */
+        buf[0] = 0;
+
+        /* Ask for the wish */
+        if (!get_string("Request what? ", buf, 80))
+        {
+                st_ptr = ost_ptr;
+                return;
+        }
+
+        clean_wish_name(buf, name);
+
+        if (test_object_wish(name, q_ptr, &forge, "request"))
+        {
+                int value = object_value_real(q_ptr) * 5;
+			
+                /* Pay for the delivery */
+                pay_for_requested_item(value, q_ptr);
+			
+                /* Don't search any more */
+                st_ptr = ost_ptr;
+                return;
+        }
+	
+	st_ptr = ost_ptr;
+}

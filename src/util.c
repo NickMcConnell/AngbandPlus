@@ -2003,14 +2003,36 @@ cptr message_str(int age)
 	return (s);
 }
 
+/*
+* Recall the color of a saved message
+*/
+byte message_color(int age)
+{
+	s16b x;
+        byte color = TERM_WHITE;
+	
+	/* Forgotten messages have no text */
+        if ((age < 0) || (age >= message_num())) return (TERM_WHITE);
+	
+	/* Acquire the "logical" index */
+	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
+	
+	/* Get the "offset" for the message */
+        color = message__color[x];
+	
+	/* Return the message text */
+        return (color);
+}
+
 
 
 /*
 * Add a new message, with great efficiency
 */
-void message_add(cptr str)
+void message_add(cptr str, byte color)
 {
-	int i, k, x, n;
+        int i, k, x, n, m;
+	char u[1024];
 	
 	
 	/*** Step 1 -- Analyze the message ***/
@@ -2023,7 +2045,69 @@ void message_add(cptr str)
 	
 	/* Important Hack -- Ignore "long" messages */
 	if (n >= MESSAGE_BUF / 4) return;
-	
+
+	/* Limit number of messages to check */
+	m = message_num();
+
+	k = m / 4;
+
+	/* Check previous message */
+	for (i = message__next; m; m--)
+	{
+		int j = 1;
+
+		char buf[1024];
+		char *t;
+
+		cptr old;
+
+		/* Back up and wrap if needed */
+		if (i-- == 0) i = MESSAGE_MAX - 1;
+
+		/* Access the old string */
+		old = &message__buf[message__ptr[i]];
+
+		/* Skip small messages */
+		if (!old) continue;
+
+		strcpy(buf, old);
+
+		/* Find multiple */
+		for (t = buf; *t && (*t != '<'); t++);
+
+		if (*t)
+		{
+			/* Message is too small */
+			if (strlen(buf) < 6) break;
+
+			/* Drop the space */
+			*(t - 1) = '\0';
+
+			/* Get multiplier */
+			j = atoi(++t);
+		}
+
+		/* Limit the multiplier to 1000 */
+		if (buf && streq(buf, str) && (j < 1000))
+		{
+			j++;
+
+			/* Overwrite */
+			message__next = i;
+
+			str = u;
+
+			/* Write it out */
+			sprintf(u, "%s <%dx>", buf, j);
+
+			/* Message length */
+			n = strlen(str);
+		}
+
+		/* Done */
+		break;
+	}
+
 	
 	/*** Step 2 -- Attempt to optimize ***/
 	
@@ -2072,6 +2156,7 @@ void message_add(cptr str)
 		
 		/* Assign the starting address */
 		message__ptr[x] = message__ptr[i];
+                message__color[x] = color;
 		
 		/* Success */
 		return;
@@ -2159,6 +2244,7 @@ void message_add(cptr str)
 	
 	/* Assign the starting address */
 	message__ptr[x] = message__head;
+        message__color[x] = color;
 	
 	/* Append the new part of the message */
 	for (i = 0; i < n; i++)
@@ -2229,7 +2315,7 @@ static void msg_flush(int x)
 * XXX XXX XXX Note that "msg_print(NULL)" will clear the top line
 * even if no messages are pending.  This is probably a hack.
 */
-void msg_print(cptr msg)
+void cmsg_print(byte color, cptr msg)
 {
 	static int p = 0;
 	
@@ -2268,7 +2354,7 @@ void msg_print(cptr msg)
 	
 	
 	/* Memorize the message */
-	if (character_generated) message_add(msg);
+        if (character_generated) message_add(msg, color);
 	
 	
 	/* Copy it */
@@ -2301,7 +2387,7 @@ void msg_print(cptr msg)
 		t[split] = '\0';
 		
 		/* Display part of the message */
-		Term_putstr(0, 0, split, TERM_WHITE, t);
+                Term_putstr(0, 0, split, color, t);
 		
 		/* Flush it */
 		msg_flush(split + 1);
@@ -2321,7 +2407,7 @@ void msg_print(cptr msg)
 	
 	
 	/* Display the tail of the message */
-	Term_putstr(p, 0, n, TERM_WHITE, t);
+        Term_putstr(p, 0, n, color, t);
 	
 	/* Memorize the tail */
 	/* if (character_generated) message_add(t); */
@@ -2337,6 +2423,12 @@ void msg_print(cptr msg)
 	
 	/* Optional refresh */
 	if (fresh_message) Term_fresh();
+}
+
+/* Hack -- for compatibility and easy sake */
+void msg_print(cptr msg)
+{
+        cmsg_print(TERM_WHITE, msg);
 }
 
 
@@ -2401,7 +2493,26 @@ void msg_format(cptr fmt, ...)
 	va_end(vp);
 	
 	/* Display */
-	msg_print(buf);
+        cmsg_print(TERM_WHITE, buf);
+}
+
+void cmsg_format(byte color, cptr fmt, ...)
+{
+	va_list vp;
+	
+	char buf[1024];
+	
+	/* Begin the Varargs Stuff */
+        va_start(vp, fmt);
+	
+	/* Format the args, save the length */
+        (void)vstrnfmt(buf, 1024, fmt, vp);
+	
+	/* End the Varargs Stuff */
+	va_end(vp);
+	
+	/* Display */
+        cmsg_print(color, buf);
 }
 
 
@@ -2808,9 +2919,10 @@ bool get_com(cptr prompt, char *command)
 *
 * Hack -- allow "command_arg" to specify a quantity
 */
-s16b get_quantity(cptr prompt, int max)
+s32b get_quantity(cptr prompt, s32b max)
 {
-	int amt;
+        s32b amt;
+        int aamt;
 	
 	char tmp[80];
 	
@@ -2836,8 +2948,10 @@ s16b get_quantity(cptr prompt, int max)
 #ifdef ALLOW_REPEAT /* TNB */
 	
 	/* Get the item index */
-	if ((max != 1) && repeat_pull(&amt))
+        if ((max != 1) && repeat_pull(&aamt))
 	{
+                amt = aamt;
+
 		/* Enforce the maximum */
 		if (amt > max) amt = max;
 		
@@ -2854,7 +2968,7 @@ s16b get_quantity(cptr prompt, int max)
 	if (!prompt)
 	{
 		/* Build a prompt */
-		sprintf(tmp, "Quantity (1-%d): ", max);
+                sprintf(tmp, "Quantity (1-%ld): ", max);
 		
 		/* Use that prompt */
 		prompt = tmp;
@@ -2865,10 +2979,10 @@ s16b get_quantity(cptr prompt, int max)
 	amt = 1;
 	
 	/* Build the default */
-	sprintf(buf, "%d", amt);
+        sprintf(buf, "%ld", amt);
 	
 	/* Ask for a quantity */
-	if (!get_string(prompt, buf, 6)) return (0);
+        if (!get_string(prompt, buf, 9)) return (0);
 	
 	/* Extract a number */
 	amt = atoi(buf);
@@ -2934,7 +3048,7 @@ static char request_command_buffer[256];
 */
 void request_command(int shopping)
 {
-	int i;
+        int i;
 	
 	char cmd;
 	
@@ -2967,7 +3081,7 @@ void request_command(int shopping)
 	
 	
 	/* Get command */
-	while (1)
+        while (1)
 	{
 		/* Hack -- auto-commands */
 		if (command_new)
@@ -3295,28 +3409,54 @@ static bool insert_str(char *buf, cptr target, cptr insert)
  */
 int get_keymap_dir(char ch)
 {
-	cptr act, s;
 	int d = 0;
 
-	if (rogue_like_commands)
+	int mode;
+
+	cptr act;
+
+	cptr s;
+
+
+	/* Already a direction? */
+	if (isdigit(ch))
 	{
-		act = keymap_act[KEYMAP_MODE_ROGUE][(byte)ch];
+		d = D2I(ch);
 	}
 	else
 	{
-		act = keymap_act[KEYMAP_MODE_ORIG][(byte)ch];
-	}
-	
-	if (act)
-	{
-		/* Convert to a direction */
-		for (s = act; *s; ++s)
+		/* Roguelike */
+		if (rogue_like_commands)
 		{
-			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			mode = KEYMAP_MODE_ROGUE;
+		}
+
+		/* Original */
+		else
+		{
+			mode = KEYMAP_MODE_ORIG;
+		}
+
+		/* Extract the action (if any) */
+		act = keymap_act[mode][(byte)(ch)];
+
+		/* Analyze */
+		if (act)
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit(*s)) d = D2I(*s);
+			}
 		}
 	}
-	return d;
+
+	/* Paranoia */
+	if (d == 5) d = 0;
+
+	/* Return direction */
+	return (d);
 }
 
 
@@ -3361,7 +3501,7 @@ bool repeat_pull(int *what)
 
 void repeat_check(void)
 {
-	int		what;
+        int             what;
 
     /* Ignore some commands */
     if (command_cmd == ESCAPE) return;

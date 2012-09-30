@@ -1,0 +1,29 @@
+#####R=== Skeletal Race ===
+
+#####GDescription
+As undead beings, skeletons need to worry very little about poison or 
+attacks that can drain life. They do not really use eyes for perceiving 
+things, and are thus not fooled by invisibility. Their bones are resistant
+to sharp shrapnels (not much to cut there), and they will quickly become
+resistant to cold. Should a skeleton be unlucky enough to lose some of his
+or her remaining life, he or she will learn to restore it at will. It is 
+very hard for skeletons to eat food or drink potions. Although the magical
+effects of these will affect the skeleton even without entering the 
+skeleton's (non-existent) belly, the potion / food itself will fall 
+through the skeleton's jaws, giving no nutritional benefit.
+
+#####GStat Modifiers
+Strength       0   
+Intelligence   -2   
+Wisdom         -2    
+Dexterity      0   
+Constitution   +1   
+Charisma       -4      
+Hit Dice       +0 sides        
+Exp Penalty    +45%
+
+#####GStarting Equipment
+A skeletal character begins the game with:
+    Some scrolls of satisfy hunger
+    Some torches
+

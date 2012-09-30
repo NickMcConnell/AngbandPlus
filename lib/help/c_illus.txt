@@ -1,0 +1,24 @@
+#####R=== Illusionists ===
+
+#####GDescription
+An illusionist is a different version of the Mage class. This class 
+believes more in confusing and tricking monsters rather than outright 
+damage spells. Besides this, the illusionist is the same as the *****c_mage.txt*0[mage].
+
+#####GPrimary Stats
+Intelligence (spellcasting stat)
+
+#####GMagic Usage
+Illusionists focus on the strange *****m_illus.txt*0[Illusion] Realm and can't use any 
+other realms, but they can use ALL the illusion spells (other classes 
+can only use the ones of the normal books). They may learn up to 64
+spell levels in the Illusion Realm.
+
+#####GStarting Equipment
+An illusionist begins the game with:
+    L1 book of illusions
+    a dagger
+    a scroll of word of recall
+If they are *very* lucky they may also begin with:
+    potions of see invisible
+    

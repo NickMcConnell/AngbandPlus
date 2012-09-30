@@ -1,0 +1,22 @@
+#####R=== DeathMolds ===
+
+#####GDescription
+Death Molds are incredibly powerful creatures. However, they are also 
+molds. Lacking the ability to move as other creatures do, Death Molds have
+the powers of Phase Door, targeted teleportation, telekinesis, and 
+controlled Teleport Level. They also intrinsically resist Nexus and Nether.
+
+#####GStat Modifiers
+Strength        +10   
+Intelligence    0   
+Wisdom          +10   
+Dexterity       0   
+Constitution    +10   
+Charisma        -15       
+Hit Dice Sides  15         
+Exp Penalty     +150%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    Scrolls of summon never moving pet
+    

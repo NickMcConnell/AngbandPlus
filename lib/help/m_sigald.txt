@@ -1,0 +1,32 @@
+|||||oy
+#####R === PernAngband Magic - Sigaldry Realm ===
+
+Employed by minor wizards and dabblers in the alchemical arts, Sigaldry
+focuses on drawing out relatively weak elemental and inner powers to 
+both strike enemies and infuse energy into immobile objects. Associated
+strongly with the more potent magics of Wizardry, it serves adequately
+as an all-purpose spells school.
+
+It contains few attack spells, many utility spells, some protection
+spells, and a few enchanting spells.
+
+#####GPermitted Classes
+#####BThe Realm of Sigaldry is only permitted to:
+High Mages as a primary realm
+Rogues as a primary realm
+Sorcerors (all)
+Warrior-Mages as a primary realm
+Mages as a secondary realm
+
+#####GSigaldry Spellbooks
+The are four spellbooks available for the Sigaldry realm, two of which can be
+easily found at bookstores back in town. The other two are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Novice Crafts
+Arcane Channels
+
+[[[[[BRare Books]
+Sigils of Wizardry
+Mana Focus

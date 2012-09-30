@@ -14,49 +14,207 @@
 
 ### Terrain features ###
 
-
-# Floors (white / centered dot)
-
+# open floor (white / centered dot)
 F:1:1/31
 
-# Invis traps (white / centered dot)
+# secret door (white / solid block)
+F:48:1/127
 
-F:2:1/31
-
-
-# Magma (slate / solid block)
-
+# magma vein (slate / solid block)
 F:50:2/127
 F:52:2/127
 
-
-# Quartz (light slate / solid block)
-
+# quartz vein (light slate / solid block)
 F:51:9/127
 F:53:9/127
 
-
-# Secret door (white / solid block)
-
-F:48:1/127
-
-# Granite walls & permanent rock (white / solid block)
-
+# granite wall (white / solid block)
 F:56:1/127
 F:57:1/127
 F:58:1/127
 F:59:1/127
+
+# permanent wall (white / solid block)
 F:60:1/127
 F:61:1/127
 F:62:1/127
 F:63:1/127
 
-F:190:1/127
-F:191:1/127
-F:192:1/127
-F:193:1/127
-F:194:1/127
-F:195:1/127
-F:196:1/127
-F:197:1/127
-F:198:1/127
+F:75:1/127
+F:76:1/127
+F:77:1/127
+F:78:1/127
+
+# pool of deep lava (red / solid block)
+F:85:4/127
+
+# stream of shallow lava (light umber / solid block)
+F:86:15/127
+
+# dark pit (light dark / solid block)
+F:87:8/127
+
+# dirt (umber / centered dot)
+F:88:7/31
+
+# patch of grass (green / centered dot)
+F:89:5/31
+
+# ice (light slate / centered dot)
+F:90:9/31
+
+# sand (yellow / centered dot)
+F:91:11/31
+
+# dead tree (light dark / solid block)
+F:92:8/127
+
+# ash (light dark / centered dot)
+F:93:8/31
+
+# mud (umber / centered dot)
+F:94:7/31
+
+# ice wall (light slate / solid block)
+F:95:9/127
+
+# tree (light green / solid block)
+F:96:13/127
+
+# sandwall (yellow / solid block)
+F:98:11/127
+F:99:11/127
+
+# nether mist (purple / solid block)
+#F:102:10/127
+
+# floor (red / centered dot)
+F:172:4/31
+
+# Underground Tunnel (slate / solid block)
+F:173:2/127
+
+# lava wall (light red / solid block)
+F:177:12/127
+
+# glass wall (light blue / centered dot)
+F:188:14/31
+
+# illusion wall (white / solid block)
+F:189:1/127
+
+# grass roof (yellow / solid block)
+F:190:11/127
+F:191:11/127
+F:192:11/127
+
+# brick roof (red / solid block)
+F:193:4/127
+F:194:4/127
+F:195:4/127
+
+# windows and rain barrels (white /solid block)
+#F:196:1/127
+#F:197:1/127
+#F:198:1/127
+
+# cobblestone road (white / centered dot)
+F:200:1/31
+F:201:1/31
+
+# small tree (green / solid block)
+F:202:5/127
+
+# a blazing fire (yellow / solid block)
+F:205:11/127
+
+
+### Monsters ###
+
+# Old Man Willow (slate / solid block)
+R:206:2/127
+
+# Tangleweed (green / solid block)
+R:248:5/127
+
+# Poison ivy (green / solid block)
+R:266:5/127
+
+# Giant Venus Flytrap (green / solid block)
+R:317:5/127
+
+# Stunwall (light slate / solid block)
+R:326:9/127
+
+# Huorn (green / solid block)
+R:329:5/127
+
+# Livingstone (light slate / solid block)
+R:336:9/127
+
+# Vampiric mist (light dark / solid block)
+R:365:8/127
+
+# Xiclotlan (light dark / solid block)
+R:396:8/127
+
+# Roper (light dark / solid block)
+R:426:8/127
+
+# Lesser wall monster (light slate / solid block)
+R:448:9/127
+
+# Mist giant (light blue / solid block)
+R:552:14/127
+
+# Weird fume (purple / solid block)
+R:625:10/127
+
+# Ent (light green / solid block)
+R:708:13/127
+
+# Quickbeam, the Ent (light green / solid block)
+R:714:13/127
+
+# Greater wall monster (light slate / solid block)
+R:718:9/127
+
+# Ahtu, Avatar of Nyarlathotep (light dark / solid block)
+R:761:8/127
+
+# Fangorn the Treebeard, Lord of the Ents (light green / solid block)
+R:934:13/127
+
+# The Glass Golem (light slate / solid block)
+R:1033:9/127
+
+# Golgarach, the Living Rock (light slate / solid block)
+R:1035:9/127
+
+# Lurker (white / centered dot)
+R:247:1/31
+
+# Landmine (white / centered dot)
+R:333:1/31
+
+# It (light slate /centered dot)
+R:393:9/31
+
+# Chaos tile (purple / centered dot)
+R:458:10/31
+
+# Trapper (white / centered dot)
+R:565:1/31
+
+# Time bomb (white / centered dot)
+R:567:1/31
+
+# Colour out of space (purple / centered dot)
+R:678:10/31
+
+# Rocket mine (light red / centered dot)
+R:870:12/31
+
+# Bouncing mine (light blue / centered dot)
+R:871:14/31
+

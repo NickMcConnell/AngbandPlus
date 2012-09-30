@@ -1,0 +1,26 @@
+#####R=== Half-Trolls ===
+
+#####GDescription
+Half-Trolls are incredibly strong, and have more hit points than any other
+character race. They are also very stupid and slow. They make great 
+warriors and iffy priests. They are bad at searching, disarming, 
+perception, and stealth. They are so ugly that a Half-Orc grimaces in 
+their presence. They also happen to be fun to play... Half-trolls always 
+have their strength sustained. At higher levels, Half-Trolls learn to 
+enter a berserk fury, and regenerate wounds automatically.
+
+
+#####GStat Modifiers
+Strength        +4   
+Intelligence    -4   
+Wisdom          -2   
+Dexterity       -4   
+Constitution    +3   
+Charisma        -6       
+Hit Dice Sides  12        
+Exp Penalty     +37%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    A ring of slow digestion
+

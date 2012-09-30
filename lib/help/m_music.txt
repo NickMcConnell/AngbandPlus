@@ -1,0 +1,29 @@
+|||||oy
+#####R === PernAngband Magic - Music Realm ===
+
+It has often been said the "Music soothes the Savage Beast", and Harpers
+know this is a fact. They carry songbooks around the dungeon with them, 
+and by singing the songs within them gain the power to soothe beasts, 
+enhance their own courage, etc. The songs continue to be sung until either
+the Harper chooses to stop, or he runs out of the energy required to sing
+that type of song - some can take quite an effort to sing!
+
+It contains some attack spells, some utility spells, some combat-
+enhancing spells, and a few healing spells.
+
+#####GPermitted Classes
+#####BThe Realm of Music is only permitted to:
+Harpers as a secondary realm
+
+#####GMusic Songbooks
+The are four songbooks available for the Music realm, two of which can be
+easily found at bookstores back in town. The other two are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Apprentice Handbook
+Minstrel's Music
+
+[[[[[BRare Books]
+Harps of Rivendell
+Lays of Beleriand

@@ -1,0 +1,24 @@
+#####R=== Dark Elves ===
+
+#####GDescription
+Another dark, cave-dwelling race, likewise unhampered by darkness attacks,
+the Dark Elves have a long tradition and knowledge of magic. With their 
+intelligence they can become superb mages or priests, and they have an 
+inherent magic missile attack available to them at a low level. With their
+keen sight, they also learn to see invisible things as their relatives 
+High-Elves do, but at a higher level.
+
+#####GStat Modifiers
+Strength        -1   
+Intelligence    +3   
+Wisdom          +2   
+Dexterity       +2   
+Constitution    -2   
+Charisma        +1       
+Hit Dice Sides  9         
+Exp Penalty     +50%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    A shadow blade
+

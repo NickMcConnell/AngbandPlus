@@ -30,7 +30,7 @@ cptr notes_file(void)
 
 	/* Create the file name from the character's name plus .txt */
         sprintf(fname, "%s.nte", base_name);
-	path_build(buf, 500, ANGBAND_DIR_USER, fname);
+        path_build(buf, 500, ANGBAND_DIR_NOTE, fname);
 
 	/* return the filename */
 	return buf;
@@ -45,14 +45,17 @@ void output_note(char *final_note)
 {
 	FILE *fff;
 	
-	/* Drop priv's */
-	safe_setuid_drop();
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Grab */
+	safe_setuid_grab();
 	
 	/* Open notes file */
 	fff = my_fopen(notes_file(), "a");
 	
-	/* Grab priv's */
-	safe_setuid_grab();
+	/* Drop */
+	safe_setuid_drop();
   
 	/* Failure */
 	if (!fff) return;
@@ -126,8 +129,8 @@ void add_note_type(int note_number)
 			char player[100];
 			
 			/* Build the string containing the player information */
-			sprintf(player, "the %s %s", race_info[p_ptr->prace].title,
-				 class_info[p_ptr->pclass].title);
+                        if (p_ptr->pracem) sprintf(player, "the %s %s %s", race_mod_info[p_ptr->pracem].title, race_info[p_ptr->prace].title, class_info[p_ptr->pclass].title);
+                        else sprintf(player, "the %s %s", race_info[p_ptr->prace].title, class_info[p_ptr->pclass].title);
 			
 			if (p_ptr->realm1 != REALM_NONE)
 			{
@@ -142,18 +145,13 @@ void add_note_type(int note_number)
 			}
 			
 			/* Add in "character start" information */
-			sprintf(buf, "\n================================================\n");
-			sprintf(buf, "%s%s the %s\n", buf, player_name, player);
-			sprintf(buf, "%sBorn on %s\n", buf, long_day);
-			sprintf(buf, "%s================================================\n\n", buf);
+                        sprintf(buf, "\n================================================\n%s %s\nBorn on %s\n================================================\n\n", player_name, player, long_day);
 		}
 		break;
 		
 		case NOTE_WINNER:
 		{
-                        sprintf(buf, "%s slew Morgoth on %s\n.", player_name, long_day);
-			sprintf(buf, "%sLong live %s!\n", buf, player_name);
-			sprintf(buf, "%s================================================\n", buf);
+                        sprintf(buf, "%s slew Morgoth on %s\n.sLong live %s!\n================================================\n", player_name, long_day, player_name);
 		}
 		break;
 		
@@ -167,8 +165,7 @@ void add_note_type(int note_number)
 		case NOTE_ENTER_DUNGEON:
 		{
 			/* Entering the game after a break. */
-			sprintf(buf, "================================================\n");
-			sprintf(buf, "%sNew session start: %s\n\n", buf, long_day);
+                        sprintf(buf, "================================================\nNew session start: %s\n\n", long_day);
 		}
 		break;
 		

@@ -1,0 +1,22 @@
+#####R=== Hermit Race ===
+
+#####GDescription
+Hermits live retired from the world. Spending long hours studying, they 
+weaken their physical side while they strengthen their spiritual powers. 
+Thus they get higher mana reserves but are much worse at physical combat.
+
+#####GStat Modifiers
+Strength       -3
+Intelligence   +1
+Wisdom         +1  
+Dexterity      -3   
+Constitution   -3   
+Charisma       +1      
+Hit Dice       -3 sides
+Exp Penalty    +20%
+
+#####GStarting Equipment
+A hermit begins the game with:
+    Some rations
+    Some torches
+

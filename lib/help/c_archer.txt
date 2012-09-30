@@ -1,0 +1,34 @@
+#####R=== Archers ===
+
+#####GDescription
+Archers are to bows what warriors are to melee. They are the best class
+around with any bow/xbow/sling. Needing a lot of ammo, they will learn 
+early how to make it from junk found in the dungeons. They also gain at
+level 20 the unique ability to make their arrows/bolts/shots ricochet 
+off monsters!
+
+Additionally, being more skilled with the use of their favored weapons,
+they find that they can place their shots much better, resulting in less
+broken and lost ammunition. Continued use of their bows results in them
+gaining the ability to shoot faster and more powerfully as they advance
+levels.
+
+#####GPrimary Stats
+Dexterity (for bow usage)
+
+#####GMagic Usage
+No magics.
+
+Ammo can be made using the "m" command and selecting the archer abilities.
+Shots can be made from rubble, arrows and bolts from skeletons and 
+other such junk.
+
+#####GStarting Equipment
+An archer begins the game with:
+    a short bow
+    a dagger
+    a sling
+    some ammo
+If they are *very* lucky they may also begin with:
+    a light crossbow and some appropriate ammo
+

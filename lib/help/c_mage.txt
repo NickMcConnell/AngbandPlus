@@ -1,0 +1,42 @@
+#####R=== Mages ===
+
+#####GDescription
+A Mage must live by his wits. He cannot hope to simply hack his way 
+through the dungeon, and so must therefore use his magic to defeat, 
+deceive, confuse, and escape. A mage is not really complete without an
+assortment of magical devices to use in addition to his spells. He can
+master the higher level magical devices far easier than anyone else, 
+and has the best saving throw to resist effects of spells cast at him.
+ 
+There is no reason a mage cannot become a good fighter, but spells are 
+their true realm. 
+
+#####GPrimary Stats
+Intelligence (spellcasting stat)
+Dexterity.
+
+#####GMagic Usage
+A mage can choose up to two realms of magic to master.
+
+The [[[[[Bfirst realm] can be a choice of:
+*****m_magery.txt*0[Magery], *****m_shadow.txt*0[Shadow], *****m_nether.txt*0[Nether] or *****m_magic.txt*0[Magic].
+
+The [[[[[Bsecond realm] is determined by which realm you chose as your 
+first realm of magic. 
+- If you chose Magery or Nether, your second realm will be *****m_sigald.txt*0[Sigaldry]
+- If you chose Shadow your second realm will be *****m_spirit.txt*0[Spirit].
+- If you chose Magic, you will not have a second realm.
+
+Mages have the least restrictions in choosing and learning spells. Even
+then, they are still bound in certain ways. Mages can learn up to 64 
+spells, thus having to choose which spells to learn.
+
+#####GStarting Equipment
+A mage begins the game with:
+    L1 spellbooks of chosen realms
+    A dagger
+    A wand of fire bolts
+If they are *very* lucky they may also begin with:
+    A L2 spellbook of one of the chosen realms
+
+		

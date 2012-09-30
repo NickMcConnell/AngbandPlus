@@ -179,8 +179,8 @@ C:0:0:0
 I:49:0:q
 
 N:39:Herbal Healing
-C:1000:400:0
-I:28:0:h
+C:5000:1000:0
+I:50:0:h
 
 N:40:Song of Lore
 C:2000:800:50
@@ -257,3 +257,14 @@ N:55:Get an item
 C:0:0:0
 I:44:0:g
 
+N:56:Request an item
+C:0:0:0
+I:51:2:r
+
+N:57:Ask for loan
+C:0:0:0
+I:52:2:a
+
+N:58:Pay back loan
+C:0:0:0
+I:53:2:p

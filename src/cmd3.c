@@ -149,8 +149,31 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(object_type *o_ptr)
 {
+        u32b f1, f2, f3, f4, f5, esp;
+
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+        /* Only one ultimate at a time */
+        if (f4 & TR4_ULTIMATE)
+        {
+                int i;
+
+                for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+                {
+                        object_type *q_ptr = &inventory[i];
+
+                        /* Extract the flags */
+                        object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+                        if (!q_ptr->k_idx) continue;
+
+                        if (f4 & TR4_ULTIMATE) return (FALSE);
+                }
+        }
+
 	/* Check for a usable slot */
-	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
+        if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
 
 	/* Assume not wearable */
 	return (FALSE);
@@ -162,7 +185,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
  */
 void do_cmd_wield(void)
 {
-        int i, item, slot, num = 1;
+        int item, slot, num = 1;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -175,7 +198,7 @@ void do_cmd_wield(void)
 
 	cptr q, s;
 
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -229,7 +252,7 @@ void do_cmd_wield(void)
     }
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Two handed weapons can't be wielded with a shield */
         if ((f4 & TR4_MUST2H) && (inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0))
@@ -242,10 +265,10 @@ void do_cmd_wield(void)
         i_ptr = &inventory[slot - INVEN_ARM + INVEN_WIELD];
 	
 	/* Extract the flags */
-        object_flags(i_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(i_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Prevent shield from being put on if wielding 2H */
-        if ((f4 & TR4_MUST2H) && (i_ptr->k_idx))
+        if ((f4 & TR4_MUST2H) && (i_ptr->k_idx) && (p_ptr->body_parts[slot - INVEN_WIELD] == INVEN_ARM))
 	{
            object_desc(o_name, o_ptr, FALSE, 0);
 	   msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
@@ -259,24 +282,12 @@ void do_cmd_wield(void)
 	}
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
         if ((inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0) && (f4 & TR4_COULD2H))
 	{
            if (!get_check("Are you sure you want to use this weapon with a shield?"))
             return;
-	}
-
-	/* Check if completed a quest */
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == 3) && (quest[i].status == 1) &&
-			(quest[i].k_idx == o_ptr->name1))
-		{
-			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You completed your quest!");
-			msg_print(NULL);
-		}
 	}
 
 	/* Take a turn */
@@ -402,7 +413,6 @@ void do_cmd_wield(void)
         /* Redraw monster hitpoint */
         p_ptr->redraw |= (PR_MH);
 
-	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
 
@@ -469,6 +479,7 @@ void do_cmd_drop(void)
 	int item, amt = 1;
 
 	object_type *o_ptr;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	cptr q, s;
 
@@ -489,15 +500,30 @@ void do_cmd_drop(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+        if (cursed_p(o_ptr))
 	{
-		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
+                if (item >= INVEN_WIELD)
+                {
+                        /* Oops */
+                        msg_print("Hmmm, it seems to be cursed.");
 
-		/* Nope */
-		return;
+                        /* Nope */
+                        return;
+                }
+                else
+                {
+                        if (f4 & TR4_CURSE_NO_DROP)
+                        {
+                                /* Oops */
+                                msg_print("Hmmm, you seem to be unable to drop it.");
+
+                                /* Nope */
+                                return;
+                        }
+                }
 	}
 
 
@@ -511,12 +537,14 @@ void do_cmd_drop(void)
 		if (amt <= 0) return;
 	}
 
+        /* Can we drop */
+        if (process_hooks(HOOK_DROP, item)) return;
 
 	/* Take a partial turn */
 	energy_use = 50;
 
 	/* Drop (some of) the item */
-	inven_drop(item, amt);
+        inven_drop(item, amt, py, px, FALSE);
 }
 
 
@@ -555,6 +583,8 @@ void do_cmd_destroy(void)
 	char		out_val[160];
 
 	cptr q, s;
+
+        u32b f1, f2, f3, f4, f5, esp;
 
 	/* Hack -- force destruction */
 	if (command_arg > 0) force = TRUE;
@@ -609,6 +639,18 @@ void do_cmd_destroy(void)
 	/* Take a turn */
 	energy_use = 100;
 
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+        if ((f4 & TR4_CURSE_NO_DROP) && cursed_p(o_ptr))
+        {
+                /* Oops */
+                msg_print("Hmmm, you seem to be unable to destroy it.");
+
+                /* Nope */
+                return;
+        }
+
+
         /* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
@@ -642,36 +684,52 @@ void do_cmd_destroy(void)
 	msg_format("You destroy %s.", o_name);
 	sound(SOUND_DESTITEM);
 
-    if (high_level_book(o_ptr))
-    {
-        bool gain_expr = FALSE;
-
-        if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_UNBELIEVER))
-		{
+	if (p_ptr->pclass == CLASS_MERCHANT)
+	{
+		/* Good merchants don't break anything... */
+		s32b value = object_value_real(o_ptr);
+		
+		if (value<0) value=-value;
+		
+		/* ... otherwise they lose some experience */
+		value = value * amt / 10;
+		if (value == 0) value = 1;
+		
+		lose_exp(value);
+                msg_print("Good merchants should not break anything...");
+	}
+	
+	if (high_level_book(o_ptr))
+	{
+		bool gain_expr = FALSE;
+		
+		if ((p_ptr->pclass == CLASS_WARRIOR) ||
+		    (p_ptr->pclass == CLASS_UNBELIEVER))
 			gain_expr = TRUE;
+		else if (p_ptr->pclass == CLASS_PALADIN)
+		{
+			if (p_ptr->realm1 == REALM_VALARIN)
+			{
+				if (o_ptr->tval != TV_VALARIN_BOOK)
+					gain_expr = TRUE;
+			}
+			else
+			{
+				if (o_ptr->tval == TV_VALARIN_BOOK)
+					gain_expr = TRUE;
+			}
 		}
-        else if (p_ptr->pclass == CLASS_PALADIN)
-        {
-            if (p_ptr->realm1 == REALM_VALARIN)
-            {
-                if (o_ptr->tval != TV_VALARIN_BOOK) gain_expr = TRUE;
-            }
-            else
-            {
-                if (o_ptr->tval == TV_VALARIN_BOOK) gain_expr = TRUE;
-            }
-        }
-
-        if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
-        
-        {
-            s32b tester_exp = p_ptr->max_exp / 20;
-            if (tester_exp > 10000) tester_exp = 10000;
-            if (o_ptr->sval < 3) tester_exp /= 4;
-            if (tester_exp<1) tester_exp = 1;
-
-            msg_print("You feel more experienced.");
-            gain_exp(tester_exp * amt);
+		
+		if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
+			
+		{
+			s32b tester_exp = p_ptr->max_exp / 20;
+			if (tester_exp > 10000) tester_exp = 10000;
+			if (o_ptr->sval < 3) tester_exp /= 4;
+			if (tester_exp<1) tester_exp = 1;
+			
+			msg_print("You feel more experienced.");
+			gain_exp(tester_exp * amt);
 		}
 	}
 
@@ -737,7 +795,91 @@ void do_cmd_observe(void)
 	/* Require full knowledge */
 	if (!(o_ptr->ident & (IDENT_MENTAL)))
 	{
-		msg_print("You have no special knowledge about that item.");
+                char buff2[400], *s, *t;
+                cptr info[40];
+                int n, i = 0, k, j;
+                object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+                i = grab_tval_desc(o_ptr->tval, info, 0);
+                if (i) info[i++] = "";
+
+                if (object_known_p(o_ptr))
+                {
+                strcpy (buff2, k_text + k_ptr->text);
+
+		s = buff2;
+		
+                /* Collect the desc */
+                while (TRUE)
+                {
+                        /* Extract remaining length */
+                        n = strlen(s);
+
+                        /* All done */
+                        if (n < 60)
+                        {
+                                /* Save one line of history */
+                                info[i++] = s;
+
+                                /* All done */
+                                break;
+                        }
+
+                        /* Find a reasonable break-point */
+                        for (n = 60; ((n > 0) && (s[n - 1] != ' ')); n--) /* loop */;
+
+                        /* Save next location */
+                        t = s + n;
+
+                        /* Wipe trailing spaces */
+                        while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                        /* Save one line of history */
+                        info[i++] = s;
+
+                        s = t;
+                }
+
+                /* Add a blank line */
+                info[i++] = "";
+                }
+
+                if (!i) msg_print("You have no special knowledge about that item.");
+                else
+                {
+                        info[i++] = "You need to *identify* the item to know more about it...";
+
+                        /* Save the screen */
+                        Term_save();
+
+                        /* Erase the screen */
+                        for (k = 1; k < 24; k++) prt("", k, 13);
+
+                        /* Label the information */
+                        prt("     Item Attributes:", 1, 15);
+
+                        /* We will print on top of the map (column 13) */
+                        for (k = 2, j = 0; j < i; j++)
+                        {
+                                /* Show the info */
+                                prt(info[j], k++, 15);
+
+                                /* Every 20 entries (lines 2 to 21), start over */
+                                if ((k == 22) && (j+1 < i))
+                                {
+                                        prt("-- more --", k, 15);
+                                        inkey();
+                                        for (; k > 2; k--) prt("", k, 15);
+                                }
+                        }
+
+                        /* Wait for it */
+                        prt("[Press any key to continue]", k, 15);
+                        inkey();
+
+                        /* Restore the screen */
+                        Term_load();
+                }
 		return;
 	}
 
@@ -749,7 +891,7 @@ void do_cmd_observe(void)
 	msg_format("Examining %s...", o_name);
 
 	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+        if (!identify_fully_aux(o_ptr, NULL)) msg_print("You see nothing special.");
 }
 
 
@@ -927,15 +1069,18 @@ static void do_cmd_refill_lamp(void)
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
-	j_ptr->pval += o_ptr->pval;
+        if (o_ptr->tval == TV_FLASK)
+                j_ptr->timeout += o_ptr->pval;
+        else
+                j_ptr->timeout += o_ptr->timeout;
 
 	/* Message */
 	msg_print("You fuel your lamp.");
 
 	/* Comment */
-	if (j_ptr->pval >= FUEL_LAMP)
+        if (j_ptr->timeout >= FUEL_LAMP)
 	{
-		j_ptr->pval = FUEL_LAMP;
+                j_ptr->timeout = FUEL_LAMP;
 		msg_print("Your lamp is full.");
 	}
 
@@ -1015,15 +1160,15 @@ static void do_cmd_refill_torch(void)
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
-	j_ptr->pval += o_ptr->pval + 5;
+        j_ptr->timeout += o_ptr->timeout + 5;
 
 	/* Message */
 	msg_print("You combine the torches.");
 
 	/* Over-fuel message */
-	if (j_ptr->pval >= FUEL_TORCH)
+        if (j_ptr->timeout >= FUEL_TORCH)
 	{
-		j_ptr->pval = FUEL_TORCH;
+                j_ptr->timeout = FUEL_TORCH;
 		msg_print("Your torch is fully fueled.");
 	}
 
@@ -1060,6 +1205,7 @@ static void do_cmd_refill_torch(void)
 void do_cmd_refill(void)
 {
 	object_type *o_ptr;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	/* Get the light */
 	o_ptr = &inventory[INVEN_LITE];
@@ -1068,19 +1214,25 @@ void do_cmd_refill(void)
 	if (o_ptr->tval != TV_LITE)
 	{
 		msg_print("You are not wielding a light.");
+                return;
 	}
 
-	/* It's a lamp */
-	else if (o_ptr->sval == SV_LITE_LANTERN)
-	{
-		do_cmd_refill_lamp();
-	}
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-	/* It's a torch */
-	else if (o_ptr->sval == SV_LITE_TORCH)
-	{
-		do_cmd_refill_torch();
-	}
+        if (f4 & TR4_FUEL_LITE)
+        {
+                /* It's a torch */
+                if (o_ptr->sval == SV_LITE_TORCH)
+                {
+                        do_cmd_refill_torch();
+                }
+
+                /* It's a lamp */
+                else if (o_ptr->sval == SV_LITE_LANTERN)
+                {
+                        do_cmd_refill_lamp();
+                }
+        }
 
 	/* No torch to refill */
 	else
@@ -1631,7 +1783,7 @@ void do_cmd_query_symbol(void)
 		r_idx = who[i];
 
 		/* Hack -- Auto-recall */
-		monster_race_track(r_idx);
+                monster_race_track(r_idx, 0);
 
 		/* Hack -- Handle stuff */
 		handle_stuff();
@@ -1652,7 +1804,7 @@ void do_cmd_query_symbol(void)
 				Term_save();
 
 				/* Recall on screen */
-				screen_roff(who[i], 0);
+                                screen_roff(who[i], 0, 0);
 
 				/* Hack -- Complete the prompt (again) */
 				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
@@ -1813,7 +1965,7 @@ bool research_mon()
 		r_idx = who[i];
 
 		/* Hack -- Auto-recall */
-		monster_race_track(r_idx);
+                monster_race_track(r_idx, 0);
 
 		/* Hack -- Handle stuff */
 		handle_stuff();
@@ -1838,7 +1990,7 @@ bool research_mon()
 
 				oldkills = r2_ptr->r_tkills;
 				oldwake = r2_ptr->r_wake;
-				screen_roff(who[i], 1);
+                                screen_roff(who[i], 0, 1);
 				r2_ptr->r_tkills = oldkills;
 				r2_ptr->r_wake = oldwake;
 				r2_ptr->r_sights = 1;
@@ -1937,8 +2089,8 @@ void do_cmd_sense_grid_mana()
 
         if(wizard)
         {
-                msg_format("Grid's mana: %d\n", cave[py][px].mana);
-                msg_format("Average grid's mana: %d\n", (cave[py][px].mana / i) * i);
+                msg_format("Grid's mana: %d.", cave[py][px].mana);
+                msg_format("Average grid's mana: %d.", (cave[py][px].mana / i) * i);
         }
         else if(p_ptr->pclass == CLASS_DRUID)
         {
@@ -1950,3 +2102,126 @@ void do_cmd_sense_grid_mana()
         }
 }
 
+/*
+ * Calculate the weight of the portable holes
+ */
+s32b portable_hole_weight(void)
+{
+        s32b weight, i;
+        store_type *st_ptr = &town[TOWN_RANDOM].store[STORE_HOME];
+	
+	/* Sum the objects in the appropriate home */
+	for (i = 0, weight = 0; i < st_ptr->stock_num; i++)
+	{
+		object_type *o_ptr = &st_ptr->stock[i];
+		
+		weight += (o_ptr->weight * o_ptr->number);
+	}
+	
+	/* Multiply the sum with 1.5 */
+	weight = (weight * 3) / 2 + 2;
+	return(weight);
+}
+
+void set_portable_hole_weight(void)
+{
+        s32b weight, i, j;
+
+        if (p_ptr->pclass != CLASS_MERCHANT) return;
+
+	/* Calculate the weight of items in home */
+	weight = portable_hole_weight();
+
+	/* Set the weight of portable holes in the shops, ... */
+	for (i = 1; i < max_towns; i++)
+		for (j = 0; j < max_st_idx; j++)
+		{
+			store_type *st_ptr = &town[i].store[j];
+			int k;
+			
+			for (k = 0; k < st_ptr->stock_num; k++)
+			{
+				object_type *o_ptr = &st_ptr->stock[k];
+				
+				if ((o_ptr->tval == TV_TOOL) &&
+				    (o_ptr->sval == SV_PORTABLE_HOLE))
+					o_ptr->weight = weight;
+			}
+		}
+	
+	/* ... in the object list, ... */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+		
+		if ((o_ptr->tval == TV_TOOL) &&
+		    (o_ptr->sval == SV_PORTABLE_HOLE)) o_ptr->weight = weight;
+	}
+	
+	/* ... and in the inventory to the appropriate value */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+		
+		/* Skip non-objects */
+		if ((o_ptr->tval == TV_TOOL) &&
+		    (o_ptr->sval == SV_PORTABLE_HOLE)) o_ptr->weight = weight;
+	}
+}
+
+/*
+ * Use a portable hole
+ */
+void do_cmd_portable_hole(void)
+{
+	cave_type *c_ptr = &cave[py][px];
+        int feat, special, town_num, i;
+	
+	/* Portable holes can be used only by merchants */
+        if (p_ptr->pclass != CLASS_MERCHANT) return;
+	
+	/* Is it currently wielded? */
+	if (!inventory[INVEN_TOOL].k_idx ||
+	    (inventory[INVEN_TOOL].tval != TV_TOOL) ||
+	    (inventory[INVEN_TOOL].sval != SV_PORTABLE_HOLE))
+	{
+		/* No, it isn't */
+		msg_print("You have to wield a portable hole to use your abilities");
+		return;
+	}
+	
+	/* Mega-hack: Saving the old values, and then... */
+	feat = c_ptr->feat;
+	special = c_ptr->special;
+        town_num = p_ptr->town_num;
+	
+	/* ... change the current grid to the home in town #1 */
+        /* DG -- use the first random town, since random towns cannot have houses */
+	c_ptr->feat = FEAT_SHOP;
+        c_ptr->special = STORE_HOME;
+        p_ptr->town_num = TOWN_RANDOM;
+	
+	/* Now use the portable hole */
+	do_cmd_store();
+	
+	/* Mega-hack part II: change the current grid to the original value */
+	c_ptr->feat = feat;
+	c_ptr->special = special;
+	p_ptr->town_num = town_num;
+	
+	set_portable_hole_weight();
+
+        /* Recalc weight */
+        total_weight = 0;
+        for (i = 0; i < INVEN_TOTAL; i++)
+        {
+                object_type *o_ptr = &inventory[i];
+
+                if (!o_ptr->k_idx) continue;
+
+                total_weight += (o_ptr->number * o_ptr->weight);                
+        }
+	/* Recalculate bonuses */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->update |= (PU_BONUS);
+}

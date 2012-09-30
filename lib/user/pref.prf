@@ -206,10 +206,6 @@ C:1:^C
 A:U
 C:1:O
 
-# Time of the day
-A:^t
-C:1:'
-
 # Sacrifice at an altar
 A:O
 C:1:^g
@@ -237,6 +233,10 @@ C:1:[
 # Drink from a fountain
 A:H
 C:1:V
+
+# Give item
+A:y
+C:1:'
 
 
 ##### System Specific Subfiles #####

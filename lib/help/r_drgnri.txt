@@ -1,0 +1,25 @@
+#####R=== Dragonriders ===
+
+#####GDescription
+The dragonriders from the planet of Pern are supremely powerful, and their
+dragons can breathe flame after eating firestone. They are also telepathic,
+and gain the ability to go Between, traveling to any location they have 
+previously been. However, they are none too wise and take a very long time
+to gain levels as both human and dragon must accumulate experience.
+
+#####GStat Modifiers
+Strength        +6   
+Intelligence    +3   
+Wisdom          -10   
+Dexterity       0   
+Constitution    +6   
+Charisma        +8       
+Hit Dice Sides  15         
+Exp Penalty     +300%
+
+#####GStarting Equipment
+All dragonriders start with:
+    some small firestones
+If they are *very* lucky they may begin with:
+    A dragonrider coat
+

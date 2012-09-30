@@ -1,0 +1,33 @@
+#####R=== Chaos Warriors ===
+
+#####GDescription
+Chaos Warriors are the feared servants of the terrible Demon Lords of
+Chaos. Every Chaos Warrior has a Patron Demon, such as Arioch, Mabelode
+or Balaan. Whenever Chaos Warriors advances a level, their Patron Demon
+may reward them with a Gift of Chaos: healing or a new form, an 
+increase in stats or a new, powerful weapon. However, Patron Demons are
+fickle; they might, depending on their mood, frown, surrounding them
+with monsters, drain stats or wreck equipment. Or, they might simply do
+nothing. The exact reward depends on the Patron Demon Lord (different 
+Demons give different rewards) as well as their fickle moods. Chaos 
+Warriors are very good fighters, but they are also trained in Chaos 
+magic.
+
+#####GPrimary Stats
+Intelligence (spell casting stat)
+Strength.
+
+#####GMagic Usage
+A chaos warrior can learn up to 32 spell levels from the *****m_chaos.txt*0[Chaos] Realm 
+of magic.
+
+#####GStarting Equipment
+A chaos-warrior begins the game with:
+    L1 choas spellbook
+    A broadsword
+    Metal scalemail
+If they are *very* lucky they may also begin with:
+    potions of mutation
+    
+
+		

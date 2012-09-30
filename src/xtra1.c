@@ -190,7 +190,7 @@ static void god_bonus(int god, int goodness, bool do_print) {
                         if (do_print) msg_print("You have been branded with the Mark of Eternal Being.");
                         break;
                 case GOD_RNG: /* Randomness */
-                        if (do_print) msg_print("You are radomized.");
+                        if (do_print) msg_print("You are randomized.");
                         p_ptr->stat_add[A_STR] += rand_int(6) - 3;
                         p_ptr->stat_add[A_DEX] += rand_int(6) - 3;
                         p_ptr->stat_add[A_CON] += rand_int(6) - 3;
@@ -468,7 +468,7 @@ static void prt_stat(int stat)
 		else
 			colour=TERM_YELLOW;
 
-		put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
+                put_str(format("%s: ", stat_names_reduced[stat]), ROW_STAT + stat, 0);
 		cnv_stat(p_ptr->stat_use[stat], tmp);
 		c_put_str(colour, tmp, ROW_STAT + stat, COL_STAT + 6);
 	}
@@ -476,9 +476,9 @@ static void prt_stat(int stat)
 	/* Display "healthy" stat */
 	else
 	{
-		put_str(stat_names[stat], ROW_STAT + stat, 0);
+                put_str(format("%s: ", stat_names[stat]), ROW_STAT + stat, 0);
 		cnv_stat(p_ptr->stat_use[stat], tmp);
-		c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
+                c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
 	}
 
 	/* Indicate natural maximum */
@@ -556,7 +556,21 @@ static void prt_exp(void)
 {
 	char out_val[32];
 
-	(void)sprintf(out_val, "%8ld", (long)p_ptr->exp);
+        if (!exp_need)
+        {
+                (void)sprintf(out_val, "%8ld", (long)p_ptr->exp);
+        }
+        else
+        {
+                if (p_ptr->lev >= PY_MAX_LEVEL)
+                {
+                        (void)sprintf(out_val, "********");
+                }
+                else
+                {
+                        (void)sprintf(out_val, "%8ld", (long)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L) - p_ptr->exp);
+                }
+        }
 
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
@@ -703,7 +717,7 @@ static void prt_sp(void)
 
 	/* Do not show mana unless it matters */
         if ((!mp_ptr->spell_book) && (p_ptr->pclass != CLASS_POWERMAGE) &&
-            (p_ptr->pclass != CLASS_RUNECRAFTER) && (p_ptr->pclass != CLASS_MIMIC)) return;
+            (p_ptr->pclass != CLASS_RUNECRAFTER) && (p_ptr->pclass != CLASS_MIMIC) && (p_ptr->pclass != CLASS_POSSESSOR)) return;
 
 
         put_str("SP ", ROW_SP, COL_SP);
@@ -1439,7 +1453,7 @@ static void fix_message(void)
 		for (i = 0; i < h; i++)
 		{
 			/* Dump the message on the appropriate line */
-			Term_putstr(0, (h - 1) - i, -1, TERM_WHITE, message_str((s16b)i));
+                        Term_putstr(0, (h - 1) - i, -1, message_color((s16b)i), message_str((s16b)i));
 
 			/* Cursor */
 			Term_locate(&x, &y);
@@ -1516,7 +1530,7 @@ static void fix_monster(void)
 		Term_activate(angband_term[j]);
 
 		/* Display monster race info */
-		if (monster_race_idx) display_roff(monster_race_idx);
+                if (monster_race_idx) display_roff(monster_race_idx, monster_ego_idx);
 
 		/* Fresh */
 		Term_fresh();
@@ -1753,7 +1767,7 @@ static void calc_spells(void)
                 {
                         if (spell_learned[i][(j < 32)] & (1L << (j % 32)))
                         {
-                                num_known++;
+                                num_known += spell_level[i][j];
                         }
                 }
         }
@@ -1761,8 +1775,7 @@ static void calc_spells(void)
         /* Limit the number of spells each class can learn */
         switch(p_ptr->pclass)
         {
-                case CLASS_WARRIOR_MAGE:
-                case CLASS_HIGH_MAGE:
+                case CLASS_WARLOCK:
                         class_max = 48;
                         break;
 
@@ -1826,7 +1839,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-                        spell_names[which][j%64]);
+                        spell_names[which][j%64][0]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1858,8 +1871,8 @@ static void calc_spells(void)
                         which = realm_order[i];
 
 			/* Message */
-			msg_format("You have forgotten the %s of %s.", p,
-                                   spell_names[which][j%64]);
+                        msg_format("You have forgotten the %s of %s.", p,
+                                   spell_names[which][j%64][0]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1898,7 +1911,7 @@ static void calc_spells(void)
 
 			/* Message */
 			msg_format("You have remembered the %s of %s.",
-                                   p, spell_names[which][j%64]);
+                                   p, spell_names[which][j%64][0]);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1945,7 +1958,7 @@ static void calc_spells(void)
 		if (p_ptr->new_spells)
 		{
 			/* Message */
-			msg_format("You can learn %d more %s%s.",
+                        cmsg_format(TERM_L_BLUE, "You can learn %d more %s%s.",
 			           p_ptr->new_spells, p,
 			           (p_ptr->new_spells != 1) ? "s" : "");
 		}
@@ -1985,6 +1998,143 @@ static void calc_spells(void)
       }
     }
 }
+
+/* Ugly hack */
+bool calc_powers_silent = FALSE;
+
+/* Calc the player powers */
+static void calc_powers(void)
+{
+        int                     i, p = 0;
+        s32b old_powers[POWER_SLOT];
+
+	/* Hack -- wait for creation */
+	if (!character_generated) return;
+
+	/* Hack -- handle "xtra" mode */
+	if (character_xtra) return;
+
+        /* Save old powers */
+        for (i = 0; i < POWER_SLOT; i++) old_powers[i] = p_ptr->powers[i];
+
+        /* Get intrinsincs */
+        for (i = 0; i < POWER_SLOT; i++) p_ptr->powers[i] = p_ptr->powers_mod[i];
+
+        /* Add mutations */
+        p_ptr->powers[0] |= p_ptr->muta1;
+
+        /* Add objects powers */
+        for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+        {
+                object_type *o_ptr = &inventory[i];
+
+                if (!o_ptr->k_idx) continue;
+
+                p = object_power(o_ptr);
+                if (p != -1) p_ptr->powers[p / 32] |= BIT(p % 32);
+        }
+
+        if ((!p_ptr->tim_mimic) && (!p_ptr->body_monster))
+        {
+                /* Add in racial and subracial powers */
+                for (i = 0; i < 4; i++)
+                {
+                        p = rp_ptr->powers[i];
+                        if (p != -1) p_ptr->powers[p / 32] |= BIT(p % 32);
+
+                        p = rmp_ptr->powers[i];
+                        if (p != -1) p_ptr->powers[p / 32] |= BIT(p % 32);
+                }
+        }
+        else if (p_ptr->mimic_form)
+        switch(p_ptr->mimic_form)
+        {
+                case MIMIC_ENT:
+                        p = PWR_GROW_TREE;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+			break;
+                case MIMIC_MANA_BALL:
+                        p = PWR_VTELEPORT;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        break;
+                case MIMIC_VAMPIRE:
+                        p = PWR_VAMPIRISM;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        break;
+                case MIMIC_FIRE_CLOUD:
+                        p = PWR_BR_FIRE;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        break;
+                case MIMIC_COLD_CLOUD:
+                        p = PWR_BR_COLD;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        break;
+                case MIMIC_CHAOS_CLOUD:
+                        p = PWR_BR_CHAOS;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+                        break;
+                case MIMIC_KOBOLD:
+                        p = PWR_POIS_DART;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+			break;
+                case MIMIC_DEMON:
+		case MIMIC_DEMON_LORD:
+                        p = PWR_BR_FIRE;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+			break;
+                case MIMIC_DRAGON:
+                        p = PWR_BR_ELEM;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+			break;
+                case MIMIC_QUYLTHULG:
+                        p = PWR_SUMMON_MONSTER;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+			break;
+                case MIMIC_VALAR:
+                        p = PWR_WRECK_WORLD;
+                        p_ptr->powers[p / 32] |= BIT(p % 32);
+			break;
+        }
+
+        /* Add in class powers */
+        for (i = 0; i < 4; i++)
+        {
+                p = cp_ptr->powers[i];
+                if (p != -1) p_ptr->powers[p / 32] |= BIT(p % 32);
+        }
+
+        p = PWR_UNHYPNO;
+        p_ptr->powers[p / 32] |= BIT(p % 32);
+
+
+        p = PWR_HYPNO;
+        p_ptr->powers[p / 32] |= BIT(p % 32);
+
+        if (p_ptr->disembodied)
+	{
+                p = PWR_INCARNATE;
+                p_ptr->powers[p / 32] |= BIT(p % 32);
+	}
+
+        /* Now lets warn the player */
+        for (i = 0; i < POWER_MAX; i++)
+        {
+                s32b old = old_powers[i / 32] & BIT(i % 32);
+                s32b new = p_ptr->powers[i / 32] & BIT(i % 32);
+
+                if (new > old)
+                {
+                        if (!calc_powers_silent) cmsg_print(TERM_GREEN, powers_type[i].gain_text);
+                }
+                else if (new < old)
+                {
+                        if (!calc_powers_silent) cmsg_print(TERM_RED, powers_type[i].lose_text);
+                }
+        }
+
+        calc_powers_silent = FALSE;
+}
+
 
 /*
  * Calculate the player's sanity
@@ -2028,16 +2178,16 @@ void calc_sanity(void) {
 static void calc_mana(void)
 {
 	int		msp, levels, cur_wgt, max_wgt;
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	object_type	*o_ptr;
 
 
 	/* Hack -- Must be literate */
-        if ((!mp_ptr->spell_book)&&(p_ptr->pclass!=CLASS_POWERMAGE)&&(p_ptr->pclass!=CLASS_RUNECRAFTER)&&(p_ptr->pclass!=CLASS_MIMIC)) return;
+        if ((!mp_ptr->spell_book)&&(p_ptr->pclass!=CLASS_POWERMAGE)&&(p_ptr->pclass!=CLASS_RUNECRAFTER)&&(p_ptr->pclass!=CLASS_MIMIC)&&(p_ptr->pclass!=CLASS_POSSESSOR)) return;
 
         if ((p_ptr->pclass == CLASS_MINDCRAFTER)||(p_ptr->pclass == CLASS_MIMIC)||
-            (p_ptr->pclass == CLASS_POWERMAGE)||(p_ptr->pclass == CLASS_RUNECRAFTER))
+            (p_ptr->pclass == CLASS_POWERMAGE)||(p_ptr->pclass == CLASS_RUNECRAFTER)||(p_ptr->pclass == CLASS_POSSESSOR))
 	{
 		levels = p_ptr->lev;
 	}
@@ -2057,6 +2207,17 @@ static void calc_mana(void)
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
+        /* Possessors mana is different */
+        if (p_ptr->pclass == CLASS_POSSESSOR)
+        {
+                monster_race *r_ptr = &r_info[p_ptr->body_monster];
+                int f = 100 / (r_ptr->freq_spell?r_ptr->freq_spell:1);
+
+                msp = 21 - f;
+
+                if (msp < 1) msp = 1;
+        }
+
 	/* Hack: High mages have a 25% mana bonus */
 	if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE)) msp += msp / 4;
 
@@ -2066,8 +2227,11 @@ static void calc_mana(void)
         /* Hack: Sorcerer have a 150% mana bonus */
         if (msp && (p_ptr->pclass == CLASS_SORCERER)) msp += msp * 3 / 2;
 
+        /* Hack: Hermit have a 20% mana bonus */
+        if (msp && (p_ptr->pracem == RMOD_HERMIT)) msp += msp / 5;
+
 	/* Only mages are affected */
-        if ((mp_ptr->spell_book == TV_MAGERY_BOOK)||(p_ptr->pclass == CLASS_WIZARD))
+        if (mp_ptr->spell_book == TV_MAGERY_BOOK)
 	{
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -2076,7 +2240,7 @@ static void calc_mana(void)
 		o_ptr = &inventory[INVEN_HANDS];
 
 		/* Examine the gloves */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
@@ -2247,7 +2411,7 @@ static void calc_mana(void)
 void calc_hitpoints(void)
 {
         int bonus, mhp, i;
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	object_type	*o_ptr;
 
@@ -2260,8 +2424,8 @@ void calc_hitpoints(void)
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
-        /* Hack: Sorcerer have a -25% hp penality */
-        if (mhp && (p_ptr->pclass == CLASS_SORCERER)) mhp -= mhp / 4;
+        /* Hack: Sorcerer have a -10% hp penality */
+        if (mhp && (p_ptr->pclass == CLASS_SORCERER)) mhp -= mhp / 10;
 
         /* Factor in the pernament hp modifications */
         mhp += p_ptr->hp_mod;
@@ -2278,7 +2442,7 @@ void calc_hitpoints(void)
                 o_ptr = &inventory[INVEN_WIELD + i];
 
                 /* Examine the sword */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
                 /* Hitpoints multiplier */
                 if (o_ptr->k_idx && (f2 & (TR2_LIFE)))
@@ -2356,7 +2520,7 @@ static void calc_torch(void)
 {
 	int i;
 	object_type *o_ptr;
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
@@ -2366,49 +2530,25 @@ static void calc_torch(void)
 	{
 		o_ptr = &inventory[i];
 
-		/* Examine actual lites */
-		if ((i == INVEN_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE))
-		{
-			/* Torches (with fuel) provide some lite */
-			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
-			{
-				p_ptr->cur_lite += 1;
-				continue;
-			}
+                /* Skip empty slots */
+                if (!o_ptr->k_idx) continue;
 
-			/* Lanterns (with fuel) provide more lite */
-			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
-			{
-				p_ptr->cur_lite += 2;
-				continue;
-			}
+                /* Extract the flags */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-			/* Artifact Lites provide permanent, bright, lite */
-			if (artifact_p(o_ptr))
-			{
-				p_ptr->cur_lite += 3;
-				continue;
-			}
-
-			/* notreached */
-		}
-		else
-		{
-			/* Skip empty slots */
-			if (!o_ptr->k_idx) continue;
-
-			/* Extract the flags */
-                        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
-
-			/* does this item glow? */
-			if (f3 & TR3_LITE) p_ptr->cur_lite++;
-		}
+                /* does this item glow? */
+                if (((f4 & TR4_FUEL_LITE) && (o_ptr->timeout > 0)) || (!(f4 & TR4_FUEL_LITE)))
+                {
+                        if (f3 & TR3_LITE1) p_ptr->cur_lite++;
+                        if (f4 & TR4_LITE2) p_ptr->cur_lite += 2;
+                        if (f4 & TR4_LITE3) p_ptr->cur_lite += 3;
+                }
 
 	}
 
-        if(p_ptr->tim_lite) p_ptr->cur_lite += 2;
+        if (p_ptr->tim_lite) p_ptr->cur_lite += 2;
 
-        if(p_ptr->holy) p_ptr->cur_lite += 1;
+        if (p_ptr->holy) p_ptr->cur_lite += 1;
 
 	/* max radius is 5 without rewriting other code -- */
 	/* see cave.c:update_lite() and defines.h:LITE_MAX */
@@ -2452,7 +2592,7 @@ static void calc_torch(void)
 /*
  * Computes current weight limit.
  */
-static int weight_limit(void)
+int weight_limit(void)
 {
 	int i;
 
@@ -2494,10 +2634,25 @@ void calc_body()
 {
         monster_race *r_ptr = &r_info[p_ptr->body_monster];
         int i, b_weapon, b_legs, b_arms;
+        byte *body_parts, bp[BODY_MAX];
 
-        b_weapon = r_ptr->body_parts[BODY_WEAPON];
-        b_arms = r_ptr->body_parts[BODY_ARMS];
-        b_legs = r_ptr->body_parts[BODY_LEGS];
+        if (!p_ptr->body_monster)
+        {
+                body_parts = bp;
+                for (i = 0; i < BODY_MAX; i++)
+                {
+                        int b;
+
+                        b = rp_ptr->body_parts[i] + rmp_ptr->body_parts[i];
+                        if (b < 0) b = 0;
+                        bp[i] = b;
+                }
+        }
+        else body_parts = r_ptr->body_parts;
+
+        b_weapon = body_parts[BODY_WEAPON];
+        b_arms = body_parts[BODY_ARMS];
+        b_legs = body_parts[BODY_LEGS];
 
         if ((p_ptr->pclass == CLASS_MIMIC) && (p_ptr->class_extra6 & CLASS_ARMS))
         {
@@ -2520,10 +2675,10 @@ void calc_body()
 
         for (i = 0; i < b_weapon; i++)
                 p_ptr->body_parts[INVEN_WIELD - INVEN_WIELD + i] = INVEN_WIELD;
-        if (r_ptr->body_parts[BODY_WEAPON])
+        if (body_parts[BODY_WEAPON])
                 p_ptr->body_parts[INVEN_BOW - INVEN_WIELD] = INVEN_BOW;
 
-        for (i = 0; i < r_ptr->body_parts[BODY_TORSO]; i++)
+        for (i = 0; i < body_parts[BODY_TORSO]; i++)
         {
                 p_ptr->body_parts[INVEN_BODY - INVEN_WIELD + i] = INVEN_BODY;
                 p_ptr->body_parts[INVEN_OUTER - INVEN_WIELD + i] = INVEN_OUTER;
@@ -2532,10 +2687,10 @@ void calc_body()
                 p_ptr->body_parts[INVEN_CARRY - INVEN_WIELD + i] = INVEN_CARRY;
         }
 
-        for (i = 0; i < r_ptr->body_parts[BODY_FINGER]; i++)
+        for (i = 0; i < body_parts[BODY_FINGER]; i++)
                 p_ptr->body_parts[INVEN_RING - INVEN_WIELD + i] = INVEN_RING;
 
-        for (i = 0; i < r_ptr->body_parts[BODY_HEAD]; i++)
+        for (i = 0; i < body_parts[BODY_HEAD]; i++)
         {
                 p_ptr->body_parts[INVEN_HEAD - INVEN_WIELD + i] = INVEN_HEAD;
                 p_ptr->body_parts[INVEN_NECK - INVEN_WIELD + i] = INVEN_NECK;
@@ -2546,7 +2701,7 @@ void calc_body()
                 p_ptr->body_parts[INVEN_ARM - INVEN_WIELD + i] = INVEN_ARM;
                 p_ptr->body_parts[INVEN_HANDS - INVEN_WIELD + i] = INVEN_HANDS;
         }
-        if (r_ptr->body_parts[BODY_ARMS])
+        if (body_parts[BODY_ARMS])
                 p_ptr->body_parts[INVEN_TOOL - INVEN_WIELD] = INVEN_TOOL;
 
         for (i = 0; i < b_legs; i++)
@@ -2573,7 +2728,7 @@ void calc_body_bonus()
 
         if(p_ptr->disembodied)
         {
-                p_ptr->wraith_form = MAX(p_ptr->wraith_form, 20);
+                p_ptr->wraith_form = TRUE;
                 return;
         }
 
@@ -2588,7 +2743,7 @@ void calc_body_bonus()
         if(r_ptr->flags2 & RF2_REGENERATE) p_ptr->regenerate = TRUE;
         if(r_ptr->flags2 & RF2_AURA_FIRE) p_ptr->sh_fire = TRUE;
         if(r_ptr->flags2 & RF2_AURA_ELEC) p_ptr->sh_elec = TRUE;
-        if(r_ptr->flags2 & RF2_PASS_WALL) p_ptr->wraith_form = MAX(p_ptr->wraith_form, 20);
+        if(r_ptr->flags2 & RF2_PASS_WALL) p_ptr->wraith_form = TRUE;
         if(r_ptr->flags3 & RF3_SUSCEP_FIRE) p_ptr->sensible_fire = TRUE;
         if(r_ptr->flags3 & RF3_IM_ACID) p_ptr->resist_acid = TRUE;
         if(r_ptr->flags3 & RF3_IM_ELEC) p_ptr->resist_elec = TRUE;
@@ -2609,7 +2764,8 @@ byte calc_mimic()
 {
         byte blow=0;
 
-        switch(p_ptr->mimic_form){
+        switch(p_ptr->mimic_form)
+        {
                 case MIMIC_ABOMINATION:
                 {
                         p_ptr->mimic_name="[Abomination]";
@@ -2736,7 +2892,7 @@ byte calc_mimic()
                         p_ptr->stat_add[A_CHR]-=5;
                         p_ptr->ffall=TRUE;
                         p_ptr->invis+=20;
-                        p_ptr->to_s+=1;
+                        p_ptr->to_s += 1;
                         p_ptr->teleport=TRUE;
                         p_ptr->resist_disen=TRUE;
                         break;
@@ -2798,7 +2954,7 @@ byte calc_mimic()
                         p_ptr->stat_add[A_DEX]+=6;
                         p_ptr->stat_add[A_CON]+=2;
                         p_ptr->stat_add[A_CHR]-=4;
-                        p_ptr->wraith_form=p_ptr->tim_mimic;
+                        p_ptr->wraith_form=TRUE;
                         p_ptr->hold_life=TRUE;
                         break;
                 }
@@ -3092,15 +3248,14 @@ void analyze_blow(int *num, int *wgt, int *mul)
 
 			/* Mage */
 			case CLASS_MAGE:
-                        case CLASS_WIZARD:
 			case CLASS_HIGH_MAGE:
                         case CLASS_POWERMAGE:
                         case CLASS_RUNECRAFTER:
+			case CLASS_MERCHANT:
                                 *num = 4; *wgt = 40; *mul = 2; break;
 
 			/* Priest, Mindcrafter */
 			case CLASS_PRIEST:
-                        case CLASS_PRIOR:
 			case CLASS_MINDCRAFTER:
                                 *num = 5; *wgt = 35; *mul = 3; break;
 
@@ -3129,7 +3284,7 @@ void analyze_blow(int *num, int *wgt, int *mul)
                                 *num = 5; *wgt = 30; *mul = 4; break;
 
 			/* Warrior-Mage */
-			case CLASS_WARRIOR_MAGE:
+			case CLASS_WARLOCK:
                                 *num = 5; *wgt = 35; *mul = 3; break;
 
 			/* Chaos Warrior */
@@ -3201,7 +3356,7 @@ void calc_bonuses(void)
 	int             extra_blows;
 	int             extra_shots;
 	object_type     *o_ptr;
-        u32b            f1, f2, f3, f4, esp;
+        u32b            f1, f2, f3, f4, f5, esp;
 
 
 	/* Save the old speed */
@@ -3241,6 +3396,9 @@ void calc_bonuses(void)
 	/* Start with "normal" speed */
 	p_ptr->pspeed = 110;
 
+        /* Start with 0% additionnal crits */
+        p_ptr->xtra_crit = 0;
+
 	/* Start with a single blow per turn */
 	p_ptr->num_blow = 1;
 
@@ -3259,8 +3417,11 @@ void calc_bonuses(void)
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
+        p_ptr->drain_mana = FALSE;
+        p_ptr->drain_life = FALSE;
 	p_ptr->bless_blade = FALSE;
         p_ptr->xtra_might = 0;
+        p_ptr->auto_id = FALSE;
 	p_ptr->impact = FALSE;
 	p_ptr->see_inv = FALSE;
 	p_ptr->free_act = FALSE;
@@ -3310,6 +3471,8 @@ void calc_bonuses(void)
 	p_ptr->immune_cold = FALSE;
 
         p_ptr->precognition = FALSE;
+
+        p_ptr->wraith_form = FALSE;
 
         /* The anti magic field surrounding the player */
         p_ptr->antimagic = 0;
@@ -3427,10 +3590,10 @@ void calc_bonuses(void)
 	switch (p_ptr->prace)
 	{
                 case RACE_WOOD_ELF:
-			p_ptr->resist_lite = TRUE;
+                        if (p_ptr->pracem != RMOD_VAMPIRE) p_ptr->resist_lite = TRUE;
 			break;
 		case RACE_ELF:
-			p_ptr->resist_lite = TRUE;
+                        if (p_ptr->pracem != RMOD_VAMPIRE) p_ptr->resist_lite = TRUE;
 			break;
 		case RACE_HOBBIT:
 			p_ptr->sustain_dex = TRUE;
@@ -3468,7 +3631,7 @@ void calc_bonuses(void)
                         p_ptr->regenerate = TRUE;
 			break;
 		case RACE_HIGH_ELF:
-			p_ptr->resist_lite = TRUE;
+                        if (p_ptr->pracem != RMOD_VAMPIRE) p_ptr->resist_lite = TRUE;
 			p_ptr->see_inv = TRUE;
 			break;
 		case RACE_HALF_OGRE:
@@ -3504,7 +3667,7 @@ void calc_bonuses(void)
 			break;
                 case RACE_DRAGONRIDER:
 			p_ptr->ffall = TRUE;
-                        p_ptr->fly = TRUE;
+                        if (p_ptr->lev >= 17) p_ptr->fly = TRUE;
 
                         /* Clear the Tanker point */
                         p_ptr->mtp = 100;
@@ -3548,6 +3711,7 @@ void calc_bonuses(void)
 			p_ptr->resist_pois = TRUE;
 			p_ptr->slow_digest = TRUE;
 			p_ptr->resist_cold = TRUE;
+                        p_ptr->wraith_form = TRUE;
                         if (p_ptr->lev > 34) p_ptr->telepathy |= ESP_UNIQUE | ESP_GOOD | ESP_EVIL;
 			break;
                 case RMOD_SKELETON:
@@ -3776,7 +3940,7 @@ void calc_bonuses(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the item flags */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
                 /* MEGA ugly hack -- set spacetime distortion resistance */
                 if(o_ptr->name1 == ART_ANCHOR)
@@ -3818,6 +3982,7 @@ void calc_bonuses(void)
 
 		/* Affect blows */
                 if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
+                if (f5 & (TR5_CRIT)) p_ptr->xtra_crit += o_ptr->pval;
 
 		/* Hack -- cause earthquakes */
 		if (f1 & (TR1_IMPACT)) p_ptr->impact = TRUE;
@@ -3831,17 +3996,21 @@ void calc_bonuses(void)
 		/* Various flags */
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
+                if (f5 & (TR5_DRAIN_MANA)) p_ptr->drain_mana = TRUE;
+                if (f5 & (TR5_DRAIN_HP)) p_ptr->drain_life = TRUE;
 		if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
 		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
                 if (f3 & (TR3_XTRA_MIGHT)) p_ptr->xtra_might += o_ptr->pval;
 		if (f3 & (TR3_SLOW_DIGEST)) p_ptr->slow_digest = TRUE;
 		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
                 if (esp) p_ptr->telepathy |= esp;
-		if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
+                if ((o_ptr->tval != TV_LITE) && (f3 & (TR3_LITE1))) p_ptr->lite = TRUE;
+                if ((o_ptr->tval != TV_LITE) && (f4 & (TR4_LITE2))) p_ptr->lite = TRUE;
+                if ((o_ptr->tval != TV_LITE) && (f4 & (TR4_LITE3))) p_ptr->lite = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
-		if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = MAX(p_ptr->wraith_form, 20);
+                if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = TRUE;
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
                 if (f4 & (TR4_FLY)) p_ptr->fly = TRUE;
                 if (f4 & (TR4_CLIMB)) p_ptr->climb = TRUE;
@@ -3890,22 +4059,26 @@ void calc_bonuses(void)
                 if (f4 & (TR4_ANTIMAGIC_50))
                 {
                         p_ptr->antimagic += 50 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
-                        p_ptr->antimagic += 5 - ((o_ptr->to_h + o_ptr->to_d + o_ptr->pval + o_ptr->to_a) / 15);
+                        p_ptr->antimagic_dis += 5 - ((o_ptr->to_h + o_ptr->to_d + o_ptr->pval + o_ptr->to_a) / 15);
                 }
                 if (f4 & (TR4_ANTIMAGIC_30))
                 {
                         p_ptr->antimagic += 30 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
-                        p_ptr->antimagic += 3 - ((o_ptr->to_h + o_ptr->to_d + o_ptr->pval + o_ptr->to_a) / 15);
+                        p_ptr->antimagic_dis += 3 - ((o_ptr->to_h + o_ptr->to_d + o_ptr->pval + o_ptr->to_a) / 15);
                 }
                 if (f4 & (TR4_ANTIMAGIC_20))
                 {
                         p_ptr->antimagic += 20 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
-                        p_ptr->antimagic += 2;
+                        p_ptr->antimagic_dis += 2;
                 }
                 if (f4 & (TR4_ANTIMAGIC_10))
                 {
                         p_ptr->antimagic += 10 - o_ptr->to_h - o_ptr->to_d - o_ptr->pval - o_ptr->to_a;
-                        p_ptr->antimagic += 1;
+                        p_ptr->antimagic_dis += 1;
+                }
+                if (f4 & (TR4_AUTO_ID))
+                {
+                        p_ptr->auto_id = TRUE;
                 }
 
                 /* The new code implementing Tolkien's concept of "Black Breath"
@@ -3933,9 +4106,15 @@ void calc_bonuses(void)
 		/* Hack -- do not apply "bow" bonuses */
                 if (p_ptr->body_parts[i - INVEN_WIELD] == INVEN_BOW) continue;
 
+                /* Hack -- do not apply "ammo" bonuses */
+                if (p_ptr->body_parts[i - INVEN_WIELD] == INVEN_AMMO) continue;
+
+                /* Hack -- do not apply "tool" bonuses */
+                if (p_ptr->body_parts[i - INVEN_WIELD] == INVEN_TOOL) continue;
+
 		/* Apply the bonuses to hit/damage */
-		p_ptr->to_h += o_ptr->to_h;
-		p_ptr->to_d += o_ptr->to_d;
+                p_ptr->to_h += o_ptr->to_h;
+                p_ptr->to_d += o_ptr->to_d;
 
 		/* Apply the mental bonuses tp hit/damage, if known */
 		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
@@ -4007,7 +4186,6 @@ void calc_bonuses(void)
 			/* Window stuff */
 			p_ptr->window |= (PW_PLAYER);
 		}
-
 
 		/* Extract the new "stat_use" value for the stat */
 		use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
@@ -4132,7 +4310,7 @@ void calc_bonuses(void)
 	}
 
 	/* wraith_form */
-        if (p_ptr->wraith_form)
+        if (p_ptr->tim_wraith)
 	{
                 if(p_ptr->disembodied)
                 {
@@ -4145,6 +4323,7 @@ void calc_bonuses(void)
                         p_ptr->dis_to_a += 50;
                         p_ptr->reflect = TRUE;
                 }
+                p_ptr->wraith_form = TRUE;
 	}
 
         /* Temporary holy aura */
@@ -4554,7 +4733,7 @@ void calc_bonuses(void)
                         case CLASS_UNBELIEVER:
 				p_ptr->num_blow += (p_ptr->lev / 15);
 				break;
-			case CLASS_WARRIOR_MAGE: /* 2 extra blows */
+			case CLASS_WARLOCK: /* 2 extra blows */
 				p_ptr->num_blow += (p_ptr->lev / 25);
 				break;
                         case CLASS_PALADIN:
@@ -4693,7 +4872,7 @@ void calc_bonuses(void)
                 if (inventory[INVEN_WIELD + i].k_idx && inventory[INVEN_ARM + i].k_idx)
                 {
                         /* Extract the item flags */
-                        object_flags(&inventory[INVEN_WIELD + i], &f1, &f2, &f3, &f4, &esp);
+                        object_flags(&inventory[INVEN_WIELD + i], &f1, &f2, &f3, &f4, &f5, &esp);
 
                         if (f4 & TR4_COULD2H)
                         {                
@@ -4708,7 +4887,7 @@ void calc_bonuses(void)
                 }
 
                 /* Priest weapon penalty for non-blessed edged weapons */
-                if ((((p_ptr->pclass == CLASS_PRIEST)||(p_ptr->pclass == CLASS_PRIOR)) && (!p_ptr->bless_blade) &&
+                if (((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
                     ((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))) && (o_ptr->k_idx))
                 {
                         /* Reduce the real bonuses */
@@ -4911,9 +5090,6 @@ void calc_bonuses(void)
         /* resistance to fire cancel sensibility to fire */
         if(p_ptr->resist_fire || p_ptr->oppose_fire || p_ptr->immune_fire)
                 p_ptr->sensible_fire=FALSE;
-
-        /* Spell multiplier has a minimun of 1 */
-        if (p_ptr->to_s == 0) p_ptr->to_s = 1;
 }
 
 
@@ -4962,6 +5138,10 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_BONUS);
                 calc_bonuses();
+
+                /* Ok now THAT is an ugly hack */
+                p_ptr->update &= ~(PU_POWERS);
+                calc_powers();
 	}
 
 	if (p_ptr->update & (PU_TORCH))
@@ -4994,6 +5174,11 @@ void update_stuff(void)
 		calc_spells();
 	}
 
+        if (p_ptr->update & (PU_POWERS))
+	{
+                p_ptr->update &= ~(PU_POWERS);
+                calc_powers();
+	}
 
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
@@ -5483,7 +5668,8 @@ void gain_fate(byte fate)
                 {
                         fates[i].level = 0;
 
-                        msg_print("You feel as if your fate has changed...");
+                        cmsg_print(TERM_VIOLET, "More of your prophecy has been unearthed!");
+                        cmsg_print(TERM_VIOLET, "You should see a soothsayer quickly.");
 
                         if(fate)
                                 fates[i].fate = fate;

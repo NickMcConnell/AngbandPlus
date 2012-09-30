@@ -3435,7 +3435,7 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 		/* XXX XXX XXX */
 		case WM_CREATE:
 		{
-			return 0;
+                        return 0;
 		}
 
 		case WM_GETMINMAXINFO:
@@ -3864,9 +3864,11 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_FILE);
 	validate_dir(ANGBAND_DIR_HELP);
 	validate_dir(ANGBAND_DIR_INFO);
+        validate_dir(ANGBAND_DIR_NOTE);
 	validate_dir(ANGBAND_DIR_SAVE);
 	validate_dir(ANGBAND_DIR_USER);
 	validate_dir(ANGBAND_DIR_XTRA);
+	validate_dir(ANGBAND_DIR_CMOV);
 
 	/* Build the filename */
 	path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");
@@ -4035,14 +4037,23 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Initialize */
 	init_angband();
 
+	/* Prompt the user */
+        prt("", 23, 0);
+        prt("[Press any key to proceed]", 23, 27);
+	Term_fresh();
+
+        inkey();
+
 	/* We are now initialized */
 	initialized = TRUE;
 
 	/* Did the user double click on a save file? */
 	check_for_save_file(lpCmdLine);
 
+        game_in_progress = TRUE;
+        play_game(FALSE);
+
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
 	Term_fresh();
 
 	/* Process messages forever */

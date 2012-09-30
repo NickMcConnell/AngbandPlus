@@ -1,0 +1,30 @@
+|||||oy
+#####R === PernAngband Magic - Magic Realm ===
+
+The Magic realm is there for those who wish to play with the traditional
+Vanilla (standard) Angband mage spells.
+
+It contains some attack spells, some utility spells, some combat-
+enhancing spells, and a few minor healing spells.
+
+#####GPermitted Classes
+#####BThe Realm of Magic is only permitted to:
+Mages as a primary realm
+
+#####GMagic Spellbooks
+The are nine spellbooks available for the Magic realm, four of which can be
+easily found at bookstores back in town. The other five are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Magic for Beginners
+Conjurings and Tricks
+Incantations and Illusions
+Sorcery and Evocations
+
+[[[[[BRare Books]
+Resistance of Scarabtrices
+Mordenkain's Escapes
+Kelek's Grimoire of Power
+Tenser's Transformations
+Raal's Tome of Destruction

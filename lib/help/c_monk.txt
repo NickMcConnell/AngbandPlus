@@ -1,0 +1,57 @@
+#####R=== Monks ===
+
+#####GDescription
+The Monk character class is very different from all other classes. 
+Although they can use weapons and armour just like any other class, 
+their training in martial arts makes them much more powerful with no 
+armour nor weapons. To gain the resistances necessary for survival at 
+higher levels a monk may need to wear some kind of armour, but if the 
+armour worn is too heavy, it will severely disturb their martial arts 
+maneuvers. As the monk advances levels, new, powerful forms of attack 
+become available. Their defensive capabilities (blocking and dodging) 
+increase likewise, but if armour is being worn, this effect decreases. 
+It is rumoured that the monastic training even makes monks faster than 
+any other character class! Fortunately, the amount of armour a monk can
+wear while still fighting efficiently increases with experience. 
+
+#####GPrimary Stats
+Wisdom (spell casting stat)
+
+#####GMagic Usage
+A monk may choose one realm of magic and learn 24 spell levels from it.
+
+The different sects of monks are devoted to different areas of magic.  
+The typical monk utilizes his internal powers, and uses the *****m_tribal.txt*0[Tribal] 
+realm. A monk who serves the greater powers can choose the *****m_valar.txt*0[Valarin] 
+realm, while monks who deal with the phantasmal can take the realms of 
+*****m_spirit.txt*0[Spirit] or *****m_illus.txt*0[Illusion]. Monks who take one of the major realms can only 
+learn from the first four books.
+
+#####GStarting Equipment
+A monk begins the game with:
+    L1 spellbook of chosen realm
+    A potion of healing
+    Soft leather armor
+If they are *very* lucky they may also begin with:
+    a cloak of protection
+     
+#####GMonk Attacks
+#####BAttack Name     Min.lvl Damage  Stun    Notes
+-----------------------------------------------------------------------------
+Punch           1       1d4     -
+Kick            2       1d6     -
+Strike          3       1d7     -
+Knee            5       2d3     *       Painful to males; likely to stun them
+Elbow           7       1d8     -
+Butt            9       2d5     -
+Ankle Kick      11      3d4     -       May slow down the opponent
+Uppercut        13      4d4     6
+Double-kick     16      5d4     8
+Cat's Claw      20      5d5     -
+Jump Kick       25      5d6     10
+Eagle's Claw    29      6d6     -
+Circle Kick     33      6d8     10
+Iron Fist       37      8d8     10
+Flying Kick     41      8d10    12
+Dragon Fist     45      10d10   16
+Crushing Blow   48      10d12   18

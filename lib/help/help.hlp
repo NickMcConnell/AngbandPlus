@@ -1,26 +1,29 @@
-Welcome to the Angband Online Help System.
+|||||oy
+#####RWelcome to the PernAngband Online Help System.
+#####R==============================================
 
 Please choose one of the following online help files:
 
-    (1) General Information        (general.txt)
-    (2) Creating a Character       (birth.txt)
-    (3) Exploring the Dungeon      (dungeon.txt)
-    (4) Attacking Monsters         (attack.txt)
-    (5) List of Commands           (command.txt)
-    (6) List of Options            (option.txt)
-    (7) Version Information        (version.txt)
-    (8) User menu (if any)         (user.hlp)
-    (9) Spoiler menu (if any)      (spoiler.hlp)
+    *****/anewbie.hlp*0[(a) Extra Help for New Pern Players]
+    *****/bgeneral.txt*0[(b) General Information]
+    *****/cbirth.txt*0[(c) Creating a Character]
+    *****/ddungeon.txt*0[(d) Exploring the Dungeon]
+    *****/eattack.txt*0[(e) Attacking Monsters]
+    *****/fcommand.txt*0[(f) List of Commands]
+    *****/goption.txt*0[(g) List of Options]
+    *****/hversion.txt*0[(h) Version Information]
+    *****/imagic.txt*0[(i) PernAngband Magic System]
 
-    (0) PernAngband Magic System   (magic.txt)
+    *****/uuser.txt*0[(u) User menu (if any)]
+    *****/sspoiler.hlp*0[(s) Spoiler menu]
 
-***** [1] general.txt
-***** [2] birth.txt
-***** [3] dungeon.txt
-***** [4] attack.txt
-***** [5] command.txt
-***** [6] option.txt
-***** [7] version.txt
-***** [8] user.hlp
-***** [9] spoiler.hlp
-***** [0] magic.txt
+#####GBasic keys:
+Space          | Advance 1 page (screen)
+2, down arrow  | Advance 1 line
+8, up arrow    | Back up 1 line
+-              | Back up 1 a page (screen)
+6, right arrow | Advance 1 link
+4, left arrow  | Back up 1 link
+Return         | Activate the selected link
+Escape         | Leave the Online Help
+Backspace, ?   | Return to previous Help File

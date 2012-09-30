@@ -1,0 +1,98 @@
+|||||oy
+#####R                          PernAngband FAQ
+#####R                     Updated for version 5.x.x
+
+#####G------------------------------------------------------------------------------
+
+#####GQ: How do I use the altars (the 'O's) I see in the dungeon?
+
+A: PernAngband introduces a new system of gods. Each god has one
+dedicated altar. At the beginning of the game, only Priests, Priors
+and Paladins worship a god.  Everyone else may choose if they
+want to or not. Sacrifice ('O' key while on an altar) good objects
+often enough to your chosen god and he/she will grant you
+special favors as appropriate for that god. But beware! If you don't 
+sacrifice often enough your god will eventually get angry and punish 
+you. Also, when you have a religion it's difficult and dangerous to 
+change to another, so choose wisely.
+
+You can also try to bash altars of other gods to convert them,
+but it's rather dangerous. 
+You can press 'p' to pray to your god if you're in good grace with
+him/her.
+
+You should also read gods.txt in the help directory (and godspoil.txt if you
+want heavy spoilers). Both files are linked from the spoiler.hlp file.
+
+#####G------------------------------------------------------------------------------
+#####GQ: Why do I have -195 to hit and to damage ?
+
+A: Because you are a Sorcerer. They can't effectively use weapons, (apart
+from Mage Staves), and even bare-handed they are very bad.
+
+#####G------------------------------------------------------------------------------
+#####GQ: I've found some strange items like a Red Tome, a Voodoo Doll, ...
+#####G   What can I do with them?
+
+A: You've found an unusual artifact that cannot be wielded, but always
+has a sometimes-useful activation.  It will not be listed in the known
+artifact list and its activation is chosen randomly. It would probably be
+wise for this kind of artifact be *identified* before use, as the
+activation can be something like death, stat loss, ...
+
+#####G------------------------------------------------------------------------------
+#####GQ: I spent 500 gp at the Prophet but she said nothing. Is that a bug ?
+
+A: No. Nor is it because Prophets are swindlers. She said nothing
+because you have no fate at this moment.  You gain fate while playing, and
+will be warned by a message such as "You feel your fate has changed".  A fate
+can be useless like finding a broken skull at level 30, deadly like dying at
+level 56, or really useful like to never die by the hand of a mortal.
+
+#####G------------------------------------------------------------------------------
+#####GQ: Who is Mathilde, the Science Student whom I see every so often in the
+#####G   town?
+
+A: Most of the time she laughs and giggles, she has no loot on her, and
+she's never done you any harm. So leave her be - even if she should
+happen to shout "Drop dead, creep!".
+
+#####G------------------------------------------------------------------------------
+#####GQ: My wrists hurt a lot when playing the game. Should I take precautions?
+
+A: Yes, you should. Repetitive strain on wrists (which results from a badly
+placed keyboard, for example) can lead to serious injury of the wrist
+ligaments called Carpal Tunnel Syndrome. If you feel your wrists
+are strained, here is an exercise posted by Jason Maskell in 
+rec.games.roguelike.angband which might help:
+
+Hold your arms out horizontally, make a fist, and then point
+the fist towards the floor, as much as you can. This will
+stretch one side's tendons. Hold for 5 seconds. Then make a
+flat hand and hold it level with your arm, hold for 5 seconds.
+Now splay your fingers and attempt to make your hand point
+toward the ceiling (this one is hard, so don't push it too
+much). You should feel your tendons stretching. Repeat this a
+few times. Take frequent breaks and do this if it starts to hurt
+a little bit. I was sliding very fast towards CTS and this
+corrected it.
+
+#####G------------------------------------------------------------------------------
+#####GQ: When I stand on between gates I'm never teleported away, what's wrong ?
+
+A: Between gates are no longer automatic. You must press '>' while standing
+on one to activate it
+
+#####G------------------------------------------------------------------------------
+#####GQ: When it panic saves it reloads an old savefile !!
+
+A: Now the panic saves use a different file to save, savefile.pnc
+This file will be loaded first, if present, when the game is started.
+If it loads successfully, save the game immediately. Otherwise, delete
+the panic save, and your old (non-panic) savefile should be safe.
+
+#####G------------------------------------------------------------------------------
+#####GQ: The game is so slow...
+
+A: Yeah :(
+Try disabling the various options marked as (slow)

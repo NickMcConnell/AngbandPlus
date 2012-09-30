@@ -242,7 +242,7 @@
  * OPTION: Delay the loading of the "k_text" array until it is actually
  * needed, saving ~1K, since "object" descriptions are unused.
  */
-#define DELAY_LOAD_K_TEXT
+/* #define DELAY_LOAD_K_TEXT */
 
 /*
  * OPTION: Delay the loading of the "a_text" array until it is actually
@@ -317,26 +317,6 @@
 #define DRS_SHOW_HEALTH_BAR
 
 
-/*
- * OPTION: Enable the "smart_learn" and "smart_cheat" options.
- * They let monsters make more "intelligent" choices about attacks
- * (including spell attacks) based on their observations of the
- * player's reactions to previous attacks.  The "smart_cheat" option
- * lets the monster know how the player would react to an attack
- * without actually needing to make the attack.  The "smart_learn"
- * option requires that a monster make a "failed" attack before
- * learning that the player is not harmed by that attack.
- *
- * This adds about 3K to the memory and about 5K to the executable.
- *
- * SPECIAL NOTE: In Z, the "smart" field is also used to store such
- * monster information as "friendly" and "cloned". Therefore this
- * option should always be defined when compiling Zangband 2.1.0
- * or later.
- */
-#define DRS_SMART_OPTIONS
-
-
 
 /*
  * OPTION: Enable the "track_follow" and "track_target" options.
@@ -409,6 +389,10 @@
  * If at all possible, you should change this value to refer to the
  * actual location of the "lib" folder, for example, "/tmp/angband/lib/"
  * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
+ *
+ * Additional note -- if you are planning to use makefile.org, don't bother
+ * setting this variable, as it is overridden by a value set near the top of
+ * that file. 
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
@@ -447,7 +431,7 @@
  * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
  */
 #if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
-# define SAVEFILE_MUTABLE
+/* #define SAVEFILE_MUTABLE */
 #endif
 
 
@@ -505,7 +489,6 @@
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
 # undef WDT_TRACK_OPTIONS
-# undef DRS_SMART_OPTIONS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_WIZARD
@@ -534,13 +517,8 @@
 
 /* PernAngband options: */
 
-/* (see above) */
-#ifndef DRS_SMART_OPTIONS
- #define DRS_SMART_OPTIONS
-#endif
-
 /* Should the player know his / her starting life rate? */
-#define SHOW_LIFE_RATE
+/* #define SHOW_LIFE_RATE */
 
 /* Do we want different characters for different races? */
 #define VARIABLE_PLAYER_GRAPH
@@ -550,14 +528,6 @@
 
 /* Allow hordes of 'similar' monsters */
 #define MONSTER_HORDES
-
-/* Allow Klackon- and Sprite-Monks to get extra speed
- *
- * undefined by default because
- * Klackons and Sprites are not *supposed* to be
- * playing monks in the first place
- */
-/* #define MONK_HACK */
 
 /* Wizard mode testing options: */
 

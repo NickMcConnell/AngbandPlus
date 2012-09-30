@@ -1,7 +1,8 @@
-=== Introduction to the PernAngband (4.x.x) Magic System ===
+|||||oy
+#####R === PernAngband Magic System ===
 
 In the official releases of Angband there are only two types magic
-spells:  Magic spells and priestly prayers.  If the character is a
+spells:  Magic spells and priestly Prayers.  If the character is a
 mage, ranger or a rogue  (s)he can learn magic spells; if (s)he is
 a priest  or  a paladin,  (s)he  can learn prayers.  All mages can 
 learn the same spells and all priests can learn the same spells.
@@ -23,36 +24,40 @@ between Shadow and Valarin. Aside from these, there are the realms
 of special magic,  utilized by select  classes such as  Harpers or 
 Mimics.
 
-*************************************
-*        REALMS OF PERNANGBAND      *
-*                                   *
-*                Tribal             *
-*                                   *
-*                  |                *
-*                  |                *
-*           Shadow | Valarin        *
-*                  |                *
-* Illusion  - - - -+- - - - Crusade *
-*                  |                *
-*           Nether | Magery         *
-*                  |                *
-*                  |                *
-*                                   *
-*               Sigaldry            *
-*                                   *
-* Illusion+ (Illusionists only)     *
-* Music (Harpers only)              *
-* Symbiotic (Symbiants only)        *
-* Chaos (Chaos Warriors and         *
-*        Daemonologists only)       *
-* Daemon (Daemonologists only)      *
-*                                   *
-*************************************
+=====================================
+|        REALMS OF PERNANGBAND      |
+|                                   |
+|                *****m_spirit.txt*0[Spirit]             |
+|                                   |
+|                  |                |
+|                  |                |
+|           *****m_shadow.txt*0[Shadow] | *****m_valar.txt*0[Valarin]        |
+|                  |                |
+| *****m_illus.txt*0[Illusion]  - - - -+- - - - *****m_crusad.txt*0[Crusade] |
+|                  |                |
+|           *****m_nether.txt*0[Nether] | *****m_magery.txt*0[Magery]         |
+|                  |                |
+|                  |                |
+|                                   |
+|               *****m_sigald.txt*0[Sigaldry]            |
+|                                   |
+| *****m_tribal.txt*0[Tribal (nature oriented classes)]  |
+| *****m_druid.txt*0[Druid (Druids only)]               |
+| *****m_illus.txt*0[Illusion+ (Illusionists only)]     |
+| *****m_music.txt*0[Music (Harpers only)]              |
+| *****m_symbio.txt*0[Symbiotic (Symbiants only)]        |
+| *****m_chaos.txt*0[Chaos (Chaos Warriors and]         |
+|        Daemonologists only)       |
+| *****m_daemon.txt*0[Daemon (Daemonologists only)]      |
+| *****m_magic.txt*0[Magic (Old Vanilla Magic Realm)]   |
+| *****m_prayer.txt*0[Prayer (Old Vanilla Prayer Realm)] |
+|                                   |
+=====================================
 
 In standard Angband,  the type of a  character's spell ability was 
 determined  solely by the  character class.  In PernAngband,  most 
 spellcasting classes can select one  (or even two) types from the 
-realms of magic available. (See later for available realms/class.)
+realms of magic available. 
 
 The system of magic in  PernAngband is similar to that of standard 
 Angband,  but with subtle,  underlying differences  that do make a 
@@ -77,320 +82,8 @@ the more effective spells from  that realm will be for the caster.
 This represents  the relative proficiency of  a  spellcaster  who 
 specializes in one realm.
 
-=== Character Classes and Spell Ability  ===
 
-WARRIORS: Warriors cast no spells. They hate magic. In fact, they
-even gain experience for destroying high level spellbooks.
-
-MAGES: Mages have the least restrictions  in choosing and learning
-spells. Even then, they are still bound in certain ways. All eight 
-realms are available to them, but the realms cannot be chosen upon 
-a  whim.  Mages can learn  up to 64  spells thus  having to choose
-which spells tp learn.
-
-PRIESTS: Priests choose  one or two  related disciplines.  If they 
-opt for a major realm, they may take any except Magery.  For minor 
-realms, they may choose from the realms Illusion, Tribal, Crusade, 
-and Tribal.  Priests can learn up to 64 spells.  However,  they do 
-not choose which spells they learn,  but the spells are granted to 
-them by greater powers (without a money-back guarantee).
-
-ROGUES: Rogues are not expert spellcrafters,  but may nevertheless 
-learn some minor magicks. They may choose any realm except Valarin 
-but  can  only  use the  first four  books. Rogues  can  learn  24
-spells.
-
-RANGERS: At one with the wilderness,  rangers may choose among the 
-realms of Valarin, Illusion, and Tribal.  They have no limitations 
-as to which books they  are allowed to use,  but can learn only up 
-to 32 spells no matter they realm choice.
-
-PALADINS: Paladins are holy warriors,  and as such they may choose 
-one devotion from among Nether,  Valarin, and Crusade.  The Nether 
-Paladin is one of sinister aspect, wielding power over the undead. 
-His counterpart,  the Valarin Paladin,  focuses on  harnessing the 
-powers of good to aid him.  The Crusade Paladin  is a more warlike 
-fighter, using his spells to enhance his skill in battle. Paladins 
-may learn up to 32 spells.
-
-WARLOCKS: Warmages begin the game with Sigaldry, and they can 
-freely select any other minor realm of magic.  They can eventually 
-learn 48 spells.
-
-CHAOS WARRIORS: Chaos Warriors are, as one might expect,trained in 
-Chaos magic.  They are not interested in  any other form of magic. 
-They can learn every Chaos spell.
-
-MONKS: The different sects of monks are devoted to different areas 
-of magic.  The typical monk utilizes his internal powers, and uses 
-the Tribal realm.  A monk who serves the greater powers can choose 
-the Valarin realm,  while monks who  deal with the  phantasmal can 
-take the realms of Shadow or Illusion.  Nativist  monks could take 
-the Tribal realm.  Monks who take one of the major realms can only 
-learn from the first four books.  Monks can learn up to 24 spells.
-
-MINDCRAFTER: Although the powers of a Mindcrafter may seem like
-magic, this is not -- strictly speaking --  the case.  They are
-mental powers,  independent of  the ordinary sources  of magic.
-Consequently,  Mindcrafters are not  interested in 'magic'  and
-learn no spells.
-
-HIGH MAGES: High  mages can learn  only 48  spells  but they learn
-them better than the normal mages. They can chose a Major realm or
-two Minor realms.
-
-BEASTMASTER: They use no realms of  magic. Instead they  have  a
-powerfull summoning ability that allow them to call for help some
-pets and to gain experience from their kills.
-
-WIZARD: This is the old mage from Angband. They don't use realms
-of magic. They have their own realm and 9 books.
-
-PRIOR: This is the old priest from Angband. They don't use realms
-of magic. They have their own realm and 9 books.
-
-SORCERER: The Sorcerer can't fight with a weapon unless it's a Mage Staff.
-But they can use every spell of every magic realm(that mean they can't use
-the harper's books for exemple since those are songs).
-
-ALCHEMIST:
-     Alchemists are extremely proficient with all kinds of magical
-devices, and have made a fine art of extracting, storing, and using
-these objects' magical energies.  Because they neither fight well nor
-cast powerful spells, alchemists rely on their craftsmenship to cope
-with the dangers of the dungeons.  They will quickly learn to create
-damage-dealing wands, rods, and staffs, forge powerful weapons and
-armour, make highly useful objects of other kinds, and eventually will
-understand the perilous art of artifact creation itself.
-
-     The alchemaic techniques are accessed using the 'm' key.  An
-alchemist may then 'E'xtract power, 'A'dd power, or (when sufficiently
-experienced) 'C'reate an artifact.
-
-     Many (but not all) potions, scrolls, wands, staffs, rods, rings,
-and amulets contain useable magical energies.  An alchemist taps that
-energy, using the technique "'E'xtract power" to create one or more
-essences of a type appropriate to the original object.
-     The drained object itself is now called "of nothing".  Unlike any
-other kind of object, it can have new magics added to it.
-     An alchemist can add power to such items by using essences
-he made or found.  He does this with the technique "'A'dd power".  He
-can then select a kind of essence, then the object he wishes to
-restore magic to.  If he has enough essences, and the object does
-not already have magics in it, the alchemy succeeds.
-
-     A few pointers:
-     -Recipies are - usually - logical. Acid essences don't make Dragon 
-      Weapons.
-     -Not all objects or ego-item types can be made using alchemy.
-     -Alchemy is partially reversible.  Anything but weapons and armour 
-      that can be enchanted using essences will also create them 
-      if drained, but extra wand and staff charges have no effect.
-
-     Some Recipies:
-          Any alchemist worth his salt knows lots of recipes.  Here are 
-     some to get the beginner started, and others may be discovered by 
-     trial and error.
-
-          essences of Acid:
-          8 essences + any ordinary weapon = acid branding
-          8 essences + Ring of Nothing = Ring of Acid
-          2 essences + Wand of Nothing = Wand of Acid Bolts
-          2 essences + Wand of Acid Bolts = one additional charge
-          5 essences + Rod of Nothing = Rod of Acid Bolts
-          1 essence  + Scroll of Nothing = Scroll of Curse Armour
-          2 essences + Amulet of Nothing = Amulet of Resist Acid
-
-
-
-HARPER:
-     While any class can use musical instruments, only harpers can tap
-the power of voice to aid themselves and hinder, dismay, and kill their
-foes.  Unlike the spells of other classes, some songs can be persistant
-- if the harper is prepared to continue making the considerable effort
-needed to keep some tunes going.  This means that a low-level harper can
-have a lulling song playing in the background while he uses beams of
-concentrated sound to slay the critters he slows down.
-
-     Harpers have four spellbooks, and play songs the same way as other
-classes cast spells.  The most important song in any book is the second
-one they learn:  "Stop Singing".
-
-     A harper will also appreciate a collection of musical instruments. 
-All instruments activate for songs, which allows the harper to spend his
-precious energies on music that can only be found in spellbooks.  Some
-rarer instruments increase Charisma (a harper's spell stat) and grant
-various resistances.  Artifact instruments exist; they possess unique
-powers.
-
-
-
-POSSESSOR:
-     The strange art of reanimating the corpse of a monster and making
-it one's own can be of extreme benefit to those skilled in it.  The body
-the player possesses can grant powerful abilities, such as increased
-speed, summoning, healing, breathing, and various resistances, and often
-gives the player a large number of hit points.  Possessing uniques is
-especially neat.  
-
-     Possessors leave their own body by using the 'm' command, and
-choosing "[I]incarnating powers".  They then become a very vulnerable
-ghostly being which travels to where another corpse is lying on the
-floor, and possesses it by again using the 'm' command.  Once possessed,
-many monster corpses allow the player to perform various special actions
-(such as blinking or summoning) by using the option "[U]se your race
-powers".
-
-     All corpses alter the player's melee attacks.  The player always
-gets one normal blow, but the next four (if present) are altered to
-those of the monster whose corpse the player is now possessing.  While
-the player always has access to all of the monster blows, he will still
-lose four normal blows if the monster only has one.  These modified
-attacks may be very powerful, and do various nasty things to your foes,
-but do not take advantage of plusses to hit or to damage.
-
-
-
-POWER-MAGE:
-     Power-Mages can wreak an amazing amount of destruction, and they
-don't even need spellbooks to do it.  As they gain levels (up to 40),
-they memorize new, randomly generated, attack spells.  Note that they
-possess no guaranteed utility or alteration magics, and can never alter
-themselves.  Power-Mages just kill.
-
-     They use their magics through the 'm' key.  They then select a
-general group of spells, followed by a specific spell.  Power Mages can
-learn more about a specific spell by browsing it; this is very useful
-for chooosing the perfect spell for the occasion.
-
-     Power-Magely spells can take the form of a bolt, a beam, a ball
-(either centered on the caster or targettable), a meteor shower
-(multiple balls in the vicinity of the caster), or an area (effects all
-monsters in line of sight).
-
-
-
-RUNECRAFTER:
-     No other spellcaster can fine-tune magics quite like the
-Runecrafter, who combine runes that control magical type and effects,
-and then decides just how much effort the spell needs.  Runecrafters can
-envoke the most powerful magics of any class, but are always desperately
-hungry for mana.  They can get more mana by increasing Dexterity (their
-spell stat), and by wielding special Mage Staffs.
-
-     Runecrafters combine runes using the 'm' command.  They first
-select a rune that controls magic type, then apply one or more runes to
-fine-tune effects, (pressing ESC when done), and then input the amount
-of mana they wish to expend on the spell.
-
-     Spell Types (Some kinds are not listed, and are left for the reader 
-     to discover...):
-
-     Knowledge:  Identify all objects in affected grids, Self-knowledge 
-          if Self rune is used.
-     Life:  Heals monsters in affected grids, heals player if Self rune 
-          is used.
-     Fire, Cold, Lightning, Acid:  Casts magics of that element.
-     Elements:  Unresistable damage.
-     Mind:  A mind blast that badly effects intelligent monsters.  
-          Temporary ESP if Self rune is used.
-     Gravity:  A gravity spell that both does damage and wisks affected 
-          creatures around.
-
-     Spell Effects (all are listed):
-
-     Self:  Effects the caster.  This rune can be used with any other;
-          if used alone, only the caster's grid is affected.
-     Arrow:  Spell will include a bolt effect.  This allows aiming.
-     Ray:  Spell will include a beam effect.  This allows aiming.  
-          Increases difficulty slightly.
-     Sphere:  Spell will end with a circular explosion.  Increases 
-          difficulty a bit.  Can be used alone, or with Self, Arrow, or 
-          Ray.
-     Power Surge:  Not currently recommended for use.  Increases
-          difficulty 
-          a lot.
-     Armageddon:  Hurls down meteors of the magical type in the vicinity
-          of 
-          the caster.  Increases difficulty noticably, but can do a
-          great 
-          deal of damage.
-
-
-
-SYMBIANT:
-     Symbiants rely on the partnerships they form, hypnotizing creatures
-and then "wearing" them:  "I get by with a little help from my
-friends.".  Depending on the monster, this does nothing except protect
-the player slightly (the worn monster takes some of the damage the
-player would otherwise) or grant some very powerful attacks and
-summons.  Symbiants only have two spellbooks, one found deep in the
-dungeon, but have more than enough spells to keep their symbiotic
-relationships strong.
-
-     They cast spells normally, and can hypnotize adjacent creatures
-that cannot move by using the 'U' command ('O' for roguelike commands). 
-The monster becomes an object, and can be worn.  Symbiants, unlike any
-other class, don't have to worry about being attacked by the monster
-they are wearing.
-
-WIZARD & PRIOR
-        They are just the old mage & priest from vanilla Angband
-
-ILLUSIONNIST
-        Illusionnists focus on the strange Illusion realm and can't use
-any other realms, but they can use ALL the illusion spells(other class
-can only use the ones of the normal books)
-
-DRUID
-        A druid is in communion with the nature and the primal mana flow
-of the earth which he can channel to it's own use.
-
-NECROMANCER
-        Necromancers have very special powers(actived by 'U') and can use
-the nether realm. But their most special ability is that they can survive
-to their own death. A necromancer when killed become an undead, slowly rotting
-away and must kill a certain amount of monsters to drain life from them to
-come back to life. If he/she dies in the undead form he/she realy dies.
-
-DAEMONOLOGIST
-        Daemonologists are trained in Chaos and Daemon magic, and they can
-	learn every spells from these two realms.
-
-=== Realms Description ===
-
-CRUSADE: Drawing power  from  both  divine and  sorcerous sources,
-the Crusade realm seeks to  aid the warrior in battle.  Its spells
-are aimed at enhancement of fighting abilities as well as directly
-dealing damage to the enemy.  Wielded by holy warriors,  it is not
-as powerful  as the  major realms,  but one  who uses it  can be a
-formidable threat to any monster.
-
-SIGALDRY: Employed by minor wizards and dabblers in the alchemical
-arts,  Sigaldry focuses on  drawing out relatively weak  elemental
-and inner  powers  to both strike  enemies and infuse  energy into
-immobile objects.  Associated strongly with the more potent magics
-of Wizardry, it serves adequately as an all-purpose spells school.
-
-VALARIN: The Valar, stewards of Eru, possess the inherent power of
-the world itself.  Drawing out the  enchantments of earth,  water,
-and air,  the Valarin realm  harnesses light  and life to  aid its
-devotees.  Having the fullest  complement of  healing spells,  the
-primeval powers of the universe can also be unleashed in lightning
-and earthquake  and even  the rain of  falling stars.  The highest
-power given to followers  allows them to become  equal in power to
-the Valar themselves, albeit for a limited time.
-
-NETHER: The dominion of Morgoth has permanently altered the infra-
-structure of the earth,  imbuing it with his  native power that is
-the  Nether realm.  The powers of  the undead  and corrupted  life
-are at the call  of a Nether adept,  as well as the invocations of
-haunting fear  and eternal darkness.  The lifeblood  of the caster
-must sometimes  be sacrificed to  harness the  awesome destructive
-potentials of the realm.
-
-
-=== Notes on Summoned / Charmed Creatures ===
+#####R=== Notes on Summoned / Charmed Creatures ===
 
 A friendly creature can be a mixed blessing. At first sight,
 one might  think that  they can  make the game  much easier.
@@ -402,6 +95,7 @@ experience for such a combat:  you will only gain experience
 for creatures  to whom you  deliver the death blow yourself.
 New experiences require hazards,  nobody gains experience by
 sitting home watching the TV.
+
 Secondly,  friendly monsters  are often so eager  to destroy
 your opponents  they may  forget all about you,  and you get
 trampled under their feet as they charge at  your foe.  They
@@ -422,6 +116,3 @@ of the levels of your pets the less mana you will be able to
 regain. Keep this in mind if you have a pet which can summon
 or otherwise produce more pets...
 
-
-
-                                Mainly written by Akhronath.

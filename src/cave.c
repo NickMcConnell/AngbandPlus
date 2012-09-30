@@ -36,6 +36,45 @@ int distance(int y1, int x1, int y2, int x2)
 	return (d);
 }
 
+/*
+ * Returns TRUE if a grid is considered to be a wall for the purpose
+ * of magic mapping / clairvoyance.
+ */
+static bool is_wall(cave_type *c_ptr)
+{
+	feature_type *f_ptr;
+
+
+	/* Paranoia */
+        if (c_ptr->feat >= max_f_idx) return FALSE;
+
+	/* Extract feature type for the grid */
+	f_ptr = &f_info[c_ptr->feat];
+
+	/* Vanilla floors and doors aren't considered to be walls */
+	if (c_ptr->feat < FEAT_SECRET) return FALSE;
+
+	/* Exception #1: a glass wall is a wall but doesn't prevent LOS */
+	if (c_ptr->feat == FEAT_GLASS_WALL) return FALSE;
+
+	/* Exception #2: an illusion wall is not a wall but obstructs view */
+	if (c_ptr->feat == FEAT_ILLUS_WALL) return TRUE;
+
+#if 0
+
+	/*
+	 * Exception #3: small trees aren't walls neither they stand in
+	 * your / monsters' LOS, but magic mapping did work this way
+	 * in previous versions.
+	 */
+	if (c_ptr->feat == FEAT_SMALL_TREES) return TRUE;
+
+#endif
+
+	/* Normal cases: use the WALL flag in f_info.txt */
+	return (f_ptr->flags1 & FF1_WALL) ? TRUE : FALSE;
+}
+
 
 /*
  * A simple, fast, integer-based line-of-sight algorithm.  By Joseph Hall,
@@ -542,6 +581,27 @@ static bool feat_supports_lighting(byte feat)
         else return FALSE;
 }
 
+char get_shimmer_color()
+{
+        switch (randint(7))
+        {
+                case 1:
+                        return TERM_RED;
+                case 2:
+                        return TERM_L_RED;
+                case 3:
+                        return TERM_WHITE;
+                case 4:
+                        return TERM_L_GREEN;
+                case 5:
+                        return TERM_BLUE;
+                case 6:
+                        return TERM_L_DARK;
+                case 7:
+                        return TERM_GREEN;
+        }
+        return (TERM_VIOLET);
+}
 
 /*
  * Extract the attr/char to display at the given (legal) map location
@@ -704,9 +764,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Normal char */
 			c = f_ptr->x_char;
+                        a = f_ptr->x_attr;
 
 			/* Normal attr */
-			a = f_ptr->x_attr;
+                        if ((!avoid_other) && (!((a & 0x80) && (c & 0x80))) && (f_ptr->flags1 & FF1_ATTR_MULTI)) a = f_ptr->shimmer[rand_int(7)];
 
 			/* Hack to display detected traps */
 			if ((c_ptr->t_idx != 0) && (c_ptr->info & CAVE_TRDT))
@@ -832,15 +893,16 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Normal char */
 			c = f_ptr->x_char;
+                        a = f_ptr->x_attr;
 
 			/* Normal attr */
-			a = f_ptr->x_attr;
+                        if ((!avoid_other) && (!((a & 0x80) && (c & 0x80))) && (f_ptr->flags1 & FF1_ATTR_MULTI)) a = f_ptr->shimmer[rand_int(7)];
 
                         /* MEGA HACK -- show a building at it is supposed to be */
                         if (feat == FEAT_SHOP)
                         {
-                                c = st_info[c_ptr->special].chr;
-                                a = st_info[c_ptr->special].attr;
+                                c = st_info[c_ptr->special].x_char;
+                                a = st_info[c_ptr->special].x_attr;
                         }
 
 			/* Add trap color - Illusory wall masks everythink */
@@ -996,6 +1058,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	(*cp) = c;
 
 	/* Objects */
+        if (c_ptr->feat != FEAT_MON_TRAP)
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
 		object_type *o_ptr;
@@ -1011,9 +1074,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 		{
 			/* Normal char */
 			(*cp) = object_char(o_ptr);
+                        (*ap) = object_attr(o_ptr);
 
 			/* Normal attr */
-			(*ap) = object_attr(o_ptr);
+                        if ((!avoid_other) && (!(((*ap) & 0x80) && ((*cp) & 0x80))) && (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI)) (*ap) = get_shimmer_color();
 
 			/* Hack -- hallucination */
 			if (p_ptr->image) image_object(ap, cp);
@@ -1033,6 +1097,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 		if (m_ptr->ml)
 		{
                         monster_race *r_ptr = race_inf(m_ptr);
+
+                        /* DGDGDGDG -- Ok mega hack to make gfx mode usable -- ignore ego monster */
+                        if (use_graphics)
+                        {
+                                r_ptr = &r_info[m_ptr->r_idx];
+                        }
 
 			/* Desired attr */
 			a = r_ptr->x_attr;
@@ -1095,30 +1165,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				/* Multi-hued attr */
 				if (r_ptr->flags2 & (RF2_ATTR_ANY))
 					(*ap) = randint(15);
-				else switch (randint(7))
-				{
-					case 1:
-						(*ap)=TERM_RED;
-						break;
-					case 2:
-						(*ap)=TERM_L_RED;
-						break;
-					case 3:
-						(*ap)=TERM_WHITE;
-						break;
-					case 4:
-						(*ap)=TERM_L_GREEN;
-						break;
-					case 5:
-						(*ap)=TERM_BLUE;
-						break;
-					case 6:
-						(*ap)=TERM_L_DARK;
-						break;
-					case 7:
-						(*ap)=TERM_GREEN;
-						break;
-				}
+                                else (*ap) = get_shimmer_color();
 			}
 
 			/* Normal monster (not "clear" in any way) */
@@ -1174,7 +1221,8 @@ void map_info(int y, int x, byte *ap, char *cp)
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
 		/* Get the "player" attr */
-		a = r_ptr->x_attr;
+                if (r_ptr->flags1 & RF1_ATTR_MULTI) a = get_shimmer_color();
+                else a = r_ptr->x_attr;
 
 		/* Get the "player" char */
 		c = r_ptr->x_char;
@@ -1207,7 +1255,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_WHITE;
 							c = 253;
 	                        	   		break;
-						case CLASS_WARRIOR_MAGE:
+						case CLASS_WARLOCK:
 							if (p_ptr->lev < 20)
 								a = TERM_L_RED;
 							else
@@ -1247,6 +1295,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							else
 								a = TERM_GREEN;
 							break;
+						case CLASS_MERCHANT:
 						case CLASS_ROGUE:
 							if (p_ptr->lev < 20)
 								a = TERM_SLATE;
@@ -1330,12 +1379,12 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 		}
 
+#endif /* VARIABLE_PLAYER_GRAPH */
+#endif /* USE_GRAPHICS */
+
 		/* Save the info */
 		(*ap) = a;
 		(*cp) = c;
-
-#endif /* VARIABLE_PLAYER_GRAPH */
-#endif /* USE_GRAPHICS */
 
 	}
 }
@@ -1365,14 +1414,6 @@ void print_rel(char c, byte a, int y, int x)
 	/* Only do "legal" locations */
 	if (panel_contains(y, x))
 	{
-		/* Hack -- fake monochrome */
-		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
-		{
-			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-                        else if (p_ptr->wraith_form) a = TERM_L_DARK;
-                        else if (p_ptr->shero) a = TERM_L_RED;
-		}
-
 		/* Draw the char using the attr */
 		Term_draw(x-panel_col_prt, y-panel_row_prt, a, c);
 	}
@@ -1534,14 +1575,6 @@ void lite_spot(int y, int x)
 		map_info(y, x, &a, &c);
 #endif /* USE_TRANSPARENCY */
 
-		/* Hack -- fake monochrome */
-		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
-		{
-			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_L_DARK;
-                        else if (p_ptr->shero) a = TERM_L_RED;
-		}
-
 #ifdef USE_TRANSPARENCY
 		/* Hack -- Queue it */
 		Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
@@ -1590,27 +1623,11 @@ void prt_map(void)
 			/* Determine what is there */
                         map_info(y, x, &a, &c, &ta, &tc);
 
-			/* Hack -- fake monochrome */
-			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
-			{
-				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
-                                else if (p_ptr->shero) a = TERM_L_RED;
-			}
-
 			/* Efficiency -- Redraw that grid of the map */
 			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c, ta, tc);
 #else /* USE_TRANSPARENCY */
 			/* Determine what is there */
                         map_info(y, x, &a, &c);
-
-			/* Hack -- fake monochrome */
-			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
-			{
-				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
-                                else if (p_ptr->shero) a = TERM_L_RED;
-			}
 
 			/* Efficiency -- Redraw that grid of the map */
 			Term_queue_char(x-panel_col_prt, y-panel_row_prt, a, c);
@@ -1859,14 +1876,6 @@ void display_map(int *cy, int *cx)
 		{
 			ta = ma[y][x];
 			tc = mc[y][x];
-
-			/* Hack -- fake monochrome */
-			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
-			{
-				if (p_ptr->invuln || !use_color) ta = TERM_WHITE;
-				else if (p_ptr->wraith_form) ta = TERM_L_DARK;
-                                else if (p_ptr->shero) ta = TERM_L_RED;
-			}
 
 			/* Add the character */
                         Term_addch(ta, tc);
@@ -2182,11 +2191,13 @@ void forget_lite(void)
  * called when the "lite" array is full.
  */
 #define cave_lite_hack(Y,X) \
-    cave[Y][X].info |= (CAVE_LITE); \
-    lite_y[lite_n] = (Y); \
-    lite_x[lite_n] = (X); \
-    lite_n++
-
+    if (in_bounds2((Y), (X))) \
+    { \
+        cave[Y][X].info |= (CAVE_LITE); \
+        lite_y[lite_n] = (Y); \
+        lite_x[lite_n] = (X); \
+        lite_n++; \
+    }
 
 
 /*
@@ -2273,16 +2284,16 @@ void update_lite(void)
 	if (p_ptr->cur_lite >= 1)
 	{
 		/* Adjacent grid */
-		cave_lite_hack(py+1, px);
-		cave_lite_hack(py-1, px);
-		cave_lite_hack(py, px+1);
-		cave_lite_hack(py, px-1);
+                cave_lite_hack(py+1, px);
+                cave_lite_hack(py-1, px);
+                cave_lite_hack(py, px+1);
+                cave_lite_hack(py, px-1);
 
 		/* Diagonal grids */
-		cave_lite_hack(py+1, px+1);
-		cave_lite_hack(py+1, px-1);
-		cave_lite_hack(py-1, px+1);
-		cave_lite_hack(py-1, px-1);
+                cave_lite_hack(py+1, px+1);
+                cave_lite_hack(py+1, px-1);
+                cave_lite_hack(py-1, px+1);
+                cave_lite_hack(py-1, px-1);
 	}
 
 	/* Radius 2 -- lantern radius */
@@ -2822,6 +2833,7 @@ void update_view(void)
 	/* Scan south-east */
 	for (d = 1; d <= z; d++)
 	{
+                if (!in_bounds2(y+d, x+d)) continue;
 		c_ptr = &cave[y+d][x+d];
 		c_ptr->info |= (CAVE_XTRA);
 		cave_view_hack(c_ptr, y+d, x+d);
@@ -2831,6 +2843,7 @@ void update_view(void)
 	/* Scan south-west */
 	for (d = 1; d <= z; d++)
 	{
+                if (!in_bounds2(y+d, x-d)) continue;
 		c_ptr = &cave[y+d][x-d];
 		c_ptr->info |= (CAVE_XTRA);
 		cave_view_hack(c_ptr, y+d, x-d);
@@ -2840,6 +2853,7 @@ void update_view(void)
 	/* Scan north-east */
 	for (d = 1; d <= z; d++)
 	{
+                if (!in_bounds2(y-d, x+d)) continue;
 		c_ptr = &cave[y-d][x+d];
 		c_ptr->info |= (CAVE_XTRA);
 		cave_view_hack(c_ptr, y-d, x+d);
@@ -2849,6 +2863,7 @@ void update_view(void)
 	/* Scan north-west */
 	for (d = 1; d <= z; d++)
 	{
+                if (!in_bounds2(y-d, x-d)) continue;
 		c_ptr = &cave[y-d][x-d];
 		c_ptr->info |= (CAVE_XTRA);
 		cave_view_hack(c_ptr, y-d, x-d);
@@ -2861,6 +2876,7 @@ void update_view(void)
 	/* Scan south */
 	for (d = 1; d <= full; d++)
 	{
+                if (!in_bounds2(y+d, x)) continue;
 		c_ptr = &cave[y+d][x];
 		c_ptr->info |= (CAVE_XTRA);
 		cave_view_hack(c_ptr, y+d, x);
@@ -2873,6 +2889,7 @@ void update_view(void)
 	/* Scan north */
 	for (d = 1; d <= full; d++)
 	{
+                if (!in_bounds2(y-d, x)) continue;
 		c_ptr = &cave[y-d][x];
 		c_ptr->info |= (CAVE_XTRA);
 		cave_view_hack(c_ptr, y-d, x);
@@ -2885,6 +2902,7 @@ void update_view(void)
 	/* Scan east */
 	for (d = 1; d <= full; d++)
 	{
+                if (!in_bounds2(y, x+d)) continue;
 		c_ptr = &cave[y][x+d];
 		c_ptr->info |= (CAVE_XTRA);
 		cave_view_hack(c_ptr, y, x+d);
@@ -2897,6 +2915,7 @@ void update_view(void)
 	/* Scan west */
 	for (d = 1; d <= full; d++)
 	{
+                if (!in_bounds2(y, x-d)) continue;
 		c_ptr = &cave[y][x-d];
 		c_ptr->info |= (CAVE_XTRA);
 		cave_view_hack(c_ptr, y, x-d);
@@ -3411,9 +3430,7 @@ void map_area(void)
 			c_ptr = &cave[y][x];
 
 			/* All non-walls are "checked" */
-                        if ((c_ptr->feat < FEAT_SECRET) || (c_ptr->feat == FEAT_GRASS) ||
-                            (c_ptr->feat == FEAT_SHAL_WATER) || (c_ptr->feat == FEAT_SHAL_LAVA) ||
-                            (c_ptr->feat == FEAT_DIRT))
+                        if (!is_wall(c_ptr))
 			{
 				/* Memorize normal features */
                                 if (!((f_info[c_ptr->feat].flags1 & FF1_FLOOR) && !(f_info[c_ptr->feat].flags1 & FF1_REMEMBER)))
@@ -3428,10 +3445,7 @@ void map_area(void)
 					c_ptr = &cave[y+ddy_ddd[i]][x+ddx_ddd[i]];
 
 					/* Memorize walls (etc) */
-                                        if ((c_ptr->feat >= FEAT_SECRET) && (c_ptr->feat != FEAT_GRASS) && 
-                                            (c_ptr->feat != FEAT_SHAL_WATER) && (c_ptr->feat != FEAT_SHAL_LAVA) &&
-                                            (c_ptr->feat != FEAT_DIRT))
-
+                                        if (is_wall(c_ptr))
 					{
 						/* Memorize the walls */
 						c_ptr->info |= (CAVE_MARK);
@@ -3863,10 +3877,11 @@ void health_track(int m_idx)
 /*
  * Hack -- track the given monster race
  */
-void monster_race_track(int r_idx)
+void monster_race_track(int r_idx, int ego)
 {
 	/* Save this monster ID */
 	monster_race_idx = r_idx;
+        monster_ego_idx = ego;
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER);
@@ -3956,28 +3971,18 @@ void disturb(int stop_search, int unused_flag)
 /*
  * Hack -- Check if a level is a "quest" level
  */
-bool is_quest(int level)
+int is_quest(int level)
 {
-	int i;
+        int i = random_quest_number(dun_level);
 
 	/* Check quests */
 	if (p_ptr->inside_quest)
-		return (TRUE);
+                return (p_ptr->inside_quest);
 
-	for (i = 0; i < max_quests; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_KILL_LEVEL) &&
-                    (quest[i].status == QUEST_STATUS_TAKEN) &&
-                    (quest[i].level == level) &&
-                    (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))
-			return (TRUE);
-	}
-
-	/* Check for random quest */
-	if (random_quest_number(level)) return (TRUE);
+        if (i) return (QUEST_RANDOM);
 
 	/* Nope */
-	return (FALSE);
+        return (0);
 }
 
 
@@ -3985,19 +3990,11 @@ bool is_quest(int level)
  * Return the index of the random quest on this level
  * (or zero)
  */
-int random_quest_number(int level)
+int random_quest_number()
 {
-	int i;
-
-	for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
-	{
-		if ((quest[i].type == QUEST_TYPE_RANDOM) &&
-			(quest[i].status == QUEST_STATUS_TAKEN) &&
-                    (quest[i].level == level) &&
-                    (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))
-		{
-			return i;
-		}
+        if (random_quests[dun_level].type && (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))
+        {
+                return dun_level;
 	}
 
 	/* Nope */
@@ -4006,12 +4003,22 @@ int random_quest_number(int level)
 
 void place_floor(int y, int x)
 {
+        dungeon_info_type *d_ptr = &d_info[(dungeon_type)?dungeon_type:1];
 	int k = rand_int(100);
+	int p1, p2, lim1, lim2, lim3;
+        int l1 = d_ptr->mindepth, l2=d_ptr->maxdepth;
 	
-	if (k < d_info[dungeon_type].floor_percent1)
-		cave_set_feat(y, x, d_info[dungeon_type].floor1);
-	else if (k < d_info[dungeon_type].floor_percent2)
-		cave_set_feat(y, x, d_info[dungeon_type].floor2);
-	else if (k < d_info[dungeon_type].floor_percent3)
-		cave_set_feat(y, x, d_info[dungeon_type].floor3);
+	p1 = d_ptr->floor_percent1[0];
+	p2 = d_ptr->floor_percent1[1];
+        lim1 = p1 + (p2 - p1) * (dun_level - l1) / ((l2 - l1)?l2 - l1:1);
+	
+	p1 = d_ptr->floor_percent2[0];
+	p2 = d_ptr->floor_percent2[1];
+	lim2 = lim1 + p1 + (p2 - p1) * (dun_level - l1) / (l2 - l1);
+	
+	lim3 = 100;
+	
+	if (k < lim1) cave_set_feat(y, x, d_info[dungeon_type].floor1);
+	else if (k < lim2) cave_set_feat(y, x, d_info[dungeon_type].floor2);
+	else if (k < lim3) cave_set_feat(y, x, d_info[dungeon_type].floor3);
 }

@@ -1,4 +1,13 @@
+|||||oy
+#####RWelcome to the Angband Online Spoiler System.
+#####R=============================================
 
-  The spoiler files can be found at:
-  http://fmf.fwn.rug.nl/~scarblac/spoilers/
+Please choose one of the following online spoiler files:
 
+     *****/adunspoil.txt*0[(a) Dungeons]
+     *****/bessences.txt*0[(b) Essence Spoiler]
+     *****/cinscrip.txt*0[(c) Floor Inscriptions]
+     *****/dgodspoil.txt*0[(d) Gods (Heavy)]
+
+
+     *****/zhelp.hlp*0[(z) Main Help menu]

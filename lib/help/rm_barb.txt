@@ -1,0 +1,28 @@
+#####R=== Barbarian Race ===
+
+#####GDescription
+Barbarians are hardy members of their race. They are fierce in combat, and
+their wrath is feared throughout the world. Combat is their life: they feel
+no fear, and they learn to enter battle frenzy at will. Barbarians are, 
+however, suspicious of magic, which makes magic devices fairly hard for 
+them to use, and also makes it impossible for them to play Mages. They 
+cannot play Paladins, either, because their wild bloodlust is totally 
+incompatible with the strict discipline of knighthood.
+
+#####GStat Modifiers
+Strength       +2   
+Intelligence   -3   
+Wisdom         -2   
+Dexterity      +1   
+Constitution   +1   
+Charisma       -3      
+Hit Dice       +1 side
+Exp Penalty    +25%
+
+#####GStarting Equipment
+A barbarian character begins the game with:
+    Some rations
+    Some torches
+    Changes ring of resist fear (*IF* the character would have had one)
+        to a ring of sustain strength.
+

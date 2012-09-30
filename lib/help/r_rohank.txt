@@ -1,0 +1,23 @@
+#####R=== RohanKnights ===
+
+#####GDescription
+Knights of the Riddermark, these warriors are mounted upon swift steeds. 
+Thus they receive a bonus to speed from the beginning and gain in speed 
+as they become more experienced in riding. Wise through their prolonged 
+contact with the Dunedain, their wrath may be seen in auras of war that 
+drive their foes to confusion, and in a ray of light when jumping at light
+speed.
+
+#####GStat Modifiers
+Strength        +4   
+Intelligence    -2   
+Wisdom          +3   
+Dexterity       +1   
+Constitution    +4   
+Charisma        +2       
+Hit Dice Sides  10         
+Exp Penalty     +120%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    Boots of free action

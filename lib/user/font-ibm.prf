@@ -7,70 +7,274 @@
 #
 
 
-
 ### Terrain Features ###
 
-
-#
-# Floors (white / centered dot)
-#
-
+# open floor (white / centered dot)
 F:1:1/-7
 
-#
-# Invis traps (white / centered dot)
-#
+# fountain (white / upper half of long s)
+F:2:1/-12
 
-F:2:1/-7
+# fountain (light dark / upper half of long s)
+F:15:8/-12
 
+# secret door (white / block)
+F:48:1/-79
 
-#
-# Magma (slate / special solid block)
-#
-
+# magma vein (slate / light block)
 F:50:2/-80
 F:52:2/-80
 
+# quartz vein (white / light block)
+F:51:1/-80
+F:53:1/-80
 
-#
-# Quartz (light slate / special solid block)
-#
-
-F:51:9/-80
-F:53:9/-80
-
-
-#
-# Secret door (white / solid block)
-#
-
-F:48:1/-79
-
-#
-# Granite walls (white / solid block)
-#
-
+# granite wall (white / block)
 F:56:1/-79
 F:57:1/-79
 F:58:1/-79
 F:59:1/-79
-F:189:1/-79
+F:177:1/-79
 
-#
-# Permanent rock (white / solid block)
-#
-
+# permanent wall (white / block)
 F:60:1/-79
 F:61:1/-79
 F:62:1/-79
 F:63:1/-79
-F:190:1/-79
-F:191:1/-79
-F:192:1/-79
-F:193:1/-79
-F:194:1/-79
-F:195:1/-79
-F:196:1/-79
-F:197:1/-79
-F:198:1/-79
+
+F:75:1/-79
+F:76:1/-79
+F:77:1/-79
+F:78:1/-79
+
+# stream of shallow water (light blue / double tilde)
+F:84:14/-9
+
+# pool of deep lava (red / double tilde)
+F:85:4/-9
+
+# stream of shallow lava (light umber / double tilde)
+F:86:15/-9
+
+# dark pit (light dark / solid block)
+F:87:8/-37
+
+# dirt (umber / centered dot)
+F:88:7/-7
+
+# patch of grass (green / centered dot)
+F:89:5/-7
+
+# ice (light slate / centered dot)
+F:90:9/-7
+
+# sand (yellow / centered dot)
+F:91:11/-7
+
+# dead tree (green / yen sign)
+F:92:8/-99
+
+# ash (light dark / centered dot)
+F:93:8/-7
+
+# mud (umber / centered dot)
+F:94:7/-7
+
+# ice wall (light slate / solid block)
+F:95:9/-37
+
+# tree (light green / yen sign)
+F:96:13/-99
+
+# sandwall (yellow / block)
+F:98:11/-79
+
+# sandwall (yellow / light block)
+F:99:11/-80
+
+# nether mist (purple / dense block)
+#F:102:10/-78
+
+# Between gate (purple / set and operator)
+F:160:10/-17
+
+# Altar of Forests (green / pi-like line segment)
+F:161:5/-46
+
+# Altar of Water (blue / pi-like line segment)
+F:162:6/-46
+
+# Altar of Earth (umber / pi-like line segment)
+F:163:7/-46
+
+# Altar of Darkness (light dark / pi-like line segment)
+F:164:8/-46
+
+# Altar of Moon (purple / pi-like line segment)
+F:165:10/-46
+
+# Altar of Sun (yellow / pi-like line segment)
+F:166:11/-46
+
+# Altar of Rage (light red / pi-like line segment)
+F:167:12/-46
+
+# Altar of Winds (light blue / pi-like line segment)
+F:168:14/-46
+
+# Altar of Stars (light umber / pi-like line segment)
+F:169:15/-46
+
+# Altar of Being (light slate / pi-like line segment)
+F:170:9/-46
+
+# Altar of Randomness (purple / pi-like line segment)
+F:171:10/-46
+
+# floor (red / centered dot)
+F:172:4/-7
+
+# Underground Tunnel (slate / block)
+F:173:2/-79
+
+# stream of tainted water (umber / double tilde)
+F:174:7/-9
+
+# Between gate (purple / set and operator)
+F:176:10/-17
+
+# lava wall (light red / block)
+F:177:12/-79
+
+# pool of deep water (blue / double tilde)
+F:187:6/-9
+
+# glass wall (light blue / centered dot)
+F:188:14/-7
+
+# illusion wall (white / block)
+F:189:1/-79
+
+# Grass roof (yellow / block)
+F:190:11/-79
+
+# grass roof top (yellow / block)
+F:191:11/-79
+
+# grass roof chimney (yellow / block)
+F:192:11/-79
+
+# brick roof (red / block)
+F:193:4/-79
+
+# brick roof top (red / block)
+F:194:4/-79
+
+# brick roof chimney (red / block)
+F:195:4/-79
+
+# cobblestone road (white / centered dot)
+F:200:1/-7
+
+# cobblestone with outlet (white / centered dot)
+F:201:1/-7
+
+# small tree (green / yen sign)
+F:202:5/-99
+
+# Underground Tunnel (light umber / set and operator)
+F:204:15/-17
+
+# a blazing fire (yellow / light block)
+F:205:11/-80
+
+
+### Monsters ###
+
+# Old Man Willow (slate / yen sign)
+R:206:2/-99
+
+# Tangleweed (green / yen sign)
+R:248:5/-99
+
+# Poison ivy (green / yen sign)
+R:266:5/-99
+
+# Giant Venus Flytrap (green / yen sign)
+R:317:5/-99
+
+# Stunwall (light slate / block)
+R:326:9/-79
+
+# Huorn (green / yen sign)
+R:329:5/-99
+
+# Livingstone (light slate / block)
+R:336:9/-79
+
+# Vampiric mist (light dark / dense block)
+R:365:8/-78
+
+# Xiclotlan (light dark / yen sign)
+R:396:8/-99
+
+# Roper (light dark / block)
+R:426:8/-79
+
+# Lesser wall monster (light slate / block)
+R:448:9/-79
+
+# Mist giant (light blue / dense block)
+R:552:14/-78
+
+# Weird fume (purple / dense block)
+R:625:10/-78
+
+# Ent (light green / yen sign)
+R:708:13/-99
+
+# Quickbeam, the Ent (light green / yen sign)
+R:714:13/-99
+
+# Greater wall monster (light slate / block)
+R:718:9/-79
+
+# Ahtu, Avatar of Nyarlathotep (light dark / dense block)
+R:761:8/-78
+
+# Fangorn the Treebeard, Lord of the Ents (light green / yen sign)
+R:934:13/-99
+
+# The Glass Golem (light slate / solid block)
+R:1033:9/-37
+
+# Golgarach, the Living Rock (light slate / block)
+R:1035:9/-79
+
+# Lurker (white / centered dot)
+R:247:1/-7
+
+# Landmine (white / centered dot)
+R:333:1/-7
+
+# It (light slate/ centered dot)
+R:393:9/-7
+
+# Chaos tile (purple / centered dot)
+R:458:10/-7
+
+# Trapper (white / centered dot)
+R:565:1/-7
+
+# Time bomb (white / centered dot)
+R:567:1/-7
+
+# Colour out of space (purple / centered dot)
+R:678:10/-7
+
+# Rocket mine (light red / centered dot)
+R:870:12/-7
+
+# Bouncing mine (light blue / centered dot)
+R:871:14/-7
 

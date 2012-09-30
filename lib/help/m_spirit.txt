@@ -1,0 +1,32 @@
+|||||oy
+#####R === PernAngband Magic - Spirit Realm ===
+
+The Spirit Realm draws it's powers from the strength of the caster's
+mind. User's of this realm employ mind powers such as telepathy and 
+telekinesis to explore the world around them.
+
+It contains spells in four areas - moving oneself, knowledge about
+things, projecting forces, and overwhelming other creatures with your
+own mental projections.
+
+#####GPermitted Classes
+#####BThe Realm of Spirit is only permitted to:
+High Mages as a primary realm
+Monks as a primary realm
+Rogues as a primary realm
+Sorcerors (all)
+Mages as a secondary realm
+Warrior-Mages as a secondary realm
+
+#####GSpirit Spellbooks
+The are four books available for the Spirit realm, two of which can be
+easily found at bookstores back in town. The other two are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Psychoportation
+Clairsentience
+
+[[[[[BRare Books]
+Telekinesis
+Empathy

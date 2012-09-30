@@ -1,23 +1,24 @@
-====== PernAngband Brief History =======
+|||||oy
+#####R====== PernAngband Brief History =======
 
-When Zangband came to it 2.2.0 version I(Dark God) was an Angband winner and
-I coded for a long time in C, so I decided to take the sources and to try to
-learn it and to code my own variant. At this time I was reading the Pern
+When Zangband came to it 2.2.0 version I (DarkGod) was an Angband winner and
+I had been a C programmer for a long time, so I decided to take the sources
+and to try to code my own variant. At this time I was reading the Pern
 novels from Anne McCaffrey and I found them *VERY* good, so I've decided to
-include some elements of them into my variant from which it take the name,
+include some elements of them into my variant from which it takes the name,
 PernAngband.
 
-The hard thing has been to decide to base it on which Angband, thought I don't
-like Zangband because of the Zelazny's universe, which I find no enough
-Tolkiennian, I've chosed it because of all the good things it had(especialy
-the race powers that I wasn't able to code at the time). So I've removed a
-big part of the Zelazny stuffs to replace it with Tolkien or Pernese ones.
+One hard thing to decide was on which Angband to base it. Although I didn't
+like Zangband because of the Zelazny universe, which I found to be not very
+Tolkiennian, I chose it because of all the good things it had (especially
+the race powers that I wasn't able to code at the time). So I removed
+much of the Zelazny stuff and replaced it with Tolkien and Pernish stuff.
 And so the history of PernAngband began with the version 2.9.9a.
 
-Now I've my own internet site and PernAngband is at the 4.0.8 version with
-a lot of new stuff(see change.txt in the main directory).
+Now, in PernAngband 5.x.x, PernAngband is a thriving Angband variant
+with plenty of unique features.
 
-=== Zangband History and Information ===
+#####R=== Zangband History and Information ===
 
 The seeds of Zangband lie in an obsolete and long ago vanished PC variant
 (somewhat misleadingly) dubbed Angband--. The variant was written by a
@@ -88,7 +89,7 @@ May I introduce myself, my name is Robert Ruehlmann, I'm the creator
 of the graphical Angband versions for DOS and webmaster of
 "Thangorodrim - The Angband Page" ("http://thangorodrim.angband.org").
 
-=== Brief Version History (of standard Angband) ===
+#####R=== Brief Version History (of standard Angband) ===
 
 First came "VMS Moria", by Robert Alan Koeneke (1985).
 
@@ -151,132 +152,10 @@ brief little "thank you" email (to benh@phial.com) or something...
 The Official Angband Home Page ("http://www.phial.com/")
 was created along with Angband 2.7.9 to serve as an up to date description
 of any bugs found in various versions, and to list all of the people whose
-email addresses I kept having to look up.
+email addresses I kept having to look up. 
 
 
-=== Some of the changes from Angband 2.6.1 to Angband 2.7.9 ===
-
-The most important modification was a massive "code level cleanup" that made
-all of my other modifications much simpler and safer.  This cleanup was so
-massive that in many places the code is no longer recognizable, for example,
-via "diff -r", often because it was rewritten from scratch.
-
-The second most important modification was the design of a generic "term.c"
-package, which allows Angband to be ported to a new machine with as few as 50
-lines of code.  Angband 2.7.9 thus runs without modification on many machines,
-including Macintosh, PowerMac, Unix/X11, Unix/Curses, Amiga, Windows, OS2-386,
-DOS-386, and even DOS-286.
-
-It would be difficult to list all of the changes between Angband 2.6.1 and
-Angband 2.7.9, because many of them were made in passing during the massive
-code level cleanup.  Many of the changes are invisible to the user, but still
-provide increased simplicity and efficiency, and decreased code size, or make
-other more visable changes possible.  For example, the new "project()" code
-that handles all bolts, beams, and balls, the new "update_view()" code that
-simplifies line of sight computation, or the new "generate()" code that builds
-new levels in the dungeon.  Many changes have been made to increase efficiency,
-including the new "process_monsters()" and "update_monsters()" functions, and
-the new "objdes()" and "lite_spot()" routines.  The generic "Term" package
-yielded efficient screen updates, and enabled the efficient use of "color".
-
-But anyway, here are a few things that come to mind, in no particular order,
-and with very little time or effort.  Somehow I managed to put off updating
-this file to the very end, and it will just have to do for now.  The recent
-changes (and bug fixes) can be found at the Official Angband Home Page.
-
-    color
-    macros
-    keymaps
-    user pref files
-    generic feature array, with template file
-    generic object array, with template file
-    generic artifact array, with template file
-    generic ego-item array, with template file
-    generic monster array, with template fils
-    generic vault array, with template file
-    binary image files for the template files
-    special stat effect tables
-    a special table of spells
-    a special table of options
-    inventory tagging
-    inventory restrictions
-    using objects off the floor
-    various new runtime options
-    the new "destroy" command
-    the new "examine" command
-    the new "note" command
-    the new "dump screen" command
-    the new "load screen" command
-    the new "un-inscribe" command
-    the new "change visuals" command
-    the new "change colors" command
-    the new "change macros" command
-    the new "save game" command
-    the new "fire" vs "throw" commands
-    rearranged equipment slots
-    a standard bow slot
-    an extra inventory slot
-    an underlying keyset
-    refueling torches
-    better monster memory
-    nicer targetting mode
-    object stacking
-    the recall window
-    the choice window
-    the mirror window
-    new high score code
-    special lighting effects
-    intelligent monsters
-    new monster flags
-    text formatting code
-    much cleaner store code
-    generic spell projections
-    scrolls of *identify*
-    maximize mode
-    preserve mode
-    new inscription code
-    new message recall code
-    new spell and prayer code
-    massive cleanup of effects code
-    new object allocation routines
-    powerful (but simple) on line help
-    robust savefile cheat preventers
-    new official cheating options
-    new blindness code
-    new hallucination code
-    optimized object description code
-    new keypress input routines
-    actual object discounts
-    fractional (assymptotic) speed
-    postponing updates/redraws
-    run-time price determination
-    better wizard commands
-    the automatic player
-    launchers of extra shots
-    elemental ignore flags
-    new ego-item types
-    new player ghost creation
-    no more sliding objects
-    no more sliding monsters
-    new object flags
-    new chest trap code
-    regularized the artifact code
-    regularized the ego-item code
-    new monster abilities
-    new monster spell attacks
-    some new store owners
-    run-time skill computation
-    player kills vs anscestor kills
-    better room illumination code
-    better group monster code
-    table access through pointers
-    more redefinable constants
-    slightly new screen layout
-    extreme code cleaning
-    extreme optimizations
-
-
-=== A Posting from the Original Author ===
+#####R=== A Posting from the Original Author ===
 
 From: koeneke@ionet.net (Robert Alan Koeneke)
 Newsgroups: rec.games.roguelike.angband,rec.games.roguelike.moria
@@ -397,7 +276,7 @@ Robert Alan Koeneke
 koeneke@ionet.net
 
 
-=== Previous Versions (outdated) ===
+#####R=== Previous Versions (outdated) ===
 
 
                           VMS Moria Version 4.8
@@ -418,9 +297,6 @@ Modules :
 
 Robert Alan Koeneke               Jimmey Wayne Todd Jr.
 Student/University of Oklahoma    Student/University of Oklahoma
-
-
-
 
 
                         Umoria Version 5.2 (formerly UNIX Moria)

@@ -3,92 +3,25 @@
 #
 # Created for PernAngband
 
-# Default for reward
-F:!:1:3 
-
-# Default for Quest 3 = entrance is tree
+# Default for Quest 10 = entrance is tree
 F:y:96:3
 
-# Default for Quest 4 = entrance is tree
+# Default for Quest 11 = entrance is tree
 F:x:96:3
 
-############### Quest 11 - Orc Infestation ###############
-
-# Quest 11 untaken
-?:[EQU $QUEST11 0]
-F:B:75:3:0:0:0:0:0:11
-
-# Quest 11 unfinished
-?:[EQU $QUEST11 1]
-F:B:75:3:0:0:0:0:0:11
-
-# Quest 11 completed
-?:[EQU $QUEST11 2]
-F:B:75:3:0:0:0:0:0:11
-
-# Quest 11 rewarding, reward is a Amulet of Slow Digestion
-?:[EQU $QUEST11 3]
-F:B:75:3:0:0:0:0:0:12
-F:!:1:3:0:167
-
-# Continue with quest 12
-?:[EQU $QUEST11 4]
-F:B:75:3:0:0:0:0:0:12
-
-?:1
-
-############### Quest 12 - Spiders of Mirkwood ###############
-
-# Quest 12 taken, entrance is quest entrance
-?:[EQU $QUEST12 1]
-F:y:8:3:0:0:0:0:0:12
-F:B:75:3:0:0:0:0:0:12
-
-# Quest 12 completed
-?:[EQU $QUEST12 2]
-F:y:49:3
-F:B:75:3:0:0:0:0:0:12
-
-# Quest 12 rewarding, reward is Staff of Curing
-?:[EQU $QUEST12 3]
-F:y:49:3
-F:B:75:3:0:0:0:0:0:13
-F:!:1:3:0:319
-
-# Quest 12 finished
-?:[EQU $QUEST12 4]
-F:y:49:3
-F:B:75:3:0:0:0:0:0:13
-?:1
-
-############### Quest 13 - The Battle of Five Armies ###############
-
-# Quest 13 taken, entrance is quest entrance
-?:[EQU $QUEST13 1]
-F:x:8:3:0:0:0:0:0:13
-F:B:75:3:0:0:0:0:0:13
-
-# Quest 13 completed
-?:[EQU $QUEST13 2]
-F:x:49:3
-F:B:75:3:0:0:0:0:0:13
-
-# Quest 13 rewarding, reward is Arkenstone of Thrain
-?:[EQU $QUEST13 3]
-F:x:49:3
-F:B:75:3:0:0:0:0:0:0
-F:!:1:3:0:0:0:3
-
-# Quest 13 finished, no further quests
-?:[EQU $QUEST13 4]
-F:x:49:3
-F:B:75:3:0:0:0:0:0:0
+############### Quest 10 - Spiders of Mirkwood ###############
+# Quest 10 taken, entrance is quest entrance
+?:[EQU $QUEST10 1]
+F:y:8:3:0:0:0:0:0:10
 ?:1
 
 ###################### Buildings ########################
 
 # The Mirror
 F:a:74:3:0:0:0:0:0:23
+
+# Castle: Plot Lorien
+F:B:75:3:0:0:0:0:0:2
 
 # Seat of Ruling
 F:b:74:3:0:0:0:0:0:24
@@ -115,12 +48,15 @@ F:i:74:3:0:0:0:0:0:21
 F:j:74:3:0:0:0:0:0:22
 
 # Altars
-F:k:162:3
-F:l:163:3
-F:m:165:3
-F:n:168:3
-F:o:169:3
-F:p:170:3
+F:k:161:3
+F:l:162:3
+F:m:163:3
+F:n:165:3
+F:o:166:3
+F:p:167:3
+F:q:168:3
+F:r:169:3
+F:s:170:3
 
 # Town Layout
 D:######################################################################################################################################################################################################
@@ -159,16 +95,16 @@ D:#          ,            ,                                                     
 D:#                         ,  ,                                                ,,,  ,,,,,,,,,,,,,  ,,,  ,       ,  , ,  ####             ,,                         , ,             ,                 #
 D:#                      ,                          ,                           , ,,,,           ,,,,b,,,,,,,,,,,,,,,,,,,8###                                                                        , #
 D:#               ,              ,                                             ,,                   ,,,             ,    ####                                                                          #
-D:#                           ,                            ,                 --,-     ,,             ,   VVV        ,     ##                  ,      ,                                               , #
-D:#                   ,,     ,                                             p---,---o                 , V!WWV       #2#                ,,          ,              ,               , ,              ,    #
-D:#           ,                            ,    ,                         ---VV,VV---                , VWWVV  ,   #####                             ,                                                  #
-D:#          ,            ,                                              ---VVW,WVV--n               , VVVV       #####      ,                                                                         #
-D:#                         ,  ,                                       , k--VWWaWVV---               ,,            ###   ,                ,,                         , ,             ,                 #
-D:#                                                                      ---VVWWWVV--                 ,,,                                        ,                ,        ,                           #
-D:#               ,,     ,                                                ---VVVVV--    ,,,,,,,,,,,,,,, ,       ,,                            ,                              ,                ,        #
-D:#                                                                        l-------m    ,               ,                                        ,                ,        ,                           #
+D:#                           ,                            ,                k--,--l   ,,             ,   VVV        ,     ##                  ,      ,                                               , #
+D:#                   ,,     ,                                             ----,----                 , VWWWV       #2#                ,,          ,              ,               , ,              ,    #
+D:#           ,                            ,    ,                        n---VV,VV---m               , VWWVV  ,   #####                             ,                                                  #
+D:#          ,            ,                                              ---VVW,WVV---               , VVVV       #####      ,                                                                         #
+D:#                         ,  ,                                       , ---VWWaWVV---               ,,            ###   ,                ,,                         , ,             ,                 #
+D:#                                                                     o---VVWWWVV---p               ,,,                                        ,                ,        ,                           #
+D:#               ,,     ,                                                ---VVVVV---   ,,,,,,,,,,,,,,, ,       ,,                            ,                              ,                ,        #
+D:#                                                                       r---------q   ,               ,                                        ,                ,        ,                           #
 D:#                      ,                          ,                         ---       ,              #5#                                                                                           , #
-D:#               ,              ,                                                      ,              ###                                                                                             #
+D:#               ,              ,                                             s        ,              ###                                                                                             #
 D:#                           ,                            ,                            ,          ,   ###                                    ,      ,                                               , #
 D:#                   ,,     ,                                                         #0#                           ,                ,,          ,              ,               , ,              ,    #
 D:#           ,                            ,    ,                          ,     ,    #####                   ,                                     ,                                                  #

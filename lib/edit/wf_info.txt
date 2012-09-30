@@ -37,19 +37,22 @@ D:the edge of the world
 W:1:0:0:60:0:X
 X:60:60:60:60:60:60:60:60:60:60:60:60:60:60:60:60:60:60
 
-N:1:Bree
+N:1:Bree 
 D:a small village
 W:1:1:0:203:1:1
+X:88:88:89:89:89:89:96:96:96:96:96:96:96:96:96:96:96:96
 
-N:2:Gondolin
-D:The hidden town of the Noldors
+N:2:Gondolin 
+D:The hidden town of the Noldor
 W:1:2:0:203:1:2
+X:88:88:88:89:89:89:89:89:89:89:89:89:89:96:96:96:96:96
 
-N:3:Minas Anor
+N:3:Minas Anor 
 D:The great town of Gondor
 W:1:3:0:203:1:3
+X:1:1:88:88:89:89:89:89:89:89:89:89:89:89:89:89:96:96
 
-N:4:Lothlorien
+N:4:Lothlorien 
 D:The land of Galadriel
 W:1:4:0:203:1:4
 X:88:88:96:96:96:96:96:96:96:96:96:96:96:96:96:89:89:89
@@ -89,23 +92,23 @@ D:a hole to the center of a volcano
 W:55:1005:0:7:10:5
 X:88:88:88:86:86:86:85:85:85:85:85:85:85:85:85:97:97:97
 
-N:12:Hell
-D:a stairway to hells
+N:12:The Nether Realm
+D:the entrance to the netherworld
 W:127:1006:0:7:10:6
 X:88:88:88:86:86:86:85:85:85:85:85:85:85:85:85:97:97:97
 
 N:13:deep water
-D:a deep water zone
+D:a deep water area
 W:70:0:0:187:2:=
 X:187:187:187:187:187:187:187:187:187:187:187:187:84:84:84:84:84:84
 
 N:14:shallow water
-D:a shallow water zone
+D:a shallow water area
 W:20:0:0:84:3:_
 X:187:187:187:84:84:84:84:84:84:84:84:84:84:84:84:1:88:89
 
 N:15:Mirkwood
-D:The entrance to the Forest of Mirkwood
+D:The Forest of Mirkwood
 W:20:1001:0:7:7:*
 X:88:88:96:96:96:96:96:96:96:96:96:96:96:96:96:89:89:89
 
@@ -115,7 +118,7 @@ W:50:1002:0:7:11:$
 X:1:1:88:88:89:89:89:89:89:89:89:89:89:89:89:89:96:96
 
 N:17:Angband
-D:The Gates of Angband
+D:The Pits of Angband
 W:50:1003:0:7:11:%
 X:1:1:88:88:89:89:89:89:89:89:89:89:89:89:89:89:96:96
 
@@ -155,6 +158,11 @@ W:30:1022:0:7:11:)
 X:1:1:88:88:89:89:89:89:89:89:89:89:89:89:89:89:96:96
 
 N:25:high mountain
-D:an high mountain chain
+D:a high mountain chain
 W:80:0:0:101:11:M
 X:1:1:89:89:88:96:96:97:101:101:101:101:101:101:101:101:101:101
+
+N:26:Gondolin 
+D:The pillaged city of the Noldor
+W:1:2:0:203:1:P
+X:49:49:49:88:88:88:92:92:92:92:93:93:94:94:94:174:205:205         

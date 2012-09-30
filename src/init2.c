@@ -88,10 +88,12 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_FILE);
 	string_free(ANGBAND_DIR_HELP);
 	string_free(ANGBAND_DIR_INFO);
+        string_free(ANGBAND_DIR_NOTE);
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_SCPT);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
+	string_free(ANGBAND_DIR_CMOV);
 
 
 	/*** Prepare the "path" ***/
@@ -116,10 +118,12 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_FILE = string_make("");
 	ANGBAND_DIR_HELP = string_make("");
 	ANGBAND_DIR_INFO = string_make("");
+        ANGBAND_DIR_NOTE = string_make("");
 	ANGBAND_DIR_SAVE = string_make("");
         ANGBAND_DIR_SCPT = string_make("");
 	ANGBAND_DIR_USER = string_make("");
 	ANGBAND_DIR_XTRA = string_make("");
+	ANGBAND_DIR_CMOV = string_make("");
 
 #else /* VM */
 
@@ -159,6 +163,10 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_INFO = string_make(path);
 
 	/* Build a path name */
+        strcpy(tail, "note");
+        ANGBAND_DIR_NOTE = string_make(path);
+
+	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
 
@@ -173,6 +181,10 @@ void init_file_paths(char *path)
 	/* Build a path name */
 	strcpy(tail, "xtra");
 	ANGBAND_DIR_XTRA = string_make(path);
+
+	/* Build a .. blah blah -- Improv */
+	strcpy(tail, "cmov");
+	ANGBAND_DIR_CMOV = string_make(path);
 
 #endif /* VM */
 
@@ -412,8 +424,10 @@ static errr init_f_info(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
 
+	safe_setuid_grab();
 	/* Attempt to open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
+	safe_setuid_drop();
 
 	/* Process existing "raw" file */
 	if (fd >= 0)
@@ -499,10 +513,12 @@ static errr init_f_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "f_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -758,10 +774,12 @@ static errr init_k_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "k_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -1017,10 +1035,12 @@ static errr init_a_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "a_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -1278,10 +1298,12 @@ static errr init_e_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "e_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -1816,10 +1838,12 @@ static errr init_r_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -2014,10 +2038,12 @@ static errr init_re_info(void)
         path_build(buf, 1024, ANGBAND_DIR_DATA, "re_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -2209,10 +2235,12 @@ static errr init_d_info(void)
         path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -2406,10 +2434,12 @@ static errr init_st_info(void)
         path_build(buf, 1024, ANGBAND_DIR_DATA, "st_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -2599,10 +2629,12 @@ static errr init_ow_info(void)
         path_build(buf, 1024, ANGBAND_DIR_DATA, "ow_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -2792,10 +2824,12 @@ static errr init_ba_info(void)
         path_build(buf, 1024, ANGBAND_DIR_DATA, "ba_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -2987,10 +3021,12 @@ static errr init_wf_info(void)
         path_build(buf, 1024, ANGBAND_DIR_DATA, "wf_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -3242,10 +3278,12 @@ static errr init_t_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "tr_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -3499,10 +3537,12 @@ errr init_v_info(void)
 	path_build(buf, 1024, ANGBAND_DIR_DATA, "v_info.raw");
 
 	/* Kill the old file */
+	safe_setuid_grab();
 	(void)fd_kill(buf);
 
 	/* Attempt to create the raw file */
 	fd = fd_make(buf, mode);
+	safe_setuid_drop();
 
 	/* Dump to the file */
 	if (fd >= 0)
@@ -3574,7 +3614,7 @@ static errr  init_misc(void)
 	int ystart = 0;
 
 	/* Initialize the values */
-	process_dungeon_file("misc.txt", &ystart, &xstart, 0, 0);
+        process_dungeon_file("misc.txt", &ystart, &xstart, 0, 0, TRUE);
 
 	return 0;
 }
@@ -3586,7 +3626,7 @@ static errr  init_misc(void)
 static errr init_towns(void)
 {
         int i = 0, j = 0;
-	
+
 	/*** Prepare the Towns ***/
 
 	/* Allocate the towns */
@@ -3594,7 +3634,7 @@ static errr init_towns(void)
 
 	for (i = 1; i < max_towns; i++)
 	{
-		/*** Prepare the Stores ***/
+                if (i <= max_real_towns) town[i].real = TRUE;
 
 		/* Allocate the stores */
                 C_MAKE(town[i].store, max_st_idx, store_type);
@@ -3609,37 +3649,31 @@ static errr init_towns(void)
                         st_ptr->st_idx = j;
 
 			/* Assume full stock */
-			st_ptr->stock_size = STORE_INVEN_MAX;
-
-			/* Allocate the stock */
-			C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
+                        st_ptr->stock_size = 0;
 		}
 	}
-
 	return 0;
 }
 
-/*
- * Initialize quest array
- */
-static errr init_quests(void)
+void create_stores_stock(int t)
 {
-	int i;
-	
-	/*** Prepare the quests ***/
+        int j;
+        town_type *t_ptr = &town[t];
 
-	/* Allocate the quests */
-	C_MAKE(quest, max_quests, quest_type);
+        if (t_ptr->stocked) return;
 
-	/* Set all quest to "untaken" */
-	for (i = 0; i < max_quests; i++)
-	{
-		quest[i].status = 0;
-	}
+        for (j = 0; j < max_st_idx; j++)
+        {
+                store_type *st_ptr = &t_ptr->store[j];
 
-	return 0;
+                /* Assume full stock */
+                st_ptr->stock_size = st_info[j].max_obj;
+
+                /* Allocate the stock */
+                C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
+        }
+        t_ptr->stocked = TRUE;
 }
-
 
 /*
  * Pointer to wilderness_map
@@ -3683,6 +3717,9 @@ static errr init_other(void)
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, max_m_idx, monster_type);
 
+        /* Allocate and Wipe the to keep monster list */
+        C_MAKE(km_list, max_m_idx, monster_type);
+
         /* Allocate and Wipe the max dungeon level */
         C_MAKE(max_dlv, max_d_idx, s16b);
 
@@ -3715,6 +3752,7 @@ static errr init_other(void)
 
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
+        C_MAKE(message__color, MESSAGE_MAX, byte);
 	C_MAKE(message__buf, MESSAGE_BUF, char);
 
 	/* Hack -- No messages yet */
@@ -3751,7 +3789,7 @@ static errr init_other(void)
 	/* Scan the options */
 	for (i = 0; option_info[i].o_desc; i++)
 	{
-		int os = option_info[i].o_set;
+                int os = option_info[i].o_page;
 		int ob = option_info[i].o_bit;
 
 		/* Set the "default" options */
@@ -3795,7 +3833,13 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-        (void)format("%s (%s).", "Dark God <dark.god@infonie.fr>", MAINTAINER);
+        (void)format("%s (%s).", "Dark God <darkgod@ifrance.com>", MAINTAINER);
+
+        /*** Init the un preffing array ***/
+        for (i = 0; i < 256; i++)
+        {
+                un_pref_char[i] = 0;
+        }
 
 	/* Success */
 	return (0);
@@ -4153,7 +4197,9 @@ void init_angband(void)
 		FILE_TYPE(FILE_TYPE_DATA);
 
 		/* Create a new high score file */
+		safe_setuid_grab();
 		fd = fd_make(buf, mode);
+		safe_setuid_drop();
 
 		/* Failure */
 		if (fd < 0)
@@ -4230,10 +4276,6 @@ void init_angband(void)
 	note("[Initializing arrays... (towns)]");
 	if (init_towns()) quit("Cannot initialize towns");
 
-	/* Initialize quest array */
-	note("[Initializing arrays... (quests)]");
-	if (init_quests()) quit("Cannot initialize quests");
-
 	/* Initialize trap info */
 	note("[Initializing arrays... (traps)]");
 	if (init_t_info()) quit("Cannot initialize traps");
@@ -4246,6 +4288,8 @@ void init_angband(void)
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
 
+        /* Init random artifact names */
+        build_prob(artifact_names_list);
 
 	/*** Load default user pref files ***/
 

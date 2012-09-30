@@ -1,0 +1,25 @@
+#####R=== Wood Elves ===
+
+#####GDescription
+The first love of Wood Elves is hunting. As such, their skill with the bow
+is unparalleled. They train tirelessly with their bows, to the point of 
+neglecting even melee skills. They resist light as with other elves, and 
+do extra damage with a ranged weapon. They are almost custom made for the 
+archer class, but also make interesting warriors and rogues. Even Wood Elf
+Mages are feasible, using the bow to attack and saving their magic for 
+defense.
+
+#####GStat Modifiers
+Strength        -3   
+Intelligence    +2   
+Wisdom          +1   
+Dexterity       +5   
+Constitution    -4   
+Charisma        +1       
+Hit Dice Sides  7         
+Exp Penalty     +30%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    A scroll of *enchant weapon*
+

@@ -7,7 +7,7 @@
 Middle Earth is vast and mysterious, full of dangers but also full of
 rewards for the brave.
 
-New adventurers, should know that pressing < and > can switch
+New adventurers should know that pressing < and > can switch
 the wilderness view between a normal scale and a larger map. This map
 makes travelling safer and faster, but you can't enter wilderness
 dungeons from it.
@@ -15,14 +15,14 @@ dungeons from it.
 
 I) The Towns
 
-You start in a small village named Bree in the west of the Middle Earth.
-Here you will also find the entrace to the Upper Reaches of Galgals, a
+You start in a small village named Bree in the western part of the Middle Earth.
+Here you will also find the entrace to the Barrow-Downs, a
 fairly safe and simple dungeon.
 
-When the Upper Reaches of Galgals become too easy for you, and Bree too small,
-you might consider going to Lothlorien, the land of Galadriel. Beware that
-you should take a lot of food with you for it is a long journey. You'll have
-to head south following the Moria mountain's chain, then walk around
+When the Barrow-Downs become too easy for you, and Bree too small,
+you might consider going to Lothlorien, the land of Galadriel. Note that
+you should take a lot of food with you, for it is a long journey. You'll have
+to head south-east following the Moria mountain's chain, then walk around
 the forest of Fangorn to head north to finally find your destination.
 The Forest of Mirkwood, another dungeon which is north east
 of Lothlorien, is guarded by the mighty Shelob.
@@ -34,22 +34,23 @@ Minas Anor. From there you can want to pay a "visit" to the land of Mordor,
 which is east of Minas Anor.
 
 After Mordor you should finally travel to Gondolin, the hidden town of the
-Noldor. First go back to Bree, and then from here walk north east and you
-will find Gondolin. From this city, you will be able to attack Angband, the
+Noldor. First go back to Bree, and then from there walk northeast and you
+will find it. From this city, you will be able to attack Angband, the
 dungeon of Morgoth, which is north west west of Gondolin.
 
 
 II) Other strange and frightening places
 
-The Maze: right to the west of Bree there is a magical Maze. Many adventurers
+The Old Forest to the west is a the remains of the big forests of the first
+age, but it has been corrupted. It is said it is guarded by a living tree.
+
+The Maze: To the south of Bree there is a magical Maze. Many adventurers
 that ventured there never came back... It is rumored that a Minotaur is
-lurking down there, guarding an ancient and powerful artifact. You
-should be powerful enough to visit this place after having finished the
-Upper Reaches of the Galgals, but bring along digging equipment and some
-means to recall.
+lurking down there, guarding an ancient and powerful artifact.
+Bring along digging equipment and some means to recall.
 
 You may also wish to investigate the Orc Caves north of Bree; they are
-another place suitable for those finished with the Galgals. They also
+another place suitable for those finished with the Barrow-Downs. They also
 are rumored to hold great
 mysteries.
 
@@ -77,10 +78,10 @@ items you will need badly.
 
 First think of some light, maybe a lantern is better than the torches.
 
-Second things to mention are yor combat equipment. Sometimes the weapon and
+Second things to mention are your combat equipment. Sometimes the weapon and
 armor you got from your mentor are not enough for the nasties inside the
 dungeons.
 
 And third and most important, always carry a shovel or other digger with you,
-because there is many rubble in the dungeons, which you can't carry away with
-your hand.
+because there is much rubble in the dungeons, which you cannot clear with
+your hands.

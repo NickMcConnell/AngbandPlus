@@ -1,0 +1,34 @@
+Credit list(lots are still not present here, if you think you should
+drop me a line please) in no particular order:
+
+- Chris Weisiger <chrisweisiger@hotmail.com>, lots and lots of stuff,
+  and mainly lots of vaults, a whole magic realm, some special levels,
+  TANG
+- Ceilti <Ceilti@aol.com>, idea of weapons gaining xp, comments, ideas,
+  lots of PernAngband related posts on rgra
+- Static Chaos <schaos@freemail.hu>, huge numbers of patchs, ideas, ...
+- Improv <qc@apk.net>, spelling/grammar fixes, ideas, safer_panics patch,
+        some new monster and artifact descriptions, cmovie stuff, and lots
+        of things
+- Mynstral, new towns and more
+- Kusunose Toru <kusunose@hcn.zaq.ne.jp> for LOTS of bugfixes
+- Akhronath for the ideas of the magic system, new realms and much more
+  oh yeah the Nazguls :)
+- Jerome Wojcik <Jerome.Wojcik@lmcp.jussieu.fr> for monster suceptibilities
+- Andreas Kosh(akoch@rbg.informatik.tu-darmstadt.de) for the tiles, the
+  graphic editor and surely more :)
+- Gob for the mac ports and a nasty bug fix
+- Iain McFall for bug fixes, auto squlch and more
+- Bablos for the amiga port
+- Arch for the windows port
+- Dawnmist for the new docs
+- Jonathan Ellis for the rework of the info files
+- Hansjoerg Malthaner for the Isometric engine
+- Pelpel for bugfixes and other mac things
+- Tom Le for the website hosting
+- Willam Tanksley for lots of useful comments, ideas and bitching ;)
+
+- All that I forgot in the list, hit me a bit then email me to get added
+
+- All the friendly people of #angband
+- All the friendly people of the PernAngband mailling list

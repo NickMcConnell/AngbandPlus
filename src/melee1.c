@@ -215,6 +215,8 @@ bool carried_make_attack_normal(int r_idx)
 			case RBE_DISEASE:   power =  5; break;
 			case RBE_TIME:      power =  5; break;
                         case RBE_SANITY:    power = 60; break;
+                        case RBE_HALLU:     power = 10; break;
+                        case RBE_PARASITE:  power =  5; break;
 		}
 
 
@@ -991,6 +993,31 @@ bool carried_make_attack_normal(int r_idx)
 
 					break;
 				}
+                                case RBE_PARASITE:
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+                                        if (!p_ptr->parasite) set_parasite(damage, r_idx);
+
+					break;
+				}
+				case RBE_HALLU:
+				{
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Increase "image" */
+					if (!p_ptr->resist_chaos)
+					{
+						if (set_image(p_ptr->image + 3 + randint(rlev / 2)))
+						{
+							obvious = TRUE;
+						}
+					}
+					break;
+				
+				}
 				case RBE_TIME:
 				{
 					switch (randint(10))
@@ -1039,6 +1066,7 @@ bool carried_make_attack_normal(int r_idx)
 					}
                                         carried_monster_hit = TRUE;
 					take_hit(damage, ddesc);
+                                        break;
 				}
 			}
 
@@ -1168,7 +1196,6 @@ bool carried_make_attack_normal(int r_idx)
 			}
 		}
 	}
-
 	/* Assume we attacked */
 	return (TRUE);
 }
@@ -1206,7 +1233,7 @@ bool make_attack_normal(int m_idx, byte divis)
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
 
 	/* ...nor if friendly */
-	if (is_pet(m_ptr))  return FALSE;
+        if (is_friend(m_ptr) >= 0)  return FALSE;
 
         /* Cannot attack the player if mortal and player fated to never die by the ... */
         if((r_ptr->flags7 & RF7_MORTAL)&&(p_ptr->no_mortal)) return (FALSE);
@@ -1215,7 +1242,7 @@ bool make_attack_normal(int m_idx, byte divis)
 	ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Extract the effective monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+        rlev = ((m_ptr->level >= 1) ? m_ptr->level : 1);
 
 
 	/* Get the monster name (or "it") */
@@ -1240,10 +1267,10 @@ bool make_attack_normal(int m_idx, byte divis)
 		cptr act = NULL;
 
 		/* Extract the attack infomation */
-		int effect = r_ptr->blow[ap_cnt].effect;
-		int method = r_ptr->blow[ap_cnt].method;
-		int d_dice = r_ptr->blow[ap_cnt].d_dice;
-		int d_side = r_ptr->blow[ap_cnt].d_side;
+                int effect = m_ptr->blow[ap_cnt].effect;
+                int method = m_ptr->blow[ap_cnt].method;
+                int d_dice = m_ptr->blow[ap_cnt].d_dice;
+                int d_side = m_ptr->blow[ap_cnt].d_side;
 
 
 		/* Hack -- no more attacks */
@@ -1298,6 +1325,8 @@ bool make_attack_normal(int m_idx, byte divis)
 			case RBE_DISEASE:   power =  5; break;
 			case RBE_TIME:      power =  5; break;
                         case RBE_SANITY:    power = 60; break;
+                        case RBE_HALLU:     power = 10; break;
+                        case RBE_PARASITE:  power =  5; break;
 		}
 
 
@@ -1559,9 +1588,9 @@ bool make_attack_normal(int m_idx, byte divis)
                                         p_ptr->black_breath = TRUE;
                                 }
                         }
-                        else if ((r_ptr->level >= 35) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
+                        else if ((m_ptr->level >= 35) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
                                 (r_ptr->flags1 & (RF1_UNIQUE)) &&
-                                        (randint(300 - r_ptr->level) == 1) && !p_ptr->protundead)
+                                        (randint(300 - m_ptr->level) == 1) && !p_ptr->protundead)
 
                         {
                                 msg_print("Your foe calls upon your soul!");
@@ -1569,8 +1598,8 @@ bool make_attack_normal(int m_idx, byte divis)
                                 p_ptr->black_breath = TRUE;
                         }
 
-                        else if ((r_ptr->level >= 40) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
-                                (randint(450 - r_ptr->level) == 1) && !p_ptr->protundead)
+                        else if ((m_ptr->level >= 40) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
+                                (randint(450 - m_ptr->level) == 1) && !p_ptr->protundead)
                         {
                                 msg_print("Your foe calls upon your soul!");
                                 msg_print("You feel the Black Breath slowly draining you of life...");
@@ -2397,6 +2426,26 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					break;
 				}
+				case RBE_HALLU:
+				{
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					/* Increase "image" */
+					if (!p_ptr->resist_chaos)
+					{
+						if (set_image(p_ptr->image + 3 + randint(rlev / 2)))
+						{
+							obvious = TRUE;
+						}
+					}
+
+					/* Learn about the player */
+                                        update_smart_learn(m_idx, DRS_CHAOS);
+
+					break;
+				
+				}
 				case RBE_TIME:
 				{
 					switch (randint(10))
@@ -2444,6 +2493,16 @@ bool make_attack_normal(int m_idx, byte divis)
 						}
 					}
 					take_hit(damage, ddesc);
+                                        break;
+				}
+                                case RBE_PARASITE:
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+                                        if (!p_ptr->parasite) set_parasite(damage, m_ptr->r_idx);
+
+					break;
 				}
 			}
 
@@ -2563,6 +2622,17 @@ bool make_attack_normal(int m_idx, byte divis)
 							r_ptr->r_flags3 |= RF3_IM_ELEC;
 					}
 				}
+                                if ((p_ptr->shield_opt & SHIELD_COUNTER) && alive)
+				{
+                                        msg_format("%^s gets bashed by your mystic shield!", m_name);
+                                        if (mon_take_hit(m_idx, damroll(10,8), &fear,
+                                                    " is bashed by your mystic shield."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+				}
+
 				touched = FALSE;
 			}
 		}

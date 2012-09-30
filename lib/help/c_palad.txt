@@ -1,0 +1,31 @@
+#####R=== Paladins ===
+
+#####GDescription
+A Paladin is a warrior/priest. They are very good fighters, but not 
+very good at missile weapons. They receive prayers at a slower pace 
+than priests, but can receive even the most powerful prayers. They are 
+poor at  stealth, perception, searching, and magical devices. They have
+a decent saving throw due to divine protection. 
+
+#####GPrimary Stats
+Strength
+Wisdom (spell casting stat)
+
+#####GMagic Usage
+Paladins are holy warriors, and as such they may choose one devotion 
+from among *****m_nether.txt*0[Nether], *****m_valar.txt*0[Valarin], and *****m_crusad.txt*0[Crusade]. 
+
+The Nether Paladin is one of sinister aspect, wielding power over the 
+undead. His counterpart, the Valarin Paladin, focuses on harnessing the
+powers of good to aid him. The Crusade Paladin is a more warlike 
+fighter, using his spells to enhance his skill in battle. Paladins may 
+learn up to 32 spell levels.
+
+#####GStarting Equipment
+A paladin begins the game with:
+    L1 spellbook of chosen realm
+    A broadsword
+    A scroll of protection from evil
+If they are *very* lucky they may also begin with:
+    a scroll of *enchant weapon*
+    

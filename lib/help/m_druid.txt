@@ -1,0 +1,27 @@
+|||||oy
+#####R === PernAngband Magic - Druidic Realm ===
+
+Magic used solely by the druids, the users of this realm commune with
+the elemental forces of nature (earth, air, fire, water, mana). Their
+spells are found inscribed on special stones.
+
+The Druidic Realm contains many attack spells, some utility spells and
+some protection spells.
+
+#####GPermitted Classes
+#####BThe Druidic Realm is only permitted to:
+Druids as a primary realm
+
+#####GDruidic Stones
+The are five stones available for the Druidic realm, two of which can be
+easily found at bookstores back in town. The other three are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Stones]
+Elemental Stone [Earth]
+Elemental Stone [Fire]
+
+[[[[[BRare Stones]
+Elemental Stone [Air]
+Elemental Stone [Water]
+Elemental Stone [Mana]

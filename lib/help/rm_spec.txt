@@ -1,0 +1,30 @@
+#####R=== Spectral Race ===
+
+#####GDescription
+Another powerful undead creature: the spectre is a ghastly apparition, 
+surrounded by an unearthly green glow. They exist only partially on our 
+plane of existence: half-corporeal, they can pass through walls, although 
+the density of the wall will hurt them in the process of doing this. The 
+spectre can scream an eldritch howl, which is enough to scare lesser 
+monsters witless. As undead, they have a firm hold on their life force, 
+see invisible, and resist poison and cold. They also resist nether; in 
+fact, their half-corporeal form actually grows stronger from the effects 
+of nether. At higher levels they develop telepathic abilities. Spectres
+make superb spellcasters, but their physical form is very weak. Like 
+Zombies, Spectres gain almost no nutrition from ordinary food.
+
+#####GStat Modifiers
+Strength       -5   
+Intelligence   +4   
+Wisdom         +4   
+Dexterity      +2   
+Constitution   -3   
+Charisma       -6      
+Hit Dice       -3 sides        
+Exp Penalty    +80%
+
+#####GStarting Equipment
+A spectral character begins the game with:
+    Some scrolls of satisfy hunger
+    Some torches
+

@@ -24,14 +24,14 @@
 OBJS = \
   main.o main-dos.o main-ibm.o \
   generate.o dungeon.o init1.o init2.o \
-  store.o birth.o wizard1.o wizard2.o \
+  store.o birth.o wizard1.o wizard2.o help.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
-  load2.o save.o files.o levels.o notes.o \
+  loadsave.o files.o levels.o notes.o cmovie.o \
   xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  object1.o object2.o traps.o monster1.o monster2.o \
-  variable.o tables.o util.o cave.o ghost.o \
+  object1.o object2.o traps.o monster1.o monster2.o monster3.o \
+  variable.o tables.o util.o cave.o ghost.o plots.o \
   z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  bldg.o squeltch.o wild.o
+  bldg.o squeltch.o wild.o powers.o
 
 # Compiler
 CC = gcc

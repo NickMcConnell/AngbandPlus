@@ -1,0 +1,40 @@
+#####R=== Unbelievers ===
+
+#####GDescription
+The full opposite of sorcerors, unbelievers so strongly despise magic 
+that not only do they refuse to use magic spells, they refuse all 
+training in the use of magic items, which leaves them almost totally 
+incompetent when trying to use a magic item. In addition, they are so 
+unattuned to magic that summoning gates are incapable of opening around
+them (in a radius that grows larger with their level), eventually 
+extending to a complete suppression of teleportation abilities in the 
+area around them.
+
+#####GPrimary Stats
+Strength
+Constitution
+
+#####GMagic Usage
+Unbelievers are not capable of using magic themselves, but due to their
+extreme level of disbelief in magic, they are capable of disrupting the
+magic of those around them. They radiate an anti-magic field around 
+themselves which continually grows larger as they become more 
+experienced. Also, they are capable of preventing *any* teleportation
+from occurring on the level they are currently on, using the 'm' 
+command. And since most traps have some magical nature, they are also
+capable of detecting them.
+
+Special weapons known as darkswords are the chosen weapons of 
+Unbelievers, and give a 50% boost to their antimagic shell. Be warned
+however, that [[[[[Bany] enchanting of these swords irrevocably 
+destroys their antimagic bonus!
+
+#####GStarting Equipment
+An unbeliever begins the game with:
+    A ring of resist fear
+    A darksword
+    Chainmail
+If they are *very* lucky they may also begin with:
+    heavy shield
+
+		

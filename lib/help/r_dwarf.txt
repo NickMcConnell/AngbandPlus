@@ -1,0 +1,29 @@
+#####R=== Dwarves ===
+
+#####GDescription
+Dwarves are the headstrong miners and fighters of legend. Since dungeons 
+are the natural home of a dwarf, they are excellent choices for a warrior 
+or priest. Dwarves tend to be stronger and tougher but slower and less 
+intelligent than humans. Because they are so headstrong and are somewhat 
+wise, they resist spells which are cast on them. Dwarves also have very 
+good infra-vision because they live underground. They do have one big 
+drawback, though. Dwarves are loudmouthed and proud, singing in loud 
+voices, arguing with themselves for no good reason, and screaming out 
+challenges at nearby foes. In other words, dwarves have a miserable 
+stealth. They can never be blinded and learn to study the vibrations of 
+the earth, feeling the layout of a dungeon.
+
+#####GStat Modifiers
+Strength        +2   
+Intelligence    -2   
+Wisdom          +2   
+Dexterity       -2   
+Constitution    +2   
+Charisma        -3       
+Hit Dice Sides  11         
+Exp Penalty     +35%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    A helmet of light
+

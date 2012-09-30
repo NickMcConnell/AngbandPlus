@@ -1,0 +1,44 @@
+#####R=== Harpers ===
+
+#####GDescription
+Harpers are like traditional musicians. Sort of. Their magical attacks 
+are sound-based, and last as long as the Harper has mana. If the Harper
+runs out of mana, he/she stops singing. There is also a low-level 
+"spell" that will cease the song. Harpers cannot commence singing 
+without light, however, if the light ceases, they can continue the 
+song without.
+
+While any class can use musical instruments, only harpers can tap the 
+power of voice to aid themselves and hinder, dismay, and kill their 
+foes. Unlike the spells of other classes, some songs can be persistent
+- if the harper is prepared to continue making the considerable effort
+needed to keep some tunes going. This means that a low-level harper can
+have a lulling song playing in the background while he uses beams of
+concentrated sound to slay the critters he slows down.
+
+#####GPrimary Stats
+Charisma (spellcasting stat)
+
+#####GMagic Usage
+A Harper can learn 32 songs from the *****m_music.txt*0[Music] Realm.
+
+Harpers have four spellbooks, and play songs the same way as other
+classes cast spells.  The most important song in any book is the second
+one they learn:  "Stop Singing".
+
+A harper will also appreciate a collection of musical instruments. 
+All instruments activate for songs, which allows the harper to spend his
+precious energies on music that can only be found in spellbooks.  Some
+rarer instruments increase Charisma (a harper's spell stat) and grant
+various resistances.  Artifact instruments exist; they possess unique
+powers.
+
+#####GStarting Equipment
+A harper begins the game with:
+    L1 songbook
+    A dagger
+    Soft leather armor
+    A firelizard egg
+If they are *very* lucky they may also begin with:
+    a musical instrument
+    

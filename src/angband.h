@@ -44,7 +44,7 @@
 #include "defines.h"
 #include "types.h"
 #include "externs.h"
-
+#include "plots.h"
 
 /***** Some copyright messages follow below *****/
 

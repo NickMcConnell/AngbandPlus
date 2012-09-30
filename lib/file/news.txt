@@ -1,6 +1,6 @@
 
             *********************************************************
-            ** PernAngband 4.2.2  **  The Troubles of Middle Earth **
+            ** PernAngband 5.0.0  **  The Troubles of Middle Earth **
             *********************************************************
 
                "One Ring to rule them all, One Ring to find them
@@ -11,12 +11,13 @@
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
              and Umoria:    Copyright (c) 1989 James E. Wilson
        Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
-       Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
        ZAngband code:     (Mr) Topi Ylinen (f1toyl@uta.fi)
                           and Robert Ruehlmann (rr9@angband.org)
 
        PernAngband code:  Dark God < darkgod@ifrance.com >
        Internet site:     http://www.pernangband.org
+
+     Thanks to all the people that help me, see credits.txt for the list
 
     Send all comments, bug reports, patches, etc, to "darkgod@ifrance.com".
 

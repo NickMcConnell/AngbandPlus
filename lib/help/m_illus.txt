@@ -1,0 +1,41 @@
+|||||oy
+#####R === PernAngband Magic - Illusion Realm ===
+
+The Illusion Realm is centered in the powers of things hidden. The 
+adventurer using this realm attempts to make his way more by trickery
+and deception than by outright damage to the monsters he encounters.
+Only those who have specialised in Illusion are capable of fully 
+harnessing the power of this realm.
+
+The Illusion Realm contains some powerful protection spells, some
+some utility spells, some attack spells and a few curing spells.
+
+#####GPermitted Classes
+#####BThe Realm of Illusion is only permitted to:
+Illusionists as a primary realm (in full)
+High Mages as a primary realm (town books only)
+Monks as a primary realm (town books only)
+Rogues as a primary realm (town books only)
+Sorcerors (all - town books only)
+Priests as a secondary realm (town books only)
+Warrior-Mages as a secondary realm (town books only)
+
+#####GIllusion Spellbooks
+The are nine spellbooks available for the Illusion realm, four of which can be
+easily found at bookstores back in town. The other five are very rare, and may
+only be found by searching the depths of the dungeon. These rare spellbooks
+are only able to be understood by those who have specifically specialised in
+illusion magic.
+
+[[[[[BTown Books]
+Illusions for Beginners
+Tricks and Visions
+Phantasms and Illusions
+Shadows and Prisms
+
+[[[[[BRare Books (Illusionists ONLY)]
+Serten's Immunities
+Knowledge of Kenault
+Otiluke's Spheres
+Boccob's Book of Shadows
+Bigby's Handbook

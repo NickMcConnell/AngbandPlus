@@ -1,0 +1,30 @@
+|||||oy
+#####R === PernAngband Magic - Crusade Realm ===
+
+Drawing power from both divine and sorcerous sources, the Crusade 
+realm seeks to aid the warrior in battle. Its spells are aimed at 
+enhancement of fighting abilities as well as directly dealing damage
+to the enemy. Wielded by holy warriors, it is not as powerful as the
+major realms, but one who uses it can be a formidable threat to any 
+monster.
+
+The Crusade Realm contains some attack spells, some combat-enchancing
+spells, some utility spells and a few healing spells.
+
+#####GPermitted Classes
+#####BThe Realm of Crusade is only permitted to:
+Paladins as a primary realm
+Priests as a secondary realm
+
+#####GCrusade Spellbooks
+The are four spellbooks available for the Crusade realm, two of which can be
+easily found at bookstores back in town. The other two are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Rites of Initiation
+Ways of War
+
+[[[[[BRare Books]
+Divine Retribution
+Essence of Fury

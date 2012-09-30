@@ -1,0 +1,25 @@
+#####R=== Druids ===
+
+#####GDescription
+A Druid is in communion with nature. From this relationship he gains 
+the power to control the elemental flows (Earth, Fire, Air, Water and 
+Mana). They also have special attack spells that can follow a laid path
+of mana in order to create magic "traps". Thus their spells can hit a 
+monster more than once or travel down a tunnel.
+
+#####GPrimary Stats
+Wisdom (spellcasting stat)
+
+#####GMagic Usage
+A Druid can learn 40 spell levels from the *****m_druid.txt*0[Druidic] Realm of magic.
+
+#####GStarting Equipment
+A druid begins the game with:
+    elemental stone [Fire]
+    a Whip
+    an amulet of slow digestion
+If they are *very* lucky they may also begin with:
+    a wand of tame monster
+    
+
+		

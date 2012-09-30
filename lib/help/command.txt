@@ -1,4 +1,5 @@
-=== List of Commands ===
+|||||oy
+#####R=== List of Commands ===
 
 
     Angband commands are entered as an "underlying command" (a single key)
@@ -19,7 +20,7 @@ includes many more "capital" and "control" keys, as shown below.
 command set may be used by the user as "command macro" triggers (see below).
 You may always specify any "underlying command" directly by pressing backslash
 ("\") plus the "underlying command" key.  This is normally only used in "macro"
-definitions.  You may often enter "control-keys" as a caret ("^") plus the key
+definitions.  [[[[[BYou may often enter "control-keys" as a caret ("^") plus the key]
 (so "^" + "p" often yields "^P").
 
     Some commands allow an optional "repeat count", which allows you to tell
@@ -57,8 +58,8 @@ teleport you are unaffected by the inscription.
 direction using any of the "direction keys" shown below.  Sometimes, you may
 specify that you wish to use the current "target", by pressing "t" or "5", or
 that you wish to select a new target, by pressing "*" (see "Target" below).
-
-        Original Keyset Directions       Roguelike Keyset Directions
+~~~~~95
+#####G        Original Keyset Directions       Roguelike Keyset Directions
 
                  7  8  9                           y  k  u
                  4     6                           h     l
@@ -68,9 +69,9 @@ that you wish to select a new target, by pressing "*" (see "Target" below).
 commands".  For example, both keysets allow you to "walk" by simply pressing
 an "original" direction key (or a "roguelike" direction key if you are using
 the roguelike keyset), instead of using the "walk" command plus a direction.
-The roguelike keyset allows you to "run" or "tunnel" by simply holding the
-shift or control modifier key down while pressing a "roguelike" direction key,
-instead of using the "run" or "tunnel" command plus a direction.  Both keysets
+[[[[[BThe roguelike keyset allows you to "run" or "tunnel" by simply holding the]
+[[[[[Bshift or control modifier key down while pressing a "roguelike" direction key,]
+[[[[[Binstead of using the "run" or "tunnel" command plus a direction.]  Both keysets
 allow the use of the "5" key to "stand still", which is most convenient when
 using the original keyset.
 
@@ -81,128 +82,127 @@ keys, plus a numeric keypad key, to specify the "run" or "tunnel" command, with
 the given direction, regardless of any keymap definitions, by using the fact
 that you can always, for example, use "\" + "." + "6", to specify "run east".
 
+#####R=== Original Keyset Command Summary (4.2.x) ===
 
-=== Original Keyset Command Summary (2.7.9) ===
-
- a  Aim a wand                           A  Activate an artifact
- b  Browse a book                        B  Bash a door
- c  Close a door                         C  Character description
- d  Drop an item                         D  Disarm a trap
- e  Equipment list                       E  Eat some food
- f  Fire an item                         F  Fuel your lantern/torch
- g  Stay still (flip pickup)             G  Gain new spells/prayers
- h  Hack up a corpse                     H  Drink from a fountain
- i  Inventory list                       I  Observe an item
- j  Jam a door                           J  (unused)
- k  Destroy an item                      K  Cure meat
- l  Look around                          L  Locate player on map
- m  Cast a spell / use mental power      M  Full dungeon map
+ *****command.txt*1[a  Aim a wand]                           *****command.txt*2[A  Activate an artifact]
+ *****command.txt*3[b  Browse a book]                        *****command.txt*4[B  Bash a door]
+ *****command.txt*5[c  Close a door]                         *****command.txt*6[C  Character description]
+ *****command.txt*7[d  Drop an item]                         *****command.txt*8[D  Disarm a trap]
+ *****command.txt*9[e  Equipment list]                       *****command.txt*10[E  Eat some food]
+ *****command.txt*11[f  Fire an item]                         *****command.txt*12[F  Fuel your lantern/torch]
+ *****command.txt*13[g  Stay still (flip pickup)]             *****command.txt*14[G  Gain new spells/prayers]
+ *****command.txt*15[h  Hack up a corpse]                     *****command.txt*16[H  Drink from a fountain]
+ *****command.txt*17[i  Inventory list]                       *****command.txt*18[I  Observe an item]
+ *****command.txt*19[j  Jam a door]                           J  (unused)
+ *****command.txt*20[k  Destroy an item]                      *****command.txt*21[K  Cure meat]
+ *****command.txt*22[l  Look around]                          *****command.txt*23[L  Locate player on map]
+ *****command.txt*24[m  Cast a spell / use mental power]      *****command.txt*25[M  Full dungeon map]
  n  (unused)                             N  (unused)
- o  Open a door or chest                 O  Sacrifice at an altar
- p  Pray to your god (if any)            P  Pet commands
- q  Quaff a potion                       Q  Quit (commit suicide)
- r  Read a scroll                        R  Rest for a period
- s  Search for traps/doors               S  Toggle search mode
- t  Take off equipment                   T  Dig a tunnel
- u  Use a staff                          U  Use bonus power (if any)
- v  Throw an item                        V  Version info
- w  Wear/wield equipment                 W  (unused)
- x  Engrave the floor                    X  (unused)
- y  (unused)                             Y  (unused)
- z  Zap a rod                            Z  Steal
- !  Interact with system                ^A  (special - wizard command)
- @  Interact with macros                ^B  (unused)
+ *****command.txt*26[o  Open a door or chest]                 *****command.txt*27[O  Sacrifice at an altar]
+ *****command.txt*28[p  Pray to your god (if any)]            *****command.txt*29[P  Pet commands]
+ *****command.txt*30[q  Quaff a potion]                       *****command.txt*31[Q  Quit (commit suicide)]
+ *****command.txt*32[r  Read a scroll]                        *****command.txt*33[R  Rest for a period]
+ *****command.txt*34[s  Search for traps/doors]               *****command.txt*35[S  Toggle search mode]
+ *****command.txt*36[t  Take off equipment]                   *****command.txt*37[T  Dig a tunnel]
+ *****command.txt*38[u  Use a staff]                          *****command.txt*39[U  Use bonus power (if any)]
+ *****command.txt*40[v  Throw an item]                        *****command.txt*41[V  Version info]
+ *****command.txt*42[w  Wear/wield equipment]                 W  (unused)
+ *****command.txt*43[x  Engrave the floor]                    X  (unused)
+ *****command.txt*44[y  Give item to monster]                 Y  (unused)
+ *****command.txt*45[z  Zap a rod]                            *****command.txt*46[Z  Steal]
+ *****command.txt*47[!  Interact with system]                ^A  (special - debug command)
+ *****command.txt*49[@  Interact with macros]                ^B  (unused)
  #  (unused)                            ^C  (special - break)
- $  User interface                      ^D  (unused)
- %  Interact with visuals               ^E  Toggle choice window
- ^  (special - control key)             ^F  Repeat level feeling
- &  Interact with colors                ^G  (unused)
- *  Target monster or location          ^H  (unused)
- (  Load screen dump                    ^I  (special - tab)
- )  Dump screen dump                    ^J  (special - linefeed)
- {  Inscribe an object                  ^K  (unused)
- }  Uninscribe an object                ^L  (unused)
+ $  (unused)                            ^D  (unused)
+ *****command.txt*51[%  Interact with visuals]               *****command.txt*52[^E  Toggle choice window]
+ ^  (special - control key)             *****command.txt*53[^F  Repeat level feeling]
+ *****command.txt*54[&  Interact with colors]                ^G  (unused)
+ *****command.txt*55[*  Target monster or location]          ^H  (unused)
+ *****command.txt*56[(  Load screen dump]                    ^I  (special - tab)
+ *****command.txt*57[)  Dump screen dump]                    ^J  (special - linefeed)
+ *****command.txt*58[{  Inscribe an object]                  ^K  (unused)
+ *****command.txt*59[}  Uninscribe an object]                ^L  (unused)
  [  (unused)                            ^M  (special - return)
  ]  (unused)                            ^N  (unused)
- -  Walk (flip pickup)                  ^O  (unused)
- _  Enter store                         ^P  Show previous messages
- +  Alter grid                          ^Q  Quit to next midi song
- =  Set options                         ^R  Redraw the screen
- ;  Walk (with pickup)                  ^S  Save and don't quit
- :  Take notes                          ^T  Time of the day
+ *****command.txt*60[-  Walk (flip pickup)]                  ^O  (unused)
+ *****command.txt*61[_  Enter store]                         *****command.txt*62[^P  Show previous messages]
+ *****command.txt*63[+  Alter grid]                          *****command.txt*64[^Q  Quit to next midi song]
+ *****command.txt*65[=  Set options]                         *****command.txt*66[^R  Redraw the screen]
+ *****command.txt*67[;  Walk (with pickup)]                  *****command.txt*68[^S  Save and don't quit]
+ *****command.txt*69[:  Take notes]                          *****command.txt*70[^T  Time of the day]
  '  (unused)                            ^U  (unused)
- "  Enter a user pref command           ^V  (unused)
- ,  Stay still (with pickup)            ^W  (special - wizard mode)
- <  Go up staircase                     ^X  Save and quit
- .  Run                                 ^Y  (unused)
- >  Go down staircase                   ^Z  (special - borg command)
- \  (special - bypass keymap)            |  Check artifacts, uniques, objects
- `  (special - escape)                   ~  Check artifacts, uniques, objects
- /  Identify symbol                      ?  Help
+ *****command.txt*71["  Enter a user pref command]           ^V  (unused)
+ *****command.txt*72[,  Stay still (with pickup)]            ^W  (special - wizard mode)
+ *****command.txt*74[<  Go up staircase]                     *****command.txt*75[^X  Save and quit]
+ *****command.txt*76[.  Run]                                 ^Y  (unused)
+ *****command.txt*77[>  Go down staircase]                   ^Z  (special - borg command)
+ *****command.txt*79[\  (special - bypass keymap)]            *****command.txt*80[|  Do cmovies]
+ *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Check artifacts, uniques, objects]
+ *****command.txt*83[/  Identify symbol]                      *****command.txt*84[?  Help]
 
 
 
-===  Roguelike Keyset Command Summary (2.7.9) ===
+#####R===  Roguelike Keyset Command Summary (4.2.x) ===
 
- a  Zap a rod (Activate)                 A  Activate an artifact
- b  (walk - south west)                  B  (run - south west)
- c  Close a door                         C  Character description
- d  Drop an item                         D  Disarm a trap or chest
- e  Equipment list                       E  Eat some food
- f  Bash a door (force)                  F  Fuel your lantern/torch
- g  Stay still (flip pickup)             G  Gain new spells/prayers
- h  (walk - west)                        H  (run - west)
- i  Inventory list                       I  Observe an item
- j  (walk - south)                       J  (run - south)
- k  (walk - north)                       K  (run - north)
- l  (walk - east)                        L  (run - east)
- m  Spell casting / mental power         M  Full dungeon map
- n  (walk - south east)                  N  (run - south east)
- o  Open a door or chest                 O  Use bonus power (if any)
- p  Pray to your god (if any)            P  Browse a book
- q  Quaff a potion                       Q  Quit (commit suicide)
- r  Read a scroll                        R  Rest for a period
- s  Search for traps/doors               S  Jam a door (Spike)
- t  Fire an item                         T  Take off equipment
- u  (walk - north east)                  U  (run - north east)
- v  Throw an item                        V  Drink from a fountain
- w  Wear/wield equipment                 W  Locate player on map (Where)
- x  Look around                          X  Pet commands
- y  (walk - north west)                  Y  (run - north west)
- z  Aim a wand (Zap)                     Z  Use a staff (Zap)
- !  Interact with system                ^A  (special - wizard command)
- @  Interact with macros                ^B  (tunnel - south west)
- #  Toggle search mode                  ^C  (special - break)
- $  Hack up a corpse                    ^D  Destroy item
- %  Interact with visuals               ^E  Toggle choice window
- ^  (special - control key)             ^F  Repeat level feeling
- &  Interact with colors                ^G  Sacrifice at an altar
- *  Target monster or location          ^H  (tunnel - west)
- (  Load screen dump                    ^I  (special - tab)
- )  Dump screen dump                    ^J  (tunnel - south)
- {  Inscribe an object                  ^K  (tunnel - north)
- }  Uninscribe an object                ^L  (tunnel - east)
- [  Steal                               ^M  (tunnel - south)
- ]  Engrave the floor                   ^N  (tunnel - south east)
- -  Walk (flip pickup)                  ^O  Cure meat
- _  Enter store                         ^P  Show previous messages
- +  Alter grid                          ^Q  Quit to next midi song
- =  Set options                         ^R  Redraw the screen
- ;  Walk (with pickup)                  ^S  Save and don't quit
- :  Take notes                          ^T  Dig a Tunnel
- '  Time of the day                     ^U  (tunnel - north east)
- "  Enter a user pref command           ^V  Examine current target
- ,  Run                                 ^W  (special - wizard mode)
- <  Go up staircase                     ^X  Save and quit
- .  Stay still (with pickup)            ^Y  (tunnel - north west)
- >  Go down staircase                   ^Z  (special - borg command)
- \  (special - bypass keymap)            |  Check artifacts, uniques, objects
- `  (special - escape)                   ~  Check artifacts, uniques, objects
- /  Identify symbol                      ?  Help
+ *****command.txt*45[a  Zap a rod (Activate)]                 *****command.txt*2[A  Activate an artifact]
+ *****command.txt*95[b  (walk - south west)]                  *****command.txt*95[B  (run - south west)]
+ *****command.txt*5[c  Close a door]                         *****command.txt*6[C  Character description]
+ *****command.txt*7[d  Drop an item]                         *****command.txt*8[D  Disarm a trap or chest]
+ *****command.txt*9[e  Equipment list]                       *****command.txt*10[E  Eat some food]
+ *****command.txt*4[f  Bash a door (force)]                  *****command.txt*12[F  Fuel your lantern/torch]
+ *****command.txt*13[g  Stay still (flip pickup)]             *****command.txt*14[G  Gain new spells/prayers]
+ *****command.txt*95[h  (walk - west)]                        *****command.txt*95[H  (run - west)]
+ *****command.txt*17[i  Inventory list]                       *****command.txt*18[I  Observe an item]
+ *****command.txt*95[j  (walk - south)]                       *****command.txt*95[J  (run - south)]
+ *****command.txt*95[k  (walk - north)]                       *****command.txt*95[K  (run - north)]
+ *****command.txt*95[l  (walk - east)]                        *****command.txt*95[L  (run - east)]
+ *****command.txt*24[m  Spell casting / mental power]         *****command.txt*25[M  Full dungeon map]
+ *****command.txt*95[n  (walk - south east)]                  *****command.txt*95[N  (run - south east)]
+ *****command.txt*26[o  Open a door or chest]                 *****command.txt*39[O  Use bonus power (if any)]
+ *****command.txt*28[p  Pray to your god (if any)]            *****command.txt*3[P  Browse a book]
+ *****command.txt*30[q  Quaff a potion]                       *****command.txt*31[Q  Quit (commit suicide)]
+ *****command.txt*32[r  Read a scroll]                        *****command.txt*33[R  Rest for a period]
+ *****command.txt*34[s  Search for traps/doors]               *****command.txt*19[S  Jam a door (Spike)]
+ *****command.txt*11[t  Fire an item]                         *****command.txt*36[T  Take off equipment]
+ *****command.txt*95[u  (walk - north east)]                  *****command.txt*95[U  (run - north east)]
+ *****command.txt*40[v  Throw an item]                        *****command.txt*16[V  Drink from a fountain]
+ *****command.txt*42[w  Wear/wield equipment]                 *****command.txt*23[W  Locate player on map (Where)]
+ *****command.txt*22[x  Look around]                          *****command.txt*29[X  Pet commands]
+ *****command.txt*95[y  (walk - north west)]                  *****command.txt*95[Y  (run - north west)]
+ *****command.txt*1[z  Aim a wand (Zap)]                     *****command.txt*38[Z  Use a staff (Zap)]
+ *****command.txt*47[!  Interact with system]                ^A  (special - debug command)
+ *****command.txt*49[@  Interact with macros]                *****command.txt*95[^B  (tunnel - south west)]
+ *****command.txt*35[#  Toggle search mode]                  ^C  (special - break)
+ *****command.txt*15[$  Hack up a corpse]                    *****command.txt*20[^D  Destroy item]
+ *****command.txt*51[%  Interact with visuals]               *****command.txt*52[^E  Toggle choice window]
+ ^  (special - control key)             *****command.txt*53[^F  Repeat level feeling]
+ *****command.txt*54[&  Interact with colors]                *****command.txt*27[^G  Sacrifice at an altar]
+ *****command.txt*55[*  Target monster or location]          *****command.txt*95[^H  (tunnel - west)]
+ *****command.txt*56[(  Load screen dump]                    ^I  (special - tab)
+ *****command.txt*57[)  Dump screen dump]                    *****command.txt*95[^J  (tunnel - south)]
+ *****command.txt*58[{  Inscribe an object]                  *****command.txt*95[^K  (tunnel - north)]
+ *****command.txt*59[}  Uninscribe an object]                *****command.txt*95[^L  (tunnel - east)]
+ [*****command.txt*46[  Steal]                               *****command.txt*95[^M  (tunnel - south)]
+ ]*****command.txt*43[  Engrave the floor]                   *****command.txt*95[^N  (tunnel - south east)]
+ *****command.txt*60[-  Walk (flip pickup)]                  *****command.txt*21[^O  Cure meat]
+ *****command.txt*61[_  Enter store]                         *****command.txt*62[^P  Show previous messages]
+ *****command.txt*63[+  Alter grid]                          *****command.txt*64[^Q  Quit to next midi song]
+ *****command.txt*65[=  Set options]                         *****command.txt*66[^R  Redraw the screen]
+ *****command.txt*67[;  Walk (with pickup)]                  *****command.txt*68[^S  Save and don't quit]
+ *****command.txt*69[:  Take notes]                          *****command.txt*37[^T  Dig a Tunnel]
+ *****command.txt*44['  Give object to monster]              *****command.txt*95[^U  (tunnel - north east)]
+ *****command.txt*71["  Enter a user pref command]           ^V  (unused)
+ *****command.txt*76[,  Run]                                 ^W  (special - wizard mode)
+ *****command.txt*74[<  Go up staircase]                     *****command.txt*75[^X  Save and quit]
+ *****command.txt*72[.  Stay still (with pickup)]            *****command.txt*95[^Y  (tunnel - north west)]
+ *****command.txt*77[>  Go down staircase]                   ^Z  (special - borg command)
+ *****command.txt*79[\  (special - bypass keymap)]            *****command.txt*80[|  Do cmovies]
+ *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Check artifacts, uniques, objects]
+ *****command.txt*81[/  Identify symbol]                      *****command.txt*84[?  Help]
 
 
 
-=== Special Keys ===
+#####R=== Special Keys ===
  
         Certain special keys may be intercepted by the operating system or
 the host machine, causing unexpected results.  In general, these special keys
@@ -221,8 +221,8 @@ The Ctrl-\ and Ctrl-D and Ctrl-S keys should not be intercepted.
 pressing the control key, by typing a caret ("^") followed by the key.
 This is useful for specifying control-key commands which might be caught
 by the operating system as explained above.
-
-        Pressing backslash ("\") before a command will bypass all keymaps,
+~~~~~79
+        Pressing [[[[[Gbackslash ("\")] before a command will bypass all keymaps,
 and the next keypress will be interpreted as an "underlying command" key,
 unless it is a caret ("^"), in which case the keypress after that will be
 turned into a control-key and interpreted as a command in the underlying
@@ -234,15 +234,15 @@ the "." key has been mapped to a different underlying command.
         The "0" and "^" and "\" keys all have special meaning when entered
 at the command prompt, and there is no "useful" way to specify any of them
 as an "underlying command", which is okay, since they would have no effect.
-
-        For many input requests or queries, the special character ESCAPE
+~~~~~81
+        For many input requests or queries, the [[[[[Gspecial character ESCAPE]
 will abort the command.  The "[y/n]" prompts may be answered with "y" or
 "n", or escape.  The "-more-" message prompts may be cleared (after reading
 the displayed message) by pressing ESCAPE, SPACE, RETURN, LINEFEED, or by
 any keypress, if the "quick_messages" option is turned on.
  
 
-===  Command Counts ===
+#####R===  Command Counts ===
  
         Some commands can be executed a fixed number of times by preceding
 them with a count.  Counted commands will execute until the count expires,
@@ -251,8 +251,8 @@ as being attacked.  Thus, a counted command doesn't work to attack another
 creature.  While the command is being repeated, the number of times left
 to be repeated will flash by on the line at the bottom of the screen.
 
-        To give a count to a command, type 0, the repeat count, and then
-the command.  If you want to give a movement command and you are using the
+        [[[[[BTo give a count to a command, type 0, the repeat count, and then]
+[[[[[Bthe command.] If you want to give a movement command and you are using the
 original command set (where the movement commands are digits), press space
 after the count and you will be prompted for the command.
  
@@ -268,7 +268,7 @@ with commands you normally want to repeat (open, disarm, tunnel, bash,
 alter, etc) by setting the "always_repeat" option.
  
  
-===  Selection of Objects ===
+#####R===  Selection of Objects ===
  
         Many commands will also prompt for a particular object to be used.
 For example, the command to read a scroll will ask you which of the
@@ -282,43 +282,39 @@ press "/" to select an object from your equipment instead of your
 inventory.  Pressing space once will have the same effect as "*", and
 the second time will cancel the command and run the "i" or "e" command.
  
-        The particular object may be selected by an upper case or a lower
-case letter.  If lower case is used, the selection takes place
-immediately.  If upper case is used, then the particular option is
-described, and you are given the option of confirming or retracting that
-choice.  Upper case selection is thus safer, but requires an extra key
+        [[[[[BThe particular object may be selected by an upper case or a lower]
+[[[[[Bcase letter.  If lower case is used, the selection takes place]
+[[[[[Bimmediately.  If upper case is used, then the particular option is]
+[[[[[Bdescribed, and you are given the option of confirming or retracting that]
+[[[[[Bchoice.]  Upper case selection is thus safer, but requires an extra key
 stroke.  Also see the "!*" and "!x" inscriptions, below.
 
-        For many commands, you can also use "-" to select an object on the
-floor where you are standing.  This lets you read scrolls or quaff
+        For many commands, [[[[[Byou can also use "-" to select an object on the]
+[[[[[Bfloor where you are standing.]  This lets you read scrolls or quaff
 potions, for example, off the dungeon floor without picking them up.
-
+~~~~~90
         If you enter a number between 0 and 9, the first item engraved
 with "@#" where "#" is the number you entered will be selected.  For example,
 if you have a shovel engraved with "@0" and you type "w" (for wield) and
 then 0, you will wield the shovel.  This is very useful for macros (see
 below), since you can use this to select an object regardless of its
-location in your pack.  For example, Angband automatically defines a macro
-for the key "X" to do "w0".  If you then engrave both your digging
-instrument and your primary weapon with @0, pressing X will wield
-whichever one is not being currently wielded (letting you quickly switch
-between them).  Multiple numbers can be engraved on the same object; for
+location in your pack. Multiple numbers can be engraved on the same object; for
 example, if a sword is engraved with @1@0, then either "w1" or "w0" will
 wield it.  Normally, you inscribe "@1@0" on your primary weapon, and
-"@2@0" on your digger or secondary weapon.  Note that an inscription
-containing "@x#" will act like "@#" but only when the current "Angband
-command" is "x".  Thus you can put "@z4" on a rod and "@u4" on a staff,
-and then use both "z4" and "u4" as desired.
+"@2@0" on your secondary weapon.  [[[[[BNote that an inscription containing]
+[[[[[B"@x#" will act like "@#" but only when the current "Angband command"]
+[[[[[Bis "x".]  Thus you can put "@z4" on a rod and "@u4" on a staff, and then 
+use both "z4" and "u4" as desired.
 
         Note that any object containing "!x" in its inscription, where
 "x" is the current "angband command" (or containing "!*" ever) will induce
 "verification" whenever that object is "selected".  Thus, inscribing, say,
 "!f!k!d" on an object will greatly reduce the odds of you "losing" it by
-accident, and inscribing "!*" on an object will allow you to be very paranoid
+accident, and [[[[[Binscribing "!*" on an object] will allow you to be very paranoid
 about the object.  Note that "selling" and "dropping" both use the "d" command.
 
 
-=== User Pref Files ===
+#####R=== User Pref Files ===
 
         Angband allows you to change various aspects of the game to suit
 your tastes.  You may define keymaps (changing the way Angband maps your
@@ -363,7 +359,7 @@ way than the user pref commands allow.  The commands include "Interact with
 macros" (@), "Interact with visuals" (%), and "Interact with colors" (&),
 described below.
 
---- User Pref Files (Macros) ---
+#####G--- User Pref Files (Macros) ---
 
         The "Interact with macros" command allows you to define or remove
 "macros", which are mappings from a single logical keypress to a sequence
@@ -373,7 +369,7 @@ to "automate" repetitive multi-keypress commands that you use a lot.
 
         Since macros represent keypress sequences, and not all keypresses
 have a printable representation, macro triggers and actions must often be
-"encoded" into a human readible form.  This is done using several types
+"encoded" into a human readable form.  This is done using several types
 of encoding, including "\xHH" for character number HH in hexidecimal, "\e"
 for the "escape" code, "\n" for the "newline" code, "\r" for the "return"
 code, "\s" for the "space" code, "\\" for backslash, "\^" for caret, and
@@ -387,7 +383,6 @@ to about 1024 keys in both triggers and actions.
         The special "\" command (which must be encoded in macros as "\\")
 is very useful in macros, since it bypasses all keymaps and allows the next
 keystroke to be considered a command in the underlying Angband command set.
-For a list of the Angband command set, see the "command.txt" help file.
 For example, a macro which maps Shift-KP6 to "\" + "." + "6" will induce
 the "run east" behavior, regardless of what keyset the user has chosen, and
 regardless of what keymaps have been defined.
@@ -396,7 +391,18 @@ regardless of what keymaps have been defined.
 of the form "A:<str>", which defines the encoded macro action, and one of
 the form "P:<str>", which defines the encoded macro trigger.
 
---- User Pref Files (Keymaps) ---
+      A [[[[[Bcommon example of a macro] to cast the first spell in your first spell
+book at the nearest monster would be: \e\e\em1a*t where \e is an escape (to make
+sure you are not still within another command), m1 selects the spell book that 
+is inscribed ({) with @m1, a selects the first spell in that book, and *t targets
+the nearest monster. 
+
+      More detailed information about specific macros can be found in
+*****macrofaq.txt*0[macrofaq.txt], originally written by Jim Lyon (jplyon@attglobal.net),
+modified for PernAngband with Jim's permission by Dawnmist 
+(angband@dawnmist.8m.com).
+
+#####G--- User Pref Files (Keymaps) ---
 
         The "Interact with macros" command also allows you to define
 "keymaps", which are vaguely related to macros.  A keymap maps a single
@@ -415,7 +421,7 @@ ability to "disable" a command by mapping it to "\x00",
 "M:<T> <key> <str>", where <T> is the keyset (0/1 for original/roguelike),
 <key> is the encoded trigger key, and <str> is the encoded keymap action.
 
---- User Pref Files (Visuals) ---
+#####G--- User Pref Files (Visuals) ---
 
         You can use the "Interact with visuals" command to change various
 visual information, currently including the choice of what attr/char values
@@ -438,7 +444,7 @@ must do so, remember that you are only cheating yourself.
 	Keymaps can be specified in user pref files as line of the form
 "R:<N>:<A>/<C>" or "K:<N>:<A>/<C>" or "F:<N>:<A>/<C>" or "U:<N>:<A>/<C>".
 
---- User Pref Files (Colors) ---
+#####G--- User Pref Files (Colors) ---
 
         The "Interact with colors" command allows you to change the actual
 internal values used to display various colors.  This command may or may
@@ -450,14 +456,14 @@ currently used by Angband.
 	Colors can be specified in user pref files as line of the form
 "V:<N>:<V>:<R>:<G>:<B>".
 
---- User Pref Files (Options) ---
+#####G--- User Pref Files (Options) ---
 
         The "Interact with options" command allows you to turn options
 on or off.  You may turn options off or on using the user pref commands
 of the form "X:<option>" or "Y:<option>" respectively.
 
  
-===  Command Descriptions ===
+#####R===  Command Descriptions ===
 
         The following command descriptions are listed as the command name
 plus the "underlying command" key.  This is followed by the command name
@@ -472,9 +478,9 @@ which need a "quantity" will use the "repeat count" instead of asking for
 a quantity, allowing the use of "0d" for "drop all".  Commands which ask
 for a quantity will convert any "letters" into the maximal legal value.
 
----  Inventory Commands ---
-
-Inventory list (i)
+#####R---  Inventory Commands ---
+~~~~~17
+[[[[[GInventory list (i)]
         Displays a list of objects being carried but not equipped.  You
         can carry up to 23 different items, not counting those in your
         equipment.  Often, many identical objects can be "stacked" into
@@ -483,8 +489,8 @@ Inventory list (i)
         to set options to allow wands, staves, and other such objects to
         stack.  Each object has a weight, and if you carry more objects
         than your strength permits, you will begin to slow down.
- 
-Equipment list (e)
+~~~~~9 
+[[[[[GEquipment list (e)]
         Use this command to display a list of the objects currently being
         used by your character.  Your character has 12 slots for equipment,
         each corresponding to a different location on the body, and each of
@@ -494,8 +500,8 @@ Equipment list (e)
         NECK (amulet), LITE (light source), BODY (armor), OUTER (cloak),
         ARM (shield), HEAD (helmet), HANDS (gloves), FEET (boots).  You
         must be using an object to receive any of its special powers.
-
-Drop an item (d)
+~~~~~7
+[[[[[GDrop an item (d)]
         This drops an item from your inventory or equipment onto the
         dungeon floor.  If the floor spot you are standing on already has
         an object in it, Angband will attempt to drop the item onto an
@@ -504,20 +510,20 @@ Drop an item (d)
         Doors and traps are considered objects for the purpose of
         determining if the space is occupied.  If the selected pile
         contains multiple items, you may specify a quantity.
-
-Destroy an item (k) or Destroy an item (^D)
+~~~~~20
+[[[[[GDestroy an item (k) or Destroy an item (^D)]
         This destroys an item in your inventory or on the dungeon floor.
         If the selected pile contains multiple objects, you may specify
         a quantity.  You must always (currently) verify this command.
-
-Wear/Wield equipment (w)
+~~~~~42
+[[[[[GWear/Wield equipment (w)]
         To wear or wield an object in your inventory, use this command.
         Since only one object can be in each slot at a time, if you wear
         or wield an item into a slot which is already occupied, the old
         item will be first be taken off, and may in fact be dropped if
         there is no room for it in your inventory.
-
-Take off equipment (t) or Take off equipment (T)
+~~~~~36
+[[[[[GTake off equipment (t) or Take off equipment (T)]
         Use this command to take off a piece of equipment and return it
         to your inventory.  Occasionally, you will run into a cursed item
         which cannot be removed.  These items normally penalize you in some
@@ -525,9 +531,9 @@ Take off equipment (t) or Take off equipment (T)
         is no room in your inventory for the item, your pack will overflow
         and you will drop the item after taking it off.
 
----  Movement Commands ---
-
-Walk (with pickup) (;)
+#####R---  Movement Commands ---
+~~~~~67
+[[[[[GWalk (with pickup) (;)]
         Moves one step in the given direction.  The square you are moving
         into must not be blocked by walls or doors.  You will pick up any
         items in the destination grid if the "always_pickup" option is set,
@@ -536,16 +542,16 @@ Walk (with pickup) (;)
         also use the "original" direction keys (both keysets) or the
         "roguelike" direction keys (roguelike keyset) to walk in a
         direction.
-
-Walk (flip pickup) (-)
+~~~~~60
+[[[[[GWalk (flip pickup) (-)]
         This is just like normal move, except that the "Pick things up"
         option is inverted.  In other words, if you normally pick up
         anything you encounter (the default), you will not pick things up
         when using this command.  If you normally do not pick things up,
         you will when using this command.  This command can take a count
         and requires a direction.
-
-Run (.) or Run (,)
+~~~~~76
+[[[[[GRun (.) or Run (,)]
         This command will move in the given direction, following any bends
         in the corridor, until you either have to make a "choice" between
         two directions or you are disturbed.  You can configure what will
@@ -553,8 +559,8 @@ Run (.) or Run (,)
         direction.  You may also use shift plus the "roguelike" direction
         keys (roguelike keyset), or shift plus the "original" direction keys
         on the keypad (both keysets, some machines) to run in a direction.
-
-Go up staircase (<)
+~~~~~74
+[[[[[GGo up staircase (<)]
         Climbs up an up staircase you are standing on.  There is always at
         least one staircase going up on every level except for the town
         level (this doesn't mean it's easy to find).  Going up a staircase
@@ -566,31 +572,31 @@ Go up staircase (<)
         artifacts unless the "Create characters in preserve mode" option
         was set when your character was created, in which case the artifacts
         may show up again later.
-
-Go down staircase (>)
+~~~~~77
+[[[[[GGo down staircase (>)]
         Descends a down staircase you are standing on.  There are always
         at least two staircases going down on each level, except for the
         town which has only one, and "quest" levels, which have none until
         the quest monster is killed.  Going down a staircase will take you
         to a new dungeon level.  See "Go Up Staircase" for more info.
 
----   Resting Commands ---
-
-Stay still (with pickup) (,) or Stay still (with pickup) (.)
+#####R---   Resting Commands ---
+~~~~~72
+[[[[[GStay still (with pickup) (,) or Stay still (with pickup) (.)]
         Stays in the same square for one move.  If you normally pick up
         objects you encounter, you will pick up whatever you are standing
         on.  This command can take a count.  You may also use the "5" key
         (both keysets).
-
-Stay still (flip pickup) (g)
+~~~~~13
+[[[[[GStay still (flip pickup) (g)]
         Stays in the same square for one move.  If you normally pick up
         objects you encounter, you will not pick up whatever you are
         standing on.  If you normally do not pick up objects, you will
         pick up what you are standing on.  This command is normally only
         used when the "always_pickup" option is false.  This command can
         take a count.
-
-Rest (R)
+~~~~~33
+[[[[[GRest (R)]
         Resting is better for you than repeatedly staying still, and can
         be told to automatically stop after a certain amount of time, or
         when various conditions are met.  In any case, you always wake up
@@ -599,10 +605,14 @@ Rest (R)
         want to rest, or "*" to rest until your hitpoints and mana are
         restored, or "&" to rest until you are fully "healed".  This command
         can take a count, which is used for the number of turns to rest.
+~~~~~61
+[[[[[GEnter store (_)]
+        When standing on the door of a store, this command allows the character
+        to enter the store again. 
 
----  Searching Commands ---
-
-Search (s)
+#####R---  Searching Commands ---
+~~~~~34
+[[[[[GSearch (s)]
         This command can be used to locate hidden traps and secret doors
         in the spaces adjacent to the player.  More than a single turn of
         searching will be required in most cases.  You should always
@@ -610,8 +620,8 @@ Search (s)
         trapped.  This command can take a count, which is useful if you
         are fairly sure of finding something eventually, since the command
         stops as soon as anything is found.  This command can take a count.
-
-Toggle search mode (S) or Toggle search mode (#)
+~~~~~35
+[[[[[GToggle search mode (S) or Toggle search mode (#)]
         This command will take you into and out of search mode.  When
         first pressed, the message "Searching" will appear at the bottom
         of the screen.  You are now taking two turns for each command, one
@@ -621,9 +631,9 @@ Toggle search mode (S) or Toggle search mode (#)
         are disturbed.  You may also turn off search mode by entering the
         Search Mode command again.
 
----  Alter Commands ---
-
-Tunnel (T) or Tunnel (^T)
+#####R---  Alter Commands ---
+~~~~~37
+[[[[[GTunnel (T) or Tunnel (^T)]
         Tunneling or mining is a very useful art.  There are many kinds of
         rock, with varying hardness, including permanent rock (permanent),
         granite (very hard), quartz veins (hard), magma veins (soft), and
@@ -634,8 +644,8 @@ Tunnel (T) or Tunnel (^T)
         or a shovel or a pick.  Tunneling ability increases with strength
         and weapon weight.  This command can take a count, requires a
         direction, and is affected by the "always_repeat" option.
-
-Open a door or chest (o)
+~~~~~26
+[[[[[GOpen a door or chest (o)]
         To open an object such as a door or chest, you must use this
         command.  If the object is locked, you will attempt to pick the
         lock based on your disarming ability.  If you open a trapped chest
@@ -643,14 +653,14 @@ Open a door or chest (o)
         doors will be jammed shut and may have to be forced open.  You may
         need several tries to open a door or chest.  Open can take a count,
         requires a direction, and is affected by the "always_repeat" option.
-
-Close a door (c)
+~~~~~5
+[[[[[GClose a door (c)]
         Non-intelligent and some other creatures cannot open doors, so
         shutting doors can be quite valuable.  Broken doors cannot be closed.
         Bashing a door open may break it. Close can take a count, requires a
         direction, and is affected by the "always_repeat" option.
-
-Jam a door (j) or Spike a door (S)
+~~~~~19
+[[[[[GJam a door (j) or Spike a door (S)]
         Many monsters can simply open closed doors, and can eventually
         get through a locked door.  You may therefore occasionally want
         to jam a door shut with iron spikes.  Each spike used on the door
@@ -658,8 +668,8 @@ Jam a door (j) or Spike a door (S)
         Smaller monsters are less able to bash down doors.  In order to
         use this command, you must be carrying iron spikes.  Jam or Spike
         requires a direction.
-
-Bash a door (B) or Force a door (f)
+~~~~~4
+[[[[[GBash a door (B) or Force a door (f)]
         This command allows you to bash down jammed doors.  Your bashing
         ability increases with strength.  Bashing open a door can (briefly)
         throw you off balance.  Doors that are stuck, or which have been
@@ -668,15 +678,15 @@ Bash a door (B) or Force a door (f)
         may permanently break it so that it can never be closed.  Bash or
         Force can take a count, requires a direction, and is affected by
         the "always_repeat" option.
-
-Disarm a trap or chest (D)
+~~~~~8
+[[[[[GDisarm a trap or chest (D)]
         You can attempt to disarm traps on the floor or on chests.  If you
         fail, there is a chance that you will blunder and set it off.  You
         can only disarm a trap after you have found it (usually with the
         Search command).  Disarm can take a count, requires a direction,
         and is affected by the "always_repeat" option.
-
-Alter (+)
+~~~~~63
+[[[[[GAlter (+)]
         This special command allows the use of a single keypress to select
         any of the "obvious" commands above (attack, tunnel, bash, open,
         disarm, close), and, by using macros or keymaps, to combine this
@@ -686,18 +696,32 @@ Alter (+)
         "alter the terrain feature of an adjacent grid" command.  Alter
         can take a count, requires a direction, and is affected by the
         "always_repeat" option.
+~~~~~43
+[[[[[GEngrave the floor (x)]
+        The dungeon is full of magics, and as such pools of it collect on
+        the floor in places. With the "inscribe" command, it is possible
+        to create some spell effects by inscribing words you have read from
+        various parchments detailing the languages used within the dungeon.
+        Then, if there is enough mana collected on that square, walking over 
+        the inscription will trigger the spell. Some spells can be triggered
+        only by the player, some only by monsters, and some are triggered by
+        both.
+~~~~~46
+[[[[[GSteal (Z)]
+        Allows the player to try to steal items from shops. Also allows 
+        thieves to steal from monsters.
 
----  Spell and Prayer Commands ---
-
-Browse a book (b) or Peruse a book (P)
+#####R---  Spell and Prayer Commands ---
+~~~~~3
+[[[[[GBrowse a book (b) or Peruse a book (P)]
         Only mages, rogues, and rangers can read magic books, and only
         priests and paladins can read prayer books.  Warriors cannot read
         any books.  When this command is used, all of the spells or prayers
         contained in the selected book are displayed, along with information
         such as their level, the amount of mana required to cast them, and
         whether or not you know the spell or prayer.
-
-Gain new spells or prayers (G)
+~~~~~14
+[[[[[GGain new spells or prayers (G)]
         Use this command to actually learn new spells or prayers.  When you
         are able to learn new spells or prayers, the word "Study" will appear
         on the status line at the bottom of the screen.  If you have a book
@@ -706,8 +730,8 @@ Gain new spells or prayers (G)
         ranger, you may actually choose which spell to study.  If you are a
         priest or paladin, your gods will choose a prayer for you.  There are
         nine books of each type, some normally found only in the dungeon.
-
-Cast a spell / Pray a prayer (m)
+~~~~~24
+[[[[[GCast a spell / Pray a prayer (m) / Use a mental power]
         To cast a spell, you must have previously learned the spell and
         must have in your inventory a book from which the spell can be
         read.  Each spell has a chance of failure which starts out fairly
@@ -728,9 +752,20 @@ Cast a spell / Pray a prayer (m)
         Since you must read the prayer from a book, you cannot be blind
         or confused while praying, and there must be some light present.
 
----  Object Manipulation Commands ---
+        Some classes (for example, possessors and alchemists) have the 
+        ability to use some magic without actually needing spell books of 
+        any sort. These classes are able to access their magical powers 
+        through the use of the 'm' command.
+~~~~~39
+[[[[[GUse bonus power (if any) (U) or (O)]
+        Some races and classes have special natural abilities. All of these
+        possible abilities are listed in an index under the U (or O) command.
+        These type of abilities can include the Vampire's bite, a DeathMold's
+        telekinesis, and a RohanKnight's light speed capabilities.
 
-Eat some food (E)
+#####R---  Object Manipulation Commands ---
+~~~~~10
+[[[[[GEat some food (E)]
         You must eat regularly to prevent starvation.  As you grow hungry,
         a message will appear at the bottom of the screen saying "Hungry".
         If you go hungry long enough, you will become weak, then start
@@ -738,27 +773,27 @@ Eat some food (E)
         may use this command to eat food in your inventory.  Note that
         you can sometimes find food in the dungeon, but it is not always
         wise to eat strange food.
-
-Fuel your lantern/torch (F)
+~~~~~12
+[[[[[GFuel your lantern/torch (F)]
         If you are using a torch and have more torches in your pack,
         or you are using a lantern and have flasks of oil in your pack,
         then your can "refuel" them with this command.  Torches and Lanterns
         are limited in their maximal fuel.  In general, two flasks will fully
         fuel a lantern and two torches will fully fuel a torch.
-
-Quaff a potion (q)
+~~~~~30
+[[[[[GQuaff a potion (q)]
         Use this command to drink a potion.  Potions affect the player in
         various ways, but the effects are not always immediately obvious. 
-
-Read a scroll (r)
+~~~~~32
+[[[[[GRead a scroll (r)]
         Use this command to read a scroll.  Scroll spells usually have an
         area effect, except for a few cases where they act on other objects.
         Reading a scroll causes the parchment to disintegrate as the scroll
         takes effect.  Most scrolls which prompt for more information can be
         aborted (by pressing escape), which will stop reading the scroll
         before it disintegrates.
- 
-Inscribe an object ({) 
+~~~~~58 
+[[[[[GInscribe an object ({)]
         This command inscribes a string on an object.  The inscription is
         displayed inside curly braces after the object description.  The
         inscription is limited to the particular object (or pile) and is
@@ -776,23 +811,41 @@ Inscribe an object ({)
         item labeled as "{tried}" is a "flavored" item which the character
         has used, but whose effects are unknown.  Certain inscriptions have
         a meaning to the game, see "@#", "@x#", "!*", and "!x", in the section
-        on inventory object selection.
-
-Uninscribe an object (})
+        on *****command.txt*90[inventory object selection.]
+~~~~~59
+[[[[[GUninscribe an object (})]
         This command removes the inscription on an object.  This command will
         have no effect on "fake" inscriptions added by the game itself.
+~~~~~15
+[[[[[GHack up a corpse (h)]
+        Corpses can be cut up into smaller pieces of meat, allowing the user to
+        eat the meat, or cure it for later use.
+~~~~~21
+[[[[[GCure meat (K)]
+        Curing meat requires the use of a potion of salt water, and is used to
+        protect meat from hacked-up corpses from going bad.
+~~~~~16
+[[[[[GDrink from a fountain (H)]
+        All fountains in Pern are magical, and act like magical potions. Unlike
+        potions, however, it is not possible to identify the type of fountain
+        before drinking from it.
+~~~~~44
+[[[[[GGive item to monster (y)]
+        This command is used to give an item within your inventory to a monster
+        standing next to you. The monster may not accept the item you give it, 
+        however.
 
----  Magical Object Commands ---
-
-Activate an artifact (A)
+#####R---  Magical Object Commands ---
+~~~~~2
+[[[[[GActivate an artifact (A)]
         You have heard rumors of special weapons and armor deep in the
         Pits, items that can let you breath fire like a dragon or light
         rooms with just a thought.  Should you ever be lucky enough to
         find such an item, this command will let you activate its special
         ability.  Special abilities can only be used if you are wearing or
         wielding the item.
-
-Aim a wand (a) or Zap a wand (z)
+~~~~~1
+[[[[[GAim a wand (a) or Zap a wand (z)]
         Wands must be aimed in a direction to be used.  Wands are magical
         devices, and therefore there is a chance you will not be able to
         figure out how to use them if you aren't good with magical
@@ -801,14 +854,14 @@ Aim a wand (a) or Zap a wand (z)
         given direction, depending on the wand.  An obstruction such as a
         door or wall will generally stop the effects from traveling any
         farther.  This command requires a direction and can use a target.
-
-Use a staff (u) or Zap a staff (Z)
+~~~~~38
+[[[[[GUse a staff (u) or Zap a staff (Z)]
         This command will use a staff.  A staff is normally very similar
         to a scroll, in that they normally either have an area effect or
         affect a specific object.  Staves are magical devices, and there
         is a chance you will not be able to figure out how to use them.
- 
-Zap a rod (z) or Activate a rod (a)
+~~~~~45 
+[[[[[GZap a rod (z) or Activate a rod (a)]
         Rods are extremely powerful magical items, which cannot be burnt
         or shattered, and which can have either staff-like or wand-like
         effects, but unlike staves and wands, they don't have charges.
@@ -818,9 +871,9 @@ Zap a rod (z) or Activate a rod (a)
         This command may require a direction (depending on the type of
         rod, and whether you are aware of its type) and can use a target.
 
----  Throwing and Missile Weapons ---
-
-Fire an item (f) or Fire an item (t)
+#####R---  Throwing and Missile Weapons ---
+~~~~~11
+[[[[[GFire an item (f) or Fire an item (t)]
         You may throw any object carried by your character.  Depending on
         the weight, it may travel across the room or drop down beside you.
         Only one object from a pile will be thrown at a time.  Note that
@@ -840,8 +893,8 @@ Fire an item (f) or Fire an item (t)
         would get by just throwing the missile.  Fire or Throw requires
         a direction.  Targeting mode (see the next command) can be invoked
         with "*" at the "Direction?" prompt.
-
-Throw an item (v)
+~~~~~40
+[[[[[GThrow an item (v)]
         You may throw any object carried by your character.  The lighter
         the object, the farther you can throw it.  Only one object from a
         stack may be thrown at a time.  Throwing an object may break it.
@@ -851,8 +904,8 @@ Throw an item (v)
         it may or may not do damage.  Some objects, such as weapons, or
         flasks of oil, can do a substantial amount of damage.  This
         command requires a direction, and can take a target.
-
-Targeting Mode (*)
+~~~~~55
+[[[[[GTargeting Mode (*)]
         This will allow you to aim your spells and such at a specific
         monster or grid, so that you can point directly towards that
         monster or grid (even if this is not a "compass" direction) when
@@ -886,9 +939,9 @@ Targeting Mode (*)
         not stopped by interposed monsters if the ball is launched at a target.
         This command takes no time.
         
----  Looking Commands ---
-
-Full screen map (M)
+#####R---  Looking Commands ---
+~~~~~25
+[[[[[GFull screen map (M)]
         This command will show a map of the entire dungeon, reduced by a
         factor of nine, on the screen.  Only the major dungeon features
         will be visible because of the scale, so even some important
@@ -896,16 +949,16 @@ Full screen map (M)
         in locating where the stairs are relative to your current
         position, or for identifying unexplored areas of the dungeon.
         This command takes no time.
-
-Locate player on map (L) or Where is the player (W)
+~~~~~23
+[[[[[GLocate player on map (L) or Where is the player (W)]
         This command lets you scroll your map around, looking at all sectors
         of the current dungeon level, until you press escape, at which point
         the map will be re-centered on the player if necessary.  To scroll
         the map around, simply press any of the "direction" keys.  The top
         line will display the sector location, and the offset from your
         current sector.  This command takes no time.
-
-Look around (l) or Examine things (x)
+~~~~~22
+[[[[[GLook around (l) or Examine things (x)]
         This command is used to look around at nearby monsters (to determine
         their type and health) and objects (to determine their type).  It is
         also used to find out what objects (if any) are under monsters, and
@@ -917,30 +970,30 @@ Look around (l) or Examine things (x)
         general direction, or "r" to recall information about the current
         monster race, or "q" or escape to stop looking around.  You always
         start out looking at the "nearest" interesting monster or object.
-
-Observe an item (I)
+~~~~~18
+[[[[[GObserve an item (I)]
         This command lets you observe a previously *identified* item.
         This will tell you things about the special powers of the object.
         Currently, it only makes sense for artifacts and ego-items.
 
---- Message Commands ---
-
-Repeat level feeling (^F)
+#####R--- Message Commands ---
+~~~~~53
+[[[[[GRepeat level feeling (^F)]
         Repeats the feeling about the dungeon level that you got when you
         first entered the level.
-
-View previous messages (^P)
+~~~~~62
+[[[[[GView previous messages (^P)]
         This command shows you all the recent messages.  You can scroll
         through them, or exit with ESCAPE.  This command takes no time.
-
-Take notes (:)
+~~~~~69
+[[[[[GTake notes (:)]
         This command allows you to take notes, which will then appear in
         your message list (prefixed with "Note:").  This command takes
         no time.
 
---- Game Status Commands ---
-
-Character Description (C)
+#####R--- Game Status Commands ---
+~~~~~6
+[[[[[GCharacter Description (C)]
         Brings up a full description of your character, including your
         skill levels, your current and potential stats, and various other
         information.  From this screen, you can change your name or use
@@ -948,8 +1001,8 @@ Character Description (C)
         status to a file.  That command saves additional information,
         including your background, your inventory, and the contents of
         your house.
-
-Check Artifacts, Uniques and Objects (~ or |)
+~~~~~82
+[[[[[GCheck Artifacts, Uniques and Objects (~ or |)]
         The command opens a menu from which you can select information
         about seen Artifacts, Unique monsters, and identified objects.
 
@@ -968,67 +1021,81 @@ Check Artifacts, Uniques and Objects (~ or |)
         Display known objects
         This list all 'flavoured' objects (such as rings, scrolls, wands,
         potions, etc.) which you have identified.
+~~~~~70
+[[[[[GTime of the day (^T)]
+        This command is used to give the current time within the game. 
+        Extremely useful for characters such as Vampires to check whether
+        it is safe to leave the dungeon.
 
---- Saving and Exiting Commands ---
-
-Save and Quit (Ctrl-X)
+#####R--- Saving and Exiting Commands ---
+~~~~~75
+[[[[[GSave and Quit (Ctrl-X)]
         To save your game so that you can return to it later, use this
         command.  Save files will also be generated (hopefully) if the
         game crashes due to a system error.  After you die, you can use
         your savefile to play again with the same options and such.
-
-Save (Ctrl-S)
+~~~~~68
+[[[[[GSave (Ctrl-S)]
         This command saves the game but doesn't exit Angband.  Use this
         frequently if you are paranoid about having the computer crash
         while you are playing.
-
-Quit (commit suicide) (Q)
+~~~~~31
+[[[[[GQuit (commit suicide) (Q)]
         Kills your character and exits Angband.  You will be prompted to
         make sure you really want to do this, and then asked to verify
         that choice.  Note that dead characters are dead forever.
 
---- User pref file commands ---
-
-Interact with options (=)
+#####R--- User pref file commands ---
+~~~~~65
+[[[[[GInteract with options (=)]
         Allow you to interact with options.  Note that using the "cheat"
         options may mark your savefile as unsuitable for the high score
         list.  You may change normal options using the "X" and "Y" user
         pref commands.  You must use the "redraw" command (^R) after
         changing certain options.
-
-Interact with macros (@)
+~~~~~49
+[[[[[GInteract with macros (@)]
         Allow you to interact with macros.  You may load or save macros
         from user pref files, create macros of various types, or define
         keymaps.  You must define a "current action", shown at the bottom
         of the screen, before you attempt to use any of the "create macro"
         commands, which use that "current action" as their action.  This
         is a horrible interface, and will be fixed eventually.
-
-Interact with visuals (%)
+~~~~~51
+[[[[[GInteract with visuals (%)]
         Allow you to interact with visuals.  You may load or save visuals
         from user pref files, or modify the attr/char mappings for the
         monsters, objects, and terrain features.  You must use the "redraw"
         command (^R) to redraw the map after changing attr/char mappings.
-
-Interact with colors (&)
+~~~~~54
+[[[[[GInteract with colors (&)]
         Allow the user to interact with colors.  This command only
         works on some systems.
- 
-Interact with the system (!)
+~~~~~47 
+[[[[[GInteract with the system (!)]
         Allow the user to interact with the underlying visual system.
         This command is currently unused.
- 
---- Help ---
+~~~~~71
+[[[[[GEnter a user pref command (")]
+        Angband stores your preferences in files called "user pref files",
+        which contain comments and "user pref commands", which are simple strings
+        describing one aspect of the system about which the user has a preference.
+        You may enter single user pref commands directly, using the special "Enter 
+        a user pref command" command, activated by "double quote". You may have to
+        use the "redraw" command (^R) after changing certain of the aspects of the 
+        game, to allow Angband to adapt to your changes.
 
-Help (?)
+#####R--- Help ---
+~~~~~84
+[[[[[GHelp (?)]
         Brings up the Angband on-line help system.  Note that the help
         files are just text files in a particular format, and that other
         help files may be available on the Net.  In particular, there are
         a variety of spoiler files which do not come with the standard
         distribution.  Check the place you got Angband from or ask on the
         newsgroup rec.games.roguelike.angband about them. 
-
-Identify Symbol (/)
+~~~~~83
+[[[[[GIdentify Symbol (/)]
         Use this command to find out what a character stands for.  For
         instance, by pressing "/.", you can find out that the "." symbol
         stands for a floor spot.  When used with a symbol that represents
@@ -1050,36 +1117,80 @@ Identify Symbol (/)
         answer "k" to see the list sorted by number of kills, or "p" to
         see the list sorted by dungeon level the monster is normally found
         on.  Pressing ESCAPE at any point will exit this command.
- 
-Game Version (V)
+~~~~~41 
+[[[[[GGame Version (V)]
         This command will tell you what version of Angband you are using.
         For more information, see the "version.txt" help file.
 
 
---- Extra Commands ---
-
-Toggle Choice Window (^E) 
+#####R--- Extra Commands ---
+~~~~~27
+[[[[[GSacrifice at an altar (O)]
+        Altars are places dedicated to the worship of a particular God. To
+        start worshipping the God who owns the altar, you must first sacrifice
+        an item to them on their altar. Be warned, not all Gods are equal in 
+        power, and once you have selected a God to worship, it is *very* 
+        difficult to change which God you worship. Even artifacts can be offered
+        to Gods, and the more items you sacrifice, or the more powerful those
+        items are, the happier with you your God will be. When your God is happy
+        with you, you will receive more benefits from them. Your God's happiness
+        will decrease over time, so you will need to continue offerring items
+        to them to stay in their good books. Note that there is no requirement 
+        for most classes to worship any God. (See *****gods.txt*0[gods.txt] for more information)
+~~~~~28
+[[[[[GPray to your God (p)]
+        *If* you worship a God, you have the option of praying to them when you
+        are in trouble. However, Gods do not like being disturbed, so your standing
+        with your God will reduce each time you do pray. Eventually, your God will
+        become angry, and choose to punish you for your impertinence if you pray too
+        often, or not sacrifice enough items. (See *****gods.txt*0[gods.txt] for more information)
+~~~~~29
+[[[[[GPet commands (P)]
+        From time to time, you may aquire a pet within the dungeon. Pets are able
+        (to a more or less limited extent) to follow some simple commands, like
+        follow me. These commands are all accessed through the menu under "Pet 
+        Commands".
+~~~~~52
+[[[[[GToggle Choice Window (^E)]
         Toggles the display in the choice window (if available) between
         your inventory and your equipment.  This command only applies if
         you are running Angband under a windowing environment and the
         choice window is available.  This also redraws the choice window.
-
-Redraw Screen (^R)
+~~~~~66
+[[[[[GRedraw Screen (^R)]
         This command adapts to various changes in global options, and
         redraws all of the windows.  This command should be used after
         changing various global properties (options, attr/char mappings,
         color definitions, etc).  When in doubt, use it.
-        
-Load screen dump (left-paren)
+~~~~~56        
+[[[[[GLoad screen dump (left-paren)]
         This command loads a "snap-shot" of the current screen from the file
         "dump.txt", and displays it on the screen.
-        
-Save screen dump (right-paren)
+~~~~~57        
+[[[[[GSave screen dump (right-paren)]
         This command dumps a "snap-shot" of the current screen to the file
         "dump.txt", including encoded color information.
+~~~~~64
+[[[[[GQuit to next midi song (^Q)]
+        In the DOS binary (and maybe Windows) of PernAngband, it is possible for
+        the game to play any midi song in the lib/xtra/music directory. This
+        command allows the player to force the game to finish the current song
+        and move on to another one (i.e. if you are tired of hearing the current
+        song, you can change it).
+~~~~~80
+[[[[[GDo cmovies (|)]
+        The cmovie command (press | key in both normal or roguelike set) allows
+        you to make a "movie" that you can send to people showing your movement
+        through a part of the dungeon (like clearing that GCV . . .)
 
+        It asks for a name (it will add the extension itself) and then if you wish
+        to play or record it.
+
+        The cmovie files (.cmv) are located in lib/cmov, note that they quickly
+        become huge and so you REALLY should compress them before sending to friends.
 
 -- 
 Original: Alexander Cutler and Andy Astrand
 Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
 Updated (2.7.9): Ben Harrison (benh@phial.com)
+Updated PernAngband 5.x.x: Dawnmist (angband@dawnmist.8m.com)

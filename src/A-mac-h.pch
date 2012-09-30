@@ -1,0 +1,97 @@
+/* File: A-mac-h.pch */
+
+/*
+ * This file creates pre-compiled header files which are used to
+ * compile Macintosh Angband using the Code Warrior Pro compiler.
+ *
+ * It can also be used with CodeWarrior. Both PPC and 68K binaries have
+ * been built successfully by CodeWarrior Version 6 for Macintosh
+ * (it's a Japanese version but I don't believe local language support makes
+ * any differences):
+ *
+ * 1) Open h-system.h and find the lines that say
+ *
+ *	#ifdef MACINTOSH
+ *	# include <unix.h>
+ *	#endif
+ *
+ *    and change them to
+ *
+ *	#ifdef MACINTOSH
+ *	# include <unix.h>
+ *	# include <unistd.h>
+ *	# include <fcntl.h>
+ *	#endif
+ *
+ * 2) Comment out / #if 0 these lines at the beginning of init2.c
+ *
+ *	#ifdef CHECK_MODIFICATION_TIME
+ *	#include <sys/types.h>
+ *	#include <sys/stat.h>
+ *	#endif CHECK_MODIFICATION_TIME
+ *
+ * Support for Carbon is not in the code and the project file XXX XXX
+ */
+
+#if defined(__MWERKS__)
+# if defined(powerc) || defined(__powerc)
+#  pragma precompile_target "A-mac-h-PPC"
+# else
+#  pragma precompile_target "A-mac-h-68K"
+# endif
+#endif
+
+/*
+ * Activate the Macintosh-specific code
+ */
+#define MACINTOSH
+
+/*
+ * Activate transparency effect for 16x16 tileset.
+ */
+#define USE_TRANSPARENCY
+
+/*
+ * OPTION: Allow "Wizards" to yield "high scores"
+ */
+/* #define SCORE_WIZARDS */
+
+/*
+ * OPTION: Allow "Cheaters" to yield "high scores"
+ */
+/* #define SCORE_CHEATERS */
+
+/*
+ * OPTION: Allow player to know his / her starting life rate
+ */
+/* #define SHOW_LIFE_RATE */
+
+/*
+ * OPTION: Unallow the using of every race/class combination
+ */
+/* #define FORBID_BAD_COMBINAISON */
+
+/*
+ * OPTION: Enable the CTRL + L command to quit without saving
+ */
+/* #define ALLOW_QUITING */
+
+/*
+ * OPTION: Allow the monsters to illuminate the hallways with either
+ * innate lite sources (light hounds, etc) or torches (mages, paladins, etc)
+ * Very slow on low-end machines.
+ */
+/* #define MONSTER_LITE */
+
+/*
+ * Precompile the header files
+ */
+#include "angband.h"
+
+/*
+ * Include the standard ansi_prefix.mac.h file
+ */
+#define MSL_USE_PRECOMPILED_HEADERS 0
+#include "ansi_prefix.mac.h"
+
+

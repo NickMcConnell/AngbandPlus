@@ -330,7 +330,6 @@ F:TUNNELABLE
 N:60:permanent wall
 G:#:w
 F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
-F:TUNNELABLE
 
 # 0x3D --> permanent wall -- inner (perm)
 
@@ -338,7 +337,6 @@ N:61:permanent wall
 G:#:w
 M:60
 F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
-F:TUNNELABLE
 
 # 0x3E --> permanent wall -- outer (perm)
 
@@ -346,7 +344,6 @@ N:62:permanent wall
 G:#:w
 M:60
 F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
-F:TUNNELABLE
 
 # 0x3F --> permanent wall -- solid (perm)
 
@@ -354,7 +351,6 @@ N:63:permanent wall
 G:#:w
 M:60
 F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
-F:TUNNELABLE
 
 N:64:explosive rune
 G:*:R
@@ -424,14 +420,16 @@ F:WALL | NO_WALK | NO_VISION | PERMANENT | SUPPORT_LIGHT
 
 N:84:stream of shallow water
 G:~:B
+S:B:B:B:B:B:B:b
+F:ATTR_MULTI
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:85:pool of deep lava
-G:#:r
-F:CAN_LEVITATE | CAN_FLY | FLOOR | REMEMBER | SUPPORT_LIGHT
+G:.:R
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:86:stream of shallow lava
-G:#:U
+G:.:r
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 N:87:dark pit
@@ -468,6 +466,11 @@ F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
 N:94:mud
 G:.:u
 F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
+
+N:95:ice wall
+G:#:W
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
+F:TUNNELABLE
 
 N:96:tree
 G:#:G
@@ -509,6 +512,8 @@ F:WALL | NO_WALK | NO_VISION | PERMANENT
 
 N:102:nether mist
 G:.:v
+S:v:R:r:v:R:r:D
+F:ATTR_MULTI
 F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
 
 N:160:Between gate
@@ -561,12 +566,44 @@ N:171:Altar of Randomness
 G:0:v
 F:FLOOR | REMEMBER | NOTICE
 
-# 171 to 186 Unused 
+# Used as a marked for random quests
+N:172:floor
+G:.:r
+F:FLOOR
+
+# Underground Tunnel
+N:173:Underground Tunnel
+G:#:s
+F:FLOOR | REMEMBER | SUPPORT_LIGHT | DONT_NOTICE_RUNNING | CAN_RUN
+
+# Tainted water
+N:174:stream of tainted water
+G:~:u
+F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
+
+N:175:monster trap
+G:;:v
+F:FLOOR
+
+N:176:Between gate
+G:+:v
+F:FLOOR | REMEMBER | NOTICE | PERMANENT
+
+N:177:lava wall
+G:#:R
+S:R:R:r:r:U:u:R
+F:ATTR_MULTI
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | SUPPORT_LIGHT
+F:TUNNELABLE
+
+# XXX 178 - 186
 
 # 187 --> terrain -- deep water
 
 N:187:pool of deep water
 G:~:b
+S:b:b:b:b:b:b:B
+F:ATTR_MULTI
 F:FLOOR | CAN_LEVITATE | CAN_FLY | REMEMBER | SUPPORT_LIGHT
 
 # Glass wall -- can see but not pass
@@ -581,32 +618,32 @@ F:FLOOR | NO_VISION | REMEMBER | SUPPORT_LIGHT | DONT_NOTICE_RUNNING
 
 # Grass roof
 N:190:Grass roof
-G:#:w
+G:#:y
 F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # grass roof top
 N:191:grass roof top
-G:#:w
+G:#:y
 F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # grass roof chimney
 N:192:grass roof chimney
-G:#:w
+G:#:y
 F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # brick roof
 N:193:brick roof
-G:#:w
+G:#:r
 F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # brick roof top
 N:194:brick roof top
-G:#:w
+G:#:r
 F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # brick roof chimney
 N:195:brick roof chimney
-G:#:w
+G:#:r
 F:WALL | NO_WALK | NO_VISION | PERMANENT | DONT_NOTICE_RUNNING
 
 # window
@@ -647,3 +684,21 @@ F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN | SUPPORT_LIGHT | REMEMBER
 N:203:town
 G:*:w
 F:FLOOR | NOTICE
+
+# Underground Tunnel
+N:204:Underground Tunnel
+G:^:U
+F:FLOOR | REMEMBER | SUPPORT_LIGHT | DONT_NOTICE_RUNNING | CAN_RUN
+
+# Fire
+N:205:a blazing fire
+G:%:y
+S:y:y:y:R:r:y:R
+F:ATTR_MULTI
+F:FLOOR | CAN_FLY | REMEMBER | SUPPORT_LIGHT
+
+# Permanent rubble -- town use
+N:206:pile of rubble
+G:::w
+F:WALL | NO_WALK | CAN_PASS | NO_VISION | NOTICE
+F:CAN_FLY | SUPPORT_LIGHT | PERMANENT

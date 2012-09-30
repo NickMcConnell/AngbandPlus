@@ -274,7 +274,34 @@
  */
 term *Term = NULL;
 
+/* File handler for saving movies */
+FILE *movfile = NULL;
+int do_movies = 0; /* Later set this as a global */
+		/* set to 1 if you want movies made */
+time_t lastc;
+int last_paused = 0;
+int same_second(void);
 
+/* Convertion table */
+static byte conv_color[16] =
+{
+        'd',
+        'w',
+        's',
+        'o',
+        'r',
+        'g',
+        'b',
+        'u',
+        'D',
+        'W',
+        'v',
+        'y',
+        'R',
+        'G',
+        'B',
+        'U',
+};
 
 
 /*** Local routines ***/
@@ -512,42 +539,35 @@ void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc)
 void Term_queue_char(int x, int y, byte a, char c)
 #endif /* USE_TRANSPARENCY */
 {
-	byte *scr_aa = Term->scr->a[y];
-	char *scr_cc = Term->scr->c[y];
+	term_win *scrn = Term->scr;
 
-	int oa = scr_aa[x];
-	int oc = scr_cc[x];
+	byte *scr_aa = &scrn->a[y][x];
+	char *scr_cc = &scrn->c[y][x];
 
 #ifdef USE_TRANSPARENCY
 
-	byte *scr_taa = Term->scr->ta[y];
-	char *scr_tcc = Term->scr->tc[y];
-
-	int ota = scr_taa[x];
-	int otc = scr_tcc[x];
-
-	/* Don't change is the terrain value is 0 */
-	if (!ta) ta = ota;
-	if (!tc) tc = otc;
+	byte *scr_taa = &scrn->ta[y][x];
+	char *scr_tcc = &scrn->tc[y][x];
 
 	/* Hack -- Ignore non-changes */
-	if ((oa == a) && (oc == c) && (ota == ta) && (otc == tc)) return;
+	if ((*scr_aa == a) && (*scr_cc == c) &&
+		 (*scr_taa == ta) && (*scr_tcc == tc)) return;
 
 #else /* USE_TRANSPARENCY */
 
 	/* Hack -- Ignore non-changes */
-	if ((oa == a) && (oc == c)) return;
+	if ((*scr_aa == a) && (*scr_cc == c)) return;
 
 #endif /* USE_TRANSPARENCY */
 
 	/* Save the "literal" information */
-	scr_aa[x] = a;
-	scr_cc[x] = c;
+	*scr_aa = a;
+	*scr_cc = c;
 
 #ifdef USE_TRANSPARENCY
 
-	scr_taa[x] = ta;
-	scr_tcc[x] = tc;
+	*scr_taa = ta;
+	*scr_tcc = tc;
 
 #endif /* USE_TRANSPARENCY */
 
@@ -559,6 +579,103 @@ void Term_queue_char(int x, int y, byte a, char c)
 	if (x < Term->x1[y]) Term->x1[y] = x;
 	if (x > Term->x2[y]) Term->x2[y] = x;
 }
+
+
+/*
+ * Mentally draw a string of attr/chars at a given location
+ *
+ * Assumes given location and values are valid.
+ *
+ * This function is designed to be fast, with no consistancy checking.
+ * It is used to update the map in the game.
+ */
+#ifdef USE_TRANSPARENCY
+void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc)
+#else /* USE_TRANSPARENCY */
+void Term_queue_line(int x, int y, int n, byte *a, char *c)
+#endif /* USE_TRANSPARENCY */
+{
+	term_win *scrn = Term->scr;
+
+	int x1 = -1;
+	int x2 = -1;
+
+	byte *scr_aa = &scrn->a[y][x];
+	char *scr_cc = &scrn->c[y][x];
+
+#ifdef USE_TRANSPARENCY
+
+	byte *scr_taa = &scrn->ta[y][x];
+	char *scr_tcc = &scrn->tc[y][x];
+
+#endif /* USE_TRANSPARENCY */
+
+	while (n--)
+	{
+
+#ifdef USE_TRANSPARENCY
+
+		/* Hack -- Ignore non-changes */
+		if ((*scr_aa == *a) && (*scr_cc == *c) &&
+		 	(*scr_taa == *ta) && (*scr_tcc == *tc))
+		{
+			x++;
+			a++;
+			c++;
+			ta++;
+			tc++;
+			scr_aa++;
+			scr_cc++;
+			scr_taa++;
+			scr_tcc++;
+			continue;
+		}
+
+		/* Save the "literal" information */
+		*scr_taa++ = *ta++;
+		*scr_tcc++ = *tc++;
+
+#else /* USE_TRANSPARENCY */
+
+		/* Hack -- Ignore non-changes */
+		if ((*scr_aa == *a) && (*scr_cc == *c))
+		{
+			x++;
+			a++;
+			c++;
+			scr_aa++;
+			scr_cc++;
+			continue;
+		}
+
+#endif /* USE_TRANSPARENCY */
+
+		/* Save the "literal" information */
+		*scr_aa++ = *a++;
+		*scr_cc++ = *c++;
+
+		/* Track minimum changed column */
+		if (x1 < 0) x1 = x;
+
+		/* Track maximum changed column */
+		x2 = x;
+
+		x++;
+	}
+
+	/* Expand the "change area" as needed */
+	if (x1 >= 0)
+	{
+		/* Check for new min/max row info */
+		if (y < Term->y1) Term->y1 = y;
+		if (y > Term->y2) Term->y2 = y;
+
+		/* Check for new min/max col info in this row */
+		if (x1 < Term->x1[y]) Term->x1[y] = x1;
+		if (x2 > Term->x2[y]) Term->x2[y] = x2;
+	}
+}
+
 
 
 /*
@@ -841,13 +958,11 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				{
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
-
 				/* Draw pending chars (black) */
 				else
 				{
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
-
 				/* Forget */
 				fn = 0;
 			}
@@ -868,7 +983,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 #endif /* USE_TRANSPARENCY */
 
 		/* Handle high-bit attr/chars */
-		if ((na & 0x80) && (nc & 0x80))
+		if (na & 0x80)
 		{
 			/* Flush */
 			if (fn)
@@ -877,27 +992,25 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				if (fa || always_text)
 				{
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
-				}
-
+				}	
 				/* Draw pending chars (black) */
 				else
 				{
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
-
 				/* Forget */
 				fn = 0;
 			}
 
 #ifdef USE_TRANSPARENCY
 
-		/* Hack -- Draw the special attr/char pair */
-		(void)((*Term->pict_hook)(x, y, 1, &na, &nc, &nta, &ntc));
+			/* Hack -- Draw the special attr/char pair */
+			(void)((*Term->pict_hook)(x, y, 1, &na, &nc, &nta, &ntc));
 
 #else /* USE_TRANSPARENCY */
 
-		/* Hack -- Draw the special attr/char pair */
-		(void)((*Term->pict_hook)(x, y, 1, &na, &nc));
+			/* Hack -- Draw the special attr/char pair */
+			(void)((*Term->pict_hook)(x, y, 1, &na, &nc));
 
 #endif /* USE_TRANSPARENCY */
 
@@ -916,13 +1029,11 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				{
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
-
 				/* Hack -- Erase "leading" spaces */
 				else
 				{
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
-
 				/* Forget */
 				fn = 0;
 			}
@@ -942,8 +1053,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		if (fa || always_text)
 		{
 			(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
-		}
-
+		}	
 		/* Draw pending chars (black) */
 		else
 		{
@@ -1082,7 +1192,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 /*
  * Actually perform all requested changes to the window
  *
- * If aboslutely nothing has changed, not even temporarily, or if the
+ * If absolutely nothing has changed, not even temporarily, or if the
  * current "Term" is not mapped, then this function will return 1 and
  * do absolutely nothing.
  *
@@ -1235,6 +1345,16 @@ errr Term_fresh(void)
 		byte na = Term->attr_blank;
 		char nc = Term->char_blank;
 
+                if ((do_movies == 1) && IN_MAINWINDOW)
+                {
+			if(!same_second())
+                        {
+                                fprintf(movfile, "S:1:\n");
+                        }
+			fprintf(movfile, "C:\n");
+			last_paused=0;
+                }
+
 		/* Physically erase the entire window */
 		Term_xtra(TERM_XTRA_CLEAR, 0);
 
@@ -1264,8 +1384,8 @@ errr Term_fresh(void)
 
 #ifdef USE_TRANSPARENCY
 
-				*taa++ = 0;
-				*tcc++ = 0;
+				*taa++ = na;
+				*tcc++ = nc;
 
 #endif /* USE_TRANSPARENCY */
 
@@ -1324,7 +1444,7 @@ errr Term_fresh(void)
 			}
 
 			/* Hack -- use "Term_pict()" sometimes */
-			else if (Term->higher_pict && (oa & 0x80) && (oc & 0x80))
+			else if (Term->higher_pict && (oa & 0x80))
 			{
 #ifdef USE_TRANSPARENCY
 				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc));
@@ -1387,6 +1507,14 @@ errr Term_fresh(void)
 			/* Flush each "modified" row */
 			if (x1 <= x2)
 			{
+                                if ((do_movies == 1) && IN_MAINWINDOW)
+                                {
+					/* Most magic happens here */
+                                        fprintf(movfile, "E:%d:%.80s\n", y, clean80(y, Term->scr->a[y], TRUE));
+                                        fprintf(movfile, "L:%d:%.80s\n", y, clean80(y, Term->scr->c[y], FALSE));
+					last_paused=0;
+                                }
+
 				/* Always use "Term_pict()" */
 				if (Term->always_pict)
 				{
@@ -1754,7 +1882,7 @@ errr Term_erase(int x, int y, int n)
 		scr_tcc[x] = 0;
 #endif /* USE_TRANSPARENCY */
 
-		/* Track minumum changed column */
+		/* Track minimum changed column */
 		if (x1 < 0) x1 = x;
 
 		/* Track maximum changed column */
@@ -1848,6 +1976,14 @@ errr Term_clear(void)
  */
 errr Term_redraw(void)
 {
+	/* Pat */
+	if((do_movies == 1) && IN_MAINWINDOW)
+		{
+		if(!same_second()){fprintf(movfile, "S:1:\n");}
+		last_paused=1;
+		}
+	/* Endpat */
+
 	/* Force "total erase" */
 	Term->total_erase = TRUE;
 
@@ -1859,6 +1995,53 @@ errr Term_redraw(void)
 }
 
 
+/*
+ * Redraw part of a window.
+ */
+errr Term_redraw_section(int x1, int y1, int x2, int y2)
+{
+	int i, j;
+
+	char *c_ptr;
+
+		/* Pat */
+	if((do_movies == 1) && IN_MAINWINDOW)
+		{
+		if(!same_second() ){fprintf(movfile,"W:1:\n");}
+		}
+		/* Endpat */
+	/* Bounds checking */
+	if (y2 >= Term->hgt) y2 = Term->hgt - 1;
+	if (x2 >= Term->wid) x2 = Term->wid - 1;
+	if (y1 < 0) y1 = 0;
+	if (x1 < 0) x1 = 0;
+
+	/* Set y limits */
+	Term->y1 = y1;
+	Term->y2 = y2;
+
+	/* Set the x limits */
+	for (i = Term->y1; i <= Term->y2; i++)
+	{
+		Term->x1[i] = x1;
+		Term->x2[i] = x2;
+
+		c_ptr = Term->old->c[i];
+
+		/* Clear the section so it is redrawn */
+		for (j = x1; j <= x2; j++)
+		{
+			/* Hack - set the old character to "none" */
+			c_ptr[j] = 0;
+		}
+	}
+
+	/* Hack -- Refresh */
+	Term_fresh();
+
+	/* Success */
+	return (0);
+}
 
 
 
@@ -2031,7 +2214,9 @@ errr Term_inkey(char *ch, bool wait, bool take)
 		/* Process random events */
 		Term_xtra(TERM_XTRA_BORED, 0);
 	}
-
+		/* PatN */
+	if((do_movies == 1) && (last_paused==0) && (!same_second() )){fprintf(movfile, "S:1:\n");last_paused=1;}
+		/* PatNEnd */
 	/* Wait */
 	if (wait)
 	{
@@ -2186,8 +2371,6 @@ errr Term_exchange(void)
 	return (0);
 }
 
-
-
 /*
  * React to a new physical window size.
  */
@@ -2205,10 +2388,8 @@ errr Term_resize(int w, int h)
 	term_win *hold_mem;
 	term_win *hold_tmp;
 
-
 	/* Resizing is forbidden */
 	if (Term->fixed_shape) return (-1);
-
 
 	/* Ignore illegal changes */
 	if ((w < 1) || (h < 1)) return (-1);
@@ -2357,6 +2538,11 @@ errr Term_resize(int w, int h)
 	Term->y1 = 0;
 	Term->y2 = h - 1;
 
+	/* Execute the "resize_hook" hook, if available */
+	if (Term->resize_hook)
+	{
+		Term->resize_hook();
+	}
 
 	/* Success */
 	return (0);
@@ -2413,7 +2599,6 @@ errr term_nuke(term *t)
 {
 	int w = t->wid;
 	int h = t->hgt;
-
 
 	/* Hack -- Call the special "nuke" hook */
 	if (t->active_flag)
@@ -2483,9 +2668,8 @@ errr term_init(term *t, int w, int h, int k)
 {
 	int y;
 
-
 	/* Wipe it */
-	t=WIPE(t, term);
+	(void)WIPE(t, term);
 
 
 	/* Prepare the input queue */
@@ -2546,4 +2730,52 @@ errr term_init(term *t, int w, int h, int k)
 	return (0);
 }
 
+/* Replaces things that cmovie can't think about with safer thoughts */
+char* clean80(int y, char* in, bool color)
+{
+        static char out[81];
+        int walker = 0;
+
+        while(walker < 80)
+	{
+                if (!color)
+                {
+                        if (in[walker] == '\0')
+                        {
+                                out[walker] = ' ';
+                        }
+                        /* Only for the map */
+                        else if (((walker - panel_col_prt) < SCREEN_WID) && ((y - panel_row_prt) < SCREEN_HGT) && ((walker - panel_col_prt) >= 0) && ((y - panel_row_prt) >= 0) && (un_pref_char[(byte)in[walker]]))
+                        {
+                                out[walker] = un_pref_char[(byte)in[walker]];
+                        }
+                        else
+                        {
+                                out[walker] = in[walker];
+                        }
+                }
+                else
+                {
+                        out[walker] = conv_color[(byte)in[walker]];
+                }
+                walker++;
+	}
+        out[80] = 0;
+        return out;
+}
+
+/* Were we called in the same second as the last time? */
+/* This *ASSUMES* that time_t is seconds past something. Is this portable? */
+int same_second(void)
+{
+        time_t thisc;
+
+        thisc = time(NULL);
+
+        if (thisc == lastc)
+        {
+                return 1;
+        }
+        return 0;
+}
 

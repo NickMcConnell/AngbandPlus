@@ -6,8 +6,10 @@
 # See "lib/help/command.txt" and "src/files.c" for more information.
 #
 
-
 # Standard file
+?:[EQU $GRAF old]
 %:graf-xxx.prf
 
-
+# New tiles
+?:[EQU $GRAF new]
+%:graf-new.prf

@@ -14,6 +14,7 @@
 # I:<proba>:<item name>
 # T:<proba>:<tval>:<sval>
 # G:char:attr
+# W:max number of items in the store
 
 # proba is the chance(out of 100) of the item being generated
 
@@ -41,6 +42,7 @@ I:46:& Fur Cloak~
 A:0:0:1:2:3:4
 O:0:5:6:7
 G:1:U
+W:24
 
 N:1:Armoury
 I:70:& Pair~ of Soft Leather Boots
@@ -67,6 +69,7 @@ I:80:& Small Metal Shield~
 A:0:0:1:2:3:4
 O:8:9:10:11
 G:2:s
+W:24
 
 N:2:Weaponsmith
 I:100:& Dagger~
@@ -102,6 +105,7 @@ I:100:& Whip~
 A:23:0:1:2:3:4
 O:12:13:14:15
 G:3:w
+W:24
 
 N:3:Temple
 I:100:& Nunchaku~
@@ -163,6 +167,7 @@ I:100:[Exorcism and Dispelling]
 A:0:0:1:2:3:4
 O:26:27:28:29
 G:4:g
+W:24
 
 N:4:Alchemy shop
 I:100:Enchant Weapon To-Hit
@@ -216,16 +221,18 @@ I:100:Satisfy Hunger
 A:0:0:1:2:3:4
 O:30:31:32:33
 G:5:b
+W:24
 
 N:5:Magic shop
 I:100:Protection
 I:100:Levitation
 I:100:Protection
-I:100:Resist Fire
-I:100:Resist Cold
+I:100:Fire Resistance
+I:100:Cold Resistance
 I:100:Charisma
 I:100:Slow Digestion
-I:100:Resist Acid
+I:100:Acid Resistance
+I:100:Lightning Resistance
 I:100:Searching
 I:100:Slow Monster
 I:100:Confuse Monster
@@ -269,17 +276,20 @@ I:100:[Shadows and Prisms]
 A:0:0:1:2:3:4
 O:34:35:36:37
 G:6:r
+W:24
 
 N:6:Black Market
 A:30:0:1:2:3:4
 O:38:39:40:41
 G:7:D
 F:ALL_ITEM | MEDIUM_LEVEL
+W:24
 
 N:7:Home
 A:0:0:54:55:3:0
 O:0:0:0:0
 G:8:y
+W:24
 
 N:8:Book Store
 I:100:[Apprentice Handbook]
@@ -320,9 +330,12 @@ I:100:[Dark Incantations]
 I:100:[Immortal Rituals]
 I:100:[Life in symbiosis]
 I:100:[Life in symbiosis]
+T:100:126:0
+T:100:126:1
 A:0:0:1:2:3:4
 O:42:43:44:45
 G:9:o
+W:24
 
 N:9:Pet Shop
 I:100:Egg
@@ -332,11 +345,13 @@ A:0:0:1:2:3:4
 O:46:47:48:49
 G:+:b
 F:MEDIUM_LEVEL
+W:12
 
 N:10:Mayor's Office
 A:0:0:16:0:35:0
 O:1:1:1:1
 G:+:o
+W:0
 
 N:11:Inn
 I:100:& Ration~ of Food
@@ -347,6 +362,7 @@ I:100:& Pint~ of Fine Ale
 A:2:4:5:6:7:0
 O:2:2:18:18
 G:+:w
+W:8
 
 N:12:The Soothsayer
 I:20:Divination
@@ -359,52 +375,62 @@ A:0:0:2:0:8:0
 O:3:3:3:3
 G:+:B
 F:RANDOM
+W:2
 
 N:13:Library
 I:100:Identify
 A:0:0:14:15:16:2
 O:4:4:4:4
 G:+:U
+W:2
 
 N:14:Castle
 A:0:0:16:35:0:0
 O:16:16:16:16
 G:+:o
+W:0
 
 N:15:Casino
 A:13:0:9:10:11:12
 O:17:17:17:17
 G:+:s
+W:0
 
 N:16:Beastmaster Shanty
 A:18:0:19:20:21:22
 O:19:19:19:19
 G:+:g
+W:0
 
 N:17:Fighters Hall
 A:0:0:24:25:0:0
 O:20:20:20:20
 G:+:s
+W:0
 
 N:18:Tower of Magery
 A:0:0:26:27:0:0
 O:21:21:21:21
 G:+:b
+W:0
 
 N:19:Inner Temple
 A:0:0:28:29:0:0
 O:22:22:22:22
 G:+:G
+W:0
 
 N:20:Paladins Guild
 A:0:0:28:25:0:0
 O:23:23:23:23
 G:+:g
+W:0
 
 N:21:Rangers Guild
 A:0:0:31:32:0:0
 O:24:24:24:24
 G:+:u
+W:0
 
 N:22:Weyr
 I:100:& Small Firestone~
@@ -412,37 +438,44 @@ I:80:& Firestone~
 A:0:0:33:2:34:0
 O:25:25:25:25
 G:+:U
+W:3
 
 N:23:The Mirror
 A:0:0:44:15:16:43
 O:51:51:51:51
 G:+:U
+W:0
 
 N:24:Seat of Ruling
 A:0:0:17:35:0:0
 O:52:52:52:52
 G:+:U
+W:0
 
 N:25:Wizards Spire
 A:0:0:26:27:0:0
 O:54:54:54:54
 G:+:U
+W:0
 
 N:26:Priests Circle
 A:0:0:28:29:0:0
 O:55:55:55:55
 G:+:o
+W:0
 
 N:27:Tower of the King
 A:0:0:17:35:0:0
 O:57:57:57:57
 G:+:U
+W:0
 
 N:28:Library
 I:100:Identify
 A:0:0:14:15:16:2
 O:58:58:58:58
 G:+:U
+W:2
 
 N:29:The White Tree
 I:100:& Ration~ of Food
@@ -453,46 +486,55 @@ I:100:& Pint~ of Fine Ale
 A:2:4:5:6:7:0
 O:59:59:59:59
 G:+:w
+W:8
 
 N:30:Craftsmaster
 A:0:0:24:25:0:0
 O:60:60:60:60
 G:+:s
+W:0
 
 N:31:Earth-Dome (Nature)
 A:0:0:39:0:0:0
 O:61:61:61:61
 G:+:U
+W:0
 
 N:32:Minstrels Haven
 A:0:0:40:41:0:0
 O:62:62:62:62
 G:+:U
+W:0
 
 N:33:Star-Dome
 A:0:0:46:47:0:0
 O:63:63:63:63
 G:+:U
+W:0
 
 N:34:Valarin Temple
 A:0:0:28:48:0:0
 O:64:64:64:64
 G:+:U
+W:0
 
 N:35:Sea-Dome
 A:0:0:49:35:0:0
 O:65:65:65:65
 G:+:U
+W:0
 
 N:36:The Golden Flower
 A:0:0:50:51:0:0
 O:66:66:66:66
 G:+:U
+W:0
 
 N:37:The Fountain
 A:0:0:52:53:0:0
 O:67:67:67:67
 G:+:U
+W:0
 
 # Here begins the random shops, for the random towns
 N:38:Axe Smith
@@ -501,6 +543,7 @@ A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:w
 F:RANDOM | MEDIUM_LEVEL
+W:12
 
 N:39:Hafted Smith
 T:100:21:256
@@ -508,6 +551,7 @@ A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:w
 F:RANDOM | MEDIUM_LEVEL
+W:12
 
 N:40:Polearm Smith
 T:100:22:256
@@ -515,6 +559,7 @@ A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:w
 F:RANDOM | MEDIUM_LEVEL
+W:12
 
 N:41:Sword Smith
 T:100:23:256
@@ -522,6 +567,7 @@ A:0:0:1:2:3:4
 O:12:13:14:15
 G:3:w
 F:RANDOM | MEDIUM_LEVEL
+W:12
 
 N:42:Rare Jewelry Shop
 T:100:40:256
@@ -531,6 +577,7 @@ O:34:35:36:37
 G:6:v
 F:RANDOM | DEPEND_LEVEL | DEEP_LEVEL | FORCE_LEVEL
 F:VERY_RARE
+W:10
 
 N:43:Jewelry Shop
 T:100:40:256
@@ -540,6 +587,7 @@ O:34:35:36:37
 G:6:y
 F:RANDOM | DEPEND_LEVEL | MEDIUM_LEVEL | FORCE_LEVEL
 F:RARE
+W:20
 
 N:44:Footwear Shop
 T:100:30:256
@@ -548,6 +596,7 @@ O:8:9:10:11
 G:2:r
 F:RANDOM | MEDIUM_LEVEL
 F:COMMON
+W:12
 
 N:45:Rare Footwear Shop
 T:100:30:256
@@ -556,6 +605,7 @@ O:8:9:10:11
 G:2:r
 F:RANDOM | DEEP_LEVEL | MEDIUM_LEVEL
 F:VERY_RARE
+W:8
 
 N:46:Library
 T:100:110:256
@@ -578,6 +628,7 @@ A:27:0:1:2:3:4
 O:8:9:10:11
 G:9:y
 F:RANDOM | DEPEND_LEVEL | MEDIUM_LEVEL
+W:24
 
 N:47:Forbidden Library
 T:100:110:256
@@ -601,12 +652,14 @@ O:8:9:10:11
 G:9:v
 F:RANDOM | DEPEND_LEVEL | DEEP_LEVEL
 F:RARE
+W:12
 
 N:48:Expensive Black Market
 A:0:0:1:2:3:0
 O:38:39:40:41
 G:7:v
 F:ALL_ITEM | DEEP_LEVEL | DEPEND_LEVEL | MEDIUM_LEVEL
+W:12
 
 N:49:Common Shop
 I:95:& Brass Lantern~
@@ -625,6 +678,7 @@ I:100:Cure Critical Wounds
 A:0:0:1:2:3:4
 O:0:5:6:7
 G:1:U
+W:12
 
 N:50:Dragon Hunter
 T:100:38:256
@@ -633,6 +687,7 @@ O:8:9:10:11
 G:2:v
 F:RANDOM | DEEP_LEVEL | DEPEND_LEVEL
 F:VERY_RARE
+W:12
 
 N:51:Speed Ring Market
 T:100:45:31
@@ -641,6 +696,7 @@ O:34:35:36:37
 G:6:G
 F:RANDOM | SHALLOW_LEVEL | DEPEND_LEVEL
 F:VERY_RARE
+W:6
 
 N:52:Scribe
 T:100:70:256
@@ -648,6 +704,7 @@ A:0:0:1:2:3:4
 O:8:9:10:11
 G:5:B
 F:RANDOM | MEDIUM_LEVEL | DEPEND_LEVEL
+W:12
 
 N:53:Potion Store
 T:100:71:256
@@ -656,6 +713,7 @@ A:0:0:1:2:3:4
 O:8:9:10:11
 G:5:B
 F:RANDOM | MEDIUM_LEVEL | DEPEND_LEVEL
+W:12
 
 N:54:Recaller
 I:100:Word of Recall
@@ -663,3 +721,26 @@ A:33:0:1:2:3:0
 O:8:9:10:11
 G:+:b
 F:RANDOM | COMMON
+W:2
+
+N:55:Master Archer
+T:100:19:2
+T:100:19:12
+T:20:19:13
+T:100:19:23
+T:20:19:24
+T:50:16:256
+T:50:17:256
+T:50:18:256
+A:0:0:1:2:3:0
+O:12:13:14:15
+G:3:g
+F:RANDOM | MEDIUM_LEVEL | DEPEND_LEVEL
+F:RARE
+W:24
+
+N:56:Merchants Guild
+A:0:0:56:57:58:0
+O:68:68:68:68
+G:+:g
+W:0

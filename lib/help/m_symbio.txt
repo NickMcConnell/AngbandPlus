@@ -1,0 +1,25 @@
+|||||oy
+#####R === PernAngband Magic - Symbiotic Realm ===
+The Symbiotic Realm is concerned mainly in magics that allow the
+caster to become as one with his foe. Useful only to those who
+specialise in the art of symbiosis, it allows them to more easily
+overcome the the monster's resistance to the symbiosis, and thence
+to harness the power of their symbiot.
+
+It contains some charming spells, a few "ability transference" spells,
+and a few healing spells.
+
+#####GPermitted Classes
+#####BThe Symbiotic Realm is only permitted to:
+Symbiants as a secondary realm
+
+#####GSymbiotic Spellbooks
+The are two books available for the Symbiotic realm, one of which can be
+easily found at bookstores back in town. The other one is very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Life in symbiosis
+
+[[[[[BRare Books]
+Perfect Symbiosis

@@ -54,8 +54,8 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
                 int ym, xm, yp, xp;
 
                 /* Place the player at the center */
-                if(!p_ptr->oldpx) p_ptr->oldpx = MAX_WID / 2;
-                if(!p_ptr->oldpy) p_ptr->oldpy = MAX_HGT / 2;
+                if (!p_ptr->oldpx) p_ptr->oldpx = MAX_WID / 2;
+                if (!p_ptr->oldpy) p_ptr->oldpy = MAX_HGT / 2;
 
 		/* Initialize the terrain array */
                 ym = ((y - 1) < 0)?0:(y - 1);
@@ -128,7 +128,7 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 
 		/* Initialize the town */
 		init_flags = INIT_CREATE_DUNGEON;
-                process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
+                process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	}
         else
         {
@@ -294,7 +294,7 @@ void wilderness_gen(int refresh)
 	cave_type *c_ptr;
 
 	/* Init the wilderness */
-	process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
+        process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 
 	x = p_ptr->wilderness_x;
 	y = p_ptr->wilderness_y;
@@ -456,11 +456,13 @@ void wilderness_gen(int refresh)
         }
 
 	/* Set rewarded quests to finished */
-	for (i = 0; i < max_quests; i++)
+        for (i = 0; i < MAX_Q_IDX; i++)
 	{
 		if (quest[i].status == QUEST_STATUS_REWARDED)
 			quest[i].status = QUEST_STATUS_FINISHED;
 	}
+
+        process_hooks(HOOK_WILD_GEN, FALSE);
 }
 
 /*
@@ -481,7 +483,7 @@ void wilderness_gen_small()
 	}
 
 	/* Init the wilderness */
-	process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid);
+        process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 
         /* Fill the map */
         for (i = 0; i < max_wild_x; i++)
@@ -507,11 +509,13 @@ void wilderness_gen_small()
         py = p_ptr->wilderness_y;
 
 	/* Set rewarded quests to finished */
-	for (i = 0; i < max_quests; i++)
+        for (i = 0; i < MAX_Q_IDX; i++)
 	{
 		if (quest[i].status == QUEST_STATUS_REWARDED)
 			quest[i].status = QUEST_STATUS_FINISHED;
 	}
+
+        process_hooks(HOOK_WILD_GEN, TRUE);
 }
 
 /* Show a small radius of wilderness around the player */
@@ -667,6 +671,7 @@ static void build_store(int qy, int qx, int n, int yy, int xx)
 	/* Clear previous contents, add a store door */
         cave[y][x].feat = FEAT_SHOP;
         cave[y][x].special = n;
+        cave[y][x].info |= CAVE_FREE;
 
 	/* Notice */
 	note_spot(y, x);
@@ -745,6 +750,7 @@ static void build_store_circle(int qy, int qx, int n, int yy, int xx)
 	/* Clear previous contents, add a store door */
         cave[y0][x0].feat = FEAT_SHOP;
         cave[y0][x0].special = n;
+        cave[y0][x0].info |= CAVE_FREE;
 
 	/* Notice */
         note_spot(y0, x0);
@@ -758,6 +764,7 @@ static void build_store_hidden(int n, int yy, int xx)
 	/* Clear previous contents, add a store door */
         cave[yy][xx].feat = FEAT_SHOP;
         cave[yy][xx].special = n;
+        cave[yy][xx].info |= CAVE_FREE;
 
 	/* Notice */
         note_spot(yy, xx);
@@ -848,6 +855,14 @@ static void town_borders(int t_idx, int qy, int qx)
 	}
 }
 
+static bool create_townpeople_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+        if (r_ptr->d_char == 't') return TRUE;
+        else return FALSE;
+}
+
 
 /*
  * Generate the "consistent" town features, and place the player
@@ -859,6 +874,7 @@ static void town_borders(int t_idx, int qy, int qx)
 static void town_gen_hack(int t_idx, int qy, int qx)
 {
         int y, x, k, floor, num = 0;
+	bool (*old_get_mon_num_hook)(int r_idx);
 
         int *rooms;
 
@@ -873,7 +889,7 @@ static void town_gen_hack(int t_idx, int qy, int qx)
 		{
 			/* Create empty floor */
                         cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
-                        cave[y][x].info |= CAVE_ROOM;
+                        cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
 		}
 	}
 
@@ -894,6 +910,7 @@ static void town_gen_hack(int t_idx, int qy, int qx)
                         build_store(qy, qx, rooms[k], y, x);
 
 			/* Shift the stores down, remove one store */
+			if ( num == 0 ) num = 1;
                         rooms[k] = rooms[--num];
 		}
 	}
@@ -901,11 +918,56 @@ static void town_gen_hack(int t_idx, int qy, int qx)
 
         /* Generates the town's borders */
         if (magik(TOWN_NORMAL_FLOOR)) town_borders(t_idx, qy, qx);
+
+
+        /* Some inhabitants(leveled .. hehe :) */
+
+	/* Backup the old hook */
+	old_get_mon_num_hook = get_mon_num_hook;
+
+	/* Require "okay" monsters */
+        get_mon_num_hook = create_townpeople_hook;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+        for (x = qx; x < qx + SCREEN_WID; x++)
+        for (y = qy; y < qy + SCREEN_HGT; y++)
+	{
+                int m_idx;
+
+                /* Only in town */
+                if (!in_bounds(y, x)) continue;
+                if (!(cave[y][x].info & CAVE_FREE)) continue;
+                if (!cave_empty_bold(y, x)) continue;
+
+                if (rand_int(100)) continue;
+
+                hack_allow_special = TRUE;
+                m_idx = place_monster_one(y, x, get_mon_num(0), 0, TRUE, MSTATUS_ENEMY);
+                hack_allow_special = FALSE;
+                if (m_idx)
+                {
+                        monster_type *m_ptr = &m_list[m_idx];
+                        if (m_ptr->level < (dun_level / 2))
+                        {
+                                m_ptr->exp = MONSTER_EXP(m_ptr->level + (dun_level / 2) + randint(dun_level / 2));
+                                monster_check_experience(m_idx, TRUE);
+                        }
+                }
+	}
+
+	/* Reset restriction */
+	get_mon_num_hook = old_get_mon_num_hook;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
 }
 
 static void town_gen_circle(int t_idx, int qy, int qx)
 {
         int y, x, cy, cx, rad, floor, k, num = 0;
+	bool (*old_get_mon_num_hook)(int r_idx);
 
         int *rooms;
 
@@ -933,7 +995,7 @@ static void town_gen_circle(int t_idx, int qy, int qx)
 		{
 			/* Create empty floor */
                         cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
-                        cave[y][x].info |= CAVE_ROOM;
+                        cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
 		}
 	}
 
@@ -950,7 +1012,7 @@ static void town_gen_circle(int t_idx, int qy, int qx)
                 if (d < rad - 1)
                 {
                         cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
-                        cave[y][x].info |= CAVE_ROOM;
+                        cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
                 }
         }
 
@@ -965,7 +1027,7 @@ static void town_gen_circle(int t_idx, int qy, int qx)
                 if (d < rad - 1)
                 {
                         cave_set_feat(y, x, (floor)?floor:floor_type[rand_int(100)]);
-                        cave[y][x].info |= CAVE_ROOM;
+                        cave[y][x].info |= CAVE_ROOM | CAVE_FREE;
                 }
         }
 
@@ -986,10 +1048,54 @@ static void town_gen_circle(int t_idx, int qy, int qx)
                         build_store_circle(qy, qx, rooms[k], y, x);
 
 			/* Shift the stores down, remove one store */
+			if ( num == 0 ) num = 1;
                         rooms[k] = rooms[--num];
 		}
 	}
         C_FREE(rooms, max_st_idx, int);
+
+        /* Some inhabitants(leveled .. hehe :) */
+
+	/* Backup the old hook */
+	old_get_mon_num_hook = get_mon_num_hook;
+
+	/* Require "okay" monsters */
+        get_mon_num_hook = create_townpeople_hook;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+        for (x = qx; x < qx + SCREEN_WID; x++)
+        for (y = qy; y < qy + SCREEN_HGT; y++)
+	{
+                int m_idx;
+
+                /* Only in town */
+                if (!in_bounds(y, x)) continue;
+                if (!(cave[y][x].info & CAVE_FREE)) continue;
+                if (!cave_empty_bold(y, x)) continue;
+
+                if (rand_int(100)) continue;
+
+                hack_allow_special = TRUE;
+                m_idx = place_monster_one(y, x, get_mon_num(0), 0, TRUE, MSTATUS_ENEMY);
+                hack_allow_special = FALSE;
+                if (m_idx)
+                {
+                        monster_type *m_ptr = &m_list[m_idx];
+                        if (m_ptr->level < (dun_level / 2))
+                        {
+                                m_ptr->exp = MONSTER_EXP(m_ptr->level + (dun_level / 2) + randint(dun_level / 2));
+                                monster_check_experience(m_idx, TRUE);
+                        }
+                }
+	}
+
+	/* Reset restriction */
+	get_mon_num_hook = old_get_mon_num_hook;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
 }
 
 
@@ -1004,7 +1110,7 @@ static void town_gen_hidden(int t_idx, int qy, int qx)
         num = get_shops(rooms);
 
         /* Get a number of stores to place */
-        n = randint(num / 2);
+        n = rand_int(num / 2) + (num / 2);
 
         /* Place k stores */
         for (i = 0; i < n; i++)
@@ -1025,6 +1131,7 @@ static void town_gen_hidden(int t_idx, int qy, int qx)
                 build_store_hidden(rooms[k], y, x);
 
                 /* Shift the stores down, remove one store */
+		if ( num == 0 ) num = 1;
                 rooms[k] = rooms[--num];
 	}
         C_FREE(rooms, max_st_idx, int);
@@ -1057,7 +1164,7 @@ void town_gen(int t_idx)
         qx = (cur_wid - SCREEN_WID) / 2;
 
 	/* Build stuff */
-        switch(rand_int(2))
+        switch(rand_int(3))
         {
                 case 0:
                         town_gen_hack(t_idx, qy, qx);
@@ -1074,13 +1181,4 @@ void town_gen(int t_idx)
         }
 
         p_ptr->town_num = t_idx;
-
-#if 0 /* DGDGDGDG : some natives */
-	/* Make some residents */
-	for (i = 0; i < residents; i++)
-	{
-		/* Make a resident */
-                (void)alloc_monster(3, TRUE);
-        }
-#endif
 }

@@ -1,0 +1,317 @@
+|||||oy
+#####REssence Spoiler for PernAngband
+#####R-------------------------------
+
+Essences are the tools of the trade for Alchemists, and 
+unfortunately are useless for any other class. Alchemists
+use essences to create magical items for them to use. 
+
+They can be either found on the floor while exploring the 
+dungeon, or extracted from other magical items the alchemist
+finds during their adventures.
+
+#####GEssence of Poison :
+Can be used to make :
+* Sword of Poisoning (8 essences)
+* Hafted of Poisoning (8 essences)
+* Polearm of Poisoning (8 essences)
+* Axe of Poisoning (8 essences)
+
+Can be use to Convert :
+Empty Bottle -> Potion of Poison (1 essence)
+Wand of Nothing -> Wand of Stinking Cloud (1 essence)
+Wand of Stinking Cloud -> Wand of Stinking Cloud (1 essence)
+Ring of Nothing -> Ring of Poison Resistance (4 essences)
+
+
+#####GEssence of Explosion :
+Can be used to make :
+* Sword of Slaying (8 essences)
+* Hafted of Slaying (8 essences)
+* Polearm of Slaying (8 essences)
+* Axe of Slaying (8 essences)
+* Gloves of Slaying (8 essences)
+
+Can be use to Convert :
+Wand of Nothing -> Wand of Magic Missile (1 essence)
+Empty Bottle -> Potion of Detonations (1 essence)
+Staff of Nothing -> Staff of Earthquakes (2 essences)
+Scroll of Nothing -> Scroll of Darkness (1 essence)
+Wand of Magic Missile -> Wand of Magic Missile (1 essence)
+Staff of Earthquakes -> Staff of Earthquakes (2 essences)
+
+
+#####GEssence of Teleport :
+Can be used to make :
+* Crown of Teleportation (7 essences)
+* Helm of Teleportation (7 essences)
+* Sword (Dragon Weapon) (9 essences)
+* Hafted (Dragon Weapon) (9 essences)
+* Polearm (Dragon Weapon) (9 essences)
+* Axe (Dragon Weapon) (9 essences)
+
+Can be use to Convert :
+Scroll of Nothing -> Scroll of Teleportation (1 essence)
+Rod Tip of Nothing -> Rod Tip of Teleport Other (3 essences)
+Wand of Nothing -> Wand of Teleport Other (1 essence)
+Wand of Teleport Other -> Wand of Teleport Other (1 essence)
+Staff of Nothing -> Staff of Teleportation (1 essence)
+Staff of Teleportation -> Staff of Teleportation (1 essence)
+Ring of Nothing -> Ring of Teleportation (3 essences)
+Amulet of Nothing -> Amulet of Teleportation (4 essences)
+
+
+#####GEssence of Acid :
+Can be used to make :
+* Sword of Melting (8 essences)
+* Hafted of Melting (8 essences)
+* Polearm of Melting (8 essences)
+* Axe of Melting (8 essences)
+
+Can be use to Convert :
+Ring of Nothing -> Ring of Acid (8 essences)
+Wand of Nothing -> Wand of Acid Bolts (2 essences)
+Wand of Acid Bolts -> Wand of Acid Bolts (2 essences)
+Rod Tip of Nothing -> Rod Tip of Acid Bolts (5 essences)
+Scroll of Nothing -> Scroll of Curse Armor (1 essence)
+Amulet of Nothing -> Amulet of Resist Acid (2 essences)
+
+
+#####GEssence of Cold :
+Can be used to make :
+* Sword of Freezing (8 essences)
+* Hafted of Freezing (8 essences)
+* Polearm of Freezing (8 essences)
+* Axe of Freezing (8 essences)
+
+Can be use to Convert :
+Ring of Nothing -> Ring of Ice (8 essences)
+Wand of Nothing -> Wand of Frost Bolts (1 essence)
+Wand of Frost Bolts -> Wand of Frost Bolts (1 essence)
+Rod Tip of Nothing -> Rod Tip of Frost Bolts (4 essences)
+Scroll of Nothing -> Scroll of Ice with (1 essence)
+Empty Bottle -> Potion of Resist Cold (1 essence)
+
+
+#####GEssence of Fire :
+Can be used to make :
+* Sword of Burning (8 essences)
+* Hafted of Burning (8 essences)
+* Cloak of Immolation (9 essences)
+* Polearm of Burning (8 essences)
+* Axe of Burning (8 essences)
+
+Can be use to Convert :
+Ring of Nothing -> Ring of Flames (8 essences)
+Wand of Nothing -> Wand of Fire Bolts (2 essences)
+Wand of Fire Bolts -> Wand of Fire Bolts (2 essences)
+Rod Tip of Nothing -> Rod Tip of Fire Bolts (4 essences)
+Scroll of Nothing -> Scroll of Fire (1 essence)
+Empty Bottle -> Potion of Resist Heat (1 essence)
+
+
+#####GEssence of Life :
+Can be used to make :
+* Sword (Vampiric) (12 essences)
+* Hafted (Vampiric) (12 essences)
+* Polearm (Vampiric) (12 essences)
+* Axe (Vampiric) (12 essences)
+
+Can be use to Convert :
+Ring of Nothing -> Ring of Protection (5 essences)
+Staff of Nothing -> Staff of Curing (2 essences)
+Staff of Curing -> Staff of Curing (2 essences)
+Wand of Nothing -> Wand of Drain Life (2 essences)
+Wand of Drain Life -> Wand of Drain Life (2 essences)
+Rod Tip of Nothing -> Rod Tip of Curing (5 essences)
+Scroll of Nothing -> Scroll of Satisfy Hunger (1 essence)
+
+
+#####GEssence of Confusion :
+Can be used to make :
+Nothing.
+
+Can be use to Convert :
+Ring of Nothing -> Ring of Confusion Resistance (2 essences)
+Wand of Nothing -> Wand of Confuse Monster (1 essence)
+Wand of Confuse Monster -> Wand of Confuse Monster (1 essence)
+Scroll of Nothing -> Scroll of Monster Confusion (1 essence)
+Empty Bottle -> Potion of Booze (1 essence)
+
+
+#####GEssence of Light :
+Can be used to make :
+* Crown of Light (5 essences)
+* Helm of Light (5 essences)
+
+Can be use to Convert :
+Ring of Nothing -> Ring of Light & Dark Resist (6 essences)
+Staff of Nothing -> Staff of Light (1 essence)
+Staff of Light -> Staff of Light (1 essence)
+Wand of Nothing -> Wand of Light (1 essence)
+Wand of Light -> Wand of Light (1 essence)
+Rod Tip of Nothing -> Rod Tip of Illumination (3 essences)
+Scroll of Nothing -> Scroll of Light (1 essence)
+Empty Bottle -> Potion of Infra-vision (2 essences)
+
+
+#####GEssence of Chaos :
+Can be used to make :
+* Sword (Chaotic) (10 essences)
+* Hafted (Chaotic) (10 essences)
+* Polearm (Chaotic) (10 essences)
+* Axe (Chaotic) (10 essences)
+
+Can be use to Convert :
+Ring of Nothing -> Ring of Chaos Resistance (5 essences)
+Wand of Nothing -> Wand of Annihilation (4 essences)
+Wand of Annihilation -> Wand of Annihilation (4 essences)
+Rod Tip of Nothing -> Rod Tip of Polymorph (5 essences)
+Scroll of Nothing -> Scroll of Chaos (2 essences)
+Empty Bottle -> Potion of Mutation (3 essences)
+
+
+#####GEssence of Time :
+Can be used to make :
+* Boots of Speed (13 essences)
+* Soft armor of Resistance (10 essences)
+* Hard armor of Resistance (10 essences)
+
+Can be use to Convert :
+Ring of Nothing -> Ring of Speed (6 essences)
+Staff of Nothing -> Staff of Speed (2 essences)
+Staff of Speed -> Staff of Speed (2 essences)
+Rod Tip of Nothing -> Rod Tip of Speed (9 essences)
+Empty Bottle -> Potion of Experience (33 essences)
+
+
+#####GEssence of Magic :
+Can be used to make :
+* Helm of the Magi (10 essences)
+* Crown of the Magi (10 essences)
+* Boots of Jumping (6 essences)
+
+Can be use to Convert :
+Amulet of Nothing -> Amulet of the Magi (6 essences)
+Ring of Nothing -> Ring of Intelligence (5 essences)
+Staff of Nothing -> Staff of the Magi (3 essences)
+Staff of the Magi -> Staff of the Magi (3 essences)
+Rod Tip of Nothing -> Rod Tip of Perception (9 essences)
+Scroll of Nothing -> Scroll of Artifact Creation (99 essences)
+Empty Bottle -> Potion of Restore Mana (2 essences)
+
+
+#####GEssence of Extra Life :
+Can be used to make :
+* Sword of Life (15 essences)
+* Hafted of Life (15 essences)
+* Polearm of Life (15 essences)
+* Axe of Life (15 essences)
+
+Can be use to Convert :
+Empty Bottle -> Potion of New Life (2 essences)
+Staff of Nothing -> Staff of Healing (2 essences)
+Staff of Healing -> Staff of Healing (2 essences)
+Wand of Nothing -> Wand of Tame Monster (2 essences)
+Wand of Tame Monster -> Wand of Tame Monster (2 essences)
+Rod Tip of Nothing -> Rod Tip of Healing (5 essences)
+Scroll of Nothing -> Scroll of Mass Genocide (3 essences)
+
+
+#####GEssence of Darkness :
+Can be used to make :
+* Cloak of Stealth (12 essences)
+* Boots of Stealth (12 essences)
+
+Can be use to Convert :
+Empty Bottle -> Potion of Invisibility (2 essences)
+Wand of Nothing -> Wand of Scare Monster (1 essence)
+Wand of Scare Monster -> Wand of Scare Monster (2 essences)
+Staff of Nothing -> Staff of Darkness (1 essence)
+Staff of Darkness -> Staff of Darkness (1 essence)
+Rod Tip of Nothing -> Rod Tip of Sleep Monster (6 essences)
+Ring of Nothing -> Ring of Invisibility (8 essences)
+Amulet of Nothing -> Amulet of DOOM (3 essences)
+
+
+#####GEssence of Knowledge :
+Can be used to make :
+* Crown of Wisdom (8 essences)
+* Helm of Wisdom (8 essences)
+* Sword (Blessed) (7 essences)
+* Hafted (Blessed) (7 essences)
+* Polearm (Blessed) (7 essences)
+* Axe (Blessed) (7 essences)
+
+Can be use to Convert :
+Empty Bottle -> Potion of Self Knowledge (7 essences)
+Wand of Nothing -> Wand of Disarming (2 essences)
+Wand of Disarming -> Wand of Disarming (2 essences)
+Staff of Nothing -> Staff of Perception (3 essences)
+Staff of Perception -> Staff of Perception (3 essences)
+Rod Tip of Nothing -> Rod Tip of Probing (7 essences)
+Ring of Nothing -> Ring of See Invisible (5 essences)
+Amulet of Nothing -> Amulet of Searching (6 essences)
+Scroll of Nothing -> Scroll of Identify (2 essences)
+
+
+#####GEssence of Force :
+Can be used to make :
+* Cloak of Protection with 6 essences
+
+Can be use to Convert :
+Empty Bottle -> Potion of Resistance (7 essences)
+Wand of Nothing -> Wand of Stone to Mud (1 essence)
+Wand of Stone to Mud -> Wand of Stone to Mud (1 essence)
+Staff of Nothing -> Staff of *Destruction* (2 essences)
+Staff of *Destruction* -> Staff of *Destruction* (2 essences)
+Rod Tip of Nothing -> Rod Tip of Havoc (20 essences)
+Ring of Nothing -> Ring of Shard Resistance (8 essences)
+Amulet of Nothing -> Amulet of Slow Digestion (2 essences)
+Scroll of Nothing -> Scroll of Enchant Armor (2 essences)
+
+
+#####GEssence of Lightning :
+Can be used to make :
+* Soft armor of Resist Lightning (4 essences)
+* Hard armor of Resist Lightning (4 essences)
+* Shields of Resist Lightning (4 essences)
+* Sword of Shocking (9 essences)
+* Polearm of Shocking (9 essences)
+* Hafted of Shocking (9 essences)
+* Arrows of Shocking (2 essences)
+* Bolts of Shocking (2 essences)
+* Shots of Shocking (2 essences)
+
+Can be use to Convert :
+Empty Bottle -> Potion of Enlightenment (10 essences)
+Wand of Nothing -> Wand of Lightning Balls (2 essences)
+Wand of Lightning Balls -> Wand of Lightning Balls (2 essences)
+Staff of Nothing -> Staff of Starlight (1 essence)
+Staff of Starlight -> Staff of Starlight (1 essence)
+Rod Tip of Nothing -> Rod Tip of Lightning Balls (15 essences)
+Ring of Nothing -> Ring of Blindness Resistance (6 essences)
+Amulet of Nothing -> Amulet of Reflection (40 essences)
+Scroll of Nothing -> Scroll of Recharging (3 essences)
+
+
+#####GEssence of Mana :
+Can be used to make :
+* Gloves of Free Action (15 essences)
+* Boots of Free Action (15 essences)
+* Sword (Defender) (23 essences)
+* Polearm (Defender) (23 essences)
+* Hafted (Defender) (23 essences)
+* Axe (Defender) (23 essences)
+
+Can be use to Convert :
+Empty Bottle -> Potion of Sleep (1 essence)
+Wand of Nothing -> Wand of Sleep Monster (1 essence)
+Wand of Sleep Monster -> Wand of Sleep Monster (1 essence)
+Staff of Nothing -> Staff of Sleep Monsters (2 essences)
+Staff of Sleep Monsters -> Staff of Sleep Monsters (2 essences)
+Rod Tip of Nothing -> Rod Tip of Enlightenment (10 essences)
+Ring of Nothing -> Ring of Free Action (6 essences)
+Amulet of Nothing -> Amulet of Anti-Magic (15 essences)
+Scroll of Nothing -> Scroll of *Enchant Weapon* (3 essences)
+

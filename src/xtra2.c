@@ -30,6 +30,178 @@ static cptr favor_text[11] = {
 
 
 /*
+ * Set "p_ptr->parasite" and "p_ptr->parasite_r_idx"
+ * notice observable changes
+ */
+bool set_parasite(int v, int r)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->parasite)
+		{
+                        msg_print("You feel something growing in you.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->parasite)
+		{
+                        if (magik(80))
+                        {
+                                char r_name[80];
+                                int wx, wy;
+                                int attempts = 500;
+
+                                monster_race_desc(r_name, p_ptr->parasite_r_idx, 0);
+
+                                do
+                                {
+                                        scatter(&wy, &wx, py, px, 10, 0);
+                                }
+                                while (!(in_bounds(wy,wx) && cave_floor_bold(wy,wx)) && --attempts);
+
+                                if (place_monster_one(wy, wx, p_ptr->parasite_r_idx, 0, FALSE, MSTATUS_ENEMY))
+                                {
+                                        cmsg_format(TERM_L_BLUE, "Your body convulse and spawn %s.", r_name);
+                                        p_ptr->food -= 750;
+                                        if (p_ptr->food < 100) p_ptr->food = 100;
+                                }
+                        }
+                        else
+                        {
+                                cmsg_print(TERM_L_BLUE, "The hideous thing growing in you seems to dies.");
+                        }
+                        notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->parasite = v;
+        p_ptr->parasite_r_idx = r;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->disrupt_shield"
+ * notice observable changes
+ */
+bool set_disrupt_shield(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->disrupt_shield)
+		{
+                        msg_print("You feel invulnerable.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->disrupt_shield)
+		{
+                        msg_print("You are more vulnerable.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->disrupt_shield = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->prob_travel"
+ * notice observable changes
+ */
+bool set_prob_travel(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->prob_travel)
+		{
+                        msg_print("You feel instable.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->prob_travel)
+		{
+                        msg_print("You are more stable.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->prob_travel = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
  * Set "p_ptr->tim_invis", and "p_ptr->tim_inv_pow",
  * notice observable changes
  */
@@ -112,6 +284,54 @@ bool set_no_breeders(int v)
 
 	/* Use the value */
         no_breeds = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_deadly"
+ */
+bool set_tim_deadly(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_deadly)
+		{
+                        msg_print("You feel very accurate.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_deadly)
+		{
+                        msg_print("You are suddenly less accurate.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_deadly = v;
 
 	/* Nothing to notice */
 	if (!notice)
@@ -1193,7 +1413,7 @@ bool set_slow(int v)
 /*
  * Set "p_ptr->shield", notice observable changes
  */
-bool set_shield(int v, int p)
+bool set_shield(int v, int p, s16b o)
 {
 	bool notice = FALSE;
 
@@ -1224,6 +1444,7 @@ bool set_shield(int v, int p)
 	/* Use the value */
 	p_ptr->shield = v;
         p_ptr->shield_power = p;
+        p_ptr->shield_opt = o;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1668,7 +1889,7 @@ bool set_shadow(int v)
 	/* Open */
 	if (v)
 	{
-        if (!p_ptr->wraith_form)
+        if (!p_ptr->tim_wraith)
 		{
 
             msg_print("You leave the physical world and turn into a wraith-being!");
@@ -1690,7 +1911,7 @@ bool set_shadow(int v)
 	/* Shut */
 	else
 	{
-        if (p_ptr->wraith_form)
+        if (p_ptr->tim_wraith)
 		{
             msg_print("You feel opaque.");
 			notice = TRUE;
@@ -1708,7 +1929,7 @@ bool set_shadow(int v)
 	}
 
 	/* Use the value */
-    p_ptr->wraith_form = v;
+    p_ptr->tim_wraith = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -2854,7 +3075,7 @@ void check_experience(void)
                 p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+                p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER);
@@ -2890,7 +3111,7 @@ void check_experience(void)
 		sound(SOUND_LEVEL);
 
 		/* Message */
-		msg_format("Welcome to level %d.", p_ptr->lev);
+                cmsg_format(TERM_L_GREEN, "Welcome to level %d.", p_ptr->lev);
 
                 /* If auto-note taking enabled, write a note to the file. 
                  * Only write this note when the level is gained for the first
@@ -2911,7 +3132,7 @@ void check_experience(void)
                 p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
 		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+                p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER | PW_SPELL);
@@ -2932,6 +3153,9 @@ void check_experience(void)
 			level_mutation = FALSE;
 		}
 	}
+
+        /* Hook it ! */
+        process_hooks(HOOK_PLAYER_LEVEL, 0);
 }
 
 /*
@@ -2961,7 +3185,7 @@ void check_experience_obj(object_type *o_ptr)
 
                 /* Get object name */
                 object_desc(buf, o_ptr, 1, 0);
-                msg_format("%s gains a level!", buf);
+                cmsg_format(TERM_L_BLUE, "%s gains a level!", buf);
 
                 /* What does it gains ? */
                 object_gain_level(o_ptr);
@@ -2970,19 +3194,53 @@ void check_experience_obj(object_type *o_ptr)
 
 
 /*
- * Gain experience
+ * Gain experience (share it to objecst if needed)
  */
 void gain_exp(s32b amount)
 {
-	/* Gain some experience */
-	p_ptr->exp += amount;
+        int i, num = 1;
 
-	/* Slowly recover from experience drainage */
-	if (p_ptr->exp < p_ptr->max_exp)
-	{
-        /* Gain max experience (20%) (was 10%) */
-        p_ptr->max_exp += amount / 5;
-	}
+        /* Count the gaining xp objects */
+        for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+        {
+                object_type *o_ptr = &inventory[i];
+                u32b f1, f2, f3, f4, f5, esp;
+
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+                if (!o_ptr->k_idx) continue;
+
+                if (f4 & TR4_ART_EXP) num++;
+        }
+
+        /* Now give the xp */
+        for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+        {
+                object_type *o_ptr = &inventory[i];
+                u32b f1, f2, f3, f4, f5, esp;
+
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+                if (!o_ptr->k_idx) continue;
+
+                if (f4 & TR4_ART_EXP)
+                {
+                        o_ptr->exp += 2 * amount / (num * 3);
+
+                        /* Hack -- upper limit */
+                        if (o_ptr->exp > PY_MAX_EXP) o_ptr->exp = PY_MAX_EXP;
+                }
+        }
+
+        /* Gain some experience */
+        p_ptr->exp += amount / num;
+
+        /* Slowly recover from experience drainage */
+        if (p_ptr->exp < p_ptr->max_exp)
+        {
+                /* Gain max experience (20%) (was 10%) */
+                p_ptr->max_exp += amount / 5;
+        }
 
 	/* Check Experience */
 	check_experience();
@@ -3200,12 +3458,10 @@ void place_corpse(monster_type *m_ptr)
  */
 void monster_death(int m_idx)
 {
-        int i, y, x, ny, nx, i2, j2;
+        int i, y, x, ny, nx;
 
 	int dump_item = 0;
 	int dump_gold = 0;
-
-	int number_mon;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -3218,7 +3474,6 @@ void monster_death(int m_idx)
 
 	bool cloned = FALSE;
 	bool create_stairs = FALSE;
-	bool reward = FALSE;
 	int force_coin = get_coin_type(r_ptr);
 
 	object_type forge;
@@ -3227,6 +3482,12 @@ void monster_death(int m_idx)
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
+
+        /* Process the appropriate hooks */
+        process_hooks(HOOK_MONSTER_DEATH, m_idx);
+
+        /* If companion dies, take note */
+        if (m_ptr->status == MSTATUS_COMPANION) p_ptr->companion_killed++;
 
         /* Handle reviving if undead */
         if((p_ptr->class_extra3 & CLASS_UNDEAD) && p_ptr->class_extra4)
@@ -3300,7 +3561,7 @@ void monster_death(int m_idx)
 	m_ptr->hold_o_idx = 0;
 
 	/* Average dungeon and monster levels */
-	object_level = (dun_level + r_ptr->level) / 2;
+        object_level = (dun_level + m_ptr->level) / 2;
 
 	/* Mega^2-hack -- destroying the Stormbringer gives it us! */
 	if (strstr((r_name + r_ptr->name),"Stormbringer"))
@@ -3362,7 +3623,7 @@ void monster_death(int m_idx)
 
 			if (attempts > 0)
 			{
-				if (is_pet(m_ptr))
+                                if (is_friend(m_ptr) > 0)
 				{
 					if (summon_specific_friendly(wy, wx, 100, SUMMON_DAWN, FALSE))
 					{
@@ -3397,21 +3658,6 @@ void monster_death(int m_idx)
 
                 /* Prepare to make a Raal's Tome of Destruction */
                 object_prep(q_ptr, lookup_kind(TV_MAGIC_BOOK, 8));
-
-		/* Drop it in the dungeon */
-                drop_near(q_ptr, -1, y, x);
-	}
-
-	/* Bloodletters of Khorne drop a blade of chaos */
-        else if ((strstr((r_name + r_ptr->name),"Bloodletter")) && (rand_int(100) < 20))
-	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Prepare to make a Blade of Chaos */
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
-
-		apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE);
 
 		/* Drop it in the dungeon */
                 drop_near(q_ptr, -1, y, x);
@@ -3521,19 +3767,7 @@ void monster_death(int m_idx)
 			int chance = 0;
 			int I_kind = 0;
 
-#if 0 /* DG -- since the One Ring is no more a joke it was too unbalancing */
-                        if (strstr((r_name + r_ptr->name),"Sauron, the Sorcerer"))
-			{
-				a_idx = ART_POWER;
-                                chance = 50;
-			}
-#endif
-                        if (strstr((r_name + r_ptr->name),"The Witch-King of Angmar"))
-			{
-                                a_idx = ART_THRAIN;
-                                chance = 30;
-			}
-                        else if (strstr((r_name + r_ptr->name),"T'ron , the rebel DragonRider"))
+                        if (strstr((r_name + r_ptr->name),"T'ron , the rebel DragonRider"))
 			{
                                 a_idx = ART_TRON;
                                 chance = 75;
@@ -3632,23 +3866,31 @@ void monster_death(int m_idx)
         else if (r_ptr->flags9 & RF9_WYRM_PROTECT)
 	{
                 int xx = x,yy = y;
-                msg_print("This monster was under the protection of a great wyrm of power!");
-                scatter(&yy, &xx, y, x, 6, 0);
-                place_monster_aux(yy, xx, test_monster_name("Great Wyrm of Power"), FALSE, FALSE, is_pet(m_ptr));
+                int attempts = 100;
+
+                cmsg_print(TERM_VIOLET, "This monster was under the protection of a great wyrm of power!");
+
+                do
+                {
+                        scatter(&yy, &xx, y, x, 6, 0);
+                }
+                while (!(in_bounds(yy, xx) && cave_floor_bold(yy, xx)) && --attempts);
+
+                place_monster_aux(yy, xx, test_monster_name("Great Wyrm of Power"), FALSE, FALSE, m_ptr->status);
 	}
 
 	/* Let monsters explode! */
 	for (i = 0; i < 4; i++)
 	{
-		if (r_ptr->blow[i].method == RBM_EXPLODE)
+                if (m_ptr->blow[i].method == RBM_EXPLODE)
 		{
 			int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 			int typ = GF_MISSILE;
-			int d_dice = r_ptr->blow[i].d_dice;
-			int d_side = r_ptr->blow[i].d_side;
+                        int d_dice = m_ptr->blow[i].d_dice;
+                        int d_side = m_ptr->blow[i].d_side;
 			int damage = damroll(d_dice, d_side);
 
-			switch (r_ptr->blow[i].effect)
+                        switch (m_ptr->blow[i].effect)
 			{
 				case RBE_HURT:      typ = GF_MISSILE; break;
 				case RBE_POISON:    typ = GF_POIS; break;
@@ -3663,6 +3905,7 @@ void monster_death(int m_idx)
 				case RBE_FIRE:      typ = GF_FIRE; break;
 				case RBE_COLD:      typ = GF_COLD; break;
 				case RBE_BLIND:     typ = GF_MISSILE; break;
+                                case RBE_HALLU:     typ = GF_CONFUSION; break;
 				case RBE_CONFUSE:   typ = GF_CONFUSION; break;
 				case RBE_TERRIFY:   typ = GF_MISSILE; break;
 				case RBE_PARALYZE:  typ = GF_MISSILE; break;
@@ -3673,6 +3916,7 @@ void monster_death(int m_idx)
 				case RBE_LOSE_WIS:  typ = GF_MISSILE; break;
 				case RBE_LOSE_CHR:  typ = GF_MISSILE; break;
 				case RBE_LOSE_ALL:  typ = GF_MISSILE; break;
+                                case RBE_PARASITE:  typ = GF_MISSILE; break;
 				case RBE_SHATTER:   typ = GF_ROCKET; break;
 				case RBE_EXP_10:    typ = GF_MISSILE; break;
 				case RBE_EXP_20:    typ = GF_MISSILE; break;
@@ -3697,119 +3941,8 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
-	/* Process "any level" quest monster completion */
-	for (i = 0; i < max_quests; i++)
-	{
-		if (quest[i].status != QUEST_STATUS_TAKEN)
-			continue;
-
-		if (quest[i].level != dun_level)
-			continue;
-
-		if (((quest[i].type == QUEST_TYPE_KILL_LEVEL) ||
-		     ((quest[i].type == QUEST_TYPE_RANDOM) &&
-		      (d_info[dungeon_type].flags1 & DF1_PRINCIPAL))) &&
-		     (quest[i].r_idx == m_ptr->r_idx))
-		{
-			quest[i].cur_num++;
-
-			if (quest[i].cur_num >= quest[i].max_num)
-			{
-				/* completed quest */
-				quest[i].status = QUEST_STATUS_COMPLETED;
-				if (!p_ptr->inside_quest)
-					create_stairs = TRUE;
-
-                                if (!quest[i].flags & QUEST_FLAG_SILENT)
-				{
-					msg_print("You just completed your quest!");
-					msg_print(NULL);
-				}
-
-				/* Finish the two main quests without rewarding */
-                                if ((i == QUEST_SHELOB) || (i == QUEST_SAURON) || (i == QUEST_MORGOTH))
-				{
-					quest[i].status = QUEST_STATUS_FINISHED;
-				}
-
-				if (quest[i].type == QUEST_TYPE_RANDOM)
-				{
-					reward = TRUE;
-					quest[i].status = QUEST_STATUS_FINISHED;
-				}
-
-				break;
-			}
-		}
-		else if ((quest[i].type == QUEST_TYPE_KILL_ANY_LEVEL) &&
-			     (quest[i].r_idx == m_ptr->r_idx))
-		{
-			quest[i].cur_num++;
-			if (quest[i].cur_num >= quest[i].max_num)
-			{
-				 /* completed quest */
-				quest[i].status = QUEST_STATUS_COMPLETED;
-
-                                if (!quest[i].flags & QUEST_FLAG_SILENT)
-				{
-					msg_print("You just completed your quest!");
-					msg_print(NULL);
-				}
-				quest[i].cur_num = 0;
-			}
-			break;
-		}
-	}
-
-	/* Current quest */
+        /* Current quest */
 	i = p_ptr->inside_quest;
-
-	if (quest[i].type == QUEST_TYPE_KILL_NUMBER)
-	{
-		quest[i].cur_num++;
-		if (quest[i].cur_num >= quest[i].num_mon)
-		{
-			/* completed quest */
-			quest[i].status = 2;
-
-                        if (!quest[i].flags & QUEST_FLAG_SILENT)
-			{
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-			}
-			quest[i].cur_num = 0;
-		}
-	}
-	else if ((quest[i].type == QUEST_TYPE_KILL_ALL) &&
-		     (p_ptr->inside_quest))
-	{
-                monster_type * mt_ptr;
-		number_mon = 0;
-
-		for (i2 = 0; i2 < cur_wid; ++i2)
-			for (j2 = 0; j2 < cur_hgt; j2++)
-				if (cave[j2][i2].m_idx > 0)
-                                {
-                                        mt_ptr = &m_list[cave[j2][i2].m_idx];
-                                        if(!(mt_ptr->smart & SM_FRIEND))
-                                                number_mon++;
-                                }
-
-		if ((number_mon - 1) == 0)
-		{
-			/* completed */
-                        if (quest[i].flags & QUEST_FLAG_SILENT)
-			{
-				quest[i].status = QUEST_STATUS_FINISHED;
-			}
-			else
-			{
-				quest[i].status = QUEST_STATUS_COMPLETED;
-				msg_print("You just completed your quest!");
-				msg_print(NULL);
-			}
-		}
-	}
 
 	/* Create a magical staircase */
         if (create_stairs && (dun_level < d_info[dungeon_type].maxdepth))
@@ -3844,44 +3977,6 @@ void monster_death(int m_idx)
 		/* Remember to update everything */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
 	}
-
-	/*
-	 * Drop quest reward
-	 */
-	if (reward)
-	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Wipe the object */
-		object_wipe(q_ptr);
-
-		/* Make a great object */
-                make_object(q_ptr, TRUE, TRUE, r_ptr->drops);
-
-		/* Drop it in the dungeon */
-		drop_near(q_ptr, -1, y, x);
-	}
-
-	/* Only process "Quest Monsters" */
-	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
-
-	/* Winner? */
-        if (strstr((r_name + r_ptr->name),"Morgoth, Lord of Darkness"))
-	{
-		/* Total winner */
-		total_winner = TRUE;
-
-		/* Redraw the "title" */
-		p_ptr->redraw |= (PR_TITLE);
-
-		/* Congratulations */
-		msg_print("*** CONGRATULATIONS ***");
-                msg_print("Thanks to you, Arda is free !");
-		msg_print("You have won the game!");
-		msg_print("You may retire (commit suicide) when you are ready.");
-	}
-
 }
 
 
@@ -3928,6 +4023,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Redraw (later) if needed */
 	if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
+        /* Some mosnters are immune to death */
+        if (r_ptr->flags7 & RF7_NO_DEATH) return FALSE;
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
@@ -3940,6 +4037,14 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	{
 		char m_name[80];
 
+                /* Lets face it, you cannot get rid of a possessor that easily */
+                if (m_ptr->possessor)
+                {
+                        ai_deincarnate(m_idx);
+
+                        return FALSE;
+                }
+
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
@@ -3947,7 +4052,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
                         int curses = 2 + randint(5);
 
-                        msg_format("%^s puts a terrible morgothian curse on you!", m_name);
+                        cmsg_format(TERM_VIOLET, "%^s puts a terrible morgothian curse on you!", m_name);
                         curse_equipment_dg(100, 50);
 
 			do
@@ -3960,7 +4065,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (speak_unique && (r_ptr->flags2 & (RF2_CAN_SPEAK)))
 		{
 			char line_got[80];
-			int reward=0;
+                        int reward = 0;
 
 			/* Dump a message */
 
@@ -3972,7 +4077,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 				msg_format("There was a price on %s's head.", m_name);
 				get_rnd_line("crime.txt", line_got);
 				msg_format("%^s was wanted for %s", m_name, line_got);
-				reward = 250 * (randint (10) + r_ptr->level - 5);
+                                reward = 250 * (randint (10) + m_ptr->level - 5);
 
 				if (reward > 32000) reward = 32000;/* Force 'good' values */
 				else if (reward < 250) reward = 250;
@@ -3990,13 +4095,13 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			msg_format("%^s%s", m_name, note);
+                        cmsg_format(TERM_L_RED, "%^s%s", m_name, note);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			msg_format("You have killed %s.", m_name);
+                        cmsg_format(TERM_L_RED, "You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
@@ -4006,23 +4111,23 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			 (r_ptr->flags3 & (RF3_NONLIVING)) ||
 		         (strchr("Evg", r_ptr->d_char)))
 		{
-			msg_format("You have destroyed %s.", m_name);
+                        cmsg_format(TERM_L_RED, "You have destroyed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
-			msg_format("You have slain %s.", m_name);
+                        cmsg_format(TERM_L_RED, "You have slain %s.", m_name);
 		}
 
 		/* Maximum player level */
 		div = p_ptr->max_plv;
 
 		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+                new_exp = ((long)r_ptr->mexp * m_ptr->level) / div;
 
 		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+                new_exp_frac = ((((long)r_ptr->mexp * m_ptr->level) % div)
 		                * 0x10000L / div) + p_ptr->exp_frac;
 
 		/* Keep track of experience */
@@ -4043,18 +4148,18 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
                 {
                         object_type *o_ptr;
                         object_kind *k_ptr;
-                        u32b f1, f2, f3, f4, esp;
+                        u32b f1, f2, f3, f4, f5, esp;
 
                         /* Access the weapon */
                         o_ptr = &inventory[INVEN_WIELD];
                         k_ptr = &k_info[o_ptr->k_idx];
-                        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+                        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
                         /* Can the weapon gain levels ? */
                         if((o_ptr->k_idx) && (f4 & TR4_LEVELS))
                         {
                                 /* Give some experience for the kill */
-                                new_exp = ((long)r_ptr->mexp * r_ptr->level) / (div * 2);
+                                new_exp = ((long)r_ptr->mexp * m_ptr->level) / (div * 2);
 
                                 /* Gain experience */
                                 o_ptr->exp += new_exp;
@@ -4062,14 +4167,22 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
                         }
                 }
 
-		/* Generate treasure */
-		monster_death(m_idx);
-
 		/* When the player kills a Unique, it stays dead */
                 if (r_ptr->flags1 & (RF1_UNIQUE))
                 {
-                        r_ptr->max_num = 0;
+                        if ((r_ptr->flags7 & RF7_NAZGUL) && r_info[test_monster_name("Sauron, the Sorcerer")].max_num)
+                        {
+                                msg_print("Somehow you feel he is not totaly destroyed...");
+                                r_ptr->max_num = 1;
+                        }
+                        else
+                        {
+                                r_ptr->max_num = 0;
+                        }
                 }
+
+		/* Generate treasure */
+		monster_death(m_idx);
 
 		/* XXX XXX Mega-Hack -- allow another ghost later
 		 * Remove the slain bone file */
@@ -4107,7 +4220,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
 
 			/* Hack -- Auto-recall */
-			monster_race_track(m_ptr->r_idx);
+                        monster_race_track(m_ptr->r_idx, m_ptr->ego);
 		}
 
 		/* Delete the monster */
@@ -4266,6 +4379,15 @@ void verify_panel(void)
 
 	/* Recalculate the boundaries */
         panel_bounds();
+
+	/* Hack - merchants detect items */
+	if (p_ptr->pclass == CLASS_MERCHANT)
+	{
+                hack_no_detect_message = TRUE;
+		detect_objects_normal();
+		detect_objects_gold();
+                hack_no_detect_message = FALSE;
+	}
 
 	/* Update stuff */
 	p_ptr->update |= (PU_MONSTERS);
@@ -4428,7 +4550,7 @@ bool target_able(int m_idx)
 	if (p_ptr->image) return (FALSE);
 
         /* Dont target pets */
-        if (is_pet(m_ptr)) return (FALSE);
+        if (is_friend(m_ptr) > 0) return (FALSE);
 
 	/* XXX XXX XXX Hack -- Never target trappers */
 	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
@@ -4791,7 +4913,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				monster_desc(m_name, m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
-				monster_race_track(m_ptr->r_idx);
+                                monster_race_track(m_ptr->r_idx, m_ptr->ego);
 
 				/* Hack -- health bar for this monster */
 				health_track(c_ptr->m_idx);
@@ -4809,7 +4931,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 						Term_save();
 
 						/* Recall on screen */
-						screen_roff(m_ptr->r_idx, 0);
+                                                screen_roff(m_ptr->r_idx, m_ptr->ego, 0);
 
 						/* Hack -- Complete the prompt (again) */
 						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
@@ -4824,11 +4946,34 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
+                                                cptr mstat;
+
+                                                switch (m_ptr->status)
+                                                {
+                                                        case MSTATUS_NEUTRAL:
+                                                        case MSTATUS_NEUTRAL_M:
+                                                        case MSTATUS_NEUTRAL_P:
+                                                                mstat = " (neutral) ";
+                                                                break;
+                                                        case MSTATUS_PET:
+                                                                mstat = " (pet) ";
+                                                                break;
+                                                        case MSTATUS_FRIEND:
+                                                                mstat = " (coaligned) ";
+                                                                break;
+                                                        case MSTATUS_COMPANION:
+                                                                mstat = " (companion) ";
+                                                                break;
+                                                        default:
+                                                                mstat = " ";
+                                                                break;
+                                                }
+
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s)%s%s[r,%s]",
-						    s1, s2, s3, m_name, look_mon_desc(c_ptr->m_idx),
+                                                sprintf(out_val, "%s%s%s%s (level %d, %s)%s%s[r,%s]",
+                                                    s1, s2, s3, m_name, m_ptr->level, look_mon_desc(c_ptr->m_idx),
 						    (m_ptr->smart & SM_CLONED ? " (clone)": ""),
-						    (is_pet(m_ptr) ? " (friendly) " : " "), info);
+                                                    (mstat), info);
 
 						prt(out_val, 0, 0);
 
@@ -5721,8 +5866,6 @@ void gain_level_reward(int chosen_reward)
 				dummy2 = SV_MAIN_GAUCHE;
 				break;
 			case 4:
-				dummy2 = SV_TANTO;
-				break;
 			case 5: case 6:
 				dummy2 = SV_RAPIER;
 				break;
@@ -5742,8 +5885,6 @@ void gain_level_reward(int chosen_reward)
 				dummy2 = SV_CUTLASS;
 				break;
 			case 18:
-				dummy2 = SV_WAKIZASHI;
-				break;
 			case 19:
 				dummy2 = SV_KHOPESH;
 				break;
@@ -5760,8 +5901,6 @@ void gain_level_reward(int chosen_reward)
 				dummy2 = SV_SCIMITAR;
 				break;
 			case 26:
-				dummy2 = SV_NINJATO;
-				break;
 			case 27:
 				dummy2 = SV_KATANA;
 				break;
@@ -5784,8 +5923,6 @@ void gain_level_reward(int chosen_reward)
 				dummy2 = SV_FLAMBERGE;
 				break;
 			case 35:
-				dummy2 = SV_NO_DACHI;
-				break;
 			case 36:
 				dummy2 = SV_EXECUTIONERS_SWORD;
 				break;
@@ -5800,7 +5937,9 @@ void gain_level_reward(int chosen_reward)
 			q_ptr->to_h = 3 + (randint(dun_level)) % 10;
 			q_ptr->to_d = 3 + (randint(dun_level)) % 10;
 			random_resistance(q_ptr, FALSE, (randint(34) + 4));
-			q_ptr->name2 = EGO_CHAOTIC;
+                        q_ptr->name2 = EGO_CHAOTIC;
+                        /* Apply the ego */
+                        apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
 			/* Drop it in the dungeon */
 			drop_near(q_ptr, -1, py, px);
 			break;
@@ -6078,170 +6217,140 @@ bool gain_random_mutation(int choose_mut)
 	u32b * muta_class = 0;
 	
 	if (choose_mut) attempts_left = 1;
-	
+
+        p_ptr->update |= PU_BONUS;
+
 	while (attempts_left--)
 	{
 		switch(choose_mut?choose_mut:randint(194))
 		{
 		case 1: case 2: case 3: case 4:
 			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_SPIT_ACID;
-			muta_desc = "You gain the ability to spit acid.";
+                        muta_which = MUT1_SPIT_ACID;
 			break;
 		case 5: case 6: case 7:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_BR_FIRE;
-			muta_desc = "You gain the ability to breathe fire.";
 			break;
 		case 8: case 9:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_HYPN_GAZE;
-			muta_desc = "Your eyes look mesmerizing...";
 			break;
 		case 10: case 11:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_TELEKINES;
-			muta_desc = "You gain the ability to move objects telekinetically.";
 			break;
 		case 12: case 13: case 14:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_VTELEPORT;
-			muta_desc = "You gain the power of teleportation at will.";
 			break;
 		case 15: case 16:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_MIND_BLST;
-			muta_desc = "You gain the power of Mind Blast.";
 			break;
 		case 17: case 18:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_RADIATION;
-			muta_desc = "You start emitting hard radiation.";
 			break;
 		case 19: case 20:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_VAMPIRISM;
-			muta_desc = "You become vampiric.";
 			break;
 		case 21: case 22: case 23:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SMELL_MET;
-			muta_desc = "You smell a metallic odor.";
 			break;
 		case 24: case 25: case 26: case 27:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SMELL_MON;
-			muta_desc = "You smell filthy monsters.";
 			break;
 		case 28: case 29: case 30:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_BLINK;
-			muta_desc = "You gain the power of minor teleportation.";
 			break;
 		case 31: case 32:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_EAT_ROCK;
-			muta_desc = "The walls look delicious.";
 			break;
 		case 33: case 34:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SWAP_POS;
-			muta_desc = "You feel like walking a mile in someone else's shoes.";
 			break;
 		case 35: case 36: case 37:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SHRIEK;
-			muta_desc = "Your vocal cords get much tougher.";
 			break;
 		case 38: case 39: case 40:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_ILLUMINE;
-			muta_desc = "You can light up rooms with your presence.";
 			break;
 		case 41: case 42:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_DET_CURSE;
-			muta_desc = "You can feel evil magics.";
 			break;
 		case 43: case 44: case 45:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_BERSERK;
-			muta_desc = "You feel a controlled rage.";
 			break;
 		case 46:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_POLYMORPH;
-			muta_desc = "Your body seems mutable.";
 			break;
 		case 47: case 48:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_MIDAS_TCH;
-			muta_desc = "You gain the Midas touch.";
 			break;
 		case 49:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_GROW_MOLD;
-			muta_desc = "You feel a sudden affinity for mold.";
 			break;
 		case 50: case 51: case 52:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_RESIST;
-			muta_desc = "You feel like you can protect yourself.";
 			break;
 		case 53: case 54: case 55:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_EARTHQUAKE;
-			muta_desc = "You gain the ability to wreck the dungeon.";
 			break;
 		case 56:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_EAT_MAGIC;
-			muta_desc = "Your magic items look delicious.";
 			break;
 		case 57: case 58:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_WEIGH_MAG;
-			muta_desc = "You feel you can better understand the magic around you.";
 			break;
 		case 59:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_STERILITY;
-			muta_desc = "You can give everything around you a headache.";
 			break;
 		case 60: case 61:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_PANIC_HIT;
-			muta_desc = "You suddenly understand how thieves feel.";
 			break;
 		case 62: case 63: case 64:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_DAZZLE;
-			muta_desc = "You gain the ability to emit dazzling lights.";
 			break;
 		case 65: case 66: case 67:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_LASER_EYE;
-			muta_desc = "Your eyes burn for a moment.";
 			break;
 		case 68: case 69:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_RECALL;
-			muta_desc = "You feel briefly homesick, but it passes.";
 			break;
 		case 70:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_BANISH;
-			muta_desc = "You feel a holy wrath fill you.";
 			break;
 		case 71: case 72:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_COLD_TOUCH;
-			muta_desc = "Your hands get very cold.";
 			break;
 		case 73: case 74:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_LAUNCHER;
-			muta_desc = "Your throwing arm feels much stronger.";
 			break;
 		case 75:
 			muta_class = &(p_ptr->muta2);
@@ -6591,7 +6700,6 @@ bool gain_random_mutation(int choose_mut)
 		{
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_HYPN_GAZE;
-			muta_desc = "Your eyes look mesmerizing...";
 		}
 
                 if (p_ptr->pclass == CLASS_SYMBIANT &&
@@ -6600,12 +6708,13 @@ bool gain_random_mutation(int choose_mut)
 		{
 			muta_class = &(p_ptr->muta1);
                         muta_which = MUT1_GROW_MOLD;
-                        muta_desc = "You feel a sudden affinity for mold.";
 		}
 
 		msg_print("You mutate!");
-		msg_print(muta_desc);
+                if (muta_class != &(p_ptr->muta1)) msg_print(muta_desc);
 		*(muta_class) |= muta_which;
+		p_ptr->update |= PU_BONUS;
+		handle_stuff();
 
 		if (muta_class == &(p_ptr->muta3))
 		{
@@ -6751,7 +6860,9 @@ bool lose_mutation(int choose_mut)
 	u32b * muta_class = 0;
 	
 	if (choose_mut) attempts_left = 1;
-	
+
+        p_ptr->update |= PU_BONUS;
+
 	while (attempts_left--)
 	{
 		switch(choose_mut?choose_mut:randint(194))
@@ -6759,162 +6870,130 @@ bool lose_mutation(int choose_mut)
 		case 1: case 2: case 3: case 4:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SPIT_ACID;
-			muta_desc = "You lose the ability to spit acid.";
 			break;
 		case 5: case 6: case 7:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_BR_FIRE;
-			muta_desc = "You lose the ability to breathe fire.";
 			break;
 		case 8: case 9:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_HYPN_GAZE;
-			muta_desc = "Your eyes look uninteresting.";
 			break;
 		case 10: case 11:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_TELEKINES;
-			muta_desc = "You lose the ability to move objects telekinetically.";
 			break;
 		case 12: case 13: case 14:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_VTELEPORT;
-			muta_desc = "You lose the power of teleportation at will.";
 			break;
 		case 15: case 16:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_MIND_BLST;
-			muta_desc = "You lose the power of Mind Blast.";
 			break;
 		case 17: case 18:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_RADIATION;
-			muta_desc = "You stop emitting hard radiation.";
 			break;
 		case 19: case 20:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_VAMPIRISM;
-			muta_desc = "You are no longer vampiric.";
-			break;
+                        break;
 		case 21: case 22: case 23:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SMELL_MET;
-			muta_desc = "You no longer smell a metallic odor.";
 			break;
 		case 24: case 25: case 26: case 27:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SMELL_MON;
-			muta_desc = "You no longer smell filthy monsters.";
 			break;
 		case 28: case 29: case 30:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_BLINK;
-			muta_desc = "You lose the power of minor teleportation.";
 			break;
 		case 31: case 32:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_EAT_ROCK;
-			muta_desc = "The walls look unappetizing.";
 			break;
 		case 33: case 34:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SWAP_POS;
-			muta_desc = "You feel like staying in your own shoes.";
 			break;
 		case 35: case 36: case 37:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SHRIEK;
-			muta_desc = "Your vocal cords get much weaker.";
 			break;
 		case 38: case 39: case 40:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_ILLUMINE;
-			muta_desc = "You can no longer light up rooms with your presence.";
 			break;
 		case 41: case 42:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_DET_CURSE;
-			muta_desc = "You can no longer feel evil magics.";
 			break;
 		case 43: case 44: case 45:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_BERSERK;
-			muta_desc = "You no longer feel a controlled rage.";
 			break;
 		case 46:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_POLYMORPH;
-			muta_desc = "Your body seems stable.";
 			break;
 		case 47: case 48:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_MIDAS_TCH;
-			muta_desc = "You lose the Midas touch.";
 			break;
 		case 49:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_GROW_MOLD;
-			muta_desc = "You feel a sudden dislike for mold.";
 			break;
 		case 50: case 51: case 52:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_RESIST;
-			muta_desc = "You feel like you might be vulnerable.";
 			break;
 		case 53: case 54: case 55:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_EARTHQUAKE;
-			muta_desc = "You lose the ability to wreck the dungeon.";
 			break;
 		case 56:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_EAT_MAGIC;
-			muta_desc = "Your magic items no longer look delicious.";
 			break;
 		case 57: case 58:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_WEIGH_MAG;
-			muta_desc = "You no longer sense magic.";
 			break;
 		case 59:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_STERILITY;
-			muta_desc = "You hear a massed sigh of relief.";
 			break;
 		case 60: case 61:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_PANIC_HIT;
-			muta_desc = "You no longer feel jumpy.";
 			break;
 		case 62: case 63: case 64:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_DAZZLE;
-			muta_desc = "You lose the ability to emit dazzling lights.";
 			break;
 		case 65: case 66: case 67:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_LASER_EYE;
-			muta_desc = "Your eyes burn for a moment, then feel soothed.";
 			break;
 		case 68: case 69:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_RECALL;
-			muta_desc = "You feel briefly homesick.";
 			break;
 		case 70:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_BANISH;
-			muta_desc = "You no longer feel a holy wrath.";
 			break;
 		case 71: case 72:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_COLD_TOUCH;
-			muta_desc = "Your hands warm up.";
 			break;
 		case 73: case 74:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_LAUNCHER;
-			muta_desc = "Your throwing arm feels much weaker.";
 			break;
 		case 75:
 			muta_class = &(p_ptr->muta2);
@@ -6934,7 +7013,7 @@ bool lose_mutation(int choose_mut)
 		case 78:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_ALCOHOL;
-			muta_desc = "Your body stops producing alcohol!";
+                        muta_desc = "Your body stops producing alcohol!";
 			break;
 		case 79:
 			muta_class = &(p_ptr->muta2);
@@ -7259,9 +7338,10 @@ bool lose_mutation(int choose_mut)
 	else
 	{
 		msg_print(muta_desc);
+                if (muta_class != &(p_ptr->muta1)) msg_print(muta_desc);
 		*(muta_class) &= ~(muta_which);
 		
-		p_ptr->update |= PU_BONUS;
+                p_ptr->update |= PU_BONUS;
 		handle_stuff();
 		return TRUE;
 	}
@@ -7918,7 +7998,7 @@ void great_side_effect(void) {
                                 int y = py, x = px;
 
                                 scatter(&y, &x, py, px, 5, 0);
-                                place_monster_one(y, x, test_monster_name("Ent"), 0, FALSE, TRUE);
+                                place_monster_one(y, x, test_monster_name("Ent"), 0, FALSE, MSTATUS_FRIEND);
                         }
                         break;
                 case GOD_ULMO:
@@ -8032,8 +8112,7 @@ void great_side_effect(void) {
   } else if (tmp <= 80) {
     identify_fully();
   } else if (tmp <= 90) {
-    msg_print("The power of your deity makes the dungeon change!");
-    alter_reality();
+    msg_print("The power of your deity restores you!");
     hp_player(5000);
     (void)set_poisoned(0);
     (void)set_blind(0);
@@ -8146,7 +8225,7 @@ void deadly_side_effect(bool god) {
     boom(py, px, GF_MAKE_TRAP, 9, 0);
   } else if (tmp <= 90) {
     msg_print("Something is trying to destroy your brain!");
-    take_sanity_hit(damroll(10,10), "blasted into oblivion by an angry deity");
+    take_sanity_hit(damroll(10,10), "blasted by an angry deity");
   } else if (tmp <= 100) {
     godly_wrath_blast();
   }
@@ -8251,14 +8330,129 @@ void godly_wrath_blast(void) {
   (void)project(-99, 1, py, px, damroll(4, ((p_ptr->lev / 3) > 5)?(p_ptr->lev / 3):5), type, flg);
 }
 
+bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *what)
+{
+        int i, j;
+        char buf[200];
+
+        /* try all objects, this *IS* a very ugly and slow method :( */
+        for (i = 0; i < max_k_idx; i++)
+        {
+                object_kind *k_ptr = &k_info[i];
+
+                o_ptr = forge;
+
+                if (!k_ptr->name) continue;
+                if (k_ptr->flags3 & TR3_NORM_ART) continue;
+                if (k_ptr->flags3 & TR3_INSTA_ART) continue;
+
+                object_prep(o_ptr, i);
+                o_ptr->name1 = 0;
+                o_ptr->name2 = 0;
+                apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
+                object_aware(o_ptr);
+                object_known(o_ptr);
+                object_desc(buf, o_ptr, FALSE, 0);
+                strlower(buf);
+
+                if (strstr(name, buf))
+                {
+                        /* You can't wish for a wish ! */
+                        if ((o_ptr->tval == TV_STAFF) && (o_ptr->sval == SV_STAFF_WISHING))
+                        {
+                                msg_format("You cannot %s for a wish !", what);
+                                return FALSE;
+                        }
+
+                        /* try all ego */
+                        for (j = max_e_idx - 1; j >= 0; j--)
+                        {
+                                ego_item_type *e_ptr = &e_info[j];
+                                bool ok = FALSE;
+
+                                if (j && !e_ptr->name) continue;
+
+                                /* Must have the correct fields */
+                                if (j)
+                                {
+                                        int z;
+
+                                        for (z = 0; z < 6; z++)
+                                        {
+                                                if (e_ptr->tval[z] == k_ptr->tval)
+                                                {
+                                                        if ((e_ptr->min_sval[z] <= k_ptr->sval) && (e_ptr->max_sval[z] >= k_ptr->sval)) ok = TRUE;
+                                                }
+                                                if (ok) break;
+                                        }
+                                        if (!ok)
+                                        {
+                                                continue;
+                                        }
+                                }
+
+                                object_prep(o_ptr, i);
+                                o_ptr->name1 = 0;
+                                o_ptr->name2 = j;
+                                apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
+                                object_aware(o_ptr);
+                                object_known(o_ptr);
+                                object_desc(buf, o_ptr, FALSE, 0);
+                                strlower(buf);
+
+                                if(!stricmp(buf, name))
+                                {
+                                        /* Don't search any more */
+                                        return TRUE;
+                                }
+                        }
+                }
+        }
+        return FALSE;
+}
+
+void clean_wish_name(char *buf, char *name)
+{
+        char *p;
+        int i, j;
+
+        /* Lowercase the wish */
+        strlower(buf);
+
+        /* Nuke uneccesary spaces */
+        p = buf;
+        while (*p == ' ') p++;
+        i = 0;
+        j = 0;
+        while (p[i])
+        {
+                if ((p[i] == ' ') && (p[i + 1] == ' '))
+                {
+                        i++;
+                        continue;
+                }
+                name[j++] = p[i++];
+        }
+        name[j++] = '\0';
+        if (j)
+        {
+                j--;
+                while (j && (name[j] == ' '))
+                {
+                        name[j] = '\0';
+                        j--;
+                }
+        }
+}
+
 /*
  * Allow the player to make a wish
  */
 void make_wish(void)
 {
-        char buf[80], name[80];
-        int i, j;
-        object_type *q_ptr, forge;
+        char buf[200], name[200], *mname;
+        int i, j, mstatus = MSTATUS_ENEMY;
+        object_type forge, *o_ptr = &forge;
 
         /* Make an empty string */
         buf[0] = 0;
@@ -8266,111 +8460,90 @@ void make_wish(void)
         /* Ask for the wish */
         if(!get_string("Wish for what? ", buf, 80)) return;
 
-        /* Lowercase the wish */
-        strlower(buf);
+        clean_wish_name(buf, name);
 
         /* You can't wish for a wish ! */
-        if(strstr(buf, "wish"))
+        if (strstr(name, "wish"))
         {
                 msg_print("You can't wish for a wish !");
                 return;
         }
 
-        /* First, try all the objects */
-        for(i = 0; i < max_k_idx; i++)
+        if (test_object_wish(name, o_ptr, &forge, "wish"))
         {
-                /* Get local object */
-                q_ptr = &forge;
+                msg_print("Your wish become truth!");
 
-                /* Hack -- Give the player an object */
-                object_prep(q_ptr, i);
+                /* Give it to the player */
+                drop_near(o_ptr, -1, py, px);
 
-                /* Can have great items but NEVER artifacts */
-                apply_magic(q_ptr, dun_level, TRUE, TRUE, FALSE);
-
-                object_aware(q_ptr);
-                object_known(q_ptr);
-
-                object_desc(name, q_ptr, 0, 0);
-
-                /* Paranoia */
-                if(q_ptr->name1) continue;
-                if(q_ptr->art_name) continue;
-
-                /* Lowercase the name */
-                strlower(name);
-
-                if(strstr(name, buf))
-                {
-                        /* You can't wish for a wish ! */
-                        if((q_ptr->tval == TV_STAFF) && (q_ptr->sval == SV_STAFF_WISHING))
-                        {
-                                msg_print("You can't wish for a wish !");
-                                return;
-                        }
-
-                        msg_print("Your wish become truth!");
-
-                        /* Give it to the player */
-                        drop_near(q_ptr, -1, py, px);
-
-                        /* Don't search any more */
-                        return;
-                }
+                return;
         }
 
-        /* Try all the monsters */
-        for(i = 1; i < max_r_idx - 1; i++)
+        /* try monsters */
+        if (prefix(name, "enemy ")) { mstatus = MSTATUS_ENEMY; mname = name + 6; }
+        else if (prefix(name, "neutral ")) { mstatus = MSTATUS_NEUTRAL; mname = name + 8; }
+        else if (prefix(name, "friendly ")) { mstatus = MSTATUS_FRIEND; mname = name + 9; }
+        else if (prefix(name, "pet ")) { mstatus = MSTATUS_PET; mname = name + 4; }
+        else if (prefix(name, "companion "))
         {
-                monster_race_desc(name, i, 0);
-
-                /* Never Uniques */
-                if(r_info[i].flags1 & RF1_UNIQUE) continue;
-
-                /* Nor quest monsters */
-                if(r_info[i].flags1 & RF1_QUESTOR) continue;
-
-                /* Lowercase the name */
-                strlower(name);
-
-                if(strstr(name, buf))
-                {
-                        int y = py, x = px;
-
-                        scatter(&y, &x, py, px, 5, 0);
-
-                        /* Create the monster */
-                        if(place_monster_aux(y, x, i, FALSE, FALSE, FALSE))
-                                msg_print("Your wish become truth!");
-
-                        /* Don't search any more */
-                        return;
-                }
-        }       
-
-        /* Try all the realms */
-        for(i = 0; i < MAX_REALM; i++)
+                if (can_create_companion()) mstatus = MSTATUS_COMPANION;
+                else mstatus = MSTATUS_PET;
+                mname = name + 10;
+        }
+        else mname = name;
+        for (i = 1; i < max_r_idx - 1; i++)
         {
-                /* Hack -- forbig MUSIC and SYMBIOTIC */
-                if(i == REALM_SYMBIOTIC) continue;
-                if(i == REALM_MUSIC) continue;
+                monster_race *r_ptr = &r_info[i];
 
-                /* Try all the spells */
-                for(j = 0; j < 64; j++)
+                if (!r_ptr->name) continue;
+
+                if (r_ptr->flags9 & RF9_SPECIAL_GENE) continue;
+                if (r_ptr->flags9 & RF9_NEVER_GENE) continue;
+                if (r_ptr->flags1 & RF1_UNIQUE) continue;
+
+                sprintf(buf, "%s", r_ptr->name + r_name);
+                strlower(buf);
+
+                if (strstr(mname, buf))
                 {
-                        sprintf(name, "%s", spell_names[i][j]);
-
-                        /* Lowercase the name */
-                        strlower(name);
-
-                        if(strstr(name, buf))
+                        /* try all ego */
+                        for (j = max_re_idx - 1; j >= 0; j--)
                         {
-                                msg_print("Your wish become truth!");
+                                monster_ego *re_ptr = &re_info[j];
 
-                                cast_spell(i, j);
+                                if (j && !re_ptr->name) continue;
 
-                                /* Don't search any more */
-                                return;
+                                if (!mego_ok(i, j)) continue;
+
+                                if (j)
+                                {
+                                        if (re_ptr->before) sprintf(buf, "%s %s", re_name + re_ptr->name, r_ptr->name + r_name);
+                                        else sprintf(buf, "%s %s", r_ptr->name + r_name, re_name + re_ptr->name);
+                                }
+                                else
+                                {
+                                        sprintf(buf, "%s", r_ptr->name + r_name);
+                                }
+                                strlower(buf);
+
+                                if(!stricmp(mname, buf))
+                                {
+                                        int wy = py, wx = px;
+                                        int attempts = 100;
+
+                                        do
+                                        {
+                                                scatter(&wy, &wx, py, px, 5, 0);
+                                        }
+                                        while (!(in_bounds(wy, wx) && cave_floor_bold(wy, wx)) && --attempts);
+
+                                        /* Create the monster */
+                                        if (place_monster_one(wy, wx, i, j, FALSE, mstatus))
+                                                msg_print("Your wish become truth!");
+
+                                        /* Don't search any more */
+                                        return;
+                                }
                         }
                 }
         }

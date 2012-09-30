@@ -1,0 +1,32 @@
+#####R=== Mindcrafters ===
+
+#####GDescription
+The Mindcrafter is a character who uses the powers of mind instead of 
+magic. These powers are unique to the Mindcrafter class, and vary from 
+simple extrasensory powers to mental domination of others. Since these 
+powers are developed by the practice of certain disciplines, a 
+Mindcrafter requires no spellbooks to use them. The available powers 
+are simply determined by the character level. The Mindcrafter uses the
+wisdom score to determine how well he / she can perform these psychic 
+powers, and in combat a Mindcrafter is roughly the equivalent of a 
+priest, although a Mindcrafter is never penalized for wielding an edged
+weapon (unlike a priest).
+
+#####GPrimary Stats
+Wisdom (spell casting stat)
+
+#####GMagic Usage
+Although the powers of a Mindcrafter may seem like magic, this is not 
+-- strictly speaking --  the case. They are mental powers, independent 
+of the ordinary sources of magic. Consequently,  Mindcrafters are not 
+interested in 'magic' and learn no spells. These mental powers can be 
+accessed through the "m" command.
+
+#####GStarting Equipment
+A mindcrafter begins the game with:
+    A small sword
+    A potion of restore mana
+    Soft leather armor
+If they are *very* lucky they may also begin with:
+    ring of free action
+    

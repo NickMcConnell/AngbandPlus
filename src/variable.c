@@ -41,10 +41,7 @@ byte sf_major;			/* Savefile's "version_major" */
 byte sf_minor;			/* Savefile's "version_minor" */
 byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra" */
-
-byte z_major;           /* Savefile version for PernAngband */
-byte z_minor;
-byte z_patch;
+u32b vernum;
 
 /*
  * Savefile information
@@ -142,8 +139,8 @@ s16b coin_type;			/* Hack -- force coin type */
 
 bool opening_chest;		/* Hack -- prevent chest generation */
 
-bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
-bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
+bool shimmer_monsters;          /* Hack -- optimize multi-hued monsters */
+bool shimmer_objects;           /* Hack -- optimize multi-hued objects */
 
 bool repair_monsters;	/* Hack -- optimize detect monsters */
 bool repair_objects;	/* Hack -- optimize detect objects */
@@ -189,7 +186,7 @@ bool other_query_flag;		/* Prompt for various information */
 bool carry_query_flag;		/* Prompt before picking things up */
 bool use_old_target;		/* Use old target by default */
 bool always_pickup;             /* Pick things up by default */
-bool no_pickup_corpse;          /* Don't pick up the corpses */
+bool prompt_pickup_heavy;       /* Don't pick up the corpses */
 bool always_repeat;             /* Repeat obvious commands */
 bool depth_in_feet;             /* Show dungeon level in feet */
 
@@ -230,11 +227,9 @@ bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
-bool water_levels;              /* Allow flooded levels */
 bool always_small_level;        /* Small levels */
 bool flavored_attacks;          /* Show silly messages when fighting */
 bool player_symbols;		/* Use varying symbols for the player char */
-bool skip_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
@@ -341,7 +336,6 @@ bool closing_flag;		/* Dungeon is closing */
  */
 
 s16b max_panel_rows, max_panel_cols;
-//s16b panel_row, panel_col;
 s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;
@@ -368,6 +362,7 @@ s16b health_who;
  * Monster race to track
  */
 s16b monster_race_idx;
+s16b monster_ego_idx;
 
 /*
  * Object kind to track
@@ -494,6 +489,11 @@ u16b message__tail;
 u16b *message__ptr;
 
 /*
+ * The array of colors, by index [MESSAGE_MAX]
+ */
+byte *message__color;
+
+/*
  * The array of chars, by offset [MESSAGE_BUF]
  */
 char *message__buf;
@@ -516,7 +516,7 @@ u32b window_mask[8];
 /*
  * The array of window pointers
  */
-term *angband_term[8];
+term *angband_term[ANGBAND_TERM_MAX];
 
 
 /*
@@ -649,11 +649,17 @@ object_type *o_list;
  */
 monster_type *m_list;
 
+/*
+ * The array of to keep monsters [max_m_idx]
+ */
+monster_type *km_list;
+
 
 /*
  * Maximum number of towns
  */
 u16b max_towns;
+u16b max_real_towns;
 
 /*
  * The towns [max_towns]
@@ -743,6 +749,7 @@ u32b spell_worked[MAX_REALM][2];    /* bit mask of spells tried and worked */
 u32b spell_forgotten[MAX_REALM][2]; /* bit mask of spells learned but forgotten */
 byte spell_order[64];               /* order spells learned/remembered/forgotten */
 byte realm_order[64];               /* order realms learned/remembered/forgotten */
+byte spell_level[MAX_REALM][64];    /* spell levels */
 
 
 /*
@@ -932,6 +939,12 @@ cptr ANGBAND_DIR_HELP;
 cptr ANGBAND_DIR_INFO;
 
 /*
+ * Textual template files for the plot files (ascii)
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_NOTE;
+
+/*
  * Savefiles for current characters (binary)
  * These files are portable between platforms
  */
@@ -954,6 +967,13 @@ cptr ANGBAND_DIR_USER;
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_XTRA;
+
+/*
+ * Cmovie files of entire games (ascii)
+ * Apart from possible newline things, likely portable btw platforms
+ */
+
+cptr ANGBAND_DIR_CMOV;
 
 /*
  * Total Hack -- allow all items to be listed (even empty ones)
@@ -1031,11 +1051,6 @@ wilderness_map **wild_map;
 
 
 /*
- * Maximum number of quests
- */
-u16b max_quests;
-
-/*
  * Maximum number of monsters in r_info.txt
  */
 u16b max_r_idx;
@@ -1111,21 +1126,6 @@ u16b max_t_idx;
 u16b max_wf_idx;
 
 /*
- * Quest info
- */
-quest_type *quest;
-
-/*
- * Quest text
- */
-char quest_text[10][80];
-
-/*
- * Current line of the quest text
- */
-int quest_text_line;
-
-/*
  * Flags for initialization
  */
 int init_flags;
@@ -1176,7 +1176,7 @@ fate fates[MAX_FATES];
 /*
  * Vanilla town.
  */
-byte vanilla_town;
+byte vanilla_town = FALSE;
 
 /*
  * Which dungeon ?
@@ -1220,6 +1220,9 @@ bool permanent_levels;
 /* Autoroler */
 bool autoroll;
 
+/* Point based */
+bool point_based;
+
 /* Maximize, preserve, special levels, ironman_rooms */
 bool maximize, preserve, special_lvls, ironman_rooms;
 
@@ -1260,3 +1263,33 @@ bool center_player = FALSE;
  * Ghost option
  */
 bool astral_option = FALSE;
+
+/*
+ * Plots
+ */
+s16b plots[MAX_PLOTS];
+
+/*
+ * Random quest
+ */
+random_quest random_quests[MAX_RANDOM_QUEST];
+
+/*
+ * Provies a quick way to un_pref a char(for cmovie)
+ */
+char un_pref_char[256];
+
+/*
+ * Show exp left
+ */
+bool exp_need;
+
+/*
+ * Auto load old colors;
+ */
+bool autoload_old_colors;
+
+/*
+ * Fated ?
+ */
+bool fate_option;

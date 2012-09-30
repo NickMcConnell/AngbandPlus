@@ -27,13 +27,13 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      56       /* Used with rings (min 38) */
-#define MAX_AMULETS    18       /* Used with amulets (min 13) */
-#define MAX_WOODS      32       /* Used with staffs (min 30) */
-#define MAX_METALS     39       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     66       /* Used with potions (min 60) */
+#define MAX_ROCKS      62       /* Used with rings (min 58) */
+#define MAX_AMULETS    34       /* Used with amulets (min 30) */
+#define MAX_WOODS      35       /* Used with staffs (min 32) */
+#define MAX_METALS     39       /* Used with wands/rods (min 32/30) */
+#define MAX_COLORS     66       /* Used with potions (min 62) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     55       /* Used with scrolls (min 48) */
+#define MAX_TITLES     55       /* Used with scrolls (min 55) */
 #define MAX_SYLLABLES 164       /* Used with scrolls (see below) */
 
 
@@ -53,9 +53,10 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
 	"Engagement", "Adamantite",
 	"Wire", "Dilithium", "Bone", "Wooden",
-	"Spikard", "Serpent",   "Wedding", "Double",
-	"Plain", "Brass",  "Scarab","Shining",
-	"Rusty","Transparent"
+	"Spikard", "Serpent", "Wedding", "Double",
+	"Plain", "Brass", "Scarab", "Shining",
+	"Rusty", "Transparent", "Copper", "Black Opal", "Nickel",
+        "Glass", "Fluorspar", "Agate",
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -72,7 +73,8 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_UMBER, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
 	TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
 	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW,
-	TERM_RED, TERM_WHITE
+	TERM_RED, TERM_WHITE, TERM_UMBER, TERM_L_DARK, TERM_L_WHITE,
+        TERM_WHITE, TERM_BLUE, TERM_L_WHITE
 };
 
 
@@ -85,15 +87,21 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-        "Copper", "Swastika", "Mithril"
+        "Copper", "Amethyst", "Mithril", "Sapphire", "Dragon Tooth",
+        "Carved Oak", "Sea Shell", "Flint Stone", "Ruby", "Scarab",
+        "Origami Paper", "Meteoric Iron", "Platinum", "Glass", "Beryl",
+        "Malachite", "Adamantite", "Mother-of-pearl", "Runed"
 };
 
 static byte amulet_col[MAX_AMULETS] =
 {
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
-	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
+	TERM_L_DARK, TERM_WHITE, TERM_ORANGE, TERM_L_UMBER, TERM_SLATE,
 	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-        TERM_L_UMBER, TERM_VIOLET, TERM_L_WHITE
+        TERM_L_UMBER, TERM_VIOLET, TERM_L_BLUE, TERM_BLUE, TERM_L_WHITE,
+        TERM_UMBER, TERM_L_BLUE, TERM_SLATE, TERM_RED, TERM_L_GREEN, 
+        TERM_WHITE, TERM_L_DARK, TERM_L_WHITE, TERM_WHITE, TERM_L_GREEN, 
+        TERM_GREEN, TERM_VIOLET, TERM_L_WHITE, TERM_UMBER
 };
 
 
@@ -109,7 +117,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
 	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
+	"Golden", "Ashen", "Gnarled", "Ivory", "Willow"
 };
 
 static byte staff_col[MAX_WOODS] =
@@ -120,7 +128,7 @@ static byte staff_col[MAX_WOODS] =
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
 	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, /*???,???,???*/
+	TERM_YELLOW, TERM_SLATE, TERM_UMBER, TERM_L_WHITE, TERM_L_UMBER
 };
 
 
@@ -130,10 +138,10 @@ static byte staff_col[MAX_WOODS] =
 
 static cptr wand_adj[MAX_METALS] =
 {
-	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
+	"Aluminium", "Cast Iron", "Chromium", "Copper", "Gold",
 	"Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
 	"Silver", "Steel", "Tin", "Titanium", "Tungsten",
-	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
+	"Zirconium", "Zinc", "Aluminium-Plated", "Copper-Plated", "Gold-Plated",
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
 	"Platinum", "Lead","Lead-Plated", "Ivory" , "Adamantite",
@@ -142,8 +150,8 @@ static cptr wand_adj[MAX_METALS] =
 
 static byte wand_col[MAX_METALS] =
 {
-	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
+	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_UMBER, TERM_YELLOW,
+	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_RED,
 	TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
 	TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
@@ -253,7 +261,6 @@ static cptr syllables[MAX_SYLLABLES] =
 	"yerg", "yp", "zun", "tri", "blaa", "jah", "bul", "on",
         "foo", "ju", "xuxu"
 };
-
 
 /*
  * Hold the titles of scrolls, 6 to 14 characters each
@@ -381,15 +388,14 @@ static bool object_easy_know(int i)
                 case TV_MAGIC_BOOK:
                 case TV_PRAYER_BOOK:
                 case TV_VALARIN_BOOK:
+                case TV_SPIRIT_BOOK:
                 case TV_MAGERY_BOOK:
                 case TV_SHADOW_BOOK:
 		case TV_CHAOS_BOOK:
                 case TV_NETHER_BOOK:
                 case TV_CRUSADE_BOOK:
                 case TV_SIGALDRY_BOOK:
-		case TV_DAEMON_BOOK:
                 case TV_MUSIC_BOOK:
-                case TV_MIMIC_BOOK:
                 case TV_SYMBIOTIC_BOOK:
 		{
 			return (TRUE);
@@ -418,6 +424,8 @@ static bool object_easy_know(int i)
                 case TV_ROD_MAIN:
                 case TV_BATERIE:
 		{
+			if (k_ptr->flags3 & TR3_NORM_ART)
+				return( FALSE );
 			return (TRUE);
 		}
 
@@ -701,6 +709,16 @@ void reset_visuals(void)
 		f_ptr->x_char = f_ptr->d_char;
 	}
 
+	/* Extract default attr/char code for stores */
+	for (i = 0; i < max_st_idx; i++)
+	{
+		store_info_type *st_ptr = &st_info[i];
+
+		/* Default attr/char */
+		st_ptr->x_attr = st_ptr->d_attr;
+		st_ptr->x_char = st_ptr->d_char;
+	}
+
 	/* Extract default attr/char code for objects */
 	for (i = 0; i < max_k_idx; i++)
 	{
@@ -747,7 +765,7 @@ void reset_visuals(void)
 /*
  * Obtain the "flags" for an item
  */
-void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
+void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -756,6 +774,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 	(*f2) = k_ptr->flags2;
 	(*f3) = k_ptr->flags3;
         (*f4) = k_ptr->flags4;
+        (*f5) = k_ptr->flags5;
         (*esp) = k_ptr->esp;
 
 	/* Artifact */
@@ -767,28 +786,18 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 		(*f2) = a_ptr->flags2;
 		(*f3) = a_ptr->flags3;
                 (*f4) = a_ptr->flags4;
+                (*f5) = a_ptr->flags5;
                 (*esp) = a_ptr->esp;
 	}
 
-	/* Ego-item */
-	if (o_ptr->name2)
-	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-		(*f1) |= e_ptr->flags1;
-		(*f2) |= e_ptr->flags2;
-		(*f3) |= e_ptr->flags3;
-                (*f4) |= e_ptr->flags4;
-                (*esp) |= e_ptr->esp;
-	}
-
 	/* Random artifact ! */
-        if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4 || o_ptr->art_esp)
+        if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4 || o_ptr->art_flags5 || o_ptr->art_esp)
 	{
 		(*f1) |= o_ptr->art_flags1;
 		(*f2) |= o_ptr->art_flags2;
 		(*f3) |= o_ptr->art_flags3;
                 (*f4) |= o_ptr->art_flags4;
+                (*f5) |= o_ptr->art_flags5;
                 (*esp) |= o_ptr->art_esp;
 	}
 
@@ -840,7 +849,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 				switch (o_ptr->xtra2 % 8)
 				{
 					case 0: (*f3) |= (TR3_FEATHER);     break;
-					case 1: (*f3) |= (TR3_LITE);        break;
+                                        case 1: (*f3) |= (TR3_LITE1);        break;
 					case 2: (*f3) |= (TR3_SEE_INVIS);   break;
                                         case 3: (*esp) |= (ESP_ALL);   break;
 					case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
@@ -855,19 +864,47 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 	}
 }
 
+/* Return object granted power */
+int object_power(object_type *o_ptr)
+{
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+        int power = -1;
+
+	/* Base object */
+        power = k_ptr->power;
+
+	/* Ego-item */
+	if (o_ptr->name2)
+	{
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+                if (power == -1) power = e_ptr->power;
+	}
+
+	/* Artifact */
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+                if (power == -1) power = a_ptr->power;
+	}
+
+        return (power);
+}
+
 
 
 /*
  * Obtain the "flags" for an item which are known to the player
  */
-void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *esp)
+void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 {
 	bool spoil = FALSE;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Clear */
-        (*f1) = (*f2) = (*f3) = (*f4) = (*esp) = 0L;
+        (*f1) = (*f2) = (*f3) = (*f4) = (*esp) = (*f5) = 0L;
 
 	/* Must be identified */
 	if (!object_known_p(o_ptr)) return;
@@ -877,19 +914,8 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	(*f2) = k_ptr->flags2;
 	(*f3) = k_ptr->flags3;
         (*f4) = k_ptr->flags4;
+        (*f5) = k_ptr->flags5;
         (*f4) = k_ptr->esp;
-
-	/* Ego-item (known basic flags) */
-	if (o_ptr->name2)
-	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-		(*f1) |= e_ptr->flags1;
-		(*f2) |= e_ptr->flags2;
-		(*f3) |= e_ptr->flags3;
-                (*f4) |= e_ptr->flags4;
-                (*esp) |= e_ptr->esp;
-	}
 
 
 #ifdef SPOIL_ARTIFACTS
@@ -914,27 +940,18 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 		(*f2) = a_ptr->flags2;
 		(*f3) = a_ptr->flags3;
                 (*f4) = a_ptr->flags4;
+                (*f5) = a_ptr->flags5;
                 (*esp) = a_ptr->esp;
 	}
 
-	/* Ego-item */
-	if (o_ptr->name2)
-	{
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-		(*f1) |= e_ptr->flags1;
-		(*f2) |= e_ptr->flags2;
-		(*f3) |= e_ptr->flags3;
-                (*f4) |= e_ptr->flags4;
-	}
-
 	/* Random artifact ! */
-	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3)
+        if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags4 || o_ptr->art_flags5 || o_ptr->art_esp)
 	{
 		(*f1) |= o_ptr->art_flags1;
 		(*f2) |= o_ptr->art_flags2;
 		(*f3) |= o_ptr->art_flags3;
                 (*f4) |= o_ptr->art_flags4;
+                (*f5) |= o_ptr->art_flags5;
                 (*esp) |= o_ptr->art_esp;
 	}
 
@@ -990,7 +1007,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 				switch (o_ptr->xtra2 % 8)
 				{
 					case 0: (*f3) |= (TR3_FEATHER);     break;
-					case 1: (*f3) |= (TR3_LITE);        break;
+                                        case 1: (*f3) |= (TR3_LITE1);        break;
 					case 2: (*f3) |= (TR3_SEE_INVIS);   break;
                                         case 3: (*esp) |= (ESP_ALL);   break;
 					case 4: (*f3) |= (TR3_SLOW_DIGEST); break;
@@ -1045,13 +1062,14 @@ static char *object_desc_str(char *t, cptr s)
 
 
 /*
- * Print an unsigned number "n" into a string "t", as if by
+ * Print a nnumber "n" into a string "t", as if by
  * sprintf(t, "%u", n), and return a pointer to the terminator.
  */
-static char *object_desc_num(char *t, uint n)
+static char *object_desc_num(char *t, int n)
 {
 	uint p;
 
+	if(n < 0) {*t++ = '-'; n *= -1;}
 	/* Find "size" of "n" */
 	for (p = 1; n >= p * 10; p = p * 10) /* loop */;
 
@@ -1200,14 +1218,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	char            tmp_val[160];
 	char            tmp_val2[90];
 
-        u32b            f1, f2, f3, f4, esp;
+        u32b            f1, f2, f3, f4, f5, esp;
 
 	object_kind             *k_ptr = &k_info[o_ptr->k_idx];
 
         cptr str;
 
 	/* Extract some flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 
 	/* See if the object is "aware" */
@@ -1260,11 +1278,17 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
+		/* Trapping Kits */
+		case TV_TRAPKIT:
+		{
+			modstr = basenm;
+			basenm = "& # Trap Set~";
+			break;
+		}
 
 			/* Armour */
 		case TV_BOOTS:
 		case TV_GLOVES:
-		case TV_CLOAK:
 		case TV_CROWN:
 		case TV_HELM:
 		case TV_SHIELD:
@@ -1286,26 +1310,23 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Amulets (including a few "Specials") */
 		case TV_AMULET:
 		{
-			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
-
 			/* Color the object */
 			modstr = amulet_adj[indexx];
 			if (aware) append_name = TRUE;
 
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Amulet~";
-			else
-				basenm = aware ? "& # Amulet~" : "& # Amulet~";
-			break;
+                        if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
+                                basenm = "& Amulet~";
+                        else
+                                basenm = aware ? "& # Amulet~" : "& # Amulet~";
+
+                        if (known && !o_ptr->art_name && artifact_p(o_ptr)) basenm = k_ptr->name + k_name;
+                        
+                        break;
 		}
 
 		/* Rings (including a few "Specials") */
 		case TV_RING:
 		{
-			/* Known artifacts */
-			if (artifact_p(o_ptr) && aware) break;
-
 			/* Color the object */
 			modstr = ring_adj[indexx];
 			if (aware) append_name = TRUE;
@@ -1317,6 +1338,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
                         /* Hack -- The One Ring */
 			if (!aware && (o_ptr->sval == SV_RING_POWER)) modstr = "Plain Gold";
+
+                        if (known && !o_ptr->art_name && artifact_p(o_ptr)) basenm = k_ptr->name + k_name;
 
 			break;
 		}
@@ -1407,6 +1430,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 			/* Magic Books */
+        case TV_CLOAK:
+                show_armour = TRUE;
+                if (o_ptr->sval >= 100)
+                {
+                        modstr = basenm;
+                        basenm = "& Cloak~ of Mimicry #";
+                }
+                break;
+
         case TV_VALARIN_BOOK:
 		modstr = basenm;
                 if (mp_ptr->spell_book == TV_VALARIN_BOOK)
@@ -1432,6 +1464,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 basenm = "& Book~ of Shadow Magic #";
             else
                 basenm = "& Shadow Spellbook~ #";
+			break;
+		}
+
+        case TV_SPIRIT_BOOK:
+		{
+			modstr = basenm;
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+                basenm = "& Book~ of Spirit Magic #";
+            else
+                basenm = "& Spirit Spellbook~ #";
 			break;
 		}
 
@@ -1542,13 +1584,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
-            case TV_MIMIC_BOOK:
-		{
-			modstr = basenm;
-                        basenm = "& Book of Lore~ #";
-			break;
-		}
-
             case TV_BATERIE:
 		{
 			modstr = basenm;
@@ -1645,8 +1680,21 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (basenm[0] == '&')
 	{
                 monster_race* r_ptr;
+                cptr ego = NULL;
+
                 if(o_ptr->tval==TV_CORPSE) r_ptr = &r_info[o_ptr->pval2];
                 else r_ptr = &r_info[o_ptr->pval];
+
+		/* Grab any ego-item name */
+                if (known && o_ptr->name2 && (o_ptr->tval != TV_ROD_MAIN))
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+                        if (e_ptr->before)
+                        {
+                                ego = e_ptr->name + e_name;
+                        }
+                }
 
 		/* Skip the ampersand (and space) */
 		s = basenm + 2;
@@ -1684,6 +1732,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			t = object_desc_str(t, "The ");
 		}
 
+                else if (ego != NULL)
+                {
+                        if (is_a_vowel(ego[0]))
+                        {
+                                t = object_desc_str(t, "an ");
+                        }
+                        else
+                        {
+                                t = object_desc_str(t, "a ");
+                        }
+                }
+
 		/* A single one, with a vowel in the modifier */
 		else if ((*s == '#') && (is_a_vowel(modstr[0])))
 		{
@@ -1700,6 +1760,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		else
 		{
 			t = object_desc_str(t, "a ");
+		}
+
+		/* Grab any ego-item name */
+                if (known && o_ptr->name2 && (o_ptr->tval != TV_ROD_MAIN))
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+                        if (e_ptr->before)
+                        {
+                                t = object_desc_str(t, (e_name + e_ptr->name));
+                                t = object_desc_chr(t, ' ');
+                        }
 		}
 	}
 
@@ -1729,7 +1801,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Hack -- The only one of its kind */
-	else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
+                else if (known && (artifact_p(o_ptr) || o_ptr->art_name))
 		{
 			t = object_desc_str(t, "The ");
 		}
@@ -1738,6 +1810,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		else
 		{
 			/* Nothing */
+		}
+
+		/* Grab any ego-item name */
+                if (known && o_ptr->name2 && (o_ptr->tval != TV_ROD_MAIN))
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+                        if (e_ptr->before)
+                        {
+                                t = object_desc_str(t, (e_name + e_ptr->name));
+                                t = object_desc_chr(t, ' ');
+                        }
 		}
 	}
 
@@ -1798,14 +1882,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Append the "kind name" to the "base name" */
-        if ((append_name) && (!o_ptr->art_name))
+        if ((append_name) && ( (!artifact_p(o_ptr) || (k_ptr->flags3 & TR3_NORM_ART))))
 	{
 		t = object_desc_str(t, " of ");
 		t = object_desc_str(t, (k_name + k_ptr->name));
 
                 if((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_SPELL) && aware)
                 {
-                        t = object_desc_str(t, format("[%s]", spell_names[o_ptr->pval][o_ptr->pval2]));
+                        t = object_desc_str(t, format("[%s]", spell_names[o_ptr->pval][o_ptr->pval2][0]));
                 }
 	}
 
@@ -1851,8 +1935,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-			t = object_desc_chr(t, ' ');
-			t = object_desc_str(t, (e_name + e_ptr->name));
+                        if (!e_ptr->before)
+                        {
+                                t = object_desc_chr(t, ' ');
+                                t = object_desc_str(t, (e_name + e_ptr->name));
+                        }
 		}
 	}
 
@@ -1867,6 +1954,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 t = object_desc_num(t, o_ptr->exp);
                 t = object_desc_str(t, ", L:");
                 t = object_desc_num(t, o_ptr->elevel);
+                t = object_desc_chr(t, ')');
+        }
+        if ((f4 & TR4_ART_EXP) && known)
+	{
+                t = object_desc_str(t, " (Exp:");
+                t = object_desc_num(t, o_ptr->exp);
                 t = object_desc_chr(t, ')');
         }
 
@@ -2050,7 +2143,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 t = object_desc_str(t, "%)");
         }
 
-        if ((known) && (f2 & TR2_LIFE) && (o_ptr->pval > 0))
+        if ((known) && (f2 & TR2_LIFE) ) /* Can disp neg now -- Improv */
         {
                 t = object_desc_chr(t, '(');
                 if (munchkin_multipliers)
@@ -2108,17 +2201,17 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Hack -- Process Lanterns/Torches */
-	else if ((o_ptr->tval == TV_LITE) && (!artifact_p(o_ptr)))
+        else if ((o_ptr->tval == TV_LITE) && (f4 & TR4_FUEL_LITE))
 	{
 		/* Hack -- Turns of light for normal lites */
 		t = object_desc_str(t, " (with ");
-		t = object_desc_num(t, o_ptr->pval);
+                t = object_desc_num(t, o_ptr->timeout);
 		t = object_desc_str(t, " turns of light)");
 	}
 
 
 	/* Dump "pval" flags for wearable items */
-        if (known && (f1 & (TR1_PVAL_MASK)))
+        if (known && ((f1 & (TR1_PVAL_MASK)) || (f5 & (TR5_PVAL_MASK))))
 	{
 		/* Start the display */
 		t = object_desc_chr(t, ' ');
@@ -2148,6 +2241,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			/* Add "attacks" */
 			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
+		}
+
+                /* Critical chance */
+                else if (f5 & (TR5_CRIT))
+		{
+			/* Add " attack" */
+                        t = object_desc_str(t, "% of critical hits");
 		}
 
 		/* Stealth */
@@ -2183,26 +2283,26 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Indicate "charging" artifacts XXX XXX XXX */
-        if (known && o_ptr->timeout && (o_ptr->name2!=EGO_MSTAFF_POWER) && (o_ptr->tval!=TV_EGG) && (o_ptr->tval != TV_ROD_MAIN))
+        if (known && o_ptr->timeout && (o_ptr->name2 != EGO_MSTAFF_SPELL) && (o_ptr->tval!=TV_EGG) && (o_ptr->tval != TV_ROD_MAIN) && (o_ptr->tval != TV_LITE))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		t = object_desc_str(t, " (charging)");
 	}
 
-        /* Indicate "stoped" eggs XXX XXX XXX */
+        /* Indicate "stopped" eggs XXX XXX XXX */
         if (known && o_ptr->timeout && (o_ptr->tval==TV_EGG))
 	{
                 /* Hack -- Dump " (stoped)" if relevant */
-                t = object_desc_str(t, " (stoped)");
+                t = object_desc_str(t, " (stopped)");
 	}
 
         /* Indicate "charging" Mage Staffs XXX XXX XXX */
-        if (known && o_ptr->timeout && (o_ptr->name2==EGO_MSTAFF_POWER) && (o_ptr->tval!=TV_EGG))
+        if (known && o_ptr->timeout && (o_ptr->name2==EGO_MSTAFF_SPELL) && (o_ptr->tval!=TV_EGG))
 	{
                 /* Hack -- Dump " (charging spell1)" if relevant */
                 t = object_desc_str(t, " (charging spell1)");
 	}
-        if (known && o_ptr->pval && (o_ptr->name2==EGO_MSTAFF_POWER))
+        if (known && o_ptr->xtra2 && (o_ptr->name2==EGO_MSTAFF_SPELL))
 	{
                 /* Hack -- Dump " (charging spell2)" if relevant */
                 t = object_desc_str(t, " (charging spell2)");
@@ -2236,7 +2336,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	
 		if (tmp_val2[0]) strcat(tmp_val2,", ");
 	
-	       strcat(tmp_val2, quark_str(o_ptr->note));
+                strcat(tmp_val2, quark_str(o_ptr->note));
 	
 		for (; *u && (*u != '#'); u++);
 	
@@ -2330,13 +2430,15 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
  */
-cptr item_activation(object_type *o_ptr,byte num)
+cptr item_activation(object_type *o_ptr, byte num)
 {
-        u32b f1, f2, f3, f4, esp;
-        byte spell = 0;
+        u32b f1, f2, f3, f4, f5, esp;
+
+        /* Needed hacks */
+        static char rspell[2][80];
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
@@ -2349,60 +2451,27 @@ cptr item_activation(object_type *o_ptr,byte num)
 	 * for art_name
 	 */
 
-        if(o_ptr->name2==EGO_MSTAFF_POWER){
-                if(num==0)spell=o_ptr->xtra2&15;
-                if(num==1)spell=o_ptr->xtra2>>4;
-                switch (spell)
-		{
-                        case SPELL_BO_POIS:
-			{
-                                return "stinking cloud (12), rad. 1, every 4+d4 turns";
-			}
-                        case SPELL_BO_ELEC:
-			{
-				return "lightning bolt (4d8) every 6+d6 turns";
-			}
-                        case SPELL_BO_ACID:
-			{
-				return "acid bolt (5d8) every 5+d5 turns";
-			}
-                        case SPELL_BO_COLD:
-			{
-				return "frost bolt (6d8) every 7+d7 turns";
-			}
-                        case SPELL_BO_FIRE:
-			{
-				return "fire bolt (9d8) every 8+d8 turns";
-			}
-                        case SPELL_CURE:
-			{
-				return "heal 4d8 & wounds every 3+d3 turns";
-			}
-                        case SPELL_WRAITH:
-			{
-				return "wraith form (level/2 + d(level/2)) every 1000 turns";
-			}
-                        case SPELL_ID_FULL:
-			{
-				return "identify true every 750 turns";
-			}
-                        case SPELL_ID_PLAIN:
-			{
-				return "identify spell every 10 turns";
-			}
-                        case SPELL_MAPPING:
-                        {
-                                return "magic mapping and light every 50+d50 turns";
-                        }
-                        case SPELL_INVIS:
-                        {
-                                return "invisibility (level + d(level)) every 500+d500 turns";
-                        }
-			default:
-			{
-				return "something undefined";
-			}
-		}
+        if (o_ptr->name2 == EGO_MSTAFF_SPELL)
+        {
+                int gf, mod, mana;
+
+                if (!num)
+                {
+                        gf = o_ptr->pval & 0xFFFF;
+                        mod = o_ptr->pval3 & 0xFFFF;
+                        mana = o_ptr->pval2 & 0xFF;
+                }
+                else
+                {
+                        gf = o_ptr->pval >> 16;
+                        mod = o_ptr->pval3 >> 16;
+                        mana = o_ptr->pval2 >> 8;
+                }
+                sprintf(rspell[num], "runespell(%s, %s, %d) every %d turns",
+                        k_info[lookup_kind(TV_RUNE1, gf)].name + k_name,
+                        k_info[lookup_kind(TV_RUNE2, mod)].name + k_name,
+                        mana, mana * 10);
+                return rspell[num];
         }
 
         if(o_ptr->tval == TV_RANDART)
@@ -2719,6 +2788,46 @@ cptr item_activation(object_type *o_ptr,byte num)
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
+                case ART_EOL:
+                {
+                        return "mana bolt (9d8) 7+d7 turns";
+                }
+                case ART_SKULLCLEAVER:
+                {
+                        return "destruction every 200+d200 turns";
+                }
+                case ART_HARADRIM:
+                {
+                        return "berserk strength every 50+d50 turns";
+                }
+                case ART_FUNDIN:
+                {
+                        return "dispel evil (x4) every 100+d100 turns";
+                }
+                case ART_NAIN:
+                {
+                        return "stone to mud every 7+d5 turns";
+                }
+                case ART_CELEBRIMBOR:
+                {
+                        return "temporary ESP (dur 20+d20) every 50+d20 turns";
+                }
+                case ART_UMBAR:
+                {
+                        return "magic arrow (10d10) every 20+d20 turns";
+                }
+                case ART_GILGALAD:
+                {
+                        return "starlight (75) every 75+d75 turns";
+                }
+                case ART_HIMRING:
+                {
+                        return "protect evil (dur level*3 + d25) every 225+d225 turns";
+                }
+                case ART_NUMENOR:
+		{
+                        return "analyze monster every 500+d100 turns";
+		}
 		case ART_NARTHANC:
 		{
 			return "fire bolt (9d8) every 8+d8 turns";
@@ -2897,7 +3006,15 @@ cptr item_activation(object_type *o_ptr,byte num)
 		}
 		case ART_BLADETURNER:
 		{
+                        return "invulnerability (4+d8) every 800 turns";
+		}
+                case ART_MEDIATOR:
+		{
 			return "breathe elements (300), berserk rage, bless, and resistance";
+		}
+                case ART_KNOWLEDGE:
+                {
+                        return "whispers from beyond 100+d200 turns";
 		}
 		case ART_GALADRIEL:
 		{
@@ -2913,7 +3030,7 @@ cptr item_activation(object_type *o_ptr,byte num)
 		}
 		case ART_THRAIN:
 		{
-			return "clairvoyance every 100+d100 turns";
+                        return "detection every 30+d30 turns";
 		}
 		case ART_INGWE:
 		{
@@ -2949,7 +3066,7 @@ cptr item_activation(object_type *o_ptr,byte num)
 		}
 		case ART_POWER:
 		{
-                        return "powerfull things";
+                        return "powerful things";
 		}
                 case ART_STONE_LORE:
 		{
@@ -2963,13 +3080,22 @@ cptr item_activation(object_type *o_ptr,byte num)
                 {
                         return "restore mana every 666 turns";
                 }
+                case ART_EVENSTAR:
+                {
+                        return "restore every 150 turns";
+                }
+                case ART_ELESSAR:
+                {
+                        return "heal and cure black breath every 200 turns";
+                }
                 case ART_MARDA:
                 {
                         return "summon a dragonrider every 1000 turns";
                 }
+                case ART_PALANTIR_ITHIL:
                 case ART_PALANTIR:
                 {
-                        return "list the uniques of the level every 200 turns";
+                        return "clairvoyance every 100+d100 turns";
                 }
                 case ART_ROBINTON:
                 {
@@ -3037,7 +3163,6 @@ cptr item_activation(object_type *o_ptr,byte num)
         {
                 return "stop or resume the egg development";
         }
-
         if (o_ptr->name2 == EGO_INST_DRAGONKIND)
 	{
                 switch(o_ptr->pval2)
@@ -3056,7 +3181,6 @@ cptr item_activation(object_type *o_ptr,byte num)
                                 break;
                 }
 	}
-
         if(o_ptr->tval == TV_INSTRUMENT)
         {
                 if(o_ptr->sval != SV_HORN)
@@ -3068,8 +3192,7 @@ cptr item_activation(object_type *o_ptr,byte num)
                         return "aggravate monster every 100 turns";
                 }
         }
-
-	if (o_ptr->name2 == EGO_TRUMP)
+        if (o_ptr->name2 == EGO_DRAGON)
 	{
 		return "teleport every 50+d50 turns";
 	}
@@ -3089,11 +3212,12 @@ cptr item_activation(object_type *o_ptr,byte num)
         {
                 return "wraith-form every 50+d50 turns";
         }
-
 	if (o_ptr->tval == TV_RING)
 	{
 		switch(o_ptr->sval)
 		{
+                        case SV_RING_ELEC:
+                                return "ball of lightning and resist lightning";
 			case SV_RING_FLAMES:
 				return "ball of fire and resist fire";
 			case SV_RING_ICE:
@@ -3166,7 +3290,7 @@ cptr item_activation(object_type *o_ptr,byte num)
 		}
 		case SV_DRAGON_BALANCE:
 		{
-                        return "You breathe balance (250) every 90+d60 turns";
+                        return "breathe balance (250) every 90+d60 turns";
 		}
 		case SV_DRAGON_SHINING:
 		{
@@ -3182,27 +3306,134 @@ cptr item_activation(object_type *o_ptr,byte num)
 	return NULL;
 }
 
+/* Grab the tval desc */
+int grab_tval_desc(int tval, cptr *info, int i)
+{
+        static char buff2[400];
+        char *s, *t;
+        int n, tv = 0;
+
+        while (tval_descs[tv].tval && (tval_descs[tv].tval != tval))
+        {                
+                tv++;
+        }
+
+        if (!tval_descs[tv].tval) return i;
+			   
+        strncpy (buff2, tval_descs[tv].desc,400);
+	buff2[399] = '\0'; /* Paranoia */
+
+        s = buff2;
+		
+        /* Collect the history */
+        while (TRUE)
+        {
+
+                /* Extract remaining length */
+                n = strlen(s);
+
+                /* All done */
+                if (n < 60)
+                {
+                        /* Save one line of history */
+                        info[i++] = s;
+
+                        /* All done */
+                        break;
+                }
+
+                /* Find a reasonable break-point */
+                for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+
+                /* Save next location */
+                t = s + n;
+
+                /* Wipe trailing spaces */
+                while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                /* Save one line of history */
+                info[i++] = s;
+
+                s = t;
+        }
+
+        return (i);
+}
 
 /*
  * Describe a "fully identified" item
  */
-bool identify_fully_aux(object_type *o_ptr)
+bool identify_fully_aux(object_type *o_ptr, FILE *fff)
 {
 	int                     i = 0, j, k;
 
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 
-	cptr            info[128];
+        cptr            info[400];
 
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+        /* No need to dump that */
+        if (fff == NULL)
+        {
+                i = grab_tval_desc(o_ptr->tval, info, 0);
+                if ((fff == NULL) && i) info[i++] = "";
+        }
+
+        if (o_ptr->k_idx)
+	{
+	
+                char buff2[400], *s, *t;
+                int n, oi = i;
+                object_kind *k_ptr = &k_info[o_ptr->k_idx];
+			   
+                strcpy (buff2, k_text + k_ptr->text);
+
+		s = buff2;
+		
+                /* Collect the history */
+                while (TRUE)
+                {
+
+                        /* Extract remaining length */
+                        n = strlen(s);
+
+                        /* All done */
+                        if (n < 60)
+                        {
+                                /* Save one line of history */
+                                info[i++] = s;
+
+                                /* All done */
+                                break;
+                        }
+
+                        /* Find a reasonable break-point */
+                        for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+
+                        /* Save next location */
+                        t = s + n;
+
+                        /* Wipe trailing spaces */
+                        while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                        /* Save one line of history */
+                        info[i++] = s;
+
+                        s = t;
+                }
+
+                /* Add a blank line */
+                if ((fff == NULL) && (oi < i)) info[i++] = "";
+	}
 
 	if (o_ptr->name1)
 	{
 	
                 char buff2[400], *s, *t;
-		int n;
+                int n, oi = i;
                 artifact_type *a_ptr = &a_info[o_ptr->name1];
 			   
 	        a_ptr = &a_info[o_ptr->name1];
@@ -3243,7 +3474,7 @@ bool identify_fully_aux(object_type *o_ptr)
                 }
 
                 /* Add a blank line */
-                info[i++] = "";
+                if ((fff == NULL) && (oi < i)) info[i++] = "";
 	}
 
         if (f4 & TR4_LEVELS)
@@ -3270,7 +3501,7 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f3 & (TR3_ACTIVATE))
 	{
 		info[i++] = "It can be activated for...";
-                if(o_ptr->name2==EGO_MSTAFF_POWER){
+                if (o_ptr->name2 == EGO_MSTAFF_SPELL){
                         info[i++] = item_activation(o_ptr,1);
                         info[i++] = "And...";
                 }
@@ -3281,22 +3512,31 @@ bool identify_fully_aux(object_type *o_ptr)
                         info[i++] = "...if it is being worn.";
                 }
 	}
+        /* Granted power */
+        if (object_power(o_ptr) != -1)
+        {
+                info[i++] = "It grants you the power of...";
+                info[i++] = powers_type[object_power(o_ptr)].name;
+                info[i++] = "...if it is being worn.";
+        }
 
 
 	/* Hack -- describe lite's */
 	if (o_ptr->tval == TV_LITE)
 	{
-		if (artifact_p(o_ptr))
+                int radius = 0;
+
+                if (f3 & TR3_LITE1) radius++;
+                if (f4 & TR4_LITE2) radius += 2;
+                if (f4 & TR4_LITE3) radius += 3;
+
+                if (f4 & TR4_FUEL_LITE)
 		{
-			info[i++] = "It provides light (radius 3) forever.";
+                        info[i++] = format("It provides light (radius %d) when fueled.", radius);
 		}
-		else if (o_ptr->sval == SV_LITE_LANTERN)
+                else
 		{
-			info[i++] = "It provides light (radius 2) when fueled.";
-		}
-		else
-		{
-			info[i++] = "It provides light (radius 1) when fueled.";
+                        info[i++] = format("It provides light (radius %d) forever.", radius);
 		}
 	}
 
@@ -3306,6 +3546,10 @@ bool identify_fully_aux(object_type *o_ptr)
                 info[i++] = "It prevents the space-time continuum from being disrupted.";
         }
 
+        if ((f4 & (TR4_ANTIMAGIC_50)) || (f4 & (TR4_ANTIMAGIC_30)) || (f4 & (TR4_ANTIMAGIC_20)) || (f4 & (TR4_ANTIMAGIC_10)))
+        {
+                info[i++] = "It generates an antimagic field.";
+        }
 
 	/* And then describe it fully */
 
@@ -3336,7 +3580,10 @@ bool identify_fully_aux(object_type *o_ptr)
 
 	if (f1 & (TR1_STEALTH))
 	{
-		info[i++] = "It affects your stealth.";
+		if (o_ptr->tval != TV_TRAPKIT)
+			info[i++] = "It affects your stealth.";
+		else
+			info[i++] = "It is well-hidden.";
 	}
 	if (f1 & (TR1_SEARCH))
 	{
@@ -3357,6 +3604,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f1 & (TR1_BLOWS))
 	{
 		info[i++] = "It affects your attack speed.";
+	}
+        if (f5 & (TR5_CRIT))
+	{
+                info[i++] = "It affects your ability to score critical hits.";
 	}
 
 	if (f1 & (TR1_BRAND_ACID))
@@ -3421,11 +3672,19 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It is especially deadly against giants.";
 	}
-	if (f1 & (TR1_SLAY_DEMON))
+        if (f5 & (TR5_KILL_DEMON))
+	{
+                info[i++] = "It is a great bane of demons.";
+	}
+        else if (f1 & (TR1_SLAY_DEMON))
 	{
 		info[i++] = "It strikes at demons with holy wrath.";
 	}
-	if (f1 & (TR1_SLAY_UNDEAD))
+        if (f5 & (TR5_KILL_UNDEAD))
+	{
+                info[i++] = "It is a great bane of undead.";
+	}
+        else if (f1 & (TR1_SLAY_UNDEAD))
 	{
 		info[i++] = "It strikes at undead with holy wrath.";
 	}
@@ -3454,43 +3713,85 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
                 info[i++] = "It increases your life.";
 	}
-	if (f2 & (TR2_SUST_STR))
-	{
-		info[i++] = "It sustains your strength.";
-	}
-	if (f2 & (TR2_SUST_INT))
-	{
-		info[i++] = "It sustains your intelligence.";
-	}
-	if (f2 & (TR2_SUST_WIS))
-	{
-		info[i++] = "It sustains your wisdom.";
-	}
-	if (f2 & (TR2_SUST_DEX))
-	{
-		info[i++] = "It sustains your dexterity.";
-	}
-	if (f2 & (TR2_SUST_CON))
-	{
-		info[i++] = "It sustains your constitution.";
-	}
-	if (f2 & (TR2_SUST_CHR))
-	{
-		info[i++] = "It sustains your charisma.";
-	}
+        if (o_ptr->tval != TV_TRAPKIT)
+        {
+                if (f2 & (TR2_SUST_STR))
+                {
+                        info[i++] = "It sustains your strength.";
+                }
+                if (f2 & (TR2_SUST_INT))
+                {
+                        info[i++] = "It sustains your intelligence.";
+                }
+                if (f2 & (TR2_SUST_WIS))
+                {
+                        info[i++] = "It sustains your wisdom.";
+                }
+                if (f2 & (TR2_SUST_DEX))
+                {
+                        info[i++] = "It sustains your dexterity.";
+                }
+                if (f2 & (TR2_SUST_CON))
+                {
+                        info[i++] = "It sustains your constitution.";
+                }
+                if (f2 & (TR2_SUST_CHR))
+                {
+                        info[i++] = "It sustains your charisma.";
+                }
+                if (f2 & (TR2_IM_ACID))
+                {
+                        info[i++] = "It provides immunity to acid.";
+                }
+                if (f2 & (TR2_IM_ELEC))
+                {
+                        info[i++] = "It provides immunity to electricity.";
+                }
+                if (f2 & (TR2_IM_FIRE))
+                {
+                        info[i++] = "It provides immunity to fire.";
+                }
+        }
+        else
+        {
+		if (f2 & (TRAP2_AUTOMATIC_5))
+		{
+			info[i++] = "It can rearm itself.";
+		}
+		if (f2 & (TRAP2_AUTOMATIC_99))
+		{
+			info[i++] = "It rearms itself.";
+		}               
+		if (f2 & (TRAP2_KILL_GHOST))
+		{
+			info[i++] = "It is effective against Ghosts.";
+		}
+		if (f2 & (TRAP2_TELEPORT_TO))
+		{
+			info[i++] = "It can teleport monsters to you.";
+		}
+		if (f2 & (TRAP2_ONLY_DRAGON))
+		{
+			info[i++] = "It can only be set off by dragons.";
+		}
+		if (f2 & (TRAP2_ONLY_DEMON))
+		{
+			info[i++] = "It can only be set off by demons.";
+		}
+		if (f2 & (TRAP2_ONLY_UNDEAD))
+		{
+			info[i++] = "It can only be set off by undead.";
+		}
+		if (f2 & (TRAP2_ONLY_ANIMAL))
+		{
+			info[i++] = "It can only be set off by animals.";
+		}
+		if (f2 & (TRAP2_ONLY_EVIL))
+		{
+			info[i++] = "It can only be set off by evil creatures.";
+		}
+        }
 
-	if (f2 & (TR2_IM_ACID))
-	{
-		info[i++] = "It provides immunity to acid.";
-	}
-	if (f2 & (TR2_IM_ELEC))
-	{
-		info[i++] = "It provides immunity to electricity.";
-	}
-	if (f2 & (TR2_IM_FIRE))
-	{
-		info[i++] = "It provides immunity to fire.";
-	}
 	if (f2 & (TR2_IM_COLD))
 	{
 		info[i++] = "It provides immunity to cold.";
@@ -3592,9 +3893,9 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
                 info[i++] = "It allows you to climb high mountains.";
 	}
-	if (f3 & (TR3_LITE))
+        if ((o_ptr->tval != TV_LITE) && ((f3 & (TR3_LITE1)) || (f4 & (TR4_LITE2)) || (f4 & (TR4_LITE3))))
 	{
-		info[i++] = "It provides permanent light.";
+                info[i++] = "It provides light.";
 	}
 	if (f3 & (TR3_SEE_INVIS))
 	{
@@ -3611,13 +3912,13 @@ bool identify_fully_aux(object_type *o_ptr)
                         if (esp & ESP_SPIDER) info[i++] = "It allows you to sense the presence of spiders.";
                         if (esp & ESP_GIANT) info[i++] = "It allows you to sense the presence of giants.";
                         if (esp & ESP_DEMON) info[i++] = "It allows you to sense the presence of demons.";
-                        if (esp & ESP_UNDEAD) info[i++] = "It allows you to sense presence of undeads.";
+                        if (esp & ESP_UNDEAD) info[i++] = "It allows you to sense presence of undead.";
                         if (esp & ESP_EVIL) info[i++] = "It allows you to sense the presence of evil beings.";
                         if (esp & ESP_ANIMAL) info[i++] = "It allows you to sense the presence of animals.";
                         if (esp & ESP_DRAGONRIDER) info[i++] = "It allows you to sense the presence of dragonriders.";
                         if (esp & ESP_GOOD) info[i++] = "It allows you to sense the presence of good beings.";
                         if (esp & ESP_NONLIVING) info[i++] = "It allows you to sense the presence of non-living things.";
-                        if (esp & ESP_UNIQUE) info[i++] = "It allows you to sense the presence of Unique beings.";
+                        if (esp & ESP_UNIQUE) info[i++] = "It allows you to sense the presence of unique beings.";
                 }
 	}
 	if (f3 & (TR3_SLOW_DIGEST))
@@ -3657,6 +3958,16 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It fires missiles excessively fast.";
 	}
 
+        if (f5 & (TR5_DRAIN_MANA))
+	{
+                info[i++] = "It drains mana.";
+	}
+
+        if (f5 & (TR5_DRAIN_HP))
+	{
+                info[i++] = "It drains life.";
+	}
+
 	if (f3 & (TR3_DRAIN_EXP))
 	{
 		info[i++] = "It drains experience.";
@@ -3673,6 +3984,11 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f3 & (TR3_BLESSED))
 	{
 		info[i++] = "It has been blessed by the gods.";
+	}
+
+        if (f4 & (TR4_AUTO_ID))
+	{
+                info[i++] = "It identifies all items for you.";
 	}
 
         if (f4 & (TR4_NEVER_BLOW))
@@ -3730,6 +4046,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
                 info[i++] = "It can clone monsters.";
 	}
+        if (f3 & (TR3_AUTO_CURSE))
+	{
+                info[i++] = "It can re-curse itself.";
+	}
         if (f4 & (TR4_CAPACITY))
 	{
                 info[i++] = "It can hold more mana.";
@@ -3747,42 +4067,51 @@ bool identify_fully_aux(object_type *o_ptr)
                 info[i++] = "It regenerates its mana faster.";
 	}
 
-
-
 	/* No special effects */
 	if (!i) return (FALSE);
 
+        if (fff != NULL)
+        {
+                /* We will print on top of the map (column 13) */
+                for (j = 0; j < i; j++)
+                {
+                        /* Show the info */
+                        fprintf(fff, "   %s\n", info[j]);
+                }
+        }
+        else
+        {
+                /* Save the screen */
+                Term_save();
 
-	/* Save the screen */
-	Term_save();
+                /* Erase the screen */
+                for (k = 1; k < 24; k++) prt("", k, 13);
 
-	/* Erase the screen */
-	for (k = 1; k < 24; k++) prt("", k, 13);
+                /* Label the information */
+                prt("     Item Attributes:", 1, 15);
 
-	/* Label the information */
-	prt("     Item Attributes:", 1, 15);
+                /* We will print on top of the map (column 13) */
+                for (k = 2, j = 0; j < i; j++)
+                {
+                        /* Show the info */
+                        prt(info[j], k++, 15);
 
-	/* We will print on top of the map (column 13) */
-	for (k = 2, j = 0; j < i; j++)
-	{
-		/* Show the info */
-		prt(info[j], k++, 15);
+                        /* Every 20 entries (lines 2 to 21), start over */
+                        if ((k == 22) && (j+1 < i))
+                        {
+                                prt("-- more --", k, 15);
+                                inkey();
+                                for (; k > 2; k--) prt("", k, 15);
+                        }
+                }
 
-		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == 22) && (j+1 < i))
-		{
-			prt("-- more --", k, 15);
-			inkey();
-			for (; k > 2; k--) prt("", k, 15);
-		}
-	}
+                /* Wait for it */
+                prt("[Press any key to continue]", k, 15);
+                inkey();
 
-	/* Wait for it */
-	prt("[Press any key to continue]", k, 15);
-	inkey();
-
-	/* Restore the screen */
-	Term_load();
+                /* Restore the screen */
+                Term_load();
+        }
 
 	/* Gave knowledge */
 	return (TRUE);
@@ -4132,8 +4461,6 @@ cptr describe_use(int i)
 
 bool check_book_realm(const int book_tval)
 {
-        if (book_tval == TV_MIMIC_BOOK) return FALSE;
-
         if (p_ptr->pclass != CLASS_SORCERER)
         {
                 return ((p_ptr->realm1 == book_tval - TV_VALARIN_BOOK + 1) ||
@@ -4141,11 +4468,12 @@ bool check_book_realm(const int book_tval)
         }
         else
         {
-                return ((book_tval >= TV_VALARIN_BOOK) &&
-                        (book_tval <= TV_DRUID_BOOK) &&
-                        (book_tval != TV_SYMBIOTIC_BOOK) &&
-                        (book_tval != TV_MUSIC_BOOK) &&
-                        (book_tval != TV_DRUID_BOOK));
+                int b = book_tval - TV_VALARIN_BOOK;
+
+                if (b >= 32) return FALSE;
+                if (b < 0) return FALSE;
+
+                return ((Mrealm_choices[CLASS_SORCERER] & BIT(b))?TRUE:FALSE);
         }
 }
 
@@ -4168,7 +4496,7 @@ bool item_tester_okay(object_type *o_ptr)
 	if (item_tester_tval)
         {       
                 /* Is it a spellbook? If so, we need a hack -- TY */
-                if (item_tester_tval<=TV_PRAYER_BOOK && item_tester_tval>=TV_VALARIN_BOOK)
+                if (item_tester_tval<=TV_SPIRIT_BOOK && item_tester_tval>=TV_VALARIN_BOOK)
                         return check_book_realm(o_ptr->tval);
                 else
                     if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
@@ -4540,7 +4868,7 @@ void show_equip(void)
                 /* Inform the player that he/she can't use a shield */
                 if ((p_ptr->body_parts[i - INVEN_WIELD] == INVEN_ARM) && (!o_ptr->k_idx) && (inventory[i - INVEN_ARM + INVEN_WIELD].k_idx))
                 {
-                        u32b f1, f2, f3, f4, esp;
+                        u32b f1, f2, f3, f4, f5, esp;
                         object_type *q_ptr = &inventory[i - INVEN_ARM + INVEN_WIELD];
                         char q_name[80];
 
@@ -4551,7 +4879,7 @@ void show_equip(void)
                         object_desc(q_name, q_ptr, TRUE, 3);
 
                         /* Get weapon flags */
-                        object_flags(q_ptr, &f1, &f2, &f3, &f4, &esp);
+                        object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
                         if (f4 & TR4_MUST2H)
                         {
@@ -5798,11 +6126,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
  */
 static bool item_tester_hook_getable(object_type *o_ptr)
 {
-        if ((o_ptr->tval == TV_HYPNOS)&&(p_ptr->pclass != CLASS_SYMBIANT))
-                return FALSE;
+        if (!inven_carry_okay(o_ptr)) return (FALSE);
 
-        if ((no_pickup_corpse == TRUE) && (o_ptr->tval == TV_CORPSE))
-                return FALSE;
+        if ((o_ptr->tval == TV_HYPNOS) && (p_ptr->pclass != CLASS_SYMBIANT)) return FALSE;
 
         /* Assume yes */
         return (TRUE);
@@ -5916,25 +6242,61 @@ void pickup_ammo()
 }
 
 
-  /*
-   * Make the player carry everything in a grid
-   *
-   * If "pickup" is FALSE then only gold will be picked up
-   *
-   * This is called by py_pickup() when easy_floor is TRUE.
-   */
+/*
+ * Make the player carry everything in a grid
+ *
+ * If "pickup" is FALSE then only gold will be picked up
+ *
+ * This is called by py_pickup() when easy_floor is TRUE.
+ */
+bool can_carry_heavy(object_type *o_ptr)
+{
+		/* Query if object is heavy */
+                if (prompt_pickup_heavy)
+		{
+			int i, j;
+			int old_enc = 0;
+			int new_enc = 0;
+
+			/* Extract the "weight limit" (in tenth pounds) */
+                        i = weight_limit();
+
+			/* Calculate current encumbarance */
+                        j = total_weight;
+
+			/* Apply encumbarance from weight */
+			if (j > i/2) old_enc = ((j - (i/2)) / (i / 10));
+
+			/* Increase the weight, recalculate encumbarance */
+			j += (o_ptr->number * o_ptr->weight);
+
+			/* Apply encumbarance from weight */
+			if (j > i/2) new_enc = ((j - (i/2)) / (i / 10));
+
+			/* Should we query? */
+                        if (new_enc > old_enc)
+			{
+                                return (FALSE);
+			}
+		}
+        return (TRUE);
+}
+
 void py_pickup_floor(int pickup)
 {
         s16b this_o_idx, next_o_idx = 0;
   
-        char o_name[80];
+        char o_name[80] = "";
         object_type *o_ptr;
   
-        int floor_num = 0, floor_o_idx = 0, i;
+        int floor_num = 0, floor_o_idx = 0;
   
         bool do_pickup = TRUE;
   
         bool do_ask = TRUE;
+
+        /* Hack -- ignore monster traps */
+        if (cave[py][px].feat == FEAT_MON_TRAP) return;
 
         /* Squeltch the floor */
         squeltch_grid();
@@ -5945,26 +6307,29 @@ void py_pickup_floor(int pickup)
         /* Scan the pile of objects */
         for (this_o_idx = cave[py][px].o_idx; this_o_idx; this_o_idx = next_o_idx)
         {
-                object_type *o_ptr;
-  
                 /* Acquire object */
                 o_ptr = &o_list[this_o_idx];
-  
-                /* Describe the object */
-                object_desc(o_name, o_ptr, TRUE, 3);
+
+                if (p_ptr->auto_id)
+                {
+                        object_aware(o_ptr);
+                        object_known(o_ptr);
+                }
   
                 /* Acquire next object */
                 next_o_idx = o_ptr->next_o_idx;
   
                 /* Hack -- disturb */
                 disturb(0, 0);
-  
+ 
                 /* Pick up gold */
                 if (o_ptr->tval == TV_GOLD)
                 {
+			char goldname[80];
+			object_desc(goldname, o_ptr, TRUE, 3);
                         /* Message */
                         msg_format("You have found %ld gold pieces worth of %s.",
-                                   (long)o_ptr->pval, o_name);
+                                   (long)o_ptr->pval, goldname);
   
                         /* Collect the gold */
                         p_ptr->au += o_ptr->pval;
@@ -5980,7 +6345,14 @@ void py_pickup_floor(int pickup)
   
                         continue;
                 }
-  
+		{
+		char testdesc[80];
+		object_desc(testdesc, o_ptr, TRUE, 3);
+		if(0 != strncmp(testdesc, "(nothing)",80))
+			{
+			strncpy(o_name,testdesc,80);
+			}
+		}
                 /* Count non-gold */
                 floor_num++;
   
@@ -5990,7 +6362,7 @@ void py_pickup_floor(int pickup)
   
         /* There were no non-gold items */
         if (!floor_num) return;
-  
+
         /* Mention number of items */
         if (!pickup)
         {
@@ -6000,9 +6372,6 @@ void py_pickup_floor(int pickup)
                         /* Acquire object */
                         o_ptr = &o_list[floor_o_idx];
    
-                        /* Describe the object */
-                        object_desc(o_name, o_ptr, TRUE, 3);
-  
                         /* Message */
                         msg_format("You see %s.", o_name);
                 }
@@ -6022,7 +6391,7 @@ void py_pickup_floor(int pickup)
         if (floor_num == 1)
         {
                 /* Hack -- query every item */
-                if (carry_query_flag)
+                if (carry_query_flag || (!can_carry_heavy(&o_list[floor_o_idx])))
                 {
                         char out_val[160];
                         sprintf(out_val, "Pick up %s? ", o_name);
@@ -6032,9 +6401,7 @@ void py_pickup_floor(int pickup)
                 /* Don't ask */
                 do_ask = FALSE;
 
-                if ((o_list[floor_o_idx].tval == TV_HYPNOS)&&(p_ptr->pclass != CLASS_SYMBIANT))
-                        do_pickup = FALSE;
-                else if ((no_pickup_corpse == TRUE) && (o_list[floor_o_idx].tval == TV_CORPSE))
+                if ((o_list[floor_o_idx].tval == TV_HYPNOS) && (p_ptr->pclass != CLASS_SYMBIANT))
                         do_pickup = FALSE;
                 else
                         this_o_idx = floor_o_idx;
@@ -6056,6 +6423,17 @@ void py_pickup_floor(int pickup)
                 if (get_item(&item, q, s, (USE_FLOOR)))
                 {
                         this_o_idx = 0 - item;
+
+                        if (!can_carry_heavy(&o_list[this_o_idx]))
+                        {
+                                char out_val[160];
+
+                                /* Describe the object */
+                                object_desc(o_name, &o_list[this_o_idx], TRUE, 3);
+
+                                sprintf(out_val, "Pick up %s? ", o_name);
+                                do_pickup = get_check(out_val);
+                        }
                 }
                 else
                 {
@@ -6106,18 +6484,6 @@ void py_pickup_floor(int pickup)
                         /* Message */
                         msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
-                        /* Check if completed a quest */
-                        for (i = 0; i < max_quests; i++)
-                        {
-                                if ((quest[i].type == 3) && (quest[i].status == 1) &&
-                                    (quest[i].k_idx == o_ptr->name1))
-                                {
-                                        quest[i].status = QUEST_STATUS_COMPLETED;
-                                        msg_print("You completed your quest!");
-                                        msg_print(NULL);
-                                }
-                        }
-   
                         /* Delete the object */
                         delete_object_idx(this_o_idx);
                 }
@@ -6163,10 +6529,10 @@ u32b get_flag(object_type *o_ptr, int grp, int k)
 {
         u32b f = 0, flag_set = 0;
         int tries = 1000;
-        u32b f1, f2, f3, f4, esp, flag_test;
+        u32b f1, f2, f3, f4, f5, esp, flag_test;
 
 	/* Extract some flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
         /* get the corresponding flag set of the group */
         switch (k)
@@ -6253,10 +6619,10 @@ void gain_flag_group_flag(object_type *o_ptr, bool silent)
  */
 void object_gain_level(object_type *o_ptr)
 {
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	/* Extract some flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
         /* First it can gain some tohit and todam */
         if((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) ||
@@ -6294,3 +6660,4 @@ void object_gain_level(object_type *o_ptr)
                 }
         }
 }
+

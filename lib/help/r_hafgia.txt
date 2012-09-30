@@ -1,0 +1,28 @@
+#####R=== Half-Giants ===
+
+#####GDescription
+Half-Giants are not too unusual, as there has been a tradition marking it 
+as a noble and brave thing to consort a giant (especially a giant-maid). 
+Nevertheless, the offspring of such a union is seldom popular in the world
+of men. Their limited intelligence makes it impossible for them to become 
+full spellcasters, but with their huge strength they make excellent 
+warriors. They also love to wander in the wilderness, and can become 
+rangers. No ordinary wall can withstand the fury of a giant, or a half-
+giant, and at higher levels they can learn the power of magical digging. 
+Their thick skin makes them resistant to shards, and like Half-Ogres and 
+Half-Trolls, they have their strength sustained.
+
+#####GStat Modifiers
+Strength        +4   
+Intelligence    -2   
+Wisdom          -2   
+Dexterity       -2   
+Constitution    +3   
+Charisma        -3       
+Hit Dice Sides  13         
+Exp Penalty     +50%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    A wand of stone to mud
+

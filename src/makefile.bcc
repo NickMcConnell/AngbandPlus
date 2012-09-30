@@ -50,14 +50,14 @@ CPPFLAGS= $(CCOPTS) $(DBGOPT)
 OBJ = \
   z-util.obj z-virt.obj z-form.obj z-rand.obj z-term.obj \
   variable.obj tables.obj util.obj cave.obj \
-  object1.obj object2.obj traps.obj monster1.obj monster2.obj \
+  object1.obj object2.obj traps.obj monster1.obj monster2.obj monster3.obj \
   xtra1.obj xtra2.obj spells1.obj spells2.obj \
-  melee1.obj melee2.obj save.obj files.obj \
+  melee1.obj melee2.obj files.obj cmovie.obj help.obj \
   cmd1.obj cmd2.obj cmd3.obj cmd4.obj cmd5.obj cmd6.obj cmd7.obj \
-  store.obj birth.obj load2.obj notes.obj squeltch.obj \
+  store.obj birth.obj loadsave.obj notes.obj squeltch.obj \
   wizard1.obj wizard2.obj levels.obj ghost.obj \
   generate.obj dungeon.obj init1.obj init2.obj \
-  main-win.obj readdib.obj \
+  main-win.obj readdib.obj powers.obj plots.obj \
   bldg.obj wild.obj
 
 all : $(EXE_FILE)

@@ -69,7 +69,7 @@
 #define ITEM_INSTRUMENT         25
 #define ITEM_RUNE                       26
 #define ITEM_STONE                      27
-#define ITEM_BOOK_LORE          28
+#define ITEM_BOOK_SPIR          28
 #define ITEM_BOOK_SONG          29
 #define ITEM_BOOK_SYMB          30
 
@@ -92,13 +92,20 @@
 
 static int cat_type[256];
 
-static cptr categories[] = {NULL,"Swords","Axe","Polearms","Blunt Weapons","Daemon Books","Bows","Ammo","Dig/M.Staff/Boom",
-							"Body Armour","Dragon Armour","Other Armour","Rings","Amulets","Potions",
-							"Potions(2!)","Scrolls","Rods","Staffs","Wands","Food","Boring Stuff",
-							"Firestones","Essences","Parchments","Instruments","Runes","Stones",
-							"Lore Books","Songbooks","Symbiotic Books","Valarin Books","Magery Books",
-							"Shadow Books","Chaos Books","Nether Books","Crusade Books","Sigaldry Books",
-                                                        "Magic Books","Prayer Books","Illusion Books","Tribal Books","Corpses"};
+static cptr categories[] =
+{
+        NULL,"Swords","Polearms","Blunt Weapons","Axe","Daemon Books",
+        "Bows","Ammo","Dig/M.Staff/Boom",
+        "Body Armour","Dragon Armour","Other Armour",
+        "Rings","Amulets",
+        "Potions", "Potions(2!)","Scrolls",
+        "Rods","Staffs","Wands",
+        "Food","Boring Stuff", "Firestones","Essences","Parchments",
+        "Instruments","Runes","Stones",
+        "Spirit Books","Songbooks","Symbiotic Books","Valarin Books","Magery Books",
+        "Shadow Books","Chaos Books","Nether Books","Crusade Books","Sigaldry Books",
+        "Magic Books","Prayer Books","Illusion Books","Tribal Books","Corpses"
+};
 
 static bool sq_init = FALSE;	
 
@@ -208,8 +215,8 @@ static void init_categories(void)
 	cat_type[TV_RUNE1]=ITEM_RUNE;
 	cat_type[TV_RUNE2]=ITEM_RUNE;
 	cat_type[TV_DRUID_BOOK]=ITEM_STONE;
-	cat_type[TV_MIMIC_BOOK]=ITEM_BOOK_LORE;
 	cat_type[TV_MUSIC_BOOK]=ITEM_BOOK_SONG;
+        cat_type[TV_SPIRIT_BOOK]=ITEM_BOOK_SPIR;
 	cat_type[TV_SYMBIOTIC_BOOK]=ITEM_BOOK_SYMB;
 	cat_type[TV_VALARIN_BOOK]=ITEM_BOOK_VALA;
 	cat_type[TV_MAGERY_BOOK]=ITEM_BOOK_MAGE;
@@ -499,7 +506,7 @@ static bool destroy_it(object_type *o_ptr)
 	if (!k_info[o_ptr->k_idx].squeltch) return FALSE;
 
 	/* Keep Artifacts */
-        if (artifact_p(o_ptr)) return FALSE;
+        if (artifact_p(o_ptr) || o_ptr->art_name) return FALSE;
 
 	/* Destroy it.. */
 	if (k_info[o_ptr->k_idx].squeltch==DESTROY_ALL) return TRUE;

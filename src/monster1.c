@@ -103,7 +103,7 @@ static bool know_damage(int r_idx, int i)
  * left edge of the screen, on a cleared line, in which the recall is
  * to take place.  One extra blank line is left after the recall.
  */
-static void roff_aux(int r_idx, int remem)
+static void roff_aux(int r_idx, int ego, int remem)
 {
 	monster_race    *r_ptr;
 
@@ -155,7 +155,7 @@ static void roff_aux(int r_idx, int remem)
 
 
 	/* Access the race and lore */
-	r_ptr = &r_info[r_idx];
+        r_ptr = race_info_idx(r_idx, ego);
 
 
 	/* Cheat -- Know everything */
@@ -577,6 +577,7 @@ static void roff_aux(int r_idx, int remem)
 		else if (flags3 & (RF3_ORC))        roff(" orc");
                 else if (flags3 & (RF3_DRAGONRIDER))roff(" DragonRider");
                 else if (flags7 & (RF7_SPIDER))     roff(" spider");
+                else if (flags7 & (RF7_NAZGUL))     roff(" Nazgul");
 		else                                roff(" creature");
 
 		/* Group some variables */
@@ -653,7 +654,6 @@ static void roff_aux(int r_idx, int remem)
 	/* Collect inate attacks */
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
-	if (flags4 & (RF4_XXX3))		vp[vn++] = "do something";
 	if (flags4 & (RF4_ROCKET))		vp[vn++] = "shoot a rocket";
 	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire an arrow";
 	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire arrows";
@@ -770,7 +770,6 @@ static void roff_aux(int r_idx, int remem)
 	if (flags5 & (RF5_HOLD))            vp[vn++] = "paralyze";
 	if (flags6 & (RF6_HASTE))           vp[vn++] = "haste-self";
 	if (flags6 & (RF6_HEAL))            vp[vn++] = "heal-self";
-	if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
 	if (flags6 & (RF6_BLINK))           vp[vn++] = "blink-self";
 	if (flags6 & (RF6_TPORT))           vp[vn++] = "teleport-self";
         if (flags6 & (RF6_S_BUG))           vp[vn++] = "summon software bugs";
@@ -794,9 +793,11 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_S_DEMON))         vp[vn++] = "summon a demon";
 	if (flags6 & (RF6_S_UNDEAD))        vp[vn++] = "summon an undead";
 	if (flags6 & (RF6_S_DRAGON))        vp[vn++] = "summon a dragon";
+        if (flags4 & (RF4_S_ANIMAL))        vp[vn++] = "summon animal";
+        if (flags6 & (RF6_S_ANIMALS))       vp[vn++] = "summon animals";
 	if (flags6 & (RF6_S_HI_UNDEAD))     vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON))     vp[vn++] = "summon Ancient Dragons";
-	if (flags6 & (RF6_S_CYBER))         vp[vn++] = "summon Cyberdemons";
+        if (flags6 & (RF6_S_HI_DEMON))      vp[vn++] = "summon Greater Demons";
         if (flags6 & (RF6_S_WRAITH))        vp[vn++] = "summon Ringwraith";
 	if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "summon Unique Monsters";
 
@@ -939,7 +940,7 @@ static void roff_aux(int r_idx, int remem)
 	{
 		roff(format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
 	}
-	if (flags2 & (RF2_MULTIPLY))
+        if (flags4 & (RF4_MULTIPLY))
 	{
                 c_roff(TERM_L_UMBER, format("%^s breeds explosively.  ", wd_he[msex]));
 	}
@@ -1328,6 +1329,8 @@ static void roff_aux(int r_idx, int remem)
 			case RBE_DISEASE:	q = "disease"; break;
                         case RBE_TIME:          q = "time"; break;
                         case RBE_SANITY:        q = "blast sanity"; break;
+			case RBE_HALLU:		q = "cause hallucinations"; break;
+                        case RBE_PARASITE:      q = "parasite"; break;
 		}
 
 
@@ -1418,9 +1421,9 @@ static void roff_aux(int r_idx, int remem)
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
-static void roff_top(int r_idx)
+static void roff_top(int r_idx, int ego)
 {
-	monster_race	*r_ptr = &r_info[r_idx];
+        monster_race    *r_ptr = race_info_idx(r_idx, ego);
 
 	byte		a1, a2;
 	char		c1, c2;
@@ -1438,7 +1441,6 @@ static void roff_top(int r_idx)
 	if (!use_color) a1 = TERM_WHITE;
 	if (!use_color) a2 = TERM_WHITE;
 
-
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
 
@@ -1452,7 +1454,15 @@ static void roff_top(int r_idx)
 	}
 
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+        if (ego)
+        {
+                if (re_info[ego].before) Term_addstr(-1, TERM_WHITE, format("%s %s", re_name + re_info[ego].name, r_name + r_ptr->name));
+                else Term_addstr(-1, TERM_WHITE, format("%s %s", r_name + r_ptr->name, re_name + re_info[ego].name));
+        }
+        else
+        {
+                Term_addstr(-1, TERM_WHITE, r_name + r_ptr->name);
+        }
 
 	/* Append the "standard" attr/char info */
 	Term_addstr(-1, TERM_WHITE, " ('");
@@ -1470,7 +1480,7 @@ static void roff_top(int r_idx)
 /*
  * Hack -- describe the given monster race at the top of the screen
  */
-void screen_roff(int r_idx, int remember)
+void screen_roff(int r_idx, int ego, int remember)
 {
 	/* Flush messages */
 	msg_print(NULL);
@@ -1479,10 +1489,10 @@ void screen_roff(int r_idx, int remember)
 	Term_erase(0, 1, 255);
 
 	/* Recall monster */
-	roff_aux(r_idx, remember);
+        roff_aux(r_idx, ego, remember);
 
 	/* Describe monster */
-	roff_top(r_idx);
+        roff_top(r_idx, ego);
 }
 
 
@@ -1491,7 +1501,7 @@ void screen_roff(int r_idx, int remember)
 /*
  * Hack -- describe the given monster race in the current "term" window
  */
-void display_roff(int r_idx)
+void display_roff(int r_idx, int ego)
 {
 	int y;
 
@@ -1506,10 +1516,10 @@ void display_roff(int r_idx)
 	Term_gotoxy(0, 1);
 
 	/* Recall monster */
-	roff_aux(r_idx, 0);
+        roff_aux(r_idx, ego, 0);
 
 	/* Describe monster */
-	roff_top(r_idx);
+        roff_top(r_idx, ego);
 }
 
 
@@ -1524,7 +1534,7 @@ bool monster_quest(int r_idx)
 	if (r_ptr->flags7 & RF7_AQUATIC) return FALSE;
 
 	/* No random quests for multiplying monsters */
-	if (r_ptr->flags2 & RF2_MULTIPLY) return FALSE;
+        if (r_ptr->flags4 & RF4_MULTIPLY) return FALSE;
 
 	return TRUE;
 }
@@ -1713,58 +1723,6 @@ void set_mon_num_hook(void)
 }
 
 
-void set_mon_num2_hook(int y, int x)
-{
-	/* Set the monster list */
-	switch (cave[y][x].feat)
-	{
-	case FEAT_SHAL_WATER:
-		get_mon_num2_hook = monster_shallow_water;
-		break;
-	case FEAT_DEEP_WATER:
-		get_mon_num2_hook = monster_deep_water;
-		break;
-	case FEAT_DEEP_LAVA:
-	case FEAT_SHAL_LAVA:
-		get_mon_num2_hook = monster_lava;
-		break;
-	default:
-		get_mon_num2_hook = NULL;
-		break;
-	}
-}
-
-
-bool is_pet(monster_type *m_ptr)
-{
-#ifdef DRS_SMART_OPTIONS
-        if (m_ptr->smart & (SM_FRIEND))
-	{
-		return (TRUE);
-	}
-	else
-	{
-		return (FALSE);
-	}
-#else
-        return FALSE;
-#endif
-}
-
-void set_pet(monster_type *m_ptr, bool pet)
-{
-#ifdef DRS_SMART_OPTIONS
-	if (pet)
-	{
-		m_ptr->smart |= SM_FRIEND;
-	}
-	else
-	{
-		m_ptr->smart &= ~SM_FRIEND;
-	}
-#endif
-}
-
 /*
  * Check if monster can cross terrain
  */
@@ -1808,3 +1766,24 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 	return TRUE;
 }
 
+
+void set_mon_num2_hook(int y, int x)
+{
+	/* Set the monster list */
+	switch (cave[y][x].feat)
+	{
+	case FEAT_SHAL_WATER:
+		get_mon_num2_hook = monster_shallow_water;
+		break;
+	case FEAT_DEEP_WATER:
+		get_mon_num2_hook = monster_deep_water;
+		break;
+	case FEAT_DEEP_LAVA:
+	case FEAT_SHAL_LAVA:
+		get_mon_num2_hook = monster_lava;
+		break;
+	default:
+		get_mon_num2_hook = NULL;
+		break;
+	}
+}

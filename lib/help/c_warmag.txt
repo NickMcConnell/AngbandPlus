@@ -1,0 +1,32 @@
+#####R=== Warrior Mages ===
+
+#####GDescription
+A Warrior Mage is a mage that also devotes time to learning to fight. As 
+magicians, they are trained in two types of magic, eventually learning 
+up to 48 spells in them (although slower than  true magicians); as 
+warriors they are far superior to other wizards. The Warrior Mage is a 
+truly powerful class, which is recommended for the players who want to 
+cast spells but whose mages tend to die too quickly. However, the power 
+does not come without a price: Wararrior Mages require more experience 
+to advance levels than any other class.
+
+#####GPrimary Stats
+Intelligence (spell casting stat)
+Strength
+
+#####GMagic Usage
+Warrior mages begin the game with *****m_sigald.txt*0[Sigaldry], and they can select 
+another minor realm of magic from the following choices:
+*****m_spirit.txt*0[Spirit]     *****m_illus.txt*0[Illusion]
+
+They can eventually learn 48 spells.
+
+#####GStarting Equipment
+A warrior-mage begins the game with:
+    L1 spellbooks of chosen realms
+    A shortsword
+If they are *very* lucky they may also begin with:
+    L2 spellbook of one of the chosen realms
+    
+
+		

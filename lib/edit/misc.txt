@@ -3,8 +3,8 @@
 # Maximum number of towns
 M:T:100
 
-# Maximum number of quests
-M:Q:1000
+# Maximum number of non random towns(must be < 20)
+M:t:4
 
 # Maximum x size of the wilderness
 M:X:101
@@ -14,10 +14,10 @@ M:Y:66
 
 # Maximum number of monsters in r_info.txt
 # WARNING ! add one more to the real count for the player ghost !!
-M:R:1034
+M:R:1041
 
 # Maximum number of monsters in re_info.txt
-M:r:10
+M:r:12
 
 # Maximum number of items in k_info.txt
 M:K:810
@@ -26,31 +26,31 @@ M:K:810
 M:V:112
 
 # Maximum number of terrain features in f_info.txt
-M:F:204
+M:F:207
 
 # Maximum number of artifacts in a_info.txt
 M:A:210
 
 # Maximum number of ego-items in e_info.txt
-M:E:140
+M:E:200
 
 # Maximum number of dungeon types in d_info.txt
-M:D:29
+M:D:30
 
 # Maximum number of trap types in tr_info.txt
 M:U:171
 
-# Maximum number of trap types in wf_info.txt
-M:W:26
+# Maximum number of terrain types in wf_info.txt
+M:W:30
 
 # Maximum number of owners types in ow_info.txt
-M:N:68
+M:N:69
 
 # Maximum number of owners types in ba_info.txt
-M:B:56
+M:B:59
 
 # Maximum number of owners types in st_info.txt
-M:S:55
+M:S:57
 
 # Maximum size for "o_list[]"
 M:O:1024

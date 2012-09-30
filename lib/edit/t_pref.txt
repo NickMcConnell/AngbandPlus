@@ -3,7 +3,7 @@
 # Defines the preferences for the town features
 # letter:feature:cave_info:monster:object:ego:artifact:trap:special
 
-# Upper reaches of Galgals entrance
+# Barrow-Downs entrance
 F:{:7:3:0:0:0:0:0:4
 
 # Mirkwood Forest entrance
@@ -41,6 +41,9 @@ F:C:87:3
 
 # Dirt
 F:,:88:3
+
+# Mud
+F:@:94:3
 
 # Rubble
 F:;:49:3
@@ -97,6 +100,12 @@ F:9:74:3:0:0:0:0:0:8
 
 # Pet Shop
 F:0:74:3:0:0:0:0:0:9
+
+# Underground Tunnels -- used for tunnels in towns
+F:I:173:3
+
+# Underground Tunnels -- used for tunnels in towns
+F:M:204:3
 
 # Fake blank feature
 F: :0:3

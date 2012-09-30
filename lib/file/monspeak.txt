@@ -322,8 +322,34 @@ skips along happily.
 is surrounded by the purple aura of the RNG. Touch at your peril.
 
 N:861:Dark God, the Mighty Coder of Hell
-2
-says "Hullo".
-emits a low "hmmmm".
+6
+says 'Hullo'.
+emits a low 'hmmmm'.
+screams 'I came from the Hell for YOU!'
+laughs out loudly.
+mutters something about bugs.
+asks you about the new version.
 1
-screams "PernAngband rules".
+screams 'PernAngband rules'.
+
+N:969:Princess
+4
+cries.
+screams 'Help me !!!'.
+whines 'I need your help, great Hero...'.
+implores you to help her.
+1
+screams 'I am too young to die!'.
+
+N:970:Merton Proundfeet, the lost hobbit
+1
+whines 'Please help me noble hero, my leg is broken, I cannot walk...'
+1
+whines 'No, please dont hurt me!'
+
+N:1039:Improv, the mighty MoLD
+2
+screams 'Your code is ugly!'
+mutters something about bugs.
+1
+screams 'PernAngband rules'.

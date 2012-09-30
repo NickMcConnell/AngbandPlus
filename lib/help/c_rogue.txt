@@ -1,0 +1,48 @@
+#####R=== Rogues ===
+
+#####GDescription
+A Rogue is a character that prefers to live by cunning, but is capable 
+of fighting their way out of a tight spot. The master of traps and 
+locks, no device is impossible for him to overcome. A rogue will learn 
+to set many kinds of traps as they become more experienced. Rogues have
+high stealth, allowing them to sneak around many creatures without 
+having to fight, or to sneak up and get the first blow. A rogue's
+perception is higher than any other class, and usually they notice 
+traps or secret doors without needing a search. Rogues are better than 
+warriors or paladins with magical devices, but still can not rely on 
+their performance. Rogues can also learn a few spells, but not the 
+powerful offensive spells magi can use. 
+               
+#####GPrimary Stats
+Intelligence (spellcasting stat)
+Dexterity.
+
+#####GMagic Usage
+Rogues can choose one realm of magic and learn all spells in the first 
+four books.
+
+Rogues have the option of choosing one of the following realms of magic:
+*****m_magery.txt*0[Magery]   *****m_shadow.txt*0[Shadow]   *****m_nether.txt*0[Nether]   *****m_illus.txt*0[Illusion]   *****m_spirit.txt*0[Spirit]   *****m_sigald.txt*0[Sigaldry]
+
+Rogues are not expert spellcrafters,  but may nevertheless learn some 
+minor magicks. Rogues  can  learn  24 spells.
+
+In addition to their magic, rogues are also *thieves*. They are capable of
+stealing items from monsters (using the "Z" command), and get a boosted 
+chance of success when trying to steal from shops. Each successful attempt
+earns them some experience (and the object they stole, of course!).
+
+Finally, rogues do not have to always fight monsters directly - they are
+capable of laying traps in the dungeon to lure monsters into. To do this, 
+they need a trapping kit and trigger, and use the "U" command to lay the 
+trap.
+
+#####GStarting Equipment
+A rogue begins the game with:
+    L1 spellbook of chosen realm
+    A broadsword (poison brand if chose shadow realm)
+    A trap kit (arrow)
+If they are *very* lucky they may also begin with:
+    boots of free action
+ 
+ 

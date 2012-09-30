@@ -219,7 +219,6 @@ static void set_ghost_aux_1(void)
                 case CLASS_POWERMAGE:
                 case CLASS_RUNECRAFTER:
                 case CLASS_HARPER:
-                case CLASS_WIZARD:
                 case CLASS_SORCERER:
                 case CLASS_ILLUSIONIST:
                 case CLASS_DRUID:
@@ -252,7 +251,6 @@ static void set_ghost_aux_1(void)
 
 		/* Priest */
 		case CLASS_PRIEST:
-                case CLASS_PRIOR:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 4;
 			r_ptr->flags5 |= (RF5_CAUSE_1 | RF5_SCARE);
@@ -271,6 +269,7 @@ static void set_ghost_aux_1(void)
 
 		/* Rogue */
 		case CLASS_ROGUE:
+		case CLASS_MERCHANT:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 6;
 			r_ptr->flags6 |= (RF6_BLINK);
@@ -287,7 +286,7 @@ static void set_ghost_aux_1(void)
 
 		/* Ranger */
                 case CLASS_RANGER:
-                case CLASS_WARRIOR_MAGE:
+                case CLASS_WARLOCK:
 		{
 			r_ptr->freq_inate = r_ptr->freq_spell = 100 / 6;
 			r_ptr->flags4 |= (RF4_ARROW_1);
@@ -464,13 +463,13 @@ static void set_ghost_aux_1(void)
                 case CLASS_POWERMAGE:
                 case CLASS_RUNECRAFTER:
                 case CLASS_HARPER:
-                case CLASS_WIZARD:
                 case CLASS_SORCERER:
                 case CLASS_ILLUSIONIST:
                 case CLASS_DRUID:
                 case CLASS_NECRO:
                 case CLASS_ALCHEMIST:
                 case CLASS_CHAOS_WARRIOR:
+		case CLASS_MERCHANT:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 3 / 2;
@@ -483,7 +482,6 @@ static void set_ghost_aux_1(void)
 
 		/* Priest */
 		case CLASS_PRIEST:
-                case CLASS_PRIOR:
                 case CLASS_MINDCRAFTER:
 		{
 			/* Sometimes increase damage */
@@ -515,7 +513,7 @@ static void set_ghost_aux_1(void)
 
 		/* Ranger */
 		case CLASS_RANGER:
-                case CLASS_WARRIOR_MAGE:
+                case CLASS_WARLOCK:
 		{
 			/* Sometimes increase damage */
 			if (lev >= 30) d2 = d2 * 2;
@@ -1021,8 +1019,8 @@ s16b place_ghost(void)
 		/* And even then, it only happens sometimes */
                 if (14 > randint((dun_level / 2) + 11)) return (FALSE);
 
-		/* Only a 33% chance */
-                if (rand_int(3) != 0) return (FALSE);
+                /* Only a 45% chance */
+                if (magik(45)) return (FALSE);
 
 		/* Level is dungeon level */
                 level = dun_level;
@@ -1092,7 +1090,7 @@ s16b place_ghost(void)
 	r_ptr->cur_num = 0;
 	r_ptr->max_num = 1;
 
-        if (!place_monster_one(y, x, max_r_idx - 1, 0, FALSE, FALSE))
+        if (!place_monster_one(y, x, max_r_idx - 1, 0, FALSE, MSTATUS_ENEMY))
 	{
 		return FALSE;
 	}

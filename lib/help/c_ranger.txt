@@ -1,0 +1,28 @@
+#####R=== Rangers ===
+
+#####GDescription
+Rangers are warrior/mages, devoted to nature. They are good fighters, 
+and quite effective with bows. The ranger learns spells much more slowly
+than a mage, but is capable of learning their choice of spells in their 
+realm. Rangers have good stealth, perception, searching, saving throws,
+and are good with magical devices. 
+
+#####GPrimary Stats
+Intelligence (spellcasting stat)
+Dexterity.
+
+#####GMagic Usage
+At one with the wilderness,  rangers may choose among the realms of 
+*****m_illus.txt*0[Illusion] or *****m_tribal.txt*0[Tribal] magic. They have no limitations as to which books 
+they are allowed to use, but can learn only up to 32 spells no matter 
+which realm they choose.
+
+#####GStarting Equipment
+A ranger begins the game with:
+    L1 spellbook of tribal magic
+    L1 spellbook of illusion magic
+    A broadsword
+If they are *very* lucky they may also begin with:
+    a short bow
+
+		

@@ -1,0 +1,35 @@
+#####R=== Sorcerors ===
+
+#####GDescription
+Sorcerors are to magic what unbelievers are to melee. They are the all-
+around best magicians, being able to cast any spell from their seven 
+magic realms without having to learn it. On the downside, they are the 
+worst fighters, being unable to use any weapon but a Mage Staff 
+comfortably, and still unable to be anything even remotely approaching 
+effective with it. To compensate for their ability to cast all spells, 
+Sorcerors gain no experience from casting new spells.
+
+#####GPrimary Stats
+Intelligence (spellcasting stat)
+
+#####GMagic Usage
+The Sorcerer can't fight with a weapon unless it's a Mage Staff. But 
+they can use every spell of their seven magic realms. They have no need
+to learn the spells - they already know them, and as soon as their 
+character level permits they are capable of casting any of them. They
+still, however, are required to read the spells from their spellbooks - 
+so will need to be choosy about which spells and books they wish to 
+take with them into the dungeon (with 6 realms, their backpack could
+fill extremely quickly!!!)
+
+Sorcerors can cast spells from the following realms:
+*****m_chaos.txt*0[Chaos]   *****m_illus.txt*0[Illusion]   *****m_magery.txt*0[Magery]   *****m_nether.txt*0[Nether]   *****m_shadow.txt*0[Shadow]   *****m_sigald.txt*0[Sigaldry]   *****m_spirit.txt*0[Spirit]
+
+#####GStarting Equipment
+A sorceror begins the game with:
+    L1 magery spellbook
+    L1 sigaldry spellbook
+    wand of fire bolts
+If they are *very* lucky they may also begin with:
+    a L1 spellbook they can use that they don't already have
+ 

@@ -1,368 +1,132 @@
-=== Attacking and Being Attacked ===
+|||||oy
+#####R=== Attacking and Being Attacked ===
  
-Attacking is simple in PernAngband.  If you move into a creature, you attack
-it. You can attack from a distance by firing a missile or by magical means
-such as aiming a wand. Creatures attack in the same way. If they move into
-you, they attack you. Some creatures can also cast spells from a distance,
-and others can use various breath weapons such as fire on you from a distance.
+Attacking is simple in PernAngband; attempting to move over creature attacks
+it. It is also possible to attack from a distance by firing a missile or by
+magical means (wand, rod, spell, etc). Creatures attack in the same way. This
+means that if you do not wish to melee with a creature, it is wise to keep a
+distance from it. This strategy is not perfect -- some monsters, such as
+dragons, have a way to attack from a distance.
 
-Creatures in walls cannot be attacked by wands and other magic attacks
-normally stopped by walls.  You can attack a creature in a wall normally
-by trying to move into the wall space containing the creature.  However, if
-the creature is invisible (such as a ghost), you must tunnel into the wall
-containing the creature.  If you just try to move into the wall, you will
-bump your head and look quite silly.
+Some creatures have the ability to pass through walls, such as Ghosts.
+To attack creatures who are currently in a wall (that you can see),
+attempt to move over it (even if you cannot pass through walls, the
+attack will still happen). Monsters will take less damage from attacks
+while they are in walls. Also, if you cannot see the monster (e.g. if you
+are blind, or it is invisible and you do not have see invisible), this
+will not work. Most spells and magic devices cannot target monsters
+in walls. In situations like this, it is usually wise to lure the
+monster out of the wall before attacking it.
 
-If you are wielding a weapon, the damage for the weapon is used when you hit
-a creature.  Otherwise you get a single punch which does minimal damage.
+Melee attacks are handled as such:
+#####G        To-hit:
+                Your strength grants a bonus or penalty to-hit
+                Your class might grant a bonus or penalty to-hit
+                Enchantments on your weapon grant a bonus or penalty to-hit
+                Certain rings (accuracy, slaying) may also grants a bonus 
+                        or penalty to-hit
+                Other temporary effects (berserk, etc) might affect your
+                        chance to hit
+                The armor rating of the monster you're attacking makes a
+                        big difference
 
-You may wield a primary weapon for melee combat and a bow(or other
-missile launcher) for launching missiles at the same time. it is also rumored
-that powerfull beings can "use" corpses that are not belonging to them and
-some of those corpse have more(or less) equipment possibility than the
-average player.
- 
-Firing a missile while wielding the appropriate launcher is the only way to
-get the "full" power out of the missile.  You may of course throw an arrow
-at a monster without shooting it, but you will find the effects may not be
-what you had hoped for. Also carrying your ammos in the quiver will take off
-the annoyance to select which ammo you desire to use each time you want to
-fire.
+#####G        Blows:
+                Your strength and dexterity affect how many blows you get
+                Your class might affect how many blows you get
+                The weight of the weapon very likely will affect how many 
+                        blows you get
+                Enchantments on your weapon might also affect how many 
+                        blows you get (this is rare)
+                Certain very rare rings (of attacks) may also affect how 
+                        many blows you get
 
-Hits and misses are determined by ability to hit versus armor class.  A hit
-is a strike that does some damage; a miss may in fact reach a target, but
-fails to do any  damage.  Higher armor classes make it harder to do damage,
-and so lead to more misses; they also reduce the damage from a strike that
-actually occurs.
- 
+#####G        Damage:
+                Strength grants a bonus or penalty
+                Your class might grant a bonus or penalty
+                The base damage of your weapon is rolled
+                Enchantments on your weapon might also grant a bonus or 
+                        penalty
+                Temporary effects also might grant a bonus or penalty
 
-=== Monster Memories ===
+So, for each blow you are entitled to, it is checked to see if you hit. If
+you do, the damage is then applied to the monster. Note that unless you
+are a monk or a possessor, melee without a weapon will usually result
+in just a single blow that does base damage of 1d1. This might, however,
+be useful in attacking certain rare monsters that destroy weapons.
 
-There are hundreds of different creatures in the Middle Earth, many of
-which have the same letter symbol and color on the screen.  The exact species
-of a creature can be discovered by looking at it.  It is also very difficult
-to keep track of the capabilities of various creatures.  Luckily, PernAngband
-automatically keeps track of your experiences with a particular creature.
-This feature is called the monster memory.  You monster memory recalls the
-particular attacks of each creature (whether or not technically a monster)
-which you have suffered, as well as recalling if you have observed them to
-multiply or move erratically, or drop treasure, etc.  Otherwise you would
-simply have to take notes, which is an unnecessary bother.
+Combat with a bow/sling is similar, except ammo is used (which will eventually
+run out, requiring replacement). Bows don't have a damage rating, instead
+having a damage multiplier. Bows can, however, be enchanted, and
+enchantment on bows and arrows is cumulative (meaning that well-enchanted
+bows and arrows can be one of the more effective weapons in the game. They
+do, however, tend to be very expensive, as arrows frequently break after
+being fired).
 
-If you have killed enough of a particular creature, or suffered enough
-attacks, recalling the monster memory may also provide you with information
-not otherwise available, such as a armor class or hit dice.  These are not
-explained, but may be useful to give the relative danger of each creature.
-This memory can be passed on to a new character even after you die by means
-of a reduced save file.
- 
+Using ammo without the appropriate bow generally has poor results.
 
-=== Your Weapon ===
+#####R=== Armor ===
 
-Carrying a weapon in your backpack does you no good.  You must wield a weapon 
-before it can be used in a fight.  A secondary weapon can be kept by keeping
-it in the backpack, and switching it with the primary weapon when needed.
+As the armor class of a monster greatly affects how hard it is for them
+to be hit, your armor class affects how hard it is for them to hit you.
+A high armor rating will make it much easier to survive deep in the dungeon.
+For a warrior style class (Unbelievers, Fighters, Archers, etc), it is
+generally wise to wear as much and as powerful armor as possible (subject
+to weight limitations, of course). Spellcasting classes, however, have
+limits on how much armor they can wear before it disrupts their motion
+and makes it hard for them to cast spells properly. For many of these classes,
+gloves are especially bad for spellcasting. Armor has a base rating and an
+enchantment rating. The base rating is constant for the type of armor (e.g.
+paper armor always has a base rating of 4), and the enchantment depends on
+the item. There are also ways to further enchant armor you have. Certain
+very powerful enchantments grant resistances.
 
-Weapons have two main magical characteristics, their enchanted ability to hit
-and their enchanted ability to do damage, expressed as `(+#,+#)'.  A normal
-weapon would be `(+0,+0)'.  Many weapons in Angband have bonuses to hit
-and/or do damage.  Some weapons are cursed, and have penalties that hurt the
-player.  Cursed weapons cannot be unwielded until the curse is lifted.
-Identifying a weapon will inform you of the magical bonuses and penalties
-and whether or not it is cursed.
+#####R=== Resistances and typed attacks===
+Many kinds of monsters, traps, and other effects do damage that has a type.
+Types can have side effects in addition to the raw damage they deal. Certain
+enchanted items can grant resistances, reducing the raw damage and possibly
+reducing or eliminating the side effects. Some monsters also have resistances,
+so watching the messages when attacking a monster can often reveal that a
+particular attack is ineffective. 
 
-Angband assumes that your youth in the rough environment near the dungeons
-has taught you the relative merits of different weapons, and displays as
-part of their description the damage dice which define their capabilities.
-Any damage enchantment is added to the dice roll for that weapon.  The dice
-used for a given  weapon is displayed as "#d#".  The first number indicates
-how many dice to roll, and the second indicates how many sides they have.  A
-"2d6" weapon will give damage from 2 to 12, plus any damage bonus.  The
-weight of a weapon is also a consideration.  Heavy weapons may hit harder,
-but they are also harder to use.  Depending on your strength, dexterity,
-character class, and weapon weight, you may get several attacks per turn.
+#####GLow attacks
+      Fire - Destroys weapons, armor, scrolls, and staves. Reduces strength
+      Cold - Shatters potions. 
+      Elec - Reduces dexterity, destroys rings.
+      Acid - Reduces bonuses on equipped armor, reduces charisma
 
-Missile booster weapons, such as bows, have their characteristics added to
-those of the missile used, if the proper weapon/missile combination is used,
-and the the launcher multiplier is applied to the total damage, making
-missile weapons very powerful given the proper missiles, especially if they
-are enchanted.
+#####GMiddle attacks
+      Poison - Player becomes poisoned
+      Light - Blinds player, perma-lights area
+      Dark - Blinds player, darkens area
+      Confusion - Confuses player
 
-Although you receive any magical bonuses an unidentified weapon may possess
-when you wield it, those bonuses will not be added in to the displayed
-values of to-hit and to-dam on your character sheet.  You must identify the
-weapon before the displayed values reflect the real values used.
+#####GHigh attacks
+      Nether - Drains experience
+      Nexus - Scrambles statistics, teleports player randomly
+      Disenchantment - Reduces bonuses on equipped items
+      Chaos - Polymorphs or mutates player
+      Sound - Shatters potions
+      Shards - Cuts player
 
-Finally, some rare weapons have special abilities.  These are called ego
-weapons, and are feared by great and meek.  An ego weapon must be wielded
-to receive the benefit of its abilities.
+#####GUnresistable attacks
+      Water - Stuns player
+      Ice - Stuns player, shatters potions
+      Plasma - Stuns player, otherwise same as fire attacks
+      Force - Pushes player a few squares back
+      Inertia - Slows player, pushes them a few squares back
+      Gravity - Same as Inertia
+      Disintegration - Destroys items on ground, destroys walls
+      Mana - Destroys items on ground
 
-Those are the most common rumors about those ego items. But it is believed
-that much more exists...
+#####R=== Monster Memory ===
 
-(Defender)
-     A magical weapon that actually helps the wielder defend himself, thus
-     increasing his/her armour class, and protecting him/her against damage
-     from fire, cold, acid, lightning, and falls.  This weapon also will
-     increase your stealth, let you see invisible creatures, protect you
-     from paralyzation and some slowing attacks, and help you regenerate hit
-     points and mana faster.  As a result of the regeneration ability, you
-     will use up food somewhat faster than normal while wielding such a
-     weapon.
-
-(Holy Avenger)
-     A Holy Avenger is one of the more powerful of weapons.  A Holy Avenger
-     will increase your wisdom and your armour class.  This weapon will do
-     extra damage when used against evil, demonic and undead creatures, and
-     will also give you the ability to see invisible creatures.  These
-     weapons are basically extremely powerful versions of Blessed Blades
-     and can be wielded by priests with no penalty.
-
-(Blessed Blade)
-     A blessed blade will increase your wisdom.  If you are a priest,
-     wielding a non-blessed sword or polearm causes a small penalty while
-     attacking and may infuriate your god, decreasing the chances that he
-     will accept your prayers.
-
-Blade of Sharpness
-     These weapons are known to score very deadly hits.
-
-(Dragon Weapon)
-     A dragon weapon is a curious object. Its full powers are not known,
-     but it can teleport its wielder, when it chooses to (provided its
-     wielder gives it the permission for a teleport).
-
-(Chaotic)
-     These bizarre, feared weapons have been manufactured in the chaos
-     forges, and they are powered by the chaos. They are very
-     unpredictable in combat: chaos can provide a number of various
-     effects when it touches your opponent.
-
-(Vampiric)
-     These foul weapons have been created by Death magic. They lust for
-     blood, and if such a weapon scores a hit, it greedily sucks life
-     from the hapless victim, transferring the life energy to its
-     master.
-
-Weapon of Freezing
-     A magical weapon of ice that delivers a cold critical to creatures not
-     resistant to cold.  It will inflict thrice the normal damage when used
-     against such a creature. It also defends you against cold and frost
-     attacks.
-
-Weapon of Burning
-     A magical weapon of fire that delivers a heat critical to creatures not
-     resistant to fire.  It will inflict thrice the normal damage when used
-     against such a creature. It also defends you against fire and heat
-     attacks.
-
-Weapon of Poisoning
-     A magical weapon, coated with poison that delivers a poison critical to
-     creatures not resistant to poison. It also defends you against toxic and
-     poisonous attacks.
-
-Weapon of Westernesse
-     A Weapon of Westernesse is one of the more powerful weapons.  It slays
-     orcs while increasing your strength, dexterity, and constitution.  It
-     also lets you see invisible creatures and protects from paralyzation and
-     some slowing attacks.  These blades were made by the Dunedain.
-
-Weapon of Valinor
-     A Weapon of Valinor has been blessed by the Vala from valinor. As
-     a result, it is very deadly against the minions of Morgoth. A rumour has
-     it that they are at least as powerful as Weapons of Westernesse, or
-     even the weaker artifacts...
-
-Weapon of Slay Dragon
-     A Slay Dragon weapon is a special purpose weapon whose sole intent is
-     to destroy dragon-kind.  Therefore, when used against a dragon, the
-     amount of damage done is three times the normal amount.
-
-Weapon of Slay Evil
-     A Slay Evil weapon is a special purpose weapon whose sole intent is to
-     destroy all forms of evil.  When used against an evil creature, either
-     alive or undead, the damage done is twice the normal amount.  Some of
-     these weapons are also Blessed Blades.
-
-Weapon of Slay Animal
-     A Slay Animal weapon is a special purpose weapon whose sole intent is
-     to destroy all the dangerous animals in the world.  An animal is any
-     creature natural to the world.  Therefore an orc would not be an
-     animal, but a giant snake would be.  This will inflict twice the
-     normal amount of damage when used against an animal.
-
-Weapon of Slay Undead
-     A Slay Undead weapon is a special purpose weapon whose sole intent is
-     to destroy all forms of undead.  These weapons are hated and feared by
-     the intelligent undead, for a single blow from this weapon will inflict
-     three times the normal amount of damage.  This weapon also gives you the
-     ability to see invisible creatures, which is especially useful against
-     undead, since many of them are normally invisible.  Some of these
-     weapons have the additional ability to protect against the life-draining 
-     attacks that many undead creatures possess.
-
-Weapon of Slay Orc
-     A Slay Orc weapon does treble damage against anything of orcish-kind.
-     Often these are elvish blades.
-
-Weapon of Slay Troll
-     A Slay Troll weapon does treble damage against anything of troll-kind.
-     Often these are elvish blades.
-
-Weapon of Slay Giant
-     A Slay Giant weapon does treble damage against anything of
-     giant-humanoidal form.
-
-Weapon of Slay Demon
-     A Slay Demon weapon does treble damage against anything of Hellish
-     nature such as the Minor and Major Demons.
-
-Whips of Fire
-     These are one of the balrogs' favorite weapons, delivering heat
-     criticals just like a weapon of Flame.
-
-Weapon of Morgul.
-     These blades are so foully cursed with evil, it is rumored that it is
-     impossible to remove them.  BEWARE!
-
-Apart from these there are some very rare and well made blades in the
-dungeon with not necessarily any special abilities. These include Blades
-of Chaos, Maces of Disruption, and Scythes of Slicing.  They can also be
-ego weapons like the ones above.  For example, a Blade of Chaos (Holy
-Avenger) is much more powerful than many artifact weapons!
-
-Usualy a character will only be able to use one weapon at a time, but there
-are execptions, if the character soul is incarned into a powerful being with
-more than two arms(rumors speaks of ancient and powerful demons called
-Mariliths)
-
-Also some weapons can be used in one hand while some others require tow hands
-to correctly handle them, thus forbiding the use of a shield.
-
-=== Body and Shield Bashes ===
-
-Weight is the primary factor in being able to bash something, but strength
-plays a role too.  After bashing, a character may be off balance for several
-rounds depending upon his dexterity.
-
-Doors can be broken down by bashing them.  Once a door is bashed open, it is
-forever useless and cannot be closed.
-
-Finally, a creature may be bashed.  If a shield is currently being worn,
-the bash is a shield bash and will do more damage.  In either case, a bash
-may throw an opponent off balance for a number of rounds, allowing a player
-to get in a free hit or more.  If the player is thrown off balance, his
-opponent may get free hits on him.  This is a risky attack.  It is also a
-hack.  :-)
-
-
-=== Your Armor Class ===
-
-Your armor class (or AC) is a number that describes the amount and the
-quality of armor being worn. Armor class will generally run from about 0 to
-150, but could become negative or greater than 150 with rarer armour or by
-magical means.
- 
-The larger your armor class, the more protective it is.  A negative armor
-class would actually help get you hit.  Armor protects you in three manners.
-One, it makes you harder to be hit for damage.  A hit for no damage is the
-same as a miss.  Two, good armor will absorb some of the damage that your
-character would have taken from normal attacks.  Three, acid damage is
-reduced by wearing body armor (but the armor will be damaged instead).  It
-is obvious that a high armor class is a must for surviving the deeper levels
-of Angband.
-
-Each piece of armour has a base armor value, which, like the damage from
-weapons, is assumed known by the player, and a magic bonus, which will not
-be displayed unless the armor has been identified or was bought in a store.
-
-Armor class values are always displayed between a set of brackets as "[#]"
-or "[#,+#]".  The first value is the armor class of the item.  The second
-number is the magical bonus of the item which is only displayed if known,
-and will always have a sign preceding the value.  Note that a few rings,
-amulets, and weapons also have the "[+#]" notation, indicating that they
-provide an armor bonus.  Many pieces of heavy body armor will also have a
-"(-#)" before the "[#,+#]", which indicates that the weight of the armor
-decreases your chances of hitting monsters.  This can range from nonexistent
-for very light armor to (-8) for the very heaviest armor!
-
-Some rumors speaks of pieces of armor that have greater powers:
-
-
-of Resist Acid.
-     A character using such an object will take only one third normal damage
-     from any acid thrown upon him.  In addition, armor so enchanted will
-     resist the acid's effects and not be damaged by it.
- 
-of Resist Lightning.
-     A character using a resist lightning object will take only one third
-     damage from electrical attacks.
- 
-of Resist Fire.
-     A character using a resist fire object will take only one third damage
-     from heat and fire.
- 
-of Resist Cold.
-     A character using a resist cold object will take only one third damage
-     from frost and cold.
- 
-of Resistance.
-     A character wearing armor with this ability will have resistance to
-     Acid, Cold, Fire, and Lightning as explained in each part above.
- 
-of Elvenkind.
-     This is the same as Resistance armour, only generally better enchanted.
-     It will make you more stealthy.  This armor can also possess extra 
-     resistances beyond the four basic elemental ones.
- 
-Robes of the Magi.
-     These robes are designed especially for wizards.  Just like Elvenkind
-     armor, they provide resistance to fire, cold, acid, and electricity and
-     cannot be damaged by acid.  They sustain all of your stats and protect
-     you from a good deal of all experience draining.  Also like Elvenkind
-     armor, they can have additional special resistances.  These robes are
-     so good that their owners are rarely killed, perhaps explaining the
-     incredible rarity.
- 
-Crown of Might
-     This is a great crown of warriors.  The wearer will have an
-     increased strength, dexterity, and constituion, and will also be immune
-     to any foe's attempt to slow or paralyze him or her.
-
-Crown of the Magi
-     This is the great crown of the wizards.  The wearer will have an
-     increased intelligence, and will also be given resistance against fire,
-     frost, acid, and lightning.
-
-Crown of Lordliness
-     This is the great crown of the priests.  The wearer will have an
-     increased wisdom and charisma.
-
-Crown of Seeing
-     This is the great crown of the rogues.  The wearer will be able to see
-     even invisible creatures, and will have an increased ability to locate
-     traps and secret doors.
-
-Crown of Regeneration
-     This crown will help you regenerate hit points and mana more quickly
-     than normal, allowing you to fight longer before needing to rest.  You
-     will use food faster than normal while wearing this crown because of
-     the regenerative effects.
- 
-Crown of Beauty
-     This crown looks impressive and will increase your charisma, but is
-     otherwise not useful.
- 
-Dragon Scale Mails.
-     These extremely rare pieces of armour come in many different colors,
-     each protecting you against the relevent dragons.  Naturally they are
-     all resistant to acid damage.  They also occasionally allow you to
-     breathe as a dragon would!
-
-Apart from these there are some very rare, and well made armours in the
-dungeon with not necessarily any special abilities. These include Shields of
-Deflection, Adamantite Plate Mail, Mithril Plate Mail, Mithril Chain Mail,
-and Shadow Cloaks.  The first four cannot be damaged by acid because of the
-quality metals they contain.
-
+The thousands of different creatures in Pernangband have many different
+characteristics, including spells, resistances, health, attacks, and speed.
+The information you have learned about each monster from your encounters
+with them is recorded in the monster memory (accessed with '/' or by 'l'ooking
+at a monster). It is possible to eventually learn all the characteristics
+of any given monster by interacting with them enough, but this is not always
+desirable (hanging around great hell wyrms, for example, can be hazardous
+to one's health). Certain magical devices may help you learn faster, as well
+as research centres in town. 
 

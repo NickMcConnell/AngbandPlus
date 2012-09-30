@@ -1,0 +1,33 @@
+|||||oy
+#####R === PernAngband Magic - Magery Realm ===
+
+Magery is the standard magic realm for mages living in Middle Earth. 
+As such, it is a good generalised realm for magic users to choose to 
+give them a broad range of spells at their disposal.
+
+The Magery Realm contains some nice attack spells, lots of utility 
+spells, and a few healing spells.
+
+#####GPermitted Classes
+#####BThe Realm of Magery is only permitted to:
+Mages as a primary realm
+High Mages as a primary realm
+Rogues as a primary realm
+Sorcerors (all)
+
+#####GMagery Spellbooks
+The are eight spellbooks available for the Magery realm, four of which can be
+easily found at bookstores back in town. The other four are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Apprentice Handbook
+Mystical Words
+Arcane Chants
+Locus of Force
+
+[[[[[BRare Books]
+Powerful Sigils
+Disruptive Forces
+Forces of the Mind
+Power of Ancient Sorcerors

@@ -410,11 +410,9 @@ int main(int argc, char *argv[])
 			case 'U':
 			{
 				if (!argv[i][2]) goto usage;
-#ifdef ANGBAND_2_8_1
 				strcpy(player_name, &argv[i][2]);
-#else /* ANGBAND_2_8_1 */
-				strcpy(op_ptr->full_name, &argv[i][2]);
-#endif /* ANGBAND_2_8_1 */
+                                strcpy(player_base, &argv[i][2]);
+                                no_begin_screen = TRUE;
 				break;
 			}
 
@@ -474,7 +472,7 @@ int main(int argc, char *argv[])
 
 
 	/* Process the player name */
-	process_player_name(TRUE);
+        process_player_name(TRUE);
 
 
 
@@ -634,11 +632,6 @@ int main(int argc, char *argv[])
 		}
 	}
 #endif
-
-
-	/* Grab privs (dropped above for X11) */
-	safe_setuid_grab();
-
 
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");

@@ -1,0 +1,26 @@
+#####R=== Warriors ===
+
+#####GDescription
+A Warrior is a hack-and-slash character, who solves most of his problems
+by cutting them to pieces, but will occasionally fall back on the help 
+of a magical device. Their prime stats are Strength and Constitution, 
+and a good Dexterity can really help at times. A Warrior will be good 
+at Fighting and Throwing/Bows, but bad at most other skills.
+A Warrior learns no magic.
+
+#####GPrimary Stats
+Strength
+Constitution
+
+#####GMagic Usage
+Warriors cast no spells. They hate magic. In fact, they even gain 
+experience for destroying high level spellbooks.
+
+#####GStarting Equipment
+A warrior begins the game with:
+    A ring of fear resistance
+    A broadsword
+    Chain Mail
+If they are *very* lucky they may also begin with:
+    a scroll of *enchant weapon*
+    

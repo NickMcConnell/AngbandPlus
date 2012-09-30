@@ -1,0 +1,24 @@
+#####R=== Daemonologists ===
+
+#####GDescription
+Adepts of the Chaos and masters of the Demons, members of this class 
+can gain tremendous power over the demonkind. They also get their 
+spells from their weapons, Demon Blades, which when wielded allow the 
+Daemonologist to cast spells much faster. While when not wielded they 
+cast MUCH slower.
+
+#####GPrimary Stats
+Intelligence (spellcasting stat)
+
+#####GMagic Usage
+Daemonologists are trained in *****m_chaos.txt*0[Chaos] and *****m_daemon.txt*0[Daemon] magic, and they can 
+learn up to 64 spell levels total from these two realms.
+
+#####GStarting Equipment
+A daemonologist begins the game with:
+    L1 book of chaos magic
+    L1 book of daemon magic
+    a scroll of word of recall
+If they are *very* lucky they may also begin with:
+    scrolls of enchant weapon to-dam
+    

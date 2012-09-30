@@ -1,0 +1,29 @@
+#####R=== Mimics ===
+
+#####GDescription
+Mimics possess the ability to transform into various creatures using 
+special cloaks. While transformed, they lose their intrinsic abilities, 
+and gain those of the creature they have transformed into.
+
+#####GPrimary Stats
+Dexterity (spell casting stat)
+
+#####GMagic Usage
+Mimics don't use spellbooks specifically, and as such do not study any
+realm of magic. However, they are able to use the specialised powers 
+inherent in many cloaks found within the dungeon (cloaks of mimicry).
+These cloaks are activated using the "m" command, and enable the Mimic
+to change form.
+
+In addition to activating cloaks, the Mimic also has the ability to use
+some personal spells, which are also activated by the "m" command.
+
+#####GStarting Equipment
+A mimic begins the game with:
+    A cloak of mimicry [Wolf]
+    A potion of healing
+    A dagger
+If they are *very* lucky they may also begin with:
+    A cloak of mimicry [Goat]
+    
+    

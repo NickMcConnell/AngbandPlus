@@ -1,0 +1,22 @@
+#####R=== Kobolds ===
+
+#####GDescription
+Kobolds are a weak goblin race. They love poisoned weapons, and can learn 
+to throw poisoned darts (of which they carry an unlimited supply). They 
+are also inherently resistant to poison, and can become adequate fighters,
+although they are not one of the more powerful races.
+
+#####GStat Modifiers
+Strength        +1   
+Intelligence    -1   
+Wisdom          0   
+Dexterity       +1   
+Constitution    0   
+Charisma        -4       
+Hit Dice Sides  9         
+Exp Penalty     +25%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    A dagger (Poison Brand)
+

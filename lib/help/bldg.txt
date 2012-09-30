@@ -1,28 +1,47 @@
-=== Historical Town View ===
-The town is composed of both stores and buildings. Stores:
+|||||oy
+#####R=== Historical Town View ===
+The town is composed of both stores and buildings. 
 
-Magic Shop: get your wands and spellbooks here.
-Alchemist: for all sorts of bubbling potions and scrolls.
-Weaponsmith: they carry anything sharp and to the point.
-Armorer: to protect from the ravages of the dungeon.
-General Store: food, torches, the necessities.
-Temple Shop: prayerbooks and those items holy.
-Black Market: the prices are high, but item unique.
-Home: To store your precious treasures.
-Make sure you go into the correct door on some buildings.
+#####RStores
+The stores are where your adventurer can pick up the supplies they need before
+entering the depths of the  dungeon. These include:
+[[[[[GGeneral Store (1):] food, torches, the necessities.
+[[[[[GArmorer (2):] to protect from the ravages of the dungeon.
+[[[[[GWeaponsmith (3):] they carry anything sharp and to the point.
+[[[[[GTemple Shop (4):] prayerbooks and those items holy.
+[[[[[GAlchemist (5):] for all sorts of bubbling potions and scrolls.
+[[[[[GMagic Shop (6):] get your wands and spellbooks here.
+[[[[[GBlack Market (7):] the prices are high, but item unique.
+[[[[[GYour Home (8):] To store your precious treasures.
+[[[[[GBook Store (9):] for all sorts of basic spell book needs.
 
-The Fighter's Hall, Order of Paladins, Ranger's Tavern, House of Thieves, and
-Tower of Illusion are restricted to those involved. The Tower of Sorcery is open
-for rogues and rangers to learn spells. The Temple is open for paladins.
+#####ROther Buildings
+In addition to the basic stores, there are some special buildings that can be
+found in some towns. These Buildings (represented by +'s) include:
+[[[[[GMayor's Office/Castle:] The home office for the town, adventurer's looking
+for work besides exploring the dungeon should hunt in here.
+[[[[[GPet Shop:] Great place to purchase eggs and get pets.
+[[[[[GThe Soothsayer:] To discover what *****/afatespoil.txt*0[fates ("a")] lie in store for you.
+[[[[[GThe Inn:] Wine, dine, rest and relax!
+[[[[[GThe Weyr:] Dragonriders are masters of teleportation, and will consent to bear 
+you to your chosen dungeon destination for a fee.
+[[[[[GBeastmaster Shanty:] For those who enjoy trophey hunting, and to research that
+strange animal you saw during your adventures. 
+[[[[[GFighters Hall:] The place to reforge weapons and armour.
+[[[[[GRangers Guild:] The place to reforge distance weapons and their ammunition.
+[[[[[GLibrary:] For information of all kinds.
+[[[[[GGambling House:] Read the *****/bgambling.txt*0[rules ("b")] before paying. And, the games are not 
+rigged, just naturally difficult.
+[[[[[GTower of Magery/Wizards Spire:] The wizards will identify your items or recharge 
+your magical items for a fee.
+[[[[[GInner temple/Priests Circle:] A place of healing.
+[[[[[GPaladin guild:] Some healing and enchantments available.
 
-Unique buildings that anyone can enter, if they dare:
-Gambling House: Read the rules before paying. And, the games are not rigged,
-just naturally difficult.
-Library: For information of all kinds.
-Inn: Resting will refresh, and those ghosts prowl at night...
+
 Rumors can be helpful or just plain silly.
 All buildings are made of stone and unlikely to move around.
 
-This file is not very acurate for PernAngband 4.2.2.
+
+                                  File Updated for Pern 4.x.x by Dawnmist.
 
 

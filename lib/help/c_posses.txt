@@ -1,0 +1,44 @@
+#####R=== Possessors ===
+
+#####GDescription
+Possessors are unusual; they aren't good fighters, and they can't cast 
+magic. Their special ability is that of being able to leave their 
+bodies and inhabit corpses. While "in" a corpse, the Possessor gains 
+the abilities of the monster, and their hitpoints and the monster's 
+are averaged. While in the incorporeal form between bodies, they have 
+only one hitpoint. 
+
+#####GPrimary Stats
+Wisdom (spell casting stat)
+
+#####GMagic Usage
+The strange art of reanimating the corpse of a monster and making
+it one's own can be of extreme benefit to those skilled in it. The body
+the player possesses can grant powerful abilities, such as increased
+speed, summoning, healing, breathing, and various resistances, and often
+gives the player a large number of hit points. Possessing uniques is
+especially neat.  
+
+Possessors leave their own body by using the 'm' command, and choosing 
+"[I]incarnating powers".  They then become a very vulnerable ghostly 
+being which travels to where another corpse is lying on the floor, and 
+possesses it by again using the 'm' command.  Once possessed, many 
+monster corpses allow the player to perform various special actions
+(such as blinking or summoning) by using the option "[U]se your race
+powers".
+
+All corpses alter the player's melee attacks. When they incarnate in a 
+monster that allows the use of a weapon, monster blows are ignored 
+[[[[[Btotaly]. When they incarnate in a monster that doesn't allow use of a 
+weapon (dragons for example) they use the monster blows [[[[[Band only them]!
+
+#####GStarting Equipment
+A possessor begins the game with:
+    a potion of healing
+    a sword sword
+    hard leather armor
+If they are *very* lucky they may also begin with:
+    scrolls of remove curse
+    
+
+		

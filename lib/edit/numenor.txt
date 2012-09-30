@@ -1,4 +1,4 @@
-# File: volcano.txt
+# File: numenor.txt
 
 # Way to the lost land of Numenor
 F:>:7:3:0:0:0:0:0:7

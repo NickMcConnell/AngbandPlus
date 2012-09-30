@@ -285,6 +285,9 @@ void identify_pack(void)
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
+
+                /* Process the appropriate hooks */
+                process_hooks(HOOK_IDENTIFY, i);
 	}
 }
 
@@ -321,9 +324,9 @@ static int remove_curse_aux(int all)
 	int i, cnt = 0;
 
 	/* Attempt to uncurse items being worn */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+        for (i = 0; i < INVEN_TOTAL; i++)
 	{
-                u32b f1, f2, f3, f4, esp;
+                u32b f1, f2, f3, f4, f5, esp;
 
 		object_type *o_ptr = &inventory[i];
 
@@ -334,7 +337,7 @@ static int remove_curse_aux(int all)
 		if (!cursed_p(o_ptr)) continue;
 
 		/* Extract the flags */
-                object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 		/* Heavily Cursed Items need a special spell */
 		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
@@ -581,7 +584,9 @@ void self_knowledge(FILE *fff)
 {
 	int i = 0, j, k;
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
+        u32b f1 = 0L, f2 = 0L, f3 = 0L, f4, f5, esp;
+
+	int iter; /* Iterator for a loop */
 
 	object_type *o_ptr;
 
@@ -589,14 +594,12 @@ void self_knowledge(FILE *fff)
 
 	cptr info[200];
 
-	int plev = p_ptr->lev;
-
 	strcpy (Dummy, "");
 
 	/* Acquire item flags from equipment */
 	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
 	{
-                u32b t1, t2, t3, t4, esp;
+                u32b t1, t2, t3, t4, t5, esp;
 
 		o_ptr = &inventory[k];
 
@@ -604,7 +607,7 @@ void self_knowledge(FILE *fff)
 		if (!o_ptr->k_idx) continue;
 
 		/* Extract the flags */
-                object_flags(o_ptr, &t1, &t2, &t3, &t4, &esp);
+                object_flags(o_ptr, &t1, &t2, &t3, &t4, &t5, &esp);
 
 		/* Extract flags */
 		f1 |= t1;
@@ -654,7 +657,7 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You have empty mind.";
 		if (r_ptr->flags2 & RF2_WEIRD_MIND)
 			info[i++] = "You have weird mind.";
-		if (r_ptr->flags2 & RF2_MULTIPLY)
+                if (r_ptr->flags4 & RF4_MULTIPLY)
 			info[i++] = "You can multiply.";	
 		if (r_ptr->flags2 & RF2_POWERFUL)
 			info[i++] = "You have strong breath.";
@@ -905,8 +908,8 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You can magically summon some Dragonriders.";
 		if (r_ptr->flags6 & RF6_S_KIN)
 			info[i++] = "You can magically summon some Kins.";
-		if (r_ptr->flags6 & RF6_S_CYBER)
-			info[i++] = "You can magically summon a Cyberdemon.";
+                if (r_ptr->flags6 & RF6_S_HI_DEMON)
+                        info[i++] = "You can magically summon greater demons.";
 		if (r_ptr->flags6 & RF6_S_MONSTER)
 			info[i++] = "You can magically summon a monster.";
 		if (r_ptr->flags6 & RF6_S_MONSTERS)
@@ -982,246 +985,15 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags9 & RF9_WYRM_PROTECT)
 			info[i++] = "You are protected by great wyrms of power.";
 	}
-	else
-        {
-	switch (p_ptr->prace)
-	{
-                case RACE_DWARF:
-                        if (plev > 14)
-                                info[i++] = "You can find secret passages (cost 30).";
-                case RACE_NIBELUNG:
-			if (plev > 4)
-				info[i++] = "You can find traps, doors and stairs (cost 5).";
-			break;
-		case RACE_HOBBIT:
-			if (plev > 14)
-			{
-				info[i++] = "You can produce food (cost 10).";
-			}
-			break;
-		case RACE_GNOME:
-			if (plev > 4)
-			{
-				sprintf(Dummy, "You can teleport, range %d (cost %d).",
-				    (1+plev), (5 + (plev/5)));
-				info[i++] = Dummy;
-			}
-			break;
-		case RACE_HALF_ORC:
-			if (plev > 2)
-				info[i++] = "You can remove fear (cost 5).";
-			break;
-		case RACE_HALF_TROLL:
-			if (plev > 9)
-				info[i++] = "You enter berserk fury (cost 12).";
-			break;
-		case RACE_HALF_OGRE:
-			if (plev > 24)
-				info[i++] = "You can set an Explosive Rune (cost 35).";
-			break;
-		case RACE_HALF_GIANT:
-			if (plev > 19)
-				info[i++] = "You can break stone walls (cost 10).";
-			break;
-		case RACE_KOBOLD:
-			if (plev > 11)
-			{
-				sprintf(Dummy,
-				    "You can throw a dart of poison, dam. %d (cost 8).", plev);
-				info[i++] = Dummy;
-			}
-			break;
-		case RACE_DARK_ELF:
-			if (plev > 1)
-			{
-				sprintf(Dummy, "You can cast a Magic Missile, dam %d (cost 2).",
-				    ( 3 + ((plev-1) / 5) ) );
-				info[i++] = Dummy;
-			}
-			break;
-                case RACE_ENT:
-			if (plev > 3)
-			{
-                                info[i++] = "You can make the trees grow, (cost 6).";
-                        }
-        		break;
-                case RACE_DRAGONRIDER:
-                        info[i++] = "You can breathe a big flame , bolt , ball or beam (cost Firestone).";
-                        info[i++] = "You can go between to teleport, (cost 3).";
-                        info[i++] = "You can go between to return in Town, (cost 17).";
-			break;
-                case RACE_RKNIGHT:
-                        sprintf(Dummy, "You can flash a bright aura, dam. %d (cost 9).", plev*2);
-                        info[i++] = Dummy;
-                        if(p_ptr->lev>29){
-                                sprintf(Dummy, "You can jump to the light speed, %d turns (cost 30).",3 + plev/10);
-                                info[i++] = Dummy;
-                        }
-			break;
-		default:
-			break;
-	}
-        switch (p_ptr->pracem)
-	{
-                case RMOD_VAMPIRE:
-			if (plev > 1)
-			{
-				sprintf(Dummy, "You can steal life from a foe, dam. %d-%d (cost %d).",
-				    plev+MAX(1, plev/10), plev+plev*MAX(1, plev/10), 1+(plev/3));
-				info[i++] = Dummy;
-			}
-			break;
-                case RMOD_SPECTRE:
-			if (plev > 3)
-			{
-				info[i++] = "You can wail to terrify your enemies (cost 3).";
-			}
-			break;
-                case RMOD_ZOMBIE:
-                case RMOD_SKELETON:
-			if (plev > 29)
-				info[i++] = "You can restore lost life forces (cost 30).";
-			break;
-                case RMOD_BARBARIAN:
-			if (plev > 7)
-				info[i++] = "You can enter berserk fury (cost 10).";
-			break;
-		default:
-			break;
-	}
-        }
 
-	if (p_ptr->muta1)
-	{
-		if (p_ptr->muta1 & MUT1_SPIT_ACID)
-		{
-			info[i++] = "You can spit acid (dam lvl).";
-		}
-		if (p_ptr->muta1 & MUT1_BR_FIRE)
-		{
-			info[i++] = "You can breathe fire (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
-		{
-			info[i++] = "Your gaze is hypnotic.";
-		}
-		if (p_ptr->muta1 & MUT1_TELEKINES)
-		{
-			info[i++] = "You are telekinetic.";
-		}
-		if (p_ptr->muta1 & MUT1_VTELEPORT)
-		{
-			info[i++] = "You can teleport at will.";
-		}
-		if (p_ptr->muta1 & MUT1_MIND_BLST)
-		{
-			info[i++] = "You can Mind Blast your enemies (3 to 12d3 dam).";
-		}
-		if (p_ptr->muta1 & MUT1_RADIATION)
-		{
-			info[i++] = "You can emit hard radiation at will (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & MUT1_VAMPIRISM)
-		{
-			info[i++] = "You can drain life from a foe like a vampire (dam lvl * 2).";
-		}
-		if (p_ptr->muta1 & MUT1_SMELL_MET)
-		{
-			info[i++] = "You can smell nearby precious metal.";
-		}
-		if (p_ptr->muta1 & MUT1_SMELL_MON)
-		{
-			info[i++] = "You can smell nearby monsters.";
-		}
-		if (p_ptr->muta1 & MUT1_BLINK)
-		{
-			info[i++] = "You can teleport yourself short distances.";
-		}
-		if (p_ptr->muta1 & MUT1_EAT_ROCK)
-		{
-			info[i++] = "You can consume solid rock.";
-		}
-		if (p_ptr->muta1 & MUT1_SWAP_POS)
-		{
-			info[i++] = "You can switch locations with another being.";
-		}
-		if (p_ptr->muta1 & MUT1_SHRIEK)
-		{
-			info[i++] = "You can emit a horrible shriek (dam 4 * lvl).";
-		}
-		if (p_ptr->muta1 & MUT1_ILLUMINE)
-		{
-			info[i++] = "You can emit bright light.";
-		}
-		if (p_ptr->muta1 & MUT1_DET_CURSE)
-		{
-			info[i++] = "You can feel the danger of evil magic.";
-		}
-		if (p_ptr->muta1 & MUT1_BERSERK)
-		{
-			info[i++] = "You can drive yourself into a berserk frenzy.";
-		}
-		if (p_ptr->muta1 & MUT1_POLYMORPH)
-		{
-			info[i++] = "You can polymorph yourself at will.";
-		}
-		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
-		{
-			info[i++] = "You can turn ordinary items to gold.";
-		}
-		if (p_ptr->muta1 & MUT1_GROW_MOLD)
-		{
-			info[i++] = "You can cause mold to grow near you.";
-		}
-		if (p_ptr->muta1 & MUT1_RESIST)
-		{
-			info[i++] = "You can harden yourself to the ravages of the elements.";
-		}
-		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
-		{
-			info[i++] = "You can bring down the dungeon around your ears.";
-		}
-		if (p_ptr->muta1 & MUT1_EAT_MAGIC)
-		{
-			info[i++] = "You can consume magic energy for your own use.";
-		}
-		if (p_ptr->muta1 & MUT1_WEIGH_MAG)
-		{
-			info[i++] = "You can feel the strength of the magics affecting you.";
-		}
-		if (p_ptr->muta1 & MUT1_STERILITY)
-		{
-			info[i++] = "You can cause mass impotence.";
-		}
-		if (p_ptr->muta1 & MUT1_PANIC_HIT)
-		{
-			info[i++] = "You can run for your life after hitting something.";
-		}
-		if (p_ptr->muta1 & MUT1_DAZZLE)
-		{
-			info[i++] = "You can emit confusing, blinding radiation.";
-		}
-		if (p_ptr->muta1 & MUT1_LASER_EYE)
-		{
-			info[i++] = "Your eyes can fire laser beams (dam 2 * lvl).";
-		}
-		if (p_ptr->muta1 & MUT1_RECALL)
-		{
-			info[i++] = "You can travel between town and the depths.";
-		}
-		if (p_ptr->muta1 & MUT1_BANISH)
-		{
-			info[i++] = "You can send evil creatures directly to Hell.";
-		}
-		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
-		{
-			info[i++] = "You can freeze things with a touch (dam 3 * lvl).";
-		}
-		if (p_ptr->muta1 & MUT1_LAUNCHER)
-		{
-			info[i++] = "You can hurl objects with great force.";
-		}
-	}
+        /* List powers */
+        for (iter = 0; iter < POWER_MAX; iter++)
+        {
+                if (p_ptr->powers[iter / 32] & BIT(iter % 32))
+                {
+                        info[i++] = powers_type[iter].desc_text;
+                }
+        }
 
 	if (p_ptr->muta2)
 	{
@@ -1558,10 +1330,6 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "You are temporarily invulnerable.";
 	}
-	if (p_ptr->wraith_form)
-	{
-		info[i++] = "You are temporarily incorporeal.";
-	}
 	if (p_ptr->confusing)
 	{
 		info[i++] = "Your hands are glowing dull red.";
@@ -1626,6 +1394,10 @@ void self_knowledge(FILE *fff)
                         if (p_ptr->telepathy & ESP_UNIQUE) info[i++] = "You can sense the presence of unique beings.";
                 }
 	}
+        if (p_ptr->auto_id)
+	{
+                info[i++] = "You know everything.";
+	}
 	if (p_ptr->hold_life)
 	{
 		info[i++] = "You have a firm hold on your life force.";
@@ -1649,6 +1421,10 @@ void self_knowledge(FILE *fff)
 	if (p_ptr->anti_magic)
 	{
 		info[i++] = "You are surrounded by an anti-magic shell.";
+	}
+        if (p_ptr->wraith_form)
+	{
+                info[i++] = "You are incorporeal.";
 	}
 	if (p_ptr->anti_tele)
 	{
@@ -1855,6 +1631,10 @@ void self_knowledge(FILE *fff)
 	{
 		info[i++] = "Your attack speed is affected by your equipment.";
 	}
+        if (f5 & (TR5_CRIT))
+	{
+                info[i++] = "Your ability to score critical hits is affected by your equipment.";
+	}
 
 
 	/* Access the current weapon */
@@ -1863,6 +1643,8 @@ void self_knowledge(FILE *fff)
 	/* Analyze the weapon */
 	if (o_ptr->k_idx)
 	{
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
 		/* Indicate Blessing */
 		if (f3 & (TR3_BLESSED))
 		{
@@ -1950,6 +1732,16 @@ void self_knowledge(FILE *fff)
 		if (f1 & (TR1_KILL_DRAGON))
 		{
 			info[i++] = "Your weapon is a great bane of dragons.";
+		}
+		/* Special "kill" flags */
+                if (f5 & (TR5_KILL_DEMON))
+		{
+                        info[i++] = "Your weapon is a great bane of demons.";
+		}
+		/* Special "kill" flags */
+                if (f5 & (TR5_KILL_UNDEAD))
+		{
+                        info[i++] = "Your weapon is a great bane of undeads.";
 		}
 	}
 
@@ -2117,9 +1909,9 @@ void report_magics(void)
 		info2[i]  = report_magics_aux(p_ptr->invuln);
 		info[i++] = "You are invulnerable";
 	}
-	if (p_ptr->wraith_form)
+        if (p_ptr->tim_wraith)
 	{
-		info2[i]  = report_magics_aux(p_ptr->wraith_form);
+                info2[i]  = report_magics_aux(p_ptr->tim_wraith);
 		info[i++] = "You are incorporeal";
 	}
 	if (p_ptr->confusing)
@@ -2459,6 +2251,7 @@ bool detect_treasure(void)
 /*
  * Detect all "gold" objects on the current panel
  */
+bool hack_no_detect_message = FALSE;
 bool detect_objects_gold(void)
 {
 	int i, y, x;
@@ -2499,7 +2292,7 @@ bool detect_objects_gold(void)
 	}
 
 	/* Describe */
-	if (detect)
+        if (detect && (!hack_no_detect_message))
 	{
 		msg_print("You sense the presence of treasure!");
 	}
@@ -2557,7 +2350,7 @@ bool detect_objects_normal(void)
 	}
 
 	/* Describe */
-	if (detect)
+        if (detect && (!hack_no_detect_message))
 	{
 		msg_print("You sense the presence of objects!");
 	}
@@ -2615,8 +2408,8 @@ bool detect_objects_magic(void)
                     (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) || (tv == TV_ROD_MAIN) ||
                     (tv == TV_SCROLL) || (tv == TV_POTION) || (tv == TV_POTION2) ||
                     (tv == TV_VALARIN_BOOK) || (tv == TV_MAGERY_BOOK) ||
-                    (tv == TV_SHADOW_BOOK) || (tv == TV_CHAOS_BOOK) ||
-                    (tv == TV_NETHER_BOOK) || (tv == TV_MIMIC_BOOK) ||
+                    (tv == TV_SHADOW_BOOK) || (tv == TV_CHAOS_BOOK) || (tv == TV_SPIRIT_BOOK) ||
+                    (tv == TV_NETHER_BOOK) || (tv == TV_DAEMON_BOOK) ||
                     (tv == TV_CRUSADE_BOOK) || (tv == TV_SIGALDRY_BOOK) ||
                     (tv == TV_SYMBIOTIC_BOOK) || (tv == TV_MUSIC_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
@@ -3155,11 +2948,11 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	int     i, chance, prob;
 	bool    res = FALSE;
 	bool    a = (artifact_p(o_ptr) || o_ptr->art_name);
-        u32b    f1, f2, f3, f4, esp;
+        u32b    f1, f2, f3, f4, f5, esp;
 
 
 	/* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -3973,9 +3766,9 @@ void random_misc (object_type * o_ptr, bool is_scroll)
     }
     else if (artifact_bias == BIAS_FIRE)
     {
-	if (!(o_ptr->art_flags3 & TR3_LITE))
+        if (!(o_ptr->art_flags3 & TR3_LITE1))
 	{
-	    o_ptr->art_flags3 |= TR3_LITE; /* Freebie */
+            o_ptr->art_flags3 |= TR3_LITE1; /* Freebie */
 	}
     }
 
@@ -4031,7 +3824,7 @@ void random_misc (object_type * o_ptr, bool is_scroll)
 	    artifact_bias = BIAS_NECROMANTIC;
 	break;
     case 10: case 11:
-	o_ptr->art_flags3 |= TR3_LITE;
+        o_ptr->art_flags3 |= TR3_LITE1;
 /*  if (is_scroll) msg_print("It starts shining.");*/
 	break;
     case 12: case 13:
@@ -4577,50 +4370,123 @@ int get_activation_power()
         return o_ptr->xtra2;
 }
 
-void get_random_name(char * return_name, bool armour, int power)
+#define MIN_NAME_LEN 5
+#define MAX_NAME_LEN 9
+#define S_WORD 26
+#define E_WORD S_WORD
+
+static long lprobs[S_WORD+1][S_WORD+1][S_WORD+1];
+static long ltotal[S_WORD+1][S_WORD+1];
+
+/*
+ * Use W. Sheldon Simms' random name generator.  This function builds
+ * probability tables which are used later on for letter selection.  It
+ * relies on the ASCII character set.
+ */
+void build_prob(cptr learn)
 {
-	if (randint(100)<=TABLE_NAME)
-		get_table_name(return_name);
-	else
+	int c_prev, c_cur, c_next;
+
+	/* Build raw frequencies */
+	while (1)
 	{
-		char NameFile[16];
-		switch (armour)
+		c_prev = c_cur = S_WORD;
+
+		do
 		{
-			case 1:
-				switch(power)
-				{
-					case 0:
-						strcpy(NameFile, "a_cursed.txt");
-						break;
-					case 1:
-						strcpy(NameFile, "a_low.txt");
-						break;
-					case 2:
-						strcpy(NameFile, "a_med.txt");
-						break;
-					default:
-						strcpy(NameFile, "a_high.txt");
-				}
-				break;
-			default:
-				switch(power)
-				{
-					case 0:
-						strcpy(NameFile, "w_cursed.txt");
-						break;
-					case 1:
-						strcpy(NameFile, "w_low.txt");
-						break;
-					case 2:
-						strcpy(NameFile, "w_med.txt");
-						break;
-					default:
-						strcpy(NameFile, "w_high.txt");
-				}
+			c_next = *learn++;
+		} while (!isalpha(c_next) && (c_next != '\0'));
+
+		if (c_next == '\0') break;
+
+		do
+		{
+			c_next = A2I(tolower(c_next));
+			lprobs[c_prev][c_cur][c_next]++;
+			ltotal[c_prev][c_cur]++;
+			c_prev = c_cur;
+			c_cur = c_next;
+			c_next = *learn++;
+		} while (isalpha(c_next));
+
+		lprobs[c_prev][c_cur][E_WORD]++;
+		ltotal[c_prev][c_cur]++;
+	}
+}
+
+
+/*
+ * Use W. Sheldon Simms' random name generator.  Generate a random word using
+ * the probability tables we built earlier.  Relies on the ASCII character
+ * set.  Relies on European vowels (a, e, i, o, u).  The generated name should
+ * be copied/used before calling this function again.
+ */
+static char *make_word(void)
+{
+	static char word_buf[90];
+	int r, totalfreq;
+	int tries, lnum, vow;
+	int c_prev, c_cur, c_next;
+	char *cp;
+
+startover:
+	vow = 0;
+	lnum = 0;
+	tries = 0;
+	cp = word_buf;
+	c_prev = c_cur = S_WORD;
+
+	while (1)
+	{
+	    getletter:
+		c_next = 0;
+		r = rand_int(ltotal[c_prev][c_cur]);
+		totalfreq = lprobs[c_prev][c_cur][c_next];
+
+		while (totalfreq <= r)
+		{
+			c_next++;
+			totalfreq += lprobs[c_prev][c_cur][c_next];
 		}
 
-		get_rnd_line(NameFile, return_name);
+		if (c_next == E_WORD)
+		{
+			if ((lnum < MIN_NAME_LEN) || vow == 0)
+			{
+				tries++;
+				if (tries < 10) goto getletter;
+				goto startover;
+			}
+			*cp = '\0';
+			break;
+		}
+
+		if (lnum >= MAX_NAME_LEN) goto startover;
+
+		*cp = I2A(c_next);
+
+		if (is_a_vowel(*cp)) vow++;
+
+		cp++;
+		lnum++;
+		c_prev = c_cur;
+		c_cur = c_next;
 	}
+
+	word_buf[0] = toupper(word_buf[0]);
+
+	return (word_buf);
+}
+
+
+void get_random_name(char * return_name)
+{
+        char *word = make_word();
+
+        if (rand_int(3) == 0)
+                sprintf(return_name, "'%s'", word);
+        else
+                sprintf(return_name, "of %s", word);
 }
 
 
@@ -4633,6 +4499,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	int power_level;
 	s32b total_flags;
 	bool a_cursed = FALSE;
+        u32b f1, f2, f3, f4, f5, esp;
 
 	int warrior_artifact_bias = 0;
 
@@ -4665,7 +4532,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 				artifact_bias = BIAS_PRIESTLY;
 				warrior_artifact_bias = 40;
 				break;
-			case CLASS_WARRIOR_MAGE:
+			case CLASS_WARLOCK:
 				artifact_bias = BIAS_MAGE;
 				warrior_artifact_bias = 40;
 				break;
@@ -4719,6 +4586,9 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 		}
 	};
 
+        if (o_ptr->art_flags3 & TR3_XTRA_MIGHT)
+                o_ptr->pval = randint(2) + 1;
+
 	if (has_pval)
 	{
 #if 0
@@ -4730,8 +4600,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 #endif
 
 		if (o_ptr->art_flags1 & TR1_BLOWS)
-		    o_ptr->pval = randint(2) + 1;
-                else if (o_ptr->art_flags3 & TR3_XTRA_MIGHT)
 		    o_ptr->pval = randint(2) + 1;
 		else
 		{
@@ -4764,7 +4632,10 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 
 	if (a_cursed) curse_artifact(o_ptr);
 
-	if ((!a_cursed) &&
+	/* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+        if ((!a_cursed) && (!f4 & TR4_FUEL_LITE) &&
 	    (randint((o_ptr->tval>=TV_BOOTS)
 	    ?ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE)==1))
 	{
@@ -4795,7 +4666,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	{
 		char dummy_name[80];
 		strcpy(dummy_name, "");
-		identify_fully_aux(o_ptr);
+                identify_fully_aux(o_ptr, NULL);
 		o_ptr->ident |= IDENT_STOREB; /* This will be used later on... */
 		if (!(get_string("What do you want to call the artifact? ", dummy_name, 80)))
 			strcpy(new_name,"(a DIY Artifact)");
@@ -4814,7 +4685,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	}
 	else
 	{
-		get_random_name(new_name, (bool)(o_ptr->tval >= TV_BOOTS), power_level);
+                get_random_name(new_name);
 	}
         }
 
@@ -4995,6 +4866,8 @@ bool ident_spell(void)
 	   
 		add_note(note, 'A');	
         }
+        /* Process the appropriate hooks */
+        process_hooks(HOOK_IDENTIFY, item);
 
 	/* Something happened */
 	return (TRUE);
@@ -5083,9 +4956,11 @@ bool identify_fully(void)
 	   
 		add_note(note, 'A');	
         }
+        /* Process the appropriate hooks */
+        process_hooks(HOOK_IDENTIFY, item);
 
 	/* Describe it fully */
-	identify_fully_aux(o_ptr);
+        identify_fully_aux(o_ptr, NULL);
 
 	/* Success */
 	return (TRUE);
@@ -5099,8 +4974,16 @@ bool identify_fully(void)
  */
 bool item_tester_hook_recharge(object_type *o_ptr)
 {
-        /* Recharge staffs -- hack -- not the Staffs of Wishing*/
-        if ((o_ptr->tval == TV_STAFF) && (o_ptr->sval != SV_STAFF_WISHING)) return (TRUE);
+        u32b f1, f2, f3, f4, f5, esp;
+
+        /* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+        /* Some objects cannot be recharged */
+        if (f4 & TR4_NO_RECHARGE) return (FALSE);
+
+        /* Recharge staffs */
+        if (o_ptr->tval == TV_STAFF) return (TRUE);
 
 	/* Recharge wands */
 	if (o_ptr->tval == TV_WAND) return (TRUE);
@@ -5144,7 +5027,7 @@ bool recharge(int power)
 
 	cptr q, s;
 
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 	char o_name[80];
 
 	object_type *o_ptr;
@@ -5171,7 +5054,7 @@ bool recharge(int power)
 	}
 
         /* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* Extract the object "level" */
 	lev = k_info[o_ptr->k_idx].level;
@@ -5224,8 +5107,8 @@ bool recharge(int power)
 
 
 		/* Back-fire XXX XXX XXX */
-                if (((rand_int(recharge_strength) == 0)&&(!(f4 & TR4_RECHARGE))) ||
-                    ((o_ptr->tval == TV_STAFF) && o_ptr->sval == SV_STAFF_WISHING))
+                if (((rand_int(recharge_strength) == 0) && (!(f4 & TR4_RECHARGE))) ||
+                    (f4 & TR4_NO_RECHARGE))
 		{
 			/* Activate the failure code. */
 			fail = TRUE;
@@ -5472,19 +5355,19 @@ void project_meteor(int radius, int typ, int dam, u32b flg)
         int x, y, dx, dy, d, count = 0, i;
         int b = radius + randint(radius); 
         for (i = 0; i < b; i++) {
-                do {
-                        count++;
-                        if (count > 1000)  break;
+		for (count = 0; count < 1000; count++)
+		{
                         x = px - 5 + randint(10);
                         y = py - 5 + randint(10);
-                        dx = (px > x) ? (py - x) : (x - px);
+			if ((x < 0) || (x >= cur_wid) ||
+			    (y < 0) || (y >= cur_hgt)) continue;
+                        dx = (px > x) ? (px - x) : (x - px);
                         dy = (py > y) ? (py - y) : (y - py);
                         /* Approximate distance */
                         d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
-                } while ((d > 5) || (!(player_has_los_bold(y, x))));
-			   
-                if (count > 1000)   break;
-                count = 0;
+			if ((d <= 5) && (player_has_los_bold(y, x))) break;
+		}
+                if (count >= 1000)   break;
                 project(0, 2, y, x, dam, typ, PROJECT_JUMP | flg);
         }
 }
@@ -5644,11 +5527,11 @@ void aggravate_monsters(int who)
 			}
 
 			/* Pets may get angry (50% chance) */
-			if (is_pet(m_ptr))
+                        if (is_friend(m_ptr))
 			{
 				if (randint(2)==1)
 				{
-					set_pet(m_ptr, FALSE);
+                                        change_side(m_ptr);
 				}
 			}
 		}
@@ -5727,24 +5610,11 @@ bool invoke(int dam, int typee)
 /*
  * Delete all non-unique/non-quest monsters of a given "type" from the level
  */
-bool genocide(bool player_cast)
+bool genocide_aux(bool player_cast, char typ)
 {
 	int     i;
-	char    typ;
 	bool    result = FALSE;
 	int     msec = delay_factor * delay_factor * delay_factor;
-
-        if (special_flag) return(FALSE);
-
-        /* Hack -- when you are fated to die, you cant cheat :) */
-        if (dungeon_type == DUNGEON_DEATH)
-        {
-                msg_print("A mysterious force stops the genocide.");
-                return FALSE;
-        }
-
-	/* Mega-Hack -- Get a monster symbol */
-	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < m_max; i++)
@@ -5763,6 +5633,28 @@ bool genocide(bool player_cast)
 
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
+
+                /* Oups */
+                if (r_ptr->flags2 & RF2_DEATH_ORB)
+                {
+                        int wx, wy;
+                        int attempts = 500;
+
+                        monster_race_desc(r_name, m_ptr->r_idx, 0);
+
+                        do
+                        {
+                                scatter(&wy, &wx, m_ptr->fy, m_ptr->fx, 10, 0);
+                        }
+                        while (!(in_bounds(wy,wx) && cave_floor_bold(wy,wx)) && --attempts);
+
+                        if (place_monster_aux(wy, wx, m_ptr->r_idx, FALSE, TRUE, MSTATUS_ENEMY))
+                        {
+                                cmsg_format(TERM_L_BLUE, "The spell seems to produce an ... interreting effect on the %s.", r_name);
+                        }
+
+                        return TRUE;
+                }
 
 		/* Delete the monster */
 		delete_monster_idx(i);
@@ -5795,7 +5687,26 @@ bool genocide(bool player_cast)
 		result = TRUE;
 	}
 
-	return (result);
+        return (result);
+}
+
+bool genocide(bool player_cast)
+{
+	char    typ;
+
+        if (special_flag) return(FALSE);
+
+        /* Hack -- when you are fated to die, you cant cheat :) */
+        if (dungeon_type == DUNGEON_DEATH)
+        {
+                msg_print("A mysterious force stops the genocide.");
+                return FALSE;
+        }
+
+	/* Mega-Hack -- Get a monster symbol */
+	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
+
+        return (genocide_aux(player_cast, typ));
 }
 
 
@@ -5836,6 +5747,28 @@ bool mass_genocide(bool player_cast)
 
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
+
+                /* Oups */
+                if (r_ptr->flags2 & RF2_DEATH_ORB)
+                {
+                        int wx, wy;
+                        int attempts = 500;
+
+                        monster_race_desc(r_name, m_ptr->r_idx, 0);
+
+                        do
+                        {
+                                scatter(&wy, &wx, m_ptr->fy, m_ptr->fx, 10, 0);
+                        }
+                        while (!(in_bounds(wy,wx) && cave_floor_bold(wy,wx)) && --attempts);
+
+                        if (place_monster_aux(wy, wx, m_ptr->r_idx, FALSE, TRUE, MSTATUS_ENEMY))
+                        {
+                                cmsg_format(TERM_L_BLUE, "The spell seems to produce an ... interreting effect on the %s.", r_name);
+                        }
+
+                        return TRUE;
+                }
 
 		/* Delete the monster */
 		delete_monster_idx(i);
@@ -5880,7 +5813,29 @@ void do_probe(int m_idx)
         monster_desc(m_name, m_ptr, 0x04);
 
         /* Describe the monster */
-        msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
+        if (!wizard && (m_ptr->status != MSTATUS_COMPANION)) msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
+        else
+        {
+                int i;
+                char t_name[80];
+                msg_format("%^s has %d(%d) hit points, %d ac, %d speed.", m_name, m_ptr->hp, m_ptr->maxhp, m_ptr->ac, m_ptr->mspeed - 110);
+                msg_format("%^s attacks with:", m_name);
+
+                for (i = 0; i < 4; i++)
+                {
+                        msg_format("    Blow %d: %dd%d", i, m_ptr->blow[i].d_dice, m_ptr->blow[i].d_side);
+                }
+
+                if (m_ptr->target > 0)
+                        monster_desc(t_name, &m_list[m_ptr->target], 0x04);
+                else if (!m_ptr->target)
+                        sprintf(t_name, "you");
+                else
+                        sprintf(t_name, "nothing");
+                msg_format("%^s target is %s.", m_name, t_name);
+
+                msg_format("%^s has %ld exp and needs %ld.", m_name, m_ptr->exp, MONSTER_EXP(m_ptr->level + 1));
+        }
 
         /* Learn all of the non-spell, non-treasure flags */
         lore_do_probe(m_idx);
@@ -5931,6 +5886,88 @@ bool probing(void)
 	return (probe);
 }
 
+
+/*
+ * Wipe -- Empties a part of the dungeon
+ */
+void wipe(int y1, int x1, int r)
+{
+        int y, x, k;
+
+	cave_type *c_ptr;
+
+	bool flag = FALSE;
+
+        if (special_flag)
+        {
+                msg_print("Not on special levels!");
+                return;
+        }
+        if (p_ptr->inside_quest)
+        {
+                return;
+        }
+
+	/* Big area of affect */
+	for (y = (y1 - r); y <= (y1 + r); y++)
+	{
+		for (x = (x1 - r); x <= (x1 + r); x++)
+		{
+			/* Skip illegal grids */
+			if (!in_bounds(y, x)) continue;
+
+			/* Extract the distance */
+			k = distance(y1, x1, y, x);
+
+			/* Stay in the circle of death */
+			if (k > r) continue;
+
+			/* Access the grid */
+			c_ptr = &cave[y][x];
+
+			/* Lose room and vault */
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+
+			/* Lose light and knowledge */
+			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
+
+                        if (m_list[c_ptr->m_idx].status != MSTATUS_COMPANION) delete_monster(y, x);
+                        delete_object(y, x);
+                        place_floor(y, x);
+		}
+	}
+
+
+	/* Hack -- Affect player */
+	if (flag)
+	{
+		/* Message */
+		msg_print("There is a searing blast of light!");
+
+		/* Blind the player */
+		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
+		{
+			/* Become blind */
+			(void)set_blind(p_ptr->blind + 10 + randint(10));
+		}
+	}
+
+
+	/* Mega-Hack -- Forget the view and lite */
+	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+	/* Update the monsters */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+}
 
 
 /*
@@ -6000,7 +6037,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 			if ((y == y1) && (x == x1)) continue;
 
 			/* Delete the monster (if any) */
-			delete_monster(y, x);
+                        if (m_list[c_ptr->m_idx].status != MSTATUS_COMPANION) delete_monster(y, x);
 
 			/* Destroy "valid" grids */
 			if (cave_valid_bold(y, x))
@@ -7608,7 +7645,7 @@ void activate_hi_summon(void)
 				(void) summon_specific(py, px, dun_level, SUMMON_HI_DRAGON);
 				break;
 			case 24: case 25:
-				(void) summon_specific(py, px, 100, SUMMON_CYBER);
+                                (void) summon_specific(py, px, 100, SUMMON_HI_DEMON);
 				break;
 			default:
 				(void) summon_specific(py, px,(((dun_level * 3) / 2) + 5), 0);
@@ -7624,7 +7661,7 @@ void summon_cyber(void)
 
 	for (i = 0; i < max_cyber; i++)
 	{
-		(void)summon_specific(py, px, 100, SUMMON_CYBER);
+                (void)summon_specific(py, px, 100, SUMMON_HI_DEMON);
 	}
 }
 
@@ -7674,7 +7711,7 @@ void bless_weapon(void)
 {
 	int             item;
 	object_type     *o_ptr;
-        u32b            f1, f2, f3, f4, esp;
+        u32b            f1, f2, f3, f4, f5, esp;
 	char            o_name[80];
 	cptr            q, s;
 
@@ -7703,7 +7740,7 @@ void bless_weapon(void)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
         /* Extract the flags */
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	if (o_ptr->ident & (IDENT_CURSED))
 	{
@@ -8001,14 +8038,9 @@ bool charm_animal(int dir, int plev)
 
 void change_wild_mode(void)
 {
-        /*
-         * A mold can't go into small scale mode, it's impossible for me to find
-         * a good way to handle blinking on such a small map
-         */
-	if (p_ptr->immovable && !(p_ptr->wild_mode))
+        if (p_ptr->immovable && !p_ptr->wild_mode)
 	{
-		msg_print("Sorry, you can't move well enough to use the overview display.");
-		return;
+                msg_print("Hum, blinking there will take time.");
 	}
 
 	p_ptr->wild_mode = !p_ptr->wild_mode;
@@ -8072,190 +8104,95 @@ bool heal_insanity(int val) {
 }
 
 /*
- * Helper function for passwall()
- *
- * Handles moving the player to the final location, and
- * what happens when he gets there.
- */
-static void passwall_finish(int y, int x, bool safe)
-{
-	byte feat;
-	bool door;
-
-	/* Did the player actually move? */
-	if (py == y && px == x)
-		return;
-
-	if (!cave_floor_bold(y, x))
-	{
-                feat = cave[y][x].feat;
-		door = ((feat >= FEAT_DOOR_HEAD && feat <= FEAT_DOOR_TAIL) ||
-				feat == FEAT_SECRET);
-
-		if (!safe)
-		{
-			if (!door)
-			{
-				msg_print("You emerge in the wall!");
-				take_hit(damroll(10, 8), "becoming one with a wall");
-				cave_set_feat(y, x, FEAT_FLOOR);
-			}
-			else
-			{
-				msg_print("You emerge in a door!");
-				take_hit(damroll(5, 5), "becoming one with a door");
-				cave_set_feat(y, x, FEAT_BROKEN);
-			}
-		}
-		else
-		{
-			if (door)
-				cave_set_feat(y, x, FEAT_OPEN);
-			else
-				cave_set_feat(y, x, FEAT_FLOOR);
-		}
-	}
-
-        /* Move player */
-        py = y;
-        px = x;
-
-	/* Take care of traps/objects/stores/etc */
-	step_effects(y, x, always_pickup);
-}
-
-/*
  * Send the player shooting through walls in the given direction until
  * they reach a non-wall space, or a monster, or a permanent wall.
  */
-bool passwall(int dir, bool safe, bool local)
+bool passwall(int dir, bool safe)
 {
-	int y1, x1, y2, x2;
-	int ty, tx, dy, dx;
-        int oy, ox, ny = 1, nx = 1;
+        int x = px, y = py, ox = px, oy = py, lx = px, ly = py;
+        cave_type *c_ptr;
+        bool ok = FALSE;
 
-	int i, path_n = 0;
+        if (p_ptr->wild_mode) return FALSE;
+        if (p_ptr->inside_quest) return FALSE;
+        if (special_flag) return FALSE;
 
-	/* We want to stop when we hit a monster */
-        int flg = (PROJECT_WALL | PROJECT_STOP | PROJECT_KILL);
+        /* Must go somewhere */
+        if (dir == 5) return FALSE;
 
-	/* Actual grids in the "path" */
-	u16b path_g[512];
+        while (TRUE)
+        {
+                x += ddx[dir];
+                y += ddy[dir];
+                c_ptr = &cave[y][x];
 
-	bool in_wall = FALSE;
+                /* Perm walls stops the transfer */
+                if ((!in_bounds(y, x)) && (f_info[c_ptr->feat].flags1 & FF1_PERMANENT))
+                {
+                        /* get the last working position */
+                        x -= ddx[dir];
+                        y -= ddy[dir];
+                        ok = FALSE;
+                        break;
+                }
 
-	/* Use the given direction */
-	tx = px + 99 * ddx[dir];
-	ty = py + 99 * ddy[dir];
+                /* Never on a monster */
+                if (c_ptr->m_idx) continue;
 
-	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
-	{
-                tx = target_col;
-                ty = target_row;
-	}
+                /* Never stop in vaults */
+                if (c_ptr->info & CAVE_ICKY) continue;
 
-	/* In case we need to relocate the target */
-	dy = ty - py;
-	dx = tx - px;
+                /* From now on, the location COULD be used in special case */
+                lx = x;
+                ly = y;
 
-	/* Starting location */
-	y1 = py;
-	x1 = px;
+                /* Pass over walls */
+                if (f_info[c_ptr->feat].flags1 & FF1_WALL) continue;
 
-	/* Default "destination" */
-	y2 = ty;
-	x2 = tx;
+                /* So it must be ok */
+                ok = TRUE;
+                break;
+        }
 
-	/* Make sure we're actually going somewhere */
-	if (x1 == x2 && y1 == y2)
-		return FALSE;
+        if (!ok)
+        {
+                x = lx;
+                y = ly;
 
-	/* Project until done */
-	while (1)
-	{
-		/* Calculate the projection path */
-		path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
+                if (!safe)
+                {
+                        msg_print("You emerge in the wall!");
+                        take_hit(damroll(10, 8), "becoming one with a wall");
+                }
+                cave_set_feat(y, x, FEAT_FLOOR);
+        }
 
-		oy = y1;
-		ox = x1;
+        /* Redraw the old spot */
+        lite_spot(oy, ox);
 
-		/* Project along the path */
-		for (i = 0; i < path_n; i++)
-		{
-			ny = GRID_Y(path_g[i]);
-			nx = GRID_X(path_g[i]);
+        /* Move */
+        px = x;
+        py = y;
 
-			/* Stop if we tried to go through a monster or a 
-			 * permanent wall */
-                        if (cave[ny][nx].m_idx || (!cave_floor_bold(ny, nx) &&
-									   cave_perma_bold(ny, nx)))
-			{
-				passwall_finish(oy, ox, safe);
+	/* Redraw the new spot */
+	lite_spot(py, px);
 
-                                /* Check for new panel (redraw map) */
-                                verify_panel();
+	/* Check for new panel (redraw map) */
+	verify_panel();
 
-                                /* Update stuff */
-                                p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_HP);
+	/* Update stuff */
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
 
-                                /* Update the monsters */
-                                p_ptr->update |= (PU_DISTANCE);
+	/* Update the monsters */
+	p_ptr->update |= (PU_DISTANCE);
 
-                                /* Window stuff */
-                                p_ptr->window |= (PW_OVERHEAD);
-				return TRUE;
-			}
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
 
-			if (in_wall)
-			{
-				/* Stop when we reach an empty floor */
-				if (cave_floor_bold(ny, nx))
-				{
-					passwall_finish(ny, nx, safe);
+	/* Handle stuff XXX XXX XXX */
+	handle_stuff();
 
-                                        /* Check for new panel (redraw map) */
-                                        verify_panel();
-
-                                        /* Update stuff */
-                                        p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_HP);
-
-                                        /* Update the monsters */
-                                        p_ptr->update |= (PU_DISTANCE);
-
-                                        /* Window stuff */
-                                        p_ptr->window |= (PW_OVERHEAD);
-					return TRUE;
-				}
-			}
-			else
-			{
-				/* Check if we've entered the walls yet */
-				if (!cave_floor_bold(ny, nx))
-					in_wall = TRUE;
-				else
-				{
-					/* Abort if we needed to start by a wall and didn't */
-					if (local)
-						return FALSE;
-				}
-			}
-
-			oy = ny;
-			ox = nx;
-		}
-
-		/* Continue */
-		y1 = ny;
-		x1 = nx;
-
-		/* If we reached the target, but aren't done yet, move it. */
-		if (y1 == y2 && x1 == x2)
-		{
-			y2 = y1 + dy;
-			x2 = x1 + dx;
-		}
-	}
+        return (TRUE);
 }
 
 bool reset_recall(void)
@@ -8275,6 +8212,9 @@ bool reset_recall(void)
 		/* Find the index corresponding to the name */
 		for(i = 1; i < max_d_idx; i++)
 		{
+                        /* Ignore some dungeons */
+                        if (d_info[i].flags1 & DF1_NO_RECALL) continue;
+
 			sprintf(buf2, "%s", d_info[i].name + d_name);
 
 			/* Lowercase the name */

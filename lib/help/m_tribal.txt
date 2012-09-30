@@ -1,0 +1,29 @@
+|||||oy
+#####R === PernAngband Magic - Tribal Realm ===
+
+The Tribal Realm is very shamanistic in nature, drawing it's power from
+the awesome forces of nature. It endows the caster with the ability to
+become as one with the natural world, but these magics come at a price - 
+this realm can be dangerous!
+
+It contains some powerful attack spells, some self-altering spells, and
+a few healing spells.
+
+#####GPermitted Classes
+#####BThe Tribal Realm is only permitted to:
+Beastmasters as a primary realm
+Monks as a primary realm
+Rangers as a primary realm
+
+#####GTribal Spellbooks
+The are four books available for the Tribal realm, two of which can be
+easily found at bookstores back in town. The other two are very rare, and may
+only be found by searching the depths of the dungeon.
+
+[[[[[BTown Books]
+Tricks of the Wild
+Mastering the Rituals
+
+[[[[[BRare Books]
+Rites of Power
+Tribal Power

@@ -33,7 +33,7 @@ bool is_state(store_type *s_ptr, int state)
         }
         else
         {
-                if ((ow_ptr->races[state] & (1 << p_ptr->prace)) || (ow_ptr->classes[state] & (1 << p_ptr->prace)) ||
+                if ((ow_ptr->races[state] & (1 << p_ptr->prace)) || (ow_ptr->classes[state] & (1 << p_ptr->pclass)) ||
                     (ow_ptr->realms[state] & (1 << p_ptr->realm1)) || (ow_ptr->realms[state] & (1 << p_ptr->realm2)))
                 {
                         return (TRUE); 
@@ -684,40 +684,17 @@ static void share_gold(void)
  */
 static void get_questinfo(int questnum)
 {
-	int i;
-	int ystart = 0;
-	int xstart = 0;
-	int old_quest;
-	char tmp_str[80];
-
-	/* Clear the text */
-	for (i = 0; i < 10; i++)
-	{
-		quest_text[i][0] = '\0';
-	}
-
-	quest_text_line = 0;
-
-	/* Set the quest number temporary */
-	old_quest = p_ptr->inside_quest;
-	p_ptr->inside_quest = questnum;
-
-	/* Get the quest text */
-	init_flags = INIT_SHOW_TEXT | INIT_ASSIGN;
-	process_dungeon_file("q_info.txt", &ystart, &xstart, 0, 0);
-
-	/* Reset the old quest number */
-	p_ptr->inside_quest = old_quest;
+        int i;
 
 	/* Print the quest info */
-	sprintf(tmp_str, "Quest Information (Danger level: %d)", quest[questnum].level);
-	prt(tmp_str, 5, 0);
+        prt(format("Quest Information (Danger level: %d)", quest[questnum].level), 5, 0);
 
 	prt(quest[questnum].name, 7, 0);
 
-	for (i = 0; i < 10; i++)
+        i = 0;
+        while ((i < 10) && (quest[questnum].desc[i] != NULL))
 	{
-		c_put_str(TERM_YELLOW, quest_text[i], i+8, 0);
+                c_put_str(TERM_YELLOW, quest[questnum].desc[i++], i + 8, 0);
 	}
 }
 
@@ -725,36 +702,35 @@ static void get_questinfo(int questnum)
 /*
  * Request a quest from the Lord.
  */
-static void castle_quest(int y, int x)
+static bool castle_quest(int y, int x)
 {
-	char            tmp_str[80];
-	int             q_index = 0;
-	monster_race    *r_ptr;
+        int             plot = 0;
 	quest_type      *q_ptr;
-	cptr            name; 
 
 
 	clear_bldg(7,18);
 
-	/* Current quest of the building */
-        q_index = cave[y][x].special;
+        /* Current plot of the building */
+        plot = cave[y][x].special;
 
 	/* Is there a quest available at the building? */
-	if (!q_index)
+        if ((!plot) || (plots[plot] == QUEST_NULL))
 	{
 		put_str("I don't have a quest for you at the moment.",8,0);
-		return;
+                return FALSE;
 	}
 
-	q_ptr = &quest[q_index];
+        q_ptr = &quest[plots[plot]];
 
 	/* Quest is completed */
 	if (q_ptr->status == QUEST_STATUS_COMPLETED)
 	{
 		/* Rewarded quest */
-		q_ptr->status = QUEST_STATUS_REWARDED;
+                q_ptr->status = QUEST_STATUS_FINISHED;
 
-		get_questinfo(q_index);
+                process_hooks(HOOK_QUEST_FINISH, plots[plot]);
+
+                return (TRUE);
 	}
 
 	/* Quest is still unfinished */
@@ -763,59 +739,36 @@ static void castle_quest(int y, int x)
 		put_str("You have not completed your current quest yet!",8,0);
 		put_str("Use CTRL-Q to check the status of your quest.",9,0);
 		put_str("Return when you have completed your quest.",12,0);
+
+                return (FALSE);
 	}
 	/* Failed quest */
 	else if (q_ptr->status == QUEST_STATUS_FAILED)
 	{
-		get_questinfo(q_index);
-
 		/* Mark quest as done (but failed) */
 		q_ptr->status = QUEST_STATUS_FAILED_DONE;
+
+                process_hooks(HOOK_QUEST_FAIL, plots[plot]);
+
+                return (FALSE);
 	}
 	/* No quest yet */
 	else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
 	{
+                if (process_hooks(HOOK_INIT_QUEST, plots[plot])) return (FALSE);
+
 		q_ptr->status = QUEST_STATUS_TAKEN;
 
 		/* Assign a new quest */
-		if (q_ptr->type == 2)
-		{
-			if (q_ptr->r_idx == 0)
-			{
-				/* Random monster at least 5 - 10 levels out of deep */
-				q_ptr->r_idx = get_mon_num(q_ptr->level) + 4 + randint(6);
-			}
+                get_questinfo(plots[plot]);
 
-			r_ptr = &r_info[q_ptr->r_idx];
+                /* Add the hooks */
+                quest[plots[plot]].init(plots[plot]);
 
-			while ((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			  (r_ptr->rarity != 1))
-			{
-				q_ptr->r_idx = get_mon_num(q_ptr->level) + 4 + randint(6);
-				r_ptr = &r_info[q_ptr->r_idx];
-			}
-
-			if (q_ptr->max_num == 0)
-			{
-				/* Random monster number */
-				if (randint(10) > 7)
-					q_ptr->max_num = 1;
-				else
-					q_ptr->max_num = randint(3) + 1;
-			}
-
-			q_ptr->cur_num = 0;
-			name = (r_name + r_ptr->name);
-			sprintf(tmp_str,"Your quest: kill %d %s", 
-				q_ptr->max_num, name);
-			msg_print(tmp_str);
-			msg_print(NULL);
-		}
-		else
-		{
-			get_questinfo(q_index);
-		}
+                return (TRUE);
 	}
+
+        return FALSE;
 }
 
 /*
@@ -855,9 +808,9 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, 
  */
 static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 {
-        u32b f1, f2, f3, f4, esp;
+        u32b f1, f2, f3, f4, f5, esp;
 
-        object_flags(o_ptr, &f1, &f2, &f3, &f4, &esp);
+        object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	if (f1 & (TR1_SLAY_ANIMAL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Animals:", f1, f2, f3, TERM_YELLOW);
 	if (f1 & (TR1_SLAY_EVIL)) compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Evil:", f1, f2, f3, TERM_YELLOW);
@@ -1281,7 +1234,7 @@ static void select_quest_monster(void) {
 
   if (r_ptr->flags1 & RF1_FRIEND)  amt *= 3; amt /= 2;
   if (r_ptr->flags1 & RF1_FRIENDS) amt *= 2;
-  if (r_ptr->flags2 & RF2_MULTIPLY) amt *= 3;
+  if (r_ptr->flags4 & RF4_MULTIPLY) amt *= 3;
   
   if (r_ptr->flags7 & RF7_AQUATIC) amt /= 2;
 
@@ -1316,7 +1269,7 @@ static void sell_quest_monster(void) {
         int m;
         monster_race *r_ptr;
 
-    msg_print("You have completed your quest!");
+    cmsg_print(TERM_YELLOW, "You have completed your quest!");
     msg_print(NULL);
 
                         /* Give full knowledge */
@@ -1469,6 +1422,22 @@ bool bldg_process_command(store_type *s_ptr, int i)
                 return FALSE;
 	}
 
+	/* If player has loan and the time is out, few things work in stores */
+	if (p_ptr->loan && !p_ptr->loan_time)
+	{
+		if ((bact != BACT_SELL) && (bact != BACT_VIEW_BOUNTIES) &&
+		    (bact != BACT_SELL_CORPSES) &&
+		    (bact != BACT_VIEW_QUEST_MON) &&
+		    (bact != BACT_SELL_QUEST_MON) &&
+		    (bact != BACT_EXAMINE) && (bact != BACT_STEAL) &&
+		    (bact != BACT_PAY_BACK_LOAN))
+		{
+                        msg_print("You are not allowed to do that until you have paid back your loan.");
+			msg_print(NULL);
+			return FALSE;
+		}
+	}
+	
 	/* check gold */
         if (bcost > p_ptr->au)
 	{
@@ -1523,8 +1492,7 @@ bool bldg_process_command(store_type *s_ptr, int i)
 
                         if (ok)
                         {
-                                castle_quest(y - 1, x - 1);
-                                recreate = TRUE;
+                                recreate = castle_quest(y - 1, x - 1);;
                         }
                         else
                         {
@@ -1580,12 +1548,10 @@ bool bldg_process_command(store_type *s_ptr, int i)
 			break;
 
 		case BACT_RECHARGE: /* needs work */
-			if (!p_ptr->rewards[BACT_RECHARGE])
-				if (recharge(80))
-				{
-					p_ptr->rewards[BACT_RECHARGE] = TRUE;
-					paid = TRUE;
-				}
+                        if (recharge(80))
+                        {
+                                paid = TRUE;
+                        }
 			break;
 
 		case BACT_IDENTS: /* needs work */
@@ -1597,6 +1563,21 @@ bool bldg_process_command(store_type *s_ptr, int i)
 
 		case BACT_LEARN:
 			do_cmd_study();
+			break;
+
+                case BACT_STAR_HEAL: /* needs work */
+			hp_player(200);
+			set_poisoned(0);
+			set_blind(0);
+			set_confused(0);
+			set_cut(0);
+			set_stun(0);
+                        if (p_ptr->black_breath)
+                        {
+                                msg_print("The hold of the Black Breath on you is broken!");
+                                p_ptr->black_breath = FALSE;
+                        }
+			paid = TRUE;
 			break;
 
 		case BACT_HEALING: /* needs work */
@@ -1740,6 +1721,59 @@ bool bldg_process_command(store_type *s_ptr, int i)
                 case BACT_STEAL:
                         store_stole();
                         break;
+		case BACT_REQUEST_ITEM:
+			store_request_item();
+			paid = TRUE;
+			break;
+		case BACT_GET_LOAN:
+		{
+                        s32b i, price, req;
+			
+			for (i = price = 0; i < INVEN_TOTAL; i++)
+				price += object_value_real(&inventory[i]);
+			price += p_ptr->au;
+			
+			if (price > p_ptr->loan - 30000) price = p_ptr->loan - 30000;
+			
+			msg_format("You have a loan of %i.", p_ptr->loan);
+			
+			req = get_quantity("How much would you like to get? ", price);
+                        if (req > 100000) req = 100000;
+			
+			p_ptr->loan += req;
+			p_ptr->au += req;
+                        if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
+			p_ptr->loan_time += req;
+			
+			msg_format("You receive %i gold pieces", req);
+
+			paid = TRUE;
+			break;
+		}
+		case BACT_PAY_BACK_LOAN:
+		{
+                        s32b req;
+			
+			msg_format("You have a loan of %i.", p_ptr->loan);
+			
+			req = get_quantity("How much would you like to pay back?", p_ptr->loan);
+			
+			if (req > p_ptr->au) req = p_ptr->au;
+			if (req > p_ptr->loan) req = p_ptr->loan;
+			
+			p_ptr->loan -= req;
+			p_ptr->au -= req;
+			
+			if (p_ptr->loan_time)
+				p_ptr->loan_time = MAX(p_ptr->loan/2, p_ptr->loan_time);
+
+                        if (!p_ptr->loan) p_ptr->loan_time = 0;
+			
+			msg_format("You pay back %i gold pieces", req);
+			
+			paid = TRUE;
+			break;
+		}
 	}
 
 	if (paid)
@@ -1771,14 +1805,6 @@ void do_cmd_quest(void)
                 p_ptr->oldpx = px;
 
 		leaving_quest = p_ptr->inside_quest;
-
-		/* Leaving an 'only once' quest marks it as failed */
-		if (leaving_quest &&
-			(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
-			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
-		{
-			quest[leaving_quest].status = QUEST_STATUS_FAILED;
-		}
 
 		p_ptr->inside_quest = cave[py][px].special;
 		dun_level = 1;
@@ -1891,46 +1917,4 @@ void do_cmd_bldg(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
-}
-
-
-/* Array of places to find an inscription */
-static cptr find_quest[] =
-{
-	"You find the following inscription in the floor",
-	"You see a message inscribed in the wall",
-	"There is a sign saying",
-	"You find a scroll with the following message",
-};
-
-
-/*
- * Discover quest
- */
-void quest_discovery(int q_idx)
-{
-	quest_type      *q_ptr = &quest[q_idx];
-	monster_race    *r_ptr = &r_info[q_ptr->r_idx];
-	int             q_num = q_ptr->max_num;
-	char            name[80];
-
-	/* No quest index */
-	if (!q_idx) return;
-
-	strcpy(name, (r_name + r_ptr->name));
-
-        msg_print(find_quest[rand_range(0, 3)]);
-	msg_print(NULL);
-
-	if (q_num == 1)
-	{
-		/* Unique */
-		msg_format("Beware, this level is protected by %s!", name);
-	}
-	else
-	{
-		/* Normal monsters */
-		plural_aux(name);
-		msg_format("Be warned, this level is guarded by %d %s!", q_num, name);
-	}
 }

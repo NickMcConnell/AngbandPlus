@@ -1,0 +1,37 @@
+#####R=== Symbiants ===
+
+#####GDescription
+Symbiants live in harmony with all of the monsters that do not move; 
+the Mushrooms, Molds, Floating Eyes, and such. They can hypnotize these
+creatures and then wield them like items. Using certain spells in their
+unique magical realm, they can even use the magical powers of their pets
+like magic books.
+
+#####GPrimary Stats
+Intelligence (spell casting stat)
+
+#####GMagic Usage
+Symbiants rely on the partnerships they form, hypnotizing creatures
+and then "wearing" them: "I get by with a little help from my friends.".
+Depending on the monster, this does nothing except protect the player 
+slightly (the worn monster takes some of the damage the player would 
+otherwise) or grant some very powerful attacks and summons.  Symbiants 
+only have two spellbooks (in the *****m_symbio.txt*0[Symbiotic] realm), one found deep in 
+the dungeon, but have more than enough spells to keep their symbiotic 
+relationships strong.
+
+They cast spells normally, and can hypnotize adjacent creatures that 
+cannot move by using the 'U' command ('O' for roguelike commands). The 
+monster becomes an object, and can be worn. Symbiants, unlike any other
+class, don't have to worry about being attacked by the monster they are
+wearing.
+
+#####GStarting Equipment
+A symbiant begins the game with:
+    L1 spellbook of symbiotic magic
+    A dagger
+    A scroll of summon never-moving pet
+If they are *very* lucky they may also begin with:
+    More scrolls of summon never-moving pet
+   
+   

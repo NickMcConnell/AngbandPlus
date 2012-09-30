@@ -1,0 +1,21 @@
+#####R=== Yeeks ===
+
+#####GDescription
+Yeeks are the least powerful of all the races. They suffer disadvantages 
+in nearly all skills and attributes but to compensate they learn (and thus
+gain levels) extremely quickly.
+
+
+#####GStat Modifiers
+Strength        -5   
+Intelligence    -5   
+Wisdom          -5   
+Dexterity       -5   
+Constitution    -5   
+Charisma        -5       
+Hit Dice Sides  6         
+Exp Penalty     -75%
+
+#####GStarting Equipment
+If they are *very* lucky they may begin with:
+    A ring of resist fear

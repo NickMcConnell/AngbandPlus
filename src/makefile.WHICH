@@ -1,0 +1,37 @@
+Which makefile should you use? Here's what each is for:
+-----------------------------------------------------------
+makefile.WHICH - Tells you which makefile does what. Don't try to use it
+		as an actual makefile, as it probably won't work.
+
+makefile - A makefile for DOS. Occasionally referred to in the documentation as
+	makefile.dos, but as the head developer of Pernangband develops on DOS,
+	he decided to rename it to just plain makefile. You want DJGPP and
+	related tools for this.
+
+makefile.acn - A makefile for people using Acorn systems.
+
+makefile.ami - A makefile for people using Amigas.
+
+makefile.bcc - A makefile for people using Borland C 5.5 for windows.
+
+makefile.cyg - A makefile for people using Cygwin for windows.
+
+makefile.emx - A makefile for OS/2. You need the EMX packages and ReXX installed
+	for this to work.
+ 
+makefile.gdb - Another makefile for DOS, incudes debugging symbols so if you're
+	using a DOS-based debugger, things will work. Ideally would be combined
+	into makefile.dos .. ermm.. makefile. You want DJGPP and related tools
+	for this.
+
+makefile.ibm - Another makefile for people using DOS and DJGPP. Ideally will
+	be rolled into makefile.dos .. makefile... eventually.
+
+makefile.lsl - If you want to try to use SVGAlib, this might provide a start.
+
+makefile.org - Most Unix users should use this. Currently the only makefile with
+		a real install rule.
+
+makefile.wat - Watcom C/C++ for DOS (?)
+
+makefile.win - A makefile for people using Borland C 4.5x for windows.
