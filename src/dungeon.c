@@ -3493,7 +3493,7 @@ static bool enter_debug_mode(void)
 #if 0
 	if (!(noscore & 0x0008))
 #else
-if (!noscore)
+if (!noscore && !wizard)
 #endif
 	{
 		/* Mention effects */

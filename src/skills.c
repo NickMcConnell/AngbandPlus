@@ -255,7 +255,7 @@ void dump_skills(FILE *fff)
 
 		sprintf(buf, "\n");
 
-		for (z = 0; z < table[j][1]; z++) strcat(buf, "	 ");
+		for (z = 0; z < table[j][1]; z++) strcat(buf, "         ");
 
 		if (!has_child(i))
 		{

@@ -1,6 +1,6 @@
 /*
 ** Lua binding: dungeon
-** Generated automatically by tolua 4.0a - angband on Sun Jun 15 19:53:34 2003.
+** Generated automatically by tolua 4.0a - angband on Mon Jul 14 20:44:09 2003.
 */
 
 #include "lua/tolua.h"
@@ -594,20 +594,34 @@ static int toluaI_set_dungeon_town_type_seed(lua_State* tolua_S)
 /* get function: store of class  town_type */
 static int toluaI_get_dungeon_town_type_store(lua_State* tolua_S)
 {
-  town_type* self = (town_type*)  tolua_getusertype(tolua_S,1,0);
- if (!self) TOLUA_ERR_SELF;
- tolua_pushusertype(tolua_S,(void*)self->store,tolua_tag(tolua_S,"store_type"));
+ int toluaI_index;
+  town_type* self;
+ lua_pushstring(tolua_S,".self");
+ lua_rawget(tolua_S,1);
+ self = (town_type*)  lua_touserdata(tolua_S,-1);
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=max_st_idx)
+ tolua_error(tolua_S,"array indexing out of range.");
+ tolua_pushusertype(tolua_S,(void*)&self->store[toluaI_index],tolua_tag(tolua_S,"store_type"));
  return 1;
 }
 
 /* set function: store of class  town_type */
 static int toluaI_set_dungeon_town_type_store(lua_State* tolua_S)
 {
-  town_type* self = (town_type*)  tolua_getusertype(tolua_S,1,0);
- if (!self) TOLUA_ERR_SELF;
- if (!tolua_istype(tolua_S,2,tolua_tag(tolua_S,"store_type"),0))
- TOLUA_ERR_ASSIGN;
-  self->store = ((store_type*)  tolua_getusertype(tolua_S,2,0));
+ int toluaI_index;
+  town_type* self;
+ lua_pushstring(tolua_S,".self");
+ lua_rawget(tolua_S,1);
+ self = (town_type*)  lua_touserdata(tolua_S,-1);
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ tolua_error(tolua_S,"invalid type in array indexing.");
+ toluaI_index = (int)tolua_getnumber(tolua_S,2,0)-1;
+ if (toluaI_index<0 || toluaI_index>=max_st_idx)
+ tolua_error(tolua_S,"array indexing out of range.");
+  self->store[toluaI_index] = *((store_type*)  tolua_getusertype(tolua_S,3,0));
  return 0;
 }
 
@@ -2947,7 +2961,7 @@ int tolua_dungeon_open (lua_State* tolua_S)
  tolua_cclass(tolua_S,"town_type","");
  tolua_tablevar(tolua_S,"town_type","name",toluaI_get_dungeon_town_type_name,toluaI_set_dungeon_town_type_name);
  tolua_tablevar(tolua_S,"town_type","seed",toluaI_get_dungeon_town_type_seed,toluaI_set_dungeon_town_type_seed);
- tolua_tablevar(tolua_S,"town_type","store",toluaI_get_dungeon_town_type_store,toluaI_set_dungeon_town_type_store);
+ tolua_tablearray(tolua_S,"town_type","store",toluaI_get_dungeon_town_type_store,toluaI_set_dungeon_town_type_store);
  tolua_tablevar(tolua_S,"town_type","numstores",toluaI_get_dungeon_town_type_numstores,toluaI_set_dungeon_town_type_numstores);
  tolua_tablevar(tolua_S,"town_type","flags",toluaI_get_dungeon_town_type_flags,toluaI_set_dungeon_town_type_flags);
  tolua_tablevar(tolua_S,"town_type","stocked",toluaI_get_dungeon_town_type_stocked,toluaI_set_dungeon_town_type_stocked);

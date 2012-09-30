@@ -4408,14 +4408,17 @@ void html_screenshot(cptr name)
 	/* Retrieve current screen size */
 	Term_get_size(&wid, &hgt);
 
-	fprintf(htm, "<HTML>\n");
-	fprintf(htm, "<HEAD>\n");
-	fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"%s %ld.%ld.%ld\">\n",
+	fprintf(htm, "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
+	             "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"DTD/xhtml1-strict.dtd\">\n"
+	             "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+	             "<head>\n");
+	fprintf(htm, "<meta name=\"GENERATOR\" content=\"%s %ld.%ld.%ld\"/>\n",
 	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-	fprintf(htm, "<TITLE>%s</TITLE>\n", name);
-	fprintf(htm, "</HEAD>\n");
-	fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
-	fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">\n<PRE><TT>",
+	fprintf(htm, "<title>%s</title>\n", name);
+	fprintf(htm, "</head>\n"
+	             "<body>\n"
+	             "<pre style=\"color: #ffffff; background-color: #000000; font-family: monospace\">\n");
+	fprintf(htm, "<span style=\"color: #%02X%02X%02X\">\n",
 	        angband_color_table[TERM_WHITE][1],
 	        angband_color_table[TERM_WHITE][2],
 	        angband_color_table[TERM_WHITE][3]);
@@ -4433,13 +4436,15 @@ void html_screenshot(cptr name)
 
 			if (oa != a)
 			{
-				fprintf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[a][1], angband_color_table[a][2], angband_color_table[a][3]);
+				fprintf(htm, "</span><span style=\"color: #%02X%02X%02X\">", angband_color_table[a][1], angband_color_table[a][2], angband_color_table[a][3]);
 				oa = a;
 			}
 			if (c == '<')
 				fprintf(htm, "&lt;");
 			else if (c == '>')
 				fprintf(htm, "&gt;");
+			else if (c == '&')
+				fprintf(htm, "&amp;");
 			else
 				fprintf(htm, "%c", c);
 		}
@@ -4447,15 +4452,14 @@ void html_screenshot(cptr name)
 		/* End the row */
 		fprintf(htm, "\n");
 	}
-	fprintf(htm, "</TT></PRE></FONT>\n");
-
-	fprintf(htm, "</BODY>\n");
-	fprintf(htm, "</HTML>\n");
+	fprintf(htm, "</span>\n"
+	             "</pre>\n"
+	             "</body>\n"
+	             "</html>\n");
 
 	/* Close it */
 	my_fclose(htm);
 }
-
 
 /*
  * Because this is dead code and hardly anyone but DG needs it.

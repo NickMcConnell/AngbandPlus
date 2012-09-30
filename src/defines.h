@@ -35,8 +35,8 @@
 /*
  * Release state, CVS or not, remember to switch it when making releases
  */
-/*#define IS_CVS          ""*/
 #define IS_CVS          ""
+/*#define IS_CVS          "(CVS)"*/
 
 #define ANGBAND_2_8_1
 
@@ -4518,7 +4518,8 @@ extern int PlayerUID;
 #define HOOK_TAKEOFF            73
 #define HOOK_CALC_WEIGHT        74
 #define HOOK_FORBID_TRAVEL      75
-#define MAX_HOOKS               76
+#define HOOK_DEBUG_COMMAND      76
+#define MAX_HOOKS               77
 
 #define HOOK_TYPE_C             0
 #define HOOK_TYPE_LUA           1

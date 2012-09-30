@@ -59,6 +59,12 @@
 #include <unistd.h>
 #include <dirent.h>
 
+/* /me pffts Solaris */
+#ifndef NAME_MAX
+#define	NAME_MAX	_POSIX_NAME_MAX
+#endif
+
+
 /*
  * Include some helpful X11 code.
  */
@@ -70,7 +76,7 @@
 
 
 /*
- 
+
 Name                Class              RepType         Default Value
 ----                -----              -------         -------------
 background          Background         Pixel           XtDefaultBackground
@@ -88,13 +94,13 @@ sensitive           Sensitive          Boolean         True
 width               Width              Dimension       0
 x                   Position           Position        0
 y                   Position           Position        0
- 
- 
+
+
 The colors can be changed using the standard Angband user pref files,
 which can also be used to provide black text on a white background,
 by setting color zero to "#FFFFFF" and color one to "#000000", since
 the other colors are unused.
- 
+
 */
 
 
@@ -656,7 +662,7 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 		          x, y,
 		          widget->angband.fontwidth,
 		          widget->angband.fontheight);
-	
+
 #endif /* USE_TRANSPARENCY */
 
 		x += widget->angband.fontwidth;

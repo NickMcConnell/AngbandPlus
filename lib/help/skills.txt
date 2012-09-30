@@ -454,7 +454,7 @@ Sub-skills of Spirituality are Prayer, Mindcraft and Music.
 ~~~~~39|Skills|Prayer
 [[[[[BPrayer]
 This skill is a sub-skill of the Spirituality skill. It affects what level of
-your God's special magic you can access (and what levels of the additional
+your *****gods.txt*0[God's] special magic you can access (and what levels of the additional
 schools that each God also provides). Spending 1 skill point on your Prayer
 skill adds 0.1 bonus skill points to your Spirituality skill and 0.1 bonus
 skill points to your Magic skill.

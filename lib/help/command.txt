@@ -98,7 +98,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*20[k  Destroy an item]                      *****command.txt*21[K  Cure meat]
  *****command.txt*22[l  Look around]                          *****command.txt*23[L  Locate player on map]
  *****command.txt*24[m  Cast a spell / use mental power]      *****command.txt*25[M  Full dungeon map]
- n  (unused)                             N  (unused)
+ n  (unused)                             *****command.txt*99[N  Abilities Screen]  (unused)
  *****command.txt*26[o  Open a door or chest]                 *****command.txt*27[O  Sacrifice at an altar]
  *****command.txt*28[p  Pray to your god (if any)]            *****command.txt*29[P  Pet commands]
  *****command.txt*30[q  Quaff a potion]                       *****command.txt*31[Q  Quit (commit suicide)]
@@ -734,6 +734,11 @@ for a quantity will convert any "letters" into the maximal legal value.
 ~~~~~14
 [[[[[GGain new skills (G)]
         Use this command to access the skills menu and spend the skill points
+        you gain at each new character level to increase the range of things 
+        your character is able to do.
+~~~~~99
+[[[[[GGain new abilites (N)]
+        Use this command to access the Abilities menu and spend the skill points
         you gain at each new character level to increase the range of things 
         your character is able to do.
 ~~~~~24

@@ -101,7 +101,7 @@
  *
  * Added support for POSIX-style pathnames, for Mach-O Carbon (gcc, CW >= 7).
  * We can finally live without Pascal strings to handle files this way.
- * 
+ *
  * (Mach-O Carbon) Graphics tiles are moved out of the resource fork into
  * bundle-based data fork files.
  *
@@ -159,7 +159,7 @@
  *   PICT 1002 = Graphics tile set (16x16 images)
  *   PICT 1004 = Graphics tile set (32x32)
  *
- *   Mach-O Carbon now uses data fork resources: 
+ *   Mach-O Carbon now uses data fork resources:
  *   8x8.png   = Graphics tile set (8x8)
  *   16x16.png = Graphics tile set (16x16 images)
  *   32x32.png = Graphics tile set (32x32)
@@ -551,7 +551,7 @@
 #ifdef OVERWRITE_HACK
 # ifdef CLIP_HACK
 # undef CLIP_HACK
-# endif 
+# endif
 #endif
 
 
@@ -605,6 +605,13 @@
 
 #endif /* MACH_O_CARBON */
 
+/* MacOSX == Unix == Good */
+#ifdef USE_MACOSX
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+#endif
 
 
 /*
@@ -1263,7 +1270,7 @@ static void term_data_check_size(term_data *td)
 		 * Handle fake monospace
 		 *
 		 * pelpel: This is SLOW. Couldn't we use CharExtra
-		 * and SpaceExtra for monospaced fonts? 
+		 * and SpaceExtra for monospaced fonts?
 		 */
 		if (td->t->higher_pict) td->t->higher_pict = FALSE;
 		td->t->always_pict = TRUE;
@@ -1280,7 +1287,7 @@ static void term_data_resize(term_data *td)
 {
 	/*
 	 * Actually resize the window
-	 * 
+	 *
 	 * ResizeWindow is the preferred API call, but it cannot
 	 * be used here.
 	 */
@@ -1916,7 +1923,7 @@ static void cleanup_sound(void)
  * Play sound effects asynchronously -- pelpel
  *
  * I don't believe those who first started using the previous implementations
- * imagined this is *much* more complicated as it may seem.  Anyway, 
+ * imagined this is *much* more complicated as it may seem.  Anyway,
  * introduced round-robin scheduling of channels and made it much more
  * paranoid about HLock/HUnlock.
  *
@@ -2617,6 +2624,54 @@ static errr Term_xtra_mac(int n, int v)
 			free(s);
 			return (0);
 		}
+
+/* MacOSX == Unix == Good */
+#ifdef USE_MACOSX
+		/* Get Delay of some milliseconds */
+	case TERM_XTRA_GET_DELAY:
+		{
+			int ret;
+			struct timeval tv;
+
+			ret = gettimeofday(&tv, NULL);
+			Term_xtra_long = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+
+			return ret;
+		}
+
+		/* Subdirectory scan */
+	case TERM_XTRA_SCANSUBDIR:
+		{
+			DIR *directory;
+			struct dirent *entry;
+
+			scansubdir_max = 0;
+
+			directory = opendir(scansubdir_dir);
+			if (!directory)
+				return 1;
+
+			while ((entry = readdir(directory)))
+			{
+				char file[PATH_MAX + NAME_MAX + 2];
+				struct stat filedata;
+
+				file[PATH_MAX + NAME_MAX] = 0;
+				strncpy(file, scansubdir_dir, PATH_MAX);
+				strncat(file, "/", 2);
+				strncat(file, entry->d_name, NAME_MAX);
+				if (!stat(file, &filedata) && S_ISDIR((filedata.st_mode)))
+				{
+					string_free(scansubdir_result[scansubdir_max]);
+					scansubdir_result[scansubdir_max] = string_make(entry->d_name);
+					++scansubdir_max;
+				}
+			}
+
+			closedir(directory);
+			return 0;
+		}
+#endif
 	}
 
 	/* Oops */

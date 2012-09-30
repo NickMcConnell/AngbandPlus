@@ -775,7 +775,9 @@ function easy_add_rule(typ, mode, do_status, obj)
 
 	if do_status == TRUE then
 		local status = object_status(obj)
-		detect_rule = "<and>"..detect_rule.."<status>"..status.."</status></and>"
+		if status and not (status == "") then
+			detect_rule = "<and>"..detect_rule.."<status>"..status.."</status></and>"
+		end
 	end
 
 	local rule = "<rule module='"..game_module.."' name='"..typ.."' type='"..typ.."'>"..detect_rule.."</rule>"

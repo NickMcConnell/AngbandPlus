@@ -72,7 +72,7 @@ function msg_print(c, m)
 end
 
 -- Returns the direction of the compass that y2, x2 is from y, x
--- the return value will be one of the following: north, south, 
+-- the return value will be one of the following: north, south,
 -- east, west, north-east, south-east, south-west, north-west
 function compass(y, x, y2, x2)
 	local y_axis, x_axis, y_diff, x_diff, compass_dir
@@ -85,7 +85,7 @@ function compass(y, x, y2, x2)
 		y_axis = nil
 	elseif y2 > y then
 		y_axis = "south"
-	else 
+	else
 		y_axis = "north"
 	end
 
@@ -97,13 +97,15 @@ function compass(y, x, y2, x2)
 		x_axis = nil
 	elseif x2 > x then
 		x_axis = "east"
-	else 
+	else
 		x_axis = "west"
 	end
 
 
 	-- Maybe it is (almost) due N/S
-	if not x_axis then compass_dir = y_axis
+	if (not x_axis) and (not y_axis) then compass_dir = "near"
+
+	elseif not x_axis then compass_dir = y_axis
 
 	-- Maybe it is (almost) due E/W
 	elseif not y_axis then compass_dir = x_axis
@@ -116,34 +118,34 @@ function compass(y, x, y2, x2)
 end
 
 -- Returns an approximation of the 'distance' of y2, x2 from y, x.
-function distance(y, x, y2, x2)
+function approximate_distance(y, x, y2, x2)
 	local y_diff, x_diff, most_dist
 
 	-- how far to away to the north/south
 	y_diff = y2 - y
 
 	-- make sure it's a positive integer
-	if y_diff < 0 then 
+	if y_diff < 0 then
 		y_diff = 0 - y_diff
 	end
 
 	-- how far to away to the east/west
 	x_diff = x2 - x
 
-	-- make sure it's a positive integer        
-	if x_diff < 0 then 
+	-- make sure it's a positive integer
+	if x_diff < 0 then
 		x_diff = 0 - x_diff
 	end
 
 	-- find which one is the larger distance
-	if x_diff > y_diff then 
+	if x_diff > y_diff then
 		most_dist = x_diff
 	else
 		most_dist = y_diff
 	end
 
 	-- how far away then?
-	if most_dist >= 41 then 
+	if most_dist >= 41 then
 		how_far = "a long way"
 	elseif most_dist >= 11 then
 		how_far = "quite some way"
@@ -189,4 +191,51 @@ function display_list(y, x, h, w, title, list, begin, sel, sel_color)
 	%display_list(y, x, h, w, title, l, getn(list), begin - 1, sel - 1, sel_color)
 
 	delete_list(l, getn(list))
+end
+
+-- Easier access to special gene stuff
+function set_monster_generation(monster, state)
+	if type(monster) == "string" then
+		m_allow_special[test_monster_name(monster) + 1] = state
+	else
+		m_allow_special[monster + 1] = state
+	end
+end
+function set_object_generation(obj, state)
+	if type(obj) == "string" then
+		m_allow_special[test_item_name(obj) + 1] = state
+	else
+		m_allow_special[obj + 1] = state
+	end
+end
+function set_artifact_generation(obj, state)
+	m_allow_special[obj + 1] = state
+end
+
+-- Strings
+function strcap(str)
+	if strlen(str) > 1 then
+		return strupper(strsub(str, 1, 1))..strsub(str, 2)
+	elseif strlen(str) == 1 then
+		return strupper(str)
+	else
+		return str
+	end
+end
+
+function msg_format(...)
+	msg_print(call(format, arg))
+end
+
+-- Stacks
+function stack_push(stack, val)
+	tinsert(stack, val)
+end
+function stack_pop(stack)
+	if getn(stack) >= 1 then
+		return tremove(stack)
+	else
+		error("Tried to unstack an empty stack")
+		return nil
+	end
 end

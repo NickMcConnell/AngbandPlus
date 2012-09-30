@@ -255,11 +255,11 @@ void do_cmd_wiz_hack_ben(int num)
 
 	/*        MAKE(r_ptr, monster_race);
 	        COPY(r_ptr, &r_info[500], monster_race);
-	 
+
 	        r_ptr->level = 1;
 	        r_ptr->flags6 |= RF6_BLINK;
 	        r_ptr->freq_inate = r_ptr->freq_spell = 90;
-	 
+
 	        place_monster_one_race = r_ptr;
 	        place_monster_one(p_ptr->py - 1, p_ptr->px, 500, 0, TRUE, MSTATUS_PET);*/
 
@@ -2050,7 +2050,8 @@ void do_cmd_debug(void)
 
 		/* Not a Wizard Command */
 	default:
-		msg_print("That is not a valid debug command.");
+		if (!process_hooks(HOOK_DEBUG_COMMAND, "(d)", cmd))
+			msg_print("That is not a valid debug command.");
 		break;
 	}
 }

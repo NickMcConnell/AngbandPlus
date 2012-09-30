@@ -1345,20 +1345,6 @@ S:A:Dunadan | High-Elf | Petty-Dwarf | Dark-Elf | Ent | RohanKnight |
 S:A:Thunderlord | DeathMold | Yeek | Wood-Elf | Maia | 
 S:C:F:Warrior | Archer
 
-S:N:7:Corrupted
-S:D:B:Infused with the corruption of Morgoth, these unfortunates randomly gain
-S:D:B:and lose corruptions as they gain experience.
-S:S:0:0:0:0:0:0:0:100
-S:K:0:0:0:0:0:0:0:0
-S:P:0:20:0
-S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:0:0
-S:G:CORRUPT | NO_SUBRACE_CHANGE
-S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | 
-S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
-S:A:Kobold | Petty-Dwarf | Dark-Elf | RohanKnight | Yeek | 
-S:A:Wood-Elf | Maia | 
-
 S:N:8:LostSoul
 S:D:A:In some very rare occasions souls can come back from the Halls of Mandos.
 S:S:0:0:0:0:0:0:0:100

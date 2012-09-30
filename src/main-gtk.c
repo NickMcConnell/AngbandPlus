@@ -105,6 +105,12 @@
 #include <unistd.h>
 #include <dirent.h>
 
+/* /me pffts Solaris */
+#ifndef NAME_MAX
+#define	NAME_MAX	_POSIX_NAME_MAX
+#endif
+
+
 /*
  * Include some helpful X11 code.
  */
@@ -337,7 +343,7 @@ static void cleanup_angband(void)
  * for 16x16 tiles in cave.c...
  *
  * Because of the way it is implemented in X11 ports,
- * we can set this to TRUE even if we are using the 8x8 tileset. 
+ * we can set this to TRUE even if we are using the 8x8 tileset.
  */
 static bool use_transparency = TRUE;
 

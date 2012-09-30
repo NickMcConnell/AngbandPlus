@@ -108,6 +108,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <limits.h>
+
+/* /me pffts Solaris */
+#ifndef NAME_MAX
+#define	NAME_MAX	_POSIX_NAME_MAX
+#endif
 
 /*
  * Include some helpful X11 code.
@@ -455,7 +461,7 @@ int Term_queue_space(void)
 	if (space <= 0) space = Term->key_size - space;
 
 	/* The last space is never used as that would be interpreted as leaving
-	 * no pending keypresses. */ 
+	 * no pending keypresses. */
 	return space -1;
 }
 
@@ -796,9 +802,9 @@ static errr Infowin_init_data(Window dad, int x, int y, int w, int h,
 	if (dad == None)
 
 		/* #ifdef USE_GRAPHICS
-		 
+
 				xid = XCreateWindow(Metadpy->dpy, Metadpy->root, x, y, w, h, b, 8, InputOutput, CopyFromParent, 0, 0);
-		 
+
 			else
 		*/
 

@@ -5115,3 +5115,42 @@ becomes 0, allowing spells to summon fiery blades and such
      Jules Bean -- neil
 
 16/06/2003 -- T.o.M.E 2.2.0 aka "Born to the Purple"
+
+18/06/2003
+[B]- Fix manwe spell Avatar
+
+19/06/2003
+[B]- Silly silly bug in god quest fixed. -- fearoffours
+
+20/06/2003
+[B]- Mimics starts with a cloak
+[B]- Using the @ key in skill menu wont crash
+[B]- Cannot copy uncopiable spells
+[B]- Dripping Tread will put feats on the last grid, not the current one
+
+21/06/2003
+[m]- Clearer descriptions for spells which require more than one school
+     -- fearoffours
+[P]- Geomancer tweaks:  Geyser's mana progression now matches its damage
+     progression.  Geomancy now gives much larger bonuses to its child
+     skills, so Geomancers are now intended to max out the elements. -- neil
+
+22/06/2003
+[B]- Potions of Cure Water are inscribed for you to prevent mishaps with
+     the automatizer -- neil
+[B]- Don't let people travel with extra limbs, to prevent them losing 
+     weapons by mistake -- neil
+[B]- Allow hypnosis of companions, make hypnosis failure messages more
+     useful - neil
+
+23/06/2003
+[m]- Mimicry help. Magic help now has it's own menu, other minor help 
+     updates. -- fearoffours
+
+29/06/2003
+[m]- "Investing in the <foo> skill? You might be interested in the <bar>
+     ability." links in skills.txt --fearoffours
+[B]- God quest bug genuinely fixed now -- fearoffours
+[P]- Bear form will now starts at -5 speed but end at +5
+
+29/06/2003 -- T.o.M.E 2.2.1 aka "There All the Honor Lies"

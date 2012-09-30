@@ -634,7 +634,7 @@ function get_random_stick(stick, level)
 		tries = tries - 1
 		spl = rand_int(__tmp_spells_num)
 		if __tmp_spells[spl].stick and (type(__tmp_spells[spl].stick[stick]) == "table") then
-			if (rand_int(spell(spl).skill_level * 3) < level) and (magik(100 - __tmp_spells[spl].stick[stick].rarity)) then
+			if (rand_int(spell(spl).skill_level * 3) < level) and (magik(100 - __tmp_spells[spl].stick[stick].rarity) == TRUE) then
 				break
 			end
 		end

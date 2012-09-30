@@ -48,9 +48,7 @@
 
 #ifdef USE_GCU
 
-#if 0
-#include "main.h"
-#endif
+#include <limits.h>
 
 /*
  * Hack -- play games with "bool" and "term"
@@ -92,9 +90,9 @@
 # define USE_TERMIO
 # else
 # define USE_TCHARS
-# endif 
-# endif 
-# endif 
+# endif
+# endif
+# endif
 #endif
 
 /*
@@ -139,6 +137,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+
+/* /me pffts Solaris */
+#ifndef NAME_MAX
+#define	NAME_MAX	_POSIX_NAME_MAX
+#endif
+
 
 
 /*

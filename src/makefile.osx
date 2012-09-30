@@ -37,7 +37,7 @@ RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O
 # Mach-O Carbon with Resource Manager resources (see main-crb.c)
 COPTS = -Wall -O1 -g -fpascal-strings
 INCLUDES =
-DEFINES = -DMACH_O_CARBON -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DTOME
+DEFINES = -DUSE_MACOSX -DMACH_O_CARBON -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DTOME
 LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
 
 ### End of configurable section ###

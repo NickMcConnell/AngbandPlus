@@ -1,30 +1,12 @@
-T.o.M.E. 2.2.1 aka "There All the Honor Lies" changes
-
-Player changes:
-- Geomancer tweaks:  Geyser's mana progression now matches its damage
-  progression.  Geomancy now gives much larger bonuses to its child
-  skills, so Geomancers are now intended to max out the elements. -- neil
-- Bear form will now starts at -5 speed but end at +5
+T.o.M.E. 2.2.2 aka 'And Now For a Word' changes
 
 Misc changes:
-- Clearer descriptions for spells which require more than one school
-  -- fearoffours
-- Mimicry help. Magic help now has it's own menu, other minor help
-  updates. -- fearoffours
-- "Investing in the <foo> skill? You might be interested in the <bar>
-  ability." links in skills.txt --fearoffours
+- Mac OS X Module support
+- Solaris compile workaround from Kevin W. Thomas
+- Valid XHTML in the HTML screenshots now -- neil
 
 Bug fixes:
-- Fix manwe spell Avatar
-- Silly silly bug in god quest fixed. -- fearoffours
-- Mimics starts with a cloak
-- Using the @ key in skill menu wont crash
-- Cannot copy uncopiable spells
-- Dripping Tread will put feats on the last grid, not the current one
-- Potions of Cure Water are inscribed for you to prevent mishaps with
-  the automatizer -- neil
-- Don't let people travel with extra limbs, to prevent them losing
-  weapons by mistake -- neil
-- Allow hypnosis of companions, make hypnosis failure messages more
-  useful - neil
-- God quest bug genuinely fixed now -- fearoffours
+- Prevent forbidden staves from being generated
+- Really fix the God quest this time, we hope
+- Fix broken status in auto automatizer rules -- neil
+- HPUX support -- neil

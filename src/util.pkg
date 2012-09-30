@@ -57,67 +57,67 @@ typedef unsigned int u32b;
 /** @def TERM_DARK
  * @note 'd' (0,0,0)
  */
-#define TERM_DARK		0  /* 'd' */   
+#define TERM_DARK		0  /* 'd' */
 /** @def TERM_WHITE
  * @note 'w' (4,4,4)
  */
-#define TERM_WHITE	       1  /* 'w' */   
+#define TERM_WHITE	       1  /* 'w' */
 /** @def TERM_SLATE
  * @note 's' (2,2,2)
  */
-#define TERM_SLATE	       2  /* 's' */   
+#define TERM_SLATE	       2  /* 's' */
 /** @def TERM_ORANGE
  * @note 'o' (4,2,0)
  */
-#define TERM_ORANGE	      3  /* 'o' */   
+#define TERM_ORANGE	      3  /* 'o' */
 /** @def TERM_RED
  * @note 'r' (3,0,0)
  */
-#define TERM_RED		 4  /* 'r' */   
+#define TERM_RED		 4  /* 'r' */
 /** @def TERM_GREEN
  * @note 'g' (0,2,1)
  */
-#define TERM_GREEN	       5  /* 'g' */   
+#define TERM_GREEN	       5  /* 'g' */
 /** @def TERM_BLUE
  * @note 'b' (0,0,4)
  */
-#define TERM_BLUE		6  /* 'b' */   
+#define TERM_BLUE		6  /* 'b' */
 /** @def TERM_UMBER
  * @note 'u' (2,1,0)
  */
-#define TERM_UMBER	       7  /* 'u' */   
+#define TERM_UMBER	       7  /* 'u' */
 /** @def TERM_L_DARK
  * @note 'D' (1,1,1)
  */
-#define TERM_L_DARK	      8  /* 'D' */   
+#define TERM_L_DARK	      8  /* 'D' */
 /** @def TERM_L_WHITE
  * @note 'W' (3,3,3)
  */
-#define TERM_L_WHITE	     9  /* 'W' */   
+#define TERM_L_WHITE	     9  /* 'W' */
 /** @def TERM_VIOLET
  * @note 'v' (4,0,4)
  */
-#define TERM_VIOLET	     10  /* 'v' */   
+#define TERM_VIOLET	     10  /* 'v' */
 /** @def TERM_YELLOW
  * @note 'y' (4,4,0)
  */
-#define TERM_YELLOW	     11  /* 'y' */   
+#define TERM_YELLOW	     11  /* 'y' */
 /** @def TERM_L_RED
  * @note 'R' (4,0,0)
  */
-#define TERM_L_RED	      12  /* 'R' */   
+#define TERM_L_RED	      12  /* 'R' */
 /** @def TERM_L_GREEN
  * @note 'G' (0,4,0)
  */
-#define TERM_L_GREEN	    13  /* 'G' */   
+#define TERM_L_GREEN	    13  /* 'G' */
 /** @def TERM_L_BLUE
  * @note 'B' (0,4,4)
  */
-#define TERM_L_BLUE	     14  /* 'B' */   
+#define TERM_L_BLUE	     14  /* 'B' */
 /** @def TERM_L_UMBER
  * @note 'U' (3,2,1)
  */
-#define TERM_L_UMBER	    15  /* 'U' */   
+#define TERM_L_UMBER	    15  /* 'U' */
 /** @} */
 
 /** @name Event Hooks
@@ -1012,6 +1012,14 @@ typedef unsigned int u32b;
  */
 #define HOOK_FORBID_TRAVEL      75
 
+/** @def HOOK_DEBUG_COMMAND
+ * @brief User enters a debug command.\n
+ * @param Number command \n the pressed key (cmd).
+ * @brief Command
+ * @return Boolean \n TRUE if special processing was done, otherwise FALSE.
+ */
+#define HOOK_DEBUG_COMMAND      76
+
 
 /** @} */
 
@@ -1366,7 +1374,7 @@ extern bool askfor_aux(char *buf, int len);
 
 /** @fn get_string(cptr prompt, char *buf, int len)
  * @brief Get a string from the user.\n
- * @param prompt String \n the prompt, which should take the form "Prompt: " 
+ * @param prompt String \n the prompt, which should take the form "Prompt: "
  * @brief Prompt
  * @param *buf String
  * @brief String
@@ -1384,7 +1392,7 @@ extern bool get_string(cptr prompt, char *buf, int len);
 
 /** @fn get_check(cptr prompt)
  * @brief Verify something with the user.\n
- * @param prompt String \n the prompt, which should take the form "Query? " 
+ * @param prompt String \n the prompt, which should take the form "Query? "
  * @brief Prompt
  * @return Boolean \n TRUE if  "y" or "Y" is entered, otherwise FALSE.
  * @note
@@ -1395,7 +1403,7 @@ extern bool get_check(cptr prompt);
 
 /** @fn  get_com(cptr promtp, int *com = 0);
  * @brief Prompts for a keypress.\n
- * @param promtp String \n the prompt, which should take the form "Command: " 
+ * @param promtp String \n the prompt, which should take the form "Command: "
  * @brief Prompt
  * @param *com Number
  * @brief Command
@@ -1427,7 +1435,7 @@ extern s32b get_quantity(cptr prompt, s32b max);
  * @return Number \n The index of the monster in r_info[], or 0 if the name
  * does not match a monster.
  * @note
- * Name must exactly match (look out for commas and the like!), or else 0 is 
+ * Name must exactly match (look out for commas and the like!), or else 0 is
  * returned. Case doesn't matter.
  * @note (see file util.c)
  */
@@ -1440,7 +1448,7 @@ extern int test_monster_name(cptr name);
  * @return Number \n The index of the item in k_info[], or 0 if the name
  * does not match an item.
  * @note
- * Name must exactly match (look out for commas and the like!), or else 0 is 
+ * Name must exactly match (look out for commas and the like!), or else 0 is
  * returned. Case doesn't matter.
  * @note (see file util.c)
  */
@@ -1891,31 +1899,31 @@ struct cave_type
 {
 	/** @structvar info
 	 * @brief Number
-	 * @note Hack -- cave flags 
+	 * @note Hack -- cave flags
 	 */
 	u16b info;
 
 	/** @structvar feat
 	 * @brief Number
-	 * @note Hack -- feature type 
+	 * @note Hack -- feature type
 	 */
 	byte feat;
 
 	/** @structvar o_idx
 	 * @brief Number
-	 * @note Object in this grid 
+	 * @note Object in this grid
 	 */
 	s16b o_idx;
 
 	/** @structvar m_idx
 	 * @brief Number
-	 * @note Monster in this grid 
+	 * @note Monster in this grid
 	 */
 	s16b m_idx;
 
 	/** @structvar t_idx
 	 * @brief Number
-	 * @note trap index (in t_list) or zero       
+	 * @note trap index (in t_list) or zero
 	 */
 	s16b t_idx;
 
@@ -1925,31 +1933,31 @@ struct cave_type
 	s16b special;
 	/** @structvar special2
 	 * @brief Number
-	 * @note Special cave info 
+	 * @note Special cave info
 	 */
 	s16b special2;
 
 	/** @structvar inscription
 	 * @brief Number
-	 * @note Inscription of the grid 
+	 * @note Inscription of the grid
 	 */
 	s16b inscription;
 
 	/** @structvar mana
 	 * @brief Number
-	 * @note Magical energy of the grid 
+	 * @note Magical energy of the grid
 	 */
 	byte mana;
 
 	/** @structvar mimic
 	 * @brief Number
-	 * @note Feature to mimic 
+	 * @note Feature to mimic
 	 */
 	byte mimic;
 
 	/** @structvar effect
 	 * @brief Number
-	 * @note The lasting effects 
+	 * @note The lasting effects
 	 */
 	s16b effect;
 };
@@ -2209,7 +2217,7 @@ extern void set_target(int y, int x);
  * @param dir Number \n dir must be a value from 0 to 9.
  * @brief Direction
  * @param *y Number
- * @brief Target y-coordinate 
+ * @brief Target y-coordinate
  * @param *x Number
  * @brief Target x-coordinate
  * @return *y Number \n The y-coordinate of the target.
@@ -2587,30 +2595,30 @@ struct timer_type
 {
 	/** @structvar *next
 	 * @brief timer_type
-	 * @note The next timer in the list 
+	 * @note The next timer in the list
 	 */
 	timer_type *next;
 
 	/** @structvar enabled
 	 * @brief Boolean
-	 * @note Is it currently counting? 
+	 * @note Is it currently counting?
 	 */
 	bool enabled;
 
 	/** @structvar delay
 	 * @brief Number
-	 * @note Delay between activations 
+	 * @note Delay between activations
 	 */
 	s32b delay;
 	/** @structvar countdown
 	 * @brief Number
-	 * @note The current number of turns passed, when it reaches delay it fires 
+	 * @note The current number of turns passed, when it reaches delay it fires
 	 */
 	s32b countdown;
 
 	/** @structvar callback
 	 * @brief String
-	 * @note The lua function to call upon firing(no C callback yet .. maybe) 
+	 * @note The lua function to call upon firing(no C callback yet .. maybe)
 	 */
 	cptr callback;
 };
@@ -2657,7 +2665,7 @@ extern list_type *lua_create_list@create_list(int size);
 
 /** @fn delete_list(list_type *, int size);
  * @dgonly
- * @brief Delete the list of strings.\n 
+ * @brief Delete the list of strings.\n
  * @param * list_type \n the list of strings.
  * @brief List
  * @param size Number \n the number of strings the list holds.

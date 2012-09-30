@@ -1,6 +1,6 @@
 /*
 ** Lua binding: util
-** Generated automatically by tolua 4.0a - angband on Sun Jun 22 13:52:26 2003.
+** Generated automatically by tolua 4.0a - angband on Wed Jul 16 19:34:27 2003.
 */
 
 #include "lua/tolua.h"
@@ -3551,6 +3551,7 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"HOOK_TAKEOFF",HOOK_TAKEOFF);
  tolua_constant(tolua_S,NULL,"HOOK_CALC_WEIGHT",HOOK_CALC_WEIGHT);
  tolua_constant(tolua_S,NULL,"HOOK_FORBID_TRAVEL",HOOK_FORBID_TRAVEL);
+ tolua_constant(tolua_S,NULL,"HOOK_DEBUG_COMMAND",HOOK_DEBUG_COMMAND);
  tolua_globalvar(tolua_S,"turn",toluaI_get_util_turn,toluaI_set_util_turn);
  tolua_globalvar(tolua_S,"old_turn",toluaI_get_util_old_turn,toluaI_set_util_old_turn);
  tolua_globalvar(tolua_S,"cur_wid",toluaI_get_util_cur_wid,toluaI_set_util_cur_wid);
@@ -3829,6 +3830,7 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_TAKEOFF");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_CALC_WEIGHT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_FORBID_TRAVEL");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_DEBUG_COMMAND");
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"turn"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
