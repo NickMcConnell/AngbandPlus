@@ -2,8 +2,7 @@
 
 angband_files = \
   a_info.txt e_info.txt f_info.txt k_info.txt \
-  misc.txt q_info.txt q_oberon.txt q_random.txt \
-  q_serpen.txt r_info.txt v_info.txt t_info.txt \
+  misc.txt r_info.txt v_info.txt t_info.txt \
   w_info.txt
 
 EXTRA_DIST = \

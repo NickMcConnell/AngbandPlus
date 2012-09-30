@@ -114,7 +114,6 @@ extern byte quick_rand_place;
 
 
 extern void Rand_state_init(u32b seed);
-extern s32b Rand_mod(s32b m);
 extern s32b Rand_div(u32b m);
 extern s16b Rand_normal(int mean, int stand);
 extern u32b Rand_simple(u32b m);

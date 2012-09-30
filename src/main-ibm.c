@@ -54,6 +54,12 @@
 
 #ifdef USE_IBM
 
+cptr help_ibm[] =
+{
+	"To use IBM (BIOS text mode)",
+	NULL
+};
+
 
 /*
  * Use a "virtual" screen to "buffer" screen writes.
@@ -871,21 +877,15 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
  *
  * The given parameters are "valid".
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	register int i;
 	register byte attr;
 	register byte *dest;
 
-#ifdef USE_TRANSPARENCY
 	/* Unused parameter */
 	(void)tap;
 	(void)tcp;
-#endif /* USE_TRANSPARENCY */
 
 #ifdef USE_CONIO
 

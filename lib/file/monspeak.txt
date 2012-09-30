@@ -379,8 +379,14 @@ booms: 'Burarum, you evileyed - blackhanded - bowlegged - flinthearted - clawfin
 
 N:715:Glaurung, Father of the Dragons
 N:766:Ancalagon the Black
-1
+5
 says: 'Thou shalt not escape thy doom.'
+#QUENTA SILMARILLION  Chap.21
+says: 'Evil have been all thy ways.'
+says: 'If thou wilt be slain, I will slay thee gladly!'
+says: 'Nay! At least thou art valiant.'
+says: 'Hail, Adventurer, son of Autoroller. Well met!'
+
 
 #N:729:Ulik the Troll
 #N:730:Baphomet the Minotaur Lord

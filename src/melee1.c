@@ -119,14 +119,14 @@ bool make_attack_normal(int m_idx)
 
 	int ap_cnt;
 
-	int i, k, tmp, ac, rlev;
+	int k, tmp, ac, rlev;
 	bool do_cut, do_stun;
 
 	s32b gold;
 
 	object_type *o_ptr;
 
-	char o_name[256];
+	/* char o_name[256]; */
 
 	char m_name[80];
 
@@ -136,6 +136,9 @@ bool make_attack_normal(int m_idx)
 	bool touched = FALSE, fear = FALSE, alive = TRUE;
 	bool explode = FALSE;
 	bool resist_drain = FALSE;
+
+	/* Save visibility */
+	bool visible = m_ptr->ml;
 
 	/* Not allowed to attack */
 	if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (FALSE);
@@ -511,16 +514,10 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Find an item */
-						for (k = 0; k < 10; k++)
+						OBJ_ITT_START (p_ptr->inventory, o_ptr)
 						{
-							/* Pick an item */
-							i = randint0(INVEN_PACK);
-
-							/* Obtain the item */
-							o_ptr = &inventory[i];
-
-							/* Skip non-objects */
-							if (!o_ptr->k_idx) continue;
+							/* Only work some of the time */
+							if (one_in_(2)) continue;
 
 							/* Drain charged wands/staffs */
 							if (((o_ptr->tval == TV_STAFF) ||
@@ -562,6 +559,7 @@ bool make_attack_normal(int m_idx)
 								break;
 							}
 						}
+						OBJ_ITT_END;
 
 						break;
 					}
@@ -660,18 +658,12 @@ bool make_attack_normal(int m_idx)
 						}
 
 						/* Find an item */
-						for (k = 0; k < 10; k++)
+						OBJ_ITT_START (p_ptr->inventory, o_ptr)
 						{
-							s16b o_idx;
+							char o_name[256];
 
-							/* Pick an item */
-							i = randint0(INVEN_PACK);
-
-							/* Obtain the item */
-							o_ptr = &inventory[i];
-
-							/* Skip non-objects */
-							if (!o_ptr->k_idx) continue;
+							/* Only some of the time */
+							if (!one_in_(INVEN_PACK)) continue;
 
 							/* Skip artifacts */
 							if (o_ptr->flags3 & TR3_INSTA_ART) continue;
@@ -680,49 +672,20 @@ bool make_attack_normal(int m_idx)
 							object_desc(o_name, o_ptr, FALSE, 3, 256);
 
 							/* Message */
-							msg_format("%sour %s (%c) was stolen!",
+							msg_format("%sour %s was stolen!",
 									   ((o_ptr->number > 1) ? "One of y" : "Y"),
-									   o_name, index_to_label(i));
+									   o_name);
 
 							chg_virtue(V_SACRIFICE, 1);
 
-							/* Make an object */
-							o_idx = o_pop();
+							/* Split object */
+							o_ptr = item_split(o_ptr, 1);
 
-							/* Success */
-							if (o_idx)
-							{
-								object_type *j_ptr;
+							/* Forget mark */
+							o_ptr->info &= ~(OB_SEEN);
 
-								/* Get new object */
-								j_ptr = &o_list[o_idx];
-
-								/* Copy object */
-								object_copy(j_ptr, o_ptr);
-
-								/* Modify number */
-								j_ptr->number = 1;
-
-								/* Wand / rod stacking */
-								distribute_charges(o_ptr, j_ptr,
-												   --o_ptr->number);
-
-								/* Forget mark */
-								j_ptr->marked = FALSE;
-
-								/* Memorize monster */
-								j_ptr->held_m_idx = m_idx;
-
-								/* Build stack */
-								j_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-								/* Build stack */
-								m_ptr->hold_o_idx = o_idx;
-							}
-
-							/* Steal the items */
-							inven_item_increase(i, -1);
-							inven_item_optimize(i);
+							/* Give to the monster */
+							o_ptr = add_object_list(&m_ptr->hold_o_idx, o_ptr);
 
 							/* Obvious */
 							obvious = TRUE;
@@ -733,26 +696,24 @@ bool make_attack_normal(int m_idx)
 							/* Done */
 							break;
 						}
+						OBJ_ITT_END;
+
 
 						break;
 					}
 
 					case RBE_EAT_FOOD:
 					{
+						char o_name[256];
+
 						/* Take some damage */
 						take_hit(damage, ddesc);
 
 						/* Steal some food */
-						for (k = 0; k < 10; k++)
+						OBJ_ITT_START (p_ptr->inventory, o_ptr)
 						{
 							/* Pick an item from the pack */
-							i = randint0(INVEN_PACK);
-
-							/* Get the item */
-							o_ptr = &inventory[i];
-
-							/* Skip non-objects */
-							if (!o_ptr->k_idx) continue;
+							if (!one_in_(INVEN_PACK)) continue;
 
 							/* Skip non-food objects */
 							if (o_ptr->tval != TV_FOOD) continue;
@@ -761,13 +722,12 @@ bool make_attack_normal(int m_idx)
 							object_desc(o_name, o_ptr, FALSE, 0, 256);
 
 							/* Message */
-							msg_format("%sour %s (%c) was eaten!",
+							msg_format("%sour %s was eaten!",
 									   ((o_ptr->number > 1) ? "One of y" : "Y"),
-									   o_name, index_to_label(i));
+									   o_name);
 
 							/* Steal the items */
-							inven_item_increase(i, -1);
-							inven_item_optimize(i);
+							item_increase(o_ptr, -1);
 
 							/* Obvious */
 							obvious = TRUE;
@@ -775,6 +735,7 @@ bool make_attack_normal(int m_idx)
 							/* Done */
 							break;
 						}
+						OBJ_ITT_END;
 
 						break;
 					}
@@ -785,7 +746,7 @@ bool make_attack_normal(int m_idx)
 						take_hit(damage, ddesc);
 
 						/* Access the lite */
-						o_ptr = &inventory[INVEN_LITE];
+						o_ptr = &p_ptr->equipment[EQUIP_LITE];
 
 						/* Drain fuel */
 						if ((o_ptr->pval > 0) &&
@@ -1369,7 +1330,7 @@ bool make_attack_normal(int m_idx)
 									(PR_HEALTH);
 
 							/* Special message */
-							if ((m_ptr->ml) && (did_heal))
+							if ((visible) && (did_heal))
 							{
 								msg_format("%^s appears healthier.", m_name);
 							}
@@ -1537,7 +1498,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (m_ptr->ml)
+						if (visible)
 							r_ptr->r_flags3 |= RF3_IM_FIRE;
 					}
 				}
@@ -1562,7 +1523,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (m_ptr->ml)
+						if (visible)
 							r_ptr->r_flags3 |= RF3_IM_ELEC;
 					}
 				}
@@ -1590,7 +1551,7 @@ bool make_attack_normal(int m_idx)
 				case RBM_CHARGE:
 				{
 					/* Visible monsters */
-					if (m_ptr->ml)
+					if (visible)
 					{
 						/* Disturbing */
 						disturb(TRUE);
@@ -1606,7 +1567,7 @@ bool make_attack_normal(int m_idx)
 
 
 		/* Analyze "visible" monsters only */
-		if (alive && m_ptr->ml)
+		if (alive && visible)
 		{
 			/* Count "obvious" attacks (and ones that cause damage) */
 			if (obvious || damage || (r_ptr->r_blows[ap_cnt] > 10))
@@ -1645,7 +1606,7 @@ bool make_attack_normal(int m_idx)
 		r_ptr->r_deaths++;
 	}
 
-	if (alive && m_ptr->ml && fear)
+	if (alive && visible && fear)
 	{
 		sound(SOUND_FLEE);
 		msg_format("%^s flees in terror!", m_name);

@@ -170,7 +170,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-/* #define ALLOW_BORG */
+#define ALLOW_BORG
 
 #ifdef USE_DEBUG
 
@@ -485,7 +485,7 @@
 # undef ALLOW_MACROS
 # undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
-# undef ALLOW_DEBUG
+# undef USE_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef DELAY_LOAD_R_TEXT
@@ -560,3 +560,25 @@
  * Add pillar tunnels (Annoying)
  */
 /* #define PILLAR_TUNNELS */
+
+/*
+ * Turn on the overhead map support for the borg
+ */
+#ifdef ALLOW_BORG
+#define TERM_USE_MAP
+#define TERM_CAVE_MAP
+#define TERM_USE_LIST
+#endif /* ALLOW_BORG */
+
+/*
+ * Optional use of 64bit type
+ */
+/* #define USE_64B */
+
+/*
+ * Defining parts of the new term interface requires
+ * the callbacks api
+ */
+#if defined TERM_USE_MAP || defined TERM_USE_LIST
+#define TERM_USE_CALLBACKS
+#endif /* TERM_USE_MAP || TERM_USE_LIST */

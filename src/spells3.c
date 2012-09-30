@@ -15,10 +15,6 @@
 /* Maximum number of tries for teleporting */
 #define MAX_TRIES 100
 
-/* 1/x chance of reducing stats (for elemental attacks) */
-#define HURT_CHANCE 16
-
-
 /*
  * Teleport a monster, normally up to "dis" grids away.
  *
@@ -93,9 +89,8 @@ bool teleport_away(int m_idx, int dis)
 			if ((ny == p_ptr->py) && (nx == p_ptr->px)) continue;
 
 			/* ...nor onto the Pattern */
-			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
-				(c_ptr->feat <= FEAT_PATTERN_XTRA2)) continue;
-			
+			if (cave_pattern_grid(c_ptr)) continue;
+
 			/* Not on bad terrain */
 			if (!monster_can_cross_terrain(c_ptr->feat, r_ptr)) continue;
 
@@ -262,8 +257,7 @@ void teleport_to_player(int m_idx)
 			if ((ny == py) && (nx == px)) continue;
 
 			/* ...nor onto the Pattern */
-			if ((c_ptr->feat >= FEAT_PATTERN_START) &&
-				(c_ptr->feat <= FEAT_PATTERN_XTRA2)) continue;
+			if (cave_pattern_grid(c_ptr)) continue;
 
 			/* No teleporting into vaults and such */
 			/* if (c_ptr->info & (CAVE_ICKY)) continue; */
@@ -390,9 +384,8 @@ void teleport_player(int dis)
 
 			c_ptr = area(x, y);
 
-			/* Require "naked" floor space or trees */
-			if (!(cave_naked_grid(c_ptr) ||
-				  ((c_ptr->feat & 0x60) == 0x60))) continue;
+			/* Require empty space */
+			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* No non-movement */
 			if ((y == py) && (x == px)) continue;
@@ -440,6 +433,9 @@ void teleport_player(int dis)
 	/* Move the player */
 	p_ptr->py = y;
 	p_ptr->px = x;
+
+	/* Notice movement */
+	Term_move_player();
 
 	if (!p_ptr->depth)
 	{
@@ -578,6 +574,9 @@ void teleport_player_to(int nx, int ny)
 	/* Move the player */
 	p_ptr->py = y;
 	p_ptr->px = x;
+
+	/* Notice movement */
+	Term_move_player();
 
 	if (!p_ptr->depth)
 	{
@@ -785,48 +784,48 @@ bool apply_disenchant(void)
 	{
 		case 1:
 		{
-			t = INVEN_WIELD;
+			t = EQUIP_WIELD;
 			break;
 		}
 		case 2:
 		{
-			t = INVEN_BOW;
+			t = EQUIP_BOW;
 			break;
 		}
 		case 3:
 		{
-			t = INVEN_BODY;
+			t = EQUIP_BODY;
 			break;
 		}
 		case 4:
 		{
-			t = INVEN_OUTER;
+			t = EQUIP_OUTER;
 			break;
 		}
 		case 5:
 		{
-			t = INVEN_ARM;
+			t = EQUIP_ARM;
 			break;
 		}
 		case 6:
 		{
-			t = INVEN_HEAD;
+			t = EQUIP_HEAD;
 			break;
 		}
 		case 7:
 		{
-			t = INVEN_HANDS;
+			t = EQUIP_HANDS;
 			break;
 		}
 		case 8:
 		{
-			t = INVEN_FEET;
+			t = EQUIP_FEET;
 			break;
 		}
 	}
 
 	/* Get the item */
-	o_ptr = &inventory[t];
+	o_ptr = &p_ptr->equipment[t];
 
 	/* No item, nothing happens */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -849,8 +848,7 @@ bool apply_disenchant(void)
 	{
 		/* Message */
 		msg_format("Your %s (%c) resist%s disenchantment!",
-				   o_name, index_to_label(t),
-				   ((o_ptr->number != 1) ? "" : "s"));
+				   o_name, I2A(t), ((o_ptr->number != 1) ? "" : "s"));
 
 		/* Notice */
 		return (TRUE);
@@ -871,8 +869,7 @@ bool apply_disenchant(void)
 
 	/* Message */
 	msg_format("Your %s (%c) %s disenchanted!",
-			   o_name, index_to_label(t),
-			   ((o_ptr->number != 1) ? "were" : "was"));
+			   o_name, I2A(t), ((o_ptr->number != 1) ? "were" : "was"));
 
 	chg_virtue(V_HARMONY, 1);
 	chg_virtue(V_ENCHANT, -2);
@@ -891,6 +888,7 @@ bool apply_disenchant(void)
 void mutate_player(void)
 {
 	int max1, cur1, max2, cur2, ii, jj;
+	int bonus1, bonus2;
 
 	/* Pick a pair of stats */
 	ii = randint0(A_MAX);
@@ -900,6 +898,17 @@ void mutate_player(void)
 	cur1 = p_ptr->stat_cur[ii];
 	max2 = p_ptr->stat_max[jj];
 	cur2 = p_ptr->stat_cur[jj];
+
+	/* Adjust the swapped stats... */
+	bonus1 = rp_ptr->r_adj[ii] + cp_ptr->c_adj[ii];
+	bonus2 = rp_ptr->r_adj[jj] + cp_ptr->c_adj[jj];
+
+	max1 = adjust_stat(jj, max1, bonus2 - bonus1);
+	max2 = adjust_stat(ii, max2, bonus1 - bonus2);
+
+	/* Hack - restore both stats rather than figure try to swap drainage */
+	cur1 = max1;
+	cur2 = max2;
 
 	p_ptr->stat_max[ii] = max2;
 	p_ptr->stat_cur[ii] = cur2;
@@ -964,7 +973,7 @@ void apply_nexus(const monster_type *m_ptr)
 void phlogiston(void)
 {
 	int max_flog;
-	object_type *o_ptr = &inventory[INVEN_LITE];
+	object_type *o_ptr = &p_ptr->equipment[EQUIP_LITE];
 
 
 	/* It's a lamp */
@@ -1015,7 +1024,7 @@ void phlogiston(void)
  */
 void brand_weapon(int brand_type)
 {
-	object_type *o_ptr = &inventory[INVEN_WIELD];
+	object_type *o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	byte ego = 0;
 
@@ -1158,7 +1167,7 @@ void fetch(int dir, int wgt, bool require_los)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int ty, tx, i;
+	int tx, ty;
 	cave_type *c_ptr;
 	object_type *o_ptr;
 	char o_name[256];
@@ -1223,7 +1232,7 @@ void fetch(int dir, int wgt, bool require_los)
 			c_ptr = area(tx, ty);
 
 			if ((distance(px, py, tx, ty) > MAX_RANGE) ||
-				!cave_floor_grid(c_ptr)) return;
+				cave_wall_grid(c_ptr)) return;
 
 			/* found a spot */
 			if (!c_ptr->o_idx) break;
@@ -1249,14 +1258,12 @@ void fetch(int dir, int wgt, bool require_los)
 		return;
 	}
 
-	i = c_ptr->o_idx;
-	c_ptr->o_idx = o_ptr->next_o_idx;
+	/* Move the object */
+	move_object(&area(px, py)->o_idx, &c_ptr->o_idx, o_ptr);
 
-	/* 'move' it */
-	area(px, py)->o_idx = i;
-	o_ptr->next_o_idx = 0;
-	o_ptr->iy = py;
+	/* Record the new location */
 	o_ptr->ix = px;
+	o_ptr->iy = py;
 
 	object_desc(o_name, o_ptr, TRUE, 0, 256);
 	msg_format("%^s flies through the air to your feet.", o_name);
@@ -1305,7 +1312,7 @@ bool warding_glyph(void)
 	}
 
 	/* Not in a wall */
-	if (!cave_floor_grid(c_ptr))
+	if (cave_wall_grid(c_ptr))
 	{
 		msg_print("You need open space to draw the rune.");
 		return FALSE;
@@ -1339,7 +1346,7 @@ bool explosive_rune(void)
 	}
 
 	/* Not in a wall */
-	if (!cave_floor_grid(c_ptr))
+	if (cave_wall_grid(c_ptr))
 	{
 		msg_print("You need open space to draw the rune.");
 		return FALSE;
@@ -1362,11 +1369,12 @@ bool explosive_rune(void)
 void identify_pack(void)
 {
 	int i;
+	object_type *o_ptr;
 
-	/* Simply identify and know every item */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	/* Identify equipment */
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -1374,28 +1382,18 @@ void identify_pack(void)
 		/* Identify it */
 		identify_item(o_ptr);
 	}
+
+	/* Identify inventory */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		/* Identify it */
+		identify_item(o_ptr);
+	}
+	OBJ_ITT_END;
 }
 
-#define ENCHANT_MAX 25
-
 /*
- * Used by the "enchant" function (chance of failure)
- *
- * Formula: 1000-0.064x^3
- */
-static int enchant_table[ENCHANT_MAX + 1] =
-{
-	0, 115, 221, 319, 407,
-	488, 561, 627, 686, 738,
-	784, 824, 859, 889, 914,
-	936, 953, 967, 978, 986,
-	992, 996, 998, 999, 999,
-	1000
-};
-
-
-/*
- * Removes curses from items in inventory
+ * Try to remove a curse from an item
  *
  * Note that Items which are "Perma-Cursed" (The One Ring,
  * The Crown of Morgoth) can NEVER be uncursed.
@@ -1403,57 +1401,83 @@ static int enchant_table[ENCHANT_MAX + 1] =
  * Note that if "all" is FALSE, then Items which are
  * "Heavy-Cursed" (Mormegil, Calris, and Weapons of Morgul)
  * will not be uncursed.
+ *
+ * If the item is heavily or permanently cursed, we add that flag
+ * to the 'known' flags so the player can see that it is cursed on
+ * the 'C'haracter screen. This may allow a player to learn that
+ * an unidentified scroll is remove curse when it has no apparent
+ * effect, in rare circumstances.
+ */
+static bool uncurse_item(object_type *o_ptr, bool all)
+{
+	u32b f1, f2, f3;
+
+	/* Uncursed already */
+	if (!cursed_p(o_ptr)) return (FALSE);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Heavily Cursed Items need a special spell */
+	if (!all && (f3 & TR3_HEAVY_CURSE))
+	{
+		/* Let the player know */
+		o_ptr->kn_flags3 |= TR3_PERMA_CURSE;
+
+		/* Done */
+		return (FALSE);
+	}
+
+	/* Perma-Cursed Items can NEVER be uncursed */
+	if (f3 & TR3_PERMA_CURSE) return (FALSE);
+
+	/* Hack -- Assume felt */
+	o_ptr->info |= (OB_SENSE);
+
+	/* Uncurse the item */
+	o_ptr->flags3 &= ~(TR3_CURSED);
+	o_ptr->flags3 &= ~(TR3_HEAVY_CURSE);
+
+
+	/* Recalculate the bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP | PW_INVEN);
+
+	return (TRUE);
+}
+
+/*
+ * Removes curses from items in inventory
  */
 static int remove_curse_aux(int all)
 {
 	int i, cnt = 0;
+	object_type *o_ptr;
 
-	/* Attempt to uncurse items being worn */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	/* Attempt to uncurse equipment */
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		u32b f1, f2, f3;
-
-		object_type *o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Uncursed already */
-		if (!cursed_p(o_ptr)) continue;
-
-		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3);
-
-		/* Heavily Cursed Items need a special spell */
-		if (!all && (f3 & TR3_HEAVY_CURSE)) continue;
-
-		/* Perma-Cursed Items can NEVER be uncursed */
-		if (f3 & TR3_PERMA_CURSE) continue;
-
-		/* Uncurse it */
-		o_ptr->ident &= ~(IDENT_CURSED);
-
-		/* Hack -- Assume felt */
-		o_ptr->ident |= (IDENT_SENSE);
-
-		if (o_ptr->flags3 & TR3_CURSED)
-			o_ptr->flags3 &= ~(TR3_CURSED);
-
-		if (o_ptr->flags3 & TR3_HEAVY_CURSE)
-			o_ptr->flags3 &= ~(TR3_HEAVY_CURSE);
-
-		/* Take note */
-		o_ptr->feeling = FEEL_UNCURSED;
-
-		/* Recalculate the bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP);
-
 		/* Count the uncursings */
-		cnt++;
+		if (uncurse_item(o_ptr, all)) cnt++;
 	}
+
+	/* Attempt to uncurse inventory */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		/* Count the uncursings */
+		if (uncurse_item(o_ptr, all)) cnt++;
+	}
+	OBJ_ITT_END;
 
 	/* Return "something uncursed" */
 	return (cnt);
@@ -1482,7 +1506,7 @@ bool remove_all_curse(void)
  */
 bool alchemy(void)
 {
-	int item, amt = 1;
+	int amt = 1;
 	int old_number;
 	long price;
 	bool force = FALSE;
@@ -1498,20 +1522,11 @@ bool alchemy(void)
 	/* Get an item */
 	q = "Turn which item to gold? ";
 	s = "You have nothing to turn to gold.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
 
 	/* See how many items */
 	if (o_ptr->number > 1)
@@ -1576,21 +1591,8 @@ bool alchemy(void)
 
 	}
 
-	/* Eliminate the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -amt);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Eliminate the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -amt);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+	/* Eliminate the item */
+	item_increase(o_ptr, -amt);
 
 	return TRUE;
 }
@@ -1665,8 +1667,7 @@ static void break_curse(object_type *o_ptr)
 	{
 		msg_print("The curse is broken!");
 
-		o_ptr->ident &= ~(IDENT_CURSED);
-		o_ptr->ident |= (IDENT_SENSE);
+		o_ptr->info |= (OB_SENSE);
 
 		if (o_ptr->flags3 & TR3_CURSED)
 			o_ptr->flags3 &= ~(TR3_CURSED);
@@ -1676,6 +1677,36 @@ static void break_curse(object_type *o_ptr)
 		o_ptr->feeling = FEEL_UNCURSED;
 	}
 }
+
+
+#define ENCHANT_MAX_DAM 25
+#define ENCHANT_MAX 15
+
+/*
+ * Used by the "enchant" function (chance of failure)
+ *
+ * Formula: 1000-0.064x^3
+ */
+static int enchant_table_dam[ENCHANT_MAX_DAM + 1] =
+{
+	0, 115, 221, 319, 407,
+	488, 561, 627, 686, 738,
+	784, 824, 859, 889, 914,
+	936, 953, 967, 978, 986,
+	992, 996, 998, 999, 999,
+	1000
+};
+
+/*
+ * Used by the "enchant" function (chance of failure)
+ */
+static int enchant_table[ENCHANT_MAX + 1] =
+{
+	0, 10, 50, 100, 200,
+	300, 400, 500, 650, 800,
+	950, 987, 993, 995, 998,
+	1000
+};
 
 
 /*
@@ -1746,9 +1777,9 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & ENCH_TODAM)
 		{
 			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > ENCHANT_MAX) chance = 1000;
+			else if (o_ptr->to_d > ENCHANT_MAX_DAM) chance = 1000;
 			else
-				chance = enchant_table[o_ptr->to_d];
+				chance = enchant_table_dam[o_ptr->to_d];
 
 			if (force || ((randint1(1000) > chance) && (!a || one_in_(2))))
 			{
@@ -1818,7 +1849,6 @@ bool enchant(object_type *o_ptr, int n, int eflag)
  */
 bool enchant_spell(int num_hit, int num_dam, int num_ac)
 {
-	int item;
 	bool okay = FALSE;
 	object_type *o_ptr;
 	char o_name[512];
@@ -1834,28 +1864,17 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	/* Get an item */
 	q = "Enchant which item? ";
 	s = "You have nothing to enchant.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
-		return (FALSE);
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0, 256);
 
 	/* Describe */
-	msg_format("%s %s glow%s brightly!",
-			   ((item >= 0) ? "Your" : "The"), o_name,
+	msg_format("The %s glow%s brightly!", o_name,
 			   ((o_ptr->number > 1) ? "" : "s"));
 
 	/* Enchant */
@@ -1884,7 +1903,6 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 bool artifact_scroll(void)
 {
-	int item;
 	bool okay;
 	object_type *o_ptr;
 	char o_name[256];
@@ -1897,28 +1915,17 @@ bool artifact_scroll(void)
 	/* Get an item */
 	q = "Enchant which item? ";
 	s = "You have nothing to enchant.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
-		return (FALSE);
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0, 256);
 
 	/* Describe */
-	msg_format("%s %s radiate%s a blinding light!",
-			   ((item >= 0) ? "Your" : "The"), o_name,
+	msg_format("The %s radiate%s a blinding light!", o_name,
 			   ((o_ptr->number > 1) ? "" : "s"));
 
 	/* No artifact creation of Dragon Scale Mail */
@@ -1949,10 +1956,10 @@ bool artifact_scroll(void)
 			msg_format("%d of your %s %s destroyed!", (o_ptr->number) - 1,
 					   o_name, ((o_ptr->number > 2) ? "were" : "was"));
 
-			/* Change the weight */
-			p_ptr->total_weight -= ((o_ptr->number - 1) * o_ptr->weight);
-
 			o_ptr->number = 1;
+
+			/* Notice weight changes */
+			p_ptr->update |= PU_WEIGHT;
 		}
 
 		okay = create_artifact(o_ptr, TRUE);
@@ -1983,6 +1990,8 @@ static void bad_luck(object_type *o_ptr)
 {
 	bool is_art = ((o_ptr->flags3 & TR3_INSTA_ART) ? TRUE : FALSE);
 
+	object_type *q_ptr;
+
 	/* Do not curse unwieldable items */
 	if (wield_slot(o_ptr) == -1) return;
 
@@ -1994,10 +2003,13 @@ static void bad_luck(object_type *o_ptr)
 		/* Non-artifacts get rerolled */
 		if (!is_art)
 		{
-			o_ptr->ident |= IDENT_CURSED;
+			o_ptr->flags3 |= TR3_CURSED;
 
 			/* Prepare it */
-			object_prep(o_ptr, o_ptr->k_idx);
+			q_ptr = object_prep(o_ptr->k_idx);
+
+			/* Swap it */
+			swap_objects(o_ptr, q_ptr);
 
 			/* Restore the number */
 			o_ptr->number = number;
@@ -2007,7 +2019,7 @@ static void bad_luck(object_type *o_ptr)
 		}
 
 		/* Now curse it */
-		o_ptr->ident |= IDENT_CURSED;
+		o_ptr->flags3 |= TR3_CURSED;
 	}
 
 	/* Objects are blasted sometimes */
@@ -2025,12 +2037,6 @@ static void bad_luck(object_type *o_ptr)
 		o_ptr->flags3 = 0;
 
 		add_ego_flags(o_ptr, EGO_BLASTED);
-
-		/* Curse it */
-		o_ptr->ident |= (IDENT_CURSED);
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -2054,7 +2060,7 @@ void identify_item(object_type *o_ptr)
 		bad_luck(o_ptr);
 	}
 
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
+	if (!object_known_full(o_ptr))
 	{
 		if (o_ptr->flags3 & TR3_INSTA_ART)
 			chg_virtue(V_KNOWLEDGE, 3);
@@ -2125,7 +2131,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
 	if (k_ptr->flavor && !k_ptr->aware) return (TRUE);
 
 	/* Check to see if we have identified the item */
-	if (o_ptr->ident & IDENT_MENTAL) return (FALSE);
+	if (object_known_full(o_ptr)) return (FALSE);
 
 	return (TRUE);
 }
@@ -2138,9 +2144,7 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
  */
 bool ident_spell(void)
 {
-	int item;
 	object_type *o_ptr;
-	char o_name[256];
 	cptr q, s;
 
 	/* Only un-id'ed items */
@@ -2149,42 +2153,17 @@ bool ident_spell(void)
 	/* Get an item */
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
-		return (FALSE);
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
 
 	/* Identify it */
 	identify_item(o_ptr);
 
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3, 256);
-
-	/* Describe */
-	if (item >= INVEN_WIELD)
-	{
-		msg_format("%^s: %s (%c).",
-				   describe_use(item), o_name, index_to_label(item));
-	}
-	else if (item >= 0)
-	{
-		msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
-	}
-	else
-	{
-		msg_format("On the ground: %s.", o_name);
-	}
+	item_describe(o_ptr);
 
 	/* Something happened */
 	return (TRUE);
@@ -2198,7 +2177,6 @@ bool ident_spell(void)
  */
 bool mundane_spell(void)
 {
-	int item;
 	object_type *o_ptr;
 	object_kind *k_ptr;
 	cptr q, s;
@@ -2207,20 +2185,11 @@ bool mundane_spell(void)
 	/* Get an item */
 	q = "Use which item? ";
 	s = "You have nothing you can use.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
-		return (FALSE);
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
 
 	k_ptr = &k_info[o_ptr->k_idx];
 
@@ -2231,7 +2200,7 @@ bool mundane_spell(void)
 	o_ptr->discount = 0;
 
 	/* Not identified yet */
-	o_ptr->ident = 0;
+	o_ptr->info &= ~(OB_SENSE | OB_KNOWN | OB_EMPTY | OB_STOREB);
 
 	/* Erase the inscription */
 	o_ptr->inscription = 0;
@@ -2262,9 +2231,9 @@ bool mundane_spell(void)
 	o_ptr->ds = k_ptr->ds;
 
 	/* No artifact powers */
-	o_ptr->flags1 = 0;
-	o_ptr->flags2 = 0;
-	o_ptr->flags3 = 0;
+	o_ptr->flags1 = k_ptr->flags1;
+	o_ptr->flags2 = k_ptr->flags2;
+	o_ptr->flags3 = k_ptr->flags3;
 
 	/* For rod-stacking */
 	if (o_ptr->tval == TV_ROD)
@@ -2273,11 +2242,8 @@ bool mundane_spell(void)
 		o_ptr->pval = k_ptr->pval * o_ptr->number;
 	}
 
-	/* Hack -- worthless items are always "broken" */
-	if (o_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
-
-	/* Hack -- cursed items are always "cursed" */
-	if (k_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
+	/* Initialise cost */
+	o_ptr->cost = k_ptr->cost;
 
 	/* Something happened */
 	return (TRUE);
@@ -2291,7 +2257,6 @@ bool mundane_spell(void)
  */
 bool identify_fully(void)
 {
-	int item;
 	object_type *o_ptr;
 	char o_name[256];
 	cptr q, s;
@@ -2302,26 +2267,15 @@ bool identify_fully(void)
 	/* Get an item */
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
-		return (FALSE);
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
 
 	/* Identify it */
 	identify_item(o_ptr);
-
-	/* Mark the item as fully known */
-	o_ptr->ident |= (IDENT_MENTAL);
+	object_mental(o_ptr);
 
 	/* Save all the known flags */
 	o_ptr->kn_flags1 = o_ptr->flags1;
@@ -2335,19 +2289,7 @@ bool identify_fully(void)
 	object_desc(o_name, o_ptr, TRUE, 3, 256);
 
 	/* Describe */
-	if (item >= INVEN_WIELD)
-	{
-		msg_format("%^s: %s (%c).",
-				   describe_use(item), o_name, index_to_label(item));
-	}
-	else if (item >= 0)
-	{
-		msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
-	}
-	else
-	{
-		msg_format("On the ground: %s.", o_name);
-	}
+	item_describe(o_ptr);
 
 	/* Describe it fully */
 	(void)identify_fully_aux(o_ptr);
@@ -2376,7 +2318,7 @@ bool identify_fully(void)
  */
 bool recharge(int power)
 {
-	int item, lev;
+	int lev;
 	int recharge_strength, recharge_amount;
 
 	object_type *o_ptr;
@@ -2395,19 +2337,11 @@ bool recharge(int power)
 	/* Get an item */
 	q = "Recharge which item? ";
 	s = "You have nothing to recharge.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
 
 	/* Get the object kind. */
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -2505,10 +2439,10 @@ bool recharge(int power)
 			}
 
 			/* Hack -- we no longer "know" the item */
-			o_ptr->ident &= ~(IDENT_KNOWN);
+			o_ptr->info &= ~(OB_KNOWN);
 
 			/* Hack -- we no longer think the item is empty */
-			o_ptr->ident &= ~(IDENT_EMPTY);
+			o_ptr->info &= ~(OB_EMPTY);
 		}
 	}
 
@@ -2637,21 +2571,8 @@ bool recharge(int power)
 					reduce_charges(o_ptr, 1);
 				}
 
-				/* Reduce and describe inventory */
-				if (item >= 0)
-				{
-					inven_item_increase(item, -1);
-					inven_item_describe(item);
-					inven_item_optimize(item);
-				}
-
-				/* Reduce and describe floor item */
-				else
-				{
-					floor_item_increase(0 - item, -1);
-					floor_item_describe(0 - item);
-					floor_item_optimize(0 - item);
-				}
+				/* Reduce and describe */
+				item_increase(o_ptr, -1);
 			}
 
 			/* Destroy all members of a stack of objects. */
@@ -2663,21 +2584,8 @@ bool recharge(int power)
 					msg_format("Wild magic consumes your %s!", o_name);
 
 
-				/* Reduce and describe inventory */
-				if (item >= 0)
-				{
-					inven_item_increase(item, -999);
-					inven_item_describe(item);
-					inven_item_optimize(item);
-				}
-
-				/* Reduce and describe floor item */
-				else
-				{
-					floor_item_increase(0 - item, -999);
-					floor_item_describe(0 - item);
-					floor_item_optimize(0 - item);
-				}
+				/* Reduce and describe */
+				item_increase(o_ptr, -999);
 			}
 		}
 	}
@@ -2698,7 +2606,6 @@ bool recharge(int power)
  */
 bool bless_weapon(void)
 {
-	int item;
 	object_type *o_ptr;
 	u32b f1, f2, f3;
 	char o_name[256];
@@ -2710,21 +2617,11 @@ bool bless_weapon(void)
 	/* Get an item */
 	q = "Bless which weapon? ";
 	s = "You have weapon to bless.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR)))
-		return FALSE;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Not a valid item */
+	if (!o_ptr) return FALSE;
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0, 256);
@@ -2737,19 +2634,18 @@ bool bless_weapon(void)
 		if (((f3 & TR3_HEAVY_CURSE) && (randint1(100) < 33)) ||
 			(f3 & TR3_PERMA_CURSE))
 		{
-			msg_format("The black aura on %s %s disrupts the blessing!",
-					   ((item >= 0) ? "your" : "the"), o_name);
+			msg_format("The black aura on the %s disrupts the blessing!",
+					   o_name);
 			return TRUE;
 		}
 
-		msg_format("A malignant aura leaves %s %s.",
-				   ((item >= 0) ? "your" : "the"), o_name);
+		msg_format("A malignant aura leaves the %s.", o_name);
 
 		/* Uncurse it */
-		o_ptr->ident &= ~(IDENT_CURSED);
+		o_ptr->flags3 &= ~(TR3_CURSED);
 
 		/* Hack -- Assume felt */
-		o_ptr->ident |= (IDENT_SENSE);
+		o_ptr->info |= (OB_SENSE);
 
 		/* Take note */
 		o_ptr->feeling = FEEL_UNCURSED;
@@ -2771,8 +2667,7 @@ bool bless_weapon(void)
 	 */
 	if (f3 & TR3_BLESSED)
 	{
-		msg_format("%s %s %s blessed already.",
-				   ((item >= 0) ? "Your" : "The"), o_name,
+		msg_format("The %s %s blessed already.", o_name,
 				   ((o_ptr->number > 1) ? "were" : "was"));
 		return TRUE;
 	}
@@ -2780,9 +2675,7 @@ bool bless_weapon(void)
 	if (!(o_ptr->xtra_name) || one_in_(3))
 	{
 		/* Describe */
-		msg_format("%s %s shine%s!",
-				   ((item >= 0) ? "Your" : "The"), o_name,
-				   ((o_ptr->number > 1) ? "" : "s"));
+		msg_format("The %s shine%s!", o_name, ((o_ptr->number > 1) ? "" : "s"));
 		o_ptr->flags3 |= TR3_BLESSED;
 	}
 	else
@@ -2821,8 +2714,7 @@ bool bless_weapon(void)
 		if (dis_happened)
 		{
 			msg_print("There is a static feeling in the air...");
-			msg_format("%s %s %s disenchanted!",
-					   ((item >= 0) ? "Your" : "The"), o_name,
+			msg_format("The %s %s disenchanted!", o_name,
 					   ((o_ptr->number > 1) ? "were" : "was"));
 		}
 	}
@@ -3861,7 +3753,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 22:
 					{
 						sprintf(p, " dam %d", plev * 3);
-						break;
+						/* break; */
 					}
 				}
 				break;
@@ -3961,7 +3853,7 @@ void print_spells(byte *spells, int num, int x, int y, int realm)
 	byte line_attr;
 
 
-	if (((realm < 0) || (realm > MAX_REALM - 1)) && p_ptr->wizard)
+	if (((realm <= 0) || (realm >= MAX_REALM)) && p_ptr->wizard)
 		msg_print("Warning! print_spells called with null realm");
 
 	/* Title the list */
@@ -4253,22 +4145,19 @@ int set_cold_destroy(object_type *o_ptr)
  */
 int inven_damage(inven_func typ, int perc)
 {
-	int i, j, k, amt;
+	int j, k, amt;
 	object_type *o_ptr;
 	char o_name[256];
+
+	int slot;
 
 
 	/* Count the casualties */
 	k = 0;
 
-	/* Scan through the slots backwards */
-	for (i = 0; i < INVEN_PACK; i++)
+	/* Scan the inventory */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
 		/* Hack -- for now, skip artifacts */
 		if (o_ptr->flags3 & TR3_INSTA_ART) continue;
 
@@ -4287,13 +4176,15 @@ int inven_damage(inven_func typ, int perc)
 				/* Get a description */
 				object_desc(o_name, o_ptr, FALSE, 3, 256);
 
+				/* Get slot */
+				slot = get_item_position(p_ptr->inventory, o_ptr);
+
 				/* Message */
 				msg_format("%sour %s (%c) %s destroyed!",
 						   ((o_ptr->number > 1) ?
 							((amt == o_ptr->number) ? "All of y" :
 							 (amt > 1 ? "Some of y" : "One of y")) : "Y"),
-						   o_name, index_to_label(i),
-						   ((amt > 1) ? "were" : "was"));
+						   o_name, I2A(slot), ((amt > 1) ? "were" : "was"));
 
 				/* Potions smash open */
 				if (object_is_potion(o_ptr))
@@ -4308,14 +4199,14 @@ int inven_damage(inven_func typ, int perc)
 				reduce_charges(o_ptr, amt);
 
 				/* Destroy "amt" items */
-				inven_item_increase(i, -amt);
-				inven_item_optimize(i);
+				item_increase(o_ptr, -amt);
 
 				/* Count the casualties */
 				k += amt;
 			}
 		}
 	}
+	OBJ_ITT_END;
 
 	/* Return the casualty count */
 	return (k);
@@ -4341,32 +4232,32 @@ static int minus_ac(void)
 	{
 		case 1:
 		{
-			o_ptr = &inventory[INVEN_BODY];
+			o_ptr = &p_ptr->equipment[EQUIP_BODY];
 			break;
 		}
 		case 2:
 		{
-			o_ptr = &inventory[INVEN_ARM];
+			o_ptr = &p_ptr->equipment[EQUIP_ARM];
 			break;
 		}
 		case 3:
 		{
-			o_ptr = &inventory[INVEN_OUTER];
+			o_ptr = &p_ptr->equipment[EQUIP_OUTER];
 			break;
 		}
 		case 4:
 		{
-			o_ptr = &inventory[INVEN_HANDS];
+			o_ptr = &p_ptr->equipment[EQUIP_HANDS];
 			break;
 		}
 		case 5:
 		{
-			o_ptr = &inventory[INVEN_HEAD];
+			o_ptr = &p_ptr->equipment[EQUIP_HEAD];
 			break;
 		}
 		case 6:
 		{
-			o_ptr = &inventory[INVEN_FEET];
+			o_ptr = &p_ptr->equipment[EQUIP_FEET];
 			break;
 		}
 	}
@@ -4414,7 +4305,7 @@ static int minus_ac(void)
  */
 void acid_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	int inv;
 
 	/* Total Immunity */
 	if (p_ptr->immune_acid || (dam <= 0)) return;
@@ -4425,6 +4316,8 @@ void acid_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
+
+	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	if ((!(p_ptr->oppose_acid || p_ptr->resist_acid)) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_CHR);
@@ -4446,7 +4339,7 @@ void acid_dam(int dam, cptr kb_str)
  */
 void elec_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	int inv;
 
 	/* Total immunity */
 	if (p_ptr->immune_elec || (dam <= 0)) return;
@@ -4457,6 +4350,8 @@ void elec_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
+
+	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	if ((!(p_ptr->oppose_elec || p_ptr->resist_elec)) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_DEX);
@@ -4475,7 +4370,7 @@ void elec_dam(int dam, cptr kb_str)
  */
 void fire_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	int inv;
 
 	/* Totally immune */
 	if (p_ptr->immune_fire || (dam <= 0)) return;
@@ -4486,6 +4381,8 @@ void fire_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
+
+	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	if ((!(p_ptr->oppose_fire || p_ptr->resist_fire)) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_STR);
@@ -4504,7 +4401,7 @@ void fire_dam(int dam, cptr kb_str)
  */
 void cold_dam(int dam, cptr kb_str)
 {
-	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
+	int inv;
 
 	/* Total immunity */
 	if (p_ptr->immune_cold || (dam <= 0)) return;
@@ -4515,6 +4412,8 @@ void cold_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
+
+	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	if ((!(p_ptr->oppose_cold || p_ptr->resist_cold)) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_STR);
@@ -4530,7 +4429,6 @@ void cold_dam(int dam, cptr kb_str)
 
 bool rustproof(void)
 {
-	int item;
 	object_type *o_ptr;
 	char o_name[256];
 	cptr q, s;
@@ -4541,21 +4439,11 @@ bool rustproof(void)
 	/* Get an item */
 	q = "Rustproof which piece of armour? ";
 	s = "You have nothing to rustproof.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return
-			FALSE;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
+	/* Not a valid item */
+	if (!o_ptr) return (FALSE);
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0, 256);
@@ -4564,14 +4452,12 @@ bool rustproof(void)
 
 	if ((o_ptr->to_a < 0) && !(cursed_p(o_ptr)))
 	{
-		msg_format("%s %s look%s as good as new!",
-				   ((item >= 0) ? "Your" : "The"), o_name,
+		msg_format("The %s look%s as good as new!", o_name,
 				   ((o_ptr->number > 1) ? "" : "s"));
 		o_ptr->to_a = 0;
 	}
 
-	msg_format("%s %s %s now protected against corrosion.",
-			   ((item >= 0) ? "Your" : "The"), o_name,
+	msg_format("The %s %s now protected against corrosion.", o_name,
 			   ((o_ptr->number > 1) ? "are" : "is"));
 
 	return TRUE;
@@ -4589,7 +4475,7 @@ bool curse_armor(void)
 
 
 	/* Curse the body armor */
-	o_ptr = &inventory[INVEN_BODY];
+	o_ptr = &p_ptr->equipment[EQUIP_BODY];
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -4627,12 +4513,6 @@ bool curse_armor(void)
 
 		add_ego_flags(o_ptr, EGO_BLASTED);
 
-		/* Curse it */
-		o_ptr->ident |= (IDENT_CURSED);
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
-
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -4658,7 +4538,7 @@ bool curse_weapon(void)
 
 
 	/* Curse the weapon */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -4696,12 +4576,6 @@ bool curse_weapon(void)
 
 		add_ego_flags(o_ptr, EGO_SHATTERED);
 
-		/* Curse it */
-		o_ptr->ident |= (IDENT_CURSED);
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
-
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -4722,13 +4596,11 @@ bool curse_weapon(void)
  */
 bool brand_bolts(void)
 {
-	int i;
+	object_type *o_ptr;
 
 	/* Use the first acceptable bolts */
-	for (i = 0; i < INVEN_PACK; i++)
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
-		object_type *o_ptr = &inventory[i];
-
 		/* Skip non-bolts */
 		if (o_ptr->tval != TV_BOLT) continue;
 
@@ -4736,7 +4608,7 @@ bool brand_bolts(void)
 		if (o_ptr->xtra_name) continue;
 
 		/* Skip cursed/broken items */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
+		if (cursed_p(o_ptr) || !o_ptr->cost) continue;
 
 		/* Randomize */
 		if (randint0(100) < 75) continue;
@@ -4753,6 +4625,7 @@ bool brand_bolts(void)
 		/* Notice */
 		return (TRUE);
 	}
+	OBJ_ITT_END;
 
 	/* Flush */
 	if (flush_failure) flush();

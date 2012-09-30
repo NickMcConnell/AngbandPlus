@@ -2,7 +2,7 @@
 -- Written by Waldemar Celes
 -- TeCGraf/PUC-Rio
 -- Jul 1998
--- $Id: package.lua,v 1.4 2001/12/30 21:35:41 sfuerst Exp $
+-- $Id: package.lua,v 1.5 2002/04/01 20:20:20 sfuerst Exp $
 
 -- This code is free software; you can redistribute it and/or modify it.
 -- The software provided hereunder is on an "as is" basis, and
@@ -99,6 +99,8 @@ function classPackage:preamble ()
  output('/* function to register type */')
  output('static void toluaI_reg_types (lua_State* tolua_S)')
  output('{')
+-- Hack - prevent compiler warnings when no types.
+ output('(void) tolua_S;	/* Hack - prevent compiler warnings */')
  foreach(_usertype,function(n,v) output(' tolua_usertype(tolua_S,"',v,'");') end)
  output('}')
  output('\n')

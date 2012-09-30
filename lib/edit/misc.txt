@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/12/24 17:07:33 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/04/15 16:52:18 $
 # File: misc.txt
 
 # This file is used to initialize the "lib/data/z_info.raw" file, which is
@@ -8,6 +8,7 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/z_info.raw" file.
 
+
 # Version stamp (required)
 
 V:2.8.1
@@ -16,7 +17,7 @@ V:2.8.1
 M:F:160
 
 # Maximum number of object kinds
-M:K:582
+M:K:591
 
 # Maximum number of artifacts
 M:A:128
@@ -25,23 +26,19 @@ M:A:128
 M:E:128
 
 # Maximum number of monster races
-M:R:885
+M:R:888
 
 # Maximum number of vaults
 M:V:126
 
 # Maximum number of quests
-M:Q:100
+M:Q:125
 
 # Maximum number of field types
-M:U:142
+M:U:145
 
 # Maximum size for "fld_list[]"
-# Increase this if you get lots of 'Compacting fields...' messages.
 M:D:512
-
-# Maximum size of the wilderness
-M:W:S:129
 
 # Maximum number of nodes in the wilderness decision tree
 M:W:N:250
@@ -55,8 +52,9 @@ M:W:P:40
 # Maximum number of active "regions" in dungeon / wilderness
 M:G:10
 
+# This needs to be larger than STORE_CACHE_AMNT * 24
 # Maximum number of objects
-M:O:512
+M:O:3000
 
 # Maximum number of monsters
 M:M:1024

@@ -158,7 +158,6 @@ static void prune_quests(void)
 
 #endif /* 0 */
 
-
 /*
  * Make a quest for killing n monsters of a certain type on a certain level
  */
@@ -194,16 +193,17 @@ u16b insert_dungeon_monster_quest(u16b r_idx, u16b num, u16b level)
 
 	if (num != 1)
 	{
+		char buf[80];
+		strcpy(buf, r_name + r_ptr->name);
+		plural_aux(buf);
 
 		/* XXX XXX Create quest name */
-		(void)strnfmt(q_ptr->name, 60, "Kill %d %s on level %d.",
-					  (int)num, r_name + r_ptr->name, (int)level);
+		(void)strnfmt(q_ptr->name, 60, "Kill %d %s.", (int)num, buf);
 	}
 	else
 	{
 		/* XXX XXX Create quest name */
-		(void)strnfmt(q_ptr->name, 60, "Kill %s on level %d.",
-					  r_name + r_ptr->name, (int)level);
+		(void)strnfmt(q_ptr->name, 60, "Kill %s.", r_name + r_ptr->name);
 	}
 
 	/* Save the quest data */
@@ -334,13 +334,27 @@ void get_player_quests(void)
 		/* Get monster */
 		for (j = 0; j < MAX_TRIES; j++)
 		{
+			int depth;
+			int min_depth;
+
+			if (!ironman_deep_quests)
+			{
+				depth = level + 6 +
+					randint1(level * v / 200 + 1) +
+					randint1(level * v / 200 + 1);
+				min_depth = level + (level / 20) + 1;
+			}
+			else
+			{
+				depth = level + rand_range(15, 30);
+				min_depth = level + v / 10 + 10;
+			}
+
 			/*
 			 * Random monster out of depth
 			 * (depending on level + number of quests)
 			 */
-			r_idx = get_mon_num(level + 6 +
-								randint1(level * v / 200 + 1) +
-								randint1(level * v / 200 + 1));
+			r_idx = get_mon_num(depth);
 
 			r_ptr = &r_info[r_idx];
 
@@ -355,7 +369,7 @@ void get_player_quests(void)
 			}
 
 			/* Accept monsters that are a few levels out of depth */
-			if (best_level > (level + (level / 20) + 1)) break;
+			if (best_level > min_depth) break;
 		}
 
 		r_ptr = &r_info[best_r_idx];
@@ -387,7 +401,7 @@ void get_player_quests(void)
 	/* Add the winner quests */
 
 	/* Hack XXX XXX Oberon, hard coded */
-	q_idx = insert_dungeon_monster_quest(QW_OBERON, 1, 98);
+	q_idx = insert_dungeon_monster_quest(QW_OBERON, 1, 99);
 	quest[q_idx].x_type = QX_KILL_WINNER;
 	quest[q_idx].flags |= QUEST_FLAG_KNOWN;
 	quest[q_idx].status = QUEST_STATUS_TAKEN;
@@ -636,40 +650,33 @@ static void create_stairs(int x, int y)
  */
 static void quest_reward(int num, int x, int y)
 {
-	object_type forge, *o_ptr;
+	object_type *o_ptr;
 
 	/* Ignore num for now */
 	(void)num;
 
 	while (TRUE)
 	{
-		/* Get local object */
-		o_ptr = &forge;
-
-		/* Wipe the object */
-		object_wipe(o_ptr);
-
 		/* Average of 20 great objects per game */
 		if (randint0(number_of_quests()) < 20)
 		{
 			/* Make a great object */
-			(void)make_object(o_ptr, 30, dun_theme);
+			o_ptr = make_object(30, dun_theme);
 		}
 		else
 		{
 			/* Make a good object */
-			(void)make_object(o_ptr, 15, dun_theme);
+			o_ptr = make_object(15, dun_theme);
 		}
+
+		if (!o_ptr) continue;
 
 		/* We need a 'good' item - so check the price */
 		if (object_value_real(o_ptr) > 100 * p_ptr->depth) break;
 	}
 
-	/* We need to be given a location... */
-
-
 	/* Drop it in the dungeon */
-	(void)drop_near(o_ptr, -1, x, y);
+	drop_near(o_ptr, -1, x, y);
 }
 
 
@@ -1105,7 +1112,20 @@ void do_cmd_knowledge_quests(void)
 			{
 				monster_race *r_ptr = &r_info[q_ptr->data.dun.r_idx];
 
+				char level[20];
+
 				strncpy(name, r_name + r_ptr->name, 80);
+
+				/* In feet, or in levels */
+				if (depth_in_feet)
+				{
+					strnfmt(level, 20, "%4dft",
+							(int)q_ptr->data.dun.level * 50);
+				}
+				else
+				{
+					strnfmt(level, 20, "%3d", (int)q_ptr->data.dun.level);
+				}
 
 				if (q_ptr->status == QUEST_STATUS_TAKEN)
 				{
@@ -1115,23 +1135,23 @@ void do_cmd_knowledge_quests(void)
 						plural_aux(name);
 
 						strnfmt(tmp_str, 256,
-								"%s (Dungeon level: %d)\n\n  Kill %d %s, have killed %d.\n\n",
-								q_ptr->name, (int)q_ptr->data.dun.level,
+								"%s (Dungeon level: %s)\n\n  Kill %d %s, have killed %d.\n\n",
+								q_ptr->name, level,
 								(int)q_ptr->data.dun.max_num, name,
 								(int)q_ptr->data.dun.cur_num);
 					}
 					else
 					{
-						strnfmt(tmp_str, 256, "%s (Dungeon level: %d)\n\n",
-								q_ptr->name, (int)q_ptr->data.dun.level, name);
+						strnfmt(tmp_str, 256, "%s (Dungeon level: %s)\n\n",
+								q_ptr->name, level);
 					}
 				}
 				else
 				{
 					/* Assume we've completed it for now */
 					strnfmt(tmp_str, 256,
-							"%s (Completed on dungeon level %d). \n",
-							q_ptr->name, (int)q_ptr->data.dun.level, name);
+							"%s (Completed on dungeon level %s). \n",
+							q_ptr->name, level);
 				}
 
 				break;
@@ -1468,6 +1488,9 @@ bool create_quest(int x, int y, int place_num)
 {
 	int i, j;
 	int q_num, qtype;
+	int best_town, best_dist;
+	int dx, dy;
+	cptr town_name, town_dir;
 
 	wild_type *w_ptr = &wild[y][x];
 
@@ -1532,9 +1555,62 @@ bool create_quest(int x, int y, int place_num)
 	/* We need to trigger when the player enters the wilderness block */
 	q_ptr->x_type = QX_WILD_ENTER;
 
-	/* XXX XXX Create quest name */
-	(void)strnfmt(q_ptr->name, 60, "Defeat the %s camp.",
-				  camp_types[qtype].name);
+	/* Find the nearest town */
+	best_dist = 99999;
+	best_town = 0;
+	for (i = 0; i < place_count; i++)
+	{
+		int d;
+
+		/* Only real towns */
+		if (place[i].type != TOWN_FRACT)
+			continue;
+
+		/* Find closest town */
+		d = distance(pl_ptr->x, pl_ptr->y, place[i].x, place[i].y);
+		if (d < best_dist)
+		{
+			best_dist = d;
+			best_town = i;
+		}
+	}
+
+	town_name = place[best_town].name;
+	dx = pl_ptr->x - place[best_town].x;
+	dy = pl_ptr->y - place[best_town].y;
+
+	if (ABS(dy) > ABS(dx) * 3)
+	{
+		if (dy > 0)
+			town_dir = "south";
+		else
+			town_dir = "north";
+	}
+	else if (ABS(dx) > ABS(dy) * 3)
+	{
+		if (dx > 0)
+			town_dir = "east";
+		else
+			town_dir = "west";
+	}
+	else if (dx > 0)
+	{
+		if (dy > 0)
+			town_dir = "south-east";
+		else
+			town_dir = "north-east";
+	}
+	else
+	{
+		if (dy > 0)
+			town_dir = "south-west";
+		else
+			town_dir = "north-west";
+	}
+
+	/* Create quest name */
+	(void)strnfmt(q_ptr->name, 60, "Defeat the %s camp %s of %s.",
+				  camp_types[qtype].name, town_dir, town_name);
 
 	/* Save the quest data */
 	q_ptr->data.wld.place = place_num;

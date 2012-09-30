@@ -23,13 +23,6 @@ static s16b mon_d_head = 0;
 static s16b mon_d_tail = 0;
 static s16b mon_d_m_idx[DEATH_MAX];
 
-
-
-/* ToDo: Make this global */
-/* 1/x chance of reducing stats (for elemental attacks) */
-#define HURT_CHANCE 16
-
-
 /*
  * Get a legal "multi-hued" color for drawing "spells"
  */
@@ -327,7 +320,7 @@ static bool project_f(int who, int r, int x, int y, int dam, int typ)
 			if (cave_floor_grid(c_ptr)) break;
 
 			/* Permanent walls */
-			if (c_ptr->feat >= FEAT_PERM_EXTRA) break;
+			if (cave_perma_grid(c_ptr)) break;
 
 			/* Fields can block destruction */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) break;
@@ -485,7 +478,7 @@ static bool project_f(int who, int r, int x, int y, int dam, int typ)
 			if ((c_ptr->o_idx != 0) || (c_ptr->m_idx != 0)) break;
 
 			/* Require a floor grid */
-			if (!cave_floor_grid(c_ptr)) break;
+			if (cave_wall_grid(c_ptr)) break;
 
 			/* Add the glyph here as a field */
 			(void)place_field(x, y, FT_GLYPH_WARDING);
@@ -500,6 +493,7 @@ static bool project_f(int who, int r, int x, int y, int dam, int typ)
 		{
 			/* Require a "naked" floor grid */
 			if ((c_ptr->o_idx != 0) || (c_ptr->m_idx != 0)) break;
+			if (!cave_floor_grid(c_ptr)) break;
 
 			/* Place a wall */
 			cave_set_feat(x, y, FEAT_WALL_EXTRA);
@@ -586,8 +580,6 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 {
 	cave_type *c_ptr = area(x, y);
 
-	s16b this_o_idx, next_o_idx = 0;
-
 	bool obvious = FALSE;
 	bool known = player_can_see_bold(x, y);
 
@@ -598,6 +590,15 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 	int k_idx = 0;
 	bool is_potion = FALSE;
 
+	object_type *o_ptr;
+
+	bool is_art = FALSE;
+	bool ignore = FALSE;
+	bool plural = FALSE;
+	bool do_kill = FALSE;
+
+	cptr note_kill = NULL;
+
 
 	/* XXX XXX XXX */
 	who = who ? who : 0;
@@ -607,23 +608,8 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 	{
-		object_type *o_ptr;
-
-		bool is_art = FALSE;
-		bool ignore = FALSE;
-		bool plural = FALSE;
-		bool do_kill = FALSE;
-
-		cptr note_kill = NULL;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Extract the flags */
 		object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -800,7 +786,7 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 						object_known(o_ptr);
 
 						/* Notice */
-						if (known && o_ptr->marked)
+						if (known && (o_ptr->info & OB_SEEN))
 						{
 							msg_print("Click!");
 							obvious = TRUE;
@@ -817,7 +803,7 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 		if (do_kill)
 		{
 			/* Effect "observed" */
-			if (known && o_ptr->marked)
+			if (known && (o_ptr->info & OB_SEEN))
 			{
 				obvious = TRUE;
 				object_desc(o_name, o_ptr, FALSE, 0, 256);
@@ -827,7 +813,7 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 			if (is_art || ignore)
 			{
 				/* Observe the resist */
-				if (known && o_ptr->marked)
+				if (known && (o_ptr->info & OB_SEEN))
 				{
 					msg_format("The %s %s unaffected!",
 							   o_name, (plural ? "are" : "is"));
@@ -838,7 +824,7 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 			else
 			{
 				/* Describe if needed */
-				if (known && o_ptr->marked && note_kill)
+				if (known && (o_ptr->info & OB_SEEN) && note_kill)
 				{
 					msg_format("The %s%s", o_name, note_kill);
 				}
@@ -846,9 +832,8 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 				k_idx = o_ptr->k_idx;
 				is_potion = object_is_potion(o_ptr);
 
-
 				/* Delete the object */
-				delete_object_idx(this_o_idx);
+				delete_dungeon_object(o_ptr);
 
 				/* Potions produce effects when 'shattered' */
 				if (is_potion)
@@ -861,6 +846,7 @@ static bool project_o(int who, int r, int x, int y, int dam, int typ)
 			}
 		}
 	}
+	OBJ_ITT_END;
 
 	/* Return "Anything seen?" */
 	return (obvious);
@@ -4161,28 +4147,16 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 	/* Start at monster */
 	else if (who > 0)
 	{
-		if (ironman_los)
-		{
-			/*
-			 * Start at player, and go to monster
-			 * This means that monsters always can hit the player
-			 * if the player can see them
-			 */
-			y1 = y;
-			x1 = x;
+		/*
+		 * Start at player, and go to monster
+		 * This means that monsters always can hit the player
+		 * if the player can see them
+		 */
+		y1 = y;
+		x1 = x;
 
-			x2 = m_list[who].fx;
-			y2 = m_list[who].fy;
-		}
-		else
-		{
-			/* Start at monster, and go to player */
-			y2 = y;
-			x2 = x;
-
-			x1 = m_list[who].fx;
-			y1 = m_list[who].fy;
-		}
+		x2 = m_list[who].fx;
+		y2 = m_list[who].fy;
 	}
 
 	/* Hack -- verify stuff */
@@ -4206,7 +4180,7 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 	path_n = project_path(path_g, x1, y1, x2, y2, flg);
 
 	/* Do we need to invert the path? */
-	if (ironman_los && !jump && (who > 0))
+	if ((path_n > 0) && !jump && (who > 0))
 	{
 		/* Reverse the path */
 		for (i = path_n - 2, j = 0; i > j; i--, j++)
@@ -4269,7 +4243,7 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 		c_ptr = area(nx, ny);
 
 		/* Hack -- Balls explode before reaching walls */
-		if (!cave_floor_grid(c_ptr) && (rad > 0)) break;
+		if (cave_wall_grid(c_ptr) && (rad > 0)) break;
 
 		/* Require fields do not block magic */
 		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_MAGIC)) break;
@@ -4369,8 +4343,6 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 			int brad = 0;
 			int bdis = 0;
 			int cdis;
-			int sl = 0;
-			int sq = 0;
 
 			/* Not done yet */
 			bool done = FALSE;
@@ -4379,6 +4351,9 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 
 			by = y1;
 			bx = x1;
+
+			/* Initialise the multi-move */
+			mmove_init(x1, y1, x2, y2);
 
 			while (bdis <= dist + rad)
 			{
@@ -4424,7 +4399,7 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 				}
 
 				/* Ripple outwards */
-				mmove2(&bx, &by, x1, y1, x2, y2, &sl, &sq);
+				mmove(&bx, &by, x1, y1);
 
 				/* Find the next ripple */
 				bdis++;
@@ -4468,7 +4443,7 @@ bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg)
 							delete_field_location(c_ptr);
 
 							if (cave_valid_grid(c_ptr) &&
-								(c_ptr->feat < FEAT_PATTERN_START ||
+								(c_ptr->feat <= FEAT_WALL_SOLID ||
 								 c_ptr->feat > FEAT_SHAL_ACID))
 							{
 								if ((c_ptr->feat == FEAT_TREES) ||

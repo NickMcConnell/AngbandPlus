@@ -36,7 +36,6 @@
 /* Include our headers */
 #include "maid-x11.h"
 
-
 #ifdef SUPPORT_GAMMA
 static bool gamma_table_ready = FALSE;
 static int gamma_val = 0;

@@ -131,18 +131,13 @@ static const grouper group_item[] =
 static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
                       int k)
 {
-	object_type forge;
 	object_type *q_ptr;
 
-
-	/* Get local object */
-	q_ptr = &forge;
-
 	/* Prepare a fake item */
-	object_prep(q_ptr, k);
+	q_ptr = object_prep(k);
 
 	/* It is known */
-	q_ptr->ident |= (IDENT_KNOWN);
+	q_ptr->info |= (OB_KNOWN);
 
 	/* Cancel bonuses */
 	q_ptr->pval = 0;
@@ -1175,23 +1170,25 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 /*
  * Hack -- Create a "forged" artifact
  */
-static bool make_fake_artifact(object_type *o_ptr, int a_idx)
+static object_type *make_fake_artifact(int a_idx)
 {
 	int i;
+
+	object_type *o_ptr;
 
 	artifact_type *a_ptr = &a_info[a_idx];
 
 	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return FALSE;
+	if (!a_ptr->name) return (NULL);
 
 	/* Acquire the "kind" index */
 	i = lookup_kind(a_ptr->tval, a_ptr->sval);
 
 	/* Oops */
-	if (!i) return (FALSE);
+	if (!i) return (NULL);
 
 	/* Create the artifact */
-	object_prep(o_ptr, i);
+	o_ptr = object_prep(i);
 
 	/* Save the artifact flags */
 	o_ptr->flags1 |= a_ptr->flags1;
@@ -1221,7 +1218,7 @@ static bool make_fake_artifact(object_type *o_ptr, int a_idx)
 	o_ptr->xtra_name = quark_add(a_name + a_ptr->name);
 
 	/* Success */
-	return (TRUE);
+	return (o_ptr);
 }
 
 
@@ -1232,7 +1229,6 @@ static void spoil_artifact(cptr fname)
 {
 	int i, j;
 
-	object_type forge;
 	object_type *q_ptr;
 
 	obj_desc_list artifact;
@@ -1278,14 +1274,10 @@ static void spoil_artifact(cptr fname)
 			/* We only want objects in the current group */
 			if (a_ptr->tval != group_artifact[i].tval) continue;
 
-			/* Get local object */
-			q_ptr = &forge;
-
-			/* Wipe the object */
-			object_wipe(q_ptr);
-
 			/* Attempt to "forge" the artifact */
-			if (!make_fake_artifact(q_ptr, j)) continue;
+			q_ptr = make_fake_artifact(j);
+
+			if (!q_ptr) continue;
 
 			/* Analyze the artifact */
 			object_analyze(q_ptr, &artifact);

@@ -63,7 +63,6 @@ extern bool new_player_spot(void);
 
 extern void place_random_stairs(int x, int y);
 extern void place_random_door(int x, int y);
-extern void place_closed_door(int x, int y);
 
 extern void vault_objects(int x, int y, int num);
 extern void vault_traps(int x, int y, int xd, int yd, int num);

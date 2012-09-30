@@ -222,16 +222,12 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_HOBBIT:
 			{
 				object_type *q_ptr;
-				object_type forge;
 
-				/* Get local object */
-				q_ptr = &forge;
-
-				/* Create the food ration */
-				object_prep(q_ptr, 21);
+				/* Hack - Create the food ration */
+				q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
 
 				/* Drop the object from heaven */
-				(void)drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
+				drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
 				msg_print("You cook some food.");
 
 				break;
@@ -646,11 +642,17 @@ void do_cmd_racial_power(void)
 {
 	power_desc_type power_desc[36];
 	int num, ask, i = 0;
-	bool flag, redraw;
+	bool flag;
 	char choice;
 	char out_val[160];
 
 	const mutation_type *mut_ptr;
+	
+	byte y = 1, x = 0;
+	int ctr = 0;
+	char dummy[80];
+	char letter;
+	int x1, y1;
 
 	/* Wipe desc */
 	for (num = 0; num < 36; num++)
@@ -718,12 +720,40 @@ void do_cmd_racial_power(void)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
+	strcpy(dummy, "");
+
+	/* Save the screen */
+	screen_save();
+
+	/* Print header(s) */
+	if (num < 17)
+		prt("                            Lv Cost Fail", x, y++);
+	else
+		prt("                            Lv Cost Fail                            Lv Cost Fail", x, y++);
+
+	/* Print list */
+	while (ctr < num)
+	{
+		/* letter/number for power selection */
+		if (ctr < 26)
+			letter = I2A(ctr);
+		else
+			letter = '0' + ctr - 26;
+		x1 = ((ctr < 17) ? x : x + 40);
+		y1 = ((ctr < 17) ? y + ctr : y + ctr - 17);
+
+		sprintf(dummy, " %c) %-23.23s %2d %4d %3d%%",
+				letter,
+				power_desc[ctr].name,
+				power_desc[ctr].level,
+				power_desc[ctr].cost, power_desc[ctr].fail);
+		prt(dummy, x1, y1);
+		ctr++;
+	}
 
 	/* Build a prompt */
 	(void)strnfmt(out_val, 78,
-				  "(Powers %c-%c, *=List, ESC=exit) Use which power? ", I2A(0),
+				  "(Powers %c-%c, ESC=exit) Use which power? ", I2A(0),
 				  (num <= 26) ? I2A(num - 1) : '0' + num - 27);
 
 	if (!repeat_pull(&i) || i < 0 || i >= num)
@@ -731,66 +761,6 @@ void do_cmd_racial_power(void)
 		/* Get a spell from the user */
 		while (!flag && get_com(out_val, &choice))
 		{
-			/* Request redraw */
-			if ((choice == ' ') || (choice == '*') || (choice == '?'))
-			{
-				/* Show the list */
-				if (!redraw)
-				{
-					byte y = 1, x = 0;
-					int ctr = 0;
-					char dummy[80];
-					char letter;
-					int x1, y1;
-
-					strcpy(dummy, "");
-
-					/* Show list */
-					redraw = TRUE;
-
-					/* Save the screen */
-					screen_save();
-
-					/* Print header(s) */
-					if (num < 17)
-						prt("                            Lv Cost Fail", x, y++);
-					else
-						prt("                            Lv Cost Fail                            Lv Cost Fail", x, y++);
-
-					/* Print list */
-					while (ctr < num)
-					{
-						/* letter/number for power selection */
-						if (ctr < 26)
-							letter = I2A(ctr);
-						else
-							letter = '0' + ctr - 26;
-						x1 = ((ctr < 17) ? x : x + 40);
-						y1 = ((ctr < 17) ? y + ctr : y + ctr - 17);
-
-						sprintf(dummy, " %c) %-23.23s %2d %4d %3d%%",
-								letter,
-								power_desc[ctr].name,
-								power_desc[ctr].level,
-								power_desc[ctr].cost, power_desc[ctr].fail);
-						prt(dummy, x1, y1);
-						ctr++;
-					}
-				}
-
-				/* Hide the list */
-				else
-				{
-					/* Hide list */
-					redraw = FALSE;
-
-					/* Restore the screen */
-					screen_load();
-				}
-
-				/* Redo asking */
-				continue;
-			}
 
 			if (choice == '\r' && num == 1)
 			{
@@ -839,7 +809,7 @@ void do_cmd_racial_power(void)
 		}
 
 		/* Restore the screen */
-		if (redraw) screen_load();
+		screen_load();
 
 		/* Abort if needed */
 		if (!flag)

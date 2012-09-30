@@ -2,6 +2,170 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+
+Zangband 2.7.1:
+- Split off the graphics-specific code in util.c and moved it into
+  maid-grf.c
+- Added an overhead map interface into maid-grf.c  This allows
+  access to what the player knows about his surroundings in ports
+  and in the borg.
+- The wilderness size is no longer editable via misc.txt, changing
+  it caused savefiles to break.
+- Added terrain feature flags to f_info.txt and simplified most
+  of the enormous if statements dealing with properties of terrain.
+- Added the missing walls to the overhead map priority list.
+- Improved the vanilla town so that the stores are distributed
+  more evently.
+- Added a new option to the query symbol command.  Ctrl-K will list
+  the monsters you have killed as this player.
+- Added missing do_cmd_rerate() to the lua interface.  Potions of
+  new life wont crash the game now.
+- Reformatted the recharge building menu.
+- Added APW's [Z] borg for 2.4.0  This has been changed an awful lot,
+  with nearly all of the low-level code now different.  It uses the
+  interface in maid-graf.c as much as possible, instead of going
+  through the terms interface.  This means that graphics is
+  automatically supported.  It also simplifies things enormously.
+  It is still extremely buggy with heaps of missing features.
+  eg. It doesn't know about traps, artifacts or the home.
+- Improved the pack AI.
+- Fixed loading of 2.6.2 savefiles.
+- Fixed the chest-inside-a-chest bug.
+- Torches given at birth will stack with those found/bought later.
+- Remove curse is more powerful, and will uncurse items in the pack
+  as well as those being worn.
+- Fixed bug where AC and to_hit were much easier to enchant upwards
+  than intended.
+- You require a large weapon skill in order to get a large number of
+  attacks.  This fixes the bug with mage combat ability being too
+  large.
+- Changed the monster-nest/pit implementation.
+- Tweaked white ants a little bit.
+- Added a couple new monsters and renamed the second type of giant
+  red ant to giant fire ant.
+- Updated the emx makefile.
+- The ZAngband Borg screensaver should load it's display preferences
+  from 'zangband.ini' instead of 'angband.ini'.  (It is disabled at
+  the moment though.)
+- Optimised update_view() a little bit more.
+- Updated the indenter script to more closely match the Angband coding
+  style.  Nearly all of the source has passed through this indenter.
+- Items that give extra blows work again.
+- Made the Ring of Elemental Mastery more powerful, and fixed it so
+  it can actually be generated.
+- Made elemental attack stat-loss rarer.
+- Stores now stock items they buy from the player if there is room.
+- Renamed a few stores, and added a Bazaar to the starting town.
+- Make stores only buy appropriate items, since the player can still
+  sell anything to the Bazaar in the starting town.
+- Fixed the bug that was causing some stores to have no items for sale.
+- Add farms to the wilderness.
+- Made the more powerful shops much rarer.
+- Modify the price formula for enchanted items to be more reasonable
+  for very high enchantments.
+- Add magetowers which can teleport the player between towns.
+- Use a more meaningful character for towns on the wilderness map.
+- Display the difficulty of quests on the overhead map.  A '4' means
+  a quest equivalent to depth 31-40.
+- Fixed the major bug with wilderness quest difficulty.
+- The large-scale wilderness map no longer shows area outside the world.
+- The distribution of town sizes should be better.
+- Scale the "law" map so there is equal area at each difficulty level in
+  the wilderness.
+- Add a new option, ironman_deep_quests, to make dungeon random quests
+  more like ZCE's.
+- Correctly notice kills of yellow lights.
+- Added more coloring of the monster memory.
+- Fixed the quark code so that objects don't lose their inscriptions
+  or artifact/ego names.
+- Fixed bug the prevented weapon type effects from taking place.  (Found
+  by Zedar)
+- Cleaned up the projection code somewhat.  Now missiles will travel
+  in much 'straighter-looking' lines if possible.
+- Fixed the bug caused when shooting at monsters hidden behind other
+  monsters causing the shot to hit a wall.
+- Changed the low-level object code.  Moved the scanning of lists of
+  objects to use an iterator.  Changed how object compaction works.
+  Changed things so that there are no statically defined objects.
+  This prevents massive memory leaks now that quarks are refcounted.
+  Changed the player and store inventories to use linked lists of
+  items in k_info.txt  This yields massive simplification of code
+  that is duplicated everywhere.  Equipment is still stored as an array.
+- Added a couple of weak low-level rings.
+- Added message-colour modifying to the '&' command.
+- Removed the old Mac port - now main-mac.new is main-mac.c
+- Turned the -DUSE_TRANSPARENCY compile-time option permanently on, as
+  in the Angband cvs.
+- Replace The Cloak of Benedict with The Filthy Rag of Keri the Humble.
+- Removed haggling.
+- Removed support for savefiles before version 2.2.x 
+- Improved the "standard" makefile alot, and moved many of the other
+  makefiles inside it as options.  Use "make -f makefile.std portname"
+  to compile with this makefile.  The default port is linux. This
+  breaks some ports... but having out of date makefiles was even worse.
+- Removed the makefiles of ports that have been merged into makefile.std
+- Added a view towns option to the ~ which shows towns you have visited
+  and the shops in them (and whether or not the town has stairs)
+- If you have toggle_xp on, it displays NEED instead of EXP in the 
+  main screen.
+- Display some obvious object flags on the 'C'haracter screen.
+- Removed two useless flush options, and the flush function works now.
+- Lua understands dos path seperators as well as unix ones.  This means
+  that cyg-win can now compile the complete game.
+- The "Wall of stone" spell no longer can destroy permanent rock.
+- Mindcrafter starting potion changed from Restore Mana to Restore
+  Wisdom
+- Fixed the stat code to work properly again.  The birth process in
+  2.7.0 could give way too large of a bonus to certain stats.
+- Make a few artifacts deeper and rarer.
+- The Oberon quest needs to be level 99, not 98.
+- Made the object list menues look better in bigscreen mode, and now
+  always show the list of available choices.
+- Spell menus always show the list of spells now.
+- Made lanterns, torches and oil slightly more common since the phial
+  is now deeper in the dungeon.
+- Changed the damage dice on whips and clubs.
+- Fixed the wrong racial ability description for Half-Trolls.
+- Terrain feature descriptions are now gramatically correct.
+- Added a new sword type 'elfblade'.
+- Moria Mode now invalidates several options that did not exist in
+  Moria: connected stairs, autoroller, and point based generation.
+- Removed some old and broken options.
+- Made dragon shields and helms rarer.
+- Added a function to calculate the distribution of an object in
+  the dungeon mathematically, rather than using a Monte Carlo method.
+- Disallow floating point in the source.
+- Added u64b and s64b types.  This probably breaks most of the
+  makefiles / ports. We fall back to "long long" if not using a C99
+  compiler.  If your machine definately doesn't have a 64 bit type,
+  you can disable the (currently tiny) code in wizard2.c that uses
+  it.  Most machines with enough ram to play the game will have a
+  compiler with a 64bit type though.
+- Monsters with RAND_50 | RAND_25 will only make the 75% check,
+  not the 50% and 25% checks as well.
+- Fixed the broken "flow by sound" code.
+- Fixed the bug with night->day transition in wilderness not resulting
+  in map memorisation.
+- Wilderness quest object no longer make a sound when created.  They
+  can now be enchanted when found.  They can be found in piles.
+- Turned on ironman_los permanently.  This probably breaks things.
+- Quest descriptions now take into account the depth_in_feet option.
+- Attempted to fix use of roguelike keyset with the buildings.
+- Added a new option: view_player_colour.  This toggles the colouring
+  of the '@' character when you are hurt.
+- Got rid of a huge number of compile warnings from the lua code.  No
+  warnings are generated by the wrapper files now.
+- Removed a heap of warnings from the gtk and xaw ports.
+- Fixed saving of message colours in the savefile.
+- Updated the FAQ with recent common questions.
+- Removed the lua wrapper files from the archive, they can be created
+  from the makefile.
+- Fixed a problem with the autoconf bootstrap method.
+- Rangers are better, not worse at hitting monsters hiding in trees.	
+- Normal stores can generate good or excellent items again.
+- 
+
+
 ZAngband 2.7.0:
 - Removed the python code, and replaced it with scripting using Lua.
 - Added scripting for food, potions, scrolls, wands and staves.
@@ -47,7 +211,7 @@ ZAngband 2.7.0:
 - Replaced the underlying wilderness code.  The new code allows quests
   in the wilderness to be made.
 - Replaced the old cave[][] array with "regions".  Regions allow
-  multiple dungeons to be active at once.  They also simplifie the code
+  multiple dungeons to be active at once.  They also simplify the code
   for creating towns and quests in the wilderness.
 - Fixed the rng so it works on 64bit systems.
 - Prevented the player from gaining extra information when selling items

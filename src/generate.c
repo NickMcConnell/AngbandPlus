@@ -159,9 +159,6 @@ static bool alloc_stairs(int feat, int num, int walls)
 				/* Require "naked" floor grid */
 				if (!cave_naked_grid(c_ptr)) continue;
 
-				/* Require floor */
-				if (c_ptr->feat != FEAT_FLOOR) continue;
-
 				/* Require a certain number of adjacent walls */
 				if (next_to_walls(x, y) < walls) continue;
 
@@ -310,11 +307,8 @@ static int next_to_corr(int x1, int y1)
 		/* Access the grid */
 		c_ptr = cave_p(x, y);
 
-		/* Skip non floors */
-		if (!cave_floor_grid(c_ptr)) continue;
-
-		/* Skip non "empty floor" grids */
-		if (c_ptr->feat != FEAT_FLOOR) continue;
+		/* Skip non clean floors */
+		if (!cave_clean_grid(c_ptr)) continue;
 
 		/* Skip grids inside rooms */
 		if (c_ptr->info & (CAVE_ROOM)) continue;
@@ -340,15 +334,15 @@ static bool possible_doorway(int x, int y)
 	if (next_to_corr(x, y) >= 2)
 	{
 		/* Check Vertical */
-		if ((cave_p(x, y - 1)->feat >= FEAT_MAGMA) &&
-			(cave_p(x, y + 1)->feat >= FEAT_MAGMA))
+		if (cave_wall_grid(cave_p(x, y - 1)) &&
+			cave_wall_grid(cave_p(x, y + 1)))
 		{
 			return (TRUE);
 		}
 
 		/* Check Horizontal */
-		if ((cave_p(x - 1, y)->feat >= FEAT_MAGMA) &&
-			(cave_p(x + 1, y)->feat >= FEAT_MAGMA))
+		if (cave_wall_grid(cave_p(x - 1, y)) &&
+			cave_wall_grid(cave_p(x + 1, y)))
 		{
 			return (TRUE);
 		}
@@ -372,7 +366,7 @@ static void try_door(int x, int y)
 	c_ptr = cave_p(x, y);
 
 	/* Ignore walls */
-	if (c_ptr->feat >= FEAT_MAGMA) return;
+	if (cave_wall_grid(c_ptr)) return;
 
 	/* Ignore room grids */
 	if (c_ptr->info & (CAVE_ROOM)) return;
@@ -446,10 +440,14 @@ static bool cave_gen(void)
 		for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
 		{
 			if (empty_level)
+			{
 				set_feat_bold(x, y, FEAT_FLOOR);
+			}
 			else
+			{
 				/* Create granite wall */
 				set_feat_bold(x, y, FEAT_WALL_EXTRA);
+			}
 		}
 	}
 
@@ -522,16 +520,6 @@ static bool cave_gen(void)
 		/* Pick a block for the room */
 		y = randint0(dun->row_rooms);
 		x = randint0(dun->col_rooms);
-
-		/* Align dungeon rooms */
-		if (dungeon_align)
-		{
-			/* Slide some rooms right */
-			if ((x % 3) == 0) x++;
-
-			/* Slide some rooms left */
-			if ((x % 3) == 2) x--;
-		}
 
 		/* Attempt an "unusual" room */
 		if (ironman_rooms || (randint0(DUN_UNUSUAL) < p_ptr->depth))
@@ -768,9 +756,8 @@ static bool cave_gen(void)
 			/* Deleting a locked or jammed door is problematical */
 			delete_field_location(c_ptr);
 
-			/* Clear previous contents (if not a lake), add a floor */
-			if ((c_ptr->feat < FEAT_DEEP_WATER) ||
-				(c_ptr->feat > FEAT_SHAL_LAVA))
+			/* Clear previous contents if wall, add a floor */
+			if (cave_wall_grid(c_ptr))
 			{
 				set_feat_grid(c_ptr, FEAT_FLOOR);
 			}
@@ -952,12 +939,9 @@ void map_panel_size(void)
 
 	/* Kill previous size of line */
 
-#ifdef USE_TRANSPARENCY
 	/* String of terrain characters along one row of the map */
 	if (mp_ta) KILL(mp_ta);
 	if (mp_tc) KILL(mp_tc);
-
-#endif /* USE_TRANSPARENCY */
 
 	/* String of characters along one row of the map */
 	if (mp_a) KILL(mp_a);
@@ -968,12 +952,9 @@ void map_panel_size(void)
 
 	/* Make the new lines */
 
-#ifdef USE_TRANSPARENCY
 	/* String of terrain characters along one row of the map */
 	C_MAKE(mp_ta, wid, byte);
 	C_MAKE(mp_tc, wid, char);
-
-#endif /* USE_TRANSPARENCY */
 
 	/* String of characters along one row of the map */
 	C_MAKE(mp_a, wid, byte);
@@ -1377,7 +1358,7 @@ void generate_cave(void)
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-		else if ((auto_scum || ironman_autoscum) && (num < 100))
+		else if (ironman_autoscum && (num < 100))
 		{
 			/* Require "goodness" */
 			if ((dun_ptr->feeling > 9) ||

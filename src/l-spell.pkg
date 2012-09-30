@@ -292,3 +292,5 @@ extern void map_area(void);
 extern void wiz_lite(void);
 extern void wiz_dark(void);
 
+/* cmd6.c */
+extern void do_cmd_rerate(void);

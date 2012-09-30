@@ -60,6 +60,7 @@
  *   Append the pointer "v" (implementation varies).
  *   No legal modifiers.
  *
+ * This set is compiled out by default:
  * Format("%E", double r)
  * Format("%F", double r)
  * Format("%G", double r)
@@ -528,7 +529,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 				/* Done */
 				break;
 			}
-
+#if 0
 			case 'f':
 			case 'e':  case 'E':
 			case 'g':  case 'G':
@@ -545,7 +546,7 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 				/* Done */
 				break;
 			}
-
+#endif /* 0 */
 			case 'p':
 			{
 				/* Pointer -- implementation varies */
@@ -575,6 +576,8 @@ uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp)
 
 				/* Prevent buffer overflows */
 				strncpy(arg2, arg, 1024);
+
+				/* Terminate */
 				arg2[1023] = '\0';
 
 				/* Format the argument */

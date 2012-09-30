@@ -563,6 +563,7 @@ errr process_pref_file_command(char *buf)
 		for (i = 0; i < OPT_MAX; i++)
 		{
 			if (option_info[i].o_desc &&
+				(option_info[i].o_page != OPT_BIRTH_PAGE) &&
 				option_info[i].o_text && streq(option_info[i].o_text, buf + 2))
 			{
 				/* Clear */
@@ -582,7 +583,7 @@ errr process_pref_file_command(char *buf)
 				return (0);
 			}
 		}
-		/* XXX XXX XXX - ignore unknown options */
+		/* XXX XXX XXX - ignore unknown or birth options */
 		return (0);
 	}
 
@@ -592,6 +593,7 @@ errr process_pref_file_command(char *buf)
 		for (i = 0; i < OPT_MAX; i++)
 		{
 			if (option_info[i].o_desc &&
+				(option_info[i].o_page != OPT_BIRTH_PAGE) &&
 				option_info[i].o_text && streq(option_info[i].o_text, buf + 2))
 			{
 				/* Set */
@@ -612,7 +614,7 @@ errr process_pref_file_command(char *buf)
 			}
 		}
 
-		/* XXX XXX XXX - ignore unknown options */
+		/* XXX XXX XXX - ignore unknown or birth options */
 		return (0);
 	}
 
@@ -1444,12 +1446,12 @@ static void display_player_abilities(void)
 	if (p_ptr->muta2 & MUT2_TENTACLES) muta_att++;
 
 	/* Fighting Skill (with current weapon) */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
 
 	/* Shooting Skill (with current bow and normal missile) */
-	o_ptr = &inventory[INVEN_BOW];
+	o_ptr = &p_ptr->equipment[EQUIP_BOW];
 	tmp = p_ptr->to_h + o_ptr->to_h;
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
@@ -1471,7 +1473,7 @@ static void display_player_abilities(void)
 	shots = shots / energy_fire;
 
 	/* Average damage per round */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 	dambonus = p_ptr->dis_to_d;
 	if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
 	damdice = o_ptr->dd;
@@ -1552,7 +1554,7 @@ static void display_player_abilities(void)
 	{
 		/* Is there a vorpal effect we know about? */
 		object_flags(o_ptr, &f1, &f2, &f3);
-		if ((o_ptr->ident & IDENT_MENTAL) &&
+		if (object_known_p(o_ptr) &&
 			(o_ptr->activate - 128 == ART_VORPAL_BLADE))
 		{
 			/* vorpal blade */
@@ -1593,7 +1595,7 @@ static void display_player_abilities(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-static void player_flags(u32b *f1, u32b *f2, u32b *f3)
+void player_flags(u32b *f1, u32b *f2, u32b *f3)
 {
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
@@ -1889,10 +1891,10 @@ static void display_player_equippy(int x, int y)
 
 
 	/* Dump equippy chars */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
 		/* Object */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		a = object_attr(o_ptr);
 		c = object_char(o_ptr);
@@ -1908,7 +1910,7 @@ static void display_player_equippy(int x, int y)
 		}
 
 		/* Dump */
-		Term_putch(x + i - INVEN_WIELD, y, a, c);
+		Term_putch(x + i, y, a, c);
 	}
 }
 
@@ -1923,7 +1925,7 @@ void print_equippy(void)
  * Helper function, see below
  */
 static void display_player_flag_aux(int col, int row,
-                                    char *header, int n, u32b flag1, u32b flag2)
+                                    cptr header, int n, u32b flag1, u32b flag2)
 {
 	int i;
 	u32b f[3];
@@ -1937,12 +1939,12 @@ static void display_player_flag_aux(int col, int row,
 
 
 	/* Check equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
 		object_type *o_ptr;
 
 		/* Object */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		/* Known flags */
 		object_flags_known(o_ptr, &f[0], &f[1], &f[2]);
@@ -2025,8 +2027,8 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(col, row++, "AuraElec:", 3, TR3_SH_ELEC, 0);
 	display_player_flag_aux(col, row++, "NoTelprt:", 3, TR3_NO_TELE, 0);
 	display_player_flag_aux(col, row++, "No Magic:", 3, TR3_NO_MAGIC, 0);
-	display_player_flag_aux(col, row++, "Cursed  :", 3, TR3_HEAVY_CURSE,
-							TR3_PERMA_CURSE);
+	display_player_flag_aux(col, row++, "Cursed  :", 3, TR3_CURSED,
+							TR3_HEAVY_CURSE | TR3_PERMA_CURSE);
 	display_player_flag_aux(col, row++, "DrainExp:", 3, TR3_DRAIN_EXP, 0);
 	display_player_flag_aux(col, row++, "Teleport:", 3, TR3_TELEPORT, 0);
 
@@ -2143,10 +2145,6 @@ static void display_player_stat_info(void)
 		if ((p_ptr->stat_max[i] > 18) && (p_ptr->stat_top[i] <= 18))
 			e_adj = p_ptr->stat_top[i] - (p_ptr->stat_max[i] - 18) / 10 - 19;
 
-		/* Deduct class and race bonuses */
-		e_adj -= rp_ptr->r_adj[i];
-		e_adj -= cp_ptr->c_adj[i];
-
 		/* Reduced name of stat */
 		c_put_str(TERM_WHITE, stat_names_reduced[i], stat_col, row + i);
 
@@ -2183,10 +2181,10 @@ static void display_player_stat_info(void)
 	c_put_str(TERM_L_GREEN, "Modifications", col, row + 6);
 
 	/* Process equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
 		/* Access object */
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		/* Object kind */
 		k_idx = o_ptr->k_idx;
@@ -2468,7 +2466,7 @@ static void display_player_middle(void)
 	int show_todam = p_ptr->dis_to_d;
 	byte attr;
 
-	object_type *o_ptr = &inventory[INVEN_WIELD];
+	object_type *o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	/* Hack -- add in weapon info if known */
 	if (object_known_p(o_ptr)) show_tohit += o_ptr->to_h;
@@ -2751,6 +2749,8 @@ errr file_character(cptr name, bool full)
 
 	int msg_max = message_num();
 
+	object_type *o_ptr;
+
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, name);
@@ -2853,8 +2853,6 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n Preserve Mode:      OFF");
 
 	if (ironman_autoscum)
-		fprintf(fff, "\n Autoscum:           ALWAYS");
-	else if (auto_scum)
 		fprintf(fff, "\n Autoscum:           ON");
 	else
 		fprintf(fff, "\n Autoscum:           OFF");
@@ -2866,14 +2864,11 @@ errr file_character(cptr name, bool full)
 	else
 		fprintf(fff, "\n Small Levels:       OFF");
 
-	if (vanilla_town)
-		fprintf(fff, "\n Vanilla Town:       ON");
+	if (vanilla_town) fprintf(fff, "\n Vanilla Town:       ON");
 
-	if (ironman_shops)
-		fprintf(fff, "\n No Shops:           ON");
+	if (ironman_shops) fprintf(fff, "\n No Shops:           ON");
 
-	if (ironman_downward)
-		fprintf(fff, "\n Diving only:        ON");
+	if (ironman_downward) fprintf(fff, "\n Diving only:        ON");
 
 	if (ironman_empty_levels)
 		fprintf(fff, "\n Arena Levels:       ALWAYS");
@@ -2882,17 +2877,14 @@ errr file_character(cptr name, bool full)
 	else
 		fprintf(fff, "\n Arena Levels:       OFF");
 
-	if (ironman_hard_quests)
-		fprintf(fff, "\n Hard Quests:        ON");
-	else
-		fprintf(fff, "\n Hard Quests:        OFF");
+	if (ironman_hard_quests) fprintf(fff, "\n Hard Quests:        ON");
 
 	fprintf(fff, "\n Number of Quests: %d", number_of_quests());
 
-	if (ironman_nightmare)
-		fprintf(fff, "\n Nightmare Mode:     ON");
-	else
-		fprintf(fff, "\n Nightmare Mode:     OFF");
+	if (ironman_nightmare) fprintf(fff, "\n Nightmare Mode:     ON");
+
+	if (ironman_moria) fprintf(fff, "\n Moria Mode:         ON");
+
 
 	fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_depth,
 			50 * p_ptr->max_depth);
@@ -3001,28 +2993,31 @@ errr file_character(cptr name, bool full)
 
 
 	/* Dump the equipment */
-	if (p_ptr->equip_cnt)
+	fprintf(fff, "  [Character Equipment]\n\n");
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		fprintf(fff, "  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-		{
-			object_desc(o_name, &inventory[i], TRUE, 3, 256);
-			fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
-		}
-		fprintf(fff, "\n\n");
+		object_desc(o_name, &p_ptr->equipment[i], TRUE, 3, 256);
+		fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
 	}
+	fprintf(fff, "\n\n");
+
 
 	/* Dump the inventory */
 	fprintf(fff, "  [Character Inventory]\n\n");
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		/* Don't dump the empty slots */
-		if (!inventory[i].k_idx) break;
 
+	i = 0;
+
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
 		/* Dump the inventory slots */
-		object_desc(o_name, &inventory[i], TRUE, 3, 256);
-		fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
+		object_desc(o_name, o_ptr, TRUE, 3, 256);
+
+		fprintf(fff, "%c%s %s\n", I2A(i), paren, o_name);
+
+		/* Count slots */
+		i++;
 	}
+	OBJ_ITT_END;
 
 	/* Add an empty line */
 	fprintf(fff, "\n\n");
@@ -3037,17 +3032,24 @@ errr file_character(cptr name, bool full)
 			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Home -- if anything there */
-				if (st_ptr->stock_num)
+				if (st_ptr->stock)
 				{
 					/* Header with name of the town */
 					fprintf(fff, "  [Home Inventory - %s]\n\n", place[i].name);
 
+					/* Initialise counter */
+					k = 0;
+
 					/* Dump all available items */
-					for (k = 0; k < st_ptr->stock_num; k++)
+					OBJ_ITT_START (st_ptr->stock, o_ptr)
 					{
-						object_desc(o_name, &st_ptr->stock[k], TRUE, 3, 256);
+						object_desc(o_name, o_ptr, TRUE, 3, 256);
 						fprintf(fff, "%c%s %s\n", I2A(k), paren, o_name);
+
+						/* Increment counter */
+						k++;
 					}
+					OBJ_ITT_END;
 
 					/* Add an empty line */
 					fprintf(fff, "\n\n");
@@ -4138,14 +4140,14 @@ static void print_tomb(void)
  */
 static void show_info(void)
 {
-	int i, j, k, l;
+	int i, j, l;
 	object_type *o_ptr;
 	store_type *st_ptr;
 
-	/* Hack -- Know everything in the inven/equip */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	/* Hack -- Know everything in the equipment */
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -4153,13 +4155,28 @@ static void show_info(void)
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
-		o_ptr->ident |= IDENT_MENTAL;
+		object_mental(o_ptr);
 
 		/* Save all the known flags */
 		o_ptr->kn_flags1 = o_ptr->flags1;
 		o_ptr->kn_flags2 = o_ptr->flags2;
 		o_ptr->kn_flags3 = o_ptr->flags3;
 	}
+
+	/* Hack -- Know everything in the inventory */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		/* Aware and Known */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+		object_mental(o_ptr);
+
+		/* Save all the known flags */
+		o_ptr->kn_flags1 = o_ptr->flags1;
+		o_ptr->kn_flags2 = o_ptr->flags2;
+		o_ptr->kn_flags3 = o_ptr->flags3;
+	}
+	OBJ_ITT_END;
 
 	for (i = 1; i < z_info->wp_max; i++)
 	{
@@ -4170,23 +4187,19 @@ static void show_info(void)
 			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Hack -- Know everything in the home */
-				for (k = 0; k < st_ptr->stock_num; k++)
+				OBJ_ITT_START (st_ptr->stock, o_ptr)
 				{
-					o_ptr = &st_ptr->stock[k];
-
-					/* Skip non-objects */
-					if (!o_ptr->k_idx) continue;
-
 					/* Aware and Known */
 					object_aware(o_ptr);
 					object_known(o_ptr);
-					o_ptr->ident |= IDENT_MENTAL;
+					object_mental(o_ptr);
 
 					/* Save all the known flags */
 					o_ptr->kn_flags1 = o_ptr->flags1;
 					o_ptr->kn_flags2 = o_ptr->flags2;
 					o_ptr->kn_flags3 = o_ptr->flags3;
 				}
+				OBJ_ITT_END;
 			}
 		}
 	}
@@ -4210,39 +4223,34 @@ static void show_info(void)
 	if (inkey() == ESCAPE) return;
 
 
-	/* Show equipment and inventory */
-	if (p_ptr->equip_cnt)
-	{
-		Term_clear();
+	/* Show equipment */
+	Term_clear();
 
-		/* Equipment -- if any */
-		item_tester_full = TRUE;
-		show_equip();
+	/* Equipment -- if any */
+	item_tester_full = TRUE;
+	show_equip();
 
-		prt("You are using: -more-", 0, 0);
+	prt("You are using: -more-", 0, 0);
 
-		/* Flush keys */
-		flush();
+	/* Flush keys */
+	flush();
 
-		if (inkey() == ESCAPE) return;
-	}
+	if (inkey() == ESCAPE) return;
 
 
-	if (p_ptr->inven_cnt)
-	{
-		Term_clear();
+	/* Show inventory */
+	Term_clear();
 
-		/* Inventory -- if any */
-		item_tester_full = TRUE;
-		show_inven();
+	/* Inventory -- if any */
+	item_tester_full = TRUE;
+	show_list(p_ptr->inventory);
 
-		prt("You are carrying: -more-", 0, 0);
+	prt("You are carrying: -more-", 0, 0);
 
-		/* Flush keys */
-		flush();
+	/* Flush keys */
+	flush();
 
-		if (inkey() == ESCAPE) return;
-	}
+	if (inkey() == ESCAPE) return;
 
 	for (i = 1; i < z_info->wp_max; i++)
 	{
@@ -4253,45 +4261,50 @@ static void show_info(void)
 			if (st_ptr->type == BUILD_STORE_HOME)
 			{
 				/* Home -- if anything there */
-				if (st_ptr->stock_num)
+				if (st_ptr->stock)
 				{
+					char tmp_val[10];
+					char o_name[256];
+
+					/* Initialise counter */
+					j = 0;
+
+					/* Clear screen */
+					Term_clear();
+
 					/* Display contents of the home */
-					for (k = 0, i = 0; i < st_ptr->stock_num; k++)
+					OBJ_ITT_START (st_ptr->stock, o_ptr)
 					{
-						/* Clear screen */
-						Term_clear();
+						/* Print header, clear line */
+						sprintf(tmp_val, "%c) ", I2A(j));
+						prt(tmp_val, 4, j + 2);
 
-						/* Show 12 items */
-						for (j = 0; (j < 12) && (i < st_ptr->stock_num);
-							 j++, i++)
+						/* Display object description */
+						object_desc(o_name, o_ptr, TRUE, 3, 256);
+						c_put_str(tval_to_attr[o_ptr->tval], o_name, 7, j + 2);
+
+						/* Show 12 items at a time */
+						if (j == 12)
 						{
-							char o_name[256];
-							char tmp_val[80];
+							/* Caption */
+							prt(format
+								("Your home in %s: -more-", place[i].name), 0,
+								0);
 
-							/* Acquire item */
-							o_ptr = &st_ptr->stock[i];
+							/* Flush keys */
+							flush();
 
-							/* Print header, clear line */
-							sprintf(tmp_val, "%c) ", I2A(j));
-							prt(tmp_val, 4, j + 2);
+							/* Wait for it */
+							if (inkey() == ESCAPE) return;
 
-							/* Display object description */
-							object_desc(o_name, o_ptr, TRUE, 3, 256);
-							c_put_str(tval_to_attr[o_ptr->tval], o_name, 7,
-									  j + 2);
+							/* Restart counter */
+							j = 0;
+
+							/* Clear screen */
+							Term_clear();
 						}
-
-						/* Caption */
-						prt(format
-							("Your home contains (page %d): -more-", k + 1), 0,
-							0);
-
-						/* Flush keys */
-						flush();
-
-						/* Wait for it */
-						if (inkey() == ESCAPE) return;
 					}
+					OBJ_ITT_END;
 				}
 			}
 		}

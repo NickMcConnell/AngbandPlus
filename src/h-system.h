@@ -112,69 +112,115 @@
 #endif
 
 
-/* Hack - this should be in h-types.h, but we need errr here */
+/* Hack - this should be in h-types.h, but we need errr and cptr here */
 
 /* Error codes for function return values */
 /* Success = 0, Failure = -N, Problem = +N */
 typedef int errr;
 
+/* String pointer */
+typedef const char *cptr;
+
+
 
 /* The init functions for each port called from main.c */
 
 #ifdef USE_XAW
-extern errr init_xaw(int, char **);
+extern errr init_xaw(int argc, char **argv);
+extern cptr help_xaw[];
 #endif
 
 #ifdef USE_X11
-extern errr init_x11(int, char **);
+extern errr init_x11(int argc, char **argv);
+extern cptr help_x11[];
 #endif
 
 #ifdef USE_XPJ
-extern errr init_xpj(int, char **);
+extern errr init_xpj(int argc, char **argv);
+extern cptr help_xpj[];
 #endif
 
 #ifdef USE_GCU
 extern errr init_gcu(void);
+extern cptr help_gcu[];
 #endif
 
 #ifdef USE_CAP
-extern errr init_cap(int, char **);
+extern errr init_cap(int argc, char **argv);
+extern cptr help_cap[];
 #endif
 
 #ifdef USE_DOS
 extern errr init_dos(void);
+extern cptr help_dos[];
 #endif
 
 #ifdef USE_IBM
 extern errr init_ibm(void);
+extern cptr help_ibm[];
 #endif
 
 #ifdef USE_EMX
 extern errr init_emx(void);
+extern cptr help_emx[];
 #endif
 
 #ifdef USE_SLA
 extern errr init_sla(void);
+extern cptr help_sla[];
 #endif
 
 #ifdef USE_AMI
 extern errr init_ami(void);
+extern cptr help_ami[];
 #endif
 
 #ifdef USE_VME
 extern errr init_vme(void);
+extern cptr help_vme[];
 #endif
 
 #ifdef USE_LSL
 extern errr init_lsl(void);
+extern cptr help_lsl[];
 #endif
 
 #ifdef USE_GTK
-extern errr init_gtk(unsigned char *, int, char **);
+extern errr init_gtk(int argc, char **argv, unsigned char *new_game);
+extern cptr help_gtk[];
 #endif
 
 #ifdef USE_VCS
 extern errr init_vcs(int argc, char **argv);
+extern cptr help_vcs[];
 #endif
+
+/*
+ * Type used to access a module
+ */
+typedef struct module_type module_type;
+
+struct module_type
+{
+	cptr name;
+	cptr *help;
+	errr (*init) (int argc, char **argv, unsigned char *new_game);
+};
+
+
+/*
+ * Macro to make an entry for a port in main.c's list.
+ *
+ * This expands 'INIT_MODULE(port)' to be:
+ *
+ * { "port", help_port, init_port }   (Without the type-cast. )
+ *
+ * When adding new ports make sure you use the correct parameter
+ * types to init_"port_name"().  If you need to add a new one,
+ * add it on the end of the list.  (You don't have to use all the
+ * parameters due to the way C passes them on the stack.)
+ */
+#define INIT_MODULE(P) \
+		{ #P, help_##P, (errr (*)(int, char **, unsigned char *)) init_##P }
 
 #endif /* INCLUDED_H_SYSTEM_H */

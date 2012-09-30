@@ -55,13 +55,13 @@ int usleep(huge usecs)
 
 # endif
 
-
 /*
-* Hack -- External functions
-*/
+ * Hack -- External functions
+ */
+#ifndef	_PWD_H
 extern struct passwd *getpwuid();
 extern struct passwd *getpwnam();
-
+#endif /* _PWD_H */
 
 /*
  * Find a default user name from the system.
@@ -1212,11 +1212,6 @@ errr macro_init(void)
 
 #endif /* 0 */
 
-/*
- * Local "need flush" variable
- */
-static bool flush_later = FALSE;
-
 
 /*
  * Local variable -- we are inside a "macro action"
@@ -1243,7 +1238,7 @@ static bool parse_under = FALSE;
 void flush(void)
 {
 	/* Do it later */
-	flush_later = TRUE;
+	p_ptr->inkey_xtra = TRUE;
 }
 
 
@@ -1496,13 +1491,16 @@ char inkey(void)
 	term *old = Term;
 
 	/* Hack -- Use the "inkey_next" pointer */
-	if (inkey_next && *inkey_next && !inkey_xtra)
+	if (inkey_next && *inkey_next && !p_ptr->inkey_xtra)
 	{
 		/* Get next character, and advance */
 		ch = *inkey_next++;
 
 		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+		p_ptr->inkey_base = FALSE;
+		p_ptr->inkey_xtra = FALSE;
+		p_ptr->inkey_flag = FALSE;
+		p_ptr->inkey_scan = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -1515,10 +1513,13 @@ char inkey(void)
 #ifdef ALLOW_BORG
 
 	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ch = (*inkey_hack) (inkey_xtra)) != 0))
+	if (inkey_hack && ((ch = (*inkey_hack) (p_ptr->inkey_xtra)) != 0))
 	{
 		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+		p_ptr->inkey_base = FALSE;
+		p_ptr->inkey_xtra = FALSE;
+		p_ptr->inkey_flag = FALSE;
+		p_ptr->inkey_scan = FALSE;
 
 		/* Accept result */
 		return (ch);
@@ -1527,7 +1528,7 @@ char inkey(void)
 #endif /* ALLOW_BORG */
 
 	/* Hack -- handle delayed "flush()" */
-	if (inkey_xtra)
+	if (p_ptr->inkey_xtra)
 	{
 		/* End "macro action" */
 		parse_macro = FALSE;
@@ -1544,7 +1545,8 @@ char inkey(void)
 	(void)Term_get_cursor(&v);
 
 	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	if (!p_ptr->inkey_scan &&
+		(!p_ptr->inkey_flag || hilite_player || character_icky))
 	{
 		/* Show the cursor */
 		(void)Term_set_cursor(1);
@@ -1559,7 +1561,8 @@ char inkey(void)
 	while (!ch)
 	{
 		/* Hack -- Handle "inkey_scan" */
-		if (!inkey_base && inkey_scan && (0 != Term_inkey(&kk, FALSE, FALSE)))
+		if (!p_ptr->inkey_base && p_ptr->inkey_scan &&
+			(0 != Term_inkey(&kk, FALSE, FALSE)))
 		{
 			break;
 		}
@@ -1589,12 +1592,12 @@ char inkey(void)
 
 
 		/* Hack -- Handle "inkey_base" */
-		if (inkey_base)
+		if (p_ptr->inkey_base)
 		{
 			int w = 0;
 
 			/* Wait forever */
-			if (!inkey_scan)
+			if (!p_ptr->inkey_scan)
 			{
 				/* Wait for (and remove) a pending key */
 				if (0 == Term_inkey(&ch, TRUE, TRUE))
@@ -1701,7 +1704,10 @@ char inkey(void)
 
 
 	/* Cancel the various "global parameters" */
-	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+	p_ptr->inkey_base = FALSE;
+	p_ptr->inkey_xtra = FALSE;
+	p_ptr->inkey_flag = FALSE;
+	p_ptr->inkey_scan = FALSE;
 
 	/* Return the keypress */
 	return (ch);
@@ -1757,97 +1763,23 @@ void sound(int val)
  *
  * Note that "quark zero" is NULL and should never be "dereferenced".
  *
- * ToDo: Add reference counting for quarks, so that unused quarks can
- * be overwritten.
- *
  * ToDo: Automatically resize the array if necessary.
  */
 
 /*
- * Sorting hook -- comp function -- by "quark age"
- *
- * We use "u" to point to arrays of ages,
- * and sort the arrays by the value in quark__use[]
+ * The number of quarks
  */
-static bool ang_sort_comp_quark(vptr u, vptr v, int a, int b)
-{
-	s16b *x = (s16b *)(u);
-
-	u16b qa, qb;
-
-	/* Hack - ignore unused parameter */
-	(void)v;
-
-	/* Get ages */
-	qa = quark__use[x[a]];
-	qb = quark__use[x[b]];
-
-	/* Compare them */
-	return (qa <= qb);
-}
-
+static s16b quark__num;
 
 /*
- * Sorting hook -- swap function -- by "quark age"
- *
- * We use "u" to point to arrays of ages,
- * and sort the arrays by the value in quark__use[]
+ * The pointers to the quarks [QUARK_MAX]
  */
-static void ang_sort_swap_quark(vptr u, vptr v, int a, int b)
-{
-	s16b *x = (s16b *)(u);
-
-	s16b temp;
-
-	/* Hack - ignore unused parameter */
-	(void)v;
-
-	/* Swap "x" */
-	temp = x[a];
-	x[a] = x[b];
-	x[b] = temp;
-}
+static cptr *quark__str;
 
 /*
- * Out of space - Compact the quarks
+ * Refcount for Quarks
  */
-static s16b compact_quarks(void)
-{
-	s16b i, empty = 1;
-
-	s16b *quark_locat;
-
-	/* Make array used to sort quark ages */
-	C_MAKE(quark_locat, quark__num, s16b);
-
-	/* Fill in the array with the "order" of each quark */
-	for (i = 0; i < quark__num; i++)
-	{
-		quark_locat[i] = i;
-	}
-
-	/* Set the sort hooks */
-	ang_sort_comp = ang_sort_comp_quark;
-	ang_sort_swap = ang_sort_swap_quark;
-
-	/* Sort quarks - and get order location of each quark */
-	ang_sort(quark_locat, NULL, quark__num);
-
-	for (i = 1; i < quark__num; i++)
-	{
-		/* Set quark timer to be location order */
-		quark__use[i] = quark_locat[i];
-
-		/* Find minimally used quark */
-		if (quark__use[i] == 1) empty = i;
-	}
-
-	/* Set timer to be greater than any value so far */
-	quark__tim = quark__num + 1;
-
-	/* Return the least-used quark to overwrite if needed */
-	return (empty);
-}
+static u16b *quark__ref;
 
 
 /*
@@ -1856,39 +1788,100 @@ static s16b compact_quarks(void)
 s16b quark_add(cptr str)
 {
 	int i;
+	int posn = 0;
 
 	/* Look for an existing quark */
 	for (i = 1; i < quark__num; i++)
 	{
+		/* Test refcount */
+		if (!quark__ref[i]) continue;
+
 		/* Check for equality */
-		if (streq(quark__str[i], str)) return (i);
+		if (streq(quark__str[i], str))
+		{
+			/* Increase refcount */
+			quark__ref[i]++;
+
+			return (i);
+		}
 	}
 
-	/* Paranoia -- Require room */
-	if (quark__num == QUARK_MAX)
+	/* Look for an empty quark */
+	for (i = 1; i < quark__num; i++)
 	{
-		i = compact_quarks();
-
-		/* Paranoia - no room? */
-		if (!i) return (0);
-
-		/* Delete the old quark */
-		string_free(quark__str[i]);
+		if (!quark__ref[i])
+		{
+			posn = i;
+			break;
+		}
 	}
-	else
+
+	/* Did we fail to find room? */
+	if (!posn)
 	{
-		/* New maximal quark */
-		quark__num = i + 1;
+		/* Paranoia -- Require room */
+		if (quark__num == QUARK_MAX)
+		{
+			/* Paranoia - no room? */
+			return (0);
+		}
+		else
+		{
+			/* Use new quark */
+			posn = quark__num;
+
+			/* New maximal quark */
+			quark__num++;
+		}
 	}
 
 	/* Add a new quark */
-	quark__str[i] = string_make(str);
+	quark__str[posn] = string_make(str);
 
-	/* Save the time */
-	quark__use[i] = ++quark__tim;
+	/* One use of this quark */
+	quark__ref[posn] = 1;
 
 	/* Return the index */
-	return (i);
+	return (posn);
+}
+
+/*
+ * Remove the quark
+ */
+void quark_remove(s16b *i)
+{
+	/* Only need to remove real quarks */
+	if (!(*i)) return;
+
+	/* Verify */
+	if ((*i < 0) || (*i >= quark__num)) return;
+
+	/* Decrease refcount */
+	quark__ref[*i]--;
+
+	/* Deallocate? */
+	if (!quark__ref[*i])
+	{
+		string_free(quark__str[*i]);
+	}
+
+	/* No longer have a quark here */
+	*i = 0;
+}
+
+/*
+ * Duplicate a quark
+ */
+void quark_dup(s16b i)
+{
+	/* Verify */
+	if ((i < 0) || (i >= quark__num)) return;
+
+	/* Paranoia */
+	if (!quark__ref[i]) return;
+
+	/* Increase refcount */
+	quark__ref[i]++;
 }
 
 
@@ -1905,15 +1898,6 @@ cptr quark_str(s16b i)
 	/* Get the quark */
 	q = quark__str[i];
 
-	/* Save the access time */
-	quark__use[i] = ++quark__tim;
-
-	/* Compact from time to time */
-	if (quark__tim > QUARK_COMPACT)
-	{
-		(void)compact_quarks();
-	}
-
 	/* Return the quark */
 	return (q);
 }
@@ -1926,8 +1910,9 @@ errr quarks_init(void)
 {
 	/* Quark variables */
 	C_MAKE(quark__str, QUARK_MAX, cptr);
-	C_MAKE(quark__use, QUARK_MAX, u16b);
+	C_MAKE(quark__ref, QUARK_MAX, u16b);
 
+	quark__num = 1;
 
 	/* Success */
 	return (0);
@@ -1935,7 +1920,7 @@ errr quarks_init(void)
 
 
 /*
- * Free the "quark" package
+ * Free the entire "quark" package
  */
 errr quarks_free(void)
 {
@@ -1944,12 +1929,16 @@ errr quarks_free(void)
 	/* Free the "quarks" */
 	for (i = 1; i < quark__num; i++)
 	{
-		string_free(quark__str[i]);
+		/* Paranoia - only try to free existing quarks */
+		if (quark__str[i])
+		{
+			string_free(quark__str[i]);
+		}
 	}
 
 	/* Free the list of "quarks" */
-	FREE((void *)quark__use);
 	FREE((void *)quark__str);
+	FREE((void *)quark__ref);
 
 	/* Success */
 	return (0);
@@ -2038,6 +2027,18 @@ static u16b *message__type;
  */
 static byte message__color[MSG_MAX];
 
+/*
+ * Wrapper function to get values out of message__color
+ */
+byte get_msg_type_color(byte a)
+{
+	/* Paranoia */
+	if (a >= MSG_MAX) return TERM_WHITE;
+
+	/* Return the color */
+	return (message__color[(int)a]);
+}
+
 
 /*
  * How many messages are "available"?
@@ -2109,7 +2110,7 @@ errr message_color_define(u16b type, byte color)
 	if (type >= MSG_MAX) return (1);
 
 	/* Store the color */
-	message__color[type] = color;
+	message__color[type] = color % 16;
 
 	/* Success */
 	return (0);
@@ -3323,7 +3324,7 @@ void request_command(int shopping)
 			p_ptr->skip_more = FALSE;
 
 			/* Activate "command mode" */
-			inkey_flag = TRUE;
+			p_ptr->inkey_flag = TRUE;
 
 			/* Get a command */
 			cmd = inkey();
@@ -3506,11 +3507,11 @@ void request_command(int shopping)
 	}
 
 	/* Hack -- Scan equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
 		cptr s;
 
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->equipment[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -3794,273 +3795,3 @@ void repeat_check(void)
 		repeat_push(what);
 	}
 }
-
-
-#ifdef SUPPORT_GAMMA
-
-/* Table of gamma values */
-byte gamma_table[256];
-
-/* Table of ln(x/256) * 256 for x going from 0 -> 255 */
-static const s16b gamma_helper[256] =
-{
-	0, -1420, -1242, -1138, -1065, -1007, -961, -921, -887, -857, -830, -806,
-	-783, -762, -744, -726,
-	-710, -694, -679, -666, -652, -640, -628, -617, -606, -596, -586, -576,
-	-567, -577, -549, -541,
-	-532, -525, -517, -509, -502, -495, -488, -482, -475, -469, -463, -457,
-	-451, -455, -439, -434,
-	-429, -423, -418, -413, -408, -403, -398, -394, -389, -385, -380, -376,
-	-371, -367, -363, -359,
-	-355, -351, -347, -343, -339, -336, -332, -328, -325, -321, -318, -314,
-	-311, -308, -304, -301,
-	-298, -295, -291, -288, -285, -282, -279, -276, -273, -271, -268, -265,
-	-262, -259, -257, -254,
-	-251, -248, -246, -243, -241, -238, -236, -233, -231, -228, -226, -223,
-	-221, -219, -216, -214,
-	-212, -209, -207, -205, -203, -200, -198, -196, -194, -192, -190, -188,
-	-186, -184, -182, -180,
-	-178, -176, -174, -172, -170, -168, -166, -164, -162, -160, -158, -156,
-	-155, -153, -151, -149,
-	-147, -146, -144, -142, -140, -139, -137, -135, -134, -132, -130, -128,
-	-127, -125, -124, -122,
-	-120, -119, -117, -116, -114, -112, -111, -109, -108, -106, -105, -103,
-	-102, -100, -99, -97,
-	-96, -95, -93, -92, -90, -89, -87, -86, -85, -83, -82, -80, -79, -78, -76,
-	-75,
-	-74, -72, -71, -70, -68, -67, -66, -65, -63, -62, -61, -59, -58, -57, -56,
-	-54,
-	-53, -52, -51, -50, -48, -47, -46, -45, -44, -42, -41, -40, -39, -38, -37,
-	-35,
-	-34, -33, -32, -31, -30, -29, -27, -26, -25, -24, -23, -22, -21, -20, -19,
-	-18,
-	-17, -16, -14, -13, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1
-};
-
-
-/*
- * Build the gamma table so that floating point isn't needed.
- *
- *  ANGBAND_X11_GAMMA is
- * 256 * (1 / gamma), rounded to integer. A recommended value
- * is 183, which is an approximation of the Macintosh hardware
- * gamma of 1.4.
- *
- *   gamma	ANGBAND_X11_GAMMA
- *   -----	-----------------
- *   1.2	213
- *   1.25	205
- *   1.3	197
- *   1.35	190
- *   1.4	183
- *   1.45	177
- *   1.5	171
- *   1.6	160
- *   1.7	151
- *   ...
- *
- * XXX XXX The environment variable, or better,
- * the interact with colours command should allow users
- * to specify gamma values (or gamma value * 100).
- */
-void build_gamma_table(int gamma)
-{
-	int i, n;
-
-	/*
-	 * value is the current sum.
-	 * diff is the new term to add to the series.
-	 */
-	long value, diff;
-
-	/* Paranoia */
-	if (gamma < 0) gamma = 0;
-	if (gamma > 255) gamma = 255;
-
-	/* Hack - convergence is bad in these cases. */
-	gamma_table[0] = 0;
-	gamma_table[255] = 255;
-
-	for (i = 1; i < 255; i++)
-	{
-		/*
-		 * Initialise the Taylor series
-		 *
-		 * value and diff have been scaled by 256
-		 */
-
-		n = 1;
-		value = 256 * 256;
-		diff = ((long)gamma_helper[i]) * (gamma - 256);
-
-		while (diff)
-		{
-			value += diff;
-			n++;
-
-			/*
-			 * Use the following identiy to calculate the gamma table.
-			 * exp(x) = 1 + x + x^2/2 + x^3/(2*3) + x^4/(2*3*4) +...
-			 *
-			 * n is the current term number.
-			 *
-			 * The gamma_helper array contains a table of
-			 * ln(x/256) * 256
-			 * This is used because a^b = exp(b*ln(a))
-			 *
-			 * In this case:
-			 * a is i / 256
-			 * b is gamma.
-			 *
-			 * Note that everything is scaled by 256 for accuracy,
-			 * plus another factor of 256 for the final result to
-			 * be from 0-255.  Thus gamma_helper[] * gamma must be
-			 * divided by 256*256 each itteration, to get back to
-			 * the original power series.
-			 */
-			diff = (((diff / 256) * gamma_helper[i]) *
-					(gamma - 256)) / (256 * n);
-		}
-
-		/*
-		 * Store the value in the table so that the
-		 * floating point pow function isn't needed.
-		 */
-		gamma_table[i] = ((long)(value / 256) * i) / 256;
-	}
-}
-
-#endif /* SUPPORT_GAMMA */
-
-/*
- * Get the name of the default font to use for the term.
- */
-cptr get_default_font(int term_num)
-{
-	cptr font;
-
-	char buf[80];
-
-	/* Window specific font name */
-	sprintf(buf, "ANGBAND_X11_FONT_%d", term_num);
-
-	/* Check environment for that font */
-	font = getenv(buf);
-
-	/* Check environment for "base" font */
-	if (!font) font = getenv("ANGBAND_X11_FONT");
-
-	/* No environment variables, use default font */
-	if (!font)
-	{
-		switch (term_num)
-		{
-			case 0:
-			{
-				font = DEFAULT_X11_FONT_0;
-				break;
-			}
-			case 1:
-			{
-				font = DEFAULT_X11_FONT_1;
-				break;
-			}
-			case 2:
-			{
-				font = DEFAULT_X11_FONT_2;
-				break;
-			}
-			case 3:
-			{
-				font = DEFAULT_X11_FONT_3;
-				break;
-			}
-			case 4:
-			{
-				font = DEFAULT_X11_FONT_4;
-				break;
-			}
-			case 5:
-			{
-				font = DEFAULT_X11_FONT_5;
-				break;
-			}
-			case 6:
-			{
-				font = DEFAULT_X11_FONT_6;
-				break;
-			}
-			case 7:
-			{
-				font = DEFAULT_X11_FONT_7;
-				break;
-			}
-			default:
-			{
-				font = DEFAULT_X11_FONT;
-			}
-		}
-	}
-
-	return (font);
-}
-
-#ifdef USE_GRAPHICS
-bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
-{
-	int old_graphics = use_graphics;
-
-	use_graphics = GRAPHICS_NONE;
-	use_transparency = FALSE;
-
-	if ((graphics == GRAPHICS_ANY)
-		|| (graphics == GRAPHICS_ADAM_BOLT) || (graphics == GRAPHICS_HALF_3D))
-	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
-		{
-			use_transparency = TRUE;
-
-			*xsize = 16;
-			*ysize = 16;
-
-			/* Use graphics */
-			if (graphics == GRAPHICS_HALF_3D)
-			{
-				use_graphics = GRAPHICS_HALF_3D;
-			}
-			else
-			{
-				use_graphics = GRAPHICS_ADAM_BOLT;
-			}
-		}
-	}
-
-	/* We failed, or we want 8x8 graphics */
-	if (!use_graphics
-		&& ((graphics == GRAPHICS_ANY) || (graphics == GRAPHICS_ORIGINAL)))
-	{
-		/* Try the "8x8.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-		/* Use the "8x8.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
-		{
-			/* Use graphics */
-			use_graphics = GRAPHICS_ORIGINAL;
-
-			*xsize = 8;
-			*ysize = 8;
-		}
-	}
-
-	/* Did we change the graphics? */
-	if (old_graphics == use_graphics) return (FALSE);
-
-	/* Success */
-	return (TRUE);
-}
-#endif /* USE_GRAPHICS */

@@ -22,10 +22,48 @@
 
 #include "angband.h"
 
+#include "maid-grf.h"
+
 #ifdef USE_GTK
+
+cptr help_gtk[] =
+{
+	"To use GTK toolkit",
+#ifdef USE_GRAPHICS
+	"-b#   Set tileset bitmap",
+#endif /* USE_GRAPHICS */
+	"-n#   Number of terms to use",
+	NULL
+};
+
+
+/* Mega-hack, these include files require double and float to work */
+#undef float
+#undef double
+
+/* Ansi C please */
+#define __STRICT_ANSI__
+
+/* No GCC-specific includes */
+#undef __GNUC__
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+
+/*
+ * Mega Hack - reference fake functions in header to prevent warnings.
+ *
+ * They really need to clean up their code.
+ */
+static void *glib_hack1 = (void *) g_error;
+static void *glib_hack2 = (void *) g_message;
+static void *glib_hack3 = (void *) g_warning;
+
+/* Mega-hack redefine them again */
+#undef float
+#define float floating_point_is_not_allowed
+#undef double
+#define double floating_point_is_not_allowed
 
 /*
  * Number of pixels inserted between the menu bar and the main screen
@@ -57,13 +95,11 @@ struct term_data
 	GdkPixmap *pixmap;
 	GdkGC *gc;
 
-#ifdef USE_GRAPHICS	
+#ifdef USE_GRAPHICS
+
 	GdkImage *tiles;
-
-#ifdef USE_TRANSPARENCY
 	GdkImage *temp;
-#endif /* USE_TRANSPARENCY */
-
+	
 #endif /* USE_GRAPHICS */
 
 	int font_wid;
@@ -136,13 +172,15 @@ static int ysize;
 static guint32 black_pixel;
 #endif /* USE_GRAPHICS */
 
+
+/* Temp return value for create_pixel */
+static GdkColor temp_color;
+
 /*
  * Hack -- Convert an RGB value to an X11 Pixel, or die.
  */
-static GdkColor create_pixel(byte red, byte green, byte blue)
+static GdkColor *create_pixel(byte red, byte green, byte blue)
 {
-	GdkColor gcolour;
-
 #ifdef SUPPORT_GAMMA
 
 	if (!gamma_table_ready)
@@ -168,18 +206,18 @@ static GdkColor create_pixel(byte red, byte green, byte blue)
 
 	/* Build the color */
 
-	gcolour.red = red * 255;
-	gcolour.green = green * 255;
-	gcolour.blue = blue * 255;
+	temp_color.red = red * 255;
+	temp_color.green = green * 255;
+	temp_color.blue = blue * 255;
 	
 	/* Attempt to Allocate the Parsed color */
 	if (!gdk_colormap_alloc_color(gdk_colormap_get_system(),
-		 &gcolour, FALSE, TRUE))
+		 &temp_color, FALSE, TRUE))
 	{
 		g_print("Couldn't allocate color.");
 	}
 
-	return (gcolour);
+	return (&temp_color);
 }
 
 
@@ -198,7 +236,7 @@ static void store_pixel_colors(void)
 		clr->blue = angband_color_table[i][3];
 
 		/* Create the colour structure */
-		clr->pixel = create_pixel(clr->red, clr->green, clr->blue);
+		clr->pixel = *create_pixel(clr->red, clr->green, clr->blue);
 	}
 }
 
@@ -226,7 +264,7 @@ static errr Term_xtra_gtk_react(void)
 			clr->blue = angband_color_table[i][3];
 
 			/* Create the colour structure */
-			clr->pixel = create_pixel(clr->red, clr->green, clr->blue);
+			clr->pixel = *create_pixel(clr->red, clr->green, clr->blue);
 			
 			/* Set flag */
 			redraw = TRUE;
@@ -421,7 +459,7 @@ static void ReadBMP(char *Name)
 		rd_byte(f, &(clrg.filler));
 
 		/* Analyze the color */
-		clr_pixels[i] = create_pixel(clrg.r, clrg.g, clrg.b).pixel;
+		clr_pixels[i] = create_pixel(clrg.r, clrg.g, clrg.b)->pixel;
 	}
 
 	/* Make the normal bitmap */
@@ -490,7 +528,7 @@ static void ReadBMP(char *Name)
 				}
 				
 				gdk_image_put_pixel(tiles_norm, x, y2,
-					create_pixel(ch, c2, c3).pixel);
+					create_pixel(ch, c2, c3)->pixel);
 			}
 			else if (infoheader.biBitCount == 8)
 			{
@@ -810,19 +848,14 @@ static errr Term_curs_gtk(int x, int y)
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_gtk(int x, int y, int n, const byte *ap, const char *cp,
 	const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_gtk(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	int i, x1, y1, x0 = x, y0 = y;
 
 	byte a;
 	char c;
 
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
@@ -830,15 +863,11 @@ static errr Term_pict_gtk(int x, int y, int n, const byte *ap, const char *cp)
 	int k, l;
 
 	guint32 pixel, blank;
-	
-#endif /* USE_TRANSPARENCY */
 
 	term_data *td = (term_data*)(Term->data);
 
-#ifdef USE_TRANSPARENCY	
 	/* Mega Hack^2 - assume the top left corner is "black" */
 	blank = gdk_image_get_pixel(td->tiles, 0, td->font_hgt * 6);
-#endif /* USE_TRANSPARENCY */
 	
 	/* Don't draw to hidden windows */
 	if (!td->shown) return (0);
@@ -858,8 +887,6 @@ static errr Term_pict_gtk(int x, int y, int n, const byte *ap, const char *cp)
 		/* For extra speed - cache these values */
 		x1 = (c&0x7F) * td->font_wid;
 		y1 = (a&0x7F) * td->font_hgt;
-
-#ifdef USE_TRANSPARENCY
 
 		ta = *tap++;
 		tc = *tcp++;
@@ -903,15 +930,7 @@ static errr Term_pict_gtk(int x, int y, int n, const byte *ap, const char *cp)
 			/* Hack - flush the changes */
 			gdk_flush();
 		}
-
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		gdk_draw_image(td->pixmap, td->gc, td->tiles,
-				 x1, y1, x, y,
-				 td->font_wid, td->font_hgt);
-
-#endif /* USE_TRANSPARENCY */
+		
 		x += td->font_wid;
 	}
 	
@@ -1169,8 +1188,6 @@ static void font_ok_callback(GtkWidget *widget, GtkWidget *font_selector)
 		/* Resize tiles */
 		td->tiles = resize_tiles(td->font_wid, td->font_hgt);
 
-#ifdef USE_TRANSPARENCY
-
 		/* Get a new temp */ 
 		if (td->temp) gdk_image_destroy(td->temp);
 	
@@ -1178,13 +1195,12 @@ static void font_ok_callback(GtkWidget *widget, GtkWidget *font_selector)
 		td->temp = gdk_image_new(GDK_IMAGE_FASTEST,
 						gdk_visual_get_system(),
 						td->font_wid, td->font_hgt);
-
-#endif /* USE_TRANSPARENCY */
 	}
-#endif /* USE_GRAPHICS */
 
+#endif /* USE_GRAPHICS */
+	
 	init_pixmap(td);
-		
+
 	/* Recalculate size hints */	
 	set_size_hints(td);
 	
@@ -1215,9 +1231,9 @@ static void change_font_event_handler(GtkWidget *widget, gpointer user_data)
 	GtkWidget *font_selector = gtk_font_selection_dialog_new("Select font");
 
 	term_data *td = user_data;
-	gchar *foundery[] = { "misc", NULL};
-	gchar *spacings[] = { "c", "m", NULL };
-	gchar *charsets[] = { "iso8859-1", NULL};
+	gchar *foundery[] = { (char * ) "misc", NULL};
+	gchar *spacings[] = { (char * ) "c", (char *) "m", NULL };
+	gchar *charsets[] = { (char * ) "iso8859-1", NULL};
 
 	/* Hack - ignore widget */
 	(void) widget;
@@ -1260,6 +1276,9 @@ static void change_font_event_handler(GtkWidget *widget, gpointer user_data)
 static void term_event_handler(GtkWidget *widget, gpointer user_data)
 {
 	term_data *td = (term_data *)user_data;
+	
+	/* Ignore unused parameter */
+	(void) widget;
 
 	/* We don't mess with the Angband window */
 	if (td == &data[0]) return;
@@ -1420,16 +1439,11 @@ static void graf_nuke(void)
 		/* Forget pointer */
 		td->tiles = NULL;
 
-# ifdef USE_TRANSPARENCY
-
 		/* Free previously allocated transparency buffer */
 		if (td->temp) gdk_image_destroy(td->temp);
 
 		/* Forget stale pointer */
 		td->temp = NULL;
-
-# endif /* USE_TRANSPARENCY */
-
 	}
 }
 
@@ -1464,12 +1478,9 @@ static void graf_init(void)
 			/* Resize tiles */
 			td->tiles = resize_tiles(td->font_wid, td->font_hgt);
 
-#ifdef USE_TRANSPARENCY
-
 			/* Initialize the transparency temp storage*/			
 			td->temp = gdk_image_new(GDK_IMAGE_FASTEST, gdk_visual_get_system(),
 				td->font_wid, td->font_hgt);
-#endif /* USE_TRANSPARENCY */
 		}
 		else
 		{
@@ -1538,7 +1549,7 @@ static bool set_graph_mode(int graphmode)
 static void change_graf_mode_event_handler(GtkButton *was_clicked,
 										gpointer user_data)
 {
-	/* Hack - ignore variable */
+	/* Hack - ignore parameter */
 	(void) was_clicked;
 	
 	/* Set request according to user selection */
@@ -1562,22 +1573,22 @@ static void change_graf_mode_event_handler(GtkButton *was_clicked,
 }
 
 
-# ifdef USE_TRANSPARENCY
-
 /*
  * Toggles the boolean value of use_transparency
  */
 static void change_trans_mode_event_handler(GtkButton *was_clicked,
 										gpointer user_data)
 {
+	/* Hack - Ignore unused parameters */
+	(void) was_clicked;
+	(void) user_data;
+
 	/* Toggle the transparency mode */
 	use_transparency = !use_transparency;
 
 	/* Hack - force redraw */
 	Term_key_push(KTRL('R'));
 }
-
-# endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -1886,7 +1897,7 @@ static GtkWidget *get_widget_from_path(cptr path)
 /*
  * Enable/disable a menu item
  */
-void enable_menu_item(cptr path, bool enabled)
+static void enable_menu_item(cptr path, bool enabled)
 {
 	GtkWidget *widget;
 
@@ -1908,7 +1919,7 @@ void enable_menu_item(cptr path, bool enabled)
 /*
  * Check/uncheck a menu item. The item should be of the GtkCheckMenuItem type
  */
-void check_menu_item(cptr path, bool checked)
+static void check_menu_item(cptr path, bool checked)
 {
 	GtkWidget *widget;
 
@@ -1939,6 +1950,10 @@ static void file_menu_update_handler(GtkWidget *widget, gpointer user_data)
 	bool save_ok = FALSE;
 	bool quit_ok = FALSE;
 	bool start_ok = !gtk_newgame;
+	
+	/* Ignore parameter */
+	(void) widget;
+	(void) user_data;
 
 	/* Cave we save/quit now? */
 	if (!character_generated || !game_in_progress)
@@ -1947,7 +1962,7 @@ static void file_menu_update_handler(GtkWidget *widget, gpointer user_data)
 	}
 	else
 	{
-		if (inkey_flag && game_in_progress && character_generated)
+		if (p_ptr->inkey_flag && game_in_progress && character_generated)
 		{
 			save_ok = TRUE;
 			quit_ok = TRUE;
@@ -1970,6 +1985,10 @@ static void term_menu_update_handler(GtkWidget *widget, gpointer user_data)
 	int i;
 	char buf[64];
 
+	/* Ignore parameters */
+	(void) widget;
+	(void) user_data;
+	
 	/* For each term */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -1989,6 +2008,10 @@ static void font_menu_update_handler(GtkWidget *widget, gpointer user_data)
 {
 	int i;
 	char buf[64];
+	
+	/* Ignore parameters */
+	(void) widget;
+	(void) user_data;
 
 	/* For each term */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -2009,6 +2032,10 @@ static void font_menu_update_handler(GtkWidget *widget, gpointer user_data)
  */
 static void graf_menu_update_handler(GtkWidget *widget, gpointer user_data)
 {
+	/* Ignore unused parameters */
+	(void) widget;
+	(void) user_data;
+
 	/* Update menu items */
 	check_menu_item(
 		"<Angband>/Options/Graphics/None",
@@ -2019,14 +2046,9 @@ static void graf_menu_update_handler(GtkWidget *widget, gpointer user_data)
 	check_menu_item(
 		"<Angband>/Options/Graphics/New",
 		(use_graphics == GRAPHICS_ADAM_BOLT));
-
-# ifdef USE_TRANSPARENCY
-
 	check_menu_item(
 		"<Angband>/Options/Graphics/Transparency",
 		use_transparency);
-
-# endif /* USE_TRANSPARENCY */
 }
 
 #endif /* USE_GRAPHICS */
@@ -2114,7 +2136,7 @@ static void save_game_gtk(void)
 {
 	if (game_in_progress && character_generated)
 	{
-		if (!inkey_flag)
+		if (!p_ptr->inkey_flag)
 		{
 			plog("You may not do that right now.");
 			return;
@@ -2138,6 +2160,10 @@ static void save_game_gtk(void)
  */
 static void save_event_handler(GtkButton *was_clicked, gpointer user_data)
 {
+	/* Ignore unused parameters */
+	(void) was_clicked;
+	(void) user_data;
+
 	/* Save current game */
 	save_game_gtk();
 }
@@ -2205,47 +2231,47 @@ static void destroy_event_handler(GtkButton *was_clicked, gpointer user_data)
 static GtkItemFactoryEntry main_menu_items[] =
 {
 	/* "File" menu */
-	{ "/File", NULL,
-	  NULL, 0, "<Branch>" },
-	{ "/File/New", "<mod1>N",
+	{ (char *) "/File", NULL,
+	  NULL, 0, (char *) "<Branch>" },
+	{ (char *) "/File/New", (char *) "<mod1>N",
 	  new_event_handler, 0, NULL },
-	{ "/File/Open", "<mod1>O",
+	{ (char *) "/File/Open", (char *) "<mod1>O",
 	  open_event_handler, 0, NULL },
-	{ "/File/sep1", NULL,
-	  NULL, 0, "<Separator>" },
-	{ "/File/Save", "<mod1>S",
+	{ (char *) "/File/sep1", NULL,
+	  NULL, 0, (char *) "<Separator>" },
+	{ (char *) "/File/Save", (char *) "<mod1>S",
 	  save_event_handler, 0, NULL },
-	{ "/File/Quit", "<mod1>Q",
+	{ (char *) "/File/Quit", (char *) "<mod1>Q",
 	  quit_event_handler, 0, NULL },
 
 	/* "Terms" menu */
-	{ "/Terms", NULL,
-	  NULL, 0, "<Branch>" },
+	{ (char * ) "/Terms", NULL,
+	  NULL, 0, (char * ) "<Branch>" },
 	/* XXX XXX XXX NULL's are replaced by the program */
-	{ NULL, "<mod1>0",
-	  term_event_handler, (guint)&data[0], "<CheckItem>" },
-	{ NULL, "<mod1>1",
-	  term_event_handler, (guint)&data[1], "<CheckItem>" },
-	{ NULL, "<mod1>2",
-	  term_event_handler, (guint)&data[2], "<CheckItem>" },
-	{ NULL, "<mod1>3",
-	  term_event_handler, (guint)&data[3], "<CheckItem>" },
-	{ NULL, "<mod1>4",
-	  term_event_handler, (guint)&data[4], "<CheckItem>" },
-	{ NULL, "<mod1>5",
-	  term_event_handler, (guint)&data[5], "<CheckItem>" },
-	{ NULL, "<mod1>6",
-	  term_event_handler, (guint)&data[6], "<CheckItem>" },
-	{ NULL, "<mod1>7",
-	  term_event_handler, (guint)&data[7], "<CheckItem>" },
+	{ NULL, (char * ) "<mod1>0",
+	  term_event_handler, (guint)&data[0], (char * ) "<CheckItem>" },
+	{ NULL, (char * ) "<mod1>1",
+	  term_event_handler, (guint)&data[1], (char * ) "<CheckItem>" },
+	{ NULL, (char * ) "<mod1>2",
+	  term_event_handler, (guint)&data[2], (char * ) "<CheckItem>" },
+	{ NULL, (char * ) "<mod1>3",
+	  term_event_handler, (guint)&data[3], (char * ) "<CheckItem>" },
+	{ NULL, (char * ) "<mod1>4",
+	  term_event_handler, (guint)&data[4], (char * ) "<CheckItem>" },
+	{ NULL, (char * ) "<mod1>5",
+	  term_event_handler, (guint)&data[5], (char * ) "<CheckItem>" },
+	{ NULL, (char * ) "<mod1>6",
+	  term_event_handler, (guint)&data[6], (char * ) "<CheckItem>" },
+	{ NULL, (char * ) "<mod1>7",
+	  term_event_handler, (guint)&data[7], (char * ) "<CheckItem>" },
 
 	/* "Options" menu */
-	{ "/Options", NULL,
-	  NULL, 0, "<Branch>" },
+	{ (char * ) "/Options", NULL,
+	  NULL, 0, (char * ) "<Branch>" },
 
 	/* "Font" submenu */
-	{ "/Options/Font", NULL,
-	  NULL, 0, "<Branch>" },
+	{ (char * ) "/Options/Font", NULL,
+	  NULL, 0, (char * ) "<Branch>" },
 	/* XXX XXX XXX Again, NULL's are filled by the program */
 	{ NULL, NULL,
 	  change_font_event_handler, (guint)&data[0], NULL },
@@ -2267,21 +2293,18 @@ static GtkItemFactoryEntry main_menu_items[] =
 #ifdef USE_GRAPHICS
 
 	/* "Graphics" submenu */
-	{ "/Options/Graphics", NULL,
-	  NULL, 0, "<Branch>" },
-	{ "/Options/Graphics/None", NULL,
-	  change_graf_mode_event_handler, GRAPHICS_NONE, "<CheckItem>" },
-	{ "/Options/Graphics/Old", NULL,
-	  change_graf_mode_event_handler, GRAPHICS_ORIGINAL, "<CheckItem>" },
-	{ "/Options/Graphics/New", NULL,
-	  change_graf_mode_event_handler, GRAPHICS_ADAM_BOLT, "<CheckItem>" },
-	{ "/Options/Graphics/sep1", NULL,
-	  NULL, 0, "<Separator>" },
-#ifdef USE_TRANSPARENCY
-	{ "/Options/Graphics/Transparency", NULL,
-	  change_trans_mode_event_handler, 0, "<CheckItem>" },
-#endif /* USE_TRANSPARENCY */
-
+	{ (char * ) "/Options/Graphics", NULL,
+	  NULL, 0, (char * ) "<Branch>" },
+	{ (char * ) "/Options/Graphics/None", NULL,
+	  change_graf_mode_event_handler, GRAPHICS_NONE, (char * ) "<CheckItem>" },
+	{ (char * ) "/Options/Graphics/Old", NULL,
+	  change_graf_mode_event_handler, GRAPHICS_ORIGINAL, (char * ) "<CheckItem>" },
+	{ (char * ) "/Options/Graphics/New", NULL,
+	  change_graf_mode_event_handler, GRAPHICS_ADAM_BOLT, (char * ) "<CheckItem>" },
+	{ (char * ) "/Options/Graphics/sep1", NULL,
+	  NULL, 0, (char * ) "<Separator>" },
+	{ (char * ) "/Options/Graphics/Transparency", NULL,
+	  change_trans_mode_event_handler, 0, (char * ) "<CheckItem>" },
 #endif /* USE_GRAPHICS */
 };
 
@@ -2332,13 +2355,13 @@ static void setup_menu_paths(void)
 		strnfmt(buf, 64, "/Terms/%s", angband_term_name[i]);
 
 		/* XXX XXX Store it in the menu definition */
-		(cptr)term_entry[i].path = string_make(buf);
+		term_entry[i].path = (char *) string_make(buf);
 
 		/* XXX XXX Build the real path name to the entry */
 		strnfmt(buf, 64, "/Options/Font/%s", angband_term_name[i]);
 
 		/* XXX XXX Store it in the menu definition */
-		(cptr)font_entry[i].path = string_make(buf);
+		font_entry[i].path = (char *) string_make(buf);
 	}
 }
 
@@ -2348,7 +2371,7 @@ static void setup_menu_paths(void)
  * callbacks and accelerators along the way, and return
  * a GtkMenuBar widget.
  */
-GtkWidget *get_main_menu(term_data *td)
+static GtkWidget *get_main_menu(term_data *td)
 {
 	GtkItemFactory *item_factory;
 	GtkAccelGroup *accel_group;
@@ -2643,13 +2666,18 @@ static void init_gtk_window(term_data *td, int i)
 /*
  * Initialization function
  */
-errr init_gtk(unsigned char *new_game, int argc, char **argv)
+errr init_gtk(int argc, char **argv, unsigned char *new_game)
 {
 	int i;
 
 #ifdef USE_GRAPHICS
 	int graphmode = GRAPHICS_ANY;
 #endif /* USE_GRAPHICS */
+
+	/* Mega Hack - ignore crappy glib header file problems */
+	(void) glib_hack1;
+	(void) glib_hack2;
+	(void) glib_hack3;
 	
 	/* See if gtk exists and works */
 	if (!gtk_init_check(&argc, &argv)) return (1);

@@ -37,6 +37,12 @@ what can you expect from a system designed for the Vax... :-)
 
 #if defined(USE_VME) || defined(VM)
 
+cptr help_vme[] =
+{
+	"To use VME (VAX/ESA)",
+	NULL
+};
+
 
 /*
  * Convert EBCDIC to ASCII

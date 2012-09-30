@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/01/14 20:03:04 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/03/14 21:00:25 $
 # File: k_info.txt
 
 
@@ -434,7 +434,7 @@ G:\:D
 I:21:2:0
 W:3:0:30:30
 A:5/1
-P:0:1d6:0:0:0
+P:0:1d3:0:0:0
 F:SHOW_MODS
 
 N:50:& Flail~
@@ -1939,7 +1939,7 @@ F:EASY_KNOW
 N:247:Booze
 G:!:d
 I:75:9:50
-W:0:0:4:0
+W:0:0:4:1
 A:0/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
@@ -2698,7 +2698,7 @@ N:346:& Wooden Torch~
 G:~:u
 I:39:0:4000
 W:1:0:30:2
-A:1/1
+A:1/1:10/1
 P:0:1d1:0:0:0
 F:EASY_KNOW
 
@@ -2706,7 +2706,7 @@ N:347:& Brass Lantern~
 G:~:U
 I:39:1:7500
 W:3:0:50:150
-A:5/1
+A:5/1:15/1:25/1
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE
 
@@ -2714,7 +2714,7 @@ N:348:& Flask~ of oil
 G:!:y
 I:77:0:7500
 W:1:0:10:3
-A:1/1
+A:1/1:7/1:15/1
 P:0:2d6:0:0:0
 F:EASY_KNOW
 
@@ -3267,7 +3267,7 @@ N:413:& Dragon Helm~
 G:]:G
 I:32:7:0
 W:80:0:50:10000
-A:80/4
+A:80/20:105/20
 P:8:1d3:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
@@ -3275,7 +3275,7 @@ N:414:& Dragon Shield~
 G:[:G
 I:34:6:0
 W:80:0:100:10000
-A:80/4
+A:80/20:105/20
 P:11:1d7:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD
 
@@ -3963,7 +3963,7 @@ G:\:u
 I:21:1:0
 W:0:0:100:3
 A:0/1
-P:0:1d4:0:0:0
+P:0:2d2:0:0:0
 F:SHOW_MODS
 
 N:543:& Broad Spear~
@@ -4257,4 +4257,39 @@ A:43/2:70/2
 P:0:1d15:0:0:0
 F:SHOW_MODS
 
+##### New artifact ring #####
+
+# The Ring of Power (Vilya) -- see artifact list
+
+N:582:& Ring~
+G:=:d
+I:45:50:0
+W:100:0:2:300000
+F:INSTA_ART
+
+##### New rings #####
+
+N:583:Resist Fire and Cold
+G:=:d
+I:45:51:0
+W:21:0:2:450
+A:21/8
+F:RES_FIRE | RES_COLD | IGNORE_FIRE | IGNORE_COLD | EASY_KNOW
+
+N:584:the Cat
+G:=:d
+I:45:52:4
+W:5:0:2:150
+A:13/8
+F:STEALTH | INFRA
+
+# 585-589 are unused
+
+##### New weapon type #####
+N:590:& Elfblade~
+G:|:w
+I:23:32:0
+W:90:0:140:15000
+A:70/20:90/20
+P:0:4d4:0:0:0
 

@@ -664,7 +664,7 @@ static void term_data_color(term_data *td, int a)
 		color.red = (rv | (rv << 8));
 		color.green = (gv | (gv << 8));
 		color.blue = (bv | (bv << 8));
-
+	
 		/* Activate the color */
 		RGBForeColor(&color);
 
@@ -810,7 +810,7 @@ static void term_data_check_size(term_data *td)
 #else /* ANGBAND_LITE_MAC */
 
 	/* Handle graphics */
-	if (use_graphics && (td == &data[0]))
+	if (use_graphics && ((td == &data[0]) || (td == &data[6])))
 	{
 		td->t->always_pict = TRUE;
 	}
@@ -881,13 +881,15 @@ static void term_data_redraw(term_data *td)
  */
 
 #define kPictID					1001			/* Graf 'pict' resource */
+#define kPictMaskID				1002			/* Graf 'pict' resource */
 
-#define kGrafWidth				8				/* Graf Size (X) */
-#define kGrafHeight				8				/* Graf Size (Y) */
+#define kGrafWidth				16				/* Graf Size (X) */
+#define kGrafHeight				16				/* Graf Size (Y) */
 
 #define kPictCols				32				/* Number of Cols in Pict */
-#define kPictRows				32				/* Number of Rows in Pict */
+#define kPictRows				63				/* Number of Rows in Pict */
 
+#define kMaxChannels			10
 
 /*
  * Forward Declare
@@ -906,6 +908,14 @@ struct FrameRec
 	GWorldPtr 		framePort;
 	PixMapHandle 	framePixHndl;
 	PixMapPtr 		framePix;
+	
+	GWorldPtr		maskPort;
+	PixMapHandle	maskPixHndl;
+	PixMapPtr		maskPix;
+	
+	GWorldPtr		bufferPort;
+	PixMapHandle	bufferPixHndl;
+	PixMapPtr		bufferPix;
 };
 
 
@@ -913,7 +923,6 @@ struct FrameRec
  * The global picture data
  */
 static FrameRec *frameP = NULL;
-
 
 /*
  * Lock a frame
@@ -927,6 +936,18 @@ static void BenSWLockFrame(FrameRec *srcFrameP)
 	HLockHi((Handle)pixMapH);
 	srcFrameP->framePixHndl = pixMapH;
 	srcFrameP->framePix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
+	
+	pixMapH = GetGWorldPixMap(srcFrameP->maskPort);
+	(void)LockPixels(pixMapH);
+	HLockHi((Handle)pixMapH);
+	srcFrameP->maskPixHndl = pixMapH;
+	srcFrameP->maskPix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
+	
+	pixMapH = GetGWorldPixMap(srcFrameP->bufferPort);
+	(void)LockPixels(pixMapH);
+	HLockHi((Handle)pixMapH);
+	srcFrameP->bufferPixHndl = pixMapH;
+	srcFrameP->bufferPix = (PixMapPtr)StripAddress(*(Handle)pixMapH);
 }
 
 
@@ -942,13 +963,34 @@ static void BenSWUnlockFrame(FrameRec *srcFrameP)
 	}
 
 	srcFrameP->framePix = NULL;
+	
+	if (srcFrameP->maskPort != NULL)
+	{
+		HUnlock((Handle)srcFrameP->maskPixHndl);
+		UnlockPixels(srcFrameP->maskPixHndl);
+	}
+
+	srcFrameP->maskPix = NULL;
+	
+	if (srcFrameP->bufferPort != NULL)
+	{
+		HUnlock((Handle)srcFrameP->bufferPixHndl);
+		UnlockPixels(srcFrameP->bufferPixHndl);
+	}
+
+	srcFrameP->bufferPix = NULL;
 }
 
 
 
 static OSErr BenSWCreateGWorldFromPict(
 	GWorldPtr *pictGWorld,
-	PicHandle pictH)
+	GWorldPtr *maskGWorld,
+	GWorldPtr *bufferGWorld,
+	PicHandle pictH,
+	PicHandle maskH,
+	term_data *td )
+
 {
 	OSErr err;
 	GWorldPtr saveGWorld;
@@ -958,51 +1000,134 @@ static OSErr BenSWCreateGWorldFromPict(
 	short depth;
 	GDHandle theGDH;
 
-	/* Reset */
-	*pictGWorld = NULL;
-
-	/* Get depth */
-	depth = data[0].pixelDepth;
-
-	/* Get GDH */
-	theGDH = data[0].theGDH;
-
-	/* Obtain size rectangle */
-	pictRect = (**pictH).picFrame;
-	OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
-
-	/* Create a GWorld */
-	err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
-					theGDH, noNewDevice);
-
-	/* Success */
-	if (err != noErr)
 	{
-		return (err);
+		tempGWorld = NULL;
+
+		/* Reset */
+		*pictGWorld = NULL;
+
+		/* Get depth */
+		depth = data[0].pixelDepth;
+
+		/* Get GDH */
+		theGDH = data[0].theGDH;
+
+		/* Obtain size rectangle */
+		pictRect = (**pictH).picFrame;
+		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
+
+		/* Create a GWorld */
+		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
+						theGDH, noNewDevice);
+
+		/* Success */
+		if (err != noErr)
+		{
+			return (err);
+		}
+
+		/* Save pointer */
+		*pictGWorld = tempGWorld;
+
+		/* Save GWorld */
+		GetGWorld(&saveGWorld, &saveGDevice);
+
+		/* Activate */
+		SetGWorld(tempGWorld, nil);
+
+		/* Dump the pict into the GWorld */
+		(void)LockPixels(GetGWorldPixMap(tempGWorld));
+		EraseRect(&pictRect);
+		DrawPicture(pictH, &pictRect);
+		UnlockPixels(GetGWorldPixMap(tempGWorld));
+
+		/* Restore GWorld */
+		SetGWorld(saveGWorld, saveGDevice);
 	}
 
-	/* Save pointer */
-	*pictGWorld = tempGWorld;
+	{
+		tempGWorld = NULL;
 
-	/* Save GWorld */
-	GetGWorld(&saveGWorld, &saveGDevice);
+		/* Reset */
+		*maskGWorld = NULL;
 
-	/* Activate */
-	SetGWorld(tempGWorld, nil);
+		/* Get depth */
+		depth = data[0].pixelDepth;
 
-	/* Dump the pict into the GWorld */
-	(void)LockPixels(GetGWorldPixMap(tempGWorld));
-	EraseRect(&pictRect);
-	DrawPicture(pictH, &pictRect);
-	UnlockPixels(GetGWorldPixMap(tempGWorld));
+		/* Get GDH */
+		theGDH = data[0].theGDH;
 
-	/* Restore GWorld */
-	SetGWorld(saveGWorld, saveGDevice);
+		/* Obtain size rectangle */
+		pictRect = (**maskH).picFrame;
+		OffsetRect(&pictRect, -pictRect.left, -pictRect.top);
+
+		/* Create a GWorld */
+		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
+						theGDH, noNewDevice);
+
+		/* Success */
+		if (err != noErr)
+		{
+			return (err);
+		}
+
+		/* Save pointer */
+		*maskGWorld = tempGWorld;
+
+		/* Save GWorld */
+		GetGWorld(&saveGWorld, &saveGDevice);
+
+		/* Activate */
+		SetGWorld(tempGWorld, nil);
+
+		/* Dump the pict into the GWorld */
+		(void)LockPixels(GetGWorldPixMap(tempGWorld));
+		EraseRect(&pictRect);
+		DrawPicture(maskH, &pictRect);
+		UnlockPixels(GetGWorldPixMap(tempGWorld));
+
+		/* Restore GWorld */
+		SetGWorld(saveGWorld, saveGDevice);
+	}
+
+	{
+		tempGWorld = NULL;
+
+		/* Reset */
+		*bufferGWorld = NULL;
+
+		/* Get depth */
+		depth = data[0].pixelDepth;
+
+		/* Get GDH */
+		theGDH = data[0].theGDH;
+
+		/* Obtain size rectangle */
+		pictRect.left = 0;
+		pictRect.right = td->r.right - td->r.left;
+		pictRect.top = 0;
+		pictRect.bottom = td->tile_hgt;
+
+		/* OffsetRect(&pictRect, -pictRect.left, -pictRect.top); */
+
+		/* Create a GWorld */
+		err = NewGWorld(&tempGWorld, depth, &pictRect, nil,
+						theGDH, noNewDevice);
+
+		/* Success */
+		if (err != noErr)
+		{
+			return (err);
+		}
+
+		/* Save pointer */
+		*bufferGWorld = tempGWorld;
+	}
+
 
 	/* Success */
 	return (0);
 }
-
 
 /*
  * Init the global "frameP"
@@ -1010,11 +1135,13 @@ static OSErr BenSWCreateGWorldFromPict(
 static errr globe_init(void)
 {
 	OSErr err;
-
+	
 	GWorldPtr tempPictGWorldP;
+	GWorldPtr tempPictMaskGWorldP;
+	GWorldPtr tempPictBufferGWorldP;
 
 	PicHandle newPictH;
-
+	PicHandle newMaskH;
 
 	/* Use window XXX XXX XXX */
 	SetPort(data[0].w);
@@ -1022,19 +1149,32 @@ static errr globe_init(void)
 
 	/* Get the pict resource */
 	newPictH = GetPicture(kPictID);
+	newMaskH = GetPicture(kPictMaskID);
 
 	/* Analyze result */
-	err = (newPictH ? 0 : -1);
+	err = (newPictH ? 0 : -1) || (newMaskH ? 0 : -1);
 
 	/* Oops */
+	if (err != noErr)
+	{
+		mac_warning("There were problems loading the graphics.\rYou'll have to play on in ASCII.\rWhat a bodyblow.");
+		mac_warning("Email Rowan Beentje at rftb2@cam.ac.uk,\rgiving error code 404.\rThen step well clear of your screen\ras he targets the nuke.");
+	}
+
 	if (err == noErr)
 	{
 		/* Create GWorld */
-		err = BenSWCreateGWorldFromPict(&tempPictGWorldP, newPictH);
+		err = BenSWCreateGWorldFromPict(&tempPictGWorldP, 
+										&tempPictMaskGWorldP,
+										&tempPictBufferGWorldP,
+										newPictH,
+										newMaskH,
+										&data[0]);   /* rftb - main term included. */
 
 		/* Release resource */
 		ReleaseResource((Handle)newPictH);
-
+		ReleaseResource((Handle)newMaskH);
+		
 		/* Error */
 		if (err == noErr)
 		{
@@ -1049,12 +1189,15 @@ static errr globe_init(void)
 			{
 				/* Save GWorld */
 				frameP->framePort = tempPictGWorldP;
+				frameP->maskPort = tempPictMaskGWorldP;
+				frameP->bufferPort = tempPictBufferGWorldP;
 
 				/* Lock it */
 				BenSWLockFrame(frameP);
 			}
 		}
 	}
+	
 
 	/* Result */
 	return (err);
@@ -1074,6 +1217,8 @@ static errr globe_nuke(void)
 
 		/* Dispose of the GWorld */
 		DisposeGWorld(frameP->framePort);
+		DisposeGWorld(frameP->maskPort);
+		DisposeGWorld(frameP->bufferPort);
 
 		/* Dispose of the memory */
 		DisposePtr((Ptr)frameP);
@@ -1081,8 +1226,9 @@ static errr globe_nuke(void)
 		/* Forget */
 		frameP = NULL;
 	}
+	
 
-	/* Flush events */
+	/* Flush events */	
 	FlushEvents(everyEvent, 0);
 
 	/* Success */
@@ -1161,7 +1307,7 @@ static void Term_init_mac(term *t)
 		/* Obtain the rect */
 		tempRect = td->w->portRect;
 
-		/* Obtain the global rect */
+		/* Obtain the global rect */	
 		globalRect = tempRect;
 		LocalToGlobal((Point*)&globalRect.top);
 		LocalToGlobal((Point*)&globalRect.bottom);
@@ -1252,7 +1398,7 @@ static errr Term_xtra_mac_react(void)
 #ifdef ANGBAND_LITE_MAC
 
 	/* Nothing */
-
+	
 #else /* ANGBAND_LITE_MAC */
 
 	/* Handle sound */
@@ -1263,7 +1409,7 @@ static errr Term_xtra_mac_react(void)
 	}
 
 	/* Handle graphics */
-	if ((td == &data[0]) && (use_graphics != arg_graphics))
+	if (((td == &data[0]) || (td == &data[6])) && (use_graphics != arg_graphics))
 	{
 		/* Initialize graphics */
 		if (!use_graphics && !frameP && (globe_init() != 0))
@@ -1355,8 +1501,48 @@ static errr Term_xtra_mac(int n, int v)
 				HLock(handle);
 
 				/* Play sound (wait for completion) */
-				SndPlay(nil, (SndListHandle)handle, false);
+				/*SndPlay(nil, (SndListHandle)handle, false);*/
 
+				{
+					static SndChannelPtr	mySndChannel[kMaxChannels];
+					static long				channelInit = 0;
+					long					kk;
+					OSErr					myErr = noErr;
+
+					if (!channelInit)
+					{
+						for (kk=0; kk < kMaxChannels; kk++)
+						{
+							/* Create sound channel for all sounds to play from */
+							SndNewChannel(&mySndChannel[kk], sampledSynth, initMono, 0L);
+						}
+						channelInit = 1;
+					}
+
+					if (handle != nil)
+					{
+						SCStatus		status;
+						long			found;
+
+						for (kk=0,found=0; kk < kMaxChannels && !found; kk++)
+						{
+							myErr = SndChannelStatus(mySndChannel[kk], sizeof(SCStatus), &status);
+							if (myErr == noErr && !status.scChannelBusy)
+							{
+								/* Play new sound ansynchronously */
+								SndPlay(mySndChannel[kk], (SndListHandle)handle, true);
+								found = 1;
+							}
+						}
+						/*
+						if (!found)
+						{ 
+							SndPlay(0L, (SndListHandle)handle, false);
+						}
+						*/
+					}
+				}
+	            
 				/* Unlock and release */
 				HUnlock(handle);
 				ReleaseResource(handle);
@@ -1554,15 +1740,13 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
+static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
 {
 	int i;
-
+	Rect dirtyRect;
 	Rect r2;
-
 	term_data *td = (term_data*)(Term->data);
-
-
+		
 	/* Destination rectangle */
 	r2.left = x * td->tile_wid + td->size_ow1;
 	r2.right = r2.left + td->tile_wid;
@@ -1576,6 +1760,9 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 
 		byte a = ap[i];
 		char c = cp[i];
+		
+		byte ta = tap[i];
+		char tc = tcp[i];
 
 #ifdef ANGBAND_LITE_MAC
 
@@ -1584,17 +1771,22 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 #else /* ANGBAND_LITE_MAC */
 
 		/* Graphics -- if Available and Needed */
-		if (use_graphics && (td == &data[0]) &&
+		if (use_graphics && ((td == &data[0]) || (td == &data[6])) &&
 		    ((byte)a & 0x80) && ((byte)c & 0x80))
 		{
 			int col, row;
-
 			Rect r1;
+			
+			int terrain_col, terrain_row;
+			Rect terrain_rect;
 
 			/* Row and Col */
 			row = ((byte)a & 0x7F) % kPictRows;
 			col = ((byte)c & 0x7F) % kPictCols;
 
+			terrain_row = ((byte)ta & 0x7F) % kPictRows;
+			terrain_col = ((byte)tc & 0x7F) % kPictCols;
+			
 			/* Source rectangle */
 			r1.left = col * kGrafWidth;
 			r1.top = row * kGrafHeight;
@@ -1606,9 +1798,26 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			ForeColor(blackColor);
 
 			/* Draw the picture */
+			/*
 			CopyBits((BitMap*)frameP->framePix,
 					 &(td->w->portBits),
 					 &r1, &r2, srcCopy, NULL);
+			*/
+			/* Terrain rectangle */
+			terrain_rect.left = terrain_col * kGrafWidth;
+			terrain_rect.top = terrain_row * kGrafHeight;
+			terrain_rect.right = terrain_rect.left + kGrafWidth;
+			terrain_rect.bottom = terrain_rect.top + kGrafHeight;
+			
+			CopyBits((BitMap*)frameP->framePix,
+						&(td->w->portBits),
+					 &terrain_rect, &r2, srcCopy, NULL);
+			CopyMask((BitMap*)frameP->framePix,
+						(BitMap*)frameP->maskPix,
+						&(td->w->portBits),
+						&r1,
+						&r1,
+						&r2);
 
 			/* Restore colors */
 			BackColor(blackColor);
@@ -1649,7 +1858,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		r2.left += td->tile_wid;
 		r2.right += td->tile_wid;
 	}
-
+		
 	/* Success */
 	return (0);
 }
@@ -1802,6 +2011,8 @@ static void save_prefs(void)
 	putshort(VERSION_PATCH);
 	putshort(VERSION_EXTRA);
 
+	putshort(arg_sound);
+	putshort(arg_graphics);
 
 	/* Dump */
 	for (i = 0; i < MAX_TERM_DATA; i++)
@@ -1835,7 +2046,7 @@ static void load_prefs(void)
 	int i;
 
 	int old_major, old_minor, old_patch, old_extra;
-
+	bool old_sound, old_graphics;
 	term_data *td;
 
 
@@ -1860,7 +2071,11 @@ static void load_prefs(void)
 		return;
 	}
 
-
+	old_sound = getshort();
+	old_graphics = getshort();
+	
+	arg_graphics = old_graphics;
+	arg_sound = old_sound;
 	/* Windows */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -2024,7 +2239,7 @@ static void init_windows(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "Angband Preferences");
+			strcat(foo, "zAngband 2.5 Preferences");
 
 			/* Open the preference file */
 			fff = fopen(foo, "r");
@@ -2047,8 +2262,8 @@ static void init_windows(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the file */
-		fff = fopen(":Preferences:Angband Preferences", "r");
-		if (!fff) fff = fopen(":Angband Preferences", "r");
+		fff = fopen(":Preferences:zAngband 2.5 Preferences", "r");
+		if (!fff) fff = fopen(":zAngband 2.5 Preferences", "r");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -2138,7 +2353,7 @@ static void save_pref_file(void)
 			ptocstr((StringPtr)foo);
 
 			/* Append the preference file name */
-			strcat(foo, "Angband Preferences");
+			strcat(foo, "zAngband 2.5 Preferences");
 
 			/* Open the preference file */
 			fff = fopen(foo, "w");
@@ -2161,8 +2376,8 @@ static void save_pref_file(void)
 		SetVol(0, env.sysVRefNum);
 
 		/* Open the preference file */
-		fff = fopen(":Preferences:Angband Preferences", "w");
-		if (!fff) fff = fopen(":Angband Preferences", "w");
+		fff = fopen(":Preferences:zAngband 2.5 Preferences", "w");
+		if (!fff) fff = fopen(":zAngband 2.5 Preferences", "w");
 
 		/* Restore */
 		HSetVol(0, savev, saved);
@@ -2209,7 +2424,7 @@ static pascal Boolean ynfilter(DialogPtr dialog, EventRecord *event, short *ip)
 			Rect r;
 
 			/* Get the button */
-			GetDItem(dialog, i, &type, (Handle*)&control, &r);
+			GetDialogItem(dialog, i, &type, (Handle*)&control, &r);
 
 			/* Blink button for 1/10 second */
 			HiliteControl(control, 1);
@@ -2414,7 +2629,7 @@ static void init_menubar(void)
 	InsertMenu(m, 0);
 
 	/* Add the DA's to the "apple" menu */
-	AddResMenu(m, 'DRVR');
+	AppendResMenu(m, 'DRVR');
 
 
 	/* Get the "File" menu */
@@ -2462,7 +2677,7 @@ static void init_menubar(void)
 	TextSize(12);
 
 	/* Add the fonts to the menu */
-	AddResMenu(m, 'FONT');
+	AppendResMenu(m, 'FONT');
 
 	/* Size of menu */
 	n = CountMItems(m);
@@ -2474,8 +2689,8 @@ static void init_menubar(void)
 		short fontNum;
 
 		/* Acquire the font name */
-		/* GetMenuItemText(m, i, tmpName); */
-		GetItem(m, i, tmpName);
+		GetMenuItemText(m, i, tmpName);
+		/* GetItem(m, i, tmpName); */
 
 		/* Acquire the font index */
 		GetFNum(tmpName, &fontNum);
@@ -2487,8 +2702,8 @@ static void init_menubar(void)
 		if ((CharWidth('i') != CharWidth('W')) || (CharWidth('W') == 0))
 		{
 			/* Delete the menu item XXX XXX XXX */
-			/* DeleteMenuItem(m, i); */
-			DelMenuItem(m, i);
+			DeleteMenuItem(m, i);
+			/* DelMenuItem(m, i); */
 		}
 	}
 
@@ -2499,7 +2714,7 @@ static void init_menubar(void)
 	AppendMenu(m, "\p-");
 
 	/* Add the fonts to the menu */
-	AddResMenu(m, 'FONT');
+	AppendResMenu(m, 'FONT');
 
 
 	/* Make the "Size" menu */
@@ -2512,7 +2727,7 @@ static void init_menubar(void)
 	for (i = 8; i <= 32; i += ((i / 16) + 1))
 	{
 		Str15 buf;
-
+		
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2532,7 +2747,7 @@ static void init_menubar(void)
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
 		Str15 buf;
-
+		
 		/* Describe the item */
 		sprintf((char*)buf + 1, "%.15s", angband_term_name[i]);
 		buf[0] = strlen((char*)buf + 1);
@@ -2552,11 +2767,11 @@ static void init_menubar(void)
 	InsertMenu(m, 0);
 
 	/* Append the choices */
-	AppendMenu(m, "\parg_sound");
-	AppendMenu(m, "\parg_graphics");
+	AppendMenu(m, "\puse sounds");
+	AppendMenu(m, "\puse 16*16 graphics");
 	AppendMenu(m, "\p-");
-	AppendMenu(m, "\parg_fiddle");
-	AppendMenu(m, "\parg_wizard");
+	AppendMenu(m, "\pfiddle mode - cheat");
+	AppendMenu(m, "\pwizard mode - cheat");
 
 
 	/* Make the "TileWidth" menu */
@@ -2569,7 +2784,7 @@ static void init_menubar(void)
 	for (i = 4; i <= 32; i++)
 	{
 		Str15 buf;
-
+		
 		/* Textual size */
 		sprintf((char*)buf + 1, "%d", i);
 		buf[0] = strlen((char*)buf + 1);
@@ -2632,7 +2847,7 @@ static void setup_menus(void)
 
 
 	/* File menu */
-	m = GetMHandle(129);
+	m = GetMenuHandle(129);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2674,7 +2889,7 @@ static void setup_menus(void)
 
 
 	/* Edit menu */
-	m = GetMHandle(130);
+	m = GetMenuHandle(130);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2699,7 +2914,7 @@ static void setup_menus(void)
 
 
 	/* Font menu */
-	m = GetMHandle(131);
+	m = GetMenuHandle(131);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2740,8 +2955,8 @@ static void setup_menus(void)
 			EnableItem(m, i);
 
 			/* Analyze font */
-			/* GetMenuItemText(m,i,s); */
-			GetItem(m, i, s);
+			GetMenuItemText(m,i,s);
+			/* GetItem(m, i, s); */
 			GetFNum(s, &value);
 
 			/* Check active font */
@@ -2751,7 +2966,7 @@ static void setup_menus(void)
 
 
 	/* Size menu */
-	m = GetMHandle(132);
+	m = GetMenuHandle(132);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2763,7 +2978,7 @@ static void setup_menus(void)
 		DisableItem(m, i);
 		CheckItem(m, i, FALSE);
 	}
-
+	
 	/* Active window */
 	if (td)
 	{
@@ -2771,8 +2986,8 @@ static void setup_menus(void)
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
-			/* GetMenuItemText(m,i,s); */
-			GetItem(m, i, s);
+			GetMenuItemText(m,i,s);
+			/* GetItem(m, i, s); */
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
@@ -2786,7 +3001,7 @@ static void setup_menus(void)
 
 
 	/* Windows menu */
-	m = GetMHandle(133);
+	m = GetMenuHandle(133);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2800,7 +3015,7 @@ static void setup_menus(void)
 
 
 	/* Special menu */
-	m = GetMHandle(134);
+	m = GetMenuHandle(134);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2834,7 +3049,7 @@ static void setup_menus(void)
 
 
 	/* TileWidth menu */
-	m = GetMHandle(135);
+	m = GetMenuHandle(135);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2854,8 +3069,8 @@ static void setup_menus(void)
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
-			/* GetMenuItemText(m,i,s); */
-			GetItem(m, i, s);
+			GetMenuItemText(m,i,s);
+			/* GetItem(m, i, s); */
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
@@ -2869,7 +3084,7 @@ static void setup_menus(void)
 
 
 	/* TileHeight menu */
-	m = GetMHandle(136);
+	m = GetMenuHandle(136);
 
 	/* Get menu size */
 	n = CountMItems(m);
@@ -2889,8 +3104,8 @@ static void setup_menus(void)
 		for (i = 1; i <= n; i++)
 		{
 			/* Analyze size */
-			/* GetMenuItemText(m,i,s); */
-			GetItem(m, i, s);
+			GetMenuItemText(m,i,s);
+			/* GetItem(m, i, s); */
 			s[s[0]+1] = '\0';
 			value = atoi((char*)(s+1));
 
@@ -2961,13 +3176,13 @@ static void menu(long mc)
 				MoveWindow(dialog, r.left, r.top, 1);
 				ShowWindow(dialog);
 				ModalDialog(0, &item_hit);
-				DisposDialog(dialog);
+				DisposeDialog(dialog);
 				break;
 			}
 
 			/* Desk accessory */
-			/* GetMenuItemText(GetMHandle(128),selection,s); */
-			GetItem(GetMHandle(128), selection, s);
+			GetMenuItemText(GetMenuHandle(128),selection,s);
+			/* GetItem(GetMenuHandle(128), selection, s); */
 			OpenDeskAcc(s);
 			break;
 		}
@@ -3145,8 +3360,8 @@ static void menu(long mc)
 			}
 
 			/* Get a new font name */
-			/* GetMenuItemText(GetMHandle(131), selection, s); */
-			GetItem(GetMHandle(131), selection, s);
+			GetMenuItemText(GetMenuHandle(131), selection, s);
+			/* GetItem(GetMenuHandle(131), selection, s); */
 			GetFNum(s, &fid);
 
 			/* Save the new font id */
@@ -3205,8 +3420,8 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			/* GetMenuItemText(GetMHandle(132), selection, s); */
-			GetItem(GetMHandle(132), selection, s);
+			GetMenuItemText(GetMenuHandle(132), selection, s);
+			/* GetItem(GetMenuHandle(132), selection, s); */
 			s[s[0]+1]=0;
 			td->font_size = atoi((char*)(s+1));
 
@@ -3239,7 +3454,7 @@ static void menu(long mc)
 			/* Mapped */
 			td->mapped = TRUE;
 
-			/* Link */
+			/* Link */	
 			term_data_link(i);
 
 			/* Mapped (?) */
@@ -3308,8 +3523,8 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			/* GetMenuItemText(GetMHandle(135), selection, s); */
-			GetItem(GetMHandle(135), selection, s);
+			GetMenuItemText(GetMenuHandle(135), selection, s);
+			/* GetItem(GetMenuHandle(135), selection, s); */
 			s[s[0]+1]=0;
 			td->tile_wid = atoi((char*)(s+1));
 
@@ -3337,8 +3552,8 @@ static void menu(long mc)
 			/* Activate */
 			activate(td->w);
 
-			/* GetMenuItemText(GetMHandle(136), selection, s); */
-			GetItem(GetMHandle(136), selection, s);
+			GetMenuItemText(GetMenuHandle(136), selection, s);
+			/* GetItem(GetMenuHandle(136), selection, s); */
 			s[s[0]+1]=0;
 			td->tile_hgt = atoi((char*)(s+1));
 
@@ -3833,9 +4048,9 @@ static bool CheckEvents(bool wait)
 
 					/* Fake rectangle */
 					r.left = 20 * td->tile_wid + td->size_ow1;
-					r.right = 80 * td->tile_wid + td->size_ow1 + td->size_ow2 + 1;
+					r.right = 400 * td->tile_wid + td->size_ow1 + td->size_ow2 + 1;
 					r.top = 1 * td->tile_hgt + td->size_oh1;
-					r.bottom = 24 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
+					r.bottom = 150 * td->tile_hgt + td->size_oh1 + td->size_oh2 + 1;
 
 					/* Grow the rectangle */
 					newsize = GrowWindow(w, event.where, &r);
@@ -3977,8 +4192,10 @@ static vptr lifeboat = NULL;
 /*
  * Hook to "release" memory
  */
-static vptr hook_rnfree(vptr v)
+static vptr hook_rnfree(vptr v, huge size)
 {
+
+#pragma unused (size)
 
 #ifdef USE_MALLOC
 
@@ -4036,7 +4253,7 @@ static vptr hook_rpanic(huge size)
 		lifeboat = NULL;
 
 		/* Mega-Hack -- Warning */
-		mac_warning("Running out of Memory!\rAbort this process now!");
+		mac_warning("Running out of Memory!\rStop whatever you're doing,\rSAVE, and quit and re-open.\rEmail rftb2@cam.ac.uk error 67m");
 
 		/* Mega-Hack -- Never leave this function */
 		while (TRUE) CheckEvents(TRUE);
@@ -4246,7 +4463,7 @@ int main(void)
 # if defined(powerc) || defined(__powerc)
 
 	/* Assume System 7 */
-
+	
 	/* Assume Color Quickdraw */
 
 # else
@@ -4336,7 +4553,7 @@ int main(void)
 #if defined(MACINTOSH) && !defined(applec)
 
 	/* Mark ourself as the file creator */
-	_fcreator = 'A271';
+	_fcreator = 'zNG5';
 
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';
@@ -4416,4 +4633,5 @@ int main(void)
 	/* Hack -- Process Events Forever */
 	while (TRUE) CheckEvents(TRUE);
 }
+
 

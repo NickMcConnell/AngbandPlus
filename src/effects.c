@@ -1319,7 +1319,8 @@ bool set_stun(int v)
 	 */
 	if ((p_ptr->prace == RACE_GOLEM) &&
 		!(ironman_shops || ironman_downward || ironman_hard_quests ||
-		  ironman_empty_levels || ironman_rooms || ironman_nightmare))
+		  ironman_empty_levels || ironman_rooms || ironman_nightmare ||
+		  ironman_deep_quests))
 	{
 		v = 0;
 	}
@@ -1943,11 +1944,13 @@ bool inc_stat(int stat)
 {
 	int value, gain;
 
+	int cap = stat_cap(stat);
+
 	/* Then augment the current/max stat */
 	value = p_ptr->stat_cur[stat];
 
-	/* Cannot go above 18/100 */
-	if (value < 18 + 100)
+	/* Cannot go above limit */
+	if (value < cap)
 	{
 		/* Gain one (sometimes two) points */
 		if (value < 18)
@@ -1956,11 +1959,11 @@ bool inc_stat(int stat)
 			value += gain;
 		}
 
-		/* Gain 1/6 to 1/3 of distance to 18/100 */
-		else if (value < 18 + 98)
+		/* Gain 1/6 to 1/3 of distance to limit */
+		else if (value < cap - 2)
 		{
 			/* Approximate gain value */
-			gain = (((18 + 100) - value) / 2 + 3) / 2;
+			gain = ((cap - value) / 2 + 3) / 2;
 
 			/* Paranoia */
 			if (gain < 1) gain = 1;
@@ -1969,7 +1972,7 @@ bool inc_stat(int stat)
 			value += randint1(gain) + gain / 2;
 
 			/* Maximal value */
-			if (value > 18 + 99) value = 18 + 99;
+			if (value > cap - 1) value = cap - 1;
 		}
 
 		/* Gain one point at a time */
@@ -2404,32 +2407,54 @@ bool lose_all_info(void)
 {
 	int i, k;
 
+	object_type *o_ptr;
+
 	chg_virtue(V_KNOWLEDGE, -5);
 	chg_virtue(V_ENLIGHTEN, -5);
 
-	/* Forget info about objects */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	/* Forget info about equipment */
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Allow "protection" by the MENTAL flag */
-		if (o_ptr->ident & (IDENT_MENTAL)) continue;
+		/* Allow "protection" if know all the flags... */
+		if (object_known_full(o_ptr)) continue;
 
 		/* Remove "default inscriptions" */
 		o_ptr->feeling = FEEL_NONE;
 
 		/* Hack -- Clear the "empty" flag */
-		o_ptr->ident &= ~(IDENT_EMPTY);
+		o_ptr->info &= ~(OB_EMPTY);
 
 		/* Hack -- Clear the "known" flag */
-		o_ptr->ident &= ~(IDENT_KNOWN);
+		o_ptr->info &= ~(OB_KNOWN);
 
 		/* Hack -- Clear the "felt" flag */
-		o_ptr->ident &= ~(IDENT_SENSE);
+		o_ptr->info &= ~(OB_SENSE);
 	}
+
+	/* Forget info about objects */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		/* Allow "protection" if know all the flags... */
+		if (object_known_full(o_ptr)) continue;
+
+		/* Remove "default inscriptions" */
+		o_ptr->feeling = FEEL_NONE;
+
+		/* Hack -- Clear the "empty" flag */
+		o_ptr->info &= ~(OB_EMPTY);
+
+		/* Hack -- Clear the "known" flag */
+		o_ptr->info &= ~(OB_KNOWN);
+
+		/* Hack -- Clear the "felt" flag */
+		o_ptr->info &= ~(OB_SENSE);
+	}
+	OBJ_ITT_END;
 
 	/* Hack - Remove all knowledge about objects */
 
@@ -2491,6 +2516,7 @@ void do_poly_wounds(void)
 
 void do_poly_self(void)
 {
+	int i;
 	int power = p_ptr->lev;
 
 	msg_print("You feel a change coming over you...");
@@ -2500,7 +2526,7 @@ void do_poly_self(void)
 	if ((power > randint0(20)) && one_in_(3))
 	{
 		char effect_msg[80] = "";
-		int new_race, expfact, goalexpfact;
+		int old_race, new_race, expfact, goalexpfact;
 
 		/* Some form of racial polymorph... */
 		power -= 10;
@@ -2597,8 +2623,35 @@ void do_poly_self(void)
 
 		chg_virtue(V_CHANCE, 2);
 
+		old_race = p_ptr->prace;
 		p_ptr->prace = new_race;
 		rp_ptr = &race_info[p_ptr->prace];
+
+		/* Adjust the stats */
+		for (i = 0; i < A_MAX; i++)
+		{
+			int drain;
+			int change;
+
+			/* Calculate the amount the stat is drained */
+			if (p_ptr->stat_cur[i] > 18)
+				drain = (p_ptr->stat_max[i] - p_ptr->stat_cur[i] + 9) / 10;
+			else if (p_ptr->stat_max[i] > 18)
+				drain =
+					(18 - p_ptr->stat_cur[i]) + (p_ptr->stat_max[i] - 18 +
+												 9) / 10;
+			else
+				drain = p_ptr->stat_max[i] - p_ptr->stat_cur[i];
+
+			/* Calculate the difference between the races */
+			change = rp_ptr->r_adj[i] - race_info[old_race].r_adj[i];
+
+			/* Adjust current stat */
+			p_ptr->stat_cur[i] = adjust_stat(i, p_ptr->stat_cur[i], change);
+
+			/* Set maximum stat based on current stat and drainage */
+			p_ptr->stat_max[i] = adjust_stat(i, p_ptr->stat_cur[i], change);
+		}
 
 		/* Experience factor */
 		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;

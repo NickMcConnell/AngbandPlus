@@ -1014,9 +1014,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 			msg_print("You bite into thin air!");
 			return;
 		}
-		else if (((c_ptr->feat >= FEAT_PERM_EXTRA) &&
-				  (c_ptr->feat <= FEAT_PERM_SOLID)) ||
-				 (c_ptr->feat == FEAT_MOUNTAIN))
+		else if (cave_perma_grid(c_ptr) || (c_ptr->feat == FEAT_MOUNTAIN))
 		{
 			msg_print("Ouch!  This wall is harder than your teeth!");
 			return;
@@ -1065,6 +1063,9 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		p_ptr->py = y;
 		p_ptr->px = x;
 
+		/* Notice movement */
+		Term_move_player();
+
 		if (!p_ptr->depth)
 		{
 			/* Scroll wilderness */
@@ -1107,17 +1108,16 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT1_DET_CURSE)
 	{
-		int i;
+		object_type *o_ptr;
 
-		for (i = 0; i < INVEN_TOTAL; i++)
+		OBJ_ITT_START (p_ptr->inventory, o_ptr)
 		{
-			object_type *o_ptr = &inventory[i];
-
 			if (!o_ptr->k_idx) continue;
 			if (!cursed_p(o_ptr)) continue;
 
 			o_ptr->feeling = FEEL_CURSED;
 		}
+		OBJ_ITT_END;
 	}
 
 	else if (mut_ptr->which == MUT1_BERSERK)
@@ -1193,23 +1193,18 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 	else if (mut_ptr->which == MUT1_EAT_MAGIC)
 	{
 		object_type *o_ptr;
-		int lev, item;
+		int lev;
 
 		item_tester_hook = item_tester_hook_recharge;
 
 		/* Get an item */
 		q = "Drain which item? ";
 		s = "You have nothing to drain.";
-		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-		if (item >= 0)
-		{
-			o_ptr = &inventory[item];
-		}
-		else
-		{
-			o_ptr = &o_list[0 - item];
-		}
+		o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
+
+		/* Not a valid item */
+		if (!o_ptr) return;
 
 		lev = get_object_level(o_ptr);
 
@@ -1236,7 +1231,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 			{
 				msg_print("There's no energy there to absorb!");
 			}
-			o_ptr->ident |= IDENT_EMPTY;
+			o_ptr->info |= OB_EMPTY;
 		}
 
 		if (p_ptr->csp > p_ptr->msp)
@@ -1397,7 +1392,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 
 	else if (mut_ptr->which == MUT2_RTELEPORT)
 	{
-		if (!p_ptr->resist_nexus && !p_ptr->muta1 & MUT1_VTELEPORT &&
+		if (!p_ptr->resist_nexus && !(p_ptr->muta1 & MUT1_VTELEPORT) &&
 			!p_ptr->anti_tele)
 		{
 			disturb(FALSE);
@@ -1541,7 +1536,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 			(void)hp_player(10);
 		}
 
-		o_ptr = &inventory[INVEN_LITE];
+		o_ptr = &p_ptr->equipment[EQUIP_LITE];
 
 		/* Absorb some fuel in the current lite */
 		if (o_ptr->tval == TV_LITE)
@@ -1779,11 +1774,11 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		take_hit(randint1(p_ptr->wt / 6), "tripping");
 
 		message_flush();
-		o_ptr = &inventory[INVEN_WIELD];
+		o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 		if ((o_ptr->k_idx) && !cursed_p(o_ptr))
 		{
 			msg_print("You drop your weapon!");
-			inven_drop(INVEN_WIELD, 1);
+			inven_drop(o_ptr, 1);
 		}
 	}
 }

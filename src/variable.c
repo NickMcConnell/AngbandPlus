@@ -98,11 +98,6 @@ bool use_transparency = FALSE;	/* Use transparent tiles */
 
 s16b signal_count;	/* Hack -- Count interupts */
 
-bool inkey_base;	/* See the "inkey()" function */
-bool inkey_xtra;	/* See the "inkey()" function */
-bool inkey_scan;	/* See the "inkey()" function */
-bool inkey_flag;	/* See the "inkey()" function */
-
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 
 bool repair_monsters;	/* Hack -- optimize detect monsters */
@@ -176,11 +171,8 @@ s16b panel_col_prt, panel_row_prt;
 
 byte *mp_a = NULL;
 char *mp_c = NULL;
-
-#ifdef USE_TRANSPARENCY
 byte *mp_ta = NULL;
 char *mp_tc = NULL;
-#endif /* USE_TRANSPARENCY */
 
 
 /*
@@ -256,27 +248,6 @@ bool *macro__cmd;
  * Current macro action [1024]
  */
 char *macro__buf;
-
-
-/*
- * The number of quarks
- */
-s16b quark__num;
-
-/*
- * The pointers to the quarks [QUARK_MAX]
- */
-cptr *quark__str;
-
-/*
- * Current Quark time - for least recently used algorithm
- */
-u16b quark__tim;
-
-/*
- * Time of last access for each quark
- */
-u16b *quark__use;
 
 
 /*
@@ -521,12 +492,6 @@ u16b place_count;
  * Places in the wilderness [z_info->wp_max]
  */
 place_type *place;
-
-
-/*
- * The player's inventory [INVEN_TOTAL]
- */
-object_type *inventory;
 
 
 /*

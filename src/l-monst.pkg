@@ -605,7 +605,6 @@ extern bool summon_named_creature(int x1, int y1, int r_idx, bool slp, bool grou
 extern bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet);
 extern void update_smart_learn(int m_idx, int what);
 extern bool place_monster_one(int x, int y, int r_idx, bool slp, bool friendly, bool pet);
-extern void monster_drop_carried_objects(monster_type *m_ptr);
 
 /* monster3.c (currently in monster1.c) */
 extern bool monster_dungeon(int r_idx);

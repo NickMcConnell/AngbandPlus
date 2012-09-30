@@ -16,7 +16,7 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      56		/* Used with rings (min 51) */
+#define MAX_ROCKS      68		/* Used with rings (min 51) */
 #define MAX_AMULETS    17		/* Used with amulets (min 16) */
 #define MAX_WOODS      32		/* Used with staffs (min 30) */
 #define MAX_METALS     39		/* Used with wands/rods (min 30/29) */
@@ -40,11 +40,12 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite",
-	"Wire", "Dilithium", "Bone", "Wooden",
-	"Iron", "Serpent", "Wedding", "Double",
-	"Plain", "Brass", "Scarab", "Shining",
-	"Rusty", "Transparent"
+	"Engagement", "Adamantite", "Wire", "Dilithium", "Bone",
+	"Wooden", "Iron", "Serpent", "Wedding", "Double",
+	"Plain", "Brass", "Scarab", "Shining", "Rusty",
+	"Transparent", "Cat's-Eye", "Chrysoberyl", "Serpentine", "Spinel",
+	"Topaz", "Morganite", "Heliodor", "Tourmaline", "Chalcedony",
+	"Peridot", "Hematite", "Coral"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -57,11 +58,12 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_DARK, TERM_L_WHITE, TERM_GREEN, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_VIOLET,
-	TERM_UMBER, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
-	TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
-	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW,
-	TERM_RED, TERM_WHITE
+	TERM_YELLOW, TERM_VIOLET, TERM_UMBER, TERM_L_WHITE, TERM_WHITE,
+	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
+	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED,
+	TERM_WHITE, TERM_YELLOW, TERM_YELLOW, TERM_L_GREEN, TERM_RED,
+	TERM_YELLOW, TERM_L_RED, TERM_YELLOW, TERM_GREEN, TERM_L_DARK,
+	TERM_L_GREEN, TERM_L_DARK, TERM_L_RED
 };
 
 
@@ -922,8 +924,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			modstr = amulet_adj[indexx];
 			if (aware) append_name = TRUE;
 
-			if (((plain_descriptions) && (aware))
-				|| o_ptr->ident & IDENT_STOREB)
+			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Amulet~";
 			else
 				basenm = aware ? "& # Amulet~" : "& # Amulet~";
@@ -942,8 +943,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			modstr = ring_adj[indexx];
 			if (aware) append_name = TRUE;
 
-			if (((plain_descriptions) && (aware))
-				|| o_ptr->ident & IDENT_STOREB)
+			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Ring~";
 			else
 				basenm = aware ? "& # Ring~" : "& # Ring~";
@@ -959,8 +959,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Color the object */
 			modstr = staff_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))
-				|| o_ptr->ident & IDENT_STOREB)
+			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Staff~";
 			else
 				basenm = aware ? "& # Staff~" : "& # Staff~";
@@ -972,8 +971,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Color the object */
 			modstr = wand_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))
-				|| o_ptr->ident & IDENT_STOREB)
+			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Wand~";
 			else
 				basenm = aware ? "& # Wand~" : "& # Wand~";
@@ -985,8 +983,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Color the object */
 			modstr = rod_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))
-				|| o_ptr->ident & IDENT_STOREB)
+			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Rod~";
 			else
 				basenm = aware ? "& # Rod~" : "& # Rod~";
@@ -998,8 +995,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Color the object */
 			modstr = scroll_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))
-				|| o_ptr->ident & IDENT_STOREB)
+			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Scroll~";
 			else
 				basenm =
@@ -1012,8 +1008,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Color the object */
 			modstr = potion_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))
-				|| o_ptr->ident & IDENT_STOREB)
+			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Potion~";
 			else
 				basenm = aware ? "& # Potion~" : "& # Potion~";
@@ -1028,8 +1023,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			/* Color the object */
 			modstr = food_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))
-				|| o_ptr->ident & IDENT_STOREB)
+			if (((plain_descriptions) && (aware)) || (o_ptr->info & OB_STOREB))
 				basenm = "& Mushroom~";
 			else
 				basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
@@ -1503,7 +1497,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		}
 	}
 
-	bow_ptr = &inventory[INVEN_BOW];
+	bow_ptr = &p_ptr->equipment[EQUIP_BOW];
 
 	/* if have a firing weapon + ammo matches bow */
 	if (bow_ptr->k_idx && (p_ptr->ammo_tval == o_ptr->tval))
@@ -1634,7 +1628,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	else if (known && (o_ptr->tval == TV_ROD))
 	{
 		/* Hack -- Dump " (# charging)" if relevant */
-		if ((o_ptr->timeout) && (o_ptr->tval != TV_LITE))
+		if (o_ptr->timeout)
 		{
 			/* Stacks of rods display an exact count of charging rods. */
 			if (o_ptr->number > 1)
@@ -1642,7 +1636,8 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 				/* Paranoia. */
 				if (k_ptr->pval == 0) k_ptr->pval = 1;
 
-				/* Find out how many rods are charging, by dividing
+				/*
+				 * Find out how many rods are charging, by dividing
 				 * current timeout by each rod's maximum timeout.
 				 * Ensure that any remainder is rounded up.  Display
 				 * very discharged stacks as merely fully discharged.
@@ -1707,27 +1702,6 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 			if (ABS(o_ptr->pval) != 1) t = object_desc_chr(t, 's');
 		}
 
-		/* Stealth */
-		else if (f1 & (TR1_STEALTH))
-		{
-			/* Dump " to stealth" */
-			t = object_desc_str(t, " to stealth");
-		}
-
-		/* Search */
-		else if (f1 & (TR1_SEARCH))
-		{
-			/* Dump " to searching" */
-			t = object_desc_str(t, " to sensing");
-		}
-
-		/* Infravision */
-		else if (f1 & (TR1_INFRA))
-		{
-			/* Dump " to infravision" */
-			t = object_desc_str(t, " to infravision");
-		}
-
 		/* Finish the display */
 		t = object_desc_chr(t, p2);
 	}
@@ -1767,13 +1741,13 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 	}
 
 	/* Note "cursed" if the item is known to be cursed */
-	else if (cursed_p(o_ptr) && (known || (o_ptr->ident & (IDENT_SENSE))))
+	else if (cursed_p(o_ptr) && (known || (o_ptr->info & (OB_SENSE))))
 	{
 		strcpy(tmp_val2, "cursed");
 	}
 
 	/* Mega-Hack -- note empty wands/staffs */
-	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
+	else if (!known && (o_ptr->info & (OB_EMPTY)))
 	{
 		strcpy(tmp_val2, "empty");
 	}
@@ -1827,42 +1801,40 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 void object_desc_store(char *buf, const object_type *o_ptr, int pref,
                        int mode, int size)
 {
-	object_type *i_ptr;
-	object_type object_type_body;
-
 	byte hack_flavor;
 	bool hack_aware;
+	byte info;
 
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Copy the object */
-	object_copy(i_ptr, o_ptr);
+	/* Hack - we will reset the object to exactly like it was */
+	object_type *q_ptr = (object_type *)o_ptr;
 
 	/* Save the "flavor" */
-	hack_flavor = k_info[i_ptr->k_idx].flavor;
+	hack_flavor = k_info[o_ptr->k_idx].flavor;
 
 	/* Save the "aware" flag */
-	hack_aware = k_info[i_ptr->k_idx].aware;
+	hack_aware = k_info[o_ptr->k_idx].aware;
+
+	/* Save the "info" */
+	info = o_ptr->info;
 
 	/* Clear the flavor */
-	k_info[i_ptr->k_idx].flavor = FALSE;
+	k_info[o_ptr->k_idx].flavor = FALSE;
 
 	/* Set the "known" flag */
-	i_ptr->ident |= (IDENT_KNOWN);
+	q_ptr->info |= (OB_KNOWN);
 
 	/* Force "aware" for description */
-	k_info[i_ptr->k_idx].aware = TRUE;
-
+	k_info[o_ptr->k_idx].aware = TRUE;
 
 	/* Describe the object */
-	object_desc(buf, i_ptr, pref, mode, size);
-
+	object_desc(buf, q_ptr, pref, mode, size);
 
 	/* Restore "flavor" value */
-	k_info[i_ptr->k_idx].flavor = hack_flavor;
+	k_info[o_ptr->k_idx].flavor = hack_flavor;
 
 	/* Restore "aware" flag */
-	k_info[i_ptr->k_idx].aware = hack_aware;
+	k_info[o_ptr->k_idx].aware = hack_aware;
+
+	/* Restore the "info" */
+	q_ptr->info = info;
 }

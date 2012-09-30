@@ -414,8 +414,8 @@ extern int tolua_player_open(lua_State* tolua_S);
 extern void tolua_player_close(lua_State* tolua_S);
 extern int tolua_object_open(lua_State* tolua_S);
 extern void tolua_object_close(lua_State* tolua_S);
-extern int tolua_monster_open(lua_State* tolua_S);
-extern void tolua_monster_close(lua_State* tolua_S);
+extern int tolua_monst_open(lua_State* tolua_S);
+extern void tolua_monst_close(lua_State* tolua_S);
 extern int tolua_random_open(lua_State* tolua_S);
 extern void tolua_random_close(lua_State* tolua_S);
 extern int tolua_ui_open(lua_State* tolua_S);
@@ -450,7 +450,7 @@ errr script_init(void)
 	/* Register various Angband libraries */
 	tolua_player_open(L);
 	tolua_object_open(L);
-	tolua_monster_open(L);
+	tolua_monst_open(L);
 	tolua_random_open(L);
 	tolua_ui_open(L);
 	tolua_misc_open(L);

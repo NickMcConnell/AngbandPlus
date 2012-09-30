@@ -21,6 +21,68 @@
 
 
 /*
+ * List of available modules in the order they are tried.
+ */
+static const module_type modules[] =
+{
+#ifdef USE_GTK
+	INIT_MODULE(gtk),
+#endif /* USE_GTK */
+
+#ifdef USE_XAW
+	INIT_MODULE(xaw),
+#endif /* USE_XAW */
+
+#ifdef USE_X11
+	INIT_MODULE(x11),
+#endif /* USE_X11 */
+
+#ifdef USE_XPJ
+	INIT_MODULE(xpj),
+#endif /* USE_XPJ */
+
+#ifdef USE_GCU
+	INIT_MODULE(gcu),
+#endif /* USE_GCU */
+
+#ifdef USE_CAP
+	INIT_MODULE(cap),
+#endif /* USE_CAP */
+
+#ifdef USE_DOS
+	INIT_MODULE(dos),
+#endif /* USE_DOS */
+
+#ifdef USE_IBM
+	INIT_MODULE(ibm),
+#endif /* USE_IBM */
+
+#ifdef USE_EMX
+	INIT_MODULE(emx),
+#endif /* USE_EMX */
+
+#ifdef USE_SLA
+	INIT_MODULE(sla),
+#endif /* USE_SLA */
+
+#ifdef USE_LSL
+	INIT_MODULE(lsl),
+#endif /* USE_LSL */
+
+#ifdef USE_AMI
+	INIT_MODULE(ami),
+#endif /* USE_AMI */
+
+#ifdef USE_VME
+	INIT_MODULE(vme),
+#endif /* USE_VME */
+
+#ifdef USE_VCS
+	INIT_MODULE(vcs)
+#endif /* USE_VCS */
+};
+
+/*
  * A hook for "quit()".
  *
  * Close down, then fall back into "quit()".
@@ -281,90 +343,48 @@ static void change_path(cptr info)
  */
 static void game_usage(void)
 {
+	int i, j;
+
 	/* Dump usage information */
 	puts("Usage: angband [options] [-- subopts]");
 	puts("  -n       Start a new character");
-	puts("  -f       Request fiddle mode");
+	puts("  -f       Request fiddle (verbose) mode");
 	puts("  -w       Request wizard mode");
 	puts("  -v       Request sound mode");
 	puts("  -g       Request graphics mode");
-	puts("  -o       Request original keyset");
+	puts("  -o       Request original keyset (default)");
 	puts("  -r       Request rogue-like keyset");
 	puts("  -M       Request monochrome mode");
-	puts("  -s<num>  Show <num> high scores");
+	puts("  -s<num>  Show <num> high scores (default 10)");
 	puts("  -u<who>  Use your <who> savefile");
 	puts("  -d<def>  Define a 'lib' dir sub-path");
 
-#ifdef USE_XAW
-	puts("  -mxaw    To use XAW");
-	puts("  --       Sub options");
-	puts("  -- -d    Set display name");
-	puts("  -- -s    Turn off smoothscaling graphics");
-	puts("  -- -b#   Set tileset bitmap");
-	puts("  -- -n#   Number of terms to use");
-#endif /* USE_XAW */
+	/* Print the name and help for each available module */
+	for (i = 0; i < (int)NUM_ELEMENTS(modules); i++)
+	{
+		/* Spacer */
+		puts("");
 
-#ifdef USE_X11
-	puts("  -mx11    To use X11");
-	puts("  --       Sub options");
-	puts("  -- -d    Set display name");
-	puts("  -- -s    Turn off smoothscaling graphics");
-	puts("  -- -b#   Set tileset bitmap");
-	puts("  -- -n#   Number of terms to use");
-#endif /* USE_X11 */
+		for (j = 0; modules[i].help[j]; j++)
+		{
+			if (j)
+			{
+				/* Display seperator */
+				if (j == 1)
+				{
+					puts("  --       Sub options");
+				}
 
-#ifdef USE_XPJ
-	puts("  -mxpj    To use XPJ");
-	puts("  --       Sub options");
-	puts("  -- -d    Set display name");
-	puts("  -- -s    Turn off smoothscaling graphics");
-	puts("  -- -n#   Number of terms to use");
-#endif /* USE_XPJ */
-
-#ifdef USE_GCU
-	puts("  -mgcu    To use GCU (GNU Curses)");
-#endif /* USE_GCU */
-
-#ifdef USE_CAP
-	puts("  -mcap    To use CAP (\"Termcap\" calls)");
-#endif /* USE_CAP */
-
-#ifdef USE_DOS
-	puts("  -mdos    To use DOS (Graphics)");
-#endif /* USE_DOS */
-
-#ifdef USE_IBM
-	puts("  -mibm    To use IBM (BIOS text mode)");
-#endif /* USE_IBM */
-
-#ifdef USE_SLA
-	puts("  -msla    To use SLA (SLANG)");
-#endif /* USE_SLA */
-
-#ifdef USE_LSL
-	puts("  -mlsl    To use LSL (Linux-SVGALIB)");
-#endif /* USE_LSL */
-
-#ifdef USE_AMI
-	puts("  -mami    To use AMI (Amiga)");
-#endif /* USE_AMI */
-
-#ifdef USE_VME
-	puts("  -mvme    To use VME (VAX/ESA)");
-#endif /* USE_VME */
-
-#ifdef USE_GTK
-	puts("  -mgtk    To use GTK toolkit");
-	puts("  --       Sub options");
-	puts("  -- -b#   Set tileset bitmap");
-	puts("  -- -n#   Number of terms to use");
-#endif /* USE_GTK */
-
-#ifdef USE_VCS
-	puts("  -mvcs    To use /dev/vcsa*");
-	puts("  -- x0,y0,x1,y1  Create new term");
-	puts("  -- --noframe    No window frames");
-#endif /* USE_VCS */
+				puts(format("  -- %s", modules[i].help[j]));
+			}
+			else
+			{
+				/* The first line is special */
+				puts(format("  -m%s    %s",
+							modules[i].name, modules[i].help[j]));
+			}
+		}
+	}
 
 	/* Actually abort the process */
 	quit(NULL);
@@ -640,185 +660,20 @@ int main(int argc, char *argv[])
 	/* Install "quit" hook */
 	quit_aux = quit_hook;
 
-
-#ifdef USE_GTK
-	/* Attempt to use the "main-gtk.c" support */
-	if (!done && (!mstr || (streq(mstr, "gtk"))))
+	for (i = 0; i < (int)NUM_ELEMENTS(modules); i++)
 	{
-		if (0 == init_gtk((unsigned char *)&new_game, argc, argv))
+		if (!mstr || (streq(mstr, modules[i].name)))
 		{
-			done = TRUE;
+			/* Try to use port */
+			if (0 == modules[i].init(argc, argv, (unsigned char *)&new_game))
+			{
+				/* Set port name */
+				ANGBAND_SYS = modules[i].name;
+				done = TRUE;
+				break;
+			}
 		}
 	}
-#endif /* USE_GTK */
-
-
-#ifdef USE_XAW
-	/* Attempt to use the "main-xaw.c" support */
-	if (!done && (!mstr || (streq(mstr, "xaw"))))
-	{
-		if (0 == init_xaw(argc, argv))
-		{
-			ANGBAND_SYS = "xaw";
-			done = TRUE;
-		}
-	}
-#endif /* USE_XAW */
-
-
-#ifdef USE_X11
-	/* Attempt to use the "main-x11.c" support */
-	if (!done && (!mstr || (streq(mstr, "x11"))))
-	{
-		if (0 == init_x11(argc, argv))
-		{
-			ANGBAND_SYS = "x11";
-			done = TRUE;
-		}
-	}
-#endif /* USE_X11 */
-
-
-#ifdef USE_XPJ
-	/* Attempt to use the "main-xpj.c" support */
-	if (!done && (!mstr || (streq(mstr, "xpj"))))
-	{
-		if (0 == init_xpj(argc, argv))
-		{
-			ANGBAND_SYS = "xpj";
-			done = TRUE;
-		}
-	}
-#endif /* USE_XPJ */
-
-
-#ifdef USE_GCU
-	/* Attempt to use the "main-gcu.c" support */
-	if (!done && (!mstr || (streq(mstr, "gcu"))))
-	{
-		if (0 == init_gcu())
-		{
-			ANGBAND_SYS = "gcu";
-			done = TRUE;
-		}
-	}
-#endif /* USE_GCU */
-
-#ifdef USE_CAP
-	/* Attempt to use the "main-cap.c" support */
-	if (!done && (!mstr || (streq(mstr, "cap"))))
-	{
-		if (0 == init_cap(argc, argv))
-		{
-			ANGBAND_SYS = "cap";
-			done = TRUE;
-		}
-	}
-#endif /* USE_CAP */
-
-
-#ifdef USE_DOS
-	/* Attempt to use the "main-dos.c" support */
-	if (!done && (!mstr || (streq(mstr, "dos"))))
-	{
-		if (0 == init_dos())
-		{
-			ANGBAND_SYS = "dos";
-			done = TRUE;
-		}
-	}
-#endif /* USE_DOS */
-
-
-#ifdef USE_IBM
-	/* Attempt to use the "main-ibm.c" support */
-	if (!done && (!mstr || (streq(mstr, "ibm"))))
-	{
-		if (0 == init_ibm())
-		{
-			ANGBAND_SYS = "ibm";
-			done = TRUE;
-		}
-	}
-#endif /* USE_IBM */
-
-
-#ifdef USE_EMX
-	/* Attempt to use the "main-emx.c" support */
-	if (!done && (!mstr || (streq(mstr, "emx"))))
-	{
-		if (0 == init_emx())
-		{
-			ANGBAND_SYS = "emx";
-			done = TRUE;
-		}
-	}
-#endif /* USE_EMX */
-
-
-#ifdef USE_SLA
-	/* Attempt to use the "main-sla.c" support */
-	if (!done && (!mstr || (streq(mstr, "sla"))))
-	{
-		if (0 == init_sla())
-		{
-			ANGBAND_SYS = "sla";
-			done = TRUE;
-		}
-	}
-#endif /* USE_SLA */
-
-
-#ifdef USE_LSL
-	/* Attempt to use the "main-lsl.c" support */
-	if (!done && (!mstr || (streq(mstr, "lsl"))))
-	{
-		if (0 == init_lsl())
-		{
-			ANGBAND_SYS = "lsl";
-			done = TRUE;
-		}
-	}
-#endif /* USE_LSL */
-
-
-#ifdef USE_AMI
-	/* Attempt to use the "main-ami.c" support */
-	if (!done && (!mstr || (streq(mstr, "ami"))))
-	{
-		if (0 == init_ami())
-		{
-			ANGBAND_SYS = "ami";
-			done = TRUE;
-		}
-	}
-#endif /* USE_AMI */
-
-
-#ifdef USE_VME
-	/* Attempt to use the "main-vme.c" support */
-	if (!done && (!mstr || (streq(mstr, "vme"))))
-	{
-		if (0 == init_vme())
-		{
-			ANGBAND_SYS = "vme";
-			done = TRUE;
-		}
-	}
-#endif /* USE_VME */
-
-#ifdef USE_VCS
-	/* Attempt to use the "main-vcs.c" support */
-	if (!done && (!mstr || (streq(mstr, "vcs"))))
-	{
-		if (0 == init_vcs(argc, argv))
-		{
-			ANGBAND_SYS = "vcs";
-			done = TRUE;
-		}
-	}
-#endif /* USE_VCS */
-
 
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");

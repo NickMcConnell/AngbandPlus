@@ -229,7 +229,6 @@ bool monster_death(int m_idx, bool explode)
 	bool dropped_corpse = FALSE;
 	int force_coin = get_coin_type(r_ptr);
 
-	object_type forge;
 	object_type *q_ptr;
 
 	/* Notice changes in view */
@@ -451,7 +450,6 @@ bool monster_death(int m_idx, bool explode)
 	{
 		/* Assume skeleton */
 		bool corpse = FALSE;
-		byte feat;
 
 		/*
 		 * We cannot drop a skeleton? Note, if we are in this check,
@@ -474,14 +472,8 @@ bool monster_death(int m_idx, bool explode)
 			}
 		}
 
-		/* Terrain to put corpse on. */
-		feat = area(x, y)->feat;
-
 		/* Hack - corpses only appear on certain floors */
-		if ((feat == FEAT_FLOOR) ||
-			((feat >= FEAT_SAND) && (feat <= FEAT_SOLID_LAVA)) ||
-			((feat >= FEAT_DIRT) && (feat <= FEAT_OBELISK)) ||
-			((feat >= FEAT_BUSH) && (feat <= FEAT_SHAL_SWAMP)))
+		if (cave_clean_grid(area(x, y)))
 		{
 			if (corpse)
 			{
@@ -511,16 +503,13 @@ bool monster_death(int m_idx, bool explode)
 #endif /* USE_CORPSES */
 
 	/* Drop objects being carried */
-	monster_drop_carried_objects(m_ptr);
+	drop_object_list(&m_ptr->hold_o_idx, m_ptr->fx, m_ptr->fy);
 
 	/* Mega^2-hack -- destroying the Stormbringer gives it us! */
 	if (strstr((r_name + r_ptr->name), "Stormbringer"))
 	{
-		/* Get local object */
-		q_ptr = &forge;
-
 		/* Prepare to make the Stormbringer */
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
+		q_ptr = object_prep(lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
 
 		/* Mega-Hack -- Name the sword */
 		q_ptr->xtra_name = quark_add("'Stormbringer'");
@@ -540,7 +529,6 @@ bool monster_death(int m_idx, bool explode)
 
 		/* For game balance... */
 		q_ptr->flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
-		q_ptr->ident |= IDENT_CURSED;
 
 		if (one_in_(2))
 			q_ptr->flags3 |= (TR3_DRAIN_EXP);
@@ -548,7 +536,7 @@ bool monster_death(int m_idx, bool explode)
 			q_ptr->flags3 |= (TR3_AGGRAVATE);
 
 		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, x, y);
+		drop_near(q_ptr, -1, x, y);
 	}
 
 	/*
@@ -615,27 +603,21 @@ bool monster_death(int m_idx, bool explode)
 	else if (strstr((r_name + r_ptr->name), "Bloodletter") &&
 			 (randint1(100) < 15))
 	{
-		/* Get local object */
-		q_ptr = &forge;
-
 		/* Prepare to make a Blade of Chaos */
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
+		q_ptr = object_prep(lookup_kind(TV_SWORD, SV_BLADE_OF_CHAOS));
 
 		apply_magic(q_ptr, object_level, 0, 0);
 
 		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, x, y);
+		drop_near(q_ptr, -1, x, y);
 	}
 
 	/* Mega^2-hack -- Get a t-shirt from our first Greater Hell-beast kill */
 	else if (!r_ptr->r_pkills
 			 && strstr((r_name + r_ptr->name), "Greater hell-beast"))
 	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Prepare to make the Stormbringer */
-		object_prep(q_ptr, lookup_kind(TV_SOFT_ARMOR, SV_T_SHIRT));
+		/* Prepare to make the T-shirt */
+		q_ptr = object_prep(lookup_kind(TV_SOFT_ARMOR, SV_T_SHIRT));
 
 		/* Mega-Hack -- Name the shirt */
 		q_ptr->xtra_name =
@@ -646,7 +628,7 @@ bool monster_death(int m_idx, bool explode)
 						  TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 
 		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, x, y);
+		drop_near(q_ptr, -1, x, y);
 	}
 
 	/* Mega-Hack -- drop "winner" treasures */
@@ -780,17 +762,11 @@ bool monster_death(int m_idx, bool explode)
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
 	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Wipe the object */
-		object_wipe(q_ptr);
-
 		/* Make Gold */
 		if (do_gold && (!do_item || one_in_(2)))
 		{
 			/* Make some gold */
-			if (!make_gold(q_ptr, force_coin)) continue;
+			q_ptr = make_gold(force_coin);
 
 			/* XXX XXX XXX */
 			dump_gold++;
@@ -802,14 +778,17 @@ bool monster_death(int m_idx, bool explode)
 			u16b delta_level = (good ? 15 : 0) + (great ? 15 : 0);
 
 			/* Make an object */
-			if (!make_object(q_ptr, delta_level, r_ptr->obj_drop)) continue;
+			q_ptr = make_object(delta_level, r_ptr->obj_drop);
+
+			/* Paranoia */
+			if (!q_ptr) continue;
 
 			/* XXX XXX XXX */
 			dump_item++;
 		}
 
 		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, x, y);
+		drop_near(q_ptr, -1, x, y);
 	}
 
 	/* Take note of any dropped treasure */
@@ -905,6 +884,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Innocent until proven otherwise */
 	bool innocent = TRUE, thief = FALSE;
 	bool corpse = FALSE;
+	bool visible = FALSE;
 	int i;
 
 	/* Redraw (later) if needed */
@@ -1089,6 +1069,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Get how much the kill was worth */
 		exp_for_kill(r_ptr, &new_exp, &new_exp_frac);
 
+		/* Save visibility at death */
+		visible = m_ptr->ml;
+
 		/* Generate treasure */
 		corpse = monster_death(m_idx, TRUE);
 
@@ -1133,7 +1116,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num--;
 
 		/* Recall even invisible uniques or winners */
-		if (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE) || corpse)
+		if (visible || (r_ptr->flags1 & RF1_UNIQUE) || corpse)
 		{
 			/* Count kills this life */
 			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
@@ -1903,7 +1886,8 @@ static bool target_set_accept(int x, int y)
 	cave_type *c_ptr;
 	pcave_type *pc_ptr;
 
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
+
 	s16b this_f_idx, next_f_idx = 0;
 
 	byte feat;
@@ -1932,19 +1916,12 @@ static bool target_set_accept(int x, int y)
 	}
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorized object */
-		if (o_ptr->marked) return (TRUE);
+		if (o_ptr->info & OB_SEEN) return (TRUE);
 	}
+	OBJ_ITT_END;
 
 	/* Scan all fields in the grid */
 	for (this_f_idx = c_ptr->fld_idx; this_f_idx; this_f_idx = next_f_idx)
@@ -1966,8 +1943,7 @@ static bool target_set_accept(int x, int y)
 	feat = pc_ptr->feat;
 
 	/* Notice the Pattern */
-	if ((feat <= FEAT_PATTERN_XTRA2) && (feat >= FEAT_PATTERN_START))
-		return (TRUE);
+	if (cave_pattern_grid(pc_ptr)) return (TRUE);
 
 	/* Notice doors */
 	if (feat == FEAT_OPEN) return (TRUE);
@@ -2011,9 +1987,6 @@ static void target_set_prepare(int mode)
 			if (!in_bounds2(x, y)) continue;
 
 			c_ptr = area(x, y);
-
-			/* Require line of sight, unless "look" is "expanded" */
-			if (!expand_look && !player_can_see_bold(x, y)) continue;
 
 			/* Require "interesting" contents */
 			if (!target_set_accept(x, y)) continue;
@@ -2077,7 +2050,6 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 	cave_type *c_ptr = area(x, y);
 	pcave_type *pc_ptr = parea(x, y);
 
-	s16b this_o_idx, next_o_idx = 0;
 	s16b *this_f_ptr, *next_f_ptr = NULL;
 
 	cptr s1, s2, s3;
@@ -2090,6 +2062,10 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 	int query;
 
 	char out_val[512];
+
+	char o_name[256];
+
+	object_type *o_ptr;
 
 
 	/* Repeat forever */
@@ -2266,19 +2242,8 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 					s2 = "carrying ";
 
 					/* Scan all objects being carried */
-					for (this_o_idx = m_ptr->hold_o_idx; this_o_idx;
-						 this_o_idx = next_o_idx)
+					OBJ_ITT_START (m_ptr->hold_o_idx, o_ptr)
 					{
-						char o_name[256];
-
-						object_type *o_ptr;
-
-						/* Acquire object */
-						o_ptr = &o_list[this_o_idx];
-
-						/* Acquire next object */
-						next_o_idx = o_ptr->next_o_idx;
-
 						/* Obtain an object description */
 						object_desc(o_name, o_ptr, TRUE, 3, 256);
 
@@ -2291,17 +2256,21 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 
 						/* Always stop at "normal" keys */
 						if ((query != '\r') && (query != '\n')
-							&& (query != ' ')) break;
+							&& (query != ' '))
+						{
+							return (query);
+						}
 
 						/* Sometimes stop at "space" key */
-						if ((query == ' ') && !(mode & (TARGET_LOOK))) break;
+						if ((query == ' ') && !(mode & (TARGET_LOOK)))
+						{
+							return (query);
+						}
 
 						/* Change the intro */
 						s2 = "also carrying ";
 					}
-
-					/* Double break */
-					if (this_o_idx) break;
+					OBJ_ITT_END;
 
 					/* Use a preposition */
 					s2 = "on ";
@@ -2312,9 +2281,12 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 		/* Scan all objects in the grid */
 		if (easy_floor)
 		{
-			int floor_list[23], floor_num;
+			int floor_num;
 
-			if (scan_floor(floor_list, &floor_num, x, y, 0x02))
+			object_type *o_ptr = test_floor(&floor_num, c_ptr, 0x02);
+
+			/* Any items there? */
+			if (o_ptr)
 			{
 				/* Not boring */
 				boring = FALSE;
@@ -2324,11 +2296,6 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 					if (floor_num == 1)
 					{
 						char o_name[256];
-
-						object_type *o_ptr;
-
-						/* Acquire object */
-						o_ptr = &o_list[floor_list[0]];
 
 						/* Describe the object */
 						object_desc(o_name, o_ptr, TRUE, 3, 256);
@@ -2359,7 +2326,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 						screen_save();
 
 						/* Display */
-						show_floor(x, y);
+						show_list(c_ptr->o_idx);
 
 						/* Prompt */
 						prt("Hit any key to continue", 0, 0);
@@ -2383,18 +2350,10 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 		}
 
 		/* Scan all objects in the grid */
-		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+		OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 		{
-			object_type *o_ptr;
-
-			/* Acquire object */
-			o_ptr = &o_list[this_o_idx];
-
-			/* Acquire next object */
-			next_o_idx = o_ptr->next_o_idx;
-
 			/* Describe it */
-			if (o_ptr->marked)
+			if (o_ptr->info & OB_SEEN)
 			{
 				char o_name[80];
 
@@ -2411,10 +2370,16 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 				query = inkey();
 
 				/* Always stop at "normal" keys */
-				if ((query != '\r') && (query != '\n') && (query != ' ')) break;
+				if ((query != '\r') && (query != '\n') && (query != ' '))
+				{
+					return (query);
+				}
 
 				/* Sometimes stop at "space" key */
-				if ((query == ' ') && !(mode & TARGET_LOOK)) break;
+				if ((query == ' ') && !(mode & TARGET_LOOK))
+				{
+					return (query);
+				}
 
 				/* Change the intro */
 				s1 = "It is ";
@@ -2426,9 +2391,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 				s2 = "on ";
 			}
 		}
-
-		/* Double break */
-		if (this_o_idx) break;
+		OBJ_ITT_END;
 
 		/* Scan all fields in the grid */
 		for (this_f_ptr = &c_ptr->fld_idx; *this_f_ptr; this_f_ptr = next_f_ptr)
@@ -2529,37 +2492,24 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 			/* Hack -- handle unknown grids */
 			if (feat == FEAT_NONE) name = "unknown grid";
 
-			/* Pick a prefix */
-			if (*s2 && ((feat >= FEAT_PATTERN_START) &&
-						(feat <= FEAT_PATTERN_XTRA2)))
+			/* Pick a prefix for the pattern and stairs */
+			if (*s2 && cave_perma_grid(pc_ptr))
 			{
 				s2 = "on ";
 			}
-			else if (*s2 && ((feat >= FEAT_CLOSED) &&
-							 (feat <= FEAT_PERM_SOLID)))
+			else if (*s2 && cave_wall_grid(pc_ptr))
 			{
 				s2 = "in ";
 			}
 
-			if ((feat == FEAT_FLOOR) ||
-				((feat & 0xF8) == 0x08) ||
-				(feat == FEAT_DEEP_WATER) ||
-				(feat == FEAT_SHAL_WATER) ||
-				(feat == FEAT_OCEAN_WATER) ||
-				(feat == FEAT_DEEP_LAVA) ||
-				(feat == FEAT_SHAL_LAVA) ||
-				(feat == FEAT_DIRT) ||
-				(feat == FEAT_DEEP_ACID) ||
-				(feat == FEAT_SHAL_ACID) ||
-				(feat == FEAT_JUNGLE) ||
-				(feat == FEAT_SNOW) || (feat == FEAT_GRASS_LONG))
-			{
-				s3 = "";
-			}
-			else
+			if (f_info[feat].flags & FF_OBJECT)
 			{
 				/* Pick proper indefinite article */
 				s3 = (is_a_vowel(name[0])) ? "an " : "a ";
+			}
+			else
+			{
+				s3 = "";
 			}
 
 			/* Display a message */
@@ -3301,7 +3251,7 @@ void gain_level_reward(int chosen_reward)
 	int px = p_ptr->px;
 
 	object_type *q_ptr;
-	object_type forge;
+
 	char wrath_reason[32] = "";
 	int nasty_chance = 6;
 	int tval, sval;
@@ -3390,8 +3340,7 @@ void gain_level_reward(int chosen_reward)
 			msg_format("The voice of %s booms out:",
 					   chaos_patrons[p_ptr->chaos_patron]);
 			msg_print("'Thy deed hath earned thee a worthy blade.'");
-			/* Get local object */
-			q_ptr = &forge;
+
 			tval = TV_SWORD;
 			switch (randint1(p_ptr->lev))
 			{
@@ -3480,7 +3429,7 @@ void gain_level_reward(int chosen_reward)
 					sval = SV_BLADE_OF_CHAOS;
 			}
 
-			object_prep(q_ptr, lookup_kind(tval, sval));
+			q_ptr = object_prep(lookup_kind(tval, sval));
 
 			q_ptr->to_h = 3 + randint1(p_ptr->depth) % 10;
 			q_ptr->to_d = 3 + randint1(p_ptr->depth) % 10;
@@ -3490,7 +3439,7 @@ void gain_level_reward(int chosen_reward)
 			add_ego_flags(q_ptr, EGO_CHAOTIC);
 
 			/* Drop it in the dungeon */
-			(void)drop_near(q_ptr, -1, px, py);
+			drop_near(q_ptr, -1, px, py);
 			break;
 		}
 		case REW_GOOD_OBS:
@@ -3942,4 +3891,71 @@ bool get_hack_dir(int *dp)
 
 	/* A "valid" direction was entered */
 	return (TRUE);
+}
+
+/*
+ * Find the maximum a stat can be raised to
+ */
+int stat_cap(int stat)
+{
+	int bonus = rp_ptr->r_adj[stat] + cp_ptr->c_adj[stat];
+
+	if (bonus > 12)
+		return 18 + 220;
+	else if (bonus > -9)
+		return 18 + 100 + 10 * bonus;
+	else
+		return 18 + 10;
+}
+
+
+int adjust_stat(int stat, int value, int amount)
+{
+	int i;
+
+	int cap = stat_cap(stat);
+
+	/* Negative amounts */
+	if (amount < 0)
+	{
+		/* Apply penalty */
+		for (i = 0; i < (0 - amount); i++)
+		{
+			if (value >= 18 + 10)
+			{
+				value -= 10;
+			}
+			else if (value > 18)
+			{
+				value = 18;
+			}
+			else
+			{
+				value--;
+			}
+		}
+	}
+
+	/* Positive amounts */
+	else if (amount > 0)
+	{
+		/* Apply reward */
+		for (i = 0; i < amount; i++)
+		{
+			if (value < 18)
+			{
+				value++;
+			}
+			else
+			{
+				value += 10;
+			}
+		}
+	}
+
+	/* Cap value */
+	if (value > cap) value = cap;
+
+	/* Return the result */
+	return (value);
 }

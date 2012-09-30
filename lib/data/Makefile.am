@@ -23,6 +23,7 @@ if SET_GID
 	  touch "$(DESTDIR)$(angbanddir)/k_info.raw" && \
 	  touch "$(DESTDIR)$(angbanddir)/r_info.raw" && \
 	  touch "$(DESTDIR)$(angbanddir)/v_info.raw" && \
+	  touch "$(DESTDIR)$(angbanddir)/misc.raw" && \
 	  chown -R root.@GAMEGROUP@ "$(DESTDIR)$(angbanddir)" && \
 	  chmod -R g+w "$(DESTDIR)$(angbanddir)" ;\
 	fi

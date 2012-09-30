@@ -30,7 +30,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	int num = 0;
 	int ask;
 	byte spells[PY_MAX_SPELLS];
-	bool flag, redraw, okay;
+	bool flag, okay;
 	char choice;
 	const magic_type *s_ptr;
 	char out_val[160];
@@ -86,8 +86,11 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
+	/* Save the screen */
+	screen_save();
+
+	/* Display a list of spells */
+	print_spells(spells, num, 20, 1, use_realm - 1);
 
 	/* Show choices */
 	/* Update */
@@ -96,45 +99,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	/* Window stuff */
 	window_stuff();
 
-
 	/* Build a prompt (accept all spells) */
-	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
-				  p, I2A(0), I2A(num - 1), prompt, p);
+	(void)strnfmt(out_val, 78, "(%^ss, ESC=exit) %^s which %s? ", p, prompt, p);
 
 	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
+	while (get_com(out_val, &choice))
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Show the list */
-			if (!redraw)
-			{
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save the screen */
-				screen_save();
-
-				/* Display a list of spells */
-				print_spells(spells, num, 20, 1, use_realm - 1);
-			}
-
-			/* Hide the list */
-			else
-			{
-				/* Hide list */
-				redraw = FALSE;
-
-				/* Restore the screen */
-				screen_load();
-			}
-
-			/* Redo asking */
-			continue;
-		}
-
-
 		/* Note verify */
 		ask = (isupper(choice));
 
@@ -181,11 +151,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 
 		/* Stop the loop */
 		flag = TRUE;
+		break;
 	}
 
 
 	/* Restore the screen */
-	if (redraw) screen_load();
+	screen_load();
 
 
 	/* Show choices */
@@ -276,10 +247,8 @@ void do_cmd_browse_aux(const object_type *o_ptr)
  */
 void do_cmd_browse(void)
 {
-	int item;
 	object_type *o_ptr;
 	cptr q, s;
-
 
 	/* Warriors are illiterate */
 	if (!(p_ptr->realm1 || p_ptr->realm2))
@@ -294,19 +263,11 @@ void do_cmd_browse(void)
 	/* Get an item */
 	q = "Browse which book? ";
 	s = "You have no books that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Not a valid item */
+	if (!o_ptr) return;
 
 	/* Print out the spells */
 	do_cmd_browse_aux(o_ptr);
@@ -318,7 +279,7 @@ void do_cmd_browse(void)
  */
 void do_cmd_study(void)
 {
-	int i, item, sval;
+	int i, sval;
 	int increment = 0;
 
 	/* Spells of realm2 will have an increment of +32 */
@@ -365,19 +326,11 @@ void do_cmd_study(void)
 	/* Get an item */
 	q = "Study which book? ";
 	s = "You have no books that you can read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Not a valid item */
+	if (!o_ptr) return;
 
 	/* Access the item's sval */
 	sval = o_ptr->sval;
@@ -2717,7 +2670,7 @@ static bool cast_arcane_spell(int spell)
  */
 void do_cmd_cast(void)
 {
-	int item, sval, spell, realm;
+	int sval, spell, realm;
 	int chance;
 	int increment = 0;
 	int use_realm;
@@ -2759,19 +2712,11 @@ void do_cmd_cast(void)
 	/* Get an item */
 	q = "Use which book? ";
 	s = "You have no spell books!";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* Not a valid item */
+	if (!o_ptr) return;
 
 	/* Access the item's sval */
 	sval = o_ptr->sval;
@@ -3024,7 +2969,7 @@ void do_cmd_pet(void)
 	int i = 0;
 	int powers[36];
 	cptr power_desc[36];
-	bool flag, redraw;
+	bool flag;
 	int ask;
 	char choice;
 	char out_val[160];
@@ -3098,29 +3043,16 @@ void do_cmd_pet(void)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* Build a prompt (accept all spells) */
-	if (num <= 26)
-	{
-		/* Build a prompt (accept all spells) */
-		(void)strnfmt(out_val, 78,
-					  "(Command %c-%c, *=List, ESC=exit) Select a command: ",
-					  I2A(0), I2A(num - 1));
-	}
-	else
-	{
-		(void)strnfmt(out_val, 78,
-					  "(Command %c-%c, *=List, ESC=exit) Select a command: ",
-					  I2A(0), '0' + num - 27);
-	}
-
-	/* Show list */
-	redraw = TRUE;
+	/* Build a prompt */
+	(void)strnfmt(out_val, 78, "(Command (%c-%c), ESC=exit) Select a command: ",
+				  I2A(0), I2A(num - 1));
 
 	/* Save the screen */
 	Term_save();
 
 	prt("", x, y++);
 
+	/* Show the list */
 	while (ctr < num)
 	{
 		sprintf(buf, "%s%c) %s", (ctr == mode) ? "*" : " ", I2A(ctr),
@@ -3141,56 +3073,6 @@ void do_cmd_pet(void)
 	/* Get a command from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Show the list */
-			if (!redraw)
-			{
-				y = 1;
-				x = 0;
-				ctr = 0;
-
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save the screen */
-				Term_save();
-
-				prt("", x, y++);
-
-				while (ctr < num)
-				{
-					sprintf(buf, "%s%c) %s", (ctr == mode) ? "*" : " ",
-							I2A(ctr), power_desc[ctr]);
-					prt(buf, x, y + ctr);
-					ctr++;
-				}
-
-				if (ctr < 17)
-				{
-					prt("", x, y + ctr);
-				}
-				else
-				{
-					prt("", x, y + 17);
-				}
-			}
-
-			/* Hide the list */
-			else
-			{
-				/* Hide list */
-				redraw = FALSE;
-
-				/* Restore the screen */
-				Term_load();
-			}
-
-			/* Redo asking */
-			continue;
-		}
-
 		if (choice == '\r' && num == 1)
 		{
 			choice = 'a';
@@ -3236,7 +3118,7 @@ void do_cmd_pet(void)
 	}
 
 	/* Restore the screen */
-	if (redraw) Term_load();
+	Term_load();
 
 	/* Abort if needed */
 	if (!flag)
@@ -3346,7 +3228,8 @@ void do_cmd_pet(void)
 
 					if (is_pet(m_ptr))
 					{
-						monster_drop_carried_objects(m_ptr);
+						drop_object_list(&m_ptr->hold_o_idx,
+										 m_ptr->fx, m_ptr->fy);
 					}
 				}
 			}

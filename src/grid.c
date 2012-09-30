@@ -47,14 +47,12 @@ bool new_player_spot(void)
 	if (max_attempts < 1)		/* Should be -1, actually if we failed... */
 		return FALSE;
 
-
-	/* Save the new player grid */
-	/* py = y; */
-	/* px = x; */
-
 	/* Save the new player grid */
 	p_ptr->py = y;
 	p_ptr->px = x;
+
+	/* Notice player location */
+	Term_move_player();
 
 	return TRUE;
 }
@@ -271,7 +269,8 @@ void vault_objects(int x, int y, int num)
  */
 static void vault_trap_aux(int x, int y, int xd, int yd)
 {
-	int count = 0, y1 = y, x1 = x;
+	int count;
+	int x1 = x, y1 = y;
 	int dummy = 0;
 
 	cave_type *c_ptr;
@@ -295,17 +294,20 @@ static void vault_trap_aux(int x, int y, int xd, int yd)
 			{
 				msg_print("Warning! Could not place vault trap!");
 			}
+
+			return;
 		}
 
 		/* Require "naked" floor grids */
 		c_ptr = cave_p(x1, y1);
-		if (!cave_naked_grid(c_ptr)) continue;
+		if (cave_naked_grid(c_ptr))
+		{
+			/* Place the trap */
+			place_trap(x1, y1);
 
-		/* Place the trap */
-		place_trap(x1, y1);
-
-		/* Done */
-		break;
+			/* Done ('return' seems to give a warning.) */
+			count = 6;
+		}
 	}
 }
 
@@ -654,7 +656,7 @@ bool get_is_floor(int x, int y)
 	if (c_ptr->info & CAVE_ROOM) return (FALSE);
 
 	/* Do the real check */
-	if (c_ptr->feat == FEAT_FLOOR) return (TRUE);
+	if (cave_floor_grid(c_ptr)) return (TRUE);
 
 	/* Not a floor */
 	return (FALSE);
@@ -787,11 +789,8 @@ void build_tunnel(int col1, int row1, int col2, int row2)
 		c_ptr = cave_p(tmp_col, tmp_row);
 
 
-		/* Avoid the edge of the dungeon */
-		if (c_ptr->feat == FEAT_PERM_SOLID) continue;
-
-		/* Avoid the edge of vaults */
-		if (c_ptr->feat == FEAT_PERM_OUTER) continue;
+		/* Avoid the permanent walls */
+		if (cave_perma_grid(c_ptr) && cave_wall_grid(c_ptr)) continue;
 
 		/* Avoid "solid" granite walls */
 		if (c_ptr->feat == FEAT_WALL_SOLID) continue;
@@ -807,9 +806,11 @@ void build_tunnel(int col1, int row1, int col2, int row2)
 
 			tmp_c_ptr = cave_p(x, y);
 
-			/* Hack -- Avoid outer/solid permanent walls */
-			if (tmp_c_ptr->feat == FEAT_PERM_SOLID) continue;
-			if (tmp_c_ptr->feat == FEAT_PERM_OUTER) continue;
+			/* Hack -- Avoid permanent walls */
+			if (cave_perma_grid(tmp_c_ptr) && cave_wall_grid(tmp_c_ptr))
+			{
+				continue;
+			}
 
 			/* Hack -- Avoid outer/solid granite walls */
 			if (tmp_c_ptr->feat == FEAT_WALL_OUTER) continue;
@@ -851,7 +852,7 @@ void build_tunnel(int col1, int row1, int col2, int row2)
 		}
 
 		/* Tunnel through all other walls */
-		else if (c_ptr->feat >= FEAT_WALL_EXTRA)
+		else if (cave_wall_grid(c_ptr))
 		{
 			/* Accept this location */
 			row1 = tmp_row;
@@ -930,8 +931,8 @@ static bool set_tunnel(int *x, int *y, bool affectwall)
 
 	feat = cave_p(*x, *y)->feat;
 
-	if ((feat == FEAT_PERM_OUTER) ||
-		(feat == FEAT_PERM_INNER) || (feat == FEAT_WALL_INNER))
+	if ((cave_perma_grid(cave_p(*x, *y)) &&
+		 cave_wall_grid(cave_p(*x, *y))) || (feat == FEAT_WALL_INNER))
 	{
 		/*
 		 * Ignore permanent walls - sometimes cannot tunnel around them anyway
@@ -1063,7 +1064,7 @@ static void create_cata_tunnel(int x, int y)
  * It is designed to use very simple algorithms to go from (x1,y1) to (x2,y2)
  * It doesn't need to add any complexity - straight lines are fine.
  * The SOLID walls are avoided by a recursive algorithm which tries random ways
- * around the obstical until it works.  The number of itterations is counted, and it
+ * around the obstical until it works.  The number of iterations is counted, and it
  * this gets too large the routine exits. This should stop any crashes - but may leave
  * small gaps in the tunnel where there are too many SOLID walls.
  *

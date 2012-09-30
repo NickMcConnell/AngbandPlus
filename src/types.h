@@ -69,7 +69,6 @@ struct maxima
 	u16b fld_max;	/* Max size for field list */
 	u16b rg_max;	/* Max size for region list */
 
-	u16b ws_max;	/* Max size for wilderness */
 	u16b wn_max;	/* Max size for wilderness tree nodes */
 	u16b wt_max;	/* Max size for wilderness gen types */
 	u16b wp_max;	/* Max places in the wilderness */
@@ -83,7 +82,7 @@ struct maxima
  * Structure used to store information required for LOS
  * calculatations.  The same data can be inverted to
  * get the squares affected by a projection.  Those squares
- * can be itterated over to get a 'flight path' for arrows
+ * can be iterated over to get a 'flight path' for arrows
  * and thrown items...
  */
 
@@ -121,6 +120,8 @@ struct feature_type
 
 	byte w_attr;	/* Desired extra feature attribute */
 	char w_char;	/* Desired extra feature character */
+
+	byte flags;	/* Properties of the feature */
 };
 
 
@@ -740,8 +741,10 @@ struct object_type
 {
 	s16b k_idx;	/* Kind index (zero if "dead") */
 
-	s16b iy;	/* Y-position on map, or zero */
 	s16b ix;	/* X-position on map, or zero */
+	s16b iy;	/* Y-position on map, or zero */
+
+	s16b weight;	/* Item weight */
 
 	byte tval;	/* Item type (from kind) */
 	byte sval;	/* Item sub-type (from kind) */
@@ -751,8 +754,6 @@ struct object_type
 	byte discount;	/* Discount (if any) */
 
 	byte number;	/* Number of items */
-
-	s16b weight;	/* Item weight */
 
 	s16b to_h;	/* Plusses to hit */
 	s16b to_d;	/* Plusses to damage */
@@ -764,12 +765,10 @@ struct object_type
 
 	byte dd, ds;	/* Damage dice/sides */
 
-	byte ident;	/* Special flags */
+	s16b next_o_idx;	/* Next object in stack (if any) */
 
-	byte marked;	/* Object is marked */
-
-	u16b inscription;	/* Inscription index */
-	u16b xtra_name;	/* Extra Name (Artifacts and ego items) */
+	s16b inscription;	/* Inscription index */
+	s16b xtra_name;	/* Extra Name (Artifacts and ego items) */
 
 	u32b flags1;	/* Flags, set 1 */
 	u32b flags2;	/* Flags, set 2 */
@@ -779,11 +778,8 @@ struct object_type
 	u32b kn_flags2;	/* Known Flags, set 2 */
 	u32b kn_flags3;	/* Known Flags, set 3 */
 
-	s16b next_o_idx;	/* Next object in stack (if any) */
-
-	s16b held_m_idx;	/* Monster holding us (if any) */
-
 	s32b cost;	/* Object "base cost" */
+	s32b temp_cost;	/* Cost including shopkeeper effects */
 
 	s16b region;	/* Region */
 
@@ -791,26 +787,9 @@ struct object_type
 
 	byte activate;	/* Activation type */
 
-#ifdef SCRIPT_OBJ_KIND
-	char *name;
+	byte info;	/* Special flags */
 
-	byte d_attr;	/* Default object attribute */
-	char d_char;	/* Default object character */
-
-
-	byte x_attr;	/* Desired object attribute */
-	char x_char;	/* Desired object character */
-
-
-	byte flavor;	/* Special object flavor (or zero) */
-
-	bool easy_know;	/* This object is always known (if aware) */
-
-
-	bool aware;	/* The player is "aware" of the item's effects */
-
-	bool tried;	/* The player has "tried" one of the items */
-#endif /* SCRIPT_OBJ_KIND */
+	bool allocated;	/* Held in the o_list[] array */
 };
 
 
@@ -908,6 +887,8 @@ typedef bool (*field_action_type) (field_type *f_ptr, vptr);
 typedef struct field_thaum field_thaum;
 struct field_thaum
 {
+	char *name;	/* The name of the field */
+
 	byte f_attr;	/* attribute */
 	char f_char;	/* character */
 
@@ -927,7 +908,7 @@ struct field_thaum
 
 	u16b info;	/* Information flags */
 
-	char *name;	/* The name of the field */
+
 };
 
 
@@ -976,7 +957,7 @@ typedef struct field_action field_action;
 struct field_action
 {
 	field_action_type action;	/* The function to call */
-	char *func;	/* The name of the function */
+	cptr func;	/* The name of the function */
 };
 
 
@@ -1380,15 +1361,6 @@ struct player_type
 	s16b wraith_form;	/* Timed wraithform */
 	s16b resist_magic;	/* Timed Resist Magic (later) */
 
-	s16b tim_xtra1;	/* Later */
-	s16b tim_xtra2;	/* Later */
-	s16b tim_xtra3;	/* Later */
-	s16b tim_xtra4;	/* Later */
-	s16b tim_xtra5;	/* Later */
-	s16b tim_xtra6;	/* Later */
-	s16b tim_xtra7;	/* Later */
-	s16b tim_xtra8;	/* Later */
-
 	u32b muta1;	/* Mutations */
 	u32b muta2;	/* Mutations */
 	u32b muta3;	/* Mutations */
@@ -1455,8 +1427,8 @@ struct player_type
 
 	s16b total_weight;	/* Total weight being carried */
 
-	s16b inven_cnt;	/* Number of items in inventory */
-	s16b equip_cnt;	/* Number of items in equipment */
+	s16b inventory;	/* Index to inventory item list */
+	object_type equipment[EQUIP_MAX];	/* Equipment */
 
 	s16b target_set;	/* Target flag */
 	s16b target_who;	/* Target identity */
@@ -1485,9 +1457,6 @@ struct player_type
 	s16b command_arg;	/* Gives argument of current command */
 	s16b command_rep;	/* Gives repetition of current command */
 	s16b command_dir;	/* Gives direction of current command */
-
-	s16b command_see;	/* See "cmd1.c" */
-	s16b command_wrk;	/* See "cmd1.c" */
 
 	s16b command_new;	/* Hack -- command chaining XXX XXX */
 
@@ -1623,6 +1592,12 @@ struct player_type
 	u16b max_seen_r_idx;	/* Most powerful monster visible */
 	bool monk_armour_stat;	/* Status of monk armour */
 	byte noise_level;	/* Amount of noise since last update */
+
+	/* Inkey status */
+	bool inkey_base;	/* See the "inkey()" function */
+	bool inkey_xtra;	/* See the "inkey()" function */
+	bool inkey_scan;	/* See the "inkey()" function */
+	bool inkey_flag;	/* See the "inkey()" function */
 };
 
 
@@ -1684,12 +1659,7 @@ struct owner_type
 
 	s16b max_cost;	/* Purse limit / 100 */
 
-	byte max_inflate;	/* Inflation (max) */
-	byte min_inflate;	/* Inflation (min) */
-
-	byte haggle_per;	/* Haggle unit */
-
-	byte insult_max;	/* Insult limit */
+	byte greed;	/* Greed level */
 
 	byte owner_race;	/* Owner race */
 };
@@ -1720,21 +1690,16 @@ struct store_type
 	byte type;	/* Store type */
 	byte owner;	/* Owner index */
 
-	s16b insult_cur;	/* Insult counter */
-
-	s16b good_buy;	/* Number of "good" buys */
-	s16b bad_buy;	/* Number of "bad" buys */
-
-	s32b store_open;	/* Closed until this turn */
+	s16b data;	/* Data used for various things */
 
 	s32b last_visit;	/* Last visited on this turn */
 
-	byte max_stock;	/* Stock -- Max number of entries */
-	byte stock_num;	/* Stock -- Number of entries */
-	object_type *stock;	/* Stock -- Actual stock items */
+	s16b stock;	/* Stock -- list of items in o_list[] */
 
 	u16b x;	/* Location x coord. */
 	u16b y;	/* Location y coord. */
+
+	byte max_stock;	/* Stock -- Max number of entries */
 };
 
 
@@ -1769,6 +1734,7 @@ struct place_type
 	byte gates_y[MAX_GATES];
 
 	char name[T_NAME_LEN];	/* Town name */
+
 };
 
 /* Dungeons */
@@ -1793,10 +1759,11 @@ struct dun_type
 	cptr name;	/* The name of the dungeon */
 };
 
-
+/* Various function pointer types */
 typedef bool (*monster_hook_type) (int r_idx);
 typedef int (*inven_func) (object_type *);
-typedef bool (*cave_hook_type) (cave_type *c_ptr);
+typedef bool (*cave_hook_type) (const cave_type *c_ptr);
+typedef bool (*object_comp) (const object_type *, const object_type *);
 
 
 

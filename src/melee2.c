@@ -282,7 +282,7 @@ static int cave_passable_mon(monster_type *m_ptr, cave_type *c_ptr)
 	/*** Check passability of various features. ***/
 
 	/* Feature is not a wall */
-	if (floor_grid(feat))
+	if (cave_floor_grid(c_ptr))
 	{
 		/* Ocean */
 		if (feat == FEAT_OCEAN_WATER)
@@ -347,12 +347,6 @@ static int cave_passable_mon(monster_type *m_ptr, cave_type *c_ptr)
 		return (move_chance);
 	}
 
-	/* Semi-transparent terrains are no obstacle */
-	if ((feat & 0x60) == 0x60)
-	{
-		return (move_chance);
-	}
-
 	/* Closed or secret doors can be opened */
 	if ((feat == FEAT_CLOSED) || (feat == FEAT_SECRET))
 	{
@@ -366,7 +360,7 @@ static int cave_passable_mon(monster_type *m_ptr, cave_type *c_ptr)
 	}
 
 	/* Permanent walls + the pattern block movement */
-	else if ((feat >= FEAT_PERM_EXTRA) && (feat <= FEAT_PATTERN_XTRA2))
+	else if (cave_perma_grid(c_ptr))
 	{
 		return (0);
 	}
@@ -842,7 +836,7 @@ static void find_safety(monster_type *m_ptr, int *xp, int *yp)
 			c_ptr = area(x, y);
 
 			/* Skip locations in a wall */
-			if (!cave_floor_grid(c_ptr)) continue;
+			if (cave_wall_grid(c_ptr)) continue;
 
 			/* Ignore grids very far from the player */
 			if (c_ptr->when < area(px, py)->when) continue;
@@ -1009,6 +1003,21 @@ static void get_move_advance(monster_type *m_ptr, int *tx, int *ty)
 	/* Can the player see us? - if so run towards him */
 	if (in_boundsp(mx, my) && player_has_los_grid(parea(mx, my)))
 	{
+		/* Spellcasters may try to keep distance between them and the player */
+		if (m_ptr->cdis < MAX_RANGE / 2 &&
+			m_ptr->cdis > 2 &&
+			m_ptr->hp < p_ptr->lev * 3 &&
+			((r_ptr->flags4 & RF4_ATTACK_MASK) ||
+			 (r_ptr->flags5 & RF5_ATTACK_MASK) ||
+			 (r_ptr->flags6 & RF6_ATTACK_MASK)))
+		{
+			/* Move directly away from character. */
+			*tx = mx + -(px - mx);
+			*ty = my + -(py - my);
+
+			return;
+		}
+
 		*tx = px;
 		*ty = py;
 
@@ -1080,7 +1089,7 @@ static void get_move_advance(monster_type *m_ptr, int *tx, int *ty)
 			byte cost = c_ptr->cost;
 
 			/* Accept louder sounds */
-			if ((!best_val) || (cost > best_val)) continue;
+			if (cost < best_val) continue;
 			best_val = cost;
 		}
 
@@ -1241,7 +1250,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *tx, int *ty)
 	else
 	{
 		int prev_cost = c_ptr->cost;
-		int start = rand_int(8);
+		int start = randint0(8);
 
 		/* Look for adjacent hiding places */
 		for (i = start; i < 8 + start; i++)
@@ -1371,7 +1380,7 @@ static bool get_moves(int m_idx, int *mm)
 				c_ptr = area(xx, yy);
 
 				/* Check grid */
-				if (((cave_floor_grid(c_ptr)) || ((c_ptr->feat & 0x60) == 0x60))
+				if (cave_floor_grid(c_ptr)
 					&& monster_can_cross_terrain(c_ptr->feat, r_ptr))
 				{
 					/* One more room grid */
@@ -1389,45 +1398,89 @@ static bool get_moves(int m_idx, int *mm)
 		}
 
 		/* Monster groups try to surround the player */
-		if (!done && (r_ptr->flags1 & RF1_FRIENDS))
+		if (!done && (r_ptr->flags1 & RF1_FRIENDS) && randint0(2) == 0)
 		{
-			int i;
+			int i, i2;
+			int xx2, yy2;
+			int cx = px, cy = py;
 
-			/* Find an empty square near the player to fill */
+			monster_type *fm_ptr;
+			monster_race *fr_ptr;
+
+			int free_squares = 0;
+
+			/* Count alternate squares we can move to */
 			for (i = 0; i < 8; i++)
 			{
-				/* Pick squares near player (semi-randomly) */
-				xx = px + ddx_ddd[(m_idx + i) & 7];
-				yy = py + ddy_ddd[(m_idx + i) & 7];
+				xx = m_ptr->fx + ddx_ddd[i];
+				yy = m_ptr->fy + ddy_ddd[i];
 
+				/* Require next to player */
+				if (ABS(xx - px) > 1) continue;
+				if (ABS(yy - py) > 1) continue;
 
-				/* Already there? */
-				if ((m_ptr->fy == yy) && (m_ptr->fx == xx))
+				/* Require a square we can move to */
+				if (cave_passable_mon(m_ptr, area(xx, yy)) < 50) continue;
+
+				/* Count this square */
+				free_squares++;
+
+				/* Possibly move here */
+				if (randint0(free_squares) == 0)
 				{
-					/* Attack the player */
-					ty = py;
-					tx = px;
+					cx = xx;
+					cy = yy;
+				}
+			}
+
+			/* Count monsters which are "pushing" */
+			if (free_squares)
+			{
+				for (i = 0; i < 8; i++)
+				{
+					int blocked = TRUE;
+
+					xx = m_ptr->fx + ddx_ddd[i];
+					yy = m_ptr->fy + ddy_ddd[i];
+
+					c_ptr = area(xx, yy);
+
+					/* Must be a monster */
+					if (!c_ptr->m_idx) continue;
+
+					fm_ptr = &m_list[c_ptr->m_idx];
+					fr_ptr = &r_info[fm_ptr->r_idx];
+
+					/* Must be awake and mobile */
+					if (fm_ptr->csleep
+						|| (r_ptr->flags1 & RF1_NEVER_MOVE)) continue;
+
+					/* Check if this monster can move */
+					for (i2 = 0; i2 < 8; i2++)
+					{
+						xx2 = fm_ptr->fx + ddx_ddd[i2];
+						yy2 = fm_ptr->fy + ddy_ddd[i2];
+
+						/* Require next to player */
+						if (ABS(xx2 - px) > 1) continue;
+						if (ABS(yy2 - py) > 1) continue;
+
+						if (cave_passable_mon(fm_ptr, area(xx2, yy2)) >= 50)
+						{
+							blocked = FALSE;
+							break;
+						}
+					}
+
+					if (!blocked) continue;
+
+					/* If we're blocking something, move to free space */
+					tx = cx;
+					ty = cy;
 
 					break;
 				}
-
-				if (!in_bounds2(xx, yy)) continue;
-
-				/* Not on player */
-				if ((yy == py) && (xx == px)) continue;
-
-				/* Ignore filled grids */
-				if (!cave_empty_grid(area(xx, yy))) continue;
-
-				/* Try to fill this hole */
-				tx = xx;
-				ty = yy;
-
-				break;
 			}
-
-			/* Done */
-			done = TRUE;
 		}
 	}
 
@@ -2189,16 +2242,9 @@ static void take_move(int m_idx, int *mm)
 		}
 
 		/* Permanent wall */
-		else if ((c_ptr->feat >= FEAT_PERM_EXTRA) &&
-				 (c_ptr->feat <= FEAT_PERM_SOLID))
+		else if (cave_perma_grid(c_ptr) && cave_wall_grid(c_ptr))
 		{
 			do_move = FALSE;
-		}
-
-		/* Hack -- semi-transparent terrains are no obstacle */
-		else if ((c_ptr->feat & 0x60) == 0x60)
-		{
-			do_move = TRUE;
 		}
 
 		/* Hack -- closed or secret doors are no obstacle */
@@ -2235,7 +2281,7 @@ static void take_move(int m_idx, int *mm)
 			cave_set_feat(nx, ny, FEAT_FLOOR);
 		}
 
-		else if (!cave_floor_grid(c_ptr))
+		else if (cave_wall_grid(c_ptr))
 		{
 			/* This monster cannot walk through walls */
 			do_move = FALSE;
@@ -2281,8 +2327,8 @@ static void take_move(int m_idx, int *mm)
 		}
 
 		/* Handle closed doors and secret doors */
-		if (do_move && ((c_ptr->feat == FEAT_CLOSED)
-						|| (c_ptr->feat == FEAT_SECRET)) &&
+		if (do_move &&
+			((c_ptr->feat == FEAT_CLOSED) || (c_ptr->feat == FEAT_SECRET)) &&
 			(r_ptr->flags2 & RF2_OPEN_DOOR) &&
 			(!is_pet(m_ptr) || p_ptr->pet_open_doors))
 		{
@@ -2318,9 +2364,9 @@ static void take_move(int m_idx, int *mm)
 			do_turn = TRUE;
 		}
 
-		if ((c_ptr->feat >= FEAT_PATTERN_START) &&
-			(c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
-			!do_turn && !(r_ptr->flags7 & RF7_CAN_FLY))
+		/* Not over the pattern */
+		if (cave_pattern_grid(c_ptr) && !do_turn &&
+			!(r_ptr->flags7 & RF7_CAN_FLY))
 		{
 			do_move = FALSE;
 		}
@@ -2396,9 +2442,9 @@ static void take_move(int m_idx, int *mm)
 		/* Creature has been allowed move */
 		if (do_move)
 		{
-			s16b this_o_idx, next_o_idx;
-
 			cave_type *old_ptr = area(ox, oy);
+
+			object_type *o_ptr;
 
 			/* Take a turn */
 			do_turn = TRUE;
@@ -2461,8 +2507,7 @@ static void take_move(int m_idx, int *mm)
 			lite_spot(nx, ny);
 
 			/* Possible disturb */
-			if (m_ptr->ml && (disturb_move ||
-							  ((m_ptr->mflag & MFLAG_VIEW) && disturb_near)))
+			if (m_ptr->ml && (m_ptr->mflag & MFLAG_VIEW) && disturb_near)
 			{
 				/* Disturb */
 				if (is_hostile(m_ptr))
@@ -2470,16 +2515,8 @@ static void take_move(int m_idx, int *mm)
 			}
 
 			/* Scan all objects in the grid */
-			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 			{
-				object_type *o_ptr;
-
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
-
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
-
 				/* Skip gold */
 				if (o_ptr->tval == TV_GOLD) continue;
 
@@ -2554,11 +2591,8 @@ static void take_move(int m_idx, int *mm)
 							msg_format("%^s picks up %s.", m_name, o_name);
 						}
 
-						/* Excise the object */
-						excise_object_idx(this_o_idx);
-
 						/* Forget mark */
-						o_ptr->marked = FALSE;
+						o_ptr->info &= ~(OB_SEEN);
 
 						/* Forget location */
 						o_ptr->iy = o_ptr->ix = 0;
@@ -2566,14 +2600,8 @@ static void take_move(int m_idx, int *mm)
 						/* XXX Hack - Forget region */
 						o_ptr->region = 0;
 
-						/* Memorize monster */
-						o_ptr->held_m_idx = m_idx;
-
-						/* Build a stack */
-						o_ptr->next_o_idx = m_ptr->hold_o_idx;
-
-						/* Carry object */
-						m_ptr->hold_o_idx = this_o_idx;
+						/* Hold the object */
+						move_object(&m_ptr->hold_o_idx, &c_ptr->o_idx, o_ptr);
 					}
 
 					/* Destroy the item if not a pet */
@@ -2590,10 +2618,11 @@ static void take_move(int m_idx, int *mm)
 						}
 
 						/* Delete the object */
-						delete_object_idx(this_o_idx);
+						delete_dungeon_object(o_ptr);
 					}
 				}
 			}
+			OBJ_ITT_END;
 		}
 
 		/* Stop when done */
@@ -2703,6 +2732,8 @@ static void process_monster(int m_idx)
 	cave_type *c_ptr;
 
 	bool gets_angry = FALSE;
+
+	int rand_move = 0;
 
 
 	/* Quantum monsters are odd */
@@ -3050,6 +3081,9 @@ static void process_monster(int m_idx)
 	mm[0] = mm[1] = mm[2] = mm[3] = 0;
 	mm[4] = mm[5] = mm[6] = mm[7] = 0;
 
+	if (r_ptr->flags1 & RF1_RAND_50) rand_move += 50;
+	if (r_ptr->flags1 & RF1_RAND_25) rand_move += 25;
+
 	/* Confused -- 100% random */
 	if (m_ptr->confused)
 	{
@@ -3057,33 +3091,14 @@ static void process_monster(int m_idx)
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 	}
 
-	/* 75% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_50) && (r_ptr->flags1 & RF1_RAND_25) &&
-			 (randint0(100) < 75))
+	/* Random movement */
+	else if (rand_move && (randint0(100) < rand_move))
 	{
 		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
-		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_25);
-
-		/* Try four "random" directions */
-		mm[0] = mm[1] = mm[2] = mm[3] = 5;
-	}
-
-	/* 50% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_50) && (randint0(100) < 50))
-	{
-		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_RAND_50);
-
-		/* Try four "random" directions */
-		mm[0] = mm[1] = mm[2] = mm[3] = 5;
-	}
-
-	/* 25% random movement */
-	else if ((r_ptr->flags1 & RF1_RAND_25) && (randint0(100) < 25))
-	{
-		/* Memorize flags */
-		if (m_ptr->ml) r_ptr->r_flags1 |= RF1_RAND_25;
+		if (m_ptr->ml && (r_ptr->flags1 & RF1_RAND_50))
+			r_ptr->r_flags1 |= (RF1_RAND_50);
+		if (m_ptr->ml && (r_ptr->flags1 & RF1_RAND_25))
+			r_ptr->r_flags1 |= (RF1_RAND_25);
 
 		/* Try four "random" directions */
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;

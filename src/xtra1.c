@@ -138,7 +138,7 @@ static void prt_stat(int stat)
 	}
 
 	/* Indicate natural maximum */
-	if (p_ptr->stat_max[stat] == 18 + 100)
+	if (p_ptr->stat_max[stat] == stat_cap(stat))
 	{
 		put_str("!", 3, ROW_STAT + stat);
 	}
@@ -485,10 +485,13 @@ static void prt_exp(void)
 		attr = TERM_YELLOW;
 	}
 
-	put_str("EXP ", 0, ROW_EXP);
+
 
 	if (toggle_xp)
 	{
+
+		put_str("NEED ", 0, ROW_EXP);
+
 		if (p_ptr->lev >= PY_MAX_LEVEL)
 		{
 			c_put_str(attr, "********", COL_EXP + 4, ROW_EXP);
@@ -505,6 +508,9 @@ static void prt_exp(void)
 	}
 	else
 	{
+
+		put_str("EXP ", 0, ROW_EXP);
+
 		/* Use the 'old' experience display */
 		(void)sprintf(out_val, "%8ld", (long)p_ptr->exp);
 
@@ -585,14 +591,24 @@ static void prt_hp(void)
 
 #ifndef VARIABLE_PLAYER_GRAPH
 
+
 	/* Hack - only change the colour if in character mode */
 	if (r_ptr->x_char != '@') return;
 
-	/* Normal colour is white */
-	if (color == TERM_L_GREEN) color = TERM_WHITE;
+	/* Only change colour if asked */
+	if (!view_player_colour)
+	{
+		/* Normal colour is white */
+		color = TERM_WHITE;
+	}
+	else
+	{
+		/* Normal colour is white */
+		if (color == TERM_L_GREEN) color = TERM_WHITE;
 
-	/* Pink is better than yellow */
-	if (color == TERM_YELLOW) color = TERM_ORANGE;
+		/* Orange is better than yellow */
+		if (color == TERM_YELLOW) color = TERM_ORANGE;
+	}
 
 	/* Redraw the player ? */
 	if (old_attr != color)
@@ -1211,6 +1227,9 @@ static void fix_inven(void)
 {
 	int j;
 
+	/* Update inventory information */
+	Term_write_list(p_ptr->inventory, LIST_INVEN);
+
 	/* Scan windows */
 	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
@@ -1244,6 +1263,9 @@ static void fix_inven(void)
 static void fix_equip(void)
 {
 	int j;
+
+	/* Update equipment information */
+	Term_write_equipment();
 
 	/* Scan windows */
 	for (j = 0; j < ANGBAND_TERM_MAX; j++)
@@ -1878,7 +1900,7 @@ static void calc_mana(void)
 		p_ptr->cumber_glove = FALSE;
 
 		/* Get the gloves */
-		o_ptr = &inventory[INVEN_HANDS];
+		o_ptr = &p_ptr->equipment[EQUIP_HANDS];
 
 		/* Examine the gloves */
 		object_flags(o_ptr, &f1, &f2, &f3);
@@ -1901,12 +1923,12 @@ static void calc_mana(void)
 
 	/* Weigh the armor */
 	cur_wgt = 0;
-	cur_wgt += inventory[INVEN_BODY].weight;
-	cur_wgt += inventory[INVEN_HEAD].weight;
-	cur_wgt += inventory[INVEN_ARM].weight;
-	cur_wgt += inventory[INVEN_OUTER].weight;
-	cur_wgt += inventory[INVEN_HANDS].weight;
-	cur_wgt += inventory[INVEN_FEET].weight;
+	cur_wgt += p_ptr->equipment[EQUIP_BODY].weight;
+	cur_wgt += p_ptr->equipment[EQUIP_HEAD].weight;
+	cur_wgt += p_ptr->equipment[EQUIP_ARM].weight;
+	cur_wgt += p_ptr->equipment[EQUIP_OUTER].weight;
+	cur_wgt += p_ptr->equipment[EQUIP_HANDS].weight;
+	cur_wgt += p_ptr->equipment[EQUIP_FEET].weight;
 
 	/* Determine the weight allowance */
 	max_wgt = mp_ptr->spell_weight;
@@ -2091,12 +2113,12 @@ static void calc_torch(void)
 	p_ptr->cur_lite = 0;
 
 	/* Loop through all wielded items */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		/* Examine actual lites */
-		if ((i == INVEN_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE))
+		if ((i == EQUIP_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE))
 		{
 			/* Artifact Lites provide permanent, bright, lite */
 			if (o_ptr->flags3 & TR3_INSTA_ART)
@@ -2165,7 +2187,36 @@ static void calc_torch(void)
 	}
 }
 
+/*
+ * Recalculate the inventory and equipment weight
+ */
+static void calc_weight(void)
+{
+	object_type *o_ptr;
 
+	int i;
+
+	/* No weight yet */
+	p_ptr->total_weight = 0;
+
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		/* Increase the weight */
+		p_ptr->total_weight += (o_ptr->number * o_ptr->weight);
+	}
+	OBJ_ITT_END;
+
+	for (i = 0; i < EQUIP_MAX; i++)
+	{
+		o_ptr = &p_ptr->equipment[i];
+
+		/* Need valid items */
+		if (!o_ptr->k_idx) continue;
+
+		/* Increase the weight */
+		p_ptr->total_weight += o_ptr->weight;
+	}
+}
 
 /*
  * Computes current weight limit.
@@ -2432,12 +2483,12 @@ static void calc_bonuses(void)
 		u16b monk_arm_wgt = 0;
 
 		/* Weigh the armor */
-		monk_arm_wgt += inventory[INVEN_BODY].weight;
-		monk_arm_wgt += inventory[INVEN_HEAD].weight;
-		monk_arm_wgt += inventory[INVEN_ARM].weight;
-		monk_arm_wgt += inventory[INVEN_OUTER].weight;
-		monk_arm_wgt += inventory[INVEN_HANDS].weight;
-		monk_arm_wgt += inventory[INVEN_FEET].weight;
+		monk_arm_wgt += p_ptr->equipment[EQUIP_BODY].weight;
+		monk_arm_wgt += p_ptr->equipment[EQUIP_HEAD].weight;
+		monk_arm_wgt += p_ptr->equipment[EQUIP_ARM].weight;
+		monk_arm_wgt += p_ptr->equipment[EQUIP_OUTER].weight;
+		monk_arm_wgt += p_ptr->equipment[EQUIP_HANDS].weight;
+		monk_arm_wgt += p_ptr->equipment[EQUIP_FEET].weight;
 
 		if (monk_arm_wgt > (100 + (p_ptr->lev * 4)))
 		{
@@ -2830,13 +2881,6 @@ static void calc_bonuses(void)
 		}
 	}
 
-	/* Apply the racial modifiers */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Modify the stats for "race" */
-		p_ptr->stat_add[i] += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
-	}
-
 
 	/* Effects of constantly acting mutations */
 	if (p_ptr->muta3)
@@ -2870,9 +2914,9 @@ static void calc_bonuses(void)
 	}
 
 	/* Scan the usable inventory */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2981,10 +3025,10 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
 
 		/* Hack -- do not apply "weapon" bonuses */
-		if (i == INVEN_WIELD) continue;
+		if (i == EQUIP_WIELD) continue;
 
 		/* Hack -- do not apply "bow" bonuses */
-		if (i == INVEN_BOW) continue;
+		if (i == EQUIP_BOW) continue;
 
 		/* Apply the bonuses to hit/damage */
 		p_ptr->to_h += o_ptr->to_h;
@@ -2998,32 +3042,32 @@ static void calc_bonuses(void)
 	/* Monks get extra ac for armour _not worn_ */
 	if ((p_ptr->pclass == CLASS_MONK) && (!p_ptr->monk_armour_stat))
 	{
-		if (!(inventory[INVEN_BODY].k_idx))
+		if (!(p_ptr->equipment[EQUIP_BODY].k_idx))
 		{
 			p_ptr->to_a += (p_ptr->lev * 3) / 2;
 			p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
 		}
-		if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
+		if (!(p_ptr->equipment[EQUIP_OUTER].k_idx) && (p_ptr->lev > 15))
 		{
 			p_ptr->to_a += ((p_ptr->lev - 13) / 3);
 			p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
 		}
-		if (!(inventory[INVEN_ARM].k_idx) && (p_ptr->lev > 10))
+		if (!(p_ptr->equipment[EQUIP_ARM].k_idx) && (p_ptr->lev > 10))
 		{
 			p_ptr->to_a += ((p_ptr->lev - 8) / 3);
 			p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
 		}
-		if (!(inventory[INVEN_HEAD].k_idx) && (p_ptr->lev > 4))
+		if (!(p_ptr->equipment[EQUIP_HEAD].k_idx) && (p_ptr->lev > 4))
 		{
 			p_ptr->to_a += (p_ptr->lev - 2) / 3;
 			p_ptr->dis_to_a += (p_ptr->lev - 2) / 3;
 		}
-		if (!(inventory[INVEN_HANDS].k_idx))
+		if (!(p_ptr->equipment[EQUIP_HANDS].k_idx))
 		{
 			p_ptr->to_a += (p_ptr->lev / 2);
 			p_ptr->dis_to_a += (p_ptr->lev / 2);
 		}
-		if (!(inventory[INVEN_FEET].k_idx))
+		if (!(p_ptr->equipment[EQUIP_FEET].k_idx))
 		{
 			p_ptr->to_a += (p_ptr->lev / 3);
 			p_ptr->dis_to_a += (p_ptr->lev / 3);
@@ -3294,7 +3338,7 @@ static void calc_bonuses(void)
 
 
 	/* Examine the "current bow" */
-	o_ptr = &inventory[INVEN_BOW];
+	o_ptr = &p_ptr->equipment[EQUIP_BOW];
 
 
 	/* Assume not heavy */
@@ -3401,7 +3445,7 @@ static void calc_bonuses(void)
 			if ((p_ptr->pclass == CLASS_RANGER) &&
 				(p_ptr->ammo_tval == TV_BOLT))
 			{
-				/* Extra shot at level 20 */
+				/* Extra shot at level 30 */
 				if (p_ptr->lev >= 30) p_ptr->num_fire++;
 			}
 
@@ -3431,98 +3475,8 @@ static void calc_bonuses(void)
 	/* Add all class and race-specific adjustments to missile Skill. -LM- */
 	p_ptr->skill_thb += add_special_missile_skill(p_ptr->pclass);
 
-
 	/* Examine the "main weapon" */
-	o_ptr = &inventory[INVEN_WIELD];
-
-	/* Assume not heavy */
-	p_ptr->heavy_wield = FALSE;
-
-	/* It is hard to hold a heavy weapon */
-	if (hold < o_ptr->weight / 10)
-	{
-		/* Hard to wield a heavy weapon */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
-
-		/* Heavy weapon */
-		p_ptr->heavy_wield = TRUE;
-
-		/* The player gets to swing a heavy weapon only once. -LM- */
-		p_ptr->num_blow = 1;
-	}
-
-
-	/* Normal weapons */
-	if (o_ptr->k_idx && !p_ptr->heavy_wield)
-	{
-		int str_index, dex_index;
-
-		int effective_weight = 0, mul = 6;
-
-		/* Enforce a minimum weight of three pounds. */
-		effective_weight = (o_ptr->weight < 30 ? 30 : o_ptr->weight);
-
-		/* Compare strength and weapon weight. */
-		str_index = mul * adj_str_blow[p_ptr->stat_ind[A_STR]] /
-			effective_weight;
-
-		/* Maximal value */
-		if (str_index > 11) str_index = 11;
-
-		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
-
-		/* Maximal value */
-		if (dex_index > 11) dex_index = 11;
-
-
-		/* Use the blows table */
-		p_ptr->num_blow = blows_table[str_index][dex_index];
-
-		/* Paranoia - require at least one blow */
-		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
-
-		/* Boost digging skill by weapon weight */
-		p_ptr->skill_dig += (o_ptr->weight / 10);
-	}
-
-	else if (!(inventory[INVEN_WIELD].k_idx))
-	{
-		/* Different calculation for monks with empty hands */
-		if (p_ptr->pclass == CLASS_MONK)
-		{
-			p_ptr->num_blow = 2;
-
-			if (p_ptr->lev > 9) p_ptr->num_blow++;
-			if (p_ptr->lev > 14) p_ptr->num_blow++;
-			if (p_ptr->lev > 24) p_ptr->num_blow++;
-			if (p_ptr->lev > 34) p_ptr->num_blow++;
-			if (p_ptr->lev > 44) p_ptr->num_blow++;
-			if (p_ptr->lev > 49) p_ptr->num_blow++;
-
-			if (p_ptr->monk_armour_stat)
-			{
-				p_ptr->num_blow /= 2;
-			}
-			else
-			{
-				p_ptr->to_h += (p_ptr->lev / 3);
-				p_ptr->to_d += (p_ptr->lev / 3);
-
-				p_ptr->dis_to_h += (p_ptr->lev / 3);
-				p_ptr->dis_to_d += (p_ptr->lev / 3);
-			}
-
-			p_ptr->num_blow += extra_blows;
-		}
-		else
-		{
-			/* Everyone gets two blows if not wielding a weapon. -LM- */
-			p_ptr->num_blow = 2;
-		}
-	}
+	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	/* Add all other class-specific adjustments to melee Skill. -LM- */
 	p_ptr->skill_thn += add_special_melee_skill(p_ptr->pclass, o_ptr);
@@ -3611,6 +3565,121 @@ static void calc_bonuses(void)
 
 	if ((p_ptr->anti_magic) && (p_ptr->skill_sav < 95)) p_ptr->skill_sav = 95;
 
+	/* Assume not heavy */
+	p_ptr->heavy_wield = FALSE;
+
+	/* Are we using a weapon? */
+	if (o_ptr->k_idx)
+	{
+		/* It is hard to hold a heavy weapon */
+		if (hold < o_ptr->weight / 10)
+		{
+			/* Hard to wield a heavy weapon */
+			p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
+			p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+
+			/* Heavy weapon */
+			p_ptr->heavy_wield = TRUE;
+
+			/* The player gets to swing a heavy weapon only once. -LM- */
+			p_ptr->num_blow = 1;
+		}
+
+		/* Normal weapons */
+		else
+		{
+			int str_index, dex_index;
+
+			int effective_weight = 0, mul = 6;
+
+			int skill;
+
+			/* Enforce a minimum weight of three pounds. */
+			effective_weight = (o_ptr->weight < 30 ? 30 : o_ptr->weight);
+
+			/* Compare strength and weapon weight. */
+			str_index = mul * adj_str_blow[p_ptr->stat_ind[A_STR]] /
+				effective_weight;
+
+			/* Maximal value */
+			if (str_index > 11) str_index = 11;
+
+			/* Index by dexterity */
+			dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+
+			/* Maximal value */
+			if (dex_index > 11) dex_index = 11;
+
+
+			/* Use the blows table */
+			p_ptr->num_blow = blows_table[str_index][dex_index];
+
+			/* Get weapon skill */
+			skill = p_ptr->skill_thn + (p_ptr->to_h * BTH_PLUS_ADJ);
+
+			/* Require high skill to get large number of blows */
+			if ((skill < 100) && (p_ptr->num_blow > 3))
+			{
+				p_ptr->num_blow = 3;
+			}
+			if ((skill < 150) && (p_ptr->num_blow > 4))
+			{
+				p_ptr->num_blow = 4;
+			}
+			if ((skill < 200) && (p_ptr->num_blow > 5))
+			{
+				p_ptr->num_blow = 5;
+			}
+
+			/* Paranoia - require at least one blow */
+			if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
+
+			/* Add in extra blows */
+			p_ptr->num_blow += extra_blows;
+
+
+			/* Boost digging skill by weapon weight */
+			p_ptr->skill_dig += (o_ptr->weight / 10);
+		}
+	}
+
+	/* No weapon */
+	else
+	{
+		/* Different calculation for monks with empty hands */
+		if (p_ptr->pclass == CLASS_MONK)
+		{
+			p_ptr->num_blow = 2;
+
+			if (p_ptr->lev > 9) p_ptr->num_blow++;
+			if (p_ptr->lev > 14) p_ptr->num_blow++;
+			if (p_ptr->lev > 24) p_ptr->num_blow++;
+			if (p_ptr->lev > 34) p_ptr->num_blow++;
+			if (p_ptr->lev > 44) p_ptr->num_blow++;
+			if (p_ptr->lev > 49) p_ptr->num_blow++;
+
+			if (p_ptr->monk_armour_stat)
+			{
+				p_ptr->num_blow /= 2;
+			}
+			else
+			{
+				p_ptr->to_h += (p_ptr->lev / 3);
+				p_ptr->to_d += (p_ptr->lev / 3);
+
+				p_ptr->dis_to_h += (p_ptr->lev / 3);
+				p_ptr->dis_to_d += (p_ptr->lev / 3);
+			}
+
+			p_ptr->num_blow += extra_blows;
+		}
+		else
+		{
+			/* Everyone gets two blows if not wielding a weapon. -LM- */
+			p_ptr->num_blow = 2;
+		}
+	}
+
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
@@ -3622,7 +3691,7 @@ static void calc_bonuses(void)
 		{
 			msg_print("You have trouble wielding such a heavy bow.");
 		}
-		else if (inventory[INVEN_BOW].k_idx)
+		else if (p_ptr->equipment[EQUIP_BOW].k_idx)
 		{
 			msg_print("You have no trouble wielding your bow.");
 		}
@@ -3641,7 +3710,7 @@ static void calc_bonuses(void)
 		{
 			msg_print("You have trouble wielding such a heavy weapon.");
 		}
-		else if (inventory[INVEN_WIELD].k_idx)
+		else if (p_ptr->equipment[EQUIP_WIELD].k_idx)
 		{
 			msg_print("You have no trouble wielding your weapon.");
 		}
@@ -3660,7 +3729,7 @@ static void calc_bonuses(void)
 		{
 			msg_print("You do not feel comfortable with your weapon.");
 		}
-		else if (inventory[INVEN_WIELD].k_idx)
+		else if (p_ptr->equipment[EQUIP_WIELD].k_idx)
 		{
 			msg_print("You feel comfortable with your weapon.");
 		}
@@ -3719,6 +3788,11 @@ void update_stuff(void)
 	/* Update stuff */
 	if (!p_ptr->update) return;
 
+	if (p_ptr->update & (PU_WEIGHT))
+	{
+		p_ptr->update &= ~(PU_WEIGHT);
+		calc_weight();
+	}
 
 	if (p_ptr->update & (PU_BONUS))
 	{
@@ -3749,7 +3823,6 @@ void update_stuff(void)
 		p_ptr->update &= ~(PU_SPELLS);
 		calc_spells();
 	}
-
 
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
@@ -4012,13 +4085,6 @@ void window_stuff(void)
 		if (angband_term[j]) mask |= window_flag[j];
 	}
 
-	/* Apply usable flags */
-	p_ptr->window &= mask;
-
-	/* Nothing to do */
-	if (!p_ptr->window) return;
-
-
 	/* Display inventory */
 	if (p_ptr->window & (PW_INVEN))
 	{
@@ -4032,6 +4098,12 @@ void window_stuff(void)
 		p_ptr->window &= ~(PW_EQUIP);
 		fix_equip();
 	}
+
+	/* Apply usable flags */
+	p_ptr->window &= mask;
+
+	/* Nothing to do */
+	if (!p_ptr->window) return;
 
 	/* Display spell list */
 	if (p_ptr->window & (PW_SPELL))

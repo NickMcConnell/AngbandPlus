@@ -91,9 +91,6 @@ void delete_monster_idx(int i)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	s16b this_o_idx, next_o_idx = 0;
-
-
 	/* Get location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
@@ -125,23 +122,7 @@ void delete_monster_idx(int i)
 	}
 
 	/* Delete objects */
-	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Hack -- efficiency */
-		o_ptr->held_m_idx = 0;
-
-		/* Delete the object */
-		delete_object_idx(this_o_idx);
-	}
-
+	delete_object_list(&m_ptr->hold_o_idx);
 
 	/* Wipe the Monster */
 	(void)WIPE(m_ptr, monster_type);
@@ -183,9 +164,6 @@ static void compact_monsters_aux(int i1, int i2)
 
 	monster_type *m_ptr;
 
-	s16b this_o_idx, next_o_idx = 0;
-
-
 	/* Do nothing */
 	if (i1 == i2) return;
 
@@ -202,21 +180,6 @@ static void compact_monsters_aux(int i1, int i2)
 
 	/* Update the cave */
 	c_ptr->m_idx = i2;
-
-	/* Repair objects being carried by monster */
-	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Reset monster pointer */
-		o_ptr->held_m_idx = i2;
-	}
 
 	/* Hack -- Update the target */
 	if (p_ptr->target_who == i1) p_ptr->target_who = i2;
@@ -1145,7 +1108,6 @@ void update_mon_vis(u16b r_idx, int increment)
  * or viewed directly, but old targets will remain set.  XXX XXX
  *
  * The player can choose to be disturbed by several things, including
- * "disturb_move" (monster which is viewable moves in some way), and
  * "disturb_near" (monster which is "easily" viewable moves in some
  * way).  Note that "moves" includes "appears" and "disappears".
  */
@@ -1339,13 +1301,6 @@ void update_mon(int m_idx, bool full)
 
 			/* Hack -- Count "fresh" sightings */
 			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
-
-			/* Disturb on appearance */
-			if (disturb_move)
-			{
-				if (is_hostile(m_ptr))
-					disturb(TRUE);
-			}
 		}
 	}
 
@@ -1369,13 +1324,6 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
-			/* Disturb on disappearance */
-			if (disturb_move)
-			{
-				if (is_hostile(m_ptr))
-					disturb(TRUE);
-			}
 		}
 	}
 
@@ -1388,13 +1336,6 @@ void update_mon(int m_idx, bool full)
 		{
 			/* Mark as easily visible */
 			m_ptr->mflag |= (MFLAG_VIEW);
-
-			/* Disturb on appearance */
-			if (disturb_move)
-			{
-				if (is_hostile(m_ptr))
-					disturb(TRUE);
-			}
 		}
 	}
 
@@ -1406,13 +1347,6 @@ void update_mon(int m_idx, bool full)
 		{
 			/* Mark as not easily visible */
 			m_ptr->mflag &= ~(MFLAG_VIEW);
-
-			/* Disturb on disappearance */
-			if (disturb_move)
-			{
-				if (is_hostile(m_ptr))
-					disturb(TRUE);
-			}
 		}
 	}
 }
@@ -1492,14 +1426,13 @@ bool place_monster_one(int x, int y, int r_idx, bool slp, bool friendly,
 	if (cave_perma_grid(c_ptr)) return (FALSE);
 
 	/* Walls also stops generation if we aren't ghostly */
-	if (!
-		(cave_floor_grid(c_ptr) || ((c_ptr->feat & 0x60) == 0x60)
-		 || (r_ptr->flags2 & RF2_PASS_WALL))) return (FALSE);
+	if (cave_wall_grid(c_ptr) && !(r_ptr->flags2 & RF2_PASS_WALL))
+	{
+		return (FALSE);
+	}
 
 	/* Nor on the Pattern */
-	if ((c_ptr->feat >= FEAT_PATTERN_START)
-		&& (c_ptr->feat <= FEAT_PATTERN_XTRA2))
-		return (FALSE);
+	if (cave_pattern_grid(c_ptr)) return (FALSE);
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -2461,9 +2394,7 @@ bool summon_specific(int who, int x1, int y1, int lev, int type, bool group,
 		if (!cave_empty_grid(c_ptr)) continue;
 
 		/* ... nor on the Pattern */
-		if ((c_ptr->feat >= FEAT_PATTERN_START)
-			&& (c_ptr->feat <= FEAT_PATTERN_XTRA2))
-			continue;
+		if (cave_pattern_grid(c_ptr)) continue;
 
 		/* Check for a field that blocks movement */
 		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_ENTER)) continue;
@@ -3052,45 +2983,4 @@ void update_smart_learn(int m_idx, int what)
 			break;
 		}
 	}
-}
-
-
-/*
- * Drop all items carried by a monster
- */
-void monster_drop_carried_objects(monster_type *m_ptr)
-{
-	s16b this_o_idx, next_o_idx = 0;
-	object_type forge;
-	object_type *o_ptr;
-	object_type *q_ptr;
-
-
-	/* Drop objects being carried */
-	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Paranoia */
-		o_ptr->held_m_idx = 0;
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Copy the object */
-		object_copy(q_ptr, o_ptr);
-
-		/* Delete the object */
-		delete_object_idx(this_o_idx);
-
-		/* Drop it */
-		(void)drop_near(q_ptr, -1, m_ptr->fx, m_ptr->fy);
-	}
-
-	/* Forget objects */
-	m_ptr->hold_o_idx = 0;
 }

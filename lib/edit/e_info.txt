@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2002/01/02 12:15:10 $
+# CVS: Last edit by $Author: antimatter $ on $Date: 2002/03/16 12:23:31 $
 # File: e_info.txt
 
 
@@ -23,7 +23,7 @@
 # === Understanding e_info.txt ===
 
 # N: serial number : ego type
-# X: inventory slot : rating
+# X: ego type slot : rating
 # C: max to-hit : max to-dam : max to-ac : pval
 # W: depth : rarity : weight : cost
 # F: flag | flag | etc
@@ -111,11 +111,11 @@ W:0:2:0:500
 C:0:0:0:0
 F:LITE
 
-N:13:of Brightness
-X:29:10
-W:0:2:0:500
-C:0:0:0:6
-F:SENSE | INFRA
+N:13:of Warmth
+X:29:13
+W:0:3:0:500
+C:0:0:0:0
+F:RES_COLD
 
 N:14:of Vision
 X:29:15
@@ -123,11 +123,11 @@ W:18:10:0:750
 C:0:0:0:6
 F:SEE_INVIS | RES_BLIND | SENSE
 
-N:15:of Warmth
+N:15:of Radiance
 X:29:13
-W:10:4:0:500
-C:0:0:0:0
-F:RES_COLD
+W:15:10:0:750
+C:0:0:0:4
+F:RES_DARK | CHR
 
 
 ### Shields ###

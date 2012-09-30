@@ -12,135 +12,76 @@
 
 #include "angband.h"
 
+/*
+ * Temp object used to return an object not allocated via o_pop().
+ *
+ * This is used by object_dup() and by object_prep() to
+ * return "new" objects.  Note that these routines delete
+ * any object stored here before they use it.  This means
+ * that object (quark) refcounting will work.  This should
+ * be the only "static" object used, unless you make
+ * absolutely sure the memory management is correct.
+ *
+ * Be very careful - object_copy() does not duplicate
+ * references, where as object_dup() does.  Make sure any
+ * allocated object will be wiped eventually.  temp_object
+ * is wiped when ever it is used so it is safe.
+ *
+ * Note - because several routines use this variable, any
+ * statically allocated object returned must be used asap.
+ */
+static object_type temp_object;
 
+
+/*
+ * Prepare an object based on an existing object
+ */
+static void object_copy(object_type *o_ptr, const object_type *j_ptr)
+{
+	/* Copy the structure */
+	COPY(o_ptr, j_ptr, object_type);
+}
 
 /*
  * Excise a dungeon object from any stacks
  */
-void excise_object_idx(int o_idx)
+static void excise_object_idx(s16b *o_idx_ptr, object_type *o_ptr)
 {
-	object_type *j_ptr;
+	object_type *j_ptr = NULL;
 
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *q_ptr;
 
-	s16b prev_o_idx = 0;
-
-
-	/* Object */
-	j_ptr = &o_list[o_idx];
-
-	/* Monster */
-	if (j_ptr->held_m_idx)
+	/* Scan all objects in the list */
+	OBJ_ITT_START (*o_idx_ptr, q_ptr)
 	{
-		monster_type *m_ptr;
-
-		/* Monster */
-		m_ptr = &m_list[j_ptr->held_m_idx];
-
-		/* Scan all objects in the grid */
-		for (this_o_idx = m_ptr->hold_o_idx; this_o_idx;
-			 this_o_idx = next_o_idx)
+		/* Hack - Done? */
+		if (q_ptr == o_ptr)
 		{
-			object_type *o_ptr;
-
-			/* Acquire object */
-			o_ptr = &o_list[this_o_idx];
-
-			/* Acquire next object */
-			next_o_idx = o_ptr->next_o_idx;
-
-			/* Done */
-			if (this_o_idx == o_idx)
+			/* No previous */
+			if (!j_ptr)
 			{
-				/* No previous */
-				if (prev_o_idx == 0)
-				{
-					/* Remove from list */
-					m_ptr->hold_o_idx = next_o_idx;
-				}
-
-				/* Real previous */
-				else
-				{
-					object_type *k_ptr;
-
-					/* Previous object */
-					k_ptr = &o_list[prev_o_idx];
-
-					/* Remove from list */
-					k_ptr->next_o_idx = next_o_idx;
-				}
-
-				/* Forget next pointer */
-				o_ptr->next_o_idx = 0;
-
-				/* Done */
-				break;
+				/* Remove from list */
+				*o_idx_ptr = q_ptr->next_o_idx;
 			}
 
-			/* Save prev_o_idx */
-			prev_o_idx = this_o_idx;
-		}
-	}
-
-	/* Dungeon */
-	else
-	{
-		cave_type *c_ptr;
-
-		int y = j_ptr->iy;
-		int x = j_ptr->ix;
-
-		/* Exit if is a "dummy" object */
-		if ((x == 0) && (y == 0)) return;
-
-		/* Grid */
-		c_ptr = area(x, y);
-
-		/* Scan all objects in the grid */
-		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-		{
-			object_type *o_ptr;
-
-			/* Acquire object */
-			o_ptr = &o_list[this_o_idx];
-
-			/* Acquire next object */
-			next_o_idx = o_ptr->next_o_idx;
-
-			/* Done */
-			if (this_o_idx == o_idx)
+			/* Real previous */
+			else
 			{
-				/* No previous */
-				if (prev_o_idx == 0)
-				{
-					/* Remove from list */
-					c_ptr->o_idx = next_o_idx;
-				}
-
-				/* Real previous */
-				else
-				{
-					object_type *k_ptr;
-
-					/* Previous object */
-					k_ptr = &o_list[prev_o_idx];
-
-					/* Remove from list */
-					k_ptr->next_o_idx = next_o_idx;
-				}
-
-				/* Forget next pointer */
-				o_ptr->next_o_idx = 0;
-
-				/* Done */
-				break;
+				/* Remove from list */
+				j_ptr->next_o_idx = q_ptr->next_o_idx;
 			}
 
-			/* Save prev_o_idx */
-			prev_o_idx = this_o_idx;
+			/* Forget next pointer */
+			q_ptr->next_o_idx = 0;
+
+			/* Done */
+			break;
 		}
+
+		/* Save previous object */
+		j_ptr = q_ptr;
 	}
+	OBJ_ITT_END;
 }
 
 
@@ -149,30 +90,41 @@ void excise_object_idx(int o_idx)
  *
  * Handle "stacks" of objects correctly.
  */
-void delete_object_idx(int o_idx)
+void delete_held_object(s16b *o_idx_ptr, object_type *o_ptr)
 {
-	object_type *j_ptr;
-
 	/* Excise */
-	excise_object_idx(o_idx);
-
-	/* Object */
-	j_ptr = &o_list[o_idx];
-
-	/* Dungeon floor */
-	if (!(j_ptr->held_m_idx))
-	{
-		int y, x;
-
-		/* Location */
-		y = j_ptr->iy;
-		x = j_ptr->ix;
-
-		/* Visual update */
-	}
+	excise_object_idx(o_idx_ptr, o_ptr);
 
 	/* Wipe the object */
-	object_wipe(j_ptr);
+	object_wipe(o_ptr);
+
+	/* Count objects */
+	o_cnt--;
+}
+
+/*
+ * Delete an object we know is lying on the dungeon floor.
+ */
+void delete_dungeon_object(object_type *o_ptr)
+{
+	int x, y;
+
+	cave_type *c_ptr;
+
+	/* Location */
+	x = o_ptr->ix;
+	y = o_ptr->iy;
+
+	c_ptr = area(x, y);
+
+	/* Excise */
+	excise_object_idx(&c_ptr->o_idx, o_ptr);
+
+	/* Visual update */
+	lite_spot(x, y);
+
+	/* Wipe the object */
+	object_wipe(o_ptr);
 
 	/* Count objects */
 	o_cnt--;
@@ -186,34 +138,14 @@ void delete_object(int x, int y)
 {
 	cave_type *c_ptr;
 
-	s16b this_o_idx, next_o_idx = 0;
-
 	/* Refuse "illegal" locations */
 	if (!in_bounds(x, y)) return;
 
 	/* Grid */
 	c_ptr = area(x, y);
 
-	/* Scan all objects in the grid */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Wipe the object */
-		object_wipe(o_ptr);
-
-		/* Count objects */
-		o_cnt--;
-	}
-
-	/* Objects are gone */
-	c_ptr->o_idx = 0;
+	/* Delete the objects */
+	delete_object_list(&c_ptr->o_idx);
 
 	/* Visual update */
 	lite_spot(x, y);
@@ -221,115 +153,64 @@ void delete_object(int x, int y)
 
 
 /*
+ * Delete a statically-allocated object
+ */
+static void delete_static_object(object_type *o_ptr)
+{
+	/* Deallocate quarks */
+	quark_remove(&o_ptr->xtra_name);
+	quark_remove(&o_ptr->inscription);
+
+	/* Do nothing */
+	return;
+}
+
+/*
  * Deletes all objects at given location
  */
-void delete_object_location(cave_type *c_ptr)
+void delete_object_list(s16b *o_idx_ptr)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	OBJ_ITT_START (*o_idx_ptr, o_ptr)
 	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Wipe the object */
 		object_wipe(o_ptr);
 
 		/* Count objects */
-		o_cnt--;
+		if (o_cnt) o_cnt--;
 	}
+	OBJ_ITT_END;
 
 	/* Objects are gone */
-	c_ptr->o_idx = 0;
+	*o_idx_ptr = 0;
 }
 
-
 /*
- * Move an object from index i1 to index i2 in the object list
+ * Drop all the items in the list near the location (x, y).
  */
-static void compact_objects_aux(int i1, int i2)
+void drop_object_list(s16b *o_idx_ptr, int x, int y)
 {
-	int i;
-
-	cave_type *c_ptr;
-
 	object_type *o_ptr;
+	object_type *q_ptr;
 
-
-	/* Do nothing */
-	if (i1 == i2) return;
-
-
-	/* Repair objects */
-	for (i = 1; i < o_max; i++)
+	/* Drop objects being carried */
+	OBJ_ITT_START (*o_idx_ptr, o_ptr)
 	{
-		/* Acquire object */
-		o_ptr = &o_list[i];
+		/* Duplicate object */
+		q_ptr = object_dup(o_ptr);
 
-		/* Skip "dead" objects */
-		if (!o_ptr->k_idx) continue;
+		/* Delete held object */
+		delete_held_object(o_idx_ptr, o_ptr);
 
-		/* Repair "next" pointers */
-		if (o_ptr->next_o_idx == i1)
-		{
-			/* Repair */
-			o_ptr->next_o_idx = i2;
-		}
+		/* Drop object */
+		drop_near(q_ptr, -1, x, y);
 	}
+	OBJ_ITT_END;
 
-
-	/* Acquire object */
-	o_ptr = &o_list[i1];
-
-
-	/* Monster */
-	if (o_ptr->held_m_idx)
-	{
-		monster_type *m_ptr;
-
-		/* Acquire monster */
-		m_ptr = &m_list[o_ptr->held_m_idx];
-
-		/* Repair monster */
-		if (m_ptr->hold_o_idx == i1)
-		{
-			/* Repair */
-			m_ptr->hold_o_idx = i2;
-		}
-	}
-
-	/* Dungeon */
-	else
-	{
-		int y, x;
-
-		/* Acquire location */
-		y = o_ptr->iy;
-		x = o_ptr->ix;
-
-		/* Acquire grid */
-		c_ptr = area(x, y);
-
-		/* Repair grid */
-		if (c_ptr->o_idx == i1)
-		{
-			/* Repair */
-			c_ptr->o_idx = i2;
-		}
-	}
-
-
-	/* Structure copy */
-	o_list[i2] = o_list[i1];
-
-	/* Wipe the hole */
-	object_wipe(o_ptr);
+	/* No more objects in the list */
+	*o_idx_ptr = 0;
 }
 
 
@@ -350,6 +231,10 @@ void compact_objects(int size)
 	int i, y, x, num, cnt;
 
 	int cur_lev, cur_dis, chance;
+
+	object_type *o_ptr;
+
+	monster_type *m_ptr;
 
 
 	/* Compact */
@@ -378,43 +263,23 @@ void compact_objects(int size)
 		/* Examine the objects */
 		for (i = 1; i < o_max; i++)
 		{
-			object_type *o_ptr = &o_list[i];
-
-			byte obj_level = get_object_level(o_ptr);
+			o_ptr = &o_list[i];
 
 			/* Skip dead objects */
 			if (!o_ptr->k_idx) continue;
 
 			/* Hack -- High level objects start out "immune" */
-			if (obj_level > cur_lev) continue;
+			if (get_object_level(o_ptr) > cur_lev) continue;
 
-			/* Monster */
-			if (o_ptr->held_m_idx)
-			{
-				monster_type *m_ptr;
+			/* Only objects in the dungeon */
+			if (!((o_ptr->ix) && (o_ptr->iy))) continue;
 
-				/* Acquire monster */
-				m_ptr = &m_list[o_ptr->held_m_idx];
-
-				/* Get the location */
-				y = m_ptr->fy;
-				x = m_ptr->fx;
-
-				/* Monsters protect their objects */
-				if (randint0(100) < 90) continue;
-			}
-
-			/* Dungeon */
-			else
-			{
-				/* Get the location */
-				y = o_ptr->iy;
-				x = o_ptr->ix;
-			}
+			/* Get the location */
+			x = o_ptr->ix;
+			y = o_ptr->iy;
 
 			/* Nearby objects start out "immune" */
-			if ((cur_dis > 0) &&
-				(distance(p_ptr->px, p_ptr->py, x, y) < cur_dis)) continue;
+			if (distance(p_ptr->px, p_ptr->py, x, y) < cur_dis) continue;
 
 			/* Saving throw */
 			chance = 90;
@@ -426,24 +291,64 @@ void compact_objects(int size)
 			if (randint0(100) < chance) continue;
 
 			/* Delete the object */
-			delete_object_idx(i);
+			delete_dungeon_object(o_ptr);
 
 			/* Count it */
 			num++;
 		}
+
+		/* Scan monster inventories */
+		for (i = 1; i < m_max; i++)
+		{
+			m_ptr = &m_list[i];
+
+			/* Ignore dead monsters */
+			if (!m_ptr->r_idx) continue;
+
+			/* We need to hold some objects */
+			if (!m_ptr->hold_o_idx) continue;
+
+			/* Get the location */
+			x = m_ptr->fx;
+			y = m_ptr->fy;
+
+			/* Nearby objects start out "immune" */
+			if (distance(p_ptr->px, p_ptr->py, x, y) < cur_dis) continue;
+
+			/* Saving throw (higher than dungeon objects) */
+			chance = 99;
+
+			OBJ_ITT_START (m_ptr->hold_o_idx, o_ptr)
+			{
+				/* Hack -- High level objects start out "immune" */
+				if (get_object_level(o_ptr) > cur_lev) continue;
+
+				/* Hack -- only compact artifacts in emergencies */
+				if ((o_ptr->flags3 & TR3_INSTA_ART) &&
+					(cnt < 1000)) chance = 100;
+
+				/* Apply the saving throw */
+				if (randint0(100) < chance) continue;
+
+				/* Delete the object */
+				delete_held_object(&m_ptr->hold_o_idx, o_ptr);
+
+				/* Count it */
+				num++;
+			}
+			OBJ_ITT_END;
+		}
+
 	}
 
 
 	/* Excise dead objects (backwards!) */
-	for (i = o_max - 1; i >= 1; i--)
+	while (o_max > 1)
 	{
-		object_type *o_ptr = &o_list[i];
+		object_type *o_ptr = &o_list[o_max - 1];
 
-		/* Skip real objects */
-		if (o_ptr->k_idx) continue;
-
-		/* Move last object into open hole */
-		compact_objects_aux(o_max - 1, i);
+		/* Stop when we get to an object */
+		if (o_ptr->k_idx) break;
 
 		/* Compress "o_max" */
 		o_max--;
@@ -452,19 +357,23 @@ void compact_objects(int size)
 
 
 /*
- * Delete all the items when player leaves the level
+ * Delete all the non-held items.
+ * Items in stores, and in the players inventory are not
+ * touched.  Items in monster inventories are wiped by
+ * calling wipe_m_list() before this function.
  *
- * Note -- we do NOT visually reflect these (irrelevant) changes
- *
- * Hack -- we clear the "c_ptr->o_idx" field for every grid,
- * and the "m_ptr->next_o_idx" field for every monster, since
- * we know we are clearing every object.  Technically, we only
- * clear those fields for grids/monsters containing objects,
+ * Hack -- we clear the "c_ptr->o_idx" field for every grid
+ * since we know we are clearing every object.  Technically, we
+ * only clear those fields for grids containing objects,
  * and we clear it once for every such object.
  */
 void wipe_o_list(void)
 {
 	int i;
+
+	int x, y;
+
+	cave_type *c_ptr;
 
 	/* Delete the existing objects */
 	for (i = 1; i < o_max; i++)
@@ -474,6 +383,9 @@ void wipe_o_list(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
+		/* Skip non-dungeon objects */
+		if (!(o_ptr->ix || o_ptr->iy)) continue;
+
 		/* Preserve artifacts */
 		if (preserve_mode && (o_ptr->flags3 & TR3_INSTA_ART) &&
 			(o_ptr->activate > 127) &&
@@ -482,43 +394,22 @@ void wipe_o_list(void)
 			a_info[o_ptr->activate - 128].cur_num = 0;
 		}
 
-		/* Monster */
-		if (o_ptr->held_m_idx)
-		{
-			monster_type *m_ptr;
+		/* Access location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
 
-			/* Monster */
-			m_ptr = &m_list[o_ptr->held_m_idx];
+		/* Access grid */
+		c_ptr = area(x, y);
 
-			/* Hack -- see above */
-			m_ptr->hold_o_idx = 0;
-		}
+		/* Hack -- see above */
+		c_ptr->o_idx = 0;
 
-		/* Dungeon */
-		else
-		{
-			cave_type *c_ptr;
-
-			/* Access location */
-			int y = o_ptr->iy;
-			int x = o_ptr->ix;
-
-			/* Access grid */
-			c_ptr = area(x, y);
-
-			/* Hack -- see above */
-			c_ptr->o_idx = 0;
-		}
-
-		/* Wipe the object */
-		object_wipe(o_ptr);
+		/* Delete the object */
+		delete_dungeon_object(o_ptr);
 	}
 
-	/* Reset "o_max" */
-	o_max = 1;
-
-	/* Reset "o_cnt" */
-	o_cnt = 0;
+	/* Compress the object list */
+	compact_objects(0);
 }
 
 
@@ -551,57 +442,92 @@ void wipe_objects(int rg_idx)
 		}
 
 		/* Delete the object */
-		delete_object_idx(i);
+		delete_dungeon_object(o_ptr);
 	}
-
-	/* Compress the object list */
-	compact_objects(0);
 }
 
+
+/* Current object counter */
+static s16b o_cur = 1;
 
 /*
  * Acquires and returns the index of a "free" object.
  *
  * This routine should almost never fail, but in case it does,
  * we must be sure to handle "failure" of this routine.
+ *
+ *
+ * We have a choice... scan from o_cur onwards, or use o_max.
+ *
+ * Using o_max is fast, but it leads to fragmentation.
+ * Using o_cur is slower (and might not even give a better
+ * result than using o_max), but it leads to a more compact
+ * object distribution.
  */
-s16b o_pop(void)
+static s16b o_pop(void)
 {
-	int i;
+	bool wrapped = FALSE;
 
-	/* Initial allocation */
-	if (o_max < z_info->o_max)
+	/* Wrap counter */
+	if (o_cur > o_max) o_cur = 1;
+
+
+	/*
+	 * If the number remaining is less than one third of the
+	 * total number of allocated objects, then add a new object
+	 * to the end of the list.
+	 *
+	 * We add 1 to o_cnt because object 0 is unusable.
+	 *
+	 * Feel free to tune this parameter.
+	 */
+	if ((o_max - (o_cnt + 1)) * 3 < o_max)
 	{
-		/* Get next space */
-		i = o_max;
+		/* Initial allocation */
+		if (o_max < z_info->o_max)
+		{
+			/* Expand object array */
+			o_max++;
 
-		/* Expand object array */
-		o_max++;
+			/* Count objects */
+			o_cnt++;
 
-		/* Count objects */
-		o_cnt++;
-
-		/* Use this object */
-		return (i);
+			/* Use this object */
+			return (o_max - 1);
+		}
 	}
 
-
 	/* Recycle dead objects */
-	for (i = 1; i < o_max; i++)
+	while (TRUE)
 	{
 		object_type *o_ptr;
 
 		/* Acquire object */
-		o_ptr = &o_list[i];
+		o_ptr = &o_list[o_cur];
 
 		/* Skip live objects */
-		if (o_ptr->k_idx) continue;
+		if (o_ptr->k_idx)
+		{
+			/* Increment counter */
+			o_cur++;
+
+			/* Wrap counter */
+			if (o_cur >= o_max)
+			{
+				/* Infinite loop protection */
+				if (wrapped) break;
+
+				o_cur = 1;
+				wrapped = TRUE;
+			}
+			continue;
+		}
 
 		/* Count objects */
 		o_cnt++;
 
 		/* Use this object */
-		return (i);
+		return (o_cur);
 	}
 
 
@@ -612,6 +538,93 @@ s16b o_pop(void)
 	return (0);
 }
 
+/*
+ * Add an object to a list.  o_ptr is a pointer
+ * to a statically declared object that is assumed
+ * not to be in the standard object array.
+ *
+ * We do not adjust position, held or region information.
+ *
+ * The old object is wiped.
+ */
+object_type *add_object_list(s16b *o_idx_ptr, object_type *o_ptr)
+{
+	s16b o_idx;
+
+	object_type *j_ptr;
+
+	/* Get a new object */
+	o_idx = o_pop();
+
+	/* Hack - bail out */
+	if (!o_idx) return (NULL);
+
+	/* Point to the object */
+	j_ptr = &o_list[o_idx];
+
+	/* Move to the list */
+	swap_objects(j_ptr, o_ptr);
+
+	/* Add to the list */
+	j_ptr->next_o_idx = *o_idx_ptr;
+	*o_idx_ptr = o_idx;
+
+	/* Now held */
+	j_ptr->allocated = TRUE;
+
+	/* Return the new item */
+	return (j_ptr);
+}
+
+/*
+ * Move an object from one list to another
+ */
+void move_object(s16b *tgt_list_ptr, s16b *cur_list_ptr, object_type *o_ptr)
+{
+	/* Excise object from the first list */
+	excise_object_idx(cur_list_ptr, o_ptr);
+
+	/* Add to the new list */
+	o_ptr->next_o_idx = *tgt_list_ptr;
+
+	/* *tgt_list_ptr = o_idx; */
+	*tgt_list_ptr = GET_ARRAY_INDEX(o_list, o_ptr);
+}
+
+/*
+ * Swap objects
+ */
+void swap_objects(object_type *o1_ptr, object_type *o2_ptr)
+{
+	object_type temp;
+
+	/* Copy the objcet */
+	object_copy(&temp, o2_ptr);
+
+	/* Copy the object */
+	object_copy(o2_ptr, o1_ptr);
+
+	/* Get correct next-object fields */
+	o2_ptr->next_o_idx = temp.next_o_idx;
+	temp.next_o_idx = o1_ptr->next_o_idx;
+
+	/* Get correct position fields */
+	o2_ptr->ix = temp.ix;
+	temp.ix = o1_ptr->ix;
+	o2_ptr->iy = temp.iy;
+	temp.iy = o1_ptr->iy;
+
+	/* Get correct region */
+	o2_ptr->region = temp.region;
+	temp.region = o1_ptr->region;
+
+	/* Get correct allocated value */
+	o2_ptr->allocated = temp.allocated;
+	temp.allocated = o1_ptr->allocated;
+
+	/* Copy the object */
+	object_copy(o1_ptr, &temp);
+}
 
 /*
  * Apply a "object restriction function" to the "object allocation table"
@@ -668,8 +681,8 @@ errr get_obj_store_prep(void)
 	/* Get the entry */
 	alloc_entry *table = alloc_kind_table;
 
-	/* Clear the object */
-	object_wipe(o_ptr);
+	/* Wipe the structure */
+	(void)WIPE(o_ptr, object_type);
 
 
 	/* Scan the allocation table */
@@ -822,13 +835,13 @@ void object_known(object_type *o_ptr)
 	o_ptr->feeling = FEEL_NONE;
 
 	/* Clear the "Felt" info */
-	o_ptr->ident &= ~(IDENT_SENSE);
+	o_ptr->info &= ~(OB_SENSE);
 
 	/* Clear the "Empty" info */
-	o_ptr->ident &= ~(IDENT_EMPTY);
+	o_ptr->info &= ~(OB_EMPTY);
 
 	/* Now we know about the item */
-	o_ptr->ident |= (IDENT_KNOWN);
+	o_ptr->info |= (OB_KNOWN);
 }
 
 
@@ -837,13 +850,8 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
-#ifndef SCRIPT_OBJ_KIND
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
-#else  /* SCRIPT_OBJ_KIND */
-	/* Fully aware of the effects */
-	o_ptr->aware = TRUE;
-#endif /* SCRIPT_OBJ_KIND */
 }
 
 
@@ -852,12 +860,16 @@ void object_aware(object_type *o_ptr)
  */
 void object_tried(object_type *o_ptr)
 {
-#ifndef SCRIPT_OBJ_KIND
 	/* Mark it as tried (even if "aware") */
 	k_info[o_ptr->k_idx].tried = TRUE;
-#else  /* SCRIPT_OBJ_KIND */
-	o_ptr->tried = TRUE;
-#endif /* SCRIPT_OBJ_KIND */
+}
+
+/*
+ * The player has now *identified* the item
+ */
+void object_mental(object_type *o_ptr)
+{
+	o_ptr->info |= (OB_MENTAL);
 }
 
 
@@ -931,6 +943,18 @@ static s32b sqvalue(s32b x)
 {
 	if (x < 0) return (-x * x);
 	return (x * x);
+}
+
+/* Return a number dependent on the argument */
+static s32b bonus_value(s32b x)
+{
+	if (x <= 0)
+		return 5 * x;
+	if (x < 10)
+		return x + 5;
+	if (x < 20)
+		return 2 * (x - 10) + 15;
+	return 5 * (x - 20) + 35;
 }
 
 
@@ -1265,9 +1289,9 @@ s32b object_value_real(const object_type *o_ptr)
 			if (o_ptr->to_h < 0) return (0L);
 			if (o_ptr->to_d < 0) return (0L);
 
-			/* Give credit for bonuses */
-			value += ((sqvalue(o_ptr->to_h) + sqvalue(o_ptr->to_d) +
-					   sqvalue(o_ptr->to_a)) * 7L);
+			/* Factor in the bonuses */
+			value += (bonus_value(o_ptr->to_h + o_ptr->to_d) * 20 +
+					  bonus_value(o_ptr->to_a * 2) * 10);
 
 			/* Done */
 			break;
@@ -1285,14 +1309,10 @@ s32b object_value_real(const object_type *o_ptr)
 		{
 			/* Armour */
 
-			/* Give credit for hit bonus */
-			value += (sqvalue(o_ptr->to_h - k_ptr->to_h) * 7L);
-
-			/* Give credit for damage bonus */
-			value += (sqvalue(o_ptr->to_d - k_ptr->to_d) * 7L);
-
-			/* Give credit for armor bonus */
-			value += (sqvalue(o_ptr->to_a - k_ptr->to_a) * 7L);
+			/* Factor in the bonuses */
+			value += (bonus_value(o_ptr->to_h - k_ptr->to_a +
+								  o_ptr->to_d - k_ptr->to_d) * 20);
+			value += (bonus_value((o_ptr->to_a - k_ptr->to_a) * 2) * 10);
 
 			/* Done */
 			break;
@@ -1307,8 +1327,8 @@ s32b object_value_real(const object_type *o_ptr)
 			/* Bows/Weapons */
 
 			/* Factor in the bonuses */
-			value += ((sqvalue(o_ptr->to_h) + sqvalue(o_ptr->to_d) +
-					   sqvalue(o_ptr->to_a)) * 7L);
+			value += (bonus_value(o_ptr->to_h + o_ptr->to_d) * 20 +
+					  bonus_value(o_ptr->to_a * 2) * 10);
 
 			/* Hack -- Factor in extra damage dice */
 			if (k_ptr->dd * k_ptr->ds)
@@ -1327,7 +1347,7 @@ s32b object_value_real(const object_type *o_ptr)
 			/* Ammo */
 
 			/* Factor in the bonuses */
-			value += ((sqvalue(o_ptr->to_h) + sqvalue(o_ptr->to_d)));
+			value += (bonus_value(o_ptr->to_h + o_ptr->to_d) * 2);
 
 			/* Hack -- Factor in extra damage dice */
 			if (k_ptr->dd * k_ptr->ds)
@@ -1375,7 +1395,7 @@ s32b object_value(const object_type *o_ptr)
 	if (object_known_p(o_ptr))
 	{
 		/* Broken items -- worthless */
-		if (broken_p(o_ptr)) return (0L);
+		if (!o_ptr->cost) return (0L);
 
 		/* Cursed items -- worthless */
 		if (cursed_p(o_ptr)) return (0L);
@@ -1388,10 +1408,10 @@ s32b object_value(const object_type *o_ptr)
 	else
 	{
 		/* Hack -- Felt broken items */
-		if ((o_ptr->ident & (IDENT_SENSE)) && broken_p(o_ptr)) return (0L);
+		if ((o_ptr->info & (OB_SENSE)) && !o_ptr->cost) return (0L);
 
 		/* Hack -- Felt cursed items */
-		if ((o_ptr->ident & (IDENT_SENSE)) && cursed_p(o_ptr)) return (0L);
+		if ((o_ptr->info & (OB_SENSE)) && cursed_p(o_ptr)) return (0L);
 
 		/* Base value (see above) */
 		value = object_value_base(o_ptr);
@@ -1554,9 +1574,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Staffs */
 
 			/* Require either knowledge or known empty for both staffs. */
-			if ((!(o_ptr->ident & (IDENT_EMPTY)) &&
+			if ((!(o_ptr->info & (OB_EMPTY)) &&
 				 !object_known_p(o_ptr)) ||
-				(!(j_ptr->ident & (IDENT_EMPTY)) &&
+				(!(j_ptr->info & (OB_EMPTY)) &&
 				 !object_known_p(j_ptr))) return (FALSE);
 
 			/* Require identical charges, since staffs are bulky. */
@@ -1600,12 +1620,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
-			/* Weapons and Armor */
+			/* Weapons and Armor never stack */
 
-			/* Require permission */
-			if (!stack_allow_items) return (FALSE);
-
-			/* Fall through */
+			return (FALSE);
 		}
 
 		case TV_LITE:
@@ -1675,7 +1692,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	if (cursed_p(o_ptr) != cursed_p(j_ptr)) return (FALSE);
 
 	/* Hack -- Require identical "broken" status */
-	if (broken_p(o_ptr) != broken_p(j_ptr)) return (FALSE);
+	if ((!o_ptr->cost) != (!j_ptr->cost)) return (FALSE);
 
 	/* Need to be identical ego items or artifacts */
 	if (o_ptr->xtra_name != j_ptr->xtra_name) return (FALSE);
@@ -1684,10 +1701,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	if (o_ptr->inscription && j_ptr->inscription &&
 		(o_ptr->inscription != j_ptr->inscription))
 		return (FALSE);
-
-	/* Hack -- normally require matching "inscriptions" */
-	if (!stack_force_notes
-		&& (o_ptr->inscription != j_ptr->inscription)) return (FALSE);
 
 	/* Hack -- normally require matching "discounts" */
 	if (!stack_force_costs
@@ -1705,7 +1718,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 /*
  * Allow one item to "absorb" another, assuming they are similar
  */
-void object_absorb(object_type *o_ptr, object_type *j_ptr)
+void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
@@ -1716,15 +1729,15 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	if (object_known_p(j_ptr)) object_known(o_ptr);
 
 	/* Hack -- clear "storebought" if only one has it */
-	if (((o_ptr->ident & IDENT_STOREB) || (j_ptr->ident & IDENT_STOREB)) &&
-		(!((o_ptr->ident & IDENT_STOREB) && (j_ptr->ident & IDENT_STOREB))))
+	if ((o_ptr->info & OB_STOREB) && !(j_ptr->info & OB_STOREB))
 	{
-		if (j_ptr->ident & IDENT_STOREB) j_ptr->ident &= ~IDENT_STOREB;
-		if (o_ptr->ident & IDENT_STOREB) o_ptr->ident &= ~IDENT_STOREB;
+		o_ptr->info &= ~OB_STOREB;
 	}
 
 	/* Hack -- blend "mental" status */
-	if (j_ptr->ident & (IDENT_MENTAL)) o_ptr->ident |= (IDENT_MENTAL);
+	o_ptr->kn_flags1 |= j_ptr->kn_flags1;
+	o_ptr->kn_flags2 |= j_ptr->kn_flags2;
+	o_ptr->kn_flags3 |= j_ptr->kn_flags3;
 
 	/* Hack -- blend "inscriptions" */
 	if (j_ptr->inscription) o_ptr->inscription = j_ptr->inscription;
@@ -1753,7 +1766,7 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 		o_ptr->ac += j_ptr->ac;
 
 		/* Hack XXX XXX - remove {empty} inscription. */
-		if (o_ptr->pval) o_ptr->ident &= ~(IDENT_EMPTY);
+		if (o_ptr->pval) o_ptr->info &= ~(OB_EMPTY);
 	}
 }
 
@@ -1807,26 +1820,43 @@ s16b lookup_kind(int tval, int sval)
  */
 void object_wipe(object_type *o_ptr)
 {
+	/* Delete the references */
+	delete_static_object(o_ptr);
+
 	/* Wipe the structure */
 	(void)WIPE(o_ptr, object_type);
 }
 
-
 /*
- * Prepare an object based on an existing object
+ * Duplicate an object, and have the copy stored in the
+ * standard static temp object.
  */
-void object_copy(object_type *o_ptr, const object_type *j_ptr)
+object_type *object_dup(const object_type *o_ptr)
 {
-	/* Copy the structure */
-	COPY(o_ptr, j_ptr, object_type);
+	object_type *q_ptr = &temp_object;
+
+	/* Delete old static object */
+	delete_static_object(q_ptr);
+
+	/* Copy it */
+	object_copy(q_ptr, o_ptr);
+
+	/* Allocate quarks */
+	quark_dup(o_ptr->xtra_name);
+	quark_dup(o_ptr->inscription);
+
+	/* Return a pointer to the static object */
+	return (q_ptr);
 }
 
 
 /*
  * Prepare an object based on an object kind.
  */
-void object_prep(object_type *o_ptr, int k_idx)
+object_type *object_prep(int k_idx)
 {
+	object_type *o_ptr = &temp_object;
+
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Clear the record */
@@ -1866,11 +1896,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->flags2 = k_ptr->flags2;
 	o_ptr->flags3 = k_ptr->flags3;
 
-	/* Hack -- worthless items are always "broken" */
-	if (o_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
-
-	/* Hack -- cursed items are always "cursed" */
-	if (k_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
+	return (o_ptr);
 }
 
 
@@ -1998,7 +2024,7 @@ static s16b w_bonus(int max, int lev_dif)
 /*
  * Cheat -- describe a created object for the user
  */
-static void object_mention(const object_type *o_ptr)
+static void object_mention(object_type *o_ptr)
 {
 	char o_name[256];
 
@@ -2136,14 +2162,8 @@ static void init_ego_item(object_type *o_ptr, byte ego)
 {
 	ego_item_type *e_ptr = &e_info[ego];
 
-	/* Hack -- acquire "broken" flag */
-	if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-
-	/* Hack -- acquire "cursed" flag */
-	if (e_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
-
 	/* Hack -- apply extra penalties if needed */
-	if (cursed_p(o_ptr) || broken_p(o_ptr))
+	if (cursed_p(o_ptr) || !o_ptr->cost)
 	{
 		/* Hack -- obtain bonuses */
 		if (e_ptr->max_to_h) o_ptr->to_h -= randint1(e_ptr->max_to_h);
@@ -2217,19 +2237,16 @@ void add_ego_flags(object_type *o_ptr, byte ego)
 
 /*
  * Mega-Hack -- Attempt to create an artifact.
- *
- * We are only called from "make_object()".
  */
-bool make_artifact(object_type *o_ptr)
+static object_type *make_artifact(void)
 {
 	int i;
 	int k_idx = 0;
 
-	/* Moria had no artifacts */
-	if (ironman_moria) return (FALSE);
+	object_type *o_ptr;
 
-	/* No artifacts in the town  Why???  (There is a wilderness...) */
-	if (!p_ptr->depth) return (FALSE);
+	/* Moria had no artifacts */
+	if (ironman_moria) return (NULL);
 
 	/* Check the artifact list */
 	for (i = 1; i < z_info->a_max; i++)
@@ -2272,7 +2289,7 @@ bool make_artifact(object_type *o_ptr)
 		}
 
 		/* Assign the template */
-		object_prep(o_ptr, k_idx);
+		o_ptr = object_prep(k_idx);
 
 		/* Save the artifact flags */
 		o_ptr->flags1 |= a_ptr->flags1;
@@ -2315,9 +2332,6 @@ bool make_artifact(object_type *o_ptr)
 			o_ptr->cost = k_info[o_ptr->k_idx].cost + a_ptr->cost;
 		}
 
-		/* Hack -- extract the "cursed" flag */
-		if (a_ptr->flags3 & TR3_CURSED) o_ptr->ident |= (IDENT_CURSED);
-
 		/* Cheat -- peek at the item */
 		if (cheat_peek) object_mention(o_ptr);
 
@@ -2325,11 +2339,11 @@ bool make_artifact(object_type *o_ptr)
 		dun_ptr->good_item_flag = TRUE;
 
 		/* Success */
-		return (TRUE);
+		return (o_ptr);
 	}
 
 	/* Failure */
-	return (FALSE);
+	return (NULL);
 }
 
 
@@ -2381,7 +2395,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for ego item */
-				if (get_ego_prep(INVEN_DIG, TRUE))
+				if (get_ego_prep(ES_DIG, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2402,8 +2416,23 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 		case TV_POLEARM:
 		case TV_SWORD:
 		{
+			/* Elfblades are always special */
+			if (o_ptr->sval == SV_ELFBLADE)
+			{
+				char new_name[1024];
+
+				(void)create_artifact(o_ptr, FALSE);
+
+				/* Hack - always use name made of random syllables */
+				quark_remove(&o_ptr->xtra_name);
+				get_table_name(new_name, TRUE);
+				o_ptr->xtra_name = quark_add(new_name);
+
+				break;
+			}
+
 			/* Very Good */
-			if (flags & OC_FORCE_GOOD)
+			else if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random artifact */
 				if (one_in_(40))
@@ -2414,7 +2443,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 				}
 
 				/* Roll for an ego-item */
-				if (get_ego_prep(INVEN_WIELD, TRUE))
+				if (get_ego_prep(ES_WIELD, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2613,7 +2642,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 			else if (flags & OC_FORCE_BAD)
 			{
 				/* Roll for an ego-item */
-				if (get_ego_prep(INVEN_WIELD, FALSE))
+				if (get_ego_prep(ES_WIELD, FALSE))
 				{
 					ego = get_ego_num(level);
 
@@ -2643,7 +2672,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 				}
 
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_BOW, TRUE))
+				if (get_ego_prep(ES_BOW, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2667,7 +2696,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_AMMO, TRUE))
+				if (get_ego_prep(ES_AMMO, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2684,7 +2713,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 			else if (flags & OC_FORCE_BAD)
 			{
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_AMMO, FALSE))
+				if (get_ego_prep(ES_AMMO, FALSE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2702,10 +2731,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int lev_dif, byte flags)
 	}
 
 
-	/* Cursed some of the time */
+	/* Cursed some of the time (only wearable items) */
 	if ((randint0(100) < 15) && (flags & OC_NORMAL))
 	{
-		o_ptr->ident |= (IDENT_CURSED);
+		o_ptr->flags3 |= (TR3_CURSED);
 	}
 }
 
@@ -2795,7 +2824,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				}
 
 				/* Roll for an ego item */
-				if (get_ego_prep(INVEN_BODY, TRUE))
+				if (get_ego_prep(ES_BODY, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2870,7 +2899,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 					}
 
 					/* Roll for ego-item */
-					if (get_ego_prep(INVEN_ARM, TRUE))
+					if (get_ego_prep(ES_ARM, TRUE))
 					{
 						ego = get_ego_num(level);
 					}
@@ -2904,7 +2933,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				}
 
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_HANDS, TRUE))
+				if (get_ego_prep(ES_HANDS, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2920,7 +2949,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			else if (flags & OC_FORCE_BAD)
 			{
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_HANDS, FALSE))
+				if (get_ego_prep(ES_HANDS, FALSE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2943,7 +2972,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				}
 
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_FEET, TRUE))
+				if (get_ego_prep(ES_FEET, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2962,7 +2991,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			else if (flags & OC_FORCE_BAD)
 			{
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_FEET, FALSE))
+				if (get_ego_prep(ES_FEET, FALSE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -2985,7 +3014,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				}
 
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_CROWN, TRUE))
+				if (get_ego_prep(ES_CROWN, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -3028,7 +3057,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			else if (flags & OC_FORCE_BAD)
 			{
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_HEAD, FALSE))
+				if (get_ego_prep(ES_HEAD, FALSE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -3062,7 +3091,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 					}
 
 					/* Roll for ego-item */
-					if (get_ego_prep(INVEN_HEAD, TRUE))
+					if (get_ego_prep(ES_HEAD, TRUE))
 					{
 						ego = get_ego_num(level);
 					}
@@ -3081,7 +3110,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				else if (flags & OC_FORCE_BAD)
 				{
 					/* Roll for ego-item */
-					if (get_ego_prep(INVEN_HEAD, FALSE))
+					if (get_ego_prep(ES_HEAD, FALSE))
 					{
 						ego = get_ego_num(level);
 					}
@@ -3110,7 +3139,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 				}
 
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_OUTER, TRUE))
+				if (get_ego_prep(ES_OUTER, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -3127,7 +3156,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 			{
 
 				/* Roll for ego-item */
-				if (get_ego_prep(INVEN_OUTER, TRUE))
+				if (get_ego_prep(ES_OUTER, TRUE))
 				{
 					ego = get_ego_num(level);
 				}
@@ -3147,7 +3176,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int lev_dif, byte flags)
 	/* Cursed some of the time */
 	if ((randint0(100) < 15) && (flags & OC_NORMAL))
 	{
-		o_ptr->ident |= (IDENT_CURSED);
+		o_ptr->flags3 |= (TR3_CURSED);
 	}
 }
 
@@ -3189,10 +3218,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -3215,10 +3244,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -3242,10 +3271,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -3296,10 +3325,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -3325,10 +3354,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					/* Weakness, Stupidity */
 
 					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
+					o_ptr->cost = 0;
 
 					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
+					o_ptr->flags3 |= (TR3_CURSED);
 
 					/* Penalize */
 					o_ptr->pval = 0 - (1 + m_bonus(-(o_ptr->pval), level));
@@ -3341,10 +3370,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					/* WOE, Stupidity */
 
 					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
+					o_ptr->cost = 0;
 
 					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
+					o_ptr->flags3 |= (TR3_CURSED);
 
 					/* Penalize */
 					o_ptr->to_a = 0 - (5 + m_bonus(10, level));
@@ -3364,10 +3393,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse bonus */
 						o_ptr->to_d = 0 - o_ptr->to_d;
@@ -3387,10 +3416,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse tohit */
 						o_ptr->to_h = 0 - o_ptr->to_h;
@@ -3410,10 +3439,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse toac */
 						o_ptr->to_a = 0 - o_ptr->to_a;
@@ -3434,14 +3463,38 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse bonuses */
 						o_ptr->to_h = 0 - o_ptr->to_h;
 						o_ptr->to_d = 0 - o_ptr->to_d;
+					}
+
+					break;
+				}
+
+				case SV_RING_CAT:
+				{
+					/* Bonus to searching and infravision */
+					o_ptr->pval = 1 + m_bonus(o_ptr->pval, level);
+
+					/* Sometimes add random sustain */
+					if (one_in_(3)) o_ptr->flags2 |= TR2_SUST_DEX;
+
+					/* Cursed */
+					if (flags & OC_FORCE_BAD)
+					{
+						/* Broken */
+						o_ptr->cost = 0;
+
+						/* Cursed */
+						o_ptr->flags3 |= (TR3_CURSED);
+
+						/* Reverse pval */
+						o_ptr->pval = 0 - (o_ptr->pval);
 					}
 
 					break;
@@ -3467,10 +3520,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - o_ptr->pval;
@@ -3484,7 +3537,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 				{
 					if (flags & OC_FORCE_BAD)
 					{
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 					}
 					break;
 				}
@@ -3512,10 +3565,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					if (flags & OC_FORCE_BAD)
 					{
 						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
+						o_ptr->cost = 0;
 
 						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
+						o_ptr->flags3 |= (TR3_CURSED);
 
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -3560,10 +3613,10 @@ static void a_m_aux_3(object_type *o_ptr, int level, byte flags)
 					/* Amulet of Destruction -- always cursed */
 
 					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
+					o_ptr->cost = 0;
 
 					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
+					o_ptr->flags3 |= (TR3_CURSED);
 
 					/* Penalize */
 					o_ptr->pval =
@@ -3614,7 +3667,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, byte flags)
 			if (flags & OC_FORCE_GOOD)
 			{
 				/* Roll for a random ego */
-				if (get_ego_prep(INVEN_LITE, TRUE))
+				if (get_ego_prep(ES_LITE, TRUE))
 				{
 					ego = get_ego_num(level);
 
@@ -3947,6 +4000,9 @@ void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags)
 	/* Maximal chance of being "good" */
 	if (f > 42) f = 42;
 
+	/* Lights are more likely to be ego-items */
+	if (o_ptr->tval == TV_LITE) f *= 2;
+
 	/* Roll for ego items */
 	if ((flags & OC_NORMAL) && (randint0(100) < f))
 	{
@@ -4015,12 +4071,6 @@ void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags)
 	if (o_ptr->k_idx)
 	{
 		object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-		/* Hack -- acquire "broken" flag */
-		if (!o_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
-
-		/* Hack -- acquire "cursed" flag */
-		if (k_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
 
 		/* Mega Hack - reset cost if not a powerful item */
 		if (!o_ptr->xtra_name)
@@ -4147,13 +4197,14 @@ byte kind_is_theme(int k_idx)
  *
  * We assume that the given object has been "wiped".
  */
-bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
+object_type *make_object(u16b delta_level, obj_theme theme)
 {
 	int prob, base, min_level;
 	byte obj_level;
 	byte flags;
 	int k_idx = 0, count = 5;
 
+	object_type *o_ptr;
 
 	/* Chance of "special object" */
 	if (delta_level > 0)
@@ -4196,7 +4247,12 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 	}
 
 	/* Make an artifact */
-	if (one_in_(prob) && (make_artifact(o_ptr))) return (TRUE);
+	if (one_in_(prob))
+	{
+		o_ptr = make_artifact();
+
+		if (o_ptr) return (o_ptr);
+	}
 
 	/* Is there a restriction already? */
 	if (!get_obj_num_hook)
@@ -4235,10 +4291,10 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 	}
 
 	/* Handle failure */
-	if (!k_idx) return (FALSE);
+	if (!k_idx) return (NULL);
 
 	/* Prepare the object */
-	object_prep(o_ptr, k_idx);
+	o_ptr = object_prep(k_idx);
 
 	/* Apply magic (allow artifacts) */
 	apply_magic(o_ptr, base, base - k_info[k_idx].level, flags);
@@ -4252,8 +4308,8 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 		case TV_BOLT:
 		{
 			o_ptr->number = (byte)damroll(6, 7);
-		}
 			break;
+		}
 
 		case TV_FOOD:
 		{
@@ -4262,13 +4318,14 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 				/* mushrooms appear in clumps */
 				o_ptr->number = (byte)randint1(6);
 			}
+			break;
 		}
 	}
 
 	obj_level = get_object_level(o_ptr);
 
 	/* Notice "okay" out-of-depth objects */
-	if (!cursed_p(o_ptr) && !broken_p(o_ptr) && (obj_level > p_ptr->depth))
+	if (!cursed_p(o_ptr) && o_ptr->cost && (obj_level > p_ptr->depth))
 	{
 		/* Rating increase */
 		dun_ptr->rating += (obj_level - p_ptr->depth);
@@ -4278,25 +4335,74 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 	}
 
 	/* Success */
-	return (TRUE);
+	return (o_ptr);
 }
 
+
+/*
+ * Put an object on the ground.
+ * We assume the grid is in bounds.
+ */
+static bool put_object(object_type *o_ptr, int x, int y)
+{
+	/* Acquire grid */
+	cave_type *c_ptr = area(x, y);
+
+	object_type *j_ptr;
+
+	/* Require nice floor space */
+	if (!cave_nice_grid(c_ptr)) return (FALSE);
+
+	/* Paranoia */
+	if (!o_ptr) return (FALSE);
+
+	/* Add the object to the ground */
+	j_ptr = add_object_list(&c_ptr->o_idx, o_ptr);
+
+	/* Success */
+	if (j_ptr)
+	{
+		/* Location */
+		j_ptr->iy = y;
+		j_ptr->ix = x;
+
+		/* Region */
+		j_ptr->region = cur_region;
+
+		/* Notice + Redraw */
+		note_spot(x, y);
+
+		return (TRUE);
+	}
+
+	/* Warn the player */
+	msg_print("Failed to place object!");
+
+	/* Paranoia - preserve artifacts */
+	if ((preserve_mode) && (o_ptr->flags3 & TR3_INSTA_ART) &&
+		(o_ptr->activate > 127))
+	{
+		a_info[o_ptr->activate - 128].cur_num = 0;
+	}
+
+	/* Failure */
+	return (FALSE);
+}
+
+/*
+ * Put an object of the requested type on the location given.
+ *
+ * This is mostly used for creating items in quests.
+ */
 void place_specific_object(int x, int y, int level, int k_idx)
 {
-	object_type forge;
-	object_type *q_ptr;
+	object_type *o_ptr;
 	object_kind *k_ptr;
 
 	int i;
 
 	/* Paranoia */
 	if (!k_idx) return;
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Create the item */
-	object_prep(q_ptr, k_idx);
 
 	k_ptr = &k_info[k_idx];
 
@@ -4313,19 +4419,49 @@ void place_specific_object(int x, int y, int level, int k_idx)
 
 			if ((a_ptr->tval == k_ptr->tval) && (a_ptr->sval == k_ptr->sval))
 			{
-				/* found it */
+				/* Found it */
 				create_named_art(i, x, y);
 			}
 		}
+
+		/* Exit */
+		return;
 	}
 	else
 	{
+		/* Create the item */
+		o_ptr = object_prep(k_idx);
+
 		/* Apply magic */
-		apply_magic(q_ptr, level, 0, 0);
+		apply_magic(o_ptr, level, 0, OC_NORMAL);
+
+		/* Hack -- generate multiple spikes/missiles/ mushrooms */
+		switch (o_ptr->tval)
+		{
+			case TV_SPIKE:
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			{
+				o_ptr->number = (byte)damroll(6, 7);
+				break;
+			}
+
+			case TV_FOOD:
+			{
+				if (o_ptr->sval < SV_FOOD_BISCUIT)
+				{
+					/* Mushrooms appear in clumps */
+					o_ptr->number = (byte)randint1(6);
+				}
+
+				break;
+			}
+		}
 	}
 
-	/* Drop the object at the square */
-	(void)drop_near(q_ptr, -1, x, y);
+	/* Add the object to the ground */
+	put_object(o_ptr, x, y);
 }
 
 
@@ -4340,12 +4476,9 @@ void place_specific_object(int x, int y, int level, int k_idx)
  */
 void place_object(int x, int y, bool good, bool great)
 {
-	s16b o_idx;
-
 	cave_type *c_ptr;
 
-	object_type forge;
-	object_type *q_ptr;
+	object_type *o_ptr;
 
 	/* Paranoia -- check bounds */
 	if (!in_bounds(x, y)) return;
@@ -4353,73 +4486,31 @@ void place_object(int x, int y, bool good, bool great)
 	/* Acquire grid */
 	c_ptr = area(x, y);
 
-	/* Require clean floor space */
-	if (!cave_gen_grid(c_ptr)) return;
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Wipe the object */
-	object_wipe(q_ptr);
-
-	/* Make an object (if possible) */
-	if (!make_object(q_ptr, (u16b)((good ? 15 : 0) + (great ? 15 : 0)),
-					 dun_theme))
+	/* Do not generate items on "nasty" terrain */
+	if ((c_ptr->feat == FEAT_SHAL_LAVA) ||
+		(c_ptr->feat == FEAT_SHAL_WATER) || (c_ptr->feat == FEAT_SHAL_ACID))
 	{
 		return;
 	}
 
-	/* Make an object */
-	o_idx = o_pop();
+	/* Make an object (if possible) */
+	o_ptr = make_object((u16b)((good ? 15 : 0) + (great ? 15 : 0)), dun_theme);
 
-	/* Success */
-	if (o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[o_idx];
-
-		/* Structure Copy */
-		object_copy(o_ptr, q_ptr);
-
-		/* Location */
-		o_ptr->iy = y;
-		o_ptr->ix = x;
-
-		/* Region */
-		o_ptr->region = cur_region;
-
-		/* Build a stack */
-		o_ptr->next_o_idx = c_ptr->o_idx;
-
-		/* Place the object */
-		c_ptr->o_idx = o_idx;
-
-		/* Notice + Redraw */
-		note_spot(x, y);
-	}
-	else
-	{
-		if ((preserve_mode) && (q_ptr->flags3 & TR3_INSTA_ART) &&
-			(q_ptr->activate > 127))
-		{
-			a_info[q_ptr->activate - 128].cur_num = 0;
-		}
-	}
+	/* Put it on the ground */
+	(void)put_object(o_ptr, x, y);
 }
 
 
 /*
  * Make a treasure object
- *
- * The location must be a legal, clean, floor grid.
  */
-bool make_gold(object_type *j_ptr, int coin_type)
+object_type *make_gold(int coin_type)
 {
 	s16b i;
 
 	s32b base;
+
+	object_type *o_ptr;
 
 	if (coin_type)
 	{
@@ -4442,16 +4533,16 @@ bool make_gold(object_type *j_ptr, int coin_type)
 	if (i >= MAX_GOLD) i = MAX_GOLD - 1;
 
 	/* Prepare a gold object */
-	object_prep(j_ptr, OBJ_GOLD_LIST + i);
+	o_ptr = object_prep(OBJ_GOLD_LIST + i);
 
 	/* Hack -- Base coin cost */
 	base = k_info[OBJ_GOLD_LIST + i].cost;
 
 	/* Determine how much the treasure is "worth" */
-	j_ptr->pval = (base + (8L * randint1(base)) + randint1(8));
+	o_ptr->pval = (base + (8L * randint1(base)) + randint1(8));
 
-	/* Success */
-	return (TRUE);
+	/* return pointer to gold */
+	return (o_ptr);
 }
 
 
@@ -4462,62 +4553,13 @@ bool make_gold(object_type *j_ptr, int coin_type)
  */
 void place_gold(int x, int y)
 {
-	s16b o_idx;
-
-	cave_type *c_ptr;
-
-	object_type forge;
-	object_type *q_ptr;
-
-
-	/* Paranoia -- check bounds */
-	if (!in_bounds(x, y)) return;
-
-	/* Acquire grid */
-	c_ptr = area(x, y);
-
-	/* Require clean floor space */
-	if (!cave_clean_grid(c_ptr)) return;
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Wipe the object */
-	object_wipe(q_ptr);
+	object_type *o_ptr;
 
 	/* Make some gold */
-	if (!make_gold(q_ptr, 0)) return;
+	o_ptr = make_gold(0);
 
-	/* Make an object */
-	o_idx = o_pop();
-
-	/* Success */
-	if (o_idx)
-	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[o_idx];
-
-		/* Copy the object */
-		object_copy(o_ptr, q_ptr);
-
-		/* Save location */
-		o_ptr->iy = y;
-		o_ptr->ix = x;
-
-		/* Region */
-		o_ptr->region = cur_region;
-
-		/* Build a stack */
-		o_ptr->next_o_idx = c_ptr->o_idx;
-
-		/* Place the object */
-		c_ptr->o_idx = o_idx;
-
-		/* Notice + Redraw */
-		note_spot(x, y);
-	}
+	/* Put it on the ground */
+	(void)put_object(o_ptr, x, y);
 }
 
 
@@ -4537,7 +4579,7 @@ void place_gold(int x, int y)
  * the object can combine, stack, or be placed.  Artifacts will try very
  * hard to be placed, including "teleporting" to a useful grid if needed.
  */
-s16b drop_near(object_type *j_ptr, int chance, int x, int y)
+void drop_near(object_type *j_ptr, int chance, int x, int y)
 {
 	int i, k, d, s;
 
@@ -4546,11 +4588,8 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 	int dy, dx;
 	int ty, tx;
 
-	s16b o_idx = 0;
-
-	s16b this_o_idx, next_o_idx = 0;
-
 	cave_type *c_ptr;
+	object_type *o_ptr = NULL;
 
 	char o_name[256];
 
@@ -4577,7 +4616,7 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 		if (p_ptr->wizard) msg_print("(breakage)");
 
 		/* Failure */
-		return (0);
+		return;
 	}
 
 
@@ -4619,15 +4658,12 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 			c_ptr = area(tx, ty);
 
 			/* Require floor space */
-			if ((c_ptr->feat != FEAT_FLOOR) &&
-				(c_ptr->feat != FEAT_SHAL_WATER) &&
-				(c_ptr->feat != FEAT_GRASS) &&
-				(c_ptr->feat != FEAT_DIRT) &&
-				(c_ptr->feat != FEAT_SNOW) &&
-				(c_ptr->feat != FEAT_SHAL_LAVA) &&
-				(c_ptr->feat != FEAT_SHAL_ACID) &&
-				((c_ptr->feat & 0xF8) != 0x08) &&
-				((c_ptr->feat & 0x80) != 0x80)) continue;
+			if (!cave_nice_grid(c_ptr)) continue;
+
+			/* Not on "nasty" terrains */
+			if ((c_ptr->feat == FEAT_SHAL_LAVA) ||
+				(c_ptr->feat == FEAT_SHAL_ACID) ||
+				(c_ptr->feat == FEAT_SHAL_WATER)) continue;
 
 			/* Check to see if fields dissallow placement */
 			if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_OBJCT))
@@ -4639,22 +4675,15 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 			k = 0;
 
 			/* Scan objects in that grid */
-			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 			{
-				object_type *o_ptr;
-
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
-
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
-
 				/* Check for possible combination */
 				if (object_similar(o_ptr, j_ptr)) comb = TRUE;
 
 				/* Count objects */
 				k++;
 			}
+			OBJ_ITT_END;
 
 			/* Add new object */
 			if (!comb) k++;
@@ -4700,7 +4729,7 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 		if (p_ptr->wizard) msg_print("(no floor space)");
 
 		/* Failure */
-		return (0);
+		return;
 	}
 
 
@@ -4725,18 +4754,6 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 		/* Grid */
 		c_ptr = area(tx, ty);
 
-		/* Require floor space (or shallow terrain) -KMW- */
-		if ((c_ptr->feat != FEAT_FLOOR) &&
-			(c_ptr->feat != FEAT_SHAL_WATER) &&
-			(c_ptr->feat != FEAT_GRASS) &&
-			(c_ptr->feat != FEAT_DIRT) &&
-			(c_ptr->feat != FEAT_SNOW) &&
-			(c_ptr->feat != FEAT_SHAL_LAVA) &&
-			(c_ptr->feat != FEAT_SHAL_ACID) &&
-			((c_ptr->feat & 0xF8) != 0x08) &&
-			((c_ptr->feat & 0x80) != 0x80)) continue;
-
-
 		/* Check to see if fields dissallow placement */
 		if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_NO_OBJCT)) continue;
 
@@ -4745,7 +4762,12 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 		bx = tx;
 
 		/* Require floor space */
-		if (!cave_clean_grid(c_ptr)) continue;
+		if (!cave_nice_grid(c_ptr)) continue;
+
+		/* Not on "nasty" terrains */
+		if ((c_ptr->feat == FEAT_SHAL_LAVA) ||
+			(c_ptr->feat == FEAT_SHAL_ACID) ||
+			(c_ptr->feat == FEAT_SHAL_WATER)) continue;
 
 		/* Okay */
 		flag = TRUE;
@@ -4774,7 +4796,7 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 			if (p_ptr->wizard) msg_print("(contact with lava)");
 
 			/* Failure */
-			return (0);
+			return;
 		}
 
 		/* Check to see if the object will disappear in water. */
@@ -4791,29 +4813,18 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 			if (p_ptr->wizard) msg_print("(contact with water)");
 
 			/* Failure */
-			return (0);
+			return;
 		}
 	}
 
 	/* Scan objects in that grid for combination */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Check for combination */
 		if (object_similar(o_ptr, j_ptr))
 		{
 			/* Combine the items */
 			object_absorb(o_ptr, j_ptr);
-
-			/* Get the pointer to the stack */
-			o_idx = this_o_idx;
 
 			/* Success */
 			done = TRUE;
@@ -4822,54 +4833,24 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 			break;
 		}
 	}
+	OBJ_ITT_END;
 
 	/* Get new object */
-	if (!done) o_idx = o_pop();
-
-	/* Failure */
-	if (!done && !o_idx)
-	{
-		/* Message */
-		msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
-
-		/* Debug */
-		if (p_ptr->wizard) msg_print("(too many objects)");
-
-		/* Failure */
-		return (0);
-	}
-
-	/* Stack */
 	if (!done)
 	{
-		/* Structure copy */
-		object_copy(&o_list[o_idx], j_ptr);
+		/* Put it on the ground */
+		if (!put_object(j_ptr, bx, by))
+		{
+			/* Message */
+			msg_format("The %s disappear%s.", o_name, (plural ? "" : "s"));
 
-		/* Access new object */
-		j_ptr = &o_list[o_idx];
+			/* Debug */
+			if (p_ptr->wizard) msg_print("(too many objects)");
 
-		/* Locate */
-		j_ptr->iy = by;
-		j_ptr->ix = bx;
-
-		/* Region */
-		j_ptr->region = cur_region;
-
-		/* No monster */
-		j_ptr->held_m_idx = 0;
-
-		/* Build a stack */
-		j_ptr->next_o_idx = c_ptr->o_idx;
-
-		/* Place the object */
-		c_ptr->o_idx = o_idx;
-
-		/* Success */
-		done = TRUE;
+			/* Failure */
+			return;
+		}
 	}
-
-	/* Note + Redraw the spot */
-	note_spot(bx, by);
 
 	/* Sound */
 	sound(SOUND_DROP);
@@ -4882,13 +4863,7 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
 	}
 
 	/* Fields may interact with an object in some way */
-	field_hook(&area(bx, by)->fld_idx, FIELD_ACT_OBJECT_DROP,
-			   (vptr)&o_list[o_idx]);
-
-	/* XXX XXX XXX */
-
-	/* Result */
-	return (o_idx);
+	field_hook(&area(bx, by)->fld_idx, FIELD_ACT_OBJECT_DROP, (vptr)o_ptr);
 }
 
 
@@ -4897,8 +4872,9 @@ s16b drop_near(object_type *j_ptr, int chance, int x, int y)
  */
 void acquirement(int x1, int y1, int num, bool great, bool known)
 {
-	object_type *i_ptr;
-	object_type object_type_body;
+	object_type *o_ptr = NULL;
+
+	int i;
 
 	obj_theme theme;
 
@@ -4912,38 +4888,191 @@ void acquirement(int x1, int y1, int num, bool great, bool known)
 	while (num--)
 	{
 		/* We want a good object */
-		while (TRUE)
+		for (i = 0; i < 1000; i++)
 		{
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Wipe the object */
-			object_wipe(i_ptr);
-
 			if (great)
 			{
 				/* Make a great object (if possible) */
-				if (!make_object(i_ptr, 40, theme)) continue;
+				o_ptr = make_object(40, theme);
+
+				/* Paranoia */
+				if (!o_ptr) continue;
 			}
 			else
 			{
 				/* Make a good object (if possible) */
-				if (!make_object(i_ptr, 20, theme)) continue;
+				o_ptr = make_object(20, theme);
+
+				/* Paranoia */
+				if (!o_ptr) continue;
 			}
 
 			/* Check to see if the object is worth anything */
-			if (object_value_real(i_ptr) > 0) break;
+			if (object_value_real(o_ptr) > 0) break;
 		}
+
+		/* Paranoia */
+		if (i >= 1000) return;
 
 		if (known)
 		{
-			object_aware(i_ptr);
-			object_known(i_ptr);
+			object_aware(o_ptr);
+			object_known(o_ptr);
 		}
 
 		/* Drop the object */
-		(void)drop_near(i_ptr, -1, x1, y1);
+		drop_near(o_ptr, -1, x1, y1);
 	}
+}
+
+/*
+ * Look up the list that corresponds to a given
+ * object returned by the get_item() function.
+ *
+ * We know the item is in our equipment, our
+ * inventory, or is on the floor underneith us.
+ */
+static s16b *look_up_list(object_type *o_ptr)
+{
+	object_type *j_ptr;
+
+	cave_type *c_ptr;
+
+	place_type *pl_ptr = &place[p_ptr->place_num];
+
+	int i;
+
+	/* Some objects have no list */
+	if (!o_ptr->allocated) return (NULL);
+
+	/* Scan dungeon */
+	if (o_ptr->ix || o_ptr->iy)
+	{
+		c_ptr = area(o_ptr->ix, o_ptr->iy);
+
+		/* Scan square */
+		OBJ_ITT_START (c_ptr->o_idx, j_ptr)
+		{
+			if (o_ptr == j_ptr) return (&c_ptr->o_idx);
+		}
+		OBJ_ITT_END;
+	}
+
+	/* Scan player inventory */
+	OBJ_ITT_START (p_ptr->inventory, j_ptr)
+	{
+		if (o_ptr == j_ptr) return (&p_ptr->inventory);
+	}
+	OBJ_ITT_END;
+
+	/* Scan stores */
+	for (i = 0; i < pl_ptr->numstores; i++)
+	{
+		/* Scan store stock */
+		OBJ_ITT_START (pl_ptr->store[i].stock, j_ptr)
+		{
+			if (o_ptr == j_ptr) return (&pl_ptr->store[i].stock);
+		}
+		OBJ_ITT_END;
+	}
+
+	/* Failure - the object is inconsistant */
+	quit("Failed to look up object.");
+	return (NULL);
+}
+
+/*
+ * Get the nth item in a list
+ */
+object_type *get_list_item(s16b list_start, int number)
+{
+	object_type *o_ptr;
+
+	/* Paranoia */
+	if (number < 0) return (NULL);
+
+	OBJ_ITT_START (list_start, o_ptr)
+	{
+		if (!number) return (o_ptr);
+
+		number--;
+	}
+	OBJ_ITT_END;
+
+	/* We didn't find it */
+	return (NULL);
+}
+
+/*
+ * The inverse function of get_list_item()
+ *
+ * Find the position in the list of a given item
+ */
+int get_item_position(s16b list_start, object_type *o_ptr)
+{
+	int i = 0;
+
+	object_type *j_ptr;
+
+	OBJ_ITT_START (list_start, j_ptr)
+	{
+		if (j_ptr == o_ptr) return (i);
+
+		i++;
+	}
+	OBJ_ITT_END;
+
+	/* Failure */
+	return (-1);
+}
+
+/*
+ * How many items are in the list?
+ */
+int get_list_length(s16b list_start)
+{
+	int i = 0;
+
+	object_type *j_ptr;
+
+	OBJ_ITT_START (list_start, j_ptr)
+	{
+		/* Count items */
+		i++;
+	}
+	OBJ_ITT_END;
+
+	return (i);
+}
+
+
+/* Is the item on the floor? */
+bool floor_item(object_type *o_ptr)
+{
+	s16b *o_list = look_up_list(o_ptr);
+
+	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
+
+	/* On floor? */
+	if (o_list == &c_ptr->o_idx) return (TRUE);
+
+	/* Elsewhere */
+	return (FALSE);
+}
+
+/* Is the item in the players inventory or equipment? */
+bool player_item(object_type *o_ptr)
+{
+	s16b *o_list = look_up_list(o_ptr);
+
+	/* Equipment? */
+	if (!o_list) return (TRUE);
+
+	/* Inventory */
+	if (o_list == &p_ptr->inventory) return (TRUE);
+
+	/* Elsewhere */
+	return (TRUE);
 }
 
 
@@ -4951,95 +5080,69 @@ void acquirement(int x1, int y1, int num, bool great, bool known)
 /*
  * Describe the charges on an item in the inventory.
  */
-void inven_item_charges(int item)
+void item_charges(object_type *o_ptr)
 {
-	object_type *o_ptr = &inventory[item];
-
 	/* Require staff/wand */
 	if ((o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return;
 
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
-	/* Multiple charges */
-	if (o_ptr->pval != 1)
-	{
-		/* Print a message */
-		msg_format("You have %d charges remaining.", o_ptr->pval);
-	}
-
-	/* Single charge */
-	else
-	{
-		/* Print a message */
-		msg_format("You have %d charge remaining.", o_ptr->pval);
-	}
+	/* Print a message */
+	msg_format("%s %d charge%s remaining.",
+			   floor_item(o_ptr) ? "It has" : "You have", o_ptr->pval,
+			   (o_ptr->pval != 1) ? "s" : "");
 }
 
 
 /*
  * Describe an item in the inventory.
  */
-void inven_item_describe(int item)
+void item_describe(object_type *o_ptr)
 {
-	object_type *o_ptr = &inventory[item];
 	char o_name[256];
+
+	int item;
+
+	/* Get list */
+	s16b *list = look_up_list(o_ptr);
+
+	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3, 256);
 
-	/* Print a message */
-	msg_format("You have %s.", o_name);
-}
-
-
-/*
- * Increase the "number" of an item in the inventory
- */
-void inven_item_increase(int item, int num)
-{
-	object_type *o_ptr = &inventory[item];
-
-	/* Apply */
-	num += o_ptr->number;
-
-	/* Bounds check */
-	if (num > 255) num = 255;
-	else if (num < 0) num = 0;
-
-	/* Un-apply */
-	num -= o_ptr->number;
-
-	/* Change the number and weight */
-	if (num)
+	if (!list)
 	{
-		/* Add the number */
-		o_ptr->number += num;
+		/* Item is in the equipment */
+		item = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
 
-		/* Add the weight */
-		p_ptr->total_weight += (num * o_ptr->weight);
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Recalculate mana */
-		p_ptr->update |= (PU_MANA);
-
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		msg_format("%^s: %s (%c).", describe_use(item), o_name, I2A(item));
 	}
+	else if (list == &p_ptr->inventory)
+	{
+		/* Get number of item in inventory */
+		item = get_item_position(p_ptr->inventory, o_ptr);
+
+		msg_format("In your pack: %s (%c).", o_name, I2A(item));
+	}
+	else if (list == &c_ptr->o_idx)
+	{
+		msg_format("On the ground: %s.", o_name);
+	}
+
+	/* Elsewhere??? */
 }
 
 
 /*
  * Erase an inventory slot if it has no more items
  */
-void inven_item_optimize(int item)
+static void item_optimize(object_type *o_ptr)
 {
-	object_type *o_ptr = &inventory[item];
+	s16b *list;
+
+	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
 
 	/* Only optimize real items */
 	if (!o_ptr->k_idx) return;
@@ -5047,36 +5150,14 @@ void inven_item_optimize(int item)
 	/* Only optimize empty items */
 	if (o_ptr->number) return;
 
-	/* The item is in the pack */
-	if (item < INVEN_WIELD)
-	{
-		int i;
-
-		/* One less item */
-		p_ptr->inven_cnt--;
-
-		/* Slide everything down */
-		for (i = item; i < INVEN_PACK; i++)
-		{
-			/* Structure copy */
-			inventory[i] = inventory[i + 1];
-		}
-
-		/* Erase the "final" slot */
-		object_wipe(&inventory[i]);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
-	}
+	/* Get list */
+	list = look_up_list(o_ptr);
 
 	/* The item is being wielded */
-	else
+	if (!list)
 	{
-		/* One less item */
-		p_ptr->equip_cnt--;
-
 		/* Erase the empty slot */
-		object_wipe(&inventory[item]);
+		object_wipe(o_ptr);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -5090,6 +5171,28 @@ void inven_item_optimize(int item)
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
 	}
+	else
+	{
+		/* Delete the object */
+		if (list == &p_ptr->inventory)
+		{
+			/* Inventory item */
+			delete_held_object(list, o_ptr);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN);
+		}
+		else if (list == &c_ptr->o_idx)
+		{
+			/* Floor item */
+			delete_dungeon_object(o_ptr);
+		}
+		else
+		{
+			/* Store item */
+			delete_held_object(list, o_ptr);
+		}
+	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_SPELL);
@@ -5097,57 +5200,57 @@ void inven_item_optimize(int item)
 
 
 /*
- * Describe the charges on an item on the floor.
+ * Split a pile into two bits.  Return a pointer to
+ * the split off piece.  This piece will not be in the
+ * original pile's list, but will be in the static
+ * temp_object defined above. 
  */
-void floor_item_charges(int item)
+object_type *item_split(object_type *o_ptr, int num)
 {
-	object_type *o_ptr = &o_list[item];
+	object_type *q_ptr;
 
-	/* Require staff/wand */
-	if ((o_ptr->tval != TV_STAFF) && (o_ptr->tval != TV_WAND)) return;
+	/* Paranoia */
+	if (o_ptr->number < num) num = o_ptr->number;
 
-	/* Require known item */
-	if (!object_known_p(o_ptr)) return;
+	/* Duplicate the object */
+	q_ptr = object_dup(o_ptr);
+	
+	/* Distribute charges of wands or rods */
+	distribute_charges(o_ptr, q_ptr, num);
 
-	/* Multiple charges */
-	if (o_ptr->pval != 1)
+	/* Update item totals */
+	o_ptr->number -= num;
+	q_ptr->number = num;
+
+	/* Notice the change */
+	if (num && player_item(o_ptr))
 	{
-		/* Print a message */
-		msg_format("There are %d charges remaining.", o_ptr->pval);
+		/* Recalculate bonuses and weight */
+		p_ptr->update |= (PU_BONUS | PU_WEIGHT);
+
+		/* Recalculate mana */
+		p_ptr->update |= (PU_MANA);
+
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
 
-	/* Single charge */
-	else
-	{
-		/* Print a message */
-		msg_format("There is %d charge remaining.", o_ptr->pval);
-	}
+	/* Fill in holes... */
+	item_optimize(o_ptr);
+
+	/* Done - return new item */
+	return (q_ptr);
 }
 
 
 /*
- * Describe an item in the inventory.
+ * Increase the "number" of an item in the inventory
  */
-void floor_item_describe(int item)
+void item_increase(object_type *o_ptr, int num)
 {
-	object_type *o_ptr = &o_list[item];
-	char o_name[256];
-
-	/* Get a description */
-	object_desc(o_name, o_ptr, TRUE, 3, 256);
-
-	/* Print a message */
-	msg_format("You see %s.", o_name);
-}
-
-
-/*
- * Increase the "number" of an item on the floor
- */
-void floor_item_increase(int item, int num)
-{
-	object_type *o_ptr = &o_list[item];
-
 	/* Apply */
 	num += o_ptr->number;
 
@@ -5158,26 +5261,27 @@ void floor_item_increase(int item, int num)
 	/* Un-apply */
 	num -= o_ptr->number;
 
-	/* Change the number */
+	/* Add the number */
 	o_ptr->number += num;
-}
 
+	/* Notice the change */
+	if (num && player_item(o_ptr))
+	{
+		/* Recalculate bonuses and weight */
+		p_ptr->update |= (PU_BONUS | PU_WEIGHT);
 
-/*
- * Optimize an item on the floor (destroy "empty" items)
- */
-void floor_item_optimize(int item)
-{
-	object_type *o_ptr = &o_list[item];
+		/* Recalculate mana */
+		p_ptr->update |= (PU_MANA);
 
-	/* Paranoia -- be sure it exists */
-	if (!o_ptr->k_idx) return;
+		/* Combine the pack */
+		p_ptr->notice |= (PN_COMBINE);
 
-	/* Only optimize empty items */
-	if (o_ptr->number) return;
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
 
-	/* Delete the object */
-	delete_object_idx(item);
+	item_describe(o_ptr);
+	item_optimize(o_ptr);
 }
 
 
@@ -5186,25 +5290,126 @@ void floor_item_optimize(int item)
  */
 bool inven_carry_okay(const object_type *o_ptr)
 {
-	int j;
+	object_type *j_ptr;
 
 	/* Empty slot? */
-	if (p_ptr->inven_cnt < INVEN_PACK) return (TRUE);
+	if (get_list_length(p_ptr->inventory) < INVEN_PACK) return (TRUE);
 
 	/* Similar slot? */
-	for (j = 0; j < INVEN_PACK; j++)
+	OBJ_ITT_START (p_ptr->inventory, j_ptr)
 	{
-		object_type *j_ptr = &inventory[j];
-
-		/* Skip non-objects */
-		if (!j_ptr->k_idx) continue;
-
 		/* Check if the two items can be combined */
 		if (object_similar(j_ptr, o_ptr)) return (TRUE);
 	}
+	OBJ_ITT_END;
 
 	/* Nope */
 	return (FALSE);
+}
+
+/*
+ * Compare two items to see if they are in pack-order.
+ */
+static bool reorder_pack_comp(const object_type *o1_ptr,
+                              const object_type *o2_ptr)
+{
+	/* Hack -- readable books always come first */
+	if ((o1_ptr->tval == REALM1_BOOK) &&
+		(o2_ptr->tval != REALM1_BOOK)) return (TRUE);
+	if ((o2_ptr->tval == REALM1_BOOK) &&
+		(o1_ptr->tval != REALM1_BOOK)) return (FALSE);
+
+
+	if ((o1_ptr->tval == REALM2_BOOK) &&
+		(o2_ptr->tval != REALM2_BOOK)) return (TRUE);
+	if ((o2_ptr->tval == REALM2_BOOK) &&
+		(o1_ptr->tval != REALM2_BOOK)) return (FALSE);
+
+
+	/* Objects sort by decreasing type */
+	if (o1_ptr->tval > o2_ptr->tval) return (TRUE);
+	if (o1_ptr->tval < o2_ptr->tval) return (FALSE);
+
+	/* Non-aware (flavored) items always come last */
+	if (!object_aware_p(o2_ptr)) return (TRUE);
+	if (!object_aware_p(o1_ptr)) return (FALSE);
+
+	/* Objects sort by increasing sval */
+	if (o1_ptr->sval < o2_ptr->sval) return (TRUE);
+	if (o1_ptr->sval > o2_ptr->sval) return (FALSE);
+
+	/* Unidentified objects always come last */
+	if (!object_known_p(o2_ptr)) return (TRUE);
+	if (!object_known_p(o1_ptr)) return (FALSE);
+
+	/* Lites sort by increasing timeout */
+	if (o1_ptr->tval == TV_LITE)
+	{
+		if (o1_ptr->sval < o2_ptr->sval) return (TRUE);
+		if (o1_ptr->sval > o2_ptr->sval) return (FALSE);
+	}
+
+	/*
+	 * Hack:  otherwise identical rods sort by
+	 * increasing recharge time -DSB-
+	 */
+	if (o1_ptr->tval == TV_ROD)
+	{
+		if (o1_ptr->pval < o2_ptr->pval) return (TRUE);
+		if (o1_ptr->pval > o2_ptr->pval) return (FALSE);
+	}
+
+	/* Objects sort by decreasing value */
+	if (object_value(o1_ptr) >= object_value(o2_ptr)) return (TRUE);
+
+	return (FALSE);
+}
+
+/*
+ * Actually reorder the objects
+ *
+ * This uses a simple bubble sort.
+ *
+ * Usually we only need to make a few swaps.
+ */
+object_type *reorder_objects_aux(object_type *q_ptr, object_comp comp_func,
+                                 u16b o_idx)
+{
+	object_type *o_ptr, *j_ptr;
+
+	int i;
+
+	/*
+	 * Hack - Do this twice because we invert the order
+	 * of 'similar' objects on the first pass
+	 */
+	for (i = 0; i < 2; i++)
+	{
+		/* Re-order the pack */
+		OBJ_ITT_START (o_idx, o_ptr)
+		{
+			OBJ_ITT_START (o_ptr->next_o_idx, j_ptr)
+			{
+				/* Are they in the right order? */
+				if (comp_func(j_ptr, o_ptr))
+				{
+					/* Are we moving the watched item? */
+					if (q_ptr)
+					{
+						if (q_ptr == o_ptr) q_ptr = j_ptr;
+						else if (q_ptr == j_ptr) q_ptr = o_ptr;
+					}
+
+					/* Swap the objects */
+					swap_objects(o_ptr, j_ptr);
+				}
+			}
+			OBJ_ITT_END;
+		}
+		OBJ_ITT_END;
+	}
+
+	return (q_ptr);
 }
 
 
@@ -5225,172 +5430,51 @@ bool inven_carry_okay(const object_type *o_ptr)
  * Note that this code must remove any location/stack information
  * from the object once it is placed into the inventory.
  */
-s16b inven_carry(object_type *o_ptr)
+object_type *inven_carry(object_type *o_ptr)
 {
-	int i, j, k;
-	int n = -1;
-
 	object_type *j_ptr;
 
-
 	/* Check for combining */
-	for (j = 0; j < INVEN_PACK; j++)
+	OBJ_ITT_START (p_ptr->inventory, j_ptr)
 	{
-		j_ptr = &inventory[j];
-
-		/* Skip non-objects */
-		if (!j_ptr->k_idx) continue;
-
-		/* Hack -- track last item */
-		n = j;
-
 		/* Check if the two items can be combined */
 		if (object_similar(j_ptr, o_ptr))
 		{
 			/* Combine the items */
 			object_absorb(j_ptr, o_ptr);
 
-			/* Increase the weight */
-			p_ptr->total_weight += (o_ptr->number * o_ptr->weight);
-
-			/* Recalculate bonuses */
-			p_ptr->update |= (PU_BONUS);
+			/* Recalculate bonuses and weight */
+			p_ptr->update |= (PU_BONUS | PU_WEIGHT);
 
 			/* Window stuff */
 			p_ptr->window |= (PW_INVEN);
 
 			/* Success */
-			return (j);
+			return (j_ptr);
 		}
 	}
+	OBJ_ITT_END;
 
+	/* Add the item to the pack */
+	o_ptr = add_object_list(&p_ptr->inventory, o_ptr);
 
 	/* Paranoia */
-	if (p_ptr->inven_cnt > INVEN_PACK) return (-1);
-
-	/* Find an empty slot */
-	for (j = 0; j <= INVEN_PACK; j++)
-	{
-		j_ptr = &inventory[j];
-
-		/* Use it if found */
-		if (!j_ptr->k_idx) break;
-	}
-
-	/* Use that slot */
-	i = j;
-
-
-	/* Reorder the pack */
-	if (i < INVEN_PACK)
-	{
-		s32b o_value, j_value;
-
-		/* Get the "value" of the item */
-		o_value = object_value(o_ptr);
-
-		/* Scan every occupied slot */
-		for (j = 0; j < INVEN_PACK; j++)
-		{
-			j_ptr = &inventory[j];
-
-			/* Use empty slots */
-			if (!j_ptr->k_idx) break;
-
-			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == REALM1_BOOK) &&
-				(j_ptr->tval != REALM1_BOOK)) break;
-			if ((j_ptr->tval == REALM1_BOOK) &&
-				(o_ptr->tval != REALM1_BOOK)) continue;
-
-			if ((o_ptr->tval == REALM2_BOOK) &&
-				(j_ptr->tval != REALM2_BOOK)) break;
-			if ((j_ptr->tval == REALM2_BOOK) &&
-				(o_ptr->tval != REALM2_BOOK)) continue;
-
-			/* Objects sort by decreasing type */
-			if (o_ptr->tval > j_ptr->tval) break;
-			if (o_ptr->tval < j_ptr->tval) continue;
-
-			/* Non-aware (flavored) items always come last */
-			if (!object_aware_p(o_ptr)) continue;
-			if (!object_aware_p(j_ptr)) break;
-
-			/* Objects sort by increasing sval */
-			if (o_ptr->sval < j_ptr->sval) break;
-			if (o_ptr->sval > j_ptr->sval) continue;
-
-			/* Unidentified objects always come last */
-			if (!object_known_p(o_ptr)) continue;
-			if (!object_known_p(j_ptr)) break;
-
-			/* Hack:  otherwise identical rods sort by
-			   increasing recharge time --dsb */
-			if (o_ptr->tval == TV_ROD)
-			{
-				if (o_ptr->pval < j_ptr->pval) break;
-				if (o_ptr->pval > j_ptr->pval) continue;
-			}
-
-			/* Lites sort by decreasing fuel */
-			if (o_ptr->tval == TV_LITE)
-			{
-				if (o_ptr->timeout > j_ptr->timeout) break;
-				if (o_ptr->timeout < j_ptr->timeout) continue;
-			}
-
-			/* Determine the "value" of the pack item */
-			j_value = object_value(j_ptr);
-
-			/* Objects sort by decreasing value */
-			if (o_value > j_value) break;
-			if (o_value < j_value) continue;
-		}
-
-		/* Use that slot */
-		i = j;
-
-		/* Slide objects */
-		for (k = n; k >= i; k--)
-		{
-			/* Hack -- Slide the item */
-			object_copy(&inventory[k + 1], &inventory[k]);
-		}
-
-		/* Wipe the empty slot */
-		object_wipe(&inventory[i]);
-	}
-
-
-	/* Copy the item */
-	object_copy(&inventory[i], o_ptr);
-
-	/* Access new object */
-	j_ptr = &inventory[i];
-
-	/* Forget stack */
-	j_ptr->next_o_idx = 0;
-
-	/* Forget monster */
-	j_ptr->held_m_idx = 0;
+	if (!o_ptr) return (NULL);
 
 	/* Forget location */
-	j_ptr->iy = j_ptr->ix = 0;
+	o_ptr->iy = o_ptr->ix = 0;
 
 	/* Forget Region */
-	j_ptr->region = 0;
+	o_ptr->region = 0;
 
 	/* No longer marked */
-	j_ptr->marked = FALSE;
+	o_ptr->info &= ~(OB_SEEN);
 
-	/* Increase the weight */
-	p_ptr->total_weight += (j_ptr->number * j_ptr->weight);
+	/* Reorder the pack */
+	o_ptr = reorder_objects_aux(o_ptr, reorder_pack_comp, p_ptr->inventory);
 
-	/* Count the items */
-	p_ptr->inven_cnt++;
-
-	/* Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
+	/* Recalculate bonuses and weight */
+	p_ptr->update |= (PU_BONUS | PU_WEIGHT);
 
 	/* Combine and Reorder pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -5398,8 +5482,8 @@ s16b inven_carry(object_type *o_ptr)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN);
 
-	/* Return the slot */
-	return (i);
+	/* Return the new item */
+	return (o_ptr);
 }
 
 
@@ -5413,55 +5497,35 @@ s16b inven_carry(object_type *o_ptr)
  *
  * Return the inventory slot into which the item is placed.
  */
-s16b inven_takeoff(int item, int amt)
+object_type *inven_takeoff(object_type *o_ptr)
 {
-	int slot;
+	int item;
 
-	object_type forge;
+	char o_name[256];
 	object_type *q_ptr;
-
-	object_type *o_ptr;
 
 	cptr act;
 
-	char o_name[256];
-
-
-	/* Get the item to take off */
-	o_ptr = &inventory[item];
-
-	/* Paranoia */
-	if (amt <= 0) return (-1);
-
-	/* Verify */
-	if (amt > o_ptr->number) amt = o_ptr->number;
-
-	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain a local object */
-	object_copy(q_ptr, o_ptr);
-
-	/* Modify quantity */
-	q_ptr->number = amt;
-
 	/* Describe the object */
-	object_desc(o_name, q_ptr, TRUE, 3, 256);
+	object_desc(o_name, o_ptr, TRUE, 3, 256);
+
+	/* Look up item number */
+	item = GET_ARRAY_INDEX(p_ptr->equipment, o_ptr);
 
 	/* Took off weapon */
-	if (item == INVEN_WIELD)
+	if (item == EQUIP_WIELD)
 	{
 		act = "You were wielding";
 	}
 
 	/* Took off bow */
-	else if (item == INVEN_BOW)
+	else if (item == EQUIP_BOW)
 	{
 		act = "You were holding";
 	}
 
 	/* Took off light */
-	else if (item == INVEN_LITE)
+	else if (item == EQUIP_LITE)
 	{
 		act = "You were holding";
 	}
@@ -5472,18 +5536,38 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were wearing";
 	}
 
-	/* Modify, Optimize */
-	inven_item_increase(item, -amt);
-	inven_item_optimize(item);
-
 	/* Carry the object */
-	slot = inven_carry(q_ptr);
+	q_ptr = inven_carry(o_ptr);
+
+	/* Paranoia */
+	if (!q_ptr)
+	{
+		msg_print("You cannot take off the item - too many dungeon objects!");
+		return (NULL);
+	}
 
 	/* Message */
-	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+	msg_format("%s %s (%c).", act, o_name, I2A(item));
 
-	/* Return slot */
-	return (slot);
+	/* Wipe the old object */
+	object_wipe(o_ptr);
+
+	/* Recalculate bonuses and weight */
+	p_ptr->update |= (PU_BONUS | PU_WEIGHT);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+
+	p_ptr->redraw |= (PR_EQUIPPY);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
+	/* Return the item */
+	return (q_ptr);
 }
 
 
@@ -5492,117 +5576,82 @@ s16b inven_takeoff(int item, int amt)
  *
  * The object will be dropped "near" the current location
  */
-void inven_drop(int item, int amt)
+void inven_drop(object_type *o_ptr, int amt)
 {
-	object_type forge;
 	object_type *q_ptr;
-
-	object_type *o_ptr;
 
 	char o_name[256];
 
+	int slot;
 
-	/* Access original object */
-	o_ptr = &inventory[item];
+	s16b *list;
 
 	/* Error check */
 	if (amt <= 0) return;
 
-	/* Not too many */
-	if (amt > o_ptr->number) amt = o_ptr->number;
+	/* Describe item */
+	item_describe(o_ptr);
 
+	/* Get list */
+	list = look_up_list(o_ptr);
 
 	/* Take off equipment */
-	if (item >= INVEN_WIELD)
+	if (!list)
 	{
 		/* Take off first */
-		item = inven_takeoff(item, amt);
+		o_ptr = inven_takeoff(o_ptr);
 
-		/* Access original object */
-		o_ptr = &inventory[item];
+		/* Paranoia */
+		if (!o_ptr) return;
 	}
 
+	/* Get item slot */
+	slot = get_item_position(p_ptr->inventory, o_ptr);
 
 	/* Get local object */
-	q_ptr = &forge;
-
-	/* Obtain local object */
-	object_copy(q_ptr, o_ptr);
-
-	/* Distribute charges of wands or rods */
-	distribute_charges(o_ptr, q_ptr, amt);
-
-	/* Modify quantity */
-	q_ptr->number = amt;
+	q_ptr = item_split(o_ptr, amt);
 
 	/* Describe local object */
 	object_desc(o_name, q_ptr, TRUE, 3, 256);
 
 	/* Message */
-	msg_format("You drop %s (%c).", o_name, index_to_label(item));
+	msg_format("You drop %s (%c).", o_name, I2A(slot));
 
 	/* Drop it near the player */
-	(void)drop_near(q_ptr, 0, p_ptr->px, p_ptr->py);
+	drop_near(q_ptr, 0, p_ptr->px, p_ptr->py);
 
-	/* Modify, Describe, Optimize */
-	inven_item_increase(item, -amt);
-	inven_item_describe(item);
-	inven_item_optimize(item);
+	/* Update total weight */
+	p_ptr->update |= PU_WEIGHT;
 }
 
 
 /*
  * Combine items in the pack
- *
- * Note special handling of the "overflow" slot
  */
 void combine_pack(void)
 {
-	int i, j, k;
 	object_type *o_ptr;
 	object_type *j_ptr;
 	bool flag = FALSE;
 
 
 	/* Combine the pack (backwards) */
-	for (i = INVEN_PACK; i > 0; i--)
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
-		/* Get the item */
-		o_ptr = &inventory[i];
-
-		/* Skip empty items */
-		if (!o_ptr->k_idx) continue;
-
 		/* Scan the items above that item */
-		for (j = 0; j < i; j++)
+		OBJ_ITT_START (o_ptr->next_o_idx, j_ptr)
 		{
-			/* Get the item */
-			j_ptr = &inventory[j];
-
-			/* Skip empty items */
-			if (!j_ptr->k_idx) continue;
-
 			/* Can we drop "o_ptr" onto "j_ptr"? */
-			if (object_similar(j_ptr, o_ptr))
+			if (object_similar(o_ptr, j_ptr))
 			{
 				/* Take note */
 				flag = TRUE;
 
 				/* Add together the item counts */
-				object_absorb(j_ptr, o_ptr);
+				object_absorb(o_ptr, j_ptr);
 
-				/* One object is gone */
-				p_ptr->inven_cnt--;
-
-				/* Slide everything down */
-				for (k = i; k < INVEN_PACK; k++)
-				{
-					/* Structure copy */
-					inventory[k] = inventory[k + 1];
-				}
-
-				/* Erase the "final" slot */
-				object_wipe(&inventory[k]);
+				/* Delete the item */
+				delete_held_object(&p_ptr->inventory, j_ptr);
 
 				/* Window stuff */
 				p_ptr->window |= (PW_INVEN);
@@ -5611,7 +5660,9 @@ void combine_pack(void)
 				break;
 			}
 		}
+		OBJ_ITT_END;
 	}
+	OBJ_ITT_END;
 
 	/* Message */
 	if (flag) msg_print("You combine some items in your pack.");
@@ -5620,118 +5671,13 @@ void combine_pack(void)
 
 /*
  * Reorder items in the pack
- *
- * Note special handling of the "overflow" slot
  */
 void reorder_pack(void)
 {
-	int i, j, k;
-	s32b o_value;
-	s32b j_value;
-	object_type forge;
-	object_type *q_ptr;
-	object_type *j_ptr;
-	object_type *o_ptr;
-	bool flag = FALSE;
+	(void)reorder_objects_aux(NULL, reorder_pack_comp, p_ptr->inventory);
 
-
-	/* Re-order the pack (forwards) */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		/* Mega-Hack -- allow "proper" overflow slot */
-		if ((i == INVEN_PACK) && (p_ptr->inven_cnt == INVEN_PACK)) break;
-
-		/* Get the item */
-		o_ptr = &inventory[i];
-
-		/* Skip empty slots */
-		if (!o_ptr->k_idx) continue;
-
-		/* Get the "value" of the item */
-		o_value = object_value(o_ptr);
-
-		/* Scan every occupied slot */
-		for (j = 0; j < INVEN_PACK; j++)
-		{
-			/* Get the item already there */
-			j_ptr = &inventory[j];
-
-			/* Use empty slots */
-			if (!j_ptr->k_idx) break;
-
-			/* Hack -- readable books always come first */
-			if ((o_ptr->tval == REALM1_BOOK) &&
-				(j_ptr->tval != REALM1_BOOK)) break;
-			if ((j_ptr->tval == REALM1_BOOK) &&
-				(o_ptr->tval != REALM1_BOOK)) continue;
-
-			if ((o_ptr->tval == REALM2_BOOK) &&
-				(j_ptr->tval != REALM2_BOOK)) break;
-			if ((j_ptr->tval == REALM2_BOOK) &&
-				(o_ptr->tval != REALM2_BOOK)) continue;
-
-			/* Objects sort by decreasing type */
-			if (o_ptr->tval > j_ptr->tval) break;
-			if (o_ptr->tval < j_ptr->tval) continue;
-
-			/* Non-aware (flavored) items always come last */
-			if (!object_aware_p(o_ptr)) continue;
-			if (!object_aware_p(j_ptr)) break;
-
-			/* Objects sort by increasing sval */
-			if (o_ptr->sval < j_ptr->sval) break;
-			if (o_ptr->sval > j_ptr->sval) continue;
-
-			/* Unidentified objects always come last */
-			if (!object_known_p(o_ptr)) continue;
-			if (!object_known_p(j_ptr)) break;
-
-			/*
-			 * Hack:  otherwise identical rods sort by
-			 * increasing recharge time -DSB-
-			 */
-			if (o_ptr->tval == TV_ROD)
-			{
-				if (o_ptr->pval < j_ptr->pval) break;
-				if (o_ptr->pval > j_ptr->pval) continue;
-			}
-
-			/* Determine the "value" of the pack item */
-			j_value = object_value(j_ptr);
-
-			/* Objects sort by decreasing value */
-			if (o_value > j_value) break;
-			if (o_value < j_value) continue;
-		}
-
-		/* Never move down */
-		if (j >= i) continue;
-
-		/* Take note */
-		flag = TRUE;
-
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Save a copy of the moving item */
-		object_copy(q_ptr, &inventory[i]);
-
-		/* Slide the objects */
-		for (k = i; k > j; k--)
-		{
-			/* Slide the item */
-			object_copy(&inventory[k], &inventory[k - 1]);
-		}
-
-		/* Insert the moving item */
-		object_copy(&inventory[j], q_ptr);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
-	}
-
-	/* Message */
-	if (flag) msg_print("You reorder some items in your pack.");
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
 }
 
 
@@ -5743,13 +5689,13 @@ bool can_player_destroy_object(object_type *o_ptr)
 		byte feel = FEEL_SPECIAL;
 
 		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
+		if (cursed_p(o_ptr) || !o_ptr->cost) feel = FEEL_TERRIBLE;
 
 		/* Hack -- inscribe the artifact */
 		o_ptr->feeling = feel;
 
 		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
+		o_ptr->info |= (OB_SENSE);
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -5777,11 +5723,10 @@ void display_koff(int k_idx)
 {
 	int y;
 
-	object_type forge;
+	/* Get local object */
 	object_type *q_ptr;
 
 	char o_name[256];
-
 
 	/* Erase the window */
 	for (y = 0; y < Term->hgt; y++)
@@ -5793,11 +5738,8 @@ void display_koff(int k_idx)
 	/* No info */
 	if (!k_idx) return;
 
-	/* Get local object */
-	q_ptr = &forge;
-
 	/* Prepare the object */
-	object_prep(q_ptr, k_idx);
+	q_ptr = object_prep(k_idx);
 
 	/* Describe */
 	object_desc_store(o_name, q_ptr, FALSE, 0, 256);

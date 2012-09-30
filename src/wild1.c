@@ -2439,7 +2439,7 @@ static void create_lakes(void)
 
 
 /* Value used for sea-level calculation */
-static byte *wild_temp_dist;
+static u32b *wild_temp_dist;
 
 
 /*
@@ -2452,7 +2452,7 @@ static void store_hgtmap(int x, int y, int val)
 	if ((val / 16) >= max_wild) val = (max_wild * 16) - 1;
 
 	/* Save distribution information */
-	wild_temp_dist[val / 16] = 1;
+	wild_temp_dist[val / 16]++;
 
 	/* store the value in height-map format */
 	wild[y][x].gen.hgt_map = val;
@@ -2635,7 +2635,7 @@ static void store_popmap(int x, int y, int val, u16b sea)
 	if ((val / 16) >= max_wild) val = (max_wild * 16) - 1;
 
 	/* Save distribution information (only if not below sea level) */
-	if (wild[y][x].gen.hgt_map > sea) wild_temp_dist[val / 16] = 1;
+	if (wild[y][x].gen.hgt_map > sea) wild_temp_dist[val / 16]++;
 
 	/* store the value in height-map format */
 	wild[y][x].gen.pop_map = val;
@@ -2816,7 +2816,7 @@ static void store_lawmap(int x, int y, int val, u16b sea)
 	if ((val / 16) >= max_wild) val = (max_wild * 16) - 1;
 
 	/* Save distribution information (only if not below sea level) */
-	if (wild[y][x].gen.hgt_map > sea) wild_temp_dist[val / 16] = 1;
+	if (wild[y][x].gen.hgt_map > sea) wild_temp_dist[val / 16]++;
 
 	/* store the value in height-map format */
 	wild[y][x].gen.law_map = val;
@@ -2998,6 +2998,9 @@ static void wild_done(void)
 	p_ptr->px = (s16b)p_ptr->wilderness_x;
 	p_ptr->py = (s16b)p_ptr->wilderness_y;
 
+	/* Notice player location */
+	Term_move_player();
+
 	map_panel_size();
 
 	/* Refresh random number seed */
@@ -3164,22 +3167,23 @@ static void create_wild_info(int *bestx, int *besty)
 	int x, y;
 
 	byte hgt, pop, law;
-	u16b hgt_min, hgt_max, pop_min, pop_max, law_min, law_max;
+	u16b hgt_min, hgt_max, pop_min, pop_max;
 	byte sea_level;
+	int t;
 
-	long hgt_scale, pop_scale, law_scale;
+	long hgt_scale, pop_scale;
 
 	wild_type *w_ptr;
 
 	/* Huge wilderness */
-	max_wild = z_info->ws_max;
-	C_MAKE(wild_temp_dist, z_info->ws_max, byte);
+	max_wild = WILD_SIZE;
+	C_MAKE(wild_temp_dist, WILD_SIZE, u32b);
 
 	/* Create "height" information of wilderness */
 	create_hgt_map();
 
 	/* Work out extremes of height so it can be scaled. */
-	hgt_min = hgt_max = pop_min = pop_max = law_min = law_max = 0;
+	hgt_min = hgt_max = pop_min = pop_max = 0;
 
 	/* Minimum height */
 	for (i = 0; i < max_wild; i++)
@@ -3246,31 +3250,12 @@ static void create_wild_info(int *bestx, int *besty)
 
 	/* Work out extremes of "lawfulness" so it can be scaled. */
 
-	/* Minimum lawfulness */
-	for (i = 0; i < max_wild; i++)
+	/* Calculate lawfulness map */
+	for (i = t = 0; i < max_wild; i++)
 	{
-		if (wild_temp_dist[i] != 0)
-		{
-			law_min = i;
-			break;
-		}
+		t += wild_temp_dist[i];
+		wild_temp_dist[i] = t / (max_wild * max_wild / 256);
 	}
-
-	/* Maximum lawfulness */
-	for (i = max_wild - 1; i >= 0; i--)
-	{
-		if (wild_temp_dist[i] != 0)
-		{
-			law_max = i;
-			break;
-		}
-	}
-
-	/* Lawfulness scale factor */
-	law_scale = (law_max - law_min);
-
-	/* Rescale minimum. */
-	law_min *= 16;
 
 	/* Best place in wilderness for starting town */
 	x = -1;
@@ -3291,7 +3276,7 @@ static void create_wild_info(int *bestx, int *besty)
 
 			hgt = (byte)((w_ptr->gen.hgt_map - hgt_min) * 16 / hgt_scale);
 			pop = (byte)((w_ptr->gen.pop_map - pop_min) * 16 / pop_scale);
-			law = (byte)((w_ptr->gen.law_map - law_min) * 16 / law_scale);
+			law = wild_temp_dist[w_ptr->gen.law_map / 16];
 
 			/*
 			 * Go to transition data structure
@@ -3391,18 +3376,18 @@ static void create_terrain(void)
 			/* Town */
 			w_ptr->done.place = place_num;
 
-			if (!place_num)
-			{
-				/* Set wilderness monsters to default values */
 
-				/* Toughness (level 0 - 64) */
-				w_ptr->done.mon_gen = (256 - law) / 4;
-				w_ptr->done.mon_gen = MAX(1, w_ptr->done.mon_gen - 5);
 
-				/* No monsters (probability 0 - 16) */
-				w_ptr->done.mon_prob = pop / 16;
-			}
-			else
+			/* Set wilderness monsters to default values */
+
+			/* Toughness (level 0 - 64) */
+			w_ptr->done.mon_gen = (256 - law) / 4;
+			w_ptr->done.mon_gen = MAX(1, w_ptr->done.mon_gen - 5);
+
+			/* No monsters (probability 0 - 16) */
+			w_ptr->done.mon_prob = pop / 16;
+
+			if (place_num)
 			{
 				/* Set values depending on type of place */
 				set_mon_wild_values(place[place_num].monst_type, &w_ptr->done);

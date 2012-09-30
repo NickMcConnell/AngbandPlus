@@ -548,16 +548,17 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->dd);
 	wr_byte(o_ptr->ds);
 
-	wr_byte(o_ptr->ident);
-
-	wr_byte(o_ptr->marked);
+	wr_byte(o_ptr->info);
 
 	wr_u32b(o_ptr->flags1);
 	wr_u32b(o_ptr->flags2);
 	wr_u32b(o_ptr->flags3);
 
-	/* Held by monster index */
-	wr_s16b(o_ptr->held_m_idx);
+	/* Next object in list */
+	wr_s16b(o_ptr->next_o_idx);
+
+	/* Remove this soon... */
+	wr_byte(o_ptr->allocated);
 
 	/* Feelings */
 	wr_byte(o_ptr->feeling);
@@ -614,7 +615,7 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->monfear);
 	wr_byte(m_ptr->invulner);
 	wr_u32b(m_ptr->smart);
-	wr_byte(0);
+	wr_s16b(m_ptr->hold_o_idx);
 }
 
 /*
@@ -724,23 +725,14 @@ static void wr_xtra(int k_idx)
  */
 static void wr_store(const store_type *st_ptr)
 {
-	int j;
-
-	/* Save the "open" counter */
-	wr_u32b(st_ptr->store_open);
-
-	/* Save the "insults" */
-	wr_s16b(st_ptr->insult_cur);
+	/* Save the "data" */
+	wr_s16b(st_ptr->data);
 
 	/* Save the current owner */
 	wr_byte(st_ptr->owner);
 
-	/* Save the stock size */
-	wr_byte(st_ptr->stock_num);
-
-	/* Save the "haggle" info */
-	wr_s16b(st_ptr->good_buy);
-	wr_s16b(st_ptr->bad_buy);
+	/* Hack - Save whether or not we have stock */
+	wr_byte(st_ptr->stock ? TRUE : FALSE);
 
 	/* Position in the town */
 	wr_u16b(st_ptr->x);
@@ -751,12 +743,8 @@ static void wr_store(const store_type *st_ptr)
 
 	wr_s32b(st_ptr->last_visit);
 
-	/* Save the stock */
-	for (j = 0; j < st_ptr->stock_num; j++)
-	{
-		/* Save each item in stock */
-		wr_item(&st_ptr->stock[j]);
-	}
+	/* Pointer to stock list */
+	wr_s16b(st_ptr->stock);
 }
 
 
@@ -993,14 +981,6 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_esp);
 	wr_s16b(p_ptr->wraith_form);
 	wr_s16b(p_ptr->resist_magic);
-	wr_s16b(p_ptr->tim_xtra1);
-	wr_s16b(p_ptr->tim_xtra2);
-	wr_s16b(p_ptr->tim_xtra3);
-	wr_s16b(p_ptr->tim_xtra4);
-	wr_s16b(p_ptr->tim_xtra5);
-	wr_s16b(p_ptr->tim_xtra6);
-	wr_s16b(p_ptr->tim_xtra7);
-	wr_s16b(p_ptr->tim_xtra8);
 
 	wr_s16b(p_ptr->chaos_patron);
 	wr_u32b(p_ptr->muta1);
@@ -1060,9 +1040,8 @@ static void wr_extra(void)
 	/* Trap detection status */
 	wr_byte(p_ptr->detected);
 
-	/* Old Coords of last trap detection spell */
-	wr_s16b(0);
-	wr_s16b(0);
+	/* Player inventory item */
+	wr_s16b(p_ptr->inventory);
 }
 
 /*
@@ -1334,10 +1313,6 @@ static void wr_dungeon(void)
 				 p_ptr->max_hgt);
 	}
 
-
-	/* Compact the objects */
-	compact_objects(0);
-
 	/* Compact the monsters */
 	compact_monsters(0);
 
@@ -1476,7 +1451,7 @@ static bool wr_savefile_new(void)
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
 		wr_string(message_str((s16b)i));
-		wr_byte(message_color((s16b)i));
+		wr_byte(message_type((s16b)i));
 	}
 
 
@@ -1604,10 +1579,10 @@ static bool wr_savefile_new(void)
 	}
 
 
-	/* Write the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	/* Write the equipment */
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &p_ptr->equipment[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -2181,7 +2156,7 @@ bool load_player(void)
 			{
 				/* A character was loaded */
 				character_loaded = TRUE;
-				
+
 				/*
 				 * We need to initialise things properly here.
 				 * The wilderness is not loaded (or saved when dead)

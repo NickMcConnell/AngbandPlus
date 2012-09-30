@@ -11,9 +11,8 @@ Please choose one of the following online help files:
     (6) Random Quests                     (birth.txt#RandomQuests)
     (7) The Auto-Roller                   (birth.txt#AutoRoller)
     (8) Point-based Character Generation  (birth.txt#PointBased)
-    (9) Life Ratings                      (birth.txt#LifeRating)
-    (a) Naming Your Character             (birth.txt#CharName)
-    (b) Starting Inventory                (birth.txt#StartInventory)
+    (9) Naming Your Character             (birth.txt#CharName)
+    (a) Starting Inventory                (birth.txt#StartInventory)
 
     (?) Help System Commands              (helpinfo.txt)
 
@@ -27,6 +26,5 @@ Please choose one of the following online help files:
 ***** [6] birth.txt#RandomQuests
 ***** [7] birth.txt#AutoRoller
 ***** [8] birth.txt#PointBased
-***** [9] birth.txt#LifeRating
-***** [a] birth.txt#CharName
-***** [b] birth.txt#StartInventory
+***** [9] birth.txt#CharName
+***** [a] birth.txt#StartInventory

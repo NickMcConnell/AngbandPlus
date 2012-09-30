@@ -1,10 +1,10 @@
 
                     ZAngband Official FAQ
 
-                     by Robert Ruehlmann
-                       rr9@angband.org
+                       by Steven Fuerst
+                      svf@mssl.ucl.ac.uk
 
-                       March 10th, 2000
+                       April 2nd, 2000
 
 
 ==========================================================================
@@ -42,6 +42,9 @@ questions and answers.
     3.2.1 How do I run in the Windows version?
     3.2.2 Why do I get an error message when I try to switch on
           graphics?
+  3.3 Unix
+    3.3.1 How do I change the number of terminals used?
+	3.3.2 How do I change the tileset used?
 
 4. Game-play questions
   4.1 Artifacts
@@ -50,6 +53,7 @@ questions and answers.
           known artifacts. Is that a bug?
     4.1.3 I've found an artifact in a store, but I thought artifacts can
           never appear there if not sold to the store. Is that a bug?
+    4.1.4 Why isn't there a list of 'seen' artifacts any more?
   4.2 Monsters
     4.2.1 I've found a 'Greater Hell Beast' that never does any damage to
           me, and that seems to be immune to my attacks.  What is it?
@@ -58,10 +62,14 @@ questions and answers.
     4.3.2 What does a 'statue' do?
   4.4 Miscellaneous
     4.4.1 What is an "anti-magic shell"?
+    4.4.2 What are virtues, and how can I affect them?
+  4.5 Quests
+    4.5.1 What happened to the fixed quests after version 2.4.0?	
 
 5. Other questions
   5.1 Interface
     5.1.1 Why can't I see my spells or missiles flying through the air?
+	5.1.2 What does the "(number / number)" on missiles mean?
   5.2 Bugs
     5.2.1 A monster "points at me and curses", and the game crashes!
           What is going on?
@@ -172,6 +180,31 @@ set to 256 colors. Switch to high-color or true-color mode to fix
 this problem.
 
 
+
+--------------------------------------------------------------------------
+3.2 Unix
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+3.2.1 How do I change the number of terminals used?
+--------------------------------------------------------------------------
+
+Start the game with the '-- -n#' command-line option, with the '#' as
+the number of terminals you want (up to eight).  Start the game with 
+'-?' to get a list of all command-line options.
+
+--------------------------------------------------------------------------
+3.2.2 How do I change the tileset used?
+--------------------------------------------------------------------------
+
+Start the game with the '-g' command-line option to get graphics.  You
+can then use the '-b' option to pick the tileset.  '-b8' picks the
+old 8x8 tileset.  '-b16' picks the newer Adam Bolt 16x16 tileset.
+If you use the gtk port, then you can alter the tileset used while the
+game is running via the Options:graphics menu.  You can also toggle
+the use of graphics or transparency through the same menu.
+
+
 ==========================================================================
 4. Game-play questions
 ==========================================================================
@@ -211,6 +244,16 @@ never appear there if not sold to the store. Is that a bug?
 --------------------------------------------------------------------------
 
 No. The store is selling a 'random artifact'.  See question 4.1.2.
+
+--------------------------------------------------------------------------
+4.1.4 Why isn't there a list of 'seen' artifacts any more?
+--------------------------------------------------------------------------
+
+With the preparation for the ability to add external mods to the game,
+it no longer is possible to track which artifacts the player has seen
+with any certainty.  With the addition of random artifacts, the list
+becomes even less useful.  So rather than have a buggy list that leaves
+out most artifacts the player sees, it has been removed.
 
 
 --------------------------------------------------------------------------
@@ -262,6 +305,42 @@ using mindcrafter powers.  It also increases your saving throw vs. spells
 to 95%, prevents the activation of some mutations, and helps against the
 draining effects of the Jewel of Judgement.
 
+--------------------------------------------------------------------------
+4.4.1 What are virtues and how can I affect them?
+--------------------------------------------------------------------------
+
+The game keeps track of lots of little things you do as a player.  These
+affect a series of 'virtues' that are internally represented as counters
+that are either increased or decreased depending on those actions.  The
+virtues will be shown to you when you quaff a potion of self-knowledge.
+They also can be accessed via a not-so-hidden option in the '~' menu.
+The virtues have no gameplay effect - they are just there to give you a
+hint at what type of playing style you have.  However, don't take them
+too seriously as they are very unbalanced.  It is almost impossible to
+stay on the good side of nature, for example, because of the huge number
+of 'natural' creatures on the first few levels of the dungeon.
+
+--------------------------------------------------------------------------
+4.5 Quests
+--------------------------------------------------------------------------
+
+--------------------------------------------------------------------------
+4.4.1 What happend to the fixed quests after version 2.4.0?
+--------------------------------------------------------------------------
+
+The fixed quests are slowly being rewritten to fit into the new
+wilderness.  Unfortunately, this turned out to be much harder than we
+thought, so towards the end of the 2.5.x development branch we realised
+we wouldn't get them done in time.  This meant that the  2.6.x stable
+branch was released without the old fixed quests, and only with the
+random dungeon quests.
+  During the 2.7.0 branch, the fixed quests will be replaced with
+'randomised fixed quests' to fit in with the random wilderness and
+dungeon.  The 'camp' quests are not an indication of what these will
+be like other than the fact that they are merged seamlessly with the
+wilderness.  (Those were just for testing purposes.)  The next stable
+branch will have the replacement quest framework.
+
 
 ==========================================================================
 5. Other questions
@@ -279,6 +358,14 @@ First change the "base delay factor" in the options menu to a higher
 setting.  A value of 4 (64 milli-seconds) displays the graphical effects
 nicely.  Also check that "Flush output before every command" in the
 Efficience Options menu is turned on.
+
+--------------------------------------------------------------------------
+5.1.2 What does the "(number / number)" on missiles mean?
+--------------------------------------------------------------------------
+
+The first number shows the average damage done per shot, and the
+second shows the average damage done per round.  The two can differ
+because you can fire weapons faster or slower than one per round.
 
 --------------------------------------------------------------------------
 5.2.1 A monster "points at me and curses", and the game crashes! What is 

@@ -50,10 +50,16 @@ howls.
 looks at you sadly.
 
 N:63:Smeagol
-3
+5
 says, 'Don't hurt us, mastersisis.'
 says, 'Poor Smeagol, poor Smeagol.'
-says, 'No AH! Don't hurtsis us.'
+#LOTR Book6 Chap.3
+cries, 'Don't hurt us with nassty cruel steel!'
+#LOTR Book6 Chap.3
+begs, 'Let us live, yes, live just a little longer!'
+#LOTR Book4 Chap.6
+says, 'A little sneak, and you say death! So just you are!'
+
 
 N:135:Mughash the Kobold Lord
 2

@@ -1022,16 +1022,16 @@ static errr init_other(void)
 	}
 
 	/* Allocate the wilderness itself */
-	C_MAKE(wild, z_info->ws_max, wild_type *);
-	C_MAKE(wild_grid, z_info->ws_max, blk_ptr *);
-	C_MAKE(wild_refcount, z_info->ws_max, int *);
+	C_MAKE(wild, WILD_SIZE, wild_type *);
+	C_MAKE(wild_grid, WILD_SIZE, blk_ptr *);
+	C_MAKE(wild_refcount, WILD_SIZE, int *);
 
-	for (i = 0; i < z_info->ws_max; i++)
+	for (i = 0; i < WILD_SIZE; i++)
 	{
 		/* Allocate one row of the wilderness */
-		C_MAKE(wild[i], z_info->ws_max, wild_type);
-		C_MAKE(wild_grid[i], z_info->ws_max, blk_ptr);
-		C_MAKE(wild_refcount[i], z_info->ws_max, int);
+		C_MAKE(wild[i], WILD_SIZE, wild_type);
+		C_MAKE(wild_grid[i], WILD_SIZE, blk_ptr);
+		C_MAKE(wild_refcount[i], WILD_SIZE, int);
 	}
 
 	/*** Prepare "vinfo" array ***/
@@ -1047,13 +1047,6 @@ static errr init_other(void)
 
 	/* Monsters */
 	C_MAKE(m_list, z_info->m_max, monster_type);
-
-
-	/*** Prepare the inventory ***/
-
-	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL, object_type);
-
 
 	/*** Prepare the options ***/
 
@@ -1402,6 +1395,9 @@ void init_angband(void)
 
 	/*** Initialize some arrays ***/
 
+	/* Init the interface callbacks */
+	init_term_callbacks();
+
 	/* Initialize size info */
 	note("[Initializing array sizes...]");
 	if (init_z_info()) quit("Cannot initialize sizes");
@@ -1521,9 +1517,6 @@ void cleanup_angband(void)
 	/* Free the stores */
 	FREE(store_cache);
 
-	/* Free the player inventory */
-	FREE(inventory);
-
 	/* Free the quest list */
 	FREE(quest);
 
@@ -1548,7 +1541,7 @@ void cleanup_angband(void)
 
 	This code is wrong - the wilderness works differently now. - SF -
 		/* Free the wilderness */
-	for (i = 0; i < z_info->ws_max; i++)
+	for (i = 0; i < WILD_SIZE; i++)
 	{
 		/* Free one row of the wilderness */
 		FREE(wild[i]);
@@ -1603,6 +1596,9 @@ void cleanup_angband(void)
 
 	/* Free the format() buffer */
 	vformat_kill();
+
+	/* Free the interface callbacks */
+	free_term_callbacks();
 
 	/* Free the directories */
 	string_free(ANGBAND_DIR);

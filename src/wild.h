@@ -38,7 +38,6 @@
 /* Fraction of towns that are not quests: default is (1/2) */
 #define TOWN_FRACTION	2
 
-
 /* Dodgy replacement for SCREEN_WID and SCREEN_HGT */
 
 /* This will be removed later. */
@@ -51,12 +50,13 @@
 	(((TOWN_HGT / WILD_BLOCK_SIZE) + 1) * WILD_BLOCK_SIZE)
 
 /* Starting town has pre-defined stores */
-#define START_STORE_NUM		6
+#define START_STORE_NUM     7
 
 /* Town types */
 #define TOWN_OLD		1
 #define TOWN_FRACT		2
 #define TOWN_QUEST		3
+#define TOWN_FARM       4
 
 /* Town monster types */
 #define TOWN_MONST_VILLAGER		1

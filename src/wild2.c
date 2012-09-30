@@ -20,7 +20,8 @@
  * See make_wild_03() for an instance of this.
  * This ability will also be used by other routines in the future.
  */
-static void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type);
+static void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type,
+							 bool road);
 static void blend_helper(cave_type *c_ptr, byte *data, int g_type);
 
 /* The starting position of the player */
@@ -56,99 +57,102 @@ static wild_building_type wild_build[MAX_CITY_BUILD] =
 	{0, 0, BT_GENERAL, 150, 150, 150, 1},
 	{0, 0, BT_GENERAL, 150, 150, 150, 1},
 	{0, FT_BUILD_MAP, BT_BUILD, 150, 150, 150, 10},
-	{0, FT_STORE_WEAPON1, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_WEAPON2, BT_STORE, 100, 150, 100, 20},
-	{0, FT_STORE_WEAPON3, BT_STORE, 100, 50, 100, 40},
-	{0, FT_STORE_WEAPON4, BT_STORE, 150, 200, 100, 80},
-	{0, FT_STORE_WEAPON5, BT_STORE, 200, 200, 50, 160},
-	{0, FT_STORE_ARMOUR1, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_ARMOUR2, BT_STORE, 100, 150, 100, 20},
-	{0, FT_STORE_ARMOUR3, BT_STORE, 100, 150, 100, 40},
-	{0, FT_STORE_ARMOUR4, BT_STORE, 150, 200, 100, 80},
-	{0, FT_STORE_ARMOUR5, BT_STORE, 200, 250, 50, 160},
-	{0, FT_STORE_SWORD0, BT_STORE, 100, 50, 100, 10},
-	{0, FT_STORE_SWORD1, BT_STORE, 100, 50, 100, 10},
-	{0, FT_STORE_SWORD2, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_SWORD3, BT_STORE, 150, 150, 100, 20},
-	{0, FT_STORE_SWORD4, BT_STORE, 200, 150, 100, 40},
-	{0, FT_STORE_SWORD5, BT_STORE, 200, 200, 50, 80},
-	{0, FT_STORE_SHIELD0, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_SHIELD1, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_SHIELD2, BT_STORE, 100, 150, 100, 10},
-	{0, FT_STORE_SHIELD3, BT_STORE, 150, 150, 100, 20},
-	{0, FT_STORE_SHIELD4, BT_STORE, 200, 200, 50, 40},
-	{0, FT_STORE_SHIELD5, BT_STORE, 200, 250, 50, 80},
-	{0, FT_STORE_AXE0, BT_STORE, 150, 50, 100, 10},
-	{0, FT_STORE_AXE1, BT_STORE, 150, 50, 100, 10},
-	{0, FT_STORE_AXE2, BT_STORE, 150, 100, 100, 10},
-	{0, FT_STORE_AXE3, BT_STORE, 150, 100, 100, 20},
-	{0, FT_STORE_AXE4, BT_STORE, 200, 150, 100, 40},
-	{0, FT_STORE_AXE5, BT_STORE, 200, 150, 50, 80},
-	{0, FT_STORE_AMMO0, BT_STORE, 150, 100, 100, 10},
-	{0, FT_STORE_AMMO1, BT_STORE, 200, 200, 150, 20},
-	{0, FT_STORE_AMMO2, BT_STORE, 250, 250, 150, 40},
-	{0, FT_STORE_FLET0, BT_STORE, 100, 50, 100, 10},
-	{0, FT_STORE_FLET1, BT_STORE, 100, 100, 100, 10},
-	{0, FT_STORE_FLET2, BT_STORE, 150, 150, 150, 40},
-	{0, FT_STORE_FLET3, BT_STORE, 150, 200, 150, 160},
-	{0, FT_STORE_WARHALL0, BT_STORE, 50, 50, 50, 10},
-	{0, FT_STORE_WARHALL1, BT_STORE, 50, 50, 50, 20},
-	{0, FT_STORE_WARHALL2, BT_STORE, 100, 50, 100, 40},
-	{0, FT_STORE_WARHALL3, BT_STORE, 100, 100, 100, 50},
-	{0, FT_STORE_WARHALL4, BT_STORE, 150, 100, 200, 80},
-	{0, FT_STORE_WARHALL5, BT_STORE, 150, 150, 250, 100},
-	{0, FT_STORE_CLOTH0, BT_STORE, 200, 100, 150, 10},
-	{0, FT_STORE_CLOTH1, BT_STORE, 150, 150, 150, 10},
-	{0, FT_STORE_HARMOUR0, BT_STORE, 150, 100, 100, 10},
-	{0, FT_STORE_HARMOUR1, BT_STORE, 150, 100, 100, 10},
-	{0, FT_STORE_HARMOUR2, BT_STORE, 200, 150, 150, 20},
-	{0, FT_STORE_HARMOUR3, BT_STORE, 200, 150, 150, 40},
-	{0, FT_STORE_HARMOUR4, BT_STORE, 250, 200, 200, 80},
-	{0, FT_STORE_HARMOUR5, BT_STORE, 250, 250, 200, 160},
-	{0, FT_STORE_HAT0, BT_STORE, 200, 50, 150, 10},
-	{0, FT_STORE_HAT1, BT_STORE, 200, 150, 150, 10},
-	{0, FT_STORE_HAT2, BT_STORE, 200, 150, 200, 20},
-	{0, FT_STORE_HAT3, BT_STORE, 250, 200, 200, 160},
-	{0, FT_STORE_JEWEL0, BT_STORE, 150, 150, 150, 10},
-	{0, FT_STORE_JEWEL1, BT_STORE, 150, 200, 150, 20},
-	{0, FT_STORE_JEWEL2, BT_STORE, 200, 200, 200, 40},
-	{0, FT_STORE_JEWEL3, BT_STORE, 200, 250, 200, 80},
-	{0, FT_STORE_JEWEL4, BT_STORE, 200, 250, 250, 160},
-	{0, FT_STORE_STATUE0, BT_STORE, 250, 150, 150, 20},
-	{0, FT_STORE_STATUE1, BT_STORE, 250, 150, 150, 20},
-	{0, FT_STORE_FIGUR0, BT_STORE, 200, 200, 150, 20},
-	{0, FT_STORE_FIGUR1, BT_STORE, 200, 200, 200, 20},
-	{0, FT_STORE_POTION0, BT_STORE, 150, 150, 150, 10},
-	{0, FT_STORE_POTION1, BT_STORE, 150, 150, 150, 20},
-	{0, FT_STORE_POTION2, BT_STORE, 200, 200, 200, 40},
-	{0, FT_STORE_POTION3, BT_STORE, 200, 200, 200, 80},
-	{0, FT_STORE_POTION4, BT_STORE, 200, 200, 200, 160},
-	{0, FT_STORE_SCROLL0, BT_STORE, 150, 150, 150, 10},
-	{0, FT_STORE_SCROLL1, BT_STORE, 150, 150, 150, 20},
-	{0, FT_STORE_SCROLL2, BT_STORE, 200, 200, 200, 40},
-	{0, FT_STORE_SCROLL3, BT_STORE, 200, 200, 200, 80},
-	{0, FT_STORE_SCROLL4, BT_STORE, 200, 200, 200, 160},
-	{0, FT_STORE_MAGIC0, BT_STORE, 50, 150, 200, 10},
-	{0, FT_STORE_MAGIC1, BT_STORE, 100, 200, 200, 10},
-	{0, FT_STORE_MAGIC2, BT_STORE, 100, 200, 200, 20},
-	{0, FT_STORE_MAGIC3, BT_STORE, 150, 250, 250, 40},
-	{0, FT_STORE_MAGIC4, BT_STORE, 200, 250, 250, 60},
-	{0, FT_STORE_BOOK1, BT_STORE, 200, 250, 250, 20},
-	{0, FT_STORE_TEMPLE1, BT_STORE, 50, 100, 150, 10},
-	{0, FT_STORE_TEMPLE2, BT_STORE, 100, 150, 150, 20},
-	{0, FT_STORE_TEMPLE3, BT_STORE, 150, 200, 200, 80},
-	{0, FT_STORE_SUPPLIES0, BT_STORE, 150, 50, 150, 40},
+	{0, FT_STORE_WEAPON1, BT_STORE, 100, 100, 100, 15},
+	{0, FT_STORE_WEAPON2, BT_STORE, 100, 150, 100, 50},
+	{0, FT_STORE_WEAPON3, BT_STORE, 100, 50, 100, 100},
+	{0, FT_STORE_WEAPON4, BT_STORE, 150, 200, 100, 200},
+	{0, FT_STORE_WEAPON5, BT_STORE, 200, 200, 50, 400},
+	{0, FT_STORE_ARMOUR1, BT_STORE, 100, 100, 100, 15},
+	{0, FT_STORE_ARMOUR2, BT_STORE, 100, 150, 100, 50},
+	{0, FT_STORE_ARMOUR3, BT_STORE, 100, 150, 100, 100},
+	{0, FT_STORE_ARMOUR4, BT_STORE, 150, 200, 100, 200},
+	{0, FT_STORE_ARMOUR5, BT_STORE, 200, 250, 50, 400},
+	{0, FT_STORE_SWORD0, BT_STORE, 100, 50, 100, 15},
+	{0, FT_STORE_SWORD1, BT_STORE, 100, 50, 100, 25},
+	{0, FT_STORE_SWORD2, BT_STORE, 100, 100, 100, 25},
+	{0, FT_STORE_SWORD3, BT_STORE, 150, 150, 100, 50},
+	{0, FT_STORE_SWORD4, BT_STORE, 200, 150, 100, 100},
+	{0, FT_STORE_SWORD5, BT_STORE, 200, 200, 50, 200},
+	{0, FT_STORE_SHIELD0, BT_STORE, 100, 100, 100, 15},
+	{0, FT_STORE_SHIELD1, BT_STORE, 100, 100, 100, 25},
+	{0, FT_STORE_SHIELD2, BT_STORE, 100, 150, 100, 25},
+	{0, FT_STORE_SHIELD3, BT_STORE, 150, 150, 100, 50},
+	{0, FT_STORE_SHIELD4, BT_STORE, 200, 200, 50, 100},
+	{0, FT_STORE_SHIELD5, BT_STORE, 200, 250, 50, 200},
+	{0, FT_STORE_AXE0, BT_STORE, 150, 50, 100, 15},
+	{0, FT_STORE_AXE1, BT_STORE, 150, 50, 100, 25},
+	{0, FT_STORE_AXE2, BT_STORE, 150, 100, 100, 25},
+	{0, FT_STORE_AXE3, BT_STORE, 150, 100, 100, 50},
+	{0, FT_STORE_AXE4, BT_STORE, 200, 150, 100, 100},
+	{0, FT_STORE_AXE5, BT_STORE, 200, 150, 50, 200},
+	{0, FT_STORE_AMMO0, BT_STORE, 150, 100, 100, 15},
+	{0, FT_STORE_AMMO1, BT_STORE, 200, 200, 150, 50},
+	{0, FT_STORE_AMMO2, BT_STORE, 250, 250, 150, 100},
+	{0, FT_STORE_FLET0, BT_STORE, 100, 50, 100, 15},
+	{0, FT_STORE_FLET1, BT_STORE, 100, 100, 100, 25},
+	{0, FT_STORE_FLET2, BT_STORE, 150, 150, 150, 100},
+	{0, FT_STORE_FLET3, BT_STORE, 150, 200, 150, 400},
+	{0, FT_STORE_WARHALL0, BT_STORE, 50, 50, 50, 15},
+	{0, FT_STORE_WARHALL1, BT_STORE, 50, 50, 50, 50},
+	{0, FT_STORE_WARHALL2, BT_STORE, 100, 50, 100, 100},
+	{0, FT_STORE_WARHALL3, BT_STORE, 100, 100, 100, 150},
+	{0, FT_STORE_WARHALL4, BT_STORE, 150, 100, 200, 200},
+	{0, FT_STORE_WARHALL5, BT_STORE, 150, 150, 250, 250},
+	{0, FT_STORE_CLOTH0, BT_STORE, 200, 100, 150, 15},
+	{0, FT_STORE_CLOTH1, BT_STORE, 150, 150, 150, 25},
+	{0, FT_STORE_HARMOUR0, BT_STORE, 150, 100, 100, 25},
+	{0, FT_STORE_HARMOUR1, BT_STORE, 150, 100, 100, 25},
+	{0, FT_STORE_HARMOUR2, BT_STORE, 200, 150, 150, 50},
+	{0, FT_STORE_HARMOUR3, BT_STORE, 200, 150, 150, 100},
+	{0, FT_STORE_HARMOUR4, BT_STORE, 250, 200, 200, 200},
+	{0, FT_STORE_HARMOUR5, BT_STORE, 250, 250, 200, 400},
+	{0, FT_STORE_HAT0, BT_STORE, 200, 50, 150, 15},
+	{0, FT_STORE_HAT1, BT_STORE, 200, 150, 150, 25},
+	{0, FT_STORE_HAT2, BT_STORE, 200, 150, 200, 50},
+	{0, FT_STORE_HAT3, BT_STORE, 250, 200, 200, 400},
+	{0, FT_STORE_JEWEL0, BT_STORE, 150, 150, 150, 25},
+	{0, FT_STORE_JEWEL1, BT_STORE, 150, 200, 150, 50},
+	{0, FT_STORE_JEWEL2, BT_STORE, 200, 200, 200, 100},
+	{0, FT_STORE_JEWEL3, BT_STORE, 200, 250, 200, 200},
+	{0, FT_STORE_JEWEL4, BT_STORE, 200, 250, 250, 400},
+	{0, FT_STORE_STATUE0, BT_STORE, 250, 150, 150, 50},
+	{0, FT_STORE_STATUE1, BT_STORE, 250, 150, 150, 50},
+	{0, FT_STORE_FIGUR0, BT_STORE, 200, 200, 150, 50},
+	{0, FT_STORE_FIGUR1, BT_STORE, 200, 200, 200, 50},
+	{0, FT_STORE_POTION0, BT_STORE, 150, 150, 150, 15},
+	{0, FT_STORE_POTION1, BT_STORE, 150, 150, 150, 50},
+	{0, FT_STORE_POTION2, BT_STORE, 200, 200, 200, 100},
+	{0, FT_STORE_POTION3, BT_STORE, 200, 200, 200, 200},
+	{0, FT_STORE_POTION4, BT_STORE, 200, 200, 200, 400},
+	{0, FT_STORE_SCROLL0, BT_STORE, 150, 150, 150, 15},
+	{0, FT_STORE_SCROLL1, BT_STORE, 150, 150, 150, 50},
+	{0, FT_STORE_SCROLL2, BT_STORE, 200, 200, 200, 100},
+	{0, FT_STORE_SCROLL3, BT_STORE, 200, 200, 200, 200},
+	{0, FT_STORE_SCROLL4, BT_STORE, 200, 200, 200, 400},
+	{0, FT_STORE_MAGIC0, BT_STORE, 50, 150, 200, 15},
+	{0, FT_STORE_MAGIC1, BT_STORE, 100, 200, 200, 25},
+	{0, FT_STORE_MAGIC2, BT_STORE, 100, 200, 200, 50},
+	{0, FT_STORE_MAGIC3, BT_STORE, 150, 250, 250, 100},
+	{0, FT_STORE_MAGIC4, BT_STORE, 200, 250, 250, 150},
+	{0, FT_STORE_BOOK1, BT_STORE, 200, 250, 250, 50},
+	{0, FT_STORE_TEMPLE1, BT_STORE, 50, 100, 150, 25},
+	{0, FT_STORE_TEMPLE2, BT_STORE, 100, 150, 150, 50},
+	{0, FT_STORE_TEMPLE3, BT_STORE, 150, 200, 200, 200},
+	{0, FT_STORE_SUPPLIES0, BT_STORE, 150, 50, 150, 50},
 	{0, FT_STORE_SUPPLIES1, BT_STORE, 100, 100, 150, 20},
-	{0, FT_STORE_BLACK1, BT_STORE, 200, 150, 50, 40},
-	{0, FT_STORE_BLACK2, BT_STORE, 200, 200, 50, 160},
-	{0, FT_STORE_ALCHEMY1, BT_STORE, 100, 150, 150, 10},
-	{0, FT_STORE_ALCHEMY2, BT_STORE, 150, 200, 150, 40},
+	{0, FT_STORE_BLACK1, BT_STORE, 200, 150, 50, 75},
+	{0, FT_STORE_BLACK2, BT_STORE, 200, 200, 50, 200},
+	{0, FT_STORE_ALCHEMY1, BT_STORE, 100, 150, 150, 25},
+	{0, FT_STORE_ALCHEMY2, BT_STORE, 150, 200, 150, 100},
 	{0, FT_STORE_JUNK, BT_STORE, 200, 50, 150, 10},
 	{0, FT_STORE_FOOD, BT_STORE, 200, 100, 150, 10},
 	{0, FT_BUILD_LIBRARY, BT_BUILD, 200, 200, 200, 20},
 	{0, FT_BUILD_CASINO, BT_BUILD, 100, 200, 200, 20},
 	{0, FT_BUILD_INN, BT_BUILD, 100, 100, 200, 5},
 	{0, FT_BUILD_HEALER, BT_BUILD, 250, 250, 200, 20},
+	{0, FT_STORE_BLACK0, BT_STORE, 100, 100, 100, 10},
+	{0, FT_BUILD_MAGETOWER0, BT_BUILD, 100, 150, 100, 6},
+	{0, FT_BUILD_MAGETOWER1, BT_BUILD, 150, 250, 150, 20},
 };
 
 /* The stores in the starting town */
@@ -159,7 +163,8 @@ static int wild_first_town[START_STORE_NUM] =
 	BUILD_SUPPLIES0,
 	BUILD_WARHALL0,
 	BUILD_STORE_TEMPLE,
-	BUILD_STORE_MAGIC
+	BUILD_STORE_MAGIC,
+	BUILD_BLACK0
 };
 
 
@@ -323,6 +328,13 @@ static u16b select_building(byte pop, byte magic, byte law, u16b *build,
 		wild_build[BUILD_STORE_HOME].gen = 0;
 	}
 
+	/* Hack - Not more than one magetower per city */
+	if (build[BUILD_MAGETOWER0] || build[BUILD_MAGETOWER1])
+	{
+		wild_build[BUILD_MAGETOWER0].gen = 0;
+		wild_build[BUILD_MAGETOWER1].gen = 0;
+	}
+
 	total = 0;
 
 	/* Calculate total */
@@ -363,123 +375,9 @@ static void general_init(int town_num, int store_num, byte general_type)
 	st_ptr->type = general_type;
 
 	/* Initialize */
-	st_ptr->store_open = 0;
-	st_ptr->insult_cur = 0;
-	st_ptr->good_buy = 0;
-	st_ptr->bad_buy = 0;
-	st_ptr->stock_num = 0;
+	st_ptr->data = 0;
 	st_ptr->last_visit = 0;
 }
-
-
-/*
- * Builds a store at a given pseudo-location
- *
- * As of Z 2.5.0 the town is moved back to (0,0) - and is overlayed
- * on top of the wilderness.
- *
- * As of 2.8.1 (?) the town is actually centered in the middle of a
- * complete level, and thus the top left corner of the town itself
- * is no longer at (0,0), but rather, at (qy,qx), so the constants
- * in the comments below should be mentally modified accordingly.
- *
- * As of 2.7.4 (?) the stores are placed in a more "user friendly"
- * configuration, such that the four "center" buildings always
- * have at least four grids between them, to allow easy running,
- * and the store doors tend to face the middle of town.
- *
- * The stores now lie inside boxes from 3-9 and 12-18 vertically,
- * and from 7-17, 21-31, 35-45, 49-59.  Note that there are thus
- * always at least 2 open grids between any disconnected walls.
- *
- * Note the use of "town_illuminate()" to handle all "illumination"
- * and "memorization" issues.
- */
-static void build_store(int xx, int yy, store_type *st_ptr)
-{
-	int y, x, y0, x0, y1, x1, y2, x2, tmp;
-
-	cave_type *c_ptr;
-
-	/* Find the "center" of the store */
-	y0 = yy * 6 + 4;
-	x0 = xx * 17 + 8;
-
-	/* Determine the store boundaries */
-	y1 = y0 - randint1(2);
-	y2 = y0 + randint1(2);
-	x1 = x0 - randint1(5);
-	x2 = x0 + randint1(5);
-
-	/* Build an invulnerable rectangular building */
-	for (y = y1; y <= y2; y++)
-	{
-		for (x = x1; x <= x2; x++)
-		{
-			/* Create the building */
-			set_feat_bold(x, y, FEAT_PERM_EXTRA);
-		}
-	}
-
-	/* Pick a door direction (S,N,E,W) */
-	tmp = randint0(4);
-
-	/* Re-roll "annoying" doors */
-	if (((tmp == 0) && (yy == 2)) ||
-		((tmp == 1) && (yy == 0)) ||
-		((tmp == 2) && (xx == 2)) || ((tmp == 3) && (xx == 0)))
-	{
-		/* Pick a new direction */
-		tmp = randint0(4);
-	}
-
-	/* Extract a "door location" */
-	switch (tmp)
-	{
-		case 0:
-		{
-			/* Bottom side */
-			y = y2;
-			x = rand_range(x1, x2);
-			break;
-		}
-
-		case 1:
-		{
-			/* Top side */
-			y = y1;
-			x = rand_range(x1, x2);
-			break;
-		}
-
-		case 2:
-		{
-			/* Right side */
-			y = rand_range(y1, y2);
-			x = x2;
-			break;
-		}
-
-		default:
-		{
-			/* Left side */
-			y = rand_range(y1, y2);
-			x = x1;
-			break;
-		}
-	}
-
-	c_ptr = cave_p(x, y);
-
-	/* Clear previous contents, add a store door */
-	set_feat_grid(c_ptr, FEAT_FLOOR);
-	c_ptr->fld_idx = wild_build[st_ptr->type].field;
-
-	/* Save location of store door */
-	st_ptr->x = x;
-	st_ptr->y = y;
-}
-
 
 
 static byte build_x[WILD_BLOCK_SIZE * WILD_BLOCK_SIZE];
@@ -656,7 +554,8 @@ static bool create_city(int x, int y, int town_num)
 	/* Hack - fix this XXX XXX */
 
 	/* int pop = wild[y][x].trans.pop_map; */
-	int pop = (1 << randint0(7)) + 128;
+	int pop = ((wild[y][x].trans.pop_map + wild[y][x].trans.law_map) /
+			   rand_range(4, 32)) + 128;
 	int law = wild[y][x].trans.law_map;
 	int magic;
 	int build_num = 0, build_tot;
@@ -677,7 +576,7 @@ static bool create_city(int x, int y, int town_num)
 	if (town_num == 1)
 	{
 		/* Use a low pop - we don't want too many blank buildings */
-		pop = 32 + 128;
+		pop = 64 + 128;
 	}
 
 	/* Wipe the list of allocated buildings */
@@ -1003,8 +902,8 @@ static void draw_gates(byte i, byte j, place_type *pl_ptr)
 				case 0:
 				{
 					/* Hack - shift gate if next to walls */
-					if (cave_p(x + 3, y + 2)->feat == FEAT_PERM_SOLID) yy -= 3;
-					if (cave_p(x + 3, y + 5)->feat == FEAT_PERM_SOLID) yy += 3;
+					if (cave_perma_grid(cave_p(x + 3, y + 2))) yy -= 3;
+					if (cave_perma_grid(cave_p(x + 3, y + 5))) yy += 3;
 
 					y = yy;
 
@@ -1026,8 +925,8 @@ static void draw_gates(byte i, byte j, place_type *pl_ptr)
 				case 1:
 				{
 					/* Hack - shift gate if next to walls */
-					if (cave_p(x + 3, y + 2)->feat == FEAT_PERM_SOLID) yy -= 3;
-					if (cave_p(x + 3, y + 5)->feat == FEAT_PERM_SOLID) yy += 3;
+					if (cave_perma_grid(cave_p(x + 3, y + 2))) yy -= 3;
+					if (cave_perma_grid(cave_p(x + 3, y + 5))) yy += 3;
 
 					y = yy;
 
@@ -1049,8 +948,8 @@ static void draw_gates(byte i, byte j, place_type *pl_ptr)
 				case 2:
 				{
 					/* Hack - shift gate if next to walls */
-					if (cave_p(x + 2, y + 3)->feat == FEAT_PERM_SOLID) xx -= 3;
-					if (cave_p(x + 5, y + 3)->feat == FEAT_PERM_SOLID) xx += 3;
+					if (cave_perma_grid(cave_p(x + 2, y + 3))) xx -= 3;
+					if (cave_perma_grid(cave_p(x + 5, y + 3))) xx += 3;
 
 					x = xx;
 
@@ -1072,8 +971,8 @@ static void draw_gates(byte i, byte j, place_type *pl_ptr)
 				case 3:
 				{
 					/* Hack - shift gate if next to walls */
-					if (cave_p(x + 2, y + 3)->feat == FEAT_PERM_SOLID) xx -= 3;
-					if (cave_p(x + 5, y + 3)->feat == FEAT_PERM_SOLID) xx += 3;
+					if (cave_perma_grid(cave_p(x + 2, y + 3))) xx -= 3;
+					if (cave_perma_grid(cave_p(x + 5, y + 3))) xx += 3;
 
 					x = xx;
 
@@ -1209,7 +1108,7 @@ static void draw_general(int x0, int y0, store_type *st_ptr, int x, int y)
 
 			/* No doors */
 
-			break;
+			/* break; Restore this when we do something for BUILD_BLANK */
 		}
 
 		case BUILD_BLANK:
@@ -1387,7 +1286,6 @@ static void draw_city(u16b town_num)
 	Rand_quick = FALSE;
 }
 
-
 /*
  * Initialise the place structures
  *
@@ -1497,8 +1395,15 @@ bool init_places(int xx, int yy)
 		}
 		else if (i < START_STORE_NUM)
 		{
-			/* Hack - use the pre-defined stores */
-			store_init(best_town, i, wild_first_town[i]);
+			if (build_is_store(wild_first_town[i]))
+			{
+				/* Hack - use the pre-defined stores */
+				store_init(best_town, i, wild_first_town[i]);
+			}
+			else
+			{
+				build_init(best_town, i, wild_first_town[i]);
+			}
 		}
 		else
 		{
@@ -1524,6 +1429,115 @@ bool init_places(int xx, int yy)
 
 
 /*
+ * Builds a store at a given pseudo-location
+ *
+ * As of Z 2.5.0 the town is moved back to (0,0) - and is overlayed
+ * on top of the wilderness.
+ *
+ * As of 2.8.1 (?) the town is actually centered in the middle of a
+ * complete level, and thus the top left corner of the town itself
+ * is no longer at (0,0), but rather, at (qy,qx), so the constants
+ * in the comments below should be mentally modified accordingly.
+ *
+ * As of 2.7.4 (?) the stores are placed in a more "user friendly"
+ * configuration, such that the four "center" buildings always
+ * have at least four grids between them, to allow easy running,
+ * and the store doors tend to face the middle of town.
+ *
+ * The stores now lie inside boxes from 3-9 and 12-18 vertically,
+ * and from 7-17, 21-31, 35-45, 49-59.  Note that there are thus
+ * always at least 2 open grids between any disconnected walls.
+ *
+ * Note the use of "town_illuminate()" to handle all "illumination"
+ * and "memorization" issues.
+ */
+static void build_store(int xx, int yy, store_type *st_ptr)
+{
+	int y, x, y0, x0, y1, x1, y2, x2, tmp;
+
+	cave_type *c_ptr;
+
+	/* Find the "center" of the store */
+	y0 = yy * 6 + 4;
+	x0 = xx * 16 + 8;
+
+	/* Determine the store boundaries */
+	y1 = y0 - randint1(2);
+	y2 = y0 + randint1(2);
+	x1 = x0 - randint1(5);
+	x2 = x0 + randint1(5);
+
+	/* Build an invulnerable rectangular building */
+	for (y = y1; y <= y2; y++)
+	{
+		for (x = x1; x <= x2; x++)
+		{
+			/* Create the building */
+			set_feat_bold(x, y, FEAT_PERM_EXTRA);
+		}
+	}
+
+	/* Pick a door direction (S,N,E,W) */
+	tmp = randint0(4);
+
+	/* Re-roll "annoying" doors */
+	if (((tmp == 0) && (yy == 2)) ||
+		((tmp == 1) && (yy == 0)) ||
+		((tmp == 2) && (xx == 2)) || ((tmp == 3) && (xx == 0)))
+	{
+		/* Pick a new direction */
+		tmp = randint0(4);
+	}
+
+	/* Extract a "door location" */
+	switch (tmp)
+	{
+		case 0:
+		{
+			/* Bottom side */
+			y = y2;
+			x = rand_range(x1, x2);
+			break;
+		}
+
+		case 1:
+		{
+			/* Top side */
+			y = y1;
+			x = rand_range(x1, x2);
+			break;
+		}
+
+		case 2:
+		{
+			/* Right side */
+			y = rand_range(y1, y2);
+			x = x2;
+			break;
+		}
+
+		default:
+		{
+			/* Left side */
+			y = rand_range(y1, y2);
+			x = x1;
+			break;
+		}
+	}
+
+	c_ptr = cave_p(x, y);
+
+	/* Clear previous contents, add a store door */
+	set_feat_grid(c_ptr, FEAT_FLOOR);
+	c_ptr->fld_idx = wild_build[st_ptr->type].field;
+
+	/* Save location of store door */
+	st_ptr->x = x;
+	st_ptr->y = y;
+}
+
+
+/*
  * Generate the "consistent" town features, and place the player
  *
  * Hack -- play with the R.N.G. to always yield the same town
@@ -1535,25 +1549,30 @@ bool init_places(int xx, int yy)
 static void town_gen_hack(u16b town_num)
 {
 	int y, x, k, n, xx, yy;
-	int rooms[MAX_STORES];
-	byte feat;
+
+	/* Add an extra column to make it symmetrical */
+	int rooms[3 * 4];
 
 	cave_type *c_ptr;
 
 	/* Prepare an array of "remaining stores", and count them */
-	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
+	for (n = 0; n < 3 * 4; n++) rooms[n] = n;
 
 	/* Place three rows of stores */
 	for (y = 0; y < 3; y++)
 	{
-		/* Place three stores per row */
-		for (x = 0; x < 3; x++)
+		/* Place four stores per row */
+		for (x = 0; x < 4; x++)
 		{
 			/* Pick a random unplaced store */
 			k = ((n <= 1) ? 0 : randint0(n));
 
-			/* Build that store at the proper location */
-			build_store(x, y, &place[town_num].store[rooms[k]]);
+			/* Only build real stores */
+			if (rooms[k] < MAX_STORES)
+			{
+				/* Build that store at the proper location */
+				build_store(x, y, &place[town_num].store[rooms[k]]);
+			}
 
 			/* Shift the stores down, remove one store */
 			rooms[k] = rooms[--n];
@@ -1568,11 +1587,10 @@ static void town_gen_hack(u16b town_num)
 		yy = rand_range(3, TOWN_HGT - 4);
 		xx = rand_range(3, TOWN_WID - 4);
 
-		feat = cave_p(xx, yy)->feat;
+		c_ptr = cave_p(xx, yy);
 
 		/* If square is a shop then try again */
-		if ((feat == FEAT_PERM_EXTRA) || (cave_p(xx, yy)->fld_idx != 0))
-			continue;
+		if (!cave_naked_grid(c_ptr)) continue;
 
 		/* Blank square */
 		break;
@@ -1585,7 +1603,7 @@ static void town_gen_hack(u16b town_num)
 		{
 			c_ptr = cave_p(xx + x, yy + y);
 
-			if (c_ptr->feat == FEAT_PERM_EXTRA) continue;
+			if (!cave_naked_grid(c_ptr)) continue;
 
 			/* Convert square to dungeon floor */
 			set_feat_grid(c_ptr, FEAT_FLOOR);
@@ -1717,6 +1735,7 @@ void init_vanilla_town(void)
 	/* Hack - set global region back to wilderness value */
 	set_region(0);
 }
+
 
 
 /*
@@ -2562,11 +2581,13 @@ static void wild_add_gradient(blk_ptr block_ptr, byte feat1, byte feat2)
  * The even fields are the region of the hieght-map where
  * those features are most common.
  */
-static void make_wild_01(blk_ptr block_ptr, byte *data)
+static void make_wild_01(blk_ptr block_ptr, byte *data, bool road)
 {
 	int i, j;
 	byte new_feat, element;
 
+	/* Ignore road for now */
+	(void)road;
 
 	/* Initialise temporary block */
 	clear_temp_block();
@@ -2608,10 +2629,13 @@ static void make_wild_01(blk_ptr block_ptr, byte *data)
  *
  * This is good for making "flat density" regions like grasslands etc.
  */
-static void make_wild_02(blk_ptr block_ptr, byte *data)
+static void make_wild_02(blk_ptr block_ptr, byte *data, bool road)
 {
 	int i, j, k;
 	byte new_feat, feat, chance;
+
+	/* Ignore road for now */
+	(void)road;
 
 	for (i = 0; i < WILD_BLOCK_SIZE; i++)
 	{
@@ -2667,13 +2691,13 @@ static void make_wild_02(blk_ptr block_ptr, byte *data)
  * These include:  Tiny lakes of water, lava, acid.  Craters.  Rock pillars.
  *   Bogs.  Clumps of trees. etc.
  */
-static void make_wild_03(blk_ptr block_ptr, byte *data)
+static void make_wild_03(blk_ptr block_ptr, byte *data, bool road)
 {
 	int i, j, element;
 
 	/* Call the other routine to make the "base" terrain. */
 	gen_block_helper(block_ptr, wild_gen_data[data[0]].data,
-					 wild_gen_data[data[0]].gen_routine);
+					 wild_gen_data[data[0]].gen_routine, road);
 
 	/* Initialise temporary block */
 	clear_temp_block();
@@ -2714,6 +2738,121 @@ static void make_wild_03(blk_ptr block_ptr, byte *data)
 		}
 	}
 }
+
+
+/*
+ * Draw a pleasant field (farm)
+ */
+static void make_wild_04(blk_ptr block_ptr, byte *data, bool road)
+{
+	int x, y, x1, y1, x2, y2, i, j;
+	int type;
+
+	cave_type *c_ptr;
+
+	/* Hack - ignore parameter */
+	(void)data;
+
+	/* Hack - generate and throw away a few random numbers */
+	randint0(100);
+	randint0(100);
+	randint0(100);
+
+	/* Get location of building */
+	x = rand_range(4, 11);
+	y = rand_range(3, 12);
+
+	/* Get size of building */
+	x1 = x - randint1(3);
+	x2 = x + randint1(3);
+	y1 = y - randint1(2);
+	y2 = y + randint1(2);
+
+	/* Get type of ground */
+	switch (randint0(8))
+	{
+		case 0:
+		case 1:
+		case 2:
+		{
+			/* Grass */
+			type = 1;
+			break;
+		}
+		case 3:
+#if 0
+		{
+			/* Use "underlying" type */
+			gen_block_helper(block_ptr, wild_gen_data[data[0]].data,
+							 wild_gen_data[data[0]].gen_routine, road);
+			return;
+		}
+#endif
+		case 4:
+		{
+			/* Alternating grass & dirt */
+			type = 3;
+			break;
+		}
+		case 5:
+		{
+			/* Dirt */
+			type = 2;
+			break;
+		}
+		case 6:
+		{
+			/* Dirt with building */
+			type = 4;
+			break;
+		}
+		default:
+		{
+			/* Grass with building */
+			type = 5;
+			break;
+		}
+	}
+
+	/*
+	 * If there is a road or river going through here we should
+	 * use types 1 or 2 because we don't want roads running through
+	 * buildings and other weirdness.
+	 */
+	if (road && (type > 2)) type = rand_range(1, 2);
+
+	for (i = 0; i < WILD_BLOCK_SIZE; i++)
+	{
+		for (j = 0; j < WILD_BLOCK_SIZE; j++)
+		{
+			/* Get location */
+			c_ptr = &block_ptr[j][i];
+
+			/* Place ground */
+			if (type == 1 || (type == 3 && j % 2 == 0) || type == 5)
+			{
+				c_ptr->feat = FEAT_GRASS;
+			}
+			else
+			{
+				c_ptr->feat = FEAT_DIRT;
+			}
+
+			if ((i >= x1) && (i <= x2) && (j >= y1) && (j <= y2) && (type >= 4))
+			{
+				/* Build an invulnerable rectangular building */
+				c_ptr->feat = FEAT_PERM_EXTRA;
+			}
+			else if ((i >= x1 - 1) && (i <= x2 + 1) &&
+					 (j >= y1 - 1) && (j <= y2 + 1) && (type >= 4))
+			{
+				c_ptr->feat = FEAT_DIRT;
+			}
+		}
+	}
+}
+
+
 
 /*
  * This function blends adjacent sea blocks
@@ -2770,6 +2909,11 @@ static void blend_helper(cave_type *c_ptr, byte *data, int g_type)
 			/* Use the other terrain's blend function */
 			blend_helper(c_ptr, wild_gen_data[data[0]].data,
 						 wild_gen_data[data[0]].gen_routine);
+			/* break;  Restore this when we do something for case 4 */
+		}
+		case 4:
+		{
+			/* Don't do anything */
 			break;
 		}
 		default:
@@ -2789,6 +2933,12 @@ static void blend_block(int x, int y, blk_ptr block_ptr, u16b type)
 	int i, j, dx, dy;
 
 	u16b w_type;
+
+	/* Get current location */
+	w_type = wild[y][x].done.wild;
+
+	/* Farms do not blend */
+	if (wild_gen_data[w_type].gen_routine == 4) return;
 
 	/* Blend based on height map */
 	for (j = 0; j < WILD_BLOCK_SIZE; j++)
@@ -2863,7 +3013,8 @@ static void blend_block(int x, int y, blk_ptr block_ptr, u16b type)
 /*
  * Make the specified terrain type at a wilderness block
  */
-static void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type)
+static void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type,
+                             bool road)
 {
 	/* Based on type - choose wilderness block generation function */
 	switch (gen_type)
@@ -2871,19 +3022,25 @@ static void gen_block_helper(blk_ptr block_ptr, byte *data, int gen_type)
 		case 1:
 		{
 			/* Fractal plasma with weighted terrain probabilites */
-			make_wild_01(block_ptr, data);
+			make_wild_01(block_ptr, data, road);
 			break;
 		}
 		case 2:
 		{
 			/* Uniform field + rare "out-crops" */
-			make_wild_02(block_ptr, data);
+			make_wild_02(block_ptr, data, road);
 			break;
 		}
 		case 3:
 		{
 			/* Use another type + overlay a "circle" of terrain. */
-			make_wild_03(block_ptr, data);
+			make_wild_03(block_ptr, data, road);
+			break;
+		}
+		case 4:
+		{
+			/* Draw a farm. */
+			make_wild_04(block_ptr, data, road);
 			break;
 		}
 		default:
@@ -2976,6 +3133,9 @@ void light_dark_square(int x, int y, bool daytime)
 
 		/* Hack -- Memorize lit grids if allowed */
 		if (view_perma_grids) remember_grid(c_ptr, pc_ptr);
+
+		/* If is daytime - have seen this square */
+		wild[y / 16][x / 16].done.info |= WILD_INFO_SEEN;
 	}
 	else
 	{
@@ -3036,6 +3196,7 @@ static void gen_block(int x, int y)
 {
 	u16b w_place, w_type;
 	blk_ptr block_ptr = wild_grid[y][x];
+	bool road = FALSE;
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
@@ -3047,6 +3208,12 @@ static void gen_block(int x, int y)
 
 	/* Get wilderness type */
 	w_type = wild[y][x].done.wild;
+
+	/* Is there a road here? */
+	if (wild[y][x].done.info & (WILD_INFO_TRACK | WILD_INFO_ROAD))
+	{
+		road = TRUE;
+	}
 
 	/* Create sea terrains if type >= WILD_SEA */
 	if (w_type >= WILD_SEA)
@@ -3064,7 +3231,7 @@ static void gen_block(int x, int y)
 	{
 		/* Make terrain based on wilderness generation type */
 		gen_block_helper(block_ptr, wild_gen_data[w_type].data,
-						 wild_gen_data[w_type].gen_routine);
+						 wild_gen_data[w_type].gen_routine, road);
 
 		/* Blend with adjacent terrains */
 		blend_block(x, y, block_ptr, w_type);
@@ -3319,7 +3486,7 @@ static void del_block(int x, int y)
 			}
 
 			/* Delete objects on the square */
-			delete_object_location(&block_ptr[yy][xx]);
+			delete_object_list(&block_ptr[yy][xx].o_idx);
 
 			/* Delete fields on the square */
 			delete_field_aux(&block_ptr[yy][xx].fld_idx);
@@ -3671,6 +3838,9 @@ void change_level(int level)
 		p_ptr->px = (s16b)p_ptr->wilderness_x;
 		p_ptr->py = (s16b)p_ptr->wilderness_y;
 
+		/* Notice player location */
+		Term_move_player();
+
 		/* Used to be in the dungeon? */
 		if (area != access_wild) switched = TRUE;
 
@@ -3763,10 +3933,8 @@ void change_level(int level)
 		}
 	}
 
-#ifdef TERM_USE_MAP
 	/* Tell the rest of the world that the map is no longer valid */
 	Term_erase_map();
-#endif /* TERM_USE_MAP */
 }
 
 
@@ -3775,6 +3943,18 @@ void change_level(int level)
  */
 void wipe_all_list(void)
 {
+	int i;
+
+	/* Clear the store cache */
+	for (i = 0; i < store_cache_num; i++)
+	{
+		if (store_cache[i]->stock)
+		{
+			delete_object_list(&store_cache[i]->stock);
+		}
+	}
+	store_cache_num = 0;
+
 	if (p_ptr->depth)
 	{
 		/* In the dungeon */
@@ -3796,4 +3976,27 @@ void wipe_all_list(void)
 	in_bounds = NULL;
 	in_bounds2 = NULL;
 	in_boundsp = NULL;
+}
+
+/*
+ * Return the building name given a building "type"
+ */
+cptr building_name(byte build_type)
+{
+	/* Must be static so we can return it */
+	static char name[80];
+
+	u16b field_num;
+
+	/* Start off by clearing the name from previous calls */
+	memset(name, 0, 80);
+
+	/* Look up the field type */
+	field_num = wild_build[build_type].field;
+
+	/* Find the name of the building */
+	strcpy(name, t_info[field_num].name);
+
+	return name;
+
 }

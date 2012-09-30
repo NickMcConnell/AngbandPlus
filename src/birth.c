@@ -746,64 +746,6 @@ static void load_prev_data(void)
 }
 
 
-#ifdef OLD_AUTOROLLER
-
-/*
- * Returns adjusted stat -JK-  Algorithm by -JWT-
- *
- * auto_roll is boolean and states maximum changes should be used rather
- * than random ones to allow specification of higher values to wait for.
- *
- */
-static int adjust_stat(int value, int amount)
-{
-	int i;
-
-	/* Negative amounts */
-	if (amount < 0)
-	{
-		/* Apply penalty */
-		for (i = 0; i < (0 - amount); i++)
-		{
-			if (value >= 18 + 10)
-			{
-				value -= 10;
-			}
-			else if (value > 18)
-			{
-				value = 18;
-			}
-			else if (value > 3)
-			{
-				value--;
-			}
-		}
-	}
-
-	/* Positive amounts */
-	else if (amount > 0)
-	{
-		/* Apply reward */
-		for (i = 0; i < amount; i++)
-		{
-			if (value < 18)
-			{
-				value++;
-			}
-			else
-			{
-				value += 10;
-			}
-		}
-	}
-
-	/* Return the result */
-	return (value);
-}
-
-#endif /* OLD_AUTOROLLER */
-
-
 /*
  * Roll for a characters stats
  *
@@ -842,17 +784,14 @@ static void get_stats(void)
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
 		j = 5 + dice[3 * i] + dice[3 * i + 1] + dice[3 * i + 2];
 
-		/* Save that value */
-		p_ptr->stat_max[i] = j;
-
 		/* Obtain a "bonus" for "race" and "class" */
 		bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-		/* Start fully healed */
-		p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+		/* Apply the bonus to the stat (somewhat randomly) */
+		stat_use[i] = adjust_stat(i, j, bonus);
 
-		/* Efficiency -- Apply the racial/class bonuses */
-		stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus);
+		/* Start fully healed */
+		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
 	}
 }
 
@@ -1270,6 +1209,11 @@ static void player_wipe(void)
 	C_COPY(pcave, p_ptr->pcave, MAX_HGT, pcave_type *);
 	pwild = p_ptr->pwild;
 
+	/*
+	 * Delete the carried objects
+	 */
+	delete_object_list(&p_ptr->inventory);
+
 	/* Hack -- zero the struct */
 	(void)WIPE(p_ptr, player_type);
 
@@ -1286,13 +1230,6 @@ static void player_wipe(void)
 	{
 		strcpy(p_ptr->history[i], "");
 	}
-
-	/* Clear the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		object_wipe(&inventory[i]);
-	}
-
 
 	/* Start with no artifacts made yet */
 	for (i = 0; i < z_info->a_max; i++)
@@ -1419,7 +1356,7 @@ static const byte player_init[MAX_CLASS][3][2] =
 	{
 	 /* Mindcrafter */
 	 {TV_SWORD, SV_DAGGER},
-	 {TV_POTION, SV_POTION_RESTORE_MANA},
+	 {TV_POTION, SV_POTION_RES_WIS},
 	 {TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR},
 	 },
 
@@ -1441,11 +1378,7 @@ static void player_outfit(void)
 {
 	int i, tv, sv;
 
-	object_type forge;
 	object_type *q_ptr;
-
-	/* Get local object */
-	q_ptr = &forge;
 
 	/* Give the player some food */
 	switch (p_ptr->prace)
@@ -1458,14 +1391,14 @@ static void player_outfit(void)
 		case RACE_GHOUL:
 		{
 			/* Scrolls of satisfy hunger */
-			object_prep(q_ptr,
-						lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
+			q_ptr =
+				object_prep(lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
 			q_ptr->number = (byte)rand_range(2, 5);
 			object_aware(q_ptr);
 			object_known(q_ptr);
 
 			/* These objects are "storebought" */
-			q_ptr->ident |= IDENT_STOREB;
+			q_ptr->info |= OB_STOREB;
 
 			(void)inven_carry(q_ptr);
 
@@ -1474,7 +1407,7 @@ static void player_outfit(void)
 		default:
 		{
 			/* Food rations */
-			object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+			q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
 			q_ptr->number = (byte)rand_range(3, 7);
 			object_aware(q_ptr);
 			object_known(q_ptr);
@@ -1483,13 +1416,10 @@ static void player_outfit(void)
 		}
 	}
 
-	/* Get local object */
-	q_ptr = &forge;
-
 	if (p_ptr->prace == RACE_VAMPIRE)
 	{
 		/* Hack -- Give the player scrolls of DARKNESS! */
-		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
+		q_ptr = object_prep(lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
 
 		q_ptr->number = (byte)rand_range(2, 5);
 
@@ -1497,33 +1427,31 @@ static void player_outfit(void)
 		object_known(q_ptr);
 
 		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
+		q_ptr->info |= OB_STOREB;
 
 		(void)inven_carry(q_ptr);
 	}
 	else
 	{
 		/* Hack -- Give the player some torches */
-		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
+		q_ptr = object_prep(lookup_kind(TV_LITE, SV_LITE_TORCH));
 		q_ptr->number = (byte)rand_range(3, 7);
 		q_ptr->timeout = rand_range(3, 7) * 500;
+		q_ptr->pval = 0;
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
 		(void)inven_carry(q_ptr);
 	}
 
-	/* Get local object */
-	q_ptr = &forge;
-
 	if (p_ptr->pclass == CLASS_RANGER)
 	{
 		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
+		q_ptr = object_prep(lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
 		q_ptr->number = (byte)rand_range(15, 20);
 
 		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
+		q_ptr->info |= OB_STOREB;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1531,10 +1459,10 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr);
 
 		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_BOW, SV_SHORT_BOW));
+		q_ptr = object_prep(lookup_kind(TV_BOW, SV_SHORT_BOW));
 
 		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
+		q_ptr->info |= OB_STOREB;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1543,13 +1471,13 @@ static void player_outfit(void)
 	}
 	else if (p_ptr->pclass == CLASS_HIGH_MAGE)
 	{
-		/* Hack -- Give the player some arrows */
-		object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
+		/* Hack -- Give the player a wand of magic missile */
+		q_ptr = object_prep(lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
 		q_ptr->number = 1;
 		q_ptr->pval = (byte)rand_range(25, 30);
 
 		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
+		q_ptr->info |= OB_STOREB;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -1575,11 +1503,8 @@ static void player_outfit(void)
 			sv = SV_RING_SUSTAIN_STR;
 		}
 
-		/* Get local object */
-		q_ptr = &forge;
-
 		/* Hack -- Give the player an object */
-		object_prep(q_ptr, lookup_kind(tv, sv));
+		q_ptr = object_prep(lookup_kind(tv, sv));
 
 		/* Assassins begin the game with a poisoned dagger */
 		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
@@ -1589,7 +1514,7 @@ static void player_outfit(void)
 		}
 
 		/* These objects are "storebought" */
-		q_ptr->ident |= IDENT_STOREB;
+		q_ptr->info |= OB_STOREB;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -2137,7 +2062,7 @@ static bool get_player_realms(void)
 	select[0] = REALM_NONE;
 
 	/* Get choices */
-	for (i = 1; i <= MAX_REALM; i++)
+	for (i = 1; i < MAX_REALM; i++)
 	{
 		/* Can we use this realm? */
 		if (realm_choices1[p_ptr->pclass] & (1 << (i - 1)))
@@ -2176,7 +2101,7 @@ static bool get_player_realms(void)
 	count = 0;
 
 	/* Get choices */
-	for (i = 1; i <= MAX_REALM; i++)
+	for (i = 1; i < MAX_REALM; i++)
 	{
 		/* Can we use this realm? */
 		if ((realm_choices2[p_ptr->pclass] & (1 << (i - 1)))
@@ -2368,8 +2293,11 @@ static bool player_birth_aux_2(void)
 		/* Process stats */
 		for (i = 0; i < A_MAX; i++)
 		{
+			int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+
 			/* Reset stats */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
+			p_ptr->stat_cur[i] = adjust_stat(i, stats[i], bonus);
+			p_ptr->stat_max[i] = p_ptr->stat_cur[i];
 
 			/* Total cost */
 			cost += birth_stat_costs[stats[i] - 10];
@@ -2467,6 +2395,24 @@ static bool player_birth_aux_2(void)
 		}
 	}
 
+	/* Process stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+
+		/* Apply some randomness */
+		p_ptr->stat_cur[i] = adjust_stat(i, stats[i], bonus);
+		p_ptr->stat_max[i] = p_ptr->stat_cur[i];
+	}
+
+	/* Calculate the bonuses and hitpoints */
+	p_ptr->update |= (PU_BONUS | PU_HP);
+
+	/* Update stuff */
+	update_stuff();
+
+	/* Display the player */
+	display_player(mode);
 
 	/* Done */
 	return (TRUE);
@@ -2500,17 +2446,9 @@ static bool player_birth_aux_3(void)
 
 #ifdef ALLOW_AUTOROLLER
 
-#ifndef OLD_AUTOROLLER
-
 	s16b stat_weight[A_MAX];
 	s16b stat_save[A_MAX];
 
-#else  /* !OLD_AUTOROLLER */
-
-	s16b stat_limit[A_MAX];
-
-	int j, m
-#endif /* OLD_AUTOROLLER */
 	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
@@ -2521,11 +2459,9 @@ static bool player_birth_aux_3(void)
 	/*** Autoroll ***/
 
 	/* Initialize */
-	if (autoroller)
+	if (autoroller && !ironman_moria)
 	{
 		char inp[80];
-
-#ifndef OLD_AUTOROLLER
 
 		/* Clean up */
 		clear_from(10);
@@ -2582,103 +2518,6 @@ static bool player_birth_aux_3(void)
 			/* Save the weight */
 			stat_weight[i] = (v > 0) ? v : def_weight;
 		}
-
-#else  /* !OLD_AUTOROLLER */
-
-		int mval[A_MAX];
-
-		/* Clean up */
-		clear_from(10);
-
-		/* Extra info */
-		Term_putstr(5, 10, -1, TERM_WHITE,
-					"The auto-roller will automatically ignore characters which do");
-		Term_putstr(5, 11, -1, TERM_WHITE,
-					"not meet the minimum values for any stats specified below.");
-		Term_putstr(5, 12, -1, TERM_WHITE,
-					"Note that stats are not independant, so it is not possible to");
-		Term_putstr(5, 13, -1, TERM_WHITE,
-					"get perfect (or even high) values for all your stats.");
-
-		/* Prompt for the minimum stats */
-		put_str("Enter minimum value for: ", 2, 15);
-
-		/* Output the maximum stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Reset the "success" counter */
-			stat_match[i] = 0;
-
-			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j);
-
-			/* Save the maximum */
-			mval[i] = m;
-
-			/* Extract a textual format */
-			/* cnv_stat(m, inp); */
-
-			/* Above 18 */
-			if (m > 18)
-			{
-				sprintf(inp, "(Max of 18/%02d):", (m - 18));
-			}
-
-			/* From 3 to 18 */
-			else
-			{
-				sprintf(inp, "(Max of %2d):", m);
-			}
-
-			/* Prepare a prompt */
-			sprintf(buf, "%-5s%-20s", stat_names[i], inp);
-
-			/* Dump the prompt */
-			put_str(buf, 5, 16 + i);
-		}
-
-		/* Input the minimum stats */
-		for (i = 0; i < A_MAX; i++)
-		{
-			/* Get a minimum stat */
-			while (TRUE)
-			{
-				char *s;
-
-				/* Move the cursor */
-				put_str("", 30, 16 + i);
-
-				/* Default */
-				strcpy(inp, "");
-
-				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 9)) inp[0] = '\0';
-
-				/* Hack -- add a fake slash */
-				strcat(inp, "/");
-
-				/* Hack -- look for the "slash" */
-				s = strchr(inp, '/');
-
-				/* Hack -- Nuke the slash */
-				*s++ = '\0';
-
-				/* Hack -- Extract an input */
-				v = atoi(inp) + atoi(s);
-
-				/* Break on valid input */
-				if (v <= mval[i]) break;
-			}
-
-			/* Save the minimum stat */
-			stat_limit[i] = (v > 0) ? v : 0;
-		}
-
-#endif /* !OLD_AUTOROLLER */
-
 	}
 
 #endif /* ALLOW_AUTOROLLER */
@@ -2695,11 +2534,8 @@ static bool player_birth_aux_3(void)
 		int col = 42;
 
 		/* Feedback */
-		if (autoroller)
+		if (autoroller && !ironman_moria)
 		{
-
-#ifndef OLD_AUTOROLLER
-
 			s32b best_score;
 			s32b cur_score;
 
@@ -2801,7 +2637,7 @@ static bool player_birth_aux_3(void)
 					if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
 
 					/* Do not wait for a key */
-					inkey_scan = TRUE;
+					p_ptr->inkey_scan = TRUE;
 
 					/* Check for a keypress */
 					if (inkey()) break;
@@ -2813,121 +2649,6 @@ static bool player_birth_aux_3(void)
 			{
 				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_save[i];
 			}
-
-#else  /* !OLD_AUTOROLLER */
-
-			Term_clear();
-
-			/* Label */
-			put_str(" Limit", col + 5, 2);
-
-			/* Label */
-			put_str("  Freq", col + 13, 2);
-
-			/* Label */
-			put_str("  Roll", col + 24, 2);
-
-			/* Put the minimal stats */
-			for (i = 0; i < A_MAX; i++)
-			{
-				/* Label stats */
-				put_str(stat_names[i], col, i + 3);
-
-				/* Put the stat */
-				cnv_stat(stat_limit[i], buf);
-				c_put_str(TERM_L_BLUE, buf, col + 5, i + 3);
-			}
-
-			/* Note when we started */
-			last_round = auto_round;
-
-			/* Label count */
-			put_str("Round:", col + 13, 10);
-
-			/* Indicate the state */
-			put_str("(Hit ESC to stop)", col + 13, 12);
-
-			/* Auto-roll */
-			while (1)
-			{
-				bool accept = TRUE;
-
-				/* Get a new character */
-				get_stats();
-
-				/* Advance the round */
-				auto_round++;
-
-				/* Hack -- Prevent overflow */
-				if (auto_round >= 1000000L) break;
-
-				/* Check and count acceptable stats */
-				for (i = 0; i < A_MAX; i++)
-				{
-					/* This stat is okay */
-					if (stat_use[i] >= stat_limit[i])
-					{
-						stat_match[i]++;
-					}
-
-					/* This stat is not okay */
-					else
-					{
-						accept = FALSE;
-					}
-				}
-
-				/* Break if "happy" */
-				if (accept) break;
-
-				/* Take note every x rolls */
-				flag = (!(auto_round % AUTOROLLER_STEP));
-
-				/* Update display occasionally */
-				if (flag || (auto_round < last_round + 100))
-				{
-					/* Put the stats (and percents) */
-					for (i = 0; i < A_MAX; i++)
-					{
-						/* Put the stat */
-						cnv_stat(stat_use[i], buf);
-						c_put_str(TERM_L_GREEN, buf, col + 24, i + 3);
-
-						/* Put the percent */
-						if (stat_match[i])
-						{
-							int p = 1000L * stat_match[i] / auto_round;
-							byte attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
-							sprintf(buf, "%3d.%d%%", p / 10, p % 10);
-							c_put_str(attr, buf, col + 13, i + 3);
-						}
-
-						/* Never happened */
-						else
-						{
-							c_put_str(TERM_RED, "(NONE)", col + 13, i + 3);
-						}
-					}
-
-					/* Dump round */
-					put_str(format("%10ld", auto_round), col + 20, 10);
-
-					/* Make sure they see everything */
-					Term_fresh();
-
-					/* Delay 1/10 second */
-					if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
-
-					/* Do not wait for a key */
-					inkey_scan = TRUE;
-
-					/* Check for a keypress */
-					if (inkey()) break;
-				}
-			}
-
-#endif /* OLD_AUTOROLLER */
-
 		}
 
 		/* Otherwise just get a character */
@@ -3058,14 +2779,13 @@ static bool player_birth_aux_3(void)
 
 static bool player_birth_aux(void)
 {
-	int i, delta;
 	char ch;
 
 	/* Ask questions */
 	if (!player_birth_aux_1()) return FALSE;
 
 	/* Point based */
-	if (point_based)
+	if (point_based && !ironman_moria)
 	{
 		if (!player_birth_aux_2()) return FALSE;
 	}
@@ -3096,28 +2816,9 @@ static bool player_birth_aux(void)
 	if (ch == KTRL('X')) quit(NULL);
 
 	/* Start over */
-	if ((ch == 0x7F) || (ch == KTRL('H'))) return (FALSE);
+	if ((ch == 0x7F) || (ch == '.') || (ch == KTRL('H'))) return (FALSE);
 
 	/* Accepted */
-
-	/*
-	 * Now lets perturb the stats a little 
-	 * so there is some variation at the start of the game.
-	 */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Only if above 18, where the percentiles don't matter much */
-		if (p_ptr->stat_use[i] > 18)
-		{
-			/* Get amount to change the stat */
-			delta = randint0(10);
-
-			/* Adjust the stats */
-			p_ptr->stat_use[i] += delta;
-			p_ptr->stat_cur[i] += delta;
-			p_ptr->stat_max[i] += delta;
-		}
-	}
 
 	/* Done */
 	return (TRUE);

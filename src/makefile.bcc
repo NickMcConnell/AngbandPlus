@@ -38,8 +38,7 @@ EXE_FILE = zangband.exe
 # Set any compiler options
 
 CCOPTS = -Hc -tW -lGn -e$(EXE_FILE) -w- \
-	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400 \
-	-DUSE_TRANSPARENCY
+	-D_WIN32_WINNT=0x0400 -DWINVER=0x0400
 
 # Compile flags:
 CCFLAGS= $(CCOPTS) $(DBGOPT)
@@ -98,6 +97,7 @@ OBJ = \
 	melee2.obj \
 	melee1.obj \
 	main-win.obj \
+	maid-grf.obj \
 	notes.obj \
 	load.obj \
 	init2.obj \
@@ -123,6 +123,8 @@ OBJ = \
 	script.obj \
 	l-monst.obj l-object.obj l-player.obj l-random.obj l-ui.obj \
 	l-misc.obj l-spell.obj \
+	zborg1.obj zborg2.obj zborg3.obj zborg4.obj zborg5.obj \
+	zborg6.obj zborg7.obj zborg8.obj zborg9.obj \
 	$(LUAOBJS)
 
 
@@ -153,7 +155,7 @@ angband.res: angband.rc
 	$(RC) -r angband.rc
 
 l-monst.c: lua\tolua.exe l-monst.pkg
-	lua\tolua.exe -n monster -o l-monst.c l-monst.pkg
+	lua\tolua.exe -n monst -o l-monst.c l-monst.pkg
 
 l-object.c: lua\tolua.exe l-object.pkg
 	lua\tolua.exe -n object -o l-object.c l-object.pkg

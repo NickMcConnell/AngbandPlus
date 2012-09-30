@@ -50,14 +50,6 @@
 typedef void *vptr;
 
 
-/* A string pointer */
-typedef const char *cptr;
-
-
-/* A real number */
-typedef double real;
-
-
 /*
  * Hack -- prevent problems with non-MACINTOSH
  */
@@ -103,10 +95,6 @@ typedef int sint;
 /* An unsigned, "standard" integer (often pre-defined) */
 typedef unsigned int uint;
 
-
-/* The largest possible signed integer (pre-defined) */
-/* typedef long long; */
-
 /* The largest possible unsigned integer */
 typedef unsigned long huge;
 
@@ -119,10 +107,52 @@ typedef unsigned short u16b;
 #ifdef L64						/* 64 bit longs */
 typedef signed int s32b;
 typedef unsigned int u32b;
-#else
+
+#ifdef USE_64B
+/* Signed/Unsigned 64bit value */
+typedef long u64b;
+typedef unsigned long s64b;
+#endif /* USE_64B */
+
+#else  /* L64 */
+
 typedef signed long s32b;
 typedef unsigned long u32b;
-#endif
 
+#if USE_64B
+
+/* Try to get a 64 bit type */
+# if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#  include <stdint.h>
+#  define ANG_U64B uint64_t
+#  define ANG_S64B int64_t
+# endif	/* __STDC__ && __STDC_VERSION__ */
+
+/* Define this for Microsoft Dev Studio C++ 6.0 */
+# ifdef MSDEV
+#  define ANG_U64B unsigned __int64
+#  define ANG_S64B __int64
+# endif	/* MSDEV */
+
+/* Define this if you have <sys/types.h> with an old compiler */
+# if defined HAS_SYS_TYPES && !defined ANG_U64B
+#  include <sys/types.h>
+#  define ANG_U64B u_int64_t
+#  define ANG_S64B int64_t
+# endif	/* HAS_SYS_TYPES */
+
+/* Attempt to use "long long" which is semi-standard for older compilers */
+# ifndef ANG_U64B
+#  define ANG_U64B unsigned long long
+#  define ANG_S64B long long
+# endif	/* ANG_U64B */
+
+/* Define the 64bit types */
+typedef ANG_U64B u64b;
+typedef ANG_S64B s64b;
+
+#endif /* USE_64B */
+
+#endif /* L64 */
 
 #endif

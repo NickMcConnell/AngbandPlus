@@ -51,6 +51,12 @@
 
 #ifdef USE_GCU
 
+cptr help_gcu[] =
+{
+	"To use GCU (GNU Curses)",
+	NULL
+};
+
 /*
  * Hack -- play games with "bool"
  */

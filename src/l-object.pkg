@@ -1082,14 +1082,14 @@ typedef int sint;
 /*
  * Special Object Flags
  */
-#define IDENT_SENSE     0x01    /* Item has been "sensed" */
-#define IDENT_FIXED     0x02    /* Item has been "haggled" */
-#define IDENT_EMPTY     0x04    /* Item charges are known */
-#define IDENT_KNOWN     0x08    /* Item abilities are known */
-#define IDENT_STOREB    0x10    /* Item is storebought !!!! */
-#define IDENT_MENTAL    0x20    /* Item information is known */
-#define IDENT_CURSED    0x40    /* Item is temporarily cursed */
-#define IDENT_BROKEN    0x80    /* Item is permanently worthless */
+#define OB_SENSE     0x01    /* Item has been "sensed" */
+#define OB_SEEN      0x02	 /* Item is seen */
+#define OB_EMPTY     0x04    /* Item charges are known */
+#define OB_KNOWN     0x08    /* Item abilities are known */
+#define OB_STOREB    0x10    /* Item is storebought !!!! */
+#define OB_MENTAL    0x20	 /* Item is *id*'ed */
+#define OB_DUMMY3    0x40
+#define OB_DUMMY4    0x80
 
 
 
@@ -1279,64 +1279,6 @@ struct obj_theme
 	byte tools;
 };
 
-struct artifact_type
-{
-	u32b name;			/* Name (offset) */
-	u32b text;			/* Text (offset) */
-
-	byte tval;			/* Artifact type */
-	byte sval;			/* Artifact sub type */
-
-	s16b pval;			/* Artifact extra info */
-
-	s16b to_h;			/* Bonus to hit */
-	s16b to_d;			/* Bonus to damage */
-	s16b to_a;			/* Bonus to armor */
-
-	s16b ac;			/* Base armor */
-
-	byte dd;			/* Damage when hits */
-	byte ds;
-
-	s16b weight;		/* Weight */
-
-	s32b cost;			/* Artifact "cost" */
-
-	u32b flags1;		/* Artifact Flags, set 1 */
-	u32b flags2;		/* Artifact Flags, set 2 */
-	u32b flags3;		/* Artifact Flags, set 3 */
-
-	byte level;			/* Artifact level */
-	byte rarity;		/* Artifact rarity */
-
-	byte cur_num;		/* Number created (0 or 1) */
-	byte max_num;		/* Unused (should be "1") */
-};
-
-struct ego_item_type
-{
-	u32b name;			/* Name (offset) */
-	u32b text;			/* Text (offset) */
-
-	byte slot;			/* Standard slot value */
-	byte rating;		/* Rating boost */
-
-	byte level;			/* Minimum level */
-	byte rarity;		/* Object rarity */
-
-	byte max_to_h;		/* Maximum to-hit bonus */
-	byte max_to_d;		/* Maximum to-dam bonus */
-	byte max_to_a;		/* Maximum to-ac bonus */
-
-	byte max_pval;		/* Maximum pval */
-
-	s32b cost;			/* Ego-item "cost" */
-
-	u32b flags1;		/* Ego-Item Flags, set 1 */
-	u32b flags2;		/* Ego-Item Flags, set 2 */
-	u32b flags3;		/* Ego-Item Flags, set 3 */
-};
-
 struct object_type
 {
 	s16b k_idx;			/* Kind index (zero if "dead") */
@@ -1366,10 +1308,6 @@ struct object_type
 	byte dd;			/* Damage dice/sides */
 	byte ds;
 
-	byte ident;			/* Special flags */
-
-	byte marked;		/* Object is marked */
-
 	u16b inscription;	/* Inscription index */
 	u16b xtra_name;      /* Extra Name (Artifacts and ego items) */
 
@@ -1383,13 +1321,16 @@ struct object_type
 
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
-	s16b held_m_idx;	/* Monster holding us (if any) */
-
 	s32b cost;			/* Object "base cost" */
 	
 	byte feeling;       /* Game generated inscription number (eg, pseudo-id) */
 
 	byte activate;		/* Activation type */
+	
+	byte info;			/* Special flags */
+
+	bool allocated;	/* Held in the o_list[] array */
+
 };
 
 
@@ -1401,12 +1342,8 @@ extern object_type o_list[o_max];
 extern object_kind k_info[z_info->k_max];
 extern char *k_name;
 extern char *k_text;
-extern artifact_type a_info[z_info->a_max];
 extern char *a_name;
 extern char *a_text;
-extern ego_item_type e_info[z_info->e_max];
-extern char *e_name;
-extern char *e_text;
 
 
 /***** Functions *****/
@@ -1415,24 +1352,17 @@ extern void reset_visuals(void);
 extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern bool identify_fully_aux(const object_type *o_ptr);
-extern char index_to_label(int i);
-extern s16b label_to_inven(int c);
-extern s16b label_to_equip(int c);
 extern s16b wield_slot(const object_type *o_ptr);
 extern cptr mention_use(int i);
 extern cptr describe_use(int i);
-extern void inven_item_charges(int item);
-extern void inven_item_describe(int item);
-extern void inven_item_increase(int item, int num);
-extern void inven_item_optimize(int item);
-extern void floor_item_charges(int item);
-extern void floor_item_describe(int item);
-extern void floor_item_increase(int item, int num);
-extern void floor_item_optimize(int item);
+extern void item_charges(object_type *o_ptr);
+extern void item_describe(object_type *o_ptr);
+extern object_type *item_split(object_type *o_ptr, int num);
+extern void item_increase(object_type *o_ptr, int num);
 extern bool inven_carry_okay(const object_type *o_ptr);
-extern s16b inven_carry(object_type *o_ptr);
-extern s16b inven_takeoff(int item, int amt);
-extern void inven_drop(int item, int amt);
+extern object_type *inven_carry(object_type *o_ptr);
+extern object_type *inven_takeoff(object_type *o_ptr);
+extern void inven_drop(object_type *o_ptr, int amt);
 extern bool item_tester_hook_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_melee_weapon(const object_type *o_ptr);
 extern bool item_tester_hook_nonsword(const object_type *o_ptr);
@@ -1455,22 +1385,22 @@ extern bool item_tester_hook_is_book(const object_type *o_ptr);
 extern bool item_tester_okay(const object_type *o_ptr);
 extern void display_inven(void);
 extern void display_equip(void);
-extern void show_inven(void);
+extern void show_list(s16b o_list_ptr);
 extern void show_equip(void);
 extern void toggle_inven_equip(void);
-extern bool get_item(int *cp, cptr pmt, cptr str, int mode);
-extern void excise_object_idx(int o_idx);
-extern void delete_object_idx(int o_idx);
+extern object_type *get_item(cptr pmt, cptr str, int mode);
+extern void delete_dungeon_object(object_type *o_ptr);
 extern void delete_object(int x, int y);
-extern void delete_object_location(cave_type *c_ptr);
+extern void delete_object_list(s16b *o_idx_ptr);
+extern void drop_object_list(s16b *o_idx_ptr, int x, int y);
 extern void compact_objects(int size);
-extern s16b o_pop(void);
 extern void get_obj_num_prep(void);
 extern errr get_obj_store_prep(void);
 extern s16b get_obj_num(int level, int min_level);
 extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
+extern void object_mental(object_type *o_ptr);
 extern s32b flag_cost(const object_type *o_ptr, int plusses);
 extern s32b object_value(const object_type *o_ptr);
 extern s32b object_value_real(const object_type *o_ptr);
@@ -1480,29 +1410,23 @@ extern bool object_similar(const object_type *o_ptr, const object_type *j_ptr);
 extern void object_absorb(object_type *o_ptr, object_type *j_ptr);
 extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
-extern void object_prep(object_type *o_ptr, int k_idx);
-extern void object_copy(object_type *o_ptr, const object_type *j_ptr);
+extern object_type *object_prep(int k_idx);
 extern void add_ego_flags(object_type *o_ptr, byte ego);
-extern bool make_artifact(object_type *o_ptr);
 extern void add_ego_power(int power, object_type *o_ptr);
 extern void apply_magic(object_type *o_ptr, int lev, int lev_dif, byte flags);
 extern void init_match_hook(byte tval, byte sval);
 extern byte kind_is_match(int k_idx);
 extern void init_match_theme(obj_theme theme);
 extern byte kind_is_theme(int k_idx);
-extern bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme);
+extern object_type *make_object(u16b delta_level, obj_theme theme);
 extern void place_object(int x, int y, bool good, bool great);
-extern bool make_gold(object_type *j_ptr, int coin_type);
+extern object_type *make_gold(int coin_type);
 extern void place_gold(int x, int y);
-extern s16b drop_near(object_type *o_ptr, int chance, int x, int y);
+extern void drop_near(object_type *o_ptr, int chance, int x, int y);
 extern void acquirement(int x1, int y1, int num, bool great, bool known);
 extern cptr item_activation(const object_type *o_ptr);
-extern void combine_pack(void);
-extern void reorder_pack(void);
 extern bool can_player_destroy_object(object_type *o_ptr);
 extern void display_koff(int k_idx);
-extern bool scan_floor(int *items, int *item_num, int x, int y, int mode);
-extern void show_floor(int x, int y);
 
 /* artifact.c */
 extern bool create_artifact(object_type *o_ptr, bool a_scroll);

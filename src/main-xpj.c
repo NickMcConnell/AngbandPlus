@@ -37,13 +37,18 @@
 
 #ifdef USE_XPJ
 
+cptr help_xpj[] =
+{
+	"To use XPJ  (Projected view)",
+	"-d    Set display name",
+	"-s    Turn off smoothscaling graphics",
+	"-n#   Number of terms to use",
+	NULL
+};
+
 
 #ifndef USE_GRAPHICS
 #error "Must have USE_GRAPHICS compile-time flag on."
-#endif
-
-#ifndef USE_TRANSPARENCY
-#error "Must have USE_TRANSPARENCY compile-time flag on."
 #endif
 
 /* 
@@ -70,7 +75,7 @@
 
 
 
-/* Rest of the dependancies */
+/* Rest of the dependencies */
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -778,7 +783,7 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 	m->fg = m->white;
 
 	/* Calculate the Maximum allowed Pixel value.  */
-	m->zg = (1 << m->depth) - 1;
+	m->zg = ((Pixell)1 << m->depth) - 1;
 
 	/* Save various default Flag Settings */
 	m->color = ((m->depth > 1) ? 1 : 0);
@@ -1330,13 +1335,11 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
  *
  * Also appears in "main-xaw.c".
  */
-static void react_keypress(XKeyEvent *xev)
+static void react_keypress(XKeyEvent *ev)
 {
 	int i, n, mc, ms, mo, mx;
 
 	uint ks1;
-
-	XKeyEvent *ev = (XKeyEvent*)(xev);
 
 	KeySym ks;
 

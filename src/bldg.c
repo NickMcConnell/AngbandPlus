@@ -15,6 +15,10 @@
 #include "angband.h"
 
 
+/* Hack - force exit from building */
+static bool force_build_exit = FALSE;
+
+
 void have_nightmare(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
@@ -275,6 +279,26 @@ static void building_prt_gold(void)
 	sprintf(tmp_str, "%9ld", (long)p_ptr->au);
 	prt(tmp_str, 55, 23);
 }
+
+/* Does the player have enough gold for this action? */
+bool test_gold(s32b *cost)
+{
+	if (p_ptr->au < *cost)
+	{
+		/* Player does not have enough gold */
+
+		msg_format("You need %ld gold to do this!", (long)*cost);
+		message_flush();
+
+		*cost = 0;
+
+		return (FALSE);
+	}
+
+	/* Player has enough gold */
+	return (TRUE);
+}
+
 
 
 /*
@@ -1168,7 +1192,7 @@ bool compare_weapons(void)
 	clear_bldg(6, 18);
 
 	/* Point to wielded weapon */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	/* Check to see if we have one */
 	if (!o_ptr->k_idx)
@@ -1183,9 +1207,7 @@ bool compare_weapons(void)
 
 	/* Identify the weapon */
 	identify_item(o_ptr);
-
-	/* *Identify* the weapon for the player */
-	o_ptr->ident |= IDENT_MENTAL;
+	object_mental(o_ptr);
 
 	/* Save all the known flags */
 	o_ptr->kn_flags1 = o_ptr->flags1;
@@ -1214,7 +1236,6 @@ bool compare_weapons(void)
  */
 bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 {
-	int item;
 	bool okay = FALSE;
 	object_type *o_ptr;
 	cptr q, s;
@@ -1230,10 +1251,12 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	/* Get an item */
 	q = "Improve which item? ";
 	s = "You have nothing to improve.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return (FALSE);
 
-	/* Get the item (in the pack) */
-	o_ptr = &inventory[item];
+	/* Get the item */
+	o_ptr = get_item(q, s, (USE_INVEN | USE_EQUIP));
+
+	/* No valid items */
+	if (!o_ptr) return (FALSE);
 
 	/* Check if the player has enough money */
 	if (p_ptr->au < (cost * o_ptr->number))
@@ -1306,7 +1329,7 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
  */
 void building_recharge(s32b cost)
 {
-	int item, lev;
+	int lev;
 	object_type *o_ptr;
 	object_kind *k_ptr;
 	cptr q, s;
@@ -1326,19 +1349,11 @@ void building_recharge(s32b cost)
 	/* Get an item */
 	q = "Recharge which item? ";
 	s = "You have nothing to recharge.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
+	o_ptr = get_item(q, s, (USE_INVEN | USE_FLOOR));
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	/* No valid item */
+	if (!o_ptr) return;
 
 	k_ptr = &k_info[o_ptr->k_idx];
 
@@ -1480,7 +1495,7 @@ void building_recharge(s32b cost)
 		o_ptr->ac = 0;
 
 		/* We no longer think the item is empty */
-		o_ptr->ident &= ~(IDENT_EMPTY);
+		o_ptr->info &= ~(OB_EMPTY);
 	}
 
 	/* Give feedback */
@@ -1523,6 +1538,163 @@ bool building_healer(void)
 	return (paid);
 }
 
+
+static int collect_magetower_links(int n, int *link_p, int *link_w, s32b *cost,
+                                   int factor)
+{
+	place_type *pl_ptr = &place[p_ptr->place_num];
+
+	int i, j;
+	int max_link = 0;
+
+	/* Get current town location */
+	int x = pl_ptr->x, y = pl_ptr->y;
+
+	/* Find the magetowers we're linked to */
+	for (i = 0; i < place_count; i++)
+	{
+		place_type *pl_ptr = &place[i];
+
+		/* Skip current town */
+		if (i == p_ptr->place_num) continue;
+
+		for (j = 0; j < pl_ptr->numstores; j++)
+		{
+			store_type *st_ptr = &pl_ptr->store[j];
+
+			if (max_link >= n) return (max_link);
+
+			/* Hack - only allow teleportation to known magetowers */
+			if (!st_ptr->data) continue;
+
+			/* Is it a mage tower? */
+			if ((st_ptr->type == BUILD_MAGETOWER0) ||
+				(st_ptr->type == BUILD_MAGETOWER1))
+			{
+				link_p[max_link] = i;
+				link_w[max_link] = j;
+				cost[max_link] = distance(x, y, pl_ptr->x, pl_ptr->y) *
+					factor * 2;
+				max_link++;
+
+				/* Only collect 1 link per city */
+				break;
+			}
+		}
+	}
+
+	return max_link;
+}
+
+bool building_magetower(int factor, bool display)
+{
+	store_type *st_ptr;
+
+	int link_p[24], link_w[24];
+	int max_link = 0;
+	int i;
+
+	s32b cost[24];
+
+	char out_val[160];
+
+
+	/* Save the store pointer */
+	st_ptr = get_current_store();
+
+	/* Paranoia */
+	if (!st_ptr) return (FALSE);
+
+	/* Collect links */
+	max_link = collect_magetower_links(24, link_p, link_w, cost, factor);
+
+	if (display)
+	{
+		for (i = 0; i < max_link; i++)
+		{
+			int row = i % 12 + 4;
+			int col = (i / 12) * 40;
+
+			/* Label it, clear the line --(-- */
+			(void)sprintf(out_val, "%c) ", I2A(i));
+			prt(out_val, col, row);
+
+			/* Print place name */
+			prt(place[link_p[i]].name, col + 3, row);
+
+			/* Print cost */
+			(void)sprintf(out_val, "%ld au", (long)cost[i]);
+			prt(out_val, col + 30, row);
+		}
+	}
+	else
+	{
+		char command;
+
+		if (max_link == 0)
+		{
+			msg_print("You do not know any other towns to teleport to.");
+			return (FALSE);
+		}
+
+		/* Build the prompt */
+		(void)sprintf(out_val, "(Towns %c-%c, ESC to exit)",
+					  I2A(0), I2A(max_link - 1));
+
+		while (TRUE)
+		{
+			int k;
+
+			/* Escape */
+			if (!get_com(out_val, &command)) break;
+
+			k = (islower(command) ? A2I(command) : -1);
+
+			if ((k >= 0) && (k < max_link) && test_gold(&cost[k]))
+			{
+				place_type *pl_ptr2 = &place[link_p[k]];
+				store_type *st_ptr2 = &pl_ptr2->store[link_w[k]];
+
+				/* Subtract off cost */
+				p_ptr->au -= cost[k];
+
+				/* Move the player */
+				p_ptr->px = pl_ptr2->x * 16 + st_ptr2->x;
+				p_ptr->py = pl_ptr2->y * 16 + st_ptr2->y;
+
+				p_ptr->wilderness_x = p_ptr->px;
+				p_ptr->wilderness_y = p_ptr->py;
+
+				/* Notice player location */
+				Term_move_player();
+
+				/* Notice the move */
+				move_wild();
+
+				/* Check for new panel (redraw map) */
+				verify_panel();
+
+				/* Update stuff */
+				p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MON_LITE);
+
+				/* Update the monsters */
+				p_ptr->update |= (PU_DISTANCE);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+				force_build_exit = TRUE;
+
+				return (TRUE);
+			}
+
+			/* Oops */
+			bell("Illegal choice!");
+		}
+	}
+
+	return (FALSE);
+}
 
 #if 0
 /*
@@ -1691,17 +1863,21 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
  * Process a command in a building
  *
  * Note that we must disable some commands which are allowed
- * in the dungeon but not in the stores, to prevent chaos.
+ * in the dungeon / stores but not in the buildings, to prevent chaos,
+ * and also to give more free keys in order to have building
+ * specific commands.
+ *
+ * Hack - we buypass macros / keymaps to prevent silliness when
+ * people use the roguelike keyset and press a 'direction' key
+ * which also corresponds to a building command.
  */
 static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 {
+	/* Hack - Get a command */
+	p_ptr->command_cmd = inkey();
+
 	/* Handle repeating the last command */
 	repeat_check();
-
-	if (rogue_like_commands && p_ptr->command_cmd == 'l')
-	{
-		p_ptr->command_cmd = 'x';	/* hack! */
-	}
 
 	/* Process the building-specific commands */
 	if (process_build_hook(f_ptr, b_ptr)) return (FALSE);
@@ -1729,52 +1905,8 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 			break;
 		}
 
-		/*** Inventory Commands ***/
-
-		case 'w':
-		{
-			/* Wear/wield equipment */
-			do_cmd_wield();
-			break;
-		}
-
-		case 't':
-		{
-			/* Take off equipment */
-			do_cmd_takeoff();
-			break;
-		}
-
-		case 'k':
-		{
-			/* Destroy an item */
-			do_cmd_destroy();
-			break;
-		}
-
-		case 'e':
-		{
-			/* Equipment list */
-			do_cmd_equip();
-			break;
-		}
-
-		case 'i':
-		{
-			/* Inventory list */
-			do_cmd_inven();
-			break;
-		}
-
 
 		/*** Various commands ***/
-
-		case 'I':
-		{
-			/* Identify an object */
-			do_cmd_observe();
-			break;
-		}
 
 		case KTRL('I'):
 		{
@@ -1782,31 +1914,6 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 			toggle_inven_equip();
 			break;
 		}
-
-
-		/*** Use various objects ***/
-
-		case 'b':
-		{
-			/* Browse a book */
-			do_cmd_browse();
-			break;
-		}
-
-		case '{':
-		{
-			/* Inscribe an object */
-			do_cmd_inscribe();
-			break;
-		}
-
-		case '}':
-		{
-			/* Uninscribe an object */
-			do_cmd_uninscribe();
-			break;
-		}
-
 
 		/*** Help and Such ***/
 
@@ -2011,11 +2118,14 @@ void do_cmd_bldg(field_type *f_ptr)
 		/* Show your gold */
 		building_prt_gold();
 
-		/* Get a command */
-		request_command(FALSE);
-
 		/* Process the command */
 		leave_build = build_process_command(f_ptr, b_ptr);
+
+		if (force_build_exit)
+		{
+			force_build_exit = FALSE;
+			break;
+		}
 
 		/* Hack -- Character is still in "icky" mode */
 		character_icky = TRUE;
@@ -2036,10 +2146,6 @@ void do_cmd_bldg(field_type *f_ptr)
 
 	/* Hack -- Cancel automatic command */
 	p_ptr->command_new = 0;
-
-	/* Hack -- Cancel "see" mode */
-	p_ptr->command_see = FALSE;
-
 
 	/* Flush messages XXX XXX XXX */
 	message_flush();
@@ -2079,10 +2185,6 @@ void build_init(int town_num, int build_num, byte build_type)
 	st_ptr->type = build_type;
 
 	/* Initialize */
-	st_ptr->store_open = 0;
-	st_ptr->insult_cur = 0;
-	st_ptr->good_buy = 0;
-	st_ptr->bad_buy = 0;
-	st_ptr->stock_num = 0;
+	st_ptr->data = 0;
 	st_ptr->last_visit = 0;
 }

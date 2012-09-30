@@ -3,7 +3,7 @@
 ** Written by Waldemar Celes
 ** TeCGraf/PUC-Rio
 ** Jul 1998
-** $Id: tolua.c,v 1.4 2001/12/30 22:38:26 sfuerst Exp $
+** $Id: tolua.c,v 1.6 2002/04/01 11:54:31 sfuerst Exp $
 */
 
 /* This code is free software; you can redistribute it and/or modify it. 
@@ -44,7 +44,7 @@ static void version (void)
  fprintf(stderr, "%s (written by W. Celes)\n",TOLUA_VERSION);
 }
 
-static void setfield (lua_State* L, int table, char* f, char* v)
+static void setfield (lua_State* L, int table, const char* f, const char* v)
 {
  lua_pushstring(L,f);
  lua_pushstring(L,v);
@@ -113,7 +113,7 @@ int main (int argc, char* argv[])
   int i;
   char* p;
   char  path[BUFSIZ];
-  char* files[] = {
+  const char* files[] = {
                    "basic.lua",
                    "feature.lua",
                    "verbatim.lua",
@@ -136,6 +136,7 @@ int main (int argc, char* argv[])
                   };
   strcpy(path,argv[0]);
   p = strrchr(path,'/');
+  if (!p) p = strrchr(path,'\\');
   p = (p==NULL) ? path : p+1;
   for (i=0; files[i]; ++i)
   {

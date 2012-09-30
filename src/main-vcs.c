@@ -66,11 +66,28 @@
  *
  */
 
+
+/*
+ * This module uses /dev/vcsa* to write characters and attributes
+ * directly to console memory.  /dev/vcsa*'s first 4 bytes are the
+ * number of lines and columns on the screen, and X and Y position
+ * of the cursor with (0,0) as top left.  Then follows lines*columns
+ * pairs of (char, attr) with the contents of the screen.
+ */
+
 #include "angband.h"
 
 
 #ifdef USE_VCS
 
+
+cptr help_vcs[] =
+{
+	"To use /dev/vcsa*",
+	"x0,y0,x1,y1  Create new term",
+	"--noframe    No window frames",
+	NULL
+};
 
 /* Change the palette. If this is un-define'd, the standard palette will
 be used, and it'll try to map colors to an equivalent color. */
@@ -80,12 +97,15 @@ be used, and it'll try to map colors to an equivalent color. */
 #include <sys/ioctl.h>
 #include <termios.h>
 
+#define VCSA_CURSOR	2	/* Seek offset of cursor position */
+#define VCSA_SCREEN	4	/* Seek offset of screen contents */
+
 
 static int fd_vcsa;
 static unsigned char *screen,*row_clear;
 
-static int s_width,s_height;
-static int cx,cy;
+static byte s_width,s_height;
+static byte cursor[2];
 
 
 typedef struct term_data
@@ -96,57 +116,26 @@ typedef struct term_data
 	unsigned char *base;
 } term_data;
 
-#define MAX_VCS_TERM 8
+#define MAX_VCS_TERM 1
 
 static term_data data[MAX_VCS_TERM];
 static int num_term;
 
 
-#ifndef SET_COLORS
-
 /* This is (basically) the same color mapping as in main-gcu */
 static unsigned char attr_for_color[16]=
-{0x00,0x07,0x03,0x0c,0x04,0x02,0x01,0x06,
- 0x08,0x0b,0x05,0x0e,0x0c,0x0a,0x09,0x0e
-};
-
-static void set_colors(void)
-{
-}
-#else
-
-#if 0
-
-/* This uses a straight map for Angband-color to attributes. */
-static unsigned char attr_for_color[16]=
-{0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
+{0x00,0x07,0x02,0x03,0x04,0x05,0x06,0x01,
  0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e,0x0f
 };
+
+#define COLOR_BLANK 0x07 /* attr_for_color[TERM_WHITE] */
+
 
 /* For some reason, the kernel moves the color indeces around, so we need
 to reverse that here. */
 static int reverse_linux_color_table[16]=
 /*0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 */
-{ 0, 4, 2, 6, 1, 5, 3, 7, 8,12,10,14, 9,13,11,15};
-#else
-
-/* These maps have been moved around to (mostly) combine the gcu color map
-with palette changes. There's no difference while in the game, but when you
-exit and the palette is restored, it will still look mostly correct. (Of
-course, if you change the colors from the defaults, none of this will help.)
-*/
-static unsigned char attr_for_color[16]=
-/*  0    1    2    3    4    5    6    7 */
-{0x00,0x07,0x05,0x03,0x04,0x02,0x01,0x06,
-/*  8    9   10   11   12   13   14   15 */
- 0x08,0x09,0x0d,0x0e,0x0c,0x0a,0x0b,0x0f
-};
-
-static int reverse_linux_color_table[16]=
-/*0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 */
-{ 0, 7, 5, 6, 1, 2, 4, 3, 8,12,13,11, 9,10,14,15};
-
-#endif
+{ 0, 7, 2, 6, 1, 5, 3, 4, 8,12,10,14, 9,13,11,15};
 
 static void set_colors(void)
 {
@@ -161,7 +150,7 @@ static void set_colors(void)
 	}
 	fflush(stdout);
 }
-#endif
+
 
 
 
@@ -169,22 +158,64 @@ static void set_colors(void)
 static struct termios norm_termios;
 static struct termios game_termios;
 
-static void keymap_norm(void)
+static void reset_terminal(void)
 {
+	/* Turn off non-blocking on stdin */
 	fcntl(0,F_SETFL,(~O_NONBLOCK)&fcntl(0,F_GETFL));
+	
+	/* Reset terminal parameters */
 	tcsetattr(0, TCSAFLUSH, &norm_termios);
-	printf("\033]R"); /* reset the palette */
+	
+	/* Reset the palette */
+	printf("\033]R");
 	fflush(stdout);
 }
 
-static void keymap_game(void)
+static void setup_terminal(void)
 {
+	/* Make stdin non-blocking */
 	fcntl(0,F_SETFL,O_NONBLOCK|fcntl(0,F_GETFL));
+	
+	/* Set terminal parameters */
 	tcsetattr(0, TCSAFLUSH, &game_termios);
+	
+	/* Set up palette */
 	set_colors();
 }
 
+/*
+ * Reset terminal and move to last line
+ */
+static void leave_vcs(void)
+{
+	int i;
+	unsigned char *c;
+	
+	/* Blank out line in memory */
+	for (i = 0, c = screen; i < s_width; i++)
+	{
+		*c++ = ' ';
+		*c++ = COLOR_BLANK;
+	}
 
+	/* Write blanked-out line to last line in console (vcsa) file */
+	lseek(fd_vcsa, VCSA_SCREEN + 2 * s_width * (s_height - 1), SEEK_SET);
+	write(fd_vcsa, screen, s_width * 2);
+	
+	/* Set cursor position to last line and write it to console */
+	lseek(fd_vcsa, VCSA_CURSOR, SEEK_SET);
+	cursor[0] = 0;
+	cursor[1] = s_height - 1;
+	write(fd_vcsa, cursor, sizeof(cursor));
+	
+	/* Reset terminal */
+	reset_terminal();
+}
+
+
+/*
+ * Handle a "special request"
+ */
 static errr Term_xtra_vcs(int n, int v)
 {
 	term_data *td = (term_data*)(Term->data);
@@ -198,16 +229,24 @@ static errr Term_xtra_vcs(int n, int v)
 			fd_set s;
 			if (v)
 			{
+				/* Wait for input */
 				FD_ZERO(&s);
 				FD_SET(0,&s);
 				select(1,&s,NULL,NULL,NULL);
 			}
 			lch=-1;
+			
+			/* Loop while reading a character */
 			while (read(0,&ch,1)==1)
 			{
+			
+				/* Consume previous character, if any */
 				if (lch!=-1) Term_keypress(lch);
+				
 				lch=ch;
 			}
+			
+			/* Consume last character */
 			if (lch!=-1)
 			{
 				/* A bit of a hack. If we get a lone escape (no pending input
@@ -216,10 +255,14 @@ static errr Term_xtra_vcs(int n, int v)
 				as long as we're running locally, and if we're using the
 				/dev/vcsa* devices, we are.
 				*/
-				if (lch=='\033')
+				if (lch== ESCAPE)
+				{
 					Term_keypress('`');
+				}
 				else
+				{
 					Term_keypress(lch);
+				}
 			}
 
 			return (0);
@@ -227,6 +270,7 @@ static errr Term_xtra_vcs(int n, int v)
 
 		case TERM_XTRA_FLUSH:
 		{
+			/* Flush input */
 			unsigned char ch;
 			while (read(0,&ch,1)==1) ;
 			return (0);
@@ -234,23 +278,33 @@ static errr Term_xtra_vcs(int n, int v)
 
 		case TERM_XTRA_CLEAR:
 		{
-			int y;
+			int x, y;
 			unsigned char *c;
-			for (c=td->base,y=td->sy;y;y--,c+=2*s_width)
-				memcpy(c,row_clear,td->sx*2);
-
+			
+			/* Blank out screen memory */
+			for (c=td->base, y=td->sy; y; y--, c+=2*(s_width - td->sx))
+			{
+				for(x=td->sx;x;x--)
+				{
+					*c++=' ';
+					*c++= COLOR_BLANK;
+				}
+			}
+			
 			return (0);
 		}
 
 		case TERM_XTRA_FRESH:
 		{
-			lseek(fd_vcsa,4,SEEK_SET);
-			write(fd_vcsa,screen,2*s_width*s_height);
+			/* Write screen memory to console (vcsa) file */
+			lseek(fd_vcsa,VCSA_SCREEN,SEEK_SET);
+			write(fd_vcsa,screen,2 * s_width * s_height);
 			return (0);
 		}
 
 		case TERM_XTRA_NOISE:
 		{
+			/* Bell */
 			write(1,"\007",1);
 			return (0);
 		}
@@ -258,63 +312,88 @@ static errr Term_xtra_vcs(int n, int v)
 		case TERM_XTRA_ALIVE:
 		{
 			if (!v)
-				keymap_norm();
+				leave_vcs();
 			else
-				keymap_game();
+				setup_terminal();
 			return (0);
 		}
 
 		case TERM_XTRA_DELAY:
 		{
+			/* Delay for some milliseconds */
 			usleep(v*1000);
 			return (0);
 		}
 
 		case TERM_XTRA_REACT:
+		{
+			/* Set up colours */
 			set_colors();
 			return 0;
+		}
 
 		case TERM_XTRA_SHAPE:
+		{
 			printf("\033[?25%c",v?'h':'l');
 			fflush(stdout);
 			return 0;
+		}
 	}
 
 	/* Unknown or Unhandled action */
 	return (1);
 }
 
-
+/*
+ * Actually move the hardware cursor
+ */
 static errr Term_curs_vcs(int x, int y)
 {
 	term_data *td = (term_data*)(Term->data);
+	
+	/* Set the cursor position */
+	cursor[0] = x + td->x0;
+	cursor[1] = y + td->y0;
 
-	cx=x+td->x0;
-	cy=y+td->y0;
-	lseek(fd_vcsa,2,SEEK_SET);
-	write(fd_vcsa,&cx,1);
-	write(fd_vcsa,&cy,1);
+	/* Write cursor position to console (vcsa) file */
+	lseek(fd_vcsa,VCSA_CURSOR,SEEK_SET);
+	write(fd_vcsa,cursor,sizeof(cursor));
 
 	return 0;
 }
 
+/*
+ * Erase a grid of space
+ */
 static errr Term_wipe_vcs(int x, int y, int n)
 {
 	term_data *td = (term_data*)(Term->data);
 	unsigned char *c;
-	c=&td->base[2*(s_width*y+x)];
-	memcpy(c,row_clear,n*2);
+	
+	c = &td->base[2 * (s_width * y + x)];
+
+	/* Blank out n characters in memory */
+	for (; n; n--)
+	{
+		*c++ = ' ';
+		*c++ = COLOR_BLANK;
+	}
+
 	return 0;
 }
 
-
+/*
+ * Place some text on the screen using an attribute
+ */
 static errr Term_text_vcs(int x, int y, int n, byte a, const char *cp)
 {
 	term_data *td = (term_data*)(Term->data);
 	unsigned char *c,col;
 
-	col=attr_for_color[a&0xf]+(attr_for_color[(a&0xf0)>>4]<<4);
+	col=attr_for_color[a&0xf];
 	c=&td->base[2*(s_width*y+x)];
+	
+	/* Copy n characters to screen memory */
 	for (;n;n--)
 	{
 		*c++=*cp++;
@@ -327,15 +406,21 @@ static errr Term_text_vcs(int x, int y, int n, byte a, const char *cp)
 
 static int active;
 
+/*
+ * Init the /dev/vcsa* system
+ */
 static void Term_init_vcs(term *t)
 {
 	/* Ignore t */
 	(void) t;
 	
 	if (active++) return;
-	keymap_game();
+	setup_terminal();
 }
 
+/*
+ * Nuke the /dev/vcsa* system
+ */
 static void Term_nuke_vcs(term *t)
 {
 	/* Ignore t */
@@ -343,18 +428,13 @@ static void Term_nuke_vcs(term *t)
 	
 	if (--active) return;
 
-	lseek(fd_vcsa,4+2*s_width*(s_height-1),SEEK_SET);
-	write(fd_vcsa,row_clear,s_width*2);
-	lseek(fd_vcsa,2,SEEK_SET);
-	cx=0;
-	cy=s_height-1;
-	write(fd_vcsa,&cx,1);
-	write(fd_vcsa,&cy,1);
+	leave_vcs();
 	close(fd_vcsa);
-	
-	keymap_norm();
 }
 
+/*
+ * Set up a new console terminal
+ */
 static void term_data_link(int x0,int y0,int x1,int y1)
 {
 	term_data *td = &data[num_term];
@@ -410,7 +490,9 @@ static void term_data_link(int x0,int y0,int x1,int y1)
 	num_term++;
 }
 
-
+/*
+ * Prepare /dev/vcsa* for use by the terms package
+ */
 errr init_vcs(int argc,char **argv)
 {
 	int i;
@@ -418,23 +500,23 @@ errr init_vcs(int argc,char **argv)
 	byte *cc;
 	int frame=1,add_std_win=1;
 
+	/* Find and open console (vcsa) file */
+	char buf[256];
+	c=ttyname(0);
+	if (!c || sscanf(c,"/dev/tty%i",&i)!=1)
 	{
-		char buf[256];
-		c=ttyname(0);
-		if (sscanf(c,"/dev/tty%i",&i)!=1)
-		{
-			fprintf(stderr,"can't find my tty\n");
-			return 1;
-		}
-		sprintf(buf,"/dev/vcsa%i",i);
-		fd_vcsa=open(buf,O_RDWR);
-		if (fd_vcsa==-1)
-		{
-			perror(buf);
-			return 1;
-		}
+		fprintf(stderr,"can't find my tty\n");
+		return 1;
 	}
-
+	sprintf(buf,"/dev/vcsa%i",i);
+	fd_vcsa=open(buf,O_RDWR);
+	if (fd_vcsa==-1)
+	{
+		perror(buf);
+		return 1;
+	}
+	
+	/* Read screen lines and columns from console (vcsa) file */
 	s_width=s_height=0;
 	read(fd_vcsa,&s_height,1);
 	read(fd_vcsa,&s_width,1);
@@ -445,6 +527,7 @@ errr init_vcs(int argc,char **argv)
 	if (!screen)
 	{
 		fprintf(stderr,"vcsa: out of memory\n");
+		close(fd_vcsa);
 		return 1;
 	}
 
@@ -452,7 +535,7 @@ errr init_vcs(int argc,char **argv)
 	for (cc=screen,i=0;i<s_width*(s_height+1);i++)
 	{
 		*cc++=' ';
-		*cc++=0x07;
+		*cc++=COLOR_BLANK;
 	}
 	row_clear=&screen[s_height*s_width*2];
 
@@ -460,26 +543,14 @@ errr init_vcs(int argc,char **argv)
 	tcgetattr(0, &norm_termios);
 	tcgetattr(0, &game_termios);
 
+	/*
+	 * Turn off canonical mode, echo of input characters, and sending of
+	 * SIGTTOU to proc.group of background process writing to
+	 * controlling terminal.
+	 */
 	game_termios.c_lflag&=~(ICANON|ECHO|TOSTOP);
-#if 0
-	/* Force "Ctrl-C" to interupt */
-	game_termios.c_cc[VINTR] = (char)3;
 
-	/* Force "Ctrl-Z" to suspend */
-	game_termios.c_cc[VSUSP] = (char) /*26*/ -1;
-
-	/* Hack -- Leave "VSTART/VSTOP" alone */
-	game_termios.c_cc[VSTART] = (char)-1;
-	game_termios.c_cc[VSTOP] = (char)-1;
-
-	/* Disable the standard control characters */
-	game_termios.c_cc[VQUIT] = (char)-1;
-	game_termios.c_cc[VERASE] = (char)-1;
-	game_termios.c_cc[VKILL] = (char)-1;
-	game_termios.c_cc[VEOF] = (char)-1;
-	game_termios.c_cc[VEOL] = (char)-1;
-#endif
-
+	/* Link in new terminals if required */
 	if (argc>1)
 	{
 		int i;

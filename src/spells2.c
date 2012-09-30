@@ -60,11 +60,11 @@ void self_knowledge(void)
 	chg_virtue(V_ENLIGHTEN, 1);
 
 	/* Acquire item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	for (k = 0; k < EQUIP_MAX; k++)
 	{
 		u32b t1, t2, t3;
 
-		o_ptr = &inventory[k];
+		o_ptr = &p_ptr->equipment[k];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -480,7 +480,7 @@ void self_knowledge(void)
 
 
 	/* Access the current weapon */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	/* Analyze the weapon */
 	if (o_ptr->k_idx)
@@ -1088,7 +1088,7 @@ bool detect_objects_gold(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
+		if (!(o_ptr->ix || o_ptr->iy)) continue;
 
 		/* Location */
 		y = o_ptr->iy;
@@ -1100,7 +1100,7 @@ bool detect_objects_gold(void)
 		if (o_ptr->tval == TV_GOLD)
 		{
 			/* Hack -- memorize it */
-			o_ptr->marked = TRUE;
+			o_ptr->info |= OB_SEEN;
 
 			/* Redraw */
 			lite_spot(x, y);
@@ -1148,7 +1148,7 @@ bool detect_objects_normal(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
+		if (!(o_ptr->ix || o_ptr->iy)) continue;
 
 		/* Location */
 		y = o_ptr->iy;
@@ -1160,7 +1160,7 @@ bool detect_objects_normal(void)
 		if (o_ptr->tval != TV_GOLD)
 		{
 			/* Hack -- memorize it */
-			o_ptr->marked = TRUE;
+			o_ptr->info |= OB_SEEN;
 
 			/* Redraw */
 			lite_spot(x, y);
@@ -1214,7 +1214,7 @@ bool detect_objects_magic(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
+		if (!(o_ptr->ix || o_ptr->iy)) continue;
 
 		/* Location */
 		y = o_ptr->iy;
@@ -1244,7 +1244,7 @@ bool detect_objects_magic(void)
 			((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
-			o_ptr->marked = TRUE;
+			o_ptr->info |= OB_SEEN;
 
 			/* Redraw */
 			lite_spot(x, y);
@@ -2567,6 +2567,9 @@ bool earthquake(int cx, int cy, int r)
 			p_ptr->py = sy;
 			p_ptr->px = sx;
 
+			/* Notice movement */
+			Term_move_player();
+
 			if (!p_ptr->depth)
 			{
 				/* Scroll wilderness */
@@ -2681,9 +2684,10 @@ bool earthquake(int cx, int cy, int r)
 							if (!(mon_enter_test.flags & MEG_DO_MOVE)) continue;
 
 							/* ... nor on the Pattern */
-							if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
-								(c_ptr->feat >= FEAT_PATTERN_START))
+							if (cave_pattern_grid(c_ptr))
+							{
 								continue;
+							}
 
 							/* Important -- Skip "quake" grids */
 							if (map[16 + y - cy][16 + x - cx]) continue;
@@ -3042,7 +3046,7 @@ static int next_to_open(int cx, int cy)
 		c_ptr = area(x, y);
 
 		/* Found a wall, break the length */
-		if (!cave_floor_grid(c_ptr))
+		if (cave_wall_grid(c_ptr))
 		{
 			/* Track best length */
 			if (len > blen)
@@ -3081,7 +3085,7 @@ static int next_to_walls_adj(int cx, int cy)
 
 		c_ptr = area(x, y);
 
-		if (!cave_floor_grid(c_ptr)) c++;
+		if (cave_wall_grid(c_ptr)) c++;
 	}
 
 	return c;
@@ -3105,7 +3109,7 @@ static void cave_temp_room_aux(int x, int y)
 	if (c_ptr->info & (CAVE_TEMP)) return;
 
 	/* If a wall, exit */
-	if (!cave_floor_grid(c_ptr)) return;
+	if (cave_wall_grid(c_ptr)) return;
 
 	/* Do not exceed the maximum spell range */
 	if (distance(p_ptr->px, p_ptr->py, x, y) > MAX_RANGE) return;
@@ -3156,7 +3160,7 @@ void lite_room(int x1, int y1)
 		c_ptr = area(x, y);
 
 		/* Walls get lit, but stop light */
-		if (!cave_floor_grid(c_ptr)) continue;
+		if (cave_wall_grid(c_ptr)) continue;
 
 		/* Spread adjacent */
 		cave_temp_room_aux(x + 1, y);
@@ -3196,7 +3200,7 @@ void unlite_room(int x1, int y1)
 		c_ptr = area(x, y);
 
 		/* Walls get dark, but stop darkness */
-		if (!cave_floor_grid(c_ptr)) continue;
+		if (cave_wall_grid(c_ptr)) continue;
 
 		/* Spread adjacent */
 		cave_temp_room_aux(x + 1, y);
@@ -3378,6 +3382,9 @@ bool teleport_swap(int dir)
 	/* Move the player */
 	p_ptr->px = tx;
 	p_ptr->py = ty;
+
+	/* Notice movement */
+	Term_move_player();
 
 	tx = m_ptr->fx;
 	ty = m_ptr->fy;
@@ -3707,14 +3714,14 @@ void call_chaos(void)
 
 	int hurt_types[30] =
 	{
-		GF_ELEC, GF_POIS, GF_ACID, GF_COLD,
-		GF_FIRE, GF_MISSILE, GF_ARROW, GF_PLASMA,
-		GF_HOLY_FIRE, GF_WATER, GF_LITE, GF_DARK,
-		GF_FORCE, GF_INERTIA, GF_MANA, GF_METEOR,
-		GF_ICE, GF_CHAOS, GF_NETHER, GF_DISENCHANT,
-		GF_SHARDS, GF_SOUND, GF_NEXUS, GF_CONFUSION,
-		GF_TIME, GF_GRAVITY, GF_ROCKET, GF_NUKE,
-		GF_HELL_FIRE, GF_DISINTEGRATE
+	GF_ELEC, GF_POIS, GF_ACID, GF_COLD,
+	GF_FIRE, GF_MISSILE, GF_ARROW, GF_PLASMA,
+	GF_HOLY_FIRE, GF_WATER, GF_LITE, GF_DARK,
+	GF_FORCE, GF_INERTIA, GF_MANA, GF_METEOR,
+	GF_ICE, GF_CHAOS, GF_NETHER, GF_DISENCHANT,
+	GF_SHARDS, GF_SOUND, GF_NEXUS, GF_CONFUSION,
+	GF_TIME, GF_GRAVITY, GF_ROCKET, GF_NUKE,
+	GF_HELL_FIRE, GF_DISINTEGRATE
 	};
 
 	Chaos_type = hurt_types[randint0(30)];
@@ -4243,7 +4250,7 @@ bool starlite(void)
 
 			c_ptr = area(x, y);
 
-			if (!cave_floor_grid(c_ptr)) continue;
+			if (cave_wall_grid(c_ptr)) continue;
 
 			if ((y != p_ptr->py) || (x != p_ptr->px)) break;
 		}

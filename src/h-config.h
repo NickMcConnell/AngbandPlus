@@ -182,6 +182,26 @@
 #endif
 
 
+/*
+ * We need to define this for Microsoft Dev studio to use the
+ * correct 64bit type defines.  We check for support of __int64
+ * before defining "MSDEV", which is used in h-types.h
+ */
+#ifdef __MSVC__
+# if ((!defined _INTEGRAL_MAX_BITS) || (_INTEGRAL_MAX_BITS < 64))
+#  error Your compiler does not seem to have a 64bit type.
+# else /* !_INTEGRAL_MAX_BITS && _INTEGRAL_MAX_BITS > 64 */
+#  define MSDEV
+# endif	/* !_INTEGRAL_MAX_BITS && _INTEGRAL_MAX_BITS > 64 */
+#endif /* __MSVC__ */
+
+
+/*
+ * Borland seems to use __int64 as well
+ */
+#ifdef __BORLANDC__
+# define MSDEV
+#endif /* __BORLANDC__ */
 
 /*
  * OPTION: set "SET_UID" if the machine is a "multi-user" machine.

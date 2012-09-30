@@ -49,7 +49,7 @@ void mindcraft_info(char *p, int power)
 		}
 		case MINDCRAFT_MINOR_DISPLACEMENT:
 		{
-			sprintf(p, " range %d", (plev < 25 ? 10 : plev + 2));
+			sprintf(p, " range %d", (plev < 40 ? 10 : plev + 2));
 			break;
 		}
 		case MINDCRAFT_MAJOR_DISPLACEMENT:
@@ -446,15 +446,9 @@ static bool cast_mindcrafter_spell(int spell)
 			else
 				(void)set_shero(p_ptr->shero + b);
 
-			if (!p_ptr->fast)
-			{
-				/* Haste */
-				(void)set_fast(b);
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + b);
-			}
+			/* Haste */
+			(void)set_fast(p_ptr->fast + b);
+
 			break;
 		case MINDCRAFT_PSYCHIC_DRAIN:
 			/* Psychic Drain */

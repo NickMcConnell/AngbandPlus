@@ -8,6 +8,12 @@
 #ifdef USE_CAP
 
 
+cptr help_cap[] =
+{
+	"To use CAP (\"Termcap\" calls)",
+	NULL
+};
+
 /*
  * This file is a total hack, but is often very helpful.  :-)
  *
@@ -989,15 +995,6 @@ static void Term_nuke_cap(term *t)
 	/* No longer active */
 	active = FALSE;
 }
-
-
-
-
-
-
-
-
-
 
 /*
  * Prepare this file for Angband usage

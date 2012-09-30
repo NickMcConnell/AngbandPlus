@@ -868,7 +868,7 @@ static void roff_aux(int r_idx, int remem)
 				c_roff(TERM_WHITE, " and ");
 
 			/* Dump */
-			c_roff(TERM_WHITE, vp[n]);
+			c_roff(TERM_L_UMBER, vp[n]);
 		}
 
 		/* End */
@@ -879,7 +879,7 @@ static void roff_aux(int r_idx, int remem)
 	/* Describe special abilities. */
 	if (flags2 & RF2_INVISIBLE)
 	{
-		c_roff(TERM_WHITE, format("%^s is invisible.  ", wd_he[msex]));
+		c_roff(TERM_L_BLUE, format("%^s is invisible.  ", wd_he[msex]));
 	}
 	if (flags2 & RF2_COLD_BLOOD)
 	{
@@ -897,7 +897,7 @@ static void roff_aux(int r_idx, int remem)
 	}
 	if (flags2 & RF2_MULTIPLY)
 	{
-		c_roff(TERM_WHITE, format("%^s breeds explosively.  ", wd_he[msex]));
+		c_roff(TERM_L_UMBER, format("%^s breeds explosively.  ", wd_he[msex]));
 	}
 	if (flags2 & RF2_REGENERATE)
 	{
@@ -2208,37 +2208,37 @@ bool monster_living(const monster_race *r_ptr)
 
 
 /* Dwarves */
-static char *dwarf_syllable1[] =
+static cptr dwarf_syllable1[] =
 {
 	"B", "D", "F", "G", "Gl", "H", "K", "L", "M", "N", "R", "S", "T", "Th", "V",
 };
 
-static char *dwarf_syllable2[] =
+static cptr dwarf_syllable2[] =
 {
 	"a", "e", "i", "o", "oi", "u",
 };
 
-static char *dwarf_syllable3[] =
+static cptr dwarf_syllable3[] =
 {
 	"bur", "fur", "gan", "gnus", "gnar", "li", "lin", "lir", "mli", "nar",
 	"nus", "rin", "ran", "sin", "sil", "sur",
 };
 
 /* Elves */
-static char *elf_syllable1[] =
+static cptr elf_syllable1[] =
 {
 	"Al", "An", "Bal", "Bel", "Cal", "Cel", "El", "Elr", "Elv", "Eow", "F",
 	"Fal", "Fel", "Fin", "G", "Gal", "Gel", "Gl", "Is", "Lan", "Leg", "N",
 	"Nal", "Nel", "S", "Sal", "Sel", "T", "Tal", "Tel", "Thr", "Tin",
 };
 
-static char *elf_syllable2[] =
+static cptr elf_syllable2[] =
 {
 	"a", "adrie", "ara", "e", "ebri", "ele", "ere", "i", "io", "ithra",
 	"ilma", "il-Ga", "ili", "o", "orfi", "u", "y",
 };
 
-static char *elf_syllable3[] =
+static cptr elf_syllable3[] =
 {
 	"l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n", "nd",
 	"ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith", "ril",
@@ -2246,19 +2246,19 @@ static char *elf_syllable3[] =
 };
 
 /* Gnomes */
-static char *gnome_syllable1[] =
+static cptr gnome_syllable1[] =
 {
 	"Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J",
 	"Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P", "R",
 	"S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y",
 };
 
-static char *gnome_syllable2[] =
+static cptr gnome_syllable2[] =
 {
 	"a", "aa", "ai", "e", "ei", "i", "o", "uo", "u", "uu",
 };
 
-static char *gnome_syllable3[] =
+static cptr gnome_syllable3[] =
 {
 	"ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na",
 	"namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li",
@@ -2267,18 +2267,18 @@ static char *gnome_syllable3[] =
 };
 
 /* Hobbit */
-static char *hobbit_syllable1[] =
+static cptr hobbit_syllable1[] =
 {
 	"B", "Ber", "Br", "D", "Der", "Dr", "F", "Fr", "G", "H", "L", "Ler",
 	"M", "Mer", "N", "P", "Pr", "Per", "R", "S", "T", "W",
 };
 
-static char *hobbit_syllable2[] =
+static cptr hobbit_syllable2[] =
 {
 	"a", "e", "i", "ia", "o", "oi", "u",
 };
 
-static char *hobbit_syllable3[] =
+static cptr hobbit_syllable3[] =
 {
 	"bo", "ck", "decan", "degar", "do", "doc", "go", "grin", "lba", "lbo",
 	"lda", "ldo", "lla", "ll", "lo", "m", "mwise", "nac", "noc", "nwise",
@@ -2286,7 +2286,7 @@ static char *hobbit_syllable3[] =
 };
 
 /* Human */
-static char *human_syllable1[] =
+static cptr human_syllable1[] =
 {
 	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr", "Ar",
 	"B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed", "Eth", "Et",
@@ -2296,7 +2296,7 @@ static char *human_syllable1[] =
 	"Tr", "Th", "V", "Y", "Z", "W", "Wic",
 };
 
-static char *human_syllable2[] =
+static cptr human_syllable2[] =
 {
 	"a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei",
 	"ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie",
@@ -2304,7 +2304,7 @@ static char *human_syllable2[] =
 	"ore", "u", "y",
 };
 
-static char *human_syllable3[] =
+static cptr human_syllable3[] =
 {
 	"a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch",
 	"can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g",
@@ -2316,17 +2316,17 @@ static char *human_syllable3[] =
 };
 
 /* Orc */
-static char *orc_syllable1[] =
+static cptr orc_syllable1[] =
 {
 	"B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr",
 };
 
-static char *orc_syllable2[] =
+static cptr orc_syllable2[] =
 {
 	"a", "i", "o", "oo", "u", "ui",
 };
 
-static char *orc_syllable3[] =
+static cptr orc_syllable3[] =
 {
 	"dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k",
 	"lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk",

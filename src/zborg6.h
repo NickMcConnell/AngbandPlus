@@ -1,0 +1,119 @@
+/* File: zborg6.h */
+
+/* Purpose: Header file for "borg6.c" -BEN- */
+
+#ifndef INCLUDED_BORG6_H
+#define INCLUDED_BORG6_H
+
+#include "angband.h"
+
+#ifdef ALLOW_BORG
+
+/*
+ * This file provides support for "borg6.c".
+ */
+
+#include "zborg1.h"
+#include "zborg2.h"
+#include "zborg3.h"
+
+
+
+
+/*
+ * Determine "twice" the distance between two points
+ * This results in "diagonals" being "correctly" ranged,
+ * that is, a diagonal appears "furthur" than an adjacent.
+ */
+#define double_distance(Y1,X1,Y2,X2) \
+    (distance(((int)(Y1))<<1,((int)(X1))<<1,((int)(Y2))<<1,((int)(X2))<<1))
+
+
+/*
+ * Attempt to induce "word of recall"
+ */
+extern bool borg_recall(void);
+
+/*
+ * Low level goals
+ */
+extern bool borg_caution(void);
+extern bool borg_attack(bool boosted_bravery);
+extern bool borg_recover(void);
+
+extern bool borg_offset_ball(void);
+extern bool borg_defend(int p);
+extern bool borg_perma_spell(void);
+
+extern bool borg_check_rest(void);
+extern bool borg_on_safe_grid(void);
+
+/*
+ * Twitchy goals
+ */
+extern bool borg_charge_kill(void);
+extern bool borg_charge_take(void);
+extern bool borg_twitchy(void);
+
+
+
+/*
+ * Continue a high level goal
+ */
+extern bool borg_flow_old(int why);
+
+/*
+ * Flow to stairs
+ */
+extern bool borg_flow_stair_both(int why);
+extern bool borg_flow_stair_less(int why);
+extern bool borg_flow_stair_more(int why);
+extern bool borg_flow_town_exit(int why);
+
+extern bool borg_flow_glyph(int why);
+extern bool borg_flow_light(int why);
+extern bool borg_check_lite_only(void);
+
+/*
+ * Flow to shops
+ */
+extern bool borg_flow_shop_entry(int n);
+extern void borg_flow_direct(int y, int x);
+
+/*
+ * Flow towards monsters/objects
+ */
+extern bool borg_flow_kill(bool viewable, int nearness);
+extern bool borg_flow_kill_aim(bool viewable);
+extern bool borg_flow_kill_corridor(bool viewable);
+extern bool borg_flow_take(bool viewable, int nearness);
+
+/*
+ * Flow towards "interesting" grids
+ */
+extern bool borg_flow_dark(bool neer);
+
+/*
+ * Search for secret doors
+ */
+extern bool borg_flow_spastic(bool bored);
+
+extern int borg_launch_damage_one(int i, int dam, int typ);
+extern int borg_attack_aux_thrust(void);
+
+
+extern void borg_log_battle(bool);
+extern bool borg_lite_beam(bool simulation);
+extern bool borg_caution_phase(int emergency, int turns);
+
+/*
+ * Initialize this file
+ */
+extern void borg_init_6(void);
+
+
+
+
+#endif
+
+#endif

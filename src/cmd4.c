@@ -76,10 +76,10 @@ void do_cmd_redraw(void)
 
 		/* Refresh */
 		Term_fresh();
-
-		/* Restore */
-		Term_activate(old);
 	}
+
+	/* Restore */
+	Term_activate(old);
 }
 
 
@@ -1315,7 +1315,8 @@ void do_cmd_options(byte flags)
 				/* Scan the options */
 				for (i = 0; i < OPT_MAX; i++)
 				{
-					if (option_info[i].o_text)
+					if ((option_info[i].o_text) &&
+						(option_info[i].o_page != OPT_BIRTH_PAGE))
 					{
 						/* Dump the option */
 						fprintf(fff, "%c:%s\n",
@@ -1461,7 +1462,7 @@ static void do_cmd_macro_aux(char *buf)
 	flush();
 
 	/* Do not process macros */
-	inkey_base = TRUE;
+	p_ptr->inkey_base = TRUE;
 
 	/* First key */
 	i = inkey();
@@ -1473,10 +1474,10 @@ static void do_cmd_macro_aux(char *buf)
 		buf[n++] = i;
 
 		/* Do not process macros */
-		inkey_base = TRUE;
+		p_ptr->inkey_base = TRUE;
 
 		/* Do not wait for keys */
-		inkey_scan = TRUE;
+		p_ptr->inkey_scan = TRUE;
 
 		/* Attempt to read a key */
 		i = inkey();
@@ -2569,11 +2570,13 @@ void do_cmd_colors(void)
 		prt("(1) Load a user pref file", 5, 4);
 #ifdef ALLOW_COLORS
 		prt("(2) Dump colors", 5, 5);
-		prt("(3) Modify colors", 5, 6);
+		prt("(3) Dump message colors", 5, 6);
+		prt("(4) Modify colors", 5, 7);
+		prt("(5) Modify message colors", 5, 8);
 #endif
 
 		/* Prompt */
-		prt("Command: ", 0, 8);
+		prt("Command: ", 0, 10);
 
 		/* Prompt */
 		i = inkey();
@@ -2585,10 +2588,10 @@ void do_cmd_colors(void)
 		if (i == '1')
 		{
 			/* Prompt */
-			prt("Command: Load a user pref file", 0, 8);
+			prt("Command: Load a user pref file", 0, 10);
 
 			/* Prompt */
-			prt("File: ", 0, 10);
+			prt("File: ", 0, 12);
 
 			/* Default file */
 			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
@@ -2612,10 +2615,10 @@ void do_cmd_colors(void)
 		else if (i == '2')
 		{
 			/* Prompt */
-			prt("Command: Dump colors", 0, 8);
+			prt("Command: Dump colors", 0, 10);
 
 			/* Prompt */
-			prt("File: ", 0, 10);
+			prt("File: ", 0, 12);
 
 			/* Default filename */
 			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
@@ -2670,13 +2673,68 @@ void do_cmd_colors(void)
 			msg_print("Dumped color redefinitions.");
 		}
 
-		/* Edit colors */
+		/* Dump message colors */
 		else if (i == '3')
+		{
+			/* Prompt */
+			prt("Command: Dump message colors", 0, 10);
+
+			/* Prompt */
+			prt("File: ", 0, 12);
+
+			/* Default filename */
+			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
+
+			/* Get a filename */
+			if (!askfor_aux(tmp, 70)) continue;
+
+			/* Build the filename */
+			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+
+			/* Append to the file */
+			fff = my_fopen(buf, "a");
+
+			/* Failure */
+			if (!fff) continue;
+
+			/* Start dumping */
+			fprintf(fff, "\n\n");
+			fprintf(fff, "# Message color definitions\n\n");
+
+			/* Dump message colors */
+			for (i = 0; i < MSG_MAX; i++)
+			{
+				byte color = get_msg_type_color(i);
+
+				cptr name = "unknown";
+
+				/* Extract the message type name */
+				name = msg_names[i];
+
+				/* Dump a comment */
+				fprintf(fff, "# Message type: %s\n", name);
+
+				/* Dump the message color */
+				fprintf(fff, "M:%d:%c\n\n", i, color_char[color]);
+			}
+
+			/* All done */
+			fprintf(fff, "\n\n\n\n");
+
+			/* Close */
+			my_fclose(fff);
+
+			/* Message */
+			msg_print("Dumped message color definitions.");
+		}
+
+		/* Edit colors */
+		else if (i == '4')
 		{
 			static byte a = 0;
 
 			/* Prompt */
-			prt("Command: Modify colors", 0, 8);
+			prt("Command: Modify colors", 0, 10);
 
 			/* Hack -- query until done */
 			while (1)
@@ -2685,7 +2743,7 @@ void do_cmd_colors(void)
 				byte j;
 
 				/* Clear */
-				clear_from(10);
+				clear_from(12);
 
 				/* Exhibit the normal colors */
 				for (j = 0; j < 16; j++)
@@ -2701,11 +2759,11 @@ void do_cmd_colors(void)
 				name = ((a < 16) ? color_names[a] : "undefined");
 
 				/* Describe the color */
-				Term_putstr(5, 10, -1, TERM_WHITE,
+				Term_putstr(5, 12, -1, TERM_WHITE,
 							format("Color = %d, Name = %s", a, name));
 
 				/* Label the Current values */
-				Term_putstr(5, 12, -1, TERM_WHITE,
+				Term_putstr(5, 14, -1, TERM_WHITE,
 							format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
 								   angband_color_table[a][0],
 								   angband_color_table[a][1],
@@ -2713,7 +2771,7 @@ void do_cmd_colors(void)
 								   angband_color_table[a][3]));
 
 				/* Prompt */
-				Term_putstr(0, 14, -1, TERM_WHITE,
+				Term_putstr(0, 16, -1, TERM_WHITE,
 							"Command (n/N/k/K/r/R/g/G/b/B): ");
 
 				/* Get a command */
@@ -2750,6 +2808,51 @@ void do_cmd_colors(void)
 			}
 		}
 
+		/* Edit message colors */
+		else if (i == '5')
+		{
+			static byte a = 0;
+			byte color;
+
+			/* Prompt */
+			prt("Command: Modify message colors", 0, 10);
+
+			/* Hack -- query until done */
+			while (1)
+			{
+				/* Clear */
+				clear_from(12);
+
+				/* Describe the message */
+				Term_putstr(5, 12, -1, TERM_WHITE,
+							format("Message = %d, Type = %s", a, msg_names[a]));
+
+				/* Show current color */
+				color = get_msg_type_color(a);
+
+				/* Paranoia */
+				if (color >= 16) color = 0;
+
+				Term_putstr(5, 14, -1, TERM_WHITE,
+							format("Current color: %c / ", color_char[color]));
+				Term_putstr(24, 14, -1, color, color_names[color]);
+
+				/* Prompt */
+				Term_putstr(0, 16, -1, TERM_WHITE, "Command (n/N/c/C): ");
+
+				/* Get a command */
+				i = inkey();
+
+				/* All done */
+				if (i == ESCAPE) break;
+
+				/* Analyze */
+				if (i == 'n') a = (a + MSG_MAX + 1) % MSG_MAX;
+				if (i == 'N') a = (a + MSG_MAX - 1) % MSG_MAX;
+				if (i == 'c') message_color_define(a, (byte)(color + 1));
+				if (i == 'C') message_color_define(a, (byte)(color - 1));
+			}
+		}
 #endif
 
 		/* Unknown option */
@@ -3174,127 +3277,88 @@ static void do_cmd_knowledge_uniques(void)
 	(void)fd_kill(file_name);
 }
 
+static const cptr plural_table[] =
+{
+	"ex", "ices",
+	"ey", "eys",
+	"y", "ies",
+	"human", "humans",
+	"shaman", "shamans",
+	"man", "men",
+	"ouse", "ice",
+	"ff", "ffs",
+	"f", "ves",
+	"mage", "magi",
+	"geist", "geister",
+	"eraph", "eraphim",
+	"umak", "umakil",
+	"saurus", "saurs",
+	"neko", "neko",
+	"us", "i",
+	"s", "ses",
+	"x", "xes",
+	"sh", "shes",
+	"ch", "ches",
+	/* This last entry must match everything */
+	"", "s"
+};
 
 /*
  * Pluralize a monster name
  */
-void plural_aux(char *Name)
+void plural_aux(char *name)
 {
-	int NameLen = strlen(Name);
+	char *p;
+	char buf[80];
+	char tail[80];
+	int len = strlen(name);
+	int i;
 
-	if (strstr(Name, "Disembodied hand"))
-	{
-		strcpy(Name, "Disembodied hands that strangled people");
-	}
-	else if (strstr(Name, "Colour out of space"))
-	{
-		strcpy(Name, "Colours out of space");
-	}
-	else if (strstr(Name, "stairway to hell"))
-	{
-		strcpy(Name, "stairways to hell");
-	}
-	else if (strstr(Name, "Dweller on the threshold"))
-	{
-		strcpy(Name, "Dwellers on the threshold");
-	}
-	else if (strstr(Name, " of "))
-	{
-		cptr aider = strstr(Name, " of ");
-		char dummy[80];
-		int i = 0;
-		cptr ctr = Name;
+	/* Don't overflow the buffer */
+	if (len > 70) return;
 
-		while (ctr < aider)
-		{
-			dummy[i] = *ctr;
-			ctr++;
-			i++;
-		}
+	strcpy(buf, name);
+	tail[0] = '\0';
 
-		if (dummy[i - 1] == 's')
-		{
-			strcpy(&(dummy[i]), "es");
-			i++;
-		}
-		else
-		{
-			strcpy(&(dummy[i]), "s");
-		}
-
-		strcpy(&(dummy[i + 1]), aider);
-		strcpy(Name, dummy);
-	}
-	else if (strstr(Name, "coins"))
+	/* Total hack - handle Creeping coins */
+	if (len >= 6 && streq(buf + len - 6, " coins"))
 	{
-		char dummy[80];
-		strcpy(dummy, "piles of ");
-		strcat(dummy, Name);
-		strcpy(Name, dummy);
+		strcpy(buf, "piles of ");
+		strcpy(buf + 9, name);
+		strcpy(name, buf);
 		return;
 	}
-	else if (strstr(Name, "Manes"))
+
+	/* Find the trailing part we should ignore, if any */
+	p = strstr(buf, " out ");
+	if (!p) p = strstr(buf, " of ");
+	if (!p) p = strstr(buf, " that ");
+	if (!p) p = strstr(buf, " on ");
+	if (!p) p = strstr(buf, " to ");
+	if (p)
 	{
-		return;
+		strcpy(tail, p);
+		*p = '\0';
+		len = strlen(buf);
 	}
-	else if (streq(&(Name[NameLen - 2]), "ey"))
+
+	/* Find the appropriate plural */
+	for (i = 0;; i += 2)
 	{
-		strcpy(&(Name[NameLen - 2]), "eys");
+		if ((len >= (int)strlen(plural_table[i])) &&
+			streq(buf + len - strlen(plural_table[i]), plural_table[i]))
+		{
+			strcpy(buf + len - strlen(plural_table[i]), plural_table[i + 1]);
+			break;
+		}
 	}
-	else if (Name[NameLen - 1] == 'y')
-	{
-		strcpy(&(Name[NameLen - 1]), "ies");
-	}
-	else if (streq(&(Name[NameLen - 4]), "ouse"))
-	{
-		strcpy(&(Name[NameLen - 4]), "ice");
-	}
-	else if (streq(&(Name[NameLen - 2]), "us"))
-	{
-		strcpy(&(Name[NameLen - 2]), "i");
-	}
-	else if (streq(&(Name[NameLen - 6]), "kelman"))
-	{
-		strcpy(&(Name[NameLen - 6]), "kelmen");
-	}
-	else if (streq(&(Name[NameLen - 8]), "wordsman"))
-	{
-		strcpy(&(Name[NameLen - 8]), "wordsmen");
-	}
-	else if (streq(&(Name[NameLen - 7]), "oodsman"))
-	{
-		strcpy(&(Name[NameLen - 7]), "oodsmen");
-	}
-	else if (streq(&(Name[NameLen - 7]), "eastman"))
-	{
-		strcpy(&(Name[NameLen - 7]), "eastmen");
-	}
-	else if (streq(&(Name[NameLen - 8]), "izardman"))
-	{
-		strcpy(&(Name[NameLen - 8]), "izardmen");
-	}
-	else if (streq(&(Name[NameLen - 5]), "geist"))
-	{
-		strcpy(&(Name[NameLen - 5]), "geister");
-	}
-	else if (streq(&(Name[NameLen - 2]), "ex"))
-	{
-		strcpy(&(Name[NameLen - 2]), "ices");
-	}
-	else if (streq(&(Name[NameLen - 2]), "lf"))
-	{
-		strcpy(&(Name[NameLen - 2]), "lves");
-	}
-	else if (suffix(Name, "ch") ||
-			 suffix(Name, "sh") ||
-			 suffix(Name, "nx") || suffix(Name, "s") || suffix(Name, "o"))
-	{
-		strcpy(&(Name[NameLen]), "es");
-	}
-	else
-	{
-		strcpy(&(Name[NameLen]), "s");
-	}
+
+	/* Put the tail back on */
+	strcat(buf, tail);
+
+	/* Put it where it's expected */
+	strcpy(name, buf);
+	return;
 }
 
 
@@ -3582,17 +3646,13 @@ static void do_cmd_knowledge_objects(void)
 		/* List known flavored objects */
 		if (k_ptr->flavor && k_ptr->aware)
 		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
+			object_type *o_ptr;
 
 			/* Create fake object */
-			object_prep(i_ptr, k);
+			o_ptr = object_prep(k);
 
 			/* Describe the object */
-			object_desc_store(o_name, i_ptr, FALSE, 0, 256);
+			object_desc_store(o_name, o_ptr, FALSE, 0, 256);
 
 			/* Print a message */
 			fprintf(fff, "     %s\n", o_name);
@@ -3651,6 +3711,114 @@ static void do_cmd_knowledge_notes(void)
 	(void)show_file(fname, "Notes", 0, 0);
 }
 
+/*
+ * Display information about wilderness areas
+ */
+static void do_cmd_knowledge_wild(void)
+{
+	int k, j;
+
+	FILE *fff;
+
+	char place_info[1024];
+	char stores_info[2048] = "";
+
+	char file_name[1024];
+
+	char build_name[80];
+
+	bool stairs_exist = FALSE;
+
+	bool visited = FALSE;
+
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	/* Failure */
+	if (!fff) return;
+
+	/* Cycle through the places */
+	for (k = 1; k < place_count; k++)
+	{
+
+		/* Is this a town? */
+		if (!place[k].quest_num)
+		{
+			/* Hack -- determine the town has been visited */
+			visited = FALSE;
+
+			for (j = 0; j < place[k].numstores; j++)
+			{
+				/* Stores are not given coordinates until you visit a town */
+				if (place[k].store[j].x != 0 && place[k].store[j].y != 0)
+				{
+					visited = TRUE;
+				}
+			}
+
+			/* Build a buffer with information (if visited, and if it is a town) */
+			if (visited)
+			{
+
+				/* Clear stores and place information */
+				memset(stores_info, 0, 2048);
+				memset(place_info, 0, 1024);
+				stairs_exist = FALSE;
+
+				/* Build stores information */
+				for (j = 0; j < place[k].numstores; j++)
+				{
+
+					/* Clear building */
+					memset(build_name, 0, 80);
+
+					/* Extract name of building */
+					strcpy(build_name, building_name(place[k].store[j].type));
+
+					/* Make a string, but only if this is a real building */
+					if (strcmp(build_name, "Nothing"))
+					{
+						strcat(stores_info, "     ");
+						strcat(stores_info, build_name);
+						strcat(stores_info, "\n");
+					}
+
+					/* Note if there are stairs in this town */
+					if (place[k].store[j].type == BUILD_STAIRS)
+					{
+						stairs_exist = TRUE;
+					}
+
+				}
+
+				/* Build town information */
+				if (stairs_exist)
+				{
+					sprintf(place_info, "%s -- Stairs\n", place[k].name);
+				}
+				else
+				{
+					sprintf(place_info, "%s\n", place[k].name);
+				}
+
+				/* Write to file */
+				fprintf(fff, place_info);
+				fprintf(fff, stores_info);
+				fprintf(fff, "\n");
+			}
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	(void)show_file(file_name, "Towns", 0, 0);
+
+	/* Remove the file */
+	(void)fd_kill(file_name);
+
+}
 
 /*
  * Interact with "knowledge"
@@ -3684,6 +3852,8 @@ void do_cmd_knowledge(void)
 		/* prt("(7) Display virtues", 10, 5); */
 		if (take_notes)
 			prt("(8) Display notes", 5, 11);
+		if (!vanilla_town)
+			prt("(9) Display town information", 5, 12);
 
 		/* Prompt */
 		prt("Command: ", 0, 13);
@@ -3744,7 +3914,15 @@ void do_cmd_knowledge(void)
 				if (take_notes)
 					do_cmd_knowledge_notes();
 				else
-					bell("You have turned on note taking!");
+					bell("You have not turned on note taking!");
+				break;
+			}
+			case '9':
+			{
+				if (!vanilla_town)
+					do_cmd_knowledge_wild();
+				else
+					bell("You do not have a wilderness!");
 				break;
 			}
 			default:

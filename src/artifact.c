@@ -44,8 +44,6 @@ static void curse_artifact(object_type *o_ptr)
 
 	if ((p_ptr->pclass != CLASS_WARRIOR) && one_in_(3))
 		o_ptr->flags3 |= TR3_NO_MAGIC;
-
-	o_ptr->ident |= IDENT_CURSED;
 }
 
 
@@ -1556,10 +1554,10 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		char dummy_name[80];
 		strcpy(dummy_name, "");
 		(void)identify_fully_aux(o_ptr);
-		o_ptr->ident |= IDENT_STOREB;	/* This will be used later on... */
-		if (!
-			(get_string
-			 ("What do you want to call the artifact? ", dummy_name, 80)))
+		o_ptr->info |= OB_STOREB;
+
+		if (!(get_string
+			  ("What do you want to call the artifact? ", dummy_name, 80)))
 		{
 			get_random_name(new_name, o_ptr->tval, power_level);
 		}
@@ -1572,9 +1570,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		/* Identify it fully */
 		object_aware(o_ptr);
 		object_known(o_ptr);
-
-		/* Mark the item as fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
+		object_mental(o_ptr);
 
 		/* Save all the known flags */
 		o_ptr->kn_flags1 = o_ptr->flags1;
@@ -1754,7 +1750,7 @@ bool activate_effect(object_type *o_ptr)
 			{
 				msg_print("The ring glows in multiple colours...");
 				if (!get_aim_dir(&dir)) return FALSE;
-				fire_ball(GF_MISSILE, dir, 400, 3);
+				fire_ball(GF_MISSILE, dir, 800, 3);
 				o_ptr->timeout = (s16b)rand_range(250, 500);
 				break;
 			}
@@ -1780,7 +1776,7 @@ bool activate_effect(object_type *o_ptr)
 						if (!in_bounds2(x, y)) continue;
 
 						c_ptr = area(x, y);
-						if (!cave_floor_grid(c_ptr)) continue;
+						if (cave_wall_grid(c_ptr)) continue;
 
 						if ((y != py) || (x != px)) break;
 					}
@@ -1877,6 +1873,23 @@ bool activate_effect(object_type *o_ptr)
 				(void)hp_player(700);
 				(void)set_cut(0);
 				o_ptr->timeout = 250;
+				break;
+			}
+
+			case ART_KERI:
+			{
+				object_type *q_ptr;
+
+				msg_print("Your rag feels warm for a moment...");
+
+				/* Hack - Create the food ration */
+				q_ptr = object_prep(lookup_kind(TV_FOOD, SV_FOOD_RATION));
+
+				/* Drop the object from heaven */
+				drop_near(q_ptr, -1, p_ptr->px, p_ptr->py);
+
+				o_ptr->timeout = 100;
+
 				break;
 			}
 
@@ -3073,7 +3086,6 @@ void random_artifact_resistance(object_type *o_ptr)
 		{
 			o_ptr->flags3 |=
 				(TR3_CURSED | TR3_HEAVY_CURSE | TR3_AGGRAVATE | TR3_TY_CURSE);
-			o_ptr->ident |= IDENT_CURSED;
 			return;
 		}
 	}
@@ -3158,14 +3170,10 @@ void random_artifact_resistance(object_type *o_ptr)
  */
 void create_named_art(int a_idx, int x, int y)
 {
-	object_type forge;
 	object_type *q_ptr;
 	int i;
 
 	artifact_type *a_ptr = &a_info[a_idx];
-
-	/* Get local object */
-	q_ptr = &forge;
 
 	/* Ignore "empty" artifacts */
 	if (!a_ptr->name) return;
@@ -3177,7 +3185,7 @@ void create_named_art(int a_idx, int x, int y)
 	if (!i) return;
 
 	/* Create the artifact */
-	object_prep(q_ptr, i);
+	q_ptr = object_prep(i);
 
 	/* Set the activation */
 	q_ptr->activate = a_idx + 128;
@@ -3203,9 +3211,6 @@ void create_named_art(int a_idx, int x, int y)
 	/* Save the inscription */
 	q_ptr->xtra_name = quark_add(a_name + a_ptr->name);
 
-	/* Hack -- acquire "cursed" flag */
-	if (a_ptr->flags3 & TR3_CURSED) q_ptr->ident |= (IDENT_CURSED);
-
 	random_artifact_resistance(q_ptr);
 
 	if (!a_ptr->cost)
@@ -3220,5 +3225,5 @@ void create_named_art(int a_idx, int x, int y)
 	}
 
 	/* Drop the artifact from heaven */
-	(void)drop_near(q_ptr, -1, x, y);
+	drop_near(q_ptr, -1, x, y);
 }

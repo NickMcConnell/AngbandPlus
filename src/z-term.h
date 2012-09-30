@@ -43,14 +43,11 @@ struct term_win
 	byte *va;
 	char *vc;
 
-#ifdef USE_TRANSPARENCY
 	byte **ta;
 	char **tc;
 
 	byte *vta;
 	char *vtc;
-#endif /* USE_TRANSPARENCY */
-
 };
 
 
@@ -220,33 +217,12 @@ struct term
 
 	void (*resize_hook) (void);
 
-#ifdef USE_TRANSPARENCY
 	errr (*pict_hook) (int x, int y, int n, const byte *ap, const char *cp,
 					   const byte *tap, const char *tcp);
-#else  /* USE_TRANSPARENCY */
-	errr (*pict_hook) (int x, int y, int n, const byte *ap, const char *cp);
-#endif /* USE_TRANSPARENCY */
-
 };
 
 
-#ifdef USE_TERM_MAP
 
-/*
- * Map data structure
- */
-typedef struct term_map term_map;
-
-struct term_map
-{
-	u16b object;
-	u16b monster;
-	u16b field;
-	byte terrain;
-	byte flags;
-};
-
-#endif /* USE_TERM_MAP */
 
 
 /**** Available Constants ****/
@@ -284,21 +260,7 @@ struct term_map
 #define TERM_XTRA_DELAY 13		/* Delay some milliseconds (optional) */
 #define TERM_XTRA_ERMAP 14		/* Erase the overhead map (optional) */
 
-/*
- * This is used by the Borg and by ports that like to
- * draw a "graphical" small-scale map
- */
-#ifdef TERM_USE_MAP
 
-/*
- * Constants used to pass lighting information to users
- * of the overhead map hooks.
- */
-#define MAP_SEEN	0x01
-#define MAP_GLOW	0x02
-#define MAP_LITE	0x04
-
-#endif /* TERM_USE_MAP */
 
 
 /**** Available Variables ****/
@@ -311,16 +273,10 @@ extern term *Term;
 extern errr Term_user(int n);
 extern void Term_xtra(int n, int v);
 
-#ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
 
 extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta,
 							char *tc);
-#else  /* USE_TRANSPARENCY */
-extern void Term_queue_char(int x, int y, byte a, char c);
-
-extern void Term_queue_line(int x, int y, int n, byte *a, char *c);
-#endif /* USE_TRANSPARENCY */
 
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
 
@@ -358,14 +314,5 @@ extern void Term_activate(term *t);
 
 extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
-
-#ifdef USE_TERM_MAP
-
-extern errr (*term_map_hook) (int x, int y, term_map data) = NULL;
-extern errr (*term_erase_map_hook) (void) = NULL;
-extern void Term_write_map(int x, int y, cave_type *c_ptr, pcave_type *pc_ptr);
-extern void Term_erase_map(void);
-
-#endif /* USE_TERM_MAP */
 
 #endif /* INCLUDED_Z_TERM_H */

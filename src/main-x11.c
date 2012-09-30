@@ -99,6 +99,18 @@
 
 #ifdef USE_X11
 
+cptr help_x11[] =
+{
+	"To use X11",
+	"-d    Set display name",
+#ifdef USE_GRAPHICS
+	"-s    Turn off smoothscaling graphics",
+	"-b#   Set tileset bitmap",
+#endif /* USE_GRAPHICS */
+	"-n#   Number of terms to use",
+	NULL
+};
+
 
 #ifndef __MAKEDEPEND__
 #include <X11/Xlib.h>
@@ -503,7 +515,7 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 	m->fg = m->white;
 
 	/* Calculate the Maximum allowed Pixel value.  */
-	m->zg = (1 << m->depth) - 1;
+	m->zg = ((Pixell)1 << m->depth) - 1;
 
 	/* Save various default Flag Settings */
 	m->color = ((m->depth > 1) ? 1 : 0);
@@ -1454,12 +1466,8 @@ struct term_data
 
 	XImage *tiles;
 
-#ifdef USE_TRANSPARENCY
-
 	/* Tempory storage for overlaying tiles. */
 	XImage *TmpImage;
-
-#endif
 
 #endif
 
@@ -1483,13 +1491,11 @@ static term_data data[MAX_TERM_DATA];
  *
  * Also appears in "main-xaw.c".
  */
-static void react_keypress(XKeyEvent *xev)
+static void react_keypress(XKeyEvent *ev)
 {
 	int i, n, mc, ms, mo, mx;
 
 	uint ks1;
-
-	XKeyEvent *ev = (XKeyEvent*)(xev);
 
 	KeySym ks;
 
@@ -1979,19 +1985,13 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	int i, x1, y1;
 
 	byte a;
 	char c;
 
-
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
 
@@ -1999,7 +1999,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 	int k,l;
 
 	unsigned long pixel, blank;
-#endif /* USE_TRANSPARENCY */
 
 	term_data *td = (term_data*)(Term->data);
 
@@ -2018,8 +2017,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		/* For extra speed - cache these values */
 		x1 = (c&0x7F) * td->fnt->wid;
 		y1 = (a&0x7F) * td->fnt->hgt;
-
-#ifdef USE_TRANSPARENCY
 
 		ta = *tap++;
 		tc = *tcp++;
@@ -2071,17 +2068,6 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		     	     td->fnt->wid, td->fnt->hgt);
 		}
 
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		XPutImage(Metadpy->dpy, td->win->win,
-		          clr[0]->gc,
-		          td->tiles,
-		          x1, y1,
-		          x, y,
-		          td->fnt->wid, td->fnt->hgt);
-
-#endif /* USE_TRANSPARENCY */
 		x += td->fnt->wid;
 	}
 
@@ -2311,11 +2297,7 @@ errr init_x11(int argc, char *argv[])
 	
 	int graphmode = GRAPHICS_ANY;
 
-#ifdef USE_TRANSPARENCY
-
 	char *TmpData;
-
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -2463,7 +2445,6 @@ errr init_x11(int argc, char *argv[])
 			            td->fnt->wid, td->fnt->hgt);
 		}
 
-#ifdef USE_TRANSPARENCY
 		/* Initialize the transparency masks */
 		for (i = 0; i < num_term; i++)
 		{
@@ -2488,8 +2469,6 @@ errr init_x11(int argc, char *argv[])
 				td->fnt->wid, td->fnt->hgt, 32, 0);
 
 		}
-#endif /* USE_TRANSPARENCY */
-
 
 		/* Free tiles_raw? XXX XXX */
 	}

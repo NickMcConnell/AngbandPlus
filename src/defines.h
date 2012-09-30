@@ -35,7 +35,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.7.0"
+#define VERSION_STRING	"2.7.1"
 
 
 /*
@@ -45,14 +45,14 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-#define SAVEFILE_VERSION 30
+#define SAVEFILE_VERSION 39
 
 /* Added for ZAngband */
 /* Why do we need a fake version number? */
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 7
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 1
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -100,6 +100,9 @@
 /*
  * Defines used by the wilderness data structures
  */
+
+/* Size of wilderness in blocks */
+#define WILD_SIZE		129
 
 /* Size of blocks - hard coded. (Affects size of towns) */
 #define WILD_BLOCK_SIZE	16
@@ -287,9 +290,12 @@
 #define BUILD_CASINO			108
 #define BUILD_INN				109
 #define BUILD_HEALER			110
+#define BUILD_BLACK0            111
+#define BUILD_MAGETOWER0        112
+#define BUILD_MAGETOWER1        113
 
 /* Maximum number of "building" types in a city */
-#define MAX_CITY_BUILD			111
+#define MAX_CITY_BUILD			114
 
 
 /*
@@ -812,7 +818,7 @@
 #define REALM_DEATH        5
 #define REALM_TRUMP        6
 #define REALM_ARCANE       7
-#define MAX_REALM          7
+#define MAX_REALM          8
 
 /*
  * Magic-books for the realms
@@ -822,41 +828,56 @@
 
 
 /*
- * Maximum number of "normal" pack slots, and the index of the "overflow"
- * slot, which can hold an item, but only temporarily, since it causes the
- * pack to "overflow", dropping the "last" item onto the ground.  Since this
- * value is used as an actual slot, it must be less than "INVEN_WIELD" (below).
+ * Ego item slot-types
+ */
+
+/* XXX XXX Hack - gap */
+
+#define ES_CROWN     21
+#define ES_DIG		 22
+#define ES_AMMO      23
+#define ES_WIELD     24
+#define ES_BOW       25
+
+/* Hack - gap */
+
+#define ES_NECK      28
+#define ES_LITE      29
+#define ES_BODY      30
+#define ES_OUTER     31
+#define ES_ARM       32
+#define ES_HEAD      33
+#define ES_HANDS     34
+#define ES_FEET      35
+
+
+/*
+ * Maximum number of "normal" pack slots.
  * Note that "INVEN_PACK" is probably hard-coded by its use in savefiles, and
  * by the fact that the screen can only show 23 items plus a one-line prompt.
  */
 #define INVEN_PACK              23
 
 /*
- * Indexes used for various "equipment" slots (hard-coded by savefiles, etc).
+ * Equipment slots
  */
-
-/* Hack XXX XXX XXX these three are used by the ego item code. */
-#define INVEN_CROWN		21
-#define INVEN_DIG		22
-#define INVEN_AMMO		23
-
-#define INVEN_WIELD     24
-#define INVEN_BOW       25
-#define INVEN_LEFT      26
-#define INVEN_RIGHT     27
-#define INVEN_NECK      28
-#define INVEN_LITE      29
-#define INVEN_BODY      30
-#define INVEN_OUTER     31
-#define INVEN_ARM       32
-#define INVEN_HEAD      33
-#define INVEN_HANDS     34
-#define INVEN_FEET      35
+#define EQUIP_WIELD     0
+#define EQUIP_BOW       1
+#define EQUIP_LEFT      2
+#define EQUIP_RIGHT     3
+#define EQUIP_NECK      4
+#define EQUIP_LITE      5
+#define EQUIP_BODY      6
+#define EQUIP_OUTER     7
+#define EQUIP_ARM       8
+#define EQUIP_HEAD      9
+#define EQUIP_HANDS     10
+#define EQUIP_FEET      11
 
 /*
- * Total number of inventory slots (hard-coded).
+ * Total number of things that you can wield (hard coded)
  */
-#define INVEN_TOTAL     36
+#define EQUIP_MAX		12
 
 
 /*
@@ -880,6 +901,9 @@
  * Total number of stats.
  */
 #define A_MAX	6
+
+/* 1/x chance of reducing stats (for elemental attacks) */
+#define HURT_CHANCE 50
 
 
 /*
@@ -1301,6 +1325,9 @@
 #define FT_BUILD_CASINO			0x008B
 #define FT_BUILD_INN			0x008C
 #define FT_BUILD_HEALER			0x008D
+#define FT_STORE_BLACK0         0x008E
+#define FT_BUILD_MAGETOWER0     0x008F
+#define FT_BUILD_MAGETOWER1     0x0090
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -1364,6 +1391,7 @@
 #define ART_GONDOR              42
 
 /* Cloaks */
+#define ART_KERI                43
 #define ART_COLLUIN             44
 #define ART_HOLCOLLETH          45
 #define ART_THINGOL             46
@@ -1887,6 +1915,7 @@
 #define SV_ZWEIHANDER                   29
 #define SV_BLADE_OF_CHAOS               30
 #define SV_DIAMOND_EDGE                 31
+#define SV_ELFBLADE                     32
 
 /* The "sval" codes for TV_SHIELD */
 #define SV_SMALL_LEATHER_SHIELD          2
@@ -2054,6 +2083,8 @@
 #define SV_RING_LORDLY                  48
 #define SV_RING_ATTACKS                 49
 #define SV_RING_ELEMENTS				50
+#define SV_RING_RES_FIRE_COLD           51
+#define SV_RING_CAT                     52
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS                0
@@ -2380,6 +2411,17 @@
 
 
 /*
+ * Feature flags
+ */
+#define FF_BLOCK		0x01	/* Blocks movement + los */
+#define FF_HALF_LOS		0x02	/* Half-blocks los */
+#define FF_USE_TRANS	0x04	/* Use transparency light effects */
+#define FF_ICKY			0x08	/* Terrain can not have objects */
+#define FF_PERM			0x10	/* Permanent terrain */
+#define FF_OBJECT		0x20	/* Terrain is described like an object */
+#define FF_PATTERN		0x40	/* The pattern */
+
+/*
  * Bit flags for the "project()" function
  *
  *   JUMP: Jump directly to the target location (this is a hack)
@@ -2491,6 +2533,7 @@
 #define PU_MANA         0x00000020L	/* Calculate csp and msp */
 #define PU_SPELLS       0x00000040L	/* Calculate spells */
 /* xxx (many) */
+#define PU_WEIGHT		0x00000100L	/* Calculate weight of inventory */
 /* xxx (many) */
 /* xxx (many) */
 #define PU_VIEW         0x00100000L	/* Update view */
@@ -2755,14 +2798,14 @@
 /*
  * Special Object Flags
  */
-#define IDENT_SENSE     0x01	/* Item has been "sensed" */
-#define IDENT_FIXED     0x02	/* Item has been "haggled" */
-#define IDENT_EMPTY     0x04	/* Item charges are known */
-#define IDENT_KNOWN     0x08	/* Item abilities are known */
-#define IDENT_STOREB    0x10	/* Item is storebought !!!! */
-#define IDENT_MENTAL    0x20	/* Item information is known */
-#define IDENT_CURSED    0x40	/* Item is temporarily cursed */
-#define IDENT_BROKEN    0x80	/* Item is permanently worthless */
+#define OB_SENSE     0x01		/* Item has been "sensed" */
+#define OB_SEEN      0x02		/* Item is seen */
+#define OB_EMPTY     0x04		/* Item charges are known */
+#define OB_KNOWN     0x08		/* Item abilities are known */
+#define OB_STOREB    0x10		/* Item is storebought */
+#define OB_MENTAL    0x20		/* Item is *id*'ed */
+#define OB_DUMMY3    0x40
+#define OB_DUMMY4    0x80
 
 
 
@@ -2912,6 +2955,15 @@
      TR1_CON | TR1_CHR | \
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
      TR1_SPEED | TR1_BLOWS)
+
+/*
+ * Flag set 1 -- mask for "easy" flags.
+ * These flags are automatically learned if the item is worn.
+ */
+#define TR1_EASY_MASK \
+    (TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
+     TR1_CON | TR1_CHR | \
+     TR1_INFRA | TR1_SPEED | TR1_BLOWS)
 
 /*
  * Flag set 3 -- mask for "ignore element" flags.
@@ -3506,17 +3558,20 @@
 #define OPT_FLAG_SERVER			0x02
 #define OPT_FLAG_PLAYER			0x04
 
+
+#define OPT_BIRTH_PAGE			6
+
 /* Option set 0 */
 
 #define rogue_like_commands		p_ptr->options[0]
 #define quick_messages			p_ptr->options[1]
-#define other_query_flag		p_ptr->options[2]
+/* {TRUE,  0, NULL,					"Number 2" }, p_ptr->options[2] */
 #define carry_query_flag		p_ptr->options[3]
 #define use_old_target			p_ptr->options[4]
 #define always_pickup			p_ptr->options[5]
 #define always_repeat			p_ptr->options[6]
 #define depth_in_feet			p_ptr->options[7]
-#define stack_force_notes		p_ptr->options[8]
+/* {TRUE,  0, NULL,					"Number 8" }, p_ptr->options[8] */
 #define stack_force_costs		p_ptr->options[9]
 #define show_labels				p_ptr->options[10]
 #define show_weights			p_ptr->options[11]
@@ -3528,14 +3583,14 @@
 #define find_ignore_doors		p_ptr->options[17]
 #define find_cut				p_ptr->options[18]
 #define find_examine			p_ptr->options[19]
-#define disturb_move			p_ptr->options[20]
+/* {TRUE,  0, NULL,					"Number 20" }, p_ptr->options[20] */
 #define disturb_near			p_ptr->options[21]
 #define disturb_panel			p_ptr->options[22]
 #define disturb_state			p_ptr->options[23]
 #define disturb_minor			p_ptr->options[24]
 #define disturb_other			p_ptr->options[25]
 #define disturb_traps			p_ptr->options[26]
-#define alert_failure			p_ptr->options[27]
+/* {TRUE,  0, NULL,					"Number 27" }, p_ptr->options[27] */
 #define last_words				p_ptr->options[28]
 #define speak_unique			p_ptr->options[29]
 #define small_levels			svr_ptr->options[0]
@@ -3543,15 +3598,15 @@
 
 /* Option set 1 */
 
-#define auto_haggle				p_ptr->options[30]
-#define	auto_scum				svr_ptr->options[2]
-#define stack_allow_items		svr_ptr->options[3]
+/* {TRUE,  0, NULL,					"Number 32" }, p_ptr->options[30] */
+/* {TRUE,  0, NULL,					"Number 33" }, svr_ptr->options[2] */
+/* {TRUE,  0, NULL,					"Number 34" }, svr_ptr->options[3] */
 #define stack_allow_wands		svr_ptr->options[4]
-#define expand_look				svr_ptr->options[5]
+/* {TRUE, 0, NULL, 					"Number 36" }, svr_ptr->options[5] */
 #define expand_list				svr_ptr->options[6]
 #define view_perma_grids		p_ptr->options[31]
 #define view_torch_grids		p_ptr->options[32]
-#define dungeon_align			svr_ptr->options[7]
+/* {TRUE,  0, NULL,					"Number 40" }, svr_ptr->options[7] */
 #define dungeon_stair			svr_ptr->options[8]
 /* {TRUE,  0, NULL,					"Number 42" }, svr_ptr->options[9] */
 /* {TRUE,  0, NULL,					"Number 43" }, svr_ptr->options[10] */
@@ -3561,14 +3616,14 @@
 /* {TRUE,  0, NULL,					"Number 47" }, svr_ptr->options[14] */
 /* {TRUE,  0, NULL,					"Number 48" }, p_ptr->options[33] */
 /* {TRUE,  0, NULL,					"Number 49" }, p_ptr->options[34] */
-#define avoid_abort				p_ptr->options[35]
-#define avoid_other				p_ptr->options[36]
+/* {TRUE,  0, NULL,					"Number 50" }, p_ptr->options[35] */
+/* {TRUE,  0, NULL,					"Number 51" }, p_ptr->options[36] */
 #define flush_failure			p_ptr->options[37]
 #define flush_disturb			p_ptr->options[38]
-#define flush_command			p_ptr->options[39]
+/* {FALSE, 0, NULL, 					"Number 54" }, p_ptr->options[39] */
 #define fresh_before			p_ptr->options[40]
 #define fresh_after				p_ptr->options[41]
-#define fresh_message			p_ptr->options[42]
+/* {FALSE, 0, NULL,					"Number 57" }, p_ptr->options[42] */
 #define compress_savefile		p_ptr->options[43]
 #define hilite_player			p_ptr->options[44]
 #define view_yellow_lite		p_ptr->options[45]
@@ -3578,7 +3633,7 @@
 
 /* Option Set 2 */
 
-/* {TRUE,  0, NULL,					"Number 64" }, p_ptr->options[49] */
+#define	view_player_colour		p_ptr->options[49]
 /* {TRUE,  0, NULL,					"Number 65" }, p_ptr->options[50] */
 /* {TRUE,  0, NULL,					"Number 66" }, p_ptr->options[51] */
 /* {TRUE,  0, NULL,					"Number 67" }, p_ptr->options[52] */
@@ -3692,7 +3747,7 @@
 #define easy_open				p_ptr->options[150]
 #define easy_disarm				p_ptr->options[151]
 #define easy_floor				p_ptr->options[152]
-#define use_command				p_ptr->options[153]
+/* {TRUE,  0, NULL,					"Number 169" }, p_ptr->options[153] */
 #define center_player			p_ptr->options[154]
 #define avoid_center			p_ptr->options[155]
 /* {TRUE,  0, NULL,					"Number 172" }, p_ptr->options[156] */
@@ -3725,7 +3780,7 @@
 #define ironman_downward		p_ptr->birth[4]
 #define ironman_autoscum		p_ptr->birth[5]
 #define ironman_hard_quests		p_ptr->birth[6]
-#define ironman_los				p_ptr->birth[7]
+/* {TRUE,  0, NULL,					"Number 199" }, p_ptr->birth[7] */
 #define ironman_empty_levels	p_ptr->birth[8]
 #define terrain_streams			p_ptr->birth[9]
 #define ironman_moria			p_ptr->birth[10]
@@ -3737,7 +3792,7 @@
 #define point_based				p_ptr->birth[16]
 #define silly_monsters			p_ptr->birth[17]
 #define ironman_nightmare		p_ptr->birth[18]
-/* {TRUE,  0, NULL,					"Number 211" }, p_ptr->birth[19] */
+#define ironman_deep_quests     p_ptr->birth[19]
 /* {TRUE,  0, NULL,					"Number 212" }, p_ptr->birth[20] */
 /* {TRUE,  0, NULL,					"Number 213" }, p_ptr->birth[21] */
 /* {TRUE,  0, NULL,					"Number 214" }, p_ptr->birth[22] */
@@ -3797,7 +3852,6 @@
 #define term_screen     (angband_term[0])
 
 
-#ifndef SCRIPT_OBJ_KIND
 /*
  * Determine if a given inventory item is "aware"
  */
@@ -3817,8 +3871,14 @@
  * Test Two -- Check for "Easy Know" + "Aware"
  */
 #define object_known_p(T) \
-    (((T)->ident & (IDENT_KNOWN)) || \
+    (((T)->info & (OB_KNOWN)) || \
      (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
+
+/*
+ * Is the object fully known?
+ */
+#define object_known_full(T) \
+	((T)->info & (OB_MENTAL))
 
 
 /*
@@ -3842,74 +3902,35 @@
 	 (k_info[(T)->k_idx].x_char))
 
 
-#else  /* SCRIPT_OBJ_KIND */
-
-
-/*
- * Determine if a given inventory item is "aware"
- */
-#define object_aware_p(T) \
-    ((T)->aware)
-
-/*
- * Determine if a given inventory item is "tried"
- */
-#define object_tried_p(T) \
-    ((T)->tried)
-
-
-/*
- * Determine if a given inventory item is "known"
- * Test One -- Check for special "known" tag
- * Test Two -- Check for "Easy Know" + "Aware"
- */
-#define object_known_p(T) \
-    (((T)->ident & (IDENT_KNOWN)) || \
-     ((T)->easy_know && (T)->aware))
-
-
-/*
- * Return the "attr" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_attr(T) \
-	(((T)->flavor) ? \
-	 (misc_to_attr[(T)->flavor]) : \
-	 ((T)->x_attr))
-
-/*
- * Return the "char" for a given item.
- * Use "flavor" if available.
- * Default to user definitions.
- */
-#define object_char(T) \
-	(((T)->flavor) ? \
-	 (misc_to_char[(T)->flavor]) : \
-	 ((T)->x_char))
-
-#endif /* SCRIPT_OBJ_KIND */
-
-
-
 /*
  * Ego-Items are named, but are not INSTA_ART.
  */
 #define ego_item_p(T) \
 	((((T)->xtra_name) && (!((T)->flags3 & TR3_INSTA_ART))) ? TRUE : FALSE)
 
-
-/*
- * Broken items.
- */
-#define broken_p(T) \
-	((T)->ident & (IDENT_BROKEN))
-
 /*
  * Cursed items.
  */
 #define cursed_p(T) \
-	((T)->ident & (IDENT_CURSED))
+	((T)->flags3 & (TR3_CURSED))
+
+
+/*
+ * Iterate over the objects in a list
+ */
+#define OBJ_ITT_START(OSTART, O) \
+	do { \
+		s16b _this_o_idx, _next_o_idx = 0; \
+		\
+		for (_this_o_idx = (OSTART); _this_o_idx; _this_o_idx = _next_o_idx) \
+		{ \
+			(O) = &o_list[_this_o_idx];\
+			\
+			_next_o_idx = (O)->next_o_idx;
+
+#define OBJ_ITT_END \
+		} \
+	} while (0)
 
 
 /*
@@ -3919,71 +3940,41 @@
   (((Y) >= panel_row_min) && ((Y) <= panel_row_max) && \
    ((X) >= panel_col_min) && ((X) <= panel_col_max))
 
-#define floor_grid(F) \
-	(!((F) & 0x20))
-
 /*
  * Determine if a "legal" grid is a "floor" grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- *
- * Note that the terrain features are split by a one bit test
- * into those features which block line of sight and those that
- * do not, allowing an extremely fast single bit check below.
- *
- * Add in the fact that some new terrain (water & lava) do NOT block sight
- * -KMW-
  */
 #define cave_floor_grid(C) \
-    (floor_grid((C)->feat))
+    (!(f_info[(C)->feat].flags & FF_BLOCK))
+/*
+ * Determine if a "legal" grid is a "wall" grid
+ */
+#define cave_wall_grid(C) \
+    (f_info[(C)->feat].flags & FF_BLOCK)
 
 /*
  * True half the time for trees. (Block line of sight half the time.)
  */
 #define cave_half_grid(C) \
-    ((((C)->feat & 0x60) == 0x60) && (quick_rand()))
-
+    ((f_info[(C)->feat].flags & FF_HALF_LOS) && (quick_rand()))
 
 /*
  * Grid will block LOS.
  */
-
 #define cave_los_grid(C) \
    ((cave_floor_grid(C)) || (cave_half_grid(C)))
 
 /*
- * Grid based version of "cave_clean_bold()"
+ * A nice grid for dropping objects
  */
-#define cave_clean_grid(C) \
-    ((((C)->feat == FEAT_FLOOR) || \
-	  ((C)->feat == FEAT_SHAL_WATER) || \
-	  ((C)->feat == FEAT_SHAL_LAVA) || \
-	  ((C)->feat == FEAT_SHAL_ACID) || \
-	  ((C)->feat == FEAT_GRASS) || \
-	  ((C)->feat == FEAT_SNOW) || \
-	  (((C)->feat & 0xF8) == 0x08) || \
-	  (((C)->feat & 0x80) == 0x80) || \
-	  ((C)->feat == FEAT_DIRT)) && \
-	  ((C)->o_idx == 0))
+#define cave_nice_grid(C) \
+    (!(f_info[(C)->feat].flags & FF_ICKY))
 
 /*
- * Determine if a "legal" grid is a "gen" floor grid
- *
- * Line 1 -- forbid non-floors
- * Line 2 -- forbid water -KMW-
- * Line 3 -- forbid lava -KMW-
- * Line 4 -- forbid normal objects
- *  This function describes grids that can hold any object.
- *  Note: The *_SHAL_* possibilities are removed.
+ * Grid that does not have any objects or "interesting" terrains
  */
-#define cave_gen_grid(C) \
-	((((C)->feat == FEAT_FLOOR) || \
-	  ((C)->feat == FEAT_GRASS) || \
-	  ((C)->feat == FEAT_SNOW) || \
-	  (((C)->feat & 0xF8) == 0x08) || \
-	  (((C)->feat & 0x80) == 0x80) || \
-	  ((C)->feat == FEAT_DIRT)) && \
-	  ((C)->o_idx == 0))
+#define cave_clean_grid(C) \
+    (cave_nice_grid(C) && \
+	((C)->o_idx == 0))
 
 /*
  * Not occupied by a monster
@@ -3992,34 +3983,27 @@
     (cave_floor_grid(C) && !((C)->m_idx))
 
 /*
- * Grid based version of "cave_naked_bold()"
+ * Grid that is empty of everything interesting
  */
 #define cave_naked_grid(C) \
-    ((((C)->feat == FEAT_FLOOR) || \
-	  ((C)->feat == FEAT_SHAL_WATER) || \
-	  ((C)->feat == FEAT_SHAL_LAVA) || \
-	  ((C)->feat == FEAT_SHAL_ACID) || \
-	  ((C)->feat == FEAT_SNOW) || \
-	  (((C)->feat & 0xF8) == 0x08) || \
-	  ((C)->feat == FEAT_GRASS) || \
-	  ((C)->feat == FEAT_DIRT)) && \
-	  ((C)->o_idx == 0) && \
-	  ((C)->m_idx == 0) && \
-	  ((C)->fld_idx == 0))
+    (cave_nice_grid(C) && \
+	((C)->o_idx == 0) && \
+	((C)->m_idx == 0) && \
+	((C)->fld_idx == 0))
 
 
 /*
- * Grid based version of "cave_perma_bold()"
+ * Grid that cannot be destroyed or passed.
  */
 #define cave_perma_grid(C) \
-	((((C)->feat >= FEAT_PERM_EXTRA) && \
-	((C)->feat <= FEAT_PERM_SOLID)) || \
-	(((C)->feat == FEAT_LESS) || \
-	 ((C)->feat == FEAT_MORE)) || \
-	(((C)->feat & 0x70) == 0x70) || \
-	 (((C)->feat >= FEAT_PATTERN_START) && \
-	  ((C)->feat <= FEAT_PATTERN_XTRA2)))
+	(f_info[(C)->feat].flags & FF_PERM)
 
+
+/*
+ * Pattern grid.
+ */
+#define cave_pattern_grid(C) \
+	(f_info[(C)->feat].flags & FF_PATTERN)
 
 /*
  * Determine if a "legal" grid is within "los" of the player
@@ -4379,3 +4363,10 @@ extern int PlayerUID;
 #define DISPLAY_PLAYER_SUMMARY		2	/* summary of various things */
 
 #define DISPLAY_PLAYER_MAX		3
+
+/* Types of object list */
+#define LIST_INVEN			1
+#define LIST_EQUIP			2
+#define LIST_FLOOR			3
+#define LIST_STORE			4
+#define LIST_HOME			5

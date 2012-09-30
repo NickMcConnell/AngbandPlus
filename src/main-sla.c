@@ -13,7 +13,11 @@
 
 #ifdef USE_SLA
 
-
+cptr help_sla[] =
+{
+	"To use SLA (SLANG)",
+	NULL
+};
 
 #include <slang.h>
 

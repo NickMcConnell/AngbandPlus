@@ -7,6 +7,8 @@
  *
  */
 
+#include "angband.h"
+
 /* Check compiler flag */
 #ifdef __riscos
 
@@ -32,8 +34,6 @@ typedef unsigned int bits;
 #define NONE 0u
 #define UNKNOWN 1
 #define types_H
-
-#include "angband.h"
 
 #include <signal.h>
 #include "kernel.h"

@@ -79,18 +79,20 @@ int distance(int x1, int y1, int x2, int y2)
 /*
  * Return TRUE if the given square contains a trap
  */
-bool is_trap(cave_type *c_ptr)
+bool is_trap(const cave_type *c_ptr)
 {
-	return (*field_is_type(&c_ptr->fld_idx, FTYPE_TRAP) != 0);
+	/* We assume field_is_type does not alter the data in c_ptr */
+	return (*field_is_type((s16b *)&c_ptr->fld_idx, FTYPE_TRAP) != 0);
 }
 
 
 /*
  * Return TRUE if the given square contains a known trap
  */
-bool is_visible_trap(cave_type *c_ptr)
+bool is_visible_trap(const cave_type *c_ptr)
 {
-	return (*field_first_known(&c_ptr->fld_idx, FTYPE_TRAP) != 0);
+	/* We assume field_first_known does not alter the data in c_ptr */
+	return (*field_first_known((s16b *)&c_ptr->fld_idx, FTYPE_TRAP) != 0);
 }
 
 
@@ -236,7 +238,7 @@ static bool los_general(int x1, int y1, int x2, int y2, cave_hook_type c_hook)
  * Hack - a function to pass to los_general() used
  * to simulate the old los()
  */
-static bool cave_stop_wall(cave_type *c_ptr)
+static bool cave_stop_wall(const cave_type *c_ptr)
 {
 	/* Is it passable? */
 	if (cave_los_grid(c_ptr)) return (FALSE);
@@ -272,19 +274,113 @@ bool los(int x1, int y1, int x2, int y2)
 }
 
 
+
+
+/* Slope and square used by mmove2 */
+static int mmove_slope;
+static int mmove_sq;
+
+/* Direction to move in */
+static int mmove_dx;
+static int mmove_dy;
+
+
 /*
- * Calculate incremental motion
+ * This is a (slow) function that can be used
+ * to test if there is a direct projection
+ * between two squares.
  *
- * The current position is updated.
- *
- * (x,y) encodes the current location.
- * slope and sq encodes the current square along the flight path.
- * Set sq to be zero to initialise the routine.
- *
- * This routine is very similar to los() except that we can use it
- * to return partial results.
+ * "Direct" projections tend to look much straighter
+ * on the screen than normal ones.
  */
-void mmove2(int *x, int *y, int x1, int y1, int x2, int y2, int *slope, int *sq)
+static bool is_direct_projectable(int x1, int y1)
+{
+	int xx, yy;
+
+	int ax, ay, sx, sy;
+
+	int slope = 0, sq = 0;
+
+	cave_type *c_ptr;
+
+	/* Extract the absolute offset */
+	ay = ABS(mmove_dy);
+	ax = ABS(mmove_dx);
+
+	/* Extract some signs */
+	sx = (mmove_dx < 0) ? -1 : 1;
+	sy = (mmove_dy < 0) ? -1 : 1;
+
+
+	/*
+	 * Start at the first square in the list.
+	 * This is a square adjacent to (x1,y1)
+	 */
+
+	/* Hack - we need to stick to one octant */
+	if (ay < ax)
+	{
+		/* Look up the slope to use */
+		slope = (p_slope_min[ax][ay] + p_slope_max[ax][ay]) / 2;
+
+		while (TRUE)
+		{
+			xx = x1 + sx * project_data[slope][sq].x;
+			yy = y1 + sy * project_data[slope][sq].y;
+
+			/* Done? */
+			if ((xx == x1 + mmove_dx) && (yy == y1 + mmove_dy)) return (TRUE);
+
+			c_ptr = area(xx, yy);
+
+			/* Is the square not occupied by a monster, and passable? */
+			if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
+			{
+				return (FALSE);
+			}
+			else
+			{
+				/* Advance along ray */
+				sq++;
+			}
+		}
+	}
+	else
+	{
+		/* Look up the slope to use */
+		slope = (p_slope_min[ay][ax] + p_slope_max[ay][ax]) / 2;
+
+		while (TRUE)
+		{
+			/* Note that the data offsets have x,y swapped */
+			xx = x1 + sx * project_data[slope][sq].y;
+			yy = y1 + sy * project_data[slope][sq].x;
+
+			/* Done? */
+			if ((xx == x1 + mmove_dx) && (yy == y1 + mmove_dy)) return (TRUE);
+
+			c_ptr = area(xx, yy);
+
+			/* Is the square not occupied by a monster, and passable? */
+			if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
+			{
+				return (FALSE);
+			}
+			else
+			{
+				/* Advance along ray */
+				sq++;
+			}
+		}
+	}
+}
+
+
+/*
+ * Calculate the slope and square information used by
+ * a following mmove2
+ */
+void mmove_init(int x1, int y1, int x2, int y2)
 {
 	int temp;
 
@@ -294,14 +390,18 @@ void mmove2(int *x, int *y, int x1, int y1, int x2, int y2, int *slope, int *sq)
 
 	cave_type *c_ptr;
 
-	/* Paranoia - degenerate case */
-	if ((x1 == x2) && (y1 == y2))
-	{
-		*x = x1;
-		*y = y2;
+	bool is_projectable;
 
-		return;
-	}
+	/* Clear slope and square */
+	mmove_slope = 0;
+	mmove_sq = 0;
+
+	/* Clear direction */
+	mmove_dx = 0;
+	mmove_dy = 0;
+
+	/* Paranoia - degenerate case */
+	if ((x1 == x2) && (y1 == y2)) return;
 
 	/* Extract the offset */
 	dy = y2 - y1;
@@ -320,6 +420,10 @@ void mmove2(int *x, int *y, int x1, int y1, int x2, int y2, int *slope, int *sq)
 		dy = (dy * MAX_SIGHT) / dist;
 	}
 
+	/* Save direction */
+	mmove_dx = dx;
+	mmove_dy = dy;
+
 	/* Extract the absolute offset */
 	ay = ABS(dy);
 	ax = ABS(dx);
@@ -329,166 +433,176 @@ void mmove2(int *x, int *y, int x1, int y1, int x2, int y2, int *slope, int *sq)
 	sy = (dy < 0) ? -1 : 1;
 
 
-	/* Do we need to initialise? */
-	if (!(*sq))
+	/* Is the square projectable from here? */
+	is_projectable = projectable(x1, y1, x2, y2);
+
+	/*
+	 * Start at the first square in the list.
+	 * This is a square adjacent to (x1,y1)
+	 */
+
+	/* Hack - we need to stick to one octant */
+	if (ay < ax)
 	{
-		/*
-		 * Start at the first square in the list.
-		 * This is a square adjacent to (x1,y1)
-		 */
-
-		/* sq is already zero at this point. */
-
-		/* Hack - we need to stick to one octant */
-		if (ay < ax)
+		/* Is there a direct line to the target? */
+		if (is_direct_projectable(x1, y1))
 		{
-			/* Look up the slope to use */
-			*slope = p_slope_min[ax][ay];
+			/* Set the direct route */
+			mmove_slope = (p_slope_min[ax][ay] + p_slope_max[ax][ay]) / 2;
+			mmove_sq = 0;
 
-			while (*slope <= p_slope_max[ax][ay])
-			{
-				xx = x1 + sx * project_data[*slope][*sq].x;
-				yy = y1 + sy * project_data[*slope][*sq].y;
-
-				/* Done? */
-				if ((xx == x1 + dx) && (yy == y1 + dy)) break;
-
-				c_ptr = area(xx, yy);
-
-				/* Is the square not occupied by a monster, and passable? */
-				if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
-				{
-					/* Advance to the best position we have not looked at yet */
-					temp = project_data[*slope][*sq].slope;
-					*sq = project_data[*slope][*sq].square;
-					*slope = temp;
-				}
-				else
-				{
-					/* Advance along ray */
-					(*sq)++;
-				}
-			}
-
-			/* No match? */
-			if (*slope > p_slope_max[ax][ay])
-			{
-				*slope = (p_slope_min[ax][ay] + p_slope_max[ax][ay]) / 2;
-			}
+			/* Done */
+			return;
 		}
-		else
+
+		/* Look up the slope to use */
+		mmove_slope = p_slope_min[ax][ay];
+
+		while (mmove_slope <= p_slope_max[ax][ay])
 		{
-			/* Look up the slope to use */
-			*slope = p_slope_min[ay][ax];
+			xx = x1 + sx * project_data[mmove_slope][mmove_sq].x;
+			yy = y1 + sy * project_data[mmove_slope][mmove_sq].y;
 
-			while (*slope <= p_slope_max[ay][ax])
+			/* Done? */
+			if ((xx == x1 + dx) && (yy == y1 + dy)) break;
+
+			c_ptr = area(xx, yy);
+
+			/* Do we want to stop early? */
+			if (!is_projectable && c_ptr->m_idx) break;
+
+			/* Is the square not occupied by a monster, and passable? */
+			if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
 			{
-				/* Note that the data offsets have x,y swapped */
-				xx = x1 + sx * project_data[*slope][*sq].y;
-				yy = y1 + sy * project_data[*slope][*sq].x;
-
-				/* Done? */
-				if ((xx == x1 + dx) && (yy == y1 + dy)) break;
-
-				c_ptr = area(xx, yy);
-
-				/* Is the square not occupied by a monster, and passable? */
-				if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
-				{
-					/* Advance to the best position we have not looked at yet */
-					temp = project_data[*slope][*sq].slope;
-					*sq = project_data[*slope][*sq].square;
-					*slope = temp;
-				}
-				else
-				{
-					/* Advance along ray */
-					(*sq)++;
-				}
+				/* Advance to the best position we have not looked at yet */
+				temp = project_data[mmove_slope][mmove_sq].slope;
+				mmove_sq = project_data[mmove_slope][mmove_sq].square;
+				mmove_slope = temp;
 			}
-
-			/* No match? */
-			if (*slope > p_slope_max[ay][ax])
+			else
 			{
-				*slope = (p_slope_min[ay][ax] + p_slope_max[ay][ax]) / 2;
+				/* Advance along ray */
+				mmove_sq++;
 			}
 		}
 
-		/*
-		 * Reset to start.
-		 *
-		 * Square zero is the the first square along the path.
-		 * It is not the starting square
-		 */
-		*sq = 0;
+		/* No match? */
+		if (mmove_slope > p_slope_max[ax][ay])
+		{
+			mmove_slope = (p_slope_min[ax][ay] + p_slope_max[ax][ay]) / 2;
+		}
 	}
 	else
 	{
-		/* Paranoia - square number is too large */
-		if (*sq >= slope_count[*slope])
+		/* Is there a direct line to the target? */
+		if (is_direct_projectable(x1, y1))
 		{
-			*sq = slope_count[*slope] - 1;
+			/* Set the direct route */
+			mmove_slope = (p_slope_min[ay][ax] + p_slope_max[ay][ax]) / 2;
+			mmove_sq = 0;
+
+			/* Done */
+			return;
 		}
+
+		/* Look up the slope to use */
+		mmove_slope = p_slope_min[ay][ax];
+
+		while (mmove_slope <= p_slope_max[ay][ax])
+		{
+			/* Note that the data offsets have x,y swapped */
+			xx = x1 + sx * project_data[mmove_slope][mmove_sq].y;
+			yy = y1 + sy * project_data[mmove_slope][mmove_sq].x;
+
+			/* Done? */
+			if ((xx == x1 + dx) && (yy == y1 + dy)) break;
+
+			c_ptr = area(xx, yy);
+
+			/* Do we want to stop early? */
+			if (!is_projectable && c_ptr->m_idx) break;
+
+			/* Is the square not occupied by a monster, and passable? */
+			if (!cave_los_grid(c_ptr) || c_ptr->m_idx)
+			{
+				/* Advance to the best position we have not looked at yet */
+				temp = project_data[mmove_slope][mmove_sq].slope;
+				mmove_sq = project_data[mmove_slope][mmove_sq].square;
+				mmove_slope = temp;
+			}
+			else
+			{
+				/* Advance along ray */
+				mmove_sq++;
+			}
+		}
+
+		/* No match? */
+		if (mmove_slope > p_slope_max[ay][ax])
+		{
+			mmove_slope = (p_slope_min[ay][ax] + p_slope_max[ay][ax]) / 2;
+		}
+	}
+
+
+	/*
+	 * Reset to start.
+	 *
+	 * Square zero is the the first square along the path.
+	 * It is not the starting square
+	 */
+	mmove_sq = 0;
+}
+
+
+/*
+ * Calculate incremental motion
+ *
+ * The current position is updated.
+ *
+ * (x,y) encodes the current location.
+ *
+ * This routine is very similar to los() except that we can use it
+ * to return partial results.
+ */
+void mmove(int *x, int *y, int x1, int y1)
+{
+	int ax, ay, sx, sy;
+
+	/* Extract the absolute offset */
+	ay = ABS(mmove_dy);
+	ax = ABS(mmove_dx);
+
+	/* Extract some signs */
+	sx = (mmove_dx < 0) ? -1 : 1;
+	sy = (mmove_dy < 0) ? -1 : 1;
+
+	/* Paranoia - square number is too large */
+	if (mmove_sq >= slope_count[mmove_slope])
+	{
+		mmove_sq = slope_count[mmove_slope] - 1;
 	}
 
 	if (ay < ax)
 	{
 		/* Work out square to return */
-		*x = x1 + sx * project_data[*slope][*sq].x;
-		*y = y1 + sy * project_data[*slope][*sq].y;
+		*x = x1 + sx * project_data[mmove_slope][mmove_sq].x;
+		*y = y1 + sy * project_data[mmove_slope][mmove_sq].y;
 	}
 	else
 	{
 		/* Work out square to return */
-		*x = x1 + sx * project_data[*slope][*sq].y;
-		*y = y1 + sy * project_data[*slope][*sq].x;
+		*x = x1 + sx * project_data[mmove_slope][mmove_sq].y;
+		*y = y1 + sy * project_data[mmove_slope][mmove_sq].x;
 	}
 
 	/* Next square, next time. */
-	(*sq)++;
-}
-
-/*
- * Determine if a bolt spell cast from (x1,y1) to (x2,y2) will arrive
- * at the final destination, assuming no monster gets in the way.
- *
- * This needs to be as fast as possible - so do not use the los_general()
- * function.
- *
- * XXX XXX Should we use a version of los(), but choose the average slope?
- *
- * XXX XXX Should we use los_general() anyway?
- *
- * XXX XXX Should there be two slightly different versions of this function
- *         a 'smart' one, and a 'dumb' but fast one?
- */
-bool projectable(int x1, int y1, int x2, int y2)
-{
-	int y, x;
-
-	int grid_n = 0;
-	coord grid_g[512];
-
-	/* Check the projection path */
-	grid_n = project_path(grid_g, x1, y1, x2, y2, 0);
-
-	/* No grid is ever projectable from itself */
-	if (!grid_n) return (FALSE);
-
-	/* Final grid */
-	y = grid_g[grid_n - 1].y;
-	x = grid_g[grid_n - 1].x;
-
-	/* May not end in an unrequested grid */
-	if ((y != y2) || (x != x2)) return (FALSE);
-
-	/* Assume okay */
-	return (TRUE);
+	mmove_sq++;
 }
 
 
 /* Does this square stop the projection? */
-static bool project_stop(cave_type *c_ptr, u16b flg)
+static bool project_stop(const cave_type *c_ptr, u16b flg)
 {
 	if (cave_los_grid(c_ptr))
 	{
@@ -520,6 +634,37 @@ static bool project_stop(cave_type *c_ptr, u16b flg)
 
 	/* Blocked */
 	return (TRUE);
+}
+
+/*
+ * Hack - a function to pass to los_general() used
+ * to do projectable().  Assume everything blocks projections.
+ */
+static bool cave_stop_project(const cave_type *c_ptr)
+{
+	/* Is it passable? */
+	return (project_stop(c_ptr, 0));
+}
+
+
+/*
+ * Determine if a bolt spell cast from (x1,y1) to (x2,y2) will arrive
+ * at the final destination, assuming no monster gets in the way.
+ *
+ * This needs to be as fast as possible - so do not use the los_general()
+ * function.
+ *
+ * XXX XXX Should we use a version of los(), but choose the average slope?
+ *
+ * XXX XXX Should we use los_general() anyway?
+ *
+ * XXX XXX Should there be two slightly different versions of this function
+ *         a 'smart' one, and a 'dumb' but fast one?
+ */
+bool projectable(int x1, int y1, int x2, int y2)
+{
+	/* Are we projectable? */
+	return (los_general(x1, y1, x2, y2, cave_stop_project));
 }
 
 
@@ -740,7 +885,7 @@ sint project_path(coord *gp, int x1, int y1, int x2, int y2, u16b flg)
 
 
 /* Will this square stop a ball spell? */
-static bool cave_stop_ball(cave_type *c_ptr)
+static bool cave_stop_ball(const cave_type *c_ptr)
 {
 	/* Walls block spells */
 	if (!cave_los_grid(c_ptr)) return (TRUE);
@@ -765,12 +910,13 @@ bool in_ball_range(int x1, int y1, int x2, int y2)
 /*
  * Does the grid stop disintegration?
  */
-static bool cave_stop_disintegration(cave_type *c_ptr)
+static bool cave_stop_disintegration(const cave_type *c_ptr)
 {
-	/* Some terrain block disintegration */
-	if (((c_ptr->feat >= FEAT_PERM_EXTRA) &&
-		 (c_ptr->feat <= FEAT_PERM_SOLID)) ||
-		(c_ptr->feat == FEAT_MOUNTAIN)) return (TRUE);
+	/* Some terrain types block disintegration */
+	if (cave_wall_grid(c_ptr) && cave_perma_grid(c_ptr))
+	{
+		return (TRUE);
+	}
 
 	/* Fields can block disintegration to */
 	if (fields_have_flags(c_ptr->fld_idx, FIELD_INFO_PERM)) return (TRUE);
@@ -886,25 +1032,18 @@ bool no_lite(void)
  */
 bool cave_valid_grid(const cave_type *c_ptr)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	/* Forbid perma-grids */
 	if (cave_perma_grid(c_ptr)) return (FALSE);
 
 	/* Check objects */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 	{
-		object_type *o_ptr;
-
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Forbid artifact grids */
 		if (o_ptr->flags3 & TR3_INSTA_ART) return (FALSE);
 	}
+	OBJ_ITT_END;
 
 	/* Accept */
 	return (TRUE);
@@ -1037,7 +1176,7 @@ static int breath_gf[32] =
  *
  * (This may be a little slow....
  */
-static byte breath_attr(monster_race *r_ptr)
+static byte breath_attr(const monster_race *r_ptr)
 {
 	/* Mask out the breath flags */
 	u32b flags = r_ptr->flags4 & RF4_BREATHS;
@@ -1109,46 +1248,6 @@ static byte breath_attr(monster_race *r_ptr)
 	/* For the compilers... */
 	return (TERM_WHITE);
 }
-
-
-/*
- * The 16x16 tile of the terrain supports lighting
- */
-static const bool feat_supports_lighting[256] =
-{
-	FALSE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, TRUE,	/* 0x00 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x08 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x10 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x18 */
-	FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,	/* 0x20 */
-	FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,	/* 0x28 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x30 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x38 */
-	TRUE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,	/* 0x40 */
-	FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE,	/* 0x48 */
-	FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x50 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x58 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x60 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x68 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x70 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x78 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x80 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x88 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x90 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0x98 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xA0 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xA8 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xB0 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xB8 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xC0 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xC8 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xD8 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xD8 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xE0 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xE8 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE,	/* 0xF0 */
-	TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE	/* 0xF8 */
-};
 
 
 /*
@@ -1526,9 +1625,7 @@ static void variable_player_graph(byte *a, char *c)
  * the color of whatever is under them, and "CHAR_CLEAR", which means that
  * they take the symbol of whatever is under them.  Technically, the flag
  * "CHAR_MIMIC" is supposed to indicate that a monster looks strange when
- * examined, but this flag is currently ignored.  All of these flags are
- * ignored if the "avoid_other" option is set, since checking for these
- * conditions is expensive and annoying on some systems.
+ * examined, but this flag is currently ignored.
  *
  * Note the effects of hallucination.  Objects always appear as random
  * "objects", monsters as random "monsters", and normal grids occasionally
@@ -1566,13 +1663,8 @@ static void variable_player_graph(byte *a, char *c)
  * such as "multi-hued" or "clear" monsters, cause the attr/char codes
  * to be "scrambled" in various ways.
  */
-#ifdef USE_TRANSPARENCY
-static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp,
-                     byte *tap, char *tcp)
-#else  /* USE_TRANSPARENCY */
-
-static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
-#endif /* USE_TRANSPARENCY */
+static void map_info(const cave_type *c_ptr, const pcave_type *pc_ptr,
+                     byte *ap, char *cp, byte *tap, char *tcp)
 {
 	feature_type *f_ptr;
 
@@ -1582,8 +1674,6 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 
 	field_type *fld_ptr;
 
-	s16b this_o_idx, next_o_idx;
-
 	s16b this_f_idx, next_f_idx;
 
 	byte feat;
@@ -1592,7 +1682,7 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 	byte a;
 	char c;
 
-	bool feat_not_ascii;
+	byte feat_not_ascii;
 	s16b halluc = p_ptr->image;
 
 	/* Info flags */
@@ -1617,7 +1707,8 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 	 * We then need to have a grid that is allowed to be lit.
 	 */
 	if (view_bright_lite && !p_ptr->blind
-		&& (floor_grid(feat) || (view_granite_lite && !view_torch_grids)))
+		&& (!(f_ptr->flags & FF_BLOCK)
+			|| (view_granite_lite && !view_torch_grids)))
 	{
 		/* It's not in view or no lighting effects? */
 		if (((!(player & (GRID_VIEW))) && view_special_lite)
@@ -1630,7 +1721,7 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 				a = darking_colours[a];
 			}
 			else if ((use_graphics == GRAPHICS_ADAM_BOLT)
-					 && feat_supports_lighting[feat])
+					 && (f_ptr->flags & FF_USE_TRANS))
 			{
 				/* Use a dark tile */
 				c++;
@@ -1646,7 +1737,7 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 				a = lighting_colours[a];
 			}
 			else if ((use_graphics == GRAPHICS_ADAM_BOLT)
-					 && feat_supports_lighting[feat])
+					 && (f_ptr->flags & FF_USE_TRANS))
 			{
 				/* Use a light tile */
 				c += 2;
@@ -1661,8 +1752,6 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 		image_random(&a, &c);
 	}
 
-
-#ifdef USE_TRANSPARENCY
 	/* Save the terrain info for the transparency effects */
 
 	/* Does the feature have "extended terrain" information? */
@@ -1680,7 +1769,6 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 		(*tap) = a;
 		(*tcp) = c;
 	}
-#endif /* USE_TRANSPARENCY */
 
 	/* Handle "player" */
 	if (character_dungeon && (c_ptr == area(p_ptr->px, p_ptr->py)))
@@ -1725,7 +1813,7 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 			}
 
 			/* Ignore weird codes + graphics */
-			if ((a & 0x80) || (avoid_other))
+			if (a & 0x80)
 			{
 				/* Do nothing */
 			}
@@ -1828,11 +1916,10 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 
 				/* Normal attr */
 				a = fld_ptr->f_attr;
-#ifdef USE_TRANSPARENCY
+
 				/* Save the terrain info for the transparency effects */
 				(*tap) = a;
 				(*tcp) = c;
-#endif /* USE_TRANSPARENCY */
 			}
 			else
 			{
@@ -1865,16 +1952,10 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 	}
 
 	/* Objects */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 	{
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorized objects */
-		if (o_ptr->marked)
+		if (o_ptr->info & (OB_SEEN))
 		{
 			/* Normal char */
 			c = object_char(o_ptr);
@@ -1889,6 +1970,7 @@ static void map_info(cave_type *c_ptr, pcave_type *pc_ptr, byte *ap, char *cp)
 			break;
 		}
 	}
+	OBJ_ITT_END;
 
 	/* Hack -- fake monochrome */
 	if (fake_monochrome)
@@ -1978,10 +2060,11 @@ void note_spot(int x, int y)
 	int px = p_ptr->px;
 	int py = p_ptr->py;
 
+	object_type *o_ptr;
+
 	cave_type *c_ptr = area(x, y);
 	pcave_type *pc_ptr = parea(x, y);
 
-	s16b this_o_idx, next_o_idx = 0;
 	s16b this_f_idx, next_f_idx = 0;
 
 	/* Is it lit + in view + player is not blind? */
@@ -2019,16 +2102,12 @@ void note_spot(int x, int y)
 		remember_grid(c_ptr, pc_ptr);
 
 		/* Hack -- memorize objects */
-		for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+		OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 		{
-			object_type *o_ptr = &o_list[this_o_idx];
-
-			/* Acquire next object */
-			next_o_idx = o_ptr->next_o_idx;
-
 			/* Memorize objects */
-			o_ptr->marked = TRUE;
+			o_ptr->info |= OB_SEEN;
 		}
+		OBJ_ITT_END;
 
 		/* Hack -- memorize fields */
 		for (this_f_idx = c_ptr->fld_idx; this_f_idx; this_f_idx = next_f_idx)
@@ -2062,10 +2141,8 @@ void display_dungeon(void)
 
 	int wid = Term->wid / 2, hgt = Term->hgt / 2;
 
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
-#endif /* USE_TRANSPARENCY */
 
 	for (x = px - wid + 1; x <= px + wid; x++)
 	{
@@ -2076,25 +2153,15 @@ void display_dungeon(void)
 				c_ptr = area(x, y);
 				pc_ptr = parea(x, y);
 
-#ifdef TERM_USE_MAP
 				/* Tell the world about this square */
 				Term_write_map(x, y, c_ptr, pc_ptr);
-#endif /* TERM_USE_MAP */
 
-#ifdef USE_TRANSPARENCY
 				/* Examine the grid */
 				map_info(c_ptr, pc_ptr, &a, &c, &ta, &tc);
 
 				/* Hack -- Queue it */
 				Term_queue_char(x - px + wid - 1, y - py + hgt - 1, a, c, ta,
 								tc);
-#else  /* USE_TRANSPARENCY */
-				/* Examine the grid */
-				map_info(c_ptr, pc_ptr, &a, &c);
-
-				/* Hack -- Queue it */
-				Term_queue_char(x - px + wid - 1, y - py + hgt - 1, a, c);
-#endif /* USE_TRANSPARENCY */
 			}
 			else
 			{
@@ -2109,14 +2176,9 @@ void display_dungeon(void)
 				/* Normal char */
 				c = f_ptr->x_char;
 
-#ifdef USE_TRANSPARENCY
 				/* Hack -- Queue it */
 				Term_queue_char(x - px + wid - 1, y - py + hgt - 1, a, c, ta,
 								tc);
-#else  /* USE_TRANSPARENCY */
-				/* Hack -- Queue it */
-				Term_queue_char(x - px + wid - 1, y - py + hgt - 1, a, c);
-#endif /* USE_TRANSPARENCY */
 			}
 		}
 	}
@@ -2142,10 +2204,8 @@ void lite_spot(int x, int y)
 		c_ptr = area(x, y);
 		pc_ptr = parea(x, y);
 
-#ifdef TERM_USE_MAP
 		/* Tell the world about this square */
 		Term_write_map(x, y, c_ptr, pc_ptr);
-#endif /* TERM_USE_MAP */
 
 		/* Redraw if on screen */
 		if (panel_contains(x, y))
@@ -2153,24 +2213,14 @@ void lite_spot(int x, int y)
 			byte a;
 			char c;
 
-#ifdef USE_TRANSPARENCY
 			byte ta;
 			char tc;
 
 			/* Examine the grid */
 			map_info(c_ptr, pc_ptr, &a, &c, &ta, &tc);
-#else  /* USE_TRANSPARENCY */
-			/* Examine the grid */
-			map_info(c_ptr, pc_ptr, &a, &c);
-#endif /* USE_TRANSPARENCY */
 
-#ifdef USE_TRANSPARENCY
 			/* Hack -- Queue it */
 			Term_queue_char(x - panel_col_prt, y - panel_row_prt, a, c, ta, tc);
-#else  /* USE_TRANSPARENCY */
-			/* Hack -- Queue it */
-			Term_queue_char(x - panel_col_prt, y - panel_row_prt, a, c);
-#endif /* USE_TRANSPARENCY */
 		}
 	}
 }
@@ -2202,11 +2252,8 @@ void prt_map(void)
 	byte *pa;
 	char *pc;
 
-#ifdef USE_TRANSPARENCY
 	byte *pta;
 	char *ptc;
-#endif /* USE_TRANSPARENCY */
-
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -2263,7 +2310,6 @@ void prt_map(void)
 	pa = mp_a;
 	pc = mp_c;
 
-#ifdef USE_TRANSPARENCY
 	pta = mp_ta;
 	ptc = mp_tc;
 
@@ -2280,10 +2326,8 @@ void prt_map(void)
 
 			pc_ptr = parea(x, y);
 
-#ifdef TERM_USE_MAP
 			/* Tell the world about this square */
 			Term_write_map(x, y, c_ptr, pc_ptr);
-#endif /* TERM_USE_MAP */
 
 			/* Determine what is there */
 			map_info(c_ptr, pc_ptr, pa++, pc++, pta++, ptc++);
@@ -2300,39 +2344,6 @@ void prt_map(void)
 		Term_queue_line(xmin - panel_col_prt, y - panel_row_prt,
 						xmax - xmin + 1, pa, pc, pta, ptc);
 	}
-
-#else  /* USE_TRANSPARENCY */
-
-	/* Dump the map */
-	for (y = ymin; y <= ymax; y++)
-	{
-		/* No characters yet */
-		n = 0;
-
-		/* Scan the columns of row "y" */
-		for (x = xmin; x <= xmax; x++)
-		{
-			c_ptr = area(x, y);
-			pc_ptr = parea(x, y);
-
-#ifdef TERM_USE_MAP
-			/* Tell the world about this square */
-			Term_write_map(x, y, c_ptr, pc_ptr);
-#endif /* TERM_USE_MAP */
-
-			/* Determine what is there */
-			map_info(c_ptr, pc_ptr, pa++, pc++);
-		}
-
-		/* Point to start of line */
-		pa = mp_a;
-		pc = mp_c;
-
-		/* Efficiency -- Redraw that row of the map */
-		Term_queue_line(xmin - panel_col_prt, y - panel_row_prt,
-						xmax - xmin + 1, pa, pc);
-	}
-#endif /* USE_TRANSPARENCY */
 
 	/* Restore the cursor */
 	(void)Term_set_cursor(v);
@@ -2359,6 +2370,17 @@ static const byte priority_table[][2] =
 
 	/* Walls */
 	{FEAT_SECRET, 10},
+	{FEAT_WALL_EXTRA, 10},
+	{FEAT_WALL_INNER, 10},
+	{FEAT_WALL_OUTER, 10},
+	{FEAT_WALL_SOLID, 10},
+
+
+	/* Perm Walls */
+	{FEAT_PERM_EXTRA, 10},
+	{FEAT_PERM_INNER, 10},
+	{FEAT_PERM_OUTER, 10},
+	{FEAT_PERM_SOLID, 10},
 
 	/* Quartz */
 	{FEAT_QUARTZ, 11},
@@ -2423,6 +2445,177 @@ static byte priority(byte feat)
 	return (20);
 }
 
+/*
+ * Equivalent function to map_info, but for displaying
+ * the reduced-size dungeon map.
+ *
+ * We need to calculate priority as well as the symbols to display.
+ */
+static int display_map_info(int x, int y, char *c, byte *a, char *tc, byte *ta)
+{
+	int tp;
+
+	byte feat;
+	feature_type *f_ptr;
+
+	object_type *o_ptr;
+	field_type *fld_ptr;
+	monster_type *m_ptr;
+
+	s16b this_f_idx, next_f_idx;
+
+	cave_type *c_ptr = area(x, y);
+	pcave_type *pc_ptr = parea(x, y);
+
+	/* Get terrain feature */
+	feat = pc_ptr->feat;
+	f_ptr = &f_info[feat];
+
+	/* Extract the priority of that attr/char */
+	tp = priority(feat);
+
+	*a = f_ptr->x_attr;
+	*c = f_ptr->x_char;
+
+	if (f_ptr->w_attr)
+	{
+		/*
+		 * Store extended terrain information. 
+		 */
+		*ta = f_ptr->w_attr;
+		*tc = f_ptr->w_char;
+	}
+	else
+	{
+		*ta = *a;
+		*tc = *c;
+	}
+
+	/* Objects */
+	OBJ_ITT_START (c_ptr->o_idx, o_ptr)
+	{
+		/* Memorized objects */
+		if (o_ptr->info & (OB_SEEN))
+		{
+			/* Normal char */
+			*c = object_char(o_ptr);
+
+			/* Normal attr */
+			*a = object_attr(o_ptr);
+
+			/* Hack -- hallucination */
+			if (p_ptr->image) image_object(a, c);
+
+			/* High priority */
+			tp = 30;
+
+			/* Done */
+			break;
+		}
+	}
+	OBJ_ITT_END;
+
+	/* Do we have a known field here? */
+	for (this_f_idx = c_ptr->fld_idx; this_f_idx; this_f_idx = next_f_idx)
+	{
+		/* Acquire field */
+		fld_ptr = &fld_list[this_f_idx];
+
+		/* Acquire next field */
+		next_f_idx = fld_ptr->next_f_idx;
+
+		/* Memorized, visible fields */
+		if ((fld_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_VIS)) ==
+			(FIELD_INFO_MARK | FIELD_INFO_VIS))
+		{
+			/* Which display level to use? */
+			if (fld_ptr->info & FIELD_INFO_FEAT)
+			{
+				if (tp < 30)
+				{
+					*c = fld_ptr->f_char;
+					*a = fld_ptr->f_attr;
+				}
+
+				/* Save the terrain info for the transparency effects */
+				*ta = *a;
+				*tc = *c;
+			}
+			else
+			{
+				/* Do we need to look at objects? */
+				if (fld_ptr->info & (FIELD_INFO_IGNORE))
+				{
+					if (tp < 30)
+					{
+						*c = fld_ptr->f_char;
+						*a = fld_ptr->f_attr;
+					}
+				}
+				else
+				{
+					*c = fld_ptr->f_char;
+					*a = fld_ptr->f_attr;
+				}
+			}
+
+			/* Set high priority */
+			tp = 30;
+			break;
+		}
+	}
+
+	/* Do we have a known monster here? */
+	if (c_ptr->m_idx)
+	{
+		m_ptr = &m_list[c_ptr->m_idx];
+
+		/* Visible monster */
+		if (m_ptr->ml)
+		{
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			byte feat_not_ascii = (*a & 0x80);
+
+			/* Desired attr */
+			if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR)) || feat_not_ascii)
+			{
+				*a = r_ptr->x_attr;
+			}
+
+			/* Desired char */
+			if (!(r_ptr->flags1 & (RF1_CHAR_CLEAR)) || feat_not_ascii)
+			{
+				*c = r_ptr->x_char;
+			}
+
+			/* High priority */
+			tp = 40;
+		}
+	}
+
+	/* Finally - use the player */
+	if ((x == p_ptr->px) && (y == p_ptr->py))
+	{
+		monster_race *r_ptr = &r_info[0];
+
+		/* Get the "player" attr */
+		*a = r_ptr->x_attr;
+
+		/* Get the "player" char */
+		*c = r_ptr->x_char;
+#ifdef VARIABLE_PLAYER_GRAPH
+
+		variable_player_graph(a, c);
+#endif /* VARIABLE_PLAYER_GRAPH */
+		/* Highest priority */
+		tp = 50;
+	}
+
+	/* Return priority */
+	return (tp);
+}
+
+
 
 /*
  * Display a "small-scale" map of the dungeon in the active Term
@@ -2447,9 +2640,6 @@ void display_map(int *cx, int *cy)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	cave_type *c_ptr;
-	pcave_type *pc_ptr;
-
 	int i, j, x, y;
 
 	byte feat;
@@ -2457,10 +2647,8 @@ void display_map(int *cx, int *cy)
 	byte ta;
 	char tc;
 
-#ifdef USE_TRANSPARENCY
 	byte tta;
 	char ttc;
-#endif /* USE_TRANSPARENCY */
 
 	byte tp;
 
@@ -2473,10 +2661,8 @@ void display_map(int *cx, int *cy)
 
 	byte **mp;
 
-#ifdef USE_TRANSPARENCY
 	byte **mta;
 	char **mtc;
-#endif /* USE_TRANSPARENCY */
 
 	bool old_view_special_lite = view_special_lite;
 	bool old_view_granite_lite = view_granite_lite;
@@ -2509,11 +2695,8 @@ void display_map(int *cx, int *cy)
 	C_MAKE(mc, (hgt + 2), char *);
 	C_MAKE(mp, (hgt + 2), byte *);
 
-#ifdef USE_TRANSPARENCY
 	C_MAKE(mta, (hgt + 2), byte *);
 	C_MAKE(mtc, (hgt + 2), char *);
-#endif /* USE_TRANSPARENCY */
-
 
 	/* Allocate and wipe each line map */
 	for (i = 0; i < (hgt + 2); i++)
@@ -2523,10 +2706,8 @@ void display_map(int *cx, int *cy)
 		C_MAKE(mc[i], (wid + 2), char);
 		C_MAKE(mp[i], (wid + 2), byte);
 
-#ifdef USE_TRANSPARENCY
 		C_MAKE(mta[i], (wid + 2), byte);
 		C_MAKE(mtc[i], (wid + 2), char);
-#endif /* USE_TRANSPARENCY */
 	}
 
 	/* Clear the chars and attributes */
@@ -2538,10 +2719,8 @@ void display_map(int *cx, int *cy)
 			ma[y][x] = TERM_WHITE;
 			mc[y][x] = ' ';
 
-#ifdef USE_TRANSPARENCY
 			mta[y][x] = TERM_WHITE;
 			mtc[y][x] = ' ';
-#endif /* USE_TRANSPARENCY */
 
 			/* No priority */
 			mp[y][x] = 0;
@@ -2558,9 +2737,11 @@ void display_map(int *cx, int *cy)
 
 		/* recenter */
 		x = x - wid / 2;
+		if (x + wid >= max_wild) x = max_wild - wid - 1;
 		if (x < 0) x = 0;
 
 		y = y - hgt / 2;
+		if (y + hgt >= max_wild) y = max_wild - hgt - 1;
 		if (y < 0) y = 0;
 
 		/* Player location in wilderness */
@@ -2612,23 +2793,6 @@ void display_map(int *cx, int *cy)
 					feat = FEAT_DEEP_LAVA;
 				}
 
-				/* Get attr / char pair for wilderness block type */
-				ma[j + 1][i + 1] = f_info[feat].x_attr;
-				mc[j + 1][i + 1] = f_info[feat].x_char;
-
-#ifdef USE_TRANSPARENCY
-				if (f_info[feat].w_attr)
-				{
-					mta[j + 1][i + 1] = f_info[feat].w_attr;
-					mtc[j + 1][i + 1] = f_info[feat].w_char;
-				}
-				else
-				{
-					mta[j + 1][i + 1] = ma[j + 1][i + 1];
-					mtc[j + 1][i + 1] = mc[j + 1][i + 1];
-				}
-#endif /* USE_TRANSPARENCY */
-
 				/* This is a nasty hack */
 
 				/* Add in effects of roads */
@@ -2636,11 +2800,13 @@ void display_map(int *cx, int *cy)
 				{
 					ma[j + 1][i + 1] = TERM_UMBER;
 					mc[j + 1][i + 1] = '+';
+					feat = FEAT_NONE;
 				}
 				else if ((w_info & (WILD_INFO_TRACK)) && road)
 				{
 					ma[j + 1][i + 1] = TERM_L_UMBER;
 					mc[j + 1][i + 1] = '+';
+					feat = FEAT_NONE;
 				}
 
 				/* Hack - draw places */
@@ -2654,16 +2820,26 @@ void display_map(int *cx, int *cy)
 					/* Hack make a char /attr */
 					if (place[twn].quest_num)
 					{
+						place_type *pl_ptr = &place[twn];
+
+						wild_type *w_ptr = &wild[pl_ptr->y][pl_ptr->x];
+
+						int depth = (w_ptr->done.mon_gen + 9) / 10;
+
+						if (depth > 9) depth = 9;
+
 						/* Quests are red */
 						ma[j + 1][i + 1] = TERM_RED;
+						mc[j + 1][i + 1] = '0' + depth;
+						feat = FEAT_NONE;
 					}
 					else
 					{
 						/* Towns are white */
 						ma[j + 1][i + 1] = TERM_WHITE;
+						mc[j + 1][i + 1] = place[twn].name[0];
+						feat = FEAT_NONE;
 					}
-
-					mc[j + 1][i + 1] = '0' + twn % 10;
 				}
 
 				/* Finally show position of player */
@@ -2671,6 +2847,25 @@ void display_map(int *cx, int *cy)
 				{
 					ma[j + 1][i + 1] = TERM_WHITE;
 					mc[j + 1][i + 1] = '@';
+					feat = FEAT_NONE;
+				}
+
+				if (feat)
+				{
+					/* Get attr / char pair for wilderness block type */
+					ma[j + 1][i + 1] = f_info[feat].x_attr;
+					mc[j + 1][i + 1] = f_info[feat].x_char;
+
+					if (f_info[feat].w_attr)
+					{
+						mta[j + 1][i + 1] = f_info[feat].w_attr;
+						mtc[j + 1][i + 1] = f_info[feat].w_char;
+					}
+					else
+					{
+						mta[j + 1][i + 1] = ma[j + 1][i + 1];
+						mtc[j + 1][i + 1] = mc[j + 1][i + 1];
+					}
 				}
 			}
 		}
@@ -2700,18 +2895,8 @@ void display_map(int *cx, int *cy)
 				x = i * xfactor / xrat + 1;
 				y = j * yfactor / yrat + 1;
 
-				c_ptr = area(i, j);
-				pc_ptr = parea(i, j);
-
-				/* Extract the current attr/char at that map location */
-#ifdef USE_TRANSPARENCY
-				map_info(c_ptr, pc_ptr, &ta, &tc, &tta, &ttc);
-#else  /* USE_TRANSPARENCY */
-				map_info(c_ptr, pc_ptr, &ta, &tc);
-#endif /* USE_TRANSPARENCY */
-
-				/* Extract the priority of that attr/char */
-				tp = priority(pc_ptr->feat);
+				/* Get priority and symbol */
+				tp = display_map_info(i, j, &tc, &ta, &ttc, &tta);
 
 				/* Save "best" */
 				if (mp[y][x] < tp)
@@ -2722,11 +2907,9 @@ void display_map(int *cx, int *cy)
 					/* Save the attr */
 					ma[y][x] = ta;
 
-#ifdef USE_TRANSPARENCY
 					/* Save the transparency graphic */
 					mtc[y][x] = ttc;
 					mta[y][x] = tta;
-#endif /* USE_TRANSPARENCY */
 
 					/* Save priority */
 					mp[y][x] = tp;
@@ -2768,16 +2951,11 @@ void display_map(int *cx, int *cy)
 			ta = ma[j][i];
 			tc = mc[j][i];
 
-#ifdef USE_TRANSPARENCY
 			tta = mta[j][i];
 			ttc = mtc[j][i];
 
 			/* Hack -- Queue it */
 			Term_queue_char(COL_MAP + i - 1, j, ta, tc, tta, ttc);
-#else  /* USE_TRANSPARENCY */
-
-			Term_queue_char(COL_MAP + i - 1, j, ta, tc);
-#endif /* USE_TRANSPARENCY */
 		}
 	}
 
@@ -2791,20 +2969,16 @@ void display_map(int *cx, int *cy)
 		/* Free one row each array */
 		FREE(ma[i]);
 		FREE(mc[i]);
-#ifdef USE_TRANSPARENCY
 		FREE(mta[i]);
 		FREE(mtc[i]);
-#endif /* USE_TRANSPARENCY */
 		FREE(mp[i]);
 	}
 
 	/* Free the maps */
 	FREE(ma);
 	FREE(mc);
-#ifdef USE_TRANSPARENCY
 	FREE(mta);
 	FREE(mtc);
-#endif /* USE_TRANSPARENCY */
 	FREE(mp);
 }
 
@@ -3019,7 +3193,7 @@ void do_cmd_view_map(void)
  * of the memorised grid, in the player information: pcave_type.  This is
  * FEAT_NONE when the player doesn't know anything about the square.
  *
- * Objects are "memorized" in a different way, using a special "marked" flag
+ * Objects are "memorized" in a different way, using a special "OB_SEEN" flag
  * on the object itself, which is set when an object is observed or detected.
  *
  *
@@ -3743,6 +3917,8 @@ void update_view(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	object_type *o_ptr;
+
 	cave_type *c_ptr;
 	pcave_type *pc_ptr;
 
@@ -3750,7 +3926,6 @@ void update_view(void)
 
 	int x, y, i, o2;
 
-	s16b this_o_idx, next_o_idx = 0;
 	s16b this_f_idx, next_f_idx = 0;
 
 	/* Light radius */
@@ -3918,39 +4093,6 @@ void update_view(void)
 					{
 						queue[queue_tail++] = last = p->next_1;
 					}
-
-					if (player & GRID_VIEW) continue;
-
-					/* Mark as "viewable" */
-					player |= (GRID_VIEW);
-
-					/* Torch-lit grids */
-					if (p->d <= radius)
-					{
-						if (!(player & GRID_LITE))
-						{
-							/* Mark as "GRID_LITE" */
-							player |= (GRID_LITE);
-
-							/* Clear the 'do not update flag' */
-							info &= ~(CAVE_TEMP);
-						}
-					}
-					else if (player & GRID_LITE)
-					{
-						/* Clear the flag, and then redraw */
-						info &= ~(CAVE_TEMP);
-						player &= ~(GRID_LITE);
-					}
-
-					/* Save cave info */
-					c_ptr->info = info;
-					pc_ptr->player = player;
-
-					/* Save in array */
-					view_y[view_n] = y;
-					view_x[view_n] = x;
-					view_n++;
 				}
 				/* Handle wall */
 				else
@@ -3961,44 +4103,44 @@ void update_view(void)
 					bits2 &= ~(p->bits[2]);
 					bits3 &= ~(p->bits[3]);
 					bits4 &= ~(p->bits[4]);
-
-					/* All ready seen.  Next... */
-					if (player & GRID_VIEW) continue;
-
-					/* Mark as viewable */
-					player |= (GRID_VIEW);
-
-					/* Torch-lit grids */
-					if (p->d <= radius)
-					{
-						if (!(player & GRID_LITE))
-						{
-							/* Mark as "GRID_LITE" */
-							player |= (GRID_LITE);
-
-							/* Clear the 'do not update flag' */
-							info &= ~(CAVE_TEMP);
-						}
-					}
-					else
-					{
-						if (player & GRID_LITE)
-						{
-							/* Clear the flag, and then redraw */
-							info &= ~(CAVE_TEMP);
-							player &= ~(GRID_LITE);
-						}
-					}
-
-					/* Save cave info */
-					c_ptr->info = info;
-					pc_ptr->player = player;
-
-					/* Save in array */
-					view_y[view_n] = y;
-					view_x[view_n] = x;
-					view_n++;
 				}
+
+				/* All ready seen.  Next... */
+				if (player & GRID_VIEW) continue;
+
+				/* Mark as viewable */
+				player |= (GRID_VIEW);
+
+				/* Torch-lit grids */
+				if (p->d <= radius)
+				{
+					if (!(player & GRID_LITE))
+					{
+						/* Mark as "GRID_LITE" */
+						player |= (GRID_LITE);
+
+						/* Clear the 'do not update flag' */
+						info &= ~(CAVE_TEMP);
+					}
+				}
+				else
+				{
+					if (player & GRID_LITE)
+					{
+						/* Clear the flag, and then redraw */
+						info &= ~(CAVE_TEMP);
+						player &= ~(GRID_LITE);
+					}
+				}
+
+				/* Save cave info */
+				c_ptr->info = info;
+				pc_ptr->player = player;
+
+				/* Save in array */
+				view_y[view_n] = y;
+				view_x[view_n] = x;
+				view_n++;
 			}
 		}
 	}
@@ -4056,16 +4198,12 @@ void update_view(void)
 
 
 			/* Show the objects */
-			for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+			OBJ_ITT_START (c_ptr->o_idx, o_ptr)
 			{
-				object_type *o_ptr = &o_list[this_o_idx];
-
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
-
 				/* Memorize objects */
-				o_ptr->marked = TRUE;
+				o_ptr->info |= OB_SEEN;
 			}
+			OBJ_ITT_END;
 
 			/* Show the fields */
 			for (this_f_idx = c_ptr->fld_idx; this_f_idx;
@@ -4140,8 +4278,8 @@ void update_view(void)
 	temp_n = 0;
 }
 
-/* Is the current monster visible? */
-static bool mon_invis;
+/* Monster location */
+static int mon_lite_mx, mon_lite_my;
 
 /*
  * Add a square to the changes array
@@ -4150,6 +4288,8 @@ static void mon_lite_hack(int x, int y)
 {
 	cave_type *c_ptr;
 	pcave_type *pc_ptr;
+
+	int dx1, dy1, dx2, dy2;
 
 	/* Out of bounds */
 	if (!in_boundsp(x, y)) return;
@@ -4160,8 +4300,20 @@ static void mon_lite_hack(int x, int y)
 	/* Want an unlit square */
 	if (c_ptr->info & (CAVE_MNLT)) return;
 
-	/* Hack XXX XXX - Is it a wall and monster not in LOS? */
-	if (!cave_los_grid(c_ptr) && mon_invis) return;
+	/* Get vectors */
+	dx1 = p_ptr->px - x;
+	dy1 = p_ptr->py - y;
+	dx2 = mon_lite_mx - x;
+	dy2 = mon_lite_my - y;
+
+	/*
+	 * Use a dot product to determine angle of illumination
+	 *
+	 * Only illuminate the correct sides of walls.  (We don't
+	 * need to worry about floor - we won't illuminate that
+	 * if we cannot see it.)
+	 */
+	if (!cave_los_grid(c_ptr) && ((dx1 * dx2 + dy1 * dy2) < 0)) return;
 
 	/* Save this square */
 	if (temp_n < TEMP_MAX)
@@ -4284,15 +4436,9 @@ void update_mon_lite(void)
 		fx = m_ptr->fx;
 		fy = m_ptr->fy;
 
-		if (in_boundsp(fx, fy))
-		{
-			/* Is the monster visible? */
-			mon_invis = !player_has_los_grid(parea(fx, fy));
-		}
-		else
-		{
-			mon_invis = TRUE;
-		}
+		/* Save information */
+		mon_lite_mx = fx;
+		mon_lite_my = fy;
 
 		/* The square it is on */
 		mon_lite_hack(fx, fy);
@@ -4696,14 +4842,18 @@ void update_flow(void)
 			if (c_ptr->when == flow_n) continue;
 
 			/* Ignore all "walls" except doors + terrain */
-			if (!floor_grid(feat) && (feat != FEAT_CLOSED) &&
-				((feat & 0x60) != 0x60)) continue;
+			if (cave_wall_grid(c_ptr) && (feat != FEAT_CLOSED))
+			{
+				continue;
+			}
 
+#if 0
 			/*
 			 * Hack - do not overwrite loud sounds with quiet ones,
 			 * unless some time has passed
 			 */
 			if (c_ptr->cost + c_ptr->when > n + flow_n) continue;
+#endif
 
 			/* Save the time-stamp */
 			c_ptr->when = flow_n;
@@ -4760,12 +4910,11 @@ void map_area(void)
 			pc_ptr = parea(x, y);
 
 			/* All non-walls are "checked" */
-			if ((c_ptr->feat < FEAT_SECRET) ||
-				(c_ptr->feat == FEAT_RUBBLE) ||
-				(c_ptr->feat >= FEAT_PATTERN_START))
+			if (!((c_ptr->feat >= FEAT_MAGMA) &&
+				  (c_ptr->feat <= FEAT_PERM_SOLID)))
 			{
 				/* Memorize normal features */
-				if (c_ptr->feat >= FEAT_OPEN)
+				if (c_ptr->feat != FEAT_FLOOR)
 				{
 					/* Memorize the grid */
 					remember_grid(c_ptr, pc_ptr);
@@ -4777,8 +4926,9 @@ void map_area(void)
 					c_ptr = area(x + ddx_ddd[i], y + ddy_ddd[i]);
 					pc_ptr = parea(x + ddx_ddd[i], y + ddy_ddd[i]);
 
-					/* Memorize walls (etc) */
-					if (c_ptr->feat >= FEAT_SECRET)
+					/* Memorize walls */
+					if ((c_ptr->feat >= FEAT_MAGMA) &&
+						(c_ptr->feat <= FEAT_PERM_SOLID))
 					{
 						/* Memorize the walls */
 						remember_grid(c_ptr, pc_ptr);
@@ -4817,23 +4967,10 @@ void wiz_lite(void)
 {
 	int i, y, x;
 
+	object_type *o_ptr;
+
 	chg_virtue(V_KNOWLEDGE, 1);
 	chg_virtue(V_ENLIGHTEN, 1);
-
-	/* Memorize objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Memorize */
-		o_ptr->marked = TRUE;
-	}
 
 	/* Detect monsters */
 	for (i = 1; i < m_max; i++)
@@ -4862,11 +4999,19 @@ void wiz_lite(void)
 			pcave_type *pc_ptr = parea(x, y);
 
 			/* Memorize normal features */
-			if (c_ptr->feat >= FEAT_OPEN)
+			if (c_ptr->feat != FEAT_FLOOR)
 			{
 				/* Memorize the grid */
 				remember_grid(c_ptr, pc_ptr);
 			}
+
+			/* Remember items on the grid */
+			OBJ_ITT_START (c_ptr->o_idx, o_ptr)
+			{
+				/* Memorize */
+				o_ptr->info |= OB_SEEN;
+			}
+			OBJ_ITT_END;
 		}
 	}
 
@@ -4894,26 +5039,23 @@ void wiz_dark(void)
 	{
 		for (x = p_ptr->min_wid; x < p_ptr->max_wid; x++)
 		{
+			cave_type *c_ptr = area(x, y);
 			pcave_type *pc_ptr = parea(x, y);
+
+			object_type *o_ptr;
 
 			/* Process the grid */
 			forget_grid(pc_ptr);
+
+			/* Forget items on the grid */
+			OBJ_ITT_START (c_ptr->o_idx, o_ptr)
+			{
+				/* Forget the object */
+				o_ptr->info &= ~(OB_SEEN);
+			}
+			OBJ_ITT_END;
+
 		}
-	}
-
-	/* Forget all objects */
-	for (i = 1; i < o_max; i++)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Skip held objects */
-		if (o_ptr->held_m_idx) continue;
-
-		/* Forget the object */
-		o_ptr->marked = FALSE;
 	}
 
 	/* Forget all fields */
@@ -4953,7 +5095,7 @@ void cave_set_feat(int x, int y, int feat)
 	if (cave_floor_grid(c_ptr))
 	{
 		/* Is new eat a wall grid? */
-		if (!floor_grid(feat))
+		if (f_info[feat].flags & FF_BLOCK)
 		{
 			/* Update some things */
 			p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
@@ -4962,7 +5104,7 @@ void cave_set_feat(int x, int y, int feat)
 	else
 	{
 		/* Is new feat a floor grid? */
-		if (floor_grid(feat))
+		if (!(f_info[feat].flags & FF_BLOCK))
 		{
 			/* Update some things */
 			p_ptr->update |= (PU_VIEW | PU_FLOW | PU_MONSTERS | PU_MON_LITE);
@@ -5038,9 +5180,7 @@ void object_kind_track(int k_idx)
 /*
  * Something has happened to disturb the player.
  *
- * The first arg indicates a major disturbance, which affects search.
- *
- * The second arg is currently unused, but could induce output flush.
+ * The arg indicates a major disturbance, which affects search.
  *
  * All disturbance cancels repeated commands, resting, and running.
  */

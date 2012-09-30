@@ -126,15 +126,26 @@ static long equip_value(void)
 	long total = 0L;
 	int i;
 
-	for (i = 1; i < INVEN_TOTAL; i++)
+	/* Scan equipment */
+	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		o_ptr = &inventory[i];
+		o_ptr = &p_ptr->equipment[i];
 
-		if (o_ptr->ident & IDENT_STOREB) continue;
-		if (!(o_ptr->ident & IDENT_KNOWN)) continue;
+		if (o_ptr->info & OB_STOREB) continue;
+		if (!(o_ptr->info & OB_KNOWN)) continue;
 
 		total += object_value(o_ptr);
 	}
+
+	/* Scan inventory */
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
+	{
+		if (o_ptr->info & OB_STOREB) continue;
+		if (!(o_ptr->info & OB_KNOWN)) continue;
+
+		total += object_value(o_ptr);
+	}
+	OBJ_ITT_END;
 
 	return (total);
 }
@@ -161,6 +172,7 @@ static long total_points(void)
 
 	/* so are hard quests */
 	if (ironman_hard_quests) mult += number_of_quests() / 2;
+	if (ironman_deep_quests) mult += number_of_quests();
 
 	/* Not too much of a reward since some people like playing with this. */
 	if (ironman_small_levels) mult += 5;
@@ -412,7 +424,7 @@ void enter_score(void)
 
 #ifndef SCORE_WIZARDS
 	/* Wizard-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x000F)
+	if (p_ptr->noscore & 0x003F)
 	{
 		msg_print("Score not registered for wizards.");
 		message_flush();
@@ -423,7 +435,7 @@ void enter_score(void)
 
 #ifndef SCORE_BORGS
 	/* Borg-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x00F0)
+	if (p_ptr->noscore & 0x00C0)
 	{
 		msg_print("Score not registered for borgs.");
 		message_flush();

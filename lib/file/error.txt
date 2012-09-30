@@ -1,5 +1,5 @@
 N:*:Default
-80
+82
 What game do you think you are playing anyway?
 Aivan sairas kaveri kun tuollaista aikoo puuhata!
 Insufficient data for further analysis.
@@ -80,3 +80,5 @@ A mysterious force prevents you from doing that.
 This will mark the savefile as a cheater. Continue? (Y)
 You can't do that while wielding a weapon!
 You must first select a target.
+I'm afraid I can't do that, Dave.
+It magically summons mighty undead opponents!

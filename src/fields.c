@@ -2802,6 +2802,8 @@ bool field_action_hit_trap_drop_item(field_type *f_ptr, vptr nothing)
 {
 	int item;
 
+	object_type *o_ptr;
+
 	/* Hack - ignore 'nothing' */
 	(void)nothing;
 
@@ -2811,19 +2813,21 @@ bool field_action_hit_trap_drop_item(field_type *f_ptr, vptr nothing)
 	/* Saving throw */
 	if (!check_save(f_ptr->data[1])) return (FALSE);
 
-	msg_print("You fumble with your equipment!");
+	msg_print("You fumble with your pack!");
 
 	/* Get the item to drop */
-	item = randint1(p_ptr->inven_cnt);
+	item = randint1(get_list_length(p_ptr->inventory));
 
-	if (inventory[item].k_idx)
+	o_ptr = get_list_item(p_ptr->inventory, item);
+
+	/* Paranoia */
+	if (!o_ptr) return (FALSE);
+
+	/* Only if not cursed */
+	if (!cursed_p(o_ptr))
 	{
-		/* Only if not cursed */
-		if (!cursed_p(&inventory[item]))
-		{
-			/* Drop it */
-			inven_drop(item, inventory[item].number);
-		}
+		/* Drop it */
+		inven_drop(o_ptr, o_ptr->number);
 	}
 
 	/* Done */
@@ -2889,7 +2893,7 @@ bool field_action_hit_trap_no_lite(field_type *f_ptr, vptr nothing)
 	msg_print("Darkness surrounds you!");
 
 	/* Access the lite */
-	o_ptr = &inventory[INVEN_LITE];
+	o_ptr = &p_ptr->equipment[EQUIP_LITE];
 
 	if ((o_ptr->k_idx) &&
 		((o_ptr->sval == SV_LITE_LANTERN) || (o_ptr->sval == SV_LITE_TORCH)))
@@ -3006,7 +3010,6 @@ bool field_action_hit_trap_raise_mon(field_type *f_ptr, vptr nothing)
 
 bool field_action_hit_trap_drain_magic(field_type *f_ptr, vptr nothing)
 {
-	int i, k;
 	object_type *o_ptr;
 
 	/* Hack - ignore 'nothing' */
@@ -3021,16 +3024,10 @@ bool field_action_hit_trap_drain_magic(field_type *f_ptr, vptr nothing)
 	msg_print("Static fills the air.");
 
 	/* Find an item */
-	for (k = 0; k < 10; k++)
+	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
-		/* Pick an item */
-		i = randint0(INVEN_PACK);
-
-		/* Obtain the item */
-		o_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
+		/* Only work some of the time */
+		if (one_in_(2)) continue;
 
 		/* Drain charged wands/staffs */
 		if (((o_ptr->tval == TV_STAFF) || (o_ptr->tval == TV_WAND)) &&
@@ -3048,6 +3045,7 @@ bool field_action_hit_trap_drain_magic(field_type *f_ptr, vptr nothing)
 			p_ptr->window |= (PW_INVEN);
 		}
 	}
+	OBJ_ITT_END;
 
 	/* Done */
 	return (FALSE);
@@ -3528,27 +3526,6 @@ bool field_action_door_build(field_type *f_ptr, vptr nothing)
 	return (FALSE);
 }
 
-/* Does the player have enough gold for this action? */
-static bool test_gold(s32b *cost)
-{
-	if (p_ptr->au < *cost)
-	{
-		/* Player does not have enough gold */
-
-		msg_format("You need %ld gold to do this!", (long)*cost);
-		message_flush();
-
-		*cost = 0;
-
-		return (FALSE);
-
-	}
-
-	/* Player has enough gold */
-	return (TRUE);
-}
-
-
 
 /*
  * Weaponmaster1
@@ -3605,9 +3582,9 @@ bool field_action_recharge1(field_type *f_ptr, vptr input)
 	char tmp_str[80];
 
 	sprintf(tmp_str, " R) Recharge Items");
-	c_put_str(TERM_YELLOW, tmp_str, 30, 19);
-	sprintf(tmp_str, " I) Identify Items (%dgp)", f_ptr->data[2] * factor);
 	c_put_str(TERM_YELLOW, tmp_str, 35, 19);
+	sprintf(tmp_str, " I) Identify Items (%dgp)", f_ptr->data[2] * factor);
+	c_put_str(TERM_YELLOW, tmp_str, 35, 20);
 
 	/* Done */
 	return (FALSE);
@@ -4117,7 +4094,96 @@ bool field_action_healer2(field_type *f_ptr, vptr input)
 	return (FALSE);
 }
 
+/*
+ * Mage Tower1
+ */
+bool field_action_magetower1(field_type *f_ptr, vptr input)
+{
+	char tmp_str[80];
 
+	int factor = *((int *)input);
+
+	store_type *st_ptr;
+
+	/* Display options */
+	building_magetower(factor, TRUE);
+
+	st_ptr = get_current_store();
+
+	/* We only need to do this once */
+	if (st_ptr && !st_ptr->data)
+	{
+		sprintf(tmp_str, " R) Record aura (%dgp)", f_ptr->data[1] * factor);
+		c_put_str(TERM_YELLOW, tmp_str, 35, 18);
+	}
+
+	sprintf(tmp_str, " T) Teleport");
+	c_put_str(TERM_YELLOW, tmp_str, 35, 19);
+
+	/* Done */
+	return (FALSE);
+}
+
+
+/*
+ * Mage Tower2
+ */
+bool field_action_magetower2(field_type *f_ptr, vptr input)
+{
+	int *factor = ((int *)input);
+
+	store_type *st_ptr;
+
+	s32b cost;
+
+	if (p_ptr->command_cmd == 'R')
+	{
+		cost = f_ptr->data[1] * *factor;
+
+		if (test_gold(&cost))
+		{
+			st_ptr = get_current_store();
+
+			if (st_ptr && !st_ptr->data)
+			{
+				/*
+				 * Hack XXX - save the fact we have "noticed" this tower
+				 * in this variable, which later will have to be removed
+				 * from store_type anyway.
+				 */
+				st_ptr->data = 1;
+
+				/* Subtract off cost */
+				p_ptr->au -= cost;
+
+				msg_print("The portal keeper notes your aura.");
+			}
+		}
+
+		/* Hack, use factor as a return value */
+		*factor = TRUE;
+
+		/* Done */
+		return (FALSE);
+	}
+
+	if (p_ptr->command_cmd == 'T')
+	{
+		cost = f_ptr->data[1] * *factor;
+
+		building_magetower(*factor, FALSE);
+
+		/* Hack, use factor as a return value */
+		*factor = TRUE;
+	}
+	else
+	{
+		*factor = FALSE;
+	}
+
+	/* Done */
+	return (FALSE);
+}
 
 
 /*

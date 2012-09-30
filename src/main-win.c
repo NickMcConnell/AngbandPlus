@@ -73,6 +73,8 @@
 
 #include "angband.h"
 
+#include "maid-grf.h"
+
 
 #ifdef WINDOWS
 
@@ -106,7 +108,7 @@
 /*
  * Hack -- allow use of "screen saver" mode
  */
-#define USE_SAVER
+/* #define USE_SAVER */
 
 #endif /* ALLOW_BORG */
 
@@ -239,6 +241,11 @@
 #define NOKANJI           /* Kanji support stuff. */
 #define NOMCX             /* Modem Configuration Extensions */
 
+
+/* Mega-hack, these include files require double and float to work */
+#undef float
+#undef double
+
 /*
  * Include the "windows" support file
  */
@@ -290,6 +297,12 @@
 #define FA_DIREC    0x10        /* Directory */
 unsigned _cdecl _dos_getfileattr(const char *, unsigned *);
 #endif /* WIN32 */
+
+/* Mega-hack redefine them again */
+#undef float
+#define float floating_point_is_not_allowed
+#undef double
+#define double floating_point_is_not_allowed
 
 /*
  * Silliness in WIN32 drawing routine
@@ -495,14 +508,10 @@ static bool can_use_graphics = FALSE;
  */
 static DIBINIT infGraph;
 
-#ifdef USE_TRANSPARENCY
-
 /*
  * The global bitmap mask
  */
 static DIBINIT infMask;
-
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -1188,6 +1197,9 @@ static void load_sound_prefs(void)
 
 	for (i = 0; i < SOUND_MAX; i++)
 	{
+		/* Ignore empty sound strings */
+		if (!angband_sound_name[i][0]) continue;
+	
 		GetPrivateProfileString("Sound", angband_sound_name[i], "", tmp, 1024, ini_path);
 
 		num = tokenize_whitespace(tmp, SAMPLE_MAX, zz);
@@ -1400,8 +1412,6 @@ static bool init_graphics(void)
 		infGraph.CellWidth = wid;
 		infGraph.CellHeight = hgt;
 
-#ifdef USE_TRANSPARENCY
-
 		if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
 			/* Access the mask file */
@@ -1414,8 +1424,6 @@ static bool init_graphics(void)
 				return (FALSE);
 			}
 		}
-
-#endif /* USE_TRANSPARENCY */
 
 		/* Activate a palette */
 		if (!new_palette())
@@ -2277,11 +2285,7 @@ static errr Term_text_win(int x, int y, int n, byte a, cptr s)
  *
  * If "graphics" is not available, we simply "wipe" the given grids.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -2293,13 +2297,9 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	int dest_x, dest_y;
 	int dest_wid, dest_hgt;
 
-# ifdef USE_TRANSPARENCY
-
 	int tsrc_x, tsrc_y;
 
 	HDC hdcMask;
-
-# endif /* USE_TRANSPARENCY */
 
 	HDC hdc;
 	HDC hdcSrc;
@@ -2331,8 +2331,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == GRAPHICS_ADAM_BOLT)
 	{
 		hdcMask = CreateCompatibleDC(hdc);
@@ -2342,8 +2340,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	{
 		hdcMask = NULL;
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Draw attr/char pairs */
 	for (i = 0; i < n; i++, dest_x += dest_wid)
@@ -2358,8 +2354,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		/* Location of bitmap cell */
 		src_x = col * src_wid;
 		src_y = row * src_hgt;
-
-# ifdef USE_TRANSPARENCY
 
 		if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
@@ -2400,9 +2394,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 			}
 		}
 		else
-
-# endif /* USE_TRANSPARENCY */
-
 		{
 			/* Perfect size */
 			if ((src_wid == dest_wid) && (src_hgt == dest_hgt))
@@ -2427,16 +2418,12 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-# ifdef USE_TRANSPARENCY
-
 	if (arg_graphics == GRAPHICS_ADAM_BOLT)
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
 		DeleteDC(hdcMask);
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Release */
 	ReleaseDC(td->w, hdc);
@@ -2749,14 +2736,14 @@ static void setup_menus(void)
 	}
 
 	/* A character available */
-	if (game_in_progress && character_generated && inkey_flag)
+	if (game_in_progress && character_generated && p_ptr->inkey_flag)
 	{
 		/* Menu "File", Item "Save" */
 		EnableMenuItem(hm, IDM_FILE_SAVE, MF_BYCOMMAND | MF_ENABLED);
 	}
 
 	if (!game_in_progress || !character_generated ||
-	    (inkey_flag))
+	    (p_ptr->inkey_flag))
 	{
 		/* Menu "File", Item "Exit" */
 		EnableMenuItem(hm, IDM_FILE_EXIT, MF_BYCOMMAND | MF_ENABLED);
@@ -2900,7 +2887,7 @@ static void setup_menus(void)
 	              (low_priority ? MF_CHECKED : MF_UNCHECKED));
 
 #ifdef USE_GRAPHICS
-	if (inkey_flag && initialized)
+	if (initialized && p_ptr->inkey_flag)
 	{
 		/* Menu "Options", Item "Graphics" */
 		EnableMenuItem(hm, IDM_OPTIONS_NO_GRAPHICS, MF_ENABLED);
@@ -2912,7 +2899,7 @@ static void setup_menus(void)
 #endif /* USE_GRAPHICS */
 
 #ifdef USE_SOUND
-	if (inkey_flag && initialized)
+	if (initialized && p_ptr->inkey_flag)
 	{
 		/* Menu "Options", Item "Sound" */
 		EnableMenuItem(hm, IDM_OPTIONS_SOUND, MF_ENABLED);
@@ -3233,7 +3220,7 @@ static void process_menus(WORD wCmd)
 		case IDM_FILE_SAVE:
 		{
 			if (game_in_progress && character_generated &&
-			    inkey_flag)
+			    p_ptr->inkey_flag)
 			{
 				/* Hack -- Forget messages */
 				msg_flag = FALSE;
@@ -3317,7 +3304,7 @@ static void process_menus(WORD wCmd)
 			if (game_in_progress && character_generated)
 			{
 				/* Paranoia */
-				if (!inkey_flag)
+				if (!p_ptr->inkey_flag)
 				{
 					plog("You may not do that right now.");
 					break;
@@ -3523,7 +3510,7 @@ static void process_menus(WORD wCmd)
 		case IDM_OPTIONS_NO_GRAPHICS:
 		{
 			/* Paranoia */
-			if (!inkey_flag || !initialized)
+			if (!p_ptr->inkey_flag || !initialized)
 			{
 				plog("You may not do that right now.");
 				break;
@@ -3547,7 +3534,7 @@ static void process_menus(WORD wCmd)
 		case IDM_OPTIONS_OLD_GRAPHICS:
 		{
 			/* Paranoia */
-			if (!inkey_flag || !initialized)
+			if (!p_ptr->inkey_flag || !initialized)
 			{
 				plog("You may not do that right now.");
 				break;
@@ -3571,7 +3558,7 @@ static void process_menus(WORD wCmd)
 		case IDM_OPTIONS_NEW_GRAPHICS:
 		{
 			/* Paranoia */
-			if (!inkey_flag || !initialized)
+			if (!p_ptr->inkey_flag || !initialized)
 			{
 				plog("You may not do that right now.");
 				break;
@@ -3595,7 +3582,7 @@ static void process_menus(WORD wCmd)
 		case IDM_OPTIONS_SOUND:
 		{
 			/* Paranoia */
-			if (!inkey_flag || !initialized)
+			if (!p_ptr->inkey_flag || !initialized)
 			{
 				plog("You may not do that right now.");
 				break;
@@ -3919,7 +3906,7 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		{
 			if (game_in_progress && character_generated)
 			{
-				if (!inkey_flag)
+				if (!p_ptr->inkey_flag)
 				{
 					plog("You may not do that right now.");
 					return 0;
@@ -4545,11 +4532,8 @@ static void hook_quit(cptr str)
 #ifdef USE_GRAPHICS
 	if (infGraph.hPalette) DeleteObject(infGraph.hPalette);
 	if (infGraph.hBitmap) DeleteObject(infGraph.hBitmap);
-
-#ifdef USE_TRANSPARENCY
 	if (infMask.hPalette) DeleteObject(infMask.hPalette);
 	if (infMask.hBitmap) DeleteObject(infMask.hBitmap);
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -4635,7 +4619,7 @@ static void init_stuff(void)
 
 		GetPrivateProfileString("Angband", "AngbandPath", "", tmp, 1024, path);
 
-		sprintf(path, "%sangband.ini", tmp);
+		sprintf(path, "%szangband.ini", tmp);
 	}
 
 #endif /* USE_SAVER */
