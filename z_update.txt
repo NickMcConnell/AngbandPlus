@@ -2,6 +2,10 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Zangband 2.7.4c
+- Fixed a bug that could cause the game to exit with an "Cannot find
+  field to delete!" message.
+
 Zangband 2.7.4b
 - Lots of borg updates including:
   The borg can use ego items which are not *id*'d.

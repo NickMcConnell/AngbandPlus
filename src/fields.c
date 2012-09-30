@@ -582,7 +582,6 @@ void field_copy(field_type *f_ptr, field_type *j_ptr)
  * The list is sorted so that the field with the highest
  * priority is on top.
  * f_ptr is the field to add.
- * *fld_idx2 is a pointer to the head of the list of fields.
  */
 s16b field_add(field_type *f_ptr, cave_type *c_ptr)
 {
@@ -628,11 +627,6 @@ s16b field_add(field_type *f_ptr, cave_type *c_ptr)
 
 	/* Add the field to the list */
 
-	/*
-	 * fld_idx points to node before this one.
-	 * *fld_idx2 points to the node after this one.
-	 */
-
 	/* Get new node in list */
 	new_idx = f_pop();
 
@@ -650,6 +644,7 @@ s16b field_add(field_type *f_ptr, cave_type *c_ptr)
 	else
 	{
 		/* No old node - just link directly */
+		fld_list[new_idx].next_f_idx = c_ptr->fld_idx;
 		c_ptr->fld_idx = new_idx;
 	}
 
