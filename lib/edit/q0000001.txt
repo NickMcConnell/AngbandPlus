@@ -4,7 +4,7 @@
 Q:1:N:Thieves Hideout
 
 # Definition
-Q:1:Q:6:0:0:0:5:135:0
+Q:1:Q:6:0:0:0:5:135:0:6
 
 # Description for quest
 ?:[LEQ $QUEST1 2]
@@ -19,6 +19,12 @@ Q:1:T:ruffians.
 ?:[EQU $QUEST1 3]
 Q:1:T:Thank you for killing the band of thieves! A small reward
 Q:1:T:awaits you outside.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST1 5]
+Q:1:T:It seems like this task was too difficult for you.  Good that I
+Q:1:T:hired another adventurer to clean up the remaining thieves.
 ?:1
 
 # Floor

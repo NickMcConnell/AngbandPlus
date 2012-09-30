@@ -6,7 +6,7 @@
 Q:10:N:Node of Sorcery
 
 # Definition
-Q:10:Q:6:0:0:0:65:0:0
+Q:10:Q:6:0:0:0:65:0:0:2
 
 # Description for quest
 ?:[LEQ $QUEST10 2]

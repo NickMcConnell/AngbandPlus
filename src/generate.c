@@ -114,6 +114,8 @@ int template_race;
 #define EMPTY_LEVEL 15  /* 1/chance of being 'empty' (15)*/
 #define WATER_LEVEL 5   /* 1/chance of being 'flooded' (5)*/
 #define DARK_EMPTY  5   /* 1/chance of arena level NOT being lit (2)*/
+#define DUN_WILD_VAULT  50     /* Chance of finding a wilderness vault. */
+#define DUN_WILD_DUN    11     /* Chance of finding a random dungeon in the wilderness. */
 
 /*
  * Dungeon tunnel generation values
@@ -293,6 +295,11 @@ byte feat_wall_inner = FEAT_WALL_INNER;
 s16b floor_type[100], fill_type[100];
 
 /*
+ * The array of to keep monsters [max_m_idx]
+ */
+monster_type *km_list;
+
+/*
  * Always picks a correct direction
  */
 static void correct_dir(int *rdir, int *cdir, int y1, int x1, int y2, int x2)
@@ -412,6 +419,19 @@ static void place_up_stairs(int y, int x)
 
 	/* Create up stairs */
 	c_ptr->feat = FEAT_LESS;
+        c_ptr->special = 0;
+}
+
+/*
+ * Convert existing terrain type to "down stairs" with dungeon changing.
+ */
+static void place_magical_stairs(int y, int x, byte next)
+{
+	cave_type *c_ptr = &cave[y][x];
+
+	/* Create up stairs */
+        c_ptr->feat = FEAT_MORE;
+        c_ptr->special = next;
 }
 
 
@@ -424,6 +444,7 @@ static void place_down_stairs(int y, int x)
 
 	/* Create down stairs */
 	c_ptr->feat = FEAT_MORE;
+        c_ptr->special = 0;
 }
 
 
@@ -437,7 +458,7 @@ static void place_altar(int y, int x) {
         int alt, rar;
 
   while (TRUE) {
-    alt = rand_int(MAX_GODS);
+    alt = rand_int(MAX_GODS - 1);
     rar = deity_info[alt].rarity;
 
     if (dun_level < randnor(rar*10, 3) ||
@@ -491,9 +512,16 @@ static void place_random_stairs(int y, int x)
 		place_down_stairs(y, x);
 	}
 	else if ((is_quest(dun_level) && (dun_level > 1)) ||
-                (dun_level >= dungeon_info[dungeon_type].maxdepth))
+                (dun_level >= d_info[dungeon_type].maxdepth))
 	{
-		place_up_stairs(y, x);
+                if(d_info[dungeon_type].next)
+                {
+                        place_magical_stairs(y, x, d_info[dungeon_type].next);
+                }
+                else
+                {
+                        place_up_stairs(y, x);
+                }
 	}
 	else if (rand_int(100) < 50)
 	{
@@ -627,7 +655,7 @@ static void alloc_stairs(int feat, int num, int walls)
 				}
 
 				/* Quest -- must go up */
-                                else if ((is_quest(dun_level) && (dun_level > 1)) || (dun_level >= dungeon_info[dungeon_type].maxdepth))
+                                else if ((is_quest(dun_level) && (dun_level > 1)) || (dun_level >= d_info[dungeon_type].maxdepth))
 				{
 					/* Clear previous contents, add up stairs */
 					c_ptr->feat = FEAT_LESS;
@@ -791,10 +819,8 @@ static void build_streamer(int feat, int chance)
 			c_ptr = &cave[ty][tx];
 
 			/* Only convert "granite" walls */
-                        if ((c_ptr->feat < FEAT_WALL_EXTRA) &&
-                            (c_ptr->feat > FEAT_WALL_SOLID) &&
-                            (c_ptr->feat != FEAT_TREES) &&
-                            (c_ptr->feat != FEAT_MOUNTAIN)) continue;
+                        if ((c_ptr->feat > FEAT_WALL_EXTRA) ||
+                            (c_ptr->feat < FEAT_WALL_SOLID)) continue;
 
                         if(c_ptr->feat == FEAT_DIRT) continue;
 
@@ -2888,7 +2914,7 @@ static void build_type6(int yval, int xval)
  */
 static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 {
-	int dx, dy, x, y;
+        int dx, dy, x, y, bwy[8], bwx[8], i;
 	
 	cptr t;
 	
@@ -2898,6 +2924,12 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 
         if (seed_dungeon) {
             Rand_quick = FALSE;
+        }
+
+        /* Clean the between gates arrays */
+        for(i = 0; i < 8; i++)
+        {
+                bwy[i] = bwx[i] = 9999;
         }
 	
 	/* Place dungeon features and objects */
@@ -2960,6 +2992,16 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 			case '^':
 				place_trap(y, x);
 				break;
+
+                                /* Glass wall */
+                        case 'G':
+                                c_ptr->feat = FEAT_GLASS_WALL;
+				break;
+
+                                /* Illusion wall */
+                        case 'I':
+                                c_ptr->feat = FEAT_ILLUS_WALL;
+				break;
 			}
 		}
 	}
@@ -2976,6 +3018,9 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 			
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
+			
+			/* Access the grid */
+			c_ptr = &cave[y][x];
 			
 			/* Analyze the symbol */
 			switch (*t)
@@ -3075,6 +3120,32 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 					object_level = dun_level;
                 }
                 break;
+
+
+                        /* Between gates */
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                                /* Not found before */
+                                if(bwy[*t - '0'] == 9999)
+                                {
+                                        cave_set_feat(y, x, FEAT_BETWEEN);
+                                        bwy[*t - '0'] = y;
+                                        bwx[*t - '0'] = x;
+                                }
+                                /* The second time */
+                                else
+                                {
+                                        cave_set_feat(y, x, FEAT_BETWEEN);
+                                        c_ptr->special = bwx[*t - '0'] + (bwy[*t - '0'] << 8);
+                                        cave[bwy[*t - '0']][bwx[*t - '0']].special = x + (y << 8);
+                                }
+                                break;
 			}
 		}
 	}
@@ -3116,7 +3187,7 @@ static void build_type7(int yval, int xval)
     
 
 #ifdef FORCE_V_IDX
-        v_ptr = &v_info[20];
+        v_ptr = &v_info[FORCE_V_IDX];
 #endif
 
 	/* Message */
@@ -3169,7 +3240,7 @@ static void build_type8(int yval, int xval)
 
 
 #ifdef FORCE_V_IDX
-        v_ptr = &v_info[20];
+        v_ptr = &v_info[FORCE_V_IDX];
 #endif
 
 	/* Message */
@@ -3526,9 +3597,9 @@ static int next_to_corr(int y1, int x1)
 		c_ptr = &cave[y][x];
 
 		/* Skip non "empty floor" grids */
-                if ((c_ptr->feat != dungeon_info[dungeon_type].floor1) &&
-                    (c_ptr->feat != dungeon_info[dungeon_type].floor2) &&
-                    (c_ptr->feat != dungeon_info[dungeon_type].floor3))
+                if ((c_ptr->feat != d_info[dungeon_type].floor1) &&
+                    (c_ptr->feat != d_info[dungeon_type].floor2) &&
+                    (c_ptr->feat != d_info[dungeon_type].floor3))
                         continue;
 
 		/* Skip grids inside rooms */
@@ -4138,17 +4209,22 @@ static void generate_area(int y, int x, bool border, bool corner)
 		int table_size = sizeof(terrain_table[0]) / sizeof(int);
 		int roughness = 1; /* The roughness of the level. */
 		int terrain[3][3]; /* The terrain around the current area */
+                int ym, xm, yp, xp;
 
 		/* Initialize the terrain array */
-		terrain[0][0] = wilderness[y - 1][x - 1].terrain;
-		terrain[0][1] = wilderness[y - 1][x].terrain;
-		terrain[0][2] = wilderness[y - 1][x + 1].terrain;
-		terrain[1][0] = wilderness[y][x - 1].terrain;
+                ym = ((y - 1) < 0)?0:(y - 1);
+                xm = ((x - 1) < 0)?0:(x - 1);
+                yp = ((y + 1) >= max_wild_y)?(max_wild_y - 1):(y + 1);
+                xp = ((x + 1) >= max_wild_x)?(max_wild_x - 1):(x + 1);
+                terrain[0][0] = wilderness[ym][xm].terrain;
+                terrain[0][1] = wilderness[ym][x].terrain;
+                terrain[0][2] = wilderness[ym][xp].terrain;
+                terrain[1][0] = wilderness[y][xm].terrain;
 		terrain[1][1] = wilderness[y][x].terrain;
-		terrain[1][2] = wilderness[y][x + 1].terrain;
-		terrain[2][0] = wilderness[y + 1][x - 1].terrain;
-		terrain[2][1] = wilderness[y + 1][x].terrain;
-		terrain[2][2] = wilderness[y + 1][x + 1].terrain;
+                terrain[1][2] = wilderness[y][xp].terrain;
+                terrain[2][0] = wilderness[yp][xm].terrain;
+                terrain[2][1] = wilderness[yp][x].terrain;
+                terrain[2][2] = wilderness[yp][xp].terrain;
 
 		/* Hack -- Use the "simple" RNG */
 		Rand_quick = TRUE;
@@ -4250,6 +4326,85 @@ static void generate_area(int y, int x, bool border, bool corner)
 		}
 	}
 
+#if 0
+		/* Hack -- Use the "simple" RNG */
+		Rand_quick = TRUE;
+
+		/* Hack -- Induce consistant town layout */
+		Rand_value = wilderness[y][x].seed;
+
+                /* Generate a wilderness vault. */
+                if (magik(DUN_WILD_VAULT)) {  
+                        vault_type *v_ptr;
+                        int vindex, vy, vx;
+                        int i;
+   
+                        /* Pick a wilderness vault */
+                        for (i = 0; i < 1000; i++)
+                        {
+                                /* Access a random vault record */
+                                vindex = rand_int(max_v_idx);
+                                v_ptr = &v_info[vindex];
+
+                                /* Accept the first greater vault */
+                                if (v_ptr->typ == 10) break;
+                        }
+
+                        /* Message */
+                        if (cheat_room) msg_format("Wilderness Vault %d", vindex);
+
+                        /* Boost the rating */
+                        rating += v_ptr->rat;
+
+                        vy = rand_range((v_ptr->hgt/2)+1, MAX_HGT-(v_ptr->hgt/2)-1);
+                        vx = rand_range((v_ptr->wid/2)+1, MAX_WID-(v_ptr->wid/2)-1);
+
+                        build_vault(vy, vx, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+                }
+
+		/* Use the complex RNG */
+		Rand_quick = FALSE;
+#endif
+
+		/* Hack -- Use the "simple" RNG */
+		Rand_quick = TRUE;
+
+		/* Hack -- Induce consistant town layout */
+		Rand_value = wilderness[y][x].seed;
+
+                /* Generate a wilderness random dungeon. */
+                if (magik(DUN_WILD_DUN)) {  
+                        int d_idx, dy, dx;
+                        int i;
+                        dungeon_info_type *d_ptr;
+   
+                        /* Pick a wilderness dungeon */
+                        for (i = 0; i < 1000; i++)
+                        {
+                                /* Access a random vault record */
+                                d_idx = rand_range(16, max_d_idx - 1);
+                                d_ptr = &d_info[d_idx];
+
+                                /* Accept the first real dungeon */
+                                if (d_ptr->maxdepth > 0) break;
+                        }
+
+                        if(i < 1000)
+                        {
+                                /* Message */
+                                if (cheat_room) msg_format("Random Dungeon type %d", d_idx);
+
+                                dy = rand_range(6, cur_hgt - 6);
+                                dx = rand_range(6, cur_wid - 6);
+
+                                cave[dy][dx].feat = FEAT_MORE;
+                                cave[dy][dx].special = d_idx;
+                        }
+                }
+
+		/* Use the complex RNG */
+		Rand_quick = FALSE;
+
 	/* Set the monster generation level to the wilderness level */
 	monster_level = wilderness[y][x].level;
 
@@ -4257,12 +4412,65 @@ static void generate_area(int y, int x, bool border, bool corner)
 	object_level = wilderness[y][x].level;
 }
 
+/*
+ * Bring the imprinted pets from the old level
+ */
+void replace_all_friends()
+{
+        int i;
+
+        /* Scan every saved pet */
+        for (i = 0; i < max_m_idx; i++)
+        {
+                if((km_list[i].r_idx) && (km_list[i].imprinted))
+                {
+                        int y = py, x = px;
+                        cave_type *c_ptr;
+                        monster_type *m_ptr;
+
+                        /* Find a suitable location */
+                        get_pos_player(5, &y, &x);
+                        c_ptr = &cave[y][x];
+
+                        /* Get a m_idx to use */
+                        c_ptr->m_idx = m_pop();
+                        m_ptr = &m_list[c_ptr->m_idx];
+
+                        /* Actualy place the monster */
+                        m_list[c_ptr->m_idx] = km_list[i];
+                        m_ptr->fy = y;
+                        m_ptr->fx = x;
+                        m_ptr->hold_o_idx = 0;
+
+                        /* Erase the old monster */
+                        km_list[i].r_idx = 0;
+                        km_list[i].imprinted = FALSE;
+                }
+        }
+}
+
+/*
+ * Save the imprinted pets from the old level
+ */
+void save_all_friends()
+{
+        int i;
+
+        /* Scan every monster */
+        for (i = 0; i < max_m_idx; i++)
+        {
+                if((m_list[i].r_idx) && (m_list[i].imprinted))
+                {
+                        /* Actualy save the monster */
+                        km_list[i] = m_list[i];
+                }
+        }
+}
 
 /*
  * Border of the wilderness area
  */
 static border_type border;
-
 
 /*
  * Build the wilderness area outside of the town.
@@ -4423,29 +4631,13 @@ void wilderness_gen(int refresh)
 
 	if (!refresh)
 	{
-                int mx = px, my = py + 1;
-                monster_type *m_ptr;
-
 		/* Make some residents */
 		for (i = 0; i < MIN_M_ALLOC_TN; i++)
 		{
 			/* Make a resident */
 			(void)alloc_monster(3, TRUE);
 		}
-
-                /* Put the kept monsters */
-                for(i = 0; i < max_m_idx; i++)
-                {
-                        if(r_idx_to_keep[i] != 0)
-                        {
-                                get_pos_player(100 ,&my, &mx);
-                                place_monster_one(my, mx, r_idx_to_keep[i], FALSE, TRUE);
-
-                                m_ptr = &m_list[cave[my][mx].m_idx];
-                                m_ptr->impressed = TRUE;
-                        }
-                }
-	}
+        }
 
 	/* Set rewarded quests to finished */
 	for (i = 0; i < max_quests; i++)
@@ -4453,6 +4645,181 @@ void wilderness_gen(int refresh)
 		if (quest[i].status == QUEST_STATUS_REWARDED)
 			quest[i].status = QUEST_STATUS_FINISHED;
 	}
+}
+
+char maze[(MAX_WID / 2) + 2][(MAX_HGT / 2) + 2];
+
+void dig(int x, int y, int d)
+{
+        int k;
+        int dx = 0, dy = 0;
+
+        /*
+         * first, open the wall of the new cell
+         * in the direction we come from.
+         */
+        switch (d)
+        {
+                case 0:
+                        maze[x][y]|=4;
+                        break;
+                case 1:
+                        maze[x][y]|=8;
+                        break;
+                case 2:
+                        maze[x][y]|=1;
+                        break;
+                case 3:
+                        maze[x][y]|=2;
+                        break;
+        }
+
+        /*
+         * try to chage direction, here 50% times.
+         * with smaller values (say 25%) the maze
+         * is made of long straight corridors. with
+         * greaters values (say 75%) the maze is
+         * very "turny".
+         */
+        if (rand_range(1,100)<50) d=rand_range(0,3);
+
+        for (k=1;k<=4;k++)
+        {
+                switch (d)
+                {
+                        case 0: dx=+1;dy= 0;break;
+                        case 1: dx= 0;dy=-1;break;
+                        case 2: dx=-1;dy= 0;break;
+                        case 3: dx= 0;dy=+1;break;
+                }
+                if (maze[x+dx][y+dy]==0)
+                {
+                        /*
+                         * now, open the wall of the new cell
+                         * in the direction we go to.
+                         */
+                        switch (d) {
+                                case 0:
+                                        maze[x][y]|=1;
+                                        break;
+                                case 1:
+                                        maze[x][y]|=2;
+                                        break;
+                                case 2:
+                                        maze[x][y]|=4;
+                                        break;
+                                case 3:
+                                        maze[x][y]|=8;
+                                        break;
+                        }
+                        dig(x+dx,y+dy,d);
+                }
+                d=(d+1)%4;
+        }
+}
+
+void generate_maze()
+{
+        int i, j, d;
+        int x, dx = 0;
+        int y, dy = 0;
+        int m_1 = 0, m_2 = 0;
+
+        /*
+         * the empty maze is:
+         *
+         * -1 -1 ... -1 -1
+         * -1  0      0 -1
+         *  .            .
+         *  .            .
+         * -1  0      0 -1
+         * -1 -1 ... -1 -1
+         *
+         *  -1 are so-called "sentinel value".
+         *   0 are empty cells.
+         *
+         *  walls are not represented, only cells.
+         *  at the end of the algorithm each cell
+         *  contains a value that is bit mask
+         *  representing surrounding walls:
+         *
+         *         bit #1
+         *
+         *        +------+
+         *        |      |
+         * bit #2 |      | bit #0
+         *        |      |
+         *        +------+
+         *
+         *         bit #3
+         *
+         * d is the direction you are digging
+         * to. d value is the bit number:
+         * d=0 --> go east
+         * d=1 --> go north
+         * etc
+         *
+         * you need only 4 bits per cell.
+         * this gives you a very compact
+         * maze representation.
+         *
+         */
+
+        for (i=0;i<=(cur_wid / 2)+1;i++)
+                for (j=0;j<=(cur_hgt / 2)+1;j++)
+                        maze[i][j]=-1;
+
+        for (i=1;i<=(cur_wid / 2);i++)
+                for (j=1;j<=(cur_hgt / 2);j++)
+                        maze[i][j]= 0;
+
+        d=rand_range(0,3);
+        x=rand_range(1,(cur_wid / 2));
+        y=rand_range(1,(cur_hgt / 2));
+
+        dig(x,y,d);
+
+        maze[x][y]=0;
+
+        for (d=0;d<=3;d++)
+        {
+                switch (d)
+                {
+                        case 0:
+                                dx=+1;dy= 0;m_1=1;m_2=4;
+                                break;
+                        case 1:
+                                dx= 0;dy=-1;m_1=2;m_2=8;
+                                break;
+                        case 2:
+                                dx=-1;dy= 0;m_1=4;m_2=1;
+                                break;
+                        case 3:
+                                dx= 0;dy=+1;m_1=8;m_2=2;
+                                break;
+                }
+                if (maze[x+dx][y+dy]!=-1)
+                if ((maze[x+dx][y+dy]&m_2)!=0)
+                maze[x][y]|=m_1;
+        }
+
+        /* Translate the maze bit array into a real dungeon map -- DG */
+        for(i = 1; i <= (cur_wid / 2) - 2; i++)
+        for(j = 1; j <= (cur_hgt / 2) - 2; j++)
+        {
+                if(maze[i][j])
+                {
+                        cave[j * 2][i * 2].feat = floor_type[rand_int(100)];
+                }
+                if(maze[i][j] & 1)
+                {
+                        cave[j * 2][(i * 2) + 1].feat = floor_type[rand_int(100)];
+                }
+                if(maze[i][j] & 8)
+                {
+                        cave[(j * 2) + 1][i * 2].feat = floor_type[rand_int(100)];
+                }
+        }
 }
 
 /*
@@ -4463,11 +4830,11 @@ byte calc_dungeon_type()
 {
         int i;
 
-        for (i = 0; i < MAX_DUNGEONS; i++)
+        for (i = 0; i < max_d_idx; i++)
         {
-                if ((dun_level >= dungeon_info[i].mindepth) &&
-                    (dun_level <= dungeon_info[i].maxdepth) &&
-                    (dungeon_info[i].principal == TRUE))
+                if ((dun_level >= d_info[i].mindepth) &&
+                    (dun_level <= d_info[i].maxdepth) &&
+                    (d_info[i].flags1 & DF1_PRINCIPAL))
                         return i;
         }
         return 0;
@@ -4494,28 +4861,28 @@ static bool cave_gen(void)
         {
                 int lim1, lim2, lim3;
 
-                lim1 = dungeon_info[dungeon_type].floor_percent1;
-                lim2 = lim1 + dungeon_info[dungeon_type].floor_percent2;
-                lim3 = lim2 + dungeon_info[dungeon_type].floor_percent3;
+                lim1 = d_info[dungeon_type].floor_percent1;
+                lim2 = lim1 + d_info[dungeon_type].floor_percent2;
+                lim3 = lim2 + d_info[dungeon_type].floor_percent3;
                 if (i < lim1)
-                        floor_type[i] = dungeon_info[dungeon_type].floor1;
+                        floor_type[i] = d_info[dungeon_type].floor1;
                 else if (i < lim2)
-                        floor_type[i] = dungeon_info[dungeon_type].floor2;
+                        floor_type[i] = d_info[dungeon_type].floor2;
                 else if (i < lim3)
-                        floor_type[i] = dungeon_info[dungeon_type].floor3;
+                        floor_type[i] = d_info[dungeon_type].floor3;
 
-                lim1 = dungeon_info[dungeon_type].fill_percent1;
-                lim2 = lim1 + dungeon_info[dungeon_type].fill_percent2;
-                lim3 = lim2 + dungeon_info[dungeon_type].fill_percent3;
+                lim1 = d_info[dungeon_type].fill_percent1;
+                lim2 = lim1 + d_info[dungeon_type].fill_percent2;
+                lim3 = lim2 + d_info[dungeon_type].fill_percent3;
                 if (i < lim1)
-                        fill_type[i] = dungeon_info[dungeon_type].fill_type1;
+                        fill_type[i] = d_info[dungeon_type].fill_type1;
                 else if (i < lim2)
-                        fill_type[i] = dungeon_info[dungeon_type].fill_type2;
+                        fill_type[i] = d_info[dungeon_type].fill_type2;
                 else if (i < lim3)
-                        fill_type[i] = dungeon_info[dungeon_type].fill_type3;
+                        fill_type[i] = d_info[dungeon_type].fill_type3;
         }
-        feat_wall_outer = dungeon_info[dungeon_type].outer_wall;
-        feat_wall_inner = dungeon_info[dungeon_type].inner_wall;
+        feat_wall_outer = d_info[dungeon_type].outer_wall;
+        feat_wall_inner = d_info[dungeon_type].inner_wall;
 
 	/* Set the correct monster hook */
 	set_mon_num_hook();
@@ -4529,20 +4896,22 @@ static bool cave_gen(void)
 	if (!(max_panel_rows)) max_vault_ok--;
 	if (!(max_panel_cols)) max_vault_ok--;
 
+        if(!(d_info[dungeon_type].flags1 & DF1_MAZE))
+        {
+                if ((randint(EMPTY_LEVEL)==1) && empty_levels)
+                {
+                        empty_level = TRUE;
+                        if ((cheat_room)||(p_ptr->precognition))
+                                msg_print("Arena level.");
+                }
 
-	if ((randint(EMPTY_LEVEL)==1) && empty_levels)
-	{
-		empty_level = TRUE;
-                if ((cheat_room)||(p_ptr->precognition))
-			msg_print("Arena level.");
-	}
-
-        if ((randint(WATER_LEVEL)==1) && water_levels && (dungeon_type == DUNGEON_ANGBAND))
-	{
-                water_level = TRUE;
-                if ((cheat_room)||(p_ptr->precognition))
-                        msg_print("Flooded level.");
-	}
+                if ((randint(WATER_LEVEL)==1) && water_levels && (dungeon_type == DUNGEON_ANGBAND))
+                {
+                        water_level = TRUE;
+                        if ((cheat_room)||(p_ptr->precognition))
+                                msg_print("Flooded level.");
+                }
+        }
 
 	/* Hack -- Start with basic granite */
 	for (y = 0; y < cur_hgt; y++)
@@ -4553,7 +4922,7 @@ static bool cave_gen(void)
 
                         if (empty_level)
                                 c_ptr->feat = floor_type[rand_int(100)];
-                        else if ((dungeon_type == DUNGEON_ANGBAND) && (water_level))                          /* Flooded Angband */
+                        else if ((dungeon_type == DUNGEON_ANGBAND) && (water_level)) /* Flooded Angband */
                                 c_ptr->feat = FEAT_DEEP_WATER;
                         else 
                                 c_ptr->feat = fill_type[rand_int(100)];
@@ -4561,6 +4930,8 @@ static bool cave_gen(void)
 	}
 
 
+        if(!(d_info[dungeon_type].flags1 & DF1_MAZE))
+        {
 	/* Possible "destroyed" level */
 	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (small_levels))
 		destroyed = TRUE;
@@ -4680,7 +5051,7 @@ static bool cave_gen(void)
 		/* Attempt a trivial room */
 		if (room_build(y, x, 1)) continue;
 	}
-
+        }
 
 	/* Special boundary walls -- Top */
 	for (x = 0; x < cur_wid; x++)
@@ -4719,6 +5090,8 @@ static bool cave_gen(void)
 	}
 
 
+        if(!(d_info[dungeon_type].flags1 & DF1_MAZE))
+        {
 	/* Hack -- Scramble the room order */
 	for (i = 0; i < dun->cent_n; i++)
 	{
@@ -4819,6 +5192,11 @@ static bool cave_gen(void)
 				build_streamer2(FEAT_DEEP_WATER, 1);
 		}
 	}
+        }
+        else /* A MAZE */
+        {
+                generate_maze();
+        }
 
 	/* Place 3 or 4 down stairs near some walls */
 	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
@@ -4903,7 +5281,7 @@ static bool cave_gen(void)
 	if (k < 2) k = 2;
 
 	/* Pick a base number of monsters */
-	i = MIN_M_ALLOC_LEVEL;
+        i = d_info[dungeon_type].min_m_alloc_level;
 
 	/* To make small levels a bit more playable */
 	if (cur_hgt < MAX_HGT || cur_wid < MAX_WID)
@@ -4928,24 +5306,6 @@ static bool cave_gen(void)
 	{
 		(void)alloc_monster(0, TRUE);
 	}
-        /* Put the kept monsters */
-        {
-        int mx = px, my = py + 1, z;
-        monster_type *m_ptr;
-
-        for(z = 0; z < max_m_idx; z++)
-        {
-                if(r_idx_to_keep[z] != 0)
-                {
-                        get_pos_player(100, &my, &mx);
-                        place_monster_one(my, mx, r_idx_to_keep[z], FALSE, TRUE);
-
-                        m_ptr = &m_list[cave[my][mx].m_idx];
-                        m_ptr->impressed = TRUE;
-                }
-        }
-        }
-
 
         for(i = 0; i < MAX_FATES; i++)
         {
@@ -4971,7 +5331,7 @@ static bool cave_gen(void)
                                 /* Mega-Hack */
                                 apply_magic(q_ptr, dun_level, TRUE, TRUE, fates[i].serious);
 
-                                get_pos_player(100, &oy, &ox);
+                                get_pos_player(10, &oy, &ox);
 
                                 /* Drop it from the heaven */
                                 drop_near(q_ptr, -1, oy, ox);
@@ -4984,7 +5344,7 @@ static bool cave_gen(void)
                                 int oy = py + 1;
                                 int ox = px;
                                 
-                                get_pos_player(100, &oy, &ox);
+                                get_pos_player(10, &oy, &ox);
 
                                 place_monster_one(oy, ox, fates[i].r_idx, fates[i].serious, FALSE);
 
@@ -4996,7 +5356,7 @@ static bool cave_gen(void)
                                 int oy = py + 1;
                                 int ox = px;
                                 
-                                get_pos_player(100, &oy, &ox);
+                                get_pos_player(10, &oy, &ox);
 
                                 if (a_info[fates[i].a_idx].cur_num == 0)
 				{
@@ -5091,8 +5451,86 @@ static bool cave_gen(void)
         /* Put some between gates */
         alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_BETWEEN, randnor(DUN_AMT_BETWEEN, 3));
 
-    if ((empty_level) && (randint(DARK_EMPTY)!=1 || (randint(100) > dun_level)))
-        wiz_lite();
+        /* Put an Artifact and Artifact Guardian is requested */
+        if(d_info[dungeon_type].final_guardian && (d_info[dungeon_type].maxdepth == dun_level))
+        {
+                int oy = randint(cur_hgt - 4) + 2;
+                int ox = randint(cur_wid - 4) + 2;
+                int m_idx;
+                                
+                /* Find a good position */
+                get_pos_player(20, &oy, &ox);
+
+                /* Place the guardian */
+                m_idx = place_monster_one_return(oy, ox, d_info[dungeon_type].final_guardian, FALSE, FALSE);
+if(!m_idx)quit(format("%d",m_idx));
+                if(d_info[dungeon_type].final_artifact && m_idx)
+                {
+                                if (a_info[d_info[dungeon_type].final_artifact].cur_num == 0)
+				{
+                                        artifact_type *a_ptr = &a_info[d_info[dungeon_type].final_artifact];
+                                        object_type *q_ptr, forge, *o_ptr;
+                                        int I_kind, o_idx;
+
+					/* Get local object */
+					q_ptr = &forge;
+
+					/* Wipe the object */
+					object_wipe(q_ptr);
+
+					/* Acquire the "kind" index */
+					I_kind = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+					/* Create the artifact */
+					object_prep(q_ptr, I_kind);
+
+					/* Save the name */
+                                        q_ptr->name1 = d_info[dungeon_type].final_artifact;
+
+					/* Extract the fields */
+					q_ptr->pval = a_ptr->pval;
+					q_ptr->ac = a_ptr->ac;
+					q_ptr->dd = a_ptr->dd;
+					q_ptr->ds = a_ptr->ds;
+					q_ptr->to_a = a_ptr->to_a;
+					q_ptr->to_h = a_ptr->to_h;
+					q_ptr->to_d = a_ptr->to_d;
+					q_ptr->weight = a_ptr->weight;
+
+					/* Hack -- acquire "cursed" flag */
+					if (a_ptr->flags3 & (TR3_CURSED)) q_ptr->ident |= (IDENT_CURSED);
+
+					random_artifact_resistance(q_ptr);
+
+                                        a_info[d_info[dungeon_type].final_artifact].cur_num = 1;
+
+                                        /* Create the artifact in the guardian's inventory */
+                                        /* Get new object */
+                                        o_idx = o_pop();
+
+                                        if(o_idx)
+                                        {
+                                                /* Get the item */
+                                                o_ptr = &o_list[o_idx];
+
+                                                /* Structure copy */
+                                                object_copy(o_ptr, q_ptr);
+
+                                                /* Build a stack */
+                                                o_ptr->next_o_idx = m_list[m_idx].hold_o_idx;
+
+                                                o_ptr->held_m_idx = m_idx;
+                                                o_ptr->ix = 0;
+                                                o_ptr->iy = 0;
+
+                                                m_list[m_idx].hold_o_idx = o_idx;
+                                        }
+                                }
+                }
+        }
+
+        if ((empty_level) && (randint(DARK_EMPTY)!=1 || (randint(100) > dun_level)))
+                wiz_lite();
 
     return TRUE;
 }
@@ -5253,7 +5691,7 @@ static void quest_gen(void)
  */
 void build_special(int yval, int xval, int ymax, int xmax, cptr data)
 {
-	int dx, dy, x, y;
+        int dx, dy, x, y, bwy[128], bwx[128];
 
 	cptr t;
 
@@ -5262,12 +5700,18 @@ void build_special(int yval, int xval, int ymax, int xmax, cptr data)
         vault_type    *v_ptr, forge;
 	int             i;
 
+        /* Clean the between gates arrays */
+        for(i = 0; i < 128; i++)
+        {
+                bwy[i] = bwx[i] = 9999;
+        }
+
         v_ptr = &forge;
 
         for (i=1;i<max_v_idx;i++)
 	{
 		v_ptr = &v_info[i];
-		if (v_ptr->lvl == dun_level)
+                if ((v_ptr->lvl == dun_level) && (v_ptr->dun_type == dungeon_type))
 			break;
 	}
 
@@ -5334,6 +5778,46 @@ void build_special(int yval, int xval, int ymax, int xmax, cptr data)
 				place_trap(y, x);
 				break;
 
+                                /* Mountain */
+                                case 'M':
+                                c_ptr->feat = FEAT_MOUNTAIN;
+				break;
+
+                                /* Shallow Lava */
+                                case 'l':
+                                c_ptr->feat = FEAT_SHAL_LAVA;
+				break;
+
+                                /* Deep Lava */
+                                case 'L':
+                                c_ptr->feat = FEAT_DEEP_LAVA;
+				break;
+
+                                /* Shallow Water */
+                                case 'w':
+                                c_ptr->feat = FEAT_SHAL_WATER;
+				break;
+
+                                /* Deep Water */
+                                case 'W':
+                                c_ptr->feat = FEAT_DEEP_WATER;
+				break;
+
+                                /* Tree */
+                                case 'T':
+                                c_ptr->feat = FEAT_TREES;
+				break;
+
+                                /* Glass wall */
+                                case 'G':
+                                c_ptr->feat = FEAT_GLASS_WALL;
+				break;
+
+                                /* Illusion wall */
+                                case 'I':
+                                c_ptr->feat = FEAT_ILLUS_WALL;
+				break;
+
 				/* Random door */
 				case 'D':
 				place_random_door(y, x);
@@ -5360,216 +5844,70 @@ void build_special(int yval, int xval, int ymax, int xmax, cptr data)
 			{
 				/* Monster */
 				case 'a':       /* monster 1 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon1];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon1,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'b':       /* monster 2 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon2];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon2,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'c':       /* monster 3 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon3];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon3,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'd':       /* monster 4 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon4];
-                                        r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon4,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'e':       /* monster 5 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon5];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon5,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'f':       /* monster 6 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon6];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon6,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'g':       /* monster 7 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon7];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon7,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'h':       /* monster 8 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon8];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon8,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'i':       /* monster 9 */
-				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon9];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon9,FALSE,FALSE,FALSE);
-					break;
-				}
-
-				/* Monster */
 				case 'j':       /* monster 10 */
 				{
-					monster_race    *r_ptr = &r_info[v_ptr->mon10];
-					r_ptr->max_num++;       /* make alive again */
-                                        place_monster_aux(y,x,v_ptr->mon10,FALSE,FALSE,FALSE);
+                                        monster_race    *r_ptr = &r_info[v_ptr->mon[*t - 'a']];
+                                        if (r_ptr->flags1 & RF1_UNIQUE)
+                                                r_ptr->max_num = 1;     /* make alive again */
+                                        else
+                                                r_ptr->max_num++;       /* make alive again */
+
+                                        place_monster_aux(y,x,v_ptr->mon[*t - 'a'],FALSE,FALSE,FALSE);
 					break;
 				}
 
-				/* Artifact */
-				case '1':       /* artifact 1 */
+				/* Monster */
+			case '&':
 				{
-					artifact_type   *a_ptr = &a_info[v_ptr->item1];
-					object_type     forge;
-					object_type     *q_ptr;
-					object_type     *o_ptr;
-					
-					s16b            o_idx;
-					int             k_idx;
-					
-					q_ptr = &forge;
-					object_wipe(q_ptr);
-					k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-					object_prep(q_ptr, k_idx);
-					q_ptr->name1 = v_ptr->item1;
-
-		/* Extract the other fields */
-		q_ptr->pval = a_ptr->pval;
-		q_ptr->ac = a_ptr->ac;
-		q_ptr->dd = a_ptr->dd;
-		q_ptr->ds = a_ptr->ds;
-		q_ptr->to_a = a_ptr->to_a;
-		q_ptr->to_h = a_ptr->to_h;
-		q_ptr->to_d = a_ptr->to_d;
-		q_ptr->weight = a_ptr->weight;
-
-
-					o_idx = o_pop();
-					o_ptr = &o_list[o_idx];
-					object_copy(o_ptr,q_ptr);
-					o_ptr->iy = y;
-					o_ptr->ix = x;
-					c_ptr = &cave[y][x];
-					o_ptr->next_o_idx = c_ptr->o_idx;
-					c_ptr->o_idx = o_idx;
-
-					break;
-				}
-				
-				/* Artifact */
-				case '2':       /* artifact 2 */
-				{
-					artifact_type   *a_ptr = &a_info[v_ptr->item2];
-					object_type     forge;
-					object_type     *q_ptr;
-					object_type     *o_ptr;
-					
-					s16b            o_idx;
-					int             k_idx;
-					
-					q_ptr = &forge;
-					object_wipe(q_ptr);
-					k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-					object_prep(q_ptr, k_idx);
-					q_ptr->name1 = v_ptr->item2;
-
-		/* Extract the other fields */
-		q_ptr->pval = a_ptr->pval;
-		q_ptr->ac = a_ptr->ac;
-		q_ptr->dd = a_ptr->dd;
-		q_ptr->ds = a_ptr->ds;
-		q_ptr->to_a = a_ptr->to_a;
-		q_ptr->to_h = a_ptr->to_h;
-		q_ptr->to_d = a_ptr->to_d;
-		q_ptr->weight = a_ptr->weight;
-
-
-					o_idx = o_pop();
-					o_ptr = &o_list[o_idx];
-					object_copy(o_ptr,q_ptr);
-					o_ptr->iy = y;
-					o_ptr->ix = x;
-					c_ptr = &cave[y][x];
-					o_ptr->next_o_idx = c_ptr->o_idx;
-					c_ptr->o_idx = o_idx;
-
+					monster_level = dun_level + 5;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = dun_level;
 					break;
 				}
 
-				/* Artifact */
-				case '3':       /* artifact 3 */
+				/* Meaner monster */
+			case '@':
 				{
-					artifact_type   *a_ptr = &a_info[v_ptr->item3];
-					object_type     forge;
-					object_type     *q_ptr;
-					object_type     *o_ptr;
-					
-					s16b            o_idx;
-					int             k_idx;
-					
-					q_ptr = &forge;
-					object_wipe(q_ptr);
-					k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-					object_prep(q_ptr, k_idx);
-					q_ptr->name1 = v_ptr->item3;
+					monster_level = dun_level + 11;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = dun_level;
+					break;
+				}
 
-		/* Extract the other fields */
-		q_ptr->pval = a_ptr->pval;
-		q_ptr->ac = a_ptr->ac;
-		q_ptr->dd = a_ptr->dd;
-		q_ptr->ds = a_ptr->ds;
-		q_ptr->to_a = a_ptr->to_a;
-		q_ptr->to_h = a_ptr->to_h;
-		q_ptr->to_d = a_ptr->to_d;
-		q_ptr->weight = a_ptr->weight;
+				/* Meaner monster, plus treasure */
+			case '9':
+				{
+					monster_level = dun_level + 9;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = dun_level;
+					object_level = dun_level + 7;
+					place_object(y, x, TRUE, FALSE);
+					object_level = dun_level;
+					break;
+				}
 
-
-					o_idx = o_pop();
-					o_ptr = &o_list[o_idx];
-					object_copy(o_ptr,q_ptr);
-					o_ptr->iy = y;
-					o_ptr->ix = x;
-					c_ptr = &cave[y][x];
-					o_ptr->next_o_idx = c_ptr->o_idx;
-					c_ptr->o_idx = o_idx;
-
+				/* Nasty monster and treasure */
+			case '8':
+				{
+					monster_level = dun_level + 40;
+					place_monster(y, x, TRUE, TRUE);
+					monster_level = dun_level;
+					object_level = dun_level + 20;
+					place_object(y, x, TRUE, TRUE);
+					object_level = dun_level;
 					break;
 				}
 
 				/* Monster and/or object */
-				case ',':
+			case ',':
 				{
 					if (rand_int(100) < 50)
 					{
@@ -5585,7 +5923,103 @@ void build_special(int yval, int xval, int ymax, int xmax, cptr data)
 					}
 					break;
 				}
-			}
+
+                                /* Artifact or Object Kind*/
+                                case '1':       /* Artifact or Object Kind 1 */
+                                case '2':       /* Artifact or Object Kind 2 */
+                                case '3':       /* Artifact or Object Kind 3 */
+                                if(v_ptr->item[*t - '1'] < 1000)
+                                {
+                                        artifact_type   *a_ptr = &a_info[v_ptr->item[*t - '1']];
+					object_type     forge;
+					object_type     *q_ptr;
+					object_type     *o_ptr;
+					
+					s16b            o_idx;
+					int             k_idx;
+					
+					q_ptr = &forge;
+					object_wipe(q_ptr);
+					k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+					object_prep(q_ptr, k_idx);
+                                        q_ptr->name1 = v_ptr->item[*t - '1'];
+
+                                        /* Extract the other fields */
+                                        q_ptr->pval = a_ptr->pval;
+                                        q_ptr->ac = a_ptr->ac;
+                                        q_ptr->dd = a_ptr->dd;
+                                        q_ptr->ds = a_ptr->ds;
+                                        q_ptr->to_a = a_ptr->to_a;
+                                        q_ptr->to_h = a_ptr->to_h;
+                                        q_ptr->to_d = a_ptr->to_d;
+                                        q_ptr->weight = a_ptr->weight;
+
+                                        o_idx = o_pop();
+					o_ptr = &o_list[o_idx];
+					object_copy(o_ptr,q_ptr);
+					o_ptr->iy = y;
+					o_ptr->ix = x;
+					c_ptr = &cave[y][x];
+					o_ptr->next_o_idx = c_ptr->o_idx;
+					c_ptr->o_idx = o_idx;
+
+					break;
+				}
+                                else
+                                {
+					object_type     forge;
+					object_type     *q_ptr;
+					object_type     *o_ptr;
+					
+					s16b            o_idx;
+                                        int             k_idx = v_ptr->item[*t - '1'] - 1000;
+
+					q_ptr = &forge;
+					object_wipe(q_ptr);
+					object_prep(q_ptr, k_idx);
+
+                                        apply_magic(q_ptr, v_ptr->lvl, TRUE, TRUE, FALSE);
+
+                                        o_idx = o_pop();
+					o_ptr = &o_list[o_idx];
+					object_copy(o_ptr,q_ptr);
+					o_ptr->iy = y;
+					o_ptr->ix = x;
+					c_ptr = &cave[y][x];
+					o_ptr->next_o_idx = c_ptr->o_idx;
+					c_ptr->o_idx = o_idx;
+
+					break;
+                                }
+
+                        /* Between gates */
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case 'A':
+                        case 'B':
+                        case 'C':
+                        case 'E':
+                        case 'F':
+                        case '0':
+                                /* Not found before */
+                                if(bwy[*t - '0'] == 9999)
+                                {
+                                        cave_set_feat(y, x, FEAT_BETWEEN);
+                                        bwy[*t - '0'] = y;
+                                        bwx[*t - '0'] = x;
+                                }
+                                /* The second time */
+                                else
+                                {
+                                        cave_set_feat(y, x, FEAT_BETWEEN);
+					c_ptr = &cave[y][x];
+                                        c_ptr->special = bwx[*t - '0'] + (bwy[*t - '0'] << 8);
+                                        cave[bwy[*t - '0']][bwx[*t - '0']].special = x + (y << 8);
+                                }
+                                break;
+                	}
 		}
 	}
 }
@@ -5601,13 +6035,27 @@ void build_special_level(void)
         for (i=1;i<max_v_idx;i++)
 	{
 		v_ptr = &v_info[i];
-		if (v_ptr->lvl == dun_level)
+                if ((v_ptr->lvl == dun_level) && (v_ptr->dun_type == dungeon_type))
 			break;
 	}
        
 	build_special(33,99,v_ptr->hgt,v_ptr->wid,v_text + v_ptr->text);
+}
 
+/*
+ * Give some magical energy to the each grid of the level
+ */
+void generate_grid_mana()
+{
+        int y, x;
 
+        for(y = 0; y < cur_hgt; y++)
+                for(x = 0; x < cur_wid; x++)
+                {
+                        cave_type *c_ptr = &cave[y][x];
+
+                        c_ptr->mana = m_bonus(255, dun_level);
+                }
 }
 
 
@@ -5626,6 +6074,13 @@ void generate_cave(void)
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
+        /* Allocate and Wipe the to keep monster list */
+        C_MAKE(km_list, max_m_idx, monster_type);
+
+        /* Save the imprinted monsters */
+        save_all_friends();
+        wipe_m_list();
+
         /* Seed the RNG if appropriate */
         if (seed_dungeon) {
           Rand_quick = TRUE;
@@ -5642,7 +6097,6 @@ void generate_cave(void)
 
 		/* XXX XXX XXX XXX */
 		o_max = 1;
-		m_max = 1;
 
 		/* Start with a blank cave */
 		for (y = 0; y < MAX_HGT; y++)
@@ -5663,6 +6117,9 @@ void generate_cave(void)
 
 				/* No mimic */
 				cave[y][x].mimic = 0;
+
+                                /* No inscription */
+                                cave[y][x].inscription = 0;
 
 #ifdef MONSTER_FLOW
 				/* No flow */
@@ -5709,6 +6166,37 @@ void generate_cave(void)
 			arena_gen();
 		}
 
+                /* Build a special level */
+                else if (spec_history[(dun_level - d_info[dungeon_type].mindepth < 0)?0:dun_level - d_info[dungeon_type].mindepth][dungeon_type] == 1)
+                {
+                        int x,y;
+                        /* wipe all cave to permanant rock */
+     
+                        /* Big dungeon */
+                        cur_hgt = MAX_HGT;
+                        cur_wid = MAX_WID;
+
+                        /* Determine number of panels */
+                        max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+                        max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+
+                        /* Assume illegal panel */
+                        panel_row = max_panel_rows;
+                        panel_col = max_panel_cols;
+       
+                        for (y = 0; y < cur_hgt; y++)
+                        {
+                                for (x = 0; x < cur_wid; x++)
+                                {
+                                        cave_type *c_ptr =&cave[y][x];
+                                        c_ptr->feat = FEAT_PERM_INNER;
+                                }
+                        }
+                        build_special_level();
+                        spec_history[(dun_level - d_info[dungeon_type].mindepth < 0)?0:dun_level - d_info[dungeon_type].mindepth][dungeon_type] = 2;
+                        special_flag = TRUE;
+                }
+
 		/* Quest levels -KMW- */
 		else if (p_ptr->inside_quest)
 		{
@@ -5737,41 +6225,30 @@ void generate_cave(void)
 			wilderness_gen(0);
 		}
 
-                /* Build a special level */
-                else if (p_ptr->spec_history[dun_level] == 1)
-                {
-                        int x,y;
-                        /* wipe all cave to permanant rock */
-      
-				/* Big dungeon */
-				cur_hgt = MAX_HGT;
-				cur_wid = MAX_WID;
-
-				/* Determine number of panels */
-				max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
-
-				/* Assume illegal panel */
-                                panel_row = max_panel_rows;
-				panel_col = max_panel_cols;
-       
-                        for (y=0;y<cur_hgt;y++)
-                        {
-                                for (x=0;x>cur_wid;x++)
-                                {
-                                        cave_type *c_ptr =&cave[y][x];
-                                        c_ptr->feat = FEAT_PERM_INNER;
-                                }
-                        }
-                        build_special_level();
-                        p_ptr->spec_history[dun_level] = 2;
-                        special_flag = TRUE;
-                }
-
 		/* Build a real level */
 		else
 		{
-                        if (((randint(SMALL_LEVEL)==1) && small_levels)||always_small_level)
+                        if ((d_info[dungeon_type].flags1 & DF1_SMALLEST) && (!(d_info[dungeon_type].flags1 & DF1_BIG)))
+                        {
+                                if ((cheat_room)||(p_ptr->precognition))
+					msg_print ("A 'small' dungeon level.");
+
+                                cur_hgt = SCREEN_HGT;
+                                cur_wid = SCREEN_WID;
+
+				/* Determine number of panels */
+                                max_panel_rows = 1;
+                                max_panel_cols = 1;
+
+				/* Assume illegal panel */
+				panel_row = max_panel_rows;
+				panel_col = max_panel_cols;
+
+				if (cheat_room)
+                                        msg_format("X:1, Y:1.");
+                        }
+                        else if ((((randint(SMALL_LEVEL)==1) && small_levels) || always_small_level ||
+                            (d_info[dungeon_type].flags1 & DF1_SMALL)) && (!(d_info[dungeon_type].flags1 & DF1_BIG)))
 			{
                                 if ((cheat_room)||(p_ptr->precognition))
 					msg_print ("A 'small' dungeon level.");
@@ -5892,9 +6369,15 @@ void generate_cave(void)
 		/* Wipe the objects */
 		wipe_o_list();
 
-		/* Wipe the monsters */
-		wipe_m_list();
+                /* Wipe the monsters */
+                wipe_m_list();
 	}
+
+        /* Put the kept monsters -- DG */
+        replace_all_friends();
+
+        /* Give some mana to each grid -- DG */
+        generate_grid_mana();
 
 #ifdef USE_PYTHON
         perform_event(EVENT_GENERATE_LVL, Py_BuildValue("(i)", dun_level));
@@ -5909,4 +6392,7 @@ void generate_cave(void)
         if (seed_dungeon) {
           Rand_quick = FALSE;
         }
+
+        /* Deallocate and Wipe the to keep monster list */
+        C_FREE(km_list, max_m_idx, monster_type);
 }

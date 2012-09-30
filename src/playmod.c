@@ -241,7 +241,6 @@ set_func setter_functions[] =
 	{ "image", set_image },
 	{ "fast", set_fast },
 	{ "slow", set_slow },
-	{ "shield", set_shield },
 	{ "blessed", set_blessed },
 	{ "hero", set_hero },
 	{ "shero", set_shero },
@@ -372,7 +371,7 @@ static int Player_setattr(PlayerObject *self, char *name, PyObject *v)
  */
 staticforward PyTypeObject Player_Type =
 {
-	PyObject_HEAD_INIT(&PyType_Type)	/* Standard stuff */
+        PyObject_HEAD_INIT(NULL)                /* Standard stuff */
 	0,					/* Size */
 	"Player",				/* Name */
 	sizeof(PlayerObject),			/* Basic Size */

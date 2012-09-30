@@ -37,10 +37,13 @@ W:F:2:1:0:2:0:Gondolin
 W:F:5:1:0:3:0:Minas Anor
 
 # Town 4
-W:F:6:7:4:4:0:Menegroth
+W:F:6:7:4:4:0:Lothlorien
 
 # Volcano
 W:F:V:7:4:5:0:Volcano
+
+# Sea
+W:F:N:7:4:6:0:Sea
 
 # Grassland with road east-west-south
 W:F:-:6:3:0:14
@@ -54,10 +57,10 @@ W:D:##########
 W:D:#GGGGMVMM#
 W:D:#GGG5GGMM#
 W:D:#GGG|GGGG#
-W:D:#GGG1-2GG#
-W:D:#GGFF|FGG#
-W:D:#WSFF6FFS#
-W:D:#WWSSSSSS#
+W:D:#WNG1-2GG#
+W:D:#WSFF|FGG#
+W:D:#WWFF6FFS#
+W:D:#WWWSSSSS#
 W:D:#WWWWWWWW#
 W:D:##########
 

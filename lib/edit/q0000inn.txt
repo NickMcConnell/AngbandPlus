@@ -5,7 +5,7 @@
 Q:24:N:Vapor Quest
 
 # Definition
-Q:24:Q:6:0:0:0:25:135:0
+Q:24:Q:6:0:0:0:25:135:0:6
 
 # Description for quest
 ?:[LEQ $QUEST24 2]
@@ -25,6 +25,11 @@ Q:24:T:dangerous creatures are often nearby.  Perhaps this is an ill
 Q:24:T:omen of dangers yet to come...  We may be in need of your services
 Q:24:T:again soon; the gift waiting outside may help you detect what
 Q:24:T:evils plague this land.
+?:1
+
+# Description for quest failed
+?:[EQU $QUEST24 5]
+Q:24:T:I've sent out someone else to do the job.  Now leave me alone!
 ?:1
 
 # Floor with Space Monster

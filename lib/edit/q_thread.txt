@@ -7,7 +7,7 @@
 Q:30:N:Fight against a threadfall
 
 # type:num_mon:cur_num:max_num:level:r_index:k_idx
-Q:30:Q:6:0:0:0:50:960:0
+Q:30:Q:6:0:0:0:50:960:0:6
 
 # Description for quest
 ?:[LEQ $QUEST30 2]

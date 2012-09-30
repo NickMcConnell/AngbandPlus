@@ -1392,14 +1392,15 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	}
 
 	/* Races */
-        if((!p_ptr->mimic_form)&&(!p_ptr->body_monster))
-	switch (p_ptr->prace)
-	{
-	case RACE_ELF:
-		(*f2) |= (TR2_RES_LITE);
-		break;
-	case RACE_HOBBIT:
-		(*f2) |= (TR2_SUST_DEX);
+        if ((!p_ptr->mimic_form) && (!p_ptr->body_monster))
+        {
+        switch (p_ptr->prace)
+        {
+        case RACE_ELF:
+                (*f2) |= (TR2_RES_LITE);
+                break;
+        case RACE_HOBBIT:
+                (*f2) |= (TR2_SUST_DEX);
 		break;
 	case RACE_GNOME:
 		(*f2) |= (TR2_FREE_ACT);
@@ -1532,7 +1533,9 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	default:
 		; /* Do nothing */
 	}
+        }
         else if(p_ptr->mimic_form)
+        {
         switch(p_ptr->mimic_form)
         {
                 case MIMIC_GOAT:
@@ -1721,6 +1724,27 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
                         (*f2) |= TR2_IM_ACID;
                         break;
                 }
+
+                case MIMIC_WEREWOLF:
+                {
+                        (*f3) |= TR3_REGEN;
+                        (*f3) |= TR3_AGGRAVATE;
+                        break;
+                }
+                case MIMIC_BALROG:
+                {
+                        (*f2) |= TR2_IM_ACID;
+                        (*f2) |= TR2_IM_ELEC;
+                        (*f2) |= TR2_IM_FIRE;
+                        (*f2) |= TR2_RES_POIS;
+                        (*f2) |= TR2_RES_DARK;
+                        (*f2) |= TR2_RES_CHAOS;
+                        (*f2) |= TR2_HOLD_LIFE;
+                        (*f3) |= TR3_FEATHER;
+                        (*f3) |= TR3_REGEN;
+                        break;
+                }
+        }
         }
         else
         {
@@ -1812,6 +1836,93 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 				(*f2) |= TR2_SUST_CHR;
 		}
 	}
+
+        /* Gods */
+        if(interpret_grace() > 7)
+        {
+                int good = interpret_grace() - 7;
+
+                switch(p_ptr->pgod)
+                {
+                        case GOD_YAVANNA:
+                                (*f2) |= TR2_RES_COLD;
+                                if(good > 2)
+                                        (*f2) |= TR2_IM_COLD;
+                                break;
+                        case GOD_ULMO:
+                                (*f3) |= TR3_SLOW_DIGEST;
+                                if(good > 1)
+                                        (*f2) |= TR2_RES_POIS;
+                                if(good > 2)
+                                        (*f2) |= TR2_RES_SOUND;
+                        case GOD_AULE:
+                                (*f3) |= TR3_FEATHER;
+                                (*f2) |= TR2_FREE_ACT;
+                                if(good > 1)
+                                        (*f3) |= TR3_REGEN;
+                                if(good > 2)
+                                        (*f2) |= TR2_RES_SHARDS;
+                        case GOD_MELKOR:
+                                (*f3) |= TR3_AGGRAVATE;
+                                (*f2) |= TR2_RES_DARK;
+                                (*f2) |= TR2_SUST_STR;
+                                (*f2) |= TR2_SUST_CON;
+                                (*f2) |= TR2_HOLD_LIFE;
+                                if(good > 1)
+                                {
+                                        (*f3) |= TR3_SEE_INVIS;
+                                        (*f3) |= TR3_TELEPATHY;
+                                }
+                                if(good > 2)
+                                {
+                                        (*f2) |= TR2_RES_DISEN;
+                                        (*f2) |= TR2_RES_CHAOS;
+                                }
+                                break;
+                        case GOD_TILION:
+                                (*f3) |= TR3_LITE;
+                                if(good > 1)
+                                        (*f2) |= TR2_RES_DARK;
+                                if(good > 2)
+                                        (*f2) |= TR2_HOLD_LIFE;
+                        case GOD_ARIEN:
+                                (*f3) |= TR3_LITE;
+                                if(good > 1)
+                                        (*f2) |= TR2_RES_LITE;
+                                if(good > 2)
+                                        (*f3) |= TR3_REGEN;
+                        case GOD_TULKAS:
+                                if(good > 2)
+                                {
+                                        (*f2) |= TR2_FREE_ACT;
+                                        (*f2) |= TR2_RES_BLIND;
+                                        (*f2) |= TR2_RES_CONF;
+                                }
+                        case GOD_MANWE:
+                                (*f2) |= TR2_SUST_DEX;
+                                (*f2) |= TR2_RES_SOUND;
+                                (*f2) |= TR2_FREE_ACT;
+                        case GOD_VARDA:
+                                (*f2) |= TR2_SUST_INT;
+                                (*f2) |= TR2_SUST_WIS;
+                                (*f3) |= TR3_TELEPATHY;
+                                if(good > 2)
+                                {
+                                        (*f2) |= TR2_RES_BLIND;
+                                        (*f2) |= TR2_RES_CONF;
+                                        (*f2) |= TR2_RES_FEAR;
+                                }
+                        case GOD_ERU:
+                                (*f3) |= TR3_REGEN;
+                                (*f3) |= TR3_LITE;
+                        case GOD_RNG:
+                                (*f3) |= TR3_SLOW_DIGEST;
+                                if(good > 1)
+                                        (*f2) |= TR2_RES_POIS;
+                                if(good > 2)
+                                        (*f2) |= TR2_RES_SOUND;
+                }
+        }
 }
 
 
@@ -2925,9 +3036,11 @@ errr file_character(cptr name, bool full)
 	else
 		fprintf(fff, "\n Autoscum:           OFF");
 
-	if (small_levels)
+        if(always_small_level)
+                fprintf(fff, "\n Small Levels:       ALWAYS");
+        else if (small_levels)
 		fprintf(fff, "\n Small Levels:       ON");
-	else
+        else
 		fprintf(fff, "\n Small Levels:       OFF");
 
 	if (empty_levels)
@@ -2940,12 +3053,18 @@ errr file_character(cptr name, bool full)
 	else
                 fprintf(fff, "\n Vanilla Town:       OFF");
 
+        if (seed_dungeon)
+                fprintf(fff, "\n Persistent Dungeons:       ON");
+	else
+                fprintf(fff, "\n Persistent Dungeons:       OFF");
+
         fprintf(fff, "\n Recall Depth:");
-        for (y = 1; y < MAX_DUNGEONS; y++)
+        for (y = 1; y < 16; y++)
         {
-                fprintf(fff, "\n        %s: Level %d (%d')",
-                        dungeon_info[y].short_name,
-                        p_ptr->max_dlv[y], 50 * (p_ptr->max_dlv[y]));
+                if(d_info[y].maxdepth)
+                        fprintf(fff, "\n        %s: Level %d (%d')",
+                                d_name + d_info[y].name,
+                                p_ptr->max_dlv[y], 50 * (p_ptr->max_dlv[y]));
         }
         fprintf(fff, "\n");
 
@@ -3163,7 +3282,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	char buf[1024];
 
 	/* Sub-menu information */
-	char hook[10][32];
+        char hook[10][32];
 
 
 	/* Wipe finder */
@@ -3176,7 +3295,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	strcpy(caption, "");
 
 	/* Wipe the hooks */
-	for (i = 0; i < 10; i++) hook[i][0] = '\0';
+        for (i = 0; i < 10; i++) hook[i][0] = '\0';
 
 
 	/* Hack XXX XXX XXX */
@@ -3199,7 +3318,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		sprintf(caption, "Help file '%s'", name);
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_HELP, name);
+                path_build(path, 1024, ANGBAND_DIR_HELP, name);
 
 		/* Open the file */
 		fff = my_fopen(path, "r");
@@ -3213,6 +3332,19 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 		/* Build the filename */
 		path_build(path, 1024, ANGBAND_DIR_INFO, name);
+
+		/* Open the file */
+		fff = my_fopen(path, "r");
+	}
+
+        /* Look in "file" */
+	if (!fff)
+	{
+		/* Caption */
+                sprintf(caption, "File '%s'", name);
+
+		/* Build the filename */
+                path_build(path, 1024, ANGBAND_DIR_FILE, name);
 
 		/* Open the file */
 		fff = my_fopen(path, "r");
@@ -3763,13 +3895,113 @@ void do_cmd_save_game(void)
  */
 long total_points(void)
 {
+#if 0   /* Old calculation */
         s16b max_dlv = 0, i;
 
-        for(i = 0; i < MAX_DUNGEONS; i++)
+        for(i = 0; i < max_d_idx; i++)
                 if(p_ptr->max_dlv[i] > max_dlv)
                         max_dlv = p_ptr->max_dlv[i];
 
         return (p_ptr->max_exp + (100 * max_dlv));
+#else   /* New calculation */
+        s16b max_dlv = 0, i, k;
+        long temp, Total = 0;
+        long mult = 100;
+	
+	if (p_ptr->preserve) mult -= 10; /* Penalize preserve, maximize modes */
+	if (p_ptr->maximize) mult -= 15;
+        if (auto_scum) mult -= 50;
+	if (stupid_monsters) mult -= 50;
+	if (vanilla_town)    mult += 30; /* Vanilla town is harder */
+        if (small_levels)    mult += ((always_small_level) ? 20 : 50);
+	if (empty_levels)    mult += 10;
+        if (water_levels)    mult += 10; /* Watter levels are generaly harder */
+	if (smart_learn) mult += 20;
+	if (smart_cheat) mult += 20;	
+ 
+	if (mult < 10) mult = 10; /* At least 10% of the original score */
+		
+        for (i = 0; i < max_d_idx; i++)
+                if(p_ptr->max_dlv[i] > max_dlv)
+                        max_dlv = p_ptr->max_dlv[i];
+
+        temp = p_ptr->lev * p_ptr->lev * p_ptr->lev * p_ptr->lev + (100 * max_dlv);
+
+        temp += p_ptr->max_exp / 5;
+
+        temp += p_ptr->au / 5;
+	
+        temp = (temp * mult / 100);
+
+        /* Completing quest increase score */
+        for (i = 0; i < max_quests; i++)
+        {
+                if (quest[i].status >= QUEST_STATUS_COMPLETED)
+                {
+                        temp += 2000;
+                        temp += quest[i].level * 100;
+                }
+        }
+
+        /* The know objects increase the score */
+	/* Scan the object kinds */
+	for (k = 1; k < max_k_idx; k++)
+	{
+		object_kind *k_ptr = &k_info[k];
+
+		/* Hack -- skip artifacts */
+		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+
+		/* List known flavored objects */
+		if (k_ptr->flavor && k_ptr->aware)
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Create fake object */
+			object_prep(i_ptr, k);
+
+                        temp += object_value_real(i_ptr);
+                }
+	}
+
+        for (k = 1; k < max_r_idx-1; k++)
+        {
+                monster_race *r_ptr = &r_info[k];
+
+                if (r_ptr->flags1 & (RF1_UNIQUE))
+                {
+                        bool dead = (r_ptr->max_num == 0);
+
+                        if (dead)
+                        {
+                                /* Uniques are supposed to be harder */
+                                Total += 50;
+                        }
+                }
+                else
+                {
+                        s16b This = r_ptr->r_pkills;
+
+                        if (This > 0)
+                        {
+                                Total += This;
+                        }
+                }
+        }
+        temp += Total * 50;
+
+        temp += total_bounties * 100;
+
+        if (total_winner) temp += 1000000;
+
+
+
+	return (temp);
+#endif
 }
 
 
@@ -3791,6 +4023,67 @@ static void center_string(char *buf, cptr str)
 	(void)sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
 }
 
+/*
+ * Gets a personalized string for ghosts.  Code originally from get_name. -LM-
+ */
+static char *get_personalized_string()
+{
+	static char tmp[80];
+	byte n, i;
+
+	/* Clear last line */
+	clear_from(15);
+
+	/* Prompt and ask */
+        prt("Enter a description for your ghost, or hit ESCAPE.", 15, 8);
+
+	prt("(79 characters maximum.  Entry will be used as (a) sentence(s).)", 16, 8);
+
+	/* Ask until happy */
+	while (1)
+	{
+		/* Start at beginning of field. */
+		move_cursor(14, 0);
+
+		/* Get an input */
+		(void)askfor_aux(tmp, 79);
+
+		/* All done */
+		break;
+	}
+
+	/* Pad the string (to clear junk and allow room for a ending) */
+	sprintf(tmp, "%-80.80s", tmp);
+
+	/* Ensure that strings end like a sentence, and neatly clip the string. */
+	for (n = 80;; n--)
+	{
+		if ((tmp[n] == NULL) || (tmp[n] == ' ') ||(tmp[n] == '\0')) continue;
+		else
+		{
+			if ((tmp[n] == '!') || (tmp[n] == '.') || (tmp[n] == '?'))
+			{
+				tmp[n + 1] = '\0';
+				for (i = n + 2; i < 80; i++) tmp[i] = NULL;
+				break;
+			}
+			else 
+			{
+				tmp[n + 1] = '.';
+				tmp[n + 2] = '\0';
+				for (i = n + 3; i < 80; i++) tmp[i] = NULL;
+				break;
+			}
+		}
+	}
+
+	/* Start the sentence with a capital letter. */
+	if (islower(tmp[0])) tmp[0] = toupper(tmp[0]);
+
+	/* Return the string */
+	return tmp;
+}
+
 
 /*
  * Save a "bones" file for a dead character
@@ -3800,23 +4093,24 @@ static void center_string(char *buf, cptr str)
  *
  * Should probably attempt some form of locking...
  */
-static void make_bones(void)
+void make_bones(byte used)
 {
 	FILE                *fp;
 
 	char                str[1024];
+        char desc[4*80];
+        byte friend = FALSE;
 
+        object_type *o_ptr;
 
-	/* Ignore wizards and borgs */
-	if (!(noscore & 0x00FF))
+        /* Ignore wizards, borgs and cheaters */
+        if (!noscore)
 	{
-		/* Ignore people who die in town */
-		if (dun_level)
-		{
-			char tmp[128];
+                        char tmp[128];
+                        s16b max_dlv = 0, i;
 
 			/* XXX XXX XXX "Bones" name */
-			sprintf(tmp, "bone.%03d", dun_level);
+                        sprintf(tmp, "%s.bne", player_base);
 
 			/* Build the filename */
 			path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
@@ -3838,16 +4132,66 @@ static void make_bones(void)
 
 			/* Not allowed to write it?  Weird. */
 			if (!fp) return;
+		
+                        for (i = 0; i < max_d_idx; i++)
+                                if(p_ptr->max_dlv[i] > max_dlv)
+                                        max_dlv = p_ptr->max_dlv[i];
+
+                        if(get_check("Do you want the player monster to be friendly ?")) friend = TRUE;
+
+                        /* Ask for a description */
+                        sprintf(desc, "%s", get_personalized_string());
+
+                        i = 0;
+                        while(i < 320)
+                        {
+                                if(desc[i] == ' ') desc[i] = '_';
+                                i++;
+                        }
 
 			/* Save the info */
 			fprintf(fp, "%s\n", player_name);
-			fprintf(fp, "%d\n", p_ptr->mhp);
+                        fprintf(fp, "%d\n", p_ptr->psex);
 			fprintf(fp, "%d\n", p_ptr->prace);
 			fprintf(fp, "%d\n", p_ptr->pclass);
+                        fprintf(fp, "%s\n", desc);
+                        fprintf(fp, "%d\n", friend);
+			fprintf(fp, "%d\n", p_ptr->mhp);
+                        fprintf(fp, "%d\n", p_ptr->msp);
+                        fprintf(fp, "%d\n", max_dlv);
+                        fprintf(fp, "%ld\n", p_ptr->max_exp);
+                        fprintf(fp, "%d\n", p_ptr->lev);
+                        fprintf(fp, "%d\n", p_ptr->ac);
+                        fprintf(fp, "%d\n", p_ptr->to_a);
+                        fprintf(fp, "%d\n", p_ptr->to_h);
+                        fprintf(fp, "%d\n", p_ptr->to_d);
+                        fprintf(fp, "%d\n", p_ptr->invis);
+                        fprintf(fp, "%d\n", p_ptr->regenerate);
+                        fprintf(fp, "%d\n", p_ptr->ffall);
+                        fprintf(fp, "%d\n", p_ptr->pspeed);
+                        fprintf(fp, "%d\n", p_ptr->resist_acid);
+                        fprintf(fp, "%d\n", p_ptr->resist_elec);
+                        fprintf(fp, "%d\n", p_ptr->resist_pois);
+                        fprintf(fp, "%d\n", p_ptr->resist_fire);
+                        fprintf(fp, "%d\n", p_ptr->resist_cold);
+                        fprintf(fp, "%d\n", p_ptr->resist_conf);
+                        fprintf(fp, "%d\n", p_ptr->resist_lite);
+                        fprintf(fp, "%d\n", p_ptr->resist_dark);
+                        fprintf(fp, "%d\n", p_ptr->resist_fear);
+                        fprintf(fp, "%d\n", p_ptr->resist_chaos);
+                        fprintf(fp, "%d\n", p_ptr->resist_disen);
+                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].k_idx);
+                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].name2);
+                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].name1);
+                        o_ptr = &inventory[INVEN_WIELD];
+                        fprintf(fp, "%dd%d%s%d\n", p_ptr->num_blow * o_ptr->dd, o_ptr->ds,
+                                (o_ptr->to_d < 0 ? "":"+"), p_ptr->num_blow * o_ptr->to_d);
+                        fprintf(fp, "%d\n", p_ptr->num_blow);
+                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].dd);
+                        fprintf(fp, "%d\n", inventory[INVEN_WIELD].ds);
 
 			/* Close and save the Bones file */
 			my_fclose(fp);
-		}
 	}
 }
 
@@ -5051,7 +5395,7 @@ void close_game(void)
 		if (!save_player()) msg_print("death save failed!");
 
 		/* Dump bones file */
-		make_bones();
+                if(total_points() >= 8700000) make_bones(FALSE);
 
 		/* You are dead */
 		print_tomb();
@@ -5176,7 +5520,7 @@ errr get_rnd_line(char * file_name, char * output)
 	return (0);
 }
 
-cptr get_line(char* fname, int line) {
+cptr get_line(char* fname, char* fdir, int line) {
   FILE* fp;
   static char buf[1024];
   int i;
@@ -5184,7 +5528,7 @@ cptr get_line(char* fname, int line) {
   line++;
 
   /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_FILE, fname);
+  path_build(buf, 1024, fdir, fname);
 
   /* Open the file */
   fp = my_fopen(buf, "r");
@@ -5201,6 +5545,93 @@ cptr get_line(char* fname, int line) {
 
   my_fclose(fp);
   return buf;
+}
+
+/* MG's PATCH */
+errr get_xtra_line(char * file_name, monster_type *m_ptr, char * output)
+{
+	FILE        *fp;
+	char	buf[1024];
+        int     line,counter,mnum=m_ptr->r_idx,test,numentries=0,flag=0;
+
+	/* test and DEBUG hack */
+	if (wizard && cheat_xtra)
+	{
+		 msg_print(file_name);
+	}
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_FILE, file_name);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Failed */
+	if (!fp) return (-1);
+while(flag==0)
+{
+        if(my_fgets(fp,buf,90)!=0)
+	{
+		flag=-1;
+		break;
+	}
+        else if(buf[0]!='N')
+		continue;
+        else
+	{
+		buf[0]=buf[1]=' ';
+		sscanf(buf,"%d",&test);
+		if(test==mnum)
+			flag=1;
+		else
+			continue;
+	}
+}
+while(flag==1)
+{
+	my_fgets(fp,buf,90);
+	if(buf[0]!='N')
+	{
+		numentries=atoi(buf);
+		break;
+	}
+}
+if(flag==-1)
+{
+	my_fclose(fp);
+	return -1;
+}
+if(m_ptr->monfear)
+{
+	for(line=0;line<numentries+1;line++)
+		my_fgets(fp,buf,90);
+	numentries=atoi(buf);
+}
+
+
+	/* grab an appropriate line number... */
+	line = randint(numentries)-1;
+
+	/* test and DEBUG hack */
+	if (wizard && cheat_xtra)
+	{
+       		 sprintf(buf,"Line number %d",line);
+		 msg_print(buf);
+	}
+	for (counter = 0; counter <= line; counter++)
+	{
+		if (!(0 == my_fgets(fp, buf, 90)))
+			return (1);
+		else if (counter == line)
+			break;
+	}
+
+	strcpy(output, buf);
+
+	/* Close the file */
+	my_fclose(fp);
+
+	return (0);
 }
 
 #ifdef HANDLE_SIGNALS

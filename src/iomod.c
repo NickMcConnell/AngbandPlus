@@ -164,7 +164,7 @@ static PyObject *iousleep(PyObject *self, PyObject *args)
 		return NULL;
 
 	/* Sleep */
-	usleep(usecs);
+        Term_xtra(TERM_XTRA_DELAY, usecs / 10000);
 
 	/* Return nothing */
 	Py_INCREF(Py_None);

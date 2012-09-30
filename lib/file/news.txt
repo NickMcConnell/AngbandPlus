@@ -1,7 +1,7 @@
 
-          ************************************************************
-          ** PernAngband 3.1.2  **  The Troubles of the Midle Earth **
-          ************************************************************
+            *********************************************************
+            ** PernAngband 4.0.0  **  The Troubles of Middle Earth **
+            *********************************************************
 
                "One Ring to find them all, One Ring to rule them
             One Ring to bring them all and in the darkness bind them

@@ -1,4 +1,4 @@
-345
+348
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 Live and let live, right..?
 AAAAAAAAARRRRRRRRRRRRRRGGGGGGGGGGGGGHHHHHHHHHHHHHHH!!!!!!!!!!!!
@@ -345,3 +345,6 @@ Running through your fingers like sand
 Taking us along to future unknown
 And all too sudden, like it or not
 We become part of the Land.
+Hah! I'm not dead yet.  I still have five hit points.
+I don't understand.  It should be dead by now.
+I rolled a 20.  How could that be a miss?

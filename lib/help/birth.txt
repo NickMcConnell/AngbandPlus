@@ -342,6 +342,11 @@ have intrinsic abilities.
                 do, Death Molds have the powers of Phase Door, targeted
                 teleportation, telekinesis, and controlled Teleport Level.
                 They also intrinsically resist Nexus and Nether.
+        Yeek
+                Yeeks are the less powerfull of all the races. They suffer
+                disadvantages in nearly all skills and attributes but to
+                compasate this they learn, and thus gain level, extremely
+                quick.
 
 === Classes ===
  
@@ -579,50 +584,61 @@ have intrinsic abilities.
                 one spell.
  
           Wizard
-               A wizard must live by his wits. He cannot hope to simply hack
-               his  way  through the dungeon, and so must therefore use his
-               magic to defeat,  deceive, confuse, and escape. A wizard  is
-               not really complete without an assortment of magical devices
-               to use in addition to his spells.  He can master the  higher
-               level  magical  devices far easier than anyone else, and has
-               the best saving throw to resist effects of  spells  cast  at
-               him.  Intelligence  and   Dexterity  are  his primary stats.
-               There is no rule that says a wizard  cannot  become  a  good
-               fighter, but spells are his true realm.
+                A wizard must live by his wits. He cannot hope to simply hack
+                his  way  through the dungeon, and so must therefore use his
+                magic to defeat,  deceive, confuse, and escape. A wizard  is
+                not really complete without an assortment of magical devices
+                to use in addition to his spells.  He can master the  higher
+                level  magical  devices far easier than anyone else, and has
+                the best saving throw to resist effects of  spells  cast  at
+                him.  Intelligence  and   Dexterity  are  his primary stats.
+                There is no rule that says a wizard  cannot  become  a  good
+                fighter, but spells are his true realm.
  
           Prior
-               A Prior is a character of holy devotion.  They explore  the
-               dungeon  only  to destroy the evil that lurks within, and if
-               treasure just happens to fall into  their  packs,  well,  so
-               much  more  to  the  glory of their church!  Priors receive
-               their spells from a deity, and therefore do not choose which
-               spells they will learn.  They are familiar with magical dev-
-               ices, preferring to call them instruments of  god,  but  are
-               not  as good as a mage in their use.  Priors have good sav-
-               ing throws,  and  make  decent  fighters,  preferring  blunt
-               weapons  over  edged  ones.  Wisdom  and  Charisma  are  the
-               Prior's primary stats.
+                A Prior is a character of holy devotion.  They explore  the
+                dungeon  only  to destroy the evil that lurks within, and if
+                treasure just happens to fall into  their  packs,  well,  so
+                much  more  to  the  glory of their church!  Priors receive
+                their spells from a deity, and therefore do not choose which
+                spells they will learn.  They are familiar with magical dev-
+                ices, preferring to call them instruments of  god,  but  are
+                not  as good as a mage in their use.  Priors have good sav-
+                ing throws,  and  make  decent  fighters,  preferring  blunt
+                weapons  over  edged  ones.  Wisdom  and  Charisma  are  the
+                Prior's primary stats.
 
         Possessor
-                This is a very special class, they have no magic power, they
-                aren't very good fighters, the only thing they can do is to
-                made their soul leave their body to come into an other. When
-                they control a monster's corpse they can use it's own magical
-                powers. Also when fighting monsters the four first blows are
-                the monster's ones. When a Possessor leave a corpse the corpse
-                won't decay and they become a soul with 1 hp no powers which
-                can't pick up objects and which can pass trought walls. In the
-                shape of the soul they go under their new corpse and incarnate
-                into.
+                Possessors are unusual; they aren't good fighters, and they
+                can't cast magic. Their only ability is that of being able to
+                leave their bodies and inhabit corpses. While "in" a corpse,
+                the Possessor gains the abilities of the monster, and their
+                hitpoints and the monster's are averaged. While in the
+                incorporeal form between bodies, they have only one hitpoint. 
 
-        Sorcerer
-                The Sorcerer is a pure magical class as the fighters are a
-                pure warrior class. They can wield any weapon useless it's a
-                Mage Staff and with it they are the WORSE fighters of the game
-                even bare-handed. But to compensate that they are the BEST
-                magical class: the can use any book of any realm without
-                having to learn the spell, but they also don't gain any
-                experience from casting a spell.
+        Sorceror
+                Sorcerors are to magic what warriors are to melee. They are
+                the all-around best magicians, being able to cast any spell
+                from any book without having to learn it. On the flip side,
+                they are the worst fighters, being unable to use any weapon
+                but a Mage Staff comfortably, and still unable to be anything
+                even remotely approaching affective with it. To compensate for
+                their ability to cast all spells, Sorcerors gain no experience
+                from casting new spells.
+
+        Archer
+                Archers are to bows what warriors are to melee. They are the
+                best class around with any bow/xbow/sling. Needing a lot of
+                ammo they will soon learn how to make them from some junk
+                found in the dungeons. they also gain at level 20 the unique
+                ability in angband of making their arrows/bolts/shots to
+                ricochet on the monsters !
+
+          Illusionist
+               An illusionist is a different faction of the Mage class. This
+               class believes more in confusing and tricking monsters rather
+               than outright damage spells. Besides this, the illusionist is
+               the same as the mage.
 
 === Stats ===
 
@@ -781,7 +797,7 @@ Ent           Yes     No      Yes     No      No      Yes     Yes     No
 RohanKnight   Yes     No      No      No      Yes     Yes     Yes     Yes
 DragonRider   Yes     No      No      No      Yes     Yes     Yes     No
 Death Mold    No      Yes     Yes     Yes     No      No      No      No
-
+Yeek          Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 
 
                      Mind-   High   Beast-  Alch-                       Power
@@ -807,32 +823,34 @@ Spectre       Yes     Yes     Yes    No      No    No      Yes    Yes   Yes
 Ent           No      No      Yes    Yes     Yes   No      Yes    No    No
 RohanKnigth   No      No      Yes    No      No    No      No     Yes   No
 DragonRider   No      Yes     Yes    Yes     No    No      No     Yes   No
-Death Mold    No      Yes     Yes    Yes     No    Yes     Yes    No    Yes
+Death Mold    No      Yes     Yes    Yes     No    No      Yes    No    Yes
+Yeek          Yes     Yes     Yes    Yes     Yes   No      Yes    Yes   No
 
-             Rune-                  Poss-  Sor-
-            crafter Wizard   Prior  essor cerer
-Human         Yes     Yes     Yes    Yes   Yes
-Half-Elf      Yes     Yes     Yes    Yes   Yes
-Elf           Yes     Yes     Yes    Yes   Yes
-Hobbit        No      Yes     No     No    No
-Gnome         No      Yes     Yes    No    Yes
-Dwarf         No      No      Yes    No    No
-Half-Orc      Yes     No      Yes    No    No
-Half-Troll    No      No      Yes    No    No
-Dunadan       Yes     Yes     Yes    Yes   Yes
-High-Elf      Yes     Yes     Yes    Yes   Yes
-Barbarian     Yes     No      Yes    No    Yes
-Half-Ogre     No      Yes     Yes    No    No
-Half-Giant    No      No      No     No    No
-Kobold        Yes     No      Yes    No    No
-Nibelung      No      Yes     Yes    No    No
-Dark Elf      Yes     Yes     Yes    Yes   Yes
-Vampire       Yes     Yes     Yes    Yes   Yes
-Spectre       Yes     Yes     Yes    Yes   Yes
-Ent           No      No      Yes    No    No
-RohanKnigth   Yes     No      No     No    Yes
-DragonRider   Yes     No      No     No    Yes
-Death Mold    No      Yes     Yes    Yes   No
+             Rune-                  Poss-  Sor-         Illu-
+            crafter Wizard   Prior  essor ceror Archer sionist
+Human         Yes     Yes     Yes    Yes   Yes   Yes     Yes
+Half-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes
+Elf           Yes     Yes     Yes    Yes   Yes   Yes     Yes
+Hobbit        No      Yes     No     No    No    Yes     Yes
+Gnome         No      Yes     Yes    No    Yes   No      Yes
+Dwarf         No      No      Yes    No    No    No      No
+Half-Orc      Yes     No      Yes    No    No    No      No
+Half-Troll    No      No      Yes    No    No    No      No
+Dunadan       Yes     Yes     Yes    Yes   Yes   Yes     Yes
+High-Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes
+Barbarian     Yes     No      Yes    No    Yes   No      No
+Half-Ogre     No      Yes     Yes    No    No    No      No
+Half-Giant    No      No      No     No    No    No      No
+Kobold        Yes     No      Yes    No    No    No      Yes
+Nibelung      No      Yes     Yes    No    No    No      Yes
+Dark Elf      Yes     Yes     Yes    Yes   Yes   Yes     Yes
+Vampire       Yes     Yes     Yes    Yes   Yes   No      Yes
+Spectre       Yes     Yes     Yes    Yes   Yes   No      No
+Ent           No      No      Yes    No    No    No      No
+RohanKnigth   Yes     No      No     No    Yes   Yes     Yes
+DragonRider   Yes     No      No     No    Yes   Yes     No
+Death Mold    No      Yes     Yes    No    Yes   No      No
+Yeek          Yes     Yes     Yes    Yes   Yes   Yes     Yes
 
 
 
@@ -876,11 +894,11 @@ are listed in the following table.
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
            Vampire     +3   +3   -1   -1   +1   +2      11         +100%
            Spectre     -5   +4   +4   +2   -3   -6       7         +80%
-           Ent         +10  -3   +2   -5   +11  -3      12         +70%
-           RohanKnight +4   -2   +3   +1   +4   +2      10         +100%
-           DragonRider +6   +3   -10   0   +6   +8      15         +230%
-           Death Mold  +20  +20  +20  +20  +20  +20     15         +0%
-
+           Ent         +10  -3   +2   -5   +11  -3      12         +110%
+           RohanKnight +4   -2   +3   +1   +4   +2      10         +120%
+           DragonRider +6   +3   -10   0   +6   +8      15         +300%
+           Death Mold  +15  +5   +10  +0   +10  -5      15         +150%
+           Yeek        -5   -5   -5   -5   -5   -5       6         -75% 
 
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -904,7 +922,9 @@ are listed in the following table.
            Wizard        -5      +3       0      +1      -2      +1
            Prior         -1      -3      +3      -1       0      +2
            Possessor     +1      -2      -2      +1      +1       0
-           Sorcerer      -5      +6      +4      +2      -5      +1
+           Sorceror      -5      +6      +4      +2      -5      +1
+           Archer        +2      +1       0      +2      +1      +1
+           Illusionist   -5      +3       0      +1      -2      +1
  
 === Ability Tables (updated for 2.0.6) ===
 
@@ -933,6 +953,7 @@ are listed in the following table.
            RohanKnight  +10  +5   +5   -8   +1   +1   +5   +5     None
            DragonRider  +6    0   +10  -16  +30  +10  +15  +5     None
            Death Mold   +15  -5   +15  +25  +0   +10  +25  +25    10 feet
+           Yeek         -5   -5   -10  0    -5   0    -10  -10    20 feet
  
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
@@ -947,17 +968,19 @@ Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
 Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
 Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
 High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-BeastMaster     20+7    36+13   30+9    4       16/20   56+15   20+15   +10%
+BeastMaster     20+7    36+13   30+9    4       16/20   56+15   20+15   +20%
 Alchemist       30+7    60+30   10+9    2       26/20   34+15   30+15   +40%
-Mimic           10+11   11+13   30+9    22      26/20   64+25   40+25   +30%
+Mimic           10+11   11+13   30+9    22      26/20   64+25   40+25   +40%
 Symbiant        10+4    12+13   30+9    10      16/10   36+15   20+15   +20%
-Harper          10+8    16+13   20+12  -5       16/20   34+15   20+15   +30%
+Harper          10+8    16+13   20+12  -5       16/20   34+15   20+15   +50%
 Power Mage      20+7    36+13   30+9    2       16/20   14+7    10+7    +20%
 Runecrafter     15+7    36+13   20+9    6       16/30   20+7    18+7    +40%
 Wizard          30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
 Prior           25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
-Possessor       25+12   18+7    18+10   1       14/2    30+25   25+25   +30%
-Sorcerer        35+22   48+17   38+20   3       22/12   10+15   15+15   +50%
+Possessor       25+12   18+7    18+10   1       14/2    30+25   25+25   +40%
+Sorceror        35+22   48+17   38+20   3       22/12   10+15   15+15   +60%
+Archer          30+8    32+10   28+10   3       24/16   56+30   82+45   +30%
+Illusionist     30+7    36+13   30+9    2       16/20   34+15   20+15   +30%
 
 === Monks: Attack Types (2.0.6b)
 

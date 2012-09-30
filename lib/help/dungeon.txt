@@ -226,7 +226,7 @@ replaced by dirt. And finally from level 67 to 127 there is the Dungeon of
 Angband with normal walls and floor.
 
 Galgals are accessed by Bree.
-Mirkwood is accessed by Menegroth/Doriath.
+Mirkwood is accessed by Lothlorien.
 Mordor is accessed by Minas Anor.
 Angband is accessed by Gondolin.
 
@@ -238,6 +238,9 @@ created from the old big dungeon.
 For now (3.1.2) there is 2 other dungeons:
 The Volcano at the north east of Minas Anor, levels 30-45 with shallow/deep
 lava, dark pit and mountain.
+
+The lost ruins of Numenor at the west of Bree, levels 40-55 with shallow/deep
+water, some wall.
 
 And THE harder dungeon of the game:
 The Hell near the volcano, levels 500-530 with shallow/deep lava and dark pit.

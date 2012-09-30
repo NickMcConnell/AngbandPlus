@@ -1812,6 +1812,11 @@ void do_cmd_quaff_potion(void)
 			(void)do_res_stat(A_WIS);
 			(void)do_res_stat(A_INT);
 			(void)do_res_stat(A_CHR);
+                        if (p_ptr->black_breath)
+                        {
+                                msg_print("The hold of the Black Breath on you is broken!");
+                        }
+                        p_ptr->black_breath = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -2038,6 +2043,32 @@ void do_cmd_quaff_potion(void)
                         set_tim_invis(p_ptr->tim_invis + t);
 			break;
 		}
+                case SV_POTION_LEARNING:
+                {
+                        if((p_ptr->realm1) && (p_ptr->pclass != CLASS_SORCERER))
+                        {
+                                int i = p_ptr->new_spells;
+
+                                ident = TRUE;
+
+                                /* Hack force to learn */
+                                p_ptr->new_spells++;
+                                do_cmd_study();
+                                p_ptr->new_spells = i;
+
+                                /* This indicate the number of extra spell the player has learned */
+                                p_ptr->xtra_spells++;
+                        }
+                        else if (p_ptr->pclass != CLASS_SORCERER)
+                        {
+                                msg_print("You don't have to learn spells.");
+                        }
+                        else
+                        {
+                                msg_print("You can't learn any spell.");
+                        }
+                        break;
+                }
 	}
         else
 	switch (o_ptr->sval)
@@ -2358,33 +2389,70 @@ void do_cmd_read_scroll(void)
         if(o_ptr->tval==TV_SCROLL){
 	switch (o_ptr->sval)
 	{
-        case SV_SCROLL_RESET_RECALL:
-            {
-                /* Prompt */
-                sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dlv[dungeon_type]);
-
-                /* Default */
-                sprintf(tmp_val, "%d", MAX(dun_level,1));
-
-                /* Ask for a level */
-                if (!get_string(ppp, tmp_val, 10)) return;
-
-                /* Extract request */
-                dummy = atoi(tmp_val);
-
-                /* Paranoia */
-                if (dummy < 1) dummy = 1;
-
-                /* Paranoia */
-                if (dummy > p_ptr->max_dlv[dungeon_type]) dummy = p_ptr->max_dlv[dungeon_type];
-
-                /* Accept request */
-                msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50 );
+                case SV_SCROLL_SPELL:
+                        cast_spell(o_ptr->pval, o_ptr->pval2);
                 break;
-            }
+                case SV_SCROLL_DEINCARNATION:
+                {
+                        if(!get_check("Do you realy want to leave your body(beware, it'll be destroyed) ?"))
+                        {
+                                used_up = FALSE;
+                                break;
+                        }
+
+                        do_cmd_leave_body(FALSE);
+                        ident = TRUE;
+
+                        used_up = FALSE;
+                        o_ptr->k_idx = 721;
+                        o_ptr->sval = SV_SCROLL_INCARNATION;
+
+                        if(item >= 0)
+                        {
+                                inven_item_describe(item);
+                                inven_item_optimize(item);
+                        }
+                        else
+                        {
+                                floor_item_describe(0 - item);
+                                floor_item_optimize(0 - item);
+                        }
+                        break;
+                }
+                case SV_SCROLL_INCARNATION:
+                {
+                        if(!do_cmd_integrate_body()) used_up = FALSE;
+                        ident = TRUE;
+                        break;
+                }
+                case SV_SCROLL_RESET_RECALL:
+                {                               
+                        /* Prompt */
+                        sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dlv[dungeon_type]);
+
+                        /* Default */
+                        sprintf(tmp_val, "%d", MAX(dun_level,1));
+
+                        /* Ask for a level */
+                        if (!get_string(ppp, tmp_val, 10)) return;
+
+                        /* Extract request */
+                        dummy = atoi(tmp_val);
+
+                        /* Paranoia */
+                        if (dummy < 1) dummy = 1;
+
+                        /* Paranoia */
+                        if (dummy > p_ptr->max_dlv[dungeon_type]) dummy = p_ptr->max_dlv[dungeon_type];
+
+                        /* Accept request */
+                        msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50 );
+                        break;
+                }
                 case SV_SCROLL_DIVINATION:
                 {
                         int i, count = 0;
+
                         while(count < 1000)
                         {
                                 count++;
@@ -2791,11 +2859,16 @@ void do_cmd_read_scroll(void)
 
                         q=format("book-%d.txt",o_ptr->sval);
 
-			/* Peruse the arena help file */
+                        /* Peruse the help file */
                         (void)show_file(q, NULL, 0, 0);
 
 			/* Load screen */
 			screen_load();
+
+                        if (o_ptr->sval >= 100)
+                        {
+                                inscription_info[o_ptr->sval - 100].know = TRUE;
+                        }
 
                         used_up=FALSE;
         }
@@ -2962,6 +3035,13 @@ void do_cmd_use_staff(void)
 	/* Analyze the staff */
 	switch (o_ptr->sval)
 	{
+                case SV_STAFF_WISHING:
+		{
+                        make_wish();
+                        ident = TRUE;
+			break;
+		}
+
 		case SV_STAFF_DARKNESS:
 		{
 			if (!(p_ptr->resist_blind) && !(p_ptr->resist_dark))
@@ -3553,6 +3633,13 @@ void do_cmd_aim_wand(void)
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
 			ident = TRUE;
+			break;
+		}
+
+                case SV_WAND_WALL_CREATION:
+		{
+                        project_hook(GF_STONE_WALL, dir, 1, PROJECT_BEAM | PROJECT_KILL | PROJECT_GRID);
+                        ident = TRUE;
 			break;
 		}
 
@@ -4186,7 +4273,7 @@ int ring_of_power()
                         msg_print("You call the fire of the mountain of the destiny!");
                         fire_ball(GF_METEOR, dir, 600, 4);
                 }else{
-                        msg_print("Your ring tries to take possetion of your ennemy's mind!");
+                        msg_print("Your ring tries to take possession of your ennemy's mind!");
                         fire_bolt(GF_CHARM, dir, 600);
                 }
                 timeout = 300 + rand_int(300);
@@ -4269,6 +4356,8 @@ void do_cmd_activate(void)
 	item_tester_hook = item_tester_hook_activate;
 
 	/* Get an item */
+        command_see = TRUE;
+        command_wrk = USE_EQUIP;
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
         if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
@@ -4470,6 +4559,7 @@ void do_cmd_activate(void)
 				(void)detect_doors();
 				(void)detect_stairs();
 				o_ptr->timeout = rand_int(100) + 100;
+                                break;
 			}
 
 
@@ -4496,6 +4586,9 @@ void do_cmd_activate(void)
                                         msg_print("No teleport on special levels...");
                                         break;
                                 }
+
+                                if(special_flag){msg_print("Not on special levels!");break;}
+
                                 msg_print("You open a between gate. Choose a destination.");
                                 if (!tgt_pt(&ii,&ij)) return;
                                 p_ptr->energy -= 60 - plev;
@@ -5126,32 +5219,36 @@ void do_cmd_activate(void)
                                 o_ptr->timeout = 666;
                                 break;
                         }
+
                         case ART_MARDA:
-			if (randint(3) == 1)
-			{
-                                if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_DRAGONRIDER))
-				{
-                                        msg_print("A DragonRider comes from the BETWEEN !");
-                                        msg_print("'I will burn you!'");
-				}
-			}
-			else
-			{
-				if (summon_specific_friendly(py, px, ((plev * 3) / 2),
-                                    SUMMON_DRAGONRIDER, (bool)(plev == 50 ? TRUE : FALSE)))
-				{
-                                        msg_print("A DragonRider comes from the BETWEEN !");
-                                        msg_print("'I will help you in your hard task.'");
-				}
-			}
-                        o_ptr->timeout = 1000;
-			break;
+                        {
+                                if (randint(3) == 1)
+                                {
+                                        if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_DRAGONRIDER))
+                                        {
+                                                msg_print("A DragonRider comes from the BETWEEN !");
+                                                msg_print("'I will burn you!'");
+                                        }
+                                }
+                                else
+                                {
+                                        if (summon_specific_friendly(py, px, ((plev * 3) / 2),
+                                            SUMMON_DRAGONRIDER, (bool)(plev == 50 ? TRUE : FALSE)))
+                                        {
+                                                msg_print("A DragonRider comes from the BETWEEN !");
+                                                msg_print("'I will help you in your hard task.'");
+                                        }
+                                }
+                                o_ptr->timeout = 1000;
+                                break;
+                        }
 
                         case ART_PALANTIR:
                         {
                                 monster_type *m_ptr;
                                 monster_race *r_ptr;
                                 int i;
+                                bool is_quest = FALSE;
 
                                 msg_print("Some strange places show up in your mind. And you see ...");
 
@@ -5168,10 +5265,38 @@ void do_cmd_activate(void)
 
                                         if(r_ptr->flags1 & RF1_UNIQUE)
                                         {
-                                                msg_format("%s. ",r_name + r_ptr->name);
+                                               msg_format("%s. ",r_name + r_ptr->name);
                                         }
+                                        if(r_ptr->flags1 & RF1_QUESTOR) is_quest = TRUE;
                                 }
                                 o_ptr->timeout = 200;
+
+                                if(is_quest)
+                                        if(get_check("Do you want to be teleported to the next quest monster?"))
+                                        {
+                                                /* Process the monsters (backwards) */
+                                                for (i = m_max - 1; i >= 1; i--)
+                                                {
+                                                        /* Access the monster */
+                                                        m_ptr = &m_list[i];
+
+                                                        /* Ignore "dead" monsters */
+                                                        if (!m_ptr->r_idx) continue;
+
+                                                        r_ptr = &r_info[m_ptr->r_idx];
+
+                                                        if(r_ptr->flags1 & RF1_QUESTOR)
+                                                        {
+                                                                int y = m_ptr->fy, x = m_ptr->fx;
+                                                                get_pos_player(20, &y, &x);
+                                                                teleport_player_to(y, x);
+
+                                                                /* Longer to recharge */
+                                                                o_ptr->timeout += 100;
+                                                                break;
+                                                        }
+                                                }
+                                        }
                                 break;
                         }
                         case ART_ROBINTON:
@@ -5513,13 +5638,13 @@ void do_cmd_activate(void)
 
 	else if (o_ptr->tval == TV_RING)
 	{
-		/* Get a direction for breathing (or abort) */
-		if (!get_aim_dir(&dir)) return;
-
 		switch (o_ptr->sval)
 		{
 			case SV_RING_ACID:
 			{
+                                /* Get a direction for breathing (or abort) */
+                                if (!get_aim_dir(&dir)) return;
+
 				fire_ball(GF_ACID, dir, 50, 2);
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 				o_ptr->timeout = rand_int(50) + 50;
@@ -5528,6 +5653,9 @@ void do_cmd_activate(void)
 
 			case SV_RING_ICE:
 			{
+                                /* Get a direction for breathing (or abort) */
+                                if (!get_aim_dir(&dir)) return;
+
 				fire_ball(GF_COLD, dir, 50, 2);
 				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
 				o_ptr->timeout = rand_int(50) + 50;
@@ -5536,9 +5664,26 @@ void do_cmd_activate(void)
 
 			case SV_RING_FLAMES:
 			{
+                                /* Get a direction for breathing (or abort) */
+                                if (!get_aim_dir(&dir)) return;
+
 				fire_ball(GF_FIRE, dir, 50, 2);
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
 				o_ptr->timeout = rand_int(50) + 50;
+				break;
+			}
+
+                        /* Yes, this can be activated but at the cost of it's destruction */
+                        case SV_RING_TELEPORTATION:
+			{
+                                if(get_check("This will destroy the ring, do you want to continue ?"))
+                                {
+                                        msg_print("The ring explode into a space distorsion.");
+                                        teleport_player(200);
+                                        o_ptr->k_idx = 0;
+                                        inven_item_optimize(INVEN_LEFT);
+                                        inven_item_optimize(INVEN_RIGHT);
+                                }
 				break;
 			}
 		}
@@ -6281,6 +6426,8 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_DIM_DOOR:
 		{
+             if(special_flag){msg_print("Not on special levels!");break;}
+
              msg_print("You open a between gate. Choose a destination.");
              if (!tgt_pt(&ii,&ij)) return FALSE;
              p_ptr->energy -= 60 - plev;
@@ -6492,41 +6639,45 @@ static bool activate_random_artifact(object_type * o_ptr)
                         cave_type *c_ptr;
 
                         for(y = py - 6; y <= py + 6; y++)
-                        for(x = px - 6; x <= px + 6; x++)
                         {
-                                c_ptr = &cave[y][x];
-
-                                if (distance(y, x, py, px) > 6) continue;
-
-                                if (c_ptr->info & CAVE_GLOW)
+                                for(x = px - 6; x <= px + 6; x++)
                                 {
-                                        light++;
+                                        if(!in_bounds(y, x)) continue;
 
-                                        /* No longer in the array */
-                                        c_ptr->info &= ~(CAVE_TEMP);
+                                        c_ptr = &cave[y][x];
 
-                                        /* Darken the grid */
-                                        c_ptr->info &= ~(CAVE_GLOW);
+                                        if (distance(y, x, py, px) > 6) continue;
 
-                                        /* Hack -- Forget "boring" grids */
-                                        if (c_ptr->feat <= FEAT_INVIS)
+                                        if (c_ptr->info & CAVE_GLOW)
                                         {
-                                                /* Forget the grid */
-                                                c_ptr->info &= ~(CAVE_MARK);
+                                                light++;
 
-                                                /* Notice */
-                                                note_spot(y, x);
+                                                /* No longer in the array */
+                                                c_ptr->info &= ~(CAVE_TEMP);
+
+                                                /* Darken the grid */
+                                                c_ptr->info &= ~(CAVE_GLOW);
+
+                                                /* Hack -- Forget "boring" grids */
+                                                if (c_ptr->feat <= FEAT_INVIS)
+                                                {
+                                                        /* Forget the grid */
+                                                        c_ptr->info &= ~(CAVE_MARK);
+
+                                                        /* Notice */
+                                                        note_spot(y, x);
+                                                }
+
+                                                /* Process affected monsters */
+                                                if (c_ptr->m_idx)
+                                                {
+                                                        /* Update the monster */
+                                                        update_mon(c_ptr->m_idx, FALSE);
+                                                }
+
+                                                /* Redraw */
+                                                lite_spot(y, x);
                                         }
-
-                                        /* Process affected monsters */
-                                        if (c_ptr->m_idx)
-                                        {
-                                                /* Update the monster */
-                                                update_mon(c_ptr->m_idx, FALSE);
-                                        }
-
-                                        /* Redraw */
-                                        lite_spot(y, x);
                                 }
                         }
 			if (!get_aim_dir(&dir)) return FALSE;

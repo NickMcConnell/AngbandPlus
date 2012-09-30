@@ -124,19 +124,13 @@ bool carried_make_attack_normal(int r_idx)
 
 	int ap_cnt;
 
-	int i, j, k, tmp, ac, rlev;
+        int k, tmp, ac, rlev;
 	int do_cut, do_stun;
-
-	s32b gold;
-
-	object_type *o_ptr;
-
-	char o_name[80];
 
         char ddesc[80] = "the carried monster";
 
 	bool blinked;
-	bool touched = FALSE, fear = FALSE, alive = TRUE;
+        bool touched = FALSE, alive = TRUE;
 	bool explode = FALSE;
 
 	/* Not allowed to attack */
@@ -1487,7 +1481,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 				case RBM_MOAN:
 				{
-                                        if (strstr((r_name + r_ptr->name),"Mathilde, the scientific student"))
+                                        if (strstr((r_name + r_ptr->name),"Mathilde, the Science Student"))
                                                 act = desc_moan[rand_int(3)+4];
                                         else
                                                 act = desc_moan[rand_int(4)];
@@ -1511,10 +1505,20 @@ bool make_attack_normal(int m_idx, byte divis)
 
                         /* The undead can give the player the Black Breath with
                          * a sucessful blow. Uniques have a better chance. -LM-
+                         * Nazgul have a 25% chance
                          */
-                        if ((r_ptr->level >= 35) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
+                        if(r_ptr->flags7 & RF7_NAZGUL)
+                        {
+                                if(magik(25) && !p_ptr->protundead)
+                                {
+                                        msg_print("Your foe calls upon your soul!");
+                                        msg_print("You feel the Black Breath slowly draining you of life...");
+                                        p_ptr->black_breath = TRUE;
+                                }
+                        }
+                        else if ((r_ptr->level >= 35) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
                                 (r_ptr->flags1 & (RF1_UNIQUE)) &&
-                                        (randint(300 - r_ptr->level) == 1))
+                                        (randint(300 - r_ptr->level) == 1) && !p_ptr->protundead)
 
                         {
                                 msg_print("Your foe calls upon your soul!");
@@ -1523,7 +1527,7 @@ bool make_attack_normal(int m_idx, byte divis)
                         }
 
                         else if ((r_ptr->level >= 40) && (r_ptr->flags3 & (RF3_UNDEAD)) &&
-                                (randint(450 - r_ptr->level) == 1))
+                                (randint(450 - r_ptr->level) == 1) && !p_ptr->protundead)
                         {
                                 msg_print("Your foe calls upon your soul!");
                                 msg_print("You feel the Black Breath slowly draining you of life...");

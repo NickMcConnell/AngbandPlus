@@ -274,7 +274,7 @@ static int Mon_setattr(MonObject *self, char *name, PyObject *v)
  */
 staticforward PyTypeObject Mon_Type =
 {
-	PyObject_HEAD_INIT(&PyType_Type)	/* Standard stuff */
+        PyObject_HEAD_INIT(NULL)                /* Standard stuff */
 	0,					/* Size */
 	"Mon",					/* Name */
 	sizeof(MonObject),			/* Basic Size */

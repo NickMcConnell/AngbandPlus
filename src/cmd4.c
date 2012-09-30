@@ -2561,14 +2561,14 @@ static cptr do_cmd_feeling_text[11] =
 {
 	"Looks like any other level.",
 	"You feel there is something special about this level.",
-	"You nearly faint as horrible visions of death fill your mind!",
-	"This level looks very dangerous.",
-	"You have a very bad feeling...",
-	"You have a bad feeling...",
-	"You feel nervous.",
+	"You have a superb feeling about this level.",
+	"You have an excellent feeling...",
+	"You have a very good feeling...",
+	"You have a good feeling...",
+	"You feel strangely lucky...",
 	"You feel your luck is turning...",
-	"You don't like the look of this place.",
-	"This level looks reasonably safe.",
+	"You like the look of this place...",
+	"This level can't be all bad...",
 	"What a boring place..."
 };
 
@@ -2579,7 +2579,9 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
+#ifdef USE_PYTHON
         if (perform_event(EVENT_FEELING, Py_BuildValue("(ii)", dun_level, p_ptr->inside_quest))) return;
+#endif
 
 	/* Verify the feeling */
 	if (feeling < 0) feeling = 0;
@@ -3035,6 +3037,9 @@ static void do_cmd_knowledge_uniques(void)
 	{
 		monster_race *r_ptr = &r_info[k];
 
+                /* Ignore the Player Monsters & Ghosts */
+                if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
+
 		/* Only print Uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
@@ -3243,6 +3248,9 @@ static void do_cmd_knowledge_kill_count(void)
 		{
 			monster_race *r_ptr = &r_info[kk];
 
+                        /* Ignore the Player Monsters & Ghosts */
+                        if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
+                
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
 				bool dead = (r_ptr->max_num == 0);
@@ -3277,6 +3285,9 @@ static void do_cmd_knowledge_kill_count(void)
 	for (k = 1; k < max_r_idx-1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
+
+                /* Ignore the Player Monsters & Ghosts */
+                if(r_ptr->flags7 & RF7_PLAYER_MONSTER) continue;
 
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
@@ -3343,7 +3354,7 @@ static void do_cmd_knowledge_objects(void)
 
 	FILE *fff;
 
-	char o_name[80];
+        char o_name[80];
 
 	char file_name[1024];
 
@@ -3444,7 +3455,7 @@ static void do_cmd_knowledge_quests(void)
 	for (i = 1; i < max_quests; i++)
 	{
 		/* No info from "silent" quests */
-		if (quest[i].silent) continue;
+                if (quest[i].flags & QUEST_FLAG_SILENT) continue;
 
 		if (quest[i].status == QUEST_STATUS_TAKEN)
 		{
@@ -3542,7 +3553,6 @@ static void do_cmd_knowledge_fates(void)
 {
 	FILE *fff;
 	char file_name[1024];
-        char tmp_str[200];
 	int i;
 
 	/* Temporary file */

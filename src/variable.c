@@ -42,7 +42,7 @@ byte sf_minor;			/* Savefile's "version_minor" */
 byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra" */
 
-byte z_major;           /* Savefile version for Zangband */
+byte z_major;           /* Savefile version for PernAngband */
 byte z_minor;
 byte z_patch;
 
@@ -185,9 +185,10 @@ bool quick_messages;		/* Activate quick messages */
 bool other_query_flag;		/* Prompt for various information */
 bool carry_query_flag;		/* Prompt before picking things up */
 bool use_old_target;		/* Use old target by default */
-bool always_pickup;			/* Pick things up by default */
-bool always_repeat;			/* Repeat obvious commands */
-bool depth_in_feet;			/* Show dungeon level in feet */
+bool always_pickup;             /* Pick things up by default */
+bool no_pickup_corpse;          /* Don't pick up the corpses */
+bool always_repeat;             /* Repeat obvious commands */
+bool depth_in_feet;             /* Show dungeon level in feet */
 
 bool stack_force_notes;		/* Merge inscriptions when stacking */
 bool stack_force_costs;		/* Merge discounts when stacking */
@@ -735,13 +736,11 @@ player_magic *mp_ptr;
 /*
  * More spell info
  */
-u32b spell_learned1;	/* bit mask of spells learned */
-u32b spell_learned2;	/* bit mask of spells learned */
-u32b spell_worked1;	/* bit mask of spells tried and worked */
-u32b spell_worked2;	/* bit mask of spells tried and worked */
-u32b spell_forgotten1;	/* bit mask of spells learned but forgotten */
-u32b spell_forgotten2;	/* bit mask of spells learned but forgotten */
-byte spell_order[64];	/* order spells learned/remembered/forgotten */
+u32b spell_learned[MAX_REALM][2];   /* bit mask of spells learned */
+u32b spell_worked[MAX_REALM][2];    /* bit mask of spells tried and worked */
+u32b spell_forgotten[MAX_REALM][2]; /* bit mask of spells learned but forgotten */
+byte spell_order[64];               /* order spells learned/remembered/forgotten */
+byte realm_order[64];               /* order realms learned/remembered/forgotten */
 
 
 /*
@@ -802,6 +801,19 @@ monster_race *r_info;
 char *r_name;
 char *r_text;
 
+
+/*
+ * The dungeon types arrays
+ */
+header *d_head;
+dungeon_info_type *d_info;
+char *d_name;
+char *d_text;
+
+/*
+ * The player monster race arrays
+ */
+char ghost_file[MAX_GHOSTS][128];
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -1001,6 +1013,11 @@ u16b max_a_idx;
 u16b max_e_idx;
 
 /*
+ * Maximum number of dungeon types in d_info.txt
+ */
+u16b max_d_idx;
+
+/*
  * Maximum number of objects in the level
  */
 u16b max_o_idx;
@@ -1060,11 +1077,6 @@ random_spell random_spells[MAX_SPELLS];
 s16b spell_num;
 
 /*
- * r_idx of the imprinted monsters to keep;
- */
-s16b *r_idx_to_keep;
-
-/*
  * Fate.
  */
 fate fates[MAX_FATES];
@@ -1081,6 +1093,27 @@ byte vanilla_town;
  * 2 = Mordor
  * 3 = Angband
  * 4 = Galgals
+ * 5 = Volcano
+ * 6 = Hell
  */
 byte dungeon_type;
 
+
+/*
+ * Special levels table
+ * 0 = no special
+ * 1 = special level unused
+ * 2 = special level used
+ */
+byte *spec_history[MAX_DUNGEON_DEPTH];
+
+/*
+ * Number of total bounties the player had had.
+ */
+u32b total_bounties;
+
+/* The real realm array */
+magic_type realm_info[MAX_REALM][64];
+
+/* The Doppleganger index in m_list */
+s16b doppleganger;

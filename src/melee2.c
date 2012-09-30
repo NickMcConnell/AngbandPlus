@@ -146,6 +146,9 @@ static void get_enemy_dir(monster_type *m_ptr, int *mm)
 		y = m_ptr->fy + check_monsters[i][0];
 		x = m_ptr->fx + check_monsters[i][1];
 
+                if (!in_bounds(y, x))
+                        continue;
+
 		/* Hack -- no fighting away from player */
                 if (m_list[cave[y][x].m_idx].cdis > p_ptr->pet_follow_distance) continue;
 
@@ -302,7 +305,8 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 			}
 
 #ifdef PET_GAIN_EXP
-                if(p_ptr->pclass==CLASS_BEASTMASTER){
+                if(p_ptr->pclass == CLASS_BEASTMASTER)
+                {
 		/* Maximum player level */
 		div = p_ptr->max_plv;
 
@@ -4642,7 +4646,6 @@ bool make_attack_spell(int m_idx)
 		 }
 	}
 	
-	
 	/* Remember what the monster did to us */
 	if (seen)
 	{
@@ -5115,7 +5118,16 @@ static bool get_moves(int m_idx, int *mm)
 	int y2 = py;
 	int x2 = px;
 	bool done = FALSE;
-	
+
+        if(doppleganger)
+        {
+//                if(magik(50))
+                {
+                        y2 = m_list[doppleganger].fy;
+                        x2 = m_list[doppleganger].fx;
+                }
+        }
+
 #ifdef MONSTER_FLOW
 	/* Flow towards the player */
 	if (flow_by_sound)
@@ -5402,7 +5414,9 @@ static bool get_moves(int m_idx, int *mm)
 		}
 		break;
 	}
-	
+
+        
+
 	/* Wants to move... */
 	return (TRUE);
 }
@@ -6103,7 +6117,8 @@ static void process_monster(int m_idx, bool is_friend)
 	bool inv;
 
 	inv = player_invis(m_ptr);
-	
+
+        if(r_ptr->flags9 & RF9_DOPPLEGANGER) doppleganger = m_idx;
 	
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
@@ -6372,10 +6387,7 @@ static void process_monster(int m_idx, bool is_friend)
 			if (player_has_los_bold(oy, ox) && (r_ptr->flags2 & RF2_CAN_SPEAK))
 			{
 				char m_name[80];
-				char bravado[80];
-				
-				bool is_groo = !!(strstr(r_name + r_ptr->name, "Groo"));
-				bool is_smeagol = !!(strstr(r_name + r_ptr->name, "Smeagol"));
+                                char monmessage[80];
 				
 				/* Acquire the monster name/poss */
 				if (m_ptr->ml)
@@ -6383,36 +6395,23 @@ static void process_monster(int m_idx, bool is_friend)
 				else
 					strcpy(m_name, "It");
 				
-				/* Dump a message */
-				if (is_groo)
-				{
-					if (!m_ptr->monfear)
-						msg_format("%^s says: 'A fray! A fray!'", m_name);
-					
-						/* Why not just msg_print "Groo says fray" ?
-					Well, we could be hallucinating... */
-				}
-				else if (is_smeagol)
-				{
-					if (m_ptr->monfear)
-						get_rnd_line("smeagolr.txt", bravado);
-					else
-						get_rnd_line("smeagol.txt", bravado);
-					msg_format("%^s %s", m_name, bravado);
-				}
-                                else if (is_pet(m_ptr))
+                                /* xtra_line function by Matt Graham--allow uniques to */
+                                /* say "unique" things based on their monster index.   */
+                                /* Try for the unique's lines in "monspeak.txt" first. */
+                                /* 0 is SUCCESS, of course....                         */
+
+                                if(get_xtra_line("monspeak.txt",m_ptr,monmessage) != 0)
                                 {
-                                        get_rnd_line("speakpet.txt", bravado);
-					msg_format("%^s %s", m_name, bravado);
+                                        /* Get a message from old defaults if new don't work */
+
+                                        if (is_pet(m_ptr))
+                                                get_rnd_line("speakpet.txt", monmessage);
+                                        else if (m_ptr->monfear)
+                                                get_rnd_line("monfear.txt", monmessage);
+                                        else
+                                                get_rnd_line("bravado.txt", monmessage);
                                 }
-                                else
-				{
-					if (m_ptr->monfear)
-						get_rnd_line("monfear.txt", bravado);
-					else
-						get_rnd_line("bravado.txt", bravado);
-					msg_format("%^s %s", m_name, bravado);
-				}
+                                msg_format("%^s %s", m_name, monmessage);
 			}
 		}
 	}
@@ -6549,6 +6548,7 @@ static void process_monster(int m_idx, bool is_friend)
 			do_move = TRUE;
 		}
 
+
 		/* Hack -- check for Glyph of Warding */
                 if ((c_ptr->feat == FEAT_GLYPH) &&
 		    !(r_ptr->flags1 & RF1_NEVER_BLOW))
@@ -6575,13 +6575,10 @@ static void process_monster(int m_idx, bool is_friend)
 				do_move = TRUE;
 			}
 		}
-
+                
                 /* Hack -- trees are obstacle */
-		else if (cave[ny][nx].feat == FEAT_TREES)
+                else if ((cave[ny][nx].feat == FEAT_TREES) && (r_ptr->flags9 & RF9_KILL_TREES))
 		{
-			/* Do not move */
-                        if(r_ptr->flags9 & RF9_KILL_TREES)
-                        {
                                 do_move = TRUE;
 
                                 /* Forget the tree */
@@ -6589,20 +6586,6 @@ static void process_monster(int m_idx, bool is_friend)
 
                                 /* Notice */
                                 cave_set_feat(ny, nx, FEAT_GRASS);
-                        }
-                        else
-                        {
-                                do_move = FALSE;
-                        }
-
-                        if ((ny == py) && (nx == px))
-                        {
-                                /* Do the attack */
-                                (void)make_attack_normal(m_idx, 2);
-			
-                                /* Took a turn */
-                                do_turn = TRUE;
-                        }
 		}
 
 		/* Hack -- player 'in' wall */
@@ -6618,14 +6601,21 @@ static void process_monster(int m_idx, bool is_friend)
 		}
 		
 		/* Permanent wall */
-		else if (c_ptr->feat >= FEAT_PERM_EXTRA)
+                else if (f_info[c_ptr->feat].flags1 & FF1_PERMANENT)
 		{
 			/* Nothing */
 		}
 		
 		
+                /* Some monsters can fly */
+                else if ((f_info[c_ptr->feat].flags1 & FF1_CAN_LEVITATE) && (r_ptr->flags7 & (RF7_CAN_FLY)))
+		{
+			/* Pass through walls/doors/rubble */
+			do_move = TRUE;
+		}
+		
 		/* Monster moves through walls (and doors) */
-		else if (r_ptr->flags2 & (RF2_PASS_WALL))
+                else if ((f_info[c_ptr->feat].flags1 & FF1_CAN_PASS) && (r_ptr->flags2 & (RF2_PASS_WALL)))
 		{
 			/* Pass through walls/doors/rubble */
 			do_move = TRUE;
@@ -6635,7 +6625,7 @@ static void process_monster(int m_idx, bool is_friend)
 		}
 		
 		/* Monster destroys walls (and doors) */
-		else if (r_ptr->flags2 & RF2_KILL_WALL)
+                else if ((f_info[c_ptr->feat].flags1 & FF1_CAN_PASS) && (r_ptr->flags2 & (RF2_KILL_WALL)))
 		{
 			/* Eat through walls/doors/rubble */
 			do_move = TRUE;
@@ -6656,6 +6646,16 @@ static void process_monster(int m_idx, bool is_friend)
 
 			/* Note changes to viewable region */
 			if (player_has_los_bold(ny, nx)) do_view = TRUE;
+		}
+		
+		/* Monster moves through walls (and doors) */
+                else if ((f_info[c_ptr->feat].flags1 & FF1_CAN_PASS) && (r_ptr->flags2 & (RF2_PASS_WALL)))
+		{
+			/* Pass through walls/doors/rubble */
+			do_move = TRUE;
+			
+			/* Monster went through a wall */
+			did_pass_wall = TRUE;
 		}
 		
 		/* Handle doors and secret doors */
@@ -6798,7 +6798,7 @@ static void process_monster(int m_idx, bool is_friend)
 		{
                         nx = cave[ny][nx].special & 255;
                         ny = cave[ny][nx].special >> 8;
-                        get_pos_player(100, &ny, &nx);
+                        get_pos_player(10, &ny, &nx);
 
                         /* Access that cave grid */
                         c_ptr = &cave[ny][nx];		
@@ -6825,6 +6825,24 @@ static void process_monster(int m_idx, bool is_friend)
                                 do_move = TRUE;
                         }
 		}
+
+                /* Execute the inscription */
+                if (c_ptr->inscription)
+                {
+                        if(inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_MONST_WALK)
+                        {
+                                bool t;
+                                t = execute_inscription(c_ptr->inscription, ny, nx);
+                                if(!t && do_move)
+                                {
+                                        /* Hack -- attack the player even if on the inscription */
+                                        if ((ny == py) && (nx == px))
+                                                do_move = TRUE;
+                                        else
+                                                do_move = FALSE;
+                                }
+                        }
+                }
 		
 		/* Some monsters never attack */
 		if (do_move && (ny == py) && (nx == px) &&
@@ -7258,7 +7276,10 @@ void process_monsters(void)
 	
 	byte    old_r_cast_inate = 0;
 	byte    old_r_cast_spell = 0;
-	
+
+        /* Check the doppleganger */
+        if(doppleganger && !(r_info[m_list[doppleganger].r_idx].flags9 & RF9_DOPPLEGANGER))
+                doppleganger = 0;
 	
 	/* Memorize old race */
 	old_monster_race_idx = monster_race_idx;

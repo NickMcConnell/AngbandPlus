@@ -554,17 +554,19 @@ static tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_LIFE_BOOK,         "Life Spellbook"       },
-	{ TV_SORCERY_BOOK,      "Sorcery Spellbook"    },
-	{ TV_NATURE_BOOK,       "Nature Spellbook"     },
+        { TV_VALARIN_BOOK,      "Valarin Spellbook"    },
+        { TV_MAGERY_BOOK,       "Magery Spellbook"     },
+        { TV_SHADOW_BOOK,       "Shadow Spellbook"     },
 	{ TV_CHAOS_BOOK,        "Chaos Spellbook"      },
-	{ TV_DEATH_BOOK,        "Death Spellbook"      },
-        { TV_TRUMP_BOOK,        "Dragon Spellbook"     },
-	{ TV_ARCANE_BOOK,       "Arcane Spellbook",    },
+        { TV_NETHER_BOOK,       "Nether Spellbook"     },
+        { TV_CRUSADE_BOOK,      "Crusade Spellbook"    },
+        { TV_SIGALDRY_BOOK,     "Sigaldry Spellbook",  },
         { TV_SYMBIOTIC_BOOK,    "Symbiotic Spellbook", },
+        { TV_TRIBAL_BOOK,       "Tribal Spellbook"     },
         { TV_MUSIC_BOOK,        "Music Book"           },
         { TV_MAGIC_BOOK,        "Book of Spells"       },
         { TV_PRAYER_BOOK,       "Holy Book"            },
+        { TV_ILLUSION_BOOK,     "Book of Illusions"    },
         { TV_MIMIC_BOOK,        "Book of Lore"         },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
@@ -577,6 +579,7 @@ static tval_desc tvals[] =
         { TV_INSTRUMENT,        "Musical Instrument"   },
         { TV_RUNE1,             "Rune 1"               },
         { TV_RUNE2,             "Rune 2"               },
+        { TV_JUNK,              "Junk"                 },
 	{ 0,                    NULL                   }
 };
 
@@ -684,7 +687,7 @@ static int wiz_create_itemtype(void)
 		if (k_ptr->tval == tval)
 		{
 			/* Hack -- Skip instant artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+                        if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
 			/* Prepare it */
 			row = 2 + (num % 20);
@@ -731,8 +734,10 @@ static void wiz_tweak_item(object_type *o_ptr)
 	char tmp_val[80];
 
 
+#if 0 /* DG -- A Wizard can do whatever he/she wants */
 	/* Hack -- leave artifacts alone */
-//        if (artifact_p(o_ptr) || o_ptr->art_name) return;
+        if (artifact_p(o_ptr) || o_ptr->art_name) return;
+#endif
 
 	p = "Enter new 'pval' setting: ";
         sprintf(tmp_val, "%ld", o_ptr->pval);
@@ -1387,7 +1392,8 @@ static void do_cmd_wiz_jump(void)
 		char	tmp_val[160];
 
 		/* Prompt */
-                sprintf(ppp, "Jump to level (0-%d): ", dungeon_info[dungeon_type].maxdepth);
+                msg_format("dungeon_type : %d", dungeon_type);
+                sprintf(ppp, "Jump to level (0-%d): ", d_info[dungeon_type].maxdepth);
 
 		/* Default */
 		sprintf(tmp_val, "%d", dun_level);
@@ -1403,7 +1409,7 @@ static void do_cmd_wiz_jump(void)
         if (command_arg < 0) command_arg = 0;
 
 	/* Paranoia */
-        if (command_arg > dungeon_info[dungeon_type].maxdepth) command_arg = dungeon_info[dungeon_type].maxdepth;
+        if (command_arg > d_info[dungeon_type].maxdepth) command_arg = d_info[dungeon_type].maxdepth;
 
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", command_arg);
@@ -1421,6 +1427,15 @@ static void do_cmd_wiz_jump(void)
 
 	p_ptr->inside_arena = 0;
 	leaving_quest = p_ptr->inside_quest;
+
+	/* Leaving an 'only once' quest marks it as failed */
+	if (leaving_quest &&
+		(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+	{
+		quest[leaving_quest].status = QUEST_STATUS_FAILED;
+	}
+
 	p_ptr->inside_quest = 0;
 	p_ptr->leftbldg = FALSE;
 
@@ -1648,9 +1663,24 @@ void do_cmd_debug(void)
 		detect_all();
 		break;
 
+                /* Change of Dungeon type */
+                case 'D':
+                dungeon_type = command_arg;
+                dun_level = d_info[dungeon_type].mindepth;
+                msg_format("You go into %s", d_text + d_info[dungeon_type].text);
+
+                /* Leaving */
+                p_ptr->leaving = TRUE;
+		break;
+
 		/* Edit character */
 		case 'e':
 		do_cmd_wiz_change();
+		break;
+
+                /* Change grid's mana */
+                case 'E':
+                cave[py][px].mana = command_arg;
 		break;
 
 		/* View item info */
@@ -1731,22 +1761,13 @@ void do_cmd_debug(void)
 		/* Complete a Quest -KMW- */
 		case 'q':
 		{
-                        int i;
-                        for (i = 0; i < max_quests; i++)
-			{
-                                if (quest[i].status == QUEST_STATUS_TAKEN)
-				{
-                                        quest[i].status = QUEST_STATUS_COMPLETED;
-					msg_print("Completed Quest");
-					msg_print(NULL);
-					break;
-				}
-			}
-                        if (i == max_quests)
-			{
-				msg_print("No current quest");
-				msg_print(NULL);
-			}
+                        if (quest[command_arg].status == QUEST_STATUS_TAKEN)
+                        {
+                                quest[command_arg].status = QUEST_STATUS_COMPLETED;
+                                msg_print("Completed Quest");
+                                msg_print(NULL);
+                                break;
+                        }
 			break;
 		}
 
@@ -1789,6 +1810,11 @@ void do_cmd_debug(void)
 		/* Wizard Light the Level */
 		case 'w':
 		wiz_lite();
+		break;
+
+                /* Make a wish */
+                case 'W':
+                make_wish();
 		break;
 
 		/* Increase Experience */
@@ -1835,6 +1861,7 @@ void do_cmd_debug(void)
 
                 /* Change the feature of the map */
                 case 'F':
+                msg_format("Old feature: %d", cave[py][px].feat);
                 cave_set_feat(py,px,command_arg);
                 break;
 

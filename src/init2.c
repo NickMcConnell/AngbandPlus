@@ -286,6 +286,16 @@ static errr check_modification_date(int fd, cptr template_file)
 
 #endif /* CHECK_MODIFICATION_TIME */
 
+/*
+ * Hack -- take notes on line 23
+ */
+static void note(cptr str)
+{
+	Term_erase(0, 23, 255);
+	Term_putstr(20, 23, -1, TERM_WHITE, str);
+	Term_fresh();
+}
+
 
 
 /*** Initialize from binary image files ***/
@@ -1386,6 +1396,57 @@ static errr init_r_info_raw(int fd)
 }
 
 
+/*
+ * Initialize the "d_info" array, by parsing a binary "image" file
+ */
+static errr init_d_info_raw(int fd)
+{
+	header test;
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != d_head->v_major) ||
+            (test.v_minor != d_head->v_minor) ||
+            (test.v_patch != d_head->v_patch) ||
+            (test.v_extra != d_head->v_extra) ||
+            (test.info_num != d_head->info_num) ||
+            (test.info_len != d_head->info_len) ||
+            (test.head_size != d_head->head_size) ||
+            (test.info_size != d_head->info_size))
+	{
+		/* Error */
+                return (-1);
+	}
+
+
+	/* Accept the header */
+        (*d_head) = test;
+
+
+        /* Allocate the "d_info" array */
+        C_MAKE(d_info, d_head->info_num, dungeon_info_type);
+
+        /* Read the "d_info" array */
+        fd_read(fd, (char*)(d_info), d_head->info_size);
+
+
+	/* Allocate the "r_name" array */
+        C_MAKE(d_name, d_head->name_size, char);
+
+        /* Read the "d_name" array */
+        fd_read(fd, (char*)(d_name), d_head->name_size);
+
+        /* Allocate the "d_text" array */
+        C_MAKE(d_text, d_head->text_size, char);
+
+        /* Read the "d_text" array */
+        fd_read(fd, (char*)(d_text), d_head->text_size);
+
+
+	/* Success */
+	return (0);
+}
+
 
 /*
  * Initialize the "r_info" array
@@ -1583,6 +1644,821 @@ static errr init_r_info(void)
 	if (err) quit("Cannot parse 'r_info.raw' file.");
 
 	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize the "d_info" array
+ *
+ * Note that we let each entry have a unique "name" and "short name" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_d_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+        MAKE(d_head, header);
+
+	/* Save the "version" */
+        d_head->v_major = VERSION_MAJOR;
+        d_head->v_minor = VERSION_MINOR;
+        d_head->v_patch = VERSION_PATCH;
+        d_head->v_extra = 0;
+
+	/* Save the "record" information */
+        d_head->info_num = max_d_idx;
+        d_head->info_len = sizeof(dungeon_info_type);
+
+        /* Save the size of "d_head" and "d_info" */
+        d_head->head_size = sizeof(header);
+        d_head->info_size = d_head->info_num * d_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+                err = check_modification_date(fd, "d_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+                        err = init_d_info_raw(fd);
+
+		/* Close it */
+		(void)fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+
+		/* Information */
+                msg_print("Ignoring obsolete/defective 'd_info.raw' file.");
+		msg_print(NULL);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+        /* Assume the size of "d_name" and "d_text" */
+	fake_name_size = FAKE_NAME_SIZE;
+	fake_text_size = FAKE_TEXT_SIZE;
+
+	/* Allocate the "r_info" array */
+        C_MAKE(d_info, d_head->info_num, dungeon_info_type);
+
+	/* Hack -- make "fake" arrays */
+        C_MAKE(d_name, fake_name_size, char);
+        C_MAKE(d_text, fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_EDIT, "d_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+        if (!fp) quit("Cannot open 'd_info.txt' file.");
+
+	/* Parse the file */
+        err = init_d_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+                msg_format("Error %d at line %d df 'd_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+                quit("Error in 'd_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
+
+	/* Kill the old file */
+	(void)fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+                fd_write(fd, (char*)(d_head), d_head->head_size);
+
+		/* Dump the "r_info" array */
+                fd_write(fd, (char*)(d_info), d_head->info_size);
+
+		/* Dump the "r_name" array */
+                fd_write(fd, (char*)(d_name), d_head->name_size);
+
+		/* Dump the "r_text" array */
+                fd_write(fd, (char*)(d_text), d_head->text_size);
+
+		/* Close */
+		(void)fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+        /* Free the "d_info" array */
+        C_KILL(d_info, d_head->info_num, dungeon_info_type);
+
+	/* Hack -- Free the "fake" arrays */
+        C_KILL(d_name, fake_name_size, char);
+        C_KILL(d_text, fake_text_size, char);
+
+	/* Forget the array sizes */
+	fake_name_size = 0;
+	fake_text_size = 0;
+
+#endif	/* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+        path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+        if (fd < 0) quit("Cannot load 'd_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+        err = init_d_info_raw(fd);
+
+	/* Close it */
+	(void)fd_close(fd);
+
+	/* Error */
+        if (err) quit("Cannot parse 'd_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+/* Add various player ghost attributes depending on race. -LM- */
+static void process_ghost_race(int ghost_race, int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	byte n;
+
+	switch(ghost_race)
+	{
+		/* Human */
+		case 0:
+		{
+			/* No differences */
+			break;
+		}
+		/* Half-Elf */
+		case 1:
+		{
+			if (r_ptr->freq_spell) r_ptr->freq_spell += 3;
+			r_ptr->aaf += 3;
+			r_ptr->hdice = 6 * r_ptr->hdice / 7;
+			break;
+		}
+		/* Elf */
+		case 2:
+		{
+			if (r_ptr->freq_spell) r_ptr->freq_spell += 5;
+			r_ptr->aaf += 5;
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
+				r_ptr->flags3 &= ~(RF3_HURT_LITE);
+			break;
+		}
+                /* Dark Elf */
+                case RACE_DARK_ELF:
+		{
+                        if (r_ptr->freq_spell) r_ptr->freq_spell += 7;
+                        r_ptr->aaf += 6;
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+			break;
+		}
+		/* Hobbit */
+		case 3:
+		{	
+			r_ptr->hdice = 3 * r_ptr->hdice / 4;
+
+			if (randint(3) == 1)
+			{
+				for (n = 0; n < 4; n++)
+				{
+					if (r_ptr->blow[n].effect == RBE_HURT)
+					{
+						if (randint(2) == 1) 
+							r_ptr->blow[n].effect = RBE_EAT_GOLD;
+						else r_ptr->blow[n].effect = RBE_EAT_ITEM;
+	
+						r_ptr->blow[n].d_side = 
+							2 * r_ptr->blow[n].d_side / 3;
+						break;
+					}
+				}
+			}
+			else
+			{
+				if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+
+                                if (r_ptr->level <= 15) r_ptr->flags4 |= (RF4_ARROW_1);
+                                else r_ptr->flags4 |= (RF4_ARROW_2);
+			}
+
+			break;
+		}
+		/* Gnome */
+		case 4:
+		{
+			r_ptr->flags6 |= (RF6_BLINK);
+			r_ptr->flags3 |= (RF3_NO_SLEEP);
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+			break;
+		}
+		/* Dwarf */
+		case 5:
+                case RACE_NIBELUNG:
+		{
+			r_ptr->hdice = 6 * r_ptr->hdice / 5;
+			break;
+		}
+		/* Half-Orc */
+		case 6:
+                case RACE_KOBOLD:
+		{
+			r_ptr->flags3 |= (RF3_ORC);
+			break;
+		}
+		/* Half-Troll */
+		case 7:
+		{
+			if (r_ptr->freq_spell > 5) 
+			r_ptr->freq_spell /= 2;
+
+			r_ptr->flags3 |= (RF3_TROLL);
+
+			r_ptr->hdice = 3 * r_ptr->hdice / 2;
+			r_ptr->aaf = 2;
+
+			r_ptr->ac += r_ptr->level / 10 + 10;
+
+                        if (r_ptr->speed < 111) r_ptr->speed -= 2;
+                        else r_ptr->speed -= 4;
+
+			for (n = 0; n < 4; n++)
+			{
+				r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 3;
+			}
+
+			break;
+		}
+		/* Dunadan */
+		case 8:
+		{
+			r_ptr->ac += r_ptr->level / 10 + 5;
+
+			for (n = 0; n < 4; n++)
+			{
+				if (randint(2) == 1) 
+					r_ptr->blow[n].d_side = 6 * r_ptr->blow[n].d_side / 5;
+			}
+			break;
+		}
+		/* High-Elf */
+		case 9:
+		{
+			r_ptr->ac += r_ptr->level / 10 + 2;
+
+			if (r_ptr->freq_spell) r_ptr->freq_spell += 8;
+			r_ptr->aaf += 6;
+			if (r_ptr->flags3 & (RF3_HURT_LITE)) 
+				r_ptr->flags3 &= ~(RF3_HURT_LITE);
+			break;
+		}
+                case RACE_BARBARIAN:
+                {
+                        r_ptr->flags3 |= RF3_NO_FEAR;
+                        break;
+                }
+                case RACE_VAMPIRE:
+                {
+                        r_ptr->flags3 |= RF3_RES_NETH;
+                        r_ptr->flags3 |= RF3_IM_COLD;
+                        r_ptr->flags3 |= RF3_IM_POIS;
+                        r_ptr->flags3 |= RF3_HURT_LITE;
+                        break;
+                }
+                case RACE_SPECTRE:
+                {
+                        r_ptr->flags3 |= RF3_RES_NETH;
+                        r_ptr->flags3 |= RF3_IM_POIS;
+                        r_ptr->flags3 |= RF3_IM_COLD;
+                        r_ptr->flags2 |= RF2_INVISIBLE;
+                        r_ptr->flags2 |= RF2_PASS_WALL;
+                        break;
+                }
+                case RACE_RKNIGHT:
+                {
+                        r_ptr->speed += 10;
+                        break;
+                }
+                case RACE_ENT:
+                {
+                        r_ptr->flags3 |= RF3_SUSCEP_FIRE;
+                        r_ptr->speed -= 3;
+
+			for (n = 0; n < 4; n++)
+                                r_ptr->blow[n].d_side = 5 * r_ptr->blow[n].d_side / 3;
+                        break;
+                }
+                case RACE_DRAGONRIDER:
+                {
+                        r_ptr->flags3 |= RF3_DRAGONRIDER;
+                        r_ptr->flags3 |= RF3_IM_ACID;
+                        r_ptr->flags3 |= RF3_IM_ELEC;
+                        r_ptr->flags3 |= RF3_IM_FIRE;
+                        r_ptr->flags3 |= RF3_IM_COLD;
+                        r_ptr->flags3 |= RF3_IM_POIS;
+
+                        r_ptr->flags4 |= RF4_BR_FIRE;
+                        break;
+                }
+                case RACE_MOLD:
+                {
+                        r_ptr->flags1 |= RF1_NEVER_MOVE;
+                        r_ptr->flags3 |= RF3_RES_NETH;
+                        r_ptr->flags3 |= RF3_RES_NEXU;
+                        break;
+                }
+	}
+}
+
+/* Add various attributes player ghost depending on class. -LM- */
+static void process_ghost_class(int ghost_class, int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	byte n;
+
+	/* Note the care taken to make sure that all monsters that get spells 
+	 * can also cast them, since not all racial templates include spells.
+	 */
+	switch(ghost_class)
+	{
+		/* Warrior */
+		case 0:
+                case CLASS_MIMIC:
+		{
+			if (r_ptr->freq_spell <= 10) r_ptr->freq_spell = 5;
+			else r_ptr->freq_spell -= 5;
+
+			r_ptr->hdice = 5 * r_ptr->hdice / 4;
+			r_ptr->ac += r_ptr->level / 10 + 5;
+
+			for (n = 0; n < 4; n++)
+			{
+				if (r_ptr->blow[n].effect != RBE_HURT)
+				{
+					r_ptr->blow[n].effect = RBE_HURT;
+
+					r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
+					break;
+				}
+			}
+
+			break;
+		}
+                /* Beastmaster */
+                case CLASS_BEASTMASTER:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
+			else r_ptr->freq_spell += 10;
+
+			r_ptr->hdice = 5 * r_ptr->hdice / 4;
+                        r_ptr->ac += r_ptr->level / 10;
+
+			for (n = 0; n < 4; n++)
+			{
+				if (r_ptr->blow[n].effect != RBE_HURT)
+				{
+					r_ptr->blow[n].effect = RBE_HURT;
+
+					r_ptr->blow[n].d_side = 3 * r_ptr->blow[n].d_side / 2;
+					break;
+				}
+			}
+
+                        r_ptr->flags6 |= RF6_S_MONSTER;
+                        r_ptr->flags6 |= RF6_S_MONSTERS;
+                        r_ptr->flags6 |= RF6_S_ANT;
+                        r_ptr->flags6 |= RF6_S_SPIDER;
+                        r_ptr->flags6 |= RF6_S_RNG;
+                        r_ptr->flags6 |= RF6_S_CYBER;
+                        r_ptr->flags6 |= RF6_S_HOUND;
+                        r_ptr->flags6 |= RF6_S_WRAITH;
+                        r_ptr->flags6 |= RF6_S_DRAGON;
+                        r_ptr->flags6 |= RF6_S_HI_DRAGON;
+
+			break;
+		}
+		/* Mage */
+		case 1:
+                case CLASS_ALCHEMIST:
+                case CLASS_HIGH_MAGE:
+                case CLASS_POWERMAGE:
+                case CLASS_SYMBIANT:
+                case CLASS_RUNECRAFTER:
+                case CLASS_HARPER:
+                case CLASS_POSSESSOR:
+                case CLASS_WIZARD:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
+			else r_ptr->freq_spell += 10;
+
+                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
+                        else if (r_ptr->level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
+                        else if (r_ptr->level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
+                        else if (r_ptr->level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
+                        else if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
+                        else if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
+
+                        if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
+                        if (r_ptr->level > 40) r_ptr->speed += 5;
+                        if (r_ptr->speed > 150) r_ptr->speed = 150;
+
+			r_ptr->flags6 |= (RF6_BLINK);
+                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
+
+			r_ptr->hdice = 2 * r_ptr->hdice / 3;
+
+			for (n = 0; n < 4; n++)
+			{
+				if (randint(3) == 1) r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 5;
+			}
+			
+			break;
+		}
+		/* Priest */
+		case 2:
+                case CLASS_PRIOR:
+                case CLASS_MINDCRAFTER:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
+			else r_ptr->freq_spell += 5;
+
+                        if (r_ptr->level <= 15) r_ptr->flags5 |= (RF5_CAUSE_1);
+                        else if (r_ptr->level <= 30) r_ptr->flags5 |= (RF5_CAUSE_2);
+                        else if (r_ptr->level <= 45) r_ptr->flags5 |= (RF5_CAUSE_3);
+                        else if (r_ptr->level <= 60) r_ptr->flags5 |= (RF5_CAUSE_4);
+			else r_ptr->flags6 |= (RF6_S_MONSTERS);
+
+                        if (r_ptr->level > 50) r_ptr->flags6 |= (RF6_HEAL);
+
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
+			break;
+		}
+		/* Rogue */
+		case 3:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+
+                        if (r_ptr->level <= 30) r_ptr->flags6 |= (RF6_HASTE);
+                        else if (r_ptr->level > 30) r_ptr->speed += 5;
+                        if (r_ptr->speed > 130) r_ptr->speed = 130;
+
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
+			r_ptr->flags6 |= (RF6_TRAPS);
+
+			for (n = 0; n < 4; n++)
+			{
+				if (r_ptr->blow[n].effect == RBE_HURT)
+				{
+					if (randint(2) == 1) r_ptr->blow[n].effect = RBE_EAT_GOLD;
+					else r_ptr->blow[n].effect = RBE_EAT_ITEM;
+
+					r_ptr->blow[n].d_side = 2 * r_ptr->blow[n].d_side / 3;
+					break;
+				}
+			}
+
+			break;
+		}
+		/* Ranger */
+		case 4:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+
+                        if (r_ptr->level <= 15) r_ptr->flags4 |= (RF4_ARROW_1);
+                        else r_ptr->flags4 |= (RF4_ARROW_2);
+
+			r_ptr->flags6 |= (RF6_BLINK);
+
+			break;
+		}
+		/* Paladin */
+		case 5:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 8;
+
+			r_ptr->flags4 |= (RF4_SHRIEK);
+
+                        if (r_ptr->level <= 25) r_ptr->flags5 |= (RF5_CAUSE_1);
+                        else if (r_ptr->level <= 40) r_ptr->flags5 |= (RF5_CAUSE_2);
+                        else if (r_ptr->level <= 55) r_ptr->flags5 |= (RF5_CAUSE_3);
+                        else if (r_ptr->level <= 70) r_ptr->flags5 |= (RF5_CAUSE_4);
+
+			r_ptr->flags3 |= (RF3_IM_FIRE | 
+					RF3_IM_COLD | RF3_IM_ELEC | RF3_IM_ACID);
+			
+			break;
+		}
+                /* Monk */
+                case CLASS_MONK:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 10;
+			else r_ptr->freq_spell += 5;
+
+                        if (r_ptr->level <= 20) r_ptr->flags5 |= (RF5_MISSILE);
+                        else if (r_ptr->level >= 20) r_ptr->flags5 |= (RF5_BO_COLD);
+                        else if (r_ptr->level >= 40) r_ptr->flags5 |= (RF5_BO_PLAS);
+                        else if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BO_WATE);
+                        else if (r_ptr->level >= 70) r_ptr->flags5 |= (RF5_BA_WATE);
+
+                        if (r_ptr->level >= 25) r_ptr->flags6 |= RF6_S_ANT;
+                        else if (r_ptr->level >= 35) r_ptr->flags6 |= RF6_S_SPIDER;
+                        else if (r_ptr->level >= 45) r_ptr->flags6 |= RF6_S_MONSTER;
+                        else if (r_ptr->level >= 65) r_ptr->flags6 |= RF6_S_HOUND;
+
+			r_ptr->hdice = 4 * r_ptr->hdice / 5;
+
+			break;
+		}
+                case CLASS_SORCERER:
+		{
+                        if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 32;
+                        else r_ptr->freq_spell += 30;
+
+                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
+                        if (r_ptr->level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
+                        if (r_ptr->level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
+                        if (r_ptr->level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
+                        if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
+                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
+                        if (r_ptr->level >= 75) r_ptr->flags4 |= (RF4_ROCKET);
+                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_CONF);
+                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BLIND);
+                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_SCARE);
+                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_SLOW);
+                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_HOLD);
+                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_TELE_TO);
+                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_TELE_AWAY);
+                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_S_DRAGONRIDER);
+                        if (r_ptr->level >= 75) r_ptr->flags6 |= (RF6_S_CYBER);
+                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_NETH);
+
+                        if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
+                        if (r_ptr->level > 40) r_ptr->speed += 5;
+                        if (r_ptr->speed > 150) r_ptr->speed = 150;
+
+			r_ptr->flags6 |= (RF6_BLINK);
+                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
+
+			r_ptr->hdice = 2 * r_ptr->hdice / 3;
+
+			for (n = 0; n < 4; n++)
+			{
+                                if (randint(3) == 1) r_ptr->blow[n].d_side = 4 * r_ptr->blow[n].d_side / 7;
+			}
+			
+			break;
+		}
+		/* Mage */
+                case CLASS_WARRIOR_MAGE:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
+			else r_ptr->freq_spell += 10;
+
+                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
+                        if (r_ptr->level >= 15) r_ptr->flags5 |= (RF5_BA_POIS);
+                        if (r_ptr->level >= 25) r_ptr->flags5 |= (RF5_BA_ELEC);
+                        else if (r_ptr->level >= 35) r_ptr->flags5 |= (RF5_BA_COLD);
+                        else if (r_ptr->level >= 50) r_ptr->flags5 |= (RF5_BA_ACID);
+
+                        if (r_ptr->level >= 20) r_ptr->flags6 |= (RF6_HASTE);
+                        if (r_ptr->level > 40) r_ptr->speed += 5;
+                        if (r_ptr->speed > 150) r_ptr->speed = 150;
+
+			r_ptr->flags6 |= (RF6_BLINK);
+                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
+			break;
+		}
+		/* Mage */
+                case CLASS_CHAOS_WARRIOR:
+		{
+			if (r_ptr->freq_spell == 0) r_ptr->freq_spell = 12;
+			else r_ptr->freq_spell += 10;
+
+                        if (r_ptr->level < 15) r_ptr->flags5 |= (RF5_MISSILE);
+                        if (r_ptr->level >= 50) r_ptr->flags4 |= (RF4_BA_CHAO);
+                        if (r_ptr->level >= 75) r_ptr->flags5 |= (RF5_BA_MANA);
+
+			r_ptr->flags6 |= (RF6_BLINK);
+                        if (r_ptr->level > 45) r_ptr->flags6 |= (RF6_TPORT);
+			break;
+		}
+	}
+}
+
+/*
+ * Initialize the "ghost_info" array(part of the r_info one)
+ */
+errr init_ghost_info(int n)
+{
+	errr err = 0;
+
+	FILE *fp;
+
+        int i, j, k;
+
+        monster_race *r_ptr;
+
+	/* General buffer */
+        char buf[1024], name[80];
+
+        char ghost_name[80], damage[20];
+        char ghost_desc[320];
+        int ghost_sex, ghost_race, ghost_class, ghost_friend;
+        int mhp, msp, max_dlv, max_exp, lev, to_a, to_h, to_d, invis,
+            regen, ffall, speed, res_acid, res_elec, res_pois, res_fire,
+            res_cold, res_conf, res_lite, res_dark, res_fear, res_chaos,
+            res_disen, wpn_k_idx, name2, name1, num_blow, dd, ds, ac;
+
+        {
+                /* Try to find a good and unused file */
+                i = 0;
+                sprintf(buf, "%s", ANGBAND_DIR_BONE);
+                while(i < 20)
+                {                        
+                        int rn;
+
+                        sprintf(name, "%s", get_line("bones.txt", buf, -1));
+
+                        rn = rand_int(atoi(name));
+
+                        sprintf(name, "%s", get_line("bones.txt", buf, rn));
+
+                        /* Find if the file is not used */
+                        k = 0;
+                        for(j = 0; j < MAX_GHOSTS; j++)
+                        {
+                                if(strcmp(ghost_file[j], name) == 0)
+                                        k++;
+                        }
+                        if(!k) break;
+
+                        i++;
+                }
+                /* Find nothing ? so return */
+                if (i >= 20) return 1;
+
+                /*** Load the bone file ***/
+
+                /* Build the filename */
+                path_build(buf, 1024, ANGBAND_DIR_BONE, name);
+
+                /* Attempt to open the bone file */
+                fp = my_fopen(buf, "r");
+
+                /* Process existing bone file */
+                if (!fp) return (1);
+
+                sprintf(ghost_file[n], name);
+
+                r_ptr = &r_info[GHOST_R_IDX_HEAD + n];
+
+                /* Attempt to parse the bone file */
+                err = (fscanf(fp, "%s\n%d\n%d\n%d\n%s\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%d\n%s\n%d\n%d\n%d",
+                              ghost_name, &ghost_sex, &ghost_race, &ghost_class,
+                              ghost_desc, &ghost_friend, &mhp, &msp, &max_dlv,
+                              &max_exp, &lev, &ac, &to_a, &to_h, &to_d, &invis,
+                              &regen, &ffall, &speed, &res_acid, &res_elec,
+                              &res_pois, &res_fire, &res_cold, &res_conf,
+                              &res_lite, &res_dark, &res_fear, &res_chaos,
+                              &res_disen, &wpn_k_idx, &name2, &name1, damage,
+                              &num_blow, &dd, &ds) != 38);
+
+                /* Convert the _ into space, it's needed by the %s format of fscanf */
+                i = 0;
+                while(i < 320)
+                {
+                        if(ghost_desc[i] == '_') ghost_desc[i] = ' ';
+                        i++;
+                }
+
+                num_blow = (num_blow > 4) ? 4 : num_blow;
+
+                for(i = 0; i < num_blow; i++)
+                {
+                        r_ptr->blow[i].method = RBM_HIT;
+                        r_ptr->blow[i].effect = RBE_HURT;
+                        r_ptr->blow[i].d_dice = dd * num_blow;
+                        r_ptr->blow[i].d_side = ds;
+                }
+
+                if (ghost_sex == 0) r_ptr->flags1 |= (RF1_FEMALE);
+                if (ghost_sex == 1) r_ptr->flags1 |= (RF1_MALE);
+
+                if(res_acid) r_ptr->flags3 |= RF3_IM_ACID;
+                if(res_elec) r_ptr->flags3 |= RF3_IM_ELEC;
+                if(res_fire) r_ptr->flags3 |= RF3_IM_FIRE;
+                if(res_cold) r_ptr->flags3 |= RF3_IM_COLD;
+                if(res_pois) r_ptr->flags3 |= RF3_IM_POIS;
+                if(res_conf) r_ptr->flags3 |= RF3_NO_CONF;
+                if(res_disen) r_ptr->flags3 |= RF3_RES_DISE;
+                if(res_fear) r_ptr->flags3 |= RF3_NO_FEAR;
+                r_ptr->freq_inate = 10;
+                r_ptr->freq_spell = 10;
+
+                r_ptr->level = (max_dlv <= 100)?max_dlv - rand_int(10):100 - rand_int(10);
+                r_ptr->rarity = 40;
+                r_ptr->speed = speed;
+                r_ptr->mexp = max_exp / 1000;
+                r_ptr->sleep = 0;
+                r_ptr->aaf = 8;
+                r_ptr->ac = ac + to_a;
+
+                /* Give full hp */
+                r_ptr->hdice = ((mhp / 10) < 1)?1:(mhp / 10);
+                r_ptr->hside = mhp;
+
+                sprintf(r_name + r_ptr->name, "%s, the %s %s",
+                        ghost_name, race_info[ghost_race].title, class_info[ghost_class].title);
+
+                sprintf(r_text + r_ptr->text, "%s", ghost_desc);
+
+                if(ghost_friend) r_ptr->flags7 |= RF7_PET;
+
+                process_ghost_race(ghost_class, GHOST_R_IDX_HEAD + n);
+                process_ghost_class(ghost_class, GHOST_R_IDX_HEAD + n);
+
+                /* Close it */
+                my_fclose(fp);
+        }
+
+        /* Success */
 	return (0);
 }
 
@@ -2081,15 +2957,15 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
+                { TV_VALARIN_BOOK, 0 },
+                { TV_VALARIN_BOOK, 0 },
+                { TV_VALARIN_BOOK, 1 },
+                { TV_VALARIN_BOOK, 1 },
 
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
+                { TV_VALARIN_BOOK, 2 },
+                { TV_VALARIN_BOOK, 2 },
+                { TV_VALARIN_BOOK, 3 },
+                { TV_VALARIN_BOOK, 3 },
 
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_MACE },
@@ -2235,20 +3111,20 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_CURE_LIGHT },
 		{ TV_STAFF, SV_STAFF_PROBING },
 
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SORCERY_BOOK, 1 },
-		{ TV_SORCERY_BOOK, 1 },
+                { TV_MAGERY_BOOK, 0 },
+                { TV_MAGERY_BOOK, 1 },
+                { TV_MAGERY_BOOK, 2 },
+                { TV_MAGERY_BOOK, 3 },
 
 		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 1 },
+                { TV_MAGIC_BOOK, 1 },
+                { TV_MAGIC_BOOK, 2 },
+                { TV_MAGIC_BOOK, 3 },
 
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 2 },
-		{ TV_MAGIC_BOOK, 3 }
+                { TV_ILLUSION_BOOK, 0 },
+                { TV_ILLUSION_BOOK, 1 },
+                { TV_ILLUSION_BOOK, 2 },
+                { TV_ILLUSION_BOOK, 3 }
 	},
 
 	{
@@ -2325,45 +3201,46 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 
 	{
 		/* Bookstore */
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SORCERY_BOOK, 1 },
-		{ TV_SORCERY_BOOK, 1 },
+                { TV_MAGERY_BOOK, 0 },
+                { TV_MAGERY_BOOK, 1 },
+                { TV_MAGERY_BOOK, 2 },
+                { TV_MAGERY_BOOK, 3 },
 
-		{ TV_NATURE_BOOK, 0 },
-		{ TV_NATURE_BOOK, 0 },
-		{ TV_NATURE_BOOK, 1 },
-		{ TV_NATURE_BOOK, 1 },
+                { TV_SHADOW_BOOK, 0 },
+                { TV_SHADOW_BOOK, 1 },
+                { TV_SHADOW_BOOK, 2 },
+                { TV_SHADOW_BOOK, 3 },
 
 		{ TV_CHAOS_BOOK, 0 },
-		{ TV_CHAOS_BOOK, 0 },
-		{ TV_CHAOS_BOOK, 1 },
-		{ TV_CHAOS_BOOK, 1 },
+                { TV_CHAOS_BOOK, 1 },
 
-		{ TV_DEATH_BOOK, 0 },
-		{ TV_DEATH_BOOK, 0 },
-		{ TV_DEATH_BOOK, 1 },
-		{ TV_DEATH_BOOK, 1 },
+                { TV_TRIBAL_BOOK, 0 },
+                { TV_TRIBAL_BOOK, 1 },
 
-		{ TV_TRUMP_BOOK, 0 },		/* +16 */
-		{ TV_TRUMP_BOOK, 0 },
-		{ TV_TRUMP_BOOK, 1 },
-		{ TV_TRUMP_BOOK, 1 },
+                { TV_NETHER_BOOK, 0 },
+                { TV_NETHER_BOOK, 1 },
+                { TV_NETHER_BOOK, 2 },
+                { TV_NETHER_BOOK, 3 },
 
-		{ TV_ARCANE_BOOK, 0 },
-		{ TV_ARCANE_BOOK, 0 },
-		{ TV_ARCANE_BOOK, 1 },
-		{ TV_ARCANE_BOOK, 1 },
+                { TV_CRUSADE_BOOK, 0 },           /* +16 */
+                { TV_CRUSADE_BOOK, 0 },
+                { TV_CRUSADE_BOOK, 1 },
+                { TV_CRUSADE_BOOK, 1 },
 
-		{ TV_ARCANE_BOOK, 2 },
-		{ TV_ARCANE_BOOK, 2 },
-		{ TV_ARCANE_BOOK, 3 },
-		{ TV_ARCANE_BOOK, 3 },
+                { TV_SIGALDRY_BOOK, 0 },
+                { TV_SIGALDRY_BOOK, 0 },
+                { TV_SIGALDRY_BOOK, 1 },
+                { TV_SIGALDRY_BOOK, 1 },
 
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 0 },
-		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
+                { TV_ILLUSION_BOOK, 0 },
+                { TV_ILLUSION_BOOK, 1 },
+                { TV_ILLUSION_BOOK, 2 },
+                { TV_ILLUSION_BOOK, 3 },
+
+                { TV_VALARIN_BOOK, 0 },
+                { TV_VALARIN_BOOK, 1 },
+                { TV_VALARIN_BOOK, 2 },
+                { TV_VALARIN_BOOK, 3 },
 
                 { TV_MUSIC_BOOK, 0 },
                 { TV_MUSIC_BOOK, 0 },
@@ -2608,9 +3485,14 @@ static errr init_other(void)
 	/* Allocate and Wipe the monster list */
 	C_MAKE(m_list, max_m_idx, monster_type);
 
-        /* Allocate and Wipe the monster r_idx to keep list */
-        C_MAKE(r_idx_to_keep, max_m_idx, s16b);
+        /* Allocate and Wipe the max dungeon level */
+        C_MAKE(p_ptr->max_dlv, max_d_idx, s16b);
 
+        for (i = 0; i < MAX_DUNGEON_DEPTH; i++)
+	{
+                /* Allocate and Wipe the special level history */
+                C_MAKE(spec_history[i], max_d_idx, byte);
+        }
 
 	/* Allocate and wipe each line of the cave */
 	for (i = 0; i < MAX_HGT; i++)
@@ -2715,8 +3597,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Ben Harrison", MAINTAINER);
-
+        (void)format("%s (%s).", "Dark God <dark.god@infonie.fr>", MAINTAINER);
 
 	/* Success */
 	return (0);
@@ -2919,19 +3800,6 @@ static errr init_alloc(void)
 }
 
 
-
-/*
- * Hack -- take notes on line 23
- */
-static void note(cptr str)
-{
-	Term_erase(0, 23, 255);
-	Term_putstr(20, 23, -1, TERM_WHITE, str);
-	Term_fresh();
-}
-
-
-
 /*
  * Hack -- Explain a broken "lib" folder and quit (see below).
  *
@@ -2965,13 +3833,21 @@ static void init_angband_aux(cptr why)
  */
 static errr init_python(void)
 {
-	char buf[1024];
+        char buf[1024], path[128];
+
+        Py_SetProgramName((char*)argv0);
+
+#if __djgpp__
+        setenv("PYTHONPATH", ANGBAND_DIR_SCPT, 1);
+        setenv("PYTHONHOME", ANGBAND_DIR_SCPT, 1);
+#endif /* __djgpp__ */
 
 	/* Initialize the Python interpreter */
 	Py_Initialize();
 
-	/* Add the "script" directory to the module search path */
-	sprintf(buf, "import sys; sys.path.insert(0, '%s')", ANGBAND_DIR_SCPT);
+        /* Add the "script" directory to the module search path */
+        ascii_to_text(path, ANGBAND_DIR_SCPT);
+        sprintf(buf, "import sys; sys.path.insert(0, '%s')", path);
 	PyRun_SimpleString(buf);
 
         /* Add the PernAngband modules */
@@ -3174,6 +4050,10 @@ void init_angband(void)
 	/* Initialize monster info */
 	note("[Initializing arrays... (monsters)]");
 	if (init_r_info()) quit("Cannot initialize monsters");
+
+        /* Initialize dungeon type info */
+        note("[Initializing arrays... (dungeon types)]");
+        if (init_d_info()) quit("Cannot initialize dungeon types");
 
 	/* Initialize town array */
 	note("[Initializing arrays... (towns)]");

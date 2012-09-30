@@ -375,15 +375,17 @@ static bool object_easy_know(int i)
 	switch (k_ptr->tval)
 	{
 		/* Spellbooks */
+                case TV_ILLUSION_BOOK:
+                case TV_TRIBAL_BOOK:
                 case TV_MAGIC_BOOK:
                 case TV_PRAYER_BOOK:
-		case TV_LIFE_BOOK:
-		case TV_SORCERY_BOOK:
-		case TV_NATURE_BOOK:
+                case TV_VALARIN_BOOK:
+                case TV_MAGERY_BOOK:
+                case TV_SHADOW_BOOK:
 		case TV_CHAOS_BOOK:
-		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
-		case TV_ARCANE_BOOK:
+                case TV_NETHER_BOOK:
+                case TV_CRUSADE_BOOK:
+                case TV_SIGALDRY_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_MIMIC_BOOK:
                 case TV_SYMBIOTIC_BOOK:
@@ -394,6 +396,7 @@ static bool object_easy_know(int i)
 		/* Simple items */
 		case TV_FLASK:
                 case TV_EGG:
+                case TV_JUNK:
                 case TV_FIRESTONE:
 		case TV_BOTTLE:
 		case TV_SKELETON:
@@ -1230,6 +1233,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Some objects are easy to describe */
 		case TV_SKELETON:
 		case TV_BOTTLE:
+                case TV_JUNK:
                 case TV_FIRESTONE:
 		case TV_SPIKE:
 		case TV_FLASK:
@@ -1395,78 +1399,78 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 			/* Magic Books */
-	case TV_LIFE_BOOK:
+        case TV_VALARIN_BOOK:
 		modstr = basenm;
-		if (mp_ptr->spell_book == TV_LIFE_BOOK)
-			basenm = "& Book~ of Life Magic #";
+                if (mp_ptr->spell_book == TV_VALARIN_BOOK)
+                        basenm = "& Book~ of Valarin Magic #";
 		else
-			basenm = "& Life Spellbook~ #";
+                        basenm = "& Valarin Spellbook~ #";
 		break;
 
-	case TV_SORCERY_BOOK:
+        case TV_MAGERY_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_LIFE_BOOK)
-                basenm = "& Book~ of Sorcery #";
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+                basenm = "& Book~ of Magery #";
             else
-                basenm = "& Sorcery Spellbook~ #";
+                basenm = "& Magery Spellbook~ #";
 			break;
 		}
 
-	case TV_NATURE_BOOK:
+        case TV_SHADOW_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_LIFE_BOOK)
-                basenm = "& Book~ of Nature Magic #";
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+                basenm = "& Book~ of Shadow Magic #";
             else
-                basenm = "& Nature Spellbook~ #";
+                basenm = "& Shadow Spellbook~ #";
 			break;
 		}
 
 	case TV_CHAOS_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Chaos Magic #";
             else
                 basenm = "& Chaos Spellbook~ #";
 			break;
 		}
-	case TV_DEATH_BOOK:
+        case TV_NETHER_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_LIFE_BOOK)
-                basenm = "& Book~ of Death Magic #";
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+                basenm = "& Book~ of Nether Magic #";
             else
-                basenm = "& Death Spellbook~ #";
+                basenm = "& Nether Spellbook~ #";
 			break;
 		}
 
 
-    case TV_TRUMP_BOOK:
+    case TV_CRUSADE_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_LIFE_BOOK)
-                basenm = "& Dragon Book~ #";
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+                basenm = "& Crusade Book~ #";
             else
-                basenm = "& Dragon Spellbook~ #";
+                basenm = "& Crusade Spellbook~ #";
 			break;
 		}
 
-    case TV_ARCANE_BOOK:
+    case TV_SIGALDRY_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_LIFE_BOOK)
-                basenm = "& Book~ of Arcane Magic #";
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
+                basenm = "& Book~ of Sigaldry Magic #";
             else
-                basenm = "& Arcane Spellbook~ #";
+                basenm = "& Sigaldry Spellbook~ #";
 			break;
 		}
 
     case TV_SYMBIOTIC_BOOK:
 		{
 			modstr = basenm;
-            if(mp_ptr->spell_book == TV_LIFE_BOOK)
+            if(mp_ptr->spell_book == TV_VALARIN_BOOK)
                 basenm = "& Book~ of Symbiotic Magic #";
             else
                 basenm = "& Symbiotic Spellbook~ #";
@@ -1494,6 +1498,22 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 			basenm = "& Holy Book~ of Prayers #";
+			break;
+		}
+
+                /* Illusion Books */
+                case TV_ILLUSION_BOOK:
+		{
+			modstr = basenm;
+                        basenm = "& Book~ of Illusions #";
+			break;
+		}
+
+                /* Tribal Books */
+                case TV_TRIBAL_BOOK:
+		{
+			modstr = basenm;
+                        basenm = "& Tribal Spellbook~ #";
 			break;
 		}
 
@@ -1592,8 +1612,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (basenm[0] == '&')
 	{
                 monster_race* r_ptr;
-                if(o_ptr->tval==TV_CORPSE)r_ptr = &r_info[o_ptr->pval2];
-                if(o_ptr->tval==TV_HYPNOS)r_ptr = &r_info[o_ptr->pval];
+                if(o_ptr->tval==TV_CORPSE) r_ptr = &r_info[o_ptr->pval2];
+                else r_ptr = &r_info[o_ptr->pval];
 
 		/* Skip the ampersand (and space) */
 		s = basenm + 2;
@@ -1744,6 +1764,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	{
 		t = object_desc_str(t, " of ");
 		t = object_desc_str(t, (k_name + k_ptr->name));
+
+                if((o_ptr->tval == TV_SCROLL) && (o_ptr->sval == SV_SCROLL_SPELL) && aware)
+                {
+                        t = object_desc_str(t, format("[%s]", spell_names[o_ptr->pval][o_ptr->pval2]));
+                }
 	}
 
 
@@ -1997,16 +2022,16 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		t = object_desc_chr(t, b2);
 	}
 
-        if((o_ptr->tval==TV_MSTAFF)&&(known)&&(o_ptr->name2!=EGO_MSTAFF_POWER)){
-                t = object_desc_str(t, "(x");
-                t = object_desc_num(t, o_ptr->pval);
-                t = object_desc_chr(t, ')');
+        if((f1 & TR1_MANA)&&(known)){
+                t = object_desc_chr(t, '(');
+                t = object_desc_num(t, 100 * o_ptr->pval / 5);
+                t = object_desc_str(t, "%)");
         }
 
         if((known)&&(f2 & TR2_LIFE)){
-                t = object_desc_str(t, "(x");
-                t = object_desc_num(t, o_ptr->pval);
-                t = object_desc_str(t, " life)");
+                t = object_desc_chr(t, '(');
+                t = object_desc_num(t, 100 * o_ptr->pval / 5);
+                t = object_desc_str(t, "%)");
         }
 
 	/* No more details wanted */
@@ -2243,7 +2268,7 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 cptr item_activation(object_type *o_ptr,byte num)
 {
         u32b f1, f2, f3, f4;
-        byte spell;
+        byte spell = 0;
 
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
@@ -2990,6 +3015,8 @@ cptr item_activation(object_type *o_ptr,byte num)
 				return "ball of cold and resist cold";
 			case SV_RING_ACID:
 				return "ball of acid and resist acid";
+                        case SV_RING_TELEPORTATION:
+                                return "teleportation and destruction of the ring";
 			default:
 				return NULL;
 		}
@@ -3075,6 +3102,53 @@ bool identify_fully_aux(object_type *o_ptr)
 	/* Extract the flags */
         object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
+	if (o_ptr->name1)
+	{
+	
+                char buff2[400], *s, *t;
+		int n;
+                artifact_type *a_ptr = &a_info[o_ptr->name1];
+			   
+	        a_ptr = &a_info[o_ptr->name1];
+		strcpy (buff2, a_text + a_ptr->text);
+
+		s = buff2;
+		
+                /* Collect the history */
+                while (TRUE)
+                {
+
+                        /* Extract remaining length */
+                        n = strlen(s);
+
+                        /* All done */
+                        if (n < 60)
+                        {
+                                /* Save one line of history */
+                                info[i++] = s;
+
+                                /* All done */
+                                break;
+                        }
+
+                        /* Find a reasonable break-point */
+                        for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+
+                        /* Save next location */
+                        t = s + n;
+
+                        /* Wipe trailing spaces */
+                        while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                        /* Save one line of history */
+                        info[i++] = s;
+
+                        s = t;
+                }
+
+                /* Add a blank line */
+                info[i++] = "";
+	}
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
@@ -3389,6 +3463,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f3 & (TR3_FEATHER))
 	{
 		info[i++] = "It allows you to levitate.";
+	}
+        if (f4 & (TR4_FLY))
+	{
+                info[i++] = "It allows you to fly.";
 	}
 	if (f3 & (TR3_LITE))
 	{
@@ -3830,11 +3908,20 @@ cptr describe_use(int i)
 
 /* Hack: Check if a spellbook is one of the realms we can use. -- TY */
 
-bool check_book_realm(const byte book_tval)
+bool check_book_realm(const int book_tval)
 {
-        return (p_ptr->realm1+89==book_tval || p_ptr->realm2+89==book_tval ||
-                ((p_ptr->pclass == CLASS_SORCERER) && (book_tval >= TV_LIFE_BOOK) &&
-                (book_tval <= TV_ARCANE_BOOK)));
+        if(p_ptr->pclass != CLASS_SORCERER)
+        {
+                return ((p_ptr->realm1 == book_tval - TV_VALARIN_BOOK + 1) ||
+                        (p_ptr->realm2 == book_tval - TV_VALARIN_BOOK + 1));
+        }
+        else
+        {
+                return ((book_tval >= TV_VALARIN_BOOK) &&
+                        (book_tval <= TV_TRIBAL_BOOK) &&
+                        (book_tval != TV_SYMBIOTIC_BOOK) &&
+                        (book_tval != TV_MUSIC_BOOK));
+        }
 }
 
 
@@ -3856,7 +3943,7 @@ bool item_tester_okay(object_type *o_ptr)
 	if (item_tester_tval)
         {       
                 /* Is it a spellbook? If so, we need a hack -- TY */
-                if (item_tester_tval<=TV_SYMBIOTIC_BOOK && item_tester_tval>=TV_LIFE_BOOK)
+                if (item_tester_tval<=TV_PRAYER_BOOK && item_tester_tval>=TV_VALARIN_BOOK)
                         return check_book_realm(o_ptr->tval);
                 else
                     if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
@@ -4358,7 +4445,7 @@ void toggle_inven_equip(void)
  *
  * The item can be negative to mean "item on floor".
  */
-static bool verify(cptr prompt, int item)
+bool verify(cptr prompt, int item)
 {
 	char    o_name[80];
 
@@ -4679,7 +4766,7 @@ static int get_tag(int *cp, char tag)
    */
 bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
   {
-        char n1, n2, which = ' ';
+        char n1 = 0, n2 = 0, which = ' ';
   
         int j, k, i1, i2, e1, e2;
   
@@ -5431,8 +5518,82 @@ static bool item_tester_hook_getable(object_type *o_ptr)
         if ((o_ptr->tval == TV_HYPNOS)&&(p_ptr->pclass != CLASS_SYMBIANT))
                 return FALSE;
 
+        if ((no_pickup_corpse == TRUE) && (o_ptr->tval == TV_CORPSE))
+                return FALSE;
+
         /* Assume yes */
         return (TRUE);
+}
+
+/*
+ * Wear a single item from o_ptr
+ */
+int wear_ammo(object_type *o_ptr)
+{
+        int slot, num = 1;
+
+	object_type forge;
+	object_type *q_ptr;
+
+	/* Check the slot */
+	slot = wield_slot(o_ptr);
+
+	/* Get local object */
+	q_ptr = &forge;
+
+	/* Obtain local object */
+	object_copy(q_ptr, o_ptr);
+
+        num = o_ptr->number; 
+
+	/* Modify quantity */
+        q_ptr->number = num;
+
+	/* Access the wield slot */
+	o_ptr = &inventory[slot];
+
+        q_ptr->number += o_ptr->number;
+
+	/* Wear the new stuff */
+	object_copy(o_ptr, q_ptr);
+
+	/* Increase the weight */
+	total_weight += q_ptr->weight;
+
+	/* Increment the equip counter by hand */
+	equip_cnt++;
+
+	/* Cursed! */
+	if (cursed_p(o_ptr))
+	{
+		/* Warn the player */
+		msg_print("Oops! It feels deathly cold!");
+
+		/* Note the curse */
+		o_ptr->ident |= (IDENT_SENSE);
+	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+        /* Recalculate hitpoint */
+        p_ptr->update |= (PU_HP);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+
+        /* Redraw monster hitpoint */
+        p_ptr->redraw |= (PR_MH);
+
+        p_ptr->redraw |= (PR_EQUIPPY);
+ 
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
+        return slot;
 }
 
 
@@ -5548,6 +5709,8 @@ void py_pickup_floor(int pickup)
 
                 if ((o_list[floor_o_idx].tval == TV_HYPNOS)&&(p_ptr->pclass != CLASS_SYMBIANT))
                         do_pickup = FALSE;
+                else if ((no_pickup_corpse == TRUE) && (o_list[floor_o_idx].tval == TV_CORPSE))
+                        do_pickup = FALSE;
                 else
                         this_o_idx = floor_o_idx;
         }
@@ -5593,11 +5756,22 @@ void py_pickup_floor(int pickup)
                 /* Pick up object */
                 else
                 {
-                        int slot;
+                        int slot = 0;
+                        object_type *q_ptr;
+
+                        q_ptr = &inventory[INVEN_AMMO];
    
                         /* Carry the item */
-                        slot = inven_carry(o_ptr, FALSE);
-   
+                        if(object_similar(o_ptr, q_ptr))
+                        {
+                                msg_print("You add the ammo to your quiver.");
+                                slot = wear_ammo(o_ptr);
+                        }
+                        else
+                        {
+                                slot = inven_carry(o_ptr, FALSE);
+                        }
+
                         /* Get the item again */
                         o_ptr = &inventory[slot];
    

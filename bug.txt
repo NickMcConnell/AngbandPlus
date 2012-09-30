@@ -1,0 +1,7 @@
+Known bugs:
+- The spell window code is disabled
+- The streamers are disabled(in some dungeons)
+- Problems when killing Bull Gate in the M$ quest, which are somewhat linked
+  to the mysterious shadow clock apparition in the wilderness
+- When saving while in a 'only once' quest and then reloading if you exit
+  without completing the quest it's not marked as failed ...

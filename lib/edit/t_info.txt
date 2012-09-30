@@ -22,8 +22,12 @@
 
 # Town 4
 ?:[EQU $TOWN 4]
-%:t0000004.txt
+%:t_lorien.txt
 
 # Volcano
 ?:[EQU $TOWN 5]
 %:volcano.txt
+
+# Numenor
+?:[EQU $TOWN 6]
+%:numenor.txt

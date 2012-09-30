@@ -6,7 +6,7 @@
 Q:21:N:Betrayal
 
 # Definition
-Q:21:Q:1:0:0:1:75:825:0
+Q:21:Q:1:0:0:1:75:825:0:2
 
 # Description for quest
 ?:[LEQ $QUEST21 2]

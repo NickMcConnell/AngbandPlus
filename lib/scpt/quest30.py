@@ -15,7 +15,7 @@ def event_attack():
         return 1
 
 def event_xtra_power(choice):
-        if(choice != 0):
+        if((choice != 0) and (choice != 1)):
                 msg_print("You are not allowed to do that now.")
                 return 1
         return 0
@@ -34,8 +34,8 @@ def event_go_up(level, questnumber):
         if (questnumber != 30):
                 return 0
         if (count_trees() < 40):
-                msg_print("You have failed to save at least 50% of the forest. Quest NOT finished.")
-                quest.set_status(30, quest.QUEST_STATUS_TAKEN)
+                msg_print("You have failed to save at least 50% of the forest. Quest failed.")
+                quest.set_status(30, quest.QUEST_STATUS_FAILED)
         event.remove_handler(event.EVENT_ATTACK, event_attack)
         event.remove_handler(event.EVENT_GO_UP, event_go_up)
         event.remove_handler(event.EVENT_COMMAND, event_command_magic)

@@ -19,10 +19,10 @@ M:R:1000
 M:K:800
 
 # Maximum number of vaults in v_info.txt
-M:V:105
+M:V:111
 
 # Maximum number of terrain features in f_info.txt
-M:F:200
+M:F:202
 
 # Maximum number of artifacts in a_info.txt
 M:A:210
@@ -30,8 +30,11 @@ M:A:210
 # Maximum number of ego-items in e_info.txt
 M:E:140
 
+# Maximum number of dungeon types in d_info.txt
+M:D:25
+
 # Maximum size for "o_list[]"
-M:O:256
+M:O:1024
 
 # Maximum size for "m_list[]"
 M:M:512

@@ -525,7 +525,11 @@ static hist_type bg[] =
         {"hundreds of ",  90, 203, 204, 65},
         {"uncounted multitudes of ", 100, 203, 204, 70},
 
-        {"foul offspring. ", 100, 204, 0, 50}
+        {"foul offspring. ", 100, 204, 0, 50},
+
+        {"You are one of five children of a blue Yeek.  ", 25,205,3,  50},
+        {"You are one of five children of a brown Yeek.  ", 75,205,3,  75},
+        {"You are one of five children on a master yeek.  ", 100,205,3, 100},
 };
 
 
@@ -555,7 +559,7 @@ static s32b auto_round;
  */
 static s32b last_round;
 
-byte choose_realm(byte choices)
+byte choose_realm(s32b choices)
 {
 
 	int picks[MAX_REALM] = {0};
@@ -570,53 +574,49 @@ byte choose_realm(byte choices)
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"The realm of magic will determine which spells you can learn.");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"Life and Sorcery are protective, Chaos and Death are destructive.");
-	Term_putstr(5, 17, -1, TERM_WHITE,
-		"Nature has both defensive and offensive spells.");
+//        Term_putstr(5, 16, -1, TERM_WHITE,
+//                "Life and Sorcery are protective, Chaos and Death are destructive.");
+//        Term_putstr(5, 17, -1, TERM_WHITE,
+//                "Nature has both defensive and offensive spells.");
 
 	n = 0;
 
-/* Hack: Allow priests to specialize in Life or Death magic */
-
-	if ((choices & CH_LIFE) && (p_ptr->realm1 != REALM_LIFE))
+        if ((choices & CH_VALARIN) && (p_ptr->realm1 != REALM_VALARIN))
 	{
-		sprintf(buf, "%c%c %s", I2A(n), p2, "Life");
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Valarin");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 		picks[n]=1;
 		n++;
 	}
 
-
-
-	if ((choices & CH_SORCERY) && (p_ptr->realm1 != REALM_SORCERY))
+        if ((choices & CH_MAGERY) && (p_ptr->realm1 != REALM_MAGERY))
 	{
-		sprintf(buf, "%c%c %s", I2A(n), p2, "Sorcery");
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Magery");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 		picks[n]=2;
 		n++;
 	}
 
-	if ((choices & CH_ARCANE) && (p_ptr->realm1 != REALM_ARCANE))
+        if ((choices & CH_SIGALDRY) && (p_ptr->realm1 != REALM_SIGALDRY))
 	{
-		sprintf(buf, "%c%c %s", I2A(n), p2, "Arcane");
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Sigaldry");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 		picks[n]=7;
 		n++;
 	}
 
 
-	if ((choices & CH_TRUMP) && (p_ptr->realm1 != REALM_TRUMP))
+        if ((choices & CH_CRUSADE) && (p_ptr->realm1 != REALM_CRUSADE))
 	{
-                sprintf(buf, "%c%c %s", I2A(n), p2, "Dragon");
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Crusade");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 		picks[n]=6;
 		n++;
 	}
 
-	if ((choices & CH_NATURE) && (p_ptr->realm1 != REALM_NATURE))
+        if ((choices & CH_SHADOW) && (p_ptr->realm1 != REALM_SHADOW))
 	{
-		sprintf(buf, "%c%c %s", I2A(n), p2, "Nature");
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Shadow");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 		picks[n]=3;
 		n++;
@@ -630,11 +630,27 @@ byte choose_realm(byte choices)
 		n++;
 	}
 
-	if ((choices & CH_DEATH) && (p_ptr->realm1 != REALM_DEATH))
+        if ((choices & CH_NETHER) && (p_ptr->realm1 != REALM_NETHER))
 	{
-		sprintf(buf, "%c%c %s", I2A(n), p2, "Death");
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Nether");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 		picks[n]=5;
+		n++;
+	}
+
+        if ((choices & CH_TRIBAL) && (p_ptr->realm1 != REALM_TRIBAL))
+	{
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Tribal");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+                picks[n]=13;
+		n++;
+	}
+
+        if ((choices & CH_ILLUSION) && (p_ptr->realm1 != REALM_ILLUSION))
+	{
+                sprintf(buf, "%c%c %s", I2A(n), p2, "Illusion");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+                picks[n]=12;
 		n++;
 	}
 
@@ -666,50 +682,97 @@ byte choose_realm(byte choices)
 static void get_realms()
 {
 	int pclas = p_ptr->pclass;
+        s32b choices = 0;
 
 	/* First we have null realms */
 	p_ptr->realm1 = p_ptr->realm2 = REALM_NONE;
 
 	/* Warriors and certain others get no realms */
 
-	if (realm_choices[pclas] == (CH_NONE)) return;
+        if ((Mrealm_choices[pclas] | mrealm_choices[pclas]) == (CH_NONE)) return;
 
 	/* Other characters get at least one realm */
 
 	switch (pclas)
 	{
-	case CLASS_WARRIOR_MAGE:
-                p_ptr->realm1 = choose_realm( CH_SORCERY | CH_ARCANE);
-		break;
-	case CLASS_CHAOS_WARRIOR:
-		p_ptr->realm1 = REALM_CHAOS;
-		break;
-        case CLASS_SYMBIANT:
-                p_ptr->realm1 = REALM_SYMBIOTIC;
-		break;
-        case CLASS_HARPER:
-                p_ptr->realm1 = REALM_MUSIC;
-		break;
-	case CLASS_PRIEST:
-		p_ptr->realm1 = choose_realm( CH_LIFE | CH_DEATH);
-		/*
-		 * Hack... priests can be 'dark' priests and choose death instead
-		 * of life, but not both
-		 */
-		break;
-	case CLASS_RANGER:
-		p_ptr->realm1 = REALM_NATURE;
-		break;
 	default:
-		p_ptr->realm1 = choose_realm(realm_choices[pclas]);
+                if(Mrealm_choices[pclas])
+                {
+                        if(count_bits(Mrealm_choices[pclas]) > 1)
+                                p_ptr->realm1 = choose_realm(Mrealm_choices[pclas]);
+                        else
+                        {
+                                int i;
+
+                                for(i = 1; i < MAX_REALM; i++)
+                                        if(Mrealm_choices[pclas] & (1 << (i - 1)))
+                                                p_ptr->realm1 = i;
+                        }
+                }
+                else
+                {
+                        if(count_bits(mrealm_choices[pclas]) > 1)
+                                p_ptr->realm1 = choose_realm(mrealm_choices[pclas]);
+                        else
+                        {
+                                int i;
+
+                                for(i = 1; i < MAX_REALM; i++)
+                                        if(mrealm_choices[pclas] & (1 << (i - 1)))
+                                                p_ptr->realm1 = i;
+                        }
+                }
 	}
 
-	/* Paladins, Chaos warrriors and rogues get no second realm */
-	if (pclas == CLASS_PALADIN || pclas == CLASS_ROGUE || pclas == CLASS_CHAOS_WARRIOR
-                || pclas == CLASS_MONK || pclas == CLASS_HIGH_MAGE || pclas == CLASS_SYMBIANT
-                || pclas == CLASS_HARPER) return;
-	else
-		p_ptr->realm2 = choose_realm(realm_choices[pclas]);
+        choices = mrealm_choices[pclas];
+
+        if((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_PRIEST))
+        {
+                switch(p_ptr->realm1)
+                {
+                        case REALM_VALARIN:
+                                choices &= ~CH_SIGALDRY;
+                                choices &= ~CH_ILLUSION;
+                                break;
+                        case REALM_NETHER:
+                                choices &= ~CH_TRIBAL;
+                                choices &= ~CH_CRUSADE;
+                                break;
+                        case REALM_MAGERY:
+                                choices &= ~CH_TRIBAL;
+                                choices &= ~CH_ILLUSION;
+                                break;
+                        case REALM_SHADOW:
+                                choices &= ~CH_CRUSADE;
+                                choices &= ~CH_SIGALDRY;
+                                break;
+                }
+        }
+
+        if(p_ptr->pclass == CLASS_HIGH_MAGE)
+        {
+                switch(p_ptr->realm1)
+                {
+                        case REALM_VALARIN:
+                        case REALM_NETHER:
+                        case REALM_MAGERY:
+                        case REALM_SHADOW:
+                                p_ptr->realm2 = 0;
+                                return;
+                                break;
+                }
+        }
+
+        if (count_bits(choices) > 1)
+                p_ptr->realm2 = choose_realm(choices);
+        else
+        {
+                int i;
+
+                for(i = 1; i < MAX_REALM; i++)
+                        if(choices & (1 << (i - 1)))
+                                p_ptr->realm2 = i;
+        }
 }
 
 /*
@@ -1041,10 +1104,23 @@ static void get_extra(void)
 	msg_print(NULL);
 #endif /* SHOW_LIFE_RATE */
 
-        if ((p_ptr->pclass == CLASS_PRIEST)||(p_ptr->pclass == CLASS_PALADIN))
+        if ((p_ptr->pclass == CLASS_PRIEST) || (p_ptr->pclass == CLASS_PRIOR) || (p_ptr->pclass == CLASS_PALADIN))
         {
-                p_ptr->pgod = rand_int(16);
-                set_grace(2500);
+                int i;
+                bool j = FALSE;
+
+                for(i = 0; i < MAX_GOD; i++)
+                {
+                        if((deity_info[i].race1 == p_ptr->prace) || (deity_info[i].race2 == p_ptr->prace))
+                        {
+                                j = TRUE;
+                                break;
+                        }
+                }
+
+                if(j) p_ptr->pgod = i + 1;
+                else p_ptr->pgod = randint(MAX_GOD - 1);
+                set_grace(5000);
                 p_ptr->god_favor = -60000;
                 show_god_info(FALSE);
         }
@@ -1184,6 +1260,11 @@ static void get_history(void)
                         chart = 200;
 			break;
 		}
+                case RACE_YEEK:
+                {
+                        chart = 205;
+                        break;
+                }
 		default:
 		{
 			chart = 0;
@@ -1270,7 +1351,7 @@ static void get_history(void)
 		for (s = t; *s == ' '; s++) /* loop */;
 	}
 
-        dungeon_type = 0;
+        dungeon_type = DUNGEON_GALGALS;
 }
 
 /*
@@ -1280,12 +1361,14 @@ errr init_randart(void) {
   int i;
   long foo;
   random_artifact* ra_ptr;
+  char buf[80];
 
   for (i = 0; i < MAX_RANDARTS; i++) {
     ra_ptr = &random_artifacts[i];
 
-    strcpy(ra_ptr->name_short, get_line("rart_s.txt", i));
-    strcpy(ra_ptr->name_full, get_line("rart_f.txt", i));
+    sprintf(buf, "%s", ANGBAND_DIR_FILE);
+    strcpy(ra_ptr->name_short, get_line("rart_s.txt", buf, i));
+    strcpy(ra_ptr->name_full, get_line("rart_f.txt", buf, i));
 
     ra_ptr->attr = randint(15);
     ra_ptr->activation = randint(MAX_T_ACT);
@@ -1403,14 +1486,10 @@ static void birth_put_stats(void)
  */
 static void player_wipe(void)
 {
-	int i;
+        int i, j;
         
         /* No mana multiplier */
-        p_ptr->to_m = 1;
-
-        /* Wipe the to keep monster list */
-        for(i = 0; i < max_m_idx; i++)
-                r_idx_to_keep[i] = 0;
+        p_ptr->to_m = 0;
 
 	/* Hack -- zero the struct */
 	WIPE(p_ptr, player_type);
@@ -1492,9 +1571,13 @@ static void player_wipe(void)
 	}
 
 
-	/* Hack -- no ghosts */
+        /* Hack -- ghosts */
 	r_info[max_r_idx-1].max_num = 0;
-
+        for(i = 0; i < MAX_GHOSTS; i++)
+        {
+                for(j = 0; j < 120; j++)
+                        ghost_file[i][j] = 0;
+        }        
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
@@ -1503,11 +1586,17 @@ static void player_wipe(void)
         p_ptr->music = 255;
 
 	/* Wipe the spells */
-	spell_learned1 = spell_learned2 = 0L;
-	spell_worked1 = spell_worked2 = 0L;
-	spell_forgotten1 = spell_forgotten2 = 0L;
-	for (i = 0; i < 64; i++) spell_order[i] = 99;
-
+        for (i = 0; i < MAX_REALM; i++)
+        {
+                spell_learned[i][0] = spell_learned[i][1] = 0L;
+                spell_worked[i][0] = spell_worked[i][1] = 0L;
+                spell_forgotten[i][0] = spell_forgotten[i][1] = 0L;
+        }
+        for (i = 0; i < 64; i++)
+        {
+                realm_order[i] = 99;
+                spell_order[i] = 99;
+        }
 
 	/* Clear "cheat" options */
 	cheat_peek = FALSE;
@@ -1550,6 +1639,18 @@ static void player_wipe(void)
 
         /* Recall stuff */
         p_ptr->recall_dungeon = DUNGEON_GALGALS;
+
+        /* Wipe the bounties */
+        total_bounties = 0;
+
+        /* Wipe spells */
+        p_ptr->xtra_spells = 0;
+
+        /* Wipe the monsters */
+        wipe_m_list();
+
+        /* Wipe the doppleganger */
+        doppleganger = 0;
 }
 
 
@@ -1571,56 +1672,56 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Mage */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+                { TV_NETHER_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
 	{
 		/* Priest */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for Life / Death book */
+                { TV_MAGERY_BOOK, 0 },
 		{ TV_HAFTED, SV_MACE },
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+                { TV_NETHER_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
 	{
 		/* Rogue */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
 	},
 
 	{
 		/* Ranger */
-		{ TV_NATURE_BOOK, 0 },
+//                { TV_NATURE_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_DEATH_BOOK, 0 }		/* Hack: for realm2 book */
+                { TV_NETHER_BOOK, 0 }            /* Hack: for realm2 book */
 	},
 
 	{
 		/* Paladin */
-		{ TV_SORCERY_BOOK, 0 },
+                { TV_MAGERY_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
 	},
 
 	{
 		/* Warrior-Mage */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+                { TV_NETHER_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
 	{
 		/* Chaos Warrior */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: For realm1 book */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: For realm1 book */
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
 	},
 
 	{
 		/* Monk */
-		{ TV_SORCERY_BOOK, 0 },
+                { TV_MAGERY_BOOK, 0 },
 		{ TV_POTION, SV_POTION_HEALING },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 	},
@@ -1634,7 +1735,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* High Mage */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_RING, SV_RING_SUSTAIN_INT}
 	},
@@ -1662,14 +1763,14 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
                 /* Symbiant */
-                { TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
                 { TV_SWORD, SV_DAGGER },
                 { TV_SCROLL, SV_SCROLL_SUMMON_MINE }
 	},
 
 	{
                 /* Harper */
-                { TV_SORCERY_BOOK, 0 },
+                { TV_MAGERY_BOOK, 0 },
 		{ TV_SWORD, SV_DAGGER },
                 { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
 	},
@@ -1711,10 +1812,24 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
                 /* Sorcerer */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-                { TV_DEATH_BOOK, 0 }, /* Hack: for realm2 book */
+                { TV_MAGERY_BOOK, 0 }, /* Hack: for realm1 book */
+                { TV_NETHER_BOOK, 0 }, /* Hack: for realm2 book */
                 { TV_POTION, SV_POTION_RESTORE_MANA },
         },
+
+	{
+                /* Archer */
+                { TV_BOW, SV_SHORT_BOW },
+                { TV_SWORD, SV_DAGGER },
+                { TV_BOW, SV_SLING }            /* Hack: for realm2 book */
+	},
+
+	{
+		/* Illusionist  -KMW-  */
+		{ TV_ILLUSION_BOOK, 0 },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
+	},
 };
 
 
@@ -1846,12 +1961,61 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
+        if (p_ptr->pclass == CLASS_ALCHEMIST)
+	{
+                /* Hack -- Give the player a pair of gloves */
+                object_prep(q_ptr, lookup_kind(TV_GLOVES, SV_SET_OF_LEATHER_GLOVES));
+                q_ptr->number = 1;
+                apply_magic(q_ptr, 1, TRUE, FALSE, FALSE);
+                object_aware(q_ptr);
+		object_known(q_ptr);
+
+		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
+
+		(void)inven_carry(q_ptr, FALSE);
+	}
+
+	/* Get local object */
+	q_ptr = &forge;
+
         if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_SORCERER))
 	{
                 /* Hack -- Give the player a Wand of Fireball */
                 object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_FIRE_BALL));
                 q_ptr->number = 1;
                 apply_magic(q_ptr, 1, TRUE, FALSE, FALSE);
+                object_aware(q_ptr);
+		object_known(q_ptr);
+
+		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
+
+		(void)inven_carry(q_ptr, FALSE);
+	}
+
+	/* Get local object */
+	q_ptr = &forge;
+
+        if (p_ptr->pclass == CLASS_ARCHER)
+	{
+                /* Hack -- Give the player a some ammo */
+                object_prep(q_ptr, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
+                q_ptr->number = (byte)rand_range(15,20);
+                object_aware(q_ptr);
+		object_known(q_ptr);
+
+		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
+
+		(void)inven_carry(q_ptr, FALSE);
+
+                /* Get local object */
+                q_ptr = &forge;
+
+                /* Hack -- Give the player a some ammo */
+                object_prep(q_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
+                q_ptr->number = (byte)rand_range(15,20);
                 object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1869,8 +2033,8 @@ static void player_outfit(void)
 		sv = player_init[p_ptr->pclass][i][1];
 
 		/* Hack to initialize spellbooks */
-		if (tv  == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
-		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
+                if (tv  == TV_MAGERY_BOOK) tv = TV_VALARIN_BOOK + p_ptr->realm1 - 1;
+                else if (tv == TV_NETHER_BOOK) tv = TV_VALARIN_BOOK + p_ptr->realm2 - 1;
 
 		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
 		    p_ptr->prace == RACE_BARBARIAN)
@@ -1883,12 +2047,12 @@ static void player_outfit(void)
 		/* Hack -- Give the player an object */
 		object_prep(q_ptr, lookup_kind(tv, sv));
 
-		/* Assassins begin the game with a poisoned dagger */
-		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
-			p_ptr->realm1 == REALM_DEATH) /* Only assassins get a poisoned weapon */
-		{
-			q_ptr->name2 = EGO_BRAND_POIS;
-		}
+//                /* Assassins begin the game with a poisoned dagger */
+//                if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
+//                        p_ptr->realm1 == REALM_NETHER) /* Only assassins get a poisoned weapon */
+//                {
+//                        q_ptr->name2 = EGO_BRAND_POIS;
+//                }
 
 		/* These objects are "storebought" */
 		q_ptr->ident |= IDENT_STOREB;
@@ -1998,7 +2162,7 @@ static bool player_birth_aux()
 		if (c == 'S') return (FALSE);
 		if (c == '*')
 		{
-                        k = randint(MAX_SEXES);
+                        k = rand_int(MAX_SEXES);
 			break;
 		}
 		k = (islower(c) ? A2I(c) : -1);
@@ -2049,7 +2213,7 @@ static bool player_birth_aux()
 		if (c == 'S') return (FALSE);
 		if (c == '*')
 		{
-                        k = randint(MAX_RACES);
+                        k = rand_int(MAX_RACES);
 			break;
 		}
             k = (islower(c) ? A2I(c) : -1);
@@ -2073,10 +2237,8 @@ static bool player_birth_aux()
 	/*** Player class ***/
 
 	/* Extra info */
-        Term_putstr(5, 15, -1, TERM_WHITE,
+        Term_putstr(5, 14, -1, TERM_WHITE,
 		"Your 'class' determines various intrinsic abilities and bonuses.");
-        Term_putstr(5, 16, -1, TERM_WHITE,
-        "Any entries in parentheses should only be used by advanced players.");
 
 	/* Dump classes */
 	for (n = 0; n < MAX_CLASS; n++)
@@ -2113,7 +2275,7 @@ static bool player_birth_aux()
 		if (c == 'S') return (FALSE);
 		if (c == '*')
 		{
-			k = randint(n) - 1;
+                        k = randint(n) - 1;
 			break;
 		}
 		k = (islower(c) ? A2I(c) : -1);
@@ -2123,6 +2285,20 @@ static bool player_birth_aux()
 	}
 
 	/* Set class */
+#ifdef FORBID_BAD_COMBINAISON
+        if (!(rp_ptr->choice & (1L << k )))
+        {
+                noscore |= 0x0020;
+                message_add(" ");
+                message_add(" ");
+                message_add(" ");
+                message_add("***************************");
+                message_add("***************************");
+                message_add("********* Cheater *********");
+                message_add("***************************");
+                message_add("***************************");
+        }
+#endif
 	p_ptr->pclass = k;
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
@@ -2218,7 +2394,7 @@ static bool player_birth_aux()
 	p_ptr->preserve = (c == 'y');
 
 	/* Initialize allow_one_death */
-	p_ptr->allow_one_death = FALSE;
+        p_ptr->allow_one_death = 0;
 
 	/* Clear */
 	clear_from(20);
@@ -2230,6 +2406,10 @@ static bool player_birth_aux()
 		"Using special levels allows usage of pre-defined unique levels.");
 	Term_putstr(5, 16, -1, TERM_WHITE,
 		"These can make the game harder, but more interesting.   ");
+        Term_putstr(5, 17, -1, TERM_YELLOW,
+                "Note that the artifacts present in the levels are showed as");
+        Term_putstr(5, 18, -1, TERM_YELLOW,
+                "found in the list.");
 
 	/* Ask about "special" mode */
 	while (1)
@@ -2256,7 +2436,7 @@ static bool player_birth_aux()
 	p_ptr->special = (c == 'y');
 
 	/* Clear */
-	clear_from(20);
+        clear_from(15);
 
         /*** Vanilla town ***/
 
@@ -2521,6 +2701,12 @@ static bool player_birth_aux()
 
 			r_ptr = &r_info[q_ptr->r_idx];
 
+                        /* Accept only monsters that are not breeders */
+                        if (r_ptr->flags2 & RF2_MULTIPLY) continue;
+
+                        /* Accept only monsters that are not friends */
+                        if (r_ptr->flags7 & RF7_PET) continue;
+
 			/* Accept only monsters that are out of depth */
 			if (r_ptr->level > q_ptr->level) break;
 		}
@@ -2647,7 +2833,7 @@ static bool player_birth_aux()
 
 				/* Make sure they see everything */
 				Term_fresh();
-#if 0
+#ifndef USE_FAST_AUTOROLLER
 				/* Delay 1/10 second */
 				if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
 #endif
@@ -2894,6 +3080,7 @@ static void validate_bg(void)
         race_chart[RACE_VAMPIRE] = 113;
         race_chart[RACE_SPECTRE] = 118;
         race_chart[RACE_MOLD] = 200;
+        race_chart[RACE_YEEK] = 205;
 
         /* Check each race */
         for (race = 0; race < MAX_RACES; race++)
@@ -2918,6 +3105,7 @@ static void validate_bg(void)
 void player_birth(void)
 {
         int i,j,n;
+
 
         /* Validate the bg[] table */
         validate_bg();
@@ -2967,88 +3155,48 @@ void player_birth(void)
 	select_bounties();
 
 	/* special levels */
-	for (n=1;n<101;n++)
-		p_ptr->spec_history[n]=0;
+        for (i = 0; i < max_d_idx; i++)
+                for (n = 0; n < MAX_DUNGEON_DEPTH; n++)
+                        spec_history[n][i] = 0;
 
 	/* initialize variable according to text file v_info.txt */
 
 	if (p_ptr->special)
 	{
-        init_v_info();
-        for (n=1;n<max_v_idx;n++)
-	{
-		vault_type *v_ptr = &v_info[n];
-		if (v_ptr->typ == 99)
-		{
+                /* Initialize the vaults */
+                init_v_info();
 
-			p_ptr->spec_history[v_ptr->lvl]=1;
-			if (v_ptr->mon1 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon1];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon2 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon2];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon3 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon3];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon4 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon4];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon5 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon5];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon6 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon6];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon7 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon7];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon8 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon8];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon9 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon9];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->mon10 != 0) /* a monster */
-				{       
-				monster_race    *r_ptr = &r_info[v_ptr->mon10];
-				r_ptr->max_num--;       /* if unique, kills them */
-				}
-			if (v_ptr->item1 != 0) /* artifact */
-				{
-				artifact_type   *a_ptr = &a_info[v_ptr->item1];
-				a_ptr->cur_num = 1;     /* mark artifact found */
-				}
-			if (v_ptr->item2 != 0) /* artifact */
-				{
-				artifact_type   *a_ptr = &a_info[v_ptr->item2];
-				a_ptr->cur_num = 1;     /* mark artifact found */
-				}
-			if (v_ptr->item3 != 0) /* artifact */
-				{
-				artifact_type   *a_ptr = &a_info[v_ptr->item3];
-				a_ptr->cur_num = 1;     /* mark artifact found */
-				}
-		}
-	}
+                for (n=1;n<max_v_idx;n++)
+                {
+                        vault_type *v_ptr = &v_info[n];
+
+                        if (v_ptr->typ == 99)
+                        {
+                                spec_history[v_ptr->lvl - d_info[v_ptr->dun_type].mindepth][v_ptr->dun_type] = 1;
+
+                                for (i = 0; i < 10; i++)
+                                {
+                                        if (v_ptr->mon[i] != 0) /* a monster */
+                                        {       
+                                                monster_race    *r_ptr = &r_info[v_ptr->mon[i]];
+                                                if (r_ptr->flags1 & RF1_UNIQUE)
+                                                        /* Hack -- set to -1 will not generate them nor show them in the unique killed list */
+                                                        r_ptr->max_num = -1;
+                                                else
+                                                        r_ptr->max_num--;
+                                        }
+                                }
+
+                                for (i = 0; i < 3; i++)
+                                {
+                                        if (v_ptr->item[i] != 0) /* artifact */
+                                        {
+                                                artifact_type   *a_ptr = &a_info[v_ptr->item[i]];
+                                                a_ptr->cur_num = 1;     /* mark artifact found */
+                                        }
+                                }
+                        }
+                }
 	}
 }
 

@@ -94,6 +94,8 @@ void initquest(void)
         add_constant(d, "QUEST_STATUS_COMPLETED", QUEST_STATUS_COMPLETED);
         add_constant(d, "QUEST_STATUS_REWARDED", QUEST_STATUS_REWARDED);
         add_constant(d, "QUEST_STATUS_FINISHED", QUEST_STATUS_FINISHED);
+        add_constant(d, "QUEST_STATUS_FAILED", QUEST_STATUS_FAILED);
+        add_constant(d, "QUEST_STATUS_FAILED_DONE", QUEST_STATUS_FAILED_DONE);
         add_constant(d, "QUEST_TYPE_KILL_LEVEL", QUEST_TYPE_KILL_LEVEL);
         add_constant(d, "QUEST_TYPE_KILL_ANY_LEVEL", QUEST_TYPE_KILL_ANY_LEVEL);
         add_constant(d, "QUEST_TYPE_FIND_ARTIFACT", QUEST_TYPE_FIND_ARTIFACT);

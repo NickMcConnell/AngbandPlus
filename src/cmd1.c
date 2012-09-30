@@ -2292,12 +2292,12 @@ void py_attack(int y, int x)
 
         if(!(f4 & TR4_NEVER_BLOW))
         {
-        byte num_blow = p_ptr->num_blow;
+        int num_blow = p_ptr->num_blow;
 
         if(p_ptr->body_monster)
         {
-                p_ptr->num_blow -= 4;
-                p_ptr->num_blow = (p_ptr->num_blow>0)?p_ptr->num_blow:1;
+                num_blow -= 4;
+                num_blow = (num_blow>=0)?num_blow:0;
         }
 
 	/* Attack once for each legal blow */
@@ -2508,6 +2508,72 @@ void py_attack(int y, int x)
 				}
 
 				k += o_ptr->to_d;
+
+                                /* Mega Hack -- Hitting Nazgul is REALY dangerous(ideas from Akhronath) */
+                                if(r_ptr->flags7 & RF7_NAZGUL)
+                                {
+                                        if((!o_ptr->name2) && (!o_ptr->name1))
+                                        {
+                                                msg_print("Your weapon is destroyed !");
+                                                k = 0;
+                                                inven_item_increase(INVEN_WIELD, -1);
+                                                inven_item_optimize(INVEN_WIELD);
+
+                                                /* To stop attacking */
+                                                num = num_blow;
+                                        }
+                                        else if(o_ptr->name2)
+                                        {
+                                                if(!(f1 & TR1_SLAY_EVIL) && !(f1 & TR1_SLAY_UNDEAD))
+                                                {
+                                                        msg_print("You can't do any damage to a Nazgul with that weapon.");
+                                                        k = 0;
+                                                }
+
+                                                /* 25% chance of getting destroyed */
+                                                if(magik(25))
+                                                {
+                                                        msg_print("Your weapon is destroyed !");
+                                                        inven_item_increase(INVEN_WIELD, -1);
+                                                        inven_item_optimize(INVEN_WIELD);
+
+                                                        /* To stop attacking */
+                                                        num = num_blow;
+                                                }
+                                        }
+                                        else if(o_ptr->name1)
+                                        {
+                                                if(!(f1 & TR1_SLAY_EVIL) && !(f1 & TR1_SLAY_UNDEAD))
+                                                {
+                                                        msg_print("You can't do any damage to a Nazgul with that weapon.");
+                                                        k = 0;
+                                                }
+
+                                                apply_disenchant(INVEN_WIELD);
+
+                                                /* 5% chance of getting destroyed */
+                                                if(magik(5))
+                                                {
+                                                        msg_print("Your weapon is destroyed !");
+                                                        inven_item_increase(INVEN_WIELD, -1);
+                                                        inven_item_optimize(INVEN_WIELD);
+
+                                                        /* To stop attacking */
+                                                        num = num_blow;
+                                                }
+                                        }
+
+                                        /* If any damage is done, then 25% chance of getting the Black Breath */
+                                        if(k)
+                                        {
+                                                if(magik(25))
+                                                {
+                                                        msg_print("Your foe calls upon your soul!");
+                                                        msg_print("You feel the Black Breath slowly draining you of life...");
+                                                        p_ptr->black_breath = TRUE;
+                                                }
+                                        }
+                                }
 			}
 
 			/* Apply the player damage bonuses */
@@ -2911,14 +2977,6 @@ bool player_can_enter(byte feature)
 					return (FALSE);
 			}
 
-		case FEAT_DARK_PIT:
-			{
-				if (p_ptr->ffall)
-					return (TRUE);
-				else
-					return (FALSE);
-			}
-
 		case FEAT_TREES:
 			{
                                 if ((p_ptr->ffall)||(p_ptr->prace==RACE_ENT)||(p_ptr->mimic_form==MIMIC_ENT)||(p_ptr->pclass==CLASS_RANGER))
@@ -2927,37 +2985,17 @@ bool player_can_enter(byte feature)
 					return (FALSE);
 			}
 
-		case FEAT_RUBBLE:
-		case FEAT_MAGMA:
-		case FEAT_QUARTZ:
-		case FEAT_MAGMA_H:
-		case FEAT_QUARTZ_H:
-		case FEAT_MAGMA_K:
-		case FEAT_QUARTZ_K:
-		case FEAT_WALL_EXTRA:
-		case FEAT_WALL_INNER:
-		case FEAT_WALL_OUTER:
-		case FEAT_WALL_SOLID:
+                default:
 			{
-				return (pass_wall);
-			}
-
-		case FEAT_MOUNTAIN:
-			{
-                                if ((p_ptr->ffall) || (pass_wall))
+                                if ((p_ptr->fly) && (f_info[feature].flags1 & FF1_CAN_FLY))
 					return (TRUE);
-				else
-					return (FALSE);
+                                else if ((p_ptr->ffall) && ((f_info[feature].flags1 & FF1_CAN_FLY) || (f_info[feature].flags1 & FF1_CAN_LEVITATE)))
+					return (TRUE);
+                                else if ((pass_wall) && (f_info[feature].flags1 & FF1_CAN_PASS))
+					return (TRUE);
+                                else if (f_info[feature].flags1 & FF1_NO_WALK)
+                                        return (FALSE);
 			}
-
-		case FEAT_PERM_EXTRA:
-		case FEAT_PERM_INNER:
-		case FEAT_PERM_OUTER:
-		case FEAT_PERM_SOLID:
-			{
-				return (FALSE);
-			}
-
 	}
 
 	return (TRUE);
@@ -3084,6 +3122,7 @@ void move_player(int dir, int do_pickup)
 	/* unless in Shadow Form */
 	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
 		p_can_pass_walls = TRUE;
+
 	if ((cave[y][x].feat >= FEAT_PERM_EXTRA) &&
 	    (cave[y][x].feat <= FEAT_PERM_SOLID))
 	{
@@ -3194,7 +3233,7 @@ void move_player(int dir, int do_pickup)
 		oktomove = FALSE;
 	}
 
-        else if ((c_ptr->feat == FEAT_MOUNTAIN) && !p_ptr->ffall && !p_can_pass_walls)
+        else if ((c_ptr->feat == FEAT_MOUNTAIN) && !p_ptr->fly && !p_can_pass_walls)
 	{
 		msg_print("You can't climb the mountains!");
 		running = 0;
@@ -3208,7 +3247,7 @@ void move_player(int dir, int do_pickup)
         else if (c_ptr->feat == FEAT_TREES)
 	{
                 oktomove = FALSE;
-                if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->mimic_form == MIMIC_ENT) || (p_ptr->prace == RACE_ENT) || p_ptr->ffall || p_can_pass_walls) oktomove=TRUE;
+                if ((p_ptr->pclass == CLASS_RANGER) || (p_ptr->mimic_form == MIMIC_ENT) || (p_ptr->prace == RACE_ENT) || p_ptr->fly || p_can_pass_walls) oktomove=TRUE;
 	}
 
 	else if ((c_ptr->feat >= FEAT_QUEST_ENTER) &&
@@ -3237,8 +3276,9 @@ void move_player(int dir, int do_pickup)
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
 	/* Player can not walk through "walls" unless in wraith form...*/
-	else if ((!cave_floor_bold(y, x)) &&
-		(!p_can_pass_walls))
+        else if ((f_info[c_ptr->feat].flags1 & FF1_WALL) &&
+                (!(f_info[c_ptr->feat].flags1 & FF1_CAN_PASS) ||
+                 (!p_can_pass_walls)))
 	{
 		oktomove = FALSE;
 
@@ -3266,7 +3306,7 @@ void move_player(int dir, int do_pickup)
 			}
 
                         /* Mountain and levitation */
-                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->ffall)
+                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->fly)
 			{
                                 oktomove=TRUE;
 			}
@@ -3325,7 +3365,7 @@ void move_player(int dir, int do_pickup)
 			}
 
                         /* Mountain and levitation */
-                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->ffall)
+                        else if ((c_ptr->feat == FEAT_MOUNTAIN) && p_ptr->fly)
 			{
                                 oktomove=TRUE;
 			}
@@ -3468,6 +3508,15 @@ void move_player(int dir, int do_pickup)
 			}
 
 			leaving_quest = p_ptr->inside_quest;
+
+			/* Leaving an 'only once' quest marks it as failed */
+			if (leaving_quest &&
+				(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+				(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+			{
+				quest[leaving_quest].status = QUEST_STATUS_FAILED;
+			}
+
 			p_ptr->inside_quest = cave[y][x].special;
 			dun_level = 0;
 			p_ptr->oldpx = 0;
@@ -3509,6 +3558,16 @@ void move_player(int dir, int do_pickup)
 			/* Hit the trap */
 			hit_trap();
 		}
+
+                /* Execute the inscription */
+                else if (c_ptr->inscription)
+                {
+                        msg_format("There is an inscription here: %s", inscription_info[c_ptr->inscription].text);
+                        if(inscription_info[c_ptr->inscription].when & INSCRIP_EXEC_WALK)
+                        {
+                                execute_inscription(c_ptr->inscription, py, px);
+                        }
+                }
 	}
 }
 
@@ -4651,7 +4710,7 @@ void do_cmd_pet(void)
 }
 
 /* Incarnate into a body */
-void do_cmd_integrate_body()
+bool do_cmd_integrate_body()
 {
         cptr q, s;
         int item;
@@ -4660,7 +4719,7 @@ void do_cmd_integrate_body()
         if(!p_ptr->disembodied)
         {
                 msg_print("You are already in a body");
-                return;
+                return FALSE;
         }        
 
         /* Restrict choices to monsters */
@@ -4669,14 +4728,14 @@ void do_cmd_integrate_body()
         /* Get an item */
         q = "Incarnate in which body? ";
         s = "You have no corpse to incarnate in.";
-        if (!get_item(&item, q, s, (USE_FLOOR))) return;
+        if (!get_item(&item, q, s, (USE_FLOOR))) return FALSE;
 
         o_ptr = &o_list[0 - item];
 
         if(o_ptr->sval != SV_CORPSE_CORPSE)
         {
                 msg_print("You must select a corpse");
-                return;
+                return FALSE;
         }
 
         p_ptr->body_monster = o_ptr->pval2;
@@ -4689,8 +4748,9 @@ void do_cmd_integrate_body()
         msg_print("Your spirit is incarned in your new body.");
         p_ptr->wraith_form = 0;
         p_ptr->disembodied = FALSE;
-        p_ptr->update |= PU_BONUS | PU_HP | PU_MANA | PU_SANITY | PU_SPELLS;
-        p_ptr->redraw |= PW_PLAYER;
+	do_cmd_redraw();
+
+        return TRUE;
 }
 
 /* Leave a body */
@@ -4727,10 +4787,174 @@ void do_cmd_leave_body(bool drop_body)
                 drop_near(o_ptr, -1, py, px);
         }
 
-        msg_print("Your spirit leave your body.");
+        msg_print("Your spirit leaves your body.");
         p_ptr->disembodied = TRUE;
-        p_ptr->body_monster = 133; /* Lost soul(just for the picture) */
-        p_ptr->update |= PU_BONUS | PU_HP | PU_MANA | PU_SANITY | PU_SPELLS;
-        p_ptr->redraw |= PW_PLAYER;
-        note_spot(py, px);
+        p_ptr->body_monster = test_monster_name("Lost soul"); /* Lost soul(just for the picture) */
+	do_cmd_redraw();
+}
+
+bool execute_inscription(byte i, byte y, byte x)
+{
+        cave_type *c_ptr = &cave[y][x];
+
+        /* Check is the grid as enough mana to be actived */
+        if(c_ptr->mana >= inscription_info[i].mana)
+        {
+                /* Reduce the grid mana -- note: it can't be restored */
+                c_ptr->mana -= inscription_info[i].mana;
+
+                switch(i)
+                {
+                        case INSCRIP_LIGHT:
+                        {
+                                msg_print("The inscription shines in a bright light !");
+                                lite_room(y, x);
+                                break;
+                        }
+                        case INSCRIP_DARK:
+                        {
+                                msg_print("The inscription is enveloped in a dark aura!");
+                                unlite_room(y, x);
+                                break;
+                        }
+                        case INSCRIP_STORM:
+                        {
+                                msg_print("The inscription releases a powerfull storm !");
+                                project(0, 3, y, x, damroll(10, 10), GF_ELEC, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
+                                break;
+                        }
+                        case INSCRIP_PROTECTION:
+                        {
+                                return FALSE;
+                                break;
+                        }
+                        case INSCRIP_DWARF_SUMMON:
+                        {
+                                int yy = y, xx = x;
+
+                                scatter(&yy, &xx, y, x, 3, 0);
+                                place_monster_one(yy, xx, test_monster_name("Dwarven Warrior"), FALSE, TRUE);
+                                break;
+                        }
+                        case INSCRIP_CHASM:
+                        {
+                monster_type *m_ptr;
+                monster_race *r_ptr;
+                cave_type *c_ptr;
+                int     ii = x, ij = y;
+        
+                cave_set_feat(ij, ii, FEAT_DARK_PIT);
+                msg_print("A chasm appears in the floor!");
+
+                if(cave[ij][ii].m_idx)
+                {
+                        m_ptr = &m_list[cave[ij][ii].m_idx];
+                        r_ptr = &r_info[m_ptr->r_idx];
+
+                        if(r_ptr->flags7 & RF7_CAN_FLY)
+                        {
+                                msg_print("The monster simply fly over the chasm.");
+                        }
+                        else
+                        {
+                                if(!(r_ptr->flags1 & RF1_UNIQUE))
+                                        msg_print("The monster fall in the chasm !");
+
+                                delete_monster(ij, ii);
+                        }
+                }
+
+                if(cave[ij][ii].o_idx)
+                {
+                        s16b this_o_idx, next_o_idx = 0;
+
+                        c_ptr = &cave[ij][ii];
+
+                        /* Scan all objects in the grid */
+                        for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+                        {
+                                object_type *o_ptr;
+                                bool plural = FALSE;
+
+                                char o_name[80];
+	
+                                /* Acquire object */
+                                o_ptr = &o_list[this_o_idx];
+
+                                if(o_ptr->number > 1) plural = TRUE;
+
+                                /* Acquire next object */
+                                next_o_idx = o_ptr->next_o_idx;
+
+                                /* Effect "observed" */
+                                if (o_ptr->marked)
+                                {
+                                        object_desc(o_name, o_ptr, FALSE, 0);
+                                }
+
+                                /* Artifacts get to resist */
+                                if (o_ptr->name1)
+                                {
+                                        /* Observe the resist */
+                                        if (o_ptr->marked)
+                                        {
+                                                msg_format("The %s %s simply fly over the chasm!",
+                                                           o_name, (plural ? "are" : "is"));
+                                        }
+                                }
+
+                                /* Kill it */
+                                else
+                                {
+                                        /* Delete the object */
+                                        delete_object_idx(this_o_idx);
+
+                                        /* Redraw */
+                                        lite_spot(ij, ii);
+                                }
+                        }
+               }
+                                break;
+                        }
+                        case INSCRIP_BLACK_FIRE:
+                        {
+                                msg_print("The inscription releases a blast of hellfire !");
+                                project(0, 3, y, x, 200, GF_HELL_FIRE, PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
+                                break;
+                        }
+                }
+        }
+        return TRUE;
+}
+
+/* Choose an inscription and engrave it */
+void do_cmd_engrave()
+{
+        char buf[41] = "";
+        byte i;
+
+        sprintf(buf, "%s", inscription_info[cave[py][px].inscription].text);
+
+        get_string("Engrave what ? ", buf, 40);
+
+        for(i = 0; i < MAX_INSCRIPTIONS; i++)
+        {
+                if(!strcmp(inscription_info[i].text, buf))
+                {
+                        if(inscription_info[i].know)
+                        {
+                                /* Save the inscription */
+                                cave[py][px].inscription = i;
+                        }else
+                                msg_print("You can't use this inscription for now.");
+                }
+        }
+
+        /* Execute the inscription */
+        if(inscription_info[cave[py][px].inscription].when & INSCRIP_EXEC_ENGRAVE)
+        {
+                execute_inscription(cave[py][px].inscription, py, px);
+        }
+
+        energy_use += 300;
 }

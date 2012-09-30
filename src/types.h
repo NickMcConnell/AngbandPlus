@@ -111,12 +111,14 @@ typedef struct feature_type feature_type;
 
 struct feature_type
 {
-	u32b name;			/* Name (offset) */
-	u32b text;			/* Text (offset) */
+        u32b name;              /* Name (offset) */
+        u32b text;              /* Text (offset) */
 
-	byte mimic;			/* Feature to mimic */
+        byte mimic;             /* Feature to mimic */
 
-	byte extra;			/* Extra byte (unused) */
+        u32b flags1;            /* First set of flags */
+
+        byte extra;             /* Extra byte (unused) */
 
 	s16b unused;		/* Extra bytes (unused) */
 
@@ -362,7 +364,7 @@ struct monster_race
 	char x_char;			/* Desired monster character */
 
 
-	byte max_num;			/* Maximum population allowed per level */
+        s16b max_num;                   /* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
 
@@ -418,20 +420,11 @@ struct vault_type
 	byte hgt;			/* Vault height */
 	byte wid;			/* Vault width */
 
-	byte lvl;                       /* level of special (if any) */
-	byte mon1;                      /* special monster 1 */
-	byte mon2;
-	byte mon3;
-	byte mon4;
-	byte mon5;
-	byte mon6;
-	byte mon7;
-	byte mon8;
-	byte mon9;
-	byte mon10;
-	byte item1;                     /* number of item (usually artifact) */
-	byte item2;
-	byte item3;
+        s16b lvl;                       /* level of special (if any) */
+        byte dun_type;                  /* Dungeon type where the level will show up */
+
+        s16b mon[10];                   /* special monster */
+        int item[3];                   /* number of item (usually artifact) */
 };
 
 
@@ -477,6 +470,10 @@ struct cave_type
 	s16b m_idx;		/* Monster in this grid */
 
         s16b special;           /* Special cave info */
+
+        s16b inscription;       /* Inscription of the grid */
+
+        byte mana;              /* Magical energy of the grid */
 
 	byte mimic;		/* Feature to mimic */
 
@@ -634,7 +631,7 @@ struct monster_type
 
 #endif
 
-        bool impressed;                  /* Is the monster impresed(if he can)? */
+        bool imprinted;                  /* Is the monster imprinted(if he can)? */
 };
 
 
@@ -702,7 +699,7 @@ struct option_type
  * Structure for the "quests"
  */
 typedef struct quest_type quest_type;
-
+                      
 struct quest_type
 {
 	s16b status;            /* Is the quest taken, completed, finished? */
@@ -719,7 +716,7 @@ struct quest_type
 	s16b k_idx;             /* object index */
 	s16b num_mon;           /* number of monsters on level */
 
-	byte silent;            /* Silent quest (no quest messages) */
+        byte flags;             /* Quest flags */
 };
 
 
@@ -810,10 +807,11 @@ struct player_magic
 	int spell_stat;		/* Stat for spells (if any)  */
 	int spell_type;		/* Spell type (mage/priest) */
 
-	int spell_first;		/* Level of first spell */
-	int spell_weight;		/* Weight that hurts spells */
-
-        magic_type info[MAX_REALM][32];    /* The available spells */
+        int spell_lev;          /* The higher it is the higher the spells level are */
+        int spell_fail;         /* The higher it is the higher the spells failure are */
+        int spell_mana;         /* The higher it is the higher the spells mana are */
+        int spell_first;        /* Level of first spell */
+        int spell_weight;       /* Weight that hurts spells */
 };
 
 
@@ -999,7 +997,7 @@ struct player_type
         byte pgod;                    /* Your God. */
 
 	s16b max_plv;		/* Max Player Level */
-        s16b max_dlv[MAX_DUNGEONS];           /* Max level explored */
+        s16b *max_dlv;           /* Max level explored */
 
 	s16b stat_max[6];	/* Current "maximal" stat values */
 	s16b stat_cur[6];	/* Current "natural" stat values */
@@ -1016,11 +1014,13 @@ struct player_type
 	s16b cut;			/* Timed -- Cut */
 	s16b stun;			/* Timed -- Stun */
 
-	s16b protevil;		/* Timed -- Protection */
+        s16b protevil;          /* Timed -- Protection from Evil*/
+        s16b protundead;        /* Timed -- Protection from Undead*/
 	s16b invuln;		/* Timed -- Invulnerable */
 	s16b hero;			/* Timed -- Heroism */
 	s16b shero;			/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
+        s16b shield_power;      /* Timed -- Shield Spell Power */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
 	s16b tim_infra;		/* Timed -- Infra Vision */
@@ -1030,25 +1030,36 @@ struct player_type
 	s16b oppose_fire;	/* Timed -- oppose heat */
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
+        s16b oppose_ld;         /* Timed -- oppose light & dark */
+        s16b oppose_cc;         /* Timed -- oppose chaos & confusion */
+        s16b oppose_ss;         /* Timed -- oppose sound & shards */
+        s16b oppose_nex;        /* Timed -- oppose nexus */
 
 
-    s16b tim_esp;       /* Timed ESP */
-    s16b wraith_form;   /* Timed wraithform */
+        s16b tim_esp;       /* Timed ESP */
+        s16b wraith_form;   /* Timed wraithform */
+        s16b tim_ffall;     /* Timed Levitation */
+        s16b tim_fire_aura; /* Timed Fire Aura */
 
-    s16b resist_magic;  /* Timed Resist Magic (later) */
-    s16b tim_invisible; /* Timed Invisibility */
-    s16b tim_inv_pow;   /* Power of timed invisibility */
-    s16b tim_mimic;     /* Timed Mimic */
-    s16b tim_lite;      /* Timed Lite */
-    s16b tim_xtra6;     /* Later */
-    s16b tim_xtra7;     /* Later */
-    s16b tim_xtra8;     /* Later */
-    s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
+        s16b resist_magic;  /* Timed Resist Magic (later) */
+        s16b tim_invisible; /* Timed Invisibility */
+        s16b tim_inv_pow;   /* Power of timed invisibility */
+        s16b tim_mimic;     /* Timed Mimic */
+        s16b tim_lite;      /* Timed Lite */
+        s16b holy;          /* Holy Aura */
+        s16b walk_water;    /* Walk over water as a god */
+        s16b tim_mental_barrier; /* Sustain Int&Wis */
+        s16b strike;        /* True Strike(+25 hit) */
+        s16b meditation;    /* Meditation(+50 mana -25 to hit/to dam) */
+        s16b tim_reflect;   /* Timed Reflection */
+        s16b tim_res_time;  /* Timed Resistance to Time */
 
-    s16b chaos_patron;
-    u32b muta1;
-    u32b muta2;
-    u32b muta3;
+        s16b immov_cntr;    /* Timed -- Last ``immovable'' command. */
+
+        s16b chaos_patron;
+        u32b muta1;
+        u32b muta2;
+        u32b muta3;
 
         s16b recall_dungeon;    /* Recall in which dungeon */
 	s16b word_recall;	/* Word of recall counter */
@@ -1063,6 +1074,8 @@ struct player_type
 	s16b new_spells;	/* Number of spells available */
 
 	s16b old_spells;
+
+        s16b xtra_spells;       /* Number of xtra spell learned(via potion) */
 
 	bool old_cumber_armor;
 	bool old_cumber_glove;
@@ -1146,8 +1159,9 @@ struct player_type
 
 	bool exp_drain;		/* Experience draining */
 
-	bool ffall;			/* No damage falling */
-	bool lite;			/* Permanent light */
+        bool fly;               /* Can fly over some features */
+        bool ffall;             /* No damage falling */
+        bool lite;              /* Permanent light */
 	bool free_act;		/* Never paralyzed */
 	bool see_inv;		/* Can see invisible */
 	bool regenerate;	/* Regenerate hit pts */
@@ -1225,10 +1239,6 @@ struct player_type
         bool black_breath;      /* The Tolkien's Black Breath */
 
         bool precognition;      /* Like the cheat mode */
-
-        byte spec_history[127]; /* 0 = no special */
-				/* 1 = special level unused */
-				/* 2 = special level used */
 
 	/*** Pet commands ***/
 	byte pet_follow_distance; /* Length of the imaginary "leash" for pets */
@@ -1342,16 +1352,6 @@ struct town_type
 	byte numstores;
 };
 
-/* Dungeons */
-typedef struct dun_type dun_type;
-struct dun_type 
-{
-	byte min_level; /* Minimum level in the dungeon */
-	byte max_level; /* Maximum dungeon level allowed */
-		
-	cptr name;      /* The name of the dungeon */
-};
-
 /* Alchemists */
 typedef struct alchemist_recipe_ego alchemist_recipe_ego;
 struct alchemist_recipe_ego
@@ -1382,6 +1382,7 @@ struct deity {
   cptr god_of;
   byte grace_deduction;
   byte rarity;
+  byte race1, race2;
 };
 
 /* A structure for tactics */
@@ -1474,9 +1475,8 @@ struct move_info_type {
 /* A structure for the != dungeon types */
 typedef struct dungeon_info_type dungeon_info_type;
 struct dungeon_info_type {
-        cptr prefix;                    /* Prefix("a " or "an ") */
-        cptr name;                      /* Name of the dungeon */
-        cptr short_name;                /* Short name for the dungeon */
+        u32b name;                      /* Name */
+        u32b text;                      /* Description */
         s16b floor1;                    /* Floor tile 1 */
         byte floor_percent1;            /* Chance of type 1 */
         s16b floor2;                    /* Floor tile 2 */
@@ -1494,4 +1494,35 @@ struct dungeon_info_type {
         s16b mindepth;                  /* Minimal depth */
         s16b maxdepth;                  /* Maximal depth */
         bool principal;                 /* If it's a part of the main dungeon */
+        byte next;                      /* The next part of the main dungeon */
+        byte min_plev;                  /* Minimal plev needed to enter -- it's an anti-cheating mesure */
+        byte mode;                      /* Mode of combinaison of the monster flags */
+
+        int min_m_alloc_level;          /* Minimal number of monsters per level */
+        int max_m_alloc_chance;         /* There is a 1/max_m_alloc_chance chance per round of creating a new monster */
+
+        s32b flags1;                    /* Flags 1 */
+
+        s32b mflags1;                   /* The monster flags that are allowed */
+        s32b mflags2;
+        s32b mflags3;
+        s32b mflags4;
+        s32b mflags5;
+        s32b mflags6;
+        s32b mflags7;
+        s32b mflags8;
+        s32b mflags9;
+
+        char r_char[5];                 /* Monster race allowed */
+        int final_artifact;             /* The artifact you'll find at the bottom */
+        int final_guardian;             /* The artifact's guardian. If an artifact is specified, then it's NEEDED */
+};
+
+/* A structure for inscriptions */
+typedef struct inscription_info_type inscription_info_type;
+struct inscription_info_type {
+        char text[40];                  /* The inscription itself */
+        byte when;                      /* When it is executed */
+        bool know;                      /* Is the inscription know ? */
+        byte mana;                      /* Grid mana needed */
 };

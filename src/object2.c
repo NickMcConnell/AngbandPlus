@@ -1001,7 +1001,6 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_HIDE_TYPE) total += 0;
 	if (f3 & TR3_SHOW_MODS) total += 0;
 	if (f3 & TR3_INSTA_ART) total += 0;
-	if (f3 & TR3_FEATHER) total += 1250;
 	if (f3 & TR3_LITE) total += 1250;
 	if (f3 & TR3_SEE_INVIS) total += 2000;
 	if (f3 & TR3_TELEPATHY) total += 12500;
@@ -1027,6 +1026,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_CURSED) total -= 5000;
 	if (f3 & TR3_HEAVY_CURSE) total -= 12500;
 	if (f3 & TR3_PERMA_CURSE) total -= 15000;
+	if (f3 & TR3_FEATHER) total += 1250;
+        if (f4 & TR4_FLY) total += 10000;
         if (f4 & TR4_NEVER_BLOW) total -= 15000;
         if (f4 & TR4_PRECOGNITION) total += 250000;
         if (f4 & TR4_BLACK_BREATH) total -= 12500;
@@ -1476,9 +1477,15 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		/* Food and Potions and Scrolls */
 		case TV_FOOD:
 		case TV_POTION:
-		case TV_SCROLL:
 		{
 			/* Assume okay */
+			break;
+		}
+
+		case TV_SCROLL:
+		{
+                        if(o_ptr->pval != j_ptr->pval) return FALSE;
+                        if(o_ptr->pval2 != j_ptr->pval2) return FALSE;
 			break;
 		}
 
@@ -1785,7 +1792,7 @@ void object_prep(object_type *o_ptr, int k_idx)
  * 120    0.03  0.11  0.31  0.46  1.31  2.48  4.60  7.78 11.67 25.53 45.72
  * 128    0.02  0.01  0.13  0.33  0.83  1.41  3.24  6.17  9.57 14.22 64.07
  */
-static s16b m_bonus(int max, int level)
+s16b m_bonus(int max, int level)
 {
 	int bonus, stand, extra, value;
 
@@ -2189,6 +2196,7 @@ static void charge_wand(object_type *o_ptr)
 		case SV_WAND_CONFUSE_MONSTER:           o_ptr->pval = randint(12) + 6; break;
 		case SV_WAND_FEAR_MONSTER:              o_ptr->pval = randint(5)  + 3; break;
 		case SV_WAND_DRAIN_LIFE:                o_ptr->pval = randint(3)  + 3; break;
+                case SV_WAND_WALL_CREATION:             o_ptr->pval = randint(4)  + 3; break;
 		case SV_WAND_POLYMORPH:                 o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_STINKING_CLOUD:            o_ptr->pval = randint(8)  + 6; break;
 		case SV_WAND_MAGIC_MISSILE:             o_ptr->pval = randint(10) + 6; break;
@@ -2248,6 +2256,7 @@ static void charge_staff(object_type *o_ptr)
 		case SV_STAFF_GENOCIDE:                 o_ptr->pval = randint(2)  + 1; break;
 		case SV_STAFF_EARTHQUAKES:              o_ptr->pval = randint(5)  + 3; break;
 		case SV_STAFF_DESTRUCTION:              o_ptr->pval = randint(3)  + 1; break;
+                case SV_STAFF_WISHING:                  o_ptr->pval = randint(3)  + 2; break;
 	}
 }
 
@@ -2569,7 +2578,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
                                         case 41:
 					{
                                                 o_ptr->name2 = EGO_LIFE;
-                                                o_ptr->pval = m_bonus(3, level);
+                                                o_ptr->pval = m_bonus(4, level);
                                                 break;
                                         }
                                         case 42:
@@ -2639,7 +2648,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
                                         case 1: case 3: case 5: case 7:
 					{
                                                 o_ptr->name2 = EGO_MANA;
-                                                o_ptr->pval = m_bonus(6, level);
+                                                o_ptr->pval = m_bonus(10, level);
                                                 break;
                                         }
                                         case 2: case 4:
@@ -2651,7 +2660,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
                                         case 6:
 					{
                                                 o_ptr->name2 = EGO_MANA_SPELL;
-                                                o_ptr->pval = m_bonus(6, level);
+                                                o_ptr->pval = m_bonus(10, level);
                                                 break;
                                         }
                                         case 8:
@@ -3801,6 +3810,12 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			break;
 		}
 	}
+
+        /* Allow some Ring & Amulet artifact */
+        if((power > 1) && (rand_int(100) < 3))
+        {
+                create_artifact(o_ptr, FALSE);
+        }
 }
 
 
@@ -4330,7 +4345,6 @@ static bool kind_is_legal(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
-		/* All items except bones are legal */
         if (k_ptr->tval == TV_CORPSE)
 	{
                 if (k_ptr->sval != SV_CORPSE_SKULL && k_ptr->sval != SV_CORPSE_SKELETON &&
@@ -4343,7 +4357,11 @@ static bool kind_is_legal(int k_idx)
 			return FALSE;
 		}
 	}
+
         if (k_ptr->tval == TV_HYPNOS) return FALSE;
+
+        if ((k_ptr->tval == TV_SCROLL) && (k_ptr->sval = SV_SCROLL_INCARNATION)) return FALSE;
+        if ((k_ptr->tval == TV_SCROLL) && (k_ptr->sval = SV_SCROLL_SPELL)) return FALSE;
 
 	/* Assume legal */
 	return TRUE;
@@ -4394,13 +4412,14 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Books -- High level books are good (except Arcane books) */
-		case TV_LIFE_BOOK:
-		case TV_SORCERY_BOOK:
-		case TV_NATURE_BOOK:
+                /* Books -- High level books are good */
+                case TV_VALARIN_BOOK:
+                case TV_SIGALDRY_BOOK:
+                case TV_MAGERY_BOOK:
+                case TV_SHADOW_BOOK:
 		case TV_CHAOS_BOOK:
-		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
+                case TV_NETHER_BOOK:
+                case TV_CRUSADE_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_SYMBIOTIC_BOOK:
 		{
@@ -5961,8 +5980,8 @@ void display_spell_list(void)
 {
 	int             i, j;
 	int             y, x;
-	int             use_realm1 = p_ptr->realm1 - 1;
-	int             use_realm2 = p_ptr->realm2 - 1;
+        int             use_realm1 = p_ptr->realm1;
+        int             use_realm2 = p_ptr->realm2;
 	int             m[9];
 	magic_type      *s_ptr;
 	char            name[80];
@@ -6046,7 +6065,7 @@ void display_spell_list(void)
 	/* Normal spellcaster with books */
 
 	/* Scan books */
-	for (j = 0; j < (use_realm2>-1?2:1); j++)
+        for (j = 0; j < (use_realm2>0?2:1); j++)
 	{
 		int n = 0;
 
@@ -6067,9 +6086,9 @@ void display_spell_list(void)
 				byte a = TERM_WHITE;
 
 				/* Access the spell */
-				s_ptr = &mp_ptr->info[j<1?use_realm1:use_realm2][i%32];
+                                s_ptr = &realm_info[j<1?use_realm1:use_realm2][i%64];
 
-				strcpy(name, spell_names[j<1?use_realm1:use_realm2][i%32]);
+                                strcpy(name, spell_names[j<1?use_realm1:use_realm2][i%64]);
 
 
 				/* Illegible */
@@ -6083,27 +6102,21 @@ void display_spell_list(void)
 				}
 
 				/* Forgotten */
-				else if ((j < 1) ?
-				    ((spell_forgotten1 & (1L << i))) :
-				    ((spell_forgotten2 & (1L << (i % 32)))))
+                                else if (spell_forgotten[j<1?use_realm1:use_realm2][i < 32] & (1L << i))
 				{
 					/* Forgotten */
 					a = TERM_ORANGE;
 				}
 
 				/* Unknown */
-				else if (!((j < 1) ?
-				    (spell_learned1 & (1L << i)) :
-				    (spell_learned2 & (1L << (i % 32)))))
+                                else if (spell_learned[j<1?use_realm1:use_realm2][i < 32] & (1L << i))
 				{
 					/* Unknown */
 					a = TERM_RED;
 				}
 
 				/* Untried */
-				else if (!((j < 1) ?
-				    (spell_worked1 & (1L << i)) :
-				    (spell_worked2 & (1L << (i % 32)))))
+                                else if (spell_worked[j<1?use_realm1:use_realm2][i < 32] & (1L << i))
 				{
 					/* Untried */
 					a = TERM_YELLOW;
@@ -6141,7 +6154,7 @@ s16b spell_chance(int spell,int realm)
 	if (!mp_ptr->spell_book) return (100);
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[realm][spell];
+        s_ptr = &realm_info[realm][spell];
 
 	/* Extract the base spell failure rate */
 	chance = s_ptr->sfail;
@@ -6168,7 +6181,8 @@ s16b spell_chance(int spell,int realm)
 	if ((p_ptr->pclass != CLASS_PRIEST) &&
 	    (p_ptr->pclass != CLASS_MAGE) &&
 	    (p_ptr->pclass != CLASS_MINDCRAFTER) &&
-	    (p_ptr->pclass != CLASS_HIGH_MAGE))
+            (p_ptr->pclass != CLASS_HIGH_MAGE) &&
+            (p_ptr->pclass != CLASS_SORCERER))
 	{
 		if (minfail < 5) minfail = 5;
 	}
@@ -6202,62 +6216,30 @@ bool spell_okay(int spell, bool known, int realm)
 	magic_type *s_ptr;
 
 	/* Access the spell */
-	s_ptr = &mp_ptr->info[realm][spell];
+        s_ptr = &realm_info[realm][spell];
+
+        /* Restrict some books to some classes */
+        switch(p_ptr->pclass)
+        {
+                case CLASS_ROGUE:
+                case CLASS_MONK:
+                        if(spell > 31) return FALSE;
+                        break;
+        }
+        if((p_ptr->pclass != CLASS_ILLUSIONIST) && (p_ptr->pclass != CLASS_SORCERER) && (realm == REALM_ILLUSION) && (spell > 32)) return FALSE;
 
 	/* Spell is illegal */
 	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
 
 	/* Spell is forgotten */
-        if ((p_ptr->pclass != CLASS_SORCERER) && ((realm == p_ptr->realm2-1) ?
-	    (spell_forgotten2 & (1L << spell)) :
-            (spell_forgotten1 & (1L << spell))))
+        if ((p_ptr->pclass != CLASS_SORCERER) && (spell_forgotten[realm][(spell < 32)] & (1L << (spell % 32))))
 	{
 		/* Never okay */
 		return (FALSE);
 	}
 
 	/* Spell is learned */
-        if ((p_ptr->pclass == CLASS_SORCERER) || ((realm == p_ptr->realm2-1) ?
-	    (spell_learned2 & (1L << spell)) :
-            (spell_learned1 & (1L << spell))))
-	{
-		/* Okay to cast, not to study */
-		return (known);
-	}
-
-	/* Okay to study, not to cast */
-	return (!known);
-}
-
-
-/*
- * Determine if a spell is "okay" for the player to cast or study
- * The spell must be legible, not forgotten, and also, to cast,
- * it must be known, and to study, it must not be known.
- */
-bool nr_spell_okay(int spell, bool known)
-{
-	magic_type *s_ptr;
-
-	/* Access the spell */
-        s_ptr = &mp_ptr->info[(spell>31)][spell];
-
-	/* Spell is illegal */
-	if (s_ptr->slevel > p_ptr->lev) return (FALSE);
-
-	/* Spell is forgotten */
-        if ((spell>31) ?
-	    (spell_forgotten2 & (1L << spell)) :
-	    (spell_forgotten1 & (1L << spell)))
-	{
-		/* Never okay */
-		return (FALSE);
-	}
-
-	/* Spell is learned */
-        if ((spell>31) ?
-	    (spell_learned2 & (1L << spell)) :
-	    (spell_learned1 & (1L << spell)))
+        if ((p_ptr->pclass == CLASS_SORCERER) || (spell_learned[realm][(spell < 32)] & (1L << (spell % 32))))
 	{
 		/* Okay to cast, not to study */
 		return (known);
@@ -6284,81 +6266,134 @@ static void spell_info(char *p, int spell, int realm)
 #ifdef DRS_SHOW_SPELL_INFO
 	{
 		int plev = p_ptr->lev;
-                int to_s2=p_ptr->to_s/2;
-                char *sto_s2 = (to_s2<2)?"":format("+%d",to_s2);
+                int to_s2 = p_ptr->to_s/2;
+                int mto_s2 = (p_ptr->to_s/2 == 0)?1:p_ptr->to_s/2;
+                char *sto_s2 = (to_s2<1)?"":format("+%d",to_s2);
                 char *smt_s2 = (to_s2<2)?"":format("*%d",to_s2);
 
 		/* See below */
 		int orb = (plev / ((p_ptr->pclass == 2 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
-                to_s2 = (to_s2==0)?1:to_s2;
 
 		/* Analyze the spell */
-		switch (realm)
+                switch (realm)
 		{
-			case 0: /* Life */
+                        case REALM_VALARIN: /* Life */
 				switch (spell)
 				{
-                                        case  1: sprintf(p, " heal 2d10%s",sto_s2); break;
-                                        case  2: sprintf(p, " dur 12%s+d12 turns", sto_s2); break;
-                                        case  4: sprintf(p, " dam %d", 10 + (plev / 2)*to_s2+1); break;
-                                        case  6: sprintf(p, " heal 4d10%s",sto_s2); break;
-                                        case 10: sprintf(p, " heal 8d10%s",sto_s2); break;
-                                        case 11: sprintf(p, " dur 24%s+d24",sto_s2); break;
-                                        case 12: sprintf(p, " dam 3d6+%d", (plev + orb)*to_s2); break;
-                                        case 13: sprintf(p, " dur d25+%d",to_s2 + 3 * (plev)); break;
-                                        case 14: sprintf(p, " heal 300%s",smt_s2); break;
-                                        case 16: sprintf(p, " dam %d+%d", plev+p_ptr->to_s, plev+p_ptr->to_s); break;
-                                        case 18: sprintf(p, " dam %d+%d", 3 * plev*to_s2, 3 * plev*to_s2); break;
-                                        case 20: sprintf(p, " dam %d", 4 * plev*to_s2); break;
-                                        case 22: sprintf(p, " d %d/h 1000", 4 * plev * to_s2); break;
-                                        case 24: sprintf(p, " dur 25%s+d25",sto_s2); break;
-                                        case 25: sprintf(p, " dur 48%s+d48",sto_s2); break;
-                                        case 28: sprintf(p, " heal 2000%s",smt_s2); break;
-                                        case 30: sprintf(p, " h300/d%d+388", plev * 4 * to_s2); break;
-                                        case 31: sprintf(p, " dur 7%s+d7",sto_s2); break;
+                                        case  1: sprintf(p, " dam 2d%d", plev / 2); break;
+                                        case  2: sprintf(p, " dur %d+d12 turns", 10 + to_s2); break;
+                                        case  4: sprintf(p, " heal 2d10%s", sto_s2); break;
+                                        case  8: sprintf(p, " dam 6d8"); break;
+                                        case 10: sprintf(p, " heal 6d10%s",sto_s2); break;
+                                        case 12: sprintf(p, " dur %d+d24", 12 + to_s2); break;
+                                        case 15: sprintf(p, " dur %d+d10", 10 + to_s2); break;
+                                        case 16: sprintf(p, " heal 8d10%s",sto_s2); break;
+                                        case 17: sprintf(p, " dam %dd6+%d",3 * mto_s2 ,(plev + (plev / ((p_ptr->pclass == 2 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4)))* mto_s2); break;
+                                        case 18: sprintf(p, " range %d", 200 * mto_s2); break;
+                                        case 19: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case 20: sprintf(p, " rad %d", 7 + to_s2); break;
+                                        case 21: sprintf(p, " power %dd10", 5 * mto_s2); break;
+                                        case 23: sprintf(p, " dur %d+d25", 3 * plev + to_s2); break;
+                                        case 24: sprintf(p, " dur %d+d20", 20 + to_s2); break;
+                                        case 26: sprintf(p, " dam %d", 60 * mto_s2); break;
+                                        case 27: sprintf(p, " heal %d", 150 * mto_s2); break;
+                                        case 28: sprintf(p, " range %d", 100 * mto_s2); break;
+                                        case 29: sprintf(p, " dam %d", 120 * mto_s2); break;
+                                        case 30: sprintf(p, " d %d/h %d", plev * 4 * mto_s2, 500 * to_s2); break;
+                                        case 31: sprintf(p, " power %d", plev * mto_s2); break;
+                                        case 33: sprintf(p, " dur %d + d10", 10 + p_ptr->to_s); break;
+                                        case 35: sprintf(p, " dur %d + d%d", plev + to_s2, 20 + plev); break;
+                                        case 41: sprintf(p, " dur %d + d%d", plev + p_ptr->to_s, plev); break;
+                                        case 42: sprintf(p, " heal %d", 300 + p_ptr->to_s * 3); break;
+                                        case 45: sprintf(p, " dur %sd24", (p_ptr->to_s < 1)?"":format("%d + ",p_ptr->to_s)); break;
+                                        case 46: sprintf(p, " heal %dd10", 8 * mto_s2); break;
+                                        case 50: sprintf(p, " power %d", 100 * mto_s2); break;
+                                        case 51: sprintf(p, " dur %d + d%d", (plev / 2) + to_s2, plev / 2); break;
+                                        case 52: sprintf(p, " dam %dd8%s", 5+(plev/10), smt_s2); break;
+                                        case 53: sprintf(p, " dam %d", 80 + plev * mto_s2); break;
+                                        case 54: sprintf(p, " dam %d", 70 + plev * mto_s2); break;
+                                        case 55: sprintf(p, " dam %d", 100 + plev * mto_s2); break;
+                                        case 56: sprintf(p, " dam %d", 90 + plev * mto_s2); break;
+                                        case 57: sprintf(p, " dam (10+d10)*%d", (plev * 3 + to_s2) / 2); break;
+                                        case 58: sprintf(p, " power %d", plev * 2 + (p_ptr->to_s * 2)); break;
+                                        case 62: sprintf(p, " dam %d", 150 * mto_s2); break;
+                                        case 63: sprintf(p, " dur %d + d5", 8 + to_s2); break;
 				}
 				break;
 
-			case 1: /* Sorcery */
+                        case REALM_MAGERY: /* Magery */
 				switch (spell)
 				{
-                                        case  1: sprintf(p, " range 10%s",smt_s2); break;
-                                        case  3: sprintf(p, " dam %d", 10 + (plev / 2) + to_s2); break;
-                                        case  5: sprintf(p, " range %d", plev * 5 * to_s2); break;
-                                        case 10: sprintf(p, " dur %d+d%d", plev/2 + p_ptr->to_s, plev); break;
-                                        case 13: sprintf(p, " dur %d+d%d", plev +to_s2, (plev+20)); break;
-                                        case 19: sprintf(p, " range %d", plev+2 +to_s2); break;
-                                        case 20: sprintf(p, " dur 25%s+d30",sto_s2); break;
-                                        case 23: sprintf(p, " delay 15+d21"); break;
-                                        case 25: sprintf(p, " max wgt %d", plev * 15 / 10 + to_s2); break;
-					case 26: sprintf(p, " dam 7d7+%d", (plev/2)); break;
-                                        case 27: sprintf(p, " dur 25%s+d30",sto_s2); break;
-                                        case 31: sprintf(p, " dur 8%s+d8",sto_s2); break;
+                                        case  0: sprintf(p, " dam %dd%d", 3 + ((plev - 1)/5), 4 * mto_s2); break;
+                                        case  1: sprintf(p, " range %d", 10 * mto_s2); break;
+                                        case  6: sprintf(p, " power %d", (plev * 3) / 2 * mto_s2); break;
+                                        case  8: sprintf(p, " dam %d", 10 + (plev / 2) * mto_s2); break;
+                                        case  9: sprintf(p, " range %d", plev * 5 * mto_s2); break;
+                                        case 12: sprintf(p, " dam %dd%d", 5 + ((plev - 5) / 4), 8 * mto_s2); break;
+                                        case 14: sprintf(p, " dam %dd%d", 6+((plev-5)/4)*mto_s2,8); break;
+                                        case 16: sprintf(p, " dur %d + d20", 20 + p_ptr->to_s); break;
+                                        case 17: sprintf(p, " dam %dd%d", 9+((plev-5)/4), 8 * mto_s2); break;
+                                        case 21: sprintf(p, " dur %d + d%d", plev + to_s2, 20 + plev); break;
+                                        case 22: sprintf(p, " dam 4 * %dd%d", 5+((plev-5)/4), 8 * mto_s2); break;
+                                        case 25: sprintf(p, " dur %d + d20", 20 + p_ptr->to_s); break;
+                                        case 28: sprintf(p, " dam %d", 100 * mto_s2); break;
+                                        case 29: sprintf(p, " dur %d + d20", 30 + to_s2); break;
+                                        case 34: sprintf(p, " dam 8 * %d", 90 * mto_s2); break;
+                                        case 36: sprintf(p, " dur %d + d20", 20 + to_s2); break;
+                                        case 37: sprintf(p, " dur %d + d10", 10 + to_s2); break;
+                                        case 38: sprintf(p, " dam %d", 100 * mto_s2); break;
+                                        case 39: sprintf(p, " dam 8 * 15d%d", 8 * mto_s2); break;
+                                        case 44: sprintf(p, " dam %d", (100 + plev) * mto_s2); break;
+                                        case 46: sprintf(p, " dam %d", 600 * mto_s2); break;
+                                        case 56: sprintf(p, " dam 2 * 15d%d", 7 * mto_s2); break;
+                                        case 57: sprintf(p, " dam %d", 400 * mto_s2); break;
+                                        case 58: sprintf(p, " dam %d", 500 * mto_s2); break;
+                                        case 60: sprintf(p, " dam 8 * 3 * 10d%d", 10 * mto_s2); break;
+                                        case 61: sprintf(p, " dam %d", 450 * mto_s2); break;
+                                        case 62: sprintf(p, " dam 5 * %d", 250 * mto_s2); break;
+                                        case 63: sprintf(p, " dam %d", 1200 * mto_s2); break;
 				}
 				break;
 
-			case 2: /* Nature */
+                        case REALM_SHADOW: /* Shadow */
 				switch (spell)
 				{
-                                        case  1: sprintf(p, " heal 2d8%s",sto_s2); break;
-                                        case  4: sprintf(p, " dam %d", 10 + (plev / 2)+to_s2); break;
-                                        case  6: sprintf(p, " dur 20%s+d20",sto_s2); break;
-                                        case  9: sprintf(p, " dam %dd8", (3+((plev-5)/4))*to_s2); break;
-                                        case 11: sprintf(p, " dam %dd8", (5+((plev-5)/4))*to_s2); break;
-                                        case 12: sprintf(p, " dur 10%s+d10",sto_s2); break;
-                                        case 15: sprintf(p, " heal 1000%s",smt_s2); break;
-                                        case 18: sprintf(p, " dur 20%s+d30",sto_s2); break;
-                                        case 19: sprintf(p, " dur 20%s+d20",sto_s2); break;
-                                        case 24: sprintf(p, " rad 10%s",sto_s2); break;
-                                        case 26: sprintf(p, " dam %d", 70+plev*to_s2); break;
-                                        case 27: sprintf(p, " dam %d", 90+plev*to_s2); break;
-                                        case 28: sprintf(p, " dam %d", 100+plev*to_s2); break;
-                                        case 29: sprintf(p, " dam 75%s",smt_s2); break;
-                                        case 31: sprintf(p, " dam %d+%d", 4*plev+to_s2,100+plev); break;
+                                        case  0: sprintf(p, " dam %dd%d", 3+((plev-1)/5),4*mto_s2); break;
+                                        case  3: sprintf(p, " dur %d + d5", 10 + to_s2); break;
+                                        case  6: sprintf(p, " dam 8 * %d", (6 + plev) * mto_s2); break;
+                                        case  7: sprintf(p, " dur %d + d10", 5 + p_ptr->to_s); break;
+                                        case  8: sprintf(p, " power %d", 13 * mto_s2); break;
+                                        case  9: sprintf(p, " dam %d", (20 + plev) * mto_s2); break;
+                                        case 13: sprintf(p, " dam %d", (50 + plev) * mto_s2); break;
+                                        case 15: sprintf(p, " dur %d + d10", 10 + to_s2); break;
+                                        case 16: sprintf(p, " range %d", 200 + p_ptr->to_s); break;
+                                        case 18: sprintf(p, " heal %dd%d", 5+(plev/5),8+to_s2); break;
+                                        case 19: sprintf(p, " dam %d", (60+plev)*mto_s2); break;
+                                        case 20: sprintf(p, " dam (3+d3) * %dd20", 5+to_s2); break;
+                                        case 23: sprintf(p, " dam %d", 180 * mto_s2); break;
+                                        case 25: sprintf(p, " dam %d", (230 + plev) * mto_s2); break;
+                                        case 26: sprintf(p, " dam %d", (200 + plev) * mto_s2); break;
+                                        case 28: sprintf(p, " dam %d * %d", 500 + (20 * to_s2), 50 * mto_s2); break;
+                                        case 29: sprintf(p, " dur %d + d10", 5 + to_s2); break;
+                                        case 30: sprintf(p, " dam %d", 400 * mto_s2); break;
+                                        case 36: sprintf(p, " dur %d + d%d", (plev/2) + to_s2, plev/2); break;
+                                        case 37: sprintf(p, " range %d", 10 + to_s2); break;
+                                        case 38: sprintf(p, " dam %d", 100 * mto_s2); break;
+                                        case 40: sprintf(p, " dam %d", 200 * mto_s2); break;
+                                        case 43: sprintf(p, " dam %d", (60+plev)*mto_s2); break;
+                                        case 45: sprintf(p, " dam %d", (120+plev)*mto_s2); break;
+                                        case 47: sprintf(p, " dam %d", (180+plev)*mto_s2); break;
+                                        case 50: sprintf(p, " dam %d", 320 * mto_s2); break;
+                                        case 54: sprintf(p, " dur %d + d20", 30 + to_s2); break;
+                                        case 57: sprintf(p, " power %d", 150 * mto_s2); break;
+                                        case 59: sprintf(p, " dur %d + d30", 20 + (p_ptr->to_s * 2)); break;
+                                        case 60: sprintf(p, " dur %d + d30", 20 + to_s2); break;
+                                        case 62: sprintf(p, " dam %d", 666 * mto_s2); break;
+                                        case 63: sprintf(p, " a lot of damage"); break;
 				}
 				break;
 
-			case 3: /* Chaos */
+                        case REALM_CHAOS: /* Chaos */
 				switch (spell)
 				{
                                         case  0: sprintf(p, " dam %dd4", 3+((plev-1)/5)*to_s2); break;
@@ -6388,68 +6423,94 @@ static void spell_info(char *p, int spell, int realm)
 				}
 				break;
 
-			case 4: /* Death */
+                        case REALM_NETHER: /* Nether */
 				switch(spell)
 				{
-                                        case  1: sprintf(p, " dam %dd3", (3 + ((plev-1)/5))*to_s2); break;
-                                        case  3: sprintf(p, " dam %d", 10 + (plev / 2)*to_s2); break;
-                                        case  5: sprintf(p, " dur 20%s+d20",sto_s2); break;
-					case  8: sprintf(p, " dam 3d6+%d", plev +
-					    (plev / (((p_ptr->pclass == CLASS_MAGE) ||
-                                            (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))*to_s2); break;
-                                        case  9: sprintf(p, " dam %dd8", (6+((plev-5)/4))*to_s2); break;
-                                        case 11: sprintf(p, " dam %d* 5+d15", 2 + (plev/15)*to_s2); break;
-                                        case 13: sprintf(p, " dam %d", 4 * plev * to_s2); break;
-                                        case 16: sprintf(p, " dur 25%s+d25",sto_s2); break;
-                                        case 17: sprintf(p, " random"); break;
-                                        case 18: sprintf(p, " dam %dd8", (4+((plev-5)/4))*to_s2); break;
-                                        case 19: sprintf(p, " max dur 50%s",sto_s2); break;
-                                        case 20: sprintf(p, " dam 3*100%s",smt_s2); break;
-                                        case 22: sprintf(p, " dam 120%s",smt_s2); break;
-                                        case 27: sprintf(p, " dam %d", plev * 3 * to_s2); break;
-                                        case 28: sprintf(p, " dam %d", plev * 4 * to_s2); break;
-                                        case 29: sprintf(p, " dam 666%s",smt_s2); break;
-                                        case 31: sprintf(p, " dur %d+d%d%s", (plev/2), (plev/2),sto_s2); break;
+                                        case  2: sprintf(p, " power %d", 5 + plev * mto_s2); break;
+                                        case  4: sprintf(p, " dur %d+d20", 20 + to_s2); break;
+                                        case  5: sprintf(p, " dam %dd6", 3+((plev - 5)/4)); break;
+                                        case  6: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case  7: sprintf(p, " dam %d", 10 + (plev / 2)*mto_s2); break;
+                                        case  8: sprintf(p, " dur %d+d20", 20 + to_s2); break;
+                                        case  9: sprintf(p, " dam %dd%d", 4 +((plev -1)/5), 6 * mto_s2); break;
+                                        case 10: sprintf(p, " dur %d+d%d", plev/2 + p_ptr->to_s, plev); break;
+                                        case 11: sprintf(p, " dam %dd7", 5 * mto_s2); break;
+                                        case 12: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case 14: sprintf(p, " dam %dd%d", 5+((plev-1)/5), 8 * mto_s2); break;
+                                        case 16: sprintf(p, " dam %dd%d", 6+(plev/5), 8 * mto_s2); break;
+                                        case 18: sprintf(p, " dur %d+d25", 25 + to_s2); break;
+                                        case 24: sprintf(p, " dam %dd8", 8 * mto_s2); break;
+                                        case 25: sprintf(p, " dur %d+d15", 20 + to_s2); break;
+                                        case 27: sprintf(p, " dam %dd%d", 8 * mto_s2, 8 + (plev / 5)); break;
+                                        case 28: sprintf(p, " dam %d", plev * 3 / 2 * mto_s2); break;
+                                        case 29: sprintf(p, " dam %d", plev * 4 * mto_s2); break;
+                                        case 36: sprintf(p, " dur %d+d30", 25 + to_s2); break;
+                                        case 38: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case 39: sprintf(p, " dur %d+d10", 10 + p_ptr->to_s); break;
+                                        case 40: sprintf(p, " dam %dd%d", 7 * mto_s2, 8 + (plev/5)); break;
+                                        case 41: sprintf(p, " dam %d", 80 * mto_s2); break;
+                                        case 43: sprintf(p, " dur %d+d15", 20 + to_s2); break;
+                                        case 44: sprintf(p, " dam %d", 666 * mto_s2); break;
+                                        case 49: sprintf(p, " dam %d", 130 * mto_s2); break;
+                                        case 50: sprintf(p, " dam %dd%d", 8 + (plev/10), 8 * mto_s2); break;
+                                        case 51: sprintf(p, " heal %dd%d", plev / 5 + 1 , 8 * mto_s2); break;
+                                        case 53: sprintf(p, " dam %dd%d", 5 * mto_s2, 7 + plev / 5); break;
+                                        case 54: sprintf(p, " heal %d", 300 * mto_s2); break;
+                                        case 55: sprintf(p, " dam %d", 200 * mto_s2); break;
+                                        case 56: sprintf(p, " dam %d", p_ptr->chp / 2); break;
+                                        case 57: sprintf(p, " dur %d+d%d", plev / 2 + to_s2, plev / 2); break;
+                                        case 60: sprintf(p, " dam %d", plev * 4 * mto_s2); break;
+                                        case 61: sprintf(p, " rad %d", 15 + to_s2); break;
 				}
 				break;
 
-			case 5: /* Trump */
+                        case REALM_CRUSADE: /* Crusade */
 				switch(spell)
 				{
-                                        case  0: sprintf(p, " range 10%s",sto_s2); break;
-                                        case  1: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)*to_s2); break;
-                                        case  2: sprintf(p, " random"); break;
-                                        case  4: sprintf(p, " range %d", plev * 4*to_s2); break;
-                                        case  5: sprintf(p, " range %d", plev+2+to_s2); break;
-                                        case  6: sprintf(p, " dur 25+d30%s",sto_s2); break;
-                                        case  8: sprintf(p, " max wgt %d", plev * 15 / 10+to_s2); break;
-                                        case 14: sprintf(p, " delay 15+d21"); break;
-                                        case 22: sprintf(p, " dam %d", plev * 3*to_s2); break;
+                                        case  1: sprintf(p, " dur %d+d12", 12 + to_s2); break;
+                                        case  2: sprintf(p, " dur %d+d20", 20 + to_s2); break;
+                                        case  3: sprintf(p, " dam 2d%d", plev / 2); break;
+                                        case  4: sprintf(p, " dur %d+d12", 12 + to_s2); break;
+                                        case  7: sprintf(p, " dur %d+d10", 10 + to_s2); break;
+                                        case  8: sprintf(p, " dur %d+d10", 12 + to_s2); break;
+                                        case 12: sprintf(p, " dur %d+d8", 10 + to_s2); break;
+                                        case 13: sprintf(p, " dam %dd%d", 6 + ((plev - 5) / 4), 8 * mto_s2); break;
+                                        case 15: sprintf(p, " dur %d+d10", 10 + to_s2); break;
+                                        case 16: sprintf(p, " dur %d+d20", 20 + to_s2); break;
+                                        case 17: sprintf(p, " dur %d+d10", 15 + to_s2); break;
+                                        case 18: sprintf(p, " dam %dd%d", 8 + ((plev - 5) / 4), 8 * mto_s2); break;
+                                        case 20: sprintf(p, " dam %dd%d", 8 + ((plev-5)/4), 9 * mto_s2); break;
+                                        case 23: sprintf(p, " dur %d+d48", 48 + to_s2); break;
+                                        case 24: sprintf(p, " dam %d", 45 + plev * mto_s2); break;
+                                        case 25: sprintf(p, " dur %d+d35", 25 + to_s2); break;
+                                        case 26: sprintf(p, " dur %d+d10", 15 + to_s2); break;
+                                        case 28: sprintf(p, " dur %d+%d", plev + to_s2, 20 + plev); break;
+                                        case 29: sprintf(p, " dam %d", (120 + plev) * mto_s2); break;
+                                        case 31: sprintf(p, " dur %d+d3", 2 + to_s2); break;
 				}
 				break;
 
-			case 6: /* Arcane */
+                        case REALM_SIGALDRY: /* Sigaldry */
 				switch (spell)
 				{
-					case  0: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
-                                        case  4: sprintf(p, " range 10%s",sto_s2); break;
-                                        case  5: sprintf(p, " dam 2d%d", plev / 2+to_s2); break;
-                                        case  7: sprintf(p, " heal 2d8%s",sto_s2); break;
-					case 14:
-					case 15:
-					case 16:
-                                        case 17: sprintf(p, " dur 20%s+d20",sto_s2); break;
-                                        case 18: sprintf(p, " heal 4d8%s",sto_s2); break;
-                                        case 19: sprintf(p, " range %d", plev * 5+to_s2); break;
-                                        case 21: sprintf(p, " dam 6d8%s",sto_s2); break;
-                                        case 23: sprintf(p, " dur 24%s+d24",sto_s2); break;
-                                        case 28: sprintf(p, " dam %d", 75 + (plev)+to_s2); break;
-                                        case 30: sprintf(p, " delay 15%s+d21",sto_s2); break;
-                                        case 31: sprintf(p, " dur 25%s+30",sto_s2); break;
+                                        case  2: sprintf(p, " dam %dd%d", 2 * mto_s2, plev / 2); break;
+                                        case  5: sprintf(p, " dam %dd4+%d", 5 * mto_s2, plev / 5); break;
+                                        case  6: sprintf(p, " range %d", 10 + to_s2); break;
+                                        case  9: sprintf(p, " dur %d+d5", 5 + p_ptr->to_s); break;
+                                        case 13: sprintf(p, " power %d", (plev * 3) / 2 * mto_s2); break;
+                                        case 14: sprintf(p, " dur %d+d5", 10 + to_s2); break;
+                                        case 16: sprintf(p, " dur %d+d20", 10 + p_ptr->to_s); break;
+                                        case 17: sprintf(p, " dur %d+d20", 10 + p_ptr->to_s); break;
+                                        case 18: sprintf(p, " dam %dd%d", 5 + (plev / 5), 8 * mto_s2); break;
+                                        case 19: sprintf(p, " power %d", 20 * mto_s2); break;
+                                        case 22: sprintf(p, " range %d", 200 * mto_s2); break;
+                                        case 24: sprintf(p, " dur %d+d25", 25 + to_s2); break;
+                                        case 26: sprintf(p, " dam %dd%d+%d", 10 * mto_s2, 10, plev / 5); break;
+                                        case 31: sprintf(p, " dam %d", 200 * mto_s2); break;
 				}
 				break;
 
-                        case 7: /* Symbiotic */
+                        case REALM_SYMBIOTIC: /* Symbiotic */
 				switch (spell)
 				{
                                         case  0: sprintf(p, " heal monster 2d6%s",sto_s2); break;
@@ -6461,7 +6522,7 @@ static void spell_info(char *p, int spell, int realm)
 				}
 				break;
 
-                        case 8: /* Music */
+                        case REALM_MUSIC: /* Music */
 				switch (spell)
 				{
                                         case  2: sprintf(p, " dam %dd4",(4+((plev-1)/5)) * p_ptr->to_s); break;
@@ -6481,8 +6542,143 @@ static void spell_info(char *p, int spell, int realm)
 				}
 				break;
 
+                        case REALM_MAGIC:
+                                switch (spell)
+                                {
+                                        case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5) * to_s2); break;
+                                        case 2: sprintf(p, " range 10%s", smt_s2); break;
+                                        case 5: sprintf(p, " heal 2%sd8", smt_s2); break;
+                                        case 8: sprintf(p, " dam %d", 10 + (plev / 2) * to_s2); break;
+                                        case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4)) * to_s2); break;
+                                        case 14: sprintf(p, " range %d", plev * 10 * to_s2); break;
+                                        case 15: sprintf(p, " dam 6%sd8", smt_s2); break;
+                                        case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4)) * to_s2); break;
+                                        case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4)) * to_s2); break;
+                                        case 26: sprintf(p, " dam %d", 30 + plev * to_s2); break;
+                                        case 29: sprintf(p, " dur %d+d20", plev + to_s2); break;
+                                        case 30: sprintf(p, " dam %d", 55 + plev * to_s2); break;
+                                        case 38: sprintf(p, " dam %dd8", (6+((plev-5)/4)) * to_s2); break;
+                                        case 39: sprintf(p, " dam %d", 40 + plev/2 * to_s2); break;
+                                        case 40: sprintf(p, " dam %d", 40 + plev * to_s2); break;
+                                        case 41: sprintf(p, " dam %d", 70 + plev * to_s2); break;
+                                        case 42: sprintf(p, " dam %d", 65 + plev * to_s2); break;
+                                        case 43: sprintf(p, " dam %d", 300 + plev*2 * to_s2); break;
+                                        case 49: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                                        case 50: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                                        case 51: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                                        case 52: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                                        case 53: sprintf(p, " dur 20%s+d20", sto_s2); break;
+                                        case 54: sprintf(p, " dur 25%s+d25", sto_s2); break;
+                                        case 55: sprintf(p, " dur 30%s+d20", sto_s2); break;
+                                        case 56: sprintf(p, " dur 25%s+d25", sto_s2); break;
+                                        case 57: sprintf(p, " dur %d+d25", 30+plev + to_s2); break;
+                                        case 58: sprintf(p, " dur 6%s+d8", sto_s2); break;
+                                }
+                                break;
+
+                        case REALM_PRAYER:
+                                switch (spell)
+                                {
+                                        case 1: sprintf(p, " heal 2%sd10", smt_s2); break;
+                                        case 2: sprintf(p, " dur 12%s+d12", sto_s2); break;
+                                        case 9: sprintf(p, " range %d", 3*plev * to_s2); break;
+                                        case 10: sprintf(p, " heal 4%sd10", smt_s2); break;
+                                        case 11: sprintf(p, " dur 24%s+d24", sto_s2); break;
+                                        case 15: sprintf(p, " dur 10%s+d10", sto_s2); break;
+                                        case 17: sprintf(p, " %d+3d6", plev * to_s2 + orb); break;
+                                        case 18: sprintf(p, " heal 6%sd10", smt_s2); break;
+                                        case 19: sprintf(p, " dur 24%s+d24", sto_s2); break;
+                                        case 20: sprintf(p, " dur %d+d25", 3*plev + to_s2); break;
+                                        case 23: sprintf(p, " heal 8%sd10", smt_s2); break;
+                                        case 25: sprintf(p, " dur 48%s+d48", sto_s2); break;
+                                        case 26: sprintf(p, " dam d%d", 3*plev * to_s2); break;
+                                        case 27: sprintf(p, " heal 300%s", smt_s2); break;
+                                        case 28: sprintf(p, " dam d%d", 3*plev * to_s2); break;
+                                        case 30: sprintf(p, " heal 1000%s", smt_s2); break;
+                                        case 36: sprintf(p, " heal 4%sd10", smt_s2); break;
+                                        case 37: sprintf(p, " heal 8%sd10", smt_s2); break;
+                                        case 38: sprintf(p, " heal 2000%s", smt_s2); break;
+                                        case 41: sprintf(p, " dam d%d", 4*plev * to_s2); break;
+                                        case 42: sprintf(p, " dam d%d", 4*plev * to_s2); break;
+                                        case 45: sprintf(p, " dam 200%s", smt_s2); break;
+                                        case 52: sprintf(p, " range 10%s", smt_s2); break;
+                                        case 53: sprintf(p, " range %d", 8*plev * to_s2); break;
+                                }
+                                break;
+                        case REALM_ILLUSION:
+                                /* Analyze the spell */
+                                switch (spell)
+                                {
+                                        case 0: sprintf(p, " dam %dd%d", 2+((plev-1)/5), 4 * mto_s2); break;
+                                        case 2: sprintf(p, " range %d", 10 + to_s2); break;
+                                        case 8: sprintf(p, " dam %d", 10 + (plev / 2) * mto_s2); break;
+                                        case 9: sprintf(p, " dur %d+d100", 200 + p_ptr->to_s); break;
+                                        case 12: sprintf(p, " dam %d", 10 + (plev / 2) * mto_s2); break;
+                                        case 16: sprintf(p, " dam %dd%d", (5+((plev-6)/4)), 8 * mto_s2); break;
+                                        case 18: sprintf(p, " dur %d+d24", 24 + p_ptr->to_s); break;
+                                        case 21: sprintf(p, " dam %dd%d", (2+((plev-5)/4)), 6 * mto_s2); break;
+                                        case 22: sprintf(p, " dam %d", 25 + plev * mto_s2); break;
+                                        case 26: sprintf(p, " dam %d", 35 + plev * mto_s2); break;
+                                        case 27: sprintf(p, " dam %dd%d", (8+((plev-5)/4)), 8 * mto_s2); break;
+                                        case 28: sprintf(p ," dur %d+d24", plev + p_ptr->to_s); break;
+                                        case 29: sprintf(p, " dur %d+d20", plev + p_ptr->to_s); break;
+                                        case 31: sprintf(p, " dam %dd%d", (8+((plev-5)/4)), 8 * mto_s2); break;
+                                        case 32: sprintf(p, " dur %d+d30", 30 + p_ptr->to_s); break;
+                                        case 34: sprintf(p, " dam %d", 50 + plev * ((!p_ptr->to_s)?1:p_ptr->to_s)); break;
+                                        case 38: sprintf(p, " dam %d", 50 + plev * mto_s2); break;
+                                        case 40: sprintf(p, " dam %dd%d", (2+((plev-5)/4)), 8 * mto_s2); break;
+                                        case 41: sprintf(p, " dam %dd%d", (6+((plev-5)/4)), 8 * mto_s2); break;
+                                        case 43: sprintf(p, " dam %dd%d", (10+((plev-5)/4)), 8 * mto_s2); break;
+                                        case 44: sprintf(p, " dam %dd%d", (12+((plev-5)/4)), 8 * mto_s2); break;
+                                        case 45: sprintf(p, " dam %d", 300 + (plev*2) * mto_s2); break;
+                                        case 46: sprintf(p, " dam %d", 30 + plev * mto_s2); break;
+                                        case 47: sprintf(p, " dam %d", 35 + plev * mto_s2); break;
+                                        case 48: sprintf(p, " dam %d", 40 + plev * mto_s2); break;
+                                        case 49: sprintf(p, " dam %d", 45 + plev * mto_s2); break;
+                                        case 50: sprintf(p, " dam %d", 50 + plev * mto_s2); break;
+                                        case 51: sprintf(p, " dam %d", 80 + plev * mto_s2); break;
+                                        case 53: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case 54: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case 55: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case 56: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case 57: sprintf(p, " dur %d+d20", 20 + p_ptr->to_s); break;
+                                        case 58: sprintf(p, " dur %d+d24", 24 + p_ptr->to_s); break;
+                                        case 59: sprintf(p, " dam %dd%d", (6+((plev-5)/4)), 8 * mto_s2); break;
+                                        case 60: sprintf(p, " dam %d", 40 + plev * mto_s2); break;     
+                                        case 62: sprintf(p, " range %d", (plev * 7) * mto_s2); break;
+                                }
+                                break;
+
+                        case REALM_TRIBAL:
+                                /* Analyze the spell */
+                                switch (spell)
+                                {
+                                        case 0: sprintf(p, " rad %d", 2 + to_s2); break;
+                                        case 1: sprintf(p, " dam %dd10", 2 * mto_s2); break;
+                                        case 2: sprintf(p, " rad %d", 1 + to_s2); break;
+                                        case 3: sprintf(p, " dam %d", (10 + plev) * mto_s2); break;
+                                        case 4: sprintf(p, " heal %dd20", 1 + to_s2); break;
+                                        case 6: sprintf(p, " dur %d + d10", 10 + to_s2); break;
+                                        case 7: sprintf(p, " heal %dd15", 3 + to_s2); break;
+                                        case 10: sprintf(p, " dam %dd2", 25 + to_s2); break;
+                                        case 11: sprintf(p, " dam %dd50", 50 + to_s2); break;
+                                        case 12: sprintf(p, " dur %d + d10", 10 + to_s2); break;
+                                        case 14: sprintf(p, " dur %d + d10", 10 + to_s2); break;
+                                        case 15: sprintf(p, " dam %dd10+%dd18", 10 + to_s2, 5 + to_s2); break;
+                                        case 16: sprintf(p, " rad %d", 6 + to_s2); break;
+                                        case 18: sprintf(p, " rad %d", 2 + to_s2); break;
+                                        case 20: sprintf(p, " dam 75d2"); break;
+                                        case 21: sprintf(p, " rad %d", 6 + to_s2); break;
+                                        case 23: sprintf(p, " rad %d", 1 + to_s2); break;
+                                        case 24: sprintf(p, " dam %dd4+%dd20", 200 + to_s2, 40 + to_s2); break;
+                                        case 25: sprintf(p, " dam %dd150", 1 + to_s2); break;
+                                        case 29: sprintf(p, " dam %d+%d", 100 * mto_s2, 200 * mto_s2); break;
+                                        case 30: sprintf(p, " dam 100d%d+%dd400", 10 + to_s2, 1 + to_s2); break;
+                                }
+
 			default:
 				sprintf(p, "Unknown type: %d.", realm);
+                                break;
 		}
 	}
 #endif /* DRS_SHOW_SPELL_INFO */
@@ -6517,7 +6713,7 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 		spell = spells[i];
 
 		/* Access the spell */
-		s_ptr = &mp_ptr->info[realm][spell];
+                s_ptr = &realm_info[realm][spell];
 
 		/* Skip illegible spells */
 		if (s_ptr->slevel >= 99)
@@ -6537,26 +6733,23 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 
 		/* Analyze the spell */
                 if ((p_ptr->pclass != CLASS_SORCERER) &&
-                    ((realm+1 == p_ptr->realm1) ?
-		    ((spell_forgotten1 & (1L << spell))) :
-                    ((spell_forgotten2 & (1L << (spell))))))
+                    (spell_forgotten[realm][(spell < 32)] & (1L << (spell % 32))))
 		{
 			comment = " forgotten";
 		}
                 else if ((p_ptr->pclass != CLASS_SORCERER) &&
-                 (!((realm+1 == p_ptr->realm1) ?
-		    (spell_learned1 & (1L << spell)) :
-                    (spell_learned2 & (1L << (spell))))))
+                    (!(spell_learned[realm][(spell < 32)] & (1L << (spell % 32)))))
 		{
 			comment = " unknown";
 		}
                 else if ((p_ptr->pclass != CLASS_SORCERER) &&
-                 (!((realm+1 == p_ptr->realm1) ?
-		    (spell_worked1 & (1L << spell)) :
-                    (spell_worked2 & (1L << (spell))))))
+                    (!(spell_worked[realm][(spell < 32)] & (1L << (spell % 32)))))
 		{
 			comment = " untried";
-		}
+                 }
+
+
+		/* Analyze the spell */
 
                 sprintf(sname, spell_names[realm][spell]);
 
@@ -6570,187 +6763,6 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 	/* Clear the bottom line */
 	prt("", y + i + 1, x);
 }
-
-/*
- * Extra information on a spell         -DRS-
- *
- * We can use up to 14 characters of the buffer 'p'
- *
- * The strings in this function were extracted from the code in the
- * functions "do_cmd_cast()" and "do_cmd_pray()" and may be dated.
- */
-static void nr_spell_info(char *p, int spell)
-{
-        int to_s2=p_ptr->to_s/2;
-        char *sto_s2 = (to_s2<2)?"":format("+%d",to_s2);
-        char *smt_s2 = (to_s2<2)?"":format("*%d",to_s2);
-
-        to_s2 = (to_s2==0)?1:to_s2;
-
-	/* Default */
-	strcpy(p, "");
-
-#ifdef DRS_SHOW_SPELL_INFO
-
-	/* Mage spells */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
-	{
-		int plev = p_ptr->lev;
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-                        case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5) * to_s2); break;
-                        case 2: sprintf(p, " range 10%s", smt_s2); break;
-                        case 5: sprintf(p, " heal 2%sd8", smt_s2); break;
-                        case 8: sprintf(p, " dam %d", 10 + (plev / 2) * to_s2); break;
-                        case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4)) * to_s2); break;
-                        case 14: sprintf(p, " range %d", plev * 10 * to_s2); break;
-                        case 15: sprintf(p, " dam 6%sd8", smt_s2); break;
-                        case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4)) * to_s2); break;
-                        case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4)) * to_s2); break;
-                        case 26: sprintf(p, " dam %d", 30 + plev * to_s2); break;
-                        case 29: sprintf(p, " dur %d+d20", plev + to_s2); break;
-                        case 30: sprintf(p, " dam %d", 55 + plev * to_s2); break;
-                        case 38: sprintf(p, " dam %dd8", (6+((plev-5)/4)) * to_s2); break;
-                        case 39: sprintf(p, " dam %d", 40 + plev/2 * to_s2); break;
-                        case 40: sprintf(p, " dam %d", 40 + plev * to_s2); break;
-                        case 41: sprintf(p, " dam %d", 70 + plev * to_s2); break;
-                        case 42: sprintf(p, " dam %d", 65 + plev * to_s2); break;
-                        case 43: sprintf(p, " dam %d", 300 + plev*2 * to_s2); break;
-                        case 49: sprintf(p, " dur 20%s+d20", sto_s2); break;
-                        case 50: sprintf(p, " dur 20%s+d20", sto_s2); break;
-                        case 51: sprintf(p, " dur 20%s+d20", sto_s2); break;
-                        case 52: sprintf(p, " dur 20%s+d20", sto_s2); break;
-                        case 53: sprintf(p, " dur 20%s+d20", sto_s2); break;
-                        case 54: sprintf(p, " dur 25%s+d25", sto_s2); break;
-                        case 55: sprintf(p, " dur 30%s+d20", sto_s2); break;
-                        case 56: sprintf(p, " dur 25%s+d25", sto_s2); break;
-                        case 57: sprintf(p, " dur %d+d25", 30+plev + to_s2); break;
-                        case 58: sprintf(p, " dur 6%s+d8", sto_s2); break;
-		}
-	}
-
-	/* Priest spells */
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-	{
-		int plev = p_ptr->lev;
-
-		/* See below */
-		int orb = (plev / ((p_ptr->pclass == 2) ? 2 : 4));
-
-		/* Analyze the spell */
-		switch (spell)
-		{
-                        case 1: sprintf(p, " heal 2%sd10", smt_s2); break;
-                        case 2: sprintf(p, " dur 12%s+d12", sto_s2); break;
-                        case 9: sprintf(p, " range %d", 3*plev * to_s2); break;
-                        case 10: sprintf(p, " heal 4%sd10", smt_s2); break;
-                        case 11: sprintf(p, " dur 24%s+d24", sto_s2); break;
-                        case 15: sprintf(p, " dur 10%s+d10", sto_s2); break;
-                        case 17: sprintf(p, " %d+3d6", plev * to_s2 + orb); break;
-                        case 18: sprintf(p, " heal 6%sd10", smt_s2); break;
-                        case 19: sprintf(p, " dur 24%s+d24", sto_s2); break;
-                        case 20: sprintf(p, " dur %d+d25", 3*plev + to_s2); break;
-                        case 23: sprintf(p, " heal 8%sd10", smt_s2); break;
-                        case 25: sprintf(p, " dur 48%s+d48", sto_s2); break;
-                        case 26: sprintf(p, " dam d%d", 3*plev * to_s2); break;
-                        case 27: sprintf(p, " heal 300%s", smt_s2); break;
-                        case 28: sprintf(p, " dam d%d", 3*plev * to_s2); break;
-                        case 30: sprintf(p, " heal 1000%s", smt_s2); break;
-                        case 36: sprintf(p, " heal 4%sd10", smt_s2); break;
-                        case 37: sprintf(p, " heal 8%sd10", smt_s2); break;
-                        case 38: sprintf(p, " heal 2000%s", smt_s2); break;
-                        case 41: sprintf(p, " dam d%d", 4*plev * to_s2); break;
-                        case 42: sprintf(p, " dam d%d", 4*plev * to_s2); break;
-                        case 45: sprintf(p, " dam 200%s", smt_s2); break;
-                        case 52: sprintf(p, " range 10%s", smt_s2); break;
-                        case 53: sprintf(p, " range %d", 8*plev * to_s2); break;
-		}
-	}
-
-#endif
-
-}
-
-
-/*
- * Print a list of spells (for browsing or casting or viewing)
- */
-void nr_print_spells(byte *spells, int num, int y, int x)
-{
-	int                     i, spell;
-
-	magic_type              *s_ptr;
-
-	cptr            comment;
-
-	char            info[80];
-
-	char            out_val[160];
-
-
-	/* Title the list */
-	prt("", y, x);
-	put_str("Name", y, x + 5);
-	put_str("Lv Mana Fail Info", y, x + 35);
-
-	/* Dump the spells */
-	for (i = 0; i < num; i++)
-	{
-		/* Access the spell */
-		spell = spells[i];
-
-		/* Access the spell */
-                s_ptr = &mp_ptr->info[0][spell];
-
-		/* Skip illegible spells */
-		if (s_ptr->slevel >= 99)
-		{
-			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-			prt(out_val, y + i + 1, x);
-			continue;
-		}
-
-		/* XXX XXX Could label spells above the players level */
-
-		/* Get extra info */
-                nr_spell_info(info, spell);
-
-		/* Use that info */
-		comment = info;
-
-		/* Analyze the spell */
-		if ((spell < 32) ?
-		    ((spell_forgotten1 & (1L << spell))) :
-		    ((spell_forgotten2 & (1L << (spell - 32)))))
-		{
-			comment = " forgotten";
-		}
-		else if (!((spell < 32) ?
-			   (spell_learned1 & (1L << spell)) :
-			   (spell_learned2 & (1L << (spell - 32)))))
-		{
-			comment = " unknown";
-		}
-		else if (!((spell < 32) ?
-			   (spell_worked1 & (1L << spell)) :
-			   (spell_worked2 & (1L << (spell - 32)))))
-		{
-			comment = " untried";
-		}
-
-		/* Dump the spell --(-- */
-		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
-                        I2A(i), nr_spell_names[mp_ptr->spell_type][spell],
-                        s_ptr->slevel, s_ptr->smana, spell_chance(spell, 0), comment);
-		prt(out_val, y + i + 1, x);
-	}
-
-	/* Clear the bottom line */
-	prt("", y + i + 1, x);
-}
-
 
 /*
  * Hack -- display an object kind in the current window
@@ -6796,10 +6808,10 @@ void display_koff(int k_idx)
 
 
 	/* Warriors are illiterate */
-	if (!(p_ptr->realm1 || p_ptr->realm2)) return;
+        if (!(p_ptr->realm1 || p_ptr->realm2)) return;
 
 	/* Display spells in readible books */
-	if (q_ptr->tval == p_ptr->realm1+89 || q_ptr->tval == p_ptr->realm2+89)
+        if ((Mrealm_choices[p_ptr->pclass] | mrealm_choices[p_ptr->pclass]) & (1 << (q_ptr->tval - TV_VALARIN_BOOK)))
 	{
 		int     sval;
 		int     spell = -1;
@@ -6811,10 +6823,10 @@ void display_koff(int k_idx)
 		sval = q_ptr->sval;
 
 		/* Extract spells */
-		for (spell = 0; spell < 32; spell++)
+                for (spell = 0; spell < 64; spell++)
 		{
 			/* Check for this spell */
-			if (fake_spell_flags[sval] & (1L << spell))
+                        if (fake_spell_flags[q_ptr->tval - TV_VALARIN_BOOK + 1][sval][(spell < 31)] & (1L << spell))
 			{
 				/* Collect this spell */
 				spells[num++] = spell;
@@ -6822,8 +6834,7 @@ void display_koff(int k_idx)
 		}
 
 		/* Print spells */
-		print_spells(spells, num, 2, 0,
-		    (q_ptr->tval == p_ptr->realm1+89 ?p_ptr->realm1-1:p_ptr->realm2-1));
+                print_spells(spells, num, 2, 0, q_ptr->tval - TV_VALARIN_BOOK + 1);
 	}
 }
 

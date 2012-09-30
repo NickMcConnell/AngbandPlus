@@ -20,405 +20,185 @@ static int old_badness = -1000;
  * Give the player a bonus.
  */
 static void god_bonus(int god, int goodness, bool do_print) {
-  switch (god) {
-  case 1:    /* Passing */
-    p_ptr->stat_add[A_WIS] += 1;
-    if (do_print) msg_print("You feel you are intimate with the history of Arda.");
-
-    if (goodness > 1) {
-      p_ptr->sustain_wis = TRUE;
-      if (do_print) msg_print("You feel strangely protected.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->telepathy = TRUE;
-      p_ptr->lite = TRUE;
-      if (do_print) msg_print("You sense your surroundings.");
-    }
-
-    break;
-
-  case 2:    /* Youth */
-      p_ptr->stat_add[A_CON] += 1;
-    if (do_print)
-      msg_print("You feel fortified against the passing of time.");
-
-    if (goodness > 1) {
-      p_ptr->sustain_con = TRUE;
-      if (do_print) msg_print("You feel rejuvenated.");
-    }
-
-    break;
-
-  case 3:    /* Shadow */
-    p_ptr->hold_life = TRUE;
-    p_ptr->resist_blind = TRUE;
-    p_ptr->resist_fear = TRUE;
-    if (do_print) msg_print("You feel ghostlike.");
-
-    if (goodness > 1) {
-      p_ptr->resist_dark = TRUE;
-      if (do_print) msg_print("You are protected against darkness.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->resist_cold = TRUE;
-      p_ptr->regenerate = TRUE;
-      if (do_print) msg_print("You start to regenerate.");
-    }
-    break;
-
-  case 4:    /* Hunting */
-    p_ptr->resist_cold = TRUE;
-    p_ptr->sustain_dex = TRUE;
-    if (do_print) msg_print("You feel the power of nature in your blood.");
-
-    if (goodness > 1) {
-      p_ptr->stat_add[A_DEX] += 1;
-      if (do_print) msg_print("You feel more dextrous.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->immune_cold = TRUE;
-      if (do_print) msg_print("You feel protected against the cold of Melkor.");
-    }
-    break;
-
-  case 5:    /* Mourning */
-    p_ptr->regenerate = TRUE;
-    if (do_print) msg_print("You can heal your wounds more efficiently.");
-
-    if (goodness > 1) {
-      p_ptr->hero += 1000;
-      if (do_print) msg_print("You feel heroic.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->stat_add[A_WIS] += 1;
-      if (do_print) msg_print("You feel more wise.");
-    }
-    break;
-
-
-  case 6:    /* Nature */
-    p_ptr->telepathy = TRUE;
-    if (do_print) msg_print("You become more aware of the world around you.");
-
-    if (goodness > 1) {
-      p_ptr->see_inv = TRUE;
-      if (do_print) msg_print("You see through illusions.");
-    }
-
-    break;
-
-  case 7:    /* Water */
-    p_ptr->slow_digest = TRUE;
-    if (do_print)  msg_print("Your body changes subtly.");
-
-    if (goodness > 1) {
-      p_ptr->resist_pois = TRUE;
-      if (do_print) msg_print("You are protected from poisons.");
-    }
-
-    break;
-
-
-  case 8:    /* Stone */
-    p_ptr->ffall = TRUE;
-    if (do_print) msg_print("Your body feels less heavy.");
-
-    if (goodness > 2) {
-      p_ptr->resist_shard = TRUE;
-      if (do_print) msg_print("You resist shards.");
-    }
-
-    break;
-
-
-  case 9:   /* Evil */
-    p_ptr->aggravate = TRUE;
-    p_ptr->impact = TRUE;
-    p_ptr->sustain_str = TRUE;
-    p_ptr->sustain_con = TRUE;
-    p_ptr->hold_life = TRUE;
-    if (do_print) msg_print("You feel evil seep into your soul.");
-
-    if (goodness > 1) {
-      p_ptr->see_inv = TRUE;
-      p_ptr->telepathy = TRUE;
-      if (do_print) msg_print("You sense your prey.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->resist_disen = TRUE;
-      p_ptr->resist_chaos = TRUE;
-      p_ptr->shero += 1000;
-      if (do_print) msg_print("You feel fortified.");
-    }
-
-    break;
-
-
-  case 10:   /* Healing */
-    p_ptr->sustain_con = TRUE;
-    if (do_print) msg_print("Your physique is more stable.");
-
-    if (goodness > 2) {
-      p_ptr->stat_add[A_CON] += 1;
-      if (do_print) msg_print("You feel tougher.");
-    }
-
-    break;
-
-  case 11:   /* Moon */
-    p_ptr->lite = TRUE;
-    if (do_print) msg_print("You radiate silver light.");
-
-    if (goodness > 1) {
-      p_ptr->resist_dark = TRUE;
-      if (do_print) msg_print("You feel fortified against darkness.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->hold_life = TRUE;
-      if (do_print) msg_print("You feel your lifeforce grow stronger.");
-    }
-
-    break;
-
-  case 12:   /* Sun */
-    p_ptr->lite = TRUE;
-    if (do_print) msg_print("You radiate a holy aura.");
-
-    if (goodness > 1) {
-      p_ptr->resist_lite = TRUE;
-      if (do_print) msg_print("You feel fortified against light.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->regenerate = TRUE;
-      if (do_print) msg_print("You start to regenerate.");
-    }
-
-    break;
-
-
-  case 13:   /* Rage */
-    p_ptr->shero += 1000;
-    if (do_print) msg_print("You feel the rage boiling inside you.");
-
-    if (goodness > 1) {
-      p_ptr->stat_add[A_STR] += 1;
-      p_ptr->stat_add[A_DEX] += 1;
-      if (do_print) msg_print("You feel stronger and faster.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->free_act = TRUE;
-      p_ptr->resist_blind = TRUE;
-      p_ptr->resist_conf = TRUE;
-      if (do_print) msg_print("You resist the tricks of your enemies.");
-    }
-
-    break;
-
-
-  case 14:   /* Beast */
-    p_ptr->telepathy = TRUE;
-    p_ptr->free_act = TRUE;
-    p_ptr->see_inv = TRUE;
-    if (do_print) msg_print("You find your hidden animal instincts.");
-
-    if (goodness > 1) {
-      p_ptr->regenerate = TRUE;
-      if (do_print) msg_print("You start regenerating.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->stat_add[A_STR] += 1;
-      p_ptr->stat_add[A_DEX] += 1;
-      if (do_print) msg_print("You feel stronger and faster.");
-    }
-
-    break;
-
-  case 15:   /* Winds */
-    p_ptr->sustain_dex = TRUE;
-    p_ptr->resist_sound = TRUE;
-    p_ptr->free_act = TRUE;
-    if (do_print) msg_print("You feel one with the wind.");
-
-    if (goodness > 1) {
-      p_ptr->stat_add[A_DEX] += 1;
-      if (do_print) msg_print("You feel more dextrous.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->pspeed += 10;
-      if (do_print) msg_print("You feel very fast.");
-    }
-
-    break;
-
-
-  case 16:   /* Spheres */
-    p_ptr->sustain_int = TRUE;
-    p_ptr->sustain_wis = TRUE;
-    p_ptr->telepathy = TRUE;
-    if (do_print) msg_print("Your mind finds new analytical skills.");
-
-    if (goodness > 1) {
-      p_ptr->stat_add[A_INT] += 1;
-      p_ptr->stat_add[A_WIS] += 1;
-      if (do_print) msg_print("You feel smarter and wiser.");
-    }
-
-    if (goodness > 2) {
-      p_ptr->resist_blind = TRUE;
-      p_ptr->resist_conf = TRUE;
-      p_ptr->resist_fear = TRUE;
-      if (do_print) msg_print("You gain clarity of mind.");
-    }
-
-    break;
-
-
-  case 17:  /* Time. */
-    p_ptr->pspeed += 10;
-    if (do_print) msg_print("You feel very fast.");
-
-    if (goodness > 1) p_ptr->pspeed += 5;
-
-    if (goodness > 2) p_ptr->pspeed += 5;
-    break;
-
-  case 18:  /* Infinity. */
-    p_ptr->stat_add[A_INT] += 1;
-    p_ptr->stat_add[A_WIS] += 1;
-    if (do_print) msg_print("You feel smarter and wiser.");
-
-    if (goodness > 1) {
-      p_ptr->stat_add[A_INT] += 1;
-      p_ptr->stat_add[A_WIS] += 1;
-    }
-
-    if (goodness > 2) {
-      p_ptr->stat_add[A_INT] += 1;
-      p_ptr->stat_add[A_WIS] += 1;
-    }
-    break;
-
-  case 19:  /* Change. */
-    p_ptr->stat_add[A_INT] += randnor(0, 2);
-    p_ptr->stat_add[A_WIS] += randnor(0, 2);
-    p_ptr->stat_add[A_STR] += randnor(0, 2);
-    p_ptr->stat_add[A_DEX] += randnor(0, 2);
-    p_ptr->stat_add[A_CON] += randnor(0, 2);
-    p_ptr->stat_add[A_CHR] += randnor(0, 2);
-
-    if (do_print) msg_print("Your body scrambles in an inperceptible way.");
-
-    if (goodness > 1) {
-      int x = randnor(0, 3);
-      int y = randnor(0, 3);
-
-      p_ptr->to_h += x;
-      p_ptr->dis_to_h += x;
-      p_ptr->to_d += y;
-      p_ptr->dis_to_d += y;
-    }
-
-    if (goodness > 2) {
-      int x = randnor(0, 3);
-
-      p_ptr->to_a += x;
-      p_ptr->dis_to_a += x;
-    }
-    break;
-
-  case 20:  /* Stasis. */
-    p_ptr->sustain_str = TRUE;
-    p_ptr->sustain_int = TRUE;
-    p_ptr->sustain_wis = TRUE;
-    p_ptr->sustain_con = TRUE;
-    p_ptr->sustain_dex = TRUE;
-    p_ptr->sustain_chr = TRUE;
-
-    if (do_print) msg_print("You feel strangely more solid.");
-
-    if (goodness > 1) {
-      p_ptr->resist_fire = FALSE;
-      p_ptr->resist_cold = FALSE;
-      p_ptr->resist_fear = FALSE;
-    }
-
-    if (goodness > 2) {
-      p_ptr->resist_acid = FALSE;
-      p_ptr->resist_elec = FALSE;
-      p_ptr->resist_pois = FALSE;
-    }
-
-    break;
-
-  case 21:  /* Particles. */
-  case 24:  /* Matter. */
-    p_ptr->resist_chaos = FALSE;
-    p_ptr->resist_shard = FALSE;
-    p_ptr->resist_acid = FALSE;
-    p_ptr->resist_cold = FALSE;
-    p_ptr->resist_pois = FALSE;
-
-    if (do_print) msg_print("You feel protected in a big way.");
-    break;
-
-  case 22:  /* Continuity. */
-    p_ptr->resist_fear = FALSE;
-    p_ptr->resist_conf = FALSE;
-    p_ptr->resist_disen = FALSE;
-    p_ptr->resist_nexus = FALSE;
-    p_ptr->resist_neth  = FALSE;
-    p_ptr->resist_blind = FALSE;
-
-    if (do_print) msg_print("You feel protected in a big way.");
-    break;
-
-  case 23:  /* Energy. */
-    p_ptr->resist_elec = FALSE;
-    p_ptr->resist_fire = FALSE;
-    p_ptr->resist_lite = FALSE;
-    p_ptr->resist_dark = FALSE;
-    p_ptr->resist_sound = FALSE;
-
-    if (do_print) msg_print("You feel protected in a big way.");
-    break;
-
-  case 25:  /* Being. */
-    p_ptr->stat_add[A_CHR] += 15;
-    p_ptr->to_h -= 50;
-    p_ptr->dis_to_h -= 50;
-    p_ptr->to_d -= 50;
-    p_ptr->dis_to_d -= 50;
-    p_ptr->lite = TRUE;
-    p_ptr->regenerate = TRUE;
-
-    if (do_print) msg_print("You have been branded with the Mark of "
-                         "Eternal Being.");
-    break;
-
-  case 26: /* Unbeing. */
-    p_ptr->stat_add[A_CHR] -= 15;
-    p_ptr->to_h += 30;
-    p_ptr->dis_to_h += 30;
-    p_ptr->to_d += 30;
-    p_ptr->dis_to_d += 30;
-    p_ptr->black_breath = TRUE;
-    p_ptr->teleport = TRUE;
-
-    if (do_print) msg_print("You have been branded with the Mark of "
-                         "Eternal Unbeing.");
-    break;
-
-  }
+        switch (god)
+        {
+                case GOD_YAVANNA:    /* Forest */
+                        p_ptr->resist_cold = TRUE;
+                        if (do_print)  msg_print("Your body resists cold.");
+
+                        if (goodness > 2)
+                        {
+                                p_ptr->immune_cold = TRUE;
+                                if (do_print)  msg_print("Your body *resists* cold.");
+                        }
+                        break;
+
+                case GOD_ULMO:    /* Water */
+                        p_ptr->slow_digest = TRUE;
+                        if (do_print)  msg_print("Your body changes subtly.");
+
+                        if (goodness > 1)
+                        {
+                                p_ptr->resist_pois = TRUE;
+                                if (do_print) msg_print("You are protected from poisons.");
+                        }
+
+                        if (goodness > 2)
+                        {
+                                p_ptr->resist_sound = TRUE;
+                                if (do_print) msg_print("You are protected from sound.");
+                        }
+                        break;
+
+                case GOD_AULE:    /* Earth */
+                        p_ptr->ffall = TRUE;
+                        p_ptr->free_act = TRUE;
+                        if (do_print) msg_print("You feels one with the Earth.");
+
+                        if (goodness > 1)
+                        {
+                                p_ptr->regenerate = TRUE;
+                                if (do_print) msg_print("You start to regenerate.");
+                        }
+
+                        if (goodness > 2)
+                        {
+                                p_ptr->resist_shard = TRUE;
+                                if (do_print) msg_print("You resist shards.");
+                        }
+                        break;
+
+                case GOD_MELKOR:   /* Darkness */
+                        p_ptr->aggravate = TRUE;
+                        p_ptr->resist_dark = TRUE;
+                        p_ptr->sustain_str = TRUE;
+                        p_ptr->sustain_con = TRUE;
+                        p_ptr->hold_life = TRUE;
+                        if (do_print) msg_print("You feel evil seep into your soul.");
+
+                        if (goodness > 1) {
+                                p_ptr->see_inv = TRUE;
+                                p_ptr->telepathy = TRUE;
+                                if (do_print) msg_print("You sense your prey.");
+                        }
+
+                        if (goodness > 2) {
+                                p_ptr->resist_disen = TRUE;
+                                p_ptr->resist_chaos = TRUE;
+                                if (do_print) msg_print("You feel fortified.");
+                        }
+                        break;
+
+                case GOD_TILION:   /* Moon */
+                        p_ptr->lite = TRUE;
+                        if (do_print) msg_print("You radiate silver light.");
+
+                        if (goodness > 1) {
+                                p_ptr->resist_dark = TRUE;
+                                if (do_print) msg_print("You feel fortified against darkness.");
+                        }
+
+                        if (goodness > 2) {
+                                p_ptr->hold_life = TRUE;
+                                if (do_print) msg_print("You feel your lifeforce grow stronger.");
+                        }
+                        break;
+
+                case GOD_ARIEN:   /* Sun */
+                        p_ptr->lite = TRUE;
+                        if (do_print) msg_print("You radiate a holy aura.");
+
+                        if (goodness > 1) {
+                                p_ptr->resist_lite = TRUE;
+                                if (do_print) msg_print("You feel fortified against light.");
+                        }
+
+                        if (goodness > 2) {
+                                p_ptr->regenerate = TRUE;
+                                if (do_print) msg_print("You start to regenerate.");
+                        }
+                        break;
+
+
+                case GOD_TULKAS:   /* Rage */
+                        p_ptr->shero += 1000;
+                        if (do_print) msg_print("You feel the rage boiling inside you.");
+
+                        if (goodness > 1) {
+                                p_ptr->stat_add[A_STR] += 1;
+                                p_ptr->stat_add[A_DEX] += 1;
+                                if (do_print) msg_print("You feel stronger and faster.");
+                        }
+
+                        if (goodness > 2) {
+                                p_ptr->free_act = TRUE;
+                                p_ptr->resist_blind = TRUE;
+                                p_ptr->resist_conf = TRUE;
+                                if (do_print) msg_print("You resist the tricks of your enemies.");
+                        }
+                        break;
+                        
+                case GOD_MANWE:   /* Winds */
+                        p_ptr->sustain_dex = TRUE;
+                        p_ptr->resist_sound = TRUE;
+                        p_ptr->free_act = TRUE;
+                        if (do_print) msg_print("You feel one with the wind.");
+
+                        if (goodness > 1) {
+                                p_ptr->stat_add[A_DEX] += 1;
+                                if (do_print) msg_print("You feel more dextrous.");
+                        }
+
+                        if (goodness > 2) {
+                                p_ptr->pspeed += 7;
+                                if (do_print) msg_print("You feel very fast.");
+                        }
+                        break;
+
+
+                case GOD_VARDA:   /* Spheres */
+                        p_ptr->sustain_int = TRUE;
+                        p_ptr->sustain_wis = TRUE;
+                        p_ptr->telepathy = TRUE;
+                        if (do_print) msg_print("Your mind finds new analytical skills.");
+
+                        if (goodness > 1) {
+                                p_ptr->stat_add[A_INT] += 1;
+                                p_ptr->stat_add[A_WIS] += 1;
+                                if (do_print) msg_print("You feel smarter and wiser.");
+                        }
+
+                        if (goodness > 2) {
+                                p_ptr->resist_blind = TRUE;
+                                p_ptr->resist_conf = TRUE;
+                                p_ptr->resist_fear = TRUE;
+                                if (do_print) msg_print("You gain clarity of mind.");
+                        }
+                        break;
+
+                case GOD_ERU:  /* Being. */
+                        p_ptr->stat_add[A_INT] += 15;
+                        p_ptr->stat_add[A_WIS] += 15;
+                        p_ptr->stat_add[A_CHR] += 15;
+                        p_ptr->to_h -= 50;
+                        p_ptr->dis_to_h -= 50;
+                        p_ptr->to_d -= 50;
+                        p_ptr->dis_to_d -= 50;
+                        p_ptr->lite = TRUE;
+                        p_ptr->regenerate = TRUE;
+
+                        if (do_print) msg_print("You have been branded with the Mark of Eternal Being.");
+                        break;
+                case GOD_RNG: /* Randomness */
+                        if (do_print) msg_print("You are radomized.");
+                        p_ptr->stat_add[A_STR] += rand_int(6) - 3;
+                        p_ptr->stat_add[A_DEX] += rand_int(6) - 3;
+                        p_ptr->stat_add[A_CON] += rand_int(6) - 3;
+                        p_ptr->stat_add[A_INT] += rand_int(6) - 3;
+                        p_ptr->stat_add[A_WIS] += rand_int(6) - 3;
+                        p_ptr->stat_add[A_CHR] += rand_int(6) - 3;
+                        break;
+        }
 }
 
 static void god_effect(int god, int badness) {
@@ -715,7 +495,7 @@ static void prt_title(void)
         /* Mimic shape */
         if (p_ptr->mimic_form)
         {
-                p=p_ptr->mimic_name;
+                p = p_ptr->mimic_name;
         }
 
 	/* Wizard */
@@ -1761,12 +1541,11 @@ static void calc_spells(void)
 	int			num_allowed, num_known;
 
 	magic_type		*s_ptr;
-	int use_realm1 = p_ptr->realm1 - 1;
-	int use_realm2 = p_ptr->realm2 - 1;
 	int which;
+        int class_max;
 
 
-	cptr p = ((mp_ptr->spell_book == TV_SORCERY_BOOK) ? "spell" : "prayer");
+        cptr p = (((mp_ptr->spell_book == TV_VALARIN_BOOK) || (mp_ptr->spell_book == TV_PRAYER_BOOK)) ? "prayer" : "spell");
 
         if (p_ptr->pclass == CLASS_SORCERER)
         {
@@ -1800,26 +1579,50 @@ static void calc_spells(void)
 	num_known = 0;
 
 	/* Count the number of spells we know */
-	for (j = 0; j < 64; j++)
-	{
-		/* Count known spells */
-		if ((j < 32) ?
-		    (spell_learned1 & (1L << j)) :
-		    (spell_learned2 & (1L << (j - 32))))
-		{
-			num_known++;
-		}
-	}
+        for (i = 0; i < MAX_REALM; i++)
+        {
+                for (j = 0; j < 64; j++)
+                {
+                        if (spell_learned[i][(j < 32)] & (1L << (j % 32)))
+                        {
+                                num_known++;
+                        }
+                }
+        }
+
+        /* Limit the number of spells each class can learn */
+        switch(p_ptr->pclass)
+        {
+                case CLASS_WARRIOR_MAGE:
+                case CLASS_HIGH_MAGE:
+                        class_max = 48;
+                        break;
+
+                case CLASS_ROGUE:
+                case CLASS_MONK:
+                        class_max = 24;
+                        break;
+
+                case CLASS_CHAOS_WARRIOR:
+                case CLASS_RANGER:
+                case CLASS_PALADIN:
+                        class_max = 32;
+                        break;
+
+                default:                
+                        class_max = 64;
+                        break;
+        }
+
+       if (num_allowed > class_max) num_allowed = class_max;
 
 	/* See how many spells we must forget or may learn */
-	p_ptr->new_spells = num_allowed - num_known;
+        /* Substract the spell learned by other means than studying(potion) */
+        p_ptr->new_spells = num_allowed - (num_known - p_ptr->xtra_spells);
 
 	/* Forget spells which are too hard */
 	for (i = 63; i >= 0; i--)
 	{
-		/* Efficiency -- all done */
-		if (!spell_learned1 && !spell_learned2) break;
-
 		/* Access the spell */
 		j = spell_order[i];
 
@@ -1828,46 +1631,25 @@ static void calc_spells(void)
 
 
 		/* Get the spell */
-		if (j < 32)
-			s_ptr = &mp_ptr->info[use_realm1][j];
-		else
-			s_ptr = &mp_ptr->info[use_realm2][j%32];
+                s_ptr = &realm_info[realm_order[i]][j];
 
 		/* Skip spells we are allowed to know */
 		if (s_ptr->slevel <= p_ptr->lev) continue;
 
 		/* Is it known? */
-		if ((j < 32) ?
-		    (spell_learned1 & (1L << j)) :
-		    (spell_learned2 & (1L << (j - 32))))
+                if (spell_learned[realm_order[i]][(j < 32)] & (1L << (j % 32)))
 		{
 			/* Mark as forgotten */
-			if (j < 32)
-			{
-				spell_forgotten1 |= (1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				spell_forgotten2 |= (1L << (j - 32));
-				which = use_realm2;
-			}
+                        spell_forgotten[realm_order[i]][(j < 32)] |= (1L << (j % 32));
+                        which = realm_order[i];
 
 			/* No longer known */
-			if (j < 32)
-			{
-				spell_learned1 &= ~(1L << j);
-				which = use_realm1;
-			}
-			else
-			{
-				spell_learned2 &= ~(1L << (j - 32));
-				which = use_realm2;
-			}
+                        spell_learned[realm_order[i]][(j < 32)] &= ~(1L << (j % 32));
+                        which = realm_order[i];
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-			spell_names[which][j%32]);
+                        spell_names[which][j%64]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1881,9 +1663,6 @@ static void calc_spells(void)
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
 
-		/* Efficiency -- all done */
-		if (!spell_learned1 && !spell_learned2) break;
-
 		/* Get the (i+1)th spell learned */
 		j = spell_order[i];
 
@@ -1891,37 +1670,19 @@ static void calc_spells(void)
 		if (j >= 99) continue;
 
 		/* Forget it (if learned) */
-		if ((j < 32) ?
-		    (spell_learned1 & (1L << j)) :
-		    (spell_learned2 & (1L << (j - 32))))
+                if (spell_learned[realm_order[i]][(j < 32)] & (1L << (j % 32)))
 		{
 			/* Mark as forgotten */
-			if (j < 32)
-			{
-				spell_forgotten1 |= (1L << j);
-                which = use_realm1;
-			}
-			else
-			{
-				spell_forgotten2 |= (1L << (j - 32));
-                which = use_realm2;
-			}
+                        spell_forgotten[realm_order[i]][(j < 32)] |= (1L << (j % 32));
+                        which = realm_order[i];
 
 			/* No longer known */
-			if (j < 32)
-			{
-				spell_learned1 &= ~(1L << j);
-                which = use_realm1;
-			}
-			else
-			{
-				spell_learned2 &= ~(1L << (j - 32));
-                which = use_realm2;
-			}
+                        spell_learned[realm_order[i]][(j < 32)] &= ~(1L << (j % 32));
+                        which = realm_order[i];
 
 			/* Message */
 			msg_format("You have forgotten the %s of %s.", p,
-                       spell_names[which][j%32]);
+                                   spell_names[which][j%64]);
 
 			/* One more can be learned */
 			p_ptr->new_spells++;
@@ -1935,9 +1696,6 @@ static void calc_spells(void)
 		/* None left to remember */
 		if (p_ptr->new_spells <= 0) break;
 
-		/* Efficiency -- all done */
-		if (!spell_forgotten1 && !spell_forgotten2) break;
-
 		/* Get the next spell we learned */
 		j = spell_order[i];
 
@@ -1945,46 +1703,25 @@ static void calc_spells(void)
 		if (j >= 99) break;
 
 		/* Access the spell */
-        if (j<32)
-            s_ptr = &mp_ptr->info[use_realm1][j];
-        else
-            s_ptr = &mp_ptr->info[use_realm2][j%32];
+                s_ptr = &realm_info[realm_order[i]][j];
 
 		/* Skip spells we cannot remember */
 		if (s_ptr->slevel > p_ptr->lev) continue;
 
 		/* First set of spells */
-		if ((j < 32) ?
-		    (spell_forgotten1 & (1L << j)) :
-		    (spell_forgotten2 & (1L << (j - 32))))
+                if (spell_forgotten[realm_order[i]][(j < 32)] & (1L << (j % 32)))
 		{
 			/* No longer forgotten */
-			if (j < 32)
-			{
-				spell_forgotten1 &= ~(1L << j);
-                which = use_realm1;
-			}
-			else
-			{
-				spell_forgotten2 &= ~(1L << (j - 32));
-                which = use_realm2;
-			}
+                        spell_forgotten[realm_order[i]][(j < 32)] &= ~(1L << (j % 32));
+                        which = realm_order[i];
 
 			/* Known once more */
-			if (j < 32)
-			{
-				spell_learned1 |= (1L << j);
-                which = use_realm1;
-			}
-			else
-			{
-				spell_learned2 |= (1L << (j - 32));
-                which = use_realm2;
-			}
+                        spell_learned[realm_order[i]][(j < 32)] |= (1L << (j % 32));
+                        which = realm_order[i];
 
 			/* Message */
 			msg_format("You have remembered the %s of %s.",
-                       p, spell_names[which][j%32]);
+                                   p, spell_names[which][j%64]);
 
 			/* One less can be learned */
 			p_ptr->new_spells--;
@@ -1996,38 +1733,28 @@ static void calc_spells(void)
 	k = 0;
 
 	/* Count spells that can be learned */
-	for (j = 0; j < 64; j++)
-	{
-		/* Access the spell */
-        if (j<32)
-            s_ptr = &mp_ptr->info[use_realm1][j];
-        else
-            s_ptr = &mp_ptr->info[use_realm2][j%32];
+        for (i = 0; i < MAX_REALM; i++)
+        {
+                for (j = 0; j < 64; j++)
+                {
+                        /* Access the spell */
+                        s_ptr = &realm_info[i][j];
 
-		/* Skip spells we cannot remember */
-		if (s_ptr->slevel > p_ptr->lev) continue;
+                        /* Skip spells we cannot remember */
+                        if (s_ptr->slevel > p_ptr->lev) continue;
 
-		/* Skip spells we already know */
-		if ((j < 32) ?
-		    (spell_learned1 & (1L << j)) :
-		    (spell_learned2 & (1L << (j - 32))))
-		{
-			continue;
-		}
+                        /* Skip spells we already know */
+                        if (spell_learned[realm_order[i]][(j < 32)] & (1L << (j % 32)))
+                        {
+                                continue;
+                        }
 
-		/* Count it */
-		k++;
-	}
+                        /* Count it */
+                        k++;
+                }
+        }
 
-
-    if (p_ptr->realm2 == REALM_NONE)
-    {
-        if (k>32) k = 32;
-    }
-    else
-    {
-        if (k>64) k = 64;
-    }
+        if (k > class_max) k = class_max;
 
 	/* Cannot learn more spells than exist */
 	if (p_ptr->new_spells > k) p_ptr->new_spells = k;
@@ -2162,7 +1889,7 @@ static void calc_mana(void)
         if (msp && (p_ptr->pclass == CLASS_SORCERER)) msp += msp * 3 / 2;
 
 	/* Only mages are affected */
-        if ((mp_ptr->spell_book == TV_SORCERY_BOOK)||(p_ptr->pclass == CLASS_WIZARD))
+        if ((mp_ptr->spell_book == TV_MAGERY_BOOK)||(p_ptr->pclass == CLASS_WIZARD))
 	{
 		/* Assume player is not encumbered by gloves */
 		p_ptr->cumber_glove = FALSE;
@@ -2187,7 +1914,7 @@ static void calc_mana(void)
 	}
 
         /* Augment mana */
-        if(p_ptr->to_m) msp *= p_ptr->to_m;
+        if(p_ptr->to_m) msp += msp * p_ptr->to_m / 5;
 
 	/* Assume player not encumbered by armor */
 	p_ptr->cumber_armor = FALSE;
@@ -2214,6 +1941,12 @@ static void calc_mana(void)
 		msp -= ((cur_wgt - max_wgt) / 10);
 	}
 
+        /* When meditating your mana is increased ! */
+        if(p_ptr->meditation)
+        {
+                msp += 50;
+                p_ptr->csp += 50;
+        }
 
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
@@ -2342,6 +2075,9 @@ static void calc_hitpoints(void)
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
+        /* Hack: Sorcerer have a -25% hp penality */
+        if (mhp && (p_ptr->pclass == CLASS_SORCERER)) mhp -= mhp / 4;
+
 	/* Factor in the hero / superhero settings */
 	if (p_ptr->hero) mhp += 10;
 	if (p_ptr->shero) mhp += 30;
@@ -2350,7 +2086,7 @@ static void calc_hitpoints(void)
         {
                 monster_race *r_ptr = &r_info[p_ptr->body_monster];
 
-                mhp = (maxroll(r_ptr->hdice, r_ptr->hside) + mhp) / 2;
+                mhp = (maxroll(r_ptr->hdice, r_ptr->hside) + mhp + mhp) / 3;
         }
 
         if(p_ptr->disembodied) mhp = 1;
@@ -2365,7 +2101,7 @@ static void calc_hitpoints(void)
         if (o_ptr->k_idx && (f2 & (TR2_LIFE)))
         {
                 /* Augment Hitpoint */
-                mhp *= o_ptr->pval;
+                mhp += mhp * o_ptr->pval / 5;
         }
         
 	/* New maximum hitpoints */
@@ -2455,6 +2191,8 @@ static void calc_torch(void)
 
         if(p_ptr->tim_lite) p_ptr->cur_lite += 2;
 
+        if(p_ptr->holy) p_ptr->cur_lite += 1;
+
 	/* max radius is 5 without rewriting other code -- */
 	/* see cave.c:update_lite() and defines.h:LITE_MAX */
 	if (p_ptr->cur_lite > 5) p_ptr->cur_lite = 5;
@@ -2518,7 +2256,7 @@ void calc_wield_monster()
                         p_ptr->invis += 20;
                 if(r_ptr->flags2 & RF2_REFLECTING)
                         p_ptr->reflect = TRUE;
-                if(r_ptr->flags4 & RF7_CAN_FLY)
+                if(r_ptr->flags7 & RF7_CAN_FLY)
                         p_ptr->ffall = TRUE;
         }
 }
@@ -2591,7 +2329,7 @@ byte calc_mimic()
                         p_ptr->stat_add[A_CHR]-=4;
                         p_ptr->stat_add[A_INT]-=1;
                         p_ptr->stat_add[A_DEX]+=7;
-                        p_ptr->pspeed+=6;
+                        p_ptr->pspeed+=3;
                         p_ptr->dis_to_h+=7;
                         p_ptr->to_h+=7;
                         break;
@@ -2603,7 +2341,6 @@ byte calc_mimic()
                         p_ptr->stat_add[A_CHR]-=1;
                         p_ptr->stat_add[A_INT]-=2;
                         p_ptr->stat_add[A_DEX]+=7;
-                        p_ptr->pspeed+=1;
                         p_ptr->dis_to_h+=14;
                         p_ptr->to_h+=14;
                         break;
@@ -2626,7 +2363,7 @@ byte calc_mimic()
                         p_ptr->stat_add[A_WIS]+=5;
                         p_ptr->stat_add[A_CON]-=5;
                         p_ptr->stat_add[A_CHR]-=4;
-                        p_ptr->pspeed+=10;
+                        p_ptr->pspeed+=4;
                         p_ptr->telepathy=TRUE;
                         break;
                 }
@@ -2638,8 +2375,8 @@ byte calc_mimic()
                         p_ptr->stat_add[A_WIS]-=1;
                         p_ptr->stat_add[A_CON]-=1;
                         p_ptr->stat_add[A_CHR]+=6;
-                        p_ptr->pspeed+=10;
-                        p_ptr->ffall=TRUE;
+                        p_ptr->pspeed+=6;
+                        p_ptr->fly = TRUE;
                         break;
                 }
                 case MIMIC_ENT:
@@ -2652,7 +2389,7 @@ byte calc_mimic()
                         p_ptr->stat_add[A_CON]+=12;
                         p_ptr->stat_add[A_CHR]+=0;
                         p_ptr->sensible_fire=TRUE;
-                        p_ptr->pspeed-=9;
+                        p_ptr->pspeed-=5;
                         break;
                 }
                 case MIMIC_VAMPIRE:
@@ -2751,7 +2488,7 @@ byte calc_mimic()
                 case MIMIC_GOST:
                 {
                         p_ptr->mimic_name="[Gost]";
-                        p_ptr->stat_add[A_STR]-=2;
+                        p_ptr->stat_add[A_STR]-=4;
                         p_ptr->stat_add[A_INT]+=1;
                         p_ptr->stat_add[A_WIS]+=1;
                         p_ptr->stat_add[A_DEX]+=6;
@@ -2779,10 +2516,10 @@ byte calc_mimic()
                         p_ptr->stat_add[A_STR]+=6;
                         p_ptr->stat_add[A_INT]+=1;
                         p_ptr->stat_add[A_WIS]+=1;
-                        p_ptr->stat_add[A_DEX]-=1;
+                        p_ptr->stat_add[A_DEX]-=3;
                         p_ptr->stat_add[A_CON]+=6;
                         p_ptr->stat_add[A_CHR]-=4;
-                        p_ptr->ffall=TRUE;
+                        p_ptr->fly=TRUE;
                         p_ptr->resist_fire=TRUE;
                         p_ptr->resist_cold=TRUE;
                         p_ptr->resist_elec=TRUE;
@@ -2814,7 +2551,7 @@ byte calc_mimic()
                         p_ptr->stat_add[A_DEX]-=1;
                         p_ptr->stat_add[A_CON]+=3;
                         p_ptr->stat_add[A_CHR]-=2;
-                        p_ptr->pspeed+=10;
+                        p_ptr->pspeed+=5;
                         p_ptr->resist_lite=TRUE;
                         p_ptr->resist_dark=TRUE;
                         break;
@@ -2822,13 +2559,14 @@ byte calc_mimic()
                 case MIMIC_QUYLTHULG:
                 {
                         p_ptr->mimic_name="[Quylthulg]";
-                        p_ptr->stat_add[A_STR]-=2;
+                        p_ptr->stat_add[A_STR]+=2;
                         p_ptr->stat_add[A_INT]+=6;
                         p_ptr->stat_add[A_WIS]-=6;
                         p_ptr->stat_add[A_DEX]+=7;
-                        p_ptr->stat_add[A_CON]+=1;
+                        p_ptr->stat_add[A_CON]+=5;
                         p_ptr->stat_add[A_CHR]-=7;
                         p_ptr->see_inv=TRUE;
+                        p_ptr->immovable = TRUE;
                         break;
                 }
                 case MIMIC_MAIAR:
@@ -2942,6 +2680,47 @@ byte calc_mimic()
                         blow += 5;
                         break;
                 }
+
+                case MIMIC_WEREWOLF:
+		{
+                        p_ptr->mimic_name="[Werewolf]";
+			p_ptr->stat_add[A_STR] += 2;
+			p_ptr->stat_add[A_CHR] -= 5;
+			p_ptr->see_infra += 3;
+			p_ptr->regenerate = TRUE;
+			p_ptr->aggravate = TRUE;
+			p_ptr->to_a += 5;
+			p_ptr->dis_to_a += 5;
+			p_ptr->to_h += 20;
+			p_ptr->dis_to_h += 20;
+			p_ptr->to_d += 20;
+			p_ptr->dis_to_d += 20;
+			p_ptr->skill_dev /= 2;
+			break;	
+		}
+
+                case MIMIC_BALROG:
+                {
+                        p_ptr->mimic_name="[Balrog]";
+                        p_ptr->stat_add[A_STR]+=15;
+                        p_ptr->stat_add[A_INT]+=5;
+                        p_ptr->stat_add[A_WIS]-=15;
+                        p_ptr->stat_add[A_DEX]+=5;
+                        p_ptr->stat_add[A_CON]+=15;
+                        p_ptr->stat_add[A_CHR]-=15;
+                        p_ptr->immune_fire=TRUE;
+                        p_ptr->immune_elec=TRUE;
+                        p_ptr->immune_acid=TRUE;
+                        p_ptr->resist_pois=TRUE;
+                        p_ptr->resist_dark=TRUE;
+                        p_ptr->resist_chaos=TRUE;
+                        p_ptr->hold_life=TRUE;
+                        p_ptr->ffall=TRUE;
+                        p_ptr->regenerate=TRUE;
+                        p_ptr->sh_fire = TRUE;
+                        blow += 4;
+                        break;
+                }
         }
         return blow;
 }
@@ -3044,6 +2823,7 @@ void calc_bonuses(void)
 	p_ptr->free_act = FALSE;
 	p_ptr->slow_digest = FALSE;
 	p_ptr->regenerate = FALSE;
+        p_ptr->fly = FALSE;
 	p_ptr->ffall = FALSE;
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
@@ -3255,8 +3035,8 @@ void calc_bonuses(void)
 			break;
                 case RACE_RKNIGHT:
                         /* Rohan's Knights become faster */
-                        p_ptr->pspeed += 5;
-                        p_ptr->pspeed += (p_ptr->lev) / 3;
+                        p_ptr->pspeed += 3;
+                        p_ptr->pspeed += (p_ptr->lev) / 5;
 			break;
                 case RACE_ENT:
 			p_ptr->slow_digest = TRUE;
@@ -3267,12 +3047,14 @@ void calc_bonuses(void)
 			break;
                 case RACE_DRAGONRIDER:
 			p_ptr->ffall = TRUE;
+                        p_ptr->fly = TRUE;
 
                         /* Clear the Tanker point */
                         p_ptr->mtp = 100;
 
                         p_ptr->mtp+=p_ptr->lev*5;
                         if(p_ptr->ctp>p_ptr->mtp)p_ptr->ctp=p_ptr->mtp;
+                        p_ptr->redraw |= PR_TANK;
 
                         if (p_ptr->lev >  3) p_ptr->telepathy = TRUE;
 			if (p_ptr->lev >  4) p_ptr->resist_fire = TRUE;
@@ -3555,10 +3337,11 @@ void calc_bonuses(void)
 		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
 		if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
-		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
 		if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f2 & (TR2_HOLD_LIFE)) p_ptr->hold_life = TRUE;
 		if (f3 & (TR3_WRAITH)) p_ptr->wraith_form = MAX(p_ptr->wraith_form, 20);
+		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
+                if (f4 & (TR4_FLY)) p_ptr->fly = TRUE;
 
 		/* Immunity flags */
 		if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -3766,6 +3549,15 @@ void calc_bonuses(void)
 				}
 			}
 
+                        /* Change in CHR may affect Mana/Spells */
+                        else if (i == A_CHR)
+			{
+                                if (mp_ptr->spell_stat == A_CHR)
+				{
+                                        p_ptr->update |= (PU_MANA | PU_SPELLS | PU_SANITY);
+				}
+			}
+
 			/* Window stuff */
 			p_ptr->window |= (PW_PLAYER);
 		}
@@ -3824,10 +3616,16 @@ void calc_bonuses(void)
                 }
                 else
                 {
-                        p_ptr->to_a += 100;
-                        p_ptr->dis_to_a += 100;
+                        p_ptr->to_a += 50;
+                        p_ptr->dis_to_a += 50;
                         p_ptr->reflect = TRUE;
                 }
+	}
+
+        /* Temporary holy aura */
+        if (p_ptr->holy)
+	{
+                p_ptr->hold_life = TRUE;
 	}
 
 	/* Temporary blessing */
@@ -3848,8 +3646,8 @@ void calc_bonuses(void)
 	/* Temporary shield */
 	if (p_ptr->shield)
 	{
-		p_ptr->to_a += 50;
-		p_ptr->dis_to_a += 50;
+                p_ptr->to_a += p_ptr->shield_power;
+                p_ptr->dis_to_a += p_ptr->shield_power;
 	}
 
 	/* Temporary "Hero" */
@@ -3868,6 +3666,82 @@ void calc_bonuses(void)
 		p_ptr->dis_to_a -= 10;
 	}
 
+        /* Temporary "Accurancy" */
+        if (p_ptr->strike)
+	{
+                p_ptr->to_d += 15;
+                p_ptr->dis_to_d += 15;
+                p_ptr->to_h += 15;
+                p_ptr->dis_to_h += 15;
+	}
+
+        /* Temporary "Meditation" */
+        if (p_ptr->meditation)
+	{
+                p_ptr->to_d -= 25;
+                p_ptr->dis_to_d -= 25;
+                p_ptr->to_h -= 25;
+                p_ptr->dis_to_h -= 25;
+	}
+
+        /* Temporary "Reflection" */
+        if (p_ptr->tim_reflect)
+	{
+                p_ptr->reflect = TRUE;
+	}
+
+        /* Temporary "Time Resistance" */
+        if (p_ptr->tim_res_time)
+	{
+                p_ptr->resist_continuum = TRUE;
+	}
+
+        /* Temporary "Levitation" */
+        if (p_ptr->tim_ffall)
+	{
+                p_ptr->ffall = TRUE;
+	}
+
+        /* Temporary "Fire Aura" */
+        if (p_ptr->tim_fire_aura)
+	{
+                p_ptr->sh_fire = TRUE;
+	}
+
+        /* Oppose Light & Dark */
+        if (p_ptr->oppose_ld)
+	{
+                p_ptr->resist_lite = TRUE;
+                p_ptr->resist_dark = TRUE;
+	}
+
+        /* Oppose Chaos & Confusion */
+        if (p_ptr->oppose_cc)
+	{
+                p_ptr->resist_chaos = TRUE;
+                p_ptr->resist_conf = TRUE;
+	}
+
+        /* Oppose Sound & Shards */
+        if (p_ptr->oppose_ss)
+	{
+                p_ptr->resist_sound = TRUE;
+                p_ptr->resist_shard = TRUE;
+	}
+
+        /* Oppose Nexus */
+        if (p_ptr->oppose_nex)
+	{
+                p_ptr->resist_nexus = TRUE;
+	}
+
+        /* Mental barrier */
+        if (p_ptr->tim_mental_barrier)
+	{
+                p_ptr->sustain_int = TRUE;
+                p_ptr->sustain_wis = TRUE;
+	}
+
 	/* Temporary "fast" */
 	if (p_ptr->fast)
 	{
@@ -3877,7 +3751,7 @@ void calc_bonuses(void)
         /* Temporary "light speed" */
         if (p_ptr->lightspeed)
 	{
-                p_ptr->pspeed += 60;
+                p_ptr->pspeed += 50;
 	}
 
 	/* Temporary "slow" */
@@ -3903,6 +3777,11 @@ void calc_bonuses(void)
 		p_ptr->see_infra++;
 	}
 
+        /* Hack -- Can Fly -> Can Levitate */
+        if (p_ptr->fly)
+	{
+                p_ptr->ffall = TRUE;
+	}
 
 	/* Hack -- Res Chaos -> Res Conf */
 	if (p_ptr->resist_chaos)
@@ -4033,6 +3912,22 @@ void calc_bonuses(void)
 			if (p_ptr->lev >= 40) p_ptr->num_fire++;
 		}
 
+                /* Hack -- Reward High Level Archer */
+                if (p_ptr->pclass == CLASS_ARCHER)
+		{
+                        /* Extra shot at level 15 */
+                        if (p_ptr->lev >= 15) p_ptr->num_fire++;
+
+                        /* Extra shot at level 30 */
+                        if (p_ptr->lev >= 30) p_ptr->num_fire++;
+
+                        /* Extra shot at level 45 */
+                        if (p_ptr->lev >= 45) p_ptr->num_fire++;
+
+                        /* Extra shot at level 25 */
+                        if (p_ptr->lev >= 25) p_ptr->xtra_might = TRUE;
+		}
+
 		/*
 		 * Addendum -- also "Reward" high level warriors,
 		 * with _any_ missile weapon -- TY
@@ -4098,7 +3993,7 @@ void calc_bonuses(void)
 
                         /* Sorcerer */
                         case CLASS_SORCERER:
-                                num = 2; wgt = 10; mul = 1; break;
+                                num = 1; wgt = 1; mul = 1; break;
 
 			/* Mage */
 			case CLASS_MAGE:
@@ -4125,6 +4020,9 @@ void calc_bonuses(void)
 			case CLASS_RANGER:
 				num = 5; wgt = 35; mul = 4; break;
 
+                        case CLASS_ARCHER:
+                                num = 4; wgt = 35; mul = 4; break;
+
 			/* Paladin */
                         case CLASS_PALADIN:             
 				num = 5; wgt = 30; mul = 4; break;
@@ -4140,6 +4038,10 @@ void calc_bonuses(void)
 			/* Monk */
 			case CLASS_MONK:
 				num = (p_ptr->lev<40?3:4); wgt = 40; mul = 4; break;
+
+			/* Illusionist -KMW- */
+                        case CLASS_ILLUSIONIST:
+                                num = 4; wgt = 35; mul = 3; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */
@@ -4236,18 +4138,31 @@ void calc_bonuses(void)
 	}
 
         /* Sorcerer can't wield a weapon unless it's a mage staff */
-        if ((p_ptr->pclass == CLASS_SORCERER) && (o_ptr->tval != TV_MSTAFF))
+        if (p_ptr->pclass == CLASS_SORCERER)
         {
-		/* Reduce the real bonuses */
-                p_ptr->to_h -= 200;
-                p_ptr->to_d -= 200;
+                if (o_ptr->tval != TV_MSTAFF)
+                {
+                        /* Reduce the real bonuses */
+                        p_ptr->to_h -= 200;
+                        p_ptr->to_d -= 200;
 
-		/* Reduce the mental bonuses */
-                p_ptr->dis_to_h -= 200;
-                p_ptr->dis_to_d -= 200;
+                        /* Reduce the mental bonuses */
+                        p_ptr->dis_to_h -= 200;
+                        p_ptr->dis_to_d -= 200;
 
-		/* Icky weapon */
-		p_ptr->icky_wield = TRUE;
+                        /* Icky weapon */
+                        p_ptr->icky_wield = TRUE;
+                }
+                else
+                {
+                        /* Reduce the real bonuses */
+                        p_ptr->to_h -= 10;
+                        p_ptr->to_d -= 10;
+
+                        /* Reduce the mental bonuses */
+                        p_ptr->dis_to_h -= 10;
+                        p_ptr->dis_to_d -= 10;
+                }
         }
 
 	if (monk_heavy_armor())
@@ -4389,9 +4304,6 @@ void calc_bonuses(void)
         /* resistance to fire cancel sensibility to fire */
         if(p_ptr->resist_fire || p_ptr->oppose_fire || p_ptr->immune_fire)
                 p_ptr->sensible_fire=FALSE;
-
-        /* Mana multiplier has a minimun of 1 */
-        if(p_ptr->to_m==0)p_ptr->to_m=1;
 
         /* Spell multiplier has a minimun of 1 */
         if(p_ptr->to_s==0)p_ptr->to_s=1;
@@ -4960,7 +4872,7 @@ void gain_fate(byte fate)
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = rand_int(2);
                                         fates[i].know = FALSE;
-                                        if(wizard)msg_format("New fate : Find object %d on level %d", fates[i].o_idx, fates[i].level);
+                                        if((wizard) || (p_ptr->precognition)) msg_format("New fate : Find object %d on level %d", fates[i].o_idx, fates[i].level);
                                         break;
 
                                 case FATE_FIND_R:
@@ -4972,7 +4884,7 @@ void gain_fate(byte fate)
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = rand_int(2);
                                         fates[i].know = FALSE;
-                                        if(wizard)msg_format("New fate : Meet monster %d on level %d", fates[i].r_idx, fates[i].level);
+                                        if((wizard) || (p_ptr->precognition)) msg_format("New fate : Meet monster %d on level %d", fates[i].r_idx, fates[i].level);
                                         break;
 
                                 case FATE_FIND_A:
@@ -4981,7 +4893,7 @@ void gain_fate(byte fate)
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = TRUE;
                                         fates[i].know = FALSE;
-                                        if(wizard)msg_format("New fate : Find artifact %d on level %d", fates[i].a_idx, fates[i].level);
+                                        if((wizard) || (p_ptr->precognition)) msg_format("New fate : Find artifact %d on level %d", fates[i].a_idx, fates[i].level);
                                         break;
 
                                 case FATE_DIE:
@@ -4989,12 +4901,13 @@ void gain_fate(byte fate)
                                         fates[i].level = (level < 1)?1:(level > 98)?98:level;
                                         fates[i].serious = TRUE;
                                         fates[i].know = FALSE;
-                                        if(wizard)msg_format("New fate : Death on level %d", fates[i].level);
+                                        if((wizard) || (p_ptr->precognition)) msg_format("New fate : Death on level %d", fates[i].level);
                                         break;
+
                                 case FATE_NO_DIE_MORTAL:
                                         fates[i].serious = TRUE;
                                         p_ptr->no_mortal = TRUE;
-                                        if(wizard)msg_format("New fate : Never to die by the hand of a mortal being.");
+                                        if((wizard) || (p_ptr->precognition)) msg_format("New fate : Never to die by the hand of a mortal being.");
                                         break;
                         }
 

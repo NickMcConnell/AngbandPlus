@@ -6,7 +6,7 @@
 Q:18:N:Water Cave
 
 # type:num_mon:cur_num:max_num:level:r_index:k_idx
-Q:18:Q:4:0:0:0:50:0:0
+Q:18:Q:4:0:0:0:50:0:0:2
 
 # Description for quest
 ?:[LEQ $QUEST18 2]
@@ -41,19 +41,19 @@ F:d:84:8:292
 F:e:84:8:346
 
 # Deep water with Great white shark
-F:f:83:8:386
+F:f:187:8:386
 
 # Deep water with Vampiric ixitxachitl
-F:g:83:8:406
+F:g:187:8:406
 
 # Deep water with Giant squid
-F:h:83:8:482
+F:h:187:8:482
 
 # Deep water with Lesser kraken
-F:i:83:8:740
+F:i:187:8:740
 
 # Deep water with Greater kraken
-F:j:83:8:775
+F:j:187:8:775
 
 # Steel Helm
 F:A:84:8:0:97

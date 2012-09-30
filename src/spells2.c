@@ -2194,10 +2194,10 @@ bool detect_objects_magic(void)
                     (tv == TV_AMULET) || (tv == TV_RING) || (tv == TV_BATERIE) ||
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
                     (tv == TV_SCROLL) || (tv == TV_POTION) || (tv == TV_POTION2) ||
-		    (tv == TV_LIFE_BOOK) || (tv == TV_SORCERY_BOOK) ||
-		    (tv == TV_NATURE_BOOK) || (tv == TV_CHAOS_BOOK) ||
-                    (tv == TV_DEATH_BOOK) || (tv == TV_MIMIC_BOOK) ||
-		    (tv == TV_TRUMP_BOOK) || (tv == TV_ARCANE_BOOK) ||
+                    (tv == TV_VALARIN_BOOK) || (tv == TV_MAGERY_BOOK) ||
+                    (tv == TV_SHADOW_BOOK) || (tv == TV_CHAOS_BOOK) ||
+                    (tv == TV_NETHER_BOOK) || (tv == TV_MIMIC_BOOK) ||
+                    (tv == TV_CRUSADE_BOOK) || (tv == TV_SIGALDRY_BOOK) ||
                     (tv == TV_SYMBIOTIC_BOOK) || (tv == TV_MUSIC_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
@@ -4136,7 +4136,9 @@ void give_activation_power (object_type * o_ptr)
 
 int get_activation_power()
 {
-        object_type *o_ptr;
+        object_type *o_ptr, forge;
+
+        o_ptr = &forge;
 
         artifact_bias = 0;
 
@@ -4754,7 +4756,8 @@ bool recharge(int num)
 		if (i < 1) i = 1;
 
 		/* Back-fire XXX XXX XXX */
-                if ((rand_int(i) == 0)&&(!(f4 & TR4_RECHARGE)))
+                if (((rand_int(i) == 0)&&(!(f4 & TR4_RECHARGE))) ||
+                    ((o_ptr->tval == TV_STAFF) && o_ptr->sval == SV_STAFF_WISHING))
 		{
 			/* Dangerous Hack -- Destroy the item */
 			msg_print("There is a bright flash of light.");
@@ -4898,6 +4901,14 @@ bool sleep_monsters(void)
 	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
 }
 
+/*
+ * Scare monsters
+ */
+bool scare_monsters(void)
+{
+        return (project_hack(GF_FEAR, p_ptr->lev));
+}
+
 
 /*
  * Banish evil monsters
@@ -5027,6 +5038,62 @@ void aggravate_monsters(int who)
 	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
 }
 
+/*
+ * Inflict dam damage of type typee to all monster of the given race
+ */
+bool invoke(int dam, int typee)
+{
+	int     i;
+	char    typ;
+	bool    result = FALSE;
+	int     msec = delay_factor * delay_factor * delay_factor;
+
+        if (special_flag) return(FALSE);
+
+	/* Mega-Hack -- Get a monster symbol */
+	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
+
+	/* Delete the monsters of that "type" */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type    *m_ptr = &m_list[i];
+		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Hack -- Skip Unique Monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+
+		/* Hack -- Skip Quest Monsters */
+		if (r_ptr->flags1 & RF1_QUESTOR) continue;
+
+		/* Skip "wrong" monsters */
+		if (r_ptr->d_char != typ) continue;
+
+                project_m(0, 0, m_ptr->fy, m_ptr->fx, dam, typee);
+
+		/* Visual feedback */
+		move_cursor_relative(py, px);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+
+		/* Handle */
+		handle_stuff();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Delay */
+		Term_xtra(TERM_XTRA_DELAY, msec);
+
+		/* Take note */
+		result = TRUE;
+	}
+
+	return (result);
+}
 
 
 /*
@@ -5237,6 +5304,8 @@ void destroy_area(int y1, int x1, int r, bool full)
 
 	/* XXX XXX */
 	full = full ? full : 0;
+
+        if(special_flag){msg_print("Not on special levels!");return;}
 
 	/* Big area of affect */
 	for (y = (y1 - r); y <= (y1 + r); y++)
@@ -6037,7 +6106,6 @@ bool unlite_area(int dam, int rad)
 }
 
 
-
 /*
  * Cast a ball spell
  * Stop if we hit a monster, act as a "ball"
@@ -6063,7 +6131,36 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(0, rad, ty, tx, dam, typ, flg));
+        return (project(0, (rad > 8)?8:rad, ty, tx, dam, typ, flg));
+}
+
+
+/*
+ * Cast a ball-beamed spell
+ * Stop if we hit a monster, act as a "ball"
+ * Allow "target" mode to pass over monsters
+ * Affect grids, objects, and monsters
+ */
+bool fire_ball_beam(int typ, int dir, int dam, int rad)
+{
+	int tx, ty;
+
+        int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_BEAM;
+
+	/* Use the given direction */
+	tx = px + 99 * ddx[dir];
+	ty = py + 99 * ddy[dir];
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		flg &= ~(PROJECT_STOP);
+		tx = target_col;
+		ty = target_row;
+	}
+
+	/* Analyze the "dir" and the "target".  Hurt items on floor. */
+        return (project(0, (rad > 9)?9:rad, ty, tx, dam, typ, flg));
 }
 
 
@@ -6145,6 +6242,99 @@ void teleport_swap(int dir)
 			/* Handle stuff XXX XXX XXX */
 			handle_stuff();
 		}
+	}
+}
+
+void swap_position(int lty, int ltx)
+{
+        int tx = ltx, ty = lty;
+	cave_type * c_ptr;
+	monster_type * m_ptr;
+	monster_race * r_ptr;
+
+        if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return;}
+	
+	c_ptr = &cave[ty][tx];
+	
+	if (!c_ptr->m_idx)
+	{
+			sound(SOUND_TELEPORT);
+			
+                        /* Keep trace of the old location */
+                        tx = px;
+                        ty = py;
+			
+			/* Move the player */
+                        px = ltx;
+                        py = lty;
+			
+			/* Redraw the old grid */
+			lite_spot(ty, tx);
+			
+			/* Redraw the new grid */
+			lite_spot(py, px);
+			
+			/* Check for new panel (redraw map) */
+			verify_panel();
+			
+			/* Update stuff */
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+			
+			/* Update the monsters */
+			p_ptr->update |= (PU_DISTANCE);
+			
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD);
+			
+			/* Handle stuff XXX XXX XXX */
+			handle_stuff();
+	}
+	else
+	{
+		m_ptr = &m_list[c_ptr->m_idx];
+		r_ptr = &r_info[m_ptr->r_idx];
+		
+			sound(SOUND_TELEPORT);
+			
+			cave[py][px].m_idx = c_ptr->m_idx;
+			
+			/* Update the old location */
+			c_ptr->m_idx = 0;
+			
+			/* Move the monster */
+			m_ptr->fy = py;
+			m_ptr->fx = px;
+			
+			/* Move the player */
+			px = tx;
+			py = ty;
+			
+			tx = m_ptr->fx;
+			ty = m_ptr->fy;
+			
+			/* Update the monster (new location) */
+			update_mon(cave[ty][tx].m_idx, TRUE);
+			
+			/* Redraw the old grid */
+			lite_spot(ty, tx);
+			
+			/* Redraw the new grid */
+			lite_spot(py, px);
+			
+			/* Check for new panel (redraw map) */
+			verify_panel();
+			
+			/* Update stuff */
+			p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+			
+			/* Update the monsters */
+			p_ptr->update |= (PU_DISTANCE);
+			
+			/* Window stuff */
+			p_ptr->window |= (PW_OVERHEAD);
+			
+			/* Handle stuff XXX XXX XXX */
+			handle_stuff();
 	}
 }
 
@@ -6945,6 +7135,12 @@ bool charm_monster(int dir, int plev)
 	return (project_hook(GF_CHARM, dir, plev, flg));
 }
 
+bool star_charm_monster(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+        return (project_hook(GF_STAR_CHARM, dir, plev, flg));
+}
+
 
 bool control_one_undead(int dir, int plev)
 {
@@ -7066,7 +7262,7 @@ bool passwall(int dir, bool safe, bool local)
 {
 	int y1, x1, y2, x2;
 	int ty, tx, dy, dx;
-        int oy, ox, ny, nx;
+        int oy, ox, ny = 1, nx = 1;
 
 	int i, path_n = 0;
 

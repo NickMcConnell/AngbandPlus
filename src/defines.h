@@ -39,11 +39,11 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-/* Added for ZAngband */
+/* Added for PernAngband */
 #define FAKE_VERSION   0
-#define FAKE_VER_MAJOR 3
-#define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 2
+#define FAKE_VER_MAJOR 4
+#define FAKE_VER_MINOR 0
+#define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
 
@@ -173,18 +173,18 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           22
+#define MAX_RACES           23
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            22
+#define MAX_CLASS            24
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
 
 /* Number of gods */
-#define MAX_GODS   26
+#define MAX_GODS   17
 
 /* Number of Random Artifacts */
 #define MAX_RANDARTS 84
@@ -530,16 +530,6 @@
 
 
 /*
- * There is a 1/160 chance per round of creating a new monster
- */
-#define MAX_M_ALLOC_CHANCE      160
-
-/*
- * Normal levels get at least 14 monsters
- */
-#define MIN_M_ALLOC_LEVEL       14
-
-/*
  * The town starts out with 4 residents during the day
  */
 #define MIN_M_ALLOC_TD          4
@@ -587,29 +577,36 @@
 
 /* Possible realms that can be chosen; currently used only by birth.c
 and tables.c --TY */
-#define CH_NONE         0x0000
-#define CH_LIFE         0x0001
-#define CH_SORCERY      0x0002
-#define CH_NATURE       0x0004
-#define CH_CHAOS        0x0008
-#define CH_DEATH        0x0010
-#define CH_TRUMP        0x0020
-#define CH_ARCANE       0x0040
-#define CH_SYMBIOTIC    0x0080
-#define CH_MUSIC        0x0100
-
+#define CH_NONE         0x00000000
+#define CH_VALARIN      0x00000001
+#define CH_MAGERY       0x00000002
+#define CH_SHADOW       0x00000004
+#define CH_CHAOS        0x00000008
+#define CH_NETHER       0x00000010
+#define CH_CRUSADE      0x00000020
+#define CH_SIGALDRY     0x00000040
+#define CH_SYMBIOTIC    0x00000080
+#define CH_MUSIC        0x00000100
+#define CH_MAGIC        0x00000200
+#define CH_PRAYER       0x00000400
+#define CH_ILLUSION     0x00000800
+#define CH_TRIBAL       0x00001000
 
 #define REALM_NONE         0
-#define REALM_LIFE         1
-#define REALM_SORCERY      2
-#define REALM_NATURE       3
+#define REALM_VALARIN      1
+#define REALM_MAGERY       2
+#define REALM_SHADOW       3
 #define REALM_CHAOS        4
-#define REALM_DEATH        5
-#define REALM_TRUMP        6
-#define REALM_ARCANE       7
+#define REALM_NETHER       5
+#define REALM_CRUSADE      6
+#define REALM_SIGALDRY     7
 #define REALM_SYMBIOTIC    8
 #define REALM_MUSIC        9
-#define MAX_REALM          10
+#define REALM_MAGIC        10
+#define REALM_PRAYER       11
+#define REALM_ILLUSION     12
+#define REALM_TRIBAL       13
+#define MAX_REALM          14
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -678,49 +675,52 @@ and tables.c --TY */
 #define RACE_HOBBIT             3
 #define RACE_GNOME              4
 #define RACE_DWARF              5
-#define RACE_HALF_ORC   6
-#define RACE_HALF_TROLL 7
-#define RACE_DUNADAN    8
-#define RACE_HIGH_ELF   9
-#define RACE_BARBARIAN 10
-#define RACE_HALF_OGRE 11
-#define RACE_HALF_GIANT     12
-#define RACE_KOBOLD         13
-#define RACE_NIBELUNG       14
-#define RACE_DARK_ELF       15
-#define RACE_VAMPIRE        16
-#define RACE_SPECTRE        17
-#define RACE_ENT            18
-#define RACE_RKNIGHT        19
-#define RACE_DRAGONRIDER    20
-#define RACE_MOLD           21
+#define RACE_HALF_ORC           6
+#define RACE_HALF_TROLL         7
+#define RACE_DUNADAN            8
+#define RACE_HIGH_ELF           9
+#define RACE_BARBARIAN          10
+#define RACE_HALF_OGRE          11
+#define RACE_HALF_GIANT         12
+#define RACE_KOBOLD             13
+#define RACE_NIBELUNG           14
+#define RACE_DARK_ELF           15
+#define RACE_VAMPIRE            16
+#define RACE_SPECTRE            17
+#define RACE_ENT                18
+#define RACE_RKNIGHT            19
+#define RACE_DRAGONRIDER        20
+#define RACE_MOLD               21
+#define RACE_YEEK               22
 
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
  */
-#define CLASS_WARRIOR   0
+#define CLASS_WARRIOR           0
 #define CLASS_MAGE              1
-#define CLASS_PRIEST    2
+#define CLASS_PRIEST            2
 #define CLASS_ROGUE             3
-#define CLASS_RANGER    4
-#define CLASS_PALADIN   5
-#define CLASS_WARRIOR_MAGE 6
-#define CLASS_CHAOS_WARRIOR 7
-#define CLASS_MONK 8
-#define CLASS_MINDCRAFTER 9
-#define CLASS_HIGH_MAGE 10
-#define CLASS_MIMIC 11
-#define CLASS_BEASTMASTER 12
-#define CLASS_ALCHEMIST 13
-#define CLASS_SYMBIANT 14
-#define CLASS_HARPER 15
-#define CLASS_POWERMAGE 16
-#define CLASS_RUNECRAFTER 17
-#define CLASS_WIZARD 18
-#define CLASS_PRIOR 19
-#define CLASS_POSSESSOR 20
-#define CLASS_SORCERER 21
+#define CLASS_RANGER            4
+#define CLASS_PALADIN           5
+#define CLASS_WARRIOR_MAGE      6
+#define CLASS_CHAOS_WARRIOR     7
+#define CLASS_MONK              8
+#define CLASS_MINDCRAFTER       9
+#define CLASS_HIGH_MAGE         10
+#define CLASS_MIMIC             11
+#define CLASS_BEASTMASTER       12
+#define CLASS_ALCHEMIST         13
+#define CLASS_SYMBIANT          14
+#define CLASS_HARPER            15
+#define CLASS_POWERMAGE         16
+#define CLASS_RUNECRAFTER       17
+#define CLASS_WIZARD            18
+#define CLASS_PRIOR             19
+#define CLASS_POSSESSOR         20
+#define CLASS_SORCERER          21
+#define CLASS_ARCHER            22
+#define CLASS_ILLUSIONIST       23
 
 /*** Screen Locations ***/
 
@@ -905,8 +905,12 @@ and tables.c --TY */
 #define FEAT_BETWEEN            160
 
 /* Altar */
-#define FEAT_ALTAR_HEAD         0xA1
-#define FEAT_ALTAR_TAIL         0xBA
+#define FEAT_ALTAR_HEAD         161
+#define FEAT_ALTAR_TAIL         171
+
+/* Special Features */
+#define FEAT_GLASS_WALL         188
+#define FEAT_ILLUS_WALL         189
 
 /*
  * Wilderness terrains
@@ -1427,7 +1431,7 @@ and tables.c --TY */
 
 #define TV_SKELETON      1      /* Skeletons ('s') */
 #define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_FIRESTONE     3      /* Sticks, Pottery, etc ('~') */
+#define TV_FIRESTONE     3      /* For DragonRiders */
 #define TV_BATERIE       4      /* For the Alchemists */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_MSTAFF        6      /* Mage Staffs */
@@ -1435,6 +1439,7 @@ and tables.c --TY */
 #define TV_PARCHEMENT    8      /* Parchements from Kamband */
 #define TV_CORPSE        9      /* Monster corpses */
 #define TV_EGG          10      /* Monster Eggs */
+#define TV_JUNK         11      /* Sticks, Pottery, etc ('~') */
 #define TV_INSTRUMENT   14      /* Musical instruments */
 #define TV_BOOMERANG    15      /* Boomerangs */
 #define TV_SHOT         16      /* Ammo for slings */
@@ -1461,27 +1466,30 @@ and tables.c --TY */
 #define TV_WAND         65
 #define TV_ROD          66
 #define TV_SCROLL       70
-#define TV_POTION       75
+#define TV_POTION       71
+#define TV_POTION2      72      /* Second set of potion */
 #define TV_FLASK        77
 #define TV_FOOD         80
-#define TV_LIFE_BOOK    90
-#define TV_SORCERY_BOOK 91
-#define TV_NATURE_BOOK  92
-#define TV_CHAOS_BOOK   93
-#define TV_DEATH_BOOK   94
-#define TV_TRUMP_BOOK   95
-#define TV_ARCANE_BOOK  96
-#define TV_SYMBIOTIC_BOOK   97
-#define TV_MUSIC_BOOK   98
 #define TV_HYPNOS       99      /* To wield monsters !:) */
 #define TV_GOLD         100     /* Gold can only be picked up by players */
-#define TV_MIMIC_BOOK   101
 #define TV_RANDART      102     /* Random Artifacts */
-#define TV_POTION2      103      /* Second set of potion */
 #define TV_RUNE1        104      /* Base runes */
 #define TV_RUNE2        105      /* Modifier runes */
-#define TV_MAGIC_BOOK   106
-#define TV_PRAYER_BOOK  107
+
+#define TV_MIMIC_BOOK   110
+#define TV_VALARIN_BOOK 111
+#define TV_MAGERY_BOOK  112
+#define TV_SHADOW_BOOK  113
+#define TV_CHAOS_BOOK   114
+#define TV_NETHER_BOOK  115
+#define TV_CRUSADE_BOOK 116
+#define TV_SIGALDRY_BOOK 117
+#define TV_SYMBIOTIC_BOOK 118
+#define TV_MUSIC_BOOK   119
+#define TV_MAGIC_BOOK   120
+#define TV_PRAYER_BOOK  121
+#define TV_ILLUSION_BOOK 122
+#define TV_TRIBAL_BOOK 123
 
 
 /* The "sval" codes for TV_FIRESTONE */
@@ -1775,6 +1783,7 @@ and tables.c --TY */
 #define SV_RING_PRECONITION             51
 #define SV_RING_FLAR                    52
 #define SV_RING_INVIS                   53
+#define SV_RING_FLYING                  54
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS                0
@@ -1807,8 +1816,8 @@ and tables.c --TY */
 #define SV_STAFF_GENOCIDE               27
 #define SV_STAFF_EARTHQUAKES            28
 #define SV_STAFF_DESTRUCTION            29
-#define SV_STAFF_NOTHING    30
-
+#define SV_STAFF_NOTHING                30
+#define SV_STAFF_WISHING                31
 
 /* The "sval" codes for TV_WAND */
 #define SV_WAND_HEAL_MONSTER             0
@@ -1841,7 +1850,8 @@ and tables.c --TY */
 #define SV_WAND_DRAGON_COLD             27
 #define SV_WAND_DRAGON_BREATH           28
 #define SV_WAND_ROCKETS                 29
-#define SV_WAND_NOTHING         30
+#define SV_WAND_NOTHING                 30
+#define SV_WAND_WALL_CREATION           31
 
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_DETECT_TRAP               0
@@ -1918,10 +1928,10 @@ and tables.c --TY */
 #define SV_SCROLL_PROTECTION_FROM_EVIL  37
 #define SV_SCROLL_RUNE_OF_PROTECTION    38
 #define SV_SCROLL_TRAP_DOOR_DESTRUCTION 39
-/* xxx */
+#define SV_SCROLL_DEINCARNATION         40
 #define SV_SCROLL_STAR_DESTRUCTION      41
 #define SV_SCROLL_DISPEL_UNDEAD         42
-/* xxx */
+#define SV_SCROLL_INCARNATION           43
 #define SV_SCROLL_GENOCIDE              44
 #define SV_SCROLL_MASS_GENOCIDE         45
 #define SV_SCROLL_ACQUIREMENT           46
@@ -1931,7 +1941,8 @@ and tables.c --TY */
 #define SV_SCROLL_CHAOS                 50
 #define SV_SCROLL_RUMOR                 51
 #define SV_SCROLL_ARTIFACT              52
-#define SV_SCROLL_NOTHING                      53
+#define SV_SCROLL_NOTHING               53
+#define SV_SCROLL_SPELL                 54
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0
@@ -1946,7 +1957,7 @@ and tables.c --TY */
 #define SV_POTION_CONFUSION              9
 #define SV_POTION_MUTATION              10
 #define SV_POTION_SLEEP                 11
-/* xxx */
+#define SV_POTION_LEARNING              12
 #define SV_POTION_LOSE_MEMORIES         13
 /* xxx */
 #define SV_POTION_RUINATION             15
@@ -2336,7 +2347,8 @@ and tables.c --TY */
 #define SUMMON_RNG                  52
 #define SUMMON_MINE                 53
 #define SUMMON_HUMAN                54
-
+#define SUMMON_SHADOWS              55
+#define SUMMON_GHOST                56
 
 
 /*
@@ -2419,7 +2431,14 @@ and tables.c --TY */
 #define GF_RAISE        92
 #define GF_STAR_IDENTIFY 93
 #define GF_DESTRUCTION  94
-
+#define GF_STUN_CONF    95
+#define GF_STUN_DAM     96
+#define GF_CONF_DAM     98
+#define GF_STAR_CHARM   99
+#define GF_IMPLOSION    100
+#define GF_LAVA_FLOW    101
+#define GF_FEAR         102
+#define GF_BETWEEN_GATE 103
 
 /*
  * Some things which induce learning
@@ -2638,6 +2657,7 @@ and tables.c --TY */
 #define TR4_PRECOGNITION        0x00000002L     /* Like activating the cheat mode */
 #define TR4_BLACK_BREATH        0x00000004L     /* Tolkien's Black Breath */
 #define TR4_RECHARGE            0x00000008L     /* For artifact Wands and Staffs */
+#define TR4_FLY                 0x00000010L     /* This one and ONLY this one allow you to fly over mountains and trees */
 #define TR4_NULL_MASK           0xFFFFFFFCL
 
 
@@ -2651,6 +2671,25 @@ and tables.c --TY */
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
      TR1_SPEED | TR1_BLOWS )
 
+/*** Features flags -- DG ***/
+#define FF1_NO_WALK             0x00000001L
+#define FF1_NO_VISION           0x00000002L
+#define FF1_CAN_LEVITATE        0x00000004L
+#define FF1_CAN_PASS            0x00000008L
+#define FF1_FLOOR               0x00000010L
+#define FF1_WALL                0x00000020L
+#define FF1_PERMANENT           0x00000040L
+#define FF1_CAN_FLY             0x00000080L
+#define FF1_REMEMBER            0x00000100L
+#define FF1_NOTICE              0x00000200L
+
+
+/*** Dungeon type flags -- DG ***/
+#define DF1_PRINCIPAL           0x00000001L
+#define DF1_MAZE                0x00000002L
+#define DF1_SMALLEST            0x00000004L
+#define DF1_SMALL               0x00000008L
+#define DF1_BIG                 0x00000010L
 
 
 /*** Monster blow constants ***/
@@ -2739,18 +2778,18 @@ and tables.c --TY */
 #define RF1_FORCE_MAXHP         0x00000200      /* Start with max hitpoints */
 #define RF1_FORCE_SLEEP         0x00000400      /* Start out sleeping */
 #define RF1_FORCE_EXTRA         0x00000800      /* Start out something */
-#define RF1_FRIEND                      0x00001000      /* Arrive with a friend */
-#define RF1_FRIENDS                     0x00002000      /* Arrive with some friends */
-#define RF1_ESCORT                      0x00004000      /* Arrive with an escort */
-#define RF1_ESCORTS                     0x00008000      /* Arrive with some escorts */
+#define RF1_FRIEND              0x00001000      /* Arrive with a friend */
+#define RF1_FRIENDS             0x00002000      /* Arrive with some friends */
+#define RF1_ESCORT              0x00004000      /* Arrive with an escort */
+#define RF1_ESCORTS             0x00008000      /* Arrive with some escorts */
 #define RF1_NEVER_BLOW          0x00010000      /* Never make physical blow */
 #define RF1_NEVER_MOVE          0x00020000      /* Never make physical move */
-#define RF1_RAND_25                     0x00040000      /* Moves randomly (25%) */
-#define RF1_RAND_50                     0x00080000      /* Moves randomly (50%) */
+#define RF1_RAND_25             0x00040000      /* Moves randomly (25%) */
+#define RF1_RAND_50             0x00080000      /* Moves randomly (50%) */
 #define RF1_ONLY_GOLD           0x00100000      /* Drop only gold */
 #define RF1_ONLY_ITEM           0x00200000      /* Drop only items */
-#define RF1_DROP_60                     0x00400000      /* Drop an item/gold (60%) */
-#define RF1_DROP_90                     0x00800000      /* Drop an item/gold (90%) */
+#define RF1_DROP_60             0x00400000      /* Drop an item/gold (60%) */
+#define RF1_DROP_90             0x00800000      /* Drop an item/gold (90%) */
 #define RF1_DROP_1D2            0x01000000      /* Drop 1d2 items/gold */
 #define RF1_DROP_2D2            0x02000000      /* Drop 2d2 items/gold */
 #define RF1_DROP_3D2            0x04000000      /* Drop 3d2 items/gold */
@@ -2949,6 +2988,8 @@ and tables.c --TY */
 #define RF7_FRIENDLY            0x00000008  /* Monster is friendly */
 #define RF7_PET                 0x00000010  /* Monster is a pet */
 #define RF7_MORTAL              0x00000020  /* Monster is a mortal being */
+#define RF7_PLAYER_MONSTER      0x00000040  /* Monster is an old player */
+#define RF7_NAZGUL              0x00000080  /* Monster is a Nazgul */
 
 
 /*
@@ -2974,8 +3015,8 @@ and tables.c --TY */
  */
 #define RF9_DROP_CORPSE         0x00000001
 #define RF9_DROP_SKELETON       0x00000002
-#define RF9_HAS_NO_HEAD         0x00000004      /* Has a head */
-#define RF9_HAS_NO_SKULL        0x00000008      /* Has a skull (useful for undead) */
+#define RF9_HAS_NO_HEAD         0x00000004      /* Has no head */
+#define RF9_HAS_NO_SKULL        0x00000008      /* Has no skull (useful for undead) */
 #define RF9_HAS_EGG             0x00000010      /* Can be monster's eggs */
 #define RF9_IMPRESED            0x00000020      /* The monster can follow you on each level until he dies */
 #define RF9_SUSCEP_ACID         0x00000040      /* Susceptible to acid */
@@ -2983,6 +3024,8 @@ and tables.c --TY */
 #define RF9_SUSCEP_POIS         0x00000100      /* Susceptible to poison */
 #define RF9_KILL_TREES          0x00000200      /* Monster can eat trees */
 #define RF9_WYRM_PROTECT        0x00000400      /* The monster is protected by great wyrms of power: They'll be summoned if it's killed */
+#define RF9_DOPPLEGANGER        0x00000800      /* The monster looks like you */
+#define RF9_ONLY_DEPTH          0x00001000      /* The monster can only be generated at the GIVEN depth */
 
 
 
@@ -3191,7 +3234,22 @@ and tables.c --TY */
  * -KMW-
  */
 #define cave_floor_bold(Y,X) \
-        (!(cave[Y][X].feat & 0x20) || (cave[Y][X].feat == FEAT_GRASS))
+        (f_info[cave[Y][X].feat].flags1 & FF1_FLOOR)
+
+/*
+ * Determine if a "legal" grid isn't a "blocking line of sight" grid
+ *
+ * Line 1 -- forbid doors, rubble, seams, walls
+ *
+ * Note that the terrain features are split by a one bit test
+ * into those features which block line of sight and those that
+ * do not, allowing an extremely fast single bit check below.
+ *
+ * Add in the fact that some new terrain (water & lava) do NOT block sight
+ * -KMW-
+ */
+#define cave_sight_bold(Y,X) \
+        (!(f_info[cave[Y][X].feat].flags1 & FF1_NO_VISION))
 
 
 /*
@@ -3203,12 +3261,8 @@ and tables.c --TY */
  * Line 4 -- forbid normal objects
  */
 #define cave_clean_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
-	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
-	  (cave[Y][X].o_idx == 0))
+        ((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
+          (cave[Y][X].o_idx == 0) && (!(f_info[cave[Y][X].feat].flags1 & FF1_PERMANENT)))
 
 
 /*
@@ -3228,19 +3282,11 @@ and tables.c --TY */
  * Determine if a "legal" grid is an "naked" floor grid
  *
  * Line 1 -- forbid non-floors, non-shallow water & lava -KMW-
- * Line 4 -- forbid normal objects
- * Line 5 -- forbid player/monsters
+ * Line 2 -- forbid normal objects
+ * Line 3 -- forbid player/monsters
  */
 #define cave_naked_bold(Y,X) \
-	(((cave[Y][X].feat == FEAT_FLOOR) || \
-	  (cave[Y][X].feat == FEAT_SHAL_WATER) || \
-	  (cave[Y][X].feat == FEAT_SHAL_LAVA) || \
-	  (cave[Y][X].feat == FEAT_GRASS) || \
-         ((cave[Y][X].feat >= FEAT_QUEST_ENTER) && \
-          (cave[Y][X].feat <= FEAT_QUEST_UP)) || \
-         ((cave[Y][X].feat >= FEAT_SHOP_HEAD) && \
-          (cave[Y][X].feat <= FEAT_SHOP_TAIL)) || \
-	  (cave[Y][X].feat == FEAT_DIRT)) && \
+        ((f_info[cave[Y][X].feat].flags1 & FF1_FLOOR) && \
 	  (cave[Y][X].o_idx == 0) && \
           (cave[Y][X].m_idx == 0))
 
@@ -3255,27 +3301,28 @@ and tables.c --TY */
  * Line 6-7 -- shop doors
  */
 #define cave_perma_bold(Y,X) \
-       (((cave[Y][X].feat == FEAT_LESS) || \
-	 (cave[Y][X].feat == FEAT_MORE)) || \
-	((cave[Y][X].feat >= FEAT_BLDG_HEAD) && \
-	 (cave[Y][X].feat <= FEAT_BLDG_TAIL)) || \
-        ((cave[Y][X].feat >= FEAT_PERM_EXTRA) && \
-	 (cave[Y][X].feat <= FEAT_SHOP_TAIL)))
+       (f_info[cave[Y][X].feat].flags1 & FF1_PERMANENT)
 
 
 /*
  * Grid based version of "cave_floor_bold()"
  */
 #define cave_floor_grid(C) \
-    (!((C)->feat & 0x20))
+    (f_info[(C)->feat].flags1 & FF1_FLOOR)
 
 
 /*
  * Grid based version of "cave_clean_bold()"
  */
 #define cave_clean_grid(C) \
-    (((C)->feat == FEAT_FLOOR) && \
+    ((f_info[(C)->feat].flags1 & FF1_FLOOR) && \
      (!(C)->o_idx))
+
+/*
+ * Grid based version of "cave_sight_bold()"
+ */
+#define cave_sight_grid(C) \
+        (!(f_info[(C)->feat].flags1 & FF1_NO_VISION))
 
 /*
  * Grid based version of "cave_empty_bold()"
@@ -3289,7 +3336,7 @@ and tables.c --TY */
  * Grid based version of "cave_empty_bold()"
  */
 #define cave_naked_grid(C) \
-    (((C)->feat == FEAT_FLOOR) && \
+    ((f_info[(C)->feat].flags1 & FF1_FLOOR) && \
      !((C)->o_idx) && \
      !((C)->m_idx) && \
      !((C) == &cave[py][px]))
@@ -3299,12 +3346,7 @@ and tables.c --TY */
  * Grid based version of "cave_perma_bold()"
  */
 #define cave_perma_grid(C) \
-       ((((C)->feat == FEAT_LESS) || \
-         ((C)->feat == FEAT_MORE)) || \
-        (((C)->feat >= FEAT_BLDG_HEAD) && \
-         ((C)->feat <= FEAT_BLDG_TAIL)) || \
-        (((C)->feat >= FEAT_PERM_EXTRA) && \
-         ((C)->feat <= FEAT_SHOP_TAIL)))
+       (f_info[(C)->feat].flags1 & FF1_PERMANENT)
 
 
 
@@ -3518,6 +3560,8 @@ extern int PlayerUID;
 #define QUEST_STATUS_COMPLETED       2
 #define QUEST_STATUS_REWARDED        3
 #define QUEST_STATUS_FINISHED        4
+#define QUEST_STATUS_FAILED          5
+#define QUEST_STATUS_FAILED_DONE     6
 
 /*
  * Quest type
@@ -3529,6 +3573,13 @@ extern int PlayerUID;
 #define QUEST_TYPE_KILL_NUMBER               5
 #define QUEST_TYPE_KILL_ALL                  6
 #define QUEST_TYPE_RANDOM                    7
+
+/*
+ * Quest flags
+ */
+#define QUEST_FLAG_SILENT  0x01 /* no messages for completion */
+#define QUEST_FLAG_PRESET  0x02 /* quest is outside the main dungeon */
+#define QUEST_FLAG_ONCE    0x04 /* quest is marked finished after leaving */
 
 /*
  * Initialization flags
@@ -3563,6 +3614,8 @@ extern int PlayerUID;
 #define MIMIC_SERPENT         21
 #define MIMIC_GIANT           22
 #define MIMIC_VALAR           23
+#define MIMIC_WEREWOLF        24
+#define MIMIC_BALROG          25
 #define MIMIC_MIN_GOOD        13
 
 /*
@@ -3655,6 +3708,7 @@ extern int PlayerUID;
 #define EVENT_MAX               20
 #endif
 
+
 /*
  * Defines of the different dungeon types
  */
@@ -3665,4 +3719,54 @@ extern int PlayerUID;
 #define DUNGEON_GALGALS         4
 #define DUNGEON_VOLCANO         5
 #define DUNGEON_HELL            6
-#define MAX_DUNGEONS            7
+#define DUNGEON_NUMENOR         7
+
+/* Max depth of each dungeon(max_depth - min_depth) */
+#define MAX_DUNGEON_DEPTH       40
+
+#define DUNGEON_MODE_NONE       0
+#define DUNGEON_MODE_AND        1
+#define DUNGEON_MODE_NAND       2
+#define DUNGEON_MODE_OR         3
+#define DUNGEON_MODE_NOR        4
+
+/*
+ * Defines for the inscriptions
+ */
+#define INSCRIP_EXEC_ENGRAVE    0x01
+#define INSCRIP_EXEC_WALK       0x02
+#define INSCRIP_EXEC_MONST_WALK 0x04
+
+#define INSCRIP_NONE            0
+#define INSCRIP_LIGHT           1
+#define INSCRIP_DARK            2
+#define INSCRIP_STORM           3
+#define INSCRIP_PROTECTION      4
+#define INSCRIP_DWARF_SUMMON    5
+#define INSCRIP_CHASM           6
+#define INSCRIP_BLACK_FIRE      7
+#define MAX_INSCRIPTIONS        8
+
+/*
+ * Player monsters & ghost defines
+ */
+#define GHOST_R_IDX_HEAD        967
+#define GHOST_R_IDX_TAIL        977
+#define MAX_GHOSTS              (GHOST_R_IDX_TAIL - GHOST_R_IDX_HEAD)
+
+/*
+ * God's defines
+ */
+#define GOD_NONE                0
+#define GOD_YAVANNA             1
+#define GOD_ULMO                2
+#define GOD_AULE                3
+#define GOD_MELKOR              4
+#define GOD_TILION              5
+#define GOD_ARIEN               6
+#define GOD_TULKAS              7
+#define GOD_MANWE               8
+#define GOD_VARDA               9
+#define GOD_ERU                 10
+#define GOD_RNG                 11
+#define MAX_GOD                 12

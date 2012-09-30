@@ -4,7 +4,7 @@
 Q:19:N:Eol the Dark Elf
 
 # Definition
-Q:19:Q:1:0:0:1:30:660:0
+Q:19:Q:1:0:0:1:30:660:0:2
 
 # Description for quest
 ?:[LEQ $QUEST19 2]

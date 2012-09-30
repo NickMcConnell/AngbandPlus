@@ -11,7 +11,7 @@ OBJS = \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o cmd7.o \
   store.o birth.o load2.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o \
@@ -57,6 +57,7 @@ cmd3.o: cmd3.c $(INCS)
 cmd4.o: cmd4.c $(INCS)
 cmd5.o: cmd5.c $(INCS)
 cmd6.o: cmd6.c $(INCS)
+cmd7.o: cmd7.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
 files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)

@@ -361,8 +361,8 @@ static cptr r_info_flags7[] =
 	"FRIENDLY",
         "PET",
         "MORTAL",
-	"XXX7X6",
-	"XXX7X7",
+        "PLAYER_MONSTER",
+        "NAZGUL",
 	"XXX7X8",
 	"XXX7X9",
 	"XXX7X10",
@@ -445,8 +445,8 @@ static cptr r_info_flags9[] =
         "SUSCEP_POIS",
         "KILL_TREES",
         "WYRM_PROTECT",
-	"XXX9X11",
-	"XXX9X12",
+        "DOPPLEGANGER",
+        "ONLY_DEPTH",
 	"XXX9X13",
 	"XXX9X14",
 	"XXX9X15",
@@ -595,7 +595,7 @@ static cptr k_info_flags4[] =
         "PRECOGNITION",
         "BLACK_BREATH",
         "RECHARGE",
-        "XXX4",
+        "FLY",
         "XXX4",
         "XXX4",
         "XXX4",
@@ -623,6 +623,85 @@ static cptr k_info_flags4[] =
         "XXX4",
         "XXX4",
         "XXX4"
+};
+
+/*
+ * Feature flags
+ */
+static cptr f_info_flags1[] =
+{
+        "NO_WALK",
+        "NO_VISION",
+        "CAN_LEVITATE",
+        "CAN_PASS",
+        "FLOOR",
+        "WALL",
+        "PERMANENT",
+        "CAN_FLY",
+        "REMEMBER",
+        "NOTICE",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1"
+};
+
+/*
+ * Dungeon flags
+ */
+static cptr d_info_flags1[] =
+{
+        "PRINCIPAL",
+        "MAZE",
+        "SMALLEST",
+        "SMALL",
+        "BIG",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1"
 };
 
 
@@ -826,27 +905,28 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 		{
 
 			int mon1,mon2,mon3,mon4,mon5,mon6,mon7,mon8,mon9;
-			int mon10,item1,item2,item3,lvl;
+                        int mon10,item1,item2,item3,lvl, dun_type;
 
 			/* Scan for the values */
-			if (14 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-			  &mon1,&mon2,&mon3,&mon4,&mon5,&mon6,&mon7,&mon8,&mon9,&mon10,&item1,&item2,&item3,&lvl)) return (1);
+                        if (15 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+                          &mon1,&mon2,&mon3,&mon4,&mon5,&mon6,&mon7,&mon8,&mon9,&mon10,&item1,&item2,&item3,&lvl,&dun_type)) return (1);
 
 			/* Save the values */
-			v_ptr->mon1 = mon1;
-			v_ptr->mon2 = mon2;
-			v_ptr->mon3 = mon3;
-			v_ptr->mon4 = mon4;
-			v_ptr->mon5 = mon5;
-			v_ptr->mon6 = mon6;
-			v_ptr->mon7 = mon7;
-			v_ptr->mon8 = mon8;
-			v_ptr->mon9 = mon9;
-			v_ptr->mon10 = mon10;
-			v_ptr->item1 = item1;
-			v_ptr->item2 = item2;
-			v_ptr->item3 = item3;
+                        v_ptr->mon[0] = mon1;
+                        v_ptr->mon[1] = mon2;
+                        v_ptr->mon[2] = mon3;
+                        v_ptr->mon[3] = mon4;
+                        v_ptr->mon[4] = mon5;
+                        v_ptr->mon[5] = mon6;
+                        v_ptr->mon[6] = mon7;
+                        v_ptr->mon[7] = mon8;
+                        v_ptr->mon[8] = mon9;
+                        v_ptr->mon[9] = mon10;
+                        v_ptr->item[0] = item1;
+                        v_ptr->item[1] = item2;
+                        v_ptr->item[2] = item3;
 			v_ptr->lvl = lvl;
+                        v_ptr->dun_type = dun_type;
 
 			/* Next... */
 			continue;
@@ -875,6 +955,30 @@ errr init_v_info_txt(FILE *fp, char *buf, bool start)
 }
 
 
+/*
+ * Grab one flag in an feature_type from a textual string
+ */
+static errr grab_one_feature_flag(feature_type *f_ptr, cptr what)
+{
+	int i;
+
+	/* Check flags1 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, f_info_flags1[i]))
+		{
+                        f_ptr->flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown object flag '%s'.", what);
+
+	/* Error */
+	return (1);
+}
+
 
 /*
  * Initialize the "f_info" array, by parsing an ascii "template" file
@@ -883,7 +987,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 {
 	int i;
 
-	char *s;
+	char *s, *t;
 
 	/* Not ready yet */
 	bool okay = FALSE;
@@ -1061,6 +1165,37 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
+
+		/* Hack -- Process 'F' for flags */
+		if (buf[0] == 'F')
+		{
+
+                        f_ptr->flags1 = 0;
+
+			/* Parse every entry textually */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+				/* Parse this entry */
+                                if (0 != grab_one_feature_flag(f_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
 
 
 		/* Oops */
@@ -1618,9 +1753,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (3);
 
-
-#if 0
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -1642,8 +1774,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
-#endif
 
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
@@ -2538,7 +2668,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	r_ptr->flags1 |= (RF1_UNIQUE);
 
 	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);
+        r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);
 
 	/* Hack -- Try to prevent a few "potential" bugs */
 	r_ptr->hdice = r_ptr->hside = 1;
@@ -2555,6 +2685,515 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		if ((r_info[i].flags8 & RF8_WILD_TOO) && !(r_info[i].flags8 & 0x7FFFFFFE))
 			r_info[i].flags8 = 0x0463;
 	}
+
+	/* No version yet */
+	if (!okay) return (2);
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Grab one flag for a dungeon type from a textual string
+ */
+static errr grab_one_dungeon_flag(dungeon_info_type *d_ptr, cptr what)
+{
+	int i;
+
+	/* Scan flags1 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, d_info_flags1[i]))
+		{
+                        d_ptr->flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+        msg_format("Unknown dungeon type flag '%s'.", what);
+
+	/* Failure */
+	return (1);
+}
+
+/*
+ * Grab one (basic) flag in a monster_race from a textual string
+ */
+static errr grab_one_basic_monster_flag(dungeon_info_type *d_ptr, cptr what)
+{
+	int i;
+
+	/* Scan flags1 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, r_info_flags1[i]))
+		{
+                        d_ptr->mflags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags2 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags2[i]))
+		{
+                        d_ptr->mflags2 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags3 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags3[i]))
+		{
+                        d_ptr->mflags3 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags7 */
+	for (i = 0; i < 32; i++)
+	{
+                if (streq(what, r_info_flags7[i]))
+		{
+                        d_ptr->mflags7 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags8 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags8[i]))
+		{
+                        d_ptr->mflags8 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags9 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags9[i]))
+		{
+                        d_ptr->mflags9 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown monster flag '%s'.", what);
+
+	/* Failure */
+	return (1);
+}
+
+
+/*
+ * Grab one (spell) flag in a monster_race from a textual string
+ */
+static errr grab_one_spell_monster_flag(dungeon_info_type *d_ptr, cptr what)
+{
+	int i;
+
+	/* Scan flags4 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags4[i]))
+		{
+                        d_ptr->mflags4 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags5 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags5[i]))
+		{
+                        d_ptr->mflags5 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Scan flags6 */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, r_info_flags6[i]))
+		{
+                        d_ptr->mflags6 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Oops */
+	msg_format("Unknown monster flag '%s'.", what);
+
+	/* Failure */
+	return (1);
+}
+
+/*
+ * Initialize the "d_info" array, by parsing an ascii "template" file
+ */
+errr init_d_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+	char *s, *t;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+        dungeon_info_type *d_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Start the "fake" stuff */
+        d_head->name_size = 0;
+        d_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (1);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+                            (v1 != d_head->v_major) ||
+                            (v2 != d_head->v_minor) ||
+                            (v3 != d_head->v_patch))
+			{
+				return (2);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (2);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (1);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (1);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i < error_idx) return (4);
+
+			/* Verify information */
+                        if (i >= d_head->info_num) return (2);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+                        d_ptr = &d_info[i];
+
+			/* Hack -- Verify space */
+                        if (d_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
+
+			/* Advance and Save the name index */
+                        if (!d_ptr->name) d_ptr->name = ++d_head->name_size;
+
+			/* Append chars to the name */
+                        strcpy(d_name + d_head->name_size, s);
+
+			/* Advance the index */
+                        d_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+                /* There better be a current d_ptr */
+                if (!d_ptr) return (3);
+
+                /* Process 'D' for "Description */
+                if (buf[0] == 'D')
+		{
+			/* Acquire the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+                        if (d_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+
+			/* Advance and Save the text index */
+                        if (!d_ptr->text) d_ptr->text = ++d_head->text_size;
+
+			/* Append chars to the name */
+                        strcpy(d_text + d_head->text_size, s);
+
+			/* Advance the index */
+                        d_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+                /* Process 'W' for "More Info" (one line only) */
+		if (buf[0] == 'W')
+		{
+                        int min_lev, max_lev;
+                        int min_plev, next, mode;
+                        int min_alloc, max_chance;
+
+			/* Scan for the values */
+                        if (7 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d",
+                                &min_lev, &max_lev, &min_plev, &next, &mode, &min_alloc, &max_chance)) return (1);
+
+			/* Save the values */
+                        d_ptr->mindepth = min_lev;
+                        d_ptr->maxdepth = max_lev;
+                        d_ptr->min_plev = min_plev;
+                        d_ptr->next = next;
+                        d_ptr->mode = mode;
+                        d_ptr->min_m_alloc_level = min_alloc;
+                        d_ptr->max_m_alloc_chance = max_chance;
+
+			/* Next... */
+			continue;
+		}
+
+                /* Process 'L' for "fLoor type" (one line only) */
+                if (buf[0] == 'L')
+		{
+                        int f1, f2, f3;
+                        int p1, p2, p3;
+
+			/* Scan for the values */
+                        if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+                                &f1, &p1, &f2, &p2, &f3, &p3)) return (1);
+
+			/* Save the values */
+                        d_ptr->floor1 = f1;
+                        d_ptr->floor_percent1 = p1;
+                        d_ptr->floor2 = f2;
+                        d_ptr->floor_percent2 = p2;
+                        d_ptr->floor3 = f3;
+                        d_ptr->floor_percent3 = p3;
+
+			/* Next... */
+			continue;
+		}
+
+                /* Process 'A' for "wAll type" (one line only) */
+                if (buf[0] == 'A')
+		{
+                        int w1, w2, w3, outer, inner;
+                        int p1, p2, p3;
+
+			/* Scan for the values */
+                        if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+                                &w1, &p1, &w2, &p2, &w3, &p3, &outer, &inner)) return (1);
+
+			/* Save the values */
+                        d_ptr->fill_type1 = w1;
+                        d_ptr->fill_percent1 = p1;
+                        d_ptr->fill_type2 = w2;
+                        d_ptr->fill_percent2 = p2;
+                        d_ptr->fill_type3 = w3;
+                        d_ptr->fill_percent3 = p3;
+                        d_ptr->outer_wall = outer;
+                        d_ptr->inner_wall = inner;
+
+			/* Next... */
+			continue;
+		}
+
+                d_ptr->flags1 = 0;
+                d_ptr->mflags1 = d_ptr->mflags2 = d_ptr->mflags3 = 0;
+                d_ptr->mflags4 = d_ptr->mflags5 = d_ptr->mflags6 = 0;
+                d_ptr->mflags7 = d_ptr->mflags8 = d_ptr->mflags9 = 0;
+                d_ptr->r_char[0] = d_ptr->r_char[1] = d_ptr->r_char[2] = 0;
+                d_ptr->r_char[3] = d_ptr->r_char[4] = 0;
+
+                /* Process 'F' for "Dungeon Flags" (multiple lines) */
+		if (buf[0] == 'F')
+		{
+                        int artif = 0, monst = 0;
+
+			/* Parse every entry */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+                                /* XXX XXX XXX Hack -- Read Final Artifact */
+                                if (1 == sscanf(s, "FINAL_ARTIFACT_%d", &artif))
+                                {
+                                        /* Extract a "Final Artifact" */
+                                        d_ptr->final_artifact = artif;
+
+					/* Start at next entry */
+					s = t;
+
+					/* Continue */
+					continue;
+				}
+
+                                /* XXX XXX XXX Hack -- Read Artifact Guardian */
+                                if (1 == sscanf(s, "FINAL_GUARDIAN_%d", &monst))
+                                {
+                                        /* Extract a "Artifact Guardian" */
+                                        d_ptr->final_guardian = monst;
+
+					/* Start at next entry */
+					s = t;
+
+					/* Continue */
+					continue;
+				}
+
+				/* Parse this entry */
+                                if (0 != grab_one_dungeon_flag(d_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+                /* Process 'M' for "Basic Flags" (multiple lines) */
+                if (buf[0] == 'M')
+		{
+                        byte r_char_number = 0, r_char;
+
+			/* Parse every entry */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while (*t == ' ' || *t == '|') t++;
+				}
+
+                                /* XXX XXX XXX Hack -- Read monster symbols */
+                                if (1 == sscanf(s, "R_CHAR_%c", &r_char))
+                                {
+                                        /* Limited to 5 races */
+                                        if(r_char_number >= 5) continue;
+
+					/* Extract a "frequency" */
+                                        d_ptr->r_char[r_char_number++] = r_char;
+
+					/* Start at next entry */
+					s = t;
+
+					/* Continue */
+					continue;
+				}
+
+				/* Parse this entry */
+                                if (0 != grab_one_basic_monster_flag(d_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'S' for "Spell Flags" (multiple lines) */
+		if (buf[0] == 'S')
+		{
+			/* Parse every entry */
+			for (s = buf + 2; *s; )
+			{
+				/* Find the end of this entry */
+				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+				/* Nuke and skip any dividers */
+				if (*t)
+				{
+					*t++ = '\0';
+					while ((*t == ' ') || (*t == '|')) t++;
+				}
+
+				/* XXX XXX XXX Hack -- Read spell frequency */
+				if (1 == sscanf(s, "1_IN_%d", &i))
+				{
+					/* Start at next entry */
+					s = t;
+
+					/* Continue */
+					continue;
+				}
+
+				/* Parse this entry */
+                                if (0 != grab_one_spell_monster_flag(d_ptr, s)) return (5);
+
+				/* Start the next entry */
+				s = t;
+			}
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (6);
+	}
+
+
+	/* Complete the "name" and "text" sizes */
+        ++d_head->name_size;
+        ++d_head->text_size;
 
 	/* No version yet */
 	if (!okay) return (2);
@@ -2902,7 +3541,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 				object_prep(o_ptr, object_index);
 
 				/* Apply magic (no messages, no artifacts) */
-				apply_magic(o_ptr, dun_level, FALSE, FALSE, FALSE);
+                                apply_magic(o_ptr, dun_level, FALSE, TRUE, FALSE);
 
 				drop_near(o_ptr, -1, y, x);
 			}
@@ -2970,7 +3609,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 		/* Get the quest */
 		q_ptr = &(quest[atoi(zz[0])]);
 
-		/* Process "Q:<q_index>:Q:<type>:<num_mon>:<cur_num>:<max_num>:<level>:<r_idx>:<k_idx>:<silent>" -- quest info */
+                /* Process "Q:<q_index>:Q:<type>:<num_mon>:<cur_num>:<max_num>:<level>:<r_idx>:<k_idx>:<flags>" -- quest info */
 		if (zz[1][0] == 'Q')
 		{
 			if (init_flags & INIT_ASSIGN)
@@ -2989,7 +3628,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
 				q_ptr->k_idx   = atoi(zz[8]);
 
 				if (num > 9)
-					q_ptr->silent  = atoi(zz[9]);
+					q_ptr->flags  = atoi(zz[9]);
 
 				r_ptr = &r_info[q_ptr->r_idx];
 				if (r_ptr->flags1 & RF1_UNIQUE)
@@ -3308,6 +3947,12 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int ymax, 
                         else if (zz[0][0] == 'Y')
 			{
                                 max_wild_y = atoi(zz[1]); 
+			}
+
+                        /* Maximum d_idx */
+                        else if (zz[0][0] == 'D')
+			{
+                                max_d_idx = atoi(zz[1]); 
 			}
 
 			return (0);

@@ -126,8 +126,6 @@ typedef unsigned long u32b;
 #endif
 
 
-
-
 /*** Pointers to all the basic types defined above ***/
 
 typedef real *real_ptr;

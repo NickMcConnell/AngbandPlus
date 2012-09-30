@@ -129,6 +129,487 @@ bool set_no_breeders(int v)
 }
 
 /*
+ * Set "p_ptr->tim_ffall"
+ */
+bool set_tim_ffall(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_ffall)
+		{
+                        msg_print("You feel very light.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_ffall)
+		{
+                        msg_print("You are suddently heavier.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_ffall = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->meditation"
+ */
+bool set_meditation(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->meditation)
+		{
+                        msg_print("You start meditating on yourself...");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->meditation)
+		{
+                        msg_print("You stop your self meditation.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->meditation = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+        p_ptr->update |= (PU_MANA);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_reflect"
+ */
+bool set_tim_reflect(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_reflect)
+		{
+                        msg_print("You start reflecting the world around you.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_reflect)
+		{
+                        msg_print("You stop reflecting.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_reflect = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_res_time"
+ */
+bool set_tim_res_time(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_res_time)
+		{
+                        msg_print("You are now protected against the space-time distortions.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_res_time)
+		{
+                        msg_print("You are no longer protected against the space-time distortions.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_res_time = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->tim_fire_aura"
+ */
+bool set_tim_fire_aura(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_fire_aura)
+		{
+                        msg_print("You are envolloped into flames.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_fire_aura)
+		{
+                        msg_print("You are no longer envolloped into flames.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_fire_aura = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->strike"
+ */
+bool set_strike(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->strike)
+		{
+                        msg_print("You feel very accurate.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->strike)
+		{
+                        msg_print("You are no longer very accurate.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->strike = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->oppose_ld"
+ */
+bool set_oppose_ld(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->oppose_ld)
+		{
+                        msg_print("You feel protected against the light's fluctuation.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->oppose_ld)
+		{
+                        msg_print("You are no longer protected against the light's fluctuation.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->oppose_ld = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->oppose_cc"
+ */
+bool set_oppose_cc(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->oppose_cc)
+		{
+                        msg_print("You feel protected against the raw chaos.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->oppose_cc)
+		{
+                        msg_print("You are no longer protected against chaos.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->oppose_cc = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->oppose_ss"
+ */
+bool set_oppose_ss(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->oppose_ss)
+		{
+                        msg_print("You feel protected against the ravages of sound and shards.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->oppose_ss)
+		{
+                        msg_print("You are no longer protected against the ravages of sound and shards.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->oppose_ss = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->oppose_nex"
+ */
+bool set_oppose_nex(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->oppose_nex)
+		{
+                        msg_print("You feel protected against the strange forces of nexus.");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->oppose_nex)
+		{
+                        msg_print("You are no longer protected against the strange forces of nexus.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->oppose_nex = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
  * Set "p_ptr->tim_mimic", and "p_ptr->mimic_form",
  * notice observable changes
  */
@@ -712,7 +1193,7 @@ bool set_slow(int v)
 /*
  * Set "p_ptr->shield", notice observable changes
  */
-bool set_shield(int v)
+bool set_shield(int v, int p)
 {
 	bool notice = FALSE;
 
@@ -724,7 +1205,7 @@ bool set_shield(int v)
 	{
 		if (!p_ptr->shield)
 		{
-            msg_print("Your skin turns to stone.");
+                        msg_print("Your skin turns to stone.");
 			notice = TRUE;
 		}
 	}
@@ -734,13 +1215,15 @@ bool set_shield(int v)
 	{
 		if (p_ptr->shield)
 		{
-            msg_print("Your skin returns to normal.");
+                        msg_print("Your skin returns to normal.");
 			notice = TRUE;
+                        p = 0;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->shield = v;
+        p_ptr->shield_power = p;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -862,6 +1345,106 @@ bool set_hero(int v)
 	return (TRUE);
 }
 
+/*
+ * Set "p_ptr->holy", notice observable changes
+ */
+bool set_holy(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->holy)
+		{
+                        msg_print("You feel an holy aura around you!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->holy)
+		{
+                        msg_print("The holy aura vanishes.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->holy = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate hitpoints */
+        p_ptr->update |= (PU_LITE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->walk_water", notice observable changes
+ */
+bool set_walk_water(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->walk_water)
+		{
+                        msg_print("You feel strangely insubmersible!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->walk_water)
+		{
+                        msg_print("You are no longer insubmersible.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->walk_water = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->shero", notice observable changes
@@ -948,6 +1531,52 @@ bool set_protevil(int v)
 
 	/* Use the value */
 	p_ptr->protevil = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+/*
+ * Set "p_ptr->protundead", notice observable changes
+ */
+bool set_protundead(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->protundead)
+		{
+                        msg_print("You feel safe from undeads!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->protundead)
+		{
+                        msg_print("You no longer feel safe from undeads.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->protundead = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1277,6 +1906,52 @@ bool set_tim_infra(int v)
 	return (TRUE);
 }
 
+
+/*
+ * Set "p_ptr->tim_mental_barrier", notice observable changes
+ */
+bool set_mental_barrier(int v)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Open */
+	if (v)
+	{
+                if (!p_ptr->tim_mental_barrier)
+		{
+                        msg_print("Your mind grows stronger!");
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_mental_barrier)
+		{
+                        msg_print("Your mind is no more strong.");
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_mental_barrier = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
 
 /*
  * Set "p_ptr->oppose_acid", notice observable changes
@@ -2228,7 +2903,7 @@ void lose_exp(s32b amount)
  *
  * XXX XXX XXX Note the use of actual "monster names"
  */
-static int get_coin_type(monster_race *r_ptr)
+int get_coin_type(monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
@@ -2262,19 +2937,22 @@ void place_corpse(monster_type *m_ptr)
 {
    monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	object_type *i_ptr;
+   object_type *i_ptr;
    object_type object_type_body;
-
-   object_type *w_ptr = &inventory[INVEN_WIELD];
 
    int x = m_ptr->fx;
    int y = m_ptr->fy;
+#if 0 /* If I can find some time to implement the decapitation ... */
+   object_type *w_ptr = &inventory[INVEN_WIELD];
+
    int i = w_ptr->weight + ((p_ptr->to_h + w_ptr->to_h) * 5) + (p_ptr->lev * 3);
 
 	/* Handle decapitations. This is not allowed with hafted weapons. */
    bool crit = (randint(5000) <= i);
+
    bool decapitate = ((rand_int(m_ptr->maxhp) <= -(m_ptr->hp)) &&
                        (w_ptr->tval != TV_HAFTED) && crit);
+#endif
 
   	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2333,7 +3011,8 @@ void place_corpse(monster_type *m_ptr)
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
    }
-#if 0
+
+#if 0 /* If I can find some time to implement the decapitation ... */
    /*
     * Decapitated it if it has a head, or if it *is* a head.
     * This is rather messy.
@@ -2411,14 +3090,12 @@ void place_corpse(monster_type *m_ptr)
  */
 void monster_death(int m_idx)
 {
-	int i, j, y, x, ny, nx, i2, j2;
+        int i, y, x, ny, nx, i2, j2;
 
 	int dump_item = 0;
 	int dump_gold = 0;
 
 	int number_mon;
-
-	int number = 0;
 
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -2428,11 +3105,7 @@ void monster_death(int m_idx)
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
 
-	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
-	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
 
-	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
-	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
 	bool cloned = FALSE;
 	bool create_stairs = FALSE;
 	bool reward = FALSE;
@@ -2444,18 +3117,6 @@ void monster_death(int m_idx)
 #ifdef USE_PYTHON
         if (perform_event(EVENT_MONSTER_DEATH, Py_BuildValue("(iii)", m_idx, m_ptr->r_idx, 0))) return;
 #endif
-        /* If it was impressed delete it from the to keep list */
-        if(m_ptr->impressed)
-        {
-                for(i=0;i<max_m_idx-1;i++)
-                {
-                        if(r_idx_to_keep[i]==m_ptr->r_idx)
-                        {
-                                r_idx_to_keep[i] = 0;
-                                break;
-                        }
-                }
-        }
 
 	/* Get the location */
 	y = m_ptr->fy;
@@ -2471,6 +3132,10 @@ void monster_death(int m_idx)
 
 	if (m_ptr->smart &(SM_CLONED))
 		cloned = TRUE;
+
+        /* If the doppleganger die, the variable must be set accordingly */
+        if (r_ptr->flags9 & RF9_DOPPLEGANGER)
+                doppleganger = 0;
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2494,6 +3159,9 @@ void monster_death(int m_idx)
 
 		/* Delete the object */
 		delete_object_idx(this_o_idx);
+
+                if(q_ptr->tval == TV_GOLD) dump_gold++;
+                else dump_item++;
 
 		/* Drop it */
 		drop_near(q_ptr, -1, y, x);
@@ -2592,8 +3260,21 @@ void monster_death(int m_idx)
 		(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
 	}
 
+        /* Raal's Tomes of Destruction drop a Raal's Tome of Destruction */
+        else if ((strstr((r_name + r_ptr->name),"Raal's Tome of Destruction")) && (rand_int(100) < 20))
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+                /* Prepare to make a Raal's Tome of Destruction */
+                object_prep(q_ptr, lookup_kind(TV_MAGIC_BOOK, 8));
+
+		/* Drop it in the dungeon */
+                drop_near(q_ptr, -1, y, x);
+	}
+
 	/* Bloodletters of Khorne drop a blade of chaos */
-	else if (strstr((r_name + r_ptr->name),"Bloodletter"))
+        else if ((strstr((r_name + r_ptr->name),"Bloodletter")) && (rand_int(100) < 20))
 	{
 		/* Get local object */
 		q_ptr = &forge;
@@ -2714,11 +3395,6 @@ void monster_death(int m_idx)
 				a_idx = ART_ELENDIL;
                                 chance = 30;
 			}
-                        else if (strstr((r_name + r_ptr->name),"Groo the Wanderer"))
-			{
-				a_idx = ART_AGLARANG;
-				chance = 75;
-			}
                         else if (strstr((r_name + r_ptr->name),"Hagen, son of Alberich"))
 			{
 				a_idx = ART_NIMLOTH;
@@ -2804,8 +3480,8 @@ void monster_death(int m_idx)
 	{
                 int xx = x,yy = y;
                 msg_print("This monster was under the protection of a great wyrm of power!");
-                scatter(&yy, &xx, y, x, 100, 0);
-                place_monster_aux(yy, xx, 847, FALSE, FALSE, is_pet(m_ptr));
+                scatter(&yy, &xx, y, x, 6, 0);
+                place_monster_aux(yy, xx, test_monster_name("Great Wyrm of Power"), FALSE, FALSE, is_pet(m_ptr));
 	}
 
 	/* Let monsters explode! */
@@ -2859,60 +3535,9 @@ void monster_death(int m_idx)
 		}
 	}
 
-	/* Determine how much we can drop */
-	if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
-	if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
-	if  (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
-	if  (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
-	if  (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
-	if  (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
-
-	if (cloned) number = 0; /* Clones drop no stuff */
+//        if (cloned) number = 0; /* Clones drop no stuff */
 
         if((!force_coin)&&(randint(100)<50)) place_corpse(m_ptr);
-
-	/* Hack -- handle creeping coins */
-	coin_type = force_coin;
-
-	/* Drop some objects */
-	for (j = 0; j < number; j++)
-	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Wipe the object */
-		object_wipe(q_ptr);
-
-		/* Make Gold */
-		if (do_gold && (!do_item || (rand_int(100) < 50)))
-		{
-			/* Make some gold */
-			if (!make_gold(q_ptr)) continue;
-
-			/* XXX XXX XXX */
-			dump_gold++;
-		}
-
-		/* Make Object */
-		else
-		{
-			/* Make an object */
-			if (!make_object(q_ptr, good, great)) continue;
-
-			/* XXX XXX XXX */
-			dump_item++;
-		}
-
-		/* Drop it in the dungeon */
-		drop_near(q_ptr, -1, y, x);
-	}
-
-	/* Reset the object level */
-	object_level = dun_level;
-
-	/* Reset "coin" type */
-	coin_type = 0;
-
 
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
@@ -2943,7 +3568,7 @@ void monster_death(int m_idx)
 				if (!p_ptr->inside_quest)
 					create_stairs = TRUE;
 
-				if (!quest[i].silent)
+                                if (!quest[i].flags & QUEST_FLAG_SILENT)
 				{
 					msg_print("You just completed your quest!");
 					msg_print(NULL);
@@ -2973,7 +3598,7 @@ void monster_death(int m_idx)
 				 /* completed quest */
 				quest[i].status = QUEST_STATUS_COMPLETED;
 
-				if (!quest[i].silent)
+                                if (!quest[i].flags & QUEST_FLAG_SILENT)
 				{
 					msg_print("You just completed your quest!");
 					msg_print(NULL);
@@ -2995,7 +3620,7 @@ void monster_death(int m_idx)
 			/* completed quest */
 			quest[i].status = 2;
 
-			if (!quest[i].silent)
+                        if (!quest[i].flags & QUEST_FLAG_SILENT)
 			{
 				msg_print("You just completed your quest!");
 				msg_print(NULL);
@@ -3021,7 +3646,7 @@ void monster_death(int m_idx)
 		if ((number_mon - 1) == 0)
 		{
 			/* completed */
-			if (quest[i].silent)
+                        if (quest[i].flags & QUEST_FLAG_SILENT)
 			{
 				quest[i].status = QUEST_STATUS_FINISHED;
 			}
@@ -3764,67 +4389,7 @@ static bool target_set_accept(int y, int x)
 	/* Interesting memorized features */
 	if (c_ptr->info & (CAVE_MARK))
 	{
-		/* Notice glyphs */
-		if (c_ptr->feat == FEAT_GLYPH) return (TRUE);
-		if (c_ptr->feat == FEAT_MINOR_GLYPH) return (TRUE);
-
-                /* Notice the Between */
-                if (c_ptr->feat == FEAT_BETWEEN) return (TRUE);
-
-		/* Notice the Pattern */
-		if ((c_ptr->feat <= FEAT_PATTERN_XTRA2) &&
-		    (c_ptr->feat >= FEAT_PATTERN_START))
-			return (TRUE);
-
-		/* Notice doors */
-		if (c_ptr->feat == FEAT_OPEN) return (TRUE);
-		if (c_ptr->feat == FEAT_BROKEN) return (TRUE);
-
-		/* Notice stairs */
-		if (c_ptr->feat == FEAT_LESS) return (TRUE);
-		if (c_ptr->feat == FEAT_MORE) return (TRUE);
-
-		/* Notice shops */
-		if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
-		    (c_ptr->feat <= FEAT_SHOP_TAIL)) return (TRUE);
-
-		/* Notice buildings -KMW- */
-		if ((c_ptr->feat >= FEAT_BLDG_HEAD) &&
-		    (c_ptr->feat <= FEAT_BLDG_TAIL)) return (TRUE);
-
-		/* Notice traps */
-		if ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-		    (c_ptr->feat <= FEAT_TRAP_TAIL)) return (TRUE);
-
-		/* Notice doors */
-		if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		    (c_ptr->feat <= FEAT_DOOR_TAIL)) return (TRUE);
-
-		/* Notice rubble */
-		if (c_ptr->feat == FEAT_RUBBLE) return (TRUE);
-
-		/* Notice veins with treasure */
-		if (c_ptr->feat == FEAT_MAGMA_K) return (TRUE);
-		if (c_ptr->feat == FEAT_QUARTZ_K) return (TRUE);
-
-#if 0
-		/* Notice water, lava, ... */
-                if (c_ptr->feat == FEAT_DEEP_WATER) return (TRUE);
-                if (c_ptr->feat == FEAT_SHAL_WATER) return (TRUE);
-                if (c_ptr->feat == FEAT_DEEP_LAVA) return (TRUE);
-                if (c_ptr->feat == FEAT_SHAL_LAVA) return (TRUE);
-                if (c_ptr->feat == FEAT_DIRT) return (TRUE);
-                if (c_ptr->feat == FEAT_GRASS) return (TRUE);
-                if (c_ptr->feat == FEAT_DARK_PIT) return (TRUE);
-                if (c_ptr->feat == FEAT_TREES) return (TRUE);
-                if (c_ptr->feat == FEAT_MOUNTAIN) return (TRUE);
-#endif
-
-		/* Notice quest features */
-		if (c_ptr->feat == FEAT_QUEST_ENTER) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_EXIT) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_DOWN) return (TRUE);
-		if (c_ptr->feat == FEAT_QUEST_UP) return (TRUE);
+                if(f_info[c_ptr->feat].flags1 & FF1_NOTICE) return TRUE;
 	}
 
 	/* Nope */
@@ -4185,8 +4750,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 
                         if ((feat == FEAT_MORE) && c_ptr->special)
                         {
-                                s3 = dungeon_info[c_ptr->special].prefix;
-                                name = dungeon_info[c_ptr->special].name;
+                                s3 = "";
+                                name = d_text + d_info[c_ptr->special].text;
                         }
 
 			/* Display a message */
@@ -4198,7 +4763,7 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 			/* Always stop at "normal" keys */
 			if ((query != '\r') && (query != '\n') && (query != ' ')) break;
 		}
-			
+
 		/* Stop on everything but "return" */
 		if ((query != '\r') && (query != '\n')) break;
 	}
@@ -5711,7 +6276,16 @@ bool gain_random_mutation(int choose_mut)
 			muta_which = MUT1_HYPN_GAZE;
 			muta_desc = "Your eyes look mesmerizing...";
 		}
-	
+
+                if (p_ptr->pclass == CLASS_SYMBIANT &&
+                  !(p_ptr->muta1 & MUT1_GROW_MOLD) &&
+		   (randint(10)<7))
+		{
+			muta_class = &(p_ptr->muta1);
+                        muta_which = MUT1_GROW_MOLD;
+                        muta_desc = "You feel a sudden affinity for mold.";
+		}
+
 		msg_print("You mutate!");
 		msg_print(muta_desc);
 		*(muta_class) |= muta_which;
@@ -6989,10 +7563,135 @@ int interpret_favor(void) {
 /* Great side effect. */
 
 void great_side_effect(void) {
-  int tmp;
+        int dir, tmp, a, b, power = ((deity_info[p_ptr->pgod].race1 == p_ptr->prace) || (deity_info[p_ptr->pgod].race2 == p_ptr->prace));
 
-  tmp = randint(100);
+        int per_hp = p_ptr->chp * 100 / p_ptr->mhp;
+        int per_sp = p_ptr->csp * 100 / p_ptr->msp;
 
+        tmp = randint(100);
+
+        if((per_hp < 40) || (per_sp < 20))
+        {
+                if(per_hp > per_sp)
+                {
+                        p_ptr->csp = p_ptr->msp;
+                        p_ptr->csp_frac = 0;
+                        msg_print("Your feel your head clear.");
+                        p_ptr->redraw |= (PR_MANA);
+                        p_ptr->window |= (PW_PLAYER);
+                        p_ptr->window |= (PW_SPELL);
+                }
+                else
+                {
+                        p_ptr->chp = p_ptr->mhp;
+                        p_ptr->chp_frac = 0;
+                        msg_print("You feel your body healed.");
+                        p_ptr->redraw |= (PR_HP);
+                        p_ptr->window |= (PW_PLAYER);
+                }
+        }
+        else if(magik(50))
+        {
+        switch(p_ptr->pgod)
+        {
+                case GOD_YAVANNA:
+                        msg_print("Yavanna summons some Ents to help you!");
+                        for(a = 0; a < 5 + (5 * power); a++)
+                        {
+                                int y = py, x = px;
+
+                                scatter(&y, &x, py, px, 5, 0);
+                                place_monster_one(y, x, test_monster_name("Ent"), FALSE, TRUE);
+                        }
+                        break;
+                case GOD_ULMO:
+                        msg_print("The power of the Ulmo is flooding the area around you!");
+                        for(a = px - 7 - (3 * power); a < px + 7 + (3 * power); a++)
+                                for(b = py - 7 - (3 * power); b < py + 7 + (3 * power); b++)
+                                        if(distance(py, px, b, a) <= 7 + (3 * power))
+                                        {
+                                                if(f_info[cave[b][a].feat].flags1 & FF1_FLOOR)
+                                                {
+                                                        cave_set_feat(b, a, FEAT_DEEP_WATER);
+                                                }
+                                        }
+                        break;
+                case GOD_AULE:
+                        msg_print("Aule, the Smith, reworks the level!");
+                        alter_reality();
+                        break;
+                case GOD_MELKOR:
+                        msg_print("The power of Melkor focuses into a Darkness Storm!");
+                        if (get_aim_dir(&dir))
+                               fire_ball(GF_DARK, dir, 200 + (200 * power), 3 + (2 * power));
+                        break;
+                case GOD_TILION:
+                        msg_print("You are enlighted by the power of Tilion!");
+                        wiz_lite_extra();
+                        if(power)
+                        {
+                                detect_all();
+                        }
+                        break;
+                case GOD_ARIEN:
+                        msg_print("You are enlighted by the power of Arien!");
+                        wiz_lite_extra();
+                        if(power)
+                        {
+                                detect_all();
+                        }
+                        break;
+                case GOD_TULKAS:
+                        msg_print("The power of Tulkas floods through your body!");
+                        set_invuln(8 + (8 * power));
+                        break;
+                case GOD_MANWE:
+                        msg_print("Suddently a great wind coming from the west is blowing up everything!");
+                        mass_genocide(FALSE);
+                        break;
+                case GOD_VARDA:
+                        msg_print("You are enlighted by the power of Varda!");
+                        wiz_lite_extra();
+                        if(power)
+                        {
+                                detect_all();
+                        }
+                        break;
+                case GOD_ERU:
+                        msg_print("The power of Eru Iluvatar morphs you into a Vala!");
+                        set_mimic(10 + (10 * power), MIMIC_VALAR);
+                        break;
+                case GOD_RNG:
+                        msg_print("The power of The RNG randomizes you");
+                        if(rand_int(2) == 0)
+                                do_inc_stat(A_STR);
+                        else
+                                do_dec_stat(A_STR);
+                        if(rand_int(2) == 0)
+                                do_inc_stat(A_INT);
+                        else
+                                do_dec_stat(A_INT);
+                        if(rand_int(2) == 0)
+                                do_inc_stat(A_WIS);
+                        else
+                                do_dec_stat(A_WIS);
+                        if(rand_int(2) == 0)
+                                do_inc_stat(A_DEX);
+                        else
+                                do_dec_stat(A_DEX);
+                        if(rand_int(2) == 0)
+                                do_inc_stat(A_CON);
+                        else
+                                do_dec_stat(A_CON);
+                        if(rand_int(2) == 0)
+                                do_inc_stat(A_CHR);
+                        else
+                                do_dec_stat(A_CHR);
+                        break;
+        }
+        }
+        else
+        {
   if (tmp <= 10) {
     if (summon_specific_friendly(py, px, dun_level+rand_spread(10, 5), damroll(4,6), FALSE)) {
       msg_print("Something materializes out of thin air.");
@@ -7039,6 +7738,7 @@ void great_side_effect(void) {
     do_inc_stat(A_DEX);
     do_inc_stat(A_CON);
     do_inc_stat(A_CHR);
+  }
   }
 }
 
@@ -7234,3 +7934,120 @@ void godly_wrath_blast(void) {
   (void)project(-99, 0, py, px, damroll(4, 5), type, flg);
 }
 
+/*
+ * Allow the player to make a wish
+ */
+void make_wish(void)
+{
+        char buf[80], name[80];
+        int i, j;
+        object_type *q_ptr, forge;
+
+        /* Make an empty string */
+        buf[0] = 0;
+
+        /* Ask for the wish */
+        if(!get_string("Wish for what? ", buf, 80)) return;
+
+        /* Lowercase the wish */
+        strlower(buf);
+
+        /* You can't wish for a wish ! */
+        if(strstr(buf, "wish"))
+        {
+                msg_print("You can't wish for a wish !");
+                return;
+        }
+
+        /* First, try all the objects */
+        for(i = 0; i < max_k_idx; i++)
+        {
+                /* Get local object */
+                q_ptr = &forge;
+
+                /* Hack -- Give the player an object */
+                object_prep(q_ptr, i);
+
+                /* Can have great items but NEVER artifacts */
+                apply_magic(q_ptr, dun_level, TRUE, TRUE, FALSE);
+
+                object_aware(q_ptr);
+                object_known(q_ptr);
+
+                object_desc(name, q_ptr, 0, 0);
+
+                /* Paranoia */
+                if(q_ptr->name1) continue;
+                if(q_ptr->art_name) continue;
+
+                /* Lowercase the name */
+                strlower(name);
+
+                if(strstr(name, buf))
+                {
+                        msg_print("Your wish become truth!");
+
+                        /* Give it to the player */
+                        (void)inven_carry(q_ptr, FALSE);
+
+                        /* Don't search any more */
+                        return;
+                }
+        }
+
+        /* Try all the monsters */
+        for(i = 1; i < max_r_idx - 1; i++)
+        {
+                monster_race_desc(name, i);
+
+                /* Never Uniques */
+                if(r_info[i].flags1 & RF1_UNIQUE) continue;
+
+                /* Nor quest monsters */
+                if(r_info[i].flags1 & RF1_QUESTOR) continue;
+
+                /* Lowercase the name */
+                strlower(name);
+
+                if(strstr(name, buf))
+                {
+                        int y = py, x = px;
+
+                        scatter(&y, &x, py, px, 5, 0);
+
+                        /* Create the monster */
+                        if(place_monster_aux(y, x, i, FALSE, FALSE, FALSE))
+                                msg_print("Your wish become truth!");
+
+                        /* Don't search any more */
+                        return;
+                }
+        }       
+
+        /* Try all the realms */
+        for(i = 0; i < MAX_REALM; i++)
+        {
+                /* Hack -- forbig MUSIC and SYMBIOTIC */
+                if(i == REALM_SYMBIOTIC) continue;
+                if(i == REALM_MUSIC) continue;
+
+                /* Try all the spells */
+                for(j = 0; j < 64; j++)
+                {
+                        sprintf(name, "%s", spell_names[i][j]);
+
+                        /* Lowercase the name */
+                        strlower(name);
+
+                        if(strstr(name, buf))
+                        {
+                                msg_print("Your wish become truth!");
+
+                                cast_spell(i, j);
+
+                                /* Don't search any more */
+                                return;
+                        }
+                }
+        }
+}

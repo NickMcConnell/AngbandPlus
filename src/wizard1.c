@@ -73,10 +73,15 @@ static grouper group_item[] =
 
 	{ TV_BOW,           "Bows" },
 
+        { TV_BOOMERANG,     "Boomerangs" },
+
+        { TV_INSTRUMENT,    "Instruments" },
+
 	{ TV_SWORD,         "Weapons" },
 	{ TV_POLEARM,       NULL },
 	{ TV_HAFTED,        NULL },
 	{ TV_DIGGING,       NULL },
+        { TV_MSTAFF,        NULL },
 
 	{ TV_SOFT_ARMOR,    "Armour (Body)" },
 	{ TV_HARD_ARMOR,    NULL },
@@ -94,19 +99,29 @@ static grouper group_item[] =
 
 	{ TV_SCROLL,        "Scrolls" },
 	{ TV_POTION,        "Potions" },
+        { TV_POTION2,       NULL },
 	{ TV_FOOD,          "Food" },
 
 	{ TV_ROD,           "Rods" },
 	{ TV_WAND,          "Wands" },
 	{ TV_STAFF,         "Staffs" },
 
-	{ TV_LIFE_BOOK,     "Books (Life)" },
-	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
-	{ TV_NATURE_BOOK,   "Books (Nature)" },
+        { TV_VALARIN_BOOK,  "Books (Valarin)" },
+        { TV_MAGERY_BOOK,   "Books (Magery)" },
+        { TV_SHADOW_BOOK,   "Books (Shadow)" },
 	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
-	{ TV_DEATH_BOOK,    "Books (Death)" },
-	{ TV_TRUMP_BOOK,    "Books (Trump)" },
-	{ TV_ARCANE_BOOK,   "Books (Arcane)" },
+        { TV_NETHER_BOOK,   "Books (Nether)"},
+        { TV_CRUSADE_BOOK,  "Books (Crusade)" },
+        { TV_SIGALDRY_BOOK, "Books (Sigaldry)" },
+        { TV_SYMBIOTIC_BOOK,"Books (Symbiotic)" },
+        { TV_TRIBAL_BOOK,   "Books (Tribal)"},
+        { TV_MUSIC_BOOK,    "Books (Music)" },
+        { TV_MIMIC_BOOK,    "Books (Mimic)" },
+        { TV_MAGIC_BOOK,    "Books (Magic)" },
+        { TV_PRAYER_BOOK,   "Books (Prayer)" },
+
+        { TV_RUNE1,         "Runes" },
+        { TV_RUNE2,         NULL },
 
 	{ TV_CHEST,         "Chests" },
 
@@ -384,7 +399,11 @@ static grouper group_artifact[] =
 	{ TV_SWORD,             "Edged Weapons" },
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
+        { TV_MSTAFF,            "Mage Staffs" },
 	{ TV_BOW,               "Bows" },
+        { TV_BOOMERANG,         "Boomerangs" },
+
+        { TV_INSTRUMENT,        "Instruments" },
 
 	{ TV_SOFT_ARMOR,        "Body Armor" },
 	{ TV_HARD_ARMOR,        NULL },

@@ -590,18 +590,20 @@ static void mass_produce(object_type *o_ptr)
 			break;
 		}
 
-		case TV_LIFE_BOOK:
-		case TV_SORCERY_BOOK:
-		case TV_NATURE_BOOK:
+                case TV_VALARIN_BOOK:
+                case TV_MAGERY_BOOK:
+                case TV_SHADOW_BOOK:
 		case TV_CHAOS_BOOK:
-		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
-		case TV_ARCANE_BOOK:
+                case TV_NETHER_BOOK:
+                case TV_CRUSADE_BOOK:
+                case TV_SIGALDRY_BOOK:
                 case TV_SYMBIOTIC_BOOK:
                 case TV_MIMIC_BOOK:
                 case TV_MUSIC_BOOK:
                 case TV_MAGIC_BOOK:
                 case TV_PRAYER_BOOK:
+                case TV_ILLUSION_BOOK:
+                case TV_TRIBAL_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -901,7 +903,7 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-                                case TV_LIFE_BOOK:
+                                case TV_VALARIN_BOOK:
                                 case TV_PRAYER_BOOK:
 				case TV_SCROLL:
                                 case TV_POTION2:
@@ -942,16 +944,18 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_SORCERY_BOOK:
-				case TV_NATURE_BOOK:
+                                case TV_MAGERY_BOOK:
+                                case TV_SHADOW_BOOK:
 				case TV_CHAOS_BOOK:
-				case TV_DEATH_BOOK:
-				case TV_TRUMP_BOOK:
-				case TV_ARCANE_BOOK:
+                                case TV_NETHER_BOOK:
+                                case TV_CRUSADE_BOOK:
+                                case TV_SIGALDRY_BOOK:
                                 case TV_SYMBIOTIC_BOOK:
                                 case TV_MIMIC_BOOK:
                                 case TV_MUSIC_BOOK:
                                 case TV_MAGIC_BOOK:
+                                case TV_ILLUSION_BOOK:
+                                case TV_TRIBAL_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -974,18 +978,20 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-						case TV_SORCERY_BOOK:
-						case TV_NATURE_BOOK:
+                                                case TV_MAGERY_BOOK:
+                                                case TV_SHADOW_BOOK:
 						case TV_CHAOS_BOOK:
-						case TV_DEATH_BOOK:
-						case TV_LIFE_BOOK:
-						case TV_TRUMP_BOOK:
-						case TV_ARCANE_BOOK:
+                                                case TV_NETHER_BOOK:
+                                                case TV_VALARIN_BOOK:
+                                                case TV_CRUSADE_BOOK:
+                                                case TV_SIGALDRY_BOOK:
                                                 case TV_SYMBIOTIC_BOOK:
                                                 case TV_MUSIC_BOOK:
                                                 case TV_MIMIC_BOOK:
                                                 case TV_MAGIC_BOOK:
                                                 case TV_PRAYER_BOOK:
+                                                case TV_ILLUSION_BOOK:
+                                                case TV_TRIBAL_BOOK:
 					break;
 				default:
 					return (FALSE);
@@ -2747,7 +2753,7 @@ static void store_sell(void)
 
 	/* Get an item */
 	s = "You have nothing that I want.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+        if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3793,19 +3799,23 @@ void do_cmd_home_trump(void)
 	int			maintain_num;
 	int 		tmp_chr;
 	int			i;
+        int town_num;
 
 	/* Extract the store code */
         which = 7;
 
+        if(p_ptr->town_num) town_num = p_ptr->town_num;
+        else town_num = 1;
+
 	/* Hack -- Check the "locked doors" */
-	if (town[p_ptr->town_num].store[which].store_open >= turn)
+        if (town[town_num].store[which].store_open >= turn)
 	{
 		msg_print("The doors are locked.");
 		return;
 	}
 
 	/* Calculate the number of store maintainances since the last visit */
-	maintain_num = (turn - town[p_ptr->town_num].store[which].last_visit) / (10L * STORE_TURNS);
+        maintain_num = (turn - town[town_num].store[which].last_visit) / (10L * STORE_TURNS);
 
 	/* Maintain the store max. 10 times */
 	if (maintain_num > 10) maintain_num = 10;
@@ -3814,10 +3824,10 @@ void do_cmd_home_trump(void)
 	{
 		/* Maintain the store */
 		for (i = 0; i < maintain_num; i++)
-			store_maint(p_ptr->town_num, which);
+                        store_maint(town_num, which);
 
 		/* Save the visit */
-		town[p_ptr->town_num].store[which].last_visit = turn;
+                town[town_num].store[which].last_visit = turn;
 	}
 
 	/* Forget the lite */
@@ -3845,7 +3855,7 @@ void do_cmd_home_trump(void)
 	cur_store_num = which;
 
 	/* Save the store and owner pointers */
-	st_ptr = &town[p_ptr->town_num].store[cur_store_num];
+        st_ptr = &town[town_num].store[cur_store_num];
 	ot_ptr = &owners[cur_store_num][st_ptr->owner];
 
 

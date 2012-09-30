@@ -51,6 +51,20 @@ F:-:89:3
 # Permanent wall
 F:#:63:3
 
+# Brick Roof
+F:s:193:3
+# Brick Roof Top
+F:S:194:3
+# Brick Roof Chimney
+F:t:195:3
+
+# Grass Roof
+F:X:190:3
+# Grass Roof Top
+F:U:191:3
+# Grass Roof Chimney
+F:Y:192:3
+
 # General Store
 F:1:74:3
 

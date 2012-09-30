@@ -91,7 +91,7 @@ static cptr value_check_aux2(object_type *o_ptr)
  * Can a player be resurrected?
  */
 static bool granted_resurrection(void) {
-  if (p_ptr->pgod && p_ptr->grace > 80000) {
+  if (p_ptr->pgod && p_ptr->grace > 100000) {
     return TRUE;
   } else {
     return FALSE;
@@ -136,6 +136,7 @@ static void sense_inventory(void)
                 case CLASS_MIMIC:
                 case CLASS_BEASTMASTER:
                 case CLASS_POWERMAGE:
+                case CLASS_ARCHER:
 		{
 			/* Good sensing */
 			if (0 != rand_int(9000L / (plev * plev + 40))) return;
@@ -148,7 +149,10 @@ static void sense_inventory(void)
 		}
 
                 case CLASS_MAGE:
+                case CLASS_WIZARD:
+                case CLASS_RUNECRAFTER:
                 case CLASS_HIGH_MAGE:
+                case CLASS_SORCERER:
                 case CLASS_ALCHEMIST:
 		{
 			/* Very bad (light) sensing */
@@ -159,6 +163,7 @@ static void sense_inventory(void)
 		}
 
                 case CLASS_HARPER:
+                case CLASS_PRIOR:
 		case CLASS_PRIEST:
 		{
 			/* Good (light) sensing */
@@ -181,6 +186,7 @@ static void sense_inventory(void)
 			break;
 		}
 
+                case CLASS_POSSESSOR:
 		case CLASS_RANGER:
 		{
 
@@ -243,6 +249,15 @@ static void sense_inventory(void)
 		{
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_ILLUSIONIST: /* Added -KMW- */
+		{
+			/* Very bad (light) sensing */
+			if (0 != rand_int(240000L / (plev + 5))) return;
 
 			/* Done */
 			break;
@@ -467,19 +482,26 @@ static bool between_effect(void)
 
         if (cave[py][px].feat == FEAT_BETWEEN)
         {
-                bx=cave[py][px].special & 255;
-                by=cave[py][px].special >> 8;
+                if(p_ptr->resist_continuum) {msg_print("The space-time continuum can't be disrupted."); return TRUE;}
+
+                bx = cave[py][px].special & 255;
+                by = cave[py][px].special >> 8;
+
                 msg_print("You fall in the between.");
                 msg_print("Brrrr! It's deadly cold.");
 
-                if((p_ptr->prace != RACE_DRAGONRIDER)&&(p_ptr->realm1 != REALM_TRUMP)&&(p_ptr->realm2 != REALM_TRUMP))
+                if(p_ptr->prace != RACE_DRAGONRIDER)
                 {
                         p_ptr->chp -= distance(by,bx,py,px)*2;
                         if(p_ptr->chp < 1) p_ptr->chp = 1;
                         p_ptr->redraw |= PR_HP;
                 }
 
-                teleport_player_to(by,bx);
+                swap_position(by, bx);
+
+                /* To avaoid being teleported back */
+                energy_use = 0;
+
                 return TRUE;
         }
         else
@@ -865,7 +887,7 @@ void check_music()
         if(p_ptr->pclass != CLASS_HARPER) return;
         if(!p_ptr->class_extra1) return;
 
-        s_ptr = &mp_ptr->info[REALM_MUSIC-1][p_ptr->class_extra2];
+        s_ptr = &realm_info[REALM_MUSIC][p_ptr->class_extra2];
 
         if(p_ptr->csp < s_ptr->smana)
         {
@@ -1069,7 +1091,7 @@ static void process_world(void)
 	/*** Process the monsters ***/
 
 	/* Check for creature generation. */
-	if ((rand_int(MAX_M_ALLOC_CHANCE) == 0) && !(p_ptr->inside_arena) && !(p_ptr->inside_quest))
+        if ((rand_int(d_info[dungeon_type].max_m_alloc_chance) == 0) && !(p_ptr->inside_arena) && !(p_ptr->inside_quest))
 	{
 		/* Make a new monster */
 		if (!special_flag) (void)alloc_monster(MAX_SIGHT + 5, FALSE);
@@ -1107,7 +1129,8 @@ static void process_world(void)
 
 		if ((inventory[INVEN_LITE].tval)
 		    && (inventory[INVEN_LITE].sval >= SV_LITE_GALADRIEL)
-		    && (inventory[INVEN_LITE].sval < SV_LITE_THRAIN)
+                    && (inventory[INVEN_LITE].sval <= SV_STONE_LORE)
+                    && (inventory[INVEN_LITE].sval != SV_LITE_UNDEATH)
 		    && !(p_ptr->resist_lite))
 		{
 			object_type * o_ptr = &inventory[INVEN_LITE];
@@ -1180,7 +1203,8 @@ static void process_world(void)
 		}
 	}
 
-	else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall)
+        /* Drown in deep water unless the player have levitation or water walking */
+        else if ((cave[py][px].feat == FEAT_DEEP_WATER) && !p_ptr->ffall && !p_ptr->    walk_water)
 	{
 		if (total_weight > ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2))
 		{
@@ -1215,7 +1239,7 @@ static void process_world(void)
 
 		else if (!(p_ptr->invuln) &&
 		    !(p_ptr->wraith_form) &&
-                    (p_ptr->prace != RACE_DRAGONRIDER) &&
+                    (!p_ptr->fly || !(f_info[cave[py][px].feat].flags1 & FF1_CAN_FLY)) &&
 		    ((p_ptr->chp > ((p_ptr->lev)/5)) || (p_ptr->prace != RACE_SPECTRE)))
 		{
 			cptr dam_desc;
@@ -1273,7 +1297,7 @@ static void process_world(void)
 		if (!(turn % 100))
 		{
 			/* Basic digestion rate based on speed */
-			i = extract_energy[p_ptr->pspeed] * 2;
+                        i = extract_energy[(p_ptr->pspeed > 199)?199:(p_ptr->pspeed < 0)?0:p_ptr->pspeed] * 2;
 
 			/* Regeneration takes more food */
 			if (p_ptr->regenerate) i += 30;
@@ -1283,6 +1307,21 @@ static void process_world(void)
 
                         /* Invisibility consume a lot of food */
                         i += p_ptr->invis / 2;
+
+                        /* Invulnerability consume a lot of food */
+                        if (p_ptr->invuln) i += 40;
+
+                        /* Wraith Form consume a lot of food */
+                        if (p_ptr->wraith_form) i += 30;
+
+                        /* Get the weapon */
+                        o_ptr = &inventory[INVEN_WIELD];
+
+                        /* Examine the sword */
+                        object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+                        /* Hitpoints multiplier consume a lot of food */
+                        if (o_ptr->k_idx && (f2 & (TR2_LIFE))) i += o_ptr->pval * 5;
 
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest) i -= 10;
@@ -1423,22 +1462,25 @@ static void process_world(void)
 		}
 	}
 
-        if (p_ptr->pgod > 0) {
-          if ((turn % 50) == 0) {
-            set_grace(p_ptr->grace -
-                      deity_info[p_ptr->pgod-1].grace_deduction + 1);
-          }
+        if (p_ptr->pgod > 0)
+        {
+                if ((turn % 50) == 0)
+                {
+                        set_grace(p_ptr->grace - deity_info[p_ptr->pgod-1].grace_deduction + 1);
+                }
 
-          if (p_ptr->god_favor > -100000) {
-            int mns = 10 - deity_info[p_ptr->pgod-1].grace_deduction;
+                if (p_ptr->god_favor > -100000)
+                {
+                        int mns = 10 - deity_info[p_ptr->pgod-1].grace_deduction;
 
-            mns = (mns / 4) + 1;
+                        mns = (mns / 4) + 1;
 
-            if (p_ptr->pclass == CLASS_PRIEST) mns *= 2;
-            else if (p_ptr->pclass == CLASS_PALADIN) mns = (mns * 3) / 2;
+                        if (p_ptr->pclass == CLASS_PRIEST) mns *= 2;
+                        else if (p_ptr->pclass == CLASS_PRIOR) mns *= 2;
+                        else if (p_ptr->pclass == CLASS_PALADIN) mns = (mns * 3) / 2;
 
-            p_ptr->god_favor -= mns;
-          }
+                        p_ptr->god_favor -= mns;
+                }
         }
 
 
@@ -1470,6 +1512,54 @@ static void process_world(void)
 	if (p_ptr->image)
 	{
 		(void)set_image(p_ptr->image - 1);
+	}
+
+        /* Holy Aura */
+        if (p_ptr->holy)
+	{
+                (void)set_holy(p_ptr->holy - 1);
+	}
+
+        /* Walk water */
+        if (p_ptr->walk_water)
+	{
+                (void)set_walk_water(p_ptr->walk_water - 1);
+	}
+
+        /* True Strike */
+        if (p_ptr->strike)
+	{
+                (void)set_strike(p_ptr->strike - 1);
+	}
+
+        /* Meditation */
+        if (p_ptr->meditation)
+	{
+                (void)set_meditation(p_ptr->meditation - 1);
+	}
+
+        /* Timed Reflection */
+        if (p_ptr->tim_reflect)
+	{
+                (void)set_tim_reflect(p_ptr->tim_reflect - 1);
+	}
+
+        /* Timed Time Resistance */
+        if (p_ptr->tim_res_time)
+	{
+                (void)set_tim_res_time(p_ptr->tim_res_time - 1);
+	}
+
+        /* Timed Levitation */
+        if (p_ptr->tim_ffall)
+	{
+                (void)set_tim_ffall(p_ptr->tim_ffall - 1);
+	}
+
+        /* Timed Fire Aura */
+        if (p_ptr->tim_fire_aura)
+	{
+                (void)set_tim_fire_aura(p_ptr->tim_fire_aura - 1);
 	}
 
         /* Brightness */
@@ -1572,6 +1662,12 @@ static void process_world(void)
 		(void)set_protevil(p_ptr->protevil - 1);
 	}
 
+        /* Protection from undead */
+        if (p_ptr->protundead)
+	{
+                (void)set_protundead(p_ptr->protundead - 1);
+	}
+
 	/* Invulnerability */
 	if (p_ptr->invuln)
 	{
@@ -1605,7 +1701,7 @@ static void process_world(void)
 	/* Shield */
 	if (p_ptr->shield)
 	{
-		(void)set_shield(p_ptr->shield - 1);
+                (void)set_shield(p_ptr->shield - 1, p_ptr->shield_power);
 	}
 
 	/* Oppose Acid */
@@ -1636,6 +1732,36 @@ static void process_world(void)
 	if (p_ptr->oppose_pois)
 	{
 		(void)set_oppose_pois(p_ptr->oppose_pois - 1);
+	}
+
+        /* Oppose Light & Dark */
+        if (p_ptr->oppose_ld)
+	{
+                (void)set_oppose_ld(p_ptr->oppose_ld - 1);
+	}
+
+        /* Oppose Chaos & Confusion */
+        if (p_ptr->oppose_cc)
+	{
+                (void)set_oppose_cc(p_ptr->oppose_cc - 1);
+	}
+
+        /* Oppose Sound & Shards */
+        if (p_ptr->oppose_ss)
+	{
+                (void)set_oppose_ss(p_ptr->oppose_ss - 1);
+	}
+
+        /* Oppose Nexus */
+        if (p_ptr->oppose_nex)
+	{
+                (void)set_oppose_nex(p_ptr->oppose_nex - 1);
+	}
+
+        /* Mental Barrier */
+        if (p_ptr->tim_mental_barrier)
+	{
+                (void)set_mental_barrier(p_ptr->tim_mental_barrier - 1);
 	}
 
 
@@ -2402,7 +2528,7 @@ static void process_world(void)
 
                                 mx=px;
                                 my=py+1;
-                                get_pos_player(100, &my, &mx);
+                                get_pos_player(5, &my, &mx);
                                 msg_print("Your egg hatchs!");
                                 place_monster_aux(my, mx, o_ptr->pval2, FALSE, FALSE, TRUE);
 
@@ -2410,17 +2536,8 @@ static void process_world(void)
                                 r_ptr = &r_info[m_ptr->r_idx];
                                 if(r_ptr->flags9 & RF9_IMPRESED)
                                 {
-                                        int z;
-                                        msg_print("Add you have given the imprint to your monster!");
-                                        m_ptr->impressed = TRUE;
-                                        for(z = 0; z < max_m_idx; z++)
-                                        {
-                                                if(r_idx_to_keep[z] == 0)
-                                                {
-                                                        r_idx_to_keep[z] = m_ptr->r_idx;
-                                                        break;
-                                                }
-                                        }
+                                        msg_print("And you have given the imprint to your monster!");
+                                        m_ptr->imprinted = TRUE;
                                 }
                                 set_pet(m_ptr, TRUE);
 
@@ -2489,7 +2606,7 @@ static void process_world(void)
 			{
                                 mx=o_ptr->ix;
                                 my=o_ptr->iy;
-                                get_pos_player(100, &my, &mx);
+                                get_pos_player(5, &my, &mx);
                                 msg_print("An egg hatchs!");
                                 place_monster_one(my, mx, o_ptr->pval2, FALSE, FALSE);
                                 floor_item_increase(i, -1);
@@ -2528,7 +2645,7 @@ static void process_world(void)
   			disturb(0, 0);
 
 			/* Determine the level */
-			if (dun_level)
+                        if (dun_level || p_ptr->inside_quest)
 			{
 				msg_print("You feel yourself yanked upwards!");
 
@@ -2536,6 +2653,15 @@ static void process_world(void)
 				dun_level = 0;
 
 				leaving_quest = p_ptr->inside_quest;
+
+				/* Leaving an 'only once' quest marks it as failed */
+				if (leaving_quest &&
+					(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+				{
+					quest[leaving_quest].status = QUEST_STATUS_FAILED;
+				}
+
 
                                 is_recall = TRUE;
 
@@ -2552,8 +2678,8 @@ static void process_world(void)
 				if (dun_level < 1) dun_level = 1;
 
 				/* Reset player position */
-				p_ptr->oldpx = 0;
-				p_ptr->oldpy = 0;
+                                p_ptr->oldpx = 1;
+                                p_ptr->oldpy = 1;
 
 				/* Leaving */
                                 is_recall = TRUE;
@@ -2595,7 +2721,7 @@ static bool enter_wizard_mode(void)
 		/* Mark savefile */
                 noscore |= 0x0002;
 	}
-noscore=0;
+
 	/* Success */
 	return (TRUE);
 }
@@ -3019,10 +3145,6 @@ static void process_command(void)
 		{
                         if (p_ptr->pclass == CLASS_SORCERER)
                                 msg_print("You don't have to learn spells!");
-                        else if (p_ptr->pclass == CLASS_WIZARD)
-                                nr_do_cmd_study();
-                        else if (p_ptr->pclass == CLASS_PRIOR)
-                                nr_do_cmd_study();
                         else
                                 do_cmd_study();
 			break;
@@ -3031,12 +3153,7 @@ static void process_command(void)
 		/* Browse a book */
 		case 'b':
 		{
-                        if (p_ptr->pclass == CLASS_WIZARD)
-                                nr_do_cmd_browse();
-                        else if (p_ptr->pclass == CLASS_PRIOR)
-                                nr_do_cmd_browse();
-                        else
-                                do_cmd_browse();
+                        do_cmd_browse();
 			break;
 		}
 
@@ -3059,12 +3176,14 @@ static void process_command(void)
                                                 which_power = "mimic powers";
                                         else if (p_ptr->pclass == CLASS_HARPER)
                                                 which_power = "singing abilities";
-					else if (mp_ptr->spell_book == TV_LIFE_BOOK)
+                                        else if (mp_ptr->spell_book == TV_VALARIN_BOOK)
 						which_power = "prayer";
                                         else if (p_ptr->pclass == CLASS_PRIOR)
                                                 which_power = "prayer";
                                         else if (p_ptr->pclass == CLASS_RUNECRAFTER)
                                                 which_power = "combining abilities";
+                                        else if (p_ptr->pclass == CLASS_ARCHER)
+                                                which_power = "forging abilities";
                                         else if (p_ptr->pclass == CLASS_POSSESSOR)
                                                 which_power = "transfering abilities";
 
@@ -3086,10 +3205,8 @@ static void process_command(void)
                                                 do_cmd_powermage();
                                         else if (p_ptr->pclass == CLASS_RUNECRAFTER)
                                                 do_cmd_rune();
-                                        else if (p_ptr->pclass == CLASS_WIZARD)
-                                                nr_do_cmd_cast();
-                                        else if (p_ptr->pclass == CLASS_PRIOR)
-                                                nr_do_cmd_pray();
+                                        else if (p_ptr->pclass == CLASS_ARCHER)
+                                                do_cmd_archer();
                                         else if (p_ptr->pclass == CLASS_POSSESSOR)
                                                 do_cmd_possessor();
 					else
@@ -3111,7 +3228,7 @@ static void process_command(void)
 			break;
 		}
 
-		/* Pray a prayer */
+                /* Issue commands to pets */
                 case 'P':
 		{
                         do_cmd_pet();
@@ -3129,6 +3246,13 @@ static void process_command(void)
 		case 'K':
                 {
 			do_cmd_cure_meat();
+                        break;
+                }
+
+                /* Steal an item form a monster */
+                case 'Z':
+                {
+                        do_cmd_steal();
                         break;
                 }
                 
@@ -3330,7 +3454,13 @@ static void process_command(void)
 			break;
 		}
 
-
+                /* Engrave the floor */
+                case 'x':
+                {
+                        do_cmd_sense_grid_mana();
+                        do_cmd_engrave();
+                        break;
+                }
 
 		/*** Help and Such ***/
 
@@ -3635,7 +3765,7 @@ static void process_player(void)
 	}
 
 	/* Give the player some energy */
-	p_ptr->energy += extract_energy[p_ptr->pspeed];
+        p_ptr->energy += extract_energy[(p_ptr->pspeed > 199)?199:(p_ptr->pspeed < 0)?0:p_ptr->pspeed];
 
 	/* No turn yet */
 	if (p_ptr->energy < 100) return;
@@ -4272,11 +4402,11 @@ static void dungeon(void)
 	}
 
         /* Did we leave a dungeon ? */
-        if ((dun_level < dungeon_info[dungeon_type].mindepth) && (!is_recall))
+        if ((dun_level < d_info[dungeon_type].mindepth) && (!is_recall))
         {
                 dun_level = 0;
         }
-        if (dun_level > dungeon_info[dungeon_type].maxdepth)
+        if (dun_level > d_info[dungeon_type].maxdepth)
         {
                 dun_level = 0;
         }
@@ -4375,6 +4505,39 @@ static void load_all_pref_files(void)
 
 
 #endif
+
+/*
+ * Modify the realm_info array using the class modificator
+ */
+void calc_magic()
+{
+        int i, j;
+
+        for(i = 0; i < MAX_REALM; i++)
+                for(j = 0; j < 64; j++)
+                {
+                        int tmp;
+
+                        tmp = realm_info_base[i][j].slevel;
+                        if (tmp < 99)
+                        {
+                                tmp += magic_info[p_ptr->pclass].spell_lev;
+                                tmp = (tmp < 1)?1:(tmp > 50)?50:tmp;
+                                realm_info_base[i][j].slevel = tmp;
+                        }
+
+                        tmp = realm_info_base[i][j].smana;
+                        tmp += (tmp * magic_info[p_ptr->pclass].spell_mana) / 100;
+                        tmp = (tmp < 1)?1:(tmp > 255)?255:tmp;
+                        realm_info_base[i][j].smana = tmp;
+
+                        tmp = realm_info_base[i][j].sfail;
+                        tmp += (tmp * magic_info[p_ptr->pclass].spell_fail) / 100;
+                        tmp = (tmp < 5)?5:(tmp > 95)?95:tmp;
+                        realm_info_base[i][j].sfail = tmp;
+                }
+}
+
 
 /*
  * Actually play a game
@@ -4499,6 +4662,11 @@ void play_game(bool new_game)
                         turn = 1;
 	}
 
+        /*** Calculate the magic table for the player class ***/
+        calc_magic();
+
+        /* Calculate the magic table based on the number of spell learned */
+        calc_magic_bonus();
 
 	/* Flash a message */
 	prt("Please wait...", 0, 0);
@@ -4603,7 +4771,7 @@ void play_game(bool new_game)
 
 		/* Erase the old cave */
 		wipe_o_list();
-		wipe_m_list();
+//                wipe_m_list();
 
 
 		/* XXX XXX XXX */
@@ -4615,7 +4783,7 @@ void play_game(bool new_game)
                 cheat_death = FALSE;
                 if (granted_resurrection()) {
                     cheat_death = TRUE;
-                    p_ptr->grace -= 40000;
+                    p_ptr->grace -= 140000;
                     msg_format("The power of %s raises you back from the grave!", deity_info[p_ptr->pgod-1].name);
 		    msg_print(NULL);
                 }

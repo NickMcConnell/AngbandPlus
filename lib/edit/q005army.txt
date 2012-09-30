@@ -1,24 +1,25 @@
 # q005army.txt
+# The Battle of Five Armies
 # by DarkGod
 
 # Name
-Q:3:N:The battle of the five armies
+Q:13:N:The Battle of Five Armies
 
 # Definition
-Q:3:Q:6:0:0:0:60:0:0
+Q:13:Q:6:0:0:0:40:0:0:2
 
 # Description for quest
-?:[LEQ $QUEST3 2]
-Q:3:T:Now the things are becoming very serious. Near the Lonely Mountain,
-Q:3:T:a large conflict is brewing between the Alliance armies and the
-Q:3:T:minions of Morgoth. We'll send you here to investigate and report
-Q:3:T:to us - if you find a way to escape from the battlefield...
+?:[LEQ $QUEST13 2]
+Q:13:T:Near the Lonely Mountain, a large conflict is brewing between 
+Q:13:T:the Free Peoples and the minions of Morgoth. We are sending 
+Q:13:T:you there to help your armies to win against those terribles
+Q:13:T:legions of Morgoth...
 ?:1
 
 # Description for quest reward
-?:[EQU $QUEST3 3]
-Q:3:T:Great, you have proved yourself as a hero!
-Q:3:T:You will be rewarded. Thanks again.
+?:[EQU $QUEST13 3]
+Q:13:T:You have proven yourself as a hero. 
+Q:13:T:You will be rewarded. Thanks again.
 ?:1
 
 # Floor with Mountain Orc
@@ -42,23 +43,22 @@ F:T:96:3
 # Dungeon
 
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-D:X<oooo  w       o o    w eeeeeedddddddddd     w    X
-D:Xoooo     w       oeeeeee w     ddddddddddT  w www X
-D:Xoooo T        Teeeew      w       Tdddddddd    w  X
-D:Xooo      w o  o  w  o  T     w          eee  h   ^X
-D:Xo      w            o   oooooo w      eee  hh  ^^^X
-D:X    w     dT  w   o     ooooo        e hh h   ^^^^X
-D:X  T     ddodwd  o    ooo oToo  w  T e hhhh    ^^^^X
-D:X     o dddddddo    Tooo ooooo      eeh      ^^^^^^X
-D:X    w   ddddwd   w  oooo oooo w  ee h   ^^^^^^^^^^X
-D:X   o    oddd  w  oooo oTo    w  ehhh   ^^^^^^^^^^^X
-D:X       T     Toooooooo    w    ehh    ^^^^^^^^^^^^X
-D:X  o  w o owo wwww  w  ww      e h      ^^^^^^^^^^^X
-D:X  oedddddddeeeohhhhT        Tehhh    ^^^^^^^^^^^^^X
-D:X    o w w T w  o eeeeeeeeeeeeeh    ^^^^^^^^^^^^^^^X
-D:X   w    w  w w  ehhhhhhhhhhhhhh   ^^^^^^^^^^^^^^^^X
+D:X<oooo--w-------o-o----w-eeeeeedddddddddd-----w----X
+D:Xoooo-----w-------oeeeeee-w-----ddddddddddT--w-www-X
+D:Xoooo-T--------Teeeew------w-------Tdddddddd----w--X
+D:Xooo------w-o--o--w--o--T-----w----------eee--h---^X
+D:Xo------w------------o---oooooo-w------eee--hh--^^^X
+D:X----w-----dT--w---o-----ooooo--------e-hh-h---^^^^X
+D:X--T-----ddodwd--o----ooo-oToo--w--T-e-hhhh----^^^^X
+D:X-----o-dddddddo----Tooo-ooooo------eeh------^^^^^^X
+D:X----w---ddddwd---w--oooo-oooo-w--ee-h---^^^^^^^^^^X
+D:X---o----oddd--w--oooo-oTo----w--ehhh---^^^^^^^^^^^X
+D:X-------T-----Toooooooo----w----ehh----^^^^^^^^^^^^X
+D:X--o--w-o-owo-wwww--w--ww------e-h------^^^^^^^^^^^X
+D:X--oedddddddeeeohhhhT--------Tehhh----^^^^^^^^^^^^^X
+D:X----o-w-w-T-w--o-eeeeeeeeeeeeeh----^^^^^^^^^^^^^^^X
+D:X---w----w--w-w--ehhhhhhhhhhhhhh---^^^^^^^^^^^^^^^^X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # Starting position
 P:10:39
-

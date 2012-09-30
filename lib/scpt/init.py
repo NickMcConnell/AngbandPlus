@@ -18,8 +18,6 @@ import intro
 
 import quest30
 
-import dungeons
-
 def enter_quests(quest_number, danger_level):
         if(quest_number == 1):
                 quest1.event_enter(quest_number, danger_level)
@@ -38,5 +36,3 @@ scpt_name = "PernAngband default script"
 event.add_handler(event.EVENT_COMMAND, shoutkey.event_command)
 event.add_handler(event.EVENT_START_GAME, intro.intro)
 event.add_handler(event.EVENT_ENTER_QUEST, enter_quests)
-event.add_handler(event.EVENT_GENERATE_LVL, dungeons.enter_levels)
-

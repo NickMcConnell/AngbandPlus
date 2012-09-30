@@ -405,7 +405,7 @@ static int Obj_setattr(ObjObject *self, char *name, PyObject *v)
  */
 staticforward PyTypeObject Obj_Type =
 {
-	PyObject_HEAD_INIT(&PyType_Type)	/* Standard stuff */
+        PyObject_HEAD_INIT(NULL)                /* Standard stuff */
 	0,					/* Size */
 	"Obj",					/* Name */
 	sizeof(ObjObject),			/* Basic Size */

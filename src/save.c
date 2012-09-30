@@ -617,8 +617,8 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
-    wr_u32b(m_ptr->smart);
-        wr_byte(m_ptr->impressed);
+        wr_u32b(m_ptr->smart);
+        wr_byte(m_ptr->imprinted);
 }
 
 
@@ -669,7 +669,7 @@ static void wr_lore(int r_idx)
         wr_u32b(r_ptr->r_flags9);
 
 	/* Monster limit per level */
-	wr_byte(r_ptr->max_num);
+        wr_s16b(r_ptr->max_num);
 
 	/* Later (?) */
 	wr_byte(0);
@@ -881,7 +881,9 @@ static void wr_spells(int i)
  */
 static void wr_extra(void)
 {
-	int i;
+        int i, j;
+        byte tmp8u;
+        s16b tmp16s;
 
 	wr_string(player_name);
 
@@ -892,10 +894,14 @@ static void wr_extra(void)
 		wr_string(history[i]);
 	}
 
-        for (i=1;i<128;i++)
-	{
-		wr_byte(p_ptr->spec_history[i]);
-	}
+        /* Save the special levels info */
+        tmp8u = max_d_idx;
+        tmp16s = MAX_DUNGEON_DEPTH;
+        wr_byte(tmp8u);
+        wr_s16b(tmp16s);
+        for (i = 0; i < tmp8u; i++)
+               for (j = 0; j < tmp16s; j++)
+                        wr_byte(spec_history[j][i]);
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
@@ -968,8 +974,10 @@ static void wr_extra(void)
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_plv);
-        wr_byte(MAX_DUNGEONS);
-        for(i = 0; i < MAX_DUNGEONS; i++)
+
+        tmp8u = max_d_idx;
+        wr_byte(tmp8u);
+        for (i = 0; i < tmp8u; i++)
                 wr_s16b(p_ptr->max_dlv[i]);
 
 	/* More info */
@@ -996,10 +1004,12 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->poisoned);
 	wr_s16b(p_ptr->image);
 	wr_s16b(p_ptr->protevil);
+        wr_s16b(p_ptr->protundead);
 	wr_s16b(p_ptr->invuln);
 	wr_s16b(p_ptr->hero);
 	wr_s16b(p_ptr->shero);
 	wr_s16b(p_ptr->shield);
+        wr_s16b(p_ptr->shield_power);
 	wr_s16b(p_ptr->blessed);
 	wr_s16b(p_ptr->tim_invis);
 	wr_s16b(p_ptr->word_recall);
@@ -1011,18 +1021,29 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+        wr_s16b(p_ptr->oppose_ld);
+        wr_s16b(p_ptr->oppose_cc);
+        wr_s16b(p_ptr->oppose_ss);
+        wr_s16b(p_ptr->oppose_nex);
+
     wr_s16b(p_ptr->tim_esp);
     wr_s16b(p_ptr->wraith_form);
+    wr_s16b(p_ptr->tim_ffall);
+    wr_s16b(p_ptr->tim_fire_aura);
     wr_s16b(p_ptr->resist_magic);
     wr_s16b(p_ptr->tim_invisible);
     wr_s16b(p_ptr->tim_inv_pow);
     wr_s16b(p_ptr->tim_mimic);
     wr_s16b(p_ptr->lightspeed);
     wr_s16b(p_ptr->tim_lite);
-    wr_s16b(p_ptr->tim_xtra6);
-    wr_s16b(p_ptr->tim_xtra7);
-    wr_s16b(p_ptr->tim_xtra8);
+    wr_s16b(p_ptr->holy);
+    wr_s16b(p_ptr->walk_water);
+    wr_s16b(p_ptr->tim_mental_barrier);
     wr_s16b(p_ptr->immov_cntr);
+    wr_s16b(p_ptr->strike);
+    wr_s16b(p_ptr->meditation);
+    wr_s16b(p_ptr->tim_reflect);
+    wr_s16b(p_ptr->tim_res_time);
 
     wr_s16b(p_ptr->chaos_patron);
     wr_u32b(p_ptr->muta1);
@@ -1039,6 +1060,8 @@ static void wr_extra(void)
 	wr_byte(p_ptr->special);
 	wr_byte(special_flag);
         wr_byte(p_ptr->allow_one_death);
+        wr_s16b(p_ptr->xtra_spells);
+
         wr_byte(vanilla_town);
 
         wr_u16b(no_breeds);
@@ -1083,6 +1106,7 @@ static void wr_extra(void)
                 wr_s16b(bounties[i][0]);
                 wr_s16b(bounties[i][1]);
 	}
+        wr_u32b(total_bounties);
 
         wr_s16b(spell_num);
         for (i = 0; i < MAX_SPELLS; i++) {
@@ -1320,6 +1344,88 @@ static void wr_dungeon(void)
 		wr_u16b(prev_s16b);
 	}
 
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_s16b = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+                        tmp16s = c_ptr->inscription;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp16s != prev_s16b) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_u16b(prev_s16b);
+				prev_s16b = tmp16s;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_u16b(prev_s16b);
+	}
+
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < cur_hgt; y++)
+	{
+		for (x = 0; x < cur_wid; x++)
+		{
+			/* Get the cave */
+			c_ptr = &cave[y][x];
+
+			/* Extract a byte */
+                        tmp8u = c_ptr->mana;
+			
+			/* If the run is broken, or too full, flush it */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+
 
 	/* Compact the objects */
 	compact_objects(0);
@@ -1355,12 +1461,6 @@ static void wr_dungeon(void)
 		/* Dump it */
 		wr_monster(m_ptr);
 	}
-
-        /* Dump the to keep monsters */
-        for (i = 0; i < m_max; i++)
-        {
-                wr_s16b(r_idx_to_keep[i]);
-        }
 }
 
 void wr_fate(int i)
@@ -1469,6 +1569,65 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
+        /* Dump the ghosts info */
+        for (i = 0; i < MAX_GHOSTS; i++)
+                wr_string(ghost_file[i]);
+
+        for(i = 0; i < MAX_GHOSTS; i++)
+        {
+                monster_race *r_ptr;
+
+                /* Load the ghost */
+                r_ptr = &r_info[GHOST_R_IDX_HEAD + i];
+
+                wr_string(r_name + r_ptr->name);
+                wr_string(r_text + r_ptr->text);
+
+                wr_byte(r_ptr->hdice);
+                wr_byte(r_ptr->hside);
+
+                wr_s16b(r_ptr->ac);
+
+                wr_s16b(r_ptr->sleep);
+                wr_byte(r_ptr->aaf);
+                wr_byte(r_ptr->speed);
+
+                wr_s32b(r_ptr->mexp);
+                wr_s32b(r_ptr->weight);
+
+                wr_byte(r_ptr->freq_inate);
+                wr_byte(r_ptr->freq_spell);
+
+                wr_u32b(r_ptr->flags1);
+                wr_u32b(r_ptr->flags2);
+                wr_u32b(r_ptr->flags3);
+                wr_u32b(r_ptr->flags4);
+                wr_u32b(r_ptr->flags5);
+                wr_u32b(r_ptr->flags6);
+                wr_u32b(r_ptr->flags7);
+                wr_u32b(r_ptr->flags8);
+                wr_u32b(r_ptr->flags9);
+
+                for(j = 0; j < 4; j++)
+                {
+                        wr_byte(r_ptr->blow[j].method);
+                        wr_byte(r_ptr->blow[j].effect);
+                        wr_byte(r_ptr->blow[j].d_dice);
+                        wr_byte(r_ptr->blow[j].d_side);
+                }
+
+                wr_byte(r_ptr->level);
+                wr_byte(r_ptr->rarity);
+
+                wr_byte(r_ptr->d_attr);
+                wr_byte(r_ptr->d_char);
+
+                wr_byte(r_ptr->x_attr);
+                wr_byte(r_ptr->x_char);
+
+                wr_s16b(r_ptr->max_num);
+                wr_byte(r_ptr->cur_num);
+        }
 
 	/* Dump the object memory */
 	tmp16u = max_k_idx;
@@ -1555,6 +1714,14 @@ static bool wr_savefile_new(void)
                 wr_fate(i);
 	}
 
+        /* Hack -- Dump the inscriptions */
+        tmp16u = MAX_INSCRIPTIONS;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+                wr_byte(inscription_info[i].know);
+	}
+
 	/* Write the "extra" information */
 	wr_extra();
 
@@ -1569,16 +1736,21 @@ static bool wr_savefile_new(void)
 
 
 	/* Write spell data */
-	wr_u32b(spell_learned1);
-	wr_u32b(spell_learned2);
-	wr_u32b(spell_worked1);
-	wr_u32b(spell_worked2);
-	wr_u32b(spell_forgotten1);
-	wr_u32b(spell_forgotten2);
+        wr_u16b(MAX_REALM);
+        for (i = 0; i < MAX_REALM; i++)
+        {
+                wr_u32b(spell_learned[i][0]);
+                wr_u32b(spell_learned[i][1]);
+                wr_u32b(spell_worked[i][0]);
+                wr_u32b(spell_worked[i][1]);
+                wr_u32b(spell_forgotten[i][0]);
+                wr_u32b(spell_forgotten[i][1]);
+        }
 
 	/* Dump the ordered spells */
 	for (i = 0; i < 64; i++)
 	{
+                wr_byte(realm_order[i]);
 		wr_byte(spell_order[i]);
 	}
 

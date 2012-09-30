@@ -4,7 +4,7 @@
 Q:6:N:Shelob, Spider of Darkness
 
 # Definition
-Q:6:Q:1:0:0:1:33:481:0
+Q:6:Q:1:0:0:1:33:481:0:2
 
 # Description for quest
 ?:[LEQ $QUEST6 2]

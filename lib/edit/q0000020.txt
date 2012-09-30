@@ -2,7 +2,7 @@
 Q:20:N:Nirnaeth Arnoediad
 
 # Definition
-Q:20:Q:4:0:0:0:35:0:0
+Q:20:Q:4:0:0:0:35:0:0:2
 
 # Description for quest
 ?:[LEQ $QUEST20 2]

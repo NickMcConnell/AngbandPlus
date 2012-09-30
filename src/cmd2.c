@@ -12,6 +12,7 @@
 
 #include "angband.h"
 
+void do_cmd_immovable_special(void);
 
 /* Try to bash an altar. */
 static bool do_cmd_bash_altar(int y, int x) {
@@ -106,6 +107,14 @@ void do_cmd_go_up(void)
 		leaving_quest = p_ptr->inside_quest;
 		p_ptr->inside_quest = c_ptr->special;
 
+		/* Leaving an 'only once' quest marks it as failed */
+		if (leaving_quest &&
+			(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+		{
+			quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		}
+
 		/* Activate the quest */
 		if (!quest[p_ptr->inside_quest].status)
 		{
@@ -175,6 +184,15 @@ void do_cmd_go_up(void)
 			{
 				dun_level = 1;
 				leaving_quest = p_ptr->inside_quest;
+
+				/* Leaving an 'only once' quest marks it as failed */
+				if (leaving_quest &&
+					(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+					(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+				{
+					quest[leaving_quest].status = QUEST_STATUS_FAILED;
+				}
+
 				p_ptr->inside_quest = c_ptr->special;
 			}
 
@@ -232,6 +250,15 @@ void do_cmd_go_down(void)
 
 		leaving_quest = p_ptr->inside_quest;
 		p_ptr->inside_quest = c_ptr->special;
+
+		/* Leaving an 'only once' quest marks it as failed */
+		if (leaving_quest &&
+			(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+		{
+			quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		}
+
 
 		/* Activate the quest */
 		if (!quest[p_ptr->inside_quest].status)
@@ -310,8 +337,17 @@ void do_cmd_go_down(void)
 
                         if(c_ptr->special)
                         {
-                                dungeon_type = c_ptr->special;
-                                dun_level = dungeon_info[dungeon_type].mindepth;
+                                if(d_info[c_ptr->special].min_plev <= p_ptr->lev)
+                                {
+                                        dungeon_type = c_ptr->special;
+                                        dun_level = d_info[dungeon_type].mindepth;
+                                        msg_format("You go into %s", d_text + d_info[dungeon_type].text);
+                                }
+                                else
+                                {
+                                        msg_print("You don't feel yourself experimented enought for going there...");
+                                        dun_level--;
+                                }
                         }
 
 			/* Leaving */
@@ -2357,7 +2393,6 @@ void do_cmd_run_run()
 void do_cmd_run(void)
 {
 	if (p_ptr->immovable) {
-                do_cmd_immovable_special();
                 return;
         }else
                 do_cmd_run_run();
@@ -2369,7 +2404,7 @@ void do_cmd_run(void)
  * Stay still.  Search.  Enter stores.
  * Pick up treasure if "pickup" is true.
  */
-void do_cmd_stay_stay(int pickup)
+void do_cmd_stay(int pickup)
 {
 	cave_type *c_ptr = &cave[py][px];
 
@@ -2445,22 +2480,20 @@ void do_cmd_stay_stay(int pickup)
 		}
 		
 		leaving_quest = p_ptr->inside_quest;
+
+		/* Leaving an 'only once' quest marks it as failed */
+		if (leaving_quest &&
+			(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+		{
+			quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		}
+
 		p_ptr->inside_quest = cave[py][px].special;
 		dun_level = 0;
 		p_ptr->leaving = TRUE;
 	}
 }
-
-void do_cmd_stay(int pickup)
-{
-        /* Hold still (usually pickup) */
-//        if (p_ptr->immovable) {
-//                do_cmd_unwalk();
-//        }else{
-                do_cmd_stay_stay(pickup);
-//        }
-}
-
 
 /*
  * Resting allows a player to safely restore his hp	-RAK-
@@ -2608,10 +2641,11 @@ static int breakage_chance(object_type *o_ptr)
 void do_cmd_fire(void)
 {
 	int dir, item;
-	int j, y, x, ny, nx, ty, tx;
+        int j, y, x, ny, nx, ty, tx, by, bx;
 	int tdam, tdis, thits, tmul;
 	int bonus, chance;
 	int cur_dis, visible;
+        int breakage = -1, num_ricochet = 0;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -2625,6 +2659,8 @@ void do_cmd_fire(void)
 	char missile_char;
 
 	char o_name[80];
+
+        cptr q, s;
 
 	int msec = delay_factor * delay_factor * delay_factor;
 
@@ -2664,16 +2700,29 @@ void do_cmd_fire(void)
 
         item = INVEN_AMMO;
 
-        if(!o_ptr->k_idx)
+        /* If nothing correct try to choose from the backpack */
+        if ((p_ptr->tval_ammo != o_ptr->tval) || (!o_ptr->k_idx))
 	{
 		msg_print("You have nothing to fire with.");
-		return;
-	}
 
-        if(p_ptr->tval_ammo != o_ptr->tval)
-	{
-		msg_print("You have nothing to fire with.");
-		return;
+                /* Require proper missile */
+                item_tester_tval = p_ptr->tval_ammo;
+
+                /* Get an item */
+                q = "Fire which item? ";
+                s = "You have nothing to fire.";
+                if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+
+                /* Access the item (if in the pack) */
+                if (item >= 0)
+                {
+                        o_ptr = &inventory[item];
+                }
+                else
+                {
+                        o_ptr = &o_list[0 - item];
+                }
 	}
 #endif
 
@@ -2729,7 +2778,8 @@ void do_cmd_fire(void)
 
 	/* Actually "fire" the object */
 	bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
-	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
+        chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ)) - p_ptr->lev;
+        if(chance < 5) chance = 5;
 
 	/* Assume a base multiplier */
 	tmul = 1;
@@ -2786,8 +2836,16 @@ void do_cmd_fire(void)
 	/* Take a (partial) turn */
 	energy_use = (100 / thits);
 
+        /* Ricochets ? */
+        if(p_ptr->pclass == CLASS_ARCHER)
+        {
+                num_ricochet = (p_ptr->lev / 10) - 1;
+                num_ricochet = (num_ricochet < 0)?0:num_ricochet;
+        }
 
 	/* Start at the player */
+        by = py;
+        bx = px;
 	y = py;
 	x = px;
 
@@ -2806,169 +2864,204 @@ void do_cmd_fire(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
+        while(TRUE)
+        {
+                /* Travel until stopped */
+                for (cur_dis = 0; cur_dis <= tdis; )
+                {
+                        /* Hack -- Stop at the target */
+                        if ((y == ty) && (x == tx)) break;
 
-	/* Travel until stopped */
-	for (cur_dis = 0; cur_dis <= tdis; )
-	{
-		/* Hack -- Stop at the target */
-		if ((y == ty) && (x == tx)) break;
+                        /* Calculate the new location (see "project()") */
+                        ny = y;
+                        nx = x;
+                        mmove2(&ny, &nx, by, bx, ty, tx);
 
-		/* Calculate the new location (see "project()") */
-		ny = y;
-		nx = x;
-		mmove2(&ny, &nx, py, px, ty, tx);
+                        /* Stopped by walls/doors */
+                        if (!cave_floor_bold(ny, nx)) break;
 
-		/* Stopped by walls/doors */
-		if (!cave_floor_bold(ny, nx)) break;
+                        /* Advance the distance */
+                        cur_dis++;
 
-		/* Advance the distance */
-		cur_dis++;
-
-		/* Save the new location */
-		x = nx;
-		y = ny;
-
-
-		/* The player can see the (on screen) missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
-		{
-			/* Draw, Hilite, Fresh, Pause, Erase */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
-			Term_fresh();
-			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
-			Term_fresh();
-		}
-
-		/* The player cannot see the missile */
-		else
-		{
-			/* Pause anyway, for consistancy */
-			Term_xtra(TERM_XTRA_DELAY, msec);
-		}
+                        /* Save the new location */
+                        x = nx;
+                        y = ny;
 
 
-		/* Monster here, Try to hit it */
-		if (cave[y][x].m_idx)
-		{
-			cave_type *c_ptr = &cave[y][x];
+                        /* The player can see the (on screen) missile */
+                        if (panel_contains(y, x) && player_can_see_bold(y, x))
+                        {
+                                /* Draw, Hilite, Fresh, Pause, Erase */
+                                print_rel(missile_char, missile_attr, y, x);
+                                move_cursor_relative(y, x);
+                                Term_fresh();
+                                Term_xtra(TERM_XTRA_DELAY, msec);
+                                lite_spot(y, x);
+                                Term_fresh();
+                        }
 
-			monster_type *m_ptr = &m_list[c_ptr->m_idx];
-			monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-			/* Check the visibility */
-			visible = m_ptr->ml;
-
-			/* Note the collision */
-			hit_body = TRUE;
-
-			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
-			{
-				bool fear = FALSE;
-
-				/* Assume a default death */
-				cptr note_dies = " dies.";
-
-				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
-				{
-					/* Special note at death */
-					note_dies = " is destroyed.";
-				}
+                        /* The player cannot see the missile */
+                        else
+                        {
+                                /* Pause anyway, for consistancy */
+                                Term_xtra(TERM_XTRA_DELAY, msec);
+                        }
 
 
-				/* Handle unseen monster */
-				if (!visible)
-				{
-					/* Invisible monster */
-					msg_format("The %s finds a mark.", o_name);
-				}
+                        /* Monster here, Try to hit it */
+                        if (cave[y][x].m_idx)
+                        {
+                                cave_type *c_ptr = &cave[y][x];
 
-				/* Handle visible monster */
-				else
-				{
-					char m_name[80];
+                                monster_type *m_ptr = &m_list[c_ptr->m_idx];
+                                monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
+                                /* Check the visibility */
+                                visible = m_ptr->ml;
 
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
+                                /* Note the collision */
+                                hit_body = TRUE;
 
-					/* Hack -- Track this monster race */
-					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+                                /* Did we hit it (penalize range) */
+                                if (test_hit_fire(chance - cur_dis, r_ptr->ac, m_ptr->ml))
+                                {
+                                        bool fear = FALSE;
 
-					/* Hack -- Track this monster */
-					if (m_ptr->ml) health_track(c_ptr->m_idx);
+                                        /* Assume a default death */
+                                        cptr note_dies = " dies.";
 
-					/* Anger friends */
-					if (is_pet(m_ptr))
-					{
-						char m_name[80];
-						monster_desc(m_name, m_ptr, 0);
-						msg_format("%s gets angry!", m_name);
-						set_pet(m_ptr, FALSE);
-					}
-				}
+                                        /* Some monsters get "destroyed" */
+                                        if ((r_ptr->flags3 & (RF3_DEMON)) ||
+                                            (r_ptr->flags3 & (RF3_UNDEAD)) ||
+                                            (r_ptr->flags2 & (RF2_STUPID)) ||
+                                            (strchr("Evg", r_ptr->d_char)))
+                                        {
+                                                /* Special note at death */
+                                                note_dies = " is destroyed.";
+                                        }
 
-				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
-				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
+                                        /* Handle unseen monster */
+                                        if (!visible)
+                                        {
+                                                /* Invisible monster */
+                                                msg_format("The %s finds a mark.", o_name);
+                                        }
 
-				/* Complex message */
-				if (wizard)
-				{
-					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
-				}
+                                        /* Handle visible monster */
+                                        else
+                                        {
+                                                char m_name[80];
 
-				/* Hit the monster, check for death */
-				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
-				{
-					/* Dead monster */
-				}
+                                                /* Get "the monster" or "it" */
+                                                monster_desc(m_name, m_ptr, 0);
 
-				/* No death */
-				else
-				{
-					/* Message */
-					message_pain(c_ptr->m_idx, tdam);
+                                                /* Message */
+                                                msg_format("The %s hits %s.", o_name, m_name);
 
-					/* Take note */
-					if (fear && m_ptr->ml)
-					{
-						char m_name[80];
+                                                /* Hack -- Track this monster race */
+                                                if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
-						/* Sound */
-						sound(SOUND_FLEE);
+                                                /* Hack -- Track this monster */
+                                                if (m_ptr->ml) health_track(c_ptr->m_idx);
 
-						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
+                                                /* Anger friends */
+                                                if (is_pet(m_ptr))
+                                                {
+                                                        char m_name[80];
+                                                        monster_desc(m_name, m_ptr, 0);
+                                                        msg_format("%s gets angry!", m_name);
+                                                        set_pet(m_ptr, FALSE);
+                                                }
+                                        }
 
-						/* Message */
-						msg_format("%^s flees in terror!", m_name);
-					}
-				}
-			}
+                                        /* Apply special damage XXX XXX XXX */
+                                        tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
+                                        tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
-			/* Stop looking */
-			break;
-		}
-	}
+                                        /* No negative damage */
+                                        if (tdam < 0) tdam = 0;
 
-	/* Chance of breakage (during attacks) */
-	j = (hit_body ? breakage_chance(q_ptr) : 0);
+                                        /* Complex message */
+                                        if (wizard)
+                                        {
+                                                msg_format("You do %d (out of %d) damage.",
+                                                           tdam, m_ptr->hp);
+                                        }
+
+                                        /* Hit the monster, check for death */
+                                        if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
+                                        {
+                                                /* Dead monster */
+                                        }
+
+                                        /* No death */
+                                        else
+                                        {
+                                                /* Message */
+                                                message_pain(c_ptr->m_idx, tdam);
+
+                                                /* Take note */
+                                                if (fear && m_ptr->ml)
+                                                {
+                                                        char m_name[80];
+
+                                                        /* Sound */
+                                                        sound(SOUND_FLEE);
+
+                                                        /* Get the monster name (or "it") */
+                                                        monster_desc(m_name, m_ptr, 0);
+
+                                                        /* Message */
+                                                        msg_format("%^s flees in terror!", m_name);
+                                                }
+                                        }
+                                }
+                        
+                                /* Stop looking */
+                                break;
+                        }
+                }
+
+                /* Chance of breakage (during attacks) */
+                j = (hit_body ? breakage_chance(q_ptr) : 0);
+
+                /* Break ? */
+                if(rand_int(100) < j)
+                {
+                        breakage = 100;
+                        break;
+                }
+
+                /* If no break and if Archer, the ammo can ricochets */
+                if((num_ricochet) && (hit_body) && (magik(45 + p_ptr->lev)))
+                {
+                        byte d;
+
+                        num_ricochet--;
+                        hit_body = FALSE;
+
+                        /* New base location */
+                        by = y;
+                        bx = x;
+
+                        /* New target location */
+                        while(TRUE)
+                        {
+                                d = rand_int(10);
+                                if(d != 5) break;
+                        }
+                        tx = px + 99 * ddx[d];
+                        ty = py + 99 * ddy[d];
+
+                        msg_format("The %s ricochet!", o_name);
+                }
+                else
+                        break;
+        }
 
 	/* Drop (or break) near that location */
-	drop_near(q_ptr, j, y, x);
+        drop_near(q_ptr, breakage, y, x);
 }
 
 
@@ -3889,7 +3982,7 @@ static void cmd_racial_power_aux (void)
 			{
                                 if (racial_aux(30, 30, A_WIS, 7))
                                 {
-                                        (void)set_light_speed(p_ptr->lightspeed + 1 + randint(plev/25));
+                                        (void)set_light_speed(p_ptr->lightspeed + 1);
                                 }
                         }
 			break;
@@ -3968,18 +4061,18 @@ static void cmd_racial_power_aux (void)
                                         if (!get_aim_dir(&dir)) break;
                                         msg_format("You breathe an big flame.");
                                         if(p_ptr->race_extra1==0)
-                                                fire_bolt(GF_METEOR, dir, p_ptr->tp_aux1*4);
+                                                fire_bolt(GF_METEOR, dir, p_ptr->tp_aux1*2);
                                         if(p_ptr->race_extra1==1)
                                                 fire_ball(GF_METEOR, dir, p_ptr->tp_aux1*2,((p_ptr->lev)/10) + 1);
                                         if(p_ptr->race_extra1==2)
-                                                fire_beam(GF_METEOR, dir, p_ptr->tp_aux1*3);
+                                                fire_beam(GF_METEOR, dir, p_ptr->tp_aux1*2);
                                         p_ptr->energy -= 100;
                                 }
                         }
                         if (amber_power == 2)
 			{
                         if(special_flag) {msg_print("No teleport on special levels ...");break;}
-                                if (racial_aux(3, 4, A_CON, 6)){
+                                if (racial_aux(3, 15, A_CON, 6)){
                              msg_print("You go between. Show the destination to your Dragon.");
                              if (!tgt_pt(&ii,&ij)) return;
                              p_ptr->energy -= 60 - plev;
@@ -4001,7 +4094,7 @@ static void cmd_racial_power_aux (void)
                                 msg_print("No recall on special levels..");
                                 break;
                                 }
-                                if (racial_aux(7, 11, A_CON, 6)){
+                                if (racial_aux(7, 30, A_CON, 6)){
                                 if(dun_level==0)
                                         msg_print("You are stupid , you are already in town !");
                                 else{
@@ -4082,6 +4175,10 @@ static void cmd_racial_power_aux (void)
                                 grow_trees((plev/8<1)?1:plev/8);
 			}
 			break;
+
+                case RACE_MOLD:
+                        do_cmd_immovable_special();
+                        break;
 
 		default:
 			msg_print("This race has no bonus power.");
@@ -4366,6 +4463,10 @@ void do_cmd_racial_power(void)
 			break;
                 case RACE_DRAGONRIDER:
                         racial_power = "Dragon's Powers";
+			has_racial = TRUE;
+			break;
+                case RACE_MOLD:
+                        racial_power = "Death Mold's Powers";
 			has_racial = TRUE;
 			break;
                 case RACE_ENT:
@@ -5304,7 +5405,7 @@ void do_cmd_racial_power(void)
 				if (racial_aux(10, 12, A_DEX, 14))
 				{
 					int x,y;
-					
+                                 
 					if (!get_rep_dir(&dir)) return;
 					y = py + ddy[dir];
 					x = px + ddx[dir];
@@ -5478,33 +5579,93 @@ void do_cmd_unwalk() {
     py_attack(y, x);
   }
 
+	/* Exit the area */
+        else if ((!dun_level) &&
+		((x == 0) || (x == cur_wid-1) ||
+		 (y == 0) || (y == cur_hgt-1)))
+	{
+		/* Can the player enter the grid? */
+		if (player_can_enter(c_ptr->mimic))
+		{
+			/* Hack: move to new area */
+			if ((y == 0) && (x == 0))
+			{
+				p_ptr->wilderness_y--;
+				p_ptr->wilderness_x--;
+				p_ptr->oldpy = cur_hgt - 2;
+				p_ptr->oldpx = cur_wid - 2;
+			}
+
+			else if ((y == 0) && (x == MAX_WID-1))
+			{
+				p_ptr->wilderness_y--;
+				p_ptr->wilderness_x++;
+				p_ptr->oldpy = cur_hgt - 2;
+				p_ptr->oldpx = 1;
+			}
+
+			else if ((y == MAX_HGT-1) && (x == 0))
+			{
+				p_ptr->wilderness_y++;
+				p_ptr->wilderness_x--;
+				p_ptr->oldpy = 1;
+				p_ptr->oldpx = cur_wid - 2;
+			}
+
+			else if ((y == MAX_HGT-1) && (x == MAX_WID-1))
+			{
+				p_ptr->wilderness_y++;
+				p_ptr->wilderness_x++;
+				p_ptr->oldpy = 1;
+				p_ptr->oldpx = 1;
+			}
+
+			else if (y == 0)
+			{
+				p_ptr->wilderness_y--;
+				p_ptr->oldpy = cur_hgt - 2;
+				p_ptr->oldpx = x;
+			}
+
+			else if (y == cur_hgt-1) 
+			{
+				p_ptr->wilderness_y++;
+				p_ptr->oldpy = 1;
+				p_ptr->oldpx = x;
+			}
+
+			else if (x == 0) 
+			{
+				p_ptr->wilderness_x--;
+				p_ptr->oldpx = cur_wid - 2;
+				p_ptr->oldpy = y;
+			}
+
+			else if (x == cur_wid-1) 
+			{
+				p_ptr->wilderness_x++;
+				p_ptr->oldpx = 1;
+				p_ptr->oldpy = y;
+			}
+
+			p_ptr->leftbldg = TRUE;
+			p_ptr->leaving = TRUE;
+
+			return;
+		}
+	}
+
   /* Hack -- Ignore weird terrain types. */
-  else if (feat >= FEAT_PERM_EXTRA && feat != FEAT_TREES) {
+  else if (!cave_floor_grid(c_ptr)) {
     teleport_player(10);
   }
-    
-  /* Tunnel through walls */
-  else if (feat >= FEAT_SECRET) {
-    /* Tunnel */
-    more = do_cmd_tunnel_aux(y, x, dir);
-  }
 
-  /* Bash jammed doors */
-  else if (feat >= FEAT_DOOR_HEAD + 0x08) {
-    /* Tunnel */
-    more = do_cmd_bash_aux(y, x, dir);
-  }
-  
-  /* Open closed doors */
-  else if (feat >= FEAT_DOOR_HEAD) {
-    /* Tunnel */
-    more = do_cmd_open_aux(y, x, dir);
-  }
-
-  /* Disarm traps */
-  else if (feat >= FEAT_TRAP_HEAD) {
-    /* Tunnel */
-    more = do_cmd_disarm_aux(y, x, dir);
+  /* Enter quests */
+  else if (((feat >= FEAT_QUEST_ENTER) && (feat <= FEAT_QUEST_UP)) ||
+           ((feat >= FEAT_BLDG_HEAD) && (feat <= FEAT_BLDG_TAIL)) ||
+           ((feat >= FEAT_LESS) && (feat <= FEAT_MORE))) {
+    move_player(dir, FALSE);
+    more = FALSE;
   }
 
   /* Walking semantics */
@@ -5525,19 +5686,23 @@ static bool tport_vertically(bool how) {
   /* Go down */
 
   if (how) {
-    if (dun_level >= MAX_DEPTH-1) {
+#if 0
+    if (dun_level >= d_info[dungeon_type].maxdepth) {
       msg_print("The floor is impermeable.");
       return FALSE;
     }
+#endif
 
     msg_print("You sink through the floor.");
     dun_level++;
     p_ptr->leaving = TRUE;
   } else {
+#if 0
     if (!dun_level) {
       msg_print("The only thing above you is air.");
       return FALSE;
     }
+#endif
 
     msg_print("You rise through the ceiling.");
     dun_level--;
@@ -5766,7 +5931,7 @@ void do_cmd_sacrifice(void) {
     }
 
   } else {
-    set_grace(p_ptr->grace + val*5);
+    set_grace(p_ptr->grace + val * 3);
   }
 
         /* Eliminate the item (from the pack) */
@@ -5887,7 +6052,7 @@ void do_cmd_rune(void)
 
         if(!rune2)
         {
-                msg_print("You have not chose a second rune!");
+                msg_print("You have not chosed a second rune!");
                 return;
         }
 
@@ -5907,8 +6072,11 @@ void do_cmd_rune(void)
         /* Not too weak power */
         power = (power < 10)?10:power;
 
+        /* Use the spell multiplicator */
+        power *= (p_ptr->to_s)?p_ptr->to_s:1;
+
         /* To reduce the high level powr, while increasing the low levels */
-        powerdiv = power / (3 + (p_ptr->lev / 10));
+        powerdiv = power / (2 + (p_ptr->lev / 25));
 
         dam = damroll((powerdiv < 2)?powerdiv:2,power);
 
@@ -6557,3 +6725,310 @@ void do_cmd_create_artifact()
 	/* Window stuff */
         p_ptr->window |= (PW_INVEN | PW_EQUIP);
 }
+
+  /*
+   * scan_monst --
+   *
+   * Return a list of o_list[] indexes of items of the given monster
+   */
+  bool scan_monst(int *items, int *item_num, int m_idx)
+  {
+        int this_o_idx, next_o_idx;
+  
+        int num = 0;
+   
+        (*item_num) = 0;
+  
+        /* Scan all objects in the grid */
+        for (this_o_idx = m_list[m_idx].hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+        {
+                object_type *o_ptr;
+  
+                /* Acquire object */
+                o_ptr = &o_list[this_o_idx];
+  
+                /* Acquire next object */
+                next_o_idx = o_ptr->next_o_idx;
+  
+                /* Accept this item */
+                items[num++] = this_o_idx;
+         
+                /* XXX Hack -- Enforce limit */
+                if (num == 23) break;
+        }
+  
+        /* Number of items */
+        (*item_num) = num;
+   
+        /* Result */
+        return (num != 0);
+  }
+
+  /*
+   * Display a list of the items that the given monster carries.
+   */
+  byte show_monster_inven(int m_idx, int *monst_list)
+  {
+        int i, j, k, l;
+        int col, len, lim;
+  
+        object_type *o_ptr;
+  
+        char o_name[80];
+  
+        char tmp_val[80];
+  
+        int out_index[23];
+        byte out_color[23];
+        char out_desc[23][80];
+  
+        int monst_num;
+   
+        /* Default length */
+        len = 79 - 50;
+  
+        /* Maximum space allowed for descriptions */
+        lim = 79 - 3;
+  
+        /* Require space for weight (if needed) */
+        if (show_weights) lim -= 9;
+  
+        /* Scan for objects on the monster */
+        (void) scan_monst(monst_list, &monst_num, m_idx);
+  
+        /* Display the inventory */
+        for (k = 0, i = 0; i < monst_num; i++)
+        {
+                o_ptr = &o_list[monst_list[i]];
+  
+                /* Describe the object */
+                object_desc(o_name, o_ptr, TRUE, 3);
+  
+                /* Hack -- enforce max length */
+                o_name[lim] = '\0';
+  
+                /* Save the index */
+                out_index[k] = i;
+  
+                /* Acquire inventory color */
+                out_color[k] = tval_to_attr[o_ptr->tval & 0x7F];
+  
+                /* Save the object description */
+                strcpy(out_desc[k], o_name);
+  
+                /* Find the predicted "line length" */
+                l = strlen(out_desc[k]) + 5;
+  
+                /* Be sure to account for the weight */
+                if (show_weights) l += 9;
+  
+                /* Maintain the maximum length */
+                if (l > len) len = l;
+  
+                /* Advance to next "line" */
+                k++;
+        }
+  
+        /* Find the column to start in */
+        col = (len > 76) ? 0 : (79 - len);
+  
+        /* Output each entry */
+        for (j = 0; j < k; j++)
+        {
+                /* Get the index */
+                i = monst_list[out_index[j]];
+  
+                /* Get the item */
+                o_ptr = &o_list[i];
+  
+                /* Clear the line */
+                prt("", j + 1, col ? col - 2 : col);
+  
+                /* Prepare an index --(-- */
+                sprintf(tmp_val, "%c)", index_to_label(j));
+  
+                /* Clear the line with the (possibly indented) index */
+                put_str(tmp_val, j + 1, col);
+  
+                /* Display the entry itself */
+                c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
+  
+                /* Display the weight if needed */
+                if (show_weights)
+                {
+                        int wgt = o_ptr->weight * o_ptr->number;
+                        sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+                        put_str(tmp_val, j + 1, 71);
+                }
+        }
+  
+        /* Make a "shadow" below the list (only if needed) */
+        if (j && (j < 23)) prt("", j + 1, col ? col - 2 : col);
+
+        return monst_num;
+  }
+
+
+/*
+ * Steal an object from a monster
+ */
+void do_cmd_steal()
+{
+        int x, y, dir = 0, item = -1, k = -1;
+
+        cave_type *c_ptr;
+
+        monster_type *m_ptr;
+
+        object_type *o_ptr, forge;
+
+        byte num = 0;
+
+        bool done = FALSE;
+
+        int monst_list[23];
+
+        /* Only works on adjacent monsters */
+        if (!get_rep_dir(&dir)) return;
+        y = py + ddy[dir];
+        x = px + ddx[dir];
+        c_ptr = &cave[y][x];
+
+        if (!(c_ptr->m_idx))
+        {
+                msg_print("There is no monster there!");
+                return;
+        }
+
+        m_ptr = &m_list[c_ptr->m_idx];
+
+        /* There were no non-gold items */
+        if (!m_ptr->hold_o_idx)
+        {
+                msg_print("That monster has no objects!");
+                return;
+        }
+
+        screen_save();
+
+        num = show_monster_inven(c_ptr->m_idx, monst_list);
+
+        /* Repeat until done */
+        while (!done)
+        {
+                char tmp_val[80];
+                char which = ' ';
+
+                /* Build the prompt */
+                sprintf(tmp_val, "Choose an item to steal (a-%c) or ESC:", 'a' - 1 + num);
+  
+                /* Show the prompt */
+                prt(tmp_val, 0, 0);
+  
+                /* Get a key */
+                which = inkey();
+  
+                /* Parse it */
+                switch (which)
+                {
+                        case ESCAPE:
+                        {
+                                done = TRUE;
+                                break;
+                        }
+  
+                        default:
+                        {
+                                int ver;
+  
+                                /* Extract "query" setting */
+                                ver = isupper(which);
+                                which = tolower(which);
+  
+                                k = islower(which) ? A2I(which) : -1;
+                                if (k < 0 || k >= num)
+                                {
+                                        bell();
+                                        break;
+                                }
+  
+                                /* Verify the item */
+                                if (ver && !verify("Try", 0 - monst_list[k]))
+                                {
+                                        done = TRUE;
+                                        break;
+                                }
+  
+                                /* Accept that choice */
+                                item = monst_list[k];
+                                done = TRUE;
+                                break;
+                        }
+                }
+        }
+
+        if(item != -1)
+        {
+                /* Failure check */
+                if(rand_int((40 - p_ptr->stat_ind[A_DEX]) + (o_list[item].weight / ((p_ptr->pclass == CLASS_ROGUE)?20:5)) + ((p_ptr->pclass != CLASS_ROGUE)?25:0) - ((m_ptr->csleep)?10:0) + r_info[m_ptr->r_idx].level) > 10)
+                {
+                        /* Take a turn */
+                        energy_use = 100;
+
+                        /* Wake up */
+                        m_ptr->csleep = 0;
+
+                        /* Speed up because monsters are ANGRY when you try to thief them */
+                        m_ptr->mspeed += 5;
+
+                        screen_load();
+
+                        msg_print("Oups ! The monster is now realy *ANGRY*.");
+
+                        return;
+                }
+
+                /* Reconnect the objects list */
+                if(k > 0) o_list[monst_list[k - 1]].next_o_idx = monst_list[k + 1];
+                if(k + 1 >= num) o_list[monst_list[k - 1]].next_o_idx = 0;
+                if(k == 0) m_ptr->hold_o_idx = monst_list[k + 1];
+                if(num == 1) m_ptr->hold_o_idx = 0;
+
+                /* Rogues gain some xp */
+                if(p_ptr->pclass == CLASS_ROGUE)
+                {
+                        gain_exp((randint((o_list[item].weight / 2) + (r_info[m_ptr->r_idx].level * 10)) / 2) + (((o_list[item].weight / 2) + (r_info[m_ptr->r_idx].level * 10)) / 2));
+                }
+
+                /* Get the item */
+                o_ptr = &forge;
+
+                /* Special handling for gold */
+                if(o_list[item].tval == TV_GOLD)
+                {
+                        /* Collect the gold */
+                        p_ptr->au += o_list[item].pval;
+  
+                        /* Redraw gold */
+                        p_ptr->redraw |= (PR_GOLD);
+  
+                        /* Window stuff */
+                        p_ptr->window |= (PW_PLAYER);
+                }
+                else
+                {
+                        object_copy(o_ptr, &o_list[item]);
+
+                        inven_carry(o_ptr, FALSE);
+                }
+
+                /* Delete it */
+                o_list[item].k_idx = 0;
+        }
+
+        screen_load();
+
+	/* Take a turn */
+	energy_use = 100;
+}
+

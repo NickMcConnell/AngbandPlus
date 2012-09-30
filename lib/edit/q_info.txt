@@ -9,14 +9,6 @@
 ?:[EQU $QUEST_NUMBER 1]
 %:q0000001.txt
 
-# Troll Fortress
-?:[EQU $QUEST_NUMBER 2]
-%:q00troll.txt
-
-# Battle of the five army
-?:[EQU $QUEST_NUMBER 3]
-%:q005army.txt
-
 # Shelob
 ?:[EQU $QUEST_NUMBER 6]
 %:q_shelob.txt
@@ -33,13 +25,17 @@
 ?:[EQU $QUEST_NUMBER 10]
 %:q000sorc.txt
 
-# Node of Chaos
+# Orc Infestation
 ?:[EQU $QUEST_NUMBER 11]
-%:q000chao.txt
+%:q_lor1.txt
 
-# Node of Nature
+# Spiders of Mirkwood
 ?:[EQU $QUEST_NUMBER 12]
-%:q000natu.txt
+%:q_lor2.txt
+
+# Battle of the five army
+?:[EQU $QUEST_NUMBER 13]
+%:q005army.txt
 
 # Warg problem
 ?:[EQU $QUEST_NUMBER 14]

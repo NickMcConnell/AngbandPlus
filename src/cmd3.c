@@ -479,12 +479,12 @@ void do_cmd_drop(void)
     p_ptr->redraw |= (PR_EQUIPPY);
 }
 
-
+//
 static bool high_level_book(object_type * o_ptr)
 {
-    if ((o_ptr->tval == TV_LIFE_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
-        (o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
-        (o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_TRUMP_BOOK)  ||
+    if ((o_ptr->tval == TV_VALARIN_BOOK) || (o_ptr->tval == TV_MAGERY_BOOK) ||
+        (o_ptr->tval == TV_SHADOW_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
+        (o_ptr->tval == TV_NETHER_BOOK) || (o_ptr->tval == TV_CRUSADE_BOOK)  ||
         (o_ptr->tval == TV_SYMBIOTIC_BOOK) || (o_ptr->tval == TV_MUSIC_BOOK))
         {
             if (o_ptr->sval>1) return TRUE;
@@ -610,13 +610,13 @@ void do_cmd_destroy(void)
 		}
         else if (p_ptr->pclass == CLASS_PALADIN)
         {
-            if (p_ptr->realm1 == REALM_LIFE)
+            if (p_ptr->realm1 == REALM_VALARIN)
             {
-                if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
+                if (o_ptr->tval != TV_VALARIN_BOOK) gain_expr = TRUE;
             }
             else
             {
-                if (o_ptr->tval == TV_LIFE_BOOK) gain_expr = TRUE;
+                if (o_ptr->tval == TV_VALARIN_BOOK) gain_expr = TRUE;
             }
         }
 
@@ -1840,3 +1840,53 @@ bool research_mon()
 	cheat_know = oldcheat;
 	return(notpicked);
 }
+
+/*
+ * Try to "sense" the grid's mana
+ */
+void do_cmd_sense_grid_mana()
+{
+        int chance, i;
+
+        /* Take (a lot of) time */
+        energy_use = 200;
+
+        /* Base chance of success */
+        chance = p_ptr->skill_dev;
+
+        /* Confusion hurts skill */
+        if (p_ptr->confused) chance = chance / 2;
+
+        /* Hight mana grids are harder */
+        chance = chance - (cave[py][px].mana / 10);
+
+        /* Give everyone a (slight) chance */
+        if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+        {
+                chance = USE_DEVICE;
+        }
+
+        /* Roll for usage */
+        if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+        {
+                if (flush_failure) flush();
+                msg_print("You failed to use the sense the grid's mana.");
+                sound(SOUND_FAIL);
+                return;
+        }
+
+        /* Try to give an "average" value */
+        i = (101 - p_ptr->skill_dev) / 2;
+        i = (i < 1)?1:(i > 50)?50:i;
+
+        if(wizard)
+        {
+                msg_format("Grid's mana: %d\n", cave[py][px].mana);
+                msg_format("Average grid's mana: %d\n", (cave[py][px].mana / i) * i);
+        }
+        else
+        {
+                msg_format("Average grid's mana: %d\n", (cave[py][px].mana / i) * i);
+        }
+}
+

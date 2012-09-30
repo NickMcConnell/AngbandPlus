@@ -4,7 +4,7 @@
 Q:25:N:The Rise and Fall of Micro$oft
 
 # type:num_mon:cur_num:max_num:level:r_idx:k_idx
-Q:25:Q:1:0:0:1:50:732:0
+Q:25:Q:1:0:0:1:50:732:0:2
 
 
 # Description for quest

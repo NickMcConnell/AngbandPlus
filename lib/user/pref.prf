@@ -59,10 +59,6 @@ C:0:^K
 A:Q
 C:0:^C
 
-# Hack -- swap equipment
-A:w0
-C:0:X
-
 
 ##### Roguelike Keyset Mappings #####
 
@@ -229,6 +225,14 @@ C:1:^O
 # Pet commands
 A:P
 C:1:X
+
+# Engrave
+A:x
+C:1:]
+
+# Steal
+A:Z
+C:1:[
 
 
 ##### System Specific Subfiles #####

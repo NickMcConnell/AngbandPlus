@@ -248,7 +248,7 @@
  * OPTION: Delay the loading of the "a_text" array until it is actually
  * needed, saving ~1K, since "artifact" descriptions are unused.
  */
-#define DELAY_LOAD_A_TEXT
+/* #define DELAY_LOAD_A_TEXT */
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
@@ -462,7 +462,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER      "dark.god@infonie.fr"
 
 
 /*
@@ -532,7 +532,7 @@
 # define VERIFY_TIMESTAMPS
 #endif
 
-/* Zangband options: */
+/* PernAngband options: */
 
 /* (see above) */
 #ifndef DRS_SMART_OPTIONS
@@ -565,7 +565,7 @@
 /* Wizard mode testing options: */
 
 /* For testing the vaults */
-/* # define FORCE_V_IDX */
+/* # define FORCE_V_IDX 106 */
 
 /* Testing upkeep */
 /* # define TRACK_FRIENDS */
@@ -592,7 +592,16 @@
 #define CHECK_MODIFICATION_TIME
 
 /*
- * Pet give exp to beastmaster
+ * Pet give exp to beastmaster and dragon users
  */
 #define PET_GAIN_EXP
 
+/*
+ * Using the fast autoroller can be considered as cheating
+ */
+/* #define USE_FAST_AUTOROLLER */
+
+/*
+ * Unallow the using of every race/class combinaison
+ */
+/* #define FORBID_BAD_COMBINAISON */

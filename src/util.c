@@ -3529,3 +3529,49 @@ void get_count(int number, int max)
 
 	prt("", 0, 0);
 }
+
+byte count_bits(u32b array)
+{
+        byte k = 0, i;        
+
+        if(array)
+                for(i = 0; i < 32; i++)
+                        if(array & (1 << i)) k++;
+
+        return k;
+}
+
+/* Return the lowered string */
+void strlower(char *buf)
+{
+        byte i = 0;
+
+        while((buf[i] != 0) && (i < 256))
+        {
+                if(isupper(buf[i])) buf[i] = tolower(buf[i]);
+
+                i++;
+        }
+}
+
+/*
+ * Given monster name as string, return the index in r_info array. Name
+ * must exactly match (look out for commas and the like!), or else 0 is 
+ * returned. Case doesn't matter. -GSN-
+ */
+
+int test_monster_name (cptr name)
+{
+       int i;
+       
+       /* Scan the monsters (except the ghost) */
+	for (i = 1; i < max_r_idx - 1; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		cptr mon_name = r_name + r_ptr->name;
+
+		/* If name matches, give us the number */
+		if (stricmp (name, mon_name) == 0) return (i);
+	}
+	return (0);
+}

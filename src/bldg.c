@@ -810,6 +810,14 @@ static void castle_quest(void)
 		put_str("Use CTRL-Q to check the status of your quest.",9,0);
 		put_str("Return when you have completed your quest.",12,0);
 	}
+	/* Failed quest */
+	else if (q_ptr->status == QUEST_STATUS_FAILED)
+	{
+		get_questinfo(q_index);
+
+		/* Mark quest as done (but failed) */
+		q_ptr->status = QUEST_STATUS_FAILED_DONE;
+	}
 	/* No quest yet */
 	else if (q_ptr->status == QUEST_STATUS_UNTAKEN)
 	{
@@ -1467,6 +1475,9 @@ static void sell_corpses(void) {
       msg_print(NULL);
       p_ptr->au += value;
 
+      /* Increase the number of collected bounties */
+      total_bounties++;
+
       inven_item_increase(item, -1);
       inven_item_describe(item);
       inven_item_optimize(item);
@@ -1839,7 +1850,7 @@ static void bldg_process_command(building_type *bldg, int i)
 			paid = TRUE;
 			break;
 		case BACT_TELEPORT_LEVEL:
-			amt = get_quantity("Teleport to which level? ", 98);
+                        amt = get_quantity("Teleport to which level? ", 98);
 			if (amt > 0)
 			{
                                 dungeon_type = calc_dungeon_type();
@@ -1904,6 +1915,8 @@ static void bldg_process_command(building_type *bldg, int i)
                 case BACT_DIVINATION:
                 {
                         int i, count = 0;
+                        bool something = FALSE;
+
                         while(count < 1000)
                         {
                                 count++;
@@ -1913,8 +1926,11 @@ static void bldg_process_command(building_type *bldg, int i)
                                 msg_print("You know a little more of your fate.");
 
                                 fates[i].know = TRUE;
+                                something = TRUE;
                                 break;
                         }
+
+                        if(!something) msg_print("Well, you have no fate, anyway I'll keep your money!");
 
                         paid = TRUE;
                         break;
@@ -1945,6 +1961,15 @@ void do_cmd_quest(void)
 		p_ptr->oldpx = 0;
 
 		leaving_quest = p_ptr->inside_quest;
+
+		/* Leaving an 'only once' quest marks it as failed */
+		if (leaving_quest &&
+			(quest[leaving_quest].flags & QUEST_FLAG_ONCE) &&
+			(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
+		{
+			quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		}
+
 		p_ptr->inside_quest = cave[py][px].special;
 		dun_level = 1;
 		p_ptr->leftbldg = TRUE;

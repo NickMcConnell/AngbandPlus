@@ -1,0 +1,80 @@
+# q_lor2.txt
+
+# Name
+Q:12:N:Spiders of Mirkwood
+
+# type:num_mon:cur_num:max_num:level:r_idx:k_idx
+Q:12:Q:6:0:0:0:25:0:0:2
+
+# Description for quest
+?:[LEQ $QUEST12 2]
+Q:12:T:Powers lurk deep within Mirkwood. Spiders have blocked the 
+Q:12:T:path through the forest, and Thranduil's folk have been 
+Q:12:T:unable to hold them off. It is your task to drive them 
+Q:12:T:away. Be careful -- many traps have been laid by their 
+Q:12:T:webs, and their venom is dangerous indeed.
+?:1
+
+# Description for quest reward
+?:[EQU $QUEST12 3]
+Q:12:T:All of us praise your mighty deed in driving back the 
+Q:12:T:menace. Another reward awaits you.
+?:1
+
+# Trees
+F:t:96:3
+
+# Grass with Giant spider
+F:a:89:8:175
+
+# Grass with Giant tarantula
+F:b:89:8:275
+
+# Grass with Mirkwood Spider
+F:c:89:8:277
+
+# Grass with Aranea
+F:d:89:8:963
+
+# Grass with Elder aranea
+F:e:89:8:964
+
+# Dungeon layout
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X<---tttttttttttttttttttttttttttttttttttttttttttttttttttttttX
+D:X---ttttttttttttttttttttttttttta--ctttttttttttttttttttttttttX
+D:Xtt---------------ttttttttttttt--tttttttttttttttttttttttttttX
+D:Xttttttttt--------------cttttttt--ttttttttttttttttttttttttttX
+D:Xtttttttttttttt--tttttt---------c--tttttttttttttttttttttttttX
+D:Xttttttttttttta-bttt---cttttttttttttttttttttttttttttttttttttX
+D:Xttttttttttttttttttttt---tttt-ttd--c-ttt---c---tttttttttttttX
+D:Xtttttttttttttttttttc---btttttttt-----ttc-----ttttttttttttttX
+D:Xtttttttttttttttttt----tttttttttc-c---------d---c-ctttttttttX
+D:Xtttttttttttttttttb-tttt---c---t----tttttt----------ctttttttX
+D:Xtttttttttttttttttt----ttttt-----c---tttttt-c--cttttttttttttX
+D:Xttttttttttttttttc--at----c---ttttttttttttttttttttttttttttttX
+D:Xttttttttttttta----ttttt-b--tttttttttd--etttttttttttttttttttX
+D:Xtttttttttttt---c--ttttt------tttt-c-tttttttte----dtttttttttX
+D:Xttttttttttttttttttt----c--d----tttt---ttttttt--d----ettttttX
+D:Xttttttttttttttttttttt-c-d---tttttttc--cttttttt-----ttttttttX
+D:Xttttttttttta-c--ttt-------tttt-------ttttt----d--ttttttttttX
+D:Xtttttttttttt----ttttt--ttt--c--c--t-----c--ttttttttttttttttX
+D:Xttttttttttt--c---ttt--c--c---ttttt--c----t----tttttttttttttX
+D:Xtttttttttt-c----c---t-----tttttttt-----ttt-------dtttttttttX
+D:Xttttttttttt---c---tttt--c--ttttttttt-ttttttttt-d---ttttttttX
+D:Xtttttttttttta-----tttttt---d---dttd----cttttt-----tttttttttX
+D:Xtttttttttttttttttttt---c-----ttttt---c----ettd--tttttttttttX
+D:Xtttttttttttttttt----d----tttttttttttttttttttttt---tttttttttX
+D:Xttttttt-------c---tttt-d----c--ettttttttttttd-----dttttttttX
+D:Xtttttc--c-c------tttttt-------------ettttttt----tttttttttttX
+D:Xttttttt------ttttttt--c---d---ttttttttttttt--d--tttttttttttX
+D:Xttttt----cc-tttttttttttte----d-ttttttttttttttt----tttttttttX
+D:Xttttt--c------ttttttttttttttttttttttttttte--tt------ettttttX
+D:Xttt--c----ctttttttttttttttttttttttttte------------tttttttttX
+D:Xtttttttttttttttttttttttttttttttttttttttttt--e--ttttttttttttX
+D:XtttttttttttttttttttttttttttttttttttttttttttttttttttttttttttX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Starting position
+P:1:1
+

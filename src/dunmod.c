@@ -90,6 +90,5 @@ void initdungeon(void)
         add_constant(d, "DUNGEON_GALGALS", DUNGEON_GALGALS);
         add_constant(d, "DUNGEON_VOLCANO", DUNGEON_VOLCANO);
         add_constant(d, "DUNGEON_HELL", DUNGEON_HELL);
-        add_constant(d, "MAX_DUNGEONS", MAX_DUNGEONS);
 }
 

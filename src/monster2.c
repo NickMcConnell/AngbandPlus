@@ -115,19 +115,6 @@ void delete_monster_idx(int i)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-        /* If it was impressed delete it from the to keep list */
-        if(m_ptr->impressed)
-        {
-                for(i=0;i<max_m_idx-1;i++)
-                {
-                        if(r_idx_to_keep[i]==m_ptr->r_idx)
-                        {
-                                r_idx_to_keep[i] = 0;
-                                break;
-                        }
-                }
-        }
-
 	/* Hack -- Reduce the racial counter */
 	r_ptr->cur_num--;
 
@@ -340,7 +327,6 @@ void compact_monsters(int size)
 	}
 }
 
-
 /*
  * Delete/Remove all the monsters when the player leaves the level
  *
@@ -479,7 +465,217 @@ errr get_mon_num_prep(void)
 	return (0);
 }
 
+/*
+ * Some dungeon types restrict the possible monsters.
+ * Return TRUE is the monster is OK and FALSE otherwise
+ */
+bool restrict_monster_to_dungeon(monster_race *r_ptr)
+{
+        dungeon_info_type *d_ptr = &d_info[dungeon_type];
+        byte a;
 
+        if(d_ptr->mode == DUNGEON_MODE_AND)
+        {
+                if (d_ptr->mflags1)
+		{
+                        if(!(d_ptr->mflags1 & r_ptr->flags1))
+                                return FALSE;
+		}
+                if (d_ptr->mflags2)
+		{
+                        if(!(d_ptr->mflags2 & r_ptr->flags2))
+                                return FALSE;
+		}
+                if (d_ptr->mflags3)
+		{
+                        if(!(d_ptr->mflags3 & r_ptr->flags3))
+                                return FALSE;
+		}
+                if (d_ptr->mflags4)
+		{
+                        if(!(d_ptr->mflags4 & r_ptr->flags4))
+                                return FALSE;
+		}
+                if (d_ptr->mflags5)
+		{
+                        if(!(d_ptr->mflags5 & r_ptr->flags5))
+                                return FALSE;
+		}
+                if (d_ptr->mflags6)
+		{
+                        if(!(d_ptr->mflags6 & r_ptr->flags6))
+                                return FALSE;
+		}
+                if (d_ptr->mflags7)
+		{
+                        if(!(d_ptr->mflags7 & r_ptr->flags7))
+                                return FALSE;
+		}
+                if (d_ptr->mflags8)
+		{
+                        if(!(d_ptr->mflags8 & r_ptr->flags8))
+                                return FALSE;
+		}
+                if (d_ptr->mflags9)
+		{
+                        if(!(d_ptr->mflags9 & r_ptr->flags9))
+                                return FALSE;
+		}
+                for(a = 0; a < 5; a++)
+                        if(d_ptr->r_char[a] && (d_ptr->r_char[a] != r_ptr->d_char)) return FALSE;
+        }
+        else if(d_ptr->mode == DUNGEON_MODE_NAND)
+        {
+                byte ok[9 + 5], i = 0, j = 0;
+
+                if (d_ptr->mflags1)
+		{
+                        i++;
+                        if(d_ptr->mflags1 & r_ptr->flags1)
+                                ok[0] = 1;
+		}
+                if (d_ptr->mflags2)
+		{
+                        i++;
+                        if(d_ptr->mflags2 & r_ptr->flags2)
+                                ok[1] = 1;
+		}
+                if (d_ptr->mflags3)
+		{
+                        i++;
+                        if(d_ptr->mflags3 & r_ptr->flags3)
+                                ok[2] = 1;
+		}
+                if (d_ptr->mflags4)
+		{
+                        i++;
+                        if(d_ptr->mflags4 & r_ptr->flags4)
+                                ok[3] = 1;
+		}
+                if (d_ptr->mflags5)
+		{
+                        i++;
+                        if(d_ptr->mflags5 & r_ptr->flags5)
+                                ok[4] = 1;
+		}
+                if (d_ptr->mflags6)
+		{
+                        i++;
+                        if(d_ptr->mflags6 & r_ptr->flags6)
+                                ok[5] = 1;
+		}
+                if (d_ptr->mflags7)
+		{
+                        i++;
+                        if(d_ptr->mflags7 & r_ptr->flags7)
+                                ok[6] = 1;
+		}
+                if (d_ptr->mflags8)
+		{
+                        i++;
+                        if(d_ptr->mflags8 & r_ptr->flags8)
+                                ok[7] = 1;
+		}
+                if (d_ptr->mflags9)
+		{
+                        i++;
+                        if(d_ptr->mflags9 & r_ptr->flags9)
+                                ok[8] = 1;
+		}
+
+                for(a = 0; a < 5; a++)
+                {
+                        if(d_ptr->r_char[a])
+                        {
+                                i++;
+                                if (d_ptr->r_char[a] != r_ptr->d_char) ok[9 + a] = 1;
+                        }
+                }
+
+                j = ok[0] + ok[1] + ok[2] + ok[3] + ok[4] + ok[5] + ok[6] + ok[7] + ok[8] + ok[9] + ok[10] + ok[11] + ok[12] + ok[13];
+
+                if(i == j) return FALSE;
+        }
+        else if(d_ptr->mode == DUNGEON_MODE_OR)
+        {
+                byte ok = FALSE, i;
+                s32b flag;
+
+                for(i = 0; i < 32; i++)
+                {
+                        flag = d_ptr->mflags1 & (1 << i);
+                        if(r_ptr->flags1 & flag) ok = TRUE;
+
+                        flag = d_ptr->mflags2 & (1 << i);
+                        if(r_ptr->flags2 & flag) ok = TRUE;
+
+                        flag = d_ptr->mflags3 & (1 << i);
+                        if(r_ptr->flags3 & flag) ok = TRUE;
+
+                        flag = d_ptr->mflags4 & (1 << i);
+                        if(r_ptr->flags4 & flag) ok = TRUE;
+
+                        flag = d_ptr->mflags5 & (1 << i);
+                        if(r_ptr->flags5 & flag) ok = TRUE;
+
+                        flag = d_ptr->mflags6 & (1 << i);
+                        if(r_ptr->flags6 & flag) ok = TRUE;
+
+                        flag = d_ptr->mflags7 & (1 << i);
+                        if(r_ptr->flags7 & flag) ok = TRUE;
+
+                        flag = d_ptr->mflags8 & (1 << i);
+                        if(r_ptr->flags8 & flag) ok = TRUE;
+
+                        flag = d_ptr->mflags9 & (1 << i);
+                        if(r_ptr->flags9 & flag) ok = TRUE;
+                }
+                for(a = 0; a < 5; a++)
+                        if(d_ptr->r_char[a] == r_ptr->d_char) ok = TRUE;
+
+                return ok;
+        }
+        else if(d_ptr->mode == DUNGEON_MODE_NOR)
+        {
+                byte ok = TRUE, i;
+                s32b flag;
+
+                for(i = 0; i < 32; i++)
+                {
+                        flag = d_ptr->mflags1 & (1 << i);
+                        if(r_ptr->flags1 & flag) ok = FALSE;
+
+                        flag = d_ptr->mflags2 & (1 << i);
+                        if(r_ptr->flags2 & flag) ok = FALSE;
+
+                        flag = d_ptr->mflags3 & (1 << i);
+                        if(r_ptr->flags3 & flag) ok = FALSE;
+
+                        flag = d_ptr->mflags4 & (1 << i);
+                        if(r_ptr->flags4 & flag) ok = FALSE;
+
+                        flag = d_ptr->mflags5 & (1 << i);
+                        if(r_ptr->flags5 & flag) ok = FALSE;
+
+                        flag = d_ptr->mflags6 & (1 << i);
+                        if(r_ptr->flags6 & flag) ok = FALSE;
+
+                        flag = d_ptr->mflags7 & (1 << i);
+                        if(r_ptr->flags7 & flag) ok = FALSE;
+
+                        flag = d_ptr->mflags8 & (1 << i);
+                        if(r_ptr->flags8 & flag) ok = FALSE;
+
+                        flag = d_ptr->mflags9 & (1 << i);
+                        if(r_ptr->flags9 & flag) ok = FALSE;
+                }
+                for(a = 0; a < 5; a++)
+                        if(d_ptr->r_char[a] == r_ptr->d_char) ok = FALSE;
+                return ok;
+        }
+
+        return TRUE;
+}
 
 /*
  * Choose a monster race that seems "appropriate" to the given level
@@ -577,6 +773,15 @@ s16b get_mon_num(int level)
 		{
 			continue;
 		}
+
+                /* Depth Monsters never appear out of their depth */
+                if ((r_ptr->flags9 & (RF9_ONLY_DEPTH)) && (r_ptr->level != dun_level))
+		{
+			continue;
+		}
+
+                /* Some dungeon types restrict the possible monsters */
+                if(!restrict_monster_to_dungeon(r_ptr) && dun_level) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -1503,9 +1708,21 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
 
+        /* Don't allow undefined ghosts */
+        if ((r_idx >= GHOST_R_IDX_HEAD)&&(r_idx <= GHOST_R_IDX_TAIL))
+                if(ghost_file[r_idx - GHOST_R_IDX_HEAD][0] == 0)
+                        return FALSE;
+
 	if (!monster_can_cross_terrain(cave[y][x].feat, r_ptr))
 	{
 		return FALSE;
+	}
+
+	/* Hack -- "unique" monsters must be "unique" */
+        if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->max_num == -1))
+	{
+		/* Cannot create */
+		return (FALSE);
 	}
 
 	/* Hack -- "unique" monsters must be "unique" */
@@ -1559,7 +1776,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	c_ptr = &cave[y][x];
 
 	/* Make a new monster */
-	c_ptr->m_idx = m_pop();
+        c_ptr->m_idx = m_pop();
 	hack_m_idx_ii = c_ptr->m_idx;
 
 	/* Mega-Hack -- catch "failure" */
@@ -1582,6 +1799,9 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	m_ptr->confused = 0;
 	m_ptr->monfear = 0;
 
+        /* No objects yet */
+        m_ptr->hold_o_idx = 0;
+
 	/* Friendly? */
         if ( charm || (r_ptr->flags7 & RF7_PET) )
 	{
@@ -1598,6 +1818,99 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		m_ptr->csleep = ((val * 2) + randint(val * 10));
 	}
 
+        /* Generate the monster's inventory(if any) */
+        {
+                bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
+                bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
+
+                bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
+                bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+
+                int j;
+
+                int force_coin = get_coin_type(r_ptr);
+
+                int dump_item = 0;
+                int dump_gold = 0;
+                object_type forge;
+                object_type *q_ptr;
+
+                int number = 0;
+
+                /* Average dungeon and monster levels */
+                object_level = (dun_level + r_ptr->level) / 2;
+
+                /* Determine how much we can drop */
+                if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
+                if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
+                if  (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
+                if  (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
+                if  (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
+                if  (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+
+                /* Hack -- handle creeping coins */
+                coin_type = force_coin;
+
+                /* Drop some objects */
+                for (j = 0; j < number; j++)
+                {
+                        int o_idx;
+                        object_type *o_ptr;
+
+                        /* Get local object */
+                        q_ptr = &forge;
+
+                        /* Wipe the object */
+                        object_wipe(q_ptr);
+
+                        /* Make Gold */
+                        if (do_gold && (!do_item || (rand_int(100) < 50)))
+                        {
+                                /* Make some gold */
+                                if (!make_gold(q_ptr)) continue;
+
+                                /* XXX XXX XXX */
+                                dump_gold++;
+                        }
+
+                        /* Make Object */
+                        else
+                        {
+                                /* Make an object */
+                                if (!make_object(q_ptr, good, great)) continue;
+
+                                /* XXX XXX XXX */
+                                dump_item++;
+                        }
+
+                        /* Get new object */
+                        o_idx = o_pop();
+
+                        if(o_idx)
+                        {
+                                /* Get the item */
+                                o_ptr = &o_list[o_idx];
+
+                                /* Structure copy */
+                                object_copy(o_ptr, q_ptr);
+
+                                /* Build a stack */
+                                o_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+                                o_ptr->held_m_idx = c_ptr->m_idx;
+                                o_ptr->ix = 0;
+                                o_ptr->iy = 0;
+
+                                m_ptr->hold_o_idx = o_idx;
+                        }
+                }
+
+                /* Reset the object level */
+                object_level = dun_level;
+
+                /* Reset "coin" type */
+                coin_type = 0;
+        }
 
 	/* Unknown distance */
 	m_ptr->cdis = 0;
@@ -1807,6 +2120,100 @@ s16b place_monster_one_return(int y, int x, int r_idx, bool slp, bool charm)
 		int val = r_ptr->sleep;
 		m_ptr->csleep = ((val * 2) + randint(val * 10));
 	}
+
+        /* Generate the monster's inventory(if any) */
+        {
+                bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
+                bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
+
+                bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
+                bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
+
+                int j;
+
+                int force_coin = get_coin_type(r_ptr);
+
+                int dump_item = 0;
+                int dump_gold = 0;
+                object_type forge;
+                object_type *q_ptr;
+
+                int number = 0;
+
+                /* Average dungeon and monster levels */
+                object_level = (dun_level + r_ptr->level) / 2;
+
+                /* Determine how much we can drop */
+                if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
+                if ((r_ptr->flags1 & (RF1_DROP_90)) && (rand_int(100) < 90)) number++;
+                if  (r_ptr->flags1 & (RF1_DROP_1D2)) number += damroll(1, 2);
+                if  (r_ptr->flags1 & (RF1_DROP_2D2)) number += damroll(2, 2);
+                if  (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
+                if  (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
+
+                /* Hack -- handle creeping coins */
+                coin_type = force_coin;
+
+                /* Drop some objects */
+                for (j = 0; j < number; j++)
+                {
+                        int o_idx;
+                        object_type *o_ptr;
+
+                        /* Get local object */
+                        q_ptr = &forge;
+
+                        /* Wipe the object */
+                        object_wipe(q_ptr);
+
+                        /* Make Gold */
+                        if (do_gold && (!do_item || (rand_int(100) < 50)))
+                        {
+                                /* Make some gold */
+                                if (!make_gold(q_ptr)) continue;
+
+                                /* XXX XXX XXX */
+                                dump_gold++;
+                        }
+
+                        /* Make Object */
+                        else
+                        {
+                                /* Make an object */
+                                if (!make_object(q_ptr, good, great)) continue;
+
+                                /* XXX XXX XXX */
+                                dump_item++;
+                        }
+
+                        /* Get new object */
+                        o_idx = o_pop();
+
+                        if(o_idx)
+                        {
+                                /* Get the item */
+                                o_ptr = &o_list[o_idx];
+
+                                /* Structure copy */
+                                object_copy(o_ptr, q_ptr);
+
+                                /* Build a stack */
+                                o_ptr->next_o_idx = m_ptr->hold_o_idx;
+
+                                o_ptr->held_m_idx = c_ptr->m_idx;
+                                o_ptr->ix = 0;
+                                o_ptr->iy = 0;
+
+                                m_ptr->hold_o_idx = o_idx;
+                        }
+                }
+
+                /* Reset the object level */
+                object_level = dun_level;
+
+                /* Reset "coin" type */
+                coin_type = 0;
+        }
 
 
 	/* Unknown distance */
@@ -2441,6 +2848,12 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+                case SUMMON_GHOST:
+		{
+                        okay = (r_ptr->d_char == 'G');
+			break;
+		}
+
 		case SUMMON_UNIQUE:
 		{
 			okay = (r_ptr->flags1 & (RF1_UNIQUE)) ? TRUE : FALSE;
@@ -2608,6 +3021,13 @@ static bool summon_specific_okay(int r_idx)
 			        !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
+
+		case SUMMON_SHADOWS:
+		{
+			okay = ((r_ptr->d_char == 'G') &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
 	}
 
 	/* Result */
@@ -2709,7 +3129,7 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	if (!r_idx) return (FALSE);
 
 
-	if (type == SUMMON_DAWN)
+        if ((type == SUMMON_DAWN) || (type == SUMMON_BLUE_HORROR))
 	{
 		Group_ok = FALSE;
 	}

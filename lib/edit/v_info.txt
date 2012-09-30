@@ -1798,9 +1798,47 @@ D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+# key to below
+# X:type:rating:height:width
+# type must be 99 for a special level
+# Y:mon1:mon2:mon3:mon4:mon5:mon6:mon7:mon8:mon9:mon10:item1:item2:item3:lvl:dungeon
+# mon1-10 refers to monster numbers in file r_info.txt
+# item1-3 refers to artifact numbers in file a_info.txt if the number if below 1000
+# otherwise it refers to the numbers (item - 1000) in k_info.txt file
+# D:text representation of dungeon
+#
+# X - undiggable wall
+# # - diggable wall
+# + - secret door
+# D - normal door
+# . - floor
+# P - player position
+# T - Trees
+# M - Mountain
+# l - Shallow lava
+# L - Deep lava
+# w - Shallow water
+# W - Deep water
+# G - Glass wall
+# I - Illusion wall
+# & - 5 levels out of depth monster
+# @ - 11 levels out of depth monster
+# 8 - 9 levels out of depth monster + 7 levels out of depth object
+# 9 - 40 levels out of depth monster + 20 levels out of depth monster
+# , - 50% 3 levels out of depth monster, 50% 7 levels out of depth object
+#
+# 4,5,6,7,A,B,C,E,F,0 are the between gates, you MUST put the numbr to time to have
+# a correct network of between gate ! Otherwise bugs and crash will surely
+# happens, you've been warmed.
+#
+# a,b,c,d,e,f,g,h,i,j - monsters referring to Y: stats mon1-mon10
+# 1,2,3 - artifacts referring to y: stats item1-item3
+# only 1 (one) stairs up or down per special level
+# this is where the player will start
+
 N:80:Deathwatch
 X:99:110:52:127
-Y:118:126:149:162:244:264:285:140:186:215:28:72:53:21
+Y:118:126:149:162:244:264:285:140:186:215:28:72:53:21:1
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X XXXXXXXXXXXX                                                                                                                X
 D:X X..........X        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                                 X
@@ -1843,7 +1881,7 @@ D:X     X.X                X..d...e......d.XXXXXXXXXXX      XXXXXXXXXXXX        
 D:X     X.X                X....e..g.......D.........X      X.d..gg..eeX             XXX.....XX                        X.X      X
 D:X     X.X         XXXXX  X..g..d.....e...XXXXXXXXDDXXXXXXXX....gg..eeXXXXX        XX...XXX..XXX                 XXXXXXDXX     X
 D:X     X.X         XeeeX  XDXXXXXXXXXXXXXXX  Xg.d.......D.e..e..gg..eej+3+%       XX....XXX....XXXXXX          XXX...D..aX     X
-D:X     X.X         XegX  XX.XX               X....e....eD.e.....gg..eedXXX%       X.............X...X          XaD...X...X     X
+D:X     X.X         Xeg.X XX.XX               X....e....eD.e.....gg..eedXXX%       X.............X...X          XaD...X...X     X
 D:X  XXXX.XXX       XX+XXXX...X               X.d........XXXX....gg..eeXX  % XXXXX XXXXXXXXXXXX..D...X          XXX..aX...X     X
 D:X  X......X        XX.......X            XXXX...e...d..XXXX...dgg..eeX   % X...X     XX.....D..XXXXXX           XXXXXXXDXX    X
 D:X  X......X         X.g.....XXXXXX       X..D....g..e..Dd.XXXXXXXXXXXX   % XXXDXX    X......X..X....X                X...X    X
@@ -1854,27 +1892,9 @@ D:X    X........%........X                                                 %+%%.
 D:X    XXXXXXXXXXXXXXXXXXX                                                    XXXXXX..........X..X.....XXX      XXXXXXXXXXXXXXX X
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-# key to below
-# X:type:rating:height:width
-# type must be 99 for a special level
-# Y:mon1:mon2:mon3:mon4:mon5:mon6:mon7:mon8:mon9:mon10:item1:item2:item3:lvl
-# mon1-10 refers to monster numbers in file r_info.txt
-# item1-3 refers to artifact numbers in file a_info.txt
-# D:text representation of dungeon
-# X - undiggable wall
-# # - diggable wall
-# + - secret door
-# D - normal door
-# . - floor
-# P - player position
-# a,b,c,d,e,f,g,h,i,j - monsters referring to Y: stats mon1-mon10
-# 1,2,3 - artifacts referring to y: stats item1-item3
-# only 1 (one) stairs up or down per special level
-# this is where the player will start
-
 N:81:Treasure Room
 X:99:110:21:72
-Y:85:117:195:239:423:0:0:0:0:0:15:0:0:15
+Y:85:117:195:239:423:0:0:0:0:0:15:0:0:15:1
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 D:X                                                        XXXXXXXXXXXXXXX
 D:X     XXXXXXXXXXXXX                                      X....e....d...X
@@ -2334,3 +2354,206 @@ D:%X.@.@.@.@.@.@.@.@.@.@.@.@.@.X%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+# Between vaults from weisiger
+N:105:The Between Vault
+X:8:15:6:25
+D:XXXXXXXXXXXXXXXXXXXXXXXXX
+D:#,,,,,X&...@X..**&X....9X
+D:#...&1X.,,,2X..**&X3...9X
+D:#...&.X1,,,.X2.**3X....9X
+D:#,,,,,X&...@X..**&X....9X
+D:XXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:106:Greater Vault (Mix&Match)
+X:8:35:28:73
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.......................................................................%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.X1.^^^^*&XX,,,9,,,XX...X...X...X&..X@..X@.8X7X8#X8#X8#X8#X8#X8#X8#.7X.%
+D:%.X..^^^*,XX@&@&@&@&X.X...X...X..#X&..X&..X@.#XXX#8XX8XX8XX8XX8XX8XXXXX.%
+D:%.X^^^^*,XXXX.......X6.X...X...X.#.X&..X@..X@.8X8XXXXXXXXXXXXXXXXXX88XX.%
+D:%.X^^^*,XX&&XX.....XXXXXXXX.X...X#..X&.#X&..X@.XX#9#9#9#9X88XX^^XX#8XXX.%
+D:%.X^^*,X#^^^^XX^XXX.X***&@XXXX...X...X&#.X@..X@X8X9X9X9X9X8#X^^XX8#X#8X.%
+D:%.X^*,XX^^^^^^XX^XX5X***@&,,XXX...X...X#..X&..XX#X#X#X#X#XXX^^XX##XX88X.%
+D:%.X*,XX........XX^XXX***&@,,,,XXX..X..#X&..X@..X8X8X8X8X8XX^^XX88XXXXXX.%
+D:%.X&XX..........XX^XX***@&,,,,#.XXX.X.#.X&..X&.X#X#X#X#X#X^^X#8XXXX,#.X.%
+D:%.XXX************XX6X@&@&@,,,,#...XXXX#..X&.#X@X8X8X8X8X8#XXXXXX,,,,#.X.%
+D:%.XX&,&,&,&,&,&,&,XXXX@&@&,,,,#.....XXX...X&#.XX8X8X8X8X8XXXX,,,,,,,#.X.%
+D:%.XX#************XX.^#X,,,,,,,#.......XXXXXXXXXX8X8X8XXXXX@&#,,,,,,XX#X.%
+D:%.X^XX..........XXX.XXXX,,,,,,#................X8XXXXX&&#&@&#,,XXXXX#.X.%
+D:%.X.XXX........XX3X^X99XXXXXXXXXXXXXXX#XXXXXXX.XXXX,#&&&#&@&XXXX,#^X#.X.%
+D:%.X.XXXX......XXX.X.X@@,,,,,,,,,,,,X1X.......X.X,,,,#&&&#XXXX,,,,#^X.#X.%
+D:%.X^XXXXX....XXXX.^.XXXXXXXXXXXXXX*X^X+XXXXX.X.X,,,,#&&XXX##9,,,,#^X.#X.%
+D:%.X.X^^.XX@@XXXXXXXXX9@&,,,,,,,,,X*X.X^^&,,X.X.X#####XXX#9@##@,,,#^X#.X.%
+D:%.X.X^X.XXXXX^^^XXXXXXXXXXXXXXXX,X*X.X^^^,,X.X.X&&&XXX@8##&@##@,,#^X#.X.%
+D:%.X^X.X2XXXX3^^^XXX.^..^..^..^.X,X*X^X&^^^&X.X.X##XX5.@89##9@##&,#^#.#X.%
+D:%.X.X^XXXXXXXXX^^XX.XXXXXXXXXX.X,X*X.X..^^^X.X.X^XXXXXXXXXXXXXXXXXXXXXX.%
+D:%.X.X^^.^..^..X^^^X.^..^..^.4X^X,X*X.X2.&^^+.+.X.^.^.^.^.^.^.^.^.^.^.4X.%
+D:%.X^XXXXXXXXX^X^^^XXXXXXXXXXXX#X#X#X^XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.X..^..^..^..X^^^#................X..^..^..^..^..^..^..^..^..^..^..^.+.%
+D:%.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.%
+D:%.......................................................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# Wilderness vault test
+N:107:The Wilderness Vault
+X:10:1:3:7
+D:XXXXXXX
+D:T,,,,8X
+D:XXXXXXX
+
+N:108:The Dimensional Gates
+X:99:100:57:70
+Y:342:727:759:633:801:802:756:795:0:0:10:0:0:85:3
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X*****...@#...aX.X9@********######X9.ww....Xd.............A^^.......dX
+D:X*****...@#...aX.X@@********######X.wwww.X.XX.............B^^........X
+D:X*****...@#...aX.X99*XXX****##88##XwwWWwwX..XX.............^^.......9X
+D:X*****...@#...aX.X@@XXdXX***##88##XwwWWwwX...XX............^^.......CX
+D:X*****...@#...aX.X@XX...XX**######X.wwww.X.X..XX..........5^^........X
+D:X........@#...aX.XXX.....XX*######X9.ww..X.XX..XX.........F^^.......dX
+D:X#X......@#...aX.X........XIXXXXXXXXXXX..X..XX..XXXXIXXXXXXXXXXXXXXXXX
+D:X.XXX....@#...aX.X..........XXX..>X...X..X...XX..XXXaXaXaXaXaXaXaXaXaX
+D:X...XXX..@#...aI.X..........XXX7..XP..D..X.X..XX..XX.................X
+D:X.....XXX@#...aX.X..........XXXXXXXXXXX..X.XX..XX..XX................X
+D:X.......XXX...aX.X..........XXXXXXXaG....X..XX..XX..XX...............X
+D:X..X......XXX.XX#XX^^^^^X...XXXXXXXaG....X...XX..XX..XX..............X
+D:X^^XX.......XXX***X^^^^^X...XIIII7XXXXXXXXXX..XX..XX..XXXXXXXXXXXX+X8X
+D:X^^XX.........X.6.X^^^^^X...XIXXXXX&&&&&&&&XX..XX..XX...........cX.XXX
+D:X..XXX........X***X^^^^^X...XIXXXXX.........XX..XX..XXXXXXXXXXXXXX..XX
+D:X^^X8X........XXXXX^^^^^X...XIIIIIXwww.......XX..XX.............bXX..X
+D:X..X8XX................XX...XXXXXIXwwww.......XX..XXXXXXXXXXXXXXXXXX+X
+D:X^^X88X................XX...XIIIIIXwwwwww..@...XX.^^^^^^^^^^^^^a.....X
+D:X^^X99XX...............XX...XIXXXXX4..wwww......XXXXXXXXXXXXXXXXXXXXXX
+D:X..X999X...............XX...XIXXXXXXXXX.wwww....***********.........bX
+D:X^^XIIIXX..............XX...XIX...5..fX...wwwww.@....................X
+D:X..X....X........d.....XX...XIXf......X...wwwwwww...............@....X
+D:X^^X....XX............XXX...XIXXXXXXXXX.......wwwwwww................X
+D:X^^X&&&&&X............XXX...XIIIIIXe...........wwwwwwwwwwww..........X
+D:X..X###.#XX..........XXX....XXXXXIX.............@wwwwwwwwwwww@.......X
+D:X^^X88#.#8X.........XXX.....XXXXXIX...................wwwwwwwwww.....X
+D:X..X###.##XX........XX......XXXXXIX@.....................wwwwwwwwwwwwX
+D:X^^X......cX......XXXX......XXXXXIX........@..........@....wwwwwwwwwwX
+D:X^^^......cXX888XXXXX......dIIIIIIX.........................b.www...6X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXgLLLLLgXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXLLLLXXLLLLLLXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXgLLLLLXXXXXgLLLLLLLXXgXXXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXLLLLgXXXXXXXXXXXXXXLLLLLLLXXXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXXXXXgXXXLLLgXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXLgXXXXXXXXXXXXXXXXXXXXXXXXLLLLXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXfXXXXXXXXLXXXXXXXXXXXXXXXXXXXXXXXXXgLLLLXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX.XXXXXXXghgXXXXbXXXXXXXXaXXXXXXXXXXXXXXLLLLgXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX.XXXXXXXg1gXXXX.XXXXXXXX.XXXXXXXXXXXXXXXXgLLXXXXXXX
+D:XXXXXXXXXXXXXXXXXXX^XXXXXXXXXXXXXX^XXXXXXXX^XXXXXXXXXXXXXXXXXXLXXXXXXX
+D:XXXXXXXXXXXXXXX4..^^^..^^^.......^^^......^^^.........EXXXXXXXLXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXX^XXXXXXXXX^XXXXXXXX^XXXXXXXXXXXXXXXXXLLXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXX.XXXXXXXX.XXXXXXXXXXXXXXXXLLLXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXcXXXXXXXXaXXXXXXXXXXXXXXXLLXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXeXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXgLLLXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXLLLXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXLLXgXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXLLXXXXXXXXXXXXXXX
+D:X...dXXXXXXXXXXe..OXXXXXXXXXXXXXXX5..EXXXXXXXXXXXXXXLLXXXXXXXXXXXcc..X
+D:X...dXXXXXXXXXX....XXXXXXXXXXXXXXX....XXXXXXXXXXXXXX.XXXXXXXXXXXX....X
+D:XA...XXXXXXXXXXF..eXXXXXXXXXXXXXXXC...XXXXXXXXXXXXXXOXXXXXXXXXXXX...BX
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:109:The Nameless Level :)
+X:99:100:44:44
+Y:728:589:549:601:624:675:756:790:741:793:16:0:0:95:3
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:X.....LLLLLLLLL.....XXX.G,,&&,,G^.........>X
+D:X.LLL...........LLLXX...G,,&.,,G^........1.X
+D:X.L9L.LLLLLLLLLLLLX#...EGE.,&.FG^..........X
+D:X.L99.L&..........X#....G..&,..G^....j.....X
+D:X.LLLLL&LLLLLLLLL.LXX...G,,,&,,G^..........X
+D:X....&&&L.......L.L*XXX.G,,&&,,G^^^^^^^^^^^X
+D:XLLLLLLLL.LLLLL..&L**XXXXXXXGGGG#XXXXXXXXXXX
+D:XXXXXXLL..L***LLLLLLLX^^^^8Xi....#@@^^.^^@@X
+D:X5..8X.&.XXXXXX......D^^^^8XIIIIIXbb^^.^^ccX
+D:X...8X...XA...X.LLLLLX^^^^8X.....X..^^.^^..X
+D:X...8X.XXXC...X.LL...XXXIXXX^^^^^X..^^.^^..X
+D:XGXXXX.LfX7...X&LL.L.Xa^^^aXf...fX..^^.^^..X
+D:X.X5XL.L*XB...X&&..L.X^b^b^X^^^^^X..^^.^^..X
+D:X.X^XL.L*XXXXXXLLLLL.X^^7^^X.....X..^^.^^..X
+D:X.X^XL.L***fXL.....&&X^b^b^XIIIIIX..^^.^^..X
+D:X.X^XL.LLLLLXL.LLLLLLXa^^^aXi....X..^^.^^..X
+D:X.X^XL.........XXXXXXXXX#XXXXXXXXX..^^.^^..X
+D:X.X^XXXXXXXXXXLX^...^Xe,^,dX^^..&X..^^.^^..X
+D:X.X^^^^^^^^^^XLX.^^^.X,^^^,X^^..&X..^^.^^..X
+D:X.XXXXXXXXXX^X8Xf^B^.#^^6^^#^^C.&X..^^.^^..X
+D:X.LLLLLLLLL+^XXX.^^^.X,^^^,X^^..&X..^^.^^..X
+D:X.XXXXXXXXXXXXXX^...^Xd,^,eX^^..&X..^^.^^..X
+D:X.Xbbbbb......XXXXXXXXXX#XXXXXXXXX..^^.^^..X
+D:X.XbbbbXXXX^^^^XX....X^^^^^X...h.X..^^.^^..X
+D:X.XbbbXX^^XXX^^^XX...X^ccc^X....0X..^^.^^..X
+D:X.XbbXX.^X#bXX^^^XX..X^.A.^X.....X..^^0^^..X
+D:X.IbXX..XXbbbXX^^^XX.X^ccc^XIXXXXXXXXXXXXXXX
+D:X.XXX..XX.....X#^^^XXX^^^^^XlllllllllllllllX
+D:X.X99.XXW......XX^^^XXXXXXXXlllllllllllllllX
+D:X.X99XXWWW...a..XX^^.XXllllllLLLLLlXXXX#XXXX
+D:X.XXXX..WWW.....cXX^.XXXXXlllllllllXwwwwwwwX
+D:X.X8.....WWW....ccX^.X^^^XLLLlLLLLLXwwwwwwwX
+D:X.X#XXXXXXXWW...cXXX.X+X^XlllllllllXw#####wX
+D:X.X.......XWWW..X#^X.XLX^XlLLLLLLLLXw#8^8#wX
+D:X.XXXXXX#.X.WWWXX^^X.XLX^XlllllllllXw#^a^#wX
+D:X.X.IIIIX.X..WXX..XXcXLX^XLLLlLLLLlXw#^^^#wX
+D:X.X#XXXIX.X..XX..XXccXLX^XlglllLgllXw#^^^#wX
+D:X.Xa.6XIX.X.XX..XXcccXLX^XlllllXXXXXw#^a^#wX
+D:X+XXX.XIX.X.X99XXccccXLX^XXXXXXX888Xw#8^8#wX
+D:X###Xa#.X.#8X99XcccccXLX^^^^^^4X...Xw#####wX
+D:X#P#XXXXXXXXXXXXIXXXXXLXXXXXXXXX...XwwwwwwwX
+D:X<##+..........................G..4X...F...X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+N:110:Forgotten Crypt (left to artifact (B), right to exit (C))
+X:99:100:43:55
+Y:432:418:633:520:623:802:327:664:755:798:49:0:0:70:3
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XA.#@,,,,X8XX6...XX.XXLLL..c..LLLXX.XX...7XX8X,,,,...5X
+D:X.##@,,,,X99X.....X..XLL..X#X..LLX..Xhww..X99X,,,,..GGX
+D:X##@@...XXX9XX....XX.XX...X.X...XX.XXwwwwXX9XXX,,,.XGGX
+D:X@@@....X8X,,XgggggX..X..dX4Xd..X..XWWWWWX,,X8X,,,.XGGX
+D:X......XX#XX,XXgddgXX.XX8GXXXG8XX.XXWWWWXX,XX#XX...XGGX
+D:XIXIXXIX*X,X,,XgddggX..X8G^.^G8X..XWWWWWX,,X.X.X&&&XGGX
+D:XXXIXIXX*X,XX,XXggggXX.XXG^.^GXX.XXWWWWXX,XX.X.XX&&XGGX
+D:XXXXXIX**X,,X,,XIIXXXX..XG^.^GX..XwWWWwX,,XX.XddX@@XGGX
+D:X^^^^XX**X,,XX,XXIXIIXX.XX^.^XX.XXwwwwXX,XX#.XedXX@XGGX
+D:X^^f^Xe**X##.X,,XXIXXIXbbX^.^XbbX.ww.XX,,XbX.XXXIX@IIGX
+D:X^^^XXe..X...XX,,XXXIXXXbXX.XXbXX...XX,,XXbX.XaaaXXXIGX
+D:X^^XXbbb.XGGG.XX,,XXIIXXbbXDXbbX...XX,,XXbbX.XaaaaXXIGX
+D:X^XXcbab.XwdG.cXX,,XXXIXXabXbaXX.XXX,,XXbbbX.XaaaaaXXfX
+D:X#XbbbbbbXwWG.#.XX.DbXDXXXbXbXXXDXbD.XX....G.XGGGGGGX#X
+D:XX.bababa#eWG.#.BXXXbcbbbbXPXbbbbcbXXXC...fX.#.......XX
+D:X#XbbbbbbXwWG.#.XX.DbXDXXXbXbXXXDXbD.XX....G.XGGGGGGX#X
+D:X8XXcbab.XwdG.cXX,,XXX.XXabXbaXXLXXX,,XXbbbX.XaaaaaXX.X
+D:X88XXbbb.XGGG.XX,,XX...XbbXDXbbXLLLXX,,XXbbX.XaaaaXXX.X
+D:XXXIXXe..X...XX,,XX.GGXXbXX.XXbXXILIXX,,XXbX.XaaaXXXX.X
+D:X9889Xe**X##.X,,XXG.GdXbbX^.^XbbXILLIXX,,XbX.XXXIXhGG.X
+D:XXIXXXX**X,,XX,XXdG.GXX.XX^.^XX.XXILIIXX,XX#.XedXXXXX.X
+D:X99999X**X,,X,,XGGG..X..XI^a^IX..XILLIIX,,XX.XddX..eeeX
+D:XXXXIXXX*X,XX,XX....XX.XXI^a^IXX.XXILLIXX,XX.X.XX.GGGGX
+D:X^^^^^cX*X,X,,X.....X..X.I^a^I.X..XIILLIX,,X.X.Xdddd..X
+D:XllllX^XX#XX,XXG.GGXX.XX.IXXXI.XX.XXIILIXX,XX#XXXXXXX.X
+D:X^^^cl^,X8X,,XeG.GeX..X...X4X...X..XILLLIX,,X8X.aaaaaaX
+D:XLLX^l^,XXX9XXGG.GXX.XX...X.X...XX.XXLLLLXX9XXX.GGGGGGX
+D:X..L^l^,,X99X.....X..XWW..X#X..WWX..XLLLL.X99XXbbbbb..X
+D:X7.L^l^,,X8XX5...XX.XXWWW..c..WWWXX.XXLL.AXX8XXbbbbb.6X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XXXXXXXIIIIXIIIIXXIIIXIIIIXXIIIXXXXggggXc..cXaaaaXbb.CX
+D:XIIIIIXIXXIIIXXIIXIXIXIXXIXXIXIXXXXgddg#....#aaaa#bb..X
+D:XIXXXIXIXXXXXXXXIIIXIXIIXIXXIXIXXXXggggXc..cXaaaaXbbbbX
+D:XIXXXIIIXIIIIIIXXXXXIXXIXIXIIXIXXXXXXXXXXIIXXXXXXXXXXXX
+D:X..XXXXXXIXXXXIXIIIXIXIIXIXIXXIXXXXwwwjXddddXe..eX....X
+D:XB.IIIIIXIIIXIIXIXIXIIIXXIXIXIIXIIIwwwEX....#.ee.#.hh.X
+D:X..XXXXIXXXIXIXXIXIXXXXXIIXIXIXXIXXwwwjXddddXe..eX....X
+D:XIXXXIXIIIXIXIIIIXIIIIXIIXXIXIXXIXXXXXXXXXXXXXXXXXXDDXX
+D:XIXXXIXXXIIIXXXXXXXXXIXIXXIIXIIIIXXGGGGXgggdddeIwX....X
+D:XIIXXIXXXXXXXIIIIXXIXXXIIIIXXXXXXXXE.heDgggaaaiG1X....X
+D:XXIIIIIIIIIIIIXXIIIIXIIIXXXXXXXXXXXGGGGXgggdddeIwX..j>X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
