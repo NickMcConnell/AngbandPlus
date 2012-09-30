@@ -10,7 +10,7 @@
   cp src/hengband .
 
   Substitute the version number to x.x.x.
-  You must add both options --disable-japanese for english version.
+  You must add --disable-japanese option for english version.
 
   then try
   ./hengband -- -n
@@ -117,7 +117,7 @@ all The command seldom used is enough if it chooses with the menu of a return ke
   [Magic]
   m  Cast a spell / use mental power
   G  Gain new spells/prayers
-  U/O  Use bonus power (if any)
+  U/O  Use bonus power
   b/P  Examine spells
 
   [Equipment] 
@@ -132,10 +132,14 @@ all The command seldom used is enough if it chooses with the menu of a return ke
   i  Inventory list
   l/x  Look around
   M  Full dungeon map
+  ~  Display various infomations
 
   [other]
-  p  command pets
+  p  Command pets
   =  Set options
+  $  Reload auto-pick preference file
+  n/[  Repeat previous command
+  @  Interact with macro
 
 
 --- inscription 
@@ -157,12 +161,12 @@ Below, only the point extended from "Zangband" is explained.
 
 ---- Auto pickup
 
-At first, please make file named "picktypr.prf" or "picktype-(character's name).prf" in 
+At first, please make file named "pickpref.prf" or "pickpref-(character's name).prf" in 
 the directry same as your user preference file is, It is in ~/.angband/Hengband/ if UNIX,or hengband/lib/user/ if other OS.
 
-picktype.prf is read every time. picktype-(character's name).prf is read only when 
-the player name is (character's name). Priority is given over picktype.prf. 
-picktype-(character's name).prf is later,
+pickpref.prf is read every time. pickpref-(character's name).prf is read only when 
+the player name is (character's name). Priority is given over pickpref.prf. 
+pickpref-(character's name).prf is later,
 These files are read at the time of starting of a game.
 By the '$' command It can reread. When you want to have come to rewrite a file
 during a play Probably, it will be convenient.

@@ -105,14 +105,6 @@
  *
  */
 
-/* For debugging english version */
-#if 0
-#ifndef JP
-#define DEBUG_ENG
-#define JP
-#define EUC
-#endif
-#endif
 
 #include "angband.h"
 

@@ -3325,11 +3325,9 @@ void calc_bonuses(void)
 				/* Unencumbered Monks become faster every 10 levels */
 				if (!(heavy_armor()))
 				{
-#ifndef MONK_HACK
 					if (!((p_ptr->prace == RACE_KLACKON) ||
 						(p_ptr->prace == RACE_SPRITE) ||
 						(p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
-#endif /* MONK_HACK */
 						p_ptr->pspeed += (p_ptr->lev) / 10;
 
 					/* Free action if unencumbered at level 25 */
@@ -3380,11 +3378,9 @@ void calc_bonuses(void)
 					if (!inventory[INVEN_LARM].tval || p_ptr->hidarite)
 					{
 						p_ptr->pspeed += 3;
-#ifndef MONK_HACK
 					if (!((p_ptr->prace == RACE_KLACKON) ||
 						(p_ptr->prace == RACE_SPRITE) ||
 						(p_ptr->pseikaku == SEIKAKU_MUNCHKIN)))
-#endif /* MONK_HACK */
 						p_ptr->pspeed += (p_ptr->lev) / 10;
 
 					p_ptr->skill_stl += (p_ptr->lev)/10;
@@ -4079,7 +4075,7 @@ void calc_bonuses(void)
 		/* Hack -- do not apply "bow" bonuses */
 		if (i == INVEN_BOW) continue;
 
-		if ((p_ptr->pclass == CLASS_NINJA) && (o_ptr->tval <= TV_DRAG_ARMOR))
+		if (p_ptr->pclass == CLASS_NINJA)
 		{
 			bonus_to_h = (o_ptr->to_h+1)/2;
 			bonus_to_d = (o_ptr->to_d+1)/2;
@@ -5623,13 +5619,11 @@ void update_stuff(void)
 		update_flow();
 	}
 
-#ifdef MONSTER_LITE
 	if (p_ptr->update & (PU_MON_LITE))
 	{
 		p_ptr->update &= ~(PU_MON_LITE);
 		update_mon_lite();
 	}
-#endif
 
 	if (p_ptr->update & (PU_DISTANCE))
 	{

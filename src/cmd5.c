@@ -415,34 +415,6 @@ msg_print("本を読むことができない！");
 		return;
 	}
 
-#if 0
-
-	/* No lite */
-	if (p_ptr->blind || no_lite())
-	{
-#ifdef JP
-msg_print("目が見えない！");
-#else
-		msg_print("You cannot see!");
-#endif
-
-		return;
-	}
-
-	/* Confused */
-	if (p_ptr->confused)
-	{
-#ifdef JP
-msg_print("混乱していて読めない！");
-#else
-		msg_print("You are too confused!");
-#endif
-
-		return;
-	}
-
-#endif
-
 	if (p_ptr->special_defense & KATA_MUSOU)
 	{
 		set_action(ACTION_NONE);
@@ -4935,14 +4907,6 @@ void do_cmd_pet_dismiss(void)
 
 	/* Allocate the "who" array */
 	C_MAKE(who, max_m_idx, u16b);
-
-#if 0
-#ifdef JP
-if (get_check("すべてのペットを放しますか？")) all_pets = TRUE;
-#else
-	if (get_check("Dismiss all pets? ")) all_pets = TRUE;
-#endif
-#endif /* 0 */
 
 	/* Process the monsters (backwards) */
 	for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)

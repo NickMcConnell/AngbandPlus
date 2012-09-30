@@ -582,47 +582,6 @@ static bool have_joker()
 	return FALSE;
 }
 
-#if 0
-static void sutefuda_yama_ni_modosu()
-{
-	int i;
-	for (i = 0; i < 52; i++)
-		if (deck[i] == 2) deck[i] = 0;
-}
-
-static int pick_a_card()
-{
-	int i, j, count = 0;
-	for (i = 0; i < 52; i++)
-		if (deck[i] == 0) count++;
-
-	if (count == 0)
-	{
-		sutefuda_yama_ni_modosu();
-		return pick_a_card();
-	}
-
-	j = rand_int(count); /* Oops... randint() is NOT NetHack's rn2()! :( */
-
-	count = 0;
-	for (i = 0; i < 52; i++)
-	{
-		if (deck[i] == 0)
-		{
-			if (count == j)
-			{
-				deck[i] = 1; /* ba-fuda ni suru */
-				break;
-			}
-			count++;
-		}
-	}
-	if (i >= 52) msg_print("POKER:ERROR!");
-
-	return i;
-}
-#endif
-
 static bool find_card_num(int num)
 {
 	int i;
@@ -1247,10 +1206,6 @@ static int do_poker()
 	
 	prt("",0,0);
 
-#if 0
-	for (i = 0; i < 5; i++)
-		if (kaeruka[i] == 1) deck[cards[i]] = 2; /* suteru */
-#endif
 	for (i = 0; i < 5; i++)
 		if (kaeruka[i] == 1) cards[i] = deck[deck_ptr++]; /* soshite toru */
 
@@ -2220,7 +2175,11 @@ static bool kankin(void)
 		{
 			char buf[MAX_NLEN+20];
 			object_desc(o_name, o_ptr, TRUE, 3);
+#ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
+#else
+			sprintf(buf, "Convert %s into maney? ",o_name);
+#endif
 			if (get_check(buf))
 			{
 #ifdef JP
@@ -2244,7 +2203,11 @@ static bool kankin(void)
 		{
 			char buf[MAX_NLEN+20];
 			object_desc(o_name, o_ptr, TRUE, 3);
+#ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
+#else
+			sprintf(buf, "Convert %s into maney? ",o_name);
+#endif
 			if (get_check(buf))
 			{
 #ifdef JP
@@ -2268,7 +2231,11 @@ static bool kankin(void)
 		{
 			char buf[MAX_NLEN+20];
 			object_desc(o_name, o_ptr, TRUE, 3);
+#ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
+#else
+			sprintf(buf, "Convert %s into maney? ",o_name);
+#endif
 			if (get_check(buf))
 			{
 #ifdef JP
@@ -2293,7 +2260,11 @@ static bool kankin(void)
 		{
 			char buf[MAX_NLEN+20];
 			object_desc(o_name, o_ptr, TRUE, 3);
+#ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
+#else
+			sprintf(buf, "Convert %s into maney? ",o_name);
+#endif
 			if (get_check(buf))
 			{
 #ifdef JP
@@ -2317,7 +2288,11 @@ static bool kankin(void)
 		{
 			char buf[MAX_NLEN+20];
 			object_desc(o_name, o_ptr, TRUE, 3);
+#ifdef JP
 			sprintf(buf, "%s を換金しますか？",o_name);
+#else
+			sprintf(buf, "Convert %s into maney? ",o_name);
+#endif
 			if (get_check(buf))
 			{
 #ifdef JP
@@ -2344,7 +2319,11 @@ static bool kankin(void)
 			{
 				char buf[MAX_NLEN+20];
 				object_desc(o_name, o_ptr, TRUE, 3);
+#ifdef JP
 				sprintf(buf, "%s を換金しますか？",o_name);
+#else
+				sprintf(buf, "Convert %s into maney? ",o_name);
+#endif
 				if (get_check(buf))
 				{
 #ifdef JP

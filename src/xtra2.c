@@ -833,7 +833,6 @@ msg_print("地面に落とされた。");
 		}
 	}
 
-#ifdef USE_CORPSES
 	/* Drop a dead corpse? */
 	if ((randint(r_ptr->flags1 & RF1_UNIQUE ? 1 : 4) == 1) &&
 	    ((r_ptr->flags9 & RF9_DROP_CORPSE) ||
@@ -883,7 +882,6 @@ msg_print("地面に落とされた。");
 		/* Drop it in the dungeon */
 		(void)drop_near(q_ptr, -1, y, x);
 	}
-#endif /* USE_CORPSES */
 
 	/* Drop objects being carried */
 	monster_drop_carried_objects(m_ptr);
@@ -2792,19 +2790,6 @@ static bool target_set_accept(int y, int x)
 		if (c_ptr->feat == FEAT_MAGMA_K) return (TRUE);
 		if (c_ptr->feat == FEAT_QUARTZ_K) return (TRUE);
 
-#if 0
-		/* Notice water, lava, ... */
-		if (c_ptr->feat == FEAT_DEEP_WATER) return (TRUE);
-		if (c_ptr->feat == FEAT_SHAL_WATER) return (TRUE);
-		if (c_ptr->feat == FEAT_DEEP_LAVA) return (TRUE);
-		if (c_ptr->feat == FEAT_SHAL_LAVA) return (TRUE);
-		if (c_ptr->feat == FEAT_DIRT) return (TRUE);
-		if (c_ptr->feat == FEAT_GRASS) return (TRUE);
-		if (c_ptr->feat == FEAT_DARK_PIT) return (TRUE);
-		if (c_ptr->feat == FEAT_TREES) return (TRUE);
-		if (c_ptr->feat == FEAT_MOUNTAIN) return (TRUE);
-#endif
-
 		/* Notice quest features */
 		if (c_ptr->feat == FEAT_QUEST_ENTER) return (TRUE);
 		if (c_ptr->feat == FEAT_QUEST_EXIT) return (TRUE);
@@ -2955,7 +2940,7 @@ s1 = "";
 #ifdef JP
 			s1 = "ターゲット:";
 #else
-			s1 = "target:";
+			s1 = "Target:";
 #endif
 		}
 
@@ -3082,9 +3067,6 @@ attitude = " ";
 
 
 						/* Describe, and prompt for recall */
-#ifdef JP
-#define SHOW_ADV_COUNT
-#ifdef SHOW_ADV_COUNT
 {
 #define M_INT_GREATER(h1,l1,h2,l2)  ( (h1>h2)||( (h1==h2)&&(l1>=l2)))
 #define M_INT_SUB(h1,l1, h2,l2) {h1-=h2;if(l1<l2){l1+=0x10000;h1--;}l1-=l2;}
@@ -3092,54 +3074,61 @@ attitude = " ";
 #define M_INT_LSHIFT(h1,l1) {h1=(h1<<1)|(l1>>15);l1=(l1<<1)&0xffff;}
 #define M_INT_RSHIFT(h1,l1) {l1=(l1>>1)|((h1&1)<<15);h1>>=1;}
 #define M_INT_MULT(h1,l1,mul,h2,l2) {l2=(l1*mul)&0xffff;h2=((l1*mul)>>16)+h1*mul;}
-     char acount[10];
-     u32b tmp_h,tmp_l;
-     int bit,result;
-     u32b exp_mon= (r_ptr->mexp)*(r_ptr->level);
-     u32b exp_mon_h= exp_mon / (p_ptr->max_plv+2);
-     u32b exp_mon_l= ((exp_mon % (p_ptr->max_plv+2))*0x10000/(p_ptr->max_plv+2))&0xFFFF;
-
-     u32b exp_adv_h = player_exp[p_ptr->lev -1] * p_ptr->expfact /100;
-     u32b exp_adv_l = ((player_exp[p_ptr->lev -1]%100) * p_ptr->expfact *0x10000/100)&0xFFFF;
-
-     M_INT_SUB(exp_adv_h, exp_adv_l, p_ptr->exp, p_ptr->exp_frac);
-     if ((p_ptr->lev>=PY_MAX_LEVEL) || (p_ptr->prace == RACE_ANDROID)) sprintf(acount,"[**]");
-     else if (!r_ptr->r_tkills || (m_ptr->mflag2 & MFLAG_KAGE)) sprintf(acount,"[??]");
-     else if (M_INT_GREATER(exp_mon_h, exp_mon_l, exp_adv_h, exp_adv_l)) sprintf(acount,"[001]");
-     else {
-       M_INT_MULT(exp_mon_h, exp_mon_l, 1000,tmp_h, tmp_l);
-       if( M_INT_GREATER(exp_adv_h, exp_adv_l, tmp_h, tmp_l) ) sprintf(acount,"[999]");
-       else {
-	 bit=1; result=0;
-         M_INT_ADD(exp_adv_h, exp_adv_l, exp_mon_h, exp_mon_l);
-         M_INT_SUB(exp_adv_h, exp_adv_l, 0, 1);
-	 while( M_INT_GREATER(exp_adv_h, exp_adv_l, exp_mon_h,exp_mon_l) ){M_INT_LSHIFT(exp_mon_h,exp_mon_l);bit<<=1;}
-	 M_INT_RSHIFT(exp_mon_h,exp_mon_l);bit>>=1;
-	 for(;bit>=1;bit>>=1){
-	   if(M_INT_GREATER(exp_adv_h,exp_adv_l,exp_mon_h,exp_mon_l))
-	     {result|=bit;M_INT_SUB(exp_adv_h,exp_adv_l,exp_mon_h,exp_mon_l);}
-	   M_INT_RSHIFT(exp_mon_h,exp_mon_l); 
-	 }
-	 sprintf(acount,"[%03d]",result);
-       }}
-	sprintf(out_val, "%s%s%s(%s)%s%s%s%s%s[r思 %s]",acount,
-                        s1, m_name, look_mon_desc(c_ptr->m_idx), tekitou, s2, s3, 
-			    (m_ptr->smart & SM_CLONED ? " (clone)": ""),
-			      attitude,info);
+	char acount[10];
+	u32b tmp_h,tmp_l;
+	int bit,result;
+	u32b exp_mon= (r_ptr->mexp)*(r_ptr->level);
+	u32b exp_mon_h= exp_mon / (p_ptr->max_plv+2);
+	u32b exp_mon_l= ((exp_mon % (p_ptr->max_plv+2))*0x10000/(p_ptr->max_plv+2))&0xFFFF;
+	
+	u32b exp_adv_h = player_exp[p_ptr->lev -1] * p_ptr->expfact /100;
+	u32b exp_adv_l = ((player_exp[p_ptr->lev -1]%100) * p_ptr->expfact *0x10000/100)&0xFFFF;
+	
+	M_INT_SUB(exp_adv_h, exp_adv_l, p_ptr->exp, p_ptr->exp_frac);
+	if ((p_ptr->lev>=PY_MAX_LEVEL) || (p_ptr->prace == RACE_ANDROID))
+		sprintf(acount,"[**]");
+	else if (!r_ptr->r_tkills || (m_ptr->mflag2 & MFLAG_KAGE))
+		sprintf(acount,"[??]");
+	else if (M_INT_GREATER(exp_mon_h, exp_mon_l, exp_adv_h, exp_adv_l))
+		sprintf(acount,"[001]");
+	else 
+	{
+		M_INT_MULT(exp_mon_h, exp_mon_l, 1000,tmp_h, tmp_l);
+		if( M_INT_GREATER(exp_adv_h, exp_adv_l, tmp_h, tmp_l) )
+			sprintf(acount,"[999]");
+		else
+		{
+			bit=1; result=0;
+			M_INT_ADD(exp_adv_h, exp_adv_l, exp_mon_h, exp_mon_l);
+			M_INT_SUB(exp_adv_h, exp_adv_l, 0, 1);
+			while(M_INT_GREATER(exp_adv_h, exp_adv_l, exp_mon_h,exp_mon_l))
+			{
+				M_INT_LSHIFT(exp_mon_h,exp_mon_l);
+				bit <<= 1;
+			}
+			M_INT_RSHIFT(exp_mon_h,exp_mon_l);bit>>=1;
+			for(;bit>=1;bit>>=1)
+			{
+				if(M_INT_GREATER(exp_adv_h,exp_adv_l,exp_mon_h,exp_mon_l))
+				{
+					result |= bit;
+					M_INT_SUB(exp_adv_h,exp_adv_l,exp_mon_h,exp_mon_l);
+				}
+				M_INT_RSHIFT(exp_mon_h,exp_mon_l); 
+			}
+			sprintf(acount,"[%03d]",result);
+		}
+	}
+	sprintf(out_val, 
+#ifdef JP
+		"%s%s%s(%s)%s%s%s%s%s[r思 %s]",
+#else
+		"%s%s%s(%s)%s%s%s%s%s[r, %s]",
+#endif
+		acount, s1, m_name, look_mon_desc(c_ptr->m_idx), tekitou, s2, s3, 
+		(m_ptr->smart & SM_CLONED ? " (clone)": ""),
+		attitude,info);
 }
-#else
-						sprintf(out_val, "%s%s(%s)%s%s%s%s[r思 %s]",
-                                                     s1, m_name, look_mon_desc(c_ptr->m_idx), s2, s3, 
-						    (m_ptr->smart & SM_CLONED ? " (clone)": ""),
-						      attitude,info);
-#endif
-#else
-						sprintf(out_val, "%s%s%s%s (%s)%s%s[r,%s]",
-						    s1, s2, s3, m_name, look_mon_desc(c_ptr->m_idx),
-						    (m_ptr->smart & SM_CLONED ? " (clone)": ""),
-						    attitude, info);
-#endif
-
 
 						prt(out_val, 0, 0);
 
@@ -4115,17 +4104,6 @@ bool get_aim_dir(int *dp)
 
 #endif /* ALLOW_REPEAT -- TNB */
 
-#if 0
-	/* Initialize */
-	(*dp) = 0;
-
-	/* Global direction */
-	dir = command_dir;
-
-	/* Hack -- auto-target if requested */
-	if (use_old_target && target_okay()) dir = 5;
-#endif
-
 	/* Ask until satisfied */
 	while (!dir)
 	{
@@ -4423,14 +4401,6 @@ bool get_rep_dir2(int *dp)
 	}
 
 #endif /* ALLOW_REPEAT -- TNB */
-
-#if 0
-	/* Initialize */
-	(*dp) = 0;
-
-	/* Global direction */
-	dir = command_dir;
-#endif
 
 	/* Get a direction */
 	while (!dir)

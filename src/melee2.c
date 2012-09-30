@@ -545,8 +545,6 @@ static int mon_will_run(int m_idx)
 
 
 
-#ifdef MONSTER_FLOW
-
 /*
  * Choose the "best" direction for "flowing"
  *
@@ -737,8 +735,6 @@ static bool get_fear_moves_aux(int m_idx, int *yp, int *xp)
 	/* Success */
 	return (TRUE);
 }
-
-#endif /* MONSTER_FLOW */
 
 /*
  * Hack -- Precompute a bunch of calls to distance() in find_safety() and
@@ -1078,14 +1074,12 @@ static bool get_moves(int m_idx, int *mm)
 	bool         no_flow = (p_ptr->no_flowed && (cave[m_ptr->fy][m_ptr->fx].cost > 2));
 	bool         can_pass_wall;
 
-#ifdef MONSTER_FLOW
 	/* Flow towards the player */
 	if (!stupid_monsters && !no_flow)
 	{
 		/* Flow towards the player */
 		(void)get_moves_aux(m_idx, &y2, &x2);
 	}
-#endif
 
 	can_pass_wall = ((r_ptr->flags2 & RF2_PASS_WALL) && ((m_idx != p_ptr->jouba) || (p_ptr->pass_wall)));
 
@@ -3895,7 +3889,6 @@ void process_monsters(void)
 			test = TRUE;
 		}
 
-#ifdef MONSTER_FLOW
 		/* Hack -- Monsters can "smell" the player from far away */
 		/* Note that most monsters have "aaf" of "20" or so */
 		else if (!stupid_monsters && !p_ptr->no_flowed &&
@@ -3907,7 +3900,6 @@ void process_monsters(void)
 			/* We can "smell" the player */
 			test = TRUE;
 		}
-#endif /* MONSTER_FLOW */
 		else if (m_ptr->target_y) test = TRUE;
 
 		/* Do nothing */

@@ -62,20 +62,6 @@ void reset_visuals(void)
 		r_ptr->x_char = r_ptr->d_char;
 	}
 
-#if 0
-
-	/* Extract attr/chars for equippy items (by tval) */
-	for (i = 0; i < 128; i++)
-	{
-		/* Extract a default attr */
-		tval_to_attr[i] = default_tval_to_attr(i);
-
-		/* Extract a default char */
-		tval_to_char[i] = default_tval_to_char(i);
-	}
-
-#endif
-
 	if (use_graphics)
 	{
 		/* Process "graf.prf" */
@@ -7195,17 +7181,6 @@ void py_pickup_floor(int pickup)
 			/* Check the next object */
 			continue;
 		}
-
-#if 0
-		if (auto_pickup_okay(o_ptr))
-		{
-			/* Pick up the object */
-			py_pickup_aux(this_o_idx);
-
-			/* Check the next object */
-			continue;
-		}
-#endif
 
 		/* Count non-gold objects that can be picked up. */
 		if (inven_carry_okay(o_ptr))

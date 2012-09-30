@@ -2722,21 +2722,6 @@ note_dies = "は蒸発した！";
 
 				dam *= 2;
 			}
-#if 0
-			if (r_ptr->flags1 & RF1_UNIQUE)
-			{
-				if (rand_int(r_ptr->level + 10) > rand_int(who ? r_info[who].level : p_ptr->lev))
-				{
-#ifdef JP
-note = "には耐性がある。";
-#else
-					note = " resists.";
-#endif
-
-					dam /= 2;
-				}
-			}
-#endif
 			break;
 		}
 

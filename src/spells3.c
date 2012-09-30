@@ -2441,23 +2441,6 @@ msg_format("%s は眩い光を発した！",o_name);
 	          ((o_ptr->number > 1) ? "" : "s"));
 #endif
 
-#if 0
-	/* No artifact creation of Dragon Scale Mail */
-	if (o_ptr->tval == TV_DRAG_ARMOR)
-	{
-		/* ToDo: Maybe allow some of the DSMs to be enchanted */
-#ifdef JP
-msg_format("%s には既に魔法がかかっています！",
-    o_name);
-#else
-		msg_format("The %s %s already magical!",
-		    o_name, ((o_ptr->number > 1) ? "are" : "is"));
-#endif
-
-
-		okay = FALSE;
-	}
-#endif
 	if (o_ptr->name1 || o_ptr->art_name)
 	{
 #ifdef JP
@@ -2547,121 +2530,6 @@ msg_print("強化に失敗した。");
 }
 
 
-#if 0
-/*
- * Apply good luck to an object
- */
-static void good_luck(object_type *o_ptr)
-{
-	/* Objects become better sometimes */
-	if (!rand_int(13))
-	{
-		int number = o_ptr->number;
-
-		bool great = ego_item_p(o_ptr);
-
-		byte iy = o_ptr->iy;                /* Y-position on map, or zero */
-		byte ix = o_ptr->ix;                /* X-position on map, or zero */
-		s16b next_o_idx= o_ptr->next_o_idx; /* Next object in stack (if any) */
-		byte marked=o_ptr->marked;          /* Object is marked */
-
-		/* Prepare it */
-		object_prep(o_ptr, o_ptr->k_idx);
-
-		o_ptr->iy=iy;
-		o_ptr->ix=ix;
-		o_ptr->next_o_idx=next_o_idx;
-		o_ptr->marked=marked;
-
-		/* Restore the number */
-		o_ptr->number = number;
-
-		/* Apply good magic (allow artifacts, good, great if an ego-item, no curse) */
-		apply_magic(o_ptr, dun_level, TRUE, TRUE, great, FALSE);
-	}
-
-	/* Objects duplicate sometimes */
-	if (!rand_int(777) && (o_ptr->number < 99))
-	{
-		o_ptr->number++;
-	}
-
-	/* Notice */
-	note_spot(o_ptr->iy, o_ptr->ix);
-
-	/* Redraw */
-	lite_spot(o_ptr->iy, o_ptr->ix);
-}
-
-
-/*
- * Apply bad luck to an object
- */
-static void bad_luck(object_type *o_ptr)
-{
-	bool is_art = artifact_p(o_ptr) || o_ptr->art_name;
-
-	/* Objects become worse sometimes */
-	if (!rand_int(13))
-	{
-		int number = o_ptr->number;
-
-		bool great = ego_item_p(o_ptr);
-
-		/* Non-artifacts get rerolled */
-		if (!is_art)
-		{
-			o_ptr->ident |= IDENT_CURSED;
-
-			/* Prepare it */
-			object_prep(o_ptr, o_ptr->k_idx);
-
-			/* Restore the number */
-			o_ptr->number = number;
-
-			/* Apply bad magic (disallow artifacts, good, great if an ego-item, cursed) */
-			apply_magic(o_ptr, dun_level, FALSE, TRUE, great, TRUE);
-		}
-
-		/* Now curse it */
-		o_ptr->ident |= IDENT_CURSED;
-	}
-
-	/* Objects are blasted sometimes */
-	if (!rand_int(666) && (!is_art || !rand_int(3)))
-	{
-		/* Blast it */
-		o_ptr->name1 = 0;
-		o_ptr->name2 = EGO_BLASTED;
-		if (o_ptr->to_a) o_ptr->to_a = 0 - randint(5) - randint(5);
-		if (o_ptr->to_h) o_ptr->to_h = 0 - randint(5) - randint(5);
-		if (o_ptr->to_d) o_ptr->to_d = 0 - randint(5) - randint(5);
-		o_ptr->ac = 0;
-		o_ptr->dd = 0;
-		o_ptr->ds = 0;
-		o_ptr->art_flags1 = 0;
-		o_ptr->art_flags2 = 0;
-		o_ptr->art_flags3 = 0;
-
-		/* Curse it */
-		o_ptr->ident |= (IDENT_CURSED);
-
-		/* Break it */
-		o_ptr->ident |= (IDENT_BROKEN);
-
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
-
-		/* Recalculate mana */
-		p_ptr->update |= (PU_MANA);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-	}
-}
-#endif
-
-
 /*
  * Identify an object
  */
@@ -2673,8 +2541,9 @@ void identify_item(object_type *o_ptr)
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
-	if(record_fix_art || record_rand_art)
-		if(strncmp(o_name,"☆", 2) && strncmp(o_name,"★", 2)) motoart = FALSE;
+	if ((artifact_p(o_ptr) || o_ptr->art_name) &&
+	    !object_known_p(o_ptr) && !(o_ptr->ident&IDENT_SENSE))
+		motoart = FALSE;
 
 	if (!(o_ptr->ident & (IDENT_MENTAL)))
 	{
@@ -2701,10 +2570,10 @@ void identify_item(object_type *o_ptr)
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 0);
 
-	if(record_fix_art && !motoart)
-		if(!strncmp(o_name,"★", 2)) do_cmd_write_nikki(NIKKI_ART, 0, o_name);
-	if(record_rand_art && !motoart)
-		if(!strncmp(o_name,"☆", 2)) do_cmd_write_nikki(NIKKI_ART, 0, o_name);
+	if(record_fix_art && !motoart && artifact_p(o_ptr))
+		do_cmd_write_nikki(NIKKI_ART, 0, o_name);
+	if(record_rand_art && !motoart && o_ptr->art_name)
+		do_cmd_write_nikki(NIKKI_ART, 0, o_name);
 }
 
 
@@ -4028,7 +3897,7 @@ s16b spell_chance(int spell, int realm)
 	if (p_ptr->pseikaku == SEIKAKU_NAMAKE) chance += 10;
 	if (p_ptr->pseikaku == SEIKAKU_KIREMONO) chance -= 3;
 	if ((p_ptr->pseikaku == SEIKAKU_GAMAN) || (p_ptr->pseikaku == SEIKAKU_CHIKARA)) chance++;
-	if (((realm + 1) != p_ptr->realm1) && (p_ptr->pclass == CLASS_MAGE)) chance += 5;
+	if (((realm + 1) != p_ptr->realm1) && ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_PRIEST))) chance += 5;
 
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
@@ -4536,7 +4405,11 @@ put_str(buf, y, x + 29);
 		if (use_menu && target_spell)
 		{
 			if (i == (target_spell-1))
+#ifdef JP
 				strcpy(out_val, "  》 ");
+#else
+				strcpy(out_val, "  >  ");
+#endif
 			else
 				strcpy(out_val, "     ");
 		}

@@ -12,11 +12,9 @@
  * by Robert Ruehlmann (rr9@angband.org)
  */
 
-#ifdef JP
 static int display_autopick;
 static int match_autopick;
 static object_type *autopick_obj;
-#endif
 
 /*
  * Distance between two points via Newton-Raphson technique
@@ -403,7 +401,7 @@ bool player_can_see_bold(int y, int x)
 	/* Require line of sight to the grid */
 	if (!player_has_los_bold(y, x)) return (FALSE);
 
-	if ((((y == py) && (x == px)) || cave_floor_bold(y, x)) && p_ptr->pclass == CLASS_NINJA) return TRUE;
+	if (p_ptr->pclass == CLASS_NINJA) return TRUE;
 
 	/* Require "perma-lite" of the grid */
 	if (!(c_ptr->info & (CAVE_GLOW | CAVE_MNLT))) return (FALSE);
@@ -1291,16 +1289,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Memorized objects */
 		if (o_ptr->marked)
 		{
-#ifdef JP
-		  if(display_autopick == 1){
-		    match_autopick = is_autopick(o_ptr);
-		    if(match_autopick == -1) continue;
-		    else if (((autopick_action[match_autopick] == DO_AUTOPICK) && display_pick) || ((autopick_action[match_autopick] == DONT_AUTOPICK) && display_nopick) || ((autopick_action[match_autopick] == DO_AUTODESTROY) && display_destroy))
-		      autopick_obj = o_ptr;
-		    else
-		      {match_autopick = -1; continue;}
-		  }
-#endif
+			if(display_autopick == 1){
+				match_autopick = is_autopick(o_ptr);
+				if(match_autopick == -1) continue;
+				else if (((autopick_action[match_autopick] == DO_AUTOPICK) && display_pick) || ((autopick_action[match_autopick] == DONT_AUTOPICK) && display_nopick) || ((autopick_action[match_autopick] == DO_AUTODESTROY) && display_destroy))
+					autopick_obj = o_ptr;
+				else
+				{match_autopick = -1; continue;}
+			}
 			/* Normal char */
 			(*cp) = object_char(o_ptr);
 
@@ -1317,12 +1313,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 
 	/* Handle monsters */
-#ifdef JP
 	if (c_ptr->m_idx && display_autopick==0 )
-#else
-	if (c_ptr->m_idx)
-#endif
-
 	{
 		monster_type *m_ptr = &m_list[c_ptr->m_idx];
 
@@ -2255,6 +2246,81 @@ static byte priority(byte a, char c)
 	return (20);
 }
 
+static cptr simplify_list[][2] =
+{
+#ifdef JP
+	{"の魔法書", ""},
+	{NULL, NULL}
+#else
+	{"Ring of ",   "="},
+	{"Amulet of ", "\""},
+	{"Scroll of ", "?"},
+	{"Wand of "  , "-"},
+	{"Rod of "   , "R "},
+	{"Staff of " , "_"},
+	{"Potion of ", "!"},
+	{" Spellbook ",""},
+	{"Book of ",   ""},
+	{" Magic [",   "["},
+	{" Book [",    "["},
+	{" Arts [",    "["},
+	{"Set of ",    ""},
+	{"Pair of ",   ""},
+	{NULL, NULL}
+#endif
+};
+
+static void display_shortened_item_name(object_type *o_ptr, int y)
+{
+	unsigned char buf[MAX_NLEN];
+	char *c = buf;
+	int len = 0;
+
+	object_desc(buf, autopick_obj, FALSE, 0);
+
+	for (c = buf; *c; c++)
+	{
+		int i;
+		for (i = 0; simplify_list[i][1]; i++)
+		{
+			cptr org_w = simplify_list[i][0];
+			if (!strncmp(c, org_w, strlen(org_w)))
+			{
+				char *s = c;
+				cptr tmp = simplify_list[i][1];
+				while (*tmp)
+					*s++ = *tmp++;
+				tmp = c + strlen(org_w);
+				while (*tmp)
+					*s++ = *tmp++;
+				*s = '\0';
+			}
+		}
+	}
+
+	c = buf;
+	len = 0;
+	/* 半角 12 文字分で切る */
+	while(*c)
+	{
+#ifdef JP
+		if(iskanji(*c))
+		{
+			if(len + 2 > 12) break;
+			c+=2;
+			len+=2;
+		}
+		else
+#endif
+		{
+			if(len + 1 > 12) break;
+			c++;
+			len++;
+		}
+	}
+	*c='\0';
+	put_str(buf,y,0); 
+}
 
 /*
  * Display a "small-scale" map of the dungeon in the active Term
@@ -2292,10 +2358,9 @@ void display_map(int *cy, int *cx)
 	int xrat = cur_wid / SCREEN_WID;
 
 
-#ifdef JP
         int match_autopick_yx[SCREEN_HGT+2][SCREEN_WID+2];
 	object_type *object_autopick_yx[SCREEN_HGT+2][SCREEN_WID+2];
-#endif
+
 	/* Save lighting effects */
 	old_view_special_lite = view_special_lite;
 	old_view_granite_lite = view_granite_lite;
@@ -2309,10 +2374,9 @@ void display_map(int *cy, int *cx)
 	{
 		for (x = 0; x < SCREEN_WID + 2; ++x)
 		{
-#ifdef JP
 			match_autopick_yx[y][x] = -1;
 			object_autopick_yx[y][x] = NULL;
-#endif
+
 			/* Nothing here */
 			ma[y][x] = TERM_WHITE;
 			mc[y][x] = ' ';
@@ -2331,10 +2395,9 @@ void display_map(int *cy, int *cx)
 			x = i / xrat + 1;
 			y = j / yrat + 1;
 
-#ifdef JP
-          match_autopick=-1;
+			match_autopick=-1;
 			autopick_obj=NULL;
-#endif
+
 			/* Extract the current attr/char at that map location */
 #ifdef USE_TRANSPARENCY
 			map_info(j, i, &ta, &tc, &ta, &tc);
@@ -2345,21 +2408,17 @@ void display_map(int *cy, int *cx)
 			/* Extract the priority of that attr/char */
 			tp = priority(ta, tc);
 
-#ifdef JP
 			if(match_autopick!=-1
 			   && (match_autopick_yx[y][x] == -1
-			       || match_autopick_yx[y][x] > match_autopick)){
-                       match_autopick_yx[y][x] = match_autopick;
-			    object_autopick_yx[y][x] = autopick_obj;
-			    tp = 0x7f;
+			       || match_autopick_yx[y][x] > match_autopick))
+			{
+				match_autopick_yx[y][x] = match_autopick;
+				object_autopick_yx[y][x] = autopick_obj;
+				tp = 0x7f;
 			}
-#endif
+
 			/* Save "best" */
-#ifdef JP
 			if (mp[y][x] <= tp)
-#else
-                        if (mp[y][x] < tp)
-#endif
 			{
 				/* Save the char */
 				mc[y][x] = tc;
@@ -2415,7 +2474,6 @@ void display_map(int *cy, int *cx)
 	}
 
 
-#ifdef JP
         for (y = 1; y < SCREEN_HGT+1; ++y)
 	{
 	  match_autopick = -1;
@@ -2427,32 +2485,20 @@ void display_map(int *cy, int *cx)
 	      autopick_obj = object_autopick_yx[y][x];
 	    }
 	  }
-	  if( match_autopick != -1){
+	  if (match_autopick != -1)
 #if 1
-	    unsigned char buf[MAX_NLEN];
-	    char *c=buf;
-	    int len=0;
-	    object_desc(buf, autopick_obj, TRUE, 0);
-	    /* 半角 12 文字分で切る */
-            while(*c){
-		if(iskanji(*c)){
-		    if(len + 2 > 12) break;
-		    c+=2; len+=2;
-		}else{
-		    if(len + 1 > 12) break;
-		    c++; len++;
-		}
-	    }
-	    *c='\0';
+		  display_shortened_item_name(autopick_obj, y);
 #else
-	    unsigned char buf[13] = "\0";
-	    strncpy(buf,autopick_name[match_autopick],12);
-	    buf[12] = '\0';
+	  {
+		  unsigned char buf[13] = "\0";
+		  strncpy(buf,autopick_name[match_autopick],12);
+		  buf[12] = '\0';
+		  put_str(buf,y,0); 
+	  }
 #endif
-	    put_str(buf,y,0); 
-	 }
+
 	}
-#endif
+
 	/* Player location */
 	(*cy) = py / yrat + 1 + ROW_MAP;
 	(*cx) = px / xrat + 1 + COL_MAP;
@@ -2489,52 +2535,54 @@ prt("お待ち下さい...", 0, 0);
 
 	/* Clear the screen */
 	Term_clear();
-#ifdef JP
+
         display_autopick=0;
-#endif
+
 	/* Display the map */
 	display_map(&cy, &cx);
 
 	/* Wait for it */
+        if(max_autopick && !p_ptr->wild_mode && (display_pick || display_nopick || display_destroy))
+	{
 #ifdef JP
-        if(max_autopick && !p_ptr->wild_mode && (display_pick || display_nopick || display_destroy)){ 
-        put_str("何かキーを押すとゲームに戻ります('M':アイテムのみ表示)", 23, 17);
-        /* Hilite the player */
-        move_cursor(cy, cx);
-
-        /* Get any key */
-        if( inkey()=='M'){ 
-          Term_fresh();
-	  
-          /* Display the map */
-          display_autopick=1;
-          display_map(&cy, &cx);
-          display_autopick=0;
-          
-	  put_str("何かキーを押すとゲームに戻ります", 23, 30);
-	  /* Hilite the player */
-	  move_cursor(cy, cx);
-	  /* Get any key */
-	  inkey();
-        }}
+		put_str("何かキーを押すとゲームに戻ります('M':アイテムのみ表示)", 23, 17);
+#else
+		put_str("Hit M for display items, hit any other key to continue.", 23, 17);
+#endif
+		/* Hilite the player */
+		move_cursor(cy, cx);
+		
+		/* Get any key */
+		if( inkey()=='M')
+		{ 
+			Term_fresh();
+			
+			/* Display the map */
+			display_autopick=1;
+			display_map(&cy, &cx);
+			display_autopick=0;
+#ifdef JP
+			put_str("何かキーを押すとゲームに戻ります", 23, 30);
+#else
+			put_str("Hit any key to continue", 23, 30);
+#endif
+			/* Hilite the player */
+			move_cursor(cy, cx);
+			/* Get any key */
+			inkey();
+		}
+	}
 	else
 	{
-	  put_str("何かキーを押すとゲームに戻ります", 23, 30);
-	  /* Hilite the player */
-	  move_cursor(cy, cx);
-	  /* Get any key */
-	  inkey();
-	}
+#ifdef JP
+		put_str("何かキーを押すとゲームに戻ります", 23, 30);
 #else
-	put_str("Hit any key to continue", 23, 23);
-
-	/* Hilite the player */
-	move_cursor(cy, cx);
-
-	/* Get any key */
-	inkey();
-#endif
-
+		put_str("Hit any key to continue", 23, 30);
+#endif		/* Hilite the player */
+		move_cursor(cy, cx);
+		/* Get any key */
+		inkey();
+	}
 
 	/* Restore the screen */
 	screen_load();
@@ -3044,8 +3092,6 @@ void update_lite(void)
 }
 
 
-
-#ifdef MONSTER_LITE
 static bool mon_invis;
 
 /*
@@ -3376,9 +3422,6 @@ void clear_mon_lite(void)
 	/* Empty the array */
 	mon_lite_n = 0;
 }
-
-#endif /* MONSTER_LITE */
-
 
 
 
@@ -4119,9 +4162,6 @@ static int flow_n = 0;
  */
 void forget_flow(void)
 {
-
-#ifdef MONSTER_FLOW
-
 	int x, y;
 
 	/* Nothing to forget */
@@ -4141,13 +4181,9 @@ void forget_flow(void)
 
 	/* Start over */
 	flow_n = 0;
-
-#endif /* MONSTER_FLOW */
-
 }
 
 
-#ifdef MONSTER_FLOW
 /*
  * Hack -- Allow us to treat the "seen" array as a queue
  */
@@ -4195,10 +4231,6 @@ static void update_flow_aux(int y, int x, int m, int n)
 	if (flow_head == flow_tail) flow_head = old_head;
 }
 
-#endif /* MONSTER_FLOW */
-
-
-#ifdef MONSTER_FLOW
 
 /*
  * Hack - speed up the update_flow algorithm by only doing
@@ -4208,8 +4240,6 @@ static void update_flow_aux(int y, int x, int m, int n)
 static u16b flow_x = 0;
 static u16b flow_y = 0;
 
-
-#endif /* MONSTER_FLOW */
 
 
 /*
@@ -4227,9 +4257,6 @@ static u16b flow_y = 0;
  */
 void update_flow(void)
 {
-
-#ifdef MONSTER_FLOW
-
 	int x, y, d;
 
 	/* Hack -- disabled */
@@ -4303,9 +4330,6 @@ void update_flow(void)
 
 	/* Forget the flow info */
 	flow_head = flow_tail = 0;
-
-#endif /* MONSTER_FLOW */
-
 }
 
 

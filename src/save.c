@@ -565,24 +565,9 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
-#if 0
-	/* Old flags */
-	if (o_ptr->art_name || o_ptr->art_flags1 || o_ptr->art_flags2 ||
-	    o_ptr->art_flags3)
-	{
-#endif
 	wr_u32b(o_ptr->art_flags1);
 	wr_u32b(o_ptr->art_flags2);
 	wr_u32b(o_ptr->art_flags3);
-#if 0
-	}
-	else
-	{
-	wr_u32b(0L);
-	wr_u32b(0L);
-	wr_u32b(0L);
-	}
-#endif
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
@@ -2172,13 +2157,6 @@ msg_format("バージョン %d.%d.%d 用のセーブ・ファイルを変換しました。",
 
 		/* A character was loaded */
 		character_loaded = TRUE;
-
-		/* Still alive */
-		if (p_ptr->chp >= 0)
-		{
-			/* Reset cause of death */
-			(void)strcpy(died_from, "(alive and well)");
-		}
 
 		{
 			s32b tmp = counts_read(2);

@@ -1972,22 +1972,6 @@ msg_print("ネクロノミコンを読んで正気を失った！");
 		return;
 	}
 
-#if 0
-	if (!saving_throw(p_ptr->skill_sav - power)) /* Permanent lose int & wis */
-	{
-		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
-		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
-		if (happened)
-#ifdef JP
-msg_print("以前より正気でなくなった気がする。");
-#else
-			msg_print("You feel much less sane than before.");
-#endif
-
-		return;
-	}
-#endif
-
 	if (!saving_throw(p_ptr->skill_sav - power)) /* Amnesia */
 	{
 

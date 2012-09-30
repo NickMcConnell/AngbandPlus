@@ -8,13 +8,6 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.
  */
-#if 0
-#ifndef JP
-#define DEBUG_ENG
-#define JP
-#define EUC
-#endif
-#endif
 
 /* Purpose: a generic, efficient, terminal window package -BEN- */
 #include "angband.h"
@@ -2054,17 +2047,6 @@ errr Term_addstr(int n, byte a, cptr s)
 	int w = Term->wid;
 
 	errr res = 0;
-#ifdef DEBUG_ENG
-	int i;
-	for (i=0;s[i];i++)
-		if (iskanji(s[i]))
-		    break;
-	if (s[i])
-	{
-		plog("error!");
-		plog(s);
-	}
-#endif
 
 	/* Handle "unusable" cursor */
 	if (Term->scr->cu) return (-1);

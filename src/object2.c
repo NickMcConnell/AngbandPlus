@@ -7290,12 +7290,6 @@ s = "抽出できるアイテムがありません。";
 		}
 	}
 
-#if 0
-	if ((old_f1 & TR1_BLOWS) && (!(new_f1 & TR1_BLOWS) || (old_pval-o_ptr->pval)))
-	{
-		drain_value[ESSENCE_SPEED-1] += 5*((new_f1 & TR1_BLOWS) ? old_pval-o_ptr->pval : old_pval);
-	}
-#endif
 	if ((old_f1 & TR1_RIRYOKU) && !(new_f1 & TR1_RIRYOKU))
 	{
 		drain_value[ESSENCE_INT-1] += 5;

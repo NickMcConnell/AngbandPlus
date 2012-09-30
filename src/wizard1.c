@@ -197,7 +197,11 @@ static grouper group_item[] =
 	{ TV_HISSATSU_BOOK, "Books (Samurai Arts)" },
 #endif
 
+#ifdef JP
 { TV_PARCHEMENT,    "Õ”»ÈªÊ" },
+#else
+{ TV_PARCHEMENT,    "Parchement" },
+#endif
 
 #ifdef JP
 { TV_CHEST,         "»¢" },

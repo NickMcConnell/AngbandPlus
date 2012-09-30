@@ -154,24 +154,6 @@ static void roff_aux(int r_idx, int remem)
 	monster_race    save_mem;
 
 
-
-#if 0
-
-	/* Nothing erased */
-	roff_old = 0;
-
-	/* Reset the row */
-	roff_row = 1;
-
-	/* Reset the pointer */
-	roff_p = roff_buf;
-
-	/* No spaces yet */
-	roff_s = NULL;
-
-#endif
-
-
 	/* Cheat -- Know everything */
 	if (cheat_know)
 	{
@@ -455,30 +437,6 @@ path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info_j.raw");
 			pos += r_head->head_size;
 			pos += r_head->info_size;
 			pos += r_head->name_size;
-
-#if 0
-
-			/* Maximal length */
-			len = r_head->text_size - r_ptr->text;
-
-			/* Actual length */
-			for (i = r_idx+1; i < max_r_idx; i++)
-			{
-				/* Actual length */
-				if (r_info[i].text > r_ptr->text)
-				{
-					/* Extract length */
-					len = r_info[i].text - r_ptr->text;
-
-					/* Done */
-					break;
-				}
-			}
-
-			/* Maximal length */
-			if (len > 2048) len = 2048;
-
-#endif
 
 			/* Seek */
 			(void)fd_seek(fd, pos);
@@ -1526,7 +1484,7 @@ if (flags6 & (RF6_TELE_LEVEL))      {vp[vn] = "¥Æ¥ì¥Ý¡¼¥È¡¦¥ì¥Ù¥ë";color[vn++] =
 #endif
 
 #ifdef JP
-if (flags6 & (RF6_DARKNESS))        {vp[vn] = ((p_ptr->pclass != CLASS_NINJA) || (flags3 & (RF3_UNDEAD | RF3_HURT_LITE))) ? "°Å°Ç" : "Á®¸÷";color[vn++] = TERM_L_DARK;}
+if (flags6 & (RF6_DARKNESS))        {if ((p_ptr->pclass != CLASS_NINJA) || (flags3 & (RF3_UNDEAD | RF3_HURT_LITE))) {vp[vn] =  "°Å°Ç";color[vn++] = TERM_L_DARK;} else { vp[vn] = "Á®¸÷";color[vn++] = TERM_YELLOW;}}
 #else
 if (flags6 & (RF6_DARKNESS))        {vp[vn] = ((p_ptr->pclass != CLASS_NINJA) || (flags3 & (RF3_UNDEAD | RF3_HURT_LITE))) ? "create darkness" : "create light";color[vn++] = TERM_L_DARK;}
 #endif
@@ -2187,12 +2145,6 @@ if (flags4 & RF4_BR_TIME) {vp[vn] = "»þ´ÖµÕÅ¾";color[vn++] = TERM_L_BLUE;}
 if (flags4 & RF4_BR_GRAV) {vp[vn] = "½ÅÎÏ";color[vn++] = TERM_SLATE;}
 #else
  if (flags4 & RF4_BR_GRAV) {vp[vn] = "gravity";color[vn++] = TERM_SLATE;}
-#endif
-
-#ifdef JP
-if (flags1 & RF1_UNIQUE) {vp[vn] = "Ê¬²ò";color[vn++] = TERM_SLATE;}
-#else
- if (flags1 & RF1_UNIQUE) {vp[vn] = "disintegrate";color[vn++] = TERM_SLATE;}
 #endif
 
 #ifdef JP
@@ -3411,26 +3363,26 @@ monster_hook_type get_monster_hook(void)
 		switch (wilderness[p_ptr->wilderness_y][p_ptr->wilderness_x].terrain)
 		{
 		case TERRAIN_TOWN:
-			return monster_town;
+			return (monster_hook_type)monster_town;
 		case TERRAIN_DEEP_WATER:
-			return monster_ocean;
+			return (monster_hook_type)monster_ocean;
 		case TERRAIN_SHALLOW_WATER:
 		case TERRAIN_SWAMP:
-			return monster_shore;
+			return (monster_hook_type)monster_shore;
 		case TERRAIN_DIRT:
 		case TERRAIN_DESERT:
-			return monster_waste;
+			return (monster_hook_type)monster_waste;
 		case TERRAIN_GRASS:
-			return monster_grass;
+			return (monster_hook_type)monster_grass;
 		case TERRAIN_TREES:
-			return monster_wood;
+			return (monster_hook_type)monster_wood;
 		case TERRAIN_SHALLOW_LAVA:
 		case TERRAIN_DEEP_LAVA:
-			return monster_volcano;
+			return (monster_hook_type)monster_volcano;
 		case TERRAIN_MOUNTAIN:
-			return monster_mountain;
+			return (monster_hook_type)monster_mountain;
 		default:
-			return monster_dungeon;
+			return (monster_hook_type)monster_dungeon;
 		}
 	}
 	else
@@ -3458,31 +3410,10 @@ monster_hook_type get_monster_hook2(int y, int x)
 }
 
 
-#if 0
-bool is_friendly(monster_type *m_ptr)
-{
-	if (m_ptr->smart & SM_FRIENDLY)
-		return (TRUE);
-	else
-		return (FALSE);
-}
-#endif
-
 void set_friendly(monster_type *m_ptr)
 {
 	m_ptr->smart |= SM_FRIENDLY;
 }
-
-#if 0
-bool is_pet(monster_type *m_ptr)
-{
-	if (m_ptr->smart & SM_PET)
-		return (TRUE);
-	else
-		return (FALSE);
-}
-#endif
-
 
 void set_pet(monster_type *m_ptr)
 {
@@ -3491,20 +3422,6 @@ void set_pet(monster_type *m_ptr)
 
 	m_ptr->smart |= SM_PET;
 }
-
-#if 0
-/*
- * Is the monster friendly or a pet?
- */
-bool is_hostile(monster_type *m_ptr)
-{
-	if (is_friendly(m_ptr) || is_pet(m_ptr))
-		return (FALSE);
-	else
-		return (TRUE);
-}
-#endif
-
 
 /*
  * Makes the monster hostile towards the player

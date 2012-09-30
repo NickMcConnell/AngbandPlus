@@ -2673,18 +2673,8 @@ static void display_player_equippy(int y, int x)
 		/* Object */
 		o_ptr = &inventory[i];
 
-#if 0
-		/* Skip empty objects */
-		if (!o_ptr->k_idx) continue;
-
-
-		/* Get attr/char for display */
-		a = tval_to_attr[o_ptr->tval & 0x7F];
-		c = tval_to_char[o_ptr->tval & 0x7F];
-#else
 		a = object_attr(o_ptr);
 		c = object_char(o_ptr);
-#endif
 
 		/* Clear the part of the screen */
 		if (!equippy_chars || !o_ptr->k_idx)
@@ -6506,7 +6496,8 @@ if (!save_player()) msg_print("セーブ失敗！");
 		/* Clear screen */
 		Term_clear();
 
-		if (check_score())
+//		if (check_score())
+		if(1)
 		{
 			if ((!send_world_score(do_send)))
 			{
@@ -6532,50 +6523,6 @@ if (!save_player()) msg_print("セーブ失敗！");
 		{
 			display_scores_aux(0, 10, -1, NULL);
 		}
-
-#if 0
-		if (do_send && send_score)
-		{
-			bool use_wait_report = FALSE; /*FALSEにしてみる*/
-
-			bool no_score_report = FALSE;
-
-			if (noscore) no_score_report = TRUE;
-
-#ifdef JP
-			if (!total_winner && 
-			    (streq(died_from, "強制終了") ||
-			     streq(died_from, "途中終了")))
-#else
-			if (!total_winner && 
-			    (streq(died_from, "Interrupting") ||
-			     streq(died_from, "Quitting")))
-#endif
-			{
-			    no_score_report = TRUE;
-			}
-
-			if ((
-				use_wait_report && !no_score_report &&
-#ifdef JP
-				get_check("後でスコアを登録するために待機しますか？")
-#else
-				get_check("Stand by for later score registration? ")
-#endif
-			    ) || (
-				top_twenty(TRUE) == 2 &&
-#ifdef JP
-			        get_check("後で登録するために待機しますか？ (nを押すとあきらめて終了します) ")
-#else
-			        get_check("Stand by for later score registration? (n for give up registration.) ")
-#endif
-			    ))
-			{
-			}
-		}
-		else
-			top_twenty(do_send);
-#endif
 #if 0
 		/* Dump bones file */
 		make_bones();

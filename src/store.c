@@ -3395,8 +3395,8 @@ msg_format("%sを $%ldで購入しました。", o_name, (long)price);
 
 				if (record_buy) do_cmd_write_nikki(NIKKI_BUY, 0, o_name);
 				object_desc(o_name, o_ptr, TRUE, 0);
-				if(record_rand_art)
-					if(!strncmp(o_name,"☆", 2)) do_cmd_write_nikki(NIKKI_ART, 0, o_name);
+				if(record_rand_art && o_ptr->art_name)
+					do_cmd_write_nikki(NIKKI_ART, 0, o_name);
 
 				/* Erase the inscription */
 				j_ptr->inscription = 0;
@@ -4208,17 +4208,6 @@ static void store_process_command(void)
 			do_cmd_takeoff();
 			break;
 		}
-
-#if 0
-
-		/* Drop an item */
-		case 'd':
-		{
-			do_cmd_drop();
-			break;
-		}
-
-#endif
 
 		/* Destroy an item */
 		case 'k':

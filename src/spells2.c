@@ -847,12 +847,12 @@ info[i++] = "あなたは街とダンジョンの間を行き来することができる。";
 			break;
 		case CLASS_MIRROR_MASTER:
 #ifdef JP
-info[i++] = "鏡を作り出すことができる。(2 MP)";
+info[i++] = "あなたは鏡を作り出すことができる。(2 MP)";
 #else
 				info[i++] = "You can create a Mirror (cost 2).";
 #endif
 #ifdef JP
-info[i++] = "鏡を割ることができる。(0 MP)";
+info[i++] = "あなたは鏡を割ることができる。(0 MP)";
 #else
 				info[i++] = "You can break distant Mirrors (cost 0).";
 #endif
@@ -861,9 +861,9 @@ info[i++] = "鏡を割ることができる。(0 MP)";
 			if (plev > 7)
 			{
 #ifdef JP
-info[i++] = "あなたは攻撃して即座に逃げることができる。(12 MP)";
+info[i++] = "あなたは素早く移動することができる。";
 #else
-				info[i++] = "You can attack and teleport at a time. (cost 12).";
+				info[i++] = "You can walk extremery fast.";
 #endif
 			}
 			break;
@@ -1619,14 +1619,10 @@ info[i++] = "あなたの血管には電流が流れている。";
 		}
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
 		{
-#if 0
-			/* Unnecessary, actually... */
 #ifdef JP
 info[i++] = "あなたの体は炎につつまれている。";
 #else
 			info[i++] = "Your body is enveloped in flames.";
-#endif
-
 #endif
 		}
 		if (p_ptr->muta3 & MUT3_WART_SKIN)
@@ -4377,15 +4373,6 @@ void aggravate_monsters(int who)
 				m_ptr->fast = MIN(200, m_ptr->fast + 100);
 				speed = TRUE;
 			}
-#if 0
-			/* Speed up (instantly) to racial base + 10 */
-			else if (m_ptr->mspeed < r_ptr->speed + 10)
-			{
-				/* Speed up */
-				m_ptr->mspeed += 10;
-				speed = TRUE;
-			}
-#endif
 		}
 	}
 
@@ -6579,7 +6566,11 @@ msg_print("純粋な魔力の次元への扉が開いた！");
 #endif
 
 				project(0, 8, py, px, dam, GF_MANA, flg, -1);
+#ifdef JP
 				take_hit(DAMAGE_NOESCAPE, dam, "純粋な魔力の解放", -1);
+#else
+				take_hit(DAMAGE_NOESCAPE, dam, "released pure mana", -1);
+#endif
 				if (randint(6) != 1) break;
 			}
 		case 32: case 33:
@@ -6606,7 +6597,11 @@ msg_print("エネルギーのうねりを感じた！");
 			if (!rand_int(7))
 			{
 				project(0, 7, py, px, 50, GF_KILL_WALL, flg, -1);
+#ifdef JP
 				take_hit(DAMAGE_NOESCAPE, 50, "エネルギーのうねり", -1);
+#else
+				take_hit(DAMAGE_NOESCAPE, 50, "surge of energy", -1);
+#endif
 			}
 			if (randint(6) != 1) break;
 		case 1: case 2: case 3: case 16: case 17:

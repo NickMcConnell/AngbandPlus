@@ -485,13 +485,9 @@ struct cave_type
 
 	byte mimic;		/* Feature to mimic */
 
-#ifdef MONSTER_FLOW
-
 	byte cost;		/* Hack -- cost of flowing */
 	byte dist;		/* Hack -- distance from player */
 	byte when;		/* Hack -- when cost was computed */
-
-#endif /* MONSTER_FLOW */
 };
 
 

@@ -69,7 +69,7 @@ bin_PROGRAMS = hengband
 hengband_SOURCES =  	z-util.c z-virt.c z-form.c z-rand.c z-term.c 	variable.c tables.c util.c cave.c 	kajitips.h object1.c object2.c monster1.c monster2.c 	xtra1.c xtra2.c spells1.c spells2.c 	melee1.c melee2.c save.c files.c 	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c 	store.c birth.c load.c 	wizard1.c wizard2.c grid.c streams.c rooms.c 	generate.c dungeon.c init1.c init2.c 	effects.c racial.c inet.c report.c 	artifact.c mutation.c flavor.c spells3.c 	mspells1.c mspells2.c scores.c mind.c mane.c hissatsu.c 	bldg.c obj_kind.c wild.c avatar.c japanese.c mspells3.c 	main-cap.c main-gcu.c main-x11.c main-xaw.c main.c chuukei.c 	angband.h defines.h event.h externs.h generate.h grid.h 	h-basic.h h-config.h h-define.h h-system.h h-type.h 	mindtips.h readdib.h rooms.h spellstips.h streams.h 	types.h z-config.h z-form.h z-rand.h z-term.h z-util.h z-virt.h
 
 
-EXTRA_hengband_SOURCES =  	angband.ico angband.rc maid-x11.c main-mac.c main-win.c 	makefile.bcc makefile.std readdib.c script.c wall.bmp
+EXTRA_hengband_SOURCES =  	angband.ico angband.rc ang_eng.rc maid-x11.c main-mac.c main-win.c 	makefile.bcc makefile.std readdib.c script.c wall.bmp
 
 
 CFLAGS = @CFLAGS@ -Wall -fno-strength-reduce
@@ -243,6 +243,139 @@ distdir: $(DISTFILES)
 	    || cp -p $$d/$$file $(distdir)/$$file || :; \
 	  fi; \
 	done
+birth.o: birth.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+bldg.o: bldg.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+cave.o: cave.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+cmd1.o: cmd1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+cmd2.o: cmd2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+cmd3.o: cmd3.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+cmd4.o: cmd4.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+cmd5.o: cmd5.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h spellstips.h
+cmd6.o: cmd6.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+dungeon.o: dungeon.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+effects.o: effects.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+files.o: files.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+flavor.o: flavor.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+generate.o: generate.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
+	generate.h grid.h rooms.h streams.h
+hissatsu.o: hissatsu.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+inet.o: inet.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+init2.o: init2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+japanese.o: japanese.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+load.o: load.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+main-x11.o: main-x11.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
+	maid-x11.c
+melee1.o: melee1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+melee2.o: melee2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+mind.o: mind.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h mindtips.h
+monster1.o: monster1.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+monster2.o: monster2.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+object1.o: object1.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+object2.o: object2.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h \
+	kajitips.h
+racial.o: racial.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+rooms.o: rooms.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h generate.h \
+	grid.h rooms.h
+save.o: save.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+scores.o: scores.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+spells1.o: spells1.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+spells2.o: spells2.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+spells3.o: spells3.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+store.o: store.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+tables.o: tables.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+util.o: util.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+variable.o: variable.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+wild.o: wild.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+wizard1.o: wizard1.c angband.h h-basic.h autoconf.h h-config.h \
+	h-system.h h-type.h h-define.h z-util.h z-virt.h z-form.h \
+	z-rand.h z-term.h z-config.h defines.h types.h externs.h
+xtra1.o: xtra1.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+xtra2.o: xtra2.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
+z-term.o: z-term.c angband.h h-basic.h autoconf.h h-config.h h-system.h \
+	h-type.h h-define.h z-util.h z-virt.h z-form.h z-rand.h \
+	z-term.h z-config.h defines.h types.h externs.h
 
 info-am:
 info: info-am

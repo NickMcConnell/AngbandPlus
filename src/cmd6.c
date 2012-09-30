@@ -4263,11 +4263,7 @@ msg_print("天国の歌が聞こえる...");
 			case ART_TERROR:
 			case ART_STONEMASK:
 			{
-#if 0
-				for (i = 0; i < 8; i++) fear_monster(ddd[i], (p_ptr->lev)+10);
-#else
 				turn_monsters(40 + p_ptr->lev);
-#endif
 				o_ptr->timeout = 3 * (p_ptr->lev + 10);
 
 				break;
@@ -6187,9 +6183,6 @@ static bool item_tester_hook_use(object_type *o_ptr)
 		case TV_ROD:
 		case TV_SCROLL:
 		case TV_POTION:
-#if 0
-		case TV_FLASK:
-#endif
 		case TV_FOOD:
 		{
 			return (TRUE);
@@ -6278,15 +6271,6 @@ s = "使えるものがありません。";
 			do_cmd_eat_food_aux(item);
 			break;
 		}
-
-#if 0
-		/* Fuel your lantern */
-		case TV_FLASK:
-		{
-			do_cmd_refill();
-			break;
-		}
-#endif
 
 		/* Aim a wand */
 		case TV_WAND:

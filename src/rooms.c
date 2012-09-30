@@ -1260,41 +1260,6 @@ strstr((E_r_name + r_ptr->E_name),"riest")))
 	return (TRUE);
 }
 
-#if 0
-/*
- * Helper function for "monster nest (chapel)"
- */
-static bool vault_aux_chapel_e(int r_idx)
-{
-	monster_race *r_ptr = &r_info[r_idx];
-
-	/* Validate the monster */
-	if (!vault_monster_okay(r_idx)) return (FALSE);
-
-	if (r_ptr->flags3 & (RF3_GOOD)) return (FALSE);
-
-	/* Require "priest" or Angel */
-	if (!((r_ptr->d_char == 'A') ||
-#ifdef JP
-strstr((E_r_name + r_ptr->E_name),"aladin") ||
-#else
-		strstr((r_name + r_ptr->name),"aladin") ||
-#endif
-#ifdef JP
-strstr((E_r_name + r_ptr->E_name),"riest")))
-#else
-		strstr((r_name + r_ptr->name),"riest")))
-#endif
-
-	{
-		return (FALSE);
-	}
-
-	/* Okay */
-	return (TRUE);
-}
-#endif
-
 
 /*
  * Helper function for "monster nest (kennel)"
@@ -3555,8 +3520,7 @@ static bool generate_lake(int y0, int x0, int xsize, int ysize, int c1, int c2, 
 
 			/* Light lava and trees */
 			if ((cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_DEEP_LAVA) ||
-				(cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_SHAL_LAVA) ||
-				(cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_TREES))
+				(cave[y0 + y - yhsize][x0 + x - xhsize].feat == FEAT_SHAL_LAVA))
 			{
 				cave[y0 + y - yhsize][x0 + x - xhsize].info |= CAVE_GLOW;
 			}

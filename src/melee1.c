@@ -1452,10 +1452,6 @@ if (strstr((E_r_name + r_ptr->E_name), "black market")
 
 				case RBE_PARALYZE:
 				{
-#if 0
-					/* Hack -- Prevent perma-paralysis via damage */
-					if (p_ptr->paralyzed && (damage < 1)) damage = 1;
-#endif
 					/* Take damage */
 					take_hit(DAMAGE_ATTACK, damage, ddesc, -1);
 
@@ -2020,26 +2016,6 @@ msg_format("%sは体力を回復したようだ。", m_name);
 					}
 
 					if (m_ptr->hp < m_ptr->maxhp) did_heal = TRUE;
-
-#if 0
-					/* Heal */
-					m_ptr->hp += damroll(4, damage / 6);
-					if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-					/* Redraw (later) if needed */
-					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-					if (p_ptr->jouba == m_idx) p_ptr->redraw |= (PR_UHEALTH);
-
-					/* Special message */
-					if ((m_ptr->ml) && (did_heal))
-					{
-#ifdef JP
-msg_format("%sは体力を回復したようだ。", m_name);
-#else
-						msg_format("%^s appears healthier.", m_name);
-#endif
-					}
-#endif
 
 					p_ptr->redraw |= (PR_MANA);
 

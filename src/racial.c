@@ -2165,7 +2165,7 @@ msg_print("あなたは魔法の粉を投げつけた...");
 #ifdef JP
 msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"));
 #else
-				msg_format("You breathe %s.",((type == GF_NETHER) ? "地獄" : "火炎"));
+				msg_format("You breathe %s.",((type == GF_NETHER) ? "nether" : "fire"));
 #endif
 
 				fire_ball(type, dir, plev * 3,
@@ -2186,7 +2186,11 @@ msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"
 				if (racial_aux(1, 7, A_STR, 8))
 				{
 					if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
 					msg_print("レイガンを発射した。");
+#else
+					msg_print("You fire your ray gun.");
+#endif
 					fire_bolt(GF_MISSILE, dir, (plev+1) / 2);
 				}
 			}
@@ -2195,7 +2199,11 @@ msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"
 				if (racial_aux(10, 13, A_STR, 10))
 				{
 					if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
 					msg_print("ブラスターを発射した。");
+#else
+					msg_print("You fire your blaster.");
+#endif
 					fire_bolt(GF_MISSILE, dir, plev);
 				}
 			}
@@ -2204,7 +2212,11 @@ msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"
 				if (racial_aux(25, 26, A_STR, 12))
 				{
 					if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
 					msg_print("バズーカを発射した。");
+#else
+					msg_print("You fire your bazooka.");
+#endif
 					fire_ball(GF_MISSILE, dir, plev * 2, 2);
 				}
 			}
@@ -2213,7 +2225,11 @@ msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"
 				if (racial_aux(35, 40, A_STR, 15))
 				{
 					if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
 					msg_print("ビームキャノンを発射した。");
+#else
+					msg_print("You fire a beam cannon.");
+#endif
 					fire_beam(GF_MISSILE, dir, plev * 2);
 				}
 			}
@@ -2222,7 +2238,11 @@ msg_format("あなたは%sのブレスを吐いた。",((type == GF_NETHER) ? "地獄" : "火炎"
 				if (racial_aux(45, 60, A_STR, 18))
 				{
 					if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
 					msg_print("ロケットを発射した。");
+#else
+					msg_print("You fire a rocket.");
+#endif
 					fire_ball(GF_ROCKET, dir, plev * 5, 2);
 				}
 			}
@@ -2878,7 +2898,7 @@ strcpy(power_desc[num].name, "シャドウ・シフト");
 			power_desc[num].fail = 100 - racial_chance(30, A_INT, 50);
 			power_desc[num++].number = -1;
 #ifdef JP
-strcpy(power_desc[1].name, "パターン・ウォーク");
+strcpy(power_desc[num].name, "パターン・ウォーク");
 #else
 			strcpy(power_desc[1].name, "Pattern Mindwalking");
 #endif

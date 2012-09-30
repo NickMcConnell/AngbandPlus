@@ -2328,9 +2328,7 @@
 #define CAVE_TEMP       0x0040    /* temp flag */
 #define CAVE_XTRA       0x0080    /* misc flag */
 
-#ifdef MONSTER_LITE
 #define CAVE_MNLT	0x0100	/* Illuminated by monster */
-#endif
 #define CAVE_FLOOR      0x0200
 #define CAVE_EXTRA      0x0400
 #define CAVE_INNER      0x0800

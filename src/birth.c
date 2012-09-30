@@ -1812,9 +1812,7 @@ static cptr class_jouhou[MAX_CLASS] =
 
 "Sorcerors are the all-around best magicians, being able to cast any spells from almost all magic realms, except a few special realms, without having to learn it. On the downside, they are the worst fighters, being unable to use any weapon but a Mage Staff comfortably, and still unable to be anything even remotely approaching effective with it. To compensate for their ability to cast all spells.",
 
-"Archers are to bows what warriors are to melee.
-They are the best class around with any bow/crossbow/sling. Needing a lot of ammo, they will learn early how to make it from junk found in the dungeons. 
-An archer is better than a warrior at stealth, perception, searching and magical devices.",
+"Archers are to bows what warriors are to melee. They are the best class around with any bow/crossbow/sling. Needing a lot of ammo, they will learn early how to make it from junk found in the dungeons. An archer is better than a warrior at stealth, perception, searching and magical devices.",
 
 "Magic-Eaters can absorb magics of wands, staffs and rods. And they can use these magics as if they are always carrying all of these absorbed devices. To collect magic devices is more important for Magic-Eaters than any other classes by far. They are not very good at fighting, but it's possible to fight his way through. A Magic-Eater's prime statistic is intelligence as this determines his magic using ability. ",
 
@@ -1895,7 +1893,7 @@ static cptr seikaku_jouhou[MAX_SEIKAKU] =
 
 "\"Fearless\" raises both of your melee and magical ability. Stats such as magic defense and constitution get poor. ",
 
-"\"Combat\" gives you comparativery high melee and shooting abilities, and average constitution. Other skills such as stealth, magic defence and using magical device get poor. All of \"Combat\" person have great respect for the legendary \"Combat Echizen\".
+"\"Combat\" gives you comparativery high melee and shooting abilities, and average constitution. Other skills such as stealth, magic defence and using magical device get poor. All of \"Combat\" person have great respect for the legendary \"Combat Echizen\".\n\
 (See \"Death Crimson\" / Ecole Software Corp.)",
 
 "A \"Lazy\" person has no good stats and can do no action well.",

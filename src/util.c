@@ -2412,11 +2412,7 @@ static void msg_flush(int x)
 	}
 	now_damaged = FALSE;
 
-#if 0
-	if (!auto_more || !nagasu)
-#else
 	if (!nagasu)
-#endif
 	{
 		/* Pause for response */
 #ifdef JP

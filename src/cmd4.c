@@ -1997,7 +1997,7 @@ void do_cmd_options(void)
 #ifdef JP
                                 do_cmd_options_aux(7, "アイテム自動拾い/破壊オプション");
 #else
-                                do_cmd_options_aux(7, "Object auto-destruction Options");
+                                do_cmd_options_aux(7, "Object auto-pick/destroy Options");
 #endif
                                 break;
                         }
@@ -2195,23 +2195,32 @@ void do_cmd_pickpref(void)
 	max_autopick = 0;
 
 	/* キャラ毎の設定ファイルの読み込み */
+#ifdef JP
 	sprintf(buf, "picktype-%s.prf", player_name);
+#else
+	sprintf(buf, "pickpref-%s.prf", player_name);
+#endif
 	if( process_pickpref_file(buf) == 0 ){
 		err = 0;
 #ifdef JP
 		msg_format("%sを読み込みました。", buf);
 #else
-		msg_format("loaded %s.", buf);
+		msg_format("loaded '%s'.", buf);
 #endif
 	}
 
 	/* 共通の設定ファイル読み込み */
-	if( process_pickpref_file("picktype.prf") == 0 ){
+#ifdef JP
+	if( process_pickpref_file("picktype.prf") == 0 )
+#else
+	if( process_pickpref_file("pickpref.prf") == 0 )
+#endif
+	{
 		err = 0;
 #ifdef JP
 		msg_print("picktype.prfを読み込みました。");
 #else
-		msg_print("loaded 'picktype.prf'.");
+		msg_print("loaded 'pickpref.prf'.");
 #endif
 	}
 
@@ -3186,9 +3195,6 @@ void do_cmd_visuals(void)
 
 
 			/* Default filename */
-#if 0
-			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
-#endif
 			sprintf(tmp, "%s.prf", player_name);
 
 			/* Query */
@@ -3220,9 +3226,6 @@ void do_cmd_visuals(void)
 
 
 			/* Default filename */
-#if 0
-			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
-#endif
 			sprintf(tmp, "%s.prf", player_name);
 			
 			/* Get a filename */
@@ -3312,9 +3315,6 @@ void do_cmd_visuals(void)
 
 
 			/* Default filename */
-#if 0
-			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
-#endif
 			sprintf(tmp, "%s.prf", player_name);
 
 			/* Get a filename */
@@ -3404,9 +3404,6 @@ void do_cmd_visuals(void)
 
 
 			/* Default filename */
-#if 0
-			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
-#endif
 			sprintf(tmp, "%s.prf", player_name);
 
 			/* Get a filename */
@@ -3851,9 +3848,6 @@ void do_cmd_colors(void)
 
 
 			/* Default file */
-#if 0
-			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
-#endif
 			sprintf(tmp, "%s.prf", player_name);
 
 			/* Query */
@@ -3891,9 +3885,6 @@ void do_cmd_colors(void)
 
 
 			/* Default filename */
-#if 0
-			sprintf(tmp, "user-%s.prf", ANGBAND_SYS);
-#endif
 			sprintf(tmp, "%s.prf", player_name);
 
 			/* Get a filename */
@@ -4349,7 +4340,11 @@ void do_cmd_feeling(void)
 	/* No useful feeling in town */
 	else if (p_ptr->town_num && !dun_level)
 	{
+#ifdef JP
 		if (!strcmp(town[p_ptr->town_num].name, "荒野"))
+#else
+		if (!strcmp(town[p_ptr->town_num].name, "wilderness"))
+#endif
 		{
 #ifdef JP
 			msg_print("何かありそうな荒野のようだ。");
@@ -4595,7 +4590,11 @@ void do_cmd_load_screen(void)
 
 
 cptr inven_res_label = 
+#ifdef JP
  "                               酸電火冷毒光闇破轟獄因沌劣 盲怖乱痺透命感消復浮";
+#else
+ "                               AcElFiCoPoLiDkShSoNtNxCaDi BlFeCfFaSeHlEpSdRgLv";
+#endif
 
 /* XTRA HACK RESLIST */
 static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr, 
@@ -4622,7 +4621,6 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
       int i = 0;
       object_desc(o_name, o_ptr, TRUE, 0);
 
-      /* 名前を半角28文字でカット。足りない時はスペースで埋める*/
       while ( o_name[i] && i < 26 ){
 #ifdef JP
 	if (iskanji(o_name[i])) i++;
@@ -4636,11 +4634,16 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 
       if (!(o_ptr->ident & (IDENT_MENTAL))) 
 	{
+#ifdef JP
 	  fprintf(fff, "-------不明--------------- -------不明---------\n");
+#else
+	  fprintf(fff, "-------unknown------------ -------unknown------\n");
+#endif
 	}
       else {
 	object_flags_known(o_ptr, &f[0], &f[1], &f[2]);
       
+#ifdef JP
 	if (f[1] & TR2_IM_ACID) fprintf(fff,"＊");
 	else if (f[1] & TR2_RES_ACID) fprintf(fff,"＋");
 	else fprintf(fff,"・");
@@ -4716,7 +4719,83 @@ static void do_cmd_knowledge_inven_aux(FILE *fff, object_type *o_ptr,
 
 	if (f[2] & TR3_FEATHER) fprintf(fff,"＋");
 	else fprintf(fff,"・");
+#else
+	if (f[1] & TR2_IM_ACID) fprintf(fff,"* ");
+	else if (f[1] & TR2_RES_ACID) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+
+	if (f[1] & TR2_IM_ELEC) fprintf(fff,"* ");
+	else if (f[1] & TR2_RES_ELEC) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+
+	if (f[1] & TR2_IM_FIRE) fprintf(fff,"* ");
+	else if (f[1] & TR2_RES_FIRE) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+
+	if (f[1] & TR2_IM_COLD) fprintf(fff,"* ");
+	else if (f[1] & TR2_RES_COLD) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
 	
+	if (f[1] & TR2_RES_POIS) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_LITE) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_DARK) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_SHARDS) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_SOUND) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_NETHER) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_NEXUS) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_CHAOS) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_DISEN) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	fprintf(fff," ");
+	
+	if (f[1] & TR2_RES_BLIND) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_FEAR) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_RES_CONF) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_FREE_ACT) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[2] & TR3_SEE_INVIS) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+	
+	if (f[1] & TR2_HOLD_LIFE) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+
+	if (f[2] & TR3_TELEPATHY) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+
+	if (f[2] & TR3_SLOW_DIGEST) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+
+
+	if (f[2] & TR3_REGEN) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+
+	if (f[2] & TR3_FEATHER) fprintf(fff,"+ ");
+	else fprintf(fff,". ");
+#endif	
 	fprintf(fff,"\n");
       }
       (*j)++;
@@ -4750,7 +4829,11 @@ static void do_cmd_knowledge_inven(void)
 	/* Open a new file */
 	fff = my_fopen_temp(file_name, 1024);
 	if (!fff) {
+#ifdef JP
 	    msg_format("一時ファイル %s を作成できませんでした。", file_name);
+#else
+	    msg_format("Failed to create temporaly file %s.", file_name);
+#endif
 	    msg_print(NULL);
 	    return;
 	}
@@ -4764,14 +4847,22 @@ static void do_cmd_knowledge_inven(void)
 	      fprintf(fff,"%s\n",inven_res_label);              
 	  }
 	  
+#ifdef JP
 	  strcpy(where, "装");
+#else
+	  strcpy(where, "Eq");
+#endif
 	  for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	    {
 	      o_ptr = &inventory[i];
 	      do_cmd_knowledge_inven_aux(fff, o_ptr, &j, tval, where);
 	    }
 	  
+#ifdef JP
 	  strcpy(where, "持");
+#else
+	  strcpy(where, "Hv");
+#endif
 	  for (i = 0; i < INVEN_PACK; i++)
 	    {
 	      o_ptr = &inventory[i];
@@ -4781,7 +4872,11 @@ static void do_cmd_knowledge_inven(void)
 	  
 	  /* Print all homes in the different towns */
 	  st_ptr = &town[1].store[STORE_HOME];
+#ifdef JP
 	  strcpy(where, "家");
+#else
+	  strcpy(where, "Hm");/*nanka*/
+#endif
 	      
 	  /* Dump all available items */
 	  for (i = 0; i < st_ptr->stock_num; i++)
@@ -4795,7 +4890,11 @@ static void do_cmd_knowledge_inven(void)
 	my_fclose(fff);
 
 	/* Display the file contents */
+#ifdef JP
 	show_file(TRUE, file_name, "*鑑定*済み武器/防具の耐性リスト", 0, 0);
+#else
+	show_file(TRUE, file_name, "Resistances of *identifyed* equipment", 0, 0);
+#endif
 
 	/* Remove the file */
 	fd_kill(file_name);
@@ -5963,7 +6062,11 @@ static void do_cmd_knowledge_pets(void)
 			monster_desc(pet_name, m_ptr, 0x88);
 			fprintf(fff, "%s (%s)", pet_name, look_mon_desc(i));
 			if (p_ptr->jouba == i)
+#ifdef JP
 				fprintf(fff, " 乗馬中");
+#else
+				fprintf(fff, " Riding");
+#endif
 			fprintf(fff, "\n");
 		}
 	}
@@ -6277,14 +6380,24 @@ void do_cmd_knowledge_kubi(void)
 	
 	if (fff)
 	{
+#ifdef JP
 		fprintf(fff, "今日のターゲット : %s\n", (p_ptr->today_mon ? r_name + r_info[p_ptr->today_mon].name : "不明"));
 		fprintf(fff, "\n");
 		fprintf(fff, "賞金首リスト\n");
+#else
+		fprintf(fff, "Today target : %s\n", (p_ptr->today_mon ? r_name + r_info[p_ptr->today_mon].name : "unknown"));
+		fprintf(fff, "\n");
+		fprintf(fff, "List of wanted monsters\n");
+#endif
 		for (i = 0; i < MAX_KUBI; i++)
 		{
 			fprintf(fff,"%-40s ---- ",r_name + r_info[(kubi_r_idx[i] > 10000 ? kubi_r_idx[i] - 10000 : kubi_r_idx[i])].name);
 			if (kubi_r_idx[i] > 10000)
+#ifdef JP
 				fprintf(fff, "済\n");
+#else
+				fprintf(fff, "done\n");
+#endif
 			else
 				fprintf(fff, "$%d\n", 300 * (r_info[kubi_r_idx[i]].level + 1));
 		}
@@ -6297,7 +6410,7 @@ void do_cmd_knowledge_kubi(void)
 #ifdef JP
 show_file(TRUE, file_name, "賞金首の一覧", 0, 0);
 #else
-	show_file(TRUE, file_name, "kubi", 0, 0);
+	show_file(TRUE, file_name, "Wanted monsters", 0, 0);
 #endif
 
 	
@@ -6964,8 +7077,11 @@ void do_cmd_knowledge(void)
 		prt("(a) Display weapon experiment", 13, 5);
 		prt("(b) Display spell experiment", 14, 5);
 		prt("(c) Display skill experiment", 15, 5);
-		prt("(d) Display wanted uniques", 16, 5);
+		prt("(d) Display wanted monsters", 16, 5);
 		prt("(e) Display home inventory", 17, 5);
+		prt("(f) Display *identifyed* equip.", 18, 5);
+		prt("(g) Display about yourself", 19, 5);
+		prt("(h) Display dungeons", 20, 5);
 #endif
 
 		/* Prompt */

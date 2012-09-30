@@ -141,7 +141,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
 	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen", "Ivory"/*,"Gnarled","Willow"*/
+	"Golden", "Ashen", "Ivory","Gnarled"/*,"Willow"*/
 };
 
 #ifdef JP
@@ -2109,19 +2109,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Is it a new random artifact ? */
 		else if (o_ptr->art_name)
 		{
-#if 0
-			if (o_ptr->ident & IDENT_STOREB)
-				t = object_desc_str(t, " called '");
-			else
-#endif
-				t = object_desc_chr(t, ' ');
+			t = object_desc_chr(t, ' ');
 
 			t = object_desc_str(t, quark_str(o_ptr->art_name));
-
-#if 0
-			if (o_ptr->ident & IDENT_STOREB)
-				t = object_desc_chr(t, '\'');
-#endif
 		}
 
 		/* Grab any artifact name */

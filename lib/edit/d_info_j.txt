@@ -92,7 +92,7 @@ M:ORC | R_CHAR_k | R_CHAR_o | R_CHAR_O | ANIMAL
 N:4:迷宮
 E:Maze
 D:$the frightening entrance to a strange Maze
-D:奇妙な迷宮への恐るべき入り口
+D:恐るべき奇妙な迷宮
 P:57:31
 W:10:18:1:0:80:160:75:20:0x0000:0x0000
 L:1:100:1:0:1:0:100

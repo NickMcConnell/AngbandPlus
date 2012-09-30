@@ -25,7 +25,7 @@ hengband_SOURCES = \
 	types.h z-config.h z-form.h z-rand.h z-term.h z-util.h z-virt.h
 
 EXTRA_hengband_SOURCES = \
-	angband.ico angband.rc maid-x11.c main-mac.c main-win.c \
+	angband.ico angband.rc ang_eng.rc maid-x11.c main-mac.c main-win.c \
 	makefile.bcc makefile.std readdib.c script.c wall.bmp
 
 CFLAGS = @CFLAGS@ -Wall -fno-strength-reduce

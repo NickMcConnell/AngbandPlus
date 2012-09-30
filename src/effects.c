@@ -84,7 +84,7 @@ void set_action(int typ)
 #ifdef JP
 				msg_print("足が重くなった。");
 #else
-				msg_print("You stop hayagake.");
+				msg_print("You are no longer walking extremery fast.");
 #endif
 				break;
 			}
@@ -5155,7 +5155,7 @@ msg_print("*** 警告:低ヒット・ポイント！ ***");
 		msg_print(NULL);
 		flush();
 	}
-	if (p_ptr->wild_mode && (p_ptr->chp < MAX(warning, p_ptr->mhp/5)))
+	if (p_ptr->wild_mode && !p_ptr->leaving && (p_ptr->chp < MAX(warning, p_ptr->mhp/5)))
 	{
 		p_ptr->wilderness_x = px;
 		p_ptr->wilderness_y = py;

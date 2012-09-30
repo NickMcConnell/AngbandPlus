@@ -389,6 +389,33 @@ void mindcraft_info(char *p, int use_mind, int power)
 	    }
 	  break;
 	}
+      case MIND_NINJUTSU:
+	{
+	  switch (power)
+	    {
+	    case 0:  break;
+	    case 1:  break;
+	    case 2:  sprintf(p, " %s10", s_range); break;
+	    case 3:  break;
+	    case 4:  sprintf(p, " %s%d", s_range , plev *5); break;
+	    case 5:  sprintf(p, " %s30", s_range); break;
+	    case 6:  break;
+	    case 7:  break;
+	    case 8:  sprintf(p, " %s20+d20", s_dur);  break;
+	    case 9:  sprintf(p, " %s%d", s_dam, (50+plev)/2 ); break;
+	    case 10: break;
+	    case 11: break;
+	    case 12: break;
+	    case 13: break;
+	    case 14: break;
+	    case 15: break;
+	    case 16: sprintf(p, " s_dur%d+d%d", s_dur, plev, plev);  break;
+	    case 17: sprintf(p, " s_dam(%d)*3", s_dam, (75+plev*2/3)/2 ); break;
+	    case 18: sprintf(p, " s_dam%dd10", s_dam, 6+plev/8 ); break;
+	    case 19: sprintf(p, " s_dur6+d6", s_dur);  break;
+	    }
+	  break;
+	}
       }
     }
 }
@@ -487,7 +514,7 @@ void mindcraft_info(char *p, int use_mind, int power)
 	case CLASS_BERSERKER:
 	  {
 	    use_mind = MIND_BERSERKER;
-	    p = "technique";
+	    p = "brutal power";
 	    break;
 	  }
 	case CLASS_MIRROR_MASTER:
@@ -885,10 +912,6 @@ if (!b) msg_print("安全な気がする。");
 		break;
 	case 3:
 		/* Major displace */
-#if 0
-		if (plev > 29)
-			banish_monsters(plev);
-#endif
 		teleport_player(plev * 5);
 		break;
 	case 4:
@@ -1829,6 +1852,7 @@ msg_print("混乱していて集中できない！");
 	/* get power */
 	if (!get_mind_power(&n, FALSE)) return;
 
+#ifdef JP
 	switch(p_ptr->pclass)
 	{
 		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;p = "精神";break;
@@ -1838,6 +1862,17 @@ msg_print("混乱していて集中できない！");
 		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;p = "精神";break;
 		default:                use_mind = 0;p = "超能力";break;
 	}
+#else
+	switch(p_ptr->pclass)
+	{
+		case CLASS_MINDCRAFTER: use_mind = MIND_MINDCRAFTER;break;
+		case CLASS_KI:          use_mind = MIND_KI;break;
+		case CLASS_BERSERKER:   use_mind = MIND_BERSERKER;break;
+		case CLASS_MIRROR_MASTER:   use_mind = MIND_MIRROR_MASTER;break;
+		case CLASS_NINJA:       use_mind = MIND_NINJUTSU;break;
+		default:                use_mind = 0;break;
+	}
+#endif
 	spell = mind_powers[use_mind].info[n];
 
 	/* Spell failure chance */
@@ -2076,7 +2111,11 @@ msg_format("%sの力が制御できない氾流となって解放された！", p);
 			cast = cast_ninja_spell(n);
 			break;
 		default:
+#ifdef JP
 			msg_format("謎の能力:%d, %d",use_mind, n);
+#else
+			msg_format("Mystery power:%d, %d",use_mind, n);
+#endif
 			return;
 		}
 

@@ -468,17 +468,6 @@ static errr init_f_info(void)
 
 		/* Success */
 		if (!err) return (0);
-
-#if 0
-		/* Information */
-#ifdef JP
-		msg_print("欠陥がある、もしくは旧式の 'f_info_j.raw' ファイルを無視します。");
-#else
-		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
-#endif
-
-		msg_print(NULL);
-#endif
 	}
 
 
@@ -812,17 +801,6 @@ static errr init_k_info(void)
 
 			return (0);
 		}
-
-#if 0
-		/* Information */
-#ifdef JP
-		msg_print("欠陥がある、もしくは旧式の 'k_info_j.raw' ファイルを無視します。");
-#else
-		msg_print("Ignoring obsolete/defective 'k_info.raw' file.");
-#endif
-
-		msg_print(NULL);
-#endif
 	}
 
 
@@ -1154,17 +1132,6 @@ static errr init_a_info(void)
 
 		/* Success */
 		if (!err) return (0);
-
-#if 0
-		/* Information */
-#ifdef JP
-		msg_print("欠陥がある、もしくは旧式の 'a_info_j.raw' ファイルを無視します。");
-#else
-		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
-#endif
-
-		msg_print(NULL);
-#endif
 	}
 
 
@@ -1497,17 +1464,6 @@ static errr init_e_info(void)
 
 		/* Success */
 		if (!err) return (0);
-
-#if 0
-		/* Information */
-#ifdef JP
-		msg_print("欠陥がある、もしくは旧式の 'e_info_j.raw' ファイルを無視します。");
-#else
-		msg_print("Ignoring obsolete/defective 'e_info.raw' file.");
-#endif
-
-		msg_print(NULL);
-#endif
 	}
 
 
@@ -1837,17 +1793,6 @@ static errr init_r_info(void)
 
 		/* Success */
 		if (!err) return (0);
-
-#if 0
-		/* Information */
-#ifdef JP
-		msg_print("欠陥がある、もしくは旧式の 'r_info_j.raw' ファイルを無視します。");
-#else
-		msg_print("Ignoring obsolete/defective 'r_info.raw' file.");
-#endif
-
-		msg_print(NULL);
-#endif
 	}
 
 
@@ -2172,17 +2117,6 @@ static errr init_d_info(void)
 
 		/* Success */
 		if (!err) return (0);
-
-#if 0
-		/* Information */
-#ifdef JP
-		msg_print("欠陥がある、もしくは旧式の 'd_info_j.raw' ファイルを無視します。");
-#else
-		msg_print("Ignoring obsolete/defective 'd_info.raw' file.");
-#endif
-
-		msg_print(NULL);
-#endif
 	}
 
 
@@ -2482,17 +2416,6 @@ errr init_v_info(void)
 
 		/* Success */
 		if (!err) return (0);
-
-#if 0
-		/* Information */
-#ifdef JP
-		msg_print("欠陥がある、もしくは旧式の 'v_info_j.raw' ファイルを無視します。");
-#else
-		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
-#endif
-
-		msg_print(NULL);
-#endif
 	}
 
 
@@ -3693,12 +3616,6 @@ static errr init_alloc(void)
 	}
 
 #endif /* SORT_R_INFO */
-
-#if 0
-
-	write_r_info_txt();
-
-#endif
 
 	/* Init the "alloc_kind_table" */
 	(void)init_object_alloc();

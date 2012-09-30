@@ -261,11 +261,6 @@ bool view_torch_grids;		/* Map remembers all torch-lit grids */
 bool dungeon_align;			/* Generate dungeons with aligned rooms */
 bool dungeon_stair;			/* Generate dungeons with connected stairs */
 
-#if 0
-bool flow_by_sound;			/* Monsters track new player location */
-bool flow_by_smell;			/* Monsters track old player location */
-#endif
-
 bool track_follow;			/* Monsters follow the player */
 bool track_target;			/* Monsters target the player */
 

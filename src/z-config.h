@@ -327,13 +327,6 @@
 
 
 /*
- * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
- * software options, which enable "monster flowing".
- */
-#define MONSTER_FLOW
-
-
-/*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
 #define MONSTER_FLOW_DEPTH 32
@@ -513,7 +506,7 @@
  * OPTION: Person to bother if something goes wrong.
  */
 /* #define MAINTAINER	"rr9@angband.org" */
-#define MAINTAINER	"combat-echizen@safe-mail.ne.jp"
+#define MAINTAINER	"echizen@s5.xrea.com"
 
 
 #ifdef JP
@@ -624,7 +617,6 @@
 # undef ALLOW_COLORS
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
-# undef MONSTER_FLOW
 # undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
 # undef ALLOW_OLD_SAVEFILES
@@ -663,19 +655,8 @@
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH
 
-/* For longer martial arts descriptions */
-# define VERBOSE_MARTIAL_ARTS
-
 /* Allow hordes of 'similar' monsters */
 # define MONSTER_HORDES
-
-/* Allow Klackon- and Sprite-Monks to get extra speed
- *
- * undefined by default because
- * Klackons and Sprites are not *supposed* to be
- * playing monks in the first place
- */
-/* #define MONK_HACK */
 
 /* Wizard mode testing options: */
 
@@ -728,11 +709,6 @@
 #endif /* USE_SCRIPT */
 
 /*
- * Monsters can drop corpses when killed
- */
-#define USE_CORPSES
-
-/*
  * The Frakir can predict danger when equipped
  */
 #define USE_FRAKIR
@@ -740,12 +716,3 @@
 #ifndef HAVE_CONFIG_H
 #define WORLD_SCORE
 #endif /* HAVE_CONFIG_H */
-
-#define MONSTER_LITE
-
-#if 0
-/*
- * Add caverns and lakes to the dungeon (buggy)
- */
-#define ALLOW_CAVERNS_AND_LAKES
-#endif

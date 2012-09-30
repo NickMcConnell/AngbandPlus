@@ -43,7 +43,7 @@ static int get_hissatsu_power(int *sn)
 #ifdef JP
 cptr            p = "必殺剣";
 #else
-	cptr            p = "power";
+	cptr            p = "special attack";
 #endif
 
 	magic_type spell;
@@ -197,7 +197,7 @@ cptr            p = "必殺剣";
 #ifdef JP
 put_str("名前           Lv   MP        名前           Lv   MP   ", y, x + 5);
 #else
-				put_str("Name", y, x + 5);
+put_str("name           Lv   MP        name           Lv   MP   ", y, x + 5);
 #endif
 				prt("", y+1, x);
 				/* Dump the spells */
@@ -214,7 +214,12 @@ put_str("名前           Lv   MP        名前           Lv   MP   ", y, x + 5);
 					if (!(spell_learned1 & (1L << i))) continue;
 					if (use_menu)
 					{
-						if (i == (menu_line-1)) strcpy(psi_desc, "  》");
+						if (i == (menu_line-1))
+#ifdef JP
+							strcpy(psi_desc, "  》");
+#else
+							strcpy(psi_desc, "  > ");
+#endif
 						else strcpy(psi_desc, "    ");
 						
 					}
@@ -366,19 +371,31 @@ static bool cast_hissatsu_spell(int spell)
 		if (cave[y][x].m_idx)
 			py_attack(y, x, 0);
 		else
+#ifdef JP
 			msg_print("攻撃は空を切った。");
+#else
+			msg_print("You attack the empty air.");
+#endif
 		y = py + ddy_cdd[(cdir + 7) % 8];
 		x = px + ddx_cdd[(cdir + 7) % 8];
 		if (cave[y][x].m_idx)
 			py_attack(y, x, 0);
 		else
+#ifdef JP
 			msg_print("攻撃は空を切った。");
+#else
+			msg_print("You attack the empty air.");
+#endif
 		y = py + ddy_cdd[(cdir + 1) % 8];
 		x = px + ddx_cdd[(cdir + 1) % 8];
 		if (cave[y][x].m_idx)
 			py_attack(y, x, 0);
 		else
+#ifdef JP
 			msg_print("攻撃は空を切った。");
+#else
+			msg_print("You attack the empty air.");
+#endif
 
 		break;
 	}
@@ -397,7 +414,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_FIRE);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
@@ -417,7 +438,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_MINEUCHI);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
@@ -426,10 +451,18 @@ static bool cast_hissatsu_spell(int spell)
 	{
 		if (p_ptr->jouba)
 		{
+#ifdef JP
 			msg_print("乗馬中には無理だ。");
+#else
+			msg_print("You cannot do it when riding.");
+#endif
 			return FALSE;
 		}
+#ifdef JP
 		msg_print("相手の攻撃に対して身構えた。");
+#else
+		msg_print("You prepare to counter blow.");
+#endif
 		p_ptr->counter = TRUE;
 		break;
 	}
@@ -437,7 +470,11 @@ static bool cast_hissatsu_spell(int spell)
 	{
 		if (p_ptr->jouba)
 		{
+#ifdef JP
 			msg_print("乗馬中には無理だ。");
+#else
+			msg_print("You cannot do it when riding.");
+#endif
 			return FALSE;
 		}
 
@@ -449,7 +486,11 @@ static bool cast_hissatsu_spell(int spell)
 
 		if (!cave[y][x].m_idx)
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 
@@ -510,7 +551,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_POISON);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
@@ -525,7 +570,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_ZANMA);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
@@ -540,7 +589,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, 0);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
@@ -571,7 +624,11 @@ static bool cast_hissatsu_spell(int spell)
 			}
 			if ((ty != oy) || (tx != ox))
 			{
+#ifdef JP
 				msg_format("%sを吹き飛ばした！", m_name);
+#else
+				msg_format("You blow %s away!", m_name);
+#endif
 				cave[oy][ox].m_idx = 0;
 				cave[ty][tx].m_idx = m_idx;
 				m_ptr->fy = ty;
@@ -638,7 +695,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_COLD);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
@@ -653,7 +714,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_KYUSHO);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
@@ -668,7 +733,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_MAJIN);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
@@ -683,7 +752,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_SUTEMI);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		p_ptr->sutemi = TRUE;
@@ -699,7 +772,11 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_ELEC);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
@@ -765,7 +842,11 @@ static bool cast_hissatsu_spell(int spell)
 		u32b f1, f2, f3;
 		object_type *o_ptr;
 		if (!get_aim_dir(&dir)) return FALSE;
+#ifdef JP
 		msg_print("武器を大きく振り下ろした。");
+#else
+		msg_print("You swing your wepon downward.");
+#endif
 		for (i = 0; i < 2; i++)
 		{
 			int damage;
@@ -797,7 +878,11 @@ static bool cast_hissatsu_spell(int spell)
 	}
 	case 22:
 	{
+#ifdef JP
 		msg_print("雄叫びをあげた！");
+#else
+		msg_print("You roar out!");
+#endif
 		project_hack(GF_SOUND, randint(p_ptr->lev * 3));
 		aggravate_monsters(0);
 		break;
@@ -815,7 +900,11 @@ static bool cast_hissatsu_spell(int spell)
 				py_attack(y, x, HISSATSU_3DAN);
 			else
 			{
+#ifdef JP
 				msg_print("その方向にはモンスターはいません。");
+#else
+				msg_print("There is no monster.");
+#endif
 				return FALSE;
 			}
 			if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
@@ -902,14 +991,22 @@ static bool cast_hissatsu_spell(int spell)
 			py_attack(y, x, HISSATSU_DRAIN);
 		else
 		{
-			msg_print("その方向にはモンスターはいません。");
+#ifdef JP
+				msg_print("その方向にはモンスターはいません。");
+#else
+				msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
 		break;
 	}
 	case 25:
 	{
+#ifdef JP
 		msg_print("武器を不規則に揺らした．．．");
+#else
+		msg_print("You irregulary wave your weapon...");
+#endif
 		project_hack(GF_ENGETSU, p_ptr->lev * 4);
 		project_hack(GF_ENGETSU, p_ptr->lev * 4);
 		project_hack(GF_ENGETSU, p_ptr->lev * 4);
@@ -1001,10 +1098,18 @@ msg_print("その方向にはモンスターはいません。");
 		x = px + ddx[dir];
 		if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
 		{
+#ifdef JP
 			msg_print("なぜか攻撃することができない。");
+#else
+			msg_print("Something prevent you from attacking.");
+#endif
 			return TRUE;
 		}
+#ifdef JP
 		msg_print("武器を大きく振り下ろした。");
+#else
+		msg_print("You swing your weapon downward.");
+#endif
 		for (i = 0; i < 2; i++)
 		{
 			int damage;
@@ -1043,10 +1148,18 @@ msg_print("その方向にはモンスターはいません。");
 			py_attack(y, x, HISSATSU_UNDEAD);
 		else
 		{
+#ifdef JP
 			msg_print("その方向にはモンスターはいません。");
+#else
+			msg_print("There is no monster.");
+#endif
 			return FALSE;
 		}
+#ifdef JP
 		take_hit(DAMAGE_NOESCAPE, 100 + randint(100), "慶雲鬼忍剣を使った衝撃", -1);
+#else
+		take_hit(DAMAGE_NOESCAPE, 100 + randint(100), "reaction of your attack", -1); /*nanka*/
+#endif
 		break;
 	}
 	case 31:
@@ -1075,8 +1188,13 @@ prt("確認のため '@' を押して下さい。", 0, 0);
 		}
 		else
 		{
+#ifdef JP
 			msg_print("武士道とは、死ぬことと見つけたり。");
 			take_hit(DAMAGE_FORCE, 9999, "切腹", -1);
+#else
+			msg_print("Meaning of Bushi-do is found in the death.");
+			take_hit(DAMAGE_FORCE, 9999, "Seppuku", -1);
+#endif
 		}
 		break;
 	}
@@ -1227,7 +1345,7 @@ msg_print("混乱していて読めない！");
 #ifdef JP
 msg_print("新しい必殺技を覚えることはできない！");
 #else
-		msg_print("You cannot learn any new hissatsus!");
+		msg_print("You cannot learn any new special attacks!");
 #endif
 
 		return;
@@ -1240,7 +1358,7 @@ msg_print("新しい必殺技を覚えることはできない！");
 		msg_format("あと %d 個の必殺技を学べる。", p_ptr->new_spells);
 	}
 #else
-	msg_format("You can learn %d new technique%s.", p_ptr->new_spells,
+	msg_format("You can learn %d new special attack%s.", p_ptr->new_spells,
 		(p_ptr->new_spells == 1?"":"s"));
 #endif
 
@@ -1283,7 +1401,7 @@ s = "読める書がない。";
 #ifdef JP
 		msg_format("%sの技を覚えた。", spell_names[technic2magic(REALM_HISSATSU)-1][i]);
 #else
-		msg_format("You have learned the technique of %s.", spell_names[technic2magic(REALM_HISSATSU)-1][i]);
+		msg_format("You have learned the special attack of %s.", spell_names[technic2magic(REALM_HISSATSU)-1][i]);
 #endif
 		for (j = 0; j < 64; j++)
 		{
@@ -1297,7 +1415,7 @@ s = "読める書がない。";
 #ifdef JP
 		msg_print("何も覚えられなかった。");
 #else
-		msg_print("You were not able to learn any techniques.");
+		msg_print("You were not able to learn any special attacks.");
 #endif
 
 	p_ptr->update |= (PU_SPELLS);

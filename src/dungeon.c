@@ -3623,11 +3623,7 @@ msg_print("下に引きずり降ろされる感じがする！");
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
-#if 0
-	if (!(noscore & 0x0002))
-#else
 	if (!noscore)
-#endif
 	{
 		/* Mention effects */
 #ifdef JP
@@ -3668,11 +3664,7 @@ if (!get_check("本当にウィザードモードに入りたいのですか? "))
 static bool enter_debug_mode(void)
 {
 	/* Ask first time */
-#if 0
-	if (!(noscore & 0x0008))
-#else
 	if (!noscore)
-#endif
 	{
 		/* Mention effects */
 #ifdef JP
@@ -5920,9 +5912,17 @@ static void load_all_pref_files(void)
 	/* Process that file */
 	process_pref_file(buf);
 
+#ifdef JP
         sprintf(buf, "picktype-%s.prf", player_base);
+#else
+        sprintf(buf, "pickpref-%s.prf", player_base);
+#endif
 	process_pickpref_file(buf);
+#ifdef JP
 	process_pickpref_file("picktype.prf");
+#else
+	process_pickpref_file("pickpref.prf");
+#endif
 
 	/* Access the "realm 1" pref file */
 	if (p_ptr->realm1 != REALM_NONE)

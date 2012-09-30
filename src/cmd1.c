@@ -738,13 +738,6 @@ void py_pickup_aux(int o_idx)
 			    msg_format("%s拾って、%s(%c)を持っている。",
 			       kazu_str, o_name, index_to_label(slot));
 			} else {
-#if 0
-				if(p_ptr->pseikaku == SEIKAKU_COMBAT){
-					msg_format("こうして、%sは%s(%c)を手に入れた。", player_name, o_name, index_to_label(slot));
-				}else{
-					msg_format("%s(%c)を拾った。", o_name, index_to_label(slot));
-				}
-#endif
 				msg_format("%s(%c)を拾った。", o_name, index_to_label(slot));
 			}
 		}
@@ -1092,8 +1085,8 @@ int is_autopick(object_type *o_ptr)
 		    !object_aware_p(o_ptr)) NEXT_WORD(8);
 		
 		/*** 無価値の... ***/
-		if (!strncmp(str, "worthless", 11)
-		    && object_value(o_ptr) <= 0) NEXT_WORD(11);
+		if (!strncmp(str, "worthless", 9)
+		    && object_value(o_ptr) <= 0) NEXT_WORD(9);
 		
 		/*** ダイス目2 ***/
 		if (o_ptr->tval != TV_BOW && !strncmp(str, "dice boosted", 12))
@@ -3540,14 +3533,22 @@ bool py_attack(int y, int x, int mode)
 	{
 		if ((inventory[INVEN_RARM].name1 == ART_ZANTETSU) || (inventory[INVEN_LARM].name1 == ART_ZANTETSU))
 		{
+#ifdef JP
 			msg_print("拙者、おなごは斬れぬ！");
+#else
+			msg_print("I can not kill woman!");
+#endif
 			return FALSE;
 		}
 	}
 
 	if (d_info[dungeon_type].flags1 & DF1_NO_MELEE)
 	{
+#ifdef JP
 		msg_print("なぜか攻撃することができない。");
+#else
+		msg_print("Something prevent you from attacking.");
+#endif
 		return FALSE;
 	}
 

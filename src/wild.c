@@ -1179,13 +1179,6 @@ bool change_wild_mode(void)
 
 	p_ptr->wild_mode = !p_ptr->wild_mode;
 
-#if 0
-	if (autosave_l)
-	{
-		do_cmd_save_game(TRUE);
-	}
-#endif
-
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 

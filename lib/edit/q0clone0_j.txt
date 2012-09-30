@@ -97,13 +97,13 @@ F: :1:8
 F:|:39:8
 
 # Trees
-F:E:96:3
+F:E:96:1
 
 # Deep Lava
 F:L:85:3
 
 # Chasm
-F:C:87:3
+F:C:87:1
 
 # The Objects
 # *HEALING* potion

@@ -203,11 +203,6 @@ extern char summon_kin_type;
 extern bool hack_mind;
 extern bool hack_mutation;
 extern int artifact_bias;
-#if 0
-extern bool show_inven_graph;
-extern bool show_store_graph;
-extern bool show_equip_graph;
-#endif
 extern bool show_item_graph;
 extern bool rogue_like_commands;
 extern bool quick_messages;
@@ -262,10 +257,6 @@ extern bool confirm_stairs;
 extern bool disturb_pets;
 extern bool view_perma_grids;
 extern bool view_torch_grids;
-#if 0
-extern bool flow_by_sound;
-extern bool flow_by_smell;
-#endif
 extern bool track_follow;
 extern bool track_target;
 extern bool stack_allow_items;
@@ -600,10 +591,8 @@ extern void forget_lite(void);
 extern void update_lite(void);
 extern void forget_view(void);
 extern void update_view(void);
-#ifdef MONSTER_LITE
 extern void update_mon_lite(void);
 extern void clear_mon_lite(void);
-#endif
 extern void forget_flow(void);
 extern void update_flow(void);
 extern void map_area(int range);
@@ -866,11 +855,6 @@ extern monster_hook_type get_monster_hook2(int y, int x);
 extern void set_friendly(monster_type *m_ptr);
 extern void set_pet(monster_type *m_ptr);
 extern void set_hostile(monster_type *m_ptr);
-#if 0
-extern bool is_friendly(monster_type *m_ptr);
-extern bool is_pet(monster_type *m_ptr);
-extern bool is_hostile(monster_type *m_ptr);
-#endif
 extern void anger_monster(monster_type *m_ptr);
 extern bool monster_can_cross_terrain(byte feat, monster_race *r_ptr);
 extern bool are_enemies(monster_type *m_ptr1, monster_type *m_ptr2);

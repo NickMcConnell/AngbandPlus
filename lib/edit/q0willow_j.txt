@@ -57,7 +57,7 @@ F:Y:1:8:343
 F: :1:8
 
 # Trees
-F:T:96:3
+F:T:96:1
 
 # Dungeon layout
 D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

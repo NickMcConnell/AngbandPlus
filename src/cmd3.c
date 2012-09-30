@@ -1371,9 +1371,6 @@ static flag_insc_table flag_insc_misc[] =
 	{ "±Ê¼ö", "Pc", TR3_PERMA_CURSE, 3, 0 },
 	{ "¼ö", "Cu", TR3_HEAVY_CURSE, 3, TR3_PERMA_CURSE },
 	{ "´÷", "Ty", TR3_TY_CURSE, 3, 0 },
-#if 0
-	{ "·Ð", "De", TR3_DRAIN_EXP, 3, 0 },
-#endif
 	{ NULL, 0, 0, 0 }
 };
 

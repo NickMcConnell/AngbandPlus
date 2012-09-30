@@ -2998,7 +2998,7 @@ void do_cmd_walk(int pickup)
 
 		/* Hack -- In small scale wilderness it takes MUCH more time to move */
 		if (p_ptr->wild_mode) energy_use *= ((MAX_HGT + MAX_WID) / 2);
-		if (p_ptr->action == ACTION_HAYAGAKE) energy_use /= 3;
+		if (p_ptr->action == ACTION_HAYAGAKE) energy_use = energy_use * (45-(p_ptr->lev/2)) / 100;
 
 		/* Actually move the character */
 		move_player(dir, pickup, FALSE);

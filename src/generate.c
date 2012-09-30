@@ -716,7 +716,8 @@ if (cheat_room) msg_print("小さな地下室を却下します。");
 		}
 		else
 			/* Attempt a "trivial" room */
-		if (room_build(y, x, 1)) continue;
+
+		  if (room_build(y, x, 1)) continue;
 		continue;
 	}
 
@@ -1192,21 +1193,6 @@ static void arena_gen(void)
 		{
 			/* Create empty floor */
 			cave[y][x].feat = FEAT_FLOOR;
-
-#if 0
-			/* Darken and forget the floors */
-			cave[y][x].info &= ~(CAVE_GLOW | CAVE_MARK);
-
-			/* Day time */
-			if (daytime)
-			{
-				/* Perma-Lite */
-				cave[y][x].info |= (CAVE_GLOW);
-
-				/* Memorize */
-				if (view_perma_grids) cave[y][x].info |= (CAVE_MARK);
-			}
-#endif
 		}
 	}
 
@@ -1684,35 +1670,6 @@ void generate_cave(void)
 {
 	int y, x, num;
 
-
-#if 0
-	/* Build the wilderness */
-	if (!dun_level)
-	{
-		/* Hack XXX XXX */
-		/* Exit, information is already in other data type. */
-
-		px = (s16b)p_ptr->wilderness_x;
-		py = (s16b)p_ptr->wilderness_y;
-
-		/* Determine number of panels */
-		max_panel_rows = (max_wild * 16 / SCREEN_HGT) * 2;
-		max_panel_cols = (max_wild * 16 / SCREEN_WID) * 2;
-
-		/* Assume illegal panel */
-		panel_row = max_panel_rows;
-		panel_col = max_panel_cols;
-
-		/* Add monsters to the wilderness */
-		repopulate_wilderness();
-
-		/* The "dungeon" is ready */
-		character_dungeon = TRUE;
-
-		return;
-	}
-#endif
-
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
@@ -1748,11 +1705,10 @@ void generate_cave(void)
 				/* No mimic */
 				cave[y][x].mimic = 0;
 
-#ifdef MONSTER_FLOW
 				/* No flow */
 				cave[y][x].cost = 0;
+				cave[y][x].dist = 0;
 				cave[y][x].when = 0;
-#endif /* MONSTER_FLOW */
 			}
 		}
 
