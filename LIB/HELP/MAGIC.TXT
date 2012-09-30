@@ -1,0 +1,356 @@
+
+=== Introduction to the Zangband (2.0.2) Magic System ===
+
+In the official releases of Angband there are only two types magic
+spells:  Magic spells and priestly prayers.  If the character is a
+mage, ranger or a rogue  (s)he can learn magic spells; if (s)he is
+a priest  or  a paladin,  (s)he  can learn prayers.  All mages can 
+learn the same spells and all priests can learn the same spells.
+
+Zangband uses  a more complex "realms of magic" system inspired by
+the commercial fantasy strategy game Master of Magic (Microprose),
+which in turn  has supposedly borrowed it from the card game Magic
+the Gathering  (by  Wizards of the Coast).  The  magic system,  as 
+implemented in Zangband,  consists of five realms:  Life, Sorcery,
+Nature, Chaos and Death. (See later for more details.)
+
+In standard Angband,  the type of a character's spell ability was
+determined  solely by  the  character  class.  In Zangband,   all
+classes can select one  (or even two)  types  from  the realms of
+magic available. (See  later  for available realms / class.)
+
+Since a character can have (at most) two realms of magic, and the
+old  spells  have been split between the existing realms,  on the 
+first glance  it may seem that this system makes spell-users less
+powerful.  However, the opposite holds true.  While a given realm 
+of magic  typically includes spells of a certain type,  new ultra
+powerful rare high-level  spells have been added  to many realms.
+Any spell realm should have enough high-level spells even for the
+later stages  of the game.  The main difference  lies in how they
+support your playing strategy:  some offer  "weapon" spells which
+let you  directly hurt your enemy,  while others offer spells for
+protection, healing and gathering information.
+
+In standard Angband, there were  9  spellbooks for all spell-
+casters. In Zangband, there are  4  spellbooks per realm. Two
+of them can be bought in a store (Life spellbooks in the town
+temple,  the rest  in  the  magic shop;  of  course the Black 
+market  may  stock  _any_  spellbook).  A character  with two  
+realms of magic will thus need to carry a maximum of 8 spell-
+books  while  a  character  with  only  one  realm  of  magic 
+(paladins and rogues) will only need to carry  a maximum of 4 
+spellbooks.  All realms have  32  spells, and each book has 8 
+spells.
+
+
+
+=== Character Classes and Spell Ability  ===
+
+MAGES: Mages have the least restrictions in choosing and learning
+spells. They can freely choose any two realms when a character is
+created: in the current version, all five realms are available to
+them, although their natural inclination makes Life magic  fairly
+hard for them. Otherwise, a mage tends to learn and cast all  the
+spells in his / her realms better than any  other  character. The
+ability  select  both realms  of  magic (which no other character
+class can do) allows  the  best  support  for  experimenting  and
+combining  different  realms,  and, thus, for  different  playing
+strategies as well.
+
+PRIESTS: There are two types of priests in Zangband:   the  
+'ordinary' priests who, select Life magic as their primary
+realm,  and the  'dark' priests,  who  select  Death magic 
+instead  of  Life magic.  No  priest  can have both realms
+(unless (s)he was created  in  Zangband 2.0.0  or  2.0.1). 
+Priests can also select a secondary realm from  the  other 
+three realms, and should be able to learn all spells in it 
+as well,  even if not  as  efficiently as mages.  However, 
+when  learning spells,  priests cannot  voluntarily decide 
+which spells to study: they are rewarded with new  prayers 
+by their patron deities, with  no  money-back satisfaction 
+guarantee.  It should also be noted that since the natural 
+inclination of a priest is towards Life magic, priests who 
+select Life magic  will  be  able to  learn  their prayers 
+faster and better than  their evil colleagues  with  Death 
+magic.
+
+ROGUES:  Rogues who are  mostly  interested in burglary can
+select Sorcery, but Death magic is also available to rogues
+who wish to work as assassins rather than burglars.  Rogues
+have  certain limitations on which spells they  can  learn,
+and they are not too fast to learn new spells.
+
+RANGERS: All rangers are trained in Nature magic, and  all
+Nature spells are available to them. They even learn these
+spells  almost as  fast as  mages.  They can also select a 
+secondary realm (from Sorcery, Chaos and Death magic), but
+they are slow learners  in them,  and  may find themselves
+unable to learn some of the highest level spells. 
+
+PALADINS: Paladins are trained in Life magic (only), and they
+despise the other realms of magic (which they regard  as  the
+Devil's work). Like priests, they cannot select which prayers
+to learn but are rewarded  with new prayers by their deities.
+They can learn all Life spells, but not  as fast  as priests.
+In  the  most recent versions,  there is a new subtype of the
+paladins: the Death Knight.  Death Knights study Death  magic
+instead of Life magic, but in other respects they are similar
+to normal paladins. Death Knights can learn all Death spells.
+
+WARRIOR-MAGES: Warrior-mages begin the game with Sorcery, and
+they can freely select another realm of magic.  Although they
+do not  gain  new spells as fast as regular mages,  they will
+eventually  learn every spell  in both realms,  thus making a
+very competitive choice for players who appreciate Sorcery.
+
+CHAOS WARRIORS: Chaos Warriors are, as one might expect,
+trained in Chaos magic.  They are not interested in  any
+other form of magic. They can learn every Chaos spell.
+
+MONKS:  The different sects of monks are devoted to different
+areas of magic. The typical monk is interested in the harmony
+of the nature, and studies Life magic. An idealist monk would
+select Life magic, and try work to benefit his neighbour. But
+there  also  are  dark monks,  who specialize in Death magic.
+A monk can  thus  select any one of these three Realms.  They
+will eventually learn all prayers in the discipline  of their
+choice.
+
+
+
+=== The Realms of Magic ===
+
+LIFE: Life is magic is 'good' magic; it relies mostly on healing
+and protective spells. It does have a few attack spells as well,
+but these are mostly used for harming and banishing foul minions
+of evil. It is rumoured that there is a secret high level prayer
+which will make the  priest  (or paladin)  completely impervious
+to all forms of hostile action.
+
+SORCERY:  Sorcery is a  `meta`  realm, including enchantment and
+general spells.  It provides  superb protection spells  (such as
+Teleport spells for fleeing and even  Globe of Invulnerability),
+spells to enhance your odds in combat (Slow Monster, Haste Self,
+Confuse  Monster) and,  most  importantly,  a vast selection  of
+spells for  gathering information:  in  addition  to  the  usual
+detection and identify spells, one of  the  standard  spellbooks
+has a spell called Identify True, which gives you full knowledge
+of a given object!  In  the  rare  books,  there are spells with
+which  you  can  enchant  your  items  or turn unwanted items to
+gold.  However,  Sorcery  has  one  weakness:  it  has no spells 
+to deal direct damage to your enemies.
+
+NATURE: Early levels may be  rather difficult  for  a spellcaster
+relying on Nature magic, as the early spells offer  only  limited
+protection,  detection  and  curing  capabilities.   However,  at 
+higher levels there are very useful offensive  spells  available,
+especially should the  spellcaster  be  lucky  enough  to find an
+extremely rare spellbook  called  "Nature`s Wrath".  Nature  also 
+has a spell of Herbal Healing, which is the only powerful healing
+spell outside the realm of Life magic.
+
+CHAOS: There are few types of magic more unpredictable and
+difficult to control than  Chaos magic.  Chaos is the very 
+element of unmaking,  and  the Chaos  spells are  the most 
+terrible  weapons  of destruction  imaginable.  From Magic
+Missile  and  Acid Bolt to the medium level  Fire Ball and
+and Doom Bolt,  and  finally  to  the  awesome  spells  of 
+Invoke Logrus, Mana Storm and Call the Void, Chaos  offers 
+an unsurpassable arsenal of attack spells.  The caster can 
+also  call  on  the  primal  forces  of  Chaos  to  induce 
+mutations in his / her opponents and even him/herself, but 
+otherwise, Chaos has no protective spells. Beware, though, 
+Chaos spells  are  known  to backfire easily  and  product 
+undesired effects...
+
+DEATH: There is no fouler nor more evil category of spells
+than  the necromantic spells of Death Magic.  These spells 
+are  relatively hard to learn,  but  at higher levels  the
+spells give the caster power over living and the (un)dead.
+Poison, vampirism, death spells  and  even hellfire can be
+directed by the caster,  but the most powerful spells need
+his / her own blood as the focus, often hurting the caster
+in the process of casting.
+
+
+
+=== Hints and Tips ===
+
+If you miss the `old` magic user, try picking Sorcery and Chaos
+magic to get the most commonly used mage spells early on (Magic
+Missile, Detect Monsters + Traps + etc, Identify).
+
+It is generally a good idea to pick one defensive realm and one 
+offensive  realm.  For example try using  life or  sorcery with
+chaos or death magic.  Nature is somewhat neutral:  it has both
+offensive and defensive spells,  but is not very generous  with
+either, not at least early in the game. Nature should work best
+with characters who can use other  means to survive until  they
+get the more powerful high level spells. 
+
+If you pick the realms always in the same order (e.g. nature
+as  your first realm and chaos as your second realm, not the
+other way around)  you will be less confused  when trying to
+pick the correct spellbook to use in the game.
+
+If you still get confused trying to select the correct spellbook,
+try using macros (either the 'full' macros or inscriptions).
+
+
+
+=== Spell Lists ===
+
+
+LIFE: Standard Spellbooks
+
+Book of Common Prayer           1. Detect Evil
+                                2. Cure Light Wounds
+                                3. Bless
+                                4. Remove Fear
+                                5. Call Light
+                                6. Detect Traps and Secret Doors
+                                7. Cure Medium Wounds
+                                8. Satisfy Hunger
+
+High Mass                       1. Remove Curse
+                                2. Cure Poison
+                                3. Cure Critical Wounds
+                                4. Sense Unseen
+                                5. Holy Orb
+                                6. Protection from Evil
+                                7. Healing
+                                8. Glyph of Warding
+
+
+LIFE: Rare Spellbooks
+
+Book of the Unicorn             This book has powerful prayers to ward off,
+                                banish and destroy the forces of evil.
+
+Blessings of the Grail          This book has the most powerful prayers of
+                                protection and healing, as well as prayers
+                                of holy visions.
+
+
+SORCERY: Standard Spellbooks
+
+Beginner's Handbook             1. Detect Monsters
+                                2. Phase Door
+                                3. Detect Doors and Traps
+                                4. Light Area
+                                5. Confuse Monster
+                                6. Teleport
+                                7. Sleep Monster
+                                8. Recharging
+
+Master Sorcerer's Handbook      1. Magic Mapping
+                                2. Identify
+                                3. Slow Monster
+                                4. Mass Sleep
+                                5. Teleport Away
+                                6. Haste Self
+                                7. Detection True
+                                8. Identify True
+
+
+SORCERY: Rare Spellbooks
+
+Pattern Sorcery                 More powerful spells of detection, 
+                                information and transportation.
+
+Grimoire of Power               More powerful enchantments against monsters,
+                                spells  to enchant items,  and  the Globe of 
+                                Invulnerability.
+
+
+NATURE: Standard Spellbooks
+
+Call of the Wild                1. Detect Creatures
+                                2. First Aid
+                                3. Detect Doors and Traps
+                                4. Foraging
+                                5. Daylight
+                                6. Resist Lightning
+                                7. Resist Cold and Fire
+                                8. Cure Poison
+
+Nature Mastery                  1. Stone to Mud
+                                2. Lightning Bolt
+                                3. Nature Awareness
+                                4. Frost Bolt
+                                5. Ray of Sunlight
+                                6. Entangle
+                                7. Ball of Cold
+                                8. Herbal Healing
+
+
+NATURE: Rare Spellbooks
+
+Nature's Gifts                  Nature's Gifts for protection against 
+                                the forces of nature and hostiles.
+
+Nature's Wrath                  Nature's destructive force harnessed for your
+                                use against your enemies.
+
+
+CHAOS: Standard Spellbooks
+
+Sign of Chaos                   1. Magic Missile
+                                2. Trap / Door Destruction
+                                3. Flash of Light
+                                4. Wallbreaker
+                                5. Touch of Confusion
+                                6. Acid Bolt
+                                7. Fire Bolt
+                                8. Teleport Self
+
+Chaos Mastery                   1. Plasma Bolt
+                                2. Chaos Bolt
+                                3. Acid Ball
+                                4. Doom Bolt
+                                5. Fire Ball
+                                6. Teleport Other
+                                7. Word of Destruction
+                                8. Invoke Logrus
+
+
+CHAOS: Rare Spellbooks
+
+Chaos Channels                  Unusual spells that allow  you to call on the
+                                forces of chaos  to induce  changes  in  your
+                                possessions, in your enemies and in yourself.
+
+Armageddon Tome                 The rarest of all spellbooks, filled with the
+                                most devastating spells.
+
+
+DEATH: Standard Spellbooks
+
+Black Prayers                   1. Detect Undead
+                                2. Detect Demons
+                                3. Detect Evil
+                                4. Stinking Cloud
+                                5. Black Sleep
+                                6. Resist Poison
+                                7. Stun
+                                8. Terror
+
+Black Mass                      1. Turn Undead
+                                2. Poison Bolt
+                                3. Drain Life
+                                4. Vampiric Drain
+                                5. Poison Branding
+                                6. Cloud Kill
+                                7. Genocide
+                                8. Restore Life
+
+
+DEATH: Rare Spellbooks
+
+Black Channels                  Spells that turn you into a bloodthirsty 
+                                killing machine, and which enable you to
+                                call upon the nether forces of  darkness  
+                                to wreak havoc upon your foes.
+
+Necronomicon                    The  legendary  tome  of unholy visions,
+                                death and destruction.
