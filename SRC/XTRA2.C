@@ -2115,7 +2115,7 @@ void monster_death(int m_idx)
 
         q_ptr->art_flags1 |= ( TR1_VAMPIRIC | TR1_STR | TR1_CON | TR1_BLOWS );
         q_ptr->art_flags2 |= ( TR2_FREE_ACT | TR2_HOLD_LIFE |
-                               TR2_RES_NEXUS | TR2_RES_CHAOS |
+                               TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER |
                                TR2_RES_CONF ); /* No longer resist_disen */
         q_ptr->art_flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
                             TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
@@ -4079,7 +4079,7 @@ void gain_level_reward(int chosen_reward)
 
     effect = chaos_rewards[p_ptr->chaos_patron][type];
 
-    if ((randint(4)==1) && !(chosen_reward))
+    if ((randint(6)==1) && !(chosen_reward))
     {
         msg_format("%^s rewards you with a mutation!",
             chaos_patrons[p_ptr->chaos_patron]);
@@ -4636,7 +4636,7 @@ bool gain_random_mutation(int choose_mut)
             case 74: case 75: case 76:
                 muta_class = &(p_ptr->muta3);
                 muta_which = MUT3_WART_SKIN;
-                muta_desc = "Disgusting warts appear everywhere in you!";
+                muta_desc = "Disgusting warts appear everywhere on you!";
                 break;
             case 77: case 78: case 79:
                 muta_class = &(p_ptr->muta3);
@@ -4944,11 +4944,11 @@ void dump_mutations(FILE * OutFile)
         {
                 if (p_ptr->muta1 & MUT1_SPIT_ACID)
                 {
-                        fprintf(OutFile, " You can spit acid.\n");
+                        fprintf(OutFile, " You can spit acid (dam lvl).\n");
                 }
                 if (p_ptr->muta1 & MUT1_BR_FIRE)
                 {
-                        fprintf(OutFile, " You can breathe fire.\n");
+                        fprintf(OutFile, " You can breathe fire (dam lvl * 2).\n");
                 }
                 if (p_ptr->muta1 & MUT1_HYPN_GAZE)
                 {
@@ -5103,7 +5103,7 @@ void dump_mutations(FILE * OutFile)
                 }
                 if (p_ptr->muta3 & MUT3_WART_SKIN)
                 {
-                        fprintf(OutFile, " You are covered in warts (-2 CHR, +5 AC).\n");
+                        fprintf(OutFile, " Your skin is covered with warts (-2 CHR, +5 AC).\n");
                 }
                 if (p_ptr->muta3 & MUT3_SCALES)
                 {

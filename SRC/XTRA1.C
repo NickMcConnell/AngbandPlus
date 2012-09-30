@@ -2277,6 +2277,7 @@ static void calc_bonuses(void)
                 if (p_ptr->muta3 & MUT3_XTRA_EYES)
                 {
                     p_ptr->skill_fos += 15;
+                    p_ptr->skill_srh += 15;
                 }
 
                 if (p_ptr->muta3 & MUT3_MAGIC_RES)

@@ -12,7 +12,7 @@
 
 #include "angband.h"
 
-extern void fetch(int dir, int wgt);
+extern void fetch(int dir, int wgt, bool require_los);
 
 
 /*
@@ -3189,6 +3189,9 @@ void do_cmd_racial_power(void)
     int lvl = p_ptr->lev;
     bool warrior = ((p_ptr->pclass == CLASS_WARRIOR)?TRUE:FALSE);
 
+    int pets = 0, pet_ctr = 0;
+    bool all_pets = FALSE;
+    monster_type * m_ptr;
 
     bool has_racial = FALSE;
 
@@ -3467,6 +3470,22 @@ void do_cmd_racial_power(void)
 
     }
 
+    /* Calculate pets */
+    /* Process the monsters (backwards) */
+    for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+	{
+		/* Access the monster */
+        m_ptr = &m_list[pet_ctr];
+        if (m_ptr->smart & (SM_FRIEND))
+            pets++;
+        }
+
+    if (pets > 0)
+    {
+        strcpy(power_desc[num], "dismiss pets");
+        powers[num++] = -2;
+    }
+
 
 	/* Nothing chosen yet */
 	flag = FALSE;
@@ -3580,7 +3599,51 @@ void do_cmd_racial_power(void)
 
     if (powers[i]<0)
     {
-        cmd_racial_power_aux();
+        if (powers[i] == -1)
+
+            cmd_racial_power_aux();
+
+        else
+        {
+            int Dismissed = 0;
+
+            if (get_check("Dismiss all pets? ")) all_pets = TRUE;
+
+
+
+            /* Process the monsters (backwards) */
+             for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
+            {
+                /* Access the monster */
+                m_ptr = &m_list[pet_ctr];
+                if (m_ptr->smart & (SM_FRIEND)) /* Get rid of it! */
+                {
+                    bool delete_this = FALSE;
+                    if (all_pets)
+                        delete_this = TRUE;
+                    else
+                    {
+                        char friend_name[80], check_friend[80];
+                        monster_desc(friend_name, m_ptr, 0x80);
+                        sprintf(check_friend, "Dismiss %s? ", friend_name);
+                        
+                        if (get_check(check_friend))
+                            delete_this = TRUE;
+                    }
+
+                    if (delete_this)
+                    {
+                        delete_monster_idx(pet_ctr);
+                        Dismissed++;
+                    }
+
+                }
+            }
+                msg_format("You have dismissed %d pet%s.", Dismissed,
+                        (Dismissed==1?"":"s"));
+        }
+
+
     }
     else
     {
@@ -3617,7 +3680,7 @@ void do_cmd_racial_power(void)
                 {
                     msg_print("You concentrate...");
                     if (get_aim_dir(&dir))
-                        fetch(dir, p_ptr->lev * 10);
+                        fetch(dir, p_ptr->lev * 10, TRUE);
                     }
                 break;
             case MUT1_VTELEPORT:

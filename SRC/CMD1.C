@@ -932,6 +932,58 @@ static void hit_trap(void)
 }
 
 
+void touch_zap_player(monster_type *m_ptr)
+{
+        int             aura_damage = 0;
+        monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+
+        if (r_ptr->flags2 & (RF2_AURA_FIRE))
+        {
+            if (!(p_ptr->immune_fire))
+            {
+
+                char aura_dam[80];
+
+                aura_damage
+                    = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+            /* Hack -- Get the "died from" name */
+             monster_desc(aura_dam, m_ptr, 0x88);
+
+                msg_print("You are suddenly very hot!");
+
+                if (p_ptr->oppose_fire) aura_damage = (aura_damage+2) / 3;
+                if (p_ptr->resist_fire) aura_damage = (aura_damage+2) / 3;
+
+                take_hit(aura_damage, aura_dam);
+                r_ptr->r_flags2 |= RF2_AURA_FIRE;
+                handle_stuff();
+            }
+        }
+
+
+        if (r_ptr->flags2 & (RF2_AURA_ELEC))
+        {
+            if (!(p_ptr->immune_elec))
+            {
+                char aura_dam[80];
+
+                aura_damage
+                    = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+            /* Hack -- Get the "died from" name */
+             monster_desc(aura_dam, m_ptr, 0x88);
+
+                if (p_ptr->oppose_elec) aura_damage = (aura_damage+2) / 3;
+                if (p_ptr->resist_elec) aura_damage = (aura_damage+2) / 3;
+                
+                msg_print("You get zapped!");
+                take_hit(aura_damage, aura_dam);
+                r_ptr->r_flags2 |= RF2_AURA_ELEC;
+                handle_stuff();
+            }
+        }
+}
 
 
 static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
@@ -1016,6 +1068,8 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
                 *mdeath = mon_take_hit(m_idx, k, fear, NULL);
             else
                 project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL);
+
+            touch_zap_player(m_ptr);
         }
 
 		/* Player misses */
@@ -1048,7 +1102,7 @@ void py_attack(int y, int x)
 	object_type             *o_ptr;
 
 	char            m_name[80];
-    int             aura_damage = 0;
+
 
 	bool            fear = FALSE;
     bool            mdeath = FALSE;
@@ -1378,52 +1432,8 @@ void py_attack(int y, int x)
                 m_ptr->smart &= ~SM_FRIEND;
             }
 
-        if (r_ptr->flags2 & (RF2_AURA_FIRE))
-        {
-            if (!(p_ptr->immune_fire))
-            {
 
-                char aura_dam[80];
-
-                aura_damage
-                    = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
-
-            /* Hack -- Get the "died from" name */
-             monster_desc(aura_dam, m_ptr, 0x88);
-
-                msg_print("You are suddenly very hot!");
-
-                if (p_ptr->oppose_fire) aura_damage = (aura_damage+2) / 3;
-                if (p_ptr->resist_fire) aura_damage = (aura_damage+2) / 3;
-
-                take_hit(aura_damage, aura_dam);
-                r_ptr->r_flags2 |= RF2_AURA_FIRE;
-                handle_stuff();
-            }
-        }
-
-
-        if (r_ptr->flags2 & (RF2_AURA_ELEC))
-        {
-            if (!(p_ptr->immune_elec))
-            {
-                char aura_dam[80];
-
-                aura_damage
-                    = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
-
-            /* Hack -- Get the "died from" name */
-             monster_desc(aura_dam, m_ptr, 0x88);
-
-                if (p_ptr->oppose_elec) aura_damage = (aura_damage+2) / 3;
-                if (p_ptr->resist_elec) aura_damage = (aura_damage+2) / 3;
-                
-                msg_print("You get zapped!");
-                take_hit(aura_damage, aura_dam);
-                r_ptr->r_flags2 |= RF2_AURA_ELEC;
-                handle_stuff();
-            }
-        }
+        touch_zap_player(m_ptr);
 
         /* Are we draining it?  A little note: If the monster is
 	    dead, the drain does not work... */

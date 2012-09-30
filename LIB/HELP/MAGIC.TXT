@@ -135,14 +135,13 @@ CHAOS WARRIORS: Chaos Warriors are, as one might expect,
 trained in Chaos magic.  They are not interested in  any
 other form of magic. They can learn every Chaos spell.
 
-MONKS:  The different sects of monks are devoted to different
-areas of magic. The typical monk is interested in the harmony
-of the nature, and studies Life magic. An idealist monk would
-select Life magic, and try work to benefit his neighbour. But
-there  also  are  dark monks,  who specialize in Death magic.
-A monk can  thus  select any one of these three Realms.  They
-will eventually learn all prayers in the discipline  of their
-choice.
+MONKS:   The different sects of monks are  devoted to different
+areas  of magic.  The typical monk is interested in the harmony
+of the nature, and studies Nature magic. An idealist monk would
+select Life magic,  and try work to benefit his neighbour.  But
+there also are dark monks, who specialize in Death magic.
+A monk can thus select any one of these three Realms. They will
+eventually learn all prayers in the discipline of their choice.
 
 MINDCRAFTER: Although the powers of a Mindcrafter may seem like
 magic, this is not -- strictly speaking --  the case.  They are

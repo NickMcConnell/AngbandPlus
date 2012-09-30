@@ -188,6 +188,9 @@ void teleport_to_player(int m_idx)
 	/* Paranoia */
 	if (!m_ptr->r_idx) return;
 
+    /* "Skill" test */
+    if (randint(100) > r_info[m_ptr->r_idx].level) return;
+
 	/* Save the old location */
 	oy = m_ptr->fy;
 	ox = m_ptr->fx;
@@ -4448,8 +4451,10 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
             t_x = m_list[who].fx - 1 + randint(3);
             max_attempts--;
         }
-        while (max_attempts && !(player_has_los_bold(t_y, t_x)));
 
+        while (max_attempts && in_bounds2(t_y, t_x) &&
+                      !(player_has_los_bold(t_y, t_x)));
+ 
         if (max_attempts < 1)
         {
 
@@ -5463,10 +5468,14 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
                     if (typ == GF_DISINTEGRATE)
                     {
                         if (cave_valid_bold(y,x) &&
-                          (c_ptr->feat < FEAT_PATTERN_START
-                          || c_ptr->feat > FEAT_PATTERN_XTRA2))
-                        cave_set_feat(y, x, FEAT_FLOOR);
-                    }
+                           (c_ptr->feat < FEAT_PATTERN_START
+                           || c_ptr->feat > FEAT_PATTERN_XTRA2))
+                         cave_set_feat(y, x, FEAT_FLOOR);
+
+                        /* Update some things -- similar to GF_KILL_WALL */
+                        p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MONSTERS);
+
+                     }
 
                     else
 
@@ -5641,7 +5650,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
                         t_x = x_saver - 1 + randint(3);
                         max_attempts--;
                     }
-                    while (max_attempts && !(los(y, x, t_y, t_x)));
+
+                    while (max_attempts && in_bounds2(t_y, t_x) &&
+                            !(los(y, x, t_y, t_x)));
 
                     if (max_attempts < 1)
                     {

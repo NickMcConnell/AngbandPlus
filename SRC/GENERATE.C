@@ -1940,6 +1940,7 @@ static bool vault_aux_orc(int r_idx)
 }
 
 
+
 /*
  * Helper function for "monster pit (troll)"
  */
@@ -2019,7 +2020,6 @@ static bool vault_aux_demon(int r_idx)
 	/* Okay */
 	return (TRUE);
 }
-
 
 
 /*
@@ -2278,7 +2278,7 @@ static void build_type5(int yval, int xval)
  * A monster pit is a "big" room, with an "inner" room, containing
  * a "collection" of monsters of a given type organized in the room.
  *
- * Monster types in the pit
+ * Monster types in the pit  (list out of date...)
  *   orc pit	(Dungeon Level 5 and deeper)
  *   troll pit	(Dungeon Level 20 and deeper)
  *   giant pit	(Dungeon Level 40 and deeper)
@@ -2420,7 +2420,7 @@ static void build_type6(int yval, int xval)
 	}
 
 	/* Giant pit */
-	else if (tmp < 60)
+    else if (tmp < 55)
 	{
 		/* Message */
 		name = "giant";
@@ -2428,6 +2428,31 @@ static void build_type6(int yval, int xval)
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_giant;
 	}
+
+    else if (tmp < 70)
+    {
+        if (randint(4)!=1)
+        {
+            /* Message */
+            name = "ordered clones";
+
+                do  { template_race = randint(MAX_R_IDX - 2); }
+                    while ((r_info[template_race].flags1 & RF1_UNIQUE)
+                            || (((r_info[template_race].level) + randint(5)) >
+                                (dun_level + randint(5))));
+
+            /* Restrict selection */
+            get_mon_num_hook = vault_aux_symbol;
+        }
+        else
+        {
+
+            name = "ordered chapel";
+            get_mon_num_hook = vault_aux_chapel;
+        }
+
+    }
+
 
 	/* Dragon pit */
 	else if (tmp < 80)

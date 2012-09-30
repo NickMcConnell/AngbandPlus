@@ -2,6 +2,28 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Zangband 2.1.0c
+-Command (in powers menu) to dismiss all pets (costs no mana, takes a turn)
+-Alberich has lost his "deadly touch"
+-Hilarious new nonsensical rumours courtesy of altavista translation service
+-A "pit" variant of the "symbol clone nest"
+-James Lockwood's store-auto*id* and examine patch
+-Patches from Silas Dunsmore, lots of little fixes
+-Teleporting monsters have to pass a skill test to follow you
+-"Blessed" weapons are likely to resist cursing by monsters
+-Heavy cursing less likely; scrolls of *Remove curse* for sale in the temple
+TODO (features/ideas/bugfixes that have not yet been implemented):
+        * Game difficulty levels (point-based / simple to impossible?)
+        * Quests
+        * Your own inscriptions should not be junked if an item becomes cursed
+        * Potential bug: exploding unmakers crash / hang the game?
+        * Maybe weapons of slay xxx should glow if xxx is nearby? (option)
+        * Bug? Eldritch horrors seen first via ESP don't blast your sanity?
+        * Disintegration balls can explode out-of-bounds?
+        * Add oriental melee weapons for monks (nunchaku, bo stick etc.)
+        * Smashed potions should also affect the player (if withing range)
+        * Perhaps add Silas Dunsmore's cumulative light radius patch
+
 --
 Zangband 2.1.0
 -Version handling for save files, pre-210 save files loaded as 206 save files

@@ -737,6 +737,7 @@ static void brand_weapon(int brand_type)
         case 4:
             act = "seems very unstable now.";
             o_ptr->name2 = EGO_TRUMP;
+            o_ptr->pval = randint(2);
             break;
         case 3:
             act = "thirsts for blood!";
@@ -819,7 +820,7 @@ static void call_the_(void)
 }
 
  /* Fetch an item (teleport it right underneath the caster) */
- void fetch(int dir, int wgt)
+ void fetch(int dir, int wgt, bool require_los)
  {
        int ty, tx, i;
        bool flag;
@@ -844,6 +845,12 @@ static void call_the_(void)
            return;
        }
        c_ptr = &cave[ty][tx];
+
+       if (require_los && (!player_has_los_bold(ty,tx)))
+       {
+            msg_print("You have no direct line of sight to that location.");
+            return;
+        }
    }
    else
    {
@@ -1405,7 +1412,7 @@ void do_cmd_cast(void)
 		       break;
        case 25: /* Telekinesis */
          if (!get_aim_dir(&dir)) return;
-         fetch(dir, plev*15);
+         fetch(dir, plev*15, FALSE);
          break;
        case 26: /* Recharging True -- replaced by Explosive Rune */
                explosive_rune();
@@ -2184,7 +2191,7 @@ void do_cmd_cast(void)
 
                if ((p_ptr->pclass == CLASS_ROGUE) ||
                    (p_ptr->pclass == CLASS_HIGH_MAGE))
-                    die = (randint(100)) + plev / 5;
+                    die = (randint(110)) + plev / 5;
                /* Card sharks and high mages get a level bonus */
 
             msg_print("You shuffle the deck and draw a card...");
@@ -2386,7 +2393,7 @@ void do_cmd_cast(void)
         break;
         case 8: /* Trump Object */
              if (!get_aim_dir(&dir)) return;
-                 fetch(dir, plev*15);
+                 fetch(dir, plev*15, TRUE);
         break;
         case 9: /* Trump Animal */
         {

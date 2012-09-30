@@ -779,11 +779,11 @@ void self_knowledge(void)
         {
                 if (p_ptr->muta1 & MUT1_SPIT_ACID)
                 {
-                        info[i++] = "You can spit acid.";
+                        info[i++] = "You can spit acid (dam lvl).";
                 }
                 if (p_ptr->muta1 & MUT1_BR_FIRE)
                 {
-                        info[i++] = "You can breathe fire.";
+                        info[i++] = "You can breathe fire (dam lvl * 2).";
                 }
                 if (p_ptr->muta1 & MUT1_HYPN_GAZE)
                 {
@@ -797,18 +797,19 @@ void self_knowledge(void)
                 {
                         info[i++] = "You can teleport at will.";
                 }
-                if (p_ptr->muta1 & MUT1_MIND_BLST)
-                {
-                    info[i++] = " You can Mind Blast your enemies.\n";
-                }
-                if (p_ptr->muta1 & MUT1_RADIATION)
-                {
-                    info[i++] = " You can emit hard radiation at will.\n";
-                }
-                if (p_ptr->muta1 & MUT1_VAMPIRISM)
-                {
-                    info[i++] = " You can drain life from a foe like a vampire.\n";
-                }
+                 if (p_ptr->muta1 & MUT1_MIND_BLST)
+                 {
+                    info[i++] = "You can Mind Blast your enemies.";
+                 }
+                 if (p_ptr->muta1 & MUT1_RADIATION)
+                 {
+
+                    info[i++] = "You can emit hard radiation at will.";
+                 }
+                 if (p_ptr->muta1 & MUT1_VAMPIRISM)
+                 {
+                    info[i++] = "You can drain life from a foe like a vampire.";
+                 }
                 
         }
 
@@ -940,7 +941,7 @@ void self_knowledge(void)
                 }
                 if (p_ptr->muta3 & MUT3_WART_SKIN)
                 {
-                        info[i++] = "You are covered in warts (-2 CHR, +5 AC).";
+                        info[i++] = "Your skin is covered with warts (-2 CHR, +5 AC).";
                 }
                 if (p_ptr->muta3 & MUT3_SCALES)
                 {

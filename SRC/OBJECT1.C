@@ -52,7 +52,7 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
     "Engagement", "Adamantite",
-    "Silver", "Dilithium", "Bone", "Wooden",
+    "Wire", "Dilithium", "Bone", "Wooden",
     "Spikard", "Serpent",   "Wedding", "Double",
     "Plain", "Brass",  "Scarab","Shining",
     "Rusty","Transparent"
@@ -69,7 +69,7 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
     TERM_L_DARK, TERM_L_WHITE, TERM_GREEN, TERM_L_BLUE, TERM_L_DARK,
     TERM_YELLOW, TERM_VIOLET,
-    TERM_SLATE, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
+    TERM_UMBER, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
     TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
     TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW,
     TERM_RED, TERM_WHITE

@@ -17,7 +17,7 @@
 
 #include "angband.h"
 
-#define SPEAK_CHANCE 10
+#define SPEAK_CHANCE 8
 #define GRINDNOISE 20
 #define CYBERNOISE 20
 
@@ -2572,6 +2572,18 @@ void curse_equipment(int chance, int heavy_chance)
 
     object_flags(o_ptr, &o1, &o2, &o3);
 
+
+    /* Extra, biased saving throw for blessed items */
+    if ((o3 & (TR3_BLESSED)) && (randint(888) > chance))
+    {   
+        char o_name[256];
+        object_desc(o_name, o_ptr, FALSE, 0);
+        msg_format("Your %s resist%s cursing!", o_name,
+       ((o_ptr->number > 1) ? "" : "s"));
+       /* Hmmm -- can we wear multiple items? If not, this is unnecessary */
+        return;
+    }
+
     if (randint(100)<=heavy_chance &&
         (o_ptr->name1 || o_ptr->name2 || o_ptr->art_name))
     {
@@ -3534,7 +3546,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-                curse_equipment(50, 10);
+                curse_equipment(50, 5);
 				take_hit(damroll(8, 8), ddesc);
 			}
 			break;
@@ -3553,7 +3565,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-                curse_equipment(80, 25);
+                curse_equipment(80, 15);
 				take_hit(damroll(10, 15), ddesc);
 			}
 			break;
@@ -3872,7 +3884,7 @@ bool make_attack_spell(int m_idx)
                     (((s32b) ((65 + randint(25)) * (p_ptr->chp))) / 100);
                 msg_print("Your feel your life fade away!");
                 take_hit(dummy, m_name);
-                curse_equipment(100, 33);
+                curse_equipment(100, 20);
 
                 if (p_ptr->chp < 1) p_ptr->chp = 1;
             }
@@ -6438,7 +6450,7 @@ static void process_monster(int m_idx, bool is_friend)
 
 			/* Kill weaker monsters */
 			if ((r_ptr->flags2 & (RF2_KILL_BODY)) &&
-                (r_ptr->mexp > z_ptr->mexp) &&
+                (r_ptr->mexp > z_ptr->mexp) && (cave_floor_bold(ny,nx)) &&
                 !((m_ptr->smart & (SM_FRIEND)) &&  (m2_ptr->smart & (SM_FRIEND))))
                 /* Friends don't kill friends... */
 			{
@@ -6472,7 +6484,7 @@ static void process_monster(int m_idx, bool is_friend)
             
 			/* Push past weaker monsters (unless leaving a wall) */
             else if ((r_ptr->flags2 & (RF2_MOVE_BODY)) &&
-			    (r_ptr->mexp > z_ptr->mexp) &&
+                (r_ptr->mexp > z_ptr->mexp) && (cave_floor_bold(ny,nx)) &&
 			    (cave_floor_bold(m_ptr->fy, m_ptr->fx)))
 			{
 				/* Allow movement */

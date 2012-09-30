@@ -2015,8 +2015,8 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 
         { TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
         { TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
-        { TV_LIFE_BOOK, 0 },
-        { TV_LIFE_BOOK, 1 }
+        { TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
+        { TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE }
 
 	},
 

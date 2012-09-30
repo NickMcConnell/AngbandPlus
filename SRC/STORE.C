@@ -1124,7 +1124,10 @@ static int store_carry(object_type *o_ptr)
 
 	/* Cursed/Worthless items "disappear" when sold */
 	if (value <= 0) return (-1);
-
+  
+   /* All store items are fully *identified* */
+   o_ptr->ident |= IDENT_MENTAL;
+  
 
 	/* Erase the inscription */
 	o_ptr->note = 0;
@@ -2740,6 +2743,7 @@ static void store_sell(void)
 	/* Remove any inscription for stores */
 	if (store_num != 7) q_ptr->note = 0;
 
+
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(q_ptr))
 	{
@@ -2859,6 +2863,72 @@ static void store_sell(void)
 
 
 
+ /*
+  * Examine an item in a store             -JDL-
+  */
+ static void store_examine(void)
+ {
+   int i;
+   int item;
+
+   object_type *o_ptr;
+
+   char o_name[80];
+
+   char out_val[160];
+
+
+   /* Empty? */
+   if (st_ptr->stock_num <= 0)
+   {
+       if (store_num == 7) msg_print("Your home is empty.");
+       else msg_print("I am currently out of stock.");
+       return;
+   }
+
+
+   /* Find the number of objects on this and following pages */
+   i = (st_ptr->stock_num - store_top);
+
+   /* And then restrict it to the current page */
+   if (i > 12) i = 12;
+
+   /* Prompt */
+   sprintf(out_val, "Which item do you want to examine? ");
+
+   /* Get the item number to be examined */
+   if (!get_stock(&item, out_val, 0, i-1)) return;
+
+   /* Get the actual index */
+   item = item + store_top;
+
+   /* Get the actual item */
+   o_ptr = &st_ptr->stock[item];
+
+   /* Require full knowledge */
+   if (!(o_ptr->ident & (IDENT_MENTAL)))
+   {
+       /* This can only happen in the home */
+           msg_print("You have no special knowledge about that item.");
+           return;
+   }
+
+   /* Description */
+   object_desc(o_name, o_ptr, TRUE, 3);
+
+   /* Describe */
+   msg_format("Examining %s...", o_name);
+
+   /* Describe it fully */
+   if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+
+   return;
+ }
+
+
+
+
+
 /*
  * Hack -- set this to leave the store
  */
@@ -2875,6 +2945,11 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+    if (rogue_like_commands && command_cmd == 'l')
+    {
+        command_cmd = 'x';  /* hack! */
+    }
+
 	/* Parse the command */
 	switch (command_cmd)
 	{
@@ -2922,6 +2997,14 @@ static void store_process_command(void)
 			store_sell();
 			break;
 		}
+
+           /* Examine */
+       case 'x':
+       {
+           store_examine();
+           break;
+       }
+
 
 			/* Ignore return */
 		case '\r':
@@ -3252,7 +3335,8 @@ void do_cmd_store(void)
 		tmp_chr = p_ptr->stat_use[A_CHR];
 
 		/* Clear */
-		clear_from(21);
+        clear_from(21);
+        
 
 		/* Basic commands */
 		prt(" ESC) Exit from Building.", 22, 0);
@@ -3263,22 +3347,25 @@ void do_cmd_store(void)
 			prt(" SPACE) Next page of stock", 23, 0);
 		}
 
-		/* Home commands */
-		if (store_num == 7)
-		{
-			prt(" g) Get an item.", 22, 40);
-			prt(" d) Drop an item.", 23, 40);
-		}
+  		/* Home commands */
+  		if (store_num == 7)
+  		{
+           prt(" g) Get an item.", 22, 31);
+           prt(" d) Drop an item.", 23, 31);
+  		}
+  
+  		/* Shop commands XXX XXX XXX */
+  		else
+  		{
+           prt(" p) Purchase an item.", 22, 31);
+           prt(" s) Sell an item.", 23, 31);
+  		}
+  
+       /* Add in the eXamine option */
+       prt(" x) eXamine an item.", 22, 56);
 
-		/* Shop commands XXX XXX XXX */
-		else
-		{
-			prt(" p) Purchase an item.", 22, 40);
-			prt(" s) Sell an item.", 23, 40);
-		}
-
-		/* Prompt */
-		prt("You may: ", 21, 0);
+  		/* Prompt */
+  		prt("You may: ", 21, 0);
 
 		/* Get a command */
 		request_command(TRUE);

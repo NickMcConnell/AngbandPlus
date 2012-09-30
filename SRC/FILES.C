@@ -2176,16 +2176,19 @@ static cptr object_flag_names[96] =
 	"Res Chaos",
 	"Res Disen",
 
+
+
     "Aura Fire",
+
     "Aura Elec",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
+ 	NULL,
+ 	NULL,
+    "NoTeleport",
+    "AntiMagic",
+    "WraithForm",
     "EvilCurse",
-	"Easy Know",
-	"Hide Type",
+ 	"Easy Know",
+ 	"Hide Type",
 	"Show Mods",
 	"Insta Art",
     "Levitate",

@@ -1,0 +1,132 @@
+From silasd@psyber.com  Mon Apr 20 06:31:23 1998
+Received: from jasmine.psyber.com (root@jasmine.psyber.com [207.135.192.16]) by uta.fi (8.8.7/8.8.2) with ESMTP id GAA28931 for <f1toyl@uta.fi>; Mon, 20 Apr 1998 06:31:22 +0300 (EET DST)
+Received: from obscure.static.psyber.com (obscure.static.psyber.com [207.135.192.200])
+	by jasmine.psyber.com (8.8.5/8.8.5) with SMTP id UAA11712
+	for <f1toyl@uta.fi>; Sun, 19 Apr 1998 20:31:18 -0700
+Received: by obscure.static.psyber.com (IBM OS/2 SENDMAIL VERSION 1.3.15/1.0um) id AA5271; Sun, 19 Apr 98 20:30:57 -0700
+Message-Id: <9804200330.AA5271@obscure.static.psyber.com>
+Date: Sun, 19 Apr 98 20:30:56 -0700
+From: Silas Dunsmore <silasd@psyber.com>
+Subject: Zangband: proposed enhancement (w/ patch)
+To: f1toyl@uta.fi (Topi Ylinen)
+Reply-To: silasd@psyber.com
+X-Mailer: ELM [version 2.3 PL11] for OS/2
+Status: ROr
+
+This basically sets up additive light sources.  Any object in your
+equipment that has the 'glow' flag will extend your lit-area radius
+by 1, up to a maximum of 5.  The normal light-source objects still
+work the same, but glowing artifacts and helms of light are actually
+useful.
+
+I've been using this for a few months, both in vanilla Angband and in
+Zangband 2.0.4 thru current.  I'm pretty sure it doesn't have any nasty
+bugs hidden in it.  There could be effeciency issues, though I haven't
+noticed them.
+
+Anyway, give it a look-over.  Perhaps you could add LITE to some of the
+rarer non-artifact objects, such as cloak of fire aura, or pseudo
+dragon scale mail.
+
+
+--- xtra1.c.orig	Thu Mar 19 20:17:50 1998
++++ xtra1.c	Thu Apr 16 00:43:10 1998
+@@ -1718,35 +1718,74 @@
+ 
+ /*
+  * Extract and set the current "lite radius"
++ *
++ * SWD: Experimental modification: multiple light sources have additive effect.
++ *
+  */
+ static void calc_torch(void)
+ {
+-	object_type *o_ptr = &inventory[INVEN_LITE];
++	int i;
++	object_type *o_ptr;
++	u32b f1, f2, f3;
+ 
+ 	/* Assume no light */
+ 	p_ptr->cur_lite = 0;
+ 
+-	/* Player is glowing */
+-	if (p_ptr->lite) p_ptr->cur_lite = 1;
+-
+-	/* Examine actual lites */
+-	if (o_ptr->tval == TV_LITE)
++	/* Loop through all wielded items */
++	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+ 	{
+-		/* Torches (with fuel) provide some lite */
+-		if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
++		o_ptr = &inventory[i];
++
++		/* Examine actual lites */
++		if ((i == INVEN_LITE) && (o_ptr->k_idx) && (o_ptr->tval == TV_LITE))
+ 		{
+-			p_ptr->cur_lite = 1;
+-		}
++			/* Torches (with fuel) provide some lite */
++			if ((o_ptr->sval == SV_LITE_TORCH) && (o_ptr->pval > 0))
++			{
++				p_ptr->cur_lite += 1;
++				continue;
++			}
+ 
+-		/* Lanterns (with fuel) provide more lite */
+-		if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
++			/* Lanterns (with fuel) provide more lite */
++			if ((o_ptr->sval == SV_LITE_LANTERN) && (o_ptr->pval > 0))
++			{
++				p_ptr->cur_lite += 2;
++				continue;
++			}
++
++			/* Artifact Lites provide permanent, bright, lite */
++			if (artifact_p(o_ptr))
++			{
++				p_ptr->cur_lite += 3;
++				continue;
++			}
++
++			/* notreached */
++		}
++		else
+ 		{
+-			p_ptr->cur_lite = 2;
++			/* Skip empty slots */
++			if (!o_ptr->k_idx) continue;
++
++			/* Extract the flags */
++			object_flags(o_ptr, &f1, &f2, &f3);
++
++			/* does this item glow? */
++			if (f3 & TR3_LITE) p_ptr->cur_lite++;
+ 		}
+ 
+-		/* Artifact Lites provide permanent, bright, lite */
+-		if (artifact_p(o_ptr)) p_ptr->cur_lite = 3;
+ 	}
++
++	/* max radius is 5 without rewriting other code -- */
++	/* see cave.c:update_lite() and defines.h:LITE_MAX */
++	if (p_ptr->cur_lite > 5) p_ptr->cur_lite = 5;
++
++	/* check if the player doesn't have a lite source, */
++	/* but does glow as an intrinsic.                  */
++	if (p_ptr->cur_lite == 0 && p_ptr->lite) p_ptr->cur_lite = 1;
++
++	/* end experimental mods */
++
+ 
+ 	/* Reduce lite when running if requested */
+ 	if (running && view_reduce_lite)
+
+-- 
+Later, eh?    Silas
+
+Narrator(voice over, somberly): In advanced cases, if the Javafarian Coffee
+               Ceremony doesn't work, I recommend a Discordian ritual called
+               the Toad Elevating Moment.  Eat a live toad as soon as you get
+               up, and Our Lady Eris will guarantee that nothing worse will
+               happen to you all day.
