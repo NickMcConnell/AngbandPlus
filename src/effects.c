@@ -112,8 +112,8 @@ msg_print("あなたは混乱した！");
 			/* Sniper */
 			if (p_ptr->concent) reset_concentration(TRUE);
 
-			/* Magic */
-			if (p_ptr->keep_magic) stop_magic_spell_all();
+			/* Hex */
+			if (p_ptr->keep_magic) stop_hex_spell_all();
 		}
 	}
 
@@ -298,8 +298,8 @@ msg_print("体が麻痺してしまった！");
 			/* Sniper */
 			if (p_ptr->concent) reset_concentration(TRUE);
 
-			/* Magic */
-			if (p_ptr->keep_magic) stop_magic_spell_all();
+			/* Hex */
+			if (p_ptr->keep_magic) stop_hex_spell_all();
 		}
 	}
 
@@ -2119,8 +2119,8 @@ msg_print("割れるような頭痛がする。");
 		/* Sniper */
 		if (p_ptr->concent) reset_concentration(TRUE);
 
-		/* Magic */
-		if (p_ptr->keep_magic) stop_magic_spell_all();
+		/* Hex */
+		if (p_ptr->keep_magic) stop_hex_spell_all();
 	}
 
 	/* Decrease cut */

@@ -840,9 +840,9 @@ static bool cmd_racial_power_aux(s32b command)
 				if (!do_cmd_shield_bash()) return FALSE;
 				break;
 			case CLASS_MAGE:
-				if (p_ptr->realm1 == REALM_MAGIC)	/* Magic */
+				if (p_ptr->realm1 == REALM_HEX)	/* Hex */
 				{
-					if (!stop_magic_spell()) return FALSE;
+					if (!stop_hex_spell()) return FALSE;
 					break;
 				}
 			case CLASS_PRIEST:
@@ -947,7 +947,7 @@ static bool cmd_racial_power_aux(s32b command)
 					teleport_player(5);
 				}
 				break;
-			case CLASS_DEVICE_USER:
+			case CLASS_ARTIFICER:
 				if (command == -3)
 				{
 					if (!do_cmd_identify_devices()) return FALSE;
@@ -1165,7 +1165,7 @@ static bool cmd_racial_power_aux(s32b command)
 						case CLASS_WARRIOR_MAGE:
 						case CLASS_HIGH_MAGE:
 						case CLASS_ARCHAEOLOGIST:
-						case CLASS_DEVICE_USER:
+						case CLASS_ARTIFICER:
 							if (randint1(3) == 1)
 							{
 								Type = GF_MANA;
@@ -1474,7 +1474,7 @@ void do_cmd_racial_power(void)
 			power_desc[num++].number = -3;
 			break;
 		case CLASS_MAGE:
-			if (p_ptr->realm1 == REALM_MAGIC)
+			if (p_ptr->realm1 == REALM_HEX)
 			{
 #ifdef JP
 				strcpy(power_desc[num].name, "呪文をやめる");
@@ -1695,7 +1695,7 @@ void do_cmd_racial_power(void)
 				power_desc[num++].number = -4;
 			}
 			break;
-		case CLASS_DEVICE_USER:
+		case CLASS_ARTIFICER:
 #ifdef JP
 			strcpy(power_desc[num].name, "魔法道具鑑定");
 #else

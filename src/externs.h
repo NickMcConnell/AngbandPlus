@@ -704,6 +704,7 @@ extern void get_character_name(void);
 /* flavor.c */
 extern void get_table_name(char *out_string);
 extern void get_table_sindarin(char *out_string);
+extern void get_table_bad_sindarin(char *out_string);
 extern void flavor_init(void);
 extern char *object_desc_kosuu(char *t, object_type *o_ptr);
 extern void object_desc(char *buf, object_type *o_ptr, u32b mode);
@@ -1391,7 +1392,7 @@ extern void dump_object(FILE *fp, object_type *o_ptr);
 
 /* wizard2.c */
 extern void strip_name(char *buf, int k_idx);
-extern s16b do_cmd_wishing(int prob, bool art, bool ego);
+extern s16b do_cmd_wishing(int prob, bool art, bool ego, bool confirm);
 
 /* notes.c */
 extern cptr notes_file(void);
@@ -1442,13 +1443,13 @@ extern int add_monster_stat(int n);
 extern int add_monster_melee_skill(void);
 
 /* magic.c */
-extern bool stop_magic_spell_all(void);
-extern bool stop_magic_spell(void);
-extern void upkeep_magic_spell(void);
+extern bool stop_hex_spell_all(void);
+extern bool stop_hex_spell(void);
+extern void upkeep_hex_spell(void);
 extern bool item_tester_hook_cursed(object_type *o_ptr);
-extern bool keeping_magic_spell_fully(void);
-extern bool cast_magic_spell(int spell);
-extern void calc_bonuses_magic_spell(void);
+extern bool keeping_hex_spell_fully(void);
+extern bool cast_hex_spell(int spell);
+extern void calc_bonuses_hex_spell(void);
 extern bool teleport_barrier(int m_idx);
 extern bool magic_barrier(int m_idx);
 extern bool multiply_barrier(int m_idx);

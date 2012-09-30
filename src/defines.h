@@ -52,7 +52,7 @@
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 1
 #define FAKE_VER_MINOR 3
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 1
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
@@ -542,7 +542,7 @@
 #define CH_LIFE         0x01
 #define CH_SORCERY      0x02
 #define CH_MUSOU        0x04
-#define CH_MAGIC		0x08	/* Magic */
+#define CH_HEX			0x08	/* Hex */
 
 
 /*
@@ -552,7 +552,7 @@
 #define REALM_LIFE         1
 #define REALM_SORCERY      2
 #define REALM_MUSOU        3
-#define REALM_MAGIC        4	/* Magic */
+#define REALM_HEX          4	/* Hex */
 #define MAX_REALM          4
 
 /*
@@ -696,7 +696,7 @@
 #define CLASS_ELEMENTALIST       9
 #define CLASS_SNIPER             10
 #define CLASS_SNATCHER           11
-#define CLASS_DEVICE_USER        12
+#define CLASS_ARTIFICER          12
 
 /* dummy class */
 #define CLASS_ROGUE              99
@@ -1419,7 +1419,7 @@
 #define TV_LIFE_BOOK    90
 #define TV_SORCERY_BOOK 91
 #define TV_MUSOU_BOOK   92
-#define TV_MAGIC_BOOK   93		/* Magic: Book of Magic */
+#define TV_HEX_BOOK     93		/* Hex: Book of Hex */
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 /* Any subvalue */
@@ -3925,10 +3925,10 @@ extern int PlayerUID;
 #define SN_MAX_LEVEL \
 	MIN(50, (r_info[p_ptr->r_idx].level + 10))
 
-/* Magic */
+/* Hex */
 #define BM_MAX_KEEP      4
 #define is_keeping_spell(X) \
-	((p_ptr->realm1 == REALM_MAGIC) && (p_ptr->keep_spells & (X)))
+	((p_ptr->realm1 == REALM_HEX) && (p_ptr->keep_spells & (X)))
 
 #define MS_CURE_LITE         0x00000001L
 #define MS_BLESSING          0x00000002L

@@ -1054,7 +1054,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_wraith);
 	wr_s16b(p_ptr->resist_magic);
 	wr_s16b(p_ptr->tim_radar);
-	wr_s16b(p_ptr->tim_sentence);	/* Magic */
+	wr_s16b(p_ptr->tim_sentence);	/* Hex */
 	wr_s16b(p_ptr->tim_xtra1);
 	wr_s16b(p_ptr->tim_xtra2);
 	wr_s16b(p_ptr->tim_xtra3);
@@ -1076,7 +1076,7 @@ static void wr_extra(void)
 	wr_byte(preserve_mode);
 	wr_byte(0);
 
-	/* Magic */
+	/* Hex */
 	wr_s16b(p_ptr->keep_magic);
 	wr_u32b(p_ptr->keep_spells);
 	wr_s16b(p_ptr->rvs_x);

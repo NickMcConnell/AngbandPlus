@@ -1466,7 +1466,7 @@ void update_mon(int m_idx, bool full)
 			}
 		}
 
-		/* Magic */
+		/* Hex */
 		if (is_keeping_spell(MS_DETECT_EVIL))
 		{
 			if (r_ptr->flags3 & (RF3_EVIL))

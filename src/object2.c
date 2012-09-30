@@ -3797,7 +3797,7 @@ static bool kind_is_good(int k_idx)
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
 		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
+		case TV_HEX_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -5655,7 +5655,7 @@ void display_koff(int k_idx)
 
 		/* Print spells */
 		print_spells(spells, num, 2, 0,
-		    (q_ptr->tval == REALM1_BOOK ? p_ptr->realm1 : p_ptr->realm2 - 1));
+		    (q_ptr->tval == REALM1_BOOK ? p_ptr->realm1 - 1 : p_ptr->realm2 - 1));
 	}
 }
 

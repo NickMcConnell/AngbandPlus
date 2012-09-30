@@ -1178,7 +1178,7 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->tim_wraith);
 	rd_s16b(&p_ptr->resist_magic);
 	rd_s16b(&p_ptr->tim_radar);
-	rd_s16b(&p_ptr->tim_sentence);	/* Magic */
+	rd_s16b(&p_ptr->tim_sentence);	/* Hex */
 	rd_s16b(&p_ptr->tim_xtra1);
 	rd_s16b(&p_ptr->tim_xtra2);
 	rd_s16b(&p_ptr->tim_xtra3);
@@ -1217,7 +1217,7 @@ static void rd_extra(void)
 	rd_byte(&preserve_mode);
 	rd_byte(&tmp8u);
 
-	/* Magic */
+	/* Hex */
 	if (!k_older_than(1, 2, 1))
 	{
 		rd_s16b(&p_ptr->keep_magic);

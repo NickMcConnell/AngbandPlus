@@ -743,7 +743,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
 		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
+		case TV_HEX_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
 			if (cost <= 500L) size += damroll(1, 3);
@@ -1156,7 +1156,7 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 				case TV_SORCERY_BOOK:
 				case TV_MUSOU_BOOK:
-				case TV_MAGIC_BOOK:
+				case TV_HEX_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -3362,18 +3362,16 @@ static void store_sell(void)
 	/* Prepare a prompt */
 	if (cur_store_num == STORE_HOME)
 #ifdef JP
-	q = "どのアイテムを置きますか? ";
+		q = "どのアイテムを置きますか? ";
 #else
 		q = "Drop which item? ";
 #endif
-
 	else
 #ifdef JP
 		q = "どのアイテムを売りますか? ";
 #else
 		q = "Sell which item? ";
 #endif
-
 
 	/* Only allow items the store will buy */
 	item_tester_hook = store_will_buy;
@@ -3417,7 +3415,6 @@ static void store_sell(void)
 #else
 		msg_print("Hmmm, it seems to be cursed.");
 #endif
-
 
 		/* Nope */
 		return;
@@ -3474,14 +3471,12 @@ static void store_sell(void)
 #else
 			msg_print("Your home is full.");
 #endif
-
 		else
 #ifdef JP
 			msg_print("すいませんが、店にはもう置く場所がありません。");
 #else
 			msg_print("I have not the room in my store to keep it.");
 #endif
-
 		return;
 	}
 
@@ -3495,7 +3490,6 @@ static void store_sell(void)
 #else
 		msg_format("Selling %s (%c).", o_name, index_to_label(item));
 #endif
-
 		msg_print(NULL);
 
 		/* Haggle for it */
@@ -3557,11 +3551,10 @@ static void store_sell(void)
 
 			/* Describe the result (in message buffer) */
 #ifdef JP
-msg_format("%sを $%ldで売却しました。", o_name, (long)price);
+			msg_format("%sを $%ldで売却しました。", o_name, (long)price);
 #else
 			msg_format("You sold %s for %ld gold.", o_name, (long)price);
 #endif
-
 
 			if (!((o_ptr->tval == TV_FIGURINE) && (value > 0)))
 			{
@@ -3599,6 +3592,9 @@ msg_format("%sを $%ldで売却しました。", o_name, (long)price);
 				store_top = (item_pos / 12) * 12;
 				display_inventory();
 			}
+
+			/* Swap hands when two handed combat */
+			if (item == INVEN_WIELD) swap_wielding_hands();
 		}
 	}
 
@@ -3633,9 +3629,10 @@ msg_format("%sを $%ldで売却しました。", o_name, (long)price);
 			store_top = (item_pos / 12) * 12;
 			display_inventory();
 		}
-	}
 
-	if (item == INVEN_WIELD) swap_wielding_hands();
+		/* Swap hands when two handed combat */
+		if (item == INVEN_WIELD) swap_wielding_hands();
+	}
 }
 
 

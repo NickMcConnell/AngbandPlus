@@ -1,6 +1,6 @@
 === General Information ===
 
-This document gives a brief introduction to Zangband. You will probably
+This document gives a brief introduction to XAngband. You will probably
 want to browse through all the "help files", especially the sections on
 available commands (see command.txt [1] and commdesc.txt [2]), before
 beginning any serious adventuring...
@@ -9,7 +9,7 @@ beginning any serious adventuring...
 ***** <Overview>
 === An Overview ===
 
-The game of Zangband is a single player dungeon simulation. A player
+The game of XAngband is a single player dungeon simulation. A player
 may choose from a number of races, classes and magic realms when
 creating a character (see charattr.txt [3]), and then "run" that
 character over a period of days, weeks, even months. Deep down inside,
@@ -18,8 +18,8 @@ certain other characteristics, and also to collect useful items, to
 give you a decent chance against the great Serpent of Chaos, who lurks
 somewhere in the depths of the dungeon.
 
-The player will begin his adventure on the town level where he may
-acquire supplies, weapons, armor, and magical devices by bartering with
+The player will begin his adventure in a town where he may acquire 
+supplies, weapons, armor, and magical devices by bartering with
 various shop owners. After preparing for his adventure, the player can
 descend into the dungeon where fantastic adventures await his coming!
 
@@ -27,32 +27,30 @@ descend into the dungeon where fantastic adventures await his coming!
 ***** <Winning>
 --- Winning The Game ---
 
-Once your character has killed Oberon, who lives on level 99 (4950') in
+Once your character has killed Sauron, who lives on level 99 (4950') in
 the dungeon, a magical staircase will appear that will finally allow
-you to reach level 100. The Serpent of Chaos lurks on this level of his
-dungeon, and you will not be able to go below his level until you have
-killed him. Try to avoid wandering around on level 100 unless you are
-ready for him, since it has a habit of coming at you across the
+you to reach level 100. Morgoth, Lord of Darkness lurks on this level of 
+his dungeon, and you will not be able to go below his level until you 
+have killed him. Try to avoid wandering around on level 100 unless you 
+are ready for him, since it has a habit of coming at you across the
 dungeon, to slay you for your impudence.
 
-The Serpent of Chaos cannot be killed by some of the easier methods
-used on normal creatures. The Serpent of Chaos, like all other "Unique"
-monsters, will simply teleport away to another region of the level if
-you attempt to use a spell such as destruction is upon it. The Serpent
-of Chaos, like some other monsters, cannot be polymorphed, slept,
-charmed, or genocided. Magical spells like Mana Storm and Orb of
-Draining are effective against it, as are some of the more powerful
-weapons, but it is difficult to kill and if allowed to escape for a
-time it will heal itself rapidly.
+Morgoth cannot be killed by some of the easier methods used on normal 
+creatures. He, like all other "Unique" monsters, will simply teleport 
+away to another region of the level if you attempt to use a spell such 
+as destruction is upon it. Morgoth, like some other monsters, cannot be 
+polymorphed, slept, charmed, or genocided. Magical spells like Mana 
+Storm and Orb of Draining are effective against him, as are some of the 
+more powerful weapons, but he is difficult to kill and if allowed to 
+escape for a time he will heal himself rapidly.
 
-If you should actually survive the attempt of killing the Serpent of
-Chaos, you will receive the status of WINNER. You may continue to
+If you should actually survive the attempt of killing Morgoth, Lord of 
+Darkness, you will receive the status of WINNER. You may continue to
 explore, and may even save the game and play more later, but since you
 have defeated the toughest creature alive, there is really not much
-point. Unless you wish to listen to the rumors of a powerful ring
-buried somewhere in the dungeon...
+point. 
 
-When you are ready to retire, simply "commit suicide" ("^K") to have
+When you are ready to retire, simply "commit suicide" ("Q") to have
 your character entered into the high score list as a winner. Note that
 until you retire, you can still be killed, so you may want to retire
 before wandering into a hoard of Cyberdemons...
@@ -76,110 +74,46 @@ memory containing all the experience of past incarnations.
 
  
 ***** <DevTeam>
-=== The Zangband DevTeam ===
+=== XAngband DevTeam ===
 
-Zangband is currently maintained by a small development team which
-includes both Zangband's original creator, Topi Ylinen, and Robert
-Ruehlmann who maintained and developed the game from versions 2.01d
-through to 2.2.6c. Robert coordinates the efforts of the DevTeam and
-is the designated project leader.
-
-Since its inception, Zangband has developed a reputation for being more
-difficult than other Angband variants and its maintainers are known for
-their devious and contrary natures. The DevTeam neither confirms nor
-denies its intention to live up to this perception.
-
+XAngband is maintained by a small scale development team.
+The members may generally be found on the the IRC channel
+#guriddobagu (in hiragana).
 
 ***** <Web>
-=== Zangband on the Web ===
+=== XAngband on the Web ===
 
+XAngband is located at http://xangband.sourceforge.jp/eng/
 
---- Thangorodrim ---
+The official Zangband website is http://www.zangband.org/.
+The unofficial Z+Angband's home can be found at 
+http://mangojuice75.googlepages.com/ while 
 
-Robert Ruehlmann maintains the official Zangband website - Thangorodrim
-(http://thangorodrim.angband.org/). It includes information on where
-to download the Zangband source code and current executables for most
-popular operating systems as well as information on current development
-issues such as future plans, bug lists, etc. Thangorodrim is also an
-excellent site for information on Angband itself and other variants of
-Angband. There are also links to many other Angband and Zangband
-related sites.
+--- XAngband Homepage ---
 
+XAngband's website includes information on where to download the 
+XAngband source code and current executables as well as information on 
+current development issues such as future plans, bug lists, etc. 
+You can also find TinyAngband there, the Japanese answer to Quickband.
 
---- Daily Snapshots ---
+--- Talk about XAngband ---
 
-This website (http://matrix.crosswinds.net/~dailyzangband/) contains
-downloads of the current source code the DevTeam is working on. It is
-updated daily at approximately 04:00 GMT. The source is untested and it
-may not compile. Also available are logs showing what has been changed
-in the last 24 hours and in the last month.
-
-
---- FTP Sites ---
-
-Zangband sources and executables are uploaded regularly to the official
-Angband ftp site (ftp://export.andrew.cmu.edu/angband/). Links to the
-files are available at Thangorodrim but you may also wish to visit the
-site directly. Various mirror sites exist, the most popular of which is
-(ftp://ftp.sunset.se/pub/games/Angband/).
-
-
---- The Zangband Development Mailing List ---
-
-The Zangband mailing list is for discussion on Zangband development
-issues and is hosted at ONEList's website (http://onelist.com/). The
-mailing list probably represents the quickest method of getting the
-DevTeam's attention and is an ideal forum for posting your ideas and
-bug reports. 
-
-You can send your ideas and bug reports to the mailing list by mailing
-to 'zangband@onelist.com'. If you wish to join the mailing list, send
-an e-mail to 'zangband-subscribe@onelist.com'.
-
-
---- The Zangband Knowledge Base ---
-
-Maintained by John I'anson-Holton, the Zangband Knowledge Base 
-(http://home4.pacific.net.sg/~jianson/) is, or will be, the repository
-of the official Zangband documentation on the web. Once completed,
-downloads of the documents in various formats will be made available
-here.
-
-
---- ZangbandTk ---
-
-ZangbandTk is a graphical Windows port of Zangband which adds several
-new features and a very nice interface to Zangband. If you use Windows,
-you may want to take a look at the AngbandTk homepage which can be
-found at (http://persweb.direct.ca/dbaker/angbandtk.html/). ZangbandTk
-is more properly termed a variant of Zangband but, other than the
-graphical interface, the differences are fairly minor. ZangbandTk is
-typically only updated for official releases of Zangband and not for
-the development releases. ZangbandTk is maintained by Tim Baker.
-
-
---- The Newsgroup (rec.games.roguelike.angband) ---
-
-The newsgroup is a forum for the discussion of all things relating to
-Angband and its variants (including Zangband) and is a good place to
-ask various questions about both game play and game design. Be sure to
-include '[Z]' in your subject heading so people know your question is
-about Zangband.
-
+Join XAngband's support forum at http://jbbs.livedoor.jp/game/16689/
+(in Japanese). 
+Or talk about XAngband in the Angband variant forum at 
+http://angband.oook.cz/forum/forumdisplay.php?f=4
 
 --- #Angband IRC Chat ---
 
-Join the #Angband IRC channel located at 'http://www.othernet.org/'.
-Most of the DevTeam are regulars and sometimes we're even talking about
-Zangband!!
-
+You can find the #Angband IRC channel on one of the WorldIRC.org 
+servers.
 
 ***** <VersionNumber>
 === Version Numbering System ===
 
-Zangband uses a version numbering system similar to that of Linux. Odd
-minor version numbers (for example 2.3.2) denote a development version.
-Even minor version numbers (for example 2.2.7 ) denote a stable
+XAngband uses a version numbering system similar to that of Linux. Odd
+minor version numbers (for example 1.3.0) denote a development version.
+Even minor version numbers (for example 1.3.1 ) denote a stable
 release. The development versions are released for beta-testing and are
 likely to contain bugs of varying significance.
 
@@ -188,7 +122,8 @@ likely to contain bugs of varying significance.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Updated    : XAngband DevTeam
+Last update: March 3, 2009
 
 
 ***** Begin Hyperlinks
@@ -196,4 +131,3 @@ Last update: January 13, 2000
 ***** [2] commdesc.txt
 ***** [3] charattr.txt
 ***** [4] attack.txt#MonsterMemory
-

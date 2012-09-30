@@ -1,6 +1,6 @@
 
                   ***************************************
-                  **           XAngband 1.3.0          **
+                  **           XAngband 1.3.1          **
                   ***************************************
           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
               and Umoria:    Copyright (c) 1989 James E. Wilson

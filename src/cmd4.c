@@ -4539,7 +4539,7 @@ static int collect_objects(int grp_cur, int object_idx[], byte mode)
 		if (TV_LIFE_BOOK == group_tval)
 		{
 			/* Hack -- All spell books */
-			if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_MAGIC_BOOK)
+			if (TV_LIFE_BOOK <= k_ptr->tval && k_ptr->tval <= TV_HEX_BOOK)
 			{
 				/* Add the object */
 				object_idx[object_cnt++] = i;
@@ -7607,7 +7607,7 @@ static void do_cmd_knowledge_quests(void)
 		fprintf(fff, "《帰還場所》\n");
 		fprintf(fff, "  %d 階 (%d フィート)\n\n", p_ptr->max_dlv, p_ptr->max_dlv * 50);
 #else
-		fprintf(fff, "< Recall Deapth >\n");
+		fprintf(fff, "< Recall Depth >\n");
 		fprintf(fff, "  Level %d (%d')\n\n", p_ptr->max_dlv, p_ptr->max_dlv * 50);
 #endif
 	}

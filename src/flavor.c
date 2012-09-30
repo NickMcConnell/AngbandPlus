@@ -64,7 +64,7 @@ static bool object_easy_know(int i)
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
 		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
+		case TV_HEX_BOOK:
 		{
 			return (TRUE);
 		}
@@ -178,6 +178,23 @@ void get_table_sindarin(char *out_string)
 	sprintf(out_string, "'%s'", tmp);
 #endif
 
+	return;
+}
+
+void get_table_bad_sindarin(char *out_string)
+{
+	char Syllable[80];
+	char tmp[80];
+
+	get_rnd_line("nname.txt", 1, Syllable);
+	strcpy(tmp, Syllable);
+#ifdef JP
+	sindarin_to_kana(Syllable, tmp);
+	sprintf(out_string, "¡Ø%s¡Ù", Syllable);
+#else
+	tmp[0] = toupper(tmp[0]);
+	sprintf(out_string, "'%s'", tmp);
+#endif
 	return;
 }
 
@@ -523,7 +540,7 @@ char *object_desc_kosuu(char *t, object_type *o_ptr)
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
 		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
+		case TV_HEX_BOOK:
 		{
 			t = object_desc_str(t, "ºý");
 			break;
@@ -1413,15 +1430,15 @@ void object_desc(char *buf, object_type *o_ptr, u32b mode)
 			break;
 		}
 
-		case TV_MAGIC_BOOK:
+		case TV_HEX_BOOK:
 		{
 #ifdef JP
 			basenm = "¼ö½Ñ¤ÎËâË¡½ñ%";
 #else
 			if (mp_ptr->spell_type == ST_PRAYER)
-				basenm = "& Book~ of Black Magic %";
+				basenm = "& Book~ of Hexing %";
 			else
-				basenm = "& Magic Spellbook~ %";
+				basenm = "& Book~ of Hexing %";
 #endif
 
 			break;

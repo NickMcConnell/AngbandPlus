@@ -2018,7 +2018,7 @@ bool detect_objects_magic(int range)
 		    (tv == TV_LIFE_BOOK) ||
 			(tv == TV_SORCERY_BOOK) ||
 		    (tv == TV_MUSOU_BOOK) ||
-		    (tv == TV_MAGIC_BOOK) ||
+		    (tv == TV_HEX_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */

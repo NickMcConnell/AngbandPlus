@@ -2503,7 +2503,7 @@ player_class class_info[MAX_CLASS] =
 #ifdef JP
 		"魔道具使い",
 #endif
-		"Device-User",
+		"Artificer",
 		{-2, 2, 0, 1, -1, 0},
 		30, 42, 30, 2, 16, 20, 45, 30,
 		7,  15,  9, 0,  0,  0, 55, 45,
@@ -2530,7 +2530,7 @@ u32b fake_spell_flags[4]=
 byte realm_choices1[MAX_CLASS] =
 {
 	(CH_NONE),								/* Warrior */
-	(CH_SORCERY | CH_MAGIC),				/* Mage */
+	(CH_SORCERY | CH_HEX),					/* Mage */
 	(CH_LIFE),								/* Priest */
 	(CH_LIFE | CH_MUSOU),					/* Ranger */
 	(CH_LIFE),								/* Paladin */
@@ -2541,7 +2541,7 @@ byte realm_choices1[MAX_CLASS] =
 	(CH_NONE),								/* Elementalist */
 	(CH_NONE),								/* Sniper */
 	(CH_NONE),								/* Snatcher */
-	(CH_NONE),								/* Device-User */
+	(CH_NONE),								/* Artificer */
 };
 
 
@@ -2584,7 +2584,7 @@ cptr realm_names[] =
 	"Life",
 	"Sorcery",
 	"Combat",
-	"Magic",
+	"Hex",
 	"unknown"
 };
 
@@ -2775,9 +2775,9 @@ cptr spell_names[MAX_REALM][32] =
 		"Heroism",
 		"Jumping",
 		"Resist Environment",
-		"Lader Eye",
+		"Radar Eye",
 		"Charging",
-		"Froce Bolt",
+		"Force Bolt",
 		"Stone Skin",
 		"Remove Curse",
 #endif
@@ -2836,9 +2836,9 @@ cptr spell_names[MAX_REALM][32] =
 #endif
 	},
 
-	/*** Magic Spells ***/
-	{	/* Magic */
-		/* Common Magic Spellbooks */
+	/*** Hex Spells ***/
+	{	/* Hex */
+		/* Common Hex Spellbooks */
 #ifdef JP
 		"軽傷の治癒",
 		"邪なる祝福",
@@ -2883,11 +2883,11 @@ cptr spell_names[MAX_REALM][32] =
 		"Nether resistance",
 		"Touch of confusion",
 		"Building up",
-		"Vanish monsters",
+		"Banish monsters",
 		"Anti teleport barrier",
 #endif
 
-		/* Rare Magic Spellbooks */
+		/* Rare Hex Spellbooks */
 #ifdef JP
 		"反増殖結界",
 		"致命傷の治癒",
@@ -3327,7 +3327,7 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 #endif
 	},
 
-	/* Device-User */
+	/* Artificer */
 	{
 #ifdef JP
 		"初心者",
@@ -4019,7 +4019,7 @@ option_type option_info[] =
 	"ignore_unview",                "視界外のモンスターの行動を表示しない" },
 #else
 	{ &ignore_unview,               FALSE, 3, 2, 16,
-	"ignore_unview",                "Ignore whenever any monster does" },
+	"ignore_unview",                "Ignore whatever monsters do when out of sight" },
 #endif
 
 	/*** Disturbance ***/
@@ -4411,7 +4411,7 @@ option_type option_info[] =
 	"ironman_hengband",             "（鉄人用）様々なアビューズを使えなくする(未完成)" },
 #else
 	{ &ironman_hengband,            FALSE, 6, 6, 19,
-	"ironman_hengband",               "Set monsters against some abuses." },
+	"ironman_hengband",             "Prevent some player abuses." },
 #endif
 
 	/*** Object auto-destruction ***/
@@ -4513,7 +4513,7 @@ option_type option_info[] =
 	"dump_abilities",               "銘のあるアイテムの能力をダンプに出力する" },
 #else
 	{ &dump_abilities,              TRUE, 9, 7, 30,
-	"dump_abilities",               "Dump all abilities of items own names" },
+	"dump_abilities",               "Dump full information for all named items" },
 #endif
 
 #ifdef JP
@@ -4545,7 +4545,7 @@ option_type option_info[] =
 	"record_artifact",              "アーティファクトの入手を記録する" },
 #else
 	{ &record_artifact,             TRUE, 9, 7, 26,
-	"record_artifact",              "Record founded artifacts" },
+	"record_artifact",              "Record artifacts found" },
 #endif
 
 #ifdef JP
@@ -4553,7 +4553,7 @@ option_type option_info[] =
 	"record_randart",               "ランダムアーティファクトの入手を記録する" },
 #else
 	{ &record_randart,              TRUE, 9, 7, 25,
-	"record_randart",               "Record founded random artifacts" },
+	"record_randart",               "Record random artifacts found" },
 #endif
 
 #ifdef JP

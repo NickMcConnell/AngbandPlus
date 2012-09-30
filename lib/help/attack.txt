@@ -1,11 +1,10 @@
 === Attacking Monsters ===
  
-Attacking is simple in Zangband. If you move into a creature, you
+Attacking is simple in XAngband. If you move into a creature, you
 attack it. If you are wielding a weapon (including digging implements
 which are considered to be weapons) when you do so, the damage for the
 weapon is used when you hit a creature. Otherwise, you will attack with
-your bare hands which does minimal damage (unless you are playing a
-monk).
+your bare hands which does minimal damage.
 
 Melee can do more damage per turn than any other form of attack, and
 the basic equipment (a weapon) is easy to find. On the other hand,
@@ -80,7 +79,7 @@ weapon before it can be used in a fight. A secondary weapon can be kept
 by keeping it in the backpack, and switching it with the primary weapon
 when needed.
 
-Zangband assumes that your youth in the rough environment near the
+XAngband assumes that your youth in the rough environment near the
 dungeons has taught you the relative merits of different weapons, and
 displays as part of their description the damage dice which define
 their capabilities. The dice used for a given weapon is displayed as
@@ -92,7 +91,7 @@ weapon is also a consideration.
 In addition to their base damage, each weapon has two main magical
 characteristics, their bonus to your skill and their bonus to your
 deadliness, expressed as "(+#,+#)". A normal weapon would be "(+0,+0)"
-but many weapons in Zangband have bonuses to your skill and/or
+but many weapons in XAngband have bonuses to your skill and/or
 deadliness. These bonuses may be increased, subject to certain upper
 limits, by magical means through a process referred to as 'enchanting'.
 Some weapons are cursed, and will have penalties that hurt the player.
@@ -150,10 +149,11 @@ is such that a longbow will deal more damage over time.
 
 Certain classes automatically receive additional shots as they become
 more experienced. Rangers receive an additional shot with a bow at
-level 20 and at level 40 and an additional shot with a crossbow at
-level 30. Rogues receive an extra shot with a sling at level 20 and at
-level 40. Warriors receive an additional shot with any missile launcher
-at level 40.
+level 25 and at level 50 and an additional shot with a crossbow at
+level 50. Warriors receive an additional shot with any missile launcher
+at level 50. Archers receive an additional shot with a bow at 17, 34 
+and level 50.  They also receive an additional shot with crossbow or
+sling at level 25 and level 50.
 
 
 ***** <EgoArtifact>
@@ -174,7 +174,7 @@ has two attributes that make it deadly to your opponent (for example
 you are fighting a demon and your weapon slays both evil and demons
 (demons are evil)), only the most effective slay will apply.
 
-Zangband has extended the original Angband's concept of adding random
+XAngband has extended the original Angband's concept of adding random
 abilities to the various Ego types considerably. These can be either
 guaranteed or have only a varying chance of being granted. (See
 'Randabil.spo' for details of the random powers of Ego Weapons).
@@ -196,24 +196,31 @@ guaranteed or have only a varying chance of being granted. (See
     ability to see invisible creatures. These weapons are also blessed
     and so can be wielded by priests with no penalty.
 
+(Demonic)
+    Demonic weapons are very powerful.  They increase the intelligence
+    of the wielder and allow you to see the invisible.  What's more 
+    they give resistance to fire and hellfire and can give double 
+    damage to enemies by fire and poison.  However they decrease your
+    AC.
+
 Weapon of Westernesse
     A Weapon of Westernesse is one of the more powerful weapons. It
     slays orcs, trolls and giants while increasing your strength,
     dexterity, and constitution. It also allows you to see invisible
     creatures and protects from paralyzation and some slowing attacks.
 
-(Trump Weapon)
-    A Trump Weapon is especially deadly against evil creatures and will
-    increase your ability to discover hidden dungeon features. It will
-    help you regenerate hit-points and mana faster and at the same time
-    will reduce your rate of food consumption. It provides resistance
-    to nexus and protects from paralyzation and some slowing attacks.
-    In addition it may cause you to teleport randomly and can be
-    activated for teleport once every 50+1d50 turns.
+(Order)
+    A Weapon of Order is especially deadly against evil creatures and 
+    will increase your ability to discover hidden dungeon features. It 
+    will help you regenerate hit-points and mana faster and at the same 
+    time will reduce your rate of food consumption. It provides 
+    resistance to nexus and protects from paralyzation and some slowing 
+    attacks. In addition it may cause you to teleport randomly and can 
+    be activated for teleport once every 50+1d50 turns.
 
-(Pattern Weapon)
-    A Pattern Weapon has been embedded with a fragment of the Pattern.
-    It will increase your strength and constitution and also has a
+(Crusader)
+    A Crusader weapon has been embedded with rune that destroys 
+    evil. It will increase your strength and constitution and also has a
     chance of increasing your dexterity. It is especially effective
     when used against evil, undead and demonic creatures. It will allow
     you to see invisible creatures and protects from paralyzation and
@@ -242,9 +249,59 @@ Weapon of Slaying
     These weapons have a chance of being granted unusually high damage
     dice.
 
+Weapon of the Brave
+    These weapons have a sacred power that comes into action against
+    evil monsters, dragons and the undead.  It also increases 
+    intelligence, wisdom and charisma.  Finally it provides resistance
+    to fear and allows you to see the invisible.
+    
+Weapon of Holy Wrath
+    These weapons are blessed, and are strong against those symbols of
+    evil - demons and the undead.  Their sacred light heightens 
+    strength and wisdom.  They can be activated to release a sacred 
+    power that greatly damages evil monsters.
+
+Weapon of Elvenkind
+    These weapons, while not matching up to the weapons of 
+    Westernesse, are works created by the Elves.  They are 
+    particularly effective against orcs, trolls and giants.
+    They also increase your intelligence, dexterity and 
+    charisma and allow you to move more quietly.
+
+Weapon of Light
+    Shocks dealt by these weapons will cause 2.5 
+    times the base damage against monsters with no 
+    resistance to electricity. They also improve your ability to 
+    search and increase your infravision.  They provide resistance 
+    to electricity, light and blindness.  These weapons shine with 
+    light, and can be activated to produce a blinding ray of light.
+
+Weapon of Protection
+    These weapons do not have very strong attacks, but are 
+    superiour in defense.  They allow you to see the invisible and
+    protect you from paralysis.  They also increase the rate at 
+    which your HP and MP recover as well as warning you of danger.
+    By activating them they produce a further resistance against an
+    element.
+
+Weapon of Fairykind
+    These weapons, rumoured to have been made by the fairies, are 
+    attractive and shine with light.  They improve your dexterity
+    and aid you in moving stealthily.  They also let you use magic
+    items with greater ease and allow you to float like fairies can.
+
+Weapon of Quickness
+    With these weapons you can move quickly, like the wind.
+
 Implement of Digging
     These digging implements increase your ability to tunnel through
     the dungeon walls, and have the acid brand (see below).
+
+Implement of Disruption
+    These digging tools are extremely tough and are a great choice for
+    tunnelling through the dungeon walls, or through the bodies of 
+    your enemies.  Their strength is such that they can even cause 
+    earthquakes by their power applied to the ground's surface.
 
 --- The Elemental and Other Brands ---
 
@@ -263,39 +320,47 @@ Implement of Digging
     master and healing them in the process.
 
 Weapon of Melting
-    A magical weapon of acid that will inflict three times the normal
+    A magical weapon of acid that will inflict 2.5 times the normal
     damage when used against a creature that is not resistant to acid.
     It also provides resistance against acid attacks.
 
 Weapon of Shocking
-    A magical weapon of lightning that will inflict three times the
+    A magical weapon of lightning that will inflict 2.5 times the
     normal damage when used against a creature that is not resistant to
     electricity. It also provides resistance against lightning attacks.
 
 Weapon of Freezing
-    A magical weapon of ice that will inflict three times the normal
+    A magical weapon of ice that will inflict 2.5 times the normal
     damage when used against a creature that is not resistant to cold.
     It also provides resistance against cold attacks.
 
 Weapon of Burning
-    A magical weapon of fire that will inflict three times the normal
+    A magical weapon of fire that will inflict 2.5 times the normal
     damage when used against a creature that is not resistant to fire.
     It also provides resistance against fire attacks.
 
 Weapon of Poisoning
-    A magical weapon, coated with poison, that will inflict three times
+    A magical weapon, coated with poison, that will inflict 2.5 times
     the normal damage to creatures not resistant to poison. It also
     provides resistance against toxic and poisonous attacks.
+
+(Prismatic)
+    A magical weapon, coated with ice, fire and lightning, that will 
+    inflict 2.5 times the normal damage to creatures not resistant to 
+    them.
 
 --- Weapons of Slay {Monster-Type} ---
 
 Weapon of Slay Animal
     This weapon is especially effective against natural creatures and
-    will do three times the normal damage against such creatures.
+    will do 2.5 times the normal damage against such creatures.
 
 Weapon of Slay Evil
     This weapon is especially effective against evil creatures and will
-    do two times the normal damage against such creatures.
+    do two times the base damage against such creatures.  You will 
+    always be able to know of evil monsters in the area.  It also 
+    heightens your wisdom and provides resistance to fear.  They are 
+    blessed by the gods.
 
 Weapon of Slay Undead
     This weapon is especially effective against undead creatures and
@@ -305,22 +370,35 @@ Weapon of Slay Undead
 Weapon of Slay Demon
     This weapon is especially effective against demonic creatures and
     will do three times the normal damage against such creatures.
+    You will always be able to know of demons in the area.  They also
+    increase intelligence and provide resistance to flame.
 
 Weapon of Slay Orc
     This weapon is especially effective against orcs and will do
-    three times the normal damage against such creatures.
+    three times the normal damage against such creatures.  
+    You will always be aware of the presense of any orcs in the 
+    vicinity.  Also it increases your dexterity and gives resistance
+    against dark.
 
 Weapon of Slay Troll
     This weapon is especially effective against trolls and will do
-    three times the normal damage against such creatures.
+    three times the normal damage against such creatures.  You will
+    be are of the presense of trolls in the area at all times.  It
+    also increases your strength and quickens the recovery of HP and
+    MP.
 
 Weapon of Slay Giant
     This weapon is especially effective against giant humanoids and
     will do three times the normal damage against such creatures.
+    Wielding it, you will know of any giants near you.  It also 
+    heightens strength and provides paralysis resistance.
 
 Weapon of Slay Dragon
     This weapon is especially effective against dragons and will do
-    three times the normal damage against such creatures.
+    five times the normal damage against such creatures.  You will
+    be are of the presense of dragons in the area at all times.  It
+    also increases your constitution and provides resistance against 
+    one element.
 
 --- Weapons of *Slay* {Monster-Type} ---
 
@@ -381,6 +459,10 @@ Launcher of Extra Might
 Launcher of Extra Shots
     These missile launchers grant additional shots per round.
 
+Hunter's weapon
+    Increases the stealth of the wielder, and grants additional shots 
+    per round.
+
 --- Ammunition ---
 
 Ammunition of Hurt Animal
@@ -390,6 +472,10 @@ Ammunition of Hurt Animal
 Ammunition of Hurt Evil
     This ammunition is especially effective against evil creatures and
     will do two times the normal damage against such creatures.
+
+Sacred ammunition
+    Does from 1.7 to 2 times damage to evil monsters, demons and the 
+    undead.
 
 Ammunition of Hurt Dragon
     This ammunition is especially effective against dragons and will do
@@ -495,9 +581,8 @@ damage dice are XdY is as follows:
 --- Bare Handed Combat ---
 
 The calculation for bare handed combat is identical to that of melee
-combat. With the exception of the monk class, it is assumed that your
-hands will do a base damage of 1d1. Thus you will get two 1d1 attacks
-per round. Monk bare handed combat is addressed separately below.
+combat. It is assumed that your hands will do a base damage of 1d1. 
+Thus you will get two 1d1 attacks per round. 
 
 
 ***** <FireCalc>
@@ -591,46 +676,6 @@ base damage dice are XdY is as follows:
     Rolling a six-sided dice 2 times yields an average damage of 7.
 
 
-***** <MonkAttacks>
-=== Monk Attacks ===
-
-The Monk character is designed to be a barehanded fighter rather than
-using a weapon like the other Zangband classes. As a Monk's level
-increases the number of attacks they get per round increases and new,
-increasingly powerful attacks become available. Higher level attacks
-have a chance to stun the Monk's opponent.
-
-While the type of attack that a Monk uses for each blow is chosen at
-random from the list of available attacks, at higher levels there is a
-bias towards the attacks which do greater damage. This is because at
-these levels, the game will roll several times for each blow with the
-highest attack type chosen.
-
-
-***** <MonkAttackTypes>
---- Monks Attack Types ---
-
-Attack Name   Min.lvl   Damage   Stun    Notes
------------------------------------------------------------------------
-Punch            1       1d4       -
-Kick             2       1d5       -
-Strike           3       1d6       -
-Knee             5       2d3       *     Likely to stun male opponents
-Elbow            7       1d7       -
-Butt             9       2d4       -
-Ankle Kick      11       2d5       -     May slow down the opponent
-Uppercut        13       3d5       6
-Double-kick     16       6d3       8
-Cat's Claw      20       4d6       -
-Jump Kick       25       4d7      10
-Eagle's Claw    29       5d6       -
-Circle Kick     33       5d8      10
-Iron Fist       37       6d8      10
-Flying Kick     41       7d8      12
-Dragon Fist     45       7d10     16
-Crushing Blow   48       7d12     18
-
-
 ***** <MeleeTactics>
 === Basic Tactics ===
 
@@ -693,7 +738,8 @@ monsters.
 Original   : (??) and Leon Marrick
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Updated    : XAngband DevTeam
+Last update: March 3, 2009
 
 ***** Begin Hyperlinks
 ***** [1] commdesc.txt#ThrowFire

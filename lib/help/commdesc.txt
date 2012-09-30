@@ -43,7 +43,7 @@ Equipment list (e)
 Drop an item (d)
      This drops an item from your inventory or equipment onto the
      dungeon floor. If the floor spot you are standing on already has
-     an object in it, Zangband will attempt to drop the item onto an
+     an object in it, XAngband will attempt to drop the item onto an
      adjacent space. Be warned that if the floor is full and you
      attempt to drop something, it may disappear and be destroyed.
      Doors and traps are considered objects for the purpose of
@@ -326,11 +326,11 @@ Inscribe an object ({)
      displayed inside curly braces after the object description. The
      inscription is limited to the particular object (or pile) and is
      not automatically transferred to all similar objects. Under
-     certain circumstances, Zangband will display "fake" inscriptions
+     certain circumstances, XAngband will display "fake" inscriptions
      on certain objects ("cursed", "broken", "tried", "empty", "NN%
      off") when appropriate. These "fake" inscriptions are "covered up"
      by real inscriptions, but will re-appear if the real inscription
-     is removed. In addition, Zangband will occasionally place a "real"
+     is removed. In addition, XAngband will occasionally place a "real"
      inscription on an object for you, normally as the result of your
      character getting a "feeling" about the item. All characters will
      get "feelings" about weapons and armor after carrying them for a
@@ -560,12 +560,12 @@ Save and Quit (Ctrl-X)
      your savefile to play again with the same options and such.
 
 Save (Ctrl-S)
-     This command saves the game but doesn't exit Zangband. Use this
+     This command saves the game but doesn't exit XAngband. Use this
      frequently if you are paranoid about having the computer crash
      while you are playing.
 
 Quit (commit suicide) (Q)
-     Kills your character and exits Zangband. You will be prompted to
+     Kills your character and exits XAngband. You will be prompted to
      make sure you really want to do this, and then asked to verify
      that choice. Note that dead characters are dead forever.
 
@@ -581,11 +581,11 @@ together with a detailed description of this function.
 --- Help ---
 
 Help (?)
-     Brings up the Zangband on-line help system. Note that the help
+     Brings up the XAngband on-line help system. Note that the help
      files are just text files in a particular format, and that other
      help files may be available on the Net. In particular, there are
      a variety of spoiler files which do not come with the standard
-     distribution. Check the place you got Zangband from or ask on the
+     distribution. Check the place you got XAngband from or ask on the
      newsgroup rec.games.roguelike.angband about them. 
 
 Identify Symbol (/)
@@ -612,7 +612,7 @@ Identify Symbol (/)
      on. Pressing ESCAPE at any point will exit this command.
  
 Game Version (V)
-     This command will tell you what version of Zangband you are using.
+     This command will tell you what version of XAngband you are using.
      For more information, see the "version.txt" help file.
 
 
@@ -622,7 +622,7 @@ Game Version (V)
 Toggle Choice Window (^E) 
      Toggles the display in the choice window (if available) between
      your inventory and your equipment. This command only applies if
-     you are running Zangband under a windowing environment and the
+     you are running XAngband under a windowing environment and the
      choice window is available. This also redraws the choice window.
 
 Redraw Screen (^R)

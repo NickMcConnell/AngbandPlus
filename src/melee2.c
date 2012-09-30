@@ -2601,7 +2601,7 @@ static void process_monster(int m_idx)
 			}
 		}
 
-		/* Magic: Anti multiply barrier obstructs multuplying of monsters */
+		/* Hex: Anti multiply barrier obstructs multuplying of monsters */
 		if (multiply_barrier(m_idx)) k = 8;
 
 		/* Hack -- multiply slower in crowded areas */

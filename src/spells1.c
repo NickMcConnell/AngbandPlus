@@ -2706,7 +2706,7 @@ note = "には効果がなかった！";
 				dam = 0;
 			}
 
-			/* Magic */
+			/* Hex */
 			if (is_keeping_spell(MS_VAMPIRIC_MIST)) hp_player(MIN(dam, 4));
 
 			break;
@@ -4407,7 +4407,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 	/* Hack -- messages */
 	cptr act = NULL;
 
-	/* Magic: for eye-for-an-eye */
+	/* Hex: for eye-for-an-eye */
 	int get_damage = 0;
 
 
@@ -5431,7 +5431,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 
 
 
-	/* Magic: Eye for an Eye */
+	/* Hex: Eye for an Eye */
 	if (is_keeping_spell(MS_EYE_FOR_EYE) && (get_damage > 0) && (who > 0))
 	{
 		bool fear;
@@ -5454,7 +5454,7 @@ if (fuzzy) msg_print("何か非常に冷たいもので攻撃された！");
 		}
 	}
 
-	/* Magic: Revenge Sentence */
+	/* Hex: Revenge Sentence */
 	if ((p_ptr->tim_sentence) && (get_damage > 0))
 	{
 		p_ptr->rvs_x = m_ptr->fx;

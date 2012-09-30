@@ -229,7 +229,7 @@
 #          職業を英語名で返す。
 #          Warrior, Mage, Priest, Ranger, Paladin, Warrior-Mage,
 #          Mindcrafter, Archer, Archaeologist, Elementalist,
-#          Sniper, Snatcher, Magic-User
+#          Sniper, Snatcher, Artificer
 #          のどれか
 #        $PLAYER
 #          プレイヤーの名前を返す。ただし、' '(スペース)、'['、']'は
@@ -237,7 +237,7 @@
 #          例: 名前が"[ Temp ]"ならば、$PLAYERは"__Temp__"を返す。
 #        $REALM1
 #          第１魔法領域(専門とする魔法領域)を英語名で返す。
-#          Life, Sorcery, Musou, Magic
+#          Life, Sorcery, Musou, Hex
 #          のどれか。魔法書を使えない場合は none になる。
 #        $LEVEL
 #          プレイヤーのレベルを２桁の文字列で返す。

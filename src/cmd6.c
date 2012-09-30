@@ -799,11 +799,11 @@ void do_cmd_quaff_potion(void)
 
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Magic */
+	/* Hex */
 	if (p_ptr->keep_magic)
 	{
 		if (!(p_ptr->keep_spells & MS_INHAIL_POTION))
-			(void)stop_magic_spell_all();
+			(void)stop_hex_spell_all();
 	}
 
 	/* Quaff the potion */
@@ -1351,15 +1351,15 @@ void do_cmd_read_scroll(void)
 
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Magic */
+	/* Hex */
 	if (p_ptr->keep_magic)
 	{
 		if (p_ptr->lev < 35)
-			(void)stop_magic_spell_all();
+			(void)stop_hex_spell_all();
 		else
 		{
-			if (keeping_magic_spell_fully())
-				if (!stop_magic_spell()) return;
+			if (keeping_hex_spell_fully())
+				if (!stop_hex_spell()) return;
 		}
 	}
 
@@ -1443,7 +1443,7 @@ static void do_cmd_use_staff_aux(int item)
 
 
 	/* Take a turn */
-	if (p_ptr->pclass == CLASS_DEVICE_USER)
+	if (p_ptr->pclass == CLASS_ARTIFICER)
 		energy_use = 90 - p_ptr->lev;
 	else
 		energy_use = 100;
@@ -1752,7 +1752,7 @@ static void do_cmd_use_staff_aux(int item)
 
 			for (i = 0; i < 5; i++)
 			{
-				r = do_cmd_wishing(prob, TRUE, TRUE);
+				r = do_cmd_wishing(prob, TRUE, TRUE, TRUE);
 				if (r >= 0) break;
 			}
 
@@ -1924,7 +1924,7 @@ static void do_cmd_aim_wand_aux(int item)
 
 
 	/* Take a turn */
-	if (p_ptr->pclass == CLASS_DEVICE_USER)
+	if (p_ptr->pclass == CLASS_ARTIFICER)
 		energy_use = 90 - p_ptr->lev;
 	else
 		energy_use = 100;
@@ -2358,7 +2358,7 @@ static void do_cmd_zap_rod_aux(int item)
 
 
 	/* Take a turn */
-	if (p_ptr->pclass == CLASS_DEVICE_USER)
+	if (p_ptr->pclass == CLASS_ARTIFICER)
 		energy_use = 90 - p_ptr->lev;
 	else
 		energy_use = 100;
@@ -2823,7 +2823,7 @@ static void do_cmd_activate_aux(int item)
 	}
 
 	/* Take a turn */
-	if (p_ptr->pclass == CLASS_DEVICE_USER)
+	if (p_ptr->pclass == CLASS_ARTIFICER)
 		energy_use = 100;
 	else
 		energy_use = 100;
@@ -3822,7 +3822,7 @@ msg_print("混乱していて読めない！");
 
 
 /*
- * Use magic devide for device-users
+ * Use magic devide for Artificers
  */
 void do_cmd_use_device(void)
 {

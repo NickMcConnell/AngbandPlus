@@ -106,6 +106,30 @@ static int strrncmp(cptr s1, cptr s2, int len)
 	return (0);
 }
 
+
+static int ego_slot(object_type *o_ptr)
+{
+	int slot = wield_slot(o_ptr);
+
+	if (slot > -1) return slot;
+
+	if ((o_ptr->tval == TV_SHOT) ||
+		(o_ptr->tval == TV_ARROW) ||
+		(o_ptr->tval == TV_BOLT))
+		return (INVEN_AMMO);
+
+	return (-1);
+}
+
+static void wishing_puff_of_smoke(void)
+{
+#ifdef JP
+	msg_print("何かが足下に転がってきたが、煙のように消えてしまった。");
+#else
+	msg_print("You feel something roll beneath your feet, but it disappears in a puff of smoke!");
+#endif
+}
+
 /*
  * XAngband: wishing
  * Make an wishing object, ego or artifact when it exists.
@@ -116,36 +140,70 @@ static int strrncmp(cptr s1, cptr s2, int len)
  * 3 - artifacts
  * -1 - failed
  */
-s16b do_cmd_wishing(int prob, bool art, bool ego)
+s16b do_cmd_wishing(int prob, bool art, bool ego, bool confirm)
 {
 	int k, i;
-	int a_id, a_num;
-	int e_id[10], e_num;
+	int a_id, a_num = 0;
+	int e_id[10], e_num = 0;
 	int k_id, k_num;
 	char buf[MAX_NLEN];
 	char o_name[MAX_NLEN];
 	cptr str;
-	object_type *q_ptr;
+	object_type forge;
+	object_type *q_ptr = &forge;
 	object_kind *k_ptr;
-	artifact_type *a_ptr;
-	ego_item_type *e_ptr;
+	artifact_type *a_ptr = NULL;
+	ego_item_type *e_ptr = NULL;
 
 	/* initialize */
 	bool wish_art = FALSE;
 	bool randart = FALSE;
 	bool wish_ego = FALSE;
 	bool base = TRUE;
-	bool ok = (randint0(100) < prob) ? 1 : 0;
+	bool ok = (randint0(100) < prob) ? TRUE : FALSE;
+	bool ok2 = (randint0(100) < 50 + prob) ? TRUE : FALSE;
+	bool must = (prob < 0) ? TRUE : FALSE;
+	bool blessed = FALSE;
+	bool fixed = FALSE;
+
+	char *fixed_str[] = {
+#ifdef JP
+		"燃えない",
+		"錆びない",
+		"腐食しない",
+		"安定した",
+#else
+		"rotproof",
+		"fireproof",
+		"rustproof",
+		"erodeproof",
+		"corrodeproof",
+		"fixed",
+#endif
+		NULL,
+	};
 
 	buf[0] = '\0';
 	str = buf;
 
 	/* get wishing */
+	while (1)
+	{
 #ifdef JP
-	if (!get_string("何をお望み？ ", buf, (MAX_NLEN - 1))) return (0);
+		if (get_string("何をお望み？ ", buf, (MAX_NLEN - 1))) break;
+		if (confirm)
+		{
+			if (!get_check("何も願いません。本当によろしいですか？")) continue;
+		}
 #else
-	if (!get_string("For what do you wish? ", buf, (MAX_NLEN - 1))) return (0);
+		if (get_string("For what do you wish? ", buf, (MAX_NLEN - 1))) break;
+		if (confirm)
+		{
+			if (!get_check("Do you wish nothing, really?")) continue;
+		}
 #endif
+		return (0);
+	}
 
 #ifndef JP
 	str_tolower(buf);
@@ -158,7 +216,35 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 	/* remove surplus spaces */
 	rtrim(buf);
 
-	/* evaluate header strings */
+
+	/*** evaluate header strings ****/
+
+	/* wishing blessed object ? */
+#ifdef JP
+	if (!strncmp(str, "祝福された", 10))
+	{
+		str = ltrim(str+10);
+		blessed = TRUE;
+	}
+#else
+	if (!strncmp(str, "blessed", 7))
+	{
+		str = ltrim(str+7);
+		blessed = TRUE;
+	}
+#endif
+
+	/* wishing fixed object ? */
+	for (i = 0; fixed_str[i] != NULL; i++)
+	{
+		if (!strncmp(str, fixed_str[i], strlen(fixed_str[i])))
+		{
+			str = ltrim(str+strlen(fixed_str[i]));
+			fixed = TRUE;
+			break;
+		}
+	}
+
 #ifdef JP
 	/* wishing preserve artifacts ? */
 	if (!strncmp(str, "★", 2))
@@ -197,8 +283,9 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 		str = ltrim(str + 9);
 		wish_ego = TRUE;
 	}
-#endif
+#endif /* JP */
 
+	/* No name */
 	if (strlen(str) < 1)
 	{
 #ifdef JP
@@ -221,26 +308,28 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 
 	if (cheat_xtra) msg_format("Wishing %s....", buf);
 
+
+	/*** Search target object ***/
+
 	/* search normal items */
 	k_id = -1;
 	k_num = 0;
 
+	/* do when you do not wish fixed artifact directry */
 	if (base)
 	{
 		int len;
 		int mlen = 0;
 
+		/* search base object */
 		for (k = 1; k < max_k_idx; k++)
 		{
-			object_type forge;
-
-			q_ptr = &forge;
 			k_ptr = &k_info[k];
 
 			/* Skip "empty" objects */
 			if (!k_ptr->name) continue;
 
-			/* make object */
+			/* make fake object */
 			object_prep(q_ptr, k);
 
 			/* get name */
@@ -269,10 +358,13 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 			}
 		}
 
-		/* if wishing object exists, test ego name */
+		/* if wishing base object exists, test for ego name */
 		if ((ego) && (k_num == 1))
 		{
 			e_num = 0;
+
+			/* make fake base object */
+			object_prep(q_ptr, k_id);
 
 			for (k = 1; k < max_e_idx; k++)
 			{
@@ -296,7 +388,10 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 				if (!strrncmp(str, o_name, strlen(o_name)))
 #endif
 				{
-					/* memorize same named egos */
+					/* check slot */
+					if (ego_slot(q_ptr) != e_ptr->slot) continue;
+
+					/* memorize egos have same name */
 					e_id[e_num++] = k;
 				}
 			}
@@ -381,7 +476,7 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 			if (cheat_xtra) msg_format("Matching artifact No.%d %s(%s)", k, aname, o_name);
 #endif
 
-			/* entire matched */
+			/* entire match */
 #ifdef JP
 			if (!strcmp(&o_name[2], str))
 #else
@@ -393,7 +488,7 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 				break;
 			}
 
-			/* partial matched */
+			/* partial match */
 			else if (!strcmp(aname, str))
 			{
 				if (one_in_(a_num))
@@ -404,6 +499,9 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 			}
 		}
 	}
+
+
+	/*** Create target object ***/
 
 	/* Too many matches */
 	if ((wizard) && ((a_num > 1) || (k_num > 1)))
@@ -419,23 +517,20 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 	/* wished artifact is found */
 	else if ((a_id >= 0) && (a_num == 1))
 	{
-		if ((prob < 0) || (ok && !a_info[a_id].cur_num))
+		if ((must) || (ok && !a_info[a_id].cur_num))
 		{
 			/* make target preserve artifact */
 			create_named_art(a_id, py, px);
 		}
 		else
 		{
-#ifdef JP
-			msg_print("何かが足下に転がってきたが、煙のように消えてしまった。");
-#else
-			msg_print("You feel something roll beneath your feet, but it disappears in a puff of smoke!");
-#endif
+			wishing_puff_of_smoke();
 		}
 
 		return (3);
 	}
 
+	/* wished object is found */
 	else if ((!ego) && (wish_ego || e_num))
 	{
 #ifdef JP
@@ -446,7 +541,6 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 		return (0);
 	}
 
-	/* wished object is found */
 	else if ((k_id >= 0) && (k_num == 1))
 	{
 		byte retval = 1;
@@ -456,10 +550,8 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 		k_ptr = &k_info[k_id];
 		object_level = k_ptr->level;
 
-		/* make object */
-		object_prep(q_ptr, k_id);
-
-		if ((q_ptr->tval == TV_STAFF) && (q_ptr->sval == SV_STAFF_WISHING))
+		/* Wish staff of wishing */
+		if ((k_ptr->tval == TV_STAFF) && (k_ptr->sval == SV_STAFF_WISHING))
 		{
 #ifdef JP
 			msg_print("その願いはすでにかなっている。");
@@ -468,6 +560,8 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 #endif
 			return (-1);
 		}
+
+		/* Instant artifact objects */
 		else if (k_ptr->gen_flags & (TRG_INSTA_ART))
 		{
 			for (k = 0; k < max_a_idx; k++)
@@ -479,70 +573,114 @@ s16b do_cmd_wishing(int prob, bool art, bool ego)
 				break;
 			}
 
-			if (!a_ptr->cur_num)
+			if ((must) || (ok && !a_ptr->cur_num))
 			{
-				/* Apply magic */
+				object_prep(q_ptr, k_id);
 				apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 			}
-			else
+			else /* Not ok */
 			{
-#ifdef JP
-				msg_print("何かが足下に転がってきたが、煙のように消えてしまった。");
-	#else
-				msg_print("You feel something roll beneath your feet, but it disappears in a puff of smoke!");
-#endif
+				wishing_puff_of_smoke();
 			}
 
 			retval = 3;
 		}
+
+		/* Random Artifacts */
 		else if (randart)
 		{
-			(void)create_artifact(q_ptr, FALSE);
-			retval = 3;
-		}
-		else if ((ego) && (wish_ego || e_num))
-		{
-			int max_roll = 1000;
-
-			for (i = 0; i < max_roll; i++)
+			if (must || ok)
 			{
-				(void)apply_magic(q_ptr, object_level, FALSE, TRUE, TRUE, FALSE);
-
-				if (q_ptr->name1)	/* Paranoia */
+				do
 				{
 					object_prep(q_ptr, k_id);
-					continue;
+					apply_magic(q_ptr, object_level, FALSE, FALSE, FALSE, FALSE);
 				}
-
-				/* wishing a random ego */
-				if (wish_ego) break;
-
-				for (k = 0; k < e_num; k++)
-				{
-					if (q_ptr->name2 == e_id[k]) break;
-				}
-				if (k < e_num) break;
-
-				object_prep(q_ptr, k_id);
+				while (q_ptr->name1 || q_ptr->name2 || cursed_p(q_ptr));
+				
+				if (!q_ptr->art_name) (void)create_artifact(q_ptr, FALSE);
+			}
+			else /* Not ok */
+			{
+				wishing_puff_of_smoke();
 			}
 
-			if (i == max_roll)
+			retval = 3;
+		}
+
+		/* Ego items */
+		else if ((ego) && (wish_ego || e_num))
+		{
+			if (must || ok2)
 			{
+				int max_roll = 1000;
+
+				for (i = 0; i < max_roll; i++)
+				{
+					object_prep(q_ptr, k_id);
+					(void)apply_magic(q_ptr, object_level, FALSE, TRUE, TRUE, FALSE);
+
+					/* Paranoia */
+					if (q_ptr->name1) continue;
+
+					/* wishing a random ego */
+					if (wish_ego) break;
+
+					/* Match test */
+					for (k = 0; k < e_num; k++)
+					{
+						if (q_ptr->name2 == e_id[k]) break;
+					}
+
+					/* Matched */
+					if (k < e_num) break;
+				}
+
+				if (i == max_roll)
+				{
 #ifdef JP
-				msg_print("失敗！もう一度願ってみてください。");
+					msg_print("失敗！もう一度願ってみてください。");
 #else
-				msg_print("Failed! Try again.");
+					msg_print("Failed! Try again.");
 #endif
-				return (-1);
+					return (-1);
+				}
+			}
+			else /* Not ok */
+			{
+				wishing_puff_of_smoke();
+				return (2);
 			}
 
 			retval = 2;
 		}
+
+		/* Normal items */
 		else
 		{
-			apply_magic(q_ptr, -1, FALSE, FALSE, FALSE, FALSE);
+			/* Try to make an uncursed object */
+			for (i = 0; i < 100; i++)
+			{
+				object_prep(q_ptr, k_id);
+				apply_magic(q_ptr, -1, FALSE, FALSE, FALSE, FALSE);
+				if (!cursed_p(q_ptr)) break;
+			}
 		}
 
+		/* Blessed */
+		if (blessed && (wield_slot(q_ptr) != -1))
+		{
+			q_ptr->art_flags3 |= TR3_BLESSED;
+		}
+
+		/* Fixed */
+		if (fixed && (wield_slot(q_ptr) != -1))
+		{
+			q_ptr->art_flags3 |= TR3_IGNORE_ACID;
+			q_ptr->art_flags3 |= TR3_IGNORE_FIRE;
+		}
+
+		/* Drop it */
 		(void)drop_near(q_ptr, -1, py, px);
 
 		return (retval);
@@ -1124,7 +1262,7 @@ static tval_desc tvals[] =
 	{ TV_LIFE_BOOK,         "魔法書(生命)"         },
 	{ TV_SORCERY_BOOK,      "魔法書(仙術)"         },
 	{ TV_MUSOU_BOOK,        "魔法書(無双)"         },
-	{ TV_MAGIC_BOOK,        "魔法書(呪術)"         },
+	{ TV_HEX_BOOK,          "魔法書(呪術)"         },
 	{ TV_SPIKE,             "くさび"               },
 	{ TV_DIGGING,           "採掘道具"             },
 	{ TV_CHEST,             "宝箱"                 },
@@ -1164,7 +1302,7 @@ static tval_desc tvals[] =
 	{ TV_LIFE_BOOK,         "Life Spellbook"       },
 	{ TV_SORCERY_BOOK,      "Sorcery Spellbook"    },
 	{ TV_MUSOU_BOOK,        "Combat Spellbook"     },
-	{ TV_MAGIC_BOOK,        "Magic Spellbook"     },
+	{ TV_HEX_BOOK,          "Hex Spellbook"        },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -2494,7 +2632,7 @@ void do_cmd_debug(void)
 
 	/* Hack: wishing */
 	case 'W':
-		do_cmd_wishing(-1, TRUE, TRUE);
+		do_cmd_wishing(-1, TRUE, TRUE, FALSE);
 		break;
 
 	/* Not a Wizard Command */

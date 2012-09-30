@@ -1,7 +1,7 @@
 === Creating a Character ===
 
-Zangband is a roleplaying game, in which you, the player, control a
-character in the world of Zangband. Perhaps the most important thing
+XAngband is a roleplaying game, in which you, the player, control a
+character in the world of XAngband. Perhaps the most important thing
 you control is the birth of your character, in which you choose or
 allow to be chosen various attributes that will affect the future life
 of your character.
@@ -79,127 +79,89 @@ The following table shows which classes are recommended for the various
 races.
 
  
-            Warrior Mage  Priest Rogue  Ranger Paladin Warrior Chaos
-                                                        -Mage Warrior
-Human         Yes    Yes   Yes    Yes    Yes     Yes     Yes    Yes
-Half-Elf      Yes    Yes   Yes    Yes    Yes     Yes     Yes    Yes
-Elf           Yes    Yes   Yes    Yes    Yes     No      Yes    No
-Hobbit        Yes    Yes   No     Yes    No      No      No     No
-Gnome         Yes    Yes   Yes    Yes    No      No      No     No
-Dwarf         Yes    No    Yes    No     No      No      No     No
-Half-Orc      Yes    No    Yes    Yes    No      No      No     Yes
-Half-Troll    Yes    No    Yes    No     No      No      No     No
-Amberite      Yes    Yes   Yes    Yes    Yes     Yes     Yes    Yes
-High-Elf      Yes    Yes   Yes    Yes    Yes     No      Yes    No
-Barbarian     Yes    No    Yes    Yes    Yes     No      No     Yes
-Half-Ogre     Yes    Yes   Yes    No     No      No      No     No
-Half-Giant    Yes    No    No     No     Yes     No      No     No
-Half-Titan    Yes    Yes   Yes    No     No      Yes     No     No
-Cyclops       Yes    No    Yes    No     No      No      No     No
-Yeek          Yes    Yes   Yes    Yes    No      No      No     No
-Klackon       Yes    No    No     No     Yes     No      No     No
-Kobold        Yes    No    No     Yes    No      No      No     No
-Nibelung      Yes    Yes   Yes    Yes    No      No      No     No
-Dark Elf      Yes    Yes   Yes    Yes    Yes     No      Yes    Yes
-Draconian     Yes    Yes   Yes    No     No      No      Yes    No
-Mind Flayer   No     Yes   Yes    No     No      No      Yes    No
-Imp           Yes    Yes   No     Yes    No      No      Yes    Yes
-Golem         Yes    No    No     No     No      No      No     No
-Skeleton      Yes    Yes   Yes    Yes    No      No      No     No
-Zombie        Yes    No    No     No     No      No      No     No
-Vampire       Yes    Yes   Yes    Yes    Yes     Yes     Yes    Yes
-Spectre       No     Yes   Yes    Yes    No      No      Yes    No
-Sprite        No     Yes   Yes    Yes    Yes     No      Yes    No
-Beastman      Yes    Yes   Yes    Yes    No      No      Yes    Yes
+            Warrior Mage  Priest Ranger Paladin Warrior Mind- Archer
+                                                 -Mage crafter   
+Human         Yes    Yes   Yes    Yes     Yes     Yes    Yes   Yes
+Half-Elf      Yes    Yes   Yes    Yes     Yes     Yes    Yes   Yes
+Elf           Yes    Yes   Yes    Yes     No      Yes    Yes   Yes
+Hobbit        Yes    Yes   No     Yes     No      No     No    Yes
+Gnome         Yes    Yes   Yes    Yes     No      No     Yes   Yes
+Dwarf         Yes    No    Yes    No      No      No     No    No
+Half-Orc      Yes    No    Yes    Yes     No      No     No    Yes
+Half-Troll    Yes    No    No     No      No      No     No    No
+Dunadan       Yes    Yes   Yes    Yes     Yes     Yes    Yes   Yes
+High-Elf      Yes    Yes   Yes    Yes     No      Yes    Yes   Yes
+Half-Giant    Yes    No    No     Yes     No      No     No    Yes
+Klackon       Yes    No    No     Yes     No      No     No    Yes
+Kobold        Yes    No    No     Yes     No      No     No    Yes
+Nibelung      Yes    Yes   Yes    Yes     No      No     No    Yes
+Mind Flayer   No     Yes   Yes    No      No      No     Yes   No
 
 
-                   Mind-  High
-             Monk crafter Mage
-Human         Yes   Yes    Yes
-Half-Elf      Yes   Yes    Yes
-Elf           Yes   Yes    Yes
-Hobbit        No    No     Yes
-Gnome         No    Yes    Yes
-Dwarf         No    No     No
-Half-Orc      Yes   No     No
-Half-Troll    No    No     No
-Amberite      Yes   Yes    Yes
-High-Elf      Yes   Yes    Yes
-Barbarian     No    No     No
-Half-Ogre     No    No     Yes
-Half-Giant    No    No     No
-Half-Titan    Yes   Yes    Yes
-Cyclops       No    No     No
-Yeek          No    Yes    Yes
-Klackon       No    No     No
-Kobold        No    No     No
-Nibelung      No    No     Yes
-Dark Elf      Yes   Yes    Yes
-Draconian     Yes   Yes    Yes
-Mind Flayer   Yes   Yes    Yes
-Imp           Yes   Yes    Yes
-Golem         No    No     No
-Skeleton      Yes   Yes    Yes
-Zombie        No    No     No
-Vampire       Yes   Yes    Yes
-Spectre       Yes   Yes    Yes
-Sprite        No    Yes    Yes
-Beastman      Yes   Yes    Yes
+          Archae- Elemen  Sniper Snatcher Artificer
+          ologist -talist                 
+Human       Yes     Yes     Yes     Yes     Yes
+Half-Elf    Yes     Yes     Yes     Yes     Yes 
+Elf         No      Yes     Yes     No      Yes
+Hobbit      No      Yes     Yes     No      Yes
+Gnome       Yes     Yes     Yes     No      Yes
+Dwarf       Yes     No      No      No      Yes
+Half-Orc    No      No      No      No      No
+Half-Troll  No      No      No      No      No
+Dunadan     Yes     Yes     Yes     No      Yes
+High-Elf    Yes     Yes     Yes     No      Yes
+Half-Giant  No      No      No      No      No
+Klackon     No      No      No      No      No
+Kobold      No      Yes     No      No      No
+Nibelung    No      No      Yes     No      Yes
+Mind Flayer No      Yes     No      No      Yes
 
 ***** <ChoosingMagic>
 === Choosing Your Magic Realm(s) ===
 
 If you have selected a spellcasting class, you will next be prompted
-for your choice of magic realm(s). The magic system, as implemented in
-Zangband, consists of seven realms: Life, Arcane, Sorcery, Nature,
-Trump, Chaos and Death. In general, Life is primarily defensive but
-also offers spells to attack evil creatures, Arcane offers utility
-spells and some limited offensive capability, Sorcery offers utility
-and defensive spells, Nature offers both defensive and offensive
-spells, Trump specializes in teleportation and summoning spells and
-Chaos and Death are offensive. A more complete description of the magic
-realms and spellcasting in general can be found in the section on the
-Magic Realms (see magic.txt#MagicRealms [7]).
+for your choice of magic realm. The magic system, as implemented in 
+XAngband, consists of four magic realms: Life, Sorcery, Hex,  and 
+Combat.  There are also eight elemental realms: Fire, Ice, Sky, Sea, 
+Dark, Chaos, Earth and Death. Sorcery is possibly the closest to the 
+'mage spells' of Angband.  The following is a brief description of 
+the magic realms:
 
-Where possible, it is generally a good idea to pick one defensive realm
-and one offensive realm. If you pick the realms always in the same
-order (e.g. nature as your first realm and chaos as your second realm,
-not the other way around) you will be less confused when trying to
-pick the correct spellbook to use in the game.
+Life:    Good in defense and healing but also covers attacks against 
+         evil creatures.
+Sorcery: Strong in utility and offensive spells. 
+Combat:  Specializes in the support of physical attacks.
+Hex:     Superiour in physical strengthening spells and combat 
+         enhancements.
+
+A more complete description of the magic realms and spellcasting in 
+general can be found in the section on the Magic Realms (see magic.txt#MagicRealms [7]).
+
 
 ***** <Restrictions>
 --- Class/Realm Restrictions ---
 
-In Zangband, spellcasting classes can select either one or two realms
-from those available. Some classes which can learn two realms may learn
-their first realm 'better' than their second.
+The choice of realm is limited by the class you have chosen.
 
-Note that certain realms may be prohibited for some classes. In the
-table below, '1st' indicates that the realm may only be the first
-choice, '2nd' indicates that the realm may only be the second choice
-and '1st/2nd' indicates that it can be either. Classes that only have
-'1st' options do not get a second realm. Classes with only one '1st'
-option must choose this option as their first realm.
+Class          Sorcery Magic Life Combat 
+------------------------------------------
+Mage             Yes    Yes    
+Priest                        Yes 
+Ranger                        Yes   Yes   
+Paladin                       Yes 
+Warrior-Mage     Yes                Yes
+Archaeologist    Yes
 
-Class          Life    Arcane  Sorcery Nature  Trump   Chaos   Death
-----------------------------------------------------------------------
-Mage           1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd 1st/2nd
-Priest         1st     2nd     2nd     2nd     2nd     2nd     1st
-Rogue                  1st     1st             1st             1st
-Ranger                 2nd     2nd     1st     2nd     2nd     2nd
-Paladin        1st                                             1st
-Warrior-Mage   2nd     1st     2nd     2nd     2nd     2nd     2nd
-Chaos Warrior                                          1st
-Monk           1st                     1st                     1st
-High Mage      1st     1st     1st     1st     1st     1st     1st
-
+              Fire Ice Sky Sea Dark Chaos Earth Death
+------------------------------------------------------
+Elementalist   Yes Yes Yes Yes  Yes  Yes   Yes   Yes
 
 ***** <RandomQuests>
 === RandomQuests ===
 
 Once you have chosen your race, class and (if applicable) your magic
 realm(s), you will be asked how many random quests you wish to be
-assigned. You may choose any number between 0 and 49. A more detailed
+assigned. You may choose any number between 0 and 10. A more detailed
 discussion of random quests can be found in the Dungeon section (see
 dungeon.txt#RandomQuests [8]).
 
@@ -243,44 +205,27 @@ random character at a time and then display it for you to either accept
 or reject. The 'r', 'p' and 'Esc' keys will work as outlined above.
 
 
-***** <LifeRating>
-=== Life Ratings ===
-
-During the course of 'rolling' your character you will be told its life
-rating. This is an indication of how many hitpoints your character will
-have at character level 50 before taking into consideration any bonus
-from having a high constitution. The life rating will be displayed in
-the form of x/100 where 'x' is typically a number varying between 80
-and 120.
-
-Your life rating is only a guarantee of your character's hitpoints at
-level 50. This might be achieved by small increases in the early stages
-and much larger increases in the later game or the other way around.
-Generally, however, the increases tend to be fairly even.
-
-
 ***** <CharName>
 === Naming Your Character ===
 
 Once you have accepted a character you will be asked to provide a name
 for the character. In general, the actual choice of a name is not
-important, but do keep in mind that it may have some effect on the game
-itself. For example, on some machines, the character name determines
-the filename that will be used to save the character to disk. On
-others, the character name specifies special "pref" files. And the
-character name is used on the high score list.
+important, but the character name determines the filename that will 
+be used to save the character to disk and the default name of the 
+"pref" file that can be used to save option settings and macros. 
+The character name is also shown on the high score list.
 
 
 ***** <StartInventory>
 === Starting Inventory ===
 
-Once you have named your character, you will be prompted to press 'Esc'
-and, having done so, you will be brought to the town screen from where
-you will begin your adventuring. You should note that each character
-starts in the town with a small number of items in their inventory.
-Which items you are given will depend upon your chosen race and class
-and the number of such items depends on chance. For example, all
-classes receive either food rations or scrolls of satisfy hunger but
+Once you have named your character, you will be prompted to press 
+'Enter' and, having done so, you will be brought to the town screen from
+where you will begin your adventuring. You should note that each 
+character starts in the town with a small number of items in their 
+inventory. Which items you are given will depend upon your chosen race 
+and class and the number of such items depends on chance. For example, 
+all classes receive either food rations or scrolls of satisfy hunger but
 the number of rations or scrolls received is random. Typically, you
 will receive a weapon, a piece of armor, some food, some torches and
 a magical item although there is some variance from this.
@@ -290,7 +235,8 @@ a magical item although there is some variance from this.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Updated    : XAngband DevTeam
+Last update: March 4, 2009
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt#AutoRoller
@@ -303,5 +249,4 @@ Last update: January 13, 2000
 ***** [8] dungeon.txt#RandomQuests
 ***** [9] charattr.txt#PrimaryStats
 ***** [a] charattr.txt#StatBonusTable
-***** [b] birth.txt#LifeRating
-***** [c] birth.txt#CharName
+***** [b] birth.txt#CharName

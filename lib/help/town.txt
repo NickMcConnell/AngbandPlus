@@ -1,7 +1,7 @@
 === The Town and Wilderness ===
 
 
-After you have created your character, you will begin your Zangband
+After you have created your character, you will begin your XAngband
 adventure in the town. Symbols appearing on your screen will represent
 the walls, floor, objects, features, and creatures lurking about. In
 order to direct your character through his adventure, you will enter
@@ -31,8 +31,8 @@ be found in the dungeon section (see dungeon.txt#MapSymbols [2]).
   ^ (Brown)        Mountains          6   Entrance to Magic Shop
   . (White)        Floor / Road       7   Entrance to the Black Market
   . (Brown)        Dirt               8   Entrance to your Home
-  . (Green)        Grass              
-  > (White)        Dungeon Entrance
+  . (Green)        Grass              9   Entrance to Ego Shop
+  > (White)        Dungeon Entrance   +   Entrance to other building
   > (Yellow)       Quest Entrance
   < (Yellow)       Quest Exit
 
@@ -50,18 +50,17 @@ passes and if you enter the town at night, the town will be dark.
 Fortunately, the various shops and the other special buildings are open
 on a 24-hour basis.
 
-Later versions of Zangband have introduced a dramatically extended town
-level to the game. In addition to the basic town and the standard nine
-shops, new buildings and multiple towns separated by a wilderness were
-added. Fixed quests (see below [3]) were also added to the game and
-could be begun by entering certain buildings in the town(s).
+In XAngband the town level is dramatically extended over early versions
+of Zangband.  In addition to the basic town and the standard nine
+shops, new buildings and multiple towns separated by a wilderness are
+present. Fixed quests are available (see below [3]) and can be started
+by entering certain buildings in the town(s).
 
-While most people welcome these new additions, they are not for
-everyone and consequently, there are three possible town options in
-Zangband - the 'Standard' town(s), the 'Lite' town and the 'Vanilla'
-town. The default is the standard town and the lite town and the
-vanilla town options can be selected by pressing '=' during character
-generation. (see option.txt#StartUp [4])
+Not everybody likes these features and so there are three possible town 
+options in the Startup Options - the 'Standard' town(s), the 'Lite' town 
+and the 'Vanilla' town. The default is the standard town and other 
+options (the lite town and the vanilla town) can be selected by pressing 
+'=' during character generation. (see option.txt#StartUp [4])
 
 Your choice of town is fixed for the duration of your character's
 life and will be the new default for future characters created with
@@ -72,7 +71,7 @@ during the creation of your next character.
 --- The 'Standard' Town ---
 
 The 'standard' town consists of a 10x10 square world. Each square
-(actually a rectangle) is the size of a standard Zangband dungeon level
+(actually a rectangle) is the size of a standard XAngband dungeon level
 and contains themed wilderness terrain (mountainous areas, oceans,
 plains, etc). There are several towns located in various parts of the
 world and each town is situated in its own wilderness square.
@@ -152,6 +151,7 @@ the name of the store, the maximum amount of cash that the store owner
 will pay for any one item, and the store inventory, listed along with
 tentative prices, which will become "fixed" (at the "final offer")
 should you ever manage to haggle a store owner down to his final offer
+(although the default option 'auto_haggle' that skips this process)
 (see below [5]).
 
 You will also see an (incomplete) list of available commands. Note that
@@ -263,9 +263,9 @@ Your Home ("8")
      This is your house where you can store objects that you cannot
      carry on your travels, or will need at a later date.
 
-The Bookstore ("9")
-    The Bookstore deals in all sorts of magical books. You can purchase
-    and sell spellbooks for the spellcasters here.
+The Ego shop ("9")
+     The Ego shop deals in high quality magical weapons and armor and
+     you can trade in them here.
 
 ***** <Buildings>
 === Special Buildings ===
@@ -326,7 +326,8 @@ person until you have collected your reward or reported your failure.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Updated    : XAngband DevTeam
+Last update: March 2, 2009
 
 
 ***** Begin Hyperlinks

@@ -1000,7 +1000,7 @@ struct player_type
 
 	s16b resist_magic;  /* Timed Resist Magic (later) */
 	s16b tim_radar;     /* Timed Radar Eye */
-	s16b tim_sentence;  /* Magic: Revenge Sentence */
+	s16b tim_sentence;  /* Hex: Revenge Sentence */
 
 	s16b tim_xtra1;     /* Later */
 	s16b tim_xtra2;     /* Later */
@@ -1165,11 +1165,11 @@ struct player_type
 
 	s16b pspeed;		/* Current speed */
 
-	s16b keep_magic;	/* Magic: number of keeping spells */
-	u32b keep_spells;	/* Magic: keep spells */
-	s16b rvs_x;			/* Magic: Revenge Sentence - x */
-	s16b rvs_y;			/* Magic: Revenge Sentence - y */
-	s32b rvs_d;			/* Magic: Revenge Sentence - damage */
+	s16b keep_magic;	/* Hex: number of keeping spells */
+	u32b keep_spells;	/* Hex: keep spells */
+	s16b rvs_x;			/* Hex: Revenge Sentence - x */
+	s16b rvs_y;			/* Hex: Revenge Sentence - y */
+	s32b rvs_d;			/* Hex: Revenge Sentence - damage */
 
 	bool dtrap;
 	bool autopick_autoregister; /* auto register is in-use or not */

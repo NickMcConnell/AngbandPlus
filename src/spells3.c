@@ -2552,7 +2552,7 @@ static void fail_recharge(int item)
 		/*** Determine Seriousness of Failure ***/
 
 		/* Mages and Deice-users recharge objects more safely. */
-		if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_DEVICE_USER))
+		if ((p_ptr->pclass == CLASS_MAGE) || (p_ptr->pclass == CLASS_ARTIFICER))
 		{
 			/* 10% chance to blow up one rod, otherwise draining. */
 			if (o_ptr->tval == TV_ROD)
@@ -2838,7 +2838,7 @@ s = "魔力を充填すべきアイテムがない。";
 
 
 			/* Hack -- we no longer "know" the item */
-			if (p_ptr->pclass != CLASS_DEVICE_USER) o_ptr->ident &= ~(IDENT_KNOWN);
+			if (p_ptr->pclass != CLASS_ARTIFICER) o_ptr->ident &= ~(IDENT_KNOWN);
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
@@ -3040,7 +3040,7 @@ bool recharge_energy(int power)
 			}
 
 			/* Hack -- we no longer "know" the item */
-			if (p_ptr->pclass != CLASS_DEVICE_USER) o_ptr->ident &= ~(IDENT_KNOWN);
+			if (p_ptr->pclass != CLASS_ARTIFICER) o_ptr->ident &= ~(IDENT_KNOWN);
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
@@ -3825,7 +3825,7 @@ static void spell_info(char *p, int spell, int realm)
 				}
 				break;
 
-			case REALM_MAGIC:	/* Magic */
+			case REALM_HEX:	/* Hex */
 				switch(spell)
 				{
 				case  0: strcpy (p, " 回復:1d10"); break;
@@ -4074,7 +4074,7 @@ bool hates_fire(object_type *o_ptr)
 		case TV_LIFE_BOOK:
 		case TV_SORCERY_BOOK:
 		case TV_MUSOU_BOOK:
-		case TV_MAGIC_BOOK:
+		case TV_HEX_BOOK:
 		{
 			return (TRUE);
 		}
@@ -4125,7 +4125,7 @@ int set_acid_destroy(object_type *o_ptr)
 	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_ACID) return (FALSE);
-	if (p_ptr->pclass == CLASS_DEVICE_USER)	/* Device-users defend their staffs */
+	if (p_ptr->pclass == CLASS_ARTIFICER)	/* Artificers defend their staffs */
 	{
 		if ((o_ptr->tval == TV_STAFF) && !one_in_(p_ptr->lev))
 			return (FALSE);
@@ -4143,7 +4143,7 @@ int set_elec_destroy(object_type *o_ptr)
 	if (!hates_elec(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_ELEC) return (FALSE);
-	if (p_ptr->pclass == CLASS_DEVICE_USER)	/* Device-users defend their wands */
+	if (p_ptr->pclass == CLASS_ARTIFICER)	/* Artificers defend their wands */
 	{
 		if ((o_ptr->tval == TV_WAND) && !one_in_(p_ptr->lev))
 			return (FALSE);
@@ -4161,7 +4161,7 @@ int set_fire_destroy(object_type *o_ptr)
 	if (!hates_fire(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & TR3_IGNORE_FIRE) return (FALSE);
-	if (p_ptr->pclass == CLASS_DEVICE_USER)	/* Device-users defend their staffs */
+	if (p_ptr->pclass == CLASS_ARTIFICER)	/* Artificers defend their staffs */
 	{
 		if ((o_ptr->tval == TV_STAFF) && !one_in_(p_ptr->lev))
 			return (FALSE);

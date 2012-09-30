@@ -1787,8 +1787,8 @@ void do_cmd_cast(void)
 		case REALM_MUSOU: /* * MUSOU * */
 			cast = cast_musou_spell(spell);
 			break;
-		case REALM_MAGIC: /* * MAGIC * */
-			cast = cast_magic_spell(spell);	/* MAGIC */
+		case REALM_HEX: /* * HEX * */
+			cast = cast_hex_spell(spell);	/* HEX */
 			break;
 		default:
 			cast = FALSE;

@@ -1578,7 +1578,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				warrior_artifact_bias = 40;
 				break;
 			case CLASS_WARRIOR_MAGE:
-			case CLASS_DEVICE_USER:
+			case CLASS_ARTIFICER:
 				artifact_bias = BIAS_MAGE;
 				warrior_artifact_bias = 40;
 				break;
@@ -3153,7 +3153,7 @@ bool create_nazgul_ring(object_type *o_ptr)
 	if (one_in_(666)) o_ptr->art_flags3 |= TR3_WRAITH;
 
 	/* Save the inscription */
-	get_table_name(new_name);
+	get_table_bad_sindarin(new_name);
 	o_ptr->art_name = quark_add(new_name);
 
 	/* Window stuff */

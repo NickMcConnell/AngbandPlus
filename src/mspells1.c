@@ -1022,7 +1022,7 @@ bool make_attack_spell(int m_idx)
 		return (TRUE);
 	}
 
-	/* Magic: Anti Magic Barrier */
+	/* Hex: Anti Magic Barrier */
 	if ((thrown_spell >= 128) && magic_barrier(m_idx))
 	{
 #ifdef JP

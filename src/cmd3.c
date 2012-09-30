@@ -708,7 +708,7 @@ static bool high_level_book(object_type *o_ptr)
 	if ((o_ptr->tval == TV_LIFE_BOOK) ||
 	    (o_ptr->tval == TV_SORCERY_BOOK) ||
 	    (o_ptr->tval == TV_MUSOU_BOOK) ||
-		(o_ptr->tval == TV_MAGIC_BOOK))	/* Magic */
+		(o_ptr->tval == TV_HEX_BOOK))	/* Hex */
 	{
 		if (o_ptr->sval > 1)
 			return TRUE;

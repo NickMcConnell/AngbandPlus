@@ -2667,7 +2667,7 @@ bool item_tester_okay(object_type *o_ptr)
 	if (item_tester_tval)
 	{
 		/* Is it a spellbook? If so, we need a hack -- TY */
-		if ((item_tester_tval <= TV_MAGIC_BOOK) &&
+		if ((item_tester_tval <= TV_HEX_BOOK) &&
 			(item_tester_tval >= TV_LIFE_BOOK))
 			return check_book_realm(o_ptr->tval, o_ptr->sval);
 		else

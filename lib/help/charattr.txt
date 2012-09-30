@@ -5,7 +5,7 @@ will select your character's three primary attributes - its sex, race
 and class. If you select a spellcasting class, you will also make a
 choice of magic realms at that time. Your character will be randomly
 assigned a number of other attributes such as height, weight, social
-class, and background history
+class, and character background.
 
 Your choices as to sex, race, class and realm are irrevocable and will
 remain fixed for the entire life of that character. The only exception
@@ -110,7 +110,7 @@ activations.
 ***** <TheRaces>
 === Races ===
 
-There are thirty different races that you can choose from in Zangband.
+There are fifteen different races that you can choose from in XAngband.
 Each race has various strengths and weaknesses and its own adjustments
 to a character's stats and abilities. Many races also have intrinsic
 abilities and powers.
@@ -136,7 +136,7 @@ Elf
      disarming, perception, stealth, bows, and magic, but they are not
      as good at hand weapons. They resist light effects intrinsically.
  
-Hobbits
+Hobbit
      Hobbits, or Halflings, are very good at bows, throwing, and have
      good saving throws. They also are very good at searching,
      disarming, perception, and stealth; so they make excellent rogues
@@ -192,15 +192,12 @@ Half-Troll
      levels, Half-Trolls learn to enter a berserk fury, and regenerate
      wounds automatically.
 
-Amberites
-     The Amberites are a reputedly immortal race, who are endowed with
-     numerous advantages in addition to their longevity. They are very
-     tough and their constitution cannot be reduced, and their ability
-     to heal wounds far surpasses that of any other race. Having seen
-     virtually everything, very little is new to them, and they gain
-     levels much slower than the other races. But should they advance
-     high enough, they will learn the innate Amberite powers of Pattern
-     Mindwalking and Shadow Shifting.
+Dunadan
+    Dunedain are a race of hardy men from the West.  This elder race
+    surpasses human abilities in every field, especially constitution.
+    However, being men of the world, very little is new to them, and
+    levels are very hard for them to gain.  Their constitution cannot
+    be reduced and they heal fast.
 
 High-Elf
      High-elves are a race of immortal beings dating from the beginning
@@ -210,24 +207,6 @@ High-Elf
      see the unseen, and resist light effects just like regular elves.
      However, there are few things that they have not seen already, and
      experience is very hard for them to gain.
-
-Barbarian
-     Barbarians are hardy men of the north. They are fierce in combat,
-     and their wrath is feared throughout the world. Combat is their
-     life: they feel no fear, and they learn to enter battle frenzy at
-     will even sooner than half-trolls. Barbarians are, however,
-     suspicious of magic, which makes magic devices fairly hard for
-     them to use and they are thus poorly suited to the spellcasting
-     classes.
-
-Half-Ogre
-     Half-Ogres are like Half-Orcs, only more so. They are big, bad,
-     and stupid. For warriors, they have all the necessary attributes,
-     and they can even become wizards: after all, they are related to
-     Ogre Magi, from whom they have learned the skill of setting
-     trapped runes once their level is high enough. Like Half-Orcs,
-     they resist darkness, and like Half-Trolls, they have their
-     strength sustained.
 
 Half-Giant
      Half-Giants are not too unusual, as there has been a tradition
@@ -241,28 +220,6 @@ Half-Giant
      power of magical digging. Their thick skin makes them resistant to
      shards, and like Half-Ogres and Half-Trolls, they have their
      strength sustained.
-
-Half-Titan
-     Half-mortal descendants of the mighty titans, these immensely
-     powerful creatures put almost any other race to shame. They may
-     lack the fascinating special powers of certain other races, but
-     their enhanced attributes more than make up for that. They learn
-     to estimate the strengths of their foes, and their love for law
-     and order makes them resistant to the effects of Chaos.
-
-Cyclops
-     With but one eye, a Cyclops can see more than many with two eyes.
-     They are headstrong, and loud noises bother them very little. They
-     are not quite qualified for the magic using professions, but as a
-     certain Mr. Ulysses can testify, their accuracy with thrown rocks
-     can be deadly...
-
-Yeek
-     Yeeks are among the most pathetic creatures. Fortunately, their
-     horrible screams can scare away less confident foes, and their
-     skin becomes more and more resistant to acid, as they gain
-     experience. But having said that, even a mediocre monster can wipe
-     the proverbial floor with an unwary Yeek.
 
 Klackon
      Klackons are bizarre semi-intelligent ant-like insectoid
@@ -286,23 +243,6 @@ Nibelung
      could drain away magical energy, and like ordinary dwarves, they
      can examine the dungeon to discover traps and secret doors.
 
-Dark Elf
-     Another dark, cave-dwelling race, likewise unhampered by darkness
-     attacks, the Dark Elves have a long tradition and knowledge of
-     magic. With their intelligence they can become superb mages or
-     priests, and they have an inherent magic missile attack available
-     to them at a low level. With their keen sight, they also learn to
-     see invisible things as their relatives High-Elves do, but at a
-     higher level.
-
-Draconian
-     A humanoid race with dragon-like attributes. As they advance
-     levels, they gain new elemental resistances (up to Poison
-     Resistance), and they also have a breath weapon, which becomes
-     more powerful with experience. The exact type of the breath
-     weapon depends on the Draconian's class and level. With their
-     wings, they can easily escape any pit trap unharmed.
-
 Mind Flayer
      A secretive and mysterious ancient race. Their civilization may
      well be older than any other on our planet, and their intelligence
@@ -312,114 +252,11 @@ Mind Flayer
      admirable. As they advance levels, they gain the powers of See
      Invisible, Telepathy and a mind blast attack.
 
-Imp
-     A demon-creature from the nether-world, naturally resistant to
-     fire attacks, and capable of learning fire bolt and fire ball
-     attacks. They are little loved by other races, but can perform
-     fairly well in most professions.
-
-Golem
-     A Golem is an artificial creature, built from a lifeless raw
-     material like clay, and awakened to life. They are nearly
-     mindless, making them useless for professions which rely on magic,
-     but as warriors they are very tough. They are resistant to poison,
-     they can see invisible things, and move freely. At higher levels,
-     they also become resistant to attacks which threaten to drain away
-     their life force. They also learn to temporarily turn their skin
-     into a very hard, stonelike substance. In the most recent version,
-     Golems gain very little nutrition from ordinary food. They need to
-     collect scrolls of satisfy hunger, or perish of exhaustion when
-     the life force animating their body runs out. In the most recent
-     version Golems also gain natural armor class bonus from their
-     tough body.
-
-Skeleton
-    There are two types of skeletons: the ordinary, warrior-like
-    skeletons, and the spell-using skeletons, which are also called
-    liches. As undead beings, skeletons need to worry very little about
-    poison or attacks that can drain life. They do not really use eyes
-    for perceiving things, and are thus not fooled by invisibility.
-    Their bones are resistant to sharp shrapnels (not much to cut
-    there), and they will quickly become resistant to cold. Should a
-    skeleton be unlucky enough to lose some of his or her remaining
-    life, he or she will learn to restore it at will. It is very hard
-    for skeletons to eat food or drink potions. Although the magical
-    effects of these will affect the skeleton even without entering the
-    skeleton's (non-existent) belly, the potion or food itself will
-    fall through the skeleton's jaws, giving no nutritional benefit.
-
-Zombie
-    Much like Skeletons, Zombies too are undead horrors: they are
-    resistant to life-draining attacks, and can learn to restore their
-    life-force. Like skeletons, they become resistant to cold-based
-    attacks (actually earlier than skeletons), resist poison and can
-    see invisible. While still vulnerable to cuts (unlike skeletons),
-    Zombies are resistant to Nether. Like Golems, they gain very little
-    nutrition from the food of mortals. However, Zombies are, as the
-    name implies, practically mindless: in this company, Groo would
-    seem a genius.
- 
-Vampire
-    One of the mightier undead creatures, the Vampire is an
-    awe-inspiring sight. Yet this mighty creature has a serious
-    weakness: the bright rays of sun are its bane, and it will need to
-    flee the surface to the deep recesses of earth until the sun
-    finally sets. Darkness, on the other hand, only makes the Vampire
-    stronger. As undead, the Vampire has a firm hold on its life force,
-    and resists nether attacks. The Vampire also resists cold and
-    poison based attacks. It is, however, susceptible to its perpetual
-    hunger for fresh blood, which can only be satiated by sucking the
-    blood from a nearby monster, which is the Vampire's special power.
-    It should be noted that the vampires are so sensitive to daylight
-    that even certain artifact light items which are filled with
-    daylight will hurt them if they try to wield the items.
-    Fortunately, the vampires do not really need these items, since
-    they radiate an aura of 'dark light' of their own. Light resistance
-    will, in any case, protect the vampire from the adverse effects of
-    sunlight.
-
-Spectre
-    Another powerful undead creature: the Spectre is a ghastly
-    apparition, surrounded by an unearthly green glow. They exist only
-    partially on our plane of existence: half-corporeal, they can pass
-    through walls, although the density of the wall will hurt them in
-    the process of doing this. The Spectre can scream an eldritch howl,
-    which is enough to scare lesser monsters witless. As undead, they
-    have a firm hold on their life force, see invisible, and resist
-    poison and cold. They also resist nether; in fact, their
-    half-corporeal form actually grows stronger from the effects of
-    nether. At higher levels they develop telepathic abilities.
-    Spectres make superb spellcasters, but their physical form is very
-    weak. Like Golems and Zombies, Spectres gain almost no nutrition
-    from ordinary food.
-
-Sprite
-    One of the several fairy races, Sprites are very small. They have
-    tiny wings, and can fly over traps that may open up beneath them.
-    They enjoy sunlight intensely, and need worry little about light
-    based attacks. Although physically among the weakest races, Sprites
-    are very talented in magic, and can become highly skilled wizards.
-    Sprites have the special power of spraying Sleeping Dust, and at
-    higher levels they learn to fly faster.
-
-Beastman
-    This race is a blasphemous abomination produced by Chaos. It is not
-    an independent race but rather a humanoid creature, most often a
-    human, twisted by the Chaos, or a nightmarsh crossbreed of a human
-    and a beast. All Beastmen are accustomed to Chaos so much that they
-    are untroubled by confusion and sound, although raw logrus can
-    still have effects on them. Beastmen revel in chaos, as it twists
-    them more and more. Beastmen are subject to mutations: when they
-    have been created, they receive a random mutation. After that,
-    every time they advance a level they have a little chance of
-    gaining yet another mutation.
-
-
 ***** <TheClasses>
 === Classes ===
  
-There are eleven different classes that you can choose from in
-ZAngband. Each class has various strengths and weaknesses and its own
+There are thirteen different classes that you can choose from in
+XAngband. Each class has various strengths and weaknesses and its own
 adjustments to a character's stats and abilities. Many classes also
 have intrinsic abilities and powers. These are often linked to the
 character's experience level and only become available later in the
@@ -459,11 +296,7 @@ Mage
     mages should avoid wearing armor on their hands as this can
     restrict their spell casting ability. 
 
-    Unlike other spellcasting classes, mages can freely choose any two
-    magic realms, although they will never be as good at Life magic as
-    a priest. Otherwise, mages tend to learn and cast all the spells in
-    their realms better than any other character except the high mage
-    who has concentrated his efforts so as to excel in a single realm.
+    Mages can freely choose between the magic and sorcery magic realms.
 
 Priest
     A Priest is a character devoted to serving a higher power. They
@@ -484,42 +317,9 @@ Priest
     by the Gods. High level priests who practice Life magic will learn
     to invoke the power of their patron deity to bless such weapons.
 
-    There are two types of priests in Zangband: the ordinary priests
-    who, select Life magic as their primary realm, and the 'dark'
-    priests, who select Death magic instead. Since the natural
-    inclination of priests is towards Life Magic, priests who select
-    Life magic will be able to learn their prayers faster and better
-    than their evil colleagues. Priests can also select a secondary
-    realm from the other five realms, and should be able to learn all
-    spells in it although not as efficiently as mages.
-
-Rogue
-    A Rogue is a character that prefers to live by his cunning, but is
-    capable of fighting his way out of a tight spot. Rogues are good at
-    locating hidden traps and doors and are the masters of disarming
-    traps and picking locks. A rogue has a high stealth allowing him to
-    sneak around many creatures without having to fight, or to get in a
-    telling first blow. A rogue may also backstab a fleeing monster.
-
-    A rogue is better than a warrior or paladin with magical devices,
-    but still cannot rely on their performance. Rogues can also learn a
-    few spells from a choice of four realms, but not the powerful
-    offensive spells magi can use. A rogue's primary statistics are
-    Intelligence and Dexterity but Strength and Constitution are
-    important too.
-
-    There are several subtypes of Rogues in Zangband and the exact type
-    is determined by the realm of magic chosen. The common Thief, will
-    probably be content with Arcane magic and its wide applicability.
-    The Burglar, on the other hand, is more interested in the Sorcery
-    spells, which allow him or her to do the job fast and efficiently.
-    Assassins' partiality for Death magic is well known, and they are
-    feared for it. Finally, there is the Card Shark, who will opt for
-    Trump magic, and shuffles the decks with amazing proficiency.
-
-    As a rogue increases in experience, his proficiency with the sling
-    improves and he will ultimately gain two additional shots per round
-    with his favorite missile launcher.
+    The priests in XAngband have Life magic as their primary realm.
+    Primarily concerned with healing and defence, although also 
+    powerful for attacks against evil.
 
 Ranger
     A Ranger is a combination of a warrior and a mage who has developed
@@ -538,12 +338,8 @@ Ranger
     dual class character, more experience is required for him to
     advance through the levels.
 
-    All rangers are trained in Nature magic, and all Nature spells are
-    available to them. They even learn these spells almost as fast as
-    mages. They can also select a secondary realm and may choose from
-    any realm except Life magic, but they are slow learners of the
-    second realm, and may find themselves unable to learn some of the
-    highest level spells.
+    Rangers may chose between the realms of Life and Combat, the 
+    latter being best suited for improving performance in fights.
 
 Paladin
     A Paladin is a combination of a warrior and a priest. Paladins are
@@ -557,17 +353,11 @@ Paladin
     Wisdom since he must both fight and pray for divine intervention.
     The paladin receives prayers at a slower pace then the priest, but
     can receive even the most powerful prayers although at a higher
-    cost and fail rate. Unlike priests, Paladins do not learn a second
-    magic realm. Because a paladin is really a dual class character,
-    more experience is required for him to advance through the levels.
+    cost and fail rate. s.
 
-    There are two types of Paladins: those trained in Life magic and
-    their evil counterparts (the 'Death Knights') who are trained in
-    Death magic. An 'ordinary' paladin will gain experience for
-    destroying high-level spellbooks from all the magic realms except
-    Life. A Death Knight, on the other hand, is very tolerant of the
-    other realms and will only gain experience for destroying
-    high-level Life books.
+    Like priests, paladins are trained in Life magic. A paladin will 
+    gain experience for destroying high-level spellbooks from all the 
+    magic realms except Life. 
 
     As a Paladin gains in experience he will become more confident in
     his abilities to defeat his enemies and in his deity's power to
@@ -577,7 +367,7 @@ Paladin
 Warrior-Mage
     A Warrior-Mage is precisely what the name suggests: a cross between
     the warrior and mage classes. While their brothers, the rangers,
-    specialize in Nature magic and survival skills, true Warrior-Mages
+    specialize in Life magic and survival skills, true Warrior-Mages
     attempt to reach the best of both worlds. As warriors they are much
     superior to the usual Mage class.
 
@@ -586,62 +376,9 @@ Warrior-Mage
     does not come without a price as Warrior-Mages require more
     experience to advance levels than any other class.
 
-    Warrior-mages begin the game with Arcane magic, and they can freely
-    select another realm of magic. Although they do not gain new spells
-    as fast as regular mages, they will eventually learn every spell in
-    both realms, thus making a very competitive choice for players who
-    appreciate Arcane magic.
-
-Chaos-Warrior
-    Chaos Warriors are the feared servants of the terrible Demon Lords
-    of Chaos. Every Chaos Warrior has a Patron Demon and, when gaining
-    a level, may receive a reward from his Patron. He might be healed
-    or polymorphed, his stats could be increased, or he might be
-    rewarded with an awesome weapon. His Patron Demon might, for some
-    reason, get annoyed with him and do something fairly nasty like
-    surround him with monsters, drain his stats or wreck his equipment
-    or they might simply ignore him. The Demon Lords of Chaos are
-    chaotic and unpredictable indeed. The exact type of reward depends
-    on both the Patron Demon (different Demons give different rewards)
-    and chance.
-
-    Chaos Warriors are, as one might expect, trained in Chaos magic.
-    They are not interested in any other form of magic. They can learn
-    every Chaos spell.
-
-    As a chaos-warrior gains in experience, he becomes more confident
-    of his ability to defeat his enemies and will learn to resist fear
-    at higher levels. In addition, as a result of their prolonged
-    service to the Demon Lords of Chaos, a chaos-warrior will eventually
-    become resistant to the effects of chaos.
-
-Monk
-    The Monk character class is very different from all other classes.
-    Although they can use weapons and armor just like any other class,
-    their training in martial arts makes them much more powerful with
-    no armor or weapons. To gain the resistances necessary for
-    survival at higher levels a monk may need to wear some kind of
-    armor, but if the armor he wears is too heavy, it will severely
-    disturb his martial arts maneuvers. 
-
-    As a monk gains in experience he learns, new, powerful forms of
-    attack and is able to land more blows per round. His defensive
-    capabilities increase likewise. Fortunately, the amount of armor a
-    monk can wear, while still fighting efficiently, also increases
-    with experience.
-
-    In addition, the monk's agility allows him to resist paralyzing
-    attacks once he reaches a high enough level (but only if his armor
-    is not restricting his movement). Monk's are able to move quickly
-    and will become faster and be able to strike more quickly as they
-    gain experience.
-
-    The different sects of monks are devoted to different areas of
-    magic. The typical monk is interested in the harmony of nature, and
-    studies Nature magic. An idealist monk would select Life magic, and
-    try to work to benefit his neighbor. But there are also dark
-    monks, who practice Death magic. A monk will eventually learn all
-    prayers in the discipline of their choice.
+    Warrior-mages begin the game with Sorcery or Combat magic. They do 
+    not gain new spells as fast as regular mages, but they will 
+    eventually learn every spell in their realm.
 
 Mindcrafter
     The Mindcrafter is a unique class that uses the powers of the mind
@@ -670,24 +407,78 @@ Mindcrafter
     sustained. Very experienced mindcrafters will gain the power of
     telepathy.
 
-High Mage
-    High mages are mages who specialize in one particular field of
-    magic and learn it very well - much better than the ordinary mage.
-    For the price of giving up a second realm of magic, they gain
-    substantial benefits in the mana costs, minimum levels, and failure
-    rates in the spells of the realm of their specialty.
+Archer
+    Archers are experts in missile attacks, and far surpass rangers
+    in that ability.  However they cannot cast spells, nor can they 
+    easily use magic items.  Archers spend such attention on their 
+    marksmanship that they are not good at hand-to-hand combat.
 
-    A high mage's prime statistic is intelligence as this determines
-    his spell casting ability. Good wisdom and dexterity also help.
-    There is no rule that says a high mage cannot become a good
-    fighter, but spells are the mage's true strength. With two notable
-    exceptions, high mages should avoid wearing armor on their hands as
-    this can restrict their spell casting ability.
+    The principle abilities of archers are strength, dexterity and
+    constitution.  They have a natural skill with firing arrows fast
+    that increases as their experience grows.
 
-    High mages may freely choose any realm but it should be noted that
-    a high mage specializing in Life Magic will not learn it as well as
-    a priest.
+Archaeologist
+    Archaeologist is not a very strong class.  However, due to their
+    class, they excell in using digging implements and in pseudo-id.
+    They use Sorcery for its utility, but it not being their primary
+    area it's not as if they are able to use all Sorcery spells.
+    Because an archaeologist pursues his research without fear of 
+    curse his magic defense is strong.
+
+    The principle abilities of an archaeologist is strength, dexterity
+    and constitution.  Also intelligence is essential to pursue 
+    Sorcery. With increasing level an archaeologist will gain 
+    confidence in wielding digging implements and be able to strike 
+    more blows with them.
+
+Elementalist
+    Elementalist is a class strong in handling elemental powers.  They 
+    use one of the eight elements.  As they concentrate, then relase, 
+    elemental energy their spells are generally offensive. They don't 
+    need spellbooks to work their magic.  
+
+    As they increase in experience they become resistant to then immune
+    to the element they specialize in.  Finally they can use class 
+    powers that relate to their element.  Doubtless adventure will 
+    become a cake walk if they use these well.
+
+    The elemental realms are Fire, Ice, Sky, Sea, Dark, Chaos, Earth 
+    and Death.
+
+Sniper
+    Snipers are specialists in marksmanship, but not like archers who 
+    fire off arrow after arrow in swift succession.  They don't just
+    increase accuracy and power of shots by concentration, they can use
+    fearsome archery techniques.  
+
+    What they require is powerful bows or crossbows, good quality 
+    ammunition and the fortitude to bear up without flinching under 
+    any situation.  
+
+    Snipers know their enemies well and can shoot them from the shadows.
+    They have no time for magic.
+
+Snatcher
+    Snatchers are a class with a scary special ability.  They possess 
+    a strong soul and are able to move it itself to take over another
+    body. In possessing another being their original body returns to the
+    soil and the soul of the being they've taken over is destroyed.
  
+    As they increase in level they find it easier to take over stronger 
+    monsters. Depending on the body in question usable equipment may be 
+    limited but they will be able to use the strong attacking magics and 
+    breath attacks of the monster they possessed.
+
+Artificer
+    Artificers are expert at using magic items.  They don't have strong
+    bodies or convenient magic at their call, but are able to use tools
+    quickly, well and accurately. They are able to use the energy of, 
+    for example oil flasks, to recharge items.
+	  	 
+    That said the magic items you can get hold of in town are limited so 
+    the key to victory becomes whether you can pick up powerful tools or
+    not.
+
 
 ***** <PrimaryStats>
 === Primary Statistcs ===
@@ -708,7 +499,7 @@ after the "18/" is as "tenth" points, since it often takes the same
 magic to raise a stat from, say, 4 to 5, or 16 to 17, as it does from,
 say, 18/40 to 18/50. The important thing to remember is that almost all
 internal calculations "ignore" the final digit of any "bonus", so that,
-for example, "18/40" and "18/49" are always have the same effects.
+for example, "18/40" and "18/49" have the same effects.
 
 --- The Primary Statistics ---
 
@@ -840,7 +631,7 @@ Infra-vision
      see walls and objects. Infra-vision will allow a character to see
      any warm-blooded creatures up to a certain distance. This ability
      works equally well with or with out a light source. The majority
-     of Zangband's creatures are cold-blooded, and will not be detected
+     of XAngband's creatures are cold-blooded, and will not be detected
      unless lit up by a light source. Most non human races have innate
      infra-vision ability. Human can gain infra-vision only if it is
      magically enhanced.
@@ -861,51 +652,37 @@ level.
               STR  INT  WIS  DEX  CON  CHR  Hit Dice  Exp Penalty
 Human          0    0    0    0    0    0      10         +0%
 Half-Elf      -1   +1   +1   +1   -1   +1       9         +10%
-Elf           -1   +2   +2   +1   -2   +2       8         +20%
-Hobbit        -2   +2   +1   +3   +2   +1       7         +10%
-Gnome         -1   +2    0   +2   +1   -2       8         +35%
-Dwarf         +2   -2   +2   -2   +2   -3      11         +35%
-Half-Orc      +2   -1    0    0   +1   -4      10         +10%
-Half-Troll    +4   -4   -2   -4   +3   -6      12         +37%
-Amberite      +1   +2   +2   +2   +3   +2      10         +125%
+Elf           -1   +2   +2   +1   -2   +3       8         +15%
+Hobbit        -2   +1   +1   +3   +2   +1       7         +10%
+Gnome         -1   +2    0   +2   +1   -1       8         +20%
+Dwarf         +2   -2   +2   -2   +2   -1      11         +25%
+Half-Orc      +2   -1    0    0   +1   -2      10         +10%
+Half-Troll    +5   -4   -2   -3   +4   -3      12         +25%
+Dunadan       +1   +2   +2   +2   +3   +2      10         +80%
 High-Elf      +1   +3   +2   +3   +1   +5      10         +100%
-Barbarian     +3   -2   -1   +1   +2   -2      11         +20%
-Half-Ogre     +3   -1   -1   -1   +3   -3      12         +30%
-Half-Giant    +4   -2   -2   -2   +3   -3      13         +50%
-Half-Titan    +5   +1   +1   -2   +3   +1      14         +155%
-Cyclops       +4   -3   -3   -3   +4   -6      13         +30%
-Yeek          -2   +1   +1   +1   -2   -7       7         +0%
+Half-Giant    +4   -2   -2   -2   +3   -2      13         +50%
 Klackon       +2   -1   -1   +1   +2   -2      12         +35%
-Kobold        +1   -1    0   +1    0   -4       9         +25%
-Nibelung      +1   -1   +2    0   +2   -4      11         +35%
-Dark Elf      -1   +3   +2   +2   -2   +1       9         +50%
-Draconian     +2   +1   +1   +1   +2   -3      11         +150%
-Mind Flayer   -3   +4   +4    0   -2   -5       9         +40%
-Imp           -1   -1   -1   +1   +2   -3      10         +10%
-Golem         +4   -5   -5   -2   +4   -4      12         +100%
-Skeleton       0   -2   -2    0   +1   -4      10         +45%
-Zombie        +2   -6   -6   +1   +4   -5      13         +35%
-Vampire       +3   +3   -1   -1   +1   +2      11         +100%
-Spectre       -5   +4   +4   +2   -3   -6       7         +80%
-Sprite        -4   +3   +3   +3   -2   +2       7         +75%
-Beastman      +2   -2   -1   -1   +2   -4      11         +40%
+Kobold        +1   -1    0   +1    0   -2       9         +25%
+Nibelung      +1   -1   +2    0   +2   -2      11         +35%
+Mind Flayer   -3   +4   +4    0   -2   -3       9         +40%
 
 
 --- Table 2 - Class Statistic Bonus Table ---
 
               STR  INT  WIS  DEX  CON  CHR  Hit Dice  Exp Penalty
-Warrior       +5   -2   -2   +2   +2   -1      +9         +0%
-Mage          -5   +3    0   +1   -2   +1       0         +30%
-Priest        -1   -3   +3   -1    0   +2      +2         +20%
-Rogue         +2   +1   -2   +3   +1   -1      +6         +25%
-Ranger        +2   +2    0   +1   +1   +1      +4         +30%
-Paladin       +3   -3   +1    0   +2   +2      +6         +35%
-Warrior-Mage  +2   +2    0   +1    0   +1      +4         +50%
-Chaos Warrior +2   +1    0   +1   +2   -2      +5         +35
-Monk          +2   -1   +1   +3   +2   +1      +6         +40%
-Mindcrafter   -1    0   +3   -1   -1   +2      +2         +25%
-High Mage     -5   +4    0    0   -2   +1       0         +30%
- 
+Warrior       +5   -2   -2   +2   +2   -1       9         +0%
+Mage          -4   +3    0   +1   -2   +1       0         +30%
+Priest        -1   -3   +3   -1    0   +2       2         +20%
+Ranger        +2   +2    0   +1   +1   +1       4         +30%
+Paladin       +3   -3   +1    0   +2   +2       6         +35%
+Warrior-Mage  +2   +2    0   +1    0   +1       4         +40%
+Mindcrafter   -1    0   +3   -1   -1   +2       2         +25%
+Archer        +2   -1   -1   +2   +1    0       4         +10%
+Archaeologist  0   +1    0    0    0   +1       0         +10%
+Elementalist  -4   +3    0   +1   -2   +1       2         +25%
+Sniper        +1   -1   -2   +2    0   -1       2         +20%
+Snatcher       0    0    0    0    0    0       2         +30%
+Artificer     -2   +2    0   +1   -1    0       0         +30%
 
 ***** <SkillBonusTable>
 === Ability Tables ===
@@ -922,57 +699,44 @@ noted above, some skills will not improve unless magically enhanced.
               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee Bows  Infra
 Human         +0    +0    +0    +0    +0    +10   +0    +0    None
 Half-Elf      +2    +3    +3    +1    +6    +11   -1    +5    20 feet
-Elf           +5    +6    +6    +2    +8    +12   -5    +5    30 feet
+Elf           +5    +6    +6    +2    +8    +12   -5    +15   30 feet
 Hobbit        +15   +18   +18   +5    +12   +15   -10   +20   40 feet
 Gnome         +10   +12   +12   +3    +6    +13   -8    +12   40 feet
 Dwarf         +2    +9    +10   -1    +7    +10   +15   +0    50 feet
 Half-Orc      -3    -3    -3    -1    +0    +7    +12   -5    30 feet
 Half-Troll    -5    -8    -8    -2    -1    +5    +20   -10   30 feet
-Amberite      +4    +5    +5    +2    +3    +13   +15   +10   None
+Dunadan       +4    +5    +5    +2    +3    +13   +15   +10   None
 High-Elf      +4    +20   +20   +4    +3    +14   +10   +25   40 feet
-Barbarian     -2    -10   +2    -1    +1    +7    +12   +10   None
-Half-Ogre     -3    -5    -5    -2    -1    +5    +20   +0    30 feet
 Half-Giant    -6    -8    -6    -2    -1    +5    +25   +5    30 feet
-Half-Titan    -5    +5    +2    -2    +1    +8    +25   +0    None
-Cyclops       -4    -5    -5    -2    -2    +5    +20   +12   10 feet
-Yeek          +2    +4    +10   +3    +5    +15   -5    -5    20 feet
 Klackon       +10   +5    +5    +0    -1    +10   +5    +5    20 feet
-Kobold        -2    -3    -2    -1    +1    +8    +10   -8    30 feet
+Kobold        -2    -3    -2    -1    +1    +8    +10   -5    30 feet
 Nibelung      +3    +5    +10   +1    +5    +10   +9    +0    50 feet
-Dark Elf      +5    +15   +20   +3    +8    +12   -5    +10   50 feet
-Draconian     -2    +5    +3    +0    +1    +10   +5    +5    20 feet
 Mind Flayer   +10   +25   +15   +2    +5    +12   -10   -5    40 feet
-Imp           -3    +2    -1    +1    -1    +10   +5    -5    30 feet
-Golem         -5    -5    +10   -1    -1    +8    +20   +0    40 feet
-Skeleton      -5    -5    +5    -1    -1    +8    +10   +0    20 feet
-Zombie        -5    -5    +8    -1    -1    +5    +15   +0    20 feet
-Vampire       +4    +10   +10   +4    +1    +8    +5    +0    50 feet
-Spectre       +10   +25   +20   +5    +5    +14   -15   -5    50 feet
-Sprite        +10   +10   +10   +4    +10   +10   -12   +0    40 feet
-Beastman      -5    -2    -1    -1    -1    +5    +12   +5    None
 
 
 --- Table 2 - Class Skill Bonus Table ---
 
               Dsrm  Dvce  Save  Stlh  Srch  Prcp  Melee  Bows
-Warrior       25+12 18+7  18+10  1    14/2        25+100 25+80
-Mage          30+7  36+13 30+9   2    15/20       10+25  15+20
-Priest        25+7  30+10 32+12  2    16/8        16+50  15+25
-Rogue         45+15 32+10 28+10  5    32/24       15+70  29+60
-Ranger        30+8  32+10 28+10  3    24/16       15+65  30+95
-Paladin       20+7  24+10 26+11  1    12/2        19+76  15+20
-Warrior-Mage  30+7  30+10 28+9   2    18/16       20+75  30+75
-Chaos Warrior 20+7  25+11 25+10  1    14/12       23+90  20+60
-Monk          45+15 32+11 28+10  5    32/24       12+30  21+40
-Mindcrafter   30+10 30+10 30+10  3    22/16       10+30  15+30
-High Mage     30+7  36+13 30+9   2    15/20       10+15  15+15
-
+Warrior       25+12 18+7  18+10  1    14/2        70+150 55+150
+Mage          30+7  36+13 30+9   2    16/20       34+30  20+35
+Priest        25+7  30+10 32+12  2    16/8        48+65  35+55
+Ranger        30+8  32+10 28+10  5    24/16       56+90  72+140
+Paladin       20+7  24+10 26+11  1    12/2        68+105 40+90
+Warrior-Mage  30+7  30+10 28+9   1    18/16       65+100 35+55
+Mindcrafter   30+10 30+10 30+10  3    22/16       50+70  40+90
+Archer        38+12 24+10 35+10  4    24/16       56+90  82+180
+Archaeologist 40+15 24+10 40+12  1    32/18       35+60  20+45
+Elementalist  30+7  30+10 32+12  2    16/20       34+30  20+35
+Sniper        25+12 24+10 28+10  5    32/18       35+60  72+140
+Snatcher      25+7  24+10 28+9   1    22/16       42+65  25+40
+Artificer     30+7  42+15 30+9   2    16/20       45+55  30+45
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Updated    : XAngband DevTeam
+Last update: Mar 4, 2009
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt

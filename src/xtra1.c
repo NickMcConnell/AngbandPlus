@@ -469,43 +469,43 @@ static void prt_status(void)
 	if (p_ptr->tim_sh_fire) ADD_FLG(BAR_SHFIRE);
 	if (is_keeping_spell(MS_DEMON_AURA)) ADD_FLG(BAR_SHFIRE);
 
-	/* Magic: Cold Aura */
+	/* Hex: Cold Aura */
 	if (is_keeping_spell(MS_ICE_ARMOR)) ADD_FLG(BAR_SHCOLD);
 
-	/* Magic: Extra Might */
+	/* Hex: Extra Might */
 	if (is_keeping_spell(MS_EXTRA_MIGHT)) ADD_FLG(BAR_EXMIGHT);
 
-	/* Magic: Build Up */
+	/* Hex: Build Up */
 	if (is_keeping_spell(MS_BUILD_UP)) ADD_FLG(BAR_BUILDUP);
 
-	/* Magic: Anti Teleport Field */
+	/* Hex: Anti Teleport Field */
 	if (is_keeping_spell(MS_ANTI_TELEPORT)) ADD_FLG(BAR_ANTITELE);
 
-	/* Magic: Anti Magic Field */
+	/* Hex: Anti Magic Field */
 	if (is_keeping_spell(MS_ANTI_MAGIC)) ADD_FLG(BAR_ANTIMAGIC);
 
-	/* Magic: Eye for an Eye */
+	/* Hex: Eye for an Eye */
 	if (is_keeping_spell(MS_EYE_FOR_EYE)) ADD_FLG(BAR_EYEFOREYE);
 
-	/* Magic: Resist Dark */
+	/* Hex: Resist Dark */
 	if (is_keeping_spell(MS_RES_DARK)) ADD_FLG(BAR_RESDARK);
 
-	/* Magic: Resist Dark */
+	/* Hex: Resist Dark */
 	if (is_keeping_spell(MS_RES_NETHER)) ADD_FLG(BAR_RESNETH);
 
-	/* Magic: Revenge Sentence */
+	/* Hex: Revenge Sentence */
 	if (p_ptr->tim_sentence) ADD_FLG(BAR_SENTENCE);
 
-	/* Magic: Rune sword */
+	/* Hex: Rune sword */
 	if (is_keeping_spell(MS_RUNESWORD)) ADD_FLG(BAR_RUNESWORD);
 
-	/* Magic; Vampiric Attack */
+	/* Hex: Vampiric Attack */
 	if (is_keeping_spell(MS_VAMPIRIC_ATTACK)) ADD_FLG(BAR_VAMPIRIC);
 
-	/* Magic: Confusing Hands */
+	/* Hex: Confusing Hands */
 	if (is_keeping_spell(MS_CONFUSION)) ADD_FLG(BAR_ATTKCONF);
 
-	/* Magic; Anti Multiply */
+	/* Hex: Anti Multiply */
 	if (is_keeping_spell(MS_ANTI_MULTIPLY)) ADD_FLG(BAR_ANTIMULTI);
 
 	/* Calcurate length */
@@ -1073,7 +1073,7 @@ static void prt_state(void)
 		}
 	}
 
-	/* Magic: Keep casting */
+	/* Hex: Keep casting */
 	else if (p_ptr->keep_magic)
 	{
 #ifdef JP
@@ -2363,7 +2363,7 @@ static void calc_hitpoints(void)
 	if (p_ptr->hero) mhp += 10;
 	if (p_ptr->shero) mhp += 30;
 
-	/* Magic: in build-up */
+	/* Hex: in build-up */
 	if (is_keeping_spell(MS_BUILD_UP)) mhp += 100;
 
 	/* New maximum hitpoints */
@@ -2546,7 +2546,7 @@ static sint add_special_melee_skill(byte pclass, s16b weight, object_type *o_ptr
 
 		/* Priest.  Can use 12 lb weapons without penalty at level 1, and 22 lb weapons without penalty at 50th level. */
 		case CLASS_PRIEST:
-		case CLASS_DEVICE_USER:
+		case CLASS_ARTIFICER:
 		{
 			add_skill = 30 + (1 * p_ptr->lev / 2) - (weight / 4);
 			if (add_skill > 0) add_skill = 0;
@@ -3210,8 +3210,8 @@ void calc_bonuses(void)
 	}
 
 
-	/* Magic */
-	calc_bonuses_magic_spell();
+	/* Hex */
+	calc_bonuses_hex_spell();
 
 	
 	/* Scan the usable inventory */
@@ -3869,7 +3869,7 @@ void calc_bonuses(void)
 					num = cp_ptr->num; wgt = cp_ptr->wgt; mul = cp_ptr->mul;
 			}
 
-			/* Magic: Build up increases 1 more blows */
+			/* Hex: Build up increases 1 more blows */
 			if (is_keeping_spell(MS_BUILD_UP)) num++;
 
 			/* Enforce a minimum "weight" (tenth pounds) */

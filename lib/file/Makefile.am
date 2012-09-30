@@ -13,7 +13,7 @@ angband_files = \
 	monfear_j.txt monfrien_j.txt monspeak_j.txt news_j.txt \
 	rumors_j.txt silly_j.txt timefun_j.txt timenorm_j.txt \
 	w_cursed_j.txt w_high_j.txt w_low_j.txt w_med_j.txt \
-	sname.txt
+	sname.txt nname.txt
 
 EXTRA_DIST = \
   $(angband_files)

@@ -215,7 +215,7 @@ bool make_attack_normal(int m_idx)
 	int omit_mname = 0;
 #endif
 
-	/* Magic: for eye-for-an-eye */
+	/* Hex: for eye-for-an-eye */
 	int get_damage = 0;
 
 	/* Not allowed to attack */
@@ -772,7 +772,7 @@ bool make_attack_normal(int m_idx)
 								/* Calculate healed hitpoints */
 								int heal = rlev * o_ptr->pval;
 
-								if ((p_ptr->pclass == CLASS_DEVICE_USER) &&
+								if ((p_ptr->pclass == CLASS_ARTIFICER) &&
 									(randint0(75 + r_ptr->level / 4) < p_ptr->lev * 2))
 								{
 #ifdef JP
@@ -2019,7 +2019,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 		}
 	}
 
-	/* Magic: Eye for an Eye */
+	/* Hex: Eye for an Eye */
 	if (is_keeping_spell(MS_EYE_FOR_EYE) && (get_damage > 0) && (m_idx > 0))
 	{
 #ifdef JP
@@ -2030,7 +2030,7 @@ msg_format("%sは体力を回復したようだ。", m_name);
 		mon_take_hit(m_idx, get_damage, &fear, NULL);
 	}
 
-	/* Magic: Revenge Sentence */
+	/* Hex: Revenge Sentence */
 	if ((p_ptr->tim_sentence) && (get_damage > 0))
 	{
 		p_ptr->rvs_x = m_ptr->fx;

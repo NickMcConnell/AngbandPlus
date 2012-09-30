@@ -9,12 +9,14 @@ Weaponsmith: they deal in anything sharp and to the point.
 Armorer: to offer protection from the ravages of the dungeon.
 General Store: food, torches, ammo, some necessities.
 Temple Trade: those items permitted to the pious in life.
-Black Market: the prices are usurious, but some depths items!
+Black Market: the prices are usurious, but some out of depth items!
+Ego Shop: deals in high quality magic items.
 Home: to store some of your precious treasures.
 
-ZAngband additional (if you not prefer Ironman/Vanilla):
+
+XAngband additional (if you not prefer Ironman/Vanilla):
 The Fighter's Halls, Order of Paladins, Ranger's Taverns, 
-Gilds of Thieves, and the diverse Towers of magic realms 
+Thieves Guilds, and the diverse Towers of magic realms 
 are no longer restricted to the professionals involved. 
 Nevertheless some of the services are exclusive for members. 
 Look out for ambitious quests! 
@@ -29,5 +31,4 @@ Inns: Resting will refresh, and those ghosts prowl at night...
 
 All buildings are made of stone and unlikely to move around.
 
-This file is accurate for Zangband 2.2.4
-
+This file is accurate for XAngband 1.3.0

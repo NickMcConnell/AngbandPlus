@@ -1162,10 +1162,10 @@ static byte choose_realm(byte choices)
 		count++;
 		auto_select = REALM_MUSOU;
 	}
-	if (choices & CH_MAGIC)	/* Magic */
+	if (choices & CH_HEX)	/* Hex */
 	{
 		count++;
-		auto_select = REALM_MAGIC;
+		auto_select = REALM_HEX;
 	}
 
 	/* Auto-select the realm */
@@ -2307,7 +2307,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	},
 
 	{
-		/* Device-User */
+		/* Artificer */
 		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 		{ TV_WAND, SV_WAND_MAGIC_MISSILE },
@@ -2467,7 +2467,7 @@ void player_outfit(void)
 
 		add_outfit(q_ptr);
 	}
-	else if (p_ptr->pclass == CLASS_DEVICE_USER)
+	else if (p_ptr->pclass == CLASS_ARTIFICER)
 	{
 		/* Hack -- Give the player some scrolls of recharging */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_RECHARGING));

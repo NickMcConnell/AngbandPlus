@@ -2292,7 +2292,7 @@ static void tim_player_flags(u32b *f1, u32b *f2, u32b *f3)
 		(*f3) |= TR3_REGEN;
 	}
 
-	/* Magic */
+	/* Hex */
 	if (is_keeping_spell(MS_DEMON_AURA))
 	{
 		(*f3) |= TR3_SH_FIRE;

@@ -124,7 +124,7 @@ static grouper group_item[] =
 	{ TV_LIFE_BOOK,     "魔法書（生命）" },
 	{ TV_SORCERY_BOOK,  "魔法書（仙術）" },
 	{ TV_MUSOU_BOOK,    "魔法書（無双）" },
-	{ TV_MAGIC_BOOK,    "魔法書（呪術）" },
+	{ TV_HEX_BOOK,    "魔法書（呪術）" },
 
 	{ TV_CHEST,         "箱" },
 	{ TV_FIGURINE,      "人形" },
@@ -170,7 +170,7 @@ static grouper group_item[] =
 	{ TV_LIFE_BOOK,     "Books (Life)" },
 	{ TV_SORCERY_BOOK,  "Books (Sorcery)" },
 	{ TV_MUSOU_BOOK,    "Books (Combat)" },
-	{ TV_MAGIC_BOOK,    "Books (Magic)" },
+	{ TV_HEX_BOOK,      "Books (Hex)" },
 
 	{ TV_CHEST,         "Chests" },
 	{ TV_FIGURINE,      "Magical Figurines" },

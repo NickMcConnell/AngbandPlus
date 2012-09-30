@@ -1410,7 +1410,7 @@ int calc_melee_bonus(int hand)
 				bonus += (5 + (p_ptr->lev / 5));
 	}
 
-	if (p_ptr->realm1 == REALM_MAGIC)
+	if (p_ptr->realm1 == REALM_HEX)
 	{
 		u32b f1, f2, f3;
 		object_type *o_ptr = &inventory[slot];
@@ -1797,7 +1797,7 @@ static void py_attack_aux(int y, int x, int mode)
 	bool            backstab = FALSE;
 	bool            stab_fleeing = FALSE;
 
-	/* Magic */
+	/* Hex */
 	bool            runesword = (is_keeping_spell(MS_RUNESWORD)) ? TRUE : FALSE;
 
 	/* Disturb the player */
@@ -2132,7 +2132,7 @@ static void py_attack_aux(int y, int x, int mode)
 				/* No negative damage */
 				if (k < 0) k = 0;
 
-				/* Magic */
+				/* Hex */
 				if (runesword)
 				{
 					int bonus = 0;

@@ -3798,7 +3798,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #JZ#
 N:427:[»ØÆî¤Î½ñ]
-E:[Coating Handbook]
+E:[Trainee's Handbook]
 G:?:G
 I:92:0:0
 W:10:0:30:100 
@@ -3807,7 +3807,7 @@ P:0:1d1:0:0:0
 
 #JZ#
 N:428:[Ê³¿×¤Î½ñ]
-E:[Battle Mastery]
+E:[Veteran's Handbook]
 G:?:G
 I:92:1:0
 W:20:0:30:1000 
@@ -3816,7 +3816,7 @@ P:0:1d1:0:0:0
 
 #JZ#
 N:429:[ÌµÁÐ¤Î½ñ]
-E:[Invinsible Techniques]
+E:[Invincible Techniques]
 G:?:g
 I:92:2:0
 W:50:0:30:25000
@@ -3826,7 +3826,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #X#
 N:430:[¼ö½ÑÆþÌç]
-E:[Handbook of Common Magic]
+E:[Handbook of Hexing]
 G:?:D
 I:93:0:0
 W:10:0:30:100 
@@ -3835,7 +3835,7 @@ P:0:1d1:0:0:0
 
 #X#
 N:431:[¾åµé¼ö½Ñ]
-E:[High Black Magic]
+E:[Tome of Heavy Curses]
 G:?:D
 I:93:1:0
 W:20:0:30:1000 

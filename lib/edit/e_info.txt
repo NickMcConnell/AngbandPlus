@@ -665,7 +665,7 @@ F:CON | SLAY_DRAGON | XTRA_E_RES | XTRA_D_RES
 # The "Kill" brands (8) -> New egos (8)
 
 N:88:Í¦¼Ô¤Î
-E:of Brave
+E:of the Brave
 X:24:20
 W:0:40:0:15000
 C:8:8:0:2
@@ -690,7 +690,7 @@ F:INT | DEX | CHR | STEALTH | SLAY_ORC | SLAY_TROLL | SLAY_GIANT |
 F:LITE | SLOW_DIGEST
 
 N:91:Æú¿§¤Î
-E:of Prism
+E:(Prismatic)
 X:24:16
 W:0:40:0:8000
 F:BRAND_FIRE | BRAND_COLD | BRAND_ELEC | LITE |
@@ -715,7 +715,7 @@ F:SEE_INVIS | FREE_ACT | REGEN | SLOW_DIGEST | HOLD_LIFE | WARNING |
 F:ONE_SUSTAIN | ACTIVATE
 
 N:94:ÍÅÀº¤Î
-E:of Fairy
+E:of Fairykind
 X:24:16
 W:0:60:0:8000
 C:0:10:0:2

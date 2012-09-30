@@ -2194,7 +2194,7 @@ msg_print("あまりにも空腹で気絶してしまった。");
 		(void)set_tim_radar(p_ptr->tim_radar - 1);
 	}
 
-	/* Magic: Revenge Sentence */
+	/* Hex: Revenge Sentence */
 	if (p_ptr->tim_sentence)
 	{
 		u16b flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_JUMP | PROJECT_KILL);
@@ -2512,8 +2512,8 @@ else if (get_check("テレポートしますか？"))
 			/* Recharge */
 			o_ptr->timeout--;
 
-			/* Device-users can activate objects again quickly */
-			if (p_ptr->pclass == CLASS_DEVICE_USER)
+			/* Artificers can activate objects again quickly */
+			if (p_ptr->pclass == CLASS_ARTIFICER)
 			{
 				if (o_ptr->timeout > 0) o_ptr->timeout--;
 			}
@@ -3239,7 +3239,7 @@ msg_print("ウィザードモード突入。");
 		{
 			if (!p_ptr->inside_arena)
 			{
-				if (p_ptr->pclass == CLASS_DEVICE_USER)
+				if (p_ptr->pclass == CLASS_ARTIFICER)
 				{
 					do_cmd_use_device();
 				}
@@ -4143,7 +4143,7 @@ static void process_player(void)
 		if (energy_use) 
 		{
 			if (reset_concent) reset_concentration(TRUE);
-			if (p_ptr->keep_magic) upkeep_magic_spell();
+			if (p_ptr->keep_magic) upkeep_hex_spell();
 			break;
 		}
 	}
@@ -4507,7 +4507,7 @@ static void dungeon(void)
 		r_info[quest[quest_num].r_idx].flags1 &= ~RF1_QUESTOR;
 	}
 
-	/* Magic: Give up your revenge */
+	/* Hex: Give up your revenge */
 	if (p_ptr->tim_sentence)
 	{
 		p_ptr->tim_sentence = 0;

@@ -1210,7 +1210,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 							break;
 						case CLASS_MAGE:
 						case CLASS_HIGH_MAGE:
-						case CLASS_DEVICE_USER:
+						case CLASS_ARTIFICER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_RED;
 							else

@@ -34,7 +34,7 @@
 #define MN_REVENGE_SENTENCE  31
 
 
-static void stop_magic_spell_effect(int spell)
+static void stop_hex_spell_effect(int spell)
 {
 	switch(spell)
 	{
@@ -111,14 +111,14 @@ static void stop_magic_spell_effect(int spell)
 }
 
 
-bool stop_magic_spell_all(void)
+bool stop_hex_spell_all(void)
 {
 	int i;
 
 	for (i = 0; i < 32; i++)
 	{
 		u32b f = 1L << i;
-		if (p_ptr->keep_spells & f) stop_magic_spell_effect(i);
+		if (p_ptr->keep_spells & f) stop_hex_spell_effect(i);
 	}
 
 	p_ptr->keep_magic = 0;
@@ -137,7 +137,7 @@ bool stop_magic_spell_all(void)
 	return TRUE;
 }
 
-bool stop_magic_spell(void)
+bool stop_hex_spell(void)
 {
 	int i;
 	char choice;
@@ -160,7 +160,7 @@ bool stop_magic_spell(void)
 	/* Stop all spells */
 	else if (p_ptr->keep_magic == 1)
 	{
-		return stop_magic_spell_all();
+		return stop_hex_spell_all();
 	}
 	else
 	{
@@ -185,7 +185,7 @@ bool stop_magic_spell(void)
 				if (p_ptr->keep_spells & f)
 				{
 					Term_erase(x, y + n + 1, 255);
-					put_str(format("%c)  %s", I2A(n), spell_names[REALM_MAGIC-1][i]), y + n + 1, x + 2);
+					put_str(format("%c)  %s", I2A(n), spell_names[REALM_HEX-1][i]), y + n + 1, x + 2);
 					sp[n++] = i;
 				}
 			}
@@ -196,7 +196,7 @@ bool stop_magic_spell(void)
 			if (choice == 'l')	/* All */
 			{
 				screen_load();
-				return stop_magic_spell_all();
+				return stop_hex_spell_all();
 			}
 			if ((choice < I2A(0)) || (choice > I2A(p_ptr->keep_magic - 1))) continue;
 			flag = TRUE;
@@ -209,7 +209,7 @@ bool stop_magic_spell(void)
 	{
 		int n = sp[A2I(choice)];
 
-		stop_magic_spell_effect(n);
+		stop_hex_spell_effect(n);
 		p_ptr->keep_spells &= ~(1L << n);
 		p_ptr->keep_magic--;
 	}
@@ -222,13 +222,13 @@ bool stop_magic_spell(void)
 }
 
 
-void upkeep_magic_spell(void)
+void upkeep_hex_spell(void)
 {
 	int n, i, sp[BM_MAX_KEEP];
 	int cost = 0;
 	int rate = (!p_ptr->dec_mana) ? 3 : 4;
 
-	if (p_ptr->realm1 != REALM_MAGIC) return;
+	if (p_ptr->realm1 != REALM_HEX) return;
 	if (!p_ptr->keep_magic) return;
 
 	for (n = 0, i = 0; i < 32; i++)
@@ -237,14 +237,14 @@ void upkeep_magic_spell(void)
 
 		if (p_ptr->keep_spells & f)
 		{
-			cost += MAX(1, mp_ptr->info[REALM_MAGIC-1][i].smana / rate) + n;
+			cost += MAX(1, mp_ptr->info[REALM_HEX-1][i].smana / rate) + n;
 			sp[n++] = i;
 		}
 	}
 
 	if (p_ptr->csp < cost)
 	{
-		(void) stop_magic_spell_all();
+		(void) stop_hex_spell_all();
 		return;
 	}
 
@@ -326,9 +326,9 @@ void upkeep_magic_spell(void)
 				if (!flag)
 				{
 #ifdef JP
-					msg_format("%sの呪文の詠唱をやめた。", spell_names[REALM_MAGIC-1][MN_RESTORE_LIFE]);
+					msg_format("%sの呪文の詠唱をやめた。", spell_names[REALM_HEX-1][MN_RESTORE_LIFE]);
 #else
-					msg_format("Finish casting '%^s'.", spell_names[REALM_MAGIC-1][MN_RESTORE_LIFE]);
+					msg_format("Finish casting '%^s'.", spell_names[REALM_HEX-1][MN_RESTORE_LIFE]);
 #endif
 					p_ptr->keep_magic--;
 					p_ptr->keep_spells &= ~(MS_RESTORE_LIFE);
@@ -377,7 +377,7 @@ static bool item_tester_hook_weapon_except_bow(object_type *o_ptr)
 }
 
 
-bool keeping_magic_spell_fully(void)
+bool keeping_hex_spell_fully(void)
 {
 	int k_max = 0;
 
@@ -391,7 +391,7 @@ bool keeping_magic_spell_fully(void)
 	return TRUE;
 }
 
-bool cast_magic_spell(int spell)
+bool cast_hex_spell(int spell)
 {
 	int i;
 	int	dir;
@@ -410,7 +410,7 @@ bool cast_magic_spell(int spell)
 		return FALSE;
 	}
 
-	if (keeping_magic_spell_fully())
+	if (keeping_hex_spell_fully())
 	{
 #ifdef JP
 		msg_print("これ以上同時に呪文を唱えることはできない。");
@@ -421,7 +421,7 @@ bool cast_magic_spell(int spell)
 			return FALSE;
 		else /* Continue casting spells */
 		{
-			if (!stop_magic_spell()) return FALSE;
+			if (!stop_hex_spell()) return FALSE;
 		}
 	}
 
@@ -879,9 +879,9 @@ bool cast_magic_spell(int spell)
 }
 
 
-void calc_bonuses_magic_spell(void)
+void calc_bonuses_hex_spell(void)
 {
-	if (p_ptr->realm1 != REALM_MAGIC) return;
+	if (p_ptr->realm1 != REALM_HEX) return;
 
 	if (is_keeping_spell(MS_EXTRA_MIGHT)) p_ptr->stat_add[A_STR] += 4;
 	if (is_keeping_spell(MS_BUILD_UP))

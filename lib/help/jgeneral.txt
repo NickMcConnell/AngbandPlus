@@ -69,7 +69,7 @@ XAngband は現在小規模な開発チームにより管理されています。メンバーは主
 にIRCチャネル「#ぐりっどばぐ」に常駐しています。
 
 
--- #NEWLINE
+--
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam

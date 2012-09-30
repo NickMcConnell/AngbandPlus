@@ -2788,8 +2788,8 @@ void do_cmd_rest(void)
 		}
 	}
 
-	/* Magic */
-	if (p_ptr->keep_magic) (void)stop_magic_spell_all();
+	/* Hex */
+	if (p_ptr->keep_magic) (void)stop_hex_spell_all();
 
 	/* Paranoia */
 	if (command_arg > 9999) command_arg = 9999;
