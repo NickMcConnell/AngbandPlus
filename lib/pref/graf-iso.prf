@@ -1359,7 +1359,7 @@ K:263:0x80:0xA1
 # Slow Poison
 K:264:0x80:0xA1
 
-# Neutralize Poison
+# Neutralise Poison
 K:265:0x80:0xA1
 
 # Restore Mana
@@ -2799,7 +2799,7 @@ K:785:0x80:0xBD
 # Climbing Set
 K:786:0x80:0xE0
 
-# Adventurer's guide to Middle Earth
+# Adventurer's Guide to Middle-earth
 K:787:0x80:0xBF
 
 # [Dark Incantations]

@@ -224,7 +224,7 @@ int generate_area(int y, int x, bool border, bool corner, bool refresh)
 
 		/* Initialize the town */
 		init_flags = INIT_CREATE_DUNGEON;
-		process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+		process_dungeon_file(NULL, "t_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	}
 	else
 	{
@@ -390,7 +390,7 @@ void wilderness_gen(int refresh)
 	cave_type *c_ptr;
 
 	/* Init the wilderness */
-	process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "w_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 
 	x = p_ptr->wilderness_x;
 	y = p_ptr->wilderness_y;
@@ -594,7 +594,7 @@ void wilderness_gen_small()
 	}
 
 	/* Init the wilderness */
-	process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "w_info.txt", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 
 	/* Fill the map */
 	for (i = 0; i < max_wild_x; i++)

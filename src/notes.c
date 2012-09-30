@@ -20,6 +20,7 @@ void show_notes_file(void)
 {
 	char basename[13];
 	char buf[1024];
+	char caption[10+13];
 
 	/* Hack -- extract first 8 characters of name and append an extension */
 	(void)strnfmt(basename, sizeof(basename), "%.8s.nte", player_base);
@@ -28,8 +29,11 @@ void show_notes_file(void)
 	/* Build the path */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_NOTE, basename);
 
+	/* Use a caption, forcing direct access to the note file */
+	sprintf(caption, "Note file %s", basename);
+
 	/* Invoke show_file */
-   (void)show_file(buf, NULL, 0, 0);
+	(void)show_file(buf, caption, 0, 0);
 
 	/* Done */
 	return;

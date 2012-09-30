@@ -308,6 +308,21 @@ void identify_pack(void)
 	}
 }
 
+/*
+ * common portions of identify_fully and identify_pack_fully
+ */
+static void make_item_fully_identified(object_type *o_ptr)
+{
+	/* Identify it fully */
+	object_aware(o_ptr);
+	object_known(o_ptr);
+
+	/* Mark the item as fully known */
+	o_ptr->ident |= (IDENT_MENTAL);
+
+	/* For those with alchemist skills, learn how to create it */
+	alchemist_learn_object(o_ptr);
+}
 
 /*
  * Identify everything being carried.
@@ -325,25 +340,12 @@ void identify_pack_fully(void)
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-
-                /* Mark the item as fully known */
-                o_ptr->ident |= (IDENT_MENTAL);
+		make_item_fully_identified(o_ptr);
 
 		/* Process the appropriate hooks */
 		process_hooks(HOOK_IDENTIFY, "(d,s)", i, "full");
 	}
-
-        /* Squelch ! */
-        squeltch_inventory();
 }
-
-
-
-
-
 
 /*
  * Used by the "enchant" function (chance of failure)
@@ -618,7 +620,7 @@ bool alchemy(void) /* Turns an object into gold, gain some of its value in a sho
 
 /*
  * self-knowledge... idea from nethack.  Useful for determining powers and
- * resistences of items.  It saves the screen, clears it, then starts listing
+ * resistances of items.  It saves the screen, clears it, then starts listing
  * attributes, a screenful at a time.  (There are a LOT of attributes to
  * list.  It will probably take 2 or 3 screens for a powerful character whose
  * using several artifacts...) -CFT
@@ -633,7 +635,7 @@ void self_knowledge(FILE *fff)
 {
 	int i = 0, j, k;
 
-	u32b f1 = 0L, f2 = 0L, f3 = 0L, f4, f5, esp;
+	u32b f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L, f5 = 0L, esp = 0L;
 
 	int iter; /* Iterator for a loop */
 
@@ -664,13 +666,13 @@ void self_knowledge(FILE *fff)
 		f3 |= t3;
 	}
 
-        if (death)
-        {
-                static char buf[150];
+	if (death)
+	{
+		static char buf[150];
 
-                sprintf(buf, "You are dead, killed by %s.", died_from);
-                info[i++] = buf;
-        }
+		sprintf(buf, "You are dead, killed by %s.", died_from);
+		info[i++] = buf;
+	}
 
 	/* Racial powers... */
 	if (p_ptr->body_monster != 0)
@@ -815,7 +817,7 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You are immune to sleep.";
 
 		if (r_ptr->flags4 & RF4_SHRIEK)
-			info[i++] = "You can aggrevate monsters.";
+			info[i++] = "You can aggravate monsters.";
 		if (r_ptr->flags4 & RF4_ROCKET)
 			info[i++] = "You can fire a rocket.";
 		if (r_ptr->flags4 & RF4_ARROW_1)
@@ -1142,7 +1144,7 @@ void self_knowledge(FILE *fff)
 	if (p_ptr->see_inv)
 	{
 		info[i++] = "You can see invisible creatures.";
-        }
+	}
 	if (p_ptr->magical_breath)
 	{
 		info[i++] = "You can breath without air.";
@@ -1157,7 +1159,7 @@ void self_knowledge(FILE *fff)
 	}
 	if (p_ptr->climb)
 	{
-		info[i++] = "You can climb hight mountains.";
+		info[i++] = "You can climb high mountains.";
 	}
 	if (p_ptr->free_act)
 	{
@@ -1718,7 +1720,7 @@ void report_magics(void)
 	if (p_ptr->blessed)
 	{
 		info2[i]  = report_magics_aux(p_ptr->blessed);
-		info[i++] = "You feel rightous";
+		info[i++] = "You feel righteous";
 	}
 	if (p_ptr->hero)
 	{
@@ -3144,7 +3146,7 @@ void curse_artifact(object_type * o_ptr)
 	if (o_ptr->to_d) o_ptr->to_d = 0 - ((o_ptr->to_d) + randint(4));
 	o_ptr->art_flags3 |= ( TR3_HEAVY_CURSE | TR3_CURSED );
 #if 0 /* Silly */
-        if (randint(4)==1) o_ptr-> art_flags3 |= TR3_PERMA_CURSE;
+	if (randint(4)==1) o_ptr-> art_flags3 |= TR3_PERMA_CURSE;
 #endif
 	if (randint(3)==1) o_ptr-> art_flags3 |= TR3_TY_CURSE;
 	if (randint(2)==1) o_ptr-> art_flags3 |= TR3_AGGRAVATE;
@@ -4207,19 +4209,13 @@ bool ident_spell(void)
 
 		/* Build note and write */
 		sprintf(note, "Found The %s", item_name);
-                add_note(note, 'A');
+		add_note(note, 'A');
 
 		sprintf(note, "has found The %s", item_name);
-                irc_emote(note);
+		irc_emote(note);
 	}
 	/* Process the appropriate hooks */
-        process_hooks(HOOK_IDENTIFY, "(d,s)", item, "normal");
-
-        /* Squelch ! */
-        if (item > 0)
-                squeltch_inventory();
-        else
-                squeltch_grid();
+	process_hooks(HOOK_IDENTIFY, "(d,s)", item, "normal");
 
 	/* Something happened */
 	return (TRUE);
@@ -4239,31 +4235,27 @@ bool ident_all(void)
 		/* Acquire object */
 		o_ptr = &o_list[i];
 
-                /* Identify it fully */
-                object_aware(o_ptr);
-                object_known(o_ptr);
+		/* Identify it fully */
+		object_aware(o_ptr);
+		object_known(o_ptr);
 
-                /* If the item was an artifact, and if the auto-note is selected, write a message. */
-                if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
-                {
-                        char note[150];
-                        char item_name[80];
-                        object_desc(item_name, o_ptr, FALSE, 0);
+		/* If the item was an artifact, and if the auto-note is selected, write a message. */
+		if (take_notes && auto_notes && (artifact_p(o_ptr) || o_ptr->name1))
+		{
+		        char note[150];
+		        char item_name[80];
+		        object_desc(item_name, o_ptr, FALSE, 0);
 
-                        /* Build note and write */
-                        sprintf(note, "Found The %s", item_name);
-                        add_note(note, 'A');
+		        /* Build note and write */
+		        sprintf(note, "Found The %s", item_name);
+		        add_note(note, 'A');
 
-                        sprintf(note, "has found The %s", item_name);
-                        irc_emote(note);
-                }
-                /* Process the appropriate hooks */
+		        sprintf(note, "has found The %s", item_name);
+		        irc_emote(note);
+		}
+		/* Process the appropriate hooks */
 		process_hooks(HOOK_IDENTIFY, "(d,s)", -i, "normal");
-        }
-
-        /* Squelch ! */
-        squeltch_inventory();
-        squeltch_grid();
+	}
 
 	/* Something happened */
 	return (TRUE);
@@ -4278,7 +4270,6 @@ static bool item_tester_hook_no_mental(object_type *o_ptr)
 {
 	return ((o_ptr->ident & (IDENT_MENTAL)) ? FALSE : TRUE);
 }
-
 
 /*
  * Fully "identify" an object in the inventory  -BEN-
@@ -4310,13 +4301,8 @@ bool identify_fully(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
-	/* Identify it fully */
-	object_aware(o_ptr);
-	object_known(o_ptr);
-
-	/* Mark the item as fully known */
-	o_ptr->ident |= (IDENT_MENTAL);
+	/* Do the identification */
+	make_item_fully_identified(o_ptr);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -4359,26 +4345,17 @@ bool identify_fully(void)
 
 		/* Build note and write */
 		sprintf(note, "Found The %s", item_name);
-                add_note(note, 'A');
+		add_note(note, 'A');
 
-                sprintf(note, "has found The %s", item_name);
-                irc_emote(note);
-        }
+		sprintf(note, "has found The %s", item_name);
+		irc_emote(note);
+	}
 
 	/* Describe it fully */
 	object_out_desc(o_ptr, NULL, FALSE);
 
-	/* For those with alchemist skills, learn how to create it */
-	alchemist_learn_object(o_ptr);
-
-        /* Process the appropriate hooks */
-        process_hooks(HOOK_IDENTIFY, "(d,s)", item, "full");
-
-        /* Squelch ! */
-        if (item > 0)
-                squeltch_inventory();
-        else
-                squeltch_grid();
+	/* Process the appropriate hooks */
+	process_hooks(HOOK_IDENTIFY, "(d,s)", item, "full");
 
 	/* Success */
 	return (TRUE);
@@ -5068,7 +5045,7 @@ bool genocide_aux(bool player_cast, char typ)
 
 			if (place_monster_aux(wy, wx, m_ptr->r_idx, FALSE, TRUE, MSTATUS_ENEMY))
 			{
-				cmsg_format(TERM_L_BLUE, "The spell seems to produce an ... interreting effect on the %s.", r_name);
+				cmsg_format(TERM_L_BLUE, "The spell seems to produce an ... interesting effect on the %s.", r_name);
 			}
 
 			return TRUE;
@@ -5182,7 +5159,7 @@ bool mass_genocide(bool player_cast)
 
 			if (place_monster_aux(wy, wx, m_ptr->r_idx, FALSE, TRUE, MSTATUS_ENEMY))
 			{
-				cmsg_format(TERM_L_BLUE, "The spell seems to produce an ... interreting effect on the %s.", r_name);
+				cmsg_format(TERM_L_BLUE, "The spell seems to produce an ... interesting effect on the %s.", r_name);
 			}
 
 			return TRUE;
@@ -5455,7 +5432,10 @@ void destroy_area(int y1, int x1, int r, bool full, bool bypass)
 			if ((y == y1) && (x == x1)) continue;
 
 			/* Delete the monster (if any) */
-			if (m_list[c_ptr->m_idx].status != MSTATUS_COMPANION) delete_monster(y, x);
+                        if ((m_list[c_ptr->m_idx].status != MSTATUS_COMPANION) ||
+                            (!(m_list[c_ptr->m_idx].mflag & MFLAG_QUEST)) ||
+                            (!(m_list[c_ptr->m_idx].mflag & MFLAG_QUEST2)))
+                                delete_monster(y, x);
 
 			/* Destroy "valid" grids */
 			if (cave_valid_bold(y, x))
@@ -7693,12 +7673,12 @@ bool passwall(int dir, bool safe)
 		cave_set_feat(y, x, FEAT_FLOOR);
 	}
 
-	/* Redraw the old spot */
-	lite_spot(oy, ox);
-
 	/* Move */
 	px = x;
 	py = y;
+
+	/* Redraw the old spot */
+	lite_spot(oy, ox);
 
 	/* Redraw the new spot */
 	lite_spot(py, px);
@@ -7895,17 +7875,17 @@ bool reset_recall(bool no_trepas_max_depth)
 
 	if (dun < 1) return FALSE;
 
-        /* Choose depth */
-        if (!no_trepas_max_depth)
-                max = d_info[dun].maxdepth;
-        else
-                max = max_dlv[dun];
-        depth = get_quantity(format("Which level in %s(%d-%d)? ",
-                d_info[dun].name + d_name,
-                d_info[dun].mindepth, max),
-                max);
+	/* Choose depth */
+	if (!no_trepas_max_depth)
+		max = d_info[dun].maxdepth;
+	else
+		max = max_dlv[dun];
+	depth = get_quantity(format("Which level in %s(%d-%d)? ",
+		d_info[dun].name + d_name,
+		d_info[dun].mindepth, max),
+		max);
 
-        if (depth < 1) return FALSE;
+	if (depth < 1) return FALSE;
 
 	/* Enforce minimum level */
 	if (depth < d_info[dun].mindepth) depth = d_info[dun].mindepth;
@@ -7973,15 +7953,15 @@ void create_between_gate(int dist, int y, int x)
 	{
 		ij = y;
 		ii = x;
-        }
-        if (!(f_info[cave[py][px].feat].flags1 & FF1_PERMANENT))
-        {
-                cave_set_feat(py, px, FEAT_BETWEEN);
-                cave[py][px].special = ii + (ij << 8);
-        }
-        if (!(f_info[cave[ij][ii].feat].flags1 & FF1_PERMANENT))
-        {
-                cave_set_feat(ij, ii, FEAT_BETWEEN);
-                cave[ij][ii].special = px + (py << 8);
-        }
+	}
+	if (!(f_info[cave[py][px].feat].flags1 & FF1_PERMANENT))
+	{
+		cave_set_feat(py, px, FEAT_BETWEEN);
+		cave[py][px].special = ii + (ij << 8);
+	}
+	if (!(f_info[cave[ij][ii].feat].flags1 & FF1_PERMANENT))
+	{
+		cave_set_feat(ij, ii, FEAT_BETWEEN);
+		cave[ij][ii].special = px + (py << 8);
+	}
 }

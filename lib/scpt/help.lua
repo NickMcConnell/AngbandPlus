@@ -278,7 +278,7 @@ ingame_help
                                         ["Beorning"] = { "r_beorn.txt", 0 },
                                         ["DeathMold"] = { "r_deathm.txt", 0 },
                                         ["Dark-Elf"] = { "r_drkelf.txt", 0 },
-                                        ["Dunadan"] = { "r_duned.txt", 0 },
+                                        ["Dunadan"] = { "r_dunad.txt", 0 },
                                         ["Dwarf"] = { "r_dwarf.txt", 0 },
                                         ["Elf"] = { "r_elf.txt", 0 },
                                         ["Ent"] = { "r_ent.txt", 0 },

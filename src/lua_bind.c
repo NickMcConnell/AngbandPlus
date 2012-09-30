@@ -397,18 +397,21 @@ void get_target(int dir, int *y, int *x)
 }
 
 /* Level gen */
-void get_map_size(char *name, int *ysize, int *xsize)
+void get_map_size(bool full_text, char *name, int *ysize, int *xsize)
 {
         *xsize = 0;
 	*ysize = 0;
 	init_flags = INIT_GET_SIZE;
-	process_dungeon_file_full = TRUE;
-	process_dungeon_file(name, ysize, xsize, cur_hgt, cur_wid, TRUE);
+        process_dungeon_file_full = TRUE;
+        if (full_text)
+                process_dungeon_file(name, "embeded map script", ysize, xsize, cur_hgt, cur_wid, TRUE);
+        else
+                process_dungeon_file(NULL, name, ysize, xsize, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 }
 
-void load_map(char *name, int *y, int *x)
+void load_map(bool full_text, char *name, int *y, int *x)
 {
 	/* Set the correct monster hook */
 	set_mon_num_hook();
@@ -418,7 +421,10 @@ void load_map(char *name, int *y, int *x)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file(name, y, x, cur_hgt, cur_wid, TRUE);
+        if (full_text)
+                process_dungeon_file(name, "embeded map script", y, x, cur_hgt, cur_wid, TRUE);
+        else
+                process_dungeon_file(NULL, name, y, x, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 }
 
@@ -432,7 +438,8 @@ void lua_make_temp_file()
         if (path_temp(lua_temp_name, 1024)) return;
 
 	/* Open a new file */
-	hook_file = my_fopen(lua_temp_name, "w");
+        hook_file = my_fopen(lua_temp_name, "w");
+        lua_temp_file_alloc = TRUE;
 }
 
 void lua_close_temp_file()
@@ -444,7 +451,8 @@ void lua_close_temp_file()
 void lua_end_temp_file()
 {
 	/* Remove the file */
-	fd_kill(lua_temp_name);
+        fd_kill(lua_temp_name);
+        lua_temp_file_alloc = FALSE;
 }
 
 cptr lua_get_temp_name()

@@ -785,6 +785,7 @@ static bool inn_comm(int cmd)
 }
 
 
+#if 0 /* removes compiler warning */
 
 /*
  * share gold for thieves
@@ -800,6 +801,7 @@ static void share_gold(void)
 	p_ptr->au += i; 
 }
 
+#endif
 
 /*
  * Display quest information
@@ -817,7 +819,8 @@ static void get_questinfo(int questnum)
 	i = 0;
 	while ((i < 10) && (quest[questnum].desc[i][0] != '\0'))
 	{
-		c_put_str(TERM_YELLOW, quest[questnum].desc[i++], i + 8, 0);
+		c_put_str(TERM_YELLOW, quest[questnum].desc[i], i + 8, 0);
+		i++;
 	}
 }
 
@@ -1846,7 +1849,7 @@ bool bldg_process_command(store_type *s_ptr, int i)
 		case BACT_IDENTS:
 		{
 			identify_pack();
-			msg_print("Your posessions have been identified.");
+			msg_print("Your possessions have been identified.");
 			msg_print(NULL);
 			paid = TRUE;
 			break;
@@ -2254,3 +2257,5 @@ void do_cmd_bldg(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
+
+

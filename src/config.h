@@ -578,15 +578,15 @@
 #define USE_FAST_AUTOROLLER
 
 /*
- * Unallow the using of every race/class combinaison
+ * Forbid the use of some race/class combinations
  */
-/* #define FORBID_BAD_COMBINAISON */
+/* #define RESTRICT_COMBINATIONS */
 
 /*
  * Enable the CTRL + L command to quit without saving
  * Only use for debugging purpose, otherwise you are a CHEATER
  */
-/* #define ALLOW_QUITING */
+/* #define ALLOW_QUITTING */
 
 /*
  * Panic saves have a different name

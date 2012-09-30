@@ -114,7 +114,7 @@ N:237:Boldor, King of the Yeeks
 wonders aloud about your sexual orientation.
 spouts torrents of obscenities.
 shouts, 'YEEK! YEEK! YEEK!'
-says, 'I'll teach you to respect Yeeks!'
+says, 'I'll teach you to respect yeeks!'
 says, 'Feel lucky, punk?'
 2
 sobs, 'I didn't MEAN it...'
@@ -205,7 +205,7 @@ chews up a 'Tinky Winky' doll.
 3
 begs, 'Don't! Think of the children!'
 screams, 'But I'm a big TV star!'
-sobs, 'All right! I apologize! I really really do!'
+sobs, 'All right! I apologise! I really really do!'
 
 N:505:Groo the Wanderer
 0
@@ -214,12 +214,12 @@ says: 'A fray! A fray!'
 
 N:934:Fangorn the Treebeard
 6
-says: 'The night stretchs out on the Isengard!'
+says: 'The night stretches out on the Isengard!'
 says: 'Trolls are strong, Ents are STRONGER!'
 says: 'Saruman will now stop using his axes on the trees...'
 says: 'have you seen some Ent women ?'
 says: 'I will crush all those burarum ... those orcs!'
-says: 'I am totaly of the side of nobody since nobody is totaly of my side...'
+says: 'I am totally of the side of nobody since nobody is totally of my side...'
 0
 
 N:732:Bull Gates
@@ -230,14 +230,14 @@ says, 'Linux?  Never heard of it...'
 says, 'Resistance is futile--you will be assimilated.'
 says, 'NT is the solution for ALL your needs!'
 hacks out some code and calls it a Service Pack.
-says, 'We don't have a monopoly... MacOS still exists!'
+says, 'We don't have a monopoly... Mac OS still exists!'
 wonders if he should buy a small country.
 says, 'Where will we let you go today?  HELL!'
 cackles diabolically.
 3
 sobs, 'OK, Linux doesn't suck. Let me live?'
 screams, 'Is megalomania THAT bad?'
-apologizes for MS-DOS.
+apologises for MS-DOS.
 
 N:733:Santa Claus
 8
@@ -330,26 +330,26 @@ laughs out loudly.
 mutters something about bugs.
 asks you about the new version.
 1
-screams 'ToME rules'.
+screams 'ToME rules!'.
 
 N:969:Princess
 4
 cries.
 screams 'Help me !!!'.
-whines 'I need your help, great Hero...'.
+whines 'I need your help, great hero...'.
 implores you to help her.
 1
 screams 'I am too young to die!'.
 
-N:970:Merton Proundfeet, the lost hobbit
+N:970:Merton Proudfoot, the lost hobbit
 1
-whines 'Please help me noble hero, my leg is broken, I cannot walk...'
+whines 'Please help me, noble hero! My leg is broken, and I cannot walk.'
 1
-whines 'No, please dont hurt me!'
+whines 'No, please don't hurt me!'
 
 N:1039:Improv, the mighty MoLD
 2
 screams 'Your code is ugly!'
 mutters something about bugs.
 1
-screams 'ToME rules'.
+screams 'ToME rules!'.

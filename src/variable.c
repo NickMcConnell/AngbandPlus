@@ -1344,9 +1344,10 @@ byte vanilla_town = FALSE;
  * 1 = Mirkwood
  * 2 = Mordor
  * 3 = Angband
- * 4 = Galgals
- * 5 = Volcano
- * 6 = Hell
+ * 4 = Barrow Downs
+ * 5 = Mount Doom
+ * 6 = Nether Realm
+ * etc. (see d_info.txt)
  */
 byte dungeon_type;
 s16b *max_dlv;
@@ -1453,8 +1454,8 @@ bool auto_more;
 /*
  * Dungeon flags
  */
-s32b dungeon_flags1;
-s32b dungeon_flags2;
+u32b dungeon_flags1;
+u32b dungeon_flags2;
 
 /*
  * The last character displayed

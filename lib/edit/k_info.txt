@@ -40,7 +40,7 @@ W:5:0:1:0
 A:5/1
 D:'E'ating this mushrooms will blind you if you eat it. You cannot cast magic
 D:or see monsters when you are blinded. You can still use magic items or
-D:quaf potions.
+D:quaff potions.
 
 N:2:Paranoia
 G:,:d
@@ -55,16 +55,16 @@ G:,:d
 I:80:3:500
 W:5:0:1:0
 A:5/1
-D:'E'ating this mushroom will confuse you. You will not be able to cast spells, 
-D:use wands, staves or scrolls. You can still quaff potions though.
+D:'E'ating this mushroom will confuse you. You will not be able to cast spells,
+D:use wands, staves or scrolls. You can still quaff potions, though.
 
 N:4:Hallucination
 G:,:d
 I:80:4:500
 W:10:0:1:0
 A:10/1
-D:'E'ating this mushroom will make you hallucinate. 
-D:You will not be able to recognize any monster or item.
+D:'E'ating this mushroom will make you hallucinate.
+D:You will not be able to recognise any monster or item.
 
 N:5:Cure Poison
 G:,:d
@@ -85,16 +85,16 @@ G:,:d
 I:80:14:500
 W:10:0:1:25
 A:10/1
-D:'E'ating this mushroom will cure your paranioa , paranoia is the state when you are
-D:too affraid to attack monsters.
+D:'E'ating this mushroom will cure your paranoia.  Paranoia is the state when you are
+D:too afraid to attack monsters.
 
 N:8:Cure Confusion
 G:,:d
 I:80:15:500
 W:10:0:1:50
 A:10/1
-D:'E'ating this mushroom will cure your confusion, confusion is when you are too confused
-D:to cast spells , zap staves , aim wands or cast magic.
+D:'E'ating this mushroom will cure your confusion.  Confusion is when you are too confused
+D:to cast spells, zap staves, aim wands or cast magic.
 
 N:9:Weakness
 G:,:d
@@ -102,7 +102,7 @@ I:80:6:500
 W:10:0:1:0
 A:10/1
 P:0:5d5:0:0:0
-D:'E'ating this mushroom will reduce your strength with one point.
+D:'E'ating this mushroom will reduce your strength by one point.
 
 N:10:Unhealth
 G:,:d
@@ -110,7 +110,7 @@ I:80:10:500
 W:15:0:1:50
 A:15/1
 P:0:10d10:0:0:0
-D:'E'ating this mushroom will reduce your constitution with one point.
+D:'E'ating this mushroom will reduce your constitution by one point.
 
 N:11:Restore Constitution
 G:,:d
@@ -134,7 +134,7 @@ G:,:d
 I:80:8:500
 W:15:0:1:0
 A:15/1
-D:'E'ating this  mushroom will reduce your intelligence with one point.
+D:'E'ating this  mushroom will reduce your intelligence by one point.
 D:That's a bad thing.
 
 N:14:Naivety
@@ -142,7 +142,7 @@ G:,:d
 I:80:9:500
 W:15:0:1:0
 A:15/1
-D:'E'ating this  mushroom will reduce your wisdom with one point.
+D:'E'ating this  mushroom will reduce your wisdom by one point.
 D:That's a bad thing.
 
 N:15:Poison
@@ -151,8 +151,8 @@ I:80:0:500
 W:5:0:1:0
 A:5/1:5/1
 P:0:4d4:0:0:0
-D:'E'ating this  mushroom will poison you. Poisoning makes you lost one hitpoint
-D:per turn until you magically stop the poision or until your body has
+D:'E'ating this mushroom will poison you. Poisoning makes you lose one hitpoint
+D:per turn until you magically stop the poison or until your body has
 D:fought off the poison.
 D:That's a bad thing.
 
@@ -162,16 +162,16 @@ I:80:7:500
 W:10:0:1:0
 A:10/1
 P:0:4d4:0:0:0
-D:'E'ating this  mushroom will reduce your constitution with one point.
+D:'E'ating this  mushroom will reduce your constitution by one point.
 D:It will also damage you quite severely in the process.
-D:That's a bad thing
+D:That's a bad thing.
 
 N:17:Paralysis
 G:,:d
 I:80:5:500
 W:20:0:1:0
 A:20/1
-D:'E'ating this mushroom will paralyze you for a certain time.
+D:'E'ating this mushroom will paralyse you for a certain time.
 D:Any nearby monsters will take this opportunity to kill you.
 D:That's a bad thing.
 
@@ -198,7 +198,7 @@ G:,:d
 I:80:16:500
 W:15:0:1:75
 A:15/1
-D:'E'ating this mushroom will heal an amount of hitpoints. Your hitpoints
+D:'E'ating this mushroom will heal an amount of hit points. Your hit points
 D:need healing when they are displayed in yellow.
 
 ##### Normal Food #####
@@ -215,7 +215,7 @@ N:22:& Hard Biscuit~
 G:,:U
 I:80:32:500
 W:0:0:2:1
-D:It doesnt look great, and 'E'ating it will only fill your stomach a bit.
+D:It doesn't look great, and 'E'ating it will only fill your stomach a bit.
 D:for a short time.
 
 N:23:& Strip~ of Venison
@@ -238,8 +238,8 @@ G:,:B
 I:80:37:0
 W:5:0:3:10
 A:5/1:10/1:20/1
-D:A sort of cake, tasty and sustaining. It even helps to overcome weariness. The fabrication of
-D:it is a secret of the elves. If you 'E'at you will be full.
+D:A sort of cake, tasty and sustaining. It even helps to overcome weariness. Its fabrication
+D:is a secret of the elves. If you 'E'at it, you will be full.
 
 N:26:& Pint~ of Fine Ale
 G:,:y
@@ -263,7 +263,7 @@ A:50/2
 P:0:1d8:0:0:0
 F:SHOW_MODS | TUNNEL
 f:TUNNEL
-D:This is digging tool. Use it to dig in walls, destroy doors or cut wood.
+D:This is a digging tool. Use it to dig in walls, destroy doors, or cut wood.
 
 # The Blue Stone 'Toris Mejistos' -- see artifact list
 
@@ -283,7 +283,7 @@ A:0/2:5/2
 P:0:1d1:-2:-4:0
 F:SHOW_MODS
 D:It's a bladed weapon.
-D:The blade itself is 30 centimeters and broken off not far above the hilt.
+D:The blade itself is a foot long and broken off not far above the hilt.
 
 N:31:& Bastard Sword~
 G:|:W
@@ -296,10 +296,10 @@ f:COULD2H
 D:It's a bladed weapon.
 D:Long, over-the-shoulder, double-edged sword with a smaller hilt that could
 D:be wielded in one or two hands.  It's called a "bastard sword" because in
-D:size, it falls between the broadsword and the two-hand sword, thus not 
+D:size, it falls between the broadsword and the two-hand sword, thus not
 D:having a family of its own. It's typically around 51 inches long.
-D:It is effective for cutting through tougher armors. It could be used for
-D:thrusting, but most wielders swung it like a bat.
+D:It is effective for cutting through tougher armours. It could be used for
+D:thrusting, but most wielders swing it like a bat.
 
 N:32:& Scimitar~
 G:|:W
@@ -320,7 +320,7 @@ A:5/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
 D:It's a bladed weapon.
-D:This vicious sword is half sword, half club with a slight hook on the tip.
+D:This vicious sword is half sword and half club, with a slight hook on the tip.
 
 N:34:& Broad Sword~
 G:|:W
@@ -330,7 +330,7 @@ A:10/1:15/1
 P:0:2d5:0:0:0
 F:SHOW_MODS
 D:It's a bladed weapon.
-D:This broader version of the longsword is a standard weapon in the army 
+D:This broader version of the long sword is a standard weapon in the army
 D:of Gondolin.
 
 N:35:& Short Sword~
@@ -341,7 +341,7 @@ A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
 D:It's a bladed weapon.
-D:This shorter version of the longsword is a standard weapon for rogues 
+D:This shorter version of the long sword is a common weapon for rogues
 D:and mages.
 
 N:36:& Blade~ of Chaos
@@ -357,8 +357,8 @@ D:This is a bladed weapon.
 D:A mighty sword which seems to be completely blunt. However, it is a conduit
 D:into the realms of pure chaos and strikes its victims with the devastating
 D:might of chaos itself whenever it connects. It gives you resistance to chaos
-D:and it can polymorph, teleport, confuse or drain hitpoints from the monster
-D:you hit. It occasonialy causes earthquakes as well.
+D:and it can polymorph, teleport, confuse or drain hit points from the monster
+D:you hit. It occasionally causes earthquakes as well.
 
 N:37:& Two-Handed Sword~
 G:|:W
@@ -369,7 +369,7 @@ P:0:3d6:0:0:0
 F:SHOW_MODS | MUST2H
 f:MUST2H
 D:This is a bladed weapon.
-D:This blade is lot longer, wider and heavier than a longsword. You have to
+D:This blade is lot longer, wider and heavier than a long sword. You have to
 D:wield it with two hands. This means that wielding a shield makes fighting
 D:very difficult.
 
@@ -381,9 +381,9 @@ A:3/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 D:This is a bladed weapon.
-D:This blade is sinuosly curved and tipped with a harpoon like end.
+D:This blade is sinuously curved and tipped with a harpoon-like end.
 D:This blade has a large handguard and was designed as an off-hand weapon,
-D:This short but cruel blade is a favourite among Orcs.
+D:This short but cruel blade is a favourite among orcs.
 
 N:39:& Cutlass~
 G:|:W
@@ -393,8 +393,8 @@ A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
 D:This is a bladed weapon.
-D:This oriental weapon is a short, thick, curving sword 
-D:with a single cutting edge. This simple slashing weapon 
+D:This oriental weapon is a short, thick, curving sword
+D:with a single cutting edge. This simple slashing weapon
 D:is typically carried by buccaneers, pirates, and sailors.
 
 N:40:& Executioner's Sword~
@@ -406,8 +406,8 @@ P:0:4d5:0:0:0
 F:SHOW_MODS | MUST2H
 f:MUST2H
 D:This is a bladed weapon.
-D:These weapons have been built in all sizes. They are made customly
-D:for warriors that want to set out and kill their arch enemy. These
+D:These weapons have been built in all sizes. They are custom-made
+D:for warriors that want to set out and kill their archenemy. These
 D:blades are rare, costly and very deadly.
 
 N:41:& Katana~
@@ -418,13 +418,13 @@ A:20/1
 P:0:3d4:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
-D:It's bladed weapon.
-D:The katana is a long blade with only a small disk for a guard.  
+D:It's a bladed weapon.
+D:The katana is a long blade with only a small disk for a guard.
 D:Its hilt is long enough for two hands, though it could be used
-D:with only one hand, and usually wrapped in cloth or leather.
-D:The art of smithing such swords is largely unknown in this part
-D:of middle-earth, and such weapons are typically imported from
-D:distant parts.
+D:with only one hand, and is usually wrapped in cloth or leather.
+D:The art of forging such swords is largely unknown in this part
+D:of Middle-earth, and such weapons are typically imported from
+D:distant lands.
 
 N:42:& Long Sword~
 G:|:W
@@ -435,7 +435,7 @@ P:0:2d5:0:0:0
 F:SHOW_MODS
 D:It's a bladed weapon.
 D:A long straight sword, tapering to a pronounced point. Mainly good for
-D:piercing attacks, but it can be used for slashing, too. It is a very 
+D:piercing attacks, but it can be used for slashing, too. It is a very
 D:popular design and has become standard issue in many armies.
 
 N:43:& Dagger~
@@ -446,8 +446,8 @@ A:0/1:5/1:10/1:20/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 D:It's a bladed weapon.
-D:It's the standard weapon of rogues and thieves, the blade is
-D:30 centimeters long.
+D:It's the standard weapon of rogues and thieves.  The blade is
+D:a foot long.
 
 N:44:& Rapier~
 G:|:W
@@ -457,7 +457,7 @@ A:5/1
 P:0:1d6:0:0:0
 F:SHOW_MODS
 D:The rapier's hilt consisted of a pair of oval guards pierced with holes,
-D:recurved quillions, and a knuckle guard.  The guard is very intricate 
+D:recurved quillions, and a knuckle guard.  The guard is very intricate
 D:and very effective as protection.
 
 N:45:& Sabre~
@@ -468,7 +468,7 @@ A:5/1
 P:0:1d7:0:0:0
 F:SHOW_MODS
 D:It's a bladed weapon.
-D:A long, one-edged, slightly curved sword with a knuckle guard and short 
+D:A long, one-edged, slightly curved sword with a knuckle guard and short
 D:hilt.  It is two-edged in its lower part.
 
 N:46:& Small Sword~
@@ -480,7 +480,7 @@ P:0:1d6:0:0:0
 F:SHOW_MODS
 D:It's a bladed weapon.
 D:It's the favourite weapon of strong mages and thieves, the blade is
-D:about half a meter. It's very easy to handle, although it is a lot less
+D:about twenty inches long. It's very easy to handle, although it is a lot less
 D:efficient than the longer and heavier designs.
 
 N:47:& Broken Sword~
@@ -491,7 +491,7 @@ A:0/2:5/2
 P:0:1d2:-2:-4:0
 F:SHOW_MODS
 D:It's bladed weapon.
-D:Just a hilt and a few inches of blade, broken off in a jagged stump. 
+D:Just a hilt and a few inches of blade, broken off in a jagged stump.
 D:Probably worthless.
 
 ##### Hafted Weapons #####
@@ -506,7 +506,7 @@ F:SHOW_MODS | COULD2H
 f:COULD2H
 D:It's a hafted weapon.
 D:This weapon has a ball linked with a chain to a wooden handle.
-D:Preferred tactice is smashing the brains of your opponent.
+D:Preferred tactic is smashing the brains of your opponent.
 
 N:49:& Whip~
 G:\:D
@@ -517,7 +517,7 @@ P:0:1d6:0:0:0
 F:SHOW_MODS
 D:It's a hafted weapon.
 D:Think Doctor Jones. This weapon is light and easy to fight with.
-D:It has nasty barbs and hooks fixed to the thong to make it useful 
+D:It has nasty barbs and hooks fixed to the thong to make it useful
 D:in combat. Whips give easily multiple attacks.
 
 N:50:& Flail~
@@ -529,7 +529,7 @@ P:0:2d6:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
 D:It's a hafted weapon.
-D:This weapon was originally used to cut the corn. More war like version
+D:This weapon was originally used to cut corn. More warlike versions
 D:sport a large blade stuck on a wooden handle. The hinge allows it to get
 D:past enemy defences or to strike with added momentum when used skillfully.
 
@@ -542,8 +542,8 @@ P:0:3d6:0:0:0
 F:SHOW_MODS | MUST2H
 f:MUST2H
 D:It's a hafted weapon.
-D:This two handed version of the flail gives the fighter a fearsome 
-D:weapon that can do a fair amount of damage, it has typically  several
+D:This two handed version of the flail gives the fighter a fearsome
+D:weapon that can do a fair amount of damage.  It typically has several
 D:spiked metal lumps on chains.
 
 N:52:& Morning Star~
@@ -555,7 +555,7 @@ P:0:2d6:0:0:0
 F:SHOW_MODS
 D:It's a hafted weapon.
 D:This weapon consists of a large club with chains that have wooden balls
-D:with metal spikes on the end. Painfull...
+D:with metal spikes on the end.
 
 N:53:& Mace~
 G:\:D
@@ -566,8 +566,8 @@ P:0:2d4:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
 D:It's a hafted weapon.
-D:This weapon is is club ending in a ball shape. The ball shape is scattered
-D:with metal shards. Like this you crush and cut your adversary.
+D:This weapon is is club ending in a sphere. The sphere is studded
+D:with metal shards, and thus can both crush and cut your adversary.
 
 N:54:& Quarterstaff~
 G:\:U
@@ -580,9 +580,9 @@ f:COULD2H
 D:It's a polearm.
 D:A long, wooden pole, usually the height of the wielder. Four of them can be
 D:made out of the trunk of one young tree, hence the name. The quarterstaff
-D:is an excellent weapon for travelers as it doubles both as a walking staff
+D:is an excellent weapon for travellers as it doubles both as a walking staff
 D:and as a deterrent against brigands. The quarterstaff is used more in
-D:fencing and brawling than melee combat. 
+D:fencing and brawling than melee combat.
 
 N:55:& War Hammer~
 G:\:D8
@@ -615,7 +615,7 @@ P:0:5d8:0:0:0
 F:SLAY_UNDEAD | SHOW_MODS | MUST2H
 f:MUST2H | SLAY_UNDEAD
 D:It's a hafted weapon.
-D:This mace is custom made for priests that go out to destroy the undead 
+D:This mace is custom-made for priests that go out to destroy the undead
 D:legions of Morgoth. It is deadly, especially for undead.
 
 N:58:& Lucerne Hammer~
@@ -627,7 +627,7 @@ P:0:2d5:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
 D:It's a hafted weapon.
-D:A war hammer combined with a spear-point, mounted on a long pole.
+D:A war hammer combined with a spearpoint, mounted on a long pole.
 
 ##### Polearms #####
 
@@ -651,11 +651,11 @@ P:0:2d6:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
 D:This is a polearm.
-D:A polearm with a long, slightly curved knife-like blade. They have spurs on
-D:the dull side of the blade. Primarily a slashing and chopping weapon. Glaives
+D:A polearm with a long, slightly curved knife-like blade. It has spurs on
+D:the dull side of the blade. It's primarily a slashing and chopping weapon. Glaives
 D:are often used to protect archers, crossbowmen, and gunners while they reload.
-D:Outside of combat they were a popular processional weapon and therefore many 
-D:have ornately carved blades. 
+D:Outside of combat they are a popular processional weapon and therefore many
+D:have ornately carved blades.
 
 N:61:& Halberd~
 G:/:s
@@ -666,12 +666,12 @@ P:0:3d5:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
 D:This is a polearm.
-D:The halberd has a broad, short axe blade on a 5 - 6’ long haft, with a spear
-D:point at the top, often a back-spike and occasionally a butt-spike. Used to
-D:combat heavier armor. Usually used for cutting and stabbing.  It's the most
-D:versatile polearm on Middle Earth. The axe is used in general melee. The top
-D:pike is be used to pierce armor, or is set against a cavalry charge. The back
-D:hook could unseat horses, trip opponents, parry a blow, or be a general 
+D:The halberd has a broad, short axe blade on a 5 - 6’ long haft, with a
+D:spearpoint at the top, often a back-spike and occasionally a butt-spike. Used to
+D:combat heavier armour. It's usually used for cutting and stabbing.  It's the most
+D:versatile polearm in Middle-earth. The axe is used in general melee. The top
+D:pike is be used to pierce armour, or is set against a cavalry charge. The back
+D:hook could unseat horses, trip opponents, parry a blow, or be a general
 D:piercing weapon.
 
 N:62:& Awl-Pike~
@@ -695,7 +695,7 @@ F:SHOW_MODS | COULD2H
 f:COULD2H
 D:This is a polearm.
 D:A staff, 16-18 feet long, that has a small piercing head about 10 inches
-D:long. The pike was is often used by infantry to fend off cavalry.  It is very 
+D:long. The pike is often used by infantry to fend off cavalry.  It is very
 D:effective against mounted troops.
 
 N:64:& Spear~
@@ -707,7 +707,7 @@ P:0:1d6:0:0:0
 F:SHOW_MODS
 D:This is a polearm.
 D:Spears tended to have a strong, wide, leaf-shaped head with a ridge down the
-D:middle. The spearhead is attached to the wooden shaft by a socket. The 
+D:middle. The spearhead is attached to the wooden shaft by a socket. The
 D:sockets were usually riveted to the shaft and some have two small lugs near
 D:the base of the socket to allow the head to be possibly bound on as well.
 D:This spear is 7 feet long.
@@ -722,9 +722,9 @@ F:SHOW_MODS | COULD2H
 f:COULD2H
 D:This is a polearm.
 D:The trident is based on the pitchfork.  In fact, when not used as a weapon,
-D:it often was employed as a pitchfork. It is famous for its uses in 
+D:it is often employed as a pitchfork. It is famous for its uses in
 D:gladiatorial arenas. It is used much like a spear and could even be thrown
-D:like one in desperate situations. 
+D:like one in desperate situations.
 
 N:66:& Lance~
 G:/:s
@@ -736,7 +736,7 @@ F:SHOW_MODS | MUST2H
 f:MUST2H
 D:This a polearm.
 D:This is the original polearm. It is shaped like a spear but is bigger. It's
-D:not meant to be thrown but to fend of enemies.
+D:meant to fend off enemies, not to be thrown.
 
 N:67:& Great Axe~
 G:/:s
@@ -759,8 +759,8 @@ F:SHOW_MODS | COULD2H
 f:COULD2H
 D:It's a polearm.
 D:Nordic polearm with a broad blade and a hook mounted on the end of the shaft.
-D:The nordics take on the halberd. The polearm of choice for many nordics, 
-D:ideally suited for slashing, thrusting, and unseating cavalry. 
+D:The nordics take on the halberd. The polearm of choice for many nordics,
+D:ideally suited for slashing, thrusting, and unseating cavalry.
 
 N:69:& Lochaber Axe~
 G:/:D
@@ -772,8 +772,8 @@ F:SHOW_MODS | COULD2H
 f:COULD2H
 D:It's a polearm.
 D:Nordic polearm with a broad blade and a hook mounted on the end of the shaft.
-D:The nordics take on the halberd. The polearm of choice for many nordics, 
-D:ideally suited for slashing, thrusting, and unseating cavalry. 
+D:The Nordic version of the halberd. The polearm of choice for many Nordics,
+D:this weapon is ideally suited for slashing, thrusting, and unseating cavalry.
 
 N:70:& Broad Axe~
 G:/:s
@@ -793,8 +793,8 @@ A:45/1
 P:0:5d3:0:0:0
 F:SHOW_MODS | COULD2H
 f:COULD2H
-D:A simple farm implement, converted into a weapon by slightly straightening 
-D:its blade and putting it in line with its pole, instead of the typical 
+D:A simple farm implement, converted into a weapon by slightly straightening
+D:its blade and putting it in line with its pole, instead of the typical
 D:right angle.
 
 N:72:& Scythe~ of Slicing
@@ -817,8 +817,7 @@ W:3:0:30:50
 A:3/1:50/2
 F:SHOW_MODS
 D:A piece of bent wood, fitted with a string. Easy to transport and use, but
-D:its effect is not very impressive. You can 'f'ire with it after you 'w'ield
-D:it.
+D:its effect is not very impressive. You can 'f'ire it after you 'w'ield it.
 
 N:74:& Long Bow~
 G:}:U
@@ -828,8 +827,7 @@ A:10/1:70/2
 F:SHOW_MODS
 D:A Bow almost as long as a human. It takes considerable strength and skill to
 D:use and is rather awkward to carry around inside buildings. Nevertheless, it
-D:shoots arrows with astonishing force. You can 'f'ire with it after you 
-D:'w'ield it.
+D:shoots arrows with astonishing force. You can 'f'ire it after you 'w'ield it.
 
 N:75:& Light Crossbow~
 G:}:s
@@ -837,7 +835,7 @@ I:19:23:0
 W:15:0:110:140
 A:15/1:60/2
 F:SHOW_MODS
-D:A metal bow mounted on a wooden stock. It is used for shooting bolts. This 
+D:A metal bow mounted on a wooden stock. It is used for shooting bolts. This
 D:design is relatively light and not too difficult to cock, but also shoots its
 D:quarrels with less force. You can 'f'ire with it after you 'w'ield it.
 
@@ -847,9 +845,9 @@ I:19:24:0
 W:30:0:200:300
 A:30/1:80/2
 F:SHOW_MODS
-D:A metal bow mounted on a wooden stock, with attached cocking mechanism. It 
-D:takes considerable time and strength to cock it and it's also rather heavy.
-D:But it also hurls its ammunition with incredible force. You can 'f'ire with
+D:A metal bow mounted on a wooden stock, with attached cocking mechanism. It
+D:takes considerable time and strength to cock it and it's rather heavy.
+D:However, it hurls its ammunition with incredible force. You can 'f'ire with
 D:it after you 'w'ield it.
 
 N:77:& Sling~
@@ -880,7 +878,7 @@ W:55:0:2:20
 A:55/2:80/2
 P:0:4d4:0:0:0
 F:SHOW_MODS
-D:Precision-made arrows, which allow to hit exactly the vulnerable place of an
+D:Precision-made arrows, which allow to hit precisely the vulnerable place of an
 D:opponent one aimed at. You can use it for 'f'iring a bow.
 
 N:80:& Bolt~
@@ -900,7 +898,7 @@ W:65:0:3:25
 A:65/2:90/2
 P:0:4d5:0:0:0
 F:SHOW_MODS
-D:Precision-made arrows, which allow to hit exactly the vulnerable place of an 
+D:Precision-made arrows, which allow to hit exactly the vulnerable place of an
 D:opponent one aimed at. You can use it for 'f'iring a bow.
 
 N:82:& Rounded Pebble~
@@ -910,7 +908,7 @@ W:0:0:4:1
 A:0/1:10/2
 P:0:1d2:0:0:0
 F:SHOW_MODS
-D:Small round stones. When fired with a sling, they could even hurt a giant.S
+D:Small round stones. When fired with a sling, they could even hurt a giant.
 D:You can use it for 'f'iring a sling.
 
 N:83:& Iron Shot~
@@ -920,7 +918,7 @@ W:3:0:5:2
 A:3/1:40/2
 P:0:1d4:0:0:0
 F:SHOW_MODS
-D:Metal balls, made for shooting with slings. You can use it for 'f'iring a 
+D:Metal balls, made for shooting with slings. You can use it for 'f'iring a
 D:sling.
 
 ##### Shovels and Picks #####
@@ -933,7 +931,7 @@ A:5/2
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
 f:TUNNEL
-D:A simple digging tool for shoveling away rubble and maybe even soft rock.
+D:A simple digging tool for shovelling away rubble and maybe even soft rock.
 
 N:85:& Gnomish Shovel~
 G:\:G
@@ -965,8 +963,8 @@ A:10/2
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 f:TUNNEL
-D:A heavy digging tool, primarily for earthworking, but also good for tunneling
-D:through stone, albeit one might soon tire trying.
+D:A heavy digging tool, primarily for earthworking, but also good for tunnelling
+D:through stone, if one is willing to perform the time-consuming labour.
 
 N:88:& Orcish Pick~
 G:\:g
@@ -977,7 +975,7 @@ P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 f:TUNNEL
 D:Although orcs tend to dig rather untidy mines and overcome difficulties in
-D:this work less by skill rather than mere stubbornness, they have amassed 
+D:this work less by skill rather than mere stubbornness, they have amassed
 D:quite some expertise in mining, which has gone into this digging tool.
 
 N:89:& Dwarven Pick~
@@ -989,7 +987,7 @@ P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 f:TUNNEL
 D:The dwarves, miners of legend, have made this pick, which is so expertly
-D:crafted even weaklings can bore through solid rock with it.
+D:crafted that even weaklings can bore through solid rock with it.
 
 ##### Armor #####
 
@@ -1020,7 +1018,7 @@ I:30:3:0
 W:5:0:40:12
 A:5/1
 P:3:1d1:0:0:0
-D:A pair of boots, with hardened leather at the caps, offering a little 
+D:A pair of boots, with hardened leather at the caps, offering a little
 D:extra protection for the feet.
 
 N:93:& Pair~ of Metal Shod Boots
@@ -1047,7 +1045,7 @@ I:32:3:0
 W:10:0:20:30
 A:10/1
 P:3:1d1:0:0:0
-D:A metal skullcap, it has added nose and cheekguards.
+D:A metal skullcap with nose and cheekguards.
 
 N:96:& Iron Helm~
 G:]:s
@@ -1055,8 +1053,8 @@ I:32:5:0
 W:20:0:75:75
 A:20/1
 P:5:1d3:0:0:0
-D:A large helmet, protecting the entire head. Ventilation and bad vision can be
-D:a problem with such headgear.
+D:A large helmet that can protect the entire head. Ventilation and bad vision
+D:can be a problem, however.
 
 N:97:& Steel Helm~
 G:]:W
@@ -1074,7 +1072,7 @@ W:45:0:20:500
 A:45/1
 P:0:1d1:0:0:0
 D:An iron circlet which might be worn, but which is purely ornamental unless it
-D:has special powers. 
+D:has special powers.
 
 N:99:& Golden Crown~
 G:]:y
@@ -1102,8 +1100,8 @@ I:36:2:0
 W:1:0:20:4
 A:1/1:50/1
 P:2:0d0:0:0:0
-D:A full-length garment which can be worn on the body. It is not really an
-D:armour, but mages often wear them as they are very light and don't hinder 
+D:A full-length garment which can be worn on the body. It is not really
+D:armour, but mages often wear them as they are very light and don't hinder
 D:movement much.
 
 N:102:& Filthy Rag~
@@ -1113,7 +1111,7 @@ W:0:0:20:1
 A:0/1
 P:1:0d0:0:0:-1
 D:A piece of discarded cloth, smelly and dirty. Eurgh. You're not going to
-D:wear this, are you???
+D:wear this, are you?
 
 N:103:Soft Leather Armour~
 G:(:U
@@ -1138,9 +1136,9 @@ I:36:6:0
 W:5:0:100:150
 A:5/1
 P:6:1d1:-1:0:0
-D:A leather armour covering only the body. It is made of hardened leather,
-D:making it harder to penetrate, but also harder to move in, as it is rather
-D:stiff.
+D:A leather armour covering only the body. It is made of hardened leather to
+D:make it harder to penetrate.  It's also a bit harder to move in, as it is 
+D:rather stiff.
 
 N:106:Hard Studded Leather~
 G:(:U
@@ -1174,7 +1172,7 @@ I:37:4:0
 W:25:0:220:750
 A:25/1
 P:14:1d4:-2:0:0
-D:A suit of interlinked metal rings, to be worn over a woollen garment. 
+D:A suit of interlinked metal rings, to be worn over a woollen garment.
 
 N:110:Rusty Chain Mail~
 G:[:r
@@ -1182,8 +1180,8 @@ I:37:1:0
 W:25:0:200:550
 A:25/1
 P:14:1d4:-5:0:-8
-D:This chain mail has rusted beyond repair. It can still be worn, but some of 
-D:the rings have gone missing and the rust has made the suit inflexible. 
+D:This chain mail has rusted beyond repair. It can still be worn, but some of
+D:the rings have gone missing and the rust has made the suit inflexible.
 D:Consequently, it offers very poor protection and is cumbersome to move in.
 
 N:111:Augmented Chain Mail~
@@ -1219,7 +1217,7 @@ I:37:12:0
 W:45:0:260:1200
 A:45/1
 P:22:1d6:-3:0:0
-D:An armour made of steel plates, covering only the body of the wearer. 
+D:An armour made of steel plates, covering only the body of the wearer.
 
 N:115:Metal Lamellar Armour~
 G:[:W
@@ -1237,7 +1235,7 @@ W:45:0:380:1350
 A:45/1
 P:25:2d4:-3:0:0
 D:A suit of armour made of metal plates, covering the body, arms and upper legs
-D:A very effective but also very heavy armour.
+D:A very effective but very heavy armour.
 
 N:117:Ribbed Plate Armour~
 G:[:W
@@ -1317,7 +1315,7 @@ P:6:0d0:0:0:4
 F:RES_DARK | RES_LITE | STEALTH
 f:STEALTH
 D:A rare cloak imbued with magic to radiate a strange twilight, absorbing both
-D:extreme brightness and darkness. 
+D:extreme brightness and darkness.
 
 ### The Gloves ###
 
@@ -1344,9 +1342,9 @@ I:31:5:0
 W:50:0:40:100
 A:50/1
 P:5:1d1:0:0:0
-D:A set of metal gloves with nasty spikes and barbs, originally made to help in
-D:combat, but the additional metal on the backs of the hands also offers a lot
-D:more protection.
+D:A set of metal gloves with nasty spikes and barbs. Though originally made to 
+D:help in combat, the additional metal on the backs of the hands also offers a
+D:lot more protection.
 
 ### The shields ###
 
@@ -1356,7 +1354,7 @@ I:34:2:0
 W:3:0:50:30
 A:3/1
 P:2:1d1:0:0:0
-D:A small disc of lindenwood, with a leather covering on one side. 
+D:A small disc of lindenwood, with a leather covering on one side.
 
 N:129:& Large Leather Shield~
 G:):U
@@ -1439,9 +1437,9 @@ W:5:0:2:250
 A:5/1
 F:SEARCH | HIDE_TYPE
 f:SEARCH
-D: This ring magically improves your attention, so you can detect hidden things better.
+D:This ring magically improves your attention, so you can detect hidden things better.
 
-# New : It can be activated but at the cost of it's destruction
+# New : It can be activated but at the cost of its destruction
 N:138:Teleportation
 G:=:d
 I:45:4:0
@@ -1499,8 +1497,8 @@ A:60/2
 F:RES_POIS | EASY_KNOW
 f:RES_POIS
 D:This magical ring grants protection from poison.
-D:It is rumored that in deep dungeons monsters can kill you at once if you dont
-D:have poison resistance.
+D:It is rumoured that in deep dungeons monsters can kill you at once if you 
+D:don't have poison resistance.
 
 N:144:Free Action
 G:=:d
@@ -1510,7 +1508,7 @@ A:20/1
 F:FREE_ACT | EASY_KNOW
 f:FREE_ACT
 D:This magical bauble prevents you from being held.
-D:Some monsters will paralyze you and then kill you if you do have free action.
+D:Some monsters will paralyse you and then kill you if you lack free action.
 
 N:145:Weakness
 G:=:d
@@ -1530,8 +1528,8 @@ P:0:0d0:0:0:15
 a:HARDCORE=BA_FIRE_4
 F:RES_FIRE | IGNORE_FIRE | ACTIVATE
 f:RES_FIRE
-D:This fiery circlet grants you protection, makes fire less dangerous and even allows to call forth
-D:a ball of flame.
+D:This fiery circlet grants you protection, makes fire less dangerous and even
+D:allows you to call forth a ball of flame.
 
 N:147:Acid
 G:=:d
@@ -1563,8 +1561,9 @@ I:45:0:-5
 W:50:0:2:0
 A:50/1
 F:CURSED | TELEPORT | WIS | CHR | HIDE_TYPE | AUTO_CURSE
-D:This accursed ring will turn you into a bumbling fool and in addition magically transports you
-D:to places you never wanted to see. It can recurse it self if you leave it on too long.
+D:This accursed ring will turn you into a bumbling fool and, in addition, magically 
+D:transports you to places you never wanted to see. It can recurse itself if
+D:you leave it on too long.
 
 N:150:Stupidity
 G:=:d
@@ -1573,15 +1572,15 @@ W:5:0:2:0
 A:5/1
 F:CURSED | INT | HIDE_TYPE
 f:INT
-D:This wicked ring feeds off your intellect, making you magically stupid.
+D:This wicked ring feeds off your intellect, magically making you stupid.
 
 N:151:Damage
 G:=:d
 I:45:29:0
 W:20:0:2:500
 A:20/1
-D:This ring makes your hands magically strong in combat, allowing you to inflict greater pain
-D:with your hand-to-hand attacks.
+D:This ring makes your hands magically strong in combat, allowing you to inflict
+D:greater pain with your hand-to-hand attacks.
 
 N:152:Accuracy
 G:=:d
@@ -1731,7 +1730,7 @@ W:10:0:3:250
 A:10/1
 F:RES_ACID | IGNORE_ACID | EASY_KNOW
 f:RES_ACID
-D:This magical talisman will make the corroding forces of acid less threatening for your health.
+D:This magical talisman will make the corroding forces of acid less threatening to your health.
 
 N:169:Adornment
 G:":d
@@ -1749,7 +1748,7 @@ I:37:5:0
 W:25:0:230:700
 A:25/1
 P:15:1d4:-2:0:0
-D:A suit of leather armour with metal rings sewn onto it. In addition, in important parts it is 
+D:A suit of leather armour with metal rings sewn onto it. In addition, in important parts it is
 D:reinforced with mail.
 
 ##### Additional amulets #####
@@ -1761,7 +1760,7 @@ W:70:0:3:30000
 A:70/8
 P:0:0d0:-4:-4:0
 F:INT | SUST_INT | SEARCH | SPELL_CONTAIN
-F:FREE_ACT | RES_BLIND | RES_CONF | 
+F:FREE_ACT | RES_BLIND | RES_CONF |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:This rare amulet is highly desirable for mages, as it makes its wearer smarter, more attentive
 D:and impervious to magics which would make their own magic-use impossible.
@@ -1783,7 +1782,7 @@ G:?:d
 I:70:17:0
 W:15:0:5:125
 A:15/1
-D:This magical scroll will allow you to improve the accuracy of a weapon in your possession. 
+D:This magical scroll will allow you to improve the accuracy of a weapon in your possession.
 D:However, weapons which are already very highly enchanted are more difficult to improve
 D:further.
 
@@ -1816,9 +1815,9 @@ G:?:d
 I:70:13:0
 W:30:0:5:1000
 A:30/1:50/2:80/1:100/1
-D:This scroll will allow you to gain insight in an object's special properties. Only the highly
-D:magical objects, like rare rings and amulets or very unusual weapons and armour possess abilities
-D:which warrant the use of this magic.
+D:This scroll will allow you to gain insight into an object's special properties. 
+D:Only the highly magical objects, like rare rings and amulets or very unusual weapons
+D:and armour possess abilities which warrant the use of this magic.
 
 N:178:Rumour
 G:?:d
@@ -1974,7 +1973,7 @@ W:40:0:4:20
 A:40/2:65/1
 P:0:3d4:5:5:0
 F:SHOW_MODS | IGNORE_ACID
-D:Sling bullets made from the slags of mithril smelting. They are unusually heavy, hitting 
+D:Sling bullets made from the slags of mithril smelting. They are unusually heavy, hitting
 D:with great force, and are almost imperishable.
 
 ##### Additional scrolls #####
@@ -2007,8 +2006,9 @@ G:?:d
 I:70:45:0
 W:50:0:5:1000
 A:50/4:100/4
-D:An astoundingly powerful death spell is stored in the runes of this spell, reading it will
-D:annihilate all nearby creatures. Only a few beings of legendary stature can withstand it.
+D:An astoundingly powerful death spell is stored in the runes of this spell.  Reading
+D:it will annihilate all nearby creatures. Only a few beings of legendary stature 
+D:can withstand it.
 
 N:201:Detect Invisible
 G:?:d
@@ -2031,7 +2031,7 @@ I:70:7:0
 W:10:0:5:0
 A:10/1
 D:If you read this rather annoying scroll, snares and pitfalls will magically be planted all around
-D:you, ready to do nasty things to you once you stumble into them when you move on.
+D:you, ready to do nasty things to you once you walk onto them.
 
 N:204:Trap/Door Destruction
 G:?:d
@@ -2070,7 +2070,7 @@ G:?:d
 I:70:0:0
 W:1:0:5:0
 A:1/1
-D:This scroll will create a blast of utter darkness, which then fades to leave the immediate 
+D:This scroll will create a blast of utter darkness, which then fades to leave the immediate
 D:surroundings in a lasting gloom. The extreme darkness can blind those who are not used to
 D:it.
 
@@ -2329,7 +2329,7 @@ I:71:62:-2500
 W:90:0:4:100000
 A:90/9
 P:0:1d1:0:0:0
-D:This immensely powerful potion makes your physique almost indestructible for a very short 
+D:This immensely powerful potion makes your physique almost indestructible for a very short
 D:time. Very rarely, an attempt to hurt you will still succeed, so don't be too confident.
 
 N:239:New Life
@@ -2339,7 +2339,7 @@ W:50:0:4:750000
 A:50/20:100/10:120/5
 P:0:1d1:0:0:0
 D:This potion fundamentally twists your physical features, as if you were another mother's child.
-D:Your physique will be shaped a new.
+D:Your physique will be shaped anew.
 
 N:240:Cure Serious Wounds
 G:!:d
@@ -2574,7 +2574,7 @@ P:0:1d1:0:0:0
 F:FOUNTAIN
 D:This healthy potion will dilute poisons in your blood.
 
-N:265:Neutralize Poison
+N:265:Neutralise Poison
 G:!:d
 I:71:27:0
 W:5:0:4:75
@@ -2610,8 +2610,8 @@ A:20/1:45/1:80/1:100/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:FOUNTAIN
-D:This great potion infuses you with the power of the elements, so that you can withstand their
-D:ravages better.
+D:This great potion infuses you with the power of the elements, so that you can better
+D:withstand their ravages.
 
 ##### Wands #####
 # Note : all wands but this one are gone since they now all use the unified spell system
@@ -2805,7 +2805,7 @@ D:An arrow designed for longer flight. Consequently, it is lighter and hits with
 # XXX
 # XXX
 
-##### Staffs #####
+##### Staves #####
 
 # Only one staff left, to store spell from the unified spell system
 N:300:Spell
@@ -3082,7 +3082,7 @@ G:~:s
 I:7:0:0
 W:0:0:250:0
 A:75/1
-D:An empty broken chest.
+D:A broken, empty chest.
 
 ##### Various Stuff #####
 
@@ -3103,7 +3103,7 @@ P:0:1d1:0:0:0
 F:EASY_KNOW | LITE1 | FUEL_LITE
 f:LITE1 | FUEL_LITE
 D:A piece of wood with an oily rag wrapped around it. When lit, it will give off a little light and
-D:a great smoke.
+D:much smoke.
 
 N:347:& Brass Lantern~
 G:~:U
@@ -3306,7 +3306,7 @@ I:66:20:40
 W:40:0:15:3500
 A:40/1
 P:0:1d1:0:0:0
-D:This rod will shoot a small glob of aggressive acid at its target.
+D:This rod will shoot a small glob of powerful acid at its target.
 
 N:371:Enlightenment
 G:-:d
@@ -3338,7 +3338,7 @@ I:66:9:120
 W:80:0:15:20000
 A:80/8
 P:0:1d1:0:0:0
-D:This rod has major healing powers, restoring your health if you have been wounded.
+D:This rod has major healing powers and can restore your health if you have been wounded.
 
 N:375:Detection
 G:-:d
@@ -3363,7 +3363,7 @@ I:66:11:100
 W:95:0:15:50000
 A:95/16
 P:0:1d1:0:0:0
-D:This energizing rod will allow you to act a lot faster for some time.
+D:This energising rod will allow you to act a lot faster for some time.
 
 # Ring of Spell
 
@@ -3444,7 +3444,7 @@ I:1:8:0
 W:5:0:60:0
 A:5/1
 P:0:1d2:0:0:0
-D:It is dead, Jim.
+D:It's dead, Jim.
 
 N:396:& Dwarf Skeleton~
 G:~:w
@@ -3490,8 +3490,8 @@ W:60:0:200:50000
 A:60/8
 P:30:2d4:-2:0:10
 a:HARDCORE=BR_ACID
-F:RES_ACID | FLY | 
-f:RES_ACID | 
+F:RES_ACID | FLY |
+f:RES_ACID |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:An armour made of a black dragon's hide, containing some of this beast's powers.
 
@@ -3503,7 +3503,7 @@ A:50/8
 P:30:2d4:-2:0:10
 a:HARDCORE=BR_ELEC
 F:RES_ELEC | FLY |
-f:RES_ELEC | 
+f:RES_ELEC |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A piece of dragon hide fashioned into an armour, shimmering bright blue.
 
@@ -3515,7 +3515,7 @@ A:50/8
 a:HARDCORE=BR_COLD
 P:30:2d4:-2:0:10
 F:RES_COLD | FLY |
-f:RES_COLD | 
+f:RES_COLD |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:An armour fashioned from dragon hide, glistening the white of snow.
 
@@ -3527,7 +3527,7 @@ A:60/8
 P:30:2d4:-2:0:10
 a:HARDCORE=BR_FIRE
 F:RES_FIRE | FLY |
-f:RES_FIRE | 
+f:RES_FIRE |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:The skin of a dragon made into a suit of armour. It glows a bright red and radiates heat.
 
@@ -3539,7 +3539,7 @@ A:50/8
 P:30:2d4:-2:0:10
 a:HARDCORE=BR_POIS
 F:RES_POIS | FLY |
-f:RES_POIS | 
+f:RES_POIS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of armour fashioned of dragon hide. It is dirty green and smells awful.
 
@@ -3611,7 +3611,7 @@ P:30:2d4:-2:0:10
 a:HARDCORE=BR_CHAOS
 F:ATTR_MULTI
 F:RES_CHAOS | RES_DISEN | FLY |
-f:RES_CHAOS | 
+f:RES_CHAOS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A suit of armour made of dragon hide. It glows in colours you have never seen before. As you
 D:put it on, you feel like you could change the world and are no longer afraid of your equipment
@@ -3688,7 +3688,7 @@ W:40:0:4:0
 A:40/8
 P:0:20d20:0:0:0
 F:FOUNTAIN
-D:This wicked potion will seriously damage your abilities, beyond the powers of magical
+D:This wicked potion will seriously damage your abilities beyond the powers of magical
 D:restoration.
 
 N:417:Detonations
@@ -3748,17 +3748,17 @@ F:FOUNTAIN
 D:This magical concoction will grant you great insight, magically improving your wits and
 D:wisdom, letting you know precisely who and where you are and what you possess.
 
-# 423 XXX was Necromantic Incatations
+# 423 XXX was Necromantic Incantations
 
 # 424 XXX was Curses of Angmar
 
 N:425:Fear Resistance
 G:=:d
 I:45:38:0
-W:10:0:2:300 
+W:10:0:2:300
 A:10/2
 F:RES_FEAR | EASY_KNOW
-f:RES_FEAR | 
+f:RES_FEAR |
 D:This ring grants courage, so that you can never become afraid.
 
 N:426:Light and Darkness Resistance
@@ -3767,7 +3767,7 @@ I:45:39:0
 W:30:0:2:3000
 A:30/2
 F:RES_LITE | RES_DARK | EASY_KNOW
-f:RES_LITE | RES_DARK | 
+f:RES_LITE | RES_DARK |
 D:This ring protects against fluctuations of the light.
 
 N:427:Nether Resistance
@@ -3776,7 +3776,7 @@ I:45:40:0
 W:34:0:2:14500
 A:34/2
 F:RES_NETHER | HOLD_LIFE | EASY_KNOW
-f:RES_NETHER | 
+f:RES_NETHER |
 D:This blessed ring improves your life force, protecting you from the draining forces of nether
 D:and other attempts to suck your lifeblood.
 
@@ -3786,7 +3786,7 @@ I:45:41:0
 W:24:0:2:3000
 A:24/2
 F:RES_NEXUS | EASY_KNOW
-f:RES_NEXUS | 
+f:RES_NEXUS |
 D:This ring of stability protects you from the warping forces of nexus.
 
 N:429:Sound Resistance
@@ -3795,7 +3795,7 @@ I:45:42:0
 W:26:0:2:3000
 A:26/2
 F:RES_SOUND | EASY_KNOW
-f:RES_SOUND | 
+f:RES_SOUND |
 D:This ring projects an aura of quiet around you, protecting you from loud noise.
 
 N:430:Confusion Resistance
@@ -3804,7 +3804,7 @@ I:45:43:0
 W:22:0:2:3000
 A:22/2
 F:RES_CONF | EASY_KNOW
-f:RES_CONF | 
+f:RES_CONF |
 D:This ring stabilises your mind, protecting you from all kinds of befuddlement.
 
 N:431:Shard Resistance
@@ -3813,7 +3813,7 @@ I:45:44:0
 W:25:0:2:3000
 A:25/2
 F:RES_SHARDS | EASY_KNOW
-f:RES_SHARDS | 
+f:RES_SHARDS |
 D:This piece of jewellery magically toughens your skin, protecting you from flying shrapnel.
 
 N:432:Disenchantment Resistance
@@ -3822,7 +3822,7 @@ I:45:45:0
 W:90:0:2:15000
 A:90/10
 F:RES_DISEN | EASY_KNOW
-f:RES_DISEN | 
+f:RES_DISEN |
 D:This rare ring of preservation protects your equipment from attempts to sap its magic, also
 D:causing you to suffer less pain from such attacks.
 
@@ -3832,7 +3832,7 @@ I:45:46:0
 W:50:0:2:13000
 A:50/2
 F:RES_CHAOS | RES_CONF | EASY_KNOW
-f:RES_CHAOS | 
+f:RES_CHAOS |
 D:This ring protects you from the horribly warping forces of chaos.
 
 N:434:Blindness Resistance
@@ -3841,7 +3841,7 @@ I:45:47:0
 W:60:0:2:7500
 A:60/2
 F:RES_BLIND | EASY_KNOW
-f:RES_BLIND | 
+f:RES_BLIND |
 D:This ring magically preserves your eyesight, making you impervious to any attempt to blind
 D:you.
 
@@ -3900,7 +3900,7 @@ G:?:s
 I:8:200:0
 W:3:100:5:100
 A:3/3
-D:A map, showing the town of bree and the landscape around it.
+D:A map, showing the town of Bree and the landscape around it.
 
 # Map of Gondolin
 N:441:Map of Gondolin
@@ -3909,7 +3909,7 @@ I:8:201:0
 W:70:100:5:50000
 A:70/3
 D:A map detailing the place of the hidden city of Gondolin. Consider yourself lucky someone
-D:lost a map here, the location is yet unknown even to Morgoth.
+D:lost a map here, since the location is yet unknown even to Morgoth.
 
 # Map of Lothlorien
 N:442:Map of Lothlorien
@@ -3954,7 +3954,7 @@ I:40:29:0
 W:10:0:3:250
 A:10/1
 F:RES_ELEC | IGNORE_ELEC | EASY_KNOW
-f:RES_ELEC | 
+f:RES_ELEC |
 
 N:468:Wisdom
 G:":d
@@ -3962,7 +3962,7 @@ I:40:28:0
 W:30:0:3:500
 A:30/1
 F:WIS | SUST_WIS |  HIDE_TYPE
-f:WIS | 
+f:WIS |
 
 N:469:Regeneration
 G:":d
@@ -3970,7 +3970,7 @@ I:40:30:0
 W:30:0:3:600
 A:30/3
 F:REGEN | EASY_KNOW
-f:REGEN | 
+f:REGEN |
 
 N:470:Infravision
 G:":d
@@ -3978,15 +3978,15 @@ I:40:26:0
 W:10:0:3:200
 A:10/1
 F:INFRA | HIDE_TYPE
-f:INFRA | 
+f:INFRA |
 
 N:471:Devotion
 G:":d
 I:40:25:0
 W:70:0:3:30000
 A:70/8
-F:WIS | CHR | SUST_WIS | SUST_CHR | LITE1 | HIDE_TYPE | 
-F:RES_DARK | RES_LITE | RES_FIRE | HOLD_LIFE | 
+F:WIS | CHR | SUST_WIS | SUST_CHR | LITE1 | HIDE_TYPE |
+F:RES_DARK | RES_LITE | RES_FIRE | HOLD_LIFE |
 #F:INHIBIT_MAGIC
 
 N:472:Weaponmastery
@@ -3995,7 +3995,7 @@ I:40:24:0
 W:70:0:3:30000
 A:70/8
 F:STR | CON | SUST_STR | SUST_CON | FREE_ACT | HIDE_TYPE |
-F:RES_FEAR | RES_DISEN |  
+F:RES_FEAR | RES_DISEN |
 #F:INHIBIT_MAGIC | INHIBIT_PRAYER | INHIBIT_PSI
 
 N:473:Trickery
@@ -4003,7 +4003,7 @@ G:":d
 I:40:23:0
 W:70:0:3:30000
 A:70/8
-F:DEX | SUST_DEX | STEALTH | SPEED | INFRA | HIDE_TYPE | 
+F:DEX | SUST_DEX | STEALTH | SPEED | INFRA | HIDE_TYPE |
 F:RES_NEXUS | RES_POIS
 
 N:474:Telepathy
@@ -4011,8 +4011,8 @@ G:":d
 I:40:22:0
 W:50:0:3:25000
 A:50/6
-F:ESP_ALL | 
-f:ESP_ALL | 
+F:ESP_ALL |
+f:ESP_ALL |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:475:Sustenance
@@ -4020,8 +4020,8 @@ G:":d
 I:40:21:0
 W:60:0:3:20000
 A:60/4
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | 
-F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW | 
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
+F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # The Palantir of Minas Ithil -- see artifact list
@@ -4319,7 +4319,7 @@ I:40:9:0
 W:60:0:3:30000
 A:60/4
 F:REFLECT | EASY_KNOW
-f:REFLECT | 
+f:REFLECT |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #521 and 522 cannot have EASY_KNOW because they may be cursed
@@ -4431,7 +4431,7 @@ W:0:0:4:0
 A:0/1
 P:0:1d1:0:0:0
 F:SPECIAL_GENE
-D:It is a magical compoment that can purify water.
+D:It is a magical component that can purify water.
 
 N:533:& Hatchet~
 G:/:s
@@ -4531,7 +4531,7 @@ P:0:4d5:0:0:0
 F:SHOW_MODS | MUST2H
 f:MUST2H
 
-### Trapping Kits 
+### Trapping Kits
 
 N:549:Arrow
 G:`:r
@@ -4582,7 +4582,7 @@ A:15/3
 P:0:1d8:0:0:0
 F:SHOW_MODS
 
-### Trapping Kits 
+### Trapping Kits
 
 N:555:Catapult
 G:`:R
@@ -4619,7 +4619,7 @@ W:2:0:60:40
 A:2/1
 P:4:1d1:0:0:0
 
-### Trapping Kits 
+### Trapping Kits
 
 N:560:Fumes
 G:`:G
@@ -4634,7 +4634,7 @@ W:35:0:200:500
 A:35/7
 P:15:1d1:-1:0:0
 
-### Trapping Kits 
+### Trapping Kits
 
 N:562:Magic
 G:`:g
@@ -4774,7 +4774,7 @@ A:50/1
 P:0:0d0:0:0:15
 a:HARDCORE=BA_ELEC_4
 F:RES_ELEC | IGNORE_ELEC | ACTIVATE
-f:RES_ELEC | 
+f:RES_ELEC |
 
 # More essences
 
@@ -4799,7 +4799,7 @@ W:0:0:4:2
 A:0/1:20/1:40/1:60/1
 P:0:1d1:0:0:0
 
-# The Ring of F'lar -- see artifact list
+# The Ring of Flare -- see artifact list
 
 N:582:& Ring~
 G:=:y
@@ -4846,7 +4846,7 @@ I:45:53:4
 W:50:0:2:10000
 A:50/1
 F:INVIS | HIDE_TYPE
-f:INVIS | 
+f:INVIS |
 D:This magical bauble will hide you from sight.
 
 ### Just another essence, to confuse the edit file hackers ;) ###
@@ -5242,7 +5242,7 @@ W:20:0:80:0
 A:30/1
 P:0:1d1:0:0:0
 F:DECAY
-D:Whatever happened with this one, it wasnt pretty.
+D:Whatever happened with this one, it wasn't pretty.
 
 N:642:skeleton
 G:~:U
@@ -5278,7 +5278,7 @@ P:0:1d1:0:0:0
 F:DECAY
 D:Yuck, just looking at it makes your stomach upset.
 
-# New armor: Thunderlord Coat. (With two low resists, it shouldn't be 
+# New armor: Thunderlord Coat. (With two low resists, it shouldn't be
 # at only 5th level. Make it 25th. -JLE...)
 
 N:646:& Thunderlord Coat~
@@ -5300,7 +5300,7 @@ F:INSTA_ART | SPECIAL_GENE
 
 # Here are the boomerangs
 
-N:648:& small wooden Boomerang~
+N:648:& Small Wooden Boomerang~
 G:{:y
 I:15:1:0
 W:5:0:60:400
@@ -5308,15 +5308,15 @@ A:5/1
 P:0:1d4:0:0:0
 D:A small curved piece of wood.
 
-N:649:& wooden Boomerang~
+N:649:& Wooden Boomerang~
 G:{:y
 I:15:2:0
 W:10:0:60:400
 A:10/1
 P:0:1d9:0:0:0
-D:A strange curved leaf-shaped piece of wood.
+D:A strange, curved leaf-shaped piece of wood.
 
-N:650:& small metal Boomerang~
+N:650:& Small Metal Boomerang~
 G:{:y
 I:15:3:0
 W:15:0:60:400
@@ -5349,7 +5349,7 @@ W:127:200:60:0
 A:127/255
 P:0:0d0:0:0:0
 
-N:654:Summon never-moving pet
+N:654:Summon Never-Moving Pet
 G:?:d
 I:70:6:0
 W:5:0:5:125
@@ -5413,7 +5413,7 @@ F:INSTA_ART
 # This is used as a template -- the sval will be chosen later
 # on in the game to be an index to the random_artifacts array,
 # which in turn determines:
-#  
+#
 #  Name
 #  Color
 #  Level
@@ -5426,7 +5426,7 @@ W:1:0:50:0
 A:1/1:10/1:20/1:30/1
 F:INSTA_ART | ACTIVATE | ACTIVATE_NO_WIELD
 
-N:663:Craftmanship
+N:663:Craftsmanship
 G:?:d
 I:70:19:0
 W:80:0:5:200000
@@ -5755,8 +5755,8 @@ I:45:51:0
 W:90:0:2:300000
 A:90/100
 T:45:23
-F:PRECOGNITION | 
-f:PRECOGNITION | 
+F:PRECOGNITION |
+f:PRECOGNITION |
 F:NORM_ART | FULL_NAME
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:This magical ring allows you to know what you will encounter in the near future.
@@ -5801,8 +5801,8 @@ A:90/140
 T:70:51
 F:NORM_ART | FULL_NAME
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
-D:It allows you to leave your body to reincarnate into 
-D:an other one, howver your current body is lost in the process.
+D:It allows you to leave your body to reincarnate into
+D:an other one, however your current body is lost in the process.
 
 N:721:& Dark Sword~
 G:|:D
@@ -5815,28 +5815,28 @@ f:ANTIMAGIC_50
 D:A strange, very sharp long sword, which seems to drain light from its surroundings. As you
 D:wield it, you feel much less attuned to magic.
 
-N:722:Numenorean for beginners (I)
+N:722:Numenorean for Beginners (I)
 G:?:s
 I:8:101:0
 W:10:100:5:50
 A:10/2
 D:These ancient words still contain magic.
 
-N:723:Numenorean for beginners (II)
+N:723:Numenorean for Beginners (II)
 G:?:s
 I:8:102:0
 W:5:100:5:50
 A:5/2
 D:These ancient words still contain magic.
 
-N:724:Advanced lessons of Numenorean
+N:724:Advanced Lessons of Numenorean
 G:?:s
 I:8:103:0
 W:20:100:5:50
 A:20/2
 D:These ancient words still contain magic.
 
-N:725:Advanced lessons of Sindarin
+N:725:Advanced Lessons of Sindarin
 G:?:s
 I:8:104:0
 W:20:100:5:50
@@ -5947,25 +5947,25 @@ G:?:d
 I:70:54:0
 W:100:0:5:200000
 A:100/16
-D:Even konijn doesnt know what a scroll of spell is.
+D:Even konijn doesn't know what a scroll of spell is.
 
 # XXX
 
-N:751:Khuzdul - The hidden tongue of the Dwarves
+N:751:Khuzdul - The Hidden Tongue of the Dwarves
 G:?:s
 I:8:105:0
 W:2:100:5:50
 A:2/2
 D:These ancient words still contain magic.
 
-N:752:Nandorin for dummies
+N:752:Nandorin for Dummies
 G:?:s
 I:8:106:0
 W:20:100:5:50
 A:20/2
 D:These ancient words still contain magic.
 
-N:753:Advanced lessons of Orcish
+N:753:Advanced Lessons of Orcish
 G:?:s
 I:8:107:0
 W:30:100:5:50
@@ -5979,7 +5979,7 @@ I:45:54:0
 W:20:0:2:16000
 A:20/3
 F:FLY | EASY_KNOW
-f:FLY | 
+f:FLY |
 D:This ring is imbued with the power of eagles. It grants you the power of flight.
 
 N:756:& Tome~ of the Time
@@ -5989,7 +5989,7 @@ W:50:0:30:25000
 A:50/4
 P:0:1d1:0:0:0
 F:FULL_NAME | EASY_KNOW
-D:This tome seems to have trouble to decide whether it really exists now. It's flickering pages
+D:This tome seems to have trouble to decide whether it really exists now. Its flickering pages
 D:contain all that is known about the currents of time.
 
 N:757:& Spellbook~ of #
@@ -6054,8 +6054,8 @@ W:50:0:30:25000
 A:50/4
 P:0:1d1:0:0:0
 F:FULL_NAME | EASY_KNOW | ATTR_MULTI
-D:This singed book smells like burned flesh, it's power is evident,
-D:it's thirst for your blood as well.
+D:This singed book smells like burned flesh.  Its power is as evident
+D:as its thirst for your blood.
 
 N:764:& Corrupted Tome~ of Melkor
 G:?:D
@@ -6140,7 +6140,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 F:SPECIAL_GENE
 D:A large gem that seems somehow immaterial and is filled with a strange insubstantial...power?
 
-# Rod tip of Home Summoning: now an artifact
+# Rod Tip of Home Summoning: now an artifact
 #N:776:& Great Rod Tip~ of Home Summoning
 N:776:Home Summoning
 G:-:d
@@ -6183,7 +6183,7 @@ W:25:0:3:10000
 A:25/1
 a:HARDCORE=BA_POIS_4
 F:RES_POIS | DEX | ACTIVATE
-D:A petrified serpents tongue, hung on a thin chain to be clasped around your neck. It makes you
+D:A petrified serpent's tongue, hung on a thin chain to be clasped around your neck. It makes you
 D:like unto snakes, able to wriggle out of tight corners, impervious to poisons and poisonous
 D:yourself.
 
@@ -6195,7 +6195,7 @@ I:4:14:20
 W:0:0:4:1
 A:0/1:20/1:40/1
 P:0:1d1:0:0:0
-D:It's a mini black hole in the shape of gem.
+D:It's a gem that eats all light that reaches it.  It's perfectly black.
 
 N:781:Knowledge
 G:*:G
@@ -6203,7 +6203,7 @@ I:4:15:100
 W:0:0:4:1
 A:20/1:30/1:70/1
 P:0:1d1:0:0:0
-D:It's a blue gem with an uncountable amount of formulas scribbled on it.
+D:It's a blue gem with countless formulae scribbled on it.
 
 N:782:Force
 G:*:G
@@ -6219,7 +6219,7 @@ I:4:17:200
 W:0:0:4:1
 A:28/1
 P:0:1d1:0:0:0
-D:It's a white gem, inside you see lightning rage.
+D:It's a white gem.  Inside you see lightning rage.
 
 N:784:Mana
 G:*:G
@@ -6227,7 +6227,7 @@ I:4:18:400
 W:0:0:4:1
 A:45/2
 P:0:1d1:0:0:0
-D:It's an everchanging gem, you feel the magic throbbing through it.
+D:It's an everchanging gem.  You feel the magic throbbing through it.
 
 # The Nine Rings for mortal men doomed to die! When a Nazgul is permanently
 # destroyed, it drops a Ring of Power with random powers.
@@ -6254,7 +6254,7 @@ D:A bunch of screws and hooks, a small pick and a very long rope. As long as a w
 D:isn't really high, this collection of tools should help you across it.
 
 # Parchment to help beginners
-N:787:Adventurer's guide to Middle Earth
+N:787:Adventurer's Guide to Middle-earth
 G:?:o
 I:8:20:0
 W:0:0:5:1
@@ -6291,7 +6291,7 @@ W:20:0:30:500
 A:20/1
 P:2:1d1:0:0:0
 F:LITE2
-D:This horn is about 2 meters long, just looking at it makes you nervous.
+D:This horn is about six feet long.  Just looking at it makes you nervous.
 
 # XXX
 # XXX
@@ -6304,7 +6304,7 @@ I:67:10:0
 W:10:0:15:100
 A:10/1
 P:0:1d1:0:0:0
-D:The most common rods of all. It's the wood of oak, cut at midnight by a fair maiden.
+D:The most common rod of all. It's the wood of oak, cut at midnight by a fair maiden.
 
 N:794:& Copper Rod~ of#
 G:-:s
@@ -6312,7 +6312,7 @@ I:67:20:0
 W:15:0:15:200
 A:15/1
 P:0:1d1:0:0:0
-D:This is the common rod of the dwarves, it is created by chanting incessantly for 48 hours.
+D:This is the common rod of the dwarves.  It is created by chanting incessantly for 48 hours.
 
 N:795:& Iron Rod~ of#
 G:-:D
@@ -6321,7 +6321,7 @@ W:20:0:15:500
 A:20/1
 P:0:1d1:0:0:0
 D:This is the better version of the copper rod. It has been forged with iron that comes from
-D:way deep, where the dwarves should not go.
+D:the greatest deeps, where even the dwarves fear to go.
 
 # Aluminium only exists since 30 years
 N:796:& Moonstone Rod~ of#
@@ -6330,7 +6330,7 @@ I:67:75:0
 W:25:0:15:750
 A:25/1
 P:0:1d1:0:0:0
-D:This rod has been fashioned from moonrock, because of it's alien nature, it has quite a bit of capacity.
+D:This rod has been fashioned from moonrock.  Its alien nature gives it quite a bit of capacity.
 
 N:797:& Silver Rod~ of#
 G:-:s
@@ -6338,8 +6338,8 @@ I:67:100:0
 W:30:0:15:1000
 A:30/1
 P:0:1d1:0:0:0
-D:This rod is used often used by court mages. It creation costs insane amount of gold but it still doesnt
-D:beat a golden rod.
+D:This rod is used often used by court mages. Its creation costs an insane amount
+D:of gold but it is still lesser than a Golden Rod.
 
 N:798:& Golden Rod~ of#
 G:-:y
@@ -6347,8 +6347,8 @@ I:67:125:0
 W:40:0:15:1250
 A:40/2
 P:0:1d1:0:0:0
-D:These rods are rare, for finding gold that can withstand the great magic
-D:capacity that this rod holds, is very difficult.
+D:These rods are rare, since finding gold that can withstand the great magic
+D:capacity that this rod holds is very difficult.
 
 N:799:& Mithril Rod~ of#
 G:-:B
@@ -6356,8 +6356,8 @@ I:67:160:0
 W:50:0:15:1600
 A:50/5
 P:0:1d1:0:0:0
-D:The mithril of this rod comes from very deep, too deep. Unknown powers have been 
-D:infused in this rod, making it the second most powerfull type of rods on Middle Earth.
+D:The mithril of this rod comes from very deep, too deep. Unknown powers have been
+D:infused in this rod, making it the second most powerful type of rods on Middle-earth.
 
 N:800:& Adamantite Rod~ of#
 G:-:v
@@ -6365,7 +6365,7 @@ I:67:200:0
 W:60:0:15:2000
 A:60/10
 P:0:1d1:0:0:0
-D:This is the rarest and most powerfull kind of rod there is, treasure it!
+D:This is the rarest and most powerful kind of rod there is.  Treasure it!
 
 # Greater Ration of Health - artifact food item (!)
 N:801:& Greater Ration~ of Health
@@ -6375,7 +6375,7 @@ W:90:5:2:60000
 A:90/50
 T:80:40
 F:NORM_ART | FULL_NAME
-D:This food will, once eaten, permanently add 70 hp.
+D:This food will, once eaten, permanently add 70 HP.
 
 # Scroll of Mass Resurrection - artifact scroll
 N:802:& Crumpled Scroll~ of Mass Resurrection
@@ -6434,7 +6434,7 @@ G:,:U
 I:80:42:500
 W:0:0:2:10
 A:0/1:5/1:10/1
-D:A small sweet bakery product. With a scrap of paper inside.
+D:A small, sweet bakery product, with a scrap of paper inside.
 
 # Portable hole for Merchants
 N:808:Portable hole
@@ -6446,7 +6446,7 @@ D:It is used by merchants as an extra carrying space.
 
 N:809:Critical Hits
 G:=:d
-I:45:57:0
+I:45:59:0
 W:50:0:2:10000
 A:50/3
 F:CRIT
@@ -6457,15 +6457,13 @@ D:A magical ring to make it likelier for the wearer to hit exceptionally heavily
 N:810:& Wand~ of Digging of Thrain
 G:-:d
 I:65:26:-1:SPELL=Dig
-P:0:1d1:0:0:0
 W:10:10:10:3200
 A:10/200
 P:0:10d10:0:0:0
 T:65:6
 F:RECHARGE | SPECIAL_GENE | EASY_USE | RECHARGED | NORM_ART | FULL_NAME
-D:The miner's friend.  This wand was used by Thrain to dig into the 
-D:walls of the dungeon and is quite useful because it will never 
-D:be destroyed.
+D:The miner's friend.  This wand was used by Thrain to dig into the
+D:walls of the dungeon.  Its indestructible nature makes it quite useful.
 
 # The Staff of Holy Fire of Mithrandir
 N:811:& Gnarled Staff~ of Holy Fire of Mithrandir
@@ -6476,8 +6474,8 @@ P:0:10d4:0:0:0
 A:50/200
 T:55:8
 F:RECHARGE | EASY_USE | RECHARGED | NORM_ART | FULL_NAME
-D:Mithrandir's staff that throws powerful fire attacks at all enemies.  It 
-D:can be recharged without blowing up, for it is built to hold 
+D:Mithrandir's staff that throws powerful fire attacks at all enemies.  It
+D:can be recharged without blowing up, for it is built to hold
 D:much magical energy.
 
 # Summoner totem
@@ -6508,9 +6506,9 @@ I:11:7:0
 W:0:0:0:1000
 A:0/1
 P:0:1d1:0:0:0
-F:SPECIAL_GENE | 
-D:Although it looks like a piece of junk, it is actually part of an ancient 
-D:relic belonging to Priests of Eru. The relic now lies in pieces, hidden 
+F:SPECIAL_GENE |
+D:Although it looks like a piece of junk, it is actually part of an ancient
+D:relic belonging to Priests of Eru. The relic now lies in pieces, hidden
 D:from all but but his most dedicated followers.
 
 N:815:& Piece~ of the Relic of Manwe
@@ -6519,9 +6517,9 @@ I:11:8:0
 W:0:0:0:1000
 A:0/1
 P:0:1d1:0:0:0
-F:SPECIAL_GENE | 
-D:Although it looks like a piece of junk, it is actually part of an ancient 
-D:relic belonging to Priests of Manwe. The relic now lies in pieces, hidden 
+F:SPECIAL_GENE |
+D:Although it looks like a piece of junk, it is actually part of an ancient
+D:relic belonging to Priests of Manwe. The relic now lies in pieces, hidden
 D:from all but his most dedicated followers.
 
 
@@ -6531,9 +6529,9 @@ I:11:9:0
 W:0:0:0:1000
 A:0/1
 P:0:1d1:0:0:0
-F:SPECIAL_GENE | 
-D:Although it looks like a piece of junk, it is actually part of an ancient 
-D:relic belonging to worshippers of Tulkas. The relic now lies in pieces, 
+F:SPECIAL_GENE |
+D:Although it looks like a piece of junk, it is actually part of an ancient
+D:relic belonging to worshippers of Tulkas. The relic now lies in pieces,
 D:hidden from all but his most dedicated followers.
 
 N:817:& Piece~ of the Relic of Melkor
@@ -6542,9 +6540,9 @@ I:11:10:0
 W:0:0:0:1000
 A:0/1
 P:0:1d1:0:0:0
-F:SPECIAL_GENE | 
-D:Although it looks like a piece of junk, it is actually part of an ancient 
-D:relic belonging to Dark Priests. The relic now lies in pieces, hidden 
+F:SPECIAL_GENE |
+D:Although it looks like a piece of junk, it is actually part of an ancient
+D:relic belonging to Dark Priests. The relic now lies in pieces, hidden
 D:from all but the most faithful followers of Melkor.
 
 N:818:& Piece~ of the Relic of Yavanna
@@ -6553,7 +6551,7 @@ I:11:11:0
 W:0:0:0:1000
 A:0/1
 P:0:1d1:0:0:0
-F:SPECIAL_GENE | 
-D:Although it looks like a piece of junk, it is actually part of an ancient 
-D:relic belonging to Druids. The relic now lies in pieces, hidden 
+F:SPECIAL_GENE |
+D:Although it looks like a piece of junk, it is actually part of an ancient
+D:relic belonging to Druids. The relic now lies in pieces, hidden
 D:from all but the most faithful followers of Yavanna.

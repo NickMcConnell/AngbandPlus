@@ -76,10 +76,10 @@ MELKOR_CURSE = add_spell
 	end,
         ["desc"] =	{
                         "It curses a monster, reducing its melee power",
-                        "At level 5 it can be auto-casted(with no piety cost) while fighting",
+                        "At level 5 it can be auto-casted (with no piety cost) while fighting",
                         "At level 15 it also reduces armor",
                         "At level 25 it also reduces speed",
-                        "At level 35 it also reduces max life(but it is never fatal)",
+                        "At level 35 it also reduces max life (but it is never fatal)",
         }
 }
 
@@ -102,7 +102,8 @@ MELKOR_CORPSE_EXPLOSION = add_spell
                         return "dam "..(20 + get_level(MELKOR_CORPSE_EXPLOSION, 70)).."%"
 	end,
         ["desc"] =	{
-                        "It makes corpses in an area around you explode for a percent of its hp as damage",
+                        "It makes corpses in an area around you explode for a percent of their",
+                        "hit points as damage",
         }
 }
 
@@ -147,7 +148,7 @@ MELKOR_MIND_STEAL = add_spell
                         return "chance 1d(mlvl)<"..(get_level(MELKOR_MIND_STEAL))
 	end,
         ["desc"] =	{
-                        "It allows your spirit to temporaly leave your own body, which will",
+                        "It allows your spirit to temporarily leave your own body, which will",
                         "be vulnerable, to control one of your enemies body."
         }
 }

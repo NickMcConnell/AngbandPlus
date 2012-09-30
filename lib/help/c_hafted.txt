@@ -3,7 +3,7 @@
 #####R=== Haftedmasters ===
 
 #####GDescription
-The Haftedmaster is a Warrior who specializes in blunt weapons.
+The Haftedmaster is a Warrior who specialises in blunt weapons.
 The training is so intense and specific that Haftedmasters gain huge bonuses
 when fighting with their chosen weapon, dependent on their Hafted-mastery skill.
 In most other respects they perform about as well as a generic Warrior.

@@ -27,7 +27,7 @@ bool quest_invasion_gen_hook(char *fmt)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file("maeglin.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "maeglin.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	for (x = 3; x < xstart; x++)
@@ -102,7 +102,7 @@ bool quest_invasion_turn_hook(char *fmt)
 	cmsg_print(TERM_YELLOW, "A Thunderlord jumps out of the between in front of you and says:");
 	cmsg_print(TERM_YELLOW, "'Hello noble hero, I am Liron, rider of Tolan. Turgon, King of Gondolin sent me.'");
 	cmsg_print(TERM_YELLOW, "'Gondolin is being invaded; he needs your help now or everything will be lost.'");
-	cmsg_print(TERM_YELLOW, "'I can bring you to gondolin, but we must go now.'");
+	cmsg_print(TERM_YELLOW, "'I can bring you to Gondolin, but we must go now.'");
 	/* This is SO important a question that flush pending inputs */
 	flush();
 
@@ -189,7 +189,7 @@ bool quest_invasion_stair_hook(char *fmt)
 	{
 		if (cquest.status == QUEST_STATUS_FAILED)
 		{
-			cmsg_print(TERM_YELLOW, "The armies of Morgoth totaly devested Gondolin, leaving nothing but ruins...");
+			cmsg_print(TERM_YELLOW, "The armies of Morgoth totally devastated Gondolin, leaving nothing but ruins...");
 		}
 		else if (cquest.status == QUEST_STATUS_COMPLETED)
 		{

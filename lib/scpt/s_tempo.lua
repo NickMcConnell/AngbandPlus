@@ -46,7 +46,7 @@ MAGELOCK = add_spell
                        	return ""
 	end,
         ["desc"] =	{
-        		"Magicaly locks a door",
+        		"Magically locks a door",
                         "At level 30 it creates a glyph of warding",
                         "At level 40 the glyph can be placed anywhere in the field of vision"
         }
@@ -119,7 +119,7 @@ ESSENCESPEED = add_spell
                        	return "dur "..(10 + get_level(ESSENCESPEED, 50)).."+d10 speed "..(5 + get_level(ESSENCESPEED, 20))
 	end,
         ["desc"] =	{
-        		"Magicaly increases the passing of time around you",
+        		"Magically increases the passing of time around you",
         }
 }
 

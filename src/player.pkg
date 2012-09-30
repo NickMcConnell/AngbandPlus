@@ -471,6 +471,9 @@ struct player_type
         /* Corruptions */
         bool corruptions[max_corruptions] @ corruptions_aux;
 
+	/* Astral */
+	bool astral;              /* We started at the bottom ? */
+
 	/*** Temporary fields ***/
 
 	bool leaving;                   /* True if player is leaving */

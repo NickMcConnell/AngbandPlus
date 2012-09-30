@@ -23,5 +23,5 @@ Charisma        +1
 Hit Dice Sides  7         
 Exp Penalty     +10%
 
-######GSkill Bonuses (supplementary to existing skills)
+#####GSkill Bonuses (supplementary to existing skills)
 Sling-mastery              0.000           [0.300]

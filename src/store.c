@@ -263,7 +263,7 @@ static cptr comment_7c[MAX_COMMENT_7C] =
 
 static cptr comment_7d[MAX_COMMENT_7D] =
 {
-	"Yipee!",
+	"Yippee!",
 	"I think I'll retire!",
 	"The shopkeeper jumps for joy.",
 	"The shopkeeper smiles gleefully."
@@ -752,14 +752,14 @@ static bool store_will_buy(object_type *o_ptr)
 
 	if (st_info[st_ptr->st_idx].flags1 & SF1_MUSEUM) return TRUE;
 
-        /* XXX XXX XXX Ignore "worthless" items */
+	/* XXX XXX XXX Ignore "worthless" items */
 	if (object_value(o_ptr) <= 0) return (FALSE);
 
-        /* Lua can define things to buy */
-        if (process_hooks_ret(HOOK_STORE_BUY, "d", "(d,s,O)", st_ptr->st_idx, st_info[st_ptr->st_idx].name + st_name, o_ptr))
-        {
-                return process_hooks_return[0].num;
-        }
+	/* Lua can define things to buy */
+	if (process_hooks_ret(HOOK_STORE_BUY, "d", "(d,s,O)", st_ptr->st_idx, st_info[st_ptr->st_idx].name + st_name, o_ptr))
+	{
+		return process_hooks_return[0].num;
+	}
 
 	/* Assume not okay */
 	return (FALSE);
@@ -2576,7 +2576,7 @@ void store_stole(void)
  */
 void store_purchase(void)
 {
-	int i, amt, choice;
+	int i, amt = 1, choice;
 	int item, item_new;
 
 	s32b price, best;
@@ -2631,17 +2631,20 @@ void store_purchase(void)
 	/* Get the actual item */
 	o_ptr = &st_ptr->stock[item];
 
-	/* Assume the player wants just one of them */
-	amt = 1;
-
 	/* Get local object */
 	j_ptr = &forge;
 
-	/* Get a copy of the object */
+	/* Get a copy of one object to determine the price */
 	object_copy(j_ptr, o_ptr);
 
 	/* Modify quantity */
-	j_ptr->number = amt;
+	j_ptr->number = 1;
+
+	/* Hack -- If a wand, allocate the number of charges of one wand */
+	if (j_ptr->tval == TV_WAND)
+	{
+		j_ptr->pval = o_ptr->pval / o_ptr->number;
+	}
 
 	/* Hack -- require room in pack */
 	if (!inven_carry_okay(j_ptr))
@@ -2675,14 +2678,14 @@ void store_purchase(void)
 			q = 99;
 		}
 		else
-                {
-                        if (auto_haggle)
-                                q = p_ptr->au / (best + (best / 10));
-                        else
-                                q = p_ptr->au / best;
+		{
+			if (auto_haggle)
+				q = p_ptr->au / (best + (best / 10));
+			else
+				q = p_ptr->au / best;
 		}
-                if (o_ptr->number < q)
-                        q = o_ptr->number;
+		if (o_ptr->number < q)
+			q = o_ptr->number;
 
 		/* None ? ahh too bad */
 		if (!q)

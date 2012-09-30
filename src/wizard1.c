@@ -14,6 +14,104 @@
 static FILE *fff = NULL;
 
 
+/*
+ * Write out `n' of the character `c' to the spoiler file
+ */
+static void spoiler_out_n_chars(int n, char c)
+{
+	while (--n >= 0) fputc(c, fff);
+}
+
+
+/*
+ * Write out `n' blank lines to the spoiler file
+ */
+static void spoiler_blanklines(int n)
+{
+	spoiler_out_n_chars(n, '\n');
+}
+
+
+/*
+ * Write a line to the spoiler file and then "underline" it with hyphens
+ */
+static void spoiler_underline(cptr str)
+{
+	fprintf(fff, "%s\n", str);
+	spoiler_out_n_chars(strlen(str), '-');
+	fprintf(fff, "\n");
+}
+
+
+/*
+ * Buffer text to the given file. (-SHAWN-)
+ * This is basically c_roff() from mon-desc.c with a few changes.
+ */
+static void spoil_out(cptr str)
+{
+	cptr r;
+
+	/* Line buffer */
+	static char roff_buf[256];
+
+	/* Current pointer into line roff_buf */
+	static char *roff_p = roff_buf;
+
+	/* Last space saved into roff_buf */
+	static char *roff_s = NULL;
+
+	/* Special handling for "new sequence" */
+	if (!str)
+	{
+		if (roff_p != roff_buf) roff_p--;
+		while (*roff_p == ' ' && roff_p != roff_buf) roff_p--;
+		if (roff_p == roff_buf) fprintf(fff, "\n");
+		else
+		{
+			*(roff_p + 1) = '\0';
+			fprintf(fff, "%s\n\n", roff_buf);
+		}
+		roff_p = roff_buf;
+		roff_s = NULL;
+		roff_buf[0] = '\0';
+		return;
+	}
+
+	/* Scan the given string, character at a time */
+	for (; *str; str++)
+	{
+		char ch = *str;
+		int wrap = (ch == '\n');
+
+		if (!isprint(ch)) ch = ' ';
+		if (roff_p >= roff_buf + 75) wrap = 1;
+		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75)) wrap = 1;
+
+		/* Handle line-wrap */
+		if (wrap)
+		{
+			*roff_p = '\0';
+			r = roff_p;
+			if (roff_s && (ch != ' '))
+			{
+				*roff_s = '\0';
+				r = roff_s + 1;
+			}
+			fprintf(fff, "%s\n", roff_buf);
+			roff_s = NULL;
+			roff_p = roff_buf;
+			while (*r) *roff_p++ = *r++;
+		}
+
+		/* Save the char */
+		if ((roff_p > roff_buf) || (ch != ' '))
+		{
+			if (ch == ' ') roff_s = roff_p;
+			*roff_p++ = ch;
+		}
+	}
+}
+
 
 /*
  * Extract a textual representation of an attribute
@@ -67,54 +165,61 @@ typedef struct
  */
 static grouper group_item[] =
 {
+	{ TV_SWORD,         "Melee Weapons" },
+	{ TV_POLEARM,       NULL },
+	{ TV_HAFTED,        NULL },
+	{ TV_AXE,           NULL },
+	{ TV_MSTAFF,        NULL },
+
+	{ TV_BOW,           "Bows and Slings" },
+
 	{ TV_SHOT,          "Ammo" },
 	{ TV_ARROW,         NULL },
 	{ TV_BOLT,          NULL },
-
-	{ TV_BOW,           "Bows" },
 
 	{ TV_BOOMERANG,     "Boomerangs" },
 
 	{ TV_INSTRUMENT,    "Instruments" },
 
-	{ TV_SWORD,         "Weapons" },
-	{ TV_POLEARM,       NULL },
-	{ TV_HAFTED,        NULL },
-	{ TV_AXE,           NULL },
-	{ TV_DIGGING,       NULL },
-	{ TV_MSTAFF,        NULL },
-
 	{ TV_SOFT_ARMOR,    "Armour (Body)" },
 	{ TV_HARD_ARMOR,    NULL },
 	{ TV_DRAG_ARMOR,    NULL },
 
-	{ TV_CLOAK,         "Armour (Misc)" },
-	{ TV_SHIELD,        NULL },
+	{ TV_SHIELD,        "Armour (Misc)" },
 	{ TV_HELM,          NULL },
 	{ TV_CROWN,         NULL },
 	{ TV_GLOVES,        NULL },
 	{ TV_BOOTS,         NULL },
 
+	{ TV_CLOAK,         "Cloaks" },
 	{ TV_AMULET,        "Amulets" },
 	{ TV_RING,          "Rings" },
 
 	{ TV_SCROLL,        "Scrolls" },
 	{ TV_POTION,        "Potions" },
 	{ TV_POTION2,       NULL },
+
 	{ TV_FOOD,          "Food" },
 
 	{ TV_ROD_MAIN,      "Rods" },
 	{ TV_ROD,           "Rod Tips" },
 	{ TV_WAND,          "Wands" },
-	{ TV_STAFF,         "Staffs" },
+	{ TV_STAFF,         "Staves" },
 
-	{ TV_SYMBIOTIC_BOOK,"Books (Symbiotic)" },
-	{ TV_DRUID_BOOK,    "Books (Druid)"},
-	{ TV_MUSIC_BOOK,    "Books (Music)" },
-	{ TV_DAEMON_BOOK,   "Books (Daemon)" },
+	{ TV_BOOK,          "Books (Magic, Gods, Music)" },
+	{ TV_DAEMON_BOOK,   "Demonic Equipment" },
 
 	{ TV_RUNE1,         "Runes" },
 	{ TV_RUNE2,         NULL },
+
+	{ TV_BATERIE,       "Essences" },
+
+	{ TV_PARCHEMENT,    "Parchements" },
+
+	{ TV_DIGGING,       "Tools" },
+	{ TV_TOOL,          NULL },
+
+	{ TV_TRAPKIT,       "Trapping Kits" },
 
 	{ TV_CHEST,         "Chests" },
 
@@ -122,7 +227,11 @@ static grouper group_item[] =
 	{ TV_LITE,          NULL },
 	{ TV_FLASK,         NULL },
 	{ TV_BOTTLE,        NULL },
-	{ TV_SKELETON,      NULL },
+	{ TV_JUNK,          NULL },
+
+	{ TV_SKELETON,      "Corpses and Eggs" },
+	{ TV_CORPSE,        NULL },
+	{ TV_EGG,           NULL },
 
 	{ 0, "" }
 };
@@ -152,11 +261,15 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	q_ptr->ident |= (IDENT_KNOWN);
 
 	/* Cancel bonuses */
-	q_ptr->pval = 0;
 	q_ptr->to_a = 0;
 	q_ptr->to_h = 0;
 	q_ptr->to_d = 0;
 
+	if ((k_ptr->tval == TV_WAND) || (k_ptr->tval == TV_STAFF))
+	{
+		hack_apply_magic_power = -99;
+		apply_magic(q_ptr, 0, FALSE, FALSE, FALSE);
+	}
 
 	/* Level */
 	(*lev) = k_ptr->level;
@@ -189,16 +302,18 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		case TV_SHOT:
 		case TV_BOLT:
 		case TV_ARROW:
-		{
-			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
-			break;
-		}
 
+		/* Boomerangs */
+		case TV_BOOMERANG:
+ 
 		/* Weapons */
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_AXE:
+		case TV_MSTAFF:
+
+		/* Tools */
 		case TV_DIGGING:
 		{
 			sprintf(dam, "%dd%d", q_ptr->dd, q_ptr->ds);
@@ -260,8 +375,11 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (2.?.?)\n\n\n");
-
+	sprintf(buf, "Basic Items Spoilers for ToME %d.%d.%d%s",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	spoiler_underline(buf);
+	spoiler_blanklines(2);
+ 
 	/* More Header */
 	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
 		"Description", "Dam/AC", "Wgt", "Lev", "Cost");
@@ -333,8 +451,11 @@ static void spoil_obj_desc(cptr fname)
 			/* Skip wrong tval's */
 			if (k_ptr->tval != group_item[i].tval) continue;
 
-			/* Hack -- Skip instant-artifacts */
-			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+			/* Hack -- Skip artifacts */
+			if (k_ptr->flags3 & (TR3_INSTA_ART | TR3_NORM_ART)) continue;
+
+			/* Hack -- Skip Ring of Powers */
+			if (k == 785) continue;
 
 			/* Save the index */
 			who[n++] = k;
@@ -417,9 +538,15 @@ static grouper group_artifact[] =
 	{ TV_GLOVES,            "Gloves" },
 	{ TV_BOOTS,             "Boots" },
 
+	{ TV_DAEMON_BOOK,        "Demonic Equipment" },
+
 	{ TV_LITE,              "Light Sources" },
 	{ TV_AMULET,            "Amulets" },
 	{ TV_RING,              "Rings" },
+
+	{ TV_TOOL,              "Tools" },
+	{ TV_DIGGING,           NULL },
+	{ TV_TRAPKIT,           "Trapping Kits" },
 
 	{ 0, NULL }
 };
@@ -473,7 +600,7 @@ static flag_desc pval_flags1_desc[] =
 	{ TR1_STEALTH,    "Stealth" },
 	{ TR1_SEARCH,     "Searching" },
 	{ TR1_INFRA,      "Infravision" },
-	{ TR1_TUNNEL,     "Tunneling" },
+	{ TR1_TUNNEL,     "Tunnelling" },
 	{ TR1_BLOWS,      "Attacks" },
 	{ TR1_SPEED,      "Speed" }
 };
@@ -604,7 +731,7 @@ static const flag_desc misc_flags3_desc[] =
 
 
 /*
- * A special type used just for deailing with pvals
+ * A special type used just for dealing with pvals
  */
 typedef struct
 {
@@ -678,33 +805,7 @@ typedef struct
 } obj_desc_list;
 
 
-/*
- * Write out `n' of the character `c' to the spoiler file
- */
-static void spoiler_out_n_chars(int n, char c)
-{
-	while (--n >= 0) fputc(c, fff);
-}
 
-
-/*
- * Write out `n' blank lines to the spoiler file
- */
-static void spoiler_blanklines(int n)
-{
-	spoiler_out_n_chars(n, '\n');
-}
-
-
-/*
- * Write a line to the spoiler file and then "underline" it with hypens
- */
-static void spoiler_underline(cptr str)
-{
-	fprintf(fff, "%s\n", str);
-	spoiler_out_n_chars(strlen(str), '-');
-	fprintf(fff, "\n");
-}
 
 
 
@@ -747,7 +848,7 @@ static void analyze_general (object_type *o_ptr, char *desc_ptr)
 
 /*
  * List "player traits" altered by an artifact's pval. These include stats,
- * speed, infravision, tunneling, stealth, searching, and extra attacks.
+ * speed, infravision, tunnelling, stealth, searching, and extra attacks.
  */
 static void analyze_pval (object_type *o_ptr, pval_info_type *p_ptr)
 {
@@ -998,8 +1099,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for ToME Version %d.%d.%d",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for ToME %d.%d.%d%s",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
 	spoiler_underline(buf);
 }
 
@@ -1050,7 +1151,7 @@ static void spoiler_print_art(obj_desc_list *art_ptr, int name1, int set, object
 #if 0 // DGDGDGDG
         fprintf(fff, "<P>%s<BR>", art_ptr->description);
 #else
-        fprintf(fff, "%s", art_ptr->description);
+        fprintf(fff, "%s\n    ", art_ptr->description);
 #endif
         c_roff_file_tab = 4;
         c_roff_file_indent = FALSE;
@@ -1072,8 +1173,8 @@ static void spoiler_print_art(obj_desc_list *art_ptr, int name1, int set, object
  */
 static bool make_fake_artifact(object_type *o_ptr, int name1)
 {
-        int i;
-        int cur;
+	int i;
+	int cur;
 
 	artifact_type *a_ptr = &a_info[name1];
 
@@ -1095,7 +1196,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 
 	/* Extract the fields */
 #if 0
-        o_ptr->pval = a_ptr->pval;
+	o_ptr->pval = a_ptr->pval;
 	o_ptr->ac = a_ptr->ac;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
@@ -1104,9 +1205,17 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	o_ptr->to_d = a_ptr->to_d;
 	o_ptr->weight = a_ptr->weight;
 #else
-        cur = a_ptr->cur_num;
-        apply_magic(o_ptr, -1, TRUE, TRUE, TRUE);
-        a_ptr->cur_num = cur;
+	/* Keep the One Ring untouched by apply_magic */
+	if (name1 != ART_POWER)
+	{
+		cur = a_ptr->cur_num;
+		apply_magic(o_ptr, -1, TRUE, TRUE, TRUE);
+		a_ptr->cur_num = cur;
+	}
+	else
+	{
+		o_ptr->pval = a_ptr->pval;
+	}
 #endif
 
 	/* Success */
@@ -1179,6 +1288,12 @@ static void spoil_artifact(cptr fname)
 			/* Attempt to "forge" the artifact */
 			if (!make_fake_artifact(q_ptr, j)) continue;
 
+			/* Aware and Known */
+			object_known(q_ptr);
+
+			/* Mark the item as fully known */
+			q_ptr->ident |= (IDENT_MENTAL);
+
 			/* Analyze the artifact */
 			object_analyze(q_ptr, &artifact);
 
@@ -1244,10 +1359,10 @@ static void spoil_mon_desc(cptr fname)
 	C_MAKE(who, max_r_idx, s16b);
 
 	/* Dump the header */
-
-    fprintf(fff, "Monster Spoilers for ToME Version %d.%d.%d\n",
-	    VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-	fprintf(fff, "------------------------------------------\n\n");
+	sprintf(buf, "Monster Spoilers for ToME %d.%d.%d%s",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	spoiler_underline(buf);
+	spoiler_blanklines(2);
 
 	/* Dump the header */
 	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
@@ -1359,74 +1474,6 @@ static cptr wd_che[3] =
 static cptr wd_lhe[3] =
 { "it", "he", "she" };
 
-/*
- * Buffer text to the given file. (-SHAWN-)
- * This is basically c_roff() from mon-desc.c with a few changes.
- */
-static void spoil_out(cptr str)
-{
-	cptr r;
-
-	/* Line buffer */
-	static char roff_buf[256];
-
-	/* Current pointer into line roff_buf */
-	static char *roff_p = roff_buf;
-
-	/* Last space saved into roff_buf */
-	static char *roff_s = NULL;
-
-	/* Special handling for "new sequence" */
-	if (!str)
-	{
-		if (roff_p != roff_buf) roff_p--;
-		while (*roff_p == ' ' && roff_p != roff_buf) roff_p--;
-		if (roff_p == roff_buf) fprintf(fff, "\n");
-		else
-		{
-			*(roff_p + 1) = '\0';
-			fprintf(fff, "%s\n\n", roff_buf);
-		}
-		roff_p = roff_buf;
-		roff_s = NULL;
-		roff_buf[0] = '\0';
-		return;
-	}
-
-	/* Scan the given string, character at a time */
-	for (; *str; str++)
-	{
-		char ch = *str;
-		int wrap = (ch == '\n');
-
-		if (!isprint(ch)) ch = ' ';
-		if (roff_p >= roff_buf + 75) wrap = 1;
-		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75)) wrap = 1;
-
-		/* Handle line-wrap */
-		if (wrap)
-		{
-			*roff_p = '\0';
-			r = roff_p;
-			if (roff_s && (ch != ' '))
-			{
-				*roff_s = '\0';
-				r = roff_s + 1;
-			}
-			fprintf(fff, "%s\n", roff_buf);
-			roff_s = NULL;
-			roff_p = roff_buf;
-			while (*r) *roff_p++ = *r++;
-		}
-
-		/* Save the char */
-		if ((roff_p > roff_buf) || (ch != ' '))
-		{
-			if (ch == ' ') roff_s = roff_p;
-			*roff_p++ = ch;
-		}
-	}
-}
 
 
 /*
@@ -1460,11 +1507,10 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-    sprintf(buf, "Monster Spoilers for ToME Version %d.%d.%d\n",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-
-	spoil_out(buf);
-	spoil_out("------------------------------------------\n\n");
+	sprintf(buf, "Monster Spoilers for ToME %d.%d.%d%s",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+	spoiler_underline(buf);
+	spoiler_blanklines(2);
 
 	/*
 	 * List all monsters in order (except the ghost).
@@ -1561,7 +1607,7 @@ static void spoil_mon_info(cptr fname)
 
 		/* Describe */
 		spoil_out(r_text + r_ptr->text);
-		spoil_out("  ");
+		spoil_out(" ");
 
 
 		spoil_out("This");
@@ -1650,7 +1696,7 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
-		/* Collect inate attacks */
+		/* Collect innate attacks */
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
 		if (flags4 & (RF4_ROCKET)) vp[vn++] = "shoot a rocket";
@@ -1747,7 +1793,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags5 & (RF5_BLIND))             vp[vn++] = "blind";
 		if (flags5 & (RF5_CONF))              vp[vn++] = "confuse";
 		if (flags5 & (RF5_SLOW))              vp[vn++] = "slow";
-		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyze";
+		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyse";
 		if (flags6 & (RF6_HASTE))             vp[vn++] = "haste-self";
 		if (flags6 & (RF6_HEAL))              vp[vn++] = "heal-self";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
@@ -1992,7 +2038,6 @@ static void spoil_mon_info(cptr fname)
 			else if (i == 2)
 			{
 				spoil_out(" one or two");
-				sin = TRUE;
 			}
 			else
 			{
@@ -2184,6 +2229,7 @@ static void spoil_mon_info(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
+#if 0 /* not used anymore -- masmarangio */
 static char* get_tval_name(int tval)
 {
 	switch(tval)
@@ -2213,29 +2259,70 @@ static char* get_tval_name(int tval)
 	}
 	return "";
 }
+#endif
 
-char *long_intro = "
-Essences are the tools of the trade for Alchemists, and unfortunately are useless for any other class. Alchemists use essences to create magical items for them to use.
-They can be either found on the floor while exploring the  dungeon, or extracted from other magical items the alchemist finds during their adventures.
-To create an artifact, the alchemist will have to sacrifice 1 hit point, and an amount of magic essence similar to his skill in alchemy. The alchemist then allows the artifact to gain experience, and when it has enough, uses that experience to add abilities to the artifact. The alchemist can allow the artifact to continue to gain experience, thus keeping open the option to add more abilities later. This requires a similar amount of magic essence, but does not require the sacrifice of another hit point.
-Note that the experience you gain is divided among the  artifacts that you have as well as going to yourself, so you will gain levels more slowly when empowering artifacts. Also, the artifact only gets 60% of the experience. So  killing a creature worth 20xp would gain 10 for you, and 6 for the artifact.
-You can also modify existing artifacts when you attain level 50. Also at level 50 you will gain the ability to make temporary artifacts, which don't require the complex empowerments that regular items require, but also vanish after awhile.
-You cannot give an artifact an ability unless you have *Identified* an artifact which has that ability.
-For every four levels gained in the alchemy skill, the alchemist learns about objects of level level/4, starting by learning about level 1 objects at skill level 0.  (actually 1, but who's counting?)
-At level 5 you gain the ability to make ego items - but watch it! Your base failure rate will be 90%, and won't be 0% until you reach level 50. Adding gold will  increase the chances of success in direct perportion to the value of the item you are trying to create. Note that this results in automatic success when the item you are trying to create happens to pick up a curse in the process.
-At level 5 you also gain knowledge of some basic ego item recipes. These are: Shocking, Fiery, Frozen,  Venomous, and chaotic weapons, Resist fire armor, and lite of boldness.
-At level 10 you will gain knowledge of digging ego items, if you have selected the option 'always  generate very unusual rooms' (ironman_rooms)
-At level 15 you can create ego wands, staves, rings, etc.
-At level 25 You gain the ability to empower artifacts.
-At level 50 You gain the ability to create temporary artifacts, which don't require any exotic ingredients beyond a single corpse of any type.
-Between levels 25 and 50, you will steadily gain the ability to set more and more flags.
-                                                                                                                                                                       To finalize an artifact, you 'P'ower it, and select the powers you want. Powers are divided into the following five catagories:
-*****essences.txt*01[Stats, Sustains, luck, speed, vision, etc.]
-*****essences.txt*02[Misc. (Auras, light, see invis, etc)]
-*****essences.txt*03[Weapon Branding]
-*****essences.txt*04[Resistances and immunities]
-*****essences.txt*05[ESP and curses]
-";
+char *long_intro = 
+"Essences are the tools of the trade for Alchemists, "
+"and unfortunately are useless for any other class. "
+"Alchemists use essences to create magical items for them to use.\n\n"
+"They can be either found on the floor while exploring the dungeon, "
+"or extracted from other magical items the alchemist finds "
+"during their adventures.\n\n"
+"To create an artifact, the alchemist will have to sacrifice 10 hit points, "
+"and an amount of magic essence similar to his skill in alchemy. "
+"The alchemist then allows the artifact to gain experience, "
+"and when it has enough, "
+"uses that experience to add abilities to the artifact. "
+"The alchemist can allow the artifact to continue to gain experience, "
+"thus keeping open the option to add more abilities later. "
+"This requires a similar amount of magic essence, "
+"but does not require the sacrifice of other hit points.\n\n"
+"Note that the experience you gain is divided among the artifacts "
+"that you have as well as going to yourself, "
+"so you will gain levels more slowly when empowering artifacts. "
+"Also, the artifact only gets 60% of the experience. "
+"So killing a creature worth 20xp would gain 10 for you, "
+"and 6 for the artifact.\n\n"
+"You can also modify existing artifacts when you attain skill level 50. "
+"Also at skill level 50 you will gain the ability to make temporary artifacts, "
+"which don't require the complex empowerments that regular items require, "
+"but also vanish after awhile.\n\n"
+"You cannot give an artifact an ability "
+"unless you have *Identified* an artifact which has that ability.\n\n"
+"For every four levels gained in the alchemy skill, "
+"the alchemist learns about objects of level (skill level)/4, "
+"starting by learning about level 1 objects at skill level 0. "
+"(actually 1, but who's counting?)\n\n"
+"At skill level 5 you gain the ability to make ego items - but watch it! "
+"Your base failure rate will be 90%, "
+"and won't be 0% until you reach skill level 50. "
+"Adding gold will increase the chances of success "
+"in direct proportion to the value of the item you are trying to create. "
+"Note that this results in automatic success "
+"when the item you are trying to create "
+"happens to pick up a curse in the process.\n\n"
+"At skill level 5 you also gain knowledge of some basic ego item recipes. "
+"These are: Acidic, Shocking, Fiery, Frozen, Venomous, and Chaotic weapons, "
+"Resist Fire armour, and light sources of Fearlessness.\n\n"
+"At skill level 10 you will gain knowledge of digging ego items, "
+"if you have selected the option "
+"'always  generate very unusual rooms' (ironman_rooms).\n\n"
+"At skill level 15 you can create ego wands, staves, rings, etc.\n\n"
+"At skill level 25 you gain the ability to empower artifacts "
+"and double ego items.\n\n"
+"At skill level 50 you gain the ability to create temporary artifacts, "
+"which don't require any exotic ingredients "
+"beyond a single corpse of any type.\n\n"
+"Between skill levels 25 and 50, "
+"you will steadily gain the ability to set more and more flags.\n\n"
+"To finalise an artifact, you 'P'ower it, and select the powers you want.\n"
+"Powers are divided into the following six categories:\n"
+"*****essences.txt*03[Stats, Sustains, Luck, Speed, Vision, etc.]\n"
+"*****essences.txt*04[Misc. (Auras, Light, See Invisibility, etc.)]\n"
+"*****essences.txt*05[Weapon Brands]\n"
+"*****essences.txt*06[Resistances and Immunities]\n"
+"*****essences.txt*07[ESP and Curses]\n"
+"*****essences.txt*08[Artifact Activations]\n";
 
 /*
  * Create a spoiler file for essences
@@ -2265,9 +2352,14 @@ static void spoil_bateries(cptr fname)
 	}
 
 	/* Dump the header */
-	sprintf(buf, "|||||oy\n#####RAlchemy Spoiler for ToME Version %d.%d.%d\n#####R",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-	spoiler_underline(buf);
+
+	fprintf(fff, 
+		"|||||oy\n"
+		"~~~~~01|Spoilers|Essences\n"
+		"~~~~~02|Alchemist|Essence Spoiler\n"
+		"#####REssence Spoiler for ToME %d.%d.%d%s\n"
+		"#####R-----------------------------------\n\n",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
 
 
 	/*New code starts here -*/
@@ -2280,7 +2372,7 @@ static void spoil_bateries(cptr fname)
 	/*Cycle through alchemist_recipies*/
 	/*	sval or tval changed?*/
 	/*		skip artifacts (tval=0)*/
-	/*		print item desc (ego (tval=1)or item)*/
+	/*		print item desc (ego (tval=1) or item)*/
 	/*	print essences required*/
 	/*Done!*/
 
@@ -2293,20 +2385,22 @@ static void spoil_bateries(cptr fname)
 		if( a_select_flags[i].group != group )
 		{
 			group = a_select_flags[i].group;
-			spoil_out("\n\n~~~~~");
+			spoil_out("\n~~~~~");
 			switch(group)
 			{
-			case 1: spoil_out("01\n#####GStats, Sustains, Luck, Speed, Vision, Etc..\n");break;
-			case 2: spoil_out("02\n#####GMisc. (Auras, Light, See Invis, etc..)\n");break;
-			case 3: spoil_out("03\n#####GWeapons Brands\n");break;
-			case 4: spoil_out("04\n#####GResistances and Immunities\n");break;
-			case 5: spoil_out("05\n#####GESP and Curses\n");break;
-			default: spoil_out(format("06\n#####GExtra group=%d\n",group));
+			case  1: spoil_out("03\n#####GStats, Sustains, Luck, Speed, Vision, etc.\n");break;
+			case  2: spoil_out("04\n#####GMisc. (Auras, Light, See Invisibility, etc.)\n");break;
+			case  3: spoil_out("05\n#####GWeapon Brands\n");break;
+			case  4: spoil_out("06\n#####GResistances and Immunities\n");break;
+			case  5: spoil_out("07\n#####GESP and Curses\n");break;
+			case 88: spoil_out("08\n#####GArtifact Activations\n");break;
+			default: spoil_out(format("09\n#####GExtra Group=%d\n",group));
 			}
-			spoil_out("lvl xp      Power\n");
+			spoil_out("lvl     xp   Power\n");
+
 		}
 	/*	print desc*/
-		spoil_out(format("%-2d %-8d %-24s %s\n",
+		spoil_out(format("%-2d %8d  %-24s %s\n",
 		    a_select_flags[i].level,
 		    a_select_flags[i].xp,
 		    al_name+a_select_flags[i].desc,
@@ -2326,7 +2420,7 @@ static void spoil_bateries(cptr fname)
 		}
 	}
 
-	spoil_out("\n\nThe following basic item recipies also exist:\n");
+	spoil_out("\n\nThe following basic item recipes also exist:\n");
 	/*Cycle through alchemist_recipies*/
 	for( i=0 ; i < max_al_idx ; i ++)
 	{
@@ -2369,6 +2463,8 @@ static void spoil_bateries(cptr fname)
 			k_name+k_info[lookup_kind(TV_BATERIE,ar_ptr->sval_essence)].name));
 	}
 
+	spoil_out(NULL);
+
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
 	{
@@ -2382,29 +2478,56 @@ static void spoil_bateries(cptr fname)
 }
 
 
-
 /*
- * functions to get extra information on a spell
+ * Print a bookless spell list
  */
-typedef void (*spell_info_func)(int, byte);
-
-spell_info_func realm_spell_info[] = 
+void print_magic_powers( magic_power *powers, int max_powers, void(*power_info)(char *p, int power), int skill_num )
 {
-	NULL,
-	cast_symbiotic_spell,
-	cast_music_spell,
-	cast_druid_spell,
-	cast_daemon_spell,
-};
+	int i, save_skill;
+
+	char buf[80];
+
+	magic_power spell;
+
+	/* Use a maximal skill */
+	save_skill = s_info[skill_num].value;
+	s_info[skill_num].value = SKILL_MAX;
+
+	/* Dump the header line */
+	spoiler_blanklines(2);
+	sprintf(buf, "%s", s_info[skill_num].name + s_name);
+	spoiler_underline(buf);
+	spoiler_blanklines(1);
+
+	fprintf(fff, "   Name                         Lvl Mana Fail Info\n");
+ 
+	/* Dump the spells */
+	for (i = 0; i < max_powers; i++)
+	{
+		/* Access the spell */
+		spell = powers[i];
+
+		/* Get the additional info */
+		power_info(buf, i);
+				 
+		/* Dump the spell */
+		spoil_out(format("%c) %-30s%2d %4d %3d%%%s\n",
+			I2A(i), spell.name,
+			spell.min_lev, spell.mana_cost, spell.fail, buf));
+		spoil_out(format("%s\n", spell.desc));
+	}
+
+/* Restore skill */
+	s_info[skill_num].value = save_skill;
+}
+
 
 /*
- * Create a spoiler file for essences
+ * Create a spoiler file for spells
  */
+
 static void spoil_spells(cptr fname)
 {
-	int i, j, k;
-	int realm;
-
 	char buf[1024];
 
 	/* Build the filename */
@@ -2423,104 +2546,23 @@ static void spoil_spells(cptr fname)
 	}
 
 	/* Dump the header */
-	sprintf(buf, "Spell Spoiler for ToME Version %d.%d.%d",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Spell Spoiler (Skill Level 50) for ToME %d.%d.%d%s",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
 	spoiler_underline(buf);
 
-	spoil_out("\n\n");
+	/* Dump the bookless magic powers in alphabetical order */
 
-	for(realm = 1; realm < MAX_REALM; realm++)
-	{
-		int spellbooks[256];
-		int book_num = 0;
+	/* Mimicry */
+	print_magic_powers(mimic_powers, MAX_MIMIC_POWERS, mimic_info, SKILL_MIMICRY);
 
-		/* Dump the realm name */
-		sprintf(buf, "%s", realm_names[realm][0]);
-		spoiler_underline(buf);
+	/* Mindcraft */
+	print_magic_powers(mindcraft_powers, MAX_MINDCRAFT_POWERS, mindcraft_info, SKILL_MINDCRAFT);
 
-		/* Dump the realm desctiption */
-		fprintf(fff, "\n%s\n\n", realm_names[realm][1]);
+	/* Necromancy */
+	print_magic_powers(necro_powers, MAX_NECRO_POWERS, necro_info, SKILL_NECROMANCY);
 
-		/* Find spellbooks */
-		for (i = 0; i < 255; i++)
-		{
-			for (k = 0; k < max_k_idx; k++)
-			{
-				object_kind *k_ptr = &k_info[k];
-
-				if (((k_ptr->tval - 111 + 1) == realm) &&
-				    (k_ptr->sval == i))
-				{
-					spellbooks[book_num++] = k;
-					break;
-				}
-			}
-		}
-
-		/* Dump the spellbooks */
-		for (i = 0; i < book_num; i++)
-		{
-			object_type forge;
-			object_type *o_ptr;
-			byte spells[64];
-			int  spell;
-			int  num = 0;
-
-			/* Dump the book title */
-			o_ptr = &forge;
-			object_prep(o_ptr, spellbooks[i]);
-			object_desc_store(buf, o_ptr, 0, 0);
-			fprintf(fff, "%s\n\n", buf);
-
-			/* Collect spells */
-			for (spell = 0; spell < 64; spell++)
-			{
-				if (fake_spell_flags[realm][i][(spell < 32)] & (1 << (spell % 32)))
-				{
-					spells[num++] = spell;
-				}
-			}
-
-			fprintf(fff, "   Name                          Lv Mana Fail Info\n");
-
-			/* Dump the spells */
-			for (j = 0; j < num; j++)
-			{
-				magic_type      *s_ptr;
-				char            info[60];
-
-				/* Access the spell */
-				spell = spells[j];
-
-				/* Access the spell */
-				s_ptr = &realm_info[realm][spell];
-
-				/* Skip illegible spells */
-				if (s_ptr->slevel >= 99) continue;
-
-				/* Get extra information on a spell */
-				info_spell = TRUE;
-				strcpy(spell_txt, "");
-				realm_spell_info[realm](spell, 0);
-				sprintf(info, spell_txt);
-				info_spell = FALSE;
-
-				/* Dump the spell --(-- */
-				fprintf(fff, "%c) %-30s%2d %4d %3d%%%s\n",
-					I2A(j), spell_names[realm][spell%64][0],
-					s_ptr->slevel, s_ptr->smana, s_ptr->sfail, info);
-
-				/* Dump the spell description */
-				fprintf(fff, "   %s\n", spell_names[realm][spell%64][1]);
-
-			}
-
-			fprintf(fff, "\n");
-
-		}
-
-		fprintf(fff, "------------------------------------------------------------------------------\n\n");
-	}
+	/* Symbiosis */
+	print_magic_powers(symbiotic_powers, MAX_SYMBIOTIC_POWERS, symbiotic_info, SKILL_SYMBIOTIC);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -2564,12 +2606,12 @@ void do_cmd_spoilers(void)
 		prt("Create a spoiler file.", 2, 0);
 
 		/* Prompt for a file */
-		prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
-		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
+		prt("(1) Brief Object Info  (obj-desc.spo)", 5, 5);
+		prt("(2) Full Artifact Info (artifact.spo)", 6, 5);
 		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
-		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
-		prt("(5) Brief Batery Info (bat-info.spo)", 9, 5);
-		prt("(6) Spell Info (spell.spo)", 10, 5);
+		prt("(4) Full Monster Info  (mon-info.spo)", 8, 5);
+		prt("(5) Full Essences Info (ess-info.spo)", 9, 5);
+		prt("(6) Spell Info         (spell.spo)",   10, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);

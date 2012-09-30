@@ -1343,10 +1343,10 @@ void do_cmd_options(void)
 				break;
 			}
 
-                        /* ToME Options */
-                        case '5':
+			/* ToME Options */
+			case '5':
 			{
-                                do_cmd_options_aux(5, "ToME Options", FALSE);
+				do_cmd_options_aux(5, "ToME Options", FALSE);
 
 				break;
 			}
@@ -1606,14 +1606,14 @@ static void do_cmd_macro_aux(char *buf, bool macro_screen)
 	flush();
 
 
-        if (macro_screen)
-        {
-                /* Convert the trigger */
-                ascii_to_text(tmp, buf);
+	if (macro_screen)
+	{
+		/* Convert the trigger */
+		ascii_to_text(tmp, buf);
 
-                /* Hack -- display the trigger */
-                Term_addstr(-1, TERM_WHITE, tmp);
-        }
+		/* Hack -- display the trigger */
+		Term_addstr(-1, TERM_WHITE, tmp);
+	}
 }
 
 #endif
@@ -2944,8 +2944,8 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing ToME %d.%d.%d.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	msg_format("You are playing ToME%s %d.%d.%d.",
+	           IS_CVS, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 
 
@@ -2975,17 +2975,6 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
-	int i, town_level = 0;
-
-	dungeon_info_type *d_ptr = &d_info[dungeon_type];
-
-
-	/* Is it a town level ? */
-	for (i = 0; i < TOWN_DUNGEON; i++)
-	{
-		if (d_ptr->t_level[i] == dun_level) town_level = d_ptr->t_idx[i];
-	}
-
 	/* Verify the feeling */
 	if (feeling < 0) feeling = 0;
 	if (feeling > 10) feeling = 10;
@@ -2999,12 +2988,6 @@ void do_cmd_feeling(void)
 	/* Hooked feelings ? */
 	if (process_hooks(HOOK_FEELING, "(d)", is_quest(dun_level)))
 	{
-		return;
-	}
-
-	if (town_level)
-	{
-		msg_print("You hear the sound of a market.");
 		return;
 	}
 
@@ -3028,25 +3011,26 @@ void do_cmd_feeling(void)
 		return;
 	}
 
-	/* No useful feeling in town */
-	else if (p_ptr->town_num && !dun_level)
+	/* Display feelings in the dungeon, nothing on the surface */
+	if (dun_level)
 	{
-		msg_print("Looks like a typical town.");
-		return;
-	}
+		/* This could be simplified with a correct p_ptr->town_num */
+		int i, town_level = 0;
+		dungeon_info_type *d_ptr = &d_info[dungeon_type];
 
-	/* No useful feeling in the wilderness */
-	else if (!dun_level)
-	{
-		msg_print("Looks like a typical wilderness.");
-		return;
-	}
+		/* Is it a town level ? */
+		for (i = 0; i < TOWN_DUNGEON; i++)
+		{
+			if (d_ptr->t_level[i] == dun_level) town_level = d_ptr->t_idx[i];
+		}
 
-	/* Display the feeling */
-	msg_print(do_cmd_feeling_text[feeling]);
+		if (town_level)
+			msg_print("You hear the sound of a market.");
+		else
+			msg_print(do_cmd_feeling_text[feeling]);
+	}
+	return;
 }
-
-
 
 
 
@@ -3508,10 +3492,10 @@ void do_cmd_knowledge_artifacts(void)
 			/* Make it an artifact */
 			q_ptr->name1 = k;
 
-                        /* Spell in it ? no ! */
-                        object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-                        if (f5 & TR5_SPELL_CONTAIN)
-                                q_ptr->pval2 = -1;
+			/* Spell in it ? no ! */
+			object_flags(q_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+			if (f5 & TR5_SPELL_CONTAIN)
+				q_ptr->pval2 = -1;
 
 			/* Describe the artifact */
 			object_desc_store(base_name, q_ptr, FALSE, 0);
@@ -3744,8 +3728,8 @@ void plural_aux(char *name)
 
 		while (ctr < aider)
 		{
-		    dummy[i] = *ctr;
-		    ctr++; i++;
+			dummy[i] = *ctr;
+			ctr++; i++;
 		}
 
 		if (dummy[i-1] == 's')
@@ -4275,43 +4259,43 @@ static void do_cmd_knowledge_quests(void)
 	{
 		i = order[z];
 
-                /* Dynamic quests */
-                if (quest[i].dynamic_desc)
-                {
-                        /* Random quests */
-                        if (i == QUEST_RANDOM)
-                        {
-                                /**/
-                                if (!(dungeon_flags1 & DF1_PRINCIPAL)) continue;
-                                if (!random_quests[dun_level].type) continue;
-                                if (p_ptr->inside_quest) continue;
-                                if (!dun_level) continue;
+		/* Dynamic quests */
+		if (quest[i].dynamic_desc)
+		{
+			/* Random quests */
+			if (i == QUEST_RANDOM)
+			{
+				/**/
+				if (!(dungeon_flags1 & DF1_PRINCIPAL)) continue;
+				if (!random_quests[dun_level].type) continue;
+				if (p_ptr->inside_quest) continue;
+				if (!dun_level) continue;
 
-                                if (!is_randhero())
-                                {
-                                        fprintf(fff, "#####yCaptured princess!\n");
-                                        fprintf(fff, "A princess is being held prisoner and tortured here!\n");
-                                        fprintf(fff, "Save her from the horrible %s.\n",
-                                                r_info[random_quests[dun_level].r_idx].name + r_name);
-                                }
-                                else
-                                {
-                                        fprintf(fff, "#####yLost sword!\n");
-                                        fprintf(fff, "An adventurer lost his sword to a bunch of %s!\n",
-                                                r_info[random_quests[dun_level].r_idx].name + r_name);
-                                        fprintf(fff, "Kill them all to get it back.\n");
-                                }
-                                fprintf(fff, "Number: %d, Killed: %ld.\n",
-                                        random_quests[dun_level].type, quest[QUEST_RANDOM].data[0]);
-                                fprintf(fff, "\n");
-                        }
-                        /* MUST be a lua quest */
-                        else
-                        {
-                                hook_file = fff;
-                                exec_lua(format("__quest_dynamic_desc[%d]()", i));
-                        }
-                }
+				if (!is_randhero())
+				{
+					fprintf(fff, "#####yCaptured princess!\n");
+					fprintf(fff, "A princess is being held prisoner and tortured here!\n");
+					fprintf(fff, "Save her from the horrible %s.\n",
+						r_info[random_quests[dun_level].r_idx].name + r_name);
+				}
+				else
+				{
+					fprintf(fff, "#####yLost sword!\n");
+					fprintf(fff, "An adventurer lost his sword to a bunch of %s!\n",
+						r_info[random_quests[dun_level].r_idx].name + r_name);
+					fprintf(fff, "Kill them all to get it back.\n");
+				}
+				fprintf(fff, "Number: %d, Killed: %ld.\n",
+					random_quests[dun_level].type, quest[QUEST_RANDOM].data[0]);
+				fprintf(fff, "\n");
+			}
+			/* MUST be a lua quest */
+			else
+			{
+				hook_file = fff;
+				exec_lua(format("__quest_dynamic_desc[%d]()", i));
+			}
+		}
 
 		/* Fixed quests (only known ones) */
 		else if (!quest[i].silent)
@@ -4736,65 +4720,65 @@ void do_cmd_time()
 /*
  * Macro recorder!
  * It records all keypresses and then put them in a macro
- * Not as powerfull as the macro screen, but much easier for newbies
+ * Not as powerful as the macro screen, but much easier for newbies
  */
 char *macro_recorder_current = NULL;
 void macro_recorder_start()
 {
-        msg_print("Starting macro recording, press this key again to stop. Note that if the action you want to record accepts the @ key, use it, it will remove your the need to inscribe stuff.");
-        C_MAKE(macro_recorder_current, 1, char);
-        macro_recorder_current[0] = '\0';
+	msg_print("Starting macro recording, press this key again to stop. Note that if the action you want to record accepts the @ key, use it, it will remove your the need to inscribe stuff.");
+	C_MAKE(macro_recorder_current, 1, char);
+	macro_recorder_current[0] = '\0';
 }
 
 void macro_recorder_add(char c)
 {
-        char *old_macro_recorder_current = macro_recorder_current;
+	char *old_macro_recorder_current = macro_recorder_current;
 
-        if (macro_recorder_current == NULL) return;
+	if (macro_recorder_current == NULL) return;
 
-        C_MAKE(macro_recorder_current, strlen(macro_recorder_current) + 1 + 1, char);
-        sprintf(macro_recorder_current, "%s%c", old_macro_recorder_current, c);
-        C_FREE(old_macro_recorder_current, strlen(old_macro_recorder_current) + 1, char);
+	C_MAKE(macro_recorder_current, strlen(macro_recorder_current) + 1 + 1, char);
+	sprintf(macro_recorder_current, "%s%c", old_macro_recorder_current, c);
+	C_FREE(old_macro_recorder_current, strlen(old_macro_recorder_current) + 1, char);
 }
 
 void macro_recorder_stop()
 {
-        char *str, *macro;
-        char buf[1024];
+	char *str, *macro;
+	char buf[1024];
 
-        /* Ok we remove the last key, because it is the key to stop recording */
-        macro_recorder_current[strlen(macro_recorder_current) - 1] = '\0';
+	/* Ok we remove the last key, because it is the key to stop recording */
+	macro_recorder_current[strlen(macro_recorder_current) - 1] = '\0';
 
-        /* Stop the recording */
-        macro = macro_recorder_current;
-        macro_recorder_current = NULL;
+	/* Stop the recording */
+	macro = macro_recorder_current;
+	macro_recorder_current = NULL;
 
-        /* Add it */
-        if (get_check("Are you satisfied and want to create the macro? "))
-        {
-                prt("Trigger: ", 0, 0);
+	/* Add it */
+	if (get_check("Are you satisfied and want to create the macro? "))
+	{
+		prt("Trigger: ", 0, 0);
 
-                /* Get a macro trigger */
-                do_cmd_macro_aux(buf, FALSE);
+		/* Get a macro trigger */
+		do_cmd_macro_aux(buf, FALSE);
 
-                /* Link the macro */
-                macro_add(buf, macro);
+		/* Link the macro */
+		macro_add(buf, macro);
 
-                /* Prompt */
-                C_MAKE(str, (strlen(macro) + 1) * 3, char);
-                ascii_to_text(str, macro);
-                msg_format("Added a macro '%s', if you want it to stay permanently press @ now and dump macros to a file.", str);
-                C_FREE(str, (strlen(macro) + 1) * 3, char);
-        }
+		/* Prompt */
+		C_MAKE(str, (strlen(macro) + 1) * 3, char);
+		ascii_to_text(str, macro);
+		msg_format("Added a macro '%s', if you want it to stay permanently press @ now and dump macros to a file.", str);
+		C_FREE(str, (strlen(macro) + 1) * 3, char);
+	}
 
-        /* Ok now rid of useless stuff */
-        C_FREE(macro, strlen(macro) + 1, char);
+	/* Ok now rid of useless stuff */
+	C_FREE(macro, strlen(macro) + 1, char);
 }
 
 void do_cmd_macro_recorder()
 {
-        if (macro_recorder_current == NULL)
-                macro_recorder_start();
-        else
-                macro_recorder_stop();
+	if (macro_recorder_current == NULL)
+		macro_recorder_start();
+	else
+		macro_recorder_stop();
 }

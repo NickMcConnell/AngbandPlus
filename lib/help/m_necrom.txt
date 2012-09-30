@@ -28,7 +28,7 @@ and do not need light to be performed.
 4. [[[[[DVampirism] (Level 30) Cost:15
    Drains part of the life-force from a nearby monster and gives it to you.
 5. [[[[[DUndead form] (Level 30) Cost:N/A
-   Not actually an activable power, this kicks in automatically when your
+   Not actually an activatable power, this kicks in automatically when your
    character would die. Instead, he/she becomes an undead creature with a
    small amount of Death Points (DP). Every normal (+0 speed) turn, one DP
    is lost; you can regain it like you would do with Hit Points.

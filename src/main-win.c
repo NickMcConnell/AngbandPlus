@@ -2656,7 +2656,7 @@ static void setup_menus(void)
 			   MF_BYCOMMAND | MF_ENABLED);
 	}
 
-#ifdef ALLOW_QUITING
+#ifdef ALLOW_QUITTING
 	/* Menu "File", Item "Abort" */
 	EnableMenuItem(hm, IDM_FILE_ABORT,
 		       MF_BYCOMMAND | MF_ENABLED);
@@ -2982,7 +2982,7 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
-#ifdef ALLOW_QUITING
+#ifdef ALLOW_QUITTING
 		/* Abort */
 		case IDM_FILE_ABORT:
 		{

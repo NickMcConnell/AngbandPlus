@@ -194,7 +194,7 @@ function gen_rule_fct(r)
                 elseif r.label == "contain" then
                 	return function(object) if strfind(strlower(object_desc(object, -1, 0)), strlower(%r[1])) then return TRUE end end
                 elseif r.label == "symbol" then
-                	return function(object) if strchar(get_kind(object).x_char) == %r[1] then return TRUE end end
+                	return function(object) if strchar(get_kind(object).d_char) == %r[1] then return TRUE end end
                 elseif r.label == "tval" then
                         local tv = r[1]
                         if tonumber(tv) == nil then tv = getglobal(tv) else tv = tonumber(tv) end
@@ -205,7 +205,7 @@ function gen_rule_fct(r)
                         local sv2 = r.args.max
                         if tonumber(sv1) == nil then sv1 = getglobal(sv1) else sv1 = tonumber(sv1) end
                         if tonumber(sv2) == nil then sv2 = getglobal(sv2) else sv2 = tonumber(sv2) end
-                        return function(object) if object.sval >= %sv1 and object.sval <= %sv2 then return TRUE end end
+                        return function(object) if is_aware(object) == TRUE and object.sval >= %sv1 and object.sval <= %sv2 then return TRUE end end
                 elseif r.label == "status" then
 			return function(object) if object_status(object) == strlower(%r[1]) then return TRUE end end
                 elseif r.label == "state" then

@@ -27,7 +27,7 @@ There are five spells available for the earth school. These Spells are:
    Creates a prison of walls around you.
    At spell level 10 it allows you to target a monster.
 4. [[[[[uShake] (school level 27)
-   Creates a localized earthquake.
+   Creates a localised earthquake.
    At spell level 10 it can be targeted at any location.
 5. [[[[[uStrike] (school level 30)
    Creates a micro-ball of force that will push monsters backwards.

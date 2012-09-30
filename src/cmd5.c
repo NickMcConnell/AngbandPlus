@@ -1038,6 +1038,8 @@ void brand_weapon(int brand_type)
 		if (flush_failure) flush();
 
 		msg_print("The Branding failed.");
+
+		return;
 	}
 
 
@@ -3325,7 +3327,7 @@ void cast_music_spell(int spell, byte level)
 		{
 			if (info_spell) return;
 
-			msg_print("You sing a song of perserverance against powers...");
+			msg_print("You sing a song of perseverance against powers...");
 			p_ptr->music_extra = MUSIC_RESIST;
 
 			break;

@@ -570,8 +570,11 @@ F:163:0x0C/0xD1
 # Altar of Darkness
 F:164:0x08/0xD1
 
+# Altar of Nature
+# F:165:0x05/0x30
+
 # floor
-F:172:0x04/0xB5
+F:172:0x01/0xB5
 
 # Underground Tunnel
 F:173:0x02/0xB9
@@ -747,7 +750,7 @@ B:20:0x05/0xB8
 # Rangers Guild
 B:21:0x07/0xB8
 
-# Thunderlords' Hide
+# Thunderlords' Nest
 B:22:0x0F/0xB8
 
 # The Mirror
@@ -1659,7 +1662,7 @@ K:263:0x00/0xED
 # Slow Poison
 K:264:0x00/0xED
 
-# Neutralize Poison
+# Neutralise Poison
 K:265:0x00/0xED
 
 # Restore Mana
@@ -1958,12 +1961,6 @@ K:378:0x00/0xE8
 
 # Spell
 K:379:0x00/0xE7
-
-# & Firestone~
-K:389:0x04/0xD6
-
-# & Small Firestone~
-K:390:0x04/0xD6
 
 # & Broken Skull~
 K:391:0x01/0xD3
@@ -2628,13 +2625,13 @@ K:646:0x0B/0xE3
 # & Stone~
 K:647:0x05/0xF0
 
-# & small wooden Boomerang~
+# & Small Wooden Boomerang~
 K:648:0x0B/0xD8
 
-# & wooden Boomerang~
+# & Wooden Boomerang~
 K:649:0x0B/0xD8
 
-# & small metal Boomerang~
+# & Small Metal Boomerang~
 K:650:0x0B/0xD8
 
 # & metal Boomerang~
@@ -2646,7 +2643,7 @@ K:652:0x0A/0xF0
 # & ~
 K:653:0x0B/0xD2
 
-# Summon never-moving pet
+# Summon Never-Moving Pet
 K:654:0x00/0xEC
 
 # Cure Light Insanity
@@ -2673,8 +2670,11 @@ K:663:0x00/0xEC
 # The One Ring
 K:664:0x02/0xEC
 
-# & Minstrel's Music book~
-K:666:0x03/0xEF
+# & Book~ of the Lays of the Heroes
+K:665:0x0B/0xEF
+
+# & Book~ of Sound Patterns
+K:666:0x0B/0xEF
 
 # & Flute~
 K:669:0x09/0xF7
@@ -2781,10 +2781,10 @@ K:720:0x00/0xEC
 # & Dark Sword~
 K:721:0x08/0xDC
 
-# Numenorean for beginners (I)
+# Numenorean for Beginners (I)
 K:722:0x02/0xEC
 
-# Numenorean for beginners (II)
+# Numenorean for Beginners (II)
 K:723:0x02/0xEC
 
 # Advanced lessons of Numenorean
@@ -2820,13 +2820,13 @@ K:743:0x00/0xED
 # Spell
 K:749:0x00/0xEC
 
-# Khuzdul - The hidden tongue of the Dwarves
+# Khuzdul - The Hidden Tongue of the Dwarves
 K:751:0x02/0xEC
 
-# Nandorin for dummies
+# Nandorin for Dummies
 K:752:0x02/0xEC
 
-# Advanced lessons of Orcish
+# Advanced Lessons of Orcish
 K:753:0x02/0xEC
 
 # Flying
@@ -2913,7 +2913,7 @@ K:785:0x00/0xE8
 # Climbing Set~
 K:786:0x0E/0xF8
 
-# Adventurer's guide to Middle Earth
+# Adventurer's Guide to Middle-earth
 K:787:0x03/0xEC
 
 # & Demonblade~
@@ -2988,20 +2988,20 @@ K:812:0x0A/0xF8
 # True Totem
 K:813:0x0A/0xF8
 
-# & piece~ of a Relic of Eru
-K:814:0x0D/0xD3
+# & Piece~ of the Relic of Eru
+K:814:0x0A/0xD3
 
-# & piece~ of a Relic of Manwe
-K:815:0x0D/0xD3
+# & Piece~ of the Relic of Manwe
+K:815:0x0A/0xD3
 
-# & piece~ of a Relic of Tulkas
-K:816:0x0D/0xD3
+# & Piece~ of the Relic of Tulkas
+K:816:0x0A/0xD3
 
-# & piece~ of a Relic of Melkor
-K:817:0x0D/0xD3
+# & Piece~ of the Relic of Melkor
+K:817:0x0A/0xD3
 
-# & piece~ of a Relic of Yavanna
-K:818:0x0D/0xD3
+# & Piece~ of the Relic of Yavanna
+K:818:0x0A/0xD3
 
 
 ##### Monster attr/char definitions #####
@@ -5373,14 +5373,14 @@ R:787:0x01/0x95
 # Glaaki
 R:788:0x0A/0x7E
 
-# T'ron, the Rebel Dragonrider
-R:789:0x08/0x84
+# Trone, the Rebel Thunderlord
+R:789:0x08/0x82
 
 # Great Wyrm of Many Colours
 R:790:0x0A/0x84
 
-# Mardra, rider of the Gold Loranth
-R:791:0x0B/0x84
+# Marda, rider of gold Laronth
+R:791:0x0B/0x82
 
 # Tselakus, the Dreadlord
 R:792:0x0C/0x87
@@ -5466,8 +5466,8 @@ R:818:0x0A/0xAA
 # The Necromancer of Dol Guldur
 R:819:0x0A/0xAA
 
-# Lessa, rider of the Gold Ramoth
-R:820:0x0B/0x84
+# Lisa, rider of gold Romth
+R:820:0x0B/0x82
 
 # Master quylthulg
 R:821:0x0E/0x91
@@ -5478,8 +5478,8 @@ R:822:0x0A/0x91
 # Cthugha, the Living Flame
 R:823:0x0C/0x85
 
-# F'lar, rider of the Bronze Mnementh
-R:824:0x0F/0x84
+# Flare, rider of bronze Moonth
+R:824:0x0F/0x82
 
 # Maeglin, the Traitor of Gondolin
 R:825:0x08/0xA2
@@ -5580,8 +5580,8 @@ R:856:0x0A/0x95
 # Great Cthulhu
 R:857:0x05/0x95
 
-# Sorka, rider of the Gold Faranth
-R:858:0x0B/0x84
+# Sarko, rider of gold Foronth
+R:858:0x0B/0x82
 
 # The Unicorn of Order
 R:859:0x01/0xAB
@@ -5826,20 +5826,20 @@ R:938:0x05/0x84
 # Great Bile Wyrm
 R:939:0x02/0x84
 
-# Blue Firelizard
-R:940:0x0E/0x9E
+# Blue Firebird
+R:940:0x0E/0x82
 
-# Green Firelizard
-R:941:0x0D/0x9E
+# Green Firebird
+R:941:0x0D/0x82
 
-# Brown Firelizard
-R:942:0x07/0x9E
+# Brown Firebird
+R:942:0x07/0x82
 
-# Bronze Firelizard
-R:943:0x0F/0x9E
+# Bronze Firebird
+R:943:0x0F/0x82
 
-# Gold Firelizard
-R:944:0x0B/0x9E
+# Gold Firebird
+R:944:0x0B/0x82
 
 # High-elven ranger
 R:945:0x0D/0xA2
@@ -5871,22 +5871,22 @@ R:953:0x08/0x97
 # The Witch-King of Angmar
 R:954:0x08/0x97
 
-# Green Dragonrider
-R:955:0x05/0x84
+# Green Thunderlord
+R:955:0x05/0x82
 
-# Blue Dragonrider
-R:956:0x06/0x84
+# Blue Thunderlord
+R:956:0x06/0x82
 
-# Brown Dragonrider
-R:957:0x07/0x84
+# Brown Thunderlord
+R:957:0x07/0x82
 
-# Bronze Dragonrider
-R:958:0x0F/0x84
+# Bronze Thunderlord
+R:958:0x0F/0x82
 
-# Gold Dragonrider
-R:959:0x0B/0x84
+# Gold Thunderlord
+R:959:0x0B/0x82
 
-# Thread
+# Blood Sprout
 R:960:0x05/0xEE
 
 # Gorlim, Betrayer of Barahir
@@ -5904,7 +5904,7 @@ R:964:0x0A/0x93
 # Giant brown tick
 R:965:0x07/0x93
 
-# Dolphiner
+# Wavelord
 R:966:0x06/0xAA
 
 # Novice possessor (soul)

@@ -1,11 +1,15 @@
 |||||oy
 ~~~~~01|Magic|Mindcraft
-~~~~~02|Mindcrafter|Powers
+~~~~~02|Mindcrafter|Mindcraft powers
 ~~~~~03|Skills|Mindcraft - Spell Info
 #####R === ToME Magic - Mindcraft ===
-Mindcrafting uses the power of the brain to cast it's spells. Therefore no books
-are necessary, and as the mindcrafters skill increases, so do the powers of his
-mind.
+Mindcrafting uses the power of the brain to cast it's spells. Therefore neither
+books nor light are necessary, and as the mindcrafter's skill increases, so do
+the powers of his mind.
+
+The powers are accessed using the 'm' key and then selecting 'Use Mindcraft';
+they are cast with spell points, like normal spells, which can be increased
+as usual through the *****skills.txt*21[Magic] skill.
 
 1. [[[[[sPrecognition] (Level 1) Cost:1
    Detects monster minds around you.
@@ -29,7 +33,7 @@ mind.
    At level 30 it attempts to charm monsters.
 6. [[[[[sPulverise] (Level 11) Cost:7
    Fires pure sound at your opponent, crushing their brains.
-7. [[[[[sCharacter Armour] (Level 1) Cost:12
+7. [[[[[sCharacter Armour] (Level 13) Cost:12
    Raises a physical shield around your body.
    At level 15 it also grants resistance to acid.
    At level 20 it also grants resistance to fire.

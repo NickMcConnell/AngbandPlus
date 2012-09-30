@@ -168,6 +168,9 @@ static void wiz_create_named_art()
 	if (!get_string(p, out_val, 4)) return;
 	a_idx = atoi(out_val);                                
 
+/* Return if out-of-bounds */
+if ((a_idx <= 0) || (a_idx >= max_a_idx)) return;
+
 	a_ptr = &a_info[a_idx];
 
 	/* Get local object */
@@ -247,7 +250,7 @@ void do_cmd_wiz_hack_ben(int day)
 #ifdef USE_LUA
 void do_cmd_lua_script()
 {
-	char script[80];
+	char script[80]="tome_dofile(\"gen_idx.lua\")";
 
 	if (!get_string("Script:", script, 80)) return;
 
@@ -1376,8 +1379,8 @@ static void wiz_create_item_2(void)
 	if (!get_string(p, out_val, 4)) return;
 	a_idx = atoi(out_val);                                
 
-	/* Return if failed */
-	if (!a_idx) return;
+	/* Return if failed or out-of-bounds */
+	if ((a_idx <= 0) || (a_idx >= max_k_idx)) return;
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -1759,12 +1762,15 @@ void do_cmd_debug(void)
 
 		/* Change of Dungeon type */
 		case 'D':
-		dungeon_type = command_arg;
-		dun_level = d_info[dungeon_type].mindepth;
-		msg_format("You go into %s", d_text + d_info[dungeon_type].text);
+		if ((command_arg >= 0) && (command_arg < max_d_idx))
+		{
+			dungeon_type = command_arg;
+			dun_level = d_info[dungeon_type].mindepth;
+			msg_format("You go into %s", d_text + d_info[dungeon_type].text);
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+		}
 		break;
 
 		/* Edit character */
@@ -1866,6 +1872,7 @@ void do_cmd_debug(void)
 		case 'q':
 		{
 /*                        if (quest[command_arg].status == QUEST_STATUS_UNTAKEN)*/
+		if ((command_arg >= 1) && (command_arg < MAX_Q_IDX_INIT) && (command_arg != QUEST_RANDOM))
 			{
 				quest[command_arg].status = QUEST_STATUS_TAKEN;
 				*(quest[command_arg].plot) = command_arg;
@@ -1925,7 +1932,8 @@ void do_cmd_debug(void)
 
 		/* Teleport to a town */
 		case 'T':
-			teleport_player_town(command_arg);
+			if ((command_arg >= 1) && (command_arg <= max_real_towns))
+				teleport_player_town(command_arg);
 			break;
 
 		/* Very Good Objects */

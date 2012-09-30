@@ -14,24 +14,24 @@ Device ability of your character. This ability again dictates the fail rates
 of use of wands/rods/staffs and activation of random-artifacts/artifacts, and
 it will also increase the power of these items.
 ~~~~~01|Magic|Schools
-ToME uses skills to define the various schools of magic. There are 11 primary 
+ToME uses skills to define the various schools of magic. There are 11 primary
 schools:
      *****m_mana.txt*0[Mana]           *****m_fire.txt*0[Fire]            *****m_water.txt*0[Water]
      *****m_air.txt*0[Air]            *****m_earth.txt*0[Earth]           *****m_meta.txt*0[Meta]
      *****m_convey.txt*0[Conveyance]     *****m_divin.txt*0[Divination]      *****m_tempo.txt*0[Temporal]
      *****m_mind.txt*0[Mind]           *****m_nature.txt*0[Nature]
 
-Other magical skills, generally being used primarily by characters of a specific 
+Other magical skills, generally being used primarily by characters of a specific
 class are:
      *****m_demono.txt*0[Demonology]     *****m_necrom.txt*0[Necromancy]      *****skills.txt*36[Runecraft]
      *****m_thaum.txt*0[Thaumaturgy]    *****skills.txt*49[Alchemy]
 
-The *****m_demono.txt*0[Demonology] skill is primarily  used by *****c_demono.txt*0[Demonologists] for their special 
-spells, whereas the *****m_necrom.txt*0[Necromancy] skill is used by *****c_necro.txt*0[Necromancers] for their own set 
+The *****m_demono.txt*0[Demonology] skill is primarily  used by *****c_demono.txt*0[Demonologists] for their special
+spells, whereas the *****m_necrom.txt*0[Necromancy] skill is used by *****c_necro.txt*0[Necromancers] for their own set
 of special spells.
-The same goes for *****skills.txt*36[Runecraft], which is used by *****c_runecr.txt*0[Runecrafters] to allow use of more 
-difficult runes or rune-combinations. *****m_thaum.txt*0[Thaumaturgy] gives you a randomly chosen 
-attack spell, and as such each game with it will be different. Lastly we have 
+The same goes for *****skills.txt*36[Runecraft], which is used by *****c_runecr.txt*0[Runecrafters] to allow use of more
+difficult runes or rune-combinations. *****m_thaum.txt*0[Thaumaturgy] gives you a randomly chosen
+attack spell, and as such each game with it will be different. Lastly we have
 *****skills.txt*49[Alchemy], which is used by *****c_alchem.txt*0[Alchemists].
 
 In addition to the schools of magic, you can get access to special sets of
@@ -39,7 +39,8 @@ spells if you worship a God. There are currently four good Gods,
 *****g_eru.txt*0[Eru Iluvatar], *****g_manwe.txt*0[Manwe Sulimo], *****g_yavann.txt*0[Yavanna Kementari] and *****g_tulkas.txt*0[Tulkas]. There is also an evil
 god, *****g_melkor.txt*0[Melkor]. Each of them gives you access to different types of spells.
 
-Worshippers of Melkor also have access to the special *****m_udun.txt*0[Udun] school of magic.
+Worshippers of Melkor also have access to the special *****m_udun.txt*0[Udun] school of magic,
+whereas other Priests and Mindcrafters can use *****m_mindcr.txt*0[Mindcrafting Powers].
 
 The 11 different primary schools give you access to different spells of
 variable usefulness. The way they work is that by adding skill points to a
@@ -49,11 +50,18 @@ requirement, since they correlate exactly. Let's take a simple example:
 If you have the *****m_mana.txt*0[Mana] school skill at level 24.000, it means you can use any
 spell in the mana school up to and including those requiring level 24. There are
 also some spells requiring a certain skill level in two schools, and there is a
-possibility of spells requiring three or more. Lastly, if you look at a spell,
-and the spell level reads -2 or some other negative value while it's also
-grayed out, that means you need to increase the corresponding school's skill
-level by 3, since only 2 will have it end up on spell level 0, where it
-still is unusable.
+possibility of spells requiring three or more. For these kind of spells the 
+spell level is determined by taking an average of the necessary skills. 
+When calculating spell level for spells which require more than one school, 
+sorcery (or god-granted access) can be used in place of the primary schools in 
+the normal way. Once the average has been calculated, any bonus from the 
+spell-power skill can also be applied as normal. If one of the schools required 
+is the Udun school, then the appropriate bonus from character level will be 
+applied. Lastly, if you look at a spell, and the spell level reads -2 or some 
+other negative value while it's also grayed out, that means you need to 
+increase the corresponding school's skill level by 3, since only 2 will have 
+it end up on spell level 0, where it still is unusable. If it reads n/a, you 
+currently have no skill points in that school.
 
 Another thing that should be explained about the skills and schools of magic
 right now, is that the skill doesn't stop being useful only for gaining spells.
@@ -73,13 +81,16 @@ skill at level 1 will give you a hitpoint-penalty of 1%, all the way up to
 skill level 50, with a hitpoint-penalty of 50%. There is also a ToHit and a
 ToDam penalty in here too.
 
-There is the *****skills.txt*22[Spell Power] skill. This skill is rather nice, since it
+There is also the *****skills.txt*22[Spell Power] skill. This skill is rather nice, since it
 will augment the spells you already have access to. The distinction between this
-and the others, is that it will not grant you new spells, but instead increase
-the levels of spells. At level 50 it grants 20 extra spell levels.
+and the others, is that it will not grant you new spells, but instead increases
+the levels of spells. At level 50 it grants 20 extra spell levels. [[[[[BThis skill ]
+[[[[[Bonly affects the 11 primary schools] (Mana, Earth, Air, Fire, Water, Meta, 
+Mind, Temporal, Conveyance, Divination and Nature) as well as the Udun School,
+the Demonology School and the spells granted by the Gods.
 
-There is also the Magic-Device skill which affects your ability to use wands, 
-staves, rods and to activate special objects. It also affects the spell-levels 
+There is also the Magic-Device skill which affects your ability to use wands,
+staves, rods and to activate special objects. It also affects the spell-levels
 of the staff and wand spells, as explained below.
 ~~~~~02|Wands
 ~~~~~04|Magic|Wands and Staves
@@ -100,13 +111,13 @@ A Staff of Sense Hidden [1|10]. Your magic device skill is at 6. If you were to
 identify the staff and then 'I'nspect it, you would see the following
 information:
 
-&&&&&w wSwpwewlwlw wdwewswcwrwiwbwtwiwownw:w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
-&&&&&w wDwewtwewcwtwsw wtwhwew wtwrwawpwsw wiwnw waw wcwewrwtwawiwnw wrwawdwiwuwsw wawrwowuwnwdw wywowuw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
-&&&&&w wAwtw wlwewvwewlw w1w5w wiwtw wawlwlwowwwsw wywowuw wtwow wswewnwswew wiwnwvwiwswiwbwlwew wfwowrw waw wwwhwiwlwew w w w w w w w w w w w w w w w w w w w w w w 
-&&&&&w wSwpwewlwlw wlwewvwewlw:w B3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
-&&&&&w wMwiwnwiwmwuwnw wMwawgwiwcw wDwewvwiwcwew wlwewvwewlw wtwow wiwnwcwrwewawswew wswpwewlwlw wlwewvwewlw:w B5w w w w w w w w w w w w w w w w w w w w w w w w w w 
-&&&&&w wSwpwewlwlw wfwawiwlw:w g2g3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
-&&&&&w wSwpwewlwlw wiwnwfwow:w yryaydy y1y3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
+&&&&&w wSwpwewlwlw wdwewswcwrwiwbwtwiwownw:w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+&&&&&w wDwewtwewcwtwsw wtwhwew wtwrwawpwsw wiwnw waw wcwewrwtwawiwnw wrwawdwiwuwsw wawrwowuwnwdw wywowuw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+&&&&&w wAwtw wlwewvwewlw w1w5w wiwtw wawlwlwowwwsw wywowuw wtwow wswewnwswew wiwnwvwiwswiwbwlwew wfwowrw waw wwwhwiwlwew w w w w w w w w w w w w w w w w w w w w w w
+&&&&&w wSwpwewlwlw wlwewvwewlw:w B3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+&&&&&w wMwiwnwiwmwuwnw wMwawgwiwcw wDwewvwiwcwew wlwewvwewlw wtwow wiwnwcwrwewawswew wswpwewlwlw wlwewvwewlw:w B5w w w w w w w w w w w w w w w w w w w w w w w w w w
+&&&&&w wSwpwewlwlw wfwawiwlw:w g2g3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
+&&&&&w wSwpwewlwlw wiwnwfwow:w yryaydy y1y3w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w
 
 The Spell level is the level at which the spell will actually be cast.
 Spell fail is the spell fail percentage. The spell info may contain the radius
@@ -114,14 +125,15 @@ of effect, amount of damage, or duration the spell might last.
 The Minimum Magic Device level to increase your spell level is just that. If
 your magic device skill was less than this level, then the staff would be
 casting the spell at level one. Our magic device skill is 6. Therefore we are
-casting at level 2 (at skill level 5, we should be casting the spell at level 1).
-Then we add the bonus from the staff of 1, which gives us our spell level of 3.
-If our magic device in this example had been 14, this would have given us a
-spell level of 1 + (14 - 5 + 1) = 11. This is calculated from the formula:
+casting at level 2 (at skill level 5, we should be casting the spell at level 
+1). Then we add the bonus from the staff of 1, which gives us our spell level 
+of 3. If our magic device in this example had been 14, this would have given us 
+a spell level of 1 + (14 - 5 + 1) = 11. This is calculated from the formula:
 spell level = staff bonus + (magic device - minimum magic device + 1)).
 However given that the maximum spell level with this staff is 10, you'll be
 casting with a spell level of 10.
 As you get deeper into the dungeons, the bonuses and maximum spell levels
 increase.
 
-                                        Written by: vrak AKA Per-Arne Holtmon Ak
+                                     Written by: vrak AKA Per-Arne Holtmon Akoe
+                                  Wands and Staves section added by fearoffours

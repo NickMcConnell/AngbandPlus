@@ -34,7 +34,7 @@ int  tolua_dungeon_open (lua_State *L);
  */
 lua_State* L = NULL;
 
-/* PernAngband Lua error message handler */
+/* ToME Lua error message handler */
 static int tome_errormessage(lua_State *L)
 {
 	char buf[200];
@@ -113,7 +113,7 @@ static struct luaL_reg tome_iolib[] =
 
 
 /*
- * Monadic bit nagation operation
+ * Monadic bit negation operation
  * MONADIC(not,     ~)
  */
 static int int_not(lua_State* L)
@@ -278,7 +278,7 @@ void init_lua()
 		exec_lua(format("finish_spell(%d)", i));
 	}
 
-	/* Finish up the corruptio,s */
+	/* Finish up the corruptions */
 	max = exec_lua("return __corruptions_max");
 	init_corruptions(max);
 }
@@ -294,7 +294,7 @@ bool tome_dofile(char *file)
 	if (!file_exist(buf))
 	{
 		cmsg_format(TERM_VIOLET,
-			"tome_dofile(): file %s(%s) doesnt exists in lib/scpt.", file, buf);
+			"tome_dofile(): file %s(%s) doesn't exist in lib/scpt.", file, buf);
 		return (FALSE);
 	}
 
@@ -310,7 +310,7 @@ bool luadofile(char *buf, bool silent)
 	if ((!silent) && (!file_exist(buf)))
 	{
 		cmsg_format(TERM_VIOLET,
-			"luadofile(): file %s doesnt exists.", buf);
+			"luadofile(): file %s doesn't exist.", buf);
 		return (FALSE);
 	}
 	lua_dofile(L, buf);
@@ -366,7 +366,7 @@ void dump_lua_stack(int min, int max)
 
 bool call_lua(cptr function, cptr args, cptr ret, ...)
 {
-        int i = 0, nb = 0, nbr = 1;
+        int i = 0, nb = 0, nbr = 0;
         int oldtop = lua_gettop(L), size;
 	va_list ap;
 
@@ -401,7 +401,7 @@ bool call_lua(cptr function, cptr args, cptr ret, ...)
         }
 
         /* Count returns */
-        nbr += strlen(ret);
+        nbr = strlen(ret);
 
         /* Call the function */
         if (lua_call(L, nb, nbr))
@@ -449,7 +449,7 @@ bool call_lua(cptr function, cptr args, cptr ret, ...)
                         }
 
                 default:
-                        cmsg_format(TERM_VIOLET, "ERROR in lua_call while calling '%s' from call_lua: Unkown return type '%c'", function, ret[i]);
+                        cmsg_format(TERM_VIOLET, "ERROR in lua_call while calling '%s' from call_lua: Unknown return type '%c'", function, ret[i]);
                         return FALSE;
                 }
         }

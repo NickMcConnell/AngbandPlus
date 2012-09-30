@@ -2060,7 +2060,7 @@ struct move_info_type
 typedef struct rule_type rule_type;
 struct rule_type
 {
-	byte mode;                      /* Mode of combinaison of the monster flags */
+	byte mode;                      /* Mode of combination of the monster flags */
 	byte percent;                   /* Percent of monsters affected by the rule */
 
 	u32b mflags1;                   /* The monster flags that are allowed */
@@ -2112,6 +2112,8 @@ struct dungeon_info_type
 
 	u32b flags1;                    /* Flags 1 */
 	u32b flags2;                    /* Flags 1 */
+
+        int size_x, size_y;             /* Desired numers of panels */
 
 	byte rule_percents[100];        /* Flat rule percents */
 	rule_type rules[5];             /* Monster generation rules */
@@ -2348,8 +2350,8 @@ struct set_type
 	struct                                  /* the various items */
 	{
 		bool present;                   /* Is it actually wore ? */
-		s16b a_idx;                     /* What artfact ? */
-		s16b pval[6];                   /* Pval for each combinaison */
+		s16b a_idx;                     /* What artifact ? */
+		s16b pval[6];                   /* Pval for each combination */
 		u32b flags1[6];                 /* Flags */
 		u32b flags2[6];                 /* Flags */
 		u32b flags3[6];                 /* Flags */

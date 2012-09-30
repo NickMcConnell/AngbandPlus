@@ -6,7 +6,7 @@
 
 The nature school of magic contains spells that interact with nature. There
 are rumours of a "Tome of the Tree" which contains all the nature school
-spells within it's bindings.
+spells within its bindings.
 
 Worshipping the Goddess Yavanna Kementari also gives the ability to cast spells
 from the nature school at a level of 1/2 of your prayer level. e.g. If the skill
@@ -45,4 +45,3 @@ There are five spells available for the nature school. These Spells are:
 1. [[[[[DGenocide] (school level 25)
    Genocides all monsters of a race on the level.
    At level 10 it can genocide all monsters near you.
-   

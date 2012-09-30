@@ -1,5 +1,5 @@
 Most files in this directory are use by the get_rnd_line function for various
-purposes in the game. They can be edited and customized by the user with any
+purposes in the game. They can be edited and customised by the user with any
 ascii text editor. If you add / remove lines you should modify the index (the
 first line) accordingly. If you set an invalid index or remove the buffer line
 weird messages and other things can appear, and you can crash the game. Please

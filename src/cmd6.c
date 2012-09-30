@@ -2626,90 +2626,87 @@ void do_cmd_drink_fountain(void)
 
 	int i;
 
+	char ch;
 
-	/* We quaff or we fill ? */
-	if (!get_check("Do you want to quaff from the fountain? "))
-	{
-		if (!get_check("Do you want to leech the whole fountain? "))
-		{
-			do_cmd_fill_bottle(0);
-		}
-		else
-		{
-			do_cmd_fill_bottle(1);
-		}
 
-		return;
-	}
-
+	/* Is the fountain empty? */
 	if (c_ptr->special2 <= 0)
 	{
 		msg_print("The fountain is dried out.");
 		return;
 	}
 
-	if (c_ptr->special <= SV_POTION_LAST)
+	/* We quaff or we fill ? */
+	if (!get_com("Do you want to [Q]uaff or [F]ill from the fountain? ", &ch))
 	{
-		tval = TV_POTION;
-		sval = c_ptr->special;
+		return;
 	}
-	else
+	
+	if ((ch == 'F') || (ch == 'f'))
 	{
-		tval = TV_POTION2;
-		sval = c_ptr->special - SV_POTION_LAST;
-	}
+		do_cmd_fill_bottle();
 
-	for (i = 0; i < max_k_idx; i++)
-	{
-		object_kind *k_ptr = &k_info[i];
-
-		if (k_ptr->tval != tval) continue;
-		if (k_ptr->sval != sval) continue;
-
-		pval = k_ptr->pval;
-
-		break;
+		return;
 	}
 
-	ident = quaff_potion(tval, sval, pval);
-
-	c_ptr->special2--;
-
-	if (c_ptr->special2 == 0)
+	else if ((ch == 'Q') || (ch == 'q'))
 	{
-		cave_set_feat(py, px, FEAT_EMPTY_FOUNTAIN);
+		if (c_ptr->special <= SV_POTION_LAST)
+		{
+			tval = TV_POTION;
+			sval = c_ptr->special;
+		}
+		else
+		{
+			tval = TV_POTION2;
+			sval = c_ptr->special - SV_POTION_LAST;
+		}
+
+		for (i = 0; i < max_k_idx; i++)
+		{
+			object_kind *k_ptr = &k_info[i];
+
+			if (k_ptr->tval != tval) continue;
+			if (k_ptr->sval != sval) continue;
+
+			pval = k_ptr->pval;
+
+			break;
+		}
+
+		ident = quaff_potion(tval, sval, pval);
+
+		c_ptr->special2--;
+
+		if (c_ptr->special2 <= 0)
+		{
+			cave_set_feat(py, px, FEAT_EMPTY_FOUNTAIN);
+		}
+
+		if (ident) c_ptr->info |= CAVE_IDNT;
 	}
-
-	if (ident) c_ptr->info |= CAVE_IDNT;
-}
-
-
-/*
- * Hook to determine if an object is fillable
- */
-static bool item_tester_hook_fillable(object_type *o_ptr)
-{
-	if (o_ptr->tval==TV_BOTTLE) return (TRUE);
-
-	/* Assume not */
-	return (FALSE);
 }
 
 
 /*
  * Fill an empty bottle
  */
-void do_cmd_fill_bottle(int repeat)
+void do_cmd_fill_bottle(void)
 {
 	cave_type *c_ptr = &cave[py][px];
 
-	int tval, sval, item;
+	int tval, sval, item, amt = 1;
 
 	object_type *q_ptr, *o_ptr, forge;
 
 	cptr q, s;
 
 	/* Is the fountain empty? */
+	/*
+	 * This check is redundant as it is done in do_cmd_drink_fountain()
+	 * but I keep this because someone might want to call this directly.
+	 * -- Kusunose
+	 */
 	if (c_ptr->special2 <= 0)
 	{
 		msg_print("The fountain has dried up.");
@@ -2729,7 +2726,7 @@ void do_cmd_fill_bottle(int repeat)
 	}
 
 	/* Restrict choices to bottles */
-	item_tester_hook = item_tester_hook_fillable;
+	item_tester_tval = TV_BOTTLE;
 
 	/* Get an item */
 	q = "Fill which bottle? ";
@@ -2737,23 +2734,30 @@ void do_cmd_fill_bottle(int repeat)
 	if (!get_item(&item, q, s, (USE_INVEN))) return;
 	o_ptr = &inventory[item];
 
-	do {
-	/* Destroy a bottle in the pack */
+	/* Find out how many the player wants */
+	if (o_ptr->number > 1)
+	{
+		/* Get a quantity */
+		amt = get_quantity(NULL, o_ptr->number);
 
-	if( o_ptr-> number == 1 )
-		repeat = 0;
+		/* Allow user abort */
+		if (amt <= 0) return;
+	}
 
+	if (amt > c_ptr->special2) amt = c_ptr->special2;
+
+	/* Destroy bottles in the pack */
 	if (item >= 0)
 	{
-		inven_item_increase(item, -1);
+		inven_item_increase(item, -amt);
 		inven_item_describe(item);
 		inven_item_optimize(item);
 	}
 
-	/* Destroy a potion on the floor */
+	/* Destroy bottles on the floor */
 	else
 	{
-		floor_item_increase(0 - item, -1);
+		floor_item_increase(0 - item, -amt);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
@@ -2761,7 +2765,7 @@ void do_cmd_fill_bottle(int repeat)
 	/* Create the potion */
 	q_ptr = &forge;
 	object_prep(q_ptr, lookup_kind(tval, sval));
-	q_ptr->number = 1;
+	q_ptr->number = amt;
 
 	if (c_ptr->info & CAVE_IDNT)
 	{
@@ -2769,18 +2773,15 @@ void do_cmd_fill_bottle(int repeat)
 		object_known(q_ptr);
 	}
 
-//        inven_carry(q_ptr, FALSE);
-	drop_near( q_ptr , -1 , py , px);
+	inven_carry(q_ptr, TRUE);
 
-	c_ptr->special2--;
+	c_ptr->special2 -= amt;
 
-	if (c_ptr->special2 == 0)
+	if (c_ptr->special2 <= 0)
 	{
 		cave_set_feat(py, px, FEAT_EMPTY_FOUNTAIN);
-		repeat = 0;
 	}
 
-	} while( repeat == 1 );
 	return;
 }
 
@@ -3021,7 +3022,7 @@ void do_cmd_read_scroll(void)
 				int k;
 
 				ident = TRUE;
-				msg_print("You feel the souls of the deads coming back "
+				msg_print("You feel the souls of the dead coming back "
 					  "from the Halls of Mandos.");
 
 				for (k = 0; k < max_r_idx; k++)
@@ -3046,7 +3047,7 @@ void do_cmd_read_scroll(void)
 
 			case SV_SCROLL_DEINCARNATION:
 			{
-				if (!get_check("Do you realy want to leave your body? "
+				if (!get_check("Do you really want to leave your body? "
 					      "(beware, it'll be destroyed!) "))
 				{
 					used_up = FALSE;
@@ -4712,7 +4713,7 @@ void do_cmd_zap_rod(void)
 
 
 /*
- * Hook to determine if an object is activatable
+ * Hook to determine if an object is activable
  */
 static bool item_tester_hook_activate(object_type *o_ptr)
 {
@@ -4821,7 +4822,7 @@ int ring_of_power()
 		}
 		else
 		{
-			msg_print("Your ring tries to take possession of your ennemy's mind!");
+			msg_print("Your ring tries to take possession of your enemy's mind!");
 			fire_bolt(GF_CHARM, dir, 600);
 		}
 		timeout = 300 + rand_int(300);
@@ -5177,14 +5178,18 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 	int i = 0, ii = 0, ij = 0, k, dir, dummy = 0;
 	int chance;
 
-	int spell = o_ptr->xtra2;
+	int spell = 0;
 
-	
+		/* Junkarts */
 	if (o_ptr->tval == TV_RANDART) spell = activation_info[o_ptr->pval2].spell;
 
 	/* True Actifacts */
 	if(!spell && o_ptr->name1)
 		spell=a_info[o_ptr->name1].activate;
+
+	/* Random and Alchemist Artifacts */
+	if (!spell && o_ptr->art_name)
+		spell = o_ptr->xtra2;
 
 	/* Ego Items */
 	if(!spell && o_ptr->name2)
@@ -5362,7 +5367,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 			{
 				if(!doit) return "whispers from beyond 100+d200 turns";
 				identify_fully();
-				take_sanity_hit(damroll(10, 7), "the sounds of deads");
+				take_sanity_hit(damroll(10, 7), "the sounds of the dead");
 
 				o_ptr->timeout = rand_int(200) + 100;
 
@@ -6543,7 +6548,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 				{
 					if (summon_specific(py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL))
 					{
-						msg_print("An elemental materializes...");
+						msg_print("An elemental materialises...");
 						msg_print("You fail to control it!");
 					}
 				}
@@ -6552,7 +6557,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 					if (summon_specific_friendly(py, px, ((plev * 3) / 2),
 								     SUMMON_ELEMENTAL, (bool)(plev == 50 ? TRUE : FALSE)))
 					{
-						msg_print("An elemental materializes...");
+						msg_print("An elemental materialises...");
 						msg_print("It seems obedient to you.");
 					}
 				}
@@ -7415,7 +7420,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 
 		case ACT_ACQUIREMENT:
 			{
-				if (!doit) return "acquirment";
+				if (!doit) return "acquirement";
 				acquirement(py,px,1,FALSE,FALSE);
 
 				/* Timeout is set before return */
@@ -7478,7 +7483,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 				int y, x, light = 0, dir;
 				cave_type *c_ptr;
 
-				if (!doit) return "light absorbtion";
+				if (!doit) return "light absorption";
 
 				for(y = py - 6; y <= py + 6; y++)
 				{
@@ -7586,7 +7591,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 
 		case ACT_SPIN:
 			{
-				if(!doit) return "spining around every 50+d25 turns";
+				if(!doit) return "spinning around every 50+d25 turns";
 				do_spin();
 
 				o_ptr->timeout = 50 + randint(25);
@@ -7652,10 +7657,10 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 				}
 				if (get_check("This will destroy the ring. Do you wish to continue? "))
 				{
-					msg_print("The ring explodes into a space distorsion.");
+					msg_print("The ring explodes into a space distortion.");
 					teleport_player(200);
 
-					/* It explodes, doesnt it ? */
+					/* It explodes, doesn't it ? */
 					take_hit(damroll(2, 10), "an exploding ring");
 					if( item > 0)
 					{
@@ -7671,7 +7676,7 @@ const char *activation_aux(object_type * o_ptr, bool doit, int item)
 
 				break;
 			}
-			/*amulet of serpents dam 100, rad 2 timout 40+d60 */
+			/*amulet of serpents dam 100, rad 2 timeout 40+d60 */
 		case ACT_BA_POIS_4:
 			{
 				if(!doit) return "venom breathing every 40+d60 turns";
@@ -7992,4 +7997,3 @@ static bool activate_spell(object_type * o_ptr, byte choice)
 
 	return (TRUE);
 }
-

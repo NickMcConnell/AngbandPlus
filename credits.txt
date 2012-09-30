@@ -36,7 +36,7 @@ drop me a line please) in no particular order:
 - Mef for the huge task of updating class and magic help documents for 2.x
   and lots and lots of other help updates!
 - Erik J Brown for some changes to help docs.
-- vrak (Per-Arne Holtmon Ak) for magic.txt
+- vrak (Per-Arne Holtmon Akoe) for magic.txt
 - Kat B for other help updates.
 - Chris Hadgis for Luck spoiler, lua *.pkg help docs, and other help docs.
 - lemming for skills.txt and stuff

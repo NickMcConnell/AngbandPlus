@@ -48,7 +48,7 @@ pop up in unexpected places.
 
 There are misty rumours that there may be stores outside of Bree. The faintest
 speak of stores of powerful items deep in the dungeon.
-Rumors can be helpful or just plain silly.
+Rumours can be helpful or just plain silly.
 All buildings are made of stone and unlikely to move around.
 
 

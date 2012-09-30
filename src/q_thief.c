@@ -25,7 +25,7 @@ bool quest_thieves_gen_hook(char *fmt)
 	get_mon_num_prep();
 
 	init_flags = INIT_CREATE_DUNGEON;
-	process_dungeon_file("thieves.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "thieves.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 
 	/* Rip the inventory from the player */
 	cmsg_print(TERM_YELLOW, "You feel a vicious blow on your head.");
@@ -60,7 +60,8 @@ bool quest_thieves_hook(char *fmt)
 	if (p_ptr->inside_quest != QUEST_THIEVES) return FALSE;
 
 	/* ALARM !!! */
-	if (cave[17][22].feat == FEAT_OPEN)
+	if ((cave[17][22].feat == FEAT_OPEN) || 
+            (cave[17][22].feat == FEAT_BROKEN))
 	{
 		cmsg_print(TERM_L_RED, "An alarm rings!");
 		aggravate_monsters(0);
@@ -126,13 +127,13 @@ bool quest_thieves_finish_hook(char *fmt)
         /* Continue the plot */
 
         /* 10% chance to randomly select, otherwise use the combat/magic skill ratio */
-        if (magik(10) || (get_skill(SKILL_COMBAT) == get_skill(SKILL_MAGIC)))
+        if (magik(10) || (s_info[SKILL_COMBAT].value == s_info[SKILL_MAGIC].value))
         {
                 *(quest[q_idx].plot) = (magik(50))?QUEST_TROLL:QUEST_WIGHT;
         }
         else
         {
-                if (get_skill(SKILL_COMBAT) > get_skill(SKILL_MAGIC))
+                if (s_info[SKILL_COMBAT].value > s_info[SKILL_MAGIC].value)
                         *(quest[q_idx].plot) = QUEST_TROLL;
                 else
                         *(quest[q_idx].plot) = QUEST_WIGHT;

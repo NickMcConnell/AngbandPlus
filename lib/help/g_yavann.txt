@@ -39,11 +39,11 @@ There are five prayers all told, which are:
    Create a floor of grass around you. While on grass and praying
    a worshipper of Yavanna will know a greater regeneration rate.
 3. [[[[[BTree Roots] (Level 15)
-   Creates roots deep in the floor from your feets making you more stable and
+   Creates roots deep in the floor from your feet making you more stable and
    able to do better attacks but prevents any movement (even teleportation).
    It also makes you recover from stunning almost immediately.
 4. [[[[[BWater Bite] (Level 20)
-   Imbues your weapon with a natural stream of water.
+   Imbues your melee weapon with a natural stream of water.
    At level 25, it spreads over a 1 radius zone around your target.
 5. [[[[[BUproot] (Level 35)
    Awakes a tree to help you battle the forces of Morgoth.

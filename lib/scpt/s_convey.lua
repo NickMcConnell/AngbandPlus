@@ -200,7 +200,7 @@ PROBABILITY_TRAVEL = add_spell
         		return "dur "..get_level(PROBABILITY_TRAVEL, 60).."+d20"
 	end,
         ["desc"] =	{
-        		"Renders you instable, when you hit a wall you travel throught it and",
+        		"Renders you immaterial, when you hit a wall you travel through it and",
                         "instantly appear on the other side of it. You can also float up and down",
                         "at will"
         }

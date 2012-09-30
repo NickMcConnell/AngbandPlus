@@ -378,7 +378,7 @@ gets the message "You are no longer invisible".
 * Set "p_ptr->tim_lite", notice observable changes
 *
 * Note the use of "PU_VIEW", which is needed to
-* memorize any terrain features which suddenly become "visible".
+* memorise any terrain features which suddenly become "visible".
 * Note that blindness is currently the only thing which can affect
 * "player_can_see_bold()".
 */
@@ -404,7 +404,7 @@ gets the message "You are no longer bright".
 /*
 * Set "p_ptr->blind", notice observable changes
 *
-* Note the use of "PU_UN_VIEW", which is needed to memorize any terrain
+* Note the use of "PU_UN_VIEW", which is needed to memorise any terrain
 * features which suddenly become "visible".
 * Note that blindness is currently the only thing which can affect
 * "player_can_see_bold()".
@@ -768,7 +768,7 @@ message "Invulnerability" if "v" is > 0. Otherwise the player gets
 the message "The invulnerability wears off".
 
 #####GParameters:
->v is the time until invunerability expires (must be between 0 and
+>v is the time until invulnerability expires (must be between 0 and
   10000).
 
 ----------------------------------------------------------------------
@@ -939,7 +939,7 @@ player gets the message "You feel less resistant to cold".
 */
 
 #####GDescription:
-Set time "v" until poison resisttance expires. The player gets the
+Set time "v" until poison resistance expires. The player gets the
 message "You feel resistant to poison" if "v" is > 0. Otherwise the
 player gets the message "You feel less resistant to poison".
 
@@ -990,7 +990,7 @@ Otherwise the player gets the message "You are no longer protected
 against chaos".
 
 #####GParameters:
->v is the time until choas resistance expires (must be between 0 and
+>v is the time until chaos resistance expires (must be between 0 and
   10000).
 
 ----------------------------------------------------------------------
@@ -1147,7 +1147,7 @@ levels is crossed a message is printed.
 */
 
 #####GDescription:
-Check if player experience level has changed. If a player has acheived
+Check if player experience level has changed. If a player has achieved
 a level for the first time, give reward or corruption (1 chance in 3)
 if they apply, and increase skill points.
 
@@ -1166,7 +1166,7 @@ if they apply, and increase skill points.
 
 #####GDescription:
 Check if object "o_ptr" experience level has changed. If an object has
-acheived a level for the first time, apply gains.
+achieved a level for the first time, apply gains.
 
 #####GParameters:
 >o_ptr is the pointer to the object gaining experience.
@@ -1181,7 +1181,7 @@ acheived a level for the first time, apply gains.
 
 #####GComment: 
 /*
-* Gain experience (share it to objecst if needed)
+* Gain experience (share it to objects if needed)
 */
 
 #####GDescription:

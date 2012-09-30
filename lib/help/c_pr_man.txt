@@ -5,7 +5,7 @@
 #####R=== Manwe's Priests ===
 
 #####GDescription
-As the forces of darkness arose, *****g_manwe.txt*0[Manwe], lord of air, realized that urgent
+As the forces of darkness arose, *****g_manwe.txt*0[Manwe], lord of air, realised that urgent
 action was needed to save Arda from the incoming darkness. So he started gathering
 followers from the ranks of men and elves and he instructed them to do battle against
 the forces of Udun. His priests must be quick and strike before the situation becomes

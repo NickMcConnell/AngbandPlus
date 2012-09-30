@@ -1429,7 +1429,7 @@ K:263:0x85/0x85
 # Slow Poison
 K:264:0x85/0x85
 
-# Neutralize Poison
+# Neutralise Poison
 K:265:0x85/0x85
 
 # Restore Mana
@@ -2892,7 +2892,7 @@ K:785:0xC4/0x8E
 # Climbing Set~
 K:786:0xC1/0x93
 
-# Adventurer's guide to Middle Earth
+# Adventurer's guide to Middle-earth
 K:787:0x83/0x9E
 
 # & Demonblade~

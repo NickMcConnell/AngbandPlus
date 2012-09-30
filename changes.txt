@@ -1,428 +1,51 @@
-ToME 2.1.0 changes
+# Keys:
+#   I = Interface, M = Monster, O = Object, G = Gameplay,
+#   m = Misc, P = Player, D = Dungeon, B = Bug
 
-Interface changes:
-- Better (hopefully) object identification screen
-- The game asks confirmation before learning a skill that can exclude an
-  already known one
-- When 'I'nspecting(or upon *id*) a fully *id* weapon/ammo the game will
-  tell you the damage it would do if you used it(idea from Ey)
-- 'U' power menu is now usable with repeat key 'n'
-- Added avoid_shimmer efficiency option to suppress shimmering of terrain
-  features, because I have had problems with them on really big screens
-  -- pelpel
-- Easy close is now slightly more intelligent in their handling of
-  broken doors -- pelpel
-- Ingame contextual help is on by default(it was before, but it was bugged..)
-  It is now proccessed by lua, file help.lua and should be much easier to
-  add new sections to than before. So all feel free :)
-- Contextual help for the birth screens too. Press ? when over a race,
-  class, ... and it'll bring the specific help for it
-- Contexual help to skill screen, press ?
-- Easy macro recorder! Just press $ and press a normal key sequence!
-- The new Automatizer got a GUI :) It should be quite easy to grasp, you
-  define rules to match and action to take. But it does allow very complex
-  rules.
-- Updated the forgotten IBM pseudographics, based on my unknown work for
-  Pern 4.1.2.  Also added an X11 BDF file so that it can be used on
-  the three X ports -- copy graf-ibm.prf to font-x11.prf in your user
-  directory (i.e. ~/.tome) and set the font of main window to the font
-  made from lib/xtra/ang16.bdf.  Instruction for installing new X fonts
-  should be found in the bdftopcf, mkfontdir and xset man pages.
-  -- pelpel
-- Current location(town, level, ...) is show in orange when about to recall
-- You can press $ at object destruction prompt to automaticaly create a new rule
-  for the Automatizer about the object being destroyed
-- Macro-patch from Mogami, now the macro prf files are portable between Windows,
-  X11 and Mac. It also shows readable triggers like: \[shift-F1] and such
-- Replaced font-ibm.prf, graf-ibm.prf, font-win.prf and font-mac.new (a
-  font-mac.prf replacement that has IBM-like pseudographics definitions)
-  with program-generated ones, hopefully up-to-date with recent changes
-  in info.txt files -- pelpel
-- Unusable skills do not show anymore on the skill screen
-- New option to not have the equipment/inventory windows move items around
-  when a prompt ask for an item. Thanks to John Gilmore
-- Recording cmovies is now working on a microsecond timeframe, much better looking
-  Let's just hope that silly systems know gettimeofday()
-- Obvious object flags will show up when 'I'nspecting items when they are
-  only identified(no more need for *id*). Obvious flags are like acid
-  resisatnce on an armor of resist acid and such
-- Cause of death is now shown in chardumps
-- CTRL+] to save an html screenshot anytime(ie: to preserve the current
-  message)
-- Thanks to the new TERM_XTRA_GET_DELAY the cmovie code is now cleaner
-  and should work fine:) Windows and unix platforms should now be able
-  of microsecond resolution cmovies!
-- Skills that have sub-skills in which you do not (and cannot) have points
-  no longer display the redundant +/- sign. thanks lemming for the code.
-  -- fearoffours
-- Fixed the bug that told you you could buy more items than you really could.
-  At least when using auto_haggle. Poor sods that dont use it shall burn
-  in hell
-- Damage info is displayed for items that are only identified
-- new <state> function to the automatizer to detect identified state
-- Automatizer rules are automatically apply upon exit of the screen or
-  autogeneration of a rule with the 'k' command
-- Added a message if you don't have powers but press 'U' -- masmarangio
-- Added the extended command #quest (or #Q for short) to get quest list
-  because some prts catch the CTRL+Q combo
-- 'Compare weapons' works only with melee weapons, item selection changed.
-  Expanded the description of a god at birth. -- masmarangio
-- Removed the silly 'You are shooting with a flute' message. -- masmarangio
-- Added OBJ_FOUND_SELFMADE for items that were created by the player.
-  Alchemist should also use it (not changed yet). Replaced the plain
-  description "in the Town" for items fond on the surface -- masmarangio
-  
+# Note that these are the dates the patches were ported, which may
+# differ from the dates they were committed to HEAD!!! -- neil
 
-Gameplay changes:
-- Wielding the One Ring has some ... disadvantages now ...
-- Troll Glade/Wight Grave selection is now (usualy) based on the
-  Combat/Magic skills level
-- The chance for combat item pseudo-ID now improves exponentially,
-  just like V Warriors (combat skill 0 == plev 0, maxed == plev 50),
-  while that for magic items improves slowly, just like V Rangers
-  and Mages but with higher success rate (more than ten times as
-  frequent as V Rangers) -- pelpel
-- Added town of Khazad-Dum (where 'exit' from Moria was) with nice Mining
-  supply shop. -- fearoffours
-- Added new god quest. Given at random time by your god, you have to retrieve
-  a piece of a relic generated at a random level of a randomly places dungeon.
-  More than one of these quests may be given (currently up to 4), though only
-  if you complete previous quests. The relic is only generated once in each
-  dungeon, so look carefully for it. Diving won't help you. -- fearoffours
-- Added the fireproofing quest. Visit the Mage tower in lothlorien to get the
-  quest, bring back something for the mage, get books fireproofed in return.
-  -- fearoffours
-- Alchemy totaly changed! Thanks to John Gilmore for the patch! It has now entered
-  cvs to begin being tested and "balanced" ;)
-- Yavanna's followers now have a God quest. -- fearoffours
-- The Old Mage in Lothlorien will now fireproof staves or scrolls as well as
-  books, making it profitable for non-spellcasters. Currently he has enough
-  errr 'fireproofing material' for 3 books or 4 staves or 12 scrolls, or a
-  combination of these. Check fireprof.lua for the code. -- fearoffours
-- OK the god quest is a little easier now, as you're told the dungeon is to
-  the north/south and east/west of you. -- fearoffours
-- Having autosquelch on will now not affect the essence in the fireproof
-  quest. And the mage gives a warning about the fact it may be easy to
-  destroy it too. -- fearoffours
-- God quest relic is now inscribed to prevent automatizer 'accidents' 
-  -- fearoffours
+15/01/2003
+[G]- Summoner can extract totems from skeletons / carapaces. -- masmarangio
+[B]- Trap of Wasting Wands (affects also Staves) change the Wand/Staff to the of
+     nothing type. -- masmarangio
 
-Monster changes:
-- Monster ego wont start awake
-- Farmer maggot quest provides a better reward, thanks to Revanant Morituri
-  and Wil Hunt for the idea
-- Changed "The Balrog of Moria" to "Durin's Bane". Less of a mouthful, and more
-  in-theme -- fearoffours
-- added the "spirits". They are the inhabitants of the void. They're nasty.
-  -- fearoffours
-- Only gain exp from pet kills, not from every monsters, when using Monster
-  Lore skill
-- Themed townspeople! In Lothlorien and GOndolin you find elven people and
-  dwarven in Khazad-dum
-- Firebirds (formerly firelizards) and Thunderlords are B, not d and D
-  -- neil
-- Increase Thunderlord rarities -- neil
+17/01/2003
+[B]- Fixed a fountain filling bug, simplified the item_tester -- masmarangio
 
-Object changes:
-- Removed CURSE_NO_DROP from ego items. Players want new curses, and when
-  they get them they complain...
-- Ring/Amulet of Spell, cheap, early objects that can contain a spell
-- Temple will now stock random spells from god schools, Magic Shop will
-  only stock non god spells and bookstore will contain both
-- Stores buyable list is now lua defined
-- Scythes of Slicing are now vorpal, rarer and deeper
-- All objects now have a description, thanks to Konijn
-  When identifying an item you can then press 'I'nspect to check it. It si most
-  usefull for scrolls & such, they tell you what exactly they will do
-- Behold! The new Grand Scheme For Wands, Staves and Rods!;)
-  Now all sticks in the game use the same system as the spells. The unified
-  spell system could we say ;)
-  What does it changes? sticks should now be usefull, jsut as spells are.
-  For example a wand of manathrust is not to be laughed at.
-  Hw does it work? 'I'nspect the stick you want to know about you'll see
-  he details, each stick gets a spell and a base level. The base level
-  means the spell will be cast at that level if you have 0 in the
-  Magic Device skill. If you have Magic Device it increases the level.
-  Works a bit like Spell-power for the spells.
-  Also the distinction of wands/staves is tenuous now, wands are attack
-  stuff and staves not but wands can sometimes NOT be targeted spells
-- Activations are now a_info/k_info/e_info definable with a: lines
-  You can do a:HARDCORE=NAME where NAME is an activation name
-  that is hardcoded in the C source.
-  Or a:SPELL=Name where Name is a "spell" name as defined in the unified
-  spell system(the first defined spell(index 0) cannot be used this way
-- When 'I'nspecting objects you'll know how you found them
-- 3 new artifacts of Gothmog, regrouped in an item set
-- Darksword antimagic field now scales on the antimagic skill
-  So using one with 0 in the skill is not worth much
-- Distinguish stolen items from bought items -- neil
-- Cut down the price of Spectral weapon given their .. usefullness
-- Let Demonshields and Demonhorns be treated as armor -- neil
-- Wands/staves are now described this way: a wand of foo[bonus|max]
-  Bonus is the bonus spell levels you get, and max is the limit of spell
-  levels for that wand. It means even if you have Magic Device at level 50
-  you cannot get a level 50 spell from a wand with max 30. Naturally the
-  max(and bonus) increase with the depth you find the wand/staff :)
-- Fix and reduce the wand and staff pricing -- neil
-- Allow Wooden Rods to be sold at the Magic Shop -- neil
-- Monster traps are disarmed by GF_KILL_TRAP and GF_KILL_DOOR -- masmarangio
+27/01/2003
+[B]- Make wielding more than one demonshield (or demonsword I suppose) work
+     -- neil
 
-Player changes:
-- New corruption system, savefiles are compatibles but you will loose
-  all your corruptions.
-  Most corruptions now have a good and a bad effect. Some corruptions
-  depends of others, it means that you can only get them when you have
-  the ones they depend of(i.e: Balrog Form need Balrog Wings, Balrog
-  Aura and balrog Strength to work). Some corruptions can be mutualy
-  exclusive. The list of corruption is totaly rewrote. They are more
-  in-theme now.
-- All Udun spells are no more multi-school spells
-- Reorganized the skill tree to remove the Misc skill tree. Alchemy is now
-  under Magic, Antimagic is in Combat and Music in Spirituality
-- Give Ents scrolls of satisfy hunger instead of some food.  -- Kusunose
-- Increased the modifier of the masteries for warriors
-- New Warrior subclass, the Demonologist, spell enhanced warriors. They
-  use the new Demon school and the renewed Demonblades, Demonshields and
-  Demonhorns. Their spells enhance their fighting potential. They can either
-  be seen as a force of good, fighting against demons with their own powers
-  or as a force of evil fighting to bring corruption to the world.
-- Sorcerors begin with a robe instead of a dagger
-- Changed the formula to calc the player HP when using possession so that
-  a higher possession skill will be prefered
-- lost Souls now have see invisible, I know I'm far too nice :)
-- New Water spell: Vapor, it create a low damage wide radius short lasting
-  cloud of water. It is designed to be a cheap attack spell for annoying
-  critters. Beware, random spellbooks & inscribed objects spells will "morph"
-  to other ones, sorry, unavoidable
-- Mindcrafters gets esp even after level 40
-- Symbiotic power changed to be bookless
-- Available skills to leanr via random quests are defined in s_info.txt
-- Trying to mimic when already mimiced(with the skill) will turn you back to
-  normal form
-- Yavanna Kementari as a new Vala, protectress of nature. Along with her
-  priests, the Druids
-- Typo in Druid description: Kemenari -> Kementari. --fearoffours
-- Subraces can now have skill mods
-- Spells bound to two or more schools now require at least one point in
-  each of the schools to be used
-- New skill, Stunning-blows, a haftedmastery subskill, just like critical
-  hits is a subskill of swordmasery. It requires a hafted weapon > 5 lb
-- Necromancers start with corpse preservation skill
-- New Meta/Conveyance Spell: Tracker, it will track the last teleportation
-  that happened on the level and teleport you to its destination
-- Summon skill doesnt caerte drops for partial summons
-- Summon skill doesnt work in an antimagic field
-- Lost souls start with many satisfy hunger scrolls, I'm really too nice...
-- Players in monster form can now use barehanded combat, instead of
-  reverting to monster attacks. -- neil
+20/02/2003
+[B]- empty chests are generated as known (i.e. they were opened) -- masmarangio
+[B]- 'U' powers didn't remove Disruption Shield
+[B]- Potions of Cure Water are no more extractable by Alchemy
+[B]- Possibly the relic in the god quest couldn't have been generated. 
+     Wasn't me honest guv. -- fearoffours
+[B]- <sval> in automatizer worked even when the player was not aware of
+     the object.  It was possible to use this as a free ID. Thanks to 
+     kobayasi for the patch.  -- Kusunose
+[B]- Some menus exits when 'e' was hit on some comapilation.
+     Note: '\e' for escape is compiler dependant extension so do not
+     use it.  Thanks kobayasi for fix.  -- Kusunose
+[B]- All known staves and wands are displayed as 'Globe of Light' in
+     the Known Object list.  Thanks kobayasi for fix.  -- Kusunose
+[B]- Chaging the melee style did not update bonuses.  Thanks to kobayasi for
+     the patch.  -- Kusunose
+[I]- Hopeless attempts to dig will be noticed to the player -- thanks to jepler
+[B]- A possessor (the creature, not the class) can only possess whole
+     corpses and skeletons, not pieces of meat -- masmarangio
 
-Misc changes:
-- The splash screen now shows "Tales of Middle Earth" or "Troubles of Middle
-  Earth" randomly.  Thanks to Scott Holder for the idea and some code.
-  (takkaria)
-- makefile.org now defaultds to ./lib for the lib directory
-- makefile.org is now makefile.std
-- Added safe_setuid_grab/safe_setuid_drop to all the functions that
-  access files in the lib directory. I did so even for the game
-  initialisation, knowing that it's very unorthodox. This is because
-  I found some of them in the init[12].c.  There's no other sure ways
-  to keep them from messing multiuser installations. -- pelpel
-- Added makefile.dos, which is a copy of makefile (now), in order to
-  prevent overwriting accidents. Ideally, 'makefile' should be in the
-  .cvsignore, so that every developper can feel at ease with his/her
-  own preferred environment -- pelpel
-- Added Melkor to the gods docs.
-- Improved the adventurer guide and added a section for macros to it
-- Made chg_to_txt in files.c conditional, so that it won't be included in
-  Windows, Mac and RISCOS ports (they don't call the function, so it has
-  been dead code) -- pelpel
-- Do not grab/drop permissions twice.  Thanks to kobayasi for the patch.
-  -- Kusunose
-- Removed the autosquelch to replace it with a new Automatizer that should
-  be much more powerful. It lacks a gui, but that should soon change :)
-- Added updated class help documents. Removed extraneous ones.  Amended
-  links in birth.txt to reflect changes. Added appropriate entries to
-  help.lua for contextual class help at birth. Thanks to Mef. -- fearoffours
-- More contextual help: races and god selection at birth, rod tips, rods and
-  trapping kits. -- feaoffours
-- Fix birth.txt crash -- fearoffours
-- Updated skill docs, thanks to lemming
-- More minor help file updates. thanks mef and Chris Hadgis
-- Reformatted the makefile.WHICH file.  Do we really need this file anymore?
-  other variants get by without it, I don't really think it's needed...
-  (takkaria)
-- Reformatted the todo list, removed some entries which have been done.
-  Also added a section for stuff which I will do (one day). (takkaria)
-- I've reformatted and reorganized a fair bit of notes.c; I've made stuff
-  less hacky and made the function which writes notes to file use
-  my_fputs()...  Also replaced some hardcoded buffer sizes with sizeof().
-  (takkaria)
-- Removed hardcoded buffer sizes in wizard1.c. (takkaria)
-- Added .cvsignore to the src directory to prevent makefile overwriting
-  accidents from happening. Currently it excludes makefile (developers
-  are expected to update platform-specific makefile if s/he indents to
-  make permanent changes to them), tome, tolua, TOME.EXE and TOLUA.EXE.
-  -- pelpel
-- Updated symbiant helpfiles including full list of their new bookless spells
-  in m_symbio.txt -- fearoffours
-- Introduced a performance measure for process_world_hook, which I suspect
-  is causing slow movement problems in the reduced map mode.  Please read
-  the comment in process_world() [in dungeon.c] for alternative solutions.
-  -- pelpel
-- Changed every instance of "essense" to the correctly-spelled "essence".
-  Update your macros. -- neil
-- Trimmed down the size of chardumps(removed uselessness from object
-  descriptions)
-- Added descriptions to Totems, removed redundant need to identify them.
-  -- neil
-- Help docs for Yavanna and Druids, thanks Mef and Massimiliano Marangio.
-  -- fearoffours
-- Yes, more help updates. In tome_faq.txt and TANG.txt I added links to
-  skills.txt, magic.txt, birth.txt and gods.txt where appropriate. Removed
-  two references to Pern that got missed in tome_faq.txt.Added a
-  c_priest.txt file for contextual help at birth when choosing a main class.
-  Corrected typo in r_info (SPirit became Spirit). -- fearoffours
-- Added a new TERM_XTRA call, TERM_XTRA_GET_DELAY which should return the
-  time in microseconds. What time exactly isnt meaningfull but it must be
-  usable to compute the length of time an action takes.
-- Made all the socket code into z-sock.[ch] and wrapped it into a
-  virtualizing layer so that the rest of the code can use it independantly
-  of the implementation. Currently unix and windows sockets are supported.
-- Lots and lots of itsy-witsy help file updates. Stunning-blows, other
-  references to Pern, more links to other files... -- fearoffours
-- Compress the grid in the character dump, eliminating blank lines and only
-  showing lines without '+'s for the resistances and sustains page -- neil
-- Show the Mathom-house contents in the character dump -- neil
-- Cleaned up the notes code a little.  (takkaria)
-- Display in the dump how interesting items were found -- neil
-- DESTDIR support in makefile.std -- neil
-- main-net.c display module which redirects display over the z-sock layer
-  and thus over any ip network to allow to create very lightweight terminals
-  to play ToME everywhere. This is still experimental
-- Distinguish average, disarmed, and empty chests in the automatizer -- neil
-- Can include string terminators in help file tags i.e:
-  *****foo.txt*7[see:\] it works;)]
-- Can save screenshots to help file format, this is only usefull to
-  documentation writters and thus the option only appears when wizard mode
-  is activated. It uses the new verbatim mode &&&&& at the line beginning
-- The helpfile typo corrections just keep coming! Added Udun school help,
-  and demonologist school help, thanks Mef and masmarangio. -- fearoffours
-- Some more spelling errors corrected. Updated warriors skills in the
-  help files -- masmarangio
-- Skill updates for more character classes in the help files. -- masmarangio
-- Automatizer tutorial added. -- fearoffours
-- Clean out some unused variables and some other valid warnings -- neil
-- Updates of the character races help files -- masmarangio
-- God quest gets more clues to the location, and they're printed in the 
-  'Ctrl-Q'uest screen. I'm too nice. -- fearoffours
-- Added contextual help for wands/staves, also added a section in the help 
-  about it. --fearoffours
-- Some small help file updates (Muar becomes Durin's Bane) -- masmarangio
-- Added full mindcrafting spell info in the same form as other schools of 
-  magic. Removed help on the Music skill, as this will not be included for 
-  2.1.0. Added some other help stuff. -- fearoffours
-- Help now has an alphabetical index! -- fearoffours
-- Removed help on the Druidistic skill since Druids are normal Priests now.
-  Minor changes to the skill example to match human warriors.
-  Updated Option help file, some other minor changes -- masmarangio
-- Removed Tank Points and firestones. -- neil
-- Removed PERNANGBAND monster flag and renamed as many Pern monsters,
-  artifacts, and other references as I could find -- neil
-- Renamed instruments in luckspoi.txt, comment changes -- masmarangio
-- The description of ACT_DEST_DOOR includes traps, better description of
-  deactivating music instruments. -- masmarangio
+21/02/2003
+[B]- Stop using temp files for level loading.  This should work around the
+     problems people have had with them.
 
-Dungeon changes:
-- Since Tome generated small levels once in three times when requested,
-  which I think is too often, and in Z and Ey the chance is 1/5 and 1/10
-  respectively, I lowered the chance to 1/6 -- pelpel
-- Added SPIRIT flag to The Void, so that Spirits are actually generated there now
-  -- fearoffours
+23/02/2003
+[B]- Cancelling the reward skill sellection could crash the game. -- Kusunose
 
-Bug fixes:
-- Fixed a silly bug preventing Polearm masstery from wroking
-- In multiuser installations, notes and cmovie were written under the lib
-  directory using the game's permission, making them inaccessible by
-  the player. I moved them to ~/.tome. Note: This means that a coder
-  shouldn't grab permission before opening files in these directories
-  -- pelpel
-- There are still inappropriate (and even unbalanced!!!) calls to
-  safe_setuid_grab() and safe_setuid_drop() in the game. Thanks Neil
-  for pointing out those in the macro save commands. There are so many
-  places that I have to look at, but I'm trying... -- pelpel
-- Perma curse cannot happen on randarts anymore
-- Player could not pick up items from home if he did not have enough
-  gold.  -- Kusunose
-- Traps of wasting wand dont mess up wands
-- Dragon helms get resistances
-- No races were allowed to be loremasters
-- Fixed a bug in Character classes allowed, tahnks to Alex Wilkins
-- Spells cannot be cast while blinded or confused(execpt for a few)
-- Poor Melkor didnt had his altar generated in dungeons, while he is the
-  only god for a use of an altar
-- Fixed the -1 activation power of some mage staves of spell
-- Added missing spell frequency to Fire golem.  -- Kusunose
-- Symbiant cannot pickup a hypnotized pet from a pile.  Thanks to kobayasi
-  for the patch.  -- Kusunose
-- Stats more than 18/220 were displayed incorrectly if linear_stats was ON.
-  -- Kusunose
-- The small_level option had the same effect as always_small_levels
-  -- pelpel
-- Exploding ammo dont stack with normal ammo
-- Ammo creation is bound to Arechery skill instead of player level
-- Fixed a bug in related skills, when one increased a skills sometimes the
-  related skills didnt increased
-- Temporal stat drain no longer cancels normal stat drain.  -- Kusunose
-- The amount of mana in each grid was always magical level.  -- Kusunose
-- Extracted essences overwrote a weapon slot when inventry was full.
-  -- Kusunose
-- Fix mushrooms stacking for the maggot quest
-- Casting "Disperse Magic" when spell level is 20 or more produced a lua
-  error.  -- Kusunose
-- The centre player option failed to do so while running. Thanks Neil
-  Stevens for the patch. -- pelpel
-- Random Artifact arrows should now stack properly.  -- wilh
-- Mindcrafters lost their ESP at level 40.  Now they have it permanently
-  at that level.  (p_info.txt) -- wilh
-- Above bug was supposed to be skill level 40, not clvl 40.  Fixed. :)
-- Fixed a bug that made mage staves very costy
-- Fix a bug of wands in store
-- Fix an old spelling error: "droped" not "dropped" -- Neil
-- Fixed bug where ironman_rooms would give you the number of random quests
-  you played last time, instead of zero. -- neil
-- Allow non-artifact, non-ego items with activations be activated. -- neil
-- Don't let the Maggot sling be generated randomly. -- neil
-- Prevent the automatizer from treating "good" bows as "average" -- neil
-- Prevent earthquake damage for characters with wraithform, and prevent
-  some of the damage for characters with semi-wraithform -- neil
-- Fix spelling of Book of Teleportation -- neil
-- Magelock cannot override permanent walls(or walls for taht matter) and works
-  only in LOS
-- Automatizer should not treat enchanted ammo and tools as average, either.
-  -- neil
-- Fixed the bug that allowed to use unallowed gods
-- Two-handed artifact weapons now act as such -- neil
-- Don't mark items as store bought until they are bought -- neil
-- Don't show Gondolin twice in the dump -- neil
-- Fixed the incredible townspeople generation rate
-- String fixes from lemming -- neil
-- Don't print discomfort messages when examining and comparing weapons -- neil
-- Add experimental support to the automatizer for marking "bad" rings and
-  amulets -- neil
-- Let summoners summon again (patch by masmarangio) -- neil
-- Remove duplicate warning of an empty quiver (patch by masmarangio) -- neil
-- Make the automatizer work independently of the player's body -- neil
-- Don't spoil things in the dump -- neil
-- Maiar can't choose a god anymore -- masmarangio
-- Staves are properly fireproofed now. -- fearoffours
-- Correct Damage/Round display for bare and bear combat. -- neil
-- Melkor wants you to sacrifice corpses, not raw meat -- neil
-- Fixed an off-by-one error in loadsave.c that caused savefile corruption
-  if the number of monsters or objects saved was maximal -- masmarangio
-- Corrected the price of enchanted boomerangs and instruments. -- masmarangio
-- Corrected the used multiplier while 'I'nspecting ammo.
-  Fixed the damage of throwing items / boomerangs -- masmarangio
-- Fix some artifact activations -- neil
-- Fixed (temporarily) item activation and description. Some items could
-  activate for the unified activation, and display the other activation, so
-  further changes are needed. -- masmarangio
+27/02/2003
+[B]- Inspecting or Identifying something shouldn't infect you with the
+     Black Breath -- neil
+
+[V]  T.o.M.E 2.1.2 aka "Nanotwirler"

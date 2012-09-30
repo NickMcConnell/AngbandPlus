@@ -1,5 +1,5 @@
 #####R             /----------------------------------------\
-#####R            <  Adventurer's guide to the Middle Earth  >
+#####R            <  Adventurer's guide to the Middle-earth  >
 #####R             \----------------------------------------/
 
 Summary:
@@ -10,7 +10,7 @@ Summary:
 
 Introduction:
 
-Middle Earth is vast and mysterious, full of dangers but also full of
+Middle-earth is vast and mysterious, full of dangers but also full of
 rewards for the brave.
 
 New adventurers should know that pressing < and > can switch
@@ -22,7 +22,7 @@ dungeons from it.
 ~~~~~1
 #####G(a) The Towns
 
-You start in a small village named Bree in the western part of the Middle Earth.
+You start in a small village named Bree in the western part of the Middle-earth.
 Here you will also find the entrance to the Barrow-Downs, a fairly safe and
 simple dungeon.
 

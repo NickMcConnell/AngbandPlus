@@ -10,7 +10,7 @@ PernAngband.
 
 One hard thing to decide was on which Angband to base it. Although I didn't
 like Zangband because of the Zelazny universe, which I found to be not very
-Tolkiennian, I chose it because of all the good things it had (especially
+Tolkienish, I chose it because of all the good things it had (especially
 the race powers that I wasn't able to code at the time). So I removed
 much of the Zelazny stuff and replaced it with Tolkien and Pernish stuff.
 And so the history of PernAngband began with the version 2.9.9a.
@@ -18,8 +18,8 @@ And so the history of PernAngband began with the version 2.9.9a.
 Now, in PernAngband 5.x.x, PernAngband is a thriving Angband variant
 with plenty of unique features.
 
-Then came some legal problems with Annce McCaffrey estate and ubisoft and
-I had to remove the pern stuff, so the game got rename to ToME,
+Then came some legal problems with Anne McCaffrey estate and ubisoft and
+I had to remove the Pern stuff, so the game got rename to ToME,
 the Troubles of Middle Earth.
 
 #####R=== Zangband History and Information ===
@@ -43,12 +43,12 @@ as strong addiction to the Civilization style fantasy strategy game
 version of Zangband (2.*) incorporates this magic system, as well as
 the best features from Angband-- and PC Zangband 1.0. It is based on
 the Angband 2.8.1 sources (by Ben Harrison), and is therefore portable
-to other systems (unlike the earlier versions which were for dos-pc's
+to other systems (unlike the earlier versions which were for DOS-PC's
 only).
 
 Incidentally, this person (me, Topi Ylinen) also thought that the 
 standard Angband monsters were too easy, which led him to introduce
-such monsters as Death swords, Cyberdemons and Great wyrms of power...
+such monsters as Death swords, Cyberdemons and Great Wyrms of Power...
 
 Special thanks -- The current version of Zangband might not have come into
 existence without the significant help from these excellent Angband
@@ -61,10 +61,10 @@ programmers:
         of Zangband and for various patches.
 
         Julian Lighton, who must have sent me more ideas, patches, and
-        bug reports, than all the others toghether.
+        bug reports than all the others together.
 
         Robert Ruehlmann, whose nice new main-dos.c enables SVGA
-        graphics and even windows in ms-dos.
+        graphics and even windows in MS-DOS.
 
         Paul Sexton, who is responsible for about 50% of the new code
         in 2.1.0.
@@ -91,7 +91,7 @@ doesn't have enough time anymore to continue work on ZAngband.
 He asked for a new maintainer and I was the one to take over the task.
 May I introduce myself, my name is Robert Ruehlmann, I'm the creator
 of the graphical Angband versions for DOS and webmaster of
-"Thangorodrim - The Angband Page" ("http://thangorodrim.angband.org").
+"Thangorodrim - The Angband Page" ("http://www.thangorodrim.net").
 
 #####R=== Brief Version History (of standard Angband) ===
 
@@ -315,7 +315,7 @@ James E. Wilson, U.C. Berkeley
                  ...!ucbvax!ucbernie!wilson
 
 Other contributors:
-D. G. Kneller         - MSDOS Moria port
+D. G. Kneller         - MS-DOS Moria port
 Christopher J. Stuart - recall, options, inventory, and running code
 Curtis McCauley       - Macintosh Moria port
 Stephen A. Jacobs     - Atari ST Moria port

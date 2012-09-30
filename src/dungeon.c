@@ -1475,10 +1475,10 @@ static void process_world(void)
 	{
 		/* Let the script live! */
 		process_hooks(HOOK_PROCESS_WORLD, "()");
-	}
 
-	/* Handle the player song */
-	check_music();
+		/* Handle the player song */
+		check_music();
+        }
 
 	/* Handle class special actions */
 	gere_class_special();
@@ -2847,17 +2847,17 @@ static void process_world(void)
 
 #endif /* !pelpel */
 
-        /* Arg canot breath? */
-        if ((dungeon_flags2 & DF2_WATER_BREATH) && (!p_ptr->water_breath))
-        {
-                cmsg_print(TERM_L_RED, "You cannot breath water, you suffocate!");
-                take_hit(damroll(3, p_ptr->lev), "suffocating");
-        }
-        if ((dungeon_flags2 & DF2_NO_BREATH) && (!p_ptr->magical_breath))
-        {
-                cmsg_print(TERM_L_RED, "There is no air there! You suffocate!");
-                take_hit(damroll(3, p_ptr->lev), "suffocating");
-        }
+	/* Arg cannot breath? */
+	if ((dungeon_flags2 & DF2_WATER_BREATH) && (!p_ptr->water_breath))
+	{
+		cmsg_print(TERM_L_RED, "You cannot breathe water, you suffocate!");
+		take_hit(damroll(3, p_ptr->lev), "suffocating");
+	}
+	if ((dungeon_flags2 & DF2_NO_BREATH) && (!p_ptr->magical_breath))
+	{
+		cmsg_print(TERM_L_RED, "There is no air there! You suffocate!");
+		take_hit(damroll(3, p_ptr->lev), "suffocating");
+	}
 
 	/*
 	 * Every 1500 turns, warn about any Black Breath not gotten from
@@ -3241,7 +3241,7 @@ static void process_world(void)
 				mx = px;
 				my = py + 1;
 				get_pos_player(5, &my, &mx);
-				msg_print("Your egg hatchs!");
+				msg_print("Your egg hatches!");
 				place_monster_aux(my, mx, o_ptr->pval2, FALSE, FALSE, MSTATUS_PET);
 
 				m_ptr = &m_list[cave[my][mx].m_idx];
@@ -3363,7 +3363,7 @@ static void process_world(void)
 				mx=o_ptr->ix;
 				my=o_ptr->iy;
 				get_pos_player(5, &my, &mx);
-				msg_print("An egg hatchs!");
+				msg_print("An egg hatches!");
 				place_monster_one(my, mx, o_ptr->pval2, 0, FALSE, MSTATUS_ENEMY);
 				floor_item_increase(i, -1);
 				floor_item_describe(i);
@@ -3615,7 +3615,7 @@ static void process_command(void)
 			break;
 		}
 
-#ifdef ALLOW_QUITING
+#ifdef ALLOW_QUITTING
 
 		case KTRL('L'):
 		{
@@ -3776,7 +3776,7 @@ static void process_command(void)
 			if (do_control_walk()) break;
 
 			do_cmd_walk(always_pickup);
-
+	
 			break;
 		}
 
@@ -3796,8 +3796,8 @@ static void process_command(void)
 		/* Begin Running -- Arg is Max Distance */
 		case '.':
 		{
-			if (p_ptr->control) break;
-			if (!p_ptr->wild_mode) do_cmd_run();
+			if (p_ptr->control || p_ptr->wild_mode) break;
+			do_cmd_run();
 			break;
 		}
 
@@ -4034,15 +4034,18 @@ static void process_command(void)
 				break;
 			}
 			do_cmd_activate_skill();
-
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
 		/* Pray a prayer */
 		case 'p':
 		{
-			if (p_ptr->control) break;
-			if (!p_ptr->wild_mode) do_cmd_pray();
+			if (p_ptr->control || p_ptr->wild_mode) break;
+			do_cmd_pray();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4057,8 +4060,10 @@ static void process_command(void)
 		/* Cut up a corpse */
 		case 'h':
 		{
-			if (p_ptr->control) break;
-			if (!p_ptr->wild_mode) do_cmd_cut_corpse();
+			if (p_ptr->control || p_ptr->wild_mode) break;
+			do_cmd_cut_corpse();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4067,14 +4072,18 @@ static void process_command(void)
 		{
 			if (p_ptr->control) break;
 			do_cmd_cure_meat();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
 		/* Steal an item form a monster */
 		case 'Z':
 		{
-			if (p_ptr->control) break;
-			if (!p_ptr->wild_mode) do_cmd_steal();
+			if (p_ptr->control || p_ptr->wild_mode) break;
+			do_cmd_steal();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4110,6 +4119,8 @@ static void process_command(void)
 			}
 
 			do_cmd_activate();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4189,6 +4200,8 @@ static void process_command(void)
 			}
 
 			do_cmd_aim_wand();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4206,6 +4219,8 @@ static void process_command(void)
 			}
 
 			do_cmd_zap_rod();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4223,6 +4238,8 @@ static void process_command(void)
 			}
 
 			do_cmd_quaff_potion();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4236,6 +4253,8 @@ static void process_command(void)
 			    (c_ptr->feat == FEAT_EMPTY_FOUNTAIN))
 			{
 				do_cmd_drink_fountain();
+				squeltch_inventory();
+				squeltch_grid();
 			}
 			else
 			{
@@ -4259,6 +4278,8 @@ static void process_command(void)
 			}
 
 			do_cmd_read_scroll();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4276,6 +4297,8 @@ static void process_command(void)
 			}
 
 			do_cmd_use_staff();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4293,6 +4316,8 @@ static void process_command(void)
 			}
 
 			do_cmd_power();
+			squeltch_inventory();
+			squeltch_grid();
 			break;
 		}
 
@@ -4351,8 +4376,10 @@ static void process_command(void)
 			if (p_ptr->control) break;
 			if (p_ptr->wild_mode) break;
 
-			do_cmd_sense_grid_mana();
-			do_cmd_engrave();
+			/* No point in engraving if there isn't any mana on this grid. */
+                        if ((!do_cmd_sense_grid_mana()) || (cave[py][px].mana > 0))
+                                do_cmd_engrave();
+
 			break;
 		}
 
@@ -4444,9 +4471,8 @@ static void process_command(void)
 		/* Repeat level feeling */
 		case KTRL('F'):
 		{
-			if (p_ptr->wild_mode || !dun_level) break;
-			
-			do_cmd_feeling();
+			if (!p_ptr->wild_mode)
+				do_cmd_feeling();
 			break;
 		}
 
@@ -5354,7 +5380,7 @@ static void dungeon(void)
 
 
 		/* Process the player */
-                process_player();
+		process_player();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -5954,8 +5980,8 @@ void play_game(bool new_game)
 
 			if (cheat_death)
 			{
-                                /* Restore the winner status */
-                                total_winner = has_won;
+				/* Restore the winner status */
+				total_winner = has_won;
 
 				/* Restore hit points */
 				p_ptr->chp = p_ptr->mhp;
@@ -6014,10 +6040,10 @@ void play_game(bool new_game)
 		}
 
 		/* Handle "death" */
-                if (death)
-                {
-                        break;
-                }
+		if (death)
+		{
+			break;
+		}
 
 		/* Mega hack */
 		if (dun_level) p_ptr->wild_mode = FALSE;

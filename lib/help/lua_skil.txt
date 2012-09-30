@@ -27,7 +27,7 @@ strength and constitution...
 In order to add these powers we're going to edit the s_info.txt file which 
 lives in the edit folder, and add a new skill, underneath the 'misc' tree, 
 called construction.  The powers will then be accessed through the 'm' menu, in 
-a similiar way to mindcraft or alchemy skills or such. (That is, no books are 
+a similar way to mindcraft or alchemy skills or such. (That is, no books are 
 needed to cast them, as we're treating them as a craft that has been  learnt, 
 rather than spells.) Our fist line of the script file reads:
 
@@ -38,11 +38,11 @@ file. We'll come back to this at the end of the tutorial.
 
 #####Bconstructor_powers = add_magic
 
-In a similair way to the [[[[[Badd_power] function we callled when we added the 
-pheonix racial ability, this line calls a special function which we use to 
+In a similar way to the [[[[[Badd_power] function we called when we added the 
+Phoenix racial ability, this line calls a special function which we use to 
 define new skills. It follows a very specific, but easy to understand form. It 
 starts with a brace, which indicates the add_magic function will be storing 
-these values in a table. DOn't worry about this too much, but understand that a 
+these values in a table. Don't worry about this too much, but understand that a 
 table starts and ends with braces [[[[[B{] and [[[[[B}] respectively. Each key 
 (or field name) takes the format [[[[[B"key" = value,] (the comma is 
 important!). 
@@ -62,10 +62,10 @@ spells##. Here it does nothing spectacular.
 Any other stat can be used, prefix it with [[[[[BA_].
 [[[[[B"get_level"] is used to determine the level of the spell. It's associated 
 with spells that increase in power the more points that are invested in the 
-associated skill. I know thats not terribly clear, I'll come back to it in a 
+associated skill. I know that's not terribly clear, I'll come back to it in a 
 moment.
 [[[[[B"spell_list"] is just that, a list of all the spells. 
-Each of these four properties within the tablen must end with a comma. If a 
+Each of these four properties within the table must end with a comma. If a 
 function is defined in the property itself then we add the comma after the 
 closing [[[[[Bend]. Again compare with conmstruct.lua to see it. Any line NOT 
 ending wit a comma will cause a lua error on startup, probably of the type 
@@ -94,15 +94,15 @@ So with all this, our first spell looks like:
 appear in the spell list when choosing a spell. The maximum number of 
 characters for this is 29.
 [[[[[B"desc"] is the description received when you hit the capital letter of 
-that spell in the menu. (ie, press 'a' to cast the first spell, but press 'A' 
+that spell in the menu. (i.e., press 'a' to cast the first spell, but press 'A' 
 to receive info about the first spell. 
 [[[[[B"mana"] is the amount of mana required to cast the spell.
-[[[[[B"level"] is the level required to use that spell (thats level of the (in 
+[[[[[B"level"] is the level required to use that spell (that's level of the (in 
 this case construction) skill, not character level!).
 [[[[[B"fail"] is base fail rate.
-[[[[[B"spell"] is the function thats executed when the spell is cast. Note that 
-it MUST take the form [[[[[Bfunction() blah end] even if you're calling a C 
-function direct. If you have a look at the end of the file, you'll see the 
+[[[[[B"spell"] is the function that is executed when the spell is cast. Note 
+that it MUST take the form [[[[[Bfunction() blah end] even if you're calling
+a C function direct. If you have a look at the end of the file, you'll see the 
 "rebuild dungeon" spell which is identical to the "alter_reality" spell. 
 However, rather than reading [[[[[B"spell" = alter_reality()], it reads:
 
@@ -113,14 +113,14 @@ However, rather than reading [[[[[B"spell" = alter_reality()], it reads:
 which appears to be a long way round to do the same thing, but this is how it 
 must be done.
 
-In a  similiar way, the [[[[[B"info"] key must begin with a [[[[[Bfunction()] 
+In a  similar way, the [[[[[B"info"] key must begin with a [[[[[Bfunction()] 
 and return the value of what is to be displayed along side the spell name, 
 level and mana in the spell list. The maximum  number of characters that can be 
-displayed here is dependant on the width of the users screen,  but try and keep 
+displayed here is dependent on the width of the users screen,  but try and keep 
 it under 12 if you can, as this will fit in a standard 80x24 terminal screen. 
 The first character will need to be a space otherwise you'll have the info line 
 squashed right up against the fail rate and it will look odd. If you wish to 
-have this part blank in the spell list, you still need to return a vaklue, so 
+have this part blank in the spell list, you still need to return a value, so 
 just a single space will do : [[[[[Breturn " "]
 
 All of these keys are repeated for each spell. with each spell in it's own 
@@ -132,10 +132,10 @@ them in the order which they are gained, otherwise they display incorrectly in
 the spell list.
 
 You should by now be experienced enough to understand most of what's going on 
-in the actual spell functions (espescially if you dig around in the source a 
+in the actual spell functions (especially if you dig around in the source a 
 bit, and check out Chris Hadgis excellent *****lua_spel.txt*0[spell.pkg] helper 
 files. I'm not going to go through the whole file line by line, as this is 
-something you should do yourself, figuring out whats going on. I'm going to 
+something you should do yourself, figuring out what's going on. I'm going to 
 examine a few of the things we haven't covered before though, so pay attention.
 
 #####R=== The get_level() function ===
@@ -159,8 +159,8 @@ If you were using this as the basis for the damage of a low-level bolt spell,
 you might decide that having a damage of 50 would be too much (unlikely, but 
 still possible). You could therefore define a maximum value of 20 so that when 
 the value of the construction skill was over 50, the maximum value for 
-damage of that spell would be 20. To acheive this you'd have: 
-[[[[[Bget_level(constructor_power, 20)]. In a similair way, you can force the 
+damage of that spell would be 20. To achieve this you'd have: 
+[[[[[Bget_level(constructor_power, 20)]. In a similar way, you can force the 
 minimum value of the spell to be higher than the actual construction skill 
 level, with a [[[[[Bget_level(constructor_power, 50, 15)]. This would be useful 
 say for spells that you wanted to be available when the construction skill 
@@ -172,7 +172,7 @@ the maximum value out (it will default to 50). If you want to specify a minimum
 value though, you MUST specify a maximum value as well.
 
 As you have hopefully been able to tell, the [[[[[Bget_level()] function 
-enables us to have spells that increase in usefullness as you gain levels. Lets 
+enables us to have spells that increase in usefulness as you gain levels. Lets 
 take the "Dismantle" spell. The function in the [[[[[B"spell"] key is as 
 follows:
 
@@ -189,10 +189,10 @@ follows:
 #####Bend,
 
 The [[[[[Bif] statement is obviously what really interests us here. You'll 
-notce that this has the amendment of an [[[[[Belse] clause, which the [[[[[Bif] 
+notice that this has the amendment of an [[[[[Belse] clause, which the [[[[[Bif] 
 statement we used in the previous tutorial did not. As you would expect, if the 
-condition on the first lione of this statment is met, then the instructions 
-immediatly below it are carried out. If the condition is not met, then the 
+condition on the first line of this statement is met, then the instructions 
+immediately below it are carried out. If the condition is not met, then the 
 statements that follow the [[[[[Belse] are executed.
 
 Coming back to the [[[[[Bget_level] function, we learnt from above, that the 
@@ -232,26 +232,26 @@ this:
 
 If the level of constructor powers is greater or equal to 28, then the function 
 [[[[[Bwiz_lite()] is performed, and no other part of the if statement is 
-executed. [[[[[Bwiz_lite()] is just the enlightement spell. If it is less than 
+executed. [[[[[Bwiz_lite()] is just the enlightenment spell. If it is less than 
 28, the next condition is examined: that if the level of constructor powers is 
 greater than or equal to 15, then [[[[[Bmap_area()](Magic mapping) and detect 
 traps are called. If the level of constructor power is less than 15, it moves 
 onto the next condition, which says that if the level of constructor power is 
 greater than 5, then detect stairs, traps and doors. If none of these 
-conditions are met,(that is, if the level of consruction skill is less than 5) 
+conditions are met,(that is, if the level of construction skill is less than 5) 
 then we just detect doors and stairs.
 
 You'll note that each of the detection spells includes a DEFAULT_RADIUS 
 constant. You could change this to a numerical value, or a variable defined 
 somewhere else in your script. eg [[[[[Bdetect_traps(2)] would detect traps 
-witha  radius of 2 centred on th player. 
+with a radius of 2 centred on the player. 
 
 #####R=== Registering the skill type ===
 
 This is what we do at the end of the file, and is what ties the powers we've 
 defined to the action of pressing the 'm' key in game. Once more we're calling 
-a special function [[[[[Badd_mkey()] which takles it's arguments for a table. 
-There are only two keys in this table though which keps things simple.
+a special function [[[[[Badd_mkey()] which takes it's arguments for a table. 
+There are only two keys in this table though which keeps things simple.
 
 #####Badd_mkey
 #####B{
@@ -288,9 +288,9 @@ when the skill is highlighted in the skill screen.
 The first entry on the [[[[[BA] line  is the value of the [[[[[B"mkey"] we 
 defined in the [[[[[Badd_mkey] function in our script. The second entry is the 
 display for selecting the construction power in the 'm' menu.
-The [[[[[BI] line is currently unused, but add a 1000 there anyway. Thats what 
+The [[[[[BI] line is currently unused, but add a 1000 there anyway. That's what 
 all the others have so when it's introduced, at least it will affect your 
-powers identically to how it affacts all the other powers.
+powers identically to how it affects all the other powers.
 
 If you scroll to the very bottom of the file now, you'll see I've placed the 
 skill at the bottom of the Misc branch of the skills tree. I then made a new 
@@ -306,7 +306,7 @@ And I've added the line
 
 in init.lua so the script is loaded on start-up!
 
-Below I'm gonna talk in depth about a few other functions that you may find 
+Below I'm going to talk in depth about a few other functions that you may find 
 useful in your scripting.
 
 #####R=== fire_bolt() and fire_beam() ===
@@ -334,9 +334,9 @@ function [[[[[Bset_oppose_elec(turns)], which sets the players resist
 electricity to "on" for the time specified in the argument "turns". We're only 
 calling this if the player is not already granted temporary resist electricity, 
 and we've linked the number of turns it is active for to the level of the 
-construction skill. I've limited the maximium value of get_level to 20 in this 
-instance. A similiar idea can be used for temporarily granting levitation, 
-extended infravision, protection aainst evil, resist fire, stuns, cuts and so 
+construction skill. I've limited the maximum value of get_level to 20 in this 
+instance. A similar idea can be used for temporarily granting levitation, 
+extended infravision, protection against evil, resist fire, stuns, cuts and so 
 on and so on. Have a look in player.pkg in the source for a full list....
 
                              [[[[[gThis file by fearoffours (fearoffours@moppy.co.uk)]

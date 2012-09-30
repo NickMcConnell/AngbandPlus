@@ -14,8 +14,8 @@ F:y:96:3
 F:x:96:3
 
 ############### Quest 4 - Thieves Hideout ###############
-?:[EQU $QUEST"Thieves!!!" 1]
-F:z:8:3:0:0:0:0:0:"Thieves!!!"
+?:[EQU $QUEST4 1]
+F:z:8:3:0:0:0:0:0:4
 ?:1
 
 ############### Quest 8 - Troll Glade ###############

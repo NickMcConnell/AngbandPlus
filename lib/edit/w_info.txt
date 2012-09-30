@@ -1,6 +1,6 @@
 # PernAngband wilderness definition file by DarkGod (darkgod@pernangband.org)
 # with the help form Gwidon S. Naskrent (naskrent@artemida.amu.edu.pl)
-# Designed to "look like" Middle Earth map
+# Designed to "look like" Middle-earth map
 
 W:D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 W:D:XgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX

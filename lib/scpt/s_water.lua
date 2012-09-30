@@ -26,7 +26,7 @@ TIDALWAVE = add_spell
 			return "dam "..(40 + get_level(TIDALWAVE,  200)).." rad "..(6 + get_level(TIDALWAVE,  10))
 	end,
         ["desc"] =	{
-        		"Summons a monstruous tidal wave that will expand and crush the",
+        		"Summons a monstrous tidal wave that will expand and crush the",
                         "monsters under it's mighty waves"
         }
 }

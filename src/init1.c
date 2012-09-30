@@ -1205,9 +1205,9 @@ static const char *essence_names[]={
 	""
 };
 static const char *activation_names[]={
-	"NO_ACTIVATION",       /*  0 */
-	"SUNLIGHT",            /*  1 */
-	"BO_MISS_1",           /*  2 */
+	"NO_ACTIVATION",       /*   0*/
+	"SUNLIGHT",            /*   1*/
+	"BO_MISS_1",           /*   2*/
 	"BA_POIS_1",           /*   3*/
 	"BO_ELEC_1",           /*   4*/
 	"BO_ACID_1",           /*   5*/
@@ -1314,7 +1314,8 @@ static const char *activation_names[]={
 	"NATUREBANE",          /*  106*/
 	"NIGHT",               /*  107*/
 	"ORCHAST",             /*  108*/
-	"XXX109", "XXX110",
+	"XXX109",
+	"XXX110",
 	"LIGHT",               /*  111*/
 	"MAP_LIGHT",           /*  112*/
 	"DETECT_ALL",          /*  113*/
@@ -1374,10 +1375,10 @@ static const char *activation_names[]={
 	"CURE_INSANITY",       /*  167*/
 	"CURE_MUT",            /*  168*/
 	"LIGHT_ABSORBTION",    /*  169*/
-	"BA_FIRE_3",           /*  170*/
-	"BA_COLD_3",           /*  171*/         
-	"BA_ELEC_3",           /*  172*/         
-	"BA_ACID_3",           /*  173*/         
+	"BA_FIRE_H",           /*  170*/
+	"BA_COLD_H",           /*  171*/         
+	"BA_ELEC_H",           /*  172*/         
+	"BA_ACID_H",           /*  173*/         
 	"SPIN",                /*  174*/    
 	"NOLDOR",              /*  175*/      
 	"SPECTRAL",            /*  176*/        
@@ -1402,7 +1403,8 @@ static const char *activation_names[]={
 	"BR_LIGHT",            /*  195*/        
 	"BR_POWER",            /*  196*/        
 	"GROW_MOLD",           /*  197*/
-	"XXX198", "XXX199",
+	"XXX198",
+	"XXX199",
 	"MUSIC",               /*  200*/
 	""                            
 };                                
@@ -8448,7 +8450,7 @@ errr init_t_info_txt(FILE *fp, char *buf)
 /*
  * Grab one flag for a dungeon type from a textual string
  */
-errr grab_one_dungeon_flag(s32b *flags1, s32b *flags2, cptr what)
+errr grab_one_dungeon_flag(u32b *flags1, u32b *flags2, cptr what)
 {
 	int i;
 
@@ -8719,6 +8721,8 @@ errr init_d_info_txt(FILE *fp, char *buf)
 			d_head->name_size += strlen(s);
 
 			/* HACK -- Those ones HAVE to have a set default value */
+                        d_ptr->size_x = -1;
+                        d_ptr->size_y = -1;
 			d_ptr->ix = -1;
 			d_ptr->iy = -1;
 			d_ptr->ox = -1;
@@ -8979,6 +8983,19 @@ errr init_d_info_txt(FILE *fp, char *buf)
 					d_ptr->iy = iy;
 					d_ptr->ox = ox;
 					d_ptr->oy = oy;
+
+					/* Start at next entry */
+					s = t;
+
+					/* Continue */
+					continue;
+				}
+
+				/* XXX XXX XXX Hack -- Read dungeon size */
+				if (2 == sscanf(s, "SIZE_%d_%d", &ix, &iy))
+				{
+					d_ptr->size_x = ix;
+					d_ptr->size_y = iy;
 
 					/* Start at next entry */
 					s = t;
@@ -10269,7 +10286,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 	if (buf[0] == '%')
 	{
 		/* Attempt to Process the given file */
-		return (process_dungeon_file(buf + 2, yval, xval, ymax, xmax, FALSE));
+		return (process_dungeon_file(NULL, buf + 2, yval, xval, ymax, xmax, FALSE));
 	}
 
 	/* Process "N:<sleep>" */
@@ -10613,6 +10630,8 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 				/* Apply magic (no messages, no artifacts) */
 				apply_magic(o_ptr, dun_level, FALSE, TRUE, FALSE);
 
+				o_ptr->found = OBJ_FOUND_SPECIAL;
+
 				k_allow_special[object_index] = FALSE;
 
 				drop_near(o_ptr, -1, y, x);
@@ -10653,6 +10672,7 @@ static errr process_dungeon_file_aux(char *buf, int *yval, int *xval, int xvalst
 				q_ptr->to_h = a_ptr->to_h;
 				q_ptr->to_d = a_ptr->to_d;
 				q_ptr->weight = a_ptr->weight;
+				q_ptr->found = OBJ_FOUND_SPECIAL;
 
 				random_artifact_resistance(q_ptr);
 
@@ -11280,7 +11300,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 }
 
 
-errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax, bool init)
+errr process_dungeon_file(cptr full_text, cptr name, int *yval, int *xval, int ymax, int xmax, bool init)
 {
 	FILE *fp;
 
@@ -11308,27 +11328,36 @@ errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax, b
 		}
 	}
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, name);
+        /* We dont need any files for full_text */
+        if (full_text)
+        {
+                /* Init */
+                my_str_fgets(full_text, NULL, 0);
+        }
+        else
+        {
+                /* Build the filename */
+                path_build(buf, 1024, ANGBAND_DIR_EDIT, name);
 
-	/* Grab permission */
-	safe_setuid_grab();
+                /* Grab permission */
+                safe_setuid_grab();
 
-	/* Open the file */
-	fp = my_fopen(buf, "r");
+                /* Open the file */
+                fp = my_fopen(buf, "r");
 
-	/* Drop permission */
-	safe_setuid_drop();
+                /* Drop permission */
+                safe_setuid_drop();
 
-	/* No such file */
-	if (!fp)
-	{
-		msg_format("Cannot find file %s at %s", name, buf);
-		return (-1);
-	}
+                /* No such file */
+                if (!fp)
+                {
+                        msg_format("Cannot find file %s at %s", name, buf);
+                        return (-1);
+                }
+        }
 
 	/* Process the file */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == ((full_text) ? my_str_fgets(full_text, buf, 1024) : my_fgets(fp, buf, 1024)))
 	{
 		/* Count lines */
 		num++;
@@ -11372,7 +11401,7 @@ errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax, b
 		if (buf[0] == '%')
 		{
 			/* Process that file if allowed */
-			(void)process_dungeon_file(buf + 2, yval, xval, ymax, xmax, FALSE);
+			(void)process_dungeon_file(NULL, buf + 2, yval, xval, ymax, xmax, FALSE);
 
 			/* Continue */
 			continue;
@@ -11395,8 +11424,11 @@ errr process_dungeon_file(cptr name, int *yval, int *xval, int ymax, int xmax, b
 		msg_format("Parsing '%s'", buf);
 	}
 
-	/* Close the file */
-	my_fclose(fp);
+        if (!full_text)
+        {
+                /* Close the file */
+                my_fclose(fp);
+        }
 
 	/* Result */
 	return (err);

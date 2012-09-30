@@ -480,7 +480,7 @@ byte choose_realm(s32b *choices)
 	while (1)
 	{
 		strnfmt(buf, 80,
-				"Choose a realm (%c-%c), * for random, = for options, 8/2/4/6 for movment: ",
+				"Choose a realm (%c-%c), * for random, = for options, 8/2/4/6 for movement: ",
 				I2A(0), I2A(n-1));
 		put_str(buf, 20, 2);
 		c = inkey();
@@ -2452,7 +2452,7 @@ static bool player_birth_aux_ask()
 		/* Choose */
 		while (1)
 		{
-			strnfmt(buf, 200, "Choose a race (%c-%c), * for a random choice, = for options, 8/2/4/6 for movment: ",
+			strnfmt(buf, 200, "Choose a race (%c-%c), * for a random choice, = for options, 8/2/4/6 for movement: ",
 					I2A(0), I2A(max_rp_idx - 1));
 			put_str(buf, 17, 2);
 
@@ -2751,7 +2751,7 @@ repeat_player_class:
 		}
 
 		/* Set class */
-#ifdef FORBID_BAD_COMBINAISON
+#ifdef RESTRICT_COMBINATIONS
 		if (!(restrict & BIT(k)))
 		{
 			noscore |= 0x0020;
@@ -2881,7 +2881,7 @@ repeat_player_class:
 			while (1)
 			{
 				strnfmt(buf, 200, "Choose a god (%c-%c), * for a random choice, "
-					"= for options, 8/2/4/6 for movment: ",
+					"= for options, 8/2/4/6 for movement: ",
 					I2A(0), I2A(MAX_GODS));
 				put_str(buf, 19, 2);
 
@@ -4339,7 +4339,7 @@ bool begin_screen()
 
 		k = inkey();
 
-		if (k == '\e')
+		if (k == ESCAPE)
 		{
 			quit(NULL);
 		}

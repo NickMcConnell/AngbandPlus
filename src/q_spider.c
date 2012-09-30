@@ -27,7 +27,7 @@ bool quest_spider_gen_hook(char *fmt)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file("spiders.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "spiders.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	return TRUE;

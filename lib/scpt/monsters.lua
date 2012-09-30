@@ -1,4 +1,7 @@
+-- SYSTEM FILE
+--
 -- Monster stuff, do not touch
+--
 
 function summon_monster(y, x, lev, friend, typ)
 	if type(typ) == "number" then

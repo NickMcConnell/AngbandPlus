@@ -134,7 +134,7 @@ FLAMEOFUDUN = add_spell
 	                return "dur "..(5 + get_level(FLAMEOFUDUN, 30)).."+d15"
 	end,
         ["desc"] =	{
-                        "Turns you into a powerful balrog",
+                        "Turns you into a powerful Balrog",
         }
 }
 

@@ -7912,7 +7912,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
  * "virtual targets" far away from the player.
  *
  * One can also use PROJECT_THRU to send a beam/bolt along an angled path,
- * continuing until it actually hits somethings (useful for "stone to mud").
+ * continuing until it actually hits something (useful for "stone to mud").
  *
  * Bolts and Beams explode INSIDE walls, so that they can destroy doors.
  *
@@ -8995,4 +8995,3 @@ s16b do_poly_monster(int y, int x)
 
 	return new_m_idx;
 }
-

@@ -27,7 +27,7 @@ bool quest_troll_gen_hook(char *fmt)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file("trolls.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "trolls.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	for (x = 3; x < xstart; x++)
@@ -137,7 +137,7 @@ bool quest_troll_death_hook(char *fmt)
 
 	init_flags = INIT_GET_SIZE;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file("trolls.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "trolls.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	if (cquest.data[0]) return FALSE;

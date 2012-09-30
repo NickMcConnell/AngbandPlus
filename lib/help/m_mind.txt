@@ -4,8 +4,8 @@
 ~~~~~03|Skills|Mind - Spell Info
 #####R === ToME Magic - Mind School ===
 
-The mind school of magic contains spells which alter the mind. There are 
-rumours of a "Tome of the Mind" which contains all the mind school spells 
+The mind school of magic contains spells which alter the mind. There are
+rumours of a "Tome of the Mind" which contains all the mind school spells
 within it's bindings.
 
 Worshipping the God Eru Iluvatar or the God Melkor Bauglir also gives the
@@ -29,7 +29,7 @@ There are four spells available for the mind school. These Spells are:
 4. [[[[[sStun] (school level 15)
    Tries to manipulate the mind of a monster to stun it.
    At spell level 20 it turns into a ball.
-   
+
 #####GFire spells that can be cast with Mind skill
 
 1. [[[[[RFire Golem] (school level 7)
@@ -40,8 +40,8 @@ There are four spells available for the mind school. These Spells are:
       , : pickup all items on the floor
       d : drop all carried items
       i : list all carried items
-      m : end the possesion/use golem powers
+      m : end the possession/use golem powers
       Most of the other keys are disabled, you cannot interact with your
-      real body while controling the golem.
+      real body while controlling the golem.
    But to cast the spell you will need a lantern or a wooden torch to create
       the golem from.

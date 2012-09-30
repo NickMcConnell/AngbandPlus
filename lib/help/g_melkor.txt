@@ -3,22 +3,22 @@
 ~~~~~02|Gods|Melkor
 #####R === Melkor Bauglir ===
 
-Melkor Bauglir is Morgoth, the Dark Enemy. He once was the most powerfull
+Melkor Bauglir is Morgoth, the Dark Enemy. He once was the most powerful
 of the Valar. His most faithful followers are those of the class *****c_pr_drk.txt*0[Dark Priest].
 
 #####GThe benefits of Worshipping Melkor Bauglir
-1. As you increase your piety, Melkor will grant boosts to your strength,
-   constitution and charisma and will decrease intelligence and wisdom.
-2. If you are praying, Melkor may makes you invisible and immune to fire.
-3. If you are praying, Melkor may cast Curse on your foes when you melee them.
-4. If you are praying, Melkor likes it when you kill monsters.
-4. If you are praying, Melkor *likes* it when you kill monsters that are aligned 
-   with good.
-5. Melkor likes sacrifice of corpse and books at his altars.
-6. Melkor likes the sacrifice of your own health at his altars.
-7. Melkor hates elves.
-8. Melkor grants access to the *****m_udun.txt*0[Udun] school of magic.
-9. Melkor can summon undeads and demons to help you when your life goes down.
+ 1. As you increase your piety, Melkor will grant boosts to your strength,
+    constitution and charisma and will decrease intelligence and wisdom.
+ 2. If you are praying, Melkor may makes you invisible and immune to fire.
+ 3. If you are praying, Melkor may cast Curse on your foes when you melee them.
+ 4. If you are praying, Melkor likes it when you kill monsters.
+ 5. If you are praying, Melkor *likes* it when you kill monsters that are
+    aligned with good.
+ 6. Melkor likes sacrifice of corpse and books at his altars.
+ 7. Melkor likes the permanent sacrifice of your own health at his altars.
+ 8. Melkor hates elves.
+ 9. Melkor grants access to the *****m_udun.txt*0[Udun] school of magic.
+10. Melkor can summon undead and demons to help you when your life goes down.
    
 #####GThe disadvantages of Worshipping Melkor Bauglir
 1. Your piety decreases with time.
@@ -37,15 +37,15 @@ contains instructions for the procedure for each of the prayers Melkor will
 grant. There are three prayers all told, which are:
 1. [[[[[BCurse] (Level 1)
    It curses a monster, reducing its melee power
-   At level 5 it can be auto-casted(with no piety cost) while fighting
+   At level 5 it can be auto-casted (with no piety cost) while fighting
    At level 15 it also reduces armor
    At level 25 it also reduces speed
-   At level 35 it also reduces max life(but it is never fatal)
+   At level 35 it also reduces max life (but it is never fatal)
 2. [[[[[BCorpse Explosion] (Level 10)
-   It makes corpses in an area around you explode for a percent of its hp
-   as damage
+   It makes corpses in an area around you explode for a percent of their hit
+   points as damage
 3. [[[[[BMind Steal] (Level 20)
-   It allows your spirit to temporaly leave your own body, which will
+   It allows your spirit to temporarily leave your own body, which will
    be vulnerable, to control one of your enemies body
    
 Each of these spells can be increased in level both by improving your Prayer
@@ -53,6 +53,10 @@ skill, and by improving your Spell-power skill.
 
 In addition to his specific magic, Melkor will also assist with your ability to
 use some magic from the "standard" schools, in relation to how skilled you 
-are at Prayer. These schools are as follows:
+are at Prayer. This school is as follows:
     *****m_mind.txt*0[Mind School] at 1/3 the Prayer skill level.
+    
+Melkor also grants all of his followers access to the *****m_udun.txt*0[Udun] school of magic,
+but only powerful mages are able to cast all of its spells.
+
 The spells from these schools are all cast using your normal spellpoints.

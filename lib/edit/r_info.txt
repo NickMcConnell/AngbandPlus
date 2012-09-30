@@ -231,7 +231,7 @@ B:BITE:HURT:1d1
 F:RAND_25 | CAN_FLY | WILD_TOWN | WILD_ONLY | 
 F:ANIMAL | DROP_SKELETON | HAS_EGG | IMPRESED | 
 F:MORTAL | BASEANGBAND
-D:Utterly harmless, except when angry.
+D:Utterly harmless, except when angry. 
 
 N:4:Chaffinch
 G:B:r
@@ -292,7 +292,7 @@ O:0:100:0:0
 #B:MOAN:*
 #B:MOAN:*
 F:UNIQUE | MALE | CAN_SPEAK | DROP_CORPSE |
-F:FORCE_MAXHP | WILD_TOWN | WILD_ONLY | 
+F:FORCE_MAXHP | WILD_TOWN | WILD_ONLY | NO_TARGET
 F:NEVER_MOVE
 F:OPEN_DOOR | BASH_DOOR | SPECIAL_GENE
 F:NEUTRAL | NO_DEATH
@@ -1562,7 +1562,7 @@ F:DROP_90 |
 F:OPEN_DOOR | BASH_DOOR | DROP_SKELETON | DROP_CORPSE | 
 F:EVIL | IM_POIS | 
 F:MORTAL | BASEANGBAND | HAS_LITE
-D:It a man-sized figure with the all too recognizable face of a kobold. 
+D:It a man-sized figure with the all too recognisable face of a kobold. 
 
 N:103:Grey icky thing
 G:i:s
@@ -1794,7 +1794,7 @@ O:0:0:0:0
 B:BITE:POISON:2d5
 F:RAND_50 | CAN_SWIM | WILD_TOO | DROP_SKELETON | DROP_CORPSE | 
 F:BASH_DOOR | HAS_EGG | ANIMAL | IM_POIS | MORTAL | BASEANGBAND
-D:It is recognized by the hard-scaled end of its body that is often rattled 
+D:It is recognised by the hard-scaled end of its body that is often rattled 
 D:to frighten its prey. 
 
 N:120:Giant slug
@@ -2531,7 +2531,7 @@ F:FORCE_MAXHP | CAN_SPEAK | WILD_TOO | DROP_SKELETON | DROP_CORPSE
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR
 F:MORTAL | BASEANGBAND | HAS_LITE
-D:A nasty piece of work, Brodda picks on defenseless women and children. 
+D:A nasty piece of work, Brodda picks on defenceless women and children. 
 
 N:170:Bloodfang, the Wolf
 G:C:R
@@ -2544,7 +2544,7 @@ B:BITE:HURT:1d10
 F:BASH_DOOR | WILD_ONLY | WILD_GRASS | WILD_WOOD | DROP_CORPSE |
 F:ANIMAL | UNIQUE | FORCE_MAXHP | 
 F:MORTAL | BASEANGBAND
-D:It has been terrorizing the nearby villages. 
+D:It has been terrorising the nearby villages. 
 
 N:171:King cobra
 G:J:g
@@ -3122,7 +3122,7 @@ F:IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR | BASEANGBAND | NO_CUT
 D:It is a shambling orcish corpse leaving behind a trail of flesh. 
 
-N:209:Hippogriff
+N:209:Hippogryph
 G:H:U
 I:110:20d9:12:14:10
 W:11:1:1500:30
@@ -4693,7 +4693,7 @@ F:EMPTY_MIND | COLD_BLOOD |
 F:NO_CONF | NO_SLEEP | NO_FEAR | BASEANGBAND | NO_CUT
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | CAUSE_2 | BO_COLD
-D:A strange creature that disguises itself as some object to lure
+D:A strange creature that disguises itself as some object to lure 
 D:unsuspecting adventurers within reach of its venomous claws. 
 
 N:311:Door mimic
@@ -4810,8 +4810,8 @@ B:HIT:PARALYZE:3d3
 B:HIT:PARALYZE:3d3
 F:NEVER_MOVE | EMPTY_MIND | STUPID | CHAR_CLEAR | CHAR_MULTI | 
 F:WILD_ONLY | WILD_WOOD | WILD_SWAMP | ANIMAL | SUSCEP_FIRE | NO_CUT
-D:A carnivorous plant that is difficult to detect, until it suddenly snaps shut
-D:around its prey and releases paralyzing enzymes to stop its struggles. 
+D:A carnivorous plant that is difficult to detect, until it suddenly snaps shut 
+D:around its prey and releases paralysing enzymes to stop its struggles. 
 
 N:318:Chaos beastman
 G:H:u
@@ -5556,7 +5556,7 @@ F:DROP_60 | DROP_2D2 | FRIENDS | DROP_CORPSE |
 F:OPEN_DOOR | BASH_DOOR | EVIL | MORTAL | ZANGBAND
 S:1_IN_8
 S:BA_POIS | S_MONSTER | SCARE | HOLD
-D:"They walked lithely and sinnously erect on pre-mammalian 
+D:"They walked lithely and sinuously erect on pre-mammalian 
 D:members, their pied and hairless bodies bending with great 
 D:suppleness. There was a loud hissing of formulae as they 
 D:went to and fro."
@@ -7472,7 +7472,7 @@ F:FRIENDS | DROP_60 | DROP_CORPSE |
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT | 
 F:MORTAL | BASEANGBAND | HAS_LITE
-D:The largest breed of ogre, he is awesomely strong and awesomly ugly. 
+D:The largest breed of ogre, he is awesomely strong and awesomely ugly. 
 
 N:480:Nexus quylthulg
 G:Q:v
@@ -12774,7 +12774,7 @@ S:BLIND | CONF | SCARE |
 S:BR_FIRE
 D:A vast dragon of immense power. Fire leaps continuously from its huge 
 D:form. The air around it scalds you. Its slightest glance burns you, and 
-D:you realize how truly insignificant you are. 
+D:you realise how truly insignificant you are. 
 
 N:757:Hastur the Unspeakable
 G:H:b
@@ -13017,7 +13017,7 @@ F:NEVER_MOVE | RES_NEXU | REFLECTING | PASS_WALL
 F:NO_CONF | NO_SLEEP | NO_CUT | NO_STUN | NO_FEAR | CTHANGBAND
 S:1_IN_3 | 
 S:TELE_AWAY | S_MONSTERS | TELE_LEVEL | BR_NEXU | TPORT | BLINK
-D:"Not shapeless, but so complex that the eye could recognize no 
+D:"Not shapeless, but so complex that the eye could recognise no 
 D:describable shape. There were hemispheres and shining metal, 
 D:coupled by long plastic rods. The rods were of a flat gray color, 
 D:so that he could not make out which were nearer; they merged into 
@@ -13046,7 +13046,7 @@ S:BLIND | SCARE | BRAIN_SMASH |
 S:BO_MANA | BO_NETH | BA_NETH | S_UNDEAD
 D:A huge giant garbed in black, more massive than a titan and stronger than 
 D:a dragon. With terrible blows, it breaks your armour from your back, 
-D:leaving you defenseless against its evil wrath. It can smell your fear, 
+D:leaving you defenceless against its evil wrath. It can smell your fear, 
 D:and you in turn smell the awful stench of death as this ghastly figure 
 D:strides towards you menacingly. 
 
@@ -13478,7 +13478,7 @@ S:BA_WATE | S_HYDRA | S_DRAGON | S_DEMON | SCARE |
 S:BLIND | CONF | CAUSE_4 | BR_POIS
 D:"From an oval body protruded countless thin, pointed spines of 
 D:multi-colored metal; at the more rounded end of the oval a 
-D:circular, thick-lipped mouth formed the center of a spongy 
+D:circular, thick-lipped mouth formed the centre of a spongy 
 D:face, from which rose three yellow eyes on thin stalks. Around 
 D:the underside of the body were many white pyramids, presumably 
 D:used for locomotion. The diameter of the body must have been 
@@ -13546,7 +13546,7 @@ F:MORTAL | HAS_LITE
 S:1_IN_4 |
 S:SCARE | BLIND | TPORT | BLINK | TELE_AWAY | TELE_TO | 
 S:BR_FIRE | BA_MANA | S_THUNDERLORD
-D:Former leader among the Thunderlords, she and Trone have fallen under the
+D:Former leader among the Thunderlords, she and Trone have fallen under the 
 D:control of Morgoth. Laronth, her eagle, can summon Thunderlords to her aid. 
 
 N:792:Tselakus, the Dreadlord
@@ -14242,7 +14242,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | CTHANGBAND | HAS_LITE | NO_CUT
 S:1_IN_4 | 
 S:BR_FIRE | S_KIN
 D:"But even though we had shielded our eyes, it was impossible not 
-D:to see the great amorphous shpaes streaming skyward from the 
+D:to see the great amorphous shapes streaming skyward from the 
 D:accursed place, nor the equally great being hovering like a cloud 
 D:of living fire above the trees." 
 
@@ -15508,7 +15508,7 @@ B:CLAW:HURT:3d4
 B:CLAW:HURT:3d4
 F:ANIMAL | AQUATIC | STUPID | WEIRD_MIND | DROP_CORPSE | COLD_BLOOD | 
 F:MORTAL | BASEANGBAND
-D:A man-sized, heavily armored fresh-water relative of the lobster. 
+D:A man-sized, heavily armoured fresh-water relative of the lobster. 
 
 N:882:Mermaid
 G:h:G
@@ -15864,7 +15864,7 @@ F:HAS_LITE
 S:1_IN_12 |
 S:BO_MANA | BO_COLD | S_MONSTERS
 D:A wizened aquatic elf skilled in the magical arts. You can see an 
-D:irridescent film coating the water around him. 
+D:iridescent film coating the water around him. 
 
 N:907:Stargazer
 G:~:y
@@ -15903,7 +15903,7 @@ O:0:0:0:0
 B:BITE:HURT:2d6
 F:AQUATIC | ANIMAL | RAND_25 | INVISIBLE | ATTR_CLEAR | DROP_CORPSE |
 F:MORTAL | BASEANGBAND
-D:A flattened fish which is able to change body coloring for 
+D:A flattened fish which is able to change body colouring for 
 D:camouflage. 
 
 N:910:Giant turtle
@@ -16199,7 +16199,7 @@ F:ONLY_ITEM | DROP_90 | DROP_GOOD |
 F:OPEN_DOOR | DG_CURSE |
 F:MORTAL | JOKEANGBAND | HAS_LITE
 D:She loves joking, and she's constantly giggling. A very happy girl. 
-D:Beware, it is rumored that Dark God has put a mighty curse on her. 
+D:Beware, it is rumoured that Dark God has put a mighty curse on her. 
 
 
 N:929:Child spirit
@@ -16308,7 +16308,7 @@ S:BA_FIRE | BO_FIRE | BO_PLAS | BO_MANA | CAUSE_4 |
 S:S_MONSTERS | S_ANGEL | S_DRAGON | S_KIN 
 D:The wizard who opposed Sauron and, in the end, was the only 
 D:one of the Istari to succeed in his task. Gandalf is very 
-D:wise and specializes in fire magic. 
+D:wise and specialises in fire magic. 
 
 N:936:Nar, the Dwarf
 G:h:y
@@ -17824,7 +17824,7 @@ F:CTHANGBAND
 S:1_IN_3 | 
 S:HEAL | HASTE | BLIND | CONF | SCARE | TPORT | BLINK
 D:A shabby humanoid with a wrinkled skin. It seems to shift 
-D:in and out of existance as you watch. 
+D:in and out of existence as you watch. 
 
 N:1017:Cultist
 G:p:G
@@ -17921,7 +17921,7 @@ F:ZANGBAND | HAS_LITE
 S:1_IN_5 | 
 S:BR_ELEC | BR_PLAS | BR_MANA | BLIND | TELE_TO | S_KIN | S_HI_DRAGON | 
 S:HAND_DOOM | TELE_AWAY
-D:Thiazi is the greatest of all the Storm Giants: when travelling, he takes
+D:Thiazi is the greatest of all the Storm Giants: when travelling, he takes 
 D:the form of a giant eagle.  It was he who succeeded in kidnapping Iduna and 
 D:her apples of youth from Asgard itself. 
 
@@ -18184,7 +18184,7 @@ F:HAS_LITE | SPECIAL_GENE
 S:1_IN_4 | 
 S:BLIND | CONF | BRAIN_SMASH | 
 S:BR_COLD | BO_COLD | BA_NETH | S_UNDEAD | S_DEMON
-D:It is a massive humanoid demon wreathed in frost, wielding a cruel looking
+D:It is a massive humanoid demon wreathed in frost, wielding a cruel looking 
 D:pike in its hands. 
 
 N:1035:Golgarach, the Living Rock
@@ -18282,9 +18282,9 @@ F:JOKEANGBAND | HAS_LITE | RES_WATE | NO_CUT
 S:1_IN_2 |
 S:S_HI_DRAGON | S_KIN | BR_DISI | HEAL | TPORT |
 S:TELE_LEVEL | TELE_TO
-D:An assistant to DarkGod, Improv has chosen the form of a dense
-D:purple smog for his incarnation into Middle Earth. It travels the
-D:dungeons, killing software bugs and creating random artifacts for
+D:An assistant to DarkGod, Improv has chosen the form of a dense 
+D:purple smog for his incarnation into Middle-earth. It travels the 
+D:dungeons, killing software bugs and creating random artifacts for 
 D:guests to find.
 
 N:1040:Emperor Mimic
@@ -18491,7 +18491,7 @@ S:BR_CONF | BR_SOUN | BR_CHAO | BR_DISE | BR_NEXU |
 S:BR_TIME | BR_INER | BR_GRAV | BR_SHAR | BR_PLAS |
 S:BR_WALL | BR_MANA | BR_DISI
 D:This spirit bears a remarkable similarity to some of the most powerful 
-D:types of dragonkind found in Middle-Earth. It appears to be even more 
+D:types of dragonkind found in Middle-earth. It appears to be even more 
 D:fearsome though! 
 
 # Spirit of snakes
@@ -18790,8 +18790,8 @@ F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY |
 F:IM_FIRE | IM_ELEC | BASEANGBAND | HAS_LITE
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | BR_FIRE 
-D:Carrying a whip of fire, this spirit looks not dissimilair to a certain 
-D:balrog. 
+D:Carrying a whip of fire, this spirit looks not dissimilar to a certain 
+D:Balrog. 
 
 # Spirit of shadows
 N:1068:Spirit
@@ -18851,7 +18851,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR |
 F:IM_POIS | IM_ELEC | IM_ACID | IM_COLD |
 S:1_IN_2 |
 S:BA_MANA | BR_PLAS | BR_TIME | ROCKET | HAND_DOOM | FORGET | BA_WATE
-D:This spirit appears to be afraid of very little, and confident in it's
+D:This spirit appears to be afraid of very little, and confident in its 
 D:ability to destroy you. 
 
 # Spirit of time

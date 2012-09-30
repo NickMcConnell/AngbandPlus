@@ -20,10 +20,10 @@ There are four spells available for the water school. These Spells are:
    Fills the air with toxic moisture to eradicate annoying creatures.
 2. [[[[[bEnt's Potion] (school level 6)
    Fills up your stomach (i.e. satisfy hunger).
-   At spell level 5 it boldens your heart (boldness).
+   At spell level 5 it emboldens your heart (boldness).
    At level 12 it make you heroic.
 3. [[[[[bTidal Wave] (school level 16)
-   Summons a monstruous tidal wave that will expand and crush monsters under
+   Summons a monstrous tidal wave that will expand and crush monsters under
    it's mighty waves.
 4. [[[[[bIce Storm] (school level 22)
    Engulfs you in a storm of roaring cold that strikes your foes.

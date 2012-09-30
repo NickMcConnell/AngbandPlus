@@ -345,6 +345,7 @@ void do_cmd_automatizer()
                                 if (input_box("Save name?", hgt / 2, wid / 2, name, 30))
                                 {
                                         char buf[1025];
+                                        char ch;
 
                                         /* Build the filename */
                                         path_build(buf, 1024, ANGBAND_DIR_USER, name);
@@ -353,9 +354,10 @@ void do_cmd_automatizer()
                                         FILE_TYPE(FILE_TYPE_TEXT);
 
                                         if (file_exist(buf))
-                                                if (!get_check("File exists, continue?"))
+                                                c_put_str(TERM_WHITE, "File exists, continue?[y/n]", hgt / 2, wid / 2 - 14);
+                                                ch = inkey();
+                                                if ((ch != 'Y') && (ch != 'y'))
                                                         continue;
-
 
                                         /* Open the non-existing file */
                                         hook_file = my_fopen(buf, "w");
@@ -364,14 +366,20 @@ void do_cmd_automatizer()
                                         if (!hook_file)
                                         {
                                                 /* Message */
-                                                msg_box("Saving rules failed!", hgt / 2, wid / 2);
+                                                c_put_str(TERM_WHITE, "Saving rules failed!       ", hgt / 2, wid / 2 - 14);
+                                                (void) inkey();
 
                                                 /* Error */
                                                 continue;
                                         }
-
+                                        
+                                       
+                                        
                                         exec_lua("auto_aux:save_ruleset()");
                                         my_fclose(hook_file);
+                                        /* Overwrite query message */
+                                        c_put_str(TERM_WHITE, "Saved rules in file        ", hgt / 2, wid / 2 - 14);
+                                        (void) inkey();
                                 }
                         }
                         else if (c == 'r')

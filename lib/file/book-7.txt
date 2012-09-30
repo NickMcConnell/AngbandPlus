@@ -129,13 +129,13 @@
 
   The Iron Crown of Morgoth
        This awesome artifact is a plain iron  crown,  mounted  with
-       three jewels that encapture the eternal light of  the  Trees
+       three jewels  that  capture the eternal light of  the  Trees
        of the Valar, Teleperion and Laurelein.  These  Jewels  were 
        made by the Noldorian High-Elf, Feanor who  named  them  the  
        Silmarils.  Their  beauty,  unsurpassed, drove  Morgoth   to
        steal these jewels (with the aid of Ungoliant the  Unlight).
-       The  crown  then, maximizes all you stats, sustains all your  
-       stats, it is a permanent light source and allows  the wearer
-       to see all.
+       The  crown  then, maximises all you stats, sustains all your  
+       stats, is a permanent light source and allows  the wearer to
+       see all.
 
 

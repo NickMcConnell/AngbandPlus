@@ -1,6 +1,6 @@
 /*
 ** Lua binding: player
-** Generated automatically by tolua 4.0a - angband on Wed Dec 11 11:00:30 2002.
+** Generated automatically by tolua 4.0a - angband on Fri Jan 10 01:34:28 2003.
 */
 
 #include "lua/tolua.h"
@@ -5054,6 +5054,26 @@ static int toluaI_set_player_player_type_corruptions_aux(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: astral of class  player_type */
+static int toluaI_get_player_player_type_astral(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ tolua_pushnumber(tolua_S,(long)self->astral);
+ return 1;
+}
+
+/* set function: astral of class  player_type */
+static int toluaI_set_player_player_type_astral(lua_State* tolua_S)
+{
+  player_type* self = (player_type*)  tolua_getusertype(tolua_S,1,0);
+ if (!self) TOLUA_ERR_SELF;
+ if (!tolua_istype(tolua_S,2,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  self->astral = ((bool)  tolua_getnumber(tolua_S,2,0));
+ return 0;
+}
+
 /* get function: leaving of class  player_type */
 static int toluaI_get_player_player_type_leaving(lua_State* tolua_S)
 {
@@ -7373,6 +7393,7 @@ int tolua_player_open (lua_State* tolua_S)
  tolua_tablearray(tolua_S,"player_type","spellbinder",toluaI_get_player_player_type_spellbinder,toluaI_set_player_player_type_spellbinder);
  tolua_tablevar(tolua_S,"player_type","spellbinder_trigger",toluaI_get_player_player_type_spellbinder_trigger,toluaI_set_player_player_type_spellbinder_trigger);
  tolua_tablearray(tolua_S,"player_type","corruptions_aux",toluaI_get_player_player_type_corruptions_aux,toluaI_set_player_player_type_corruptions_aux);
+ tolua_tablevar(tolua_S,"player_type","astral",toluaI_get_player_player_type_astral,toluaI_set_player_player_type_astral);
  tolua_tablevar(tolua_S,"player_type","leaving",toluaI_get_player_player_type_leaving,toluaI_set_player_player_type_leaving);
  tolua_constant(tolua_S,NULL,"SPELLBINDER_HP75",SPELLBINDER_HP75);
  tolua_constant(tolua_S,NULL,"SPELLBINDER_HP50",SPELLBINDER_HP50);

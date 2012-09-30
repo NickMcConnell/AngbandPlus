@@ -23,8 +23,8 @@ They use their magics through the 'm' key. They then select a general
 group of spells, followed by a specific spell.
 
 Thaumaturgy spells can take the form of:
-- a bolt, tageted at a singe location;
+- a bolt, targeted at a single location;
 - a beam, which hits all monsters in a line;
-- a ball (either centered on the caster or targettable);
+- a ball (either centred on the caster or targetable);
 - an meteor strike (multiple balls in the vicinity of the caster);
 - a spell that affects all monsters in line of sight.

@@ -114,6 +114,15 @@ static void power_activate(int power)
 	int x, y;
 	cave_type *c_ptr;
 
+	/* Break goi/manashield */
+	if (p_ptr->invuln)
+	{
+		set_invuln(0);
+	}
+	if (p_ptr->disrupt_shield)
+	{
+		set_disrupt_shield(0);
+	}
 
 	if (!power_chance(x_ptr)) return;
 
@@ -829,7 +838,7 @@ static void power_activate(int power)
 
 		case PWR_HYPN_GAZE:
 			{
-				msg_print("Your eyes look mesmerizing...");
+				msg_print("Your eyes look mesmerising...");
 				if (get_aim_dir(&dir))
 					(void) charm_monster(dir, p_ptr->lev);
 			}

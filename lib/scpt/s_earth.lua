@@ -176,7 +176,7 @@ SHAKE = add_spell
 			return "rad "..(4 + get_level(SHAKE, 10))
 	end,
         ["desc"] =	{
-        		"Creates a localized earthquake",
+        		"Creates a localised earthquake",
                         "At level 10 it can be targeted at any location"
         }
 }

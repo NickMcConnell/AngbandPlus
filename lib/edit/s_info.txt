@@ -26,7 +26,7 @@
 
 V:2.0.0
 
-################################## MAGIK ##################################
+################################## MAGIC ##################################
 
 N:56:Magic-Device
 D:Ease the use of magical devices, such as wands, staves and rods.
@@ -186,8 +186,8 @@ f:Thaumaturgy:Magic%6
 ################################## COMBAT ##################################
 
 N:16:Combat
-D:General ability to fight and to pseudo-id armors and weapons.
-D:It also allows to use heavier armors without penalities
+D:General ability to fight and to pseudo-id armours and weapons.
+D:It also allows to use heavier armours without penalties
 I:1000
 F:RANDOM_GAIN
 
@@ -253,7 +253,7 @@ D:Ability to deal critical hits with swords < 5lb
 I:1000
 
 N:57:Stunning-blows
-D:Ability to stun oppenents when doing critical hits with hafted weapons > 5 lb
+D:Ability to stun opponents when doing critical hits with hafted weapons > 5 lb
 I:1000
 
 # List of combat friendly skills
@@ -286,7 +286,7 @@ f:Boomerang-mastery:Combat%7
 f:Barehand-combat:Combat%50
 
 # No more, let's see how it turns out
-# Sorcery and Weaponmastery arent exactly friendly to each other
+# Sorcery and Weaponmastery aren't exactly friendly to each other
 #O:Sorcery:Weaponmastery%100
 #O:Sorcery:Archery%100
 #O:Sorcery:Barehand-combat%100
@@ -322,12 +322,10 @@ A:2:Use Mindcraft
 I:1000
 F:RANDOM_GAIN
 
-f:Mindcraft:Spirituality%10
 f:Prayer:Spirituality%10
 f:Druidistic:Spirituality%10
 f:Mindcraft:Spirituality%10
 
-f:Mindcraft:Magic%10
 f:Prayer:Magic%10
 f:Druidistic:Magic%10
 f:Mindcraft:Magic%10
@@ -377,7 +375,6 @@ E:Necromancy:Antimagic
 E:Mindcraft:Antimagic
 E:Prayer:Antimagic
 E:Druidistic:Antimagic
-E:Mindcraft:Antimagic
 E:Thaumaturgy:Antimagic
 
 ################################## SNEAKINESS SKILLS ###############################
@@ -389,7 +386,7 @@ I:0
 F:RANDOM_GAIN
 
 N:36:Stealth
-D:Ability to move unoticed, silently
+D:Ability to move unnoticed, silently
 I:0
 F:RANDOM_GAIN
 

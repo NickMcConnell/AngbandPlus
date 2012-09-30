@@ -5565,7 +5565,7 @@ static errr  init_misc(void)
 	process_hooks(HOOK_INIT_GAME, "()");
 
 	/* Initialize the values */
-	process_dungeon_file("misc.txt", &ystart, &xstart, 0, 0, TRUE);
+	process_dungeon_file(NULL, "misc.txt", &ystart, &xstart, 0, 0, TRUE);
 
 	/* Init the spell effects */
 	for (i = 0; i < MAX_EFFECTS; i++)

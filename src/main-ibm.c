@@ -557,7 +557,7 @@ static void curs_set(int v)
  * The keypress processing code is often the most system dependant part
  * of Angband, since sometimes even the choice of compiler is important.
  *
- * For the IBM, we divide all keypresses into two catagories, first, the
+ * For the IBM, we divide all keypresses into two categories, first, the
  * "normal" keys, including all keys required to play Angband, and second,
  * the "special" keys, such as keypad keys, function keys, and various keys
  * used in combination with various modifier keys.
@@ -573,7 +573,7 @@ static void curs_set(int v)
  *
  * The final encoding is "^_MMMxSS\r", where "MMM" encodes the modifiers
  * ("C" for control, "S" for shift, "A" for alt, or any ordered combination),
- * and "SS" encodes the keypress (as the two "digit" hexidecimal encoding of
+ * and "SS" encodes the keypress (as the two "digit" hexadecimal encoding of
  * the scan code of the key that was pressed), and the "^_" and "x" and "\r"
  * delimit the encoding for recognition by the macro processing code.
  *
@@ -1561,4 +1561,3 @@ errr init_ibm(void)
 
 
 #endif /* USE_IBM */
-

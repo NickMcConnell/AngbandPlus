@@ -7,7 +7,7 @@
 #####R            <             The Automatizer              >
 #####R             \----------------------------------------/
 
-#####GWhat is The Automatizer?
+#####GWhat is the Automatizer?
 The automatizer is an advanced auto-pickup or auto-squelch (auto-destroyer). At
 a basic level, it will allow you to automatically destroy things that you have
 no use for once you walk over them, providing that you have identified one of
@@ -15,7 +15,7 @@ them with your current character.
 
 #####GIs that it?
 Well no. The automatizer is far more flexible than that. The old-fashioned auto
-squelch allowed you to destroy things dependant on how they pseudo-id'd - you
+squelch allowed you to destroy things dependent on how they pseudo-id'd - you
 could auto-destroy all {cursed} swords for instance.
 This is fine to start with, but once you get deep in the dungeon, and have a lot
 of money and a decent weapon, you'll be interested in destroying {average} and
@@ -27,15 +27,15 @@ STOP RIGHT THERE! I haven't finished yet! Lets look at some other examples. Most
 of the time, scrolls of darkness are pretty useless. Unless you are a vampire,
 or an alchemist, right? So you might think it was no good to add auto-destroy of
 scrolls of darkness to the automatizer. But you'd be wrong, for you can add
-rules that are dependant on certain conditions, like that you are of a certain
+rules that are dependent on certain conditions, like that you are of a certain
 race, or class.
 
-#####GHey this is sounding good. What if it destroys my artifacts
+#####GHey this is sounding good. What if it destroys my artifacts?
 It can't. Artifacts can never be destroyed, by the automatizer. However, watch
 out for items that are VERY cool but not artifacts... you wouldn't want to go
 destroying boots of speed would you? Fortunately there are provisions for this
 too, you could set a rule that destroyed all excellent boots (providing you were
-past clvl 45 say), but not if they were boots of speed.
+past character level 45 say), but not if they were boots of speed.
 
 #####GWoah! This sounds amazing!
 Yes it is, isn't it.
@@ -61,7 +61,7 @@ affected by your rules, but didn't want to destroy it; you could just disable
 the automatizer for a moment and check it over before deciding what to do with
 it and switching the automatizer back on.
 
-#####GHm ok. So I've enabled the automatizer, now what?.
+#####GHmmm, ok. So I've enabled the automatizer, now what?
 Well, you'll see a screen like this:
 
 &&&&&B/B-B-B-B-BRBuBlBeBsB-B-B-B-B-B/B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B\
@@ -79,10 +79,10 @@ Well, you'll see a screen like this:
 
 (snipped for brevity).
 
-The automatizer rules are written through xml, so if you're familiar with that
-you shouldn't find things too difficult. It's also similar in format to html, as
-you may notice from the way that there are opening tags eg <name> and closing
-tags eg </name>, and that everything between those tags is affected by that
+The automatizer rules are written in XML, so if you're familiar with that format
+you shouldn't find things too difficult. It's also similar in format to HTML, as
+you may notice from the way that there are opening tags (<name>) and closing
+tags (</name>), and that everything between those tags is affected by that
 rule.
 
 #####GXML? HTML? What is this? Isn't ToME enough acronyms to be going on with?
@@ -142,17 +142,17 @@ is Potion of Salt water, and if it is, it destroys it.
 Nice and simple huh?
 
 #####GYes Yes, very simple. It doesn't look very advanced at the moment.
-Well we've barely scratched the surface.
-Lets take a look at those other options we got at the destroy prompt. Lets say I
-was at a stage in the game where I wanted to be able to switch on an auto-
+Well, we've barely scratched the surface.
+Lets take a look at those other options we got at the destroy prompt. Lets say
+I was at a stage in the game where I wanted to be able to switch on an auto-
 destroy for all swords that pseudo-id'd as {average}. So let's say I have a
 dagger in my backpack, and I want to create an auto-destroy rule for that and
-all subsequent swords... this is what I'd do:
-Hit 'k' for my destroy item command, hit '$' to turn on an automatizer rule,
-select my dagger, confirm the destruction of the dagger, hit 's' to turn on the
-toggle that includes the status (ie how it pseudo-ids) of my dagger, and hit 'f'
-to destroy rules by family. What you'll see in the automatizer screen now is
-this:
+all subsequent swords... This is what I'd do:
+Hit 'k' to destroy items and hit '$' to turn on automatizer rules. Then I'd 
+select the dagger and confirm the destruction. Hit 's' to switch the status
+toggle. This toggle will include (when ON) how the dagger pseudo-ids, and
+finally hit 'f' to add a rule saying destroy by family. What you'll see in the
+automatizer screen now is this:
 
 &&&&&B/B-B-B-B-BRBuBlBeBsB-B-B-B-B-B/B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B\
 &&&&&B|GdGeGsGtGrGoGyB B B B B B w B|G<GrGuGlGeB BnBaBmBew=w"ydyeysytyryoyyw"B BtByBpBew=w"ydyeysytyryoyyw"G>B B B B B B B B B B B B B B B B B B B B B B B B B B B w B|
@@ -170,30 +170,31 @@ this:
 &&&&&B|w w w w w w w w w w w w w w B|w BuW/BdW WtWoW WmWoWvWeW WrWuWlWeWsW,W BnWeWwW WrWuWlWeW,W BrWeWnWaWmWeW WrWuWlWeW,W BsWaWvWeW WrWuWlWeWsw w w w w w w w w w w w 
 &&&&&B\B-B-B-B-B-B-B-B-B-B-B-B-B-B-B/w RkW WtWoW rdrirsrarbrlreW WtWhWeW WaWuWtWoWmWaWtWiWzWeWrw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
 
-#####GOK, well I can see the pseudo-id status is there, whats that tval thing? And
+#####GOK, well I can see the pseudo-id status is there, what's that tval thing? And
 #####Gwhere does it say swords?
+Well actually the tval thing is where it says swords! This is what is added by
+the 'destroy by family' option.
 
-Well actually the tval thing is where it says swords!
 It's probably worth explaining a bit here about the internal structure of ToME
 code. Don't worry it's not too scary. In ToME, all objects are divided into
 types: swords, axes, hafted-weapons, scrolls, rings etc. Every type is further
-divided into sub-types. EG swords are divided into daggers, broad swords, two-
+divided into sub-types. Eg swords are divided into daggers, broad swords, two-
 handed swords and so on. Scrolls are divided into their specific actions;
 scrolls of light, scrolls of satisfy hunger etc. Each type has a number assigned
 to it, that never changes, and so does each sub-type. In this way we can
-identify an exact object using just two values: it's type, or tvalue, (tval) and
+identify an exact object using just two values: it's type, or tvalue (tval) and
 it's sub-type, or svalue (sval). You see where we're going with this?
 Now daggers have a tval of 23 and an sval of 4. So you can see that we've said
 in the rule that all things with a tval of 23 and a status of average can be
 destroyed.
 
-#####GAh right. I see. And what's with the <and> tags?
+#####GAh, right. I see. And what's with the <and> tags?
 Well, everything in those tags must be true for the rule to carry out. If we had
 the <tval>23</tval> and the <status>average</average> lines without the <and>
 tags, it would not be clear whether we wanted just one of those clauses to be
 true for the rule to be carried out, or both of them.
 
-#####GErr..
+#####GErr...
 In other words, without the <and> tags it might look like we wanted to destroy
 a) EVERYTHING that pseudo id'd as average, and
 b) EVERY sword, regardless of how it pseudo-id'd!
@@ -234,7 +235,7 @@ last example, we'd have ended up with this:
 
 You can see in this example that we have nested <and> tags. Evaluating the tags
 from the ones nested deepest first we can see that if an object has a tval of 23
-and an sval between the values of 4 and 4 (ie if it IS 4) then the rule will
+and an sval between the values of 4 and 4 (i.e. if it is 4) then the rule will
 check against the next part, which is to see if the object identifies {average}.
 If it does, then all the clauses have been met and rule is carried out. In
 short, it destroys all average daggers, rather than all average swords. Strictly
@@ -266,7 +267,7 @@ Of course you could always rename your rule to make things clearer.
 
 #####GOK so you mentioned something about setting rules up that happen only if a
 #####Gplayer is a certain level?
-Yeah good point. Well lets develop our destroy average swords rule for the
+Yeah, good point. Well lets develop our destroy average swords rule for the
 moment. Lets say we always wanted to destroy average swords by the time we got
 to character level 20. They don't earn enough gold to make it worth carrying
 back to town, and we'll have a better weapon by then anyway. So here we are in
@@ -330,12 +331,12 @@ level 20 and upwards. You'll now see out rule displays as:
 &&&&&B\B-B-B-B-B-B-B-B-B-B-B-B-B-B-B/w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
 
 So there we go. A rule which will destroy all {average} swords once the player
-is past clvl 20.
+is past character level 20.
 
-#####GHmmm I've tried this, it doesn't destroy cursed swords though..
+#####GHmmm I've tried this, it doesn't destroy cursed swords though...
 Nope. You haven't told it to. If you want a scaling rule, which always destroys
-cursed swords and then destroys average swords at clvl 20, then {good} swords at
-clvl 35, have a look at this, rather more complicated rule.
+cursed swords and then destroys average swords at character level 20, then {good}
+swords at character level 35, have a look at this, rather more complicated rule.
 
 &&&&&B/B-B-B-B-BRBuBlBeBsB-B-B-B-B-B/B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B-B\
 &&&&&B|wswhwiwewlwdB B B B B B B w B|G<GrGuGlGeB BnBaBmBew=w"ysywyoyrydysw"B BtByBpBew=w"ydyeysytyryoyyw"G>B B B B B B B B B B B B B B B B B B B B B B B B B B B B w B|
@@ -368,27 +369,29 @@ clvl 35, have a look at this, rather more complicated rule.
 &&&&&B\B-B-B-B-B-B-B-B-B-B-B-B-B-B-B/w RkW WtWoW rdrirsrarbrlreW WtWhWeW WaWuWtWoWmWaWtWiWzWeWrw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
 
 #####GWoah! What the heck is that?!
-OK ok slow down a minute. look at it carefully and a clause at a time. It's not
+OK ok slow down a minute. Look at it carefully and a clause at a time. It's not
 difficult. Lets take it from the top. It's a destroying rule called swords. It
 opens with some <and> tags. The object must be a sword (tval 23). Now we have an
 OR tag, so we know that there are going to be some options:
-option 1: the player is between level 0 and level 50, and the sword pseudo ids
+option 1: the player is between level 0 and level 50, and the sword pseudo id's
 as either cursed or terrible.
-option 2: the player is above clvl 15, and the sword pseudo ids as average.
-option 3: the player is above clvl 25, and the sword pseudo id's as good.
+option 2: the player is above character level 15, and the sword pseudo id's as
+average.
+option 3: the player is above character level 25, and the sword pseudo id's as
+good.
 If any of these options are true, the rule is carried out. This rule could
 easily be copied for other weapons or pieces of armour, substituting only the
 tval, and perhaps the name.
 
-#####GHmmm ok. looks good. I might want to change those clvl values though. they look
-#####Ga bit low....
+#####GHmmm ok. looks good. I might want to change those character level values
+#####Gthough. they look a bit low...
 Well yeah, that's up to your playing style I guess... If you want to edit
 clauses directly rather than delete and re-add them, you might want to edit the
 automat.atm file directly. Just open it in your text editor  (it's located in
-your lib/user directory) and you'll see the format is identical to how it is
-displayed in the automatizer file, just watch your spellings, and keep a back-up
-of the original to replace if things go wrong. Don't mess about in there if you
-feel unsure of what you're doing though.
+your lib/user directory or in ~/.tome on multiuser systems) and you'll see the
+format is identical to how it is displayed in the automatizer file. Just watch
+your spellings, and keep a back-up of the original to replace if things go
+wrong. Don't mess about in there if you feel unsure of what you're doing though.
 
 #####GSo what about those examples you gave up above? Like destroying scrolls of
 #####Gdarkness unless you are a vampire or an alchemist?
@@ -399,7 +402,7 @@ destroy rule. It is worthwhile thinking at this point how the rule is going to
 be structured, for very complicated rules pen and paper may help. We're going to
 need to define the object (either by name, or by tval and sval) then we're going
 to say unless the player race modifier is vampire, or the player class is
-alchemist. so we are obviously going to have more than one clause, and the
+alchemist. So we are obviously going to have more than one clause, and the
 clauses are going to have to BOTH be true for the rule to take effect so the
 first clause we add is an <and> one. So hit 'a' for add clause and enter to
 select the <and> clause. Lets now hit our right arrow, so the <and> tags are
@@ -490,12 +493,12 @@ before I talk you through it
 &&&&&B\B-B-B-B-B-B-B-B-B-B-B-B-B-B-B/w RkW WtWoW rdrirsrarbrlreW WtWhWeW WaWuWtWoWmWaWtWiWzWeWrw w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w w 
 
 The majority of this is fairly similar to the swords rule; it destroys {average}
-swords at clvl 20, {good} ones at clvl 35 and cursed ones always. The addition
-is at the bottom. It adds clauses which will destroy excellent items  providing
-that they have been identified and that the name does not contain the word
-"speed". The <state>identified</state> bit is important here, as it would
-destroy the boots on pseudo-id otherwise, before it even saw the full name of
-the boots.
+swords at character level 20, {good} ones at character level 35 and cursed ones
+always. The addition is at the bottom. It adds clauses which will destroy
+excellent items providing that they have been identified and that the name does
+not contain the word "speed". The <state>identified</state> bit is important
+here, as it would destroy the boots on pseudo-id otherwise, before it even saw
+the full name of the boots.
 
 #####GThis is fantastic! Where can I get more help?
 email me: fearoffours@t-o-m-e.net

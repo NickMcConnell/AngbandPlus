@@ -71,7 +71,7 @@ bool quest_shroom_town_gen_hook(char *fmt)
 		try--;
 	}
 
-	/* Place the nazgul */
+	/* Place Farmer Maggot */
 	m_allow_special[test_monster_name("Farmer Maggot")] = TRUE;
 	place_monster_one(y, x, test_monster_name("Farmer Maggot"), 0, FALSE, MSTATUS_ENEMY);
 	m_allow_special[test_monster_name("Farmer Maggot")] = FALSE;
@@ -116,19 +116,22 @@ bool quest_shroom_give_hook(char *fmt)
 	    (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 	{
 		cquest.status = QUEST_STATUS_FAILED_DONE;
-		msg_print("My puppy ! my poor, defenceless puppy...");
+		msg_print("My puppy!  My poor, defenseless puppy...");
 		msg_print("YOU MURDERER ! Out of my sight !");
 		delete_monster_idx(m_idx);
 
-                del_hook(HOOK_GIVE, quest_shroom_give_hook);
-                del_hook(HOOK_CHAT, quest_shroom_speak_hook);
-                del_hook(HOOK_WILD_GEN, quest_shroom_town_gen_hook);
+		del_hook(HOOK_GIVE, quest_shroom_give_hook);
+		del_hook(HOOK_CHAT, quest_shroom_speak_hook);
+		del_hook(HOOK_WILD_GEN, quest_shroom_town_gen_hook);
 		process_hooks_restart = TRUE;
 		return TRUE;
 	}
 
 	if ((o_ptr->tval != TV_FOOD) || (o_ptr->pval2 != 1)) return (FALSE);
 
+	/* Take a mushroom */
+	inven_item_increase(item, -1);
+	inven_item_optimize(item);
 	cquest.data[0]++;
 
 	if (cquest.data[0] == cquest.data[1])
@@ -139,24 +142,27 @@ bool quest_shroom_give_hook(char *fmt)
 		msg_print("Take my sling and those mushrooms, may they help you !");
 		msg_print("Farmer Maggot heads back to his house");
 
-                /* Mushrooms */
+		/* Mushrooms */
 		q_ptr = &forge;
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_CURE_SERIOUS));
-                q_ptr->found = OBJ_FOUND_REWARD;
+		q_ptr->found = OBJ_FOUND_REWARD;
 		q_ptr->number = rand_range(15, 20);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		q_ptr->discount = 100;
 		q_ptr->ident |= IDENT_STOREB;
-		(void)inven_carry(q_ptr, FALSE);
+		if (inven_carry_okay(q_ptr))
+			inven_carry(q_ptr,FALSE);
+		else
+			drop_near(q_ptr, 0, py, px);
 
-                /* The sling of farmer maggot */
+		/* The sling of farmer maggot */
 		q_ptr = &forge;
 		object_prep(q_ptr, lookup_kind(TV_BOW, SV_SLING));
-                q_ptr->found = OBJ_FOUND_REWARD;
-                q_ptr->number = 1;
-                q_ptr->name1 = 149;
-                apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+		q_ptr->found = OBJ_FOUND_REWARD;
+		q_ptr->number = 1;
+		q_ptr->name1 = 149;
+		apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		q_ptr->discount = 100;
@@ -173,9 +179,6 @@ bool quest_shroom_give_hook(char *fmt)
 	else
 		msg_format("Oh thank you, but you still have %d mushrooms to bring back!", cquest.data[1] - cquest.data[0]);
 
-	inven_item_increase(item, -1);
-	inven_item_optimize(item);
-
 	return TRUE;
 }
 bool quest_shroom_speak_hook(char *fmt)
@@ -190,8 +193,8 @@ bool quest_shroom_speak_hook(char *fmt)
 
 		m_name = get_next_arg_str(fmt);
 
-                msg_format("%^s asks your help.", m_name);
-                exec_lua("ingame_help('monster_chat')");
+		msg_format("%^s asks your help.", m_name);
+		exec_lua("ingame_help('monster_chat')");
 	}
 	else
 	{
@@ -201,13 +204,13 @@ bool quest_shroom_speak_hook(char *fmt)
 		    (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 		{
 			cquest.status = QUEST_STATUS_FAILED_DONE;
-			msg_print("My puppy ! my poor, defenceless puppy...");
+			msg_print("My puppy!  My poor, defenseless puppy...");
 			msg_print("YOU MURDERER ! Out of my sight !");
 			delete_monster_idx(m_idx);
 
 			del_hook(HOOK_GIVE, quest_shroom_give_hook);
 			del_hook(HOOK_CHAT, quest_shroom_speak_hook);
-                        del_hook(HOOK_WILD_GEN, quest_shroom_town_gen_hook);
+			del_hook(HOOK_WILD_GEN, quest_shroom_town_gen_hook);
 			process_hooks_restart = TRUE;
 			return TRUE;
 		}
@@ -230,9 +233,9 @@ bool quest_shroom_chat_hook(char *fmt)
 	{
 		msg_print("My mushrooms, my mushrooms!");
 		msg_print("The rain, a dark horrible rain, began so I had to return to my home.");
-		msg_print("But when I came back my dogs were all mad and didnt let me near the field.");
+		msg_print("But when I came back my dogs were all mad and didn't let me near the field.");
 		msg_print("Could you please bring me back all the mushrooms that have grown in my field");
-		msg_print("to the west of bree ? Please try to not harm my dogs, they are so lovely...");
+		msg_print("to the west of Bree ? Please try to not harm my dogs, they are so lovely...");
 
 		cquest.status = QUEST_STATUS_TAKEN;
 		quest[QUEST_SHROOM].init(QUEST_SHROOM);
@@ -245,7 +248,7 @@ bool quest_shroom_chat_hook(char *fmt)
 		    (r_info[test_monster_name("Fang, Farmer Maggot's dog")].max_num == 0))
 		{
 			cquest.status = QUEST_STATUS_FAILED_DONE;
-			msg_print("My puppy ! my poor, defenceless puppy...");
+			msg_print("My puppy ! my poor, defenseless puppy...");
 			msg_print("YOU MURDERER ! Out of my sight !");
 			delete_monster_idx(m_idx);
 

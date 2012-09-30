@@ -20,5 +20,5 @@ Charisma        -3
 Hit Dice Sides  14        
 Exp Penalty     +110%
 
-######GSkill Bonuses (supplementary to existing skills)
+#####GSkill Bonuses (supplementary to existing skills)
 Barehand-combat            0.000           [0.200]

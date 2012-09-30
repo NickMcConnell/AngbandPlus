@@ -2999,7 +2999,7 @@ void calc_gods()
 /* Apply flags */
 static int extra_blows;
 static int extra_shots;
-void apply_flags(s32b f1, s32b f2, s32b f3, s32b f4, s32b f5, s32b esp, s16b pval, s16b tval, s16b to_h, s16b to_d, s16b to_a)
+void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pval, s16b tval, s16b to_h, s16b to_d, s16b to_a)
 {
 		/* Affect stats */
 		if (f1 & (TR1_STR)) p_ptr->stat_add[A_STR] += pval;
@@ -3118,24 +3118,52 @@ void apply_flags(s32b f1, s32b f2, s32b f3, s32b f4, s32b f5, s32b esp, s16b pva
 
 		if (f4 & (TR4_ANTIMAGIC_50))
 		{
-			p_ptr->antimagic += 10 + get_skill_scale(SKILL_ANTIMAGIC, 40) - to_h - to_d - pval - to_a;
-			p_ptr->antimagic_dis += 1 + get_skill_scale(SKILL_ANTIMAGIC, 4) - ((to_h + to_d + pval + to_a) / 15);
+			s32b tmp;
+
+			tmp = 10 + get_skill_scale(SKILL_ANTIMAGIC, 40)
+			      - to_h - to_d - pval - to_a;
+			if (tmp > 0) p_ptr->antimagic += tmp;
+
+			tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 4)
+			      - (to_h + to_d + pval + to_a) / 15;
+			if (tmp > 0) p_ptr->antimagic_dis += tmp;
 		}
+
 		if (f4 & (TR4_ANTIMAGIC_30))
 		{
-			p_ptr->antimagic += 7 + get_skill_scale(SKILL_ANTIMAGIC, 33) - to_h - to_d - pval - to_a;
-			p_ptr->antimagic_dis += 1 + get_skill_scale(SKILL_ANTIMAGIC, 2) - ((to_h + to_d + pval + to_a) / 15);
+			s32b tmp;
+
+			tmp = 7 + get_skill_scale(SKILL_ANTIMAGIC, 33)
+			      - to_h - to_d - pval - to_a;
+			if (tmp > 0) p_ptr->antimagic += tmp;
+
+			tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 2)
+			      - (to_h + to_d + pval + to_a) / 15;
+			if (tmp > 0) p_ptr->antimagic_dis += tmp;
 		}
+
 		if (f4 & (TR4_ANTIMAGIC_20))
 		{
-			p_ptr->antimagic += 5 + get_skill_scale(SKILL_ANTIMAGIC, 15) - to_h - to_d - pval - to_a;
+			s32b tmp;
+
+			tmp = 5 + get_skill_scale(SKILL_ANTIMAGIC, 15)
+			      - to_h - to_d - pval - to_a;
+			if (tmp > 0) p_ptr->antimagic += tmp;
+
 			p_ptr->antimagic_dis += 2;
 		}
+
 		if (f4 & (TR4_ANTIMAGIC_10))
 		{
-			p_ptr->antimagic += 1 + get_skill_scale(SKILL_ANTIMAGIC, 9) - to_h - to_d - pval - to_a;
+			s32b tmp;
+
+			tmp = 1 + get_skill_scale(SKILL_ANTIMAGIC, 9)
+			      - to_h - to_d - pval - to_a;
+			if (tmp > 0) p_ptr->antimagic += tmp;
+
 			p_ptr->antimagic_dis += 1;
 		}
+
 		if (f4 & (TR4_AUTO_ID))
 		{
 			p_ptr->auto_id = TRUE;
@@ -3152,7 +3180,11 @@ void apply_flags(s32b f1, s32b f2, s32b f3, s32b f4, s32b f5, s32b esp, s16b pva
 
                 /* Breaths */
                 if (f5 & (TR5_WATER_BREATH)) p_ptr->water_breath = TRUE;
-                if (f5 & (TR5_MAGIC_BREATH)) p_ptr->magical_breath = TRUE;
+                if (f5 & (TR5_MAGIC_BREATH))
+                {
+                        p_ptr->magical_breath = TRUE;
+                        p_ptr->water_breath = TRUE;
+                }
 }
 
 /*
@@ -3468,6 +3500,12 @@ void calc_bonuses(bool silent)
 		if(o_ptr->name1 == ART_ANCHOR)
 		{
 			p_ptr->resist_continuum = TRUE;
+		}
+		
+		/* Hack - don't give the Black Breath when merely inspecting a weapon */
+		if(silent)
+		{
+			f4 &= ~TR4_BLACK_BREATH;
 		}
 
 		apply_flags(f1, f2, f3, f4, f5, esp, o_ptr->pval, o_ptr->tval, o_ptr->to_h, o_ptr->to_d, o_ptr->to_a);
@@ -4450,9 +4488,9 @@ void calc_bonuses(bool silent)
 		p_ptr->old_icky_wield = p_ptr->icky_wield;
 	}
 
-	if ((p_ptr->melee_style == SKILL_HAND) && (monk_armour_aux != monk_notify_aux))
+	if (monk_armour_aux != monk_notify_aux)
 	{
-		if(silent)
+		if((p_ptr->melee_style != SKILL_HAND) || silent)
 		{
 			/* do nothing */
 		}

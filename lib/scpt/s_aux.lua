@@ -120,8 +120,8 @@ function get_level_school(s, max, min)
                 -- Does it require we worship a specific god?
                 if __schools[sch].god then
                         if __schools[sch].god ~= player.pgod then
-                                if min then return min
-                                else return 1 end
+                                if min then return min, "n/a"
+                                else return 1, "n/a" end
                         end
                 end
 
@@ -150,7 +150,7 @@ function get_level_school(s, max, min)
                 end
 
                 -- All schools must be non zero to be able to use it
-                if ok == 0 then return min end
+                if ok == 0 then return min, "n/a" end
 
                 -- Apply it
                 lvl = lvl + ok
@@ -164,14 +164,14 @@ function get_level_school(s, max, min)
         bonus = bonus + (player.to_s * (SKILL_STEP / 10))
 
         -- / 10 because otherwise we can overflow a s32b and we can use a u32b because the value can be negative
-        -- The loss of information should be negligible since 1 skill = 1000 internaly
+        -- The loss of information should be negligible since 1 skill = 1000 internally
         lvl = (lvl / num) / 10
 	lvl = lua_get_level(s, lvl, max, min, bonus)
 
-        return lvl
+        return lvl, nil
 end
 
--- This is the function to use when casting throught a stick
+-- This is the function to use when casting through a stick
 function get_level_device(s, max, min)
 	local lvl
 
@@ -189,7 +189,7 @@ function get_level_device(s, max, min)
         end
 
         -- / 10 because otherwise we can overflow a s32b and we can use a u32b because the value can be negative
-        -- The loss of information should be negligible since 1 skill = 1000 internaly
+        -- The loss of information should be negligible since 1 skill = 1000 internally
         lvl = lvl / 10
 	if not min then
 	        lvl = lua_get_level(s, lvl, max, 1, 0)
@@ -209,7 +209,8 @@ function get_level(s, max, min)
                 if get_level_use_stick > -1 then
 	                return get_level_device(s, max, min)
                 else
-	                return get_level_school(s, max, min)
+                        local lvl, na = get_level_school(s, max, min)
+	                return lvl
                 end
         else
                 return get_level_power(s, max, min)
@@ -270,7 +271,7 @@ function print_book(book, spl)
         -- Parse all spells
 	for index, s in school_book[book] do
         	local color = TERM_L_DARK
-                local lvl = get_level(s, 50, -50)
+                local lvl, na = get_level_school(s, 50, -50)
         	local xx, sch_str
 
                 if is_ok_spell(s) then
@@ -288,7 +289,12 @@ function print_book(book, spl)
 		                sch_str = sch_str..school(sch).name
 	                end
                 end
-                c_prt(color, format("%c) %-20s%-16s   %3d %4s %3d%s %s", size + strbyte("a"), spell(s).name, sch_str, lvl, get_mana(s), spell_chance(s), "%", __spell_info[s]()), y, x)
+
+                if na then
+	                c_prt(color, format("%c) %-20s%-16s   n/a %4s %3d%s %s", size + strbyte("a"), spell(s).name, sch_str, get_mana(s), spell_chance(s), "%", __spell_info[s]()), y, x)
+                else
+	                c_prt(color, format("%c) %-20s%-16s   %3d %4s %3d%s %s", size + strbyte("a"), spell(s).name, sch_str, lvl, get_mana(s), spell_chance(s), "%", __spell_info[s]()), y, x)
+                end
 		y = y + 1
                 size = size + 1
         end

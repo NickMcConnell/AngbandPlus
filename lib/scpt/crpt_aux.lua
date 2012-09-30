@@ -134,7 +134,9 @@ function add_corruption(c)
         assert(c.lose_text, "No corruption lose_text")
         assert(c.desc, "No corruption desc")
         assert(c.hooks, "Nothing to do for corruption")
+        if not c.random then c.random = TRUE end
         if not c.removable then c.removable = TRUE end
+        if not c.allow then c.allow = function() return not nil end end
 
         if c.depends == nil then c.depends = {} end
         if c.oppose == nil then c.oppose = {} end
@@ -175,9 +177,11 @@ end
 
 ---------- Corruption spoiler generator -----------
 function corruption_spoiler_generate()
-	make_temp_file()
+        make_temp_file()
         print_hook(
-[[#####R=== ToME Corruptions Spoiler ===
+[[~~~~~01|Corruptions (Spoiler)
+~~~~~02|Spoilers|Corruptions
+#####R=== ToME Corruptions Spoiler ===
 
 Sometimes adventurers become exposed to the dark powers of Morgoth. If they 
 are unable to resist these powers, they become corrupted. Corruptions can 
@@ -210,24 +214,28 @@ You can also gain and lose corruptions when polymorphing yourself.
                 print_hook("[[[[[B"..__corruptions[i].name.."]\n")
                 print_hook(__corruptions[i].desc)
                 print_hook("[[[[[GGain message: "..__corruptions[i].get_text.."]\n")
-                print_hook("[[[[[RLose message: "..__corruptions[i].lose_text.."]\n")
+                if __corruptions[i].removable == TRUE then
+                        print_hook("[[[[[RLose message: "..__corruptions[i].lose_text.."]\n")
+                else
+                        print_hook("It is not removable.\n")
+                end
 
                 local ok
                 ok = nil
-	        for e, _ in __corruptions[i].depends do ok = not nil end
+                for e, _ in __corruptions[i].depends do ok = not nil end
                 if ok then
-	                print_hook("It depends on:\n")
-	        	for e, _ in __corruptions[i].depends do
-        	                print_hook("  "..__corruptions[e].name.."\n")
-                	end
+                        print_hook("It depends on:\n")
+                        for e, _ in __corruptions[i].depends do
+                                print_hook("  "..__corruptions[e].name.."\n")
+                        end
                 end
                 ok = nil
-	        for e, _ in __corruptions[i].oppose do ok = not nil end
+                for e, _ in __corruptions[i].oppose do ok = not nil end
                 if ok then
                         print_hook("It is opposed to:\n")
-	                for e, _ in __corruptions[i].oppose do
-        	                print_hook("  "..__corruptions[e].name.."\n")
-                	end
+                        for e, _ in __corruptions[i].oppose do
+                                print_hook("  "..__corruptions[e].name.."\n")
+                        end
                 end
                 print_hook("\n\n")
         end

@@ -16,13 +16,13 @@ lib\scrpt\pheonix.lua. Open it in your text editor!
 #####R=== The Racial Power ===
 
 Let's start with something simple. Let's say you wanted your new race (let's 
-call it "pheonix") to be able to cast fire balls as their racial power. 
+call it "Pheonix") to be able to cast fire balls as their racial power. 
 
 #####R=== Starting off ===
 
 If you have a look at pheonix.lua you'll note the first lines are comments.
 I'll talk a bit more about comments later, but it's worth pointing out that any
-lines of text preceeded by a double hyphen ([[[[[B--]) will be ignored by the 
+lines of text preceded by a double hyphen ([[[[[B--]) will be ignored by the 
 scripting engine, and are therefore comments. 
 After the comments, the first 10 lines of code are as follows:
 
@@ -60,7 +60,7 @@ U menu, and as you will define it in p_info.txt (more about that later).
 [[[[[B"desc" =      "You are able to cast fireballs",] This is what would 
 appear in the 
 information display list if you drank  a potion of self knowledge or 
-similair. 
+similar. 
 
 [[[[[B"desc_get" =  "Your beak glows red",] This is the information displayed 
 when you 
@@ -68,7 +68,7 @@ gain this power.
 
 [[[[[B"desc_lose" = "Your beak goes cold again",] This is the information 
 displayed when 
-you lose this power. eg After a mutation/corruption.
+you lose this power. Eg After a mutation/corruption.
 
 [[[[[B"level" =     10,] Character level which must be gained in order to use 
 power,
@@ -80,8 +80,7 @@ power,
 [[[[[B"fail" =      14,] how high that stat must be. 
 
 So our Pheonix will be able to cast PHEONIX_POWER  from clvl 10, at a cost of 
-11 
-mana, providing that the player's intelligence is 14 and upwards. 
+11 mana, providing that the player's intelligence is 14 and upwards. 
 
 #####R=== The function ===
 
@@ -102,7 +101,7 @@ strip the comments for the purpose of this helpfile.
 The [[[[[B"power"] bit is what actually happens when the player accesses this 
 power 
 from their 'U' menu. Every function must start with the word [[[[[Bfunction]. 
-Normally, we'd also declare it's name at this point, but as this is contained 
+Normally, we'd also declare its name at this point, but as this is contained 
 within the [[[[[Badd_power] function, we just use the word [[[[[Bfunction] The 
 empty 
 brackets after this denote that no arguments are passed to the function. 
@@ -140,7 +139,7 @@ met, then do the following things."
 So in this function we're saying, "if the value of [[[[[Bret] is FALSE then 
 [[[[[Breturn]."
 As I mentioned above, [[[[[Bret] is false if the player aborted (either 
-deliberately or accidentallly) the spell casting whilst choosing a direction 
+deliberately or accidentally) the spell casting whilst choosing a direction 
 for the spell. The double equals sign are used to mean "is equal to" as a 
 single equals sign is used for defining variables remember? A single equals 
 sign is more of a "let x be equal to y" thing.
@@ -208,7 +207,7 @@ the example scripts, this has all been done for you.
 #####R=== A quick word about comments ===
 
 One of the reason Angband has so many variants is because the source code is 
-clearly commented. Almost everyline of code has an accompanying comment, 
+clearly commented. Almost every line of code has an accompanying comment, 
 explaining what that line does. It's good practice to add comments to any code 
 or script you write. It's helpful to others who are learning, anyone who takes 
 over your project, and also to yourself when you come back in a month's time 

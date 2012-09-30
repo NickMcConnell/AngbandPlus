@@ -106,7 +106,7 @@ Move the cursor to row "row" and column "col".
 /*
 * Get a keypress from the user.
 *
-* This function recognizes a few "global parameters".  These are variables
+* This function recognises a few "global parameters".  These are variables
 * which, if set to TRUE before calling this function, will have an effect
 * on this function, and which are always reset to FALSE by this function
 * before this function returns.  Thus they function just like normal
@@ -189,7 +189,7 @@ Get a keypress from the user.
 *
 * Prompt the user to make sure he has a chance to read them.
 *
-* These messages are memorized for later reference (see above).
+* These messages are memorised for later reference (see above).
 *
 * We could do "Term_fresh()" to provide "flicker" if needed.
 *

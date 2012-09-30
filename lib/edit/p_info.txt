@@ -102,7 +102,7 @@ C:a:O:23:16:1d1
 C:a:g:All Gods
 
 C:a:N:Swordmaster
-C:a:D:Fighters specialized in the use of swords
+C:a:D:Fighters specialised in the use of swords
 C:a:k:+1000:+300:Sword-mastery
 C:a:k:+0:+100:Weaponmastery
 C:a:k:+0:+100:Combat
@@ -121,7 +121,7 @@ C:a:g:Melkor Bauglir
 C:a:g:Yavanna Kementari
 
 C:a:N:Axemaster
-C:a:D:Fighters specialized in the use of axes
+C:a:D:Fighters specialised in the use of axes
 C:a:k:+0:+100:Weaponmastery
 C:a:k:+0:+100:Combat
 C:a:k:+1000:+300:Axe-mastery
@@ -140,7 +140,7 @@ C:a:g:Melkor Bauglir
 C:a:g:Yavanna Kementari
 
 C:a:N:Haftedmaster
-C:a:D:Fighters specialized in the use of hafted weaponss
+C:a:D:Fighters specialised in the use of hafted weapons
 C:a:k:+1000:+300:Hafted-mastery
 C:a:k:+0:+500:Stunning-blows
 C:a:k:+0:+100:Weaponmastery
@@ -156,7 +156,7 @@ C:a:O:21:13:1d1
 C:a:g:All Gods
 
 C:a:N:Polearmmaster
-C:a:D:Fighters specialized in the use of polearms
+C:a:D:Fighters specialised in the use of polearms
 C:a:k:+1000:+300:Polearm-mastery
 C:a:k:+0:+100:Weaponmastery
 C:a:k:+0:+100:Combat
@@ -171,7 +171,7 @@ C:a:O:22:8:1d1
 C:a:g:All Gods
 
 C:a:N:Unbeliever
-C:a:D:They dont believe in magic and can even prevent its usage around them
+C:a:D:They don't believe in magic and can even prevent its usage around them
 C:a:k:=0:=0:Prayer
 C:a:k:=0:=0:Magic
 C:a:k:=0:=0:Magic-Device
@@ -339,7 +339,7 @@ C:a:k:+5000:+900:Corpse-preservation
 C:a:O:23:4:1d1
 
 C:a:N:Runecrafter
-C:a:D:Runecrafters use the runes found in Middle Earth to create
+C:a:D:Runecrafters use the runes found in Middle-earth to create
 C:a:D:finely tuned spells for each specific situation.
 C:a:k:+1000:+50:Magic
 C:a:k:+1000:+300:Runecraft
@@ -671,7 +671,7 @@ C:a:k:+0:-500:Symbiosis
 C:a:k:+0:-500:Mimicry
 
 C:a:N:Monk
-C:a:D:Barehanded, lightly armored fighters they wreak havok with
+C:a:D:Barehanded, lightly armoured fighters they wreak havoc with
 C:a:D:their bare fists, and can also use a few prayers.
 C:a:O:71:37:1d1
 C:a:O:36:4:1d1
@@ -1073,7 +1073,7 @@ R:C:Warrior | Rogue
 
 R:N:14:Dark-Elf
 R:D:Elves are the first born, the Eldar.
-R:D:Dark elves are rare on Middle Earth and even though not evil
+R:D:Dark elves are rare on Middle-earth and even though not evil
 R:D:they are not good.
 R:S:-1:3:2:2:-2:1:-2
 R:K:5:15:20:3:8:12:-5:10
@@ -1090,7 +1090,7 @@ R:G:ELF
 R:k:+0:+200:Magic
 
 R:N:15:Ent
-R:D:Guardian of the forests of Middle Earth, summoned by Yavanna before
+R:D:Guardian of the forests of Middle-earth, summoned by Yavanna before
 R:D:even the elves awoke. It is said 'Trolls are strong, Ents are STRONGER'.
 R:S:10:-3:2:-5:11:-3:-2
 R:K:5:5:20:-6:5:4:15:5
@@ -1195,7 +1195,7 @@ R:C:Warrior | Archer | Mage | Rogue | Priest | Loremaster
 
 R:N:20:Wood-Elf
 R:D:Elves are the first born, the Eldar.
-R:D:Wood elves live in the great forests of Middle Earth.
+R:D:Wood elves live in the great forests of Middle-earth.
 R:S:-3:2:1:5:-4:1:0
 R:K:5:6:6:5:8:12:-25:40
 R:P:7:130:4:4
@@ -1386,7 +1386,7 @@ S:A:Kobold | Petty-Dwarf | Dark-Elf | RohanKnight | Yeek |
 S:A:Wood-Elf | Maia | 
 
 S:N:8:LostSoul
-S:D:A:In some very rare ocassions souls can come back from the Halls of Mandos.
+S:D:A:In some very rare occasions souls can come back from the Halls of Mandos.
 S:S:0:0:0:0:0:0:0:100
 S:K:0:0:0:0:0:0:0:0
 S:P:0:0:0
@@ -1590,15 +1590,15 @@ H:138:100:73:0:50:black hair and a very dark complexion.
 H:139:25:74:20:25:Your mother was an Ogre, but it is unacknowledged.  
 H:140:100:74:20:25:Your father was an Ogre, but it is unacknowledged.  
 
-H:141:10:75:20:50:You are a descandant of Beorn to the 10th degree.  
-H:142:12:75:20:55:You are a descandant of Beorn to the 9th degree.  
-H:143:20:75:20:60:You are a descandant of Beorn to the 8th degree.  
-H:144:23:75:20:65:You are a descandant of Beorn to the 7th degree.  
-H:145:25:75:20:70:You are a descandant of Beorn to the 6th degree.  
-H:146:60:75:20:50:You are a descandant of Beorn to the 5th degree.  
-H:147:70:75:20:55:You are a descandant of Beorn to the 4th degree.  
-H:148:80:75:20:60:You are a descandant of Beorn to the 3rd degree.  
-H:149:90:75:20:65:You are a descandant of Beorn to the 2nd degree.  
+H:141:10:75:20:50:You are a descendant of Beorn to the 10th degree.  
+H:142:12:75:20:55:You are a descendant of Beorn to the 9th degree.  
+H:143:20:75:20:60:You are a descendant of Beorn to the 8th degree.  
+H:144:23:75:20:65:You are a descendant of Beorn to the 7th degree.  
+H:145:25:75:20:70:You are a descendant of Beorn to the 6th degree.  
+H:146:60:75:20:50:You are a descendant of Beorn to the 5th degree.  
+H:147:70:75:20:55:You are a descendant of Beorn to the 4th degree.  
+H:148:80:75:20:60:You are a descendant of Beorn to the 3rd degree.  
+H:149:90:75:20:65:You are a descendant of Beorn to the 2nd degree.  
 H:150:100:75:20:70:Your father was Beorn.  
 
 H:151:75:76:20:50:Your father was an unknown Titan.  
@@ -1656,8 +1656,8 @@ H:191:90:88:18:75:a Petty-Dwarf Miner.
 H:192:95:88:18:100:a Petty-Dwarf Shaman.  
 H:193:100:88:18:100:Mim, Betrayer of Turin.  
 
-H:194:85:89:91:50:You are one of many manwe maia. 
-H:195:100:89:91:60:You are the one of the most known manwe maia. 
+H:194:85:89:91:50:You are one of many Manwe maia. 
+H:195:100:89:91:60:You are the one of the most known Manwe Maia. 
 
 # XXX
 H:199:90:91:0:100:Your eagle looks very good.
@@ -1862,7 +1862,7 @@ H:355:100:208:209:50:In the past you dwelt on earth in the form of
 H:356:25:209:0:50:various animals.
 H:357:55:209:0:55:a spirit of forest and river.
 H:358:70:209:0:60:a beneficent but unseen force.
-H:359:96:209:0:70:a wise and ancient counselor.
+H:359:96:209:0:70:a wise and ancient counsellor.
 H:360:100:209:0:80:a Wizard of legend.
 
 
@@ -1876,7 +1876,7 @@ H:360:100:209:0:80:a Wizard of legend.
 
 I:
 
-M:N:0:U:Classes       -- The Classes of Middle Earth
+M:N:0:U:Classes       -- The Classes of Middle-earth
 M:C:Warrior
 M:C:Archer
 M:C:Rogue
@@ -1888,13 +1888,13 @@ M:C:Loremaster
 
 #M:N:1:B:Spellcasters -- Magic is The One True Way
 
-#M:N:2:y:Priests      -- Hail the powers of the Ainurs
+#M:N:2:y:Priests      -- Hail the powers of the Ainur
 #M:C:Mindcrafter
 
 #M:N:3:G:Beastfriends -- Monsters are fun
 #M:C:BeastMaster
 
-#M:N:4:v:Others       -- The way to your independance
+#M:N:4:v:Others       -- The way to your independence
 #M:C:Harper
 #M:C:Merchant
 

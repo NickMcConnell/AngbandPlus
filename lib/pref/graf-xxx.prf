@@ -516,7 +516,7 @@ F:170:0xD1/0x87
 F:171:0xD1/0x8F
 
 # floor
-F:172:0xCF/0x8F
+F:172:0x80/0x80
 
 # Underground Tunnel
 F:173:0xCF/0x97
@@ -1403,7 +1403,7 @@ K:263:0xBC/0x85
 # Slow Poison
 K:264:0xBC/0x85
 
-# Neutralize Poison
+# Neutralise Poison
 K:265:0xBC/0x85
 
 # Restore Mana
@@ -2862,7 +2862,7 @@ K:785:0xB5/0x85
 # Climbing Set
 K:786:0xD8/0x92
 
-# Adventurer's guide to Middle Earth
+# Adventurer's guide to Middle-earth
 K:787:0xD8/0x80
 
 # [Dark Incantations]

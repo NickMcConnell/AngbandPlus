@@ -23,14 +23,17 @@ end
 -- Check if the map is a filename or directly a map
 function load_map(map, y, x)
         if strsub(map, 1, 5) == "#!map" then
-                -- Print to a temporary file and parse it, then delet the file
-                make_temp_file()
-                print_hook(map)
-                close_temp_file()
-                %load_map(get_temp_name(), y, x)
-                end_temp_file()
+                %load_map(TRUE, map, y, x)
         else
-                %load_map(map, y, x)
+                %load_map(FALSE, map, y, x)
+        end
+end
+
+function get_map_size(map)
+        if strsub(map, 1, 5) == "#!map" then
+                return %get_map_size(TRUE, map)
+        else
+                return %get_map_size(FALSE, map)
         end
 end
 

@@ -27,7 +27,7 @@ bool quest_nirnaeth_gen_hook(char *fmt)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file("nirnaeth.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "nirnaeth.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	/* Count the number of monsters */

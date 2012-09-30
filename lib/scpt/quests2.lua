@@ -35,7 +35,7 @@ register_savefile(__loadsave_max)
 add_hook_script(HOOK_LOAD_GAME, "__savefile_load", "__hook_load")
 add_hook_script(HOOK_SAVE_GAME, "__savefile_save", "__hook_save")
 
--- Automagicaly set unkown variables, otherwise the savefile code
+-- Automagically set unkown variables, otherwise the savefile code
 -- might get VERY upset
 do
         local k, e

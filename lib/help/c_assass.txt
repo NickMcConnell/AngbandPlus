@@ -1,5 +1,5 @@
 ~~~~~01|Assassin
-~~~~~02|Classes|Assasin
+~~~~~02|Classes|Assassin
 #####R=== Assassins ===
 #####GDescription
 Assassin are similar to rogues, but have trained their combat abilities more

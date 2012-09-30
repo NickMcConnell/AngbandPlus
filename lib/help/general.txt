@@ -15,7 +15,7 @@ Space          | Advance 1 page (screen)
 Return         | Activate the selected link
 #              | Go to a specific line (defaults to line 0)
 %              | Go to a specific help file (defaults to help.hlp)
-=              | Hightlight lines containing a string (e.g. "word")
+=              | Highlight lines containing a string (e.g. "word")
 /              | Search for a string (e.g. "word")
 -------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ attempting to win the game by defeating Morgoth, who lurks somewhere in
 the depths of the dungeon.
 
 The player will begin his adventure on the town level where he may acquire
-supplies, weapons, armor, and magical devices by bartering with various shop
+supplies, weapons, armour, and magical devices by bartering with various shop
 owners.  After preparing for his adventure, the player can descend into the
 dungeon near Bree where fantastic adventures await his coming!
  
@@ -36,7 +36,7 @@ You will probably need to browse through the "help files", especially the
 one on available *****command.txt*0[commands], before beginning any
 serious adventuring...
 
-I'd also highly recommend reading the *****tome_faq.txt*0[ToME faq] under
+I'd also highly recommend reading the *****tome_faq.txt*0[ToME FAQ] under
 "Extra help for new players" (at least the first section of it about the
 differences between Vanilla Angband and ToME).
 

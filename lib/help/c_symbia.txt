@@ -5,7 +5,7 @@
 
 #####GDescription
 Symbiants live in harmony with all of the monsters that do not move;
-the Mushrooms, Molds, Floating Eyes, and such. They can hypnotize these
+the Mushrooms, Molds, Floating Eyes, and such. They can hypnotise these
 creatures and then form a symbiotic relationship. Using other symbiotic
 powers, they can even use the magical abilities of their pets.
 
@@ -45,7 +45,7 @@ A symbiant begins the game with:
 
 
 #####GSymbiosis
-Symbiants rely on the partnerships they form, hypnotizing creatures
+Symbiants rely on the partnerships they form, hypnotising creatures
 and then "wearing" them: "I get by with a little help from my friends".
 Depending on the monster, this does nothing except protect the player
 slightly (the worn monster takes some of the damage the player would

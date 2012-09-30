@@ -1221,14 +1221,14 @@ s32b object_value_real(object_type *o_ptr)
 		}
 	}
 
-        /* Pay the spell */
-        if (f5 & TR5_SPELL_CONTAIN)
-        {
-                if (o_ptr->pval2 != -1)
-                        value += 5000 + 500 * school_spells[o_ptr->pval2].skill_level;
-                else
-                        value += 5000;
-        }
+	/* Pay the spell */
+	if (f5 & TR5_SPELL_CONTAIN)
+	{
+		if (o_ptr->pval2 != -1)
+			value += 5000 + 500 * school_spells[o_ptr->pval2].skill_level;
+		else
+			value += 5000;
+	}
 
 	/* Analyze pval bonus */
 	switch (o_ptr->tval)
@@ -1376,9 +1376,9 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_AMULET:
 		{
 			/* Hack -- negative bonuses are bad */
-			if (o_ptr->to_a < 0) return (0L);
-			if (o_ptr->to_h < 0) return (0L);
-			if (o_ptr->to_d < 0) return (0L);
+			if (o_ptr->to_a < 0 && !value) return (0L);
+			if (o_ptr->to_h < 0 && !value) return (0L);
+			if (o_ptr->to_d < 0 && !value) return (0L);
 
 			/* Give credit for bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
@@ -1399,7 +1399,7 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_DRAG_ARMOR:
 		{
 			/* Hack -- negative armor bonus */
-			if (o_ptr->to_a < 0) return (0L);
+			if (o_ptr->to_a < 0 && !value) return (0L);
 
 			/* Give credit for bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
@@ -1420,7 +1420,7 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_TRAPKIT:
                 {
 			/* Hack -- negative hit/damage bonuses */
-			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
+			if (o_ptr->to_h + o_ptr->to_d < 0 && !value) return (0L);
 
 			/* Factor in the bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
@@ -1441,7 +1441,7 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_BOLT:
 		{
 			/* Hack -- negative hit/damage bonuses */
-			if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
+			if (o_ptr->to_h + o_ptr->to_d < 0 && !value) return (0L);
 
 			/* Factor in the bonuses */
 			value += ((o_ptr->to_h + o_ptr->to_d) * 5L);
@@ -1553,15 +1553,23 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	{
 		/* School Book */
 		case TV_BOOK:
-		{
+                {
+                        if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return FALSE;
+
+			/* Beware artifatcs should not combibne with "lesser" thing */
+			if (artifact_p(o_ptr) != artifact_p(j_ptr)) return (FALSE);
+
+			/* Do not combine different ego or normal ones */
+			if (ego_item_p(o_ptr) != ego_item_p(j_ptr)) return (FALSE);
+
 			/* Random books should stack if they are identical */
 			if ((o_ptr->sval == 255) && (j_ptr->sval == 255))
 			{
-				if (o_ptr->pval == j_ptr->pval)
-					return (1);
+				if (o_ptr->pval != j_ptr->pval)
+					return (FALSE);
 			}
 
-			return (0);
+			return (TRUE);
 		}
 
 		/* Chests */
@@ -1638,7 +1646,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			/* Require identical charges, since staffs are bulky. */
 			if (o_ptr->pval != j_ptr->pval) return (0);
 
-			/* Do not combine recharged ones with non recharged ones. */
+                        /* Do not combine recharged ones with non recharged ones. */
 			if ((f4 & TR4_RECHARGED) != (f14 & TR4_RECHARGED)) return (0);
 
 			/* Do not combine different spells */
@@ -1963,6 +1971,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 	/* Default "pval" */
 	o_ptr->pval = k_ptr->pval;
+	o_ptr->pval2 = k_ptr->pval2;
 
 	/* Default number */
 	o_ptr->number = 1;
@@ -3892,14 +3901,18 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			/* Arg I hate so much to do that ... but I see no other way */
 			if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
 			{
+				s32b base_lvl, max_lvl;
+
 				/* Is the spell predefined by the object kind? */
 				if (k_ptr->pval == -1)
 				{
 					o_ptr->pval2 = k_ptr->pval2;
 				}
 
-				/* Ok now get a base level */
-				o_ptr->pval3 = exec_lua(format("return get_stick_base_level(TV_WAND, dun_level, %d)", o_ptr->pval2));
+				/* Determine a base and a max level */
+				call_lua("get_stick_base_level", "(d,d,d)", "d", o_ptr->tval, dun_level, o_ptr->pval2, &base_lvl);
+				call_lua("get_stick_max_level",  "(d,d,d)", "d", o_ptr->tval, dun_level, o_ptr->pval2, &max_lvl);
+				o_ptr->pval3 = (max_lvl << 16) + (base_lvl & 0xFFFF);
 
 				/* Hack -- charge wands */
 				charge_stick(o_ptr);
@@ -4026,9 +4039,16 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Cheat -- peek at the item */
 		if ((cheat_peek)||(p_ptr->precognition)) object_mention(o_ptr);
 
-                /* Spell in it ? no ! */
-                if (a_ptr->flags5 & TR5_SPELL_CONTAIN)
-                        o_ptr->pval2 = -1;
+		/* Spell in it ? no ! */
+		if (a_ptr->flags5 & TR5_SPELL_CONTAIN)
+			o_ptr->pval2 = -1;
+             
+		/* Give a basic exp/exp level to an artifact that needs it */
+		if(a_ptr->flags4 & TR4_LEVELS)
+		{
+			o_ptr->elevel = (k_ptr->level / 10) + 1;
+			o_ptr->exp = player_exp[o_ptr->elevel - 1];
+		}
 
 		/* Done */
 		return;
@@ -4060,17 +4080,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			break;
 		}
 
-        	case TV_DAEMON_BOOK:
-                {
-                        /* UGLY, but needed, depending of sval teh demon stuff are eitehr weapon or armor */
-                        if (o_ptr->sval == 55)
-                        {
-                                if (power) a_m_aux_1(o_ptr, lev, power);
-                        }
-                        else
-                        {
-                                if (power) a_m_aux_2(o_ptr, lev, power);
-                        }
+		case TV_DAEMON_BOOK:
+		{
+			/* UGLY, but needed, depending of sval teh demon stuff are eitehr weapon or armor */
+			if (o_ptr->sval == SV_DEMONBLADE)
+			{
+				if (power) a_m_aux_1(o_ptr, lev, power);
+			}
+			else
+			{
+				if (power) a_m_aux_2(o_ptr, lev, power);
+			}
 			break;
 		}
 
@@ -5495,6 +5515,8 @@ void floor_item_optimize(int item)
 bool inven_carry_okay(object_type *o_ptr)
 {
 	int j;
+
+	if(o_ptr->tval == TV_GOLD) return FALSE;
 
 	/* Empty slot? */
 	if (inven_cnt < INVEN_PACK) return (TRUE);

@@ -2636,8 +2636,8 @@ static bool do_dungeon(int flag)
 	do_s16b(&max_panel_rows, flag);
 	do_s16b(&max_panel_cols, flag);
 
-	do_s32b(&dungeon_flags1, flag);
-	do_ver_s32b(&dungeon_flags2, 42, 0, flag);
+	do_u32b(&dungeon_flags1, flag);
+	do_ver_u32b(&dungeon_flags2, 42, 0, flag);
 
         /* Last teleportation */
         do_ver_s16b(&last_teleportation_y, 41, -1, flag);
@@ -2675,14 +2675,14 @@ static bool do_dungeon(int flag)
 		int xstart = 0;
 		int ystart = 0;
 		/* Init the wilderness */
-		process_dungeon_file("w_info.txt", &ystart, &xstart, cur_hgt, cur_wid,
+		process_dungeon_file(NULL, "w_info.txt", &ystart, &xstart, cur_hgt, cur_wid,
 							 TRUE);
 
 		/* Init the town */
 		xstart = 0;
 		ystart = 0;
 		init_flags = 0;
-		process_dungeon_file("t_info.txt", &ystart, &xstart, cur_hgt, cur_wid,
+		process_dungeon_file(NULL, "t_info.txt", &ystart, &xstart, cur_hgt, cur_wid,
 							 TRUE);
 	}
 

@@ -1,6 +1,6 @@
 /*
 ** Lua binding: dungeon
-** Generated automatically by tolua 4.0a - angband on Tue Dec  3 21:41:03 2002.
+** Generated automatically by tolua 4.0a - angband on Mon Jan  6 12:03:09 2003.
 */
 
 #include "lua/tolua.h"
@@ -41,7 +41,7 @@ static int toluaI_set_dungeon_level_flags1(lua_State* tolua_S)
 {
  if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
  TOLUA_ERR_ASSIGN;
-  dungeon_flags1 = ((s32b)  tolua_getnumber(tolua_S,1,0));
+  dungeon_flags1 = ((u32b)  tolua_getnumber(tolua_S,1,0));
  return 0;
 }
 
@@ -57,7 +57,7 @@ static int toluaI_set_dungeon_level_flags2(lua_State* tolua_S)
 {
  if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
  TOLUA_ERR_ASSIGN;
-  dungeon_flags2 = ((s32b)  tolua_getnumber(tolua_S,1,0));
+  dungeon_flags2 = ((u32b)  tolua_getnumber(tolua_S,1,0));
  return 0;
 }
 

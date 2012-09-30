@@ -904,7 +904,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 					reorder_pack();
 					if (!ident)
 					{
-						msg_print("A small fire works it's way through your backpack. "
+						msg_print("A small fire works its way through your backpack. "
 						          "Some scrolls are burnt.");
 					}
 					else
@@ -1202,7 +1202,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 				/* re-trap the chest */
 				place_trap(y, x);
 			}
-			msg_print("You hear a noise, and then it's echo.");
+			msg_print("You hear a noise, and then its echo.");
 			ident = FALSE;
 			break;
 		}
@@ -1229,7 +1229,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 				/* Re-trap the chest */
 				place_trap(y, x);
 			}
-			msg_print("You hear a noise, and then it's echo.");
+			msg_print("You hear a noise, and then its echo.");
 
 			/* Never known */
 			ident = FALSE;
@@ -1307,27 +1307,27 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 
 				j_ptr = &inventory[i];
 
-				if (j_ptr->tval == TV_WAND)
+				if ((j_ptr->tval == TV_WAND) && (rand_int(5) == 1))
 				{
-					if ((j_ptr->sval >= SV_WAND_NASTY_WAND) &&
-					    (rand_int(5) == 1))
-					{
-						if (object_known_p(j_ptr)) ident = TRUE;
-						j_ptr->sval = rand_int(SV_WAND_NASTY_WAND);
-						j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
-                                                j_ptr->ident &= ~(IDENT_KNOWN);
-						p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-					}
+					if (object_known_p(j_ptr)) ident = TRUE;
 
-					if ((j_ptr->sval >= SV_STAFF_NASTY_STAFF) &&
-					    (rand_int(5) == 1))
-					{
-						if (object_known_p(j_ptr)) ident = TRUE;
-						j_ptr->sval = rand_int(SV_STAFF_NASTY_STAFF);
-						j_ptr->k_idx = lookup_kind(j_ptr->tval, j_ptr->sval);
-                                                j_ptr->ident &= ~(IDENT_KNOWN);
-						p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-					}
+					/* Create a Wand of Nothing */
+					object_prep(j_ptr, lookup_kind(TV_WAND, SV_WAND_NOTHING));
+					hack_apply_magic_power = -99;
+					apply_magic(j_ptr, 0, FALSE, FALSE, FALSE);
+					j_ptr->ident &= ~IDENT_KNOWN;
+					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+				}
+				else if ((j_ptr->tval == TV_STAFF) && (rand_int(5) == 1))
+				{
+					if (object_known_p(j_ptr)) ident = TRUE;
+
+					/* Create a Staff of Nothing */
+					object_prep(j_ptr, lookup_kind(TV_STAFF, SV_STAFF_NOTHING));
+					hack_apply_magic_power = -99;
+					apply_magic(j_ptr, 0, FALSE, FALSE, FALSE);
+					j_ptr->ident &= ~IDENT_KNOWN;
+					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 				}
 			}
 			if (ident)
@@ -1743,7 +1743,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		/* Trap of hallucination */
 		case TRAP_OF_HALLUCINATION:
 		{
-			msg_print("Scintillating colors hypnotize you for a moment.");
+			msg_print("Scintillating colors hypnotise you for a moment.");
 
 			set_image(80);
 		}
@@ -1876,7 +1876,12 @@ void place_trap_object(object_type *o_ptr)
 	int cnt;
 
 	/* No traps in town or on first level */
-	if (dun_level <= 1) return;
+	if (dun_level <= 1)
+	{
+		/* empty chest were already looted, therefore known */
+		o_ptr->ident |= IDENT_KNOWN;
+		return;
+	}
 
 	/* Try 100 times */
 	cnt = 100;
@@ -2640,7 +2645,7 @@ bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 		case SV_POTION_SLIME_MOLD:
 		case SV_POTION_SALT_WATER:
 		case SV_POTION_DEC_STR:
-		case SV_POTION_DEC_INT:	
+		case SV_POTION_DEC_INT:
 		case SV_POTION_DEC_WIS:
 		case SV_POTION_DEC_DEX:
 		case SV_POTION_DEC_CON:
@@ -2666,7 +2671,7 @@ bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 		case SV_POTION_INC_CON:
 		case SV_POTION_INC_CHR:
 		case SV_POTION_AUGMENTATION:
-		case SV_POTION_RUINATION:	/* ??? */		
+		case SV_POTION_RUINATION:	/* ??? */
 		case SV_POTION_ENLIGHTENMENT:
 		case SV_POTION_STAR_ENLIGHTENMENT:
 		case SV_POTION_SELF_KNOWLEDGE:
@@ -2702,7 +2707,7 @@ bool mon_hit_trap_aux_potion(int m_idx, object_type *o_ptr)
 		case SV_POTION_LOSE_MEMORIES:
 			typ = GF_OLD_CONF;
 			dam = damroll(10, 10);
-			break;			
+			break;
 		case SV_POTION_DETONATIONS:
 			typ = GF_DISINTEGRATE;
 			dam = damroll(20, 20);
@@ -2929,7 +2934,7 @@ bool mon_hit_trap(int m_idx)
 	/* Otherwise, activate the trap! */
 	else
 	{
-		/* Message for visible monster */		
+		/* Message for visible monster */
 		if (m_ptr->ml) 
 		{
 			/* Get the name */
@@ -3000,7 +3005,7 @@ bool mon_hit_trap(int m_idx)
 							monster_desc(m_name, m_ptr, 0);
 
 							/* Print a message */
-							msg_format("%^s is hit by a missile.", m_name);           		
+							msg_format("%^s is hit by a missile.", m_name);
 						}
 
 						/* Apply slays, brand, critical hits */
@@ -3014,7 +3019,7 @@ bool mon_hit_trap(int m_idx)
 						if (mon_take_hit(m_idx, dam, &fear, note_dies))
 						{
 							/* Dead monster */
-							dead = TRUE;						
+							dead = TRUE;
 						}
 
 						/* No death */
@@ -3192,7 +3197,7 @@ bool mon_hit_trap(int m_idx)
 			}
 
 			default:
-				msg_print("oops! nonexisting trap!");
+				msg_print("oops! nonexistant trap!");
 
 		}		
 

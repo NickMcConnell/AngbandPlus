@@ -27,7 +27,7 @@ bool quest_wight_gen_hook(char *fmt)
 
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file("wights.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "wights.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	for (x = 3; x < xstart; x++)
@@ -61,7 +61,8 @@ bool quest_wight_gen_hook(char *fmt)
 				       TR3_IGNORE_FIRE | TR3_IGNORE_COLD | TR3_SEE_INVIS);
 
 				/* For game balance... */
-				q_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
+                                q_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE);
+                                q_ptr->ident |= IDENT_CURSED;
 
 				if (randint(2) == 1)
 				{

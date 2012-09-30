@@ -27,7 +27,7 @@ There are four spells available for the mana school. These Spells are:
    Uses mana instead of hitpoints to take damage.
    At spell level 5 switches to Globe of Invulnerability.
    The spell breaks as soon as a melee, shooting, throwing or magical skill
-   action is attempted.
+   action is attempted, and lasts only a short time.
 
 
 #####GUdun spells that can be cast with Mana skill

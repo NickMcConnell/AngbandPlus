@@ -28,7 +28,7 @@ void increase_skill(int i, s16b *invest)
 	/* The skill is already maxed */
         if (s_info[i].value >= SKILL_MAX) return;
 
-        /* Cannot allocate more than player level + 10 levels */
+        /* Cannot allocate more than player level + 5 levels */
         if (((s_info[i].value + s_info[i].mod) / SKILL_STEP) >= (p_ptr->lev + 6))
         {
                 int hgt, wid;
@@ -171,7 +171,7 @@ static bool is_known(int s_idx)
 
         for (i = 0; i < max_s_idx; i++)
         {
-                /* It is our child, if we dont know it we contiue to search, if we know it it is enough*/
+                /* It is our child, if we don't know it we continue to search, if we know it it is enough*/
                 if (s_info[i].father == s_idx)
                 {
                         if (is_known(i))
@@ -412,6 +412,8 @@ void recalc_skills_theory(s16b *invest, s32b *base_val, u16b *base_mod, s32b *bo
                         if ((s_info[i].action[j] == SKILl_EXCLUSIVE) && invest[i])
                         {
                                 /* Turn it off */
+                                p_ptr->skill_points += invest[j];
+                                invest[j] = 0;
                                 s_info[j].value = 0;
                         }
 
@@ -682,15 +684,36 @@ static void choose_melee()
 
 		for (i = 0, z = 0; z < A2I(c); i++)
 			if (melee_bool[i]) z++;
+		for (i = INVEN_WIELD; p_ptr->body_parts[i - INVEN_WIELD] == INVEN_WIELD; i++)
+		{
+			if (inventory[i].k_idx)
+			{
+				if(cursed_p(&inventory[i]))
+				{
+					char name[80];
+					object_desc(name, &inventory[i], 0, 0);
+					msg_format("Hmmm, your %s seems to be cursed.", name);
+					break;
+				}
+				else
+				{
+					inven_takeoff(i, 255, FALSE);
+				}
+			}
+		}
 		p_ptr->melee_style = melee_skills[melee_num[z]];
-                for (i = INVEN_WIELD; p_ptr->body_parts[i - INVEN_WIELD] == INVEN_WIELD; i++)
-                {
-                        if (inventory[i].k_idx)
-                                inven_takeoff(i, 255, FALSE);
-                }
 		energy_use = 100;
 		break;
 	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate hitpoint */
+	p_ptr->update |= (PU_HP);
+
+	/* Redraw monster hitpoint */
+	p_ptr->redraw |= (PR_MH);
 
 	Term_load();
 	character_icky = FALSE;
@@ -700,14 +723,14 @@ void select_default_melee()
 {
 	int i;
 
-        get_melee_skills();
-        p_ptr->melee_style = SKILL_MASTERY;
+	get_melee_skills();
+	p_ptr->melee_style = SKILL_MASTERY;
 	for (i = 0; i < MAX_MELEE; i++)
 	{
 		if (melee_bool[i])
 		{
-                        p_ptr->melee_style = melee_skills[i];
-                        break;
+			p_ptr->melee_style = melee_skills[i];
+			break;
 		}
 	}
 }
@@ -786,7 +809,7 @@ int do_cmd_activate_skill_aux()
 
 	if (!max)
 	{
-		msg_print("You dont have any activable skills.");
+		msg_print("You don't have any activable skills.");
 		return -1;
 	}
 
@@ -1216,7 +1239,7 @@ void do_get_new_skill()
         int available_skills[MAX_SKILLS];
         int max = 0, max_a = 0, res, i;
 
-        /* Check if some skills didnt influence other stuff */
+        /* Check if some skills didn't influence other stuff */
         recalc_skills(TRUE);
 
         /* Grab the ones we can gain */
@@ -1269,15 +1292,20 @@ void do_get_new_skill()
 
         while (TRUE)
         {
+		res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 4);
+
+		/* Ok ? lets learn ! */
+		if (res > -1)
+		{
+			skill_type *s_ptr;
                 bool oppose = FALSE;
                 int oppose_skill = -1;
 
-                res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 4);
-
-                /* Check we dont oppose an existing skill */
+			/* Check we don't oppose an existing skill */
                 for (i = 0; i < max_s_idx; i++)
                 {
-                        if ((s_info[i].action[skl[res]] == SKILl_EXCLUSIVE) && (s_info[i].value))
+				if ((s_info[i].action[skl[res]] == SKILl_EXCLUSIVE) &&
+				    (s_info[i].value != 0))
                         {
                                 oppose = TRUE;
                                 oppose_skill = i;
@@ -1297,7 +1325,7 @@ void do_get_new_skill()
 					flush();
 
 					/* Prepare prompt */
-					msg = format("This skill is mutualy exclusive with "
+					msg = format("This skill is mutually exclusive with "
 								 "at least %s, continue?",
 								 s_info[oppose_skill].name + s_name);
 
@@ -1305,24 +1333,29 @@ void do_get_new_skill()
 					if (!get_check(msg)) continue;
 				}
 
-                /* Ok ? lets learn ! */
-                if (res > -1)
-                {
-                        skill_type *s_ptr = &s_info[skl[res]];
+			s_ptr = &s_info[skl[res]];
                         s_ptr->value += val[res];
                         s_ptr->mod += mod[res];
                         if (mod[res])
-                                msg_format("You can now learn the %s skill.", s_ptr->name + s_name);
+			{
+				msg_format("You can now learn the %s skill.",
+				           s_ptr->name + s_name);
+			}
                         else
-                                msg_format("Your knowledge of the %s skill increase.", s_ptr->name + s_name);
+			{
+				msg_format("Your knowledge of the %s skill increase.",
+				           s_ptr->name + s_name);
+			}
                 }
                 break;
         }
 
         /* Free them ! */
 	for (max = 0; max < 4; max++)
+	{
                 string_free(items[max]);
+	}
 
-        /* Check if some skills didnt influence other stuff */
+        /* Check if some skills didn't influence other stuff */
         recalc_skills(FALSE);
 }

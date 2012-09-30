@@ -313,7 +313,7 @@ static monster_type lua_monster_forge @ monster_forge;
 #define MFLAG_VIEW      0x00000001    /* Monster is in line of sight */
 #define MFLAG_QUEST     0x00000002    /* Monster is subject to a quest */
 #define MFLAG_PARTIAL   0x00000004    /* Monster is a partial summon */
-#define MFLAG_CONTROL   0x00000008    /* Monster is controled */
+#define MFLAG_CONTROL   0x00000008    /* Monster is controlled */
 #define MFLAG_BORN      0x00000010    /* Monster is still being born */
 #define MFLAG_NICE      0x00000020    /* Monster is still being nice */
 #define MFLAG_SHOW      0x00000040    /* Monster is recently memorized */

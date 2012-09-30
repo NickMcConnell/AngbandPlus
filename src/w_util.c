@@ -1,6 +1,6 @@
 /*
 ** Lua binding: util
-** Generated automatically by tolua 4.0a - angband on Sun Dec  8 16:24:32 2002.
+** Generated automatically by tolua 4.0a - angband on Fri Feb 21 06:45:51 2003.
 */
 
 #include "lua/tolua.h"
@@ -2669,19 +2669,21 @@ static int toluaI_set_util_ddy_ddd(lua_State* tolua_S)
 static int toluaI_util_get_map_size00(lua_State* tolua_S)
 {
  if (
- !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,1) ||
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TSTRING,0) ||
  !tolua_istype(tolua_S,3,LUA_TNUMBER,1) ||
- !tolua_isnoobj(tolua_S,4)
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,1) ||
+ !tolua_isnoobj(tolua_S,5)
  )
  goto tolua_lerror;
  else
  {
-  char* name = ((char*)  tolua_getstring(tolua_S,1,0));
-  int ysize = ((int)  tolua_getnumber(tolua_S,2,0));
-  int xsize = ((int)  tolua_getnumber(tolua_S,3,0));
+  bool full_text = ((bool)  tolua_getnumber(tolua_S,1,0));
+  char* name = ((char*)  tolua_getstring(tolua_S,2,0));
+  int ysize = ((int)  tolua_getnumber(tolua_S,3,0));
+  int xsize = ((int)  tolua_getnumber(tolua_S,4,0));
  {
-  get_map_size(name,&ysize,&xsize);
+  get_map_size(full_text,name,&ysize,&xsize);
  tolua_pushnumber(tolua_S,(long)ysize);
  tolua_pushnumber(tolua_S,(long)xsize);
  }
@@ -2696,19 +2698,21 @@ tolua_lerror:
 static int toluaI_util_load_map00(lua_State* tolua_S)
 {
  if (
- !tolua_istype(tolua_S,1,LUA_TSTRING,0) ||
- !tolua_istype(tolua_S,2,LUA_TNUMBER,1) ||
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TSTRING,0) ||
  !tolua_istype(tolua_S,3,LUA_TNUMBER,1) ||
- !tolua_isnoobj(tolua_S,4)
+ !tolua_istype(tolua_S,4,LUA_TNUMBER,1) ||
+ !tolua_isnoobj(tolua_S,5)
  )
  goto tolua_lerror;
  else
  {
-  char* name = ((char*)  tolua_getstring(tolua_S,1,0));
-  int y = ((int)  tolua_getnumber(tolua_S,2,2));
-  int x = ((int)  tolua_getnumber(tolua_S,3,2));
+  bool full_text = ((bool)  tolua_getnumber(tolua_S,1,0));
+  char* name = ((char*)  tolua_getstring(tolua_S,2,0));
+  int y = ((int)  tolua_getnumber(tolua_S,3,2));
+  int x = ((int)  tolua_getnumber(tolua_S,4,2));
  {
-  load_map(name,&y,&x);
+  load_map(full_text,name,&y,&x);
  tolua_pushnumber(tolua_S,(long)y);
  tolua_pushnumber(tolua_S,(long)x);
  }

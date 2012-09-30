@@ -138,7 +138,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*76[.  Run]                                 ^Y  (unused)
  *****command.txt*77[>  Go down staircase]                   ^Z  (special - borg command)
  *****command.txt*79[\  (special - bypass keymap)]            *****command.txt*80[|  Do cmovies]
- *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Check artifacts, uniques, objects]
+ *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Display current knowledge]
  *****command.txt*83[/  Identify symbol]                      *****command.txt*84[?  Help]
                                         *****command.txt*98[^\]  Take an html screenshot]
 
@@ -199,7 +199,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  *****command.txt*72[.  Stay still (with pickup)]            *****command.txt*95[^Y  (tunnel - north west)]
  *****command.txt*77[>  Go down staircase]                   ^Z  (special - borg command)
  *****command.txt*79[\  (special - bypass keymap)]            *****command.txt*80[|  Do cmovies]
- *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Check artifacts, uniques, objects]
+ *****command.txt*81[`  (special - escape)]                   *****command.txt*82[~  Display current knowledge]
  *****command.txt*83[/  Identify symbol]                      *****command.txt*84[?  Help]
 
 ~~~~~102|Commands|Special keys
@@ -388,7 +388,7 @@ For example, a macro which maps Shift-KP6 to "\" + "." + "6" will induce
 the "run east" behavior, regardless of what keyset the user has chosen, and
 regardless of what keymaps have been defined.
 
-	Macros can be specified in user pref files as a pair of lines, one
+        Macros can be specified in user pref files as a pair of lines, one
 of the form "A:<str>", which defines the encoded macro action, and one of
 the form "P:<str>", which defines the encoded macro trigger.
 
@@ -493,29 +493,33 @@ for a quantity will convert any "letters" into the maximal legal value.
 ~~~~~9 
 [[[[[GEquipment list (e)]
         Use this command to display a list of the objects currently being
-        used by your character.  Your character has 12 slots for equipment,
+        used by your character.  The number and type of available slots for
+        equipment may vary. A human for example has 15 slots for equipment,
         each corresponding to a different location on the body, and each of
         which may contain only a single object at a time, and each of which
-        may only contain objects of the proper "type", and which include
-        WIELD (weapon), BOW (missile launcher), LEFT (ring), RIGHT (ring),
-        NECK (amulet), LITE (light source), BODY (armor), OUTER (cloak),
-        ARM (shield), HEAD (helmet), HANDS (gloves), FEET (boots).  You
-        must be using an object to receive any of its special powers.
+        may only contain objects of the proper "type".
+        If the option "show_labels" is set, the slots are labelled as follows:  
+        Wielding (weapon), Shooting (missile launcher or instruments),
+        On finger (ring), Around neck (amulet), Light source (light source),
+        On body (armor), About body (cloak), On arm (shield), On head (helmet),
+        On hands (gloves), On feet (boots), Carrying (symbiote), Quiver (ammo),
+        Using (tool). You must be using an object to receive any of its special
+        powers.
 ~~~~~7
 [[[[[GDrop an item (d)]
-        This drops an item from your inventory or equipment onto the
-        dungeon floor.  If the floor spot you are standing on already has
-        an object in it, Angband will attempt to drop the item onto an
-        adjacent space.  Be warned that if the floor is full and you
-        attempt to drop something, it may disappear and be destroyed.
-        Doors and traps are considered objects for the purpose of
-        determining if the space is occupied.  If the selected pile
+        This command drops an item from your inventory or equipment onto the
+        dungeon floor.  If the place you are standing on already has objects
+        in it, ToME will attempt to drop the item onto an adjacent space.
+        A floor spot can hold more than one object, but there is still the
+        possibility that if the floor is too full and you attempt to drop
+        something, it may disappear and be destroyed.  If the selected pile
         contains multiple items, you may specify a quantity.
 ~~~~~20
 [[[[[GDestroy an item (k) or Destroy an item (^D)]
         This destroys an item in your inventory or on the dungeon floor.
         If the selected pile contains multiple objects, you may specify
-        a quantity.  You must always (currently) verify this command.
+        a quantity.  You must always verify this command, unless the item
+        is cursed or worthless and the option "auto_destroy" is set.
 ~~~~~42
 [[[[[GWear/Wield equipment (w)]
         To wear or wield an object in your inventory, use this command.
@@ -527,7 +531,7 @@ for a quantity will convert any "letters" into the maximal legal value.
 [[[[[GTake off equipment (t) or Take off equipment (T)]
         Use this command to take off a piece of equipment and return it
         to your inventory.  Occasionally, you will run into a cursed item
-        which cannot be removed.  These items normally penalize you in some
+        which cannot be removed.  These items normally penalise you in some
         way and cannot be taken off until the curse is removed.  If there
         is no room in your inventory for the item, your pack will overflow
         and you will drop the item after taking it off.
@@ -563,23 +567,27 @@ for a quantity will convert any "letters" into the maximal legal value.
 ~~~~~74
 [[[[[GGo up staircase (<)]
         Climbs up an up staircase you are standing on.  There is always at
-        least one staircase going up on every level except for the town
-        level (this doesn't mean it's easy to find).  Going up a staircase
-        will take you to a new dungeon level unless you are at 50 feet
-        (dungeon level 1), in which case you will return to the town
-        level.  Note that whenever you leave a level (not the town), you
-        will never find it again.  This means that for all intents and
-        purposes, any objects on that level are destroyed.  This includes
-        artifacts unless the "Create characters in preserve mode" option
-        was set when your character was created, in which case the artifacts
-        may show up again later.
+        least one staircase going up on every level (this doesn't mean it's
+        easy to find) except for the surface, where '<' will bring up the
+        wilderness map.  Going up a staircase will take you to a new dungeon
+        level unless you are at the first level of the dungeon, in which case
+        you will return to the surface.  Note that whenever you leave a dungeon
+        level, you will never find it again, unless the "permanent_levels" 
+        option is set or the level contains a dungeon town.  This means that
+        for all intents and purposes, any objects on that level are destroyed.
+        This includes unknown artifacts unless the "Create characters in
+        preserve mode" option was set when your character was created, in which
+        case the artifacts may show up again later.
 ~~~~~77
 [[[[[GGo down staircase (>)]
         Descends a down staircase you are standing on.  There are always
         at least two staircases going down on each level, except for the
-        town which has only one, and "quest" levels, which have none until
-        the quest monster is killed.  Going down a staircase will take you
+        last level of a dungeon, and some "quest" levels, which have none until
+        the quest monsters are killed.  Going down a staircase will take you
         to a new dungeon level.  See "Go Up Staircase" for more info.
+        
+        This command is also used to enter Void Jumpgates, and to zoom in from
+        the wilderness map.
 ~~~~~114|Commands|Resting
 #####R---   Resting Commands ---
 ~~~~~72
@@ -603,7 +611,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         when various conditions are met.  In any case, you always wake up
         when anything disturbing happens, or when you press any key.  To
         rest, enter the Rest command, followed by the number of turns you
-        want to rest, or "*" to rest until your hitpoints and mana are
+        want to rest, or "*" to rest until your hit points and mana are
         restored, or "&" to rest until you are fully "healed".  This command
         can take a count, which is used for the number of turns to rest.
 ~~~~~61
@@ -636,15 +644,15 @@ for a quantity will convert any "letters" into the maximal legal value.
 #####R---  Alter Commands ---
 ~~~~~37
 [[[[[GTunnel (T) or Tunnel (^T)]
-        Tunneling or mining is a very useful art.  There are many kinds of
+        Tunnelling or mining is a very useful art.  There are many kinds of
         rock, with varying hardness, including permanent rock (permanent),
         granite (very hard), quartz veins (hard), magma veins (soft), and
         rubble (very soft).  Quartz and Magma veins may be displayed in a
         special way, and may sometimes contain treasure, in which case they
         will be displayed in a different way.  Rubble sometimes covers an
-        object.  It is hard to tunnel unless you are wielding a heavy weapon
-        or a shovel or a pick.  Tunneling ability increases with strength
-        and weapon weight.  This command can take a count, requires a
+        object.  It is only possible to tunnel if you are wielding a digging
+        tool such as a shovel or a pick.  Tunnelling ability increases with
+        strength and tool weight.  This command can take a count, requires a
         direction, and is affected by the "always_repeat" option.
 ~~~~~26
 [[[[[GOpen a door or chest (o)]
@@ -711,17 +719,18 @@ for a quantity will convert any "letters" into the maximal legal value.
 ~~~~~46
 [[[[[GSteal (Z)]
         Allows the player to try to steal items from shops. Also allows 
-        thieves to steal from monsters.
+        rogues to steal from monsters.
 ~~~~~118|Commands|Spells and prayers
 #####R---  Spell and Prayer Commands ---
 ~~~~~3
 [[[[[GBrowse a book (b) or Peruse a book (P)]
-        Only mages, rogues, and rangers can read magic books, and only
-        priests and paladins can read prayer books.  Warriors cannot read
-        any books.  When this command is used, all of the spells or prayers
-        contained in the selected book are displayed, along with information
-        such as their level, the amount of mana required to cast them, and
-        whether or not you know the spell or prayer.
+        Only characters with some knowledge in the magic schools, such as
+        mages, priests, rogues, and rangers, can read magic spellbooks.
+        Warriors normally cannot read any books.  When this command is used,
+        all of the spells or prayers contained in the selected book are
+        displayed, along with information such as their level, the amount of
+        mana or piety required to cast them, and whether or not you know the
+        spell or prayer.
 ~~~~~14
 [[[[[GGain new skills (G)]
         Use this command to access the skills menu and spend the skill points
@@ -757,8 +766,9 @@ for a quantity will convert any "letters" into the maximal legal value.
         If you go hungry long enough, you will become weak, then start
         fainting, and eventually, you may will die of starvation.  You
         may use this command to eat food in your inventory.  Note that
-        you can sometimes find food in the dungeon, but it is not always
-        wise to eat strange food.
+        you can sometimes find food in the dungeon, or you can butcher
+        corpses of killed creatures to obtain raw meat, but it is not
+        always wise to eat strange food.
 ~~~~~12
 [[[[[GFuel your lantern/torch (F)]
         If you are using a torch and have more torches in your pack,
@@ -775,16 +785,16 @@ for a quantity will convert any "letters" into the maximal legal value.
         Use this command to read a scroll.  Scroll spells usually have an
         area effect, except for a few cases where they act on other objects.
         Reading a scroll causes the parchment to disintegrate as the scroll
-        takes effect.  Most scrolls which prompt for more information can be
-        aborted (by pressing escape), which will stop reading the scroll
-        before it disintegrates.
+        takes effect, unless you are an Alchemist.  Most scrolls which prompt
+        for more information can be aborted (by pressing escape), which will
+        stop reading the scroll before it disintegrates.
 ~~~~~58 
 [[[[[GInscribe an object ({)]
         This command inscribes a string on an object.  The inscription is
         displayed inside curly braces after the object description.  The
         inscription is limited to the particular object (or pile) and is
         not automatically transferred to all similar objects.  Under certain
-        circumstances, Angband will display "fake" inscriptions on certain
+        circumstances, ToME will display "fake" inscriptions on certain
         objects ("cursed", "broken", "tried", "empty", "NN% off") when
         appropriate.  These "fake" inscriptions are "covered up" by real
         inscriptions, but will re-appear if the real inscription is removed.
@@ -794,7 +804,7 @@ for a quantity will convert any "letters" into the maximal legal value.
         weapons and armor after carrying them for a while.  Warriors get the
         most detailed feelings, and get them quicker than any other class.
         An item labeled as "{empty}" was found to be out of charges, and an
-        item labeled as "{tried}" is a "flavored" item which the character
+        item labeled as "{tried}" is a "flavoured" item which the character
         has used, but whose effects are unknown.  Certain inscriptions have
         a meaning to the game, see "@#", "@x#", "!*", and "!x", in the section
         on *****command.txt*90[inventory object selection.]
@@ -812,9 +822,10 @@ for a quantity will convert any "letters" into the maximal legal value.
         protect meat from hacked-up corpses from going bad.
 ~~~~~16
 [[[[[GDrink from a fountain (H)]
-        All fountains in Arda are magical, and act like magical potions. Unlike
-        potions, however, it is not possible to identify the type of fountain
-        before drinking from it.
+        All fountains in Arda are magical, and act like magical potions.  The
+        game will ask you whether you want to quaff from a fountain or to fill
+        empty bottles.  The only way to identify the type of fountain is to
+        fill your bottles from it and see what you get.
 ~~~~~44
 [[[[[GGive item to monster (y)]
         This command is used to give an item within your inventory to a monster
@@ -828,12 +839,16 @@ for a quantity will convert any "letters" into the maximal legal value.
 #####R---  Magical Object Commands ---
 ~~~~~2
 [[[[[GActivate an artifact (A)]
-        You have heard rumors of special weapons and armor deep in the
+        You have heard rumours of special weapons and armour deep in the
         Pits, items that can let you breath fire like a dragon or light
         rooms with just a thought.  Should you ever be lucky enough to
         find such an item, this command will let you activate its special
         ability.  Special abilities can only be used if you are wearing or
-        wielding the item.
+        wielding the item. 
+        Note that there are also a few common objects that can be activated,
+        e.g. music instruments, monster eggs and spell-storing mage staves,
+        and that some artifacts, so-called "junkarts", can't be wielded, but
+        must be activated from the backpack.
 ~~~~~1
 [[[[[GAim a wand (a) or Zap a wand (z)]
         Wands must be aimed in a direction to be used.  Wands are magical
@@ -943,7 +958,7 @@ for a quantity will convert any "letters" into the maximal legal value.
 [[[[[GLocate player on map (L) or Where is the player (W)]
         This command lets you scroll your map around, looking at all sectors
         of the current dungeon level, until you press escape, at which point
-        the map will be re-centered on the player if necessary.  To scroll
+        the map will be re-centred on the player if necessary.  To scroll
         the map around, simply press any of the "direction" keys.  The top
         line will display the sector location, and the offset from your
         current sector.  This command takes no time.
@@ -977,9 +992,11 @@ for a quantity will convert any "letters" into the maximal legal value.
         through them, or exit with ESCAPE.  This command takes no time.
 ~~~~~69
 [[[[[GTake notes (:)]
-        This command allows you to take notes, which will then appear in
-        your message list (prefixed with "Note:").  This command takes
-        no time.
+        This command allows you to take notes, which will then appear in your
+        note file, if the birth-option "take_notes" was set (the default), or
+        in your message list (prefixed with "Note:"), if the option was not set.
+        The note file can be displayed through the "Display Current Knowledge"
+        command (~ or |). This command takes no time.
 ~~~~~123|Commands|Game status
 #####R--- Game Status Commands ---
 ~~~~~6
@@ -992,28 +1009,54 @@ for a quantity will convert any "letters" into the maximal legal value.
         including your background, your inventory, and the contents of
         your house.
 ~~~~~82
-[[[[[GCheck Artifacts, Uniques and Objects (~ or |)]
-        The command opens a menu from which you can select information
-        about seen Artifacts, Unique monsters, and identified objects.
+[[[[[GDisplay Current Knowledge (~ or |)]
+        The command opens a menu from which you can lookup information
+        collected so far. This includes known artifacts, unique monsters,
+        identified objects, killed creatures, recall depths, acquired
+        corruptions, current pets, current quests, current fates, known
+        traps, known dungeon towns and last but not least the note file.
 
         Display known artifacts
         This selection lists all of the artifacts that you have encountered.
         Any artifact that appears in this list, which you cannot seem to
         find, has been lost forever.  The "preserve" mode will prevent
         you from accidentally losing any artifacts, but will also prevent
-        you from ever getting a "special" level feeling.  This command can
-        only be used on the town level, not inside the dungeon.       
+        you from ever getting a "special" level feeling.
 
         Display known uniques
         Brings up a list of known unique monsters, plus their current
-        status.  Once killed, unique monsters never show up again.
+        status.  Once killed, unique monsters never show up again, with a
+        few remarkable exceptions.
 
         Display known objects
         This list all 'flavoured' objects (such as rings, scrolls, wands,
         potions, etc.) which you have identified.
+        
+        Display kill count
+        This lists all killed creatures together with a total kill count.
+        
+        Display recall depths
+        This lists all recall depths of entered dungeons as well as marks
+        the current recall dungeon with an asterisk.
+        
+        Display corruptions
+        This lists all acquired corruptions with their beneficial and
+        detrimental effects.
+        
+        Display current pets      
+        Display current quests
+        Display current fates
+        Display known traps
+        Display known dungeon towns
+        
+        Display notes
+        If the option "take_notes" is set shows you your notes file, where all
+        remarkable events are noted. You can add notes yourself by using the
+        "Take notes" command (:).
+        
 ~~~~~70
 [[[[[GTime of the day (^T)]
-        This command is used to give the current time within the game. 
+        This command is used to give the current date and time within the game.
         Extremely useful for characters such as Vampires to check whether
         it is safe to leave the dungeon.
 ~~~~~124|Commands|Saving and Exiting
@@ -1120,25 +1163,24 @@ for a quantity will convert any "letters" into the maximal legal value.
 [[[[[GSacrifice at an altar (O)]
         Altars are places dedicated to the worship of a particular God. To
         start worshipping the God who owns the altar, you must first sacrifice
-        an item to them on their altar. Be warned, not all Gods are equal in 
-        power, and once you have selected a God to worship, it is *very* 
-        difficult to change which God you worship. Even artifacts can be offered
-        to Gods, and the more items you sacrifice, or the more powerful those
-        items are, the happier with you your God will be. When your God is happy
-        with you, you will receive more benefits from them. Your God's happiness
-        will decrease over time, so you will need to continue offerring items
-        to them to stay in their good books. Note that there is no requirement 
+        on their altar. 
+        
+        Be warned, not all Gods are equal in power, and once you have selected 
+        a God to worship, it is almost impossible to change which God you worship.
+        When your God is happy with you, you will receive more benefits from them.
+        Your God's happiness will decrease over time, so you will need to accomplish
+        deeds that increase your standing.  Note that there is no requirement 
         for most classes to worship any God. (See *****gods.txt*0[gods.txt] for more information)
 ~~~~~28
 [[[[[GPray to your God (p)]
-        *If* you worship a God, you have the option of praying to them when you
-        are in trouble. However, Gods do not like being disturbed, so your standing
-        with your God will reduce each time you do pray. Eventually, your God will
-        become angry, and choose to punish you for your impertinence if you pray too
-        often, or not sacrifice enough items. (See *****gods.txt*0[gods.txt] for more information)
+        If you worship a God, you have the option of praying. The effects of
+        praying differ considerably depending on the god, ranging from the
+        battle frenzy of paladins to the self-healing powers of druids.
+        However, Gods do not like being disturbed, with negative effects on
+        your piety. See *****gods.txt*0[gods.txt] for more information.
 ~~~~~29
 [[[[[GPet commands (P)]
-        From time to time, you may aquire a pet within the dungeon. Pets are able
+        From time to time, you may acquire a pet within the dungeon. Pets are able
         (to a more or less limited extent) to follow some simple commands, like
         follow me. These commands are all accessed through the menu under "Pet 
         Commands".
@@ -1146,7 +1188,7 @@ for a quantity will convert any "letters" into the maximal legal value.
 [[[[[GToggle Choice Window (^E)]
         Toggles the display in the choice window (if available) between
         your inventory and your equipment.  This command only applies if
-        you are running Angband under a windowing environment and the
+        you are running ToME under a windowing environment and the
         choice window is available.  This also redraws the choice window.
 ~~~~~66
 [[[[[GRedraw Screen (^R)]
@@ -1184,7 +1226,7 @@ for a quantity will convert any "letters" into the maximal legal value.
 [[[[[GRecord macros ($)]
         This is an easier way to create macros. Activate it, press the key
         sequence for your macro, reactivate it and it will create the macro
-        for you. Note than when possible usingthe @ key at item selection
+        for you. Note than when possible using the @ key at item selection
         is a good idea since it removes the need to inscribe items.
 ~~~~~98
 [[[[[GTake html screenshot (^\])]
@@ -1195,3 +1237,4 @@ Original: Alexander Cutler and Andy Astrand
 Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
 Updated (2.7.9): Ben Harrison (benh@phial.com)
 Updated PernAngband 5.x.x: Dawnmist (angband@dawnmist.8m.com)
+Updated for ToME 2.1

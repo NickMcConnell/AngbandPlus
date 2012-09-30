@@ -5,7 +5,7 @@
 #####R === ToME Magic - Fire School ===
 
 The fire school of magic contains spells where the element of fire is used
-to create the final spell effect. There are rumours of a "Tome of the Eternal 
+to create the final spell effect. There are rumours of a "Tome of the Eternal
 Flame" which contains all the fire school spells within it's bindings.
 
 #####RFire Spells
@@ -22,9 +22,9 @@ There are five spells available for the fire school. These Spells are:
       , : pickup all items on the floor
       d : drop all carried items
       i : list all carried items
-      m : end the possesion/use golem powers
+      m : end the possession/use golem powers
       Most of the other keys are disabled, you cannot interact with your
-      real body while controling the golem.
+      real body while controlling the golem.
    But to cast the spell you will need a lantern or a wooden torch to create
       the golem from.
 3. [[[[[RFireflash] (school level 10)
@@ -42,4 +42,4 @@ There are five spells available for the fire school. These Spells are:
 #####GUdun spells that can be cast with Fire skill
 
 1. [[[[[DFlame of Udun] (school level 35)
-   Turns you temporarily into a powerful balrog.
+   Turns you temporarily into a powerful Balrog.

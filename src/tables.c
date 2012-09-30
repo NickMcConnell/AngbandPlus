@@ -1481,7 +1481,7 @@ cptr spell_names[MAX_REALM][64][2] =
 		/* Common Symbiotic Spellbooks */
 		{
 			"Minor Symbiotic Healing",
-			"Heals your currently equipped monster a little"
+			"Heals your currently equipped monster a little bit"
 		},
 		{
 			"Tangled Creepers",
@@ -1489,11 +1489,11 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Vampiric healing",
-			"Steals life force other creatures and pass it to your pet"
+			"Steals life force from other creatures and passes it to your pet"
 		},
 		{
 			"Life Transfer",
-			"Transfers from your life-force to your pet's"
+			"Transfers some of your life-force to your pet"
 		},
 		{
 			"Satisfy Hunger",
@@ -1505,7 +1505,7 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Summon Never-moving Pet",
-			"Summons a charmed creature from the plane of unmoving"
+			"Summons a charmed creature from the Plane of Unmoving"
 		},
 		{"", ""},
 
@@ -1525,7 +1525,7 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Summon Never-moving Pets",
-			"Summons many pets from the plane of unmoving"
+			"Summons many pets from the Plane of Unmoving"
 		},
 		{
 			"Major Symbiotic Healing",
@@ -1568,11 +1568,11 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Horrible Note",
-			"You scream a directed beam of sound."
+			"Screams a directed beam of sound."
 		},
 		{
 			"Stun Pattern",
-			"Stuns all monsters listening the song."
+			"Stuns all monsters listening to the song."
 		},
 		{
 			"Flow of Life",
@@ -1636,7 +1636,7 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Fellowship Chant",
-			"Fire of beam of calming sounds, that can charm monsters..."
+			"Produces a beam of calming sounds that can charm monsters."
 		},
 		{
 			"Song of the Tempest",
@@ -1686,7 +1686,7 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Firiel's Song",
-			"Calls upon the dead to your help."
+			"Calls upon the dead to aid you."
 		},
 		{
 			"Luthien's Mourning",
@@ -1699,15 +1699,15 @@ cptr spell_names[MAX_REALM][64][2] =
 		/* Elemental Stone[Earth] */
 		{
 			"Tunnel",
-			"Creates a burrow in the ground, though it's exit is randomly placed."
+			"Creates a burrow in the ground with a randomly placed exit."
 		},
 		{
-			"Canalize Mana",
-			"Drains the soil of it's energy and gives it to you."
+			"Canalise Mana",
+			"Drains the soil of its energy and gives it to you."
 		},
 		{
 			"Acid Bolt",
-			"Creates a jet of acid which is sprayed on an enemy."
+			"Sprays a jet of acid on an enemy."
 		},
 		{
 			"Mana Path",
@@ -1723,25 +1723,25 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Raise Mountains",
-			"Raises to the soil around you to the full glory of a mountain."
+			"Raises the soil around you to the full glory of a mountain."
 		},
 		{
 			"Stone Skin",
-			"Hardens your skin so it's as hard as stone."
+			"Hardens your skin until it is as hard as stone."
 		},
 
 		/* Elemental Stone[Fire] */
 		{
 			"Infravision",
-			"Enables you to see heat patterns"
+			"Allows you to see heat patterns."
 		},
 		{
 			"Fire Bolt",
-			"Creates a flaming bolt which rushes to it's target"
+			"Creates a flaming bolt which rushes to its target."
 		},
 		{
 			"Fire Ball",
-			"A small globe of fire that explodes into a ball of flame at the chosen place."
+			"Produces a small globe of fire that explodes into a ball of flame at the target."
 		},
 		{
 			"Uncover Traps",
@@ -1749,15 +1749,15 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Fire Beam",
-			"A scorching beam of fire."
+			"Produces a scorching beam of fire."
 		},
 		{
 			"Druidic Fire Bolt",
-			"A bolt of blazing fire which follows paths of magic."
+			"Produces a bolt of blazing fire which follows paths of magic."
 		},
 		{
 			"Druidic Fire Beam",
-			"A beam which can be directed by paths of magic."
+			"Produces a beam which can be directed by paths of magic."
 		},
 		{
 			"Create Lava",
@@ -1767,11 +1767,11 @@ cptr spell_names[MAX_REALM][64][2] =
 		/* Elemental Stone[Air] */
 		{
 			"Winds of Mana",
-			"Infuses the ground around you with magical signature."
+			"Infuses the ground around you with a magical signature."
 		},
 		{
 			"Summon Air Elemental",
-			"Summons an elemental from the plane of air, though beware, it might turn on you."
+			"Summons an elemental from the Plane of Air.  Beware, it may turn on you!"
 		},
 		{
 			"Whispers from Afar",
@@ -1783,7 +1783,7 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Bird View",
-			"Maps the whole area, as if you could look at it from above."
+			"Maps the whole area as if you could look at it from above."
 		},
 		{
 			"*Whispers from Afar*",
@@ -1795,7 +1795,7 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"The Thunders of Manwe",
-			"Sends a roaring beam of sound, as if countless lightnings just thundered, and it can be directed by mana signatures."
+			"Sends a roaring beam of sound, as if countless lightnings had just thundered.  It can be directed by mana signatures."
 		},
 
 		/* Elemental Stone[Water] */
@@ -1805,11 +1805,11 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Walk over Water",
-			"Makes you weight less then a feather, thus enabling to walk over water"
+			"Makes you weigh less then a feather, thus allowing you to walk over water"
 		},
 		{
 			"Flood",
-			"Floods the surrounding area with water."
+			"Summons an elemental from the Plane of Water."
 		},
 		{
 			"Summon Water Elementals",
@@ -1817,15 +1817,15 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Purification",
-			"Heals you from harm"
+			"Purges you of harm."
 		},
 		{
 			"Call of the Deep",
-			"Allows you dive into water, and come out safely on any other water body."
+			"Allows you to dive into water and come out safely in any other water body."
 		},
 		{
 			"Tidal Wave",
-			"Creates a large wave at a point, which spreads in all directions, and leaves deep water spots afterwards."
+			"Creates a large wave at a point which spreads in all directions, and leaves deep water spots afterwards."
 		},
 		{
 			"Flood Level",
@@ -1835,11 +1835,11 @@ cptr spell_names[MAX_REALM][64][2] =
 		/* Elemental Stone[Mana] */
 		{
 			"Glyph of Warding",
-			"Creates a powerful gylph on the floor which forbids any creature except it's maker from getting close to it."
+			"Creates a powerful glyph on the floor which forbids any creature except its maker from getting close to it."
 		},
 		{
 			"Orb of Mana",
-			"A powerful orb of mana explodes and causes havoc."
+			"Detonates a powerful orb of mana to cause havoc."
 		},
 		{
 			"Gather Mana",
@@ -1847,7 +1847,7 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Mirror of Mana",
-			"A barrier of mana surrounds you, which because of it's intensity it twists spells, and reflects all bolts."
+			"Causes a barrier of mana to surround you.  Its intensity twists spells and reflects all bolts."
 		},
 		{
 			"Activate Rune of Mana",
@@ -1855,15 +1855,15 @@ cptr spell_names[MAX_REALM][64][2] =
 		},
 		{
 			"Combine the 5 Elements",
-			"Five destructive bolts, one of cold, one of fire, one of electricity, one of acid and one of pure mana shoot towards the target."
+			"Releases a bolt each of cold, of fire, of electricity, of acid and of pure mana toward the target."
 		},
 		{
 			"Shield of Mana",
-			"Protects you from almost any harm by a strong field of mana."
+			"Protects you from almost any harm with a strong field of mana."
 		},
 		{
 			"Drain Level Mana",
-			"Gathers mana from the whole area, into one single projectile of awesome strength"
+			"Gathers mana from the whole area into one projectile of awesome strength."
 		},
 	},
 
@@ -2410,7 +2410,7 @@ option_type option_info[] =
 #endif
 
 	{ &maximize,                    TRUE,   6,      1,
-	"maximize",                     "Maximize stats" },
+	"maximize",                     "Maximise stats" },
 
 	{ &preserve,                    TRUE,   6,      2,
 	"preserve",                     "Preserve artifacts" },
@@ -3351,7 +3351,7 @@ magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 		"Fires a bolt of pure sound."
 	},
 	{
-		/* Psychic/physical defences */
+		/* Psychic/physical defenses */
 		13, 12,  50,
 		"Character Armour",
 		"Sets up physical/elemental shield."
@@ -3376,7 +3376,7 @@ magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 		/* Convert enemy HP to mana */
 		25, 10,  40,
 		"Psychic Drain",
-		"Drain your foes life into your mana reserves"
+		"Drain your foes' life into your mana reserves"
 	},
 	{
 		/* Ball -> LOS */
@@ -3393,13 +3393,13 @@ magic_power necro_powers[MAX_NECRO_POWERS] =
 		/* Bolt/beam/ball/LOS of stun/scare */
 		1,   2, 10,
 		"Horrify",
-		"Call upon the darkness to stun and scare your foes."
+		"Calls upon the darkness to stun and scare your foes."
 	},
 	{
 		/* Ball */
 		5,   6, 20,
 		"Raise Dead",
-		"Brings back your foes in the form of various undead, also can heal monsters."
+		"Brings back your foes in the form of various undead.  Also, can heal monsters."
 	},
 	{
 		/* Heals when killing a monster */
@@ -3461,32 +3461,32 @@ magic_power symbiotic_powers[MAX_SYMBIOTIC_POWERS] =
 	/* Level gained,  cost,  %fail,  name */
 	{
 		1,   1,  0,
-		"Hypnotize",
-		"Hypnotize a non-moving pet to allow you to enter symbiosis(wear) with it."
+		"Hypnotise",
+		"Hypnotise a non-moving pet to allow you to enter symbiosis(wear) with it."
 	},
 	{
 		1,   1,  0,
 		"Release",
-		"Release an hypnotized pet."
+		"Release an hypnotised pet."
 	},
 	{
 		3,   2,  10,
-		"Charm never-moving",
+		"Charm Never-Moving",
 		"Tries to charm a never-moving monster."
 	},
 	{
 		5,   5,  20,
-		"Life share",
+		"Life Share",
 		"Evens out your life with your symbiote."
 	},
 	{
 		10,   10,  20,
-		"Use minor powers",
+		"Use Minor Powers",
 		"Allows you to use some of the powers of your symbiote."
 	},
 	{
 		15,   14,  25,
-		"Heal symbiote",
+		"Heal Symbiote",
 		"Heals your symbiotic monster."
 	},
 	{
@@ -3496,7 +3496,7 @@ magic_power symbiotic_powers[MAX_SYMBIOTIC_POWERS] =
 	},
 	{
 		30,   35,  40,
-		"Summon never-moving pet",
+		"Summon Never-Moving Pet",
 		"Summons a never-moving pet."
 	},
 	{
@@ -3629,8 +3629,8 @@ deity_type deity_info[MAX_GODS] =
 	{
 		"Yavanna Kementari",
 		{
-			"She is the vala of nature, protectress of the great forests of "
-			"Middle Earth.",
+			"She is the Vala of nature, protectress of the great forests of "
+			"Middle-earth.",
 			NULL,
 			NULL,
 			NULL,
@@ -3804,7 +3804,7 @@ inscription_info_type inscription_info[MAX_INSCRIPTIONS] =
 		FALSE,
 		50,
 	},
-	{       /* Blast of Black Fire(Orkish) */
+	{       /* Blast of Black Fire(Orcish) */
 		"burz ghash ronk", /* black fire pool */
 		INSCRIP_EXEC_ENGRAVE | INSCRIP_EXEC_WALK | INSCRIP_EXEC_MONST_WALK,
 		FALSE,
@@ -3965,7 +3965,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 	},
 };
 
-/* Power, the first 32 are the corruptions */
+/* Powers */
 power_type powers_type_init[POWER_MAX_INIT] =
 {
 	{
@@ -3985,7 +3985,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 	{
 		"hypnotic gaze",
 		"Your gaze is hypnotic.",
-		"Your eyes look mesmerizing...",
+		"Your eyes look mesmerising...",
 		"Your eyes look uninteresting.",
 		12, 12, A_CHR, 18,
 	},
@@ -4049,7 +4049,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		"eat rock",
 		"You can consume solid rock.",
 		"The walls look delicious.",
-		"The walls look unappetizing.",
+		"The walls look unappetising.",
 		8, 12, A_CON, 18,
 	},
 	{
@@ -4137,7 +4137,7 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		6, 6, A_INT, 10,
 	},
 	{
-		"sterilize",
+		"sterilise",
 		"You can cause mass impotence.",
 		"You can give everything around you a headache.",
 		"You hear a massed sigh of relief.",
@@ -4192,8 +4192,6 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		"Your throwing arm feels much weaker.",
 		1, 10, A_STR, 6,
 	},
-
-	/* Others */
 	{
 		"find secret passages",
 		"You can use secret passages.",
@@ -4335,14 +4333,14 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		0, 0, 0, 0,
 	},
 	{
-		"Hypnotize Pet",
+		"Hypnotise Pet",
 		"You can mystify pets.",
 		"You gain the ability to mystify pets.",
 		"You lose the ability to mystify pets.",
 		0, 0, 0, 0,
 	},
 	{
-		"Awaken hypnotized pet",
+		"Awaken Hypnotised Pet",
 		"You can wake up a pet.",
 		"You gain the ability to wake up a pet.",
 		"You lose the ability to wake up a pet.",
@@ -4398,10 +4396,10 @@ power_type powers_type_init[POWER_MAX_INIT] =
 		0, 0, 0, 0,
 	},
 	{
-		"turn into a balrog",
-		"You can turn into a balrog at will.",
-		"You feel the fire of udun burning in you.",
-		"You no longer feel the fire of udun in you.",
+		"turn into a Balrog",
+		"You can turn into a Balrog at will.",
+		"You feel the fire of Udun burning in you.",
+		"You no longer feel the fire of Udun in you.",
 		35, 80, A_WIS, 25,
 	},
 };
@@ -4466,7 +4464,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		{
 			"It is time to take the battle to Morgoth. But, before you can",
 			"reach it, you must find and kill Sauron.  Only after defeating",
-			"the powerful sorcerer will the stairs leading to the Morgoth's",
+			"this powerful sorcerer will the stairs leading to Morgoth's",
 			"room be opened.",
 			"",
 			"",
@@ -4491,7 +4489,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 			"Your final quest is the ultimate quest that has always been",
 			"required of you. You must enter the last level of Angband, where",
 			"Morgoth is waiting. Travel deep, and defeat this source of all our",
-			"problems.Be prepared, be patient, and good luck. May the light",
+			"problems.  Be prepared, be patient, and good luck. May the light",
 			"shine on you.",
 			"",
 			"",
@@ -4512,7 +4510,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 	{
 		FALSE,
 		FALSE,
-		"Thieves!!!",
+		"Thieves!",
 		{
 			"There are thieves robbing my people! They live in a small",
 			"burrow outside the city walls robbing people as they pass",
@@ -4564,8 +4562,8 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		FALSE,
 		"Lost Hobbit",
 		{
-			"Merton Proundfoot, a young hobbit, seems to have disappeared.",
-			"Last time someone saw him was near the horrible maze to the south...",
+			"Merton Proudfoot, a young hobbit, seems to have disappeared.",
+			"Last time anyone saw him was near the horrible maze to the south of Bree.",
 			"",
 			"",
 			"",
@@ -4591,7 +4589,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		{
 			"A dark cloaked horseman has been spotted several time in town.",
 			"He carries an aura of fear with him and people seems to get sick",
-			"where he goes. Please do something, but beware...",
+			"where he goes.  Please do something, but be careful...",
 			"",
 			"",
 			"",
@@ -4615,12 +4613,12 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		"The Trolls Glade",
 		{
 			"A group of Forest Trolls settled in an abandoned forest in the",
-			"south east of our town. They are killing our people, so it's",
-			"your mission to put an end to this! You may only find them",
-			"when night comes... Local hobbits claim that the mighty swords",
-			"Orcrist and Glamdring can be found there! Bring back one of",
-			"them as a proof! But you will have to wait for the nightfall to",
-			"find them.",
+			"south east of our town. They are killing our people.  You must",
+			"put an end to this!  It might be best to look for them at night.",
+			"Local hobbits claim that the mighty swords Orcrist and Glamdring",
+			"can be found there! Bring back one of them as a proof!",
+			"",
+			"",
 			"",
 			"",
 			"",
@@ -4639,8 +4637,8 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		FALSE,
 		"The Wight Grave",
 		{
-			"The Barrow-Downs hides lots of mysteries and dangers...",
-			"Lately lots of people, men and hobbits, have disappeared there.",
+			"The Barrow-Downs hides many mysteries and dangers.",
+			"Lately many people, both men and hobbits, have disappeared there.",
 			"Please put an end to this threat!",
 			"",
 			"",
@@ -4687,14 +4685,14 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 	{
 		FALSE,
 		FALSE,
-		"Poisoned water",
+		"Poisoned Water",
 		{
 			"A curse has beset Lothlorien. All trees along the shorelines of Nimrodel",
-			"are withering away. We fear it would spread to the whole forest. The",
-			"cause seems to be an unknown poison. You are to go to the West and travel",
-			"along Celebrane and Nimrodel until you discover the source of poisoning.",
-			"Then you must destroy it and drop these potions on the tainted water.",
-			"",
+			"are withering away. We fear the blight could spread to the whole forest.",
+			"The cause seems to be an unknown poison. You are to go to the West and",
+			"travel along Celebrant and Nimrodel until you discover the source of",
+			"the poisoning.  Then you must destroy it and drop these potions on",
+			"the tainted water.",
 			"",
 			"",
 			"",
@@ -4716,7 +4714,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		{
 			"You have found Narsil, a broken sword. It is said that the sword that",
 			"was broken shall be reforged... Maybe it is this one.",
-			"You should bring it to Aragorn at Minas Anor, he would sure know.",
+			"You should bring it to Aragorn at Minas Anor -- he would know.",
 			"",
 			"",
 			"",
@@ -4790,7 +4788,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 			"Morgoth is upon us! Dragons and Balrogs have poured over secret",
 			"ways of the Echoriath, and are looking for our city. They are",
 			"conducted by Maeglin! You must stop him or they will find us.",
-			"Do not let maeglin get to the stairs or everything will be lost!",
+			"Do not let Maeglin get to the stairs or everything will be lost!",
 			"Go now, be brave.",
 			"",
 			"",
@@ -4861,7 +4859,7 @@ quest_type quest_init[MAX_Q_IDX_INIT] =
 		"Mushroom supplies",
 		{
 			"Farmer Maggot asked you to bring him back his mushrooms.",
-			"And do not harm the dogs.",
+			"Do not harm his dogs.",
 			"",
 			"",
 			"",
@@ -5014,14 +5012,14 @@ tval_desc tval_descs[] =
 {
 	{
 		TV_BATERIE,
-		"Essences contain the primitive magic forces which enable "
-		"Alchemy skill users can use them to create powerful magic "
-		"items from other magic items."
+		"Essences contain primitive magic forces which users of the "
+		"Alchemy skill can use to create powerful magic items from "
+		"other magic items."
 	},
 	{
 		TV_MSTAFF,
-		"Mage Staves are the weapons of predilection of "
-		"spellcasters, they all reduce spellcasting time to 80% of "
+		"Mage Staves are the spellcaster's weapons of choice.  "
+		"They all reduce spellcasting time to 80% of "
 		"normal time and some will yield even greater powers."
 	},
 	{
@@ -5035,38 +5033,40 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_EGG,
-		"Eggs are laid by some monsters, if they hatch in your "
+		"Eggs are laid by some monsters.  If they hatch in your "
 		"inventory the monster will be your friend."
 	},
 	{
 		TV_TOOL,
-		"Tools can be diggers, climbing equipment and such, they "
-		"have their own slot in your inventory."
+		"Tools can be digging implements, climbing equipment and such. "
+		"They have their own slot in your inventory."
+
 	},
 	{
 		TV_INSTRUMENT,
-		"All instruments have a special magical song in them, "
-		"activate them to play it. Harpers can use them to have "
+		"All instruments have a special magical song in them.  "
+		"Activate them to play it.  Harpers can use them to have "
 		"two songs at a time."
 	},
 	{
 		TV_BOOMERANG,
-		"Boomerangs can be used instead of bows or slings, they "
+		"Boomerangs can be used instead of bows or slings.  They "
 		"are more like melee weapons than bows."
 	},
 	{
 		TV_SHOT,
-		"Shots are the standard ammunition for slings, you can "
-		"wear them in your quiver if your have a sling equipped."
+		"Shots are small, hard balls.  They are the standard ammunition "
+		"for slings.  You can wear them in your quiver if you have a sling "
+		"equipped."
 	},
 	{
 		TV_ARROW,
-		"Arrows are the standard ammunition for bows, you can wear "
+		"Arrows are the standard ammunition for bows.  You can wear "
 		"them in your quiver if your have a bow equipped."
 	},
 	{
 		TV_BOLT,
-		"Bolts are the standard ammunition for crossbows, you can "
+		"Bolts are the standard ammunition for crossbows.  You can "
 		"wear them in your quiver if your have a crossbow equipped."
 	},
 	{
@@ -5076,12 +5076,12 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_DIGGING,
-		"Tools can be diggers, climbing equipment and such, they "
-		"have their own slot in your inventory."
+		"Tools can be digging implements, climbing equipment and such.  "
+		"They have their own slot in your inventory."
 	},
 	{
 		TV_HAFTED,
-		"Hafted weapons are melee weapons. Eru followers can use them "
+		"Hafted weapons are melee weapons.  Eru followers can use them "
 		"without penalties."
 	},
 	{
@@ -5098,15 +5098,14 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_DRAG_ARMOR,
-		"Dragon armour is made from the scales of dead dragons, "
-		"those mighty armour usually yields great power to their "
-		"wearer."
+		"Dragon armour is made from the scales of dead dragons. "
+		"These mighty sets of armour usually yield great power to "
+		"their wearer."
 	},
 	{
 		TV_LITE,
-		"Lights are useful for they allow you to read things and "
-		"see from afar. Some of them need to be refilled, some do "
-		"not."
+		"Lights are allow you to read things and see from afar. Some of "
+		"them need to be refilled, some do not."
 	},
 	{
 		TV_AMULET,
@@ -5134,33 +5133,33 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_ROD,
-		"Rod tips are the physical bindings of some powerful "
-		"spells, zap (attach) them to a rod to get a fully "
+		"Rod tips are the physical bindings of powerful "
+		"spells.  Zap (attach) them to a rod to get a fully "
 		"functional rod. Each spell takes some mana from the rod "
 		"it is attached to to work."
 	},
 	{
 		TV_ROD_MAIN,
 		"Rods contain mana reserves used to cast spells in rod "
-		"tips, zap(attach) a rod tip to them to get a fully "
+		"tips.  Zap (attach) a rod tip to them to get a fully "
 		"functional rod. Each spell takes some mana from the rod "
 		"it is attached to to work."
 	},
 	{
 		TV_SCROLL,
-		"Scrolls are magical parchments, imbued with magic spells, "
-		"some are good some ... are not. When a scroll is read its "
-		"magic is released and the scroll destroyed."
+		"Scrolls are magical parchments imbued with magic spells. "
+		"Some are good, some...are not.  When a scroll is read, its "
+		"magic is released and the scroll is destroyed."
 	},
 	{
 		TV_POTION,
-		"Potions are magical liquids, some of them can be "
-		"beneficial... some not."
+		"Potions are magical liquids.  Some of them are "
+		"beneficial...some not."
 	},
 	{
 		TV_POTION2,
-		"Potions are magical liquids, some of them can be "
-		"beneficial... some not."
+		"Potions are magical liquids.  Some of them are "
+		"beneficial...some not."
 	},
 	{
 		TV_FLASK,
@@ -5172,12 +5171,12 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_HYPNOS,
-		"This monster seems to be hypnotized and friendly."
+		"This monster seems to be hypnotised and friendly."
 	},
 	{
 		TV_RANDART,
-		"Those objects are only known by rumours, it is said that "
-		"they can be activated for great or strange powers..."
+		"Those objects are only known of by rumours.  It is said that "
+		"they can be activated for great or strange effects..."
 	},
 	{
 		TV_RUNE1,
@@ -5198,7 +5197,7 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_BOTTLE,
-		"An empty bottle. Maybe an alchemists could refill it."
+		"An empty bottle. Maybe an alchemist could refill it."
 	},
 	{
 		TV_SPIKE,
@@ -5210,12 +5209,12 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_BOOTS,
-		"Boots can help your armour rating, some can be magical too."
+		"Boots can help your armour rating.  Some of these are magical."
 	},
 	{
 		TV_GLOVES,
-		"Handgear is used to protect hands, but non magical ones "
-		"can sometimes hinder spellcasting. Also alchemists needs "
+		"Handgear is used to protect hands, but nonmagical ones "
+		"can sometimes hinder spellcasting.  Alchemists need "
 		"gloves in order to do alchemy."
 	},
 	{
@@ -5233,12 +5232,12 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_CLOAK,
-		"Cloaks can shield you from damage, sometimes also "
-		"providing magical powers."
+		"Cloaks can shield you from damage.  Sometimes they also "
+		"provide magical powers."
 	},
 	{
 		TV_SOFT_ARMOR,
-		"Soft armour is light, not hindering your combat much."
+		"Soft armour is light, and will not hinder your combat much."
 	},
 	{
 		TV_HARD_ARMOR,

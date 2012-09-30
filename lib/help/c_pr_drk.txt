@@ -41,7 +41,7 @@ Spirituality            1.000           [1.000]
 Monster-lore            0.000           [0.500]
   Corpse-preservation   1.000           [1.000]
 
-**Actually, every character has this level of proficiency with the Udun school,
+**Actually, every character has this level of proficiency with the *****m_udun.txt*0[Udun] school,
 provided they are worshipping Melkor
 
 #####GStarting Equipment

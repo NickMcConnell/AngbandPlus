@@ -4025,7 +4025,7 @@ bool make_attack_spell(int m_idx)
 			 if (!direct) break;
 			 disturb(1, 0);
 			 if (blind) msg_format("%^s mumbles, and you hear puzzling noises.", m_name);
-			 else msg_format("%^s creates a mesmerising illusion.", m_name);
+			 else msg_format("%^s creates a mesmerizing illusion.", m_name);
 			 if (p_ptr->resist_conf)
 			 {
 				 msg_print("You disbelieve the feeble spell.");
@@ -5088,6 +5088,7 @@ void find_corpse(monster_type *m_ptr, int *y, int *x)
 		if (!o_ptr->k_idx) continue;
 
 		if (o_ptr->tval != TV_CORPSE) continue;
+		if ((o_ptr->sval != SV_CORPSE_CORPSE) && (o_ptr->sval != SV_CORPSE_SKELETON))  continue;
 
 		rt_ptr = &r_info[o_ptr->pval2];
 
@@ -7238,7 +7239,8 @@ static void process_monster(int m_idx, bool is_frien)
 					if (o_ptr->tval == TV_GOLD) continue;
 
 					/* Incarnate ? */
-					if ((o_ptr->tval == TV_CORPSE) && (r_ptr->flags7 & RF7_POSSESSOR))
+					if ((o_ptr->tval == TV_CORPSE) && (r_ptr->flags7 & RF7_POSSESSOR) &&
+						((o_ptr->sval == SV_CORPSE_CORPSE) || (o_ptr->sval == SV_CORPSE_SKELETON)))
 					{
 						if (ai_possessor(m_idx, this_o_idx)) return;
 					}

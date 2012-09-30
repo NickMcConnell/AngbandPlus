@@ -107,7 +107,7 @@ to visit.
 	you are strong/dextrous enough, you can attack with it multiple times,
 	getting the base and extra damage once for each attack.
 #####GA Shield [5,+4]
-	This is a piece of armor, with a base defense of 5 and a magical
+	This is a piece of armour, with a base defence of 5 and a magical
 	bonus of +4. If you wear it, your armour rating will increase by
 	9. 
 
@@ -119,7 +119,7 @@ to visit.
 	being sold in a store, use certain kinds of magic (*Id*), or use
 	the (very expensive) services of certain stores.
 
-Many armors also have special powers.
+Many armours also have special powers.
 Some very powerful items are unique, and are called artifacts. They are
 normally indestructible, and will prove very useful in your quest.
 

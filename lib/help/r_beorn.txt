@@ -17,5 +17,5 @@ Charisma        -5
 Hit Dice Sides  12         
 Exp Penalty     +50%
 
-######GSkill Bonuses (supplementary to existing skills)
+#####GSkill Bonuses (supplementary to existing skills)
 Bearform-combat            1.000           [1.000]

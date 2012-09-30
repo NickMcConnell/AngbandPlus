@@ -14,10 +14,10 @@ bool quest_one_move_hook(char *fmt)
 	{
 		if (quest[QUEST_NECRO].status < QUEST_STATUS_FINISHED) return (FALSE);
 
-		/* The mirror of galadriel */
+		/* The mirror of Galadriel */
 		if ((c_ptr->feat != FEAT_SHOP) || (c_ptr->special != 23)) return (FALSE);
 
-		cmsg_print(TERM_YELLOW, "You meet Galadriel, she seems woried.");
+		cmsg_print(TERM_YELLOW, "You meet Galadriel, she seems worried.");
 		cmsg_print(TERM_YELLOW, "'So it was Sauron that lurked in Dol Guldur...'");
 		cmsg_print(TERM_YELLOW, "'The Enemy is growing in power, Morgoth will be unreachable as long'");
 		cmsg_print(TERM_YELLOW, "'as his most powerful servant, Sauron, lives. But the power of Sauron'");
@@ -27,7 +27,7 @@ bool quest_one_move_hook(char *fmt)
 		cmsg_print(TERM_YELLOW, "'Without the destruction of the ring, Sauron's death can only be temporary'");
 		cmsg_print(TERM_YELLOW, "'When you have it bring it to Mount Doom, in Mordor,'");
 		cmsg_print(TERM_YELLOW, "'to destroy it in the Great Fire where it was forged.'");
-		cmsg_print(TERM_YELLOW, "'I do not know where to find it, seek it through middle earth. Maybe there'");
+		cmsg_print(TERM_YELLOW, "'I do not know where to find it, seek it through Middle-earth. Maybe there'");
 		cmsg_print(TERM_YELLOW, "'are other people that might know'");
 		cmsg_print(TERM_YELLOW, "'Do not forget, the Ring must be cast back into the fires or Mount Doom!'");
 
@@ -107,7 +107,7 @@ bool quest_one_wield_hook(char *fmt)
 
         /*
          * Ok now we are evil, right ?
-         * Towns arent, right ?
+         * Towns aren't, right ?
          * So let's destroy them !
          */
         town_info[1].destroyed = TRUE;

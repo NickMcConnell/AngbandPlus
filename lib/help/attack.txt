@@ -141,6 +141,5 @@ with them is recorded in the monster memory (accessed with '/' or by 'l'ooking
 at a monster). It is possible to eventually learn all the characteristics
 of any given monster by interacting with them enough, but this is not always
 desirable (hanging around great hell wyrms, for example, can be hazardous
-to one's health). Certain magics may help you learn faster, as well as
+to one's health). Certain spells may help you learn faster, as well as
 research centres in town. 
-

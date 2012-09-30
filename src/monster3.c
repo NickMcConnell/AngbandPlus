@@ -619,7 +619,7 @@ bool do_control_magic(void)
 	return TRUE;
 }
 
-/* Finds the controled monster and "reconnect" to it */
+/* Finds the controlled monster and "reconnect" to it */
 bool do_control_reconnect()
 {
         int i;

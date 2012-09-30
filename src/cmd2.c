@@ -1486,6 +1486,7 @@ static bool twall(int y, int x, byte feat)
  */
 bool do_cmd_tunnel_aux(int y, int x, int dir)
 {
+        int skill_req=0, skill_req_1pct=0;
 	cave_type *c_ptr = &cave[y][x];
 
 	feature_type *f_ptr = &f_info[c_ptr->feat];
@@ -1526,6 +1527,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_DEAD_TREE))
 	{
 		/* Chop Down */
+                skill_req = 10;
+                skill_req_1pct = 14;
 		if ((p_ptr->skill_dig > 10 + rand_int(400)) && twall(y, x, FEAT_GRASS))
 		{
 			msg_print("You have cleared away the trees.");
@@ -1549,6 +1552,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 			 (c_ptr->feat <= FEAT_WALL_SOLID))
 	{
 		/* Tunnel */
+                skill_req = 40;
+                skill_req_1pct = 56;
 		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x, FEAT_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
@@ -1592,18 +1597,24 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		/* Quartz */
 		if (hard)
 		{
+                        skill_req = 20;
+                        skill_req_1pct = 28;
 			okay = (p_ptr->skill_dig > 20 + rand_int(800));
 		}
 
 		/* Sandwall */
 		else if (soft)
 		{
+                        skill_req = 5;
+                        skill_req_1pct = 8;
 			okay = (p_ptr->skill_dig > 5 + rand_int(250));
 		}
 
 		/* Magma */
 		else
 		{
+                        skill_req = 10;
+                        skill_req_1pct = 14;
 			okay = (p_ptr->skill_dig > 10 + rand_int(400));
 		}
 
@@ -1641,6 +1652,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else if (c_ptr->feat == FEAT_RUBBLE)
 	{
 		/* Remove the rubble */
+                skill_req = 0;
+                skill_req_1pct = 2;
 		if ((p_ptr->skill_dig > rand_int(200)) &&
 			twall(y, x, d_info[dungeon_type].floor1))
 		{
@@ -1673,6 +1686,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else if (c_ptr->feat >= FEAT_SECRET)
 	{
 		/* Tunnel */
+                skill_req = 30;
+                skill_req_1pct = 42;
 		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x, FEAT_FLOOR))
 		{
                         msg_print("You have finished the tunnel.");
@@ -1705,6 +1720,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	else
 	{
 		/* Tunnel */
+                skill_req = 30;
+                skill_req_1pct = 42;
 		if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x, FEAT_FLOOR))
 		{
 			msg_print("You have finished the tunnel.");
@@ -1718,6 +1735,15 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 			more = TRUE;
 		}
 	}
+
+        if(more && magik(2)) {
+                    if(p_ptr->skill_dig < skill_req) {
+                            msg_print("You fail to make even the slightest of progress.");
+                            more = FALSE;
+                    } else if(p_ptr->skill_dig < skill_req_1pct) {
+                            msg_print("This will take some time.");
+                    }
+        }
 
 	/* Notice new floor grids */
 	if (!cave_floor_bold(y, x))

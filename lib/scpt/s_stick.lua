@@ -216,7 +216,7 @@ DEVICE_LEBOHAUM = add_spell
                 	return ""
 	end,
         ["desc"] =	{
-        		"sing a cheerfull song",
+        		"sing a cheerful song",
         }
 }
 

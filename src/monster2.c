@@ -204,7 +204,7 @@ int pick_ego_monster(int r_idx)
 			/* Each ego types have a rarity */
 			if (rand_int(re_ptr->rarity)) continue;
 
-			/* We finanly got one ? GREAT */
+			/* We finally got one ? GREAT */
 			return ego;
 		}
 	}
@@ -225,8 +225,8 @@ int pick_ego_monster(int r_idx)
 }
 
 /*
- * Return a (monster_race*) with the combinaison of the monster
- * proprieties and the ego type
+ * Return a (monster_race*) with the combination of the monster
+ * properties and the ego type
  */
 monster_race* race_info_idx(int r_idx, int ego)
 {
@@ -1192,8 +1192,8 @@ s16b get_mon_num(int level)
  *   0x04 --> Full nominative name ("the kobold") or "something"
  *   0x80 --> Genocide resistance name ("the kobold")
  *   0x88 --> Killing name ("a kobold")
- *   0x22 --> Possessive, genderized if visable ("his") or "its"
- *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
+ *   0x22 --> Possessive, genderized if visible ("his") or "its"
+ *   0x23 --> Reflexive, genderized if visible ("himself") or "itself"
  */
 void monster_desc(char *desc, monster_type *m_ptr, int mode)
 {
@@ -3943,4 +3943,3 @@ void monster_drop_carried_objects(monster_type *m_ptr)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 }
-

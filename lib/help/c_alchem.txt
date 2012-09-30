@@ -14,7 +14,7 @@ low levels. The trouble is getting them to survive later on.
 Alchemists are extremely proficient with all kinds of magical devices,
 and have made a fine art of extracting, storing, and using these 
 objects' magical energies.  Because they neither fight well nor cast 
-powerful spells, alchemists rely on their craftsmenship to cope with 
+powerful spells, alchemists rely on their craftsmanship to cope with 
 the dangers of the dungeons.  They will quickly learn to create damage-
 dealing wands, rods, and staffs, forge powerful weapons and armour, 
 make highly useful objects of other kinds, and eventually will 

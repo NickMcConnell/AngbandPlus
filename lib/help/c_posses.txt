@@ -1,12 +1,12 @@
-~~~~~01|Possesor
-~~~~~02|Classes|Possesor
+~~~~~01|Possessor
+~~~~~02|Classes|Possessor
 #####R=== Possessors ===
 
 #####GDescription
 Possessors are unusual; they aren't good fighters, and they can't cast 
 magic. Their special ability is that of being able to leave their 
 bodies and inhabit corpses. While "in" a corpse, the Possessor gains 
-the abilities of the monster, and their hitpoints and the monster's 
+the abilities of the monster, and their hit points and the monster's 
 are averaged. While in the incorporeal form between bodies, they have 
 only one hitpoint. 
 
@@ -42,8 +42,9 @@ A possessor begins the game with:
     a potion of healing
     a short sword
     hard leather armor
-~~~~~03|Possesor|Possesor powers 
 
+~~~~~03|Possessor|Possessor powers 
+~~~~~04|Skills|Possession - Possessor powers 
 #####GPossession
 The strange art of reanimating the corpse of a monster and making
 it one's own can be of extreme benefit to those skilled in it. The body
@@ -53,7 +54,7 @@ gives the player a large number of hit points. Possessing uniques is
 especially neat.  
 
 Possessors leave their own body by using the 'm' command, and choosing 
-"[I]incarnating powers". Lacking a lifeforce to sustain it, a corpse may rot
+"[I]incarnating powers". Lacking a life force to sustain it, a corpse may rot
 immediately when a Possessor leaves it, but a high Possession skill score
 may prevent this from happening. They then become a very vulnerable ghostly 
 being which travels to where another corpse is lying on the floor, and 
@@ -66,4 +67,3 @@ All corpses alter the player's melee attacks. When they incarnate in a
 monster that allows the use of a weapon, monster blows are ignored 
 [[[[[Btotally]. When they incarnate in a monster that doesn't allow use of a 
 weapon (dragons for example) they use the monster blows [[[[[Band only them]!
-		

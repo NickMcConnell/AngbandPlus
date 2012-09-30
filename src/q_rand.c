@@ -143,7 +143,7 @@ void hero_death(s32b m_idx, s32b r_idx)
 			}
 		}
 		else
-			msg_print("The adventurer suddently seems afraid and flees...");
+			msg_print("The adventurer suddenly seems afraid and flees...");
 	}
         else
         {
@@ -198,7 +198,7 @@ bool quest_random_feeling_hook(char *fmt)
 	if (is_randhero())
 	{
 		cmsg_format(TERM_YELLOW, "A strange man wrapped in a dark cloak steps out of the shadows:");
-		cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! Im nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
+		cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
 	}
 	else
 		cmsg_format(TERM_YELLOW, "You hear someone shouting: 'Leave me alone, stupid %s'", r_info[random_quests[dun_level].r_idx].name + r_name);
@@ -257,7 +257,7 @@ bool quest_random_gen_hook(char *fmt)
 	ysize = 0;
 	init_flags = INIT_GET_SIZE;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file(format("qrand%d.map", random_quests[dun_level].type), &ysize, &xsize, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, format("qrand%d.map", random_quests[dun_level].type), &ysize, &xsize, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	/* Try to allocate space for room.  If fails, exit */
@@ -293,7 +293,7 @@ bool quest_random_gen_hook(char *fmt)
 	ystart = y1;
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file(format("qrand%d.map", random_quests[dun_level].type), &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, format("qrand%d.map", random_quests[dun_level].type), &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	for (x = x1; x < xstart; x++)

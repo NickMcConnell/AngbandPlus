@@ -53,8 +53,8 @@ CORRUPT_BALROG_STRENGTH = add_corruption
 {
         ["color"]       = TERM_ORANGE,
         ["name"]        = "Balrog Strength",
-        ["get_text"]    = "Your muscles gets unnatural strength.",
-        ["lose_text"]   = "Your muscles gets weaker again.",
+        ["get_text"]    = "Your muscles get unnatural strength.",
+        ["lose_text"]   = "Your muscles get weaker again.",
         ["desc"]        =
         {
                           "  Provides 3 strength and 1 constitution",
@@ -76,10 +76,10 @@ CORRUPT_BALROG_FORM = add_corruption
         ["color"]       = TERM_YELLOW,
         ["name"]        = "Balrog Form",
         ["get_text"]    = "You feel the might of a Balrog inside you.",
-        ["lose_text"]   = "The presence of the balrog seems to abandon you.",
+        ["lose_text"]   = "The presence of the Balrog seems to abandon you.",
         ["desc"]        =
         {
-                          "  Allows you to turn into a balrog at will",
+                          "  Allows you to turn into a Balrog at will",
                           "  You need Balrog Wings, Balrog Aura and Balrog Strength to activate it"
         },
         ["depends"]     =
@@ -126,7 +126,7 @@ CORRUPT_DEMON_HIDE = add_corruption
         ["lose_text"]   = "Your skin returns to a natural state.",
         ["desc"]        =
         {
-                          "  Increases your armor class by your level",
+                          "  Increases your armour class by your level",
                           "  Provides immunity to fire at level 40",
                           "  But reduces speed by your level / 7",
         },

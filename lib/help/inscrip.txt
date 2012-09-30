@@ -15,28 +15,28 @@ parchment first ;-).
 
 #####GLight up the Room
 Inscription: 'ure nimir' (sun shine)
-Parchment: Numenorean for beginners (I)
+Parchment: Numenorean for Beginners (I)
 Triggered by: Player, Monster.
 Grid Mana Needed: 30
 Effect: Lights up the current room
 
 #####GDarkness in Room
 Inscription: 'lomi gimli' (night stars)
-Parchment: Numenorean for beginners (II)
+Parchment: Numenorean for Beginners (II)
 Triggered by: Player, Monster.
 Grid Mana Needed: 10
 Effect: Casts the room into darkness
 
 #####GStorm
 Inscription: 'dulgi bawiba' (black winds)
-Parchment: Advanced lessons of Numenorean
+Parchment: Advanced Lessons of Numenorean
 Triggered by: Player, Monster.
 Grid Mana Needed: 40
 Effect: Electrical Ball of energy released around the inscription
 
 #####GProtection
 Inscription: 'pedo mellon a minno' (say friend and enter)
-Parchment: Advanced lessons of Sindarin
+Parchment: Advanced Lessons of Sindarin
 Triggered by: Monster.
 Grid Mana Needed: 8
 Effect: Prevents a monster from stepping on the affected square
@@ -44,14 +44,14 @@ Effect: Prevents a monster from stepping on the affected square
 #####GDwarven summoning
 Inscription: 'Baruk Khazad! Khazad aimenu!' (Axes of the Dwarves, the Dwarves
               are upon you!)
-Parchment: Khazdul - The hidden tongue of the Dwarves
+Parchment: Khuzdul - The Hidden Tongue of the Dwarves
 Triggered by: Player.
 Grid Mana Needed: 100
 Effect: Generates friendly Dwarven Warriors to help your cause
 
 #####GOpen Chasm
 Inscription: 'dunna hrassa' (black precipice)
-Parchment: Nandorin for dummies
+Parchment: Nandorin for Dummies
 Triggered by: Monster.
 Grid Mana Needed: 50
 Effect: Creates a bottomless hole in the floor that monsters (and potentially 
@@ -59,7 +59,7 @@ Effect: Creates a bottomless hole in the floor that monsters (and potentially
 
 #####GBlast of Black Fire
 Inscription: 'burz ghash ronk' (black fire pool)
-Parchment: Advanced lessons of Orcish
+Parchment: Advanced Lessons of Orcish
 Triggered by: Player, Monster.
 Grid Mana Needed: 60
 Effect: Releases a ball of Hellfire around the inscription

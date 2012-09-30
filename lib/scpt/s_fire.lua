@@ -175,8 +175,8 @@ FIREGOLEM = add_spell
                                 return
                         end
 
-                        ret, item = get_item("Which lite source do you want to use to create the golem?",
-                                             "You have no lite source for the golem",
+                        ret, item = get_item("Which light source do you want to use to create the golem?",
+                                             "You have no light source for the golem",
                                              bor(USE_INVEN, USE_EQUIP),
                                              function (obj)
                                                 if (obj.tval == TV_LITE) and ((obj.sval == SV_LITE_TORCH) or (obj.sval == SV_LITE_LANTERN)) then
@@ -215,9 +215,9 @@ FIREGOLEM = add_spell
                         ", : pickup all items on the floor",
                         "d : drop all carried items",
                         "i : list all carried items",
-                        "m : end the possesion/use golem powers",
+                        "m : end the possession/use golem powers",
                         "Most of the other keys are disabled, you cannot interact with your",
-                        "real body while controling the golem",
+                        "real body while controlling the golem",
                         "But to cast the spell you will need a lantern or a wooden torch to",
                         "Create the golem from"
         }

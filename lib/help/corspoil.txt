@@ -2,12 +2,12 @@
 ~~~~~02|Spoilers|Corruptions
 #####R=== ToME Corruptions Spoiler ===
 
-Sometimes adventurers become exposed to the dark powers of Morgoth. If they
-are unable to resist these powers, they become corrupted. Corruptions can
+Sometimes adventurers become exposed to the dark powers of Morgoth. If they 
+are unable to resist these powers, they become corrupted. Corruptions can 
 change their physical or mental abilities, some of which can be good, and
-some bad. Most corruptions will affect you permanently, although some only
-operate when they are activated (whether by player choice or as a random
-event). You can check which corruptions do you have in the knowledge screen
+some bad. Most corruptions will affect you permanently, although some only 
+operate when they are activated (whether by player choice or as a random 
+event). You can check which corruptions do you have in the knowledge screen 
 6 (accessed through the '~' menu) or in a character dump.
 
 #####GGaining and losing corruptions
@@ -22,7 +22,7 @@ You can become corrupted by quaffing a Potion of Corruption or by drinking
 from Fountain of Corruption. Also some strange items can be activated
 for corruption.
 
-There is 1 in 3 chance you will get corrupted when hit by a chaos attack
+There is 1 in 3 chance you will get corrupted when hit by a chaos attack 
 while lacking a source of chaos resistance.
 
 You can also gain and lose corruptions when polymorphing yourself.
@@ -44,15 +44,15 @@ You can also gain and lose corruptions when polymorphing yourself.
 [[[[[BBalrog Strength]
   Provides 3 strength and 1 constitution
   But it reduces charisma by 1 and dexterity by 3
-[[[[[GGain message: Your muscles gets unnatural strength.]
-[[[[[RLose message: Your muscles gets weaker again.]
+[[[[[GGain message: Your muscles get unnatural strength.]
+[[[[[RLose message: Your muscles get weaker again.]
 
 
 [[[[[BBalrog Form]
-  Allows you to turn into a balrog at will
-  You need Balrog Wings, Balrog Aura and Balrog Strength to activate it
+  Allows you to turn into a Balrog at will
+  You need Balrog Aura, Balrog Wings and Balrog Strength to activate it
 [[[[[GGain message: You feel the might of a Balrog inside you.]
-[[[[[RLose message: The presence of the balrog seems to abandon you.]
+[[[[[RLose message: The presence of the Balrog seems to abandon you.]
 It depends on:
   Balrog Aura
   Balrog Wings
@@ -67,7 +67,7 @@ It depends on:
 
 
 [[[[[BDemon Hide]
-  Increases your armor class by your level
+  Increases your armour class by your level
   Provides immunity to fire at level 40
   But reduces speed by your level / 7
 [[[[[GGain message: Your skin grows into a thick hide.]
@@ -114,3 +114,4 @@ It is opposed to:
   But it will make your presence more noticeable and aggravating
 [[[[[GGain message: Your blood thickens, you sense corruption in it.]
 [[[[[RLose message: Your blood returns to a normal state.]
+

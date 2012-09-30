@@ -36,12 +36,23 @@ Monster-lore            0.000           [0.500]
 #####GStarting Equipment
 An unbeliever begins the game with:
     A ring of resist fear
-    A darksword
+    A dark sword
     A suit of Chainmail
+
 ~~~~~03|Unbelievers|Antimagic
+~~~~~04|Antimagic
+~~~~~05|Skills|Antimagic powers
 #####GAntimagic
 Thought carries power. And since Unbelievers think that magic doesn't
-exist, they can suppress its manifestation around them. High levels of
-proficiency in antimagic allow them to stabilize the space-time continuum,
-so preventing teleportation, and even to sense the magical emanations
-coming from traps.
+exist, they can suppress its manifestation around them.
+Their magic-inhibiting ability and the area of effect around them are
+determined by the skill level in Antimagic. If they wield a dark sword,
+the strength and radius of the magic disrupting field are increased further,
+with best results if the blade is unenchanted.
+
+High levels of proficiency in antimagic allow them also to stabilise the 
+space-time continuum, so preventing teleportation, to sense the magical 
+emanations coming from traps and to destroy these around them. 
+These abilities are accessed using the 'm' key.
+
+

@@ -117,6 +117,7 @@ N:16:web
 G:+:y
 F:CAN_PASS | NOTICE | WEB | NOTICE | TUNNELABLE
 D:1:You tunnel through the web.
+D:2:a web blocking your way
 
 # Trap -- the flags are not used by the program
 N:17:trap
@@ -660,9 +661,9 @@ D:0:You feel the desire to walk in a great forest.
 # XXX
 # XXX
 
-# Used as a marked for random quests
-N:172:floor
-G:.:r
+# Used as a marker for random quests
+N:172:open floor
+G:.:w
 F:FLOOR | CAN_RUN | DONT_NOTICE_RUNNING
 
 # Underground Tunnel

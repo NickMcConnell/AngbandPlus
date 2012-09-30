@@ -18,7 +18,7 @@ bool quest_thrain_death_hook(char *fmt)
 
 	if (cquest.data[2] < 2) return (FALSE);
 
-	cmsg_print(TERM_YELLOW, "The magic hidding the room disipates.");
+	cmsg_print(TERM_YELLOW, "The magic hiding the room dissipates.");
 	for (x = 0; x < cur_wid; x++)
 		for (y = 0; y < cur_hgt; y++)
 		{
@@ -38,7 +38,7 @@ bool quest_thrain_death_hook(char *fmt)
 	cmsg_print(TERM_YELLOW, "is in fact Sauron, the Dark Lord! He stole the Ring of Durin and tortured");
 	cmsg_print(TERM_YELLOW, "me ... arrgh ... please make him pay!'");
 
-	/* Look for thrain */
+	/* Look for Thrain */
 	for (r = m_max - 1; r >= 1; r--)
 	{
 		/* Access the monster */
@@ -111,7 +111,7 @@ bool quest_thrain_gen_hook(char *fmt)
 	ysize = 0;
 	init_flags = INIT_GET_SIZE;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file("thrain.map", &ysize, &xsize, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "thrain.map", &ysize, &xsize, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	/* Try to allocate space for room.  If fails, exit */
@@ -147,7 +147,7 @@ bool quest_thrain_gen_hook(char *fmt)
 	ystart = y1;
 	init_flags = INIT_CREATE_DUNGEON;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file("thrain.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, "thrain.map", &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	for (x = x1; x < xstart; x++)
@@ -172,7 +172,7 @@ bool quest_thrain_gen_hook(char *fmt)
 		}
 	}
 
-	/* Dont try another one for this generation */
+	/* Don't try another one for this generation */
 	cquest.data[1] = 1;
 
 	return (TRUE);
@@ -205,7 +205,7 @@ bool quest_thrain_move_hook(char *fmt)
 	if (!(c_ptr->info & CAVE_FREE)) return (FALSE);
 	if (c_ptr->mimic != 61) return (FALSE);
 
-	cmsg_print(TERM_YELLOW, "The magic hidding the room disipates.");
+	cmsg_print(TERM_YELLOW, "The magic hiding the room dissipates.");
 	for (x = 0; x < cur_wid; x++)
 		for (y = 0; y < cur_hgt; y++)
 		{

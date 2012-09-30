@@ -2112,7 +2112,7 @@ bool research_mon()
 /*
  * Try to "sense" the grid's mana
  */
-void do_cmd_sense_grid_mana()
+bool do_cmd_sense_grid_mana()
 {
         int chance, i;
 
@@ -2141,7 +2141,7 @@ void do_cmd_sense_grid_mana()
                 if (flush_failure) flush();
                 msg_print("You failed to sense the grid's mana.");
                 sound(SOUND_FAIL);
-                return;
+                return FALSE;
         }
 
         /* Try to give an "average" value */
@@ -2161,6 +2161,7 @@ void do_cmd_sense_grid_mana()
         {
                 msg_format("Average Area's mana: %d", (cave[py][px].mana / i) * i);
         }
+        return TRUE;
 }
 
 
@@ -2516,20 +2517,36 @@ void do_cmd_html_dump()
         if (html)
         {
             strcpy(tmp_val, "dummy.htm");
-            if (!get_string("File(you can post it to http://angband.oook.cz/): ", tmp_val, 80)) return;
+            if (!get_string("File(you can post it to http://angband.oook.cz/): ", tmp_val, 80))
+            {
+                    /* Now restore the screen to initial state */
+                    Term_load_from(save, TRUE);
+                    Term_fresh();
+                    return;
+            }
         }
         else
         {
             strcpy(tmp_val, "dummy.txt");
-            if (!get_string("File: ", tmp_val, 80)) return;
+            if (!get_string("File: ", tmp_val, 80))
+            {
+                    /* Now restore the screen to initial state */
+                    Term_load_from(save, TRUE);
+                    Term_fresh();
+                    return;
+            }
         }
 
         /* Now restore the screen to dump it */
         Term_load_from(save, TRUE);
 
         if (html)
-            html_screenshot(tmp_val);
+                html_screenshot(tmp_val);
         else
-            help_file_screenshot(tmp_val);
+                help_file_screenshot(tmp_val);
+
+        Term_erase(0, 0, 255);
         msg_print("Dump saved.");
+        Term_fresh();
+        fix_message();
 }

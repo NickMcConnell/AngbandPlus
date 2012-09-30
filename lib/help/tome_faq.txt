@@ -74,15 +74,14 @@ Read *****gods.txt*0[gods.txt] for more information about Gods.
 A: Fountains in ToME act like potions, but can only be identified by 
 drinking from them. Each one can hold between 3 and 12 doses of the potion. 
 Quaffing from a fountain can be done by using the 'H' command (in the standard 
-keyset).
+keyset) and answering 'Q' at the prompt.
 
-You can also fill empty bottles at a fountain (enabling you to identify the 
-potion and hence the type of fountain) by using the 'H' command, but instead of
-chosing 'y' to quaff, type 'n'. The game will then ask you if you want to "leech"
-the whole fountain. If you reply you would like to, the game asks you what stack
-of empty bottles it should try to fill, continuing until either the fountain is
-dry or you're out of bottles. If you say you don't want to leech the fountain,
-you will be prompted to fill just a single bottle.
+You can also fill empty bottles at a fountain (enabling you to identify the
+potion and hence the type of fountain) by using the 'H' command and answering
+'F' at the prompt.  The game will then ask you to choose bottles and how many
+bottles you want to fill.  You can find empty bottles on the dungeon and
+drinking pints of fine ale/wine will give you emtpy bottles; if you are 
+trained in the Alchemy, you can reuse bottles after quaffing potions as well.
 
 #####G------------------------------------------------------------------------------
 #####GQ: I got killed by a Great Wyrm of Power at 50'!!! What happened?
@@ -173,7 +172,7 @@ needed to get back to the town?
 A: This quest is located in the wilderness. To the west of Lothlorien is 4 
 water squares in an upside down L shape. One of these squares will contain the
 quest. (Viewed from the Wilderness map).
-~~~~~08|Monsters|They're talking to me!
+~~~~~08|Monsters|They are talking to me!
 #####G------------------------------------------------------------------------------
 #####GQ: Farmer Maggot / Melinda Proudfoot keep shouting at me, and I cannot
 #####G   kill them.

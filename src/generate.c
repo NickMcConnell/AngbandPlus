@@ -4063,7 +4063,7 @@ static void build_type9(int by0, int bx0)
 	/* Occasional light */
 	if (randint(dun_level) <= 5) light = TRUE;
 
-	rad = rand_int(10);
+	rad = 2 + rand_int(8);
 
 	/* Try to allocate space for room.  If fails, exit */
 	if (!room_alloc(rad*2+1, rad*2+1, FALSE, by0, bx0, &x0, &y0)) return;
@@ -7865,6 +7865,13 @@ static bool cave_gen(void)
 				else if (room_build(y, x, 1)) continue;
 			}
 		}
+
+		/* If no rooms are allocated... */
+		while (dun->cent_n == 0)
+		{
+			/* ...force the creation of a small rectangular room */
+			(void)room_build(0, 0, 1);
+		}
 	}
 
 
@@ -8496,8 +8503,15 @@ static bool cave_gen(void)
 				/* Save the name */
 				q_ptr->name1 = d_ptr->final_artifact;
 
-                                /* Actually create it */
-                                apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+				/* Actually create it */
+				apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+
+				/* Where it is found ? */
+				q_ptr->found = OBJ_FOUND_MONSTER;
+				q_ptr->found_aux1 = d_ptr->final_guardian;
+				q_ptr->found_aux2 = 0;
+				q_ptr->found_aux3 = dungeon_type;
+				q_ptr->found_aux4 = level_or_feat(dungeon_type, dun_level);
 
 				a_allow_special[d_ptr->final_artifact] = FALSE;
 
@@ -8538,9 +8552,16 @@ static bool cave_gen(void)
 				/* Wipe the object */
 				object_wipe(q_ptr);
 
-				/* Create the artifact */
+				/* Create the final object */
 				object_prep(q_ptr, d_ptr->final_object);
 				apply_magic(q_ptr, 1, FALSE, FALSE, FALSE);
+
+				/* Where it is found ? */
+				q_ptr->found = OBJ_FOUND_MONSTER;
+				q_ptr->found_aux1 = d_ptr->final_guardian;
+				q_ptr->found_aux2 = 0;
+				q_ptr->found_aux3 = dungeon_type;
+				q_ptr->found_aux4 = level_or_feat(dungeon_type, dun_level);
 
 				k_allow_special[d_ptr->final_object] = FALSE;
 
@@ -8848,7 +8869,7 @@ bool build_special_level(void)
 
 	init_flags = INIT_CREATE_DUNGEON | INIT_POSITION;
 	process_dungeon_file_full = TRUE;
-	process_dungeon_file(buf, &ystart, &xstart, cur_hgt, cur_wid, TRUE);
+	process_dungeon_file(NULL, buf, &ystart, &xstart, cur_hgt, cur_wid, TRUE);
 	process_dungeon_file_full = FALSE;
 
 	special_lvl[level][dungeon_type] = REGEN_HACK;
@@ -8978,11 +8999,19 @@ void generate_cave(void)
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
-        generate_special_feeling = FALSE;
+	generate_special_feeling = FALSE;
 
-        /* Initialize the flags with the basic dungeon flags */
-	dungeon_flags1 = d_ptr->flags1;
-	dungeon_flags2 = d_ptr->flags2;
+	/* Initialize the flags with the basic dungeon flags */
+	if (!dun_level)
+	{
+		dungeon_flags1 = d_info[DUNGEON_WILDERNESS].flags1;
+		dungeon_flags2 = d_info[DUNGEON_WILDERNESS].flags2;
+	}
+	else
+	{
+		dungeon_flags1 = d_ptr->flags1;
+		dungeon_flags2 = d_ptr->flags2;
+	}
 
 	/* Is it a town level ? */
 	for (i = 0; i < TOWN_DUNGEON; i++)
@@ -9008,7 +9037,7 @@ void generate_cave(void)
 		Rand_value = seed_dungeon;
 	}
 
-        process_hooks(HOOK_GEN_LEVEL_BEGIN, "");
+	process_hooks(HOOK_GEN_LEVEL_BEGIN, "");
 
 	/* Try to load a saved level */
 	if (get_dungeon_save(buf))

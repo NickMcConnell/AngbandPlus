@@ -49,7 +49,7 @@ N:6:Buy food and drink
 C:3:2:1
 I:18:0:f
 
-N:7:Listen for rumors
+N:7:Listen for rumours
 C:0:0:0
 I:19:0:u
 
@@ -121,7 +121,7 @@ N:24:Enchant weapon
 C:750:700:150
 I:23:0:w
 
-N:25:Enchant armor
+N:25:Enchant armour
 C:750:700:150
 I:24:0:a
 
@@ -240,7 +240,7 @@ C:1100:1000:200
 I:31:0:b
 
 #for The Fountain
-N:52:Enchant armor
+N:52:Enchant armour
 C:1100:1000:200
 I:24:0:a
 

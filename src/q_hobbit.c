@@ -26,7 +26,7 @@ bool quest_hobbit_town_gen_hook(char *fmt)
 		try--;
 	}
 
-	/* Place the nazgul */
+	/* Place Melinda */
 	m_allow_special[test_monster_name("Melinda Proudfoot")] = TRUE;
 	place_monster_one(y, x, test_monster_name("Melinda Proudfoot"), 0, FALSE, MSTATUS_ENEMY);
 	m_allow_special[test_monster_name("Melinda Proudfoot")] = FALSE;
@@ -130,7 +130,7 @@ bool quest_hobbit_chat_hook(char *fmt)
 	{
 		object_type forge, *q_ptr;
 
-		msg_print("My merton is back! You saved him, hero.");
+		msg_print("My Merton is back! You saved him, hero.");
 		msg_print("Take this as a proof of my gratitude, it was given to my family.");
 		msg_print("by a famed wizard, but it should serves you better than me.");
 

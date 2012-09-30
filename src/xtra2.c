@@ -194,7 +194,7 @@ bool set_roots(int v, s16b ac, s16b dam)
 	{
 		if (!p_ptr->tim_roots)
 		{
-			msg_print("Roots dive into the floor from your feets.");
+			msg_print("Roots dive into the floor from your feet.");
 			notice = TRUE;
 		}
 	}
@@ -204,7 +204,7 @@ bool set_roots(int v, s16b ac, s16b dam)
 	{
 		if (p_ptr->tim_roots)
 		{
-			msg_print("The roots of your feets suddently vanish.");
+			msg_print("The roots of your feet suddenly vanish.");
 			notice = TRUE;
 		}
 	}
@@ -268,7 +268,7 @@ bool set_tim_breath(int v, bool magical)
                 {
                         if (p_ptr->tim_magic_breath)
                         {
-                                msg_print("You need to breath again.");
+                                msg_print("You need to breathe again.");
                                 notice = TRUE;
                         }
                 }
@@ -3664,7 +3664,7 @@ void check_experience_obj(object_type *o_ptr)
 
 
 /*
- * Gain experience (share it to objecst if needed)
+ * Gain experience (share it to objects if needed)
  */
 void gain_exp(s32b amount)
 {
@@ -4224,7 +4224,7 @@ void monster_death(int m_idx)
 				a_idx = ART_NIMLOTH;
 				chance = 66;
 			}
-			else if (strstr((r_name + r_ptr->name),"Muar, the Balrog"))
+			else if (strstr((r_name + r_ptr->name),"Durin's Bane"))
 			{
 				a_idx = ART_CALRIS;
 				chance = 60;
@@ -4605,12 +4605,12 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		{
 			if ((r_ptr->flags7 & RF7_NAZGUL) && r_info[test_monster_name("Sauron, the Sorcerer")].max_num)
 			{
-				msg_print("Somehow you feel he is not totaly destroyed...");
+				msg_format("Somehow you feel %s is not totally destroyed...", (r_ptr->flags1 & RF1_FEMALE ? "she" : "he"));
 				r_ptr->max_num = 1;
 			}
 			else if ((m_ptr->r_idx == test_monster_name("Sauron, the Sorcerer")) && (quest[QUEST_ONE].status < QUEST_STATUS_FINISHED))
 			{
-				msg_print("Sauron will not be permanently defeated until the One Ring is eiter destroyed or used...");
+				msg_print("Sauron will not be permanently defeated until the One Ring is either destroyed or used...");
 				r_ptr->max_num = 1;
 			}
 			else
@@ -4622,7 +4622,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Generate treasure */
 		monster_death(m_idx);
 
-                /* Eru dopesnt appreciate good monster death */
+                /* Eru doesn't appreciate good monster death */
                 if (r_ptr->flags3 & RF3_GOOD)
                 {
                         inc_piety(GOD_ERU, -7 * m_ptr->level);
@@ -5294,6 +5294,9 @@ bool target_able(int m_idx)
 
 	/* Dont target pets */
 	if (is_friend(m_ptr) > 0) return (FALSE);
+
+	/* Honor flag */
+	if (r_info[m_ptr->r_idx].flags7 & RF7_NO_TARGET) return (FALSE);
 
 	/* XXX XXX XXX Hack -- Never target trappers */
 	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
@@ -7563,5 +7566,3 @@ void corrupt_corrupted(void)
 	/* We are done. */
 	return;
 }
-
-

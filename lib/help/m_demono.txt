@@ -28,11 +28,11 @@ the Demonologist to cast spells; each piece of equipment holds three spells.
 1. [[[[[oDoom Shield] (school level 1)
    Raises a mirror of pain around you, doing very high damage to your foes
    that dare hit you, but greatly reduces your armor.
-2. [[[[[oUnholy Word] (school level 25)
+2. [[[[[oDemon Cloak] (school level 20)
+   Raises a mirror that can reflect bolts and arrows for a time.
+3. [[[[[oUnholy Word] (school level 25)
    Kills a pet to heal you. There is a chance that the pet won't die but will
    turn against you. This chance will decrease with higher spell levels.
-3. [[[[[oDemon Cloak] (school level 20)
-   Raises a mirror that can reflects bolts and arrows for a time.
 
 #####oDemonhorn spells
 1. [[[[[oSummon Demon] (school level 5)

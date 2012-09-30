@@ -70,7 +70,7 @@ YAVANNA_TREE_ROOTS = add_spell
                         return "dur "..(10 + get_level(YAVANNA_TREE_ROOTS, 30)).." AC "..(10 + get_level(YAVANNA_TREE_ROOTS, 60)).." dam "..(10 + get_level(YAVANNA_TREE_ROOTS, 20))
         end,
         ["desc"] =      {
-                        "Creates roots deep in the floor from your feets making you more stable and able to",
+                        "Creates roots deep in the floor from your feet making you more stable and able to",
                         "do better attacks but prevents any movement(even teleportation)",
                         "It also makes you recover from stunning almost immediately"
         }
@@ -104,7 +104,7 @@ YAVANNA_WATER_BITE = add_spell
                         return "dur "..(30 + get_level(YAVANNA_WATER_BITE, 150)).."+d30 dam "..(10 + get_level(YAVANNA_WATER_BITE, 10)).."/blow"
         end,
         ["desc"] =      {
-                        "Imbues your weapon with a natural stream of water",
+                        "Imbues your melee weapon with a natural stream of water",
                         "At level 25, it spreads over a 1 radius zone around your target"
         }
 }

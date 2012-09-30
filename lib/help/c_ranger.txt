@@ -48,5 +48,3 @@ A ranger begins the game with:
     A short sword
     A short bow
     Some arrows
-
-		

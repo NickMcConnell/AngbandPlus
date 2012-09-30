@@ -72,7 +72,7 @@ All of this was partly hidden because of the way that the [[[[[Badd_magic] and
 specific. We are going to specify what events we're going to hook onto, and 
 what functions we want to trigger at that event.
 
-A full list of hooks can be found in the sourcefile util.pkg.
+A full list of hooks can be found in the source-file util.pkg.
 
 #####R=== The hooks ===
 
@@ -83,7 +83,7 @@ A full list of hooks can be found in the sourcefile util.pkg.
 So here we are with our first hook. We've declared that we're adding it to the 
 birth of your character. That is, the function will be called when you create 
 your character. And what we're doing here is automatically declaring the quest 
-as being taken, like the Dol Guldor quest is. Each quest has 7 different 
+as being taken, like the Dol Guldur quest is. Each quest has 7 different 
 statuses:
 
 [[[[[BQUEST_STATUS_IGNORED         -1	]	This is unused, but the quest is 
@@ -193,7 +193,7 @@ We then say call the function [[[[[Binven_item_increase()] which places an objec
 the inventory. It takes two arguments, the first being what object to put in 
 the inventory and the second being how many of that type of objects to put in 
 the inventory. You can see that by placing -1 as the second argument it fairly 
-obviously subtracts that item form the inventory. The [[[[[Binven_item_optimize()] 
+obviously subtracts that item from the inventory. The [[[[[Binven_item_optimize()] 
 function checks that there are no empty inventory slots, and if there are, 
 erases them. 
 

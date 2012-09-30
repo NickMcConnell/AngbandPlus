@@ -3,7 +3,7 @@
 #####R=== Axemasters ===
 
 #####GDescription
-The Axemaster is a Warrior who specializes in axes.
+The Axemaster is a Warrior who specialises in axes.
 The training is so intense and specific that Axemasters gain huge bonuses
 when fighting with their chosen weapon, dependent on their Axe-mastery skill.
 In most other respects they perform about as well as a generic Warrior.

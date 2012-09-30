@@ -268,8 +268,8 @@ extern s16b ddy_ddd[9];
 
 
 /* Gen stuff */
-extern void get_map_size(char *name, int *ysize = 0, int *xsize = 0);
-extern void load_map(char *name, int *y = 2, int *x = 2);
+extern void get_map_size(bool full_text, char *name, int *ysize = 0, int *xsize = 0);
+extern void load_map(bool full_text, char *name, int *y = 2, int *x = 2);
 extern bool alloc_room(int by0, int bx0, int ysize, int xsize, int *y1 = 0, int *x1 = 0, int *y2 = 0, int *x2 = 0);
 
 /* Ingame help */

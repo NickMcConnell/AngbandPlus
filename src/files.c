@@ -492,16 +492,16 @@ errr process_pref_file_aux(char *buf)
 		return (0);
 	}
 
- 	/* Process "L:<num>:<trigger>:<descr> -- extended command macro */
+	 /* Process "L:<num>:<trigger>:<descr> -- extended command macro */
 	else if (buf[0] == 'L')
- 	{
- 		switch (tokenize(buf+2, 3, zz, ':', 0))
- 		{
- 			case 3: cli_add(zz[0], zz[1], zz[2]); return 0;
+	 {
+		 switch (tokenize(buf+2, 3, zz, ':', 0))
+		 {
+			 case 3: cli_add(zz[0], zz[1], zz[2]); return 0;
 			case 2: cli_add(zz[0], zz[1], 0); return 0;
- 			default: return 1;
- 		}
- 	}
+			 default: return 1;
+		 }
+	 }
 
 	/* Process "C:<str>" -- create keymap */
 	else if (buf[0] == 'C')
@@ -889,10 +889,10 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 				v = ANGBAND_SYS;
 			}
 
-                        else if (streq(b+1, "KEYBOARD"))
-                        {
-                                v = ANGBAND_KEYBOARD;
-                        }
+			else if (streq(b+1, "KEYBOARD"))
+			{
+				v = ANGBAND_KEYBOARD;
+			}
 
 			/* Graphics */
 			if (streq(b+1, "GRAF"))
@@ -1487,8 +1487,8 @@ static void display_player_middle(void)
 		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_RED, "   ");
 	}
 
-        if (p_ptr->pgod != GOD_NONE)
-                prt_num("Piety          ", p_ptr->grace, 13, 52, TERM_L_GREEN, "   ");
+	if (p_ptr->pgod != GOD_NONE)
+		prt_num("Piety          ", p_ptr->grace, 13, 52, TERM_L_GREEN, "   ");
 }
 
 
@@ -1593,7 +1593,7 @@ static void display_player_various(void)
 	cptr desc;
 	int i;
 
-	object_type		*o_ptr;
+	object_type                *o_ptr;
 
 
 	/* Fighting Skill (with current weapon) */
@@ -1603,23 +1603,11 @@ static void display_player_various(void)
 
 	/* Shooting Skill (with current bow and normal missile) */
 	o_ptr = &inventory[INVEN_BOW];
-
 	tmp = p_ptr->to_h + o_ptr->to_h + p_ptr->to_h_ranged;
-
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
-
-	/* Average damage per round */
-	o_ptr = &inventory[INVEN_WIELD];
-
+	/* variables for all types of melee damage */
 	dambonus = p_ptr->dis_to_d;
-	if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
-
-	/* dam += (o_ptr->dd * (o_ptr->ds + 1)) >> 1; */
-	damdice = o_ptr->dd;
-	damsides = o_ptr->ds;
-
-	/* dam *= p_ptr->num_blow; */
 	blows = p_ptr->num_blow;
 
 	/* Basic abilities */
@@ -1666,7 +1654,7 @@ static void display_player_various(void)
 
 
 	put_str("Blows/Round:", 16, 55);
-        put_str(format("%d", p_ptr->num_blow), 16, 69);
+	put_str(format("%d", p_ptr->num_blow), 16, 69);
 
 	put_str("Shots/Round:", 17, 55);
 	put_str(format("%d", p_ptr->num_fire), 17, 69);
@@ -1722,6 +1710,17 @@ static void display_player_various(void)
 	}
 	else
 	{
+		/* Increase the bonus to damage for weapon combat */
+		dambonus += p_ptr->to_d_melee;
+
+		/* Access the first weapon */
+		o_ptr = &inventory[INVEN_WIELD];
+
+		if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
+	
+		damdice = o_ptr->dd;
+		damsides = o_ptr->ds;
+	
 		if ((damdice == 0) || (damsides == 0))
 		{
 			if (dambonus <= 0)
@@ -1734,9 +1733,8 @@ static void display_player_various(void)
 			if (dambonus == 0)
 				desc = format("%dd%d", blows * damdice, damsides);
 			else
-				desc = format("%dd%d%s%d", blows * damdice, damsides,
-/*				      (dambonus < 0 ? "-":"+"), blows * (dambonus + p_ptr->to_d_melee)); */
-				      "+", blows * (dambonus + p_ptr->to_d_melee));
+				desc = format("%dd%d%c%d", blows * damdice, damsides,
+				       ( dambonus > 0 ? '+':'\0' ), blows * dambonus );
 		}
 	}
 	put_str(desc, 18, 69);
@@ -2072,12 +2070,12 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 		if(r_ptr->flags7 & RF7_CAN_FLY) (*f3) |= TR3_FEATHER;
 	}
 
-        (*f1) |= p_ptr->xtra_f1;
-        (*f2) |= p_ptr->xtra_f2;
-        (*f3) |= p_ptr->xtra_f3;
-        (*f4) |= p_ptr->xtra_f4;
-        (*f5) |= p_ptr->xtra_f5;
-        (*esp) |= p_ptr->xtra_esp;
+	(*f1) |= p_ptr->xtra_f1;
+	(*f2) |= p_ptr->xtra_f2;
+	(*f3) |= p_ptr->xtra_f3;
+	(*f4) |= p_ptr->xtra_f4;
+	(*f5) |= p_ptr->xtra_f5;
+	(*esp) |= p_ptr->xtra_esp;
 
 	if (p_ptr->black_breath)
 	{
@@ -2258,7 +2256,7 @@ static void display_player_flag_info(void)
  */
 static void display_player_misc_info(void)
 {
-	char	buf[80];
+	char        buf[80];
 
 	/* Display basics */
 	put_str("Name  :", 2, 1);
@@ -2481,10 +2479,10 @@ static void display_player_stat_info(void)
 		a = TERM_SLATE;
 		c = '.';
 
-                /* Sustain */
+		/* Sustain */
 		if (f2 & 1<<stat)
 		{
-                        /* Dark green "s" */
+			/* Dark green "s" */
 			a = TERM_GREEN;
 			c = 's';
 		}
@@ -2898,7 +2896,7 @@ void display_player(int mode)
 {
 	int i;
 
-	char	buf[80];
+	char        buf[80];
 
 
 	/* Erase screen */
@@ -3240,8 +3238,8 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [ToME %d.%d.%d Character Dump]\n\n",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "  [ToME %d.%d.%d%s Character Dump]\n\n",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
 
 
 	/* Display player */
@@ -3290,9 +3288,9 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%s\n", buf);
 	}
 
-        /* List the patches */
+	/* List the patches */
 	hook_file = fff;
-        exec_lua("patchs_list()");
+	exec_lua("patchs_list()");
 
 	fprintf(fff, "\n\n  [Miscellaneous information]\n");
 	if (cth_monsters)
@@ -3373,13 +3371,13 @@ errr file_character(cptr name, bool full)
 
 		strnfmt(buf2, 20, get_day(bst(YEAR, START_DAY * 10) + START_YEAR));
 		fprintf(fff, "\n\n You started your adventure the %s of the %s year of the third age.",
-		        get_month_name(bst(DAY, START_DAY * 10), wizard, FALSE), buf2);
+			get_month_name(bst(DAY, START_DAY * 10), wizard, FALSE), buf2);
 
 		strnfmt(buf2, 20, get_day(bst(YEAR, turn) + START_YEAR));
 		fprintf(fff, "\n You ended your adventure the %s of the %s year of the third age.",
-		        get_month_name(bst(DAY, turn), wizard, FALSE), buf2);
+			get_month_name(bst(DAY, turn), wizard, FALSE), buf2);
 		fprintf(fff, "\n It now is %ld day%s that you are adventuring.",
-		        days, (days == 1) ? "" : "s");
+			days, (days == 1) ? "" : "s");
 	}
 
 	/* If requesting a full version use the self-knowledge */
@@ -3777,25 +3775,25 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			link_color_sel = color_char_to_attr(buf[6]);
 		}
 
-                /* Tag ? */
-                if (prefix(buf, "~~~~~"))
+		/* Tag ? */
+		if (prefix(buf, "~~~~~"))
 		{
 			if (line < 0)
 			{
-                                int i;
-                                char old_c;
+				int i;
+				char old_c;
 
-                                for (i = 5; (buf[i] >= '0') && (buf[i] <= '9'); i++)
-                                        ;
-                                old_c = buf[i];
-                                buf[i] = '\0';
+				for (i = 5; (buf[i] >= '0') && (buf[i] <= '9'); i++)
+					;
+				old_c = buf[i];
+				buf[i] = '\0';
 
 				if (atoi(buf + 5) == -line)
 				{
 					line = next + 1;
-                                }
-                                buf[i] = old_c;
-                        }
+				}
+				buf[i] = old_c;
+			}
 		}
 
 		x = 0;
@@ -3959,9 +3957,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			}
 
 			/* Dump the line */
-                        print_x = 0;
-                        if (!prefix(buf, "&&&&&"))
-                        {
+			print_x = 0;
+			if (!prefix(buf, "&&&&&"))
+			{
 				x = 0;
 				while (buf[x])
 				{
@@ -4035,12 +4033,12 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			/* Verbatim mode: i.e: acacacac */
 			else
 			{
-                                x = 5;
+				x = 5;
 				while (buf[x])
 				{
 					Term_putch(print_x, i + 2, color_char_to_attr(buf[x]), buf[x + 1]);
 					print_x++;
-                                        x += 2;
+					x += 2;
 				}
 			}
 			color = TERM_WHITE;
@@ -4367,7 +4365,7 @@ bool txt_to_html(cptr head, cptr foot, cptr base, cptr ext, bool force, bool rec
 
 			if (my_fgets(aux, h_ptr->rbuf, 1024)) break;
 			find = strstr(h_ptr->rbuf, "%t");
-                        if (find != NULL)
+			if (find != NULL)
 			{
 				*find = '\0';
 				find += 2;
@@ -4400,9 +4398,9 @@ bool txt_to_html(cptr head, cptr foot, cptr base, cptr ext, bool force, bool rec
 				color = color_char_to_attr(h_ptr->rbuf[5]);
 				do_color = TRUE;
 				fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">",
-				        angband_color_table[color][1],
-				        angband_color_table[color][2],
-				        angband_color_table[color][3]);
+					angband_color_table[color][1],
+					angband_color_table[color][2],
+					angband_color_table[color][3]);
 				buf = &h_ptr->rbuf[6];
 			}
 			else buf = h_ptr->rbuf;
@@ -4415,12 +4413,12 @@ bool txt_to_html(cptr head, cptr foot, cptr base, cptr ext, bool force, bool rec
 
 			/* Skip tags */
 			if (prefix(buf, "~~~~~"))
-                        {
-                                int i;
+			{
+				int i;
 
-                                for (i = 5; (buf[i] >= '0') && (buf[i] <= '9'); i++)
-                                        ;
-                                buf[i] = '\0';
+				for (i = 5; (buf[i] >= '0') && (buf[i] <= '9'); i++)
+					;
+				buf[i] = '\0';
 				fprintf(htm, "<A NAME=\"%s\"></A>", buf + 5);
 				continue;
 			}
@@ -4535,7 +4533,7 @@ bool txt_to_html(cptr head, cptr foot, cptr base, cptr ext, bool force, bool rec
 			/* Verbatim mode: i.e: acacacac */
 			else
 			{
-                                byte old_color;
+				byte old_color;
 
 				x = 5;
 				old_color = color_char_to_attr(buf[x]);
@@ -4554,9 +4552,9 @@ bool txt_to_html(cptr head, cptr foot, cptr base, cptr ext, bool force, bool rec
 
 					fprintf(htm, "%c", buf[x + 1]);
 					print_x++;
-                                        x += 2;
+					x += 2;
 				}
-                                fprintf(htm, "</FONT>");
+				fprintf(htm, "</FONT>");
 			}
 		}
 		if (do_color)
@@ -4639,14 +4637,14 @@ void help_file_screenshot(cptr name)
 		cmovie_clean_line(y, abuf, cbuf);
 
 		/* Dump each row */
-                fprintf(htm, "&&&&&");
+		fprintf(htm, "&&&&&");
 		for (x = 0; x < wid; x++)
 		{
 			a = abuf[x];
 			c = cbuf[x];
 
-                        fprintf(htm, "%c%c", a, c);
-                }
+			fprintf(htm, "%c%c", a, c);
+		}
 
 		/* End the row */
 		fprintf(htm, "\n");
@@ -4692,14 +4690,14 @@ void html_screenshot(cptr name)
 	fprintf(htm, "<HTML>\n");
 	fprintf(htm, "<HEAD>\n");
 	fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"ToME %d.%d.%d\">\n",
-	             VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		     VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(htm, "<TITLE>%s</TITLE>\n", name);
 	fprintf(htm, "</HEAD>\n");
 	fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
 	fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">\n<PRE><TT>",
-	             angband_color_table[TERM_WHITE][1],
-	             angband_color_table[TERM_WHITE][2],
-	             angband_color_table[TERM_WHITE][3]);
+		     angband_color_table[TERM_WHITE][1],
+		     angband_color_table[TERM_WHITE][2],
+		     angband_color_table[TERM_WHITE][3]);
 
 	/* Dump the screen */
 	for (y = 0; y < hgt; y++)
@@ -4716,14 +4714,14 @@ void html_screenshot(cptr name)
 			{
 				fprintf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">", angband_color_table[a][1], angband_color_table[a][2], angband_color_table[a][3]);
 				oa = a;
-                        }
-                        if (c == '<')
-                                fprintf(htm, "&lt;");
-                        else if (c == '>')
-                                fprintf(htm, "&gt;");
-                        else
-                                fprintf(htm, "%c", c);
-                }
+			}
+			if (c == '<')
+				fprintf(htm, "&lt;");
+			else if (c == '>')
+				fprintf(htm, "&gt;");
+			else
+				fprintf(htm, "%c", c);
+		}
 
 		/* End the row */
 		fprintf(htm, "\n");
@@ -4760,7 +4758,7 @@ static cptr keys_desc[KEY_NUM] =
 	"Misc changes:",
 	"Dungeon changes:",
 	"Bug fixes:",
-        "Version:",
+	"Version:",
 };
 
 static int get_key(char c)
@@ -4842,7 +4840,7 @@ bool chg_to_txt(cptr base, cptr newname)
 	C_MAKE(strs, KEY_NUM, chg_type);
 
 	fprintf(txt, "ToME %d.%d.%d changes\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 	/* Display the file */
 	while (TRUE)
@@ -5170,7 +5168,7 @@ void do_cmd_save_game(void)
 
 
 /*
- * Hack -- Calculates the total number of points earned		-JWT-
+ * Hack -- Calculates the total number of points earned                -JWT-
  */
 long total_points(void)
 {
@@ -5290,7 +5288,7 @@ long total_points(void)
 
 
 /*
- * Centers a string within a 31 character string		-JWT-
+ * Centers a string within a 31 character string                -JWT-
  */
 static void center_string(char *buf, cptr str)
 {
@@ -5330,16 +5328,16 @@ static void print_tomb(void)
 	/* Print the text-tombstone */
 	if (!done)
 	{
-		cptr	p;
+		cptr        p;
 
-		char	tmp[160];
+		char        tmp[160];
 
-		char	buf[1024];
+		char        buf[1024];
 		char    dummy[80];
 
 		FILE        *fp;
 
-		time_t	ct = time((time_t)0);
+		time_t        ct = time((time_t)0);
 
 
 		/* Clear screen */
@@ -5442,8 +5440,8 @@ static void print_tomb(void)
 static void show_info(void)
 {
 	int             i, j, k;
-	object_type		*o_ptr;
-	store_type		*st_ptr;
+	object_type                *o_ptr;
+	store_type                *st_ptr;
 
 	/* Hack -- Know everything in the inven/equip */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -5499,7 +5497,7 @@ static void show_info(void)
 		char out_val[160];
 
 		/* Prompt */
-                put_str("Filename(you can post it to http://angband.oook.cz/): ", 23, 0);
+		put_str("Filename(you can post it to http://angband.oook.cz/): ", 23, 0);
 
 		/* Default */
 		strcpy(out_val, "");
@@ -5621,37 +5619,37 @@ typedef struct high_score high_score;
 
 struct high_score
 {
-	char what[8];		/* Version info (string) */
+	char what[8];                /* Version info (string) */
 
-	char pts[10];		/* Total Score (number) */
+	char pts[10];                /* Total Score (number) */
 
-	char gold[10];		/* Total Gold (number) */
+	char gold[10];                /* Total Gold (number) */
 
-	char turns[10];		/* Turns Taken (number) */
+	char turns[10];                /* Turns Taken (number) */
 
-	char day[10];		/* Time stamp (string) */
+	char day[10];                /* Time stamp (string) */
 
-	char who[16];		/* Player Name (string) */
+	char who[16];                /* Player Name (string) */
 
-	char uid[8];		/* Player UID (number) */
+	char uid[8];                /* Player UID (number) */
 
-	char sex[2];		/* Player Sex (string) */
-	char p_r[3];		/* Player Race (number) */
+	char sex[2];                /* Player Sex (string) */
+	char p_r[3];                /* Player Race (number) */
 	char p_s[3];            /* Player Subrace (number) */
-	char p_c[3];		/* Player Class (number) */
+	char p_c[3];                /* Player Class (number) */
 	char p_cs[3];           /* Player Class spec (number) */
 
-	char cur_lev[4];		/* Current Player Level (number) */
-	char cur_dun[4];		/* Current Dungeon Level (number) */
-	char max_lev[4];		/* Max Player Level (number) */
-	char max_dun[4];		/* Max Dungeon Level (number) */
+	char cur_lev[4];                /* Current Player Level (number) */
+	char cur_dun[4];                /* Current Dungeon Level (number) */
+	char max_lev[4];                /* Max Player Level (number) */
+	char max_dun[4];                /* Max Dungeon Level (number) */
 
-	char arena_number[4];	/* Arena level attained -KMW- */
+	char arena_number[4];        /* Arena level attained -KMW- */
 	char inside_arena[4];   /* Did the player die in the arena? */
 	char inside_quest[4];   /* Did the player die in a quest? */
-	char exit_bldg[4];	/* Can the player exit arena? Goal obtained? -KMW- */
+	char exit_bldg[4];        /* Can the player exit arena? Goal obtained? -KMW- */
 
-	char how[32];		/* Method of death (string) */
+	char how[32];                /* Method of death (string) */
 };
 
 
@@ -5700,9 +5698,9 @@ static int highscore_write(high_score *score)
  */
 static int highscore_where(high_score *score)
 {
-	int			i;
+	int                        i;
 
-	high_score		the_score;
+	high_score                the_score;
 
 	/* Paranoia -- it may not have opened */
 	if (highscore_fd < 0) return (-1);
@@ -5728,10 +5726,10 @@ static int highscore_where(high_score *score)
  */
 static int highscore_add(high_score *score)
 {
-	int			i, slot;
-	bool		done = FALSE;
+	int                        i, slot;
+	bool                done = FALSE;
 
-	high_score		the_score, tmpscore;
+	high_score                the_score, tmpscore;
 
 
 	/* Paranoia -- it may not have opened */
@@ -5780,7 +5778,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 	byte        attr;
 	char        out_val[256];
 	char        tmp_val[160];
-	high_score	the_score;
+	high_score        the_score;
 
 
 	/* Paranoia -- it may not have opened */
@@ -5879,9 +5877,9 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
-			        place, the_score.pts, the_score.who,
-			        get_player_race_name(pr, ps), class_info[pc].spec[pcs].title + c_name,
-			        clev);
+				place, the_score.pts, the_score.who,
+				get_player_race_name(pr, ps), class_info[pc].spec[pcs].title + c_name,
+				clev);
 
 			/* Append a "maximum level" */
 			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
@@ -5893,23 +5891,23 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 			if (in_arena)
 			{
 				sprintf(out_val, "               Killed by %s in the Arena",
-				        the_score.how);
+					the_score.how);
 			}
 			else if (in_quest)
 			{
 				sprintf(out_val, "               Killed by %s while questing",
-				        the_score.how);
+					the_score.how);
 			}
 			/* Hack -- some people die in the town */
 			else if (!cdun)
 			{
 				sprintf(out_val, "               Killed by %s in the Town",
-				        the_score.how);
+					the_score.how);
 			}
 			else
 			{
 				sprintf(out_val, "               Killed by %s on %s %d",
-				        the_score.how, "Dungeon Level", cdun);
+					the_score.how, "Dungeon Level", cdun);
 			}
 
 			/* Append a "maximum level" */
@@ -5920,8 +5918,8 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* And still another line of info */
 			sprintf(out_val,
-			        "               (User %s, Date %s, Gold %s, Turn %s).",
-			        user, when, gold, aged);
+				"               (User %s, Date %s, Gold %s, Turn %s).",
+				user, when, gold, aged);
 			c_put_str(attr, out_val, n*4 + 4, 0);
 		}
 
@@ -6454,7 +6452,7 @@ static errr predict_score(void)
 
 
 /*
- * Change the player into a King!			-RAK-
+ * Change the player into a King!                        -RAK-
  */
 static void kingly(void)
 {
@@ -6597,7 +6595,7 @@ void close_game(void)
 				add_note_type(NOTE_WINNER);
 			}
 
-                        irc_disconnect_aux(format("Retired; ToME %d.%d.%d rules",
+			irc_disconnect_aux(format("Retired; ToME %d.%d.%d rules",
 				VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH), FALSE);
 			kingly();
 		}
@@ -6661,8 +6659,8 @@ void close_game(void)
 		}
 
 		irc_disconnect_aux(format("Alive... for the time being; ToME %d.%d.%d rules",
-		                          VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH),
-		                   FALSE);
+					  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH),
+				   FALSE);
 
 		/* Prompt for scores XXX XXX XXX */
 		prt("Press Return (or Escape).", 0, 40);
@@ -7296,7 +7294,7 @@ void signals_init(void)
 }
 
 
-#else	/* HANDLE_SIGNALS */
+#else        /* HANDLE_SIGNALS */
 
 
 /*
@@ -7320,4 +7318,4 @@ void signals_init(void)
 {
 }
 
-#endif	/* HANDLE_SIGNALS */
+#endif        /* HANDLE_SIGNALS */

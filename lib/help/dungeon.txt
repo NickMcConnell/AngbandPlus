@@ -1,7 +1,15 @@
 |||||oy
 ~~~~~02|Dungeons
-#####R=== The Dungeons and Various Places of Middle Earth ===
+#####R             /----------------------------------------\
+#####R            < The Dungeons and Places of Middle-earth  >
+#####R             \----------------------------------------/
 
+     *****dungeon.txt*04[Symbols On Your Map]           *****dungeon.txt*07[The Town and Buildings]
+     *****dungeon.txt*01[The Wilderness]                *****dungeon.txt*06[In the Dungeon]
+     *****dungeon.txt*08[Objects]                       *****dungeon.txt*13[Mining]
+     *****dungeon.txt*12[Doors, Rooms, Staircases etc.] *****dungeon.txt*18[Pets]
+     *****dungeon.txt*14[Winning]                       *****dungeon.txt*15[Dying]
+     *****dungeon.txt*16[Where to get more help]
 
 After you have created your character, you will begin your ToME
 adventure. Symbols appearing on your screen will represent the world's
@@ -137,7 +145,7 @@ note that the sun rises and falls (rather instantly) as time passes.
 There are a few different towns around the world map, and your starting town
 will eventually become too small for you (if you survive the dangers of the
 dungeon). Other towns will have some different facilities, and you can find 
-your way to other towns by reading the "Adventurer's Guide to Middle Earth" 
+your way to other towns by reading the "Adventurer's Guide to Middle-earth" 
 parchment that *every* character begins the game with.
 
 
@@ -176,7 +184,7 @@ may even throw you out for a while if you insult them too often. [[[[[BTo enter]
 
 If you consistently bargain well in a store, that is, you reach the final
 offer much more often than not, then the store owner will eventually
-recognize that you are a superb haggler, and will go directly to the final
+recognise that you are a superb haggler, and will go directly to the final
 offer instead of haggling with you. Items which cost less than 10 gold
 pieces do not count, as haggling well with these items is usually either
 very easy or almost impossible. The more expensive the item is, the less
@@ -262,8 +270,8 @@ Between the towns, the hand of civilisation has not tamed the lands, and
 wild creatures run rampant. This is another place that is worth exploring.
 Hidden within the wilderness are several interesting locations, with the
 four main ones for any adventurer - Barrow Downs, Mirkwood, Mordor and 
-Angband each being located at or near one of the main towns of Middle 
-Earth. These locations should be explored consecutively, as each one 
+Angband each being located at or near one of the main towns of Middle- 
+earth. These locations should be explored consecutively, as each one 
 increases in difficulty from the point where the previous dungeon finished.
 A new character should not try to go at Mordor or Angband as their first 
 dungeon (well, not if you wish to survive your first step, anyway)! 
@@ -289,7 +297,7 @@ All of the special locations can be seen as downstairs (">") on the
 Wilderness Map and towns as "*"s. This makes it *much* easier to find your
 way from one interesting place to another.
 
-The "Adventurer's Guide to Middle Earth" (a parchment that *every* 
+The "Adventurer's Guide to Middle-earth" (a parchment that *every* 
 character begins the game with) contains details about the towns and
 some of the dungeons, including rough directions on how to get there.
 
@@ -348,7 +356,7 @@ Although you are limited to 23 different items, each item may actually be a
 into your pack, for example, by removing an item from your head while your
 pack is full, then your pack will "overflow" and the most recently added
 item will fall out and onto the ground. You will be warned about any command
-that seems likely to induce this behavior.
+that seems likely to induce this behaviour.
 
 You are, however, limited in the total amount of weight that you can carry.
 As you approach this value, you become slower, making it easier for monsters
@@ -405,15 +413,15 @@ Also, occasionally you will notice that something in your inventory or
 equipment list seems to be magical. High level characters are much more
 likely to notice this than beginning characters. When you do notice this,
 the item in question will be inscribed with "good" or "cursed" as is
-relevant.  You can increase your ability to notice magical effcts of armour 
-and weapoons by increasing the *****skills.txt*01[Combat] skill. You can increase your ability 
+relevant.  You can increase your ability to notice magical effects of armour 
+and weapons by increasing the *****skills.txt*01[Combat] skill. You can increase your ability 
 to sense particularly well enchanted magical items (potions, scrolls. wands 
 etc) by increasing your *****skills.txt*21[Magic] skill. If you increase these 
 high enough, you will gain a special method of "sensing" your 
 inventory/equipment items, which tells you if an item is "good" or "cursed", 
 but also if it is "average", "special", "excellent", "terrible" or "worthless".
 
-It is rumored that rings of power and extra rare spell books may be found
+It is rumoured that rings of power and extra rare spell books may be found
 deeper in the dungeon...
 
 And lastly, a final warning: not all objects are what they seem. The line
@@ -424,7 +432,7 @@ potion will reach out and bite you...
 ~~~~~10|Cursed Objects
 #####R=== Cursed Objects ===
 
-Some objects, mainly armor and weapons, have had curses laid upon them.
+Some objects, mainly armour and weapons, have had curses laid upon them.
 These horrible objects will look like any other normal item, but will
 detract from your character's stats or abilities if worn. They will also
 be impossible to remove until a remove curse is done. In fact some are
@@ -463,12 +471,12 @@ This makes mining much easier and more profitable.
 
 It is sometimes possible to get a character trapped within the dungeon by
 using various magical spells and items. [[[[[vSo it is essential to always carry]
-[[[[[vsome kind of digging tool], even when you are not planning on tunneling for 
+[[[[[vsome kind of digging tool], even when you are not planning on tunnelling for 
 treasure.
 
-There are rumors of certain incredibly profitable rooms buried deep in the
+There are rumours of certain incredibly profitable rooms buried deep in the
 dungeon and completely surrounded by titanium and granite walls, requiring
-a digging implement or magical means to enter. The same rumors imply that
+a digging implement or magical means to enter. The same rumours imply that
 these rooms are guarded by incredibly powerful monsters, so beware!
 
 ~~~~~12|Dungeons|Doors, Passages, Rooms and Staircases
@@ -485,10 +493,10 @@ There are no exceptions to this rule. You may have trouble finding some well
 hidden secret doors, or you may have to dig through obstructions to get to
 them, but you can always find the stairs if you look hard enough. Stairs,
 like titanium walls, and the doors into shops, cannot be destroyed by any
-means (although their location can occaisionally change under the right 
+means (although their location can occasionally change under the right 
 circumstances).
 
-Many secret doors are used within the dungeon to confuse and demoralize
+Many secret doors are used within the dungeon to confuse and demoralise
 adventurers foolish enough to enter. But with some luck, and lots of
 concentration, you can find these secret doors. Secret doors will sometimes
 hide rooms or corridors, or even entire sections of that level of the
@@ -501,6 +509,58 @@ can often be counted on to leave them open behind them when they pass
 through.
 
 For historical reasons, secret doors are never locked.
+
+~~~~~18|Pets
+~~~~~19|Companions
+~~~~~20|Monsters|Pets
+#####R=== Pets and Companions ===
+You may, in the course of a game acquire friendly monsters who will help you 
+defeat enemies. There are several different types of these, you can determine 
+which your monster is by 'l'ooking at it.
+[[[[[vneutral] This monster will not help you by attacking other monsters, but nor 
+        will it attack you.
+[[[[[vco-aligned] This monster will attack other enemy monsters, but you will not 
+           gain any experience for it's kills.
+[[[[[vpet] This monster will kill things for you. The amount of experience you gain 
+    from its kills is determined by the level of your *****skills.txt*42[Monster-lore] skill. 
+    This monster will gain levels and experience of its own, but cannot travel 
+    between dungeon levels.
+[[[[[vcompanion] This type of monster will not only take experience and level up like 
+          pets, but will also follow you from one dungeon level to the next. If 
+          you successfully complete an adventurer quest for a lost sword and let 
+          him join you, he will become a companion. Once again the amount of 
+          experience you gain from a companions kill depends upon your 
+          Monster-lore skill.
+Your Monster-lore skill also determines the maximum amount of pets and 
+companions you can have at any one time.
+
+Pets, companions and co-aligned creatures cannot deliver killing blows to 
+uniques or quest monsters. You must do this yourself!
+
+You can give commands to pets and companions to make them more useful, using the 
+'P' command. The list of available commands is as follows:
+[[[[[vdismiss companions] Dismisses your companions. They can be difficult to get rid
+                   of any other way.
+[[[[[vdismiss pets] Dismisses pets. You will be given the opportunity to dismiss all 
+             current pets, or if you answer no to that first question, to 
+             dismiss specific pets.
+[[[[[vcall pets] Calls your pets (and companions) to you.
+[[[[[vfollow me] Asks your pets (and companions) to follow you. They do have a mind of 
+          their own, and may not be able to travel as fast as you can.
+[[[[[vseek and destroy] Selecting this will cause your pets and companions to wander 
+                 further from you, looking for enemies to kill.
+[[[[[vallow/disallow open doors] Selecting this toggles whether your pets and 
+                          companions can open doors.
+[[[[[vallow/disallow pickup items] Selecting this toggles whether your pets and 
+                          companions can pick up items. Disallowing it will 
+                          cause the monster to drop any items he is carrying on 
+                          the floor.
+[[[[[vgive target to a friend] Selecting this will cause one of your pets or 
+                        companions to attack your current target.
+[[[[[vgive target to all friends] Causes all pets or companions to attack your 
+                           current target.
+[[[[[vfriend forget target] All your friends will follow their normal attack 
+                     patterns, neglecting any targets you have given them.
 
 ~~~~~14|Winning
 #####R=== Winning The Game ===
@@ -525,7 +585,7 @@ If you should actually survive the attempt of killing Morgoth, you will
 receive the status of WINNER. You may continue to explore, and may even save 
 the game and play more later, but since you have defeated the toughest 
 creature alive, there is really not much point. Unless you wish to listen to 
-the rumors of a powerful ring buried somewhere in the dungeon...
+the rumours of a powerful ring buried somewhere in the dungeon...
 
 When you are ready to retire, simply "commit suicide" ("^Q") to have your
 character entered into the high score list as a winner. Note that until you
@@ -542,6 +602,7 @@ have a really scary moment that stands out from the rest of the game? And how
 *did* you actually defeat Morgoth, anyway?
 
 ~~~~~15|Dying
+~~~~~17|Loading old characters
 #####R=== Upon Death and Dying ===
  
 If your character falls below 0 hit points, he has died and cannot be
@@ -555,6 +616,10 @@ the monster memory and your option choices. It may be restored, in which
 case the new character is generated exactly as if the file was not there,
 but the new player will find his monster memory containing all the experience
 of past incarnations.
+
+In this way, death in ToME is permanent. You cannot simply 'reload at the last 
+save' as in most other contemporary games. Death is permanent. Just as it is 
+in real life in fact.
 
 ~~~~~16|Help|Contact
 #####R=== Help ===

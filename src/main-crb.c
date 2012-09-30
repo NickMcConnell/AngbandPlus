@@ -2050,7 +2050,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		if (use_bigtile && (a == 255))
 		{
 			/* Advance */
-			dst_r.right += td->tile_wid;
+			dst_r.left += td->tile_wid;
 
 			/* Ignore */
 			continue;

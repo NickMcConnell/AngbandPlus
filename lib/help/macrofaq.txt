@@ -115,14 +115,14 @@ detail. These examples may not be the "best" ones to use in real play.
 
 First, you should know some fundamental terms:
 
-Actions are sequences of keypresses that the game can recognize. They
+Actions are sequences of keypresses that the game can recognise. They
 can't be recorded by the game, but must be input manually.
 
 Macros and keymaps map a keypress to an action. They can be used to
-customize the keyboard, reduce typing, and speed up game play. Macros
+customise the keyboard, reduce typing, and speed up game play. Macros
 must be used when the trigger key doesn't have a system-independent
 representation. Keymap actions can only contain underlying commands.
-[[[[[BMost customization should be done with keymaps instead of macros when]
+[[[[[BMost customisation should be done with keymaps instead of macros when]
 [[[[[Bthere is a choice.]
 
 Inscriptions are "markings" which you can put on any game item. One
@@ -310,7 +310,7 @@ for the full set of underlying commands. Keymaps also allow the
 #####G----------------------------------------------------------------------
 
 Preference files save commands such as macros and keymaps which are
-used to customize the game. They are used to implement the "original"
+used to customise the game. They are used to implement the "original"
 and "roguelike" keysets. They provide default appearances for items.
 
 They also implement the default behaviors which make Angband look and
@@ -318,7 +318,7 @@ play the same (for the most part) on different systems.
 
 Pref files can be saved with the name of a player name, class, and
 race, and anytime a player with a matching characteristic is loaded,
-the appropriate pref file is loaded. This makes some customizations
+the appropriate pref file is loaded. This makes some customisations
 transparent and automatic.
 
 Pref files let you do some things that could otherwise only reasonably
@@ -612,8 +612,8 @@ actions that work for (use_old_target) on, and another for it off.
 Note also that the swapping weapon macro can be very useful for swapping
 the type of ammo in the quiver slot when you have two different sets of
 ammo you use - your standard "fire at everyone normal" ammo (usually
-unenchanted), and your big damage "Uniques and nasty monster" enchanted
-ammo.
+not enchanted), and your big damage "Uniques and nasty monster" 
+enchanted ammo.
 
 #####G----------------------------------------------------------------------
 #####G4.7 Preventing actions
@@ -745,7 +745,7 @@ use the last target without prompting. See section
 Angband automatically loads pref files when a character is loaded or
 born. Among the last ones loaded are: "<$RACE>.prf", "<$CLASS>.prf",
 and "<$PLAYER>.prf", in that order. These are the best ones to use to
-customize the game for individuals. The order is important because
+customise the game for individuals. The order is important because
 pref files which load later will overwrite options and macros/keymaps
 from previous ones.
 
@@ -792,7 +792,7 @@ from the macros and visuals editor screens.
 
 Angband supports using modifier keys on trigger keys. One thing this
 lets you do is easily choose between variants of an action. Another is
-to minimize the amount of moving your hands have to do, speeding up
+to minimise the amount of moving your hands have to do, speeding up
 play and reducing stress on your wrists.
 
 [[[[[BYou can bind multiple versions of the same macro to the same trigger]
@@ -1025,7 +1025,7 @@ used in this situation. [[[[[BInstead bind the trigger key to the action]
 [[[[[Bstring "\x00"]. This special 'command' takes no "energy" and won't
 generate an error message. It truly does "nothing". This will work for
 both macros and keymaps. If possible you should use a keymap instead
-of a macro to disable the key. A keymap will catch occurrances of the
+of a macro to disable the key. A keymap will catch occurrences of the
 key both in macros and by typing, and will still allow you to use the
 key when it isn't being interpreted as a command.
 
@@ -1171,7 +1171,7 @@ a key has a command bound to it from within the game.
 #####G----------------------------------------------------------------------
 
 You can, but it can cause problems if you aren't careful. Use the
-command letter in the inscriptions to minimize problems. For example,
+command letter in the inscriptions to minimise problems. For example,
 it is safe to inscribe both rods with {@z1} and a spell book with
 {@m1} because the command letter allows distinguishing the two.
 
@@ -1250,7 +1250,7 @@ over messages, you can miss important things happening. One of these
 is dying. Usually when something goes wrong, you can just use the (^P)
 Previous Messages command to see what happened. But if you died the
 escapes can take you past the tombstone screen, your last chance to
-examine the prevous messages list. This also happens without macros.
+examine the previous messages list. This also happens without macros.
 
 To examine your recall, load the savefile and start a new character.
 You will then be able to use the message recall command to see the
@@ -1292,7 +1292,7 @@ f   Fire
 *   Choose a [new] target
 t   Accept first target
 
-If there are no valid targets, the (t) targeting command will center
+If there are no valid targets, the (t) targeting command will centre
 on your position. If you move, the target will still be your old
 square. The first time you use the "f1*t" macro it will fire at that
 square, even if there is now a valid target (monster) nearby.
@@ -1474,13 +1474,13 @@ are documented in *****command.txt*0["command.txt"].
 #####G8.1 Keysets
 #####G----------------------------------------------------------------------
 
-ToME supports two "keysets", which are fully customizable sets of
+ToME supports two "keysets", which are fully customisable sets of
 keymaps. The "original" command set is close to the built-in commands,
 with some additions for ease of use such as number keys moving you in
 that direction. The "roguelike" command set allows easy movement on a
 keyboard without a numeric keypad. As a consequence its letter keys
 are almost completely "full". These used to be hard-coded by the game,
-but are now fully customizable. The default keymaps are in "pref.prf".
+but are now fully customisable. The default keymaps are in "pref.prf".
 
 #####G----------------------------------------------------------------------
 #####G8.2 Item selection
@@ -1892,12 +1892,12 @@ Note that scan codes can't be assumed to be "in order", even for keys
 like function keys which "logically" should be!
 
 Note that you can't always just add a modifier to a known scan code
-because that combination might not be recognized by the hardware or
+because that combination might not be recognised by the hardware or
 the translation code in "main-***.c".
 
-Example: a Windows system will recognize function key F1, Shift-F1,
+Example: a Windows system will recognise function key F1, Shift-F1,
 and Ctrl-F1, but not Ctrl-Shift-F1. Similarly Pause and Alt-Pause are
-recognized, but not Ctrl-Pause, and Shift-Pause gives the same
+recognised, but not Ctrl-Pause, and Shift-Pause gives the same
 encoding as Pause alone.
 
 #####G----------------------------------------------------------------------
@@ -1994,17 +1994,17 @@ Press the trigger key to test at the prompt.
 This will show "Found a macro" on the message line if it found one,
 and the line "Trigger: <trigger>". This will show "Found no macro"
 on the message line if it didn't find a macro. Some keys such as
-function keys won't be recognized by the prompt. It will wait until
-you hit a key it recognizes.
+function keys won't be recognised by the prompt. It will wait until
+you hit a key it recognises.
 
 This command doesn't alter any settings. It will return to the main
-menu after you hit any key it recognizes.
+menu after you hit any key it recognises.
 
 #####B= Create a macro =
 #####B-----------------------------------
 After choosing this command, press the trigger key for the macro.
 The internal form will be shown after the "Trigger: " prompt.
-Note that some keys may not be recognized for remapping, such as the
+Note that some keys may not be recognised for remapping, such as the
 new Windows keys, as well as modifier keys such as Alt, Control, Shift
 pressed by themselves. In this case it will continue to wait for a
 valid trigger key.
@@ -2035,7 +2035,7 @@ command, which completely removes the keymap.
 The following "keymap" commands only apply to the current "mode"
 (original/roguelike). Keymaps for the other mode will be unaffected.
 Because keymaps can only be bound to trigger keys which have a system
-independent representation, some key presses won't be recognized by
+independent representation, some key presses won't be recognised by
 these editing commands. They will instead wait until you press a valid
 trigger key.
 #####B----------------------------------------------------------------------
@@ -2051,7 +2051,7 @@ Works just like "Query a macro". This will show "Found a keymap" on
 the message line if it found one, and will display "Keypress: <map>".
 This will show "Found no keymap" on the message line if it didn't
 find a keymap. This command doesn't alter any settings. It will return
-to the main menu after you hit any key it recognizes.
+to the main menu after you hit any key it recognises.
 
 #####B= Create a keymap =
 #####B-----------------------------------
@@ -2281,22 +2281,22 @@ key). Use the (@) "Interact with macros" command to access the remove
 commands.
 
 #####G----------------------------------------------------------------------
-#####G12.4 Unrecognized keys
+#####G12.4 Unrecognised keys
 #####G----------------------------------------------------------------------
 
 #####B= Un*x =
 
-Function keys may not be recognized on some Un*x systems.
+Function keys may not be recognised on some Un*x systems.
 
 #####B= PC/Dos/Windows =
-Doesn't recognize the WINDOWS key (start menu) or the APPLICATION key
+Doesn't recognise the WINDOWS key (start menu) or the APPLICATION key
 (context menu).
 
-On some systems, doesn't recognize modifier keys (Alt, Ctrl, Shift) on
+On some systems, doesn't recognise modifier keys (Alt, Ctrl, Shift) on
 keypad keys when NumLock is on.
 
 See special_key_list[] in "main-win.c" for list of "special" keys that
-are recognized.
+are recognised.
 
 #####G----------------------------------------------------------------------
 #####G12.5 Nonexistent commands

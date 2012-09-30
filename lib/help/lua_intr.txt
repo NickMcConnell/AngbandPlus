@@ -13,7 +13,7 @@ help from DarkGod, and he subsequently asked me to write these help files. I
 was looking forward to when the lua help files came out so that I could look 
 at them myself. Little did I know I'd be asked to write them. Therefore I 
 apologise for any inaccuracies or errors that you find, and if you care to let 
-me know of any improvements which could be made (espesh if you're an 
+me know of any improvements which could be made (especially if you're an 
 experienced programmer/scripter), I'd love to know. Email me at
 [[[[[gfearoffours@moppy.co.uk].
 
@@ -52,7 +52,7 @@ bit of information from the ground up.
 
 A program, or a script (we'll talk about exact differences later) is like a 
 set of instructions. Let's imagine that people responded to programs, and 
-that we had a program called "Housework". It's series of instructions might 
+that we had a program called "Housework". Its series of instructions might 
 look something like this:
 
 #####BDo the Washing up.
@@ -96,7 +96,7 @@ changed (from friend@old-address.com to friend@new-address.com).
 
 Variables are the building blocks out of which you will create your patch.
 
-A variable which will *never* change it's value is called a constant.
+A variable which will *never* change its value is called a constant.
 
 #####R===Functions===
 
@@ -122,7 +122,7 @@ magic missile".
 As you script, you will still be designing your own functions, and 
 variables, but the hardest parts have been done for you!
 
-Not every function and global variable in the sourcecode has been exported to 
+Not every function and global variable in the source-code has been exported to 
 use in your scripting. But the ones that have are easily identifiable by 
 looking in any source files with the extension .pkg . Chris Hadgis has written 
 some excellent documentation which outline the use the most important 

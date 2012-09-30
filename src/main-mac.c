@@ -437,14 +437,14 @@ static bool initialized = FALSE;
 
 
 
-#ifdef ALLOW_QUITING
+#ifdef ALLOW_QUITTING
 
 /*
  * CodeWarrior uses Universal Procedure Pointers
  */
 static ModalFilterUPP ynfilterUPP;
 
-#endif /* ALLOW_QUITING */
+#endif /* ALLOW_QUITTING */
 
 
 
@@ -2637,7 +2637,7 @@ static void save_pref_file(void)
 
 
 
-#ifdef ALLOW_QUITING
+#ifdef ALLOW_QUITTING
 
 /*
  * A simple "Yes/No" filter to parse "key press" events in dialog windows
@@ -2684,7 +2684,7 @@ static pascal Boolean ynfilter(DialogPtr dialog, EventRecord *event, short *ip)
 	return (0);
 }
 
-#endif /* ALLOW_QUITING */
+#endif /* ALLOW_QUITTING */
 
 
 
@@ -3189,7 +3189,7 @@ static void setup_menus(void)
 		EnableItem(m, ITEM_SAVE);
 	}
 
-#ifdef ALLOW_QUITING
+#ifdef ALLOW_QUITTING
 
 	/* Enable "exit" */
 	if (TRUE)
@@ -3197,7 +3197,7 @@ static void setup_menus(void)
 		EnableItem(m, ITEM_EXIT);
 	}
 
-#endif /* ALLOW_QUITING */
+#endif /* ALLOW_QUITTING */
 
 	/* Enable "quit" */
 	if (!initialized || !character_generated || inkey_flag)
@@ -3605,7 +3605,7 @@ static void menu(long mc)
 					break;
 				}
 
-#ifdef ALLOW_QUITING
+#ifdef ALLOW_QUITTING
 
 				/* Exit (without save) */
 				case ITEM_EXIT:
@@ -3635,7 +3635,7 @@ static void menu(long mc)
 					break;
 				}
 
-#endif /* ALLOW_QUITING */
+#endif /* ALLOW_QUITTING */
 
 				/* Quit (with save) */
 				case ITEM_QUIT:
@@ -5004,12 +5004,12 @@ int main(void)
 	_ftype = 'TEXT';
 
 
-#if defined(ALLOW_QUITING) && defined(__MWERKS__)
+#if defined(ALLOW_QUITTING) && defined(__MWERKS__)
 
 	/* Obtian a "Universal Procedure Pointer" */
 	ynfilterUPP = NewModalFilterProc(ynfilter);
 
-#endif /* ALLOW_QUITING && __MWERKS__ */
+#endif /* ALLOW_QUITTING && __MWERKS__ */
 
 
 	/* Hook in some "z-virt.c" hooks */

@@ -38,7 +38,7 @@ add_quest
                 ["god_quest.quests_given"] = 0,
                 ["god_quest.relics_identified"] = 0,
                 ["god_quest.dun_mindepth"] = 1,
-                ["god_quest.dun_maxdepth"] = 6,
+                ["god_quest.dun_maxdepth"] = 4,
                 ["god_quest.dun_minplev"] = 1,
                 ["god_quest.relic_gen_tries"] = 0,
                 ["god_quest.relic_generated"] = FALSE,
@@ -57,7 +57,7 @@ add_quest
                                 god_quest.quests_given = 0
                                 god_quest.relics_identified = 0
                                 god_quest.dun_mindepth = 1
-                                god_quest.dun_maxdepth = 6
+                                god_quest.dun_maxdepth = 4
                                 god_quest.dun_minplev = 1
                                 god_quest.relic_gen_tries = 0
                                 god_quest.relic_generated = FALSE
@@ -70,7 +70,7 @@ add_quest
                                         local give_god_quest = magik(god_quest.CHANCE_OF_GOD_QUEST)
                                 
                                         -- check player is worshipping a god, not already on a god quest.
-                                        if (player.pgod <= 0) or (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN)
+                                        if (player.astral ~= FALSE) or (player.pgod <= 0) or (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN)
                                         or (god_quest.quests_given >= god_quest.MAX_NUM_GOD_QUESTS) or (give_god_quest == FALSE)
                                         or ((current_dungeon_idx == god_quest.DUNGEON_GOD) and (dun_level > 0)) then
                                                 return
@@ -126,8 +126,8 @@ add_quest
                                 local chance
 
                                 -- Check for dungeon
-                                if (current_dungeon_idx ~= god_quest.DUNGEON_GOD) or (god_quest.relic_generated == TRUE) 
-                                or (quest(GOD_QUEST).status == QUEST_STATUS_UNTAKEN) then
+                                if (current_dungeon_idx ~= god_quest.DUNGEON_GOD) or (quest(GOD_QUEST).status == QUEST_STATUS_UNTAKEN) 
+                                or (god_quest.relic_generated == TRUE) then
                                         return
                                 else
                                         -- Force relic generation on 5th attempt if others have been unsuccessful.
@@ -170,8 +170,8 @@ add_quest
                         end,
                         [HOOK_GET] = function(o_ptr, item)
                                         -- Is it the relic, and check to make sure the relic hasn't already been identified
-                                if (o_ptr.tval == TV_JUNK) and (o_ptr.sval == god_quest.relic_num) and (o_ptr.pval ~= TRUE) 
-                                and (god_quest.relics_identified < god_quest.quests_given) and (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN) then
+                                if (quest(GOD_QUEST).status == QUEST_STATUS_TAKEN) and (o_ptr.tval == TV_JUNK) and (o_ptr.sval == god_quest.relic_num)
+                                and (o_ptr.pval ~= TRUE)  and (god_quest.relics_identified < god_quest.quests_given) then
 
                                         -- more God talky-talky
                                         cmsg_print(TERM_L_BLUE, deity(player.pgod).name.." speaks to you:")
@@ -232,12 +232,12 @@ function place_rand_dung()
                 -- Is there a town/dungeon/potentially impassable feature there, ?
                 if (wild_map(god_quest.dung_y, god_quest.dung_x).entrance ~= 0) 
                 or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).entrance ~= 0)
-                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).feature_idx == TERRAIN_EDGE)
-                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).feature_idx == TERRAIN_DEEP_WATER)
-                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).feature_idx == TERRAIN_TREES) 
-                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).feature_idx == TERRAIN_SHALLOW_LAVA) 
-                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).feature_idx == TERRAIN_DEEP_LAVA) 
-                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).feature_idx == TERRAIN_MOUNTAIN) then
+                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_EDGE)
+                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_DEEP_WATER)
+                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_TREES) 
+                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_SHALLOW_LAVA) 
+                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_DEEP_LAVA) 
+                or (wild_feat(wild_map(god_quest.dung_y, god_quest.dung_x)).terrain_idx == TERRAIN_MOUNTAIN) then
 
                         -- try again
                         tries = 0

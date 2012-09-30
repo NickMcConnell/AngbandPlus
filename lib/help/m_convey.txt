@@ -4,13 +4,13 @@
 ~~~~~03|Skills|Conveyance - Spell Info
 #####R === ToME Magic - Conveyance School ===
 
-The conveyance school of magic contains spells where the forces of space are 
-manipulated by the spell. There are rumours of a "Tome of of Translocation" 
+The conveyance school of magic contains spells where the forces of space are
+manipulated by the spell. There are rumours of a "Tome of of Translocation"
 which contains all the conveyance school spells within it's bindings.
 
 Worshipping the God Manwe Sulimo also gives the ability to cast spells from
-the conveyance school at a level of 1/2 of your prayer level. e.g. If the 
-skill "Spirituality: Prayer" is at level 10, you can cast up to level 5 
+the conveyance school at a level of 1/2 of your prayer level. e.g. If the
+skill "Spirituality: Prayer" is at level 10, you can cast up to level 5
 conveyance school spells.
 
 #####sConveyance Spells
@@ -22,7 +22,7 @@ There are six spells available for the conveyance school. These Spells are:
    Destroys doors.
    At spell level 10 it disarms traps.
 3. [[[[[sTeleportation] (school level 10)
-   Teleports you around the level. 
+   Teleports you around the level.
    The casting time decreases with level.
 4. [[[[[sTeleport Away] (school level 23)
    Teleports a line of monsters away.
@@ -34,20 +34,20 @@ There are six spells available for the conveyance school. These Spells are:
    Cast at an object it will fetch the object to you (note that you must have
       an empty space under your feet for the object to fall onto).
 6. [[[[[sProbability Travel] (school level 35)
-   Renders you instable, when you hit a wall you travel throught it and
+   Renders you unstable.  When you hit a wall you travel through it and
      instantly appear on the other side of it. You can also float up and down
      at will
 
 #####GAir spells that can be cast with Conveyance skill
 
 1. [[[[[BWings of Winds] (school level 22)
-   Grants the power or leviation.
-   At spell level 16 it grants the power of controled flight.
+   Grants the power of levitation.
+   At spell level 16 it grants the power of controlled flight.
 
 #####GTemporal spells that can be cast with Conveyance skill
 
 1. [[[[[sBanishment] (school level 30)
-   Disrupt the space/time continuum in your area and teleports all monsters 
+   Disrupt the space/time continuum in your area and teleports all monsters
       away.
    At spell level 15 it also may lock them in a time bubble for some turns.
 
@@ -61,4 +61,3 @@ There are six spells available for the conveyance school. These Spells are:
 
 1. [[[[[DWraithform] (school level 30)
    Turns you temporarily into an immaterial being.
-   

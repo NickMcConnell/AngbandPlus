@@ -3,7 +3,7 @@
 #####R=== Swordmasters ===
 
 #####GDescription
-The Swordmaster is a Warrior who specializes in swords.
+The Swordmaster is a Warrior who specialises in swords.
 The training is so intense and specific that Swordmasters gain huge bonuses
 when fighting with their chosen weapon, dependent on their Sword-mastery skill.
 In most other respects they perform about as well as a generic Warrior.

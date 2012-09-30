@@ -12,4 +12,4 @@
 [B]- Ego types (like a Cursed Ring of Stupidity) will prevent the
      automatizer from destroying an otherwise destroyable item
 
-[V]  T.o.M.E 2.1.0 aka "No Surrender, No Retreat"
+[V]  T.o.M.E 2.1.1 aka "Once more unto the breach"

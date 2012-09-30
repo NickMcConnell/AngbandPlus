@@ -10,8 +10,9 @@ only a single skill. On the downside, they are the worst fighters, being
 unable to use any weapon but a Mage Staff comfortably, and still unable
 to be anything even remotely approaching effective with it.
 The energies used for learning sorcery also sap the life force of a
-sorcerer, giving a percentual penalty to hit points equal to their sorcery
-skill score and worsening even more their combat ability.
+sorcerer, penalising them with the loss of a percentage of their hit
+points equal to their sorcery skill score and penalising their combat
+ability even more strongly.
 
 For more information on magic schools and spell effects see the 
 *****magic.txt*01[Magic help file].

@@ -99,8 +99,8 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_L_DARK, TERM_WHITE, TERM_ORANGE, TERM_L_UMBER, TERM_SLATE,
 	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
 	TERM_L_UMBER, TERM_VIOLET, TERM_L_BLUE, TERM_BLUE, TERM_L_WHITE,
-	TERM_UMBER, TERM_L_BLUE, TERM_SLATE, TERM_RED, TERM_L_GREEN, 
-	TERM_WHITE, TERM_L_DARK, TERM_L_WHITE, TERM_WHITE, TERM_L_GREEN, 
+	TERM_UMBER, TERM_L_BLUE, TERM_SLATE, TERM_RED, TERM_L_GREEN,
+	TERM_WHITE, TERM_L_DARK, TERM_L_WHITE, TERM_WHITE, TERM_L_GREEN,
 	TERM_GREEN, TERM_VIOLET, TERM_L_WHITE, TERM_UMBER
 };
 
@@ -991,6 +991,12 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	(*f5) = k_ptr->flags5;
 	(*esp) = k_ptr->esp;
 
+	(*f1) |= k_ptr->oflags1;
+	(*f2) |= k_ptr->oflags2;
+	(*f3) |= k_ptr->oflags3;
+	(*f4) |= k_ptr->oflags4;
+	(*f5) |= k_ptr->oflags5;
+	(*esp) |= k_ptr->oesp;
 
 #ifdef SPOIL_ARTIFACTS
 	/* Full knowledge for some artifacts */
@@ -1002,39 +1008,61 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *
 	if (ego_item_p(o_ptr)) spoil = TRUE;
 #endif /* SPOIL_EGO_ITEMS */
 
-	/* Need full knowledge or spoilers */
-	if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
-
 	/* Artifact */
 	if (o_ptr->name1)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
-		(*f1) = a_ptr->flags1;
-		(*f2) = a_ptr->flags2;
-		(*f3) = a_ptr->flags3;
-		(*f4) = a_ptr->flags4;
-		(*f5) = a_ptr->flags5;
-		(*esp) = a_ptr->esp;
+		/* Need full knowledge or spoilers */
+		if (spoil || (o_ptr->ident & IDENT_MENTAL))
+		{
+			(*f1) = a_ptr->flags1;
+			(*f2) = a_ptr->flags2;
+			(*f3) = a_ptr->flags3;
+			(*f4) = a_ptr->flags4;
+			(*f5) = a_ptr->flags5;
+			(*esp) = a_ptr->esp;
 
-		if ((!object_flags_no_set) && (a_ptr->set != -1))
-			apply_flags_set(o_ptr->name1, a_ptr->set, f1, f2, f3, f4, f5, esp);
+			if ((!object_flags_no_set) && (a_ptr->set != -1))
+				apply_flags_set(o_ptr->name1, a_ptr->set, f1, f2, f3, f4, f5, esp);
+		}
+		else
+		{
+			(*f1) = (*f2) = (*f3) = (*f4) = (*esp) = (*f5) = 0L;
+		}
+
+		(*f1) |= a_ptr->oflags1;
+		(*f2) |= a_ptr->oflags2;
+		(*f3) |= a_ptr->oflags3;
+		(*f4) |= a_ptr->oflags4;
+		(*f5) |= a_ptr->oflags5;
+		(*esp) |= a_ptr->oesp;
 	}
 
-	/* Random artifact ! */
+	/* Random artifact or ego item! */
 	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4 || o_ptr->art_flags5 || o_ptr->art_esp)
 	{
-		(*f1) |= o_ptr->art_flags1;
-		(*f2) |= o_ptr->art_flags2;
-		(*f3) |= o_ptr->art_flags3;
-		(*f4) |= o_ptr->art_flags4;
-		(*f5) |= o_ptr->art_flags5;
-		(*esp) |= o_ptr->art_esp;
+		/* Need full knowledge or spoilers */
+		if (spoil || (o_ptr->ident & IDENT_MENTAL))
+		{
+			(*f1) |= o_ptr->art_flags1;
+			(*f2) |= o_ptr->art_flags2;
+			(*f3) |= o_ptr->art_flags3;
+			(*f4) |= o_ptr->art_flags4;
+			(*f5) |= o_ptr->art_flags5;
+			(*esp) |= o_ptr->art_esp;
+		}
+
+		(*f1) |= o_ptr->art_oflags1;
+		(*f2) |= o_ptr->art_oflags2;
+		(*f3) |= o_ptr->art_oflags3;
+		(*f4) |= o_ptr->art_oflags4;
+		(*f5) |= o_ptr->art_oflags5;
+		(*esp) |= o_ptr->art_oesp;
 	}
 
 	/* Full knowledge for *identified* objects */
 	if (!(o_ptr->ident & IDENT_MENTAL)) return;
-
 
 	if (!(o_ptr->art_name))
 	{
@@ -1628,7 +1656,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			{
 				basenm = random_artifacts[indexx].name_short;
 			}
-			pref = FALSE;
 			break;
 		}
 
@@ -1815,6 +1842,11 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			t = object_desc_num(t, o_ptr->number);
 			t = object_desc_chr(t, ' ');
+		}
+
+		else if (o_ptr->tval==TV_RANDART)
+		{
+			/* Do nothing, since randarts have their prefix already included */
 		}
 
 		/* Hack -- The only one of its kind */
@@ -2511,7 +2543,7 @@ cptr item_activation(object_type *o_ptr, byte num)
 	if (is_ego_p(o_ptr, EGO_MSTAFF_SPELL))
 	{
 		int gf, mod, mana;
-		
+
 		if (!num)
 		{
 			gf = o_ptr->pval & 0xFFFF;
@@ -2565,7 +2597,7 @@ bool grab_tval_desc(int tval)
 	int tv = 0;
 
 	while (tval_descs[tv].tval && (tval_descs[tv].tval != tval))
-	{                
+	{
 		tv++;
 	}
 
@@ -2650,8 +2682,8 @@ void display_weapon_damage(object_type *o_ptr)
 	if (full && (f1 & TR1_SLAY_GIANT)) output_dam(o_ptr, 3, 0, "giants", NULL, &first);
 	if (full && (f1 & TR1_KILL_DRAGON)) output_dam(o_ptr, 5, 0, "dragons", NULL, &first);
 	else if (full && (f1 & TR1_SLAY_DRAGON)) output_dam(o_ptr, 3, 0, "dragons", NULL, &first);
-	if (full && (f5 & TR5_KILL_UNDEAD)) output_dam(o_ptr, 5, 0, "undeads", NULL, &first);
-	else if (full && (f1 & TR1_SLAY_UNDEAD)) output_dam(o_ptr, 3, 0, "undeads", NULL, &first);
+	if (full && (f5 & TR5_KILL_UNDEAD)) output_dam(o_ptr, 5, 0, "undead", NULL, &first);
+	else if (full && (f1 & TR1_SLAY_UNDEAD)) output_dam(o_ptr, 3, 0, "undead", NULL, &first);
 	if (full && (f5 & TR5_KILL_DEMON)) output_dam(o_ptr, 5, 0, "demons", NULL, &first);
 	else if (full && (f1 & TR1_SLAY_DEMON)) output_dam(o_ptr, 3, 0, "demons", NULL, &first);
 
@@ -2731,7 +2763,7 @@ void display_ammo_damage(object_type *o_ptr)
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-	roff("\nUsing it with your current shooter you would do an avarage damage per shots of ");
+	roff("\nUsing it with your current shooter you would do an average damage per shot of ");
 	if (full && (f1 & TR1_SLAY_ANIMAL)) output_ammo_dam(o_ptr, 2, 0, "animals", NULL, &first);
 	if (full && (f1 & TR1_SLAY_EVIL)) output_ammo_dam(o_ptr, 2, 0, "evil creatures", NULL, &first);
 	if (full && (f1 & TR1_SLAY_ORC)) output_ammo_dam(o_ptr, 3, 0, "orcs", NULL, &first);
@@ -3020,9 +3052,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down)
 		if (f1 & (TR1_BLOWS)) vp[vn++] = "attack speed";
 		if (f5 & (TR5_CRIT)) vp[vn++] = "ability to score critical hits";
 		if (f5 & (TR5_LUCK)) vp[vn++] = "luck";
-		if (f1 & (TR1_MANA)) vp[vn++] = "mana capacity";
 		if (f1 & (TR1_SPELL)) vp[vn++] = "spell power";
-		if (f2 & (TR2_LIFE)) vp[vn++] = "hit points";
 
 		/* Describe */
 		if (vn)
@@ -3053,6 +3083,40 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down)
 				c_roff(TERM_L_GREEN, format("%i", o_ptr->pval));
 			else
 				c_roff(TERM_L_RED, format("%i", -o_ptr->pval));
+			roff(".  ");
+		}
+
+
+		vn = 0;
+		if (f1 & (TR1_MANA)) vp[vn++] = "mana capacity";
+		if (f2 & (TR2_LIFE)) vp[vn++] = "hit points";
+
+		/* Describe with percentuals */
+		if (vn)
+		{
+			int percent;
+
+			/* What it does */
+			if (o_ptr->pval > 0)
+				roff("It increases");
+			else
+				roff("It decreases");
+
+			roff(" your "); roff(vp[0]);
+			if (vn == 2)
+			{
+				roff(" and ");
+				roff(vp[1]);
+			}
+
+			roff(" by ");
+			percent = 100 * o_ptr->pval / ( munchkin_multipliers ? 5 : 10 );
+
+
+			if (o_ptr->pval > 0)
+				c_roff(TERM_L_GREEN, format("%i%%", percent));
+			else
+				c_roff(TERM_L_RED, format("%i%%", -percent));
 			roff(".  ");
 		}
 
@@ -3679,9 +3743,9 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down)
 	}
 
 
-	if(!trim_down)
+	if (!trim_down && !fff)
 	{
-		describe_device(o_ptr);
+                describe_device(o_ptr);
 
 		if (object_known_p(o_ptr))
 		{
@@ -3692,10 +3756,17 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down)
 			/* Breakage/Damage display for ammo */
 			if (wield_slot(o_ptr) == INVEN_AMMO)
 			{
+				if (artifact_p(o_ptr))
+				{
+				roff("\nIt can never be broken.");
+				}
+			else
+			{
 				roff("\nIt has ");
 				c_roff(TERM_L_RED, format("%d", breakage_chance(o_ptr)));
-				roff("% chances to break upon hit.");
-				display_ammo_damage(o_ptr);
+				roff("% chance to break upon hit.");
+			}
+			display_ammo_damage(o_ptr);
 			}
 		}
 
@@ -3753,7 +3824,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down)
 		else if (o_ptr->found == OBJ_FOUND_SELFMADE)
 		{
 			roff("\nYou made it yourself.");
-		}	
+		}
 		/* useful for debugging
 		else
 		{
@@ -4162,7 +4233,7 @@ bool item_tester_okay(object_type *o_ptr)
 
 	/* Check the tval */
 	if (item_tester_tval)
-	{       
+	{
 		if (!(item_tester_tval == o_ptr->tval)) return (FALSE);
 	}
 
@@ -4477,9 +4548,6 @@ void show_equip_aux(bool mirror, bool everything)
 				/* Save the color */
 				out_color[k] = TERM_L_RED;
 				(void)strcpy(out_desc[k], o_name);
-			}
-			else
-			{
 				continue;
 			}
 		}
@@ -4511,7 +4579,7 @@ void show_equip_aux(bool mirror, bool everything)
 			/* Truncate the description */
 			o_name[lim] = 0;
 			/* Is this item acceptable? */
-			if (!item_tester_okay(o_ptr)) 
+			if (!item_tester_okay(o_ptr))
 			{
 				if(!everything) continue;
 				out_index[k] = -1;
@@ -5827,7 +5895,7 @@ int wear_ammo(object_type *o_ptr)
 	/* Obtain local object */
 	object_copy(q_ptr, o_ptr);
 
-	num = o_ptr->number; 
+	num = o_ptr->number;
 
 	/* Modify quantity */
 	q_ptr->number = num;
@@ -6457,6 +6525,7 @@ bool apply_flags_set(s16b a_idx, s16b set_idx,
 	}
 	return (FALSE);
 }
+
 
 
 

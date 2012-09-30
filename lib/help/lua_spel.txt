@@ -289,7 +289,7 @@ by (see high-score table).
  * "virtual targets" far away from the player.
  *
  * One can also use PROJECT_THRU to send a beam/bolt along an angled path,
- * continuing until it actually hits somethings (useful for "stone to mud").
+ * continuing until it actually hits something (useful for "stone to mud").
  *
  * Bolts and Beams explode INSIDE walls, so that they can destroy doors.
  *
@@ -308,7 +308,7 @@ by (see high-score table).
  * Walls and doors are included in the blast area, so that they can be
  * "burned" or "melted" in later versions.
  *
- * This algorithm is intended to maximize simplicity, not necessarily
+ * This algorithm is intended to maximise simplicity, not necessarily
  * efficiency, since this function is not a bottleneck in the code.
  *
  * We apply the blast effect from ground zero outwards, in several passes,
@@ -328,15 +328,15 @@ by (see high-score table).
  *
  * Notice the "napalm" effect of "beam" weapons.  First they "project" to
  * the target, and then the damage "flows" along this beam of destruction.
- * The damage at every grid is the same as at the "center" of a "ball"
+ * The damage at every grid is the same as at the "centre" of a "ball"
  * explosion, since the "beam" grids are treated as if they ARE at the
- * center of a "ball" explosion.
+ * centre of a "ball" explosion.
  *
  * Currently, specifying "beam" plus "ball" means that locations which are
  * covered by the initial "beam", and also covered by the final "ball", except
- * for the final grid (the epicenter of the ball), will be "hit twice", once
+ * for the final grid (the epicentre of the ball), will be "hit twice", once
  * by the initial beam, and once by the exploding ball.  For the grid right
- * next to the epicenter, this results in 150% damage being done.  The center
+ * next to the epicentre, this results in 150% damage being done.  The centre
  * does not have this problem, for the same reason the final grid in a "beam"
  * plus "bolt" does not -- it is explicitly removed.  Simply removing "beam"
  * grids which are covered by the "ball" will NOT work, as then they will
@@ -347,13 +347,13 @@ by (see high-score table).
  *
  * Note the rather complex usage of the "gm[]" array.  First, gm[0] is always
  * zero.  Second, for N>1, gm[N] is always the index (in gy[],gx[]) of the
- * first blast grid (see above) with radius "N" from the blast center.  Note
+ * first blast grid (see above) with radius "N" from the blast centre.  Note
  * that only the first gm[1] grids in the blast area thus take full damage.
  * Also, note that gm[rad+1] is always equal to "grids", which is the total
  * number of blast grids.
  *
  * Note that once the projection is complete, (y2,x2) holds the final location
- * of bolts/beams, and the "epicenter" of balls.
+ * of bolts/beams, and the "epicentre" of balls.
  *
  * Note also that "rad" specifies the "inclusive" radius of projection blast,
  * so that a "rad" of "one" actually covers 5 or 9 grids, depending on the
@@ -535,7 +535,7 @@ Attempt to reduce the player's "stat" statistic by a point.
 #####GParameters
 > "stat" is the statistic
   *****fields.txt*0[A_fields]
-> "mode" is the type of decrease: temporary, normal, or permanet
+> "mode" is the type of decrease: temporary, normal, or permanent
   *****fields.txt*0[STAT_DEC_fields]
 
 ----------------------------------------------------------------------
@@ -668,7 +668,7 @@ Restore all drained experience points (if any).
 #####GComment
 /*
  * self-knowledge... idea from nethack.  Useful for determining powers and
- * resistences of items.  It saves the screen, clears it, then starts listing
+ * resistances of items.  It saves the screen, clears it, then starts listing
  * attributes, a screenful at a time.  (There are a LOT of attributes to
  * list.  It will probably take 2 or 3 screens for a powerful character whose
  * using several artifacts...) -CFT
@@ -1131,9 +1131,9 @@ Fully "identify" an object in the inventory (or on the floor).
  * Scroll of recharging --> recharge(130)
  * Scroll of *recharging* --> recharge(200)
  *
- * It is harder to recharge high level, and highly charged wands, 
- * staffs, and rods.  The more wands in a stack, the more easily and 
- * strongly they recharge.  Staffs, however, each get fewer charges if 
+ * It is harder to recharge high level, and highly charged wands,
+ * staffs, and rods.  The more wands in a stack, the more easily and
+ * strongly they recharge.  Staffs, however, each get fewer charges if
  * stacked.
  *
  * XXX XXX XXX Beware of "sliding index errors".
@@ -1420,7 +1420,7 @@ each player level.
  */
 
 #####GDescription
-Delete monsters and objects from an area of the dungeon centered at
+Delete monsters and objects from an area of the dungeon centred at
 grid "y1,x1" for a radius "r". This does not work on special levels or
 quests. The player may be blinded. The player forgets the affected
 area and it becomes dark. All grids become floor.
@@ -1452,9 +1452,9 @@ area and it becomes dark. All grids become floor.
  */
 
 #####GDescription
-Delete monsters and objects from an area of the dungeon centered at
+Delete monsters and objects from an area of the dungeon centred at
 grid "y1,x1" for a radius "r". This does not work on special levels or
-quests. The epicenter is NOT affected. The player may be blinded. The
+quests. The epicentre is NOT affected. The player may be blinded. The
 player forgets the affected area and it becomes dark. The grids can
 become granite, quartz, magma, or floor.
 
@@ -1495,8 +1495,8 @@ become granite, quartz, magma, or floor.
  */
 
 #####GDescription
-Create an earthquake centered on grid "cy,cx" with a radius of "r".
-This does not work on quest levels. The epicenter is NOT affected.
+Create an earthquake centred on grid "cy,cx" with a radius of "r".
+This does not work on quest levels. The epicentre is NOT affected.
 Only about 15% of the grids are affected. The player takes 300 points
 of damage if they can't be moved to a safe grid, otherwise damage is
 from 10 to 40 points. The player forgets the affected area and it
@@ -1541,16 +1541,16 @@ grids left and right.
 /*
  * Light up the dungeon using "clairvoyance"
  *
- * This function "illuminates" every grid in the dungeon, memorizes all
- * "objects", memorizes all grids as with magic mapping, and, under the
+ * This function "illuminates" every grid in the dungeon, memorises all
+ * "objects", memorises all grids as with magic mapping, and, under the
  * standard option settings (view_perma_grids but not view_torch_grids)
- * memorizes all floor grids too.
+ * memorises all floor grids too.
  *
- * Note that if "view_perma_grids" is not set, we do not memorize floor
+ * Note that if "view_perma_grids" is not set, we do not memorise floor
  * grids, since this would defeat the purpose of "view_perma_grids", not
  * that anyone seems to play without this option.
  *
- * Note that if "view_torch_grids" is set, we do not memorize floor grids,
+ * Note that if "view_torch_grids" is set, we do not memorise floor grids,
  * since this would prevent the use of "view_torch_grids" as a method to
  * keep track of what grids have been observed directly.
  */
@@ -1591,7 +1591,7 @@ squares are lit and remembered.
  */
 
 #####GDescription
-Forgt all grids and objects. All grids become dark.
+Forget all grids and objects. All grids become dark.
 
 ----------------------------------------------------------------------
 
@@ -1817,7 +1817,7 @@ damage.
 
 #####GComment
 /*
- * Cast a druidistic ball spell
+ * Cast a druidic ball spell
  * Stop if we hit a monster, act as a "ball"
  * Allow "target" mode to pass over monsters
  * Affect grids, objects, and monsters
@@ -1848,7 +1848,7 @@ path.
 
 #####GComment
 /*
- * Cast a druidistic bolt spell
+ * Cast a druidic bolt spell
  * Stop if we hit a monster, as a "bolt"
  * Affect monsters (not grids or objects)
  */
@@ -2148,4 +2148,3 @@ all viewable monsters in line of site.
 Back to the *****lua.hlp*0[lua help index] .
 
                                                      [[[[[gThis file by Chris Hadgis]
-

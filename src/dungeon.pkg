@@ -217,8 +217,8 @@ typedef unsigned int u32b;
 #define DF2_ELVEN               0x00001000L     /* Try to create elven monster ego */
 #define DF2_DWARVEN             0x00002000L     /* Try to create dwarven monster ego */
 
-extern s32b dungeon_flags1@level_flags1;
-extern s32b dungeon_flags2@level_flags2;
+extern u32b dungeon_flags1@level_flags1;
+extern u32b dungeon_flags2@level_flags2;
 
 /*
  * Maximum dungeon height in grids, must be a multiple of SCREEN_HGT,
@@ -313,7 +313,7 @@ struct town_type
 
 	byte flags;             /* Town flags */
 	/* Left this for the sake of compatibility */
-        bool stocked;           /* Is the town actualy stocked ? */
+        bool stocked;           /* Is the town actually stocked ? */
 
         bool destroyed;         /* Is the town destroyed? */
 };
@@ -324,7 +324,7 @@ extern town_type town_info[max_towns];
 /* Define monster generation rules */
 struct rule_type
 {
-	byte mode;                      /* Mode of combinaison of the monster flags */
+	byte mode;                      /* Mode of combination of the monster flags */
 	byte percent;                   /* Percent of monsters affected by the rule */
 
 	u32b mflags1;                   /* The monster flags that are allowed */

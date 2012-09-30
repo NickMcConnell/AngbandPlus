@@ -712,7 +712,7 @@ void touch_zap_player(monster_type *m_ptr)
 	}
 }
 
-
+#if 0 /* not used, eliminates a compiler warning */
 static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 {
 	int k, bonus, chance;
@@ -814,6 +814,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	}
 }
 
+#endif
 
 /*
  * Carried monster can attack too.
@@ -3537,7 +3538,7 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 				}
 			}
 			/* Closed doors */
-			else if (c_ptr->feat < FEAT_SECRET)
+			else if ((c_ptr->feat >= FEAT_DOOR_HEAD) && (c_ptr->feat <= FEAT_DOOR_TAIL))
 			{
 #ifdef ALLOW_EASY_OPEN
 
@@ -3616,6 +3617,9 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 		{
 			/* Disturb player */
 			disturb(0, 0);
+
+			/* but don't take a turn */
+			energy_use = 0;
 
 			/* Tell player why */
 			cmsg_print(TERM_VIOLET, "You are about to leave a trap detected zone.");
@@ -4287,13 +4291,21 @@ static bool run_test(void)
 					break;
 				}
 
-					/* Stairs */
+				/*
+				 * Stairs - too many of them, should find better ways to
+				 * handle them (not scripting!, because it can be called
+				 * from within the running algo) XXX XXX XXX
+				 */
 				case FEAT_LESS:
 				case FEAT_MORE:
-				case FEAT_WAY_LESS:
-				case FEAT_WAY_MORE:
+				case FEAT_QUEST_ENTER:
+				case FEAT_QUEST_EXIT:
+				case FEAT_QUEST_DOWN:
+				case FEAT_QUEST_UP:
 				case FEAT_SHAFT_UP:
 				case FEAT_SHAFT_DOWN:
+				case FEAT_WAY_LESS:
+				case FEAT_WAY_MORE:
 				/* XXX */
 				case FEAT_BETWEEN:
 				case FEAT_BETWEEN2:
@@ -4967,11 +4979,11 @@ void do_cmd_pet(void)
 			           (Dismissed == 1 ? "" : "s"));
 			break;
 		}
-		case 10:				/* Dismiss companionss */
+		case 10:				/* Dismiss companions */
 		{
 			int Dismissed = 0;
 
-			if (get_check("Dismiss all companionss? ")) all_pets = TRUE;
+			if (get_check("Dismiss all companions? ")) all_pets = TRUE;
 
 			/* Process the monsters (backwards) */
 			for (pet_ctr = m_max - 1; pet_ctr >= 1; pet_ctr--)
@@ -5342,10 +5354,12 @@ void do_cmd_engrave()
 
 	byte i;
 
-
 	strnfmt(buf, 41, "%s", inscription_info[cave[py][px].inscription].text);
 
-	get_string("Engrave what ? ", buf, 40);
+	get_string("Engrave what? ", buf, 40);
+
+	/* Silently do nothing when player his escape or enters an empty string */
+	if (!buf[0]) return;
 
 	for (i = 0; i < MAX_INSCRIPTIONS; i++)
 	{

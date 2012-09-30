@@ -19,5 +19,5 @@ Charisma        -15
 Hit Dice Sides  15         
 Exp Penalty     +150%
 
-######GSkill Bonuses (supplementary to existing skills)
+#####GSkill Bonuses (supplementary to existing skills)
 Necromancy            0.000           [0.200]

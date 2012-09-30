@@ -122,8 +122,8 @@ MANASHIELD = add_spell
 	end,
         ["desc"] =	{
         		"Uses mana instead of hp to take damage",
-        		"At level 5 switches to globe of invulnerability",
-                        "The spell breaks as soon as a melee, shooting,",
-                        "throwing or magical skill action is attempted"
+        		"At level 5 switches to Globe of Invulnerability.",
+        		"The spell breaks as soon as a melee, shooting, throwing or magical",
+        		"skill action is attempted, and lasts only a short time."
 		}
 }

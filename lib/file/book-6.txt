@@ -1,5 +1,5 @@
 
-			Atrifact Lore, Vol. I
+			Artifact Lore, Vol. I
 			   Ancient Weapons
 			---------------------
 
@@ -214,7 +214,7 @@
   The Broad Axe 'Barukkheled' (2d6) (+13,+19)
        This beautiful axe slays orcs, trolls, giants and other evil
        (visible or not),  while  greatly  increasing  the  wielders
-       internal contesitude.
+       internal constitution.
 
   The Trident of Wrath (4d9) (+21,+24)
        This extremely heavy and dangerous trident belonging to  the

@@ -1467,8 +1467,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	/* Handle "player" */
 	if ((y == py) && (x == px) &&
-	    (!p_ptr->invis ||
-	     (p_ptr->invis && p_ptr->see_inv)))
+	    (!p_ptr->invis || p_ptr->see_inv))
 	{
 		monster_race *r_ptr = &r_info[p_ptr->body_monster];
 

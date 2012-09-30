@@ -1,0 +1,89 @@
+Todo list for ToME:
+
+--> Various
+ - Birth gifts
+ - Armor that grants its own attacks (e.g. spike boots, spike helmet)
+ - Time traveling
+ - Add slimemold stuff
+ - Add more different fates
+ - Riding system by Akhronath
+ - An attack that absorb mana grid to because more and more powerful as it
+   travels
+ - Conical breath
+ - Artifact: The Robing Bag (like a kender bag)
+ - CONFER_* from cathband
+ - Add variaz arts
+ - Add vault opened with a key
+ - A protect friendly unique quest
+ - Valinor quest: You help the Valar themsleves in a battle !
+ - Random quests in the wilderness
+ - imprison monsters in objects, they gain proprieties and sometimes the
+   ability to talk
+ - many more floor features (see SC patchs & unband)
+ - "on", "in",  .. before features should be in f_info
+ - Generation code can rotate vaults
+ - Take a look at V292 main-dos/main-win special rng function
+ - Ghosts should have special desc/saying entered by user (as they did before)
+ - Ring of Soul Trapping
+ - Ring of Angst (+10 speed, +*HUNGER*, +5tohit, -10AC)
+ - more maps
+ - more curses (see the txt file for more info)
+ - WORLDS !
+ - Arts in 2 or more parts that have to be assembled
+ - Tilion, vardan and Arien have the same great_side_effect power, should
+   be changed
+ - new combat system(see various txt)
+ - split regen and make it pval dep
+ - Between slips -> player get teleported to an other world
+ - New Quests
+ - Stores only buy what they sell
+ - Percentile resistances
+ - Dragon shield + dragon armor of same color => poly into dragon
+ - Buy houses
+ - ro_info.txt to describe rooms types/ego rooms/art rooms
+ - section in character screen that displays all recall depths
+ - Hot Spots in the wilderness(orc camps and such) instead of ambush
+ - better ambushes(merchants, specific monsters, maps, ...)
+ - Scroll to tell the body parts of a monster
+ - Psuedo id stays after id
+
+ - Add the Gelfling race
+ - Add the Gladiator Class(using the special attacks)
+ - Add the Adventurer Class(kender-like)
+ - Add the Aquera race (See Akhronath post)
+ - Add the Telepath class
+ - Add the Elementalist class (with damage in function of the mana)
+ - Add the Psionicist class (Telekinesy, Telepathy, ... with spells especially
+   customizable !)
+ - Check Dragonmen patch(http://w1.271.telia.com/~u27102957/index2.html)
+ - Add Mentalists(see Pern MENTALISTS.txt)
+
+--> Improv's Suggestions
+ - Sound attacks should have a chance to knock weapons out of the user's
+   hand if they don't resist it
+ - Chaos should import chaos effects from Z (mutate race, reduce stats, etc)
+ - Maybe mana attacks should be able to blast armor or weapons (very rarely,
+   only if player doesn't resist)
+ - Monks need reworking of their combat system so they don't suck anymore.
+ - Posessor 'spell' success rate formula needs reworking
+
+--> takkaria's "remember to do this" list
+ - Port security changes from vanilla's CVS.
+ - Maybe change the contextual help to use roff() instead of messages.
+ - '?' at the "look" prompt for a feature should bring up help on that feature.
+   (maybe for monsters too)
+ - attempt to come up with a skills screen that doesn't hurt my eyes
+ - rename roff() to text_out() so it makes more sense.
+
+--> To watch
+ - number of class/race/realms/subrace if > 64 will overflow the
+   liked/hated_class in st_info arrays and lots of arrays in the structs
+ - number of k_idx > 10000 will overflow the store hack (TV:256)
+ - number of flag groups > 32 will overflow things
+
+--> Urgent
+
+--> Urgent bugs
+ - character running on a know trap should stop BEFORE triggering it
+
+--> BEFORE RELEASE

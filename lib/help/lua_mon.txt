@@ -17,8 +17,8 @@
 
 #####GComment
 /*
- * Return a (monster_race*) with the combinaison of the monster
- * proprieties and the ego type
+ * Return a (monster_race*) with the combinations of the monster
+ * properties and the ego type
  */
 
 #####GDescription
@@ -181,10 +181,10 @@ or FALSE if it is not).
  * Note that if no monsters are "appropriate", then this function will
  * fail, and return zero, but this should *almost* never happen.
  */
- 
+
 Description:
 For the given level "level", return the index of an appropriate
-monster race. 
+monster race.
 
 #####GParameters
 > "level" is a dungeon level
@@ -243,13 +243,13 @@ monster race.
  *   0x04 --> Full nominative name ("the kobold") or "something"
  *   0x80 --> Genocide resistance name ("the kobold")
  *   0x88 --> Killing name ("a kobold")
- *   0x22 --> Possessive, genderized if visable ("his") or "its"
- *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
+ *   0x22 --> Possessive, genderized if visible ("his") or "its"
+ *   0x23 --> Reflexive, genderized if visible ("himself") or "itself"
  */
 
 #####GDescription
 Return a monster description "desc" for monster "monster_type" using
-flag "mode". The modes are described above. 
+flag "mode". The modes are described above.
 
 #####GParameters
 > "desc" is the returned description.
@@ -533,5 +533,3 @@ Back to the *****lua.hlp*0[lua help index] .
 
 
                                                      [[[[[gThis file by Chris Hadgis]
-
-

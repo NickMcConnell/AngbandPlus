@@ -448,22 +448,29 @@ static void roff_aux(int r_idx, int ego, int remem)
 	{
 		roff(format("%^s is ", wd_he[msex]));
 		c_roff(TERM_L_BLUE, "friendly");
-		roff(" to you. ");
+		roff(" to you");
 		old = TRUE;
 	}
 
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		roff(format("%^s lives ", wd_he[msex]));
-		c_roff(TERM_L_GREEN, "in the town or the wilderness");
+		if(old)
+			roff(", ");
+		else
+			roff(format("%^s ", wd_he[msex]));
+		c_roff(TERM_L_GREEN, "lives in the town or the wilderness");
 		old = TRUE;
 	}
 	else if (r_ptr->r_tkills)
 	{
+		if(old)
+			roff(", ");
+		else
+			roff(format("%^s ", wd_he[msex]));
 		if (depth_in_feet)
 		{
-			roff(format("%^s is normally found at depths of ", wd_he[msex]));
+			roff(format("is normally found at depths of ", wd_he[msex]));
 			if (dun_level < r_ptr->level) /* out of depth monster */
 			{
 				c_roff(TERM_L_RED, format("%d", r_ptr->level * 50));
@@ -476,7 +483,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		}
 		else
 		{
-			roff(format("%^s is normally found on level ", wd_he[msex]));
+			roff(format("is normally found on level ", wd_he[msex]));
 			if (dun_level < r_ptr->level) /* out of depth monster */
 			{
 				c_roff(TERM_L_RED, format("%d", r_ptr->level));
