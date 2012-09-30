@@ -40,14 +40,22 @@ void do_cmd_inven(void)
 	item_tester_full = TRUE;
 
 	/* Display the inventory */
-	show_inven();
+	(void)show_inven(0);
 
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
+#ifdef JP
+        sprintf(out_val, "持ち物： 合計 %3d.%1d kg (限界の%d%%) コマンド: ",
+            lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
+            (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) 
+/ 2));
+#else
 	sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
 	    p_ptr->total_weight / 10, p_ptr->total_weight % 10,
-	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2));
+#endif
+
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -101,15 +109,23 @@ void do_cmd_equip(void)
 	item_tester_full = TRUE;
 
 	/* Display the equipment */
-	show_equip();
+	(void)show_equip(0);
 
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
 
 	/* Build a prompt */
+#ifdef JP
+        sprintf(out_val, "装備： 合計 %3d.%1d kg (限界の%d%%) コマンド: ",
+            lbtokg1(p_ptr->total_weight) , lbtokg2(p_ptr->total_weight) ,
+            (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) 
+/ 2));
+#else
 	sprintf(out_val, "Equipment: carrying %d.%d pounds (%d%% of capacity). Command: ",
 	    p_ptr->total_weight / 10, p_ptr->total_weight % 10,
-	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+	    (p_ptr->total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * (p_ptr->pclass == CLASS_BERSERKER ? 150 : 100)) / 2));
+#endif
+
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -143,8 +159,33 @@ void do_cmd_equip(void)
  */
 static bool item_tester_hook_wear(object_type *o_ptr)
 {
+	if ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ABUNAI_MIZUGI))
+		if (p_ptr->psex == SEX_MALE) return FALSE;
+
 	/* Check for a usable slot */
-	if (wield_slot(o_ptr) >= INVEN_WIELD) return (TRUE);
+	if (wield_slot(o_ptr) >= INVEN_RARM) return (TRUE);
+
+	/* Assume not wearable */
+	return (FALSE);
+}
+
+
+static bool item_tester_hook_mochikae(object_type *o_ptr)
+{
+	/* Check for a usable slot */
+	if (((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD)) ||
+	    (o_ptr->tval == TV_SHIELD) || (o_ptr->tval == TV_CAPTURE) ||
+	    (o_ptr->tval == TV_CARD)) return (TRUE);
+
+	/* Assume not wearable */
+	return (FALSE);
+}
+
+
+static bool item_tester_hook_melee_weapon(object_type *o_ptr)
+{
+	/* Check for a usable slot */
+	if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD))return (TRUE);
 
 	/* Assume not wearable */
 	return (FALSE);
@@ -165,16 +206,27 @@ void do_cmd_wield(void)
 
 	cptr act;
 
-	char o_name[80];
+	char o_name[MAX_NLEN];
 
 	cptr q, s;
+
+	if (p_ptr->special_defense & KATA_MUSOU)
+	{
+		set_action(ACTION_NONE);
+	}
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
 	/* Get an item */
+#ifdef JP
+	q = "どれを装備しますか? ";
+	s = "装備可能なアイテムがない。";
+#else
 	q = "Wear/Wield which item? ";
 	s = "You have nothing you can wear or wield.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -192,6 +244,117 @@ void do_cmd_wield(void)
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
+#if 1 /* EASY_RING -- TNB */
+
+	if ((o_ptr->tval == TV_RING) && inventory[INVEN_LEFT].k_idx &&
+		inventory[INVEN_RIGHT].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_tval = TV_RING;
+		item_tester_no_ryoute = TRUE;
+
+		/* Choose a ring from the equipment only */
+#ifdef JP
+q = "どちらの指輪と取り替えますか?";
+#else
+		q = "Replace which ring? ";
+#endif
+
+#ifdef JP
+s = "おっと。";
+#else
+		s = "Oops.";
+#endif
+
+		if (!get_item(&slot, q, s, (USE_EQUIP)))
+			return;
+	}
+
+#endif /* EASY_RING -- TNB */
+
+	if (((o_ptr->tval == TV_SHIELD) || (o_ptr->tval == TV_CARD) || (o_ptr->tval == TV_CAPTURE)) &&
+		buki_motteruka(INVEN_RARM) && buki_motteruka(INVEN_LARM))
+	{
+		/* Restrict the choices */
+		item_tester_hook = item_tester_hook_melee_weapon;
+		item_tester_no_ryoute = TRUE;
+
+		/* Choose a weapon from the equipment only */
+#ifdef JP
+q = "どちらの武器と取り替えますか?";
+#else
+		q = "Replace which weapon? ";
+#endif
+
+#ifdef JP
+s = "おっと。";
+#else
+		s = "Oops.";
+#endif
+
+		if (!get_item(&slot, q, s, (USE_EQUIP)))
+			return;
+		if (slot == INVEN_RARM)
+		{
+			object_type *or_ptr = &inventory[INVEN_RARM];
+			object_type *ol_ptr = &inventory[INVEN_LARM];
+			object_type *otmp_ptr;
+			object_type object_tmp;
+			char ol_name[MAX_NLEN];
+
+			otmp_ptr = &object_tmp;
+
+			object_desc(ol_name, ol_ptr, FALSE, 0);
+
+			object_copy(otmp_ptr, ol_ptr);
+			object_copy(ol_ptr, or_ptr);
+			object_copy(or_ptr, otmp_ptr);
+#ifdef JP
+			msg_format("%sを右手に構えなおした。", ol_name);
+#else
+			msg_format("You wield %s at right hand.", ol_name);
+#endif
+
+			slot = INVEN_LARM;
+		}
+	}
+
+	/* 二刀流にするかどうか */
+	if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD) && (slot == INVEN_LARM))
+	{
+#ifdef JP
+		if (!get_check("二刀流で戦いますか？"))
+#else
+		if (!get_check("Two sword fencing? "))
+#endif
+		{
+			slot = INVEN_RARM;
+		}
+	}
+
+	if ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval <= TV_SWORD) &&
+	    inventory[INVEN_LARM].k_idx &&
+		inventory[INVEN_RARM].k_idx)
+	{
+		/* Restrict the choices */
+		item_tester_hook = item_tester_hook_mochikae;
+
+		/* Choose a ring from the equipment only */
+#ifdef JP
+q = "どちらの手に装備しますか?";
+#else
+		q = "Equip which hand? ";
+#endif
+
+#ifdef JP
+s = "おっと。";
+#else
+		s = "Oops.";
+#endif
+
+		if (!get_item(&slot, q, s, (USE_EQUIP)))
+			return;
+	}
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -200,8 +363,14 @@ void do_cmd_wield(void)
 		object_desc(o_name, &inventory[slot], FALSE, 0);
 
 		/* Message */
+#ifdef JP
+                msg_format("%s%sは呪われているようだ。",
+                           describe_use(slot) , o_name );
+#else
 		msg_format("The %s you are %s appears to be cursed.",
 		           o_name, describe_use(slot));
+#endif
+
 
 		/* Cancel the command */
 		return;
@@ -210,12 +379,36 @@ void do_cmd_wield(void)
 	if (cursed_p(o_ptr) && wear_confirm &&
 	    (object_known_p(o_ptr) || (o_ptr->ident & IDENT_SENSE)))
 	{
-		char dummy[512];
+		char dummy[MAX_NLEN+80];
 
 		/* Describe it */
 		object_desc(o_name, o_ptr, FALSE, 0);
 
+#ifdef JP
+sprintf(dummy, "本当に%s{呪われている}を使いますか？", o_name);
+#else
 		sprintf(dummy, "Really use the %s {cursed}? ", o_name);
+#endif
+
+
+		if (!get_check(dummy))
+			return;
+	}
+
+	if ((o_ptr->name1 == ART_STONEMASK) && object_known_p(o_ptr) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID))
+	{
+		char dummy[MAX_NLEN+80];
+
+		/* Describe it */
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+#ifdef JP
+sprintf(dummy, "%sを装備すると吸血鬼になります。よろしいですか？", o_name);
+#else
+		msg_format("%s will transforms you into a vampire permanently when equiped.", o_name);
+		sprintf(dummy, "Do you become a vampire?");
+#endif
+
 
 		if (!get_check(dummy))
 			return;
@@ -228,11 +421,20 @@ void do_cmd_wield(void)
 		    (quest[i].status == QUEST_STATUS_TAKEN) &&
 		    (quest[i].k_idx == o_ptr->name1))
 		{
+			if (record_fix_quest) do_cmd_write_nikki(NIKKI_FIX_QUEST_C, i, NULL);
 			quest[i].status = QUEST_STATUS_COMPLETED;
-			msg_print("You completed your quest!");
+			quest[i].complev = p_ptr->lev;
+#ifdef JP
+msg_print("クエストを達成した！");
+#else
+			msg_print("You completed the quest!");
+#endif
+
 			msg_print(NULL);
 		}
 	}
+
+	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN) identify_item(o_ptr);
 
 	/* Take a turn */
 	energy_use = 100;
@@ -280,37 +482,144 @@ void do_cmd_wield(void)
 	equip_cnt++;
 
 	/* Where is the item now */
-	if (slot == INVEN_WIELD)
+	if (slot == INVEN_RARM)
 	{
+		if((o_ptr->tval != TV_SHIELD) && (o_ptr->tval != TV_CAPTURE) && (o_ptr->tval != TV_CARD) && (empty_hands(FALSE) & 0x00000001) && ((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->jouba || (p_ptr->pet_extra_flags & PF_RYOUTE)))
+#ifdef JP
+			act = "を両手で構えた";
+#else
+			act = "You are wielding";
+#endif
+		else
+#ifdef JP
+			act = (hidarikiki ? "を左手に装備した" : "を右手に装備した");
+#else
+			act = "You are wielding";
+#endif
+
+	}
+	else if (slot == INVEN_LARM)
+	{
+#ifdef JP
+		act = (hidarikiki ? "を右手に装備した" : "を左手に装備した");
+#else
 		act = "You are wielding";
+#endif
+
 	}
 	else if (slot == INVEN_BOW)
 	{
+#ifdef JP
+		act = "を射撃用に装備した";
+#else
 		act = "You are shooting with";
+#endif
+
 	}
 	else if (slot == INVEN_LITE)
 	{
+#ifdef JP
+		act = "を光源にした";
+#else
 		act = "Your light source is";
+#endif
+
 	}
 	else
 	{
+#ifdef JP
+		act = "を装備した";
+#else
 		act = "You are wearing";
+#endif
+
 	}
 
 	/* Describe the result */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Message */
+#ifdef JP
+        msg_format("%s(%c)%s。", o_name, index_to_label(slot), act );
+#else
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+#endif
+
 
 	/* Cursed! */
 	if (cursed_p(o_ptr))
 	{
 		/* Warn the player */
+#ifdef JP
+		msg_print("うわ！ すさまじく冷たい！");
+#else
 		msg_print("Oops! It feels deathly cold!");
+#endif
+
+
+		chg_virtue(V_HARMONY, -1);
 
 		/* Note the curse */
 		o_ptr->ident |= (IDENT_SENSE);
+	}
+
+	if ((o_ptr->name1 == ART_STONEMASK) && (p_ptr->prace != RACE_VAMPIRE) && (p_ptr->prace != RACE_ANDROID))
+	{
+		int h_percent;
+		if (p_ptr->prace < 32)
+		{
+			p_ptr->old_race1 |= 1L << p_ptr->prace;
+		}
+		else
+		{
+			p_ptr->old_race2 = 1L << (p_ptr->prace-32);
+		}
+		p_ptr->prace = RACE_VAMPIRE;
+#ifdef JP
+		msg_format("あなたは吸血鬼に変化した！");
+#else
+		msg_format("You polymorphed into a vampire!");
+#endif
+
+		rp_ptr = &race_info[p_ptr->prace];
+
+		/* Experience factor */
+		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+
+		/* Calculate the height/weight for males */
+		if (p_ptr->psex == SEX_MALE)
+		{
+			p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+			h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
+			p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent /100
+					    , (int)(rp_ptr->m_m_wt) * h_percent / 300 );
+		}
+
+		/* Calculate the height/weight for females */
+		else if (p_ptr->psex == SEX_FEMALE)
+		{
+			p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+			h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
+			p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent /100
+					    , (int)(rp_ptr->f_m_wt) * h_percent / 300 );
+		}
+
+		check_experience();
+
+		/* Hitdice */
+		if (p_ptr->pclass == CLASS_SORCERER)
+			p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		else
+			p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
+
+		do_cmd_rerate(FALSE);
+
+		p_ptr->redraw |= (PR_BASIC);
+
+		p_ptr->update |= (PU_BONUS);
+
+		handle_stuff();
+		lite_spot(py, px);
 	}
 
 	/* Recalculate bonuses */
@@ -326,8 +635,65 @@ void do_cmd_wield(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+
+	calc_android_exp();
 }
 
+
+void kamaenaoshi(int item)
+{
+	object_type *o_ptr, *o2_ptr;
+	char o_name[MAX_NLEN];
+
+	if ((item == INVEN_RARM) && buki_motteruka(INVEN_LARM))
+	{
+		o_ptr = &inventory[INVEN_RARM];
+		o2_ptr = &inventory[INVEN_LARM];
+		object_copy(o_ptr, o2_ptr);
+		p_ptr->total_weight += o2_ptr->weight;
+		inven_item_increase(INVEN_LARM,-1);
+		inven_item_optimize(INVEN_LARM);
+		object_desc(o_name, o_ptr, TRUE, 3);
+		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->jouba || (p_ptr->pet_extra_flags & PF_RYOUTE)))
+#ifdef JP
+			msg_format("%sを両手で構えた。", o_name );
+#else
+			msg_format("You are wielding %s with two-handed.", o_name );
+#endif
+		 else
+#ifdef JP
+			msg_format("%sを%sで構えた。", o_name, (hidarikiki ? "左手" : "右手"));
+#else
+			msg_format("You are wielding %s with %s hand.", o_name, (hidarikiki ? "left":"right") );
+#endif
+	}
+	else if ((item == INVEN_LARM) && buki_motteruka(INVEN_RARM))
+	{
+		o_ptr = &inventory[INVEN_RARM];
+		object_desc(o_name, o_ptr, TRUE, 3);
+		if (((o_ptr->weight > 99) || (o_ptr->tval == TV_POLEARM)) && (!p_ptr->jouba || (p_ptr->pet_extra_flags & PF_RYOUTE)))
+#ifdef JP
+			msg_format("%sを両手で構えた。", o_name );
+#else
+			msg_format("You are wielding %s with two-handed.", o_name );
+#endif
+	}
+	else if ((item == INVEN_LARM) && !(empty_hands(FALSE) & 0x0002))
+	{
+		o_ptr = &inventory[INVEN_LARM];
+		o2_ptr = &inventory[INVEN_RARM];
+		object_copy(o_ptr, o2_ptr);
+		p_ptr->total_weight += o2_ptr->weight;
+		inven_item_increase(INVEN_RARM,-1);
+		inven_item_optimize(INVEN_RARM);
+		object_desc(o_name, o_ptr, TRUE, 3);
+#ifdef JP
+                msg_format("%sを持ち替えた。", o_name );
+#else
+                msg_format("You switched hand of %s.", o_name );
+#endif
+	}
+}
 
 
 /*
@@ -341,9 +707,21 @@ void do_cmd_takeoff(void)
 
 	cptr q, s;
 
+	if (p_ptr->special_defense & KATA_MUSOU)
+	{
+		set_action(ACTION_NONE);
+	}
+
+	item_tester_no_ryoute = TRUE;
 	/* Get an item */
+#ifdef JP
+	q = "どれを装備からはずしますか? ";
+	s = "はずせる装備がない。";
+#else
 	q = "Take off which item? ";
 	s = "You are not wearing anything to take off.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
@@ -362,19 +740,80 @@ void do_cmd_takeoff(void)
 	/* Item is cursed */
 	if (cursed_p(o_ptr))
 	{
-		/* Oops */
-		msg_print("Hmmm, it seems to be cursed.");
+		u32b f1, f2, f3;
 
-		/* Nope */
-		return;
+		/* Extract the flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+
+		if ((f3 & TR3_PERMA_CURSE) || (p_ptr->pclass != CLASS_BERSERKER))
+		{
+			/* Oops */
+#ifdef JP
+			msg_print("ふーむ、どうやら呪われているようだ。");
+#else
+			msg_print("Hmmm, it seems to be cursed.");
+#endif
+
+			/* Nope */
+			return;
+		}
+
+		if (((f3 & TR3_HEAVY_CURSE) && one_in_(7)) || one_in_(4))
+		{
+#ifdef JP
+			msg_print("呪われた装備を力づくで剥がした！");
+#else
+			msg_print("You teared a cursed equipment off by sheer strength!");
+#endif
+
+			/* Uncurse it */
+			o_ptr->ident &= ~(IDENT_CURSED);
+
+			/* Hack -- Assume felt */
+			o_ptr->ident |= (IDENT_SENSE);
+
+			if (o_ptr->art_flags3 & TR3_CURSED)
+				o_ptr->art_flags3 &= ~(TR3_CURSED);
+
+			if (o_ptr->art_flags3 & TR3_HEAVY_CURSE)
+			o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
+
+			/* Take note */
+			o_ptr->feeling = FEEL_NONE;
+
+			/* Recalculate the bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_EQUIP);
+
+#ifdef JP
+			msg_print("呪いを打ち破った。");
+#else
+			msg_print("You break the curse.");
+#endif
+		}
+		else
+		{
+#ifdef JP
+			msg_print("装備を外せなかった。");
+#else
+			msg_print("You couldn't remove the equipment.");
+#endif
+			energy_use = 50;
+			return;
+		}
 	}
-
 
 	/* Take a partial turn */
 	energy_use = 50;
 
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
+
+	kamaenaoshi(item);
+
+	calc_android_exp();
 
 	p_ptr->redraw |= (PR_EQUIPPY);
 }
@@ -391,9 +830,21 @@ void do_cmd_drop(void)
 
 	cptr q, s;
 
+	if (p_ptr->special_defense & KATA_MUSOU)
+	{
+		set_action(ACTION_NONE);
+	}
+
+	item_tester_no_ryoute = TRUE;
 	/* Get an item */
+#ifdef JP
+	q = "どのアイテムを落としますか? ";
+	s = "落とせるアイテムを持っていない。";
+#else
 	q = "Drop which item? ";
 	s = "You have nothing to drop.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 
 	/* Get the item (in the pack) */
@@ -410,10 +861,15 @@ void do_cmd_drop(void)
 
 
 	/* Hack -- Cannot remove cursed items */
-	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+	if ((item >= INVEN_RARM) && cursed_p(o_ptr))
 	{
 		/* Oops */
+#ifdef JP
+                msg_print("ふーむ、どうやら呪われているようだ。");
+#else
 		msg_print("Hmmm, it seems to be cursed.");
+#endif
+
 
 		/* Nope */
 		return;
@@ -437,6 +893,10 @@ void do_cmd_drop(void)
 	/* Drop (some of) the item */
 	inven_drop(item, amt);
 
+	if ((item == INVEN_RARM) || (item == INVEN_LARM)) kamaenaoshi(item);
+
+	if (item >= INVEN_RARM) calc_android_exp();
+
 	p_ptr->redraw |= (PR_EQUIPPY);
 }
 
@@ -448,7 +908,10 @@ static bool high_level_book(object_type *o_ptr)
 	    (o_ptr->tval == TV_NATURE_BOOK) ||
 	    (o_ptr->tval == TV_CHAOS_BOOK) ||
 	    (o_ptr->tval == TV_DEATH_BOOK) ||
-	    (o_ptr->tval == TV_TRUMP_BOOK))
+	    (o_ptr->tval == TV_TRUMP_BOOK) ||
+	    (o_ptr->tval == TV_ENCHANT_BOOK) ||
+	    (o_ptr->tval == TV_DAEMON_BOOK) ||
+	    (o_ptr->tval == TV_MUSIC_BOOK))
 	{
 		if (o_ptr->sval > 1)
 			return TRUE;
@@ -471,20 +934,33 @@ void do_cmd_destroy(void)
 	bool		force = FALSE;
 
 	object_type		*o_ptr;
+	object_type             forge;
+	object_type             *q_ptr = &forge;
 
-	char		o_name[80];
+	char		o_name[MAX_NLEN];
 
-	char		out_val[160];
+	char		out_val[MAX_NLEN+40];
 
 	cptr q, s;
+
+	if (p_ptr->special_defense & KATA_MUSOU)
+	{
+		set_action(ACTION_NONE);
+	}
 
 	/* Hack -- force destruction */
 	if (command_arg > 0) force = TRUE;
 
 
 	/* Get an item */
+#ifdef JP
+	q = "どのアイテムを壊しますか? ";
+	s = "壊せるアイテムを持っていない。";
+#else
 	q = "Destroy which item? ";
 	s = "You have nothing to destroy.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -520,10 +996,15 @@ void do_cmd_destroy(void)
 	/* Verify unless quantity given */
 	if (!force)
 	{
-		if (!(auto_destroy && (object_value(o_ptr) < 1)))
+		if (auto_destroy || (object_value(o_ptr) > 0))
 		{
 			/* Make a verification */
+#ifdef JP
+		sprintf(out_val, "本当に%sを壊しますか? ", o_name);
+#else
 			sprintf(out_val, "Really destroy %s? ", o_name);
+#endif
+
 			if (!get_check(out_val)) return;
 		}
 	}
@@ -545,7 +1026,12 @@ void do_cmd_destroy(void)
 		energy_use = 0;
 
 		/* Message */
+#ifdef JP
+		msg_format("%sは破壊不可能だ。", o_name);
+#else
 		msg_format("You cannot destroy %s.", o_name);
+#endif
+
 
 		/* Hack -- Handle icky artifacts */
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = FEEL_TERRIBLE;
@@ -568,41 +1054,16 @@ void do_cmd_destroy(void)
 		return;
 	}
 
+	object_copy(q_ptr, o_ptr);
+
 	/* Message */
+#ifdef JP
+	msg_format("%sを壊した。", o_name);
+#else
 	msg_format("You destroy %s.", o_name);
+#endif
+
 	sound(SOUND_DESTITEM);
-
-	if (high_level_book(o_ptr))
-	{
-		bool gain_expr = FALSE;
-
-		if (p_ptr->pclass == CLASS_WARRIOR)
-		{
-			gain_expr = TRUE;
-		}
-		else if (p_ptr->pclass == CLASS_PALADIN)
-		{
-			if (p_ptr->realm1 == REALM_LIFE)
-			{
-				if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
-			}
-			else
-			{
-				if (o_ptr->tval == TV_LIFE_BOOK) gain_expr = TRUE;
-			}
-		}
-
-		if (gain_expr && (p_ptr->exp < PY_MAX_EXP))
-		{
-			s32b tester_exp = p_ptr->max_exp / 20;
-			if (tester_exp > 10000) tester_exp = 10000;
-			if (o_ptr->sval < 3) tester_exp /= 4;
-			if (tester_exp<1) tester_exp = 1;
-
-			msg_print("You feel more experienced.");
-			gain_exp(tester_exp * amt);
-		}
-	}
 
 	/* Reduce the charges of rods/wands */
 	reduce_charges(o_ptr, amt);
@@ -622,6 +1083,70 @@ void do_cmd_destroy(void)
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
 	}
+
+	if (high_level_book(q_ptr))
+	{
+		bool gain_expr = FALSE;
+
+		if (p_ptr->prace == RACE_ANDROID)
+		{
+		}
+		else if ((p_ptr->pclass == CLASS_WARRIOR) || (p_ptr->pclass == CLASS_BERSERKER))
+		{
+			gain_expr = TRUE;
+		}
+		else if (p_ptr->pclass == CLASS_PALADIN)
+		{
+			if (p_ptr->realm1 == REALM_LIFE)
+			{
+				if (q_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
+			}
+			else
+			{
+				if (q_ptr->tval == TV_LIFE_BOOK) gain_expr = TRUE;
+			}
+		}
+
+		if (gain_expr && (p_ptr->exp < PY_MAX_EXP))
+		{
+			s32b tester_exp = p_ptr->max_exp / 20;
+			if (tester_exp > 10000) tester_exp = 10000;
+			if (q_ptr->sval < 3) tester_exp /= 4;
+			if (tester_exp<1) tester_exp = 1;
+
+#ifdef JP
+msg_print("更に経験を積んだような気がする。");
+#else
+			msg_print("You feel more experienced.");
+#endif
+
+			gain_exp(tester_exp * amt);
+		}
+		if (high_level_book(q_ptr) && q_ptr->tval == TV_LIFE_BOOK)
+		{
+			chg_virtue(V_UNLIFE, 1);
+			chg_virtue(V_VITALITY, -1);
+		}
+		else if (high_level_book(q_ptr) && q_ptr->tval == TV_DEATH_BOOK)
+		{
+			chg_virtue(V_UNLIFE, -1);
+			chg_virtue(V_VITALITY, 1);
+		}
+	
+		if (q_ptr->to_a || q_ptr->to_h || q_ptr->to_d)
+			chg_virtue(V_ENCHANT, -1);
+	
+		if (object_value_real(q_ptr) > 30000)
+			chg_virtue(V_SACRIFICE, 2);
+	
+		else if (object_value_real(q_ptr) > 10000)
+			chg_virtue(V_SACRIFICE, 1);
+	}
+
+	if (q_ptr->to_a != 0 || q_ptr->to_d != 0 || q_ptr->to_h != 0)
+		chg_virtue(V_HARMONY, 1);
+
+	if (item >= INVEN_RARM) calc_android_exp();
 }
 
 
@@ -634,13 +1159,20 @@ void do_cmd_observe(void)
 
 	object_type		*o_ptr;
 
-	char		o_name[80];
+	char		o_name[MAX_NLEN];
 
 	cptr q, s;
 
+	item_tester_no_ryoute = TRUE;
 	/* Get an item */
+#ifdef JP
+	q = "どのアイテムを調べますか? ";
+	s = "調べられるアイテムがない。";
+#else
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -659,7 +1191,12 @@ void do_cmd_observe(void)
 	/* Require full knowledge */
 	if (!(o_ptr->ident & IDENT_MENTAL))
 	{
+#ifdef JP
+		msg_print("このアイテムについて特に知っていることはない。");
+#else
 		msg_print("You have no special knowledge about that item.");
+#endif
+
 		return;
 	}
 
@@ -668,10 +1205,20 @@ void do_cmd_observe(void)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Describe */
+#ifdef JP
+	msg_format("%sを調べている...", o_name);
+#else
 	msg_format("Examining %s...", o_name);
+#endif
+
 
 	/* Describe it fully */
+#ifdef JP
+	if (!identify_fully_aux(o_ptr)) msg_print("特に変わったところはないようだ。");
+#else
 	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+#endif
+
 }
 
 
@@ -688,9 +1235,16 @@ void do_cmd_uninscribe(void)
 
 	cptr q, s;
 
+	item_tester_no_ryoute = TRUE;
 	/* Get an item */
+#ifdef JP
+	q = "どのアイテムの銘を消しますか? ";
+	s = "銘を消せるアイテムがない。";
+#else
 	q = "Un-inscribe which item? ";
 	s = "You have nothing to un-inscribe.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -708,12 +1262,22 @@ void do_cmd_uninscribe(void)
 	/* Nothing to remove */
 	if (!o_ptr->inscription)
 	{
+#ifdef JP
+		msg_print("このアイテムには消すべき銘がない。");
+#else
 		msg_print("That item had no inscription to remove.");
+#endif
+
 		return;
 	}
 
 	/* Message */
+#ifdef JP
+	msg_print("銘を消した。");
+#else
 	msg_print("Inscription removed.");
+#endif
+
 
 	/* Remove the incription */
 	o_ptr->inscription = 0;
@@ -725,6 +1289,474 @@ void do_cmd_uninscribe(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 }
 
+/*
+ * Auto flag inscribe
+ */
+
+typedef struct flag_insc_table
+{
+#ifdef JP
+	char *japanese;
+#endif
+	char *english;
+	u32b flag;
+	int num;
+	u32b except_flag;
+} flag_insc_table;
+
+#ifdef JP
+static flag_insc_table flag_insc_plus[] =
+{
+	{ "攻", "At", TR1_BLOWS, 1, 0 },
+	{ "速", "Sp", TR1_SPEED, 1, 0 },
+	{ "腕", "St", TR1_STR, 1, 0 },
+	{ "知", "In", TR1_INT, 1, 0 },
+	{ "賢", "Wi", TR1_WIS, 1, 0 },
+	{ "器", "Dx", TR1_DEX, 1, 0 },
+	{ "耐", "Cn", TR1_CON, 1, 0 },
+	{ "魅", "Ch", TR1_CHR, 1, 0 },
+	{ "隠", "Sl", TR1_STEALTH, 1, 0 },
+	{ "探", "Sr", TR1_SEARCH, 1, 0 },
+	{ "赤", "If", TR1_INFRA, 1, 0 },
+	{ "掘", "Dg", TR1_TUNNEL, 1, 0 },
+	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_immune[] =
+{
+	{ "酸", "Ac", TR2_IM_ACID, 2, 0 },
+	{ "電", "El", TR2_IM_ELEC, 2, 0 },
+	{ "火", "Fi", TR2_IM_FIRE, 2, 0 },
+	{ "冷", "Co", TR2_IM_COLD, 2, 0 },
+	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_resistance[] =
+{
+	{ "酸", "Ac", TR2_RES_ACID, 2, TR2_IM_ACID },
+	{ "電", "El", TR2_RES_ELEC, 2, TR2_IM_ELEC },
+	{ "火", "Fi", TR2_RES_FIRE, 2, TR2_IM_FIRE },
+	{ "冷", "Co", TR2_RES_COLD, 2, TR2_IM_COLD },
+	{ "毒", "Po", TR2_RES_POIS, 2, 0 },
+	{ "閃", "Li", TR2_RES_LITE, 2, 0 },
+	{ "暗", "Dk", TR2_RES_DARK, 2, 0 },
+	{ "破", "Sh", TR2_RES_SHARDS, 2, 0 },
+	{ "盲", "Bl", TR2_RES_BLIND, 2, 0 },
+	{ "乱", "Cf", TR2_RES_CONF, 2, 0 },
+	{ "轟", "So", TR2_RES_SOUND, 2, 0 },
+	{ "獄", "Nt", TR2_RES_NETHER, 2, 0 },
+	{ "因", "Nx", TR2_RES_NEXUS, 2, 0 },
+	{ "沌", "Ca", TR2_RES_CHAOS, 2, 0 },
+	{ "劣", "Di", TR2_RES_DISEN, 2, 0 },
+	{ "恐", "Fe", TR2_RES_FEAR, 2, 0 },
+	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_misc[] =
+{
+	{ "魔力", "Dm", TR3_DEC_MANA, 3, 0 },
+	{ "投", "Th", TR2_THROW, 2, 0 },
+	{ "反", "Rf", TR2_REFLECT, 2, 0 },
+	{ "麻", "Fa", TR2_FREE_ACT, 2, 0 },
+	{ "視", "Si", TR3_SEE_INVIS, 3, 0 },
+	{ "経", "Hl", TR2_HOLD_LIFE, 2, 0 },
+	{ "感", "Esp", TR3_TELEPATHY, 3, 0 },
+	{ "遅", "Sd", TR3_SLOW_DIGEST, 3, 0 },
+	{ "活", "Rg", TR3_REGEN, 3, 0 },
+	{ "浮", "Lv", TR3_FEATHER, 3, 0 },
+	{ "明", "Xl", TR3_LITE, 3, 0 },
+	{ "射", "Xs", TR3_XTRA_SHOTS, 3, 0 },
+	{ "怒", "Ag", TR3_AGGRAVATE, 3, 0 },
+	{ "祝", "Bs", TR3_BLESSED, 3, 0 },
+	{ "永呪", "Pc", TR3_PERMA_CURSE, 3, 0 },
+	{ "呪", "Cu", TR3_HEAVY_CURSE, 3, TR3_PERMA_CURSE },
+	{ "忌", "Ty", TR3_TY_CURSE, 3, 0 },
+#if 0
+	{ "経", "De", TR3_DRAIN_EXP, 3, 0 },
+#endif
+	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_aura[] =
+{
+	{ "炎", "F", TR3_SH_FIRE, 3, 0 },
+	{ "電", "E", TR3_SH_ELEC, 3, 0 },
+	{ "冷", "C", TR3_SH_COLD, 3, 0 },
+	{ "魔", "M", TR3_NO_MAGIC, 3, 0 },
+	{ "瞬", "T", TR3_NO_TELE, 3, 0 },
+	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_brand[] =
+{
+	{ "酸", "A", TR1_BRAND_ACID, 1, 0 },
+	{ "電", "E", TR1_BRAND_ELEC, 1, 0 },
+	{ "焼", "F", TR1_BRAND_FIRE, 1, 0 },
+	{ "凍", "Co", TR1_BRAND_COLD, 1, 0 },
+	{ "毒", "P", TR1_BRAND_POIS, 1, 0 },
+	{ "沌", "Ca", TR1_CHAOTIC, 1, 0 },
+	{ "吸", "V", TR1_VAMPIRIC, 1, 0 },
+	{ "震", "Q", TR1_IMPACT, 1, 0 },
+	{ "切", "S", TR1_VORPAL, 1, 0 },
+	{ "理", "M", TR1_RIRYOKU, 1, 0 },
+	{ NULL, NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_slay[] =
+{
+	{ "邪", "*", TR1_SLAY_EVIL, 1, 0 },
+	{ "龍", "D", TR1_KILL_DRAGON, 1, 0 },
+	{ "竜", "d", TR1_SLAY_DRAGON, 1, TR1_KILL_DRAGON },
+	{ "オ", "o", TR1_SLAY_ORC, 1, 0 },
+	{ "ト", "T", TR1_SLAY_TROLL, 1, 0 },
+	{ "巨", "P", TR1_SLAY_GIANT, 1, 0 },
+	{ "デ", "U", TR1_SLAY_DEMON, 1, 0 },
+	{ "死", "L", TR1_SLAY_UNDEAD, 1, 0 },
+	{ "動", "Z", TR1_SLAY_ANIMAL, 1, 0 },
+	{ NULL, NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_sust[] =
+{
+	{ "腕", "St", TR2_SUST_STR, 2, 0 },
+	{ "知", "In", TR2_SUST_INT, 2, 0 },
+	{ "賢", "Wi", TR2_SUST_WIS, 2, 0 },
+	{ "器", "Dx", TR2_SUST_DEX, 2, 0 },
+	{ "耐", "Cn", TR2_SUST_CON, 2, 0 },
+	{ "魅", "Ch", TR2_SUST_CHR, 2, 0 },
+	{ NULL, NULL, 0, 0, 0 }
+};
+
+#else
+static flag_insc_table flag_insc_plus[] =
+{
+  	{ "At", TR1_BLOWS, 1, 0 },
+  	{ "Sp", TR1_SPEED, 1, 0 },
+  	{ "St", TR1_STR, 1, 0 },
+  	{ "In", TR1_INT, 1, 0 },
+  	{ "Wi", TR1_WIS, 1, 0 },
+  	{ "Dx", TR1_DEX, 1, 0 },
+  	{ "Cn", TR1_CON, 1, 0 },
+  	{ "Ch", TR1_CHR, 1, 0 },
+  	{ "Sl", TR1_STEALTH, 1, 0 },
+  	{ "Sr", TR1_SEARCH, 1, 0 },
+  	{ "If", TR1_INFRA, 1, 0 },
+  	{ "Dg", TR1_TUNNEL, 1, 0 },
+  	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_immune[] =
+{
+  	{ "Ac", TR2_IM_ACID, 2, 0 },
+  	{ "El", TR2_IM_ELEC, 2, 0 },
+  	{ "Fi", TR2_IM_FIRE, 2, 0 },
+  	{ "Co", TR2_IM_COLD, 2, 0 },
+  	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_resistance[] =
+{
+  	{ "Ac", TR2_RES_ACID, 2, TR2_IM_ACID },
+  	{ "El", TR2_RES_ELEC, 2, TR2_IM_ELEC },
+  	{ "Fi", TR2_RES_FIRE, 2, TR2_IM_FIRE },
+  	{ "Co", TR2_RES_COLD, 2, TR2_IM_COLD },
+  	{ "Po", TR2_RES_POIS, 2, 0 },
+  	{ "Li", TR2_RES_LITE, 2, 0 },
+  	{ "Dk", TR2_RES_DARK, 2, 0 },
+  	{ "Sh", TR2_RES_SHARDS, 2, 0 },
+  	{ "Bl", TR2_RES_BLIND, 2, 0 },
+  	{ "Cf", TR2_RES_CONF, 2, 0 },
+  	{ "So", TR2_RES_SOUND, 2, 0 },
+  	{ "Nt", TR2_RES_NETHER, 2, 0 },
+  	{ "Nx", TR2_RES_NEXUS, 2, 0 },
+  	{ "Ca", TR2_RES_CHAOS, 2, 0 },
+  	{ "Di", TR2_RES_DISEN, 2, 0 },
+  	{ "Fe", TR2_RES_FEAR, 2, 0 },
+  	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_misc[] =
+{
+  	{ "Dm", TR3_DEC_MANA, 3, 0 },
+  	{ "Th", TR2_THROW, 2, 0 },
+  	{ "Rf", TR2_REFLECT, 2, 0 },
+  	{ "Fa", TR2_FREE_ACT, 2, 0 },
+  	{ "Si", TR3_SEE_INVIS, 3, 0 },
+  	{ "Hl", TR2_HOLD_LIFE, 2, 0 },
+  	{ "Esp", TR3_TELEPATHY, 3, 0 },
+  	{ "Sd", TR3_SLOW_DIGEST, 3, 0 },
+  	{ "Rg", TR3_REGEN, 3, 0 },
+  	{ "Lv", TR3_FEATHER, 3, 0 },
+  	{ "Xl", TR3_LITE, 3, 0 },
+  	{ "Xs", TR3_XTRA_SHOTS, 3, 0 },
+  	{ "Ag", TR3_AGGRAVATE, 3, 0 },
+  	{ "Bs", TR3_BLESSED, 3, 0 },
+  	{ "Pc", TR3_PERMA_CURSE, 3, 0 },
+  	{ "Cu", TR3_HEAVY_CURSE, 3, TR3_PERMA_CURSE },
+  	{ "Ty", TR3_TY_CURSE, 3, 0 },
+#if 0
+  	{ "De", TR3_DRAIN_EXP, 3, 0 },
+#endif
+  	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_aura[] =
+{
+  	{ "F", TR3_SH_FIRE, 3, 0 },
+  	{ "E", TR3_SH_ELEC, 3, 0 },
+  	{ "C", TR3_SH_COLD, 3, 0 },
+  	{ "M", TR3_NO_MAGIC, 3, 0 },
+  	{ "T", TR3_NO_TELE, 3, 0 },
+  	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_brand[] =
+{
+  	{ "A", TR1_BRAND_ACID, 1, 0 },
+  	{ "E", TR1_BRAND_ELEC, 1, 0 },
+  	{ "F", TR1_BRAND_FIRE, 1, 0 },
+  	{ "Co", TR1_BRAND_COLD, 1, 0 },
+  	{ "P", TR1_BRAND_POIS, 1, 0 },
+  	{ "Ca", TR1_CHAOTIC, 1, 0 },
+  	{ "V", TR1_VAMPIRIC, 1, 0 },
+  	{ "Q", TR1_IMPACT, 1, 0 },
+  	{ "S", TR1_VORPAL, 1, 0 },
+  	{ "M", TR1_RIRYOKU, 1, 0 },
+  	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_slay[] =
+{
+  	{ "*", TR1_SLAY_EVIL, 1, 0 },
+  	{ "D", TR1_KILL_DRAGON, 1, 0 },
+  	{ "d", TR1_SLAY_DRAGON, 1, TR1_KILL_DRAGON },
+  	{ "o", TR1_SLAY_ORC, 1, 0 },
+  	{ "T", TR1_SLAY_TROLL, 1, 0 },
+  	{ "P", TR1_SLAY_GIANT, 1, 0 },
+  	{ "U", TR1_SLAY_DEMON, 1, 0 },
+  	{ "L", TR1_SLAY_UNDEAD, 1, 0 },
+  	{ "Z", TR1_SLAY_ANIMAL, 1, 0 },
+  	{ NULL, 0, 0, 0 }
+};
+
+static flag_insc_table flag_insc_sust[] =
+{
+  	{ "St", TR2_SUST_STR, 2, 0 },
+  	{ "In", TR2_SUST_INT, 2, 0 },
+  	{ "Wi", TR2_SUST_WIS, 2, 0 },
+  	{ "Dx", TR2_SUST_DEX, 2, 0 },
+  	{ "Cn", TR2_SUST_CON, 2, 0 },
+  	{ "Ch", TR2_SUST_CHR, 2, 0 },
+  	{ NULL, 0, 0, 0 }
+};
+#endif
+
+#define ADD_INSC(STR) (void)(strcat(ptr, (STR)), ptr += strlen(STR))
+
+static char *inscribe_flags_aux(flag_insc_table *f_ptr, u32b flag[], bool kanji, char *ptr)
+{
+	while (f_ptr->num)
+	{
+		if ((flag[f_ptr->num-1] & f_ptr->flag) &&
+		    !(flag[f_ptr->num-1] & f_ptr->except_flag))
+#ifdef JP
+			ADD_INSC(kanji ? f_ptr->japanese : f_ptr->english);
+#else
+			ADD_INSC(f_ptr->english);
+#endif
+		f_ptr ++;
+	}
+
+	return ptr;
+}
+
+static bool have_flag_of(flag_insc_table *f_ptr, u32b flag[])
+{
+	while (f_ptr->num)
+	{
+		if ((flag[f_ptr->num-1] & f_ptr->flag) &&
+		    !(flag[f_ptr->num-1] & f_ptr->except_flag))
+			return (TRUE);
+		f_ptr++;
+	}
+
+	return (FALSE);
+}
+
+s16b inscribe_flags(object_type *o_ptr, cptr out_val)
+{
+	char buff[1024];
+	char *ptr = buff;
+	char *prev_ptr = buff;
+	int i;
+
+	bool kanji = FALSE;
+	bool all = TRUE;
+	u32b flag[3];
+
+	/* not fully identified */
+	if (!(o_ptr->ident & IDENT_MENTAL))
+		return quark_add(out_val);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &flag[0], &flag[1], &flag[2]);
+
+
+	*buff = '\0';
+	for (i = 0; out_val[i]; i++)
+	{
+		if ('%' == out_val[i] )
+		{
+#ifdef JP
+			if ('%' == out_val[i+1])
+			{
+				i++;
+				kanji = FALSE;
+			}
+			else
+			{
+				kanji = TRUE;
+			}
+#endif
+			if ('a' == out_val[i+1] && 'l' == out_val[i+2] && 'l' == out_val[i+3])
+			{
+				all = TRUE;
+				i += 3;
+			}
+			else
+			{
+				all = FALSE;
+			}
+
+			/* check for too long inscription */
+			if (ptr >= buff + MAX_NLEN) continue;
+
+			/* Remove obvious flags */
+			if (!all)
+			{
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+				
+				/* Base object */
+				flag[0] &= ~k_ptr->flags1;
+				flag[1] &= ~k_ptr->flags2;
+				flag[2] &= ~k_ptr->flags3;
+
+				if (o_ptr->name1)
+				{
+					artifact_type *a_ptr = &a_info[o_ptr->name1];
+					
+					flag[0] &= ~a_ptr->flags1;
+					flag[1] &= ~a_ptr->flags2;
+					flag[2] &= ~(a_ptr->flags3 & ~TR3_TELEPORT);
+				}
+
+				if (o_ptr->name2)
+				{
+					ego_item_type *e_ptr = &e_info[o_ptr->name2];
+					
+					flag[0] &= ~e_ptr->flags1;
+					flag[1] &= ~e_ptr->flags2;
+					flag[2] &= ~(e_ptr->flags3 & ~TR3_TELEPORT);
+				}
+			}
+
+
+			/* Plusses */
+			if (have_flag_of(flag_insc_plus, flag))
+			{
+				if (kanji)
+					ADD_INSC("+");
+			}
+			ptr = inscribe_flags_aux(flag_insc_plus, flag, kanji, ptr);
+
+			/* Immunity */
+			if (have_flag_of(flag_insc_immune, flag))
+			{
+				if (!kanji && ptr != prev_ptr)
+				{
+					ADD_INSC(";");
+					prev_ptr = ptr;
+				}
+				ADD_INSC("*");
+			}
+			ptr = inscribe_flags_aux(flag_insc_immune, flag, kanji, ptr);
+
+			/* Resistance */
+			if (have_flag_of(flag_insc_resistance, flag))
+			{
+				if (kanji)
+					ADD_INSC("r");
+				else if (ptr != prev_ptr)
+				{
+					ADD_INSC(";");
+					prev_ptr = ptr;
+				}
+			}
+			ptr = inscribe_flags_aux(flag_insc_resistance, flag, kanji, ptr);
+
+			/* Misc Ability */
+			if (have_flag_of(flag_insc_misc, flag))
+			{
+				if (ptr != prev_ptr)
+				{
+					ADD_INSC(";");
+					prev_ptr = ptr;
+				}
+			}
+			ptr = inscribe_flags_aux(flag_insc_misc, flag, kanji, ptr);
+
+			/* Aura */
+			if (have_flag_of(flag_insc_aura, flag))
+			{
+				ADD_INSC("[");
+			}
+			ptr = inscribe_flags_aux(flag_insc_aura, flag, kanji, ptr);
+
+			/* Brand Weapon */
+			if (have_flag_of(flag_insc_brand, flag))
+				ADD_INSC("|");
+			ptr = inscribe_flags_aux(flag_insc_brand, flag, kanji, ptr);
+
+			/* Slay Weapon */
+			if (have_flag_of(flag_insc_slay, flag))
+				ADD_INSC("/");
+			ptr = inscribe_flags_aux(flag_insc_slay, flag, kanji, ptr);
+
+			/* Random Teleport */
+			if (flag[2] & (TR3_TELEPORT))
+			{
+				ADD_INSC(".");
+			}
+
+			/* sustain */
+			if (have_flag_of(flag_insc_sust, flag))
+			{
+				ADD_INSC("(");
+			}
+			ptr = inscribe_flags_aux(flag_insc_sust, flag, kanji, ptr);
+		}
+		else
+		{
+			*ptr++ = out_val[i];
+			*ptr = '\0';
+		}
+	}
+
+	/* cut too long inscription */
+	if (strlen(buff) >= MAX_NLEN-1)
+	{
+#ifdef JP
+		int n;
+		for (n = 0; n < MAX_NLEN; n++)
+			if(iskanji(buff[n])) n++;
+		if (n == MAX_NLEN) n = MAX_NLEN-2; /* 最後が漢字半分 */
+		buff[n] = '\0';
+#else
+		buff[MAX_NLEN-1] = '\0';
+#endif
+	}
+	return quark_add(buff);
+}
 
 /*
  * Inscribe an object with a comment
@@ -735,15 +1767,22 @@ void do_cmd_inscribe(void)
 
 	object_type		*o_ptr;
 
-	char		o_name[80];
+	char		o_name[MAX_NLEN];
 
 	char		out_val[80];
 
 	cptr q, s;
 
+	item_tester_no_ryoute = TRUE;
 	/* Get an item */
+#ifdef JP
+	q = "どのアイテムに銘を刻みますか? ";
+	s = "銘を刻めるアイテムがない。";
+#else
 	q = "Inscribe which item? ";
 	s = "You have nothing to inscribe.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -759,10 +1798,15 @@ void do_cmd_inscribe(void)
 	}
 
 	/* Describe the activity */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, o_ptr, TRUE, 2);
 
 	/* Message */
+#ifdef JP
+	msg_format("%sに銘を刻む。", o_name);
+#else
 	msg_format("Inscribing %s.", o_name);
+#endif
+
 	msg_print(NULL);
 
 	/* Start with nothing */
@@ -776,10 +1820,14 @@ void do_cmd_inscribe(void)
 	}
 
 	/* Get a new inscription (possibly empty) */
+#ifdef JP
+        if (get_string("銘: ", out_val, 80))
+#else
 	if (get_string("Inscription: ", out_val, 80))
+#endif
 	{
 		/* Save the inscription */
-		o_ptr->inscription = quark_add(out_val);
+		o_ptr->inscription = inscribe_flags(o_ptr, out_val);
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -825,8 +1873,14 @@ static void do_cmd_refill_lamp(void)
 	item_tester_hook = item_tester_refill_lantern;
 
 	/* Get an item */
+#ifdef JP
+	q = "どの油つぼから注ぎますか? ";
+	s = "油つぼがない。";
+#else
 	q = "Refill with which flask? ";
 	s = "You have no flasks of oil.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -849,16 +1903,43 @@ static void do_cmd_refill_lamp(void)
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
-	j_ptr->pval += o_ptr->pval;
+	j_ptr->xtra4 += o_ptr->xtra4;
 
 	/* Message */
+#ifdef JP
+	msg_print("ランプに油を注いだ。");
+#else
 	msg_print("You fuel your lamp.");
+#endif
 
 	/* Comment */
-	if (j_ptr->pval >= FUEL_LAMP)
+	if ((o_ptr->name2 == EGO_LITE_DARKNESS) && (j_ptr->xtra4 > 0))
 	{
-		j_ptr->pval = FUEL_LAMP;
+		j_ptr->xtra4 = 0;
+#ifdef JP
+		msg_print("ランプが消えてしまった！");
+#else
+		msg_print("Your lamp has gone out!");
+#endif
+	}
+	else if ((o_ptr->name2 == EGO_LITE_DARKNESS) || (j_ptr->name2 == EGO_LITE_DARKNESS))
+	{
+		j_ptr->xtra4 = 0;
+#ifdef JP
+		msg_print("しかしランプは全く光らない。");
+#else
+		msg_print("Curiously, your lamp doesn't light.");
+#endif
+	}
+	else if (j_ptr->xtra4 >= FUEL_LAMP)
+	{
+		j_ptr->xtra4 = FUEL_LAMP;
+#ifdef JP
+		msg_print("ランプの油は一杯だ。");
+#else
 		msg_print("Your lamp is full.");
+#endif
+
 	}
 
 	/* Decrease the item (from the pack) */
@@ -913,8 +1994,14 @@ static void do_cmd_refill_torch(void)
 	item_tester_hook = item_tester_refill_torch;
 
 	/* Get an item */
+#ifdef JP
+	q = "どの松明で明かりを強めますか? ";
+	s = "他に松明がない。";
+#else
 	q = "Refuel with which torch? ";
 	s = "You have no extra torches.";
+#endif
+
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
@@ -937,22 +2024,56 @@ static void do_cmd_refill_torch(void)
 	j_ptr = &inventory[INVEN_LITE];
 
 	/* Refuel */
-	j_ptr->pval += o_ptr->pval + 5;
+	j_ptr->xtra4 += o_ptr->xtra4 + 5;
 
 	/* Message */
+#ifdef JP
+	msg_print("松明を結合した。");
+#else
 	msg_print("You combine the torches.");
+#endif
 
-	/* Over-fuel message */
-	if (j_ptr->pval >= FUEL_TORCH)
+
+	/* Comment */
+	if ((o_ptr->name2 == EGO_LITE_DARKNESS) && (j_ptr->xtra4 > 0))
 	{
-		j_ptr->pval = FUEL_TORCH;
+		j_ptr->xtra4 = 0;
+#ifdef JP
+		msg_print("松明が消えてしまった！");
+#else
+		msg_print("Your torche has gone out!");
+#endif
+	}
+	else if ((o_ptr->name2 == EGO_LITE_DARKNESS) || (j_ptr->name2 == EGO_LITE_DARKNESS))
+	{
+		j_ptr->xtra4 = 0;
+#ifdef JP
+		msg_print("しかし松明は全く光らない。");
+#else
+		msg_print("Curiously, your torche don't light.");
+#endif
+	}
+	/* Over-fuel message */
+	else if (j_ptr->xtra4 >= FUEL_TORCH)
+	{
+		j_ptr->xtra4 = FUEL_TORCH;
+#ifdef JP
+		msg_print("松明の寿命は十分だ。");
+#else
 		msg_print("Your torch is fully fueled.");
+#endif
+
 	}
 
 	/* Refuel message */
 	else
 	{
+#ifdef JP
+		msg_print("松明はいっそう明るく輝いた。");
+#else
 		msg_print("Your torch glows more brightly.");
+#endif
+
 	}
 
 	/* Decrease the item (from the pack) */
@@ -986,10 +2107,20 @@ void do_cmd_refill(void)
 	/* Get the light */
 	o_ptr = &inventory[INVEN_LITE];
 
+	if (p_ptr->special_defense & KATA_MUSOU)
+	{
+		set_action(ACTION_NONE);
+	}
+
 	/* It is nothing */
 	if (o_ptr->tval != TV_LITE)
 	{
+#ifdef JP
+		msg_print("光源を装備していない。");
+#else
 		msg_print("You are not wielding a light.");
+#endif
+
 	}
 
 	/* It's a lamp */
@@ -1007,7 +2138,12 @@ void do_cmd_refill(void)
 	/* No torch to refill */
 	else
 	{
+#ifdef JP
+		msg_print("この光源は寿命を延ばせない。");
+#else
 		msg_print("Your light cannot be refilled.");
+#endif
+
 	}
 }
 
@@ -1020,13 +2156,23 @@ void do_cmd_target(void)
 	/* Target set */
 	if (target_set(TARGET_KILL))
 	{
+#ifdef JP
+		msg_print("ターゲット決定。");
+#else
 		msg_print("Target Selected.");
+#endif
+
 	}
 
 	/* Target aborted */
 	else
 	{
+#ifdef JP
+		msg_print("ターゲット解除。");
+#else
 		msg_print("Target Aborted.");
+#endif
+
 	}
 }
 
@@ -1040,7 +2186,12 @@ void do_cmd_look(void)
 	/* Look around */
 	if (target_set(TARGET_LOOK))
 	{
+#ifdef JP
+		msg_print("ターゲット決定。");
+#else
 		msg_print("Target Selected.");
+#endif
+
 	}
 }
 
@@ -1068,18 +2219,35 @@ void do_cmd_locate(void)
 		/* Describe the location */
 		if ((y2 == y1) && (x2 == x1))
 		{
+#ifdef JP
+                        strcpy(tmp_val, "真上");
+#else
 			tmp_val[0] = '\0';
+#endif
+
 		}
 		else
 		{
+#ifdef JP
+			sprintf(tmp_val, "%s%s",
+			        ((y2 < y1) ? "北" : (y2 > y1) ? "南" : ""),
+			        ((x2 < x1) ? "西" : (x2 > x1) ? "東" : ""));
+#else
 			sprintf(tmp_val, "%s%s of",
 			        ((y2 < y1) ? " North" : (y2 > y1) ? " South" : ""),
 			        ((x2 < x1) ? " West" : (x2 > x1) ? " East" : ""));
+#endif
+
 		}
 
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
+#ifdef JP
+                        "マップ位置 [%d(%02d),%d(%02d)] (プレイヤーの%s)  方向?",
+#else
 		        "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
+#endif
+
 		        y2 / (SCREEN_HGT / 2), y2 % (SCREEN_HGT / 2),
 		        x2 / (SCREEN_WID / 2), x2 % (SCREEN_WID / 2), tmp_val);
 
@@ -1092,7 +2260,7 @@ void do_cmd_locate(void)
 			char command;
 
 			/* Get a command (or Cancel) */
-			if (!get_com(out_val, &command)) break;
+			if (!get_com(out_val, &command, TRUE)) break;
 
 			/* Extract the action (if any) */
 			dir = get_keymap_dir(command);
@@ -1137,6 +2305,103 @@ void do_cmd_locate(void)
  */
 static cptr ident_info[] =
 {
+#ifdef JP
+	" :暗闇",
+	"!:薬, オイル",
+	"\":アミュレット, 頸飾り",
+	"#:壁(隠しドア)又は植物",
+	"$:財宝(金か宝石)",
+	"%:鉱脈(溶岩か石英)",
+	"&:箱",
+	"':開いたドア",
+	"(:軟らかい防具",
+	"):盾",
+	"*:財宝を含んだ鉱脈または球形の怪物",
+	"+:閉じたドア",
+	",:食べ物, おばけキノコ",
+	"-:魔法棒, ロッド",
+	".:床",
+	"/:竿状武器(アックス/パイク/等)",
+	"0:博物館の入口",
+	"1:雑貨屋の入口",
+	"2:防具屋の入口",
+	"3:武器専門店の入口",
+	"4:寺院の入口",
+	"5:錬金術の店の入口",
+	"6:魔法の店の入口",
+	"7:ブラックマーケットの入口",
+	"8:我が家の入口",
+	"9:書店の入口",
+	"::岩石",
+	";:回避の絵文字/爆発のルーン",
+	"<:上り階段",
+	"=:指輪",
+	">:下り階段",
+	"?:巻物",
+	"@:プレイヤー",
+	"A:天使",
+	"B:鳥",
+	"C:犬",
+	"D:古代ドラゴン/ワイアーム",
+	"E:エレメンタル",
+	"F:トンボ",
+	"G:ゴースト",
+	"H:雑種",
+	"I:昆虫",
+	"J:ヘビ",
+	"K:キラー・ビートル",
+	"L:リッチ",
+	"M:多首の爬虫類",
+	"N:謎の生物",
+	"O:オーガ",
+	"P:巨大人間型生物",
+	"Q:クイルスルグ(脈打つ肉塊)",
+	"R:爬虫類/両生類",
+	"S:蜘蛛/サソリ/ダニ",
+	"T:トロル",
+	"U:上級デーモン",
+	"V:バンパイア",
+	"W:ワイト/レイス/等",
+	"X:ゾーン/ザレン/等",
+	"Y:イエティ",
+	"Z:ハウンド",
+	"[:堅いアーマー",
+	"\\:鈍器(メイス/ムチ/等)",
+	"]:種々の防具",
+	"^:トラップ",
+	"_:杖",
+	"`:人形，彫像",
+	"a:アリ",
+	"b:コウモリ",
+	"c:ムカデ",
+	"d:ドラゴン",
+	"e:目玉",
+	"f:ネコ",
+	"g:ゴーレム",
+	"h:ホビット/エルフ/ドワーフ",
+	"i:ベトベト",
+	"j:ゼリー",
+	"k:コボルド",
+	"l:水棲生物",
+	"m:モルド",
+	"n:ナーガ",
+	"o:オーク",
+	"p:人間",
+	"q:四足獣",
+	"r:ネズミ",
+	"s:スケルトン",
+	"t:町の人",
+	"u:下級デーモン",
+	"v:ボルテックス",
+	"w:イモムシ/大群",
+	/* "x:unused", */
+	"y:イーク",
+	"z:ゾンビ/ミイラ",
+	"{:飛び道具の弾(矢/弾)",
+	"|:刀剣類(ソード/ダガー/等)",
+	"}:飛び道具(弓/クロスボウ/スリング)",
+	"~:水/溶岩流(種々のアイテム)",
+#else
 	" :A dark grid",
 	"!:A potion (or oil)",
 	"\":An amulet (or necklace)",
@@ -1153,7 +2418,7 @@ static cptr ident_info[] =
 	"-:A wand (or rod)",
 	".:Floor",
 	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
+	"0:Entrance to Museum",
 	"1:Entrance to General Store",
 	"2:Entrance to Armory",
 	"3:Entrance to Weaponsmith",
@@ -1183,7 +2448,7 @@ static cptr ident_info[] =
 	"K:Killer Beetle",
 	"L:Lich",
 	"M:Multi-Headed Reptile",
-	/* "N:unused", */
+	"N:Mystery Living",
 	"O:Ogre",
 	"P:Giant Humanoid",
 	"Q:Quylthulg (Pulsing Flesh Mound)",
@@ -1213,7 +2478,7 @@ static cptr ident_info[] =
 	"i:Icky Thing",
 	"j:Jelly",
 	"k:Kobold",
-	"l:Louse",
+	"l:Aquatic monster",
 	"m:Mold",
 	"n:Naga",
 	"o:Orc",
@@ -1231,10 +2496,11 @@ static cptr ident_info[] =
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
 	"}:A launcher (bow/crossbow/sling)",
-	"~:Aquatic monster (or miscellaneous item)",
+	"~:Fluid terrain (or miscellaneous item)",
+#endif
+
 	NULL
 };
-
 
 
 /*
@@ -1243,7 +2509,7 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1318,7 +2584,7 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1351,11 +2617,6 @@ static void roff_top(int r_idx)
 	a1 = r_ptr->d_attr;
 	a2 = r_ptr->x_attr;
 
-	/* Hack -- fake monochrome */
-	if (!use_color) a1 = TERM_WHITE;
-	if (!use_color) a2 = TERM_WHITE;
-
-
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
 
@@ -1363,13 +2624,20 @@ static void roff_top(int r_idx)
 	Term_gotoxy(0, 0);
 
 	/* A title (use "The" for non-uniques) */
+#ifdef JP
+        /* 英日切り替え機能に非対応 */
+        if (0)
+#else
 	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
+#endif
+
 	{
 		Term_addstr(-1, TERM_WHITE, "The ");
 	}
 
 	/* Dump the name */
 	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+
 
 	/* Append the "standard" attr/char info */
 	Term_addstr(-1, TERM_WHITE, " ('");
@@ -1404,6 +2672,7 @@ void do_cmd_query_symbol(void)
 	bool	all = FALSE;
 	bool	uniq = FALSE;
 	bool	norm = FALSE;
+	char    temp[80] = "";
 
 	bool	recall = FALSE;
 
@@ -1414,7 +2683,12 @@ void do_cmd_query_symbol(void)
 	C_MAKE(who, max_r_idx, u16b);
 
 	/* Get a character, or abort */
-	if (!get_com("Enter character to be identified: ", &sym)) return;
+#ifdef JP
+	if (!get_com("知りたい文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前): ", &sym, FALSE)) return;
+#else
+	if (!get_com("Enter character to be identified(^A:All,^U:Uniqs,^N:Non uniqs,^M:Name): ", &sym, FALSE)) return;
+#endif
+
 
 	/* Find that character info, and describe it */
 	for (i = 0; ident_info[i]; ++i)
@@ -1426,17 +2700,39 @@ void do_cmd_query_symbol(void)
 	if (sym == KTRL('A'))
 	{
 		all = TRUE;
+#ifdef JP
+		strcpy(buf, "全モンスターのリスト");
+#else
 		strcpy(buf, "Full monster list.");
+#endif
+
 	}
 	else if (sym == KTRL('U'))
 	{
 		all = uniq = TRUE;
+#ifdef JP
+		strcpy(buf, "ユニーク・モンスターのリスト");
+#else
 		strcpy(buf, "Unique monster list.");
+#endif
+
 	}
 	else if (sym == KTRL('N'))
 	{
 		all = norm = TRUE;
+#ifdef JP
+		strcpy(buf, "ユニーク外モンスターのリスト");
+#else
 		strcpy(buf, "Non-unique monster list.");
+#endif
+
+	}
+	/* XTRA HACK WHATSEARCH */
+	else if (sym == KTRL('M'))
+	{
+		all = TRUE;
+		if (!get_string("名前(英語の場合小文字で可)",temp, 70)) temp[0]=0;
+		else sprintf(buf, "名前:%sにマッチ",temp);
 	}
 	else if (ident_info[i])
 	{
@@ -1444,7 +2740,12 @@ void do_cmd_query_symbol(void)
 	}
 	else
 	{
+#ifdef JP
+		sprintf(buf, "%c - %s", sym, "無効な文字");
+#else
 		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
+#endif
+
 	}
 
 	/* Display the result */
@@ -1465,6 +2766,33 @@ void do_cmd_query_symbol(void)
 		/* Require unique monsters if needed */
 		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
 
+		/* XTRA HACK WHATSEARCH */
+		if (temp[0]){
+		  char temp2[80];
+		  int xx;
+  
+		  for (xx=0; temp[xx] && xx<80; xx++){
+#ifdef JP
+		    if (iskanji( temp[xx])) { xx++; continue; }
+#endif
+		    if (isupper(temp[xx])) temp[xx]=tolower(temp[xx]);
+		  }
+  
+#ifdef JP
+		  strcpy(temp2, E_r_name+r_ptr->E_name);
+#else
+		  strcpy(temp2, r_name+r_ptr->name);
+#endif
+  
+		  for (xx=0; temp2[xx] && xx<80; xx++)
+		    if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
+  
+#ifdef JP
+		  if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) ) who[n++]=i;
+#else
+		  if (strstr(temp2, temp) ) who[n++]=i;
+#endif
+		}else
 		/* Collect "appropriate" monsters */
 		if (all || (r_ptr->d_char == sym)) who[n++] = i;
 	}
@@ -1474,7 +2802,12 @@ void do_cmd_query_symbol(void)
 
 
 	/* Prompt XXX XXX XXX */
-	put_str("Recall details? (k/p/y/n): ", 0, 40);
+#ifdef JP
+	put_str("思い出を見ますか? (k:殺害順/y/n): ", 0, 36);
+#else
+	put_str("Recall details? (k/y/n): ", 0, 40);
+#endif
+
 
 	/* Query */
 	query = inkey();
@@ -1482,6 +2815,14 @@ void do_cmd_query_symbol(void)
 	/* Restore */
 	prt(buf, 0, 0);
 
+	why = 2;
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array */
+	ang_sort(who, &why, n);
 
 	/* Sort by kills (and level) */
 	if (query == 'k')
@@ -1490,19 +2831,11 @@ void do_cmd_query_symbol(void)
 		query = 'y';
 	}
 
-	/* Sort by level */
-	if (query == 'p')
-	{
-		why = 2;
-		query = 'y';
-	}
-
 	/* Catch "escape" */
 	if (query != 'y') return;
 
-
 	/* Sort if needed */
-	if (why)
+	if (why == 4)
 	{
 		/* Select the sort method */
 		ang_sort_comp = ang_sort_comp_hook;
@@ -1523,7 +2856,7 @@ void do_cmd_query_symbol(void)
 		r_idx = who[i];
 
 		/* Hack -- Auto-recall */
-		monster_race_track(r_idx);
+		monster_race_track(FALSE, r_idx);
 
 		/* Hack -- Handle stuff */
 		handle_stuff();
@@ -1532,7 +2865,12 @@ void do_cmd_query_symbol(void)
 		roff_top(r_idx);
 
 		/* Hack -- Complete the prompt */
+#ifdef JP
+		Term_addstr(-1, TERM_WHITE, " ['r'思い出, ESC]");
+#else
 		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+#endif
+
 
 		/* Interact */
 		while (1)
@@ -1547,7 +2885,12 @@ void do_cmd_query_symbol(void)
 				screen_roff(who[i], 0);
 
 				/* Hack -- Complete the prompt (again) */
+#ifdef JP
+				Term_addstr(-1, TERM_WHITE, " ['r'思い出, ESC]");
+#else
 				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");
+#endif
+
 			}
 
 			/* Command */
@@ -1620,6 +2963,17 @@ bool research_mon(void)
 
 	u16b	*who;
 
+#ifdef JP
+	/* XTRA HACK WHATSEARCH */
+	bool    all = FALSE;
+	bool    uniq = FALSE;
+	bool    norm = FALSE;
+	char temp[80] = "";
+
+	/* XTRA HACK REMEMBER_IDX */
+	static int old_sym = '\0';
+	static int old_i = 0;
+#endif
 	oldcheat = cheat_know;
 
 
@@ -1627,7 +2981,12 @@ bool research_mon(void)
 	screen_save();
 
 	/* Get a character, or abort */
-	if (!get_com("Enter character of monster: ", &sym))
+#ifdef JP
+if (!get_com("モンスターの文字を入力して下さい(記号 or ^A全,^Uユ,^N非ユ,^M名前):", &sym, FALSE)) 
+#else
+	if (!get_com("Enter character of monster: ", &sym, FALSE))
+#endif
+
 	{
 		/* Restore */
 		screen_load();
@@ -1644,13 +3003,47 @@ bool research_mon(void)
 		if (sym == ident_info[i][0]) break;
 	}
 
-	if (ident_info[i])
+#ifdef JP
+		/* XTRA HACK WHATSEARCH */
+	if (sym == KTRL('A'))
+	{
+		all = TRUE;
+		strcpy(buf, "全モンスターのリスト");
+	}
+	else if (sym == KTRL('U'))
+	{
+		all = uniq = TRUE;
+		strcpy(buf, "ユニーク・モンスターのリスト");
+	}
+	else if (sym == KTRL('N'))
+	{
+		all = norm = TRUE;
+		strcpy(buf, "ユニーク外モンスターのリスト");
+	}
+        else if (sym == KTRL('M'))
+	{
+		all = TRUE;
+                if (!get_string("名前(英語の場合小文字で可)", temp, 70)) temp[0]=0;
+                else sprintf(buf, "名前:%sにマッチ",temp);
+	}
+	else if (ident_info[i])
 	{
 		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
 	}
-	else
-	{
+#else
+  	if (ident_info[i])
+  	{
+  		sprintf(buf, "%c - %s.", sym, ident_info[i] + 2);
+  	}
+#endif
+  	else
+  	{
+#ifdef JP
+sprintf(buf, "%c - %s", sym, "無効な文字");
+#else
 		sprintf(buf, "%c - %s.", sym, "Unknown Symbol");
+#endif
+
 	}
 
 	/* Display the result */
@@ -1664,8 +3057,36 @@ bool research_mon(void)
 
 		cheat_know = TRUE;
 
-		/* Collect "appropriate" monsters */
-		if (r_ptr->d_char == sym) who[n++] = i;
+#ifdef JP
+		/* XTRA HACK WHATSEARCH */
+		/* Require non-unique monsters if needed */
+		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* Require unique monsters if needed */
+		if (uniq && !(r_ptr->flags1 & (RF1_UNIQUE))) continue;
+
+		/* 名前検索 */
+		if (temp[0]){
+		    char temp2[80];
+		    int xx;
+
+                    for (xx=0; temp[xx] && xx<80; xx++){
+                      if (iskanji(temp[xx])) { xx++; continue; }
+		      if (isupper(temp[xx])) temp[xx]=tolower(temp[xx]);
+                    }
+
+		    strcpy(temp2, E_r_name+r_ptr->E_name);
+
+		    for (xx=0; temp2[xx] && xx<80; xx++)
+		      if (isupper(temp2[xx])) temp2[xx]=tolower(temp2[xx]);
+
+                    if (strstr(temp2, temp) || strstr_j(r_name + r_ptr->name, temp) ) who[n++]=i;
+		}
+		else if (all || (r_ptr->d_char == sym)) who[n++] = i;
+#else
+  		/* Collect "appropriate" monsters */
+  		if (r_ptr->d_char == sym) who[n++] = i;
+#endif
 	}
 
 	/* Nothing to recall */
@@ -1699,7 +3120,13 @@ bool research_mon(void)
 
 
 	/* Start at the end */
+#ifdef JP
+	/* XTRA HACK REMEMBER_IDX */
+	if (old_sym == sym && old_i < n) i = old_i;
+	else i = n - 1;
+#else
 	i = n - 1;
+#endif
 
 	notpicked = TRUE;
 
@@ -1719,7 +3146,12 @@ bool research_mon(void)
 		roff_top(r_idx);
 
 		/* Hack -- Complete the prompt */
+#ifdef JP
+Term_addstr(-1, TERM_WHITE, " ['r'思い出, ' 'で続行, ESC]");
+#else
 		Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC, space to continue]");
+#endif
+
 
 		/* Interact */
 		while (1)
@@ -1737,6 +3169,11 @@ bool research_mon(void)
 				r2_ptr->r_wake = oldwake;
 				cheat_know = oldcheat;
 				notpicked = FALSE;
+#ifdef JP
+				/* XTRA HACK REMEMBER_IDX */
+				old_sym = sym;
+				old_i = i;
+#endif
 			}
 
 			/* Command */

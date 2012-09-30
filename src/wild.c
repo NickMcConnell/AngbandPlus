@@ -223,24 +223,24 @@ static int terrain_table[MAX_WILDERNESS][18] =
 			FEAT_FLOOR,
 			FEAT_FLOOR,
 
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
+			FEAT_SHAL_WATER,
+			FEAT_SHAL_WATER,
+			FEAT_SHAL_WATER,
 
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-
-			FEAT_FLOOR,
-			FEAT_FLOOR,
-			FEAT_FLOOR,
+			FEAT_SHAL_WATER,
+			FEAT_SHAL_WATER,
+			FEAT_SHAL_WATER,
 
 			FEAT_GRASS,
 			FEAT_GRASS,
+			FEAT_GRASS,
+
+			FEAT_GRASS,
+			FEAT_DIRT,
 			FEAT_DIRT,
 
 			FEAT_DIRT,
-			FEAT_TREES,
+			FEAT_DEEP_GRASS,
 			FEAT_TREES,
 	},
 	/* TERRAIN_DIRT */
@@ -262,8 +262,8 @@ static int terrain_table[MAX_WILDERNESS][18] =
 			FEAT_DIRT,
 
 			FEAT_DIRT,
-			FEAT_DIRT,
-			FEAT_DIRT,
+			FEAT_FLOWER,
+			FEAT_DEEP_GRASS,
 
 			FEAT_GRASS,
 			FEAT_TREES,
@@ -288,10 +288,10 @@ static int terrain_table[MAX_WILDERNESS][18] =
 			FEAT_GRASS,
 
 			FEAT_GRASS,
-			FEAT_GRASS,
-			FEAT_GRASS,
+			FEAT_FLOWER,
+			FEAT_DEEP_GRASS,
 
-			FEAT_GRASS,
+			FEAT_DEEP_GRASS,
 			FEAT_TREES,
 			FEAT_TREES,
 	},
@@ -315,9 +315,9 @@ static int terrain_table[MAX_WILDERNESS][18] =
 
 			FEAT_TREES,
 			FEAT_TREES,
-			FEAT_TREES,
+			FEAT_DEEP_GRASS,
 
-			FEAT_GRASS,
+			FEAT_DEEP_GRASS,
 			FEAT_GRASS,
 			FEAT_GRASS,
 	},
@@ -365,12 +365,12 @@ static int terrain_table[MAX_WILDERNESS][18] =
 			FEAT_SHAL_LAVA,
 			FEAT_SHAL_LAVA,
 
-			FEAT_DEEP_LAVA,
-			FEAT_DEEP_LAVA,
+			FEAT_SHAL_LAVA,
+			FEAT_SHAL_LAVA,
 			FEAT_DEEP_LAVA,
 
 			FEAT_DEEP_LAVA,
-			FEAT_MOUNTAIN,
+			FEAT_DEEP_LAVA,
 			FEAT_MOUNTAIN,
 	},
 	/* TERRAIN_DEEP_LAVA */
@@ -395,14 +395,14 @@ static int terrain_table[MAX_WILDERNESS][18] =
 			FEAT_DEEP_LAVA,
 			FEAT_DEEP_LAVA,
 
-			FEAT_MOUNTAIN,
+			FEAT_DEEP_LAVA,
 			FEAT_MOUNTAIN,
 			FEAT_MOUNTAIN,
 	},
 	/* TERRAIN_MOUNTAIN */
 	{
 			FEAT_FLOOR,
-			FEAT_FLOOR,
+			FEAT_DEEP_GRASS,
 			FEAT_GRASS,
 
 			FEAT_GRASS,
@@ -512,7 +512,6 @@ void generate_wilderness_area(int terrain, u32b seed, bool border, bool corner)
  */
 static void generate_area(int y, int x, bool border, bool corner)
 {
-	int road;
 	int x1, y1;
 
 	/* Number of the town (if any) */
@@ -547,7 +546,9 @@ static void generate_area(int y, int x, bool border, bool corner)
 		else
 			init_flags = INIT_CREATE_DUNGEON;
 
-		process_dungeon_file("t_info.txt", 0, 0, MAX_HGT, MAX_WID);
+		process_dungeon_file("t_info_j.txt", 0, 0, MAX_HGT, MAX_WID);
+
+		if (!corner && !border) p_ptr->visit |= (1L << (p_ptr->town_num - 1));
 	}
 	else
 	{
@@ -557,53 +558,76 @@ static void generate_area(int y, int x, bool border, bool corner)
 		generate_wilderness_area(terrain, seed, border, corner);
 	}
 
-	if (!corner)
+	if (!corner && !wilderness[y][x].town)
 	{
 		/*
 		 * Place roads in the wilderness
 		 * ToDo: make the road a bit more interresting
 		 */
-		road = wilderness[y][x].road;
-
-		if (road & ROAD_NORTH)
+		if (wilderness[y][x].road)
 		{
-			/* North road */
-			for (y1 = 1; y1 < MAX_HGT/2; y1++)
+			cave[MAX_HGT/2][MAX_WID/2].feat = FEAT_FLOOR;
+
+			if (wilderness[y-1][x].road)
 			{
-				x1 = MAX_WID/2;
-				cave[y1][x1].feat = FEAT_FLOOR;
+				/* North road */
+				for (y1 = 1; y1 < MAX_HGT/2; y1++)
+				{
+					x1 = MAX_WID/2;
+					cave[y1][x1].feat = FEAT_FLOOR;
+				}
+			}
+
+			if (wilderness[y+1][x].road)
+			{
+				/* North road */
+				for (y1 = MAX_HGT/2; y1 < MAX_HGT - 1; y1++)
+				{
+					x1 = MAX_WID/2;
+					cave[y1][x1].feat = FEAT_FLOOR;
+				}
+			}
+
+			if (wilderness[y][x+1].road)
+			{
+				/* East road */
+				for (x1 = MAX_WID/2; x1 < MAX_WID - 1; x1++)
+				{
+					y1 = MAX_HGT/2;
+					cave[y1][x1].feat = FEAT_FLOOR;
+				}
+			}
+
+			if (wilderness[y][x-1].road)
+			{
+				/* West road */
+				for (x1 = 1; x1 < MAX_WID/2; x1++)
+				{
+					y1 = MAX_HGT/2;
+					cave[y1][x1].feat = FEAT_FLOOR;
+				}
 			}
 		}
+	}
 
-		if (road & ROAD_SOUTH)
-		{
-			/* North road */
-			for (y1 = MAX_HGT/2; y1 < MAX_HGT - 1; y1++)
-			{
-				x1 = MAX_WID/2;
-				cave[y1][x1].feat = FEAT_FLOOR;
-			}
-		}
+	if (wilderness[y][x].entrance && !wilderness[y][x].town && (total_winner || !(d_info[wilderness[y][x].entrance].flags1 & DF1_WINNER)))
+	{
+		int dy, dx;
 
-		if (road & ROAD_EAST)
-		{
-			/* East road */
-			for (x1 = MAX_WID/2; x1 < MAX_WID - 1; x1++)
-			{
-				y1 = MAX_HGT/2;
-				cave[y1][x1].feat = FEAT_FLOOR;
-			}
-		}
+		/* Hack -- Use the "simple" RNG */
+		Rand_quick = TRUE;
 
-		if (road & ROAD_WEST)
-		{
-			/* West road */
-			for (x1 = 1; x1 < MAX_WID/2; x1++)
-			{
-				y1 = MAX_HGT/2;
-				cave[y1][x1].feat = FEAT_FLOOR;
-			}
-		}
+		/* Hack -- Induce consistant town layout */
+                Rand_value = wilderness[y][x].seed;
+
+		dy = rand_range(6, cur_hgt - 6);
+		dx = rand_range(6, cur_wid - 6);
+
+		cave[dy][dx].feat = FEAT_ENTRANCE;
+		cave[dy][dx].special = (byte)wilderness[y][x].entrance;
+
+		/* Use the complex RNG */
+		Rand_quick = FALSE;
 	}
 }
 
@@ -619,7 +643,7 @@ static border_type border;
  */
 void wilderness_gen(void)
 {
-	int i, y, x;
+	int i, y, x, lim;
 	bool daytime;
 	cave_type *c_ptr;
 
@@ -636,7 +660,8 @@ void wilderness_gen(void)
 	panel_col = max_panel_cols;
 
 	/* Init the wilderness */
-	process_dungeon_file("w_info.txt", 0, 0, max_wild_y, max_wild_x);
+
+	process_dungeon_file("w_info_j.txt", 0, 0, max_wild_y, max_wild_x);
 
 	x = p_ptr->wilderness_x;
 	y = p_ptr->wilderness_y;
@@ -693,15 +718,6 @@ void wilderness_gen(void)
 	border.south_east = cave[1][1].feat;
 
 
-	/* Leaving the dungeon by stairs */
-	/* (needed before the town is loaded) */
-	if (p_ptr->leaving_dungeon)
-	{
-		p_ptr->oldpy = 0;
-		p_ptr->oldpx = 0;
-	}
-
-
 	/* Create terrain of the current area */
 	generate_area(y, x, FALSE, FALSE);
 
@@ -748,7 +764,7 @@ void wilderness_gen(void)
 
 
 	/* Day time */
-	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
+	if ((turn % (20L * TOWN_DAWN)) < ((20L * TOWN_DAWN) / 2))
 		daytime = TRUE;
 	else
 		daytime = FALSE;
@@ -774,24 +790,80 @@ void wilderness_gen(void)
 				/* Darken "boring" features */
 				if ((c_ptr->feat <= FEAT_INVIS) ||
 				    ((c_ptr->feat >= FEAT_DEEP_WATER) &&
-					(c_ptr->feat <= FEAT_TREES)))
+					(c_ptr->feat <= FEAT_TREES) &&
+				     (c_ptr->feat != FEAT_MUSEUM)) ||
+				    (x == 0) || (x == cur_wid-1) ||
+				    (y == 0) || (y == cur_hgt-1))
 				{
 					/* Forget the grid */
 					c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
+				}
+				else if (c_ptr->feat == FEAT_ENTRANCE)
+				{
+					/* Assume lit */
+					c_ptr->info |= (CAVE_GLOW);
+
+					/* Hack -- Memorize lit grids if allowed */
+					if (view_perma_grids) c_ptr->info |= (CAVE_MARK);
 				}
 			}
 		}
 	}
 
+	if (p_ptr->teleport_town)
+	{
+		for (y = 0; y < cur_hgt; y++)
+		{
+			for (x = 0; x < cur_wid; x++)
+			{
+				if (((cave[y][x].feat - FEAT_BLDG_HEAD) == 4) || ((p_ptr->town_num == 1) && ((cave[y][x].feat - FEAT_BLDG_HEAD) == 0)))
+				{
+					if (cave[y][x].m_idx) delete_monster_idx(cave[y][x].m_idx);
+					p_ptr->oldpy = y;
+					p_ptr->oldpx = x;
+				}
+			}
+		}
+		p_ptr->teleport_town = FALSE;
+	}
+
+	else if (p_ptr->leaving_dungeon)
+	{
+		for (y = 0; y < cur_hgt; y++)
+		{
+			for (x = 0; x < cur_wid; x++)
+			{
+				if (cave[y][x].feat == FEAT_ENTRANCE)
+				{
+					if (cave[y][x].m_idx) delete_monster_idx(cave[y][x].m_idx);
+					p_ptr->oldpy = y;
+					p_ptr->oldpx = x;
+				}
+			}
+		}
+		p_ptr->teleport_town = FALSE;
+	}
+
 	player_place(p_ptr->oldpy, p_ptr->oldpx);
 	p_ptr->leftbldg = FALSE;
-	p_ptr->leaving_dungeon = FALSE;
+	// p_ptr->leaving_dungeon = FALSE;
+
+	lim = (generate_encounter==TRUE)?40:MIN_M_ALLOC_TN;
 
 	/* Make some residents */
-	for (i = 0; i < MIN_M_ALLOC_TN; i++)
+	for (i = 0; i < lim; i++)
 	{
 		/* Make a resident */
-		(void)alloc_monster(3, TRUE);
+		(void)alloc_monster((generate_encounter==TRUE)?0:3, ((generate_encounter==TRUE) || (one_in_(2) && (!p_ptr->town_num)))?FALSE:TRUE);
+	}
+
+	if(generate_encounter) ambush_flag = TRUE;
+	generate_encounter = FALSE;
+
+	for (i = 0; i < 100; i++)
+	{
+		floor_type[i] = FEAT_FLOOR;
+		fill_type[i] = FEAT_WALL_EXTRA;
 	}
 
 	/* Set rewarded quests to finished */
@@ -800,6 +872,66 @@ void wilderness_gen(void)
 		if (quest[i].status == QUEST_STATUS_REWARDED)
 			quest[i].status = QUEST_STATUS_FINISHED;
 	}
+}
+
+
+/*
+ * Build the wilderness area.
+ * -DG-
+ */
+void wilderness_gen_small()
+{
+        int i, j;
+
+        /* To prevent stupid things */
+        for (i = 0; i < MAX_WID; i++)
+        for (j = 0; j < MAX_HGT; j++)
+	{
+                cave[j][i].feat = FEAT_PERM_SOLID;
+	}
+
+	/* Init the wilderness */
+	process_dungeon_file("w_info_j.txt", 0, 0, max_wild_y, max_wild_x);
+
+        /* Fill the map */
+        for (i = 0; i < max_wild_x; i++)
+        for (j = 0; j < max_wild_y; j++)
+	{
+		if (wilderness[j][i].town && (wilderness[j][i].town != NO_TOWN))
+		{
+			cave[j][i].feat = FEAT_TOWN;
+			cave[j][i].special = wilderness[j][i].town;
+		}
+		else if (wilderness[j][i].road) cave[j][i].feat = FEAT_FLOOR;
+		else if (wilderness[j][i].entrance && (total_winner || !(d_info[wilderness[j][i].entrance].flags1 & DF1_WINNER)))
+		{
+			cave[j][i].feat = FEAT_ENTRANCE;
+			cave[j][i].special = (byte)wilderness[j][i].entrance;
+		}
+                else cave[j][i].feat = conv_terrain2feat[wilderness[j][i].terrain];
+
+                cave[j][i].info |= (CAVE_GLOW | CAVE_MARK);
+	}
+
+	cur_hgt = (max_wild_y / SCREEN_HGT + 1) * SCREEN_HGT;
+	cur_wid = (max_wild_x / SCREEN_WID + 1) * SCREEN_WID;
+
+	if (cur_hgt > MAX_HGT) cur_hgt = MAX_HGT;
+	if (cur_wid > MAX_WID) cur_wid = MAX_WID;
+
+	/* Determine number of panels */
+	max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+	max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+
+	/* Assume illegal panel */
+	panel_row = max_panel_rows;
+	panel_col = max_panel_cols;
+
+        /* Place the player */
+        px = p_ptr->wilderness_x;
+        py = p_ptr->wilderness_y;
+
+	p_ptr->town_num = 0;
 }
 
 
@@ -833,107 +965,125 @@ errr parse_line_wilderness(char *buf, int ymin, int xmin, int ymax, int xmax, in
 	switch (buf[2])
 	{
 		/* Process "W:F:<letter>:<terrain>:<town>:<road>:<name> */
-		case 'F':
+#ifdef JP
+	case 'E':
+		return 0;
+	case 'F':
+	case 'J':
+#else
+	case 'J':
+		return 0;
+	case 'F':
+	case 'E':
+#endif
+	{
+		if ((num = tokenize(buf+4, 6, zz, 0)) > 1)
 		{
-			if ((num = tokenize(buf+4, 6, zz, 0)) > 1)
+			int index = zz[0][0];
+			
+			if (num > 1)
+				w_letter[index].terrain = atoi(zz[1]);
+			else
+				w_letter[index].terrain = 0;
+			
+			if (num > 2)
+				w_letter[index].level = atoi(zz[2]);
+			else
+				w_letter[index].level = 0;
+			
+			if (num > 3)
+				w_letter[index].town = atoi(zz[3]);
+			else
+				w_letter[index].town = 0;
+			
+			if (num > 4)
+				w_letter[index].road = atoi(zz[4]);
+			else
+				w_letter[index].road = 0;
+			
+			if (num > 5)
+				strcpy(w_letter[index].name, zz[5]);
+			else
+				w_letter[index].name[0] = 0;
+		}
+		else
+		{
+				/* Failure */
+			return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
+		}
+		
+		break;
+	}
+	
+	/* Process "W:D:<layout> */
+	/* Layout of the wilderness */
+	case 'D':
+	{
+		/* Acquire the text */
+		char *s = buf+4;
+		
+		/* Length of the text */
+		int len = strlen(s);
+		
+		for (*x = xmin, i = 0; ((*x < xmax) && (i < len)); (*x)++, s++, i++)
+		{
+			int idx = s[0];
+			
+			wilderness[*y][*x].terrain = w_letter[idx].terrain;
+			
+			wilderness[*y][*x].level = w_letter[idx].level;
+			
+			wilderness[*y][*x].town = w_letter[idx].town;
+			
+			wilderness[*y][*x].road = w_letter[idx].road;
+			
+			strcpy(town[w_letter[idx].town].name, w_letter[idx].name);
+		}
+		
+		(*y)++;
+		
+		break;
+	}
+	
+	/* Process "W:P:<x>:<y> - starting position in the wilderness */
+	case 'P':
+	{
+		if ((p_ptr->wilderness_x == 0) &&
+		    (p_ptr->wilderness_y == 0))
+		{
+			if (tokenize(buf+4, 2, zz, 0) == 2)
 			{
-				int index = zz[0][0];
-
-				if (num > 1)
-					w_letter[index].terrain = atoi(zz[1]);
-				else
-					w_letter[index].terrain = 0;
-
-				if (num > 2)
-					w_letter[index].level = atoi(zz[2]);
-				else
-					w_letter[index].level = 0;
-
-				if (num > 3)
-					w_letter[index].town = atoi(zz[3]);
-				else
-					w_letter[index].town = 0;
-
-				if (num > 4)
-					w_letter[index].road = atoi(zz[4]);
-				else
-					w_letter[index].road = 0;
-
-				if (num > 5)
-					strcpy(w_letter[index].name, zz[5]);
-				else
-					w_letter[index].name[0] = 0;
+				p_ptr->wilderness_y = atoi(zz[0]);
+				p_ptr->wilderness_x = atoi(zz[1]);
+				
+				if ((p_ptr->wilderness_x < 1) ||
+				    (p_ptr->wilderness_x > max_wild_x) ||
+				    (p_ptr->wilderness_y < 1) ||
+				    (p_ptr->wilderness_y > max_wild_y))
+				{
+					return (PARSE_ERROR_OUT_OF_BOUNDS);
+				}
 			}
 			else
 			{
-				/* Failure */
 				return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
 			}
-
-			break;
 		}
-
-		/* Process "W:D:<layout> */
-		/* Layout of the wilderness */
-		case 'D':
-		{
-			/* Acquire the text */
-			char *s = buf+4;
-
-			/* Length of the text */
-			int len = strlen(s);
-
-			for (*x = xmin, i = 0; ((*x < xmax) && (i < len)); (*x)++, s++, i++)
-			{
-				int idx = s[0];
-
-				wilderness[*y][*x].terrain = w_letter[idx].terrain;
-
-				wilderness[*y][*x].level = w_letter[idx].level;
-
-				wilderness[*y][*x].town = w_letter[idx].town;
-
-				wilderness[*y][*x].road = w_letter[idx].road;
-
-				strcpy(town[w_letter[idx].town].name, w_letter[idx].name);
-			}
-
-			(*y)++;
-
-			break;
-		}
-
-		/* Process "W:P:<x>:<y> - starting position in the wilderness */
-		case 'P':
-		{
-			if ((p_ptr->wilderness_x == 0) &&
-				(p_ptr->wilderness_y == 0))
-			{
-				if (tokenize(buf+4, 2, zz, 0) == 2)
-				{
-					p_ptr->wilderness_x = atoi(zz[0]);
-					p_ptr->wilderness_y = atoi(zz[1]);
-
-					if ((p_ptr->wilderness_x < 1) ||
-					    (p_ptr->wilderness_x > max_wild_x) ||
-					    (p_ptr->wilderness_y < 1) ||
-					    (p_ptr->wilderness_y > max_wild_y))
-					{
-						return (PARSE_ERROR_OUT_OF_BOUNDS);
-					}
-				}
-				else
-				{
-					return (PARSE_ERROR_TOO_FEW_ARGUMENTS);
-				}
-			}
-
-			break;
-		}
-
-		default:
-			/* Failure */
-			return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+		
+		break;
+	}
+	
+	default:
+		/* Failure */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+	
+	for (i = 1; i < max_d_idx; i++)
+	{
+		if (!d_info[i].maxdepth) continue;
+		wilderness[d_info[i].dy][d_info[i].dx].entrance = i;
+		if (!wilderness[d_info[i].dy][d_info[i].dx].town)
+			wilderness[d_info[i].dy][d_info[i].dx].level = d_info[i].mindepth;
 	}
 
 	/* Success */
@@ -958,6 +1108,7 @@ void seed_wilderness(void)
 			for (y = 0; y < max_wild_y; y++)
 			{
 				wilderness[y][x].seed = rand_int(0x10000000);
+				wilderness[y][x].entrance = 0;
 			}
 		}
 	}
@@ -984,5 +1135,59 @@ errr init_wilderness(void)
 	for (i = 1; i < max_wild_y; i++)
 		wilderness[i] = wilderness[0] + i * max_wild_x;
 
+	generate_encounter = FALSE;
+
 	return 0;
+}
+
+
+bool change_wild_mode(void)
+{
+	int i;
+
+	if (lite_town || vanilla_town)
+	{
+#ifdef JP
+		msg_print("荒野なんてない。");
+#else
+		msg_print("No global mal");
+#endif
+		return FALSE;
+	}
+	if (!p_ptr->wild_mode)
+	{
+		for (i = 1; i < m_max; i++)
+		{
+			monster_type *m_ptr = &m_list[i];
+
+			if (!m_ptr->r_idx) continue;
+			if (m_ptr->csleep) continue;
+			if (m_ptr->cdis > MAX_SIGHT) continue;
+			if (!is_hostile(m_ptr)) continue;
+#ifdef JP
+			msg_print("敵がすぐ近くにいるときは広域マップに入れない！");
+#else
+			msg_print("You cannot enter global map, since there is some monsters nearby!");
+#endif
+			energy_use = 0;
+			return FALSE;
+		}
+		energy_use = 1000;
+	}
+
+	set_action(ACTION_NONE);
+
+	p_ptr->wild_mode = !p_ptr->wild_mode;
+
+#if 0
+	if (autosave_l)
+	{
+		do_cmd_save_game(TRUE);
+	}
+#endif
+
+	/* Leaving */
+	p_ptr->leaving = TRUE;
+
+	return TRUE;
 }

@@ -31,20 +31,48 @@ void self_knowledge(void)
 {
 	int i = 0, j, k;
 
+	int v_nr = 0;
+	char v_string [8] [128];
+	char s_string [6] [128];
+
 	u32b f1 = 0L, f2 = 0L, f3 = 0L;
 
 	object_type *o_ptr;
 
 	char Dummy[80];
+	char buf[2][80];
 
-	cptr info[200];
+	cptr info[220];
+
+	cptr disp_align;
 
 	int plev = p_ptr->lev;
 
+	int percent;
+
+	p_ptr->knowledge |= (KNOW_STAT | KNOW_HPRATE);
+
 	strcpy(Dummy, "");
 
+	percent = (int)(((long)player_hp[PY_MAX_LEVEL - 1] * 200L) /
+		(2 * p_ptr->hitdie +
+		((PY_MAX_LEVEL - 1+3) * (p_ptr->hitdie + 1))));
+
+#ifdef JP
+sprintf(Dummy, "現在の体力ランク : %d/100", percent);
+#else
+	sprintf(Dummy, "Your current Life Rating is %d/100.", percent);
+#endif
+
+	strcpy(buf[0], Dummy);
+	info[i++] = buf[0];
+	info[i++] = "";
+
+	chg_virtue(V_KNOWLEDGE, 1);
+	chg_virtue(V_ENLIGHTEN, 1);
+
 	/* Acquire item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	for (k = INVEN_RARM; k < INVEN_TOTAL; k++)
 	{
 		u32b t1, t2, t3;
 
@@ -62,75 +90,325 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
+#ifdef JP
+	info[i++] = "能力の最大値";
+#else
+	info[i++] = "Limits of maximum stats";
+#endif
 
+	for (v_nr = 0; v_nr < 6; v_nr++)
+	{
+		char stat_desc[80];
+
+		sprintf(stat_desc, "%s 18/%d", stat_names[v_nr], p_ptr->stat_max_max[v_nr]-18);
+
+		strcpy(s_string[v_nr], stat_desc);
+
+		info[i++] = s_string[v_nr];
+	}
+	info[i++] = "";
+
+#ifdef JP
+	if (p_ptr->align > 150) disp_align = "大善";
+	else if (p_ptr->align > 50) disp_align = "中善";
+	else if (p_ptr->align > 10) disp_align = "小善";
+	else if (p_ptr->align > -11) disp_align = "中立";
+	else if (p_ptr->align > -51) disp_align = "小悪";
+	else if (p_ptr->align > -151) disp_align = "中悪";
+	else disp_align = "大悪";
+	sprintf(Dummy, "現在の属性 : %s(%ld)", disp_align, p_ptr->align);
+#else
+	if (p_ptr->align > 150) disp_align = "lawful";
+	else if (p_ptr->align > 50) disp_align = "good";
+	else if (p_ptr->align > 10) disp_align = "nutral good";
+	else if (p_ptr->align > -11) disp_align = "nutral";
+	else if (p_ptr->align > -51) disp_align = "nutral evil";
+	else if (p_ptr->align > -151) disp_align = "evil";
+	else disp_align = "chaotic";
+	sprintf(Dummy, "Your alighnment : %s(%ld)", disp_align, p_ptr->align);
+#endif
+	strcpy(buf[1], Dummy);
+	info[i++] = buf[1];
+	for (v_nr = 0; v_nr < 8; v_nr++)
+	{
+		char v_name [20];
+		char vir_desc[80];
+		int tester = p_ptr->virtues[v_nr];
+	
+		strcpy(v_name, virtue[(p_ptr->vir_types[v_nr])-1]);
+ 
+#ifdef JP
+		sprintf(vir_desc, "おっと。%sの情報なし。", v_name);
+#else
+		sprintf(vir_desc, "Oops. No info about %s.", v_name);
+#endif
+		if (tester < -100)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の対極 (%d)",
+#else
+			sprintf(vir_desc, "You are the polar opposite of %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < -80)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の大敵 (%d)",
+#else
+			sprintf(vir_desc, "You are an arch-enemy of %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < -60)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の強敵 (%d)",
+#else
+			sprintf(vir_desc, "You are a bitter enemy of %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < -40)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の敵 (%d)",
+#else
+			sprintf(vir_desc, "You are an enemy of %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < -20)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の罪者 (%d)",
+#else
+			sprintf(vir_desc, "You have sinned against %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < 0)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の迷道者 (%d)",
+#else
+			sprintf(vir_desc, "You have strayed from the path of %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester == 0)                   
+#ifdef JP
+			sprintf(vir_desc, "[%s]の中立者 (%d)",
+#else
+			sprintf(vir_desc,"You are neutral to %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < 20)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の小徳者 (%d)",
+#else
+			sprintf(vir_desc,"You are somewhat virtuous in %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < 40)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の中徳者 (%d)",
+#else
+			sprintf(vir_desc,"You are virtuous in %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < 60)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の高徳者 (%d)",
+#else
+			sprintf(vir_desc,"You are very virtuous in %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < 80)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の覇者 (%d)",
+#else
+			sprintf(vir_desc,"You are a champion of %s (%d).",
+#endif
+				v_name, tester);
+		else if (tester < 100)
+#ifdef JP
+			sprintf(vir_desc, "[%s]の偉大な覇者 (%d)",
+#else
+			sprintf(vir_desc,"You are a great champion of %s (%d).",
+#endif
+				v_name, tester);
+		else
+#ifdef JP
+			sprintf(vir_desc, "[%s]の具現者 (%d)",
+#else
+			sprintf(vir_desc,"You are the living embodiment of %s (%d).",
+#endif
+		v_name, tester);
+	
+		strcpy(v_string[v_nr], vir_desc);
+	
+		info[i++] = v_string[v_nr];
+	}
+	info[i++] = "";
+	
 	/* Racial powers... */
+	if (p_ptr->mimic_form)
+	{
+		switch (p_ptr->mimic_form)
+		{
+			case MIMIC_DEMON:
+			case MIMIC_DEMON_LORD:
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージの地獄か火炎のブレスを吐くことができる。(%d MP)", 3 * plev, 10+plev/3);
+#else
+				sprintf(Dummy, "You can nether breathe, dam. %d (cost %d).", 3 * plev, 10+plev/3);
+#endif
+
+				info[i++] = Dummy;
+			break;
+		case MIMIC_VAMPIRE:
+			if (plev > 1)
+			{
+#ifdef JP
+sprintf(Dummy, "あなたは敵から %d-%d HP の生命力を吸収できる。(%d MP)",
+#else
+				sprintf(Dummy, "You can steal life from a foe, dam. %d-%d (cost %d).",
+#endif
+
+				    plev + MAX(1, plev / 10), plev + plev * MAX(1, plev / 10), 1 + (plev / 3));
+				info[i++] = Dummy;
+			}
+			break;
+		}
+	}
+	else
+	{
 	switch (p_ptr->prace)
 	{
 		case RACE_NIBELUNG:
 		case RACE_DWARF:
 			if (plev > 4)
+#ifdef JP
+info[i++] = "あなたは罠とドアと階段を感知できる。(5 MP)";
+#else
 				info[i++] = "You can find traps, doors and stairs (cost 5).";
+#endif
+
 			break;
 		case RACE_HOBBIT:
 			if (plev > 14)
 			{
+#ifdef JP
+info[i++] = "あなたは食料を生成できる。(10 MP)";
+#else
 				info[i++] = "You can produce food (cost 10).";
+#endif
+
 			}
 			break;
 		case RACE_GNOME:
 			if (plev > 4)
 			{
+#ifdef JP
+sprintf(Dummy, "あなたは範囲 %d 以内にテレポートできる。(%d MP)",
+#else
 				sprintf(Dummy, "You can teleport, range %d (cost %d).",
+#endif
+
 				    (1 + plev), (5 + (plev / 5)));
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_HALF_ORC:
 			if (plev > 2)
+#ifdef JP
+info[i++] = "あなたは恐怖を除去できる。(5 MP)";
+#else
 				info[i++] = "You can remove fear (cost 5).";
+#endif
+
 			break;
 		case RACE_HALF_TROLL:
 			if (plev > 9)
+#ifdef JP
+info[i++] = "あなたは狂暴化することができる。(12 MP) ";
+#else
 				info[i++] = "You enter berserk fury (cost 12).";
+#endif
+
 			break;
 		case RACE_AMBERITE:
 			if (plev > 29)
+#ifdef JP
+info[i++] = "あなたはシャドウシフトすることができる。(50 MP)";
+#else
 				info[i++] = "You can Shift Shadows (cost 50).";
+#endif
+
 			if (plev > 39)
+#ifdef JP
+info[i++] = "あなたは「パターン」を心に描いて歩くことができる。(75 MP)";
+#else
 				info[i++] = "You can mentally Walk the Pattern (cost 75).";
+#endif
+
 			break;
 		case RACE_BARBARIAN:
 			if (plev > 7)
+#ifdef JP
+info[i++] = "あなたは狂暴化することができる。(10 MP) ";
+#else
 				info[i++] = "You can enter berserk fury (cost 10).";
+#endif
+
 			break;
 		case RACE_HALF_OGRE:
 			if (plev > 24)
+#ifdef JP
+info[i++] = "あなたは爆発のルーンを仕掛けることができる。(35 MP)";
+#else
 				info[i++] = "You can set an Explosive Rune (cost 35).";
+#endif
+
 			break;
 		case RACE_HALF_GIANT:
 			if (plev > 19)
+#ifdef JP
+info[i++] = "あなたは石の壁を壊すことができる。(10 MP)";
+#else
 				info[i++] = "You can break stone walls (cost 10).";
+#endif
+
 			break;
 		case RACE_HALF_TITAN:
 			if (plev > 34)
+#ifdef JP
+info[i++] = "あなたはモンスターをスキャンすることができる。(20 MP)";
+#else
 				info[i++] = "You can probe monsters (cost 20).";
+#endif
+
 			break;
 		case RACE_CYCLOPS:
 			if (plev > 19)
 			{
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージの岩石を投げることができる。(15 MP)",
+#else
 				sprintf(Dummy, "You can throw a boulder, dam. %d (cost 15).",
+#endif
+
 				    3 * plev);
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_YEEK:
 			if (plev > 14)
+#ifdef JP
+info[i++] = "あなたは恐怖を呼び起こす叫び声を発することができる。(15 MP)";
+#else
 				info[i++] = "You can make a terrifying scream (cost 15).";
+#endif
+
 			break;
 		case RACE_KLACKON:
 			if (plev > 8)
 			{
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージの酸を吹きかけることができる。(9 MP)", plev);
+#else
 				sprintf(Dummy, "You can spit acid, dam. %d (cost 9).", plev);
+#endif
+
 				info[i++] = Dummy;
 			}
 			break;
@@ -138,52 +416,97 @@ void self_knowledge(void)
 			if (plev > 11)
 			{
 				sprintf(Dummy,
+#ifdef JP
+    "あなたは %d ダメージの毒矢を投げることができる。(8 MP)", plev);
+#else
 				    "You can throw a dart of poison, dam. %d (cost 8).", plev);
+#endif
+
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_DARK_ELF:
 			if (plev > 1)
 			{
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのマジック・ミサイルの呪文を使える。(2 MP)",
+#else
 				sprintf(Dummy, "You can cast a Magic Missile, dam %d (cost 2).",
+#endif
+
 				    (3 + ((plev-1) / 5)));
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_DRACONIAN:
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのブレスを吐くことができる。(%d MP)", 2 * plev, plev);
+#else
 			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 2 * plev, plev);
+#endif
+
 			info[i++] = Dummy;
 			break;
 		case RACE_MIND_FLAYER:
 			if (plev > 14)
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージの精神攻撃をすることができる。(12 MP)", plev);
+#else
 				sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).", plev);
+#endif
+
 			info[i++] = Dummy;
 			break;
 		case RACE_IMP:
 			if (plev > 29)
 			{
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのファイア・ボールの呪文を使える。(15 MP)", plev);
+#else
 				sprintf(Dummy, "You can cast a Fire Ball, dam. %d (cost 15).", plev);
+#endif
+
 				info[i++] = Dummy;
 			}
 			else if (plev > 8)
 			{
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのファイア・ボルトの呪文を使える。(15 MP)", plev);
+#else
 				sprintf(Dummy, "You can cast a Fire Bolt, dam. %d (cost 15).", plev);
+#endif
+
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_GOLEM:
 			if (plev > 19)
+#ifdef JP
+info[i++] = "あなたは d20+30 ターンの間肌を石に変化させられる。(15 MP)";
+#else
 				info[i++] = "You can turn your skin to stone, dur d20+30 (cost 15).";
+#endif
+
 			break;
 		case RACE_ZOMBIE:
 		case RACE_SKELETON:
 			if (plev > 29)
+#ifdef JP
+info[i++] = "あなたは失った生命力を回復することができる。(30 MP)";
+#else
 				info[i++] = "You can restore lost life forces (cost 30).";
+#endif
+
 			break;
 		case RACE_VAMPIRE:
 			if (plev > 1)
 			{
+#ifdef JP
+sprintf(Dummy, "あなたは敵から %d-%d HP の生命力を吸収できる。(%d MP)",
+#else
 				sprintf(Dummy, "You can steal life from a foe, dam. %d-%d (cost %d).",
+#endif
+
 				    plev + MAX(1, plev / 10), plev + plev * MAX(1, plev / 10), 1 + (plev / 3));
 				info[i++] = Dummy;
 			}
@@ -191,16 +514,358 @@ void self_knowledge(void)
 		case RACE_SPECTRE:
 			if (plev > 3)
 			{
+#ifdef JP
+info[i++] = "あなたは泣き叫んで敵を恐怖させることができる。(3 MP)";
+#else
 				info[i++] = "You can wail to terrify your enemies (cost 3).";
+#endif
+
 			}
 			break;
 		case RACE_SPRITE:
 			if (plev > 11)
 			{
-				info[i++] = "You can throw magic dust which induces sleep (cost 12).";
+#ifdef JP
+info[i++] = "あなたは敵を眠らせる魔法の粉を投げることができる。(12 MP)";
+#else
+				info[i++] = "You can throw magical dust which induces sleep (cost 12).";
+#endif
+
 			}
 			break;
+		case RACE_DEMON:
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージの地獄か火炎のブレスを吐くことができる。(%d MP)", 3 * plev, 10+plev/3);
+#else
+			sprintf(Dummy, "You can breathe nether, dam. %d (cost %d).", 3 * plev, 10+plev/3);
+#endif
+
+			info[i++] = Dummy;
+			break;
+		case RACE_KUTA:
+			if (plev > 19)
+#ifdef JP
+info[i++] = "あなたは d20+30 ターンの間横に伸びることができる。(15 MP)";
+#else
+				info[i++] = "You can expand horizontally, dur d20+30 (cost 15).";
+#endif
+
+			break;
+		case RACE_ANDROID:
+			if (plev < 10)
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのレイガンを撃つことができる。(7 MP)", (plev + 1) / 2);
+#else
+				sprintf(Dummy, "You can fire a ray gun with damage %d (cost 7).", (plev+1)/2);
+#endif
+			else if (plev < 25)
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのブラスターを撃つことができる。(13 MP)", plev);
+#else
+				sprintf(Dummy, "You can fire a blaster with damage %d (cost 13).", plev);
+#endif
+			else if (plev < 35)
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのバズーカを撃つことができる。(26 MP)", plev * 2);
+#else
+				sprintf(Dummy, "You can fire a bazooka with damage %d (cost 26).", plev * 2);
+#endif
+			else if (plev < 45)
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのビームキャノンを撃つことができる。(40 MP)", plev * 2);
+#else
+				sprintf(Dummy, "You can fire a beam cannon with damage %d (cost 40).", plev * 2);
+#endif
+			else
+#ifdef JP
+sprintf(Dummy, "あなたは %d ダメージのロケットを撃つことができる。(60 MP)", plev * 5);
+#else
+				sprintf(Dummy, "You can fire a rocket with damage %d (cost 60).", plev * 5);
+#endif
+
+			info[i++] = Dummy;
+			break;
 		default:
+			break;
+	}
+	}
+
+	switch(p_ptr->pclass)
+	{
+		case CLASS_WARRIOR:
+			if (plev > 39)
+			{
+#ifdef JP
+info[i++] = "あなたはランダムな方向に対して数回攻撃することができる。(75 MP)";
+#else
+				info[i++] = "You can attack some random directions at a time (cost 75).";
+#endif
+			}
+			break;
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		case CLASS_SORCERER:
+			if (plev > 24)
+			{
+#ifdef JP
+info[i++] = "あなたはアイテムの魔力を吸収することができる。(1 MP)";
+#else
+				info[i++] = "You can absorb charges from an item (cost 1).";
+#endif
+			}
+			break;
+		case CLASS_PRIEST:
+			if (p_ptr->realm1 == REALM_LIFE)
+			{
+				if (plev > 34)
+				{
+#ifdef JP
+info[i++] = "あなたは武器を祝福することができる。(70 MP)";
+#else
+					info[i++] = "You can bless a weapon (cost 70).";
+#endif
+				}
+			}
+			else
+			{
+				if (plev > 41)
+				{
+#ifdef JP
+info[i++] = "あなたは周りのすべてのモンスターを攻撃することができる。(40 MP)";
+#else
+					info[i++] = "You can damages all monsters in sight (cost 40).";
+#endif
+				}
+			}
+			break;
+		case CLASS_ROGUE:
+			if (plev > 7)
+			{
+#ifdef JP
+info[i++] = "あなたは攻撃して即座に逃げることができる。(12 MP)";
+#else
+				info[i++] = "You can hit a monster and teleport at a time (cost 12).";
+#endif
+			}
+			break;
+		case CLASS_RANGER:
+			if (plev > 14)
+			{
+#ifdef JP
+info[i++] = "あなたは怪物を調査することができる。(20 MP)";
+#else
+				info[i++] = "You can prove monsters (cost 20).";
+#endif
+			}
+			break;
+		case CLASS_PALADIN:
+			if (p_ptr->realm1 == REALM_LIFE)
+			{
+				if (plev > 29)
+				{
+#ifdef JP
+info[i++] = "あなたは聖なる槍を放つことができる。(30 MP)";
+#else
+					info[i++] = "You can fires a holy spear (cost 30).";
+#endif
+				}
+			}
+			else
+			{
+				if (plev > 29)
+				{
+#ifdef JP
+info[i++] = "あなたは生命力を減少させる槍を放つことができる。(30 MP)";
+#else
+					info[i++] = "You can fires a spear which drains vitality (cost 30).";
+#endif
+				}
+			}
+			break;
+		case CLASS_WARRIOR_MAGE:
+			if (plev > 24)
+			{
+#ifdef JP
+info[i++] = "あなたはＨＰをＭＰに変換することができる。(0 MP)";
+#else
+				info[i++] = "You can convert HP to MP (cost 0).";
+#endif
+#ifdef JP
+info[i++] = "あなたはＭＰをＨＰに変換することができる。(0 MP)";
+#else
+				info[i++] = "You can convert MP to HP (cost 0).";
+#endif
+			}
+			break;
+		case CLASS_CHAOS_WARRIOR:
+			if (plev > 39)
+			{
+#ifdef JP
+info[i++] = "あなたは周囲に怪物を惑わす光を発生させることができる。(50 MP)";
+#else
+				info[i++] = "You can radiate light which confuses nearby monsters (cost 50).";
+#endif
+			}
+			break;
+		case CLASS_MONK:
+			if (plev > 24)
+			{
+#ifdef JP
+info[i++] = "あなたは構えることができる。(0 MP)";
+#else
+				info[i++] = "You can assume a posture of special form (cost 0).";
+#endif
+			}
+			if (plev > 29)
+			{
+#ifdef JP
+info[i++] = "あなたは通常の2倍の攻撃を行うことができる。(30 MP)";
+#else
+				info[i++] = "You can perform double attacks in a time (cost 30).";
+#endif
+			}
+			break;
+		case CLASS_MINDCRAFTER:
+		case CLASS_KI:
+			if (plev > 14)
+			{
+#ifdef JP
+info[i++] = "あなたは精神を集中してＭＰを回復させることができる。(0 MP)";
+#else
+				info[i++] = "You can concentrate to regenerate your mana (cost 0).";
+#endif
+			}
+			break;
+		case CLASS_TOURIST:
+#ifdef JP
+info[i++] = "あなたは写真を撮影することができる。(0 MP)";
+#else
+				info[i++] = "You can take a photograph (cost 0).";
+#endif
+			if (plev > 24)
+			{
+#ifdef JP
+info[i++] = "あなたはアイテムを完全に鑑定することができる。(20 MP)";
+#else
+				info[i++] = "You can *identify* items (cost 20).";
+#endif
+			}
+			break;
+		case CLASS_MONOMANE:
+			if (plev > 29)
+			{
+#ifdef JP
+info[i++] = "あなたは怪物の特殊攻撃をダメージ2倍でまねることができる。(100 MP)";
+#else
+				info[i++] = "You can imitate monster's special attacks with double damage (cost 100).";
+#endif
+			}
+			break;
+		case CLASS_BEASTMASTER:
+#ifdef JP
+info[i++] = "あなたは1匹の生命のあるモンスターを支配することができる。(レベル/4 MP)";
+#else
+			info[i++] = "You can dominate a monster (cost level/4).";
+#endif
+			if (plev > 29)
+			{
+#ifdef JP
+info[i++] = "あなたは視界内の生命のあるモンスターを支配することができる。((レベル+20)/2 MP)";
+#else
+				info[i++] = "You can dominate living monsters in sight (cost (level+20)/4).";
+#endif
+			}
+			break;
+		case CLASS_MAGIC_EATER:
+#ifdef JP
+info[i++] = "あなたは杖/魔法棒/ロッドの魔力を自分のものにすることができる。";
+#else
+			info[i++] = "You can absorb a staff, wand or rod itself.";
+#endif
+			break;
+		case CLASS_RED_MAGE:
+			if (plev > 47)
+			{
+#ifdef JP
+info[i++] = "あなたは1ターンに2回魔法を唱えることができる。(77 MP)";
+#else
+				info[i++] = "You can cast two spells in one time (cost 77).";
+#endif
+			}
+			break;
+		case CLASS_SAMURAI:
+			{
+#ifdef JP
+info[i++] = "あなたは精神を集中して気合いを溜めることができる。";
+#else
+				info[i++] = "You can concentrate to regenerate your mana.";
+#endif
+			}
+			if (plev > 24)
+			{
+#ifdef JP
+info[i++] = "あなたは特殊な型で構えることができる。";
+#else
+				info[i++] = "You can assume a posture of special form.";
+#endif
+			}
+			break;
+		case CLASS_BLUE_MAGE:
+#ifdef JP
+info[i++] = "あなたは相手に使われた魔法を学ぶことができる。";
+#else
+			info[i++] = "You can study spells which your enemy casts on you.";
+#endif
+			break;
+		case CLASS_KIHEI:
+			if (plev > 9)
+			{
+#ifdef JP
+info[i++] = "あなたはモンスターに乗って無理矢理ペットにすることができる。";
+#else
+				info[i++] = "You can ride on a hostile monster forcibly to turn it into pet.";
+#endif
+			}
+			break;
+		case CLASS_BERSERKER:
+			if (plev > 4)
+			{
+#ifdef JP
+info[i++] = "あなたは自分で空腹を満たすことができる。";
+#else
+				info[i++] = "You can satisfy hunger.";
+#endif
+			}
+			if (plev > 9)
+			{
+#ifdef JP
+info[i++] = "あなたは街とダンジョンの間を行き来することができる。";
+#else
+			info[i++] = "You can travel between town and the depths.";
+#endif
+			}
+			break;
+		case CLASS_MIRROR_MASTER:
+#ifdef JP
+info[i++] = "鏡を作り出すことができる。(2 MP)";
+#else
+				info[i++] = "You can create a Mirror (cost 2).";
+#endif
+#ifdef JP
+info[i++] = "鏡を割ることができる。(0 MP)";
+#else
+				info[i++] = "You can break distant Mirrors (cost 0).";
+#endif
+			break;
+		case CLASS_NINJA:
+			if (plev > 7)
+			{
+#ifdef JP
+info[i++] = "あなたは攻撃して即座に逃げることができる。(12 MP)";
+#else
+				info[i++] = "You can attack and teleport at a time. (cost 12).";
+#endif
+			}
 			break;
 	}
 
@@ -208,131 +873,291 @@ void self_knowledge(void)
 	{
 		if (p_ptr->muta1 & MUT1_SPIT_ACID)
 		{
+#ifdef JP
+info[i++] = "あなたは酸を吹きかけることができる。(ダメージ レベルX1)";
+#else
 			info[i++] = "You can spit acid (dam lvl).";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_BR_FIRE)
 		{
+#ifdef JP
+info[i++] = "あなたは炎のブレスを吐くことができる。(ダメージ レベルX2)";
+#else
 			info[i++] = "You can breathe fire (dam lvl * 2).";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
 		{
+#ifdef JP
+info[i++] = "あなたの睨みは催眠効果をもつ。";
+#else
 			info[i++] = "Your gaze is hypnotic.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_TELEKINES)
 		{
+#ifdef JP
+info[i++] = "あなたは念動力をもっている。";
+#else
 			info[i++] = "You are telekinetic.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_VTELEPORT)
 		{
+#ifdef JP
+info[i++] = "あなたは自分の意思でテレポートできる。";
+#else
 			info[i++] = "You can teleport at will.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_MIND_BLST)
 		{
+#ifdef JP
+info[i++] = "あなたは精神攻撃を行える。(ダメージ 3〜12d3)";
+#else
 			info[i++] = "You can Mind Blast your enemies (3 to 12d3 dam).";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_RADIATION)
 		{
+#ifdef JP
+info[i++] = "あなたは自分の意思で強い放射線を発生することができる。(ダメージ レベルX2)";
+#else
 			info[i++] = "You can emit hard radiation at will (dam lvl * 2).";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_VAMPIRISM)
 		{
+#ifdef JP
+info[i++] = "あなたは吸血鬼のように敵から生命力を吸収することができる。(ダメージ レベルX2)";
+#else
 			info[i++] = "You can drain life from a foe like a vampire (dam lvl * 2).";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_SMELL_MET)
 		{
+#ifdef JP
+info[i++] = "あなたは近くにある貴金属をかぎ分けることができる。";
+#else
 			info[i++] = "You can smell nearby precious metal.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_SMELL_MON)
 		{
+#ifdef JP
+info[i++] = "あなたは近くのモンスターの存在をかぎ分けることができる。";
+#else
 			info[i++] = "You can smell nearby monsters.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_BLINK)
 		{
+#ifdef JP
+info[i++] = "あなたは短い距離をテレポートできる。";
+#else
 			info[i++] = "You can teleport yourself short distances.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_EAT_ROCK)
 		{
+#ifdef JP
+info[i++] = "あなたは硬い岩を食べることができる。";
+#else
 			info[i++] = "You can consume solid rock.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_SWAP_POS)
 		{
+#ifdef JP
+info[i++] = "あなたは他の者と場所を入れ替わることができる。";
+#else
 			info[i++] = "You can switch locations with another being.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_SHRIEK)
 		{
+#ifdef JP
+info[i++] = "あなたは身の毛もよだつ叫び声を発することができる。(ダメージ レベルX2)";
+#else
 			info[i++] = "You can emit a horrible shriek (dam 2 * lvl).";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_ILLUMINE)
 		{
+#ifdef JP
+info[i++] = "あなたは明るい光を放つことができる。";
+#else
 			info[i++] = "You can emit bright light.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_DET_CURSE)
 		{
+#ifdef JP
+info[i++] = "あなたは邪悪な魔法の危険を感じとることができる。";
+#else
 			info[i++] = "You can feel the danger of evil magic.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_BERSERK)
 		{
+#ifdef JP
+info[i++] = "あなたは自分の意思で狂乱戦闘状態になることができる。";
+#else
 			info[i++] = "You can drive yourself into a berserk frenzy.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_POLYMORPH)
 		{
+#ifdef JP
+info[i++] = "あなたは自分の意志で変化できる。";
+#else
 			info[i++] = "You can polymorph yourself at will.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
 		{
+#ifdef JP
+info[i++] = "あなたは通常アイテムを金に変えることができる。";
+#else
 			info[i++] = "You can turn ordinary items to gold.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_GROW_MOLD)
 		{
+#ifdef JP
+info[i++] = "あなたは周囲にキノコを生やすことができる。";
+#else
 			info[i++] = "You can cause mold to grow near you.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_RESIST)
 		{
+#ifdef JP
+info[i++] = "あなたは元素の攻撃に対して身を硬くすることができる。";
+#else
 			info[i++] = "You can harden yourself to the ravages of the elements.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
 		{
+#ifdef JP
+info[i++] = "あなたは周囲のダンジョンを崩壊させることができる。";
+#else
 			info[i++] = "You can bring down the dungeon around your ears.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_EAT_MAGIC)
 		{
+#ifdef JP
+info[i++] = "あなたは魔法のエネルギーを自分の物として使用できる。";
+#else
 			info[i++] = "You can consume magic energy for your own use.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_WEIGH_MAG)
 		{
+#ifdef JP
+info[i++] = "あなたは自分に影響を与える魔法の力を感じることができる。";
+#else
 			info[i++] = "You can feel the strength of the magics affecting you.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_STERILITY)
 		{
+#ifdef JP
+info[i++] = "あなたは集団的生殖不能を起こすことができる。";
+#else
 			info[i++] = "You can cause mass impotence.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_PANIC_HIT)
 		{
+#ifdef JP
+info[i++] = "あなたは攻撃した後身を守るため逃げることができる。";
+#else
 			info[i++] = "You can run for your life after hitting something.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_DAZZLE)
 		{
+#ifdef JP
+info[i++] = "あなたは混乱と盲目を引き起こす放射能を発生することができる。 ";
+#else
 			info[i++] = "You can emit confusing, blinding radiation.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_LASER_EYE)
 		{
+#ifdef JP
+info[i++] = "あなたは目からレーザー光線を発することができる。(ダメージ レベルX2)";
+#else
 			info[i++] = "Your eyes can fire laser beams (dam 2 * lvl).";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_RECALL)
 		{
+#ifdef JP
+info[i++] = "あなたは街とダンジョンの間を行き来することができる。";
+#else
 			info[i++] = "You can travel between town and the depths.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_BANISH)
 		{
+#ifdef JP
+info[i++] = "あなたは邪悪なモンスターを地獄に落とすことができる。";
+#else
 			info[i++] = "You can send evil creatures directly to Hell.";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
 		{
+#ifdef JP
+info[i++] = "あなたは敵を触って凍らせることができる。(ダメージ レベルX3)";
+#else
 			info[i++] = "You can freeze things with a touch (dam 3 * lvl).";
+#endif
+
 		}
 		if (p_ptr->muta1 & MUT1_LAUNCHER)
 		{
+#ifdef JP
+info[i++] = "あなたはアイテムを力強く投げることができる。";
+#else
 			info[i++] = "You can hurl objects with great force.";
+#endif
+
 		}
 	}
 
@@ -340,131 +1165,291 @@ void self_knowledge(void)
 	{
 		if (p_ptr->muta2 & MUT2_BERS_RAGE)
 		{
+#ifdef JP
+info[i++] = "あなたは狂戦士化の発作を起こす。";
+#else
 			info[i++] = "You are subject to berserker fits.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_COWARDICE)
 		{
+#ifdef JP
+info[i++] = "あなたは時々臆病になる。";
+#else
 			info[i++] = "You are subject to cowardice.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_RTELEPORT)
 		{
+#ifdef JP
+info[i++] = "あなたはランダムにテレポートする。";
+#else
 			info[i++] = "You are teleporting randomly.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_ALCOHOL)
 		{
+#ifdef JP
+info[i++] = "あなたの体はアルコールを分泌する。";
+#else
 			info[i++] = "Your body produces alcohol.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_HALLU)
 		{
+#ifdef JP
+info[i++] = "あなたは幻覚を引き起こす精神錯乱に侵されている。";
+#else
 			info[i++] = "You have a hallucinatory insanity.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_FLATULENT)
 		{
+#ifdef JP
+info[i++] = "あなたは制御できない強烈な屁をこく。";
+#else
 			info[i++] = "You are subject to uncontrollable flatulence.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_PROD_MANA)
 		{
+#ifdef JP
+info[i++] = "あなたは制御不能な魔法のエネルギーを発している。";
+#else
 			info[i++] = "You are producing magical energy uncontrollably.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_ATT_DEMON)
 		{
+#ifdef JP
+info[i++] = "あなたはデーモンを引きつける。";
+#else
 			info[i++] = "You attract demons.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_SCOR_TAIL)
 		{
+#ifdef JP
+info[i++] = "あなたはサソリの尻尾が生えている。(毒、ダメージ 3d7)";
+#else
 			info[i++] = "You have a scorpion tail (poison, 3d7).";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_HORNS)
 		{
+#ifdef JP
+info[i++] = "あなたは角が生えている。(ダメージ 2d6)";
+#else
 			info[i++] = "You have horns (dam. 2d6).";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_BEAK)
 		{
+#ifdef JP
+info[i++] = "あなたはクチバシが生えている。(ダメージ 2d4)";
+#else
 			info[i++] = "You have a beak (dam. 2d4).";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_SPEED_FLUX)
 		{
+#ifdef JP
+info[i++] = "あなたはランダムに早く動いたり遅く動いたりする。";
+#else
 			info[i++] = "You move faster or slower randomly.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_BANISH_ALL)
 		{
+#ifdef JP
+info[i++] = "あなたは時々近くのモンスターを消滅させる。";
+#else
 			info[i++] = "You sometimes cause nearby creatures to vanish.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_EAT_LIGHT)
 		{
+#ifdef JP
+info[i++] = "あなたは時々周囲の光を吸収して栄養にする。";
+#else
 			info[i++] = "You sometimes feed off of the light around you.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_TRUNK)
 		{
+#ifdef JP
+info[i++] = "あなたは象のような鼻を持っている。(ダメージ 1d4)";
+#else
 			info[i++] = "You have an elephantine trunk (dam 1d4).";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_ATT_ANIMAL)
 		{
+#ifdef JP
+info[i++] = "あなたは動物を引きつける。";
+#else
 			info[i++] = "You attract animals.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_TENTACLES)
 		{
+#ifdef JP
+info[i++] = "あなたは邪悪な触手を持っている。(ダメージ 2d5)";
+#else
 			info[i++] = "You have evil looking tentacles (dam 2d5).";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_RAW_CHAOS)
 		{
+#ifdef JP
+info[i++] = "あなたはしばしば純カオスに包まれる。";
+#else
 			info[i++] = "You occasionally are surrounded with raw chaos.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_NORMALITY)
 		{
+#ifdef JP
+info[i++] = "あなたは変異していたが、回復してきている。";
+#else
 			info[i++] = "You may be mutated, but you're recovering.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_WRAITH)
 		{
+#ifdef JP
+info[i++] = "あなたの肉体は幽体化したり実体化したりする。";
+#else
 			info[i++] = "You fade in and out of physical reality.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_POLY_WOUND)
 		{
+#ifdef JP
+info[i++] = "あなたの健康はカオスの力に影響を受ける。";
+#else
 			info[i++] = "Your health is subject to chaotic forces.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_WASTING)
 		{
+#ifdef JP
+info[i++] = "あなたは衰弱する恐ろしい病気にかかっている。";
+#else
 			info[i++] = "You have a horrible wasting disease.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_ATT_DRAGON)
 		{
+#ifdef JP
+info[i++] = "あなたはドラゴンを引きつける。";
+#else
 			info[i++] = "You attract dragons.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_WEIRD_MIND)
 		{
+#ifdef JP
+info[i++] = "あなたの精神はランダムに拡大したり縮小したりしている。";
+#else
 			info[i++] = "Your mind randomly expands and contracts.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_NAUSEA)
 		{
+#ifdef JP
+info[i++] = "あなたの胃は非常に落ち着きがない。";
+#else
 			info[i++] = "You have a seriously upset stomach.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
 		{
+#ifdef JP
+info[i++] = "あなたはカオスの守護悪魔から褒美をうけとる。";
+#else
 			info[i++] = "Chaos deities give you gifts.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_WALK_SHAD)
 		{
+#ifdef JP
+info[i++] = "あなたはしばしば他の「影」に迷い込む。";
+#else
 			info[i++] = "You occasionally stumble into other shadows.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_WARNING)
 		{
+#ifdef JP
+info[i++] = "あなたは敵に関する警告を感じる。";
+#else
 			info[i++] = "You receive warnings about your foes.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_INVULN)
 		{
+#ifdef JP
+info[i++] = "あなたは時々負け知らずな気分になる。";
+#else
 			info[i++] = "You occasionally feel invincible.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_SP_TO_HP)
 		{
+#ifdef JP
+info[i++] = "あなたは時々血が筋肉にどっと流れる。";
+#else
 			info[i++] = "Your blood sometimes rushes to your muscles.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_HP_TO_SP)
 		{
+#ifdef JP
+info[i++] = "あなたは時々頭に血がどっと流れる。";
+#else
 			info[i++] = "Your blood sometimes rushes to your head.";
+#endif
+
 		}
 		if (p_ptr->muta2 & MUT2_DISARM)
 		{
+#ifdef JP
+info[i++] = "あなたはよくつまづいて物を落とす。";
+#else
 			info[i++] = "You occasionally stumble and drop things.";
+#endif
+
 		}
 	}
 
@@ -472,98 +1457,213 @@ void self_knowledge(void)
 	{
 		if (p_ptr->muta3 & MUT3_HYPER_STR)
 		{
+#ifdef JP
+info[i++] = "あなたは超人的に強い。(腕力+4)";
+#else
 			info[i++] = "You are superhumanly strong (+4 STR).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_PUNY)
 		{
+#ifdef JP
+info[i++] = "あなたは虚弱だ。(腕力-4)";
+#else
 			info[i++] = "You are puny (-4 STR).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_HYPER_INT)
 		{
+#ifdef JP
+info[i++] = "あなたの脳は生体コンピュータだ。(知能＆賢さ+4)";
+#else
 			info[i++] = "Your brain is a living computer (+4 INT/WIS).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_MORONIC)
 		{
+#ifdef JP
+info[i++] = "あなたは精神薄弱だ。(知能＆賢さ-4)";
+#else
 			info[i++] = "You are moronic (-4 INT/WIS).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_RESILIENT)
 		{
+#ifdef JP
+info[i++] = "あなたは非常にタフだ。(耐久+4)";
+#else
 			info[i++] = "You are very resilient (+4 CON).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_XTRA_FAT)
 		{
+#ifdef JP
+info[i++] = "あなたは極端に太っている。(耐久+2,スピード-2)";
+#else
 			info[i++] = "You are extremely fat (+2 CON, -2 speed).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_ALBINO)
 		{
+#ifdef JP
+info[i++] = "あなたはアルビノだ。(耐久-4)";
+#else
 			info[i++] = "You are albino (-4 CON).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_FLESH_ROT)
 		{
+#ifdef JP
+info[i++] = "あなたの肉体は腐敗している。(耐久-2,魅力-1)";
+#else
 			info[i++] = "Your flesh is rotting (-2 CON, -1 CHR).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_SILLY_VOI)
 		{
+#ifdef JP
+info[i++] = "あなたの声は間抜けなキーキー声だ。(魅力-4)";
+#else
 			info[i++] = "Your voice is a silly squeak (-4 CHR).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_BLANK_FAC)
 		{
+#ifdef JP
+info[i++] = "あなたはのっぺらぼうだ。(魅力-1)";
+#else
 			info[i++] = "Your face is featureless (-1 CHR).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_ILL_NORM)
 		{
+#ifdef JP
+info[i++] = "あなたは幻影に覆われている。";
+#else
 			info[i++] = "Your appearance is masked with illusion.";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_XTRA_EYES)
 		{
+#ifdef JP
+info[i++] = "あなたは余分に二つの目を持っている。(探索+15)";
+#else
 			info[i++] = "You have an extra pair of eyes (+15 search).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_MAGIC_RES)
 		{
+#ifdef JP
+info[i++] = "あなたは魔法への耐性をもっている。";
+#else
 			info[i++] = "You are resistant to magic.";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
 		{
+#ifdef JP
+info[i++] = "あなたは変な音を発している。(隠密-3)";
+#else
 			info[i++] = "You make a lot of strange noise (-3 stealth).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_INFRAVIS)
 		{
+#ifdef JP
+info[i++] = "あなたは素晴らしい赤外線視力を持っている。(+3)";
+#else
 			info[i++] = "You have remarkable infravision (+3).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
 		{
+#ifdef JP
+info[i++] = "あなたは余分に二本の足が生えている。(加速+3)";
+#else
 			info[i++] = "You have an extra pair of legs (+3 speed).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_SHORT_LEG)
 		{
+#ifdef JP
+info[i++] = "あなたの足は短い突起だ。(加速-3)";
+#else
 			info[i++] = "Your legs are short stubs (-3 speed).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
 		{
+#ifdef JP
+info[i++] = "あなたの血管には電流が流れている。";
+#else
 			info[i++] = "Electricity is running through your veins.";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
 		{
 #if 0
 			/* Unnecessary, actually... */
+#ifdef JP
+info[i++] = "あなたの体は炎につつまれている。";
+#else
 			info[i++] = "Your body is enveloped in flames.";
+#endif
+
 #endif
 		}
 		if (p_ptr->muta3 & MUT3_WART_SKIN)
 		{
+#ifdef JP
+info[i++] = "あなたの肌はイボに被われている。(魅力-2, AC+5)";
+#else
 			info[i++] = "Your skin is covered with warts (-2 CHR, +5 AC).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_SCALES)
 		{
+#ifdef JP
+info[i++] = "あなたの肌は鱗になっている。(魅力-1, AC+10)";
+#else
 			info[i++] = "Your skin has turned into scales (-1 CHR, +10 AC).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_IRON_SKIN)
 		{
+#ifdef JP
+info[i++] = "あなたの肌は鉄でできている。(器用-1, AC+25)";
+#else
 			info[i++] = "Your skin is made of steel (-1 DEX, +25 AC).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_WINGS)
 		{
+#ifdef JP
+info[i++] = "あなたは羽を持っている。";
+#else
 			info[i++] = "You have wings.";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_FEARLESS)
 		{
@@ -579,351 +1679,933 @@ void self_knowledge(void)
 		}
 		if (p_ptr->muta3 & MUT3_LIMBER)
 		{
+#ifdef JP
+info[i++] = "あなたの体は非常にしなやかだ。(器用+3)";
+#else
 			info[i++] = "Your body is very limber (+3 DEX).";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_ARTHRITIS)
 		{
+#ifdef JP
+info[i++] = "あなたはいつも関節に痛みを感じている。(器用-3)";
+#else
 			info[i++] = "Your joints ache constantly (-3 DEX).";
+#endif
+
 		}
-		if (p_ptr->muta3 & MUT3_RES_TIME)
+		if (((p_ptr->muta3 & MUT3_VULN_ELEM) || (p_ptr->special_defense & KATA_KOUKIJIN))
+		    && !(p_ptr->immune_acid && p_ptr->immune_elec && p_ptr->immune_fire && p_ptr->immune_cold))
 		{
-			info[i++] = "You are protected from the ravages of time.";
-		}
-		if (p_ptr->muta3 & MUT3_VULN_ELEM)
-		{
+#ifdef JP
+info[i++] = "あなたは元素の攻撃に弱い。";
+#else
 			info[i++] = "You are susceptible to damage from the elements.";
+#endif
+
 		}
 		if (p_ptr->muta3 & MUT3_MOTION)
 		{
+#ifdef JP
+info[i++] = "あなたの動作は正確で力強い。(隠密+1)";
+#else
 			info[i++] = "Your movements are precise and forceful (+1 STL).";
+#endif
+
 		}
-		if (p_ptr->muta3 & MUT3_SUS_STATS)
+		if (p_ptr->muta3 & MUT3_GOOD_LUCK)
 		{
-			/* Unnecessary */
+#ifdef JP
+info[i++] = "あなたは白いオーラにつつまれている。";
+#else
+			info[i++] = "There is a white aura surrounding you.";
+#endif
+		}
+		if (p_ptr->muta3 & MUT3_BAD_LUCK)
+		{
+#ifdef JP
+info[i++] = "あなたは黒いオーラにつつまれている。";
+#else
+			info[i++] = "There is a black aura surrounding you.";
+#endif
 		}
 	}
 
 	if (p_ptr->blind)
 	{
+#ifdef JP
+info[i++] = "あなたは目が見えない。";
+#else
 		info[i++] = "You cannot see.";
+#endif
+
 	}
 	if (p_ptr->confused)
 	{
+#ifdef JP
+info[i++] = "あなたは混乱している。";
+#else
 		info[i++] = "You are confused.";
+#endif
+
 	}
 	if (p_ptr->afraid)
 	{
+#ifdef JP
+info[i++] = "あなたは恐怖に侵されている。";
+#else
 		info[i++] = "You are terrified.";
+#endif
+
 	}
 	if (p_ptr->cut)
 	{
+#ifdef JP
+info[i++] = "あなたは出血している。";
+#else
 		info[i++] = "You are bleeding.";
+#endif
+
 	}
 	if (p_ptr->stun)
 	{
+#ifdef JP
+info[i++] = "あなたはもうろうとしている。";
+#else
 		info[i++] = "You are stunned.";
+#endif
+
 	}
 	if (p_ptr->poisoned)
 	{
+#ifdef JP
+info[i++] = "あなたは毒に侵されている。";
+#else
 		info[i++] = "You are poisoned.";
+#endif
+
 	}
 	if (p_ptr->image)
 	{
+#ifdef JP
+info[i++] = "あなたは幻覚を見ている。";
+#else
 		info[i++] = "You are hallucinating.";
+#endif
+
 	}
 	if (p_ptr->aggravate)
 	{
+#ifdef JP
+info[i++] = "あなたはモンスターを怒らせている。";
+#else
 		info[i++] = "You aggravate monsters.";
+#endif
+
 	}
 	if (p_ptr->teleport)
 	{
+#ifdef JP
+info[i++] = "あなたの位置はひじょうに不安定だ。";
+#else
 		info[i++] = "Your position is very uncertain.";
+#endif
+
 	}
 	if (p_ptr->blessed)
 	{
+#ifdef JP
+info[i++] = "あなたは公正さを感じている。";
+#else
 		info[i++] = "You feel rightous.";
+#endif
+
 	}
 	if (p_ptr->hero)
 	{
+#ifdef JP
+info[i++] = "あなたはヒーロー気分だ。";
+#else
 		info[i++] = "You feel heroic.";
+#endif
+
 	}
 	if (p_ptr->shero)
 	{
+#ifdef JP
+info[i++] = "あなたは戦闘狂だ。";
+#else
 		info[i++] = "You are in a battle rage.";
+#endif
+
 	}
 	if (p_ptr->protevil)
 	{
+#ifdef JP
+info[i++] = "あなたは邪悪なる存在から守られている。";
+#else
 		info[i++] = "You are protected from evil.";
+#endif
+
 	}
 	if (p_ptr->shield)
 	{
+#ifdef JP
+info[i++] = "あなたは神秘のシールドで守られている。";
+#else
 		info[i++] = "You are protected by a mystic shield.";
+#endif
+
 	}
 	if (p_ptr->invuln)
 	{
+#ifdef JP
+info[i++] = "あなたは現在傷つかない。";
+#else
 		info[i++] = "You are temporarily invulnerable.";
+#endif
+
 	}
 	if (p_ptr->wraith_form)
 	{
+#ifdef JP
+info[i++] = "あなたは一時的に幽体化している。";
+#else
 		info[i++] = "You are temporarily incorporeal.";
+#endif
+
 	}
-	if (p_ptr->confusing)
+	if (p_ptr->special_attack & ATTACK_CONFUSE)
 	{
+#ifdef JP
+info[i++] = "あなたの手は赤く輝いている。";
+#else
 		info[i++] = "Your hands are glowing dull red.";
+#endif
+
 	}
-	if (p_ptr->searching)
+	if (p_ptr->special_attack & ATTACK_FIRE)
 	{
-		info[i++] = "You are looking around very carefully.";
+#ifdef JP
+info[i++] = "あなたの手は火炎に覆われている。";
+#else
+		info[i++] = "You can strike enemy with flame.";
+#endif
+
+	}
+	if (p_ptr->special_attack & ATTACK_COLD)
+	{
+#ifdef JP
+info[i++] = "あなたの手は冷気に覆われている。";
+#else
+		info[i++] = "You can strike enemy with cold.";
+#endif
+
+	}
+	if (p_ptr->special_attack & ATTACK_ACID)
+	{
+#ifdef JP
+info[i++] = "あなたの手は酸に覆われている。";
+#else
+		info[i++] = "You can strike enemy with acid.";
+#endif
+
+	}
+	if (p_ptr->special_attack & ATTACK_ELEC)
+	{
+#ifdef JP
+info[i++] = "あなたの手は電撃に覆われている。";
+#else
+		info[i++] = "You can strike enemy with electoric shock.";
+#endif
+
+	}
+	if (p_ptr->special_attack & ATTACK_POIS)
+	{
+#ifdef JP
+info[i++] = "あなたの手は毒に覆われている。";
+#else
+		info[i++] = "You can strike enemy with poison.";
+#endif
+
+	}
+	if (p_ptr->special_attack & ATTACK_CONFUSE)
+	{
+#ifdef JP
+info[i++] = "あなたの手は赤く輝いている。";
+#else
+		info[i++] = "Your hands are glowing dull red.";
+#endif
+
+	}
+	if (p_ptr->special_attack & ATTACK_CONFUSE)
+	{
+#ifdef JP
+info[i++] = "あなたの手は赤く輝いている。";
+#else
+		info[i++] = "Your hands are glowing dull red.";
+#endif
+
+	}
+	switch (p_ptr->action)
+	{
+		case ACTION_SEARCH:
+#ifdef JP
+info[i++] = "あなたはひじょうに注意深く周囲を見渡している。";
+#else
+			info[i++] = "You are looking around very carefully.";
+#endif
+			break;
 	}
 	if (p_ptr->new_spells)
 	{
+#ifdef JP
+info[i++] = "あなたは呪文や祈りを学ぶことができる。";
+#else
 		info[i++] = "You can learn some spells/prayers.";
+#endif
+
 	}
 	if (p_ptr->word_recall)
 	{
+#ifdef JP
+info[i++] = "あなたはすぐに帰還するだろう。";
+#else
 		info[i++] = "You will soon be recalled.";
+#endif
+
 	}
 	if (p_ptr->see_infra)
 	{
+#ifdef JP
+info[i++] = "あなたの瞳は赤外線に敏感である。";
+#else
 		info[i++] = "Your eyes are sensitive to infrared light.";
+#endif
+
 	}
 	if (p_ptr->see_inv)
 	{
+#ifdef JP
+info[i++] = "あなたは透明なモンスターを見ることができる。";
+#else
 		info[i++] = "You can see invisible creatures.";
+#endif
+
 	}
 	if (p_ptr->ffall)
 	{
+#ifdef JP
+info[i++] = "あなたは飛ぶことができる。";
+#else
 		info[i++] = "You can fly.";
+#endif
+
 	}
 	if (p_ptr->free_act)
 	{
+#ifdef JP
+info[i++] = "あなたは麻痺知らずの効果を持っている。";
+#else
 		info[i++] = "You have free action.";
+#endif
+
 	}
 	if (p_ptr->regenerate)
 	{
+#ifdef JP
+info[i++] = "あなたは素早く体力を回復する。";
+#else
 		info[i++] = "You regenerate quickly.";
+#endif
+
 	}
 	if (p_ptr->slow_digest)
 	{
+#ifdef JP
+info[i++] = "あなたは食欲が少ない。";
+#else
 		info[i++] = "Your appetite is small.";
+#endif
+
 	}
 	if (p_ptr->telepathy)
 	{
+#ifdef JP
+info[i++] = "あなたは超能力を持っている。";
+#else
 		info[i++] = "You have ESP.";
+#endif
+
 	}
 	if (p_ptr->hold_life)
 	{
+#ifdef JP
+info[i++] = "あなたは自己の生命力をしっかりと維持する。";
+#else
 		info[i++] = "You have a firm hold on your life force.";
+#endif
+
 	}
 	if (p_ptr->reflect)
 	{
+#ifdef JP
+info[i++] = "あなたは矢やボルトを反射する。";
+#else
 		info[i++] = "You reflect arrows and bolts.";
+#endif
+
 	}
 	if (p_ptr->sh_fire)
 	{
+#ifdef JP
+info[i++] = "あなたは炎のオーラに包まれている。";
+#else
 		info[i++] = "You are surrounded with a fiery aura.";
+#endif
+
 	}
 	if (p_ptr->sh_elec)
 	{
+#ifdef JP
+info[i++] = "あなたは電気に包まれている。";
+#else
 		info[i++] = "You are surrounded with electricity.";
+#endif
+
+	}
+	if (p_ptr->sh_cold)
+	{
+#ifdef JP
+info[i++] = "あなたは冷気のオーラに包まれている。";
+#else
+		info[i++] = "You are surrounded with a coldly aura.";
+#endif
+
 	}
 	if (p_ptr->anti_magic)
 	{
+#ifdef JP
+info[i++] = "あなたは反魔法シールドに包まれている。";
+#else
 		info[i++] = "You are surrounded by an anti-magic shell.";
+#endif
+
 	}
 	if (p_ptr->anti_tele)
 	{
+#ifdef JP
+info[i++] = "あなたはテレポートできない。";
+#else
 		info[i++] = "You cannot teleport.";
+#endif
+
 	}
 	if (p_ptr->lite)
 	{
+#ifdef JP
+info[i++] = "あなたの身体は光っている。";
+#else
 		info[i++] = "You are carrying a permanent light.";
+#endif
+
+	}
+	if (p_ptr->warning)
+	{
+#ifdef JP
+info[i++] = "あなたは行動の前に危険を察知することができる。";
+#else
+		info[i++] = "You will be warn before dangerous action.";
+#endif
+
+	}
+	if (p_ptr->dec_mana)
+	{
+#ifdef JP
+info[i++] = "あなたは少ない消費魔力で魔法を唱えることができる。";
+#else
+		info[i++] = "You can cast spell with fewer mana.";
+#endif
+
+	}
+	if (p_ptr->easy_spell)
+	{
+#ifdef JP
+info[i++] = "あなたは低い失敗率で魔法を唱えることができる。";
+#else
+		info[i++] = "Fail rate of your magic is decreased.";
+#endif
+
+	}
+	if (p_ptr->heavy_spell)
+	{
+#ifdef JP
+info[i++] = "あなたは高い失敗率で魔法を唱えなければいけない。";
+#else
+		info[i++] = "Fail rate of your magic is incresed.";
+#endif
+
+	}
+	if (p_ptr->mighty_throw)
+	{
+#ifdef JP
+info[i++] = "あなたは強く物を投げる。";
+#else
+		info[i++] = "You can throw objects powerfully.";
+#endif
+
 	}
 
 	if (p_ptr->immune_acid)
 	{
+#ifdef JP
+info[i++] = "あなたは酸に対する完全なる免疫を持っている。";
+#else
 		info[i++] = "You are completely immune to acid.";
+#endif
+
 	}
 	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
 	{
+#ifdef JP
+info[i++] = "あなたは酸への強力な耐性を持っている。";
+#else
 		info[i++] = "You resist acid exceptionally well.";
+#endif
+
 	}
 	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
 	{
+#ifdef JP
+info[i++] = "あなたは酸への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to acid.";
+#endif
+
 	}
 
 	if (p_ptr->immune_elec)
 	{
+#ifdef JP
+info[i++] = "あなたは電撃に対する完全なる免疫を持っている。";
+#else
 		info[i++] = "You are completely immune to lightning.";
+#endif
+
 	}
 	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
 	{
+#ifdef JP
+info[i++] = "あなたは電撃への強力な耐性を持っている。";
+#else
 		info[i++] = "You resist lightning exceptionally well.";
+#endif
+
 	}
 	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
 	{
+#ifdef JP
+info[i++] = "あなたは電撃への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to lightning.";
+#endif
+
+	}
+
+	if (prace_is_(RACE_ANDROID) && !p_ptr->immune_elec)
+	{
+#ifdef JP
+info[i++] = "あなたは電撃に弱い。";
+#else
+		info[i++] = "You are susceptible to damage from lightning.";
+#endif
+
 	}
 
 	if (p_ptr->immune_fire)
 	{
+#ifdef JP
+info[i++] = "あなたは火に対する完全なる免疫を持っている。";
+#else
 		info[i++] = "You are completely immune to fire.";
+#endif
+
 	}
 	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
 	{
+#ifdef JP
+info[i++] = "あなたは火への強力な耐性を持っている。";
+#else
 		info[i++] = "You resist fire exceptionally well.";
+#endif
+
 	}
 	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
 	{
+#ifdef JP
+info[i++] = "あなたは火への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to fire.";
+#endif
+
+	}
+
+	if (prace_is_(RACE_ENT) && !p_ptr->immune_fire)
+	{
+#ifdef JP
+info[i++] = "あなたは火に弱い。";
+#else
+		info[i++] = "You are susceptible to damage from fire.";
+#endif
+
 	}
 
 	if (p_ptr->immune_cold)
 	{
+#ifdef JP
+info[i++] = "あなたは冷気に対する完全なる免疫を持っている。";
+#else
 		info[i++] = "You are completely immune to cold.";
+#endif
+
 	}
 	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
 	{
+#ifdef JP
+info[i++] = "あなたは冷気への強力な耐性を持っている。";
+#else
 		info[i++] = "You resist cold exceptionally well.";
+#endif
+
 	}
 	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
 	{
+#ifdef JP
+info[i++] = "あなたは冷気への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to cold.";
+#endif
+
 	}
 
 	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
 	{
+#ifdef JP
+info[i++] = "あなたは毒への強力な耐性を持っている。";
+#else
 		info[i++] = "You resist poison exceptionally well.";
+#endif
+
 	}
 	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
 	{
+#ifdef JP
+info[i++] = "あなたは毒への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to poison.";
+#endif
+
 	}
 
 	if (p_ptr->resist_lite)
 	{
+#ifdef JP
+info[i++] = "あなたは閃光への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to bright light.";
+#endif
+
 	}
-	if (p_ptr->resist_dark)
+
+	if (prace_is_(RACE_VAMPIRE) || prace_is_(RACE_S_FAIRY) || (p_ptr->mimic_form == MIMIC_VAMPIRE))
 	{
+#ifdef JP
+info[i++] = "あなたは閃光に弱い。";
+#else
+		info[i++] = "You are susceptible to damage from bright light.";
+#endif
+
+	}
+
+	if (prace_is_(RACE_VAMPIRE) || (p_ptr->mimic_form == MIMIC_VAMPIRE) || p_ptr->wraith_form)
+	{
+#ifdef JP
+info[i++] = "あなたは暗黒に対する完全なる免疫を持っている。";
+#else
+		info[i++] = "You are completely immune to darkness.";
+#endif
+	}
+
+	else if (p_ptr->resist_dark)
+	{
+#ifdef JP
+info[i++] = "あなたは暗黒への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to darkness.";
+#endif
+
 	}
 	if (p_ptr->resist_conf)
 	{
+#ifdef JP
+info[i++] = "あなたは混乱への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to confusion.";
+#endif
+
 	}
 	if (p_ptr->resist_sound)
 	{
+#ifdef JP
+info[i++] = "あなたは音波の衝撃への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to sonic attacks.";
+#endif
+
 	}
 	if (p_ptr->resist_disen)
 	{
+#ifdef JP
+info[i++] = "あなたは劣化への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to disenchantment.";
+#endif
+
 	}
 	if (p_ptr->resist_chaos)
 	{
+#ifdef JP
+info[i++] = "あなたはカオスの力への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to chaos.";
+#endif
+
 	}
 	if (p_ptr->resist_shard)
 	{
+#ifdef JP
+info[i++] = "あなたは破片の攻撃への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to blasts of shards.";
+#endif
+
 	}
 	if (p_ptr->resist_nexus)
 	{
+#ifdef JP
+info[i++] = "あなたは因果混乱の攻撃への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to nexus attacks.";
+#endif
+
 	}
-	if (p_ptr->resist_neth)
+
+	if (prace_is_(RACE_SPECTRE))
 	{
+#ifdef JP
+info[i++] = "あなたは地獄の力を吸収できる。";
+#else
+		info[i++] = "You can drain nether forces.";
+#endif
+
+	}
+	else if (p_ptr->resist_neth)
+	{
+#ifdef JP
+info[i++] = "あなたは地獄の力への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to nether forces.";
+#endif
+
 	}
 	if (p_ptr->resist_fear)
 	{
+#ifdef JP
+info[i++] = "あなたは全く恐怖を感じない。";
+#else
 		info[i++] = "You are completely fearless.";
+#endif
+
 	}
 	if (p_ptr->resist_blind)
 	{
+#ifdef JP
+info[i++] = "あなたの目は盲目への耐性を持っている。";
+#else
 		info[i++] = "Your eyes are resistant to blindness.";
+#endif
+
 	}
 
 	if (p_ptr->sustain_str)
 	{
+#ifdef JP
+info[i++] = "あなたの腕力は維持されている。";
+#else
 		info[i++] = "Your strength is sustained.";
+#endif
+
 	}
 	if (p_ptr->sustain_int)
 	{
+#ifdef JP
+info[i++] = "あなたの知能は維持されている。";
+#else
 		info[i++] = "Your intelligence is sustained.";
+#endif
+
 	}
 	if (p_ptr->sustain_wis)
 	{
+#ifdef JP
+info[i++] = "あなたの賢さは維持されている。";
+#else
 		info[i++] = "Your wisdom is sustained.";
+#endif
+
 	}
 	if (p_ptr->sustain_con)
 	{
+#ifdef JP
+info[i++] = "あなたの耐久力は維持されている。";
+#else
 		info[i++] = "Your constitution is sustained.";
+#endif
+
 	}
 	if (p_ptr->sustain_dex)
 	{
+#ifdef JP
+info[i++] = "あなたの器用さは維持されている。";
+#else
 		info[i++] = "Your dexterity is sustained.";
+#endif
+
 	}
 	if (p_ptr->sustain_chr)
 	{
+#ifdef JP
+info[i++] = "あなたの魅力は維持されている。";
+#else
 		info[i++] = "Your charisma is sustained.";
+#endif
+
 	}
 
 	if (f1 & (TR1_STR))
 	{
+#ifdef JP
+info[i++] = "あなたの腕力は装備によって影響を受けている。";
+#else
 		info[i++] = "Your strength is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_INT))
 	{
+#ifdef JP
+info[i++] = "あなたの知能は装備によって影響を受けている。";
+#else
 		info[i++] = "Your intelligence is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_WIS))
 	{
+#ifdef JP
+info[i++] = "あなたの賢さは装備によって影響を受けている。";
+#else
 		info[i++] = "Your wisdom is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_DEX))
 	{
+#ifdef JP
+info[i++] = "あなたの器用さは装備によって影響を受けている。";
+#else
 		info[i++] = "Your dexterity is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_CON))
 	{
+#ifdef JP
+info[i++] = "あなたの耐久力は装備によって影響を受けている。";
+#else
 		info[i++] = "Your constitution is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_CHR))
 	{
+#ifdef JP
+info[i++] = "あなたの魅力は装備によって影響を受けている。";
+#else
 		info[i++] = "Your charisma is affected by your equipment.";
+#endif
+
 	}
 
 	if (f1 & (TR1_STEALTH))
 	{
+#ifdef JP
+info[i++] = "あなたの隠密行動能力は装備によって影響を受けている。";
+#else
 		info[i++] = "Your stealth is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_SEARCH))
 	{
+#ifdef JP
+info[i++] = "あなたの探索能力は装備によって影響を受けている。";
+#else
 		info[i++] = "Your searching ability is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_INFRA))
 	{
+#ifdef JP
+info[i++] = "あなたの赤外線視力は装備によって影響を受けている。";
+#else
 		info[i++] = "Your infravision is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_TUNNEL))
 	{
+#ifdef JP
+info[i++] = "あなたの採掘能力は装備によって影響を受けている。";
+#else
 		info[i++] = "Your digging ability is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_SPEED))
 	{
+#ifdef JP
+info[i++] = "あなたのスピードは装備によって影響を受けている。";
+#else
 		info[i++] = "Your speed is affected by your equipment.";
+#endif
+
 	}
 	if (f1 & (TR1_BLOWS))
 	{
+#ifdef JP
+info[i++] = "あなたの攻撃速度は装備によって影響を受けている。";
+#else
 		info[i++] = "Your attack speed is affected by your equipment.";
+#endif
+
 	}
 
 
 	/* Access the current weapon */
-	o_ptr = &inventory[INVEN_WIELD];
+	o_ptr = &inventory[INVEN_RARM];
 
 	/* Analyze the weapon */
 	if (o_ptr->k_idx)
@@ -931,90 +2613,202 @@ void self_knowledge(void)
 		/* Indicate Blessing */
 		if (f3 & (TR3_BLESSED))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は神の祝福を受けている。";
+#else
 			info[i++] = "Your weapon has been blessed by the gods.";
+#endif
+
 		}
 
 		if (f1 & (TR1_CHAOTIC))
 		{
+#ifdef JP
+info[i++] = "あなたの武器はログルスの徴の属性をもつ。";
+#else
 			info[i++] = "Your weapon is branded with the Sign of Logrus.";
+#endif
+
 		}
 
 		/* Hack */
 		if (f1 & (TR1_IMPACT))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は打撃で地震を発生することができる。";
+#else
 			info[i++] = "The impact of your weapon can cause earthquakes.";
+#endif
+
 		}
 
 		if (f1 & (TR1_VORPAL))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は非常に鋭い。";
+#else
 			info[i++] = "Your weapon is very sharp.";
+#endif
+
 		}
 
 		if (f1 & (TR1_VAMPIRIC))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は敵から生命力を吸収する。";
+#else
 			info[i++] = "Your weapon drains life from your foes.";
+#endif
+
 		}
 
 		/* Special "Attack Bonuses" */
 		if (f1 & (TR1_BRAND_ACID))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は敵を溶かす。";
+#else
 			info[i++] = "Your weapon melts your foes.";
+#endif
+
 		}
 		if (f1 & (TR1_BRAND_ELEC))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は敵を感電させる。";
+#else
 			info[i++] = "Your weapon shocks your foes.";
+#endif
+
 		}
 		if (f1 & (TR1_BRAND_FIRE))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は敵を燃やす。";
+#else
 			info[i++] = "Your weapon burns your foes.";
+#endif
+
 		}
 		if (f1 & (TR1_BRAND_COLD))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は敵を凍らせる。";
+#else
 			info[i++] = "Your weapon freezes your foes.";
+#endif
+
 		}
 		if (f1 & (TR1_BRAND_POIS))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は敵を毒で侵す。";
+#else
 			info[i++] = "Your weapon poisons your foes.";
+#endif
+
 		}
 
 		/* Special "slay" flags */
 		if (f1 & (TR1_SLAY_ANIMAL))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は動物に対して強い力を発揮する。";
+#else
 			info[i++] = "Your weapon strikes at animals with extra force.";
+#endif
+
 		}
 		if (f1 & (TR1_SLAY_EVIL))
 		{
+#ifdef JP
+info[i++] = "あなたの武器は邪悪なる存在に対して強い力を発揮する。";
+#else
 			info[i++] = "Your weapon strikes at evil with extra force.";
+#endif
+
 		}
 		if (f1 & (TR1_SLAY_UNDEAD))
 		{
+#ifdef JP
+info[i++] = "あなたの武器はアンデッドに対して神聖なる力を発揮する。";
+#else
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
+#endif
+
 		}
 		if (f1 & (TR1_SLAY_DEMON))
 		{
+#ifdef JP
+info[i++] = "あなたの武器はデーモンに対して神聖なる力を発揮する。";
+#else
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
+#endif
+
 		}
 		if (f1 & (TR1_SLAY_ORC))
 		{
+#ifdef JP
+info[i++] = "あなたの武器はオークに対して特に強い力を発揮する。";
+#else
 			info[i++] = "Your weapon is especially deadly against orcs.";
+#endif
+
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
+#ifdef JP
+info[i++] = "あなたの武器はトロルに対して特に強い力を発揮する。";
+#else
 			info[i++] = "Your weapon is especially deadly against trolls.";
+#endif
+
 		}
 		if (f1 & (TR1_SLAY_GIANT))
 		{
+#ifdef JP
+info[i++] = "あなたの武器はジャイアントに対して特に強い力を発揮する。";
+#else
 			info[i++] = "Your weapon is especially deadly against giants.";
-		}
-		if (f1 & (TR1_SLAY_DRAGON))
-		{
-			info[i++] = "Your weapon is especially deadly against dragons.";
-		}
+#endif
 
+		}
 		/* Special "kill" flags */
 		if (f1 & (TR1_KILL_DRAGON))
 		{
+#ifdef JP
+info[i++] = "あなたの武器はドラゴンの天敵である。";
+#else
 			info[i++] = "Your weapon is a great bane of dragons.";
+#endif
+
+		}
+		else if (f1 & (TR1_SLAY_DRAGON))
+		{
+#ifdef JP
+info[i++] = "あなたの武器はドラゴンに対して特に強い力を発揮する。";
+#else
+			info[i++] = "Your weapon is especially deadly against dragons.";
+#endif
+
+		}
+
+		if (f1 & (TR1_RIRYOKU))
+		{
+#ifdef JP
+info[i++] = "あなたの武器はMPを使って攻撃する。";
+#else
+			info[i++] = "Your weapon causes greate damages using your MP.";
+#endif
+
+		}
+		if (f2 & (TR2_THROW))
+		{
+#ifdef JP
+info[i++] = "あなたの武器は投げやすい。";
+#else
+			info[i++] = "Your weapon can be thrown well.";
+#endif
 		}
 	}
 
@@ -1026,7 +2820,12 @@ void self_knowledge(void)
 	for (k = 1; k < 24; k++) prt("", k, 13);
 
 	/* Label the information */
+#ifdef JP
+prt("        あなたの状態:", 1, 15);
+#else
 	prt("     Your Attributes:", 1, 15);
+#endif
+
 
 	/* We will print on top of the map (column 13) */
 	for (k = 2, j = 0; j < i; j++)
@@ -1037,14 +2836,24 @@ void self_knowledge(void)
 		/* Every 20 entries (lines 2 to 21), start over */
 		if ((k == 22) && (j+1 < i))
 		{
+#ifdef JP
+prt("-- 続く --", k, 15);
+#else
 			prt("-- more --", k, 15);
+#endif
+
 			inkey();
 			for (; k > 2; k--) prt("", k, 15);
 		}
 	}
 
 	/* Pause */
+#ifdef JP
+prt("[何かキーを押すとゲームに戻ります]", k, 13);
+#else
 	prt("[Press any key to continue]", k, 13);
+#endif
+
 	inkey();
 
 	/* Restore the screen */
@@ -1086,6 +2895,16 @@ static int report_magics_aux(int dur)
 
 static cptr report_magic_durations[] =
 {
+#ifdef JP
+"ごく短い間",
+"少しの間",
+"しばらくの間",
+"多少長い間",
+"長い間",
+"非常に長い間",
+"信じ難いほど長い間",
+"モンスターを攻撃するまで"
+#else
 	"for a short time",
 	"for a little while",
 	"for a while",
@@ -1094,6 +2913,8 @@ static cptr report_magic_durations[] =
 	"for a very long time",
 	"for an incredibly long time",
 	"until you hit a monster"
+#endif
+
 };
 
 
@@ -1111,97 +2932,192 @@ void report_magics(void)
 	if (p_ptr->blind)
 	{
 		info2[i]  = report_magics_aux(p_ptr->blind);
+#ifdef JP
+info[i++] = "あなたは目が見えない。";
+#else
 		info[i++] = "You cannot see";
+#endif
+
 	}
 	if (p_ptr->confused)
 	{
 		info2[i]  = report_magics_aux(p_ptr->confused);
+#ifdef JP
+info[i++] = "あなたは混乱している。";
+#else
 		info[i++] = "You are confused";
+#endif
+
 	}
 	if (p_ptr->afraid)
 	{
 		info2[i]  = report_magics_aux(p_ptr->afraid);
+#ifdef JP
+info[i++] = "あなたは恐怖に侵されている。";
+#else
 		info[i++] = "You are terrified";
+#endif
+
 	}
 	if (p_ptr->poisoned)
 	{
 		info2[i]  = report_magics_aux(p_ptr->poisoned);
+#ifdef JP
+info[i++] = "あなたは毒に侵されている。";
+#else
 		info[i++] = "You are poisoned";
+#endif
+
 	}
 	if (p_ptr->image)
 	{
 		info2[i]  = report_magics_aux(p_ptr->image);
+#ifdef JP
+info[i++] = "あなたは幻覚を見ている。";
+#else
 		info[i++] = "You are hallucinating";
+#endif
+
 	}
 	if (p_ptr->blessed)
 	{
 		info2[i]  = report_magics_aux(p_ptr->blessed);
+#ifdef JP
+info[i++] = "あなたは公正さを感じている。";
+#else
 		info[i++] = "You feel rightous";
+#endif
+
 	}
 	if (p_ptr->hero)
 	{
 		info2[i]  = report_magics_aux(p_ptr->hero);
+#ifdef JP
+info[i++] = "あなたはヒーロー気分だ。";
+#else
 		info[i++] = "You feel heroic";
+#endif
+
 	}
 	if (p_ptr->shero)
 	{
 		info2[i]  = report_magics_aux(p_ptr->shero);
+#ifdef JP
+info[i++] = "あなたは戦闘狂だ。";
+#else
 		info[i++] = "You are in a battle rage";
+#endif
+
 	}
 	if (p_ptr->protevil)
 	{
 		info2[i]  = report_magics_aux(p_ptr->protevil);
+#ifdef JP
+info[i++] = "あなたは邪悪なる存在から守られている。";
+#else
 		info[i++] = "You are protected from evil";
+#endif
+
 	}
 	if (p_ptr->shield)
 	{
 		info2[i]  = report_magics_aux(p_ptr->shield);
+#ifdef JP
+info[i++] = "あなたは神秘のシールドで守られている。";
+#else
 		info[i++] = "You are protected by a mystic shield";
+#endif
+
 	}
 	if (p_ptr->invuln)
 	{
 		info2[i]  = report_magics_aux(p_ptr->invuln);
+#ifdef JP
+info[i++] = "無敵でいられる。";
+#else
 		info[i++] = "You are invulnerable";
+#endif
+
 	}
 	if (p_ptr->wraith_form)
 	{
 		info2[i]  = report_magics_aux(p_ptr->wraith_form);
+#ifdef JP
+info[i++] = "幽体化できる。";
+#else
 		info[i++] = "You are incorporeal";
+#endif
+
 	}
-	if (p_ptr->confusing)
+	if (p_ptr->special_attack & ATTACK_CONFUSE)
 	{
 		info2[i]  = 7;
+#ifdef JP
+info[i++] = "あなたの手は赤く輝いている。";
+#else
 		info[i++] = "Your hands are glowing dull red.";
+#endif
+
 	}
 	if (p_ptr->word_recall)
 	{
 		info2[i]  = report_magics_aux(p_ptr->word_recall);
+#ifdef JP
+info[i++] = "の後帰還の詔を発動する。";
+#else
 		info[i++] = "You waiting to be recalled";
+#endif
+
 	}
 	if (p_ptr->oppose_acid)
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_acid);
+#ifdef JP
+info[i++] = "あなたは酸への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to acid";
+#endif
+
 	}
 	if (p_ptr->oppose_elec)
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_elec);
+#ifdef JP
+info[i++] = "あなたは電撃への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to lightning";
+#endif
+
 	}
 	if (p_ptr->oppose_fire)
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_fire);
+#ifdef JP
+info[i++] = "あなたは火への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to fire";
+#endif
+
 	}
 	if (p_ptr->oppose_cold)
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_cold);
+#ifdef JP
+info[i++] = "あなたは冷気への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to cold";
+#endif
+
 	}
 	if (p_ptr->oppose_pois)
 	{
 		info2[i]  = report_magics_aux(p_ptr->oppose_pois);
+#ifdef JP
+info[i++] = "あなたは毒への耐性を持っている。";
+#else
 		info[i++] = "You are resistant to poison";
+#endif
+
 	}
 
 	/* Save the screen */
@@ -1211,27 +3127,47 @@ void report_magics(void)
 	for (k = 1; k < 24; k++) prt("", k, 13);
 
 	/* Label the information */
+#ifdef JP
+prt("           魔法        :", 1, 15);
+#else
 	prt("     Your Current Magic:", 1, 15);
+#endif
+
 
 	/* We will print on top of the map (column 13) */
 	for (k = 2, j = 0; j < i; j++)
 	{
 		/* Show the info */
+#ifdef JP
+sprintf(Dummy, "あなたは%s%s", info[j],
+#else
 		sprintf(Dummy, "%s %s.", info[j],
+#endif
+
 			report_magic_durations[info2[j]]);
 		prt(Dummy, k++, 15);
 
 		/* Every 20 entries (lines 2 to 21), start over */
 		if ((k == 22) && (j + 1 < i))
 		{
+#ifdef JP
+prt("-- 続く --", k, 15);
+#else
 			prt("-- more --", k, 15);
+#endif
+
 			inkey();
 			for (; k > 2; k--) prt("", k, 15);
 		}
 	}
 
 	/* Pause */
+#ifdef JP
+prt("[何かキーを押すとゲームに戻ります]", k, 13);
+#else
 	prt("[Press any key to continue]", k, 13);
+#endif
+
 	inkey();
 
 	/* Restore the screen */
@@ -1242,23 +3178,27 @@ void report_magics(void)
 /*
  * Detect all traps on current panel
  */
-bool detect_traps(void)
+bool detect_traps(int range)
 {
 	int             x, y;
 	bool            detect = FALSE;
 	cave_type       *c_ptr;
 
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
+
 	/* Scan the current panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	for (y = 1; y < cur_hgt - 1; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = 1; x <= cur_wid - 1; x++)
 		{
+			if (distance(py, px, y, x) > range) continue;
+
 			/* Access the grid */
 			c_ptr = &cave[y][x];
 
 			/* Detect invisible traps */
-			if (c_ptr->feat == FEAT_INVIS)
+			if (c_ptr->info & CAVE_TRAP)
 			{
 				/* Pick a trap */
 				pick_trap(y, x);
@@ -1279,10 +3219,17 @@ bool detect_traps(void)
 		}
 	}
 
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+
 	/* Describe */
 	if (detect)
 	{
+#ifdef JP
+msg_print("トラップの存在を感じとった！");
+#else
 		msg_print("You sense the presence of traps!");
+#endif
+
 	}
 
 	/* Result */
@@ -1294,7 +3241,7 @@ bool detect_traps(void)
 /*
  * Detect all doors on current panel
  */
-bool detect_doors(void)
+bool detect_doors(int range)
 {
 	int y, x;
 
@@ -1302,12 +3249,15 @@ bool detect_doors(void)
 
 	cave_type *c_ptr;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan the panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	for (y = 1; y < cur_hgt - 1; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = 1; x < cur_wid - 1; x++)
 		{
+			if (distance(py, px, y, x) > range) continue;
+
 			c_ptr = &cave[y][x];
 
 			/* Detect secret doors */
@@ -1335,10 +3285,17 @@ bool detect_doors(void)
 		}
 	}
 
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+
 	/* Describe */
 	if (detect)
 	{
+#ifdef JP
+msg_print("ドアの存在を感じとった！");
+#else
 		msg_print("You sense the presence of doors!");
+#endif
+
 	}
 
 	/* Result */
@@ -1349,7 +3306,7 @@ bool detect_doors(void)
 /*
  * Detect all stairs on current panel
  */
-bool detect_stairs(void)
+bool detect_stairs(int range)
 {
 	int y, x;
 
@@ -1357,17 +3314,23 @@ bool detect_stairs(void)
 
 	cave_type *c_ptr;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan the panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	for (y = 1; y < cur_hgt - 1; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = 1; x < cur_wid - 1; x++)
 		{
+			if (distance(py, px, y, x) > range) continue;
+
 			c_ptr = &cave[y][x];
 
 			/* Detect stairs */
 			if ((c_ptr->feat == FEAT_LESS) ||
-			    (c_ptr->feat == FEAT_MORE))
+			    (c_ptr->feat == FEAT_LESS_LESS) ||
+			    (c_ptr->feat == FEAT_MORE) ||
+			    (c_ptr->feat == FEAT_MORE_MORE) ||
+    			    (c_ptr->feat == FEAT_ENTRANCE))
 			{
 				/* Hack -- Memorize */
 				c_ptr->info |= (CAVE_MARK);
@@ -1381,10 +3344,17 @@ bool detect_stairs(void)
 		}
 	}
 
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT)) detect = FALSE;
+
 	/* Describe */
 	if (detect)
 	{
+#ifdef JP
+msg_print("階段の存在を感じとった！");
+#else
 		msg_print("You sense the presence of stairs!");
+#endif
+
 	}
 
 	/* Result */
@@ -1395,7 +3365,7 @@ bool detect_stairs(void)
 /*
  * Detect any treasure on the current panel
  */
-bool detect_treasure(void)
+bool detect_treasure(int range)
 {
 	int y, x;
 
@@ -1403,12 +3373,15 @@ bool detect_treasure(void)
 
 	cave_type *c_ptr;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan the current panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	for (y = 1; y < cur_hgt; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = 1; x < cur_wid; x++)
 		{
+			if (distance(py, px, y, x) > range) continue;
+
 			c_ptr = &cave[y][x];
 
 			/* Notice embedded gold */
@@ -1435,10 +3408,17 @@ bool detect_treasure(void)
 		}
 	}
 
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+
 	/* Describe */
 	if (detect)
 	{
+#ifdef JP
+msg_print("埋蔵された財宝の存在を感じとった！");
+#else
 		msg_print("You sense the presence of buried treasure!");
+#endif
+
 	}
 
 
@@ -1451,12 +3431,14 @@ bool detect_treasure(void)
 /*
  * Detect all "gold" objects on the current panel
  */
-bool detect_objects_gold(void)
+bool detect_objects_gold(int range)
 {
 	int i, y, x;
+	int range2 = range;
 
 	bool detect = FALSE;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range2 /= 3;
 
 	/* Scan objects */
 	for (i = 1; i < o_max; i++)
@@ -1474,7 +3456,7 @@ bool detect_objects_gold(void)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (distance(py, px, y, x) > range2) continue;
 
 		/* Detect "gold" objects */
 		if (o_ptr->tval == TV_GOLD)
@@ -1490,13 +3472,20 @@ bool detect_objects_gold(void)
 		}
 	}
 
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+
 	/* Describe */
 	if (detect)
 	{
+#ifdef JP
+msg_print("財宝の存在を感じとった！");
+#else
 		msg_print("You sense the presence of treasure!");
+#endif
+
 	}
 
-	if (detect_monsters_string("$"))
+	if (detect_monsters_string(range, "$"))
 	{
 		detect = TRUE;
 	}
@@ -1509,12 +3498,14 @@ bool detect_objects_gold(void)
 /*
  * Detect all "normal" objects on the current panel
  */
-bool detect_objects_normal(void)
+bool detect_objects_normal(int range)
 {
 	int i, y, x;
+	int range2 = range;
 
 	bool detect = FALSE;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range2 /= 3;
 
 	/* Scan objects */
 	for (i = 1; i < o_max; i++)
@@ -1532,7 +3523,7 @@ bool detect_objects_normal(void)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (distance(py, px, y, x) > range2) continue;
 
 		/* Detect "real" objects */
 		if (o_ptr->tval != TV_GOLD)
@@ -1548,13 +3539,20 @@ bool detect_objects_normal(void)
 		}
 	}
 
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+6)) detect = FALSE;
+
 	/* Describe */
 	if (detect)
 	{
+#ifdef JP
+msg_print("アイテムの存在を感じとった！");
+#else
 		msg_print("You sense the presence of objects!");
+#endif
+
 	}
 
-	if (detect_monsters_string("!=?|"))
+	if (detect_monsters_string(range, "!=?|/`"))
 	{
 		detect = TRUE;
 	}
@@ -1573,12 +3571,13 @@ bool detect_objects_normal(void)
  *
  * It can probably be argued that this function is now too powerful.
  */
-bool detect_objects_magic(void)
+bool detect_objects_magic(int range)
 {
 	int i, y, x, tv;
 
 	bool detect = FALSE;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
@@ -1596,7 +3595,7 @@ bool detect_objects_magic(void)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Examine the tval */
 		tv = o_ptr->tval;
@@ -1619,6 +3618,10 @@ bool detect_objects_magic(void)
 		    (tv == TV_DEATH_BOOK) ||
 		    (tv == TV_TRUMP_BOOK) ||
 			(tv == TV_ARCANE_BOOK) ||
+			(tv == TV_ENCHANT_BOOK) ||
+			(tv == TV_DAEMON_BOOK) ||
+			(tv == TV_MUSIC_BOOK) ||
+			(tv == TV_HISSATSU_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1635,7 +3638,12 @@ bool detect_objects_magic(void)
 	/* Describe */
 	if (detect)
 	{
+#ifdef JP
+msg_print("魔法のアイテムの存在を感じとった！");
+#else
 		msg_print("You sense the presence of magic objects!");
+#endif
+
 	}
 
 	/* Return result */
@@ -1646,12 +3654,13 @@ bool detect_objects_magic(void)
 /*
  * Detect all "normal" monsters on the current panel
  */
-bool detect_monsters_normal(void)
+bool detect_monsters_normal(int range)
 {
 	int i, y, x;
 
 	bool flag = FALSE;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -1667,7 +3676,7 @@ bool detect_monsters_normal(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect all non-invisible monsters */
 		if ((!(r_ptr->flags2 & RF2_INVISIBLE)) ||
@@ -1687,11 +3696,18 @@ bool detect_monsters_normal(void)
 		}
 	}
 
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+
 	/* Describe */
 	if (flag)
 	{
 		/* Describe result */
+#ifdef JP
+msg_print("モンスターの存在を感じとった！");
+#else
 		msg_print("You sense the presence of monsters!");
+#endif
+
 	}
 
 	/* Result */
@@ -1702,10 +3718,12 @@ bool detect_monsters_normal(void)
 /*
  * Detect all "invisible" monsters around the player
  */
-bool detect_monsters_invis(void)
+bool detect_monsters_invis(int range)
 {
 	int i, y, x;
 	bool flag = FALSE;
+
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -1721,7 +3739,7 @@ bool detect_monsters_invis(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect invisible monsters */
 		if (r_ptr->flags2 & RF2_INVISIBLE)
@@ -1747,11 +3765,18 @@ bool detect_monsters_invis(void)
 		}
 	}
 
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+
 	/* Describe */
 	if (flag)
 	{
 		/* Describe result */
+#ifdef JP
+msg_print("透明な生物の存在を感じとった！");
+#else
 		msg_print("You sense the presence of invisible creatures!");
+#endif
+
 	}
 
 	/* Result */
@@ -1763,11 +3788,12 @@ bool detect_monsters_invis(void)
 /*
  * Detect all "evil" monsters on current panel
  */
-bool detect_monsters_evil(void)
+bool detect_monsters_evil(int range)
 {
 	int i, y, x;
 	bool flag = FALSE;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -1783,7 +3809,7 @@ bool detect_monsters_evil(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & RF3_EVIL)
@@ -1816,7 +3842,12 @@ bool detect_monsters_evil(void)
 	if (flag)
 	{
 		/* Describe result */
+#ifdef JP
+msg_print("邪悪なる生物の存在を感じとった！");
+#else
 		msg_print("You sense the presence of evil creatures!");
+#endif
+
 	}
 
 	/* Result */
@@ -1827,13 +3858,14 @@ bool detect_monsters_evil(void)
 
 
 /*
- * Detect all (string) monsters on current panel
+ * Detect all "nonliving", "undead" or "demonic" monsters on current panel
  */
-bool detect_monsters_string(cptr Match)
+bool detect_monsters_nonliving(int range)
 {
-	int i, y, x;
-	bool flag = FALSE;
+	int     i, y, x;
+	bool    flag = FALSE;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -1849,10 +3881,10 @@ bool detect_monsters_string(cptr Match)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(py, px, y, x) > range) continue;
 
-		/* Detect monsters with the same symbol */
-		if (strchr(Match, r_ptr->d_char))
+		/* Detect non-living monsters */
+		if (!monster_living(r_ptr))
 		{
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1879,7 +3911,12 @@ bool detect_monsters_string(cptr Match)
 	if (flag)
 	{
 		/* Describe result */
-		msg_print("You sense the presence of monsters!");
+#ifdef JP
+msg_print("自然でないモンスターの存在を感じた！");
+#else
+		msg_print("You sense the presence of unnatural beings!");
+#endif
+
 	}
 
 	/* Result */
@@ -1888,14 +3925,14 @@ bool detect_monsters_string(cptr Match)
 
 
 /*
- * A "generic" detect monsters routine, tagged to flags3
+ * Detect all monsters it has mind on current panel
  */
-bool detect_monsters_xxx(u32b match_flag)
+bool detect_monsters_mind(int range)
 {
-	int  i, y, x;
-	bool flag = FALSE;
-	cptr desc_monsters = "weird monsters";
+	int     i, y, x;
+	bool    flag = FALSE;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -1911,7 +3948,148 @@ bool detect_monsters_xxx(u32b match_flag)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if (distance(py, px, y, x) > range) continue;
+
+		/* Detect non-living monsters */
+		if (!(r_ptr->flags2 & RF2_EMPTY_MIND))
+		{
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+#ifdef JP
+msg_print("殺気を感じとった！");
+#else
+		msg_print("You sense the presence of someone's mind!");
+#endif
+
+	}
+
+	/* Result */
+	return (flag);
+}
+
+
+/*
+ * Detect all (string) monsters on current panel
+ */
+bool detect_monsters_string(int range, cptr Match)
+{
+	int i, y, x;
+	bool flag = FALSE;
+
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (distance(py, px, y, x) > range) continue;
+
+		/* Detect monsters with the same symbol */
+		if (strchr(Match, r_ptr->d_char))
+		{
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Repair visibility later */
+			repair_monsters = TRUE;
+
+			/* Hack -- Detect monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	if ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] > MUSIC_DETECT+3)) flag = FALSE;
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+#ifdef JP
+msg_print("モンスターの存在を感じとった！");
+#else
+		msg_print("You sense the presence of monsters!");
+#endif
+
+	}
+
+	/* Result */
+	return (flag);
+}
+
+
+/*
+ * A "generic" detect monsters routine, tagged to flags3
+ */
+bool detect_monsters_xxx(int range, u32b match_flag)
+{
+	int  i, y, x;
+	bool flag = FALSE;
+#ifdef JP
+cptr desc_monsters = "変なモンスター";
+#else
+	cptr desc_monsters = "weird monsters";
+#endif
+
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS) range /= 3;
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (distance(py, px, y, x) > range) continue;
 
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & (match_flag))
@@ -1946,15 +4124,30 @@ bool detect_monsters_xxx(u32b match_flag)
 		switch (match_flag)
 		{
 			case RF3_DEMON:
+#ifdef JP
+desc_monsters = "デーモン";
+#else
 				desc_monsters = "demons";
+#endif
+
 				break;
 			case RF3_UNDEAD:
+#ifdef JP
+desc_monsters = "アンデッド";
+#else
 				desc_monsters = "the undead";
+#endif
+
 				break;
 		}
 
 		/* Describe result */
+#ifdef JP
+msg_format("%sの存在を感じとった！", desc_monsters);
+#else
 		msg_format("You sense the presence of %s!", desc_monsters);
+#endif
+
 		msg_print(NULL);
 	}
 
@@ -1966,19 +4159,19 @@ bool detect_monsters_xxx(u32b match_flag)
 /*
  * Detect everything
  */
-bool detect_all(void)
+bool detect_all(int range)
 {
 	bool detect = FALSE;
 
 	/* Detect everything */
-	if (detect_traps()) detect = TRUE;
-	if (detect_doors()) detect = TRUE;
-	if (detect_stairs()) detect = TRUE;
-	if (detect_treasure()) detect = TRUE;
-	if (detect_objects_gold()) detect = TRUE;
-	if (detect_objects_normal()) detect = TRUE;
-	if (detect_monsters_invis()) detect = TRUE;
-	if (detect_monsters_normal()) detect = TRUE;
+	if (detect_traps(range)) detect = TRUE;
+	if (detect_doors(range)) detect = TRUE;
+	if (detect_stairs(range)) detect = TRUE;
+	if (detect_treasure(range)) detect = TRUE;
+	if (detect_objects_gold(range)) detect = TRUE;
+	if (detect_objects_normal(range)) detect = TRUE;
+	if (detect_monsters_invis(range)) detect = TRUE;
+	if (detect_monsters_normal(range)) detect = TRUE;
 
 	/* Result */
 	return (detect);
@@ -1996,7 +4189,7 @@ bool detect_all(void)
 bool project_hack(int typ, int dam)
 {
 	int     i, x, y;
-	int     flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
+	int     flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE | PROJECT_NO_REF;
 	bool    obvious = FALSE;
 
 
@@ -2035,7 +4228,7 @@ bool project_hack(int typ, int dam)
 		x = m_ptr->fx;
 
 		/* Jump directly to the target monster */
-		if (project(0, 0, y, x, dam, typ, flg)) obvious = TRUE;
+		if (project(0, 0, y, x, dam, typ, flg, -1)) obvious = TRUE;
 	}
 
 	/* Result */
@@ -2082,7 +4275,10 @@ bool banish_evil(int dist)
  */
 bool turn_undead(void)
 {
-	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
+	bool tester = (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
+	if (tester)
+		chg_virtue(V_UNLIFE, -1);
+	return tester;
 }
 
 
@@ -2091,7 +4287,10 @@ bool turn_undead(void)
  */
 bool dispel_undead(int dam)
 {
-	return (project_hack(GF_DISP_UNDEAD, dam));
+	bool tester = (project_hack(GF_DISP_UNDEAD, dam));
+	if (tester)
+		chg_virtue(V_UNLIFE, -2);
+	return tester;
 }
 
 /*
@@ -2149,7 +4348,7 @@ void aggravate_monsters(int who)
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type    *m_ptr = &m_list[i];
-		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+//		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2167,24 +4366,38 @@ void aggravate_monsters(int who)
 				m_ptr->csleep = 0;
 				sleep = TRUE;
 			}
+			if (!is_pet(m_ptr)) m_ptr->mflag2 |= MFLAG_NOPET;
 		}
 
 		/* Speed up monsters in line of sight */
 		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
 		{
-			/* Speed up (instantly) to racial base + 10 */
-			if (m_ptr->mspeed < r_ptr->speed + 10)
+			if (!is_pet(m_ptr))
 			{
-				/* Speed up */
-				m_ptr->mspeed = r_ptr->speed + 10;
+				m_ptr->fast = MIN(200, m_ptr->fast + 100);
 				speed = TRUE;
 			}
+#if 0
+			/* Speed up (instantly) to racial base + 10 */
+			else if (m_ptr->mspeed < r_ptr->speed + 10)
+			{
+				/* Speed up */
+				m_ptr->mspeed += 10;
+				speed = TRUE;
+			}
+#endif
 		}
 	}
 
 	/* Messages */
+#ifdef JP
+if (speed) msg_print("付近で何かが突如興奮したような感じを受けた！");
+else if (sleep) msg_print("何かが突如興奮したような騒々しい音が遠くに聞こえた！");
+#else
 	if (speed) msg_print("You feel a sudden stirring nearby!");
 	else if (sleep) msg_print("You hear a sudden stirring in the distance!");
+#endif
+	if (p_ptr->jouba) p_ptr->update |= PU_BONUS;
 }
 
 
@@ -2192,7 +4405,7 @@ void aggravate_monsters(int who)
 /*
  * Delete all non-unique/non-quest monsters of a given "type" from the level
  */
-bool genocide(int player_cast)
+bool symbol_genocide(int power, int player_cast)
 {
 	int     i;
 	char    typ;
@@ -2200,39 +4413,99 @@ bool genocide(int player_cast)
 	int     msec = delay_factor * delay_factor * delay_factor;
 
 	/* Prevent genocide in quest levels */
-	if (p_ptr->inside_quest)
+	if (p_ptr->inside_quest && !random_quest_number(dun_level))
 	{
 		return (FALSE);
 	}
 
 	/* Mega-Hack -- Get a monster symbol */
-	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
+#ifdef JP
+while(!get_com("どの種類(文字)のモンスターを抹殺しますか: ", &typ, FALSE));
+#else
+	while(!get_com("Choose a monster race (by symbol) to genocide: ", &typ, FALSE));
+#endif
+
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type    *m_ptr = &m_list[i];
 		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+		bool angry = FALSE;
+		char m_name[80];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Hack -- Skip Unique Monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
-
-		/* Hack -- Skip Quest Monsters */
-		if (r_ptr->flags1 & RF1_QUESTOR) continue;
-
 		/* Skip "wrong" monsters */
 		if (r_ptr->d_char != typ) continue;
 
+		if (is_pet(m_ptr) && !player_cast) continue;
+
+		/* Hack -- Skip Unique Monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
+
+		/* Hack -- Skip Quest Monsters */
+		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
+
+		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
+
+		else if (i == p_ptr->jouba) angry = TRUE;
+
+		else if (player_cast && (r_ptr->level > rand_int(power))) angry = TRUE;
+
+		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+
 		/* Delete the monster */
-		delete_monster_idx(i);
+		else delete_monster_idx(i);
+
+		if (angry && player_cast)
+		{
+			monster_desc(m_name, m_ptr, 0);
+			if (m_ptr->ml && !p_ptr->blind)
+			{
+#ifdef JP
+msg_format("%^sには効果がなかった。", m_name);
+#else
+				msg_format("%^s is unaffected.", m_name);
+#endif
+			}
+			if (m_ptr->csleep)
+			{
+				m_ptr->csleep = 0;
+				if (m_ptr->ml && !p_ptr->blind)
+				{
+#ifdef JP
+msg_format("%^sが目を覚ました。", m_name);
+#else
+					msg_format("%^s wakes up.", m_name);
+#endif
+				}
+			}
+			if (is_friendly(m_ptr) && !is_pet(m_ptr))
+			{
+				if (m_ptr->ml && !p_ptr->blind)
+				{
+#ifdef JP
+					msg_format("%sは怒った！", m_name);
+#else
+					msg_format("%^s gets angry!", m_name);
+#endif
+				}
+				set_hostile(m_ptr);
+			}
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+		}
 
 		if (player_cast)
 		{
 			/* Take damage */
-			take_hit(randint(4), "the strain of casting Genocide");
+#ifdef JP
+take_hit(DAMAGE_GENO, randint(4), "抹殺の呪文を唱えた疲労", -1);
+#else
+			take_hit(DAMAGE_GENO, randint(4), "the strain of casting Genocide", -1);
+#endif
+
 		}
 
 		/* Visual feedback */
@@ -2256,6 +4529,11 @@ bool genocide(int player_cast)
 		/* Take note */
 		result = TRUE;
 	}
+	if (result)
+	{
+		chg_virtue(V_VITALITY, -2);
+		chg_virtue(V_CHANCE, -1);
+	}
 
 	return (result);
 }
@@ -2264,7 +4542,7 @@ bool genocide(int player_cast)
 /*
  * Delete all nearby (non-unique) monsters
  */
-bool mass_genocide(int player_cast)
+bool mass_genocide(int power, int player_cast)
 {
 	int     i;
 	bool    result = FALSE;
@@ -2272,7 +4550,7 @@ bool mass_genocide(int player_cast)
 
 
 	/* Prevent mass genocide in quest levels */
-	if (p_ptr->inside_quest)
+	if (p_ptr->inside_quest && !random_quest_number(dun_level))
 	{
 		return (FALSE);
 	}
@@ -2282,26 +4560,81 @@ bool mass_genocide(int player_cast)
 	{
 		monster_type    *m_ptr = &m_list[i];
 		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+		bool angry = FALSE;
+		char m_name[80];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Hack -- Skip unique monsters */
-		if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
-
-		/* Hack -- Skip Quest Monsters */
-		if (r_ptr->flags1 & RF1_QUESTOR) continue;
-
 		/* Skip distant monsters */
 		if (m_ptr->cdis > MAX_SIGHT) continue;
 
+		if (is_pet(m_ptr) && !player_cast) continue;
+
+		/* Hack -- Skip unique monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
+
+		/* Hack -- Skip Quest Monsters */
+		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
+
+		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
+
+		else if (i == p_ptr->jouba) angry = TRUE;
+
+		else if (player_cast && (r_ptr->level > rand_int(power))) angry = TRUE;
+
+		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+
 		/* Delete the monster */
-		delete_monster_idx(i);
+		else delete_monster_idx(i);
+
+		if (angry && player_cast)
+		{
+			monster_desc(m_name, m_ptr, 0);
+			if (m_ptr->ml && !p_ptr->blind)
+			{
+#ifdef JP
+msg_format("%^sには効果がなかった。", m_name);
+#else
+				msg_format("%^s is unaffected.", m_name);
+#endif
+			}
+			if (m_ptr->csleep)
+			{
+				m_ptr->csleep = 0;
+				if (m_ptr->ml && !p_ptr->blind)
+				{
+#ifdef JP
+msg_format("%^sが目を覚ました。", m_name);
+#else
+					msg_format("%^s wakes up.", m_name);
+#endif
+				}
+			}
+			if (is_friendly(m_ptr) && !is_pet(m_ptr))
+			{
+				if (m_ptr->ml && !p_ptr->blind)
+				{
+#ifdef JP
+					msg_format("%sは怒った！", m_name);
+#else
+					msg_format("%^s gets angry!", m_name);
+#endif
+				}
+				set_hostile(m_ptr);
+			}
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+		}
 
 		if (player_cast)
 		{
 			/* Hack -- visual feedback */
-			take_hit(randint(3), "the strain of casting Mass Genocide");
+#ifdef JP
+take_hit(DAMAGE_GENO, randint(3), "周辺抹殺の呪文を唱えた疲労", -1);
+#else
+			take_hit(DAMAGE_GENO, randint(3), "the strain of casting Mass Genocide", -1);
+#endif
+
 		}
 
 		move_cursor_relative(py, px);
@@ -2325,6 +4658,144 @@ bool mass_genocide(int player_cast)
 		result = TRUE;
 	}
 
+	if (result)
+	{
+		chg_virtue(V_VITALITY, -2);
+		chg_virtue(V_CHANCE, -1);
+	}
+
+	return (result);
+}
+
+
+
+/*
+ * Delete all nearby (non-unique) undead
+ */
+bool mass_genocide_undead(int power, int player_cast)
+{
+	int     i;
+	bool    result = FALSE;
+	int     msec = delay_factor * delay_factor * delay_factor;
+
+
+	/* Prevent mass genocide in quest levels */
+	if (p_ptr->inside_quest && !random_quest_number(dun_level))
+	{
+		return (FALSE);
+	}
+
+	/* Delete the (nearby) monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type    *m_ptr = &m_list[i];
+		monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+		bool angry = FALSE;
+		char m_name[80];
+
+		/* Paranoia -- Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		if (!(r_ptr->flags3 & RF3_UNDEAD)) continue;
+
+		/* Skip distant monsters */
+		if (m_ptr->cdis > MAX_SIGHT) continue;
+
+		if (is_pet(m_ptr) && !player_cast) continue;
+
+		/* Hack -- Skip unique monsters */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) angry = TRUE;
+
+		/* Hack -- Skip Quest Monsters */
+		else if (r_ptr->flags1 & RF1_QUESTOR) angry = TRUE;
+
+		else if (r_ptr->flags7 & RF7_UNIQUE2) angry = TRUE;
+
+		else if (i == p_ptr->jouba) angry = TRUE;
+
+		else if (player_cast && (r_ptr->level > rand_int(power))) angry = TRUE;
+
+		else if (player_cast && (m_ptr->mflag2 & MFLAG_NOGENO)) angry = TRUE;
+
+		/* Delete the monster */
+		else delete_monster_idx(i);
+
+		if (angry && player_cast)
+		{
+			monster_desc(m_name, m_ptr, 0);
+			if (m_ptr->ml && !p_ptr->blind)
+			{
+#ifdef JP
+msg_format("%^sには効果がなかった。", m_name);
+#else
+				msg_format("%^s is unaffected.", m_name);
+#endif
+			}
+			if (m_ptr->csleep)
+			{
+				m_ptr->csleep = 0;
+				if (m_ptr->ml && !p_ptr->blind)
+				{
+#ifdef JP
+msg_format("%^sが目を覚ました。", m_name);
+#else
+					msg_format("%^s wakes up.", m_name);
+#endif
+				}
+			}
+			if (is_friendly(m_ptr) && !is_pet(m_ptr))
+			{
+				if (m_ptr->ml && !p_ptr->blind)
+				{
+#ifdef JP
+					msg_format("%sは怒った！", m_name);
+#else
+					msg_format("%^s gets angry!", m_name);
+#endif
+				}
+				set_hostile(m_ptr);
+			}
+			if (one_in_(13)) m_ptr->mflag2 |= MFLAG_NOGENO;
+		}
+
+		if (player_cast)
+		{
+			/* Hack -- visual feedback */
+#ifdef JP
+take_hit(DAMAGE_GENO, randint(3), "アンデッド消滅の呪文を唱えた疲労", -1);
+#else
+			take_hit(DAMAGE_GENO, randint(3), "the strain of casting Mass Genocide", -1);
+#endif
+
+		}
+
+		move_cursor_relative(py, px);
+
+		/* Redraw */
+		p_ptr->redraw |= (PR_HP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER);
+
+		/* Handle */
+		handle_stuff();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Delay */
+		Term_xtra(TERM_XTRA_DELAY, msec);
+
+		/* Note effect */
+		result = TRUE;
+	}
+
+	if (result)
+	{
+		chg_virtue(V_UNLIFE, -2);
+		chg_virtue(V_CHANCE, -1);
+	}
+
 	return (result);
 }
 
@@ -2335,14 +4806,21 @@ bool mass_genocide(int player_cast)
  */
 bool probing(void)
 {
-	int     i;
+	int     i, speed;
+	int cu, cv;
 	bool    probe = FALSE;
+	char buf[256];
 
+	cu = Term->scr->cu;
+	cv = Term->scr->cv;
+	Term->scr->cu = 0;
+	Term->scr->cv = 1;
 
 	/* Probe all (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
 		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -2356,26 +4834,79 @@ bool probing(void)
 			char m_name[80];
 
 			/* Start the message */
-			if (!probe) msg_print("Probing...");
+#ifdef JP
+			if (!probe) {msg_print("調査中...");msg_print(NULL);}
+#else
+			if (!probe) {msg_print("Probing...");msg_print(NULL);}
+#endif
 
+			if (m_ptr->mflag2 & MFLAG_KAGE)
+			{
+				m_ptr->mflag2 &= ~(MFLAG_KAGE);
+				lite_spot(m_ptr->fy, m_ptr->fx);
+			}
 			/* Get "the monster" or "something" */
-			monster_desc(m_name, m_ptr, 0x04);
+			monster_desc(m_name, m_ptr, 0x204);
 
+			speed = m_ptr->mspeed - 110;
+			if(m_ptr->fast) speed += 10;
+			if(m_ptr->slow) speed -= 10;
 			/* Describe the monster */
-			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
+#ifdef JP
+sprintf(buf,"%s ... HP:%d/%d AC:%d 速度:%s%d 経験:", m_name, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
+#else
+sprintf(buf, "%s ... HP:%d/%d AC:%d speed:%s%d 経験:", m_name, m_ptr->hp, m_ptr->maxhp, r_ptr->ac, (speed > 0) ? "+" : "", speed);
+#endif
+			if (r_ptr->next_r_idx)
+			{
+				strcat(buf, format("%d/%d ", m_ptr->exp, r_ptr->next_exp));
+			}
+			else
+			{
+				strcat(buf, "xxx ");
+			}
+
+			if (m_ptr->csleep) strcat(buf,"睡眠 ");
+			if (m_ptr->stunned) strcat(buf,"朦朧 ");
+			if (m_ptr->monfear) strcat(buf,"恐怖 ");
+			if (m_ptr->confused) strcat(buf,"混乱 ");
+			if (m_ptr->invulner) strcat(buf,"無敵 ");
+			buf[strlen(buf)-1] = '\0';
+			prt(buf,0,0);
+
+			/* HACK : Add the line to message buffer */
+			message_add(buf);
+			p_ptr->window |= (PW_MESSAGE);
+			window_stuff();
 
 			/* Learn all of the non-spell, non-treasure flags */
 			lore_do_probe(i);
+
+			if (m_ptr->ml) move_cursor_relative(m_ptr->fy, m_ptr->fx);
+			inkey();
+
+			Term_erase(0, 0, 255);
 
 			/* Probe worked */
 			probe = TRUE;
 		}
 	}
 
+	Term->scr->cu = cu;
+	Term->scr->cv = cv;
+	Term_fresh();
+
 	/* Done */
 	if (probe)
 	{
+		chg_virtue(V_KNOWLEDGE, 1);
+
+#ifdef JP
+msg_print("これで全部です。");
+#else
 		msg_print("That's all.");
+#endif
+
 	}
 
 	/* Result */
@@ -2400,7 +4931,7 @@ bool destroy_area(int y1, int x1, int r, int full)
 
 
 	/* Prevent destruction of quest levels and town */
-	if (p_ptr->inside_quest || !dun_level)
+	if ((p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST)) || !dun_level)
 	{
 		return (FALSE);
 	}
@@ -2410,6 +4941,9 @@ bool destroy_area(int y1, int x1, int r, int full)
 	{
 		for (x = (x1 - r); x <= (x1 + r); x++)
 		{
+			monster_type *m_ptr;
+			monster_race *r_ptr;
+
 			/* Skip illegal grids */
 			if (!in_bounds(y, x)) continue;
 
@@ -2421,9 +4955,11 @@ bool destroy_area(int y1, int x1, int r, int full)
 
 			/* Access the grid */
 			c_ptr = &cave[y][x];
+			m_ptr = &m_list[c_ptr->m_idx];
+			r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_MARK | CAVE_GLOW);
@@ -2441,26 +4977,58 @@ bool destroy_area(int y1, int x1, int r, int full)
 			/* Hack -- Skip the epicenter */
 			if ((y == y1) && (x == x1)) continue;
 
-			if (r_info[m_list[c_ptr->m_idx].r_idx].flags1 & RF1_QUESTOR)
+			if ((r_ptr->flags1 & RF1_QUESTOR) || (r_ptr->flags7 & RF7_GUARDIAN) || ((m_ptr->mflag2 & MFLAG_CHAMELEON) && (r_ptr->flags1 & RF1_UNIQUE)))
 			{
 				/* Heal the monster */
 				m_list[c_ptr->m_idx].hp = m_list[c_ptr->m_idx].maxhp;
 
 				/* Try to teleport away quest monsters */
-				if (!teleport_away(c_ptr->m_idx, (r * 2) + 1)) continue;
+				if (!teleport_away(c_ptr->m_idx, (r * 2) + 1, TRUE)) continue;
 			}
 			else
 			{
+				if (c_ptr->m_idx)
+				{
+					if (record_named_pet && is_pet(&m_list[c_ptr->m_idx]) && m_list[c_ptr->m_idx].nickname)
+					{
+						char m_name[80];
+
+						monster_desc(m_name, &m_list[c_ptr->m_idx], 0x08);
+						do_cmd_write_nikki(NIKKI_NAMED_PET, 6, m_name);
+					}
+				}
 				/* Delete the monster (if any) */
 				delete_monster(y, x);
 			}
 
-			/* Destroy "valid" grids */
-			if (cave_valid_bold(y, x))
+			if (preserve_mode)
 			{
-				/* Delete objects */
-				delete_object(y, x);
+				s16b this_o_idx, next_o_idx = 0;
 
+				/* Scan all objects in the grid */
+				for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+				{
+					object_type *o_ptr;
+
+					/* Acquire object */
+					o_ptr = &o_list[this_o_idx];
+
+					/* Acquire next object */
+					next_o_idx = o_ptr->next_o_idx;
+
+					/* Hack -- Preserve unknown artifacts */
+					if (artifact_p(o_ptr) && !object_known_p(o_ptr))
+					{
+						/* Mega-Hack -- Preserve the artifact */
+						a_info[o_ptr->name1].cur_num = 0;
+					}
+				}
+			}
+			delete_object(y, x);
+
+			/* Destroy "valid" grids */
+			if (!cave_perma_bold(y, x))
+			{
 				/* Wall (or floor) type */
 				t = rand_int(200);
 
@@ -2489,7 +5057,9 @@ bool destroy_area(int y1, int x1, int r, int full)
 				else
 				{
 					/* Create floor */
-					c_ptr->feat = FEAT_FLOOR;
+					c_ptr->feat = floor_type[rand_int(100)];
+					c_ptr->info &= ~(CAVE_MASK);
+					c_ptr->info |= CAVE_FLOOR;
 				}
 			}
 		}
@@ -2500,7 +5070,12 @@ bool destroy_area(int y1, int x1, int r, int full)
 	if (flag)
 	{
 		/* Message */
+#ifdef JP
+msg_print("燃えるような閃光が発生した！");
+#else
 		msg_print("There is a searing blast of light!");
+#endif
+
 
 		/* Blind the player */
 		if (!p_ptr->resist_blind && !p_ptr->resist_lite)
@@ -2510,12 +5085,13 @@ bool destroy_area(int y1, int x1, int r, int full)
 		}
 	}
 
+	forget_flow();
 
 	/* Mega-Hack -- Forget the view and lite */
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_MONSTERS);
@@ -2560,7 +5136,7 @@ bool earthquake(int cy, int cx, int r)
 
 
 	/* Prevent destruction of quest levels and town */
-	if (p_ptr->inside_quest || !dun_level)
+	if ((p_ptr->inside_quest && (p_ptr->inside_quest < MIN_RANDOM_QUEST)) || !dun_level)
 	{
 		return (FALSE);
 	}
@@ -2596,7 +5172,7 @@ bool earthquake(int cy, int cx, int r)
 			c_ptr = &cave[yy][xx];
 
 			/* Lose room and vault */
-			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY);
+			c_ptr->info &= ~(CAVE_ROOM | CAVE_ICKY | CAVE_TRAP);
 
 			/* Lose light and knowledge */
 			c_ptr->info &= ~(CAVE_GLOW | CAVE_MARK);
@@ -2616,7 +5192,7 @@ bool earthquake(int cy, int cx, int r)
 	}
 
 	/* First, affect the player (if necessary) */
-	if (hurt)
+	if (hurt && !(p_ptr->prace == RACE_SPECTRE) && !(p_ptr->wraith_form) && !(p_ptr->kabenuke))
 	{
 		/* Check around the player */
 		for (i = 0; i < 8; i++)
@@ -2630,6 +5206,8 @@ bool earthquake(int cy, int cx, int r)
 
 			/* Important -- Skip "quake" grids */
 			if (map[16+y-cy][16+x-cx]) continue;
+
+			if (cave[y][x].m_idx) continue;
 
 			/* Count "safe" grids */
 			sn++;
@@ -2646,17 +5224,32 @@ bool earthquake(int cy, int cx, int r)
 		{
 			case 1:
 			{
+#ifdef JP
+msg_print("ダンジョンの壁が崩れた！");
+#else
 				msg_print("The cave ceiling collapses!");
+#endif
+
 				break;
 			}
 			case 2:
 			{
+#ifdef JP
+msg_print("ダンジョンの床が不自然にねじ曲がった！");
+#else
 				msg_print("The cave floor twists in an unnatural way!");
+#endif
+
 				break;
 			}
 			default:
 			{
+#ifdef JP
+msg_print("ダンジョンが揺れた！崩れた岩が頭に降ってきた！");
+#else
 				msg_print("The cave quakes!  You are pummeled with debris!");
+#endif
+
 				break;
 			}
 		}
@@ -2665,8 +5258,13 @@ bool earthquake(int cy, int cx, int r)
 		if (!sn)
 		{
 			/* Message and damage */
+#ifdef JP
+msg_print("あなたはひどい怪我を負った！");
+#else
 			msg_print("You are severely crushed!");
-			damage = 300;
+#endif
+
+			damage = 200;
 		}
 
 		/* Destroy the grid, and push the player to safety */
@@ -2677,20 +5275,35 @@ bool earthquake(int cy, int cx, int r)
 			{
 				case 1:
 				{
+#ifdef JP
+msg_print("降り注ぐ岩をうまく避けた！");
+#else
 					msg_print("You nimbly dodge the blast!");
+#endif
+
 					damage = 0;
 					break;
 				}
 				case 2:
 				{
+#ifdef JP
+msg_print("岩石があなたに直撃した!");
+#else
 					msg_print("You are bashed by rubble!");
+#endif
+
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint(50));
 					break;
 				}
 				case 3:
 				{
+#ifdef JP
+msg_print("あなたは床と壁との間に挟まれてしまった！");
+#else
 					msg_print("You are crushed between the floor and ceiling!");
+#endif
+
 					damage = damroll(10, 4);
 					(void)set_stun(p_ptr->stun + randint(50));
 					break;
@@ -2704,6 +5317,17 @@ bool earthquake(int cy, int cx, int r)
 			/* Move the player to the safe location */
 			py = sy;
 			px = sx;
+
+			if (p_ptr->jouba)
+			{
+				int tmp;
+				tmp = cave[py][px].m_idx;
+				cave[py][px].m_idx = cave[oy][ox].m_idx;
+				cave[oy][ox].m_idx = tmp;
+				m_list[p_ptr->jouba].fy = py;
+				m_list[p_ptr->jouba].fx = px;
+				update_mon(cave[py][px].m_idx, TRUE);
+			}
 
 			/* Redraw the old spot */
 			lite_spot(oy, ox);
@@ -2719,7 +5343,12 @@ bool earthquake(int cy, int cx, int r)
 		map[16+py-cy][16+px-cx] = FALSE;
 
 		/* Take some damage */
-		if (damage) take_hit(damage, "an earthquake");
+#ifdef JP
+if (damage) take_hit(DAMAGE_ATTACK, damage, "地震", -1);
+#else
+		if (damage) take_hit(DAMAGE_ATTACK, damage, "an earthquake", -1);
+#endif
+
 	}
 
 
@@ -2737,6 +5366,8 @@ bool earthquake(int cy, int cx, int r)
 
 			/* Access the grid */
 			c_ptr = &cave[yy][xx];
+
+			if (c_ptr->m_idx == p_ptr->jouba) continue;
 
 			/* Process monsters */
 			if (c_ptr->m_idx)
@@ -2787,6 +5418,9 @@ bool earthquake(int cy, int cx, int r)
 							/* Important -- Skip "quake" grids */
 							if (map[16+y-cy][16+x-cx]) continue;
 
+							if (cave[y][x].m_idx) continue;
+							if ((y == py) && (x == px)) continue;
+
 							/* Count "safe" grids */
 							sn++;
 
@@ -2802,7 +5436,12 @@ bool earthquake(int cy, int cx, int r)
 					monster_desc(m_name, m_ptr, 0);
 
 					/* Scream in pain */
+#ifdef JP
+msg_format("%^sは苦痛で泣きわめいた！", m_name);
+#else
 					msg_format("%^s wails out in pain!", m_name);
+#endif
+
 
 					/* Take damage from the quake */
 					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
@@ -2817,7 +5456,22 @@ bool earthquake(int cy, int cx, int r)
 					if (m_ptr->hp < 0)
 					{
 						/* Message */
+#ifdef JP
+msg_format("%^sは岩石に埋もれてしまった！", m_name);
+#else
 						msg_format("%^s is embedded in the rock!", m_name);
+#endif
+
+						if (c_ptr->m_idx)
+						{
+							if (record_named_pet && is_pet(&m_list[c_ptr->m_idx]) && m_list[c_ptr->m_idx].nickname)
+							{
+								char m2_name[80];
+
+								monster_desc(m2_name, m_ptr, 0x08);
+								do_cmd_write_nikki(NIKKI_NAMED_PET, 7, m2_name);
+							}
+						}
 
 						/* Delete the monster */
 						delete_monster(yy, xx);
@@ -2872,7 +5526,7 @@ bool earthquake(int cy, int cx, int r)
 			c_ptr = &cave[yy][xx];
 
 			/* Paranoia -- never affect player */
-			if ((yy == py) && (xx == px)) continue;
+//			if ((yy == py) && (xx == px)) continue;
 
 			/* Destroy location (if valid) */
 			if (cave_valid_bold(yy, xx))
@@ -2910,7 +5564,9 @@ bool earthquake(int cy, int cx, int r)
 				else
 				{
 					/* Create floor */
-					c_ptr->feat = FEAT_FLOOR;
+					c_ptr->feat = floor_type[rand_int(100)];
+					c_ptr->info &= ~(CAVE_MASK);
+					c_ptr->info |= CAVE_FLOOR;
 				}
 			}
 		}
@@ -2921,13 +5577,13 @@ bool earthquake(int cy, int cx, int r)
 	p_ptr->update |= (PU_UN_VIEW | PU_UN_LITE);
 
 	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW | PU_MON_LITE);
 
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
 
 	/* Update the health bar */
-	p_ptr->redraw |= (PR_HEALTH);
+	p_ptr->redraw |= (PR_HEALTH | PR_UHEALTH);
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
@@ -2939,6 +5595,53 @@ bool earthquake(int cy, int cx, int r)
 	return (TRUE);
 }
 
+
+void discharge_minion(bool force)
+{
+	int i;
+	bool okay = TRUE;
+
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		if (!m_ptr->r_idx || !is_pet(m_ptr)) continue;
+		if (m_ptr->nickname) okay = FALSE;
+	}
+	if (!okay || p_ptr->jouba)
+	{
+		if (!get_check("本当に全ペットを爆破しますか？"))
+			return;
+	}
+	for (i = 1; i < m_max; i++)
+	{
+		int dam;
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr;
+
+		if (!m_ptr->r_idx || !is_pet(m_ptr)) continue;
+		r_ptr = &r_info[m_ptr->r_idx];
+
+		if (!force)
+		{
+			if (r_ptr->level/2+randint(r_ptr->level/2) > p_ptr->lev/2+randint(p_ptr->lev/2))
+			{
+				char m_name[80];
+				monster_desc(m_name, m_ptr, 0x00);
+				msg_format("%sは爆破されるのを嫌がり、勝手に自分の世界へと帰った。", m_name);
+				delete_monster_idx(i);
+				continue;
+			}
+		}
+		dam = m_ptr->hp / 2;
+		if (dam > 100) dam = (dam-100)/2 + 100;
+		if (dam > 400) dam = (dam-400)/2 + 400;
+		if (dam > 800) dam = 800;
+		project(i, 2+(r_ptr->level/20), m_ptr->fy,
+			m_ptr->fx, dam, GF_PLASMA, 
+			PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_MONSTER, -1);
+		delete_monster_idx(i);
+	}
+}
 
 
 /*
@@ -3010,7 +5713,15 @@ static void cave_temp_room_lite(void)
 					monster_desc(m_name, m_ptr, 0);
 
 					/* Dump a message */
+#ifdef JP
+msg_format("%^sが目を覚ました。", m_name);
+#else
 					msg_format("%^s wakes up.", m_name);
+#endif
+                                        /* Redraw the health bar */
+                                        if (p_ptr->health_who == c_ptr->m_idx)
+						p_ptr->redraw |= (PR_HEALTH);
+
 				}
 			}
 		}
@@ -3058,7 +5769,7 @@ static void cave_temp_room_unlite(void)
 		c_ptr->info &= ~(CAVE_GLOW);
 
 		/* Hack -- Forget "boring" grids */
-		if (c_ptr->feat <= FEAT_INVIS)
+		if ((c_ptr->feat <= FEAT_INVIS) || (c_ptr->feat == FEAT_DIRT) || (c_ptr->feat == FEAT_GRASS))
 		{
 			/* Forget the grid */
 			c_ptr->info &= ~(CAVE_MARK);
@@ -3084,13 +5795,18 @@ static void cave_temp_room_unlite(void)
 
 
 
-
 /*
  * Aux function -- see below
  */
 static void cave_temp_room_aux(int y, int x)
 {
-	cave_type *c_ptr = &cave[y][x];
+	cave_type *c_ptr;
+
+	/* Verify */
+//	if (!in_bounds(y, x)) return;
+
+	/* Get the grid */
+	c_ptr = &cave[y][x];
 
 	/* Avoid infinite recursion */
 	if (c_ptr->info & (CAVE_TEMP)) return;
@@ -3194,17 +5910,33 @@ bool lite_area(int dam, int rad)
 {
 	int flg = PROJECT_GRID | PROJECT_KILL;
 
+	if (d_info[dungeon_type].flags1 & DF1_DARKNESS)
+	{
+		msg_print("ダンジョンが光を吸収した。");
+		return FALSE;
+	}
+
 	/* Hack -- Message */
 	if (!p_ptr->blind)
 	{
+#ifdef JP
+msg_print("白い光が辺りを覆った。");
+#else
 		msg_print("You are surrounded by a white light.");
+#endif
+
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(0, rad, py, px, dam, GF_LITE_WEAK, flg);
+	(void)project(0, rad, py, px, dam, GF_LITE_WEAK, flg, -1);
 
 	/* Lite up the room */
 	lite_room(py, px);
+
+	if (p_ptr->special_defense & NINJA_S_STEALTH)
+	{
+		set_superstealth(FALSE);
+	}
 
 	/* Assume seen */
 	return (TRUE);
@@ -3222,11 +5954,16 @@ bool unlite_area(int dam, int rad)
 	/* Hack -- Message */
 	if (!p_ptr->blind)
 	{
+#ifdef JP
+msg_print("暗闇が辺りを覆った。");
+#else
 		msg_print("Darkness surrounds you.");
+#endif
+
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(0, rad, py, px, dam, GF_DARK_WEAK, flg);
+	(void)project(0, rad, py, px, dam, GF_DARK_WEAK, flg, -1);
 
 	/* Lite up the room */
 	unlite_room(py, px);
@@ -3247,7 +5984,65 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 {
 	int tx, ty;
 
-	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_NO_REF;
+
+	if (typ == GF_CONTROL_LIVING) flg|= PROJECT_HIDE;
+	/* Use the given direction */
+	tx = px + 99 * ddx[dir];
+	ty = py + 99 * ddy[dir];
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		flg &= ~(PROJECT_STOP);
+		tx = target_col;
+		ty = target_row;
+	}
+
+	/* Analyze the "dir" and the "target".  Hurt items on floor. */
+	return (project(0, rad, ty, tx, dam, typ, flg, -1));
+}
+
+
+/*
+ * Cast a ball spell
+ * Stop if we hit a monster, act as a "ball"
+ * Allow "target" mode to pass over monsters
+ * Affect grids, objects, and monsters
+ */
+bool fire_rocket(int typ, int dir, int dam, int rad)
+{
+	int tx, ty;
+
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_NO_REF;
+
+	/* Use the given direction */
+	tx = px + 99 * ddx[dir];
+	ty = py + 99 * ddy[dir];
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+	}
+
+	/* Analyze the "dir" and the "target".  Hurt items on floor. */
+	return (project(0, rad, ty, tx, dam, typ, flg, -1));
+}
+
+
+/*
+ * Cast a ball spell
+ * Stop if we hit a monster, act as a "ball"
+ * Allow "target" mode to pass over monsters
+ * Affect grids, objects, and monsters
+ */
+bool fire_ball_hide(int typ, int dir, int dam, int rad)
+{
+	int tx, ty;
+
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_NO_REF | PROJECT_HIDE;
 
 	/* Use the given direction */
 	tx = px + 99 * ddx[dir];
@@ -3262,7 +6057,24 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(0, rad, ty, tx, dam, typ, flg));
+	return (project(0, rad, ty, tx, dam, typ, flg, -1));
+}
+
+
+/*
+ * Cast a meteor spell, defined as a ball spell cast by an arbitary monster, 
+ * player, or outside source, that starts out at an arbitrary location, and 
+ * leaving no trail from the "caster" to the target.  This function is 
+ * especially useful for bombardments and similar. -LM-
+ *
+ * Option to hurt the player.
+ */
+bool fire_meteor(int who, int typ, int y, int x, int dam, int rad)
+{
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_NO_REF;
+
+	/* Analyze the "target" and the caster. */
+	return (project(who, rad, y, x, dam, typ, flg, -1));
 }
 
 
@@ -3288,9 +6100,38 @@ bool teleport_swap(int dir)
 	}
 	c_ptr = &cave[ty][tx];
 
-	if (!c_ptr->m_idx)
+	if (p_ptr->anti_tele)
 	{
+#ifdef JP
+msg_print("不思議な力がテレポートを防いだ！");
+#else
+		msg_print("A mysterious force prevents you from teleporting!");
+#endif
+
+		return FALSE;
+	}
+
+	if (!c_ptr->m_idx || (c_ptr->m_idx == p_ptr->jouba))
+	{
+#ifdef JP
+msg_print("それとは場所を交換できません。");
+#else
 		msg_print("You can't trade places with that!");
+#endif
+
+
+		/* Failure */
+		return FALSE;
+	}
+
+	if ((c_ptr->info & CAVE_ICKY) || (distance(ty, tx, py, px) > p_ptr->lev * 3 / 2 + 10))
+	{
+#ifdef JP
+msg_print("失敗した。");
+#else
+		msg_print("Failed to swap.");
+#endif
+
 
 		/* Failure */
 		return FALSE;
@@ -3301,8 +6142,13 @@ bool teleport_swap(int dir)
 
 	if (r_ptr->flags3 & RF3_RES_TELE)
 	{
+#ifdef JP
+msg_print("テレポートを邪魔された！");
+#else
 		msg_print("Your teleportation is blocked!");
+#endif
 
+		m_ptr->csleep = 0;
 		/* Failure */
 		return FALSE;
 	}
@@ -3312,7 +6158,7 @@ bool teleport_swap(int dir)
 	cave[py][px].m_idx = c_ptr->m_idx;
 
 	/* Update the old location */
-	c_ptr->m_idx = 0;
+	c_ptr->m_idx = p_ptr->jouba;
 
 	/* Move the monster */
 	m_ptr->fy = (byte)py;
@@ -3322,8 +6168,19 @@ bool teleport_swap(int dir)
 	px = tx;
 	py = ty;
 
+	if (p_ptr->jouba)
+	{
+		m_list[p_ptr->jouba].fy = ty;
+		m_list[p_ptr->jouba].fx = tx;
+
+		/* Update the monster (new location) */
+		update_mon(cave[ty][tx].m_idx, TRUE);
+	}
+
 	tx = m_ptr->fx;
 	ty = m_ptr->fy;
+
+	m_ptr->csleep = 0;
 
 	/* Update the monster (new location) */
 	update_mon(cave[ty][tx].m_idx, TRUE);
@@ -3340,11 +6197,22 @@ bool teleport_swap(int dir)
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
 
+	/* Notice changes in view */
+	if (r_ptr->flags7 & (RF7_HAS_LITE_1 | RF7_HAS_LITE_2 | RF7_SELF_LITE_1 | RF7_SELF_LITE_2))
+	{
+		/* Update some things */
+		p_ptr->update |= (PU_MON_LITE);
+	}
+
 	/* Update the monsters */
 	p_ptr->update |= (PU_DISTANCE);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+	/* Redraw the health bar */
+	if (p_ptr->health_who == cave[ty][tx].m_idx)
+		p_ptr->redraw |= (PR_HEALTH);
 
 	/* Handle stuff XXX XXX XXX */
 	handle_stuff();
@@ -3376,7 +6244,7 @@ bool project_hook(int typ, int dir, int dam, int flg)
 	}
 
 	/* Analyze the "dir" and the "target", do NOT explode */
-	return (project(0, 0, ty, tx, dam, typ, flg));
+	return (project(0, 0, ty, tx, dam, typ, flg, -1));
 }
 
 
@@ -3387,7 +6255,7 @@ bool project_hook(int typ, int dir, int dam, int flg)
  */
 bool fire_bolt(int typ, int dir, int dam)
 {
-	int flg = PROJECT_STOP | PROJECT_KILL;
+	int flg = PROJECT_STOP | PROJECT_KILL | PROJECT_GRID;
 	return (project_hook(typ, dir, dam, flg));
 }
 
@@ -3399,7 +6267,7 @@ bool fire_bolt(int typ, int dir, int dam)
  */
 bool fire_beam(int typ, int dir, int dam)
 {
-	int flg = PROJECT_BEAM | PROJECT_KILL;
+	int flg = PROJECT_BEAM | PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM;
 	return (project_hook(typ, dir, dam, flg));
 }
 
@@ -3465,10 +6333,10 @@ bool disarm_trap(int dir)
 }
 
 
-bool heal_monster(int dir)
+bool heal_monster(int dir, int dam)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_HEAL, dir, damroll(4, 6), flg));
+	return (project_hook(GF_OLD_HEAL, dir, dam, flg));
 }
 
 
@@ -3495,8 +6363,7 @@ bool sleep_monster(int dir)
 
 bool stasis_monster(int dir)
 {
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_STASIS, dir, p_ptr->lev, flg));
+	return (fire_ball_hide(GF_STASIS, dir, p_ptr->lev*2, 0));
 }
 
 
@@ -3517,7 +6384,10 @@ bool stun_monster(int dir, int plev)
 bool poly_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
+	bool tester = (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
+	if (tester)
+		chg_virtue(V_CHANCE, 1);
+	return(tester);
 }
 
 
@@ -3548,28 +6418,34 @@ bool teleport_monster(int dir)
 	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
 }
 
-
 /*
  * Hooks -- affect adjacent grids (radius 1 ball attack)
  */
 bool door_creation(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_MAKE_DOOR, flg));
+	return (project(0, 1, py, px, 0, GF_MAKE_DOOR, flg, -1));
 }
 
 
-bool trap_creation(void)
+bool trap_creation(int y, int x)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_MAKE_TRAP, flg));
+	return (project(0, 1, y, x, 0, GF_MAKE_TRAP, flg, -1));
+}
+
+
+bool tree_creation(void)
+{
+	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	return (project(0, 1, py, px, 0, GF_MAKE_TREE, flg, -1));
 }
 
 
 bool glyph_creation(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM;
-	return (project(0, 1, py, px, 0, GF_MAKE_GLYPH, flg));
+	return (project(0, 1, py, px, 0, GF_MAKE_GLYPH, flg, -1));
 }
 
 
@@ -3577,7 +6453,7 @@ bool wall_stone(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
-	bool dummy = (project(0, 1, py, px, 0, GF_STONE_WALL, flg));
+	bool dummy = (project(0, 1, py, px, 0, GF_STONE_WALL, flg, -1));
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
@@ -3598,14 +6474,21 @@ bool wall_stone(void)
 bool destroy_doors_touch(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_KILL_DOOR, flg));
+	return (project(0, 1, py, px, 0, GF_KILL_DOOR, flg, -1));
 }
 
 
 bool sleep_monsters_touch(void)
 {
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(0, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+	return (project(0, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg, -1));
+}
+
+
+bool animate_dead(int who, int y, int x)
+{
+	int flg = PROJECT_ITEM | PROJECT_HIDE;
+	return (project(who, 5, y, x, 0, GF_ANIM_DEAD, flg, -1));
 }
 
 
@@ -3615,7 +6498,7 @@ void call_chaos(void)
 	int plev = p_ptr->lev;
 	bool line_chaos = FALSE;
 
-	int hurt_types[30] =
+	int hurt_types[31] =
 	{
 		GF_ELEC,      GF_POIS,    GF_ACID,    GF_COLD,
 		GF_FIRE,      GF_MISSILE, GF_ARROW,   GF_PLASMA,
@@ -3624,10 +6507,10 @@ void call_chaos(void)
 		GF_ICE,       GF_CHAOS,   GF_NETHER,  GF_DISENCHANT,
 		GF_SHARDS,    GF_SOUND,   GF_NEXUS,   GF_CONFUSION,
 		GF_TIME,      GF_GRAVITY, GF_ROCKET,  GF_NUKE,
-		GF_HELL_FIRE, GF_DISINTEGRATE
+		GF_HELL_FIRE, GF_DISINTEGRATE, GF_PSY_SPEAR
 	};
 
-	Chaos_type = hurt_types[rand_int(30)];
+	Chaos_type = hurt_types[rand_int(31)];
 	if (randint(4) == 1) line_chaos = TRUE;
 
 	if (randint(6) == 1)
@@ -3637,23 +6520,23 @@ void call_chaos(void)
 			if (dummy - 5)
 			{
 				if (line_chaos)
-					fire_beam(Chaos_type, dummy, 75);
+					fire_beam(Chaos_type, dummy, 150);
 				else
-					fire_ball(Chaos_type, dummy, 75, 2);
+					fire_ball(Chaos_type, dummy, 150, 2);
 			}
 		}
 	}
 	else if (randint(3) == 1)
 	{
-		fire_ball(Chaos_type, 0, 300, 8);
+		fire_ball(Chaos_type, 0, 500, 8);
 	}
 	else
 	{
 		if (!get_aim_dir(&dir)) return;
 		if (line_chaos)
-			fire_beam(Chaos_type, dir, 150);
+			fire_beam(Chaos_type, dir, 250);
 		else
-			fire_ball(Chaos_type, dir, 150, 3 + (plev / 35));
+			fire_ball(Chaos_type, dir, 250, 3 + (plev / 35));
 	}
 }
 
@@ -3663,70 +6546,100 @@ void call_chaos(void)
  * rr9: Stop the nasty things when a Cyberdemon is summoned
  * or the player gets paralyzed.
  */
-bool activate_ty_curse(bool stop_ty)
+bool activate_ty_curse(bool stop_ty, int *count)
 {
 	int     i = 0;
 
 	int flg = (PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_JUMP);
-
-	/* Nothing summoned yet */
-	int count = 0;
 
 	do
 	{
 		switch (randint(34))
 		{
 		case 28: case 29:
-			if (!count)
+			if (!(*count))
 			{
+#ifdef JP
+msg_print("地面が揺れた...");
+#else
 				msg_print("The ground trembles...");
+#endif
+
 				earthquake(py, px, 5 + rand_int(10));
 				if (randint(6) != 1) break;
 			}
 		case 30: case 31:
-			if (!count)
+			if (!(*count))
 			{
+				int dam = damroll(10, 10);
+#ifdef JP
+msg_print("純粋な魔力の次元への扉が開いた！");
+#else
 				msg_print("A portal opens to a plane of raw mana!");
-				destroy_area(py, px, 20, TRUE);
-				project(1, 3, py, px, damroll(10, 5), GF_MANA, flg);
+#endif
+
+				project(0, 8, py, px, dam, GF_MANA, flg, -1);
+				take_hit(DAMAGE_NOESCAPE, dam, "純粋な魔力の解放", -1);
 				if (randint(6) != 1) break;
 			}
 		case 32: case 33:
-			if (!count)
+			if (!(*count))
 		{
+#ifdef JP
+msg_print("周囲の空間が歪んだ！");
+#else
 				msg_print("Space warps about you!");
+#endif
+
 				teleport_player(damroll(10, 10));
+				if (rand_int(13)) (*count) += activate_hi_summon(py, px, FALSE);
 				if (randint(6) != 1) break;
 			}
 		case 34:
+#ifdef JP
+msg_print("エネルギーのうねりを感じた！");
+#else
 			msg_print("You feel a surge of energy!");
+#endif
+
 			wall_breaker();
 			if (!rand_int(7))
 			{
-				project(1, 7, py, px, 50, GF_KILL_WALL, flg);
+				project(0, 7, py, px, 50, GF_KILL_WALL, flg, -1);
+				take_hit(DAMAGE_NOESCAPE, 50, "エネルギーのうねり", -1);
 			}
 			if (randint(6) != 1) break;
 		case 1: case 2: case 3: case 16: case 17:
-			aggravate_monsters(1);
+			aggravate_monsters(0);
 			if (randint(6) != 1) break;
 		case 4: case 5: case 6:
-			count += activate_hi_summon();
+			(*count) += activate_hi_summon(py, px, FALSE);
 			if (randint(6) != 1) break;
 		case 7: case 8: case 9: case 18:
-			count += summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
+			(*count) += summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE, TRUE, TRUE);
 			if (randint(6) != 1) break;
 		case 10: case 11: case 12:
+#ifdef JP
+msg_print("生命力が体から吸い取られた気がする！");
+#else
 			msg_print("You feel your life draining away...");
+#endif
+
 			lose_exp(p_ptr->exp / 16);
 			if (randint(6) != 1) break;
 		case 13: case 14: case 15: case 19: case 20:
-			if (stop_ty || (p_ptr->free_act && (randint(100) < p_ptr->skill_sav)))
+			if (stop_ty || (p_ptr->free_act && (randint(125) < p_ptr->skill_sav)) || (p_ptr->pclass == CLASS_BERSERKER))
 			{
 				/* Do nothing */ ;
 			}
 			else
 			{
+#ifdef JP
+msg_print("彫像になった気分だ！");
+#else
 				msg_print("You feel like a statue!");
+#endif
+
 				if (p_ptr->free_act)
 					set_paralyzed(p_ptr->paralyzed + randint(3));
 				else
@@ -3738,7 +6651,12 @@ bool activate_ty_curse(bool stop_ty)
 			(void)do_dec_stat(rand_int(6));
 			if (randint(6) != 1) break;
 		case 24:
+#ifdef JP
+msg_print("ほえ？私は誰？ここで何してる？");
+#else
 			msg_print("Huh? Who am I? What am I doing here?");
+#endif
+
 			lose_all_info();
 			if (randint(6) != 1) break;
 		case 25:
@@ -3747,7 +6665,7 @@ bool activate_ty_curse(bool stop_ty)
 			 */
 			if ((dun_level > 65) && !stop_ty)
 			{
-				count += summon_cyber();
+				(*count) += summon_cyber(-1, py, px);
 				stop_ty = TRUE;
 				break;
 			}
@@ -3771,56 +6689,73 @@ bool activate_ty_curse(bool stop_ty)
 }
 
 
-int activate_hi_summon(void)
+int activate_hi_summon(int y, int x, bool can_pet)
 {
 	int i;
 	int count = 0;
+	bool pet = FALSE, friendly = FALSE;
+	int summon_lev;
 
-	for (i = 0; i < (randint(9) + (dun_level / 40)); i++)
+	if (can_pet)
 	{
-		switch (randint(26) + (dun_level / 20))
+		if (one_in_(4))
+		{
+			friendly = TRUE;
+		}
+		else
+		{
+			pet = TRUE;
+		}
+	}
+	summon_lev = (pet ? p_ptr->lev * 2 / 3 + randint(p_ptr->lev / 2) : dun_level);
+
+	for (i = 0; i < (randint(7) + (dun_level / 40)); i++)
+	{
+		switch (randint(25) + (dun_level / 20))
 		{
 			case 1: case 2:
-				count += summon_specific(py, px, dun_level, SUMMON_ANT, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANT, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			case 3: case 4:
-				count += summon_specific(py, px, dun_level, SUMMON_SPIDER, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_SPIDER, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			case 5: case 6:
-				count += summon_specific(py, px, dun_level, SUMMON_HOUND, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HOUND, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			case 7: case 8:
-				count += summon_specific(py, px, dun_level, SUMMON_HYDRA, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HYDRA, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			case 9: case 10:
-				count += summon_specific(py, px, dun_level, SUMMON_ANGEL, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_ANGEL, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			case 11: case 12:
-				count += summon_specific(py, px, dun_level, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNDEAD, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			case 13: case 14:
-				count += summon_specific(py, px, dun_level, SUMMON_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DRAGON, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			case 15: case 16:
-				count += summon_specific(py, px, dun_level, SUMMON_DEMON, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_DEMON, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			case 17:
-				count += summon_specific(py, px, dun_level, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				if (pet || friendly) break;
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_AMBERITES, TRUE, friendly, pet, TRUE, !pet);
 				break;
 			case 18: case 19:
-				count += summon_specific(py, px, dun_level, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+				if (pet || friendly) break;
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_UNIQUE, TRUE, friendly, pet, TRUE, !pet);
 				break;
 			case 20: case 21:
-				count += summon_specific(py, px, dun_level, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_UNDEAD, TRUE, friendly, pet, (!friendly && !pet), !pet);
 				break;
 			case 22: case 23:
-				count += summon_specific(py, px, dun_level, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x, summon_lev, SUMMON_HI_DRAGON, TRUE, friendly, pet, (!friendly && !pet), !pet);
 				break;
-			case 24: case 25:
-				count += summon_specific(py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
+			case 24:
+				count += summon_specific((pet ? -1 : 0), y, x, 100, SUMMON_CYBER, TRUE, friendly, pet, FALSE, !pet);
 				break;
 			default:
-				count += summon_specific(py, px,(((dun_level * 3) / 2) + 5), 0, TRUE, FALSE, FALSE);
+				count += summon_specific((pet ? -1 : 0), y, x,pet ? summon_lev : (((summon_lev * 3) / 2) + 5), 0, TRUE, friendly, pet, (!friendly && !pet), !pet);
 		}
 	}
 
@@ -3829,15 +6764,28 @@ int activate_hi_summon(void)
 
 
 /* ToDo: check */
-int summon_cyber(void)
+int summon_cyber(int who, int y, int x)
 {
 	int i;
-	int max_cyber = (dun_level / 50) + randint(6);
+	int max_cyber = (easy_band ? 1 : (dun_level / 50) + randint(2));
 	int count = 0;
+
+	bool friendly = FALSE;
+	bool pet = FALSE;
+
+	/* Summoned by a monster */
+	if (who > 0)
+	{
+		monster_type *m_ptr = &m_list[who];
+		friendly = is_friendly(m_ptr);
+		pet = is_pet(m_ptr);
+	}
+
+	if (max_cyber > 4) max_cyber = 4;
 
 	for (i = 0; i < max_cyber; i++)
 	{
-		count += summon_specific(py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
+		count += summon_specific(who, y, x, 100, SUMMON_CYBER, TRUE, friendly, pet, FALSE, FALSE);
 	}
 
 	return count;
@@ -3862,7 +6810,7 @@ void wall_breaker(void)
 		}
 
 		project(0, 0, y, x, 20 + randint(30), GF_KILL_WALL,
-				  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
+				  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
 	}
 	else if (randint(100) > 30)
 	{
@@ -3882,69 +6830,9 @@ void wall_breaker(void)
 			}
 
 			project(0, 0, y, x, 20 + randint(30), GF_KILL_WALL,
-					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL));
+					  (PROJECT_BEAM | PROJECT_THRU | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL), -1);
 		}
 	}
-}
-
-
-/*
- * Detect all "nonliving", "undead" or "demonic" monsters on current panel
- */
-bool detect_monsters_nonliving(void)
-{
-	int     i, y, x;
-	bool    flag = FALSE;
-
-	/* Scan monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Location */
-		y = m_ptr->fy;
-		x = m_ptr->fx;
-
-		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
-
-		/* Detect non-living monsters */
-		if (!monster_living(r_ptr))
-		{
-			/* Update monster recall window */
-			if (p_ptr->monster_race_idx == m_ptr->r_idx)
-			{
-				/* Window stuff */
-				p_ptr->window |= (PW_MONSTER);
-			}
-
-			/* Repair visibility later */
-			repair_monsters = TRUE;
-
-			/* Hack -- Detect monster */
-			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
-
-			/* Update the monster */
-			update_mon(i, FALSE);
-
-			/* Detect */
-			flag = TRUE;
-		}
-	}
-
-	/* Describe */
-	if (flag)
-	{
-		/* Describe result */
-		msg_print("You sense the presence of unnatural beings!");
-	}
-
-	/* Result */
-	return (flag);
 }
 
 
@@ -4052,8 +6940,74 @@ bool control_one_undead(int dir, int plev)
 }
 
 
+bool control_one_demon(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_CONTROL_DEMON, dir, plev, flg));
+}
+
+
 bool charm_animal(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_CONTROL_ANIMAL, dir, plev, flg));
+}
+
+
+bool charm_living(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_CONTROL_LIVING, dir, plev, flg));
+}
+
+
+void kawarimi(bool success)
+{
+	object_type forge;
+	object_type *q_ptr = &forge;
+	int y, x;
+
+	if (p_ptr->confused || p_ptr->blind || p_ptr->paralyzed || p_ptr->image) return;
+	if (rand_int(200) < p_ptr->stun) return;
+
+	if (!success && one_in_(3))
+	{
+#ifdef JP
+		msg_print("失敗！逃げられなかった。");
+#else
+		msg_print("Failed! You couldn't run away.");
+#endif
+		p_ptr->special_defense &= ~(NINJA_KAWARIMI);
+		p_ptr->redraw |= (PR_STATUS);
+		return;
+	}
+
+	y = py;
+	x = px;
+
+	teleport_player(10+randint(90));
+
+	object_wipe(q_ptr);
+
+	object_prep(q_ptr, lookup_kind(TV_STATUE, SV_WOODEN_STATUE));
+
+#ifdef USE_SCRIPT
+	q_ptr->python = object_create_callback(q_ptr);
+#endif /* USE_SCRIPT */
+
+	q_ptr->pval = MON_NINJA;
+
+	/* Drop it in the dungeon */
+	(void)drop_near(q_ptr, -1, y, x);
+
+#ifdef JP
+	if (success) msg_print("攻撃を受ける前に素早く身をひるがえした。");
+	else msg_print("失敗！攻撃を受けてしまった。");
+#else
+	if (success) msg_print("You have turned around just before the attack hit you.");
+	else msg_print("Failed! You are hit by the attack.");
+#endif
+
+	p_ptr->special_defense &= ~(NINJA_KAWARIMI);
+	p_ptr->redraw |= (PR_STATUS);
 }

@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: remco $ on $Date: 1999/09/30 10:08:55 $ */
+/* CVS: Last edit by $Author: rr9 $ on $Date: 2000/08/08 11:07:30 $ */
 /* File: z-term.h */
 
 /*
@@ -13,7 +13,6 @@
 #define INCLUDED_Z_TERM_H
 
 #include "h-basic.h"
-
 
 
 /*
@@ -281,8 +280,12 @@ extern errr Term_xtra(int n, int v);
 
 #ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
+
+extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta, char *tc);
 #else /* USE_TRANSPARENCY */
 extern void Term_queue_char(int x, int y, byte a, char c);
+
+extern void Term_queue_line(int x, int y, int n, byte *a, char *c);
 #endif /* USE_TRANSPARENCY */
 
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
@@ -295,9 +298,13 @@ extern errr Term_addch(byte a, char c);
 extern errr Term_addstr(int n, byte a, cptr s);
 extern errr Term_putch(int x, int y, byte a, char c);
 extern errr Term_putstr(int x, int y, int n, byte a, cptr s);
+#ifdef JP
+extern errr Term_putstr_v(int x, int y, int n, byte a, cptr s);
+#endif
 extern errr Term_erase(int x, int y, int n);
 extern errr Term_clear(void);
 extern errr Term_redraw(void);
+extern errr Term_redraw_section(int x1, int y1, int x2, int y2);
 
 extern errr Term_get_cursor(int *v);
 extern errr Term_get_size(int *w, int *h);

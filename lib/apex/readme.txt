@@ -1,3 +1,2 @@
-If you want to compete against my high scores (no wins yet),
-rename z_scores.raw to scores.raw
-        --ty
+h_scores.raw を scores.raw に名前を変更すれば、
+某所のスコアファイルが使用できます。

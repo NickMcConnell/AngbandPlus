@@ -67,6 +67,41 @@ extern unsigned _stklen = 32768U;
 extern unsigned _ovrbuffer = 0x1500;
 #endif
 
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+static void create_user_dir(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+	/* Drop privs */
+	safe_setuid_drop();
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, 1024, dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+	/* Grab privs */
+	safe_setuid_grab();
+}
+
+#endif /* PRIVATE_USER_PATH */
+
+
 /*
  * Initialize and verify the file paths, and the score file.
  *
@@ -84,6 +119,10 @@ extern unsigned _ovrbuffer = 0x1500;
  *
  * Note that the "path" must be "Angband:" for the Amiga, and it
  * is ignored for "VM/ESA", so I just combined the two.
+ *
+ * Make sure that the path doesn't overflow the buffer.  We have
+ * to leave enough space for the path separator, directory, and
+ * filenames.
  */
 static void init_stuff(void)
 {
@@ -102,7 +141,10 @@ static void init_stuff(void)
 	tail = getenv("ANGBAND_PATH");
 
 	/* Use the angband_path, or a default */
-	strcpy(path, tail ? tail : DEFAULT_PATH);
+	strncpy(path, tail ? tail : DEFAULT_PATH, 511);
+
+	/* Make sure it's terminated */
+	path[511] = '\0';
 
 	/* Hack -- Add a path separator (only if needed) */
 	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
@@ -350,6 +392,13 @@ int main(int argc, char *argv[])
 	user_name(op_ptr->full_name, player_uid);
 #endif /* ANGBAND_2_8_1 */
 
+#ifdef PRIVATE_USER_PATH
+
+	/* Create a directory for the users files. */
+	create_user_dir();
+
+#endif /* PRIVATE_USER_PATH */
+
 #endif /* SET_UID */
 
 
@@ -427,7 +476,13 @@ int main(int argc, char *argv[])
 #ifdef ANGBAND_2_8_1
 				strcpy(player_name, &argv[i][2]);
 #else /* ANGBAND_2_8_1 */
-				strcpy(op_ptr->full_name, &argv[i][2]);
+
+				/* Get the savefile name */
+				strncpy(op_ptr->full_name, &argv[i][2], 32);
+
+				/* Make sure it's terminated */
+				op_ptr->full_name[31] = '\0';
+
 #endif /* ANGBAND_2_8_1 */
 				break;
 			}
@@ -451,6 +506,24 @@ int main(int argc, char *argv[])
 				change_path(&argv[i][2]);
 				break;
 			}
+
+#ifdef CHUUKEI
+			case 'p':
+			{
+				if (!argv[i][2]) goto usage;
+				chuukei_server = TRUE;
+				if (connect_chuukei_server(&argv[i][2]) < 0) chuukei_server = FALSE;
+				break;
+			}
+
+			case 'c':
+			{
+				if (!argv[i][2]) goto usage;
+				chuukei_client = TRUE;
+				connect_chuukei_server(&argv[i][2]);
+				break;
+			}
+#endif
 
 			case '-':
 			{

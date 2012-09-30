@@ -17,21 +17,27 @@
 /*
  * Hack -- Rerate Hitpoints
  */
-void do_cmd_rerate(void)
+void do_cmd_rerate(bool display)
 {
-	int min_value, max_value, i, percent;
+	int min_value, max_value, i, percent, j;
 
-	min_value = (PY_MAX_LEVEL * 3 * (p_ptr->hitdie - 1)) / 8;
-	min_value += PY_MAX_LEVEL;
+	min_value = ((PY_MAX_LEVEL+2) * (p_ptr->hitdie + 1)) * 3 / 8;
+	min_value += p_ptr->hitdie;
 
-	max_value = (PY_MAX_LEVEL * 5 * (p_ptr->hitdie - 1)) / 8;
-	max_value += PY_MAX_LEVEL;
-
-	player_hp[0] = p_ptr->hitdie;
+	max_value = ((PY_MAX_LEVEL+2) * (p_ptr->hitdie + 1)) * 5 / 8;
+	max_value += p_ptr->hitdie;
 
 	/* Rerate */
 	while (1)
 	{
+		player_hp[0] = p_ptr->hitdie;
+
+		for (i = 1; i < 4; i++)
+		{
+			j = randint(p_ptr->hitdie);
+			player_hp[0] += j;
+		}
+
 		/* Collect values */
 		for (i = 1; i < PY_MAX_LEVEL; i++)
 		{
@@ -46,7 +52,7 @@ void do_cmd_rerate(void)
 
 	percent = (int)(((long)player_hp[PY_MAX_LEVEL - 1] * 200L) /
 		(2 * p_ptr->hitdie +
-		((PY_MAX_LEVEL - 1) * (p_ptr->hitdie + 1))));
+		((PY_MAX_LEVEL - 1+3) * (p_ptr->hitdie + 1))));
 
 
 	/* Update and redraw hitpoints */
@@ -60,11 +66,53 @@ void do_cmd_rerate(void)
 	handle_stuff();
 
 	/* Message */
-	msg_format("Current Life Rating is %d/100.", percent);
+	if (display)
+	{
+#ifdef JP
+		msg_format("現在の体力ランクは %d/100 です。", percent);
+#else
+		msg_format("Your life rate is %d/100 now.", percent);
+#endif
+		p_ptr->knowledge |= KNOW_HPRATE;
+	}
+	else
+	{
+#ifdef JP
+		msg_print("体力ランクが変わった。");
+#else
+		msg_print("Life rate is changed.");
+#endif
+		p_ptr->knowledge &= ~(KNOW_HPRATE);
+	}
 }
 
 
 #ifdef ALLOW_WIZARD
+
+/*
+ * Dimension Door
+ */
+static bool wiz_dimension_door(void)
+{
+	int	x = 0, y = 0;
+
+	if (!tgt_pt(&x, &y)) return FALSE;
+
+	if (!cave_empty_bold(y, x))
+	{
+#ifdef JP
+msg_print("精霊界から物質界に戻る時うまくいかなかった！");
+#else
+		msg_print("You fail to exit the astral plane correctly!");
+#endif
+
+		teleport_player(10);
+	}
+	else teleport_player_to(y, x, FALSE);
+
+	return (TRUE);
+}
+
 
 /*
  * Create the artifact of the specified number -- DAN
@@ -159,9 +207,9 @@ static void prt_alloc(byte tval, byte sval, int row, int col)
 	alloc_entry *table = alloc_kind_table;
 
 	/* Wipe the tables */
-	C_WIPE(rarity, MAX_DEPTH, u32b);
-	C_WIPE(total, MAX_DEPTH, u32b);
-	C_WIPE(display, 20, u32b);
+	(void)C_WIPE(rarity, MAX_DEPTH, u32b);
+	(void)C_WIPE(total, MAX_DEPTH, u32b);
+	(void)C_WIPE(display, 20, u32b);
 
 	/* Scan all entries */
 	for (i = 0; i < MAX_DEPTH; i++)
@@ -275,7 +323,7 @@ static void do_cmd_wiz_bamf(void)
 	if (!target_who) return;
 
 	/* Teleport to the target */
-	teleport_player_to(target_row, target_col);
+	teleport_player_to(target_row, target_col, FALSE);
 }
 
 
@@ -284,7 +332,7 @@ static void do_cmd_wiz_bamf(void)
  */
 static void do_cmd_wiz_change_aux(void)
 {
-	int i;
+	int i, j;
 	int tmp_int;
 	long tmp_long;
 	char tmp_val[160];
@@ -295,7 +343,7 @@ static void do_cmd_wiz_change_aux(void)
 	for (i = 0; i < 6; i++)
 	{
 		/* Prompt */
-		sprintf(ppp, "%s (3-118): ", stat_names[i]);
+		sprintf(ppp, "%s (3-%d): ", stat_names[i], p_ptr->stat_max_max[i]);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
@@ -307,13 +355,50 @@ static void do_cmd_wiz_change_aux(void)
 		tmp_int = atoi(tmp_val);
 
 		/* Verify */
-		if (tmp_int > 18+100) tmp_int = 18+100;
+		if (tmp_int > p_ptr->stat_max_max[i]) tmp_int = p_ptr->stat_max_max[i];
 		else if (tmp_int < 3) tmp_int = 3;
 
 		/* Save it */
 		p_ptr->stat_cur[i] = p_ptr->stat_max[i] = tmp_int;
 	}
 
+
+	/* Default */
+	sprintf(tmp_val, "0");
+
+	/* Query */
+#ifdef JP
+	if (!get_string("熟練度: ", tmp_val, 9)) return;
+#else
+	if (!get_string("Proficiency: ", tmp_val, 9)) return;
+#endif
+
+	/* Extract */
+	tmp_long = atol(tmp_val);
+
+	/* Verify */
+	if (tmp_long < 0) tmp_long = 0L;
+	if (tmp_long > 8000) tmp_long = 8000L;
+
+	for (j = 0; j <= TV_SWORD - TV_BOW;j++)
+	{
+		for (i = 0;i < 64;i++)
+		{
+			weapon_exp[j][i] = tmp_long;
+			if (weapon_exp[j][i] > weapon_exp_settei[p_ptr->pclass][j][i][1]) weapon_exp[j][i] = weapon_exp_settei[p_ptr->pclass][j][i][1];
+		}
+	}
+
+	for (j = 0; j < 10; j++)
+	{
+		skill_exp[j] = tmp_long;
+		if (skill_exp[j] > skill_exp_settei[p_ptr->pclass][j][1]) skill_exp[j] = skill_exp_settei[p_ptr->pclass][j][1];
+	}
+
+	for (j = 0; j < 32; j++)
+		spell_exp[j] = (tmp_long > 1600 ? 1600 : tmp_long);
+	for (; j < 64; j++)
+		spell_exp[j] = (tmp_long > 1400 ? 1400 : tmp_long);
 
 	/* Default */
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
@@ -343,12 +428,15 @@ static void do_cmd_wiz_change_aux(void)
 	/* Verify */
 	if (tmp_long < 0) tmp_long = 0L;
 
-	/* Save */
-	p_ptr->max_exp = tmp_long;
-	p_ptr->exp = tmp_long;
+	if (p_ptr->prace != RACE_ANDROID)
+	{
+		/* Save */
+		p_ptr->max_exp = tmp_long;
+		p_ptr->exp = tmp_long;
 
-	/* Update */
-	check_experience();
+		/* Update */
+		check_experience();
+	}
 }
 
 
@@ -462,32 +550,32 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("ident = %04x  xtra1 = %-4d  xtra2 = %-4d  timeout = %-d",
 	           o_ptr->ident, o_ptr->xtra1, o_ptr->xtra2, o_ptr->timeout), 8, j);
 
+	prt(format("xtra3 = %-4d  xtra4 = %-4d  xtra5 = %-4d",
+	           o_ptr->xtra3, o_ptr->xtra4, o_ptr->xtra5), 9, j);
+
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT........SLAY........BRAND.", 11, j);
-	prt("              cvae      xsqpaefc", 12, j);
-	prt("siwdcc  ssidsahanvudotgddhuoclio", 13, j);
-	prt("tnieoh  trnipttmiinmrrnrrraiierl", 14, j);
-	prt("rtsxna..lcfgdkcpmldncltggpksdced", 15, j);
+	prt("      mr      cvae      xsqpaefc", 12, j);
+	prt("siwdccsissidsahanvudotgddhuoclio", 13, j);
+	prt("tnieohtrtrnipttmiinmrrnrrraiierl", 14, j);
+	prt("rtsxnarylcfgdkcpmldncltggpksdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
 	prt("SUST....IMMUN.RESIST............", 18, j);
-	prt("        aefcprpsaefcpfldbc sn   ", 19, j);
-	prt("siwdcc  cliooeatcliooeialoshtncd", 20, j);
-	prt("tnieoh  ierlifraierliatrnnnrhehi", 21, j);
-	prt("rtsxna..dcedslatdcedsrekdfddrxss", 22, j);
+	prt("        aefctrpsaefcpfldbc sn   ", 19, j);
+	prt("siwdcc  clioheatcliooeialoshtncd", 20, j);
+	prt("tnieoh  ierlrfraierliatrnnnrhehi", 21, j);
+	prt("rtsxna..dcedwlatdcedsrekdfddrxss", 22, j);
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("fe      ehsi  st    iiiiadta  hp", 11, j+32);
-	prt("il   n taihnf ee    ggggcregb vr", 12, j+32);
-	prt("re  nowysdose eld   nnnntalrl ym", 13, j+32);
-	prt("ec  omrcyewta ieirmsrrrriieaeccc", 14, j+32);
-	prt("aa  taauktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-	prt("uu  egirnyoahivaeggoclioaeoasrrr", 16, j+32);
-	prt("rr  litsopdretitsehtierltxrtesss", 17, j+32);
-	prt("aa  echewestreshtntsdcedeptedeee", 18, j+32);
-	prt_binary(f3, 19, j+32);
+	prt("fe cnn t   i  stdrmsiiii d abchp", 11, j+32);
+	prt("aa aoomyehsnlleeieihgggg rtgluvr", 12, j+32);
+	prt("uu utmacaihseielgggonnnnaaerercc", 13, j+32);
+	prt("rr reanusdotvtieeehtrrrrcilassuu", 14, j+32);
+	prt("aa algaryewaienpsntsaefctnevserr", 15, j+32);
+	prt_binary(f3, 16, j+32);
 }
 
 
@@ -536,9 +624,16 @@ static tval_desc tvals[] =
 	{ TV_DEATH_BOOK,        "Death Spellbook"      },
 	{ TV_TRUMP_BOOK,        "Trump Spellbook"      },
 	{ TV_ARCANE_BOOK,       "Arcane Spellbook"     },
+	{ TV_ENCHANT_BOOK,      "Craft Spellbook"},
+	{ TV_DAEMON_BOOK,       "Daemon Spellbook"},
+	{ TV_MUSIC_BOOK,        "Music Spellbook"      },
+	{ TV_HISSATSU_BOOK,     "Book of Samurai Arts" },
+	{ TV_PARCHEMENT,        "Parchement" },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
+	{ TV_CAPTURE,           "Capture Ball"         },
+	{ TV_CARD,              "Express Card"         },
 	{ TV_FIGURINE,          "Magical Figurine"     },
 	{ TV_STATUE,            "Statue"               },
 	{ TV_CORPSE,            "Corpse"               },
@@ -553,7 +648,7 @@ static tval_desc tvals[] =
 /*
  * Strip an "object name" into a buffer
  */
-static void strip_name(char *buf, int k_idx)
+void strip_name(char *buf, int k_idx)
 {
 	char *t;
 
@@ -568,6 +663,9 @@ static void strip_name(char *buf, int k_idx)
 	/* Copy useful chars */
 	for (t = buf; *str; str++)
 	{
+#ifdef JP
+		if (iskanji(*str)) {*t++ = *str++; *t++ = *str; continue;}
+#endif
 		if (*str != '~') *t++ = *str;
 	}
 
@@ -593,7 +691,7 @@ static int wiz_create_itemtype(void)
 	cptr tval_desc;
 	char ch;
 
-	int choice[60];
+	int choice[80];
 
 	char buf[160];
 
@@ -602,10 +700,10 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 60) && tvals[num].tval; num++)
+	for (num = 0; (num < 80) && tvals[num].tval; num++)
 	{
 		row = 2 + (num % 20);
-		col = 30 * (num / 20);
+		col = 20 * (num / 20);
 		ch = listsym[num];
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
@@ -614,10 +712,10 @@ static int wiz_create_itemtype(void)
 	max_num = num;
 
 	/* Choose! */
-	if (!get_com("Get what type of object? ", &ch)) return (0);
+	if (!get_com("Get what type of object? ", &ch, FALSE)) return (0);
 
 	/* Analyze choice */
-	for (num = -1; num < max_num; num++)
+	for (num = 0; num < max_num; num++)
 	{
 		if (listsym[num] == ch) break;
 	}
@@ -636,7 +734,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 60) && (i < max_k_idx); i++)
+	for (num = 0, i = 1; (num < 80) && (i < max_k_idx); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -645,8 +743,9 @@ static int wiz_create_itemtype(void)
 		{
 			/* Prepare it */
 			row = 2 + (num % 20);
-			col = 30 * (num / 20);
+			col = 20 * (num / 20);
 			ch = listsym[num];
+			strcpy(buf,"                    ");
 
 			/* Acquire the "name" of object "i" */
 			strip_name(buf, i);
@@ -663,10 +762,10 @@ static int wiz_create_itemtype(void)
 	max_num = num;
 
 	/* Choose! */
-	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
+	if (!get_com(format("What Kind of %s? ", tval_desc), &ch, FALSE)) return (0);
 
 	/* Analyze choice */
-	for (num = -1; num < max_num; num++)
+	for (num = 0; num < max_num; num++)
 	{
 		if (listsym[num] == ch) break;
 	}
@@ -748,7 +847,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		wiz_display_item(q_ptr);
 
 		/* Ask wizard what to do. */
-		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent, [s]pecial? ", &ch))
+		if (!get_com("[a]ccept, [w]orthless, [c]ursed, [n]ormal, [g]ood, [e]xcellent, [s]pecial? ", &ch, FALSE))
 		{
 			/* Preserve wizard-generated artifacts */
 			if (artifact_p(q_ptr))
@@ -775,36 +874,57 @@ static void wiz_reroll_item(object_type *o_ptr)
 			q_ptr->name1 = 0;
 		}
 
-		/* Apply normal magic, but first clear object */
-		if (ch == 'n' || ch == 'N')
+		switch(ch)
 		{
-			object_prep(q_ptr, o_ptr->k_idx);
-			apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
-		}
+			/* Apply bad magic, but first clear object */
+			case 'w': case 'W':
+			{
+				object_prep(q_ptr, o_ptr->k_idx);
+				apply_magic(q_ptr, dun_level, FALSE, TRUE, TRUE, TRUE);
+				break;
+			}
+			/* Apply bad magic, but first clear object */
+			case 'c': case 'C':
+			{
+				object_prep(q_ptr, o_ptr->k_idx);
+				apply_magic(q_ptr, dun_level, FALSE, TRUE, FALSE, TRUE);
+				break;
+			}
+			/* Apply normal magic, but first clear object */
+			case 'n': case 'N':
+			{
+				object_prep(q_ptr, o_ptr->k_idx);
+				apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE, FALSE);
+				break;
+			}
+			/* Apply good magic, but first clear object */
+			case 'g': case 'G':
+			{
+				object_prep(q_ptr, o_ptr->k_idx);
+				apply_magic(q_ptr, dun_level, FALSE, TRUE, FALSE, FALSE);
+				break;
+			}
+			/* Apply great magic, but first clear object */
+			case 'e': case 'E':
+			{
+				object_prep(q_ptr, o_ptr->k_idx);
+				apply_magic(q_ptr, dun_level, FALSE, TRUE, TRUE, FALSE);
+				break;
+			}
+			case 's': case 'S':
+			{
+				object_prep(q_ptr, o_ptr->k_idx);
+				apply_magic(q_ptr, dun_level, TRUE, TRUE, TRUE, FALSE);
 
-		/* Apply good magic, but first clear object */
-		else if (ch == 'g' || ch == 'G')
-		{
-			object_prep(q_ptr, o_ptr->k_idx);
-			apply_magic(q_ptr, dun_level, FALSE, TRUE, FALSE);
+				/* Failed to create normal artifact; make a random one */
+				if (!artifact_p(q_ptr)) create_artifact(q_ptr, FALSE);
+				break;
+			}
 		}
-
-		/* Apply great magic, but first clear object */
-		else if (ch == 'e' || ch == 'E')
-		{
-			object_prep(q_ptr, o_ptr->k_idx);
-			apply_magic(q_ptr, dun_level, FALSE, TRUE, TRUE);
-		}
-
-		/* Apply special magic, but first clear object */
-		else if (ch == 's' || ch == 'S')
-		{
-			object_prep(q_ptr, o_ptr->k_idx);
-			apply_magic(q_ptr, dun_level, TRUE, TRUE, TRUE);
-
-			/* Failed to create normal artifact; make a random one */
-			if (!artifact_p(q_ptr)) create_artifact(q_ptr, FALSE);
-		}
+		q_ptr->iy = o_ptr->iy;
+		q_ptr->ix = o_ptr->ix;
+		q_ptr->next_o_idx = o_ptr->next_o_idx;
+		q_ptr->marked = o_ptr->marked;
 	}
 
 
@@ -869,7 +989,7 @@ static void wiz_statistics(object_type *o_ptr)
 		wiz_display_item(o_ptr);
 
 		/* Get choices */
-		if (!get_com(pmt, &ch)) break;
+		if (!get_com(pmt, &ch, FALSE)) break;
 
 		if (ch == 'n' || ch == 'N')
 		{
@@ -1062,6 +1182,7 @@ static void do_cmd_wiz_play(void)
 
 	cptr q, s;
 
+	item_tester_no_ryoute = TRUE;
 	/* Get an item */
 	q = "Play with which object? ";
 	s = "You have nothing to play with.";
@@ -1102,7 +1223,7 @@ static void do_cmd_wiz_play(void)
 		wiz_display_item(q_ptr);
 
 		/* Get choice */
-		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
+		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch, FALSE))
 		{
 			changed = FALSE;
 			break;
@@ -1222,12 +1343,12 @@ static void wiz_create_item(void)
 		}
 
 		/* Apply magic */
-		apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+		apply_magic(q_ptr, -1, TRUE, TRUE, TRUE, FALSE);
 	}
 	else
 	{
 		/* Apply magic */
-		apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE);
+		apply_magic(q_ptr, dun_level, FALSE, FALSE, FALSE, FALSE);
 	}
 
 #ifdef USE_SCRIPT
@@ -1266,8 +1387,11 @@ static void do_cmd_wiz_cure_all(void)
 	p_ptr->chp_frac = 0;
 
 	/* Restore mana */
-	p_ptr->csp = p_ptr->msp;
-	p_ptr->csp_frac = 0;
+	if (p_ptr->csp < p_ptr->msp)
+	{
+		p_ptr->csp = p_ptr->msp;
+		p_ptr->csp_frac = 0;
+	}
 
 	/* Cure stuff */
 	(void)set_blind(0);
@@ -1278,7 +1402,7 @@ static void do_cmd_wiz_cure_all(void)
 	(void)set_image(0);
 	(void)set_stun(0);
 	(void)set_cut(0);
-	(void)set_slow(0);
+	(void)set_slow(0, TRUE);
 
 	/* No longer hungry */
 	(void)set_food(PY_FOOD_MAX - 1);
@@ -1301,7 +1425,19 @@ static void do_cmd_wiz_jump(void)
 		char	tmp_val[160];
 
 		/* Prompt */
-		sprintf(ppp, "Jump to level (0-%d): ", MAX_DEPTH-1);
+		sprintf(ppp, "Jump which dungeon : ");
+
+		/* Default */
+		sprintf(tmp_val, "%d", dungeon_type);
+
+		/* Ask for a level */
+		if (!get_string(ppp, tmp_val, 2)) return;
+
+		dungeon_type = atoi(tmp_val);
+		if (!d_info[dungeon_type].maxdepth || (dungeon_type > max_d_idx)) dungeon_type = DUNGEON_ANGBAND;
+
+		/* Prompt */
+		sprintf(ppp, "Jump to level (0, %d-%d): ", d_info[dungeon_type].mindepth, d_info[dungeon_type].maxdepth);
 
 		/* Default */
 		sprintf(tmp_val, "%d", dun_level);
@@ -1314,10 +1450,10 @@ static void do_cmd_wiz_jump(void)
 	}
 
 	/* Paranoia */
-	if (command_arg < 0) command_arg = 0;
+	if (command_arg < d_info[dungeon_type].mindepth) command_arg = 0;
 
 	/* Paranoia */
-	if (command_arg > MAX_DEPTH - 1) command_arg = MAX_DEPTH - 1;
+	if (command_arg > d_info[dungeon_type].maxdepth) command_arg = d_info[dungeon_type].maxdepth;
 
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", command_arg);
@@ -1327,6 +1463,7 @@ static void do_cmd_wiz_jump(void)
 	/* Change level */
 	dun_level = command_arg;
 
+	if (!dun_level) dungeon_type = 0;
 	p_ptr->inside_arena = 0;
 	leaving_quest = p_ptr->inside_quest;
 
@@ -1336,10 +1473,16 @@ static void do_cmd_wiz_jump(void)
 		(quest[leaving_quest].status == QUEST_STATUS_TAKEN))
 	{
 		quest[leaving_quest].status = QUEST_STATUS_FAILED;
+		quest[leaving_quest].complev = p_ptr->lev;
+		if (record_fix_quest)
+			do_cmd_write_nikki(NIKKI_FIX_QUEST_F, leaving_quest, NULL);
 	}
+
+	if (record_stair) do_cmd_write_nikki(NIKKI_WIZ_TELE,0,NULL);
 
 	p_ptr->inside_quest = 0;
 	p_ptr->leftbldg = FALSE;
+	energy_use = 0;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1386,7 +1529,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(py, px, dun_level, 0, TRUE, FALSE, FALSE);
+		(void)summon_specific(0, py, px, dun_level, 0, TRUE, FALSE, FALSE, TRUE, FALSE);
 	}
 }
 
@@ -1418,7 +1561,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE)) break;
+		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE, FALSE, FALSE)) break;
 	}
 }
 
@@ -1430,7 +1573,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
  */
 static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 {
-	(void) summon_named_creature(py, px, r_idx, slp, TRUE, TRUE);
+	(void) summon_named_creature(py, px, r_idx, slp, TRUE, TRUE, TRUE);
 }
 
 
@@ -1452,7 +1595,15 @@ static void do_cmd_wiz_zap(void)
 		if (!m_ptr->r_idx) continue;
 
 		/* Delete nearby monsters */
-		if (m_ptr->cdis <= MAX_SIGHT) delete_monster_idx(i);
+		if (m_ptr->cdis <= MAX_SIGHT)
+		{
+			if (i == p_ptr->jouba)
+			{
+				rakuba(-1, FALSE);
+				p_ptr->redraw |= (PR_EXTRA);
+			}
+			delete_monster_idx(i);
+		}
 	}
 }
 
@@ -1471,6 +1622,12 @@ static void do_cmd_wiz_zap_all(void)
 
 		/* Paranoia -- Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		if (i == p_ptr->jouba)
+		{
+			rakuba(-1, FALSE);
+			p_ptr->redraw |= (PR_EXTRA);
+		}
 
 		/* Delete this monster */
 		delete_monster_idx(i);
@@ -1544,7 +1701,7 @@ void do_cmd_debug(void)
 
 
 	/* Get a "debug command" */
-	get_com("Debug Command: ", &cmd);
+	get_com("Debug Command: ", &cmd, FALSE);
 
 	/* Analyze the command */
 	switch (cmd)
@@ -1578,9 +1735,18 @@ void do_cmd_debug(void)
 		do_cmd_wiz_cure_all();
 		break;
 
+		/* Know alignment */
+		case 'A':
+		msg_format("Your alignment is %d.", p_ptr->align);
+		break;
+
 		/* Teleport to target */
 		case 'b':
 		do_cmd_wiz_bamf();
+		break;
+
+		case 'B':
+		battle_monsters();
 		break;
 
 		/* Create any object */
@@ -1595,7 +1761,12 @@ void do_cmd_debug(void)
 
 		/* Detect everything */
 		case 'd':
-		detect_all();
+		detect_all(DETECT_RAD_ALL*3);
+		break;
+
+		/* Dimension_door */
+		case 'D':
+		wiz_dimension_door();
 		break;
 
 		/* Edit character */
@@ -1605,7 +1776,7 @@ void do_cmd_debug(void)
 
 		/* View item info */
 		case 'f':
-		identify_fully();
+		identify_fully(FALSE);
 		break;
 
 		/* Good Objects */
@@ -1616,7 +1787,7 @@ void do_cmd_debug(void)
 
 		/* Hitpoint rerating */
 		case 'h':
-		do_cmd_rerate(); break;
+		do_cmd_rerate(TRUE); break;
 
 #ifdef MONSTER_HORDES
 		case 'H':
@@ -1625,7 +1796,7 @@ void do_cmd_debug(void)
 
 		/* Identify */
 		case 'i':
-		(void)ident_spell();
+		(void)ident_spell(FALSE);
 		break;
 
 		/* Go up or down in the dungeon */
@@ -1645,7 +1816,7 @@ void do_cmd_debug(void)
 
 		/* Magic Mapping */
 		case 'm':
-			map_area();
+			map_area(DETECT_RAD_ALL);
 			break;
 
 		/* Mutation */
@@ -1711,7 +1882,7 @@ void do_cmd_debug(void)
 					cave[y][x].info |= (CAVE_GLOW | CAVE_MARK);
 				}
 			}
-			wiz_lite();
+			wiz_lite(TRUE, FALSE);
 			break;
 		}
 
@@ -1734,7 +1905,7 @@ void do_cmd_debug(void)
 
 		/* Wizard Light the Level */
 		case 'w':
-		wiz_lite();
+		wiz_lite(TRUE, (p_ptr->pclass == CLASS_NINJA));
 		break;
 
 		/* Increase Experience */

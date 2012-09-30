@@ -24,8 +24,6 @@
 #
 # To stop a certain monster from having unique lines, put a # in front of
 # its N: line.
-#
-# Entries by Eric Bock, Matt Graham, Andrew Hill, Chris Kern, and Topi Ylinen
 
 N:8:Farmer Maggot
 3
@@ -33,12 +31,84 @@ seems sad about something.
 asks if you have seen his dogs.
 mumbles something about mushrooms.
 
-#N:19:Martti Ihrasaari
+N:19:Lion Heart
+16
+'Logic of previous post office that is not clear in meaning is not translate well to K*izumi Cabinet!'
+'I am not a entertainer but a politician.'
+is singing a song - 'As K*izumi as the day is long...'
+'I will dutch Liberal Democratic Party.'
+'Here's a present for you. A compact disc of X-JAPAN!'
+is singing a song - 'Forever...'
+'A hard worker disport him(her)self.'
+'Electors aren't fervent unless the hopeful isn't fervent.'
+'I go to the poll in 29 because you said that Liberal Democratic Party is good.'
+'Perfect circle, round, round, Perfect circle.'
+'You fight with enduring the pain! It impressed me!'
+'After this, various bafflements and oppositions comes.'
+'Everything that goes against my cabinet is "OPPOSITION INFLUENCE".'
+'The Privatization of Post Office! Are railroads and telephone systems  done away with privatization?'
+'Turnaroud of the economy does not come without structural change.'
+'The belief -A pain of today makes affluence of tommorow- '
+
+N:1059:Noborta Kesyta
+2
+'Haw iz my 100,000,000 gold kasino?'
+'I speek cleerly, My speech is anbiguity.'
+
+N:1060:Mori troll
+29
+'Nippon(Japan), it is God-Land with Emperor. All citizen should accept this.'
+'40% of Electors not decide. It is very good that they do not go to the polls.'
+'I didn't agree about Imperial Rescript on Education, it is supernational.'
+'Imperial Rescript on Education has a universal philosophy.'
+'I am elected because I think a great deal of God.'
+'When I visited a country region, all farmaers suddenly came back to their houses as soon as they found me.'
+'I cannot deny that Osaka is called as a city of "Gabage".Those who live in Osaka always think only earning money, and they are not really insincere.'
+'In U.S., power outage calls gangs and bumpmen.'
+'Expo in Okinawa...'
+'Success of Expo is Obuchi's long-cherished wish.'
+'I'll fight battlefront for you. Please keep safe of this block country.'
+'Japanese Communist Party says that they don't change their philosophy. They don't accept Emperor system, Japan Self-Defense Forces and Japan-U.S. Security Treaty.'
+'How keep safe of Japan and KOKUTAI(It sometimes stands for Emperor system) of Japan? EmperorDemocratic Party of Japan must be hard pressed.'
+'We cannot ally with Japanese Communist Party.'
+'It is not slip of the tongue, It is not anyting.'
+'Korean Peninsula is divided to two ethnic group.'
+'On talking about God, I get an earful again...'
+'This should not be said political condition. We should be national government...'
+'Sorry, at that time.'
+'It is very nice for me to come. why? It gather stream. ("gather strem" is "*MORI*agaru" in Japanese.)'
+'What is PHS? Is it new kind of call phone?'
+'I'm not fool.'
+'I know what is my talk.'
+'Berry fine today.'
+'My inadequacy expression give rise to a misunderstanding, I examine my conscience and beg all citizens pardon for it.'
+'I think I didn't mistake.'
+'A person who cannot use computer is ,use foul language, fugitive from justice.'
+'Mind education in independent scholl is better than one in common school.'
+'It is OK that crude oil flow to Kyushu island.'
+'foo are yu?'
 
 N:53:Grip, Farmer Maggot's dog
 N:54:Wolf, Farmer Maggot's dog
 N:55:Fang, Farmer Maggot's dog
 0
+
+N:772:Gandalf the Grey
+2
+'Don't space out. Cover me! Bogan!'
+'I'll invoke fire magic. Attack concurrently with me!'
+
+N:921:Internet Exploder
+2
+is slow.
+throws off some dorky packets.
+
+N:1004:Pip, the Braver from Another World
+4
+'Fire-ball!'
+'Fire-finger1!'
+'Fire-finger2!'
+'Blockhead!'
 
 #N:63:Smeagol
 #N:135:Mughash the Kobold Lord
@@ -93,12 +163,6 @@ N:55:Fang, Farmer Maggot's dog
 #N:670:Jack of Shadows
 #N:674:Judge Fear
 #N:681:Chaugnar Faugn, Horror from the Hills
-
-N:685:Shoggoth
-2
-wobbles about disgustingly.
-wails, 'Tekeli-li!  Tekeli-li!'
-
 #N:686:Judge Death
 #N:687:Ariel, Queen of Air
 #N:697:Smaug the Golden
@@ -180,6 +244,4 @@ wails, 'Tekeli-li!  Tekeli-li!'
 #N:858:Sauron, the Sorcerer
 #N:860:Oberon, King of Amber
 #N:862:The Serpent of Chaos
-
 #N:*:Default lines
-

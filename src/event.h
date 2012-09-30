@@ -42,6 +42,7 @@ extern long get_world_callback(void);
 extern long get_player_class_callback(void);
 extern long get_player_realms_callback(void);
 extern long get_player_race_callback(void);
+extern long get_player_seikaku_callback(void);
 
 extern bool get_player_flags_callback(void);
 extern bool player_outfit_callback(void);

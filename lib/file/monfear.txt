@@ -27,14 +27,17 @@
 # To stop a certain monster from having unique lines, put a # in front of
 # its N: line.
 #
-# Entries by Eric Bock, Matt Graham, Andrew Hill, and Topi Ylinen
+# Entries by Matt Graham, Andrew Hill, and Topi Ylinen
 
 N:8:Farmer Maggot
 2
 screams, 'Don't hurt a poor helpless hobbit!'
 yells, 'Where are my vicious dogs when I need them?'
 
-N:19:Martti Ihrasaari
+#N:19:Martti Ihrasaari
+N:19:Lion Heart
+N:1059:Mori troll
+N:1060:Noborta Kesyta
 2
 yells, 'I'm a head of state!  You can't *do* this!'
 yells, 'Help! Psycho on the loose!'
@@ -49,6 +52,7 @@ limps away, howling.
 howls.
 looks at you sadly.
 
+#スメアゴル語は 日本の第一人者 Tessi さんに監修していただきました。
 N:63:Smeagol
 3
 says, 'Don't hurt us, mastersisis.'
@@ -89,7 +93,6 @@ N:140:Lagduf, the Snaga
 N:186:Grishnakh, the Hill Orc
 N:215:Golfimbul, the Hill Orc Chief
 N:260:Ufthak of Cirith Ungol
-N:285:Orc captain
 N:314:Shagrat, the Orc Captain
 N:315:Gorbag, the Orc Captain
 N:330:Bolg, Son of Azog
@@ -105,10 +108,35 @@ says, 'Don't hate me because I'm ugly!'
 whimpers and grovels.
 
 N:382:Mime, the Nibelung
+8
+sobs.
+sobs and whines.
+screams, 'Ohe! Ohe! Au! Au!'
+pleads, 'Let me go!'
+wails, 'Au! Au! Au!'
+says, 'I was so good to you, and this is my reward?'
+moans, 'Such ingratitude!'
+says, 'Go now, on your way!'
+
 N:383:Hagen, son of Alberich
+3
+shouts, 'Vassals, rouse yourselves! Take your weapons, good strong weapons!'
+shouts, 'There is danger! Danger!'
+cries, 'Woe! Woe!'
+
 N:419:Alberich the Nibelung King
-1
+11
 screams, 'Help! Murder! Murder!'
+screams, 'Aaah! Crushed! Shattered!'
+moans, 'Base trickery, foul deceit!'
+pleads, 'I have paid, now let me depart!'
+cries, 'O shameful humiliation!'
+shouts, 'Rascally rogue! Robber! Ruffian!'
+grumbles, 'You will regret this outrage, you wretch!'
+moans, 'Terrible vengeance I vow for this wrong!'
+says, 'Smile now, but you can never escape my curse!'
+wails, 'Alas! Alas! Woe is me!'
+moans, 'Do you mock me?'
 
 #N:392:Sangahyando of Umbar
 #N:380:Angamaite of Umbar
@@ -116,13 +144,16 @@ screams, 'Help! Murder! Murder!'
 #This next may be unnecessarily evil... :-]
 
 N:393:It
-2
+3
 howls, 'I'll be back!'
 whimpers, 'They said this invisibility thing was better than it is!'
+teleports away.
 
 N:409:Kharis the Powerslave
-1
+3
 howls, 'Nnnnooo!'
+says, 'I don't want to die, I'm a god, why can't I live on?'
+curses you.
 
 #N:413:Ulwarth, Son of Ulfang
 
@@ -132,7 +163,8 @@ N:431:Grendel
 1
 whines, 'Mommy, save me!'
 
-N:441:Barney the Dinosaur
+N:441:Gachapin
+N:1061:Barney the Dinosaur
 3
 begs, 'Don't! Think of the children!'
 screams, 'But I'm a big TV star!'
@@ -144,13 +176,20 @@ N:493:Bert the Stone Troll
 N:494:Bill the Stone Troll
 N:495:Tom the Stone Troll
 N:551:Rogrog the Black Troll
-2
+3
+says, 'Now, stop it!'
 yells, 'Ey, watch it, you cheeky sod!'
 screams, 'Me mates'll settle yer hash!'
 
-N:505:Groo the Wanderer
+N:1062:Groo the Wanderer
 1
 says, 'Oops... me get in big trouble!'
+
+N:506:Fasolt the Giant
+3
+cries: 'Take my life, but not my gold!'
+complains: 'Why do you rush at me? I sought justice, my just payment!'
+whines: 'Why do you threaten me?'
 
 # I have no idea what these next 4 should say, so.... --MG
 #N:506:Fasolt the Giant
@@ -206,11 +245,17 @@ says, 'Hey! I've got LAWYERS!'
 #N:687:Ariel, Queen of Air
 
 N:697:Smaug the Golden
-2
+4
+groans in disbelief.
+roars furiously.
 howls, 'Black Arrow? NOOOO!'
 howls, 'This CAN'T be happening!'
 
-#N:712:Fafner the Dragon
+N:712:Fafner the Dragon
+2
+wails: 'Who are you that have wounded me so? Speak me your name!'
+complains: 'Who kindled your childish courage to this deadly deed?'
+
 #N:713:Fangorn the Treebeard
 
 N:715:Glaurung, Father of the Dragons
@@ -291,15 +336,23 @@ howls with pain and fear.
 # I have little familiarity with the Amber books, so these are left
 # for others to fill in as they see fit.
 
-#N:773:Brand, Mad Visionary of Amber
-#N:789:Bleys, Master of Manipulation
-#N:791:Fiona the Sorceress
-#N:794:Julian, Master of Forest Amber
-#N:799:Caine, the Conspirator
-#N:807:Gerard, Strongman of Amber
-#N:813:Eric the Usurper
-#N:820:Corwin, Lord of Avalon
-#N:824:Benedict, the Ideal Warrior
+
+N:820:Corwin, Lord of Avalon
+2
+says, 'Who am I? Where is here? Why do you attack me?'
+says, 'Let's make it a clean game as Olympics'
+
+N:773:Brand, Mad Visionary of Amber
+N:789:Bleys, Master of Manipulation
+N:791:Fiona the Sorceress
+N:794:Julian, Master of Forest Amber
+N:799:Caine, the Conspirator
+N:807:Gerard, Strongman of Amber
+N:813:Eric the Usurper
+N:824:Benedict, the Ideal Warrior
+1
+says, 'Do you know the terrors of Amberite blood curse?!'
+
 
 N:825:The Witch-King of Angmar
 1
@@ -341,7 +394,7 @@ N:857:Great Cthulhu
 5
 sobs, 'I'm not bad, I was just born like this!'
 gibbers weakly.
-mumbles, 'kill -9 adventurer, kill -9 adventurer'
+mumbles, 'kill -9 adventurer, kill -9 adventurer', and you say 'No such process'
 oozes greenish blood from many wounds.
 burbles with terror.
 
@@ -367,8 +420,58 @@ screams, 'This CAN'T be happening!'
 shouts, 'Kill me if you want, the Boss will getcha!'
 
 N:862:The Serpent of Chaos
+N:883:Zombified Serpent of Chaos
 1
 screams, 'This CAN'T be happening!'
+
+N:873:Combat-Echizen, SEKKAKUDAKARA
+3
+'Shit...!'
+'Yegg...!'
+'Be cheated!'
+
+N:878:Dio Brando
+1
+says, 'This CAN'T be happening! I feel horror?!'
+
+N:880:Wong
+2
+says, 'You are no fool.'
+says, 'What you are doing is pointless.'
+
+N:921:Internet Exploder
+2
+is slow.
+throws off some dorky packets.
+
+N:1004:Pip, the Braver from Another World
+1
+says, 'Magic ducks, Cover me. I don't shit hits the fan!'
+
+
+N:1005:Antharom, Magic Master in the Castle of Darkness
+2
+cries, 'Oh! My gun dogs was dead! Damn it!'
+shouts, 'You! have been and killed my darling gun dogs!'
+
+N:1029:Baby satan
+#13
+#一個取り除いたので12に
+12
+teleports away.
+casts a Globe of Invulnerability.
+magically summons Cyberdemons!
+magically summons special opponents!
+invokes a mana storm.
+invokes a darkness storm.
+invokes a starburst.
+throw a Psyco-Spear.
+invokes the Hand of Doom!
+casts a Globe of Invulnerability.
+#が自分の傷に集中した。
+#↑これは英文の構造上ちょっと無理っぽい
+magically summons Lords of Amber!
+"The WORLD"! The time stopped!
 
 N:*:Default lines
 61

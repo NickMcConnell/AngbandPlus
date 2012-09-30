@@ -9,6 +9,8 @@
 
 
 
+static int num_more = 0;
+
 #ifndef HAS_MEMSET
 
 /*
@@ -81,7 +83,12 @@ int usleep(huge usecs)
 
 
 	/* Paranoia -- No excessive sleeping */
+#ifdef JP
+	if (usecs > 4000000L) core("不当な usleep() 呼び出し");
+#else
 	if (usecs > 4000000L) core("Illegal usleep() call");
+#endif
+
 
 
 	/* Wait for it */
@@ -272,12 +279,14 @@ errr path_parse(char *buf, int max, cptr file)
 #endif /* SET_UID */
 
 
+#ifndef HAVE_MKSTEMP
+
 /*
  * Hack -- acquire a "temporary" file name if possible
  *
  * This filename is always in "system-specific" form.
  */
-errr path_temp(char *buf, int max)
+static errr path_temp(char *buf, int max)
 {
 	cptr s;
 
@@ -294,6 +303,7 @@ errr path_temp(char *buf, int max)
 	return (0);
 }
 
+#endif
 
 /*
  * Create a new path by appending a file (or directory) to a path.
@@ -377,6 +387,39 @@ errr my_fclose(FILE *fff)
 #endif /* ACORN */
 
 
+#ifdef HAVE_MKSTEMP
+
+FILE *my_fopen_temp(char *buf, int max)
+{
+	int fd;
+
+	/* Prepare the buffer for mkstemp */
+	strncpy(buf, "/tmp/anXXXXXX", max);
+
+	/* Secure creation of a temporary file */
+	fd = mkstemp(buf);
+
+	/* Check the file-descriptor */
+	if (fd < 0) return (NULL);
+
+	/* Return a file stream */
+	return (fdopen(fd, "w"));
+}
+
+#else /* HAVE_MKSTEMP */
+
+FILE *my_fopen_temp(char *buf, int max)
+{
+	/* Generate a temporary filename */
+	if (path_temp(buf, max)) return (NULL);
+
+	/* Open the file */
+	return (my_fopen(buf, "w"));
+}
+
+#endif /* HAVE_MKSTEMP */
+
+
 /*
  * Hack -- replacement for "fgets()"
  *
@@ -421,6 +464,22 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				while (!(i % 8)) buf[i++] = ' ';
 			}
 
+#ifdef JP
+			else if (iskanji(*s))
+			{
+				if (!s[1]) break;
+				buf[i++] = *s++;
+				buf[i++] = *s;
+			}
+# ifndef EUC
+	/* 半角かなに対応 */
+			else if ((((int)*s & 0xff) > 0xa1) && (((int)*s & 0xff ) < 0xdf))
+			{
+				buf[i++] = *s;
+				if (i >= n) break;
+			}
+# endif
+#endif
 			/* Handle printables */
 			else if (isprint(*s))
 			{
@@ -431,6 +490,11 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				if (i >= n) break;
 			}
 		}
+		/* No newline character, but terminate */
+		buf[i] = '\0';
+
+		/* Success */
+		return (0);
 	}
 
 	/* Nothing */
@@ -917,6 +981,12 @@ static int dehex(char c)
 
 
 /*
+ * Hook function for translating actual name of special keys
+ * to "Macro trigger". 
+ */
+void (*text_to_ascii_aux)(char **, cptr *) = NULL;
+
+/*
  * Hack -- convert a printable string into real ascii
  *
  * I have no clue if this function correctly handles, for example,
@@ -1018,6 +1088,9 @@ void text_to_ascii(char *buf, cptr str)
 				*s = 64 * 3 + 8 * deoct(*++str);
 				*s++ += deoct(*++str);
 			}
+			else if (*str == '[' && text_to_ascii_aux) {
+			  (*text_to_ascii_aux)(&s,&str);
+			}
 
 			/* Skip the final char */
 			str++;
@@ -1041,6 +1114,11 @@ void text_to_ascii(char *buf, cptr str)
 	*s = '\0';
 }
 
+/*
+ * Hook function for translating special "Macro trigger"
+ * to actual name. 
+ */
+bool (*ascii_to_text_aux)(char **, cptr *) = NULL;
 
 /*
  * Hack -- convert a string into a printable form
@@ -1093,6 +1171,12 @@ void ascii_to_text(char *buf, cptr str)
 		{
 			*s++ = '\\';
 			*s++ = '\\';
+		}
+		else if (i == 31 && ascii_to_text_aux) {
+		  if(!((*ascii_to_text_aux)(&s, &str))) {
+		    *s++ = '^';
+		    *s++ = '_';
+		  }
 		}
 		else if (i < 32)
 		{
@@ -1333,12 +1417,12 @@ errr macro_init(void)
 	return (0);
 }
 
-
+#ifndef JP
 /*
  * Local "need flush" variable
  */
 static bool flush_later = FALSE;
-
+#endif
 
 /*
  * Local variable -- we are inside a "macro action"
@@ -1365,7 +1449,11 @@ static bool parse_under = FALSE;
 void flush(void)
 {
 	/* Do it later */
+#ifdef JP
+        inkey_xtra = TRUE;
+#else
 	flush_later = TRUE;
+#endif
 }
 
 
@@ -1822,7 +1910,7 @@ char inkey(void)
 
 
 		/* Treat back-quote as escape */
-		if (ch == '`') ch = ESCAPE;
+//		if (ch == '`') ch = ESCAPE;
 
 
 		/* End "macro trigger" */
@@ -2031,6 +2119,8 @@ void message_add(cptr str)
 	int i, k, x, m, n;
 
 	char u[1024];
+	char splitted1[81];
+	cptr splitted2;
 
 	/*** Step 1 -- Analyze the message ***/
 
@@ -2043,6 +2133,30 @@ void message_add(cptr str)
 	/* Important Hack -- Ignore "long" messages */
 	if (n >= MESSAGE_BUF / 4) return;
 
+	/* extra step -- split the message if n>80.   (added by Mogami) */
+	if (n > 80) {
+#ifdef JP
+	  cptr t = str;
+
+	  for (n = 0; n < 80; n++, t++)
+	    if(iskanji(*t)) {
+	      t++;
+	      n++;
+	    }
+	  if (n == 81) n = 79; /* 最後の文字が漢字半分 */
+#else
+	  for (n = 80; n > 60; n--)
+		  if (str[n] == ' ') break;
+	  if (n == 60)
+		  n = 80;
+#endif
+	  splitted2 = str + n;
+	  strncpy(splitted1, str ,n);
+	  splitted1[n] = '\0';
+	  str = splitted1;
+	} else {
+	  splitted2 = NULL;
+	}
 
 	/*** Step 2 -- Attempt to optimize ***/
 
@@ -2076,7 +2190,12 @@ void message_add(cptr str)
 		strcpy(buf, old);
 
 		/* Find multiple */
-		for (t = buf; *t && (*t != '<'); t++);
+#ifdef JP
+ for (t = buf; *t && (*t != '<' || (*(t+1) != 'x' )); t++) 
+     if( iskanji(*t))t++;
+#else
+                for (t = buf; *t && (*t != '<'); t++);
+#endif
 
 		if (*t)
 		{
@@ -2087,7 +2206,7 @@ void message_add(cptr str)
 			*(t - 1) = '\0';
 
 			/* Get multiplier */
-			j = atoi(++t);
+			j = atoi(t+2);
 		}
 
 		/* Limit the multiplier to 1000 */
@@ -2101,10 +2220,17 @@ void message_add(cptr str)
 			str = u;
 
 			/* Write it out */
-			sprintf(u, "%s <%dx>", buf, j);
+			sprintf(u, "%s <x%d>", buf, j);
 
 			/* Message length */
 			n = strlen(str);
+
+			if (!now_message) now_message++;
+		}
+		else
+		{
+			num_more++;/*流れた行の数を数えておく*/
+			now_message++;
 		}
 
 		/* Done */
@@ -2152,7 +2278,9 @@ void message_add(cptr str)
 		message__ptr[x] = message__ptr[i];
 
 		/* Success */
-		return;
+		/* return; */
+		goto end_of_message_add;
+
 	}
 
 
@@ -2250,6 +2378,11 @@ void message_add(cptr str)
 
 	/* Advance the "head" pointer */
 	message__head += n + 1;
+
+	/* recursively add splitted message (added by Mogami) */
+ end_of_message_add:
+	if (splitted2 != NULL)
+	  message_add(splitted2);
 }
 
 
@@ -2260,21 +2393,56 @@ void message_add(cptr str)
 static void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
+	bool nagasu = FALSE;
 
-	/* Hack -- fake monochrome */
-	if (!use_color) a = TERM_WHITE;
+	if ((auto_more && !now_damaged) || num_more < 0){
+		int i;
+		for (i = 0; i < 8; i++)
+		{
+			if (angband_term[i] && (window_flag[i] & PW_MESSAGE)) break;
+		}
+		if (i < 8)
+		{
+			if (num_more < angband_term[i]->hgt) nagasu = TRUE;
+		}
+		else
+		{
+			nagasu = TRUE;
+		}
+	}
+	now_damaged = FALSE;
 
-	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
-
-	/* Get an acceptable keypress */
-	while (1)
+#if 0
+	if (!auto_more || !nagasu)
+#else
+	if (!nagasu)
+#endif
 	{
-		int cmd = inkey();
-		if (quick_messages) break;
-		if ((cmd == ESCAPE) || (cmd == ' ')) break;
-		if ((cmd == '\n') || (cmd == '\r')) break;
-		bell();
+		/* Pause for response */
+#ifdef JP
+		Term_putstr(x, 0, -1, a, "-続く-");
+#else
+		Term_putstr(x, 0, -1, a, "-more-");
+#endif
+
+
+		/* Get an acceptable keypress */
+		while (1)
+		{
+			int cmd = inkey();
+			if (cmd == ESCAPE) {
+			    num_more = -9999; /*auto_moreのとき、全て流す。*/
+			    break;
+			} else if (cmd == ' ') {
+			    num_more = 0; /*１画面だけ流す。*/
+			    break;
+			} else if ((cmd == '\n') || (cmd == '\r')) {
+			    num_more--; /*１行だけ流す。*/
+			    break;
+			}
+			if (quick_messages) break;
+			bell();
+		}
 	}
 
 	/* Clear the line */
@@ -2317,9 +2485,14 @@ void msg_print(cptr msg)
 
 	char buf[1024];
 
+	if (world_monster) return;
 
 	/* Hack -- Reset */
-	if (!msg_flag) p = 0;
+	if (!msg_flag) {
+		/* Clear the line */
+		Term_erase(0, 0, 255);
+		p = 0;
+	}
 
 	/* Message Length */
 	n = (msg ? strlen(msg) : 0);
@@ -2359,18 +2532,47 @@ void msg_print(cptr msg)
 	while (n > 72)
 	{
 		char oops;
+		int check, split = 72;
 
-		int check, split;
+#ifdef JP
+		bool k_flag = FALSE;
+		int wordlen = 0;
 
-		/* Default split */
-		split = 72;
+		/* Find the "best" split point */
+		for (check = 0; check < 72; check++)
+		{
+			if (k_flag)
+			{
+				k_flag = FALSE;
+				continue;
+			}
 
+			/* Found a valid split point */
+			if (iskanji(t[check]))
+			{
+				k_flag = TRUE;
+				split = check;
+			}
+			else if (t[check] == ' ')
+			{
+				split = check;
+				wordlen = 0;
+			}
+			else
+			{
+				wordlen++;
+				if (wordlen > 20)
+					split = check;
+			}
+		}
+#else
 		/* Find the "best" split point */
 		for (check = 40; check < 72; check++)
 		{
 			/* Found a valid split point */
 			if (t[check] == ' ') split = check;
 		}
+#endif
 
 		/* Save the split character */
 		oops = t[split];
@@ -2406,12 +2608,18 @@ void msg_print(cptr msg)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE);
+	window_stuff();
 
 	/* Remember the message */
 	msg_flag = TRUE;
 
 	/* Remember the position */
+#ifdef JP
+	p += n;
+#else
 	p += n + 1;
+#endif
+
 
 	/* Optional refresh */
 	if (fresh_message) Term_fresh();
@@ -2492,9 +2700,6 @@ void msg_format(cptr fmt, ...)
  */
 void c_put_str(byte attr, cptr str, int row, int col)
 {
-	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
-
 	/* Position cursor, Dump the attr/text */
 	Term_putstr(col, row, -1, attr, str);
 }
@@ -2516,9 +2721,6 @@ void put_str(cptr str, int row, int col)
  */
 void c_prt(byte attr, cptr str, int row, int col)
 {
-	/* Hack -- fake monochrome */
-	if (!use_color) attr = TERM_WHITE;
-
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
 
@@ -2560,22 +2762,23 @@ void c_roff(byte a, cptr str)
 
 	cptr s;
 
-
-	/* Hack -- fake monochrome */
-	if (!use_color) a = TERM_WHITE;
-
-
 	/* Obtain the size */
 	(void)Term_get_size(&w, &h);
 
 	/* Obtain the cursor */
 	(void)Term_locate(&x, &y);
 
+	/* Hack -- No more space */
+	if( y == h - 1 && x > w - 3) return;
+
 	/* Process the string */
 	for (s = str; *s; s++)
 	{
 		char ch;
 
+#ifdef JP
+		int k_flag = iskanji(*s);
+#endif
 		/* Force wrap */
 		if (*s == '\n')
 		{
@@ -2583,15 +2786,28 @@ void c_roff(byte a, cptr str)
 			x = 0;
 			y++;
 
+			/* No more space */
+			if( y == h ) break;
+
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
 		}
 
 		/* Clean up the char */
+#ifdef JP
+		ch = ((isprint(*s) || k_flag) ? *s : ' ');
+#else
 		ch = (isprint(*s) ? *s : ' ');
+#endif
+
 
 		/* Wrap words as needed */
+#ifdef JP
+		if (( x >= ( (k_flag) ? w - 2 : w - 1 ) ) && (ch != ' '))
+#else
 		if ((x >= w - 1) && (ch != ' '))
+#endif
+
 		{
 			int i, n = 0;
 
@@ -2600,6 +2816,11 @@ void c_roff(byte a, cptr str)
 
 			/* Wrap word */
 			if (x < w)
+#ifdef JP
+			{
+			/* 現在が半角文字の場合 */
+			if( !k_flag )
+#endif
 			{
 				/* Scan existing text */
 				for (i = w - 2; i >= 0; i--)
@@ -2612,9 +2833,31 @@ void c_roff(byte a, cptr str)
 
 					/* Track current word */
 					n = i;
+#ifdef JP
+					if (cv[i] == '(') break;
+#endif
 				}
 			}
 
+#ifdef JP
+			else
+			{
+				/* 現在が全角文字のとき */
+				/* 文頭が「。」「、」等になるときは、その１つ前の語で改行 */
+				if (strncmp(s, "。", 2) == 0 || strncmp(s, "、", 2) == 0
+#if 0                   /* 一般的には「ィ」「ー」は禁則の対象外 */
+					|| strncmp(s, "ィ", 2) == 0 || strncmp(s, "ー", 2) == 0
+#endif
+			       ){
+					Term_what(x  , y, &av[x  ], &cv[x  ]);
+					Term_what(x-1, y, &av[x-1], &cv[x-1]);
+					Term_what(x-2, y, &av[x-2], &cv[x-2]);
+					n = x - 2;
+					cv[ x ] = '\0';
+				}
+			}
+			}
+#endif
 			/* Special case */
 			if (n == 0) n = w;
 
@@ -2625,12 +2868,18 @@ void c_roff(byte a, cptr str)
 			x = 0;
 			y++;
 
+			/* No more space */
+			if( y == h ) break;
+
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
 
 			/* Wrap the word (if any) */
 			for (i = n; i < w - 1; i++)
 			{
+#ifdef JP
+				if( cv[i] == '\0' ) break;
+#endif
 				/* Dump */
 				Term_addch(av[i], cv[i]);
 
@@ -2640,8 +2889,22 @@ void c_roff(byte a, cptr str)
 		}
 
 		/* Dump */
+#ifdef JP
+                Term_addch(a|0x10, ch);
+#else
 		Term_addch(a, ch);
+#endif
 
+
+#ifdef JP
+		if (k_flag)
+		{
+			s++;
+			x++;
+			ch = *s;
+			Term_addch(a|0x20, ch);
+		}
+#endif
 		/* Advance */
 		if (++x > w) x = w;
 	}
@@ -2699,6 +2962,9 @@ bool askfor_aux(char *buf, int len)
 	bool done = FALSE;
 
 
+#ifdef JP
+    int	k_flag[128];
+#endif
 	/* Locate the cursor */
 	Term_locate(&x, &y);
 
@@ -2747,10 +3013,46 @@ bool askfor_aux(char *buf, int len)
 
 		case 0x7F:
 		case '\010':
+#ifdef JP
+				if (k > 0)
+				{
+					k--;
+					if (k_flag[k] != 0)
+						k--;
+				}
+#else
 			if (k > 0) k--;
+#endif
+
 			break;
 
 		default:
+#ifdef JP
+       {			/* 片山さん作成 */
+                int next;
+
+                                if (iskanji (i)) {
+                                        inkey_base = TRUE;
+                                        next = inkey ();
+                                        if (k+1 < len) {
+                                                buf[k++] = i;
+                                                buf[k] = next;
+                                                k_flag[k++] = 1;
+                                        } else
+                                                bell();
+                                } else {
+#ifdef SJIS
+                    if(k<len && (isprint(i) || (0xa0<=i && i<=0xdf))){
+#else
+                    if(k<len && isprint(i)){
+#endif
+                                                buf[k] = i;
+                                                k_flag[k++] = 0;
+                                        } else
+                                                bell();
+		               }
+		 }
+#else
 			if ((k < len) && (isprint(i)))
 			{
 				buf[k++] = i;
@@ -2759,6 +3061,8 @@ bool askfor_aux(char *buf, int len)
 			{
 				bell();
 			}
+#endif
+
 			break;
 		}
 
@@ -2822,6 +3126,13 @@ bool get_check(cptr prompt)
 
 	char buf[80];
 
+	if (auto_more)
+	{
+		p_ptr->window |= PW_MESSAGE;
+		window_stuff();
+		num_more = 0;
+	}
+
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
 
@@ -2835,7 +3146,7 @@ bool get_check(cptr prompt)
 	while (TRUE)
 	{
 		i = inkey();
-		if (quick_messages) break;
+//		if (quick_messages) break;
 		if (i == ESCAPE) break;
 		if (strchr("YyNn", i)) break;
 		bell();
@@ -2859,7 +3170,7 @@ bool get_check(cptr prompt)
  *
  * Returns TRUE unless the character is "Escape"
  */
-bool get_com(cptr prompt, char *command)
+bool get_com(cptr prompt, char *command, bool z_escape)
 {
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
@@ -2875,6 +3186,7 @@ bool get_com(cptr prompt, char *command)
 
 	/* Handle "cancel" */
 	if (*command == ESCAPE) return (FALSE);
+	if (z_escape && ((*command == 'z') || (*command == 'Z'))) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -2932,7 +3244,12 @@ s16b get_quantity(cptr prompt, int max)
 	if (!prompt)
 	{
 		/* Build a prompt */
+#ifdef JP
+			sprintf(tmp, "いくつですか (1-%d): ", max);
+#else
 		sprintf(tmp, "Quantity (1-%d): ", max);
+#endif
+
 
 		/* Use that prompt */
 		prompt = tmp;
@@ -2978,7 +3295,12 @@ void pause_line(int row)
 {
 	int i;
 	prt("", row, 0);
+#ifdef JP
+	put_str("[ 何かキーを押して下さい ]", row, 26);
+#else
 	put_str("[Press any key to continue]", row, 23);
+#endif
+
 	i = inkey();
 	prt("", row, 0);
 }
@@ -2990,6 +3312,319 @@ void pause_line(int row)
 static char request_command_buffer[256];
 
 
+
+typedef struct
+{
+	cptr name;
+	byte cmd;
+	bool fin;
+} menu_naiyou;
+
+#ifdef JP
+menu_naiyou menu_info[10][10] =
+{
+	{
+		{"魔法/特殊能力", 1, FALSE},
+		{"行動", 2, FALSE},
+		{"道具(使用)", 3, FALSE},
+		{"道具(その他)", 4, FALSE},
+		{"装備", 5, FALSE},
+		{"扉/箱", 6, FALSE},
+		{"情報", 7, FALSE},
+		{"設定", 8, FALSE},
+		{"その他", 9, FALSE},
+		{"", 0, FALSE},
+	},
+
+	{
+		{"使う(m)", 'm', TRUE},
+		{"調べる(b/P)", 'b', TRUE},
+		{"覚える(G)", 'G', TRUE},
+		{"特殊能力を使う(U/O)", 'U', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"休息する(R)", 'R', TRUE},
+		{"トラップ解除(D)", 'D', TRUE},
+		{"探す(s)", 's', TRUE},
+		{"周りを調べる(l/x)", 'l', TRUE},
+		{"ターゲット指定(*)", '*', TRUE},
+		{"穴を掘る(T/^t)", 'T', TRUE},
+		{"階段を上る(<)", '<', TRUE},
+		{"階段を下りる(>)", '>', TRUE},
+		{"ペットに命令する(p)", 'p', TRUE},
+		{"探索モードのON/OFF(S/#)", 'S', TRUE}
+	},
+
+	{
+		{"読む(r)", 'r', TRUE},
+		{"飲む(q)", 'q', TRUE},
+		{"杖を使う(u/Z)", 'u', TRUE},
+		{"魔法棒で狙う(a/z)", 'a', TRUE},
+		{"ロッドを振る(z/a)", 'z', TRUE},
+		{"始動する(A)", 'A', TRUE},
+		{"食べる(E)", 'E', TRUE},
+		{"飛び道具で撃つ(f/t)", 'f', TRUE},
+		{"投げる(v)", 'v', TRUE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"拾う(g)", 'g', TRUE},
+		{"落とす(d)", 'd', TRUE},
+		{"壊す(k/^d)", 'k', TRUE},
+		{"銘を刻む({)", '{', TRUE},
+		{"銘を消す(})", '}', TRUE},
+		{"調査(I)", 'I', TRUE},
+		{"アイテム一覧(i)", 'i', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"装備する(w)", 'w', TRUE},
+		{"装備を外す(t/T)", 't', TRUE},
+		{"燃料を補給(F)", 'F', TRUE},
+		{"装備一覧(e)", 'e', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"開ける(o)", 'o', TRUE},
+		{"閉じる(c)", 'c', TRUE},
+		{"体当たりする(B/f)", 'B', TRUE},
+		{"くさびを打つ(j/S)", 'j', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"ダンジョンの全体図(M)", 'M', TRUE},
+		{"位置を確認(L/W)", 'L', TRUE},
+		{"階の雰囲気(^f)", KTRL('F'), TRUE},
+		{"ステータス(C)", 'C', TRUE},
+		{"文字の説明(/)", '/', TRUE},
+		{"メッセージ履歴(^p)", KTRL('P'), TRUE},
+		{"現在の時刻(^t/')", KTRL('T'), TRUE},
+		{"現在の知識(~)", '~', TRUE},
+		{"プレイ記録(|)", '|', TRUE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"オプション(=)", '=', TRUE},
+		{"マクロ(@)", '@', TRUE},
+		{"画面表示(%)", '%', TRUE},
+		{"カラー(&)", '&', TRUE},
+		{"設定変更コマンド(\")", '\"', TRUE},
+		{"自動拾いをロード($)", '$', TRUE},
+		{"システム(!)", '!', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"セーブ&中断(^x)", KTRL('X'), TRUE},
+		{"セーブ(^s)", KTRL('S'), TRUE},
+		{"ヘルプ(?)", '?', TRUE},
+		{"再描画(^r)", KTRL('R'), TRUE},
+		{"メモ(:)", ':', TRUE},
+		{"記念撮影())", ')', TRUE},
+		{"記念撮影の表示(()", '(', TRUE},
+		{"バージョン情報(V)", 'V', TRUE},
+		{"引退する(Q)", 'Q', TRUE},
+		{"", 0, FALSE}
+	},
+};
+#else
+menu_naiyou menu_info[10][10] =
+{
+	{
+		{"Magic/Special", 1, FALSE},
+		{"Action", 2, FALSE},
+		{"Items(use)", 3, FALSE},
+		{"Items(other)", 4, FALSE},
+		{"Equip", 5, FALSE},
+		{"Door/Box", 6, FALSE},
+		{"Infomations", 7, FALSE},
+		{"Options", 8, FALSE},
+		{"Other commands", 9, FALSE},
+		{"", 0, FALSE},
+	},
+
+	{
+		{"Use(m)", 'm', TRUE},
+		{"See tips(b/P)", 'b', TRUE},
+		{"Study(G)", 'G', TRUE},
+		{"Special abilities(U/O)", 'U', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"Rest(R)", 'R', TRUE},
+		{"Disarm a trap(D)", 'D', TRUE},
+		{"Search(s)", 's', TRUE},
+		{"Look(l/x)", 'l', TRUE},
+		{"Target(*)", '*', TRUE},
+		{"Dig(T/^t)", 'T', TRUE},
+		{"Go up stairs(<)", '<', TRUE},
+		{"Go down staies(>)", '>', TRUE},
+		{"Command pets(p)", 'p', TRUE},
+		{"Search mode ON/OFF(S/#)", 'S', TRUE}
+	},
+
+	{
+		{"Read a scroll(r)", 'r', TRUE},
+		{"Drink a potion(q)", 'q', TRUE},
+		{"Use a staff(u/Z)", 'u', TRUE},
+		{"Aim a wand(a/z)", 'a', TRUE},
+		{"Zap a rod(z/a)", 'z', TRUE},
+		{"Activate an equipment(A)", 'A', TRUE},
+		{"Eat(E)", 'E', TRUE},
+		{"Fire missile weapon(f/t)", 'f', TRUE},
+		{"Throw an item(v)", 'v', TRUE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"Get items(g)", 'g', TRUE},
+		{"Drop an item(d)", 'd', TRUE},
+		{"Destroy an item(k/^d)", 'k', TRUE},
+		{"Inscribe an item({)", '{', TRUE},
+		{"Uninscribe an item(})", '}', TRUE},
+		{"Info about an item(I)", 'I', TRUE},
+		{"Inventory list(i)", 'i', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"Wear(w)", 'w', TRUE},
+		{"Take off(t/T)", 't', TRUE},
+		{"Refuel(F)", 'F', TRUE},
+		{"Equipment list(e)", 'e', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"Open(o)", 'o', TRUE},
+		{"Close(c)", 'c', TRUE},
+		{"Bash a door(B/f)", 'B', TRUE},
+		{"Jam a door(j/S)", 'j', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"Full map(M)", 'M', TRUE},
+		{"Map(L/W)", 'L', TRUE},
+		{"Level feeling(^f)", KTRL('F'), TRUE},
+		{"Character status(C)", 'C', TRUE},
+		{"Identify symbol(/)", '/', TRUE},
+		{"Show prev messages(^p)", KTRL('P'), TRUE},
+		{"Current time(^t/')", KTRL('T'), TRUE},
+		{"Various infomations(~)", '~', TRUE},
+		{"Play record menu(|)", '|', TRUE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"Set options(=)", '=', TRUE},
+		{"Interact with macros(@)", '@', TRUE},
+		{"Interact w/ visuals(%)", '%', TRUE},
+		{"Interact with colors(&)", '&', TRUE},
+		{"Enter a user pref(\")", '\"', TRUE},
+		{"Reload auto-pick pref($)", '$', TRUE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE},
+		{"", 0, FALSE}
+	},
+
+	{
+		{"Save and quit(^x)", KTRL('X'), TRUE},
+		{"Save(^s)", KTRL('S'), TRUE},
+		{"Help(obsoleted)(?)", '?', TRUE},
+		{"Redraw(^r)", KTRL('R'), TRUE},
+		{"Take note(:)", ':', TRUE},
+		{"Dump screen dump(()", ')', TRUE},
+		{"Load screen dump())", '(', TRUE},
+		{"Version info(V)", 'V', TRUE},
+		{"Quit(Q)", 'Q', TRUE},
+		{"", 0, FALSE}
+	},
+};
+#endif
+
+typedef struct
+{
+	cptr name;
+	byte window;
+	byte number;
+	byte jouken;
+	byte jouken_naiyou;
+} special_menu_naiyou;
+
+#define MENU_CLASS 1
+#define MENU_WILD 2
+
+#ifdef JP
+special_menu_naiyou special_menu_info[] =
+{
+	{"超能力/特殊能力", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
+	{"ものまね/特殊能力", 0, 0, MENU_CLASS, CLASS_MONOMANE},
+	{"必殺技/特殊能力", 0, 0, MENU_CLASS, CLASS_SAMURAI},
+	{"練気術/魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_KI},
+	{"鏡魔法/特殊能力", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
+	{"広域マップ(<)", 2, 6, MENU_WILD, FALSE},
+	{"通常マップ(>)", 2, 7, MENU_WILD, TRUE},
+	{"", 0, 0, 0, 0},
+};
+#else
+special_menu_naiyou special_menu_info[] =
+{
+	{"MindCraft/Special", 0, 0, MENU_CLASS, CLASS_MINDCRAFTER},
+	{"Imitation/Special", 0, 0, MENU_CLASS, CLASS_MONOMANE},
+	{"Technique/Special", 0, 0, MENU_CLASS, CLASS_SAMURAI},
+	{"Mind/Magic/Special", 0, 0, MENU_CLASS, CLASS_KI},
+	{"MirrorMagic/Special", 0, 0, MENU_CLASS, CLASS_MIRROR_MASTER},
+	{"Enter global map(<)", 2, 6, MENU_WILD, FALSE},
+	{"Enter local map(>)", 2, 7, MENU_WILD, TRUE},
+	{"", 0, 0, 0, 0},
+};
+#endif
 
 /*
  * Request a command from the user.
@@ -3014,13 +3649,15 @@ void request_command(int shopping)
 {
 	int i;
 
-	char cmd;
+	unsigned char cmd;
 
 	int mode;
 
 	cptr act;
 
-
+#ifdef JP
+        int caretcmd = 0;
+#endif
 	/* Roguelike */
 	if (rogue_like_commands)
 	{
@@ -3043,6 +3680,8 @@ void request_command(int shopping)
 	/* No "direction" yet */
 	command_dir = 0;
 
+	use_menu = FALSE;
+
 
 	/* Get command */
 	while (1)
@@ -3054,7 +3693,7 @@ void request_command(int shopping)
 			msg_print(NULL);
 
 			/* Use auto-command */
-			cmd = (char)command_new;
+			cmd = (unsigned char)command_new;
 
 			/* Forget it */
 			command_new = 0;
@@ -3063,14 +3702,158 @@ void request_command(int shopping)
 		/* Get a keypress in "command" mode */
 		else
 		{
+			char sub_cmd;
+
 			/* Hack -- no flush needed */
 			msg_flag = FALSE;
+			num_more = 0;
 
 			/* Activate "command mode" */
 			inkey_flag = TRUE;
 
 			/* Get a command */
-			cmd = inkey();
+			sub_cmd = inkey();
+
+			if (!shopping && command_menu && ((sub_cmd == '\r') || (sub_cmd == 'x') || (sub_cmd == 'X'))
+			    && !keymap_act[mode][(byte)(sub_cmd)])
+			{
+				int basey, basex;
+				int num = 0, max_num, old_num = 0;
+				int menu = 0;
+				bool kisuu;
+
+				if (py - panel_row_min > 10) basey = 2;
+				else basey = 13;
+				basex = 15;
+
+				/* Clear top line */
+				prt("", 0, 0);
+
+				screen_save();
+
+				while(1)
+				{
+					cptr menu_name;
+					if (!menu) old_num = num;
+					put_str("+----------------------------------------------------+", basey, basex);
+					put_str("|                                                    |", basey+1, basex);
+					put_str("|                                                    |", basey+2, basex);
+					put_str("|                                                    |", basey+3, basex);
+					put_str("|                                                    |", basey+4, basex);
+					put_str("|                                                    |", basey+5, basex);
+					put_str("+----------------------------------------------------+", basey+6, basex);
+
+					for(i = 0; i < 10; i++)
+					{
+						int hoge;
+						if (!menu_info[menu][i].cmd) break;
+						menu_name = menu_info[menu][i].name;
+						for(hoge = 0; ; hoge++)
+						{
+							if (!special_menu_info[hoge].name[0]) break;
+							if ((menu != special_menu_info[hoge].window) || (i != special_menu_info[hoge].number)) continue;
+							switch(special_menu_info[hoge].jouken)
+							{
+								case MENU_CLASS:
+								if (p_ptr->pclass == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
+								break;
+								case MENU_WILD:
+								if (!dun_level && !p_ptr->inside_arena && !p_ptr->inside_quest)
+								{
+									if ((byte)p_ptr->wild_mode == special_menu_info[hoge].jouken_naiyou) menu_name = special_menu_info[hoge].name;
+								}
+								break;
+								default:
+								break;
+							}
+						}
+						put_str(menu_name, basey + 1 + i / 2, basex + 4 + (i % 2) * 24);
+					}
+					max_num = i;
+					kisuu = max_num % 2;
+#ifdef JP
+					put_str("》",basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
+#else
+					put_str("> ",basey + 1 + num / 2, basex + 2 + (num % 2) * 24);
+#endif
+
+					/* Place the cursor on the player */
+					move_cursor_relative(py, px);
+
+					/* Get a command */
+					sub_cmd = inkey();
+					if ((sub_cmd == ' ') || (sub_cmd == 'x') || (sub_cmd == 'X') || (sub_cmd == '\r'))
+					{
+						if (menu_info[menu][num].fin)
+						{
+							cmd = menu_info[menu][num].cmd;
+							use_menu = TRUE;
+							break;
+						}
+						else
+						{
+							menu = menu_info[menu][num].cmd;
+							num = 0;
+							basey += 2;
+							basex += 8;
+						}
+					}
+					else if ((sub_cmd == ESCAPE) || (sub_cmd == 'z') || (sub_cmd == 'Z') || (sub_cmd == '0'))
+					{
+						if (!menu)
+						{
+							cmd = ESCAPE;
+							break;
+						}
+						else
+						{
+							menu = 0;
+							num = old_num;
+							basey -= 2;
+							basex -= 8;
+							screen_load();
+							screen_save();
+						}
+					}
+					else if ((sub_cmd == '2') || (sub_cmd == 'j') || (sub_cmd == 'J'))
+					{
+						if (kisuu)
+						{
+							if (num % 2)
+								num = (num + 2) % (max_num - 1);
+							else
+								num = (num + 2) % (max_num + 1);
+						}
+						else num = (num + 2) % max_num;
+					}
+					else if ((sub_cmd == '8') || (sub_cmd == 'k') || (sub_cmd == 'K'))
+					{
+						if (kisuu)
+						{
+							if (num % 2)
+								num = (num + max_num - 3) % (max_num - 1);
+							else
+								num = (num + max_num - 1) % (max_num + 1);
+						}
+						else num = (num + max_num - 2) % max_num;
+					}
+					else if ((sub_cmd == '4') || (sub_cmd == '6') || (sub_cmd == 'h') || (sub_cmd == 'H') || (sub_cmd == 'l') || (sub_cmd == 'L'))
+					{
+						if ((num % 2) || (num == max_num - 1))
+						{
+							num--;
+						}
+						else if (num < max_num - 1)
+						{
+							num++;
+						}
+					}
+				}
+
+				screen_load();
+				if (!inkey_next) inkey_next = "";
+			}
+			else cmd = sub_cmd;
 		}
 
 		/* Clear top line */
@@ -3086,7 +3869,12 @@ void request_command(int shopping)
 			command_arg = 0;
 
 			/* Begin the input */
+#ifdef JP
+			prt("回数: ", 0, 0);
+#else
 			prt("Count: ", 0, 0);
+#endif
+
 
 			/* Get a command count */
 			while (1)
@@ -3101,7 +3889,12 @@ void request_command(int shopping)
 					command_arg = command_arg / 10;
 
 					/* Show current count */
+#ifdef JP
+					prt(format("回数: %d", command_arg), 0, 0);
+#else
 					prt(format("Count: %d", command_arg), 0, 0);
+#endif
+
 				}
 
 				/* Actual numeric data */
@@ -3125,7 +3918,12 @@ void request_command(int shopping)
 					}
 
 					/* Show current count */
+#ifdef JP
+					prt(format("回数: %d", command_arg), 0, 0);
+#else
 					prt(format("Count: %d", command_arg), 0, 0);
+#endif
+
 				}
 
 				/* Exit on "unusable" input */
@@ -3142,7 +3940,12 @@ void request_command(int shopping)
 				command_arg = 99;
 
 				/* Show current count */
+#ifdef JP
+				prt(format("回数: %d", command_arg), 0, 0);
+#else
 				prt(format("Count: %d", command_arg), 0, 0);
+#endif
+
 			}
 
 			/* Hack -- Handle "old_arg" */
@@ -3152,14 +3955,24 @@ void request_command(int shopping)
 				command_arg = old_arg;
 
 				/* Show current count */
+#ifdef JP
+prt(format("回数: %d", command_arg), 0, 0);
+#else
 				prt(format("Count: %d", command_arg), 0, 0);
+#endif
+
 			}
 
 			/* Hack -- white-space means "enter command now" */
 			if ((cmd == ' ') || (cmd == '\n') || (cmd == '\r'))
 			{
 				/* Get a real command */
-				if (!get_com("Command: ", &cmd))
+#ifdef JP
+				if (!get_com("コマンド: ", &cmd, FALSE))
+#else
+				if (!get_com("Command: ", &cmd, FALSE))
+#endif
+
 				{
 					/* Clear count */
 					command_arg = 0;
@@ -3175,7 +3988,12 @@ void request_command(int shopping)
 		if (cmd == '\\')
 		{
 			/* Get a real command */
-			(void)get_com("Command: ", &cmd);
+#ifdef JP
+			(void)get_com("コマンド: ", &cmd, FALSE);
+#else
+			(void)get_com("Command: ", &cmd, FALSE);
+#endif
+
 
 			/* Hack -- bypass keymaps */
 			if (!inkey_next) inkey_next = "";
@@ -3186,7 +4004,12 @@ void request_command(int shopping)
 		if (cmd == '^')
 		{
 			/* Get a new command and controlify it */
-			if (get_com("Control: ", &cmd)) cmd = KTRL(cmd);
+#ifdef JP
+			if (get_com("CTRL: ", &cmd, FALSE)) cmd = KTRL(cmd);
+#else
+			if (get_com("Control: ", &cmd, FALSE)) cmd = KTRL(cmd);
+#endif
+
 		}
 
 
@@ -3246,8 +4069,24 @@ void request_command(int shopping)
 		}
 	}
 
+#ifdef JP
+        for (i = 0; i < 256; i++)
+        {
+                cptr s;
+                if ((s = keymap_act[mode][i]) != NULL)
+                {
+                        if (*s == command_cmd && *(s+1) == 0)
+                        {
+                                caretcmd = i;
+                                break;
+                        }
+                }
+        }
+        if (!caretcmd)
+                caretcmd = command_cmd;
+#endif
 	/* Hack -- Scan equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
 	{
 		cptr s;
 
@@ -3269,10 +4108,20 @@ void request_command(int shopping)
 		while (s)
 		{
 			/* Check the "restriction" character */
+#ifdef JP
+                        if ((s[1] == caretcmd) || (s[1] == '*'))
+#else
 			if ((s[1] == command_cmd) || (s[1] == '*'))
+#endif
+
 			{
 				/* Hack -- Verify command */
+#ifdef JP
+				if (!get_check("本当ですか? "))
+#else
 				if (!get_check("Are you sure? "))
+#endif
+
 				{
 					/* Hack -- Use space */
 					command_cmd = ' ';
@@ -3288,7 +4137,6 @@ void request_command(int shopping)
 	/* Hack -- erase the message line. */
 	prt("", 0, 0);
 }
-
 
 
 
@@ -3618,3 +4466,174 @@ void tag_sort(tag_type elements[], int number)
 }
 
 #endif /* SORT_R_INFO */
+
+#ifdef SUPPORT_GAMMA
+
+/* Table of gamma values */
+byte gamma_table[256];
+
+/* Table of ln(x/256) * 256 for x going from 0 -> 255 */
+static s16b gamma_helper[256] =
+{
+0,-1420,-1242,-1138,-1065,-1007,-961,-921,-887,-857,-830,-806,-783,-762,-744,-726,
+-710,-694,-679,-666,-652,-640,-628,-617,-606,-596,-586,-576,-567,-577,-549,-541,
+-532,-525,-517,-509,-502,-495,-488,-482,-475,-469,-463,-457,-451,-455,-439,-434,
+-429,-423,-418,-413,-408,-403,-398,-394,-389,-385,-380,-376,-371,-367,-363,-359,
+-355,-351,-347,-343,-339,-336,-332,-328,-325,-321,-318,-314,-311,-308,-304,-301,
+-298,-295,-291,-288,-285,-282,-279,-276,-273,-271,-268,-265,-262,-259,-257,-254,
+-251,-248,-246,-243,-241,-238,-236,-233,-231,-228,-226,-223,-221,-219,-216,-214,
+-212,-209,-207,-205,-203,-200,-198,-196,-194,-192,-190,-188,-186,-184,-182,-180,
+-178,-176,-174,-172,-170,-168,-166,-164,-162,-160,-158,-156,-155,-153,-151,-149,
+-147,-146,-144,-142,-140,-139,-137,-135,-134,-132,-130,-128,-127,-125,-124,-122,
+-120,-119,-117,-116,-114,-112,-111,-109,-108,-106,-105,-103,-102,-100,-99,-97,
+-96,-95,-93,-92,-90,-89,-87,-86,-85,-83,-82,-80,-79,-78,-76,-75,
+-74,-72,-71,-70,-68,-67,-66,-65,-63,-62,-61,-59,-58,-57,-56,-54,
+-53,-52,-51,-50,-48,-47,-46,-45,-44,-42,-41,-40,-39,-38,-37,-35,
+-34,-33,-32,-31,-30,-29,-27,-26,-25,-24,-23,-22,-21,-20,-19,-18,
+-17,-16,-14,-13,-12,-11,-10,-9,-8,-7,-6,-5,-4,-3,-2,-1
+};
+
+
+/* 
+ * Build the gamma table so that floating point isn't needed.
+ * 
+ * Note gamma goes from 0->256.  The old value of 100 is now 128.
+ */
+void build_gamma_table(int gamma)
+{
+	int i, n;
+	
+	/*
+	 * value is the current sum.
+	 * diff is the new term to add to the series.
+	 */
+	long value, diff;
+	
+	/* Hack - convergence is bad in these cases. */
+	gamma_table[0] = 0;
+	gamma_table[255] = 255;
+	
+	for (i = 1; i < 255; i++)
+	{
+		/* 
+		 * Initialise the Taylor series
+		 *
+		 * value and diff have been scaled by 256
+		 */
+		
+		n = 1;
+		value = 256 * 256;
+		diff = ((long)gamma_helper[i]) * (gamma - 256);
+		
+		while (diff)
+		{
+			value += diff;
+			n++;
+			
+			
+			/*
+			 * Use the following identiy to calculate the gamma table.
+			 * exp(x) = 1 + x + x^2/2 + x^3/(2*3) + x^4/(2*3*4) +...
+			 *
+			 * n is the current term number.
+			 * 
+			 * The gamma_helper array contains a table of
+			 * ln(x/256) * 256
+			 * This is used because a^b = exp(b*ln(a))
+			 *
+			 * In this case:
+			 * a is i / 256
+			 * b is gamma.
+			 *
+			 * Note that everything is scaled by 256 for accuracy,
+			 * plus another factor of 256 for the final result to
+			 * be from 0-255.  Thus gamma_helper[] * gamma must be
+			 * divided by 256*256 each itteration, to get back to
+			 * the original power series.
+			 */
+			diff = (((diff / 256) * gamma_helper[i]) * (gamma - 256)) / (256 * n);
+		}
+		
+		/* 
+		 * Store the value in the table so that the
+		 * floating point pow function isn't needed .
+		 */
+		gamma_table[i] = ((long)(value / 256) * i) / 256;
+	}
+}
+
+#endif /* SUPPORT_GAMMA */
+
+void roff_to_buf(cptr str, int maxlen, char *tbuf)
+{
+	int read_pt = 0;
+	int write_pt = 0;
+	int line_len = 0;
+	int word_punct = 0;
+	unsigned char ch[3];
+	ch[2] = '\0';
+
+	while (str[read_pt])
+	{
+#ifdef JP
+		bool kanji;
+#endif
+		ch[0] = str[read_pt];
+		ch[1] = '\0';
+#ifdef JP
+		kanji  = iskanji(ch[0]);
+		if (kanji)
+			ch[1] = str[read_pt+1];
+		if (!kanji && !isprint(ch[0]))
+			ch[0] = ' ';
+#else
+		if (!isprint(ch[0]))
+			ch[0] = ' ';
+#endif
+
+		if (line_len >= maxlen || str[read_pt] == '\n')
+		{
+			int word_len;
+
+			/* return to better wrapping point. */
+			/* Space character at the end of the line need not to be printed. */
+			word_len = read_pt - word_punct;
+			if (ch[0] != ' ' && word_len < line_len/2)
+			{
+				read_pt = word_punct;
+				if (str[word_punct] == ' ')
+					read_pt++;
+				write_pt -= word_len;
+			}
+			else
+				read_pt++;
+			tbuf[write_pt++] = '\0';
+			line_len = 0;
+			word_punct = read_pt;
+			continue;
+		}
+		if (ch[0] == ' ')
+			word_punct = read_pt;
+#ifdef JP
+		if (kanji &&
+		    strcmp(ch, "。") != 0 && strcmp(ch, "、") != 0 &&
+		    strcmp(ch, "ィ") != 0 && strcmp(ch, "ー") != 0)
+			word_punct = read_pt;
+#endif
+		tbuf[write_pt++] = ch[0];
+		line_len++;
+		read_pt++;
+#ifdef JP
+		if (kanji)
+		{
+			tbuf[write_pt++] = ch[1];
+			line_len++;
+			read_pt++;
+		}
+#endif
+	}
+	tbuf[write_pt] = '\0';
+	tbuf[write_pt+1] = '\0';
+
+	return;
+}

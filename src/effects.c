@@ -13,6 +13,289 @@
 
 #include "angband.h"
 
+void set_action(int typ)
+{
+	if (typ == p_ptr->action)
+	{
+		return;
+	}
+	else
+	{
+		switch(p_ptr->action)
+		{
+			case ACTION_SEARCH:
+			{
+#ifdef JP
+				msg_print("探索をやめた。");
+#else
+				msg_print("You no longer walk carefully.");
+#endif
+				p_ptr->redraw |= (PR_SPEED);
+				break;
+			}
+			case ACTION_REST:
+			{
+				resting = 0;
+				break;
+			}
+			case ACTION_LEARN:
+			{
+#ifdef JP
+				msg_print("学習をやめた。");
+#else
+				msg_print("You stop Learning");
+#endif
+				new_mane = FALSE;
+				break;
+			}
+			case ACTION_KAMAE:
+			{
+#ifdef JP
+				msg_print("構えをといた。");
+#else
+				msg_print("You stop assuming the posture.");
+#endif
+				p_ptr->special_defense &= ~(KAMAE_MASK);
+				break;
+			}
+			case ACTION_KATA:
+			{
+#ifdef JP
+				msg_print("型を崩した。");
+#else
+				msg_print("You stop assuming the posture.");
+#endif
+				p_ptr->special_defense &= ~(KATA_MASK);
+				p_ptr->update |= (PU_MONSTERS);
+				p_ptr->redraw |= (PR_STATUS);
+				break;
+			}
+			case ACTION_SING:
+			{
+#ifdef JP
+				msg_print("歌うのをやめた。");
+#else
+				msg_print("You stop singing.");
+#endif
+				break;
+			}
+			case ACTION_HAYAGAKE:
+			{
+#ifdef JP
+				msg_print("足が重くなった。");
+#else
+				msg_print("You stop hayagake.");
+#endif
+				break;
+			}
+		}
+	}
+
+	p_ptr->action = typ;
+
+	switch(p_ptr->action)
+	{
+		case ACTION_SEARCH:
+		{
+#ifdef JP
+			msg_print("注意深く歩き始めた。");
+#else
+			msg_print("You began to walk carefully.");
+#endif
+			p_ptr->redraw |= (PR_SPEED);
+			break;
+		}
+		case ACTION_LEARN:
+		{
+#ifdef JP
+			msg_print("学習を始めた。");
+#else
+			msg_print("You began Learning");
+#endif
+			break;
+		}
+		case ACTION_FISH:
+		{
+#ifdef JP
+			msg_print("水面に糸を垂らした．．．");
+#else
+			msg_print("You began fishing...");
+#endif
+			break;
+		}
+		case ACTION_HAYAGAKE:
+		{
+#ifdef JP
+			msg_print("足が羽のように軽くなった。");
+#else
+			msg_print("You began to walk extremery fast.");
+#endif
+			break;
+		}
+		default:
+		{
+			break;
+		}
+	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+}
+
+/* reset timed flags */
+void reset_tim_flags(void)
+{
+	p_ptr->fast = 0;            /* Timed -- Fast */
+	p_ptr->lightspeed = 0;
+	p_ptr->slow = 0;            /* Timed -- Slow */
+	p_ptr->blind = 0;           /* Timed -- Blindness */
+	p_ptr->paralyzed = 0;       /* Timed -- Paralysis */
+	p_ptr->confused = 0;        /* Timed -- Confusion */
+	p_ptr->afraid = 0;          /* Timed -- Fear */
+	p_ptr->image = 0;           /* Timed -- Hallucination */
+	p_ptr->poisoned = 0;        /* Timed -- Poisoned */
+	p_ptr->cut = 0;             /* Timed -- Cut */
+	p_ptr->stun = 0;            /* Timed -- Stun */
+
+	p_ptr->protevil = 0;        /* Timed -- Protection */
+	p_ptr->invuln = 0;          /* Timed -- Invulnerable */
+	p_ptr->ult_res = 0;
+	p_ptr->hero = 0;            /* Timed -- Heroism */
+	p_ptr->shero = 0;           /* Timed -- Super Heroism */
+	p_ptr->shield = 0;          /* Timed -- Shield Spell */
+	p_ptr->blessed = 0;         /* Timed -- Blessed */
+	p_ptr->tim_invis = 0;       /* Timed -- Invisibility */
+	p_ptr->tim_infra = 0;       /* Timed -- Infra Vision */
+	p_ptr->tim_regen = 0;       /* Timed -- Regeneration */
+	p_ptr->tim_stealth = 0;     /* Timed -- Stealth */
+	p_ptr->tim_esp = 0;
+	p_ptr->tim_ffall = 0;
+	p_ptr->tim_sh_touki = 0;
+	p_ptr->tim_sh_fire = 0;
+	p_ptr->resist_magic = 0;
+	p_ptr->tsuyoshi = 0;
+	p_ptr->kabenuke = 0;
+	p_ptr->tim_res_nether = 0;
+	p_ptr->tim_res_time = 0;
+	p_ptr->tim_mimic = 0;
+	p_ptr->mimic_form = 0;
+	p_ptr->tim_reflect = 0;
+	p_ptr->multishadow = 0;
+	p_ptr->dustrobe = 0;
+	p_ptr->action = ACTION_NONE;
+
+
+	p_ptr->oppose_acid = 0;     /* Timed -- oppose acid */
+	p_ptr->oppose_elec = 0;     /* Timed -- oppose lightning */
+	p_ptr->oppose_fire = 0;     /* Timed -- oppose heat */
+	p_ptr->oppose_cold = 0;     /* Timed -- oppose cold */
+	p_ptr->oppose_pois = 0;     /* Timed -- oppose poison */
+
+	p_ptr->word_recall = FALSE;
+	p_ptr->sutemi = FALSE;
+	p_ptr->counter = FALSE;
+	p_ptr->ele_attack = 0;
+	p_ptr->ele_immune = 0;
+	p_ptr->special_attack = 0L;
+	p_ptr->special_defense = 0L;
+
+	while(p_ptr->energy > 99) p_ptr->energy -= 100;
+	world_player = FALSE;
+
+	if (prace_is_(RACE_DEMON) && (p_ptr->lev > 44)) p_ptr->oppose_fire = 1;
+	if ((p_ptr->pclass == CLASS_NINJA) && (p_ptr->lev > 44)) p_ptr->oppose_pois = 1;
+	if (p_ptr->pclass == CLASS_BERSERKER) p_ptr->shero = 1;
+
+	if (p_ptr->jouba)
+	{
+		m_list[p_ptr->jouba].fast = 0;
+		m_list[p_ptr->jouba].slow = 0;
+		m_list[p_ptr->jouba].invulner = 0;
+	}
+
+	if (p_ptr->pclass == CLASS_HARPER)
+	{
+		p_ptr->magic_num1[0] = 0;
+		p_ptr->magic_num2[0] = 0;
+	}
+}
+
+
+/*
+ * Set "p_ptr->tim_mimic", and "p_ptr->mimic_form",
+ * notice observable changes
+ */
+bool set_mimic(int v, int p, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_mimic && (p_ptr->mimic_form == p) && !do_dec)
+		{
+			if (p_ptr->tim_mimic > v) return FALSE;
+		}
+                else if ((!p_ptr->tim_mimic) || (p_ptr->mimic_form != p))
+		{
+#ifdef JP
+                        msg_print("自分の体が変わってゆくのを感じた。");
+#else
+                        msg_print("You feel that your body change.");
+#endif
+                        p_ptr->mimic_form=p;
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+                if (p_ptr->tim_mimic)
+		{
+#ifdef JP
+                        msg_print("変身が解けた。");
+#else
+                        msg_print("You are no longer transformed.");
+#endif
+			if (p_ptr->mimic_form == MIMIC_DEMON) set_oppose_fire(0, TRUE);
+                        p_ptr->mimic_form=0;
+			notice = TRUE;
+			p = 0;
+		}
+	}
+
+	/* Use the value */
+        p_ptr->tim_mimic = v;
+
+	/* Nothing to notice */
+	if (!notice)
+		return (FALSE);
+
+	/* Disturb */
+	if (disturb_state)
+		disturb(0, 0);
+
+        /* Redraw title */
+        p_ptr->redraw |= (PR_BASIC | PR_STATUS);
+
+	/* Recalculate bonuses */
+        p_ptr->update |= (PU_BONUS | PU_HP);
+
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
 /*
  * Set "p_ptr->blind", notice observable changes
  *
@@ -28,13 +311,32 @@ bool set_blind(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
 		if (!p_ptr->blind)
 		{
-			msg_print("You are blind!");
+			if (p_ptr->prace == RACE_ANDROID)
+			{
+#ifdef JP
+msg_print("センサーをやられた！");
+#else
+				msg_print("You are blind!");
+#endif
+			}
+			else
+			{
+#ifdef JP
+msg_print("目が見えなくなってしまった！");
+#else
+				msg_print("You are blind!");
+#endif
+			}
+
 			notice = TRUE;
+			chg_virtue(V_ENLIGHTEN, -1);
 		}
 	}
 
@@ -43,13 +345,32 @@ bool set_blind(int v)
 	{
 		if (p_ptr->blind)
 		{
-			msg_print("You can see again.");
+			if (p_ptr->prace == RACE_ANDROID)
+			{
+#ifdef JP
+msg_print("センサーが復旧した。");
+#else
+				msg_print("You can see again.");
+#endif
+			}
+			else
+			{
+#ifdef JP
+msg_print("やっと目が見えるようになった。");
+#else
+				msg_print("You can see again.");
+#endif
+			}
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->blind = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -62,9 +383,6 @@ bool set_blind(int v)
 
 	/* Redraw map */
 	p_ptr->redraw |= (PR_MAP);
-
-	/* Redraw the "blind" */
-	p_ptr->redraw |= (PR_BLIND);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
@@ -87,13 +405,41 @@ bool set_confused(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
 		if (!p_ptr->confused)
 		{
+#ifdef JP
+msg_print("あなたは混乱した！");
+#else
 			msg_print("You are confused!");
+#endif
+
+			if (p_ptr->action == ACTION_KAMAE)
+			{
+				msg_print("構えがとけた。");
+				p_ptr->special_defense &= ~(KAMAE_MASK);
+				p_ptr->update |= (PU_BONUS);
+				p_ptr->redraw |= (PR_STATE);
+				p_ptr->action = ACTION_NONE;
+			}
+			else if (p_ptr->action == ACTION_KATA)
+			{
+				msg_print("型が崩れた。");
+				p_ptr->special_defense &= ~(KATA_MASK);
+				p_ptr->update |= (PU_BONUS);
+				p_ptr->update |= (PU_MONSTERS);
+				p_ptr->redraw |= (PR_STATE);
+				p_ptr->redraw |= (PR_STATUS);
+				p_ptr->action = ACTION_NONE;
+			}
+
 			notice = TRUE;
+			p_ptr->counter = FALSE;
+			chg_virtue(V_HARMONY, -1);
 		}
 	}
 
@@ -102,7 +448,13 @@ bool set_confused(int v)
 	{
 		if (p_ptr->confused)
 		{
+#ifdef JP
+msg_print("やっと混乱がおさまった。");
+#else
 			msg_print("You feel less confused now.");
+#endif
+
+			p_ptr->special_attack &= ~(ATTACK_SUIKEN);
 			notice = TRUE;
 		}
 	}
@@ -110,14 +462,14 @@ bool set_confused(int v)
 	/* Use the value */
 	p_ptr->confused = v;
 
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
-
-	/* Redraw the "confused" */
-	p_ptr->redraw |= (PR_CONFUSED);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -137,12 +489,19 @@ bool set_poisoned(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
 		if (!p_ptr->poisoned)
 		{
+#ifdef JP
+msg_print("毒に侵されてしまった！");
+#else
 			msg_print("You are poisoned!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -152,7 +511,12 @@ bool set_poisoned(int v)
 	{
 		if (p_ptr->poisoned)
 		{
+#ifdef JP
+msg_print("やっと毒の痛みがなくなった。");
+#else
 			msg_print("You are no longer poisoned.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -160,14 +524,14 @@ bool set_poisoned(int v)
 	/* Use the value */
 	p_ptr->poisoned = v;
 
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
-
-	/* Redraw the "poisoned" */
-	p_ptr->redraw |= (PR_POISONED);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -187,13 +551,33 @@ bool set_afraid(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
 		if (!p_ptr->afraid)
 		{
+#ifdef JP
+msg_print("何もかも恐くなってきた！");
+#else
 			msg_print("You are terrified!");
+#endif
+
+			if (p_ptr->special_defense & KATA_MASK)
+			{
+				msg_print("型が崩れた。");
+				p_ptr->special_defense &= ~(KATA_MASK);
+				p_ptr->update |= (PU_BONUS);
+				p_ptr->update |= (PU_MONSTERS);
+				p_ptr->redraw |= (PR_STATE);
+				p_ptr->redraw |= (PR_STATUS);
+				p_ptr->action = ACTION_NONE;
+			}
+
 			notice = TRUE;
+			p_ptr->counter = FALSE;
+			chg_virtue(V_VALOUR, -1);
 		}
 	}
 
@@ -202,7 +586,12 @@ bool set_afraid(int v)
 	{
 		if (p_ptr->afraid)
 		{
+#ifdef JP
+msg_print("やっと恐怖を振り払った。");
+#else
 			msg_print("You feel bolder now.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -210,14 +599,14 @@ bool set_afraid(int v)
 	/* Use the value */
 	p_ptr->afraid = v;
 
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
-
-	/* Redraw the "afraid" */
-	p_ptr->redraw |= (PR_AFRAID);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -237,12 +626,20 @@ bool set_paralyzed(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
 		if (!p_ptr->paralyzed)
 		{
+#ifdef JP
+msg_print("体が麻痺してしまった！");
+#else
 			msg_print("You are paralyzed!");
+#endif
+
+			p_ptr->counter = FALSE;
 			notice = TRUE;
 		}
 	}
@@ -252,13 +649,21 @@ bool set_paralyzed(int v)
 	{
 		if (p_ptr->paralyzed)
 		{
+#ifdef JP
+msg_print("やっと動けるようになった。");
+#else
 			msg_print("You can move again.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->paralyzed = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -289,12 +694,22 @@ bool set_image(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
+
 	/* Open */
 	if (v)
 	{
+		set_tsuyoshi(0, TRUE);
 		if (!p_ptr->image)
 		{
+#ifdef JP
+msg_print("ワーオ！何もかも虹色に見える！");
+#else
 			msg_print("Oh, wow! Everything looks so cosmic now!");
+#endif
+
+			p_ptr->counter = FALSE;
 			notice = TRUE;
 		}
 	}
@@ -304,13 +719,21 @@ bool set_image(int v)
 	{
 		if (p_ptr->image)
 		{
+#ifdef JP
+msg_print("やっとはっきりと物が見えるようになった。");
+#else
 			msg_print("You can see clearly again.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->image = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -338,29 +761,47 @@ bool set_image(int v)
 /*
  * Set "p_ptr->fast", notice observable changes
  */
-bool set_fast(int v)
+bool set_fast(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->fast)
+		if (p_ptr->fast && !do_dec)
 		{
-			msg_print("You feel yourself moving faster!");
+			if (p_ptr->fast > v) return FALSE;
+		}
+		else if (!p_ptr->fast && !p_ptr->lightspeed)
+		{
+#ifdef JP
+msg_print("素早く動けるようになった！");
+#else
+			msg_print("You feel yourself moving much faster!");
+#endif
+
 			notice = TRUE;
+			chg_virtue(V_PATIENCE, -1);
+			chg_virtue(V_DILIGENCE, 1);
 		}
 	}
 
 	/* Shut */
 	else
 	{
-		if (p_ptr->fast)
+		if (p_ptr->fast && !p_ptr->lightspeed && ((p_ptr->pclass != CLASS_HARPER) || ((p_ptr->magic_num1[0] != MUSIC_SPEED) && (p_ptr->magic_num1[0] != MUSIC_SHERO))))
 		{
+#ifdef JP
+msg_print("動きの素早さがなくなったようだ。");
+#else
 			msg_print("You feel yourself slow down.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -386,21 +827,100 @@ bool set_fast(int v)
 
 
 /*
- * Set "p_ptr->slow", notice observable changes
+ * Set "p_ptr->lightspeed", notice observable changes
  */
-bool set_slow(int v)
+bool set_lightspeed(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->slow)
+		if (p_ptr->lightspeed && !do_dec)
 		{
+			if (p_ptr->lightspeed > v) return FALSE;
+		}
+		else if (!p_ptr->lightspeed)
+		{
+#ifdef JP
+msg_print("非常に素早く動けるようになった！");
+#else
+			msg_print("You feel yourself moving faster!");
+#endif
+
+			notice = TRUE;
+			chg_virtue(V_PATIENCE, -1);
+			chg_virtue(V_DILIGENCE, 1);
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->lightspeed)
+		{
+#ifdef JP
+msg_print("動きの素早さがなくなったようだ。");
+#else
+			msg_print("You feel yourself slow down.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->lightspeed = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->slow", notice observable changes
+ */
+bool set_slow(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->slow && !do_dec)
+		{
+			if (p_ptr->slow > v) return FALSE;
+		}
+		else if (!p_ptr->slow)
+		{
+#ifdef JP
+msg_print("体の動きが遅くなってしまった！");
+#else
 			msg_print("You feel yourself moving slower!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -410,7 +930,12 @@ bool set_slow(int v)
 	{
 		if (p_ptr->slow)
 		{
+#ifdef JP
+msg_print("動きの遅さがなくなったようだ。");
+#else
 			msg_print("You feel yourself speed up.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -438,19 +963,30 @@ bool set_slow(int v)
 /*
  * Set "p_ptr->shield", notice observable changes
  */
-bool set_shield(int v)
+bool set_shield(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->shield)
+		if (p_ptr->shield && !do_dec)
 		{
+			if (p_ptr->shield > v) return FALSE;
+		}
+		else if (!p_ptr->shield)
+		{
+#ifdef JP
+msg_print("肌が石になった。");
+#else
 			msg_print("Your skin turns to stone.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -460,13 +996,161 @@ bool set_shield(int v)
 	{
 		if (p_ptr->shield)
 		{
+#ifdef JP
+msg_print("肌が元に戻った。");
+#else
 			msg_print("Your skin returns to normal.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->shield = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->tsubureru", notice observable changes
+ */
+bool set_tsubureru(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tsubureru && !do_dec)
+		{
+			if (p_ptr->tsubureru > v) return FALSE;
+		}
+		else if (!p_ptr->tsubureru)
+		{
+#ifdef JP
+msg_print("横に伸びた。");
+#else
+			msg_print("You have expand horizontally.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tsubureru)
+		{
+#ifdef JP
+msg_print("もう横に伸びていない。");
+#else
+			msg_print("You are no longer expanded.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tsubureru = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+
+/*
+ * Set "p_ptr->magicdef", notice observable changes
+ */
+bool set_magicdef(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->magicdef && !do_dec)
+		{
+			if (p_ptr->magicdef > v) return FALSE;
+		}
+		else if (!p_ptr->magicdef)
+		{
+#ifdef JP
+			msg_print("魔法の防御力が増したような気がする。");
+#else
+			msg_print("You feel your magical vulnerablity diminish.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->magicdef)
+		{
+#ifdef JP
+			msg_print("魔法の防御力が元に戻った。");
+#else
+			msg_print("Your magical defences fall to their normal values.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->magicdef = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -489,19 +1173,30 @@ bool set_shield(int v)
 /*
  * Set "p_ptr->blessed", notice observable changes
  */
-bool set_blessed(int v)
+bool set_blessed(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->blessed)
+		if (p_ptr->blessed && !do_dec)
 		{
+			if (p_ptr->blessed > v) return FALSE;
+		}
+		else if (!p_ptr->blessed)
+		{
+#ifdef JP
+msg_print("高潔な気分になった！");
+#else
 			msg_print("You feel righteous!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -509,15 +1204,23 @@ bool set_blessed(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->blessed)
+		if (p_ptr->blessed && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_BLESS)))
 		{
+#ifdef JP
+msg_print("高潔な気分が消え失せた。");
+#else
 			msg_print("The prayer has expired.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->blessed = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -539,19 +1242,30 @@ bool set_blessed(int v)
 /*
  * Set "p_ptr->hero", notice observable changes
  */
-bool set_hero(int v)
+bool set_hero(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->hero)
+		if (p_ptr->hero && !do_dec)
 		{
+			if (p_ptr->hero > v) return FALSE;
+		}
+		else if (!p_ptr->hero)
+		{
+#ifdef JP
+msg_print("ヒーローになった気がする！");
+#else
 			msg_print("You feel like a hero!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -559,15 +1273,23 @@ bool set_hero(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->hero)
+		if (p_ptr->hero && ((p_ptr->pclass != CLASS_HARPER) || ((p_ptr->magic_num1[0] != MUSIC_HERO) && (p_ptr->magic_num1[0] != MUSIC_SHERO))))
 		{
+#ifdef JP
+msg_print("ヒーローの気分が消え失せた。");
+#else
 			msg_print("The heroism wears off.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->hero = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -592,19 +1314,31 @@ bool set_hero(int v)
 /*
  * Set "p_ptr->shero", notice observable changes
  */
-bool set_shero(int v)
+bool set_shero(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
+	if (p_ptr->pclass == CLASS_BERSERKER) v = 1;
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->shero)
+		if (p_ptr->shero && !do_dec)
 		{
+			if (p_ptr->shero > v) return FALSE;
+		}
+		else if (!p_ptr->shero)
+		{
+#ifdef JP
+msg_print("殺戮マシーンになった気がする！");
+#else
 			msg_print("You feel like a killing machine!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -614,13 +1348,21 @@ bool set_shero(int v)
 	{
 		if (p_ptr->shero)
 		{
+#ifdef JP
+msg_print("野蛮な気持ちが消え失せた。");
+#else
 			msg_print("You feel less Berserk.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->shero = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -645,19 +1387,30 @@ bool set_shero(int v)
 /*
  * Set "p_ptr->protevil", notice observable changes
  */
-bool set_protevil(int v)
+bool set_protevil(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->protevil)
+		if (p_ptr->protevil && !do_dec)
 		{
+			if (p_ptr->protevil > v) return FALSE;
+		}
+		else if (!p_ptr->protevil)
+		{
+#ifdef JP
+msg_print("邪悪なる存在から守られているような感じがする！");
+#else
 			msg_print("You feel safe from evil!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -667,13 +1420,21 @@ bool set_protevil(int v)
 	{
 		if (p_ptr->protevil)
 		{
+#ifdef JP
+msg_print("邪悪なる存在から守られている感じがなくなった。");
+#else
 			msg_print("You no longer feel safe from evil.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->protevil = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -691,20 +1452,36 @@ bool set_protevil(int v)
 /*
  * Set "p_ptr->wraith_form", notice observable changes
  */
-bool set_wraith_form(int v)
+bool set_wraith_form(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->wraith_form)
+		if (p_ptr->wraith_form && !do_dec)
 		{
+			if (p_ptr->wraith_form > v) return FALSE;
+		}
+		else if (!p_ptr->wraith_form)
+		{
+#ifdef JP
+msg_print("物質界を離れて幽鬼のような存在になった！");
+#else
 			msg_print("You leave the physical world and turn into a wraith-being!");
+#endif
+
 			notice = TRUE;
+
+			chg_virtue(V_UNLIFE, 3);
+			chg_virtue(V_HONOUR, -2);
+			chg_virtue(V_SACRIFICE, -2);
+			chg_virtue(V_VALOUR, -5);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -722,7 +1499,12 @@ bool set_wraith_form(int v)
 	{
 		if (p_ptr->wraith_form)
 		{
+#ifdef JP
+msg_print("不透明になった感じがする。");
+#else
 			msg_print("You feel opaque.");
+#endif
+
 			notice = TRUE;
 
 			/* Redraw map */
@@ -738,6 +1520,9 @@ bool set_wraith_form(int v)
 
 	/* Use the value */
 	p_ptr->wraith_form = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -763,20 +1548,36 @@ bool set_wraith_form(int v)
 /*
  * Set "p_ptr->invuln", notice observable changes
  */
-bool set_invuln(int v)
+bool set_invuln(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->invuln)
+		if (p_ptr->invuln && !do_dec)
 		{
+			if (p_ptr->invuln > v) return FALSE;
+		}
+		else if (!p_ptr->invuln)
+		{
+#ifdef JP
+msg_print("無敵だ！");
+#else
 			msg_print("Invulnerability!");
+#endif
+
 			notice = TRUE;
+
+			chg_virtue(V_UNLIFE, -2);
+			chg_virtue(V_HONOUR, -2);
+			chg_virtue(V_SACRIFICE, -3);
+			chg_virtue(V_VALOUR, -5);
 
 			/* Redraw map */
 			p_ptr->redraw |= (PR_MAP);
@@ -792,9 +1593,14 @@ bool set_invuln(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln)
+		if (p_ptr->invuln && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_INVULN)))
 		{
+#ifdef JP
+msg_print("無敵ではなくなった。");
+#else
 			msg_print("The invulnerability wears off.");
+#endif
+
 			notice = TRUE;
 
 			/* Redraw map */
@@ -805,11 +1611,16 @@ bool set_invuln(int v)
 
 			/* Window stuff */
 			p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+
+			p_ptr->energy -= 100;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->invuln = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -831,19 +1642,30 @@ bool set_invuln(int v)
 /*
  * Set "p_ptr->tim_esp", notice observable changes
  */
-bool set_tim_esp(int v)
+bool set_tim_esp(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_esp)
+		if (p_ptr->tim_esp && !do_dec)
 		{
+			if (p_ptr->tim_esp > v) return FALSE;
+		}
+		else if (!p_ptr->tim_esp)
+		{
+#ifdef JP
+msg_print("意識が広がった気がする！");
+#else
 			msg_print("You feel your consciousness expand!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -851,15 +1673,23 @@ bool set_tim_esp(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->tim_esp)
+		if (p_ptr->tim_esp && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_MIND)))
 		{
+#ifdef JP
+msg_print("意識は元に戻った。");
+#else
 			msg_print("Your consciousness contracts again.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->tim_esp = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -884,19 +1714,30 @@ bool set_tim_esp(int v)
 /*
  * Set "p_ptr->tim_invis", notice observable changes
  */
-bool set_tim_invis(int v)
+bool set_tim_invis(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_invis)
+		if (p_ptr->tim_invis && !do_dec)
 		{
+			if (p_ptr->tim_invis > v) return FALSE;
+		}
+		else if (!p_ptr->tim_invis)
+		{
+#ifdef JP
+msg_print("目が非常に敏感になった気がする！");
+#else
 			msg_print("Your eyes feel very sensitive!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -906,13 +1747,21 @@ bool set_tim_invis(int v)
 	{
 		if (p_ptr->tim_invis)
 		{
+#ifdef JP
+msg_print("目の敏感さがなくなったようだ。");
+#else
 			msg_print("Your eyes feel less sensitive.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->tim_invis = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -937,19 +1786,30 @@ bool set_tim_invis(int v)
 /*
  * Set "p_ptr->tim_infra", notice observable changes
  */
-bool set_tim_infra(int v)
+bool set_tim_infra(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->tim_infra)
+		if (p_ptr->tim_infra && !do_dec)
 		{
-			msg_print("Your eyes begin to tingle!");
+			if (p_ptr->tim_infra > v) return FALSE;
+		}
+		else if (!p_ptr->tim_infra)
+		{
+#ifdef JP
+msg_print("目がランランと輝き始めた！");
+#else
+			msg_print("Your eyes began to tingle!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -959,13 +1819,21 @@ bool set_tim_infra(int v)
 	{
 		if (p_ptr->tim_infra)
 		{
+#ifdef JP
+msg_print("目の輝きがなくなった。");
+#else
 			msg_print("Your eyes stop tingling.");
+#endif
+
 			notice = TRUE;
 		}
 	}
 
 	/* Use the value */
 	p_ptr->tim_infra = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -988,21 +1856,32 @@ bool set_tim_infra(int v)
 
 
 /*
- * Set "p_ptr->oppose_acid", notice observable changes
+ * Set "p_ptr->tim_regen", notice observable changes
  */
-bool set_oppose_acid(int v)
+bool set_tim_regen(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_acid)
+		if (p_ptr->tim_regen && !do_dec)
 		{
-			msg_print("You feel resistant to acid!");
+			if (p_ptr->tim_regen > v) return FALSE;
+		}
+		else if (!p_ptr->tim_regen)
+		{
+#ifdef JP
+msg_print("回復力が上がった！");
+#else
+			msg_print("You began to regenerate quicker!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1010,9 +1889,1039 @@ bool set_oppose_acid(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_acid)
+		if (p_ptr->tim_regen)
 		{
+#ifdef JP
+msg_print("素早く回復する感じがなくなった。");
+#else
+			msg_print("You no longer regerate quicker.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_regen = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_stealth", notice observable changes
+ */
+bool set_tim_stealth(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_stealth && !do_dec)
+		{
+			if (p_ptr->tim_stealth > v) return FALSE;
+		}
+		else if (!p_ptr->tim_stealth)
+		{
+#ifdef JP
+msg_print("足音が小さくなった！");
+#else
+			msg_print("You began to walk silently!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_stealth && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_STEALTH)))
+		{
+#ifdef JP
+msg_print("足音が大きくなった。");
+#else
+			msg_print("You no longer walk silently.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_stealth = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+bool set_superstealth(bool set)
+{
+	bool notice = FALSE;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (set)
+	{
+		if (!(p_ptr->special_defense & NINJA_S_STEALTH))
+		{
+			if (cave[py][px].info & CAVE_MNLT)
+			{
+#ifdef JP
+				msg_print("敵の目から薄い影の中に覆い隠された。");
+#else
+				msg_print("You are mantled in weak shadow from ordinary eyes.");
+#endif
+				p_ptr->monlite = p_ptr->old_monlite = TRUE;
+			}
+			else
+			{
+#ifdef JP
+				msg_print("敵の目から影の中に覆い隠された！");
+#else
+				msg_print("You are mantled in shadow from ordinary eyes!");
+#endif
+				p_ptr->monlite = p_ptr->old_monlite = FALSE;
+			}
+
+			notice = TRUE;
+
+			/* Use the value */
+			p_ptr->special_defense |= NINJA_S_STEALTH;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->special_defense & NINJA_S_STEALTH)
+		{
+#ifdef JP
+			msg_print("再び敵の目にさらされるようになった。");
+#else
+			msg_print("You are exposed to common sight once more.");
+#endif
+
+			notice = TRUE;
+
+			/* Use the value */
+			p_ptr->special_defense &= ~(NINJA_S_STEALTH);
+		}
+	}
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_ffall", notice observable changes
+ */
+bool set_tim_ffall(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_ffall && !do_dec)
+		{
+			if (p_ptr->tim_ffall > v) return FALSE;
+		}
+		else if (!p_ptr->tim_ffall)
+		{
+#ifdef JP
+msg_print("体が宙に浮き始めた。");
+#else
+			msg_print("You began to fly!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_ffall)
+		{
+#ifdef JP
+msg_print("もう宙に浮かべなくなった。");
+#else
+			msg_print("You no longer flying.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_ffall = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sh_touki", notice observable changes
+ */
+bool set_tim_sh_touki(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sh_touki && !do_dec)
+		{
+			if (p_ptr->tim_sh_touki > v) return FALSE;
+		}
+		else if (!p_ptr->tim_sh_touki)
+		{
+#ifdef JP
+msg_print("体が闘気のオーラで覆われた。");
+#else
+			msg_print("You have enveloped by energy aura!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sh_touki)
+		{
+#ifdef JP
+msg_print("闘気が消えた。");
+#else
+			msg_print("Aura of Force disappered.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sh_touki = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_sh_fire", notice observable changes
+ */
+bool set_tim_sh_fire(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_sh_fire && !do_dec)
+		{
+			if (p_ptr->tim_sh_fire > v) return FALSE;
+		}
+		else if (!p_ptr->tim_sh_fire)
+		{
+#ifdef JP
+msg_print("体が炎のオーラで覆われた。");
+#else
+			msg_print("You have enveloped by fiely aura!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_sh_fire)
+		{
+#ifdef JP
+msg_print("炎のオーラが消えた。");
+#else
+			msg_print("Fiely aura disappered.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_sh_fire = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->resist_magic", notice observable changes
+ */
+bool set_resist_magic(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->resist_magic && !do_dec)
+		{
+			if (p_ptr->resist_magic > v) return FALSE;
+		}
+		else if (!p_ptr->resist_magic)
+		{
+#ifdef JP
+msg_print("魔法への耐性がついた。");
+#else
+			msg_print("You have been protected from magic!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->resist_magic)
+		{
+#ifdef JP
+msg_print("魔法に弱くなった。");
+#else
+msg_print("You are no longer protected from magic.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->resist_magic = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_reflect", notice observable changes
+ */
+bool set_tim_reflect(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_reflect && !do_dec)
+		{
+			if (p_ptr->tim_reflect > v) return FALSE;
+		}
+		else if (!p_ptr->tim_reflect)
+		{
+#ifdef JP
+msg_print("体の表面が滑かになった気がする。");
+#else
+			msg_print("Your body becames smoothy.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_reflect)
+		{
+#ifdef JP
+msg_print("体の表面が滑かでなくなった。");
+#else
+			msg_print("Your body is no longer smooth.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_reflect = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->multishadow", notice observable changes
+ */
+bool set_multishadow(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->multishadow && !do_dec)
+		{
+			if (p_ptr->multishadow > v) return FALSE;
+		}
+		else if (!p_ptr->multishadow)
+		{
+#ifdef JP
+msg_print("あなたの周りに幻影が生まれた。");
+#else
+			msg_print("Your Shadow enveloped you.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->multishadow)
+		{
+#ifdef JP
+msg_print("幻影が消えた。");
+#else
+			msg_print("Your Shadow disappers.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->multishadow = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->dustrobe", notice observable changes
+ */
+bool set_dustrobe(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->dustrobe && !do_dec)
+		{
+			if (p_ptr->dustrobe > v) return FALSE;
+		}
+		else if (!p_ptr->dustrobe)
+		{
+#ifdef JP
+msg_print("体が鏡のオーラで覆われた。");
+#else
+			msg_print("You were enveloped by mirror shards.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->dustrobe)
+		{
+#ifdef JP
+msg_print("鏡のオーラが消えた。");
+#else
+			msg_print("Mirror shards disapper.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->dustrobe = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->tim_regen", notice observable changes
+ */
+bool set_kabenuke(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->kabenuke && !do_dec)
+		{
+			if (p_ptr->kabenuke > v) return FALSE;
+		}
+		else if (!p_ptr->kabenuke)
+		{
+#ifdef JP
+msg_print("体が半物質の状態になった。");
+#else
+			msg_print("You became etherial form.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->kabenuke)
+		{
+#ifdef JP
+msg_print("体が物質化した。");
+#else
+			msg_print("You are no longer etherial form.");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->kabenuke = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+bool set_tsuyoshi(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tsuyoshi && !do_dec)
+		{
+			if (p_ptr->tsuyoshi > v) return FALSE;
+		}
+		else if (!p_ptr->tsuyoshi)
+		{
+#ifdef JP
+msg_print("「オクレ兄さん！」");
+#else
+			msg_print("Brother OKURE!");
+#endif
+
+			notice = TRUE;
+			chg_virtue(V_VITALITY, 2);
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tsuyoshi)
+		{
+#ifdef JP
+msg_print("肉体が急速にしぼんでいった。");
+#else
+			msg_print("Your body had quickly shriveled.");
+#endif
+
+			(void)dec_stat(A_CON, 20, TRUE);
+			(void)dec_stat(A_STR, 20, TRUE);
+
+			notice = TRUE;
+			chg_virtue(V_VITALITY, -3);
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tsuyoshi = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate hitpoints */
+	p_ptr->update |= (PU_HP);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Set a temporary elemental brand.  Clear all other brands.  Print status 
+ * messages. -LM-
+ */
+bool set_ele_attack(u32b attack_type, int v)
+{
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Clear all elemental attacks (only one is allowed at a time). */
+	if ((p_ptr->special_attack & (ATTACK_ACID)) && (attack_type != ATTACK_ACID))
+	{
+		p_ptr->special_attack &= ~(ATTACK_ACID);
+#ifdef JP
+		msg_print("酸で攻撃できなくなった。");
+#else
+		msg_print("Your temporary acidic brand fades away.");
+#endif
+	}
+	if ((p_ptr->special_attack & (ATTACK_ELEC)) && (attack_type != ATTACK_ELEC))
+	{
+		p_ptr->special_attack &= ~(ATTACK_ELEC);
+#ifdef JP
+		msg_print("電撃で攻撃できなくなった。");
+#else
+		msg_print("Your temporary electrical brand fades away.");
+#endif
+	}
+	if ((p_ptr->special_attack & (ATTACK_FIRE)) && (attack_type != ATTACK_FIRE))
+	{
+		p_ptr->special_attack &= ~(ATTACK_FIRE);
+#ifdef JP
+		msg_print("火炎で攻撃できなくなった。");
+#else
+		msg_print("Your temporary fiery brand fades away.");
+#endif
+	}
+	if ((p_ptr->special_attack & (ATTACK_COLD)) && (attack_type != ATTACK_COLD))
+	{
+		p_ptr->special_attack &= ~(ATTACK_COLD);
+#ifdef JP
+		msg_print("冷気で攻撃できなくなった。");
+#else
+		msg_print("Your temporary frost brand fades away.");
+#endif
+	}
+	if ((p_ptr->special_attack & (ATTACK_POIS)) && (attack_type != ATTACK_POIS))
+	{
+		p_ptr->special_attack &= ~(ATTACK_POIS);
+#ifdef JP
+		msg_print("毒で攻撃できなくなった。");
+#else
+		msg_print("Your temporary poison brand fades away.");
+#endif
+	}
+
+	if ((v) && (attack_type))
+	{
+		/* Set attack type. */
+		p_ptr->special_attack |= (attack_type);
+
+		/* Set duration. */
+		p_ptr->ele_attack = v;
+
+		/* Message. */
+#ifdef JP
+		msg_format("%sで攻撃できるようになった！",
+			     ((attack_type == ATTACK_ACID) ? "酸" :
+			      ((attack_type == ATTACK_ELEC) ? "電撃" :
+			       ((attack_type == ATTACK_FIRE) ? "火炎" : 
+			        ((attack_type == ATTACK_COLD) ? "冷気" : 
+			         ((attack_type == ATTACK_POIS) ? "毒" : 
+					"(なし)"))))));
+#else
+		msg_format("For a while, the blows you deal will %s",
+			     ((attack_type == ATTACK_ACID) ? "melt with acid!" :
+			      ((attack_type == ATTACK_ELEC) ? "shock your foes!" :
+			       ((attack_type == ATTACK_FIRE) ? "burn with fire!" : 
+			        ((attack_type == ATTACK_COLD) ? "chill to the bone!" : 
+			         ((attack_type == ATTACK_POIS) ? "poison your enemies!" : 
+					"do nothing special."))))));
+#endif
+	}
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	return (TRUE);
+}
+
+
+/*
+ * Set a temporary elemental brand.  Clear all other brands.  Print status 
+ * messages. -LM-
+ */
+bool set_ele_immune(u32b immune_type, int v)
+{
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	/* Clear all elemental attacks (only one is allowed at a time). */
+	if ((p_ptr->special_defense & (DEFENSE_ACID)) && (immune_type != DEFENSE_ACID))
+	{
+		p_ptr->special_defense &= ~(DEFENSE_ACID);
+#ifdef JP
+		msg_print("酸の攻撃で傷つけられるようになった。。");
+#else
+		msg_print("You are no longer immune to acid.");
+#endif
+	}
+	if ((p_ptr->special_defense & (DEFENSE_ELEC)) && (immune_type != DEFENSE_ELEC))
+	{
+		p_ptr->special_defense &= ~(DEFENSE_ELEC);
+#ifdef JP
+		msg_print("電撃の攻撃で傷つけられるようになった。。");
+#else
+		msg_print("You are no longer immune to electricity.");
+#endif
+	}
+	if ((p_ptr->special_defense & (DEFENSE_FIRE)) && (immune_type != DEFENSE_FIRE))
+	{
+		p_ptr->special_defense &= ~(DEFENSE_FIRE);
+#ifdef JP
+		msg_print("火炎の攻撃で傷つけられるようになった。。");
+#else
+		msg_print("You are no longer immune to fire.");
+#endif
+	}
+	if ((p_ptr->special_defense & (DEFENSE_COLD)) && (immune_type != DEFENSE_COLD))
+	{
+		p_ptr->special_defense &= ~(DEFENSE_COLD);
+#ifdef JP
+		msg_print("冷気の攻撃で傷つけられるようになった。。");
+#else
+		msg_print("You are no longer immune to cold.");
+#endif
+	}
+	if ((p_ptr->special_defense & (DEFENSE_POIS)) && (immune_type != DEFENSE_POIS))
+	{
+		p_ptr->special_defense &= ~(DEFENSE_POIS);
+#ifdef JP
+		msg_print("毒の攻撃で傷つけられるようになった。。");
+#else
+		msg_print("You are no longer immune to poison.");
+#endif
+	}
+
+	if ((v) && (immune_type))
+	{
+		/* Set attack type. */
+		p_ptr->special_defense |= (immune_type);
+
+		/* Set duration. */
+		p_ptr->ele_immune = v;
+
+		/* Message. */
+#ifdef JP
+		msg_format("%sの攻撃を受けつけなくなった！",
+			     ((immune_type == DEFENSE_ACID) ? "酸" :
+			      ((immune_type == DEFENSE_ELEC) ? "電撃" :
+			       ((immune_type == DEFENSE_FIRE) ? "火炎" : 
+			        ((immune_type == DEFENSE_COLD) ? "冷気" : 
+			         ((immune_type == DEFENSE_POIS) ? "毒" : 
+					"(なし)"))))));
+#else
+		msg_format("For a while, You are immune to %s",
+			     ((immune_type == DEFENSE_ACID) ? "acid!" :
+			      ((immune_type == DEFENSE_ELEC) ? "electricity!" :
+			       ((immune_type == DEFENSE_FIRE) ? "fire!" : 
+			        ((immune_type == DEFENSE_COLD) ? "cold!" : 
+			         ((immune_type == DEFENSE_POIS) ? "poison!" : 
+					"do nothing special."))))));
+#endif
+	}
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	return (TRUE);
+}
+
+
+/*
+ * Set "p_ptr->oppose_acid", notice observable changes
+ */
+bool set_oppose_acid(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->oppose_acid && !do_dec)
+		{
+			if (p_ptr->oppose_acid > v) return FALSE;
+		}
+		else if (!p_ptr->oppose_acid)
+		{
+#ifdef JP
+msg_print("酸への耐性がついた気がする！");
+#else
+			msg_print("You feel resistant to acid!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->oppose_acid && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
+		{
+#ifdef JP
+msg_print("酸への耐性が薄れた気がする。");
+#else
 			msg_print("You feel less resistant to acid.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1022,6 +2931,9 @@ bool set_oppose_acid(int v)
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -1037,19 +2949,30 @@ bool set_oppose_acid(int v)
 /*
  * Set "p_ptr->oppose_elec", notice observable changes
  */
-bool set_oppose_elec(int v)
+bool set_oppose_elec(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_elec)
+		if (p_ptr->oppose_elec && !do_dec)
 		{
+			if (p_ptr->oppose_elec > v) return FALSE;
+		}
+		else if (!p_ptr->oppose_elec)
+		{
+#ifdef JP
+msg_print("電撃への耐性がついた気がする！");
+#else
 			msg_print("You feel resistant to electricity!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1057,9 +2980,14 @@ bool set_oppose_elec(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_elec)
+		if (p_ptr->oppose_elec && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
+#ifdef JP
+msg_print("電撃への耐性が薄れた気がする。");
+#else
 			msg_print("You feel less resistant to electricity.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1069,6 +2997,9 @@ bool set_oppose_elec(int v)
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -1084,19 +3015,31 @@ bool set_oppose_elec(int v)
 /*
  * Set "p_ptr->oppose_fire", notice observable changes
  */
-bool set_oppose_fire(int v)
+bool set_oppose_fire(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
+	if ((prace_is_(RACE_DEMON) && (p_ptr->lev > 44)) || (p_ptr->mimic_form == MIMIC_DEMON)) v = 1;
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_fire)
+		if (p_ptr->oppose_fire && !do_dec)
 		{
+			if (p_ptr->oppose_fire > v) return FALSE;
+		}
+		else if (!p_ptr->oppose_fire)
+		{
+#ifdef JP
+msg_print("火への耐性がついた気がする！");
+#else
 			msg_print("You feel resistant to fire!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1104,9 +3047,14 @@ bool set_oppose_fire(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_fire)
+		if (p_ptr->oppose_fire && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
+#ifdef JP
+msg_print("火への耐性が薄れた気がする。");
+#else
 			msg_print("You feel less resistant to fire.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1116,6 +3064,9 @@ bool set_oppose_fire(int v)
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -1131,19 +3082,30 @@ bool set_oppose_fire(int v)
 /*
  * Set "p_ptr->oppose_cold", notice observable changes
  */
-bool set_oppose_cold(int v)
+bool set_oppose_cold(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_cold)
+		if (p_ptr->oppose_cold && !do_dec)
 		{
+			if (p_ptr->oppose_cold > v) return FALSE;
+		}
+		else if (!p_ptr->oppose_cold)
+		{
+#ifdef JP
+msg_print("冷気への耐性がついた気がする！");
+#else
 			msg_print("You feel resistant to cold!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1151,9 +3113,14 @@ bool set_oppose_cold(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_cold)
+		if (p_ptr->oppose_cold && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
+#ifdef JP
+msg_print("冷気への耐性が薄れた気がする。");
+#else
 			msg_print("You feel less resistant to cold.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1163,6 +3130,9 @@ bool set_oppose_cold(int v)
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -1178,19 +3148,31 @@ bool set_oppose_cold(int v)
 /*
  * Set "p_ptr->oppose_pois", notice observable changes
  */
-bool set_oppose_pois(int v)
+bool set_oppose_pois(int v, bool do_dec)
 {
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+	if ((p_ptr->pclass == CLASS_NINJA) && (p_ptr->lev > 44)) v = 1;
+	if (death) return FALSE;
+
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->oppose_pois)
+		if (p_ptr->oppose_pois && !do_dec)
 		{
+			if (p_ptr->oppose_pois > v) return FALSE;
+		}
+		else if (!p_ptr->oppose_pois)
+		{
+#ifdef JP
+msg_print("毒への耐性がついた気がする！");
+#else
 			msg_print("You feel resistant to poison!");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1198,9 +3180,14 @@ bool set_oppose_pois(int v)
 	/* Shut */
 	else
 	{
-		if (p_ptr->oppose_pois)
+		if (p_ptr->oppose_pois && ((p_ptr->pclass != CLASS_HARPER) || (p_ptr->magic_num1[0] != MUSIC_RESIST)) && !(p_ptr->special_defense & KATA_MUSOU))
 		{
+#ifdef JP
+msg_print("毒への耐性が薄れた気がする。");
+#else
 			msg_print("You feel less resistant to poison.");
+#endif
+
 			notice = TRUE;
 		}
 	}
@@ -1210,6 +3197,9 @@ bool set_oppose_pois(int v)
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
@@ -1236,7 +3226,9 @@ bool set_stun(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	if (p_ptr->prace == RACE_GOLEM) v = 0;
+	if (death) return FALSE;
+
+	if (prace_is_(RACE_GOLEM) || ((p_ptr->pclass == CLASS_BERSERKER) && (p_ptr->lev > 34))) v = 0;
 
 	/* Knocked out */
 	if (p_ptr->stun > 100)
@@ -1294,23 +3286,43 @@ bool set_stun(int v)
 		{
 			/* Stun */
 			case 1:
+#ifdef JP
+msg_print("意識がもうろうとしてきた。");
+#else
 			msg_print("You have been stunned.");
+#endif
+
 			break;
 
 			/* Heavy stun */
 			case 2:
+#ifdef JP
+msg_print("意識がひどくもうろうとしてきた。");
+#else
 			msg_print("You have been heavily stunned.");
+#endif
+
 			break;
 
 			/* Knocked out */
 			case 3:
+#ifdef JP
+msg_print("頭がクラクラして意識が遠のいてきた。");
+#else
 			msg_print("You have been knocked out.");
+#endif
+
 			break;
 		}
 
 		if (randint(1000) < v || randint(16) == 1)
 		{
+#ifdef JP
+msg_print("割れるような頭痛がする。");
+#else
 			msg_print("A vicious blow hits your head.");
+#endif
+
 			if (randint(3) == 1)
 			{
 				if (!p_ptr->sustain_int) (void)do_dec_stat(A_INT);
@@ -1325,6 +3337,16 @@ bool set_stun(int v)
 				if (!p_ptr->sustain_wis) (void)do_dec_stat(A_WIS);
 			}
 		}
+		if (p_ptr->special_defense & KATA_MASK)
+		{
+			msg_print("型が崩れた。");
+			p_ptr->special_defense &= ~(KATA_MASK);
+			p_ptr->update |= (PU_BONUS);
+			p_ptr->update |= (PU_MONSTERS);
+			p_ptr->redraw |= (PR_STATE);
+			p_ptr->redraw |= (PR_STATUS);
+			p_ptr->action = ACTION_NONE;
+		}
 
 		/* Notice */
 		notice = TRUE;
@@ -1338,7 +3360,12 @@ bool set_stun(int v)
 		{
 			/* None */
 			case 0:
+#ifdef JP
+msg_print("やっと朦朧状態から回復した。");
+#else
 			msg_print("You are no longer stunned.");
+#endif
+
 			if (disturb_state) disturb(0, 0);
 			break;
 		}
@@ -1378,16 +3405,18 @@ bool set_stun(int v)
 bool set_cut(int v)
 {
 	int old_aux, new_aux;
-
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	if (p_ptr->prace == RACE_GOLEM ||
+	if (death) return FALSE;
+
+	if ((p_ptr->prace == RACE_GOLEM ||
 	    p_ptr->prace == RACE_SKELETON ||
 	    p_ptr->prace == RACE_SPECTRE ||
-		(p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11))
+		(p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11)) &&
+	    !p_ptr->mimic_form)
 		v = 0;
 
 	/* Mortal wound */
@@ -1494,37 +3523,72 @@ bool set_cut(int v)
 		{
 			/* Graze */
 			case 1:
+#ifdef JP
+msg_print("かすり傷を負ってしまった。");
+#else
 			msg_print("You have been given a graze.");
+#endif
+
 			break;
 
 			/* Light cut */
 			case 2:
+#ifdef JP
+msg_print("軽い傷を負ってしまった。");
+#else
 			msg_print("You have been given a light cut.");
+#endif
+
 			break;
 
 			/* Bad cut */
 			case 3:
+#ifdef JP
+msg_print("ひどい傷を負ってしまった。");
+#else
 			msg_print("You have been given a bad cut.");
+#endif
+
 			break;
 
 			/* Nasty cut */
 			case 4:
+#ifdef JP
+msg_print("大変な傷を負ってしまった。");
+#else
 			msg_print("You have been given a nasty cut.");
+#endif
+
 			break;
 
 			/* Severe cut */
 			case 5:
+#ifdef JP
+msg_print("重大な傷を負ってしまった。");
+#else
 			msg_print("You have been given a severe cut.");
+#endif
+
 			break;
 
 			/* Deep gash */
 			case 6:
+#ifdef JP
+msg_print("ひどい深手を負ってしまった。");
+#else
 			msg_print("You have been given a deep gash.");
+#endif
+
 			break;
 
 			/* Mortal wound */
 			case 7:
+#ifdef JP
+msg_print("致命的な傷を負ってしまった。");
+#else
 			msg_print("You have been given a mortal wound.");
+#endif
+
 			break;
 		}
 
@@ -1535,7 +3599,12 @@ bool set_cut(int v)
 		{
 			if (!p_ptr->sustain_chr)
 			{
+#ifdef JP
+msg_print("ひどい傷跡が残ってしまった。");
+#else
 				msg_print("You have been horribly scarred.");
+#endif
+
 
 				do_dec_stat(A_CHR);
 			}
@@ -1550,7 +3619,12 @@ bool set_cut(int v)
 		{
 			/* None */
 			case 0:
+#ifdef JP
+msg_format("やっと%s。", p_ptr->prace == RACE_ANDROID ? "怪我が直った" : "出血が止まった");
+#else
 			msg_print("You are no longer bleeding.");
+#endif
+
 			if (disturb_state) disturb(0, 0);
 			break;
 		}
@@ -1685,6 +3759,15 @@ bool set_food(int v)
 		new_aux = 5;
 	}
 
+	if (old_aux < 1 && new_aux > 0)
+		chg_virtue(V_PATIENCE, 2);
+	else if (old_aux < 3 && (old_aux != new_aux))
+		chg_virtue(V_PATIENCE, 1);
+	if (old_aux == 2)
+		chg_virtue(V_TEMPERANCE, 1);
+	if (old_aux == 0)
+		chg_virtue(V_TEMPERANCE, -1);
+
 	/* Food increase */
 	if (new_aux > old_aux)
 	{
@@ -1693,27 +3776,55 @@ bool set_food(int v)
 		{
 			/* Weak */
 			case 1:
+#ifdef JP
+msg_print("まだ空腹で倒れそうだ。");
+#else
 			msg_print("You are still weak.");
+#endif
+
 			break;
 
 			/* Hungry */
 			case 2:
+#ifdef JP
+msg_print("まだ空腹だ。");
+#else
 			msg_print("You are still hungry.");
+#endif
+
 			break;
 
 			/* Normal */
 			case 3:
+#ifdef JP
+msg_print("空腹感がおさまった。");
+#else
 			msg_print("You are no longer hungry.");
+#endif
+
 			break;
 
 			/* Full */
 			case 4:
+#ifdef JP
+msg_print("満腹だ！");
+#else
 			msg_print("You are full!");
+#endif
+
 			break;
 
 			/* Bloated */
 			case 5:
+#ifdef JP
+msg_print("食べ過ぎだ！");
+#else
 			msg_print("You have gorged yourself!");
+#endif
+			chg_virtue(V_HARMONY, -1);
+			chg_virtue(V_PATIENCE, -1);
+			chg_virtue(V_TEMPERANCE, -2);
+
 			break;
 		}
 
@@ -1729,28 +3840,61 @@ bool set_food(int v)
 		{
 			/* Fainting / Starving */
 			case 0:
+#ifdef JP
+msg_print("あまりにも空腹で気を失ってしまった！");
+#else
 			msg_print("You are getting faint from hunger!");
+#endif
+
 			break;
 
 			/* Weak */
 			case 1:
+#ifdef JP
+msg_print("お腹が空いて倒れそうだ。");
+#else
 			msg_print("You are getting weak from hunger!");
+#endif
+
 			break;
 
 			/* Hungry */
 			case 2:
+#ifdef JP
+msg_print("お腹が空いてきた。");
+#else
 			msg_print("You are getting hungry.");
+#endif
+
 			break;
 
 			/* Normal */
 			case 3:
+#ifdef JP
+msg_print("満腹感がなくなった。");
+#else
 			msg_print("You are no longer full.");
+#endif
+
 			break;
 
 			/* Full */
 			case 4:
+#ifdef JP
+msg_print("やっとお腹がきつくなくなった。");
+#else
 			msg_print("You are no longer gorged.");
+#endif
+
 			break;
+		}
+
+		if (p_ptr->wild_mode && (new_aux < 2))
+		{
+			p_ptr->wilderness_x = px;
+			p_ptr->wilderness_y = py;
+			p_ptr->energy = 100;
+			change_wild_mode();
 		}
 
 		/* Change */
@@ -1793,7 +3937,7 @@ bool inc_stat(int stat)
 	value = p_ptr->stat_cur[stat];
 
 	/* Cannot go above 18/100 */
-	if (value < 18+100)
+	if (value < p_ptr->stat_max_max[stat])
 	{
 		/* Gain one (sometimes two) points */
 		if (value < 18)
@@ -1803,10 +3947,10 @@ bool inc_stat(int stat)
 		}
 
 		/* Gain 1/6 to 1/3 of distance to 18/100 */
-		else if (value < 18+98)
+		else if (value < (p_ptr->stat_max_max[stat]-2))
 		{
 			/* Approximate gain value */
-			gain = (((18+100) - value) / 2 + 3) / 2;
+			gain = (((p_ptr->stat_max_max[stat]) - value) / 2 + 3) / 2;
 
 			/* Paranoia */
 			if (gain < 1) gain = 1;
@@ -1815,7 +3959,7 @@ bool inc_stat(int stat)
 			value += randint(gain) + gain / 2;
 
 			/* Maximal value */
-			if (value > 18+99) value = 18 + 99;
+			if (value > (p_ptr->stat_max_max[stat]-1)) value = p_ptr->stat_max_max[stat]-1;
 		}
 
 		/* Gain one point at a time */
@@ -1916,6 +4060,10 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "max" value */
 	if (permanent && (max > 3))
 	{
+		chg_virtue(V_SACRIFICE, 1);
+		if (stat == A_WIS || stat == A_INT)
+			chg_virtue(V_ENLIGHTEN, -2);
+
 		/* Handle "low" values */
 		if (max <= 18)
 		{
@@ -1993,9 +4141,18 @@ bool res_stat(int stat)
  */
 bool hp_player(int num)
 {
+	int vir;
+	vir = virtue_number(V_VITALITY);
+	if (vir)
+	{
+		num = num * (p_ptr->virtues[vir - 1] + 1250) / 1250;
+	}
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
+//		chg_virtue(V_CHANCE, -1);
+		if ((num > 0) && (p_ptr->chp < (p_ptr->mhp/3)))
+			chg_virtue(V_TEMPERANCE, 1);
 		/* Gain hitpoints */
 		p_ptr->chp += num;
 
@@ -2015,25 +4172,45 @@ bool hp_player(int num)
 		/* Heal 0-4 */
 		if (num < 5)
 		{
+#ifdef JP
+msg_print("少し気分が良くなった。");
+#else
 			msg_print("You feel a little better.");
+#endif
+
 		}
 
 		/* Heal 5-14 */
 		else if (num < 15)
 		{
+#ifdef JP
+msg_print("気分が良くなった。");
+#else
 			msg_print("You feel better.");
+#endif
+
 		}
 
 		/* Heal 15-34 */
 		else if (num < 35)
 		{
+#ifdef JP
+msg_print("とても気分が良くなった。");
+#else
 			msg_print("You feel much better.");
+#endif
+
 		}
 
 		/* Heal 35+ */
 		else
 		{
+#ifdef JP
+msg_print("ひじょうに気分が良くなった。");
+#else
 			msg_print("You feel very good.");
+#endif
+
 		}
 
 		/* Notice */
@@ -2050,12 +4227,42 @@ bool hp_player(int num)
  */
 static cptr desc_stat_pos[] =
 {
+#ifdef JP
+"強く",
+#else
 	"strong",
+#endif
+
+#ifdef JP
+"知的に",
+#else
 	"smart",
+#endif
+
+#ifdef JP
+"賢く",
+#else
 	"wise",
+#endif
+
+#ifdef JP
+"器用に",
+#else
 	"dextrous",
+#endif
+
+#ifdef JP
+"健康に",
+#else
 	"healthy",
+#endif
+
+#ifdef JP
+"美しく"
+#else
 	"cute"
+#endif
+
 };
 
 
@@ -2064,12 +4271,22 @@ static cptr desc_stat_pos[] =
  */
 static cptr desc_stat_neg[] =
 {
+#ifdef JP
+"弱く",
+"無知に",
+"愚かに",
+"不器用に",
+"不健康に",
+"醜く"
+#else
 	"weak",
 	"stupid",
 	"naive",
 	"clumsy",
 	"sickly",
 	"ugly"
+#endif
+
 };
 
 
@@ -2095,7 +4312,12 @@ bool do_dec_stat(int stat)
 	if (sust && (!ironman_nightmare || rand_int(13)))
 	{
 		/* Message */
+#ifdef JP
+msg_format("%sなった気がしたが、すぐに元に戻った。",
+#else
 		msg_format("You feel %s for a moment, but the feeling passes.",
+#endif
+
 				desc_stat_neg[stat]);
 
 		/* Notice effect */
@@ -2106,7 +4328,12 @@ bool do_dec_stat(int stat)
 	if (dec_stat(stat, 10, (ironman_nightmare && !rand_int(13))))
 	{
 		/* Message */
+#ifdef JP
+msg_format("ひどく%sなった気がする。", desc_stat_neg[stat]);
+#else
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
+#endif
+
 
 		/* Notice effect */
 		return (TRUE);
@@ -2126,7 +4353,12 @@ bool do_res_stat(int stat)
 	if (res_stat(stat))
 	{
 		/* Message */
+#ifdef JP
+msg_format("元通りに%sなった気がする。", desc_stat_pos[stat]);
+#else
 		msg_format("You feel less %s.", desc_stat_neg[stat]);
+#endif
+
 
 		/* Notice */
 		return (TRUE);
@@ -2150,8 +4382,26 @@ bool do_inc_stat(int stat)
 	/* Attempt to increase */
 	if (inc_stat(stat))
 	{
+		if (stat == A_WIS)
+		{
+			chg_virtue(V_ENLIGHTEN, 1);
+			chg_virtue(V_FAITH, 1);
+		}
+		else if (stat == A_INT)
+		{
+			chg_virtue(V_KNOWLEDGE, 1);
+			chg_virtue(V_ENLIGHTEN, 1);
+		}
+		else if (stat == A_CON)
+			chg_virtue(V_VITALITY, 1);
+
 		/* Message */
+#ifdef JP
+msg_format("ワーオ！とても%sなった！", desc_stat_pos[stat]);
+#else
 		msg_format("Wow!  You feel very %s!", desc_stat_pos[stat]);
+#endif
+
 
 		/* Notice */
 		return (TRUE);
@@ -2161,7 +4411,12 @@ bool do_inc_stat(int stat)
 	if (res)
 	{
 		/* Message */
+#ifdef JP
+msg_format("元通りに%sなった気がする。", desc_stat_pos[stat]);
+#else
 		msg_format("You feel less %s.", desc_stat_neg[stat]);
+#endif
+
 
 		/* Notice */
 		return (TRUE);
@@ -2181,7 +4436,12 @@ bool restore_level(void)
 	if (p_ptr->exp < p_ptr->max_exp)
 	{
 		/* Message */
+#ifdef JP
+msg_print("生命力が戻ってきた気がする。");
+#else
 		msg_print("You feel your life energies returning.");
+#endif
+
 
 		/* Restore the experience */
 		p_ptr->exp = p_ptr->max_exp;
@@ -2204,6 +4464,9 @@ bool restore_level(void)
 bool lose_all_info(void)
 {
 	int i;
+
+	chg_virtue(V_KNOWLEDGE, -5);
+	chg_virtue(V_ENLIGHTEN, -5);
 
 	/* Forget info about objects */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -2256,12 +4519,23 @@ void do_poly_wounds(void)
 
 	if (!(wounds || hit_p || Nasty_effect)) return;
 
+#ifdef JP
+msg_print("傷がより軽いものに変化した。");
+#else
 	msg_print("Your wounds are polymorphed into less serious ones.");
+#endif
+
 	hp_player(change);
 	if (Nasty_effect)
 	{
+#ifdef JP
+msg_print("新たな傷ができた！");
+take_hit(DAMAGE_LOSELIFE, change / 2, "変化した傷", -1);
+#else
 		msg_print("A new wound was created!");
-		take_hit(change / 2, "a polymorphed wound");
+		take_hit(DAMAGE_LOSELIFE, change / 2, "a polymorphed wound", -1);
+#endif
+
 		set_cut(change);
 	}
 	else
@@ -2275,12 +4549,18 @@ void do_poly_self(void)
 {
 	int power = p_ptr->lev;
 
+#ifdef JP
+msg_print("あなたは変化の訪れを感じた...");
+#else
 	msg_print("You feel a change coming over you...");
+#endif
 
-	if ((power > rand_int(20)) && (rand_int(3) == 1))
+	chg_virtue(V_CHANCE, 1);
+
+	if ((power > rand_int(20)) && (rand_int(3) == 1) && (p_ptr->prace != RACE_ANDROID))
 	{
 		char effect_msg[80] = "";
-		int new_race, expfact, goalexpfact;
+		int new_race, expfact, goalexpfact, h_percent;
 
 		/* Some form of racial polymorph... */
 		power -= 10;
@@ -2294,13 +4574,23 @@ void do_poly_self(void)
 			{
 				p_ptr->psex = SEX_FEMALE;
 				sp_ptr = &sex_info[p_ptr->psex];
+#ifdef JP
+sprintf(effect_msg, "女性の");
+#else
 				sprintf(effect_msg, "female ");
+#endif
+
 			}
 			else
 			{
 				p_ptr->psex = SEX_MALE;
 				sp_ptr = &sex_info[p_ptr->psex];
+#ifdef JP
+sprintf(effect_msg, "男性の");
+#else
 				sprintf(effect_msg, "male ");
+#endif
+
 			}
 		}
 
@@ -2327,12 +4617,23 @@ void do_poly_self(void)
 			if (effect_msg[0])
 			{
 				char tmp_msg[10];
+#ifdef JP
+				sprintf(tmp_msg,"%s",effect_msg);
+				sprintf(effect_msg,"奇形の%s",tmp_msg);
+#else
 				sprintf(tmp_msg,"%s ",effect_msg);
 				sprintf(effect_msg,"deformed %s ",tmp_msg);
+#endif
+
 			}
 			else
 			{
+#ifdef JP
+				sprintf(effect_msg,"奇形の");
+#else
 				sprintf(effect_msg,"deformed ");
+#endif
+
 			}
 		}
 
@@ -2342,7 +4643,12 @@ void do_poly_self(void)
 			power -= 10;
 
 			if (!lose_mutation(0))
+#ifdef JP
+msg_print("奇妙なくらい普通になった気がする。");
+#else
 				msg_print("You feel oddly normal.");
+#endif
+
 		}
 
 		/*
@@ -2359,8 +4665,12 @@ void do_poly_self(void)
 			new_race = rand_int(MAX_RACES);
 			expfact = race_info[new_race].r_exp;
 		}
-		while ((new_race == p_ptr->prace) && (expfact > goalexpfact));
+		while (((new_race == p_ptr->prace) && (expfact > goalexpfact)) || (new_race == RACE_ANDROID));
 
+#ifdef JP
+		msg_format("あなたは%s%sに変化した！", effect_msg,
+				race_info[new_race].title);
+#else
 		if (effect_msg[0])
 		{
 			msg_format("You turn into a%s %s!",
@@ -2373,29 +4683,57 @@ void do_poly_self(void)
 			msg_format("You turn into a %s%s!", effect_msg,
 				race_info[new_race].title);
 		}
+#endif
 
+		chg_virtue(V_CHANCE, 2);
+
+		if (p_ptr->prace < 32)
+		{
+			p_ptr->old_race1 |= 1L << p_ptr->prace;
+		}
+		else
+		{
+			p_ptr->old_race2 = 1L << (p_ptr->prace-32);
+		}
 		p_ptr->prace = new_race;
 		rp_ptr = &race_info[p_ptr->prace];
 
 		/* Experience factor */
 		p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
+		if (((p_ptr->pclass == CLASS_MONK) || (p_ptr->pclass == CLASS_KI) || (p_ptr->pclass == CLASS_NINJA)) && ((p_ptr->prace == RACE_KLACKON) || (p_ptr->prace == RACE_SPRITE)))
+			p_ptr->expfact -= 15;
+
+
 		/* Calculate the height/weight for males */
 		if (p_ptr->psex == SEX_MALE)
 		{
 			p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-			p_ptr->wt = randnor(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+			h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->m_b_ht);
+			p_ptr->wt = randnor((int)(rp_ptr->m_b_wt) * h_percent /100
+					    , (int)(rp_ptr->m_m_wt) * h_percent / 300 );
 		}
 
 		/* Calculate the height/weight for females */
 		else if (p_ptr->psex == SEX_FEMALE)
 		{
 			p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-			p_ptr->wt = randnor(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+			h_percent = (int)(p_ptr->ht) * 100 / (int)(rp_ptr->f_b_ht);
+			p_ptr->wt = randnor((int)(rp_ptr->f_b_wt) * h_percent /100
+					    , (int)(rp_ptr->f_m_wt) * h_percent / 300 );
 		}
 
 		check_experience();
-		p_ptr->max_plv = p_ptr->lev;
+
+		/* Hitdice */
+		if (p_ptr->pclass == CLASS_SORCERER)
+			p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		else
+			p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
+
+		do_cmd_rerate(FALSE);
+
+//		p_ptr->max_plv = p_ptr->lev;
 
 		p_ptr->redraw |= (PR_BASIC);
 
@@ -2412,7 +4750,12 @@ void do_poly_self(void)
 		/* Abomination! */
 		power -= 20;
 
+#ifdef JP
+msg_format("%sの構成が変化した！", p_ptr->prace == RACE_ANDROID ? "機械" : "内臓");
+#else
 		msg_print("Your internal organs are rearranged!");
+#endif
+
 		while (tmp < 6)
 		{
 			(void)dec_stat(tmp, randint(6) + 6, (randint(3) == 1));
@@ -2420,8 +4763,14 @@ void do_poly_self(void)
 		}
 		if (randint(6) == 1)
 		{
+#ifdef JP
+msg_print("現在姿で生きていくのは困難なようだ！");
+take_hit(DAMAGE_LOSELIFE, damroll(randint(10), p_ptr->lev), "致命的な突然変異", -1);
+#else
 			msg_print("You find living difficult in your present form!");
-			take_hit(damroll(randint(10), p_ptr->lev), "a lethal mutation");
+			take_hit(DAMAGE_LOSELIFE, damroll(randint(10), p_ptr->lev), "a lethal mutation", -1);
+#endif
+
 			power -= 10;
 		}
 	}
@@ -2430,7 +4779,8 @@ void do_poly_self(void)
 	{
 		power -= 10;
 
-		do_cmd_rerate();
+		get_max_stats();
+		do_cmd_rerate(FALSE);
 	}
 
 	while ((power > rand_int(15)) && (rand_int(3) == 1))
@@ -2463,44 +4813,114 @@ void do_poly_self(void)
  * the game when he dies, since the "You die." message is shown before
  * setting the player to "dead".
  */
-void take_hit(int damage, cptr hit_from)
+bool take_hit(int damage_type, int damage, cptr hit_from, int monspell)
 {
 	int old_chp = p_ptr->chp;
 
-	bool pen_invuln = FALSE;
-
 	char death_message[1024];
+	char tmp[80];
 
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
-
 	/* Paranoia */
-	if (death) return;
+	if (death) return FALSE;
 
-	/* Disturb */
-	disturb(1, 0);
+	if (p_ptr->sutemi) damage *= 2;
+	if (p_ptr->special_defense & KATA_IAI) damage += (damage + 4) / 5;
+
+	if (easy_band) damage = (damage+1)/2;
+
+	if (damage_type != DAMAGE_USELIFE)
+	{
+		/* Disturb */
+		disturb(1, 0);
+		if (auto_more)
+		{
+			now_damaged = TRUE;
+		}
+	}
+
+	if (monspell >= 0) learn_spell(monspell);
 
 	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (damage < 9000))
+	if ((damage_type != DAMAGE_USELIFE) && (damage_type != DAMAGE_LOSELIFE))
 	{
-		if (randint(PENETRATE_INVULNERABILITY) == 1)
+		if ((p_ptr->invuln || ((p_ptr->pclass == CLASS_HARPER) && (p_ptr->magic_num1[0] == MUSIC_INVULN))) && (damage < 9000))
 		{
-			pen_invuln = TRUE;
+			if (damage_type == DAMAGE_FORCE)
+			{
+#ifdef JP
+				msg_print("バリアが切り裂かれた！");
+#else
+				msg_print("The attack cuts your shield of invulnerability open!");
+#endif
+			}
+			else if (randint(PENETRATE_INVULNERABILITY) == 1)
+			{
+#ifdef JP
+				msg_print("無敵のバリアを破って攻撃された！");
+#else
+				msg_print("The attack penetrates your shield of invulnerability!");
+#endif
+			}
+			else
+			{
+				return FALSE;
+			}
 		}
-		else
+ 
+		/* Multishadow effects is determined by turn */
+		if (p_ptr->multishadow && (turn & 1))
 		{
-			return;
+			if (damage_type == DAMAGE_FORCE)
+			{
+#ifdef JP
+				msg_print("幻影もろとも体が切り裂かれた！");
+#else
+				msg_print("The attack hits Shadow together with you!");
+#endif
+			}
+			else if (damage_type == DAMAGE_ATTACK)
+			{
+#ifdef JP
+				msg_print("攻撃は幻影に命中し、あなたには届かなかった。");
+#else
+				msg_print("The attack hits Shadow, you are unhurmed!");
+#endif
+				return FALSE;
+			}
 		}
-	}
+		    
+		if (p_ptr->wraith_form)
+		{
+			if (damage_type == DAMAGE_FORCE)
+			{
+#ifdef JP
+				msg_print("半物質の体が切り裂かれた！");
+#else
+				msg_print("The attack cuts through your etherial body!");
+#endif
+			}
+			else
+			{
+				damage /= 2;
+				if ((damage == 0) && (randint(2) == 1)) damage = 1;
+			}
+		}
 
-	if (p_ptr->wraith_form)
-	{
-		damage /= 10;
-		if ((damage == 0) && (randint(10) == 1)) damage = 1;
-	}
+		if ((p_ptr->special_defense & KATA_MUSOU))
+		{
+			damage /= 2;
+			if ((damage == 0) && (randint(2) == 1)) damage = 1;
+		}
+	} /* not if LOSELIFE USELIFE */
 
 	/* Hurt the player */
 	p_ptr->chp -= damage;
+	if(damage_type == DAMAGE_GENO && p_ptr->chp < 0)
+	{
+		p_ptr->chp = 0;
+	}
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);
@@ -2508,34 +4928,29 @@ void take_hit(int damage, cptr hit_from)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER);
 
-	if (pen_invuln)
-		msg_print("The attack penetrates your shield of invulnerability!");
+	handle_stuff();
+
+	if (damage_type != DAMAGE_GENO && p_ptr->chp == 0)
+	{
+		chg_virtue(V_SACRIFICE, 1);
+		chg_virtue(V_CHANCE, 2);
+	}
 
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
+		char buf[10];
+		bool android = (p_ptr->prace == RACE_ANDROID ? TRUE : FALSE);
+
+#ifdef JP       /* 死んだ時に強制終了して死を回避できなくしてみた by Habu */
+		if (!munchkin_death)
+			if(!save_player()) msg_print("セーブ失敗！");
+#endif
+
 		/* Sound */
 		sound(SOUND_DEATH);
 
-		/* Hack -- Note death */
-		if (!last_words)
-		{
-			msg_print("You die.");
-			msg_print(NULL);
-		}
-		else
-		{
-			if (!get_rnd_line("death.txt", 0, death_message))
-				msg_print(death_message);
-		}
-
-		/* Note cause of death */
-		(void)strcpy(died_from, hit_from);
-
-		if (p_ptr->image) strcat(died_from,"(?)");
-
-		/* No longer a winner */
-		total_winner = FALSE;
+		chg_virtue(V_SACRIFICE, 10);
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -2543,13 +4958,171 @@ void take_hit(int damage, cptr hit_from)
 		/* Note death */
 		death = TRUE;
 
-		if (get_check("Dump the screen? "))
+		if (p_ptr->inside_arena)
 		{
-			do_cmd_save_screen();
+#ifdef JP
+msg_format("あなたは%sの前に敗れ去った。", r_name+r_info[arena_monsters[p_ptr->arena_number]].name);
+#else
+msg_format("You are beaten by %s.", r_name+r_info[arena_monsters[p_ptr->arena_number]].name);
+#endif
+			msg_print(NULL);
+		}
+		else
+		{
+			/* Note cause of death */
+			(void)strcpy(died_from, hit_from);
+
+			if (p_ptr->image) strcat(died_from,"(?)");
+
+			/* No longer a winner */
+			total_winner = FALSE;
+
+			if (p_ptr->inside_arena)
+#ifdef JP
+				strcpy(buf,"アリーナ");
+#else
+				strcpy(buf,"in the Arena");
+#endif
+			else if (!dun_level)
+#ifdef JP
+				strcpy(buf,"地上");
+#else
+				strcpy(buf,"on The surface");
+#endif
+			else if (quest_number(dun_level) && ((quest_number(dun_level) < MIN_RANDOM_QUEST) && !(quest_number(dun_level) == QUEST_OBERON || quest_number(dun_level) == QUEST_SERPENT)))
+#ifdef JP
+				strcpy(buf,"クエスト");
+#else
+				strcpy(buf,"in a quest");
+#endif
+			else
+#ifdef JP
+				sprintf(buf,"%d階", dun_level);
+#else
+				sprintf(buf,"level %d", dun_level);
+#endif
+#ifdef JP
+			sprintf(tmp,"%sで%sに殺された。",buf, died_from);
+#else
+			sprintf(tmp,"killed by %s %s.", died_from, buf);
+#endif
+			do_cmd_write_nikki(NIKKI_BUNSHOU, 0, tmp);
+#ifdef JP
+			do_cmd_write_nikki(NIKKI_GAMESTART, 1, "-------- ゲームオーバー --------");
+#else
+			do_cmd_write_nikki(NIKKI_GAMESTART, 1, "--------   Game  Over   --------");
+#endif
+			do_cmd_write_nikki(NIKKI_BUNSHOU, 1, "\n\n\n\n");
+
+			flush();
+
+#ifdef JP
+if (get_check("画面を保存しますか？"))
+#else
+			if (get_check("Dump the screen? "))
+#endif
+
+			{
+				do_cmd_save_screen();
+			}
+
+			flush();
+
+			/* Hack -- Note death */
+			if (!last_words)
+			{
+#ifdef JP
+msg_format("あなたは%sました。", android ? "壊れ" : "死に");
+#else
+				msg_print(android ? "You are broken." : "You die.");
+#endif
+
+				msg_print(NULL);
+			}
+			else
+			{
+				if (streq(died_from, "Seppuku"))
+				{
+#ifdef JP
+				  get_rnd_line("seppuku_j.txt", 0, death_message);
+#else
+					get_rnd_line("seppuku.txt", 0, death_message);
+#endif
+				}
+				else
+				{
+#ifdef JP
+get_rnd_line("death_j.txt", 0, death_message);
+#else
+					get_rnd_line("death.txt", 0, death_message);
+#endif
+				}
+#ifdef JP
+			        if (!get_string(streq(died_from, "Seppuku") ? "辞世の句: " : "断末魔の叫び: ", death_message, 1024))
+#else
+				if (!get_string("Last word: ", death_message, 1024))
+#endif
+
+				{
+#ifdef JP
+					strcpy(death_message, format("あなたは%sました。", android ? "壊れ" : "死に"));
+#else
+					strcpy(death_message, android ? "You are broken." : "You die.");
+#endif
+				}
+				if (streq(died_from, "Seppuku"))
+				{
+#ifdef JP
+				  int i, len;
+				  int w = Term->wid;
+				  int h = Term->hgt;
+				  int msg_pos_x[9] = {  5,  7,  9, 12,  14,  17,  19,  21, 23};
+				  int msg_pos_y[9] = {  3,  4,  5,  4,   5,   4,   5,   6,  4};
+				  cptr str;
+				  char* str2;
+
+				  Term_clear();
+
+				  /* 桜散る */
+				  for (i = 0; i < 40; i++) 
+				    Term_putstr(rand_int(w / 2) * 2, rand_int(h), 2, TERM_VIOLET, "υ");
+
+				  str = death_message;
+				  if (strncmp(str, "「", 2) == 0) str += 2;
+
+				  str2 = strstr_j(str, "」");
+				  if (str2 != NULL) str2 = '\0';
+
+				  i = 0;
+				  while (i < 9)
+				  {
+				    str2 = strstr_j(str, " ");
+				    if (str2 == NULL) len = strlen(str);
+				    else len = str2 - str;
+
+				    if (len != 0)
+				    {
+				      Term_putstr_v(w * 3 / 4 - 2 - msg_pos_x[i] * 2, msg_pos_y[i], len,
+						  TERM_WHITE, str);
+				      if (str2 == NULL) break;
+				      i++;
+				    }
+				    str = str2 + 1;
+				    if (*str == 0) break;
+				  }
+				  flush();
+				  (void)inkey();
+#else
+					msg_print(death_message);
+#endif
+				}
+				else
+					msg_print(death_message);
+			}
 		}
 
 		/* Dead */
-		return;
+		return TRUE;
 	}
 
 	/* Hitpoint warning */
@@ -2560,10 +5133,36 @@ void take_hit(int damage, cptr hit_from)
 
 		sound(SOUND_WARN);
 
+		if (record_danger && (old_chp > warning))
+		{
+			sprintf(tmp,"%sによってピンチに陥いった。",hit_from);
+			do_cmd_write_nikki(NIKKI_BUNSHOU, 0, tmp);
+		}
+
+		if (auto_more)
+		{
+			/* stop auto_more even if DAMAGE_USELIFE */
+			now_damaged = TRUE;
+		}
+
 		/* Message */
+#ifdef JP
+msg_print("*** 警告:低ヒット・ポイント！ ***");
+#else
 		msg_print("*** LOW HITPOINT WARNING! ***");
+#endif
+
 		msg_print(NULL);
+		flush();
 	}
+	if (p_ptr->wild_mode && (p_ptr->chp < MAX(warning, p_ptr->mhp/5)))
+	{
+		p_ptr->wilderness_x = px;
+		p_ptr->wilderness_y = py;
+		p_ptr->energy = 100;
+		change_wild_mode();
+	}
+	return TRUE;
 }
 
 
@@ -2572,6 +5171,10 @@ void take_hit(int damage, cptr hit_from)
  */
 void gain_exp(s32b amount)
 {
+	if (death) return;
+
+	if (p_ptr->prace == RACE_ANDROID) return;
+
 	/* Gain some experience */
 	p_ptr->exp += amount;
 
@@ -2587,11 +5190,85 @@ void gain_exp(s32b amount)
 }
 
 
+void calc_android_exp(void)
+{
+	int i;
+	u32b total_exp = 0;
+	if (death) return;
+
+	if (p_ptr->prace != RACE_ANDROID) return;
+
+	for (i = INVEN_RARM; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+		object_type forge;
+		object_type *q_ptr = &forge;
+		u32b value, exp;
+		int level = MAX(get_object_level(o_ptr) - 8, 1);
+
+		if ((i == INVEN_RIGHT) || (i == INVEN_LEFT) || (i == INVEN_NECK) || (i == INVEN_LITE)) continue;
+		if (!o_ptr->k_idx) continue;
+
+		/* Wipe the object */
+		object_wipe(q_ptr);
+
+		object_copy(q_ptr, o_ptr);
+		q_ptr->discount = 0;
+		q_ptr->ident &= ~(IDENT_CURSED);
+		q_ptr->art_flags3 &= ~(TR3_CURSED | TR3_HEAVY_CURSE | TR3_PERMA_CURSE | TR3_TY_CURSE);
+
+		if (o_ptr->name1)
+		{
+			level = (level + MAX(a_info[o_ptr->name1].level - 8, 5)) / 2;
+			level += MIN(20, a_info[o_ptr->name1].rarity/(a_info[o_ptr->name1].flags3 & TR3_INSTA_ART ? 10 : 3));
+		}
+		else if (o_ptr->name2) level += MAX(3, (e_info[o_ptr->name2].rating - 5)/2);
+		value = object_value_real(q_ptr);
+
+		if (value <= 0) continue;
+		if ((o_ptr->tval == TV_SOFT_ARMOR) && (o_ptr->sval == SV_ABUNAI_MIZUGI) && (p_ptr->pseikaku != SEIKAKU_SEXY)) value /= 32;
+		if (value > 5000000L) value = 5000000L;
+		if ((o_ptr->tval == TV_DRAG_ARMOR) || (o_ptr->tval == TV_CARD)) level /= 2;
+
+		if (o_ptr->name1 || o_ptr->name2 || o_ptr->art_name ||
+		    (o_ptr->tval == TV_DRAG_ARMOR) ||
+		    ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
+		    ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
+		    ((o_ptr->tval == TV_GLOVES) && (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES)) ||
+		    ((o_ptr->tval == TV_BOOTS) && (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE)) ||
+		    ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)))
+		{
+			if (level > 65) level = 35 + (level - 65) / 5;
+			else if (level > 35) level = 25 + (level - 35) / 3;
+			else if (level > 15) level = 15 + (level - 15) / 2;
+			exp = MIN(100000L, value) * level * level / 2;
+			if (value > 100000L)
+				exp += (value - 100000L) * level * level / 8;
+		}
+		else
+		{
+			exp = MIN(100000L, value) * level;
+			if (value > 100000L)
+				exp += (value - 100000L) * level / 4;
+		}
+		if ((((i == INVEN_RARM) || (i == INVEN_LARM)) && (buki_motteruka(i))) || (i == INVEN_BOW)) total_exp += exp / 48;
+		else total_exp += exp / 16;
+		if (i == INVEN_BODY) total_exp += exp / 32;
+	}
+	p_ptr->exp = p_ptr->max_exp = total_exp;
+
+	/* Check Experience */
+	check_experience();
+}
+
+
 /*
  * Lose experience
  */
 void lose_exp(s32b amount)
 {
+	if (p_ptr->prace == RACE_ANDROID) return;
+
 	/* Never drop below zero experience */
 	if (amount > p_ptr->exp) amount = p_ptr->exp;
 
@@ -2600,4 +5277,359 @@ void lose_exp(s32b amount)
 
 	/* Check Experience */
 	check_experience();
+}
+
+bool set_ultimate_res(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->ult_res && !do_dec)
+		{
+			if (p_ptr->ult_res > v) return FALSE;
+		}
+		else if (!p_ptr->ult_res)
+		{
+#ifdef JP
+msg_print("あらゆることに対して耐性がついた気がする！");
+#else
+			msg_print("You feel resistance!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->ult_res)
+		{
+#ifdef JP
+msg_print("あらゆることに対する耐性が薄れた気がする。");
+#else
+			msg_print("You feel less resistantce");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->ult_res = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_res_nether(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_res_nether && !do_dec)
+		{
+			if (p_ptr->tim_res_nether > v) return FALSE;
+		}
+		else if (!p_ptr->tim_res_nether)
+		{
+#ifdef JP
+msg_print("地獄の力に対して耐性がついた気がする！");
+#else
+			msg_print("You feel nether resistance!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_res_nether)
+		{
+#ifdef JP
+msg_print("地獄の力に対する耐性が薄れた気がする。");
+#else
+			msg_print("You feel less nether resistantce");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_res_nether = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool set_tim_res_time(int v, bool do_dec)
+{
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+
+	if (death) return FALSE;
+
+	/* Open */
+	if (v)
+	{
+		if (p_ptr->tim_res_time && !do_dec)
+		{
+			if (p_ptr->tim_res_time > v) return FALSE;
+		}
+		else if (!p_ptr->tim_res_time)
+		{
+#ifdef JP
+msg_print("時間逆転の力に対して耐性がついた気がする！");
+#else
+			msg_print("You feel time resistance!");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Shut */
+	else
+	{
+		if (p_ptr->tim_res_time)
+		{
+#ifdef JP
+msg_print("時間逆転の力に対する耐性が薄れた気がする。");
+#else
+			msg_print("You feel less time resistantce");
+#endif
+
+			notice = TRUE;
+		}
+	}
+
+	/* Use the value */
+	p_ptr->tim_res_time = v;
+
+	/* Redraw status bar */
+	p_ptr->redraw |= (PR_STATUS);
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+
+/*
+ * Choose a warrior-mage elemental attack. -LM-
+ */
+bool choose_ele_attack(void)
+{
+	int num;
+
+	char choice;
+
+	/* Save screen */
+	screen_save();
+
+	num = (p_ptr->lev - 20) / 5;
+
+#ifdef JP
+		      c_prt(TERM_RED,    "        a) 焼棄", 2, 14);
+#else
+		      c_prt(TERM_RED,    "        a) Fire Brand", 2, 14);
+#endif
+
+#ifdef JP
+	if (num >= 2) c_prt(TERM_L_WHITE,"        b) 凍結", 3, 14);
+#else
+	if (num >= 2) c_prt(TERM_L_WHITE,"        b) Cold Brand", 3, 14);
+#endif
+	else prt("", 3, 14);
+
+#ifdef JP
+	if (num >= 3) c_prt(TERM_GREEN,  "        c) 毒殺", 4, 14);
+#else
+	if (num >= 3) c_prt(TERM_GREEN,  "        c) Poison Brand", 4, 14);
+#endif
+	else prt("", 4, 14);
+
+#ifdef JP
+	if (num >= 4) c_prt(TERM_L_DARK, "        d) 溶解", 5, 14);
+#else
+	if (num >= 4) c_prt(TERM_L_DARK, "        d) Acid Brand", 5, 14);
+#endif
+	else prt("", 5, 14);
+
+#ifdef JP
+	if (num >= 5) c_prt(TERM_BLUE,   "        e) 電撃", 6, 14);
+#else
+	if (num >= 5) c_prt(TERM_BLUE,   "        e) Elec Brand", 6, 14);
+#endif
+	else prt("", 6, 14);
+
+	prt("", 7, 14);
+	prt("", 8, 14);
+	prt("", 9, 14);
+
+	prt("", 1, 0);
+#ifdef JP
+	prt("        どの元素攻撃をしますか？", 1, 14);
+#else
+	prt("        Choose a temporary elemental brand ", 1, 14);
+#endif
+
+	choice = inkey();
+
+	if ((choice == 'a') || (choice == 'A')) 
+		set_ele_attack(ATTACK_FIRE, p_ptr->lev/2 + randint(p_ptr->lev/2));
+	else if (((choice == 'b') || (choice == 'B')) && (num >= 2))
+		set_ele_attack(ATTACK_COLD, p_ptr->lev/2 + randint(p_ptr->lev/2));
+	else if (((choice == 'c') || (choice == 'C')) && (num >= 3))
+		set_ele_attack(ATTACK_POIS, p_ptr->lev/2 + randint(p_ptr->lev/2));
+	else if (((choice == 'd') || (choice == 'D')) && (num >= 4))
+		set_ele_attack(ATTACK_ACID, p_ptr->lev/2 + randint(p_ptr->lev/2));
+	else if (((choice == 'e') || (choice == 'E')) && (num >= 5))
+		set_ele_attack(ATTACK_ELEC, p_ptr->lev/2 + randint(p_ptr->lev/2));
+	else
+	{
+#ifdef JP
+		msg_print("魔法剣を使うのをやめた。");
+#else
+		msg_print("You cancel the temporary branding.");
+#endif
+		screen_load();
+		return FALSE;
+	}
+	/* Load screen */
+	screen_load();
+	return TRUE;
+}
+
+
+/*
+ * Choose a elemental immune. -LM-
+ */
+bool choose_ele_immune(int turn)
+{
+	char choice;
+
+	/* Save screen */
+	screen_save();
+
+#ifdef JP
+	c_prt(TERM_RED,    "        a) 火炎", 2, 14);
+#else
+	c_prt(TERM_RED,    "        a) Immune Fire", 2, 14);
+#endif
+
+#ifdef JP
+	c_prt(TERM_L_WHITE,"        b) 冷気", 3, 14);
+#else
+	c_prt(TERM_L_WHITE,"        b) Immune Cold", 3, 14);
+#endif
+
+#ifdef JP
+	c_prt(TERM_L_DARK, "        c) 酸", 4, 14);
+#else
+	c_prt(TERM_L_DARK, "        c) Immune Acid", 4, 14);
+#endif
+
+#ifdef JP
+	c_prt(TERM_BLUE,   "        d) 電撃", 5, 14);
+#else
+	c_prt(TERM_BLUE,   "        d) Immune Elec", 5, 14);
+#endif
+
+
+	prt("", 6, 14);
+	prt("", 7, 14);
+	prt("", 8, 14);
+	prt("", 9, 14);
+
+	prt("", 1, 0);
+#ifdef JP
+	prt("        どの元素の免疫をつけますか？", 1, 14);
+#else
+	prt("        Choose a temporary elemental immune ", 1, 14);
+#endif
+
+	choice = inkey();
+
+	if ((choice == 'a') || (choice == 'A')) 
+		set_ele_immune(DEFENSE_FIRE, turn);
+	else if ((choice == 'b') || (choice == 'B'))
+		set_ele_immune(DEFENSE_COLD, turn);
+	else if ((choice == 'c') || (choice == 'C'))
+		set_ele_immune(DEFENSE_ACID, turn);
+	else if ((choice == 'd') || (choice == 'D'))
+		set_ele_immune(DEFENSE_ELEC, turn);
+	else
+	{
+#ifdef JP
+		msg_print("免疫を付けるのをやめた。");
+#else
+		msg_print("You cancel the temporary immune.");
+#endif
+		screen_load();
+		return FALSE;
+	}
+	/* Load screen */
+	screen_load();
+	return TRUE;
 }

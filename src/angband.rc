@@ -1,129 +1,135 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/10 14:27:49 $ */
 /* File: angband.rc */
 
 ANGBAND MENU
 {
- POPUP "&File"
+ POPUP "ﾌｧｲﾙ(&F)"
  {
-  MENUITEM "&New", 100
-  MENUITEM "&Open...", 101
+  MENUITEM "新規(&N)", 100
+  MENUITEM "開く(&O)...", 101
   MENUITEM SEPARATOR
-  MENUITEM "&Save", 110
+  MENUITEM "保存(&S)", 110
   MENUITEM SEPARATOR
-  MENUITEM "Show S&cores", 120
-  MENUITEM SEPARATOR
-  MENUITEM "E&xit", 130
+  MENUITEM "スコア(&C)", 120
+  MENUITEM SEPARATOR  
+  MENUITEM "終了(&X)", 130
  }
 
- POPUP "&Window"
+ POPUP "ｳｨﾝﾄﾞｳ(&W)"
  {
-  POPUP "&Visibility"
+  POPUP "表示(&V)"
   {
-   MENUITEM "Term-0 window", 200
-   MENUITEM "Term-1 window", 201
-   MENUITEM "Term-2 window", 202
-   MENUITEM "Term-3 window", 203
-   MENUITEM "Term-4 window", 204
-   MENUITEM "Term-5 window", 205
-   MENUITEM "Term-6 window", 206
-   MENUITEM "Term-7 window", 207
+   MENUITEM "ﾒｲﾝｳｨﾝﾄﾞｳ",   200
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 1", 201
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 2", 202
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 3", 203
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 4", 204
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 5", 205
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 6", 206
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 7", 207
   }
 
-  POPUP "&Font"
+  POPUP "ﾌｫﾝﾄ(&F)"
   {
-   MENUITEM "Term-0 window", 210
-   MENUITEM "Term-1 window", 211
-   MENUITEM "Term-2 window", 212
-   MENUITEM "Term-3 window", 213
-   MENUITEM "Term-4 window", 214
-   MENUITEM "Term-5 window", 215
-   MENUITEM "Term-6 window", 216
-   MENUITEM "Term-7 window", 217
+   MENUITEM "ﾒｲﾝｳｨﾝﾄﾞｳ",   210
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 1", 211
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 2", 212
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 3", 213
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 4", 214
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 5", 215
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 6", 216
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 7", 217
   }
 
   MENUITEM SEPARATOR
 
-  POPUP "Bizarre Display"
+/*  POPUP "Bizarre Display"
   {
-   MENUITEM "Term-0 window", 230
-   MENUITEM "Term-1 window", 231
-   MENUITEM "Term-2 window", 232
-   MENUITEM "Term-3 window", 233
-   MENUITEM "Term-4 window", 234
-   MENUITEM "Term-5 window", 235
-   MENUITEM "Term-6 window", 236
-   MENUITEM "Term-7 window", 237
+   MENUITEM "ﾒｲﾝｳｨﾝﾄﾞｳ",   230
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 1", 231
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 2", 232
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 3", 233
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 4", 234
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 5", 235
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 6", 236
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 7", 237
+  } */
+
+  POPUP "ﾀｲﾙの幅を広げる"
+  {
+   MENUITEM "ﾒｲﾝｳｨﾝﾄﾞｳ",   240
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 1", 241
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 2", 242
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 3", 243
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 4", 244
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 5", 245
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 6", 246
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 7", 247
   }
 
-  POPUP "Increase Tile Width"
+  POPUP "ﾀｲﾙの幅を縮める"
   {
-   MENUITEM "Term-0 window", 240
-   MENUITEM "Term-1 window", 241
-   MENUITEM "Term-2 window", 242
-   MENUITEM "Term-3 window", 243
-   MENUITEM "Term-4 window", 244
-   MENUITEM "Term-5 window", 245
-   MENUITEM "Term-6 window", 246
-   MENUITEM "Term-7 window", 247
+   MENUITEM "ﾒｲﾝｳｨﾝﾄﾞｳ",   250
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 1", 251
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 2", 252
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 3", 253
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 4", 254
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 5", 255
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 6", 256
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 7", 257
   }
 
-  POPUP "Decrease Tile Width"
+  POPUP "ﾀｲﾙの高さを広げる"
   {
-   MENUITEM "Term-0 window", 250
-   MENUITEM "Term-1 window", 251
-   MENUITEM "Term-2 window", 252
-   MENUITEM "Term-3 window", 253
-   MENUITEM "Term-4 window", 254
-   MENUITEM "Term-5 window", 255
-   MENUITEM "Term-6 window", 256
-   MENUITEM "Term-7 window", 257
+   MENUITEM "ﾒｲﾝｳｨﾝﾄﾞｳ",   260
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 1", 261
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 2", 262
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 3", 263
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 4", 264
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 5", 265
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 6", 266
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 7", 267
   }
 
-  POPUP "Increase Tile Height"
+  POPUP "ﾀｲﾙの高さを縮める"
   {
-   MENUITEM "Term-0 window", 260
-   MENUITEM "Term-1 window", 261
-   MENUITEM "Term-2 window", 262
-   MENUITEM "Term-3 window", 263
-   MENUITEM "Term-4 window", 264
-   MENUITEM "Term-5 window", 265
-   MENUITEM "Term-6 window", 266
-   MENUITEM "Term-7 window", 267
-  }
-
-  POPUP "Decrease Tile Height"
-  {
-   MENUITEM "Term-0 window", 270
-   MENUITEM "Term-1 window", 271
-   MENUITEM "Term-2 window", 272
-   MENUITEM "Term-3 window", 273
-   MENUITEM "Term-4 window", 274
-   MENUITEM "Term-5 window", 275
-   MENUITEM "Term-6 window", 276
-   MENUITEM "Term-7 window", 277
+   MENUITEM "ﾒｲﾝｳｨﾝﾄﾞｳ",   270
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 1", 271
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 2", 272
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 3", 273
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 4", 274
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 5", 275
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 6", 276
+   MENUITEM "ｻﾌﾞｳｨﾝﾄﾞｳ 7", 277
   }
  }
 
- POPUP "&Options"
+ POPUP "ｵﾌﾟｼｮﾝ(&O)"
  {
-  POPUP "&Graphics"
+  POPUP "ｸﾞﾗﾌｨｸｽ(&G)"
   {
-   MENUITEM "&None", 400
-   MENUITEM "&Old tiles", 401
-   MENUITEM "&Adam Bolt's tiles", 402
+   MENUITEM "&なし", 400
+   MENUITEM "&旧ﾀｲﾙ", 401
+   MENUITEM "&Adam Boltさんﾀｲﾙ", 402
    }
 
-  MENUITEM "&Sound", 410
-  MENUITEM SEPARATOR
-  MENUITEM "Activate Screensaver", 420
+  MENUITEM "効果音(&S)", 410
+  MENUITEM "壁紙を使う(&B)", 440
+  MENUITEM "壁紙を選択(&O)...", 441
+  MENUITEM "画面をHTMLで保存(&H)...", 450
+/*  MENUITEM "地図(&M)", 430 */
+/*  MENUITEM SEPARATOR
+  MENUITEM "未使用", 410
+  MENUITEM "未使用", 411*/
  }
-
- POPUP "&Help"
+/*
+ POPUP "ﾍﾙﾌﾟ(&H)"
  {
-  MENUITEM "&General", 901
-  MENUITEM "&ZAngband Knowledge Base", 902
+  MENUITEM "一般(&G)", 901
+  MENUITEM "ｽﾎﾟｲﾗｰ(&S)", 902
  }
+*/
 }
 
 ANGBAND ICON "angband.ico"
 
+ANGBAND BITMAP "wall.bmp"

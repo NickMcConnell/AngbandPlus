@@ -73,6 +73,15 @@
 
 /**** Simple "Macros" ****/
 
+#ifdef ZANGBAND_JP
+#define lbtokg(x) ((int)(((x)*4536)/1000))
+#define lbtokg1(x) ((lbtokg(x)+5)/100)
+#define lbtokg2(x) ( ( (lbtokg(x)+5)%100)/10) 
+#elif defined(JP)
+#define lbtokg(x) ((int)((x)*5))
+#define lbtokg1(x) (lbtokg(x)/100)
+#define lbtokg2(x) ((lbtokg(x)%100)/10) 
+#endif
 /*
  * Force a character to lowercase/uppercase
  */

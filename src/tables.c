@@ -136,7 +136,7 @@ byte adj_mag_study[] =
 
 
 /*
- * Stat Table (INT/WIS) -- extra half-mana-points per level
+ * Stat Table (INT/WIS) -- extra 1/4-mana-points per level
  */
 byte adj_mag_mana[] =
 {
@@ -147,37 +147,37 @@ byte adj_mag_mana[] =
 	0       /* 7 */,
 	1       /* 8 */,
 	2       /* 9 */,
-	2       /* 10 */,
-	2       /* 11 */,
-	2       /* 12 */,
-	2       /* 13 */,
-	2       /* 14 */,
-	2       /* 15 */,
-	2       /* 16 */,
-	2       /* 17 */,
-	3       /* 18/00-18/09 */,
-	3       /* 18/10-18/19 */,
-	3       /* 18/20-18/29 */,
-	3       /* 18/30-18/39 */,
-	3       /* 18/40-18/49 */,
-	4       /* 18/50-18/59 */,
-	4       /* 18/60-18/69 */,
-	5       /* 18/70-18/79 */,
-	6       /* 18/80-18/89 */,
-	7       /* 18/90-18/99 */,
-	8       /* 18/100-18/109 */,
-	9       /* 18/110-18/119 */,
-	10      /* 18/120-18/129 */,
-	11      /* 18/130-18/139 */,
-	12      /* 18/140-18/149 */,
-	13      /* 18/150-18/159 */,
-	14      /* 18/160-18/169 */,
-	15      /* 18/170-18/179 */,
-	16      /* 18/180-18/189 */,
-	16      /* 18/190-18/199 */,
-	17      /* 18/200-18/209 */,
-	17      /* 18/210-18/219 */,
-	18      /* 18/220+ */
+	3       /* 10 */,
+	4       /* 11 */,
+	5       /* 12 */,
+	5       /* 13 */,
+	6       /* 14 */,
+	7       /* 15 */,
+	8       /* 16 */,
+	9       /* 17 */,
+	10      /* 18/00-18/09 */,
+	11      /* 18/10-18/19 */,
+	11      /* 18/20-18/29 */,
+	12      /* 18/30-18/39 */,
+	12      /* 18/40-18/49 */,
+	13      /* 18/50-18/59 */,
+	14      /* 18/60-18/69 */,
+	15      /* 18/70-18/79 */,
+	16      /* 18/80-18/89 */,
+	17      /* 18/90-18/99 */,
+	18      /* 18/100-18/109 */,
+	19      /* 18/110-18/119 */,
+	20      /* 18/120-18/129 */,
+	21      /* 18/130-18/139 */,
+	22      /* 18/140-18/149 */,
+	23      /* 18/150-18/159 */,
+	24      /* 18/160-18/169 */,
+	25      /* 18/170-18/179 */,
+	26      /* 18/180-18/189 */,
+	27      /* 18/190-18/199 */,
+	28      /* 18/200-18/209 */,
+	29      /* 18/210-18/219 */,
+	30      /* 18/220+ */
 };
 
 
@@ -692,26 +692,26 @@ byte adj_str_th[] =
  */
 byte adj_str_wgt[] =
 {
-	5       /* 3 */,
-	6       /* 4 */,
-	7       /* 5 */,
-	8       /* 6 */,
-	9       /* 7 */,
-	10      /* 8 */,
-	11      /* 9 */,
-	12      /* 10 */,
-	13      /* 11 */,
-	14      /* 12 */,
-	15      /* 13 */,
-	16      /* 14 */,
-	17      /* 15 */,
-	18      /* 16 */,
-	19      /* 17 */,
-	20      /* 18/00-18/09 */,
-	22      /* 18/10-18/19 */,
-	24      /* 18/20-18/29 */,
-	26      /* 18/30-18/39 */,
-	28      /* 18/40-18/49 */,
+	10      /* 3 */,
+	11      /* 4 */,
+	12      /* 5 */,
+	13      /* 6 */,
+	14      /* 7 */,
+	15      /* 8 */,
+	16      /* 9 */,
+	17      /* 10 */,
+	18      /* 11 */,
+	19      /* 12 */,
+	20      /* 13 */,
+	21      /* 14 */,
+	22      /* 15 */,
+	23      /* 16 */,
+	24      /* 17 */,
+	25      /* 18/00-18/09 */,
+	26      /* 18/10-18/19 */,
+	27      /* 18/20-18/29 */,
+	28      /* 18/30-18/39 */,
+	29      /* 18/40-18/49 */,
 	30      /* 18/50-18/59 */,
 	31      /* 18/60-18/69 */,
 	31      /* 18/70-18/79 */,
@@ -743,39 +743,39 @@ byte adj_str_hold[] =
 	6       /* 5 */,
 	7       /* 6 */,
 	8       /* 7 */,
-	10      /* 8 */,
-	12      /* 9 */,
-	14      /* 10 */,
-	16      /* 11 */,
-	18      /* 12 */,
-	20      /* 13 */,
-	22      /* 14 */,
-	24      /* 15 */,
-	26      /* 16 */,
-	28      /* 17 */,
-	30      /* 18/00-18/09 */,
-	30      /* 18/10-18/19 */,
-	35      /* 18/20-18/29 */,
-	40      /* 18/30-18/39 */,
-	45      /* 18/40-18/49 */,
-	50      /* 18/50-18/59 */,
-	55      /* 18/60-18/69 */,
-	60      /* 18/70-18/79 */,
-	65      /* 18/80-18/89 */,
-	70      /* 18/90-18/99 */,
-	80      /* 18/100-18/109 */,
-	80      /* 18/110-18/119 */,
-	80      /* 18/120-18/129 */,
-	80      /* 18/130-18/139 */,
-	80      /* 18/140-18/149 */,
-	90      /* 18/150-18/159 */,
-	90      /* 18/160-18/169 */,
-	90      /* 18/170-18/179 */,
-	90      /* 18/180-18/189 */,
-	90      /* 18/190-18/199 */,
-	100     /* 18/200-18/209 */,
-	100     /* 18/210-18/219 */,
-	100     /* 18/220+ */
+	9       /* 8 */,
+	10      /* 9 */,
+	11      /* 10 */,
+	12      /* 11 */,
+	13      /* 12 */,
+	14      /* 13 */,
+	15      /* 14 */,
+	16      /* 15 */,
+	17      /* 16 */,
+	18      /* 17 */,
+	19      /* 18/00-18/09 */,
+	20      /* 18/10-18/19 */,
+	21      /* 18/20-18/29 */,
+	22      /* 18/30-18/39 */,
+	23      /* 18/40-18/49 */,
+	24      /* 18/50-18/59 */,
+	25      /* 18/60-18/69 */,
+	26      /* 18/70-18/79 */,
+	27      /* 18/80-18/89 */,
+	28      /* 18/90-18/99 */,
+	30      /* 18/100-18/109 */,
+	31      /* 18/110-18/119 */,
+	32      /* 18/120-18/129 */,
+	33      /* 18/130-18/139 */,
+	34      /* 18/140-18/149 */,
+	35      /* 18/150-18/159 */,
+	37      /* 18/160-18/169 */,
+	40      /* 18/170-18/179 */,
+	44      /* 18/180-18/189 */,
+	48      /* 18/190-18/199 */,
+	50     /* 18/200-18/209 */,
+	50     /* 18/210-18/219 */,
+	50     /* 18/220+ */
 };
 
 
@@ -874,6 +874,7 @@ byte adj_str_blow[] =
 /*
  * Stat Table (DEX) -- index into the "blow" table
  */
+#if 0
 byte adj_dex_blow[] =
 {
 	0       /* 3 */,
@@ -914,6 +915,48 @@ byte adj_dex_blow[] =
 	20      /* 18/200-18/209 */,
 	20      /* 18/210-18/219 */,
 	20      /* 18/220+ */
+};
+#endif
+byte adj_dex_blow[] =
+{
+	0       /* 3 */,
+	0       /* 4 */,
+	0       /* 5 */,
+	0       /* 6 */,
+	0       /* 7 */,
+	0       /* 8 */,
+	0       /* 9 */,
+	1       /* 10 */,
+	1       /* 11 */,
+	1       /* 12 */,
+	1       /* 13 */,
+	1       /* 14 */,
+	2       /* 15 */,
+	2       /* 16 */,
+	2       /* 17 */,
+	2       /* 18/00-18/09 */,
+	3       /* 18/10-18/19 */,
+	3       /* 18/20-18/29 */,
+	3       /* 18/30-18/39 */,
+	4       /* 18/40-18/49 */,
+	4       /* 18/50-18/59 */,
+	5       /* 18/60-18/69 */,
+	5       /* 18/70-18/79 */,
+	6       /* 18/80-18/89 */,
+	6       /* 18/90-18/99 */,
+	7       /* 18/100-18/109 */,
+	7       /* 18/110-18/119 */,
+	8       /* 18/120-18/129 */,
+	8       /* 18/130-18/139 */,
+	9      /* 18/140-18/149 */,
+	9      /* 18/150-18/159 */,
+	10      /* 18/160-18/169 */,
+	10      /* 18/170-18/179 */,
+	11      /* 18/180-18/189 */,
+	11      /* 18/190-18/199 */,
+	12      /* 18/200-18/209 */,
+	12      /* 18/210-18/219 */,
+	13      /* 18/220+ */
 };
 
 
@@ -1010,48 +1053,94 @@ byte adj_con_fix[] =
 
 
 /*
- * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
+ * Stat Table (CON) -- extra 1/4-hitpoints per level (plus 128)
  */
 byte adj_con_mhp[] =
 {
-	128 + -5        /* 3 */,
-	128 + -3        /* 4 */,
-	128 + -2        /* 5 */,
-	128 + -1        /* 6 */,
-	128 + 0 /* 7 */,
+	128 + -8        /* 3 */,
+	128 + -6        /* 4 */,
+	128 + -4        /* 5 */,
+	128 + -2        /* 6 */,
+	128 + -1 /* 7 */,
 	128 + 0 /* 8 */,
 	128 + 0 /* 9 */,
 	128 + 0 /* 10 */,
 	128 + 0 /* 11 */,
 	128 + 0 /* 12 */,
 	128 + 0 /* 13 */,
-	128 + 0 /* 14 */,
+	128 + 1 /* 14 */,
 	128 + 1 /* 15 */,
-	128 + 1 /* 16 */,
-	128 + 2 /* 17 */,
-	128 + 3 /* 18/00-18/09 */,
-	128 + 4 /* 18/10-18/19 */,
-	128 + 4 /* 18/20-18/29 */,
-	128 + 4 /* 18/30-18/39 */,
-	128 + 4 /* 18/40-18/49 */,
-	128 + 5 /* 18/50-18/59 */,
-	128 + 6 /* 18/60-18/69 */,
-	128 + 7 /* 18/70-18/79 */,
-	128 + 8 /* 18/80-18/89 */,
-	128 + 9 /* 18/90-18/99 */,
-	128 + 10        /* 18/100-18/109 */,
-	128 + 11        /* 18/110-18/119 */,
-	128 + 12        /* 18/120-18/129 */,
-	128 + 13        /* 18/130-18/139 */,
-	128 + 14        /* 18/140-18/149 */,
-	128 + 15        /* 18/150-18/159 */,
-	128 + 16        /* 18/160-18/169 */,
-	128 + 18        /* 18/170-18/179 */,
-	128 + 20        /* 18/180-18/189 */,
-	128 + 22        /* 18/190-18/199 */,
-	128 + 25        /* 18/200-18/209 */,
-	128 + 26        /* 18/210-18/219 */,
-	128 + 27        /* 18/220+ */
+	128 + 2 /* 16 */,
+	128 + 3 /* 17 */,
+	128 + 4 /* 18/00-18/09 */,
+	128 + 5 /* 18/10-18/19 */,
+	128 + 6 /* 18/20-18/29 */,
+	128 + 7 /* 18/30-18/39 */,
+	128 + 8 /* 18/40-18/49 */,
+	128 + 9 /* 18/50-18/59 */,
+	128 + 10  /* 18/60-18/69 */,
+	128 + 11 /* 18/70-18/79 */,
+	128 + 12 /* 18/80-18/89 */,
+	128 + 14 /* 18/90-18/99 */,
+	128 + 17         /* 18/100-18/109 */,
+	128 + 20        /* 18/110-18/119 */,
+	128 + 23        /* 18/120-18/129 */,
+	128 + 26        /* 18/130-18/139 */,
+	128 + 29        /* 18/140-18/149 */,
+	128 + 32        /* 18/150-18/159 */,
+	128 + 35        /* 18/160-18/169 */,
+	128 + 38        /* 18/170-18/179 */,
+	128 + 40        /* 18/180-18/189 */,
+	128 + 42        /* 18/190-18/199 */,
+	128 + 44        /* 18/200-18/209 */,
+	128 + 46        /* 18/210-18/219 */,
+	128 + 48        /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (CHR) -- charm
+ */
+byte adj_chr_chm[] =
+{
+	0       /* 3 */,
+	0       /* 4 */,
+	1       /* 5 */,
+	2       /* 6 */,
+	3       /* 7 */,
+	4       /* 8 */,
+	4       /* 9 */,
+	5       /* 10 */,
+	5       /* 11 */,
+	6       /* 12 */,
+	6       /* 13 */,
+	7       /* 14 */,
+	7       /* 15 */,
+	8       /* 16 */,
+	8       /* 17 */,
+	9       /* 18/00-18/09 */,
+	10      /* 18/10-18/19 */,
+	12      /* 18/20-18/29 */,
+	15      /* 18/30-18/39 */,
+	18      /* 18/40-18/49 */,
+	21      /* 18/50-18/59 */,
+	24      /* 18/60-18/69 */,
+	28      /* 18/70-18/79 */,
+	32      /* 18/80-18/89 */,
+	36      /* 18/90-18/99 */,
+	39      /* 18/100-18/109 */,
+	42      /* 18/110-18/119 */,
+	45      /* 18/120-18/129 */,
+	49      /* 18/130-18/139 */,
+	53      /* 18/140-18/149 */,
+	57      /* 18/150-18/159 */,
+	61      /* 18/160-18/169 */,
+	65      /* 18/170-18/179 */,
+	69      /* 18/180-18/189 */,
+	73      /* 18/190-18/199 */,
+	77      /* 18/200-18/209 */,
+	81      /* 18/210-18/219 */,
+	85      /* 18/220+ */
 };
 
 
@@ -1082,9 +1171,11 @@ byte adj_con_mhp[] =
  * The player gets "blows_table[P][D]" blows/round, as shown below,
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
+#if 0
 byte blows_table[12][12] =
 {
 	/* P/D */
+	/* 3   10  /10  /50  /70  /90 /100 /110 /120 /130 /140 /150  */
 	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
 
 	/* 0  */
@@ -1123,15 +1214,47 @@ byte blows_table[12][12] =
 	/* 11+ */
 	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
 };
-
-
-s16b arena_monsters[MAX_ARENA_MONS] =
+#endif
+byte blows_table[12][12] =
 {
-	 30,	 43,	102,	118,	126,	149,	173,
-	183,	188,	191,	216,	230,	238,	244,
-	255,	262,	293,	297,	321,	349,	372,
-	401,	415,	454,	464,	485,	538,	631,
-	641
+	/* P/D */
+	/*		0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
+	/*	3   10   15  /10  /40  /60  /80 /100 /120 /140 /160 /180  */
+/* 0 */{	1,   1,   1,   1,   1,   2,   2,   2,   2,   3,   3,   4 },
+/* 1 */{	1,   1,   1,   2,   2,   2,   3,   3,   3,   4,   4,   4 },
+/* 2 */{	1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5 },
+/* 3 */{	1,   1,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5 },
+/* 4 */{	1,   1,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5 },
+/* 5 */{	1,   1,   2,   3,   4,   4,   4,   5,   5,   5,   5,   6 },
+/* 6 */{	1,   1,   2,   3,   4,   4,   4,   5,   5,   5,   5,   6 },
+/* 7 */{	1,   2,   2,   3,   4,   4,   4,   5,   5,   5,   5,   6 },
+/* 8 */{	1,   2,   3,   3,   4,   4,   4,   5,   5,   5,   6,   6 },
+/* 9 */{	1,   2,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
+/* 10*/{	2,   2,   3,   4,   4,   4,   5,   5,   5,   6,   6,   6 },
+/*11+*/{	2,   2,   3,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
+
+};
+
+s16b arena_monsters[MAX_ARENA_MONS+2] =
+{
+	1059,  1060,	230,	241,	255,	270,	285,
+	293,	321,	348,	367,	395,	396,	403,
+	417,	436,	453,	464,	471,	479,	490,
+	504,	539,	569,	593,	621,	623,	1061,
+	1062,	657,	666,	702,	720,	768,	786,
+	798,	988,	847,	  0,	871
+};
+
+
+
+s16b arena_shouhin[MAX_ARENA_MONS+2] =
+{
+	  0,	  0,	  0,	  0,	249,	  0,	  0,
+	  0,	  0,	242,	  0,	  0,	  0,	  0,
+	583,	  0,	  0,	  0,	  0,	198,	  0,
+	190,	  0,	363,	  0,	212,	  0,	207,
+	  0,	628,	  0,	422,	  0,	372,	327,
+	199,	325,	374,	  0,	205
 };
 
 
@@ -1153,251 +1276,1125 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General store - 32 unique names */
+#ifdef JP
+                { "フレンドリーなビルボ",       200,    170,  108,   5,  15,  RACE_HOBBIT},
+/*nuke me*/     { "憶病者 Raistlin",       200,    175,  108,   4,  12,  RACE_HUMAN},
+/*nuke me*/     { "背の低い Sultan",             300,    170,  107,   5,  15,  RACE_GNOME},/*FIRST*/
+                { "ハンサムなライア=エル",      300,    165,  107,   6,  18,  RACE_ELF},
+#else
 		{ "Bilbo the Friendly",         200,    170, 108,  5, 15, RACE_HOBBIT},
 		{ "Raistlin the Chicken",       200,    175, 108,  4, 12, RACE_HUMAN},
 		{ "Sultan the Midget",          300,    170, 107,  5, 15, RACE_GNOME},
 		{ "Lyar-el the Comely",         300,    165, 107,  6, 18, RACE_ELF},
+#endif
+
+#ifdef JP
+{ "親切なファリルマウエン",         250,    170, 108,  5, 15, RACE_HOBBIT},
+#else
 		{ "Falilmawen the Friendly",         250,    170, 108,  5, 15, RACE_HOBBIT},
+#endif
+#ifdef JP
+{ "臆病者ヴォワラン",       500,    175, 108,  4, 12, RACE_HUMAN},
+#else
 		{ "Voirin the Cowardly",       500,    175, 108,  4, 12, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "チビのエラシュナク",          750,    170, 107,  5, 15, RACE_BEASTMAN},
+#else
 		{ "Erashnak the Midget",          750,    170, 107,  5, 15, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "ハンサムなグラッグ",        1000,    165, 107,  6, 18, RACE_HALF_TITAN},
+#else
 		{ "Grug the Comely",        1000,    165, 107,  6, 18, RACE_HALF_TITAN},
+#endif
+#ifdef JP
+{ "ケチなフォロビア",         250,    170, 108,  5, 15, RACE_HUMAN},
+#else
 		{ "Forovir the Cheap",         250,    170, 108,  5, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "馬鹿のエリス",       500,    175, 108,  4, 12, RACE_HUMAN},
+#else
 		{ "Ellis the Fool",       500,    175, 108,  4, 12, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "腹ペコのフィルバート",          750,    170, 107,  5, 15, RACE_VAMPIRE},
+#else
 		{ "Filbert the Hungry",          750,    170, 107,  5, 15, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "スナーグル・サシグア",        1000,    165, 107,  6, 18, RACE_MIND_FLAYER},
+#else
 		{ "Fthnargl Psathiggua",        1000,    165, 107,  6, 18, RACE_MIND_FLAYER},
+#endif
+#ifdef JP
+{ "長死きエロワーズ",         250,    170, 108,  5, 15, RACE_SPECTRE},
+#else
 		{ "Eloise Long-Dead",         250,    170, 108,  5, 15, RACE_SPECTRE},
+#endif
+#ifdef JP
+{ "ノロマのフンディ",       500,    175, 108,  4, 12, RACE_ZOMBIE},
+#else
 		{ "Fundi the Slow",       500,    175, 108,  4, 12, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "グランサス",          750,    170, 107,  5, 15, RACE_SKELETON},
+#else
 		{ "Granthus",          750,    170, 107,  5, 15, RACE_SKELETON},
+#endif
+#ifdef JP
+{ "丁寧なロラックス",        1000,    165, 107,  6, 18, RACE_VAMPIRE},
+#else
 		{ "Lorax the Suave",        1000,    165, 107,  6, 18, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "ブッチ",         250,    170, 108,  5, 15, RACE_HALF_ORC},
+#else
 		{ "Butch",         250,    170, 108,  5, 15, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "美しきエルベレス",       500,    175, 108,  4, 12, RACE_HIGH_ELF},
+#else
 		{ "Elbereth the Beautiful",       500,    175, 108,  4, 12, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "こそこそサーレス",          750,    170, 107,  5, 15, RACE_GNOME},
+#else
 		{ "Sarleth the Sneaky",          750,    170, 107,  5, 15, RACE_GNOME},
+#endif
+#ifdef JP
+{ "ナーロック",        1000,    165, 107,  6, 18, RACE_DWARF},
+#else
 		{ "Narlock",        1000,    165, 107,  6, 18, RACE_DWARF},
+#endif
+#ifdef JP
+{ "チビのヘイネッカ",         250,    170, 108,  5, 15, RACE_GNOME},
+#else
 		{ "Haneka the Small",         250,    170, 108,  5, 15, RACE_GNOME},
+#endif
+#ifdef JP
+{ "きちがいロワラン",       500,    175, 108,  4, 12, RACE_HALF_GIANT},
+#else
 		{ "Loirin the Mad",       500,    175, 108,  4, 12, RACE_HALF_GIANT},
+#endif
+#ifdef JP
+{ "毒息のウート",          750,    170, 107,  5, 15, RACE_DRACONIAN},
+#else
 		{ "Wuto Poisonbreath",          750,    170, 107,  5, 15, RACE_DRACONIAN},
+#endif
+#ifdef JP
+{ "でぶっちょアラァカ",        1000,    165, 107,  6, 18, RACE_DRACONIAN},
+#else
 		{ "Araaka the Rotund",        1000,    165, 107,  6, 18, RACE_DRACONIAN},
+#endif
+#ifdef JP
+{ "低能なプーゴー",         250,    170, 108,  5, 15, RACE_BEASTMAN},
+#else
 		{ "Poogor the Dumb",         250,    170, 108,  5, 15, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "フェロールフィリアン",       500,    175, 108,  4, 12, RACE_ELF},
+#else
 		{ "Felorfiliand",       500,    175, 108,  4, 12, RACE_ELF},
+#endif
+#ifdef JP
+{ "年寄りマロカ",          750,    170, 107,  5, 15, RACE_GNOME},
+#else
 		{ "Maroka the Aged",          750,    170, 107,  5, 15, RACE_GNOME},
+#endif
+#ifdef JP
+{ " 勇敢なサシン",        1000,    165, 107,  6, 18, RACE_HALF_GIANT},
+#else
 		{ "Sasin the Bold",        1000,    165, 107,  6, 18, RACE_HALF_GIANT},
+#endif
+#ifdef JP
+{ "田舎者アビエマール",         250,    170, 108,  5, 15, RACE_HUMAN},
+#else
 		{ "Abiemar the Peasant",         250,    170, 108,  5, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "貧乏なハーク",       500,    175, 108,  4, 12, RACE_HALF_ORC},
+#else
 		{ "Hurk the Poor",       500,    175, 108,  4, 12, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "みじめなソアリン",          750,    170, 107,  5, 15, RACE_ZOMBIE},
+#else
 		{ "Soalin the Wretched",          750,    170, 107,  5, 15, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "質素なメルラ",        1000,    165, 107,  6, 18, RACE_ELF},
+#else
 		{ "Merulla the Humble",        1000,    165, 107,  6, 18, RACE_ELF},
+#endif
 	},
 	{
 		/* Armoury - 28 unique names */
+#ifdef JP
+                { "醜悪コン=ダー",      5000,   210,  115,   5,   7,  RACE_HALF_ORC},
+                { "頑固者ダーグ=ロウ",  10000,  190,  111,   4,   9,  RACE_HUMAN},
+                { "賢者デカド",                 25000,  200,  112,   4,  10,  RACE_DUNADAN},
+/*nuke me*/     { "鍛冶屋の Wieland",   30000,  200,  112,   4,   5,  RACE_DWARF},
+#else
 		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
 		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
+		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_DUNADAN},
 		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
+#endif
+
+#ifdef JP
+{ "醜悪コン=ダー",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
+#else
 		{ "Kon-Dar the Ugly",           10000,   210, 115,  5,  7, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "頑固者ダーグ=ロウ",          15000,  190, 111,  4,  9, RACE_HUMAN},
+#else
 		{ "Darg-Low the Grim",          15000,  190, 111,  4,  9, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "ハンサムなデカド",            25000,  200, 112,  4, 10, RACE_AMBERITE},
+#else
 		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
+#endif
+#ifdef JP
+        { "エロー・ドラゴンスケイル",          30000,  200, 112,  4,  5, RACE_ELF},
+#else
         { "Elo Dragonscale",          30000,  200, 112,  4,  5, RACE_ELF},
+#endif
+#ifdef JP
+{ "デリカトス",           10000,   210, 115,  5,  7, RACE_SPRITE},
+#else
 		{ "Delicatus",           10000,   210, 115,  5,  7, RACE_SPRITE},
+#endif
+#ifdef JP
+{ "巨大なグルース",          15000,  190, 111,  4,  9, RACE_HALF_GIANT},
+#else
 		{ "Gruce the Huge",          15000,  190, 111,  4,  9, RACE_HALF_GIANT},
+#endif
+#ifdef JP
+{ "アニムス",            25000,  200, 112,  4, 10, RACE_GOLEM},
+#else
 		{ "Animus",            25000,  200, 112,  4, 10, RACE_GOLEM},
+#endif
+#ifdef JP
+        { "マルヴァス",          30000,  200, 112,  4,  5, RACE_HALF_TITAN},
+#else
         { "Malvus",          30000,  200, 112,  4,  5, RACE_HALF_TITAN},
+#endif
+#ifdef JP
+{ "セラクシス",           10000,   210, 115,  5,  7, RACE_ZOMBIE},
+#else
 		{ "Selaxis",           10000,   210, 115,  5,  7, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "デス・チル",          5000,  190, 111,  4,  9, RACE_SPECTRE},
+#else
 		{ "Deathchill",          5000,  190, 111,  4,  9, RACE_SPECTRE},
+#endif
+#ifdef JP
+{ "微かなドリオス",            25000,  200, 112,  4, 10, RACE_SPECTRE},
+#else
 		{ "Drios the Faint",            25000,  200, 112,  4, 10, RACE_SPECTRE},
+#endif
+#ifdef JP
+        { "冷たいバスリック",          30000,  200, 112,  4,  5, RACE_VAMPIRE},
+#else
         { "Bathric the Cold",          30000,  200, 112,  4,  5, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "冷酷ヴェンジェラ",           10000,   210, 115,  5,  7, RACE_HALF_TROLL},
+#else
 		{ "Vengella the Cruel",           10000,   210, 115,  5,  7, RACE_HALF_TROLL},
+#endif
+#ifdef JP
+{ "強者ウィラナ",          15000,  190, 111,  4,  9, RACE_HUMAN},
+#else
 		{ "Wyrana the Mighty",          15000,  190, 111,  4,  9, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "ヨジョ二世",            25000,  200, 112,  4, 10, RACE_DWARF},
+#else
 		{ "Yojo II",            25000,  200, 112,  4, 10, RACE_DWARF},
+#endif
+#ifdef JP
+        { "優しいラナラー",          30000,  200, 112,  4,  5, RACE_AMBERITE},
+#else
         { "Ranalar the Sweet",          30000,  200, 112,  4,  5, RACE_AMBERITE},
+#endif
+#ifdef JP
+{ "不浄のホルバグ",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+#else
 		{ "Horbag the Unclean",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "テレパスのエレレン",          15000,  190, 111,  4,  9, RACE_DARK_ELF},
+#else
 		{ "Elelen the Telepath",          15000,  190, 111,  4,  9, RACE_DARK_ELF},
+#endif
+#ifdef JP
+{ "イスドリリアス",            25000,  200, 112,  4, 10, RACE_SPRITE},
+#else
 		{ "Isedrelias",            25000,  200, 112,  4, 10, RACE_SPRITE},
+#endif
+#ifdef JP
+        { "一つ目ヴェグナー",          5000,  200, 112,  4,  5, RACE_CYCLOPS},
+#else
         { "Vegnar One-eye",          5000,  200, 112,  4,  5, RACE_CYCLOPS},
+#endif
+#ifdef JP
+{ "混沌のロディッシュ",           10000,   210, 115,  5,  7, RACE_BEASTMAN},
+#else
 		{ "Rodish the Chaotic",           10000,   210, 115,  5,  7, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "剣豪ヘジン",          15000,  190, 111,  4,  9, RACE_NIBELUNG},
+#else
 		{ "Hesin Swordmaster",          15000,  190, 111,  4,  9, RACE_NIBELUNG},
+#endif
+#ifdef JP
+{ "ずる屋のエルベレリス",           10000,  200, 112,  4, 10, RACE_DARK_ELF},
+#else
 		{ "Elvererith the Cheat",           10000,  200, 112,  4, 10, RACE_DARK_ELF},
+#endif
+#ifdef JP
+        { "インプのザサス",          30000,  200, 112,  4,  5, RACE_IMP},
+#else
         { "Zzathath the Imp",          30000,  200, 112,  4,  5, RACE_IMP},
+#endif
+#ifdef JP
+{ "醜悪コン=ダー",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+#else
 		{ "Kon-Dar the Ugly",           5000,   210, 115,  5,  7, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "頑固者ダーグ=ロウ",          10000,  190, 111,  4,  9, RACE_HUMAN},
+#else
 		{ "Darg-Low the Grim",          10000,  190, 111,  4,  9, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "ハンサムなデカド",            25000,  200, 112,  4, 10, RACE_AMBERITE},
+#else
 		{ "Decado the Handsome",            25000,  200, 112,  4, 10, RACE_AMBERITE},
+#endif
+#ifdef JP
+{ "鍛冶屋のウィーランド",          30000,  200, 112,  4,  5, RACE_DWARF},
+#else
 		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
+#endif
 	},
 	{
 		/* Weapon Smith - 28 unique names */
+#ifdef JP
+                { "残忍なるアーノルド",        5000,   210,  115,   6,   6,  RACE_HALF_TROLL},
+                { "獣殺しのアーンダル", 10000,  185,  110,   5,   9,  RACE_HALF_ELF},
+                { "獣マスターのエディー", 25000,  190,  115,   5,   7,  RACE_HOBBIT},
+                { "竜殺しのオグライン", 30000,  195,  112,   4,   8,  RACE_DWARF},
+#else
 		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
 		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
 		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
 		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
+#endif
+
+#ifdef JP
+{ "熟練者ドリュー",      10000,   210, 115,  6,  6, RACE_HUMAN},
+#else
 		{ "Drew the Skilled",      10000,   210, 115,  6,  6, RACE_HUMAN},
+#endif
+#ifdef JP
+{"龍の子オラックス",        15000,  185, 110,  5,  9, RACE_DRACONIAN},
+#else
 		{"Orrax Dragonson",        15000,  185, 110,  5,  9, RACE_DRACONIAN},
+#endif
+#ifdef JP
+{ "病気持ちのアンスラックス",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+#else
 		{ "Anthrax Disease-Carrier",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "頑丈者アルコス",       30000,  195, 112,  4,  8, RACE_DWARF},
+#else
 		{ "Arkhoth the Stout",       30000,  195, 112,  4,  8, RACE_DWARF},
+#endif
+#ifdef JP
+{ "腐れ者のサリアス",      5000,   210, 115,  6,  6, RACE_ZOMBIE},
+#else
 		{ "Sarlyas the Rotten",      5000,   210, 115,  6,  6, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{"晒し骨のトゥエシク",        15000,  185, 110,  5,  9, RACE_SKELETON},
+#else
 		{"Tuethic Bare-Bones",        15000,  185, 110,  5,  9, RACE_SKELETON},
+#endif
+#ifdef JP
+{ "ビリオス",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+#else
 		{ "Bilious",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "ファスガル",       30000,  195, 112,  4,  8, RACE_ZOMBIE},
+#else
 		{ "Fasgul",       30000,  195, 112,  4,  8, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "パラディンのエレフリス",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
+#else
 		{ "Ellefris the Paladin",      10000,   210, 115,  6,  6, RACE_BARBARIAN},
+#endif
+#ifdef JP
+{"キ'トリッ'ク",        15000,  185, 110,  5,  9, RACE_KLACKON},
+#else
 		{"K'trrik'k",        15000,  185, 110,  5,  9, RACE_KLACKON},
+#endif
+#ifdef JP
+{ "蜘蛛の友ドゥロカス",         25000,  190, 115,  5,  7, RACE_DARK_ELF},
+#else
 		{ "Drocus Spiderfriend",         25000,  190, 115,  5,  7, RACE_DARK_ELF},
+#endif
+#ifdef JP
+{ "巨人殺しのフングス",       30000,  195, 112,  4,  8, RACE_DWARF},
+#else
 		{ "Fungus Giant-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
+#endif
+#ifdef JP
+{ "デランサ",      10000,   210, 115,  6,  6, RACE_ELF},
+#else
 		{ "Delantha",      10000,   210, 115,  6,  6, RACE_ELF},
+#endif
+#ifdef JP
+{"レンジャーのソルビスタニ",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
+#else
 		{"Solvistani the Ranger",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
+#endif
+#ifdef JP
+{ "ノロマのゾリル",         25000,  190, 115,  5,  7, RACE_GOLEM},
+#else
 		{ "Xoril the Slow",         25000,  190, 115,  5,  7, RACE_GOLEM},
+#endif
+#ifdef JP
+{ "イーオン・フラックス",       20000,  195, 112,  4,  8, RACE_HALF_ELF},
+#else
 		{ "Aeon Flux",       20000,  195, 112,  4,  8, RACE_HALF_ELF},
+#endif
+#ifdef JP
+{ "強者ナドック",      10000,   210, 115,  6,  6, RACE_HOBBIT},
+#else
 		{ "Nadoc the Strong",      10000,   210, 115,  6,  6, RACE_HOBBIT},
+#endif
+#ifdef JP
+{"弱虫エラモグ",        15000,  185, 110,  5,  9, RACE_KOBOLD},
+#else
 		{"Eramog the Weak",        15000,  185, 110,  5,  9, RACE_KOBOLD},
+#endif
+#ifdef JP
+{ "公正なエオウィリス",         25000,  190, 115,  5,  7, RACE_VAMPIRE},
+#else
 		{ "Eowilith the Fair",         25000,  190, 115,  5,  7, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "バルログ殺しのヒュイモグ",       30000,  195, 112,  4,  8, RACE_HALF_ORC},
+#else
 		{ "Huimog Balrog-Slayer",       30000,  195, 112,  4,  8, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "冷酷ピーダス",      5000,   210, 115,  6,  6, RACE_HUMAN},
+#else
 		{ "Peadus the Cruel",      5000,   210, 115,  6,  6, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "ヴァモグ スレイヤー",        15000,  185, 110,  5,  9, RACE_HALF_OGRE},
+#else
 		{ "Vamog Slayer",        15000,  185, 110,  5,  9, RACE_HALF_OGRE},
+#endif
+#ifdef JP
+{ "性悪フーシュナク",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+#else
 		{ "Hooshnak the Vicious",         25000,  190, 115,  5,  7, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "舞闘バレン",       30000,  195, 112,  4,  8, RACE_BARBARIAN},
+#else
 		{ "Balenn War-Dancer",       30000,  195, 112,  4,  8, RACE_BARBARIAN},
+#endif
+#ifdef JP
+{ " 残忍なるアーノルド",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
+#else
 		{ "Arnold the Beastly",      5000,   210, 115,  6,  6, RACE_BARBARIAN},
+#endif
+#ifdef JP
+{ "獣殺しのアーンダル",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
+#else
 		{ "Arndal Beast-Slayer",        10000,  185, 110,  5,  9, RACE_HALF_ELF},
+#endif
+#ifdef JP
+{ "ビーストマスター・エディー",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
+#else
 		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "竜殺しのオグライン",       30000,  195, 112,  4,  8, RACE_DWARF},
+#else
 		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
+#endif
 	},
 	{
 		/* Temple - 22 unique names */
+#ifdef JP
+                { "質素なルードヴィヒ",         5000,   175,  109,   6,  15,  RACE_HUMAN},
+                { "パラディンのガンナー",       10000,  185,  110,   5,  23,  RACE_HUMAN},
+                { "選ばれしトリン",                     25000,  180,  107,   6,  20,  RACE_ELF},
+                { "賢明なるサラストロ",                     30000,  185,  109,   5,  15,  RACE_DWARF},
+#else
 		{ "Ludwig the Humble",          5000,   175, 109,  6, 15, RACE_DWARF},
 		{ "Gunnar the Paladin",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
 		{ "Torin the Chosen",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
 		{ "Sarastro the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#endif
+
+#ifdef JP
+{ "パーシヴァル卿",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+#else
 		{ "Sir Parsival the Pure",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "神聖なるアセナス",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#else
 		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "マッキノン",         10000,   175, 109,  6, 15, RACE_HUMAN},
+#else
 		{ "McKinnon",         10000,   175, 109,  6, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "謹み婦人",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
+#else
 		{ "Mistress Chastity",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "ドルイドのハシュニック",           25000,  180, 107,  6, 20, RACE_HOBBIT},
+#else
 		{ "Hashnik the Druid",           25000,  180, 107,  6, 20, RACE_HOBBIT},
+#endif
+#ifdef JP
+{ "フィナク",          30000,  185, 109,  5, 15, RACE_YEEK},
+#else
 		{ "Finak",          30000,  185, 109,  5, 15, RACE_YEEK},
+#endif
+#ifdef JP
+{ "クリキック",         10000,   175, 109,  6, 15, RACE_KLACKON},
+#else
 		{ "Krikkik",         10000,   175, 109,  6, 15, RACE_KLACKON},
+#endif
+#ifdef JP
+{ "荒くれ者モリヴァル",         15000,  185, 110,  5, 23, RACE_ELF},
+#else
 		{ "Morival the Wild",         15000,  185, 110,  5, 23, RACE_ELF},
+#endif
+#ifdef JP
+{ "暗きホシャック",           25000,  180, 107,  6, 20, RACE_IMP},
+#else
 		{ "Hoshak the Dark",           25000,  180, 107,  6, 20, RACE_IMP},
+#endif
+#ifdef JP
+{ "賢者アタール",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#else
 		{ "Atal the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "清きイベニッド",         10000,   175, 109,  6, 15, RACE_HUMAN},
+#else
 		{ "Ibenidd the Chaste",         10000,   175, 109,  6, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "エリディシュ",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
+#else
 		{ "Eridish",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
+#endif
+#ifdef JP
+{ "呪術師ヴルドゥシュ",           25000,  180, 107,  6, 20, RACE_HALF_OGRE},
+#else
 		{ "Vrudush the Shaman",           25000,  180, 107,  6, 20, RACE_HALF_OGRE},
+#endif
+#ifdef JP
+{ "狂戦士ハオブ",          30000,  185, 109,  5, 15, RACE_BARBARIAN},
+#else
 		{ "Haob the Berserker",          30000,  185, 109,  5, 15, RACE_BARBARIAN},
+#endif
+#ifdef JP
+{ "若きプルーグディシュ",         10000,   175, 109,  6, 15, RACE_HALF_OGRE},
+#else
 		{ "Proogdish the Youthfull",         10000,   175, 109,  6, 15, RACE_HALF_OGRE},
+#endif
+#ifdef JP
+{ "きちがいラムワイズ",         15000,  185, 110,  5, 23, RACE_YEEK},
+#else
 		{ "Lumwise the Mad",         15000,  185, 110,  5, 23, RACE_YEEK},
+#endif
+#ifdef JP
+{ "有徳者ムワート",           25000,  180, 107,  6, 20, RACE_KOBOLD},
+#else
 		{ "Muirt the Virtuous",           25000,  180, 107,  6, 20, RACE_KOBOLD},
+#endif
+#ifdef JP
+{ "弱虫ダードバード",          30000,  185, 109,  5, 15, RACE_SPECTRE},
+#else
 		{ "Dardobard the Weak",          30000,  185, 109,  5, 15, RACE_SPECTRE},
+#endif
+#ifdef JP
+{ "質素なルードヴィヒ",          5000,   175, 109,  6, 15, RACE_DWARF},
+#else
 		{ "Ludwig the Humble",          5000,   175, 109,  6, 15, RACE_DWARF},
+#endif
+#ifdef JP
+{ "パラディンのガンナー",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
+#else
 		{ "Gunnar the Paladin",         10000,  185, 110,  5, 23, RACE_HALF_TROLL},
+#endif
+#ifdef JP
+{ "選ばれしトリン",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+#else
 		{ "Torin the Chosen",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "賢明なるサラストロ",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#else
 		{ "Sarastro the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "清きパーシヴァル卿",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+#else
 		{ "Sir Parsival the Pure",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "神聖なるアセナス",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#else
 		{ "Asenath the Holy",          30000,  185, 109,  5, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "マッキノン",         10000,   175, 109,  6, 15, RACE_HUMAN},
+#else
 		{ "McKinnon",         10000,   175, 109,  6, 15, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "謹み婦人",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
+#else
 		{ "Mistress Chastity",         15000,  185, 110,  5, 23, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "ドルイド ハシュニック",           25000,  180, 107,  6, 20, RACE_HOBBIT},
+#else
 		{ "Hashnik the Druid",           25000,  180, 107,  6, 20, RACE_HOBBIT},
+#endif
+#ifdef JP
+{ "フィナク",        15000,  200, 110,  7,  8, RACE_BARBARIAN},
+#else
 		{ "Finak",          30000,  185, 109,  5, 15, RACE_YEEK},
+#endif
 	},
 	{
 		/* Alchemist - 26 unique names */
+#ifdef JP
+                { "化学者マウザー",             10000,  190,  111,   5,   8,  RACE_HALF_ELF},
+                { "カオスのウィズル",   10000,  190,  110,   6,   8,  RACE_HOBBIT},
+                { "強欲ミダス",              15000,  200,  116,   6,   9,  RACE_GNOME},
+                { "貧弱ジャ=ファー",                   15000,  220,  111,   4,   9,  RACE_ELF},/*FIRST*/
+#else
 		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
 		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
 		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
 		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+#endif
+
+#ifdef JP
+        { "カカルラカカル",           15000,  200, 116,  6,  9, RACE_KLACKON},
+#else
         { "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
+#endif
+#ifdef JP
+        { "錬金術師ジャル=エス",       15000,  220, 111,  4,  9, RACE_ELF},
+#else
         { "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+#endif
+#ifdef JP
+{ "用心深いファネラス",         10000,  190, 111,  5,  8, RACE_DWARF},
+#else
 		{ "Fanelath the Cautious",         10000,  190, 111,  5,  8, RACE_DWARF},
+#endif
+#ifdef JP
+{ "キチガイのルンシー",         10000,  190, 110,  6,  8, RACE_HUMAN},
+#else
 		{ "Runcie the Insane",         10000,  190, 110,  6,  8, RACE_HUMAN},
+#endif
+#ifdef JP
+        { "グランブルワース",           15000,  200, 116,  6,  9, RACE_GNOME},
+#else
         { "Grumbleworth",           15000,  200, 116,  6,  9, RACE_GNOME},
+#endif
+#ifdef JP
+        { "フリッター",       15000,  220, 111,  4,  9, RACE_SPRITE},
+#else
         { "Flitter",       15000,  220, 111,  4,  9, RACE_SPRITE},
+#endif
+#ifdef JP
+{ "ザリルス",         10000,  190, 111,  5,  8, RACE_HUMAN},
+#else
 		{ "Xarillus",         10000,  190, 111,  5,  8, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "古きエグバート",         10000,  190, 110,  6,  8, RACE_DWARF},
+#else
 		{ "Egbert the Old",         10000,  190, 110,  6,  8, RACE_DWARF},
+#endif
+#ifdef JP
+        { "誇り高きヴァリンドラ",           15000,  200, 116,  6,  9, RACE_HIGH_ELF},
+#else
         { "Valindra the Proud",           15000,  200, 116,  6,  9, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+        { "錬金術師タエン",       15000,  220, 111,  4,  9, RACE_HUMAN},
+#else
         { "Taen the Alchemist",       15000,  220, 111,  4,  9, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "巧言カイド",         10000,  190, 111,  5,  8, RACE_VAMPIRE},
+#else
 		{ "Cayd the Sweet",         10000,  190, 111,  5,  8, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "暗きフリア",         10000,  190, 110,  6,  8, RACE_NIBELUNG},
+#else
 		{ "Fulir the Dark",         10000,  190, 110,  6,  8, RACE_NIBELUNG},
+#endif
+#ifdef JP
+        { "質素なドムリ",           15000,  200, 116,  6,  9, RACE_DWARF},
+#else
         { "Domli the Humble",           15000,  200, 116,  6,  9, RACE_DWARF},
+#endif
+#ifdef JP
+        { "魔の子ヤァジュッカ",       15000,  220, 111,  4,  9, RACE_IMP},
+#else
         { "Yaarjukka Demonspawn",       15000,  220, 111,  4,  9, RACE_IMP},
+#endif
+#ifdef JP
+{ "薬草師ジェララルドール",         10000,  190, 111,  5,  8, RACE_HIGH_ELF},
+#else
 		{ "Gelaraldor the Herbmaster",         10000,  190, 111,  5,  8, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "賢者オレラルダン",         10000,  190, 110,  6,  8, RACE_BARBARIAN},
+#else
 		{ "Olelaldan the Wise",         10000,  190, 110,  6,  8, RACE_BARBARIAN},
+#endif
+#ifdef JP
+        { "デモニシストのフゾグロ",           15000,  200, 116,  6,  9, RACE_IMP},
+#else
         { "Fthoglo the Demonicist",           15000,  200, 116,  6,  9, RACE_IMP},
+#endif
+#ifdef JP
+        { "錬金術師ドゥリアシュ",       15000,  220, 111,  4,  9, RACE_HALF_ORC},
+#else
         { "Dridash the Alchemist",       15000,  220, 111,  4,  9, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "強者ネリア",         10000,  190, 111,  5,  8, RACE_CYCLOPS},
+#else
 		{ "Nelir the Strong",         10000,  190, 111,  5,  8, RACE_CYCLOPS},
+#endif
+#ifdef JP
+{ "辛口リグナス",         10000,  190, 110,  6,  8, RACE_HALF_ORC},
+#else
 		{ "Lignus the Pungent",         10000,  190, 110,  6,  8, RACE_HALF_ORC},
+#endif
+#ifdef JP
+        { "ティルバ",           15000,  200, 116,  6,  9, RACE_HOBBIT},
+#else
         { "Tilba",           15000,  200, 116,  6,  9, RACE_HOBBIT},
+#endif
+#ifdef JP
+        { "金持ちミリルドリック",       15000,  220, 111,  4,  9, RACE_HUMAN},
+#else
         { "Myrildric the Wealthy",       15000,  220, 111,  4,  9, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "科学者マウザー",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
+#else
 		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
+#endif
+#ifdef JP
+{ "カオスのウィズル",         10000,  190, 110,  6,  8, RACE_HOBBIT},
+#else
 		{ "Wizzle the Chaotic",         10000,  190, 110,  6,  8, RACE_HOBBIT},
+#endif
+#ifdef JP
+{ "強欲ミダス",           15000,  200, 116,  6,  9, RACE_GNOME},
+#else
 		{ "Midas the Greedy",           15000,  200, 116,  6,  9, RACE_GNOME},
+#endif
+#ifdef JP
+{ "錬金術師ジャ=ファー",       15000,  220, 111,  4,  9, RACE_ELF},
+#else
 		{ "Ja-Far the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+#endif
+#ifdef JP
+        { "カカルラカカル",           15000,  200, 116,  6,  9, RACE_KLACKON},
+#else
         { "Kakalrakakal",           15000,  200, 116,  6,  9, RACE_KLACKON},
+#endif
+#ifdef JP
+        { "錬金術師ジャル=エス",       15000,  220, 111,  4,  9, RACE_ELF},
+#else
         { "Jal-Eth the Alchemist",       15000,  220, 111,  4,  9, RACE_ELF},
+#endif
 	},
 	{
 		/* Magic Shop - 23 unique names */
+#ifdef JP
+                { "ソーサラーのロ=パン",       20000,  200,  110,   7,   8,  RACE_HALF_ELF},
+                { "偉大なるブガービイ",         20000,  215,  113,   6,  10,  RACE_GNOME},
+                { "イェンダーの魔法使い",     30000,  200,  110,   7,  10,  RACE_HUMAN},
+/*nuke me*/     { "死霊使い Rjak",30000,      175,  110,   5,  11,  RACE_HIGH_ELF},
+#else
 		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
 		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
 		{ "The Wizard of Yendor",       30000,  200, 110,  7, 10, RACE_HUMAN},
 		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#endif
+
+#ifdef JP
+        { "魔術師スキドゥニー",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+#else
         { "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+#endif
+#ifdef JP
+        { "幻術師キリア",       30000,  200, 110,  7, 10, RACE_HUMAN},
+#else
         { "Kyria the Illusionist",       30000,  200, 110,  7, 10, RACE_HUMAN},
+#endif
+#ifdef JP
+        { "死霊術師ニッキ",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#else
         { "Nikki the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#endif
+#ifdef JP
+        { "ソロストラン",        15000,  200, 110,  7,  8, RACE_SPRITE},
+#else
         { "Solostoran",        15000,  200, 110,  7,  8, RACE_SPRITE},
+#endif
+#ifdef JP
+{ "烏賊口アチシェ",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+#else
 		{ "Achshe the Tentacled",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+#endif
+#ifdef JP
+        { "貴族のカザ",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
+#else
         { "Kaza the Noble",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+        { "暗きファジル",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#else
         { "Fazzil the Dark",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#endif
+#ifdef JP
+        { "偉大なるケルドーン",        15000,  200, 110,  7,  8, RACE_DWARF},
+#else
         { "Keldorn the Grand",        15000,  200, 110,  7,  8, RACE_DWARF},
+#endif
+#ifdef JP
+{ "フィランスロプス",         20000,  215, 113,  6, 10, RACE_HOBBIT},
+#else
 		{ "Philanthropus",         20000,  215, 113,  6, 10, RACE_HOBBIT},
+#endif
+#ifdef JP
+        { "魔女のアグナー",       30000,  200, 110,  7, 10, RACE_HUMAN},
+#else
         { "Agnar the Enchantress",       30000,  200, 110,  7, 10, RACE_HUMAN},
+#endif
+#ifdef JP
+        { "死霊術師ビュリアンス",       30000,  175, 110,  5, 11, RACE_BEASTMAN},
+#else
         { "Buliance the Necromancer",       30000,  175, 110,  5, 11, RACE_BEASTMAN},
+#endif
+#ifdef JP
+        { "ハイメイジのヴイラク",        15000,  200, 110,  7,  8, RACE_BEASTMAN},
+#else
         { "Vuirak the High-Mage",        15000,  200, 110,  7,  8, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "知恵者マディッシュ",         20000,  215, 113,  6, 10, RACE_BEASTMAN},
+#else
 		{ "Madish the Smart",         20000,  215, 113,  6, 10, RACE_BEASTMAN},
+#endif
+#ifdef JP
+        { "ファレブリンボール",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
+#else
         { "Falebrimbor",       30000,  200, 110,  7, 10, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+        { "陰険フェリル=ガンド",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#else
         { "Felil-Gand the Subtle",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#endif
+#ifdef JP
+        { "呪術師サレゴード",        15000,  200, 110,  7,  8, RACE_BARBARIAN},
+#else
         { "Thalegord the Shaman",        15000,  200, 110,  7,  8, RACE_BARBARIAN},
+#endif
+#ifdef JP
+{ "神秘家クトゥアロス",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+#else
 		{ "Cthoaloth the Mystic",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+#endif
+#ifdef JP
+        { "幻術師イベリ",       30000,  200, 110,  7, 10, RACE_SKELETON},
+#else
         { "Ibeli the Illusionist",       30000,  200, 110,  7, 10, RACE_SKELETON},
+#endif
+#ifdef JP
+        { "死霊術師ヘトー",       30000,  175, 110,  5, 11, RACE_YEEK},
+#else
         { "Heto the Necromancer",       30000,  175, 110,  5, 11, RACE_YEEK},
+#endif
+#ifdef JP
+{ "魔術師ロ=パン",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
+#else
 		{ "Lo Pan the Sorcerer",        20000,  200, 110,  7,  8, RACE_HALF_ELF},
+#endif
+#ifdef JP
+{ "偉大なるブガービイ",         20000,  215, 113,  6, 10, RACE_GNOME},
+#else
 		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
+#endif
+#ifdef JP
+{ "イェンダーの魔法使い",       30000,  200, 110,  7, 10, RACE_HUMAN},
+#else
 		{ "The Wizard of Yendor",       30000,  200, 110,  7, 10, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "死霊術師リャク",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#else
 		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#endif
+#ifdef JP
+        { "魔術師スキドゥニー",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+#else
         { "Skidney the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
+#endif
+#ifdef JP
+        { "幻術師キリア",       30000,  200, 110,  7, 10, RACE_HUMAN},
+#else
         { "Kyria the Illusionist",       30000,  200, 110,  7, 10, RACE_HUMAN},
+#endif
+#ifdef JP
+        { "死霊術師ニッキ",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#else
         { "Nikki the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+#endif
+#ifdef JP
+        { "ソロストラン",        15000,  200, 110,  7,  8, RACE_SPRITE},
+#else
         { "Solostoran",        15000,  200, 110,  7,  8, RACE_SPRITE},
+#endif
+#ifdef JP
+{ "烏賊口アチシェ",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+#else
 		{ "Achshe the Tentacled",         20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+#endif
 	},
 	{
 		/* Black Market - 32 unique names */
+#ifdef JP
+                { "ガリー=ギガズ",            20000,  250,  150,  10,   5,  RACE_HALF_TROLL},
+                { "ゴブリンのヒストーア",       20000,  250,  150,  10,   5,  RACE_HALF_ORC},
+                { "フェレンギ人クアーク",           30000,  250,  150,  10,   5,  RACE_HUMAN},
+                { "公正なる(?)トッピ",                     30000,  250,  150,  10,   5,  RACE_ELF},
+#else
 		{ "Gary Gygaz",                 20000,  250, 150, 10,  5, RACE_HALF_TROLL},
 		{ "Histor the Goblin",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
 		{ "Quark the Ferengi",          30000,  250, 150, 10,  5, RACE_DWARF},
 		{ "Topi the Fair(?)",           30000,  250, 150, 10,  5, RACE_HUMAN},
+#endif
+
+#ifdef JP
+{ "死人ヴァッサ",             20000,  250, 150, 10,  5, RACE_ZOMBIE},
+#else
 		{ "Vhassa the Dead",             20000,  250, 150, 10,  5, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "裏切り者カイン",          20000,  250, 150, 10,  5, RACE_VAMPIRE},
+#else
 		{ "Kyn the Treacherous",          20000,  250, 150, 10,  5, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "ブボニカス",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
+#else
 		{ "Bubonicus",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "コープスライト",           30000,  250, 150, 10,  5, RACE_SPECTRE},
+#else
 		{ "Corpselight",           30000,  250, 150, 10,  5, RACE_SPECTRE},
+#endif
+#ifdef JP
+{ "血に飢えしパリッシュ",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
+#else
 		{ "Parrish the Bloodthirsty",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "ヴァイル",          20000,  250, 150, 10,  5, RACE_SKELETON},
+#else
 		{ "Vile",          20000,  250, 150, 10,  5, RACE_SKELETON},
+#endif
+#ifdef JP
+{ "信頼のプレンティス",          30000,  250, 150, 10,  5, RACE_SKELETON},
+#else
 		{ "Prentice the Trusted",          30000,  250, 150, 10,  5, RACE_SKELETON},
+#endif
+#ifdef JP
+{ "人間殺しのグリエラ",           30000,  250, 150, 10,  5, RACE_IMP},
+#else
 		{ "Griella Humanslayer",           30000,  250, 150, 10,  5, RACE_IMP},
+#endif
+#ifdef JP
+{ "エンジェル",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
+#else
 		{ "Angel",                 20000,  250, 150, 10,  5, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "水膨れフロツァム",          20000,  250, 150, 10,  5, RACE_ZOMBIE},
+#else
 		{ "Flotsam the Bloated",          20000,  250, 150, 10,  5, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "ニーヴァル",          30000,  250, 150, 10,  5, RACE_VAMPIRE},
+#else
 		{ "Nieval",          30000,  250, 150, 10,  5, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "明るいアナスタシア",           30000,  250, 150, 10,  5, RACE_SPECTRE},
+#else
 		{ "Anastasia the Luminous",           30000,  250, 150, 10,  5, RACE_SPECTRE},
+#endif
+#ifdef JP
+{ "死霊術師チャリティー", 20000,  250, 150, 10,  5, RACE_DARK_ELF},
+#else
 		{ "Charity the Necromancer", 20000,  250, 150, 10,  5, RACE_DARK_ELF},
+#endif
+#ifdef JP
+{ "ボクサーのプグナシオス",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
+#else
 		{ "Pugnacious the Pugilist",          20000,  250, 150, 10,  5, RACE_HALF_ORC},
+#endif
+#ifdef JP
+{ "幸運なフットソア",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
+#else
 		{ "Footsore the Lucky",          30000,  250, 150, 10,  5, RACE_BEASTMAN},
+#endif
+#ifdef JP
+{ "光指のシドリア",           30000,  250, 150, 10,  5, RACE_HUMAN},
+#else
 		{ "Sidria Lighfingered",           30000,  250, 150, 10,  5, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "手品師リアソー",                 20000,  250, 150, 10,  5, RACE_HOBBIT},
+#else
 		{ "Riatho the Juggler",                 20000,  250, 150, 10,  5, RACE_HOBBIT},
+#endif
+#ifdef JP
+{ "やりくり上手のジャナッカ",          20000,  250, 150, 10,  5, RACE_GNOME},
+#else
 		{ "Janaaka the Shifty",          20000,  250, 150, 10,  5, RACE_GNOME},
+#endif
+#ifdef JP
+{ "悪党シーナ",          30000,  250, 150, 10,  5, RACE_GNOME},
+#else
 		{ "Cina the Rogue",          30000,  250, 150, 10,  5, RACE_GNOME},
+#endif
+#ifdef JP
+{ "大爪アルニッキ",           30000,  250, 150, 10,  5, RACE_DRACONIAN},
+#else
 		{ "Arunikki Greatclaw",           30000,  250, 150, 10,  5, RACE_DRACONIAN},
+#endif
+#ifdef JP
+{ "貧乏チャエアンド",                 20000,  250, 150, 10,  5, RACE_HUMAN},
+#else
 		{ "Chaeand the Poor",                 20000,  250, 150, 10,  5, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "山賊アファードーフ",          20000,  250, 150, 10,  5, RACE_BARBARIAN},
+#else
 		{ "Afardorf the Brigand",          20000,  250, 150, 10,  5, RACE_BARBARIAN},
+#endif
+#ifdef JP
+{ "強欲ラザクスル",          30000,  250, 150, 10,  5, RACE_MIND_FLAYER},
+#else
 		{ "Lathaxl the Greedy",          30000,  250, 150, 10,  5, RACE_MIND_FLAYER},
+#endif
+#ifdef JP
+{ "ファラレウィン",           30000,  250, 150, 10,  5, RACE_SPRITE},
+#else
 		{ "Falarewyn",           30000,  250, 150, 10,  5, RACE_SPRITE},
+#endif
+#ifdef JP
+{ "しわしわヴォスール",                 20000,  250, 150, 10,  5, RACE_NIBELUNG},
+#else
 		{ "Vosur the Wrinkled",                 20000,  250, 150, 10,  5, RACE_NIBELUNG},
+#endif
+#ifdef JP
+{ "ハンサムなアラオード",          20000,  250, 150, 10,  5, RACE_AMBERITE},
+#else
 		{ "Araord the Handsome",          20000,  250, 150, 10,  5, RACE_AMBERITE},
+#endif
+#ifdef JP
+{ "負け犬セラドフリド",          30000,  250, 150, 10,  5, RACE_HUMAN},
+#else
 		{ "Theradfrid the Loser",          30000,  250, 150, 10,  5, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "片足のエルーロ",           30000,  250, 150, 10,  5, RACE_HALF_OGRE},
+#else
 		{ "One-Legged Eroolo",           30000,  250, 150, 10,  5, RACE_HALF_OGRE},
+#endif
 	},
 	{
 		/* Home */
+#ifdef JP
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+		{ "我が家",                          0,      100, 100,  0, 99, 99},
+#else
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
@@ -1430,43 +2427,238 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
 		{ "Your home",                          0,      100, 100,  0, 99, 99},
+#endif
+
 	},
 
 	{
 		/* Bookstore - 21 unique names */
+#ifdef JP
+		{ "強欲ドラフ", 10000, 175, 108, 4, 12, RACE_HUMAN},
+		{ "賢者オドナー", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
+		{ "中立のガンダー", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
+		{ "忍耐の人ロ=シャ", 30000, 140, 105, 6, 12, RACE_ELF},
+#else
 		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
 		{ "Odnar the Sage", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
 		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
 		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
+#endif
+
+#ifdef JP
+{ "ランドルフ・カーター", 15000, 175, 108, 4, 12, RACE_HUMAN},
+#else
 		{ "Randolph Carter", 15000, 175, 108, 4, 12, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "隼のサライ", 15000, 175, 108, 4, 12, RACE_HUMAN},
+#else
 		{ "Sarai the Swift", 15000, 175, 108, 4, 12, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "千里眼ボドリル", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
+#else
 		{ "Bodril the Seer", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "沈黙のヴェオロイン", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+#else
 		{ "Veloin the Quiet", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "学者のヴァンシラス", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
+#else
 		{ "Vanthylas the Learned", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
+#endif
+#ifdef JP
+{ "物書きオセイン", 15000, 175, 108, 4, 12, RACE_SKELETON},
+#else
 		{ "Ossein the Literate", 15000, 175, 108, 4, 12, RACE_SKELETON},
+#endif
+#ifdef JP
+{ "本の虫オルヴァー", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
+#else
 		{ "Olvar Bookworm", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
+#endif
+#ifdef JP
+{ "浅井墓男", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+#else
 		{ "Shallowgrave", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "デスマスク", 30000, 140, 105, 6, 12, RACE_ZOMBIE},
+#else
 		{ "Death Mask", 30000, 140, 105, 6, 12, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "学者のアスーヌ", 15000, 175, 108, 4, 12, RACE_MIND_FLAYER},
+#else
 		{ "Asuunu the Learned", 15000, 175, 108, 4, 12, RACE_MIND_FLAYER},
+#endif
+#ifdef JP
+{ "死人のプリランド", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
+#else
 		{ "Prirand the Dead", 20000, 120, 105, 6, 16, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "鉄のロナール", 25000, 120, 110, 7, 19, RACE_GOLEM},
+#else
 		{ "Ronar the Iron", 25000, 120, 110, 7, 19, RACE_GOLEM},
+#endif
+#ifdef JP
+{ "ガリル=ガミル", 30000, 140, 105, 6, 12, RACE_ELF},
+#else
 		{ "Galil-Gamir", 30000, 140, 105, 6, 12, RACE_ELF},
+#endif
+#ifdef JP
+{ "本食いローバグ", 15000, 175, 108, 4, 12, RACE_KOBOLD},
+#else
 		{ "Rorbag Book-Eater", 15000, 175, 108, 4, 12, RACE_KOBOLD},
+#endif
+#ifdef JP
+{ "キリアリキーク", 20000, 120, 105, 6, 16, RACE_KLACKON},
+#else
 		{ "Kiriarikirk", 20000, 120, 105, 6, 16, RACE_KLACKON},
+#endif
+#ifdef JP
+{ "静かなるリリン", 25000, 120, 110, 7, 19, RACE_DWARF},
+#else
 		{ "Rilin the Quiet", 25000, 120, 110, 7, 19, RACE_DWARF},
+#endif
+#ifdef JP
+{ "王者イサング", 30000, 140, 105, 6, 12, RACE_HIGH_ELF},
+#else
 		{ "Isung the Lord", 30000, 140, 105, 6, 12, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "強欲ドラフ", 10000, 175, 108, 4, 12, RACE_HUMAN},
+#else
 		{ "Dolaf the Greedy", 10000, 175, 108, 4, 12, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "賢者オドナー", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
+#else
 		{ "Odnar the Sage", 15000, 120, 105, 6, 16, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "中立のガンダー", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
+#else
 		{ "Gandar the Neutral", 25000, 120, 110, 7, 19, RACE_DARK_ELF},
+#endif
+#ifdef JP
+{ "忍耐の人ロ=シャ", 30000, 140, 105, 6, 12, RACE_ELF},
+#else
 		{ "Ro-sha the Patient", 30000, 140, 105, 6, 12, RACE_ELF},
+#endif
+#ifdef JP
+{ "ランドルフ・カーター", 15000, 175, 108, 4, 12, RACE_HUMAN},
+#else
 		{ "Randolph Carter", 15000, 175, 108, 4, 12, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "隼サライ", 15000, 175, 108, 4, 12, RACE_HUMAN},
+#else
 		{ "Sarai the Swift", 15000, 175, 108, 4, 12, RACE_HUMAN},
+#endif
+#ifdef JP
+{ "千里眼ボドリル", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
+#else
 		{ "Bodril the Seer", 20000, 120, 105, 6, 16, RACE_HIGH_ELF},
+#endif
+#ifdef JP
+{ "沈黙のヴェオロイン", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+#else
 		{ "Veloin the Quiet", 25000, 120, 110, 7, 19, RACE_ZOMBIE},
+#endif
+#ifdef JP
+{ "学者のヴァンシラス", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
+#else
 		{ "Vanthylas the Learned", 30000, 140, 105, 6, 12, RACE_MIND_FLAYER},
+#endif
+#ifdef JP
+{ "物書きオセイン", 15000, 175, 108, 4, 12, RACE_SKELETON},
+#else
 		{ "Ossein the Literate", 15000, 175, 108, 4, 12, RACE_SKELETON},
+#endif
+#ifdef JP
+{ "本の虫オルヴァー", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
+#else
 		{ "Olvar Bookworm", 20000, 120, 105, 6, 16, RACE_VAMPIRE},
-	}
+#endif
+	},
+
+	{
+		/* Museum */
+#ifdef JP
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+		{ "博物館",                          0,      100, 100,  0, 99, 99},
+#else
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+		{ "Museum",                          0,      100, 100,  0, 99, 99},
+#endif
+
+	},
+
 };
 
 
@@ -1535,7 +2727,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	140,
 	200,
 	280,
-	380,
+	380,/*10*/
 	500,
 	650,
 	850,
@@ -1545,7 +2737,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	2300,
 	2900,
 	3600,
-	4400,
+	4400,/*20*/
 	5400,
 	6800,
 	8400,
@@ -1555,7 +2747,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	25000,
 	35000L,
 	50000L,
-	75000L,
+	75000L,/*30*/
 	100000L,
 	150000L,
 	200000L,
@@ -1565,7 +2757,7 @@ s32b player_exp[PY_MAX_LEVEL] =
 	550000L,
 	700000L,
 	850000L,
-	1000000L,
+	1000000L,/*40*/
 	1250000L,
 	1500000L,
 	1800000L,
@@ -1575,7 +2767,62 @@ s32b player_exp[PY_MAX_LEVEL] =
 	3000000L,
 	3500000L,
 	4000000L,
-	4500000L,
+	4500000L,/*50*/
+	5000000L
+};
+
+
+s32b player_exp_a[PY_MAX_LEVEL] =
+{
+	20,
+	50,
+	100,
+	170,
+	280,
+	430,
+	650,
+	950,
+	1400,/*10*/
+	1850,
+	2300,
+	2900,
+	3600,
+	4400,
+	5400,
+	6800,
+	8400,
+	10400,
+	12500,/*20*/
+	17500,
+	25000,
+	35000,
+	50000L,
+	75000L,
+	100000L,
+	150000L,
+	200000L,
+	275000L,
+	350000L,/*30*/
+	450000L,
+	550000L,
+	650000L,
+	800000L,
+	950000L,
+	1100000L,
+	1250000L,
+	1400000L,
+	1550000L,
+	1700000L,/*40*/
+	1900000L,
+	2100000L,
+	2300000L,
+	2550000L,
+	2800000L,
+	3050000L,
+	3300000L,
+	3700000L,
+	4100000L,
+	4500000L,/*50*/
 	5000000L
 };
 
@@ -1589,10 +2836,18 @@ s32b player_exp[PY_MAX_LEVEL] =
 player_sex sex_info[MAX_SEXES] =
 {
 	{
+#ifdef JP
+                "女性",
+                "クイーン",
+#endif
 		"Female",
 		"Queen"
 	},
 	{
+#ifdef JP
+                "男性",
+                "キング",
+#endif
 		"Male",
 		"King"
 	}
@@ -1615,7 +2870,11 @@ player_sex sex_info[MAX_SEXES] =
 player_race race_info[MAX_RACES] =
 {
 	{
+#ifdef JP
+		"人間",
+#endif
 		"Human",
+
 		{  0,  0,  0,  0,  0,  0 },
 		0,  0,  0,  0,  0,  10,  0,  0,
 		10,  100,
@@ -1623,328 +2882,549 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-                0x7FF,
+                0x7FFFFFF,
 	},
 	{
+#ifdef JP
+	        "ハーフエルフ",
+#endif
 		"Half-Elf",
+
 		{ -1,  1,  1,  1, -1,  1 },
-		2,  3,  3,  1, 6,  11, -1,  5,
+		2,  3,  2,  1, 6,  11, -1,  5,
 		9,  110,
 		24, 16,
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-                0x7FF,
+                0x677E7FF,
 	},
 	{
+#ifdef JP
+	        "エルフ",
+#endif
 		"Elf",
-		{ -1,  2,  2,  1, -2,  2 },
-		5,  6,  6,  2, 8,  12, -5, 15,
+
+		{ -1,  2,  0,  1, -2,  2 },
+		5,  6,  4,  2, 8,  12, -5, 15,
 		8,  120,
 		75, 75,
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-                0x75F,
+                0x677E75B,
 
 	},
 	{
+#ifdef JP
+		"ホビット",
+#endif
 		"Hobbit",
-		{ -2,  2,  1,  3,  2,  1 },
-		15, 18, 18, 5, 12,  15, -10, 20,
+
+		{ -2,  1,  1,  3,  2,  1 },
+		15, 12, 10, 5, 12,  15, -10, 20,
 		7,  110,
 		21, 12,
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-                0x40B,
+                0x76FFC0B,
 	},
 	{
+#ifdef JP
+		"ノーム",
+#endif
 		"Gnome",
-		{ -1,  2,  0,  2,  1, -2 },
-		10, 12, 12,  3, 6,  13, -8, 12,
-		8,  135,
+
+		{ -1,  2,  0,  2,  1, -1 },
+		10, 8, 7,  3, 6,  13, -8, 12,
+		8,  120,
 		50, 40,
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-                0x60F,
+                0x767D60F,
 	},
 	{
+#ifdef JP
+		"ドワーフ",
+#endif
 		"Dwarf",
-		{  2, -2,  2, -2,  2, -3 },
-		2,  9,  10,  -1,  7,  10, 15,  0,
+
+		{  2, -2,  2, -2,  2, -1 },
+		2,  7,  6,  -1,  7,  10, 15,  0,
 		11,  125,
 		35, 15,
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0x005,
+                0x1890005,
 	},
 	{
+#ifdef JP
+		"ハーフオーク",
+#endif
 		"Half-Orc",
-		{  2, -1,  0,  0,  1, -4 },
-		-3, -3, -3,  -1,  0, 7, 12, -5,
+
+		{  2, -1,  0,  0,  1, -2 },
+		-3, -3, -2,  -1,  0, 7, 12, -5,
 		10,  110,
 		11,  4,
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0x18D,
+                0x5D8818D,
 	},
 	{
+#ifdef JP
+		"ハーフトロル",
+#endif
 		"Half-Troll",
-		{ 4, -4, -2, -4,  3, -6 },
-		-5, -8, -8, -2,  -1, 5, 20, -10,
-		12,  137,
+
+		{ 4, -4, -1, -3,  3, -3 },
+		-5, -8, -5, -2,  -1, 5, 20, -10,
+		12,  125,
 		20, 10,
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0x005,
+                0x0880005,
 	},
 	{
+#ifdef JP
+                "アンバライト",
+#endif
 		"Amberite",
+
 		{  1,  2,  2,  2,  3,  2 },
-		4,  5,  5,  2, 3, 13, 15, 10,
+		4,  5,  3,  2, 3, 13, 15, 10,
 		10,  225,
 		50, 50,
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-                0x7FF,
+                0x7FFF7FF,
 	},
 	{
+#ifdef JP
+                "ハイエルフ",
+#endif
 		"High-Elf",
-		{  1,  3,  2,  3,  1,  5 },
-		4,  20, 20,  4,  3, 14, 10, 25,
+
+		{  1,  3,  -1,  3,  1,  3 },
+		4,  13, 12,  4,  3, 14, 10, 25,
 		10,  200,
 		100, 30,
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x75F,
+		0x777E75B,
 	},
 	{
+#ifdef JP
+		"野蛮人",
+#endif
 		"Barbarian",
-		{ 3, -2,  -1,  1,  2, -2 },
+
+		{ 3, -2,  -1,  1,  2, 0 },
 		-2, -10, 2,  -1,  1, 7, 12, 10,
 		11, 120,
 		14, 8,
 		82, 5, 200, 20,
 		78,  6, 190, 15,
 		0,
-		0x09D,
+		0x5C0A09D,
 	},
 	{
+#ifdef JP
+		"ハーフオーガ",
+#endif
 		"Half-Ogre",
-		{ 3, -1, -1, -1, 3, -3 },
-		-3, -5, -5, -2, -1, 5, 20, 0,
-		12,  130,
+
+		{ 3, -2, 0, -1, 3, -2 },
+		-3, -5, -3, -2, -1, 5, 20, 0,
+		12,  145,
 		40, 10,
 		92, 10, 255, 60,
 		80,  8, 235, 60,
 		3,
-		0x407,
+		0x0A80407,
 	},
 	{
+#ifdef JP
+		"半巨人",
+#endif
 		"Half-Giant",
-		{ 4, -2, -2, -2, 3, -3 },
-		-6, -8, -6, -2, -1, 5, 25, 5,
-		13, 150,
+
+		{ 4, -2, -2, -2, 3, -2 },
+		-6, -8, -3, -2, -1, 5, 25, 5,
+		13, 160,
 		40, 10,
 		100,10, 255, 65,
 		80, 10, 240, 64,
 		3,
-		0x011,
+		0x0880011,
 	},
 	{
+#ifdef JP
+		"半タイタン",
+#endif
 		"Half-Titan",
-		{ 5, 1, 1, -2, 3, 1 },
-		-5, 5, 2, -2, 1, 8, 25, 0,
+
+		{ 5, 1, 2, -2, 3, 1 },
+		-5, 5, 1, -2, 1, 8, 25, 0,
 		14, 255,
 		100,30,
 		111, 11, 255, 86,
 		99, 11, 250, 86,
 		0,
-		0x727,
+		0x23D4727,
 	},
 	{
+#ifdef JP
+		"サイクロプス",
+#endif
 		"Cyclops",
-		{ 4, -3, -3, -3, 4, -6 },
-		-4, -5, -5, -2, -2, 5, 20, 12,
-		13, 130,
+
+		{ 4, -3, -2, -3, 4, -3 },
+		-4, -5, -3, -2, -2, 5, 20, 12,
+		13, 150,
 		50, 24,
 		92, 10, 255, 60,
 		80,  8, 235, 60,
 		1,
-		0x005,
+		0x0888005,
 	},
 	{
+#ifdef JP
+		"イーク",
+#endif
 		"Yeek",
-		{ -2, 1, 1, 1, -2, -7 },
-		2, 4, 10, 3, 5, 15, -5, -5,
+
+		{ -2, 1, 1, 1, -2, -4 },
+		2, 4, 6, 3, 5, 15, -5, -5,
 		7, 100,
 		14, 3,
 		50,  3, 90,  6,
 		50,  3, 75,  3,
 		2,
-		0x60F,
+		0x667360F,
 	},
 	{
+#ifdef JP
+		"クラッコン",
+#endif
 		"Klackon",
-		{ 2, -1, -1, 1, 2, -2 },
-		10, 5, 5, 0, -1, 10, 5, 5,
-		12, 135,
+
+		{ 2, -1, -1, 1, 2, -1 },
+		10, 5, 3, 0, -1, 10, 5, 5,
+		12, 190,
 		20, 3,
 		60,  3, 80,  4,
 		54,  3, 70,  4,
 		2,
-		0x011,
+		0x04D8011,
 	},
 	{
+#ifdef JP
+		"コボルド",
+#endif
 		"Kobold",
-		{ 1, -1, 0, 1, 0, -4 },
-		-2, -3, -2, -1, 1, 8, 10, -8,
+
+		{ 1, -1, 0, 1, 0, -2 },
+		-2, -3, -1, -1, 1, 8, 10, -8,
 		9, 125,
 		11,  3,
 		60,  1, 130,  5,
 		55,  1, 100,  5,
 		3,
-		0x009,
+		0x444A009,
 	},
 	{
+#ifdef JP
+		"ニーベルング",
+#endif
 		"Nibelung",
-		{ 1, -1, 2, 0, 2, -4 },
-		3, 5, 10, 1, 5, 10, 9, 0,
-		11, 135,
+
+		{ 1, -1, 2, 0, 2, -2 },
+		3, 5, 6, 1, 5, 10, 9, 0,
+		11, 170,
 		40, 12,
 		43,  3, 92,  6,
 		40,  3, 78,  3,
 		5,
-		0x40F,
+		0x569040F,
 	},
 	{
+#ifdef JP
+		"ダークエルフ",
+#endif
 		"Dark-Elf",
+
 		{ -1, 3, 2, 2, -2, 1 },
-		5, 15, 20, 3, 8, 12, -5, 10,
+		5, 10, 12, 3, 8, 12, -5, 10,
 		9, 150,
 		75, 75,
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		5,
-		0x7DF,
+		0x677C7DF,
 	},
 	{
+#ifdef JP
+		"ドラコニアン",
+#endif
 		"Draconian",
-		{ 2, 1, 1, 1, 2, -3 },
-		-2, 5, 3, 0, 1, 10, 5, 5,
-		11, 250,
+
+		{ 2, 1, 1, 1, 2, -1 },
+		-2, 5, 2, 0, 1, 10, 5, 5,
+		11, 220,
 		75, 33,
 		76,  1, 160,  5,
 		72,  1, 130,  5,
 		2,
-		0x757,
+		0x7FFE757,
 	},
 	{
+#ifdef JP
+		"マインドフレア",
+#endif
 		"Mindflayer",
-		{ -3, 4, 4, 0, -2, -5 },
-		10, 25, 15, 2, 5, 12, -10, -5,
+
+		{ -3, 4, 4, 0, -2, -3 },
+		10, 15, 9, 2, 5, 12, -10, -5,
 		9, 140,
 		100, 25,
 		68,  6, 142, 15,
 		63,  6, 112, 10,
 		4,
-		0x746,
+		0x2334746,
 	},
 	{
+#ifdef JP
+		"インプ",
+#endif
 		"Imp",
-		{ -1, -1, -1, 1, 2, -3 },
+
+		{ 0, -1, -1, 1, 2, -1 },
 		-3, 2, -1, 1, -1, 10, 5, -5,
-		10, 110,
+		10, 115,
 		13,  4,
 		68,  1, 150,  5,
 		64,  1, 120,  5,
 		3,
-		0x7CB,
+		0x6B537CB,
 	},
 	{
+#ifdef JP
+		"ゴーレム",
+#endif
 		"Golem",
-		{ 4, -5, -5, -2, 4, -4 },
-		-5, -5, 10, -1, -1, 8, 20, 0,
+
+		{ 4, -5, -5, -2, 4, -2 },
+		-5, -5, 6, -1, -1, 8, 20, 0,
 		12, 200,
 		1, 100,
 		66,  1, 200,  6,
 		62,  1, 180,  6,
 		4,
-		0x001,
+		0x0800001,
 	},
 	{
+#ifdef JP
+		"骸骨",
+#endif
 		"Skeleton",
-		{ 0, -2, -2, 0, 1, -4 },
-		-5, -5, 5, -1, -1, 8, 10, 0,
+
+		{ 0, 1, -2, 0, 1, -2 },
+		-5, 0, 3, -1, -1, 8, 10, 0,
 		10, 145,
 		100, 35,
 		72,  6, 50, 5,
 		66,  4, 50, 5,
 		2,
-		0x70F,
+		0x234070F,
 	},
 	{
+#ifdef JP
+		"ゾンビ",
+#endif
 		"Zombie",
-		{ 2, -6, -6, 1, 4, -5 },
-		-5, -5, 8, -1, -1, 5, 15, 0,
-		13, 135,
+
+		{ 2, -6, -6, 1, 4, -3 },
+		-5, -5, 5, -1, -1, 5, 15, 0,
+		13, 150,
 		100, 30,
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		2,
-		0x001,
+		0x0800001,
 	},
 	{
+#ifdef JP
+		"吸血鬼",
+#endif
 		"Vampire",
+
 		{ 3, 3, -1, -1, 1, 2 },
-		4, 10, 10, 4, 1, 8, 5, 0,
+		4, 8, 6, 4, 1, 8, 5, 0,
 		11, 200,
 		100, 30,
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		5,
-		0x7FF,
+		0x67DC7FF,
 	},
 	{
+#ifdef JP
+		"幽霊",
+#endif
 		"Spectre",
-		{ -5, 4, 4, 2, -3, -6 },
-		10, 25, 20, 5, 5, 14, -15, -5,
+
+		{ -5, 4, -1, 2, 0, -3 },
+		10, 15, 12, 5, 5, 14, -15, -5,
 		7, 180,
 		100, 30,
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-		0x74E,    /* Mage, Priest, Rogue, Warrior-Mage, Monk */
+		0x631474A,
 	},
 	{
+#ifdef JP
+		"妖精",
+#endif
 		"Sprite",
+
 		{ -4, 3, 3, 3, -2, 2 },
-		10, 10, 10, 4, 10, 10, -12, 0,
-		7, 175,
+		10, 8, 6, 4, 10, 10, -12, 0,
+		7, 145,
 		50, 25,
 		32,  2, 75,  2,
 		29,  2, 65,  2,
 		4,
-		0x65E,
+		0x623F65E,
 	},
 	{
+#ifdef JP
+		"獣人",  
+#endif
 		"Beastman",
-		{ 2, -2, -1, -1, 2, -4 },
+
+		{ 2, -2, -1, -1, 2, -2 },
 		-5, -2, -1, -1, -1, 5, 12, 5,
 		11, 140,
 		14, 6,
 		65,  6, 150, 20,
 		61,  6, 120, 15,
 		0,
-		0x7CF,
-	}
+		0x57887CF,
+	},
+	{
+#ifdef JP
+		"エント",
+#endif
+		"Ent",
+		{ 2,  0,  2, -3,  2,  0 },
+		 -5,  2,  5,  -1, 0, 9,  15, -5,
+		 12, 140,
+		120,  60,
+		111, 11, 255, 50,
+		99, 11, 250, 45,
+		  0,
+                0x0010005,
+	},
+	{
+#ifdef JP
+                "アルコン",
+#endif
+		"Archon",
+
+		{  2,  0,  4,  1,  2,  3 },
+		0,  12,  8,  2, 2, 11, 10, 10,
+		11,  235,
+		150, 150,
+		82, 5, 190, 20,
+		78,  6, 180, 15,
+		3,
+                0x779F777,
+	},
+	{
+#ifdef JP
+                "バルログ",
+		"Balrog",
+#else
+		"Balrog",
+#endif
+
+		{  4,  2,  -10,  2,  3,  -5 },
+		-3,  12, 15,  -2,  1, 8, 20, 0,
+		12,  250,
+		255, 255,
+		100,10, 255, 65,
+		80, 10, 240, 64,
+		5,
+                0x7EDC4DB,
+	},
+	{
+#ifdef JP
+                "ドゥナダン",
+#endif
+		"Dunadan",
+
+		{  1,  2,  2,  2,  3,  2 },
+		4,  5,  3,  2, 3, 13, 15, 10,
+		10,  180,
+		50, 20,
+		82, 5, 190, 20,
+		78,  6, 180, 15,
+		0,
+                0x7FFF7FF,
+	},
+	{
+#ifdef JP
+		"影フェアリー",
+#endif
+		"Shadow-Fairy",
+		{-2,  2,  2,  1, -1,  0 },
+		  7,  8,  0,  6, 12, 15, -10, -5,
+		  7, 120,
+		200, 100,
+		 80,  8, 90, 20,
+		 73,  8, 80, 15,
+		  4,
+		0x633C7DF,
+	},
+	{
+#ifdef JP
+		"クター",
+#endif
+		"Kutar",
+
+		{  0,  -1,  -1,  1,  2,  3 },
+		-2,  5,  5,  5,  -2,  6,  0,  -5,
+		11,  140,
+		14,  6,
+		48,  6, 150, 25,
+		44,  4, 130, 20,
+		0,
+                0x418B7AD,
+	},
+	{
+#ifdef JP
+		"アンドロイド",
+#endif
+		"Android",
+
+		{ 4, -5, -5, 0, 4, -2 },
+		0, -5, 0, -2, 3, 14, 20, 10,
+		13, 200,
+		1, 100,
+		72, 12, 240, 64,
+		66, 12, 220, 64,
+		0,
+		0x0800001,
+	},
 };
 
 
@@ -1960,95 +3440,511 @@ player_race race_info[MAX_RACES] =
 player_class class_info[MAX_CLASS] =
 {
 	{
+#ifdef JP
+		"戦士",
+#endif
 		"Warrior",
-		{ 5, -2, -2, 2, 2, -1},
-		25, 18, 18, 1,  14, 2, 70, 55,
-		12, 7,  10, 0,  0,  0,  45, 45,
-		9,  0, 20
+
+		{ 4, -2, -2, 2, 2, -1},
+		25, 18, 31, 1,  14, 2, 70, 55,
+		12, 7,  10, 0,  0,  0,  30, 30,
+		9,  0, 40
 	},
 
 	{
+#ifdef JP
+		"メイジ",
+#endif
 		"Mage",
-		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-		0, 30, 15
+
+		{-4, 3, 0, 1, -2, 1},
+		30, 40, 38, 3,  16, 20, 34, 20,
+		7,  15, 11,  0,  0,  0,  6, 7,
+		0, 30, 30
 	},
 
 	{
+#ifdef JP
+		"プリースト",
+#endif
 		"Priest",
+
 		{-1, -3, 3, -1, 0, 2},
-		25, 30, 32, 2,  16, 8, 48, 35,
-		7,  10, 12, 0,  0,  0, 20, 20,
-		2, 20, 20
+		25, 35, 40, 2,  16, 8, 48, 35,
+		7,  11, 12, 0,  0,  0, 13, 11,
+		2, 20, 35
 	},
 
 	{
+#ifdef JP
+		"盗賊",
+#endif
 		"Rogue",
+
 		{ 2, 1, -2, 3, 1, -1},
-		45, 32, 28, 5, 32, 24, 60, 66,
-		15, 10, 10, 0,  0,  0, 40, 30,
-		6, 25, 20
+		45, 37, 36, 5, 32, 24, 60, 66,
+		15, 12, 10, 0,  0,  0, 21, 18,
+		6, 25, 40
 	},
 
 	{
+#ifdef JP
+		"レンジャー",
+#endif
 		"Ranger",
+
 		{ 2, 2, 0, 1, 1, 1},
-		30, 32, 28, 3,  24, 16, 56, 72,
-		8,  10, 10, 0,  0,  0,  30, 45,
-		4, 30, 20
+		30, 37, 36, 3,  24, 16, 56, 72,
+		8,  11, 10, 0,  0,  0,  18, 28,
+		4, 40, 35
 	},
 
 	{
+#ifdef JP
+		"パラディン",
+#endif
 		"Paladin",
+
 		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 26, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  35, 30,
-		6, 35, 20
+		20, 24, 34, 1,  12, 2, 68, 40,
+		7,  10, 11, 0,  0,  0,  21, 18,
+		6, 35, 40
 	},
 
 	{
+#ifdef JP
+		"魔法戦士",
+#endif
 		"Warrior-Mage",
+
 		{ 2, 2, 0, 1, 0, 1},
-		30, 30, 28, 2,  18, 16, 50, 25,
-		7,  10,  9, 0,  0,  0,  20, 20,
-		4, 50, 20
+		30, 35, 36, 2,  18, 16, 50, 25,
+		7,  10, 10, 0,  0,  0,  15, 11,
+		4, 40, 35
 	},
 
 	{
+#ifdef JP
+		"混沌の戦士",
+#endif
 		"Chaos-Warrior",
-		{ 2, 1, 0, 1, 2, -2},
-		20, 25, 25, 1,  14, 12, 65, 40,
-		7,  11, 10, 0,  0,  0,  34, 29,
-		6, 35, 20
+
+		{ 2, 1, -1, 0, 2, -2},
+		20, 25, 34, 1,  14, 12, 65, 40,
+		7,  11, 10, 0,  0,  0,  20, 17,
+		6, 25, 40
 	},
 
 	{
+#ifdef JP
+		"修行僧",
+#endif
 		"Monk",
+
 		{ 2, -1, 1, 3, 2, 1},
-		45, 32, 28, 5, 32, 24, 64, 60,
-		15, 11, 10, 0,  0,  0, 40, 30,
-		6, 40, 20
+		45, 34, 36, 5, 32, 24, 64, 60,
+		15, 11, 10, 0,  0,  0, 18, 18,
+		6, 30, 35
 	},
 
 	{
+#ifdef JP
+		"超能力者",
+#endif
 		"Mindcrafter",
+
 		{-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
-		30, 30, 30, 3,  22, 16, 50, 40,
-		10, 10, 10, 0,   0,  0, 20, 30,
-		2, 25, 20
+		30, 33, 38, 3,  22, 16, 50, 40,
+		10, 11, 10, 0,   0,  0, 14, 18,
+		2, 25, 35
 	},
 
 	{
+#ifdef JP
+		"ハイ=メイジ",
+#endif
 		"High-Mage",
-		{-5, 4, 0, 0, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-		0, 30, 12
+
+		{-4, 4, 0, 0, -2, 1},
+		30, 40, 38, 3,  16, 20, 34, 20,
+		7,  15, 11,  0,  0,  0,  6, 7,
+		0, 30, 25
+	},
+
+	{
+#ifdef JP
+		"観光客",
+#endif
+		"Tourist",
+		{ -1, -1, -1, -1, -1, -1},
+		15, 18, 28, 1, 12, 2, 40, 20,
+		5, 7, 9, 0,  0,  0,  11, 11,
+		0, -30, 40
+	},
+
+	{
+#ifdef JP
+		"ものまね師",
+#endif
+		"Imitator",
+		{ 0, 1, -1, 2, 0, 1},
+		25, 30, 36, 2,  18, 16, 60, 50,
+		7,  10,  10, 0,  0,  0,  18, 20,
+		5, 10, 20
+	},
+
+	{
+#ifdef JP
+		"魔獣使い",
+#endif
+		"BeastMaster",
+		{ 1, -1, -1, 1, 0, 2},
+		20, 25, 32, 2,  18, 16, 52, 63,
+		7,  10, 10, 0,  0,  0,  14, 25,
+		3, 20, 10
+	},
+
+	{
+#ifdef JP
+		"スペルマスター",
+#endif
+		"Sorcerer",
+
+		{-5, 6, -2, 2, 0, -2},
+		30, 48, 75, 2,  12, 22,  0, 0,
+		 7, 18, 13, 0,  0,  0,  0, 0,
+		4, 60, 25
+	},
+
+	{
+#ifdef JP
+		"アーチャー",
+#endif
+		"Archer",
+
+		{ 2, -1, -1, 2, 1, 0},
+		38, 24, 35, 4,  24, 16, 56, 82,
+		12, 10, 10, 0,  0,  0,  18, 36,
+		6, 10, 40
+	},
+
+	{
+#ifdef JP
+		"魔道具術師",
+#endif
+		"Magic-Eater",
+
+		{-1, 2, 1, 2, -2, 1},
+		25, 42, 36, 2,  20, 16, 48, 35,
+		7,  16, 10,  0,  0,  0, 13, 11,
+		3, 30, 30
+	},
+
+	{
+#ifdef JP
+		"吟遊詩人",
+#endif
+                "Bard",              /* Note : spell stat is Charisma */
+                {-2, 1, 2, -1, -2, 4},
+                20, 33, 34, -5, 16, 20, 34, 20,
+                8,  13, 11, 0,  0,  0,  10, 8,
+                2, 40, 25
+	},
+
+	{
+#ifdef JP
+		"赤魔道師",
+#endif
+		"Red-Mage",
+
+		{ 2, 2, -1, 1, 0, -1},
+		20, 34, 34, 1,  16, 10, 56, 25,
+		7,  11, 11, 0,  0,  0,  18, 11,
+		4, 40, 40
+	},
+
+	{
+#ifdef JP
+		"剣術家",
+#endif
+		"Samurai",
+
+		{ 3, -2, 1, 2, 1, 0},
+		25, 18, 32, 2,  16, 6, 70, 40,
+		12, 7,  10, 0,  0,  0,  23, 18,
+		6,  30, 40
+	},
+
+	{
+#ifdef JP
+		"練気術師",
+#endif
+		"ForceTrainer",
+
+		{ 0, -1, 3, 2, 1, 1},
+		30, 34, 38, 4, 32, 24, 50, 40,
+		10, 11, 11, 0,  0,  0, 14, 15,
+		2, 35, 40
+	},
+
+	{
+#ifdef JP
+		"青魔道師",
+#endif
+		"Blue-Mage",
+
+		{-4, 4, -1, 1, -2, -1},
+		30, 40, 36, 3,  20, 16, 40, 25,
+		7,  16, 11,  0,  0,  0,  6, 7,
+		2, 30, 35
+	},
+
+	{
+#ifdef JP
+		"騎兵",
+#endif
+		"Cavalry",
+		{ 2, -2, -2, 2, 2, 0},
+		20, 18, 32, 1,  16, 10, 60, 66,
+		10,  7, 10, 0,  0,  0,  22, 26,
+		5, 20, 35
+	},
+
+	{
+#ifdef JP
+		"狂戦士",
+#endif
+		"Berserker",
+
+		{ 8, -20, -20, 4, 4, -5},
+		-100, -1000, -200, -100,  -100, -100, 120, -2000,
+		0, 0,  0, 0,  0,  0,  50, 0,
+		11,  60, 255
+	},
+
+	{
+#ifdef JP
+		"鍛冶師",
+#endif
+		"Weaponsmith",
+
+		{ 3, -1, -1, 1, 0, -1},
+		30, 28, 28, 1,  20, 10, 60, 45,
+		10, 10,  10, 0,  0,  0,  21, 15,
+		6,  30, 40
+	},
+	{
+#ifdef JP
+		"鏡使い",
+#endif
+		"Mirror-Master",
+
+		{ -2,  3, 1, -1, -2, 1},
+		30, 33, 40, 3, 14, 16, 34,30,
+		10, 11, 12, 0,  0,  0,  6,10,
+		2,  30, 30
+	},
+	{
+#ifdef JP
+		"忍者",
+#endif
+		"Ninja",
+
+		{ 0,  -1, -1, 3, 2, -1},
+		45, 24, 36, 8, 48, 32, 70,66,
+		15, 10, 10, 0,  0,  0, 25,18,
+		2,  20, 40
+	},
+};
+
+player_seikaku seikaku_info[MAX_SEIKAKU] =
+{
+	{
+#ifdef JP
+		"ふつう",
+#endif
+		"Ordinary",
+		{  0,  0,  0,  0,  0,  0 },
+		0,  0,  0,  0,  0,  0,  0,  0,
+		0, 1, 0
+	},
+
+	{
+#ifdef JP
+		"ちからじまん",
+#endif
+		"Mighty",
+		{  2,  -2,  -1,  0,  1,  0 },
+		-5,  -5,  -3,  -1,  -2,  -2,  10,  0,
+		1, 1, 0
+	},
+
+	{
+#ifdef JP
+		"きれもの",
+#endif
+		"Shrewd",
+		{  -2,  2,  0,  1,  -1,  -1 },
+		3,  8,  2,  0,  -2,  5,  -8,  -5,
+		-1, 1, 0
+	},
+
+	{
+#ifdef JP
+		"しあわせもの",
+#endif
+		"Pious",
+		{  0,  -1,  2,  -1,  0,  1 },
+		-5,  2,  4,  -1,  3,  -2,  -3,  -6,
+		0, 1, 0
+	},
+
+	{
+#ifdef JP
+		"すばしっこい",
+#endif
+		"Nimble",
+		{  -1,  1,  -1,  2,  -1,  -1 },
+		7,  2,  -1,  1,  5,  5,  0,  10,
+		0, 0, 0
+	},
+
+	{
+#ifdef JP
+		"いのちしらず",
+#endif
+		"Fearless",
+		{  2,  1,  1,  -1,  -1,  0 },
+		-5,  5,  -2,  0,  2,  -2,  10,  10,
+		-1, 1, 0
+	},
+
+	{
+#ifdef JP
+		"コンバット",
+#endif
+		"Combat",
+		{  1,  -1,  -2,  2,  0,  1 },
+		-2,  -3,  -3,  0,  -1,  2,  5,  5,
+		0, 0, 0
+	},
+
+	{
+#ifdef JP
+		"なまけもの",
+#endif
+		"Lazy",
+		{  -2,  -2,  -2,  -2,  -2,  -2 },
+		-5,  -5,  -3,  -1,  -4,  -2,  -8,  -8,
+		-1, 1, 0
+	},
+
+	{
+#ifdef JP
+		"セクシーギャル",
+#endif
+		"Sexy",
+		{  1,  1,  1,  1,  1,  3 },
+		10,  5,  3,  0,  4,  2,  10,  10,
+		0, 1, 1
+	},
+
+	{
+#ifdef JP
+		"ラッキーマン",
+#endif
+		"Lucky",
+		{  -2,  -2,  -2,  -2,  -2,  2 },
+		10,  7,  3,  2, 10,  8,  15,  15,
+		0, 1, 2
+	},
+
+	{
+#ifdef JP
+		"がまんづよい",
+#endif
+		"Patient",
+		{  -1,  -1,  1,  -2,  2,  0 },
+		-5,  -3,  3,  1,  0,  -3,  -6,  -6,
+		1, 0, 0
+	},
+
+	{
+#ifdef JP
+		"いかさま",
+#endif
+		"Munchkin",
+		{ 10,  10,  10,  10,  10,  10 },
+		 20, 40, 30, 10, 40, 40,  80, 80,
+		 15, 1, 0
 	},
 };
 
 
+
+player_race mimic_info[] =
+{
+	{
+#ifdef JP
+		"[標準形態]",
+#endif
+		"Default",
+
+		{  0,  0,  0,  0,  0,  0 },
+		0,  0,  0,  0,  0,  10,  0,  0,
+		10,  100,
+		0,  0,
+		0,  0, 0, 0,
+		0,  0, 0, 0,
+		0,
+                0x000000,
+	},
+	{
+#ifdef JP
+		"[悪魔]",
+#endif
+		"[Demon]",
+
+		{  5,  3,  2,  3,  4,  -6 },
+		-5,  18, 20, -2,  3,  10, 40, 20,
+		12,  0,
+		0,  0,
+		0,  0, 0, 0,
+		0,  0, 0, 0,
+		5,
+                0x000003,
+	},
+	{
+#ifdef JP
+		"[魔王]",
+#endif
+		"[Demon lord]",
+
+		{  20,  20,  20,  20,  20,  20 },
+		20,  20, 25, -2,  3,  10, 70, 40,
+		14,  0,
+		0,  0,
+		0,  0, 0, 0,
+		0,  0, 0, 0,
+		20,
+                0x000003,
+	},
+	{
+#ifdef JP
+		"[吸血鬼]",
+#endif
+		"[Vampire]",
+
+		{ 4, 4, 1, 1, 2, 3 },
+		6, 12, 8, 6, 2, 12, 30, 20,
+		11,  0,
+		0,  0,
+		0,  0, 0, 0,
+		0,  0, 0, 0,
+		5,
+                0x000005,
+	},
+};
 
 
 /*
@@ -2073,7 +3969,7 @@ player_magic magic_info[MAX_CLASS] =
 		/*** Warrior ***/
 
 		0,
-		0,
+		0x00,
 
 		A_STR,
 		0,
@@ -2342,6 +4238,82 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0}
 			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
 		},
 	},
 
@@ -2349,13 +4321,13 @@ player_magic magic_info[MAX_CLASS] =
 		/*** Mage ***/
 
 		TV_SORCERY_BOOK,
-		0,
+		0x05,
 
 		A_INT,
 		0,
 
 		1,
-		300,
+		430,
 
 		{
 			{
@@ -2390,7 +4362,7 @@ player_magic magic_info[MAX_CLASS] =
 
 				{ 9, 9, 50, 40 },
 				{ 25, 25, 50, 50 },
-				{ 35, 85, 80, 115 },
+				{ 35, 55, 80, 115 },
 				{ 42, 100, 80, 225 },
 				{ 45, 90, 80, 115 },
 				{ 48, 50, 80, 100 },
@@ -2420,22 +4392,22 @@ player_magic magic_info[MAX_CLASS] =
 				{ 33, 30, 75, 20 },
 
 				{ 3, 3, 25, 15 },
-				{ 10, 10, 70, 40 },
 				{ 10, 10, 80, 40 },
-				{ 12, 12, 80, 40 },
 				{ 14, 10, 60, 25 },
+				{ 18, 30, 70, 40 },
 				{ 20, 18, 85, 50 },
 				{ 20, 18, 60, 25 },
 				{ 25, 25, 75, 19 },
+				{ 28, 30, 80, 100 },
 
 				{ 10, 10, 40, 20 },
 				{ 25, 25, 75, 70 },
-				{ 25, 30, 95, 160 },
 				{ 30, 40, 80, 120 },
-				{ 40, 80, 95, 200 },
-				{ 40, 100, 95, 200 },
+				{ 33, 35, 60, 100 },
+				{ 40, 40, 80, 100 },
 				{ 42, 50, 90, 175 },
-				{ 45, 70, 75, 250 },
+				{ 43, 40, 55, 200 },
+				{ 45, 70, 85, 250 },
 			},
 
 			/* Mage: Nature Magic */
@@ -2457,12 +4429,12 @@ player_magic magic_info[MAX_CLASS] =
 				{ 9, 6, 30, 5 },
 				{ 19, 12, 55, 8 },
 				{ 25, 25, 90, 50 },
-				{ 40, 100, 95, 50 },
+				{ 40, 60, 90, 50 },
 
-				{ 7, 7, 20, 28 },
 				{ 9, 12, 40, 44 },
 				{ 10, 12, 75, 120 },
 				{ 15, 20, 85, 60 },
+				{ 20, 22, 80, 40 },
 				{ 30, 30, 90, 100 },
 				{ 37, 40, 90, 200 },
 				{ 38, 45, 75, 200},
@@ -2503,18 +4475,18 @@ player_magic magic_info[MAX_CLASS] =
 				{ 11, 7, 45, 9 },
 				{ 15, 15, 80, 35 },
 				{ 16, 14, 80, 35 },
-				{25, 25, 85, 100 },
+				{ 25, 25, 85, 100 },
 				{ 30, 25, 85, 150 },
-				{ 42, 50, 85, 250 },
+				{ 40, 41, 80, 150 },
 				{ 45, 90, 80, 250 },
 				{ 47, 100, 90, 250 },
 
 				{ 20, 20, 66, 8 },
 				{ 35, 32, 85, 35 },
 				{ 37, 34, 75, 40 },
-				{ 41, 42, 85, 100 },
-				{ 43, 44, 80, 150 },
-				{ 45, 48, 85, 200 },
+				{ 39, 42, 85, 100 },
+				{ 42, 50, 85, 250 },
+				{ 45, 58, 85, 200 },
 				{ 47, 75, 80, 200 },
 				{ 49, 100, 85, 250 }
 			},
@@ -2534,28 +4506,28 @@ player_magic magic_info[MAX_CLASS] =
 				{ 12, 12, 40, 5 },
 				{ 13, 12, 30, 4 },
 				{ 18, 15, 50, 10 },
-				{ 23, 20, 60, 16 },
-				{ 30, 75, 50, 30 },
-				{ 33, 35, 60, 16 },
-				{ 37, 25, 95, 25 },
-				{ 45, 50, 95, 150 },
+				{ 24, 21, 60, 30 },
+				{ 30, 75, 80, 30 },
+				{ 32, 30, 60, 16 },
+				{ 36, 35, 80, 70 },
+				{ 39, 30, 95, 25 },
 
 				{ 10, 20, 80, 180 },
 				{ 10, 15, 80, 30 },
 				{ 11, 11, 30, 15 },
 				{ 30, 25, 75, 50 },
-				{ 33, 35, 60, 125 },
-				{ 33, 90, 70, 90 },
+				{ 34, 90, 70, 90 },
+				{ 36, 35, 60, 125 },
+				{ 38, 35, 70, 40 },
 				{ 40, 40, 70, 200 },
-				{ 40, 75, 80, 100 },
 
 				{ 20, 20, 75, 50 },
 				{ 25, 66, 95 , 250 },
 				{ 30, 40, 95, 250 },
-				{ 33, 35, 70, 40 },
-				{ 37, 35, 80, 70 },
-				{ 42, 120, 95, 250 },
-				{ 45, 100, 90, 250 },
+				{ 35, 40, 80, 100 },
+				{ 42, 50, 75, 150 },
+				{ 43, 75, 80, 100 },
+				{ 45, 95, 90, 250 },
 				{ 47, 100, 90, 250 }
 			},
 
@@ -2567,33 +4539,33 @@ player_magic magic_info[MAX_CLASS] =
 				{ 5, 5, 37, 8 },
 				{ 6, 6, 40, 8 },
 				{ 7, 7, 20, 4 },
-				{ 9, 9, 30, 6 },
-				{ 14, 12, 30, 6 },
-				{ 17, 15, 30, 5 },
+				{ 11, 12, 30, 6 },
+				{ 14, 15, 30, 5 },
+				{ 18, 20, 30, 8 },
 
 				{ 20, 20, 40, 8 },
-				{ 24, 22, 30, 8 },
-				{ 28, 24, 30, 8 },
-				{ 30, 25, 35, 9 },
-				{ 33, 28, 40, 12 },
-				{ 35, 30, 35, 10 },
+				{ 23, 20, 35, 9 },
+				{ 25, 24, 30, 8 },
+				{ 30, 28, 40, 12 },
+				{ 33, 30, 35, 10 },
+				{ 35, 33, 45, 12 },
 				{ 40, 35, 40, 15 },
 				{ 42, 40, 35, 12 },
 
-				{ 15, 15, 40, 20 },
+				{ 22, 35, 70, 40 },
 				{ 24, 24, 35, 25 },
 				{ 26, 26, 35, 30 },
+				{ 30, 25, 35, 9 },
 				{ 30, 30, 35, 35 },
 				{ 35, 70, 40, 100 },
 				{ 40, 100, 45, 250 },
-				{ 42, 50, 25, 75 },
 				{ 45, 100, 45, 200 },
 
 				{ 30, 30, 30, 50 },
 				{ 35, 50, 45, 100 },
-				{ 36, 80, 40, 150 },
+				{ 36, 55, 40, 150 },
 				{ 39, 80, 40, 150 },
-				{ 42, 100, 40, 200 },
+				{ 41, 45, 70, 100 },
 				{ 47, 100, 40, 150 },
 				{ 48, 100, 40, 200 },
 				{ 49, 100, 40, 220 }
@@ -2624,20 +4596,101 @@ player_magic magic_info[MAX_CLASS] =
 				{ 15, 12, 50, 5 },
 				{ 16, 14, 33, 6 },
 				{ 18, 15, 50, 8 },
-				{ 20, 16, 60, 9 },
-				{ 23, 18, 60, 9 },
-				{ 25, 20, 70, 12 },
-				{ 25, 20, 60, 13 },
+				{ 20, 20, 60, 25 },
+				{ 22, 16, 60, 9 },
+				{ 25, 18, 60, 9 },
+				{ 28, 20, 70, 12 },
 
-				{ 28, 25, 70, 30 },
+				{ 28, 20, 60, 13 },
+				{ 31, 25, 70, 30 },
 				{ 35, 35, 80, 25 },
-				{ 38, 30, 60, 25 },
 				{ 40, 30, 70, 25 },
 				{ 41, 30, 66, 30 },
 				{ 42, 30, 80, 40 },
 				{ 45, 50, 70, 50 },
 				{ 49, 100, 80, 200 }
-			}
+			},
+
+			/* Mage: Enchantment Magic */
+
+			{
+
+				{  1,  1, 20,   4},
+				{  2,  2, 20,   4},
+				{  3,  3, 30,   3},
+				{  5,  5, 35,   5},
+				{  6,  5, 35,   5},
+				{  8,  6, 45,   6},
+				{  9,  5, 35,   5},
+				{ 10,  5, 35,   5},
+
+				{ 12, 12, 45,   4},
+				{ 15, 14, 40,   4},
+				{ 17, 15, 60,   6},
+				{ 20, 17, 75,  80},
+				{ 23, 18, 85,  50},
+				{ 26, 22, 50,   4},
+				{ 29, 30, 60,   5},
+				{ 38, 65, 95,  50},
+
+				{ 12, 12, 45,  12},
+				{ 14, 10, 75, 120},
+				{ 20, 20, 85,  60},
+				{ 24, 12, 60,  10},
+				{ 30, 55, 80,  50},
+				{ 34, 70, 80, 150},
+				{ 41, 80, 90, 200},
+				{ 45, 55, 70, 200},
+
+				{ 14, 14, 65,  50},
+				{ 30, 32, 75, 150},
+				{ 36, 45, 90, 200},
+				{ 38, 80, 95, 200},
+				{ 38,100, 95, 200},
+				{ 40,100, 90, 250},
+				{ 43,100, 70, 250},
+				{ 47, 70, 80, 250}
+			},
+
+				/* Mage: Daemon Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 2, 1, 22, 1 },
+				{ 3, 2, 25, 4 },
+				{ 4, 5, 30, 4 },
+				{ 7, 5, 45, 4 },
+				{ 10, 7, 40, 6 },
+				{ 11, 9, 35, 5 },
+				{ 13, 13, 40, 10 },
+
+				{ 15, 14, 45, 9 },
+				{ 17, 15, 60, 10 },
+				{ 20, 18, 50, 11 },
+				{ 23, 15, 50, 12 },
+				{ 25, 16, 50, 12 },
+				{ 30, 75, 80, 30 },
+				{ 32, 28, 70, 15 },
+				{ 36, 70, 85, 40 },
+
+				{ 12, 12, 45, 9 },
+				{ 15, 20, 60, 20 },
+				{ 25, 22, 65, 35 },
+				{ 34, 30, 80, 100 },
+				{ 35, 40, 80, 100 },
+				{ 37, 35, 85, 100 },
+				{ 40, 40, 85, 40 },
+				{ 46, 80, 80, 250 },
+
+				{  9,  9, 50, 8 },
+				{ 26, 25, 85, 35 },
+				{ 36, 35, 80, 200 },
+				{ 41, 50, 85, 100 },
+				{ 43,100, 90, 250 },
+				{ 45, 58, 85, 200 },
+				{ 47, 85, 80, 200 },
+				{ 49, 80, 85, 250 }
+			},
 		}
 	},
 
@@ -2645,13 +4698,13 @@ player_magic magic_info[MAX_CLASS] =
 		/*** Priest ***/
 
 		TV_LIFE_BOOK,
-		0,
+		0x04,
 
 		A_WIS,
 		1,
 
 		1,
-		350,
+		430,
 		{
 			/* Priest: Life Magic */
 			{
@@ -2684,7 +4737,7 @@ player_magic magic_info[MAX_CLASS] =
 
 				{ 5, 5, 50, 80 },
 				{ 15, 14, 50, 100 },
-				{ 30, 50, 80, 130 },
+				{ 30, 30, 80, 130 },
 				{ 35, 70, 90, 250 },
 				{ 40, 50, 80, 130 },
 				{ 40, 40, 80, 200 },
@@ -2713,22 +4766,22 @@ player_magic magic_info[MAX_CLASS] =
 				{ 36, 33, 75, 20 },
 
 				{ 7, 7, 25, 15 },
-				{ 12, 12, 70, 40 },
 				{ 14, 14, 80, 40 },
-				{ 15, 15, 80, 40 },
 				{ 18, 18, 60, 25 },
+				{ 20, 33, 70, 40 },
 				{ 20, 20, 85, 50 },
 				{ 22, 22, 60, 25 },
 				{ 27, 27, 75, 19 },
+				{ 30, 30, 80, 100 },
 
 				{ 13, 13, 40, 20 },
 				{ 24, 24, 75, 70 },
-				{ 27, 30, 95, 160 },
 				{ 33, 40, 80, 120 },
-				{ 42, 80, 95, 200 },
-				{ 42, 100, 95, 200 },
+				{ 35, 40, 65, 100 },
+				{ 42, 45, 80, 100 },
 				{ 45, 50, 90, 175 },
-				{ 48, 70, 75, 250 },
+				{ 46, 45, 60, 200 },
+				{ 48, 70, 85, 250 },
 			},
 
 			/* Priest: Nature Magic */
@@ -2749,12 +4802,12 @@ player_magic magic_info[MAX_CLASS] =
 				{ 11, 11, 30, 5 },
 				{ 20, 20, 65, 7 },
 				{ 30, 30, 55, 8 },
-				{ 42, 100, 95, 50 },
+				{ 42, 60, 90, 50 },
 
-				{ 9, 9, 20, 28 },
 				{ 11, 12, 40, 44 },
 				{ 12, 13, 75, 120 },
 				{ 18, 20, 85, 60 },
+				{ 23, 25, 80, 40 },
 				{ 35, 35, 80, 50 },
 				{ 39, 40, 90, 200 },
 				{ 40, 50, 85, 250 },
@@ -2796,16 +4849,16 @@ player_magic magic_info[MAX_CLASS] =
 				{ 20, 18, 80, 35 },
 				{ 27, 27, 70, 35 },
 				{ 35, 30, 85, 150 },
-				{ 45, 55, 95, 250 },
+				{ 44, 45, 90, 150 },
 				{ 47, 90, 90, 250 },
 				{ 49, 100, 90, 250 },
 
 				{ 25, 25, 66, 8 },
 				{ 37, 37, 85, 35 },
 				{ 39, 37, 75, 50 },
-				{ 43, 45, 85, 100 },
-				{ 45, 47, 90, 150 },
-				{ 47, 50, 95, 200 },
+				{ 41, 45, 85, 100 },
+				{ 45, 55, 95, 250 },
+				{ 47, 60, 95, 200 },
 				{ 49, 95, 80, 200 },
 				{ 50, 100, 95, 250 },
 			},
@@ -2824,28 +4877,28 @@ player_magic magic_info[MAX_CLASS] =
 				{ 14, 14, 40, 5 },
 				{ 16, 16, 30, 4 },
 				{ 21, 20, 50, 10 },
-				{ 25, 24, 60, 16 },
+				{ 26, 25, 60, 30 },
 				{ 33, 75, 90, 30 },
-				{ 35, 35, 60, 16 },
-				{ 40, 30, 95, 100 },
-				{ 50, 52, 95, 150 },
+				{ 35, 32, 60, 16 },
+				{ 41, 40, 80, 70 },
+				{ 43, 35, 95, 100 },
 
 				{ 13, 20, 80, 180 },
 				{ 13, 15, 80, 30 },
 				{ 14, 15, 30, 15 },
 				{ 33, 33, 70, 33 },
-				{ 35, 35, 60, 125 },
-				{ 35, 95, 70, 90 },
+				{ 36, 95, 70, 90 },
+				{ 38, 35, 60, 125 },
+				{ 40, 40, 70, 40 },
 				{ 44, 44, 80, 200 },
-				{ 45, 75, 80, 100 },
 
 				{ 25, 25, 75, 50 },
 				{ 30, 75, 95, 250 },
 				{ 35, 45, 95, 250 },
-				{ 40, 40, 70, 40 },
-				{ 42, 40, 80, 70 },
-				{ 48, 125, 95, 250 },
-				{ 49, 100, 90, 250 },
+				{ 37, 50, 85, 150 },
+				{ 44, 52, 75, 150 },
+				{ 47, 75, 80, 100 },
+				{ 48, 100, 90, 250 },
 				{ 50, 111, 90, 250 },
 			},
 
@@ -2856,33 +4909,33 @@ player_magic magic_info[MAX_CLASS] =
 				{ 6, 5, 37, 8 },
 				{ 7, 7, 40, 8 },
 				{ 9, 9, 20, 4 },
-				{ 11, 11, 30, 6 },
-				{ 17, 14, 30, 6 },
-				{ 19, 17, 30, 5 },
+				{ 13, 14, 30, 6 },
+				{ 17, 17, 30, 5 },
+				{ 29, 22, 30, 8 },
 
 				{ 22, 22, 40, 8 },
-				{ 26, 24, 30, 8 },
-				{ 30, 25, 30, 8 },
-				{ 32, 30, 35, 9 },
-				{ 35, 30, 40, 12 },
-				{ 38, 35, 35, 10 },
+				{ 26, 22, 35, 9 },
+				{ 28, 25, 30, 8 },
+				{ 32, 30, 40, 12 },
+				{ 35, 35, 35, 10 },
+				{ 38, 37, 30, 6 },
 				{ 42, 40, 40, 15 },
 				{ 45, 45, 35, 12 },
 
-				{ 17, 17, 40, 20 },
+				{ 24, 38, 70, 40 },
 				{ 27, 25, 35, 25 },
 				{ 29, 27, 35, 30 },
+				{ 32, 30, 35, 9 },
 				{ 33, 30, 35, 35 },
 				{ 38, 75, 40, 100 },
 				{ 41, 110, 45, 250 },
-				{ 45, 55, 25, 75 },
 				{ 49, 125, 45, 200 },
 
 				{ 32, 30, 30, 50 },
 				{ 38, 55, 45, 100 },
-				{ 40, 85, 40, 150 },
+				{ 40, 60, 40, 150 },
 				{ 43, 85, 40, 150 },
-				{ 46, 110, 40, 200 },
+				{ 43, 50, 70, 100 },
 				{ 48, 115, 40, 150 },
 				{ 49, 120, 40, 200 },
 				{ 50, 125, 40, 220 }
@@ -2912,33 +4965,113 @@ player_magic magic_info[MAX_CLASS] =
 				{ 17, 16, 50, 5 },
 				{ 18, 17, 33, 6 },
 				{ 19, 18, 50, 8 },
-				{ 22, 20, 60, 9 },
+				{ 22, 25, 60, 25 },
 				{ 24, 22, 60, 9 },
-				{ 27, 24, 70, 12 },
-				{ 29, 26, 60, 13 },
+				{ 27, 24, 60, 9 },
+				{ 29, 26, 70, 12 },
 
-				{ 33, 30, 80, 50 },
-				{ 37, 36, 80, 25 },
-				{ 40, 37, 60, 25 },
+				{ 33, 30, 60, 13 },
+				{ 37, 32, 80, 50 },
+				{ 40, 36, 80, 25 },
 				{ 42, 38, 70, 25 },
 				{ 44, 39, 66, 30 },
 				{ 46, 40, 80, 40 },
 				{ 47, 55, 70, 50 },
 				{ 50, 120, 80, 200 }
-			}
+			},
+
+			/* Priest: Enchantment Magic */
+			{
+
+				{  1,  1, 25,   4},
+				{  3,  3, 25,   4},
+				{  4,  4, 35,   3},
+				{  6,  6, 40,   5},
+				{  7,  6, 40,   5},
+				{  9,  7, 50,   6},
+				{ 10,  6, 40,   5},
+				{ 11,  6, 40,   5},
+
+				{ 13, 15, 50,   4},
+				{ 15, 13, 35,   4},
+				{ 18, 17, 65,   6},
+				{ 22, 20, 80,  80},
+				{ 23, 21, 90,  50},
+				{ 26, 24, 55,   4},
+				{ 29, 28, 65,   5},
+				{ 42, 70, 90,  50},
+
+				{ 14, 14, 50,  12},
+				{ 16, 12, 75, 120},
+				{ 22, 23, 90,  60},
+				{ 27, 17, 65,  10},
+				{ 33, 58, 80,  50},
+				{ 36, 80, 90, 150},
+				{ 43, 90, 95, 200},
+				{ 46, 60, 75, 200},
+
+				{ 15, 15, 70,  50},
+				{ 30, 28, 65, 150},
+				{ 38, 50, 90, 200},
+				{ 40, 80, 95, 200},
+				{ 40,100, 95, 200},
+				{ 42,100, 95, 250},
+				{ 45,110, 80, 250},
+				{ 48, 70, 80, 250}
+			},
+
+			/* Priest: Daemon Magic */
+			{
+				{ 2, 1, 22, 4 },
+				{ 3, 2, 24, 4 },
+				{ 4, 3, 26, 4 },
+				{ 5, 6, 30, 6 },
+				{ 10, 7, 30, 5 },
+				{ 12, 9, 50, 6 },
+				{ 14, 12, 35, 5 },
+				{ 15, 15, 50, 7 },
+
+				{ 17, 17, 50, 9 },
+				{ 20, 19, 65, 20 },
+				{ 23, 23, 60, 11 },
+				{ 25, 18, 65, 12 },
+				{ 27, 20, 65, 12 },
+				{ 33, 75, 90, 30 },
+				{ 35, 32, 70, 30 },
+				{ 39, 85, 85, 40 },
+
+
+				{ 14, 14, 45, 9 },
+				{ 18, 20, 70, 20 },
+				{ 27, 25, 75, 35 },
+				{ 36, 34, 80, 100 },
+				{ 37, 50, 85, 150 },
+				{ 39, 40, 80, 100 },
+				{ 44, 44, 75, 50 },
+				{ 47, 95, 90, 250 },
+
+				{  9,  9, 66, 8 },
+				{ 28, 28, 85, 35 },
+				{ 38, 40, 80, 200 },
+				{ 43, 58, 85, 100 },
+				{ 45, 100, 90, 250 },
+				{ 47, 60, 90, 150 },
+				{ 49, 95, 80, 200 },
+				{ 50, 80, 85, 250 },
+			},
 		}
 	},
 
 	{
 		/*** Rogue ***/
 		TV_SORCERY_BOOK,
-		0,
+		0x07,
 
 		A_INT,
 		0,
 
 		5,
-		350,
+		400,
 		{
 			{
 				{ 99, 0, 0, 0},
@@ -2999,21 +5132,21 @@ player_magic magic_info[MAX_CLASS] =
 				{ 40, 35, 75, 20 },
 
 				{ 9, 3, 65, 5 },
-				{ 13, 10, 70, 5 },
 				{ 14, 10, 80, 8 },
-				{ 15, 10, 80, 8 },
 				{ 16, 10, 60, 10 },
+				{ 22, 40, 80, 20 },
 				{ 17, 20, 80, 20 },
 				{ 18, 17, 60, 30 },
 				{ 30, 35, 75, 15 },
+				{ 35, 40, 80, 60 },
 
 				{ 15, 15, 40, 10 },
 				{ 20, 20, 70, 50 },
-				{ 35, 40, 95, 100 },
 				{ 37, 40, 80, 100 },
-				{ 43, 80, 80, 100 },
-				{ 44, 100, 80, 100 },
+				{ 44, 45, 80, 80 },
+				{ 44, 45, 70, 100 },
 				{ 45, 50, 70, 100 },
+				{ 49, 50, 70, 100 },
 				{ 99, 0, 0, 0 },
 			},
 
@@ -3107,9 +5240,9 @@ player_magic magic_info[MAX_CLASS] =
 				{ 21, 21, 60, 3 },
 				{ 23, 23, 75, 4 },
 				{ 27, 25, 75, 4 },
-				{ 30, 30, 75, 4 },
+				{ 31, 30, 85, 5 },
 				{ 35, 35, 75, 5 },
-				{ 45, 45, 60, 10 },
+				{ 40, 40, 75, 4 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
 
@@ -3117,15 +5250,15 @@ player_magic magic_info[MAX_CLASS] =
 				{ 23, 20, 40, 20 },
 				{ 28, 28, 75, 25 },
 				{ 32, 32, 80, 50 },
-				{ 46, 45, 75, 40 },
-				{ 48, 100, 90, 100 },
-				{ 50, 50, 75, 50 },
+				{ 46, 100, 90, 100 },
+				{ 48, 45, 75, 40 },
 				{ 99, 0, 0, 0 },
+				{ 50, 50, 75, 50 },
 
 				{ 30, 30, 80, 50 },
 				{ 31, 80, 80, 250 },
 				{ 32, 40, 90, 150 },
-				{ 99, 0, 0, 0 },
+				{ 41, 55, 80, 200 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
@@ -3139,33 +5272,33 @@ player_magic magic_info[MAX_CLASS] =
 				{ 9, 7, 37, 8 },
 				{ 11, 9, 40, 8 },
 				{ 13, 11, 20, 4 },
-				{ 15, 13, 30, 6 },
-				{ 19, 15, 30, 6 },
-				{ 21, 20, 30, 5 },
+				{ 15, 15, 30, 6 },
+				{ 19, 20, 30, 5 },
+				{ 22, 21, 30, 8 },
 
 				{ 25, 22, 40, 8 },
+				{ 28, 23, 35, 9 },
 				{ 30, 26, 30, 8 },
-				{ 33, 26, 30, 8 },
-				{ 35, 32, 35, 9 },
-				{ 40, 35, 40, 12 },
-				{ 42, 38, 35, 10 },
+				{ 35, 35, 40, 12 },
+				{ 39, 38, 35, 10 },
+				{ 41, 40, 45, 12 },
 				{ 46, 44, 40, 15 },
 				{ 49, 50, 35, 12 },
 
-				{ 20, 15, 40, 20 },
+				{ 26, 40, 80, 40 },
 				{ 30, 30, 35, 25 },
 				{ 33, 30, 35, 30 },
+				{ 35, 32, 35, 9 },
 				{ 38, 33, 35, 35 },
 				{ 42, 90, 40, 100 },
 				{ 45, 150, 45, 250 },
-				{ 48, 75, 25, 75 },
 				{ 99, 0, 0, 0 },
 
 				{ 35, 30, 30, 50 },
 				{ 42, 65, 45, 100 },
-				{ 44, 100, 40, 150 },
+				{ 44, 70, 40, 150 },
 				{ 46, 100, 40, 150 },
-				{ 99, 0, 0, 0 },
+				{ 46, 60, 70, 75 },
 				{ 49, 125, 40, 150 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
@@ -3195,20 +5328,98 @@ player_magic magic_info[MAX_CLASS] =
 				{ 18, 16, 50, 5 },
 				{ 19, 17, 33, 6 },
 				{ 20, 20, 50, 8 },
-				{ 23, 22, 60, 9 },
+				{ 23, 28, 60, 25 },
 				{ 25, 24, 60, 9 },
-				{ 28, 25, 70, 12 },
-				{ 30, 28, 60, 13 },
+				{ 28, 25, 60, 9 },
+				{ 30, 28, 70, 12 },
 
-				{ 35, 30, 80, 40 },
-				{ 39, 36, 80, 25 },
-				{ 42, 37, 60, 25 },
+				{ 33, 30, 60, 13 },
+				{ 37, 33, 80, 40 },
+				{ 40, 36, 80, 25 },
 				{ 44, 38, 70, 25 },
 				{ 46, 40, 66, 30 },
 				{ 47, 42, 80, 40 },
 				{ 48, 60, 70, 50 },
 				{ 50, 125, 80, 200 }
-			}
+			},
+
+			/* Rogue ( ): Enchantment Magic */
+			{
+
+				{  5,  2, 40,   2},
+				{  7,  3, 40,   2},
+				{  8,  5, 45,   1},
+				{ 11, 10, 50,   2},
+				{ 13, 10, 50,   2},
+				{ 15, 12, 55,   3},
+				{ 18, 10, 50,   2},
+				{ 20, 10, 50,   2},
+
+				{ 23, 18, 55,   2},
+				{ 27, 20, 60,   2},
+				{ 28, 24, 65,   3},
+				{ 30, 27, 75,  40},
+				{ 25, 22, 70,  25},
+				{ 35, 35, 70,   2},
+				{ 99,  0,  0,   0},
+				{ 50, 90, 85,  25},
+
+				{ 23, 23, 60,   6},
+				{ 24, 18, 80,  60},
+				{ 28, 30, 90,  30},
+				{ 32, 25, 70,   5},
+				{ 37, 65, 80,  25},
+				{ 41, 90, 90,  75},
+				{ 48,120, 95, 100},
+				{ 99,  0,  0,   0},
+
+				{ 24, 24, 75,  25},
+				{ 37, 40, 80,  75},
+				{ 42, 60, 90, 100},
+				{ 42, 80, 80, 100},
+				{ 43,100, 80, 100},
+				{ 46,120, 80, 125},
+				{ 49,150, 90, 125},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+			},
 		}
 	},
 
@@ -3216,13 +5427,13 @@ player_magic magic_info[MAX_CLASS] =
 		/*** Ranger ***/
 
 		TV_SORCERY_BOOK,
-		0,
+		0x07,
 
 		A_INT,
 		0,
 
 		3,
-		400,
+		450,
 
 		{
 			{
@@ -3284,21 +5495,21 @@ player_magic magic_info[MAX_CLASS] =
 				{ 42, 40, 90, 10 },
 
 				{ 15, 7, 75, 20 },
-				{ 15, 20, 70, 25 },
 				{ 17, 17, 70, 25 },
-				{ 18, 18, 80, 25 },
 				{ 19, 25, 65, 20 },
+				{ 22, 40, 70, 40 },
 				{ 23, 25, 60, 20 },
 				{ 27, 27, 60, 15 },
 				{ 35, 35, 75, 13 },
+				{ 38, 60, 80, 60 },
 
 				{ 20, 20, 45, 5 },
 				{ 27, 27, 70, 50 },
-				{ 37, 60, 95, 120 },
 				{ 40, 40, 95, 120 },
-				{ 45, 80, 95, 200 },
-				{ 45, 100, 95, 200 },
+				{ 45, 50, 80, 100 },
+				{ 47, 50, 80, 100 },
 				{ 50, 50, 90, 175 },
+				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
 			},
 
@@ -3320,12 +5531,12 @@ player_magic magic_info[MAX_CLASS] =
 				{ 14, 9, 55, 4 },
 				{ 18, 20, 65, 8 },
 				{ 23, 23, 65, 10 },
-				{ 40, 100, 95, 50 },
+				{ 40, 60, 90, 50 },
 
-				{ 10, 10, 50, 25 },
 				{ 12, 12, 50, 25 },
 				{ 14, 15, 70, 60 },
 				{ 20, 30, 85, 70 },
+				{ 22, 24, 80, 30 },
 				{ 35, 30, 80, 75 },
 				{ 38, 40, 90, 200 },
 				{ 40, 55, 90, 250 },
@@ -3366,7 +5577,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 28, 25, 80, 45 },
 				{ 35, 32, 70, 35 },
 				{ 38, 35, 85, 150 },
-				{ 42, 75, 95, 250 },
+				{ 50, 50, 90, 150 },
 				{ 48, 100, 90, 250 },
 				{ 99, 0, 0, 0 },
 
@@ -3374,7 +5585,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 40, 45, 85, 35 },
 				{ 42, 42, 75, 42 },
 				{ 48, 48, 85, 100 },
-				{ 50, 50, 90, 150 },
+				{ 42, 75, 95, 250 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
@@ -3394,26 +5605,26 @@ player_magic magic_info[MAX_CLASS] =
 				{ 24, 24, 55, 3 },
 				{ 26, 26, 50, 3 },
 				{ 28, 28, 75, 4 },
-				{ 30, 30, 80, 5 },
-				{ 40, 80, 95, 20 },
-				{ 45, 40, 60, 9 },
-				{ 99, 0, 0, 0 },
+				{ 34, 35, 85, 10 },
+				{ 42, 40, 80, 5 },
+				{ 50, 50, 90, 75 },
+				{ 44, 39, 76, 50 },
 				{ 99, 0, 0, 0 },
 
 				{ 25, 30, 80, 125 },
 				{ 25, 25, 80, 100 },
 				{ 27, 27, 40, 40 },
-				{ 39, 39, 76, 50 },
-				{ 45, 45, 80, 100 },
-				{ 46, 100, 90, 100 },
-				{ 99, 0, 0, 0 },
+				{ 41, 60, 80, 150 },
+				{ 45, 40, 60, 9 },
+				{ 45, 100, 90, 100 },
+				{ 47, 45, 80, 100 },
 				{ 99, 0, 0, 0 },
 
 				{ 35, 35, 75, 50 },
 				{ 38, 90, 80, 100 },
 				{ 40, 45, 95, 200 },
 				{ 48, 50, 30, 75 },
-				{ 50, 50, 90, 75 },
+				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 }
@@ -3426,33 +5637,33 @@ player_magic magic_info[MAX_CLASS] =
 				{ 9, 7, 37, 8 },
 				{ 10, 8, 40, 8 },
 				{ 13, 10, 20, 4 },
-				{ 17, 15, 30, 6 },
-				{ 20, 17, 30, 6 },
-				{ 22, 20, 30, 5 },
+				{ 17, 17, 30, 6 },
+				{ 20, 20, 30, 5 },
+				{ 23, 22, 30, 8 },
 
 				{ 24, 22, 40, 8 },
-				{ 28, 25, 30, 8 },
-				{ 33, 26, 30, 8 },
-				{ 36, 32, 35, 9 },
-				{ 38, 33, 40, 12 },
-				{ 42, 38, 35, 10 },
+				{ 27, 23, 35, 9 },
+				{ 30, 26, 30, 8 },
+				{ 35, 33, 40, 12 },
+				{ 39, 38, 35, 10 },
+				{ 42, 40, 45, 12 },
 				{ 45, 42, 40, 15 },
 				{ 99, 0, 0, 0 },
 
-				{ 20, 20, 40, 20 },
+				{ 25, 40, 70, 40 },
 				{ 28, 26, 35, 25 },
 				{ 31, 30, 35, 30 },
+				{ 36, 32, 35, 9 },
 				{ 36, 33, 35, 35 },
 				{ 41, 80, 40, 100 },
 				{ 44, 120, 45, 250 },
 				{ 99, 0, 0, 0 },
-				{ 99, 0, 0, 0 },
 
 				{ 35, 33, 30, 50 },
 				{ 40, 65, 45, 100 },
-				{ 99, 0, 0, 0 },
-				{ 47, 95, 40, 150 },
-				{ 50, 120, 40, 200 },
+				{ 44, 65, 45, 100 },
+				{ 48, 95, 40, 150 },
+				{ 46, 60, 70, 100 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
 				{ 99, 0, 0, 0 },
@@ -3482,20 +5693,97 @@ player_magic magic_info[MAX_CLASS] =
 				{ 19, 18, 50, 5 },
 				{ 20, 19, 33, 6 },
 				{ 22, 20, 50, 8 },
-				{ 25, 23, 60, 9 },
+				{ 25, 29, 60, 25 },
 				{ 27, 26, 60, 9 },
-				{ 29, 27, 70, 12 },
-				{ 33, 30, 60, 13 },
+				{ 29, 27, 60, 9 },
+				{ 33, 30, 70, 12 },
 
+				{ 35, 33, 60, 13 },
 				{ 38, 36, 80, 40 },
 				{ 42, 38, 80, 25 },
-				{ 44, 38, 60, 25 },
 				{ 46, 40, 70, 25 },
 				{ 47, 42, 66, 30 },
 				{ 48, 44, 80, 40 },
 				{ 49, 65, 70, 50 },
 				{ 99, 0, 0, 0 }
-		    }
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			/* Ranger: Daemon Magic */
+			{
+				{ 3, 1, 20, 1 },
+				{ 4, 3, 35, 2 },
+				{ 6, 4, 35, 2 },
+				{ 7, 8, 45, 2 },
+				{ 12, 8, 40, 2 },
+				{ 17, 11, 60, 3 },
+				{ 20, 15, 60, 3 },
+				{ 25, 25, 60, 5 },
+
+				{ 27, 27, 60, 8 },
+				{ 29, 26, 70, 13 },
+				{ 32, 30, 70, 10 },
+				{ 35, 31, 75, 15 },
+				{ 37, 35, 75, 15 },
+				{ 38, 80, 95, 20 },
+				{ 44, 40, 80, 15 },
+				{ 47, 100, 90, 30 },
+
+				{ 18, 18, 60, 30 },
+				{ 22, 25, 70, 20 },
+				{ 37, 38, 80, 45 },
+				{ 40, 42, 80, 150 },
+				{ 41, 60, 80, 150 },
+				{ 44, 50, 80, 35 },
+				{ 48, 48, 80, 42 },
+				{ 99, 0, 0, 0 },
+
+				{ 17, 14, 66, 8 },
+				{ 35, 35, 85, 35 },
+				{ 45, 55, 85, 200 },
+				{ 50, 70, 85, 100 },
+				{ 99, 0, 0, 0 },
+				{ 99, 0, 0, 0 },
+				{ 99, 0, 0, 0 },
+				{ 99, 0, 0, 0 },
+			},
 		}
 	},
 
@@ -3503,13 +5791,13 @@ player_magic magic_info[MAX_CLASS] =
 		/*** Paladin ***/
 
 		TV_LIFE_BOOK,
-		0,
+		0x06,
 
 		A_WIS,
 		1,
 
 		1,
-		400,
+		450,
 		{
 			/* Paladin: Life Magic */
 			{
@@ -3542,7 +5830,7 @@ player_magic magic_info[MAX_CLASS] =
 
 				{ 9, 9, 50, 40 },
 				{ 25, 20, 50, 50 },
-				{ 35, 65, 80, 115 },
+				{ 35, 45, 80, 115 },
 				{ 40, 80, 80, 225 },
 				{ 45, 80, 80, 115 },
 				{ 45, 45, 80, 100 },
@@ -3677,29 +5965,29 @@ player_magic magic_info[MAX_CLASS] =
 				{ 17, 17, 40, 5 },
 				{ 19, 19, 30, 4 },
 				{ 23, 23, 50, 10 },
-				{ 28, 26, 60, 16 },
 				{ 35, 75, 90, 30 },
-				{ 40, 35, 60, 16 },
-				{ 45, 35, 95, 100 },
-				{ 50, 52, 95, 150 },
+				{ 38, 35, 60, 16 },
+				{ 46, 45, 80, 70 },
+				{ 45, 38, 70, 50 },
+				{ 47, 35, 95, 100 },
 
 				{ 15, 20, 80, 180 },
 				{ 15, 20, 80, 30 },
 				{ 18, 20, 30, 15 },
-				{ 38, 38, 70, 50 },
-				{ 40, 40, 60, 125 },
+				{ 38, 53, 80, 150 },
+				{ 40, 35, 60, 16 },
 				{ 42, 100, 70, 100 },
+				{ 44, 40, 60, 125 },
 				{ 48, 50, 80, 200 },
-				{ 48, 75, 80, 100 },
 
 
 				{ 30, 35, 75, 50 },
 				{ 36, 85, 90, 200 },
 				{ 38, 45, 95, 250 },
 				{ 45, 45, 70, 40 },
-				{ 47, 45, 80, 70 },
-				{ 50, 150, 95, 250 },
-				{ 50, 100, 95, 250 },
+				{ 47, 52, 75, 150 },
+				{ 48, 75, 80, 100 },
+				{ 50, 115, 95, 250 },
 				{ 50, 111, 95, 250 }
 			},
 
@@ -3777,8 +6065,83 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			}
+				{ 99, 0, 0, 0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
 		}
 	},
 
@@ -3786,13 +6149,13 @@ player_magic magic_info[MAX_CLASS] =
 		/*** Warrior-Mage ***/
 
 		TV_SORCERY_BOOK,
-		0,
+		0x07,
 
 		A_INT,
 		0,
 
 		1,
-		350,
+		430,
 
 		{
 			{
@@ -3854,22 +6217,22 @@ player_magic magic_info[MAX_CLASS] =
 				{ 40, 40, 75, 20 },
 
 				{ 4, 4, 25, 15 },
-				{ 12, 12, 70, 40 },
 				{ 14, 12, 80, 40 },
-				{ 15, 12, 70, 30 },
 				{ 16, 14, 60, 25 },
+				{ 21, 35, 70, 40 },
 				{ 19, 19, 85, 50 },
 				{ 24, 22, 60, 25 },
 				{ 28, 28, 75, 19 },
+				{ 32, 35, 80, 100 },
 
 				{ 12, 12, 40, 20 },
 				{ 19, 19, 75, 70 },
-				{ 30, 35, 95, 160 },
 				{ 35, 45, 80, 120 },
-				{ 42, 85, 95, 200 },
-				{ 45, 100, 95, 200 },
+				{ 39, 40, 60, 100 },
+				{ 44, 45, 70, 100 },
 				{ 46, 55, 90, 175 },
-				{ 48, 75, 75, 250 },
+				{ 48, 50, 80, 200 },
+				{ 48, 75, 85, 250 },
 			},
 
 			/* Warrior-Mage: Nature Magic */
@@ -3890,12 +6253,12 @@ player_magic magic_info[MAX_CLASS] =
 				{ 14, 14, 30, 5 },
 				{ 19, 15, 65, 7 },
 				{ 31, 31, 65, 10 },
-				{ 45, 100, 95, 50 },
+				{ 45, 60, 85, 50 },
 
-				{ 9, 9, 20, 28 },
 				{ 12, 12, 40, 44 },
 				{ 15, 15, 75, 120 },
 				{ 20, 22, 85, 60 },
+				{ 25, 30, 85, 40 },
 				{ 38, 38, 85, 80 },
 				{ 40, 42, 90, 200 },
 				{ 45, 48, 75, 200},
@@ -3936,16 +6299,16 @@ player_magic magic_info[MAX_CLASS] =
 				{ 20, 18, 80, 35 },
 				{ 27, 25, 60, 35 },
 				{ 35, 30, 85, 150 },
-				{ 45, 55, 85, 250 },
+				{ 46, 46, 85, 100 },
 				{ 49, 95, 80, 250 },
 				{ 50, 111, 80, 250 },
 
 				{ 24, 20, 66, 8 },
 				{ 40, 35, 85, 35 },
-				{ 42, 40, 75, 40 },
-				{ 46, 44, 85, 100 },
+				{ 41, 39, 75, 40 },
+				{ 45, 55, 85, 250 },
 				{ 48, 48, 80, 150 },
-				{ 49, 50, 85, 200 },
+				{ 49, 60, 85, 200 },
 				{ 50, 100, 80, 250 },
 				{ 50, 100, 85, 250 },
 			},
@@ -3964,28 +6327,28 @@ player_magic magic_info[MAX_CLASS] =
 				{ 14, 14, 40, 5 },
 				{ 16, 16, 30, 4 },
 				{ 21, 21, 50, 10 },
-				{ 25, 25, 60, 16 },
-				{ 35, 75, 50, 30 },
-				{ 40, 40, 60, 16 },
-				{ 44, 45, 95, 25 },
-				{ 48, 55, 95, 150 },
+				{ 28, 28, 85, 30 },
+				{ 35, 75, 80, 30 },
+				{ 38, 35, 60, 16 },
+				{ 44, 55, 80, 70 },
+				{ 46, 45, 95, 25 },
 
 				{ 10, 22, 80, 180 },
 				{ 12, 18, 80, 30 },
 				{ 14, 18, 30, 15 },
 				{ 30, 30, 75, 50 },
-				{ 40, 40, 60, 125 },
 				{ 42, 90, 70, 90 },
+				{ 43, 40, 60, 125 },
+				{ 43, 50, 70, 40 },
 				{ 45, 50, 70, 200 },
-				{ 48, 85, 80, 100 },
 
 				{ 24, 24, 75, 50 },
 				{ 33, 80, 75, 150 },
 				{ 35, 45, 95, 250 },
-				{ 42, 50, 70, 40 },
-				{ 45, 55, 80, 70 },
-				{ 50, 135, 95, 250 },
-				{ 50, 100, 95, 250 },
+				{ 39, 55, 80, 200 },
+				{ 46, 55, 75, 150 },
+				{ 48, 85, 80, 100 },
+				{ 50, 110, 95, 250 },
 				{ 50, 123, 95, 250 },
 			},
 
@@ -3996,33 +6359,33 @@ player_magic magic_info[MAX_CLASS] =
 				{ 7, 7, 37, 8 },
 				{ 8, 7, 40, 8 },
 				{ 10, 10, 20, 4 },
-				{ 12, 12, 30, 6 },
-				{ 18, 15, 30, 6 },
-				{ 20, 18, 30, 5 },
+				{ 14, 15, 30, 6 },
+				{ 18, 18, 30, 5 },
+				{ 21, 23, 30, 8 },
 
 				{ 24, 23, 40, 8 },
-				{ 28, 25, 30, 8 },
-				{ 31, 26, 30, 8 },
-				{ 33, 30, 35, 9 },
-				{ 38, 32, 40, 12 },
-				{ 40, 38, 35, 10 },
+				{ 27, 24, 35, 9 },
+				{ 29, 26, 30, 8 },
+				{ 35, 32, 40, 12 },
+				{ 38, 38, 35, 10 },
+				{ 41, 40, 45, 12 },
 				{ 44, 42, 40, 15 },
 				{ 48, 46, 35, 12 },
 
-				{ 19, 18, 40, 20 },
+				{ 23, 35, 70, 40 },
 				{ 29, 27, 35, 25 },
 				{ 31, 30, 35, 30 },
+				{ 33, 30, 35, 9 },
 				{ 35, 33, 35, 35 },
 				{ 40, 80, 40, 100 },
 				{ 42, 120, 45, 250 },
-				{ 46, 55, 25, 75 },
 				{ 50, 135, 45, 200 },
 
 				{ 33, 30, 30, 50 },
 				{ 40, 60, 45, 100 },
-				{ 42, 95, 40, 150 },
+				{ 42, 65, 40, 150 },
 				{ 45, 95, 40, 150 },
-				{ 46, 120, 40, 200 },
+				{ 45, 50, 70, 100 },
 				{ 48, 125, 40, 150 },
 				{ 49, 130, 40, 200 },
 				{ 50, 135, 40, 220 }
@@ -4052,33 +6415,112 @@ player_magic magic_info[MAX_CLASS] =
 				{ 18, 17, 50, 5 },
 				{ 19, 18, 33, 6 },
 				{ 20, 20, 50, 8 },
-				{ 23, 22, 60, 9 },
+				{ 23, 30, 60, 25 },
 				{ 25, 23, 60, 9 },
-				{ 29, 25, 70, 12 },
-				{ 30, 27, 60, 13 },
+				{ 28, 25, 60, 9 },
+				{ 30, 27, 70, 12 },
 
-				{ 35, 30, 80, 50 },
+				{ 33, 30, 60, 13 },
+				{ 35, 35, 80, 50 },
 				{ 39, 38, 80, 25 },
-				{ 41, 40, 60, 25 },
 				{ 43, 42, 70, 25 },
 				{ 45, 44, 66, 30 },
 				{ 47, 45, 80, 40 },
 				{ 48, 65, 70, 50 },
 				{ 50, 140, 80, 200 }
-		    }
+			},
+
+			/* Warrior-Mage: Enchantment Magic */
+			{
+
+				{  2,  2, 25,   4},
+				{  3,  3, 25,   4},
+				{  5,  4, 35,   3},
+				{  7,  8, 40,   5},
+				{  8,  8, 40,   5},
+				{ 10, 10, 50,   6},
+				{ 12,  8, 40,   5},
+				{ 13,  8, 40,   5},
+
+				{ 15, 17, 55,   4},
+				{ 20, 20, 60,   4},
+				{ 22, 22, 65,   6},
+				{ 25, 24, 80,  80},
+				{ 26, 25, 85,  50},
+				{ 31, 30, 65,   4},
+				{ 34, 33, 70,   5},
+				{ 44, 80, 90,  50},
+
+				{ 16, 16, 50,  12},
+				{ 18, 13, 75, 120},
+				{ 24, 25, 90,  60},
+				{ 28, 18, 60,  10},
+				{ 35, 65, 80,  50},
+				{ 38, 85, 90, 150},
+				{ 45,100, 90, 200},
+				{ 48, 65, 70, 200},
+
+				{ 17, 17, 70,  50},
+				{ 33, 35, 70, 150},
+				{ 40, 55, 90, 200},
+				{ 40, 85, 95, 200},
+				{ 43,100, 95, 200},
+				{ 45,110, 95, 250},
+				{ 47,120, 80, 250},
+				{ 50, 75, 80, 250}
+			},
+
+			/* Warrior-Mage: Daemon Magic */
+			{
+				{ 2, 2, 20, 4 },
+				{ 3, 2, 22, 4 },
+				{ 5, 4, 25, 4 },
+				{ 7, 8, 30, 6 },
+				{ 11, 8, 30, 1 },
+				{ 13, 10, 50, 6 },
+				{ 15, 13, 35, 5 },
+				{ 16, 16, 45, 7 },
+
+				{ 19, 19, 45, 9 },
+				{ 24, 20, 60, 20 },
+				{ 26, 25, 50, 11 },
+				{ 29, 30, 50, 12 },
+				{ 33, 33, 50, 12 },
+				{ 35, 75, 80, 8 },
+				{ 42, 34, 70, 15 },
+				{ 44, 90, 85, 40 },
+
+				{ 16, 16, 45, 9 },
+				{ 19, 22, 60, 20 },
+				{ 37, 50, 60, 35 },
+				{ 38, 35, 80, 200 },
+				{ 39, 55, 80, 200 },
+				{ 42, 38, 80, 35 },
+				{ 46, 45, 75, 40 },
+				{ 50, 108, 80, 250 },
+
+				{ 10, 10, 66, 8 },
+				{ 32, 32, 85, 35 },
+				{ 41, 48, 80, 200 },
+				{ 46, 62, 85, 100 },
+				{ 48, 111, 85, 250 },
+				{ 49, 60, 80, 200 },
+				{ 50, 105, 80, 200 },
+				{ 50, 80, 85, 250 },
+			},
 		}
 	},
 
 	{
 		/*** Chaos Warrior ***/
 		TV_SORCERY_BOOK,
-		0,
+		0x07,
 
 		A_INT,
 		0,
 
 		2,
-		400,
+		450,
 
 		{
 			{
@@ -4219,16 +6661,16 @@ player_magic magic_info[MAX_CLASS] =
 				{ 16, 15, 80, 35 },
 				{ 23, 23, 60, 35 },
 				{ 30, 30, 85, 150 },
-				{ 42, 50, 85, 250 },
+				{ 40, 41, 80, 150 },
 				{ 45, 90, 80, 250 },
 				{ 47, 100, 80, 250 },
 
 				{ 23, 23, 66, 10},
 				{ 35, 35, 85, 35 },
 				{ 37, 37, 75, 40 },
-				{ 41, 42, 85, 100 },
-				{ 43, 44, 80, 150 },
-				{ 45, 48, 85, 200 },
+				{ 39, 40, 85, 100 },
+				{ 42, 50, 85, 250 },
+				{ 45, 58, 85, 200 },
 				{ 48, 100, 80, 220 },
 				{ 49, 100, 85, 250 },
 			},
@@ -4344,21 +6786,98 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			}
+				{ 99, 0, 0, 0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			/* Chaos Warrior: Daemon Magic */
+			{
+				{ 2, 1, 20, 4 },
+				{ 3, 2, 22, 4 },
+				{ 5, 4, 25, 4 },
+				{ 6, 6, 30, 6 },
+				{ 8, 7, 30, 1 },
+				{ 10, 8, 50, 6 },
+				{ 12, 10, 35, 5 },
+				{ 13, 13, 45, 7 },
+
+				{ 16, 15, 45, 9 },
+				{ 23, 22, 50, 20 },
+				{ 24, 24, 50, 11 },
+				{ 28, 18, 50, 12 },
+				{ 30, 20, 50, 12 },
+				{ 33, 75, 90, 8 },
+				{ 38, 32, 70, 15 },
+				{ 39, 85, 90, 40 },
+
+				{ 15, 15, 45, 9 },
+				{ 18, 20, 60, 20 },
+				{ 27, 27, 80, 35 },
+				{ 35, 32, 80, 150 },
+				{ 36, 45, 85, 200 },
+				{ 37, 40, 75, 40 },
+				{ 40, 43, 60, 35 },
+				{ 46, 90, 90, 250 },
+
+				{ 11, 11, 66, 10},
+				{ 29, 28, 85, 35 },
+				{ 36, 37, 80, 200 },
+				{ 41, 55, 85, 100 },
+				{ 43, 100, 85, 250 },
+				{ 45, 58, 80, 200 },
+				{ 48, 105, 80, 200 },
+				{ 49, 80, 85, 250 },
+			},
 		}
 	},
 	{
 		/*** Monk ***/
 
 		TV_LIFE_BOOK,
-		0,
+		0x06,
 
 		A_WIS,
 		0,
 
 		1,
-		300,
+		350,
 
 		{
 			{
@@ -4391,7 +6910,7 @@ player_magic magic_info[MAX_CLASS] =
 
 				{ 10, 10, 50, 40 },
 				{ 25, 25, 50, 50 },
-				{ 40, 65, 80, 115 },
+				{ 40, 45, 80, 115 },
 				{ 44, 84, 80, 225 },
 				{ 46, 64, 80, 115 },
 				{ 48, 40, 80, 100 },
@@ -4456,12 +6975,12 @@ player_magic magic_info[MAX_CLASS] =
 				{ 16, 12, 55, 4 },
 				{ 18, 22, 65, 8 },
 				{ 31, 31, 75, 10 },
-				{ 40, 100, 95, 50 },
+				{ 40, 60, 90, 50 },
 
-				{ 12, 12, 50, 25 },
 				{ 14, 14, 50, 25 },
 				{ 16, 16, 70, 60 },
 				{ 22, 30, 85, 70 },
+				{ 27, 33, 85, 40 },
 				{ 35, 35, 80, 80 },
 				{ 40, 40, 90, 200 },
 				{ 45, 55, 90, 250 },
@@ -4530,28 +7049,28 @@ player_magic magic_info[MAX_CLASS] =
 				{ 16, 16, 40, 5 },
 				{ 19, 19, 30, 4 },
 				{ 22, 22, 50, 10 },
-				{ 25, 25, 60, 16 },
+				{ 28, 30, 85, 30},
 				{ 33, 80, 90, 30 },
-				{ 40, 40, 60, 16 },
-				{ 45, 45, 95, 100 },
-				{ 50, 60, 95, 150 },
+				{ 37, 35, 60, 16 },
+				{ 45, 50, 80, 70 },
+				{ 47, 45, 95, 100 },
 
 				{ 15, 20, 80, 180 },
 				{ 16, 16, 80, 30 },
 				{ 18, 18, 30, 15 },
 				{ 35, 35, 75, 50 },
-				{ 40, 40, 60, 125 },
 				{ 42, 95, 70, 90 },
+				{ 44, 40, 60, 125 },
+				{ 45, 44, 70, 40 },
 				{ 48, 50, 80, 200 },
-				{ 49, 80, 80, 125 },
 
 				{ 30, 30, 75, 50 },
 				{ 37, 85, 85, 220 },
 				{ 38, 50, 95, 250 },
-				{ 44, 44, 70, 40 },
-				{ 46, 50, 80, 70 },
-				{ 50, 140, 95, 250 },
-				{ 50, 100, 95, 250},
+				{ 42, 60, 80, 200 },
+				{ 48, 60, 75, 150 },
+				{ 49, 80, 80, 125 },
+				{ 50, 110, 95, 250 },
 				{ 50, 115, 95, 250 }
 			},
 
@@ -4630,8 +7149,87 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
 				{ 99, 0, 0, 0},
-				{ 99, 0, 0, 0},
-			}
+				{ 99, 0, 0, 0}
+			},
+
+			/* Monk: Enchantment Magic */
+			{
+
+				{  2,  2, 30,   4},
+				{  3,  3, 35,   4},
+				{  5,  5, 40,   3},
+				{  7, 10, 45,   5},
+				{  9, 10, 45,   5},
+				{ 11, 12, 50,   6},
+				{ 13, 10, 45,   5},
+				{ 14, 10, 45,   5},
+
+				{ 17, 18, 55,   4},
+				{ 21, 21, 60,   4},
+				{ 23, 23, 65,   6},
+				{ 26, 25, 80,  80},
+				{ 28, 26, 85,  50},
+				{ 32, 30, 60,   4},
+				{ 37, 28, 55,   5},
+				{ 45, 90, 80,  50},
+
+				{ 18, 18, 55,  12},
+				{ 20, 17, 70, 120},
+				{ 26, 28, 85,  60},
+				{ 30, 23, 70,  10},
+				{ 37, 60, 80,  50},
+				{ 40, 85, 90, 150},
+				{ 46,100, 95, 200},
+				{ 49, 70, 75, 200},
+
+				{ 20, 20, 70,  50},
+				{ 36, 34, 70, 150},
+				{ 41, 55, 90, 200},
+				{ 45, 80, 95, 200},
+				{ 46,100, 95, 200},
+				{ 48,120, 80, 250},
+				{ 47,120, 90, 250},
+				{ 50,100, 90, 250}
+			},
+
+			/* Monk: Daemon Magic */
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
 		}
 	},
 
@@ -4639,13 +7237,13 @@ player_magic magic_info[MAX_CLASS] =
 		/*** Mindcrafter ***/
 
 		TV_LIFE_BOOK,
-		0,
+		0x00,
 
 		A_WIS,
 		0,
 
 		99,
-		300,
+		400,
 		{
 			{
 				{ 99,  0,  0,   0},
@@ -4834,6 +7432,81 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99,  0,  0,   0}
 			},
 			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0},
@@ -4914,13 +7587,13 @@ player_magic magic_info[MAX_CLASS] =
 		/*** High Mage ***/
 
 		TV_SORCERY_BOOK,
-		0,
+		0x05,
 
 		A_INT,
 		0,
 
 		1,
-		300,
+		430,
 
 		{
 			/* High Mage: Life Magic */
@@ -4954,7 +7627,7 @@ player_magic magic_info[MAX_CLASS] =
 
 				{  5,  5, 40,  40 },
 				{ 20, 20, 40,  50 },
-				{ 30, 70, 60, 115 },
+				{ 30, 50, 60, 115 },
 				{ 40, 80, 60, 225 },
 				{ 42, 75, 60, 115 },
 				{ 45, 40, 60, 100 },
@@ -4983,22 +7656,22 @@ player_magic magic_info[MAX_CLASS] =
 				{ 28, 20, 65,  20 },
 
 				{  2,  2, 20,  15 },
-				{  7,  7, 60,  40 },
 				{  8,  8, 70,  40 },
-				{  9,  9, 70,  40 },
 				{ 12,  9, 50,  25 },
+				{ 15, 25, 60,  40 },
 				{ 15, 12, 65,  50 },
 				{ 17, 12, 50,  25 },
 				{ 20, 20, 65,  19 },
+				{ 24, 25, 75, 100 },
 
 				{  8,  8, 30,  20 },
 				{ 20, 20, 65,  70 },
-				{ 20, 25, 85, 160 },
 				{ 25, 30, 70, 120 },
-				{ 30, 65, 85, 200 },
-				{ 35, 80, 85, 200 },
+				{ 33, 30, 50, 100 },
+				{ 36, 35, 70, 100 },
 				{ 40, 40, 80, 175 },
-				{ 42, 65, 65, 250 },
+				{ 41, 43, 50, 200 },
+				{ 42, 65, 75, 250 },
 			},
 
 			/* High Mage: Nature Magic */
@@ -5019,12 +7692,12 @@ player_magic magic_info[MAX_CLASS] =
 				{ 7, 5, 30, 5 },
 				{ 14, 10, 35, 8 },
 				{ 20, 20, 80, 50 },
-				{ 35, 80, 85, 50 },
+				{ 35, 50, 80, 50 },
 
-				{ 5, 5, 10, 28 },
 				{ 7, 7, 20, 44 },
 				{ 8, 8, 65, 120 },
 				{ 12, 15, 75, 60 },
+				{ 17, 20, 60, 40 },
 				{ 25, 25, 80, 100 },
 				{ 33, 35, 80, 200 },
 				{ 35, 40, 65, 200},
@@ -5065,17 +7738,17 @@ player_magic magic_info[MAX_CLASS] =
 				{ 14, 12, 70, 35 },
 				{ 21, 21, 75, 100 },
 				{ 26, 22, 75, 150 },
-				{ 39, 40, 75, 250 },
+				{ 36, 36, 70, 150 },
 				{ 42, 80, 70, 250 },
 				{ 44, 90, 80, 250 },
 
 				{ 16, 16, 55, 8 },
 				{ 32, 30, 75, 35 },
 				{ 34, 32, 65, 40 },
-				{ 36, 36, 75, 100 },
-				{ 38, 38, 70, 150 },
-				{ 40, 45, 75, 200 },
-				{ 43, 55, 70, 200 },
+				{ 35, 34, 75, 100 },
+				{ 39, 40, 75, 250 },
+				{ 40, 53, 75, 200 },
+				{ 43, 60, 70, 200 },
 				{ 46, 90, 75, 250 }
 			},
 
@@ -5093,29 +7766,29 @@ player_magic magic_info[MAX_CLASS] =
 				{ 10, 10, 30, 5 },
 				{ 11, 10, 20, 4 },
 				{ 14, 12, 40, 10 },
-				{ 20, 16, 50, 16 },
-				{ 26, 65, 40, 30 },
-				{ 30, 30, 50, 16 },
-				{ 33, 30, 85, 25 },
-				{ 40, 40, 85, 150 },
+				{ 22, 20, 75, 30 },
+				{ 26, 65, 70, 30 },
+				{ 30, 25, 50, 16 },
+				{ 32, 30, 70, 70 },
+				{ 35, 30, 85, 25 },
 
 				{ 8, 15, 70, 180 },
 				{ 8, 10, 70, 30 },
 				{ 9, 9, 20, 15 },
 				{ 25, 20, 65, 50 },
-				{ 30, 30, 50, 125 },
-				{ 30, 80, 60, 90 },
+				{ 31, 80, 60, 90 },
+				{ 33, 30, 50, 125 },
+				{ 34, 30, 60, 40 },
 				{ 36, 35, 60, 200 },
-				{ 38, 66, 70, 100 },
 
 				{ 16, 16, 65, 50 },
 				{ 22, 60, 85 , 250 },
 				{ 26, 35, 85, 250 },
-				{ 29, 30, 60, 40 },
-				{ 33, 30, 70, 70 },
-				{ 39, 100, 85, 250 },
-				{ 41, 85, 80, 250 },
-				{ 44, 75, 80, 250 }
+				{ 32, 35, 75, 200 },
+				{ 37, 40, 65, 150 },
+				{ 38, 66, 70, 100 },
+				{ 42, 85, 85, 250 },
+				{ 45, 75, 80, 250 }
 			},
 
 			/* High Mage: Trump Magic */
@@ -5125,33 +7798,33 @@ player_magic magic_info[MAX_CLASS] =
 				{ 4, 4, 32, 8 },
 				{ 5, 5, 35, 8 },
 				{ 6, 5, 15, 4 },
-				{ 7, 7, 25, 6 },
-				{ 10, 10, 25, 6 },
-				{ 14, 12, 25, 5 },
+				{ 9, 10, 25, 6 },
+				{ 12, 12, 25, 5 },
+				{ 15, 16, 25, 8 },
 
 				{ 16, 16, 35, 8 },
-				{ 20, 20, 25, 8 },
-				{ 25, 22, 25, 8 },
-				{ 28, 24, 30, 9 },
-				{ 28, 26, 35, 12 },
-				{ 30, 28, 30, 10 },
+				{ 20, 17, 30, 9 },
+				{ 23, 22, 25, 8 },
+				{ 25, 26, 35, 12 },
+				{ 28, 28, 30, 10 },
+				{ 32, 30, 35, 12 },
 				{ 35, 30, 35, 15 },
 				{ 39, 36, 30, 12 },
 
-				{ 11, 11, 35, 20 },
+				{ 17, 25, 60, 40 },
 				{ 21, 21, 30, 25 },
 				{ 23, 23, 30, 30 },
+				{ 28, 24, 30, 9 },
 				{ 25, 25, 30, 35 },
 				{ 31, 65, 35, 100 },
 				{ 36, 90, 40, 250 },
-				{ 39, 45, 20, 75 },
 				{ 42, 90, 40, 200 },
 
 				{ 25, 25, 25, 50 },
 				{ 32, 45, 40, 100 },
-				{ 34, 75, 35, 150 },
+				{ 34, 50, 35, 150 },
 				{ 36, 75, 35, 150 },
-				{ 38, 90, 35, 200 },
+				{ 37, 40, 60, 100 },
 				{ 42, 90, 35, 150 },
 				{ 44, 90, 35, 200 },
 				{ 46, 90, 35, 220 }
@@ -5181,21 +7854,5859 @@ player_magic magic_info[MAX_CLASS] =
 				{ 13, 10, 40, 5 },
 				{ 14, 11, 22, 6 },
 				{ 15, 12, 40, 8 },
-				{ 17, 15, 50, 9 },
-				{ 20, 15, 50, 9 },
-				{ 20, 16, 60, 12 },
-				{ 22, 18, 50, 13 },
+				{ 17, 17, 50, 25 },
+				{ 19, 15, 50, 9 },
+				{ 20, 16, 50, 9 },
+				{ 22, 18, 60, 12 },
 
-				{ 24, 22, 60, 30 },
+				{ 24, 22, 50, 13 },
+				{ 26, 26, 60, 30 },
 				{ 30, 30, 70, 25 },
-				{ 33, 28, 50, 25 },
-				{ 38, 28, 60, 25 },
+				{ 35, 28, 60, 25 },
 				{ 40, 28, 55, 30 },
 				{ 41, 28, 70, 40 },
 				{ 43, 40, 60, 50 },
 				{ 46, 80, 70, 200 }
-			}
+			},
+
+			/* High Mage: Enchantment Magic */
+			{
+
+				{  1,  1, 15,   4},
+				{  1,  1, 15,   4},
+				{  3,  2, 20,   3},
+				{  4,  4, 30,   5},
+				{  5,  4, 30,   5},
+				{  6,  5, 40,   6},
+				{  7,  4, 30,   5},
+				{  8,  4, 30,   5},
+
+				{ 10, 10, 40,   4},
+				{ 13, 12, 35,   4},
+				{ 14, 13, 55,   6},
+				{ 16, 15, 70,  80},
+				{ 20, 12, 65,  50},
+				{ 21, 19, 40,   4},
+				{ 25, 25, 45,   5},
+				{ 35, 60, 85,  50},
+
+				{  9, 10, 35,  12},
+				{ 11,  8, 65, 120},
+				{ 16, 15, 75,  60},
+				{ 20, 10, 50,  10},
+				{ 27, 45, 70,  50},
+				{ 31, 60, 70, 150},
+				{ 38, 70, 80, 200},
+				{ 42, 50, 60, 200},
+
+				{ 10, 10, 50,  50},
+				{ 27, 24, 60, 150},
+				{ 33, 40, 80, 200},
+				{ 30, 65, 85, 200},
+				{ 34, 80, 85, 200},
+				{ 37, 80, 70, 250},
+				{ 40, 90, 50, 250},
+				{ 44, 65, 70, 250}
+			},
+
+			/* High Mage: Daemon Magic */
+			{
+				{ 1, 1, 15, 4 },
+				{ 1, 1, 15, 4 },
+				{ 2, 2, 15, 4 },
+				{ 3, 4, 20, 1 },
+				{ 5, 4, 30, 1 },
+				{ 7, 5, 40, 6 },
+				{ 9, 8, 25, 5 },
+				{ 11, 11, 40, 5 },
+
+				{ 13, 11, 35, 9 },
+				{ 15, 13, 35, 10 },
+				{ 17, 15, 40, 11 },
+				{ 21, 12, 40, 12 },
+				{ 22, 13, 40, 12 },
+				{ 26, 65, 70, 8 },
+				{ 28, 25, 55, 15 },
+				{ 33, 65, 75, 40 },
+
+				{  9, 10, 35, 9 },
+				{ 12, 15, 70, 35 },
+				{ 22, 19, 70, 35 },
+				{ 31, 26, 75, 150 },
+				{ 32, 35, 75, 200 },
+				{ 34, 32, 75, 100 },
+				{ 36, 35, 65, 40 },
+				{ 44, 70, 80, 250 },
+
+				{  8,  8, 55, 8 },
+				{ 23, 20, 75, 35 },
+				{ 33, 30, 70, 200 },
+				{ 36, 44, 75, 100 },
+				{ 38, 90, 75, 250 },
+				{ 40, 53, 70, 200 },
+				{ 43, 75, 70, 200 },
+				{ 46, 70, 75, 250 }
+			},
 		}
+	},
+
+	{
+		/*** Tourist ***/
+
+		TV_SORCERY_BOOK,
+		0x07,
+
+		A_INT,
+		0,
+
+		5,
+		450,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99, 0, 0, 0 },
+				{ 1, 1, 33, 5 },
+				{ 2, 1, 33, 4 },
+				{ 2, 2, 33, 5 },
+				{ 3, 3, 33, 5 },
+				{ 5, 5, 40, 6 },
+				{ 6, 6, 33, 7 },
+				{ 99, 0, 0, 0 },
+
+				{ 8, 8, 40, 7 },
+				{ 9, 9, 60, 7 },
+				{ 10, 10, 50, 6 },
+				{ 99, 0,  0, 0 },
+				{ 13, 11, 50, 6 },
+				{ 14, 12, 50, 6 },
+				{ 15, 13, 50, 5 },
+				{ 16, 14, 50, 5 },
+
+				{ 17, 15, 50, 5 },
+				{ 18, 16, 50, 5 },
+				{ 99, 0, 0, 0 },
+				{ 20, 20, 50, 8 },
+				{  5,  3, 30, 8 },
+				{ 25, 22, 60, 9 },
+				{ 28, 24, 60, 9 },
+				{ 20, 25, 70, 12 },
+
+				{ 30, 28, 60, 13 },
+				{ 35, 33, 80, 40 },
+				{ 99, 0, 0, 0 },
+				{ 44, 40, 70, 25 },
+				{ 99, 0, 0, 0 },
+				{ 99, 0, 0, 0 },
+				{ 48, 70, 70, 50 },
+				{ 99, 0, 0, 0 }
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Monomaneshi ***/
+
+		0,
+		0x00,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Beastmaster ***/
+
+		TV_SORCERY_BOOK,
+		0x06,
+
+		A_CHR,
+		0,
+
+		3,
+		430,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			/* Trump */
+			{
+				{ 5, 3, 25, 3 },
+				{ 3, 3, 25, 4 },
+				{ 8, 7, 37, 8 },
+				{ 12, 12, 40, 8 },
+				{ 16, 15, 20, 4 },
+				{ 20, 25, 30, 6 },
+				{ 24, 30, 30, 5 },
+				{ 21, 22, 30, 8 },
+
+				{ 32, 30, 40, 8 },
+				{ 23, 25, 35, 9 },
+				{ 99,  0,  0, 0 },
+				{ 29, 28, 40, 12 },
+				{ 37, 50, 35, 10 },
+				{ 40, 45, 45, 12 },
+				{ 42, 60, 40, 15 },
+				{ 44, 80, 35, 12 },
+
+				{ 20, 32, 65, 40 },
+				{ 99,  0,  0,  0 },
+				{ 23, 26, 35, 30 },
+				{ 25, 25, 35, 9 },
+				{ 27, 30, 35, 35 },
+				{ 40, 100, 40, 100 },
+				{ 45, 120, 45, 250 },
+				{ 99,  0,  0,  0 },
+
+				{ 33, 35, 30, 50 },
+				{ 38, 60, 45, 100 },
+				{ 32, 50, 40, 150 },
+				{ 36, 80, 40, 150 },
+				{ 99,  0,  0,  0 },
+				{ 99,   0,  0,   0 },
+				{ 99,   0,  0,   0 },
+				{ 47, 100, 40, 220 }
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Sorcerer ***/
+
+		TV_SORCERY_BOOK,
+		0x01,
+
+		A_INT,
+		0,
+
+		1,
+		40,
+		{
+			{
+				/* Sorcerer: Life magic */
+
+				{ 1, 1, 30, 4 },
+				{ 3, 2, 35, 4 },
+				{ 4, 3, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 7, 35, 4 },
+				{ 9, 8, 40, 4 },
+				{ 12, 12, 40, 3 },
+				{ 15, 14, 45, 3 },
+
+				{ 16, 16, 45, 4},
+				{ 17, 17, 50, 4},
+				{ 18, 18, 50, 4},
+				{ 19, 19, 50, 4},
+				{ 20, 20, 50, 4},
+				{ 23, 23, 50, 4},
+				{ 30, 30, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 30, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 33, 33, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 70, 80, 150 },
+
+				{ 9, 9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 55, 80, 115 },
+				{ 42, 100, 80, 225 },
+				{ 45, 90, 80, 115 },
+				{ 48, 50, 80, 100 },
+				{ 49, 100, 80, 250 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Sorcerer: Sorcery */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 1, 2, 24, 4 },
+				{ 3, 3, 25, 1 },
+				{ 3, 3, 30, 1 },
+				{ 4, 4, 30, 1 },
+				{ 5, 5, 35, 5 },
+				{ 6, 5, 30, 4 },
+				{ 7, 7, 75, 9 },
+
+				{ 9, 7, 75, 8 },
+				{ 10, 7, 75, 8 },
+				{ 11, 7, 75, 7 },
+				{ 13, 7, 50, 6 },
+				{ 18, 12, 60, 8 },
+				{ 22, 12, 60, 8 },
+				{ 28, 20, 70, 15 },
+				{ 33, 30, 75, 20 },
+
+				{ 3, 3, 25, 15 },
+				{ 10, 10, 80, 40 },
+				{ 14, 10, 60, 25 },
+				{ 18, 30, 70, 40 },
+				{ 20, 18, 85, 50 },
+				{ 20, 18, 60, 25 },
+				{ 25, 25, 75, 19 },
+				{ 28, 30, 80, 100 },
+
+				{ 10, 10, 40, 20 },
+				{ 25, 25, 75, 70 },
+				{ 30, 40, 80, 120 },
+				{ 33, 35, 60, 100 },
+				{ 40, 40, 80, 100 },
+				{ 42, 50, 90, 175 },
+				{ 43, 40, 55, 200 },
+				{ 45, 70, 85, 250 },
+			},
+
+			/* Sorcerer: Nature Magic */
+
+			{
+				{ 1, 1, 23, 4 },
+				{ 3, 3, 25, 3 },
+				{ 3, 3, 25, 1 },
+				{ 4, 4, 35, 4 },
+				{ 4, 4, 50, 5 },
+				{ 4, 5, 50, 5 },
+				{ 5, 5, 50, 5 },
+				{ 5, 5, 35, 4 },
+
+				{ 5, 5, 40, 6 },
+				{ 5, 5, 30, 6 },
+				{ 7, 6, 45, 6 },
+				{ 7, 6, 40, 6 },
+				{ 9, 6, 30, 5 },
+				{ 19, 12, 55, 8 },
+				{ 25, 25, 90, 50 },
+				{ 40, 60, 90, 50 },
+
+				{ 9, 12, 40, 44 },
+				{ 10, 12, 75, 120 },
+				{ 15, 20, 85, 60 },
+				{ 20, 22, 80, 40 },
+				{ 30, 30, 90, 100 },
+				{ 37, 40, 90, 200 },
+				{ 38, 45, 75, 200},
+				{ 40, 90, 90, 250 },
+
+
+				{ 20, 18, 60, 25 },
+				{ 23, 23, 80, 50 },
+				{ 25, 25, 75, 29 },
+				{ 30, 27, 75, 35 },
+				{ 35, 30, 85, 65 },
+				{ 37, 35, 90, 100 },
+				{ 40, 90, 95, 250 },
+				{ 40, 75, 65, 150 }
+			},
+
+				/* Sorcerer: Chaos Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 2, 22, 4 },
+				{ 2, 2, 25, 4 },
+				{ 5, 5, 30, 1 },
+				{ 9, 6, 50, 1 },
+				{ 13, 9, 45, 6 },
+				{ 14, 9, 45, 6 },
+				{ 15, 9, 35, 5 },
+
+				{ 17, 10, 25, 5 },
+				{ 19, 12, 45, 9 },
+				{ 21, 13, 45, 10 },
+				{ 23, 15, 50, 11 },
+				{ 25, 16, 50, 12 },
+				{ 25, 18, 60, 8 },
+				{ 30, 20, 80, 15 },
+				{ 35, 40, 85, 40 },
+
+				{ 11, 7, 45, 9 },
+				{ 15, 15, 80, 35 },
+				{ 16, 14, 80, 35 },
+				{ 25, 25, 85, 100 },
+				{ 30, 25, 85, 150 },
+				{ 40, 41, 80, 150 },
+				{ 45, 90, 80, 250 },
+				{ 47, 100, 90, 250 },
+
+				{ 20, 20, 66, 8 },
+				{ 35, 32, 85, 35 },
+				{ 37, 34, 75, 40 },
+				{ 39, 42, 85, 100 },
+				{ 42, 50, 85, 250 },
+				{ 45, 58, 85, 200 },
+				{ 47, 75, 80, 200 },
+				{ 49, 100, 85, 250 }
+			},
+
+				/* Sorcerer: Death Magic */
+
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 3, 3, 27, 3 },
+				{ 5, 5, 30, 4 },
+				{ 7, 10, 75, 6 },
+				{ 9, 9, 30, 4 },
+				{ 10, 10, 30, 4 },
+
+				{ 12, 12, 40, 5 },
+				{ 13, 12, 30, 4 },
+				{ 18, 15, 50, 10 },
+				{ 24, 21, 60, 30 },
+				{ 30, 75, 80, 30 },
+				{ 32, 30, 60, 16 },
+				{ 36, 35, 80, 70 },
+				{ 39, 30, 95, 25 },
+
+				{ 10, 20, 80, 180 },
+				{ 10, 15, 80, 30 },
+				{ 11, 11, 30, 15 },
+				{ 30, 25, 75, 50 },
+				{ 34, 90, 70, 90 },
+				{ 36, 35, 60, 125 },
+				{ 38, 35, 70, 40 },
+				{ 40, 40, 70, 200 },
+
+				{ 20, 20, 75, 50 },
+				{ 25, 66, 95 , 250 },
+				{ 30, 40, 95, 250 },
+				{ 35, 40, 80, 100 },
+				{ 42, 50, 75, 150 },
+				{ 43, 75, 80, 100 },
+				{ 45, 95, 90, 250 },
+				{ 47, 100, 90, 250 }
+			},
+
+				/* Sorcerer: Trump Magic */
+
+			{
+				{ 1, 1, 25, 3 },
+				{ 3, 3, 25, 4 },
+				{ 5, 5, 37, 8 },
+				{ 6, 6, 40, 8 },
+				{ 7, 7, 20, 4 },
+				{ 11, 12, 30, 6 },
+				{ 14, 15, 30, 5 },
+				{ 18, 20, 30, 8 },
+
+				{ 20, 20, 40, 8 },
+				{ 23, 20, 35, 9 },
+				{ 25, 24, 30, 8 },
+				{ 30, 28, 40, 12 },
+				{ 33, 30, 35, 10 },
+				{ 35, 33, 45, 12 },
+				{ 40, 35, 40, 15 },
+				{ 42, 40, 35, 12 },
+
+				{ 22, 35, 70, 40 },
+				{ 24, 24, 35, 25 },
+				{ 26, 26, 35, 30 },
+				{ 30, 25, 35, 9 },
+				{ 30, 30, 35, 35 },
+				{ 35, 70, 40, 100 },
+				{ 40, 100, 45, 250 },
+				{ 45, 100, 45, 200 },
+
+				{ 30, 30, 30, 50 },
+				{ 35, 50, 45, 100 },
+				{ 36, 55, 40, 150 },
+				{ 39, 80, 40, 150 },
+				{ 41, 45, 70, 100 },
+				{ 47, 100, 40, 150 },
+				{ 48, 100, 40, 200 },
+				{ 49, 100, 40, 220 }
+			},
+
+				/* Sorcerer: Arcane Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 1, 1, 33, 5 },
+				{ 1, 1, 33, 4 },
+				{ 2, 1, 33, 5 },
+				{ 2, 2, 33, 5 },
+				{ 4, 4, 40, 6 },
+				{ 5, 5, 33, 7 },
+				{ 6, 5, 44, 5 },
+
+				{ 7, 6, 40, 7 },
+				{ 8, 8, 60, 7 },
+				{ 9, 8, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 9, 9, 50, 6 },
+				{ 11, 10, 50, 6 },
+				{ 12, 12, 50, 5 },
+				{ 13, 12, 50, 5 },
+
+				{ 14, 12, 50, 5 },
+				{ 15, 12, 50, 5 },
+				{ 16, 14, 33, 6 },
+				{ 18, 15, 50, 8 },
+				{ 20, 20, 60, 25 },
+				{ 22, 16, 60, 9 },
+				{ 25, 18, 60, 9 },
+				{ 28, 20, 70, 12 },
+
+				{ 28, 20, 60, 13 },
+				{ 31, 25, 70, 30 },
+				{ 35, 35, 80, 25 },
+				{ 40, 30, 70, 25 },
+				{ 41, 30, 66, 30 },
+				{ 42, 30, 80, 40 },
+				{ 45, 50, 70, 50 },
+				{ 49, 100, 80, 200 }
+			},
+
+			/* Sorcerer: Enchantment Magic */
+
+			{
+
+				{  1,  1, 20,   4},
+				{  2,  2, 20,   4},
+				{  3,  3, 30,   3},
+				{  5,  5, 35,   5},
+				{  6,  5, 35,   5},
+				{  8,  6, 45,   6},
+				{  9,  5, 35,   5},
+				{ 10,  5, 35,   5},
+
+				{ 12, 12, 45,   4},
+				{ 15, 14, 40,   4},
+				{ 17, 15, 60,   6},
+				{ 20, 17, 75,  80},
+				{ 23, 18, 85,  50},
+				{ 26, 22, 50,   4},
+				{ 29, 30, 60,   5},
+				{ 38, 65, 95,  50},
+
+				{ 12, 12, 45,  12},
+				{ 14, 10, 75, 120},
+				{ 20, 20, 85,  60},
+				{ 24, 12, 60,  10},
+				{ 30, 55, 80,  50},
+				{ 34, 70, 80, 150},
+				{ 41, 80, 90, 200},
+				{ 45, 55, 70, 200},
+
+				{ 14, 14, 65,  50},
+				{ 30, 32, 75, 150},
+				{ 36, 45, 90, 200},
+				{ 38, 80, 95, 200},
+				{ 38,100, 95, 200},
+				{ 40,100, 90, 250},
+				{ 43,100, 70, 250},
+				{ 47, 70, 80, 250}
+			},
+
+				/* Sorcerer: Daemon Magic */
+
+			{
+				{ 1, 1, 20, 4 },
+				{ 2, 1, 22, 1 },
+				{ 3, 2, 25, 4 },
+				{ 4, 5, 30, 4 },
+				{ 7, 5, 45, 4 },
+				{ 10, 7, 40, 6 },
+				{ 11, 9, 35, 5 },
+				{ 13, 13, 40, 10 },
+
+				{ 15, 14, 45, 9 },
+				{ 17, 15, 60, 10 },
+				{ 20, 18, 50, 11 },
+				{ 23, 15, 50, 12 },
+				{ 25, 16, 50, 12 },
+				{ 30, 75, 80, 30 },
+				{ 32, 28, 70, 15 },
+				{ 36, 70, 85, 40 },
+
+				{ 12, 12, 45, 9 },
+				{ 15, 20, 60, 20 },
+				{ 25, 22, 65, 35 },
+				{ 34, 30, 80, 100 },
+				{ 35, 40, 80, 100 },
+				{ 37, 35, 85, 100 },
+				{ 40, 40, 85, 40 },
+				{ 46, 80, 80, 250 },
+
+				{  9,  9, 50, 8 },
+				{ 26, 25, 85, 35 },
+				{ 36, 35, 80, 200 },
+				{ 41, 50, 85, 100 },
+				{ 43,100, 90, 250 },
+				{ 45, 58, 85, 200 },
+				{ 47, 85, 80, 200 },
+				{ 49, 80, 85, 250 }
+			},
+		},
+	},
+
+	{
+		/*** Archer ***/
+
+		0,
+		0x00,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Magic eater ***/
+
+		0,
+		0x00,
+
+		A_INT,
+		0,
+
+		99,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Harper ***/
+
+		TV_MUSIC_BOOK,
+		0x04,
+
+		A_CHR,
+		0,
+
+		1,
+		400,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Red Mage ***/
+
+		TV_SORCERY_BOOK,
+		0x03,
+
+		A_INT,
+		0,
+
+		1,
+		430,
+
+		{
+			/* Red Mage: Life Magic */
+			{
+				{ 2, 2, 30, 4 },
+				{ 4, 4, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 7, 8, 35, 4 },
+				{ 9, 9, 35, 4 },
+				{ 11, 10, 40, 4 },
+				{ 15, 15, 40, 3 },
+				{ 18, 18, 45, 3 },
+
+				{ 20, 20, 45, 4},
+				{ 23, 23, 50, 4},
+				{ 26, 25, 50, 4},
+				{ 30, 28, 50, 4},
+				{ 34, 30, 50, 4},
+				{ 38, 32, 50, 4},
+				{ 42, 38, 55, 5},
+				{ 45, 80, 75, 5},
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+			},
+
+			/* Red Mage: Sorcery */
+			{
+				{ 3, 1, 50, 1 },
+				{ 5, 2, 55, 1 },
+				{ 7, 3, 65, 1 },
+				{ 8, 4, 65, 1 },
+				{ 12, 7, 75, 1 },
+				{ 15, 8, 75, 1 },
+				{ 18, 10, 75, 1 },
+				{ 22, 13, 80, 1 },
+
+				{ 26, 16, 80, 1 },
+				{ 29, 17, 80, 1 },
+				{ 32, 19, 75, 2 },
+				{ 34, 23, 80, 4 },
+				{ 35, 26, 80, 5 },
+				{ 39, 29, 70, 6 },
+				{ 42, 35, 80, 12 },
+				{ 46, 40, 75, 20 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+			},
+
+			/* Red Mage: Nature Magic */
+			{
+				{ 3, 1, 35, 2 },
+				{ 4, 3, 40, 2 },
+				{ 6, 5, 40, 3 },
+				{ 7, 8, 55, 2 },
+				{ 9, 8, 50, 3 },
+				{ 10, 8, 50, 3 },
+				{ 12, 9, 50, 3 },
+				{ 14, 10, 45, 3 },
+
+				{ 16, 10, 80, 4 },
+				{ 18, 12, 40, 3 },
+				{ 19, 13, 40, 4 },
+				{ 21, 15, 55, 4 },
+				{ 23, 15, 55, 4 },
+				{ 26, 27, 65, 8 },
+				{ 37, 38, 75, 10 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+			},
+
+			/* Red Mage: Chaos Magic */
+			{
+				{ 3, 2, 20, 1 },
+				{ 4, 3, 35, 2 },
+				{ 6, 4, 35, 2 },
+				{ 9, 6, 45, 2 },
+				{ 16, 14, 40, 2 },
+				{ 23, 18, 50, 6 },
+				{ 26, 24, 60, 3 },
+				{ 28, 25, 60, 3 },
+
+				{ 29, 26, 60, 5 },
+				{ 32, 29, 60, 8 },
+				{ 35, 35, 70, 13 },
+				{ 38, 36, 70, 10 },
+				{ 41, 40, 75, 15 },
+				{ 43, 35, 65, 5 },
+				{ 46, 38, 95, 15 },
+				{ 49, 60, 85, 30 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+			},
+
+			/* Red Mage: Death Magic */
+			{
+				{ 2, 2, 25, 4 },
+				{ 4, 2, 25, 4 },
+				{ 6, 4, 25, 4 },
+				{ 8, 6, 27, 4 },
+				{ 11, 10, 30, 4 },
+				{ 14, 13, 75, 6 },
+				{ 16, 14, 30, 4 },
+				{ 20, 18, 40, 5 },
+
+				{ 22, 21, 40, 5 },
+				{ 25, 22, 30, 4 },
+				{ 27, 27, 50, 10 },
+				{ 35, 35, 85, 10 },
+				{ 38, 90, 90, 30 },
+				{ 41, 38, 60, 16 },
+				{ 48, 50, 80, 70 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+			},
+
+			/* Red Mage: Trump Magic */
+			{
+				{ 3, 2, 25, 3 },
+				{ 7, 5, 25, 4 },
+				{ 9, 8, 37, 8 },
+				{ 12, 10, 40, 8 },
+				{ 15, 12, 20, 4 },
+				{ 18, 17, 30, 6 },
+				{ 21, 23, 30, 5 },
+				{ 25, 30, 30, 8 },
+
+				{ 29, 25, 40, 8 },
+				{ 32, 27, 35, 9 },
+				{ 35, 30, 30, 8 },
+				{ 38, 40, 40, 12 },
+				{ 42, 44, 35, 10 },
+				{ 44, 45, 45, 12 },
+				{ 47, 51, 40, 15 },
+				{ 49, 55, 35, 12 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+			},
+
+			/* Red Mage: Arcane Magic */
+			{
+				{ 1, 1, 20, 4 },
+				{ 2, 1, 33, 5 },
+				{ 3, 2, 33, 4 },
+				{ 4, 3, 33, 5 },
+				{ 5, 4, 33, 5 },
+				{ 7, 6, 40, 6 },
+				{ 8, 7, 33, 7 },
+				{ 9, 8, 44, 5 },
+
+				{ 10, 9, 40, 7 },
+				{ 11, 10, 60, 7 },
+				{ 13, 12, 50, 6 },
+				{ 14, 13, 50, 6 },
+				{ 15, 13, 50, 6 },
+				{ 16, 14, 50, 6 },
+				{ 18, 15, 50, 5 },
+				{ 19, 16, 50, 5 },
+
+				{ 20, 17, 50, 5 },
+				{ 21, 18, 50, 5 },
+				{ 22, 19, 33, 6 },
+				{ 24, 23, 50, 8 },
+				{ 26, 32, 60, 25 },
+				{ 27, 28, 60, 9 },
+				{ 30, 29, 60, 9 },
+				{ 33, 32, 70, 12 },
+
+				{ 36, 35, 60, 13 },
+				{ 39, 38, 80, 40 },
+				{ 42, 41, 80, 25 },
+				{ 46, 43, 70, 25 },
+				{ 48, 46, 66, 30 },
+				{ 49, 48, 80, 40 },
+				{ 50, 70, 70, 50 },
+				{ 99,  0,  0,  0 }
+			},
+
+			/* Red Mage: Enchantment Magic */
+			{
+				{  2,  2, 40,   2},
+				{  4,  4, 40,   2},
+				{  7,  6, 45,   1},
+				{ 10, 12, 50,   2},
+				{ 13, 12, 50,   2},
+				{ 16, 14, 55,   3},
+				{ 19, 12, 50,   2},
+				{ 21, 12, 50,   2},
+
+				{ 25, 20, 55,   2},
+				{ 29, 23, 60,   2},
+				{ 32, 27, 65,   3},
+				{ 36, 31, 75,  40},
+				{ 38, 26, 70,  25},
+				{ 41, 40, 70,   2},
+				{ 44, 38, 55,   3},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+			},
+
+			/* Red Mage: Daemon Magic */
+			{
+				{ 3, 2, 20, 1 },
+				{ 5, 3, 35, 2 },
+				{ 7, 5, 35, 2 },
+				{ 10, 8, 45, 2 },
+				{ 14, 9, 40, 2 },
+				{ 20, 13, 60, 3 },
+				{ 23, 18, 60, 3 },
+				{ 25, 25, 60, 5 },
+
+				{ 28, 27, 60, 8 },
+				{ 32, 29, 70, 13 },
+				{ 35, 33, 70, 10 },
+				{ 38, 36, 75, 15 },
+				{ 41, 40, 75, 15 },
+				{ 42, 90, 90, 30 },
+				{ 47, 50, 75, 15 },
+				{ 49, 111, 90, 30 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+				{ 99,  0,  0,  0 },
+			},
+		}
+	},
+
+	{
+		/*** Samurai ***/
+
+		TV_HISSATSU_BOOK,
+		0x00,
+
+		A_WIS,
+		0,
+
+		0,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Renkijutusi ***/
+
+		TV_LIFE_BOOK,
+		0x06,
+
+		A_WIS,
+		0,
+
+		1,
+		350,
+
+		{
+			{
+				{ 1, 1, 30, 4 },
+				{ 2, 2, 35, 4 },
+				{ 3, 3, 35, 4 },
+				{ 4, 4, 35, 4 },
+				{ 5, 5, 35, 4 },
+				{ 8, 6, 40, 4 },
+				{ 11, 10, 40, 3 },
+				{ 13, 12, 45, 3 },
+
+				{ 15, 12, 45, 4},
+				{ 16, 15, 50, 4},
+				{ 17, 15, 50, 4},
+				{ 18, 16, 50, 4},
+				{ 19, 16, 50, 4},
+				{ 20, 18, 50, 4},
+				{ 30, 25, 55, 5},
+				{ 35, 70, 75, 5},
+
+				{ 26, 26, 50, 75 },
+				{ 28, 25, 70, 150 },
+				{ 32, 32, 60, 75 },
+				{ 35, 35, 60, 75 },
+				{ 35, 35, 70, 75 },
+				{ 35, 55, 80, 115 },
+				{ 39, 40, 80, 125 },
+				{ 46, 64, 80, 150 },
+
+				{ 9,  9, 50, 40 },
+				{ 25, 25, 50, 50 },
+				{ 35, 45, 80, 115 },
+				{ 42, 84, 80, 225 },
+				{ 45, 64, 80, 115 },
+				{ 48, 40, 80, 100 },
+				{ 49, 100, 90, 200 },
+				{ 50, 100, 80, 250 }
+			},
+
+			/* Renkijutusi: Sorcery */
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			/* Renkijutusi: Nature Magic */
+			{
+				{ 1, 1, 35, 2 },
+				{ 3, 3, 40, 2 },
+				{ 4, 4, 40, 3 },
+				{ 5, 5, 55, 2 },
+				{ 6, 6, 50, 3 },
+				{ 7, 7, 50, 3 },
+				{ 8, 8, 50, 3 },
+				{ 9, 9, 45, 3 },
+
+				{ 10, 8, 80, 4 },
+				{ 11, 9, 40, 3 },
+				{ 12, 10, 40, 4 },
+				{ 14, 12, 55, 4 },
+				{ 16, 12, 55, 4 },
+				{ 18, 15, 65, 8 },
+				{ 31, 31, 75, 10 },
+				{ 40, 60, 90, 50 },
+
+				{ 12, 12, 50, 25 },
+				{ 15, 15, 70, 60 },
+				{ 20, 22, 85, 70 },
+				{ 25, 30, 85, 40 },
+				{ 35, 35, 80, 80 },
+				{ 40, 40, 90, 200 },
+				{ 45, 48, 90, 250 },
+				{ 49, 80, 90, 250 },
+
+				{ 25, 25, 60, 150 },
+				{ 27, 27, 60, 160 },
+				{ 28, 28, 75, 125 },
+				{ 33, 33, 75, 35 },
+				{ 38, 38, 75, 45 },
+				{ 41, 40, 75, 100 },
+				{ 45, 85, 95, 250 },
+				{ 48, 85, 75, 150 }
+			},
+
+			/* Renkijutusi: Chaos Magic */
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			/* Renkijutusi: Death Magic */
+			{
+				{ 1, 1, 25, 4 },
+				{ 2, 2, 25, 4 },
+				{ 3, 3, 25, 4 },
+				{ 4, 4, 27, 4 },
+				{ 7, 7, 30, 4 },
+				{ 9, 10, 75, 6 },
+				{ 10, 10, 30, 4 },
+				{ 12, 12, 40, 5 },
+
+				{ 14, 14, 40, 5 },
+				{ 16, 16, 30, 4 },
+				{ 21, 21, 50, 10 },
+				{ 27, 27, 85, 30},
+				{ 33, 75, 90, 30 },
+				{ 36, 35, 60, 16 },
+				{ 44, 55, 80, 70 },
+				{ 46, 45, 95, 100 },
+
+				{ 10, 22, 80, 180 },
+				{ 12, 18, 80, 30 },
+				{ 14, 18, 30, 15 },
+				{ 30, 30, 75, 50 },
+				{ 42, 90, 70, 90 },
+				{ 43, 40, 60, 125 },
+				{ 43, 44, 70, 40 },
+				{ 45, 50, 80, 200 },
+
+				{ 24, 24, 75, 50 },
+				{ 33, 85, 85, 220 },
+				{ 35, 45, 95, 250 },
+				{ 39, 55, 80, 200 },
+				{ 46, 55, 75, 150 },
+				{ 48, 80, 80, 125 },
+				{ 50, 110, 95, 250 },
+				{ 50, 115, 95, 250 }
+			},
+
+			/* Renkijutusi: No Trump magic */
+			{
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+			},
+
+			/* Renkijutusi: No Arcane Magic */
+			{
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0},
+				{ 99, 0, 0, 0}
+			},
+
+			/* Renkijutusi: Enchantment Magic */
+			{
+
+				{  1,  2, 30,   4},
+				{  3,  3, 35,   4},
+				{  5,  4, 40,   3},
+				{  7,  8, 45,   5},
+				{  8,  8, 45,   5},
+				{ 10, 10, 50,   6},
+				{ 12,  8, 45,   5},
+				{ 13,  8, 45,   5},
+
+				{ 15, 17, 55,   4},
+				{ 20, 20, 60,   4},
+				{ 22, 22, 65,   6},
+				{ 25, 24, 80,  80},
+				{ 26, 25, 85,  50},
+				{ 31, 30, 60,   4},
+				{ 34, 28, 55,   5},
+				{ 44, 80, 80,  50},
+
+				{ 16, 16, 55,  12},
+				{ 18, 13, 70, 120},
+				{ 24, 25, 85,  60},
+				{ 28, 18, 70,  10},
+				{ 35, 60, 80,  50},
+				{ 38, 85, 90, 150},
+				{ 45,100, 95, 200},
+				{ 48, 65, 75, 200},
+
+				{ 17, 17, 70,  50},
+				{ 33, 34, 70, 150},
+				{ 40, 55, 90, 200},
+				{ 40, 85, 95, 200},
+				{ 43,100, 95, 200},
+				{ 45,110, 80, 250},
+				{ 47,120, 90, 250},
+				{ 50, 75, 90, 250}
+			},
+
+			/* Renkijutusi: Daemon Magic */
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		}
+	},
+
+	{
+		/*** Blue Mage ***/
+
+		TV_SORCERY_BOOK,
+		0x01,
+
+		A_INT,
+		0,
+
+		99,
+		430,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Kihei ***/
+
+		0,
+		0x00,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Berserker ***/
+
+		0,
+		0x00,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+
+	{
+		/*** Kaji ***/
+
+		0,
+		0x00,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+	{
+		/*** Mirror Master ***/
+
+		TV_LIFE_BOOK,
+		0x00,
+
+		A_INT,
+		0,
+
+		99,
+		400,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+	{
+		/*** Ninja ***/
+
+		0,
+		0x00,
+
+		A_DEX,
+		0,
+
+		99,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
+};
+
+
+magic_type technic_info[NUM_TECHNIC][32] =
+{
+	{
+		/* Music */
+		{ 1,  1,  10,   2},
+		{ 2,  1,  10,   2},
+		{ 3,  2,  20,   3},
+		{ 4,  2,  20,   4},
+		{ 5,  2,  20,   6},
+		{ 7,  4,  30,   8},
+		{ 9,  3,  30,   10},
+		{ 10, 2,  30,   12},
+
+		{ 12,  3,   40,   20},
+		{ 15, 16,  42,   35},
+		{ 17, 18,  40,   25},
+		{ 18,  2,  45,   30},
+		{ 23,  8,  50,   38},
+		{ 28, 30,  50,   41},
+		{ 33, 35,  60,   42},
+		{ 38, 35,  70,   46},
+
+		{ 10,  4,  20,   13},
+		{ 22,  5,  30,   26},
+		{ 23,  3,  35,   27},
+		{ 26,  28,  37,   29},
+		{ 32,  37,  41,   36},
+		{ 33,  22,  43,   40},
+		{ 37,  35,  46,   42},
+		{ 45,  60,  50,   56},
+
+		{ 23,  18,  20,   23},
+		{ 30,  30,  30,   26},
+		{ 33,  65,  41,   30},
+		{ 37,  35,  43,   35},
+		{ 40,  30,  46,   50},
+		{ 42,  75,  50,   68},
+		{ 45,  58,  62,   73},
+		{ 49,  48,  70,  200}
+	},
+
+	{
+		/* Hissatsu */
+		{ 1,   15,   0,   0},
+		{ 3,   10,   0,   0},
+		{ 6,   15,   0,   0},
+		{ 9,    8,   0,   0},
+		{ 10,  12,   0,   0},
+		{ 12,  25,   0,   0},
+		{ 14,   7,   0,   0},
+		{ 17,  20,   0,   0},
+
+		{ 19,  10,   0,   0},
+		{ 22,  20,   0,   0},
+		{ 24,  30,   0,   0},
+		{ 25,  10,   0,   0},
+		{ 27,  15,   0,   0},
+		{ 29,  45,   0,   0},
+		{ 32,  70,   0,   0},
+		{ 35,  50,   0,   0},
+
+		{ 18,  40,   0,   0},
+		{ 22,  22,   0,   0},
+		{ 24,  30,   0,   0},
+		{ 26,  35,   0,   0},
+		{ 30,  30,   0,   0},
+		{ 32,  60,   0,   0},
+		{ 36,  40,   0,   0},
+		{ 39,  80,   0,   0},
+
+		{ 26,  20,   0,   0},
+		{ 29,  40,   0,   0},
+		{ 31,  35,   0,   0},
+		{ 36,  80,   0,   0},
+		{ 39, 100,   0,   0},
+		{ 42, 110,   0,   0},
+		{ 45, 130,   0,   0},
+		{ 50, 255,   0,   0}
 	},
 };
 
@@ -5213,51 +13724,113 @@ u32b fake_spell_flags[4]=
 };
 
 
-byte realm_choices1[] =
+s32b realm_choices1[] =
 {
-	(CH_NONE),					            /* Warrior */
+	(CH_NONE),				/* Warrior */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE),                            /* Mage */
-	(CH_LIFE | CH_DEATH),                   /* Priest */
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON),   /* Mage */
+	(CH_LIFE | CH_DEATH | CH_DAEMON),       /* Priest */
 	(CH_SORCERY | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE),                            /* Rogue */
+	 CH_ARCANE | CH_ENCHANT),               /* Rogue */
 	(CH_NATURE),                            /* Ranger */
 	(CH_LIFE | CH_DEATH),                   /* Paladin */
 	(CH_ARCANE),                            /* Warrior-Mage */
-	(CH_CHAOS),                             /* Chaos-Warrior */
-	(CH_LIFE | CH_NATURE | CH_DEATH),       /* Monk */
+	(CH_CHAOS | CH_DAEMON),                 /* Chaos-Warrior */
+	(CH_LIFE | CH_NATURE | CH_DEATH |
+	 CH_ENCHANT),                           /* Monk */
 	(CH_NONE),                              /* Mindcrafter */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE),                            /* High-Mage */
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON),   /* High-Mage */
+	(CH_ARCANE),                            /* Tourist */
+	(CH_NONE),                              /* Monomane */
+	(CH_TRUMP),                             /* Beastmaster */
+	(CH_NONE),                              /* Sorcerer */
+	(CH_NONE),                              /* Archer */
+	(CH_NONE),                              /* Magic eater */
+	(CH_MUSIC),                             /* Harper */
+	(CH_NONE),                              /* Red Mage */
+	(CH_HISSATSU),                          /* Samurai */
+	(CH_LIFE | CH_NATURE | CH_DEATH |
+	 CH_ENCHANT),                           /* Renkijutusi */
+	(CH_NONE),                              /* Blue Mage */
+	(CH_NONE),				/* Kihei */
+	(CH_NONE),				/* Berserker */
+	(CH_NONE),				/* Kaji */
+	(CH_NONE),				/* Mirror-master */
 };
 
 
-byte realm_choices2[] =
+s32b realm_choices2[] =
 {
 	(CH_NONE),                              /* Warrior */
 	(CH_LIFE | CH_SORCERY | CH_NATURE |
 	 CH_CHAOS | CH_DEATH | CH_TRUMP |
-	 CH_ARCANE),                            /* Mage */
-	(CH_SORCERY | CH_NATURE | CH_CHAOS |
-	 CH_TRUMP | CH_ARCANE),                 /* Priest */
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON),   /* Mage */
+	(CH_LIFE | CH_SORCERY | CH_NATURE |
+	 CH_CHAOS | CH_DEATH | CH_TRUMP |
+	 CH_ARCANE | CH_ENCHANT | CH_DAEMON),   /* Priest */
 	(CH_NONE),                              /* Rogue */
 	(CH_SORCERY | CH_CHAOS | CH_DEATH |
-	 CH_TRUMP | CH_ARCANE),                 /* Ranger */
+	 CH_TRUMP | CH_ARCANE | CH_DAEMON),     /* Ranger */
 	(CH_NONE),                              /* Paladin */
 	(CH_LIFE | CH_NATURE | CH_CHAOS |
 	 CH_DEATH | CH_TRUMP | CH_ARCANE |
-	 CH_SORCERY),                           /* Warrior-Mage */
+	 CH_SORCERY | CH_ENCHANT | CH_DAEMON),  /* Warrior-Mage */
 	(CH_NONE),                              /* Chaos-Warrior */
 	(CH_NONE),                              /* Monk */
 	(CH_NONE),                              /* Mindcrafter */
 	(CH_NONE),                              /* High-Mage */
+	(CH_NONE),                              /* Tourist */
+	(CH_NONE),                              /* Monomane */
+	(CH_NONE),                              /* Beastmanster */
+	(CH_NONE),                              /* Sorcerer */
+	(CH_NONE),                              /* Archer */
+	(CH_NONE),                              /* Magic eater */
+	(CH_NONE),                              /* Harper */
+	(CH_NONE),                              /* Red Mage */
+	(CH_NONE),                              /* Samurai */
+	(CH_NONE),                              /* Renkijutusi */
+	(CH_NONE),                              /* Blue Mage */
+	(CH_NONE),				/* Kihei */
+	(CH_NONE),				/* Berserker */
+	(CH_NONE),				/* Kaji */
+	(CH_NONE),				/* Mirror-master */
 };
 
 
+#ifdef JP
 cptr realm_names[] =
 {
+	"魔法なし",
+	"生命",
+	"仙術",
+	"自然",
+	"カオス",
+	"暗黒",
+	"トランプ",
+	"秘術",
+	"匠",
+	"悪魔",
+	"不明",
+	"不明",
+	"不明",
+	"不明",
+	"不明",
+	"不明",
+	"歌",
+	"武芸",
+	"不明"
+};
+#endif
+
+#ifdef JP
+cptr E_realm_names[]
+#else
+cptr realm_names[]
+#endif
+= {
 	"no magic",
 	"Life",
 	"Sorcery",
@@ -5266,15 +13839,505 @@ cptr realm_names[] =
 	"Death",
 	"Trump",
 	"Arcane",
+	"Craft",
+	"Daemon",
+	"unknown",
+	"unknown",
+	"unknown",
+	"unknown",
+	"unknown",
+	"unknown",
+	"Music",
+	"Samurai-Arts",
 	"unknown"
 };
-
 
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[7][32] =
+#ifdef JP
+cptr spell_names[VALID_REALM][32] =
 {
+	/*** Life Spells ***/
+	{
+		/* Common Life Spellbooks */
+"邪悪存在感知",
+"軽傷の治癒",
+"祝福",
+"恐怖除去",
+"光の召喚",
+"罠 & 隠し扉感知",
+"重傷の治癒",
+"空腹充足",
+
+"解呪",
+"解毒",
+"致命傷の治癒",
+"透明視認",
+"聖なる光球",
+"対邪悪結界",
+"体力回復",
+"結界の紋章",
+
+		/* Rare Life Spellbooks */
+"悪魔払い",
+"*解呪*",
+"アンデッド & 悪魔退散",
+"凪の刻",
+"邪悪退散",
+"邪悪追放",
+"聖なる御言葉",
+"真・結界",
+
+"士気高揚",
+"祈り",
+"アンデッド消滅",
+"全復活",
+"*体力回復*",
+"聖なるビジョン",
+"神威",
+"究極の耐性"
+	},
+
+	/*** Sorcery Spells ***/
+
+	{
+		/* Common Sorcery Spellbooks */
+"モンスター感知",
+"ショート・テレポート",
+"罠と扉感知",
+"ライト・エリア",
+"パニック・モンスター",
+"テレポート",
+"スリープ・モンスター",
+"魔力充填",
+
+"魔法の地図",
+"鑑定",
+"スロウ・モンスター",
+"周辺スリープ",
+"テレポート・モンスター",
+"スピード",
+"真・感知",
+"真・鑑定",
+
+		/* Rare Sorcery Spellbooks */
+"物体と財宝感知",
+"チャーム・モンスター",
+"精神感知",
+"街移動",
+"自己分析",
+"テレポート・レベル",
+"帰還の呪文",
+"爆発のルーン",
+
+"調査",
+"念動力",
+"千里眼",
+"魅了の視線",
+"次元の扉",
+"錬金術",
+"怪物追放",
+"無傷の球"
+
+	},
+
+	/*** Nature Spells ***/
+
+	{
+		/* Common Nature Spellbooks */
+"モンスター感知",
+"稲妻",
+"罠と扉感知",
+"食糧生成",
+"日の光",
+"動物習し",
+"環境への耐性",
+"傷と毒治療",
+
+"岩石溶解",
+"アイス・ボルト",
+"自然の覚醒",
+"ファイア・ボルト",
+"太陽光線",
+"足かせ",
+"動物召喚",
+"薬草治療",
+
+		/* Rare Nature Spellbooks */
+"階段生成",
+"肌石化",
+"真・耐性",
+"森林創造",
+"動物友和",
+"試金石",
+"石の壁",
+"腐食防止",
+
+"地震",
+"カマイタチ",
+"ブリザード",
+"稲妻嵐",
+"渦潮",
+"陽光召喚",
+"精霊の刃",
+"自然の脅威"
+
+	},
+
+	/*** Chaos Spells ***/
+
+	{
+		/* Common Chaos Spellbooks */
+"マジック・ミサイル",
+"トラップ/ドア破壊",
+"閃光",
+"混乱の手",
+"魔力炸裂",
+"ファイア・ボルト",
+"力の拳",
+"テレポート",
+
+"ワンダー",
+"カオス・ボルト",
+"ソニック・ブーム",
+"破滅の矢",
+"ファイア・ボール",
+"テレポート・アウェイ",
+"破壊の言葉",
+"ログルス発動",
+
+		/* Rare Chaos Spellbooks */
+"他者変容",
+"連鎖稲妻",
+"魔力封入",
+"原子分解",
+"現実変容",
+"マジック・ロケット",
+"混沌の刃",
+"悪魔召喚",
+
+"重力光線",
+"流星群",
+"焔の一撃",
+"混沌召来",
+"自己変容",
+"魔力の嵐",
+"ログルスのブレス",
+"虚無召来"
+
+	},
+
+	/*** Death Spells ***/
+
+	{
+		/* Common Death Spellbooks */
+"無生命感知",
+"呪殺弾",
+"邪悪感知",
+"悪臭雲",
+"黒い眠り",
+"耐毒",
+"恐慌",
+"アンデッド従属",
+
+"エントロピーの球",
+"地獄の矢",
+"殺戮雲",
+"モンスター消滅",
+"毒の刃",
+"吸血ドレイン",
+"反魂の術",
+"抹殺",
+
+		/* Rare Death Spellbooks */
+"狂戦士化",
+"悪霊召喚",
+"暗黒の矢",
+"狂乱戦士",
+"吸血の刃",
+"真・吸血",
+"死の言魂",
+"暗黒の嵐",
+
+"死の光線",
+"死者召喚",
+"死者の秘伝",
+"吸血鬼変化",
+"生命力復活",
+"周辺抹殺",
+"地獄の劫火",
+"幽体化"
+
+	},
+
+	/*** Trump Spells ***/
+
+	{
+		/* Common Trump Spellbooks */
+"ショート・テレポート",
+"蜘蛛のカード",
+"シャッフル",
+"フロア・リセット",
+"テレポート",
+"感知のカード",
+"テレポート・モンスター",
+"動物のカード",
+
+"移動のカード",
+"カミカゼのカード",
+"幻霊召喚",
+"スピード・モンスター",
+"テレポート・レベル",
+"次元の扉",
+"帰還の呪文",
+"怪物追放",
+
+		/* Rare Trump Spellbooks */
+"位置交換のカード",
+"アンデッドのカード",
+"爬虫類のカード",
+"モンスターのカード",
+"ハウンドのカード",
+"トランプの刃",
+"人間トランプ",
+"サイバーデーモンのカード",
+
+"予見のカード",
+"知識のカード",
+"回復モンスター",
+"ドラゴンのカード",
+"隕石のカード",
+"デーモンのカード",
+"地獄のカード",
+"古代ドラゴンのカード"
+
+	},
+
+	/*** Arcane Spells (_only_ common spells) ***/
+
+	{
+"電撃",
+"魔法の施錠",
+"透明体感知",
+"モンスター感知",
+"ショート・テレポート",
+"ライト・エリア",
+"罠と扉 破壊",
+"軽傷の治癒",
+
+"罠と扉 感知",
+"燃素",
+"財宝感知",
+"魔法 感知",
+"アイテム感知",
+"解毒",
+"耐冷",
+"耐火",
+
+"耐電",
+"耐酸",
+"重傷の治癒",
+"テレポート",
+"鑑定",
+"岩石溶解",
+"閃光",
+"空腹充足",
+
+"透明視認",
+"エレメンタル召喚",
+"テレポート・レベル",
+"テレポート・モンスター",
+"元素の球",
+"全感知",
+"帰還の呪文",
+"千里眼",
+
+	},
+
+	/*** Enchantment Spells ***/
+
+	{
+		/* Common Enchantment Spellbooks */
+"赤外線視力",
+"回復力強化",
+"空腹充足",
+"耐冷気",
+"耐火炎",
+"士気高揚",
+"耐電撃",
+"耐酸",
+
+"透明視認",
+"解呪",
+"耐毒",
+"狂戦士化",
+"自己分析",
+"対邪悪結界",
+"癒し",
+"魔法剣",
+
+		/* Rare Enchantment Spellbooks */
+"テレパシー",
+"肌石化",
+"全耐性",
+"スピード",
+"壁抜け",
+"盾磨き",
+"ゴーレム製造",
+"魔法の鎧",
+
+"装備無力化",
+"呪い粉砕",
+"完全なる知識",
+"武器強化",
+"防具強化",
+"武器属性付与",
+"人間トランプ",
+"属性への免疫",
+
+	},
+
+	/*** Daemon Spells ***/
+
+	{
+		/* Common Daemon Spellbooks */
+"マジック・ミサイル",
+"無生命感知",
+"邪なる祝福",
+"耐火炎",
+"恐慌",
+"地獄の矢",
+"古代の死霊召喚",
+"地獄の焔",
+
+"デーモン支配",
+"ビジョン",
+"耐地獄",
+"プラズマ・ボルト",
+"ファイア・ボール",
+"炎の刃",
+"地獄球",
+"デーモン召喚",
+
+		/* Rare Daemon Spellbooks */
+"悪魔の目",
+"悪魔のクローク",
+"溶岩流",
+"プラズマ球",
+"悪魔変化",
+"地獄の波動",
+"サキュバスの接吻",
+"破滅の手",
+
+"士気高揚",
+"不滅の肉体",
+"狂気の円環",
+"ペット爆破",
+"グレーターデーモン召喚",
+"地獄嵐",
+"血の呪い",
+"魔王変化",
+
+	},
+
+	/*** Music Spells ***/
+
+	/* 訳語
+	   Song : 歌, Note : 音色, Pattern : 旋律, 
+	   Ballad : 歌(謡曲→「唄」と訳す?), Chant : 歌声, */
+	{
+		/******* Apprentice Handbook *******/
+		"遅鈍の歌",	/*"Song of Holding"*/
+		"祝福の歌",	/*"Song of Blessing"*/
+		"崩壊の音色",	/*"Wracking Note"*/
+		"朦朧の旋律",	/*"Stun Pattern"*/
+		"生命の流れ",	/*"Flow of Life"*/
+		"太陽の歌",	/*"Song of the Sun"*/
+		"恐怖の歌",
+		"戦いの歌",	/*"Heroic Ballad"*/
+
+		/******* Minstrel's Music *******/
+		"霊的知覚",	/*"Clairaudience"*/
+		"魂の歌",
+		"知識の歌",	/*"Song of Lore"*/
+		"隠遁の歌",
+		"幻影の旋律",	/*"Illusion Pattern"*/
+		"破滅の叫び",	/*"Doomcall"*/
+		"フィリエルの歌",	/*"Firiel's Song"*/
+		"旅の仲間",	/*"Fellowship Chant"*/
+
+		/******* Harps of Rivendell *******/
+		"分解音波",
+		"元素耐性",
+		"ホビットのメロディ",
+		"歪んだ世界",
+		"退散の歌",
+		"サルマンの甘言",
+		"嵐の音色",
+		"もう一つの世界",
+
+		/******* Lays of Beleriand *******/
+		"破壊の旋律",
+		"停滞の歌",
+		"守りの歌",
+		"英雄の詩",
+		"ヤヴァンナの助け",
+		"再生の歌",
+		"サウロンの魔術",
+		"フィンゴルフィンの挑戦",
+	},
+
+	/*** Hissatsuwaza ***/
+
+	{
+		"飛飯綱",
+		"五月雨斬り",
+		"ブーメラン",
+		"焔霊",
+		"殺気感知",
+		"みね打ち",
+		"カウンター",
+		"払い抜け",
+
+		"サーペンツタン",
+		"斬魔剣弐の太刀",
+		"裂風剣",
+		"刀匠の目利き",
+		"破岩斬",
+		"乱れ雪月花",
+		"急所突き",
+		"魔神斬り",
+
+		"捨て身",
+		"雷撃鷲爪斬",
+		"入身",
+		"赤流渦",
+		"激震撃",
+		"地走り",
+		"気迫の雄叫び",
+		"無双三段",
+
+		"吸血鬼の牙",
+		"幻惑",
+		"百人斬り",
+		"天翔龍閃",
+		"二重の剣撃",
+		"虎伏絶刀勢",
+		"慶雲鬼忍剣",
+		"切腹",
+	},
+};
+#endif
+
+
+#ifdef JP
+/* 英日切り替えに対応 */
+cptr E_spell_names[VALID_REALM][32]
+#else
+cptr spell_names[VALID_REALM][32]
+#endif
+= {
 	/*** Life Spells ***/
 	{
 		/* Common Life Spellbooks */
@@ -5283,12 +14346,12 @@ cptr spell_names[7][32] =
 		"Bless",
 		"Remove Fear",
 		"Call Light",
-		"Detect Traps and Secret Doors",
+		"Detect Doors & Traps",
 		"Cure Medium Wounds",
 		"Satisfy Hunger",
 
 		"Remove Curse",
-		"Cure Poison",
+		"Cure Poison",   
 		"Cure Critical Wounds",
 		"Sense Unseen",
 		"Holy Orb",
@@ -5302,18 +14365,18 @@ cptr spell_names[7][32] =
 		"Dispel Undead & Demons",
 		"Day of the Dove",
 		"Dispel Evil",
-		"Banish",
+		"Banishment",
 		"Holy Word",
 		"Warding True",
 
 		"Heroism",
 		"Prayer",
-		"Bless Weapon",
+		"Turn Undead",
 		"Restoration",
 		"Healing True",
 		"Holy Vision",
 		"Divine Intervention",
-		"Holy Invulnerability"
+		"Ultimate Resistance",
 	},
 
 	/*** Sorcery Spells ***/
@@ -5340,51 +14403,51 @@ cptr spell_names[7][32] =
 
 		/* Rare Sorcery Spellbooks */
 		"Detect Objects and Treasure",
-		"Detect Enchantment",
 		"Charm Monster",
-		"Dimension Door",
 		"Sense Minds",
+		"Teleport to town",
 		"Self Knowledge",
 		"Teleport Level",
 		"Word of Recall",
-
-		"Stasis",
-		"Telekinesis",
 		"Explosive Rune",
+
+		"Probing",
+		"Telekinesis",
 		"Clairvoyance",
-		"Enchant Weapon",
-		"Enchant Armour",
+		"Charm monsters",
+		"Dimension Door",
 		"Alchemy",
-		"Globe of Invulnerability"
+		"Banishment",
+		"Globe of Invulnerability",
 	},
 
-	/*** Nature Spellbooks ***/
+	/*** Nature Spells ***/
 
 	{
 		/* Common Nature Spellbooks */
 		"Detect Creatures",
-		"First Aid",
+		"Lightning",
 		"Detect Doors and Traps",
-		"Foraging",
+		"Produce Food",
 		"Daylight",
 		"Animal Taming",
 		"Resist Environment",
 		"Cure Wounds & Poison",
 
 		"Stone to Mud",
-		"Lightning Bolt",
-		"Nature Awareness",
 		"Frost Bolt",
+		"Nature Awareness",
+		"Fire Bolt",
 		"Ray of Sunlight",
 		"Entangle",
 		"Summon Animal",
 		"Herbal Healing",
 
 		/* Rare Nature Spellbooks */
-		"Door Building",
 		"Stair Building",
 		"Stone Skin",
 		"Resistance True",
+		"Tree Creation",
 		"Animal Friendship",
 		"Stone Tell",
 		"Wall of Stone",
@@ -5397,7 +14460,7 @@ cptr spell_names[7][32] =
 		"Whirlpool",
 		"Call Sunlight",
 		"Elemental Branding",
-		"Nature's Wrath"
+		"Nature's Wrath",
 	},
 
 	/*** Chaos Spells ***/
@@ -5428,7 +14491,7 @@ cptr spell_names[7][32] =
 		"Arcane Binding",
 		"Disintegrate",
 		"Alter Reality",
-		"Polymorph Self",
+		"Magic Rocket",
 		"Chaos Branding",
 		"Summon Demon",
 
@@ -5436,10 +14499,10 @@ cptr spell_names[7][32] =
 		"Meteor Swarm",
 		"Flame Strike",
 		"Call Chaos",
-		"Magic Rocket",
+		"Polymorph Self",
 		"Mana Storm",
 		"Breathe Logrus",
-		"Call the Void"
+		"Call the Void",
 	},
 
 	/*** Death Spells ***/
@@ -5457,77 +14520,76 @@ cptr spell_names[7][32] =
 
 		"Orb of Entropy",
 		"Nether Bolt",
-		"Terror",
-		"Vampiric Drain",
+		"Cloud kill",
+		"Genocide One",
 		"Poison Branding",
-		"Dispel Good",
+		"Vampiric Drain",
+		"Animate dead",
 		"Genocide",
-		"Restore Life",
 
 		/* Rare Death Spellbooks */
 		"Berserk",
 		"Invoke Spirits",
 		"Dark Bolt",
 		"Battle Frenzy",
-		"Vampirism True",
 		"Vampiric Branding",
+		"Vampirism True",
+		"Nether Wave",
 		"Darkness Storm",
-		"Mass Genocide",
 
 		"Death Ray",
 		"Raise the Dead",
 		"Esoteria",
-		"Word of Death",
-		"Evocation",
+		"Polymorph Vampire",
+		"Restore Life",
+		"Mass Genocide",
 		"Hellfire",
-		"Omnicide",
-		"Wraithform"
+		"Wraithform",
 	},
 
-	/* Trump Spellbooks */
+	/*** Trump Spells ***/
 
 	{
 		/* Common Trump Spellbooks */
 		"Phase Door",
-		"Mind Blast",
+		"Trump Spiders",
 		"Shuffle",
 		"Reset Recall",
 		"Teleport",
-		"Dimension Door",
 		"Trump Spying",
 		"Teleport Away",
+		"Trump Animals",
 
 		"Trump Reach",
-		"Trump Animal",
+		"Trump Kamikaze",
 		"Phantasmal Servant",
-		"Trump Monster",
-		"Conjure Elemental",
+		"Haste Monster",
 		"Teleport Level",
+		"Dimension Door",
 		"Word of Recall",
 		"Banish",
 
 		/* Rare Trump Spellbooks */
-		"Joker Card",
-		"Trump Spiders",
+		"Swap Position",
+		"Trump Undead",
 		"Trump Reptiles",
+		"Trump Monsters",
 		"Trump Hounds",
 		"Trump Branding",
 		"Living Trump",
-		"Death Dealing",
 		"Trump Cyberdemon",
-
 
 		"Trump Divination",
 		"Trump Lore",
-		"Trump Undead",
+		"Heal Monster",
 		"Trump Dragon",
-		"Mass Trump",
+		"Trump Meteor",
 		"Trump Demon",
+		"Trump Greater Undead",
 		"Trump Ancient Dragon",
-		"Trump Greater Undead"
 	},
 
-	/* Arcane Spellbooks (_only_ common spells) */
+	/*** Arcane Spells (_only_ common spells) ***/
 
 	{
 		"Zap",
@@ -5552,23 +14614,202 @@ cptr spell_names[7][32] =
 		"Resist Acid",
 		"Cure Medium Wounds",
 		"Teleport",
+		"Identify",
 		"Stone to Mud",
 		"Ray of Light",
 		"Satisfy Hunger",
-		"See Invisible",
 
-		"Recharging",
+		"See Invisible",
+		"Conjure Elemental",
 		"Teleport Level",
-		"Identify",
 		"Teleport Away",
 		"Elemental Ball",
 		"Detection",
 		"Word of Recall",
-		"Clairvoyance"
-	}
+		"Clairvoyance",
+	},
+
+	/*** Enchantment Spells ***/
+
+	{
+		/* Common Enchantment Spellbooks */
+		"Infravision",
+		"Regeneration",
+		"Satisfy Hunger",
+		"Resist Cold",
+		"Resist Fire",
+		"Heroism",
+		"Resist Lightning",
+		"Resist Acid",
+
+		"See Invisibility",
+		"Remove Curse",
+		"Resist Poison",
+		"Berserk",
+		"Self Knowledge",
+		"Protection from Evil",
+		"Cure",
+		"Mana Branding",
+
+		/* Rare Enchantment Spellbooks */
+		"Telepathy",
+		"Stone Skin",
+		"Resistance",
+		"Haste",
+		"Walk through Wall",
+		"Pulish Shield",
+		"Create Golem",
+		"Magical armor",
+
+		"Remove Enchantment",
+		"Remove All Curse",
+		"Knowledge True", /* "Total Knowledge", */
+		"Enchant Weapon",
+		"Enchant Armor",
+		"Brand Weapon",
+		"Living Trump",
+		"Immunity",
+	},
+
+	/*** Daemon Spells ***/
+
+	{
+		/* Common Daemon Spellbooks */
+		"Magic Missile",
+		"Detect Unlife",
+		"Evil Bless",
+		"Resist Fire",
+		"Horrify",
+		"Nether Bolt",
+		"Summon Manes",
+		"Hellish Flame",
+
+		"Dominate Demon",
+		"Vision",
+		"Resist Nether",
+		"Plasma bolt",
+		"Fire Ball",
+		"Fire Branding",
+		"Nether Ball",
+		"Summon Demon",
+
+		/* Rare Daemon Spellbooks */
+		"Devilish Eye",
+		"Devil Cloak",
+		"The Flow of Lava",
+		"Plasma Ball",
+		"Polymorph Demon",
+		"Nather Wave",
+		"Kiss of Saccubus",
+		"Doom Hand",
+
+		"Raise the Morale",
+		"Immortal Body",
+		"Insanity Circle",
+		"Explode Pets",
+		"Summon Greater Demon",
+		"Nether Storm",
+		"Bloody Curse",
+		"Polymorph Demonlord",
+	},
+
+	/*** Music Spells ***/
+
+	{
+		/******* Apprentice Handbook *******/
+		"Song of Holding",
+		"Song of Blessing",
+		"Wrecking Note",
+		"Stun Pattern",
+		"Flow of Life",
+		"Song of the Sun",
+		"Song of Fear", /* 恐怖の歌 */
+		"Heroic Ballad",
+
+		/******* Minstrel's Music *******/
+		"Clairaudience",
+		"Soul Shriek", /* 魂の歌 */
+		"Song of Lore",
+		"Hiding Tune", /* "隠遁の歌", */
+		"Illusion Pattern",
+		"Doomcall",
+		"Firiel's Song",
+		"Fellowship Chant", /* "旅の仲間" */
+
+		/******* Harps of Rivendell *******/
+		"Sound of disintegration", /* 分解音波 */
+		"Finrod's Resistance", /* 元素耐性 */
+		"Hobbit Melodies", /* ホビットのメロディ */
+		"World Contortion", /* 歪んだ世界 */
+		"Dispeling chant", /* 退散の歌 */
+		"The Voice of Saruman", /* サルマンの甘言 */
+		"Song of the Tempest", /* 嵐の音色 */
+		"Ambarkanta", /* もう一つの世界 */
+
+		/******* Lays of Beleriand *******/
+		"Wrecking Pattern", /* 破壊の旋律 */
+		"Stationary Shriek", /* 停滞の歌 */
+		"Endurance", /* 守りの歌 */
+		"The Helo's Poem", /* 英雄の詩 */
+		"Relief of Yavanna", /* "ヤヴァンナの助け" */
+		"Goddess' rebirth", /* "再生の歌" */
+		"Wizardry of Sauron", /* "サウロンの魔術", */
+		"Fingolfin's Challenge", /* "フィンゴルフィンの挑戦", */
+
+#if 0
+		"Spatial Transfer",
+		"Song of Probing",
+		"Telchar's Forge",
+		"Akallabeth",
+		"Ambarkanta",
+		"Lay of Gil-Galad",
+		"Felagund's Disguise",
+		"Ainulindale",
+		"The Horns of Ylmir",
+		"Luthien's Mourning",
+#endif
+		
+	},
+
+	/*** Hissatsuwaza ***/
+	{
+		"Tobi-Izuna",
+		"Three-Way attack",
+		"Boomerang",
+		"Burning Strike",
+		"Detect Ferocity",
+		"Mineuchi",
+		"Counter",
+		"Harainuke", /* 払い抜け */
+
+		"Serpent's Tongue",
+		"Zammaken-Ninotachi",
+		"Reppuken",
+		"Judge of Sword Master",
+		"Haganzan",
+		"Midare-Setsugetsuka",
+		"Weakpoint",
+		"Majingiri",
+
+		"Desparate Slash",
+		"Raigeki-Yousouzan",
+		"Nyuusin", /* 入身 */
+		"Bloody maelstrom",
+		"Gekishingeki",
+		"Jibashiri", /* "Chibashiri", */
+		"Spiritual War-cry",
+		"Musou-Sandan",
+
+		"Fang of Vampire",
+		"Engetsu-Sappou",
+		"Hyakuningiri", /* "Handred Slash", */
+		"Amakakeru-Ryunohirameki",
+		"Futaeno-Kengeki", /* "Double Slash", */
+		"Kofuku-Zettousei",
+		"Keiun-Kininken",
+		"Harakiri",
+	},
 };
-
-
 
 /*
  * Each chest has a certain set of traps, determined by pval
@@ -5577,7 +14818,7 @@ cptr spell_names[7][32] =
  * The "pval" of a chest determines the quality of its treasure
  * Note that disarming a trap on a chest also removes the lock.
  */
-byte chest_traps[64] =
+int chest_traps[64] =
 {
 	0,                                      /* 0 == empty */
 	(CHEST_POISON),
@@ -5591,13 +14832,13 @@ byte chest_traps[64] =
 	(CHEST_LOSE_STR),
 	(CHEST_LOSE_CON),
 	(CHEST_POISON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
+	(CHEST_SCATTER),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_SUMMON),                 /* 15 == best large wooden */
 	0,
 	(CHEST_LOSE_STR),
-	(CHEST_LOSE_CON),
+	(CHEST_SCATTER),
 	(CHEST_PARALYZE),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_SUMMON),
@@ -5606,13 +14847,13 @@ byte chest_traps[64] =
 	(CHEST_LOSE_CON),
 	(CHEST_EXPLODE),                        /* 25 == best small iron */
 	0,
-	(CHEST_POISON | CHEST_LOSE_STR),
+	(CHEST_E_SUMMON),
 	(CHEST_POISON | CHEST_LOSE_CON),
 	(CHEST_LOSE_STR | CHEST_LOSE_CON),
 	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_PARALYZE),
+	(CHEST_BIRD_STORM),
 	(CHEST_POISON | CHEST_SUMMON),
-	(CHEST_SUMMON),
+	(CHEST_E_SUMMON),
 	(CHEST_EXPLODE),
 	(CHEST_EXPLODE | CHEST_SUMMON), /* 35 == best large iron */
 	0,
@@ -5622,19 +14863,19 @@ byte chest_traps[64] =
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_POISON | CHEST_PARALYZE),
 	(CHEST_EXPLODE),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_EXPLODE | CHEST_SUMMON),
-	(CHEST_POISON | CHEST_PARALYZE),        /* 45 == best small steel */
+	(CHEST_BIRD_STORM),
+	(CHEST_EXPLODE | CHEST_E_SUMMON),
+	(CHEST_H_SUMMON),        /* 45 == best small steel */
 	0,
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
-	(CHEST_POISON | CHEST_PARALYZE),
-	(CHEST_POISON | CHEST_PARALYZE),        /* 55 == best large steel */
+	(CHEST_EXPLODE | CHEST_SUMMON),
+	(CHEST_BIRD_STORM),
+	(CHEST_RUNES_OF_EVIL),
+	(CHEST_EXPLODE | CHEST_SUMMON),
+	(CHEST_BIRD_STORM),
+	(CHEST_H_SUMMON),
+	(CHEST_RUNES_OF_EVIL),
+	(CHEST_H_SUMMON | CHEST_SCATTER),
+	(CHEST_RUNES_OF_EVIL | CHEST_EXPLODE),  /* 55 == best large steel */
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_EXPLODE | CHEST_SUMMON),
 	(CHEST_EXPLODE | CHEST_SUMMON),
@@ -5652,6 +14893,395 @@ byte chest_traps[64] =
  * The player gets a new title every five levels, so each class
  * needs only ten titles total.
  */
+#ifdef JP
+cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
+{
+	/* Warrior */
+	{
+                "新参兵",
+                "兵士",
+                "傭兵",
+                "古参兵",
+                "剣士",
+                "闘士",
+                "英雄",
+                "男爵",
+                "伯爵",
+                "領主",
+	},
+
+	/* Mage */
+	{
+				/*"見習い",*/
+                "練習生",                 /*丁稚、練習生*/
+                "奇術師",               /*詐欺師、ペテン師*/
+                "幻術師",
+                "呪術師",
+                "召霊師",
+                "召魔師",
+                "魔術師",
+                "魔道師",
+                "イプシシマス",
+                "大魔道師",
+	},
+
+	/* Priest */
+	{
+                "信者",                 /*信徒*/
+                "侍僧",             /*教会奉仕者、見習い僧、伴僧、従者*/
+                "熟練僧",
+                "聖職者",                 /*聖職者*/
+                "伝道師",               /*司祭評議員、修道会会員*/
+                "牧師",               /*ラマ教の僧*/
+                "聖人",               /*大司教、総主教、総大司教*/
+                "祭司",                 /*祭司、司祭*/
+                "祭司長",               /*大祭司、祭司長*/
+                "教皇",
+	},
+
+	/* Rogues */
+	{
+		/* "ごろつき",*/                     /*ごろつき、風来坊、浮浪者*/
+                "すり",
+                "追いはぎ",                     /*追い剥ぎ、強盗、泥棒*/
+                "夜盗",                         /*強盗、夜盗、泥棒*/
+                "こそ泥",                       /*こそ泥、小泥棒*/
+                "ペテン師",                     /*博徒、ペテン師、詐欺師*/
+                "ロウシーフ",
+                "ハイシーフ",
+                "マスターシーフ",
+                "アサシン",						/* 暗殺者 */
+                "ギルドマスター",
+	},
+
+	/* Rangers */
+	{
+                "使い走り",
+                "馳夫",
+                "斥候",                         /*斥候、見張り、偵察兵*/
+                "狩人",
+                "追跡者",
+                "先導者",
+                "探険者",                       /*開拓者、探険者*/
+                "野伏",
+                "野伏頭",
+                "野伏の総領",
+	},
+
+	/* Paladins */
+	{
+                "勇士",                 /*色男、愛人、しゃれ者、勇敢な人*/
+                "衛士",
+                "保護者",
+                "防衛者",
+                "護衛者",
+                "騎士",
+                "重騎士",
+                "聖騎士",
+                "上級聖騎士",
+                "聖騎士長",
+	},
+
+	/* Warrior-Mage */
+	{
+		"見習い",
+		"徒弟",			/*丁稚、練習生*/
+		"一人前",
+		"古参兵",
+		"魔術兵士",
+		"魔術闘士",
+		"魔術の英雄", /* Mage-Hero */
+		"魔男爵",
+		/* "魔公爵", */
+		"戦闘魔術士",
+		"ウィザードロード",
+	},
+
+	/* Chaos Warrior */
+	{
+                "新参兵",
+                "兵士",
+                "傭兵",
+                "古参兵",
+                "剣士",
+                "闘士",
+                "混沌の英雄",
+                "混沌の男爵",
+                "混沌の公爵",
+                "混沌の王者",
+	},
+
+	/* Monk */
+	{
+		"入門者",
+		"弟子",
+		"直弟子",
+		"師範代",
+		"師範",
+		"道場主",
+		"名人",
+		"大名人",
+		"拳聖",
+		"拳神",
+	},
+
+	/* Mindcrafter */
+	{
+		"練習生",
+		"見習い",
+		"熟練士",
+		"熟達士",
+		"黙想士",
+		"心術士",
+		"サイキック",
+		"サイオニック",
+		"超能力者",
+		"マインドマスター",
+	},
+
+	/* High Mage; same as Mage */
+	{
+				/*"見習い",*/
+                "練習生",                 /*丁稚、練習生*/
+                "奇術師",               /*詐欺師、ペテン師*/
+                "幻術師",
+                "呪術師",
+                "召霊師",
+                "召魔師",
+                "魔術師",
+                "魔道師",
+                "イプシシマス",
+                "大魔道師",
+	},
+
+	/* Tourist */
+	{
+		"プー太郎",
+		"観光客",
+		"周遊旅行者",
+		"遍歴者",
+		"旅行者",
+		"放浪者", /* "旅人", */
+		"航海者",
+		"探検家",
+		"冒険家",
+		"スペランカー",
+	},
+
+	/* Monomaneshi */
+	{
+		"これから",
+		"いまいち",
+		"まだまだ",
+		"ぼちぼち",
+		"そこそこ",
+		"まあまあ",
+		"なかなか",
+		"いけいけ",
+		"そうとう",
+		"えらい",
+	},
+
+	/* Beastmaster */
+	{
+		"イモリ使い",
+		"ヘビ使い",
+		"クモ使い",
+		"狼使い",
+		"トラ使い",
+		"甲虫使い",
+		"ヒドラ使い",
+		"ハウンド使い",
+		"ムーマク使い",
+		"ドラゴン使い",
+	},
+
+	/* Sorcerer; same as Mage */
+	{
+				/*"見習い",*/
+                "練習生",                 /*丁稚、練習生*/
+                "奇術師",               /*詐欺師、ペテン師*/
+                "幻術師",
+                "呪術師",
+                "召霊師",
+                "召魔師",
+                "魔術師",
+                "魔道師",
+                "イプシシマス",
+                "大魔道師",
+	},
+
+	/* Archer */
+	{
+                "新参兵",
+                "兵士",
+                "傭兵",
+                "古参兵",
+                "剣士",
+                "闘士",
+                "英雄",
+                "男爵",
+                "伯爵",
+                "領主",
+	},
+
+	/* Magic eater */
+	{
+                "無知なる者",
+                "入門者",
+                "奇術師",
+                "秘術師",
+                "秘術師",
+                "熟練者",
+                "達人",
+                "達人",
+                "魔道師",
+                "全てを知る者",
+	},
+
+        /* Harper */
+	{
+                "見習い",	/*"Apprentice"*/
+                "作曲家",	/*"Songsmith"*/
+                "吟遊詩人",	/*"Bard"*/
+                "コンパニオン",	/*"Companion"*/
+                "心の癒し手",	/*"Minstrel"*/
+                "竪琴師",	/*"Harper"*/
+                "伝承の紡ぎ手",	/*"Loreweaver"*/
+                "詩神の申し子",	/*"Muse"*/
+                "夢紡ぎ",	/*"Dreamweaver"*/
+                "マスター",	/*"Master Harper"*/
+	},
+
+	/* Red Mage; same as Warrior-Mage */
+	{
+		"見習い",
+		"徒弟",			/*丁稚、練習生*/
+		"一人前",
+		"古参兵",
+		"魔術兵士",
+		"魔術闘士",
+		"魔術の英雄", /* Mage-Hero */
+		"魔男爵",
+		/* "魔公爵", */
+		"戦闘魔術士",
+		"ウィザードロード",
+	},
+
+	/* Samurai */
+	{
+		"入門者",
+		"弟子",
+		"直弟子",
+		"師範代",
+		"師範",
+		"道場主",
+		"名人",
+		"大名人",
+		"剣聖",
+		"剣神",
+	},
+
+	/* Renkijutusi; same as Monk(?) */
+	{
+		"入門者",
+		"弟子",
+		"直弟子",
+		"師範代",
+		"師範",
+		"道場主",
+		"名人",
+		"大名人",
+		"拳聖",
+		"拳神",
+	},
+
+	/* Blue Mage; same as Mage */
+	{
+				/*"見習い",*/
+                "練習生",                 /*丁稚、練習生*/
+                "奇術師",               /*詐欺師、ペテン師*/
+                "幻術師",
+                "呪術師",
+                "召霊師",
+                "召魔師",
+                "魔術師",
+                "魔道師",
+                "イプシシマス",
+                "大魔道師",
+	},
+
+	/* Kihei */
+	{
+                "新参兵",
+                "兵士",
+                "傭兵",
+                "古参兵",
+                "剣士",
+                "闘士",
+                "英雄",
+                "男爵",
+                "伯爵",
+                "領主",
+	},
+
+	/* Berserker */
+	{
+		"バーサーカー",
+		"バーサーカー",
+		"バーサーカー",
+		"怒りの公爵",
+		"怒りの公爵",
+		"怒りの公爵",
+		"怒りの王",
+		"怒りの王",
+		"怒りの王",
+		"怒りの化身",
+	},
+
+	/* Kaji */
+	{
+		"銅を鍛えし者",
+		"鉄を鍛えし者",
+		"鋼を鍛えし者",
+		"銀を鍛えし者",
+		"竜を鍛えし者",
+		"霊を鍛えし者",
+		"魔を鍛えし者",
+		"魂を鍛えし者",
+		"神を鍛えし者",
+		"全を鍛えし者",
+	},
+
+	/* Mirror Master */
+	{
+		"鏡を見る人",
+		"鏡磨き",
+		"鏡職人",
+		"鏡術師",
+		"鏡導師",
+		"鏡の賢者",
+		"鏡の王",
+		"鏡の皇帝",
+		"鏡の化身",
+		"ラフノール王",
+	},
+	/* Ninja */
+	{
+		"訓練生",
+		"仕手",
+		"熟達者",
+		"短刀使い",
+		"切り裂き",
+		"凄腕",
+		"漆黒の刃",
+		"闇の一撃",
+		"暗殺者",
+		"死の長き腕",
+	},
+};
+
+#else
 cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 {
 	/* Warrior */
@@ -5807,6 +15437,433 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
 		"Ipsissimus",
 		"Archimage",
 	},
+
+	/* Tourist */
+	{
+		"Rambler",
+		"Sightseer",
+		"Excursionist",
+		"Peregrinator",
+		"Traveler",
+		"Journeyer",
+		"Voyager",
+		"Explorer",
+		"Adventurer",
+		"Spelunker",
+	},
+
+	/* Monomaneshi */
+	{
+		"Yet",
+		"Lacks",
+		"Still more",
+		"So so",
+		"All right",
+		"Not bad",
+		"Considerable",
+		"Go go",
+		"Sizable",
+		"Great man",
+	},
+
+	/* BeastMaster */
+	{
+		"Newt Master",
+		"Snake Master",
+		"Spider Master",
+		"Wolf Master",
+		"Tiger Master",
+		"Beetle Master",
+		"Hydra Master",
+		"Hound Master",
+		"Mumak Master",
+		"Dragon Master",
+	},
+
+	/* Sorcerer */
+	{
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Archimage",
+	},
+
+	/* Archer */
+	{
+		"Rookie",
+		"Soldier",
+		"Mercenary",
+		"Veteran",
+		"Swordsman",
+		"Champion",
+		"Hero",
+		"Baron",
+		"Duke",
+		"Lord",
+	},
+
+	/* Magic eater */
+	{
+                "Apprentice",
+                "Beginner",
+                "Jagguler",
+                "Skilled",
+                "Conjurer",
+                "Magician",
+                "Master",
+                "Master",
+                "Wizard",
+                "Almighty",
+	},
+
+        /* Harper */
+	{
+                "Apprentice",	/*"Apprentice"*/
+                "Songsmith",	/*"Songsmith"*/
+                "Bard",	/*"Bard"*/
+                "Companion",	/*"Companion"*/
+                "Minstrel",	/*"Minstrel"*/
+                "Harper",	/*"Harper"*/
+                "Loreweaver",	/*"Loreweaver"*/
+                "Muse",	/*"Muse"*/
+                "Dreamweaver",	/*"Dreamweaver"*/
+                "Master Harper",	/*"Master Harper"*/
+	},
+
+	/* Red Mage */
+	{
+		"Novice",
+		"Apprentice",
+		"Journeyman",
+		"Veteran",
+		"Enchanter",
+		"Champion",
+		"Mage-Hero",
+		"Baron Mage",
+		"Battlemage",
+		"Wizard Lord",
+	},
+
+	/* Samurai */
+	{
+		"Initiate",
+		"Brother",
+		"Disciple",
+		"Immaculate",
+		"Master",
+		"Soft Master",
+		"Hard Master",
+		"Flower Master",
+		"Dragon Master",
+		"Grand Master",
+	},
+
+	/* Renkijutusi */
+	{
+		"Initiate",
+		"Brother",
+		"Disciple",
+		"Immaculate",
+		"Master",
+		"Soft Master",
+		"Hard Master",
+		"Flower Master",
+		"Dragon Master",
+		"Grand Master",
+	},
+
+	/* Blue Mage */
+	{
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Ipsissimus",
+		"Archimage",
+	},
+
+	/* Warrior */
+	{
+		"Rookie",
+		"Soldier",
+		"Mercenary",
+		"Veteran",
+		"Swordsman",
+		"Champion",
+		"Hero",
+		"Baron",
+		"Duke",
+		"Lord",
+	},
+
+	/* Berserker */
+	{
+		    "Berserker",
+		    "Berserker",
+		    "Berserker",
+		    "Rage Prince",
+		    "Rage Prince",
+		    "Rage Prince",
+		    "Rage King",
+		    "Rage King",
+		    "Rage King",
+		    "God of Rage",
+	},
+
+	/* Kaji */
+	{
+                "Copper smith",
+                "Iron smith",
+                "Steel smith",
+                "Silver smith",
+                "Dragon smith",
+                "Spirit smith",
+                "Magic smith",
+                "Soul smith",
+                "God smith",
+                "AlmightySmith",
+	},
+
+	/* Mirror Master */
+	{
+		"Mirrorstarer",
+		"Mirrorpolisher",
+		"Mirrormaker",
+		"Mirrormagician",
+		"Guru of Mirror ",
+		"Mirror Mage",
+		"Mirror King",
+		"Mirror Emperror",
+		"Avatar of Mirror",
+		"Ruffnor King",
+	},
+
+	/* Ninja */
+	{
+		"Trainee",
+		"Myrmidon",
+		"Initiate",
+		"Knifer",
+		"Bladesman",
+		"Hashishin",
+		"Black Dagger",
+		"Shadowstrike",
+		"Assassinator",
+		"Death Lord",
+	},
+};
+#endif
+
+monster_power monster_powers[MAX_MONSPELLS] =
+{
+/* level,  smana,  %fail,  manedam,  %manefail,  use_stat, name */
+#ifdef JP
+{  1,   1,  10,    0,  15, A_CON,  "叫ぶ" 		, "shriek"},
+{ 10,   4,  35,   89,  40, A_INT,  "何か"		, "XXX1"},
+{ 40,  35,  85,    0,  40, A_INT,  "魔力消去"		, "dispel magic"},
+{ 35,  30,  80,  800,  70, A_STR,  "ロケット"		, "rocket"},
+{  2,   1,  15,   10,  15, A_DEX,  "矢"			, "arrow_1"},
+{  5,   2,  20,   18,  20, A_DEX,  "強力な矢"		, "arrow_2"},
+{ 12,   3,  25,   30,  25, A_DEX,  "ボルト"		, "arrow_3"},
+{ 16,   4,  30,   42,  30, A_DEX,  "強力なボルト"	, "arrow_4"},
+{ 20,  15,  55, 1600,  95, A_CON,  "酸のブレス"		, "breath acid"},
+{ 20,  15,  55, 1600,  95, A_CON,  "電撃のブレス"	, "breath elec"},
+{ 20,  15,  55, 1600,  95, A_CON,  "炎のブレス"		, "breath fire"},
+{ 20,  15,  55, 1600,  95, A_CON,  "冷気のブレス"	, "breath cold"},
+{ 20,  15,  55,  800,  95, A_CON,  "毒のブレス"		, "breath poison"},
+{ 20,  15,  70,  550,  95, A_CON,  "地獄のブレス"	, "breath nether"},
+{ 20,  16,  70,  400,  95, A_CON,  "閃光のブレス"	, "breath light"},
+{ 20,  16,  70,  400,  95, A_CON,  "暗黒のブレス"	, "breath dark"},
+{ 20,  20,  70,  450,  95, A_CON,  "混乱のブレス"	, "breath confusion"},
+{ 20,  20,  70,  450,  95, A_CON,  "轟音のブレス"	, "breath sound"},
+{ 20,  20,  70,  600,  95, A_CON,  "カオスのブレス"	, "breath chaos"},
+{ 20,  16,  70,  500,  95, A_CON,  "劣化のブレス"	, "breath disenchantment"},
+{ 30,  25,  80,  250,  95, A_CON,  "因果混乱のブレス"	, "breath nexus"},
+{ 35,  18,  80,  150,  95, A_CON,  "時間逆転のブレス"	, "breath time"},
+{ 30,  25,  80,  200,  95, A_CON,  "遅鈍のブレス"	, "breath inertia"},
+{ 30,  28,  90,  200,  95, A_CON,  "重力のブレス"	, "breath gravity"},
+{ 20,  15,  70,  500,  95, A_CON,  "破片のブレス"	, "breath shards"},
+{ 35,  15,  80,  150,  95, A_CON,  "プラズマのブレス"	, "breath plasma"},
+{ 30,  18,  70,  200,  95, A_CON,  "フォースのブレス"	, "breath force"},
+{ 30,  28,  80,  250,  95, A_CON,  "魔力のブレス"	, "breath mana"},
+{ 25,  20,  95,  320,  80, A_INT,  "放射能球"		, "nuke ball"},
+{ 25,  15,  70,  800,  95, A_CON,  "放射性廃棄物のブレス"	, "breath nuke"},
+{ 30,  32,  85,  400,  80, A_INT,  "純ログルス"		, "raw Logrus"},
+{ 35,  40,  95,  150,  95, A_CON,  "分解のブレス"	, "breath disintegrate"},
+{ 18,  13,  55,  630,  80, A_INT,  "アシッド・ボール"	, "acid ball"},
+{ 14,  10,  45,  316,  60, A_INT,  "サンダー・ボール"	, "lightning ball"},
+{ 20,  14,  60,  720,  80, A_INT,  "ファイア・ボール"	, "fire ball"},
+{ 15,  11,  50,  320,  60, A_INT,  "アイス・ボール"	, "frost ball"},
+{  5,   3,  40,   48,  20, A_INT,  "悪臭雲"		, "stinking cloud"},
+{ 25,  18,  70,  350,  80, A_INT,  "地獄球"		, "nether ball"},
+{ 30,  22,  75,  350,  80, A_INT,  "ウォーター・ボール"	, "water ball"},
+{ 44,  45,  85,  550,  95, A_INT,  "魔力の嵐"		, "mana storm"},
+{ 40,  42,  90,  550,  95, A_INT,  "暗黒の嵐"		, "darkness storm"},
+{ 10,   5,  50,    0,  25, A_INT,  "魔力吸収"		, "drain mana"},
+{ 25,  10,  60,    0,  30, A_INT,  "精神攻撃"		, "mind blast"},
+{ 30,  14,  65,    0,  30, A_INT,  "脳攻撃"		, "brain smash"},
+{  3,   1,  25,   24,  20, A_INT,  "軽傷"		, "cause light wounds"},
+{ 12,   2,  35,   64,  25, A_INT,  "重傷"		, "cause serious wounds"},
+{ 22,   6,  50,  150,  30, A_INT,  "致命傷"		, "cause critical wounds"},
+{ 32,  10,  70,  225,  35, A_INT,  "秘孔を突く"		, "cause mortal wounds"},
+{ 13,   7,  40,  178,  40, A_INT,  "アシッド・ボルト"	, "acid bolt"},
+{ 10,   5,  35,  130,  35, A_INT,  "サンダー・ボルト"	, "lightning bolt"},
+{ 15,   9,  50,  210,  45, A_INT,  "ファイア・ボルト"	, "fire bolt"},
+{ 12,   6,  35,  162,  40, A_INT,  "アイス・ボルト"	, "frost bolt"},
+{ 40,  42,  90,  550,  95, A_INT,  "スター・バースト"	, "starburst"},
+{ 25,  17,  60,  255,  60, A_INT,  "地獄の矢"		, "nether bolt"},
+{ 25,  20,  65,  250,  60, A_INT,  "ウォーター・ボルト"	, "water bolt"},
+{ 25,  24,  90,  400,  80, A_INT,  "魔力の矢"		, "mana bolt"},
+{ 25,  20,  80,  216,  60, A_INT,  "プラズマ・ボルト"	, "plasma bolt"},
+{ 25,  16,  60,  186,  60, A_INT,  "極寒の矢"		, "ice bolt"},
+{  3,   1,  25,   12,  20, A_INT,  "マジック・ミサイル"	, "magic missile"},
+{  5,   3,  35,    0,  20, A_INT,  "恐慌"		, "scare"},
+{ 10,   5,  40,    0,  20, A_INT,  "盲目"		, "blind"},
+{ 10,   5,  40,    0,  20, A_INT,  "パニック・モンスター"	, "confuse"},
+{ 10,   5,  40,    0,  20, A_INT,  "スロウ・モンスター"	, "slow"},
+{ 10,   5,  40,    0,  20, A_INT,  "スリープ・モンスター"	, "sleep"},
+{ 20,  10,  70,    0,  40, A_INT,  "スピード"		, "speed"},
+{ 45, 120,  95,    0,  60, A_INT,  "破滅の手"		, "hand of doom"},
+{ 20,  15,  70,    0,  20, A_WIS,  "体力回復"		, "heal"},
+{ 45,  65,  80,    0,  60, A_INT,  "無傷の球"		, "invulnerability"},
+{  5,   1,  30,    0,  20, A_INT,  "ショート・テレポート"	, "blink"},
+{ 15,   8,  40,    0,  30, A_INT,  "テレポート"		, "teleport"},
+{ 40, 999,  99,    0,  80, A_INT,  "ザ・ワールド"		, "The world"},
+{  1,   0,   0,    0,  15, A_INT,  "何か"			, "something"},
+{ 15,   8,  50,    0,  30, A_INT,  "引きよせる"		, "teleport to"},
+{ 20,  13,  80,    0,  30, A_INT,  "テレポート・アウェイ"	, "teleport away"},
+{ 30,  40,  95,    0,  40, A_INT,  "テレポート・レベル"	, "teleport level"},
+{ 35,  30,  80,  350,  70, A_INT,  "光の剣"		, "psycho-spear"},
+{  5,   1,  20,    0,  15, A_INT,  "暗闇"		, "create darkness"},
+{  5,   1,  20,    0,  15, A_DEX,  "トラップ創造"	, "create trap"},
+{ 15,   3,  40,    0,  30, A_INT,  "記憶喪失"		, "forget"},
+{ 30,  30,  70,    0,  40, A_INT,  "死者復活"		, "raise dead"},
+{ 40,  70,  85,    0,  45, A_INT,  "援軍を呼ぶ"		, "summon kin"},
+{ 45,  90,  90,    0,  50, A_INT,  "サイバーデーモンの召喚"	, "summon cyber"},
+{ 25,  20,  65,    0,  30, A_INT,  "モンスターの召喚"	, "summon monster"},
+{ 35,  30,  75,    0,  40, A_INT,  "複数のモンスターの召喚"	, "summon monsters"},
+{ 25,  25,  65,    0,  25, A_INT,  "アリの召喚"		, "summon ant"},
+{ 25,  20,  60,    0,  25, A_INT,  "蜘蛛の召喚"		, "summon spider"},
+{ 35,  26,  75,    0,  40, A_INT,  "ハウンドの召喚"	, "summon hound"},
+{ 30,  23,  70,    0,  35, A_INT,  "ヒドラの召喚"	, "summon hydra"},
+{ 40,  50,  85,    0,  40, A_INT,  "天使の召喚"		, "summon angel"},
+{ 35,  50,  80,    0,  35, A_INT,  "デーモンの召喚"	, "summon deamon"},
+{ 30,  30,  75,    0,  35, A_INT,  "アンデッドの召喚"	, "summon undead"},
+{ 39,  70,  80,    0,  40, A_INT,  "ドラゴンの召喚"	, "summon dragon"},
+{ 43,  85,  85,    0,  45, A_INT,  "上級アンデッドの召喚"	, "summon greater undead"},
+{ 46,  90,  85,    0,  45, A_INT,  "古代ドラゴンの召喚"	, "summon ancient dragon"},
+{ 48, 120,  90,    0,  50, A_INT,  "アンバーの王の召喚"	, "summon amberites"},
+{ 50, 150,  95,    0,  50, A_INT,  "ユニークモンスターの召喚"	, "summon unique"},
+#else
+//...shouryaku.
+{  1,   1,  10,    0,  15, A_CON,  "shriek"},
+{ 10,   4,  35,   89,  40, A_INT,  "XXX1"},
+{ 40,  35,  85,    0,  40, A_INT,  "dispel magic"},
+{ 35,  30,  80,  800,  70, A_STR,  "rocket"},
+{  2,   1,  15,   10,  15, A_DEX,  "arrow_1"},
+{  5,   2,  20,   18,  20, A_DEX,  "arrow_2"},
+{ 12,   3,  25,   30,  25, A_DEX,  "arrow_3"},
+{ 16,   4,  30,   42,  30, A_DEX,  "arrow_4"},
+{ 20,  15,  55, 1600,  95, A_CON,  "breath acid"},
+{ 20,  15,  55, 1600,  95, A_CON,  "breath elec"},
+{ 20,  15,  55, 1600,  95, A_CON,  "breath fire"},
+{ 20,  15,  55, 1600,  95, A_CON,  "breath cold"},
+{ 20,  15,  55,  800,  95, A_CON,  "breath poison"},
+{ 20,  15,  70,  550,  95, A_CON,  "breath nether"},
+{ 20,  16,  70,  400,  95, A_CON,  "breath light"},
+{ 20,  16,  70,  400,  95, A_CON,  "breath dark"},
+{ 20,  20,  70,  450,  95, A_CON,  "breath confusion"},
+{ 20,  20,  70,  450,  95, A_CON,  "breath sound"},
+{ 20,  20,  70,  600,  95, A_CON,  "breath chaos"},
+{ 20,  16,  70,  500,  95, A_CON,  "breath disenchantment"},
+{ 30,  25,  80,  250,  95, A_CON,  "breath nexus"},
+{ 35,  18,  80,  150,  95, A_CON,  "breath time"},
+{ 30,  25,  80,  200,  95, A_CON,  "breath inertia"},
+{ 30,  28,  90,  200,  95, A_CON,  "breath gravity"},
+{ 20,  15,  70,  500,  95, A_CON,  "breath shards"},
+{ 35,  15,  80,  150,  95, A_CON,  "breath plasma"},
+{ 30,  18,  70,  200,  95, A_CON,  "breath force"},
+{ 30,  28,  80,  250,  95, A_CON,  "breath mana"},
+{ 25,  20,  95,  320,  80, A_INT,  "nuke ball"},
+{ 25,  15,  70,  800,  95, A_CON,  "breath nuke"},
+{ 30,  32,  85,  400,  80, A_INT,  "raw Logrus"},
+{ 35,  40,  95,  150,  95, A_CON,  "breath disintegrate"},
+{ 18,  13,  55,  630,  80, A_INT,  "acid ball"},
+{ 14,  10,  45,  316,  60, A_INT,  "lightning ball"},
+{ 20,  14,  60,  720,  80, A_INT,  "fire ball"},
+{ 15,  11,  50,  320,  60, A_INT,  "frost ball"},
+{  5,   3,  40,   48,  20, A_INT,  "stinking cloud"},
+{ 25,  18,  70,  350,  80, A_INT,  "nether ball"},
+{ 30,  22,  75,  350,  80, A_INT,  "water ball"},
+{ 44,  45,  85,  550,  95, A_INT,  "mana storm"},
+{ 40,  42,  90,  550,  95, A_INT,  "darkness storm"},
+{ 10,   5,  50,    0,  25, A_INT,  "drain mana"},
+{ 25,  10,  60,    0,  30, A_INT,  "mind blast"},
+{ 30,  14,  65,    0,  30, A_INT,  "brain smash"},
+{  3,   1,  25,   24,  20, A_INT,  "cause light wounds"},
+{ 12,   2,  35,   64,  25, A_INT,  "cause serious wounds"},
+{ 22,   6,  50,  150,  30, A_INT,  "cause critical wounds"},
+{ 32,  10,  70,  225,  35, A_INT,  "cause mortal wounds"},
+{ 13,   7,  40,  178,  40, A_INT,  "acid bolt"},
+{ 10,   5,  35,  130,  35, A_INT,  "lightning bolt"},
+{ 15,   9,  50,  210,  45, A_INT,  "fire bolt"},
+{ 12,   6,  35,  162,  40, A_INT,  "frost bolt"},
+{ 40,  42,  90,  550,  95, A_INT,  "starburst"},
+{ 25,  17,  60,  255,  60, A_INT,  "nether bolt"},
+{ 25,  20,  65,  250,  60, A_INT,  "water bolt"},
+{ 25,  24,  90,  400,  80, A_INT,  "mana bolt"},
+{ 25,  20,  80,  216,  60, A_INT,  "plasma bolt"},
+{ 25,  16,  60,  186,  60, A_INT,  "ice bolt"},
+{  3,   1,  25,   12,  20, A_INT,  "magic missile"},
+{  5,   3,  35,    0,  20, A_INT,  "scare"},
+{ 10,   5,  40,    0,  20, A_INT,  "blind"},
+{ 10,   5,  40,    0,  20, A_INT,  "confuse"},
+{ 10,   5,  40,    0,  20, A_INT,  "slow"},
+{ 10,   5,  40,    0,  20, A_INT,  "sleep"},
+{ 20,  10,  70,    0,  40, A_INT,  "speed"},
+{ 45, 120,  95,    0,  60, A_INT,  "hand of doom"},
+{ 20,  15,  70,    0,  20, A_WIS,  "heal"},
+{ 45,  65,  80,    0,  60, A_INT,  "invulnerability"},
+{  5,   1,  30,    0,  20, A_INT,  "blink"},
+{ 15,   8,  40,    0,  30, A_INT,  "teleport"},
+{ 40, 999,  99,    0,  80, A_INT,  "The world"},
+{  1,   0,   0,    0,  15, A_INT,  "something"},
+{ 15,   8,  50,    0,  30, A_INT,  "teleport to"},
+{ 20,  13,  80,    0,  30, A_INT,  "teleport away"},
+{ 30,  40,  95,    0,  40, A_INT,  "teleport level"},
+{ 35,  30,  80,  350,  70, A_INT,  "psycho-spear"},
+{  5,   1,  20,    0,  15, A_INT,  "create darkness"},
+{  5,   1,  20,    0,  15, A_DEX,  "create trap"},
+{ 15,   3,  40,    0,  30, A_INT,  "forget"},
+{ 30,  30,  70,    0,  40, A_INT,  "raise dead"},
+{ 40,  70,  85,    0,  45, A_INT,  "summon kin"},
+{ 45,  90,  90,    0,  50, A_INT,  "summon cyber"},
+{ 25,  20,  65,    0,  30, A_INT,  "summon monster"},
+{ 35,  30,  75,    0,  40, A_INT,  "summon monsters"},
+{ 25,  25,  65,    0,  25, A_INT,  "summon ant"},
+{ 25,  20,  60,    0,  25, A_INT,  "summon spider"},
+{ 35,  26,  75,    0,  40, A_INT,  "summon hound"},
+{ 30,  23,  70,    0,  35, A_INT,  "summon hydra"},
+{ 40,  50,  85,    0,  40, A_INT,  "summon angel"},
+{ 35,  50,  80,    0,  35, A_INT,  "summon deamon"},
+{ 30,  30,  75,    0,  35, A_INT,  "summon undead"},
+{ 39,  70,  80,    0,  40, A_INT,  "summon dragon"},
+{ 43,  85,  85,    0,  45, A_INT,  "summon greater undead"},
+{ 46,  90,  85,    0,  45, A_INT,  "summon ancient dragon"},
+{ 48, 120,  90,    0,  50, A_INT,  "summon amberites"},
+{ 50, 150,  95,    0,  50, A_INT,  "summon unique"},
+#endif
+
 };
 
 
@@ -5816,6 +15873,24 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] =
  */
 cptr color_names[16] =
 {
+#ifdef JP
+        "黒",
+        "白",
+        "青灰色",
+        "オレンジ",
+        "赤",
+        "緑",
+        "青",
+        "琥珀色",
+        "灰色",
+        "明青灰色",
+        "紫",
+        "黄",
+        "明るい赤",
+        "明るい緑",
+        "明るい青",
+        "明琥珀色",
+#else
 	"Dark",
 	"White",
 	"Slate",
@@ -5832,6 +15907,8 @@ cptr color_names[16] =
 	"Light Green",
 	"Light Blue",
 	"Light Umber",
+#endif
+
 };
 
 
@@ -5840,7 +15917,12 @@ cptr color_names[16] =
  */
 cptr stat_names[6] =
 {
+#ifdef JP
+        "腕力 :", "知能 :", "賢さ :", "器用 :", "耐久 :", "魅力 :"
+#else
 	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
+#endif
+
 };
 
 /*
@@ -5848,7 +15930,12 @@ cptr stat_names[6] =
  */
 cptr stat_names_reduced[6] =
 {
+#ifdef JP
+        "腕力x:", "知能x:", "賢さx:", "器用x:", "耐久x:", "魅力x:"
+#else
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
+#endif
+
 };
 
 
@@ -5868,22 +15955,82 @@ cptr stat_names_reduced[6] =
  */
 cptr window_flag_desc[32] =
 {
+#ifdef JP
+        "持ち物/装備一覧",
+#else
 	"Display inven/equip",
+#endif
+
+#ifdef JP
+        "装備/持ち物一覧",
+#else
 	"Display equip/inven",
+#endif
+
+#ifdef JP
+        "呪文一覧",
+#else
 	"Display spell list",
+#endif
+
+#ifdef JP
+        "キャラクタ情報",
+#else
 	"Display character",
+#endif
+
 	NULL,
 	NULL,
+#ifdef JP
+        "メッセージ",
+#else
 	"Display messages",
+#endif
+
+#ifdef JP
+        "ダンジョン全体図",
+#else
 	"Display overhead view",
+#endif
+
+#ifdef JP
+        "モンスターの思い出",
+#else
 	"Display monster recall",
+#endif
+
+#ifdef JP
+        "アイテムの詳細",
+#else
 	"Display object recall",
+#endif
+
+#ifdef JP
+        "自分の周囲を表示", 
+#else
 	"Display dungeon view",
+#endif
+
+#ifdef JP
+        "記念撮影",
+#else
 	"Display snap-shot",
+#endif
+
 	NULL,
 	NULL,
+#ifdef JP
+        "ボーグ・メッセージ",
+#else
 	"Display borg messages",
+#endif
+
+#ifdef JP
+        "ボーグ・ステータス",
+#else
 	"Display borg status",
+#endif
+
 	NULL,
 	NULL,
 	NULL,
@@ -5919,324 +16066,1062 @@ option_type option_info[] =
 {
 	/*** User-Interface ***/
 
+#ifdef JP
+	{ &rogue_like_commands,         FALSE,  1,      0, 0,
+     "rogue_like_commands",  "ローグ風キー配置を使用する" },
+#else
 	{ &rogue_like_commands,         FALSE,  1,      0, 0,
 	"rogue_like_commands",          "Rogue-like commands" },
+#endif
 
+
+#ifdef JP
+	{ &quick_messages,              TRUE,  1,      0, 1,
+     "quick_messages",  "クイック・メッセージを使用する" },
+#else
 	{ &quick_messages,              TRUE,  1,      0, 1,
 	"quick_messages",               "Activate quick messages" },
+#endif
 
+
+#ifdef JP
+	{ &auto_more,              FALSE,  1,      2, 6,
+     "auto_more",  "キー待ちしないで連続でメッセージを表示する" },
+#else
+	{ &auto_more,              FALSE,  1,      2, 6,
+	"auto_more",               "Don't wait at -more- message" },
+#endif
+
+
+#ifdef JP
+	{ &command_menu,              TRUE,  1,      2, 7,
+     "command_menu",  "メニューによりコマンド選択を有効にする" },
+#else
+	{ &command_menu,              TRUE,  1,      2, 7,
+	"command_menu",               "enable a menu which include all game commands" },
+#endif
+
+
+#ifdef JP
+	{ &other_query_flag,            FALSE,  1,      0, 2,
+	"other_query_flag",             "床上のアイテムを使用するときに確認する" },
+#else
 	{ &other_query_flag,            FALSE,  1,      0, 2,
 	"other_query_flag",             "Prompt for various information" },
+#endif
 
+
+#ifdef JP
+	{ &carry_query_flag,            FALSE,  1,      0, 3,
+	"carry_query_flag",  "アイテムを拾う前に確認する" },
+#else
 	{ &carry_query_flag,            FALSE,  1,      0, 3,
 	"carry_query_flag",             "Prompt before picking things up" },
+#endif
 
+
+#ifdef JP
+	{ &use_old_target,              FALSE,  1,      0, 4,
+     "use_old_target",  "常に以前のターゲットを指定する" },
+#else
 	{ &use_old_target,              FALSE,  1,      0, 4,
 	"use_old_target",               "Use old target by default" },
+#endif
 
+
+#ifdef JP
+	{ &always_pickup,               FALSE,   1,      0, 5,
+     "always_pickup",  "常にアイテムを拾う" },
+#else
 	{ &always_pickup,               TRUE,   1,      0, 5,
 	"always_pickup",                "Pick things up by default" },
+#endif
 
+
+#ifdef JP
+	{ &always_repeat,               TRUE,   1,      0, 6,
+     "always_repeat",  "コマンド自動繰り返し" },
+#else
 	{ &always_repeat,               TRUE,   1,      0, 6,
 	"always_repeat",                "Repeat obvious commands" },
+#endif
 
-	{ &depth_in_feet,               FALSE,  1,      0, 7,
+
+#ifdef JP
+	{ &auto_destroy,                FALSE, 1, 5, 3,
+	"auto_destroy",                 "「無価値」なアイテムを破壊する時確認する" },
+#else
+	{ &auto_destroy,                FALSE, 1, 5, 3,
+	"auto_destroy",                 "Query to destroy known worthless items" },
+#endif
+
+
+#ifdef JP
+	{ &wear_confirm,                TRUE, 1,5, 4,
+	"confirm_wear",                 "呪われた物を装備する時確認する" },
+#else
+	{ &wear_confirm,                TRUE, 1,5, 4,
+	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
+#endif
+
+
+#ifdef JP
+	{ &confirm_stairs,              FALSE, 1, 5, 5,
+	"confirm_stairs",               "別の階に行く時確認する" },
+#else
+	{ &confirm_stairs,              FALSE, 1, 5, 5,
+	"confirm_stairs",               "Prompt before exiting a dungeon level" },
+#endif
+
+
+#ifdef JP
+	{ &target_pet,          TRUE,  1,      2, 5,
+     "target_pet",  "ペットをターゲットにする" },
+#else
+	{ &target_pet,           TRUE,  1,      2, 5,
+	"target_pet",            "Don't prevent to target pets" },
+#endif
+
+
+
+#ifdef JP
+	{ &depth_in_feet,               FALSE,  2,      0, 7,
+     "depth_in_feet",  "ダンジョンの深さをフィートで表示する" },
+#else
+	{ &depth_in_feet,               FALSE,  2,      0, 7,
 	"depth_in_feet",                "Show dungeon level in feet" },
+#endif
 
-	{ &stack_force_notes,           TRUE,  1,      0, 8,
-	"stack_force_notes",            "Merge inscriptions when stacking" },
 
-	{ &stack_force_costs,           FALSE,  1,      0, 9,
-	"stack_force_costs",            "Merge discounts when stacking" },
-
-	{ &show_labels,                 TRUE,   1,      0, 10,
+#ifdef JP
+	{ &show_labels,                 TRUE,   2,      0, 10,
+     "show_labels",  "装備一覧で装備場所を表示する" },
+#else
+	{ &show_labels,                 TRUE,   2,      0, 10,
 	"show_labels",                  "Show labels in object listings" },
+#endif
 
-	{ &show_weights,                TRUE,  1,      0, 11,
+
+#ifdef JP
+	{ &show_weights,                TRUE,  2,      0, 11,
+     "show_weights",  "アイテム一覧で重量を表示する" },
+#else
+	{ &show_weights,                TRUE,  2,      0, 11,
 	"show_weights",                 "Show weights in object listings" },
+#endif
 
-	{ &show_inven_graph,            FALSE,  1,      2, 0,
-	"show_inven_graph",             "Show graphics in inventory list" },
 
-	{ &show_equip_graph,            FALSE,  1,      2, 1,
-	"show_equip_graph",             "Show graphics in equipment list" },
+#ifdef JP
+	{ &show_item_graph,             TRUE,  2,      2, 0,  /*日本語版変更*/
+	"show_item_graph",              "アイテムのシンボルを表示する" },
+#else
+	{ &show_item_graph,             TRUE,  2,      2, 0,
+	"show_item_graph",              "Show items graphics" },
+#endif
 
-	{ &show_store_graph,            FALSE,  1,      2, 2,
-	"show_store_graph",             "Show graphics in stores" },
 
-	{ &show_choices,                TRUE,  1,      0, 12,
+#ifdef JP
+	{ &show_choices,                TRUE,  2,      0, 12,
+     "show_choices",  "持ち物/装備ウィンドウに選択アイテム表示" },
+#else
+	{ &show_choices,                TRUE,  2,      0, 12,
 	"show_choices",                 "Show choices in certain sub-windows" },
-
-	{ &show_details,                TRUE,  1,      0, 13,
-	"show_details",                 "Show details in certain sub-windows" },
-
-	{ &ring_bell,                   FALSE,   1,      0, 14,
-	"ring_bell",                    "Audible bell (on errors, etc)" },
-
-	{ &use_color,                   TRUE,   1,      0, 15,
-	"use_color",                    "Use color if possible (slow)" },
+#endif
 
 
-	/*** Disturbance ***/
+#ifdef JP
+	{ &plain_pickup,          FALSE,  2,      6, 6,
+     "plain_pickup",  "「拾った」メッセージを簡略化する" },
+#else
+	{ &plain_pickup,           FALSE,  99,      6, 6,
+	"plain_pickup",            "Simplify messages when get items" },
+#endif
 
-	{ &find_ignore_stairs,          FALSE,   2,      0, 16,
-	"find_ignore_stairs",           "Run past stairs" },
 
-	{ &find_ignore_doors,           TRUE,   2,      0, 17,
-	"find_ignore_doors",            "Run through open doors" },
+#ifdef JP
+	{ &player_symbols,              FALSE,   2,      1, 13,
+	"player_symbols",               "プレイヤーを特別な記号で表示する"},
+#else
+	{ &player_symbols,              FALSE,   2,      1, 13,
+	"player_symbols",               "Use special symbols for the player char"},
+#endif
 
-	{ &find_cut,                    FALSE,   2,      0, 18,
-	"find_cut",                     "Run past known corners" },
 
-	{ &find_examine,                TRUE,   2,      0, 19,
-	"find_examine",                 "Run into potential corners" },
+#ifdef JP
+	{ &equippy_chars,               TRUE,  2,      1, 12,
+	"equippy_chars",                "ステータスに文字で装備を表示する" },
+#else
+	{ &equippy_chars,               TRUE,  2,      1, 12,
+	"equippy_chars",                "Display 'equippy' chars" },
+#endif
 
-	{ &disturb_move,                TRUE,   2,      0, 20,
-	"disturb_move",                 "Disturb whenever any monster moves" },
 
-	{ &disturb_near,                TRUE,   2,      0, 21,
-	"disturb_near",                 "Disturb whenever viewable monster moves" },
+#ifdef JP
+	{ &skip_mutations,              FALSE, 2, 5, 0,
+	"skip_mutations",               "'C'コマンドで突然変異を表示する" },
+#else
+	{ &skip_mutations,              FALSE, 2, 5, 0,
+	"skip_mutations",               "Display mutations in 'C'haracter Display" },
+#endif
 
-	{ &disturb_panel,               TRUE,   2,      0, 22,
-	"disturb_panel",                "Disturb whenever map panel changes" },
 
-	{ &disturb_state,               TRUE,   2,      0, 23,
-	"disturb_state",                "Disturb whenever player state changes" },
+#ifdef JP
+	{ &plain_descriptions,          TRUE , 2, 5, 1,  /*日本語版変更*/
+	"plain_descriptions",           "アイテムの記述を簡略にする" },
+#else
+	{ &plain_descriptions,          TRUE, 2, 5, 1,
+	"plain_descriptions",           "Plain object descriptions" },
+#endif
 
-	{ &disturb_minor,               TRUE,   2,      0, 24,
-	"disturb_minor",                "Disturb whenever boring things happen" },
 
-	{ &alert_hitpoint,              FALSE,  2,      0, 26,
-	"alert_hitpoint",               "Alert user to critical hitpoints" },
+#ifdef JP
+        { &center_player,               FALSE,  2, 5, 11,
+      "center_player",                "常にプレイヤーを中心に置く(*遅い*)" },
+#else
+	{ &center_player,               FALSE,  2, 5, 11,
+	"center_player",                "Always center on the player (*slow*)" },
+#endif
 
-	{ &alert_failure,               FALSE,  2,      0, 27,
-	"alert_failure",                "Alert user to various failures" },
+
+#ifdef JP
+       { &avoid_center,                TRUE,  2, 5, 12,
+       "avoid_center",                 "走っている時でも中心に置く" },
+#else
+	{ &avoid_center,                TRUE,  2, 5, 12,
+	"avoid_center",                 "Don't avoid centering while running" },
+#endif
+
+
+#ifdef JP
+	{ &view_yellow_lite,            TRUE,  2,      1, 28,
+     "view_yellow_lite",  "明かりの範囲を特別な色で表示する" },
+#else
+	{ &view_yellow_lite,            TRUE,  2,      1, 28,
+	"view_yellow_lite",             "Use special colors for torch-lit grids" },
+#endif
+
+
+#ifdef JP
+	{ &view_bright_lite,            TRUE,  2,      1, 29,
+     "view_bright_lite",  "視界の範囲を特別な色で表示する" },
+#else
+	{ &view_bright_lite,            TRUE,  2,      1, 29,
+	"view_bright_lite",             "Use special colors for 'viewable' grids" },
+#endif
+
+
+#ifdef JP
+	{ &view_granite_lite,           TRUE,  2,      1, 30,
+     "view_granite_lite",  "壁を特別な色で表示する(重い)" },
+#else
+	{ &view_granite_lite,           TRUE,  2,      1, 30,
+	"view_granite_lite",            "Use special colors for wall grids (slow)" },
+#endif
+
+
+#ifdef JP
+	{ &view_special_lite,           TRUE,  2,      1, 31,
+     "view_special_lite",  "床を特別な色で表示する(重い)" },
+#else
+	{ &view_special_lite,           TRUE,  2,      1, 31,
+	"view_special_lite",            "Use special colors for floor grids (slow)" },
+#endif
+
+#ifdef JP
+	{ &new_ascii_graphics,          FALSE,  2,      2, 4,
+     "new_ascii_graphics",  "地形の明暗をはっきりと表示する" },
+#else
+	{ &new_ascii_graphics,           FALSE,  99,      2, 4,
+	"new_ascii_graphics",            "(no effect)" },
+#endif
+
+#ifdef JP
+	{ &display_path,          FALSE,  2,      2, 8,
+     "display_path",  "魔法や矢の軌跡を表示する" },
+#else
+	{ &display_path,           FALSE,  2,      2, 8,
+	"display_path",            "Display actual path before shooting" },
+#endif
+
 
 
 	/*** Game-Play ***/
 
+#ifdef JP
 	{ &auto_haggle,                 FALSE,  3,      1, 0,
-	"auto_haggle",                  "Auto-haggle in stores" },
+     "auto_haggle",  "店で値切り交渉をする" },
+#else
+	{ &auto_haggle,                 FALSE,  3,      1, 0,
+	"auto_haggle",                  "Manualy haggle in stores" },
+#endif
 
+
+#ifdef JP
+	{ &auto_scum,                   FALSE,  3,      1, 1,
+     "auto_scum",  "階の雰囲気自動選り好み" },
+#else
 	{ &auto_scum,                   FALSE,  3,      1, 1,
 	"auto_scum",                    "Auto-scum for good levels" },
+#endif
 
+
+#ifdef JP
+	{ &stack_force_notes,           TRUE,  3,      0, 8,
+     "stack_force_notes",  "異なる銘のアイテムをまとめる" },
+#else
+	{ &stack_force_notes,           TRUE,  3,      0, 8,
+	"stack_force_notes",            "Merge inscriptions when stacking" },
+#endif
+
+
+#ifdef JP
+	{ &stack_force_costs,           FALSE,  3,      0, 9,
+     "stack_force_costs",  "異なる割引表示のアイテムをまとめる" },
+#else
+	{ &stack_force_costs,           FALSE,  3,      0, 9,
+	"stack_force_costs",            "Merge discounts when stacking" },
+#endif
+
+
+#ifdef JP
+	{ &stack_allow_items,           TRUE,   3,      1, 2,
+	"stack_allow_items",            "同種の武器や防具をまとめる" },
+#else
 	{ &stack_allow_items,           TRUE,   3,      1, 2,
 	"stack_allow_items",            "Allow weapons and armor to stack" },
+#endif
 
+
+#ifdef JP
+	{ &stack_allow_wands,           TRUE,   3,      1, 3,
+	"stack_allow_wands",            "同種のロッド/杖/魔法棒をまとめる" },
+#else
 	{ &stack_allow_wands,           TRUE,   3,      1, 3,
 	"stack_allow_wands",            "Allow wands/staffs/rods to stack" },
+#endif
 
+
+#ifdef JP
+	{ &expand_look,                 TRUE,  3,      1, 4,
+     "expand_look",  "「回りを調べる」コマンドを拡張する" },
+#else
 	{ &expand_look,                 TRUE,  3,      1, 4,
 	"expand_look",                  "Expand the power of the look command" },
+#endif
 
+
+#ifdef JP
+	{ &expand_list,                 TRUE,  3,      1, 5,
+     "expand_list",  "「一覧」コマンドを拡張する" },
+#else
 	{ &expand_list,                 TRUE,  3,      1, 5,
 	"expand_list",                  "Expand the power of the list commands" },
+#endif
 
+
+#ifdef JP
+	{ &view_perma_grids,            TRUE,   3,      1, 6,
+     "view_perma_grids",  "明るい場所はそのままにする" },
+#else
 	{ &view_perma_grids,            TRUE,   3,      1, 6,
 	"view_perma_grids",             "Map remembers all perma-lit grids" },
+#endif
 
+
+#ifdef JP
+	{ &view_torch_grids,            FALSE,  3,      1, 7,
+     "view_torch_grids",  "明かりで照らした場所はそのままにする" },
+#else
 	{ &view_torch_grids,            FALSE,  3,      1, 7,
 	"view_torch_grids",             "Map remembers all torch-lit grids" },
+#endif
 
-	{ &dungeon_align,               TRUE,   3,      1, 8,
-	"dungeon_align",                "Generate dungeons with aligned rooms" },
 
+#ifdef JP
+	{ &dungeon_stair,               TRUE,   3,      1, 9,
+     "dungeon_stair",  "階段をつなげてダンジョンを生成する" },
+#else
 	{ &dungeon_stair,               TRUE,   3,      1, 9,
 	"dungeon_stair",                "Generate dungeons with connected stairs" },
+#endif
 
-	{ &flow_by_sound,               FALSE,  3,      1, 10,
-	"flow_by_sound",                "Monsters chase current location (v.slow)" },
 
-	{ &flow_by_smell,               FALSE,  3,      1, 11,
-	"flow_by_smell",                "Monsters chase recent locations (v.slow)" },
+#ifdef JP
+	{ &small_levels,                TRUE,   3,      0, 30,
+	"small_levels",                 "非常に小さいフロアの生成を可能にする" },
+#else
+	{ &small_levels,                TRUE,   3,      0, 30,
+	"small_levels",                 "Allow unusually small dungeon levels" },
+#endif
 
-	{ &smart_learn,                 FALSE,  3,      1, 14,
-	"smart_learn",                  "Monsters learn from their mistakes" },
 
-	{ &smart_cheat,                 FALSE,  3,      1, 15,
-	"smart_cheat",                  "Monsters exploit players weaknesses" },
+#ifdef JP
+	{ &always_small_levels,         FALSE,   3,      2, 3,
+	"always_small_levels",          "常に非常に小さいフロアを生成する" },
+#else
+	{ &always_small_levels,         FALSE,   3,      2, 3,
+	"always_small_levels",          "Always create unusually small dungeon levels" },
+#endif
+
+
+#ifdef JP
+	{ &empty_levels,                TRUE,   3,      0, 31,
+       "empty_levels",                 "空っぽの「アリーナ」レベルの生成を可能にする" },
+#else
+	{ &empty_levels,                TRUE,   3,      0, 31,
+	"empty_levels",                 "Allow empty 'arena' levels" },
+#endif
+
+
+#ifdef ALLOW_EASY_OPEN
+#ifdef JP
+	{ &easy_open,                   TRUE, 3,5,7,
+	"easy_open",                    "自動的にドアを開ける" },
+#else
+	{ &easy_open,                   TRUE, 3,5,7,
+	"easy_open",                    "Automatically open doors" },
+#endif
+
+#endif /* ALLOW_EASY_OPEN */
+
+#ifdef ALLOW_EASY_DISARM
+#ifdef JP
+	{ &easy_disarm,                 TRUE, 3,5,8,
+	"easy_disarm",                  "自動的に罠を解除する" },
+#else
+	{ &easy_disarm,                 TRUE, 3, 5, 8,
+	"easy_disarm",                  "Automatically disarm traps" },
+#endif
+
+#endif /* ALLOW_EASY_DISARM */
+
+#ifdef ALLOW_EASY_FLOOR /* TNB */
+#ifdef JP
+	{ &easy_floor,                  FALSE,  3, 5, 9,
+	"easy_floor",                   "床上で重なったアイテムをリストする" },
+#else
+	{ &easy_floor,                  FALSE,  3, 5, 9,
+	"easy_floor",                   "Display floor stacks in a list" },
+#endif
+
+#endif /* ALLOW_EASY_FLOOR -- TNB */
+
+#ifdef JP
+	{ &use_command,                 FALSE,  3, 5, 10,
+	"use_command",                  "「使う(a)」コマンドでアイテムを何でも使える" },
+#else
+	{ &use_command,                 FALSE,  3, 5, 10,
+	"use_command",                  "Allow unified use command" },
+#endif
+
+
+#ifdef JP
+	{ &last_words,                  FALSE,   3,      0, 28,
+	"last_words",                   "キャラクターが死んだ時遺言をのこす" },
+#else
+	{ &last_words,                  FALSE,   3,      0, 28,
+	"last_words",                   "Get last words when the character dies" },
+#endif
+
+
+#ifdef JP
+	{ &over_exert,                  TRUE,   3,      0, 29,
+	"over_exert",                   "MPが足りなくても魔法に挑戦する" },
+#else
+	{ &over_exert,                  TRUE,   3,      0, 29,
+	"over_exert",                   "Try to cast magics even if no enough MP" },
+#endif
+
+
+
+	/*** Disturbance ***/
+
+#ifdef JP
+	{ &find_ignore_stairs,          FALSE,   4,      0, 16,
+	"find_ignore_stairs",           "階段は通過する" },
+#else
+	{ &find_ignore_stairs,          FALSE,   4,      0, 16,
+	"find_ignore_stairs",           "Run past stairs" },
+#endif
+
+
+#ifdef JP
+	{ &find_ignore_doors,           TRUE,   4,      0, 17,
+	"find_ignore_doors",            "ドアは通過する" },
+#else
+	{ &find_ignore_doors,           TRUE,   4,      0, 17,
+	"find_ignore_doors",            "Run through open doors" },
+#endif
+
+
+#ifdef JP
+	{ &find_cut,                    FALSE,   4,      0, 18,
+	"find_cut",                     "既知の曲り角は通過する" },
+#else
+	{ &find_cut,                    FALSE,   4,      0, 18,
+	"find_cut",                     "Run past known corners" },
+#endif
+
+
+#ifdef JP
+	{ &find_examine,                TRUE,   4,      0, 19,
+	"find_examine",                 "曲り角かもしれない場合通過する" },
+#else
+	{ &find_examine,                TRUE,   4,      0, 19,
+	"find_examine",                 "Run into potential corners" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_move,                TRUE,   4,      0, 20,
+     "disturb_move",  "どこのモンスターが動いても行動を中止する" },
+#else
+	{ &disturb_move,                TRUE,   4,      0, 20,
+	"disturb_move",                 "Disturb whenever any monster moves" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_near,                TRUE,   4,      0, 21,
+     "disturb_near",  "視界内のモンスターが動いたら行動を中止する" },
+#else
+	{ &disturb_near,                TRUE,   4,      0, 21,
+	"disturb_near",                 "Disturb whenever viewable monster moves" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_pets,                FALSE, 4, 5, 6,
+	"disturb_pets",                 "視界内のペットが動いたら行動を中止する" },
+#else
+	{ &disturb_pets,                FALSE, 4, 5, 6,
+	"disturb_pets",                 "Disturb when visible pets move" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_panel,               TRUE,   4,      0, 22,
+     "disturb_panel",  "画面スクロール時に行動を中止する" },
+#else
+	{ &disturb_panel,               TRUE,   4,      0, 22,
+	"disturb_panel",                "Disturb whenever map panel changes" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_state,               TRUE,   4,      0, 23,
+     "disturb_state",  "自分のステータス変化時に行動を中止する" },
+#else
+	{ &disturb_state,               TRUE,   4,      0, 23,
+	"disturb_state",                "Disturb whenever player state changes" },
+#endif
+
+
+#ifdef JP
+	{ &disturb_minor,               TRUE,   4,      0, 24,
+     "disturb_minor",  "些細なことが起きても行動を中止する" },
+#else
+	{ &disturb_minor,               TRUE,   4,      0, 24,
+	"disturb_minor",                "Disturb whenever boring things happen" },
+#endif
+
+
+#ifdef JP
+	{ &ring_bell,                   FALSE,   4,      0, 14,
+     "ring_bell",  "エラー時にビープ音を鳴らす" },
+#else
+	{ &ring_bell,                   FALSE,   4,      0, 14,
+	"ring_bell",                    "Audible bell (on errors, etc)" },
+#endif
+
+
+#ifdef JP
+	{ &alert_hitpoint,              FALSE,  4,      0, 26,
+     "alert_hitpoint",  "低ヒットポイントの警告時にビープを鳴らす" },
+#else
+	{ &alert_hitpoint,              FALSE,  4,      0, 26,
+	"alert_hitpoint",               "Alert user to critical hitpoints" },
+#endif
+
+
+#ifdef JP
+	{ &easy_band,                 FALSE,  6,      6, 31,
+     "easy_band",  "初心者用簡単モード(*)" },
+#else
+	{ &easy_band,                 FALSE,  6,      6, 31,
+	"easy_band",                  "Easy Mode (*)" },
+#endif
+
+
+#ifdef JP
+	{ &smart_learn,                 TRUE,  6,      1, 14,
+     "smart_learn",  "モンスターは失敗を学習する(*)" },
+#else
+	{ &smart_learn,                 TRUE,  6,      1, 14,
+	"smart_learn",                  "Monsters learn from their mistakes (*)" },
+#endif
+
+
+#ifdef JP
+	{ &smart_cheat,                 FALSE,  6,      1, 15,
+     "smart_cheat",  "モンスターはプレイヤーの弱みを突く(*)" },
+#else
+	{ &smart_cheat,                 FALSE,  6,      1, 15,
+	"smart_cheat",                  "Monsters exploit players weaknesses (*)" },
+#endif
 
 
 	/*** Efficiency ***/
 
-	{ &view_reduce_lite,            FALSE,  4,      1, 16,
+#ifdef JP
+	{ &view_reduce_lite,            FALSE,  5,      1, 16,
+     "view_reduce_lite",  "走っているときは明かりの半径を減少する" },
+#else
+	{ &view_reduce_lite,            FALSE,  5,      1, 16,
 	"view_reduce_lite",             "Reduce lite-radius when running" },
+#endif
 
-	{ &view_reduce_view,            FALSE,  4,      1, 17,
+
+#ifdef JP
+	{ &view_reduce_view,            FALSE,  5,      1, 17,
+	"view_reduce_view",             "街では視野を狭くする" },
+#else
+	{ &view_reduce_view,            FALSE,  5,      1, 17,
 	"view_reduce_view",             "Reduce view-radius in town" },
+#endif
 
-	{ &avoid_abort,                 FALSE,  4,      1, 18,
-	"avoid_abort",                  "Avoid checking for user abort" },
 
-	{ &avoid_other,                 FALSE,  4,      1, 19,
-	"avoid_other",                  "Avoid processing special colors" },
+#ifdef JP
+	{ &avoid_abort,                 TRUE,  5,      1, 18,
+     "avoid_abort",  "連続コマンドはキー入力で中断する" },
+#else
+	{ &avoid_abort,                 TRUE,  5,      1, 18,
+	"avoid_abort",                  "Check for user abort while continuous command" },
+#endif
 
-	{ &flush_failure,               TRUE,   4,      1, 20,
+
+#ifdef JP
+	{ &flush_failure,               TRUE,   5,      1, 20,
+     "flush_failure",  "様々なミス発生時に入力をクリアする" },
+#else
+	{ &flush_failure,               TRUE,   5,      1, 20,
 	"flush_failure",                "Flush input on various failures" },
+#endif
 
-	{ &flush_disturb,               FALSE,  4,      1, 21,
+
+#ifdef JP
+	{ &flush_disturb,               FALSE,  5,      1, 21,
+     "flush_disturb",  "障害発生時に入力をクリアする" },
+#else
+	{ &flush_disturb,               FALSE,  5,      1, 21,
 	"flush_disturb",                "Flush input whenever disturbed" },
+#endif
 
-	{ &flush_command,               FALSE,  4,      1, 22,
-	"flush_command",                "Flush input before every command" },
 
-	{ &fresh_before,                TRUE,   4,      1, 23,
-	"fresh_before",                 "Flush output before every command" },
+#ifdef JP
+	{ &fresh_before,                TRUE,   5,      1, 23,
+	  "fresh_before",               "連続コマンド中に画面を再描画し続ける" },
+#else
+	{ &fresh_before,                TRUE,   5,      1, 23,
+	"fresh_before",                 "Flush output while continuous command" },
+#endif
 
-	{ &fresh_after,                 FALSE,  4,      1, 24,
-	"fresh_after",                  "Flush output after every command" },
 
-	{ &fresh_message,               FALSE,  4,      1, 25,
+#ifdef JP
+	{ &fresh_after,                 FALSE,  5,      1, 24,
+	  "fresh_after",                "コマンド後に画面を常に再描画し続ける" },
+#else
+	{ &fresh_after,                 FALSE,  5,      1, 24,
+	"fresh_after",                  "Flush output after every world's move" },
+#endif
+
+
+#ifdef JP
+	{ &fresh_message,               FALSE,  5,      1, 25,
+	"fresh_message",                "メッセージの後に画面を再描画する" },
+#else
+	{ &fresh_message,               FALSE,  5,      1, 25,
 	"fresh_message",                "Flush output after every message" },
+#endif
 
-	{ &compress_savefile,           TRUE,   4,      1, 26,
+
+#ifdef JP
+	{ &compress_savefile,           FALSE,   5,      1, 26,
+	  "compress_savefile",          "セーブ・ファイル中のメッセージを圧縮する" },
+#else
+	{ &compress_savefile,           FALSE,   5,      1, 26,
 	"compress_savefile",            "Compress messages in savefiles" },
+#endif
 
-	{ &hilite_player,               TRUE,  4,      1, 27,
+
+#ifdef JP
+	{ &hilite_player,               TRUE,  5,      1, 27,
+	  "hilite_player",              "プレイヤーにカーソルを合わせる" },
+#else
+	{ &hilite_player,               TRUE,  5,      1, 27,
 	"hilite_player",                "Hilite the player with the cursor" },
-
-	{ &view_yellow_lite,            FALSE,  4,      1, 28,
-	"view_yellow_lite",             "Use special colors for torch-lit grids" },
-
-	{ &view_bright_lite,            FALSE,  4,      1, 29,
-	"view_bright_lite",             "Use special colors for 'viewable' grids" },
-
-	{ &view_granite_lite,           FALSE,  4,      1, 30,
-	"view_granite_lite",            "Use special colors for wall grids (slow)" },
-
-	{ &view_special_lite,           FALSE,  4,      1, 31,
-	"view_special_lite",            "Use special colors for floor grids (slow)" },
+#endif
 
 
-	/*** ZAngband options ***/
 
-	{ &disturb_other,               TRUE,   5,      0, 25,
-	"disturb_other",                "Disturb whenever random things happen" },
+#ifdef JP
+	{ &stupid_monsters,             FALSE, 6, 5, 2,
+	"stupid_monsters",              "モンスターが間抜けな行動をとる(*)" },
+#else
+	{ &stupid_monsters,             FALSE, 6, 5, 2,
+	"stupid_monsters",              "Monsters behave stupidly (*)" },
+#endif
 
-	{ &last_words,                  TRUE,   5,      0, 28,
-	"last_words",                   "Get last words when the character dies" },
 
-	{ &speak_unique,                TRUE,   5,      0, 29,
-	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
 
-	{ &small_levels,                TRUE,   5,      0, 30,
-	"small_levels",                 "Allow unusually small dungeon levels" },
-
-	{ &always_small_levels,         FALSE,   5,      2, 3,
-	"always_small_levels",          "Always create unusually small dungeon levels" },
-
-	{ &empty_levels,                TRUE,   5,      0, 31,
-	"empty_levels",                 "Allow empty 'arena' levels" },
-
-	{ &player_symbols,              FALSE,   5,      1, 13,
-	"player_symbols",               "Use special symbols for the player char"},
-
-	{ &equippy_chars,               TRUE,  5,      1, 12,
-	"equippy_chars",                "Display 'equippy' chars" },
-
-	{ &skip_mutations,              FALSE, 5, 5, 0,
-	"skip_mutations",               "Skip mutations in 'C'haracter Display" },
-
-	{ &plain_descriptions,          FALSE, 5, 5, 1,
-	"plain_descriptions",           "Plain object descriptions" },
-
-	{ &stupid_monsters,             FALSE, 5, 5, 2,
-	"stupid_monsters",              "Monsters behave stupidly" },
-
-	{ &auto_destroy,                FALSE, 5, 5, 3,
-	"auto_destroy",                 "No query to destroy known worthless items" },
-
-	{ &wear_confirm,                FALSE, 5,5, 4,
-	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
-
-	{ &confirm_stairs,              FALSE, 5, 5, 5,
-	"confirm_stairs",               "Prompt before exiting a dungeon level" },
-
-	{ &disturb_pets,                FALSE, 5, 5, 6,
-	"disturb_pets",                 "Disturb when visible pets move" },
-
-#ifdef ALLOW_EASY_OPEN
-	{ &easy_open,                   FALSE, 5,5,7,
-	"easy_open",                    "Automatically open doors" },
-#endif /* ALLOW_EASY_OPEN */
-
-#ifdef ALLOW_EASY_DISARM
-	{ &easy_disarm,                 FALSE, 5, 5, 8,
-	"easy_disarm",                  "Automatically disarm traps" },
-#endif /* ALLOW_EASY_DISARM */
-
-#ifdef ALLOW_EASY_FLOOR /* TNB */
-	{ &easy_floor,                  FALSE,  5, 5, 9,
-	"easy_floor",                   "Display floor stacks in a list" },
-#endif /* ALLOW_EASY_FLOOR -- TNB */
-
-	{ &use_command,                 FALSE,  5, 5, 10,
-	"use_command",                  "Allow unified use command" },
-
-	{ &center_player,               FALSE,  5, 5, 11,
-	"center_player",                "Always center on the player (*slow*)" },
-
-	{ &avoid_center,                FALSE,  5, 5, 12,
-	"avoid_center",                 "Avoid centering while running" },
-
+#ifdef JP
+	{ &vanilla_town,                FALSE, 6,6,0,
+	"vanilla_town",                 "元祖の街/クエストと荒野なし" },
+#else
 	{ &vanilla_town,                FALSE, 6,6,0,
 	"vanilla_town",                 "Use 'vanilla' town without quests and wilderness" },
+#endif
 
+
+#ifdef JP
+	{ &lite_town,                   FALSE, 6,6,1,
+	"lite_town",                    "小規模な街/荒野なし" },
+#else
 	{ &lite_town,                   FALSE, 6,6,1,
 	"lite_town",                    "Use 'lite' town without a wilderness" },
+#endif
 
+
+#ifdef JP
 	{ &ironman_shops,               FALSE, 6,6,2,
-	"ironman_shops",                "Stores are permanently closed" },
+	"ironman_shops",                "（鉄人用）店を使用しない(*)" },
+#else
+	{ &ironman_shops,               FALSE, 6,6,2,
+	"ironman_shops",                "Stores are permanently closed (*)" },
+#endif
 
+
+#ifdef JP
 	{ &ironman_small_levels,        FALSE, 6,6,3,
-	"ironman_small_levels",         "Always create unusually small dungeon levels" },
+	"ironman_small_levels",         "（鉄人用）常に非常に小さいフロアを生成(*)" },
+#else
+	{ &ironman_small_levels,        FALSE, 6,6,3,
+	"ironman_small_levels",         "Always create unusually small dungeon levels (*)" },
+#endif
 
+
+#ifdef JP
 	{ &ironman_downward,            FALSE, 6,6,4,
-	"ironman_downward",             "Don't allow climbing upwards/recalling" },
+	"ironman_downward",             "（鉄人用）帰還と上り階段なし(*)" },
+#else
+	{ &ironman_downward,            FALSE, 6,6,4,
+	"ironman_downward",             "Don't allow climbing upwards/recalling(*)" },
+#endif
 
+
+#ifdef JP
+	{ &ironman_autoscum,            FALSE, 6,6,5,
+	"ironman_autoscum",             "（鉄人用）常に階の雰囲気を自動選り好みする" },
+#else
 	{ &ironman_autoscum,            FALSE, 6,6,5,
 	"ironman_autoscum",             "Permanently enable the autoscummer" },
+#endif
 
-	{ &ironman_hard_quests,         FALSE, 6,6,6,
-	"ironman_hard_quests",          "Quest monsters get reinforcements" },
 
+#ifdef JP
+       { &ironman_empty_levels,        FALSE, 6,6,8,
+       "ironman_empty_levels",         "（鉄人用）常に空っぽのアリーナレベルを生成(*)" },
+#else
 	{ &ironman_empty_levels,        FALSE, 6,6,8,
-	"ironman_empty_levels",         "Always create empty 'arena' levels" },
+	"ironman_empty_levels",         "Always create empty 'arena' levels (*)" },
+#endif
 
+
+#ifdef JP
+       { &terrain_streams,             TRUE, 6,6,9,
+       "terrain_streams",              "川や森などをダンジョンに生成(*)" },
+#else
 	{ &terrain_streams,             TRUE, 6,6,9,
-	"terrain_streams",              "Create terrain 'streamers' in the dungeon" },
+	"terrain_streams",              "Create terrain 'streamers' in the dungeon (*)" },
+#endif
 
+
+#ifdef JP
+       { &munchkin_death,              FALSE, 6,6,11,
+       "munchkin_death",               "（いんちき）死んだ時セーブするか確認する(*)" },
+#else
 	{ &munchkin_death,              FALSE, 6,6,11,
-	"munchkin_death",               "Ask for saving death" },
+	"munchkin_death",               "(Munchkin) Ask for saving death (*)" },
+#endif
 
-	{ &munchkin_rings,					FALSE, 6, 6, 17,
-	"munchkin_rings",						"Allow multiple rings" },
 
+#ifdef JP
+       { &ironman_rooms,               FALSE, 6,6,12,
+       "ironman_rooms",                "（鉄人用）常に普通でない部屋を生成する(*)" },
+#else
 	{ &ironman_rooms,               FALSE, 6,6,12,
-	"ironman_rooms",                "Always generate very unusual rooms" },
+	"ironman_rooms",                "Always generate very unusual rooms (*)" },
+#endif
+
 
 	{ &ironman_nightmare,           FALSE, 6, 6,18,
-	 "ironman_nightmare",			  "Nightmare mode (this isn't even remotely fair!)" },
+#ifdef JP
+ "ironman_nightmare",			  "（鉄人用）悪夢モード(これは全く不条理です！)(*)" },
+#else
+	 "ironman_nightmare",		  "Nightmare mode(it isn't even remotely fair!)(*)" },
+#endif
 
-	{ &maximize_mode,               TRUE,  6,6,13,
-	"maximize_mode",                "Maximize stats" },
+#ifdef JP
+       { &hidarikiki,               FALSE,  6,6,13,
+       "hidarikiki",                "左利きである" },
+#else
+	{ &hidarikiki,               FALSE,  6,6,13,
+	"hidarikiki",                "Left-Handed" },
+#endif
 
+
+#ifdef JP
+       { &preserve_mode,               TRUE,  6,6,14,
+       "preserve_mode",                "伝説のアイテムを取り逃しても再生成される(*)" },
+#else
 	{ &preserve_mode,               TRUE,  6,6,14,
-	"preserve_mode",                "Preserve artifacts" },
+	"preserve_mode",                "Preserve artifacts (*)" },
+#endif
 
+
+#ifdef JP
+       { &autoroller,                  TRUE,  6,6,15,
+       "autoroller",                   "能力値にオートローラー使用(*)" },
+#else
 	{ &autoroller,                  TRUE,  6,6,15,
-	"autoroller",                   "Specify 'minimal' stats" },
-
-	/*** Stacking ***/
-
-	{ &testing_stack,               TRUE,  255, 7, 30,
-	"testing_stack",                "Allow objects to stack on floor" },
-
-	{ &testing_carry,               TRUE,  255, 7, 31,
-	"testing_carry",                "Allow monsters to carry objects" },
+	"autoroller",                   "Specify 'minimal' stats (*)" },
+#endif
 
 
+#ifdef JP
+       { &autochara,                   FALSE,  6,6,16,
+       "autochara",                   "体格/地位にオートローラー使用" },
+#else
+	{ &autochara,                  FALSE,  6,6,16,
+	"autochara",                   "Auto roll for wight, height and social status" },
+#endif
+
+
+#ifdef JP
+        { &display_pick,     TRUE, 7, 7, 8,
+        "display_pick",      "全体マップで自動拾いアイテムを表示する" },
+#else
+        { &display_pick,      TRUE, 7, 7, 8,
+        "display_pick",      "Display autopick items on the full dungeon map" },
+#endif
+
+#ifdef JP
+        { &display_nopick,     FALSE, 7, 7, 9,
+        "display_nopick",      "全体マップで床に放置するアイテムを表示する" },
+#else
+        { &display_nopick,      FALSE, 7, 7, 9,
+        "display_nopick",      "Display ignore-autopick items on the full map" },
+#endif
+
+#ifdef JP
+        { &display_destroy,     FALSE, 7, 7, 10,
+        "display_destroy",      "全体マップで自動破壊アイテムを表示する" },
+#else
+        { &display_destroy,      FALSE, 7, 7, 10,
+        "display_destroy",      "Display auto destroy items on the full map" },
+#endif
+
+#ifdef JP
+        { &destroy_items,     FALSE, 7, 7, 0,
+        "destroy_items",      "アイテムの自動破壊を使用する" },
+#else
+        { &destroy_items,      FALSE, 7, 7, 0,
+        "destroy_items",      "Use auto-destroy-items." },
+#endif
+
+#ifdef JP
+        { &destroy_worth,           FALSE, 7, 7, 2,
+        "destroy_worth",            "価値があるアイテムは壊さない" },
+#else
+        { &destroy_worth,           FALSE, 7, 7, 2,
+        "destroy_worth",            "No auto-destroy known worthy items" },
+#endif
+
+#ifdef JP
+        { &destroy_equip,           FALSE, 7, 7, 3,
+        "destroy_equip",            "武器/防具は壊さない" },
+#else
+        { &destroy_equip,           FALSE, 7, 7, 3,
+        "destroy_equip",            "No auto-destroy weapons and armours" },
+#endif
+
+#ifdef JP
+        { &destroy_chest,           FALSE, 7, 7, 7,
+        "destroy_chest",            "開封されていない箱は壊さない" },
+#else
+        { &destroy_chest,           FALSE, 7, 7, 7,
+        "destroy_chest",            "No auto-destroy chests not opened" },
+#endif
+
+#ifdef JP
+        { &destroy_kubi,           FALSE, 7, 7, 4,
+        "destroy_kubi",            "賞金首の死体/骨は壊さない" },
+#else
+        { &destroy_kubi,           FALSE, 7, 7, 4,
+        "destroy_kubi",            "No auto-destroy wanted corpses" },
+#endif
+
+#ifdef JP
+        { &destroy_corpse,           FALSE, 7, 7, 5,
+        "destroy_corpse",            "死体/骨は壊さない" },
+#else
+        { &destroy_corpse,           FALSE, 7, 7, 5,
+        "destroy_corpse",            "No auto-destroy corpses and skeletons." },
+#endif
+
+#ifdef JP
+        { &destroy_junk,           FALSE, 7, 7, 6,
+        "destroy_junk",            "がらくたは壊さない" },
+#else
+        { &destroy_junk,           FALSE, 7, 7, 6,
+        "destroy_junk",            "No auto-destroy junks." },
+#endif
+
+#ifdef JP
+        { &record_fix_art,           TRUE, 10, 4, 11,
+        "record_fix_art",            "固定アーティファクトの入手を記録する" },
+#else
+        { &record_fix_art,           TRUE, 10, 4, 11,
+        "record_fix_art",            "Record fixed-art" },
+#endif
+
+#ifdef JP
+        { &record_rand_art,           TRUE, 10, 4, 12,
+        "record_rand_art",            "ランダムアーティファクトの入手を記録する" },
+#else
+        { &record_rand_art,           TRUE, 10, 4, 12,
+        "record_rand_art",            "Record random-art" },
+#endif
+
+#ifdef JP
+        { &record_destroy_uniq,       TRUE, 10, 4, 13,
+        "record_destroy_uniq",        "ユニークモンスターを倒したときを記録する" },
+#else
+        { &record_destroy_uniq,       TRUE, 10, 4, 13,
+        "record_destroy_uniq",        "Record when destroy unique monster" },
+#endif
+
+#ifdef JP
+        { &record_fix_quest,           TRUE, 10, 4, 14,
+        "record_fix_quest",            "固定クエストの達成を記録する" },
+#else
+        { &record_fix_quest,           TRUE, 10, 4, 14,
+        "record_fix_quest",            "Record fixed quest" },
+#endif
+
+#ifdef JP
+        { &record_rand_quest,           TRUE, 10, 4, 15,
+        "record_rand_quest",            "ランダムクエストの達成を記録する" },
+#else
+        { &record_rand_quest,           TRUE, 10, 4, 15,
+        "record_rand_quest",            "Record random quest" },
+#endif
+
+#ifdef JP
+        { &record_maxdeapth,          TRUE, 10, 4, 16,
+        "record_maxdeapth",           "最深階を更新したときに記録する" },
+#else
+        { &record_maxdeapth,          TRUE, 10, 4, 16,
+        "record_maxdeapth",           "Record when go deepest level" },
+#endif
+
+#ifdef JP
+        { &record_stair,              TRUE, 10, 4, 17,
+        "record_stair",               "階の移動を記録する" },
+#else
+        { &record_stair,              TRUE, 10, 4, 17,
+        "record_stair",               "Record move level" },
+#endif
+
+#ifdef JP
+        { &record_buy,                TRUE, 10, 4, 18,
+        "record_buy",                 "アイテムの購入を記録する" },
+#else
+        { &record_buy,                TRUE, 10, 4, 18,
+        "record_buy",                 "Record buy item" },
+#endif
+
+#ifdef JP
+        { &record_sell,                FALSE, 10, 4, 19,
+        "record_sell",                 "アイテムの売却を記録する" },
+#else
+        { &record_sell,                FALSE, 10, 4, 19,
+        "record_sell",                 "Record sell item" },
+#endif
+
+#ifdef JP
+        { &record_danger,                TRUE, 10, 4, 20,
+        "record_danger",                 "ピンチになったときを記録する" },
+#else
+        { &record_danger,                TRUE, 10, 4, 20,
+        "record_danger",                 "Record when low HP" },
+#endif
+
+#ifdef JP
+        { &record_arena,                TRUE, 10, 4, 21,
+        "record_arena",                 "アリーナでの勝利を記録する" },
+#else
+        { &record_arena,                TRUE, 10, 4, 21,
+        "record_arena",                 "Record victorious in arena" },
+#endif
+
+#ifdef JP
+        { &record_ident,                TRUE, 10, 4, 22,
+        "record_ident",                 "未判明のアイテムの識別を記録する" },
+#else
+        { &record_ident,                TRUE, 10, 4, 22,
+        "record_ident",                 "Record when identify unknown item" },
+#endif
+
+#ifdef JP
+        { &record_named_pet,             FALSE, 10, 4, 23,
+        "record_named_pet",              "名前つきペットの情報を記録する" },
+#else
+        { &record_named_pet,             FALSE, 10, 4, 23,
+        "record_named_pet",              "Record infomations of named pets" },
+#endif
+
+
+
+#ifdef JP
+	{ &always_show_list,               TRUE,  2, 4, 0,
+     "always_show_list",  "選択時には常に一覧を表示する" },
+
+	{ &powerup_home,               TRUE,  6,4,3,
+     "powerup_home",  "我が家を拡張する(*)" },
+
+	{ &old_way_of_kaz,               TRUE,  2,4,5,
+     "old_way_of_kaz",  "アイテムの種類によって数え方を変える" },
+#else
+	{ &always_show_list,               TRUE,  2, 4, 0,
+     "always_show_list",  "Always show list at first when select items" },
+
+	{ &powerup_home,               TRUE,  6,4,3,
+     "powerup_home",  "increase capacity of your home (*)" },
+
+	{ &old_way_of_kaz,               TRUE,  99,4,5,
+     "old_way_of_kaz",  "change a way to counting (japanese only)" },
+#endif
+
+#ifdef WORLD_SCORE
+#ifdef JP
+	{ &send_score,                   TRUE,  3,4,6,
+     "send_score",  "スコアサーバにスコアを送る" },
+#else
+	{ &send_score,                   TRUE,  3,4,6,
+     "send_score",  "Send score dump to the world score server" },
+#endif
+#endif
 	/*** End of Table ***/
 
 	{ NULL,                         0, 0, 0, 0,
@@ -6244,7 +17129,36 @@ option_type option_info[] =
 };
 
 
+#ifdef JP
 cptr chaos_patrons[MAX_PATRON] =
+{
+	"スローター",
+	"マベロード",
+	"チャードロス",
+	"ハイオンハーン",
+	"キシオムバーグ",
+
+	"ピアレー",
+	"バラン",
+	"アリオッチ",
+	"イーカー",
+	"ナージャン",
+
+	"バロ",
+	"コーン",
+	"スラーネッシュ",
+	"ナーグル",
+	"ティーンチ",
+
+	"カイン"
+};
+#endif
+
+#ifdef JP
+cptr E_chaos_patrons[MAX_PATRON] =
+#else
+cptr chaos_patrons[MAX_PATRON] =
+#endif
 {
 	"Slortar",
 	"Mabelode",
@@ -6266,6 +17180,7 @@ cptr chaos_patrons[MAX_PATRON] =
 
 	"Khaine"
 };
+
 
 int chaos_stats[MAX_PATRON] =
 {
@@ -6427,6 +17342,45 @@ int chaos_rewards[MAX_PATRON][20] =
 
 martial_arts ma_blows[MAX_MA] =
 {
+#ifdef JP
+#ifdef VERBOSE_MARTIAL_ARTS
+	{ "%sを殴った。",                          1, 0, 1, 5, 0 },
+	{ "%sを蹴った。",                           2, 0, 1, 7, 0 },
+	{ "%sに正拳突きをくらわした。",                         3, 0, 1, 9, 0 },
+	{ "%sに膝蹴りをくらわした。",             5, 5, 2, 4, MA_KNEE },
+	{ "%sに肘打ちをくらわした。",            7, 5, 1, 12, 0 },
+	{ "%sに体当りした。",                           9, 10, 2, 6, 0 },
+	{ "%sを蹴った。",                           11, 10, 3, 6, MA_SLOW },
+	{ "%sにアッパーをくらわした。",                       13, 12, 5, 5, 6 },
+	{ "%sに二段蹴りをくらわした。",                    16, 15, 5, 6, 8 },
+	{ "%sに猫爪撃をくらわした。",          20, 20, 5, 8, 0 },
+	{ "%sに跳空脚をくらわした。",           24, 25, 6, 8, 10 },
+	{ "%sに鷲爪襲をくらわした。",       28, 25, 7, 9, 0 },
+	{ "%sに回し蹴りをくらわした。",         32, 30, 8, 10, 10 },
+	{ "%sに鉄拳撃をくらわした。",          35, 35, 8, 11, 10 },
+	{ "%sに飛空脚をくらわした。",         39, 35, 8, 12, 12 },
+	{ "%sに昇龍拳をくらわした。",         43, 35, 9, 12, 16 },
+	{ "%sに石破天驚拳をくらわした。",       48, 40, 10, 13, 18 },
+#else
+	{ "You punch %s.",                          1, 0, 1, 4, 0 },
+	{ "You kick %s.",                           2, 0, 1, 6, 0 },
+	{ "You strike %s.",                         3, 0, 1, 7, 0 },
+	{ "You knee %s.",                           5, 5, 2, 3, MA_KNEE },
+	{ "You hit %s.",                            7, 5, 1, 8, 0 },
+	{ "You butt %s.",                           9, 10, 2, 5, 0 },
+	{ "You kick %s.",                           11, 10, 3, 4, MA_SLOW },
+	{ "You uppercut %s.",                       13, 12, 4, 4, 6 },
+	{ "You double-kick %s.",                    16, 15, 5, 4, 8 },
+	{ "You hit %s.",                            20, 20, 5, 5, 0 },
+	{ "You kick %s.",                           25, 25, 5, 6, 10 },
+	{ "You hit %s.",                            29, 25, 6, 6, 0 },
+	{ "You kick %s.",                           33, 30, 6, 8, 10 },
+	{ "You punch %s.",                          37, 35, 8, 8, 10 },
+	{ "You kick %s.",                           41, 35, 8, 10, 12 },
+	{ "You punch %s.",                          45, 35, 10, 10, 16 },
+	{ "You punch %s.",                          48, 35, 10, 12, 18 },
+#endif
+#else
 #ifdef VERBOSE_MARTIAL_ARTS
 	{ "You punch %s.",                          1, 0, 1, 4, 0 },
 	{ "You kick %s.",                           2, 0, 1, 6, 0 },
@@ -6464,6 +17418,63 @@ martial_arts ma_blows[MAX_MA] =
 	{ "You punch %s.",                          45, 35, 10, 10, 16 },
 	{ "You punch %s.",                          48, 35, 10, 12, 18 },
 #endif
+#endif
+
+};
+
+int monk_ave_damage[PY_MAX_LEVEL+1][3] =
+{
+  {0, 0, 0},
+  {249, 249, 249},
+  {324, 324, 324},
+  {382, 438, 382},
+  {382, 439, 382},
+  {390, 446, 390},
+  {394, 473, 394},
+  {425, 528, 425},
+  {430, 535, 430},
+  {505, 560, 435},
+  {517, 575, 444},
+  {566, 655, 474},
+  {585, 713, 486},
+  {653, 843, 527},
+  {678, 890, 544},
+  {703, 973, 558},
+  {765, 1096, 596},
+  {914, 1146, 614},
+  {943, 1240, 629},
+  {971, 1276, 643},
+  {1018, 1350, 667},
+  {1063, 1464, 688},
+  {1099, 1515, 705},
+  {1128, 1559, 721},
+  {1153, 1640, 735},
+  {1336, 1720, 757},
+  {1387, 1789, 778},
+  {1430, 1893, 794},
+  {1610, 2199, 863},
+  {1666, 2280, 885},
+  {1713, 2401, 908},
+  {1755, 2465, 925},
+  {1909, 2730, 984},
+  {2156, 2891, 1009},
+  {2218, 2970, 1031},
+  {2319, 3107, 1063},
+  {2404, 3290, 1098},
+  {2477, 3389, 1125},
+  {2544, 3483, 1150},
+  {2771, 3899, 1228},
+  {2844, 3982, 1259},
+  {3129, 4064, 1287},
+  {3200, 4190, 1313},
+  {3554, 4674, 1432},
+  {3614, 4738, 1463},
+  {3679, 4853, 1485},
+  {3741, 4905, 1512},
+  {3785, 4943, 1538},
+  {4141, 5532, 1652},
+  {4442, 5581, 1679},
+  {4486, 5636, 1702},
 };
 
 /*
@@ -6473,6 +17484,17 @@ martial_arts ma_blows[MAX_MA] =
 cptr game_inscriptions[] =
 {
 	NULL,            /* FEEL_NONE */
+#ifdef JP
+	"壊れている",    /* FEEL_BROKEN */
+	"恐ろしい",      /* FEEL_TERRIBLE */
+	"無価値",        /* FEEL_WORTHLESS */
+	"呪われている",  /* FEEL_CURSED */
+	"呪いなし",      /* FEEL_UNCURSED */
+	"並",            /* FEEL_AVERAGE */
+	"上質",          /* FEEL_GOOD */
+	"高級品",        /* FEEL_EXCELLENT */
+	"特別製",        /* FEEL_SPECIAL */
+#else
 	"broken",        /* FEEL_BROKEN */
 	"terrible",      /* FEEL_TERRIBLE */
 	"worthless",     /* FEEL_WORTHLESS */
@@ -6482,4 +17504,9544 @@ cptr game_inscriptions[] =
 	"good",          /* FEEL_GOOD */
 	"excellent",     /* FEEL_EXCELLENT */
 	"special",       /* FEEL_SPECIAL */
+#endif
+
+};
+
+kamae kamae_shurui[MAX_KAMAE] =
+{
+#ifdef JP
+	{"玄武", 25},
+	{"白虎", 30},
+	{"青竜", 35},
+	{"朱雀", 40},
+#else
+	{"Baihu", 25},
+	{"Zuan-wu", 30},
+	{"Qinglong", 35},
+	{"Zhuque", 40},
+#endif
+};
+
+kamae kata_shurui[MAX_KATA] =
+{
+#ifdef JP
+	{"居合", 25},
+	{"風塵", 30},
+	{"降鬼", 35},
+	{"無想", 40},
+#else
+	{"Iai", 25},
+	{"Huujin", 30},
+	{"Kouki", 35},
+	{"Musou", 40},
+#endif
+};
+
+cptr shougou_moji[5]=
+#ifdef JP
+{"[初心者]", "[入門者]", "[熟練者]", "[エキスパート]", "[達人]"};
+#else
+{"[Unskilled]", "[Beginer]", "[Skilled]", "[Expert]", "[Master]"};
+#endif
+
+s16b weapon_exp_settei[MAX_CLASS][5][64][2] =
+{
+  /* WARRIOR */
+  {
+    /* Bow */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/*  */
+      {4000,7000},/* SLING */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/*  */
+      {4000,7000},/* SHORT_BOW */
+      {4000,7000},/* LONG_BOW */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 20 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,7000},/* LIGHT_XBOW */
+      {4000,7000},/* HEAVY_XBOW */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Digging */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* SHOVEL */
+      {4000,8000},/* GNOMISH_SHOVEL */
+      {4000,8000},/* DWARVEN_SHOVEL */
+      {4000,8000},/* PICK */
+      {4000,8000},/* ORCISH_PICK */
+      {4000,8000},/* DWARVEN_PICK */
+      {4000,8000},/* MATTOCK */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 20 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Hafted */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* CLUB */
+      {4000,8000},/* WHIP */
+      {4000,8000},/* QUARTERSTAFF */
+      {0,6000},/* NUNCHAKU */
+      {4000,8000},/* MACE */
+      {4000,8000},/* BALL_AND_CHAIN */
+      {4000,8000},/* JO_STAFF */
+      {4000,8000},/* WAR_HAMMER */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/* THREE_PIECE_ROD */
+      {4000,8000},/* MORNING_STAR */
+      {4000,8000},/* FLAIL */
+      {4000,8000},/* BO_STAFF */
+      {4000,8000},/* LEAD_FILLED_MACE */
+      {4000,8000},/* TETSUBO */
+      {4000,8000},/*  */
+      {4000,8000},/* TWO_HANDED_FLAIL */
+      {4000,8000},/* GREAT_HAMMER */
+      {4000,8000},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,0},/* TSURIZAO */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,8000},/* GROND */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* HATCHET */
+      {4000,8000},/* SPEAR */
+      {4000,8000},/* SICKLE */
+      {4000,8000},/* AWL_PIKE */
+      {4000,8000},/* TRIDENT */
+      {4000,8000},/* FAUCHARD */
+      {4000,8000},/* BROAD_SPEAR */
+      {4000,8000},/* PIKE */
+      {4000,8000},/* NAGINATA */
+      {4000,8000},/* BEAKED_AXE */
+      {4000,8000},/* BROAD_AXE */
+      {4000,8000},/* LUCERNE_HAMMER */
+      {4000,8000},/* GLAIVE */
+      {4000,8000},/* LAJATANG */
+      {4000,8000},/* HALBERD */
+      {4000,8000},/* GUISARME */
+      {4000,8000},/* SCYTHE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* LANCE */
+      {4000,8000},/*  */
+      {4000,8000},/* BATTLE_AXE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* GREAT_AXE */
+      {4000,8000},/* TRIFURCATE_SPEAR */
+      {4000,8000},/*  */
+      {4000,8000},/* LOCHABER_AXE */
+      {4000,8000},/* HEAVY_LANCE */
+      {4000,8000},/* SCYTHE_OF_SLICING */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,8000},/* DEATH_SCYTHE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Sword */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* BROKEN_DAGGER */
+      {4000,8000},/* BROKEN_SWORD */
+      {4000,8000},/*  */
+      {4000,8000},/* DAGGER */
+      {4000,8000},/* MAIN_GAUCHE */
+      {4000,8000},/* TANTO */
+      {4000,8000},/* RAPIER */
+      {4000,8000},/* SMALL_SWORD */
+      {4000,8000},/* BASILLARD */
+      {4000,8000},/* SHORT_SWORD */
+      {4000,8000},/* SABRE */
+      {4000,8000},/* CUTLASS */
+      {4000,8000},/* WAKIZASHI */
+      {4000,8000},/* KHOPESH */
+      {4000,8000},/* TULWAR */
+      {4000,8000},/* BROAD_SWORD */
+      {4000,8000},/* LONG_SWORD */
+      {4000,8000},/* SCIMITAR */
+      {4000,8000},/* NINJATO */
+      {4000,8000},/* KATANA */
+      {4000,8000},/* BASTARD_SWORD */
+      {4000,8000},/* GREAT_SCIMITAR */
+      {4000,8000},/* CLAYMORE */
+      {4000,8000},/* ESPADON */
+      {4000,8000},/* TWO_HANDED_SWORD */
+      {4000,8000},/* FLAMBERGE */
+      {4000,8000},/* NO_DACHI */
+      {4000,8000},/* EXECUTIOERS_SWORD */
+      {4000,8000},/* ZWEIHANDER */
+      {4000,8000},/* BLADE_OF_CHAOS */
+      {4000,8000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    }
+  },
+  /* MAGE */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {4000,6000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LIGHT_XBOW */
+      {0,4000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* SHOVEL */
+      {0,4000},/* GNOMISH_SHOVEL */
+      {0,4000},/* DWARVEN_SHOVEL */
+      {0,4000},/* PICK */
+      {0,4000},/* ORCISH_PICK */
+      {0,4000},/* DWARVEN_PICK */
+      {0,4000},/* MATTOCK */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* CLUB */
+      {0,4000},/* WHIP */
+      {4000,8000},/* QUARTERSTAFF */
+      {0,0},/* NUNCHAKU */
+      {0,4000},/* MACE */
+      {0,4000},/* BALL_AND_CHAIN */
+      {0,4000},/* JO_STAFF */
+      {0,4000},/* WAR_HAMMER */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/* THREE_PIECE_ROD */
+      {0,4000},/* MORNING_STAR */
+      {0,4000},/* FLAIL */
+      {0,4000},/* BO_STAFF */
+      {0,4000},/* LEAD_FILLED_MACE */
+      {0,4000},/* TETSUBO */
+      {0,4000},/*  */
+      {0,4000},/* TWO_HANDED_FLAIL */
+      {0,4000},/* GREAT_HAMMER */
+      {0,4000},/* MACE_OF_DISRUPTION */
+      {4000,8000},/* WIZSTAFF */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GROND */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* HATCHET */
+      {0,4000},/* SPEAR */
+      {0,4000},/* SICKLE */
+      {0,4000},/* AWL_PIKE */
+      {0,4000},/* TRIDENT */
+      {0,4000},/* FAUCHARD */
+      {0,4000},/* BROAD_SPEAR */
+      {0,4000},/* PIKE */
+      {0,4000},/* NAGINATA */
+      {0,4000},/* BEAKED_AXE */
+      {0,4000},/* BROAD_AXE */
+      {0,4000},/* LUCERNE_HAMMER */
+      {0,4000},/* GLAIVE */
+      {0,4000},/* LAJATANG */
+      {0,4000},/* HALBERD */
+      {0,4000},/* GUISARME */
+      {0,4000},/* SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LANCE */
+      {0,4000},/*  */
+      {0,4000},/* BATTLE_AXE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GREAT_AXE */
+      {0,4000},/* TRIFURCATE_SPEAR */
+      {0,4000},/*  */
+      {0,4000},/* LOCHABER_AXE */
+      {0,4000},/* HEAVY_LANCE */
+      {0,4000},/* SCYTHE_OF_SLICING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* DEATH_SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Sword */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* BROKEN_DAGGER */
+      {0,4000},/* BROKEN_SWORD */
+      {0,4000},/*  */
+      {4000,8000},/* DAGGER */
+      {0,4000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,4000},/* RAPIER */
+      {0,4000},/* SMALL_SWORD */
+      {0,4000},/* BASILLARD */
+      {0,4000},/* SHORT_SWORD */
+      {0,4000},/* SABRE */
+      {0,4000},/* CUTLASS */
+      {0,4000},/* WAKIZASHI */
+      {0,4000},/* KHOPESH */
+      {0,4000},/* TULWAR */
+      {0,4000},/* BROAD_SWORD */
+      {0,4000},/* LONG_SWORD */
+      {0,4000},/* SCIMITAR */
+      {0,4000},/* NINJATO */
+      {0,4000},/* KATANA */
+      {0,4000},/* BASTARD_SWORD */
+      {0,4000},/* GREAT_SCIMITAR */
+      {0,4000},/* CLAYMORE */
+      {0,4000},/* ESPADON */
+      {0,4000},/* TWO_HANDED_SWORD */
+      {0,4000},/* FLAMBERGE */
+      {0,4000},/* NO_DACHI */
+      {0,4000},/* EXECUTIOERS_SWORD */
+      {0,4000},/* ZWEIHANDER */
+      {0,4000},/* BLADE_OF_CHAOS */
+      {0,4000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    }
+  },
+  /* PRIEST */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {0,4000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LIGHT_XBOW */
+      {0,4000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* SHOVEL */
+      {0,4000},/* GNOMISH_SHOVEL */
+      {0,4000},/* DWARVEN_SHOVEL */
+      {0,4000},/* PICK */
+      {0,4000},/* ORCISH_PICK */
+      {0,4000},/* DWARVEN_PICK */
+      {0,4000},/* MATTOCK */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,7000},/* 0 */
+      {0,7000},/* CLUB */
+      {0,7000},/* WHIP */
+      {0,7000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {4000,7000},/* MACE */
+      {0,7000},/* BALL_AND_CHAIN */
+      {0,7000},/* JO_STAFF */
+      {0,7000},/* WAR_HAMMER */
+      {0,7000},/*  */
+      {0,7000},/* 10 */
+      {0,7000},/* THREE_PIECE_ROD */
+      {0,7000},/* MORNING_STAR */
+      {0,7000},/* FLAIL */
+      {0,7000},/* BO_STAFF */
+      {0,7000},/* LEAD_FILLED_MACE */
+      {0,7000},/* TETSUBO */
+      {0,7000},/*  */
+      {0,7000},/* TWO_HANDED_FLAIL */
+      {0,7000},/* GREAT_HAMMER */
+      {0,7000},/* MACE_OF_DISRUPTION */
+      {4000,7000},/* WIZSTAFF */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 30 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* GROND */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* HATCHET */
+      {0,4000},/* SPEAR */
+      {0,4000},/* SICKLE */
+      {0,4000},/* AWL_PIKE */
+      {0,4000},/* TRIDENT */
+      {0,4000},/* FAUCHARD */
+      {0,4000},/* BROAD_SPEAR */
+      {0,4000},/* PIKE */
+      {0,4000},/* NAGINATA */
+      {0,4000},/* BEAKED_AXE */
+      {0,4000},/* BROAD_AXE */
+      {0,4000},/* LUCERNE_HAMMER */
+      {0,4000},/* GLAIVE */
+      {0,4000},/* LAJATANG */
+      {0,4000},/* HALBERD */
+      {0,4000},/* GUISARME */
+      {0,4000},/* SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LANCE */
+      {0,4000},/*  */
+      {0,4000},/* BATTLE_AXE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GREAT_AXE */
+      {0,4000},/* TRIFURCATE_SPEAR */
+      {0,4000},/*  */
+      {0,4000},/* LOCHABER_AXE */
+      {0,4000},/* HEAVY_LANCE */
+      {0,4000},/* SCYTHE_OF_SLICING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* DEATH_SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Sword */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* BROKEN_DAGGER */
+      {0,4000},/* BROKEN_SWORD */
+      {0,4000},/*  */
+      {0,4000},/* DAGGER */
+      {0,4000},/* MAIN_GAUCHE */
+      {0,4000},/* TANTO */
+      {0,4000},/* RAPIER */
+      {0,4000},/* SMALL_SWORD */
+      {0,4000},/* BASILLARD */
+      {0,4000},/* SHORT_SWORD */
+      {0,4000},/* SABRE */
+      {0,4000},/* CUTLASS */
+      {0,4000},/* WAKIZASHI */
+      {0,4000},/* KHOPESH */
+      {0,4000},/* TULWAR */
+      {0,4000},/* BROAD_SWORD */
+      {0,4000},/* LONG_SWORD */
+      {0,4000},/* SCIMITAR */
+      {0,4000},/* NINJATO */
+      {0,4000},/* KATANA */
+      {0,4000},/* BASTARD_SWORD */
+      {0,4000},/* GREAT_SCIMITAR */
+      {0,4000},/* CLAYMORE */
+      {0,4000},/* ESPADON */
+      {0,4000},/* TWO_HANDED_SWORD */
+      {0,4000},/* FLAMBERGE */
+      {0,4000},/* NO_DACHI */
+      {0,4000},/* EXECUTIOERS_SWORD */
+      {0,4000},/* ZWEIHANDER */
+      {0,4000},/* BLADE_OF_CHAOS */
+      {0,4000},/* DIAMOND_EDGE */
+      {0,4000},/* DOKUBARI */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    }
+  },
+  /* ROGUE */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {4000,8000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {4000,7000},/* SHORT_BOW */
+      {4000,7000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,7000},/* LIGHT_XBOW */
+      {0,7000},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,7000},/* 0 */
+      {0,7000},/* SHOVEL */
+      {0,7000},/* GNOMISH_SHOVEL */
+      {0,7000},/* DWARVEN_SHOVEL */
+      {0,7000},/* PICK */
+      {0,7000},/* ORCISH_PICK */
+      {0,7000},/* DWARVEN_PICK */
+      {0,7000},/* MATTOCK */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 10 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 20 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 30 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 40 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 50 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,7000},/* CLUB */
+      {4000,8000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {4000,7000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,6000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,7000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,6000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,6000},/* MACE_OF_DISRUPTION */
+      {0,4000},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,4000},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,7000},/* HATCHET */
+      {0,7000},/* SPEAR */
+      {0,7000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,7000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {0,6000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,6000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,6000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LANCE */
+      {0,6000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,6000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,6000},/* HEAVY_LANCE */
+      {0,6000},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {0,6000},/* 0 */
+      {4000,8000},/* BROKEN_DAGGER */
+      {4000,8000},/* BROKEN_SWORD */
+      {0,6000},/*  */
+      {4000,8000},/* DAGGER */
+      {4000,8000},/* MAIN_GAUCHE */
+      {4000,8000},/* TANTO */
+      {0,8000},/* RAPIER */
+      {4000,8000},/* SMALL_SWORD */
+      {0,7000},/* BASILLARD */
+      {4000,8000},/* SHORT_SWORD */
+      {0,8000},/* SABRE */
+      {0,8000},/* CUTLASS */
+      {0,8000},/* WAKIZASHI */
+      {0,8000},/* KHOPESH */
+      {0,8000},/* TULWAR */
+      {0,7000},/* BROAD_SWORD */
+      {0,7000},/* LONG_SWORD */
+      {0,7000},/* SCIMITAR */
+      {0,7000},/* NINJATO */
+      {0,8000},/* KATANA */
+      {0,7000},/* BASTARD_SWORD */
+      {0,6000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,6000},/* DOKUBARI */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    }
+  },
+  /* RANGER */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {0,7000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {4000,8000},/* SHORT_BOW */
+      {4000,8000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,7000},/* LIGHT_XBOW */
+      {0,7000},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,6000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,6000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,6000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,6000},/* MACE_OF_DISRUPTION */
+      {0,6000},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* HATCHET */
+      {0,6000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {0,6000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,6000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,6000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LANCE */
+      {0,6000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,6000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,6000},/* HEAVY_LANCE */
+      {0,6000},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* BROKEN_DAGGER */
+      {0,6000},/* BROKEN_SWORD */
+      {0,6000},/*  */
+      {4000,8000},/* DAGGER */
+      {0,7000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {0,6000},/* SMALL_SWORD */
+      {0,6000},/* BASILLARD */
+      {4000,8000},/* SHORT_SWORD */
+      {0,6000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,6000},/* KHOPESH */
+      {0,6000},/* TULWAR */
+      {4000,8000},/* BROAD_SWORD */
+      {0,6000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,6000},/* BASTARD_SWORD */
+      {0,6000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    }
+  },
+  /* PALADIN */
+  {
+    /* Bow */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/*  */
+      {0,6000},/* SLING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/* SHORT_BOW */
+      {0,6000},/* LONG_BOW */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LIGHT_XBOW */
+      {0,6000},/* HEAVY_XBOW */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Digging */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,6000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,6000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,6000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,6000},/* MACE_OF_DISRUPTION */
+      {0,6000},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* HATCHET */
+      {0,8000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {0,6000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,6000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,8000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LANCE */
+      {0,6000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,6000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,6000},/* HEAVY_LANCE */
+      {0,6000},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* BROKEN_DAGGER */
+      {4000,8000},/* BROKEN_SWORD */
+      {4000,8000},/*  */
+      {0,6000},/* DAGGER */
+      {4000,8000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {4000,8000},/* RAPIER */
+      {4000,8000},/* SMALL_SWORD */
+      {4000,8000},/* BASILLARD */
+      {4000,8000},/* SHORT_SWORD */
+      {4000,8000},/* SABRE */
+      {4000,8000},/* CUTLASS */
+      {4000,8000},/* WAKIZASHI */
+      {4000,8000},/* KHOPESH */
+      {4000,8000},/* TULWAR */
+      {4000,8000},/* BROAD_SWORD */
+      {4000,8000},/* LONG_SWORD */
+      {4000,8000},/* SCIMITAR */
+      {4000,8000},/* NINJATO */
+      {4000,8000},/* KATANA */
+      {4000,8000},/* BASTARD_SWORD */
+      {4000,8000},/* GREAT_SCIMITAR */
+      {4000,8000},/* CLAYMORE */
+      {4000,8000},/* ESPADON */
+      {4000,8000},/* TWO_HANDED_SWORD */
+      {4000,8000},/* FLAMBERGE */
+      {4000,8000},/* NO_DACHI */
+      {4000,8000},/* EXECUTIOERS_SWORD */
+      {4000,8000},/* ZWEIHANDER */
+      {4000,8000},/* BLADE_OF_CHAOS */
+      {4000,8000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    }
+  },
+  /* WARRIOR_MAGE */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {0,4000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LIGHT_XBOW */
+      {0,4000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,6000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,6000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,6000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,6000},/* MACE_OF_DISRUPTION */
+      {0,6000},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* HATCHET */
+      {0,6000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {0,6000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,6000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,6000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LANCE */
+      {0,6000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,6000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,6000},/* HEAVY_LANCE */
+      {0,6000},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* BROKEN_DAGGER */
+      {0,6000},/* BROKEN_SWORD */
+      {0,6000},/*  */
+      {0,6000},/* DAGGER */
+      {0,6000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {4000,8000},/* SMALL_SWORD */
+      {0,6000},/* BASILLARD */
+      {4000,8000},/* SHORT_SWORD */
+      {4000,8000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,6000},/* KHOPESH */
+      {0,6000},/* TULWAR */
+      {0,6000},/* BROAD_SWORD */
+      {0,6000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,6000},/* BASTARD_SWORD */
+      {0,6000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    }
+  },
+  /* CHAOS_WARRIOR */
+  {
+    /* Bow */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/*  */
+      {0,6000},/* SLING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/* SHORT_BOW */
+      {0,6000},/* LONG_BOW */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LIGHT_XBOW */
+      {0,6000},/* HEAVY_XBOW */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Digging */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,7000},/* 0 */
+      {0,7000},/* CLUB */
+      {0,7000},/* WHIP */
+      {0,7000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,7000},/* MACE */
+      {0,7000},/* BALL_AND_CHAIN */
+      {0,7000},/* JO_STAFF */
+      {0,7000},/* WAR_HAMMER */
+      {0,7000},/*  */
+      {0,7000},/* 10 */
+      {0,7000},/* THREE_PIECE_ROD */
+      {0,7000},/* MORNING_STAR */
+      {0,7000},/* FLAIL */
+      {0,7000},/* BO_STAFF */
+      {0,7000},/* LEAD_FILLED_MACE */
+      {0,7000},/* TETSUBO */
+      {0,7000},/*  */
+      {0,7000},/* TWO_HANDED_FLAIL */
+      {0,7000},/* GREAT_HAMMER */
+      {0,7000},/* MACE_OF_DISRUPTION */
+      {0,7000},/* WIZSTAFF */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 30 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* GROND */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,7000},/* 0 */
+      {0,7000},/* HATCHET */
+      {0,7000},/* SPEAR */
+      {0,7000},/* SICKLE */
+      {0,7000},/* AWL_PIKE */
+      {0,7000},/* TRIDENT */
+      {0,7000},/* FAUCHARD */
+      {0,7000},/* BROAD_SPEAR */
+      {0,7000},/* PIKE */
+      {0,7000},/* NAGINATA */
+      {0,7000},/* BEAKED_AXE */
+      {0,7000},/* BROAD_AXE */
+      {0,7000},/* LUCERNE_HAMMER */
+      {0,7000},/* GLAIVE */
+      {0,7000},/* LAJATANG */
+      {0,7000},/* HALBERD */
+      {0,7000},/* GUISARME */
+      {0,7000},/* SCYTHE */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* LANCE */
+      {0,7000},/*  */
+      {0,7000},/* BATTLE_AXE */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* GREAT_AXE */
+      {0,7000},/* TRIFURCATE_SPEAR */
+      {0,7000},/*  */
+      {0,7000},/* LOCHABER_AXE */
+      {0,7000},/* HEAVY_LANCE */
+      {0,7000},/* SCYTHE_OF_SLICING */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 40 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* DEATH_SCYTHE */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000} /*  */
+    },
+    /* Sword */
+    {
+      {0,7000},/* 0 */
+      {0,7000},/* BROKEN_DAGGER */
+      {0,7000},/* BROKEN_SWORD */
+      {0,7000},/*  */
+      {0,7000},/* DAGGER */
+      {0,7000},/* MAIN_GAUCHE */
+      {0,7000},/* TANTO */
+      {0,7000},/* RAPIER */
+      {0,7000},/* SMALL_SWORD */
+      {0,7000},/* BASILLARD */
+      {0,7000},/* SHORT_SWORD */
+      {0,7000},/* SABRE */
+      {0,7000},/* CUTLASS */
+      {0,7000},/* WAKIZASHI */
+      {0,7000},/* KHOPESH */
+      {0,7000},/* TULWAR */
+      {4000,8000},/* BROAD_SWORD */
+      {0,7000},/* LONG_SWORD */
+      {0,7000},/* SCIMITAR */
+      {0,7000},/* NINJATO */
+      {0,7000},/* KATANA */
+      {0,7000},/* BASTARD_SWORD */
+      {0,7000},/* GREAT_SCIMITAR */
+      {0,7000},/* CLAYMORE */
+      {0,7000},/* ESPADON */
+      {0,7000},/* TWO_HANDED_SWORD */
+      {0,7000},/* FLAMBERGE */
+      {0,7000},/* NO_DACHI */
+      {0,7000},/* EXECUTIOERS_SWORD */
+      {0,7000},/* ZWEIHANDER */
+      {4000,8000},/* BLADE_OF_CHAOS */
+      {0,7000},/* DIAMOND_EDGE */
+      {0,7000},/* DOKUBARI */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 40 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 50 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000} /*  */
+    }
+  },
+  /* MONK */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {0,7000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {4000,7000},/* SHORT_BOW */
+      {4000,7000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,7000},/* LIGHT_XBOW */
+      {0,7000},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,0},/* 0 */
+      {0,0},/* SHOVEL */
+      {0,0},/* GNOMISH_SHOVEL */
+      {0,0},/* DWARVEN_SHOVEL */
+      {0,0},/* PICK */
+      {0,0},/* ORCISH_PICK */
+      {0,0},/* DWARVEN_PICK */
+      {0,0},/* MATTOCK */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 10 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 20 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 30 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 50 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    },
+    /* Hafted */
+    {
+      {0,0},/* 0 */
+      {0,0},/* CLUB */
+      {0,0},/* WHIP */
+      {0,0},/* QUARTERSTAFF */
+      {4000,8000},/* NUNCHAKU */
+      {0,0},/* MACE */
+      {0,0},/* BALL_AND_CHAIN */
+      {0,0},/* JO_STAFF */
+      {0,0},/* WAR_HAMMER */
+      {0,0},/*  */
+      {0,0},/* 10 */
+      {4000,8000},/* THREE_PIECE_ROD */
+      {0,0},/* MORNING_STAR */
+      {0,0},/* FLAIL */
+      {0,0},/* BO_STAFF */
+      {0,0},/* LEAD_FILLED_MACE */
+      {0,0},/* TETSUBO */
+      {0,0},/*  */
+      {0,0},/* TWO_HANDED_FLAIL */
+      {0,0},/* GREAT_HAMMER */
+      {0,0},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 30 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* GROND */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,0},/* 0 */
+      {0,0},/* HATCHET */
+      {0,0},/* SPEAR */
+      {0,0},/* SICKLE */
+      {0,0},/* AWL_PIKE */
+      {0,0},/* TRIDENT */
+      {0,0},/* FAUCHARD */
+      {0,0},/* BROAD_SPEAR */
+      {0,0},/* PIKE */
+      {0,0},/* NAGINATA */
+      {0,0},/* BEAKED_AXE */
+      {0,0},/* BROAD_AXE */
+      {0,0},/* LUCERNE_HAMMER */
+      {0,0},/* GLAIVE */
+      {0,0},/* LAJATANG */
+      {0,0},/* HALBERD */
+      {0,0},/* GUISARME */
+      {0,0},/* SCYTHE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* LANCE */
+      {0,0},/*  */
+      {0,0},/* BATTLE_AXE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* GREAT_AXE */
+      {0,0},/* TRIFURCATE_SPEAR */
+      {0,0},/*  */
+      {0,0},/* LOCHABER_AXE */
+      {0,0},/* HEAVY_LANCE */
+      {0,0},/* SCYTHE_OF_SLICING */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* DEATH_SCYTHE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    },
+    /* Sword */
+    {
+      {0,0},/* 0 */
+      {0,0},/* BROKEN_DAGGER */
+      {0,0},/* BROKEN_SWORD */
+      {0,0},/*  */
+      {0,0},/* DAGGER */
+      {0,0},/* MAIN_GAUCHE */
+      {0,0},/* TANTO */
+      {0,0},/* RAPIER */
+      {0,0},/* SMALL_SWORD */
+      {0,0},/* BASILLARD */
+      {0,0},/* SHORT_SWORD */
+      {0,0},/* SABRE */
+      {0,0},/* CUTLASS */
+      {0,0},/* WAKIZASHI */
+      {0,0},/* KHOPESH */
+      {0,0},/* TULWAR */
+      {0,0},/* BROAD_SWORD */
+      {0,0},/* LONG_SWORD */
+      {0,0},/* SCIMITAR */
+      {0,0},/* NINJATO */
+      {0,0},/* KATANA */
+      {0,0},/* BASTARD_SWORD */
+      {0,0},/* GREAT_SCIMITAR */
+      {0,0},/* CLAYMORE */
+      {0,0},/* ESPADON */
+      {0,0},/* TWO_HANDED_SWORD */
+      {0,0},/* FLAMBERGE */
+      {0,0},/* NO_DACHI */
+      {0,0},/* EXECUTIOERS_SWORD */
+      {0,0},/* ZWEIHANDER */
+      {0,0},/* BLADE_OF_CHAOS */
+      {0,0},/* DIAMOND_EDGE */
+      {0,0},/* DOKUBARI */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 50 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    }
+  },
+  /* MINDCRAFTER */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {0,6000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,6000},/* SHORT_BOW */
+      {0,6000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,6000},/* LIGHT_XBOW */
+      {0,6000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* SHOVEL */
+      {0,4000},/* GNOMISH_SHOVEL */
+      {0,4000},/* DWARVEN_SHOVEL */
+      {0,4000},/* PICK */
+      {0,4000},/* ORCISH_PICK */
+      {0,4000},/* DWARVEN_PICK */
+      {0,4000},/* MATTOCK */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,6000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,6000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,6000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,6000},/* MACE_OF_DISRUPTION */
+      {4000,8000},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* HATCHET */
+      {0,6000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {0,6000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,6000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,6000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LANCE */
+      {0,6000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,6000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,6000},/* HEAVY_LANCE */
+      {0,6000},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* BROKEN_DAGGER */
+      {0,6000},/* BROKEN_SWORD */
+      {0,6000},/*  */
+      {0,6000},/* DAGGER */
+      {0,6000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {4000,6000},/* SMALL_SWORD */
+      {0,6000},/* BASILLARD */
+      {0,6000},/* SHORT_SWORD */
+      {0,6000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,6000},/* KHOPESH */
+      {0,6000},/* TULWAR */
+      {0,6000},/* BROAD_SWORD */
+      {0,6000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,6000},/* BASTARD_SWORD */
+      {0,6000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    }
+  },
+  /* HIGH_MAGE */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {4000,6000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LIGHT_XBOW */
+      {0,4000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* SHOVEL */
+      {0,4000},/* GNOMISH_SHOVEL */
+      {0,4000},/* DWARVEN_SHOVEL */
+      {0,4000},/* PICK */
+      {0,4000},/* ORCISH_PICK */
+      {0,4000},/* DWARVEN_PICK */
+      {0,4000},/* MATTOCK */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* CLUB */
+      {0,4000},/* WHIP */
+      {4000,8000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,4000},/* MACE */
+      {0,4000},/* BALL_AND_CHAIN */
+      {0,4000},/* JO_STAFF */
+      {0,4000},/* WAR_HAMMER */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/* THREE_PIECE_ROD */
+      {0,4000},/* MORNING_STAR */
+      {0,4000},/* FLAIL */
+      {0,4000},/* BO_STAFF */
+      {0,4000},/* LEAD_FILLED_MACE */
+      {0,4000},/* TETSUBO */
+      {0,4000},/*  */
+      {0,4000},/* TWO_HANDED_FLAIL */
+      {0,4000},/* GREAT_HAMMER */
+      {0,4000},/* MACE_OF_DISRUPTION */
+      {4000,8000},/* WIZSTAFF */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GROND */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* HATCHET */
+      {0,4000},/* SPEAR */
+      {0,4000},/* SICKLE */
+      {0,4000},/* AWL_PIKE */
+      {0,4000},/* TRIDENT */
+      {0,4000},/* FAUCHARD */
+      {0,4000},/* BROAD_SPEAR */
+      {0,4000},/* PIKE */
+      {0,4000},/* NAGINATA */
+      {0,4000},/* BEAKED_AXE */
+      {0,4000},/* BROAD_AXE */
+      {0,4000},/* LUCERNE_HAMMER */
+      {0,4000},/* GLAIVE */
+      {0,4000},/* LAJATANG */
+      {0,4000},/* HALBERD */
+      {0,4000},/* GUISARME */
+      {0,4000},/* SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LANCE */
+      {0,4000},/*  */
+      {0,4000},/* BATTLE_AXE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GREAT_AXE */
+      {0,4000},/* TRIFURCATE_SPEAR */
+      {0,4000},/*  */
+      {0,4000},/* LOCHABER_AXE */
+      {0,4000},/* HEAVY_LANCE */
+      {0,4000},/* SCYTHE_OF_SLICING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* DEATH_SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Sword */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* BROKEN_DAGGER */
+      {0,4000},/* BROKEN_SWORD */
+      {0,4000},/*  */
+      {4000,8000},/* DAGGER */
+      {0,4000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,4000},/* RAPIER */
+      {0,4000},/* SMALL_SWORD */
+      {0,4000},/* BASILLARD */
+      {0,4000},/* SHORT_SWORD */
+      {0,4000},/* SABRE */
+      {0,4000},/* CUTLASS */
+      {0,4000},/* WAKIZASHI */
+      {0,4000},/* KHOPESH */
+      {0,4000},/* TULWAR */
+      {0,4000},/* BROAD_SWORD */
+      {0,4000},/* LONG_SWORD */
+      {0,4000},/* SCIMITAR */
+      {0,4000},/* NINJATO */
+      {0,4000},/* KATANA */
+      {0,4000},/* BASTARD_SWORD */
+      {0,4000},/* GREAT_SCIMITAR */
+      {0,4000},/* CLAYMORE */
+      {0,4000},/* ESPADON */
+      {0,4000},/* TWO_HANDED_SWORD */
+      {0,4000},/* FLAMBERGE */
+      {0,4000},/* NO_DACHI */
+      {0,4000},/* EXECUTIOERS_SWORD */
+      {0,4000},/* ZWEIHANDER */
+      {0,4000},/* BLADE_OF_CHAOS */
+      {0,4000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    }
+  },
+  /* TOURIST */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {4000,8000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {0,8000},/* SHORT_BOW */
+      {0,8000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* LIGHT_XBOW */
+      {0,8000},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/* SHOVEL */
+      {0,8000},/* GNOMISH_SHOVEL */
+      {0,8000},/* DWARVEN_SHOVEL */
+      {0,8000},/* PICK */
+      {0,8000},/* ORCISH_PICK */
+      {0,8000},/* DWARVEN_PICK */
+      {0,8000},/* MATTOCK */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/* CLUB */
+      {0,8000},/* WHIP */
+      {0,8000},/* QUARTERSTAFF */
+      {0,8000},/* NUNCHAKU */
+      {0,8000},/* MACE */
+      {0,8000},/* BALL_AND_CHAIN */
+      {0,8000},/* JO_STAFF */
+      {0,8000},/* WAR_HAMMER */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/* THREE_PIECE_ROD */
+      {0,8000},/* MORNING_STAR */
+      {0,8000},/* FLAIL */
+      {0,8000},/* BO_STAFF */
+      {0,8000},/* LEAD_FILLED_MACE */
+      {0,8000},/* TETSUBO */
+      {0,8000},/*  */
+      {0,8000},/* TWO_HANDED_FLAIL */
+      {0,8000},/* GREAT_HAMMER */
+      {0,8000},/* MACE_OF_DISRUPTION */
+      {0,8000},/* WIZSTAFF */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* TSURIZAO */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* GROND */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/* HATCHET */
+      {0,8000},/* SPEAR */
+      {0,8000},/* SICKLE */
+      {0,8000},/* AWL_PIKE */
+      {0,8000},/* TRIDENT */
+      {0,8000},/* FAUCHARD */
+      {0,8000},/* BROAD_SPEAR */
+      {0,8000},/* PIKE */
+      {0,8000},/* NAGINATA */
+      {0,8000},/* BEAKED_AXE */
+      {0,8000},/* BROAD_AXE */
+      {0,8000},/* LUCERNE_HAMMER */
+      {0,8000},/* GLAIVE */
+      {0,8000},/* LAJATANG */
+      {0,8000},/* HALBERD */
+      {0,8000},/* GUISARME */
+      {0,8000},/* SCYTHE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* LANCE */
+      {0,8000},/*  */
+      {0,8000},/* BATTLE_AXE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* GREAT_AXE */
+      {0,8000},/* TRIFURCATE_SPEAR */
+      {0,8000},/*  */
+      {0,8000},/* LOCHABER_AXE */
+      {0,8000},/* HEAVY_LANCE */
+      {0,8000},/* SCYTHE_OF_SLICING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* DEATH_SCYTHE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Sword */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/* BROKEN_DAGGER */
+      {0,8000},/* BROKEN_SWORD */
+      {0,8000},/*  */
+      {0,8000},/* DAGGER */
+      {0,8000},/* MAIN_GAUCHE */
+      {0,8000},/* TANTO */
+      {0,8000},/* RAPIER */
+      {0,8000},/* SMALL_SWORD */
+      {0,8000},/* BASILLARD */
+      {0,8000},/* SHORT_SWORD */
+      {0,8000},/* SABRE */
+      {0,8000},/* CUTLASS */
+      {0,8000},/* WAKIZASHI */
+      {0,8000},/* KHOPESH */
+      {0,8000},/* TULWAR */
+      {0,8000},/* BROAD_SWORD */
+      {0,8000},/* LONG_SWORD */
+      {0,8000},/* SCIMITAR */
+      {0,8000},/* NINJATO */
+      {0,8000},/* KATANA */
+      {0,8000},/* BASTARD_SWORD */
+      {0,8000},/* GREAT_SCIMITAR */
+      {0,8000},/* CLAYMORE */
+      {0,8000},/* ESPADON */
+      {0,8000},/* TWO_HANDED_SWORD */
+      {0,8000},/* FLAMBERGE */
+      {0,8000},/* NO_DACHI */
+      {0,8000},/* EXECUTIOERS_SWORD */
+      {0,8000},/* ZWEIHANDER */
+      {0,8000},/* BLADE_OF_CHAOS */
+      {0,8000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    }
+  },
+  /* MONOMANESHI */
+  {
+    /* Bow */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/*  */
+      {4000,8000},/* SLING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/* SHORT_BOW */
+      {0,6000},/* LONG_BOW */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LIGHT_XBOW */
+      {0,6000},/* HEAVY_XBOW */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Digging */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,7000},/* 0 */
+      {4000,7000},/* CLUB */
+      {0,7000},/* WHIP */
+      {0,7000},/* QUARTERSTAFF */
+      {0,6000},/* NUNCHAKU */
+      {4000,7000},/* MACE */
+      {0,7000},/* BALL_AND_CHAIN */
+      {0,7000},/* JO_STAFF */
+      {0,7000},/* WAR_HAMMER */
+      {0,7000},/*  */
+      {0,7000},/* 10 */
+      {0,7000},/* THREE_PIECE_ROD */
+      {0,7000},/* MORNING_STAR */
+      {0,7000},/* FLAIL */
+      {0,7000},/* BO_STAFF */
+      {0,7000},/* LEAD_FILLED_MACE */
+      {0,7000},/* TETSUBO */
+      {0,7000},/*  */
+      {0,7000},/* TWO_HANDED_FLAIL */
+      {0,7000},/* GREAT_HAMMER */
+      {0,7000},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 30 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* GROND */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,7000},/* 0 */
+      {4000,7000},/* HATCHET */
+      {0,7000},/* SPEAR */
+      {0,7000},/* SICKLE */
+      {0,7000},/* AWL_PIKE */
+      {0,7000},/* TRIDENT */
+      {0,7000},/* FAUCHARD */
+      {0,7000},/* BROAD_SPEAR */
+      {0,7000},/* PIKE */
+      {0,7000},/* NAGINATA */
+      {0,7000},/* BEAKED_AXE */
+      {0,7000},/* BROAD_AXE */
+      {0,7000},/* LUCERNE_HAMMER */
+      {0,7000},/* GLAIVE */
+      {0,7000},/* LAJATANG */
+      {0,7000},/* HALBERD */
+      {0,7000},/* GUISARME */
+      {0,7000},/* SCYTHE */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* LANCE */
+      {0,7000},/*  */
+      {0,7000},/* BATTLE_AXE */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* GREAT_AXE */
+      {0,7000},/* TRIFURCATE_SPEAR */
+      {0,7000},/*  */
+      {0,7000},/* LOCHABER_AXE */
+      {0,7000},/* HEAVY_LANCE */
+      {0,7000},/* SCYTHE_OF_SLICING */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 40 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* DEATH_SCYTHE */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000} /*  */
+    },
+    /* Sword */
+    {
+      {0,7000},/* 0 */
+      {0,7000},/* BROKEN_DAGGER */
+      {0,7000},/* BROKEN_SWORD */
+      {0,7000},/*  */
+      {4000,7000},/* DAGGER */
+      {0,7000},/* MAIN_GAUCHE */
+      {0,7000},/* TANTO */
+      {0,7000},/* RAPIER */
+      {4000,7000},/* SMALL_SWORD */
+      {0,7000},/* BASILLARD */
+      {4000,7000},/* SHORT_SWORD */
+      {0,7000},/* SABRE */
+      {0,7000},/* CUTLASS */
+      {0,7000},/* WAKIZASHI */
+      {0,7000},/* KHOPESH */
+      {0,7000},/* TULWAR */
+      {0,7000},/* BROAD_SWORD */
+      {4000,7000},/* LONG_SWORD */
+      {0,7000},/* SCIMITAR */
+      {0,7000},/* NINJATO */
+      {0,7000},/* KATANA */
+      {0,7000},/* BASTARD_SWORD */
+      {0,7000},/* GREAT_SCIMITAR */
+      {0,7000},/* CLAYMORE */
+      {0,7000},/* ESPADON */
+      {0,7000},/* TWO_HANDED_SWORD */
+      {0,7000},/* FLAMBERGE */
+      {0,7000},/* NO_DACHI */
+      {0,7000},/* EXECUTIOERS_SWORD */
+      {0,7000},/* ZWEIHANDER */
+      {0,7000},/* BLADE_OF_CHAOS */
+      {0,7000},/* DIAMOND_EDGE */
+      {0,7000},/* DOKUBARI */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 40 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 50 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000} /*  */
+    }
+  },
+  /* BEASTMASTER */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {0,7000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {4000,8000},/* SHORT_BOW */
+      {4000,8000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,6000},/* LIGHT_XBOW */
+      {0,6000},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,8000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,8000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,7000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,7000},/* WAR_HAMMER */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,7000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,8000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,7000},/* MACE_OF_DISRUPTION */
+      {0,6000},/* WIZSTAFF */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,7000},/* GROND */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/* HATCHET */
+      {4000,8000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,7000},/* TRIDENT */
+      {0,7000},/* FAUCHARD */
+      {4000,8000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,7000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,6000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {4000,8000},/* LANCE */
+      {0,8000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,8000},/* TRIFURCATE_SPEAR */
+      {0,8000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,8000},/* HEAVY_LANCE */
+      {0,7000},/* SCYTHE_OF_SLICING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,7000},/* DEATH_SCYTHE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Sword */
+    {
+      {0,8000},/* 0 */
+      {0,6000},/* BROKEN_DAGGER */
+      {0,6000},/* BROKEN_SWORD */
+      {0,8000},/*  */
+      {0,6000},/* DAGGER */
+      {0,6000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {0,6000},/* SMALL_SWORD */
+      {0,6000},/* BASILLARD */
+      {0,6000},/* SHORT_SWORD */
+      {0,8000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,6000},/* KHOPESH */
+      {0,7000},/* TULWAR */
+      {0,7000},/* BROAD_SWORD */
+      {0,7000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,6000},/* BASTARD_SWORD */
+      {0,7000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,6000},/* DOKUBARI */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    }
+  },
+  /* SORCERER */
+  {
+    /* Bow */
+    {
+      {0,0},/* 0 */
+      {0,0},/*  */
+      {0,0},/* SLING */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 10 */
+      {0,0},/*  */
+      {0,0},/* SHORT_BOW */
+      {0,0},/* LONG_BOW */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 20 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* LIGHT_XBOW */
+      {0,0},/* HEAVY_XBOW */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 30 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 50 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    },
+    /* Digging */
+    {
+      {0,0},/* 0 */
+      {0,0},/* SHOVEL */
+      {0,0},/* GNOMISH_SHOVEL */
+      {0,0},/* DWARVEN_SHOVEL */
+      {0,0},/* PICK */
+      {0,0},/* ORCISH_PICK */
+      {0,0},/* DWARVEN_PICK */
+      {0,0},/* MATTOCK */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 10 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 20 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 30 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 50 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    },
+    /* Hafted */
+    {
+      {0,0},/* 0 */
+      {0,0},/* CLUB */
+      {0,0},/* WHIP */
+      {0,0},/* QUARTERSTAFF */
+      {0,0},/* NUNCHAKU */
+      {0,0},/* MACE */
+      {0,0},/* BALL_AND_CHAIN */
+      {0,0},/* JO_STAFF */
+      {0,0},/* WAR_HAMMER */
+      {0,0},/*  */
+      {0,0},/* 10 */
+      {0,0},/* THREE_PIECE_ROD */
+      {0,0},/* MORNING_STAR */
+      {0,0},/* FLAIL */
+      {0,0},/* BO_STAFF */
+      {0,0},/* LEAD_FILLED_MACE */
+      {0,0},/* TETSUBO */
+      {0,0},/*  */
+      {0,0},/* TWO_HANDED_FLAIL */
+      {0,0},/* GREAT_HAMMER */
+      {0,0},/* MACE_OF_DISRUPTION */
+      {8000,8000},/* WIZSTAFF */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 30 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* TSURIZAO */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* GROND */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,0},/* 0 */
+      {0,0},/* HATCHET */
+      {0,0},/* SPEAR */
+      {0,0},/* SICKLE */
+      {0,0},/* AWL_PIKE */
+      {0,0},/* TRIDENT */
+      {0,0},/* FAUCHARD */
+      {0,0},/* BROAD_SPEAR */
+      {0,0},/* PIKE */
+      {0,0},/* NAGINATA */
+      {0,0},/* BEAKED_AXE */
+      {0,0},/* BROAD_AXE */
+      {0,0},/* LUCERNE_HAMMER */
+      {0,0},/* GLAIVE */
+      {0,0},/* LAJATANG */
+      {0,0},/* HALBERD */
+      {0,0},/* GUISARME */
+      {0,0},/* SCYTHE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* LANCE */
+      {0,0},/*  */
+      {0,0},/* BATTLE_AXE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* GREAT_AXE */
+      {0,0},/* TRIFURCATE_SPEAR */
+      {0,0},/*  */
+      {0,0},/* LOCHABER_AXE */
+      {0,0},/* HEAVY_LANCE */
+      {0,0},/* SCYTHE_OF_SLICING */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* DEATH_SCYTHE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    },
+    /* Sword */
+    {
+      {0,0},/* 0 */
+      {0,0},/* BROKEN_DAGGER */
+      {0,0},/* BROKEN_SWORD */
+      {0,0},/*  */
+      {0,0},/* DAGGER */
+      {0,0},/* MAIN_GAUCHE */
+      {0,0},/* TANTO */
+      {0,0},/* RAPIER */
+      {0,0},/* SMALL_SWORD */
+      {0,0},/* BASILLARD */
+      {0,0},/* SHORT_SWORD */
+      {0,0},/* SABRE */
+      {0,0},/* CUTLASS */
+      {0,0},/* WAKIZASHI */
+      {0,0},/* KHOPESH */
+      {0,0},/* TULWAR */
+      {0,0},/* BROAD_SWORD */
+      {0,0},/* LONG_SWORD */
+      {0,0},/* SCIMITAR */
+      {0,0},/* NINJATO */
+      {0,0},/* KATANA */
+      {0,0},/* BASTARD_SWORD */
+      {0,0},/* GREAT_SCIMITAR */
+      {0,0},/* CLAYMORE */
+      {0,0},/* ESPADON */
+      {0,0},/* TWO_HANDED_SWORD */
+      {0,0},/* FLAMBERGE */
+      {0,0},/* NO_DACHI */
+      {0,0},/* EXECUTIOERS_SWORD */
+      {0,0},/* ZWEIHANDER */
+      {0,0},/* BLADE_OF_CHAOS */
+      {0,0},/* DIAMOND_EDGE */
+      {0,0},/* DOKUBARI */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 50 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    }
+  },
+  /* ARCHER */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {4000,8000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {4000,8000},/* SHORT_BOW */
+      {4000,8000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {4000,8000},/* LIGHT_XBOW */
+      {4000,8000},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,6000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,6000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,6000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,6000},/* MACE_OF_DISRUPTION */
+      {0,6000},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* HATCHET */
+      {0,6000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {0,6000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,6000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,6000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LANCE */
+      {0,6000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,6000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,6000},/* HEAVY_LANCE */
+      {0,6000},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* BROKEN_DAGGER */
+      {0,6000},/* BROKEN_SWORD */
+      {0,6000},/*  */
+      {0,6000},/* DAGGER */
+      {0,6000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {0,6000},/* SMALL_SWORD */
+      {0,6000},/* BASILLARD */
+      {0,6000},/* SHORT_SWORD */
+      {0,6000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,6000},/* KHOPESH */
+      {0,6000},/* TULWAR */
+      {0,6000},/* BROAD_SWORD */
+      {0,6000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,6000},/* BASTARD_SWORD */
+      {0,6000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,6000},/* DOKUBARI */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    }
+  },
+  /* MAGIC_EATER */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {0,6000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LIGHT_XBOW */
+      {0,4000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* SHOVEL */
+      {0,4000},/* GNOMISH_SHOVEL */
+      {0,4000},/* DWARVEN_SHOVEL */
+      {0,4000},/* PICK */
+      {0,4000},/* ORCISH_PICK */
+      {0,4000},/* DWARVEN_PICK */
+      {0,4000},/* MATTOCK */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,4000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,0},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,4000},/* BALL_AND_CHAIN */
+      {0,4000},/* JO_STAFF */
+      {0,6000},/* WAR_HAMMER */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/* THREE_PIECE_ROD */
+      {0,4000},/* MORNING_STAR */
+      {0,4000},/* FLAIL */
+      {0,4000},/* BO_STAFF */
+      {0,4000},/* LEAD_FILLED_MACE */
+      {0,4000},/* TETSUBO */
+      {0,4000},/*  */
+      {0,4000},/* TWO_HANDED_FLAIL */
+      {0,4000},/* GREAT_HAMMER */
+      {0,4000},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GROND */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* HATCHET */
+      {0,6000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,4000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,4000},/* FAUCHARD */
+      {0,4000},/* BROAD_SPEAR */
+      {0,4000},/* PIKE */
+      {0,4000},/* NAGINATA */
+      {0,4000},/* BEAKED_AXE */
+      {0,4000},/* BROAD_AXE */
+      {0,4000},/* LUCERNE_HAMMER */
+      {0,4000},/* GLAIVE */
+      {0,4000},/* LAJATANG */
+      {0,4000},/* HALBERD */
+      {0,4000},/* GUISARME */
+      {0,4000},/* SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LANCE */
+      {0,4000},/*  */
+      {0,4000},/* BATTLE_AXE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GREAT_AXE */
+      {0,4000},/* TRIFURCATE_SPEAR */
+      {0,4000},/*  */
+      {0,4000},/* LOCHABER_AXE */
+      {0,4000},/* HEAVY_LANCE */
+      {0,4000},/* SCYTHE_OF_SLICING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* DEATH_SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Sword */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* BROKEN_DAGGER */
+      {0,4000},/* BROKEN_SWORD */
+      {0,4000},/*  */
+      {4000,6000},/* DAGGER */
+      {0,6000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {0,6000},/* SMALL_SWORD */
+      {0,4000},/* BASILLARD */
+      {4000,6000},/* SHORT_SWORD */
+      {0,6000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,4000},/* KHOPESH */
+      {0,6000},/* TULWAR */
+      {0,4000},/* BROAD_SWORD */
+      {0,6000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,4000},/* BASTARD_SWORD */
+      {0,4000},/* GREAT_SCIMITAR */
+      {0,4000},/* CLAYMORE */
+      {0,4000},/* ESPADON */
+      {0,4000},/* TWO_HANDED_SWORD */
+      {0,4000},/* FLAMBERGE */
+      {0,4000},/* NO_DACHI */
+      {0,4000},/* EXECUTIOERS_SWORD */
+      {0,4000},/* ZWEIHANDER */
+      {0,4000},/* BLADE_OF_CHAOS */
+      {0,4000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    }
+  },
+  /* HARPER */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {0,4000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LIGHT_XBOW */
+      {0,4000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,6000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,6000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,6000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,6000},/* MACE_OF_DISRUPTION */
+      {0,6000},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* HATCHET */
+      {0,6000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {0,6000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,6000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,6000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LANCE */
+      {0,6000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,6000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,6000},/* HEAVY_LANCE */
+      {0,6000},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* BROKEN_DAGGER */
+      {0,6000},/* BROKEN_SWORD */
+      {0,6000},/*  */
+      {0,6000},/* DAGGER */
+      {0,6000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {0,6000},/* SMALL_SWORD */
+      {0,6000},/* BASILLARD */
+      {4000,6000},/* SHORT_SWORD */
+      {0,6000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,6000},/* KHOPESH */
+      {0,6000},/* TULWAR */
+      {0,6000},/* BROAD_SWORD */
+      {0,6000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,6000},/* BASTARD_SWORD */
+      {0,6000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    }
+  },
+  /* RED_MAGE */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {0,4000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LIGHT_XBOW */
+      {0,4000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 20 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,6000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,6000},/* MACE */
+      {0,6000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {0,6000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {0,6000},/* MORNING_STAR */
+      {0,6000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {0,6000},/* LEAD_FILLED_MACE */
+      {0,6000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,6000},/* TWO_HANDED_FLAIL */
+      {0,6000},/* GREAT_HAMMER */
+      {0,6000},/* MACE_OF_DISRUPTION */
+      {0,6000},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* HATCHET */
+      {0,6000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {0,6000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {0,6000},/* NAGINATA */
+      {0,6000},/* BEAKED_AXE */
+      {0,6000},/* BROAD_AXE */
+      {0,6000},/* LUCERNE_HAMMER */
+      {0,6000},/* GLAIVE */
+      {0,6000},/* LAJATANG */
+      {0,6000},/* HALBERD */
+      {0,6000},/* GUISARME */
+      {0,6000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* LANCE */
+      {0,6000},/*  */
+      {0,6000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* GREAT_AXE */
+      {0,6000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,6000},/* LOCHABER_AXE */
+      {0,6000},/* HEAVY_LANCE */
+      {0,6000},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* BROKEN_DAGGER */
+      {0,6000},/* BROKEN_SWORD */
+      {0,6000},/*  */
+      {0,6000},/* DAGGER */
+      {0,6000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {0,6000},/* SMALL_SWORD */
+      {0,6000},/* BASILLARD */
+      {4000,6000},/* SHORT_SWORD */
+      {0,8000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,6000},/* KHOPESH */
+      {0,6000},/* TULWAR */
+      {0,6000},/* BROAD_SWORD */
+      {0,6000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,6000},/* BASTARD_SWORD */
+      {0,6000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    }
+  },
+  /* SAMURAI */
+  {
+    /* Bow */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/*  */
+      {0,6000},/* SLING */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/*  */
+      {0,6000},/* SHORT_BOW */
+      {0,6000},/* LONG_BOW */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 20 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,6000},/* LIGHT_XBOW */
+      {0,6000},/* HEAVY_XBOW */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Digging */
+    {
+      {4000,8000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 20 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Hafted */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* CLUB */
+      {4000,8000},/* WHIP */
+      {4000,8000},/* QUARTERSTAFF */
+      {0,6000},/* NUNCHAKU */
+      {4000,8000},/* MACE */
+      {4000,8000},/* BALL_AND_CHAIN */
+      {4000,8000},/* JO_STAFF */
+      {4000,8000},/* WAR_HAMMER */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/* THREE_PIECE_ROD */
+      {4000,8000},/* MORNING_STAR */
+      {4000,8000},/* FLAIL */
+      {4000,8000},/* BO_STAFF */
+      {4000,8000},/* LEAD_FILLED_MACE */
+      {4000,8000},/* TETSUBO */
+      {4000,8000},/*  */
+      {4000,8000},/* TWO_HANDED_FLAIL */
+      {4000,8000},/* GREAT_HAMMER */
+      {4000,8000},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,0},/* TSURIZAO */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,8000},/* GROND */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* HATCHET */
+      {4000,8000},/* SPEAR */
+      {4000,8000},/* SICKLE */
+      {4000,8000},/* AWL_PIKE */
+      {4000,8000},/* TRIDENT */
+      {4000,8000},/* FAUCHARD */
+      {4000,8000},/* BROAD_SPEAR */
+      {4000,8000},/* PIKE */
+      {4000,8000},/* NAGINATA */
+      {4000,8000},/* BEAKED_AXE */
+      {4000,8000},/* BROAD_AXE */
+      {4000,8000},/* LUCERNE_HAMMER */
+      {4000,8000},/* GLAIVE */
+      {4000,8000},/* LAJATANG */
+      {4000,8000},/* HALBERD */
+      {4000,8000},/* GUISARME */
+      {4000,8000},/* SCYTHE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* LANCE */
+      {4000,8000},/*  */
+      {4000,8000},/* BATTLE_AXE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* GREAT_AXE */
+      {4000,8000},/* TRIFURCATE_SPEAR */
+      {4000,8000},/*  */
+      {4000,8000},/* LOCHABER_AXE */
+      {4000,8000},/* HEAVY_LANCE */
+      {4000,8000},/* SCYTHE_OF_SLICING */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,8000},/* DEATH_SCYTHE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Sword */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* BROKEN_DAGGER */
+      {4000,8000},/* BROKEN_SWORD */
+      {4000,8000},/*  */
+      {4000,8000},/* DAGGER */
+      {4000,8000},/* MAIN_GAUCHE */
+      {4000,8000},/* TANTO */
+      {4000,8000},/* RAPIER */
+      {4000,8000},/* SMALL_SWORD */
+      {4000,8000},/* BASILLARD */
+      {4000,8000},/* SHORT_SWORD */
+      {4000,8000},/* SABRE */
+      {4000,8000},/* CUTLASS */
+      {4000,8000},/* WAKIZASHI */
+      {4000,8000},/* KHOPESH */
+      {4000,8000},/* TULWAR */
+      {4000,8000},/* BROAD_SWORD */
+      {4000,8000},/* LONG_SWORD */
+      {4000,8000},/* SCIMITAR */
+      {4000,8000},/* NINJATO */
+      {4000,8000},/* KATANA */
+      {4000,8000},/* BASTARD_SWORD */
+      {4000,8000},/* GREAT_SCIMITAR */
+      {4000,8000},/* CLAYMORE */
+      {4000,8000},/* ESPADON */
+      {4000,8000},/* TWO_HANDED_SWORD */
+      {4000,8000},/* FLAMBERGE */
+      {4000,8000},/* NO_DACHI */
+      {4000,8000},/* EXECUTIOERS_SWORD */
+      {4000,8000},/* ZWEIHANDER */
+      {4000,8000},/* BLADE_OF_CHAOS */
+      {4000,8000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    }
+  },
+  /* Renkijutusi */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {0,6000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {0,6000},/* SHORT_BOW */
+      {0,6000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,6000},/* LIGHT_XBOW */
+      {0,6000},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,0},/* 0 */
+      {0,0},/* SHOVEL */
+      {0,0},/* GNOMISH_SHOVEL */
+      {0,0},/* DWARVEN_SHOVEL */
+      {0,0},/* PICK */
+      {0,0},/* ORCISH_PICK */
+      {0,0},/* DWARVEN_PICK */
+      {0,0},/* MATTOCK */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 10 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 20 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 30 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 50 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    },
+    /* Hafted */
+    {
+      {0,0},/* 0 */
+      {0,0},/* CLUB */
+      {0,0},/* WHIP */
+      {0,0},/* QUARTERSTAFF */
+      {4000,8000},/* NUNCHAKU */
+      {0,0},/* MACE */
+      {0,0},/* BALL_AND_CHAIN */
+      {0,7000},/* JO_STAFF */
+      {0,0},/* WAR_HAMMER */
+      {0,0},/*  */
+      {0,0},/* 10 */
+      {4000,8000},/* THREE_PIECE_ROD */
+      {0,0},/* MORNING_STAR */
+      {0,0},/* FLAIL */
+      {0,7000},/* BO_STAFF */
+      {0,0},/* LEAD_FILLED_MACE */
+      {0,7000},/* TETSUBO */
+      {0,0},/*  */
+      {0,0},/* TWO_HANDED_FLAIL */
+      {0,0},/* GREAT_HAMMER */
+      {0,0},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 30 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* GROND */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,0},/* 0 */
+      {0,0},/* HATCHET */
+      {0,0},/* SPEAR */
+      {0,0},/* SICKLE */
+      {0,0},/* AWL_PIKE */
+      {0,0},/* TRIDENT */
+      {0,0},/* FAUCHARD */
+      {0,0},/* BROAD_SPEAR */
+      {0,0},/* PIKE */
+      {0,0},/* NAGINATA */
+      {0,0},/* BEAKED_AXE */
+      {0,0},/* BROAD_AXE */
+      {0,0},/* LUCERNE_HAMMER */
+      {0,0},/* GLAIVE */
+      {0,0},/* LAJATANG */
+      {0,0},/* HALBERD */
+      {0,0},/* GUISARME */
+      {0,0},/* SCYTHE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* LANCE */
+      {0,0},/*  */
+      {0,0},/* BATTLE_AXE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* GREAT_AXE */
+      {0,0},/* TRIFURCATE_SPEAR */
+      {0,0},/*  */
+      {0,0},/* LOCHABER_AXE */
+      {0,0},/* HEAVY_LANCE */
+      {0,0},/* SCYTHE_OF_SLICING */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* DEATH_SCYTHE */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    },
+    /* Sword */
+    {
+      {0,0},/* 0 */
+      {0,0},/* BROKEN_DAGGER */
+      {0,0},/* BROKEN_SWORD */
+      {0,0},/*  */
+      {0,0},/* DAGGER */
+      {0,0},/* MAIN_GAUCHE */
+      {0,0},/* TANTO */
+      {0,0},/* RAPIER */
+      {0,0},/* SMALL_SWORD */
+      {0,0},/* BASILLARD */
+      {0,0},/* SHORT_SWORD */
+      {0,0},/* SABRE */
+      {0,0},/* CUTLASS */
+      {0,0},/* WAKIZASHI */
+      {0,0},/* KHOPESH */
+      {0,0},/* TULWAR */
+      {0,0},/* BROAD_SWORD */
+      {0,0},/* LONG_SWORD */
+      {0,0},/* SCIMITAR */
+      {0,0},/* NINJATO */
+      {0,0},/* KATANA */
+      {0,0},/* BASTARD_SWORD */
+      {0,0},/* GREAT_SCIMITAR */
+      {0,0},/* CLAYMORE */
+      {0,0},/* ESPADON */
+      {0,0},/* TWO_HANDED_SWORD */
+      {0,0},/* FLAMBERGE */
+      {0,0},/* NO_DACHI */
+      {0,0},/* EXECUTIOERS_SWORD */
+      {0,0},/* ZWEIHANDER */
+      {0,0},/* BLADE_OF_CHAOS */
+      {0,0},/* DIAMOND_EDGE */
+      {0,0},/* DOKUBARI */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 50 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    }
+  },
+  /* BLUE MAGE */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {4000,6000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LIGHT_XBOW */
+      {0,4000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* SHOVEL */
+      {0,4000},/* GNOMISH_SHOVEL */
+      {0,4000},/* DWARVEN_SHOVEL */
+      {0,4000},/* PICK */
+      {0,4000},/* ORCISH_PICK */
+      {0,4000},/* DWARVEN_PICK */
+      {0,4000},/* MATTOCK */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* CLUB */
+      {0,4000},/* WHIP */
+      {4000,8000},/* QUARTERSTAFF */
+      {0,0},/* NUNCHAKU */
+      {0,4000},/* MACE */
+      {0,4000},/* BALL_AND_CHAIN */
+      {0,4000},/* JO_STAFF */
+      {0,4000},/* WAR_HAMMER */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/* THREE_PIECE_ROD */
+      {0,4000},/* MORNING_STAR */
+      {0,4000},/* FLAIL */
+      {0,4000},/* BO_STAFF */
+      {0,4000},/* LEAD_FILLED_MACE */
+      {0,4000},/* TETSUBO */
+      {0,4000},/*  */
+      {0,4000},/* TWO_HANDED_FLAIL */
+      {0,4000},/* GREAT_HAMMER */
+      {0,4000},/* MACE_OF_DISRUPTION */
+      {4000,8000},/* WIZSTAFF */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GROND */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* HATCHET */
+      {0,4000},/* SPEAR */
+      {0,4000},/* SICKLE */
+      {0,4000},/* AWL_PIKE */
+      {0,4000},/* TRIDENT */
+      {0,4000},/* FAUCHARD */
+      {0,4000},/* BROAD_SPEAR */
+      {0,4000},/* PIKE */
+      {0,4000},/* NAGINATA */
+      {0,4000},/* BEAKED_AXE */
+      {0,4000},/* BROAD_AXE */
+      {0,4000},/* LUCERNE_HAMMER */
+      {0,4000},/* GLAIVE */
+      {0,4000},/* LAJATANG */
+      {0,4000},/* HALBERD */
+      {0,4000},/* GUISARME */
+      {0,4000},/* SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LANCE */
+      {0,4000},/*  */
+      {0,4000},/* BATTLE_AXE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GREAT_AXE */
+      {0,4000},/* TRIFURCATE_SPEAR */
+      {0,4000},/*  */
+      {0,4000},/* LOCHABER_AXE */
+      {0,4000},/* HEAVY_LANCE */
+      {0,4000},/* SCYTHE_OF_SLICING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* DEATH_SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Sword */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* BROKEN_DAGGER */
+      {0,4000},/* BROKEN_SWORD */
+      {0,4000},/*  */
+      {4000,8000},/* DAGGER */
+      {0,4000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,4000},/* RAPIER */
+      {0,4000},/* SMALL_SWORD */
+      {0,4000},/* BASILLARD */
+      {0,4000},/* SHORT_SWORD */
+      {0,4000},/* SABRE */
+      {0,4000},/* CUTLASS */
+      {0,4000},/* WAKIZASHI */
+      {0,4000},/* KHOPESH */
+      {0,4000},/* TULWAR */
+      {0,4000},/* BROAD_SWORD */
+      {0,4000},/* LONG_SWORD */
+      {0,4000},/* SCIMITAR */
+      {0,4000},/* NINJATO */
+      {0,4000},/* KATANA */
+      {0,4000},/* BASTARD_SWORD */
+      {0,4000},/* GREAT_SCIMITAR */
+      {0,4000},/* CLAYMORE */
+      {0,4000},/* ESPADON */
+      {0,4000},/* TWO_HANDED_SWORD */
+      {0,4000},/* FLAMBERGE */
+      {0,4000},/* NO_DACHI */
+      {0,4000},/* EXECUTIOERS_SWORD */
+      {0,4000},/* ZWEIHANDER */
+      {0,4000},/* BLADE_OF_CHAOS */
+      {0,4000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    }
+  },
+  /* KIHEI */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {0,7000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {4000,8000},/* SHORT_BOW */
+      {4000,8000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,7000},/* LIGHT_XBOW */
+      {0,7000},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,8000},/* 0 */
+      {0,7000},/* SHOVEL */
+      {0,7000},/* GNOMISH_SHOVEL */
+      {0,7000},/* DWARVEN_SHOVEL */
+      {0,7000},/* PICK */
+      {0,7000},/* ORCISH_PICK */
+      {0,7000},/* DWARVEN_PICK */
+      {0,7000},/* MATTOCK */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,8000},/* 0 */
+      {0,7000},/* CLUB */
+      {0,7000},/* WHIP */
+      {0,7000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,7000},/* MACE */
+      {0,8000},/* BALL_AND_CHAIN */
+      {0,7000},/* JO_STAFF */
+      {0,8000},/* WAR_HAMMER */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,7000},/* THREE_PIECE_ROD */
+      {0,7000},/* MORNING_STAR */
+      {0,8000},/* FLAIL */
+      {0,7000},/* BO_STAFF */
+      {0,7000},/* LEAD_FILLED_MACE */
+      {0,7000},/* TETSUBO */
+      {0,8000},/*  */
+      {0,7000},/* TWO_HANDED_FLAIL */
+      {0,7000},/* GREAT_HAMMER */
+      {0,8000},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* GROND */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/* HATCHET */
+      {4000,8000},/* SPEAR */
+      {0,7000},/* SICKLE */
+      {0,7000},/* AWL_PIKE */
+      {0,8000},/* TRIDENT */
+      {0,8000},/* FAUCHARD */
+      {4000,8000},/* BROAD_SPEAR */
+      {0,7000},/* PIKE */
+      {0,7000},/* NAGINATA */
+      {0,7000},/* BEAKED_AXE */
+      {0,7000},/* BROAD_AXE */
+      {0,7000},/* LUCERNE_HAMMER */
+      {0,8000},/* GLAIVE */
+      {0,7000},/* LAJATANG */
+      {0,7000},/* HALBERD */
+      {0,7000},/* GUISARME */
+      {0,7000},/* SCYTHE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {4000,8000},/* LANCE */
+      {0,8000},/*  */
+      {0,7000},/* BATTLE_AXE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,7000},/* GREAT_AXE */
+      {0,8000},/* TRIFURCATE_SPEAR */
+      {0,8000},/*  */
+      {0,7000},/* LOCHABER_AXE */
+      {4000,8000},/* HEAVY_LANCE */
+      {0,8000},/* SCYTHE_OF_SLICING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* DEATH_SCYTHE */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Sword */
+    {
+      {0,8000},/* 0 */
+      {0,7000},/* BROKEN_DAGGER */
+      {0,7000},/* BROKEN_SWORD */
+      {0,8000},/*  */
+      {0,7000},/* DAGGER */
+      {0,7000},/* MAIN_GAUCHE */
+      {0,7000},/* TANTO */
+      {0,7000},/* RAPIER */
+      {0,7000},/* SMALL_SWORD */
+      {0,7000},/* BASILLARD */
+      {0,7000},/* SHORT_SWORD */
+      {0,8000},/* SABRE */
+      {0,7000},/* CUTLASS */
+      {0,7000},/* WAKIZASHI */
+      {0,7000},/* KHOPESH */
+      {0,8000},/* TULWAR */
+      {0,8000},/* BROAD_SWORD */
+      {0,8000},/* LONG_SWORD */
+      {0,7000},/* SCIMITAR */
+      {0,7000},/* NINJATO */
+      {0,7000},/* KATANA */
+      {0,7000},/* BASTARD_SWORD */
+      {0,8000},/* GREAT_SCIMITAR */
+      {0,7000},/* CLAYMORE */
+      {0,7000},/* ESPADON */
+      {0,7000},/* TWO_HANDED_SWORD */
+      {0,7000},/* FLAMBERGE */
+      {0,7000},/* NO_DACHI */
+      {0,7000},/* EXECUTIOERS_SWORD */
+      {0,7000},/* ZWEIHANDER */
+      {0,7000},/* BLADE_OF_CHAOS */
+      {0,7000},/* DIAMOND_EDGE */
+      {0,7000},/* DOKUBARI */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    }
+  },
+  /* BERSERKER */
+  {
+    /* Bow */
+    {
+      {0,0},/* 0 */
+      {0,0},/*  */
+      {0,0},/* SLING */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 10 */
+      {0,0},/*  */
+      {0,0},/* SHORT_BOW */
+      {0,0},/* LONG_BOW */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 20 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* LIGHT_XBOW */
+      {0,0},/* HEAVY_XBOW */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 30 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 40 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 50 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0},/* 60 */
+      {0,0},/*  */
+      {0,0},/*  */
+      {0,0} /*  */
+    },
+    /* Digging */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* SHOVEL */
+      {4000,8000},/* GNOMISH_SHOVEL */
+      {4000,8000},/* DWARVEN_SHOVEL */
+      {4000,8000},/* PICK */
+      {4000,8000},/* ORCISH_PICK */
+      {4000,8000},/* DWARVEN_PICK */
+      {4000,8000},/* MATTOCK */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 20 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Hafted */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* CLUB */
+      {4000,8000},/* WHIP */
+      {4000,8000},/* QUARTERSTAFF */
+      {4000,8000},/* NUNCHAKU */
+      {4000,8000},/* MACE */
+      {4000,8000},/* BALL_AND_CHAIN */
+      {4000,8000},/* JO_STAFF */
+      {4000,8000},/* WAR_HAMMER */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/* THREE_PIECE_ROD */
+      {4000,8000},/* MORNING_STAR */
+      {4000,8000},/* FLAIL */
+      {4000,8000},/* BO_STAFF */
+      {4000,8000},/* LEAD_FILLED_MACE */
+      {4000,8000},/* TETSUBO */
+      {4000,8000},/*  */
+      {4000,8000},/* TWO_HANDED_FLAIL */
+      {4000,8000},/* GREAT_HAMMER */
+      {4000,8000},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,0},/* TSURIZAO */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,8000},/* GROND */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* HATCHET */
+      {4000,8000},/* SPEAR */
+      {4000,8000},/* SICKLE */
+      {4000,8000},/* AWL_PIKE */
+      {4000,8000},/* TRIDENT */
+      {4000,8000},/* FAUCHARD */
+      {4000,8000},/* BROAD_SPEAR */
+      {4000,8000},/* PIKE */
+      {4000,8000},/* NAGINATA */
+      {4000,8000},/* BEAKED_AXE */
+      {4000,8000},/* BROAD_AXE */
+      {4000,8000},/* LUCERNE_HAMMER */
+      {4000,8000},/* GLAIVE */
+      {4000,8000},/* LAJATANG */
+      {4000,8000},/* HALBERD */
+      {4000,8000},/* GUISARME */
+      {4000,8000},/* SCYTHE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* LANCE */
+      {4000,8000},/*  */
+      {4000,8000},/* BATTLE_AXE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* GREAT_AXE */
+      {4000,8000},/* TRIFURCATE_SPEAR */
+      {4000,8000},/*  */
+      {4000,8000},/* LOCHABER_AXE */
+      {4000,8000},/* HEAVY_LANCE */
+      {4000,8000},/* SCYTHE_OF_SLICING */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* DEATH_SCYTHE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Sword */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/* BROKEN_DAGGER */
+      {4000,8000},/* BROKEN_SWORD */
+      {4000,8000},/*  */
+      {4000,8000},/* DAGGER */
+      {4000,8000},/* MAIN_GAUCHE */
+      {4000,8000},/* TANTO */
+      {4000,8000},/* RAPIER */
+      {4000,8000},/* SMALL_SWORD */
+      {4000,8000},/* BASILLARD */
+      {4000,8000},/* SHORT_SWORD */
+      {4000,8000},/* SABRE */
+      {4000,8000},/* CUTLASS */
+      {4000,8000},/* WAKIZASHI */
+      {4000,8000},/* KHOPESH */
+      {4000,8000},/* TULWAR */
+      {4000,8000},/* BROAD_SWORD */
+      {4000,8000},/* LONG_SWORD */
+      {4000,8000},/* SCIMITAR */
+      {4000,8000},/* NINJATO */
+      {4000,8000},/* KATANA */
+      {4000,8000},/* BASTARD_SWORD */
+      {4000,8000},/* GREAT_SCIMITAR */
+      {4000,8000},/* CLAYMORE */
+      {4000,8000},/* ESPADON */
+      {4000,8000},/* TWO_HANDED_SWORD */
+      {4000,8000},/* FLAMBERGE */
+      {4000,8000},/* NO_DACHI */
+      {4000,8000},/* EXECUTIOERS_SWORD */
+      {4000,8000},/* ZWEIHANDER */
+      {4000,8000},/* BLADE_OF_CHAOS */
+      {4000,8000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    }
+  },
+  /* KAJI */
+  {
+    /* Bow */
+    {
+      {4000,8000},/* 0 */
+      {4000,8000},/*  */
+      {0,6000},/* SLING */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/*  */
+      {0,6000},/* SHORT_BOW */
+      {0,6000},/* LONG_BOW */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 20 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,7000},/* LIGHT_XBOW */
+      {4000,7000},/* HEAVY_XBOW */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Digging */
+    {
+      {4000,8000},/* 0 */
+      {0,6000},/* SHOVEL */
+      {0,6000},/* GNOMISH_SHOVEL */
+      {0,6000},/* DWARVEN_SHOVEL */
+      {0,6000},/* PICK */
+      {0,6000},/* ORCISH_PICK */
+      {0,6000},/* DWARVEN_PICK */
+      {0,6000},/* MATTOCK */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 20 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Hafted */
+    {
+      {4000,8000},/* 0 */
+      {0,6000},/* CLUB */
+      {0,4000},/* WHIP */
+      {0,6000},/* QUARTERSTAFF */
+      {0,6000},/* NUNCHAKU */
+      {4000,7000},/* MACE */
+      {4000,7000},/* BALL_AND_CHAIN */
+      {0,6000},/* JO_STAFF */
+      {4000,8000},/* WAR_HAMMER */
+      {4000,8000},/*  */
+      {4000,8000},/* 10 */
+      {0,6000},/* THREE_PIECE_ROD */
+      {4000,7000},/* MORNING_STAR */
+      {4000,7000},/* FLAIL */
+      {0,6000},/* BO_STAFF */
+      {4000,7000},/* LEAD_FILLED_MACE */
+      {4000,8000},/* TETSUBO */
+      {4000,8000},/*  */
+      {4000,8000},/* TWO_HANDED_FLAIL */
+      {4000,8000},/* GREAT_HAMMER */
+      {4000,8000},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 30 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,0},/* TSURIZAO */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,8000},/* GROND */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {4000,8000},/* 0 */
+      {0,6000},/* HATCHET */
+      {0,6000},/* SPEAR */
+      {0,6000},/* SICKLE */
+      {0,6000},/* AWL_PIKE */
+      {0,6000},/* TRIDENT */
+      {0,6000},/* FAUCHARD */
+      {4000,7000},/* BROAD_SPEAR */
+      {0,6000},/* PIKE */
+      {4000,7000},/* NAGINATA */
+      {4000,8000},/* BEAKED_AXE */
+      {4000,8000},/* BROAD_AXE */
+      {4000,7000},/* LUCERNE_HAMMER */
+      {4000,7000},/* GLAIVE */
+      {4000,7000},/* LAJATANG */
+      {4000,8000},/* HALBERD */
+      {4000,8000},/* GUISARME */
+      {4000,8000},/* SCYTHE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,7000},/* LANCE */
+      {4000,8000},/*  */
+      {4000,8000},/* BATTLE_AXE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* GREAT_AXE */
+      {4000,7000},/* TRIFURCATE_SPEAR */
+      {4000,8000},/*  */
+      {4000,8000},/* LOCHABER_AXE */
+      {4000,7000},/* HEAVY_LANCE */
+      {4000,8000},/* SCYTHE_OF_SLICING */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {0,8000},/* DEATH_SCYTHE */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    },
+    /* Sword */
+    {
+      {4000,8000},/* 0 */
+      {0,0},/* BROKEN_DAGGER */
+      {0,0},/* BROKEN_SWORD */
+      {4000,8000},/*  */
+      {0,4000},/* DAGGER */
+      {0,4000},/* MAIN_GAUCHE */
+      {0,4000},/* TANTO */
+      {0,4000},/* RAPIER */
+      {0,6000},/* SMALL_SWORD */
+      {0,6000},/* BASILLARD */
+      {0,6000},/* SHORT_SWORD */
+      {0,4000},/* SABRE */
+      {0,6000},/* CUTLASS */
+      {0,4000},/* WAKIZASHI */
+      {0,6000},/* KHOPESH */
+      {0,6000},/* TULWAR */
+      {0,6000},/* BROAD_SWORD */
+      {0,6000},/* LONG_SWORD */
+      {0,6000},/* SCIMITAR */
+      {0,6000},/* NINJATO */
+      {0,6000},/* KATANA */
+      {0,6000},/* BASTARD_SWORD */
+      {0,6000},/* GREAT_SCIMITAR */
+      {0,6000},/* CLAYMORE */
+      {0,6000},/* ESPADON */
+      {0,6000},/* TWO_HANDED_SWORD */
+      {0,6000},/* FLAMBERGE */
+      {0,6000},/* NO_DACHI */
+      {0,6000},/* EXECUTIOERS_SWORD */
+      {0,6000},/* ZWEIHANDER */
+      {0,6000},/* BLADE_OF_CHAOS */
+      {0,6000},/* DIAMOND_EDGE */
+      {0,6000},/* DOKUBARI */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 40 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 50 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000},/* 60 */
+      {4000,8000},/*  */
+      {4000,8000},/*  */
+      {4000,8000} /*  */
+    }
+  },
+  /* MIRROR MASTER */
+  {
+    /* Bow */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/*  */
+      {4000,6000},/* SLING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,6000},/* SHORT_BOW */
+      {0,6000},/* LONG_BOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,6000},/* LIGHT_XBOW */
+      {0,6000},/* HEAVY_XBOW */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Digging */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* SHOVEL */
+      {0,4000},/* GNOMISH_SHOVEL */
+      {0,4000},/* DWARVEN_SHOVEL */
+      {0,4000},/* PICK */
+      {0,4000},/* ORCISH_PICK */
+      {0,4000},/* DWARVEN_PICK */
+      {0,4000},/* MATTOCK */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 20 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* CLUB */
+      {0,4000},/* WHIP */
+      {4000,8000},/* QUARTERSTAFF */
+      {0,0},/* NUNCHAKU */
+      {0,4000},/* MACE */
+      {0,4000},/* BALL_AND_CHAIN */
+      {0,4000},/* JO_STAFF */
+      {0,4000},/* WAR_HAMMER */
+      {0,4000},/*  */
+      {0,4000},/* 10 */
+      {0,4000},/* THREE_PIECE_ROD */
+      {0,4000},/* MORNING_STAR */
+      {0,4000},/* FLAIL */
+      {0,4000},/* BO_STAFF */
+      {0,4000},/* LEAD_FILLED_MACE */
+      {0,4000},/* TETSUBO */
+      {0,4000},/*  */
+      {0,4000},/* TWO_HANDED_FLAIL */
+      {0,4000},/* GREAT_HAMMER */
+      {0,4000},/* MACE_OF_DISRUPTION */
+      {4000,8000},/* WIZSTAFF */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 30 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GROND */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* HATCHET */
+      {0,4000},/* SPEAR */
+      {0,4000},/* SICKLE */
+      {0,4000},/* AWL_PIKE */
+      {0,4000},/* TRIDENT */
+      {0,4000},/* FAUCHARD */
+      {0,4000},/* BROAD_SPEAR */
+      {0,4000},/* PIKE */
+      {0,4000},/* NAGINATA */
+      {0,4000},/* BEAKED_AXE */
+      {0,4000},/* BROAD_AXE */
+      {0,4000},/* LUCERNE_HAMMER */
+      {0,4000},/* GLAIVE */
+      {0,4000},/* LAJATANG */
+      {0,4000},/* HALBERD */
+      {0,4000},/* GUISARME */
+      {0,4000},/* SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* LANCE */
+      {0,4000},/*  */
+      {0,4000},/* BATTLE_AXE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* GREAT_AXE */
+      {0,4000},/* TRIFURCATE_SPEAR */
+      {0,4000},/*  */
+      {0,4000},/* LOCHABER_AXE */
+      {0,4000},/* HEAVY_LANCE */
+      {0,4000},/* SCYTHE_OF_SLICING */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* DEATH_SCYTHE */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    },
+    /* Sword */
+    {
+      {0,4000},/* 0 */
+      {0,4000},/* BROKEN_DAGGER */
+      {0,4000},/* BROKEN_SWORD */
+      {0,4000},/*  */
+      {4000,8000},/* DAGGER */
+      {0,4000},/* MAIN_GAUCHE */
+      {0,6000},/* TANTO */
+      {0,4000},/* RAPIER */
+      {0,4000},/* SMALL_SWORD */
+      {0,4000},/* BASILLARD */
+      {0,4000},/* SHORT_SWORD */
+      {0,4000},/* SABRE */
+      {0,4000},/* CUTLASS */
+      {0,4000},/* WAKIZASHI */
+      {0,4000},/* KHOPESH */
+      {0,4000},/* TULWAR */
+      {0,4000},/* BROAD_SWORD */
+      {0,4000},/* LONG_SWORD */
+      {0,4000},/* SCIMITAR */
+      {0,4000},/* NINJATO */
+      {0,4000},/* KATANA */
+      {0,4000},/* BASTARD_SWORD */
+      {0,4000},/* GREAT_SCIMITAR */
+      {0,4000},/* CLAYMORE */
+      {0,4000},/* ESPADON */
+      {0,4000},/* TWO_HANDED_SWORD */
+      {0,4000},/* FLAMBERGE */
+      {0,4000},/* NO_DACHI */
+      {0,4000},/* EXECUTIOERS_SWORD */
+      {0,4000},/* ZWEIHANDER */
+      {0,4000},/* BLADE_OF_CHAOS */
+      {0,4000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 40 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 50 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000},/* 60 */
+      {0,4000},/*  */
+      {0,4000},/*  */
+      {0,4000} /*  */
+    }
+  },
+  /* NINJA */
+  {
+    /* Bow */
+    {
+      {0,8000},/* 0 */
+      {0,8000},/*  */
+      {0,7000},/* SLING */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 10 */
+      {0,8000},/*  */
+      {0,7000},/* SHORT_BOW */
+      {0,4000},/* LONG_BOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 20 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,0},/* LIGHT_XBOW */
+      {0,0},/* HEAVY_XBOW */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 30 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 40 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 50 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000},/* 60 */
+      {0,8000},/*  */
+      {0,8000},/*  */
+      {0,8000} /*  */
+    },
+    /* Digging */
+    {
+      {0,7000},/* 0 */
+      {0,4000},/* SHOVEL */
+      {0,4000},/* GNOMISH_SHOVEL */
+      {0,4000},/* DWARVEN_SHOVEL */
+      {0,4000},/* PICK */
+      {0,4000},/* ORCISH_PICK */
+      {0,4000},/* DWARVEN_PICK */
+      {0,4000},/* MATTOCK */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 10 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 20 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 30 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 40 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 50 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000},/* 60 */
+      {0,7000},/*  */
+      {0,7000},/*  */
+      {0,7000} /*  */
+    },
+    /* Hafted */
+    {
+      {0,6000},/* 0 */
+      {0,4000},/* CLUB */
+      {0,4000},/* WHIP */
+      {0,4000},/* QUARTERSTAFF */
+      {0,4000},/* NUNCHAKU */
+      {0,4000},/* MACE */
+      {0,4000},/* BALL_AND_CHAIN */
+      {0,4000},/* JO_STAFF */
+      {0,4000},/* WAR_HAMMER */
+      {0,6000},/*  */
+      {0,6000},/* 10 */
+      {0,4000},/* THREE_PIECE_ROD */
+      {0,4000},/* MORNING_STAR */
+      {0,4000},/* FLAIL */
+      {0,4000},/* BO_STAFF */
+      {0,4000},/* LEAD_FILLED_MACE */
+      {0,4000},/* TETSUBO */
+      {0,6000},/*  */
+      {0,4000},/* TWO_HANDED_FLAIL */
+      {0,0},/* GREAT_HAMMER */
+      {0,0},/* MACE_OF_DISRUPTION */
+      {0,0},/* WIZSTAFF */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 30 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* TSURIZAO */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* GROND */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,8000} /* NAMAKE */
+    },
+    /* Polearm */
+    {
+      {0,6000},/* 0 */
+      {0,4000},/* HATCHET */
+      {0,4000},/* SPEAR */
+      {0,4000},/* SICKLE */
+      {0,4000},/* AWL_PIKE */
+      {0,4000},/* TRIDENT */
+      {0,4000},/* FAUCHARD */
+      {0,4000},/* BROAD_SPEAR */
+      {0,4000},/* PIKE */
+      {0,4000},/* NAGINATA */
+      {0,4000},/* BEAKED_AXE */
+      {0,4000},/* BROAD_AXE */
+      {0,4000},/* LUCERNE_HAMMER */
+      {0,4000},/* GLAIVE */
+      {0,4000},/* LAJATANG */
+      {0,4000},/* HALBERD */
+      {0,4000},/* GUISARME */
+      {0,4000},/* SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* LANCE */
+      {0,6000},/*  */
+      {0,4000},/* BATTLE_AXE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* GREAT_AXE */
+      {0,4000},/* TRIFURCATE_SPEAR */
+      {0,6000},/*  */
+      {0,4000},/* LOCHABER_AXE */
+      {0,0},/* HEAVY_LANCE */
+      {0,0},/* SCYTHE_OF_SLICING */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,0},/* DEATH_SCYTHE */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    },
+    /* Sword */
+    {
+      {0,6000},/* 0 */
+      {0,6000},/* BROKEN_DAGGER */
+      {0,6000},/* BROKEN_SWORD */
+      {0,6000},/*  */
+      {4000,8000},/* DAGGER */
+      {0,6000},/* MAIN_GAUCHE */
+      {4000,8000},/* TANTO */
+      {0,6000},/* RAPIER */
+      {0,6000},/* SMALL_SWORD */
+      {0,4000},/* BASILLARD */
+      {0,6000},/* SHORT_SWORD */
+      {0,4000},/* SABRE */
+      {0,4000},/* CUTLASS */
+      {0,6000},/* WAKIZASHI */
+      {0,4000},/* KHOPESH */
+      {0,4000},/* TULWAR */
+      {0,4000},/* BROAD_SWORD */
+      {0,4000},/* LONG_SWORD */
+      {0,4000},/* SCIMITAR */
+      {4000,8000},/* NINJATO */
+      {0,4000},/* KATANA */
+      {0,4000},/* BASTARD_SWORD */
+      {0,4000},/* GREAT_SCIMITAR */
+      {0,4000},/* CLAYMORE */
+      {0,4000},/* ESPADON */
+      {0,4000},/* TWO_HANDED_SWORD */
+      {0,4000},/* FLAMBERGE */
+      {0,4000},/* NO_DACHI */
+      {0,0},/* EXECUTIOERS_SWORD */
+      {0,0},/* ZWEIHANDER */
+      {0,4000},/* BLADE_OF_CHAOS */
+      {0,4000},/* DIAMOND_EDGE */
+      {0,8000},/* DOKUBARI */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 40 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 50 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000},/* 60 */
+      {0,6000},/*  */
+      {0,6000},/*  */
+      {0,6000} /*  */
+    }
+  },
+};
+
+s16b skill_exp_settei[MAX_CLASS][10][2] =
+{
+  /* WARRIOR */
+  {
+    {0,8000},/* SUDE */
+    {4000,8000},/* NITOURYU */
+    {0,5000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* MAGE */
+  {
+    {0,4000},/* SUDE */
+    {0,0},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* PRIEST */
+  {
+    {0,4000},/* SUDE */
+    {0,4000},/* NITOURYU */
+    {0,500},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* ROGUE */
+  {
+    {0,8000},/* SUDE */
+    {4000,8000},/* NITOURYU */
+    {0,2000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* RANGER */
+  {
+    {0,6000},/* SUDE */
+    {0,6000},/* NITOURYU */
+    {0,5000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* PALADIN */
+  {
+    {0,4000},/* SUDE */
+    {0,7000},/* NITOURYU */
+    {0,5000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* WARRIOR_MAGE */
+  {
+    {0,4000},/* SUDE */
+    {0,6000},/* NITOURYU */
+    {0,2000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* CHAOS_WARRIOR */
+  {
+    {0,7000},/* SUDE */
+    {0,7000},/* NITOURYU */
+    {0,2000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* MONK */
+  {
+    {4000,8000},/* SUDE */
+    {0,0},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+  },
+  /* MINDCRAFTER */
+  {
+    {0,4000},/* SUDE */
+    {0,4000},/* NITOURYU */
+    {0,500},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* HIGE_MAGE */
+  {
+    {0,4000},/* SUDE */
+    {0,0},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* TOURIST */
+  {
+    {0,8000},/* SUDE */
+    {0,8000},/* NITOURYU */
+    {0,5000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* MONOMANESHI */
+  {
+    {0,7000},/* SUDE */
+    {0,7000},/* NITOURYU */
+    {0,2000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* BEASTMASTER */
+  {
+    {0,6000},/* SUDE */
+    {0,6000},/* NITOURYU */
+    {500,8000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* SORCERER */
+  {
+    {0,0},/* SUDE */
+    {0,0},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* ARCHER */
+  {
+    {0,4000},/* SUDE */
+    {0,4000},/* NITOURYU */
+    {0,2000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* MAGIC_EATER */
+  {
+    {0,4000},/* SUDE */
+    {0,4000},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* HARPER */
+  {
+    {0,4000},/* SUDE */
+    {0,4000},/* NITOURYU */
+    {0,500},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* RED_MAGE */
+  {
+    {0,4000},/* SUDE */
+    {0,4000},/* NITOURYU */
+    {0,2000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* SAMURAI */
+  {
+    {0,4000},/* SUDE */
+    {4000,8000},/* NITOURYU */
+    {0,2000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* Renkijutusi */
+  {
+    {4000,8000},/* SUDE */
+    {0,0},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+  },
+  /* BLUE MAGE */
+  {
+    {0,4000},/* SUDE */
+    {0,0},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* KIHEI */
+  {
+    {0,4000},/* SUDE */
+    {0,4000},/* NITOURYU */
+    {500,8000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* BERSERKER */
+  {
+    {4000,8000},/* SUDE */
+    {4000,8000},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* KAJI */
+  {
+    {0,4000},/* SUDE */
+    {0,4000},/* NITOURYU */
+    {0,2000},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* MIRROR MASTER */
+  {
+    {0,4000},/* SUDE */
+    {0,0},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+  /* NINJA */
+  {
+    {0,7000},/* SUDE */
+    {4000,8000},/* NITOURYU */
+    {0,0},/* JOUBA */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0},/*  */
+    {0,0} /*  */
+  },
+};
+
+byte conv_terrain2feat[MAX_WILDERNESS] =
+{
+  FEAT_PERM_EXTRA,
+  FEAT_TOWN,
+  FEAT_DEEP_WATER,
+  FEAT_SHAL_WATER,
+  FEAT_SWAMP,
+  FEAT_DIRT,
+  FEAT_GRASS,
+  FEAT_TREES,
+  FEAT_DIRT,
+  FEAT_SHAL_LAVA,
+  FEAT_DEEP_LAVA,
+  FEAT_MOUNTAIN
 };

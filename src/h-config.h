@@ -317,6 +317,32 @@
     #endif
 #endif
 
+/*
+ * Try to use save tempfile handling on multi-user machines.
+ *
+ * Comment this out if you don't have mkstemp()
+ *
+ * Note - I don't know how widely used this function is.
+ * Feedback would be helpful, so we can remove some platforms
+ * from this 'catch-all' statement.
+ */
+#ifdef SET_UID
+#define HAVE_MKSTEMP
 #endif
 
+#endif
+
+#ifdef JP
+# if defined(EUC)
+#  define iskanji(x) ((((int)(x) & 0xff) >= 0xa1 && ((int)(x) & 0xff) <= 0xfe) || ((int)(x) & 0xff) == 0x8e)
+#  define iskana(x)  (0)
+# elif defined(SJIS)
+#  define iskanji(x)  ((0x81<=(unsigned char)(x) && (unsigned char)(x)<=0x9f)|| (0xe0<=(unsigned char)(x) && (unsigned char)(x)<=0xfc))
+#  define iskana(x)  (((x) >= 0xA0) && ((x)<= 0xDF))
+# elif defined(MSDOS)
+#  include <jctype.h>
+# else
+#  error Oops! Please define "EUC" or "SJIS" for kanji-code of your system.
+# endif /* MSDOS */
+#endif
 

@@ -77,10 +77,15 @@ object_kind *k_info_add(object_kind *k_info_entry)
 		k_info = realloc(k_info, k_info_size * sizeof(object_kind));
 
 		/* Failure */
+#ifdef JP
+if (!k_info) quit("メモリー不足!");
+#else
 		if (!k_info) quit("Out of memory!");
+#endif
+
 
 		/* Wipe the new memory */
-		C_WIPE(&k_info[(k_info_size - K_INFO_RESIZE)], K_INFO_RESIZE, object_kind);
+		(void)C_WIPE(&k_info[(k_info_size - K_INFO_RESIZE)], K_INFO_RESIZE, object_kind);
 	}
 
 	/* Increase the maximum index of the array */
@@ -109,10 +114,10 @@ errr init_object_alloc(void)
 	/*** Analyze object allocation info ***/
 
 	/* Clear the "aux" array */
-	C_WIPE(&aux, MAX_DEPTH, s16b);
+	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
 
 	/* Clear the "num" array */
-	C_WIPE(&num, MAX_DEPTH, s16b);
+	(void)C_WIPE(&num, MAX_DEPTH, s16b);
 
 	/* Free the old "alloc_kind_table" (if it exists) */
 	if (alloc_kind_table)
@@ -151,7 +156,12 @@ errr init_object_alloc(void)
 	}
 
 	/* Paranoia */
+#ifdef JP
+if (!num[0]) quit("町のアイテムがない！");
+#else
 	if (!num[0]) quit("No town objects!");
+#endif
+
 
 
 	/*** Initialize object allocation info ***/
@@ -304,4 +314,15 @@ bool get_object_tried(object_type *o_ptr)
 bool object_is_potion(object_type *o_ptr)
 {
 	return (k_info[o_ptr->k_idx].tval == TV_POTION);
+}
+
+bool object_is_shoukinkubi(object_type *o_ptr)
+{
+	int i;
+	if (p_ptr->today_mon > 0 && o_ptr->pval == p_ptr->today_mon) return TRUE;
+	if (o_ptr->pval == MON_TSUCHINOKO) return TRUE;
+	for (i = 0; i < MAX_KUBI; i++)
+		if (o_ptr->pval == kubi_r_idx[i]) break;
+	if (i < MAX_KUBI) return TRUE;
+	return FALSE;
 }

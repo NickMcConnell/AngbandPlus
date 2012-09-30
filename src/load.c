@@ -161,6 +161,8 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_LITE:
 		case TV_AMULET:
 		case TV_RING:
+		case TV_CAPTURE:
+		case TV_CARD:
 		{
 			return (TRUE);
 		}
@@ -230,6 +232,10 @@ static void rd_string(char *str, int max)
 {
 	int i;
 
+#ifdef JP
+        int    kanji, iseuc,l;
+	unsigned char c1,c2;
+#endif
 	/* Read the string */
 	for (i = 0; TRUE; i++)
 	{
@@ -247,6 +253,66 @@ static void rd_string(char *str, int max)
 
 	/* Terminate */
 	str[max-1] = '\0';
+#ifdef JP
+        kanji = 0;
+        iseuc = 1;
+	l=strlen(str);
+        for (i = 0; i < l; i++) {
+                c1 = str[i];
+                if (c1 & 0x80)  kanji = 1;
+                if ( c1>=0x80 && (c1 < 0xa1 || c1 > 0xfe)) iseuc = 0;
+                }
+#ifdef EUC
+		if (kanji && !iseuc) {
+			unsigned char   tmp[256];
+			for (i = 0; i < l; i++) {
+				c1 = str[i];
+				if (c1 & 0x80) {
+					i++;
+					c2 = str[i];
+					if (c2 >= 0x9f) {
+						c1 = c1 * 2 - (c1 >= 0xe0 ? 0xe0 : 0x60);
+						c2 += 2;
+					} else {
+						c1 = c1 * 2 - (c1 >= 0xe0 ? 0xe1 : 0x61);
+						c2 += 0x60 + (c2 < 0x7f);
+					}
+					tmp[i - 1] = c1;
+					tmp[i] = c2;
+				} else
+					tmp[i] = c1;
+			}
+			tmp[l] = 0;
+			strcpy(str, tmp);
+		}
+#endif
+
+#ifdef SJIS
+		if (kanji && iseuc) {
+			unsigned char   tmp[256];
+			for (i = 0; i < l; i++) {
+				c1 = str[i];
+				if (c1 & 0x80) {
+					i++;
+					c2 = str[i];
+					if (c1 % 2) {
+						c1 = (c1 >> 1) + (c1 < 0xdf ? 0x31 : 0x71);
+						c2 -= 0x60 + (c2 < 0xe0);
+					} else {
+						c1 = (c1 >> 1) + (c1 < 0xdf ? 0x30 : 0x70);
+						c2 -= 2;
+					}
+					tmp[i - 1] = c1;
+					tmp[i] = c2;
+				} else
+					tmp[i] = c1;
+			}
+			tmp[l] = 0;
+			strcpy(str, tmp);
+		}
+#endif
+
+#endif
 }
 
 
@@ -277,11 +343,11 @@ static byte convert_owner[24] =
 /*
  * Old pre-2.7.4 inventory slot values
  */
-#define OLD_INVEN_WIELD     22
+#define OLD_INVEN_RARM     22
 #define OLD_INVEN_HEAD      23
 #define OLD_INVEN_NECK      24
 #define OLD_INVEN_BODY      25
-#define OLD_INVEN_ARM       26
+#define OLD_INVEN_LARM       26
 #define OLD_INVEN_HANDS     27
 #define OLD_INVEN_RIGHT     28
 #define OLD_INVEN_LEFT      29
@@ -289,6 +355,8 @@ static byte convert_owner[24] =
 #define OLD_INVEN_OUTER     31
 #define OLD_INVEN_LITE      32
 #define OLD_INVEN_AUX       33
+
+#define OLD_MAX_MANE 22
 
 /*
  * Analyze pre-2.7.4 inventory slots
@@ -298,11 +366,11 @@ static s16b convert_slot(int old)
 	/* Move slots */
 	switch (old)
 	{
-		case OLD_INVEN_WIELD: return (INVEN_WIELD);
+		case OLD_INVEN_RARM: return (INVEN_RARM);
 		case OLD_INVEN_HEAD: return (INVEN_HEAD);
 		case OLD_INVEN_NECK: return (INVEN_NECK);
 		case OLD_INVEN_BODY: return (INVEN_BODY);
-		case OLD_INVEN_ARM: return (INVEN_ARM);
+		case OLD_INVEN_LARM: return (INVEN_LARM);
 		case OLD_INVEN_HANDS: return (INVEN_HANDS);
 		case OLD_INVEN_RIGHT: return (INVEN_RIGHT);
 		case OLD_INVEN_LEFT: return (INVEN_LEFT);
@@ -311,7 +379,7 @@ static s16b convert_slot(int old)
 		case OLD_INVEN_LITE: return (INVEN_LITE);
 
 		/* Hack -- "hold" old aux items */
-		case OLD_INVEN_AUX: return (INVEN_WIELD - 1);
+		case OLD_INVEN_AUX: return (INVEN_RARM - 1);
 	}
 
 	/* Default */
@@ -500,6 +568,13 @@ static void rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
 
+	if (z_older_than(10, 4, 4))
+	{
+		if (o_ptr->tval == 100) o_ptr->tval = TV_GOLD;
+		if (o_ptr->tval == 98) o_ptr->tval = TV_MUSIC_BOOK;
+		if (o_ptr->tval == 110) o_ptr->tval = TV_HISSATSU_BOOK;
+	}
+
 	/* Special pval */
 	rd_s16b(&o_ptr->pval);
 
@@ -554,15 +629,10 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->marked);
 	}
 
-#if 0
-	/* Old flags */
-	strip_bytes(12);
-#else
 	/* Old flags */
 	rd_u32b(&o_ptr->art_flags1);
 	rd_u32b(&o_ptr->art_flags2);
 	rd_u32b(&o_ptr->art_flags3);
-#endif
 
 	/* Old version */
 	if (older_than(2, 8, 0))
@@ -581,6 +651,41 @@ static void rd_item(object_type *o_ptr)
 	/* Special powers */
 	rd_byte(&o_ptr->xtra1);
 	rd_byte(&o_ptr->xtra2);
+	if (z_older_than(10, 2, 3))
+	{
+		o_ptr->xtra3 = 0;
+		o_ptr->xtra4 = 0;
+		o_ptr->xtra5 = 0;
+		if ((o_ptr->tval == TV_CHEST) || (o_ptr->tval == TV_CAPTURE))
+		{
+			o_ptr->xtra3 = o_ptr->xtra1;
+			o_ptr->xtra1 = 0;
+		}
+		if (o_ptr->tval == TV_CAPTURE)
+		{
+			if (r_info[o_ptr->pval].flags1 & RF1_FORCE_MAXHP)
+				o_ptr->xtra5 = maxroll(r_info[o_ptr->pval].hdice, r_info[o_ptr->pval].hside);
+			else
+				o_ptr->xtra5 = damroll(r_info[o_ptr->pval].hdice, r_info[o_ptr->pval].hside);
+			if (ironman_nightmare)
+			{
+				o_ptr->xtra5 = (s16b)MIN(30000, o_ptr->xtra5*2L);
+			}
+			o_ptr->xtra4 = o_ptr->xtra5;
+		}
+	}
+	else
+	{
+		rd_byte(&o_ptr->xtra3);
+		rd_s16b(&o_ptr->xtra4);
+		rd_s16b(&o_ptr->xtra5);
+	}
+
+	if (z_older_than(11, 0, 5) && (((o_ptr->tval == TV_LITE) && ((o_ptr->sval == SV_LITE_TORCH) || (o_ptr->sval == SV_LITE_LANTERN))) || (o_ptr->tval == TV_FLASK)))
+	{
+		o_ptr->xtra4 = o_ptr->pval;
+		o_ptr->pval = 0;
+	}
 
 	/* Feeling - from 2.3.1, "savefile version 1" */
 	if (sf_version >= 1)
@@ -639,6 +744,8 @@ static void rd_item(object_type *o_ptr)
 
 	/* Mega-Hack -- handle "dungeon objects" later */
 	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
+
+	if (z_older_than(10, 4, 10) && (o_ptr->name2 == EGO_YOIYAMI)) o_ptr->k_idx = lookup_kind(TV_SOFT_ARMOR, SV_YOIYAMI_ROBE);
 
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
@@ -795,6 +902,15 @@ static void rd_item(object_type *o_ptr)
 		}
 	}
 
+	if (older_than(10, 4, 9))
+	{
+		if (o_ptr->art_flags1 & TR1_MAGIC_MASTERY)
+		{
+			o_ptr->art_flags1 &= ~(TR1_MAGIC_MASTERY);
+			o_ptr->art_flags3 |= (TR3_DEC_MANA);
+		}
+	}
+
 	/* Hack -- the "searching" bonuses changed in 2.7.6 */
 	if (older_than(2, 7, 6))
 	{
@@ -829,8 +945,8 @@ static void rd_item(object_type *o_ptr)
 
 		/* Verify that ego-item */
 		if (!e_ptr->name) o_ptr->name2 = 0;
-	}
 
+	}
 
 	/* Acquire standard fields */
 	o_ptr->ac = k_ptr->ac;
@@ -842,7 +958,6 @@ static void rd_item(object_type *o_ptr)
 
 	/* Hack -- extract the "broken" flag */
 	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -882,9 +997,14 @@ static void rd_item(object_type *o_ptr)
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
 
-
 		o_ptr->dd = old_dd;
 		o_ptr->ds = old_ds;
+
+		if (o_ptr->name2 == EGO_DWARVEN)
+		{
+			o_ptr->ac += 5;
+			o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
+		}
 
 		/* Hack -- extract the "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
@@ -910,7 +1030,12 @@ static void rd_item(object_type *o_ptr)
 		if (k_ptr->flags3 & (TR3_CURSED)) o_ptr->ident |= (IDENT_CURSED);
 
 		/* Hack -- apply "uncursed" incription */
+#ifdef JP
+if (streq(buf, "呪いなし")) o_ptr->ident &= ~(IDENT_CURSED);
+#else
 		if (streq(buf, "uncursed")) o_ptr->ident &= ~(IDENT_CURSED);
+#endif
+
 	}
 }
 
@@ -923,6 +1048,7 @@ static void rd_item(object_type *o_ptr)
 static void rd_monster(monster_type *m_ptr)
 {
 	byte tmp8u;
+	char buf[128];
 
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
@@ -932,12 +1058,53 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->fx);
 	rd_s16b(&m_ptr->hp);
 	rd_s16b(&m_ptr->maxhp);
+	if (z_older_than(11, 0, 5))
+	{
+		m_ptr->max_maxhp = m_ptr->maxhp;
+	}
+	else
+	{
+		rd_s16b(&m_ptr->max_maxhp);
+	}
 	rd_s16b(&m_ptr->csleep);
 	rd_byte(&m_ptr->mspeed);
-	rd_byte(&m_ptr->energy);
+	if (z_older_than(10, 4, 2))
+	{
+		rd_byte(&tmp8u);
+		m_ptr->energy = (s16b)tmp8u;
+	}
+	else rd_s16b(&m_ptr->energy);
+	if (z_older_than(10,0,7))
+	{
+		m_ptr->fast = 0;
+		m_ptr->slow = 0;
+	}
+	else
+	{
+		rd_byte(&m_ptr->fast);
+		rd_byte(&m_ptr->slow);
+	}
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
+
+	if (z_older_than(10,0,10))
+	{
+		m_ptr->target_y = 0;
+		m_ptr->target_x = 0;
+	}
+	else if (z_older_than(10,0,11))
+	{
+		s16b tmp16s;
+		rd_s16b(&tmp16s);
+		m_ptr->target_y = 0;
+		m_ptr->target_x = 0;
+	}
+	else
+	{
+		rd_s16b(&m_ptr->target_y);
+		rd_s16b(&m_ptr->target_x);
+	}
 
 	/* Monster invulnerability introduced from 2.3.2+ */
 	if (sf_version < 2)
@@ -949,6 +1116,35 @@ static void rd_monster(monster_type *m_ptr)
 		rd_u32b(&m_ptr->smart);
 	else
 		m_ptr->smart = 0;
+
+	if (z_older_than(10, 4, 5))
+		m_ptr->exp = 0;
+	else
+		rd_u32b(&m_ptr->exp);
+
+	if (z_older_than(10, 2, 2))
+	{
+		if (m_ptr->r_idx < 0)
+		{
+			m_ptr->r_idx = (0-m_ptr->r_idx);
+			m_ptr->mflag2 |= MFLAG_KAGE;
+		}
+	}
+	else
+	{
+		rd_byte(&m_ptr->mflag2);
+	}
+
+	if (z_older_than(10, 1, 3))
+	{
+		m_ptr->nickname = 0;
+	}
+	else
+	{
+		rd_string(buf, 128);
+		if (buf[0]) m_ptr->nickname = quark_add(buf);
+	}
+
 	rd_byte(&tmp8u);
 }
 
@@ -1042,21 +1238,159 @@ static void rd_lore(int r_idx)
 
 
 /*
+ * Add the item "o_ptr" to the inventory of the "Home"
+ *
+ * In all cases, return the slot (or -1) where the object was placed
+ *
+ * Note that this is a hacked up version of "inven_carry()".
+ *
+ * Also note that it may not correctly "adapt" to "knowledge" bacoming
+ * known, the player may have to pick stuff up and drop it again.
+ */
+static void home_carry(store_type *st_ptr, object_type *o_ptr)
+{
+	int 				slot;
+	s32b			   value, j_value;
+	int 	i;
+	object_type *j_ptr;
+
+
+	/* Check each existing item (try to combine) */
+	for (slot = 0; slot < st_ptr->stock_num; slot++)
+	{
+		/* Get the existing item */
+		j_ptr = &st_ptr->stock[slot];
+
+		/* The home acts just like the player */
+		if (object_similar(j_ptr, o_ptr))
+		{
+			/* Save the new number of items */
+			object_absorb(j_ptr, o_ptr);
+
+			/* All done */
+			return;
+		}
+	}
+
+	/* No space? */
+#ifdef JP
+	/*
+	 * 隠し機能: オプション powerup_home が設定されていると
+	 *           我が家が 20 ページまで使える
+	 */
+	if (st_ptr->stock_num >= STORE_INVEN_MAX * 10) {
+		return;
+	}
+#else
+	if (st_ptr->stock_num >= STORE_INVEN_MAX) return;
+#endif
+
+
+
+	/* Determine the "value" of the item */
+	value = object_value(o_ptr);
+
+	/* Check existing slots to see if we must "slide" */
+	for (slot = 0; slot < st_ptr->stock_num; slot++)
+	{
+		/* Get that item */
+		j_ptr = &st_ptr->stock[slot];
+
+		/* Hack -- readable books always come first */
+		if ((o_ptr->tval == mp_ptr->spell_book) &&
+			(j_ptr->tval != mp_ptr->spell_book)) break;
+		if ((j_ptr->tval == mp_ptr->spell_book) &&
+			(o_ptr->tval != mp_ptr->spell_book)) continue;
+
+		/* Objects sort by decreasing type */
+		if (o_ptr->tval > j_ptr->tval) break;
+		if (o_ptr->tval < j_ptr->tval) continue;
+
+		/* Can happen in the home */
+		if (!object_aware_p(o_ptr)) continue;
+		if (!object_aware_p(j_ptr)) break;
+
+		/* Objects sort by increasing sval */
+		if (o_ptr->sval < j_ptr->sval) break;
+		if (o_ptr->sval > j_ptr->sval) continue;
+
+		/* Objects in the home can be unknown */
+		if (!object_known_p(o_ptr)) continue;
+		if (!object_known_p(j_ptr)) break;
+
+		/*
+		 * Hack:  otherwise identical rods sort by
+		 * increasing recharge time --dsb
+		 */
+		if (o_ptr->tval == TV_ROD)
+		{
+			if (o_ptr->pval < j_ptr->pval) break;
+			if (o_ptr->pval > j_ptr->pval) continue;
+		}
+
+		/* Objects sort by decreasing value */
+		j_value = object_value(j_ptr);
+		if (value > j_value) break;
+		if (value < j_value) continue;
+	}
+
+	/* Slide the others up */
+	for (i = st_ptr->stock_num; i > slot; i--)
+	{
+		st_ptr->stock[i] = st_ptr->stock[i-1];
+	}
+
+	/* More stuff now */
+	st_ptr->stock_num++;
+
+	/* Insert the new item */
+	st_ptr->stock[slot] = *o_ptr;
+
+	chg_virtue(V_SACRIFICE, -1);
+
+	/* Return the location */
+	return;
+}
+
+
+/*
  * Read a store
  */
 static errr rd_store(int town_number, int store_number)
 {
-	store_type *st_ptr = &town[town_number].store[store_number];
+	store_type *st_ptr;
 
 	int j;
 
-	byte own, num;
+	byte own;
+	byte tmp8u;
+	s16b num;
+
+	bool sort = FALSE;
+
+	if (z_older_than(10, 3, 3) && (store_number == STORE_HOME))
+	{
+		st_ptr = &town[1].store[store_number];
+		if (st_ptr->stock_num) sort = TRUE;
+	}
+	else
+	{
+		st_ptr = &town[town_number].store[store_number];
+	}
 
 	/* Read the basic info */
 	rd_s32b(&st_ptr->store_open);
 	rd_s16b(&st_ptr->insult_cur);
 	rd_byte(&own);
-	rd_byte(&num);
+	if (z_older_than(11, 0, 4))
+	{
+		rd_byte(&tmp8u);
+		num = tmp8u;
+	}
+	else
+	{
+		rd_s16b(&num);
+	}
 	rd_s16b(&st_ptr->good_buy);
 	rd_s16b(&st_ptr->bad_buy);
 
@@ -1090,12 +1424,28 @@ static errr rd_store(int town_number, int store_number)
 		rd_item(q_ptr);
 
 		/* Acquire valid items */
+#ifdef JP
+		/*
+		 * 我が家が 20 ページになる隠し機能
+		 */
+		if (st_ptr->stock_num < (store_number == STORE_HOME ? (STORE_INVEN_MAX) * 10 : (store_number == STORE_MUSEUM ? (STORE_INVEN_MAX) * 50 : STORE_INVEN_MAX)))
+#else
 		if (st_ptr->stock_num < STORE_INVEN_MAX)
-		{
-			int k = st_ptr->stock_num++;
+#endif
 
-			/* Acquire the item */
-			object_copy(&st_ptr->stock[k], q_ptr);
+		{
+			int k;
+			if (sort)
+			{
+				home_carry(st_ptr, q_ptr);
+			}
+			else
+			{
+				k = st_ptr->stock_num++;
+
+				/* Acquire the item */
+				object_copy(&st_ptr->stock[k], q_ptr);
+			}
 		}
 	}
 
@@ -1243,6 +1593,28 @@ static void rd_options(void)
 		}
 	}
 
+	if (z_older_than(10, 4, 5))
+	{
+		if (option_flag[5] & (0x00000001 << 4)) option_flag[5] &= ~(0x00000001 << 4);
+		else option_flag[5] |= (0x00000001 << 4);
+		if (option_flag[2] & (0x00000001 << 5)) option_flag[2] &= ~(0x00000001 << 5);
+		else option_flag[2] |= (0x00000001 << 5);
+		if (option_flag[4] & (0x00000001 << 5)) option_flag[4] &= ~(0x00000001 << 5);
+		else option_flag[4] |= (0x00000001 << 5);
+		if (option_flag[5] & (0x00000001 << 0)) option_flag[5] &= ~(0x00000001 << 0);
+		else option_flag[5] |= (0x00000001 << 0);
+		if (option_flag[5] & (0x00000001 << 12)) option_flag[5] &= ~(0x00000001 << 12);
+		else option_flag[5] |= (0x00000001 << 12);
+		if (option_flag[1] & (0x00000001 << 0)) option_flag[1] &= ~(0x00000001 << 0);
+		else option_flag[1] |= (0x00000001 << 0);
+		if (option_flag[1] & (0x00000001 << 18)) option_flag[1] &= ~(0x00000001 << 18);
+		else option_flag[1] |= (0x00000001 << 18);
+		if (option_flag[1] & (0x00000001 << 19)) option_flag[1] &= ~(0x00000001 << 19);
+		else option_flag[1] |= (0x00000001 << 19);
+		if (option_flag[5] & (0x00000001 << 3)) option_flag[1] &= ~(0x00000001 << 3);
+		else option_flag[5] |= (0x00000001 << 3);
+	}
+
 
 	/*** Window Options ***/
 
@@ -1322,7 +1694,7 @@ static void rd_ghost(void)
  */
 static void rd_extra(void)
 {
-	int i;
+	int i,j;
 
 	byte tmp8u;
 	s16b tmp16s;
@@ -1336,13 +1708,22 @@ static void rd_extra(void)
 		rd_string(history[i], 60);
 	}
 
-	/* Class/Race/Gender/Spells */
+	/* Class/Race/Seikaku/Gender/Spells */
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->pclass);
+	rd_byte(&p_ptr->pseikaku);
 	rd_byte(&p_ptr->psex);
 	rd_byte(&p_ptr->realm1);
 	rd_byte(&p_ptr->realm2);
 	rd_byte(&tmp8u); /* oops */
+
+	if (z_older_than(10, 4, 4))
+	{
+		if (p_ptr->realm1 == 9) p_ptr->realm1 = REALM_MUSIC;
+		if (p_ptr->realm2 == 9) p_ptr->realm2 = REALM_MUSIC;
+		if (p_ptr->realm1 == 10) p_ptr->realm1 = REALM_HISSATSU;
+		if (p_ptr->realm2 == 10) p_ptr->realm2 = REALM_HISSATSU;
+	}
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
@@ -1355,6 +1736,7 @@ static void rd_extra(void)
 
 	/* Read the stat info */
 	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max[i]);
+	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max_max[i]);
 	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cur[i]);
 
 	strip_bytes(24); /* oops */
@@ -1367,6 +1749,152 @@ static void rd_extra(void)
 
 	rd_s16b(&p_ptr->lev);
 
+	for (i = 0; i < 64; i++) rd_s16b(&spell_exp[i]);
+	if ((p_ptr->pclass == CLASS_SORCERER) && z_older_than(10, 4, 2))
+	{
+		for (i = 0; i < 64; i++) spell_exp[i] = 1600;
+	}
+	if (z_older_than(10, 3, 6))
+		for (i = 0; i < 5; i++) for (j = 0; j < 60; j++) rd_s16b(&weapon_exp[i][j]);
+	else
+		for (i = 0; i < 5; i++) for (j = 0; j < 64; j++) rd_s16b(&weapon_exp[i][j]);
+	for (i = 0; i < 10; i++) rd_s16b(&skill_exp[i]);
+	if (z_older_than(10, 4, 1))
+	{
+		if (p_ptr->pclass != CLASS_BEASTMASTER) skill_exp[GINOU_JOUBA] /= 2;
+		skill_exp[GINOU_JOUBA] = MIN(skill_exp[GINOU_JOUBA], skill_exp_settei[p_ptr->pclass][GINOU_JOUBA][1]);
+	}
+	if (z_older_than(10, 3, 14))
+	{
+		for (i = 0; i < 108; i++) p_ptr->magic_num1[i] = 0;
+		for (i = 0; i < 108; i++) p_ptr->magic_num2[i] = 0;
+	}
+	else
+	{
+		for (i = 0; i < 108; i++) rd_s32b(&p_ptr->magic_num1[i]);
+		for (i = 0; i < 108; i++) rd_byte(&p_ptr->magic_num2[i]);
+	}
+	if ((p_ptr->pclass == CLASS_HARPER) && p_ptr->magic_num1[0]) p_ptr->action = ACTION_SING;
+
+	if (z_older_than(11, 0, 7))
+	{
+		p_ptr->start_race = p_ptr->prace;
+		p_ptr->old_race1 = 0L;
+		p_ptr->old_race2 = 0L;
+		p_ptr->old_realm = 0;
+	}
+	else
+	{
+		rd_byte(&p_ptr->start_race);
+		rd_s32b(&p_ptr->old_race1);
+		rd_s32b(&p_ptr->old_race2);
+		rd_s16b(&p_ptr->old_realm);
+	}
+
+	if (z_older_than(10, 0, 1))
+	{
+		for (i = 0; i < OLD_MAX_MANE; i++)
+		{
+			mane_spell[i] = -1;
+			mane_dam[i] = 0;
+		}
+		mane_num = 0;
+	}
+	else if (z_older_than(10, 2, 3))
+	{
+		for (i = 0; i < OLD_MAX_MANE; i++)
+		{
+			rd_s16b(&tmp16s);
+			rd_s16b(&tmp16s);
+		}
+		for (i = 0; i < MAX_MANE; i++)
+		{
+			mane_spell[i] = -1;
+			mane_dam[i] = 0;
+		}
+		rd_s16b(&tmp16s);
+		mane_num = 0;
+	}
+	else
+	{
+		for (i = 0; i < MAX_MANE; i++)
+		{
+			rd_s16b(&mane_spell[i]);
+			rd_s16b(&mane_dam[i]);
+		}
+		rd_s16b(&mane_num);
+	}
+
+	if (z_older_than(10, 0, 3))
+	{
+		get_mon_num_prep(NULL, NULL);
+		for (i = 0; i < MAX_KUBI; i++)
+		{
+			monster_race *r_ptr;
+			while (1)
+			{
+				int j;
+
+				kubi_r_idx[i] = get_mon_num(MAX_DEPTH - 1);
+				r_ptr = &r_info[kubi_r_idx[i]];
+
+				if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+
+				if(!(r_ptr->flags9 & RF9_DROP_CORPSE)) continue;
+
+				if(r_ptr->flags6 & RF6_SPECIAL) continue;
+
+				for (j = 0; j < i; j++)
+					if (kubi_r_idx[i] == kubi_r_idx[j])break;
+
+				if (j == i) break;
+			}
+		}
+		for (i = 0; i < MAX_KUBI -1; i++)
+		{
+			int j,tmp;
+			for (j = i; j < MAX_KUBI; j++)
+			{
+				if (r_info[kubi_r_idx[i]].level > r_info[kubi_r_idx[j]].level)
+				{
+					tmp = kubi_r_idx[i];
+					kubi_r_idx[i] = kubi_r_idx[j];
+					kubi_r_idx[j] = tmp;
+				}
+			}
+		}
+		for (i = 0; i < MAX_KUBI; i++)
+		{
+			if(!r_info[kubi_r_idx[i]].max_num)
+				kubi_r_idx[i] += 10000;
+		}
+	}
+	else
+	{
+		for (i = 0; i < MAX_KUBI; i++)
+		{
+			rd_s16b(&kubi_r_idx[i]);
+		}
+	}
+
+	if (z_older_than(10, 0, 3))
+	{
+		battle_monsters();
+	}
+	else
+	{
+		for (i = 0; i < 4; i++)
+		{
+			rd_s16b(&battle_mon[i]);
+			if (z_older_than(10, 3, 4))
+			{
+				rd_s16b(&tmp16s);
+				mon_odds[i] = tmp16s;
+			}
+			else rd_u32b(&mon_odds[i]);
+		}
+	}
+
 	/* Current version */
 	if (!z_older_than(2, 1, 3))
 	{
@@ -1376,17 +1904,25 @@ static void rd_extra(void)
 		rd_s16b(&p_ptr->arena_number);
 		rd_s16b(&p_ptr->inside_arena);
 		rd_s16b(&p_ptr->inside_quest);
+		if (z_older_than(10, 3, 5)) p_ptr->inside_battle = FALSE;
+		else rd_s16b(&p_ptr->inside_battle);
 		rd_byte(&p_ptr->exit_bldg);
 		rd_byte(&p_ptr->leftbldg);
 
 		rd_s16b(&p_ptr->oldpx);
 		rd_s16b(&p_ptr->oldpy);
+		if (z_older_than(10, 3, 13) && !dun_level && !p_ptr->inside_arena) {p_ptr->oldpy = 33;p_ptr->oldpx = 131;}
 
 		rd_s16b(&tmp16s);
 
 		if (tmp16s > MAX_BACT)
 		{
+#ifdef JP
+note(format("の中", tmp16s));
+#else
 			note(format("Too many (%d) building rewards!", tmp16s));
+#endif
+
 		}
 
 		for (i = 0; i < tmp16s; i++) rd_s16b(&p_ptr->rewards[i]);
@@ -1440,13 +1976,28 @@ static void rd_extra(void)
 	rd_u16b(&p_ptr->csp_frac);
 
 	rd_s16b(&p_ptr->max_plv);
-	rd_s16b(&p_ptr->max_dlv);
+	if (z_older_than(10, 3, 8))
+	{
+		rd_s16b(&max_dlv[DUNGEON_ANGBAND]);
+	}
+	else
+	{
+                byte max = max_d_idx;
+
+                rd_byte(&max);
+
+                for(i = 0; i < max; i++)
+		{
+                        rd_s16b(&max_dlv[i]);
+			if (max_dlv[i] > d_info[i].maxdepth) max_dlv[i] = d_info[i].maxdepth;
+		}
+        }
 
 	/* Repair maximum player level XXX XXX XXX */
 	if (p_ptr->max_plv < p_ptr->lev) p_ptr->max_plv = p_ptr->lev;
 
-	/* Repair maximum dungeon level */
-	if (p_ptr->max_dlv < 0) p_ptr->max_dlv = 1;
+//	/* Repair maximum dungeon level */
+//	if (max_dlv[dungeon_type] < 0) max_dlv[dungeon_type] = 1;
 
 	/* More info */
 	strip_bytes(8);
@@ -1473,12 +2024,20 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->image);
 	rd_s16b(&p_ptr->protevil);
 	rd_s16b(&p_ptr->invuln);
+	if(z_older_than(10, 0, 0))
+		p_ptr->ult_res = 0;
+	else
+		rd_s16b(&p_ptr->ult_res);
 	rd_s16b(&p_ptr->hero);
 	rd_s16b(&p_ptr->shero);
 	rd_s16b(&p_ptr->shield);
 	rd_s16b(&p_ptr->blessed);
 	rd_s16b(&p_ptr->tim_invis);
 	rd_s16b(&p_ptr->word_recall);
+	if (z_older_than(10, 3, 8))
+		p_ptr->recall_dungeon = DUNGEON_ANGBAND;
+	else
+		rd_s16b(&p_ptr->recall_dungeon);
 	rd_s16b(&p_ptr->see_infra);
 	rd_s16b(&p_ptr->tim_infra);
 	rd_s16b(&p_ptr->oppose_fire);
@@ -1486,6 +2045,8 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	if (z_older_than(10,0,2)) p_ptr->tsuyoshi = 0;
+	else rd_s16b(&p_ptr->tsuyoshi);
 
 	/* Old savefiles do not have the following fields... */
 	if ((z_major == 2) && (z_minor == 0) && (z_patch == 6))
@@ -1493,36 +2054,83 @@ static void rd_extra(void)
 		p_ptr->tim_esp = 0;
 		p_ptr->wraith_form = 0;
 		p_ptr->resist_magic = 0;
-		p_ptr->tim_xtra1 = 0;
-		p_ptr->tim_xtra2 = 0;
-		p_ptr->tim_xtra3 = 0;
-		p_ptr->tim_xtra4 = 0;
-		p_ptr->tim_xtra5 = 0;
-		p_ptr->tim_xtra6 = 0;
-		p_ptr->tim_xtra7 = 0;
-		p_ptr->tim_xtra8 = 0;
+		p_ptr->tim_regen = 0;
+		p_ptr->kabenuke = 0;
+		p_ptr->tim_stealth = 0;
+		p_ptr->tim_ffall = 0;
+		p_ptr->tim_sh_touki = 0;
+		p_ptr->lightspeed = 0;
+		p_ptr->tsubureru = 0;
+		p_ptr->tim_res_nether = 0;
+		p_ptr->tim_res_time = 0;
+		p_ptr->mimic_form = 0;
+		p_ptr->tim_mimic = 0;
+		p_ptr->tim_sh_fire = 0;
+
+		/* by henkma */
+		p_ptr->tim_reflect = 0;
+		p_ptr->multishadow = 0;
+		p_ptr->dustrobe = 0;
+
 		p_ptr->chaos_patron = get_chaos_patron();
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
 		p_ptr->muta3 = 0;
+		get_virtues();
 	}
 	else
 	{
 		rd_s16b(&p_ptr->tim_esp);
 		rd_s16b(&p_ptr->wraith_form);
 		rd_s16b(&p_ptr->resist_magic);
-		rd_s16b(&p_ptr->tim_xtra1);
-		rd_s16b(&p_ptr->tim_xtra2);
-		rd_s16b(&p_ptr->tim_xtra3);
-		rd_s16b(&p_ptr->tim_xtra4);
-		rd_s16b(&p_ptr->tim_xtra5);
-		rd_s16b(&p_ptr->tim_xtra6);
-		rd_s16b(&p_ptr->tim_xtra7);
-		rd_s16b(&p_ptr->tim_xtra8);
+		rd_s16b(&p_ptr->tim_regen);
+		rd_s16b(&p_ptr->kabenuke);
+		rd_s16b(&p_ptr->tim_stealth);
+		rd_s16b(&p_ptr->tim_ffall);
+		rd_s16b(&p_ptr->tim_sh_touki);
+		rd_s16b(&p_ptr->lightspeed);
+		rd_s16b(&p_ptr->tsubureru);
+		if (z_older_than(10, 4, 7))
+			p_ptr->magicdef = 0;
+		else
+			rd_s16b(&p_ptr->magicdef);
+		rd_s16b(&p_ptr->tim_res_nether);
+		if (z_older_than(10, 4, 11))
+		{
+			p_ptr->tim_res_time = 0;
+			p_ptr->mimic_form = 0;
+			p_ptr->tim_mimic = 0;
+			p_ptr->tim_sh_fire = 0;
+		}
+		else
+		{
+			rd_s16b(&p_ptr->tim_res_time);
+			rd_byte(&p_ptr->mimic_form);
+			rd_s16b(&p_ptr->tim_mimic);
+			rd_s16b(&p_ptr->tim_sh_fire);
+		}
+
+		/* by henkma */
+		if ( z_older_than(11,0,3) ){
+		  p_ptr->tim_reflect=0;
+		  p_ptr->multishadow=0;
+		  p_ptr->dustrobe=0;
+		}
+		else {
+		  rd_s16b(&p_ptr->tim_reflect);
+		  rd_s16b(&p_ptr->multishadow);
+		  rd_s16b(&p_ptr->dustrobe);
+		}
+
 		rd_s16b(&p_ptr->chaos_patron);
 		rd_u32b(&p_ptr->muta1);
 		rd_u32b(&p_ptr->muta2);
 		rd_u32b(&p_ptr->muta3);
+
+		for (i = 0; i < 8; i++)
+			rd_s16b(&p_ptr->virtues[i]);
+		for (i = 0; i < 8; i++)
+			rd_s16b(&p_ptr->vir_types[i]);
 	}
 
 	/* Calc the regeneration modifier for mutations */
@@ -1531,14 +2139,40 @@ static void rd_extra(void)
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);
 
-	rd_byte(&p_ptr->confusing);
+	if (z_older_than(10,0,9))
+	{
+		rd_byte(&tmp8u);
+		if (tmp8u) p_ptr->special_attack = ATTACK_CONFUSE;
+		p_ptr->ele_attack = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->ele_attack);
+		rd_u32b(&p_ptr->special_attack);
+	}
+	if (p_ptr->special_attack & KAMAE_MASK) p_ptr->action = ACTION_KAMAE;
+	else if (p_ptr->special_attack & KATA_MASK) p_ptr->action = ACTION_KATA;
+	if (z_older_than(10,0,12))
+	{
+		p_ptr->ele_immune = 0;
+		p_ptr->special_defense = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->ele_immune);
+		rd_u32b(&p_ptr->special_defense);
+	}
+	rd_byte(&p_ptr->knowledge);
 	rd_byte(&tmp8u); /* oops */
 	rd_byte(&tmp8u); /* oops */
-	rd_byte(&tmp8u); /* oops */
-	rd_byte(&p_ptr->searching);
-	rd_byte(&maximize_mode);
+	rd_byte(&p_ptr->action);
+	if (!z_older_than(10, 4, 3))
+	{
+		rd_byte(&tmp8u);
+		if (tmp8u) p_ptr->action = ACTION_LEARN;
+	}
 	rd_byte(&preserve_mode);
-	rd_byte(&tmp8u);
+	rd_byte(&wait_report_score);
 
 	/* Future use */
 	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
@@ -1571,6 +2205,81 @@ static void rd_extra(void)
 
 	/* Current turn */
 	rd_s32b(&turn);
+
+	if (z_older_than(10, 3, 12))
+	{
+		dungeon_turn = turn;
+	}
+	else rd_s32b(&dungeon_turn);
+
+	if (z_older_than(10, 3, 13))
+	{
+		old_battle = turn;
+	}
+	else rd_s32b(&old_battle);
+
+	if (z_older_than(10,0,3))
+	{
+		monster_race *r_ptr;
+
+		while (1)
+		{
+			today_mon = get_mon_num(MAX(max_dlv[DUNGEON_ANGBAND], 3));
+			r_ptr = &r_info[today_mon];
+		
+			if (r_ptr->flags1 & RF1_UNIQUE) continue;
+			if (r_ptr->flags2 & (RF2_MULTIPLY)) continue;
+			if (!(r_ptr->flags9 & RF9_DROP_CORPSE) || !(r_ptr->flags9 & RF9_DROP_SKELETON)) continue;
+			if (r_ptr->level < MIN(max_dlv[DUNGEON_ANGBAND], 40)) continue;
+			if (r_ptr->rarity > 10) continue;
+			if (r_ptr->level == 0) continue;
+			break;
+		}
+
+		p_ptr->today_mon = 0;
+	}
+	else
+	{
+		rd_s16b(&today_mon);
+		rd_s16b(&p_ptr->today_mon);
+	}
+
+	if (z_older_than(10,0,7))
+	{
+		p_ptr->jouba = 0;
+	}
+	else
+	{
+		rd_s16b(&p_ptr->jouba);
+	}
+
+	if (z_older_than(10,1,2))
+	{
+		playtime = 0;
+	}
+	else
+	{
+		rd_u32b(&playtime);
+	}
+
+	if (z_older_than(10,3,9))
+	{
+		p_ptr->visit = 1L;
+	}
+	else if (z_older_than(10, 3, 10))
+	{
+		s32b tmp32s;
+		rd_s32b(&tmp32s);
+		p_ptr->visit = 1L;
+	}
+	else
+	{
+		rd_s32b(&p_ptr->visit);
+	}
+	if (!z_older_than(11, 0, 5))
+	{
+		rd_s32b(&p_ptr->count);
+	}
 }
 
 
@@ -1628,7 +2337,7 @@ static errr rd_inventory(void)
 		if (older_than(2, 7, 4)) n = convert_slot(n);
 
 		/* Wield equipment */
-		if (n >= INVEN_WIELD)
+		if (n >= INVEN_RARM)
 		{
 			/* Copy object */
 			object_copy(&inventory[n], q_ptr);
@@ -1644,7 +2353,12 @@ static errr rd_inventory(void)
 		else if (inven_cnt == INVEN_PACK)
 		{
 			/* Oops */
+#ifdef JP
+note("持ち物の中のアイテムが多すぎる！");
+#else
 			note("Too many items in the inventory!");
+#endif
+
 
 			/* Fail */
 			return (54);
@@ -1769,7 +2483,12 @@ static errr rd_dungeon_aux(void)
 			/* Prevent over-run */
 			if ((ychar >= ymax) || (xchar >= xmax))
 			{
+#ifdef JP
+note("不法な場所！");
+#else
 				note("Illegal location!");
+#endif
+
 				return (81);
 			}
 
@@ -1936,7 +2655,12 @@ static errr rd_dungeon_aux(void)
 	/* Hack -- verify */
 	if (limit >= 512)
 	{
+#ifdef JP
+note(format("アイテムの配列が大きすぎる(%d)！", limit));
+#else
 		note(format("Too many (%d) object entries!", limit));
+#endif
+
 		return (151);
 	}
 
@@ -2267,7 +2991,12 @@ static errr rd_dungeon_aux(void)
 		/* Paranoia */
 		if (c_ptr->o_idx)
 		{
+#ifdef JP
+note("一箇所に複数のアイテム！");
+#else
 			note("Multiple objects per grid!");
+#endif
+
 			return (153);
 		}
 
@@ -2278,7 +3007,12 @@ static errr rd_dungeon_aux(void)
 		/* Oops */
 		if (!o_idx)
 		{
+#ifdef JP
+note(format("アイテムが多すぎる(%d)！", o_max));
+#else
 			note(format("Too many (%d) objects!", o_max));
+#endif
+
 			return (152);
 		}
 
@@ -2302,7 +3036,12 @@ static errr rd_dungeon_aux(void)
 	/* Hack -- verify */
 	if (limit >= 1024)
 	{
+#ifdef JP
+note(format("モンスターの配列が大きすぎる(%d)！", limit));
+#else
 		note(format("Too many (%d) monster entries!", limit));
+#endif
+
 		return (161);
 	}
 
@@ -2322,7 +3061,7 @@ static errr rd_dungeon_aux(void)
 		q_ptr = &forge;
 
 		/* Clear the monster */
-		WIPE(q_ptr, monster_type);
+		(void)WIPE(q_ptr, monster_type);
 
 		/* Read the monster */
 		rd_monster(q_ptr);
@@ -2348,7 +3087,12 @@ static errr rd_dungeon_aux(void)
 		/* Oops */
 		if (!m_idx)
 		{
+#ifdef JP
+note(format("モンスタが多すぎる(%d)！", m_max));
+#else
 			note(format("Too many (%d) monsters!", m_max));
+#endif
+
 			return (162);
 		}
 
@@ -2409,6 +3153,8 @@ static errr rd_dungeon(void)
 
 	/* Header info */
 	rd_s16b(&dun_level);
+        if (z_older_than(10, 3, 8)) dungeon_type = DUNGEON_ANGBAND;
+	else rd_byte(&dungeon_type);
 
 	/* Set the base level for old versions */
 	base_level = dun_level;
@@ -2422,10 +3168,15 @@ static errr rd_dungeon(void)
 	rd_s16b(&num_repro);
 	rd_s16b(&py);
 	rd_s16b(&px);
+	if (z_older_than(10, 3, 13) && !dun_level && !p_ptr->inside_arena) {py = 33;px = 131;}
 	rd_s16b(&cur_hgt);
 	rd_s16b(&cur_wid);
 	rd_s16b(&max_panel_rows);
 	rd_s16b(&max_panel_cols);
+
+#if 0
+	if (!py || !px) {py = 10;px = 10;}/* ダンジョン生成に失敗してセグメンテったときの復旧用 */
+#endif
 
 	/* Old method */
 	if (older_than(2, 8, 0))
@@ -2446,7 +3197,10 @@ static errr rd_dungeon(void)
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
-		rd_byte(&tmp8u);
+		if (z_older_than(10,3,6))
+			rd_byte(&tmp8u);
+		else
+			rd_s16b(&tmp16s);
 
 		/* Apply the RLE info */
 		for (i = count; i > 0; i--)
@@ -2455,7 +3209,9 @@ static errr rd_dungeon(void)
 			c_ptr = &cave[y][x];
 
 			/* Extract "info" */
-			c_ptr->info = tmp8u;
+			if (z_older_than(10,3,6))
+				c_ptr->info = tmp8u;
+			else c_ptr->info = tmp16s;
 
 			/* Advance/Wrap */
 			if (++x >= xmax)
@@ -2484,6 +3240,12 @@ static errr rd_dungeon(void)
 		{
 			/* Access the cave */
 			c_ptr = &cave[y][x];
+
+			if (c_ptr->feat == FEAT_INVIS)
+			{
+				c_ptr->feat = FEAT_FLOOR;
+				c_ptr->info |= CAVE_TRAP;
+			}
 
 			/* Extract "feat" */
 			c_ptr->feat = tmp8u;
@@ -2572,7 +3334,12 @@ static errr rd_dungeon(void)
 	/* Verify maximum */
 	if (limit >= max_o_idx)
 	{
+#ifdef JP
+note(format("アイテムの配列が大きすぎる(%d)！", limit));
+#else
 		note(format("Too many (%d) object entries!", limit));
+#endif
+
 		return (151);
 	}
 
@@ -2590,7 +3357,12 @@ static errr rd_dungeon(void)
 		/* Oops */
 		if (i != o_idx)
 		{
+#ifdef JP
+note(format("アイテム配置エラー (%d <> %d)", i, o_idx));
+#else
 			note(format("Object allocation error (%d <> %d)", i, o_idx));
+#endif
+
 			return (152);
 		}
 
@@ -2642,7 +3414,12 @@ static errr rd_dungeon(void)
 	/* Hack -- verify */
 	if (limit >= max_m_idx)
 	{
+#ifdef JP
+note(format("モンスターの配列が大きすぎる(%d)！", limit));
+#else
 		note(format("Too many (%d) monster entries!", limit));
+#endif
+
 		return (161);
 	}
 
@@ -2662,7 +3439,12 @@ static errr rd_dungeon(void)
 		/* Oops */
 		if (i != m_idx)
 		{
+#ifdef JP
+note(format("モンスター配置エラー (%d <> %d)", i, m_idx));
+#else
 			note(format("Monster allocation error (%d <> %d)", i, m_idx));
+#endif
+
 			return (162);
 		}
 
@@ -2692,6 +3474,8 @@ static errr rd_dungeon(void)
 
 	/* The dungeon is ready */
 	if (z_older_than(2, 1, 3))
+		character_dungeon = FALSE;
+	else if (z_older_than(10, 3, 13) && !dun_level && !p_ptr->inside_arena)
 		character_dungeon = FALSE;
 	else
 		character_dungeon = TRUE;
@@ -2724,14 +3508,24 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Mention the savefile version */
+#ifdef JP
+note(format("バージョン %d.%d.%d のセーブ・ファイルをロード中...",
+#else
 	note(format("Loading a %d.%d.%d savefile...",
-		z_major, z_minor, z_patch));
+#endif
+
+		(z_major > 9) ? z_major - 10 : z_major, z_minor, z_patch));
 
 
 	/* Hack -- Warn about "obsolete" versions */
 	if (older_than(2, 7, 4))
 	{
+#ifdef JP
+note("警告 -- 旧式のセーブ・ファイルを変換しています。");
+#else
 		note("Warning -- converting obsolete save file.");
+#endif
+
 	}
 
 
@@ -2775,12 +3569,22 @@ static errr rd_savefile_new_aux(void)
 
 	/* Read RNG state */
 	rd_randomizer();
+#ifdef JP
+if (arg_fiddle) note("乱数情報をロードしました");
+#else
 	if (arg_fiddle) note("Loaded Randomizer Info");
+#endif
+
 
 
 	/* Then the options */
 	rd_options();
+#ifdef JP
+if (arg_fiddle) note("オプションをロードしました");
+#else
 	if (arg_fiddle) note("Loaded Option Flags");
+#endif
+
 
 	/* Switch streams on for old savefiles */
 	if (z_older_than(2, 2, 7))
@@ -2800,8 +3604,25 @@ static errr rd_savefile_new_aux(void)
 
 	/* Then the "messages" */
 	rd_messages();
+#ifdef JP
+if (arg_fiddle) note("メッセージをロードしました");
+#else
 	if (arg_fiddle) note("Loaded Messages");
+#endif
 
+
+
+	for (i = 0; i < max_r_idx; i++)
+	{
+		monster_race *r_ptr;
+		/* Access that monster */
+		r_ptr = &r_info[i];
+
+		/* Hack -- Reset the death counter */
+		r_ptr->max_num = 100;
+		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
+		if (r_ptr->flags7 & RF7_UNIQUE_7) r_ptr->max_num = 7;
+	}
 
 	/* Monster Memory */
 	rd_u16b(&tmp16u);
@@ -2809,7 +3630,12 @@ static errr rd_savefile_new_aux(void)
 	/* Incompatible save files */
 	if (tmp16u > max_r_idx)
 	{
+#ifdef JP
+note(format("モンスターの種族が多すぎる(%u)！", tmp16u));
+#else
 		note(format("Too many (%u) monster races!", tmp16u));
+#endif
+
 		return (21);
 	}
 
@@ -2862,11 +3688,16 @@ static errr rd_savefile_new_aux(void)
 			/* Hack -- Reset the death counter */
 			r_ptr->max_num = 100;
 			if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-			if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7;
+			if (r_ptr->flags7 & RF7_UNIQUE_7) r_ptr->max_num = 7;
 		}
 	}
 
+#ifdef JP
+if (arg_fiddle) note("モンスターの思い出をロードしました");
+#else
 	if (arg_fiddle) note("Loaded Monster Memory");
+#endif
+
 
 
 	/* Object Memory */
@@ -2875,7 +3706,12 @@ static errr rd_savefile_new_aux(void)
 	/* Incompatible save files */
 	if (tmp16u > max_k_idx)
 	{
+#ifdef JP
+note(format("アイテムの種類が多すぎる(%u)！", tmp16u));
+#else
 		note(format("Too many (%u) object kinds!", tmp16u));
+#endif
+
 		return (22);
 	}
 
@@ -2890,7 +3726,12 @@ static errr rd_savefile_new_aux(void)
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
 	}
+#ifdef JP
+if (arg_fiddle) note("アイテムの記録をロードしました");
+#else
 	if (arg_fiddle) note("Loaded Object Memory");
+#endif
+
 
 #if 0
 	/*
@@ -2924,6 +3765,8 @@ static errr rd_savefile_new_aux(void)
 	{
 		u16b max_towns_load;
 		u16b max_quests_load;
+		byte max_rquests_load;
+		s16b old_inside_quest = p_ptr->inside_quest;
 
 		/* Number of towns */
 		rd_u16b(&max_towns_load);
@@ -2939,12 +3782,26 @@ static errr rd_savefile_new_aux(void)
 		/* Incompatible save files */
 		if (max_towns_load > max_towns)
 		{
+#ifdef JP
+note(format("町が多すぎる(%u)！", max_towns_load));
+#else
 			note(format("Too many (%u) towns!", max_towns_load));
+#endif
+
 			return (23);
 		}
 
 		/* Number of quests */
 		rd_u16b(&max_quests_load);
+
+		if (z_older_than(11, 0, 7))
+		{
+			max_rquests_load = 10;
+		}
+		else
+		{
+			rd_byte(&max_rquests_load);
+		}
 
 		/* 2.2.3 or newer version */
 		if (!z_older_than(2, 2, 3))
@@ -2952,7 +3809,12 @@ static errr rd_savefile_new_aux(void)
 			/* Incompatible save files */
 			if (max_quests_load > max_quests)
 			{
+#ifdef JP
+note(format("クエストが多すぎる(%u)！", max_quests_load));
+#else
 				note(format("Too many (%u) quests!", max_quests_load));
+#endif
+
 				return (23);
 			}
 		}
@@ -2968,8 +3830,17 @@ static errr rd_savefile_new_aux(void)
 					rd_s16b(&quest[i].level);
 				}
 
+				if (z_older_than(11, 0, 6))
+				{
+					quest[i].complev = 0;
+				}
+				else
+				{
+					rd_byte(&quest[i].complev);
+				}
+
 				/* Load quest status if quest is running */
-				if (quest[i].status == QUEST_STATUS_TAKEN)
+				if (quest[i].status == QUEST_STATUS_TAKEN || (!z_older_than(10, 3, 14) && (quest[i].status == QUEST_STATUS_COMPLETED)) || (!z_older_than(11, 0, 7) && (i >= MIN_RANDOM_QUEST) && (i <= (MIN_RANDOM_QUEST+max_rquests_load))))
 				{
 					rd_s16b(&quest[i].cur_num);
 					rd_s16b(&quest[i].max_num);
@@ -2982,6 +3853,40 @@ static errr rd_savefile_new_aux(void)
 
 					/* Load quest monster index */
 					rd_s16b(&quest[i].r_idx);
+
+					if ((quest[i].type == QUEST_TYPE_RANDOM) && (!quest[i].r_idx))
+					{
+						int r_idx;
+						while (1)
+						{
+							 monster_race *r_ptr;
+
+							/*
+							 * Random monster 5 - 10 levels out of depth
+							 * (depending on level)
+							 */
+							r_idx = get_mon_num(quest[i].level + 5 + randint(quest[i].level / 10));
+							r_ptr = &r_info[r_idx];
+
+							if(!(r_ptr->flags1 & RF1_UNIQUE)) continue;
+
+							if(r_ptr->flags6 & RF6_SPECIAL) continue;
+
+							if(r_ptr->flags7 & RF7_FRIENDLY) continue;
+
+							if(r_ptr->flags7 & RF7_AQUATIC) continue;
+
+							if(!(r_ptr->flags8 & RF8_DUNGEON)) continue;
+
+							/*
+							 * Accept monsters that are 2 - 6 levels
+							 * out of depth depending on the quest level
+							 */
+							if (r_ptr->level > (quest[i].level + (quest[i].level / 20))) break;
+						}
+
+						quest[i].r_idx = r_idx;
+					}
 
 					/* Load quest item index */
 					if (!z_older_than(2, 2, 1))
@@ -2996,6 +3901,26 @@ static errr rd_savefile_new_aux(void)
 					if (!z_older_than(2, 2, 3))
 					{
 						rd_byte(&quest[i].flags);
+					}
+
+					if (z_older_than(10, 3, 11))
+					{
+						if (quest[i].flags & QUEST_FLAG_PRESET)
+						{
+							quest[i].dungeon = 0;
+						}
+						else
+						{
+							init_flags = INIT_ASSIGN;
+							p_ptr->inside_quest = i;
+
+							process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+							p_ptr->inside_quest = old_inside_quest;
+						}
+					}
+					else
+					{
+						rd_byte(&quest[i].dungeon);
 					}
 
 					if (z_older_than(2, 2, 0))
@@ -3027,34 +3952,19 @@ static errr rd_savefile_new_aux(void)
 			}
 		}
 
-		/* Only in 2.2.1 and 2.2.2 */
-		if (!z_older_than(2, 2, 1) && z_older_than(2, 2, 3))
-		{
-			/* "Hard quests" flag */
-			rd_byte(&ironman_hard_quests);
-
-			/****** HACK ******/
-			if (ironman_hard_quests)
-			{
-				/* Set the option by hand */
-				option_flag[6] |= (1L << 6);
-			}
-
-			/* Inverted "Wilderness" flag */
-			rd_byte(&lite_town);
-			lite_town = !lite_town;
-
-			/****** HACK ******/
-			if (lite_town)
-			{
-				/* Set the option by hand */
-				option_flag[6] |= (1L << 1);
-			}
-		}
-
 		/* Position in the wilderness */
 		rd_s32b(&p_ptr->wilderness_x);
 		rd_s32b(&p_ptr->wilderness_y);
+		if (z_older_than(10, 3, 13))
+		{
+			p_ptr->wilderness_x = 5;
+			p_ptr->wilderness_y = 48;
+		}
+
+		if (z_older_than(10, 3, 7)) p_ptr->wild_mode = FALSE;
+		else rd_byte(&p_ptr->wild_mode);
+		if (z_older_than(10, 3, 7)) ambush_flag = FALSE;
+		else rd_byte(&ambush_flag);
 
 		/* Size of the wilderness */
 		rd_s32b(&wild_x_size);
@@ -3063,7 +3973,12 @@ static errr rd_savefile_new_aux(void)
 		/* Incompatible save files */
 		if ((wild_x_size > max_wild_x) || (wild_y_size > max_wild_y))
 		{
+#ifdef JP
+note(format("荒野が大きすぎる(%u/%u)！", wild_x_size, wild_y_size));
+#else
 			note(format("Wilderness is too big (%u/%u)!", wild_x_size, wild_y_size));
+#endif
+
 			return (23);
 		}
 
@@ -3111,7 +4026,12 @@ static errr rd_savefile_new_aux(void)
 		/* Incompatible save files */
 		if (tmp16u > 20)
 		{
+#ifdef JP
+note(format("クエストが多すぎる(%u)！", tmp16u));
+#else
 			note(format("Too many (%u) quests!", tmp16u));
+#endif
+
 			return (23);
 		}
 
@@ -3152,16 +4072,36 @@ static errr rd_savefile_new_aux(void)
 
 		/* Extra info */
 		Term_putstr(5, 15, -1, TERM_WHITE,
+#ifdef JP
+"必須のクエスト(オベロン及び混沌の邪龍)に加えて、追加のクエストの");
+#else
 			"You can input yourself the number of quest you'd like to");
+#endif
+
 		Term_putstr(5, 16, -1, TERM_WHITE,
+#ifdef JP
+"数を設定することが出来ます。");
+#else
 			"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+#endif
+
 		Term_putstr(5, 17, -1, TERM_WHITE,
+#ifdef JP
+"追加クエストを行ないたくない場合は '0'を入力して下さい。");
+#else
 			"In case you do not want any additional quest, just enter 0");
+#endif
+
 
 		/* Ask the number of additional quests */
 		while (TRUE)
 		{
+#ifdef JP
+put_str(format("追加クエストの数 (%u以下) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1), 20, 2);
+#else
 			put_str(format("Number of additional quest? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
+#endif
+
 
 			/* Get a the number of additional quest */
 			while (TRUE)
@@ -3188,7 +4128,9 @@ static errr rd_savefile_new_aux(void)
 		/* Init the random quests */
 		init_flags = INIT_ASSIGN;
 		p_ptr->inside_quest = MIN_RANDOM_QUEST;
-		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+		process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+
 		p_ptr->inside_quest = 0;
 
 		/* Prepare allocation table */
@@ -3242,68 +4184,25 @@ static errr rd_savefile_new_aux(void)
 		/* Init the two main quests (Oberon + Serpent) */
 		init_flags = INIT_ASSIGN;
 		p_ptr->inside_quest = QUEST_OBERON;
-		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+                process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+
 		quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
 
 		p_ptr->inside_quest = QUEST_SERPENT;
-		process_dungeon_file("q_info.txt", 0, 0, 0, 0);
+
+                process_dungeon_file("q_info_j.txt", 0, 0, 0, 0);
+
 		quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
 		p_ptr->inside_quest = 0;
 	}
 
-	/*
-	 * Select 'hard random quests mode'
-	 * when importing old savefiles.
-	 */
-	if (z_older_than(2, 2, 1))
-	{
-		char c;
-
-		/* Clear */
-		clear_from(15);
-
-		/*** Hard quests mode ***/
-
-		/* Extra info */
-		Term_putstr(5, 14, -1, TERM_WHITE,
-			"Using 'hard quests' mode makes the random quests harder, because");
-		Term_putstr(5, 15, -1, TERM_WHITE,
-			"you have to kill all monsters at the same visit to the quest level.");
-		Term_putstr(5, 16, -1, TERM_WHITE,
-			"If you leave the level while some quest monsters are still alive,");
-		Term_putstr(5, 17, -1, TERM_WHITE,
-			"then all killed quest monsters are revived on your next visit");
-		Term_putstr(5, 18, -1, TERM_WHITE,
-			"to this level.");
-
-		/* Ask about "hard quests" mode */
-		while (1)
-		{
-			put_str("Use 'Hard quests'? (y/n/*) ", 20, 2);
-			c = inkey();
-			if (c == 'Q') quit(NULL);
-			if (c == 'S') return (FALSE);
-			if (c == '*')
-			{
-				c = 'y';
-				if (randint(2) == 1)
-					c = 'n';
-				break;
-			}
-			if (c == ESCAPE) break;
-			if ((c == 'y') || (c == 'n')) break;
-			if (c == '?') do_cmd_help();
-			else bell();
-		}
-
-		/* Set "hard quests" mode */
-		ironman_hard_quests = (c == 'y');
-
-		/* Clear */
-		clear_from(15);
-	}
-
+#ifdef JP
+if (arg_fiddle) note("クエスト情報をロードしました");
+#else
 	if (arg_fiddle) note("Loaded Quests");
+#endif
+
 
 	/* A version without the wilderness */
 	if (z_older_than(2, 1, 2))
@@ -3317,18 +4216,43 @@ static errr rd_savefile_new_aux(void)
 
 		/* Extra info */
 		Term_putstr(5, 14, -1, TERM_WHITE,
+#ifdef JP
+"「荒野」モードでは、Zangband で追加された街の外の荒野といくつかの");
+#else
 			"'Wilderness' mode enables the extended wilderness of ZAngband");
+#endif
+
 		Term_putstr(5, 15, -1, TERM_WHITE,
+#ifdef JP
+"新しい街を探索することができます。「荒野」モードは若干重いので、");
+#else
 			"giving you a wilderness and several new towns to explore.");
+#endif
+
 		Term_putstr(5, 16, -1, TERM_WHITE,
+#ifdef JP
+"コンピューターのパワーがない場合は使用しないことを");
+#else
 			"Switching off 'wilderness' mode is recommended for slower computers,");
+#endif
+
 		Term_putstr(5, 17, -1, TERM_WHITE,
+#ifdef JP
+"お勧めします。");
+#else
 			"because the wilderness slows down the system a bit.");
+#endif
+
 
 		/* Ask about "wilderness" mode */
 		while (1)
 		{
+#ifdef JP
+put_str("「荒野」を使用しますか？(y/n/*)", 20, 2);
+#else
 			put_str("Use 'wilderness'? (y/n/*) ", 20, 2);
+#endif
+
 			c = inkey();
 			if (c == 'Q') quit(NULL);
 			if (c == 'S') return (FALSE);
@@ -3359,7 +4283,12 @@ static errr rd_savefile_new_aux(void)
 	/* Incompatible save files */
 	if (tmp16u > max_a_idx)
 	{
+#ifdef JP
+note(format("伝説のアイテムが多すぎる(%u)！", tmp16u));
+#else
 		note(format("Too many (%u) artifacts!", tmp16u));
+#endif
+
 		return (24);
 	}
 
@@ -3372,12 +4301,23 @@ static errr rd_savefile_new_aux(void)
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
 	}
+#ifdef JP
+if (arg_fiddle) note("伝説のアイテムをロードしました");
+#else
 	if (arg_fiddle) note("Loaded Artifacts");
+#endif
+
 
 
 	/* Read the extra stuff */
 	rd_extra();
+	if (p_ptr->energy > 999) world_player = TRUE;
+#ifdef JP
+if (arg_fiddle) note("特別情報をロードしました");
+#else
 	if (arg_fiddle) note("Loaded extra information");
+#endif
+
 
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);
@@ -3385,7 +4325,12 @@ static errr rd_savefile_new_aux(void)
 	/* Incompatible save files */
 	if (tmp16u > PY_MAX_LEVEL)
 	{
+#ifdef JP
+note(format("ヒットポイント配列が大きすぎる(%u)！", tmp16u));
+#else
 		note(format("Too many (%u) hitpoint entries!", tmp16u));
+#endif
+
 		return (25);
 	}
 
@@ -3395,13 +4340,36 @@ static errr rd_savefile_new_aux(void)
 		rd_s16b(&player_hp[i]);
 	}
 
-
+	if(p_ptr->pseikaku == SEIKAKU_SEXY)
+		weapon_exp_settei[p_ptr->pclass][TV_HAFTED-TV_BOW][SV_WHIP][1] = 8000;
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Important -- Initialize the race/class */
 	rp_ptr = &race_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
+	ap_ptr = &seikaku_info[p_ptr->pseikaku];
+
+	if(z_older_than(10, 2, 2) && (p_ptr->pclass == CLASS_BEASTMASTER) && !death)
+	{
+		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		do_cmd_rerate(FALSE);
+	}
+	if(z_older_than(10, 3, 2) && (p_ptr->pclass == CLASS_ARCHER) && !death)
+	{
+		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		do_cmd_rerate(FALSE);
+	}
+	if(z_older_than(10, 2, 6) && (p_ptr->pclass == CLASS_SORCERER) && !death)
+	{
+		p_ptr->hitdie = rp_ptr->r_mhp/2 + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		do_cmd_rerate(FALSE);
+	}
+	if(z_older_than(10, 4, 7) && (p_ptr->pclass == CLASS_BLUE_MAGE) && !death)
+	{
+		p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp + ap_ptr->a_mhp;
+		do_cmd_rerate(FALSE);
+	}
 
 	/* Important -- Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->pclass];
@@ -3415,6 +4383,29 @@ static errr rd_savefile_new_aux(void)
 	rd_u32b(&spell_forgotten1);
 	rd_u32b(&spell_forgotten2);
 
+	if (z_older_than(10,0,5))
+	{
+		p_ptr->learned_spells = 0;
+		for (i = 0; i < 64; i++)
+		{
+			/* Count known spells */
+			if ((i < 32) ?
+			    (spell_learned1 & (1L << i)) :
+			    (spell_learned2 & (1L << (i - 32))))
+			{
+				p_ptr->learned_spells++;
+			}
+		}
+	}
+	else rd_s16b(&p_ptr->learned_spells);
+
+	if (z_older_than(10,0,6))
+	{
+		p_ptr->add_spells = 0;
+	}
+	else rd_s16b(&p_ptr->add_spells);
+	if (p_ptr->pclass == CLASS_MINDCRAFTER) p_ptr->add_spells = 0;
+
 	for (i = 0; i < 64; i++)
 	{
 		rd_byte(&spell_order[i]);
@@ -3424,7 +4415,12 @@ static errr rd_savefile_new_aux(void)
 	/* Read the inventory */
 	if (rd_inventory())
 	{
+#ifdef JP
+note("持ち物情報を読み込むことができません");
+#else
 		note("Unable to read inventory");
+#endif
+
 		return (21);
 	}
 
@@ -3444,64 +4440,93 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 	for (i = 1; i < town_count; i++)
 	{
-		/* HACK - ignore the empty towns */
-		if (z_older_than(2, 2, 3) && (i >= 6))
+		for (j = 0; j < tmp16u; j++)
 		{
-			for (j = 0; j < tmp16u; j++)
-			{
-				/* Read the info into the empty town 5 (R'Lyeh) */
-				if (rd_store(5, j)) return (22);
-			}
-		}
-		else
-		{
-			for (j = 0; j < tmp16u; j++)
-			{
-				if (rd_store(i, j)) return (22);
-			}
+			if (rd_store(i, j)) return (22);
 		}
 	}
 
 #if 0
 	if (z_older_than(2, 1, 0))
 	{
+#ifdef JP
+msg_print("フレーバー再配置中...");
+#else
 		msg_print("Reallocating flavours...");
+#endif
+
 		flavor_init();
 	}
 #endif
 
-	/* Read the pet command settings */
-	if (sf_version > 2)
+	rd_s16b(&p_ptr->pet_follow_distance);
+	if (z_older_than(10, 4, 10))
 	{
-		rd_s16b(&p_ptr->pet_follow_distance);
-		rd_byte(&p_ptr->pet_open_doors);
-		rd_byte(&p_ptr->pet_pickup_items);
-	}
-	else if (!z_older_than(2, 2, 3))
-	{
+		p_ptr->pet_extra_flags = 0;
 		rd_byte(&tmp8u);
+		if (tmp8u) p_ptr->pet_extra_flags |= PF_OPEN_DOORS;
+		rd_byte(&tmp8u);
+		if (tmp8u) p_ptr->pet_extra_flags |= PF_PICKUP_ITEMS;
 
-		p_ptr->pet_follow_distance = tmp8u;
+		if (z_older_than(10,0,4)) p_ptr->pet_extra_flags |= PF_TELEPORT;
+		else
+		{
+			rd_byte(&tmp8u);
+			if (tmp8u) p_ptr->pet_extra_flags |= PF_TELEPORT;
+		}
 
-		rd_byte(&p_ptr->pet_open_doors);
-		rd_byte(&p_ptr->pet_pickup_items);
+		if (z_older_than(10,0,7)) p_ptr->pet_extra_flags |= PF_ATTACK_SPELL;
+		else
+		{
+			rd_byte(&tmp8u);
+			if (tmp8u) p_ptr->pet_extra_flags |= PF_ATTACK_SPELL;
+		}
+
+		if (z_older_than(10,0,8)) p_ptr->pet_extra_flags |= PF_SUMMON_SPELL;
+		else
+		{
+			rd_byte(&tmp8u);
+			if (tmp8u) p_ptr->pet_extra_flags |= PF_SUMMON_SPELL;
+		}
+
+		if (!z_older_than(10,0,8))
+		{
+			rd_byte(&tmp8u);
+			if (tmp8u) p_ptr->pet_extra_flags |= PF_BALL_SPELL;
+		}
 	}
 	else
 	{
-		/* Default pet command settings */
-		p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
-		p_ptr->pet_open_doors = FALSE;
-		p_ptr->pet_pickup_items = FALSE;
+		rd_s16b(&p_ptr->pet_extra_flags);
 	}
+
+	if (death)
+	{
+		for (i = MIN_RANDOM_QUEST; i < MAX_RANDOM_QUEST + 1; i++)
+		{
+			r_info[quest[i].r_idx].flags1 &= ~(RF1_QUESTOR);
+		}
+	}
+
 
 	/* I'm not dead yet... */
 	if (!death)
 	{
 		/* Dead players have no dungeon */
+#ifdef JP
+note("ダンジョン復元中...");
+#else
 		note("Restoring Dungeon...");
+#endif
+
 		if (rd_dungeon())
 		{
+#ifdef JP
+note("ダンジョンデータ読み込み失敗");
+#else
 			note("Error reading dungeon data");
+#endif
+
 			return (34);
 		}
 
@@ -3539,7 +4564,12 @@ static errr rd_savefile_new_aux(void)
 	/* Verify */
 	if (o_v_check != n_v_check)
 	{
+#ifdef JP
+note("チェックサムがおかしい");
+#else
 		note("Invalid checksum");
+#endif
+
 		return (11);
 	}
 
@@ -3554,7 +4584,12 @@ static errr rd_savefile_new_aux(void)
 	/* Verify */
 	if (o_x_check != n_x_check)
 	{
+#ifdef JP
+note("エンコードされたチェックサムがおかしい");
+#else
 		note("Invalid encoded checksum");
+#endif
+
 		return (11);
 	}
 

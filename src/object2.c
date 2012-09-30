@@ -1,3 +1,4 @@
+
 /* CVS: Last edit by $Author: rr9 $ on $Date: 1999/12/14 13:18:28 $ */
 /* File: object2.c */
 
@@ -13,6 +14,7 @@
 
 #include "angband.h"
 
+#include "kajitips.h"
 
 
 /*
@@ -338,7 +340,12 @@ void compact_objects(int size)
 	if (size)
 	{
 		/* Message */
+#ifdef JP
+msg_print("アイテム情報を圧縮しています...");
+#else
 		msg_print("Compacting objects...");
+#endif
+
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -557,7 +564,12 @@ s16b o_pop(void)
 
 
 	/* Warn the player (except during dungeon creation) */
+#ifdef JP
+if (character_dungeon) msg_print("アイテムが多すぎる！");
+#else
 	if (character_dungeon) msg_print("Too many objects!");
+#endif
+
 
 	/* Oops */
 	return (0);
@@ -620,9 +632,10 @@ s16b get_obj_num(int level)
 	object_kind     *k_ptr;
 	alloc_entry     *table = alloc_kind_table;
 
+	if (level > MAX_DEPTH - 1) level = MAX_DEPTH - 1;
 
 	/* Boost level */
-	if (level > 0)
+	if ((level > 0) && !(d_info[dungeon_type].flags1 & DF1_BEGINNER))
 	{
 		/* Occasional "boost" */
 		if (rand_int(GREAT_OBJ) == 0)
@@ -631,7 +644,6 @@ s16b get_obj_num(int level)
 			level = 1 + (level * MAX_DEPTH / randint(MAX_DEPTH));
 		}
 	}
-
 
 	/* Reset total */
 	total = 0L;
@@ -770,6 +782,8 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
+	bool mihanmei = !object_aware_p(o_ptr);
+
 #ifndef SCRIPT_OBJ_KIND
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
@@ -777,6 +791,22 @@ void object_aware(object_type *o_ptr)
 	/* Fully aware of the effects */
 	o_ptr->aware = TRUE;
 #endif /* SCRIPT_OBJ_KIND */
+
+	if(mihanmei && !(k_info[o_ptr->k_idx].flags3 & TR3_INSTA_ART) && record_ident &&
+	   !death && ((o_ptr->tval >= TV_AMULET && o_ptr->tval <= TV_POTION) || (o_ptr->tval == TV_FOOD)))
+	{
+		object_type forge;
+		object_type *q_ptr;
+		char o_name[MAX_NLEN];
+
+		q_ptr = &forge;
+		object_copy(q_ptr, o_ptr);
+
+		q_ptr->number = 1;
+		object_desc(o_name, q_ptr, TRUE, 0);
+		
+		do_cmd_write_nikki(NIKKI_HANMEI, 0, o_name);
+	}
 }
 
 
@@ -833,7 +863,19 @@ static s32b object_value_base(object_type *o_ptr)
 
 		/* Figurines, relative to monster level */
 		case TV_FIGURINE:
-			return ((r_info[o_ptr->pval].level) * 50L);
+		{
+			int level = r_info[o_ptr->pval].level;
+			if (level < 20) return level*50L;
+			else if (level < 30) return 1000+(level-20)*150L;
+			else if (level < 40) return 2500+(level-30)*350L;
+			else if (level < 50) return 6000+(level-40)*800L;
+			else return 14000+(level-50)*2000L;
+			break;
+		}
+
+		case TV_CAPTURE:
+			if (!o_ptr->pval) return 1000L;
+			else return ((r_info[o_ptr->pval].level) * 50L + 1000);
 	}
 
 	/* Paranoia -- Oops */
@@ -846,17 +888,50 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 {
 	s32b total = 0;
 	u32b f1, f2, f3;
+	s32b tmp_cost;
+	int count;
 
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	if (f1 & TR1_STR) total += (1000 * plusses);
-	if (f1 & TR1_INT) total += (1000 * plusses);
-	if (f1 & TR1_WIS) total += (1000 * plusses);
-	if (f1 & TR1_DEX) total += (1000 * plusses);
-	if (f1 & TR1_CON) total += (1000 * plusses);
-	if (f1 & TR1_CHR) total += (250 * plusses);
-	if (f1 & TR1_CHAOTIC) total += 10000;
-	if (f1 & TR1_VAMPIRIC) total += 13000;
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		f1 &= ~(a_ptr->flags1);
+		f2 &= ~(a_ptr->flags2);
+		f3 &= ~(a_ptr->flags3);
+	}
+	else
+	{
+		if (o_ptr->name2)
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+			f1 &= ~(e_ptr->flags1);
+			f2 &= ~(e_ptr->flags2);
+			f3 &= ~(e_ptr->flags3);
+			if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))
+			{
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+				f1 &= ~(k_ptr->flags1);
+				f2 &= ~(k_ptr->flags2);
+				f3 &= ~(k_ptr->flags3);
+			}
+		}
+		else if (o_ptr->art_name)
+		{
+			total = 5000;
+		}
+	}
+
+	if (f1 & TR1_STR) total += (1500 * plusses);
+	if (f1 & TR1_INT) total += (1500 * plusses);
+	if (f1 & TR1_WIS) total += (1500 * plusses);
+	if (f1 & TR1_DEX) total += (1500 * plusses);
+	if (f1 & TR1_CON) total += (1500 * plusses);
+	if (f1 & TR1_CHR) total += (750 * plusses);
+	if (f1 & TR1_MAGIC_MASTERY) total += (600 * plusses);
 	if (f1 & TR1_STEALTH) total += (250 * plusses);
 	if (f1 & TR1_SEARCH) total += (100 * plusses);
 	if (f1 & TR1_INFRA) total += (150 * plusses);
@@ -865,72 +940,83 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		total += (10000 + (2500 * plusses));
 	if ((f1 & TR1_BLOWS) && (plusses > 0))
 		total += (10000 + (2500 * plusses));
-	if (f1 & TR1_XXX1) total += 0;
-	if (f1 & TR1_XXX2) total += 0;
-	if (f1 & TR1_SLAY_ANIMAL) total += 3500;
-	if (f1 & TR1_SLAY_EVIL) total += 4500;
-	if (f1 & TR1_SLAY_UNDEAD) total += 3500;
-	if (f1 & TR1_SLAY_DEMON) total += 3500;
-	if (f1 & TR1_SLAY_ORC) total += 3000;
-	if (f1 & TR1_SLAY_TROLL) total += 3500;
-	if (f1 & TR1_SLAY_GIANT) total += 3500;
-	if (f1 & TR1_SLAY_DRAGON) total += 3500;
-	if (f1 & TR1_KILL_DRAGON) total += 5500;
-	if (f1 & TR1_VORPAL) total += 5000;
-	if (f1 & TR1_IMPACT) total += 5000;
-	if (f1 & TR1_BRAND_POIS) total += 7500;
-	if (f1 & TR1_BRAND_ACID) total += 7500;
-	if (f1 & TR1_BRAND_ELEC) total += 7500;
-	if (f1 & TR1_BRAND_FIRE) total += 5000;
-	if (f1 & TR1_BRAND_COLD) total += 5000;
+	if (f3 & TR3_DEC_MANA) total += 10000;
+
+	tmp_cost = 0;
+	count = 0;
+	if (f1 & TR1_CHAOTIC) {total += 5000;count++;}
+	if (f1 & TR1_VAMPIRIC) {total += 6500;count++;}
+	if (f1 & TR1_RIRYOKU) {tmp_cost += 2500;count++;}
+	if (f1 & TR1_SLAY_ANIMAL) {tmp_cost += 1800;count++;}
+	if (f1 & TR1_SLAY_EVIL) {tmp_cost += 2300;count++;}
+	if (f1 & TR1_SLAY_UNDEAD) {tmp_cost += 1800;count++;}
+	if (f1 & TR1_SLAY_DEMON) {tmp_cost += 1800;count++;}
+	if (f1 & TR1_SLAY_ORC) {tmp_cost += 1500;count++;}
+	if (f1 & TR1_SLAY_TROLL) {tmp_cost += 1800;count++;}
+	if (f1 & TR1_SLAY_GIANT) {tmp_cost += 1800;count++;}
+	if (f1 & TR1_KILL_DRAGON) {tmp_cost += 2800;count++;}
+	else if (f1 & TR1_SLAY_DRAGON) {tmp_cost += 1800;count++;}
+
+	if (f1 & TR1_VORPAL) {tmp_cost += 2500;count++;}
+	if (f1 & TR1_IMPACT) {tmp_cost += 2500;count++;}
+	if (f1 & TR1_BRAND_POIS) {tmp_cost += 3800;count++;}
+	if (f1 & TR1_BRAND_ACID) {tmp_cost += 3800;count++;}
+	if (f1 & TR1_BRAND_ELEC) {tmp_cost += 3800;count++;}
+	if (f1 & TR1_BRAND_FIRE) {tmp_cost += 2500;count++;}
+	if (f1 & TR1_BRAND_COLD) {tmp_cost += 2500;count++;}
+	total += (tmp_cost * count);
+
 	if (f2 & TR2_SUST_STR) total += 850;
 	if (f2 & TR2_SUST_INT) total += 850;
 	if (f2 & TR2_SUST_WIS) total += 850;
 	if (f2 & TR2_SUST_DEX) total += 850;
 	if (f2 & TR2_SUST_CON) total += 850;
 	if (f2 & TR2_SUST_CHR) total += 250;
-	if (f2 & TR2_XXX1) total += 0;
+	if (f2 & TR2_JOUBA) total += 0;
 	if (f2 & TR2_XXX2) total += 0;
-	if (f2 & TR2_IM_ACID) total += 10000;
-	if (f2 & TR2_IM_ELEC) total += 10000;
-	if (f2 & TR2_IM_FIRE) total += 10000;
-	if (f2 & TR2_IM_COLD) total += 10000;
-	if (f2 & TR2_XXX3) total += 0;
-	if (f2 & TR2_REFLECT) total += 10000;
+	if (f2 & TR2_THROW) total += 5000;
 	if (f2 & TR2_FREE_ACT) total += 4500;
 	if (f2 & TR2_HOLD_LIFE) total += 8500;
-	if (f2 & TR2_RES_ACID) total += 1250;
-	if (f2 & TR2_RES_ELEC) total += 1250;
-	if (f2 & TR2_RES_FIRE) total += 1250;
-	if (f2 & TR2_RES_COLD) total += 1250;
-	if (f2 & TR2_RES_POIS) total += 2500;
-	if (f2 & TR2_RES_FEAR) total += 2500;
-	if (f2 & TR2_RES_LITE) total += 1750;
-	if (f2 & TR2_RES_DARK) total += 1750;
-	if (f2 & TR2_RES_BLIND) total += 2000;
-	if (f2 & TR2_RES_CONF) total += 2000;
-	if (f2 & TR2_RES_SOUND) total += 2000;
-	if (f2 & TR2_RES_SHARDS) total += 2000;
-	if (f2 & TR2_RES_NETHER) total += 2000;
-	if (f2 & TR2_RES_NEXUS) total += 2000;
-	if (f2 & TR2_RES_CHAOS) total += 2000;
-	if (f2 & TR2_RES_DISEN) total += 10000;
+
+	tmp_cost = 0;
+	count = 0;
+	if (f2 & TR2_IM_ACID) {tmp_cost += 15000;count += 2;}
+	if (f2 & TR2_IM_ELEC) {tmp_cost += 15000;count += 2;}
+	if (f2 & TR2_IM_FIRE) {tmp_cost += 15000;count += 2;}
+	if (f2 & TR2_IM_COLD) {tmp_cost += 15000;count += 2;}
+	if (f2 & TR2_REFLECT) {tmp_cost += 5000;count += 2;}
+	if (f2 & TR2_RES_ACID) {tmp_cost += 500;count++;}
+	if (f2 & TR2_RES_ELEC) {tmp_cost += 500;count++;}
+	if (f2 & TR2_RES_FIRE) {tmp_cost += 500;count++;}
+	if (f2 & TR2_RES_COLD) {tmp_cost += 500;count++;}
+	if (f2 & TR2_RES_POIS) {tmp_cost += 1000;count += 2;}
+	if (f2 & TR2_RES_FEAR) {tmp_cost += 1000;count += 2;}
+	if (f2 & TR2_RES_LITE) {tmp_cost += 800;count += 2;}
+	if (f2 & TR2_RES_DARK) {tmp_cost += 800;count += 2;}
+	if (f2 & TR2_RES_BLIND) {tmp_cost += 900;count += 2;}
+	if (f2 & TR2_RES_CONF) {tmp_cost += 900;count += 2;}
+	if (f2 & TR2_RES_SOUND) {tmp_cost += 900;count += 2;}
+	if (f2 & TR2_RES_SHARDS) {tmp_cost += 900;count += 2;}
+	if (f2 & TR2_RES_NETHER) {tmp_cost += 900;count += 2;}
+	if (f2 & TR2_RES_NEXUS) {tmp_cost += 900;count += 2;}
+	if (f2 & TR2_RES_CHAOS) {tmp_cost += 1000;count += 2;}
+	if (f2 & TR2_RES_DISEN) {tmp_cost += 2000;count += 2;}
+	total += (tmp_cost * count);
+
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
+	if (f3 & TR3_SH_COLD) total += 5000;
 	if (f3 & TR3_QUESTITEM) total += 0;
-	if (f3 & TR3_XXX4) total += 0;
-	if (f3 & TR3_NO_TELE) total += 2500;
+	if (f3 & TR3_NO_TELE) total -= 10000;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
-	if (f3 & TR3_WRAITH) total += 250000;
 	if (f3 & TR3_TY_CURSE) total -= 15000;
-	if (f3 & TR3_EASY_KNOW) total += 0;
 	if (f3 & TR3_HIDE_TYPE) total += 0;
 	if (f3 & TR3_SHOW_MODS) total += 0;
 	if (f3 & TR3_INSTA_ART) total += 0;
 	if (f3 & TR3_FEATHER) total += 1250;
 	if (f3 & TR3_LITE) total += 1250;
 	if (f3 & TR3_SEE_INVIS) total += 2000;
-	if (f3 & TR3_TELEPATHY) total += 12500;
+	if (f3 & TR3_TELEPATHY) total += 20000;
 	if (f3 & TR3_SLOW_DIGEST) total += 750;
 	if (f3 & TR3_REGEN) total += 2500;
 	if (f3 & TR3_XTRA_MIGHT) total += 2250;
@@ -955,7 +1041,6 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_PERMA_CURSE) total -= 15000;
 
 	/* Also, give some extra for activatable powers... */
-
 	if (o_ptr->art_name && (o_ptr->art_flags3 & TR3_ACTIVATE))
 	{
 		int type = o_ptr->xtra2;
@@ -1074,16 +1159,11 @@ s32b object_value_real(object_type *o_ptr)
 	/* Base cost */
 	value = get_object_cost(o_ptr);
 
-
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
-	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3)
-	{
-		value += flag_cost(o_ptr, o_ptr->pval);
-	}
 	/* Artifact */
-	else if (o_ptr->name1)
+	if (o_ptr->name1)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -1092,6 +1172,8 @@ s32b object_value_real(object_type *o_ptr)
 
 		/* Hack -- Use the artifact cost instead */
 		value = a_ptr->cost;
+		value += flag_cost(o_ptr, o_ptr->pval);
+		return (value);
 	}
 
 	/* Ego-Item */
@@ -1104,6 +1186,12 @@ s32b object_value_real(object_type *o_ptr)
 
 		/* Hack -- Reward the ego-item with a bonus */
 		value += e_ptr->cost;
+		value += flag_cost(o_ptr, o_ptr->pval);
+	}
+
+	else if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3)
+	{
+		value += flag_cost(o_ptr, o_ptr->pval);
 	}
 
 
@@ -1146,6 +1234,7 @@ s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_CHR)) value += (o_ptr->pval * 200L);
 
 			/* Give credit for stealth and searching */
+			if (f1 & (TR1_MAGIC_MASTERY)) value += (o_ptr->pval * 100L);
 			if (f1 & (TR1_STEALTH)) value += (o_ptr->pval * 100L);
 			if (f1 & (TR1_SEARCH)) value += (o_ptr->pval * 100L);
 
@@ -1154,10 +1243,10 @@ s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 50L);
 
 			/* Give credit for extra attacks */
-			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
+			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 5000L);
 
 			/* Give credit for speed bonus */
-			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
+			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 10000L);
 
 			break;
 		}
@@ -1199,7 +1288,7 @@ s32b object_value_real(object_type *o_ptr)
 			if (o_ptr->to_d < 0) return (0L);
 
 			/* Give credit for bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 200L);
 
 			/* Done */
 			break;
@@ -1220,7 +1309,7 @@ s32b object_value_real(object_type *o_ptr)
 			if (o_ptr->to_a < 0) return (0L);
 
 			/* Give credit for bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+			value += (((o_ptr->to_h - k_ptr->to_h) + (o_ptr->to_d - k_ptr->to_d)) * 200L + (o_ptr->to_a) * 100L);
 
 			/* Done */
 			break;
@@ -1273,7 +1362,25 @@ s32b object_value_real(object_type *o_ptr)
 		/* Figurines, relative to monster level */
 		case TV_FIGURINE:
 		{
-			value = ((r_info[o_ptr->pval].level) * 50L);
+			int level = r_info[o_ptr->pval].level;
+			if (level < 20) value = level*50L;
+			else if (level < 30) value = 1000+(level-20)*150L;
+			else if (level < 40) value = 2500+(level-30)*350L;
+			else if (level < 50) value = 6000+(level-40)*800L;
+			else value = 14000+(level-50)*2000L;
+			break;
+		}
+
+		case TV_CAPTURE:
+		{
+			if (!o_ptr->pval) value = 1000L;
+			else value = ((r_info[o_ptr->pval].level) * 50L + 1000);
+			break;
+		}
+
+		case TV_CHEST:
+		{
+			if (!o_ptr->pval) value = 0L;
 			break;
 		}
 	}
@@ -1420,10 +1527,18 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	{
 		/* Chests and Statues*/
 		case TV_CHEST:
-		case TV_STATUE:
+		case TV_CARD:
+		case TV_CAPTURE:
 		{
 			/* Never okay */
 			return (0);
+		}
+
+		case TV_STATUE:
+		{
+			if ((o_ptr->sval != SV_PHOTO) || (j_ptr->sval != SV_PHOTO)) return (0);
+			if (o_ptr->pval != j_ptr->pval) return (0);
+			break;
 		}
 
 		/* Figurines and Corpses*/
@@ -1541,6 +1656,10 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require identical "ego-item" names */
 			if (o_ptr->name2 != j_ptr->name2) return (FALSE);
+
+			/* Require identical added essence  */
+			if (o_ptr->xtra3 != j_ptr->xtra3) return (FALSE);
+			if (o_ptr->xtra4 != j_ptr->xtra4) return (FALSE);
 
 			/* Hack -- Never stack "powerful" items */
 			if (o_ptr->xtra1 || j_ptr->xtra1) return (FALSE);
@@ -1688,8 +1807,15 @@ s16b lookup_kind(int tval, int sval)
 		return bk;
 	}
 
+#if 0
 	/* Oops */
+#ifdef JP
+msg_format("アイテムがない (%d,%d)", tval, sval);
+#else
 	msg_format("No object (%d,%d)", tval, sval);
+#endif
+#endif
+
 
 	/* Oops */
 	return (0);
@@ -1702,7 +1828,7 @@ s16b lookup_kind(int tval, int sval)
 void object_wipe(object_type *o_ptr)
 {
 	/* Wipe the structure */
-	WIPE(o_ptr, object_type);
+	(void)WIPE(o_ptr, object_type);
 }
 
 
@@ -1803,7 +1929,7 @@ void object_prep(object_type *o_ptr, int k_idx)
  * 120    0.03  0.11  0.31  0.46  1.31  2.48  4.60  7.78 11.67 25.53 45.72
  * 128    0.02  0.01  0.13  0.33  0.83  1.41  3.24  6.17  9.57 14.22 64.07
  */
-static s16b m_bonus(int max, int level)
+s16b m_bonus(int max, int level)
 {
 	int bonus, stand, extra, value;
 
@@ -1851,7 +1977,7 @@ static s16b m_bonus(int max, int level)
  */
 static void object_mention(object_type *o_ptr)
 {
-	char o_name[80];
+	char o_name[MAX_NLEN];
 
 	/* Describe */
 	object_desc_store(o_name, o_ptr, FALSE, 0);
@@ -1860,27 +1986,47 @@ static void object_mention(object_type *o_ptr)
 	if (artifact_p(o_ptr))
 	{
 		/* Silly message */
+#ifdef JP
+msg_format("伝説のアイテム (%s)", o_name);
+#else
 		msg_format("Artifact (%s)", o_name);
+#endif
+
 	}
 
 	/* Random Artifact */
 	else if (o_ptr->art_name)
 	{
+#ifdef JP
+msg_print("ランダム・アーティファクト");
+#else
 		msg_print("Random artifact");
+#endif
+
 	}
 
 	/* Ego-item */
 	else if (ego_item_p(o_ptr))
 	{
 		/* Silly message */
+#ifdef JP
+msg_format("名のあるアイテム (%s)", o_name);
+#else
 		msg_format("Ego-item (%s)", o_name);
+#endif
+
 	}
 
 	/* Normal item */
 	else
 	{
 		/* Silly message */
+#ifdef JP
+msg_format("アイテム (%s)", o_name);
+#else
 		msg_format("Object (%s)", o_name);
+#endif
+
 	}
 }
 
@@ -1903,7 +2049,7 @@ static bool make_artifact_special(object_type *o_ptr)
 	if (!dun_level) return (FALSE);
 
 	/* Check the artifact list (just the "specials") */
-	for (i = 0; i < ART_MIN_NORMAL; i++)
+	for (i = 0; i < max_a_idx; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
@@ -1914,6 +2060,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		if (a_ptr->cur_num) continue;
 
 		if (a_ptr->flags3 & TR3_QUESTITEM) continue;
+		if (!(a_ptr->flags3 & TR3_INSTA_ART)) continue;
 
 		/* XXX XXX Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > dun_level)
@@ -1926,7 +2073,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		}
 
 		/* Artifact "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) return (0);
+		if (rand_int(a_ptr->rarity) != 0) continue;
 
 		/* Find the base object */
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -1946,6 +2093,9 @@ static bool make_artifact_special(object_type *o_ptr)
 
 		/* Mega-Hack -- mark the item as an artifact */
 		o_ptr->name1 = i;
+
+		/* Hack: Some artifacts get random extra powers */
+		random_artifact_resistance(o_ptr);
 
 		/* Success */
 		return (TRUE);
@@ -1975,7 +2125,7 @@ static bool make_artifact(object_type *o_ptr)
 	if (o_ptr->number != 1) return (FALSE);
 
 	/* Check the artifact list (skip the "specials") */
-	for (i = ART_MIN_NORMAL; i < max_a_idx; i++)
+	for (i = 0; i < max_a_idx; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 
@@ -1986,6 +2136,8 @@ static bool make_artifact(object_type *o_ptr)
 		if (a_ptr->cur_num) continue;
 
 		if (a_ptr->flags3 & TR3_QUESTITEM) continue;
+
+		if (a_ptr->flags3 & TR3_INSTA_ART) continue;
 
 		/* Must have the correct fields */
 		if (a_ptr->tval != o_ptr->tval) continue;
@@ -2034,6 +2186,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	int tohit2 = m_bonus(10, level);
 	int todam2 = m_bonus(10, level);
 
+	if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_SHOT))
+	{
+		tohit2 = (tohit2+1)/2;
+		tohit2 = (todam2+1)/2;
+	}
+
 	artifact_bias = 0;
 
 	/* Good */
@@ -2071,6 +2229,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		if (o_ptr->to_h + o_ptr->to_d < 0) o_ptr->ident |= (IDENT_CURSED);
 	}
 
+	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_DIAMOND_EDGE)) return;
 
 	/* Analyze type */
 	switch (o_ptr->tval)
@@ -2080,8 +2239,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			/* Very good */
 			if (power > 1)
 			{
-				/* Special Ego-item */
-				o_ptr->name2 = EGO_DIGGING;
+				if (randint(30) == 1)
+					create_artifact(o_ptr, FALSE);
+				else
+					/* Special Ego-item */
+					o_ptr->name2 = EGO_DIGGING;
 			}
 
 			/* Very bad */
@@ -2110,17 +2272,15 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for an ego-item */
-				switch (randint((o_ptr->tval == TV_POLEARM) ? 40 : 42))
+				switch (randint((o_ptr->tval == TV_POLEARM) ? 42 : 44))
 				{
 					case 1:
 					{
 						o_ptr->name2 = EGO_HA;
 
-						if (randint(4) == 1)
+						if ((randint(4) == 1) && (level > 40))
 						{
 							o_ptr->art_flags1 |= TR1_BLOWS;
-							if (o_ptr->pval > 2)
-								o_ptr->pval = o_ptr->pval - randint(2);
 						}
 						break;
 					}
@@ -2186,8 +2346,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_SLAY_EVIL;
 						if (rand_int(100) < 20)
 						{
-							o_ptr->art_flags2 |= TR2_RES_FEAR;
-							o_ptr->art_flags3 |= TR3_BLESSED;
 							o_ptr->name2 = EGO_KILL_EVIL;
 						}
 						break;
@@ -2196,10 +2354,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 13: case 14:
 					{
 						o_ptr->name2 = EGO_SLAY_UNDEAD;
-						o_ptr->art_flags2 |= TR2_HOLD_LIFE;
 						if (rand_int(100) < 20)
 						{
-							o_ptr->art_flags2 |= TR2_RES_NETHER;
 							o_ptr->name2 = EGO_KILL_UNDEAD;
 						}
 						break;
@@ -2235,13 +2391,19 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						break;
 					}
 
-					case 24: case 25: case 26:
+					case 24: case 25:
 					{
 						o_ptr->name2 = EGO_SLAY_DEMON;
 						if (rand_int(100) < 20)
 						{
 							o_ptr->name2 = EGO_KILL_DEMON;
 						}
+						break;
+					}
+
+					case 26:
+					{
+						o_ptr->name2 = EGO_PRISM;
 						break;
 					}
 
@@ -2331,6 +2493,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						random_resistance(o_ptr, FALSE, (randint(22) + 16));
 						break;
 					}
+					case 41: case 42:
+					{
+						o_ptr->name2 = EGO_RIRYOKU;
+						break;
+					}
 					default: /* 2 slots for TV_SWORD and TV_HAFTED */
 					{
 						if (o_ptr->tval == TV_SWORD)
@@ -2341,17 +2508,20 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						else /* Hafted */
 						{
 							o_ptr->name2 = EGO_EARTHQUAKES;
-							if (randint(3) == 1) o_ptr->art_flags1 |= TR1_BLOWS;
-							o_ptr->pval = m_bonus(3, level);
+							if ((randint(3) == 1) && (level > 60)) o_ptr->art_flags1 |= TR1_BLOWS;
+							else o_ptr->pval = m_bonus(3, level);
 						}
 					}
 				}
 
-				/* Hack -- Super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+				if (!o_ptr->art_name)
+				{
+					/* Hack -- Super-charge the damage dice */
+					while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
 
-				/* Hack -- Lower the damage dice */
-				if (o_ptr->dd > 9) o_ptr->dd = 9;
+					/* Hack -- Lower the damage dice */
+					if (o_ptr->dd > 9) o_ptr->dd = 9;
+				}
 			}
 
 			/* Very cursed */
@@ -2565,6 +2735,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 		{
 			/* Rating boost */
 			rating += 30;
+			if(rand_int(50) == 1)
+				create_artifact(o_ptr, FALSE);
 
 			/* Mention the item */
 			if (cheat_peek) object_mention(o_ptr);
@@ -2581,22 +2753,31 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				/* Hack -- Try for "Robes of the Magi" */
 				if ((o_ptr->tval == TV_SOFT_ARMOR) &&
 				    (o_ptr->sval == SV_ROBE) &&
-				    (rand_int(100) < 10))
+				    (rand_int(100) < 15))
 				{
-					o_ptr->name2 = EGO_PERMANENCE;
+					if (one_in_(5))
+					{
+						o_ptr->name2 = EGO_YOIYAMI;
+						o_ptr->k_idx = lookup_kind(TV_SOFT_ARMOR, SV_YOIYAMI_ROBE);
+						o_ptr->sval = SV_YOIYAMI_ROBE;
+						o_ptr->ac = 0;
+						o_ptr->to_a = 0;
+					}
+					else
+						o_ptr->name2 = EGO_PERMANENCE;
 					break;
 				}
 
 				/* Roll for ego-item */
-				switch (randint(21))
+				switch (randint(24))
 				{
-					case 1: case 2: case 3: case 4:
+					case 1: case 2: case 3:
 					{
 						o_ptr->name2 = EGO_RESIST_ACID;
 						break;
 					}
 
-					case 5: case 6: case 7: case 8:
+					case 5: case 6: case 7:
 					{
 						o_ptr->name2 = EGO_RESIST_ELEC;
 						break;
@@ -2611,6 +2792,13 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					case 13: case 14: case 15: case 16:
 					{
 						o_ptr->name2 = EGO_RESIST_COLD;
+						break;
+					}
+
+					case 4: case 8:
+					{
+						o_ptr->name2 = EGO_DWARVEN;
+						if (randint(4) == 1) o_ptr->art_flags1 |= TR1_CON;
 						break;
 					}
 
@@ -2648,8 +2836,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				/* Mention the item */
 				if (cheat_peek) object_mention(o_ptr);
 				dragon_resist(o_ptr);
+				if (randint(3) != 1) break;
 			}
-			else
 			{
 				/* Very good */
 				if (power > 1)
@@ -2663,7 +2851,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 							break;
 						}
 
-						case 2: case 3: case 4:
+						case 2: case 3:
 						case 12: case 13: case 14:
 						{
 							o_ptr->name2 = EGO_ENDURE_ELEC;
@@ -2677,7 +2865,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 							break;
 						}
 
-						case 7: case 8: case 9:
+						case 7: case 8:
 						case 17: case 18: case 19:
 						{
 							o_ptr->name2 = EGO_ENDURE_COLD;
@@ -2693,9 +2881,15 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						}
 						case 21: case 22:
 						{
-							o_ptr->name2 = EGO_REFLECTION;
+							if (o_ptr->sval != SV_SHIELD_OF_DEFLECTION) o_ptr->name2 = EGO_REFLECTION;
 							break;
 						}
+						case 4: case 9:
+						{
+							o_ptr->name2 = EGO_NIGHT_DAY;
+							break;
+						}
+
 						default:
 						{
 							create_artifact(o_ptr, FALSE);
@@ -2708,59 +2902,83 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 		case TV_GLOVES:
 		{
-			/* Very good */
-			if (power > 1)
+			if (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES)
 			{
-				if (randint(20) == 1)
-					create_artifact(o_ptr, FALSE);
-				else
+				/* Rating boost */
+				rating += 5;
+
+				/* Mention the item */
+				if (cheat_peek) object_mention(o_ptr);
+				dragon_resist(o_ptr);
+				if (randint(3) != 1) break;
+			}
+			{
+				/* Very good */
+				if (power > 1)
 				{
-					/* Roll for ego-item */
-					switch (randint(10))
+					if (randint(20) == 1)
+						create_artifact(o_ptr, FALSE);
+					else
 					{
-						case 1: case 2: case 3: case 4:
+						/* Roll for ego-item */
+						switch (randint(28))
 						{
-							o_ptr->name2 = EGO_FREE_ACTION;
-							break;
-						}
+							case 1: case 2: case 3: case 4: case 5: case 6: case 7: case 8: case 9: case 10:
+							{
+								o_ptr->name2 = EGO_FREE_ACTION;
+								break;
+							}
 
-						case 5: case 6: case 7:
-						{
-							o_ptr->name2 = EGO_SLAYING;
-							break;
-						}
+							case 11: case 12: case 13: case 14: case 15: case 16:
+							{
+								o_ptr->name2 = EGO_SLAYING;
+								break;
+							}
 
-						case 8: case 9:
-						{
-							o_ptr->name2 = EGO_AGILITY;
-							break;
-						}
+							case 17: case 18: case 19: case 20: case 21:
+							{
+								o_ptr->name2 = EGO_MAGIC_MASTERY;
+								break;
+							}
 
-						case 10:
-						{
-							o_ptr->name2 = EGO_POWER;
-							random_resistance(o_ptr, FALSE, (randint(22) + 16));
-							break;
+							case 22: case 23: case 24: case 25:
+							{
+								o_ptr->name2 = EGO_AGILITY;
+								break;
+							}
+
+							case 26: case 27:
+							{
+								o_ptr->name2 = EGO_POWER;
+								random_resistance(o_ptr, FALSE, (randint(22) + 16));
+								break;
+							}
+
+							case 28:
+							{
+								o_ptr->name2 = EGO_2HAND;
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			/* Very cursed */
-			else if (power < -1)
-			{
-				/* Roll for ego-item */
-				switch (randint(2))
+				/* Very cursed */
+				else if (power < -1)
 				{
-					case 1:
+					/* Roll for ego-item */
+					switch (randint(2))
 					{
-						o_ptr->name2 = EGO_CLUMSINESS;
-						break;
-					}
-					default:
-					{
-						o_ptr->name2 = EGO_WEAKNESS;
-						break;
+						case 1:
+						{
+							o_ptr->name2 = EGO_CLUMSINESS;
+							break;
+						}
+						default:
+						{
+							o_ptr->name2 = EGO_WEAKNESS;
+							break;
+						}
 					}
 				}
 			}
@@ -2770,69 +2988,87 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 		case TV_BOOTS:
 		{
-			/* Very good */
-			if (power > 1)
+			if (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE)
 			{
-				if (randint(20) == 1)
-					create_artifact(o_ptr, FALSE);
-				else
+				/* Rating boost */
+				rating += 5;
+
+				/* Mention the item */
+				if (cheat_peek) object_mention(o_ptr);
+				dragon_resist(o_ptr);
+				if (randint(3) != 1) break;
+			}
+			{
+				/* Very good */
+				if (power > 1)
 				{
-					/* Roll for ego-item */
-					switch (randint(24))
+					if (randint(20) == 1)
+						create_artifact(o_ptr, FALSE);
+					else
 					{
-						case 1:
+						/* Roll for ego-item */
+						switch (randint(24))
 						{
-							o_ptr->name2 = EGO_SPEED;
-							break;
-						}
-
-						case 2: case 3: case 4: case 5:
-						{
-							o_ptr->name2 = EGO_MOTION;
-							break;
-						}
-
-						case 6: case 7: case 8: case 9:
-						case 10: case 11: case 12: case 13:
-						{
-							o_ptr->name2 = EGO_QUIET;
-							break;
-						}
-
-						default:
-						{
-							o_ptr->name2 = EGO_SLOW_DESCENT;
-
-							if (randint(2) == 1)
+							case 1:
 							{
-								random_resistance(o_ptr, FALSE, (randint(22) + 16));
+								o_ptr->name2 = EGO_SPEED;
+								break;
 							}
-							break;
+
+							case 2: case 3: case 4: case 5:
+							{
+								o_ptr->name2 = EGO_MOTION;
+								break;
+							}
+
+							case 6: case 7: case 8: case 9:
+							case 10: case 11:
+							{
+								o_ptr->name2 = EGO_QUIET;
+								break;
+							}
+
+							case 12: case 13: case 14: case 15:
+							{
+								o_ptr->name2 = EGO_JUMP;
+								break;
+							}
+
+							default:
+							{
+								o_ptr->name2 = EGO_SLOW_DESCENT;
+
+								if (randint(2) == 1)
+								{
+									random_resistance(o_ptr, FALSE, (randint(22) + 16));
+								}
+								break;
+							}
 						}
 					}
 				}
-			}
 
-			/* Very cursed */
-			else if (power < -1)
-			{
-				/* Roll for ego-item */
-				switch (randint(3))
+				/* Very cursed */
+				else if (power < -1)
 				{
-					case 1:
+					/* Roll for ego-item */
+					switch (randint(3))
 					{
-						o_ptr->name2 = EGO_NOISE;
-						break;
-					}
-					case 2:
-					{
-						o_ptr->name2 = EGO_SLOWNESS;
-						break;
-					}
-					case 3:
-					{
-						o_ptr->name2 = EGO_ANNOYANCE;
-						break;
+						case 1:
+						{
+							o_ptr->name2 = EGO_NOISE;
+							break;
+						}
+						case 2:
+						{
+							o_ptr->name2 = EGO_SLOWNESS;
+							break;
+						}
+						case 3:
+						{
+							o_ptr->name2 = EGO_ANNOYANCE;
+							break;
+						}
 					}
 				}
 			}
@@ -2937,8 +3173,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				/* Mention the item */
 				if (cheat_peek) object_mention(o_ptr);
 				dragon_resist(o_ptr);
+				if (randint(3) != 1) break;
 			}
-			else
 			{
 				/* Very good */
 				if (power > 1)
@@ -2948,32 +3184,37 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					else
 					{
 						/* Roll for ego-item */
-						switch (randint(14))
+						switch (randint(24))
 						{
-							case 1: case 2:
+							case 1: case 2: case 3:
 							{
 								o_ptr->name2 = EGO_INTELLIGENCE;
 								break;
 							}
-							case 3: case 4:
+							case 4: case 5: case 6:
 							{
 								o_ptr->name2 = EGO_WISDOM;
 								break;
 							}
-							case 5: case 6:
+							case 7: case 8: case 9:
 							{
 								o_ptr->name2 = EGO_BEAUTY;
 								break;
 							}
-							case 7: case 8:
+							case 10: case 11: case 12:
 							{
 								o_ptr->name2 = EGO_SEEING;
 								if (randint(7) == 1) o_ptr->art_flags3 |= TR3_TELEPATHY;
 								break;
 							}
-							case 9: case 10:
+							case 13: case 14: case 15:
 							{
 								o_ptr->name2 = EGO_LITE;
+								break;
+							}
+							case 16: case 17: case 18:
+							{
+								o_ptr->name2 = EGO_DARK;
 								break;
 							}
 							default:
@@ -3035,7 +3276,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				else
 				{
 					/* Roll for ego-item */
-					switch (randint(19))
+					switch (randint(20))
 					{
 						case 1: case 2: case 3: case 4:
 						case 5: case 6: case 7: case 8:
@@ -3044,9 +3285,16 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 							break;
 						}
 						case 9: case 10: case 11: case 12:
-						case 13: case 14: case 15: case 16:
+						case 13: case 14: case 15:
 						{
 							o_ptr->name2 = EGO_STEALTH;
+							break;
+						}
+						case 16:
+						{
+							o_ptr->name2 = EGO_BAT;
+							o_ptr->to_d -= 6;
+							o_ptr->to_h -= 6;
 							break;
 						}
 						case 17:
@@ -3057,6 +3305,11 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						case 18:
 						{
 							o_ptr->name2 = EGO_AURA_ELEC;
+							break;
+						}
+						case 19:
+						{
+							o_ptr->name2 = EGO_AURA_COLD;
 							break;
 						}
 						default:
@@ -3118,11 +3371,11 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			/* Analyze */
 			switch (o_ptr->sval)
 			{
-				/* Strength, Constitution, Dexterity, Intelligence */
 				case SV_RING_ATTACKS:
 				{
 					/* Stat bonus */
-					o_ptr->pval = m_bonus(3, level);
+					o_ptr->pval = m_bonus(2, level);
+					if (one_in_(15)) o_ptr->pval++;
 					if (o_ptr->pval < 1) o_ptr->pval = 1;
 
 					/* Cursed */
@@ -3141,10 +3394,15 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				case SV_RING_SHOTS:
+				{
+					break;
+				}
+
+				/* Strength, Constitution, Dexterity, Intelligence */
 				case SV_RING_STR:
 				case SV_RING_CON:
 				case SV_RING_DEX:
-				case SV_RING_INT:
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -3208,7 +3466,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					/* Bonus to armor class */
 					o_ptr->to_a = 10 + randint(5) + m_bonus(10, level);
-					rating += 5;
+					rating += 15;
 				}
 				break;
 
@@ -3238,6 +3496,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_FLAMES:
 				case SV_RING_ACID:
 				case SV_RING_ICE:
+				case SV_RING_ELEC:
 				{
 					/* Bonus to armor class */
 					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
@@ -3256,6 +3515,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					/* Penalize */
 					o_ptr->pval = 0 - (1 + m_bonus(5, level));
+					if (power > 0) power = 0 - power;
 
 					break;
 				}
@@ -3272,6 +3532,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Penalize */
 					o_ptr->to_a = 0 - (5 + m_bonus(10, level));
 					o_ptr->pval = 0 - (1 + m_bonus(5, level));
+					if (power > 0) power = 0 - power;
 
 					break;
 				}
@@ -3280,7 +3541,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_DAMAGE:
 				{
 					/* Bonus to damage */
-					o_ptr->to_d = 5 + randint(8) + m_bonus(10, level);
+					o_ptr->to_d = 1 + randint(5) + m_bonus(16, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3302,7 +3563,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_ACCURACY:
 				{
 					/* Bonus to hit */
-					o_ptr->to_h = 5 + randint(8) + m_bonus(10, level);
+					o_ptr->to_h = 1 + randint(5) + m_bonus(16, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3346,8 +3607,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SLAYING:
 				{
 					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint(7) + m_bonus(10, level);
-					o_ptr->to_h = randint(7) + m_bonus(10, level);
+					o_ptr->to_d = randint(5) + m_bonus(12, level);
+					o_ptr->to_h = randint(5) + m_bonus(12, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3365,8 +3626,237 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					break;
 				}
-			}
 
+				case SV_RING_MUSCLE:
+				{
+					o_ptr->pval = 1 + m_bonus(3, level);
+					if (one_in_(4)) o_ptr->pval++;
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse bonuses */
+						o_ptr->pval = 0 - o_ptr->pval;
+					}
+
+					break;
+				}
+				case SV_RING_AGGRAVATION:
+				{
+					/* Broken */
+					o_ptr->ident |= (IDENT_BROKEN);
+
+					/* Cursed */
+					o_ptr->ident |= (IDENT_CURSED);
+
+					if (power > 0) power = 0 - power;
+					break;
+				}
+			}
+			if (randint(400) == 1 && (power > 0) && !(o_ptr->ident & IDENT_CURSED) && (level > 79))
+			{
+				o_ptr->pval = MIN(o_ptr->pval,4);
+				/* Randart amulet */
+				create_artifact(o_ptr, FALSE);
+			}
+			else if ((power == 2) && one_in_(2))
+			{
+				while(!o_ptr->name2)
+				{
+					int tmp = m_bonus(10, level);
+					object_kind *k_ptr = &k_info[o_ptr->k_idx];
+					switch(randint(28))
+					{
+					case 1: case 2:
+						o_ptr->name2 = EGO_RING_THROW;
+						break;
+					case 3: case 4:
+						if (k_ptr->flags3 & TR3_REGEN) break;
+						o_ptr->name2 = EGO_RING_REGEN;
+						break;
+					case 5: case 6:
+						if (k_ptr->flags3 & TR3_LITE)
+						o_ptr->name2 = EGO_RING_LITE;
+						break;
+					case 7: case 8:
+						if (k_ptr->flags2 & TR3_TELEPORT) break;
+						o_ptr->name2 = EGO_RING_TELEPORT;
+						break;
+					case 9: case 10:
+						if (o_ptr->to_h) break;
+						o_ptr->name2 = EGO_RING_TO_H;
+						break;
+					case 11: case 12:
+						if (o_ptr->to_d) break;
+						o_ptr->name2 = EGO_RING_TO_D;
+						break;
+					case 13:
+						if ((o_ptr->to_h) || (o_ptr->to_d)) break;
+						o_ptr->name2 = EGO_RING_SLAY;
+						break;
+					case 14:
+						if ((k_ptr->flags1 & TR1_STR) || o_ptr->to_h || o_ptr->to_d) break;
+						o_ptr->name2 = EGO_RING_WIZARD;
+						break;
+					case 15:
+						if (k_ptr->flags3 & TR3_ACTIVATE) break;
+						o_ptr->name2 = EGO_RING_HERO;
+						break;
+					case 16:
+						if (k_ptr->flags3 & TR3_ACTIVATE) break;
+						if (tmp > 8) o_ptr->name2 = EGO_RING_MANA_BALL;
+						else if (tmp > 4) o_ptr->name2 = EGO_RING_MANA_BOLT;
+						else o_ptr->name2 = EGO_RING_MAGIC_MIS;
+						break;
+					case 17:
+						if (k_ptr->flags3 & TR3_ACTIVATE) break;
+						if (!(k_ptr->flags2 & TR2_RES_FIRE) && (k_ptr->flags2 & (TR2_RES_COLD | TR2_RES_ELEC | TR2_RES_ACID))) break;
+						if (tmp > 7) o_ptr->name2 = EGO_RING_DRAGON_F;
+						else if (tmp > 3) o_ptr->name2 = EGO_RING_FIRE_BALL;
+						else o_ptr->name2 = EGO_RING_FIRE_BOLT;
+						break;
+					case 18:
+						if (k_ptr->flags3 & TR3_ACTIVATE) break;
+						if (!(k_ptr->flags2 & TR2_RES_COLD) && (k_ptr->flags2 & (TR2_RES_FIRE | TR2_RES_ELEC | TR2_RES_ACID))) break;
+						if (tmp > 7) o_ptr->name2 = EGO_RING_DRAGON_C;
+						else if (tmp > 3) o_ptr->name2 = EGO_RING_COLD_BALL;
+						else o_ptr->name2 = EGO_RING_COLD_BOLT;
+						break;
+					case 19:
+						if (k_ptr->flags3 & TR3_ACTIVATE) break;
+						if (!(k_ptr->flags2 & TR2_RES_ELEC) && (k_ptr->flags2 & (TR2_RES_COLD | TR2_RES_FIRE | TR2_RES_ACID))) break;
+						if (tmp > 4) o_ptr->name2 = EGO_RING_ELEC_BALL;
+						else o_ptr->name2 = EGO_RING_ELEC_BOLT;
+						break;
+					case 20:
+						if (k_ptr->flags3 & TR3_ACTIVATE) break;
+						if (!(k_ptr->flags2 & TR2_RES_ACID) && (k_ptr->flags2 & (TR2_RES_COLD | TR2_RES_ELEC | TR2_RES_FIRE))) break;
+						if (tmp > 4) o_ptr->name2 = EGO_RING_ACID_BALL;
+						else o_ptr->name2 = EGO_RING_ACID_BOLT;
+						break;
+					case 21: case 22: case 23: case 24: case 25: case 26:
+						switch (o_ptr->sval)
+						{
+						case SV_RING_SPEED:
+							if (!one_in_(3)) break;
+							o_ptr->name2 = EGO_RING_D_SPEED;
+							break;
+						case SV_RING_DAMAGE:
+						case SV_RING_ACCURACY:
+						case SV_RING_SLAYING:
+							if (one_in_(2)) break;
+							if (one_in_(2)) o_ptr->name2 = EGO_RING_HERO;
+							else
+							{
+								o_ptr->name2 = EGO_RING_BERSERKER;
+								o_ptr->to_h -= 2+randint(4);
+							}
+							break;
+						case SV_RING_PROTECTION:
+							o_ptr->name2 = EGO_RING_SUPER_AC;
+							o_ptr->to_a += m_bonus(5, level);
+							break;
+						case SV_RING_RES_FEAR:
+							o_ptr->name2 = EGO_RING_HERO;
+							break;
+						case SV_RING_SHOTS:
+							if (one_in_(2)) break;
+							o_ptr->name2 = EGO_RING_HUNTER;
+							break;
+						case SV_RING_SEARCHING:
+							o_ptr->name2 = EGO_RING_STEALTH;
+							break;
+						case SV_RING_TELEPORTATION:
+							o_ptr->name2 = EGO_RING_TELE_AWAY;
+							break;
+						case SV_RING_RES_BLINDNESS:
+							if (one_in_(2))
+								o_ptr->name2 = EGO_RING_RES_LITE;
+							else
+								o_ptr->name2 = EGO_RING_RES_DARK;
+							break;
+						case SV_RING_LORDLY:
+							if (!one_in_(20)) break;
+							random_resistance(o_ptr, FALSE, randint(20) + 18);
+							random_resistance(o_ptr, FALSE, randint(20) + 18);
+							o_ptr->name2 = EGO_RING_TRUE;
+							break;
+						case SV_RING_SUSTAIN:
+							if (!one_in_(4)) break;
+							o_ptr->name2 = EGO_RING_RES_TIME;
+							break;
+						case SV_RING_FLAMES:
+							if (!one_in_(2)) break;
+							o_ptr->name2 = EGO_RING_DRAGON_F;
+							break;
+						case SV_RING_ICE:
+							if (!one_in_(2)) break;
+							o_ptr->name2 = EGO_RING_DRAGON_C;
+							break;
+						case SV_RING_WARNING:
+							if (!one_in_(2)) break;
+							o_ptr->name2 = EGO_RING_M_DETECT;
+							break;
+						default:
+							break;
+						}
+						break;
+					}
+				}
+				/* Uncurse it */
+				o_ptr->ident &= ~(IDENT_CURSED);
+
+				if (o_ptr->art_flags3 & TR3_CURSED)
+					o_ptr->art_flags3 &= ~(TR3_CURSED);
+
+				if (o_ptr->art_flags3 & TR3_HEAVY_CURSE)
+					o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
+			}
+			else if ((power == -2) && one_in_(2))
+			{
+				if (o_ptr->to_h > 0) o_ptr->to_h = 0-o_ptr->to_h;
+				if (o_ptr->to_d > 0) o_ptr->to_d = 0-o_ptr->to_d;
+				if (o_ptr->to_a > 0) o_ptr->to_a = 0-o_ptr->to_a;
+				if (o_ptr->pval > 0) o_ptr->pval = 0-o_ptr->pval;
+				o_ptr->art_flags1 = 0;
+				o_ptr->art_flags2 = 0;
+				while(!o_ptr->name2)
+				{
+					object_kind *k_ptr = &k_info[o_ptr->k_idx];
+					switch(randint(5))
+					{
+					case 1:
+						if (k_ptr->flags3 & TR3_DRAIN_EXP) break;
+						o_ptr->name2 = EGO_RING_DRAIN_EXP;
+						break;
+					case 2:
+						o_ptr->name2 = EGO_RING_NO_MELEE;
+						break;
+					case 3:
+						if (k_ptr->flags3 & TR3_AGGRAVATE) break;
+						o_ptr->name2 = EGO_RING_AGGRAVATE;
+						break;
+					case 4:
+						if (k_ptr->flags3 & TR3_TY_CURSE) break;
+						o_ptr->name2 = EGO_RING_TY_CURSE;
+						break;
+					case 5:
+						o_ptr->name2 = EGO_RING_ALBINO;
+						break;
+					}
+				}
+				/* Broken */
+				o_ptr->ident |= (IDENT_BROKEN);
+
+				/* Cursed */
+				o_ptr->ident |= (IDENT_CURSED);
+			}
 			break;
 		}
 
@@ -3376,10 +3866,33 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			switch (o_ptr->sval)
 			{
 				/* Amulet of wisdom/charisma */
+				case SV_AMULET_INTELLIGENCE:
 				case SV_AMULET_WISDOM:
 				case SV_AMULET_CHARISMA:
 				{
 					o_ptr->pval = 1 + m_bonus(5, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse bonuses */
+						o_ptr->pval = 0 - o_ptr->pval;
+					}
+
+					break;
+				}
+
+				/* Amulet of brilliance */
+				case SV_AMULET_BRILLIANCE:
+				{
+					o_ptr->pval = 1 + m_bonus(3, level);
+					if (one_in_(4)) o_ptr->pval++;
 
 					/* Cursed */
 					if (power < 0)
@@ -3416,7 +3929,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Amulet of searching */
 				case SV_AMULET_SEARCHING:
 				{
-					o_ptr->pval = randint(5) + m_bonus(5, level);
+					o_ptr->pval = randint(2) + m_bonus(4, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3440,10 +3953,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->pval = randint(5) + m_bonus(5, level);
 					o_ptr->to_a = randint(5) + m_bonus(5, level);
 
-					if (randint(3) == 1) o_ptr->art_flags3 |= TR3_SLOW_DIGEST;
-
 					/* Boost the rating */
-					rating += 25;
+					rating += 15;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
@@ -3463,14 +3974,203 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Penalize */
 					o_ptr->pval = 0 - (randint(5) + m_bonus(5, level));
 					o_ptr->to_a = 0 - (randint(5) + m_bonus(5, level));
+					if (power > 0) power = 0 - power;
+
+					break;
+				}
+
+				case SV_AMULET_MAGIC_MASTERY:
+				{
+					o_ptr->pval = 1 + m_bonus(4, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse bonuses */
+						o_ptr->pval = 0 - o_ptr->pval;
+					}
 
 					break;
 				}
 			}
+			if (randint(150) == 1 && (power > 0) && !(o_ptr->ident & IDENT_CURSED) && (level > 79))
+			{
+				o_ptr->pval = MIN(o_ptr->pval,4);
+				/* Randart amulet */
+				create_artifact(o_ptr, FALSE);
+			}
+			else if ((power == 2) && one_in_(2))
+			{
+				while(!o_ptr->name2)
+				{
+					object_kind *k_ptr = &k_info[o_ptr->k_idx];
+					switch(randint(21))
+					{
+					case 1: case 2:
+						if (k_ptr->flags3 & TR3_SLOW_DIGEST) break;
+						o_ptr->name2 = EGO_AMU_SLOW_D;
+						break;
+					case 3: case 4:
+						if (o_ptr->pval) break;
+						o_ptr->name2 = EGO_AMU_INFRA;
+						break;
+					case 5: case 6:
+						if (k_ptr->flags3 & TR3_SEE_INVIS) break;
+						o_ptr->name2 = EGO_AMU_SEE_INVIS;
+						break;
+					case 7: case 8:
+						if (k_ptr->flags2 & TR2_HOLD_LIFE) break;
+						o_ptr->name2 = EGO_AMU_HOLD_LIFE;
+						break;
+					case 9:
+						if (k_ptr->flags3 & TR3_FEATHER) break;
+						o_ptr->name2 = EGO_AMU_LEVITATION;
+						break;
+					case 10: case 11: case 21:
+						o_ptr->name2 = EGO_AMU_AC;
+						break;
+					case 12:
+						if (k_ptr->flags2 & TR2_RES_FIRE) break;
+						if (m_bonus(10, level) > 8)
+							o_ptr->name2 = EGO_AMU_RES_FIRE_;
+						else
+							o_ptr->name2 = EGO_AMU_RES_FIRE;
+						break;
+					case 13:
+						if (k_ptr->flags2 & TR2_RES_COLD) break;
+						if (m_bonus(10, level) > 8)
+							o_ptr->name2 = EGO_AMU_RES_COLD_;
+						else
+							o_ptr->name2 = EGO_AMU_RES_COLD;
+						break;
+					case 14:
+						if (k_ptr->flags2 & TR2_RES_ELEC) break;
+						if (m_bonus(10, level) > 8)
+							o_ptr->name2 = EGO_AMU_RES_ELEC_;
+						else
+							o_ptr->name2 = EGO_AMU_RES_ELEC;
+						break;
+					case 15:
+						if (k_ptr->flags2 & TR2_RES_ACID) break;
+						if (m_bonus(10, level) > 8)
+							o_ptr->name2 = EGO_AMU_RES_ACID_;
+						else
+							o_ptr->name2 = EGO_AMU_RES_ACID;
+						break;
+					case 16: case 17: case 18: case 19: case 20:
+						switch (o_ptr->sval)
+						{
+						case SV_AMULET_TELEPORT:
+							if (m_bonus(10, level) > 9) o_ptr->name2 = EGO_AMU_D_DOOR;
+							else if (one_in_(2)) o_ptr->name2 = EGO_AMU_JUMP;
+							else o_ptr->name2 = EGO_AMU_TELEPORT;
+							break;
+						case SV_AMULET_RESIST_ACID:
+							if ((m_bonus(10, level) > 6) && one_in_(2)) o_ptr->name2 = EGO_AMU_RES_ACID_;
+							break;
+						case SV_AMULET_SEARCHING:
+							o_ptr->name2 = EGO_AMU_STEALTH;
+							break;
+						case SV_AMULET_BRILLIANCE:
+							if (!one_in_(3)) break;
+							o_ptr->name2 = EGO_AMU_IDENT;
+							break;
+						case SV_AMULET_CHARISMA:
+							if (!one_in_(3)) break;
+							o_ptr->name2 = EGO_AMU_CHARM;
+							break;
+						case SV_AMULET_THE_MAGI:
+							if (one_in_(2)) break;
+							o_ptr->name2 = EGO_AMU_GREAT;
+							break;
+						case SV_AMULET_RESISTANCE:
+							if (!one_in_(5)) break;
+							o_ptr->name2 = EGO_AMU_DEFENDER;
+							break;
+						case SV_AMULET_TELEPATHY:
+							if (!one_in_(3)) break;
+							o_ptr->name2 = EGO_AMU_DETECTION;
+							break;
+						}
+					}
+				}
+				/* Uncurse it */
+				o_ptr->ident &= ~(IDENT_CURSED);
 
+				if (o_ptr->art_flags3 & TR3_CURSED)
+					o_ptr->art_flags3 &= ~(TR3_CURSED);
+
+				if (o_ptr->art_flags3 & TR3_HEAVY_CURSE)
+					o_ptr->art_flags3 &= ~(TR3_HEAVY_CURSE);
+			}
+			else if ((power == -2) && one_in_(2))
+			{
+				if (o_ptr->to_h > 0) o_ptr->to_h = 0-o_ptr->to_h;
+				if (o_ptr->to_d > 0) o_ptr->to_d = 0-o_ptr->to_d;
+				if (o_ptr->to_a > 0) o_ptr->to_a = 0-o_ptr->to_a;
+				if (o_ptr->pval > 0) o_ptr->pval = 0-o_ptr->pval;
+				o_ptr->art_flags1 = 0;
+				o_ptr->art_flags2 = 0;
+				while(!o_ptr->name2)
+				{
+					object_kind *k_ptr = &k_info[o_ptr->k_idx];
+					switch(randint(5))
+					{
+					case 1:
+						if (k_ptr->flags3 & TR3_DRAIN_EXP) break;
+						o_ptr->name2 = EGO_AMU_DRAIN_EXP;
+						break;
+					case 2:
+						o_ptr->name2 = EGO_AMU_FOOL;
+						break;
+					case 3:
+						if (k_ptr->flags3 & TR3_AGGRAVATE) break;
+						o_ptr->name2 = EGO_AMU_AGGRAVATE;
+						break;
+					case 4:
+						if (k_ptr->flags3 & TR3_TY_CURSE) break;
+						o_ptr->name2 = EGO_AMU_TY_CURSE;
+						break;
+					case 5:
+						o_ptr->name2 = EGO_AMU_NAIVETY;
+						break;
+					}
+				}
+				/* Broken */
+				o_ptr->ident |= (IDENT_BROKEN);
+
+				/* Cursed */
+				o_ptr->ident |= (IDENT_CURSED);
+			}
 			break;
 		}
 	}
+}
+
+
+/*
+ * Hack -- help pick an item type
+ */
+static bool item_monster_okay(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* No uniques */
+	if (r_ptr->flags1 & RF1_UNIQUE) return (FALSE);
+	if (r_ptr->flags7 & RF7_KAGE) return (FALSE);
+	if (r_ptr->flags3 & RF3_RES_ALL) return (FALSE);
+	if (r_ptr->flags7 & RF7_UNIQUE_7) return (FALSE);
+	if (r_ptr->flags1 & RF1_FORCE_DEPTH) return (FALSE);
+	if (r_ptr->flags7 & RF7_UNIQUE2) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
 }
 
 
@@ -3486,18 +4186,60 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
 	{
+		case TV_FLASK:
+		{
+			o_ptr->xtra4 = o_ptr->pval;
+			o_ptr->pval = 0;
+			break;
+		}
 		case TV_LITE:
 		{
 			/* Hack -- Torches -- random fuel */
 			if (o_ptr->sval == SV_LITE_TORCH)
 			{
-				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
+				if (o_ptr->pval > 0) o_ptr->xtra4 = randint(o_ptr->pval);
+				o_ptr->pval = 0;
 			}
 
 			/* Hack -- Lanterns -- random fuel */
 			if (o_ptr->sval == SV_LITE_LANTERN)
 			{
-				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
+				if (o_ptr->pval > 0) o_ptr->xtra4 = randint(o_ptr->pval);
+				o_ptr->pval = 0;
+			}
+
+			if ((power == 2) || ((power == 1) && one_in_(3)))
+			{
+				while (!o_ptr->name2)
+				{
+					switch(randint(13))
+					{
+					case 1: case 2: case 3: case 4:
+						o_ptr->name2 = EGO_LITE_SHINE;
+						break;
+					case 5:
+						o_ptr->name2 = EGO_LITE_ILLUMINATION;
+						break;
+					case 6:
+						o_ptr->name2 = EGO_LITE_AURA_FIRE;
+						break;
+					case 7: case 8:
+						o_ptr->name2 = EGO_LITE_INFRA;
+						break;
+					case 9: case 10: case 11: case 12:
+						if (o_ptr->sval == SV_LITE_FEANOR) break;
+						o_ptr->name2 = EGO_LITE_LONG;
+						break;
+					case 13:
+						o_ptr->name2 = EGO_LITE_EYE;
+						break;
+					}
+				}
+			}
+			else if (power == -2)
+			{
+				o_ptr->name2 = EGO_LITE_DARKNESS;
+				o_ptr->xtra4 = 0;
 			}
 
 			break;
@@ -3520,6 +4262,14 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			break;
 		}
 
+		case TV_CAPTURE:
+		{
+			o_ptr->pval = 0;
+			object_aware(o_ptr);
+			object_known(o_ptr);
+			break;
+		}
+
 		case TV_FIGURINE:
 		{
 			int i = 1;
@@ -3532,15 +4282,15 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			{
 				i = randint(max_r_idx - 1);
 
+				if (!item_monster_okay(i)) continue;
+				if (i == MON_TSUCHINOKO) continue;
+
 				r_ptr = &r_info[i];
 
 				check = (dun_level < r_ptr->level) ? (r_ptr->level - dun_level) : 0;
 
 				/* Ignore dead monsters */
 				if (!r_ptr->rarity) continue;
-
-				/* No uniques */
-				if (r_ptr->flags1 & RF1_UNIQUE) continue;
 
 				/* Prefer less out-of-depth monsters */
 				if (rand_int(check)) continue;
@@ -3555,7 +4305,12 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 			if (cheat_peek)
 			{
+#ifdef JP
+msg_format("%sの人形, 深さ +%d%s",
+#else
 				msg_format("Figurine of %s, depth +%d%s",
+#endif
+
 							  r_name + r_ptr->name, check - 1,
 							  !(o_ptr->ident & IDENT_CURSED) ? "" : " {cursed}");
 			}
@@ -3581,10 +4336,13 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 				match = RF9_DROP_CORPSE;
 			}
 
+			/* Hack -- Remove the monster restriction */
+			get_mon_num_prep(item_monster_okay, NULL);
+
 			/* Pick a random non-unique monster race */
 			while (1)
 			{
-				i = randint(max_r_idx - 1);
+				i = get_mon_num(dun_level);
 
 				r_ptr = &r_info[i];
 
@@ -3596,9 +4354,6 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 				/* Ignore corpseless monsters */
 				if (!(r_ptr->flags9 & match)) continue;
 
-				/* No uniques */
-				if (r_ptr->flags1 & RF1_UNIQUE) continue;
-
 				/* Prefer less out-of-depth monsters */
 				if (rand_int(check)) continue;
 
@@ -3609,10 +4364,17 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 			if (cheat_peek)
 			{
+#ifdef JP
+msg_format("%sの死体,深さ +%d",
+#else
 				msg_format("Corpse of %s, depth +%d",
+#endif
+
 							  r_name + r_ptr->name, check - 1);
 			}
 
+			object_aware(o_ptr);
+			object_known(o_ptr);
 			break;
 		}
 
@@ -3639,8 +4401,15 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 			if (cheat_peek)
 			{
+#ifdef JP
+msg_format("%sの像,", r_name + r_ptr->name);
+#else
 				msg_format("Statue of %s", r_name + r_ptr->name);
+#endif
+
 			}
+			object_aware(o_ptr);
+			object_known(o_ptr);
 
 			break;
 		}
@@ -3654,6 +4423,9 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 			/* Hack -- pick a "difficulty" */
 			o_ptr->pval = randint(obj_level);
+			if (o_ptr->sval == SV_CHEST_KANDUME) o_ptr->pval = 6;
+
+			o_ptr->xtra3 = dun_level + 5;
 
 			/* Never exceed "difficulty" of 55 to 59 */
 			if (o_ptr->pval > 55) o_ptr->pval = 55 + (byte)rand_int(5);
@@ -3695,27 +4467,39 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  * "good" and "great" arguments are false.  As a total hack, if "great" is
  * true, then the item gets 3 extra "attempts" to become an artifact.
  */
-void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
+void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, bool curse)
 {
 
 	int i, rolls, f1, f2, power;
 
+	if (p_ptr->pseikaku == SEIKAKU_MUNCHKIN) lev += rand_int(p_ptr->lev/2+10);
+
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
-
 
 	/* Base chance of being "good" */
 	f1 = lev + 10;
 
 	/* Maximal chance of being "good" */
-	if (f1 > 75) f1 = 75;
+	if (f1 > d_info[dungeon_type].obj_good) f1 = d_info[dungeon_type].obj_good;
 
 	/* Base chance of being "great" */
 	f2 = f1 / 2;
 
 	/* Maximal chance of being "great" */
-	if (f2 > 20) f2 = 20;
+	if ((p_ptr->pseikaku != SEIKAKU_MUNCHKIN) && (f2 > d_info[dungeon_type].obj_great))
+		f2 = d_info[dungeon_type].obj_great;
 
+	if (p_ptr->muta3 & MUT3_GOOD_LUCK)
+	{
+		f1 += 5;
+		f2 += 2;
+	}
+	else if(p_ptr->muta3 & MUT3_BAD_LUCK)
+	{
+		f1 -= 5;
+		f2 -= 2;
+	}
 
 	/* Assume normal */
 	power = 0;
@@ -3740,6 +4524,20 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (magik(f2)) power = -2;
 	}
 
+	/* Apply curse */
+	if (curse)
+	{
+		/* Assume 'cursed' */
+		if (power > 0)
+		{
+			power = 0 - power;
+		}
+		/* Everything else gets more badly cursed */
+		else
+		{
+			power--;
+		}
+	}
 
 	/* Assume no rolls */
 	rolls = 0;
@@ -3758,6 +4556,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	{
 		/* Roll for an artifact */
 		if (make_artifact(o_ptr)) break;
+		if ((p_ptr->muta3 & MUT3_GOOD_LUCK) && one_in_(77))
+		{
+			if (make_artifact(o_ptr)) break;
+		}
 	}
 
 
@@ -3791,6 +4593,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Mega-Hack -- increase the rating again */
 		if (a_ptr->cost > 50000L) rating += 10;
 
+		/* Mega-Hack -- increase the rating again */
+		if (a_ptr->cost > 100000L) rating += 10;
+
 		/* Set the good item flag */
 		good_item_flag = TRUE;
 
@@ -3807,14 +4612,24 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	{
 		case TV_DIGGING:
 		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
 		case TV_BOW:
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
 		{
 			if (power) a_m_aux_1(o_ptr, lev, power);
+			break;
+		}
+
+		case TV_POLEARM:
+		{
+			if (power && !(o_ptr->sval == SV_DEATH_SCYTHE)) a_m_aux_1(o_ptr, lev, power);
+			break;
+		}
+
+		case TV_SWORD:
+		{
+			if (power && !(o_ptr->sval == SV_DOKUBARI)) a_m_aux_1(o_ptr, lev, power);
 			break;
 		}
 
@@ -3832,6 +4647,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			if (power ||
 			     ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
 			     ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
+			     ((o_ptr->tval == TV_GLOVES) && (o_ptr->sval == SV_SET_OF_DRAGON_GLOVES)) ||
+			     ((o_ptr->tval == TV_BOOTS) && (o_ptr->sval == SV_PAIR_OF_DRAGON_GREAVE)) ||
 			     ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_ELVEN_CLOAK)))
 				a_m_aux_2(o_ptr, lev, power);
 #else
@@ -3855,7 +4672,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		}
 	}
 
-	if (o_ptr->art_name) rating += 40;
+	if ((o_ptr->tval == TV_SOFT_ARMOR) &&
+	    (o_ptr->sval == SV_ABUNAI_MIZUGI) &&
+	    (p_ptr->pseikaku == SEIKAKU_SEXY))
+	{
+		o_ptr->pval = 3;
+		o_ptr->art_flags1 |= (TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR);
+	}
+
+	if (o_ptr->art_name) rating += 30;
 
 	/* Hack -- analyze ego-items */
 	else if (o_ptr->name2)
@@ -3920,6 +4745,13 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 				o_ptr->xtra1 = EGO_XTRA_POWER;
 				break;
 			}
+
+			case EGO_DWARVEN:
+			{
+				o_ptr->weight = (2 * k_info[o_ptr->k_idx].weight / 3);
+				o_ptr->ac = k_info[o_ptr->k_idx].ac + 5;
+				break;
+			}
 		}
 
 		/* Randomize the "xtra" power */
@@ -3948,12 +4780,56 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		else
 		{
 			/* Hack -- obtain bonuses */
-			if (e_ptr->max_to_h) o_ptr->to_h += randint(e_ptr->max_to_h);
-			if (e_ptr->max_to_d) o_ptr->to_d += randint(e_ptr->max_to_d);
-			if (e_ptr->max_to_a) o_ptr->to_a += randint(e_ptr->max_to_a);
+			if (e_ptr->max_to_h)
+			{
+				if (e_ptr->max_to_h > 127)
+					o_ptr->to_h -= randint(256-e_ptr->max_to_h);
+				else o_ptr->to_h += randint(e_ptr->max_to_h);
+			}
+			if (e_ptr->max_to_d)
+			{
+				if (e_ptr->max_to_d > 127)
+					o_ptr->to_d -= randint(256-e_ptr->max_to_d);
+				else o_ptr->to_d += randint(e_ptr->max_to_d);
+			}
+			if (e_ptr->max_to_a)
+			{
+				if (e_ptr->max_to_a > 127)
+					o_ptr->to_a -= randint(256-e_ptr->max_to_a);
+				else o_ptr->to_a += randint(e_ptr->max_to_a);
+			}
 
 			/* Hack -- obtain pval */
-			if (e_ptr->max_pval) o_ptr->pval += randint(e_ptr->max_pval);
+			if (e_ptr->max_pval)
+			{
+				if ((o_ptr->name2 == EGO_HA) && (o_ptr->art_flags1 & TR1_BLOWS))
+				{
+					o_ptr->pval++;
+					if ((lev > 60) && one_in_(3) && ((o_ptr->dd*(o_ptr->ds+1)) < 15)) o_ptr->pval++;
+				}
+				else if (o_ptr->name2 == EGO_ATTACKS)
+				{
+					o_ptr->pval = randint(e_ptr->max_pval*lev/100+1);
+					if (o_ptr->pval > 3) o_ptr->pval = 3;
+					if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA))
+						o_ptr->pval += randint(2);
+				}
+				else if (o_ptr->name2 == EGO_BAT)
+				{
+					o_ptr->pval = randint(e_ptr->max_pval);
+					if (o_ptr->sval == SV_ELVEN_CLOAK) o_ptr->pval += randint(2);
+				}
+				else
+				{
+					o_ptr->pval += randint(e_ptr->max_pval);
+				}
+			}
+			if ((o_ptr->name2 == EGO_SPEED) && (lev < 50))
+			{
+				o_ptr->pval = randint(o_ptr->pval);
+			}
+			if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval == SV_HAYABUSA) && (o_ptr->pval > 2) && (o_ptr->name2 != EGO_ATTACKS))
+				o_ptr->pval = 2;
 		}
 
 		/* Hack -- apply rating bonus */
@@ -4031,6 +4907,10 @@ static bool kind_is_good(int k_idx)
 		case TV_CHAOS_BOOK:
 		case TV_DEATH_BOOK:
 		case TV_TRUMP_BOOK:
+		case TV_ENCHANT_BOOK:
+		case TV_DAEMON_BOOK:
+		case TV_MUSIC_BOOK:
+		case TV_HISSATSU_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -4040,6 +4920,7 @@ static bool kind_is_good(int k_idx)
 		case TV_RING:
 		{
 			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
+			if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4098,7 +4979,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		k_idx = get_obj_num(base);
 
 		/* Good objects */
-		if (good)
+		if (get_obj_num_hook)
 		{
 			/* Clear restriction */
 			get_obj_num_hook = NULL;
@@ -4115,7 +4996,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	}
 
 	/* Apply magic (allow artifacts) */
-	apply_magic(j_ptr, object_level, TRUE, good, great);
+	apply_magic(j_ptr, object_level, TRUE, good, great, FALSE);
 
 	/* Hack -- generate multiple spikes/missiles */
 	switch (j_ptr->tval)
@@ -4125,11 +5006,13 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		case TV_ARROW:
 		case TV_BOLT:
 		{
-			j_ptr->number = (byte)damroll(6, 7);
+			if (!j_ptr->name1)
+				j_ptr->number = (byte)damroll(6, 7);
 		}
 	}
 
 	obj_level = get_object_level(j_ptr);
+	if (artifact_p(j_ptr)) obj_level = a_info[j_ptr->name1].level;
 
 	/* Notice "okay" out-of-depth objects */
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
@@ -4369,13 +5252,13 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	int dy, dx;
 	int ty, tx;
 
-	s16b o_idx;
+	s16b o_idx = 0;
 
 	s16b this_o_idx, next_o_idx = 0;
 
 	cave_type *c_ptr;
 
-	char o_name[80];
+	char o_name[MAX_NLEN];
 
 	bool flag = FALSE;
 	bool done = FALSE;
@@ -4394,11 +5277,21 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!(j_ptr->art_name || artifact_p(j_ptr)) && (rand_int(100) < chance))
 	{
 		/* Message */
+#ifdef JP
+                msg_format("%sは消えた。", o_name);
+#else
 		msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
+#endif
+
 
 		/* Debug */
+#ifdef JP
+if (wizard) msg_print("(破損)");
+#else
 		if (wizard) msg_print("(breakage)");
+#endif
+
 
 		/* Failure */
 		return (0);
@@ -4447,8 +5340,12 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 			    (c_ptr->feat != FEAT_SHAL_WATER) &&
 			    (c_ptr->feat != FEAT_GRASS) &&
 			    (c_ptr->feat != FEAT_DIRT) &&
+			    (c_ptr->feat != FEAT_FLOWER) &&
+			    (c_ptr->feat != FEAT_DEEP_GRASS) &&
 			    (c_ptr->feat != FEAT_SHAL_LAVA) &&
 				(c_ptr->feat != FEAT_TREES)) continue;
+
+			if (c_ptr->info & CAVE_TRAP) continue;
 
 			/* No objects */
 			k = 0;
@@ -4473,9 +5370,6 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 
 			/* Add new object */
 			if (!comb) k++;
-
-			/* No stacking (allow combining) */
-			if (!testing_stack && (k > 1)) continue;
 
 			/* Paranoia */
 			if (k > 99) continue;
@@ -4509,11 +5403,21 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!flag && !(artifact_p(j_ptr) || j_ptr->art_name))
 	{
 		/* Message */
+#ifdef JP
+                msg_format("%sは消えた。", o_name);
+#else
 		msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
+#endif
+
 
 		/* Debug */
+#ifdef JP
+if (wizard) msg_print("(床スペースがない)");
+#else
 		if (wizard) msg_print("(no floor space)");
+#endif
+
 
 		/* Failure */
 		return (0);
@@ -4588,17 +5492,27 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	}
 
 	/* Get new object */
-	o_idx = o_pop();
+	if (!done) o_idx = o_pop();
 
 	/* Failure */
 	if (!done && !o_idx)
 	{
 		/* Message */
+#ifdef JP
+                msg_format("%sは消えた。", o_name);
+#else
 		msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
+#endif
+
 
 		/* Debug */
+#ifdef JP
+if (wizard) msg_print("(アイテムが多過ぎる)");
+#else
 		if (wizard) msg_print("(too many objects)");
+#endif
+
 
 		/* Hack -- Preserve artifacts */
 		if (j_ptr->name1)
@@ -4649,7 +5563,12 @@ s16b drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Message when an object falls under the player */
 	if (chance && (by == py) && (bx == px))
 	{
+#ifdef JP
+msg_print("何かが足下に転がってきた。");
+#else
 		msg_print("You feel something roll beneath your feet.");
+#endif
+
 	}
 
 	/* XXX XXX XXX */
@@ -4734,7 +5653,8 @@ void pick_trap(int y, int x)
 	cave_type *c_ptr = &cave[y][x];
 
 	/* Paranoia */
-	if (c_ptr->feat != FEAT_INVIS) return;
+	if (!(c_ptr->info & CAVE_TRAP)) return;
+	c_ptr->info &= ~(CAVE_TRAP);
 
 	/* Pick a trap */
 	while (1)
@@ -4749,7 +5669,9 @@ void pick_trap(int y, int x)
 		if (p_ptr->inside_arena || quest_number(dun_level)) continue;
 
 		/* Hack -- no trap doors on the deepest level */
-		if (dun_level >= MAX_DEPTH-1) continue;
+		if (dun_level >= d_info[dungeon_type].maxdepth) continue;
+
+		break;
 	}
 
 	/* Activate the trap */
@@ -4775,7 +5697,7 @@ void place_trap(int y, int x)
 	if (!cave_naked_bold(y, x)) return;
 
 	/* Place an invisible trap */
-	cave_set_feat(y, x, FEAT_INVIS);
+	cave[y][x].info |= CAVE_TRAP;
 }
 
 
@@ -4792,6 +5714,16 @@ void inven_item_charges(int item)
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
+#ifdef JP
+        if (o_ptr->pval <= 0)
+        {
+                msg_print("もう魔力が残っていない。");
+        }
+        else
+        {
+                msg_format("あと %d 回分の魔力が残っている。", o_ptr->pval);
+        }
+#else
 	/* Multiple charges */
 	if (o_ptr->pval != 1)
 	{
@@ -4805,6 +5737,8 @@ void inven_item_charges(int item)
 		/* Print a message */
 		msg_format("You have %d charge remaining.", o_ptr->pval);
 	}
+#endif
+
 }
 
 
@@ -4814,13 +5748,28 @@ void inven_item_charges(int item)
 void inven_item_describe(int item)
 {
 	object_type *o_ptr = &inventory[item];
-	char        o_name[80];
+	char        o_name[MAX_NLEN];
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Print a message */
+#ifdef JP
+        /* "no more" の場合はこちらで表示する */
+        if (o_ptr->number <= 0)
+        {
+                /*FIRST*//*ここはもう通らないかも*/
+                msg_format("もう%sを持っていない。", o_name);
+        }
+        else
+        {
+                /* アイテム名を英日切り替え機能対応 */
+                msg_format("まだ %sを持っている。", o_name);
+        }
+#else
 	msg_format("You have %s.", o_name);
+#endif
+
 }
 
 
@@ -4879,7 +5828,7 @@ void inven_item_optimize(int item)
 	if (o_ptr->number) return;
 
 	/* The item is in the pack */
-	if (item < INVEN_WIELD)
+	if (item < INVEN_RARM)
 	{
 		int i;
 
@@ -4948,6 +5897,16 @@ void floor_item_charges(int item)
 	/* Require known item */
 	if (!object_known_p(o_ptr)) return;
 
+#ifdef JP
+        if (o_ptr->pval <= 0)
+        {
+                msg_print("この床上のアイテムは、もう魔力が残っていない。");
+        }
+        else
+        {
+                msg_format("この床上のアイテムは、あと %d 回分の魔力が残っている。", o_ptr->pval);
+        }
+#else
 	/* Multiple charges */
 	if (o_ptr->pval != 1)
 	{
@@ -4961,6 +5920,8 @@ void floor_item_charges(int item)
 		/* Print a message */
 		msg_format("There is %d charge remaining.", o_ptr->pval);
 	}
+#endif
+
 }
 
 
@@ -4970,13 +5931,26 @@ void floor_item_charges(int item)
 void floor_item_describe(int item)
 {
 	object_type *o_ptr = &o_list[item];
-	char        o_name[80];
+	char        o_name[MAX_NLEN];
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Print a message */
+#ifdef JP
+        /* "no more" の場合はこちらで表示を分ける */
+        if (o_ptr->number <= 0)
+        {
+                msg_format("床上には、もう%sはない。", o_name);
+        }
+        else
+        {
+                msg_format("床上には、まだ %sがある。", o_name);
+        }
+#else
 	msg_format("You see %s.", o_name);
+#endif
+
 }
 
 
@@ -5258,7 +6232,7 @@ s16b inven_takeoff(int item, int amt)
 
 	cptr act;
 
-	char o_name[80];
+	char o_name[MAX_NLEN];
 
 
 	/* Get the item to take off */
@@ -5283,27 +6257,47 @@ s16b inven_takeoff(int item, int amt)
 	object_desc(o_name, q_ptr, TRUE, 3);
 
 	/* Took off weapon */
-	if (item == INVEN_WIELD)
+	if (item == INVEN_RARM)
 	{
+#ifdef JP
+act = "を装備からはずした";
+#else
 		act = "You were wielding";
+#endif
+
 	}
 
 	/* Took off bow */
 	else if (item == INVEN_BOW)
 	{
+#ifdef JP
+act = "を装備からはずした";
+#else
 		act = "You were holding";
+#endif
+
 	}
 
 	/* Took off light */
 	else if (item == INVEN_LITE)
 	{
+#ifdef JP
+act = "を光源からはずした";
+#else
 		act = "You were holding";
+#endif
+
 	}
 
 	/* Took off something */
 	else
 	{
+#ifdef JP
+act = "を装備からはずした";
+#else
 		act = "You were wearing";
+#endif
+
 	}
 
 	/* Modify, Optimize */
@@ -5314,7 +6308,12 @@ s16b inven_takeoff(int item, int amt)
 	slot = inven_carry(q_ptr);
 
 	/* Message */
+#ifdef JP
+        msg_format("%s(%c)%s。", o_name, index_to_label(slot), act);
+#else
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+#endif
+
 
 	/* Return slot */
 	return (slot);
@@ -5333,7 +6332,7 @@ void inven_drop(int item, int amt)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[MAX_NLEN];
 
 
 	/* Access original object */
@@ -5347,7 +6346,7 @@ void inven_drop(int item, int amt)
 
 
 	/* Take off equipment */
-	if (item >= INVEN_WIELD)
+	if (item >= INVEN_RARM)
 	{
 		/* Take off first */
 		item = inven_takeoff(item, amt);
@@ -5373,7 +6372,12 @@ void inven_drop(int item, int amt)
 	object_desc(o_name, q_ptr, TRUE, 3);
 
 	/* Message */
+#ifdef JP
+msg_format("%s(%c)を落とした。", o_name, index_to_label(item));
+#else
 	msg_format("You drop %s (%c).", o_name, index_to_label(item));
+#endif
+
 
 	/* Drop it near the player */
 	(void)drop_near(q_ptr, 0, py, px);
@@ -5452,7 +6456,12 @@ void combine_pack(void)
 	}
 
 	/* Message */
+#ifdef JP
+if (flag) msg_print("ザックの中のアイテムをまとめ直した。");
+#else
 	if (flag) msg_print("You combine some items in your pack.");
+#endif
+
 }
 
 
@@ -5569,7 +6578,12 @@ void reorder_pack(void)
 	}
 
 	/* Message */
+#ifdef JP
+if (flag) msg_print("ザックの中のアイテムを並べ直した。");
+#else
 	if (flag) msg_print("You reorder some items in your pack.");
+#endif
+
 }
 
 
@@ -5585,7 +6599,7 @@ void display_koff(int k_idx)
 	object_type forge;
 	object_type *q_ptr;
 
-	char o_name[80];
+	char o_name[MAX_NLEN];
 
 
 	/* Erase the window */
@@ -5638,7 +6652,1715 @@ void display_koff(int k_idx)
 		}
 
 		/* Print spells */
-		print_spells(spells, num, 2, 0,
+		print_spells(0, spells, num, 2, 0,
 		    (q_ptr->tval == REALM1_BOOK ? p_ptr->realm1 - 1 : p_ptr->realm2 - 1));
+	}
+}
+
+/* Examine the grid (xx,yy) and warn the player if there are any danger */
+bool process_frakir(int xx, int yy){
+  int mx,my;
+  cave_type *c_ptr;
+
+#define FRAKIR_AWARE_RANGE 12
+  int dam_max=0;
+  static int old_damage = 0;
+  
+  for (mx=xx-FRAKIR_AWARE_RANGE;mx<xx+FRAKIR_AWARE_RANGE+1;mx++){
+    for (my=yy-FRAKIR_AWARE_RANGE;my<yy+FRAKIR_AWARE_RANGE+1;my++){
+      if (!in_bounds(my,mx) || (distance(my,mx,yy,xx)>FRAKIR_AWARE_RANGE))continue;
+      
+      c_ptr = &cave[my][mx];
+      if (c_ptr->m_idx > 0){
+	
+	int dam_max0=0;
+	int m_idx = c_ptr->m_idx;
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	u32b  f4 = r_ptr->flags4;
+	u32b  f5 = r_ptr->flags5;
+	u32b  f6 = r_ptr->flags6;
+
+	int   rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+
+	if (m_ptr->csleep) continue;
+	if (is_pet(m_ptr)) continue;
+
+	/* Monster spells (only powerful ones)*/
+	if(projectable(my,mx,yy,xx)){
+
+#define DAMCALC(f,val,max,im,vln,res,resx,resy,op,opx,opy,dmax) \
+	   if (f){ int dam = (val)>(max)? (max):(val); \
+           if (im) dam=0; \
+           if (vln) dam *= 2; \
+           if (res) {dam = (dam * resx) / resy;} \
+           if (op) {dam = (dam * opx) / opy;} \
+           if (dam>dmax) dmax = dam; \
+           }
+
+           DAMCALC(f4 & (RF4_BR_FIRE), m_ptr->hp / 3, 1600, 
+                   p_ptr->immune_fire, p_ptr->muta3 & MUT3_VULN_ELEM,
+                   p_ptr->resist_fire, 1, 3,
+                   p_ptr->oppose_fire, 1, 3, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_COLD), m_ptr->hp / 3, 1600, 
+                   p_ptr->immune_cold, p_ptr->muta3 & MUT3_VULN_ELEM,
+                   p_ptr->resist_cold, 1, 3,
+                   p_ptr->oppose_cold, 1, 3, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_ELEC), m_ptr->hp / 3, 1600, 
+                   p_ptr->immune_elec, p_ptr->muta3 & MUT3_VULN_ELEM,
+                   p_ptr->resist_elec, 1, 3,
+                   p_ptr->oppose_elec, 1, 3, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_ACID), m_ptr->hp / 3, 1600, 
+                   p_ptr->immune_acid, p_ptr->muta3 & MUT3_VULN_ELEM,
+                   p_ptr->resist_acid, 1, 3,
+                   p_ptr->oppose_acid, 1, 3, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_POIS), m_ptr->hp / 3, 800,
+                   FALSE , FALSE,
+                   p_ptr->resist_pois, 1, 3,
+                   p_ptr->oppose_pois, 1, 3, dam_max0);
+
+
+           DAMCALC(f4 & (RF4_BR_NETH), m_ptr->hp / 6, 550, FALSE , FALSE,
+                   p_ptr->resist_neth, 6, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_LITE), m_ptr->hp / 6, 400, FALSE , FALSE,
+                   p_ptr->resist_lite, 4, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_DARK), m_ptr->hp / 6, 400, FALSE , FALSE,
+                   p_ptr->resist_dark, 4, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_CONF), m_ptr->hp / 6, 450, FALSE , FALSE,
+                   p_ptr->resist_conf, 5, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_SOUN), m_ptr->hp / 6, 450, FALSE , FALSE,
+                   p_ptr->resist_sound, 5, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_CHAO), m_ptr->hp / 6, 600, FALSE , FALSE,
+                   p_ptr->resist_chaos, 6, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_DISE), m_ptr->hp / 6, 500, FALSE , FALSE,
+                   p_ptr->resist_disen, 6, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_NEXU), m_ptr->hp / 3, 250, FALSE , FALSE,
+                   p_ptr->resist_nexus, 6, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_TIME), m_ptr->hp / 3, 150, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_INER), m_ptr->hp / 6, 200, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_GRAV), m_ptr->hp / 3, 200, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_SHAR), m_ptr->hp / 6, 500, FALSE , FALSE,
+                   p_ptr->resist_shard, 6, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_PLAS), m_ptr->hp / 6, 150, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_WALL), m_ptr->hp / 6, 200, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_MANA), m_ptr->hp / 3, 250, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_NUKE), m_ptr->hp / 3, 800, FALSE , FALSE,
+                   p_ptr->resist_pois, 2, 5, 
+                   p_ptr->oppose_pois, 2, 5, dam_max0);
+
+           DAMCALC(f4 & (RF4_BR_DISI), m_ptr->hp / 3, 300, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+
+           DAMCALC(f4 & (RF4_ROCKET), m_ptr->hp / 4, 800, FALSE , FALSE,
+                   p_ptr->resist_shard, 1, 2, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f5 & (RF5_BA_MANA), rlev*4 + 150, 9999, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f5 & (RF5_BA_DARK), rlev*4 + 150, 9999, FALSE , FALSE,
+                   p_ptr->resist_dark, 4, 9, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f5 & (RF5_BA_LITE), rlev*4 + 150, 9999, FALSE , FALSE,
+                   p_ptr->resist_lite, 4, 9, FALSE, 1, 1, dam_max0);
+
+
+           DAMCALC(f4 & (RF4_ROCKET),m_ptr->hp / 4, 800, FALSE , FALSE,
+                   p_ptr->resist_shard, 1, 2, FALSE, 1, 1, dam_max0);
+
+           DAMCALC(f6 & (RF6_HAND_DOOM), p_ptr->chp*6/10, 9999, FALSE , FALSE,
+                   FALSE, 1, 1, FALSE, 1, 1, dam_max0);
+
+	}
+
+	/* Monster melee attacks */
+	if( mx <= xx+1 && mx >= xx-1 && my <=yy+1 && my >= yy-1 ){
+	  int m;
+	  int dam_melee=0;
+	  for (m = 0; m < 4; m++)
+	    {
+	      int d1, d2;
+	      
+	      /* Skip non-attacks */
+	      if (!r_ptr->blow[m].method) continue;
+	      
+	      /* Extract the attack info */
+	      d1 = r_ptr->blow[m].d_dice;
+	      d2 = r_ptr->blow[m].d_side;
+	      
+	      dam_melee += d1*d2;
+	    }
+        if(dam_melee>dam_max0)dam_max0=dam_melee;
+	}
+
+	/* Contribution from this monster */
+	dam_max+=dam_max0;
+      }
+      
+      
+    }
+  }
+
+  /* Prevent excessive warning */
+  if(dam_max>old_damage){
+    old_damage=dam_max * 3 / 2;
+    
+    if (dam_max>(p_ptr->chp)/2){
+#ifdef JP
+      msg_print("指輪が鋭く震えた！");
+#else
+      msg_print("The Ring pulsates sharply!");
+#endif
+      disturb(0,0);
+#ifdef JP
+      return(get_check("本当にこのまま進むか？"));
+#else
+      return(get_check("Realy want to go ahead? "));
+#endif
+    }
+  }
+  else old_damage = old_damage/2;
+
+  c_ptr = &cave[yy][xx];
+  if (((is_trap(c_ptr->feat) && !easy_disarm) || (c_ptr->info & CAVE_TRAP)) && randint(13)!=1){
+#ifdef JP
+    msg_print("指輪が震えた！");
+#else
+    msg_print("The Ring pulsates!");
+#endif
+    disturb(0,0);
+#ifdef JP
+      return(get_check("本当にこのまま進むか？"));
+#else
+      return(get_check("Realy want to go ahead? "));
+#endif
+  }
+  return(TRUE);
+}
+
+
+typedef struct essence_type essence_type;
+struct essence_type
+{
+	cptr drain_name;
+	cptr add_name;
+	int link;
+	int type;
+	int value;
+};
+
+#ifdef JP
+static essence_type essence_info[MAX_ESSENCE] = {
+{"腕力","腕力", 1, 4, 20},
+{"知能","知能", 2, 4, 20},
+{"賢さ","賢さ", 3, 4, 20},
+{"器用さ","器用さ", 4, 4, 20},
+{"耐久力","耐久力", 5, 4, 20},
+{"魅力","魅力", 6, 4, 20},
+{"魔力支配","魔力支配", 7, 4, 20},
+{"","", 0, 0, 0},
+{"隠密","隠密", 9, 4, 40},
+{"探索","探索", 10, 4, 15},
+{"赤外線視力","赤外線視力", 11, 4, 15},
+{"採掘","採掘", 12, 4, 15},
+{"スピード","スピード", 13, 4, 12},
+{"追加攻撃","追加攻撃", 14, 1, 20},
+{"カオス攻撃","カオス攻撃", 15, 1, 15},
+{"吸血攻撃","吸血攻撃", 16, 1, 60},
+{"動物倍打","動物倍打", 17, 1, 20},
+{"邪悪倍打","邪悪倍打", 18, 1, 100},
+{"不死倍打","不死倍打", 19, 1, 20},
+{"悪魔倍打","悪魔倍打", 20, 1, 20},
+{"オーク倍打","オーク倍打", 21, 1, 15},
+{"トロル倍打","トロル倍打", 22, 1, 15},
+{"巨人倍打","巨人倍打", 23, 1, 20},
+{"竜倍打","竜倍打", 24, 1, 20},
+{"","竜倍倍打", 24, 1, 60},
+{"","", 0, 0, 0},
+{"地震","地震発動", 27, 5, 15},
+{"毒殺","毒殺", 28, 1, 20},
+{"溶解","溶解", 29, 1, 20},
+{"電撃","電撃", 30, 1, 20},
+{"焼棄","焼棄", 31, 1, 20},
+{"凍結","凍結", 32, 1, 20},
+{"能力維持","腕力維持", 33, 3, 15},
+{"","知能維持", 33, 3, 15},
+{"","賢さ維持", 33, 3, 15},
+{"","器用さ維持", 33, 3, 15},
+{"","耐久力維持", 33, 3, 15},
+{"","魅力維持", 33, 3, 15},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"免疫","酸免疫", 41, 2, 20},
+{"","電撃免疫", 41, 2, 20},
+{"","火炎免疫", 41, 2, 20},
+{"","冷気免疫", 41, 2, 20},
+{"","", 0, 0, 0},
+{"反射","反射", 46, 2, 20},
+{"麻痺知らず","麻痺知らず", 47, 3, 20},
+{"生命力維持","生命力維持", 48, 3, 20},
+{"耐酸","耐酸", 49, 2, 15},
+{"耐電撃","耐電撃", 50, 2, 15},
+{"耐火炎","耐火炎", 51, 2, 15},
+{"耐冷気","耐冷気", 52, 2, 15},
+{"耐毒","耐毒", 53, 2, 25},
+{"耐恐怖","耐恐怖", 54, 2, 20},
+{"耐閃光","耐閃光", 55, 2, 20},
+{"耐暗黒","耐暗黒", 56, 2, 20},
+{"耐盲目","耐盲目", 57, 2, 20},
+{"耐混乱","耐混乱", 58, 2, 20},
+{"耐轟音","耐轟音", 59, 2, 20},
+{"耐破片","耐破片", 60, 2, 20},
+{"耐地獄","耐地獄", 61, 2, 20},
+{"耐因果混乱","耐因果混乱", 62, 2, 20},
+{"耐カオス","耐カオス", 63, 2, 20},
+{"耐劣化","耐劣化", 64, 2, 20},
+{"","", -1, 0, 0},
+{"","", -1, 0, 0},
+{"","", 0, 0, 0},
+{"","", -1, 0, 0},
+{"","", 0, 0, 0},
+{"反魔法","反魔法", 70, 3, 15},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"浮遊","浮遊", 77, 3, 20},
+{"永久光源","永久光源", 78, 3, 15},
+{"可視透明","可視透明", 79, 3, 20},
+{"テレパシー","テレパシー", 80, 3, 15},
+{"遅消化","遅消化", 81, 3, 15},
+{"急速回復","急速回復", 82, 3, 20},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"テレポート","テレポート", 91, 3, 25},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"攻撃","攻撃", 97, 6, 30},
+{"防御","防御", 98, 6, 15},
+{"","酸耐性発動", 49, 5, 50},
+{"","電撃耐性発動", 50, 5, 50},
+{"","火炎耐性発動", 51, 5, 50},
+{"","冷気耐性発動", 52, 5, 50},
+{"","火炎オーラ", 0, 5, 30},
+{"","電撃オーラ", 0, 5, 30},
+{"","冷気オーラ", 0, 5, 30},
+{"","全耐性", 0, 2, 150},
+{"","装備保持", 0, 6, 10},
+{"","殺戮の小手", 97, 1, 200},
+};
+#else
+static essence_type essence_info[MAX_ESSENCE] = {
+{"strength","strength", 1, 4, 20},
+{"intelligen.","intelligence", 2, 4, 20},
+{"wisdom","wisdom", 3, 4, 20},
+{"dexterity","dexterity", 4, 4, 20},
+{"constitut.","constitution", 5, 4, 20},
+{"charisma","charisma", 6, 4, 20},
+{"magic mast.","magic mastery", 7, 4, 20},
+{"","", 0, 0, 0},
+{"stealth","stealth", 9, 4, 40},
+{"serching","serching", 10, 4, 15},
+{"inflavision","inflavision", 11, 4, 15},
+{"digging","digging", 12, 4, 15},
+{"speed","speed", 13, 4, 12},
+{"extra atk","extra attack", 14, 1, 20},
+{"chaos brand","chaos brand", 15, 1, 15},
+{"vampiric","vampiric brand", 16, 1, 60},
+{"slay animal","slay animal", 17, 1, 20},
+{"slay evil","slay evil", 18, 1, 100},
+{"slay undead","slay undead", 19, 1, 20},
+{"slay demon","slay demon", 20, 1, 20},
+{"slay orc","slay orc", 21, 1, 15},
+{"slay troll","slay troll", 22, 1, 15},
+{"slay giant","slay giant", 23, 1, 20},
+{"slay dragon","slay dragon", 24, 1, 20},
+{"","kill dragon", 24, 1, 60},
+{"","", 0, 0, 0},
+{"quake","quake activation", 27, 5, 15},
+{"pois. brand","poison brand", 28, 1, 20},
+{"acid brand","acid brand", 29, 1, 20},
+{"elec. brand","electric brand", 30, 1, 20},
+{"fire brand","fire brand", 31, 1, 20},
+{"cold brand","cold brand", 32, 1, 20},
+{"sustain","sustain strength", 33, 3, 15},
+{"","sustain intelligence", 33, 3, 15},
+{"","sustain wisdom", 33, 3, 15},
+{"","sustain dexterity", 33, 3, 15},
+{"","sustain constitution", 33, 3, 15},
+{"","sustain charisma", 33, 3, 15},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"immunity","acid immunity", 41, 2, 20},
+{"","electric immunity", 41, 2, 20},
+{"","fire immunity", 41, 2, 20},
+{"","cold immunity", 41, 2, 20},
+{"","", 0, 0, 0},
+{"reflection","reflection", 46, 2, 20},
+{"free action","free action", 47, 3, 20},
+{"hold life","hold life", 48, 3, 20},
+{"res. acid","resistance to acid", 49, 2, 15},
+{"res. elec.","resistance to electric", 50, 2, 15},
+{"res. fire","resistance to fire", 51, 2, 15},
+{"res. cold","resistance to cold", 52, 2, 15},
+{"res. poison","resistance to poison", 53, 2, 25},
+{"res. fear","resistance to fear", 54, 2, 20},
+{"res. light","resistance to light", 55, 2, 20},
+{"res. dark","resistance to dark", 56, 2, 20},
+{"res. blind","resistance to blind", 57, 2, 20},
+{"res.confuse","resistance to confusion", 58, 2, 20},
+{"res. sound","resistance to sound", 59, 2, 20},
+{"res. shard","resistance to shard", 60, 2, 20},
+{"res. nether","resistance to nether", 61, 2, 20},
+{"res. nexus","resistance to nexus", 62, 2, 20},
+{"res. chaos","resistance to chaos", 63, 2, 20},
+{"res. disen.","resistance to disenchantment", 64, 2, 20},
+{"","", -1, 0, 0},
+{"","", -1, 0, 0},
+{"","", 0, 0, 0},
+{"","", -1, 0, 0},
+{"","", 0, 0, 0},
+{"anti magic","anti magic", 70, 3, 15},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"levitation","levitation", 77, 3, 20},
+{"perm. light","permanent light", 78, 3, 15},
+{"see invis.","see invisible", 79, 3, 20},
+{"telepathy","telepathy", 80, 3, 15},
+{"slow dige.","slow digestion", 81, 3, 15},
+{"regen.","regeneration", 82, 3, 20},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"teleport","teleport", 91, 3, 25},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"","", 0, 0, 0},
+{"weapon enc.","weapon enchant", 97, 6, 30},
+{"armor enc.","armor enchant", 98, 6, 15},
+{"","resist acid activation", 49, 5, 50},
+{"","resist electricity activation", 50, 5, 50},
+{"","resist fire activation", 51, 5, 50},
+{"","resist cold activation", 52, 5, 50},
+{"","fiery sheath", 0, 5, 30},
+{"","electric sheath", 0, 5, 30},
+{"","coldly sheath", 0, 5, 30},
+{"","resistance", 0, 2, 150},
+{"","elements proof", 0, 6, 10},
+{"","gauntlets of slay", 97, 1, 200},
+};
+#endif
+
+bool item_tester_hook_melee_ammo(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			return (TRUE);
+		}
+		case TV_SWORD:
+		{
+			if (o_ptr->sval != SV_DOKUBARI) return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+static void display_essence(void)
+{
+	int i, num = 0;
+
+	screen_save();
+	for (i = 1; i < 22; i++)
+	{
+		prt("",i,0);
+	}
+#ifdef JP
+	prt("エッセンス   個数     エッセンス   個数     エッセンス   個数", 1, 8);
+#else
+	prt("Essence      Num      Essence      Num      Essence      Num ", 1, 8);
+#endif
+	for (i = 0; i < MAX_ESSENCE; i++)
+	{
+		if (!essence_info[i].drain_name[0]) continue;
+		prt(format("%-11s %5d", essence_info[i].drain_name, p_ptr->magic_num1[i]), 2+num%20, 8+num/20*22);
+		num++;
+	}
+#ifdef JP
+	prt("現在所持しているエッセンス", 0, 0);
+#else
+	prt("List of all essences you have.", 0, 0);
+#endif
+	(void)inkey();
+	screen_load();
+	return;
+}
+
+static void drain_essence(void)
+{
+	int drain_value[MAX_ESSENCE];
+	int i, item;
+	int dec = 4;
+	bool observe = FALSE;
+	int old_ds, old_dd, old_to_h, old_to_d, old_ac, old_to_a, old_pval, old_name2;
+	s32b old_f1, old_f2, old_f3, new_f1, new_f2, new_f3;
+	object_type *o_ptr;
+	cptr            q, s;
+	byte iy, ix, marked;
+	s16b next_o_idx, weight, number;
+
+	for (i = 0; i < MAX_ESSENCE; i++)
+		drain_value[i] = 0;
+
+	item_tester_hook = item_tester_hook_weapon_armour;
+	item_tester_no_ryoute = TRUE;
+
+	/* Get an item */
+#ifdef JP
+q = "どのアイテムから抽出しますか？";
+s = "抽出できるアイテムがありません。";
+#else
+	q = "Extract from which item? ";
+	s = "You have nothing you can extract from.";
+#endif
+
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	if (object_known_p(o_ptr) && (o_ptr->name1 || o_ptr->name2 || o_ptr->art_name || o_ptr->xtra3)) {
+		char o_name[MAX_NLEN];
+		object_desc(o_name, o_ptr, FALSE, 0);
+#ifdef JP
+		if (!get_check(format("本当に%sから抽出してよろしいですか？", o_name))) return;
+#else
+		if (!get_check(format("Really extract from %s? ", o_name))) return;
+#endif
+	}
+
+	energy_use = 100;
+
+	object_flags(o_ptr, &old_f1, &old_f2, &old_f3);
+	if (old_f1 & TR1_KILL_DRAGON) old_f1 |= TR1_SLAY_DRAGON;
+
+	old_to_a = o_ptr->to_a;
+	old_ac = o_ptr->ac;
+	old_to_h = o_ptr->to_h;
+	old_to_d = o_ptr->to_d;
+	old_ds = o_ptr->ds;
+	old_dd = o_ptr->dd;
+	old_pval = o_ptr->pval;
+	old_name2 = o_ptr->name2;
+	if (old_f3 & (TR3_CURSED | TR3_HEAVY_CURSE | TR3_PERMA_CURSE)) dec--;
+	if (old_f3 & (TR3_AGGRAVATE)) dec--;
+	if (old_f3 & (TR3_NO_TELE)) dec--;
+	if (old_f3 & (TR3_DRAIN_EXP)) dec--;
+	if (old_f3 & (TR3_TY_CURSE)) dec--;
+
+	iy = o_ptr->iy;
+	ix = o_ptr->ix;
+	next_o_idx = o_ptr->next_o_idx;
+	marked = o_ptr->marked;
+	weight = o_ptr->weight;
+	number = o_ptr->number;
+
+	object_prep(o_ptr, o_ptr->k_idx);
+
+	o_ptr->iy=iy;
+	o_ptr->ix=ix;
+	o_ptr->next_o_idx=next_o_idx;
+	o_ptr->marked=marked;
+	o_ptr->number = number;
+	if (item >= 0) p_ptr->total_weight += (o_ptr->weight*o_ptr->number - weight*number);
+	o_ptr->ident |= (IDENT_MENTAL);
+	object_aware(o_ptr);
+	object_known(o_ptr);
+
+	object_flags(o_ptr, &new_f1, &new_f2, &new_f3);
+
+	for (i = 0; i < 96; i++)
+	{
+		if (i < 32)
+		{
+			int pval = 0;
+
+			if (((1 << i) & TR1_PVAL_MASK) && old_pval) pval = ((new_f1 >> i) & 0x00000001) ? old_pval-o_ptr->pval : old_pval;
+			if ((!((new_f1 >> i) & 0x00000001) || pval) && ((old_f1 >> i) & 0x00000001) && essence_info[i].link)
+			{
+				drain_value[essence_info[i].link-1] += (10 * (pval ? pval : 1));
+			}
+		}
+		else if (i < 64)
+		{
+			if (!((new_f2 >> (i-32)) & 0x00000001) && ((old_f2 >> (i-32)) & 0x00000001) && essence_info[i].link)
+			{
+				drain_value[essence_info[i].link-1] += 10;
+			}
+		}
+		else
+		{
+			if (!((new_f3 >> (i-64)) & 0x00000001) && ((old_f3 >> (i-64)) & 0x00000001) && essence_info[i].link)
+			{
+				if (essence_info[i].link == -1)
+				{
+					if (i == ESSENCE__SH__FIRE-1)
+					{
+						drain_value[ESSENCE_B_FIRE-1] += 10;
+						drain_value[ESSENCE_RES_FIRE-1] += 10;
+					}
+					else if (i == ESSENCE__SH__ELEC-1)
+					{
+						drain_value[ESSENCE_B_ELEC-1] += 10;
+						drain_value[ESSENCE_RES_ELEC-1] += 10;
+					}
+					else if (i == ESSENCE__SH__COLD-1)
+					{
+						drain_value[ESSENCE_B_COLD-1] += 10;
+						drain_value[ESSENCE_RES_COLD-1] += 10;
+					}
+				}
+				else drain_value[essence_info[i].link-1] += 10;
+			}
+		}
+	}
+
+#if 0
+	if ((old_f1 & TR1_BLOWS) && (!(new_f1 & TR1_BLOWS) || (old_pval-o_ptr->pval)))
+	{
+		drain_value[ESSENCE_SPEED-1] += 5*((new_f1 & TR1_BLOWS) ? old_pval-o_ptr->pval : old_pval);
+	}
+#endif
+	if ((old_f1 & TR1_RIRYOKU) && !(new_f1 & TR1_RIRYOKU))
+	{
+		drain_value[ESSENCE_INT-1] += 5;
+		drain_value[ESSENCE_WIS-1] += 5;
+	}
+	if ((old_f1 & TR1_VORPAL) && !(new_f1 & TR1_VORPAL))
+	{
+		drain_value[ESSENCE_B_POIS-1] += 5;
+		drain_value[ESSENCE_B_ACID-1] += 5;
+		drain_value[ESSENCE_B_ELEC-1] += 5;
+		drain_value[ESSENCE_B_FIRE-1] += 5;
+		drain_value[ESSENCE_B_COLD-1] += 5;
+	}
+	if ((old_f3 & TR3_DEC_MANA) && !(new_f3 & TR3_DEC_MANA))
+	{
+		drain_value[ESSENCE_INT-1] += 10;
+	}
+	if ((old_f3 & TR3_XTRA_MIGHT) && !(new_f3 & TR3_XTRA_MIGHT))
+	{
+		drain_value[ESSENCE_STR-1] += 10;
+	}
+	if ((old_f3 & TR3_XTRA_SHOTS) && !(new_f3 & TR3_XTRA_SHOTS))
+	{
+		drain_value[ESSENCE_DEX-1] += 10;
+	}
+	if (old_name2 == EGO_2HAND)
+	{
+		drain_value[ESSENCE_DEX] += 20;
+	}
+	if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_SWORD) && (o_ptr->tval != TV_BOW))
+	{
+		if (old_ds > o_ptr->ds) drain_value[ESSENCE_ATTACK-1] += (old_ds-o_ptr->ds)*10;
+
+		if (old_dd > o_ptr->dd) drain_value[ESSENCE_ATTACK-1] += (old_dd-o_ptr->dd)*10;
+	}
+	if (old_to_h > o_ptr->to_h) drain_value[ESSENCE_ATTACK-1] += (old_to_h-o_ptr->to_h)*10;
+	if (old_to_d > o_ptr->to_d) drain_value[ESSENCE_ATTACK-1] += (old_to_d-o_ptr->to_d)*10;
+	if (old_ac > o_ptr->ac) drain_value[ESSENCE_AC-1] += (old_ac-o_ptr->ac)*10;
+	if (old_to_a > o_ptr->to_a) drain_value[ESSENCE_AC-1] += (old_to_a-o_ptr->to_a)*10;
+
+	for (i = 0; i < MAX_ESSENCE; i++)
+	{
+		drain_value[i] *= number;
+		drain_value[i] = drain_value[i] * dec / 4;
+		drain_value[i] = MAX(drain_value[i], 0);
+		if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_BOLT)) drain_value[i] /= 10;
+		if (drain_value[i])
+		{
+			observe = TRUE;
+		}
+	}
+	if (!observe)
+	{
+#ifdef JP
+		msg_print("エッセンスは抽出できませんでした。");
+#else
+		msg_print("You were not able to extract any essence.");
+#endif
+	}
+	else
+	{
+#ifdef JP
+		msg_print("抽出したエッセンス:");
+#else
+		msg_print("Extracted essences:");
+#endif
+		for (i = 0; i < MAX_ESSENCE; i++)
+		{
+			if (!drain_value[i]) continue;
+			p_ptr->magic_num1[i] += drain_value[i];
+			p_ptr->magic_num1[i] = MIN(20000, p_ptr->magic_num1[i]);
+			msg_print(NULL);
+			msg_format("%s...%d", essence_info[i].drain_name, drain_value[i]);
+		}
+	}
+
+	/* Combine the pack */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
+}
+
+
+
+static int choose_essence()
+{
+	int mode = 0;
+	char choice;
+	int menu_line = (use_menu ? 1 : 0);
+
+#ifdef ALLOW_REPEAT
+	if (repeat_pull(&mode) && 1 <= mode && mode <= 5)
+		return mode;
+	mode = 0;
+#endif /* ALLOW_REPEAT */
+
+	if (use_menu)
+	{
+		screen_save();
+
+		while(!mode)
+		{
+#ifdef JP
+			prt(format(" %s 武器属性", (menu_line == 1) ? "》" : "  "), 2, 14);
+			prt(format(" %s 耐性", (menu_line == 2) ? "》" : "  "), 3, 14);
+			prt(format(" %s 能力", (menu_line == 3) ? "》" : "  "), 4, 14);
+			prt(format(" %s 数値", (menu_line == 4) ? "》" : "  "), 5, 14);
+			prt(format(" %s その他", (menu_line == 5) ? "》" : "  "), 6, 14);
+			prt("どの種類のエッセンス付加を行いますか？", 0, 0);
+#else
+			prt(format(" %s Brand weapon", (menu_line == 1) ? "> " : "  "), 2, 14);
+			prt(format(" %s Resistance", (menu_line == 2) ? "> " : "  "), 3, 14);
+			prt(format(" %s Ability", (menu_line == 3) ? "> " : "  "), 4, 14);
+			prt(format(" %s Magic number", (menu_line == 4) ? "> " : "  "), 5, 14);
+			prt(format(" %s Others", (menu_line == 5) ? "> " : "  "), 6, 14);
+			prt("Choose from menu.", 0, 0);
+#endif
+			choice = inkey();
+			switch(choice)
+			{
+			case ESCAPE:
+			case 'z':
+			case 'Z':
+				screen_load();
+				return 0;
+			case '2':
+			case 'j':
+			case 'J':
+				menu_line++;
+				break;
+			case '8':
+			case 'k':
+			case 'K':
+				menu_line+= 4;
+				break;
+			case '\r':
+			case 'x':
+			case 'X':
+				mode = menu_line;
+				break;
+			}
+			if (menu_line > 5) menu_line -= 5;
+		}
+		screen_load();
+	}
+	else
+	{
+		screen_save();
+		while (!mode)
+		{
+#ifdef JP
+			prt("  a) 攻撃属性", 2, 14);
+			prt("  b) 耐性", 3, 14);
+			prt("  c) 能力", 4, 14);
+			prt("  d) 数値", 5, 14);
+			prt("  e) その他", 6, 14);
+			if (!get_com("何を付加しますか:", &choice, TRUE))
+#else
+			prt("  a) Brand weapon", 2, 14);
+			prt("  b) Resistance", 3, 14);
+			prt("  c) Ability", 4, 14);
+			prt("  d) Magic number", 5, 14);
+			prt("  e) Others", 6, 14);
+			if (!get_com("Command :", &choice, TRUE))
+#endif
+			{
+				screen_load();
+				return 0;
+			}
+
+			switch (choice)
+			{
+			case 'A':
+			case 'a':
+				mode = 1;
+				break;
+			case 'B':
+			case 'b':
+				mode = 2;
+				break;
+			case 'C':
+			case 'c':
+				mode = 3;
+				break;
+			case 'D':
+			case 'd':
+				mode = 4;
+				break;
+			case 'E':
+			case 'e':
+				mode = 5;
+				break;
+			}
+		}
+		screen_load();
+	}
+
+#ifdef ALLOW_REPEAT
+	repeat_push(mode);
+#endif /* ALLOW_REPEAT */
+	return mode;
+}
+
+static void add_essence(int mode)
+{
+	int item, max_num = 0;
+	int i;
+	bool flag,redraw;
+	char choice;
+	cptr            q, s;
+	object_type *o_ptr;
+	int ask = TRUE;
+	char out_val[160];
+	int num[22];
+	char o_name[MAX_NLEN];
+	int use_essence;
+
+	int menu_line = (use_menu ? 1 : 0);
+
+	for (i = 0; i < MAX_ESSENCE; i++)
+	{
+		if (essence_info[i].type != mode) continue;
+		num[max_num++] = i;
+	}
+
+#ifdef ALLOW_REPEAT
+	if (!repeat_pull(&i) || i<0 || i>=max_num)
+	{
+#endif /* ALLOW_REPEAT */
+
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+	/* Build a prompt */
+#ifdef JP
+(void) strnfmt(out_val, 78, "('*'で一覧, ESCで中断) どの能力を付加しますか？");
+#else
+	(void)strnfmt(out_val, 78, "(*=List, ESC=exit) Add which ability? ");
+#endif
+	if (use_menu) screen_save();
+
+	/* Get a spell from the user */
+
+        choice = (always_show_list || use_menu) ? ESCAPE:1;
+        while (!flag)
+        {
+		bool able[22];
+		if( choice==ESCAPE ) choice = ' '; 
+		else if( !get_com(out_val, &choice, FALSE) )break; 
+
+		if (use_menu && choice != ' ')
+		{
+			switch(choice)
+			{
+				case '0':
+				{
+					screen_load();
+					return;
+					break;
+				}
+
+				case '8':
+				case 'k':
+				case 'K':
+				{
+					menu_line += (max_num-1);
+					break;
+				}
+
+				case '2':
+				case 'j':
+				case 'J':
+				{
+					menu_line++;
+					break;
+				}
+
+				case '4':
+				case 'h':
+				case 'H':
+				{
+					menu_line = 1;
+					break;
+				}
+				case '6':
+				case 'l':
+				case 'L':
+				{
+					menu_line = max_num;
+					break;
+				}
+
+				case 'x':
+				case 'X':
+				case '\r':
+				{
+					i = menu_line - 1;
+					ask = FALSE;
+					break;
+				}
+			}
+			if (menu_line > max_num) menu_line -= max_num;
+		}
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?') || (use_menu && ask))
+		{
+			/* Show the list */
+			if (!redraw || use_menu)
+			{
+				byte y, x = 10;
+				int ctr;
+				char dummy[80], dummy2[80];
+				byte col;
+
+				strcpy(dummy, "");
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				if (!use_menu) screen_save();
+
+				for (y = 1; y < 24; y++)
+					prt("", y, x);
+
+				/* Print header(s) */
+#ifdef JP
+				prt("   能力(必要エッセンス)          必要数/所持数", 1, x);
+
+#else
+				prt(" Ability(essence to need)        Needs/Possess", 1, x);
+#endif
+				/* Print list */
+				for (ctr = 0; ctr < max_num; ctr++)
+				{
+					if (use_menu)
+					{
+						if (ctr == (menu_line-1))
+#ifdef JP
+							strcpy(dummy, "》 ");
+#else
+							strcpy(dummy, ">  ");
+#endif
+						else strcpy(dummy, "   ");
+						
+					}
+					/* letter/number for power selection */
+					else
+					{
+						sprintf(dummy, "%c) ",I2A(ctr));
+					}
+
+					strcat(dummy, essence_info[num[ctr]].add_name);
+
+					col = TERM_WHITE;
+					able[ctr] = TRUE;
+
+					if (essence_info[num[ctr]].link)
+					{
+						strcat(dummy, format("(%s)", essence_info[essence_info[num[ctr]].link-1].drain_name));
+						if (p_ptr->magic_num1[essence_info[num[ctr]].link-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+					}
+					else
+					{
+						switch(num[ctr]+1)
+						{
+						case ESSENCE_SH_FIRE:
+#ifdef JP
+							strcat(dummy, "(焼棄+耐火炎)              ");
+#else
+							strcat(dummy, "(brand fire + res.fire)              ");
+#endif
+							if (p_ptr->magic_num1[ESSENCE_B_FIRE-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_FIRE-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							break;
+						case ESSENCE_SH_ELEC:
+#ifdef JP
+							strcat(dummy, "(電撃+耐電撃)              ");
+#else
+							strcat(dummy, "(brand elec. + res. elec.)              ");
+#endif
+							if (p_ptr->magic_num1[ESSENCE_B_ELEC-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_ELEC-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							break;
+						case ESSENCE_SH_COLD:
+#ifdef JP
+							strcat(dummy, "(凍結+耐冷気)              ");
+#else
+							strcat(dummy, "(brand cold + res. cold)              ");
+#endif
+							if (p_ptr->magic_num1[ESSENCE_B_COLD-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_COLD-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							break;
+						case ESSENCE_RESISTANCE:
+#ifdef JP
+							strcat(dummy, "(耐火炎+耐冷気+耐電撃+耐酸)");
+#else
+							strcat(dummy, "(r.fire+r.cold+r.elec+r.acid)");
+#endif
+							if (p_ptr->magic_num1[ESSENCE_RES_FIRE-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_COLD-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_ELEC-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_ACID-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							break;
+						case ESSENCE_SUSTAIN:
+#ifdef JP
+							strcat(dummy, "(耐火炎+耐冷気+耐電撃+耐酸)");
+#else
+							strcat(dummy, "(r.fire+r.cold+r.elec+r.acid)");
+#endif
+							if (p_ptr->magic_num1[ESSENCE_RES_FIRE-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_COLD-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_ELEC-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							if (p_ptr->magic_num1[ESSENCE_RES_ACID-1] < essence_info[num[ctr]].value) able[ctr] = FALSE;
+							break;
+						}
+					}
+
+					if (!able[ctr]) col = TERM_RED;
+
+					strcpy(dummy2, format("%-50s",dummy));
+
+					if (essence_info[num[ctr]].link)
+					{
+						strcat(dummy2, format(" %d/%d",essence_info[num[ctr]].value, p_ptr->magic_num1[essence_info[num[ctr]].link-1]));
+					}
+					else
+					{
+						strcat(dummy2, format(" %d/(\?\?)",essence_info[num[ctr]].value));
+					}
+
+					c_prt(col, dummy2, ctr+2, x);
+				}
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				screen_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+
+		if (!use_menu)
+		{
+			/* Note verify */
+			ask = (isupper(choice));
+
+			/* Lowercase */
+			if (ask) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= max_num) || !able[i])
+		{
+			bell();
+			continue;
+		}
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+#ifdef JP
+			(void) strnfmt(tmp_val, 78, "%sを付加しますか？ ", essence_info[num[i]].add_name);
+#else
+			(void) strnfmt(tmp_val, 78, "Add the abilitiy of %s? ", essence_info[num[i]].add_name);
+#endif
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw) screen_load();
+
+	if (!flag) return;
+
+#ifdef ALLOW_REPEAT
+	repeat_push(i);
+	}
+#endif /* ALLOW_REPEAT */
+
+	if (num[i] == ESSENCE_SLAY_GLOVE-1)
+		item_tester_tval = TV_GLOVES;
+	else if (mode == 1)
+		item_tester_hook = item_tester_hook_melee_ammo;
+	else if (num[i] == ESSENCE_ATTACK-1)
+		item_tester_hook = item_tester_hook_weapon;
+	else if (num[i] == ESSENCE_AC-1)
+		item_tester_hook = item_tester_hook_armour;
+	else
+		item_tester_hook = item_tester_hook_weapon_armour;
+	item_tester_no_ryoute = TRUE;
+
+	/* Get an item */
+#ifdef JP
+q = "どのアイテムを改良しますか？";
+s = "改良できるアイテムがありません。";
+#else
+	q = "Improve which item? ";
+	s = "You have nothing to improve.";
+#endif
+
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	if ((mode != 6) && (o_ptr->name1 || o_ptr->art_name || o_ptr->xtra3))
+	{
+#ifdef JP
+		msg_print("そのアイテムはこれ以上改良できない。");
+#else
+		msg_print("This item is no more able to be improved");
+#endif
+		return;
+	}
+	
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	use_essence = essence_info[num[i]].value;
+	if ((o_ptr->tval >= TV_SHOT) && (o_ptr->tval <= TV_BOLT)) use_essence = (use_essence+9)/10;
+	if (o_ptr->number > 1)
+	{
+		use_essence *= o_ptr->number;
+#ifdef JP
+		msg_format("%d個あるのでエッセンスは%d必要です。", o_ptr->number, use_essence);
+#else
+		msg_format("It will take %d essences.",use_essence);
+#endif
+
+	}
+
+	if (essence_info[num[i]].link)
+	{
+		if (p_ptr->magic_num1[essence_info[num[i]].link-1] < use_essence)
+		{
+#ifdef JP
+			msg_print("エッセンスが足りない。");
+#else
+			msg_print("You don't have enough essences.");
+#endif
+			return;
+		}
+		if ((num[i] < 32) && (TR1_PVAL_MASK & (0x1L << num[i])))
+		{
+			if (num[i] == ESSENCE_BLOWS-1)
+			{
+				if (o_ptr->pval > 1)
+				{
+#ifdef JP
+					if (!get_check("修正値は1になります。よろしいですか？")) return;
+#else
+					if (!get_check("The magic number of this weapon will become 1. Are you sure? ")) return;
+#endif
+				}
+				o_ptr->pval = 1;
+			}
+			else if (o_ptr->pval)
+			{
+				use_essence *= o_ptr->pval;
+#ifdef JP
+				msg_format("エッセンスを%d個使用します。",use_essence);
+#else
+				msg_format("It will take %d essences.",use_essence);
+#endif
+			}
+			else
+			{
+				char tmp[80];
+				char tmp_val[160];
+				int pval;
+				int limit = MIN(5, p_ptr->magic_num1[essence_info[num[i]].link-1]/essence_info[num[i]].value);
+
+
+#ifdef JP
+				sprintf(tmp, "いくつ付加しますか？ (1-%d): ", limit);
+#else
+				sprintf(tmp, "Enchant how meny? (1-%d): ", limit);
+#endif
+				strcpy(tmp_val, "1");
+
+				if (!get_string(tmp, tmp_val, 1)) return;
+				pval = atoi(tmp_val);
+				if (pval > limit) pval = limit;
+				else if (pval < 1) pval = 1;
+				o_ptr->pval = pval;
+				use_essence *= pval;
+#ifdef JP
+				msg_format("エッセンスを%d個使用します。",use_essence);
+#else
+				msg_format("It will take %d essences.",use_essence);
+#endif
+			}
+			if (p_ptr->magic_num1[essence_info[num[i]].link-1] < use_essence)
+			{
+#ifdef JP
+				msg_print("エッセンスが足りない。");
+#else
+				msg_print("You don't have enough essences.");
+#endif
+				return;
+			}
+		}
+		else if (num[i] == ESSENCE_SLAY_GLOVE-1)
+		{
+			char tmp_val[160];
+			int val;
+			int get_to_h, get_to_d;
+
+			strcpy(tmp_val, "1");
+#ifdef JP
+			if (!get_string(format("いくつ付加しますか？ (1-%d):", p_ptr->lev/7+3), tmp_val, 2)) return;
+#else
+			if (!get_string(format("Enchant how meny? (1-%d):", p_ptr->lev/7+3), tmp_val, 2)) return;
+#endif
+			val = atoi(tmp_val);
+			if (val > p_ptr->lev/7+3) val = p_ptr->lev/7+3;
+			else if (val < 1) val = 1;
+			use_essence *= val;
+#ifdef JP
+			msg_format("エッセンスを%d個使用します。",use_essence);
+#else
+			msg_format("It will take %d essences.",use_essence);
+#endif
+			if (p_ptr->magic_num1[essence_info[num[i]].link-1] < use_essence)
+			{
+#ifdef JP
+				msg_print("エッセンスが足りない。");
+#else
+				msg_print("You don't have enough essences");
+#endif
+				return;
+			}
+			get_to_h = ((val+1)/2+rand_int(val/2+1));
+			get_to_d = ((val+1)/2+rand_int(val/2+1));
+			o_ptr->xtra4 = (get_to_h<<8)+get_to_d;
+			o_ptr->to_h += get_to_h;
+			o_ptr->to_d += get_to_d;
+		}
+		p_ptr->magic_num1[essence_info[num[i]].link-1] -= use_essence;
+		if (num[i] == ESSENCE_ATTACK-1)
+		{
+			if ((o_ptr->to_h >= p_ptr->lev/5+5) && (o_ptr->to_d >= p_ptr->lev/5+5))
+			{
+#ifdef JP
+				msg_print("改良に失敗した。");
+#else
+				msg_print("You failed to enchant.");
+#endif
+				energy_use = 100;
+				return;
+			}
+			else
+			{
+				if (o_ptr->to_h < p_ptr->lev/5+5) o_ptr->to_h++;
+				if (o_ptr->to_d < p_ptr->lev/5+5) o_ptr->to_d++;
+			}
+		}
+		else if (num[i] == ESSENCE_AC-1)
+		{
+			if (o_ptr->to_a >= p_ptr->lev/5+5)
+			{
+#ifdef JP
+				msg_print("改良に失敗した。");
+#else
+				msg_print("You failed to enchant.");
+#endif
+				energy_use = 100;
+				return;
+			}
+			else
+			{
+				if (o_ptr->to_a < p_ptr->lev/5+5) o_ptr->to_a++;
+			}
+		}
+		else
+		{
+			o_ptr->xtra3 = num[i]+1;
+		}
+	}
+	else
+	{
+		bool success = TRUE;
+
+		switch(num[i]+1)
+		{
+		case ESSENCE_SH_FIRE:
+			if ((p_ptr->magic_num1[ESSENCE_B_FIRE-1] < use_essence) || (p_ptr->magic_num1[ESSENCE_RES_FIRE-1] < use_essence))
+			{
+				success = FALSE;
+				break;
+			}
+			p_ptr->magic_num1[ESSENCE_B_FIRE-1] -= use_essence;
+			p_ptr->magic_num1[ESSENCE_RES_FIRE-1] -= use_essence;
+			break;
+		case ESSENCE_SH_ELEC:
+			if ((p_ptr->magic_num1[ESSENCE_B_ELEC-1] < use_essence) || (p_ptr->magic_num1[ESSENCE_RES_ELEC-1] < use_essence))
+			{
+				success = FALSE;
+				break;
+			}
+			p_ptr->magic_num1[ESSENCE_B_ELEC-1] -= use_essence;
+			p_ptr->magic_num1[ESSENCE_RES_ELEC-1] -= use_essence;
+			break;
+		case ESSENCE_SH_COLD:
+			if ((p_ptr->magic_num1[ESSENCE_B_COLD-1] < use_essence) || (p_ptr->magic_num1[ESSENCE_RES_COLD-1] < use_essence))
+			{
+				success = FALSE;
+				break;
+			}
+			p_ptr->magic_num1[ESSENCE_B_COLD-1] -= use_essence;
+			p_ptr->magic_num1[ESSENCE_RES_COLD-1] -= use_essence;
+			break;
+		case ESSENCE_RESISTANCE:
+		case ESSENCE_SUSTAIN:
+			if ((p_ptr->magic_num1[ESSENCE_RES_ACID-1] < use_essence) || (p_ptr->magic_num1[ESSENCE_RES_ELEC-1] < use_essence) || (p_ptr->magic_num1[ESSENCE_RES_FIRE-1] < use_essence) || (p_ptr->magic_num1[ESSENCE_RES_COLD-1] < use_essence))
+			{
+				success = FALSE;
+				break;
+			}
+			p_ptr->magic_num1[ESSENCE_RES_ACID-1] -= use_essence;
+			p_ptr->magic_num1[ESSENCE_RES_ELEC-1] -= use_essence;
+			p_ptr->magic_num1[ESSENCE_RES_FIRE-1] -= use_essence;
+			p_ptr->magic_num1[ESSENCE_RES_COLD-1] -= use_essence;
+			break;
+		}
+		if (!success)
+		{
+#ifdef JP
+			msg_print("エッセンスが足りない。");
+#else
+			msg_print("You don't have enough essences");
+#endif
+			return;
+		}
+		if (num[i] == ESSENCE_SUSTAIN-1)
+			o_ptr->art_flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+		else o_ptr->xtra3 = num[i]+1;
+	}
+
+	energy_use = 100;
+
+#ifdef JP
+	msg_format("%sに%sの能力を付加しました。", o_name, essence_info[num[i]].add_name);
+#else
+	msg_format("You have added ability of %s to %s.", essence_info[num[i]].add_name, o_name);
+#endif
+
+	/* Combine the pack */
+	p_ptr->notice |= (PN_COMBINE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
+}
+
+
+bool item_tester_hook_kaji(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		case TV_DRAG_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		{
+			if (o_ptr->xtra3) return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+void erase_essence(void)
+{
+	int item;
+	cptr q, s;
+	object_type *o_ptr;
+	char o_name[MAX_NLEN];
+	s32b f1, f2, f3;
+
+	item_tester_hook = item_tester_hook_kaji;
+
+	/* Get an item */
+#ifdef JP
+q = "どのアイテムのエッセンスを消去しますか？";
+s = "エッセンスを付加したアイテムがありません。";
+#else
+	q = "Remove from which item? ";
+	s = "You have nothing to remove essence.";
+#endif
+
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	object_desc(o_name, o_ptr, FALSE, 0);
+#ifdef JP
+	if (!get_check(format("よろしいですか？[%s]", o_name))) return;
+#else
+	if (!get_check(format("Are you sure?[%s]", o_name))) return;
+#endif
+
+	energy_use = 100;
+
+	if (o_ptr->xtra3 == ESSENCE_SLAY_GLOVE)
+	{
+		o_ptr->to_h -= (o_ptr->xtra4>>8);
+		o_ptr->to_d -= (o_ptr->xtra4 & 0x000f);
+		o_ptr->xtra4 = 0;
+	}
+	o_ptr->xtra3 = 0;
+	object_flags(o_ptr, &f1, &f2, &f3);
+	if (!(f1 & TR1_PVAL_MASK)) o_ptr->pval = 0;
+#ifdef JP
+	msg_print("エッセンスを取り去った。");
+#else
+	msg_print("You removed all essence you have added");
+#endif
+
+	/* Combine the pack */
+	p_ptr->notice |= (PN_COMBINE);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
+}
+
+void do_cmd_kaji(bool only_browse)
+{
+	int mode = 0;
+	char choice;
+
+	int menu_line = (use_menu ? 1 : 0);
+
+	if (!only_browse)
+	{
+		if (p_ptr->confused)
+		{
+#ifdef JP
+msg_print("混乱していて作業できない！");
+#else
+			msg_print("You are too confused!");
+#endif
+
+			return;
+		}
+		if (p_ptr->blind)
+		{
+#ifdef JP
+msg_print("目が見えなくて作業できない！");
+#else
+			msg_print("You are blind!");
+#endif
+
+			return;
+		}
+		if (p_ptr->image)
+		{
+#ifdef JP
+msg_print("うまく見えなくて作業できない！");
+#else
+			msg_print("You are hullcinating!");
+#endif
+
+			return;
+		}
+	}
+
+#ifdef ALLOW_REPEAT
+	if (!(repeat_pull(&mode) && 1 <= mode && mode <= 5))
+	{
+#endif /* ALLOW_REPEAT */
+
+	if (only_browse) screen_save();
+	do {
+	if (!only_browse) screen_save();
+	if (use_menu)
+	{
+		while(!mode)
+		{
+#ifdef JP
+			prt(format(" %s エッセンス一覧", (menu_line == 1) ? "》" : "  "), 2, 14);
+			prt(format(" %s エッセンス抽出", (menu_line == 2) ? "》" : "  "), 3, 14);
+			prt(format(" %s エッセンス消去", (menu_line == 3) ? "》" : "  "), 4, 14);
+			prt(format(" %s エッセンス付加", (menu_line == 4) ? "》" : "  "), 5, 14);
+			prt(format(" %s 武器/防具強化", (menu_line == 5) ? "》" : "  "), 6, 14);
+			prt(format("どの種類の技術を%sますか？", only_browse ? "調べ" : "使い"), 0, 0);
+#else
+			prt(format(" %s List essences", (menu_line == 1) ? "> " : "  "), 2, 14);
+			prt(format(" %s Extract essence", (menu_line == 2) ? "> " : "  "), 3, 14);
+			prt(format(" %s Remove essence", (menu_line == 3) ? "> " : "  "), 4, 14);
+			prt(format(" %s Add essence", (menu_line == 4) ? "> " : "  "), 5, 14);
+			prt(format(" %s Enchant weapon/armor", (menu_line == 5) ? "> " : "  "), 6, 14);
+			prt(format("Choose command from menu."), 0, 0);
+#endif
+			choice = inkey();
+			switch(choice)
+			{
+			case ESCAPE:
+			case 'z':
+			case 'Z':
+				screen_load();
+				return;
+			case '2':
+			case 'j':
+			case 'J':
+				menu_line++;
+				break;
+			case '8':
+			case 'k':
+			case 'K':
+				menu_line+= 4;
+				break;
+			case '\r':
+			case 'x':
+			case 'X':
+				mode = menu_line;
+				break;
+			}
+			if (menu_line > 5) menu_line -= 5;
+		}
+	}
+
+	else
+	{
+		while (!mode)
+		{
+#ifdef JP
+			prt("  a) エッセンス一覧", 2, 14);
+			prt("  b) エッセンス抽出", 3, 14);
+			prt("  c) エッセンス消去", 4, 14);
+			prt("  d) エッセンス付加", 5, 14);
+			prt("  e) 武器/防具強化", 6, 14);
+			if (!get_com(format("どの能力を%sますか:", only_browse ? "調べ" : "使い"), &choice, TRUE))
+#else
+			prt("  a) List essences", 2, 14);
+			prt("  b) Extract essence", 3, 14);
+			prt("  c) Remove essence", 4, 14);
+			prt("  d) Add essence", 5, 14);
+			prt("  e) Enchant weapon/armor", 6, 14);
+			if (!get_com("Command :", &choice, TRUE))
+#endif
+			{
+				screen_load();
+				return;
+			}
+			switch (choice)
+			{
+			case 'A':
+			case 'a':
+				mode = 1;
+				break;
+			case 'B':
+			case 'b':
+				mode = 2;
+				break;
+			case 'C':
+			case 'c':
+				mode = 3;
+				break;
+			case 'D':
+			case 'd':
+				mode = 4;
+				break;
+			case 'E':
+			case 'e':
+				mode = 5;
+				break;
+			}
+		}
+	}
+
+	if (only_browse)
+	{
+		char temp[62*5];
+		int line, j;
+
+		/* Clear lines, position cursor  (really should use strlen here) */
+		Term_erase(14, 21, 255);
+		Term_erase(14, 20, 255);
+		Term_erase(14, 19, 255);
+		Term_erase(14, 18, 255);
+		Term_erase(14, 17, 255);
+		Term_erase(14, 16, 255);
+
+		roff_to_buf( kaji_tips[mode-1],62,temp);
+		for(j=0, line = 17;temp[j];j+=(1+strlen(&temp[j])))
+		{
+			prt(&temp[j], line, 15);
+			line++;
+		}
+		mode = 0;
+	}
+	if (!only_browse) screen_load();
+	} while (only_browse);
+#ifdef ALLOW_REPEAT
+	repeat_push(mode);
+        }
+#endif /* ALLOW_REPEAT */
+
+	switch(mode)
+	{
+		case 1: display_essence();break;
+		case 2: drain_essence();break;
+		case 3: erase_essence();break;
+		case 4:
+			mode = choose_essence();
+			if (mode == 0)
+				break;
+			add_essence(mode);
+			break;
+		case 5: add_essence(6);break;
 	}
 }

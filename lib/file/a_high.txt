@@ -1,30 +1,146 @@
-N:*:Default
-66
+N: 1:BIAS_ELEC
+5
+of Resist *Lightning*
+of Thor
+of Zeus
 of Super Resistance
-of the Ultimate Defense
-of Ultimax
-of Invulnerability
 of Immunity
-'Iddqd'
-of Paradise
-of the Gods
+
+N: 2:BIAS_POIS
+8
+'Poisonous Barrier'
+'Great unclean one'
+'Tir-karaks'
+'Crucible of Poinsons'
+of Resist Poison
+of hte Archpriest
+of Super Resistance
+of Asklepios
+
+N: 3:BIAS_FIRE
+6
+'Firewall'
+'Phoenix'
+of hellfire
+of Corona
+of Allah
+
+N: 4:BIAS_COLD
+6
+'Helka-Turma'
+'White Diamond'
+'Great Snowfield'
+of Ymir
+of Large Ice Field
+of Crystal Ice
+
+N: 5:BIAS_ACID
+7
+'Ooparts'
+of Ultimate Defence
 of the Everlasting
+of Ultimax
+of Immunity
+of Eternity
+of Boldor
+
+N:14:BIAS_NECROMANTIC
+6
+'Bloodmail of Lucifer'
+of the Immortals
+of Hades
+of Sauron
+of Mephistopheles
+of the Demon Lord
+
+N:12:BIAS_CHAOS
+6
+'Unbalancer'
+'Prince of Chaos'
+'Void'
+of Collapsium
+of Nurgle
+of Slaanesh
+
+N:15:BIAS_LAW
+N:13:BIAS_PRIESTLY
+N: 8:BIAS_WIS
+7
+'Ever-Faithful'
+of the Gods
 of Divine Protection
-of Omnipotence
+of Celestial Protection
+of the First Day
+of the Isles of the Blessed
+of the Holy Grail
+
+N: 9:BIAS_DEX
+N:16:BIAS_ROGUE
+7
+(*Stealth*)
+'Beelzebub's wing'
+of the Sprite
+of Lupin
+of Eric
+of Achilles
+of Super Speed
+
+N:17:BIAS_MAGE
+N: 7:BIAS_INT
+4
+'Mana Prism'
+'Power Tower'
+of the Great Magi
+of *intelligence*
+
+N:18:BIAS_WARRIOR
+N: 6:BIAS_STR
+8
+'Aegis'
+of the Force
+of Invincibility
+of Lions
+of Invulnerability
+of Samurai
+of Titans
+of *Power*
+
+N:19:BIAS_RANGER
+7
+'Faroth'
+'Er-Draug'
+'Lifegiver'
+of Gaia
+of Soil
+of Mind's Eye
+of the Red Beret
+
+N:10:BIAS_CON
+5
 'Heart of Ahriman'
+'Living Armour'
+'Life Matrix'
+of Immortality
+of Corwin's Pattern
+
+N:11:BIAS_CHR
+5
+'Day of the Dove'
+of Eternity
+of Heart's Desire
+of the Best
+of Aphrodite
+
+N:*:Default
+30
 'Destiny Star'
 of Destiny
 'Monolith'
 'Lawmaster'
-of Celestial Protection
-of Immortality
 of Diamond
 'Living Armour'
 'Living Wall'
-'Life Matrix'
 of Malachite
-'Mana Prism'
-'Power Tower'
 'Citadel'
 'Genesis'
 of the Dungeon Master
@@ -38,31 +154,12 @@ of Galactic Barrier
 'Imperium'
 of the Empire
 'Elite'
-'Unbalancer'
-'Bloodmail of Lucifer'
-of the Holy Grail
-'Sampo'
 of Merlin's Pattern
-of Corwin's Pattern
 of Infinity
-of Eternity
-'Lifegiver'
-of Heart's Desire
-'Day of the Dove'
-of the Force
 of the Makers
-of the Immortals
-of the Best
 of Thrain
 of Deirdre
 of Random
 of Rebma
 of Celeborn
-of Invincibility
-'Aegis'
 'Eternal Bastion'
-of Lions
-'Ever-Faithful'
-of Collapsium
-of the First Day
-of the Isles of the Blessed

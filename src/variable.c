@@ -27,6 +27,13 @@ cptr copyright[5] =
 };
 
 
+/* レベルアップの時に上昇量を表示するのに使う */
+int level_up = 0;
+int max_autopick=0;
+unsigned char *autopick_name[MAX_AUTOPICK];
+unsigned char *autopick_insc[MAX_AUTOPICK];
+s16b autopick_action[MAX_AUTOPICK];
+
 /*
  * Executable version
  */
@@ -44,7 +51,7 @@ byte sf_patch;			/* Savefile's "version_patch" */
 byte sf_extra;			/* Savefile's "version_extra" */
 u32b sf_version;		/* Savefile's "version" */
 
-byte z_major;           /* Savefile version for Zangband */
+byte z_major;           /* Savefile version for Hengband */
 byte z_minor;
 byte z_patch;
 
@@ -96,8 +103,8 @@ s16b command_new;		/* Command chaining from inven/equip view */
 
 s16b energy_use;		/* Energy use this turn */
 
-bool create_up_stair;	/* Auto-create "up stairs" */
-bool create_down_stair;	/* Auto-create "down stairs" */
+byte create_up_stair;	/* Auto-create "up stairs" */
+byte create_down_stair;	/* Auto-create "down stairs" */
 
 bool msg_flag;			/* Used in msg_print() for "buffering" */
 
@@ -117,7 +124,9 @@ s16b monster_level;		/* Current monster creation level */
 s16b base_level;        /* Base dungeon level */
 
 s32b turn;				/* Current game turn */
+s32b dungeon_turn;			/* Game turn in dungeon */
 s32b old_turn;			/* Turn when level began (feelings) */
+s32b old_battle;
 
 bool wizard;			/* Is the player currently in Wizard mode? */
 
@@ -128,6 +137,7 @@ u16b total_winner;		/* Semi-Hack -- Game has been won */
 
 u16b panic_save;		/* Track some special "conditions" */
 u16b noscore;			/* Track various "cheating" conditions */
+bool wait_report_score;         /* Waiting to report score */
 
 s16b signal_count;		/* Hack -- Count interupts */
 
@@ -167,6 +177,7 @@ char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
 int total_friends = 0;
 s32b total_friend_levels = 0;
+s32b friend_align = 0;
 
 int leaving_quest = 0;
 
@@ -180,6 +191,8 @@ int leaving_quest = 0;
 
 bool rogue_like_commands;	/* Rogue-like commands */
 bool quick_messages;		/* Activate quick messages */
+bool auto_more;
+bool command_menu;
 bool other_query_flag;		/* Prompt for various information */
 bool carry_query_flag;		/* Prompt before picking things up */
 bool use_old_target;		/* Use old target by default */
@@ -193,15 +206,10 @@ bool stack_force_costs;		/* Merge discounts when stacking */
 bool show_labels;			/* Show labels in object listings */
 bool show_weights;			/* Show weights in object listings */
 bool show_choices;			/* Show choices in certain sub-windows */
-bool show_details;			/* Show details in certain sub-windows */
 
 bool ring_bell;				/* Ring the bell (on errors, etc) */
-bool use_color;				/* Use color if possible (slow) */
 
-bool show_inven_graph;		/* Show graphics in inventory */
-bool show_equip_graph;		/* Show graphics in equip list */
-bool show_store_graph;		/* Show graphics in store */
-
+bool show_item_graph;
 
 
 /* Option Set 2 -- Disturbance */
@@ -216,12 +224,10 @@ bool disturb_near;			/* Disturb whenever viewable monster moves */
 bool disturb_panel;			/* Disturb whenever map panel changes */
 bool disturb_state;			/* Disturn whenever player state changes */
 bool disturb_minor;			/* Disturb whenever boring things happen */
-bool disturb_other;			/* Disturb whenever various things happen */
 
 bool alert_hitpoint;		/* Alert user to critical hitpoints */
-bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
-bool speak_unique;		/* Speaking uniques + shopkeepers */
+bool over_exert;
 bool small_levels;		/* Allow unusually small dungeon levels */
 bool always_small_levels;		/* Use always unusually small dungeon levels */
 bool empty_levels;		/* Allow empty 'arena' levels */
@@ -255,8 +261,10 @@ bool view_torch_grids;		/* Map remembers all torch-lit grids */
 bool dungeon_align;			/* Generate dungeons with aligned rooms */
 bool dungeon_stair;			/* Generate dungeons with connected stairs */
 
+#if 0
 bool flow_by_sound;			/* Monsters track new player location */
 bool flow_by_smell;			/* Monsters track old player location */
+#endif
 
 bool track_follow;			/* Monsters follow the player */
 bool track_target;			/* Monsters target the player */
@@ -271,11 +279,9 @@ bool view_reduce_lite;		/* Reduce lite-radius when running */
 bool view_reduce_view;		/* Reduce view-radius in town */
 
 bool avoid_abort;			/* Avoid checking for user abort */
-bool avoid_other;			/* Avoid processing special colors */
 
 bool flush_failure;			/* Flush input on any failure */
 bool flush_disturb;			/* Flush input on disturbance */
-bool flush_command;			/* Flush input before every command */
 
 bool fresh_before;			/* Flush output before normal commands */
 bool fresh_after;			/* Flush output after normal commands */
@@ -290,13 +296,15 @@ bool view_bright_lite;		/* Use special colors for 'viewable' grids */
 
 bool view_granite_lite;		/* Use special colors for wall grids (slow) */
 bool view_special_lite;		/* Use special colors for floor grids (slow) */
+bool new_ascii_graphics;
+bool display_path;
+bool target_pet;
+bool plain_pickup;
 
-/* Option set 5 -- Testing */
-
-bool testing_stack;			/* Test the stacking code */
-
-bool testing_carry;			/* Test the carrying code */
-
+bool always_show_list;
+bool powerup_home;
+bool old_way_of_kaz;
+bool send_score;
 
 /* Cheating options */
 
@@ -384,9 +392,10 @@ char history[4][60];
 
 /*
  * Buffer to hold the current savefile name
+ * 'savefile' holds full path name. 'savefile_base' holds only base name.
  */
 char savefile[1024];
-
+char savefile_base[40];
 
 /*
  * Array of grids lit by player lite (see "cave.c")
@@ -394,6 +403,13 @@ char savefile[1024];
 s16b lite_n;
 s16b lite_y[LITE_MAX];
 s16b lite_x[LITE_MAX];
+
+/*
+ * Array of grids lit by player lite (see "cave.c")
+ */
+s16b mon_lite_n;
+s16b mon_lite_y[LITE_MAX];
+s16b mon_lite_x[LITE_MAX];
 
 /*
  * Array of grids viewable to the player (see "cave.c")
@@ -503,7 +519,7 @@ term *angband_term[8];
  */
 char angband_term_name[8][16] =
 {
-	"Zangband",
+	"Hengband",
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -710,6 +726,7 @@ player_type *p_ptr = &p_body;
 player_sex *sp_ptr;
 player_race *rp_ptr;
 player_class *cp_ptr;
+player_seikaku *ap_ptr;
 player_magic *mp_ptr;
 
 
@@ -748,6 +765,9 @@ char *v_text;
 header *f_head;
 feature_type *f_info;
 char *f_name;
+#ifdef JP
+char *E_f_name;         /* 英語地形名 */
+#endif
 char *f_text;
 
 /*
@@ -756,6 +776,9 @@ char *f_text;
 header *k_head;
 object_kind *k_info;
 char *k_name;
+#ifdef JP
+char *E_k_name;         /* 英語アイテム名 */
+#endif
 char *k_text;
 
 /*
@@ -764,6 +787,9 @@ char *k_text;
 header *a_head;
 artifact_type *a_info;
 char *a_name;
+#ifdef JP
+char *E_a_name;         /* 英語アーティファクト名 */
+#endif
 char *a_text;
 
 /*
@@ -772,6 +798,9 @@ char *a_text;
 header *e_head;
 ego_item_type *e_info;
 char *e_name;
+#ifdef JP
+char *E_e_name;         /* 英語「名のある」アイテム名 */
+#endif
 char *e_text;
 
 
@@ -781,7 +810,19 @@ char *e_text;
 header *r_head;
 monster_race *r_info;
 char *r_name;
+#ifdef JP
+char *E_r_name;         /* 英語モンスター名 */
+#endif
 char *r_text;
+
+
+/*
+ * The dungeon arrays
+ */
+header *d_head;
+dungeon_info_type *d_info;
+char *d_name;
+char *d_text;
 
 
 /*
@@ -851,6 +892,12 @@ cptr ANGBAND_DIR_HELP;
 cptr ANGBAND_DIR_INFO;
 
 /*
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
+
+/*
  * Savefiles for current characters (binary)
  * These files are portable between platforms
  */
@@ -875,6 +922,7 @@ cptr ANGBAND_DIR_XTRA;
  */
 bool item_tester_full;
 
+bool item_tester_no_ryoute = FALSE;
 
 /*
  * Here is a "pseudo-hook" used during calls to "get_item()" and
@@ -937,7 +985,35 @@ bool use_command;
 bool center_player;
 bool avoid_center;
 
+bool display_pick;
+bool display_nopick;
+bool display_destroy;
 
+/* Auto-destruction options */
+bool destroy_items;
+bool destroy_worth;
+bool destroy_equip;
+bool destroy_kubi;
+bool destroy_corpse;
+bool destroy_junk;
+bool destroy_chest;
+
+/* Nikki */
+bool record_fix_art;
+bool record_rand_art;
+bool record_destroy_uniq;
+bool record_fix_quest;
+bool record_rand_quest;
+bool record_maxdeapth;
+bool record_stair;
+bool record_buy;
+bool record_sell;
+bool record_danger;
+bool record_arena;
+bool record_ident;
+bool record_named_pet;
+char record_o_name[MAX_NLEN];
+s32b record_turn;
 
 /*
  * Wilderness
@@ -985,6 +1061,11 @@ u16b max_a_idx;
  * Maximum number of ego-items in e_info.txt
  */
 u16b max_e_idx;
+
+/*
+ * Maximum number of dungeon in e_info.txt
+ */
+u16b max_d_idx;
 
 /*
  * Maximum number of objects in the level
@@ -1043,24 +1124,95 @@ int mutant_regenerate_mod = 100;
 /*
  * Startup options
  */
+bool easy_band;
 bool vanilla_town;            /* Use "vanilla" town without set quests */
 bool ironman_shops;           /* Stores are permanently closed */
 bool ironman_small_levels;    /* Always create unusually small dungeon levels */
 bool ironman_downward;        /* Don't allow climbing upwards/recalling */
 bool ironman_autoscum;        /* Permanently enable the autoscummer */
-bool ironman_hard_quests;     /* Quest monsters get reinforcements */
 bool lite_town;               /* Use "lite" town without wilderness */
 bool ironman_empty_levels;    /* Always create empty 'arena' levels */
 bool terrain_streams;         /* Create terrain 'streamers' in the dungeon */
 bool munchkin_death;          /* Ask for saving death */
-bool munchkin_rings;				/* Allow multiple rings */
 bool ironman_rooms;           /* Always generate very unusual rooms */
 bool ironman_nightmare;			/* Play the game in Nightmare mode */
-bool maximize_mode;
+bool hidarikiki;
 bool preserve_mode;
 bool autoroller;
+bool autochara;
 
 
 bool use_transparency = FALSE; /* Use transparent tiles */
 
-bool can_save = TRUE;         /* Game can be saved */
+bool can_save = FALSE;         /* Game can be saved */
+
+s16b spell_exp[64];           /* mahou keikenchi */
+
+s16b weapon_exp[5][64];       /* weapon keikenchi */
+
+s16b skill_exp[10];           /* ginou keikenchi */
+
+bool world_monster;
+bool world_player;
+
+s16b mane_spell[MAX_MANE];
+s16b mane_dam[MAX_MANE];
+s16b mane_num;
+
+int cap_mon;
+int cap_mspeed;
+int cap_hp;
+int cap_maxhp;
+u16b cap_nickname;
+
+s16b battle_mon[4];
+int sel_monster;
+int battle_odds;
+int kakekin;
+u32b mon_odds[4];
+
+int pet_t_m_idx;
+int jouba_t_m_idx;
+
+s16b kubi_r_idx[MAX_KUBI];
+s16b today_mon;
+
+monster_type jouba_mon;
+monster_type party_mon[20];
+
+bool write_level;
+
+u32b playtime;
+u32b start_time;
+
+int tsuri_dir;
+
+bool sukekaku;
+bool new_mane;
+
+bool mon_fight;
+
+bool ambush_flag;
+bool generate_encounter;
+
+/*
+ * Which dungeon ?
+ */
+byte dungeon_type;
+s16b *max_dlv;
+
+byte feat_wall_outer;
+byte feat_wall_inner;
+byte feat_wall_solid;
+s16b floor_type[100], fill_type[100];
+
+bool now_damaged;
+s16b now_message;
+bool use_menu;
+
+#ifdef CHUUKEI
+bool chuukei_server;
+bool chuukei_client;
+char *server_name;
+int server_port;
+#endif

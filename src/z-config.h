@@ -1,4 +1,4 @@
-/* CVS: Last edit by $Author: rr9 $ on $Date: 1999/11/25 13:58:41 $ */
+/* CVS: Last edit by $Author: sfuerst $ on $Date: 2000/07/19 13:51:55 $ */
 /* File: z-config.h */
 
 /* Purpose: Angband specific configuration stuff */
@@ -16,6 +16,21 @@
 
 /* Allow various special stuff (sound, graphics, etc.) */
 #define USE_SPECIAL
+
+#ifndef HAVE_CONFIG_H
+#ifdef JP
+#define USE_FONTSET
+#define USE_XIM
+#endif
+
+#if defined(USE_FONTSET) || defined(USE_XIM)
+#define USE_LOCALE
+#endif
+
+#ifndef USE_FONTSET
+#define _JP
+#endif
+#endif /* HAVE_CONFIG_H */
 
 
 /*
@@ -259,7 +274,9 @@
  * OPTION: Delay the loading of the "a_text" array until it is actually
  * needed, saving ~1K, since "artifact" descriptions are unused.
  */
+#ifndef JP
 #define DELAY_LOAD_A_TEXT
+#endif
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually
@@ -272,6 +289,12 @@
  * needed, saving ~60K, but "simplifying" the "monster" descriptions.
  */
 /* #define DELAY_LOAD_R_TEXT */
+
+/*
+ * OPTION: Delay the loading of the "d_text" array until it is actually
+ * needed, saving ~1K, since "dungeon" descriptions are unused.
+ */
+/* #define DELAY_LOAD_D_TEXT */
 
 /*
  * OPTION: Delay the loading of the "v_text" array until it is actually
@@ -433,6 +456,15 @@
 
 
 /*
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
+ */
+#ifdef SET_UID
+#define PRIVATE_USER_PATH "~/.angband"
+#endif /* SET_UID */
+
+
+/*
  * On multiuser systems, add the "uid" to savefile names
  */
 #ifdef SET_UID
@@ -463,10 +495,11 @@
  * player's name, it will then save the savefile elsewhere.  Note that
  * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
  */
+/*
 #if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
 # define SAVEFILE_MUTABLE
 #endif
-
+*/
 
 /*
  * OPTION: Capitalize the "user_name" (for "default" player name)
@@ -479,9 +512,70 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+/* #define MAINTAINER	"rr9@angband.org" */
+#define MAINTAINER	"combat-echizen@safe-mail.ne.jp"
 
 
+#ifdef JP
+#ifndef USE_FONTSET
+/*
+ * OPTION: Default font (when using X11).
+ */
+#define DEFAULT_X11_FONT  "a24"
+#define DEFAULT_X11_KFONT "kanji24"
+#define DEFAULT_X11_FONT_SUB  "a16"
+#define DEFAULT_X11_KFONT_SUB "kanji16"
+
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_0  DEFAULT_X11_FONT
+#define DEFAULT_X11_KFONT_0 DEFAULT_X11_KFONT
+#define DEFAULT_X11_FONT_1  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_1 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_2  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_2 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_3  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_3 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_4  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_4 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_5  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_5 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_6  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_6 DEFAULT_X11_KFONT_SUB
+#define DEFAULT_X11_FONT_7  DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_KFONT_7 DEFAULT_X11_KFONT_SUB
+
+#else
+/*
+ * OPTION: Default font (when using X11).
+ */
+#define DEFAULT_X11_FONT \
+	"-*-*-medium-r-normal--24-*-*-*-*-*-iso8859-1" \
+	",-*-*-medium-r-normal--24-*-*-*-*-*-jisx0208.1983-0"
+/*	"12x24" \
+	",kanji24"*/
+#define DEFAULT_X11_FONT_SUB \
+	"-*-*-medium-r-normal--16-*-*-*-*-*-iso8859-1" \
+	",-*-*-medium-r-normal--16-*-*-*-*-*-jisx0208.1983-0"
+/*	"8x16" \
+	",kanji16"*/
+
+/*
+ * OPTION: Default fonts (when using X11)
+ */
+#define DEFAULT_X11_FONT_0		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_1		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_2		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_3		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_4		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_5		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_6		DEFAULT_X11_FONT_SUB
+#define DEFAULT_X11_FONT_7		DEFAULT_X11_FONT_SUB
+#endif
+
+#else
 /*
  * OPTION: Default font (when using X11).
  */
@@ -490,12 +584,22 @@
 /*
  * OPTION: Default fonts (when using X11)
  */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
+#define DEFAULT_X11_FONT_0		"10x20"
+#define DEFAULT_X11_FONT_1		"9x15"
+#define DEFAULT_X11_FONT_2		"9x15"
+#define DEFAULT_X11_FONT_3		"5x8"
+#define DEFAULT_X11_FONT_4		"5x8"
+#define DEFAULT_X11_FONT_5		"5x8"
+#define DEFAULT_X11_FONT_6		"5x8"
+#define DEFAULT_X11_FONT_7		"5x8"
+#endif
 
 
+/*
+ * OPTION: Gamma correct X11 colours.
+ */
+ 
+#define SUPPORT_GAMMA
 
 /*
  * Hack -- Special "ancient machine" versions
@@ -555,9 +659,6 @@
 #ifndef DRS_SMART_OPTIONS
  #define DRS_SMART_OPTIONS
 #endif
-
-/* Should the player know his / her starting life rate? */
-# define SHOW_LIFE_RATE
 
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH
@@ -629,4 +730,22 @@
 /*
  * Monsters can drop corpses when killed
  */
-/* #define USE_CORPSES */
+#define USE_CORPSES
+
+/*
+ * The Frakir can predict danger when equipped
+ */
+#define USE_FRAKIR
+
+#ifndef HAVE_CONFIG_H
+#define WORLD_SCORE
+#endif /* HAVE_CONFIG_H */
+
+#define MONSTER_LITE
+
+#if 0
+/*
+ * Add caverns and lakes to the dungeon (buggy)
+ */
+#define ALLOW_CAVERNS_AND_LAKES
+#endif
