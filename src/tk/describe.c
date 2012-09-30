@@ -439,7 +439,7 @@ long angtk_describe_object(object_type *o_ptr, char *buf, bool in_store)
 	}
 
 	/* Store bought */
-	if (!in_store && (o_ptr->info & OB_STOREB))
+	if (!in_store && (o_ptr->info & OB_NO_EXP))
 	{
 		roll_off("It was purchased.", k);
 		k = TRUE;

@@ -6,6 +6,49 @@
 
 
 /*
+ * Center a format string in the buffer.
+ *
+ * The first parameter on the stack must be the width
+ *  to center in.
+ *
+ * The second must be the string to center with.
+ * This is treated as a format string - so may contain
+ * other commands etc...
+ */
+void center_string(char *buf, uint max, cptr fmt, va_list *vp)
+{
+	int i, j;
+
+	cptr str;
+	
+	char tmp[1024];
+	
+    int size;
+	
+	/* Unused parameter */
+	(void)fmt;
+	    
+    /* Get the size of the string to center in */
+	size = va_arg(*vp, int);
+	
+	/* Get the string to center with. */
+	str = va_arg(*vp, cptr);
+	
+	/* Expand the string */
+	vstrnfmt(tmp, 1024, str, vp);
+	
+	/* Total length */
+	i = strlen(tmp);
+
+	/* Necessary border */
+	j = (size - i) / 2;
+
+	/* Mega-Hack center the (format) string in the buffer */
+	strnfmt(buf, max, "%*s%s%*s", j, "", tmp, size - i - j, "");
+}
+
+
+/*
  * Function used to print a flag in coloured binary.
  */
 void binary_fmt(char *buf, uint max, cptr fmt, va_list *vp)
@@ -122,7 +165,6 @@ int get_player_choice(cptr *choices, int num, int col, int wid,
 
 		if (c == KTRL('X'))
 		{
-			remove_loc();
 			quit(NULL);
 		}
 		if (c == ESCAPE)
@@ -375,6 +417,7 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 {
 	int cnt = 0;
 	int i;
+	bool select_me;
 	
 	int x, y;
 	
@@ -393,7 +436,9 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 	{
 		for (i = 0; i < num; i++)
 		{
-			if (show_option(0, i + 2 + offset, &options[i], I2A(cnt), scroll, i == select))
+			select_me = i == select;
+
+			if (show_option(0, i + 2 + offset, &options[i], I2A(cnt), scroll, select_me))
 			{
 				cnt++;
 			}
@@ -408,10 +453,12 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 	{
 		for (i = 0; i < num; i++)
 		{
+			select_me = i == select;
+
 			x = (i / 18) * 40;
 			y = (i % 18) + 2;
 				
-			if (show_option(x, y + offset, &options[i], listsym[cnt], scroll, i == select))
+			if (show_option(x, y + offset, &options[i], listsym[cnt], scroll, select_me))
 			{
 				cnt++;
 			}
@@ -426,10 +473,12 @@ static int show_menu(int num, menu_type *options, int select, bool scroll,
 	{
 		for (i = 0; i < num; i++)
 		{
+			select_me = i == select;
+
 			x = (i / 20) * 30;
 			y = (i % 20) + 2;
 			
-			if (show_option(x, y + offset, &options[i], listsym[cnt], scroll, i == select))
+			if (show_option(x, y + offset, &options[i], listsym[cnt], scroll, select_me))
 			{
 				cnt++;
 			}
@@ -909,6 +958,53 @@ int fmt_offset(cptr str1, cptr str2)
 	
 	return (i);
 }
+
+/*
+ * Remove the formatting escape sequences from a buffer.
+ */
+void fmt_clean(char *buf)
+{
+	char *p = buf, *c = buf;
+	
+	while (*c)
+	{
+		/* Does this character match the escape code? */
+		if (*c == '$')
+		{
+			/* Scan the next character */
+			c++;
+			
+			/* Is it an escape sequence? */
+			if ((*c >= 'A') && (*c <= 'R'))
+			{
+				/* Ignore it */
+				c++;
+				
+				continue;
+			}
+						
+			/*
+			 * Hack XXX XXX - otherwise, ignore the dollar sign
+			 * and copy the string value.
+			 *
+			 * This makes "$$" turn into just "$".
+			 */
+			*p++ = *c;
+			
+			/* Stop if reach null */
+			if (*c == 0) break;
+		}
+		else
+		{
+			/* Copy the value */
+			*p++ = *c++;
+		}
+	}
+	
+	/* Terminate buffer */
+	*p = '\0';
+}
+
 
 /*
  * Put a string with control characters at a given location
@@ -1425,7 +1521,7 @@ bool get_string(char *buf, int len, cptr str, ...)
 
 	/* Display prompt */
 	prtf(0, 0, prompt);
-
+	
 	/* Ask the user for a string */
 	res = askfor_aux(buf, len);
 
@@ -1444,23 +1540,10 @@ bool get_string(char *buf, int len, cptr str, ...)
  *
  * Note that "[y/n]" is appended to the prompt.
  */
-bool get_check(cptr prompt, ...)
+static bool get_check_base(bool def, bool esc, cptr prompt)
 {
 	int i;
     
-    va_list vp;
-
-	char buf[1024];
-
-	/* Begin the Varargs Stuff */
-	va_start(vp, prompt);
-
-	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, prompt, &vp);
-
-	/* End the Varargs Stuff */
-	va_end(vp);
-
 	/* Do not skip */
 	p_ptr->state.skip_more = FALSE;
 
@@ -1468,7 +1551,7 @@ bool get_check(cptr prompt, ...)
 	message_flush();
 
 	/* Prompt for it */
-	prtf(0, 0, "%.70s[y/n] ", buf);
+	prtf(0, 0, "%.70s[y/n] ", prompt);
 
 	/* Get an acceptable answer */
 	while (TRUE)
@@ -1489,11 +1572,52 @@ bool get_check(cptr prompt, ...)
 		case 'y': case 'Y':
 			return (TRUE);
 		
+		case ESCAPE:
+			return (esc);
+
+		case '\n': case '\r':
+			return (def);
+
 		default:
 			return (FALSE);
 	}
 }
 
+bool get_check_ext(bool def, bool esc, cptr prompt, ...)
+{
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, prompt);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, prompt, &vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	return get_check_base(def, esc, buf);
+}
+
+bool get_check(cptr prompt, ...)
+{
+	va_list vp;
+
+	char buf[1024];
+
+	/* Begin the Varargs Stuff */
+	va_start(vp, prompt);
+
+	/* Format the args, save the length */
+	(void)vstrnfmt(buf, 1024, prompt, &vp);
+
+	/* End the Varargs Stuff */
+	va_end(vp);
+
+	return get_check_base(FALSE, FALSE, buf);
+}
 
 /*
  * Prompts for a keypress

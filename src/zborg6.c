@@ -13,6 +13,22 @@
 #include "zborg6.h"
 #include "zbmagic.h"
 
+
+/* Helper function to cure poison when not full/gorged */
+bool borg_eat_cure_poison(void)
+{
+	/* Only when poisoned */
+	if (!bp_ptr->status.poisoned) return (FALSE);
+
+	/* Only allow when not too full or really low hp */
+	if ((bp_ptr->status.full ||
+		bp_ptr->status.gorged) &&
+		bp_ptr->chp > 3) return (FALSE);
+
+	return (borg_eat_food(SV_FOOD_CURE_POISON) ||
+			borg_eat_food(SV_FOOD_WAYBREAD));
+}
+
 /*
  * Attempt to recover from damage and such after a battle
  *
@@ -38,47 +54,34 @@ bool borg_recover(void)
 	int q;
 
 	map_block *mb_ptr = map_loc(c_x, c_y);
+	list_item *l_ptr = look_up_equip_slot(EQUIP_LITE);
 
 	/*** Handle annoying situations ***/
-	
-	/* Refuel torch, excluding Torch of Everburning */
-	if ((!bp_ptr->britelite) &&
-		(equipment[EQUIP_LITE].tval == TV_LITE) &&
-		(k_info[equipment[EQUIP_LITE].k_idx].sval == SV_LITE_TORCH))
-	{
-		/* Refuel the torch if needed */
-		if (equipment[EQUIP_LITE].timeout < 250)
-		{
-			if (borg_refuel_torch()) return (TRUE);
 
+	/* If the borg has a torch or lantern */
+	if (l_ptr &&
+		l_ptr->tval == TV_LITE &&
+		(k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN ||
+		k_info[l_ptr->k_idx].sval == SV_LITE_TORCH))
+	{
+		/* Try to refuel torch or lantern */
+		if (borg_refuel()) return (TRUE);
+
+		/* If it is not everburning and low on fuel */
+		if (!bp_ptr->britelite &&
+			l_ptr->timeout < 1000)
+		{
 			/* Take note */
-			borg_note_fmt("# Need to refuel but can't!", p);
+			borg_note("# Need to refuel but can't!", p);
+
+			/* Go to town */
+			goal_rising = TRUE;
 
 			/* Allow Pets to Roam so we dont hit them in the dark. */
 			p_ptr->pet_follow_distance = PET_STAY_AWAY;
 		}
 	}
 	
-	/* Refuel current lantern, including Lanterns of Everburning */
-	if ((equipment[EQUIP_LITE].tval == TV_LITE) &&
-		(k_info[equipment[EQUIP_LITE].k_idx].sval == SV_LITE_LANTERN))
-	{
-		/* Refuel the lantern if needed */
-		if (equipment[EQUIP_LITE].timeout < 500)
-		{
-			if (borg_refuel_lantern()) return (TRUE);
-		
-			if (!bp_ptr->britelite)	
-			{
-				/* Take note */
-				borg_note_fmt("# Need to refuel but can't!", p);
-				
-				/* Allow Pets to Roam so we dont hit them in the dark. */
-				p_ptr->pet_follow_distance = PET_STAY_AWAY;
-			}
-		}
-	}
-
 	/*** Do not recover when in danger ***/
 
 	/* Look around for danger */
@@ -99,19 +102,22 @@ bool borg_recover(void)
 	/* Almost dead */
 	if (bp_ptr->chp < bp_ptr->mhp / 4) q = q - 10;
 
+	/* Minimize q a bit more */
+	q = MIN(q, bp_ptr->chp);
 
 	/*** Use "cheap" cures ***/
 
 	/* Hack -- cure stun */
 	if (bp_ptr->status.stun && (q < 75))
 	{
-		if (borg_activate_artifact(ART_LOTHARANG, FALSE) ||
+		if (borg_activate(BORG_ACT_HEAL_SERIOUS) ||
 			borg_spell(REALM_LIFE, 0, 1) ||
-			borg_spell(REALM_LIFE, 0, 6) || borg_spell(REALM_ARCANE, 0, 7))
+			borg_spell(REALM_LIFE, 0, 6) ||
+			borg_spell(REALM_ARCANE, 0, 7))
 
 		{
 			/* Take note */
-			borg_note_fmt("# Cure Stun", p);
+			borg_note("# Cure Stun", p);
 
 			return (TRUE);
 		}
@@ -120,11 +126,12 @@ bool borg_recover(void)
 	/* Hack -- cure stun */
 	if (bp_ptr->status.heavy_stun)
 	{
-		if (borg_activate_artifact(ART_LOTHARANG, FALSE) ||
-			borg_spell(REALM_LIFE, 1, 2))
+		if (borg_activate(BORG_ACT_HEAL_SERIOUS) ||
+			borg_spell(REALM_LIFE, 1, 2) ||
+			borg_racial(RACE_AMBERITE_POWER2))
 		{
 			/* Take note */
-			borg_note_fmt("# Cure Heavy Stun", p);
+			borg_note("# Cure Heavy Stun", p);
 
 			return (TRUE);
 		}
@@ -133,12 +140,14 @@ bool borg_recover(void)
 	/* Hack -- cure cuts */
 	if (bp_ptr->status.cut && (q < 75))
 	{
-		if (borg_activate_artifact(ART_LOTHARANG, FALSE) ||
+		if (borg_activate(BORG_ACT_HEAL_SERIOUS) ||
 			borg_spell(REALM_LIFE, 1, 2) ||
-			borg_spell(REALM_NATURE, 0, 7) || borg_spell(REALM_LIFE, 0, 6))
+			borg_spell(REALM_NATURE, 0, 7) ||
+			borg_spell(REALM_LIFE, 0, 6) ||
+			borg_racial(RACE_AMBERITE_POWER2))
 		{
 			/* Take note */
-			borg_note_fmt("# Cure Cuts", p);
+			borg_note("# Cure Cuts", p);
 
 			return (TRUE);
 		}
@@ -147,12 +156,14 @@ bool borg_recover(void)
 	/* Hack -- cure poison */
 	if (bp_ptr->status.poisoned && (q < 75))
 	{
-		if (borg_activate_artifact(ART_DAL, FALSE) ||
+		if (borg_activate(BORG_ACT_CURE_POISON) ||
 			borg_spell(REALM_ARCANE, 1, 7) ||
-			borg_spell(REALM_NATURE, 0, 7) || borg_spell(REALM_LIFE, 1, 2))
-		{
+			borg_spell(REALM_NATURE, 0, 7) ||
+			borg_spell(REALM_LIFE, 1, 2) ||
+			borg_racial(RACE_AMBERITE_POWER2))
+		 {
 			/* Take note */
-			borg_note_fmt("# Cure poison", p);
+			borg_note("# Cure poison", p);
 
 			return (TRUE);
 		}
@@ -161,11 +172,11 @@ bool borg_recover(void)
 	/* Hack -- cure fear */
 	if (bp_ptr->status.afraid && (q < 75))
 	{
-		if (borg_activate_artifact(ART_DAL, FALSE) ||
+		if (borg_activate(BORG_ACT_REMOVE_FEAR) ||
 			borg_spell(REALM_LIFE, 0, 3))
 		{
 			/* Take note */
-			borg_note_fmt("# Cure fear", p);
+			borg_note("# Cure fear", p);
 
 			return (TRUE);
 		}
@@ -175,7 +186,7 @@ bool borg_recover(void)
 	if ((bp_ptr->status.hungry || bp_ptr->status.weak) && (q < 75))
 	{
 		if (borg_spell_fail(REALM_LIFE, 0, 7, 65) ||
-			borg_spell_fail(REALM_ARCANE, 2, 7, 65) ||
+			borg_spell_fail(REALM_ARCANE, 2, 6, 65) ||
 			borg_spell_fail(REALM_NATURE, 0, 3, 65) ||
 			borg_racial(RACE_HOBBIT) ||
 			borg_read_scroll(SV_SCROLL_SATISFY_HUNGER))
@@ -188,8 +199,9 @@ bool borg_recover(void)
 	if ((bp_ptr->chp < bp_ptr->mhp / 2) && (q < 75) && p == 0
 		&& (bp_ptr->csp > bp_ptr->msp / 4))
 	{
-		if (borg_activate_artifact(ART_SOULKEEPER, FALSE) ||
-			borg_spell(REALM_LIFE, 1, 6) || borg_spell(REALM_NATURE, 1, 7))
+		if (borg_activate(BORG_ACT_HEAL_BIG) ||
+			borg_spell(REALM_LIFE, 1, 6) ||
+			borg_spell(REALM_NATURE, 1, 7))
 		{
 			/* Take note */
 			borg_note("# heal damage (recovering)");
@@ -200,10 +212,12 @@ bool borg_recover(void)
 
 	/* cure experience loss with prayer */
 	if (bp_ptr->status.fixexp &&
-		(borg_activate_artifact(ART_LUTHIEN, FALSE) ||
+		(borg_activate(BORG_ACT_RESTORE_LIFE) ||
 		 borg_spell(REALM_LIFE, 3, 3) ||
 		 borg_spell(REALM_DEATH, 1, 7) ||
-		 borg_racial(RACE_SKELETON) || borg_racial(RACE_ZOMBIE)))
+		 borg_racial(RACE_AMBERITE_POWER2) ||
+		 borg_racial(RACE_SKELETON) ||
+		 borg_racial(RACE_ZOMBIE)))
 	{
 		return (TRUE);
 	}
@@ -214,7 +228,12 @@ bool borg_recover(void)
 		 bp_ptr->status.fixstat[A_WIS] ||
 		 bp_ptr->status.fixstat[A_DEX] ||
 		 bp_ptr->status.fixstat[A_CON] ||
-		 bp_ptr->status.fixstat[A_CHR]) && borg_spell(REALM_LIFE, 3, 3))
+		 bp_ptr->status.fixstat[A_CHR]) &&
+		(borg_spell(REALM_LIFE, 3, 3) ||
+		 borg_zap_rod(SV_ROD_RESTORATION) ||
+		 borg_activate(BORG_ACT_RESTORATION) ||
+		 borg_racial(RACE_AMBERITE_POWER2) ||
+		 borg_eat_food(SV_FOOD_RESTORING)))
 	{
 		return (TRUE);
 	}
@@ -227,9 +246,8 @@ bool borg_recover(void)
 		if (borg_use_staff_fail(SV_STAFF_CURING) ||
 			borg_zap_rod(SV_ROD_CURING) ||
 			borg_zap_rod(SV_ROD_HEALING) ||
-			borg_activate_artifact(ART_SOULKEEPER, FALSE) ||
-			borg_activate_artifact(ART_GONDOR, FALSE) ||
-			borg_quaff_crit(FALSE) || borg_quaff_potion(SV_POTION_CURING))
+			borg_activate(BORG_ACT_HEAL_BIG) ||
+			borg_quaff_crit(FALSE))
 		{
 			return (TRUE);
 		}
@@ -239,12 +257,10 @@ bool borg_recover(void)
 	if (bp_ptr->status.heavy_stun && (q < 95))
 	{
 		if (borg_quaff_crit(TRUE) ||
-			borg_quaff_potion(SV_POTION_CURING) ||
 			borg_use_staff_fail(SV_STAFF_CURING) ||
 			borg_zap_rod(SV_ROD_CURING) ||
 			borg_zap_rod(SV_ROD_HEALING) ||
-			borg_activate_artifact(ART_SOULKEEPER, FALSE) ||
-			borg_activate_artifact(ART_GONDOR, FALSE))
+			borg_activate(BORG_ACT_HEAL_BIG))
 		{
 			return (TRUE);
 		}
@@ -256,9 +272,7 @@ bool borg_recover(void)
 		if (borg_use_staff_fail(SV_STAFF_CURING) ||
 			borg_zap_rod(SV_ROD_CURING) ||
 			borg_zap_rod(SV_ROD_HEALING) ||
-			borg_quaff_potion(SV_POTION_CURING) ||
-			borg_activate_artifact(ART_SOULKEEPER, FALSE) ||
-			borg_activate_artifact(ART_GONDOR, FALSE) ||
+			borg_activate(BORG_ACT_HEAL_BIG) ||
 			borg_quaff_crit((bool) (bp_ptr->chp < 10)))
 		{
 			return (TRUE);
@@ -270,13 +284,12 @@ bool borg_recover(void)
 	{
 		if (borg_quaff_potion(SV_POTION_CURE_POISON) ||
 			borg_quaff_potion(SV_POTION_SLOW_POISON) ||
-			borg_eat_food(SV_FOOD_WAYBREAD) ||
-			borg_eat_food(SV_FOOD_CURE_POISON) ||
+			borg_eat_cure_poison() ||
 			borg_quaff_crit((bool) (bp_ptr->chp < 10)) ||
 			borg_use_staff_fail(SV_STAFF_CURING) ||
 			borg_zap_rod(SV_ROD_CURING) ||
-			borg_quaff_potion(SV_POTION_CURING) ||
-			borg_activate_artifact(ART_DAL, FALSE))
+			borg_activate(BORG_ACT_CURE_POISON) ||
+			borg_racial(RACE_AMBERITE_POWER2))
 		{
 			return (TRUE);
 		}
@@ -290,7 +303,8 @@ bool borg_recover(void)
 			borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
 			borg_quaff_crit(FALSE) ||
 			borg_use_staff_fail(SV_STAFF_CURING) ||
-			borg_quaff_potion(SV_POTION_CURING) || borg_zap_rod(SV_ROD_CURING))
+			borg_zap_rod(SV_ROD_CURING) ||
+			borg_racial(RACE_AMBERITE_POWER2))
 		{
 			return (TRUE);
 		}
@@ -303,7 +317,7 @@ bool borg_recover(void)
 			borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
 			borg_quaff_crit(FALSE) ||
 			borg_use_staff_fail(SV_STAFF_CURING) ||
-			borg_zap_rod(SV_ROD_CURING) || borg_quaff_potion(SV_POTION_CURING))
+			borg_zap_rod(SV_ROD_CURING))
 		{
 			return (TRUE);
 		}
@@ -316,10 +330,13 @@ bool borg_recover(void)
 			borg_quaff_potion(SV_POTION_BOLDNESS) ||
 			borg_quaff_potion(SV_POTION_HEROISM) ||
 			borg_quaff_potion(SV_POTION_BERSERK_STRENGTH) ||
-			borg_activate_artifact(ART_DAL, FALSE) ||
+			borg_activate(BORG_ACT_REMOVE_FEAR) ||
+			borg_activate(BORG_ACT_HEROISM) ||
+			borg_activate(BORG_ACT_BERSERKER) ||
 			borg_mutation(MUT1_BERSERK) ||
 			borg_racial(RACE_HALF_ORC) ||
-			borg_racial(RACE_HALF_TROLL))
+			borg_racial(RACE_HALF_TROLL) ||
+			borg_racial(RACE_AMBERITE_POWER2))
 		{
 			return (TRUE);
 		}
@@ -340,7 +357,7 @@ bool borg_recover(void)
 		if (borg_zap_rod(SV_ROD_HEALING) ||
 			borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
 			borg_quaff_crit(FALSE) ||
-			borg_activate_artifact(ART_LOTHARANG, FALSE))
+			borg_activate(BORG_ACT_HEAL_SERIOUS))
 		{
 			return (TRUE);
 		}
@@ -358,7 +375,7 @@ bool borg_recover(void)
 		/* Rest until at least one recharges */
 		if (!bp_ptr->status.weak && !bp_ptr->status.cut &&
 			!bp_ptr->status.hungry && !bp_ptr->status.poisoned &&
-			borg_check_rest())
+			borg_check_rest() && borg_on_safe_feat(map_loc(c_x, c_y)->feat))
 		{
 			/* Take note */
 			borg_note("# Resting to recharge a rod...");
@@ -378,21 +395,29 @@ bool borg_recover(void)
 	/*** Just Rest ***/
 
 	/* Hack -- rest until healed */
-	if ((bp_ptr->status.blind || bp_ptr->status.confused ||
-		 bp_ptr->status.image || bp_ptr->status.afraid ||
-		 bp_ptr->status.stun || bp_ptr->status.heavy_stun ||
-		 (bp_ptr->chp < bp_ptr->mhp) ||
-		 (bp_ptr->csp < bp_ptr->msp * 6 / 10)) &&
-		(!borg_takes_cnt || !goal_recalling) && !borg_goi && !borg_shield &&
-		!scaryguy_on_level && borg_check_rest() && (p <= mb_ptr->fear) &&
-		!goal_fleeing)
+	if ((bp_ptr->status.blind ||
+		 bp_ptr->status.confused ||
+		 bp_ptr->status.image ||
+		 bp_ptr->status.afraid ||
+		 bp_ptr->status.stun ||
+		 bp_ptr->status.heavy_stun ||
+		 bp_ptr->chp < bp_ptr->mhp ||
+		 bp_ptr->csp < bp_ptr->msp * 6 / 10) &&
+		(!borg_takes_cnt || !goal_recalling) &&
+		!borg_goi &&
+		!borg_shield &&
+		!scaryguy_on_level &&
+		borg_check_rest() &&
+		p <= mb_ptr->fear &&
+		!goal_fleeing &&
+		borg_on_safe_feat(map_loc(c_x, c_y)->feat))
 	{
 		/* XXX XXX XXX */
 		if (!bp_ptr->status.weak && !bp_ptr->status.cut &&
 			!bp_ptr->status.hungry && !bp_ptr->status.poisoned)
 		{
 			/* Take note */
-			borg_note_fmt("# Resting (danger %d)...", p);
+			borg_note("# Resting (danger %d)...", p);
 
 			/* Rest until done */
 			borg_keypress('R');
@@ -407,10 +432,11 @@ bool borg_recover(void)
 	if (bp_ptr->msp && bp_ptr->lev < 25 && bp_ptr->csp < bp_ptr->msp && p == 0)
 	{
 		if (!bp_ptr->status.weak && !bp_ptr->status.cut &&
-			!bp_ptr->status.hungry && !bp_ptr->status.poisoned)
+			!bp_ptr->status.hungry && !bp_ptr->status.poisoned &&
+			borg_on_safe_feat(map_loc(c_x, c_y)->feat))
 		{
 			/* Take note */
-			borg_note_fmt("# Resting to gain Mana. (danger %d)...", p);
+			borg_note("# Resting to gain Mana. (danger %d)...", p);
 
 			/* Rest until done */
 			borg_keypress('R');
@@ -453,6 +479,38 @@ int borg_extract_dir(int x1, int y1, int x2, int y2)
 
 	/* Paranoia */
 	return (5);
+}
+
+
+/*
+ * Clear the "flow" information
+ *
+ * This function was once a major bottleneck, so we now use several
+ * slightly bizarre, but highly optimized, memory copying methods.
+ */
+static void borg_flow_clear(void)
+{
+	map_block *mb_ptr;
+
+	/* Iterate over the map */
+	MAP_ITT_START (mb_ptr)
+	{
+		mb_ptr->cost = 255;
+
+		if (borg_danger_wipe)
+		{
+			/* Clear the "icky" + "know" flags */
+			mb_ptr->info &= ~(BORG_MAP_ICKY | BORG_MAP_KNOW);
+		}
+	}
+	MAP_ITT_END;
+
+	/* Wipe complete */
+	borg_danger_wipe = FALSE;
+
+	/* Start over */
+	flow_head = 0;
+	flow_tail = 0;
 }
 
 
@@ -584,8 +642,11 @@ static bool borg_play_step(int y2, int x2)
 			bp_ptr->depth == 0 && bp_ptr->lev < 5)
 			return (FALSE);
 
+		/* Quick hack to prevent the walking into player bug */
+		if (!mb_ptr->monster) return (FALSE);
+
 		/* Message */
-		borg_note_fmt("# Walking into a '%s' at (%d,%d)",
+		borg_note("# Walking into a '%s' at (%d,%d)",
 					  r_name + r_info[mb_ptr->monster].name, x, y);
 
 		/* Walk into it */
@@ -608,7 +669,7 @@ static bool borg_play_step(int y2, int x2)
 	{
 		/*** Handle other takes ***/
 		/* Message */
-		borg_note_fmt("# Walking onto a '%s' at (%d,%d)",
+		borg_note("# Walking onto a '%s' at (%d,%d)",
 					  k_name + k_info[mb_ptr->object].name, x, y);
 
 		/* Walk onto it */
@@ -645,7 +706,8 @@ static bool borg_play_step(int y2, int x2)
 			return (TRUE);
 		}
 		/* allow "destroy doors" */
-		if (borg_spell(REALM_CHAOS, 0, 1))
+		if (borg_spell(REALM_CHAOS, 0, 1) ||
+			borg_activate(BORG_ACT_DISARM))
 		{
 			borg_note("# Unbarring ways");
 			mb_ptr->trap = FT_NONE;
@@ -708,21 +770,29 @@ static bool borg_play_step(int y2, int x2)
 		/* Not if hungry */
 		if (bp_ptr->status.weak) return (FALSE);
 
-		/* Lose old target */
-		borg_keypress('*');
-		borg_keypress(ESCAPE);
-
 		/* Mega-Hack -- allow "stone to mud" */
 		if (mb_ptr->feat != FEAT_RUBBLE &&
-			(borg_spell_fail(REALM_ARCANE, 2, 4, 60) ||
-			borg_spell_fail(REALM_NATURE, 1, 0, 60) ||
-			borg_spell_fail(REALM_CHAOS, 2, 3, 60) ||
-			borg_mutation(MUT1_EAT_ROCK) ||
-			borg_racial(RACE_HALF_GIANT)))
+			(borg_spell_okay_fail(REALM_ARCANE, 2, 4, 60) ||
+			borg_spell_okay_fail(REALM_NATURE, 1, 0, 60) ||
+			borg_spell_okay_fail(REALM_CHAOS, 2, 3, 60) ||
+			borg_mutation_check(MUT1_EAT_ROCK, TRUE) ||
+			borg_racial_check(RACE_HALF_GIANT, TRUE)))
 		{
-			borg_note("# Melting a wall");
-			borg_keypress(I2D(dir));
-			return (TRUE);
+			/* Lose old target */
+			borg_keypress('*');
+			borg_keypress(ESCAPE);
+
+			/* Mega-Hack -- allow "stone to mud" */
+			if (borg_spell(REALM_ARCANE, 2, 4) ||
+				borg_spell(REALM_NATURE, 1, 0) ||
+				borg_spell(REALM_CHAOS, 2, 3) ||
+				borg_mutation(MUT1_EAT_ROCK) ||
+				borg_racial(RACE_HALF_GIANT))
+			{
+				borg_note("# Melting a wall (%c)", I2D(dir));
+				borg_keypress(I2D(dir));
+				return (TRUE);
+			}
 		}
 
 		/* No tunneling if in danger */
@@ -750,6 +820,14 @@ static bool borg_play_step(int y2, int x2)
 	if (!borg_needs_searching && bp_ptr->status.search)
 	{
 		borg_keypress('S');
+	}
+
+	/* Don't step on scary floors */
+	if (goal != GOAL_FEAT && !borg_on_safe_feat(mb_ptr->feat))
+	{
+		/* Don't let the borg step on a painful floor */
+		borg_flow_clear();
+		return (FALSE);
 	}
 
 	/* Walk in that direction */
@@ -795,8 +873,8 @@ bool borg_twitchy(void)
 		(borg_spell_fail(REALM_ARCANE, 0, 4, 40) ||
 		 borg_spell_fail(REALM_SORCERY, 0, 1, 40) ||
 		 borg_spell_fail(REALM_TRUMP, 0, 0, 40) ||
-		 borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-		 borg_activate_artifact(ART_COLANNON, FALSE) ||
+		 borg_activate(BORG_ACT_PHASE_DOOR) ||
+		 borg_activate(BORG_ACT_TELEPORT) ||
 		 borg_read_scroll(SV_SCROLL_PHASE_DOOR)))
 	{
 		/* We did something */
@@ -830,6 +908,14 @@ bool borg_twitchy(void)
 	return (TRUE);
 }
 
+
+/* short hand options for borg_flow_spread */
+#define BORG_FLOW_SIMPLE		0x00000000L
+#define BORG_FLOW_OPTIMIZE		0x00000001L
+#define BORG_FLOW_AVOID 		0x00000002L
+#define BORG_FLOW_OPTI_AVOID    0x00000003L
+#define BORG_FLOW_TUNNELING		0x00000004L
+#define BORG_FLOW_FEAT_HURT		0x00000008L
 
 /*
  * Spread a "flow" from the "destination" grids outwards
@@ -891,8 +977,9 @@ bool borg_twitchy(void)
  * If a "depth" is given, then the flow will only be spread to that
  * depth, note that the maximum legal value of "depth" is 250.
  */
-static void borg_flow_spread(int depth, bool optimize, bool avoid,
-                             bool tunneling)
+static void borg_flow_spread(int depth, u32b flow_how)
+/*							 bool optimize, bool avoid,
+                             bool tunneling, bool feat_hurt)*/
 {
 	int i;
 	int n, o = 0;
@@ -903,6 +990,10 @@ static void borg_flow_spread(int depth, bool optimize, bool avoid,
 
 	int player_cost = mb_ptr->cost;
 
+	bool optimize	= (flow_how & BORG_FLOW_OPTIMIZE) ? TRUE : FALSE;
+	bool avoid		= (flow_how & BORG_FLOW_AVOID) ? TRUE : FALSE;
+	bool tunneling  = (flow_how & BORG_FLOW_TUNNELING) ? TRUE : FALSE;
+	bool feat_hurt  = (flow_how & BORG_FLOW_FEAT_HURT) ? TRUE : FALSE;
 
 	/* Now process the queue */
 	while (flow_head != flow_tail)
@@ -912,7 +1003,7 @@ static void borg_flow_spread(int depth, bool optimize, bool avoid,
 		y1 = borg_flow_y[flow_tail];
 
 		/* Circular queue -- dequeue the next entry */
-		if (++flow_tail == AUTO_FLOW_MAX) flow_tail = 0;
+		if (++flow_tail == BORG_FLOW_MAX) flow_tail = 0;
 
 		/* Bounds checking */
 		if (!map_in_bounds(x1, y1)) continue;
@@ -955,24 +1046,27 @@ static void borg_flow_spread(int depth, bool optimize, bool avoid,
 			/* Skip "reached" grids */
 			if (mb_ptr->cost <= n) continue;
 
-			/* Avoid "wall" grids (not doors) unless tunneling */
-			if (!tunneling &&
-				(mb_ptr->feat >= FEAT_SECRET &&
-				 mb_ptr->feat <= FEAT_WALL_SOLID)) continue;
+			/* If the borg is not ready to tunnel */
+			if (!tunneling)
+			{
+				/* Avoid walls */
+				if (mb_ptr->feat >= FEAT_SECRET &&
+					mb_ptr->feat <= FEAT_WALL_SOLID) continue;
 
-			/* Avoid pillars */
-			if (!tunneling && mb_ptr->feat == FEAT_PILLAR) continue;
+				/* Avoid pillars */
+				if (mb_ptr->feat == FEAT_PILLAR) continue;
+
+				/* Avoid Jungle */
+				if (mb_ptr->feat >= FEAT_FENCE &&
+					mb_ptr->feat <= FEAT_JUNGLE) continue;
+			}
 
 			/* Avoid "perma-wall" grids */
 			if (mb_ptr->feat >= FEAT_PERM_EXTRA &&
 				mb_ptr->feat <= FEAT_PERM_SOLID) continue;
 			
-			if (!borg_on_safe_feat(mb_ptr->feat)) continue;
-
-			/* Avoid Mountains */
-			if (mb_ptr->feat == FEAT_MOUNTAIN) continue;
-
-			/* Avoid some other Zang Terrains */
+			/* Sometimes allows painfull feats to be included */
+			if (!feat_hurt && !borg_on_safe_feat(mb_ptr->feat)) continue;
 
 			/* Avoid unknown grids (if requested or retreating) */
 			if ((avoid || borg_desperate) && !mb_ptr->feat) continue;
@@ -1035,7 +1129,7 @@ static void borg_flow_spread(int depth, bool optimize, bool avoid,
 			old_head = flow_head;
 
 			/* Circular queue -- insert with wrap */
-			if (++flow_head == AUTO_FLOW_MAX)
+			if (++flow_head == BORG_FLOW_MAX)
 				flow_head = 0;
 
 			/* Circular queue -- handle overflow (badly) */
@@ -1047,7 +1141,6 @@ static void borg_flow_spread(int depth, bool optimize, bool avoid,
 	/* Forget the flow info */
 	flow_head = flow_tail = 0;
 }
-
 
 
 /*
@@ -1088,7 +1181,6 @@ static void borg_flow_enqueue_grid(int x, int y)
 	/* Only enqueue a grid once */
 	if (mb_ptr->cost == 1) return;
 
-
 	/* Save the flow cost (zero) */
 	mb_ptr->cost = 1;
 
@@ -1101,45 +1193,12 @@ static void borg_flow_enqueue_grid(int x, int y)
 	old_head = flow_head;
 
 	/* Circular queue -- insert with wrap */
-	if (++flow_head == AUTO_FLOW_MAX) flow_head = 0;
+	if (++flow_head == BORG_FLOW_MAX) flow_head = 0;
 
 	/* Circular queue -- handle overflow */
 	if (flow_head == flow_tail) flow_head = old_head;
-
 }
 
-
-
-/*
- * Clear the "flow" information
- *
- * This function was once a major bottleneck, so we now use several
- * slightly bizarre, but highly optimized, memory copying methods.
- */
-static void borg_flow_clear(void)
-{
-	map_block *mb_ptr;
-
-	/* Iterate over the map */
-	MAP_ITT_START (mb_ptr)
-	{
-		mb_ptr->cost = 255;
-
-		if (borg_danger_wipe)
-		{
-			/* Clear the "icky" + "know" flags */
-			mb_ptr->info &= ~(BORG_MAP_ICKY | BORG_MAP_KNOW);
-		}
-	}
-	MAP_ITT_END;
-
-	/* Wipe complete */
-	borg_danger_wipe = FALSE;
-
-	/* Start over */
-	flow_head = 0;
-	flow_tail = 0;
-}
 
 
 /*
@@ -1154,9 +1213,8 @@ static void borg_flow_reverse(void)
 	borg_flow_enqueue_grid(c_x, c_y);
 
 	/* Spread, but do NOT optimize */
-	borg_flow_spread(250, FALSE, FALSE, FALSE);
+	borg_flow_spread(250, BORG_FLOW_SIMPLE);
 }
-
 
 /*
  * Commit the current "flow"
@@ -1174,7 +1232,7 @@ static bool borg_flow_commit(cptr who, int why)
 	if (cost >= 250) return (FALSE);
 
 	/* Message */
-	if (who) borg_note_fmt("# Flowing toward %s at cost %d", who, cost);
+	if (who) borg_note("# Flowing toward %s at cost %d", who, cost);
 
 	/* Iterate over all grids */
 	MAP_ITT_START (mb_ptr)
@@ -1285,14 +1343,410 @@ bool borg_flow_old(int why)
 		}
 
 		/* Cancel goal */
-		goal = 0;
+		goal = GOAL_NONE;
 	}
 
 	/* Nothing to do */
 	return (FALSE);
 }
 
+/*
+ * Flow closer to a set of coordinates.  This proc aims to get right on those
+ * coords.  That is closer than needed for a word of recall, but it is an easy
+ * way to make sure that the borg doesn't go down the wrong dungeon.
+ */
+static bool borg_flow_block(int x, int y, cptr reason, int why)
+{
+	/* Don't leave the map */
+	if (x < 0 || x > BORG_MAX_WILD_SIZE) return (FALSE);
+ 
+	/* Don't leave the map */
+	if (y < 0 || y > BORG_MAX_WILD_SIZE) return (FALSE);
 
+	/* Flow a block east */
+	if (c_x < x)
+		x = MIN(c_x + 16, x);
+
+	/* Flow a block west */
+	else if (c_x > x)
+		x = MAX(c_x - 16, x);
+	else
+		x = c_x;
+
+	/* Flow a block south */
+	if (c_y < y)
+		y = MIN(c_y + 16, y);
+
+	/* Flow a block north */
+	else if (c_y > y)
+		y = MAX(c_y - 16, y);
+	else
+		y = c_y;
+
+	/* No need to go where you already are */
+	if (x == c_x && y == c_y) return (FALSE);
+
+	/* Clear the flow codes */
+	borg_flow_clear();
+
+	/* Enqueue the grid */
+	borg_flow_enqueue_grid(x, y);
+
+	/* Spread the flow */
+	borg_flow_spread(250, BORG_FLOW_OPTI_AVOID);
+
+	/* Attempt to Commit the flow */
+	if (!borg_flow_commit(reason, why)) return (FALSE);
+
+	/* Take one step */
+	if (!borg_flow_old(why)) return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/*
+ * Prepare to "flow" towards a specific shop entry
+ */
+bool borg_flow_shop_entry(int i)
+{
+	int x, y;
+
+	/* Must be in town */
+	if (bp_ptr->depth) return (FALSE);
+
+	/* Is it a valid shop? */
+	if (i < 0 || i > borg_shop_num) return (FALSE);
+
+	/* Pick up the new target, but not too far */
+	if (c_x < borg_shops[i].x)
+	{
+		/* Flow a block east */
+		x = MIN(c_x + 16, borg_shops[i].x);
+	}
+	else if (c_x > borg_shops[i].x)
+	{
+		/* Flow a block west */
+		x = MAX(c_x - 16, borg_shops[i].x);
+	}
+	else x = c_x;
+
+	if (c_y < borg_shops[i].y)
+	{
+		/* Flow a block south */
+		y = MIN(c_y + 16, borg_shops[i].y);
+	}
+	else if (c_y > borg_shops[i].y)
+	{
+		/* Flow a block north */
+		y = MAX(c_y - 16, borg_shops[i].y);
+	}
+	else y = c_y;
+
+	/* Hack -- re-enter a shop if needed */
+	if (x == c_x && y == c_y)
+	{
+		/* Note */
+		borg_note("# Re-entering a shop");
+
+		/* Enter the store */
+		borg_keypress('5');
+
+		/* Success */
+		return (TRUE);
+	}
+
+	/* Clear the flow codes */
+	borg_flow_clear();
+
+	/* Enqueue the grid */
+	borg_flow_enqueue_grid(x, y);
+
+	/* Spread the flow */
+	borg_flow_spread(250, BORG_FLOW_OPTIMIZE);
+
+	/* Attempt to Commit the flow */
+	if (!borg_flow_commit("shop", GOAL_SHOP)) return (FALSE);
+
+	/* Take one step */
+	if (!borg_flow_old(GOAL_SHOP)) return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/* Choose a shop to visit */
+bool borg_choose_shop(void)
+{
+	int i;
+	s32b dist, b_d = BORG_SMALL_DISTANCE;
+
+	/* Must be in town */
+	if (bp_ptr->depth) return (FALSE);
+
+	/* Only try to find a shop when there is no goal */
+	if (goal && goal != GOAL_SHOP) return (FALSE);
+
+	/* If we are already flowing toward a shop do not check again... */
+	if (goal_shop != -1)
+	{
+		borg_note("# Using previous goal shop: %d", goal_shop);
+		return (TRUE);
+	}
+	
+	/* Find 'best' shop to go to */
+	for (i = 0; i < borg_shop_num; i++)
+	{
+		/* Do not revisit shops */
+		if (borg_shops[i].visit) continue;
+
+		/* Get distance */
+		dist = distance(c_x, c_y, borg_shops[i].x, borg_shops[i].y);
+
+		/* Visit only the shops in one town */
+		if (dist > BORG_SMALL_DISTANCE) continue;
+
+		/* Only closer shops */
+		if (dist >= b_d) continue;
+
+		goal_shop = i;
+	}
+
+	/* All shops have been visited */
+	if (goal_shop == -1) return (FALSE);
+
+	/* We want to shop */
+	borg_note("# Goal shop: %d, dist: %d", goal_shop, b_d);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+/* Find the closest shop from the closest town */
+bool borg_find_shop(void)
+{
+	if (borg_choose_shop())
+	{
+		/* Try and visit a shop, if so desired */
+		if (borg_flow_shop_entry(goal_shop)) return (TRUE);
+
+		/* Let us know what the value is when we fail */
+		borg_note("# Failed to get good shop!");
+	}
+
+	goal = GOAL_NONE;
+	goal_shop = -1;
+	shop_num = -1;
+
+	/* No shop */
+	return (FALSE);
+}
+
+
+/* Find a town to blow some money */
+bool borg_find_town(void)
+{
+	int i, b_i = -1;
+	int d, b_d = BORG_MAX_DISTANCE;
+
+	/* Only on the surface */
+	if (bp_ptr->depth && !vanilla_town) return (FALSE);
+
+	/* No known town */
+	if (!borg_town_num) return (FALSE);
+
+	/* Not enough money */
+	if (borg_gold < 20) return (FALSE);
+
+	/* Buying doesn't really help you now, unless you have loads */
+	if (borg_prepared_depth() > 20 && borg_gold < 100000) return (FALSE);
+
+	/* Leave if there is a goal already */
+	if (goal && goal != GOAL_TOWN) return (FALSE);
+
+	/* Remember previous effort */
+	if (goal == GOAL_TOWN)
+	{
+		b_i = goal_town;
+
+		/* Get the distance to this place */
+		b_d = distance(c_x, c_y, borg_towns[b_i].x, borg_towns[b_i].y);
+	}
+	/* Find the closest, non-visited town */
+	else
+	{
+		/* Loop through the towns */
+		for (i = 0; i < borg_town_num; i++)
+		{
+			/* Get the distance to this place */
+			d = distance(c_x, c_y, borg_towns[i].x, borg_towns[i].y);
+
+			/* Was it visited recently? */
+			if (borg_towns[i].visit) continue;
+
+			/* Is it closer? */
+			if (d >= b_d) continue;
+
+			/* Remember this one */
+			b_i = i;
+			b_d = d;
+		}
+	}
+
+	/* All towns were visited since last dungeon crawl */
+	if (b_i == -1) return (FALSE);
+
+	/* More or less in town */
+	if (b_d < BORG_SMALL_DISTANCE)
+	{
+		/* Mark this place to prevent looping */
+		borg_towns[b_i].visit = TRUE;
+
+		/* No need to go here anymore */
+		goal_town = -1;
+
+		/* Go shopping */
+		if (borg_find_shop()) return (TRUE);
+
+		/* Oh well */
+		return (FALSE);
+	}
+
+	/* Go closer */
+	if (borg_flow_block(borg_towns[b_i].x,
+						borg_towns[b_i].y,
+						borg_towns[b_i].name,
+						GOAL_TOWN))
+	{
+		/* Happy */
+		return (TRUE);
+	}
+	else
+	{
+		borg_note("Flow block failed because the target was in deep water");
+	}
+
+	goal = GOAL_NONE;
+	goal_town = -1;
+
+	/* The borg is in that town */
+	return (FALSE);
+}
+
+
+/* Find a new dungeon */
+bool borg_find_dungeon(void)
+{
+	int i, b_i = -1;
+	int d, b_d = BORG_MAX_DISTANCE;
+	int p;
+
+	/* Do this only on the surface */
+	if (bp_ptr->depth) return (FALSE);
+
+	/* Find the target depth */
+	p = borg_prepared_depth();
+
+	/* A bit of trickery for the vanilla_town */
+	if (vanilla_town)
+	{
+		/* Tell the borg to enter the only existing dungeon */
+		goal = GOAL_CAVE;
+		goal_dungeon = 0;
+	}
+	else
+	{
+		/* Not when the borg knows only a few towns */
+		if ((p > 20) &&
+		    ((bp_ptr->lev > 20 && borg_town_num < 5) ||
+		     (bp_ptr->lev > 30 && borg_town_num < 13) ||
+		     (bp_ptr->lev > 40 && borg_town_num < 19))) return (FALSE);
+	}
+
+	/* Not when the borg is exploring the wilderness */
+	if (goal && goal != GOAL_CAVE) return (FALSE);
+
+	/* Remember previous effort */
+	if (goal == GOAL_CAVE)
+	{
+		b_i = goal_dungeon;
+		b_d = distance(c_x, c_y, borg_dungeons[b_i].x, borg_dungeons[b_i].y);
+	}
+	/* Find the closest non-visited dungeon */
+	else
+	{
+		/* Loop through the dungeons */
+		for (i = 0; i < borg_dungeon_num; i++)
+		{
+			/* This dungeon starts too deep */
+			if (borg_dungeons[i].min_depth > p) continue;
+
+			/* This dungeon ends too shallow */
+			if (borg_dungeons[i].max_depth < p &&
+				borg_dungeons[i].bottom) continue;
+
+			/* How far away is this? */
+			d = distance(c_x, c_y, borg_dungeons[i].x, borg_dungeons[i].y);
+
+			/* Ignore dungeons far away */
+			if (d > b_d) continue;
+
+			/* Remember this one */
+			b_i = i;
+			b_d = d;
+		}
+	}
+
+	/* No good dungeon found */
+	if (b_i == -1) return (FALSE);
+
+	/* If the borg is right there at the dungeon */
+	if (b_d == 0)
+	{
+		/* Reached the place */
+		goal_dungeon = -1;
+
+		/* If the borg leaves the surface */
+		if (!bp_ptr->depth) borg_leave_surface();
+
+			/* If the dungeon was visited and the target depth is not shallow */
+		if (p >= borg_dungeons[b_i].min_depth + 4 &&
+			borg_dungeons[b_i].min_depth != 0 &&
+			borg_dungeons[b_i].min_depth < 5 + borg_dungeons[b_i].max_depth != 0 &&
+			bp_ptr->recall >= 4 && borg_recall())
+		{
+			/* Note */
+			borg_note("# Recalling into dungeon.");
+		}
+		else
+		{
+			/* Take those stairs */
+			borg_keypress('>');
+		}
+
+		return (TRUE);
+	}
+
+	/* Go closer to that dungeon */
+	if (borg_flow_block(borg_dungeons[b_i].x,
+						borg_dungeons[b_i].y,
+						"my dungeon",
+						GOAL_CAVE))
+	{
+		goal_dungeon = b_i;
+
+		/* Happy */
+		return (TRUE);
+	}
+
+	goal_dungeon = -1;
+	goal = GOAL_NONE;
+
+	return (FALSE);
+}
 
 
 /*
@@ -1332,7 +1786,7 @@ bool borg_flow_stair_both(int why)
 	}
 
 	/* Spread the flow */
-	borg_flow_spread(250, TRUE, FALSE, FALSE);
+	borg_flow_spread(250, BORG_FLOW_OPTIMIZE);
 
 	/* Attempt to Commit the flow */
 	if (!borg_flow_commit("stairs", why)) return (FALSE);
@@ -1371,12 +1825,13 @@ bool borg_flow_stair_less(int why)
 	if ((bp_ptr->lev > 35) || !bp_ptr->cur_lite)
 	{
 		/* Spread the flow */
-		borg_flow_spread(250, TRUE, FALSE, FALSE);
+		borg_flow_spread(250, BORG_FLOW_OPTIMIZE);
 	}
 	else
 	{
 		/* Spread the flow, No Optimize, Avoid */
-		borg_flow_spread(250, FALSE, (bool) !borg_desperate, FALSE);
+		borg_flow_spread(250, (borg_desperate) ? BORG_FLOW_SIMPLE
+                                               : BORG_FLOW_AVOID);
 	}
 
 	/* Attempt to Commit the flow */
@@ -1414,8 +1869,7 @@ bool borg_flow_stair_more(int why)
 
 	/* don't head for the stairs if you are recalling,  */
 	/* even if you are fleeing. */
-	if (goal_recalling)
-		return (FALSE);
+	if (goal_recalling)	return (FALSE);
 
 	/* Clear the flow codes */
 	borg_flow_clear();
@@ -1428,7 +1882,7 @@ bool borg_flow_stair_more(int why)
 	}
 
 	/* Spread the flow */
-	borg_flow_spread(250, TRUE, FALSE, FALSE);
+	borg_flow_spread(250, BORG_FLOW_OPTIMIZE);
 
 	/* Attempt to Commit the flow */
 	if (!borg_flow_commit("down-stairs", why)) return (FALSE);
@@ -1461,7 +1915,7 @@ bool borg_flow_glyph(int why)
 	}
 
 	/* Spread the flow */
-	borg_flow_spread(250, TRUE, FALSE, FALSE);
+	borg_flow_spread(250, BORG_FLOW_OPTIMIZE);
 
 	/* Attempt to Commit the flow */
 	if (!borg_flow_commit("glyph of warding", why)) return (FALSE);
@@ -1473,32 +1927,6 @@ bool borg_flow_glyph(int why)
 	return (TRUE);
 }
 
-/*
- * Prepare to flow towards Town Gates
- */
-bool borg_flow_town_exit(int why)
-{
-	/* Clear the flow codes */
-	borg_flow_clear();
-
-	/* Do something here */
-
-/* This routine can be used to flow to any town special
- * such as the mayors office or the Whitehorse Inn or even
- * special town quests.
- */
-	/* Spread the flow */
-	borg_flow_spread(250, TRUE, FALSE, FALSE);
-
-	/* Attempt to Commit the flow */
-	if (!borg_flow_commit("Town Gates", why)) return (FALSE);
-
-	/* Take one step */
-	if (!borg_flow_old(why)) return (FALSE);
-
-	/* Success */
-	return (TRUE);
-}
 
 /*
  * Prepare to flow towards light
@@ -1544,7 +1972,7 @@ bool borg_flow_light(int why)
 	}
 
 	/* Spread the flow */
-	borg_flow_spread(250, TRUE, FALSE, FALSE);
+	borg_flow_spread(250, BORG_FLOW_OPTIMIZE);
 
 	/* Attempt to Commit the flow */
 	if (!borg_flow_commit("a lighted area", why)) return (FALSE);
@@ -1557,49 +1985,60 @@ bool borg_flow_light(int why)
 }
 
 
-/*
- * Prepare to "flow" towards a specific shop entry
- */
-bool borg_flow_shop_entry(int i)
+/* When it is dark and the borg is outside, find an inn */
+bool borg_waits_daylight(void)
 {
-	int x, y;
+	int i, b_i = -1;
+	int d, b_d = BORG_MAX_DISTANCE;
 
-	/* Must be in town */
+	/* Is there a wilderness? */
+	if (vanilla_town) return (FALSE);
+
+	/* Is the borg at the surface? */
 	if (bp_ptr->depth) return (FALSE);
 
-	/* Obtain the location */
-	x = borg_shops[i].x;
-	y = borg_shops[i].y;
+	/* Is it dark at all? */
+	if (bp_ptr->hour > 5 && bp_ptr->hour < 18) return (FALSE);
 
-	/* Hack -- re-enter a shop if needed */
-	if ((x == c_x) && (y == c_y))
+	/* Find the closest inn */
+	for (i = 0; i < borg_shop_num; i++)
 	{
-		/* Note */
-		borg_note("# Re-entering a shop");
+		if (borg_shops[i].type != BUILD_INN) continue;
 
-		/* Enter the store */
-		borg_keypress('5');
+		/* How far away is this? */
+		d = distance(c_x, c_y, borg_dungeons[i].x, borg_dungeons[i].y);
 
-		/* Success */
+		/* Ignore inns far away */
+		if (d > b_d) continue;
+
+		/* Remember this one */
+		b_i = i;
+		b_d = d;
+	}
+
+	goal_shop = b_i;
+
+	/* Go to that inn */
+	if (b_i != -1 && borg_flow_shop_entry(b_i) && borg_gold > 25)
+	{
+		borg_note("# Looking for a place to spend the night.");
+
 		return (TRUE);
 	}
 
-	/* Clear the flow codes */
-	borg_flow_clear();
+	/* Don't rest when it hurts */
+	if (!borg_on_safe_feat(map_loc(c_x, c_y)->feat)) return (FALSE);
 
-	/* Enqueue the grid */
-	borg_flow_enqueue_grid(x, y);
+	/* Wait out the night */
+	borg_keypress(ESCAPE);
+	borg_keypress('0');
+	borg_keypress('2');
+	borg_keypress('9');
+	borg_keypress('9');
+	borg_keypress('R');
 
-	/* Spread the flow */
-	borg_flow_spread(250, TRUE, FALSE, FALSE);
+	borg_note("# Wait out the night.");
 
-	/* Attempt to Commit the flow */
-	if (!borg_flow_commit("shop", GOAL_MISC)) return (FALSE);
-
-	/* Take one step */
-	if (!borg_flow_old(GOAL_MISC)) return (FALSE);
-
-	/* Success */
 	return (TRUE);
 }
 
@@ -1609,8 +2048,7 @@ bool borg_flow_shop_entry(int i)
  * spot next to a monster.  It fails if the new position is next to a monster.
  * The method to find out if there is a monster is taken from borg_temp_fill.
  */
-static
-bool borg_aim_ball(int x, int y)
+static bool borg_aim_ball(int x, int y)
 {
 	int i, dx, dy;
 	int x1, y1;
@@ -1699,7 +2137,8 @@ bool borg_flow_kill_aim(bool viewable)
 				borg_flow_enqueue_grid(o_x, o_y);
 
 				/* Spread the flow */
-				borg_flow_spread(5, TRUE, (bool) !viewable, FALSE);
+				borg_flow_spread(5, (viewable) ? BORG_FLOW_OPTIMIZE
+											   : BORG_FLOW_OPTI_AVOID);
 
 				/* Attempt to Commit the flow */
 				if (!borg_flow_commit("targetable position", GOAL_KILL))
@@ -1860,7 +2299,7 @@ bool borg_flow_kill_corridor(bool viewable)
 		borg_flow_enqueue_grid(m_x, m_y);
 
 		/* Spread the flow */
-		borg_flow_spread(15, TRUE, FALSE, TRUE);
+		borg_flow_spread(15, BORG_FLOW_OPTIMIZE | BORG_FLOW_TUNNELING);
 
 		/* Attempt to Commit the flow */
 		if (!borg_flow_commit("anti-summon corridor", GOAL_KILL))
@@ -1875,6 +2314,171 @@ bool borg_flow_kill_corridor(bool viewable)
 	return FALSE;
 }
 
+
+/* Check to see if the borg is standing on a nasty grid.
+ * Lava can hurt the borg unless he is IFire.
+ * Water can hurt if it is deep/ocean and encumbered.
+ * Acid can hurt the borg unless he is IAcid.
+ * Swamp can hurt the borg unless he is IPoison.
+ * Levitation item can reduce the effect of nasty grids.
+ */
+bool borg_on_safe_feat(byte feat)
+{
+	/* Water */
+	if (feat == FEAT_DEEP_WATER ||
+	 	 feat == FEAT_OCEAN_WATER)
+	{
+		/* Levitation helps */
+		if (FLAG(bp_ptr, TR_FEATHER)) return (TRUE);
+
+		/* Being non-encumbered helps */
+		if (!bp_ptr->encumber) return (TRUE);
+
+		/* Everything else hurts */
+		return (FALSE);
+	}
+
+	/* Nothing hurts when Invulnerable */
+	if (borg_goi) return (TRUE);
+
+	/* Lava */
+	if (feat == FEAT_DEEP_LAVA)
+	{
+		/* Immunity helps */
+		if (FLAG(bp_ptr, TR_IM_FIRE)) return (TRUE);
+
+		/* Everything else hurts */
+		return (FALSE);
+	}
+
+	if (feat == FEAT_SHAL_LAVA)
+	{
+		/* Levitation helps */
+		if (FLAG(bp_ptr, TR_FEATHER)) return (TRUE);
+
+		/* Immunity helps */
+		if (FLAG(bp_ptr, TR_IM_FIRE)) return (TRUE);
+
+		/* Everything else hurts */
+		return (FALSE);
+	}
+
+	/* Swamp */
+	if (feat == FEAT_DEEP_SWAMP)
+	{
+		/* Immunity helps */
+		if (FLAG(bp_ptr, TR_IM_POIS)) return (TRUE);
+
+		return (FALSE);
+	}
+
+	if (feat == FEAT_SHAL_SWAMP)
+	{
+		/* Immunity helps */
+		if (FLAG(bp_ptr, TR_IM_POIS)) return (TRUE);
+
+		/* (temp) Resistance helps */
+		if (FLAG(bp_ptr, TR_WILD_WALK)) return (TRUE);
+
+		/* Levitation helps */
+		if (FLAG(bp_ptr, TR_FEATHER)) return (TRUE);
+
+		/* Shallow swamp does hurt */
+		return (FALSE);
+	}
+
+	/* Acid */
+	if (feat == FEAT_DEEP_ACID)
+	{
+		/* Immunity helps */
+		if (FLAG(bp_ptr, TR_IM_ACID)) return (TRUE);
+
+		/* Everything else hurts */
+		return (FALSE);
+	}
+
+	if (feat == FEAT_SHAL_ACID)
+	{
+		/* Immunity helps */
+		if (FLAG(bp_ptr, TR_IM_ACID)) return (TRUE);
+
+		/* Levitation helps */
+		if (FLAG(bp_ptr, TR_FEATHER)) return (TRUE);
+
+		/* Everything else hurts */
+		return (FALSE);
+	}
+	/* Generally ok */
+	return (TRUE);
+}
+
+
+/* If the borg stands on something painfull he'd better move */
+bool borg_flow_non_hurt(void)
+{
+	int x, y;
+	int c, b_c = 255;
+	map_block *mb_ptr = map_loc(c_x, c_y);
+
+	/* This doesn't hurt */
+	if (borg_on_safe_feat(mb_ptr->feat)) return (FALSE);
+
+	/* Search outwards */
+	borg_flow_clear();
+
+	/* Enqueue the player's grid */
+	borg_flow_enqueue_grid(c_x, c_y);
+
+	/* Spread, but do NOT optimize and allow painful feats */
+	borg_flow_spread(10, BORG_FLOW_FEAT_HURT);
+
+	/* Scan the entire map */
+	MAP_ITT_START (mb_ptr)
+	{
+		/* Skip unknown grids */
+		if (!mb_ptr->feat) continue;
+
+		/* Skip walls/doors */
+		if (borg_cave_wall_grid(mb_ptr)) continue;
+
+		/* Skip painfull grids */
+		if (!borg_on_safe_feat(mb_ptr->feat)) continue;
+
+		/* Acquire the cost */
+		c = mb_ptr->cost;
+
+		/* Skip "unreachable" grids */
+		if (c >= b_c) continue;
+
+		/* Remember this cost */
+		b_c = c;
+
+		/* Remember this location */
+		MAP_GET_LOC(x, y);
+	}
+	MAP_ITT_END;
+
+	/* Found no safe feat */
+	if (b_c == 255) return (FALSE);
+
+	/* Clear the flow codes */
+	borg_flow_clear();
+
+	/* Enqueue the grid */
+	borg_flow_enqueue_grid(x, y);
+
+	/* Spread the flow */
+	borg_flow_spread(30, BORG_FLOW_OPTI_AVOID | BORG_FLOW_FEAT_HURT);
+
+	/* Attempt to Commit the flow */
+	if (!borg_flow_commit("to a safe feat", GOAL_FEAT)) return (FALSE);
+
+	/* Take one step */
+	if (!borg_flow_old(GOAL_FEAT)) return (FALSE);
+
+	/* Success */
+	return (TRUE);
+}
 
 
 /*
@@ -1900,7 +2504,9 @@ bool borg_flow_kill(bool viewable, int nearness)
 	if (bp_ptr->depth == 0 && bp_ptr->lev < 7) return (FALSE);
 
 	/* YOU ARE NOT A WARRIOR!! DON'T ACT LIKE ONE!! */
-	if (borg_class == CLASS_MAGE &&
+	if ((borg_class == CLASS_MAGE ||
+		borg_class == CLASS_HIGH_MAGE ||
+		borg_class == CLASS_MINDCRAFTER) &&
 		bp_ptr->lev < (bp_ptr->depth ? 35 : 5)) return (FALSE);
 
 
@@ -2099,7 +2705,8 @@ bool borg_flow_kill(bool viewable, int nearness)
 	/* if we are not flowing toward monsters that we can see, make sure they */
 	/* are at least easily reachable.  The second flag is whether or not */
 	/* to avoid unknown squares.  This was for performance when we have ESP. */
-	borg_flow_spread(nearness, TRUE, (bool) !viewable, FALSE);
+	borg_flow_spread(nearness, (viewable) ? BORG_FLOW_OPTIMIZE
+										  : BORG_FLOW_OPTI_AVOID);
 
 
 	/* Attempt to Commit the flow */
@@ -2186,7 +2793,7 @@ bool borg_flow_take(bool viewable, int nearness)
 
 		/* look to see if this is on the bad items list */
 		item_bad = FALSE;
-		for (a = 0; a < 50; a++)
+		for (a = 0; a < bad_obj_n; a++)
 		{
 			if (x == bad_obj_x[a] && y == bad_obj_y[a])
 				item_bad = TRUE;
@@ -2203,6 +2810,9 @@ bool borg_flow_take(bool viewable, int nearness)
 
 		/* Require line of sight if requested */
 		if (viewable && !(mb_ptr->info & BORG_MAP_VIEW)) continue;
+
+		/* Require the item to be on a safe feat */
+		if (!borg_on_safe_feat(mb_ptr->feat)) continue;
 
 		/* Careful -- Remember it */
 		borg_temp_x[borg_temp_n] = x;
@@ -2228,7 +2838,8 @@ bool borg_flow_take(bool viewable, int nearness)
 	/* if we are not flowing toward items that we can see, make sure they */
 	/* are at least easily reachable.  The second flag is weather or not  */
 	/* to avoid unkown squares.  This was for performance. */
-	borg_flow_spread(nearness, TRUE, (bool) !viewable, FALSE);
+	borg_flow_spread(nearness, (viewable) ? BORG_FLOW_OPTIMIZE
+										  : BORG_FLOW_OPTI_AVOID);
 
 	/* Attempt to Commit the flow */
 	if (!borg_flow_commit("item", GOAL_TAKE)) return (FALSE);
@@ -2297,9 +2908,6 @@ static bool borg_flow_dark_interesting(int x, int y, int b_stair)
 		/* Do not disarm when confused */
 		if (bp_ptr->status.confused) return (FALSE);
 
-		/* Do not bother if super rich */
-		if (borg_gold >= 1000000) return (FALSE);
-
 		/* Not when darkened */
 		if (!bp_ptr->cur_lite) return (FALSE);
 
@@ -2307,8 +2915,8 @@ static bool borg_flow_dark_interesting(int x, int y, int b_stair)
 		if (borg_spell_legal(REALM_ARCANE, 2, 4) ||
 			borg_spell_legal(REALM_NATURE, 1, 0) ||
 			borg_spell_legal(REALM_CHAOS, 2, 3) ||
-			borg_mutation(MUT1_EAT_ROCK) ||
-			borg_racial(RACE_HALF_GIANT)) return (TRUE);
+			borg_mutation_check(MUT1_EAT_ROCK, TRUE) ||
+			borg_racial_check(RACE_HALF_GIANT, TRUE)) return (TRUE);
 
 		/*
 		 * Do not dig unless we appear strong
@@ -2359,8 +2967,8 @@ static bool borg_flow_dark_interesting(int x, int y, int b_stair)
 					if (borg_spell_legal(REALM_ARCANE, 2, 4) ||
 						borg_spell_legal(REALM_NATURE, 1, 0) ||
 						borg_spell_legal(REALM_CHAOS, 0, 6) ||
-						borg_mutation_check(MUT1_EAT_ROCK, TRUE) ||
-						borg_racial_check(RACE_HALF_GIANT, TRUE)) return (TRUE);
+						borg_mutation_check(MUT1_EAT_ROCK) ||
+						borg_racial_check(RACE_HALF_GIANT)) return (TRUE);
 
 					/*
 					 * Do not dig unless we appear strong
@@ -2825,7 +3433,7 @@ static bool borg_flow_dark_2(void)
 	}
 
 	/* Spread the flow */
-	borg_flow_spread(5, TRUE, FALSE, FALSE);
+	borg_flow_spread(5, BORG_FLOW_OPTIMIZE);
 
 
 	/* Attempt to Commit the flow */
@@ -2836,7 +3444,7 @@ static bool borg_flow_dark_2(void)
 	if (!borg_flow_old(GOAL_DARK)) return (FALSE);
 
 	/* Forget goal */
-	goal = 0;
+	goal = GOAL_NONE;
 
 	/* Success */
 	return (TRUE);
@@ -2913,7 +3521,7 @@ static bool borg_flow_dark_3(int b_stair)
 	}
 
 	/* Spread the flow (limit depth) */
-	borg_flow_spread(5, TRUE, TRUE, FALSE);
+	borg_flow_spread(5, BORG_FLOW_OPTI_AVOID);
 
 
 	/* Attempt to Commit the flow */
@@ -3011,7 +3619,7 @@ static bool borg_flow_dark_4(int b_stair)
 	borg_flow_border(x1, y1, x2, y2, TRUE);
 
 	/* Spread the flow (limit depth) */
-	borg_flow_spread(32, TRUE, TRUE, FALSE);
+	borg_flow_spread(32, BORG_FLOW_OPTI_AVOID);
 
 	/* Clear the edges */
 	borg_flow_border(x1, y1, x2, y2, FALSE);
@@ -3047,7 +3655,7 @@ static bool borg_flow_dark_5(int b_stair)
 	MAP_ITT_START (mb_ptr)
 	{
 		/* Paranoia -- Check for overflow */
-		if (borg_temp_n == AUTO_TEMP_MAX) continue;
+		if (borg_temp_n == BORG_TEMP_MAX) continue;
 
 		/* Get location */
 		MAP_GET_LOC(x, y);
@@ -3083,7 +3691,7 @@ static bool borg_flow_dark_5(int b_stair)
 	}
 
 	/* Spread the flow */
-	borg_flow_spread(250, TRUE, TRUE, FALSE);
+	borg_flow_spread(250, BORG_FLOW_OPTI_AVOID);
 
 
 	/* Attempt to Commit the flow */
@@ -3094,6 +3702,281 @@ static bool borg_flow_dark_5(int b_stair)
 
 	/* Success */
 	return (TRUE);
+}
+
+/*
+ * Is this an acceptaple place to flow to?
+ * Should be expanded so the borg can avoid nasty quests and dungeons
+ */
+static bool borg_flow_wild_check(int x, int y)
+{
+	/* Is the x in bounds? */
+	if (x < 0 || x > max_wild - 2) return (FALSE);
+
+	/* Is the y in bounds? */
+	if (y < 0 || y > max_wild - 2) return (FALSE);
+
+	/* Hack!  Check this location */
+	return (!(wild[y][x].done.info & WILD_INFO_SEEN));
+}
+
+
+/* Prepare to flow somewhere in the wilderness */
+bool borg_flow_dark_wild(void)
+{
+	int x, y, side = 0;
+	int loop_min, loop_max;
+
+	int base_x = c_x / WILD_BLOCK_SIZE;
+	int base_y = c_y / WILD_BLOCK_SIZE;
+
+	bool found = FALSE;
+
+	/* Is the borg in the wilderness? */
+	if (bp_ptr->depth || vanilla_town) return (FALSE);
+
+	/* No exploring in the dark */
+	if (bp_ptr->hour < 6 || bp_ptr->hour > 17) return (FALSE);
+
+	/* Does the borg already know where to go but it isn't there? */
+	if (goal == GOAL_DARK)
+	{
+		x = goal_explore_x;
+		y = goal_explore_y;
+	}
+	else
+	{
+		/*
+		 * Try to find a dark spot on the overhead map.
+		 * The method is to draw an everwidening square around the current location
+		 * and check the locations on the sides of the square if they are explored.
+		 * To keep this search as quick as possible there is some trickery to
+		 * ensure that every spot on the map in checked only once.
+		 */
+		while (!found)
+		{
+			/* Enlarge the box */
+			side += 1;
+
+			/* Has the borg explored the whole map? */
+			if (base_x - side < 0 &&
+				base_y - side < 0 &&
+				base_x + side > max_wild - 2 &&
+				base_y + side > max_wild - 2) return (FALSE);
+
+			/* The upper side has a constant y */
+			y = base_y - side;
+
+			/* If the y is on the map */
+			if (y >= 0)
+			{
+				/* Don't go out of bounds */
+				loop_min = MAX(0, base_x - side);
+				loop_max = MIN(base_x + side, max_wild - 2);
+
+				/* Check the upper side from left to right */
+				for (x = loop_min; x < loop_max && !found; x++)
+				{
+					found = borg_flow_wild_check(x, y);
+					if (found) break;
+				}
+			}
+
+			/* Step out */
+			if (found) break;
+
+			/* The right side has a constant x */
+			x = base_x + side;
+
+			/* If the x is on the map */
+			if (x < max_wild - 1)
+			{
+				/* Don't go out of bounds */
+				loop_min = MAX(0, base_y - side);
+				loop_max = MIN(base_y + side, max_wild - 2);
+
+				/* Check the right side from up to down */
+				for (y = loop_min; y < loop_max && !found; y++)
+				{
+					found = borg_flow_wild_check(x, y);
+					if (found) break;
+				}
+			}
+
+			/* Step out */
+			if (found) break;
+
+			/* The lower side has a constant y */
+			y = base_y + side;
+
+			/* If the y is on the map */
+			if (y < max_wild - 1)
+			{
+				/* Don't go out of bounds */
+				loop_min = MAX(0, base_x - side);
+				loop_max = MIN(base_x + side, max_wild - 2);
+
+				/* Check the lower side from right to left */
+				for (x = loop_max; x > loop_min && !found; x--)
+				{
+					found = borg_flow_wild_check(x, y);
+					if (found) break;
+				}
+			}
+
+			/* Step out */
+			if (found) break;
+
+			/* The left side has a constant x */
+			x = base_x - side;
+
+			/* If the x is on the map */
+			if (x >= 0)
+			{
+				/* Don't go out of bounds */
+				loop_min = MAX(0, base_y - side);
+				loop_max = MIN(base_y + side, max_wild - 2);
+
+				/* Check the left side from down to up */
+				for (y = loop_max; y > loop_min && !found; y--)
+				{
+					found = borg_flow_wild_check(x, y);
+					if (found) break;
+				}
+			}
+		}
+
+		/* Failure */
+		if (!found) return (FALSE);
+
+		/* Close by? */
+		if (ABS(base_x - x) < 5)
+		{
+			/* keep this c_x */
+			x = c_x;
+		}
+		/* Not close */
+		else
+		{
+			/* West? */
+			if (x < base_x)
+			{
+				/* Stay at a distance from the known/unknown edge */
+				x = x + 4;
+
+				/* One foot into the new block */
+				x = WILD_BLOCK_SIZE * (x + 1) - 1;
+			}
+			/* East */
+			else
+			{
+				/* Stay at a distance from the known/unknown edge */
+				x = x - 4;
+
+				/* One foot into the new block */
+				x = WILD_BLOCK_SIZE * x;
+			}
+		}
+
+		/* Close by? */
+		if (ABS(base_y - y) < 5)
+		{
+			/* keep this c_y */
+			y = c_y;
+		}
+		/* Not close */
+		else
+		{
+			/* North? */
+			if (y < base_y)
+			{
+				/* Stay at a distance from the known/unknown edge */
+				y = y + 4;
+
+				/* One foot into the new block */
+				y = WILD_BLOCK_SIZE * (y + 1) - 1;
+			}
+			/* South */
+			else
+			{
+				/* Stay at a distance from the known/unknown edge */
+				y = y - 4;
+
+				/* One foot into the new block */
+				y = WILD_BLOCK_SIZE * y;
+			}
+		}
+	}
+
+	/* Enqueue the grid */
+	if (borg_flow_block(x, y, "unexplored wilderness", GOAL_DARK))
+	{
+		/* Flag the global */
+		goal_explore_x = x;
+		goal_explore_y = y;
+
+		return (TRUE);
+	}
+
+	goal = GOAL_NONE;
+	goal_explore_x = -1;
+	goal_explore_y = -1;
+
+	/* This flow is not possible */
+	return (FALSE);
+}
+
+
+/* Reset the flow in the wilderness, based on a goal */
+void borg_flow_goal_wild(void)
+{
+	int x, y;
+	cptr reason;
+
+	if (bp_ptr->depth) return;
+
+	switch(goal)
+	{
+		case GOAL_SHOP:
+		{
+			x = borg_shops[goal_shop].x;
+			y = borg_shops[goal_shop].y;
+
+			reason = "reflowing to a shop";
+
+			break;
+		}
+		case GOAL_DARK:
+		{
+			x = goal_explore_x;
+			y = goal_explore_y;
+
+			reason = "reflowing the dark";
+
+			break;
+		}
+		case GOAL_TOWN:
+		{
+			x = borg_towns[goal_town].x;
+			y = borg_towns[goal_town].y;
+
+			reason = "reflowing to a town";
+
+			break;
+		}
+		case GOAL_CAVE:
+		{
+			x = borg_dungeons[goal_dungeon].x;
+			y = borg_dungeons[goal_dungeon].y;
+
+			reason = "reflowing to a dungeon";
+
+			break;
+		}
+		default: return;
+	}
+
+	(void)borg_flow_block(x, y, reason, goal);
 }
 
 
@@ -3224,7 +4107,7 @@ bool borg_flow_spastic(bool bored)
 		spastic_y = 0;
 
 		/* Take note */
-		borg_note_fmt("# Spastic Searching at (%d,%d)...", c_x, c_y);
+		borg_note("# Spastic Searching at (%d,%d)...", c_x, c_y);
 
 		/* Count searching */
 		for (i = 0; i < 9; i++)
@@ -3414,7 +4297,7 @@ bool borg_flow_spastic(bool bored)
 	borg_flow_enqueue_grid(b_x, b_y);
 
 	/* Spread the flow */
-	borg_flow_spread(250, TRUE, FALSE, FALSE);
+	borg_flow_spread(250, BORG_FLOW_OPTIMIZE);
 
 	/* Attempt to Commit the flow */
 	if (!borg_flow_commit("spastic", GOAL_XTRA)) return (FALSE);
@@ -3424,6 +4307,25 @@ bool borg_flow_spastic(bool bored)
 
 	/* Success */
 	return (TRUE);
+}
+
+
+/* Clear some bools that are used in the wilderness */
+void borg_leave_surface(void)
+{
+	int i;
+
+	/* Only valid on the surface */
+	if (bp_ptr->depth) return;
+
+	/* Clear town visits */
+	for (i = 0; i < borg_town_num; i++) borg_towns[i].visit = FALSE;
+
+	/* Clear shop visits */
+	for (i = 0; i < borg_shop_num; i++) borg_shops[i].visit = FALSE;
+
+	/* Into which dungeon? */
+	borg_dungeon_remember(TRUE);
 }
 
 

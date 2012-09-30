@@ -3011,14 +3011,6 @@ static errr Term_xtra_acn(int n, int v)
 
 	switch (n)
 	{
-		case TERM_XTRA_CLEAR:	/* Clear the Term */
-			/*for ( i=0; i<Term->hgt; i++ )
-			   t->froshed[i] = 1; */
-			mark_ood(t, 0, 0, Term->wid, Term->hgt);
-			/*refresh_window( t ); - NB: Term isn't actually cleared yet! */
-			/* Success */
-			return 0;
-
 		case TERM_XTRA_EVENT:	/* Wait/check for an event */
 			if (v)
 				return Term_xtra_acn_event();
@@ -3151,7 +3143,7 @@ static void term_data_link(term_data *td, int k)
 	term_init(t, 80, 24, k);
 
 	/* Set flags and hooks */
-	t->attr_blank = TERM_WHITE;
+	t->attr_blank = TERM_DARK;
 	t->char_blank = ' ';
 
 	/* Experiment (FS mode requires them) */
@@ -5917,11 +5909,6 @@ static errr Term_xtra_acnFS(int n, int v)
 
 	switch (n)
 	{
-		case TERM_XTRA_CLEAR:
-			if (t == (&data[0]))
-				Term_xtra_acn_clearFS();
-			return 0;
-
 		case TERM_XTRA_EVENT:
 			if (v)
 				return Term_xtra_acn_eventFS();
@@ -7994,7 +7981,7 @@ extern errr check_modification_date(int fd, cptr template_file)
 	}
 
 	/* Build the path to the template_file */
-	path_build(txt_buf, sizeof(txt_buf), ANGBAND_DIR_EDIT, template_file);
+	path_make(txt_buf, ANGBAND_DIR_EDIT, template_file);
 
 	i = file_is_newer(riscosify_name(txt_buf), raw_buf);
 

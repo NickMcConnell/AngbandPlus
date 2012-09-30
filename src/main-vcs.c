@@ -218,8 +218,6 @@ static void leave_vcs(void)
  */
 static errr Term_xtra_vcs(int n, int v)
 {
-	term_data *td = (term_data*)(Term->data);
-
 	switch (n)
 	{
 		case TERM_XTRA_EVENT:
@@ -273,24 +271,6 @@ static errr Term_xtra_vcs(int n, int v)
 			/* Flush input */
 			unsigned char ch;
 			while (read(0,&ch,1)==1) ;
-			return (0);
-		}
-
-		case TERM_XTRA_CLEAR:
-		{
-			int x, y;
-			unsigned char *c;
-			
-			/* Blank out screen memory */
-			for (c=td->base, y=td->sy; y; y--, c+=2*(s_width - td->sx))
-			{
-				for(x=td->sx;x;x--)
-				{
-					*c++=' ';
-					*c++= COLOR_BLANK;
-				}
-			}
-			
 			return (0);
 		}
 
@@ -465,7 +445,7 @@ static void term_data_link(int x0,int y0,int x1,int y1)
 	t->never_bored = TRUE;
 	t->never_frosh = TRUE;
 
-	t->attr_blank = TERM_WHITE;
+	t->attr_blank = TERM_DARK;
 	t->char_blank = ' ';
 
 	/* Prepare the init/nuke hooks */

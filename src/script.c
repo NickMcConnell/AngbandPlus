@@ -49,7 +49,7 @@ static int xxx_build_script_path(lua_State *L)
 
 	filename = tolua_getstring(L, 1, 0);
 
-	path_build(buf, 1024, ANGBAND_DIR_SCRIPT, filename);
+	path_make(buf, ANGBAND_DIR_SCRIPT, filename);
 
 	tolua_pushstring(L, buf);
 
@@ -158,6 +158,37 @@ static int xxx_dofile(lua_State *L)
 }
 #endif /* RISCOS */
 
+static int xxx_building_options(lua_State *L)
+{
+	int i;
+	
+	/* number of arguments */
+	int n = lua_gettop(L);
+	
+	cptr *strings;
+		
+	/* Make array of strings */
+	C_MAKE(strings, n, cptr);
+
+	for (i = 1; i <= n; i++)
+	{
+		if (!tolua_istype(L,i,LUA_TSTRING,0))
+		{
+			tolua_error(L, "#vinvalid type in lua_building_options().");
+		}
+		
+		strings[i - 1] =  lua_tostring(L, i);
+	}
+	
+	/* Print them out */
+	print_building_options(strings, n);
+
+	/* Free saved pointers */
+	FREE((vptr) strings);
+
+	return 0;
+}
+
 
 static const struct luaL_reg anglib[] =
 {
@@ -168,28 +199,46 @@ static const struct luaL_reg anglib[] =
 	{"build_script_path", xxx_build_script_path},
 	{"get_rumor", xxx_get_rumor},
 	{"get_rnd_line", xxx_get_rnd_line},
+	{"building_options", xxx_building_options},
 #ifdef RISCOS
 	{"dofile", xxx_dofile},
 #endif /* RISCOS */
 };
 
 
+#define MULTIADIC(name, op) \
+	static int name(lua_State* L) \
+	{ \
+		int i, n = lua_gettop(L);\
+		\
+		int result = luaL_check_int(L, 1); \
+		\
+		for (i = 2; i <= n; i++)\
+		{	\
+			result = result op luaL_check_int(L, i); \
+		}	\
+		lua_pushnumber(L, result); \
+		return 1; \
+	}
+
 #define DYADIC(name, op) \
-    static int name(lua_State* L) { \
+    static int name(lua_State* L) \
+	{ \
         lua_pushnumber(L, luaL_check_int(L, 1) op luaL_check_int(L, 2)); \
 		return 1; \
     }
 
 #define MONADIC(name, op) \
-    static int name(lua_State* L) { \
+    static int name(lua_State* L) \
+	{ \
         lua_pushnumber(L, op luaL_check_int(L, 1)); \
 		return 1; \
     }
 
 
 DYADIC(intMod,      % )
-DYADIC(intAnd,      & )
-DYADIC(intOr,       | )
+MULTIADIC(intAnd,      & )
+MULTIADIC(intOr,       | )
 DYADIC(intXor,      ^ )
 DYADIC(intShiftl,   <<)
 DYADIC(intShiftr,   >>)
@@ -236,7 +285,6 @@ static int math_max(lua_State *L)
 
 	return 1;
 }
-
 
 static const struct luaL_reg intMathLib[] =
 {
@@ -555,18 +603,100 @@ void apply_object_trigger(int trigger_id, object_type *o_ptr, cptr format, ...)
 
 /*
  * Callback for using an object
+ *
+ * If the object is a scroll of identify this function may have a side effect.
+ * The side effect is that the o_ptr no longer points at the scroll of identity
+ * because of the sorting done by the identify_spell.
+ * This side effect is countered in do_cmd_read_scroll_aux, the only place where
+ * it matters.
  */
-bool use_object(object_type *o_ptr, bool *id_return)
+bool use_object(object_type *o_ptr, bool *id_return, int dir)
 {
-	bool result = TRUE, ident = TRUE;
+	bool result = TRUE, ident = *id_return;
 
-	apply_object_trigger(TRIGGER_USE, o_ptr, ":bb",
-			LUA_RETURN(result), LUA_RETURN(ident));
+	apply_object_trigger(TRIGGER_USE, o_ptr, "i:bb",
+			LUA_VAR(dir), LUA_RETURN(result), LUA_RETURN(ident));
 
-	if (id_return) *id_return = ident;
+	*id_return = ident;
 	return result;
 }
 
+static bool field_delete = FALSE;
+
+/*
+ * Delete current field when finish processing.
+ *
+ * This is a horrible name...
+ */
+void deleteme(void)
+{
+	field_delete = TRUE;
+}
+
+/*
+ * Apply an field trigger, a small lua script which does
+ * what the old field action functions did.
+ */
+bool apply_field_trigger(cptr script, field_type *f_ptr, cptr format, va_list vp)
+{
+	field_thaum *t_ptr = &t_info[f_ptr->t_idx];
+
+	void *q_ptr = NULL;
+	
+	bool success;
+	bool delete_save, delete;
+		
+	/* Save parameter so recursion works. */
+	lua_getglobal (L, "field");
+	if (tolua_istype(L, -1, tolua_tag(L, "field_type"), 0))
+	{
+		q_ptr = tolua_getuserdata(L, -1, NULL);
+	}
+	lua_pop(L,1);
+	delete_save = field_delete;
+	
+	/* Default to no deletion */
+	field_delete = FALSE;
+
+	/* Set parameters (really global) */
+	tolua_pushusertype(L, (void*)f_ptr, tolua_tag(L, "field_type"));
+	lua_setglobal(L, "field");
+	
+	success = call_lua_hook(script, format, vp);
+	
+	/* Restore global so recursion works*/
+	tolua_pushusertype(L, q_ptr, tolua_tag(L,"field_type"));
+	lua_setglobal(L, "field");
+	delete = field_delete;
+	field_delete = delete_save;
+	
+	/* Paranoia */
+	if (!success)
+	{
+		msgf("Script for field: %s failed.", t_ptr->name);
+	}
+	
+	/* Does the field want to be deleted? */
+	return (delete);
+}
+
+
+/*
+ * Apply an field trigger, a small lua script which does
+ * what the old field action functions did.
+ *
+ * This version doesn't modify the field, but uses a copy instead.
+ * This allows const versions of field hooks.
+ *
+ * The field cannot be deleted.
+ */
+void const_field_trigger(cptr script, const field_type *f_ptr, cptr format, va_list vp)
+{
+	/* Structure copy to get local working version */
+	field_type temp_field = *f_ptr;
+	
+	(void) apply_field_trigger(script, &temp_field, format, vp);
+}
 
 static void line_hook(lua_State *L, lua_Debug *ar)
 {
@@ -603,7 +733,7 @@ static void line_hook(lua_State *L, lua_Debug *ar)
 			/* Activate */
 			Term_activate(angband_term[j]);
 
-			path_build(buf, 1024, ANGBAND_DIR_SCRIPT, "trace.lua");
+			path_make(buf, ANGBAND_DIR_SCRIPT, "trace.lua");
 
 			/* Execute the file */
 			script_do_file(buf);
@@ -683,7 +813,7 @@ void do_cmd_script(void)
 			/* Clear the prompt */
 			clear_msg();
 
-			path_build(buf, 1024, ANGBAND_DIR_SCRIPT, tmp);
+			path_make(buf, ANGBAND_DIR_SCRIPT, tmp);
 
 			/* Execute the file */
 			script_do_file(buf);
@@ -726,7 +856,7 @@ void do_cmd_script(void)
 			char buf[1024];
 
 			/* Initialization code */
-			path_build(buf, 1024, ANGBAND_DIR_SCRIPT, "init.lua");
+			path_make(buf, ANGBAND_DIR_SCRIPT, "init.lua");
 			script_do_file(buf);
 
 			break;
@@ -749,6 +879,8 @@ extern int tolua_misc_open(lua_State* tolua_S);
 extern void tolua_misc_close(lua_State* tolua_S);
 extern int tolua_spell_open(lua_State* tolua_S);
 extern void tolua_spell_close(lua_State* tolua_S);
+extern int tolua_field_open(lua_State* tolua_S);
+extern void tolua_field_close(lua_State* tolua_S);
 
 
 /*
@@ -780,9 +912,10 @@ errr script_init(void)
 	tolua_ui_open(L);
 	tolua_misc_open(L);
 	tolua_spell_open(L);
+	tolua_field_open(L);
 
 	/* Initialization code */
-	path_build(buf, 1024, ANGBAND_DIR_SCRIPT, "init.lua");
+	path_make(buf, ANGBAND_DIR_SCRIPT, "init.lua");
 	script_do_file(buf);
 
 	return 0;
@@ -836,6 +969,7 @@ bool player_res(u32b flag)
 {
 	return ((p_ptr->flags[1] & flag) ? TRUE : FALSE);
 }
+
 
 /*
  * Debug lua stack overflow

@@ -151,7 +151,7 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 						field_type *f_ptr = &fld_list[block_ptr[j][i].fld_idx];
 					
 						/* Initialise it */
-						(void)field_hook_single(f_ptr, FIELD_ACT_INIT);
+						(void)field_script_single(f_ptr, FIELD_ACT_INIT, "");
 					}
 
 					break;
@@ -168,7 +168,8 @@ static void overlay_place(int x, int y, u16b w_place, blk_ptr block_ptr)
 						field_type *f_ptr = &fld_list[block_ptr[j][i].fld_idx];
 					
 						/* Add "power" of lock / jam to the field */
-						(void)field_hook_single(f_ptr, FIELD_ACT_INIT, data);
+						(void)field_script_single(f_ptr, FIELD_ACT_INIT,
+												"i:", LUA_VAR_NAMED(data, "power"));
 					}
 
 					break;
@@ -2187,11 +2188,8 @@ void move_dun_level(int direction)
 		}
 	}
 	
-	/* Hack - save the recall depth the first time we go down */
-	if (!d_ptr->recall_depth)
-	{
-		d_ptr->recall_depth = d_ptr->min_level;
-	}
+	/* Make sure the deepest level is set correctly */
+	d_ptr->recall_depth = MAX(d_ptr->recall_depth, p_ptr->depth);
 }
 
 
@@ -2248,6 +2246,9 @@ void change_level(int level)
 		p_ptr->min_hgt = p_ptr->old_wild_y * WILD_BLOCK_SIZE;
 		p_ptr->max_wid = p_ptr->min_wid + WILD_VIEW * WILD_BLOCK_SIZE;
 		p_ptr->max_hgt = p_ptr->min_hgt + WILD_VIEW * WILD_BLOCK_SIZE;
+		
+		/* Update panels (later) */
+		p_ptr->update |= (PU_MAP);
 
 		/*
 		 * Restore the outside town if it exists

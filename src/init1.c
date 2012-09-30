@@ -78,6 +78,8 @@ static cptr k_info_triggers[] =
 	"TIMED",
 	"HIT",
 	"ATTACK",
+	"ALTER",
+	"SPOIL",
 	NULL
 };
 
@@ -283,10 +285,10 @@ static cptr r_info_flags4[] =
 	"ELDRITCH_HORROR",
 	"XXX3X4",
 	"ROCKET",
-	"ARROW_1",
-	"ARROW_2",
-	"ARROW_3",
-	"ARROW_4",
+	"ARROW",
+	"XXX6X4",
+	"XXX7X4",
+	"XXX8X4",
 	"BR_ACID",
 	"BR_ELEC",
 	"BR_FIRE",
@@ -631,9 +633,9 @@ static cptr k_info_flags3[] =
 static cptr k_info_flags4[] =
 {
 	"LUCK_10",
-	"XXX2",
-	"XXX3",
-	"XXX4",
+	"WILD_SHOT",
+	"WILD_WALK",
+	"EASY_ENCHANT",
 	"XXX5",
 	"XXX6",
 	"XXX7",
@@ -698,11 +700,39 @@ static cptr t_info_flags[] =
 	"NO_OBJECT",
 	"PERM",
 	"IGNORE",
-	"XXX12",
+	"NO_MPLACE",
 	"XXX13",
 	"XXX14"
 };
 
+/*
+ * Object script triggers
+ */
+static cptr t_info_triggers[] =
+{
+	"INIT",
+	"LOAD",
+	"PENTER",
+	"PON",
+	"MENTER",
+	"MON",
+	"OBDROP",
+	"OBON",
+	"INTER",
+	"TARGET",
+	"LOOK",
+	"EXIT",
+	"AI",
+	"SPEC",
+	"INTERT",
+	"MENTT",
+	"BUILD1",
+	"BUILD2",
+	"STORE1",
+	"STORE2",
+	"SBINIT",
+	NULL
+};
 
 
 /*** Initialize from ascii template files ***/
@@ -2659,68 +2689,6 @@ static errr grab_one_info_flag(field_thaum *t_ptr, cptr what)
 }
 
 /*
- * Grab one field action flag from a textual string
- */
-static errr grab_one_action_flag(field_thaum *t_ptr, char *what)
-{
-	int i, location;
-
-	char *t;
-
-	t = what;
-
-	/* Split the string into two bits using the comma seperator */
-	while (!((*t == '\0') || (*t == ',')))
-	{
-		/* Increment the pointer */
-		t++;
-	}
-
-	/* t should point to a comma, or to a NULL */
-	if (!(*t))
-	{
-		/* The string had no comma */
-		return (PARSE_ERROR_GENERIC);
-	}
-
-	/*
-	 * Hack - convert the comma to a zero
-	 * so 'what' is just the location string.
-	 */
-	*t = 0;
-
-	/* Move over one character to point to the function name */
-	t++;
-
-	/* Get location */
-	location = atoi(what);
-
-	/* Bounds checking */
-	if ((location < 0) || (location >= FIELD_ACTION_MAX) || !(*t))
-	{
-		/* error */
-		return (PARSE_ERROR_GENERIC);
-	}
-
-	/* Check flags */
-	for (i = 0; f_action[i].func; i++)
-	{
-		if (streq(t, f_action[i].func))
-		{
-			t_ptr->action[location] = f_action[i].action;
-			return (0);
-		}
-	}
-
-	/* Oops */
-	msgf("Unknown field info-flag '%s'.", t);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
-}
-
-
-/*
  * Initialize the field "thaumatergical" arrays,
  *  by parsing an ascii "template" file
  */
@@ -2895,37 +2863,50 @@ errr init_t_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
-
-		/* Process 'F' for "Field action Functions" (multiple lines) */
-		if (buf[0] == 'F')
+		
+		/* Process 'L' for "Lua script" */
+		if (buf[0] == 'L')
 		{
-			/* Parse every entry */
-			for (s = buf + 2; *s;)
+			int n;
+		
+			/* There better be a current t_ptr */
+			if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+			/* Analyze the first field */
+			for (s = t = buf + 2; *t && (*t != ':'); t++) /* loop */ ;
+
+			/* Terminate the field (if necessary) */
+			if (*t == ':') *t++ = '\0';
+
+			/* Analyze the trigger */
+			for (n = 0; t_info_triggers[n]; n++)
 			{
-				/* Find the end of this entry */
-				for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */ ;
-
-				/* Nuke and skip any dividers */
-				if (*t)
-				{
-					*t++ = '\0';
-					while (*t == ' ' || *t == '|') t++;
-				}
-
-				/* Parse this entry */
-				if (0 !=
-					grab_one_action_flag(t_ptr,
-										 s)) return (PARSE_ERROR_INVALID_FLAG);
-
-				/* Start the next entry */
-				s = t;
+				if (streq(s, t_info_triggers[n])) break;
 			}
 
+			/* Invalid trigger */
+			if (!t_info_triggers[n]) return (PARSE_ERROR_GENERIC);
+
+			/* Get the text */
+			s = t;
+
+			/* Store the text */
+			if (t_ptr->action[n])
+			{
+				s16b old = t_ptr->action[n];
+				
+				t_ptr->action[n] = quark_fmt("%s\n%s", quark_str(old), s);
+				
+				quark_remove(&old);
+			}
+			else
+			{
+				t_ptr->action[n] = quark_add(s);
+			}
+					
 			/* Next... */
 			continue;
 		}
-
 
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);

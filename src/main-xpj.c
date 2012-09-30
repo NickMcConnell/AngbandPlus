@@ -48,10 +48,10 @@ cptr help_xpj[] =
 
 
 #ifndef USE_GRAPHICS
-#error "Must have USE_GRAPHICS compile-time flag on."
+#error Must have USE_GRAPHICS compile-time flag on.
 #endif
 
-/* 
+/*
  * The tile size to use.  (Configure this if you want.)
  *
  * This is 16 by default - but any multiple of 4 works.
@@ -419,7 +419,7 @@ static u16b pj_table2[P_TILE_SIZE][P_TILE_SIZE / 2];
 /* Number of bits used */
 #define PJ_MAX			16
 
-static byte bit_high_lookup[256] =
+static const byte bit_high_lookup[256] =
 {
 	0, 1, 2, 2, 3, 3, 3, 3,
 	4, 4, 4, 4, 4, 4, 4, 4,
@@ -455,7 +455,7 @@ static byte bit_high_lookup[256] =
 	8, 8, 8, 8, 8, 8, 8, 8
 };
 
-static int t_offsetx1[PJ_MAX] =
+static const int t_offsetx1[PJ_MAX] =
 {
 	0,
 	0,
@@ -475,7 +475,7 @@ static int t_offsetx1[PJ_MAX] =
 	P_TILE_SIZE / 2
 };
 
-static int t_offsety1[PJ_MAX] =
+static const int t_offsety1[PJ_MAX] =
 {
 	P_TILE_SIZE,
 	P_TILE_SIZE,
@@ -495,7 +495,7 @@ static int t_offsety1[PJ_MAX] =
 	0
 };
 
-static int t_xscale[PJ_MAX] =
+static const int t_xscale[PJ_MAX] =
 {
 	0,
 	0,
@@ -515,7 +515,7 @@ static int t_xscale[PJ_MAX] =
 	-1
 };
 
-static int t_offsetx2[PJ_MAX] =
+static const int t_offsetx2[PJ_MAX] =
 {
 	0,
 	0,
@@ -535,7 +535,7 @@ static int t_offsetx2[PJ_MAX] =
 	P_TILE_SIZE
 };
 
-static int t_offsety2[PJ_MAX] =
+static const int t_offsety2[PJ_MAX] =
 {
 	0,
 	0,
@@ -555,7 +555,7 @@ static int t_offsety2[PJ_MAX] =
 	0
 };
 
-static bool wall_flip[PJ_MAX] =
+static const bool wall_flip[PJ_MAX] =
 {
 	1,
 	1,
@@ -839,7 +839,7 @@ static errr Infowin_set_name(cptr name)
 	XTextProperty tp;
 	char buf[128];
 	char *bp = buf;
-	strcpy(buf, name);
+	strnfmt(buf, sizeof(buf), "%s", name);
 	st = XStringListToTextProperty(&bp, 1, &tp);
 	if (st) XSetWMName(Metadpy->dpy, Infowin->win, &tp);
 	return (0);
@@ -997,19 +997,6 @@ static errr Infowin_resize(int w, int h)
 {
 	/* Execute the request */
 	XResizeWindow(Metadpy->dpy, Infowin->win, w, h);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Visually clear Infowin
- */
-static errr Infowin_wipe(void)
-{
-	/* Execute the request */
-	XClearWindow(Metadpy->dpy, Infowin->win);
 
 	/* Success */
 	return (0);
@@ -1213,14 +1200,13 @@ static errr Infofnt_prepare(XFontStruct *info)
 }
 
 
-
 /*
  * Init an infofnt by its Name
  *
  * Inputs:
  *	name: The name of the requested Font
  */
-static void Infofnt_init_data(cptr name)
+static errr Infofnt_init_data(cptr name)
 {
 	XFontStruct *info;
 
@@ -1228,14 +1214,23 @@ static void Infofnt_init_data(cptr name)
 	/*** Load the info Fresh, using the name ***/
 
 	/* If the name is not given, report an error */
-	if (!name) quit("Missing font!");
-
+	if (!name)
+	{
+		plog_fmt("Missing font! %s", name);
+		
+		return (-1);
+	}
+	
 	/* Attempt to load the font */
 	info = XLoadQueryFont(Metadpy->dpy, name);
 
 	/* The load failed */
-	if (!info) quit_fmt("Failed to find font:\"%s\"", name);
-
+	if (!info)
+	{
+		plog_fmt("Failed to find font:\"%s\"", name);
+		
+		return (-1);
+	}
 
 	/*** Init the font ***/
 
@@ -1249,7 +1244,9 @@ static void Infofnt_init_data(cptr name)
 		XFreeFont(Metadpy->dpy, info);
 
 		/* Fail */
-		quit_fmt("Failed to prepare font:\"%s\"", name);
+		plog_fmt("Failed to prepare font:\"%s\"", name);
+		
+		return (-1);
 	}
 
 	/* Save a copy of the font name */
@@ -1257,6 +1254,9 @@ static void Infofnt_init_data(cptr name)
 
 	/* Mark it as nukable */
 	Infofnt->nuke = 1;
+
+	/* Success */
+	return (0);
 }
 
 
@@ -1409,7 +1409,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the KeySym */
 	if (ks)
 	{
-		strnfmt(msg, 128, "%c%s%s%s%s_%lX%c", 31,
+		strnfmt(msg, sizeof(msg), "%c%s%s%s%s_%lX%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        (unsigned long)(ks), 13);
@@ -1418,7 +1418,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the Keycode */
 	else
 	{
-		strnfmt(msg, 128, "%c%s%s%s%sK_%X%c", 31,
+		strnfmt(msg, sizeof(msg), "%c%s%s%s%sK_%X%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        ev->keycode, 13);
@@ -1659,8 +1659,12 @@ static errr CheckEvent(bool wait)
 			if (window == 0)
 			{
 				/* Hack the main window must be at least 80x24 */
-				if (cols < 80) cols = 80;
-				if (rows < 24) rows = 24;
+				if ((cols < 80) || (rows < 24))
+				{
+					/* Hack XXX setting both prevents resize loops */
+					cols = 80;
+					rows = 24;
+				}
 			}
 			else
 			{
@@ -1822,13 +1826,8 @@ static errr Term_xtra_xpj(int n, int v)
 		/* Handle change in the "level" */
 		case TERM_XTRA_LEVEL: return (Term_xtra_xpj_level(v));
 
-		/* Clear the screen */
-		case TERM_XTRA_CLEAR: Infowin_wipe(); return (0);
-
 		/* Delay for some milliseconds */
-		case TERM_XTRA_DELAY:
-			if (v > 0) usleep(1000 * v);
-			return (0);
+		case TERM_XTRA_DELAY: usleep(1000 * v); return (0);
 
 		/* React to changes */
 		case TERM_XTRA_REACT: return (Term_xtra_xpj_react());
@@ -1850,24 +1849,22 @@ static errr Term_curs_xpj(int x, int y)
 	if (Term->data == &data[0])
 	{
 		XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
-			 x * P_TILE_SIZE + y * P_TILE_SIZE / 2
-			 + P_TILE_SIZE  / 4 + Infowin->ox, 
-			 y * P_TILE_SIZE + P_TILE_SIZE / 2 + Infowin->oy,
-			  P_TILE_SIZE - 1, P_TILE_SIZE - 1);
+				 		x * P_TILE_SIZE + y * P_TILE_SIZE / 2 +
+						P_TILE_SIZE  / 4 + Infowin->ox, 
+						y * P_TILE_SIZE + P_TILE_SIZE / 2 + Infowin->oy,
+				  		P_TILE_SIZE - 1, P_TILE_SIZE - 1);
 	}
 	else
 	{
 		XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
-			 x * Infofnt->wid + Infowin->ox,
-			 y * Infofnt->hgt + Infowin->oy,
-			 Infofnt->wid - 1, Infofnt->hgt - 1);
+					 	x * Infofnt->wid + Infowin->ox,
+						y * Infofnt->hgt + Infowin->oy,
+						Infofnt->wid - 1, Infofnt->hgt - 1);
 	}
 
 	/* Success */
 	return (0);
 }
-
-
 
 
 /*
@@ -1885,7 +1882,10 @@ static errr Term_text_xpj(int x, int y, int n, byte a, cptr s)
 	return (0);
 }
 
-/* Draw a block with byte-sized pixels */
+
+/*
+ * Draw a block with byte-sized pixels
+ */
 static void draw_block8(void *tiles[PJ_MAX],
 	 u16b pj_table[P_TILE_SIZE][P_TILE_SIZE / 2], u16b mask,
 	 term_data *td)
@@ -1956,7 +1956,10 @@ static void draw_block8(void *tiles[PJ_MAX],
 	}
 }
 
-/* Draw a block with 16bit pixels */
+
+/*
+ * Draw a block with 16bit pixels
+ */
 static void draw_block16(void *tiles[PJ_MAX],
 	 u16b pj_table[P_TILE_SIZE][P_TILE_SIZE / 2], u16b mask,
 	 term_data *td)
@@ -2029,7 +2032,10 @@ static void draw_block16(void *tiles[PJ_MAX],
 	}
 }
 
-/* Draw a block with 32bit pixels */
+
+/*
+ * Draw a block with 32bit pixels
+ */
 static void draw_block32(void *tiles[PJ_MAX],
 	 u16b pj_table[P_TILE_SIZE][P_TILE_SIZE / 2], u16b mask,
 	 term_data *td)
@@ -2607,7 +2613,9 @@ static errr draw_rect_t2(int x, int y, term_data *td, int xp, int yp)
 	return (0);
 }
 
-static errr Term_skew_xpj(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
+static errr Term_skew_xpj(int x, int y, int n,
+							const byte *ap, const char *cp,
+							const byte *tap, const char *tcp)
 {	
 	int i, xp, yp;
 	
@@ -2992,23 +3000,23 @@ static errr term_data_init(term_data *td, int i)
 	font = get_default_font(i);
 
 	/* Window specific location (x) */
-	strnfmt(buf, 80, "ANGBAND_X11_AT_X_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_AT_X_%d", i);
 	str = getenv(buf);
 	x = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific location (y) */
-	strnfmt(buf, 80, "ANGBAND_X11_AT_Y_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_AT_Y_%d", i);
 	str = getenv(buf);
 	y = (str != NULL) ? atoi(str) : -1;
 
 	/* Window specific cols */
-	strnfmt(buf, 80, "ANGBAND_X11_COLS_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	strnfmt(buf, 80, "ANGBAND_X11_ROWS_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
@@ -3021,13 +3029,13 @@ static errr term_data_init(term_data *td, int i)
 	}
 
 	/* Window specific inner border offset (ox) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOX_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) ox = val;
 
 	/* Window specific inner border offset (oy) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOY_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) oy = val;
@@ -3036,7 +3044,10 @@ static errr term_data_init(term_data *td, int i)
 	/* Prepare the standard font */
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
-	Infofnt_init_data(font);
+	if (Infofnt_init_data(font))
+	{
+		quit("Stopping");
+	}
 
 	/* Hack -- key buffer size */
 	num = ((i == 0) ? 1024 : 16);
@@ -3074,11 +3085,11 @@ static errr term_data_init(term_data *td, int i)
 
 	if (ch == NULL) quit("XAllocClassHint failed");
 
-	strcpy(res_name, name);
+	strnfmt(res_name, sizeof(res_name), "%s", name);
 	res_name[0] = FORCELOWER(res_name[0]);
 	ch->res_name = res_name;
 
-	strcpy(res_class, "Angband");
+	strnfmt(res_class, sizeof(res_class), "Angband");
 	ch->res_class = res_class;
 
 	XSetClassHint(Metadpy->dpy, Infowin->win, ch);
@@ -3143,8 +3154,8 @@ static errr term_data_init(term_data *td, int i)
 	/* Use a "soft" cursor */
 	t->soft_cursor = TRUE;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
+	/* Erase with "black space" */
+	t->attr_blank = TERM_DARK;
 	t->char_blank = ' ';
 
 	/* Hooks */
@@ -3552,7 +3563,7 @@ errr init_xpj(int argc, char *argv[])
 	pj_cur_row = -255;
 	
 	/* Try the "16x16.bmp" file */
-	path_build(filename, 1024, ANGBAND_DIR_XTRA, "font/16x16.txt");
+	path_make(filename, ANGBAND_DIR_XTRA, "font/16x16.txt");
 	
 	/* Use the "16x16.bmp" file if it exists */
 	if (0 == fd_close(fd_open(filename, O_RDONLY)))

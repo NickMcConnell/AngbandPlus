@@ -10,6 +10,124 @@ typedef int errr;
 #define FALSE	0
 
 
+/*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
+
+/* Nothing */
+#define FEAT_NONE               0x00
+
+/* Various */
+#define FEAT_FLOOR              0x01
+/* #define FEAT_INVIS              0x02 Now is a field */
+/* #define FEAT_GLYPH              0x03 Now is a field */
+#define FEAT_OPEN               0x04
+#define FEAT_BROKEN             0x05
+#define FEAT_LESS               0x06
+#define FEAT_MORE               0x07
+
+/* Passable floors */
+
+#define FEAT_SAND				0x08
+#define FEAT_SALT				0x09
+#define FEAT_WET_MUD			0x0A
+#define FEAT_DRY_MUD			0x0B
+#define FEAT_FLOOR_TILE			0x0C
+#define FEAT_FLOOR_WOOD			0x0D
+#define FEAT_PEBBLES			0x0E
+#define FEAT_SOLID_LAVA			0x0F
+
+/* Gap where the traps were */
+
+/* Closed Door */
+#define FEAT_CLOSED				0x20
+#define FEAT_PILLAR         	0x21
+
+/* A big gap for expansion */
+
+/* Extra */
+#define FEAT_SECRET             0x30
+#define FEAT_RUBBLE             0x31
+
+/* Seams */
+#define FEAT_MAGMA              0x32
+#define FEAT_QUARTZ             0x33
+/* #define FEAT_MAGMA_H            0x34 */
+/* #define FEAT_QUARTZ_H           0x35 */
+#define FEAT_MAGMA_K            0x36
+#define FEAT_QUARTZ_K           0x37
+
+/* Walls */
+#define FEAT_WALL_EXTRA         0x38
+#define FEAT_WALL_INNER         0x39
+#define FEAT_WALL_OUTER         0x3A
+#define FEAT_WALL_SOLID         0x3B
+#define FEAT_PERM_EXTRA         0x3C
+#define FEAT_PERM_INNER         0x3D
+#define FEAT_PERM_OUTER         0x3E
+#define FEAT_PERM_SOLID         0x3F
+
+/* Gap where Glyph was */
+
+/* Pattern */
+#define FEAT_PATTERN_START      0x41
+#define FEAT_PATTERN_1          0x42
+#define FEAT_PATTERN_2          0x43
+#define FEAT_PATTERN_3          0x44
+#define FEAT_PATTERN_4          0x45
+#define FEAT_PATTERN_END        0x46
+#define FEAT_PATTERN_OLD        0x47
+#define FEAT_PATTERN_XTRA1      0x48
+#define FEAT_PATTERN_XTRA2      0x49
+
+/* Terrains */
+#define FEAT_DEEP_WATER         0x53
+#define FEAT_SHAL_WATER         0x54
+#define FEAT_DEEP_LAVA          0x55
+#define FEAT_SHAL_LAVA          0x56
+
+/* Gap */
+
+#define FEAT_DIRT               0x58
+#define FEAT_GRASS              0x59
+
+/* Gap */
+
+#define FEAT_OCEAN_WATER		0x5C
+#define FEAT_DEEP_ACID			0x5D
+#define FEAT_SHAL_ACID			0x5E
+#define FEAT_TREE_WATER			0x5F
+
+/* Terrain semi-transparent*/
+#define FEAT_TREES          	0x60
+#define FEAT_MOUNTAIN       	0x61
+#define FEAT_SNOW_MOUNTAIN		0x62
+#define FEAT_BOULDER			0x63
+#define FEAT_PINE_TREE			0x64
+#define FEAT_SNOW_TREE			0x65
+#define FEAT_OBELISK			0x66
+
+/* Gap */
+
+/* Impassible terrains */
+#define FEAT_FENCE				0x70
+#define FEAT_WELL				0x71
+#define FEAT_FOUNTAIN			0x72
+#define FEAT_JUNGLE				0x73
+
+/* Gap */
+
+/* Slow "floor" terrains */
+#define FEAT_BUSH				0x80
+#define FEAT_DEAD_BUSH			0x81
+#define FEAT_GRASS_LONG			0x82
+#define FEAT_ROCK_GEN			0x83
+#define FEAT_ROCK_SNOW			0x84
+#define FEAT_TREE_GEN			0x85
+#define FEAT_TREE_SNOW			0x86
+#define FEAT_SNOW				0x87
+#define FEAT_DEEP_SWAMP			0x88
+#define FEAT_SHAL_SWAMP			0x89
+
+
 /***** Types *****/
 
 
@@ -19,4 +137,4 @@ typedef int errr;
 
 
 /***** Functions *****/
-
+extern void cave_set_feat(int x, int y, int feat);

@@ -2,17 +2,13 @@
 
 # Defines the field types.
 
-# Later this will be replaced by Python code.
-
 # === Understanding t_info.txt ===
 
 # N: serial number : field name
 # G: symbol : color
 # W: priority : type : counter initial value 
 # I: flag | flag | flag
-# D: Data[8] 
-# F: location,function | location,function | location,function
-
+# D: Data[8]
 
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new item.  It also is used to store the name of
@@ -38,10 +34,6 @@
 # 'D' 8 bytes of data for the field.  How this is used depends on the
 # functions called in the 'F' section below.
 
-# 'F' The list of functions used by the field.  "Location" refurs to the
-# entry in the action[] array.  See defines.h for the various action types.
-# Note the lack of space between the two parts.  The comma is the seperator.
-
 
 ##### Something special #####
 
@@ -57,24 +49,60 @@ G:.:w
 W:0:4:0
 I:FEAT | NO_LOOK | NO_ENTER | NO_MAGIC | NO_OBJECT
 D:0:0:0:0:0:0:0:0
-F:10,field_action_wall_tunnel | 11,field_action_wall_gf
-F:16,field_action_interact_tunnel
+L:INTERT:action = ACT_TUNNEL
+L:INTER:if power > 40 + randint0(1600) then
+L:INTER:	msgf("You have finished the tunnel.")
+L:INTER:	deleteme()
+L:INTER:else
+L:INTER:	msgf("You tunnel into it.")
+L:INTER:end
+L:TARGET:wall_gf()
+
 
 # Glyph of Warding
 N:2:glyph of warding
 G:;:y
 W:100:6:0
-I:FEAT | VIS | NO_OBJECT | TRANS
+I:FEAT | VIS | NO_OBJECT | TRANS | NO_MPLACE
 D:0:0:0:0:0:0:0:0
-F:17,field_action_glyph_warding
+L:MENTT:local race
+L:MENTT:race = monst_race(r_idx)
+L:MENTT:do_turn = TRUE
+L:MENTT:if (do_move == TRUE) then
+L:MENTT:	if (bAnd(race.flags[0], RF0_NEVER_BLOW) ~= 0) and
+L:MENTT:		(randint1(BREAK_GLYPH) < race.level) then
+L:MENTT:		if visible == TRUE then
+L:MENTT:			msgf("The rune of protection is broken!")
+L:MENTT:		end
+L:MENTT:		deleteme()
+L:MENTT:	else
+L:MENTT:		do_move = FALSE
+L:MENTT:	end
+L:MENTT:end
 
 # Explosive Rune
 N:3:explosive Rune
 G:*:R
 W:100:6:0
-I:FEAT | VIS | NO_OBJECT | TRANS
+I:FEAT | VIS | NO_OBJECT | TRANS | NO_MPLACE
 D:0:0:0:0:0:0:0:0
-F:17,field_action_glyph_explode
+L:MENTT:local race
+L:MENTT:race = monst_race(r_idx)
+L:MENTT:do_turn = TRUE
+L:MENTT:if (do_move == TRUE) then
+L:MENTT:	if (bAnd(race.flags[0], RF0_NEVER_BLOW) ~= 0) and
+L:MENTT:		(randint1(BREAK_MINOR_GLYPH) < race.level) then
+L:MENTT:		if (field.fx == player.px) and (field.fy = player.py) then
+L:MENTT:			msgf("The rune explodes!")
+L:MENTT:			fire_ball(GF_MANA, 0, 2 * ((player.lev / 2) + damroll(7, 7)), 2)
+L:MENTT:		else
+L:MENTT:			msgf("An explosive rune was disarmed.")
+L:MENTT:		end
+L:MENTT:		deleteme()
+L:MENTT:	else
+L:MENTT:		do_move = FALSE
+L:MENTT:	end
+L:MENTT:end
 
 # Corpse
 N:4:corpse
@@ -82,9 +110,16 @@ G:~:v
 W:50:7:1000
 I:TEMP | VIS | IGNORE
 D:0:0:0:0:0:0:0:0
-F:0,field_action_corpse_init | 1,field_action_corpse_load
-F:12,field_action_corpse_look | 13,field_action_corpse_decay
-F:15,field_action_corpse_raise
+L:INIT:corpse_init(r_idx)
+L:LOAD:local race
+L:LOAD:race = monst_race(field.data[1] * 256 + field.data[2])
+L:LOAD:set_corpse_size(field, corpse_type(race.d_char))
+L:SPEC:local race
+L:SPEC:race = field.data[1] * 256 + field.data[2]
+L:SPEC:summon_cloned_creature(field.fx, field.fy, race, pet)
+L:SPEC:deleteme()
+L:LOOK:corpse_look()
+L:EXIT:corpse_decay()
 
 # Skeleton
 N:5:skeleton
@@ -92,292 +127,611 @@ G:~:w
 W:50:7:1000
 I:TEMP | VIS | IGNORE
 D:0:0:0:0:0:0:0:0
-F:0,field_action_corpse_init | 1,field_action_corpse_load
-F:12,field_action_corpse_look | 13,field_action_corpse_decay
-F:15,field_action_corpse_raise
+L:INIT:corpse_init(r_idx)
+L:LOAD:local race
+L:LOAD:race = monst_race(field.data[1] * 256 + field.data[2])
+L:LOAD:set_corpse_size(field, corpse_type(race.d_char))
+L:SPEC:local race
+L:SPEC:race = field.data[1] * 256 + field.data[2]
+L:SPEC:summon_cloned_creature(field.fx, field.fy, race, pet)
+L:SPEC:deleteme()
+L:LOOK:corpse_look()
+L:EXIT:corpse_decay()
 
 # Trapdoor
 N:6:trap door
 G:^:w
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:6:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_door
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(6)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (bAnd(player.flags[2], TR2_FEATHER) ~= 0) then
+L:PENTER:	msgf("You fly over a trap door.")
+L:PENTER:else
+L:PENTER:	msgf("You have fallen through a trap door!")
+L:PENTER:	sound(SOUND_FALL)
+L:PENTER:	take_hit(damroll(4, 8), "a trap door")
+L:PENTER:	move_dun_level(1)
+L:PENTER:end
 
 # Pit
 N:7:pit
 G:^:s
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_pit
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (bAnd(player.flags[2], TR2_FEATHER) ~= 0) then
+L:PENTER:	msgf("You fly over a pit trap.")
+L:PENTER:else
+L:PENTER:	msgf("You have fallen into a pit!")
+L:PENTER:	take_hit(damroll(3, 8), "a pit trap")
+L:PENTER:end
 
 # Spiked Pit
 N:8:spiked pit
 G:^:s
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_spike
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:local dam
+L:PENTER:hit_trap(field)
+L:PENTER:if (bAnd(player.flags[2], TR2_FEATHER) ~= 0) then
+L:PENTER:	msgf("You fly over a spiked pit.")
+L:PENTER:else
+L:PENTER:	msgf("You fall into a spiked pit!")
+L:PENTER:	dam = damroll(4, 8)
+L:PENTER:	if (randint0(100) < 50) then
+L:PENTER:		msgf("You are impaled!")
+L:PENTER:		dam = dam * 2
+L:PENTER:		inc_cut(randint1(dam))
+L:PENTER:	end
+L:PENTER:	take_hit(dam, "a spiked pit trap")
+L:PENTER:end
+
 
 # Poison Pit
 N:9:spiked pit
 G:^:s
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_poison_pit
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(10)
+L:TARGET:trap_gf()
+L:PENTER:local dam
+L:PENTER:hit_trap(field)
+L:PENTER:if (bAnd(player.flags[2], TR2_FEATHER) ~= 0) then
+L:PENTER:	msgf("You fly over a spiked pit.")
+L:PENTER:else
+L:PENTER:	msgf("You fall into a spiked pit!")
+L:PENTER:	dam = damroll(6, 8)
+L:PENTER:	if (randint0(100) < 50) then
+L:PENTER:		msgf("You are impaled on poisonous spikes!")
+L:PENTER:		dam = dam * 2
+L:PENTER:		inc_cut(randint1(dam))
+L:PENTER:		if res_pois_lvl() <= 3 then
+L:PENTER:			msgf("The poison does not affect you!")
+L:PENTER:		else
+L:PENTER:			dam = dam * 2
+L:PENTER:			pois_dam(10, "poison", randint1(dam))
+L:PENTER:		end
+L:PENTER:	end
+L:PENTER:	take_hit(dam, "a spiked pit trap")
+L:PENTER:end
 
 # evil rune
 N:10:evil rune
 G:^:G
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:50:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_curse
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:50:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("There is a flash of shimmering light!")
+L:PENTER:	evil_trap()
+L:PENTER:	deleteme()
+L:PENTER:end
 
 # strange rune
 N:11:strange rune
 G:^:o
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:50:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_teleport
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:50:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(10)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("You hit a teleport trap!")
+L:PENTER:	teleport_player(100)
+L:PENTER:end
 
 # discolored spot
 N:12:discolored spot
 G:^:u
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:8:125:0:5:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_element
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INIT:field.data[3] = randint0(5)
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(8)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (field.data[3] == 0) then
+L:PENTER:	msgf("You are enveloped in flames!")
+L:PENTER:	fire_dam(damroll(4, 6), "a fire trap")
+L:PENTER:elseif (field.data[3] == 1) then
+L:PENTER:	msgf("You are splashed with acid!")
+L:PENTER:	acid_dam(damroll(4, 6), "an acid trap")
+L:PENTER:elseif (field.data[3] == 2) then
+L:PENTER:	msgf("A pungent green gas surrounds you!")
+L:PENTER:	pois_dam(10, "poison", rand_range(10, 30))
+L:PENTER:elseif (field.data[3] == 3) then
+L:PENTER:	msgf("You are splashed with freezing liquid!")
+L:PENTER:	cold_dam(damroll(4, 6), "a cold trap")
+L:PENTER:else
+L:PENTER:	msgf("You are hit by a spark!")
+L:PENTER:	elec_dam(damroll(4, 6), "an electric trap")
+L:PENTER:end
 
 # discolored spot
 N:13:discolored spot
 G:^:u
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:125:0:5:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_ba_element
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INIT:field.data[3] = randint0(5)
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(10)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (field.data[3] == 0) then
+L:PENTER:	msgf("You are enveloped in a ball of flames!")
+L:PENTER:	fire_ball(GF_FIRE, 0, 350, 4)
+L:PENTER:	fire_dam(150, "a fire trap")
+L:PENTER:elseif (field.data[3] == 1) then
+L:PENTER:	msgf("You are soaked with acid!")
+L:PENTER:	fire_ball(GF_ACID, 0, 350, 4)
+L:PENTER:	acid_dam(150, "an acid trap")
+L:PENTER:elseif (field.data[3] == 2) then
+L:PENTER:	msgf("A pungent grey gas surrounds you!")
+L:PENTER:	fire_ball(GF_POIS, 0, 350, 4)
+L:PENTER:	pois_dam(10, "poison", rand_range(100, 150))
+L:PENTER:elseif (field.data[3] == 3) then
+L:PENTER:	msgf("You are soaked with freezing liquid!")
+L:PENTER:	fire_ball(GF_ICE, 0, 350, 4)
+L:PENTER:	cold_dam(150, "a cold trap")
+L:PENTER:elseif (field.data[3] == 4) then
+L:PENTER:	msgf("You are hit by lightning!")
+L:PENTER:	fire_ball(GF_ELEC, 0, 350, 4)
+L:PENTER:	elec_dam(150, "a lightning trap")
+L:PENTER:end
 
 # gas trap
 N:14:gas trap
 G:^:g
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:125:0:5:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_gas
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INIT:field.data[3] = randint0(5)
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (field.data[3] == 0) then
+L:PENTER:	msgf("A blue gas surrounds you!")
+L:PENTER:	inc_slow(rand_range(20, 40))
+L:PENTER:elseif (field.data[3] == 1) then
+L:PENTER:	msgf("A black gas surrounds you!")
+L:PENTER:	if (not player_res(TR1_RES_BLIND)) then
+L:PENTER:		inc_blind(rand_range(25, 75))
+L:PENTER:	end
+L:PENTER:elseif (field.data[3] == 2) then
+L:PENTER:	msgf("A gas of scintillating colors surrounds you!")
+L:PENTER:	if (not player_res(TR1_RES_CONF)) then
+L:PENTER:		inc_confused(rand_range(10, 30))
+L:PENTER:	end
+L:PENTER:elseif (field.data[3] == 3) then
+L:PENTER:	msgf("A strange white mist surrounds you!")
+L:PENTER:	if (not player_res(TR1_FREE_ACT)) then
+L:PENTER:		msgf("You fall asleep.")
+L:PENTER:		if (ironman_nightmare == TRUE) then
+L:PENTER:			msgf("A horrible vision enters your mind.")
+L:PENTER:			have_nightmare()
+L:PENTER:		end
+L:PENTER:		inc_paralyzed(rand_range(5, 15))
+L:PENTER:	end
+L:PENTER:elseif (field.data[3] == 4) then
+L:PENTER:	msgf("A gas of scintillating colors surrounds you!")
+L:PENTER:	if (not player_res(TR1_RES_CHAOS)) then
+L:PENTER:		inc_image(rand_range(10, 30))
+L:PENTER:	end
+L:PENTER:end
 
 # compact rune
 N:15:compact rune
 G:^:D
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:50:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_trap
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:50:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(10)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("There is a bright flash of light!")
+L:PENTER:	project(0, 1, player.px, player.py, 0, GF_MAKE_TRAP,
+L:PENTER:			bOr(PROJECT_HIDE, bOr(PROJECT_JUMP, PROJECT_GRID)))
+L:PENTER:	deleteme()
+L:PENTER:end
 
 # dart trap
 N:16:dart trap
 G:^:r
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:125:0:3:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_temp_stat
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INIT:field.data[3] = randint0(3)
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (field.data[3] == 0) then
+L:PENTER:	if (check_trap_hit(125) == TRUE) then
+L:PENTER:		msgf("A small dart hits you!")
+L:PENTER:		take_hit(randint1(4), "a dart trap")
+L:PENTER:		do_dec_stat(A_STR)
+L:PENTER:	else
+L:PENTER:		msgf("A small dart barely misses you.")
+L:PENTER:	end
+L:PENTER:elseif (field.data[3] == 1) then
+L:PENTER:	if (check_trap_hit(125) == TRUE) then
+L:PENTER:		msgf("A small dart hits you!")
+L:PENTER:		take_hit(randint1(4), "a dart trap")
+L:PENTER:		do_dec_stat(A_DEX)
+L:PENTER:	else
+L:PENTER:		msgf("A small dart barely misses you.")
+L:PENTER:	end
+L:PENTER:elseif (field.data[3] == 2) then
+L:PENTER:	if (check_trap_hit(125) == TRUE) then
+L:PENTER:		msgf("A small dart hits you!")
+L:PENTER:		take_hit(randint1(4), "a dart trap")
+L:PENTER:		do_dec_stat(A_CON)
+L:PENTER:	else
+L:PENTER:		msgf("A small dart barely misses you.")
+L:PENTER:	end
+L:PENTER:end
 
 # dart trap
 N:17:dart trap
 G:^:r
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:20:125:0:6:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_perm_stat
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INIT:field.data[3] = randint0(6)
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(20)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (check_trap_hit(125) == TRUE) then
+L:PENTER:	msgf("A small dart hits you!")
+L:PENTER:	take_hit(randint1(4), "a dart trap")
+L:PENTER:	dec_stat(field.data[3], 30, TRUE)
+L:PENTER:else
+L:PENTER:	msgf("A small dart barely misses you.")
+L:PENTER:end
 
 # twisted rune
 N:18:twisted rune
 G:^:U
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:40:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_lose_xp
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(40)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("Your head throbs!")
+L:PENTER:	lose_exp(player.exp / 5)
+L:PENTER:end
 
 # geometric rune
 N:19:geometric rune
 G:^:v
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:100:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_disenchant
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:100:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(10)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	if (not player_res(TR1_RES_DISEN)) then
+L:PENTER:		msgf("There is a bright flash of light!")
+L:PENTER:		apply_disenchant()
+L:PENTER:	else
+L:PENTER:		msgf("You feel the air throb.")
+L:PENTER:	end
+L:PENTER:end
 
 # glowing rune
 N:20:glowing rune
 G:^:y
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:100:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_drop_item
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:100:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(10)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("You fumble with your pack!")
+L:PENTER:	drop_random_item()
+L:PENTER:end
 
 # jagged rune
 N:21:jagged rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:15:75:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_mutate
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:75:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(15)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	gain_mutation(0)
+L:PENTER:end
 
 # fractured rune
 N:22:fractured rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:50:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_new_life
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(15)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	lose_mutation()
+L:PENTER:end
 
 # faded rune
 N:23:faded rune
 G:^:D
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:2:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_no_lite
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(2)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("Darkness surrounds you!")
+L:PENTER:	drain_lite()
+L:PENTER:end
 
 # flashing rune
 N:24:flashing rune
 G:^:R
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:2:25:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_hunger
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:25:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(2)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("You suddenly feel very, very hungry!")
+L:PENTER:	drain_food()
+L:PENTER:end
 
 # weird rune
 N:25:weird rune
 G:^:B
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:10:75:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_no_gold
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:75:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(10)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("Your purse becomes weightless!")
+L:PENTER:	player.au = player.au / 2
+L:PENTER:	player.redraw = bOr(player.redraw, PR_GOLD)
+L:PENTER:	player.window = bOr(player.window, PW_PLAYER)
+L:PENTER:end
 
 # shimmering rune
 N:26:shimmering rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_haste_monster
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("A shrill note sounds!")
+L:PENTER:	speed_monsters()
+L:PENTER:	deleteme()
+L:PENTER:end
 
 # smelly rune
 N:27:smelly rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_raise_mon
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("You smell something musty.")
+L:PENTER:	raise_dead(player.px, player.py, FALSE)
+L:PENTER:end
 
 # intricate rune
 N:28:intricate rune
 G:^:v
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:100:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_drain_magic
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:100:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("Static fills the air.")
+L:PENTER:	drain_magic()
+L:PENTER:end
 
 # bright rune
 N:29:bright rune
 G:^:W
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:125:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_aggravate
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:125:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("Shouts fill the air!")
+L:PENTER:	aggravate_monsters(0)
+L:PENTER:end
 
 # blurry rune
 N:30:blurry rune
 G:^:b
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:50:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_summon
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:50:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:hit_trap(field)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("Zap!")
+L:PENTER:	summon_specific(0, player.px, player.py, player.depth,
+L:PENTER:					0, TRUE, FALSE, FALSE)
+L:PENTER:	deleteme()
+L:PENTER:end
 
 # spiral rune
 N:31:spiral rune
 G:^:W
 W:100:1:0
 I:FEAT | TRANS | NO_OBJECT | NO_LOOK
-D:5:75:0:0:0:0:0:0
-F:0,field_action_trap_init | 2,field_action_hit_trap_lose_memory
-F:10,field_action_trap_disarm | 15,field_action_trap_disarm
-F:16,field_action_interact_disarm | 11,field_action_trap_gf
+D:0:75:0:0:0:0:0:0
+L:INTERT:action = ACT_DISARM
+L:INTER:trap_disarm(5)
+L:TARGET:trap_gf()
+L:PENTER:disturb(FALSE)
+L:PENTER:if (player_save(player.depth) ~= TRUE) then
+L:PENTER:	msgf("You are not sure what just happened!")
+L:PENTER:	lose_all_info()
+L:PENTER:else
+L:PENTER:	hit_trap(field)
+L:PENTER:end
 
 # Locked door
 N:32:locked door
 G:+:U
 W:100:2:0
-I:NO_LOOK | MERGE
-D:0:0:0:0:0:0:255:255
-F:0,field_action_counter_init
-F:10,field_action_door_unlock | 11,field_action_door_gf
-F:15,field_action_delete | 16,field_action_interact_open
-F:17,field_action_door_lock_monster
+I:NO_LOOK | MERGE | NO_MPLACE
+D:0:0:0:0:0:0:0:0
+L:INIT:counter_init(32000)
+L:INTERT:action = ACT_OPEN
+L:INTER:power = power - field.counter
+L:INTER:-- Always have a small chance of success
+L:INTER:if (power < 2) then power = 2 end
+L:INTER:
+L:INTER:if (randint0(100) < power) then
+L:INTER:	msgf("The door is unlocked.")
+L:INTER:	-- Open the door
+L:INTER:	cave_set_feat(field.fx, field.fy, FEAT_OPEN)
+L:INTER:	deleteme()
+L:INTER:else
+L:INTER:	msgf("You failed to unlock the door.")
+L:INTER:	-- We know the door is locked
+L:INTER:	field.info = bOr(field.info, FIELD_INFO_NFT_LOOK)
+L:INTER:	field.info = bAnd(field.info, bNot(FIELD_INFO_NO_LOOK))
+L:INTER:end
+L:TARGET:door_gf()
+L:MENTT:local race
+L:MENTT:race = monst_race(r_idx)
+L:MENTT:if do_move == TRUE then
+L:MENTT:	do_move = FALSE
+L:MENTT:	do_turn = TRUE
+L:MENTT:	if (bAnd(race.flags[1], RF1_OPEN_DOOR) ~= 0)
+L:MENTT:		and (allow_open == TRUE)
+L:MENTT:		and monster_can_open(race, field.counter) == TRUE then
+L:MENTT:		did_open_door = TRUE
+L:MENTT:		deleteme()
+L:MENTT:	end
+L:MENTT:end
+
 
 # Jammed door
 N:33:stuck door
 G:+:U
 W:100:2:0
-I:NO_LOOK | MERGE
-D:15:1:0:0:0:0:255:255
-F:0,field_action_counter_init
-F:10,field_action_door_bash | 11,field_action_door_gf
-F:15,field_action_delete | 16,field_action_interact_open
-F:17,field_action_door_jam_monster
-
+I:NO_LOOK | MERGE | NO_MPLACE
+D:15:1:0:0:0:0:0:0
+L:INIT:counter_init(32000)
+L:INTERT:action = ACT_OPEN
+L:INTER:if (randint0(power / 10 + adj_str_wgt[player.stat[A_STR].ind] / 2) > field.counter) then
+L:INTER:	msgf("The door crashes open!")
+L:INTER:	if (randint0(100) < 50) then
+L:INTER:		-- Break down the door
+L:INTER:		cave_set_feat(field.fx, field.fy, FEAT_BROKEN)
+L:INTER:	else
+L:INTER:		-- Open the door
+L:INTER:		cave_set_feat(field.fx, field.fy, FEAT_OPEN)
+L:INTER:	end
+L:INTER:	deleteme()
+L:INTER:else
+L:INTER:	-- We know the door is jammed
+L:INTER:	field.info = bOr(field.info, FIELD_INFO_NFT_LOOK)
+L:INTER:	field.info = bAnd(field.info, bNot(FIELD_INFO_NO_LOOK))
+L:INTER:end
+L:TARGET:door_gf()
+L:MENTT:local race
+L:MENTT:race = monst_race(r_idx)
+L:MENTT:if do_move == TRUE then
+L:MENTT:	do_turn = TRUE
+L:MENTT:	do_move = FALSE
+L:MENTT:	if (bAnd(race.flags[1], RF1_BASH_DOOR) ~= 0)
+L:MENTT:		and (allow_open == TRUE)
+L:MENTT:		and monster_can_open(race, field.counter) == TRUE then
+L:MENTT:		msgf("You hear a door burst open!")
+L:MENTT:		if (disturb_minor == TRUE) then disturb(FALSE) end
+L:MENTT:		did_bash_door = TRUE
+L:MENTT:		-- Fall through opening
+L:MENTT:		do_move = TRUE
+L:MENTT:		deleteme()
+L:MENTT:	end
+L:MENTT:end
 
 #
 # Stores use the D: line in the following way.
@@ -392,8 +746,8 @@ F:17,field_action_door_jam_monster
 # data[7] contains the result of logical-and'ing the ST_XXX bitflags
 #     together for that store.
 #
-#     Note F:18 is not that particular property.
-#          F:19 is that particular property.
+#     Note L:STORE1 selects objects not in the store.
+#          L:STORE2 selects objects in the store.
 #
 # We now use a consistent, and hopefully intuitive, naming scheme 
 # for the advanced stores:
@@ -411,8 +765,9 @@ G:1:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:10:0:50:0:50:0
-F:2,field_action_door_store
-F:18,field_action_isweaparmour_tester
+L:SBINIT:place_sb(rand_range(105, 109), rand_range(2, 10))
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_weapon_armour(object)
 
 # Armoury
 N:35:Armoury
@@ -420,8 +775,9 @@ G:2:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:5:30:0:100:0:0:0
-F:2,field_action_door_store
-F:19,field_action_isarmour_tester
+L:SBINIT:place_sb(rand_range(110, 115), rand_range(5, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_armour(object)
 
 # Weapon Smiths
 N:36:Weapon Smiths
@@ -429,8 +785,9 @@ G:3:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:5:20:0:100:0:0:0
-F:2,field_action_door_store
-F:19,field_action_isweapon_tester
+L:SBINIT:place_sb(rand_range(110, 115), rand_range(5, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon(object)
 
 # Temple
 N:37:Temple
@@ -438,8 +795,9 @@ G:6:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:5:20:33:33:34:0:1
-F:2,field_action_door_store
-F:18,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(107, 110), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_recharge(object)
 
 # Alchemy Shop
 N:38:Alchemy Shop
@@ -447,8 +805,9 @@ G:6:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:5:30:0:0:100:0:0
-F:2,field_action_door_store
-F:18,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(110, 115), rand_range(10, 15) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_recharge(object)
 
 # Magic Wares
 N:39:Magic Wares
@@ -456,8 +815,9 @@ G:6:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:20:40:0:0:100:0:0
-F:2,field_action_door_store 
-F:18,field_action_ispotion_tester
+L:SBINIT:place_sb(rand_range(110, 113), rand_range(15, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_tval(object, TV_POTION)
 
 # Black Market
 N:40:Black Market
@@ -465,7 +825,8 @@ G:1:D
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:20:50:25:25:25:25:16
-F:2,field_action_door_store
+L:SBINIT:place_sb(150, rand_range(20, 30) * 10)
+L:PENTER:do_cmd_store(field)
 
 # Home
 N:41:Home
@@ -473,7 +834,8 @@ G:8:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:7:0:0:100:100:100:100:0
-F:2,field_action_door_store
+L:SBINIT:place_sb(100, 0)
+L:PENTER:do_cmd_store(field)
 
 # Book Store
 N:42:Book Store
@@ -481,62 +843,138 @@ G:5:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:20:40:0:0:100:0:8
-F:2,field_action_door_store
-F:19,field_action_isbook_tester
+L:SBINIT:place_sb(rand_range(105, 110), rand_range(10, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_is_book(object)
 
 # Weaponmaster
 N:43:Weaponmaster
 G:7:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:0:3:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_weaponmaster1 | 19,field_action_weaponmaster2
+D:0:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("E) Examine Weapons (".. factor * 3 .."gp)")
+L:BUILD2:local cost
+L:BUILD2:if (command == 'E') then
+L:BUILD2:	cost = factor * 3
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if compare_weapons() == TRUE then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		end
+L:BUILD2:		message_flush()
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Zymurgist
 N:44:Zymurgist
 G:7:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:1:1:5:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_recharge1 | 19,field_action_recharge2
+D:1:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("$CThe price of a recharge depends on the item.",
+L:BUILD1:				  "",
+L:BUILD1:				  "R) Recharge Items",
+L:BUILD1:				  "I) Identify Items (".. factor * 5 .."gp)")
+L:BUILD2:local cost
+L:BUILD2:if (command == 'R') then
+L:BUILD2:	building_recharge(factor)
+L:BUILD2:	done = TRUE
+L:BUILD2:	message_flush()
+L:BUILD2:elseif (command == 'I') then
+L:BUILD2:	cost = factor * 5
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		identify_pack()
+L:BUILD2:		msgf("Your posessions have been identified.")
+L:BUILD2:		message_flush()
+L:BUILD2:		player.au = player.au - cost
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Magesmith (weapon)
 N:45:Magesmith (weapons)
 G:7:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:2:5:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_weaponplus1 | 19,field_action_weaponplus2
+D:2:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("$CBased on your skill, we can improve up to (+"..
+L:BUILD1:                 player.lev / 5 .. ",+" .. 5 * (player.lev / 3) .. "%).",
+L:BUILD1:				  "",
+L:BUILD1:				  "E) Enchant Weapons (".. factor * 5 .."gp)")
+L:BUILD2:if (command == 'E') then
+L:BUILD2:	enchant_item(factor * 5, TRUE, TRUE, FALSE, TRUE)
+L:BUILD2:	message_flush()
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Magesmith (armour)
 N:46:Magesmith (armor)
 G:7:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:3:5:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_armourplus1 | 19,field_action_armourplus2
+D:3:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("$CBased on your skill, we can improve up to +" .. player.lev / 5 .. ".",
+L:BUILD1:				  "",
+L:BUILD1:				  "E) Enchant Armour (".. factor * 5 .."gp)")
+L:BUILD2:if (command == 'E') then
+L:BUILD2:	enchant_item(factor * 5, FALSE, FALSE, TRUE, FALSE)
+L:BUILD2:	message_flush()
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Mutatalist
 N:47:Mutatalist
 G:9:R
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:4:50:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_mutate1 | 19,field_action_mutate2
+D:4:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("E) Expose yourself to raw chaos (".. 50 * factor * (count_mutations() + 1).."gp)")
+L:BUILD2:local cost
+L:BUILD2:if (command == 'E') then
+L:BUILD2:	cost = 50 * factor * (count_mutations() + 1)
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if (lose_mutation(0) == TRUE) then
+L:BUILD2:			msgf("You feel oddly normal.")
+L:BUILD2:		else
+L:BUILD2:			gain_mutation(0)
+L:BUILD2:		end
+L:BUILD2:		player.au = player.au - cost
+L:BUILD2:		message_flush()
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Map Maker
 N:48:Map Maker
 G:9:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:5:5:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_buymap1 | 19,field_action_buymap2
+D:5:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("E) Examine Map (".. factor * 5 .."gp)")
+L:BUILD2:local cost
+L:BUILD2:if (command == 'E') then
+L:BUILD2:	cost = factor * 5
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		msgf("You learn of the lay of the lands.")
+L:BUILD2:		map_wilderness(20, player.wilderness_x / 16, player.wilderness_y / 16)
+L:BUILD2:		player.au = player.au - cost
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:	message_flush()
+L:BUILD2:end
 
 # Weapon Smiths
 N:49:Advanced Weapon Smiths
@@ -544,8 +982,9 @@ G:3:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:50:0:100:0:0:0
-F:2,field_action_door_store
-F:19,field_action_isweapon_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon(object)
 
 # Weapon Smiths
 N:50:Expert Weapon Smiths
@@ -553,8 +992,9 @@ G:3:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:75:0:100:0:0:0
-F:2,field_action_door_store
-F:19,field_action_isweapon_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon(object)
 
 # Weapon Smiths
 N:51:Deep Weapon Smiths
@@ -562,8 +1002,9 @@ G:3:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
-F:2,field_action_door_store
-F:19,field_action_isweapon_tester
+L:SBINIT:place_sb(rand_range(125, 150), rand_range(5, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon(object)
 
 # Weapon Smiths
 N:52:Arcane Weapon Smiths
@@ -571,8 +1012,9 @@ G:3:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:42
-F:2,field_action_door_store
-F:19,field_action_isweapon_tester
+L:SBINIT:place_sb(rand_range(125, 150), rand_range(5, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon(object)
 
 # Weapon Smiths
 N:53:Unique Weapon Smiths
@@ -580,8 +1022,9 @@ G:3:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:62
-F:2,field_action_door_store
-F:19,field_action_isweapon_tester
+L:SBINIT:place_sb(rand_range(125, 130), rand_range(10, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon(object)
 
 # Armoury
 N:54:Advanced Armoury
@@ -589,8 +1032,9 @@ G:2:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:20:50:0:100:0:0:0
-F:2,field_action_door_store
-F:19,field_action_isarmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_armour(object)
 
 # Armoury
 N:55:Expert Armoury
@@ -598,8 +1042,9 @@ G:2:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:75:0:100:0:0:0
-F:2,field_action_door_store
-F:19,field_action_isarmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_armour(object)
 
 # Armoury
 N:56:Deep Armoury
@@ -607,8 +1052,9 @@ G:2:u
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:75:127:0:100:0:0:24
-F:2,field_action_door_store
-F:19,field_action_isarmour_tester
+L:SBINIT:place_sb(rand_range(125, 150), rand_range(5, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_armour(object)
 
 # Armoury
 N:57:Arcane Armoury
@@ -616,8 +1062,9 @@ G:2:u
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:42
-F:2,field_action_door_store
-F:19,field_action_isarmour_tester
+L:SBINIT:place_sb(rand_range(125, 150), rand_range(5, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_armour(object)
 
 # Armoury
 N:58:Unique Armoury
@@ -625,8 +1072,9 @@ G:2:u
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:62
-F:2,field_action_door_store
-F:19,field_action_isarmour_tester
+L:SBINIT:place_sb(rand_range(125, 150), rand_range(10, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_armour(object)
 
 # Swordsman
 N:59:Swordsman
@@ -634,8 +1082,9 @@ G:3:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:1:20:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_issword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SWORD)
 
 # Swordsman
 N:60:Advanced Swordsman
@@ -643,8 +1092,9 @@ G:3:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:50:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_issword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SWORD)
 
 # Swordsman
 N:61:Expert Swordsman
@@ -652,8 +1102,9 @@ G:3:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:40:75:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_issword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SWORD)
 
 # Swordsman
 N:62:Deep Swordsman
@@ -661,8 +1112,9 @@ G:3:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
-F:2,field_action_door_store
-F:19,field_action_issword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SWORD)
 
 # Swordsman
 N:63:Arcane Swordsman
@@ -670,8 +1122,9 @@ G:3:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:42
-F:2,field_action_door_store
-F:19,field_action_issword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SWORD)
 
 # Swordsman
 N:64:Unique Swordsman
@@ -679,8 +1132,9 @@ G:3:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:62
-F:2,field_action_door_store
-F:19,field_action_issword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SWORD)
 
 # Shieldsman
 N:65:Shieldsman
@@ -688,8 +1142,9 @@ G:2:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:1:30:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isshield_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:66:Advanced Shieldsman
@@ -697,8 +1152,9 @@ G:2:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:20:50:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isshield_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:67:Expert Shieldsman
@@ -706,8 +1162,9 @@ G:2:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:30:75:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isshield_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:68:Obscure Shieldsman
@@ -715,8 +1172,9 @@ G:2:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:75:127:0:100:0:0:42
-F:2,field_action_door_store
-F:19,field_action_isshield_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:69:Arcane Shieldsman
@@ -724,8 +1182,9 @@ G:2:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:26
-F:2,field_action_door_store
-F:19,field_action_isshield_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Shieldsman
 N:70:Unique Shieldsman
@@ -733,8 +1192,9 @@ G:2:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:62
-F:2,field_action_door_store
-F:19,field_action_isshield_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SHIELD)
 
 # Axeman
 N:71:Axeman
@@ -742,8 +1202,9 @@ G:3:D
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:1:20:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isnonsword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_nonsword(object)
 
 # Axeman
 N:72:Advanced Axeman
@@ -751,8 +1212,9 @@ G:3:D
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:50:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isnonsword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_nonsword(object)
 
 # Axeman
 N:73:Expert Axeman
@@ -760,8 +1222,9 @@ G:3:D
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:75:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isnonsword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_nonsword(object)
 
 # Axeman
 N:74:Deep Axeman
@@ -769,8 +1232,9 @@ G:3:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
-F:2,field_action_door_store
-F:19,field_action_isnonsword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_nonsword(object)
 
 # Axeman
 N:75:Arcane Axeman
@@ -778,8 +1242,9 @@ G:3:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:42
-F:2,field_action_door_store
-F:19,field_action_isnonsword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_nonsword(object)
 
 # Axeman
 N:76:Unique Axeman
@@ -787,8 +1252,9 @@ G:3:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:62
-F:2,field_action_door_store
-F:19,field_action_isnonsword_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_nonsword(object)
 
 # Ammunition
 N:77:Ammo Supplies
@@ -796,8 +1262,9 @@ G:3:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:1:50:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isammo_tester
+L:SBINIT:place_sb(rand_range(105, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_ammo(object)
 
 # Ammunition
 N:78:Advanced Ammo Supplies
@@ -805,8 +1272,9 @@ G:3:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isammo_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_ammo(object)
 
 # Ammunition
 N:79:Deep Ammo Supplies
@@ -814,8 +1282,9 @@ G:3:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:24
-F:2,field_action_door_store
-F:19,field_action_isammo_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_ammo(object)
 
 # Fletcher
 N:80:Fletcher
@@ -823,8 +1292,9 @@ G:3:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:1:50:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isfletcher_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_fletcher(object)
 
 # Fletcher
 N:81:Advanced Fletcher
@@ -832,8 +1302,9 @@ G:3:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isfletcher_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_fletcher(object)
 
 # Fletcher
 N:82:Arcane Fletcher
@@ -841,8 +1312,9 @@ G:3:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:42
-F:2,field_action_door_store
-F:19,field_action_isfletcher_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_fletcher(object)
 
 # Fletcher
 N:83:Unique Fletcher
@@ -850,8 +1322,9 @@ G:3:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:100:0:100:0:0:62
-F:2,field_action_door_store
-F:19,field_action_isfletcher_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_fletcher(object)
 
 # Warrior Hall
 N:84:Warrior Hall
@@ -859,8 +1332,9 @@ G:0:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:1:20:0:100:0:0:0
-F:2,field_action_door_store
-F:19,field_action_isweaparmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:85:Advanced Warrior Hall
@@ -868,8 +1342,9 @@ G:0:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:20:50:0:100:0:0:0
-F:2,field_action_door_store
-F:19,field_action_isweaparmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:86:Expert Warrior Hall
@@ -877,8 +1352,9 @@ G:0:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:40:75:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isweaparmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:87:Deep Warrior Hall
@@ -886,8 +1362,9 @@ G:0:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:75:127:0:100:0:0:24
-F:2,field_action_door_store
-F:19,field_action_isweaparmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:88:Arcane Warrior Hall
@@ -895,8 +1372,9 @@ G:0:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:5:95:0:0:42
-F:2,field_action_door_store
-F:19,field_action_isweaparmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Warrior Hall
 N:89:Unique Warrior Hall
@@ -904,8 +1382,9 @@ G:0:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:2:50:100:0:100:0:0:62
-F:2,field_action_door_store
-F:19,field_action_isweaparmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_weapon_armour(object)
 
 # Clothes Store
 N:90:Clothes Store
@@ -913,8 +1392,9 @@ G:2:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:1:20:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isclothes_tester
+L:SBINIT:place_sb(rand_range(105, 110), rand_range(5, 10) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_soft_armour(object)
 
 # Clothes Store
 N:91:Expensive Clothes Store
@@ -922,8 +1402,9 @@ G:2:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:50:0:100:0:0:24
-F:2,field_action_door_store
-F:19,field_action_isclothes_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_soft_armour(object)
 
 # Heavy Armoury
 N:92:Heavy Armoury
@@ -931,8 +1412,9 @@ G:2:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:1:30:0:100:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isphardarmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:93:Advanced Heavy Armoury
@@ -940,8 +1422,9 @@ G:2:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:20:60:20:80:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isphardarmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:94:Expert Heavy Armoury
@@ -949,8 +1432,9 @@ G:2:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:75:20:80:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isphardarmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:95:Arcane Heavy Armoury
@@ -958,8 +1442,9 @@ G:2:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:75:127:20:80:0:0:42
-F:2,field_action_door_store
-F:19,field_action_isphardarmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:96:Obscure Heavy Armoury
@@ -967,8 +1452,9 @@ G:2:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:20:80:0:0:26
-F:2,field_action_door_store
-F:19,field_action_isphardarmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Heavy Armoury
 N:97:Unique Heavy Armoury
@@ -976,8 +1462,9 @@ G:2:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:0:100:0:0:62
-F:2,field_action_door_store
-F:19,field_action_isphardarmour_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(10, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_pure_hard_armour(object)
 
 # Milliner
 N:98:Milliner
@@ -985,8 +1472,9 @@ G:2:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:1:50:50:50:0:0:8
-F:2,field_action_door_store
-F:19,field_action_ishelm_tester
+L:SBINIT:place_sb(rand_range(105, 110), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_helm(object)
 
 # Milliner
 N:99:Advanced Milliner
@@ -994,8 +1482,9 @@ G:2:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:50:100:50:50:0:0:8
-F:2,field_action_door_store
-F:19,field_action_ishelm_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_helm(object)
 
 # Milliner
 N:100:Arcane Milliner
@@ -1003,8 +1492,9 @@ G:2:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:50:50:0:0:42
-F:2,field_action_door_store
-F:19,field_action_ishelm_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_helm(object)
 
 # Milliner
 N:101:Unique Milliner
@@ -1012,8 +1502,9 @@ G:2:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:20:100:50:50:0:0:62
-F:2,field_action_door_store
-F:19,field_action_ishelm_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_helm(object)
 
 # Jeweler
 N:102:Jeweler
@@ -1021,17 +1512,19 @@ G:5:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:1:30:100:0:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isjewel_tester
+L:SBINIT:place_sb(rand_range(120, 130), rand_range(20, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_jewel(object)
 
 # Jeweler
-N:103:Copper Jewler
+N:103:Copper Jeweler
 G:5:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:20:50:100:0:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isjewel_tester
+L:SBINIT:place_sb(rand_range(120, 130), rand_range(20, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_jewel(object)
 
 # Jeweler
 N:104:Silver Jeweler
@@ -1039,8 +1532,9 @@ G:5:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:40:70:100:0:0:0:24
-F:2,field_action_door_store
-F:19,field_action_isjewel_tester
+L:SBINIT:place_sb(rand_range(120, 130), rand_range(20, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_jewel(object)
 
 # Jeweler
 N:105:Gold Jeweler
@@ -1048,8 +1542,9 @@ G:5:R
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:60:90:100:0:0:0:40
-F:2,field_action_door_store
-F:19,field_action_isjewel_tester
+L:SBINIT:place_sb(rand_range(130, 140), rand_range(20, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_jewel(object)
 
 # Jeweler
 N:106:Rare Jeweler
@@ -1057,8 +1552,9 @@ G:5:R
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:80:120:100:0:0:0:56
-F:2,field_action_door_store
-F:19,field_action_isjewel_tester
+L:SBINIT:place_sb(rand_range(140, 150), rand_range(20, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_jewel(object)
 
 # Statue Store
 N:107:Statue Store
@@ -1066,8 +1562,9 @@ G:5:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:1:50:100:0:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isstatue_tester
+L:SBINIT:place_sb(rand_range(105, 115), rand_range(5, 10) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_STATUE)
 
 # Statue Store
 N:108:Unusual Statue Store
@@ -1075,8 +1572,9 @@ G:5:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:1:50:100:100:0:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isstatue_tester
+L:SBINIT:place_sb(rand_range(105, 115), rand_range(5, 10) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_STATUE)
 
 # Figurine Store
 N:109:Figurine Store
@@ -1084,8 +1582,9 @@ G:5:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:26:26:100:0:0:0:8
-F:2,field_action_door_store
-F:19,field_action_isfigurine_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_FIGURINE)
 
 # Figurine Store
 N:110:Expensive Figurine Store
@@ -1093,8 +1592,9 @@ G:5:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:50:90:100:0:0:0:16
-F:2,field_action_door_store
-F:19,field_action_isfigurine_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_FIGURINE)
 
 # Potion Store
 N:111:Potion Store
@@ -1102,8 +1602,9 @@ G:5:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:1:30:0:0:100:0:0
-F:2,field_action_door_store
-F:19,field_action_ispotion_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Potion Store
 N:112:Expensive Potion Store
@@ -1111,8 +1612,9 @@ G:5:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:20:40:0:0:100:0:24
-F:2,field_action_door_store
-F:19,field_action_ispotion_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Potion Store
 N:113:Deep Potion Store
@@ -1120,8 +1622,9 @@ G:5:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:40:70:0:0:100:0:24
-F:2,field_action_door_store
-F:19,field_action_ispotion_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Potion Store
 N:114:Rare Potion Store
@@ -1129,8 +1632,9 @@ G:5:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:60:90:0:0:100:0:40
-F:2,field_action_door_store
-F:19,field_action_ispotion_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Potion Store
 N:115:Custom Potion Store
@@ -1138,8 +1642,9 @@ G:5:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:80:120:0:0:100:0:56
-F:2,field_action_door_store
-F:19,field_action_ispotion_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_POTION)
 
 # Scroll Store
 N:116:Scroll Store
@@ -1147,8 +1652,9 @@ G:5:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:1:30:0:0:100:0:0
-F:2,field_action_door_store
-F:19,field_action_isscroll_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Scroll Store
 N:117:Unusual Scroll Store
@@ -1156,8 +1662,9 @@ G:5:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:20:50:0:0:100:0:8
-F:2,field_action_door_store
-F:19,field_action_isscroll_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Scroll Store
 N:118:Expensive Scroll Store
@@ -1165,8 +1672,9 @@ G:5:W
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:40:70:0:0:100:0:24
-F:2,field_action_door_store
-F:19,field_action_isscroll_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Scroll Store
 N:119:Deep Scroll Store
@@ -1174,8 +1682,9 @@ G:5:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:60:90:0:0:100:0:40
-F:2,field_action_door_store
-F:19,field_action_isscroll_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Scroll Store
 N:120:Rare Scroll Store
@@ -1183,8 +1692,9 @@ G:5:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:80:120:0:0:100:0:56
-F:2,field_action_door_store
-F:19,field_action_isscroll_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_SCROLL)
 
 # Magic Store
 N:121:Magic Store
@@ -1192,8 +1702,9 @@ G:6:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:1:20:0:0:100:0:8
-F:2,field_action_door_store
-F:19,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(120, 125), rand_range(10, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_recharge(object)
 
 # Magic Store
 N:122:Advanced Magic Store
@@ -1201,8 +1712,9 @@ G:6:r
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:20:40:0:0:100:0:8
-F:2,field_action_door_store
-F:19,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(120, 125), rand_range(10, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_recharge(object)
 
 # Magic Store
 N:123:Expensive Magic Store
@@ -1210,8 +1722,9 @@ G:6:R
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:40:60:0:0:100:0:24
-F:2,field_action_door_store
-F:19,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(120, 125), rand_range(10, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_recharge(object)
 
 # Magic Store
 N:124:Rare Magic Store
@@ -1219,8 +1732,9 @@ G:6:R
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:60:90:0:0:100:0:40
-F:2,field_action_door_store
-F:19,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(120, 125), rand_range(10, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_recharge(object)
 
 # Magic Store
 N:125:Custom Magic Store
@@ -1228,8 +1742,9 @@ G:6:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:5:80:120:0:0:100:0:56
-F:2,field_action_door_store
-F:19,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(120, 125), rand_range(10, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_recharge(object)
 
 # Book Store
 N:126:Rare Book Store
@@ -1237,8 +1752,9 @@ G:5:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:8:20:120:0:0:100:0:56
-F:2,field_action_door_store
-F:19,field_action_isbook_tester
+L:SBINIT:place_sb(rand_range(120, 150), rand_range(20, 30) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_is_book(object)
 
 # Temple
 N:127:Large Temple
@@ -1246,8 +1762,9 @@ G:6:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:20:50:33:33:34:0:1
-F:2,field_action_door_store
-F:18,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 20) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_recharge(object)
 
 # Temple
 N:128:High Temple
@@ -1255,8 +1772,9 @@ G:6:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:50:75:33:33:34:0:17
-F:2,field_action_door_store
-F:18,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_recharge(object)
 
 # Temple
 N:129:Hidden Temple
@@ -1264,8 +1782,9 @@ G:6:G
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:3:75:100:33:33:34:0:57
-F:2,field_action_door_store
-F:18,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_recharge(object)
 
 # Supplies store
 N:130:Supplies Store
@@ -1273,8 +1792,14 @@ G:1:u
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:9:0:20:40:30:0
-F:2,field_action_door_store
-F:18,field_action_issupplies_tester
+L:SBINIT:place_sb(rand_range(105, 110), rand_range(5, 10) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = FALSE
+L:STORE1:-- This leaves the store with scrolls, tools, ammo, and diggers (by elimination)
+L:STORE1:if (item_tester_hook_tval(object, TV_POTION) == TRUE) then result = TRUE end
+L:STORE1:if (item_tester_hook_weapon_armour(object) == TRUE) then result = TRUE end
+L:STORE1:if (item_tester_hook_recharge(object) == TRUE) then result = TRUE end
+L:STORE1:if (item_tester_hook_is_book(object) == TRUE) then result = TRUE end
 
 # Supplies store
 N:131:Dungeon Supplies Store
@@ -1282,8 +1807,14 @@ G:1:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:20:0:10:40:50:0
-F:2,field_action_door_store
-F:18,field_action_issupplies_tester
+L:SBINIT:place_sb(rand_range(105, 110), rand_range(5, 10) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = FALSE
+L:STORE1:-- This leaves the store with scrolls, tools, ammo, and diggers (by elimination)
+L:STORE1:if (item_tester_hook_tval(object, TV_POTION) == TRUE) then result = TRUE end
+L:STORE1:if (item_tester_hook_weapon_armour(object) == TRUE) then result = TRUE end
+L:STORE1:if (item_tester_hook_recharge(object) == TRUE) then result = TRUE end
+L:STORE1:if (item_tester_hook_is_book(object) == TRUE) then result = TRUE end
 
 # Black Market
 N:132:Large Black Market
@@ -1291,7 +1822,8 @@ G:1:s
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:40:80:25:25:25:25:32
-F:2,field_action_door_store
+L:SBINIT:place_sb(150, rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
 
 # Black Market
 N:133:Hidden Black Market
@@ -1299,7 +1831,8 @@ G:1:w
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:60:100:25:25:25:25:56
-F:2,field_action_door_store
+L:SBINIT:place_sb(150, rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
 
 # Alchemy Shop
 N:134:Advanced Alchemy Shop
@@ -1307,8 +1840,9 @@ G:6:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:20:60:0:0:100:0:8
-F:2,field_action_door_store
-F:18,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_recharge(object)
 
 # Alchemy Shop
 N:135:Rare Alchemy Shop
@@ -1316,8 +1850,9 @@ G:6:B
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:4:50:80:0:0:100:0:40
-F:2,field_action_door_store
-F:18,field_action_isrecharge_tester
+L:SBINIT:place_sb(rand_range(110, 125), rand_range(5, 25) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE1:result = item_tester_hook_recharge(object)
 
 # Junk store
 N:136:Flea Market
@@ -1325,7 +1860,8 @@ G:1:g
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:5:30:10:10:50:8
-F:2,field_action_door_store
+L:SBINIT:place_sb(rand_range(105, 108), rand_range(2, 10) * 10)
+L:PENTER:do_cmd_store(field)
 
 # Food store
 N:137:Grocer
@@ -1333,17 +1869,29 @@ G:0:U
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:0:0:25:0:0:0:100:8
-F:2,field_action_door_store
-F:19,field_action_isfood_tester
+L:SBINIT:place_sb(rand_range(105, 110), rand_range(5, 10) * 10)
+L:PENTER:do_cmd_store(field)
+L:STORE2:result = item_tester_hook_tval(object, TV_FOOD)
 
 # Library
 N:138:Library
 G:9:b
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:6:100:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_library1 | 19,field_action_library2
+D:6:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("R) Read about monsters (".. 100 * factor .."gp)")
+L:BUILD2:local cost
+L:BUILD2:if (command == 'R') then
+L:BUILD2:	cost = 100 * factor
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if (research_mon() == TRUE) then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		end
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Casino
 N:139:Casino
@@ -1351,26 +1899,81 @@ G:0:o
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:7:0:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_casino1 | 19,field_action_casino2
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("H) Help",
+L:BUILD1:					"I) In Between",
+L:BUILD1:					"C) Craps",
+L:BUILD1:					"S) Spin the wheel",
+L:BUILD1:					"D) Dice slots")
+L:BUILD2:if (command == 'H') then
+L:BUILD2:	gamble_help()
+L:BUILD2:	done = TRUE
+L:BUILD2:elseif (command == 'I') then
+L:BUILD2:	gamble_in_between()
+L:BUILD2:	done = TRUE
+L:BUILD2:elseif (command == 'C') then
+L:BUILD2:	gamble_craps()
+L:BUILD2:	done = TRUE
+L:BUILD2:elseif (command == 'S') then
+L:BUILD2:	gamble_spin_wheel()
+L:BUILD2:	done = TRUE
+L:BUILD2:elseif (command == 'D') then
+L:BUILD2:	gamble_dice_slots()
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Inn
 N:140:Inn
 G:0:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:8:5:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_inn1 | 19,field_action_inn2
+D:8:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("E) Eat (".. factor / 20 .."gp)",
+L:BUILD1:					"R) Rest (".. factor / 4 .."gp)")
+L:BUILD2:local cost
+L:BUILD2:if (command == 'E') then
+L:BUILD2:	cost = factor / 20
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		msgf("The barkeeper gives you some gruel and a beer.")
+L:BUILD2:		set_food(PY_FOOD_MAX - 1)
+L:BUILD2:		message_flush()
+L:BUILD2:		player.au = player.au - cost
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:elseif (command == 'R') then
+L:BUILD2:	cost = factor / 4
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if (inn_rest() == TRUE) then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		end
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Restore stats
 N:141:Healer
 G:9:y
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:9:20:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_healer1 | 19,field_action_healer2
+D:9:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_options("R) Restore Stats (".. 20 * factor .."gp)")
+L:BUILD2:local cost
+L:BUILD2:if (command == 'R') then
+L:BUILD2:	cost = 20 * factor
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		if (building_healer() == TRUE) then
+L:BUILD2:			player.au = player.au - cost
+L:BUILD2:		else
+L:BUILD2:			msgf("You are in fine health already.")
+L:BUILD2:		end
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Black Market
 N:142:Bazaar
@@ -1378,40 +1981,87 @@ G:1:D
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:6:5:30:25:25:25:25:16
-F:2,field_action_door_store
+L:SBINIT:place_sb(rand_range(105, 110), rand_range(5, 15) * 10)
+L:PENTER:do_cmd_store(field)
 
 # Teleport
 N:143:Magetower
 G:9:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:1:5:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_magetower1 | 19,field_action_magetower2
+D:1:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_magetower(factor, TRUE)
+L:BUILD2:local cost
+L:BUILD2:if (command == 'R') then
+L:BUILD2:	cost = factor * 5
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		record_aura()
+L:BUILD2:		player.au = player.au - cost
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:elseif (command == 'T') then
+L:BUILD2:	building_magetower(factor, FALSE)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:message_flush()
 
 # Teleport
 N:144:Large Magetower
 G:9:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:1:5:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_magetower1 | 19,field_action_magetower2
+D:1:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:building_magetower(factor, TRUE)
+L:BUILD2:local cost
+L:BUILD2:if (command == 'R') then
+L:BUILD2:	cost = factor * 5
+L:BUILD2:	if (test_gold(cost) == TRUE) then
+L:BUILD2:		record_aura()
+L:BUILD2:		player.au = player.au - cost
+L:BUILD2:	end
+L:BUILD2:	done = TRUE
+L:BUILD2:elseif (command == 'T') then
+L:BUILD2:	building_magetower(factor, FALSE)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
+L:BUILD2:message_flush()
 
 # Quest-giver
 N:145:Small Castle
 G:0:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:1:10:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_castlequest1 | 19,field_action_castlequest2
+D:1:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:if (build_has_quest() == TRUE) then
+L:BUILD1:	building_options("R) Request Reward")
+L:BUILD1:else
+L:BUILD1:	building_options("R) Request Quest")
+L:BUILD1:end
+L:BUILD2:if (command == 'R') then
+L:BUILD2:	build_cmd_quest(10)
+L:BUILD2:	done = TRUE
+L:BUILD2:end
 
 # Quest-giver
 N:146:Large Castle
 G:0:v
 W:100:3:0
 I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
-D:1:25:0:0:0:0:0:0
-F:2,field_action_door_build
-F:18,field_action_castlequest1 | 19,field_action_castlequest2
+D:1:0:0:0:0:0:0:0
+L:SBINIT:place_sb(rand_range(90, 125), 0)
+L:PENTER:do_cmd_bldg(field)
+L:BUILD1:if (build_has_quest() == TRUE) then
+L:BUILD1:	building_options("R) Request Reward")
+L:BUILD1:else
+L:BUILD1:	building_options("R) Request Quest")
+L:BUILD1:end
+L:BUILD2:if (command == 'R') then
+L:BUILD2:	build_cmd_quest(25)
+L:BUILD2:	done = TRUE
+L:BUILD2:end

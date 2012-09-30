@@ -34,8 +34,8 @@ static byte value_check_aux1(const object_type *o_ptr)
 	/* Ego-Items */
 	if (ego_item_p(o_ptr))
 	{
-		/* Cursed / Worthless */
-		if (FLAG(o_ptr, TR_CURSED) || !o_ptr->cost)
+		/* Ego items with negative pvals or flags like aggravate or teleport */
+		if (!o_ptr->cost)
 		{
 			return FEEL_WORTHLESS;
 		}
@@ -81,7 +81,7 @@ static byte value_check_aux2(const object_type *o_ptr)
 	if (cursed_p(o_ptr)) return FEEL_CURSED;
 
 	/* Broken items (all of them) */
-	if (!o_ptr->cost) return FEEL_BROKEN;
+	if (o_ptr->cost <= 0) return FEEL_BROKEN;
 
 	/* Artifacts -- except cursed/broken ones */
 	if (FLAG(o_ptr, TR_INSTA_ART)) return FEEL_GOOD;
@@ -171,6 +171,9 @@ void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
 	/* Skip non-changes */
 	if (feel == o_ptr->feeling) return;
 
+	/* hack the knowledge flag */
+	if (cursed_p(o_ptr)) o_ptr->kn_flags[2] |= TR2_CURSED;
+
 	/* Bad luck */
 	if ((p_ptr->muta3 & MUT3_BAD_LUCK) && !one_in_(13))
 	{
@@ -251,11 +254,8 @@ void sense_item(object_type *o_ptr, bool heavy, bool wield, bool msg)
 	/* Set the "inscription" */
 	o_ptr->feeling = feel;
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Notice changes */
+	notice_item();
 }
 
 
@@ -477,8 +477,6 @@ static void pattern_teleport(void)
 
 	/* Accept request */
 	msgf("You teleport to dungeon level %d.", p_ptr->cmd.arg);
-
-	if (autosave_l) do_cmd_save_game(TRUE);
 
 	/* Change level */
 	p_ptr->depth = p_ptr->cmd.arg;
@@ -739,8 +737,8 @@ void notice_lite_change(object_type *o_ptr)
 	/* Hack -- notice interesting fuel steps */
 	if ((o_ptr->timeout < 100) || (!(o_ptr->timeout % 100)))
 	{
-		/* Window stuff */
-		p_ptr->window |= (PW_EQUIP);
+		/* Notice changes */
+		notice_equip();
 	}
 
 	/* Hack -- Special treatment when blind */
@@ -823,14 +821,17 @@ bool psychometry(void)
 	/* We have "felt" it */
 	o_ptr->info |= (OB_SENSE);
 
+	/* hack the knowledge flag */
+	if (cursed_p(o_ptr)) o_ptr->kn_flags[2] |= TR2_CURSED;
+
 	/* "Inscribe" it */
 	o_ptr->feeling = feel;
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER);
+	
+	/* Notice changes */
+	notice_item();
 
 	/* Something happened */
 	return (TRUE);
@@ -857,9 +858,41 @@ static void recharged_notice(const object_type *o_ptr)
 		/* Find another '!' */
 		if (s[1] == '!')
 		{
-			/* Notify the player */
-			msgf("Your %v %s recharged.", OBJECT_FMT(o_ptr, FALSE, 0),
-				(o_ptr->number > 1) ? "are" : "is");
+			/* Count the item */
+			if (o_ptr->number == 1)
+			{
+				/* One item has recharged */
+				msgf("Your %v has recharged.", OBJECT_FMT(o_ptr, FALSE, 0));
+			}
+			else
+			{
+				object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+				/* Find out how many are recharging still */
+				int power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+
+				/* Watch the top */
+				if (power > o_ptr->number) power = o_ptr->number;
+
+				/* All are charged now */
+				if (power == 0)
+				{
+					msgf("All %d of your %v are charged.", o_ptr->number,
+						OBJECT_FMT(o_ptr, FALSE, 0));
+				}
+				/* One is charged */
+				else if (o_ptr->number - power == 1)
+				{
+					msgf("One of your %v is charged.", 
+						OBJECT_FMT(o_ptr, FALSE, 0));
+				}
+				/* Some are charged, some are recharging */
+				else
+				{
+					msgf("%d of your %v are charged.", o_ptr->number - power,
+						OBJECT_FMT(o_ptr, FALSE, 0));
+				}
+			}
 
 			/* Done. */
 			return;
@@ -889,48 +922,13 @@ static void process_world(void)
 	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
 	const mutation_type *mut_ptr;
 
+	int depth = base_level();
+
 	/* Announce the level feeling */
 	if ((turn - old_turn == 1000) && (p_ptr->depth)) do_cmd_feeling();
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
-
-
-	/*** Check the Time and Load ***/
-
-	if (!(turn % 1000))
-	{
-		/* Check time and load */
-		if ((0 != check_time()) || (0 != check_load()))
-		{
-			/* Warning */
-			if (closing_flag <= 2)
-			{
-				/* Disturb */
-				disturb(FALSE);
-
-				/* Count warnings */
-				closing_flag++;
-
-				/* Message */
-				msgf("The gates to ANGBAND are closing...");
-				msgf("Please finish up and/or save your game.");
-			}
-
-			/* Slam the gate */
-			else
-			{
-				/* Message */
-				msgf("The gates to ANGBAND are now closed.");
-
-				/* Stop playing */
-				p_ptr->state.playing = FALSE;
-
-				/* Leaving */
-				p_ptr->state.leaving = TRUE;
-			}
-		}
-	}
 
 	/*** Attempt timed autosave ***/
 	if (autosave_t && autosave_freq)
@@ -1052,7 +1050,7 @@ static void process_world(void)
 
 	if ((c_ptr->feat == FEAT_SHAL_LAVA) && !(FLAG(p_ptr, TR_FEATHER)))
 	{
-		int damage = resist(p_ptr->lev, res_fire_lvl);
+		int damage = resist(depth / 2 + 1, res_fire_lvl);
 
 		if (damage)
 		{
@@ -1065,7 +1063,7 @@ static void process_world(void)
 
 	else if (c_ptr->feat == FEAT_DEEP_LAVA)
 	{
-		int damage = resist(p_ptr->lev * 2, res_fire_lvl);
+		int damage = resist(depth, res_fire_lvl);
 		cptr message;
 		cptr hit_from;
 
@@ -1094,7 +1092,7 @@ static void process_world(void)
 
 	if ((c_ptr->feat == FEAT_SHAL_ACID) && !(FLAG(p_ptr, TR_FEATHER)))
 	{
-		int damage = resist(p_ptr->lev, res_acid_lvl);
+		int damage = resist(depth / 2 + 1, res_acid_lvl);
 
 		if (damage)
 		{
@@ -1107,7 +1105,7 @@ static void process_world(void)
 
 	else if (c_ptr->feat == FEAT_DEEP_ACID)
 	{
-		int damage = resist(p_ptr->lev * 2, res_acid_lvl);
+		int damage = resist(depth, res_acid_lvl);
 		cptr message;
 		cptr hit_from;
 
@@ -1134,12 +1132,13 @@ static void process_world(void)
 		}
 	}
 
-	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&	!(FLAG(p_ptr, TR_FEATHER)))
+	if ((c_ptr->feat == FEAT_SHAL_SWAMP) &&	!(FLAG(p_ptr, TR_FEATHER)) &&
+		!FLAG(p_ptr, TR_WILD_WALK))
 	{
-		int damage = resist(p_ptr->lev / 2 + 1, res_pois_lvl);
+		int damage = resist(depth / 4 + 1, res_pois_lvl);
 
 		/* Hack - some resistance will save you */
-		if (damage >= p_ptr->lev)
+		if (damage && damage >= p_ptr->depth / 4)
 		{
 			/* Take damage */
 			msgf("The plants poison you!");
@@ -1148,9 +1147,10 @@ static void process_world(void)
 		}
 	}
 
-	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->tim.invuln)
+	else if ((c_ptr->feat == FEAT_DEEP_SWAMP) && !p_ptr->tim.invuln &&
+		!FLAG(p_ptr, TR_WILD_WALK))
 	{
-		int damage = resist(p_ptr->lev, res_pois_lvl);
+		int damage = resist(depth / 2, res_pois_lvl);
 		cptr message;
 		cptr hit_from;
 
@@ -1186,7 +1186,7 @@ static void process_world(void)
 		{
 			/* Take damage */
 			msgf("You are drowning!");
-			take_hit(randint1(p_ptr->lev), "drowning");
+			take_hit(randint1(depth + 1), "drowning");
 			cave_no_regen = TRUE;
 		}
 	}
@@ -1201,7 +1201,7 @@ static void process_world(void)
 	if (cave_wall_grid(c_ptr))
 	{
 		if (!p_ptr->tim.invuln && !p_ptr->tim.wraith_form &&
-			((p_ptr->chp > (p_ptr->lev / 5)) || 
+			((p_ptr->chp > (depth / 10)) || 
 			 !(FLAG(p_ptr, TR_PASS_WALL))))
 		{
 			cptr dam_desc;
@@ -1219,14 +1219,14 @@ static void process_world(void)
 				dam_desc = "solid rock";
 			}
 
-			take_hit(1 + (p_ptr->lev / 5), dam_desc);
+			take_hit(1 + (depth / 10), dam_desc);
 		}
 	}
 
 	/* 
 	 * Fields you are standing on may do something.
 	 */
-	field_hook(c_ptr, FIELD_ACT_PLAYER_ON);
+	field_script(c_ptr, FIELD_ACT_PLAYER_ON, "");
 
 	/* Nightmare mode activates the TY_CURSE at midnight */
 	if (ironman_nightmare)
@@ -1650,9 +1650,9 @@ static void process_world(void)
 					if (!o_ptr->timeout)
 					{
 						recharged_notice(o_ptr);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_EQUIP);
+						
+						/* Notice changes */
+						notice_equip();
 					}
 				}
 				else if (!(FLAG(o_ptr, TR_LITE)))
@@ -1674,9 +1674,9 @@ static void process_world(void)
 				if (!o_ptr->timeout)
 				{
 					recharged_notice(o_ptr);
-
-					/* Window stuff */
-					p_ptr->window |= (PW_EQUIP);
+					
+					/* Notice changes */
+					notice_equip();
 				}
 			}
 		}
@@ -1712,11 +1712,8 @@ static void process_world(void)
 			{
 				recharged_notice(o_ptr);
 
-				/* Combine pack */
-				p_ptr->notice |= (PN_COMBINE);
-
-				/* Window stuff */
-				p_ptr->window |= (PW_INVEN);
+				/* Notice changes */
+				notice_inven();
 			}
 		}
 	}
@@ -1740,8 +1737,8 @@ static void process_world(void)
 		/* Exit if not in dungeon */
 		if (!(o_ptr->ix || o_ptr->iy)) continue;
 
-		field_hook(area(o_ptr->ix, o_ptr->iy),
-				   FIELD_ACT_OBJECT_ON, o_ptr);
+		field_script(area(o_ptr->ix, o_ptr->iy),
+				   FIELD_ACT_OBJECT_ON, "p", LUA_OBJECT(o_ptr));
 
 		if (!o_ptr->timeout) continue;
 
@@ -2511,16 +2508,12 @@ static void process_command(void)
 			break;
 		}
 
-#ifndef VERIFY_SAVEFILE
-
 		case KTRL('S'):
 		{
 			/* Hack -- Save and don't quit */
 			do_cmd_save_game(FALSE);
 			break;
 		}
-
-#endif /* VERIFY_SAVEFILE */
 
 		case KTRL('T'):
 		{
@@ -2787,13 +2780,17 @@ static void process_player(void)
 			if (p_ptr->tim.image) p_ptr->redraw |= (PR_MAP);
 		}
 
-
 		/* Hack -- notice death */
 		if (!p_ptr->state.playing || p_ptr->state.is_dead) break;
 
 		/* Handle "leaving" */
-		if (p_ptr->state.leaving) break;
-
+		if (p_ptr->state.leaving)
+		{
+			/* Hack - save game if asked */
+			if (autosave_l) do_cmd_save_game(TRUE);
+		
+			break;
+		}
 		/* Used up energy for this turn */
 		if (p_ptr->state.energy_use) break;
 	}
@@ -2944,8 +2941,8 @@ static void evolve_dungeon(void)
 	}
 
 
-	/* Center the panel */
-	panel_center();
+	/* Center the panel on the player */
+	panel_center(p_ptr->px, p_ptr->py);
 
 	/* Flush messages */
 	message_flush();
@@ -2955,7 +2952,7 @@ static void evolve_dungeon(void)
 	character_xtra = TRUE;
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER | PW_MESSAGE | PW_VISIBLE);
@@ -2990,8 +2987,8 @@ static void evolve_dungeon(void)
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
-	/* Combine / Reorder the pack */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	/* Notice changes */
+	notice_item();
 
 	/* Notice stuff */
 	notice_stuff();
@@ -3162,9 +3159,6 @@ void play_game(bool new_game)
 {
 	int i;
 
-	/* Hack -- Character is "icky" */
-	character_icky = TRUE;
-
 	/* Verify main term */
 	if (!angband_term[0])
 	{
@@ -3175,6 +3169,9 @@ void play_game(bool new_game)
 	Term_activate(angband_term[0]);
 
 	if (!angband_term[0]) quit("Main term does not exist!");
+	
+	/* Hack -- Character is "icky" */
+	screen_save();
 
 	/* Initialise the resize hooks */
 	angband_term[0]->resize_hook = resize_map;
@@ -3260,6 +3257,9 @@ void play_game(bool new_game)
 	/* Roll new character */
 	if (new_game)
 	{
+		/* Initialize the panel bounds to prevent a crash (rr9) */
+		verify_panel();
+
 		/* Wipe everything */
 		wipe_all_list();
 
@@ -3336,34 +3336,29 @@ void play_game(bool new_game)
 	if (arg_force_original) rogue_like_commands = FALSE;
 	if (arg_force_roguelike) rogue_like_commands = TRUE;
 
-	/* React to changes */
-	Term_xtra(TERM_XTRA_REACT, 0);
-
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
-
 
 	/* Character is now "complete" */
 	character_generated = TRUE;
 
 	/* Hack -- Character is no longer "icky" */
-	character_icky = FALSE;
-
-
+	screen_load();
+	
+	/* React to changes */
+	Term_xtra(TERM_XTRA_REACT, 0);
+	
 	/* Start game */
 	p_ptr->state.playing = TRUE;
 
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->state.is_dead = TRUE;
 
-	/* Resize / init the map */
-	map_panel_size();
-
-	/* Verify the (possibly resized) panel */
-	verify_panel();
-
 	/* Enter "xtra" mode */
 	character_xtra = TRUE;
+	
+	/* Resize / init the map */
+	p_ptr->update |= (PU_MAP);
 
 	/* Need to recalculate some transient things */
 	p_ptr->update |= (PU_BONUS | PU_SPELLS | PU_WEIGHT);
@@ -3491,6 +3486,11 @@ void play_game(bool new_game)
 
 		/* Make a new level */
 		generate_cave();
+		
+		/* Update panels */
+		p_ptr->update |= (PU_MAP);
+		
+		update_stuff();
 	}
 
 	/* Close stuff */

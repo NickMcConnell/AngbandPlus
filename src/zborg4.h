@@ -41,10 +41,15 @@ extern int use_shop;
 
 /* Borg functions */
 extern list_item *look_up_equip_slot(int slot);
+extern bool borg_test_bad_curse(list_item *l_ptr);
 extern void borg_update_frame(void);
 extern void borg_notice(void);
 extern void borg_notice_home(void);
 extern s32b borg_power_home(void);
+extern int  borg_notice_enchant_ac(void);
+extern int  borg_notice_enchant_hit(bool *inven);
+extern int  borg_notice_enchant_dam(bool *inven);
+extern int  borg_notice_create_artifact(bool *b_inven);
 
 
 /*
@@ -55,8 +60,7 @@ extern s32b borg_power_home(void);
  * if a <= c return a - b
  * if a > c return c - b
  */
-#define MIN_FLOOR(a,b,c)	(MIN(MAX((a), (b)), (c)) - (b))
-#define MIN_BLOOR(a,b,c)	(((b) < (c)) ? (MIN(MAX((a), (b)), (c)) - (b)) : 0)
+#define MIN_FLOOR(a,b,c)	(((b) < (c)) ? (MIN(MAX((a), (b)), (c)) - (b)) : 0)
 
 /*
  * Initialize this file

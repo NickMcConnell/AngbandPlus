@@ -216,7 +216,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_DWARF:
 			{
 				msgf("You examine your surroundings.");
-				(void)detect_traps();
+				(void)detect_traps(TRUE);
 				(void)detect_doors();
 				(void)detect_stairs();
 				break;
@@ -282,8 +282,6 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 				else if (mut_ptr->level == 30)
 				{
 					msgf("You start walking around. Your surroundings change.");
-
-					if (autosave_l) do_cmd_save_game(TRUE);
 
 					/* Leaving */
 					p_ptr->state.leaving = TRUE;
@@ -364,7 +362,7 @@ static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 			case RACE_NIBELUNG:
 			{
 				msgf("You examine your surroundings.");
-				(void)detect_traps();
+				(void)detect_traps(TRUE);
 				(void)detect_doors();
 				(void)detect_stairs();
 				break;

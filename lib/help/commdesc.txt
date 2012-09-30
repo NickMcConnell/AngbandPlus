@@ -5,7 +5,7 @@ the "underlying command" key. This is followed by the command name and
 "roguelike" keyset key, if different from the underlying command key.
 Then comes a brief description of the command, including information
 about alternative methods of specifying the command in each keyset,
-when needed. Several commands (tunnel, disarm, bash, open) are repeated
+when needed. Several commands (tunnel, disarm, open) are repeated
 99 times if the "always_repeat" option is set and no repeat count is
 given. Some commands use the "repeat count" to automatically repeat the
 command several times, while others use the "repeat count" as an
@@ -204,9 +204,8 @@ Open a door or chest (o)
 Close a door (c)
      Non-intelligent and some other creatures cannot open doors, so
      shutting doors can be quite valuable. Broken doors cannot be
-     closed. Bashing a door open may break it. Close can take a count,
-     requires a direction, and is affected by the "always_repeat"
-     option.
+     closed. Close can take a count, requires a direction, and is
+	 affected by the "always_repeat" option.
 
 Jam a door (j) or Spike a door (S)
      Many monsters can simply open closed doors, and can eventually
@@ -217,16 +216,6 @@ Jam a door (j) or Spike a door (S)
      use this command, you must be carrying iron spikes. Jam or Spike
      requires a direction.
 
-Bash a door (B) or Force a door (f)
-     This command allows you to bash down jammed doors. Your bashing
-     ability increases with strength. Bashing open a door can (briefly)
-     throw you off balance. Doors that are stuck, or which have been
-     jammed closed with spikes can only be opened by bashing, and all
-     closed doors can be bashed open if desired. Bashing a door open
-     may permanently break it so that it can never be closed. Bash or
-     Force can take a count, requires a direction, and is affected by
-     the "always_repeat" option.
-
 Disarm a trap or chest (D)
      You can attempt to disarm traps on the floor or on chests. If you
      fail, there is a chance that you will blunder and set it off. You
@@ -236,14 +225,14 @@ Disarm a trap or chest (D)
 
 Alter (+)
      This special command allows the use of a single keypress to select
-     any of the "obvious" commands above (attack, tunnel, bash, open,
-     disarm, close), and, by using macros or keymaps, to combine this
-     keypress with directions. In general, this allows the use of the
-     "control" key plus the appropriate "direction" key (including the
-     roguelike direction keys in roguelike mode) as a kind of generic
-     "alter the terrain feature of an adjacent grid" command. Alter can
-     take a count, requires a direction, and is affected by the
-     "always_repeat" option.
+     any of the "obvious" commands above (attack, tunnel, open, disarm,
+	 close), and, by using macros or keymaps, to combine this keypress
+	 with directions. In general, this allows the use of the "control"
+	 key plus the appropriate "direction" key (including the roguelike
+	 direction keys in roguelike mode) as a kind of generic "alter the
+	 terrain feature of an adjacent grid" command. Alter can take a
+	 count, requires a direction, and is affected by the
+	 "always_repeat" option.
 
 
 ***** <SpellPrayer>
@@ -617,6 +606,9 @@ Redraw Screen (^R)
      redraws all of the windows. This command should be used after
      changing various global properties (options, attr/char mappings,
      color definitions, etc). When in doubt, use it.
+
+Display Time (^T) or (')
+     This command shows the current day and the time of day in the game.
         
 Load screen dump (left-paren)
      This command loads a "snap-shot" of the current screen from the

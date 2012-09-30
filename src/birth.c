@@ -355,11 +355,11 @@ static void get_money(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 18 + 50) gold -= 300;
-		else if (stat_use[i] >= 18 + 20) gold -= 200;
-		else if (stat_use[i] > 18) gold -= 150;
+		if (stat_use[i] >= 180 + 50) gold -= 300;
+		else if (stat_use[i] >= 180 + 20) gold -= 200;
+		else if (stat_use[i] > 180) gold -= 150;
 		else
-			gold -= (stat_use[i] - 8) * 10;
+			gold -= (stat_use[i] - 80);
 	}
 
 	/* Minimum 100 gold */
@@ -569,8 +569,8 @@ static void player_outfit(void)
 			object_aware(q_ptr);
 			object_known(q_ptr);
 
-			/* These objects are "storebought" */
-			q_ptr->info |= OB_STOREB;
+			/* These objects give no score */
+			q_ptr->info |= OB_NO_EXP;
 
 			(void)inven_carry(q_ptr);
 
@@ -598,8 +598,8 @@ static void player_outfit(void)
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
-		/* These objects are "storebought" */
-		q_ptr->info |= OB_STOREB;
+		/* These objects give no score */
+		q_ptr->info |= OB_NO_EXP;
 
 		(void)inven_carry(q_ptr);
 	}
@@ -622,8 +622,8 @@ static void player_outfit(void)
 		q_ptr = object_prep(lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
 		q_ptr->number = (byte)rand_range(15, 20);
 
-		/* These objects are "storebought" */
-		q_ptr->info |= OB_STOREB;
+		/* These objects give no score */
+		q_ptr->info |= OB_NO_EXP;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -633,8 +633,8 @@ static void player_outfit(void)
 		/* Hack -- Give the player a bow */
 		q_ptr = object_prep(lookup_kind(TV_BOW, SV_SHORT_BOW));
 
-		/* This object is "storebought" */
-		q_ptr->info |= OB_STOREB;
+		/* These objects give no score */
+		q_ptr->info |= OB_NO_EXP;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -648,8 +648,8 @@ static void player_outfit(void)
 		q_ptr->number = 1;
 		q_ptr->pval = (byte)rand_range(25, 30);
 
-		/* This object is "storebought" */
-		q_ptr->info |= OB_STOREB;
+		/* These objects give no score */
+		q_ptr->info |= OB_NO_EXP;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -685,8 +685,8 @@ static void player_outfit(void)
 			add_ego_flags(q_ptr, EGO_BRAND_POIS);
 		}
 
-		/* These objects are "storebought" */
-		q_ptr->info |= OB_STOREB;
+		/* These objects give no score */
+		q_ptr->info |= OB_NO_EXP;
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
@@ -869,7 +869,6 @@ static void class_aux_hook(cptr c_str)
 static bool get_player_class(void)
 {
 	int i;
-	char buf[80];
 	cptr classes[MAX_CLASS];
 
 
@@ -881,18 +880,7 @@ static bool get_player_class(void)
 	/* Tabulate classes */
 	for (i = 0; i < MAX_CLASS; i++)
 	{
-		/* Analyze */
-		if (!(rp_ptr->choice & (1L << i)))
-		{
-			strnfmt(buf, 80, "(%s)", class_info[i].title);
-		}
-		else
-		{
-			strnfmt(buf, 80, "%s", class_info[i].title);
-		}
-
-		/* Save the string */
-		classes[i] = string_make(buf);
+		classes[i] = class_info[i].title;
 	}
 
 	p_ptr->rp.pclass = get_player_choice(classes, MAX_CLASS, CLASS_COL, 20,
@@ -904,24 +892,12 @@ static bool get_player_class(void)
 	{
 		p_ptr->rp.pclass = 0;
 
-		for (i = 0; i < MAX_CLASS; i++)
-		{
-			/* Free the strings */
-			string_free(classes[i]);
-		}
-
 		return (FALSE);
 	}
 
 	/* Set class */
 	cp_ptr = &class_info[p_ptr->rp.pclass];
 	mp_ptr = &magic_info[p_ptr->rp.pclass];
-
-	for (i = 0; i < MAX_CLASS; i++)
-	{
-		/* Free the strings */
-		string_free(classes[i]);
-	}
 
 	return (TRUE);
 }
@@ -1635,7 +1611,7 @@ static bool player_birth_aux(void)
     /* Apply some randomness */
     for (i = 0; i < A_MAX; i++)
     {
-        p_ptr->stat[i].cur += randint0(10);
+        p_ptr->stat[i].cur += (s16b) randint0(10);
         p_ptr->stat[i].max = p_ptr->stat[i].cur;
     }
 

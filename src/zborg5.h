@@ -23,6 +23,7 @@ extern int borg_danger(int x, int y, int c, bool average);
 extern s32b borg_power(void);
 extern cptr borg_restock(int depth);
 extern cptr borg_prepared(int depth);
+extern int borg_prepared_depth(void);
 
 /*
  * Initialize this file

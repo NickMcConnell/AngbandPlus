@@ -28,7 +28,8 @@
  */
 void self_knowledge(void)
 {
-	int i = 0, j, k, x;
+	int i = 0, j, k, x, height;
+	int res;
 
 	int v_nr;
 	char v_string[8][128];
@@ -365,109 +366,114 @@ void self_knowledge(void)
 		info[i++] = "You have a source of permanent light.";
 	}
 
-	if (FLAG(p_ptr, TR_IM_ACID))
+	res = res_acid_lvl();
+	if (res == 0)
 	{
 		info[i++] = "You are completely immune to acid.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_ACID)) && (p_ptr->tim.oppose_acid))
+	else if (res <= 25)
 	{
-		if (FLAG(p_ptr, TR_HURT_ACID))
-			info[i++] = "You resist acid very well.";
-		else
-			info[i++] = "You resist acid exceptionally well.";
+		info[i++] = "You resist acid exceptionally well.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_ACID)) || (p_ptr->tim.oppose_acid))
+	else if (res <= 50)
 	{
-		if (FLAG(p_ptr, TR_HURT_ACID))
-			info[i++] = "You are somewhat resistant to acid.";
-		else
-			info[i++] = "You are resistant to acid.";
+		info[i++] = "You are resistant to acid.";
 	}
-	else if (FLAG(p_ptr, TR_HURT_ACID))
+	else if (res < 100)
+	{
+		info[i++] = "You are somewhat resistant to acid.";
+	}
+	else if (res > 100)
 	{
 		info[i++] = "You are vulnerable to acid.";
 	}
 
-	if (FLAG(p_ptr, TR_IM_ELEC))
+	res = res_elec_lvl();
+	if (res == 0)
 	{
 		info[i++] = "You are completely immune to lightning.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_ELEC)) && (p_ptr->tim.oppose_elec))
+	else if (res <= 25)
 	{
-		if (FLAG(p_ptr, TR_HURT_ELEC))
-			info[i++] = "You resist lightning very well.";
-		else
-			info[i++] = "You resist lightning exceptionally well.";
+		info[i++] = "You resist lightning exceptionally well.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_ELEC)) || (p_ptr->tim.oppose_elec))
+	else if (res <= 50)
 	{
-		if (FLAG(p_ptr, TR_HURT_ELEC))
-			info[i++] = "You are somewhat resistant to lightning.";
-		else
-			info[i++] = "You are resistant to lightning.";
+		info[i++] = "You are resistant to lightning.";
 	}
-	else if (FLAG(p_ptr, TR_HURT_ELEC))
+	else if (res < 100)
+	{
+		info[i++] = "You are somewhat resistant to lightning.";
+	}
+	else if (res > 100)
 	{
 		info[i++] = "You are vulnerable to lightning.";
 	}
 
-	if (FLAG(p_ptr, TR_IM_FIRE))
+	res = res_fire_lvl();
+	if (res == 0)
 	{
 		info[i++] = "You are completely immune to fire.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_FIRE)) && (p_ptr->tim.oppose_fire))
+	else if (res <= 25)
 	{
-		if (FLAG(p_ptr, TR_HURT_FIRE))
-			info[i++] = "You resist fire very well.";
-		else
-			info[i++] = "You resist fire exceptionally well.";
+		info[i++] = "You resist fire exceptionally well.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_FIRE)) || (p_ptr->tim.oppose_fire))
+	else if (res <= 50)
 	{
-		if (FLAG(p_ptr, TR_HURT_FIRE))
-			info[i++] = "You are somewhat resistant to fire.";
-		else
-			info[i++] = "You are resistant to fire.";
+		info[i++] = "You are resistant to fire.";
 	}
-	else if (FLAG(p_ptr, TR_HURT_FIRE))
+	else if (res < 100)
+	{
+		info[i++] = "You are somewhat resistant to fire.";
+	}
+	else if (res > 100)
 	{
 		info[i++] = "You are vulnerable to fire.";
 	}
 
-	if (FLAG(p_ptr, TR_IM_COLD))
+	res = res_cold_lvl();
+	if (res == 0)
 	{
 		info[i++] = "You are completely immune to cold.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_COLD)) && (p_ptr->tim.oppose_cold))
+	else if (res <= 25)
 	{
-		if (FLAG(p_ptr, TR_HURT_COLD))
-			info[i++] = "You resist cold very well.";
-		else
-			info[i++] = "You resist cold exceptionally well.";
+		info[i++] = "You resist cold exceptionally well.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_COLD)) || (p_ptr->tim.oppose_cold))
+	else if (res <= 50)
 	{
-		if (FLAG(p_ptr, TR_HURT_COLD))
-			info[i++] = "You are somewhat resistant to cold.";
-		else
-			info[i++] = "You are resistant to cold.";
+		info[i++] = "You are resistant to cold.";
 	}
-	else if (FLAG(p_ptr, TR_HURT_COLD))
+	else if (res < 100)
+	{
+		info[i++] = "You are somewhat resistant to cold.";
+	}
+	else if (res > 100)
 	{
 		info[i++] = "You are vulnerable to cold.";
 	}
 
-	if (FLAG(p_ptr, TR_IM_POIS))
+	res = res_pois_lvl();
+	if (res == 0)
 	{
 		info[i++] = "You are completely immune to poison.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_POIS)) && (p_ptr->tim.oppose_pois))
+	else if (res <= 25)
 	{
 		info[i++] = "You resist poison exceptionally well.";
 	}
-	else if ((FLAG(p_ptr, TR_RES_POIS)) || (p_ptr->tim.oppose_pois))
+	else if (res <= 50)
 	{
 		info[i++] = "You are resistant to poison.";
+	}
+	else if (res < 100)
+	{
+		info[i++] = "You are somewhat resistant to poison.";
+	}
+	else if (res > 100)
+	{
+		info[i++] = "You are vulnerable to poison.";
 	}
 
 	if (FLAG(p_ptr, TR_IM_LITE))
@@ -567,6 +573,15 @@ void self_knowledge(void)
 	if (FLAG(p_ptr, TR_GHOUL_TOUCH))
 	{
 		info[i++] = "Your touch paralyzes your foes.";
+	}
+
+	if (FLAG(p_ptr, TR_WILD_SHOT))
+	{
+		info[i++] = "Your shots are not affected by forest.";
+	}
+	if (FLAG(p_ptr, TR_WILD_WALK))
+	{
+		info[i++] = "You are not hindered by natural terrain.";
 	}
 
 	if (ff[0] & (TR0_STR))
@@ -730,8 +745,11 @@ void self_knowledge(void)
 	/* Save the screen */
 	screen_save();
 
+	/* Calculate how much lines we can put on a page */
+	height = MIN(Term->hgt - 3, i + 2);
+
 	/* Erase the screen */
-    clear_region(13, 1, 23);
+    clear_region(13, 1, height + 1);
 
 	/* Label the information */
 	prtf(15, 1, "     Your Attributes:");
@@ -742,8 +760,8 @@ void self_knowledge(void)
 		/* Show the info */
 		prtf(15, k++, info[j]);
 
-		/* Every 20 entries (lines 2 to 21), start over */
-		if ((k == 22) && (j + 1 < i))
+		/* Every heightth entry, start a new page */
+		if ((k == height) && (j + 1 < i))
 		{
 			prtf(15, k, "-- more --");
 			(void)inkey();
@@ -979,7 +997,7 @@ static bool detect_sq_aux(bool tester(int x, int y), cptr msg)
 	if (detect)
 	{
 		/* Describe */
-		msgf(msg);
+		if (msg) msgf(msg);
 		
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
@@ -1002,17 +1020,32 @@ static bool trap_tester(int x, int y)
 	return (field_detect_type(c_ptr, FTYPE_TRAP));
 }
 
+/* Test for the existance of traps here */
+static bool trap_ident_tester(int x, int y)
+{
+	cave_type *c_ptr = area(x, y);
+	
+	/* Detect traps */
+	return (field_detect_type(c_ptr, FTYPE_TRAP));
+}
+
 
 /*
  * Detect all traps in range
  */
-bool detect_traps(void)
+bool detect_traps(bool ident)
 {
-	/* Have detected traps on this level */
-	p_ptr->state.detected = TRUE;
+	/* The source is identified? */
+	if (ident || detect_sq_aux(trap_ident_tester, NULL))
+	{
+		/* Have detected traps on this level */
+		p_ptr->state.detected = TRUE;
 	
-	/* Detect them */
-	return(detect_sq_aux(trap_tester, "You sense the presence of traps!"));
+		/* Detect them properly now */
+		return(detect_sq_aux(trap_tester, "You sense the presence of traps!"));
+	}
+	
+	return (FALSE);
 }
 
 
@@ -1307,7 +1340,7 @@ bool detect_objects_magic(void)
  * This is an "engine" function that does all the work, and
  * prevents a huge amount of code duplication.
  */
-static bool detect_mon_aux(bool tester(const monster_type *m_ptr, vptr data), cptr msg, vptr data)
+static bool detect_mon_aux(bool tester(const monster_type *m_ptr, const vptr data), cptr msg, const vptr data)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
@@ -1519,13 +1552,11 @@ bool detect_monsters_string(cptr match)
 /* Generic monster tester */
 static bool flag_mon_tester(const monster_type *m_ptr, vptr data)
 {
-	u32b flag;
+	/* Get flags to compare with */
+	const u32b flag = *((const u32b *) data);
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	
-	/* Get flags to compare with */
-	flag = *((u32b *) data);
-	
+		
 	if (r_ptr->flags[2] & flag)
 	{
 		/* Take note that they are something */
@@ -1571,7 +1602,7 @@ bool detect_all(void)
 	bool detect = FALSE;
 
 	/* Detect everything */
-	if (detect_traps()) detect = TRUE;
+	if (detect_traps(TRUE)) detect = TRUE;
 	if (detect_doors()) detect = TRUE;
 	if (detect_stairs()) detect = TRUE;
 	if (detect_treasure()) detect = TRUE;
@@ -1777,7 +1808,7 @@ bool raise_dead(int x, int y, bool pet)
 		c_ptr = area(fx, fy);
 
 		/* Raise Corpses / Skeletons */
-		if (field_hook_special(c_ptr, FTYPE_CORPSE, pet))
+		if (field_script_special(c_ptr, FTYPE_CORPSE, "i", LUA_VAR(pet)))
 		{
 			if (player_has_los_grid(parea(fx, fy))) obvious = TRUE;
 		}
@@ -2224,7 +2255,6 @@ bool earthquake(int cx, int cy, int r)
 	pcave_type *pc_ptr;
 
 	bool map[32][32];
-	byte flags;
 
 	/* Prevent destruction of town and wilderness */
 	if (!p_ptr->depth)
@@ -2381,9 +2411,6 @@ bool earthquake(int cx, int cy, int r)
 			oy = py;
 			ox = px;
 
-			/* Process fields under the player. */
-			field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
-
 			/* Move the player */
 			py = sy;
 			px = sx;
@@ -2410,7 +2437,7 @@ bool earthquake(int cx, int cy, int r)
 			lite_spot(px, py);
 
 			/* Process fields under the player. */
-			field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
+			field_script(area(px, py), FIELD_ACT_PLAYER_ENTER, "");
 
 			/* Check for new panel */
 			verify_panel();
@@ -2488,20 +2515,11 @@ bool earthquake(int cx, int cy, int r)
 							if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER))
 								continue;
 
-							/*
-							 * Test for fields that will not allow this
-							 * specific monster to pass. (i.e. Glyph of warding)
+							/* 
+							 * Test for fields that will not allow monsters to
+							 * be generated on them.  (i.e. Glyph of warding)
 							 */
-
-							/* Initialise info to pass to action functions */
-							flags = MEG_DO_MOVE;
-
-							/* Call the hook */
-							field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
-									   (monster_type *) NULL, &flags);
-
-							/* Get result */
-							if (!(flags & MEG_DO_MOVE)) continue;
+							if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) continue;
 
 							/* ... nor on the Pattern */
 							if (cave_pattern_grid(c_ptr))
@@ -3160,13 +3178,6 @@ bool teleport_swap(int dir)
 
 	sound(SOUND_TELEPORT);
 
-	/* Process fields under the player. */
-	field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
-
-	/* Process fields under the monster. */
-	field_hook(area(m_ptr->fx, m_ptr->fy),
-			   FIELD_ACT_MONSTER_LEAVE, m_ptr);
-
 	/* Move monster */
 	area(px, py)->m_idx = c_ptr->m_idx;
 
@@ -3209,11 +3220,11 @@ bool teleport_swap(int dir)
 	lite_spot(px, py);
 
 	/* Process fields under the player. */
-	field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
+	field_script(area(px, py), FIELD_ACT_PLAYER_ENTER, "");
 
 	/* Process fields under the monster. */
-	field_hook(area(m_ptr->fx, m_ptr->fy),
-			   FIELD_ACT_MONSTER_ENTER, m_ptr);
+	field_script(area(m_ptr->fx, m_ptr->fy),
+			   FIELD_ACT_MONSTER_ENTER, "");
 
 	/* Check for new panel (redraw map) */
 	verify_panel();
@@ -3311,10 +3322,10 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 /*
  * Some of the old functions
  */
-bool lite_line(int dir)
+bool lite_line(int dir, int dam)
 {
 	u16b flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
-	return (project_hook(GF_LITE_WEAK, dir, damroll(6, 8), flg));
+	return (project_hook(GF_LITE_WEAK, dir, dam, flg));
 }
 
 /* Drain life from monster, and do not give it to the player */
@@ -3653,9 +3664,10 @@ bool activate_ty_curse(bool stop_ty, int *count)
 			}
 			case 13:  case 14:  case 15:  case 19:  case 20:
 			{
+				/* The TY_CURSE is effectively a level 80 monster */
 				if (stop_ty ||
 					((FLAG(p_ptr, TR_FREE_ACT)) &&
-					 (saving_throw(p_ptr->skills[SKILL_SAV]))))
+					 (player_save(80))))
 				{
 					/* Do nothing */ ;
 				}

@@ -13,10 +13,10 @@
 
 CC_AUX := gcc
 
-CFLAGS := -Wsign-compare -Wnested-externs -Wundef -Wuninitialized -Wunused -Wswitch -Wreturn-type -Wsequence-point -Wparentheses -Wimplicit -Wchar-subscripts -Wredundant-decls -Wstrict-prototypes -Waggregate-return -Wbad-function-cast -Wpointer-arith -Wwrite-strings -Wno-long-long -Wmissing-declarations -Wmissing-prototypes -Wall -W -pedantic -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -DHAVE_CONFIG_H
-CPPFLAGS := -I/usr/include/tcl8.4 -I/usr/include/tcl8.4 -I/usr/X11R6/include 
-LIBS := -lz -lrpcsvc -ltk8.4 -ltcl8.4 -lncurses -lXaw -lICE -lXpm -lSM -lXt -lXmu -lXm -lXext 
-LDFLAGS :=  -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm -L/usr/X11R6/lib
+CFLAGS := -Wsign-compare -Wnested-externs -Wundef -Wuninitialized -Wunused -Wswitch -Wreturn-type -Wsequence-point -Wparentheses -Wimplicit -Wchar-subscripts -Wredundant-decls -Wstrict-prototypes -Waggregate-return -Wbad-function-cast -Wpointer-arith -Wwrite-strings -Wno-long-long -Wmissing-declarations -Wmissing-prototypes -Wall -W -pedantic -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/X11R6/include -DHAVE_CONFIG_H
+CPPFLAGS := 
+LIBS := -lz -lrpcsvc -lbsd -ltk8.4 -ltcl8.4 -lncurses -lXaw -lICE -lXpm -lSM -lXt -lXmu -lXm -lXext 
+LDFLAGS :=  -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm
 
 prefix = /usr/local
 exec_prefix = ${prefix}
@@ -102,6 +102,8 @@ endif
 ##
 ## Compile zangband.
 ##
+default: zangband .makefiles
+
 zangband: $(objs-y)
 	$(LINK) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LIBS) $(DEFS)
 
@@ -185,7 +187,11 @@ distgz: dist
 	gzip -9 zangband-$(VERSION).tar
 	-rm -rf $(DESTDIR)
 
-clean:
+# Minor cleaning
+dust:
+	-rm -f $(dust-files)
+	
+clean: dust
 	-rm -f $(clean-files)
 
 distclean: clean
@@ -226,6 +232,21 @@ configure.in: .version
 	cat configure.in | sed -e "s/AC_INIT.*$$/AC_INIT\(Zangband,\ `cat .version`,\ bugs@zangband.org\)/" > configure.new
 	mv configure.new configure.in
 		
+# Test to see that all source files are in the other makefiles.
+.makefiles: $(makefiles)
+	for i in $(notdir $(NORMOBJS)) ; do \
+		for j in $(makefiles) ; do \
+			if [ x"`grep $$i $$j | sed 1q`" == x ]; then \
+				echo "Error: makefile $$j has $$i missing"; \
+				k="stop"; \
+			fi; \
+		done; \
+	done; \
+	if [ "x$$k" == "xstop" ]; then \
+		exit 1; \
+	fi; \
+	touch .makefiles;
+
 
 .PHONY: dirs base installbase install uninstall dist distcheck distgz \
-		 clean distclean test
+		 dust clean distclean test

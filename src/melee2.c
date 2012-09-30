@@ -573,7 +573,7 @@ static int mon_will_run(monster_type *m_ptr)
 	p_lev = p_ptr->lev;
 
 	/* Examine monster power (level plus morale) */
-	m_lev = r_ptr->level + 25;
+	m_lev = r_ptr->hdice * 2 + 25;
 
 	/* Optimize extreme cases below */
 	if (m_lev > p_lev + 4) return (FALSE);
@@ -1570,7 +1570,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 	ac = tr_ptr->ac;
 
 	/* Extract the effective monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+	rlev = ((r_ptr->hdice * 2 >= 1) ? r_ptr->hdice * 2 : 1);
 
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0, 80);
@@ -1990,7 +1990,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 				if (!explode)
 				{
 					(void)project(m_idx, 0, t_ptr->fx, t_ptr->fy,
-								  (pt == GF_OLD_SLEEP ? r_ptr->level : damage),
+								  (pt == GF_OLD_SLEEP ? r_ptr->hdice * 2 : damage),
 								  pt, PROJECT_KILL | PROJECT_STOP);
 				}
 
@@ -2032,8 +2032,8 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 								tr_ptr->r_flags[1] |= RF1_AURA_FIRE;
 						}
 						(void)project(t_idx, 0, m_ptr->fx, m_ptr->fy,
-									  damroll(1 + ((tr_ptr->level) / 26),
-											  1 + ((tr_ptr->level) / 17)),
+									  damroll(1 + ((tr_ptr->hdice * 2) / 26),
+											  1 + ((tr_ptr->hdice * 2) / 17)),
 									  GF_FIRE, PROJECT_KILL | PROJECT_STOP);
 					}
 
@@ -2049,8 +2049,8 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 								tr_ptr->r_flags[2] |= RF2_AURA_COLD;
 						}
 						(void)project(t_idx, 0, m_ptr->fx, m_ptr->fy,
-									  damroll(1 + ((tr_ptr->level) / 26),
-											  1 + ((tr_ptr->level) / 17)),
+									  damroll(1 + ((tr_ptr->hdice * 2) / 26),
+											  1 + ((tr_ptr->hdice * 2) / 17)),
 									  GF_COLD, PROJECT_KILL | PROJECT_STOP);
 					}
 
@@ -2066,8 +2066,8 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 								tr_ptr->r_flags[1] |= RF1_AURA_ELEC;
 						}
 						(void)project(t_idx, 0, m_ptr->fx, m_ptr->fy,
-									  damroll(1 + ((tr_ptr->level) / 26),
-											  1 + ((tr_ptr->level) / 17)),
+									  damroll(1 + ((tr_ptr->hdice * 2) / 26),
+											  1 + ((tr_ptr->hdice * 2) / 17)),
 									  GF_ELEC, PROJECT_KILL | PROJECT_STOP);
 					}
 
@@ -2154,6 +2154,48 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 	return TRUE;
 }
 
+
+/* If the monster is on a tricky feat add it to the monster memory */
+static void monster_memory_feat(cave_type *c_ptr, monster_race *r_ptr)
+{
+	switch (c_ptr->feat)
+	{
+		case FEAT_SHAL_LAVA:
+		case FEAT_DEEP_LAVA:
+		{
+			/* If the monster can not fly it must have IM_FIRE */
+			if (!FLAG(r_ptr, RF_CAN_FLY)) r_ptr->r_flags[2] |= (RF2_IM_FIRE);
+
+			break;
+		}
+		case FEAT_SHAL_ACID:
+		case FEAT_DEEP_ACID:
+		{
+			/* If the monster can not fly it must have IM_ACID */
+			if (!FLAG(r_ptr, RF_CAN_FLY)) r_ptr->r_flags[2] |= (RF2_IM_ACID);
+
+			break;
+		}
+		case FEAT_SHAL_SWAMP:
+		case FEAT_DEEP_SWAMP:
+		{
+			/* If the monster can not fly it must have IM_POIS */
+			if (!FLAG(r_ptr, RF_CAN_FLY)) r_ptr->r_flags[2] |= (RF2_IM_POIS);
+
+			break;
+		}
+		case FEAT_OCEAN_WATER:
+		case FEAT_DEEP_WATER:
+		{
+			/* If the monster can not fly or isn't aquatic it can swim */
+			if (!FLAG(r_ptr, RF_CAN_FLY) &&
+				!FLAG(r_ptr, RF_AQUATIC)) r_ptr->r_flags[6] |= (RF6_CAN_SWIM);
+
+			break;
+		}
+	}
+}
+
 /*
  * Actually move the monster
  */
@@ -2172,8 +2214,6 @@ static void take_move(int m_idx, int *mm)
 	monster_type *y_ptr;
 
 	char m_name[80];
-
-	byte flags;
 
 	/* Assume nothing */
 	bool do_turn = FALSE;
@@ -2292,38 +2332,32 @@ static void take_move(int m_idx, int *mm)
 			do_move = FALSE;
 		}
 
-		/* 
-		 * Test for fields that will not allow this
-		 * specific monster to pass.  (i.e. Glyph of warding)
-		 */
-
-		/* Set up flags */
-		flags = 0x00;
-		if (do_move)
-        {
-        	flags = MEG_DO_MOVE;
-		}
-        else
-        {
-        	flags = 0x00;
-        }
-        
 		/* Call the hook */
-		field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST, m_ptr, &flags);
-
-		/* Get result */
-		if (flags & (MEG_DO_MOVE))
-		{
-			do_move = TRUE;
-		}
-		else
-		{
-			do_move = FALSE;
-		}
+		field_script(c_ptr, FIELD_ACT_MON_ENTER_TEST, "ibb:bbbb",
+			 LUA_VAR_NAMED(m_ptr->r_idx, "r_idx"),
+			 LUA_VAR_NAMED(see_grid, "visible"),
+			 LUA_VAR_NAMED((!is_pet(m_ptr) || p_ptr->pet_open_doors), "allow_open"),
+			 LUA_RETURN(do_move), LUA_RETURN(did_open_door),
+			 LUA_RETURN(do_turn), LUA_RETURN(did_bash_door));
 		
-		if (flags & (MEG_OPEN)) did_open_door = TRUE;
-		if (flags & (MEG_BASH)) did_bash_door = TRUE;
-		if (flags & (MEG_DO_TURN)) do_turn = TRUE;
+		/* Open / bash doors */
+		if (did_open_door)
+		{
+			cave_set_feat(nx, ny, FEAT_OPEN);
+		}
+		else if (did_bash_door)
+		{
+			if (one_in_(2))
+			{
+				cave_set_feat(nx, ny, FEAT_BROKEN);
+			}
+
+			/* Open the door */
+			else
+			{
+				cave_set_feat(nx, ny, FEAT_OPEN);
+			}
+		}
 
 		/* Some monsters never attack */
 		if (do_move && (ny == p_ptr->py) && (nx == p_ptr->px) &&
@@ -2393,7 +2427,7 @@ static void take_move(int m_idx, int *mm)
 
 			/* Attack 'enemies' */
 			if ((FLAG(r_ptr, RF_KILL_BODY) &&
-				 (r_ptr->mexp * r_ptr->level > z_ptr->mexp * z_ptr->level) &&
+				 (r_ptr->mexp * r_ptr->hdice * 2 > z_ptr->mexp * z_ptr->level) &&
 				 (cave_floor_grid(c_ptr))) ||
 				are_enemies(m_ptr, m2_ptr) || m_ptr->confused)
 			{
@@ -2437,6 +2471,9 @@ static void take_move(int m_idx, int *mm)
 			do_move = FALSE;
 		}
 
+		/* Maybe add info to the monster memory */
+		if (m_ptr->ml) monster_memory_feat(c_ptr, r_ptr);
+
 		/* Some monsters never move */
 		if (do_move && (FLAG(r_ptr, RF_NEVER_MOVE)))
 		{
@@ -2471,9 +2508,6 @@ static void take_move(int m_idx, int *mm)
 				update_mon_vis(m_ptr->r_idx, 1);
 			}
 
-			/* Process fields under the monster. */
-			field_hook(old_ptr, FIELD_ACT_MONSTER_LEAVE, m_ptr);
-
 			/* Hack -- Update the old location */
 			old_ptr->m_idx = c_ptr->m_idx;
 
@@ -2502,7 +2536,7 @@ static void take_move(int m_idx, int *mm)
 			update_mon(m_idx, TRUE);
 
 			/* Process fields under the monster. */
-			field_hook(old_ptr, FIELD_ACT_MONSTER_ENTER, m_ptr);
+			field_script(old_ptr, FIELD_ACT_MONSTER_ENTER, "");
 
 			/* Redraw the old grid */
 			lite_spot(ox, oy);
@@ -2770,7 +2804,7 @@ static void process_monster(int m_idx)
 	c_ptr = area(ox, oy);
 
 	/* Process fields under the monster. */
-	field_hook(c_ptr, FIELD_ACT_MONSTER_ON, m_ptr);
+	field_script(c_ptr, FIELD_ACT_MONSTER_ON, "");
 
 	/* Handle "sleep" */
 	if (m_ptr->csleep)
@@ -2848,7 +2882,7 @@ static void process_monster(int m_idx)
 		d = 1;
 
 		/* Make a "saving throw" against stun */
-		if (randint0(10000) <= r_ptr->level * r_ptr->level)
+		if (randint0(10000) <= r_ptr->hdice * 2 * r_ptr->hdice * 2)
 		{
 			/* Recover fully */
 			d = m_ptr->stunned;
@@ -2884,7 +2918,7 @@ static void process_monster(int m_idx)
 	if (m_ptr->confused)
 	{
 		/* Amount of "boldness" */
-		d = randint1(r_ptr->level / 20 + 1);
+		d = randint1(r_ptr->hdice * 2 / 20 + 1);
 
 		/* Still confused */
 		if (m_ptr->confused > d)
@@ -2938,7 +2972,7 @@ static void process_monster(int m_idx)
 	if (m_ptr->monfear)
 	{
 		/* Amount of "boldness" */
-		d = randint1(r_ptr->level / 20 + 1);
+		d = randint1(r_ptr->hdice * 2 / 20 + 1);
 
 		/* Still afraid */
 		if (m_ptr->monfear > d)
@@ -3002,7 +3036,7 @@ static void process_monster(int m_idx)
 
 
 	/* Hack! "Cyber" monster makes noise... */
-	if (strstr((r_name + r_ptr->name), "Cyber") && one_in_(CYBERNOISE) &&
+	if (mon_name_cont(r_ptr, "Cyber") && one_in_(CYBERNOISE) &&
 		!m_ptr->ml && (m_ptr->cdis <= MAX_SIGHT))
 	{
 		msgf("You hear heavy steps.");
@@ -3280,16 +3314,16 @@ void process_monsters(int min_energy)
 		if (is_pet(m_ptr))
 		{
 			total_friends++;
-			total_friend_levels += r_ptr->level;
+			total_friend_levels += r_ptr->hdice * 2;
 
 			/* Determine pet alignment */
 			if (FLAG(r_ptr, RF_GOOD))
 			{
-				friend_align += r_ptr->level;
+				friend_align += r_ptr->hdice * 2;
 			}
 			else if (FLAG(r_ptr, RF_EVIL))
 			{
-				friend_align -= r_ptr->level;
+				friend_align -= r_ptr->hdice * 2;
 			}
 		}
 

@@ -1,4 +1,4 @@
-/* File: borg8.c */
+/* File: zborg8.c */
 /* Purpose: High level functions for the Borg -BEN- */
 
 #include "angband.h"
@@ -25,8 +25,6 @@
  *
  * Note that rods/staffs/wands are then unstacked when they are used.
  *
- * If permitted, we allow weapons/armor to stack, if they both known.
- *
  * Food, potions, scrolls, and "easy know" items always stack.
  *
  * Chests never stack (for various reasons).
@@ -40,14 +38,11 @@
  */
 static bool borg_object_similar(list_item *l_ptr, list_item *q_ptr)
 {
-	/* NOTE: This assumes the giving of one item at a time */
-	int total = l_ptr->number + 1;
-
-	/* Maximal "stacking" limit */
-	if (total >= MAX_STACK_SIZE) return (FALSE);
-
 	/* Require identical object types */
 	if (l_ptr->k_idx != q_ptr->k_idx) return (FALSE);
+
+	/* Maximal "stacking" limit */
+	if (q_ptr->number + 1 >= MAX_STACK_SIZE) return (FALSE);
 
 
 	/* Analyze the items */
@@ -236,27 +231,23 @@ static bool borg_object_similar(list_item *l_ptr, list_item *q_ptr)
 /*
  * Sell items to the current shop
  */
-static void borg_think_shop_sell(int item, list_item *l_ptr, bool home)
+static void borg_think_shop_sell(int item, list_item *l_ptr)
 {
-	/* Ignore parameter */
-	(void) home;
-
 	/* Log */
-	borg_note_fmt("# Selling %s", l_ptr->o_name);
+	borg_note("# Selling %s (%c)", l_ptr->o_name, I2A(item));
 
 	/* One item */
-	borg_note_fmt("# Sending key 0");
 	borg_keypress('0');
-	borg_note_fmt("# Sending key 1");
 	borg_keypress('1');
 
 	/* Sell an item */
-	borg_note_fmt("# Sending key s");
 	borg_keypress('s');
 
 	/* Sell the desired item */
-	borg_note_fmt("# Sending key %c", I2A(item));
 	borg_keypress(I2A(item));
+
+	/* If the user likes this option */
+	if (check_transaction) borg_keypress('y');
 
 	/* Increment 'use' count */
 	borg_shops[shop_num].u_count++;
@@ -269,33 +260,20 @@ static void borg_think_shop_sell(int item, list_item *l_ptr, bool home)
 /*
  * Buy items from the current shop
  */
-static void borg_think_shop_buy(int item, bool home)
+static void borg_think_shop_buy(int item)
 {
 	list_item *l_ptr = &cur_list[item];
 
-	byte t_a;
-	char buf[2];
-
-	/* Ignore unused parameter */
-	(void) home;
-
-	/* Keep it small */
-	buf[1] = '\0';
-
-	/* Grab the page number of the screen*/
-	if (0 == borg_what_text(26, 5, 1, &t_a, buf))
+	/* Is the borg on page 1 but wants to be one page 2? */
+	if ((borg_term_text_comp(26, 5, "1") && item >= STORE_INVEN_MAX / 2) ||
+		(borg_term_text_comp(26, 5, "2") && item <  STORE_INVEN_MAX / 2))
 	{
-		/* If you are on the wrong page of the shop */
-		if ((streq(buf, "1") && item >= (STORE_INVEN_MAX / 2)) ||
-			(streq(buf, "2") && item <  (STORE_INVEN_MAX / 2)))
-		{
-			/* Goto the other page */
-			borg_keypress(' ');
-		}
+		/* Goto the other page */
+		borg_keypress(' ');
 	}
 
 	/* Log */
-	borg_note_fmt("# Buying %s (%i gold).", l_ptr->o_name, l_ptr->cost);
+	borg_note("# Buying %s (%i gold).", l_ptr->o_name, l_ptr->cost);
 
 	/* Buy one item */
 	borg_keypress('0');
@@ -315,153 +293,96 @@ static void borg_think_shop_buy(int item, bool home)
 }
 
 
-/*
- * Test to see if the item can be merged with anything in the home.
- *
- * Return a pointer to the item it merges with.
- */
-static list_item *borg_can_merge_home(list_item *l_ptr)
+/* Test to see if the item can be merged with anything in the home. */
+static bool borg_can_merge_home(list_item *l_ptr)
 {
 	int i;
-
-	list_item *q_ptr;
 
 	/* Scan the home for matching items */
 	for (i = 0; i < home_num; i++)
 	{
-		q_ptr = &borg_home[i];
-
 		/* Can they stack? */
-		if (borg_object_similar(l_ptr, q_ptr)) return (q_ptr);
+		if (borg_object_similar(l_ptr, &borg_home[i])) return (TRUE);
 	}
 
 	/* No match */
-	return (NULL);
+	return (FALSE);
 }
 
 
 /*
- * This will see what single addition/substitution is best for the home.
+ * This will see what single addition is best for the home.
  */
 static int borg_think_home_sell_aux2(void)
 {
 	list_item *l_ptr;
-	list_item *q_ptr;
-	int item = -1;
+	int i, b_i = -1;
 
-	s32b power;
-	s32b best_power;
+	s32b p, b_p, b_s = 0;
 
-	int i;
+	/* Evaluate the home */
+	b_p = g_power + g_power_home;
 
-	/**** Get the starting best (current) ****/
+	/* If the home is almost full */
+	if (home_num >= STORE_INVEN_MAX - 1)
+	{
+		/* Find out how much value will be lost if one item is taken from the home */
+		for (i = 0; i < home_num; i++)
+		{
+			list_item *l_ptr = &borg_home[i];
 
-	/* Evaluate the home  */
-	best_power = borg_power_home() + borg_power();
+			/* Remove the item */
+			l_ptr->treat_as = TREAT_AS_GONE;
 
-	/* Try merges */
+			/* Evaluate the home */
+			p = borg_power() + borg_power_home();
+
+			/* Restore item */
+			l_ptr->treat_as = TREAT_AS_NORM;
+
+			/* Ignore "bad" sales */
+			if (p < b_s) continue;
+
+			/* Maintain the "best" */
+			b_s = p;
+		}
+
+		/* Up the minimum a bit */
+		if (b_s < b_p) b_p += b_p - b_s;
+
+	}
+
+	/* Loop through all the items */
 	for (i = 0; i < inven_num; i++)
 	{
 		l_ptr = &inventory[i];
 
-		/* Require "aware" */
-		if (!l_ptr->k_idx) continue;
+		/* Is there room for this item at home? */
+		if (home_num >= STORE_INVEN_MAX && !borg_can_merge_home(l_ptr)) continue;
 
-		/* Require "known" */
-		if (!borg_obj_known_p(l_ptr)) continue;
+		/* Chuck item out of the inv */
+		l_ptr->treat_as = TREAT_AS_LESS;
 
-		/*
-		 * Do not dump stuff at home that is not fully id'd and should be
-		 * This is good with random artifacts.
-		 */
-		if (!borg_obj_known_full(l_ptr) && borg_obj_star_id_able(l_ptr)) continue;
+		/* Evaluate the new power */
+		p = borg_power() + borg_power_home();
 
-		/* Can we merge with other items in the home? */
-		q_ptr = borg_can_merge_home(l_ptr);
-
-		/* No item to merge with? */
-		if (!q_ptr) continue;
-
-		if (l_ptr->number == 1)
-		{
-			l_ptr->treat_as = TREAT_AS_SWAP;
-		}
-		else
-		{
-			l_ptr->treat_as = TREAT_AS_LESS;
-		}
-
-		/* Test to see if this is a good move. */
-
-		/* Evaluate the new power  */
-		power = borg_power_home() + borg_power();
+		/* Restore item */
+		l_ptr->treat_as = TREAT_AS_NORM;
 
 		/* Track best */
-		if (power > best_power)
-		{
-			/* Save the results */
-			item = i;
+		if (b_p >= p) continue;
 
-			/* Use it */
-			best_power = power;
-		}
-
-		/* Restore stuff */
-		q_ptr->treat_as = TREAT_AS_NORM;
-		l_ptr->treat_as = TREAT_AS_NORM;
+		/* Save the results */
+		b_i = i;
+		b_p = p;
 	}
 
-	/* We have an addition? */
-	if (item != -1) return (item);
-
-	/* Do we have enough room to add items? */
-	if (home_num >= STORE_INVEN_MAX - 1) return (-1);
-
-	/* Try additions. */
-	for (i = 0; i < inven_num; i++)
-	{
-		l_ptr = &inventory[i];
-
-		/* Require "aware" */
-		if (!l_ptr->k_idx) continue;
-
-		/* Require "known" */
-		if (!borg_obj_known_p(l_ptr)) continue;
-
-		/*
-		 * Do not dump stuff at home that is not fully id'd and should be
-		 * This is good with random artifacts.
-		 */
-		if (!borg_obj_known_full(l_ptr) && borg_obj_star_id_able(l_ptr)) continue;
-
-		if (l_ptr->number == 1)
-		{
-			l_ptr->treat_as = TREAT_AS_SWAP;
-		}
-		else
-		{
-			l_ptr->treat_as = TREAT_AS_LESS;
-		}
-
-		/* Evaluate the new power  */
-		power = borg_power_home() + borg_power();
-
-		/* Track best */
-		if (power > best_power)
-		{
-			/* Save the results */
-			item = i;
-
-			/* Use it */
-			best_power = power;
-		}
-
-		/* Restore stuff */
-		l_ptr->treat_as = TREAT_AS_NORM;
-	}
+	/* Set the internally kept stats correctly */
+	g_power = borg_power();
+	g_power_home = borg_power_home();
 
 	/* Item to give to home, if any. */
-	return (item);
+	return (b_i);
 }
 
 
@@ -475,10 +396,6 @@ static bool borg_think_home_sell_aux(void)
 	/* Hack - we need to have visited the home before */
 	if (home_shop == -1) return (FALSE);
 
-	/* Hack -- the home is full and pack is full */
-	if ((home_num >= STORE_INVEN_MAX - 1) && (inven_num >= INVEN_PACK - 1))
-		return (FALSE);
-
 	/* Find best item to give to home. */
 	index = borg_think_home_sell_aux2();
 
@@ -487,7 +404,7 @@ static bool borg_think_home_sell_aux(void)
 	{
 		goal_shop = home_shop;
 
-		borg_think_shop_sell(index, &inventory[index], TRUE);
+		borg_think_shop_sell(index, &inventory[index]);
 
 		/* We have goal */
 		return (TRUE);
@@ -505,18 +422,22 @@ static bool borg_think_home_sell_aux(void)
  */
 static bool borg_good_sell(list_item *l_ptr)
 {
+	/* Just making sure */
+
+	if (!l_ptr) return (FALSE);
+
 	/* Never sell worthless items */
 	if (l_ptr->cost <= 0) return (FALSE);
 
 	/* Analyze the type */
 	switch (l_ptr->tval)
 	{
-		case TV_FOOD:
 		case TV_POTION:
 		case TV_SCROLL:
 		{
 			/* Never sell if not "known" and interesting */
-			if (!l_ptr->k_idx && (bp_ptr->max_depth > 20)) return (FALSE);
+			if (!borg_obj_known_p(l_ptr) &&
+				bp_ptr->max_depth > 20) return (FALSE);
 
 			break;
 		}
@@ -529,7 +450,7 @@ static bool borg_good_sell(list_item *l_ptr)
 		case TV_LITE:
 		{
 			/* Never sell if not "known" */
-			if (!l_ptr->k_idx) return (FALSE);
+			if (!borg_obj_known_p(l_ptr)) return (FALSE);
 
 			break;
 		}
@@ -549,29 +470,26 @@ static bool borg_good_sell(list_item *l_ptr)
 		case TV_HARD_ARMOR:
 		case TV_DRAG_ARMOR:
 		{
+			/* Worthless items can be sold */
+			if (borg_worthless_item(l_ptr)) return (TRUE);
 
-			/* PseudoID items are ok to sell */
-			if (strstr(l_ptr->o_name, "{average")) break;
-
-			/* Only sell "known" items (unless "icky") */
-			if (!borg_obj_known_p(l_ptr) &&
-				!borg_item_icky(l_ptr)) return (FALSE);
+			/* Unknown items should not be sold */
+			if (!borg_obj_known_p(l_ptr)) return (FALSE);
 
 			break;
 		}
 	}
 
-	/* Do not sell stuff that is not fully id'd and should be  */
-	if (!borg_obj_known_full(l_ptr) && borg_obj_star_id_able(l_ptr))
+	/* Do not sell an artifact that is not fully id'd and should be  */
+	if (!borg_obj_known_full(l_ptr) && KN_FLAG(l_ptr, TR_INSTA_ART))
 	{
 		/* *identify* this item first */
-		return (FALSE);
+		if (borg_gold < 300000) return (FALSE);
 	}
 
 	/* Assume we can */
 	return (TRUE);
 }
-
 
 
 /*
@@ -585,7 +503,7 @@ static bool borg_think_shop_sell_aux(int shop)
 	s32b b_c = 30001L;
 
 	/* Evaluate */
-	b_p = borg_power();
+	b_p = g_power;
 
 	/* Sell stuff */
 	for (i = 0; i < inven_num; i++)
@@ -624,7 +542,7 @@ static bool borg_think_shop_sell_aux(int shop)
 		 * This is done because we may have to buy the item back
 		 * in some very strange circumstances.
 		 */
-		if ((p == b_p) && (c >= b_c)) continue;
+		if (p == b_p && c >= b_c) continue;
 
 		/* Maintain the "best" */
 		b_i = i;
@@ -632,21 +550,20 @@ static bool borg_think_shop_sell_aux(int shop)
 		b_c = c;
 	}
 
-	/* Sell something (if useless) */
-	if (b_i >= 0)
-	{
-		/* Visit that shop */
-		goal_shop = shop;
+	/* Set the internally kept stats correctly */
+	g_power = borg_power();
 
-		/* Sell that item */
-		borg_think_shop_sell(b_i, &inventory[b_i], FALSE);
+	/* Sell nothing */
+	if (b_i == -1) return (FALSE);
 
-		/* Success */
-		return (TRUE);
-	}
+	/* Visit that shop */
+	goal_shop = shop;
 
-	/* Assume not */
-	return (FALSE);
+	/* Sell that item */
+	borg_think_shop_sell(b_i, &inventory[b_i]);
+
+	/* Success */
+	return (TRUE);
 }
 
 /*
@@ -688,31 +605,45 @@ static s32b borg_think_buy_slot(list_item *l_ptr, int slot, bool home)
 }
 
 
-/* Make sure the borg keeps money back for food and light */
+/* Make sure the borg keeps money back for food and light and recall */
 static bool borg_spends_gold_okay(list_item *l_ptr)
 {
 	/* Always allow buying fuel */
 	if (l_ptr->tval == TV_LITE ||
 		l_ptr->tval == TV_FLASK) return (TRUE);
 
-	/* Nothing else to be bought if the borg is this low on money */
-	if (borg_gold < 20) return (FALSE);
+	/* If the borg is low on money and may need to refuel */
+	if (borg_gold < 20 &&
+		!KN_FLAG(&equipment[EQUIP_LITE], TR_INSTA_ART)) return (FALSE);
 
 	/* Allow food to be bought when there is more than 20 gold */
 	if (l_ptr->tval == TV_FOOD ||
 		(l_ptr->tval == TV_SCROLL &&
 		k_info[l_ptr->k_idx].sval == SV_SCROLL_SATISFY_HUNGER)) return (TRUE);
 
-	/* Nothing else to be bought if the borg is this low on money */
-	if (borg_gold < 100) return (FALSE);
+	/* If the borg is low on money and does not have a food spell */
+	if (borg_gold < 80 &&
+		!borg_spell_legal_fail(REALM_LIFE, 0, 7, 65) &&
+		!borg_spell_legal_fail(REALM_ARCANE, 2, 6, 65) &&
+		!borg_spell_legal_fail(REALM_NATURE, 0, 3, 65) &&
+		!borg_racial_check(RACE_HOBBIT, TRUE)) return (FALSE);
+
+	if (l_ptr->tval == TV_SCROLL &&
+		k_info[l_ptr->k_idx].sval == SV_SCROLL_WORD_OF_RECALL) return (TRUE);
+
+	/* If the borg is low on money and does not have a recall spell */
+	if (borg_gold < 200 &&
+		!borg_equips_rod(SV_ROD_RECALL) &&
+		!borg_spell_legal_fail(REALM_SORCERY, 2, 7, 60) &&
+		!borg_spell_legal_fail(REALM_ARCANE, 3, 6, 60) &&
+		!borg_spell_legal_fail(REALM_TRUMP, 1, 6, 60) &&
+		!borg_mutation_check(MUT1_RECALL, TRUE)) return (FALSE);
 
 	/* Spend away */
 	return (TRUE);
 }
 
-	/*
- * Step 3 -- buy "useful" things from a shop (to be used)
- */
+/* Step 3 -- buy "useful" things from a shop (to be used) */
 static bool borg_think_shop_buy_aux(int shop)
 {
 	int slot;
@@ -722,10 +653,10 @@ static bool borg_think_shop_buy_aux(int shop)
 	s32b c, b_c = 0L;
 
 	/* Require one empty slot */
-	if (inven_num >= INVEN_PACK - 1) return (FALSE);
+	if (inven_num == INVEN_PACK) return (FALSE);
 
 	/* Extract the "power" */
-	b_p = borg_power();
+	b_p = g_power;
 
 	/* Attempt to use shop items */
 	use_shop = TRUE;
@@ -734,6 +665,9 @@ static bool borg_think_shop_buy_aux(int shop)
 	for (n = 0; n < cur_num; n++)
 	{
 		list_item *l_ptr = &cur_list[n];
+
+		/* Reset value indicator */
+		p = 0;
 
 		/* second check on empty */
 		if (!l_ptr->k_idx) continue;
@@ -793,7 +727,7 @@ static bool borg_think_shop_buy_aux(int shop)
 		if (p < b_p) continue;
 
 		/* Ignore "expensive" purchases */
-		if ((p == b_p) && (c >= b_c)) continue;
+		if (p == b_p && c >= b_c) continue;
 
 		/* Save the item and cost */
 		b_n = n;
@@ -804,21 +738,20 @@ static bool borg_think_shop_buy_aux(int shop)
 	/* Use normal items */
 	use_shop = FALSE;
 
+	/* Set the internally kept stats correctly */
+	g_power = borg_power();
+
 	/* Buy something */
-	if (b_n >= 0)
-	{
-		/* Visit that shop */
-		goal_shop = shop;
+	if (b_n == -1) return (FALSE);
 
-		/* Buy that item */
-		borg_think_shop_buy(b_n, FALSE);
+	/* Visit that shop */
+	goal_shop = shop;
 
-		/* Success */
-		return (TRUE);
-	}
+	/* Buy that item */
+	borg_think_shop_buy(b_n);
 
-	/* Nope */
-	return (FALSE);
+	/* Success */
+	return (TRUE);
 }
 
 
@@ -830,14 +763,12 @@ static bool borg_think_home_buy_aux(void)
 	int slot;
 	int n, b_n = -1;
 	s32b p = 0L, b_p = 0L;
-	s32b p_left = 0;
-	s32b p_right = 0;
 
 	/* Require one empty slot */
-	if (inven_num >= INVEN_PACK - 1) return (FALSE);
+	if (inven_num == INVEN_PACK) return (FALSE);
 
 	/* Extract the "power" */
-	b_p = borg_power() + borg_power_home();
+	b_p = g_power + g_power_home;
 
 	/* Scan the home */
 	for (n = 0; n < home_num; n++)
@@ -853,22 +784,14 @@ static bool borg_think_home_buy_aux(void)
 		/* Consider new equipment */
 		if (slot >= 0)
 		{
+			/* Get power for doing swap */
+			p = borg_think_buy_slot(l_ptr, slot, TRUE);
+
 			/* Rings can be put into two slots */
 			if (slot == EQUIP_LEFT)
 			{
-				/** First Check Left Hand **/
-
-				/* Get power for doing swaps */
-				p_left = borg_think_buy_slot(l_ptr, EQUIP_LEFT, TRUE);
-				p_right = borg_think_buy_slot(l_ptr, EQUIP_RIGHT, TRUE);
-
-				/* Is this ring better than one of mine? */
-				p = MAX(p_right, p_left);
-			}
-			else
-			{
-				/* Get power for doing swap */
-				p = borg_think_buy_slot(l_ptr, slot, TRUE);
+				/* Try this ring for the other finger too. */
+				p = MAX(p, borg_think_buy_slot(l_ptr, EQUIP_RIGHT, TRUE));
 			}
 		}
 
@@ -893,21 +816,21 @@ static bool borg_think_home_buy_aux(void)
 		b_p = p;
 	}
 
-	/* Buy something */
-	if ((b_n >= 0) && (b_p > borg_power()))
-	{
-		/* Go to the home */
-		goal_shop = home_shop;
+	/* Set the internally kept stats correctly */
+	g_power = borg_power();
+	g_power_home = borg_power_home();
 
-		/* Buy that item */
-		borg_think_shop_buy(b_n, TRUE);
+	/* Buy nothing */
+	if (b_n == -1) return (FALSE);
 
-		/* Success */
-		return (TRUE);
-	}
+	/* Go to the home */
+	goal_shop = home_shop;
 
-	/* Nope */
-	return (FALSE);
+	/* Buy that item */
+	borg_think_shop_buy(b_n);
+
+	/* Success */
+	return (TRUE);
 }
 
 
@@ -929,7 +852,7 @@ static bool borg_think_shop_grab_aux(int shop)
 	if (inven_num >= INVEN_PACK - 2) return (FALSE);
 
 	/* Evaluate the home */
-	b_s = borg_power_home();
+	b_s = g_power_home;
 
 	/* Use shops */
 	use_shop = TRUE;
@@ -939,8 +862,18 @@ static bool borg_think_shop_grab_aux(int shop)
 	{
 		list_item *l_ptr = &cur_list[n];
 
+		/* Obtain the "cost" of the item */
+		c = l_ptr->cost;
+
 		/* Hack - we cannot buy some items */
-		if (!l_ptr->cost) continue;
+		if (c <= 0) continue;
+
+		/* Ignore too expensive items */
+		if (borg_gold < c) continue;
+
+		/* Too heavy to carry now */
+		if (2 * (bp_ptr->weight + l_ptr->weight) /
+			adj_str_wgt[my_stat_ind[A_STR]] >= 120) continue;
 
 		/* Get a single item */
 		l_ptr->treat_as = TREAT_AS_LESS;
@@ -951,14 +884,8 @@ static bool borg_think_shop_grab_aux(int shop)
 		/* Restore the item */
 		l_ptr->treat_as = TREAT_AS_NORM;
 
-		/* Obtain the "cost" of the item */
-		c = l_ptr->cost;
-
 		/* Is it too costly? */
 		if (!borg_spends_gold_okay(l_ptr)) continue;
-
-		/* Ignore too expensive items */
-		if (borg_gold < c) continue;
 
 		/* Penalize expensive items */
 		if (c > borg_gold / 10) s -= c;
@@ -967,7 +894,7 @@ static bool borg_think_shop_grab_aux(int shop)
 		if (s < b_s) continue;
 
 		/* Ignore "expensive" purchases */
-		if ((s == b_s) && (c >= b_c)) continue;
+		if (s == b_s && c >= b_c) continue;
 
 		/* Save the item and cost */
 		b_n = n;
@@ -978,24 +905,23 @@ static bool borg_think_shop_grab_aux(int shop)
 	/* Normal power calculation */
 	use_shop = FALSE;
 
+	/* Set the internally kept stats correctly */
+	g_power_home = borg_power_home();
+
 	/* Buy something */
-	if (b_n >= 0)
-	{
-		/* Visit that shop */
-		goal_shop = shop;
+	if (b_n == -1) return (FALSE);
 
-		/* Buy that item */
-		borg_think_shop_buy(b_n, FALSE);
+	/* Visit that shop */
+	goal_shop = shop;
 
-		/* Hack - get out of the store */
-		borg_keypress(ESCAPE);
+	/* Buy that item */
+	borg_think_shop_buy(b_n);
 
-		/* Success */
-		return (TRUE);
-	}
+	/* Hack - get out of the store */
+	borg_keypress(ESCAPE);
 
-	/* Nope */
-	return (FALSE);
+	/* Success */
+	return (TRUE);
 }
 
 
@@ -1011,18 +937,30 @@ static bool borg_think_home_grab_aux(void)
 	if (inven_num >= INVEN_PACK - 2) return (FALSE);
 
 	/* Evaluate the home */
-	b_s = borg_power_home() + borg_power();
+	b_s = g_power + g_power_home;
+
+	/* If the home is full, force one item to be picked up */
+	if (home_num == STORE_INVEN_MAX) b_s = 0;
 
 	/* Scan the home */
 	for (n = 0; n < home_num; n++)
 	{
 		list_item *l_ptr = &borg_home[n];
 
-		/* Remove the item */
-		l_ptr->treat_as = TREAT_AS_LESS;
+		/* If the home is full */
+		if (home_num == STORE_INVEN_MAX)
+		{
+			/* Remove the pile */
+			l_ptr->treat_as = TREAT_AS_GONE;
+		}
+		else
+		{
+			/* Remove one item */
+			l_ptr->treat_as = TREAT_AS_LESS;
+		}
 
 		/* Evaluate the home */
-		s = borg_power_home() + borg_power();
+		s = borg_power() + borg_power_home();
 
 		/* Restore item */
 		l_ptr->treat_as = TREAT_AS_NORM;
@@ -1035,146 +973,608 @@ static bool borg_think_home_grab_aux(void)
 		b_s = s;
 	}
 
-	/* Evaluate the home */
-	s = borg_power_home();
+	/* Set the internally kept stats correctly */
+	g_power = borg_power();
+	g_power_home = borg_power_home();
 
-	/* Stockpile */
-	if (b_n >= 0)
-	{
-		/* Visit the home */
-		goal_shop = home_shop;
+	/* Do nothing */
+	if (b_n == -1) return (FALSE);
 
-		/* Grab that item */
-		borg_think_shop_buy(b_n, TRUE);
+	/* Visit the home */
+	goal_shop = home_shop;
 
-		/* Success */
-		return (TRUE);
-	}
+	/* Grab that item */
+	borg_think_shop_buy(b_n);
 
-	/* Assume not */
-	return (FALSE);
+	/* Success */
+	return (TRUE);
 }
 
 
-/*
- * Choose a shop to visit (see above)
- */
-static bool borg_choose_shop(void)
+/* Use the weaponmaster to *id* weapons */
+static bool borg_build_weaponmaster(void)
 {
 	int i;
-	s32b use, bu = 0;
-	s32b dist;
-	s32b time;
+	list_item *l_ptr = NULL;
 
-	/* Must be in town */
-	if (bp_ptr->depth) return (FALSE);
+	/* Not when the borg is broke */
+	if (borg_gold < 2000) return (FALSE);
 
-	/* If we are already flowing toward a shop do not check again... */
-	if (goal_shop != -1)
+	/* Loop through the inv */
+	for (i = 0; i < inven_num + 1; i++)
 	{
-		borg_note_fmt("# Using previous goal shop: %d", goal_shop);
+		if (i == 0)
+		{
+			/* First try the weapon that is used */
+			l_ptr = look_up_equip_slot(EQUIP_WIELD);
+		}
+		else
+		{
+			/* Then check out the inventory */
+			l_ptr = &inventory[i - 1];
+		}
+
+		/* There is no item */
+		if (!l_ptr) return (FALSE);
+
+		/* It has to be a weapon */
+		if (l_ptr->tval < TV_DIGGING || l_ptr->tval > TV_SWORD) continue;
+
+		/* Are there unid'd items? */
+		if (borg_obj_known_p(l_ptr))
+		{
+			/* Does this weapon need a *id*? */
+			if (borg_obj_known_full(l_ptr) ||
+				!borg_obj_star_id_able(l_ptr)) continue;
+		}
+		else
+		{
+			/* If the sensing shows it is interesting */
+			if (!strstr(l_ptr->o_name, "{excellent") ||
+				!strstr(l_ptr->o_name, "{special")) continue;
+		}
+
+		/* We found a weapon that needs *id*, but is it in the inv? */
+		if (i)
+		{
+			/* wield this weapon */
+			borg_keypress('w');
+			borg_keypress(I2A(i - 1));
+		}
+
+		/* We know enough */
+		break;
+	}
+
+	/* nothing interesting in the inven */
+	if (!l_ptr || (i == inven_num + 1)) return (FALSE);
+
+	/* *id* the weapon */
+	borg_keypress('E');
+
+	/* Make a note */
+	borg_note("# *Identifying* %s at the weaponmaster", l_ptr->o_name);
+
+	return (TRUE);
+}
+
+
+
+/* How to handle the recharging building */
+static bool borg_build_recharge(void)
+{
+	int i, count = 0, max_pval = 0;
+	char buf[4];
+	list_item *l_ptr = NULL;
+
+	/* Does the borg have enough gold for an id? */
+	if (borg_gold < 700) return (FALSE);
+
+	/* Loop through the inv */
+	for (i = 0; i < inven_num; i++)
+	{
+		/* Are there unid'd items? */
+		if (!borg_obj_known_p(&inventory[i])) count++;
+	}
+
+	/* Is the id worth it? */
+	if (count >= 4)
+	{
+		/* Identify the pack */
+		borg_keypress('I');
+
 		return (TRUE);
 	}
-	
-	/* Mega-hack - don't stay here too long */
-	if (borg_t - borg_began > 2000)
+
+	/* Does the borg have enough gold for a recharge? */
+	if (borg_gold < 2000) return (FALSE);
+
+	/* Find out if there are wands or staffs in the inv */
+	for (i = 0; i < inven_num; i++)
 	{
-		borg_note("# Staying too long in town");
-		return (FALSE);
-	}
+		l_ptr = &inventory[i];
 
-	/* Find 'best' shop to go to */
-	for (i = 0; i < track_shop_num; i++)
-	{
-		/* Get distance */
-		dist = distance(c_x, c_y, borg_shops[i].x, borg_shops[i].y);
-
-		/* Get time since last been there */
-		time = borg_t - borg_shops[i].when;
-
-		/* How useful is this shop? */
-		use = time / (dist + 1);
-		use = use * (borg_shops[i].u_count + 1) / (borg_shops[i].b_count + 1);
-
-		/* Track most-useful shop */
-		if (use > bu)
+		if (l_ptr->tval == TV_WAND ||
+			l_ptr->tval == TV_STAFF ||
+			l_ptr->tval == TV_ROD) 
 		{
-			goal_shop = i;
-			bu = use;
+			/* If the wand is not identified */
+			if (!borg_obj_known_p(l_ptr))
+			{
+				/* Identify it */
+				borg_keypress('R');
+				borg_keypress(I2A(i));
+				borg_keypress('y');
+				borg_keypress(ESCAPE);
+
+				borg_note("# Identifying %s at the zymurgist.", l_ptr->o_name);
+
+				/* Success at doing something */
+				return (TRUE);
+			}
+
+			/* Don't bother to recharge rods */
+			if (l_ptr->tval == TV_ROD) continue;
+
+			/* What is the maximum number of charges for this staff/wand */
+			max_pval = k_info[l_ptr->k_idx].pval;
+
+			/* Find out the max charges */
+			if (l_ptr->tval == TV_STAFF)
+				count = max_pval - l_ptr->pval;
+			else
+				count = l_ptr->number * max_pval - l_ptr->pval;
+
+			if (count > 0) break;
 		}
 	}
 
-	/* Is it worth our while to continue? */
-	if (bu > SHOP_SCAN_THRESHOLD)
+	/* Nothing to charge */
+	if (!l_ptr || (i == inven_num)) return (FALSE);
+
+	/* Get string corresponding to number */
+	(void)strnfmt(buf, 4, "%d\n", count);
+
+	/* Say what you do */
+	borg_note("# Recharging %s at the zymurgist.", l_ptr->o_name);
+
+	/* Do what you say */
+	borg_keypress('R');
+	borg_keypress(I2A(i));
+	borg_keypresses(buf);
+
+	return (TRUE);
+}
+
+
+/* The borg may try to enchant his weapon in this building */
+static bool borg_build_weapon(void)
+{
+	int i;
+	list_item *l_ptr = look_up_equip_slot(EQUIP_WIELD);
+
+	/* Does the borg have enough gold? */
+	if (borg_gold < 2000) return (FALSE);
+
+	/* Does the borg have a weapon at all? */
+	if (!l_ptr) return (FALSE);
+
+	/* Is there improvement for the to_hit and to_dam bonus */
+	if (l_ptr->to_h >= bp_ptr->lev / 5 &&
+		l_ptr->to_d >= bp_ptr->lev / 3) return (FALSE);
+
+	/* Let's go for it */
+	borg_keypress('E');
+
+	/* Find out if there are weapons in the inv */
+	for (i = 0; i < inven_num; i++)
 	{
-		/* We want to shop */
-		borg_note_fmt("# Goal shop: %d, use: %d", goal_shop, (int)bu);
+		l_ptr = &inventory[i];
+
+		if (l_ptr->tval >= TV_DIGGING && l_ptr->tval <= TV_SWORD)
+		{
+			/* skip the inv and go to equip */
+			borg_keypress('/');
+
+			break;
+		}
+	}
+
+	/* And enchant the weapon */
+	borg_keypress('a');
+
+	/* Say so */
+	borg_note("# Enchanting %s at the magesmith.", l_ptr->o_name);
+
+	return (TRUE);
+}
+
+
+/* How to handle the enchant armour building */
+static bool borg_build_armour(void)
+{
+	int i, slot = -1;
+	list_item *l_ptr;
+
+	/* Does the borg have enough gold? */
+	if (borg_gold < 2000) return (FALSE);
+
+	for (i = EQUIP_BODY; i < equip_num; i++)
+	{
+		l_ptr = look_up_equip_slot(i);
+
+		/* Is there armour here? */
+		if (!l_ptr) continue;
+
+		/* Is there improvement for the to_hit and to_dam bonus */
+		if (l_ptr->to_a >= bp_ptr->lev / 5) continue;
+
+		/* Found an armour */
+		slot = i;
+
+		break;
+	}
+
+	/* Was an armour found? */
+	if (slot == -1) return (FALSE);
+
+	/* Let's go for it */
+	borg_keypress('E');
+
+	/* Find out if there are armour in the inv */
+	for (i = 0; i < inven_num; i++)
+	{
+		l_ptr = &inventory[i];
+
+		if (l_ptr->tval >= TV_BOOTS && l_ptr->tval <= TV_DRAG_ARMOR)
+		{
+			/* skip the inv and go to equip */
+			borg_keypress('/');
+
+			break;
+		}
+	}
+
+	/* And enchant the armour */
+	borg_keypress(I2A(slot));
+
+	/* Say so */
+	borg_note("# Enchanting %s at the magesmith.", l_ptr->o_name);
+
+	return (TRUE);
+}
+
+
+/* How to handle the mapmaker building */
+static bool borg_build_map(void)
+{
+	int i, j;
+	int x = c_x / WILD_BLOCK_SIZE, y = c_y / WILD_BLOCK_SIZE;
+	int radius = 20, sum = 0, count = 0;
+
+	/* Check the money */
+	if (borg_gold < 600) return (FALSE);
+
+	/* Map a rough circle around the target position in the wilderness */
+	for (i = x - radius; i < x + radius + 1; i++)
+	{
+		for (j = y - radius; j < y + radius + 1; j++)
+		{
+			/* In bounds? */
+			if (i >= 0 && i < max_wild - 1 &&
+				j >= 0 && j < max_wild - 1)
+			{
+				if (distance(i, j, x, y) >= radius) continue;
+
+				sum++;
+
+				/* Hack!  Check this location */
+				if (wild[j][i].done.info & WILD_INFO_SEEN) count++;
+			}
+		}
+	}
+
+	/* Does the borg already know its way around here? */
+	if (count * 2 > sum) return (FALSE);
+
+	/* Look at the map */
+	borg_keypress('E');
+
+	return (TRUE);
+}
+
+
+/* Even the borg can be irrational */
+static bool borg_build_casino(void)
+{
+	int wager = MIN(borg_gold / 10, bp_ptr->lev * 1000);
+	char buf[7];
+
+	/* No gambling when almost broke */
+	if (borg_gold < 500) return (FALSE);
+
+	/* Get string corresponding to number */
+	(void)strnfmt(buf, 7, "%d\n", wager);
+
+	/* In Between */
+	borg_keypress('I');
+	borg_keypresses(buf);
+	borg_keypress('n');
+
+	/* Craps */
+	borg_keypress('C');
+	borg_keypresses(buf);
+	borg_keypress('n');
+
+	/* Spin the Wheel */
+	borg_keypress('S');
+	borg_keypresses(buf);
+	borg_keypress((char)(randint1(10) + '0'));
+	borg_keypress('\n');
+	borg_keypress('n');
+
+	/* Dice Slots */
+	borg_keypress('D');
+	borg_keypresses(buf);
+	borg_keypress('n');
+
+	/* One visit to this building is enough */
+	return (FALSE);
+}
+
+
+
+/* Get food and rest at the inn */
+static bool borg_build_inn(void)
+{
+	int i;
+	list_item *l_ptr;
+	bool rest = TRUE;
+
+	/* Is it light outside */
+	rest &= (bp_ptr->hour < 6 || bp_ptr->hour > 17);
+	 
+	/* This is a respectable place */
+	rest &= !bp_ptr->status.cut && !bp_ptr->status.poisoned;
+
+	/* Check the vampire flag */
+	rest &= !FLAG(bp_ptr, TR_HURT_LITE);
+
+	/* Loop through the equipment */
+	for (i = 0; i < equip_num; i++)
+	{
+		l_ptr = look_up_equip_slot(i);
+
+		/* Check the equipment for that flag */
+		if (l_ptr) rest &= !KN_FLAG(l_ptr, TR_HURT_LITE);
+	}
+
+	/* If the borg wants a rest */
+	if (rest && borg_gold > 25)
+	{
+		/* Wait for daybreak */
+		borg_keypress('R');
+	}
+
+	/* Can the borg use more food? */
+	if (!bp_ptr->status.full && borg_gold > 25)
+	{
+		/* Have dinner */
+		borg_keypress('E');
+	}
+
+	/* One pass takes care of all needs */
+	return (FALSE);
+}
+
+
+/* How to handle the healer building */
+static bool borg_build_healer(void)
+{
+	int i, count = 0;
+
+	/* Expensive here */
+	if (borg_gold < 15000) return (FALSE);
+
+	/* Check the stats (but not CHR) */
+	for (i = 0; i < 5; i++)
+	{
+		/* Count how many stats need fixing */
+		if (bp_ptr->status.fixstat[i]) count++;
+	}
+
+	/* Don't bother for just one stat */
+	if (count < 2) return (FALSE);
+
+	/* Heal me */
+	borg_keypress('R');
+
+	/* One visit is enough */
+	return (FALSE);
+}
+
+
+/* What to do inside a magetower */
+static bool borg_build_magetower(void)
+{
+	/* No need to be here when broke */
+	if (borg_gold < 2000) return (FALSE);
+
+	/* Is the borg registered here? */
+	if (borg_term_text_comp(39, 18, "Record aura"))
+	{
+		/* Register */
+		borg_keypress('R');
+
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
+/* What to do inside a castle? */
+static bool borg_build_castle(bool large)
+{
+	/* Is the borg registered here? */
+	if (borg_term_text_comp(35, 19, "Request Quest"))
+	{
+		/* Get a quest */
+		borg_keypress('R');
+
+		if (borg_gold < 30000)
+		{
+			/* Deliver a message */
+			borg_keypress('b');
+		}
+		else
+		{
+			if (large)
+			{
+				/* Find an artifact */
+				borg_keypress('d');
+			}
+			else
+			{
+				/* Kill monster quest */
+				borg_keypress('a');
+			}
+		}
 
 		/* Success */
 		return (TRUE);
 	}
+	/* Try to get a reward */
+	else
+	{
+		/* Get a quest */
+		borg_keypress('R');
 
-	/* Assume no important shop */
-	goal_shop = -1;
-
-	/* Let us know what the value is when we fail */
-	borg_note_fmt("# No more shopping - value: %d", bu);
-
-	/* Failure */
-	return (FALSE);
+		/* To avoid pressing this button again just leave the building */
+		return (FALSE);
+	}
 }
 
+
+/* Handle the buildings that are not stores */
+static bool borg_think_building(void)
+{
+	/* Only the funny buildings have a type */
+	switch (borg_shops[shop_num].type)
+	{
+		case BUILD_WEAPONMASTER: return (borg_build_weaponmaster());
+
+		case BUILD_RECHARGE: return (borg_build_recharge());
+
+		case BUILD_PLUS_WEAPON: return (borg_build_weapon());
+
+		case BUILD_PLUS_ARMOUR: return (borg_build_armour());
+
+		case BUILD_MUTATE: return (FALSE);
+
+		case BUILD_MAP: return (borg_build_map());
+
+		case BUILD_LIBRARY: return (FALSE);
+
+		case BUILD_CASINO: return (borg_build_casino());
+
+		case BUILD_INN: return (borg_build_inn());
+
+		case BUILD_HEALER: return (borg_build_healer());
+
+		case BUILD_MAGETOWER0:
+		case BUILD_MAGETOWER1: return (borg_build_magetower());
+
+		case BUILD_CASTLE0: return (borg_build_castle(FALSE));
+
+		case BUILD_CASTLE1: return (borg_build_castle(TRUE));
+
+		default: return (FALSE);
+	}
+}
 
 /*
  * Deal with being in a store
  */
 bool borg_think_store(void)
 {
-	/* Paranoia */
-	if (shop_num == -1)
+	int i;
+
+	/* Set the internally kept stats correctly */
+	g_power = borg_power();
+	g_power_home = borg_power_home();
+
+	/* Clear goal */
+	goal = GOAL_NONE;
+
+	/* Retrieve the correct place */
+	for (i = 0; i < borg_shop_num; i++)
 	{
-		borg_oops("# Entering invalid store.");
+		/* Find the right coords */
+		if (c_x == borg_shops[i].x && c_y == borg_shops[i].y)
+		{
+			/* Get the shop */
+			shop_num = i;
+
+			break;
+		}
+	}
+
+	/* This shop is not known! */
+	if (i == borg_shop_num)
+	{
+		borg_oops("Unknown shop entered");
 		return (FALSE);
 	}
-	
+
 	/* Stamp the shop with a time stamp */
 	borg_shops[shop_num].when = borg_t;
-
-	/* Remove "useless" equipment */
-	if (borg_remove_stuff()) return (TRUE);
-
-	/* Wear good stuff */
-	if (borg_wear_stuff()) return (TRUE);
+	borg_shops[shop_num].visit = TRUE;
+	borg_towns[borg_shops[shop_num].town_num].visit = TRUE;
 
 	/* Increment 'been' count */
 	borg_shops[shop_num].b_count++;
 
-	/* Select what we want to do */
-	if (shop_num == home_shop)
+	if (borg_shops[shop_num].type)
 	{
-		/* Step 1 -- Sell items to the home */
-		if (borg_think_home_sell_aux()) return (TRUE);
-
-		/* Step 4 -- Buy items from the home (for the player) */
-		if (borg_think_home_buy_aux()) return (TRUE);
-
-		/* Step 5 -- Grab items from the home (for the shops) */
-		if (borg_think_home_grab_aux()) return (TRUE);
-
-		borg_note("# Nothing to do at home.");
+		/* Check out the funny shops */
+		if (borg_think_building()) return (TRUE);
 	}
 	else
 	{
-		/* Step 2 -- Sell items to the shops */
-		if (borg_think_shop_sell_aux(shop_num)) return (TRUE);
+		/* Remove "useless" equipment */
+		if (borg_unwear_stuff()) return (TRUE);
 
-		/* Step 3 -- Buy items from the shops (for the player) */
-		if (borg_think_shop_buy_aux(shop_num)) return (TRUE);
+		/* Wear good stuff */
+		if (borg_wear_stuff()) return (TRUE);
 
-		/* Step 6 -- Buy items from the shops (for the home) */
-		if (borg_think_shop_grab_aux(shop_num)) return (TRUE);
+		/* Select what we want to do */
+		if (shop_num == home_shop)
+		{
+			/* Step 1 -- Sell items to the home */
+			if (borg_think_home_sell_aux()) return (TRUE);
 
-		borg_note("# Nothing to do in the store.");
+			/* Step 4 -- Buy items from the home (for the player) */
+			if (borg_think_home_buy_aux()) return (TRUE);
+
+			/* Step 5 -- Grab items from the home (for the shops) */
+			if (borg_think_home_grab_aux()) return (TRUE);
+
+			borg_note("# Nothing to do at home.");
+		}
+		else
+		{
+			/* Step 2 -- Sell items to the shops */
+			if (borg_think_shop_sell_aux(shop_num)) return (TRUE);
+
+			/* Step 3 -- Buy items from the shops (for the player) */
+			if (borg_think_shop_buy_aux(shop_num)) return (TRUE);
+
+			/* Step 6 -- Buy items from the shops (for the home) */
+			if (borg_think_shop_grab_aux(shop_num)) return (TRUE);
+
+			borg_note("# Nothing to do in the store.");
+		}
 	}
 
 	/* Leave the store */
@@ -1185,9 +1585,6 @@ bool borg_think_store(void)
 
 	/* Choose a shop to visit */
 	if (borg_choose_shop()) return (TRUE);
-
-	/* Assume no important shop */
-	goal_shop = -1;
 
 	/* No shop */
 	shop_num = -1;
@@ -1237,6 +1634,9 @@ static bool borg_think_dungeon_brave(void)
 			/* Take the stairs */
 			borg_note("# Fleeing town via Stairs.");
 			borg_keypress('>');
+
+			/* If the borg leaves the wilderness */
+			if (!bp_ptr->depth) borg_leave_surface();
 
 			/* Success */
 			return (TRUE);
@@ -1315,7 +1715,7 @@ static bool borg_think_dungeon_brave(void)
 	/*** Exploration ***/
 
 	/* Continue flowing (see below) */
-	if (borg_flow_old(GOAL_MISC)) return (TRUE);
+	if (borg_flow_old(GOAL_SHOP)) return (TRUE);
 
 	/* Continue flowing (see below) */
 	if (borg_flow_old(GOAL_DARK)) return (TRUE);
@@ -1428,7 +1828,7 @@ bool borg_think_dungeon(void)
 	/* Avoid the burning sun */
 	if (FLAG(bp_ptr, TR_HURT_LITE) && !FLAG(bp_ptr, TR_RES_LITE) &&
 		!bp_ptr->depth &&
-		(bp_ptr->hour >= 5) && (bp_ptr->hour <= 18))
+		bp_ptr->hour > 5 && bp_ptr->hour < 18)
 	{
 		/* Get out of the Sun */
 		if (!goal_fleeing)
@@ -1513,8 +1913,9 @@ bool borg_think_dungeon(void)
 
 	/*** crucial goals ***/
 
-	/* examine equipment and swaps */
-	borg_notice();
+	/* Set the internally kept stats correctly */
+	g_power = borg_power();
+	g_power_home = borg_power_home();
 
 	/* require light-- */
 	if (!bp_ptr->cur_lite && (bp_ptr->depth >= 1))
@@ -1529,7 +1930,7 @@ bool borg_think_dungeon(void)
 		}
 
 		/* attempt to refuel */
-		if (borg_refuel_torch() || borg_refuel_lantern()) return (TRUE);
+		if (borg_refuel()) return (TRUE);
 
 		/* wear stuff and see if it glows */
 		if (borg_wear_stuff()) return (TRUE);
@@ -1540,7 +1941,10 @@ bool borg_think_dungeon(void)
 		/* Test for stairs */
 		if (map_loc(c_x, c_y)->feat == FEAT_LESS)
 		{
+			/* Take it */
 			borg_keypress('<');
+
+			return (TRUE);
 		}
 
 		/* Try to flow to a lite if I can recall */
@@ -1559,6 +1963,9 @@ bool borg_think_dungeon(void)
 	/* Try not to die */
 	if (borg_caution()) return (TRUE);
 
+	/* Get to a non-hurting feat */
+	if (borg_flow_non_hurt()) return (TRUE);
+
 	/*** if returning from dungeon in bad shape...***/
 	if (!bp_ptr->cur_lite || bp_ptr->status.cut ||
 		bp_ptr->status.poisoned || bp_ptr->status.weak)
@@ -1567,7 +1974,7 @@ bool borg_think_dungeon(void)
 		if (!bp_ptr->cur_lite)
 		{
 			/* attempt to refuel */
-			if (borg_refuel_torch() || borg_refuel_lantern()) return (TRUE);
+			if (borg_refuel()) return (TRUE);
 
 			/* wear stuff and see if it glows */
 			if (borg_wear_stuff()) return (TRUE);
@@ -1605,9 +2012,6 @@ bool borg_think_dungeon(void)
 
 	/* Take off things that have become useless */
 	if (borg_unwear_stuff()) return (TRUE);
-
-	/* Remove stuff that is useless or detrimental */
-	if (borg_remove_stuff()) return (TRUE);
 
 	/* Check the light */
 	if (borg_check_lite()) return (TRUE);
@@ -1664,7 +2068,8 @@ bool borg_think_dungeon(void)
 	if (borg_flow_kill(TRUE, 250)) return (TRUE);
 
 	/* Find a viewable monster and line up a shot on him */
-	if (borg_flow_kill_aim(TRUE)) return (TRUE);
+	/* Disabled because it is buggy, causing live-lock.
+	if (borg_flow_kill_aim(TRUE)) return (TRUE); */
 
 	/* Dig an anti-summon corridor */
 	if (borg_flow_kill_corridor(TRUE)) return (TRUE);
@@ -1674,14 +2079,8 @@ bool borg_think_dungeon(void)
 	/* Use things */
 	if (borg_use_things()) return (TRUE);
 
-	/* Pseudo identify unknown things */
-	if (borg_test_stuff_pseudo()) return (TRUE);
-
-	/* Identify unknown things */
-	if (borg_test_stuff()) return (TRUE);
-
-	/* *Id* unknown things */
-	if (borg_test_stuff_star()) return (TRUE);
+	/* Try to identify things */
+	if (borg_id_meta()) return (TRUE);
 
 	/* Enchant things */
 	if (borg_enchanting()) return (TRUE);
@@ -1689,15 +2088,8 @@ bool borg_think_dungeon(void)
 	/* Recharge things */
 	if (borg_recharging()) return (TRUE);
 
-	/* Destroy junk */
-	if (borg_crush_junk()) return (TRUE);
-
-	/* Destroy items to make space */
-	if (borg_crush_hole()) return (TRUE);
-
-	/* Destroy items if we are slow */
-	if (borg_crush_slow()) return (TRUE);
-
+	/* Maybe destroy an item */
+	if (borg_destroy()) return (TRUE);
 
 	/*** Flow towards objects ***/
 
@@ -1732,20 +2124,10 @@ bool borg_think_dungeon(void)
 
 	/*** Exploration ***/
 
-	/* Continue flowing (see below) */
-	if (borg_flow_old(GOAL_MISC)) return (TRUE);
-
-	/* Continue flowing (see below) */
-	if (borg_flow_old(GOAL_DARK)) return (TRUE);
-
-	/* Continue flowing (see below) */
-	if (borg_flow_old(GOAL_XTRA)) return (TRUE);
-
-	/* Continue flowing (see below) */
-	if (borg_flow_old(GOAL_BORE)) return (TRUE);
-
-	/* Continue flowing (see below) */
-	if (borg_flow_old(GOAL_TOWN)) return (TRUE);
+	/* Continue flowing for low importance stuff */
+	if (goal >= GOAL_SHOP &&
+		goal < GOAL_MAX &&
+		borg_flow_old(goal)) return (TRUE);
 
 	/*** Explore the dungeon ***/
 
@@ -1770,19 +2152,8 @@ bool borg_think_dungeon(void)
 	/* Explore interesting grids */
 	if (borg_flow_dark(FALSE)) return (TRUE);
 
-
 	/*** Deal with shops ***/
-
-	/* Hack -- Visit the shops */
-	if (borg_choose_shop())
-	{
-		/* Try and visit a shop, if so desired */
-		if (borg_flow_shop_entry(goal_shop)) return (TRUE);
-
-		/* Let us know what the value is when we fail */
-		borg_note("# Failed to get good shop!");
-	}
-
+	if (borg_find_shop()) return (TRUE);
 
 	/*** Leave the Level ***/
 
@@ -1793,7 +2164,7 @@ bool borg_think_dungeon(void)
 	if (borg_flow_spastic(FALSE)) return (TRUE);
 
 	/* Recharge items before leaving the level */
-	if (borg_wear_recharge()) return (TRUE);
+	if (borg_wait_recharge()) return (TRUE);
 
 	/* Leave the level (bored) */
 	if (borg_leave_level(TRUE)) return (TRUE);
@@ -1805,24 +2176,16 @@ bool borg_think_dungeon(void)
 	/*** Wait for recall ***/
 
 	/* Wait for recall, unless in danger */
-	if (goal_recalling && (borg_danger(c_x, c_y, 1, TRUE) <= 0))
+	if (goal_recalling &&
+		borg_on_safe_feat(map_loc(c_x, c_y)->feat) &&
+		(borg_danger(c_x, c_y, 1, TRUE) <= 0))
 	{
 		/* Take note */
 		borg_note("# Waiting for Recall...");
 
-		if (bp_ptr->depth)
-		{
-			/* Rest until done */
-			borg_keypress('R');
-			borg_keypress('\n');
-		}
-		else
-		{
-			/* Rest one round-- we keep count of turns while in town */
-			borg_keypress('0');
-			borg_keypress('1');
-			borg_keypress('R');
-		}
+		/* Rest until done */
+		borg_keypress('R');
+		borg_keypress('\n');
 
 		/* Done */
 		return (TRUE);
@@ -1830,6 +2193,17 @@ bool borg_think_dungeon(void)
 
 	/*** Nothing to do ***/
 
+	/* Wait for daylight */
+	if (borg_waits_daylight()) return (TRUE);
+
+	/* Try to cross the wilderness to do some fun shopping */
+	if (borg_find_town()) return (TRUE);
+
+	/* Try to cross the wilderness to find a challenging dungeon */
+	if (borg_find_dungeon()) return (TRUE);
+
+	/* Explore the wilderness */
+	if (borg_flow_dark_wild()) return (TRUE);
 
 	/* Set a flag that the borg is  not allowed to retreat for 5 rounds */
 	borg_no_retreat = 5;
@@ -1840,7 +2214,7 @@ bool borg_think_dungeon(void)
 		bool done = FALSE;
 
 		/* Note */
-		borg_note_fmt("# Boosting bravery (1) from %d to %d!",
+		borg_note("# Boosting bravery (1) from %d to %d!",
 					  avoidance, bp_ptr->chp * 2);
 
 		/* Hack -- ignore some danger */
@@ -1866,7 +2240,7 @@ bool borg_think_dungeon(void)
 	borg_times_twitch++;
 
 	/* Phase to get out of being twitchy up to 3 times per level. */
-	if (borg_times_twitch < 3)
+	if (bp_ptr->depth && borg_times_twitch < 3)
 	{
 		borg_note("# Considering Phase (twitchy)");
 
@@ -1875,7 +2249,6 @@ bool borg_think_dungeon(void)
 			(borg_spell(REALM_SORCERY, 0, 1) ||
 			 borg_spell(REALM_TRUMP, 0, 0) ||
 			 borg_spell(REALM_ARCANE, 0, 4) ||
-			 borg_activate_artifact(ART_BELEGENNON, FALSE) ||
 			 borg_read_scroll(SV_SCROLL_PHASE_DOOR)))
 		{
 			/* Success */
@@ -1894,7 +2267,7 @@ bool borg_think_dungeon(void)
 		bool done = FALSE;
 
 		/* Note */
-		borg_note_fmt("# Boosting bravery (2) from %d to %d!",
+		borg_note("# Boosting bravery (2) from %d to %d!",
 					  avoidance, bp_ptr->mhp * 4);
 
 		/* Hack -- ignore some danger */
@@ -1922,7 +2295,7 @@ bool borg_think_dungeon(void)
 		bool done = FALSE;
 
 		/* Note */
-		borg_note_fmt("# Boosting bravery (3) from %d to %d!",
+		borg_note("# Boosting bravery (3) from %d to %d!",
 					  avoidance, 30000);
 
 		/* Hack -- ignore some danger */
@@ -1949,13 +2322,12 @@ bool borg_think_dungeon(void)
 
 
 	/* Teleport to get out of being twitchy up to 5 times per level. */
-	if (borg_times_twitch < 5)
+	if (bp_ptr->depth && borg_times_twitch < 5)
 	{
 		borg_note("# Teleport (twitchy)");
 
 		/* Teleport */
-		if (borg_activate_artifact(ART_COLANNON, FALSE) ||
-			borg_activate_artifact(ART_ANGUIREL, FALSE) ||
+		if (borg_activate(BORG_ACT_TELEPORT) ||
 			borg_spell_fail(REALM_ARCANE, 2, 3, 45) ||
 			borg_spell_fail(REALM_TRUMP, 0, 4, 45) ||
 			borg_spell_fail(REALM_CHAOS, 0, 7, 45) ||

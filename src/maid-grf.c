@@ -224,15 +224,41 @@ cptr get_default_font(int term_num)
 }
 
 #ifdef USE_GRAPHICS
+/*
+ * Make sure the graphical tiles we want are available.
+ *
+ * Note - we _must_ be passed an array 1024 in size for the filename.
+ */
 bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 {
 	int old_graphics = use_graphics;
 
 	use_graphics = GRAPHICS_NONE;
 	use_transparency = FALSE;
+	
+	if ((graphics == GRAPHICS_ANY) || (graphics == GRAPHICS_DAVID_GERVAIS))
+	{
+		/* Try the "32x32.bmp" file */
+		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/32x32.bmp");
 
-	if ((graphics == GRAPHICS_ANY)
-		|| (graphics == GRAPHICS_ADAM_BOLT) || (graphics == GRAPHICS_HALF_3D))
+		/* Use the "32x32.bmp" file if it exists */
+		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		{
+			use_transparency = TRUE;
+
+			*xsize = 32;
+			*ysize = 32;
+		}
+		
+		use_graphics = GRAPHICS_DAVID_GERVAIS;
+		
+		/* Did we change the graphics? */
+		return (old_graphics != use_graphics);
+	}
+	
+	/* We failed, or we want 16x16 graphics */
+	if ((graphics == GRAPHICS_ANY) || (graphics == GRAPHICS_ADAM_BOLT) ||
+		 (graphics == GRAPHICS_HALF_3D))
 	{
 		/* Try the "16x16.bmp" file */
 		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
@@ -254,12 +280,14 @@ bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 			{
 				use_graphics = GRAPHICS_ADAM_BOLT;
 			}
+			
+			/* Did we change the graphics? */
+			return (old_graphics != use_graphics);
 		}
 	}
 
 	/* We failed, or we want 8x8 graphics */
-	if (!use_graphics
-		&& ((graphics == GRAPHICS_ANY) || (graphics == GRAPHICS_ORIGINAL)))
+	if ((graphics == GRAPHICS_ANY) || (graphics == GRAPHICS_ORIGINAL))
 	{
 		/* Try the "8x8.bmp" file */
 		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
@@ -276,11 +304,43 @@ bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename)
 	}
 
 	/* Did we change the graphics? */
-	if (old_graphics == use_graphics) return (FALSE);
-
-	/* Success */
-	return (TRUE);
+	return (old_graphics != use_graphics);
 }
+
+/*
+ * Is a square in a bigtiled region?
+ */
+bool is_bigtiled(int x, int y)
+{
+	if ((use_bigtile)
+		&& (y >= Term->scr->big_y1)
+		&& (y <= Term->scr->big_y2)
+		&& (x >= Term->scr->big_x1))
+	{
+		return (TRUE);
+	}
+	
+	return (FALSE);
+}
+
+void toggle_bigtile(void)
+{
+	if (use_bigtile)
+	{
+		/* Hack - disable bigtile mode */
+		Term_bigregion(-1, -1, -1);
+		
+		use_bigtile = FALSE;
+	}
+	else
+	{
+		use_bigtile = TRUE;
+	}
+	
+	/* Hack - redraw everything + recalc bigtile regions */
+	angband_term[0]->resize_hook();
+}
+
 #endif /* USE_GRAPHICS */
 
 
@@ -305,11 +365,11 @@ void free_term_callbacks(void)
 {
 	int i;
 	callback_list *p, *p_next;
-	
+
 	for (i = 0; i < CALL_MAX; i++)
 	{
 		p = callbacks[i];
-		
+
 		while (p)
 		{
 			p_next = p->next;
@@ -607,7 +667,7 @@ bool map_in_bounds(int x, int y)
 /*
  * Save information into a block location
  */
-static void save_map_location(int x, int y, term_map *map)
+static void save_map_location(int x, int y, const term_map *map)
 {
 	map_blk_ptr_ptr mbp_ptr;
 	map_block *mb_ptr;
@@ -710,7 +770,7 @@ static void set_player_location(int x, int y)
 
 	player_x = x;
 	player_y = y;
-	
+
 	/* Tell the port that the player has moved */
 	for (callback = callbacks[CALL_PLAYER_MOVE]; callback; callback = callback->next)
 	{
@@ -729,33 +789,354 @@ map_block *map_loc(int x, int y)
 			[y & 15][x & 15]);
 }
 
-/*
- * Display info about one town -- used with the map function
- *
- * Basically a rip of do_cmd_knowledge_wild from cmd4.c -MT
- */
-static void single_town_info(int place)
+
+/* put the banners on the screen */
+static void display_banner(wild_done_type *w_ptr)
+{
+	int wid, hgt;
+
+	place_type *pl_ptr;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	/* Do we have a place here? */
+	pl_ptr = (w_ptr->place ? &place[w_ptr->place] : NULL);
+
+	/* Show the place name, if it is on the map */
+	if (pl_ptr && (w_ptr->info & WILD_INFO_SEEN))
+	{
+		cptr banner;
+		cptr place_dir;
+		int i;
+
+		bool visited_town = FALSE;
+		bool home_in_town = FALSE;
+		bool castle_in_town = FALSE;
+
+		/* Is it a town */
+		if (pl_ptr->numstores)
+		{
+			/* Upper banner */
+			banner = pl_ptr->name;
+
+			/* Display town name */
+			put_fstr(1 + (wid - strlen(banner)) / 2, 0, banner);
+
+			/* Find out if there are homes or castles here */
+			for (i = 0; i < pl_ptr->numstores; i++)
+			{
+				store_type *st_ptr = &pl_ptr->store[i];
+
+				/* Is there a home? */
+				if (st_ptr->type == BUILD_STORE_HOME) home_in_town = TRUE;
+
+				/* Is there a castle? */
+				if (st_ptr->type == BUILD_CASTLE0 ||
+					st_ptr->type == BUILD_CASTLE1) castle_in_town = TRUE;
+
+				/* Stores are not given coordinates until you visit a town */
+				if (st_ptr->x != 0 && st_ptr->y != 0) visited_town = TRUE;
+			}
+
+			/* Prevent knowledge from leaking out */
+			home_in_town   &= visited_town;
+			castle_in_town &= visited_town;
+
+			/* Find out the lower banner */
+			if (home_in_town)
+			{
+				if (castle_in_town)
+				{
+					/* Town with home and castle */
+					banner = "Move around, press * for town, h for home, c for castle or any key to exit.";
+				}
+				else
+				{
+					/* Town with home and no castle */
+					banner = "Move around, press * for town, h for home or any key to exit.";
+				}
+			}
+			/* Town with no home */
+			else
+			{
+				if (castle_in_town)
+				{
+					/* Town with castle and no home */
+					banner = "Move around, press * for town, c for castle or any key to exit.";
+				}
+				else
+				{
+					/* Town with no castle and no home */
+					banner = "Move around, press * for town or any key to exit.";
+				}
+			}
+
+			/* Display lower banner */
+			put_fstr(1 + (wid - strlen(banner)) / 2, hgt - 1, banner);
+		}
+		/* So it is in the wilderness */
+		else
+		{
+			/* Display standard bottom line */
+			put_fstr(wid / 2 - 23, hgt - 1,
+					"Move around or hit any other key to continue.");
+
+			/* It is a wilderness dungeon */
+			if (pl_ptr->dungeon)
+			{
+				/* Fetch closest known town and direction */
+				banner = describe_quest_location(&place_dir,
+								pl_ptr->x, pl_ptr->y, TRUE);
+
+				/* Did the player go into the dungeon? */
+				if (pl_ptr->dungeon->recall_depth == 0)
+				{
+					/* It is still guarded by monsters */
+					banner = format("Guarded dungeon %s of %s.", place_dir, banner);
+				}
+				else
+				{
+					/* No monsters to guard it */
+					banner = format("Unguarded dungeon %s of %s.", place_dir, banner);
+				}
+			}
+			/* It is a wilderness quest */
+			else
+			{
+				/* Fetch wilderness quest name */
+				banner = quest[pl_ptr->quest_num].name;
+			}
+
+			/* Display wilderness place name */
+			put_fstr((wid - strlen(banner)) / 2, 0, banner);
+		}
+	}
+	else
+	{
+		/* Display standard bottom line */
+		put_fstr(wid / 2 - 23, hgt - 1,
+				"Move around or hit any other key to continue.");
+	}
+}
+
+
+/* Display info about the home in one town */
+static bool dump_home_info(FILE *fff, int town)
+{
+	int i, k;
+	bool visited_town = FALSE;
+
+	store_type *st_ptr;
+	object_type *o_ptr;
+
+	for (i = 0; i < place[town].numstores; i++)
+	{
+		st_ptr = &place[town].store[i];
+
+		/* Stores are not given coordinates until you visit a town */
+		if (st_ptr->x != 0 && st_ptr->y != 0) visited_town = TRUE;
+
+		/* The only interest is homes */
+		if (st_ptr->type == BUILD_STORE_HOME)
+		{
+			/* Header with name of the town */
+			froff(fff, "  [Home Inventory - %s]\n\n", place[i].name);
+
+			/* Home -- if anything there */
+			if (st_ptr->stock)
+			{
+				char o_name[256];
+			
+				/* Initialise counter */
+				k = 0;
+
+				/* Dump all available items */
+				OBJ_ITT_START (st_ptr->stock, o_ptr)
+				{
+					/* Describe object */
+					object_desc(o_name, o_ptr, TRUE, 3, 256);
+					
+					/* Clean formatting escape sequences */
+					fmt_clean(o_name);
+				
+					/* List the item, inlcuding its colour */
+					froff(fff, " %s" CLR_SET_DEFAULT " %s\n",
+						color_seq[tval_to_attr[o_ptr->tval]], o_name);
+
+					/* Increment counter */
+					k++;
+				}
+				OBJ_ITT_END;
+
+				/* Add an empty line */
+				froff(fff, "\n\n");
+			}
+			/* The home is empty */
+			else
+			{
+				froff(fff, "  [Empty]\n\n");
+			}
+		}
+	}
+
+	/* No home, no show */
+	return (visited_town);
+}
+
+
+/* This function predicts whether keystroke c on a town has any effect */
+static bool dump_info_test(char c, int town)
+{
+	int i;
+	bool visited_town = FALSE;
+	bool build_found = FALSE;
+
+	store_type *st_ptr;
+
+	/* Paranoia */
+	if (place[town].numstores == 0) return (FALSE);
+	
+	/* Find out if this command makes sense */
+	switch (c)
+	{
+		case '*':
+		{
+			/* Display the list of shops always works */
+			return (TRUE);
+		}
+
+		case 'h':
+		{
+			/* Display the items in the home needs a home */
+			for (i = 0; i < place[town].numstores; i++)
+			{
+				st_ptr = &place[town].store[i];
+
+				/* Stores are not given coordinates until you visit a town */
+				if (st_ptr->x != 0 && st_ptr->y != 0) visited_town = TRUE;
+
+				/* The only interest is homes */
+				if (st_ptr->type == BUILD_STORE_HOME) build_found = TRUE;
+			}
+
+			/* Return success */
+			return (build_found && visited_town);
+		}
+
+		case 'c':
+		{
+			/* Display the items in the home needs a home */
+			for (i = 0; i < place[town].numstores; i++)
+			{
+				st_ptr = &place[town].store[i];
+
+				/* Stores are not given coordinates until you visit a town */
+				if (st_ptr->x != 0 && st_ptr->y != 0) visited_town = TRUE;
+
+				/* The only interest is homes */
+				if (st_ptr->type == BUILD_CASTLE0 ||
+					st_ptr->type == BUILD_CASTLE1) build_found = TRUE;
+			}
+
+			/* Return success */
+			return (build_found && visited_town);
+		}
+	}
+
+	return (FALSE);
+}
+
+
+/* Show the knowledge the player has about a town */
+static bool do_cmd_view_map_aux(char c, int town)
 {
 	FILE *fff;
 
 	char file_name[1024];
 
-	/* Opet temporary file */
+	cptr title = NULL;
+
+	/* Call this proc with a place that is a town */
+	if (place[town].numstores == 0) return (FALSE);
+
+	/* go away if nothing will happen */
+	if (!dump_info_test(c, town)) return (FALSE);
+
+	/* Open temporary file */
 	fff = my_fopen_temp(file_name, 1024);
 
 	/* Failure */
-	if (!fff) return;
-	
-	dump_town_info(fff, place);
+	if (!fff) return (FALSE);
+
+	/* Show what? */
+	switch (c)
+	{
+		case '*':
+		{
+			/* Display the list of shops */
+			dump_town_info(fff, town, FALSE);
+			title = "Town info";
+
+			break;
+		}
+
+		case 'h':
+		{
+			/* Display the items in the home */
+			(void)dump_home_info(fff, town);
+			title = "Home info";
+
+			break;
+		}
+
+		case 'c':
+		{
+			/* Display the quests taken */
+			dump_castle_info(fff, town);
+			title = "Castle info";
+
+			break;
+		}
+	}
 
 	/* Close the file */
 	my_fclose(fff);
-	
+
 	/* Display the file contents */
-	(void)show_file(file_name, "Town Info", 0, 0);
+	(void)show_file(file_name, title, 0, 0);
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
+
+	/* And curtain */
+	return (TRUE);
+}
+
+/* Keep the offset for the resize */
+static int map_cx = 0;
+static int map_cy = 0;
+
+static void resize_big_map(void)
+{
+	int cx, cy;
+	wild_done_type *w_ptr;
+
+	cx = map_cx;
+	cy = map_cy;
+
+	/* Make a new map */
+	display_map(&cx, &cy);
+
+	/* Get wilderness square */
+	w_ptr = &wild[map_cy + p_ptr->py / WILD_BLOCK_SIZE]
+				 [map_cx + p_ptr->px / WILD_BLOCK_SIZE].done;
+
+	/* print the banners */
+	display_banner(w_ptr);
+
+	/* Show the cursor */
+	Term_gotoxy(cx, cy);
 }
 
 /*
@@ -771,16 +1152,16 @@ void do_cmd_view_map(void)
 	int cy, cx;
 	int wid, hgt;
 
-	place_type *pl_ptr;
+	void (*hook) (void);
 
 	/* No overhead map in vanilla town mode. */
 	if (!p_ptr->depth && vanilla_town) return;
 
-	/* Get size */
-	Term_get_size(&wid, &hgt);
+	/* Remember what the resize hook was */
+	hook = angband_term[0]->resize_hook;
 
-	/* Save the screen */
-	screen_save();
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = resize_big_map;
 
 	/* Note */
 	prtf(0, 0, "Please wait...");
@@ -795,9 +1176,16 @@ void do_cmd_view_map(void)
 	{
 		/* In the dungeon - All we have to do is display the map */
 
+		/* Get size */
+		Term_get_size(&wid, &hgt);
+
 		/* No offset from player */
 		cx = 0;
 		cy = 0;
+
+		/* Match offset for the resize */
+		map_cx = cx;
+		map_cy = cy;
 
 		/* Display the map */
 		display_map(&cx, &cy);
@@ -818,12 +1206,12 @@ void do_cmd_view_map(void)
 
 		/* Direction */
 		int d;
+
+		/* Input character */
+		char c;
 		
 		wild_done_type *w_ptr;
 		
-		cptr town_name;
-		int town_name_len;
-
 		/* No offset yet */
 		x = 0;
 		y = 0;
@@ -836,33 +1224,17 @@ void do_cmd_view_map(void)
 			cx = x;
 			cy = y;
 
+			/* Match offset for the resize */
+			map_cx = cx;
+			map_cy = cy;
+
 			display_map(&cx, &cy);
 
 			/* Get wilderness square */
 			w_ptr = &wild[y + py / WILD_BLOCK_SIZE][x + px / WILD_BLOCK_SIZE].done;
 
-			/* Do we have a place here? */
-			pl_ptr = (w_ptr->place ? &place[w_ptr->place] : NULL);
-
-			/* Show the town name, if it exists */
-			if (pl_ptr && (w_ptr->info & WILD_INFO_SEEN) && pl_ptr->numstores)
-			{
-				town_name = pl_ptr->name;
-				town_name_len = strlen(town_name);
-			
-				/* Display it */
-				put_fstr(COL_MAP + (wid - COL_MAP - town_name_len) / 2, 0, town_name);
-
-				/* Display different prompt -MT */
-				put_fstr(COL_MAP - 36 + (wid - COL_MAP) / 2, hgt - 1,
-						"Move around, press * for town info, or hit any other key to continue.");
-			}
-			else
-			{
-				/* Display standard prompt -MT */
-				put_fstr(COL_MAP - 23 + (wid - COL_MAP) / 2, hgt - 1,
-						"Move around, or hit any other key to continue.");
-			}
+			/* Get the banners on the screen */
+			display_banner(w_ptr);
 
 			/* Show the cursor */
 			Term_gotoxy(cx, cy);
@@ -871,22 +1243,27 @@ void do_cmd_view_map(void)
 			Term_fresh();
 
 			/* Get a response */
-			d = inkey();
+			c = inkey();
+
+			/* Allow a redraw */
+			if (c == KTRL('R'))
+			{
+				/* Do the redraw */
+				do_cmd_redraw();
+
+				continue;
+			}
 
 			/* On a town?  -- MT */
 			if (w_ptr->place)
 			{
-				/* Accept '*' or a direction -- MT */
-				if (d == '*')
-				{
-					/* Display info for this town -- MT */
-					single_town_info(w_ptr->place);
-					continue;
-				}
+				/* Check if this is an info command */
+				if (do_cmd_view_map_aux(c, w_ptr->place)) continue;
 			}
-			
+
 			/* Done if not a direction */
-			d = get_keymap_dir(d);
+			d = get_keymap_dir(c);
+
 			if (!d) break;
 
 			x += ddx[d];
@@ -912,8 +1289,14 @@ void do_cmd_view_map(void)
 		}
 	}
 
-	/* Restore the screen */
-	screen_load();
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = hook;
+
+	/* The size may have changed during the scores display */
+	angband_term[0]->resize_hook();
+
+	/* Hack - Flush it */
+	Term_fresh();
 }
 
 
@@ -1358,12 +1741,12 @@ static int breath_gf[32] =
 {
 	GF_NONE,	/* RF3_SHRIEK */
 	GF_NONE,	/* RF3_ELDRITCH_HORROR */
-	GF_NONE,	/* RF3_XXX3X4 */
+	GF_NONE,	/* RF3_XXX3 */
 	GF_NONE,	/* RF3_ROCKET */
-	GF_NONE,	/* RF3_ARROW_1 */
-	GF_NONE,	/* RF3_ARROW_2 */
-	GF_NONE,	/* RF3_ARROW_3 */
-	GF_NONE,	/* RF3_ARROW_4 */
+	GF_NONE,	/* RF3_ARROW */
+	GF_NONE,	/* RF3_XXX6 */
+	GF_NONE,	/* RF3_XXX7 */
+	GF_NONE,	/* RF3_XXX8 */
 	GF_ACID,	/* RF3_BR_ACID */
 	GF_ELEC,	/* RF3_BR_ELEC */
 	GF_FIRE,	/* RF3_BR_FIRE */
@@ -2029,58 +2412,27 @@ void prt_map(void)
 
 	int wid, hgt;
 
-	/* Temp variables to speed up deletion loops */
-	s16b l1, l2, l3;
-
 	byte *pa;
 	char *pc;
 
 	byte *pta;
 	char *ptc;
-	
-	/* Get size */
-	Term_get_size(&wid, &hgt);
 
-	/* Remove map offset */
-	wid -= COL_MAP + 1;
-	hgt -= ROW_MAP + 1;
+	/* Get size */
+	get_map_size(&wid, &hgt);
 
 	/* Access the cursor state */
 	(void)Term_get_cursor(&v);
 
 	/* Hide the cursor */
 	(void)Term_set_cursor(0);
-
-
+	
 	/* Get bounds */
-	xmin = (p_ptr->min_wid < panel_col_min) ? panel_col_min : p_ptr->min_wid;
-	xmax = (p_ptr->max_wid - 1 > panel_col_max) ?
-		panel_col_max : p_ptr->max_wid - 1;
-	ymin = (p_ptr->min_hgt < panel_row_min) ? panel_row_min : p_ptr->min_hgt;
-	ymax = (p_ptr->max_hgt - 1 > panel_row_max) ?
-		panel_row_max : p_ptr->max_hgt - 1;
-
-	/* Top section of screen */
-    clear_region(COL_MAP, 1, ymin - panel_row_prt);
-
-	/* Bottom section of screen */
-    clear_region(COL_MAP, ymax - panel_row_prt, hgt);
-
-	/* Sides of screen */
-	/* Left side */
-	l1 = xmin - panel_col_min;
-
-	/* Right side */
-	l2 = xmax - panel_col_prt;
-	l3 = Term->wid - l2;
-
-	for (y = ymin - panel_row_prt; y <= ymax - panel_row_prt; y++)
-	{
-		/* Erase the sections */
-		Term_erase(COL_MAP, y, l1);
-		Term_erase(l2, y, l3);
-	}
-
+	xmin = p_ptr->panel_x1;
+	xmax = p_ptr->panel_x2 - 1;
+	ymin = p_ptr->panel_y1;
+	ymax = p_ptr->panel_y2 - 1;
+		
 	/* Pointers to current position in the string */
 	pa = mp_a;
 	pc = mp_c;
@@ -2091,11 +2443,29 @@ void prt_map(void)
 	/* Dump the map */
 	for (y = ymin; y <= ymax; y++)
 	{
+		/* Clear the arrays in case panel doesn't fill screen */
+		for (x = 0; x < wid; x++)
+		{
+			mp_a[x] = 0;
+			mp_c[x] = 0;
+			mp_ta[x] = 0;
+			mp_tc[x] = 0;
+		}
+		
 		/* Scan the columns of row "y" */
 		for (x = xmin; x <= xmax; x++)
 		{
-			/* Get map info */
-			map_info(x, y, pa++, pc++, pta++, ptc++);
+			if (in_bounds2(x, y))
+			{
+				/* Get map info */
+				map_info(x, y, pa, pc, pta, ptc);
+			}
+
+			/* Advance */
+			pa++;
+			pc++;
+			pta++;
+			ptc++;
 		}
 
 
@@ -2106,8 +2476,8 @@ void prt_map(void)
 		ptc = mp_tc;
 
 		/* Efficiency -- Redraw that row of the map */
-		Term_queue_line(xmin - panel_col_prt, y - panel_row_prt,
-						xmax - xmin + 1, pa, pc, pta, ptc);
+		Term_queue_line(COL_MAP, y - p_ptr->panel_y1 + ROW_MAP,
+						wid, pa, pc, pta, ptc);
 	}
 
 	/* Restore the cursor */
@@ -2368,12 +2738,19 @@ void display_map(int *cx, int *cy)
 	int hgt, wid, yrat, xrat, xfactor, yfactor;
 	
 	place_type *pl_ptr;
+	
+		
+	/* Hack - disable bigtile mode */
+	if (use_bigtile)
+	{
+		Term_bigregion(-1, -1, -1);
+	}
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
 	hgt -= 2;
-	wid -= 14;
-
+	wid -= 2;
+	
 	/* Paranoia */
 	if ((hgt < 3) || (wid < 3))
 	{
@@ -2442,7 +2819,7 @@ void display_map(int *cx, int *cy)
 
 		/* Player location in wilderness */
 		(*cy) += py / 16 - y + ROW_MAP;
-		(*cx) += px / 16 - x + COL_MAP;
+		(*cx) += px / 16 - x + 1;
 
 		/* Fill in the map */
 		for (i = 0; i < wid; ++i)
@@ -2603,7 +2980,7 @@ void display_map(int *cx, int *cy)
 
 		/* Player location in dungeon */
 		(*cy) = py * yfactor / yrat + ROW_MAP;
-		(*cx) = px * xfactor / xrat + COL_MAP;
+		(*cx) = px * xfactor / xrat + 1;
 
 		/* Fill in the map of dungeon */
 		for (i = p_ptr->min_wid; i < p_ptr->max_wid; ++i)
@@ -2674,7 +3051,7 @@ void display_map(int *cx, int *cy)
 			ttc = mtc[j][i];
 
 			/* Hack -- Queue it */
-			Term_queue_char(COL_MAP + i - 1, j, ta, tc, tta, ttc);
+			Term_queue_char(i, j, ta, tc, tta, ttc);
 		}
 	}
 
@@ -2722,12 +3099,53 @@ void lite_spot(int x, int y)
 		/* Redraw if on screen */
 		if (panel_contains(x, y))
 		{
+			/* Real coordinates convert to screen positions */
+			x -= p_ptr->panel_x1 - COL_MAP;
+			y -= p_ptr->panel_y1 - ROW_MAP;
+
 			/* Hack -- Queue it */
-			Term_queue_char(x - panel_col_prt, y - panel_row_prt, a, c, ta, tc);
+			Term_queue_char(x, y, a, c, ta, tc);
 		}
 	}
 }
 
+/*
+ * Moves the cursor to a given MAP (x, y) location
+ */
+void move_cursor_relative(int x, int y)
+{
+	/* Real coordinates convert to screen positions */
+	x -= p_ptr->panel_x1 - COL_MAP;
+	y -= p_ptr->panel_y1 - ROW_MAP;
+
+	/* Go there */
+	Term_gotoxy(x, y);
+}
+
+
+/*
+ * Place an attr/char pair at the given map coordinate, if legal.
+ */
+void print_rel(char c, byte a, int x, int y)
+{
+	/* Only do "legal" locations */
+	if (panel_contains(x, y))
+	{
+		/* Hack -- fake monochrome */
+		if (fake_monochrome)
+		{
+			if (p_ptr->tim.invuln || !use_color) a = TERM_WHITE;
+			else if (p_ptr->tim.wraith_form) a = TERM_L_DARK;
+		}
+
+		/* Real coordinates convert to screen positions */
+		x -= p_ptr->panel_x1 - COL_MAP;
+		y -= p_ptr->panel_y1 - ROW_MAP;
+
+		/* Draw the char using the attr */
+		Term_queue_char(x, y, a, c, a, c);
+	}
+}
 
 /*
  * The player has moved
@@ -3154,3 +3572,4 @@ void Term_write_list(s16b o_idx, byte list_type)
 }
 
 #endif /* TERM_USE_LIST */
+

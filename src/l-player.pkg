@@ -333,7 +333,9 @@ extern player_type *p_ptr @ player;
 
 /* Hack - options */
 extern bool ironman_nightmare;
-extern byte autosave_l;
+extern bool disturb_minor;
+
+extern const byte adj_str_wgt[40];
 
 /***** Functions *****/
 
@@ -393,4 +395,8 @@ extern bool lose_all_info(void);
 extern bool restore_level(void);
 extern bool player_res(u32b flag);
 extern void have_nightmare(void);
-extern void do_cmd_save_game(int is_autosave);
+extern void disturb(bool stop_search);
+extern void move_dun_level(int direction);
+extern int count_mutations(void);
+extern bool gain_mutation(int choose_mut);
+extern bool lose_mutation(int choose_mut);

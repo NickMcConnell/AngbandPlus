@@ -196,6 +196,7 @@ struct AngbandPart
 
 	/* Tiles */
 	XImage *tiles;
+	XImage *b_tiles;
 
 	/* Tempory storage for overlaying tiles. */
 	XImage *TmpImage;
@@ -206,6 +207,7 @@ struct AngbandPart
 	XFontStruct *fnt;
 	Dimension fontheight;
 	Dimension fontwidth;
+	Dimension tilewidth;
 	Dimension fontascent;
 
 	/* Color info for GC's */
@@ -353,7 +355,9 @@ AngbandClassRec angbandClassRec =
 	/* Simple class fields initialization */
 	{
 		/* change_sensitive     */      XtInheritChangeSensitive,
+#if XawVersion >= 7000000L
 		/* extension            */      NULL
+#endif /* XawVersion >= 7000000L */
 	},
 	/* Angband class fields initialization */
 	{
@@ -377,23 +381,59 @@ WidgetClass angbandWidgetClass = (WidgetClass) &angbandClassRec;
  * Public procedures
  */
 
+/*
+ * Find the square a particular pixel is part of.
+ */
+static void pixel_to_square(AngbandWidget widget, int *x, int *y, int ox, int oy)
+{
+	(*x) = (ox - widget->angband.internal_border) / widget->angband.fontwidth;
+	(*y) = (oy - widget->angband.internal_border) / widget->angband.fontheight;
+	
+	if ((use_bigtile) && ((*y) >= Term->scr->big_y1)
+		&& ((*y) <= Term->scr->big_y2)
+		&& ((*x) >= Term->scr->big_x1))
+	{
+		(*x) -= ((*x) - Term->scr->big_x1 + 1) / 2;
+	}
+}
+
+/*
+ * Find the pixel at the top-left corner of a square.
+ */
+static void square_to_pixel(AngbandWidget widget, int *x, int *y, int ox, int oy)
+{
+	(*y) = oy * widget->angband.fontheight + widget->angband.internal_border;
+	
+	if ((use_bigtile) && (oy >= Term->scr->big_y1)
+			&& (oy <= Term->scr->big_y2)
+			&& (ox > Term->scr->big_x1))
+	{
+		(*x) = ox * widget->angband.tilewidth + widget->angband.internal_border -
+				Term->scr->big_x1 * widget->angband.fontwidth;
+	}
+	else
+	{
+		(*x) = ox * widget->angband.fontwidth + widget->angband.internal_border;
+	}
+}
+
 
 /*
  * Clear an area
  */
-static void AngbandClearArea(AngbandWidget widget,
-                             int x, int y, int w, int h, int a)
+static void AngbandClearArea(AngbandWidget widget, int x, int y, int w)
 {
-	/* Figure out which area to clear */
-	y = y * widget->angband.fontheight + widget->angband.internal_border;
-	x = x * widget->angband.fontwidth + widget->angband.internal_border;
+	int x1, y1, x2, y2;
 
+	/*** Find the dimensions ***/
+	square_to_pixel(widget, &x1, &y1, x, y);
+	square_to_pixel(widget, &x2, &y2, x + w, y);
+	
 	/* Clear the area */
 	XFillRectangle(XtDisplay(widget), XtWindow(widget),
-	               widget->angband.gc[a],
-	               x, y,
-	               widget->angband.fontwidth * w,
-	               widget->angband.fontheight * h);
+					widget->angband.gc[0],
+					x1, y1,
+					x2 - x1, widget->angband.fontheight);
 }
 
 
@@ -401,9 +441,12 @@ static void AngbandClearArea(AngbandWidget widget,
 /*
  * Output some text
  */
-static void AngbandOutputText(AngbandWidget widget, int x, int y,
+static void AngbandOutputText(AngbandWidget widget, int cx, int cy,
                               String txt, int len, int a)
 {
+	int x, y;
+	int i;
+	
 	/* Do nothing if the string is null */
 	if (!txt || !*txt) return;
 
@@ -411,13 +454,41 @@ static void AngbandOutputText(AngbandWidget widget, int x, int y,
 	if (len < 0) len = strlen(txt);
 
 	/* Figure out where to place the text */
-	y = (y * widget->angband.fontheight + widget->angband.fontascent +
-	     widget->angband.internal_border);
-	x = (x * widget->angband.fontwidth + widget->angband.internal_border);
+	square_to_pixel(widget, &x, &y, cx, cy);
+	
+	/* Ignore Vertical Justifications */
+	y += widget->angband.fontascent;
+	
+	/* Monotize the font if required */
+	if (is_bigtiled(cx + len - 1, cy))
+	{
+		/* Do each character */
+		for (i = 0; i < len; ++i)
+		{
+			if (is_bigtiled(cx + i, cy))
+			{
+				/* Place a character */
+				XDrawImageString(XtDisplay(widget), XtWindow(widget),
+	                 			widget->angband.gc[a], x, y, txt, 1);
+				x += widget->angband.tilewidth;
+			}
+			else
+			{
+				/* Place a character */
+				XDrawImageString(XtDisplay(widget), XtWindow(widget),
+								widget->angband.gc[a], x, y, txt, 1);
+				x += widget->angband.fontwidth;
+			}
+		}
+	}
 
-	/* Place the string */
-	XDrawImageString(XtDisplay(widget), XtWindow(widget),
-	                 widget->angband.gc[a], x, y, txt, len);
+	/* Assume monoospaced font */
+	else
+	{
+		/* Place the string */
+		XDrawImageString(XtDisplay(widget), XtWindow(widget),
+	                 	widget->angband.gc[a], x, y, txt, len);
+	}
 }
 
 
@@ -426,79 +497,92 @@ static void AngbandOutputText(AngbandWidget widget, int x, int y,
 /*
  * Draw some graphical characters.
  */
-static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
- const byte *ap, const char *cp, const byte *tap, const char *tcp)
-
-
+static void AngbandOutputPict(AngbandWidget widget, int ox, int oy, int n,
+                              const byte *ap, const char *cp,
+                              const byte *tap, const char *tcp)
 {
 	int i, x1, y1;
 
 	byte a;
 	char c;
-
 	byte ta;
 	char tc;
-
+	
+	int x, y;
 	int x2, y2;
 	int k,l;
 
 	unsigned long pixel, blank;
 
-	/* Figure out where to place the text */
-	y = (y * widget->angband.fontheight + widget->angband.internal_border);
-	x = (x * widget->angband.fontwidth + widget->angband.internal_border);
+	int wid, hgt = widget->angband.fontheight;
+	XImage *tiles;
+
+	/* Starting point */
+	square_to_pixel(widget, &x, &y, ox, oy);
 
 	for (i = 0; i < n; ++i)
 	{
 		a = *ap++;
 		c = *cp++;
 
-		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * widget->angband.fontwidth;
-		y1 = (a&0x7F) * widget->angband.fontheight;
-
 		ta = *tap++;
 		tc = *tcp++;
-
-		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * widget->angband.fontwidth;
-		y2 = (ta&0x7F) * widget->angband.fontheight;
-
-		/* Optimise the common case */
-		if ((x1 == x2) && (y1 == y2))
+		
+		if (is_bigtiled(ox + i, oy))
 		{
-			/* Draw object / terrain */
-			XPutImage(XtDisplay(widget), XtWindow(widget),
-		  	        widget->angband.gc[0],
-		    	      widget->angband.tiles,
-		    	      x1, y1,
-		    	      x, y,
-		    	      widget->angband.fontwidth,
-		 	      widget->angband.fontheight);
+			tiles = widget->angband.b_tiles;
+			wid = widget->angband.tilewidth;
 		}
 		else
 		{
-			/* Mega Hack^2 - assume the top left corner is "black" */
-			blank = XGetPixel(widget->angband.tiles,
-				 0, widget->angband.fontheight * 6);
+			tiles = widget->angband.tiles;
+			wid = widget->angband.fontwidth;
+		}
 
-			for (k = 0; k < widget->angband.fontwidth; k++)
+		/* For extra speed - cache these values */
+		x1 = (c & 0x7F) * wid;
+		y1 = (a & 0x7F) * hgt;
+
+		/* For extra speed - cache these values */
+		x2 = (tc & 0x7F) * wid;
+		y2 = (ta & 0x7F) * hgt;
+
+		/* Optimise the common case */
+		if (((x1 == x2) && (y1 == y2)) ||
+		    !(((byte)ta & 0x80) && ((byte)tc & 0x80)))
+		{
+			/* Draw object / terrain */
+			XPutImage(XtDisplay(widget), XtWindow(widget),
+			          widget->angband.gc[0],
+			          tiles,
+			          x1, y1,
+			          x, y,
+			          wid, hgt);
+		}
+		else
+		{
+			/* Mega Hack^2 - assume the top left corner is "blank" */
+			if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+				blank = XGetPixel(tiles, 0, 0);
+			else
+				blank = XGetPixel(tiles, 0, hgt * 6);
+
+			for (k = 0; k < wid; k++)
 			{
-				for (l = 0; l < widget->angband.fontheight; l++)
+				for (l = 0; l < hgt; l++)
 				{
 					/* If mask set... */
-					if ((pixel = XGetPixel(widget->angband.tiles,
-						 x1 + k, y1 + l)) == blank)
+					if ((pixel = XGetPixel(tiles, x1 + k, y1 + l)) == blank)
 					{
-
 						/* Output from the terrain */
-						pixel = XGetPixel(widget->angband.tiles,
-							 x2 + k, y2 + l);
+						pixel = XGetPixel(tiles, x2 + k, y2 + l);
+
+						if (pixel == blank)
+							pixel = 0L;
 					}
 
 					/* Store into the temp storage. */
-					XPutPixel(widget->angband.TmpImage,
-						 k, l, pixel);
+					XPutPixel(widget->angband.TmpImage, k, l, pixel);
 				}
 			}
 
@@ -511,11 +595,10 @@ static void AngbandOutputPict(AngbandWidget widget, int x, int y, int n,
 			          widget->angband.TmpImage,
 			          0, 0,
 			          x, y,
-			          widget->angband.fontwidth,
-			          widget->angband.fontheight);
+			          wid, hgt);
 		}
 
-		x += widget->angband.fontwidth;
+		x += wid;
 	}
 }
 
@@ -568,6 +651,14 @@ static void Initialize(AngbandWidget request, AngbandWidget wnew)
 		wnew->angband.fnt->descent;
 	wnew->angband.fontwidth = wnew->angband.fnt->max_bounds.width;
 	wnew->angband.fontascent = wnew->angband.fnt->ascent;
+	
+	if (use_bigtile)
+		wnew->angband.tilewidth = 2 * wnew->angband.fontwidth;
+	else
+		wnew->angband.tilewidth = wnew->angband.fontwidth;
+
+	wnew->angband.fontascent = wnew->angband.fnt->ascent;
+
 
 	/* Create and initialize the graphics contexts */ /* GXset? */
 	gcv.font = wnew->angband.fnt->fid;
@@ -739,20 +830,9 @@ static void Redisplay(AngbandWidget wnew, XEvent *xev, Region region)
 	Term_activate(&td->t);
 
 	/* Find the bounds of the exposed region */
-
-	/*
-	 * This probably could be obtained from the Region parameter -
-	 * but I don't know anything about XAW.
-	 */
-	x1 = (xev->xexpose.x - wnew->angband.internal_border)
-		/wnew->angband.fontwidth;
-	x2 = (xev->xexpose.x + xev->xexpose.width -
-		wnew->angband.internal_border)/wnew->angband.fontwidth;
-
-	y1 = (xev->xexpose.y - wnew->angband.internal_border)
-		/wnew->angband.fontheight;
-	y2 = (xev->xexpose.y + xev->xexpose.height -
-		wnew->angband.internal_border)/wnew->angband.fontheight;
+	pixel_to_square(wnew, &x1, &y1, xev->xexpose.x, xev->xexpose.y);
+	pixel_to_square(wnew, &x2, &y2, xev->xexpose.x + xev->xexpose.width,
+						xev->xexpose.y + xev->xexpose.height);
 
 	Term_redraw_section(x1, y1, x2, y2);
 
@@ -940,7 +1020,7 @@ static XFontStruct *getFont(AngbandWidget widget,
 
 	if (!(fnt = XLoadQueryFont(dpy, font)) && fallback)
 	{
-		strnfmt(buf, 256, "Can't find the font \"%s\", trying fixed\n", font);
+		strnfmt(buf, sizeof(buf), "Can't find the font \"%s\", trying fixed\n", font);
 		XtWarning(buf);
 		if (!(fnt = XLoadQueryFont(dpy, "fixed")))
 		{
@@ -1151,7 +1231,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the KeySym */
 	if (ks)
 	{
-		strnfmt(msg, 128, "%c%s%s%s%s_%lX%c", 31,
+		strnfmt(msg, sizeof(msg), "%c%s%s%s%s_%lX%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        (unsigned long)(ks), 13);
@@ -1160,7 +1240,7 @@ static void react_keypress(XKeyEvent *ev)
 	/* Hack -- Use the Keycode */
 	else
 	{
-		strnfmt(msg, 128, "%c%s%s%s%sK_%X%c", 31,
+		strnfmt(msg, sizeof(msg), "%c%s%s%s%sK_%X%c", 31,
 		        mc ? "N" : "", ms ? "S" : "",
 		        mo ? "O" : "", mx ? "M" : "",
 		        ev->keycode, 13);
@@ -1355,11 +1435,6 @@ static errr Term_xtra_xaw(int n, int v)
 		while (!CheckEvent(FALSE));
 		return (0);
 
-		/* Clear the window */
-		case TERM_XTRA_CLEAR:
-		XClearWindow(dpy, XtWindow(widget));
-		return (0);
-
 		/* Delay */
 		case TERM_XTRA_DELAY:
 		if (v > 0) usleep(1000 * v);
@@ -1383,7 +1458,7 @@ static errr Term_wipe_xaw(int x, int y, int n)
 	term_data *td = (term_data*)(Term->data);
 	
 	/* Erase using color 0 */
-	AngbandClearArea(td->widget, x, y, n, 1, 0);
+	AngbandClearArea(td->widget, x, y, n);
 
 	/* Success */
 	return (0);
@@ -1392,22 +1467,34 @@ static errr Term_wipe_xaw(int x, int y, int n)
 
 
 /*
- * Draw the cursor, by hiliting with XOR
- *
- * Should perhaps use rectangle outline, ala "main-mac.c".  XXX XXX XXX
+ * Draw the cursor, a rectangular outline
  */
 static errr Term_curs_xaw(int x, int y)
 {
 	term_data *td = (term_data*)(Term->data);
 	
+	int x1, y1;
+	
+	/* Top left hand corner of cursor */
+	square_to_pixel(td->widget, &x1, &y1, x, y);
+	
 	/* Hilite the cursor character with a box */
-	XDrawRectangle(XtDisplay(td->widget), XtWindow(td->widget),
-		td->widget->angband.gc[COLOR_XOR],
-		x * td->widget->angband.fontwidth + 
-			td->widget->angband.internal_border,
-		y * td->widget->angband.fontheight +
-			td->widget->angband.internal_border,
-		td->widget->angband.fontwidth - 1, td->widget->angband.fontheight - 1);
+	if (is_bigtiled(x, y))
+	{
+		XDrawRectangle(XtDisplay(td->widget), XtWindow(td->widget),
+						td->widget->angband.gc[COLOR_XOR],
+						x1, y1,
+						td->widget->angband.tilewidth - 1,
+						td->widget->angband.fontheight - 1);
+	}
+	else
+	{
+		XDrawRectangle(XtDisplay(td->widget), XtWindow(td->widget),
+						td->widget->angband.gc[COLOR_XOR],
+						x1, y1,
+						td->widget->angband.fontwidth - 1,
+						td->widget->angband.fontheight - 1);
+	}
 
 	/* Success */
 	return (0);
@@ -1420,6 +1507,9 @@ static errr Term_curs_xaw(int x, int y)
 static errr Term_text_xaw(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data*)(Term->data);
+	
+	/* Wipe region first */
+	Term_wipe_xaw(x, y, n);
 
 	/* Draw the text */
 	AngbandOutputText(td->widget, x, y, (String)s, n, a);
@@ -1483,13 +1573,13 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	                            NULL, 0);
 
 	/* Window specific cols */
-	strnfmt(buf, 80, "ANGBAND_X11_COLS_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_COLS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) cols = val;
 
 	/* Window specific rows */
-	strnfmt(buf, 80, "ANGBAND_X11_ROWS_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_ROWS_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) rows = val;
@@ -1508,13 +1598,13 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	/* Hack  ox==oy in xaw port */ 
 	
 	/* Window specific inner border offset (ox) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOX_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_IBOX_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) widget_arg[6].value = val;
 
 	/* Window specific inner border offset (oy) */
-	strnfmt(buf, 80, "ANGBAND_X11_IBOY_%d", i);
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_IBOY_%d", i);
 	str = getenv(buf);
 	val = (str != NULL) ? atoi(str) : -1;
 	if (val > 0) widget_arg[6].value = val;
@@ -1530,8 +1620,8 @@ static errr term_data_init(term_data *td, Widget topLevel,
 	/* Use a "soft" cursor */
 	t->soft_cursor = TRUE;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
+	/* Erase with "black space" */
+	t->attr_blank = TERM_DARK;
 	t->char_blank = ' ';
 
 	/* Hooks */
@@ -1577,6 +1667,12 @@ static errr term_data_init(term_data *td, Widget topLevel,
 			/* Update font information */
 			td->widget->angband.fontheight = fnt->ascent + fnt->descent;
 			td->widget->angband.fontwidth = fnt->max_bounds.width;
+			
+			if (use_bigtile)
+				td->widget->angband.tilewidth = 2 * td->widget->angband.fontwidth;
+			else
+				td->widget->angband.tilewidth = td->widget->angband.fontwidth;
+			
 			td->widget->angband.fontascent = fnt->ascent;
 				
 			for (i = 0; i < NUM_COLORS; i++)
@@ -1672,6 +1768,7 @@ errr init_xaw(int argc, char *argv[])
 			bitdepth = atoi(&argv[i][2]);
 			
 			/* Paranoia */
+			if (bitdepth == 32) graphmode = GRAPHICS_DAVID_GERVAIS;
 			if (bitdepth == 16) graphmode = GRAPHICS_ADAM_BOLT;
 			if (bitdepth == 8) graphmode = GRAPHICS_ORIGINAL;
 			
@@ -1700,6 +1797,10 @@ errr init_xaw(int argc, char *argv[])
 	/* Close the local display */
 	XCloseDisplay(dpy);
 
+#ifdef USE_GRAPHICS
+	/* We support bigtile mode */
+	if (arg_bigtile && arg_graphics) use_bigtile = TRUE;
+#endif /* USE_GRAPHICS */
 
 #ifdef USE_XAW_LANG
 
@@ -1726,11 +1827,7 @@ errr init_xaw(int argc, char *argv[])
 		angband_term[i] = Term;
 	}	
 
-	/* Activate the "Angband" window screen */
-	Term_activate(&data[0].t);
-
-	/* Raise the "Angband" window */
-	term_raise(&data[0]);
+	
 
 
 #ifdef USE_GRAPHICS
@@ -1750,30 +1847,73 @@ errr init_xaw(int argc, char *argv[])
 		Display *dpy = XtDisplay(widget);
 
 		XImage *tiles_raw;
-
-		/* Load the graphical tiles */
-		tiles_raw = ReadBMP(dpy, filename);
-
-		/* Initialize the windows */
+		
 		for (i = 0; i < num_term; i++)
 		{
 			term_data *td = &data[i];
-
-			term *t = &td->t;
-
-			t->pict_hook = Term_pict_xaw;
-
-			t->higher_pict = TRUE;
-
-			/* Resize tiles */
-			td->widget->angband.tiles =
-			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->widget->angband.fontwidth,
-			            td->widget->angband.fontheight);
+			td->widget->angband.tiles = NULL;
 		}
 
-		/* Initialize the transparency temp storage*/
+		/* Load the graphical tiles */
+		tiles_raw = ReadBMP(dpy, filename);
+		
+		if (tiles_raw)
+		{
+			/* Initialize the windows */
+			for (i = 0; i < num_term; i++)
+			{
+				int j;
+
+				term_data *td = &data[i];
+				term_data *o_td = NULL;
+
+				term *t = &td->t;
+
+				t->pict_hook = Term_pict_xaw;
+
+				t->higher_pict = TRUE;
+
+				/* Look for another term with same font size */
+				for (j = 0; j < i; j++)
+				{
+					o_td = &data[j];
+
+					if ((td->widget->angband.fontwidth == o_td->widget->angband.fontwidth) &&
+					    (td->widget->angband.fontheight == o_td->widget->angband.fontheight))
+					{
+						/* Use same graphics */
+						td->widget->angband.tiles = o_td->widget->angband.tiles;
+						td->widget->angband.b_tiles = o_td->widget->angband.b_tiles;
+						break;
+					}
+				}
+
+				if (!td->widget->angband.tiles)
+				{
+					/* Resize tiles */
+					if (arg_bigtile)
+					{
+						td->widget->angband.b_tiles = ResizeImage(dpy, tiles_raw,
+													pict_wid, pict_hgt,
+													td->widget->angband.tilewidth,
+													td->widget->angband.fontheight);
+					}
+					else
+					{
+						td->widget->angband.b_tiles = NULL;
+					}
+					td->widget->angband.tiles = ResizeImage(dpy, tiles_raw,
+					                                        pict_wid, pict_hgt,
+					                                        td->widget->angband.fontwidth,
+					                                        td->widget->angband.fontheight);
+				}
+			}
+
+			/* Free tiles_raw */
+			FREE(tiles_raw);
+		}
+
+		/* Initialize the transparency temp storage */
 		for (i = 0; i < num_term; i++)
 		{
 			term_data *td = &data[i];
@@ -1787,7 +1927,7 @@ errr init_xaw(int argc, char *argv[])
 			ii = 1;
 			jj = (depth - 1) >> 2;
 			while (jj >>= 1) ii <<= 1;
-			total = td->widget->angband.fontwidth *
+			total = td->widget->angband.tilewidth *
 				 td->widget->angband.fontheight * ii;
 
 
@@ -1796,15 +1936,19 @@ errr init_xaw(int argc, char *argv[])
 			td->widget->angband.TmpImage = XCreateImage(dpy,
 				visual,depth,
 				ZPixmap, 0, TmpData,
-				td->widget->angband.fontwidth,
+				td->widget->angband.tilewidth,
 			        td->widget->angband.fontheight, 8, 0);
 
 		}
-
-		/* Free tiles_raw? XXX XXX */
 	}
 
 #endif /* USE_GRAPHICS */
+
+	/* Activate the "Angband" window screen */
+	Term_activate(&data[0].t);
+
+	/* Raise the "Angband" window */
+	term_raise(&data[0]);
 
 	/* Success */
 	return (0);

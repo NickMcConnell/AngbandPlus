@@ -4,7 +4,7 @@ subdir = ./lib/script/
 
 srcfiles += lib/script/makefile.zb
 files += lib/script/init.lua lib/script/object.lua lib/script/spell.lua \
-		 lib/script/test.lua
+		 lib/script/test.lua lib/script/field.lua
 
 dirs := tk
 

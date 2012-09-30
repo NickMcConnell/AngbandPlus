@@ -333,9 +333,13 @@ static void rd_item(object_type *o_ptr)
 	object_kind *k_ptr;
 
 	char buf[1024];
+	int i;
 	
 	/* Old flags from pre [Z] 2.5.3 */
 	byte name1, name2, xtra1, xtra2;
+
+	/* Number of object flags */
+	byte n_flags;
 
 
 	/* Kind */
@@ -396,14 +400,23 @@ static void rd_item(object_type *o_ptr)
 		if (tmpbyte) o_ptr->info |= OB_SEEN;
 	}
 
-	/* Old flags */
-	rd_u32b(&o_ptr->flags[0]);
-	rd_u32b(&o_ptr->flags[1]);
-	rd_u32b(&o_ptr->flags[2]);
+	/* Number of object flags */
 	if (sf_version < 41)
-		o_ptr->flags[3] = 0;
+		n_flags = 3;
+	else if (sf_version < 50)
+		n_flags = 4;
 	else
-		rd_u32b(&o_ptr->flags[3]);
+	{
+		rd_byte(&n_flags);
+		if (n_flags > NUM_TR_SETS)
+			abort();
+	}
+	
+	/* Object flags */
+	for (i = 0; i < n_flags; i++)
+		rd_u32b(&o_ptr->flags[i]);
+	for (i = n_flags; i < NUM_TR_SETS; i++)
+		o_ptr->flags[i] = 0;
 
 	/* Lites changed in [Z] 2.6.0 */
 	if ((sf_version < 25) && (o_ptr->tval == TV_LITE))
@@ -546,13 +559,10 @@ static void rd_item(object_type *o_ptr)
 
 		rd_byte(&o_ptr->a_idx);
 
-		rd_u32b(&o_ptr->kn_flags[0]);
-		rd_u32b(&o_ptr->kn_flags[1]);
-		rd_u32b(&o_ptr->kn_flags[2]);
-		if (sf_version < 41)
-			o_ptr->kn_flags[3] = 0;
-		else
-			rd_u32b(&o_ptr->kn_flags[3]);
+		for (i = 0; i < n_flags; i++)
+			rd_u32b(&o_ptr->kn_flags[i]);
+		for (i = n_flags; i < NUM_TR_SETS; i++)
+			o_ptr->kn_flags[i] = 0;
 
 		if (o_ptr->a_idx && sf_version < 46)
 		{
@@ -625,10 +635,8 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->a_idx = 0;
 
 		/* Reset flags */
-		o_ptr->flags[0] = k_ptr->flags[0];
-		o_ptr->flags[1] = k_ptr->flags[1];
-		o_ptr->flags[2] = k_ptr->flags[2];
-		o_ptr->flags[3] = k_ptr->flags[3];
+		for (i = 0; i < NUM_TR_SETS; i++)
+			o_ptr->flags[i] = k_ptr->flags[i];
 
 		/* All done */
 		return;
@@ -689,10 +697,8 @@ static void rd_item(object_type *o_ptr)
 			o_ptr->weight = a_ptr->weight;
 
 			/* Save the artifact flags */
-			o_ptr->flags[0] |= a_ptr->flags[0];
-			o_ptr->flags[1] |= a_ptr->flags[1];
-			o_ptr->flags[2] |= a_ptr->flags[2];
-			o_ptr->flags[3] |= a_ptr->flags[3];
+			for (i = 0; i < NUM_TR_SETS; i++)
+				o_ptr->flags[i] |= a_ptr->flags[i];
 
 			/* Mega-Hack -- set activation */
 			o_ptr->a_idx = name1;
@@ -738,10 +744,8 @@ static void rd_item(object_type *o_ptr)
 		/* Identification status */
 		if (o_ptr->info & (OB_MENTAL))
 		{
-			o_ptr->kn_flags[0] = o_ptr->flags[0];
-			o_ptr->kn_flags[1] = o_ptr->flags[1];
-			o_ptr->kn_flags[2] = o_ptr->flags[2];
-			o_ptr->kn_flags[3] = o_ptr->flags[3];
+			for (i = 0; i < NUM_TR_SETS; i++)
+				o_ptr->kn_flags[i] = o_ptr->flags[i];
 		}
 	}
 
@@ -923,6 +927,7 @@ static void rd_lore(int r_idx)
 		rd_u32b(&r_ptr->r_flags[3]);
 		rd_u32b(&r_ptr->r_flags[4]);
 		rd_u32b(&r_ptr->r_flags[5]);
+		if (sf_version > 51) rd_u32b(&r_ptr->r_flags[6]);
 
 
 		/* Read the "Racial" monster limit per level */
@@ -957,7 +962,11 @@ static void rd_store(int town_num, int store_num)
 
 	s16b data;
 
-	byte allocated, owner, type = 0;
+	byte allocated, type = 0, owner = 0;
+	s16b max_cost;
+	byte greed;
+
+	char buf[256];
 
 	/* Read the basic info */
 	if (sf_version < 34)
@@ -966,7 +975,18 @@ static void rd_store(int town_num, int store_num)
 	}
 
 	rd_s16b(&data);
-	rd_byte(&owner);
+	if (sf_version < 49)
+	{
+		rd_byte(&owner);
+	}
+	else
+	{
+		rd_string(buf, 256);
+		st_ptr->owner_name = quark_add(buf);
+		rd_s16b(&max_cost);
+		rd_byte(&greed);
+	}
+	
 	rd_byte(&allocated);
 
 	if (sf_version < 34)
@@ -986,11 +1006,17 @@ static void rd_store(int town_num, int store_num)
 
 	/* Hack - Initialise the store (even if not really a store) */
 	store_init(town_num, store_num, type);
-
+	
+	/* Finish initialisation */
+	if (sf_version >= 49)
+	{
+		st_ptr->owner_name = quark_add(buf);
+		st_ptr->max_cost = max_cost;
+		st_ptr->greed = greed;
+	}
 
 	/* Restore the saved parameters */
 	st_ptr->data = data;
-	st_ptr->owner = owner;
 
 	/* Read last visit */
 	rd_s32b(&st_ptr->last_visit);
@@ -2157,8 +2183,18 @@ static errr rd_dungeon(void)
 	rd_s16b(&px);
 	rd_s16b(&cur_hgt);
 	rd_s16b(&cur_wid);
-	rd_s16b(&max_panel_rows);
-	rd_s16b(&max_panel_cols);
+	
+	/* Old panel rows and columns */
+	strip_bytes(4);
+	
+	/* New panel bounds */
+	if (sf_version > 50)
+	{
+		rd_s16b(&p_ptr->panel_x1);
+		rd_s16b(&p_ptr->panel_y1);
+		rd_s16b(&p_ptr->panel_x2);
+		rd_s16b(&p_ptr->panel_y2);
+	}
 
 	/* The player may not be in the dungeon */
 	character_dungeon = FALSE;
@@ -2168,16 +2204,6 @@ static errr rd_dungeon(void)
 	p_ptr->min_hgt = 0;
 	p_ptr->max_wid = cur_wid;
 	p_ptr->min_wid = 0;
-
-	if (sf_version < 12)
-	{
-		max_panel_cols = max_panel_cols * (wid - COL_MAP - 1) / 2;
-		max_panel_rows = max_panel_rows * (hgt - ROW_MAP - 1) / 2;
-
-		/* Reset the panel */
-		panel_row_min = max_panel_rows;
-		panel_col_min = max_panel_cols;
-	}
 
 	if (sf_version < 7)
 	{
@@ -2813,10 +2839,8 @@ static errr rd_savefile_new_aux(void)
 	u16b tmp16u;
 	u32b tmp32u;
 
-#ifdef VERIFY_CHECKSUMS
 	u32b n_x_check, n_v_check;
 	u32b o_x_check, o_v_check;
-#endif
 
 	u16b max_towns_load;
 	u16b max_quests_load;
@@ -2871,10 +2895,6 @@ static errr rd_savefile_new_aux(void)
 	/* Then the options */
 	rd_options();
 	if (arg_fiddle) note("Loaded Option Flags");
-
-	/* Switch streams on for old savefiles */
-	if (z_older_than(2, 2, 7))
-		terrain_streams = TRUE;
 
 	/*
 	 * Munchkin players are marked
@@ -3155,7 +3175,7 @@ static errr rd_savefile_new_aux(void)
 
 		for (i = 1; i < place_count; i++)
 		{
-			place[i].numstores = tmp16u;
+			place[i].numstores = (byte) tmp16u;
 
 			/* Allocate the stores */
 			C_MAKE(place[i].store, place[i].numstores, store_type);
@@ -3321,7 +3341,7 @@ static errr rd_savefile_new_aux(void)
 						else
 						{
 							/* Hack - use old one-dungeon depth */
-							dun_ptr->recall_depth = p_ptr->depth;
+							dun_ptr->recall_depth = (byte) p_ptr->depth;
 							
 							/* Make sure the value is in bounds */
 							if (dun_ptr->recall_depth < dun_ptr->min_level)
@@ -3397,8 +3417,6 @@ static errr rd_savefile_new_aux(void)
 	}
 
 
-#ifdef VERIFY_CHECKSUMS
-
 	/* Save the checksum */
 	n_v_check = v_check;
 
@@ -3426,8 +3444,6 @@ static errr rd_savefile_new_aux(void)
 		note("Invalid encoded checksum");
 		return (11);
 	}
-
-#endif
 
 	/* Success */
 	return (0);

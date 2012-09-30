@@ -279,12 +279,6 @@ static errr Term_xtra_sla(int n, int v)
 		case TERM_XTRA_ALIVE:
 		return (Term_xtra_sla_alive(v));
 
-		/* Clear the screen */
-		case TERM_XTRA_CLEAR:
-		(void)SLsmg_cls();
-		SLsmg_gotorc(0, 0);
-		return (0);
-
 		/* Delay */
 		case TERM_XTRA_DELAY:
 		if (v > 0) usleep(1000 * v);

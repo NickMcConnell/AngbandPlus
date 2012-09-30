@@ -122,10 +122,10 @@ typedef int errr;
 #define RF3_ELDRITCH_HORROR 0x00000002  /* Sanity-blasting horror */
 #define RF3_XXX3            0x00000004  /* (?) */
 #define RF3_ROCKET          0x00000008  /* TY: Rocket */
-#define RF3_ARROW_1         0x00000010  /* Fire an arrow (light) */
-#define RF3_ARROW_2         0x00000020  /* Fire an arrow (heavy) */
-#define RF3_ARROW_3         0x00000040  /* Fire missiles (light) */
-#define RF3_ARROW_4         0x00000080  /* Fire missiles (heavy) */
+#define RF3_ARROW           0x00000010  /* Fire an arrow */
+#define RF3_XXX6            0x00000020  /* (?) */
+#define RF3_XXX7            0x00000040  /* (?) */
+#define RF3_XXX8            0x00000080  /* (?) */
 #define RF3_BR_ACID         0x00000100  /* Breathe Acid */
 #define RF3_BR_ELEC         0x00000200  /* Breathe Elec */
 #define RF3_BR_FIRE         0x00000400  /* Breathe Fire */
@@ -284,9 +284,33 @@ typedef int errr;
 #define SUMMON_BLUE_HORROR          49
 
 
+/***** Types *****/
+
+struct monster_race
+{
+	u32b flags[9];	/* Flags 1 (general) */
+			/* Flags 2 (abilities) */
+			/* Flags 3 (race/resist) */
+			/* Flags 4 (inate/breath) */
+			/* Flags 5 (normal spells) */
+			/* Flags 6 (special spells) */
+			/* Flags 7 (movement related abilities) */
+			/* Flags 8 (wilderness info) */
+			/* Flags 9 (drops info) */
+
+	char d_char;	/* Default monster character */
+	
+	byte level;	/* Level of creature */
+};
+
+
+monster_race *r_info;
+
 /***** Functions *****/
 
 /* monster2.c */
-extern bool summon_specific(int who, int x1, int y1, int lev, int type, bool group, bool friendly, bool pet);
-
-
+extern void summon_specific(int who, int x1, int y1, int lev, int type, bool group, bool friendly, bool pet);
+extern void summon_cloned_creature(int x1, int y1, int r_idx, bool pet);
+extern monster_race *monst_race(int r_idx);
+extern cptr *mon_race_name(monster_race *r_ptr);
+extern bool monster_can_open(monster_race *r_ptr, int power);

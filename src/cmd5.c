@@ -252,7 +252,7 @@ void do_cmd_browse(void)
 
 	/* Restrict choices to books */
 	item_tester_hook = item_tester_hook_is_book;
-
+	
 	/* Get an item */
 	q = "Browse which book? ";
 	s = "You have no books that you can read.";
@@ -621,7 +621,7 @@ static bool cast_life_spell(int spell)
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 			break;
 		case 5:				/* Detect Traps + Secret Doors */
-			(void)detect_traps();
+			(void)detect_traps(TRUE);
 			(void)detect_doors();
 			(void)detect_stairs();
 			break;
@@ -777,7 +777,7 @@ static bool cast_sorcery_spell(int spell)
 			teleport_player(10);
 			break;
 		case 2:				/* Detect Doors and Traps */
-			(void)detect_traps();
+			(void)detect_traps(TRUE);
 			(void)detect_doors();
 			(void)detect_stairs();
 			break;
@@ -918,7 +918,7 @@ static bool cast_nature_spell(int spell)
 			(void)inc_cut(-15);
 			break;
 		case 2:				/* Detect Doors + Traps */
-			(void)detect_traps();
+			(void)detect_traps(TRUE);
 			(void)detect_doors();
 			(void)detect_stairs();
 			break;
@@ -962,7 +962,7 @@ static bool cast_nature_spell(int spell)
 			break;
 		case 10:				/* Nature Awareness -- downgraded */
 			map_area();
-			(void)detect_traps();
+			(void)detect_traps(TRUE);
 			(void)detect_doors();
 			(void)detect_stairs();
 			(void)detect_monsters_normal();
@@ -975,7 +975,7 @@ static bool cast_nature_spell(int spell)
 		case 12:				/* Ray of Sunlight */
 			if (!get_aim_dir(&dir)) return FALSE;
 			msgf("A line of sunlight appears.");
-			(void)lite_line(dir);
+			(void)lite_line(dir, damroll(6, 8));
 			break;
 		case 13:				/* Entangle */
 			(void)slow_monsters();
@@ -1162,7 +1162,7 @@ static bool cast_chaos_spell(int spell)
 			else if (die < 41) (void)confuse_monster(dir, plev);
 			else if (die < 46) (void)fire_ball(GF_POIS, dir, 20 + (plev / 2),
 											   3);
-			else if (die < 51) (void)lite_line(dir);
+			else if (die < 51) (void)lite_line(dir, damroll(6, 8));
 			else if (die < 56)
 				(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
 										damroll(3 + ((plev - 5) / 4), 8));
@@ -1538,7 +1538,7 @@ static bool cast_death_spell(int spell)
 			}
 			else if (die < 51)
 			{
-				(void)lite_line(dir);
+				(void)lite_line(dir, damroll(6, 8));
 			}
 			else if (die < 56)
 			{
@@ -1983,19 +1983,20 @@ static bool cast_trump_spell(int spell, bool success)
 				dun_type *d_ptr = dungeon();
 				
 				s16b max_depth = MAX(p_ptr->depth, d_ptr->recall_depth);
+				s16b min_depth = d_ptr->min_level;
 			
 				/* Default */
-				strnfmt(tmp_val, 160, "%d", MAX(max_depth, 1));
+				strnfmt(tmp_val, 160, "%d", MAX(max_depth, min_depth));
 
 				/* Ask for a level */
-				if (get_string(tmp_val, 11, "Reset to which level (1-%d): ",
-								 max_depth))
+				if (get_string(tmp_val, 11, "Reset to which level (%d-%d): ",
+								 min_depth, max_depth))
 				{
 					/* Extract request */
 					dummy = atoi(tmp_val);
 
 					/* Paranoia */
-					if (dummy < 1) dummy = 1;
+					if (dummy < min_depth) dummy = min_depth;
 
 					/* Paranoia */
 					if (dummy > max_depth) dummy = max_depth;
@@ -2502,7 +2503,7 @@ static bool cast_arcane_spell(int spell)
 			(void)inc_cut(-10);
 			break;
 		case 8:				/* Detect Doors & Traps */
-			(void)detect_traps();
+			(void)detect_traps(TRUE);
 			(void)detect_doors();
 			(void)detect_stairs();
 			break;
@@ -2550,7 +2551,7 @@ static bool cast_arcane_spell(int spell)
 			if (!get_aim_dir(&dir)) return FALSE;
 
 			msgf("A line of light appears.");
-			(void)lite_line(dir);
+			(void)lite_line(dir, damroll(6, 8));
 			break;
 		case 22:				/* Satisfy Hunger */
 			(void)set_food(PY_FOOD_MAX - 1);
@@ -2742,7 +2743,7 @@ void do_cmd_cast(void)
 				msgf("Your sanity is shaken by reading the Necronomicon!");
 
 				/* Mind blast */
-				if (!saving_throw(p_ptr->skills[SKILL_SAV]))
+				if (!player_save(100))
 				{
 					if (!(FLAG(p_ptr, TR_RES_CONF)))
 					{
@@ -2755,7 +2756,7 @@ void do_cmd_cast(void)
 				}
 
 				/* Lose int & wis */
-				else if (!saving_throw(p_ptr->skills[SKILL_SAV]))
+				else if (!player_save(100))
 				{
 					(void)do_dec_stat(A_INT);
 					(void)do_dec_stat(A_WIS);
@@ -2820,7 +2821,9 @@ void do_cmd_cast(void)
 		/* A spell was cast */
 		if (!(p_ptr->spell.r[increment / 32].worked & (1L << spell)))
 		{
-			int e = s_ptr->sexp;
+			/* Experience: 5, 20, 45, or 80 * spell level */
+			int book = 1 + (spell / 8);
+			int exp = 5 * book * book * s_ptr->slevel;
 
 			/* The spell worked */
 			if (realm == p_ptr->spell.r[0].realm)
@@ -2833,7 +2836,7 @@ void do_cmd_cast(void)
 			}
 
 			/* Gain experience */
-			gain_exp(e * s_ptr->slevel);
+			gain_exp(exp);
 
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
 				chg_virtue(V_FAITH, 1);

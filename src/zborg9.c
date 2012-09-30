@@ -1,4 +1,4 @@
-/* File: borg9.c */
+/* File: zborg9.c */
 
 /* Purpose: Highest level functions for the Borg -BEN- */
 #include "angband.h"
@@ -14,8 +14,6 @@
 #include "zborg7.h"
 #include "zborg8.h"
 #include "zborg9.h"
-
-bool borg_cheat_death;
 
 /*
  * This file implements the "APWBorg", an "Automatic Angband Player".
@@ -286,9 +284,8 @@ bool borg_cheat_death;
  * Some variables
  */
 
-static bool initialized;	/* Hack -- Initialized */
-
-
+/* Is the borg initialized yet? */
+static bool initialized;
 
 /*
  * Mega-Hack -- extract some "hidden" variables
@@ -354,11 +351,8 @@ static void borg_hidden(void)
  */
 static bool borg_think(void)
 {
-	int i, ii;
+	int i;
 
-	byte t_a;
-
-	char buf[128];
 	static char svSavefile[1024];
 	static bool justSaved = FALSE;
 
@@ -389,29 +383,29 @@ static bool borg_think(void)
 	if (borg_do_spell)
 	{
 		/* Assume no books */
-		for (ii = 0; ii < MAX_REALM; ii++)
+		for (i = 0; i < 4; i++)
 		{
-			for (i = 0; i < 4; i++) borg_book[ii][i] = -1;
+			borg_book[bp_ptr->realm1][i] = -1;
+			borg_book[bp_ptr->realm2][i] = -1;
 		}
 
 		/* Scan the pack */
-		for (ii = 1; ii < MAX_REALM; ii++)
+		for (i = 0; i < inven_num; i++)
 		{
-			/* skip non my realms */
-			if (!borg_has_realm(ii)) continue;
+			list_item *l_ptr = &inventory[i];
+			int realm;
 
-			for (i = 0; i < inven_num; i++)
-			{
-				list_item *l_ptr = &inventory[i];
+			/* Stop after the books have run out */
+			if (l_ptr->tval < TV_BOOKS_MIN) break;
 
-				/* Skip wrong-realm books */
-				if (l_ptr->tval != REALM1_BOOK &&
-					l_ptr->tval != REALM2_BOOK) continue;
+			/* Which realm is that? */
+			realm = l_ptr->tval - TV_BOOKS_MIN + 1;
 
-				/* Note book locations */
-				borg_book[l_ptr->tval - TV_LIFE_BOOK +
-						  1][k_info[l_ptr->k_idx].sval] = i;
-			}
+			/* Does this book belong to a realm that the borg knows */
+			if (!borg_has_realm(realm)) continue;
+
+			/* Make a note where in the inv the book is */
+			borg_book[realm][k_info[l_ptr->k_idx].sval] = i;
 		}
 	}
 
@@ -450,12 +444,9 @@ static bool borg_think(void)
 	/*** Handle stores ***/
 
 	/* Hack -- Check for being in a store */
-	if ((0 == borg_what_text(3, 5, 16, &t_a, buf)) &&
-		(streq(buf, "Item Description")))
+	if (borg_term_text_comp(53, 19, "Gold Remaining") ||
+		borg_term_text_comp(40, 23, "Gold Remaining"))
 	{
-		/* Cheat the current gold (unless in home) */
-		borg_gold = p_ptr->au;
-
 		/* Hack -- allow user abort */
 		if (borg_cancel) return (TRUE);
 
@@ -705,10 +696,10 @@ static cptr suffix_spell[] =
 	" tries to cast a spell, but fails.",	/* 1 RF3_FAILS */
 	" does something.",	/* 2 RF3_XXX3X4 */
 	" does something.",	/* 3 RF3_XXX4X4 */
-	" fires an arrow.",	/* 4 RF3_ARROW_1 */
-	" fires an arrow!",	/* 5 RF3_ARROW_2 */
-	" fires a missile.",	/* 6 RF3_ARROW_3 */
-	" fires a missile!",	/* 7 RF3_ARROW_4 */
+	" fires an arrow.",	/* 4 RF3_ARROW */
+	" fires an arrow!",	/* 5 RF3_XXX6 */
+	" fires a missile.",	/* 6 RF3_XXX7 */
+	" fires a missile!",	/* 7 RF3_XXX8 */
 	" breathes acid.",	/* 8 RF3_BR_ACID */
 	" breathes lightning.",	/* 9 RF3_BR_ELEC */
 	" breathes fire.",	/*10 RF3_BR_FIRE */
@@ -788,7 +779,7 @@ static cptr suffix_spell[] =
 	" magically summons hounds.",	/*84 RF5_S_HOUND */
 	" magically summons hydras.",	/*85 RF5_S_HYDRA */
 	" magically summons an angel!",	/*86 RF5_S_ANGEL */
-	" magically summons a hellish adversary!",	/*87 RF5_S_DEMON */
+	" magically summons a demon from the Courts of Chaos!",	/*87 RF5_S_DEMON */
 	" magically summons an undead adversary!",	/*88 RF5_S_UNDEAD */
 	" magically summons a dragon!",	/*89 RF5_S_DRAGON */
 	" magically summons greater undead!",	/*90 RF5_S_HI_UNDEAD */
@@ -1359,7 +1350,8 @@ static void borg_parse_aux(cptr msg, int len)
 	if (streq(msg, "The door appears to be broken."))
 	{
 		/* Clear goals */
-		goal = 0;
+		goal = GOAL_NONE;
+
 		return;
 	}
 
@@ -1367,7 +1359,7 @@ static void borg_parse_aux(cptr msg, int len)
 	if (streq(msg, "The door appears to be stuck."))
 	{
 		/* Clear goals */
-		goal = 0;
+		goal = GOAL_NONE;
 
 		return;
 	}
@@ -1379,7 +1371,7 @@ static void borg_parse_aux(cptr msg, int len)
 	{
 
 		/* Clear goals */
-		goal = 0;
+		goal = GOAL_NONE;
 
 		return;
 	}
@@ -1388,8 +1380,8 @@ static void borg_parse_aux(cptr msg, int len)
 	if (streq(msg, "You tunnel into the granite wall."))
 	{
 		/* Clear goals */
-		goal = 0;
-
+		goal = GOAL_NONE;
+	
 		return;
 	}
 
@@ -1397,8 +1389,8 @@ static void borg_parse_aux(cptr msg, int len)
 	if (streq(msg, "You bump into something."))
 	{
 		/* Clear goals */
-		goal = 0;
-
+		goal = GOAL_NONE;
+	
 		return;
 	}
 
@@ -1406,8 +1398,8 @@ static void borg_parse_aux(cptr msg, int len)
 	if (streq(msg, "You tunnel into the quartz vein."))
 	{
 		/* Clear goals */
-		goal = 0;
-
+		goal = GOAL_NONE;
+	
 		return;
 	}
 
@@ -1415,14 +1407,17 @@ static void borg_parse_aux(cptr msg, int len)
 	if (streq(msg, "You tunnel into the magma vein."))
 	{
 		/* Clear goals */
-		goal = 0;
-
+		goal = GOAL_NONE;
+	
 		return;
 	}
 
 	/* Word of Recall -- Ignition */
 	if (prefix(msg, "The air about you becomes "))
 	{
+		/* Keep track of this dungeon */
+		borg_dungeon_remember(FALSE);
+
 		/* Initiate recall */
 		/* Guess how long it will take to lift off */
 		goal_recalling = 15000 + 5000;	/* Guess. game turns x 1000 ( 15+rand(20)) */
@@ -1432,6 +1427,9 @@ static void borg_parse_aux(cptr msg, int len)
 	/* Word of Recall -- Lift off */
 	if (prefix(msg, "You feel yourself yanked "))
 	{
+		/* Keep track of this dungeon */
+		borg_dungeon_remember(FALSE);
+
 		/* Recall complete */
 		goal_recalling = 0;
 		return;
@@ -1445,6 +1443,99 @@ static void borg_parse_aux(cptr msg, int len)
 		return;
 	}
 
+	/* Take the stairs up */
+	if (streq(msg, "You enter a maze of up staircases."))
+	{
+		/* Keep track of this dungeon */
+		borg_dungeon_remember(TRUE);
+
+		return;
+	}
+
+	/* Take the stairs down */
+	if (streq(msg, "You enter a maze of down staircases."))
+	{
+		/* Keep track of this dungeon */
+		borg_dungeon_remember(FALSE);
+
+		return;
+	}
+
+	/* Level teleport up */
+	if (streq(msg, "You rise up through the ceiling."))
+	{
+		/* Keep track of this dungeon */
+		borg_dungeon_remember(TRUE);
+
+		return;
+	}
+
+	/* Level teleport down */
+	if (streq(msg, "You sink through the floor."))
+	{
+		/* Keep track of this dungeon */
+		borg_dungeon_remember(FALSE);
+
+		return;
+	}
+
+	/* When the borg eats */
+	if (streq(msg, "You are full!"))
+	{
+		/* Keep track of this */
+		bp_ptr->status.full = TRUE;
+		bp_ptr->status.weak = FALSE;
+		bp_ptr->status.hungry = FALSE;
+		bp_ptr->status.gorged = FALSE;
+		return;
+	}
+
+	/* When the borg doesn't eat */
+	if (streq(msg, "You are no longer full."))
+	{
+		/* Keep track of this */
+		bp_ptr->status.full = FALSE;
+		bp_ptr->status.weak = FALSE;
+		bp_ptr->status.hungry = FALSE;
+		bp_ptr->status.gorged = FALSE;
+		return;
+	}
+
+	/* When the borg doesn't eat */
+	if (streq(msg, "You are getting hungry."))
+	{
+		/* Keep track of this */
+		bp_ptr->status.full = FALSE;
+		bp_ptr->status.weak = FALSE;
+		bp_ptr->status.hungry = TRUE;
+		bp_ptr->status.gorged = FALSE;
+		return;
+	}
+
+	/* When the borg doesn't eat */
+	if (streq(msg, "You are getting weak from hunger!") ||
+		streq(msg, "You are getting faint from hunger!") ||
+		streq(msg, "You faint from the lack of food."))
+	{
+		/* Keep track of this */
+		bp_ptr->status.full = FALSE;
+		bp_ptr->status.weak = TRUE;
+		bp_ptr->status.hungry = FALSE;
+		bp_ptr->status.gorged = FALSE;
+		return;
+	}
+
+	/* When the borg eats too much */
+	if (streq(msg, "You have gorged yourself!"))
+	{
+		/* Keep track of this */
+		bp_ptr->status.full = FALSE;
+		bp_ptr->status.weak = FALSE;
+		bp_ptr->status.hungry = FALSE;
+		bp_ptr->status.gorged = TRUE;
+		return;
+	}
+
 	/* Wearing Cursed Item */
 	if ((prefix(msg, "There is a malignant black aura surrounding you...")) ||
 		(prefix(msg, "Oops! It feels deathly cold!")) ||
@@ -1452,8 +1543,7 @@ static void borg_parse_aux(cptr msg, int len)
 		(suffix(msg, " seems to be cursed.")))
 	{
 		/* Hack -- Oops */
-		borg_wearing_cursed = TRUE;
-		(void) borg_wears_cursed(FALSE);
+		bp_ptr->status.cursed = TRUE;
 		return;
 	}
 
@@ -1530,17 +1620,27 @@ static void borg_parse_aux(cptr msg, int len)
 	if ((prefix(msg, "There is a wall ") && !bp_ptr->status.confused))
 	{
 		my_need_alter = TRUE;
-		goal = 0;
+		goal = GOAL_NONE;
 		return;
 	}
 
+	/* check for jungle blocking but not when confused */
+	if ((prefix(msg, "The jungle is impassable.") && !bp_ptr->status.confused))
+	{
+		my_need_alter = TRUE;
+
+		/* pick a new flow */
+		borg_flow_goal_wild();
+
+		return;
+	}
 
 	/* check for closed door but not when confused */
 	if ((prefix(msg, "There is a closed door blocking your way.") &&
 		 !bp_ptr->status.confused))
 	{
 		my_need_alter = TRUE;
-		goal = 0;
+		goal = GOAL_NONE;
 		return;
 	}
 
@@ -1582,7 +1682,7 @@ static void borg_parse_aux(cptr msg, int len)
 		}
 
 		my_no_alter = TRUE;
-		goal = 0;
+		goal = GOAL_NONE;
 		return;
 	}
 
@@ -1591,7 +1691,7 @@ static void borg_parse_aux(cptr msg, int len)
 	{
 		my_no_alter = TRUE;
 		/* Clear goals */
-		goal = 0;
+		goal = GOAL_NONE;
 		return;
 
 	}
@@ -1601,7 +1701,7 @@ static void borg_parse_aux(cptr msg, int len)
 		my_no_alter = TRUE;
 
 		/* Clear goals */
-		goal = 0;
+		goal = GOAL_NONE;
 		return;
 
 	}
@@ -1609,7 +1709,7 @@ static void borg_parse_aux(cptr msg, int len)
 	/* Hack to protect against clock overflows and errors */
 	if (prefix(msg, "Illegal "))
 	{
-		borg_oops_fmt("# Borg problem msg: %s", msg);
+		borg_oops("# Borg problem msg: %s", msg);
 
 		/* Hack -- Oops */
 		borg_keypress(ESCAPE);
@@ -1822,6 +1922,8 @@ static void borg_parse_aux(cptr msg, int len)
 	/* Recognize Drowning */
 	if (prefix(msg, "You are drowning"))
 	{
+		/* Clear goals */
+		goal = GOAL_NONE;
 		borg_note("# Help! I can't swim");
 
 		return;
@@ -1831,6 +1933,8 @@ static void borg_parse_aux(cptr msg, int len)
 	if (prefix(msg, "The lava burns you!") ||
 		prefix(msg, "The heat burns you!"))
 	{
+		/* Clear goals */
+		goal = GOAL_NONE;
 		borg_note("# Help! I'm burning");
 
 		return;
@@ -1840,6 +1944,8 @@ static void borg_parse_aux(cptr msg, int len)
 	if (prefix(msg, "The acid burns you!") ||
 		prefix(msg, "The fumes burn you!"))
 	{
+		/* Clear goals */
+		goal = GOAL_NONE;
 		borg_note("# Help! I'm corroding");
 
 		return;
@@ -1851,9 +1957,10 @@ static void borg_parse_aux(cptr msg, int len)
 	{
 		borg_note("# Help! I'm poisoned");
 
+		/* Clear goals */
+		goal = GOAL_NONE;
 		return;
 	}
-
 
 	/* Feelings about the level */
 	for (i = 0; prefix_feeling[i]; i++)
@@ -1948,35 +2055,16 @@ static void borg_parse(cptr msg)
  * Initialize zborg.txt
  */
 
-static void init_borg_txt_file(void)
-{
-	/* Make sure we know who and what we are */
-	borg_class = p_ptr->rp.pclass;
-
-	/* Use default values */
-	borg_scums_uniques = TRUE;
-	borg_stop_king = TRUE;
-
-	/* Success */
-	return;
-}
-
 static void borg_log_death(void)
 {
 	char buf[1024];
 	FILE *borg_log_file;
 	time_t death_time;
 
-	path_build(buf, 1024, ANGBAND_DIR_USER, "borg-log.txt");
-
-	/* Hack -- drop permissions */
-	safe_setuid_drop();
+	path_make(buf, ANGBAND_DIR_USER, "borg-log.txt");
 
 	/* Append to the file */
 	borg_log_file = my_fopen(buf, "a");
-
-	/* Hack -- grab permissions */
-	safe_setuid_grab();
 
 	/* Failure */
 	if (!borg_log_file) return;
@@ -2010,16 +2098,10 @@ static void borg_log_death_data(void)
 	FILE *borg_log_file;
 	time_t death_time;
 
-	path_build(buf, 1024, ANGBAND_DIR_USER, "zborg.dat");
-
-	/* Hack -- drop permissions */
-	safe_setuid_drop();
+	path_make(buf, ANGBAND_DIR_USER, "zborg.dat");
 
 	/* Append to the file */
 	borg_log_file = my_fopen(buf, "a");
-
-	/* Hack -- grab permissions */
-	safe_setuid_grab();
 
 	/* Failure */
 	if (!borg_log_file) return;
@@ -2033,6 +2115,184 @@ static void borg_log_death_data(void)
 			p_ptr->lev, p_ptr->depth, p_ptr->state.died_from);
 
 	my_fclose(borg_log_file);
+}
+
+
+/*
+ * The borg cannot handle all the values of all the options.  This is the list
+ * of options that have to be set a certain way.  When the borg is started
+ * they get the right value and when the borg stops running the original value
+ * is copied back
+ */
+static bool borg_rogue_like_commands;
+static bool borg_carry_query_flag;
+static bool borg_use_old_target;
+static bool borg_always_pickup;
+static bool borg_easy_open;
+static bool borg_easy_disarm;
+static bool borg_easy_floor;
+static bool borg_auto_more;
+static bool borg_emergency_stop;
+static bool borg_disturb_other;
+static bool borg_confirm_wear;
+static bool borg_check_transaction;
+
+
+/* Turn on the right options */
+static void borg_set_options(void)
+{
+	/* We use the original keypress codes */
+	borg_rogue_like_commands = rogue_like_commands;
+	rogue_like_commands = FALSE;
+
+	/* We must pick items up without verification */
+	borg_carry_query_flag = carry_query_flag;
+	carry_query_flag = FALSE;
+
+	/* We specify targets before casting the spells */
+	borg_use_old_target = use_old_target;
+	use_old_target = TRUE;
+
+	/* We pick up items when we step on them */
+	borg_always_pickup = always_pickup;
+	always_pickup = TRUE;
+
+	/* The borg adds the direction so these should be off */
+	borg_easy_open = easy_open;
+	borg_easy_disarm = easy_disarm;
+	easy_open = FALSE;
+	easy_disarm = FALSE;
+
+	/* The borg doesn't understand the floor list */
+	borg_easy_floor = easy_floor;
+	easy_floor = FALSE;
+
+	/* Prevent the teleport [y/n] question */
+	borg_disturb_other = disturb_other;
+	disturb_other = FALSE;
+
+	/* The borg can get off-sequence with this */
+	borg_auto_more = auto_more;
+	borg_emergency_stop = emergency_stop;
+	auto_more = FALSE;
+	emergency_stop = FALSE;
+
+	/* Keep track of these options values */
+	borg_confirm_wear = confirm_wear;
+	confirm_wear = FALSE;
+	borg_check_transaction = check_transaction;
+	check_transaction = FALSE;
+
+	/* set the continous play mode if the game cheat death is on */
+	if (cheat_live) borg_cheat_death = TRUE;
+}
+
+
+/* Set the options back to what they were */
+static void borg_reset_options(void)
+{
+	/* We use the original keypress codes */
+	rogue_like_commands = borg_rogue_like_commands;
+
+	/* We must pick items up without verification */
+	carry_query_flag = borg_carry_query_flag;
+
+	/* We specify targets before casting the spells */
+	use_old_target = borg_use_old_target;
+
+	/* We pick up items when we step on them */
+	always_pickup = borg_always_pickup;
+
+	/* The borg adds the direction so these should be off */
+	easy_open = borg_easy_open;
+	easy_disarm = borg_easy_disarm;
+
+	/* The borg doesn't understand the floor list */
+	easy_floor = borg_easy_floor;
+
+	/* The borg can get off-sequence with this */
+	auto_more = borg_auto_more;
+	emergency_stop = borg_emergency_stop;
+
+	/* Prevent some [y/n] questions */
+	disturb_other = borg_disturb_other;
+	confirm_wear = borg_confirm_wear;
+	check_transaction = borg_check_transaction;
+}
+
+
+/*
+ * Check the overhead map for info about towns, dungeons and quests.
+ * One big hack.  Maybe maid-grf.c should provide some sort of borg_wild_map,
+ * like it provides the inventory and the equipment.
+ */
+static void borg_read_map(void)
+{
+	int i, j, x, y;
+	int min_depth, max_depth;
+	place_type *pl_ptr;
+	wild_done_type *w_ptr;
+
+	for (i = 0; i < max_wild - 1; i++)
+	{
+		for (j = 0; j < max_wild - 1; j++)
+		{
+			w_ptr = &wild[j][i].done;
+
+			/* Do we have a place here? */
+			pl_ptr = (w_ptr->place ? &place[w_ptr->place] : NULL);
+
+			/* Skip non-places */
+			if (!pl_ptr) continue;
+
+			/* Skip unknown spots */
+			if (!(w_ptr->info & WILD_INFO_SEEN)) continue;
+
+			/* Create coords */
+			x = i * WILD_BLOCK_SIZE;
+			y = j * WILD_BLOCK_SIZE;
+
+			/* If this is a town add it to the list */
+			if (pl_ptr->numstores) borg_add_town(x , y, pl_ptr->name);
+
+			/* Is this a dungeon */
+			if (pl_ptr->dungeon)
+			{
+				dun_type *d_ptr = pl_ptr->dungeon;
+				bool bottom = FALSE;
+
+				if (d_ptr->recall_depth != 0)
+				{
+					min_depth = d_ptr->min_level;
+					max_depth = d_ptr->recall_depth;
+					if (d_ptr->max_level == d_ptr->recall_depth) bottom = TRUE;
+				}
+				else
+				{
+					/* A town dungeon always starts at level 1 */
+					if (pl_ptr->numstores) min_depth = 1;
+
+					/* In the wilderness the starting depth can vary */
+					else
+					{
+						/* Determine dungeon level */
+						min_depth = (d_ptr->min_level + 9) / 10;
+						
+						/* You never know */
+						if (min_depth > 9) min_depth = 9;
+
+						/* Create a possible min level for this dungeon */
+						min_depth = min_depth * 10 - 1;
+					}
+
+					max_depth = min_depth;
+				}
+
+				/* Add dungeon */
+				borg_add_dungeon(x, y, min_depth, max_depth, bottom);
+			}
+		}
+	}
 }
 
 /*
@@ -2102,9 +2362,12 @@ static char borg_inkey_hack(int flush_first)
 		/* Message */
 		borg_note("# Removing keypress hook");
 
+		/* Set the options back to what they were */
+		borg_reset_options();
+
 		/* Remove hook */
 		inkey_hack = NULL;
-\
+
 		/* Flush keys */
 		borg_flush();
 
@@ -2128,26 +2391,6 @@ static char borg_inkey_hack(int flush_first)
 			/* Flush keys */
 			borg_flush();
 		}
-	}
-
-	/* Locate the cursor */
-	(void)Term_locate(&x, &y);
-
-
-	/* Assume no prompt/message is available */
-	borg_prompt = FALSE;
-
-	/*
-	 * Mega-Hack -- check for possible prompts/messages
-	 * If the first four characters on the message line all
-	 * have the same attribute (or are all spaces), and they
-	 * are not all spaces (ascii value 0x20)...
-	 */
-	if ((0 == borg_what_text(0, 0, 4, &t_a, buf)) &&
-		(t_a != TERM_DARK) && (*((u32b *)(buf)) != 0x20202020))
-	{
-		/* Assume a prompt/message is available */
-		borg_prompt = TRUE;
 	}
 
 	/* Mega-Hack -- Handle death */
@@ -2187,6 +2430,27 @@ static char borg_inkey_hack(int flush_first)
 		return (KTRL('C'));
 	}
 
+	/* Set the borg statuses and values correct */
+	borg_update_frame();
+
+	/* Assume no prompt/message is available */
+	borg_prompt = FALSE;
+
+	/*
+	 * Mega-Hack -- check for possible prompts/messages
+	 * If the first four characters on the message line all
+	 * have the same attribute (or are all spaces), and they
+	 * are not all spaces (ascii value 0x20)...
+	 */
+	if ((0 == borg_what_text(0, 0, 4, &t_a, buf)) &&
+		(t_a != TERM_DARK) && (*((u32b *)(buf)) != 0x20202020))
+	{
+		/* Assume a prompt/message is available */
+		borg_prompt = TRUE;
+	}
+
+	/* Locate the cursor */
+	(void)Term_locate(&x, &y);
 
 	/* 
 	 * Mega-Hack -- Catch "-more-" messages
@@ -2197,9 +2461,8 @@ static char borg_inkey_hack(int flush_first)
 	 * And that text is "-more-"
 	 */
 	if (borg_prompt && !p_ptr->cmd.inkey_flag &&
-		(y == 0) && (x >= 7) &&
-		(0 == borg_what_text(x - 7, y, 7, &t_a, buf)) &&
-		(streq(buf, " -more-")))
+		y == 0 && x >= 7 &&
+		borg_term_text_comp(x - 7, y, " -more-"))
 	{
 		/* Get the message */
 		if (0 == borg_what_text(0, 0, x - 7, &t_a, buf))
@@ -2236,6 +2499,7 @@ static char borg_inkey_hack(int flush_first)
 		/* Clear the message */
 		return (KTRL('M'));
 	}
+
 	/* Flush messages */
 	borg_parse(NULL);
 	borg_dont_react = FALSE;
@@ -2314,7 +2578,7 @@ static void borg_display_item(list_item *l_ptr)
     clear_region(13 - 2, 1, 30);
 
 	/* Describe fully */
-	if (l_ptr->o_name) prtf(j, 2, l_ptr->o_name);
+	if (l_ptr->o_name) prtf(j, 2, "%s", l_ptr->o_name);
 
 	prtf(j, 4, "k_idx = %-5d    tval = %-5d ",
 			   l_ptr->k_idx, l_ptr->tval);
@@ -2399,101 +2663,22 @@ static void borg_cheat_temp_bools(void)
 	borg_hero = (p_ptr->tim.hero ? TRUE : FALSE);
 	borg_berserk = (p_ptr->tim.shero ? TRUE : FALSE);
 	borg_esp = (p_ptr->tim.esp ? TRUE : FALSE);
-
-	/* Is there something cursed? */
-	borg_wearing_cursed = borg_wears_cursed(FALSE);
 }
 
-/*
- * Initialize the Borg
- */
+
+/* Initialize the Borg */
 void borg_init_9(void)
 {
 	/*** Hack -- initialize borg.ini options ***/
 
 	/* Message */
-	prtf(0, 0, "Initializing the Borg... (zborg.txt)");
+	prtf(0, 0, "Initializing the Borg.");
 
 	/* Hack -- flush it */
 	Term_fresh();
-
-	init_borg_txt_file();
-
-	/*** Hack -- initialize game options ***/
-
-	/* Message */
-	prtf(0, 0, "Initializing the Borg... (options)");
-
-	/* Hack -- flush it */
-	Term_fresh();
-
-	/* We use the original keypress codes */
-	rogue_like_commands = FALSE;
-
-	/* We pick up items when we step on them */
-	always_pickup = TRUE;
-
-	/* We specify targets before casting the spells */
-	use_old_target = TRUE;
-
-	/* We must pick items up without verification */
-	carry_query_flag = FALSE;
-
-	/* We repeat by hand */
-	always_repeat = FALSE;
-
-	/* We need space */
-	show_labels = FALSE;
-	show_weights = FALSE;
-
-	/* We need the dungeon level */
-	depth_in_feet = FALSE;
-
-	/* Allow items to stack */
-	stack_force_costs = TRUE;
-
-	/* Hack - we don't understand this */
-	auto_destroy = FALSE;
-
-	/* Do not confirm actions */
-	confirm_wear = FALSE;
-	confirm_stairs = FALSE;
-
-
-	/* Zangband Commands */
-
-	/* The borg doesn't understand the easy options */
-	easy_floor = FALSE;
-	easy_disarm = FALSE;
-	easy_open = FALSE;
-
-	/* The borg doesn't understand speaking uniques */
-	speak_unique = FALSE;
-
-	/* Hack -- notice "command" mode */
-	hilite_player = FALSE;
-
-	/*** Various ***/
-
-	/* Message */
-	prtf(0, 0, "Initializing the Borg... (various)");
-
-	/* Hack -- flush it */
-	Term_fresh();
-
-
-	/*** Cheat / Panic ***/
-
-	/* more cheating */
-	borg_cheat_death = FALSE;
-
-	/* set the continous play mode if the game cheat death is on */
-	if (cheat_live) borg_cheat_death = TRUE;
 
 	/* Initialise player position */
 	map_get_player(&c_x, &c_y);
-
-	/*** Initialize ***/
 
 	/* Initialize */
 	borg_init_1();
@@ -2577,20 +2762,11 @@ static void borg_display_map_info(byte data, byte type)
 	char c = ' ';
 	byte a = TERM_DARK;
 
-	int wid, hgt;
-
 	map_block *mb_ptr;
 
-	/* Get size */
-	Term_get_size(&wid, &hgt);
-
-	/* Remove map offset */
-	wid -= COL_MAP + 1;
-	hgt -= ROW_MAP + 1;
-
-	for (x = panel_col_min; x < panel_col_max; x++)
+	for (x = p_ptr->panel_x1; x < p_ptr->panel_x2; x++)
 	{
-		for (y = panel_row_min; y < panel_row_max; y++)
+		for (y = p_ptr->panel_y1; y < p_ptr->panel_y2; y++)
 		{
 			a = TERM_DARK;
 			c = ' ';
@@ -2711,8 +2887,7 @@ static void borg_display_map_info(byte data, byte type)
 			if (c != ' ')
 			{
 				/* Hack -- Queue it */
-				Term_queue_char(x - panel_col_prt, y - panel_row_prt, a, c,
-								a, c);
+				print_rel(c, a, x, y);
 			}
 		}
 	}
@@ -2773,6 +2948,7 @@ void borg_status_window(void)
 			attr = CLR_SLATE;
 			if (FLAG(bp_ptr, TR_RES_POIS)) attr = CLR_BLUE;
 			if (my_oppose_pois) attr = CLR_GREEN;
+			if (FLAG(bp_ptr, TR_IM_POIS)) attr = CLR_WHITE;
 			prtf(1, 5, "%sPois", attr);
 
 			if (FLAG(bp_ptr, TR_RES_FEAR)) attr = CLR_BLUE;
@@ -2781,13 +2957,13 @@ void borg_status_window(void)
 			prtf(1, 6, "%sFear", attr);
 
 			if (FLAG(bp_ptr, TR_RES_LITE)) attr = CLR_BLUE;
-			else
-				attr = CLR_SLATE;
+			else if (FLAG(bp_ptr, TR_IM_LITE)) attr = CLR_WHITE;
+			else attr = CLR_SLATE;
 			prtf(1, 7, "%sLite", attr);
 
 			if (FLAG(bp_ptr, TR_RES_DARK)) attr = CLR_BLUE;
-			else
-				attr = CLR_SLATE;
+			else if (FLAG(bp_ptr, TR_IM_DARK)) attr = CLR_WHITE;
+			else attr = CLR_SLATE;
 			prtf(1, 8, "%sDark", attr);
 
 			if (FLAG(bp_ptr, TR_RES_BLIND)) attr = CLR_BLUE;
@@ -2939,7 +3115,10 @@ void borg_status_window(void)
 			/* Display the Concerns */
 			prtf(36, 10, "Concerns:");
 
-			if (borg_wearing_cursed) attr = CLR_BLUE;
+			if (bp_ptr->status.cursed)
+				attr = CLR_BLUE;
+			else if (bp_ptr->status.heavy_curse)
+				attr = CLR_ORANGE;
 			else
 				attr = CLR_SLATE;
 			prtf(29, 11, "%sCursed", attr);
@@ -3072,17 +3251,73 @@ void borg_status_window(void)
 			else
 				attr = CLR_SLATE;
 			prtf(42, 2, "%sUnique on level", attr);
-			if (unique_on_level) prtf(58, 2, "(%s)",																	 r_name + r_info[(int)unique_on_level].name);
+			if (unique_on_level) prtf(58, 2, "(%s)", mon_race_name(&r_info[unique_r_idx]));
 			else
 				prtf(58, 2, "");
-			if (breeder_level) attr = CLR_WHITE;
-			else
-				attr = CLR_SLATE;
-			prtf(42, 4, "%sBreeder level (close the door, will ye)", attr);
 
-			/* level preparedness */
-			prtf(42, 6, CLR_SLATE "Reason for not diving: " CLR_WHITE
-						"%s", borg_prepared(bp_ptr->max_depth + 1));
+			prtf(42, 4, CLR_SLATE "Borg is ready for level " CLR_WHITE "%d",
+				borg_prepared_depth());
+
+			/* In the dungeon */
+			if (bp_ptr->depth || vanilla_town)
+			{
+				/* level preparedness */
+				prtf(42, 6, CLR_SLATE "Reason: " CLR_WHITE
+							"%s", borg_prepared(borg_prepared_depth()));
+			}
+			else
+			{
+				cptr why;
+
+				switch(goal)
+				{
+					case GOAL_NONE:
+					{
+						why = "No goal";
+						break;
+					}
+					case GOAL_KILL:
+					{
+						why = "Killing a monster";
+						break;
+					}
+					case GOAL_TAKE:
+					{
+						why = "Getting an object";
+						break;
+					}
+					case GOAL_FLEE:
+					{
+						why = "Running away";
+						break;
+					}
+					case GOAL_SHOP:
+					{
+						why = "Shopping";
+						break;
+					}
+					case GOAL_DARK:
+					{
+						why = "Exploring";
+						break;
+					}
+					case GOAL_TOWN:
+					{
+						why = "Reaching a town";
+						break;
+					}
+					case GOAL_CAVE:
+					{
+						why = "Reaching a dungeon";
+						break;
+					}
+					default: why = "Something or other";
+				}
+
+				/* level preparedness */
+				prtf(42, 6, CLR_SLATE "What to do on the surface: " CLR_WHITE "%s.", why);
+			}
+
 
 			if (goal_fleeing) attr = CLR_WHITE;
 			else
@@ -3150,8 +3385,14 @@ void do_cmd_borg(void)
 			my_need_stat_check[4] = TRUE;
 			my_need_stat_check[5] = TRUE;
 			
-			/* Fill the borg_bools for temporary states*/
+			/* Fill the borg_bools for temporary states */
 			borg_cheat_temp_bools();
+
+			/* Make sure the right options are set */
+			borg_set_options();
+
+			/* Read the wilderness map */
+			borg_read_map();
 
 			/* Message */
 			borg_note("# Installing keypress hook");
@@ -3178,6 +3419,12 @@ void do_cmd_borg(void)
 			
 			/* Fill the borg_bools for temporary states*/
 			borg_cheat_temp_bools();
+
+			/* Make sure the right options are set */
+			borg_set_options();
+
+			/* Read the wilderness map */
+			borg_read_map();
 
 			/* Message */
 			borg_note("# Installing keypress hook");
@@ -3223,6 +3470,12 @@ void do_cmd_borg(void)
 			
 			/* Fill the borg_bools for temporary states*/
 			borg_cheat_temp_bools();
+
+			/* Make sure the right options are set */
+			borg_set_options();
+
+			/* Read the wilderness map */
+			borg_read_map();
 
 			/* Message */
 			borg_note("# Installing keypress hook");
@@ -3303,17 +3556,13 @@ void do_cmd_borg(void)
 		case 'L':
 		{
 			/* Start a new log file */
-
-			char buf[80];
+			char buf[1024];
 
 			/* Close the log file */
 			if (borg_fff) my_fclose(borg_fff);
 
-			/* Hack -- drop permissions */
-			safe_setuid_drop();
-
 			/* Default  */
-			strcpy(buf, "borg.log");
+			path_make(buf, ANGBAND_DIR_USER, "borg.log");
 
 			/* XXX XXX XXX Get the name and open the log file */
 			if (get_string(buf, 70, "Borg Log File: "))
@@ -3324,9 +3573,6 @@ void do_cmd_borg(void)
 				/* Failure */
 				if (!borg_fff) msgf("Cannot open that file.");
 			}
-
-			/* Hack -- grab permissions */
-			safe_setuid_grab();
 			break;
 		}
 
@@ -3711,26 +3957,81 @@ void do_cmd_borg(void)
 			break;
 		}
 
+		case '7':
+		{
+			/* Command: debug -- show towns */
+			int i;
+
+			/* Get keypress */
+			msgf("There are %d known towns.", borg_town_num);
+			message_flush();
+
+			for (i = 0; i < borg_town_num; i++)
+			{
+				/* Print */
+				msgf("i = %d, (x, y) = (%d, %d), visit = %c, name = %s",
+					i, borg_towns[i].x, borg_towns[i].y,
+					(borg_towns[i].visit) ? 'T' : 'F',
+					borg_towns[i].name);
+
+				message_flush();
+			}
+
+			break;
+		}
+
 		case '8':
 		{
 			/* Command: debug -- show shops */
 			int i, n = 0;
 
-			for (i = 0; i < track_shop_num; i++)
+			for (i = 0; i < borg_shop_num; i++)
 			{
-				/* Print */
-				print_rel('*', TERM_RED, borg_shops[i].x, borg_shops[i].y);
+				char c = (i < 10) ? i + '0' : '*';
 
-				/* Count */
-				n++;
+				/* Print */
+				print_rel(c, TERM_RED, borg_shops[i].x, borg_shops[i].y);
+
+				/* Count the visited shops */
+				if (borg_shops[i].visit) n++;
 			}
 
 			/* Get keypress */
-			msgf("There are %d known shops.", n);
+			msgf("There are %d known shops, %d were visited.", borg_shop_num, n);
 			message_flush();
 
 			/* Redraw map */
 			prt_map();
+			break;
+		}
+
+		case '9':
+		{
+			/* Command: debug -- show dungeons */
+			int i;
+
+			for (i = 0; i < borg_dungeon_num; i++)
+			{
+				/* Print */
+				print_rel('*', TERM_RED, borg_dungeons[i].x, borg_dungeons[i].y);
+			}
+
+			/* Get keypress */
+			msgf("There are %d known dungeons.", borg_dungeon_num);
+			message_flush();
+
+			/* Redraw map */
+			prt_map();
+
+			msgf("(c_x, c_y) = (%d, %d), dungeon_num = %d", c_x, c_y, dungeon_num);
+			for (i = 0; i < borg_dungeon_num; i++)
+			{
+				/* Print */
+				msgf("i = %d, (x, y) = (%d, %d), min = %d, max = %d, bottom = %c",
+					i, borg_dungeons[i].x, borg_dungeons[i].y,
+					borg_dungeons[i].min_depth, borg_dungeons[i].max_depth,
+					borg_dungeons[i].bottom ? 'T' : 'F');
+			}
 			break;
 		}
 
@@ -3927,7 +4228,7 @@ void do_cmd_borg(void)
 			borg_notice_home();
 
 			/* Dump prep codes */
-			for (i = 1; i <= 127; i++)
+			for (i = 1; i <= MAX_DEPTH; i++)
 			{
 				/* Dump fear code */
 				if (borg_prepared(i)) break;
@@ -4050,8 +4351,8 @@ void do_cmd_borg(void)
 				break;
 			}
 
-			/* The first 8 items of the inventory can be a book of the realm */
-			for (inv = 0; (inv < 4 * MAX_REALM) && (inv < inven_num); inv++)
+			/* Loop through the inventory */
+			for (inv = 0; inv < inven_num; inv++)
 			{
 				borg_magic *as;
 				int realm, book;
@@ -4116,6 +4417,8 @@ void do_cmd_borg(void)
 				"Command 'x' steps the Borg.\n"
 				"Command 'u' updates the Borg.\n"
 		    	"Command '2' level prep info.\n"
+		    	"Command '8' Shows the shops.\n"
+		    	"Command '9' Shows the dungeons.\n"
 		        "Command 's' activates search mode.\n"
 		        "Command 'g' displays grid feature.\n"
 	    	    "Command 'k' displays monster info.\n"

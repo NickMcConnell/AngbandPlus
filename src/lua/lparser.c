@@ -1,5 +1,5 @@
 /*
-** $Id: lparser.c,v 1.2 2002/08/29 19:06:49 rr9 Exp $
+** $Id: lparser.c,v 1.3 2003/12/28 13:55:52 sfuerst Exp $
 ** LL(1) Parser and code generator for Lua
 ** See Copyright Notice in lua.h
 */
@@ -1019,7 +1019,7 @@ static void breakstat (LexState *ls) {
 }
 
 
-static int stat (LexState *ls) {
+static int luastat (LexState *ls) {
   int line = ls->linenumber;  /* may be needed for error messages */
   switch (ls->t.token) {
     case TK_IF: {  /* stat -> ifstat */
@@ -1115,7 +1115,7 @@ static void chunk (LexState *ls) {
   /* chunk -> { stat [';'] } */
   int islast = 0;
   while (!islast && !block_follow(ls->t.token)) {
-    islast = stat(ls);
+    islast = luastat(ls);
     optional(ls, ';');
     LUA_ASSERT(ls->fs->stacklevel == ls->fs->nactloc,
                "stack size != # local vars");

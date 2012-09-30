@@ -33,9 +33,6 @@ void do_cmd_redraw(void)
 	/* Hack -- react to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
-	/* Combine and Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Update torch */
 	p_ptr->update |= (PU_TORCH);
 
@@ -91,18 +88,8 @@ void resize_map(void)
 	/* Only if the dungeon exists */
 	if (!character_dungeon) return;
 
-	/* Mega-Hack -- no panel yet */
-	panel_row_min = 0;
-	panel_row_max = 0;
-	panel_col_min = 0;
-	panel_col_max = 0;
-
 	/* Reset the panels */
-	map_panel_size();
-	verify_panel();
-
-	/* Combine and Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	p_ptr->update |= (PU_MAP);
 
 	/* Update torch */
 	p_ptr->update |= (PU_TORCH);
@@ -123,7 +110,7 @@ void resize_map(void)
 	handle_stuff();
 
 	/* Place the cursor on the player */
-	move_cursor_relative(p_ptr->px, p_ptr->py);
+	if (!character_icky) move_cursor_relative(p_ptr->px, p_ptr->py);
 
 	/* Refresh */
 	Term_fresh();
@@ -912,12 +899,12 @@ static bool do_cmd_options_win(int dummy)
 		}
 
 		/* Display the options */
-		for (i = 0; i < 16; i++)
+		for (i = 0; i < WINDOW_CHOICE_MAX; i++)
 		{
 			cptr str = window_flag_desc[i];
 
 			/* Unused option */
-			if (!str) str = "(Unused option)";
+			if (!str) continue;
 
 			/* Flag name */
 			put_fstr(0, i + 5, CLR_L_BLUE "%s", str);
@@ -969,7 +956,7 @@ static bool do_cmd_options_win(int dummy)
 				}
 
 				/* Clear flags */
-				for (i = 0; i < 16; i++)
+				for (i = 0; i < WINDOW_CHOICE_MAX; i++)
 				{
 					window_flag[x] &= ~(1L << i);
 				}
@@ -1001,7 +988,7 @@ static bool do_cmd_options_win(int dummy)
 				d = get_keymap_dir(ch);
 
 				x = (x + ddx[d] + 8) % 8;
-				y = (y + ddy[d] + 16) % 16;
+				y = (y + ddy[d] + WINDOW_CHOICE_MAX) % WINDOW_CHOICE_MAX;
 
 				if (!d) bell("Illegal command for window options!");
 			}
@@ -1134,7 +1121,7 @@ static bool do_cmd_options_dump(int dummy)
 	screen_save();
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "pref-opt.prf");
+	path_make(buf, ANGBAND_DIR_USER, "pref-opt.prf");
 
 	/* Open the file */
 	fff = my_fopen(buf, "w");
@@ -1254,7 +1241,7 @@ errr macro_dump(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_make(buf, ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1419,7 +1406,7 @@ errr keymap_dump(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_make(buf, ANGBAND_DIR_USER, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2025,7 +2012,7 @@ static bool do_cmd_dump_monster(int dummy)
 	}
 	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+	path_make(buf, ANGBAND_DIR_USER, tmp);
 
 	/* Append to the file */
 	fff = my_fopen(buf, "a");
@@ -2050,7 +2037,7 @@ static bool do_cmd_dump_monster(int dummy)
 		if (!r_ptr->name) continue;
 
 		/* Dump a comment */
-		froff(fff, "# %s\n", (r_name + r_ptr->name));
+		froff(fff, "# %s\n", mon_race_name(r_ptr));
 
 		/* Dump the monster attr/char info */
 		froff(fff, "R:%d:0x%02X:0x%02X\n\n", i,
@@ -2099,7 +2086,7 @@ static bool do_cmd_dump_object(int dummy)
 	}
 	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+	path_make(buf, ANGBAND_DIR_USER, tmp);
 
 	/* Append to the file */
 	fff = my_fopen(buf, "a");
@@ -2174,7 +2161,7 @@ static bool do_cmd_dump_feature(int dummy)
 	}
 	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+	path_make(buf, ANGBAND_DIR_USER, tmp);
 
 	/* Append to the file */
 	fff = my_fopen(buf, "a");
@@ -2249,7 +2236,7 @@ static bool do_cmd_dump_field(int dummy)
 	}
 	
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+	path_make(buf, ANGBAND_DIR_USER, tmp);
 
 	/* Append to the file */
 	fff = my_fopen(buf, "a");
@@ -2325,7 +2312,7 @@ static bool do_cmd_change_monster(int dummy)
 
 		/* Label the object */
 		prtf(5, 7, "Monster = %d, Name = %-40.40s",
-						   r, (r_name + r_ptr->name));
+						   r, mon_race_name(r_ptr));
 
 		/* Label the Default values */
 		prtf(10, 9, "Default attr/char = %3u / %3u", da, dc);
@@ -2683,7 +2670,7 @@ static bool do_cmd_dump_colour(int dummy)
 	}
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+	path_make(buf, ANGBAND_DIR_USER, tmp);
 
 	/* Append to the file */
 	fff = my_fopen(buf, "a");
@@ -2742,7 +2729,7 @@ static bool do_cmd_dump_colour(int dummy)
  */
 static bool do_cmd_dump_message(int dummy)
 {
-	int i;
+	byte i;
 
 	FILE *fff;
 
@@ -2768,7 +2755,7 @@ static bool do_cmd_dump_message(int dummy)
 	}
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+	path_make(buf, ANGBAND_DIR_USER, tmp);
 
 	/* Append to the file */
 	fff = my_fopen(buf, "a");
@@ -3113,7 +3100,7 @@ void do_cmd_load_screen(void)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_make(buf, ANGBAND_DIR_USER, "dump.txt");
 
 	/* Append to the file */
 	fff = my_fopen(buf, "r");
@@ -3223,7 +3210,7 @@ void do_cmd_save_screen(void)
 
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+		path_make(buf, ANGBAND_DIR_USER, "dump.txt");
 
 		/* File type is "TEXT" */
 		FILE_TYPE(FILE_TYPE_TEXT);
@@ -3335,7 +3322,7 @@ static bool do_cmd_knowledge_uniques(int dummy)
 
 	char file_name[1024];
 
-	int i, n;
+	int i, n, count_dead = 0;
 
 	u16b why = 2;
 	u16b *who;
@@ -3399,16 +3386,19 @@ static bool do_cmd_knowledge_uniques(int dummy)
 
 		if (r_ptr->max_num == 0)
 		{
+			/* Count the dead ones */
+			count_dead++;
+
 			/* Dead */
-			print_monster_string(fff, r_ptr->x_attr, r_ptr->x_char,
-				format(CLR_L_DARK "%s is dead.", (r_name + r_ptr->name)),
+			print_monster_string(fff, r_ptr->d_attr, r_ptr->d_char,
+				format(CLR_L_DARK "%s is dead.", mon_race_name(r_ptr)),
 					 0);
 		}
 		else
 		{
 			/* Alive */
-			print_monster_string(fff, r_ptr->x_attr, r_ptr->x_char, 
-				format(CLR_L_BLUE "%s is alive.", (r_name + r_ptr->name)),
+			print_monster_string(fff, r_ptr->d_attr, r_ptr->d_char, 
+				format(CLR_L_BLUE "%s is alive.", mon_race_name(r_ptr)),
 					0);
 		}
 	}
@@ -3420,7 +3410,9 @@ static bool do_cmd_knowledge_uniques(int dummy)
 	my_fclose(fff);
 
 	/* Display the file contents */
-	(void)show_file(file_name, "Known Uniques", 0, 0);
+	(void)show_file(file_name,
+					format("Known uniques, killed %d", count_dead),
+					0, 0);
 
 	/* Remove the file */
 	(void)fd_kill(file_name);
@@ -3701,7 +3693,7 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 
 			if (dead)
 			{
-				print_monster_string(fff, r_ptr->x_attr, r_ptr->x_char, (r_name + r_ptr->name), 0);
+				print_monster_string(fff, r_ptr->d_attr, r_ptr->d_char, mon_race_name(r_ptr), 0);
 				total++;
 			}
 		}
@@ -3713,14 +3705,14 @@ static bool do_cmd_knowledge_kill_count(int dummy)
 			{
 				if (this < 2)
 				{
-					print_monster_string(fff, r_ptr->x_attr, r_ptr->x_char, (r_name + r_ptr->name), 1);
+					print_monster_string(fff, r_ptr->d_attr, r_ptr->d_char, mon_race_name(r_ptr), 1);
 				}
 				else
 				{
 					char ToPlural[80];
-					strcpy(ToPlural, (r_name + r_ptr->name));
+					strcpy(ToPlural, mon_race_name(r_ptr));
 					plural_aux(ToPlural);
-					print_monster_string(fff, r_ptr->x_attr, r_ptr->x_char, ToPlural, this);
+					print_monster_string(fff, r_ptr->d_attr, r_ptr->d_char, ToPlural, this);
 				}
 
 				total += this;
@@ -3799,20 +3791,29 @@ static bool do_cmd_knowledge_objects(int dummy)
 			/* Create fake object */
 			o_ptr = object_prep(k);
 			
+			attr = color_seq[tval_to_attr[o_ptr->tval % 128]];
+			
 			a = object_attr(o_ptr);
 			c = object_char(o_ptr);
 			
-			attr = color_seq[tval_to_attr[o_ptr->tval % 128]];
-			
-			if (c == '$')
+			/* Only add equippys if in ascii mode */
+			if (!(a & 0x80) && !(c & 0x80))
 			{
-				/* Print a message ('$' needs to be escaped) */
-				froff(fff, " %s$$%s  %v\n", color_seq[a], attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+				if (c == '$')
+				{
+					/* Print a message ('$' needs to be escaped) */
+					froff(fff, " %s$$%s  %v\n", color_seq[a], attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+				}
+				else
+				{
+					/* Print a message */
+					froff(fff, " %s%c%s  %v\n", color_seq[a], c, attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+				}
 			}
 			else
 			{
 				/* Print a message */
-				froff(fff, " %s%c%s  %v\n", color_seq[a], c, attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
+					froff(fff, "  %s  %v\n", attr, OBJECT_STORE_FMT(o_ptr, FALSE, 0));
 			}
 		}
 	}
@@ -3884,7 +3885,7 @@ static bool do_cmd_knowledge_notes(int dummy)
 /*
  * Dump info about a town to the given file
  */
-void dump_town_info(FILE *fff, int town)
+void dump_town_info(FILE *fff, int town, bool ignore)
 {
 	int j;
 
@@ -3936,15 +3937,164 @@ void dump_town_info(FILE *fff, int town)
 				{
 					/* Get attr/char */
 					building_char(pl_ptr->store[j].type, &a, &c);
-				
-					/* Append information about store */
-					froff(fff, "  %s%c" CLR_WHITE "   %s\n", color_seq[a], c, build_name);
+					
+					/* Only draw symbols in ascii mode */
+					if (!(a & 0x80) && !(c & 0x80))
+					{				
+						/* Append information about store */
+						froff(fff, "  %s%c" CLR_WHITE "   %s\n", color_seq[a], c, build_name);
+					}
+					else
+					{
+						/* Append information about store */
+						froff(fff, "      %s\n", build_name);
+					}
 				}
 			}
 
 			/* Seperator */
 			froff(fff, "\n");
 		}
+
+		/* Never been near the place */
+		else
+		{
+			/* Give an empty message or no message */
+			if (!ignore) froff(fff, "\nThis town has not been visited yet.\n");
+		}
+	}
+}
+
+
+/*
+ * Dump info about a place if is has a dungeon to the given file
+ */
+static void dump_dungeon_info(FILE *fff, int town)
+{
+	int i;
+
+	bool visited = FALSE;
+	cptr place_name, place_dir;
+	int depth;
+	int x, y, count = 0;
+
+	place_type *p2_ptr, *pl_ptr = &place[town];
+	dun_type *d_ptr = pl_ptr->dungeon;
+	wild_done_type *w_ptr;
+
+	/* A place without a dungeon */
+	if (!d_ptr) return;
+
+	/* Get a shorthand */
+	depth = d_ptr->recall_depth;
+
+	/* Is it a town? */
+	if (pl_ptr->numstores)
+	{
+		/* Hack-- determine the town has been visited */
+		visited = FALSE;
+
+		for (i = 0; i < pl_ptr->numstores; i++)
+		{
+			/* Stores are not given coordinates until you visit a town */
+			if ((pl_ptr->store[i].x != 0) && (pl_ptr->store[i].y != 0))
+			{
+				visited = TRUE;
+				break;
+			}
+		}
+
+		/* Build a buffer with the information (If visited, and if it is a town) */
+		if (visited)
+		{
+			/* Give the dungeon name and location*/
+			froff(fff, "%s dungeon under %s",
+				dungeon_type_name(d_ptr->habitat), pl_ptr->name);
+		}
+		else
+		{
+			/* Don't show this */
+			return;
+		}
+	}
+	/* So it is a dungeon */
+	else
+	{
+		/* Fetch closest known town and direction */
+		place_name = describe_quest_location(&place_dir,
+						pl_ptr->x, pl_ptr->y, TRUE);
+
+		/* Check a piece of the map */
+		for (x = 0; x < 3; x++)
+		{
+			for (y = 0; y < 5; y++)
+			{
+				/* Pick up a spot on the map */
+				w_ptr = &wild[pl_ptr->y + y][pl_ptr->x + x].done;
+
+				/* Pick up the place associated with this spot */
+				p2_ptr = (w_ptr->place) ? &place[w_ptr->place] : NULL;
+
+				/* Does this spot contain a place? */
+				if (!p2_ptr) continue;
+
+				/* Has this spot been seen? */
+				if (!(w_ptr->info & WILD_INFO_SEEN)) continue;
+				
+				/* Is this place the same as the one that we started with? */
+				if (p2_ptr == pl_ptr) count++;
+			}
+		}
+
+		/* Skip if the dungeon is unknown */
+		if (!count) return;
+
+		/* Give the dungeon name and location*/
+		froff(fff, "%s dungeon %s of %s",
+			dungeon_type_name(d_ptr->habitat), place_dir, place_name);
+
+		/* Did the player go into the dungeon? */
+		if (!depth)
+		{
+			/* It is still guarded by monsters */
+			froff(fff, ", guarded");
+		}
+	}
+
+	/* If the dungeon was attempted, show the depth */
+	if (depth)
+	{
+		/* Show the depth reached */
+		if (depth_in_feet)
+		{
+			if (depth == d_ptr->min_level)
+				froff(fff, ", %d feet", depth * 50);
+			else
+				froff(fff, ", %d - %d feet", d_ptr->min_level * 50, depth * 50);
+		}
+		else
+		{
+			if (depth == d_ptr->min_level)
+				froff(fff, ", level %d", depth);
+			else
+				froff(fff, ", level %d - %d", d_ptr->min_level, depth);
+		}
+
+		/* All the way down? */
+		if (depth == d_ptr->max_level)
+		{
+			froff(fff, " (bottom)");
+		}
+	}
+
+	/* Is the player in this dungeon? */
+	if (p_ptr->place_num == town && p_ptr->depth)
+	{
+		froff(fff, ", current.\n\n\n");
+	}
+	else
+	{
+		froff(fff, ".\n\n");
 	}
 }
 
@@ -3972,7 +4122,7 @@ static bool do_cmd_knowledge_wild(int dummy)
 	/* Cycle through the places */
 	for (k = 1; k < place_count; k++)
 	{
-		dump_town_info(fff, k);
+		dump_town_info(fff, k, TRUE);
 	}
 
 	/* Close the file */
@@ -3988,8 +4138,47 @@ static bool do_cmd_knowledge_wild(int dummy)
 }
 
 
+/*
+ * Display information about wilderness areas
+ */
+static bool do_cmd_knowledge_dungeon(int dummy)
+{
+	int k;
 
-static menu_type knowledge_menu[10] =
+	FILE *fff;
+
+	char file_name[1024];
+	
+	/* Hack - ignore parameter */
+	(void) dummy;
+
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, 1024);
+
+	/* Failure */
+	if (!fff) return (FALSE);
+	
+	/* Cycle through the places */
+	for (k = 1; k < place_count; k++)
+	{
+		dump_dungeon_info(fff, k);
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	(void)show_file(file_name, "Dungeons", 0, 0);
+
+	/* Remove the file */
+	(void)fd_kill(file_name);
+	
+	return (FALSE);
+}
+
+
+/* Some gaps for options that should not show up always */
+static menu_type knowledge_menu[15] =
 {
 	{"Display known uniques", NULL, do_cmd_knowledge_uniques, MN_ACTIVE | MN_CLEAR},
 	{"Display known objects", NULL, do_cmd_knowledge_objects, MN_ACTIVE | MN_CLEAR},
@@ -3997,9 +4186,14 @@ static menu_type knowledge_menu[10] =
 	{"Display mutations", NULL, do_cmd_knowledge_mutations, MN_ACTIVE | MN_CLEAR},
 	{"Display current pets", NULL, do_cmd_knowledge_pets, MN_ACTIVE | MN_CLEAR},
 	{"Display current quests", NULL, do_cmd_knowledge_quests, MN_ACTIVE | MN_CLEAR},
+	MENU_END,
+	MENU_END,
+	MENU_END,
+	MENU_END,
 	{"Display virtues", NULL, do_cmd_knowledge_virtues, MN_ACTIVE | MN_CLEAR},
-	{NULL, NULL, do_cmd_knowledge_notes, MN_ACTIVE | MN_CLEAR},
-	{NULL, NULL, do_cmd_knowledge_wild, MN_ACTIVE | MN_CLEAR},
+	{"Display notes", NULL, do_cmd_knowledge_notes, MN_ACTIVE | MN_CLEAR},
+	{"Display towns", NULL, do_cmd_knowledge_wild, MN_ACTIVE | MN_CLEAR},
+	{"Display dungeons", NULL, do_cmd_knowledge_dungeon, MN_ACTIVE | MN_CLEAR},
 	MENU_END
 };
 
@@ -4009,40 +4203,38 @@ static menu_type knowledge_menu[10] =
  */
 void do_cmd_knowledge(void)
 {
+	int nr, last_option = 6;
+
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* start at the first free spot */
+	nr = last_option;
+
+	/*
+	 * Display virtues option is always left out
+	 * if (use_virtues) knowledge_menu[nr++] = knowledge_menu[10];
+	 */
 	
-	/* Turn off unavailable options */
-	
-	/* Hack - turn off virtues */
-	knowledge_menu[6].text = "";
-	knowledge_menu[6].flags &= ~(MN_ACTIVE);
-	
-	if (!take_notes)
+	/* Copy in the display notes */
+	if (take_notes) knowledge_menu[nr++] = knowledge_menu[11];
+
+	/* Copy in the wilderness displays */
+	if (!vanilla_town)
 	{
-		/* Turn off note taking menu */
-		knowledge_menu[7].text = "";
-		knowledge_menu[7].flags &= ~(MN_ACTIVE);
-	}
-	else
-	{
-		knowledge_menu[7].text = "Display notes";
-		knowledge_menu[7].flags |= MN_ACTIVE;
-	}
-	
-	if (vanilla_town)
-	{
-		knowledge_menu[8].text = "";
-		knowledge_menu[8].flags &= ~(MN_ACTIVE);
-	}
-	else
-	{
-		knowledge_menu[8].text = "Display town information";
-		knowledge_menu[8].flags |= MN_ACTIVE;
+		knowledge_menu[nr++] = knowledge_menu[12];
+		knowledge_menu[nr++] = knowledge_menu[13];
 	}
 	
 	/* Display the menu */
 	display_menu(knowledge_menu, -1, FALSE, NULL, "Display current knowledge");
+
+	/* Clear these options again */
+	for (; nr >= last_option; nr--)
+	{
+		/* menu item 14 contains a MENU_END */
+		knowledge_menu[nr] = knowledge_menu[14];
+	}
 }
 
 
@@ -4093,11 +4285,11 @@ void do_cmd_time(void)
 	/* Find the path */
 	if (one_in_(10) || p_ptr->tim.image)
 	{
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timefun.txt");
+		path_make(buf, ANGBAND_DIR_FILE, "timefun.txt");
 	}
 	else
 	{
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm.txt");
+		path_make(buf, ANGBAND_DIR_FILE, "timenorm.txt");
 	}
 
 	/* Open this file */

@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/09/24 19:40:26 $
+# CVS: Last edit by $Author: rr9 $ on $Date: 2005/06/04 12:53:28 $
 # File: f_info.txt
 
 
@@ -39,7 +39,7 @@
 
 # Version stamp (required)
 
-V:2.7.4
+V:2.7.5
 
 
 # 0x00 --> nothing

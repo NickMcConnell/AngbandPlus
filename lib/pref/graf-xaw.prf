@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2004/08/23 20:16:57 $
 # File: graf-x11.prf
 
 
@@ -36,6 +36,10 @@
 # New tiles
 ?:[EQU $GRAF new]
 %:graf-new.prf
+
+# David Gervais tiles
+?:[EQU $GRAF david]
+%:graf-dvg.prf
 
 ?:1
 

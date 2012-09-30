@@ -867,9 +867,9 @@ static errr process_sound_config_file( const char *name, const char *section )
 	char soundpath[1024];
 
 	/* Build the filename */
-	path_build(soundpath, 1024, ANGBAND_DIR_XTRA, "sound");
+	path_make(soundpath, ANGBAND_DIR_XTRA, "sound");
 	/* plog_fmt("XTRA/SOUND = %s", soundpath ); */
-	path_build(buf, 1024, soundpath, name);
+	path_make(buf, soundpath, name);
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -1004,8 +1004,8 @@ static errr process_music_config_file( const char *name, const char *section )
 	
 
 	/* Build the filename */
-	path_build(musicpath, 1024, ANGBAND_DIR_XTRA, "music");
-	path_build(buf, 1024, musicpath, name);
+	path_make(musicpath, ANGBAND_DIR_XTRA, "music");
+	path_make(buf, musicpath, name);
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -1419,11 +1419,11 @@ static void init_music( void )
 		{
 			if( !streq( song_name[i], "" ) )
 			{
-				/*path_build(musicpath, 1024, ANGBAND_DIR_XTRA, "music");*/
-				/*path_build( filepath, 1024, musicpath, song_name[i]);*/
+				/*path_make(musicpath, ANGBAND_DIR_XTRA, "music");*/
+				/*path_make( filepath, musicpath, song_name[i]);*/
 				
 				strnfmt( filepath, 1024, ":lib:xtra:music:%s", song_name[i] );
-				/*path_build( filepath, 1024, ANGBAND_XTRA_MUSIC, song_name[i] );*/
+				/*path_make( filepath, ANGBAND_XTRA_MUSIC, song_name[i] );*/
 				
 				c2p_stringcopy( pFilePath, filepath );
 
@@ -1492,10 +1492,10 @@ static void init_sounds( void )
 			Str255		pFilePath;
 			FSSpec		theFile;
 		
-			/*path_build( soundpath, 1024, ANGBAND_DIR_XTRA, "sound");*/
-			/*path_build( filepath, 1024, soundpath, sample_name[i][j]);*/
+			/*path_make( soundpath, ANGBAND_DIR_XTRA, "sound");*/
+			/*path_make( filepath, soundpath, sample_name[i][j]);*/
 		
-			/*path_build( filepath, 1024, ANGBAND_XTRA_SOUND, sample_name[i][j] );*/
+			/*path_make( filepath, ANGBAND_XTRA_SOUND, sample_name[i][j] );*/
 			strnfmt( filepath, 1024, ":lib:xtra:sound:%s", sample_name[i][j] );
 			
 			c2p_stringcopy( pFilePath, filepath );
@@ -1911,8 +1911,6 @@ static void term_data_resize(term_data *td)
 
 /*
  * Hack -- redraw a term_data
- *
- * Note that "Term_redraw()" calls "TERM_XTRA_CLEAR"
  */
 static void term_data_redraw(term_data *td)
 {
@@ -2555,44 +2553,6 @@ static errr Term_xtra_mac(int n, int v)
 			return (0);
 		}
 
-		/* Clear the screen */
-		case TERM_XTRA_CLEAR:
-		{
-			Rect		portRect;
-			
-#ifdef TARGET_CARBON
-			GetWindowBounds( (WindowRef)td->w, kWindowContentRgn, &portRect );
-			global_to_local( &portRect );
-#else
-			portRect = td->w->portRect;
-#endif
-			
-			/* No clipping XXX XXX XXX */
-			ClipRect(&portRect);
-
-			/* Erase the window */
-			EraseRect(&portRect);
-
-			/* Set the color */
-			term_data_color(td, TERM_WHITE);
-
-			/* Frame the window in white */
-			MoveTo(0, 0);
-			LineTo(0, td->size_hgt-1);
-			LineTo(td->size_wid-1, td->size_hgt-1);
-			LineTo(td->size_wid-1, 0);
-
-			/* Clip to the new size */
-			r.left = portRect.left + td->size_ow1;
-			r.top = portRect.top + td->size_oh1;
-			r.right = portRect.right - td->size_ow2;
-			r.bottom = portRect.bottom - td->size_oh2;
-			ClipRect(&r);
-
-			/* Success */
-			return (0);
-		}
-
 		/* React to changes */
 		case TERM_XTRA_REACT:
 		{
@@ -2983,8 +2943,8 @@ static void term_data_link(int i)
 	/* Use a "software" cursor */
 	td->t->soft_cursor = TRUE;
 
-	/* Erase with "white space" */
-	td->t->attr_blank = TERM_WHITE;
+	/* Erase with "black space" */
+	td->t->attr_blank = TERM_DARK;
 	td->t->char_blank = ' ';
 
 	/* Prepare the init/nuke hooks */
@@ -5992,7 +5952,7 @@ static void init_stuff(void)
 		OSType		types[3];
 		
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");
+		path_make(path, ANGBAND_DIR_FILE, "news.txt");
 		
 		/* Attempt to open and close that file */
 		if (0 == fd_close(fd_open(path, O_RDONLY))) break;

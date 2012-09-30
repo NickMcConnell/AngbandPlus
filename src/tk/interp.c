@@ -900,7 +900,7 @@ static void HandleError(void)
 	FILE *fp;
 
 	/* Dump the stack to errors.txt */
-	path_build(path, 1024, ANGBAND_DIR_TK, "errors.txt");
+	path_make(path, ANGBAND_DIR_TK, "errors.txt");
 	fp = fopen(path, "a");
 	if (fp != NULL)
 	{
@@ -948,7 +948,7 @@ void angtk_init(void)
 	init_palette();
 	
 	/* Source the "startup script" */
-	path_build(path, 1024, ANGBAND_DIR_TK, "init-startup.tcl");
+	path_make(path, ANGBAND_DIR_TK, "init-startup.tcl");
 	if (angtk_eval_file(path) == TCL_ERROR)
 	{
 		HandleError();
@@ -969,7 +969,7 @@ void angtk_angband_initialized(void)
 	}
 
 	/* Source a file to create the interface */
-	path_build(path, 1024, ANGBAND_DIR_TK, "init-other.tcl");
+	path_make(path, ANGBAND_DIR_TK, "init-other.tcl");
 	if (angtk_eval_file(path) == TCL_ERROR)
 	{
 		HandleError();

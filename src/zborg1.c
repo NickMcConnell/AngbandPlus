@@ -8,33 +8,15 @@
 #include "zborg1.h"
 
 /*
- * using 2 rings of Light Res.
- * does not know anti-teleport.
  * if a borg has no light and no money to buy fuel, sell some
  *    in order to raise cash.
- * Zborg.txt needs support for quest numbers on respawn
- *    and verify the quest numbers on from respawn.
- *    I dont know if the same random Quests are generated
- *	  for each respawned borg, if they are reset, or even
- *    marked as done.  Might need to watch it.
  * Inscription problem with long art names
- * learning - of prayers.
  *
  * Mimic Doors.
  *
- * mindcrafters need to be able to sell non ps-id items if they
- *   are low level and do not have ID or ps-id.
  * getting to a wilderness grid that has a town.
  *   using waypoints?
  * Using dimdoor to get accross lava and water.
- * Mutations can be activated.
- */
-
-/* Needs code:
- *    _QUESTITEM
- * TR2_NO_TELE
- * TR2_NO_MAGIC
- * TR2_TY_CURSE
  */
 
 /* Things that would be nice for the borg to know but would
@@ -43,7 +25,6 @@
  * - Aquatic animals stay in aquatic realms.
  * - Wraithform
  * - Summoning
- * - Fixed Quests
  */
 
 /*
@@ -51,8 +32,6 @@
  */
 
 /* Dynamic borg stuff */
-bool borg_scums_uniques;
-
 borg_player *bp_ptr;
 
 /*
@@ -63,7 +42,6 @@ bool borg_active;	/* Actually active */
 
 bool borg_cancel;	/* Being cancelled */
 
-bool borg_stop_king = TRUE;
 bool borg_dont_react = FALSE;
 int successful_target = BORG_TARGET;
 
@@ -71,9 +49,12 @@ int successful_target = BORG_TARGET;
  * Various silly flags
  */
 
-bool borg_flag_save = TRUE;	/* Save savefile at each level */
+
+bool borg_stop_king = TRUE;		/* The borg stops when he wins */
+bool borg_cheat_death = FALSE;	/* Is there life after death? */
 bool borg_flag_dump = FALSE;	/* Save savefile at each death */
-bool borg_save = FALSE;	/* do a save next level */
+bool borg_flag_save = FALSE;	/* Save savefile at each level */
+bool borg_save = FALSE;			/* Do a save next level */
 
 /*
  * Use a simple internal random number generator
@@ -93,6 +74,7 @@ s32b need_see_inviso = 0;	/* cast this when required */
 s32b borg_see_inv = 0;
 bool vault_on_level;	/* Borg will search for a vault */
 bool unique_on_level;
+int  unique_r_idx;
 bool scaryguy_on_level;	/* flee from certain guys */
 
 bool breeder_level = FALSE;	/* Borg will shut door */
@@ -172,34 +154,45 @@ bool borg_esp;
 s16b borg_game_ratio;	/* the ratio of borg time to game time */
 
 bool borg_shield;
-bool borg_on_glyph;	/* borg is standing on a glyph of warding */
-bool borg_create_door;	/* borg is going to create doors */
-bool borg_open_door_failed = FALSE;
-bool borg_close_door_failed = FALSE;
+bool borg_on_glyph;
+bool borg_create_door;
+bool borg_open_door_failed;
+bool borg_close_door_failed;
 bool borg_sleep_spell;
 bool borg_sleep_spell_ii;
-bool borg_slow_spell;	/* borg is about to cast the spell */
+bool borg_slow_spell;
 bool borg_confuse_spell;
 bool borg_fear_mon_spell;
 
-/*
- * Current shopping information
- */
+/* Which shop or dungeon to visit next */
+s16b goal_town = -1;
+s16b goal_shop = -1;
+s16b goal_dungeon = -1;
+s16b goal_explore_x = -1;
+s16b goal_explore_y = -1;
 
-s16b goal_shop = -1;	/* Next shop to visit */
-
-
-
-/* Current "shops" */
-borg_shop *borg_shops;
-
-s16b track_shop_num;
-s16b track_shop_size;
-
-/*
- * Hack -- current shop index
- */
+/* Current shop/dungeon index */
+s16b town_num = -1;
 s16b shop_num = -1;
+s16b dungeon_num = -1;
+
+/* List of known shops and dungeons */
+borg_town *borg_towns;
+borg_shop *borg_shops;
+borg_dungeon *borg_dungeons;
+
+/* Number of allocated towns */
+s16b borg_town_num = 0;
+s16b borg_town_size = 20;
+
+/* Number of allocated shops */
+s16b borg_shop_num = 0;
+s16b borg_shop_size = 16;
+
+/* Number of allocated dungeons */
+s16b borg_dungeon_num = 0;
+s16b borg_dungeon_size = 16;
+
 
 /*
  * Location variables
@@ -211,12 +204,16 @@ int c_y;	/* Current location (Y) */
 int g_x;	/* Goal location (X) */
 int g_y;	/* Goal location (Y) */
 
+s32b g_power;		/* Current power value */
+s32b g_power_home;	/* Current power_home value */
+
 int dim_door_y;	/* Safe landing zone for DDoor */
 int dim_door_x;
 
 /* BIG HACK! Assume only 50 cursed artifacts */
 int bad_obj_x[50];	/* Dropped cursed artifact at location (X) */
 int bad_obj_y[50];	/* Dropped cursed artifact at location (Y) */
+int bad_obj_n = -1;
 
 /*
  * Some estimated state variables
@@ -224,7 +221,6 @@ int bad_obj_y[50];	/* Dropped cursed artifact at location (Y) */
 
 s16b my_stat_max[6];	/* Current "maximal" stat values */
 s16b my_stat_cur[6];	/* Current "natural" stat values */
-s16b my_stat_use[6];	/* Current "resulting" stat values */
 s16b my_stat_ind[6];	/* Current "additions" to stat values */
 bool my_need_stat_check[6];	/* do I need to check my stats? */
 
@@ -235,16 +231,9 @@ s16b my_stat_add[6];	/* additions to stats  This will allow upgrading of */
 
 s16b home_stat_add[6];
 
-bool borg_wearing_cursed;
-bool borg_heavy_curse;
-
 int my_ammo_tval;	/* Ammo -- "tval" */
 s16b my_ammo_power;	/* Average power */
 s16b my_ammo_range;	/* Shooting range */
-
-bool my_need_enchant_to_a;	/* Need some enchantment */
-bool my_need_enchant_to_h;	/* Need some enchantment */
-bool my_need_enchant_to_d;	/* Need some enchantment */
 
 
 /*
@@ -252,15 +241,13 @@ bool my_need_enchant_to_d;	/* Need some enchantment */
  */
 
 s16b amt_food_scroll;
-s16b amt_food_hical;
 s16b amt_food_lowcal;
 s16b amt_torch;
 s16b amt_lantern;
 s16b amt_flask;
 
 s16b amt_slow_poison;
-s16b amt_cure_confusion;
-s16b amt_cure_blind;
+s16b amt_pot_curing;
 s16b amt_star_heal;
 s16b amt_life;
 s16b amt_rod_heal;
@@ -334,8 +321,8 @@ FILE *borg_fff = NULL;	/* Log file */
 /*
  * Track "stairs up"
  */
-s16b track_less_num;
-s16b track_less_size;
+s16b track_less_num = 0;
+s16b track_less_size = 16;
 int *track_less_x;
 int *track_less_y;
 
@@ -343,48 +330,48 @@ int *track_less_y;
 /*
  * Track "stairs down"
  */
-s16b track_more_num;
-s16b track_more_size;
+s16b track_more_num = 0;
+s16b track_more_size = 16;
 int *track_more_x;
 int *track_more_y;
 
 /*
  * Track glyphs
  */
-s16b track_glyph_num;
-s16b track_glyph_size;
+s16b track_glyph_num = 0;
+s16b track_glyph_size = 256;
 int *track_glyph_x;
 int *track_glyph_y;
 
 /*
  * Track Steps
  */
-s16b track_step_num;
-s16b track_step_size;
+s16b track_step_num = 0;
+s16b track_step_size = 256;
 int *track_step_x;
 int *track_step_y;
 
 /*
  * Track closed doors
  */
-s16b track_door_num;
-s16b track_door_size;
+s16b track_door_num = 0;
+s16b track_door_size = 256;
 int *track_door_x;
 int *track_door_y;
 
 /*
  * The object list.  This list is used to "track" objects.
  */
-s16b borg_takes_cnt;
-s16b borg_takes_nxt;
+s16b borg_takes_cnt = 0;
+s16b borg_takes_nxt = 1;
 borg_take *borg_takes;
 
 
 /*
  * The monster list.  This list is used to "track" monsters.
  */
-s16b borg_kills_cnt;
-s16b borg_kills_nxt;
+s16b borg_kills_cnt = 0;
+s16b borg_kills_nxt = 1;
 borg_kill *borg_kills;
 
 /*
@@ -393,8 +380,8 @@ borg_kill *borg_kills;
 
 s16b borg_view_n = 0;
 
-s16b borg_view_x[AUTO_VIEW_MAX];
-s16b borg_view_y[AUTO_VIEW_MAX];
+s16b *borg_view_x;
+s16b *borg_view_y;
 
 
 /*
@@ -403,28 +390,28 @@ s16b borg_view_y[AUTO_VIEW_MAX];
 
 /* For any monster within MAX_RANGE */
 s16b borg_temp_n = 0;
-s16b borg_temp_x[AUTO_TEMP_MAX];
-s16b borg_temp_y[AUTO_TEMP_MAX];
+s16b *borg_temp_x;
+s16b *borg_temp_y;
 
 /* For the monsters immediately surrounding the borg */
 s16b borg_next_n = 0;
-s16b borg_next_x[AUTO_HIT_MAX];
-s16b borg_next_y[AUTO_HIT_MAX];
+s16b *borg_next_x;
+s16b *borg_next_y;
 
 /* For the monsters that can be hit by a bolt */
 s16b borg_bolt_n = 0;
-s16b borg_bolt_x[AUTO_TEMP_MAX];
-s16b borg_bolt_y[AUTO_TEMP_MAX];
+s16b *borg_bolt_x;
+s16b *borg_bolt_y;
 
 /* For the monsters that can be hit by a beam, basically any monster in LOS */
 s16b borg_beam_n = 0;
-s16b borg_beam_x[AUTO_TEMP_MAX];
-s16b borg_beam_y[AUTO_TEMP_MAX];
+s16b *borg_beam_x;
+s16b *borg_beam_y;
 
 /* For the monsters that can be hit by a ball with radius > 1 */
 s16b borg_ball_n = 0;
-s16b borg_ball_x[AUTO_TEMP_MAX];
-s16b borg_ball_y[AUTO_TEMP_MAX];
+s16b *borg_ball_x;
+s16b *borg_ball_y;
 
 
 /*
@@ -433,8 +420,8 @@ s16b borg_ball_y[AUTO_TEMP_MAX];
 
 s16b borg_flow_n = 0;
 
-s16b borg_flow_x[AUTO_FLOW_MAX];
-s16b borg_flow_y[AUTO_FLOW_MAX];
+s16b *borg_flow_x;
+s16b *borg_flow_y;
 
 
 /*
@@ -458,11 +445,7 @@ bool borg_do_spell = TRUE;	/* Acquire "spell" info */
  * Strategy flags -- run certain functions
  */
 
-bool borg_do_crush_junk = FALSE;
-
-bool borg_do_crush_hole = FALSE;
-
-bool borg_do_crush_slow = FALSE;
+bool borg_do_destroy = FALSE;
 
 /* am I fighting a unique? */
 int borg_fighting_unique;
@@ -582,11 +565,36 @@ errr borg_what_text(int x, int y, int n, byte *a, char *s)
 	return (0);
 }
 
+/* Compare what you get from borg_what_text immediately */
+bool borg_term_text_comp(int x, int y, cptr what)
+{
+	byte t_a;
+	int wid, hgt;
+	int len = strlen(what);
+	char buf[120];
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	/* That's left or right of the term */
+	if (x < 0 || x + len > wid) return (FALSE);
+
+	/* That's higher or lower of the term */
+	if (y < 0 || y >= hgt) return (FALSE);
+
+	if (0 == borg_what_text(x, y, strlen(what), &t_a, buf) &&
+		streq(buf, what)) return (TRUE);
+
+	/* No match */
+	return (FALSE);
+}
+
+
 
 /*
  * Memorize a message, Log it, Search it, and Display it in pieces
  */
-void borg_note(cptr what)
+static void borg_note_aux(cptr what)
 {
 	int j, n, i, k;
 
@@ -712,10 +720,8 @@ void borg_note(cptr what)
 }
 
 
-/*
- * borg_note() , but with formatting
- */
-void borg_note_fmt(cptr fmt, ...)
+/* Do a message with formatting */
+void borg_note(cptr fmt, ...)
 {
 	va_list vp;
 
@@ -731,14 +737,14 @@ void borg_note_fmt(cptr fmt, ...)
 	va_end(vp);
 
 	/* Display */
-	borg_note(buf);
+	borg_note_aux(buf);
 }
 
 
 /*
  * Abort the Borg, noting the reason
  */
-void borg_oops(cptr what)
+static void borg_oops_aux(cptr what)
 {
 	char buf[1024];
 
@@ -755,10 +761,9 @@ void borg_oops(cptr what)
 	borg_flush();
 }
 
-/*
- * borg_oops() , but with formatting
- */
-void borg_oops_fmt(cptr fmt, ...)
+
+/* Abort the borg, give a text with formatting */
+void borg_oops(cptr fmt, ...)
 {
 	va_list vp;
 
@@ -774,7 +779,7 @@ void borg_oops_fmt(cptr fmt, ...)
 	va_end(vp);
 
 	/* Display */
-	borg_oops(buf);
+	borg_oops_aux(buf);
 }
 
 
@@ -997,52 +1002,59 @@ void borg_init_1(void)
 	/*** Special "tracking" arrays ***/
 
 	/* Track "up" stairs */
-	track_less_num = 0;
-	track_less_size = 16;
 	C_MAKE(track_less_x, track_less_size, int);
 	C_MAKE(track_less_y, track_less_size, int);
 
 	/* Track "down" stairs */
-	track_more_num = 0;
-	track_more_size = 16;
 	C_MAKE(track_more_x, track_more_size, int);
 	C_MAKE(track_more_y, track_more_size, int);
 
 	/* Track glyphs */
-	track_glyph_num = 0;
-	track_glyph_size = 256;
 	C_MAKE(track_glyph_x, track_glyph_size, int);
 	C_MAKE(track_glyph_y, track_glyph_size, int);
 
 	/* Track Steps */
-	track_step_num = 0;
-	track_step_size = 256;
 	C_MAKE(track_step_x, track_step_size, int);
 	C_MAKE(track_step_y, track_step_size, int);
 
 	/* Track closed doors */
-	track_door_num = 0;
-	track_door_size = 256;
 	C_MAKE(track_door_x, track_door_size, int);
 	C_MAKE(track_door_y, track_door_size, int);
-
-	/*** Object tracking ***/
-
-	/* No objects yet */
-	borg_takes_cnt = 0;
-	borg_takes_nxt = 1;
 
 	/* Array of objects */
 	C_MAKE(borg_takes, BORG_TAKES_MAX, borg_take);
 
-	/*** Monster tracking ***/
-
-	/* No monsters yet */
-	borg_kills_cnt = 0;
-	borg_kills_nxt = 1;
-
 	/* Array of monsters */
 	C_MAKE(borg_kills, BORG_KILLS_MAX, borg_kill);
+
+	/* Array of views */
+	C_MAKE(borg_view_x, AUTO_VIEW_MAX, s16b);
+	C_MAKE(borg_view_y, AUTO_VIEW_MAX, s16b);
+
+	/* Array of temporary coordinates */
+	C_MAKE(borg_temp_x, BORG_TEMP_MAX, s16b);
+	C_MAKE(borg_temp_y, BORG_TEMP_MAX, s16b);
+
+	/* Array of temporary coordinates */
+	C_MAKE(borg_next_x, BORG_NEXT_MAX, s16b);
+	C_MAKE(borg_next_y, BORG_NEXT_MAX, s16b);
+
+	/* Array of temporary coordinates */
+	C_MAKE(borg_bolt_x, BORG_TEMP_MAX, s16b);
+	C_MAKE(borg_bolt_y, BORG_TEMP_MAX, s16b);
+
+	/* Array of temporary coordinates */
+	C_MAKE(borg_beam_x, BORG_TEMP_MAX, s16b);
+	C_MAKE(borg_beam_y, BORG_TEMP_MAX, s16b);
+
+	/* Array of temporary coordinates */
+	C_MAKE(borg_ball_x, BORG_TEMP_MAX, s16b);
+	C_MAKE(borg_ball_y, BORG_TEMP_MAX, s16b);
+
+	/* Array of temporary coordinates */
+	C_MAKE(borg_flow_x, BORG_FLOW_MAX, s16b);
+	C_MAKE(borg_flow_y, BORG_FLOW_MAX, s16b);
+
 
 	/* Struct for the player information */
 	MAKE(bp_ptr, borg_player);

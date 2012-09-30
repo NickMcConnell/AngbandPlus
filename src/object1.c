@@ -155,7 +155,10 @@ static char string_buf[200];
  */
 cptr item_activation(const object_type *o_ptr)
 {
-	cptr desc = "";
+	cptr desc = NULL;
+	
+	/* Empty string */
+	string_buf[0] = '\0';
 	
 	/* Require activation ability */
 	if (!(FLAG(o_ptr, TR_ACTIVATE))) return ("nothing");
@@ -163,11 +166,15 @@ cptr item_activation(const object_type *o_ptr)
 	/* Get description and copy to temporary buffer */
 	/* Lua better not try to modify the object ... */
 	apply_object_trigger(TRIGGER_DESC, (object_type *) o_ptr, ":s", LUA_RETURN(desc));
-	strncpy(string_buf, desc, 199);
+	
+	if (desc)
+	{
+		strncpy(string_buf, desc, 199);
 
-	/* Free string allocated to hold return value */
-	string_free(desc);
-
+		/* Free string allocated to hold return value */
+		string_free(desc);
+	}
+	
 	/* Return the description */
 	return string_buf;
 }
@@ -184,8 +191,9 @@ cptr item_activation(const object_type *o_ptr)
 static void roff_obj_aux(const object_type *o_ptr)
 {
 	object_kind *k_ptr;
+	bonuses_type b;
 	
-	int n;
+	int i, n;
 
 	object_flags oflags;
 	object_flags *of_ptr = &oflags;
@@ -198,6 +206,43 @@ static void roff_obj_aux(const object_type *o_ptr)
 	/* Extract the flags */
 	object_flags_known(o_ptr, of_ptr);
 
+	/* Extract the bonuses */
+	object_bonuses_known(o_ptr, &b);
+
+	/* Make sure the examination starts top left */
+	Term_gotoxy(0, 0);
+
+	/* Show the item in a message including its pack letter */
+	item_describe_roff((object_type *)o_ptr);
+
+	/* Start the description a bit lower */
+	roff("\n\n");
+
+	/* If you don't know anything about the item */
+	if (!object_known_p(o_ptr) && !object_aware_p(o_ptr))
+	{
+		/* say so */
+		roff("You see nothing special.");
+	}
+
+	/* Hack.  Not all armour and weapons have a description in k_idx.txt */
+	if (o_ptr->tval >= TV_HAFTED &&
+		o_ptr->tval <= TV_DRAG_ARMOR &&
+		!k_ptr->text)
+	{
+		/* If the object has no id or has no interesting flags */
+		if (!object_known_p(o_ptr) ||
+			(o_ptr->flags[0] == 0 &&
+			 o_ptr->flags[1] == TR2_SHOW_MODS &&
+			 o_ptr->flags[2] == 0 &&
+			 o_ptr->flags[3] == 0))
+		{
+			/* say nothing is known */
+			roff("You see nothing special.");
+		}
+	}
+
+
 	/* Indicate if fully known */
 	if (object_known_full(o_ptr))
 	{
@@ -205,7 +250,7 @@ static void roff_obj_aux(const object_type *o_ptr)
 	}
 
 	/* Add the 'description' if any */
-	if (object_known_p(o_ptr))
+	if (object_known_p(o_ptr) || object_aware_p(o_ptr))
 	{
 		artifact_type *a_ptr = NULL;
 		if (o_ptr->a_idx) a_ptr = &a_info[o_ptr->a_idx];
@@ -254,53 +299,61 @@ static void roff_obj_aux(const object_type *o_ptr)
 
 	/* And then describe it fully */
 
-	/* Collect stat boosts */
-	vn = 0;
-	/* All stats is handled specially */
-	if ((of_ptr->flags[0] & TR0_STAT_MASK) == TR0_STAT_MASK)
-		vp[vn++] = "all your stats";
-	else
+	for (i = 99; i >= -99; i--)
 	{
-		if (FLAG(of_ptr, TR_STR)) vp[vn++] = "strength";
-		if (FLAG(of_ptr, TR_INT)) vp[vn++] = "intelligence";
-		if (FLAG(of_ptr, TR_WIS)) vp[vn++] = "wisdom";
-		if (FLAG(of_ptr, TR_DEX)) vp[vn++] = "dexterity";
-		if (FLAG(of_ptr, TR_CON)) vp[vn++] = "constitution";
-		if (FLAG(of_ptr, TR_CHR)) vp[vn++] = "charisma";
-	}
+		if (!i) continue;
+	
+		/* Collect stat boosts */
+		vn = 0;
 
-	if (FLAG(of_ptr, TR_SPEED))   vp[vn++] = "speed";
-	if (FLAG(of_ptr, TR_STEALTH)) vp[vn++] = "stealth";
-	if (FLAG(of_ptr, TR_SEARCH))  vp[vn++] = "perception";
-	if (FLAG(of_ptr, TR_TUNNEL))  vp[vn++] = "ability to dig";
+		if (b.stat[A_STR] == i) vp[vn++] = "strength";
+		if (b.stat[A_INT] == i) vp[vn++] = "intelligence";
+		if (b.stat[A_WIS] == i) vp[vn++] = "wisdom";
+		if (b.stat[A_DEX] == i) vp[vn++] = "dexterity";
+		if (b.stat[A_CON] == i) vp[vn++] = "constitution";
+		if (b.stat[A_CHR] == i) vp[vn++] = "charisma";
 
-	/* Describe stat boosts */
-	if (vn > 0)
-	{
-		if (o_ptr->pval > 0)
-			roff("It increases ");
-		else
-			roff("It decreases ");
-
-		/* Omit "your" for "all stats" */
-		if (strncmp(vp[0], "all ", 4) != 0)
-			roff("your ");
-
-		/* Scan */
-		for (n = 0; n < vn; n++)
+		/* All stats is handled specially */
+		if (vn == 6)
 		{
-			if (n > 0 && n == vn - 1) roff(" and ");
-			else if (n > 0)  roff(", ");
-
-			roff(CLR_L_GREEN "%s", vp[n]);
+			vn = 0;
+			vp[vn++] = "all your stats";
 		}
 
-		roff(" by %+i.  ", o_ptr->pval);
+		if (b.pspeed == i)   vp[vn++] = "speed";
+		if (b.skills[SKILL_STL] == i) vp[vn++] = "stealth";
+		if (b.skills[SKILL_SNS] / 5 == i)  vp[vn++] = "perception";
+		if (b.skills[SKILL_DIG] / 20 == i)  vp[vn++] = "ability to dig";
+		if (b.skills[SKILL_SAV] == i) vp[vn++] = "saving throws";
+
+		/* Describe stat boosts */
+		if (vn > 0)
+		{
+			if (i > 0)
+				roff("It increases ");
+			else
+				roff("It decreases ");
+
+			/* Omit "your" for "all stats" */
+			if (strncmp(vp[0], "all ", 4) != 0)
+				roff("your ");
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				if (n > 0 && n == vn - 1) roff(" and ");
+				else if (n > 0)  roff(", ");
+
+				roff(CLR_L_GREEN "%s", vp[n]);
+			}
+
+			roff(" by %+i.  ", i);
+		}
 	}
 
-	if (FLAG(of_ptr, TR_SP))
+	if (b.sp_bonus)
 	{
-		if (o_ptr->pval > 0)
+		if (b.sp_bonus > 0)
 		{
 			roff("It increases your ");
 		}
@@ -308,36 +361,56 @@ static void roff_obj_aux(const object_type *o_ptr)
 		{
 			roff("It decreases your ");
 		}
-		roff(CLR_L_GREEN "maximum sp" CLR_DEFAULT " by %i per level.  ", o_ptr->pval);
+		roff(CLR_L_GREEN "maximum sp" CLR_DEFAULT " by %i per level.  ", b.sp_bonus);
 	}
 
-	if (FLAG(of_ptr, TR_INFRA))
+	if (b.see_infra)
 	{
-		if (o_ptr->pval > 0)
+		if (b.see_infra > 0)
 		{
 			roff("It increases your ");
 			roff(CLR_L_GREEN "infravision");
-			roff(" by %i feet.  ", o_ptr->pval * 10);
+			roff(" by %i feet.  ", b.see_infra * 10);
 		}
 		else
 		{
 			roff("It decreases your ");
 			roff(CLR_L_GREEN "infravision");
-			roff(" by %i feet.  ", -o_ptr->pval * 10);
+			roff(" by %i feet.  ", -b.see_infra * 10);
 		}
 	}
 
-	if (FLAG(of_ptr, TR_BLOWS))
+	/* Food that can be thrown is worth noting */
+	if (k_ptr->ds > 1 && k_ptr->dd > 1 && k_ptr->tval == TV_FOOD)
 	{
-		if (o_ptr->pval > 0)
+		roff("It can be thrown for %id%i damage.  ",
+			k_ptr->dd, k_ptr->ds);
+	}
+
+	if (b.extra_blows)
+	{
+		if (b.extra_blows > 0)
 		{
-			roff("It provides %i extra ", o_ptr->pval);
+			roff("It provides %i extra ", b.extra_blows);
 		}
 		else
 		{
-			roff("It provides %i fewer ", -o_ptr->pval);
+			roff("It provides %i fewer ", -b.extra_blows);
 		}
 		roff(CLR_L_GREEN "blows per turn" CLR_DEFAULT ".  ");
+	}
+
+	if (b.extra_shots)
+	{
+		if (b.extra_shots > 0)
+		{
+			roff("It provides %i extra ", b.extra_shots);
+		}
+		else
+		{
+			roff("It provides %i fewer ", -b.extra_shots);
+		}
+		roff(CLR_L_GREEN "shots per turn" CLR_DEFAULT ".  ");
 	}
 
 	/* Collect brands */
@@ -507,13 +580,20 @@ static void roff_obj_aux(const object_type *o_ptr)
 
 	/* Collect resistances */
 	vn = 0;
-	if (FLAG(of_ptr, TR_RES_ACID))   vp[vn++] = "acid";
-	if (FLAG(of_ptr, TR_RES_ELEC))   vp[vn++] = "electricity";
-	if (FLAG(of_ptr, TR_RES_FIRE))   vp[vn++] = "fire";
-	if (FLAG(of_ptr, TR_RES_COLD))   vp[vn++] = "cold";
-	if (FLAG(of_ptr, TR_RES_POIS))   vp[vn++] = "poison";
-	if (FLAG(of_ptr, TR_RES_LITE))   vp[vn++] = "bright light";
-	if (FLAG(of_ptr, TR_RES_DARK))   vp[vn++] = "magical darkness";
+	if (FLAG(of_ptr, TR_RES_ACID) &&
+		!FLAG(of_ptr, TR_IM_ACID))   vp[vn++] = "acid";
+	if (FLAG(of_ptr, TR_RES_ELEC) &&
+		!FLAG(of_ptr, TR_IM_ELEC))   vp[vn++] = "electricity";
+	if (FLAG(of_ptr, TR_RES_FIRE) &&
+		!FLAG(of_ptr, TR_IM_FIRE))   vp[vn++] = "fire";
+	if (FLAG(of_ptr, TR_RES_COLD) &&
+		!FLAG(of_ptr, TR_IM_COLD))   vp[vn++] = "cold";
+	if (FLAG(of_ptr, TR_RES_POIS) &&
+		!FLAG(of_ptr, TR_IM_POIS))   vp[vn++] = "poison";
+	if (FLAG(of_ptr, TR_RES_LITE) &&
+		!FLAG(of_ptr, TR_IM_LITE))   vp[vn++] = "bright light";
+	if (FLAG(of_ptr, TR_RES_DARK) &&
+		!FLAG(of_ptr, TR_IM_DARK))   vp[vn++] = "magical darkness";
 	if (FLAG(of_ptr, TR_RES_FEAR))   vp[vn++] = "fear";
 	if (FLAG(of_ptr, TR_RES_BLIND))  vp[vn++] = "blindness";
 	if (FLAG(of_ptr, TR_RES_CONF))   vp[vn++] = "confusion";
@@ -547,6 +627,16 @@ static void roff_obj_aux(const object_type *o_ptr)
 		roff("It is perfectly balanced for throwing.  ");
 	}
 
+	if (FLAG(of_ptr, TR_WILD_SHOT))
+	{
+		roff("Its shots are not hindered by trees.  ");
+	}
+
+	if (FLAG(of_ptr, TR_EASY_ENCHANT))
+	{
+		roff("It is easy to enchant.  ");
+	}
+
 	/* Collect miscellaneous */
 	vn = 0;
 	if (FLAG(of_ptr, TR_XXX7))        vp[vn++] = "renders you XXX7'ed";
@@ -557,12 +647,12 @@ static void roff_obj_aux(const object_type *o_ptr)
 	if (FLAG(of_ptr, TR_SLOW_DIGEST)) vp[vn++] = "slows your metabolism";
 	if (FLAG(of_ptr, TR_REGEN))       vp[vn++] = "speeds your regenerative powers";
 	if (FLAG(of_ptr, TR_REFLECT))     vp[vn++] = "reflects bolts and arrows";
-	if (FLAG(of_ptr, TR_LUCK_10))       vp[vn++] = "increases your saving throws";
+	if (FLAG(of_ptr, TR_WILD_WALK))     vp[vn++] = "allows you to walk the wild unhindered";
 	if (FLAG(of_ptr, TR_MUTATE))        vp[vn++] = "causes mutations";
 	if (FLAG(of_ptr, TR_PATRON))        vp[vn++] = "attracts the attention of chaos gods";
 	if (FLAG(of_ptr, TR_STRANGE_LUCK))  vp[vn++] = "warps fate around you";
 	if (FLAG(of_ptr, TR_PASS_WALL))     vp[vn++] = "allows you to pass through solid rock";
-	if (FLAG(of_ptr, TR_NO_TELE))     vp[vn++] = "prevents teleporation";
+	if (FLAG(of_ptr, TR_NO_TELE))     vp[vn++] = "prevents teleportation";
 
 	/* Print miscellaneous */
 	if (vn)
@@ -609,10 +699,6 @@ static void roff_obj_aux(const object_type *o_ptr)
 	if (FLAG(of_ptr, TR_XTRA_MIGHT))
 	{
 		roff("It fires missiles with " CLR_GREEN "extra might" CLR_DEFAULT ".  ");
-	}
-	if (FLAG(of_ptr, TR_XTRA_SHOTS))
-	{
-		roff("It fires missiles " CLR_GREEN "excessively fast" CLR_DEFAULT ".  ");
 	}
 
 	/* Collect curses */
@@ -677,12 +763,18 @@ static void roff_obj_aux(const object_type *o_ptr)
 
 	/* Collect vulnerabilities */
 	vn = 0;
-	if (FLAG(of_ptr, TR_HURT_ACID)) vp[vn++] = "acid";
-	if (FLAG(of_ptr, TR_HURT_ELEC)) vp[vn++] = "lightning";
-	if (FLAG(of_ptr, TR_HURT_FIRE)) vp[vn++] = "fire";
-	if (FLAG(of_ptr, TR_HURT_COLD)) vp[vn++] = "frost";
-	if (FLAG(of_ptr, TR_HURT_LITE)) vp[vn++] = "bright light";
-	if (FLAG(of_ptr, TR_HURT_DARK)) vp[vn++] = "magical darkness";
+	if (FLAG(of_ptr, TR_HURT_ACID) &&
+		!FLAG(of_ptr, TR_IM_ACID)) vp[vn++] = "acid";
+	if (FLAG(of_ptr, TR_HURT_ELEC) &&
+		!FLAG(of_ptr, TR_IM_ELEC)) vp[vn++] = "lightning";
+	if (FLAG(of_ptr, TR_HURT_FIRE) &&
+		!FLAG(of_ptr, TR_IM_FIRE)) vp[vn++] = "fire";
+	if (FLAG(of_ptr, TR_HURT_COLD) &&
+		!FLAG(of_ptr, TR_IM_COLD)) vp[vn++] = "frost";
+	if (FLAG(of_ptr, TR_HURT_LITE) &&
+		!FLAG(of_ptr, TR_IM_LITE)) vp[vn++] = "bright light";
+	if (FLAG(of_ptr, TR_HURT_DARK) &&
+		!FLAG(of_ptr, TR_IM_DARK)) vp[vn++] = "magical darkness";
 
 	/* Print vulnerabilities */
 	if (vn)
@@ -752,40 +844,73 @@ static void roff_obj_aux(const object_type *o_ptr)
 			roff(".  ");
 		}
 	}
+
+	/* If it is a weapon */
+	if (o_ptr->tval >= TV_BOW && o_ptr->tval <= TV_SWORD)
+	{
+		/* Obtain the "hold" value */
+		int hold = adj_str_hold[p_ptr->stat[A_STR].ind];
+
+		/* If you are not strong enough for this weapon */
+		if (hold < o_ptr->weight / 10)
+		{
+			roff("You are not strong enough to wield this weapon effectively.  ");
+		}
+	}
 	
 	/* Final blank line */
 	roff("\n");
 }
 
-bool identify_fully_aux(const object_type *o_ptr)
+static const object_type *resize_o_ptr;
+
+static void resize_ident_fully(void)
 {
+	/* Recall object */
+	roff_obj_aux(resize_o_ptr);
+}
+
+
+void identify_fully_aux(const object_type *o_ptr)
+{
+	void (*old_hook) (void);
+
 	/* Books, a hack */
 	if ((o_ptr->tval >= TV_BOOKS_MIN) && (o_ptr->tval <= TV_BOOKS_MAX))
 	{
 		do_cmd_browse_aux(o_ptr);
-		return (TRUE);
+		return;
 	}
-
-	/* Flush messages */
-	message_flush();
 
 	/* Save the screen */
 	screen_save();
 
-	/* Begin recall */
-	clear_row(1);
-
 	/* Recall object */
 	roff_obj_aux(o_ptr);
 
-	/* Wait for it */
+	/* Remember what the resize hook was */
+	old_hook = angband_term[0]->resize_hook;
+
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = resize_ident_fully;
+
+	/* Remember essentials for resizing */
+	resize_o_ptr = o_ptr;
+
+	/* Wait for the player to read the info */
 	(void)inkey();
+	
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = old_hook;
+
+	/* The size may have changed during the object description */
+	angband_term[0]->resize_hook();
+
+	/* Hack - Flush it */
+	Term_fresh();
 
 	/* Restore the screen */
 	screen_load();
-
-	/* XXX */
-	return (TRUE);
 }
 
 /*
@@ -1144,6 +1269,14 @@ cptr describe_use(int i)
 	return (p);
 }
 
+/*
+ * Hook to specify "tval"
+ */
+bool item_tester_hook_tval(const object_type *o_ptr, byte tval)
+{
+	return (o_ptr->tval == tval);
+}
+
 
 /*
  * Hook to specify "weapon"
@@ -1260,6 +1393,18 @@ bool item_tester_hook_armour(const object_type *o_ptr)
 			return (TRUE);
 		}
 	}
+
+	return (FALSE);
+}
+
+/*
+ * Hook to specify "armour" without acid resistance
+ */
+bool item_tester_hook_armour_no_acid(const object_type *o_ptr)
+{
+	/* If this item is an armour and is not acid proof */
+	if (item_tester_hook_armour(o_ptr) &&
+		!FLAG(o_ptr, TR_IGNORE_ACID)) return (TRUE);
 
 	return (FALSE);
 }
@@ -1414,19 +1559,6 @@ bool item_tester_hook_jewel(const object_type *o_ptr)
 	/* Nope */
 	return (FALSE);
 }
-
-
-
-/* Hack - match item_tester_tval */
-bool item_tester_hook_tval(const object_type *o_ptr)
-{
-	/* A match? */
-	if (o_ptr->tval == item_tester_tval) return (TRUE);
-
-	/* Nope */
-	return (FALSE);
-}
-
 
 bool item_tester_hook_is_blessed(const object_type *o_ptr)
 {
@@ -1880,9 +2012,9 @@ void show_equip(bool store)
 	object_type *o_ptr;
 
 	char o_name[256];
-	int out_index[23];
-	cptr out_color[23];
-	char out_desc[23][256];
+	int out_index[EQUIP_MAX];
+	cptr out_color[EQUIP_MAX];
+	char out_desc[EQUIP_MAX][256];
 
 	byte a;
 	char c;
@@ -1998,7 +2130,6 @@ void show_equip(bool store)
 		}
 
 		Term_draw(col + 3, j + 1, a, c);
-
 
 		/* Use labels */
 		if (show_labels)

@@ -12,13 +12,11 @@
 
 #include "angband.h"
 
-
 /*
  * Go up one level
  */
 void do_cmd_go_up(void)
 {
-	bool go_up = FALSE;
 	cave_type *c_ptr;
 
 	/* Player grid */
@@ -26,50 +24,28 @@ void do_cmd_go_up(void)
 
 	if (c_ptr->feat == FEAT_LESS)
 	{
-		if (!p_ptr->depth)
-		{
-			go_up = TRUE;
-		}
-		else
-		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-					go_up = TRUE;
-			}
-			else
-			{
-				go_up = TRUE;
-			}
-		}
+		/*
+		 * I'm experimenting without this... otherwise the monsters get to
+		 * act first when we go up stairs, theoretically resulting in a
+		 * possible insta-death.
+		 */
+		p_ptr->state.energy_use = 0;
 
-		if (go_up)
-		{
-			/*
-			 * I'm experimenting without this... otherwise the monsters get to
-			 * act first when we go up stairs, theoretically resulting in a
-			 * possible insta-death.
-			 */
-			p_ptr->state.energy_use = 0;
+		/* Success */
+		msgf(MSGT_STAIRS, "You enter a maze of up staircases.");
 
-			/* Success */
-			msgf(MSGT_STAIRS, "You enter a maze of up staircases.");
+		/* Create a way back */
+		p_ptr->state.create_down_stair = TRUE;
 
-			if (autosave_l) do_cmd_save_game(TRUE);
+		/* Go up */
+		move_dun_level(-1);
 
-			/* Create a way back */
-			p_ptr->state.create_down_stair = TRUE;
-
-			/* Go up */
-			move_dun_level(-1);
-
-			/*
-			 * Hack XXX XXX Take some time
-			 *
-			 * This will need to be rethought in multiplayer
-			 */
-			turn += 100;
-		}
+		/*
+		 * Hack XXX XXX Take some time
+		 *
+		 * This will need to be rethought in multiplayer
+		 */
+		turn += 100;
 	}
 	else
 	{
@@ -85,7 +61,6 @@ void do_cmd_go_up(void)
 void do_cmd_go_down(void)
 {
 	cave_type *c_ptr;
-	bool go_down = FALSE;
 
 	/* Player grid */
 	c_ptr = area(p_ptr->px, p_ptr->py);
@@ -97,45 +72,23 @@ void do_cmd_go_down(void)
 	}
 	else
 	{
-		if (!p_ptr->depth)
-		{
-			go_down = TRUE;
-		}
-		else
-		{
-			if (confirm_stairs)
-			{
-				if (get_check("Really leave the level? "))
-					go_down = TRUE;
-			}
-			else
-			{
-				go_down = TRUE;
-			}
-		}
+		p_ptr->state.energy_use = 0;
 
-		if (go_down)
-		{
-			p_ptr->state.energy_use = 0;
+		/* Success */
+		msgf(MSGT_STAIRS, "You enter a maze of down staircases.");
 
-			/* Success */
-			msgf(MSGT_STAIRS, "You enter a maze of down staircases.");
+		/* Create a way back */
+		p_ptr->state.create_up_stair = TRUE;
+		
+		/* Go down */
+		move_dun_level(1);
 
-			if (autosave_l) do_cmd_save_game(TRUE);
-
-			/* Create a way back */
-			p_ptr->state.create_up_stair = TRUE;
-			
-			/* Go down */
-			move_dun_level(1);
-
-			/*
-			 * Hack XXX XXX Take some time
-			 *
-			 * This will need to be rethought in multiplayer
-			 */
-			turn += 100;
-		}
+		/*
+		 * Hack XXX XXX Take some time
+		 *
+		 * This will need to be rethought in multiplayer
+		 */
+		turn += 100;
 	}
 }
 
@@ -726,7 +679,8 @@ bool do_cmd_open_aux(int x, int y)
 		if (p_ptr->tim.confused || p_ptr->tim.image) i = i / 10;
 
 		/* Success? */
-		if (!field_hook_single(f_ptr, FIELD_ACT_INTERACT, i))
+		if (!field_script_single(f_ptr, FIELD_ACT_INTERACT,
+									"i", LUA_VAR_NAMED(i, "power")))
 		{
 			/* Sound */
 			sound(SOUND_OPENDOOR);
@@ -1053,8 +1007,8 @@ static bool do_cmd_tunnel_aux(int x, int y)
 
 	int dig = p_ptr->skills[SKILL_DIG];
 
-	field_type *f_ptr = field_hook_find(c_ptr,
-										FIELD_ACT_INTERACT_TEST, &action);
+	field_type *f_ptr = field_script_find(c_ptr,
+										FIELD_ACT_INTERACT_TEST, ":i", LUA_RETURN(action));
 
 	/* Take a turn */
 	p_ptr->state.energy_use = 100;
@@ -1072,9 +1026,10 @@ static bool do_cmd_tunnel_aux(int x, int y)
 		return (FALSE);
 	}
 
-	if (f_ptr && (action == 0))
+	if (f_ptr && (action == ACT_TUNNEL))
 	{
-		if (!field_hook_single(f_ptr, FIELD_ACT_INTERACT, dig))
+		if (!field_script_single(f_ptr, FIELD_ACT_INTERACT,
+									"i", LUA_VAR_NAMED(dig, "power")))
 		{
 			/* Finished tunneling */
 			return (FALSE);
@@ -1519,8 +1474,6 @@ bool do_cmd_disarm_aux(cave_type *c_ptr, int dir)
 
 	bool more = FALSE;
 
-	int xp;
-
 	/* Get trap */
 	f_ptr = field_first_known(c_ptr, FTYPE_TRAP);
 
@@ -1534,9 +1487,6 @@ bool do_cmd_disarm_aux(cave_type *c_ptr, int dir)
 	/* Take a turn */
 	p_ptr->state.energy_use = 100;
 
-	/* Get amount of xp for a successful disarm */
-	xp = f_ptr->data[0] * f_ptr->data[0];
-
 	/* Get type of trap */
 	t_ptr = &t_info[f_ptr->t_idx];
 
@@ -1548,13 +1498,11 @@ bool do_cmd_disarm_aux(cave_type *c_ptr, int dir)
 	if (p_ptr->tim.confused || p_ptr->tim.image) i = i / 10;
 
 	/* Success */
-	if (!field_hook_single(f_ptr, FIELD_ACT_INTERACT, i))
+	if (!field_script_single(f_ptr, FIELD_ACT_INTERACT,
+								"i", LUA_VAR_NAMED(i, "power")))
 	{
 		/* Message */
 		msgf("You have disarmed the %s.", t_ptr->name);
-
-		/* Reward */
-		gain_exp(xp);
 	}
 
 	/* Failure -- Keep trying */
@@ -1753,27 +1701,27 @@ void do_cmd_alter(void)
 			/* Attack */
 			py_attack(x, y);
 		}
-
-		else if (field_hook_find(c_ptr, FIELD_ACT_INTERACT_TEST,
-								  &action))
+		else if (field_script_find(c_ptr,
+									FIELD_ACT_INTERACT_TEST,
+									":i", LUA_RETURN(action)))
 		{
 			switch (action)
 			{
-				case 0:
+				case ACT_TUNNEL:
 				{
 					/* Tunnel */
 					more = do_cmd_tunnel_aux(x, y);
 					break;
 				}
 
-				case 1:
+				case ACT_DISARM:
 				{
 					/* Disarm */
 					more = do_cmd_disarm_aux(c_ptr, dir);
 					break;
 				}
 
-				case 2:
+				case ACT_OPEN:
 				{
 					/* Unlock / open */
 					more = do_cmd_open_aux(x, y);
@@ -2042,7 +1990,7 @@ void do_cmd_stay(int pickup)
 	/* 
 	 * Fields you are standing on may do something.
 	 */
-	field_hook(area(p_ptr->px, p_ptr->py), FIELD_ACT_PLAYER_ENTER);
+	field_script(area(p_ptr->px, p_ptr->py), FIELD_ACT_PLAYER_ENTER, "");
 }
 
 
@@ -2636,7 +2584,7 @@ void do_cmd_fire_aux(int mult, object_type *o_ptr, const object_type *j_ptr)
 			 * except from rangers.
 			 */
 			else if ((c_ptr->feat == FEAT_TREES) &&
-					 (p_ptr->rp.pclass != CLASS_RANGER))
+				!FLAG(p_ptr, TR_WILD_SHOT))
 			{
 				terrain_bonus = r_ptr->ac / 5 + 5;
 			}
@@ -2859,6 +2807,9 @@ void do_cmd_throw_aux(int mult)
 	{
 		/* Oops */
 		msgf("Hmmm, it seems to be cursed.");
+
+		/* Set the knowledge flag for the player */
+		o_ptr->kn_flags[2] |= TR2_CURSED;
 
 		/* Nope */
 		return;

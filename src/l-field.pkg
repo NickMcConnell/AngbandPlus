@@ -1,0 +1,97 @@
+$#include "angband.h"
+$#include "script.h"
+
+typedef char* cptr;
+typedef int errr;
+typedef int sint;
+
+#define ACT_TUNNEL		0
+#define ACT_DISARM		1
+#define ACT_OPEN		2
+
+#define BREAK_GLYPH             550	/* Rune of protection resistance */
+#define BREAK_MINOR_GLYPH       99	/* For explosive runes */
+
+
+/*
+ * Field information flags
+ */
+#define FIELD_INFO_TEMP		0x0001	/* Temporary field - use counter */
+#define FIELD_INFO_FEAT		0x0002	/* Terrain feature based field */
+#define FIELD_INFO_VIS		0x0004	/* Has attr / char */
+#define FIELD_INFO_MARK		0x0008	/* Known */
+#define FIELD_INFO_TRANS	0x0010	/* Tile uses 16x16 transparency effects */
+#define FIELD_INFO_NO_LOOK	0x0020	/* Do not describe when looked at */
+#define FIELD_INFO_NFT_LOOK	0x0040	/* Do not describe feat when looked at */
+#define FIELD_INFO_MERGE	0x0080	/* Merge counter with similar fields */
+#define FIELD_INFO_NO_ENTER	0x0100	/* Grid blocks player entry */
+#define FIELD_INFO_NO_MAGIC	0x0200	/* Grid blocks magic */
+#define FIELD_INFO_NO_OBJCT	0x0400	/* Grid cannot hold objects */
+#define FIELD_INFO_PERM		0x0800	/* Grid is not affected by disintegrate */
+#define FIELD_INFO_IGNORE	0x1000	/* Grid is below the object layer */
+#define FIELD_INFO_NO_MPLACE 0x2000	/* Grid blocks monster placement */
+#define FIELD_INFO_DUMMY13	0x4000
+#define FIELD_INFO_DUMMY14  0x8000
+
+
+/*
+ * The field structure.
+ *
+ * Fields will be used to create a variety of effects from
+ * the ability to place traps on _all_ terrains (not just 
+ * dungeon floor), to the nightmare mode automatic corpse raising.
+ *
+ * The new building / store code will use this structure.
+ *
+ */
+struct field_type
+{
+	byte f_attr;	/* attribute */
+	char f_char;	/* character */
+
+	s16b t_idx;	/* field type index */
+
+	s16b fy;	/* Y location on map */
+	s16b fx;	/* X location on map */
+
+	u16b info;	/* quick access flags */
+
+	/* Storage space for the actions to interact with. */
+	byte data[8];
+
+	s16b counter;	/* Counter for timed effects */
+};
+
+extern void deleteme(void);
+extern void set_corpse_size(field_type *f_ptr, int size);
+extern void notice_field(field_type *f_ptr);
+extern cptr field_name(const field_type *f_ptr);
+extern bool check_trap_hit(int power);
+extern void hit_trap(field_type *f_ptr);
+extern void evil_trap(void);
+extern bool player_save(int power);
+extern void drop_random_item(void);
+extern void drain_lite(void);
+extern void drain_food(void);
+extern void drain_magic(void);
+extern bool raise_dead(int x, int y, bool pet);
+extern void do_cmd_store(const field_type *f_ptr);
+extern void do_cmd_bldg(const field_type *f_ptr);
+extern void place_sb(int greed, int max_cost);
+extern void display_build(const field_type *f_ptr);
+extern bool test_gold(s32b cost);
+extern bool build_has_quest(void);
+extern void build_cmd_quest(int level);
+extern void record_aura(void);
+extern bool building_healer(void);
+extern bool building_magetower(int factor, bool display);
+extern bool research_mon(void);
+extern void gamble_help(void);
+extern void gamble_in_between(void);
+extern void gamble_craps(void);
+extern void gamble_spin_wheel(void);
+extern void gamble_dice_slots(void);
+extern bool inn_rest(void);
+extern bool compare_weapons(void);
+extern void building_recharge(s32b cost);
+extern bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac, bool weap);

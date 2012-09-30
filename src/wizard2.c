@@ -402,7 +402,7 @@ static void do_cmd_wiz_change_aux(void)
 	strnfmt(tmp_val, 160, "%ld", (long)(p_ptr->au));
 
 	/* Query */
-	if (!get_string(tmp_val, 10, "Gold: ")) return;
+	if (!get_string(tmp_val, 9, "Gold: ")) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -585,12 +585,22 @@ static void learn_map(void)
 static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 13;
+	byte hack_info = o_ptr->info;
+
+	/* Hack - we will reset the object to exactly like it was */
+	object_type *q_ptr = (object_type *)o_ptr;
+
+	/* Hack the visibility by (see object_desc_store) */
+	q_ptr->info |= (OB_STOREB);
 
 	/* Clear the screen */
     clear_region(13 - 2, 1, 23);
 
 	/* Describe fully */
-	prtf(j, 2, "%v", OBJECT_STORE_FMT(o_ptr, TRUE, 3));
+	prtf(j, 2, "%v", OBJECT_STORE_FMT(q_ptr, TRUE, 3));
+
+	/* Undo visibility hack */
+	q_ptr->info = hack_info;
 
 	prtf(j, 4, "kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
 			   o_ptr->k_idx, get_object_level(o_ptr),
@@ -910,6 +920,9 @@ static void wiz_tweak_item(object_type *o_ptr)
 	if (!get_string(tmp_val, 6, "Enter new 'a_idx' setting: ")) return;
 	o_ptr->a_idx = atoi(tmp_val);
 	wiz_display_item(o_ptr);
+
+	/* Apply trigger */
+	apply_object_trigger(TRIGGER_ALTER, o_ptr, "");
 }
 
 
@@ -995,11 +1008,11 @@ static object_type *wiz_reroll_item(object_type *o_ptr)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	p_ptr->window |= (PW_SPELL | PW_PLAYER);
+	
+	/* Notice changes */
+	notice_item();
 
 	/* Success */
 	return (o_ptr);
@@ -1145,11 +1158,11 @@ static void do_cmd_wiz_play(void)
 			/* Recalculate bonuses */
 			p_ptr->update |= (PU_BONUS);
 
-			/* Combine / Reorder the pack (later) */
-			p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 			/* Window stuff */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+			p_ptr->window |= (PW_SPELL | PW_PLAYER);
+			
+			/* Notice changes */
+			notice_item();
 
 			break;
 		}
@@ -1281,12 +1294,14 @@ static void do_cmd_wiz_cure_all(void)
  */
 static void do_cmd_wiz_jump(void)
 {
-	int max_depth;
+	int min_depth, max_depth;
+	dun_type *d_ptr = dungeon();
 	
 	/* In the wilderness and no dungeon? */
 	if (!check_down_wild()) return;
 
-	max_depth = dungeon()->max_level;
+	max_depth = d_ptr->max_level;
+	min_depth = d_ptr->min_level;
 
 	/* Ask for level */
 	if (p_ptr->cmd.arg <= 0)
@@ -1296,9 +1311,20 @@ static void do_cmd_wiz_jump(void)
 		/* Default */
 		strnfmt(tmp_val, 160, "%d", p_ptr->depth);
 
-		/* Ask for a level */
-		if (!get_string(tmp_val, 11, "Jump to level (0-%d): ",
-						max_depth)) return;
+		/* Does this dungeon start right at the surface */
+		if (min_depth == 1)
+		{
+			/* Ask for a level */
+			if (!get_string(tmp_val, 11, "Jump to level (0-%d): ",
+							max_depth)) return;
+		}
+		/* Ignore the depths between the surface and the start */
+		else
+		{
+			/* Ask for a level */
+			if (!get_string(tmp_val, 11, "Jump to level (0, %d-%d): ",
+							min_depth, max_depth)) return;
+		}
 
 		/* Extract request */
 		p_ptr->cmd.arg = atoi(tmp_val);
@@ -1308,15 +1334,20 @@ static void do_cmd_wiz_jump(void)
 	if (p_ptr->cmd.arg < 0) p_ptr->cmd.arg = 0;
 
 	/* Paranoia */
+	if (p_ptr->cmd.arg > 0 && p_ptr->cmd.arg < min_depth)
+		p_ptr->cmd.arg = min_depth;
+
+	/* Paranoia */
 	if (p_ptr->cmd.arg > max_depth) p_ptr->cmd.arg = max_depth;
 
 	/* Accept request */
 	msgf("You jump to dungeon level %d.", p_ptr->cmd.arg);
 
-	if (autosave_l) do_cmd_save_game(TRUE);
-
 	/* Change level */
 	p_ptr->depth = p_ptr->cmd.arg;
+
+	/* Change the recall_depth of the dungeon */
+	d_ptr->recall_depth = MAX(d_ptr->recall_depth, p_ptr->depth);
 
 	/* Leaving */
 	p_ptr->state.leaving = TRUE;

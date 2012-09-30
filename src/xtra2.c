@@ -153,7 +153,7 @@ void check_experience(void)
  */
 static int get_coin_type(const monster_race *r_ptr)
 {
-	cptr name = (r_name + r_ptr->name);
+	cptr name = mon_race_name(r_ptr);
 
 	/* Analyze "coin" monsters */
 	if (r_ptr->d_char == '$')
@@ -469,7 +469,8 @@ bool monster_death(int m_idx, bool explode)
 				if (f_ptr)
 				{
 					/* Initialise it */
-					(void)field_hook_single(f_ptr, FIELD_ACT_INIT, m_ptr);
+					(void)field_script_single(f_ptr, FIELD_ACT_INIT,
+						"i:", LUA_VAR_NAMED(m_ptr->r_idx, "r_idx"));
 				}
 			}
 			else
@@ -480,7 +481,8 @@ bool monster_death(int m_idx, bool explode)
 				if (f_ptr)
 				{
 					/* Initialise it */
-					(void)field_hook_single(f_ptr, FIELD_ACT_INIT, m_ptr);
+					(void)field_script_single(f_ptr, FIELD_ACT_INIT,
+						"i:", LUA_VAR_NAMED(m_ptr->r_idx, "r_idx"));
 				}
 			}
 
@@ -497,7 +499,7 @@ bool monster_death(int m_idx, bool explode)
 	 * Mega^3-hack: killing a 'Warrior of the Dawn' is likely to
 	 * spawn another in the fallen one's place!
 	 */
-	if (strstr((r_name + r_ptr->name), "the Dawn"))
+	if (mon_name_cont(r_ptr, "the Dawn"))
 	{
 		if (!one_in_(20))
 		{
@@ -525,7 +527,7 @@ bool monster_death(int m_idx, bool explode)
 	}
 
 	/* Pink horrors are replaced with 2 Blue horrors */
-	else if (strstr((r_name + r_ptr->name), "ink horror"))
+	else if (mon_name_cont(r_ptr, "ink horror"))
 	{
 		bool notice = FALSE;
 
@@ -547,14 +549,14 @@ bool monster_death(int m_idx, bool explode)
 	}
 
 	/* One more ultra-hack: An Unmaker goes out with a big bang! */
-	else if (strstr((r_name + r_ptr->name), "Unmaker") && explode)
+	else if (mon_name_cont(r_ptr, "Unmaker") && explode)
 	{
 		u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 		(void)project(m_idx, 6, x, y, 100, GF_CHAOS, flg);
 	}
 
 	/* Bloodletters of Khorne may drop a blade of chaos */
-	else if (strstr((r_name + r_ptr->name), "Bloodletter") &&
+	else if (mon_name_cont(r_ptr, "Bloodletter") &&
 			 (randint1(100) < 15))
 	{
 		/* Prepare to make a Blade of Chaos */
@@ -568,7 +570,7 @@ bool monster_death(int m_idx, bool explode)
 
 	/* Mega^2-hack -- Get a t-shirt from our first Greater Hell-beast kill */
 	else if (!r_ptr->r_pkills
-			 && strstr((r_name + r_ptr->name), "Greater hell-beast"))
+			 && mon_name_cont(r_ptr, "Greater hell-beast"))
 	{
 		/* Prepare to make the T-shirt */
 		q_ptr = object_prep(lookup_kind(TV_SOFT_ARMOR, SV_T_SHIRT));
@@ -588,7 +590,7 @@ bool monster_death(int m_idx, bool explode)
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (FLAG(r_ptr, RF_DROP_CHOSEN))
 	{
-		if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
+		if (mon_name_cont(r_ptr, "Serpent of Chaos"))
 		{
 			/* Make Grond */
 			create_named_art(ART_GROND, x, y);
@@ -596,7 +598,7 @@ bool monster_death(int m_idx, bool explode)
 			/* Make Crown of Morgoth */
 			create_named_art(ART_MORGOTH, x, y);
 		}
-		else if (strstr((r_name + r_ptr->name), "Stormbringer"))
+		else if (mon_name_cont(r_ptr, "Stormbringer"))
 		{
 			/* Create the artifact */
 			create_named_art(ART_STORMBRINGER, x, y);
@@ -609,7 +611,7 @@ bool monster_death(int m_idx, bool explode)
 			byte a_idx = 0;
 			int chance = 0;
 
-			if (strstr((r_name + r_ptr->name), "Oberon,"))
+			if (mon_name_cont(r_ptr, "Oberon,"))
 			{
 				if (one_in_(3))
 				{
@@ -622,17 +624,17 @@ bool monster_death(int m_idx, bool explode)
 					chance = 50;
 				}
 			}
-			else if (strstr((r_name + r_ptr->name), "Barimen"))
+			else if (mon_name_cont(r_ptr, "Barimen"))
 			{
 				a_idx = ART_THRAIN;
 				chance = 20;
 			}
-			else if (strstr((r_name + r_ptr->name), "Sauron,"))
+			else if (mon_name_cont(r_ptr, "Sauron,"))
 			{
 				a_idx = ART_POWER;
 				chance = 25;
 			}
-			else if (strstr((r_name + r_ptr->name), "Brand, "))
+			else if (mon_name_cont(r_ptr, "Brand, "))
 			{
 				if (one_in_(3))
 				{
@@ -645,7 +647,7 @@ bool monster_death(int m_idx, bool explode)
 					chance = 25;
 				}
 			}
-			else if (strstr((r_name + r_ptr->name), "Corwin,"))
+			else if (mon_name_cont(r_ptr, "Corwin,"))
 			{
 				if (one_in_(3))
 				{
@@ -658,37 +660,37 @@ bool monster_death(int m_idx, bool explode)
 					chance = 33;
 				}
 			}
-			else if (strstr((r_name + r_ptr->name), "Saruman of"))
+			else if (mon_name_cont(r_ptr, "Saruman of"))
 			{
 				a_idx = ART_ELENDIL;
 				chance = 20;
 			}
-			else if (strstr((r_name + r_ptr->name), "Fiona the"))
+			else if (mon_name_cont(r_ptr, "Fiona the"))
 			{
 				a_idx = ART_BELANGIL;
 				chance = 50;
 			}
-			else if (strstr((r_name + r_ptr->name), "Julian, "))
+			else if (mon_name_cont(r_ptr, "Julian, "))
 			{
 				a_idx = ART_CELEBORN;
 				chance = 45;
 			}
-			else if (strstr((r_name + r_ptr->name), "Klings"))
+			else if (mon_name_cont(r_ptr, "Klings"))
 			{
 				a_idx = ART_OROME;
 				chance = 40;
 			}
-			else if (strstr((r_name + r_ptr->name), "Groo"))
+			else if (mon_name_cont(r_ptr, "Groo"))
 			{
 				a_idx = ART_GROO;
 				chance = 75;
 			}
-			else if (strstr((r_name + r_ptr->name), "Hagen,"))
+			else if (mon_name_cont(r_ptr, "Hagen,"))
 			{
 				a_idx = ART_NIMLOTH;
 				chance = 66;
 			}
-			else if (strstr((r_name + r_ptr->name), "Caine,"))
+			else if (mon_name_cont(r_ptr, "Caine,"))
 			{
 				a_idx = ART_ANGRIST;
 				chance = 50;
@@ -936,8 +938,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if ((FLAG(r_ptr, RF_UNIQUE)) && one_in_(3))
 			chg_virtue(V_INDIVIDUALISM, -1);
 
-		if ((strstr((r_name + r_ptr->name), "beggar")) ||
-			(strstr((r_name + r_ptr->name), "leper")))
+		if (mon_name_cont(r_ptr, "beggar") ||
+			mon_name_cont(r_ptr, "leper"))
 		{
 			chg_virtue(V_COMPASSION, -1);
 		}
@@ -1078,7 +1080,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if ((FLAG(r_ptr, RF_UNIQUE)) && take_notes && auto_notes)
 		{
 			/* Get true name even if blinded/hallucinating and write note */
-			add_note('U', "Killed %s", r_name + r_ptr->name);
+			add_note('U', "Killed %s", mon_race_name(r_ptr));
 		}
 
 		/* When the player kills a Nazgul, it stays dead */
@@ -1178,21 +1180,79 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 
 /*
- * Calculates current boundaries
+ * Get size of map on screen
  */
-static void panel_recalc_bounds(void)
+void get_map_size(int *x, int *y)
 {
 	int wid, hgt;
-
+	
 	/* Get size */
 	Term_get_size(&wid, &hgt);
 
-	panel_row_max = panel_row_min + hgt - ROW_MAP - 2;
-	panel_row_prt = panel_row_min - 1;
-	panel_col_max = panel_col_min + wid - COL_MAP - 2;
-	panel_col_prt = panel_col_min - 13;
+    /* Offset */
+	hgt -= ROW_MAP + 1;
+	wid -= COL_MAP + 1;
+
+	/* Hack - bigmap has half resolution */
+	if (use_bigtile) wid = wid / 2;
+	
+	/* Return values */
+	*x = wid;
+	*y = hgt;
 }
 
+
+/*
+ * Get panel max bounds
+ * where (x, y) is a provisional top left corner.
+ */
+static bool panel_bounds(int x, int y, int wid, int hgt)
+{
+	int xmax, ymax;
+	
+	/* Hack - vanilla town is special */
+	if (vanilla_town && (!p_ptr->depth) && !use_bigtile)
+	{
+		/* Same bounds all the time */
+		x = max_wild * WILD_BLOCK_SIZE / 2 - wid / 2 - 15;
+		y = max_wild * WILD_BLOCK_SIZE / 2 - hgt / 2 - 5;
+	}
+	else
+	{
+		/* Bounds */
+		if (y > p_ptr->max_hgt - hgt) y = p_ptr->max_hgt - hgt;
+		if (y < p_ptr->min_hgt) y = p_ptr->min_hgt;
+		if (x > p_ptr->max_wid - wid) x = p_ptr->max_wid - wid;
+		if (x < p_ptr->min_wid) x = p_ptr->min_wid;
+	}
+	
+	xmax = x + wid;
+	ymax = y + hgt;
+	
+	/* Handle "changes" */
+	if ((x != p_ptr->panel_x1) || (y != p_ptr->panel_y1) ||
+		(xmax != p_ptr->panel_x2) || (ymax != p_ptr->panel_y2))
+	{
+		/* Save the new panel info */
+		p_ptr->panel_x1 = x;
+		p_ptr->panel_y1 = y;
+		p_ptr->panel_x2 = xmax;
+		p_ptr->panel_y2 = ymax;
+
+		/* Update stuff */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Handle stuff */
+		handle_stuff();
+		
+		return (TRUE);
+	}
+	
+	return (FALSE);
+}
 
 /*
  * Handle a request to change the current panel
@@ -1203,244 +1263,149 @@ static void panel_recalc_bounds(void)
  */
 bool change_panel(int dx, int dy)
 {
-	int y, x;
+	int x, y;
+	int wid, hgt;
+
+	get_map_size(&wid, &hgt);
+
+	/* Apply the motion */
+	x = p_ptr->panel_x1 + dx * (wid / 2);
+	y = p_ptr->panel_y1 + dy * (hgt / 2);
+	
+	/* Get new bounds */
+	return (panel_bounds(x, y, wid, hgt));
+}
+
+
+/*
+ * Recenter the map around the player as required
+ */
+void verify_panel(void)
+{
+	int wid, hgt;
+	
+	int x, y;	
+	int nx, ny;
+	
+	get_map_size(&wid, &hgt);
+	
+	if (center_player && !(avoid_center && p_ptr->state.running))
+	{
+		/* Center it */
+		x = p_ptr->px - wid / 2;
+		y = p_ptr->py - hgt / 2;
+	}
+	else
+	{
+		/* Get new 'best value' */
+		x = p_ptr->panel_x1;
+		y = p_ptr->panel_y1;
+		nx = p_ptr->px - wid / 2;
+		ny = p_ptr->py - hgt / 2;
+		
+		/* How far to move panel? */
+		if (abs(nx - x) > wid / 4) x = nx;
+		if (abs(ny - y) > hgt / 4) y = ny; 
+	}
+	
+	/* Get new bounds */
+	if (panel_bounds(x, y, wid, hgt))
+	{
+		/* Hack -- optional disturb on "panel change" */
+		if (disturb_panel && !center_player) disturb(FALSE);
+		
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+		
+		/* Handle stuff */
+		handle_stuff();
+	}
+}
+
+/*
+ * Center the dungeon display around the given square
+ */
+bool panel_center(int x, int y)
+{
 	int wid, hgt;
 
 	/* Get size */
-	Term_get_size(&wid, &hgt);
+	get_map_size(&wid, &hgt);
+		
+	x -= wid / 2;
+	y -= hgt / 2;
 
-	/* Offset */
-	hgt -= ROW_MAP + 1;
-	wid -= COL_MAP + 1;
-
-	/* Apply the motion */
-	y = panel_row_min + dy * (hgt / 2);
-	x = panel_col_min + dx * (wid / 2);
-
-	/* Bounds */
-	if (y > p_ptr->max_hgt - hgt) y = p_ptr->max_hgt - hgt;
-	if (y < p_ptr->min_hgt) y = p_ptr->min_hgt;
-	if (x > p_ptr->max_wid - wid) x = p_ptr->max_wid - wid;
-	if (x < p_ptr->min_wid) x = p_ptr->min_wid;
-
-	if (vanilla_town && (!p_ptr->depth))
+	/* How far to move panel? */
+	if (abs(p_ptr->panel_x1 - x) < wid / 4) x = p_ptr->panel_x1;
+	if (abs(p_ptr->panel_y1 - y) < hgt / 4) y = p_ptr->panel_y1; 
+		
+	/* Get new bounds */
+	if (panel_bounds(x, y, wid, hgt))
 	{
-		x = max_wild * WILD_BLOCK_SIZE / 2 - wid / 2 - 15;
-		y = max_wild * WILD_BLOCK_SIZE / 2 - hgt / 2 - 5;
-	}
-
-	/* Handle "changes" */
-	if ((y != panel_row_min) || (x != panel_col_min))
-	{
-		/* Save the new panel info */
-		panel_row_min = y;
-		panel_col_min = x;
-
-		/* Recalculate the boundaries */
-		panel_recalc_bounds();
-
-		/* Update stuff */
-		p_ptr->update |= (PU_MONSTERS);
-
-		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
-
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+		
 		/* Handle stuff */
 		handle_stuff();
-
-		/* Success */
+		
 		return (TRUE);
 	}
-
-	/* No change */
+	
 	return (FALSE);
 }
 
 
-void verify_panel(void)
+static int map_wid_old = 66;
+
+
+void map_panel_size(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int y = py;
-	int x = px;
-
 	int wid, hgt;
 
-	int prow_min;
-	int pcol_min;
-
-	int max_prow_min;
-	int max_pcol_min;
-
-
-	/* Hack - in vanilla town mode - do not move the screen */
-	if (vanilla_town && (!p_ptr->depth))
+	/* Only if the map exists */
+	if (!character_dungeon) return;
+	
+	/* Hack - wait until are done with menus before updating */
+	if (character_icky)
 	{
-		(void)change_panel(0, 0);
+		p_ptr->update |= PU_MAP;
 		return;
 	}
-
+	
 	/* Get size */
-	Term_get_size(&wid, &hgt);
-
-	/* Offset */
-	hgt -= ROW_MAP + 1;
-	wid -= COL_MAP + 1;
-
-	max_prow_min = max_panel_rows - hgt;
-	max_pcol_min = max_panel_cols - wid;
-
-	/* Bounds checking */
-	if (max_prow_min < 0) max_prow_min = 0;
-	if (max_pcol_min < 0) max_pcol_min = 0;
-
-	/* Center on player */
-	if (center_player && (!avoid_center || !p_ptr->state.running))
+	get_map_size(&wid, &hgt);
+	
+	/* Set bigreion if required */
+	if (use_bigtile)
 	{
-		/* Center vertically */
-		prow_min = y - hgt / 2;
-		if (prow_min < 0) prow_min = 0;
-		else if (prow_min > max_prow_min) prow_min = max_prow_min;
-
-		/* Center horizontally */
-		pcol_min = x - wid / 2;
-		if (pcol_min < 0) pcol_min = 0;
-		else if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
-	}
-	else
-	{
-		prow_min = panel_row_min;
-		pcol_min = panel_col_min;
-
-		/* Scroll screen when 2 grids from top/bottom edge */
-		if (y > panel_row_max - 2)
-		{
-			while (y > prow_min + hgt - 2)
-			{
-				prow_min += (hgt / 2);
-			}
-
-			if (prow_min > max_prow_min) prow_min = max_prow_min;
-		}
-
-		if (y < panel_row_min + 2)
-		{
-			while (y < prow_min + 2)
-			{
-				prow_min -= (hgt / 2);
-			}
-
-			if (prow_min < 0) prow_min = 0;
-		}
-
-		/* Scroll screen when 4 grids from left/right edge */
-		if (x > panel_col_max - 4)
-		{
-			while (x > pcol_min + wid - 4)
-			{
-				pcol_min += (wid / 2);
-			}
-
-			if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
-		}
-
-		if (x < panel_col_min + 4)
-		{
-			while (x < pcol_min + 4)
-			{
-				pcol_min -= (wid / 2);
-			}
-
-			if (pcol_min < 0) pcol_min = 0;
-		}
+		Term_bigregion(COL_MAP, ROW_MAP, ROW_MAP + hgt - 1);
 	}
 
-	/* Check for "no change" */
-	if ((prow_min == panel_row_min) && (pcol_min == panel_col_min)) return;
+	/* Kill previous size of line */
 
-	/* Save the new panel info */
-	panel_row_min = prow_min;
-	panel_col_min = pcol_min;
+	/* String of terrain characters along one row of the map */
+	if (mp_ta) KILL(mp_ta);
+	if (mp_tc) KILL(mp_tc);
 
-	/* Hack -- optional disturb on "panel change" */
-	if (disturb_panel && !center_player) disturb(FALSE);
+	/* String of characters along one row of the map */
+	if (mp_a) KILL(mp_a);
+	if (mp_c) KILL(mp_c);
 
-	/* Recalculate the boundaries */
-	panel_recalc_bounds();
+	/* Save size */
+	map_wid_old = wid;
 
-	/* Update stuff */
-	p_ptr->update |= (PU_MONSTERS);
+	/* Make the new lines */
 
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
+	/* String of terrain characters along one row of the map */
+	C_MAKE(mp_ta, wid, byte);
+	C_MAKE(mp_tc, wid, char);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-}
+	/* String of characters along one row of the map */
+	C_MAKE(mp_a, wid, byte);
+	C_MAKE(mp_c, wid, char);
 
-
-
-
-
-/*
- * Center the dungeon display around the player
- */
-void panel_center(void)
-{
-	int wid, hgt;
-	int new_panel_row, new_panel_col;
-
-	/* Hack - in vanilla town mode - do not move the screen */
-	if (vanilla_town && (!p_ptr->depth))
-	{
-		(void)change_panel(0, 0);
-		return;
-	}
-
-	/* Get the screen size */
-	Term_get_size(&wid, &hgt);
-
-	/* Calculate the dimensions of the displayed map */
-	hgt -= ROW_MAP + 1;
-	wid -= COL_MAP + 1;
-
-	/* Center the map around the player */
-	new_panel_row = p_ptr->py - (hgt / 2);
-	new_panel_col = p_ptr->px - (wid / 2);
-
-	/* Move the map so that it only shows the dungeon */
-	if (new_panel_row + hgt > p_ptr->max_hgt) new_panel_row =
-			p_ptr->max_hgt - hgt;
-	if (new_panel_col + wid > p_ptr->max_wid) new_panel_col =
-			p_ptr->max_wid - wid;
-
-	/* Verify the lower panel bounds */
-	if (new_panel_row < 0) new_panel_row = 0;
-	if (new_panel_col < 0) new_panel_col = 0;
-
-	/* Check for "no change" */
-	if ((new_panel_row == panel_row_min) && (new_panel_col ==
-											 panel_col_min)) return;
-
-	/* Save the new panel info */
-	panel_row_min = new_panel_row;
-	panel_col_min = new_panel_col;
-
-	/* Hack -- optional disturb on "panel change" */
-	if (disturb_panel && !center_player) disturb(FALSE);
-
-	/* Recalculate the boundaries */
-	panel_recalc_bounds();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
+    /* Verify the panel */
+	verify_panel();
 }
 
 
@@ -1644,20 +1609,20 @@ static bool mimic_desc(char *m_name, const monster_race *r_ptr)
 		case '$':
 		{
 			/* XXX XXX XXX Mega-Hack */
-			strcpy(m_name, r_name + r_ptr->name + sizeof("Creeping ") - 1);
+			strcpy(m_name, mon_race_name(r_ptr) + sizeof("Creeping ") - 1);
 			return (TRUE);
 		}
 
 		case '|':
 		{
 			/* Hack */
-			strcpy(m_name, r_name + r_ptr->name);
+			strcpy(m_name, mon_race_name(r_ptr));
 			return (TRUE);
 		}
 
 		case '?':
 		{
-			if (strstr(r_ptr->name + r_name, "Tome "))
+			if (mon_name_cont(r_ptr, "Tome "))
 			{
 				strcpy(m_name, "tome");
 			}
@@ -1976,9 +1941,9 @@ static void target_set_prepare(int mode)
 	temp_n = 0;
 
 	/* Scan the current panel */
-	for (y = panel_row_min; y <= panel_row_max; y++)
+	for (y = p_ptr->panel_y1; y <= p_ptr->panel_y2; y++)
 	{
-		for (x = panel_col_min; x <= panel_col_max; x++)
+		for (x = p_ptr->panel_x1; x <= p_ptr->panel_x2; x++)
 		{
 			cave_type *c_ptr;
 
@@ -2367,9 +2332,7 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 		{
 			field_thaum *t_ptr = &t_info[f_ptr->t_idx];
 
-			cptr name = t_ptr->name;
-
-			char fld_name[40];
+			char fld_name[41];
 
 			/* Do not describe this field */
 			if (f_ptr->info & FIELD_INFO_NO_LOOK) continue;
@@ -2377,29 +2340,39 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 			/* Describe if if is visible and known. */
 			if (f_ptr->info & FIELD_INFO_MARK)
 			{
+				char *name = NULL;
+				
 				/* See if it has a special name */
-				if (t_ptr->action[FIELD_ACT_LOOK])
+				field_script_single(f_ptr, FIELD_ACT_LOOK, ":s", LUA_RETURN(name));
+				
+				if (name)
 				{
-					/* Get the name */
-					(void)field_hook_single(f_ptr, FIELD_ACT_LOOK,
-											fld_name);
-
-					/* Point to it */
-					name = fld_name;
+					/* Copy the string into the temp buffer */
+					strncpy(fld_name, name, 40);
+				
+					/* Anything there? */
+					if (!fld_name[0])
+					{				
+						/* Default to field name */
+						strncpy(fld_name, t_ptr->name, 40);
+					}
+				
+					/* Free string allocated to hold return value */
+					string_free(name);
 				}
 				else
 				{
-					/* Just use the normal name of the field */
-					name = t_ptr->name;
+					/* Default to field name */
+					strncpy(fld_name, t_ptr->name, 40);
 				}
-
+				
 				/* Not boring */
 				boring = FALSE;
 
-				s3 = is_a_vowel(name[0]) ? "an " : "a ";
+				s3 = is_a_vowel(fld_name[0]) ? "an " : "a ";
 
 				/* Describe the field */
-				prtf(0, 0, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+				prtf(0, 0, "%s%s%s%s [%s]", s1, s2, s3, fld_name, info);
 				move_cursor_relative(x, y);
 				query = inkey();
 
@@ -2423,7 +2396,6 @@ static int target_set_aux(int x, int y, int mode, cptr info)
 
 				/* Hack - we've seen a field here */
 				seen = TRUE;
-
 			}
 		}
 		FLD_ITT_END;
@@ -2542,12 +2514,9 @@ static int target_set_aux(int x, int y, int mode, cptr info)
  */
 bool target_set(int mode)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int i, d, m, t, bd;
-	int y = py;
-	int x = px;
+	int y = p_ptr->py;
+	int x = p_ptr->px;
 
 	bool done = FALSE;
 
@@ -2561,13 +2530,8 @@ bool target_set(int mode)
 
 	int wid, hgt;
 
-
-	/* Get size */
-	Term_get_size(&wid, &hgt);
-
 	/* Cancel target */
 	p_ptr->target_who = 0;
-
 
 	/* Cancel tracking */
 	/* health_track(0); */
@@ -2669,23 +2633,11 @@ bool target_set(int mode)
 					/* Recenter the map around the player */
 					verify_panel();
 
-					/* Update stuff */
-					p_ptr->update |= (PU_MONSTERS);
-
-					/* Redraw map */
-					p_ptr->redraw |= (PR_MAP);
-
-					/* Window stuff */
-					p_ptr->window |= (PW_OVERHEAD);
-
-					/* Handle stuff */
-					handle_stuff();
-
 					/* Recalculate interesting grids */
 					target_set_prepare(mode);
 
-					y = py;
-					x = px;
+					y = p_ptr->py;
+					x = p_ptr->px;
 
 					/* Fall through */
 				}
@@ -2715,8 +2667,8 @@ bool target_set(int mode)
 			if (d)
 			{
 				/* Modified to scroll to monster */
-				int y2 = panel_row_min;
-				int x2 = panel_col_min;
+				int x2 = x;
+				int y2 = y;
 
 				/* Find a new monster */
 				i = target_pick(temp_x[m], temp_y[m], ddx[d], ddy[d]);
@@ -2748,24 +2700,13 @@ bool target_set(int mode)
 					{
 						int dx = ddx[d];
 						int dy = ddy[d];
+						
+						/* Get size */
+						get_map_size(&wid, &hgt);
 
 						/* Restore previous position */
-						panel_row_min = y2;
-						panel_col_min = x2;
-						panel_recalc_bounds();
-
-						/* Update stuff */
-						p_ptr->update |= (PU_MONSTERS);
-
-						/* Redraw map */
-						p_ptr->redraw |= (PR_MAP);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD);
-
-						/* Handle stuff */
-						handle_stuff();
-
+						panel_center(x2, y2);
+						
 						/* Recalculate interesting grids */
 						target_set_prepare(mode);
 
@@ -2773,42 +2714,19 @@ bool target_set(int mode)
 						flag = FALSE;
 
 						/* Move */
-						x += dx;
-						y += dy;
-
-						/* Do not move horizontally if unnecessary */
-						if (((x < panel_col_min + (wid - 14) / 2) && (dx > 0))
-							|| ((x > panel_col_min + (wid - 14) / 2)
-								&& (dx < 0)))
-						{
-							dx = 0;
-						}
-
-						/* Do not move vertically if unnecessary */
-						if (((y < panel_row_min + (hgt - 2) / 2) && (dy > 0)) ||
-							((y > panel_row_min + (hgt - 2) / 2) && (dy < 0)))
-						{
-							dy = 0;
-						}
+						x = x2 + dx;
+						y = y2 + dy;
 
 						/* Apply the motion */
-						if ((y >= panel_row_min + hgt - 2)
-							|| (y < panel_row_min)
-							|| (x >= panel_col_min + wid - 14)
-							|| (x < panel_col_min))
-						{
-							if (change_panel(dx, dy)) target_set_prepare(mode);
-						}
+						if (panel_center(x, y)) target_set_prepare(mode);
+						
+						/* Slide into legality */
+						if (x < p_ptr->min_wid) x = p_ptr->min_wid;
+						else if (x >= p_ptr->max_wid) x = p_ptr->max_wid - 1;
 
 						/* Slide into legality */
-						if (x <= p_ptr->min_wid) x = p_ptr->min_wid + 1;
-						else if (x >= p_ptr->max_wid - 1) x =
-								p_ptr->max_wid - 2;
-
-						/* Slide into legality */
-						if (y <= p_ptr->min_hgt) y = p_ptr->min_hgt + 1;
-						else if (y >= p_ptr->max_hgt - 1) y =
-								p_ptr->max_hgt - 2;
+						if (y < p_ptr->min_hgt) y = p_ptr->min_hgt;
+						else if (y >= p_ptr->max_hgt) y = p_ptr->max_hgt - 1;
 					}
 				}
 
@@ -2867,23 +2785,11 @@ bool target_set(int mode)
 					/* Recenter the map around the player */
 					verify_panel();
 
-					/* Update stuff */
-					p_ptr->update |= (PU_MONSTERS);
-
-					/* Redraw map */
-					p_ptr->redraw |= (PR_MAP);
-
-					/* Window stuff */
-					p_ptr->window |= (PW_OVERHEAD);
-
-					/* Handle stuff */
-					handle_stuff();
-
 					/* Recalculate interesting grids */
 					target_set_prepare(mode);
 
-					y = py;
-					x = px;
+					y = p_ptr->py;
+					x = p_ptr->px;
 
 					/* Fall through */
 				}
@@ -2939,34 +2845,15 @@ bool target_set(int mode)
 				x += dx;
 				y += dy;
 
-				/* Do not move horizontally if unnecessary */
-				if (((x < panel_col_min + (wid - 14) / 2) && (dx > 0)) ||
-					((x > panel_col_min + (wid - 14) / 2) && (dx < 0)))
-				{
-					dx = 0;
-				}
-
-				/* Do not move vertically if unnecessary */
-				if (((y < panel_row_min + (hgt - 2) / 2) && (dy > 0)) ||
-					((y > panel_row_min + (hgt - 2) / 2) && (dy < 0)))
-				{
-					dy = 0;
-				}
-
-				/* Apply the motion */
-				if ((y >= panel_row_min + hgt - 2) || (y < panel_row_min) ||
-					(x >= panel_col_min + wid - 14) || (x < panel_col_min))
-				{
-					if (change_panel(dx, dy)) target_set_prepare(mode);
-				}
+				if (panel_center(x, y)) target_set_prepare(mode);
+				
+				/* Slide into legality */
+				if (x < p_ptr->min_wid) x = p_ptr->min_wid;
+				else if (x >= p_ptr->max_wid) x = p_ptr->max_wid - 1;
 
 				/* Slide into legality */
-				if (x <= p_ptr->min_wid) x = p_ptr->min_wid + 1;
-				else if (x >= p_ptr->max_wid - 1) x = p_ptr->max_wid - 2;
-
-				/* Slide into legality */
-				if (y <= p_ptr->min_hgt) y = p_ptr->min_hgt + 1;
-				else if (y >= p_ptr->max_hgt - 1) y = p_ptr->max_hgt - 2;
+				if (y < p_ptr->min_hgt) y = p_ptr->min_hgt;
+				else if (y >= p_ptr->max_hgt) y = p_ptr->max_hgt - 1;
 			}
 		}
 	}
@@ -2979,18 +2866,6 @@ bool target_set(int mode)
 
 	/* Recenter the map around the player */
 	verify_panel();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
-	/* Handle stuff */
-	handle_stuff();
 
 	/* Failure to set target */
 	if (!p_ptr->target_who) return (FALSE);
@@ -3134,7 +3009,7 @@ bool get_aim_dir(int *dp)
  * and place it into "cmd.dir", unless we already have one.
  *
  * This function should be used for all "repeatable" commands, such as
- * run, walk, open, close, bash, disarm, spike, tunnel, etc, as well
+ * run, walk, open, close, disarm, spike, tunnel, etc, as well
  * as all commands which must reference a grid adjacent to the player,
  * and which may not reference the grid under the player.  Note that,
  * for example, it is no longer possible to "disarm" or "open" chests
@@ -3740,28 +3615,17 @@ bool tgt_pt(int *x, int *y)
 
 				*x += ddx[d];
 				*y += ddy[d];
+				
+				/* Center on cursor */
+				panel_center(*x, *y);
+				
+				/* Slide into legality */
+				if (*x < p_ptr->min_wid) *x = p_ptr->min_wid;
+				else if (*x >= p_ptr->max_wid) *x = p_ptr->max_wid - 1;
 
-				/* Hack -- Verify x */
-				if ((*x >= p_ptr->max_wid - 1)
-					|| (*x >= panel_col_min + wid - 14))
-				{
-					(*x)--;
-				}
-				else if ((*x <= p_ptr->min_wid) || (*x <= panel_col_min))
-				{
-					(*x)++;
-				}
-
-				/* Hack -- Verify y */
-				if ((*y >= p_ptr->max_hgt - 1)
-					|| (*y >= panel_row_min + hgt - 2))
-				{
-					(*y)--;
-				}
-				else if ((*y <= p_ptr->min_hgt) || (*y <= panel_row_min))
-				{
-					(*y)++;
-				}
+				/* Slide into legality */
+				if (*y < p_ptr->min_hgt) *y = p_ptr->min_hgt;
+				else if (*y >= p_ptr->max_hgt) *y = p_ptr->max_hgt - 1;
 
 				break;
 		}

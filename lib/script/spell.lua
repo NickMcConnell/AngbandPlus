@@ -1,7 +1,7 @@
 -- Helper functions for various things
 
 function summon_monsters(num, kind)
-	local ident = FALSE
+	local ident; ident = FALSE
 	
 	for k = 0, num do
 		if summon_specific(0, player.px, player.py, player.depth,

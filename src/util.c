@@ -6,6 +6,547 @@
 #include "angband.h"
 
 
+#ifdef SET_UID
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+void create_user_dirs(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, 1024, PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_make(subdirpath, dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+#ifdef USE_PRIVATE_PATHS
+
+	/* Build the path to the scores sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "bone");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "data");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+#endif /* USE_PRIVATE_PATHS */
+
+}
+
+#endif /* PRIVATE_USER_PATH */
+
+
+/*
+ * Hack -- drop permissions
+ */
+void safe_setuid_drop(void)
+{
+
+#ifdef SAFE_SETUID
+
+#ifdef HAVE_SETEGID
+
+	if (setegid(getgid()) != 0)
+	{
+		quit("setegid(): cannot set permissions correctly!");
+	}
+
+#else  /* HAVE_SETEGID */
+
+#ifdef SAFE_SETUID_POSIX
+
+	if (setgid(getgid()) != 0)
+	{
+		quit("setgid(): cannot set permissions correctly!");
+	}
+
+#else  /* SAFE_SETUID_POSIX */
+
+	if (setregid(getegid(), getgid()) != 0)
+	{
+		quit("setregid(): cannot set permissions correctly!");
+	}
+
+#endif /* SAFE_SETUID_POSIX */
+
+#endif /* HAVE_SETEGID */
+
+#endif /* SAFE_SETUID */
+
+}
+
+
+/*
+ * Hack -- grab permissions
+ */
+void safe_setuid_grab(void)
+{
+
+#ifdef SAFE_SETUID
+
+#ifdef HAVE_SETEGID
+
+	if (setegid(player_egid) != 0)
+	{
+		quit("setegid(): cannot set permissions correctly!");
+	}
+
+#else  /* HAVE_SETEGID */
+
+#ifdef SAFE_SETUID_POSIX
+
+	if (setgid(player_egid) != 0)
+	{
+		quit("setgid(): cannot set permissions correctly!");
+	}
+
+#else  /* SAFE_SETUID_POSIX */
+
+	if (setregid(getegid(), getgid()) != 0)
+	{
+		quit("setregid(): cannot set permissions correctly!");
+	}
+
+#endif /* SAFE_SETUID_POSIX */
+
+#endif /* HAVE_SETEGID */
+
+#endif /* SAFE_SETUID */
+
+}
+
+
+/*
+ * Initialise things for multiuser machines
+ * Pay special attention to permisions.
+ */
+void init_setuid(void)
+{
+	/* Default permissions on files */
+	(void)umask(022);
+
+	/* Get the user id (?) */
+	player_uid = getuid();
+
+#ifdef VMS
+	/* Mega-Hack -- Factor group id */
+	player_uid += (getgid() * 1000);
+#endif /* VMS */
+
+#ifdef SAFE_SETUID
+
+#if defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX)
+
+	/* Save some info for later */
+	player_euid = geteuid();
+	player_egid = getegid();
+
+#endif /* defined(HAVE_SETEGID) || defined(SAFE_SETUID_POSIX) */
+
+	/* XXX XXX XXX */
+#if 0
+
+	/* Redundant setting necessary in case root is running the game */
+	/* If not root or game not setuid the following two calls do nothing */
+
+	if (setgid(getegid()) != 0)
+	{
+		quit("setgid(): cannot set permissions correctly!");
+	}
+
+	if (setuid(geteuid()) != 0)
+	{
+		quit("setuid(): cannot set permissions correctly!");
+	}
+
+#endif /* 0 */
+
+#endif /* SAFE_SETUID */
+
+	/* Drop permissions */
+	safe_setuid_drop();
+
+	/* Get the "user name" as a default player name */
+	user_name(player_name, player_uid);
+
+#ifdef PRIVATE_USER_PATH
+
+	/* Create a directory for the users files. */
+	create_user_dirs();
+
+#endif /* PRIVATE_USER_PATH */
+}
+
+
+#else /* SET_UID */
+
+void safe_setuid_drop(void)
+{
+
+}
+
+void safe_setuid_grab(void)
+{
+
+}
+
+void init_setuid(void)
+{
+
+}
+
+#endif /* SET_UID */
+
+
+
+#ifdef HANDLE_SIGNALS
+
+
+#include <signal.h>
+
+
+/*
+ * Handle signals -- suspend
+ *
+ * Actually suspend the game, and then resume cleanly
+ */
+static void handle_signal_suspend(int sig)
+{
+	/* Disable handler */
+	(void)signal(sig, SIG_IGN);
+
+#ifdef SIGSTOP
+
+	/* Flush output */
+	Term_fresh();
+
+	/* Suspend the "Term" */
+	Term_xtra(TERM_XTRA_ALIVE, 0);
+
+	/* Suspend ourself */
+	(void)kill(0, SIGSTOP);
+
+	/* Resume the "Term" */
+	Term_xtra(TERM_XTRA_ALIVE, 1);
+
+	/* Redraw the term */
+	Term_redraw();
+
+	/* Flush the term */
+	Term_fresh();
+
+#endif
+
+	/* Restore handler */
+	(void)signal(sig, handle_signal_suspend);
+}
+
+
+/*
+ * Handle signals -- simple (interrupt and quit)
+ *
+ * This function was causing a *huge* number of problems, so it has
+ * been simplified greatly.  We keep a global variable which counts
+ * the number of times the user attempts to kill the process, and
+ * we commit suicide if the user does this a certain number of times.
+ *
+ * We attempt to give "feedback" to the user as he approaches the
+ * suicide thresh-hold, but without penalizing accidental keypresses.
+ *
+ * To prevent messy accidents, we should reset this global variable
+ * whenever the user enters a keypress, or something like that.
+ */
+static void handle_signal_simple(int sig)
+{
+	/* Disable handler */
+	(void)signal(sig, SIG_IGN);
+
+
+	/* Nothing to save, just quit */
+	if (!character_generated || character_saved) quit(NULL);
+
+
+	/* Count the signals */
+	signal_count++;
+
+
+	/* Terminate dead characters */
+	if (p_ptr->state.is_dead)
+	{
+		/* Mark the savefile */
+		(void)strcpy(p_ptr->state.died_from, "Abortion");
+
+		/* Close stuff */
+		close_game();
+
+		/* Quit */
+		quit("interrupt");
+	}
+
+	/* Allow suicide (after 5) */
+	else if (signal_count >= 5)
+	{
+		/* Cause of "death" */
+		(void)strcpy(p_ptr->state.died_from, "Interrupting");
+
+		/* Stop playing */
+		p_ptr->state.playing = FALSE;
+
+		/* Suicide */
+		p_ptr->state.is_dead = TRUE;
+
+		/* Leaving */
+		p_ptr->state.leaving = TRUE;
+
+		/* Close stuff */
+		close_game();
+
+		/* Quit */
+		quit("interrupt");
+	}
+
+	/* Give warning (after 4) */
+	else if (signal_count >= 4)
+	{
+		/* Make a noise */
+		Term_xtra(TERM_XTRA_NOISE, 0);
+
+		/* Display the cause */
+		prtf(0, 0, "Contemplating suicide!");
+
+		/* Flush */
+		Term_fresh();
+	}
+
+	/* Give warning (after 2) */
+	else if (signal_count >= 2)
+	{
+		/* Make a noise */
+		Term_xtra(TERM_XTRA_NOISE, 0);
+	}
+
+	/* Restore handler */
+	(void)signal(sig, handle_signal_simple);
+}
+
+
+/*
+ * Handle signal -- abort, kill, etc
+ */
+static void handle_signal_abort(int sig)
+{
+	/* Disable handler */
+	(void)signal(sig, SIG_IGN);
+
+
+	/* Nothing to save, just quit */
+	if (!character_generated || character_saved) quit(NULL);
+
+	/* Give a warning */
+	prtf(0, 23, CLR_RED "A gruesome software bug LEAPS out at you!");
+
+	/* Message */
+	put_fstr(45, 23, CLR_RED "Panic save...");
+
+	/* Flush output */
+	Term_fresh();
+
+	/* Panic Save */
+	p_ptr->state.panic_save = 1;
+
+	/* Panic save */
+	(void)strcpy(p_ptr->state.died_from, "(panic save)");
+
+	/* Forbid suspend */
+	signals_ignore_tstp();
+
+	/* Attempt to save */
+	if (save_player())
+	{
+		put_fstr(45, 23, CLR_RED "Panic save succeeded!");
+	}
+
+	/* Save failed */
+	else
+	{
+		put_fstr(45, 23, CLR_RED "Panic save failed!");
+	}
+
+	/* Flush output */
+	Term_fresh();
+
+	/* Quit */
+	quit("software bug");
+}
+
+
+
+
+/*
+ * Ignore SIGTSTP signals (keyboard suspend)
+ */
+void signals_ignore_tstp(void)
+{
+
+#ifdef SIGTSTP
+	(void)signal(SIGTSTP, SIG_IGN);
+#endif
+
+}
+
+/*
+ * Handle SIGTSTP signals (keyboard suspend)
+ */
+void signals_handle_tstp(void)
+{
+
+#ifdef SIGTSTP
+	(void)signal(SIGTSTP, handle_signal_suspend);
+#endif
+
+}
+
+
+/*
+ * Prepare to handle the relevant signals
+ */
+void signals_init(void)
+{
+
+#ifdef SIGHUP
+	(void)signal(SIGHUP, SIG_IGN);
+#endif
+
+
+#ifdef SIGTSTP
+	(void)signal(SIGTSTP, handle_signal_suspend);
+#endif
+
+
+#ifdef SIGINT
+	(void)signal(SIGINT, handle_signal_simple);
+#endif
+
+#ifdef SIGQUIT
+	(void)signal(SIGQUIT, handle_signal_simple);
+#endif
+
+
+#ifdef SIGFPE
+	(void)signal(SIGFPE, handle_signal_abort);
+#endif
+
+#ifdef SIGILL
+	(void)signal(SIGILL, handle_signal_abort);
+#endif
+
+#ifdef SIGTRAP
+	(void)signal(SIGTRAP, handle_signal_abort);
+#endif
+
+#ifdef SIGIOT
+	(void)signal(SIGIOT, handle_signal_abort);
+#endif
+
+#ifdef SIGKILL
+	(void)signal(SIGKILL, handle_signal_abort);
+#endif
+
+#ifdef SIGBUS
+	(void)signal(SIGBUS, handle_signal_abort);
+#endif
+
+#ifdef SIGSEGV
+	(void)signal(SIGSEGV, handle_signal_abort);
+#endif
+
+#ifdef SIGTERM
+	(void)signal(SIGTERM, handle_signal_abort);
+#endif
+
+#ifdef SIGPIPE
+	(void)signal(SIGPIPE, handle_signal_abort);
+#endif
+
+#ifdef SIGEMT
+	(void)signal(SIGEMT, handle_signal_abort);
+#endif
+
+#ifdef SIGDANGER
+	(void)signal(SIGDANGER, handle_signal_abort);
+#endif
+
+#ifdef SIGSYS
+	(void)signal(SIGSYS, handle_signal_abort);
+#endif
+
+#ifdef SIGXCPU
+	(void)signal(SIGXCPU, handle_signal_abort);
+#endif
+
+#ifdef SIGPWR
+	(void)signal(SIGPWR, handle_signal_abort);
+#endif
+
+}
+
+
+#else  /* HANDLE_SIGNALS */
+
+
+/*
+ * Do nothing
+ */
+void signals_ignore_tstp(void)
+{
+}
+
+/*
+ * Do nothing
+ */
+void signals_handle_tstp(void)
+{
+}
+
+/*
+ * Do nothing
+ */
+void signals_init(void)
+{
+}
+
+#endif /* HANDLE_SIGNALS */
 
 
 #ifdef SET_UID
@@ -53,7 +594,7 @@ int usleep(huge usecs)
 	return 0;
 }
 
-# endif
+# endif /* !HAS_USLEEP */
 
 /*
  * Hack -- External functions
@@ -72,7 +613,6 @@ extern struct passwd *getpwnam();
  */
 void user_name(char *buf, int id)
 {
-#ifdef SET_UID
 	struct passwd *pw;
 
 	/* Look up the user name */
@@ -89,7 +629,6 @@ void user_name(char *buf, int id)
 
 		return;
 	}
-#endif /* SET_UID */
 
 	/* Oops.  Hack -- default to "PLAYER" */
 	strcpy(buf, "PLAYER");
@@ -176,7 +715,6 @@ errr path_parse(char *buf, int max, cptr file)
 	struct passwd *pw;
 	char user[128];
 
-
 	/* Assume no result */
 	buf[0] = '\0';
 
@@ -186,7 +724,11 @@ errr path_parse(char *buf, int max, cptr file)
 	/* File needs no parsing */
 	if (file[0] != '~')
 	{
-		strcpy(buf, file);
+		strncpy(buf, file, max - 1);
+
+		/* Terminate */
+		buf[max - 1] = '\0';
+				
 		return (0);
 	}
 
@@ -220,10 +762,13 @@ errr path_parse(char *buf, int max, cptr file)
 	if (!pw) return (1);
 
 	/* Make use of the info */
-	(void)strncpy(buf, pw->pw_dir, max);
+	(void)strncpy(buf, pw->pw_dir, max - 1);
 
 	/* Append the rest of the filename, if any */
-	if (s) (void)strncat(buf, s, max);
+	if (s) (void)strncat(buf, s, max - 1);
+	
+	/* Terminate */
+	buf[max - 1] = '\0';
 
 	/* Success */
 	return (0);
@@ -335,12 +880,23 @@ void path_build(char *buf, int max, cptr path, cptr file)
 FILE *my_fopen(cptr file, cptr mode)
 {
 	char buf[1024];
+	FILE *fff;
 
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (NULL);
 
 	/* Attempt to fopen the file anyway */
-	return (fopen(buf, mode));
+	fff = fopen(buf, mode);
+
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+
+	/* Set file creator and type */
+	if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
+
+#endif
+
+	/* Return open file or NULL */
+	return (fff);
 }
 
 
@@ -483,26 +1039,6 @@ errr my_raw_fgets(FILE *fff, char *buf, huge n)
 
 
 
-/*
- * Hack -- replacement for "fputs()"
- *
- * Dump a string, plus a newline, to a file
- *
- * Perhaps this function should handle internal weirdness.
- */
-errr my_fputs(FILE *fff, cptr buf, huge n)
-{
-	/* Unused parameter */
-	(void)n;
-
-	/* Dump, ignore errors */
-	froff(fff, "%s\n", buf);
-
-	/* Success */
-	return (0);
-}
-
-
 #ifdef ACORN
 
 
@@ -589,65 +1125,41 @@ errr fd_move(cptr file, cptr what)
 
 
 /*
- * Hack -- attempt to copy a file
- */
-errr fd_copy(cptr file, cptr what)
-{
-	char buf[1024];
-	char aux[1024];
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
-
-	/* Hack -- Try to parse the path */
-	if (path_parse(aux, 1024, what)) return (-1);
-
-	/* Copy XXX XXX XXX */
-	/* (void)rename(buf, aux); */
-
-	/* XXX XXX XXX */
-	return (1);
-}
-
-
-/*
  * Hack -- attempt to open a file descriptor (create file)
  *
  * This function should fail if the file already exists
  *
  * Note that we assume that the file should be "binary"
- *
- * XXX XXX XXX The horrible "BEN_HACK" code is for compiling under
- * the CodeWarrior compiler, in which case, for some reason, none
- * of the "O_*" flags are defined, and we must fake the definition
- * of "O_RDONLY", "O_WRONLY", and "O_RDWR" in "A-win-h", and then
- * we must simulate the effect of the proper "open()" call below.
  */
 int fd_make(cptr file, int mode)
 {
 	char buf[1024];
+	int fd;
 
 	/* Hack -- Try to parse the path */
-	if (path_parse(buf, 1024, file)) return (-1);
+	if (path_parse(buf, sizeof(buf), file)) return (-1);
 
-#ifdef BEN_HACK
-
-	/* Check for existance */
-	/* if (fd_close(fd_open(file, O_RDONLY | O_BINARY))) return (1); */
-
-	/* Mega-Hack -- Create the file */
-	(void)my_fclose(my_fopen(file, "wb"));
-
-	/* Re-open the file for writing */
-	return (open(buf, O_WRONLY | O_BINARY, mode));
-
-#else  /* BEN_HACK */
+#if defined(MACINTOSH)
 
 	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
+	fd = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY);
 
-#endif /* BEN_HACK */
+#else
 
+	/* Create the file, fail if exists, write-only, binary */
+	fd = open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode);
+
+#endif
+
+#if defined(MAC_MPW) || defined(MACH_O_CARBON)
+
+	/* Set file creator and type */
+	if (fd >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+
+#endif
+
+	/* Return descriptor */
+	return (fd);
 }
 
 
@@ -747,27 +1259,6 @@ errr fd_seek(int fd, huge n)
 
 	/* Failure */
 	if (p != n) return (1);
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Hack -- attempt to truncate a file descriptor
- */
-errr fd_chop(int fd, huge n)
-{
-	/* XXX XXX */
-	n = n ? n : 0;
-
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#if defined(SUNOS) || defined(ULTRIX) || defined(NeXT)
-	/* Truncate */
-	ftruncate(fd, n);
-#endif
 
 	/* Success */
 	return (0);
@@ -1622,7 +2113,6 @@ char inkey(void)
 
 	/* Hack -- Activate main screen */
 	Term_activate(angband_term[0]);
-
 
 	/* Get a key */
 	while (!ch)
@@ -2641,7 +3131,7 @@ static void msg_print_aux(u16b type, cptr msg)
 }
 
 
-static int current_message_type = MSG_GENERIC;
+static u16b current_message_type = MSG_GENERIC;
 
 /*
  * Change the message type, and parse the following
@@ -2888,7 +3378,7 @@ void request_command(int shopping)
 				else if (cmd >= '0' && cmd <= '9')
 				{
 					/* Stop count at 9999 */
-					if (p_ptr->cmd.arg >= 10000)
+					if (p_ptr->cmd.arg >= 1000)
 					{
 						/* Warn */
 						bell("Invalid repeat count!");
@@ -2999,7 +3489,7 @@ void request_command(int shopping)
 	}
 
 	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (p_ptr->cmd.arg <= 0))
+	if (p_ptr->cmd.arg <= 0)
 	{
 		/* Hack -- auto repeat certain commands */
 		if (strchr("TBDoc+", p_ptr->cmd.cmd))

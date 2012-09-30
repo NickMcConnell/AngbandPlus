@@ -94,6 +94,14 @@ enum
 };
 
 
+/* Attack styles */
+#define BORG_BOLT		1
+#define BORG_BEAM		2
+#define BORG_BALL		3
+#define BORG_DISPEL		4
+#define BORG_BLAST		5
+#define BORG_TOUCH		6
+
 /* What is the radius of the borg ball attacks? */
 #define BORG_BALL_RAD0	0
 #define BORG_BALL_RAD1	1
@@ -174,8 +182,11 @@ static int borg_thrust_damage_one(int i)
 	if (chance > 95) chance = 95;
 	if (chance < 5) chance = 5;
 
-	/* add 20% to chance to give a bit more wieght to weapons */
-	if (bp_ptr->lev > 15 && borg_class != CLASS_MAGE) chance += 20;
+	/* add 20% to chance to give a bit more weight to weapons */
+	if (bp_ptr->lev > 15 &&
+		borg_class != CLASS_MAGE &&
+		borg_class != CLASS_HIGH_MAGE &&
+		borg_class != CLASS_MINDCRAFTER) chance += 20;
 
 	dam = (dam * chance) / 100;
 
@@ -183,7 +194,10 @@ static int borg_thrust_damage_one(int i)
 	if (dam > kill->power * 2) dam = kill->power * 2;
 
 	/* Reduce the damage if a mage, they should not melee if they can avoid it */
-	if (borg_class == CLASS_MAGE && bp_ptr->max_lev < 40) dam = dam * 6 / 10;
+	if ((borg_class == CLASS_MAGE ||
+		borg_class != CLASS_HIGH_MAGE ||
+		borg_class != CLASS_MINDCRAFTER) &&
+		bp_ptr->max_lev < 40) dam = dam * 6 / 10;
 
 	/*
 	 * Enhance the preceived damage on Uniques.  This way we target them
@@ -344,10 +358,10 @@ static int borg_attack_thrust(void)
 	mb_ptr = map_loc(g_x, g_y);
 
 	/* Note */
-	borg_note_fmt
+	borg_note
 		("# Facing %s at (%d,%d).",
-		 (r_name + r_info[mb_ptr->monster].name), g_x, g_y);
-	borg_note_fmt
+		 mon_race_name(&r_info[mb_ptr->monster]), g_x, g_y);
+	borg_note
 		("# Attacking with weapon '%s'", equipment[EQUIP_WIELD].o_name);
 
 	/* Get a direction for attacking */
@@ -629,13 +643,13 @@ static int borg_launch_damage_one(int i, int dam, int typ)
 			else if ((FLAG(r_ptr, RF_STUPID)) ||
 					 (FLAG(r_ptr, RF_WEIRD_MIND)) ||
 					 (FLAG(r_ptr, RF_ANIMAL)) ||
-					 (r_ptr->level > (3 * dam / 2)))
+					 (r_ptr->hdice * 2 > (3 * dam / 2)))
 			{
 				dam /= 3;
 			}
 			else if (((FLAG(r_ptr, RF_UNDEAD)) ||
 					  (FLAG(r_ptr, RF_DEMON))) &&
-					 (r_ptr->level > bp_ptr->lev / 2))
+					 (r_ptr->hdice * 2 > bp_ptr->lev / 2))
 			{
 				dam = 0;
 			}
@@ -892,7 +906,7 @@ static int borg_launch_damage_one(int i, int dam, int typ)
 			if (FLAG(r_ptr, RF_MULTIPLY)) break;
 			if (kill->
 				m_flags & (MONST_ASLEEP | MONST_CONFUSED | MONST_FEAR)) break;
-			if ((r_ptr->level >=
+			if ((r_ptr->hdice * 2 >=
 				 (bp_ptr->lev <
 				  13) ? bp_ptr->lev : (((bp_ptr->lev - 10) /
 										4) * 3) + 10)) break;
@@ -913,7 +927,7 @@ static int borg_launch_damage_one(int i, int dam, int typ)
 			if (FLAG(r_ptr, RF_NO_FEAR)) break;
 			if (kill->
 				m_flags & (MONST_ASLEEP | MONST_CONFUSED | MONST_FEAR)) break;
-			if ((r_ptr->level >=
+			if ((r_ptr->hdice * 2 >=
 				 (bp_ptr->lev <
 				  13) ? bp_ptr->lev : (((bp_ptr->lev - 10) /
 										4) * 3) + 10)) break;
@@ -933,7 +947,7 @@ static int borg_launch_damage_one(int i, int dam, int typ)
 			dam = 0;
 			if (kill->
 				m_flags & (MONST_ASLEEP | MONST_CONFUSED | MONST_FEAR)) break;
-			if ((r_ptr->level >=
+			if ((r_ptr->hdice * 2 >=
 				 (bp_ptr->lev <
 				  13) ? bp_ptr->lev : (((bp_ptr->lev - 10) /
 										4) * 3) + 10)) break;
@@ -955,7 +969,7 @@ static int borg_launch_damage_one(int i, int dam, int typ)
 			if (FLAG(r_ptr, RF_NO_SLEEP)) break;
 			if (kill->
 				m_flags & (MONST_ASLEEP | MONST_CONFUSED | MONST_FEAR)) break;
-			if ((r_ptr->level >=
+			if ((r_ptr->hdice * 2 >=
 				 (bp_ptr->lev <
 				  13) ? bp_ptr->lev : (((bp_ptr->lev - 10) /
 										4) * 3) + 10)) break;
@@ -973,7 +987,7 @@ static int borg_launch_damage_one(int i, int dam, int typ)
 		case GF_OLD_POLY:
 		{
 			dam = 0;
-			if ((r_ptr->level >=
+			if ((r_ptr->hdice * 2 >=
 				 (bp_ptr->lev <
 				  13) ? bp_ptr->lev : (((bp_ptr->lev - 10) /
 										4) * 3) + 10)) break;
@@ -1420,6 +1434,71 @@ static int borg_launch_ball_zero(int dam, int typ, int max)
 }
 
 
+/* Determine the "reward" of casting a ball centered on the player. */
+static int borg_launch_blast(int dam, int typ, int max)
+{
+	int i, r;
+	int x, y;
+	int n = 0;
+
+	map_block *mb_ptr;
+
+	/* Loop through all the ballable monsters in LOS */
+	for (i = 0; i < borg_beam_n; i++)
+	{
+		/* Acquire location */
+		x = borg_beam_x[i];
+		y = borg_beam_y[i];
+
+		/* What is the distance */
+		r = distance(c_x, c_y, x, y);
+
+		/* Maximal distance */
+		if (r > max) continue;
+
+		/* Get the grid */
+		mb_ptr = map_loc(x, y);
+
+		/* Collect damage */
+		n = borg_launch_aux_hack(mb_ptr->kill, dam / (r + 1), typ);
+
+		/* Does this cost me items? */
+		n += borg_ball_item(mb_ptr, typ);
+	}
+
+	/* Result */
+	return (n);
+}
+
+
+/* Determine the "reward" of an attack on the monsters around the borg */
+static int borg_launch_touch(int dam, int typ)
+{
+	int i;
+	int x, y;
+	int n = 0;
+
+	map_block *mb_ptr;
+
+	/* Loop through all the touchable monsters in LOS */
+	for (i = 0; i < borg_next_n; i++)
+	{
+		/* Acquire location */
+		x = borg_next_x[i];
+		y = borg_next_y[i];
+
+		/* Get the grid */
+		mb_ptr = map_loc(x, y);
+
+		/* Collect damage */
+		n = borg_launch_aux_hack(mb_ptr->kill, dam, typ);
+	}
+
+	/* Result */
+	return (n);
+}
+
+
 /*
  * Determine the "reward" of casting a ball
  *
@@ -1471,7 +1550,7 @@ static int borg_launch_ball(int rad, int dam, int typ, int max)
 			mb_ptr = map_loc(x1, y1);
 
 			/* Collect damage, lowered by distance */
-			n += borg_launch_aux_hack(mb_ptr->kill, dam / (r +1), typ);
+			n += borg_launch_aux_hack(mb_ptr->kill, dam / (r + 1), typ);
 
 			/* Does this cost me items? */
 			n += borg_ball_item(mb_ptr, typ);
@@ -1491,13 +1570,506 @@ static int borg_launch_ball(int rad, int dam, int typ, int max)
 }
 
 
+/* Whirlwind -- Attacks all adjacent monsters */
+static int borg_attack_whirlwind(void)
+{
+	int y = 0, x = 0;
+	int i;
+	int dam = 0;
+
+	map_block *mb_ptr;
+
+	if (borg_simulate)
+	{
+		/* Scan neighboring grids */
+		for (i = 0; i < borg_next_n; i++)
+		{
+			/* Fetch the coords */
+			y = borg_next_y[i];
+			x = borg_next_x[i];
+
+			/* Fetch the spot on the map */
+			mb_ptr = map_loc(x, y);
+
+			/* is there a kill next to me */
+			if (mb_ptr->kill)
+			{
+				/* Calculate "average" damage */
+				dam += borg_thrust_damage_one(mb_ptr->kill);
+			}
+		}
+
+		/* Return the damage for consideration */
+		return (dam);
+	}
+
+	/* Not supposed to happen */
+	borg_oops("The borg can't cast Whirlwind from here");
+	return (0);
+}
+
+
+/*
+ * This function assumes that the string act contains "rad. xxx" 
+ * and converts xxx to a number
+ */
+static int borg_find_radius(cptr act)
+{
+	char *here;
+
+	/* Just checking */
+	if (!act) return (0);
+
+	/* Find the substring for the radius */
+	here = strstr(act, "rad. ");
+
+	/* If no radius is mentioned give up */
+	if (!here) return (0);
+
+	/* Jump past the search string */
+	here = here + 5;
+
+	/* Return the radius */
+	return (atoi(here));
+}
+
+
+/*
+ * This function assumes that the string act contains "(xxx" or (xdy
+ * and converts xxx or xdy to a number.
+ */
+static int borg_find_damage(cptr act)
+{
+	char *here;
+	int dam = 0, ds = 0, level = 0;
+
+	/* Just checking */
+	if (!act) return (0);
+
+	/* Find the substring for the damage */
+	here = strstr(act, "(");
+
+	/* If no damage is mentioned give up */
+	if (!here) return (0);
+
+	/* Jump past the search string */
+	here = here + 1;
+
+	/* If the damage is multiplied by level */
+	if (prefix(act, "level * "))
+	{
+		/* Supply the level */
+		level = bp_ptr->lev;
+
+		/* Jump past the substring */
+		act += 8;
+	}
+
+	/* As long as the string has digits in it */
+	while (*here - '0' >= 0 && *here - '0' <= 9)
+	{
+		/* create the damage */
+		dam = dam * 10 + *here++ - '0';
+	}
+
+	/* Multiply if necessary */
+	if (level) dam *= level;
+
+	/* Is the damage composed of dd and ds? */
+	if (*here == 'd')
+	{
+		/* Jump past the die */
+		here = here + 1;
+
+		/* create the die */
+		ds = atoi(here);
+
+		/* calculate the average damage */
+		dam = dam * (ds + 1) / 2;
+	}
+
+	/* return the damage found */
+	return (dam);
+}
+
+
+/* Determine if this activation can do damage */
+static int borg_damage_artifact_monster(cptr act)
+{
+	int rad = 0,
+		gf = 0,
+		dam = 0,
+		style = 0;
+	bool stop;
+
+	/* Go through the string, word for word */
+	while (act)
+	{
+		/* Initialize */
+		stop = FALSE;
+
+		/* For efficiency first check the first letter */
+		switch (*act)
+		{
+			case 'a':
+			{
+				if (prefix(act, "acid")) gf = GF_ACID;
+				else if (prefix(act, "arrow"))
+				{
+					style = BORG_BOLT;
+					gf = GF_ARROW;
+				}
+
+				break;
+			}
+			case 'b':
+			{
+				if (prefix(act, "bolt")) style  = BORG_BOLT;
+				else if (prefix(act, "beam")) style  = BORG_BEAM;
+				else if (prefix(act, "ball")) style  = BORG_BALL;
+				else if (prefix(act, "breathe")) style  = BORG_BALL;
+				else if (prefix(act, "blast")) style  = BORG_BLAST;
+				else if (prefix(act, "banish"))
+				{
+					style  = BORG_DISPEL;
+					dam = 30;
+
+					if (prefix(act, "banishment")) gf = GF_AWAY_ALL;
+					else if (prefix(act, "banish evil")) gf = GF_AWAY_EVIL;
+					else if (prefix(act, "banish undead")) gf = GF_AWAY_UNDEAD;
+				}
+
+				break;
+			}
+			case 'c':
+			{
+				if (prefix(act, "cloud")) style  = BORG_BALL;
+				else if (prefix(act, "cold")) gf = GF_COLD;
+				else if (prefix(act, "confusion")) gf = GF_CONFUSION;
+				else if (prefix(act, "confuse")) gf = GF_OLD_CONF;
+				else if (prefix(act, "chaos")) gf = GF_CHAOS;
+				else if (prefix(act, "call"))
+				{
+					style  = BORG_BALL;
+					dam = 150;
+				}
+
+				break;
+			}
+			case 'd':
+			{
+				if (prefix(act, "dark")) gf = GF_DARK;
+				if (prefix(act, "drain life"))
+				{
+					style = BORG_BOLT;
+					gf = GF_OLD_DRAIN;
+				}
+				if (prefix(act, "dispel"))
+				{
+					style = BORG_DISPEL;
+
+					if (prefix(act, "dispel evil")) gf = GF_DISP_EVIL;
+					else if (prefix(act, "dispel good")) gf = GF_DISP_GOOD;
+					else if (prefix(act, "dispel demons")) gf = GF_DISP_DEMON;
+					else if (prefix(act, "dispel living")) gf = GF_DISP_LIVING;
+					else if (prefix(act, "dispel monster")) gf = GF_DISP_ALL;
+				}
+
+				break;
+			}
+			case 'e':
+			{
+				if (prefix(act, "elements")) gf = GF_MISSILE;
+				else if (prefix(act, "every")) stop = TRUE;
+
+				break;
+			}
+			case 'f':
+			{
+				/* Hack to prevent holy/hell fire from being overwritten */
+				if (prefix(act, "fire") && !gf) gf = GF_FIRE;
+				else if (prefix(act, "frost")) gf = GF_COLD;
+				else if (prefix(act, "force")) gf = GF_FORCE;
+
+				break;
+			}
+			case 'g':
+			{
+				if (prefix(act, "gravity")) gf = GF_GRAVITY;
+
+				break;
+			}
+			case 'h':
+			{
+				if (prefix(act, "holy fire")) gf = GF_HOLY_FIRE;
+				else if (prefix(act, "hell fire")) gf = GF_HELL_FIRE;
+
+				break;
+			}
+			case 'i':
+			{
+				if (prefix(act, "inertia")) gf = GF_INERTIA;
+				else if (prefix(act, "ice")) gf = GF_ICE;
+				else if (prefix(act, "illumination"))
+				{
+					style = BORG_DISPEL;
+					gf = GF_LITE_WEAK;
+					dam = 18;
+				}
+
+				break;
+			}
+			case 'l':
+			{
+				if (prefix(act, "large")) rad = BORG_BALL_RAD3;
+				else if (prefix(act, "lightning")) gf = GF_ELEC;
+				else if (prefix(act, "light"))
+				{
+					gf = GF_LITE;
+				
+					if (prefix(act, "light area"))
+					{
+						style = BORG_DISPEL;
+						gf = GF_LITE_WEAK;
+						rad = BORG_BALL_RAD3;
+					}
+				}
+
+				break;
+			}
+			case 'm':
+			{
+				if (prefix(act, "mana")) gf = GF_MANA;
+				else if (prefix(act, "missile"))
+				{
+					style = BORG_BOLT;
+					gf = GF_MISSILE;
+				}
+				/* Hack to prevent overwriting sleep_touch */
+				else if (prefix(act, "monster") && !style)
+				{
+					style = BORG_BOLT;
+
+					if (prefix(act, "monsters")) style = BORG_DISPEL;
+				}
+
+				break;
+			}
+			case 'n':
+			{
+				if (prefix(act, "nether")) gf = GF_NETHER;
+				else if (prefix(act, "nexus")) gf = GF_NEXUS;
+				else if (prefix(act, "nuke")) gf = GF_NUKE;
+
+				break;
+			}
+			case 'p':
+			{
+				if (prefix(act, "poison")) gf = GF_POIS;
+				else if (prefix(act, "plasma")) gf = GF_PLASMA;
+
+				break;
+			}
+			case 'r':
+			{
+				if (prefix(act, "rad.")) rad = borg_find_radius(act);
+				else if (prefix(act, "rocket"))
+				{
+					style = BORG_BALL;
+					gf = GF_ROCKET;
+				}
+
+				break;
+			}
+			case 's':
+			{
+				if (prefix(act, "star")) gf = GF_ELEC;
+				else if (prefix(act, "stinking")) gf = GF_POIS;
+				else if (prefix(act, "shards")) gf = GF_SHARDS;
+				else if (prefix(act, "sound")) gf = GF_SOUND;
+				else if (prefix(act, "sunlight")) gf = GF_LITE_WEAK;
+				else if (prefix(act, "sleep"))
+				{
+					gf = GF_OLD_SLEEP;
+					dam = 20;
+					
+					if (prefix(act, "sleep nearby")) style = BORG_TOUCH;
+				}
+				else if (prefix(act, "slow"))
+				{
+					gf = GF_OLD_SLOW;
+					dam = 20;
+				}
+				if (prefix(act, "strangling"))
+				{
+					style = BORG_BOLT;
+					gf = GF_OLD_DRAIN;
+				}
+				if (prefix(act, "stone to mud"))
+				{
+					style = BORG_BOLT;
+					gf = GF_KILL_WALL;
+				}
+
+				break;
+			}
+			case 't':
+			{
+				if (prefix(act, "time")) gf = GF_TIME;
+				else if (prefix(act, "turn"))
+				{
+					style = BORG_DISPEL;
+					dam = 20;
+
+					if (prefix(act, "turns")) stop = TRUE;
+					else if (prefix(act, "turn monsters")) gf = GF_TURN_ALL;
+					else if (prefix(act, "turn evil")) gf = GF_TURN_EVIL;
+				}
+				else if (prefix(act, "teleport away"))
+				{
+					style = BORG_BEAM;
+					gf = GF_AWAY_ALL;
+					dam = 50;
+				}
+
+				break;
+			}
+			case 'v':
+			{
+				if (prefix(act, "vampiric drain"))
+				{
+					style = BORG_BOLT;
+					gf = GF_OLD_DRAIN;
+				}
+
+				break;
+			}
+			case 'w':
+			{
+				if (prefix(act, "water")) gf = GF_WATER;
+				else if (prefix(act, "whirlwind"))
+				{
+					style = BORG_TOUCH;
+					dam = 1;
+					gf = MAX_GF;
+				}
+
+				break;
+			}
+			case '(':
+			{
+				dam = borg_find_damage(act);
+
+				break;
+			}
+			default: break;
+		}
+
+		/* Cut off */
+		if (stop) break;
+
+		/* Skip until next word */
+		while (act && !stop)
+		{
+			/* Stop after a space was read */
+			stop = *act == ' ';
+
+			/* Next letter */
+			act++;
+		}
+	}
+
+	/* Not enough info */
+	if (!style || !dam || !gf) return (0);
+
+	/* Calculate the potential damage */
+	switch (style)
+	{
+		case BORG_BOLT: return (borg_launch_bolt(dam, gf, MAX_RANGE));
+
+		case BORG_BEAM: return (borg_launch_beam(dam, gf, MAX_RANGE));
+
+		case BORG_BALL:
+		{
+			/* Set to default */
+			if (!rad) rad = BORG_BALL_RAD2;
+
+			return (borg_launch_ball(rad, dam, gf, MAX_RANGE));
+		}
+
+		case BORG_DISPEL:
+		{
+			/* Set to default */
+			if (!rad) rad = MAX_RANGE;
+			
+			return (borg_launch_dispel(dam, gf, rad));
+		}
+
+		case BORG_BLAST: return (borg_launch_blast(dam, gf, rad));
+
+		case BORG_TOUCH:
+		{
+			/* Hacking Whirlwind */
+			if (gf == MAX_GF) return (borg_attack_whirlwind());
+
+			return (borg_launch_touch(dam, gf));
+		}
+
+		default: return (0);
+	}
+}
+
+
 /* Simulate/Apply the optimal result of activating an artifact */
 static int borg_attack_artifact(int *b_slot)
 {
-	/* Ignore parameter */
-	(void) b_slot;
-	/* Yeah well, how do I find out what the activation is */
-	return (0);
+	int i, n, b_n = 0;
+	list_item *l_ptr;
+	cptr act;
+
+	if (borg_simulate)
+	{
+		for (i = 0; i < equip_num; i++)
+		{
+			/* What item is this */
+			l_ptr = look_up_equip_slot(i);
+
+			/* Is this item an artifact that can be activated now? */
+			if (!borg_check_artifact(l_ptr, TRUE)) continue;
+
+			/* Hack!  Get the activation */
+			act = item_activation(&p_ptr->equipment[i]);
+
+			/* Get the attack value */
+			n = borg_damage_artifact_monster(act);
+
+			/* Is it better than before? */
+			if (n <= b_n) continue;
+
+			/* Keep track of the scroll */
+			*b_slot = i;
+			b_n = n;
+		}
+
+		/* Return the value of the simulation */
+		return (b_n);
+	}
+
+	/* Set the target */
+	borg_target(g_x, g_y);
+
+	/* Do it */
+	borg_note("# Activating artifact %s", equipment[*b_slot].o_name);
+
+	/* Activate the artifact */
+	borg_keypress('A');
+	borg_keypress(I2A(*b_slot));
+
+	/* Set our shooting flag */
+	successful_target = BORG_FRESH_TARGET;
+
+	/* Value */
+	return (b_n);
 }
 
 
@@ -1593,7 +2165,7 @@ static int borg_attack_scroll(int *b_slot)
 	}
 
 	/* Do it */
-	borg_note_fmt("# Reading scroll '%s'", inventory[*b_slot].o_name);
+	borg_note("# Reading scroll '%s'", inventory[*b_slot].o_name);
 
 	/* Read the scroll */
 	borg_keypress('r');
@@ -1772,6 +2344,9 @@ static int borg_attack_launch(int *b_slot)
 				/* Is it better than the previous missile */
 				if (d <= b_d) continue;
 
+				/* Missiles tend to miss a lot, let's assume 50% */
+				d = d / 2;
+
 				/* Track this missile */
 				b_d = d;
 				b_k = k;
@@ -1801,7 +2376,7 @@ static int borg_attack_launch(int *b_slot)
 	borg_target(g_x, g_y);
 
 	/* Do it */
-	borg_note_fmt("# Firing missile '%s'", inventory[*b_slot].o_name);
+	borg_note("# Firing missile '%s'", inventory[*b_slot].o_name);
 
 	/* Fire */
 	borg_keypress('f');
@@ -2023,7 +2598,7 @@ static int borg_attack_object(int *b_slot, int mult)
 	}
 
 	/* Do it */
-	borg_note_fmt("# Throwing painful object '%s'", inventory[*b_slot].o_name);
+	borg_note("# Throwing painful object '%s'", inventory[*b_slot].o_name);
 
 	/* Set the target */
 	borg_target(g_x, g_y);
@@ -2149,7 +2724,7 @@ static int borg_attack_ring(int *b_slot)
 	borg_target(g_x, g_y);
 
 	/* Do it */
-	borg_note_fmt("# Activating %s", equipment[*b_slot].o_name);
+	borg_note("# Activating %s", equipment[*b_slot].o_name);
 
 	/* Activate the ring*/
 	borg_keypress('A');
@@ -2277,7 +2852,7 @@ static int borg_attack_dragon(void)
 	borg_target(g_x, g_y);
 
 	/* Do it */
-	borg_note_fmt("# Activating %s", equipment[EQUIP_BODY].o_name);
+	borg_note("# Activating %s", equipment[EQUIP_BODY].o_name);
 
 	/* Activate the dragon armour*/
 	borg_keypress('A');
@@ -2407,7 +2982,7 @@ static int borg_attack_rod(int *b_slot)
 	borg_target(g_x, g_y);
 
 	/* Tell what is zapped */
-	borg_note_fmt("# Zapping %s", inventory[*b_slot].o_name);
+	borg_note("# Zapping %s", inventory[*b_slot].o_name);
 
 	/* Zap the rod */
 	borg_keypress('z');
@@ -2483,7 +3058,7 @@ static int borg_wand_damage_monster(int sval)
 				borg_danger(c_x, c_y, 1, TRUE) >= (avoidance * 2))
 			{
 				/* note the use of the wand in the emergency */
-				borg_note_fmt("# Emergency use of a Wand of Wonder.");
+				borg_note("# Emergency use of a Wand of Wonder.");
 
 				/* make the wand appear deadly */
 				return (999);
@@ -2591,7 +3166,7 @@ static int borg_attack_wand(int *b_slot)
 	borg_target(g_x, g_y);
 
 	/* Do it */
-	borg_note_fmt("# Aiming %s", inventory[*b_slot].o_name);
+	borg_note("# Aiming %s", inventory[*b_slot].o_name);
 
 	/* Fire */
 	borg_keypress('a');
@@ -2992,7 +3567,7 @@ static int borg_attack_mutation(int *b_slot, int *b_spell)
 
 	/* Note */
 	borg_note("# Mutation Attack ");
-	borg_note_fmt("With letter = %c", I2A(*b_spell));
+	borg_note("With letter = %c", I2A(*b_spell));
 
 	/* Set the target */
 	borg_target(g_x, g_y);
@@ -3290,7 +3865,7 @@ static int borg_attack_mindcrafter_reserve(bool faint, int *b_spell)
 	}
 
 	/* make a note */
-	borg_note_fmt("Emergency mindcr use: %s", (faint) ? "faint" : "reserve");
+	borg_note("Emergency mindcr use: %s", (faint) ? "faint" : "reserve");
 
 	/* Set target for some spells */
 	if (*b_spell == MIND_NEURAL_BL ||
@@ -3499,7 +4074,7 @@ static int borg_life_damage_monster(int book, int spell)
 
 		default:
 		{
-			borg_oops_fmt("Trying to cast from life book = %d", book);
+			borg_oops("Trying to cast from life book = %d", book);
 			return (0);
 		}
 	}
@@ -3607,52 +4182,10 @@ static int borg_sorcery_damage_monster(int book, int spell)
 
 		default:
 		{
-			borg_oops_fmt("Is book %d really a sorcery book?", book);
+			borg_oops("Is book %d really a sorcery book?", book);
 			return (0);
 		}
 	}
-}
-
-
-/* Whirlwind--
- * Attacks adjacent monsters
- */
-static int borg_attack_whirlwind(void)
-{
-	int y = 0, x = 0;
-	int i;
-	int dam = 0;
-
-	map_block *mb_ptr;
-
-	if (borg_simulate)
-	{
-		/* Scan neighboring grids */
-		for (i = 0; i < borg_next_n; i++)
-		{
-			/* Fetch the coords */
-			y = borg_next_y[i];
-			x = borg_next_x[i];
-
-			/* Fetch the spot on the map */
-			mb_ptr = map_loc(x, y);
-
-			/* is there a kill next to me */
-			if (mb_ptr->kill)
-			{
-				/* Calculate "average" damage */
-				dam += borg_thrust_damage_one(mb_ptr->kill);
-			}
-
-		}
-
-		/* Return the damage for consideration */
-		return (dam);
-	}
-
-	/* Not supposed to happen */
-	borg_oops("The borg can't cast Whirlwind from here");
-	return (0);
 }
 
 
@@ -3840,7 +4373,7 @@ static int borg_nature_damage_monster(int book, int spell)
 
 		default:
 		{
-			borg_oops_fmt("Is book %d really a Nature book?", book);
+			borg_oops("Is book %d really a Nature book?", book);
 			return (0);
 		}
 	}
@@ -4148,7 +4681,7 @@ static int borg_chaos_damage_monster(int book, int spell)
 
 		default:
 		{
-			borg_oops_fmt("Is book %d really a sorcery book?", book);
+			borg_oops("Is book %d really a sorcery book?", book);
 			return (0);
 		}
 	}
@@ -4375,7 +4908,7 @@ static int borg_death_damage_monster(int book, int spell)
 		}
 		default:
 		{
-			borg_oops_fmt("Is book %d really a death book?", book);
+			borg_oops("Is book %d really a death book?", book);
 			return (0);
 		}
 	}
@@ -4408,14 +4941,33 @@ static int borg_trump_damage_monster(int book, int spell)
 			}
 		}
 
-		/* No attack spells in these books */
-		case 1:
+		/* No attack spells in Deck of Many Things */
+		case 1: return (0);
+
+		/* Trumps of Doom */
 		case 2:
+		{
+			switch (spell)
+			{
+				/* Spell -- Death dealing */
+				case 6:
+				{
+					dam = 3 * bp_ptr->lev;
+
+					/* Choose optimal location-- */
+					return (borg_launch_dispel(dam, GF_DISP_LIVING, MAX_RANGE));
+				}
+
+				default: return (0);
+			}
+		}
+
+		/* Five Aces */
 		case 3: return (0);
 
 		default:
 		{
-			borg_oops_fmt("Trying to cast from trump book %d", book);
+			borg_oops("Trying to cast from trump book %d", book);
 			return (0);
 		}
 	}
@@ -4525,7 +5077,7 @@ static int borg_arcane_damage_monster(int book, int spell)
 
 		default:
 		{
-			borg_oops_fmt("Trying to cast from arcane book %d", book);
+			borg_oops("Trying to cast from arcane book %d", book);
 			return (0);
 		}
 	}
@@ -4805,7 +5357,7 @@ static int borg_attack_spell_reserve(bool faint, int *b_slot, int *b_spell)
 	}
 
 	/* Make a note */
-	borg_note_fmt("Emergency spell use: %s", (faint) ? "faint" : "reserve");
+	borg_note("Emergency spell use: %s", (faint) ? "faint" : "reserve");
 
 	/* Get the book */
 	l_ptr = &inventory[*b_slot];
@@ -4851,6 +5403,17 @@ static int borg_staff_damage_monster(int sval)
 
 	switch (sval)
 	{
+		case SV_STAFF_STARLITE:
+		{
+			/*
+			 * Actually this staff picks 5d3 random targets that are in LOS
+			 * and send a light beam at them.
+			 * The borg assumes that two of those beams hit the best target.
+			 * This can easily happen in a hallway
+			 */
+			return (2 * borg_launch_beam(27, GF_LITE_WEAK, MAX_RANGE));
+		}
+
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
 			/* Set the type */
@@ -4987,7 +5550,7 @@ static int borg_attack_staff(int *b_slot)
 	}
 
 	/* Make a note */
-	borg_note_fmt("Using a %s", inventory[*b_slot].o_name);
+	borg_note("Using a %s", inventory[*b_slot].o_name);
 
 	/* Use the staff */
 	borg_keypress('u');
@@ -5120,7 +5683,7 @@ static int borg_attack_aux(int what, int *slot, int *spell)
 	}
 
 	/* report code mistake */
-	borg_oops_fmt("The BF_value %d is not in the switch", what);
+	borg_oops("The BF_value %d is not in the switch", what);
 
 	/* Oops */
 	return (0);
@@ -5237,6 +5800,9 @@ void borg_temp_fill(void)
 		/* Ignore multiplying monsters and when fleeing from scaries */
 		if (goal_ignoring && !bp_ptr->status.afraid &&
 			FLAG(&r_info[kill->r_idx], RF_MULTIPLY)) continue;
+
+		/* If it is a pet, ignore it */
+		if (kill->m_flags & (MONST_FRIEND | MONST_PET)) continue;
 
 		/* Acquire location */
 		x = kill->x;
@@ -5446,7 +6012,7 @@ bool borg_attack(bool boosted_bravery)
 
 
 	/* Note */
-	borg_note_fmt("# Performing attack type %d with value %d.", b_g, b_n);
+	borg_note("# Performing attack type %d with value %d.", b_g, b_n);
 
 	/* Instantiate */
 	borg_simulate = FALSE;

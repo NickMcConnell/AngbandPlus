@@ -12,8 +12,7 @@
 
 
 /*
- * This file helps the Borg analyze "objects" and "shops", and to
- * deal with objects and spells.
+ * This file helps the Borg deal with objects and spells.
  */
 
 
@@ -31,11 +30,7 @@ borg_mind borg_minds[MINDCRAFT_MAX];
  *
  * The comments yield the "name" of the spell or prayer.
  *
- * Also, the leading letter in the comment indicates how we use the
- * spell or prayer, if at all, using "A" for "attack", "D" for "call
- * light" and "detection", "E" for "escape", "H" for healing, "O" for
- * "object manipulation", and "F" for "terrain feature manipulation",
- * plus "!" for entries that can soon be handled.
+ * If there is an "!" for entries that means the borg can't use it.
  */
 
 static byte borg_magic_method[8][4][8] =
@@ -84,40 +79,40 @@ static byte borg_magic_method[8][4][8] =
 	  BORG_MAGIC_NOP /*   "Detect Evil" */ ,
 	  BORG_MAGIC_NOP /*   "Cure Light Wounds" */ ,
 	  BORG_MAGIC_NOP /*   "Bless" */ ,
-	  BORG_MAGIC_NOP /* H "Remove Fear" */ ,
-	  BORG_MAGIC_NOP /* D "Call Light" */ ,
-	  BORG_MAGIC_NOP /* D "Find Traps" */ ,
-	  BORG_MAGIC_NOP /* D "Cure Medium Wounds" */ ,
+	  BORG_MAGIC_NOP /*   "Remove Fear" */ ,
+	  BORG_MAGIC_NOP /*   "Call Light" */ ,
+	  BORG_MAGIC_NOP /*   "Find Traps / Door" */ ,
+	  BORG_MAGIC_NOP /*   "Cure Medium Wounds" */ ,
 	  BORG_MAGIC_NOP /*   "Satisfy Hunger" */ ,},
 
 	 {							/* High Mass (sval 1) */
 	  BORG_MAGIC_NOP /*   "Remove Curse" */ ,
-	  BORG_MAGIC_NOP /* E "Cure Poison" */ ,
-	  BORG_MAGIC_NOP /* H "Cure Crit Wounds" */ ,
+	  BORG_MAGIC_NOP /*   "Cure Poison" */ ,
+	  BORG_MAGIC_NOP /*   "Cure Crit Wounds" */ ,
 	  BORG_MAGIC_NOP /*   "See Inv" */ ,
 	  BORG_MAGIC_AIM /*   "Holy Orb" */ ,
-	  BORG_MAGIC_NOP /* H "PFE" */ ,
+	  BORG_MAGIC_NOP /*   "PFE" */ ,
 	  BORG_MAGIC_NOP /*   "Healing" */ ,
-	  BORG_MAGIC_NOP /*   "Rune of Protection" */ ,},
+	  BORG_MAGIC_NOP /* ! "Rune of Protection" */ ,},
 
 	 {							/* Book of the Unicorn (sval 2) */
-	  BORG_MAGIC_NOP /* H "Exorcism" */ ,
-	  BORG_MAGIC_NOP /* A "Dispel Curse" */ ,
-	  BORG_MAGIC_NOP /* H "Disp Undead and Demon" */ ,
-	  BORG_MAGIC_NOP /*   "Day of Dove" */ ,
+	  BORG_MAGIC_NOP /*   "Exorcism" */ ,
+	  BORG_MAGIC_NOP /*   "Dispel Curse" */ ,
+	  BORG_MAGIC_NOP /*   "Disp Undead and Demon" */ ,
+	  BORG_MAGIC_NOP /* ! "Day of Dove" */ ,
 	  BORG_MAGIC_NOP /*   "Dispel Evil" */ ,
-	  BORG_MAGIC_NOP /* D "Banishment" */ ,
-	  BORG_MAGIC_NOP /* H "Holy Word" */ ,
-	  BORG_MAGIC_NOP /*   "Warding True" */ },
+	  BORG_MAGIC_NOP /*   "Banishment" */ ,
+	  BORG_MAGIC_NOP /*   "Holy Word" */ ,
+	  BORG_MAGIC_NOP /* ! "Warding True" */ },
 
 	 {							/* Blessings of the Grail (sval 3) */
 	  BORG_MAGIC_NOP /*   "Heroism" */ ,
-	  BORG_MAGIC_NOP /* ! "Prayer" */ ,
-	  BORG_MAGIC_NOP /* H "Bless Weapon" */ ,
-	  BORG_MAGIC_NOP /* ! "Restoration" */ ,
+	  BORG_MAGIC_NOP /*   "Prayer" */ ,
+	  BORG_MAGIC_NOP /* ! "Bless Weapon" */ ,
+	  BORG_MAGIC_NOP /*   "Restoration" */ ,
 	  BORG_MAGIC_NOP /*   "Healing True" */ ,
-	  BORG_MAGIC_OBJ /* ! "Holy Vision" */ ,
-	  BORG_MAGIC_NOP /*   "Divine Intervent" */ ,
+	  BORG_MAGIC_OBJ /*   "Holy Vision" */ ,
+	  BORG_MAGIC_NOP /* ! "Divine Intervent" */ ,
 	  BORG_MAGIC_NOP /*   "Holy Invuln" */ }
 
 	 },							/* endof Life Realm */
@@ -144,23 +139,23 @@ static byte borg_magic_method[8][4][8] =
 	  BORG_MAGIC_OBJ /*   "*ID*" */ },
 
 	 {							/* Pattern Sorcery (sval 2) */
-	  BORG_MAGIC_NOP /*   "Detect Obj" */ ,
-	  BORG_MAGIC_NOP /*   "Detect Enchant" */ ,
-	  BORG_MAGIC_ICK /*   "Charm Mon" */ ,
+	  BORG_MAGIC_NOP /* ! "Detect Obj & treasure" */ ,
+	  BORG_MAGIC_NOP /* ! "Detect Enchant" */ ,
+	  BORG_MAGIC_ICK /* ! "Charm Mon" */ ,
 	  BORG_MAGIC_AIM /*   "Dimension Door" */ ,
 	  BORG_MAGIC_NOP /*   "Sense Minds" */ ,
-	  BORG_MAGIC_NOP /*   "Self Knowledge" */ ,
+	  BORG_MAGIC_NOP /* ! "Self Knowledge" */ ,
 	  BORG_MAGIC_NOP /*   "Teleport Level" */ ,
 	  BORG_MAGIC_NOP /*   "Word of Recall" */ },
 
 	 {							/* Grimoir of Power (sval 3) */
 	  BORG_MAGIC_AIM /*   "Stasis" */ ,
-	  BORG_MAGIC_ICK /*   "Telekinesis" */ ,
-	  BORG_MAGIC_ICK /*   "Explosive Rune" */ ,
+	  BORG_MAGIC_ICK /* ! "Telekinesis" */ ,
+	  BORG_MAGIC_ICK /* ! "Explosive Rune" */ ,
 	  BORG_MAGIC_NOP /*   "Clairvoyance" */ ,
 	  BORG_MAGIC_OBJ /*   "*Enchant Weap" */ ,
 	  BORG_MAGIC_OBJ /*   "*Enchant Armor" */ ,
-	  BORG_MAGIC_ICK /*   "Alchemy" */ ,
+	  BORG_MAGIC_OBJ /*   "Alchemy" */ ,
 	  BORG_MAGIC_NOP /*   "GOI" */ }
 	 },							/* End of Sorcery Realm */
 
@@ -168,53 +163,53 @@ static byte borg_magic_method[8][4][8] =
 	 {							/* Call of the Wild (sval 0) */
 	  BORG_MAGIC_NOP /*   "Detect Creature" */ ,
 	  BORG_MAGIC_NOP /*   "First Aid" */ ,
-	  BORG_MAGIC_NOP /* ! "Detect Door" */ ,
+	  BORG_MAGIC_NOP /*   "Detect Trap / Door" */ ,
 	  BORG_MAGIC_NOP /*   "Foraging" */ ,
 	  BORG_MAGIC_NOP /*   "Daylight" */ ,
-	  BORG_MAGIC_AIM /*   "Animal Taming" */ ,
+	  BORG_MAGIC_AIM /* ! "Animal Taming" */ ,
 	  BORG_MAGIC_NOP /*   "Resist Environment" */ ,
 	  BORG_MAGIC_NOP /*   "Cure Wound&Poison" */ },
 	 {							/* Nature Mastery (sval 1) */
-	  BORG_MAGIC_AIM /* ! "Stone to Mud" */ ,
-	  BORG_MAGIC_AIM /* ! "Lightning Bolt" */ ,
+	  BORG_MAGIC_AIM /*   "Stone to Mud" */ ,
+	  BORG_MAGIC_AIM /*   "Lightning Bolt" */ ,
 	  BORG_MAGIC_NOP /*   "Nature Awareness" */ ,
 	  BORG_MAGIC_AIM /*   "Frost Bolt" */ ,
 	  BORG_MAGIC_AIM /*   "Ray of Sunlight" */ ,
 	  BORG_MAGIC_NOP /*   "Entangle" */ ,
-	  BORG_MAGIC_ICK /*   "Summon Animals" */ ,
+	  BORG_MAGIC_ICK /* ! "Summon Animals" */ ,
 	  BORG_MAGIC_NOP /*   "Herbal Healing" */ },
 	 {							/* Nature Gifts (sval 2) */
 	  BORG_MAGIC_NOP /* ! "Door Building" */ ,
-	  BORG_MAGIC_NOP /*   "Stair Building" */ ,
-	  BORG_MAGIC_NOP /* ! "Stone Skin" */ ,
+	  BORG_MAGIC_NOP /* ! "Stair Building" */ ,
+	  BORG_MAGIC_NOP /*   "Stone Skin" */ ,
 	  BORG_MAGIC_NOP /*   "Resistance True" */ ,
-	  BORG_MAGIC_NOP /*   "Animal Friend" */ ,
+	  BORG_MAGIC_NOP /* ! "Animal Friend" */ ,
 	  BORG_MAGIC_OBJ /*   "Stone Tell" */ ,
-	  BORG_MAGIC_NOP /*   "Wall of Stone" */ ,
-	  BORG_MAGIC_OBJ /*   "Protect From Corros." */ },
+	  BORG_MAGIC_NOP /* ! "Wall of Stone" */ ,
+	  BORG_MAGIC_OBJ /* ! "Protect From Corros." */ },
 	 {							/* Natures Wrath (sval 3) */
-	  BORG_MAGIC_NOP /* ! "Earthquake" */ ,
+	  BORG_MAGIC_NOP /*   "Earthquake" */ ,
 	  BORG_MAGIC_NOP /*   "Whirlwind" */ ,
-	  BORG_MAGIC_AIM /* ! "Blizzard" */ ,
+	  BORG_MAGIC_AIM /*   "Blizzard" */ ,
 	  BORG_MAGIC_AIM /*   "Lightning" */ ,
 	  BORG_MAGIC_AIM /*   "Whirpool" */ ,
 	  BORG_MAGIC_NOP /*   "Call Sunlight" */ ,
-	  BORG_MAGIC_OBJ /*   "Elemental Brand" */ ,
+	  BORG_MAGIC_OBJ /* ! "Elemental Brand" */ ,
 	  BORG_MAGIC_NOP /*   "Natures Wrath" */ }
 	 },							/* end of Natural realm  */
 
 	{							/* 4.Chaos Realm */
 	 {							/* Sign of Chaos... (sval 0) */
-	  BORG_MAGIC_AIM /* "Magic Missile" */ ,
-	  BORG_MAGIC_NOP /* "Trap/Door Dest" */ ,
-	  BORG_MAGIC_NOP /* "Flash of Light" */ ,
-	  BORG_MAGIC_NOP /* "Touch of Conf" */ ,
-	  BORG_MAGIC_NOP /* "ManaBurst" */ ,
-	  BORG_MAGIC_AIM /* "Fire Bolt" */ ,
-	  BORG_MAGIC_AIM /* "Fist of Force" */ ,
-	  BORG_MAGIC_NOP /* "Teleport" */ },
+	  BORG_MAGIC_AIM /*   "Magic Missile" */ ,
+	  BORG_MAGIC_NOP /*   "Trap/Door Dest" */ ,
+	  BORG_MAGIC_NOP /*   "Flash of Light" */ ,
+	  BORG_MAGIC_NOP /* ! "Touch of Conf" */ ,
+	  BORG_MAGIC_NOP /*   "ManaBurst" */ ,
+	  BORG_MAGIC_AIM /*   "Fire Bolt" */ ,
+	  BORG_MAGIC_AIM /*   "Fist of Force" */ ,
+	  BORG_MAGIC_NOP /*   "Teleport" */ },
 	 {							/* Chaos Mastery... (sval 1) */
-	  BORG_MAGIC_ICK /*   "Wonder" */ ,
+	  BORG_MAGIC_ICK /* ! "Wonder" */ ,
 	  BORG_MAGIC_AIM /*   "Chaos Bolt" */ ,
 	  BORG_MAGIC_NOP /*   "Sonic Boom" */ ,
 	  BORG_MAGIC_AIM /*   "Doom Beam" */ ,
@@ -227,15 +222,15 @@ static byte borg_magic_method[8][4][8] =
 	  BORG_MAGIC_NOP /*   "Chain Lightn" */ ,
 	  BORG_MAGIC_OBJ /*   "Arcane Binding" */ ,
 	  BORG_MAGIC_AIM /*   "Disintegration" */ ,
-	  BORG_MAGIC_NOP /*   "Alter Reality" */ ,
-	  BORG_MAGIC_ICK /*   "Polymorph Self" */ ,
-	  BORG_MAGIC_ICK /*   "Chaos Brinding" */ ,
-	  BORG_MAGIC_ICK /*   "Summon Demon" */ },
+	  BORG_MAGIC_NOP /* ! "Alter Reality" */ ,
+	  BORG_MAGIC_ICK /* ! "Polymorph Self" */ ,
+	  BORG_MAGIC_ICK /* ! "Chaos Branding" */ ,
+	  BORG_MAGIC_ICK /* ! "Summon Demon" */ },
 	 {							/* Armageddon Tome (sval 3) */
 	  BORG_MAGIC_AIM /*   "Gravity Beam" */ ,
 	  BORG_MAGIC_AIM /*   "Meteor Swarm" */ ,
 	  BORG_MAGIC_NOP /*   "Flame Strike" */ ,
-	  BORG_MAGIC_NOP /*   "Call Chaos" */ ,
+	  BORG_MAGIC_NOP /* ! "Call Chaos" */ ,
 	  BORG_MAGIC_AIM /*   "Magic Rocket" */ ,
 	  BORG_MAGIC_AIM /*   "Mana Storm" */ ,
 	  BORG_MAGIC_AIM /*   "Breath Logrus" */ ,
@@ -244,16 +239,16 @@ static byte borg_magic_method[8][4][8] =
 
 	{							/* 5. Death Realm */
 	 {							/* Black Prayers (sval 0) */
-	  BORG_MAGIC_NOP /* ! "Detect Unlife" */ ,
+	  BORG_MAGIC_NOP /*   "Detect Unlife" */ ,
 	  BORG_MAGIC_AIM /*   "Malediction" */ ,
-	  BORG_MAGIC_NOP /* ! "Detect Evil" */ ,
+	  BORG_MAGIC_NOP /*   "Detect Evil" */ ,
 	  BORG_MAGIC_AIM /*   "Stinking Cloud" */ ,
 	  BORG_MAGIC_AIM /*   "Black Sleep" */ ,
 	  BORG_MAGIC_NOP /*   "Resist Poison" */ ,
 	  BORG_MAGIC_AIM /*   "Horrify" */ ,
-	  BORG_MAGIC_AIM /*   "Enslave Undead" */ },
+	  BORG_MAGIC_AIM /* ! "Enslave Undead" */ },
 	 {							/* Black Mass (sval 1) */
-	  BORG_MAGIC_AIM /* ! "Orb of Entropy" */ ,
+	  BORG_MAGIC_AIM /*   "Orb of Entropy" */ ,
 	  BORG_MAGIC_AIM /*   "Nether Bolt" */ ,
 	  BORG_MAGIC_NOP /*   "Terror" */ ,
 	  BORG_MAGIC_AIM /*   "Vamp Drain" */ ,
@@ -262,68 +257,68 @@ static byte borg_magic_method[8][4][8] =
 	  BORG_MAGIC_WHO /*   "Genocide" */ ,
 	  BORG_MAGIC_NOP /*   "Restore Life" */ },
 	 {							/* Black Channels (sval 2) */
-	  BORG_MAGIC_NOP /* ! "Berserk" */ ,
-	  BORG_MAGIC_NOP /*   "Invoke Spirits" */ ,
-	  BORG_MAGIC_AIM /* ! "Dark Bolt" */ ,
+	  BORG_MAGIC_NOP /*   "Berserk" */ ,
+	  BORG_MAGIC_NOP /* ! "Invoke Spirits" */ ,
+	  BORG_MAGIC_AIM /*   "Dark Bolt" */ ,
 	  BORG_MAGIC_NOP /*   "Battle Frenzy" */ ,
 	  BORG_MAGIC_AIM /*   "Vamp True" */ ,
-	  BORG_MAGIC_OBJ /*   "Vamp Brand" */ ,
+	  BORG_MAGIC_OBJ /* ! "Vamp Brand" */ ,
 	  BORG_MAGIC_AIM /*   "Dark Storm" */ ,
 	  BORG_MAGIC_NOP /*   "Mass Genocide" */ },
 	 {							/* Necronomicon (sval 3) */
-	  BORG_MAGIC_AIM /* ! "Death Ray" */ ,
-	  BORG_MAGIC_ICK /*   "Raise the Dead" */ ,
-	  BORG_MAGIC_OBJ /* ! "Esoteria" */ ,
+	  BORG_MAGIC_AIM /*   "Death Ray" */ ,
+	  BORG_MAGIC_ICK /* ! "Raise the Dead" */ ,
+	  BORG_MAGIC_OBJ /*   "Esoteria" */ ,
 	  BORG_MAGIC_NOP /*   "Word of Death" */ ,
 	  BORG_MAGIC_NOP /*   "Evocation" */ ,
 	  BORG_MAGIC_AIM /*   "Hellfire" */ ,
 	  BORG_MAGIC_NOP /*   "Omnicide" */ ,
-	  BORG_MAGIC_NOP /*   "Wraithform" */ }
+	  BORG_MAGIC_NOP /* ! "Wraithform" */ }
 	 },							/* end of Death Realm */
 
 	{							/* 6 Trump Realm */
 	 {							/* Conjuring and Tricks (sval 0) */
-	  BORG_MAGIC_NOP /* ! "Phase Door" */ ,
+	  BORG_MAGIC_NOP /*   "Phase Door" */ ,
 	  BORG_MAGIC_AIM /*   "Mind Blast" */ ,
-	  BORG_MAGIC_ICK /*   "Shuffle" */ ,
-	  BORG_MAGIC_ICK /*   "Reset Recall" */ ,
+	  BORG_MAGIC_ICK /* ! "Shuffle" */ ,
+	  BORG_MAGIC_ICK /* ! "Reset Recall" */ ,
 	  BORG_MAGIC_NOP /*   "Teleport Self" */ ,
 	  BORG_MAGIC_AIM /*   "Dimension Door" */ ,
-	  BORG_MAGIC_NOP /*   "Trump Spying" */ ,
+	  BORG_MAGIC_NOP /* ! "Trump Spying" */ ,
 	  BORG_MAGIC_AIM /*   "Teleport Away" */ },
 	 {							/* Deck of Many Things (sval 1) */
 	  BORG_MAGIC_ICK /* ! "Trump Object" */ ,
 	  BORG_MAGIC_ICK /* ! "Trump Animal" */ ,
-	  BORG_MAGIC_NOP /*   "Phantasmal Servant" */ ,
-	  BORG_MAGIC_ICK /*   "Trump Monster" */ ,
-	  BORG_MAGIC_ICK /*   "Conjure Elemental" */ ,
+	  BORG_MAGIC_NOP /* ! "Phantasmal Servant" */ ,
+	  BORG_MAGIC_ICK /* ! "Trump Monster" */ ,
+	  BORG_MAGIC_ICK /* ! "Conjure Elemental" */ ,
 	  BORG_MAGIC_NOP /*   "Teleport Level" */ ,
 	  BORG_MAGIC_NOP /*   "Word of Recall" */ ,
 	  BORG_MAGIC_NOP /*   "Banish" */ },
 	 {							/* Trumps of Doom (sval 2) */
 	  BORG_MAGIC_ICK /* ! "Joker Card" */ ,
-	  BORG_MAGIC_ICK /*   "Trump Spiders" */ ,
-	  BORG_MAGIC_ICK /*   "T. Reptiles" */ ,
-	  BORG_MAGIC_ICK /*   "T. Houdns" */ ,
-	  BORG_MAGIC_ICK /*   "T. Branding" */ ,
-	  BORG_MAGIC_ICK /*   "Living Trump" */ ,
-	  BORG_MAGIC_ICK /*   "Death Dealing" */ ,
-	  BORG_MAGIC_ICK /*   "T. Cyberdemon" */ },
+	  BORG_MAGIC_ICK /* ! "Trump Spiders" */ ,
+	  BORG_MAGIC_ICK /* ! "T. Reptiles" */ ,
+	  BORG_MAGIC_ICK /* ! "T. Houdns" */ ,
+	  BORG_MAGIC_ICK /* ! "T. Branding" */ ,
+	  BORG_MAGIC_ICK /* ! "Living Trump" */ ,
+	  BORG_MAGIC_NOP /*   "Death Dealing" */ ,
+	  BORG_MAGIC_ICK /* ! "T. Cyberdemon" */ },
 	 {							/* Five Aces (sval 3) */
-	  BORG_MAGIC_NOP /* ! "T. Divination" */ ,
+	  BORG_MAGIC_NOP /*   "T. Divination" */ ,
 	  BORG_MAGIC_OBJ /*   "T. Lore" */ ,
-	  BORG_MAGIC_ICK /*   "T. Undead" */ ,
-	  BORG_MAGIC_ICK /*   "T. Dragon" */ ,
-	  BORG_MAGIC_ICK /*   "Mass Trump" */ ,
-	  BORG_MAGIC_ICK /*   "T. Demon" */ ,
-	  BORG_MAGIC_ICK /*   "T. Ancient Dragon " */ ,
-	  BORG_MAGIC_ICK /*   "T. Greater Undead" */ }
+	  BORG_MAGIC_ICK /* ! "T. Undead" */ ,
+	  BORG_MAGIC_ICK /* ! "T. Dragon" */ ,
+	  BORG_MAGIC_ICK /* ! "Mass Trump" */ ,
+	  BORG_MAGIC_ICK /* ! "T. Demon" */ ,
+	  BORG_MAGIC_ICK /* ! "T. Ancient Dragon " */ ,
+	  BORG_MAGIC_ICK /* ! "T. Greater Undead" */ }
 	 },							/* end of Trump Realm */
 
 	{							/* 7 Arcane Realm */
 	 {							/* Cantrips (sval 0) */
-	  BORG_MAGIC_AIM /* ! "Zap" */ ,
-	  BORG_MAGIC_AIM /*   "Wiz Lock" */ ,
+	  BORG_MAGIC_AIM /*   "Zap" */ ,
+	  BORG_MAGIC_AIM /* ! "Wiz Lock" */ ,
 	  BORG_MAGIC_NOP /*   "Det Invis" */ ,
 	  BORG_MAGIC_NOP /*   "Det Mon" */ ,
 	  BORG_MAGIC_NOP /*   "Blink" */ ,
@@ -331,27 +326,27 @@ static byte borg_magic_method[8][4][8] =
 	  BORG_MAGIC_AIM /*   "Trap/Door Dest" */ ,
 	  BORG_MAGIC_NOP /*   "Cure Light Wounds" */ },
 	 {							/* Minor Arcana (sval 1) */
-	  BORG_MAGIC_NOP /* ! "Det Door/Trap" */ ,
-	  BORG_MAGIC_NOP /* ! "Phlogiston" */ ,
-	  BORG_MAGIC_NOP /*   "Det Treasure" */ ,
-	  BORG_MAGIC_NOP /*   "Det Enchant" */ ,
-	  BORG_MAGIC_NOP /*   "Det Object" */ ,
+	  BORG_MAGIC_NOP /*   "Det Door/Trap" */ ,
+	  BORG_MAGIC_NOP /*   "Phlogiston" */ ,
+	  BORG_MAGIC_NOP /* ! "Det Treasure" */ ,
+	  BORG_MAGIC_NOP /* ! "Det Enchant" */ ,
+	  BORG_MAGIC_NOP /* ! "Det Object" */ ,
 	  BORG_MAGIC_NOP /*   "Cure Poison" */ ,
 	  BORG_MAGIC_NOP /*   "Resist Cold" */ ,
 	  BORG_MAGIC_NOP /*   "Resist Fre" */ },
 	 {							/* Major Arcana (sval 2) */
-	  BORG_MAGIC_NOP /* ! "Resist Elec" */ ,
+	  BORG_MAGIC_NOP /*   "Resist Elec" */ ,
 	  BORG_MAGIC_NOP /*   "Resist Acid" */ ,
-	  BORG_MAGIC_NOP /* ! "Cure Med Wounds" */ ,
+	  BORG_MAGIC_NOP /*   "Cure Med Wounds" */ ,
 	  BORG_MAGIC_NOP /*   "Teleport" */ ,
 	  BORG_MAGIC_AIM /*   "Stone to Mud" */ ,
 	  BORG_MAGIC_AIM /*   "Ray of Light" */ ,
 	  BORG_MAGIC_NOP /*   "Satisfy Hunger" */ ,
 	  BORG_MAGIC_NOP /*   "See Invis" */ },
 	 {							/* Manual of Mastery (sval 3) */
-	  BORG_MAGIC_OBJ /* ! "Recharge" */ ,
+	  BORG_MAGIC_OBJ /*   "Recharge" */ ,
 	  BORG_MAGIC_NOP /*   "Teleport Level" */ ,
-	  BORG_MAGIC_OBJ /* ! "Ident" */ ,
+	  BORG_MAGIC_OBJ /*   "Ident" */ ,
 	  BORG_MAGIC_AIM /*   "Teleport Away" */ ,
 	  BORG_MAGIC_AIM /*   "Elemental Ball" */ ,
 	  BORG_MAGIC_NOP /*   "Detection" */ ,
@@ -445,24 +440,24 @@ static byte borg_magic_rating[8][4][8] =
 	  95 /*   "Holy Orb" */ ,
 	  85 /*   "Prot/Evil" */ ,
 	  65 /*   "Heal 300" */ ,
-	  55 /*   "Glyph" */ },
+	  0  /*   "Glyph" */ },
 	 {							/* Book of the Unicorn (sval 2) */
 	  65 /*   "Exorcism" */ ,
 	  65 /*   "Dispel Curse" */ ,
 	  55 /*   "Dispel Demon" */ ,
-	  0 /*   "Day of Dove" */ ,
+	  0  /*   "Day of Dove" */ ,
 	  65 /*   "Dispel Evil" */ ,
 	  55 /*   "Banishment" */ ,
 	  65 /*   "Holy Word" */ ,
-	  55 /*   "Warding True" */ },
+	  0  /*   "Warding True" */ },
 	 {							/* Blessings of the Grail (sval 3) */
 	  55 /*   "Heroism" */ ,
 	  65 /*   "Prayer" */ ,
-	  45 /*   "Bless Weapon" */ ,
+	  0  /*   "Bless Weapon" */ ,
 	  55 /*   "Restoration" */ ,
 	  65 /*   "Healing 2000" */ ,
 	  55 /*   "Holy Vision" */ ,
-	  55 /*   "Divine Intervent" */ ,
+	  0  /*   "Divine Intervent" */ ,
 	  55 /*   "Holy Invuln" */ }
 	 },							/* end of Life Magic */
 
@@ -486,22 +481,22 @@ static byte borg_magic_rating[8][4][8] =
 	  85 /*   "Detection True" */ ,
 	  75 /*   "*Identify*" */ },
 	 {							/* Pattern Sorcery (sval 2) */
-	  55 /*   "Detect Obj/Treasure" */ ,
-	  55 /*   "Detect Enchantment" */ ,
-	  75 /*   "Charm Monster" */ ,
+	  0  /*   "Detect Obj/Treasure" */ ,
+	  0  /*   "Detect Enchantment" */ ,
+	  0  /*   "Charm Monster" */ ,
 	  65 /*   "Dimension Door" */ ,
 	  65 /*   "Sense Minds" */ ,
-	  0 /*   "Self Knowledge" */ ,
+	  0  /*   "Self Knowledge" */ ,
 	  65 /*   "Teleport Level" */ ,
 	  65 /*   "Word of Recall" */ },
 	 {							/* Grimoir of Power (sval 3) */
 	  55 /*   "Stasis" */ ,
-	  0 /*   "Telekinesis" */ ,
-	  0 /*   "Explosive Rune" */ ,
+	  0  /*   "Telekinesis" */ ,
+	  0  /*   "Explosive Rune" */ ,
 	  65 /*   "Clairvoyance" */ ,
 	  55 /*   "Enchant Weap" */ ,
 	  55 /*   "Enchant Armour" */ ,
-	  1 /*   "Alchemy" */ ,
+	  1  /*   "Alchemy" */ ,
 	  95 /*   "GOI" */ }
 	 },							/* end of Sorcery Realm */
 
@@ -509,53 +504,53 @@ static byte borg_magic_rating[8][4][8] =
 	 {							/* Call of the Wild (sval 0) */
 	  65 /*   "Detect Creature" */ ,
 	  65 /*   "First Aid" */ ,
-	  55 /* ! "Detect Door" */ ,
+	  55 /*   "Detect Trap/Door" */ ,
 	  75 /*   "Foraging" */ ,
 	  75 /*   "Daylight" */ ,
-	  55 /*   "Animal Taming" */ ,
+	  0  /*   "Animal Taming" */ ,
 	  75 /*   "Resist Environment" */ ,
 	  65 /*   "Cure Wound&Poison" */ },
 	 {							/* Nature Mastery (sval 1) */
-	  55 /* ! "Stone to Mud" */ ,
-	  65 /* ! "Lightning Bolt" */ ,
+	  55 /*   "Stone to Mud" */ ,
+	  65 /*   "Lightning Bolt" */ ,
 	  65 /*   "Nature Awareness" */ ,
 	  65 /*   "Frost Bolt" */ ,
 	  65 /*   "Ray of Sunlight" */ ,
 	  65 /*   "Entangle" */ ,
-	  65 /*   "Summon Animals" */ ,
+	  0  /*   "Summon Animals" */ ,
 	  65 /*   "Herbal Healing" */ },
 	 {							/* Nature Gifts (sval 2) */
-	  65 /* ! "Door Building" */ ,
-	  45 /*   "Stair Building" */ ,
-	  65 /* ! "Stone Skin" */ ,
+	  0  /*   "Door Building" */ ,
+	  0  /*   "Stair Building" */ ,
+	  65 /*   "Stone Skin" */ ,
 	  65 /*   "Resistance True" */ ,
-	  55 /*   "Animal Friend" */ ,
+	  0  /*   "Animal Friend" */ ,
 	  65 /*   "Stone Tell" */ ,
-	  45 /*   "Wall of Stone" */ ,
-	  45 /*   "Protect From Corros." */ },
+	  0  /*   "Wall of Stone" */ ,
+	  0  /*   "Protect From Corros." */ },
 	 {							/* Natures Wrath (sval 3) */
-	  65 /* ! "Earthquake" */ ,
+	  65 /*   "Earthquake" */ ,
 	  65 /*   "Whirlwind" */ ,
-	  65 /* ! "Blizzard" */ ,
+	  65 /*   "Blizzard" */ ,
 	  65 /*   "Lightning" */ ,
 	  65 /*   "Whirpool" */ ,
 	  65 /*   "Call Sunlight" */ ,
-	  45 /*   "Elemental Brand" */ ,
+	  0  /*   "Elemental Brand" */ ,
 	  65 /*   "Natures Wrath" */ }
 	 },							/* end of Natural realm  */
 
 	{							/* 4.Chaos Realm */
 	 {							/* Sign of Chaos... (sval 0) */
-	  95 /* "Magic Missile" */ ,
-	  65 /* "Trap/Door Dest" */ ,
-	  75 /* "Flash of Light" */ ,
-	  55 /* "Touch of Conf" */ ,
-	  65 /* "ManaBurst" */ ,
-	  65 /* "Fire Bolt" */ ,
-	  65 /* "Fist of Force" */ ,
-	  75 /* "Teleport" */ },
+	  95 /*   "Magic Missile" */ ,
+	  65 /*   "Trap/Door Dest" */ ,
+	  75 /*   "Flash of Light" */ ,
+	  0  /*   "Touch of Conf" */ ,
+	  65 /*   "ManaBurst" */ ,
+	  65 /*   "Fire Bolt" */ ,
+	  65 /*   "Fist of Force" */ ,
+	  75 /*   "Teleport" */ },
 	 {							/* Chaos Mastery... (sval 1) */
-	  5 /*   "Wonder" */ ,
+	  0  /*   "Wonder" */ ,
 	  65 /*   "Chaos Bolt" */ ,
 	  65 /*   "Sonic Boom" */ ,
 	  65 /*   "Doom Beam" */ ,
@@ -568,15 +563,15 @@ static byte borg_magic_rating[8][4][8] =
 	  65 /*   "Chain Lightn" */ ,
 	  65 /*   "Arcane Binding" */ ,
 	  65 /*   "Disintegration" */ ,
-	  55 /*   "Alter Reality" */ ,
-	  5 /*   "Polymorph Self" */ ,
-	  55 /*   "Chaos Binding" */ ,
-	  55 /*   "Summon Demon" */ },
+	  0  /*   "Alter Reality" */ ,
+	  0  /*   "Polymorph Self" */ ,
+	  0  /*   "Chaos Branding" */ ,
+	  0  /*   "Summon Demon" */ },
 	 {							/* Armageddon Tome (sval 3) */
 	  65 /*   "Gravity Beam" */ ,
 	  65 /*   "Meteor Swarm" */ ,
 	  65 /*   "Flame Strike" */ ,
-	  65 /*   "Call Chaos" */ ,
+	  0  /*   "Call Chaos" */ ,
 	  75 /*   "Magic Rocket" */ ,
 	  75 /*   "Mana Storm" */ ,
 	  65 /*   "Breath Logrus" */ ,
@@ -585,16 +580,16 @@ static byte borg_magic_rating[8][4][8] =
 
 	{							/* 5. Death Realm */
 	 {							/* Black Prayers (sval 0) */
-	  65 /* ! "Detect Unlife" */ ,
+	  65 /*   "Detect Unlife" */ ,
 	  75 /*   "Maledition" */ ,
-	  75 /* ! "Detect Evil" */ ,
+	  75 /*   "Detect Evil" */ ,
 	  75 /*   "Stinking Cloud" */ ,
 	  65 /*   "Black Sleep" */ ,
 	  65 /*   "Resist Poison" */ ,
 	  65 /*   "Horrify" */ ,
-	  65 /*   "Enslave Undead" */ },
+	  0  /*   "Enslave Undead" */ },
 	 {							/* Black Mass (sval 1) */
-	  70 /* ! "Orb of Entropy" */ ,
+	  70 /*   "Orb of Entropy" */ ,
 	  65 /*   "Nether Bolt" */ ,
 	  50 /*   "Terror" */ ,
 	  65 /*   "Vamp Drain" */ ,
@@ -603,18 +598,18 @@ static byte borg_magic_rating[8][4][8] =
 	  65 /*   "Genocide" */ ,
 	  65 /*   "Restore Life" */ },
 	 {							/* Black Channels (sval 2) */
-	  65 /* ! "Berserk" */ ,
-	  65 /*   "Invoke Spirits" */ ,
-	  65 /* ! "Dark Bolt" */ ,
+	  65 /*   "Berserk" */ ,
+	  0  /*   "Invoke Spirits" */ ,
+	  65 /*   "Dark Bolt" */ ,
 	  85 /*   "Battle Frenzy" */ ,
 	  65 /*   "Vamp True" */ ,
-	  65 /*   "Vamp Brand" */ ,
+	  0  /*   "Vamp Brand" */ ,
 	  65 /*   "Dark Storm" */ ,
 	  65 /*   "Mass Genocide" */ },
 	 {							/* Necronomicon (sval 3) */
-	  65 /* ! "Death Ray" */ ,
-	  65 /*   "Raise the Dead" */ ,
-	  75 /* ! "Esoteria" */ ,
+	  65 /*   "Death Ray" */ ,
+	  0  /*   "Raise the Dead" */ ,
+	  75 /*   "Esoteria" */ ,
 	  65 /*   "Word of Death" */ ,
 	  65 /*   "Evocation" */ ,
 	  65 /*   "Hellfire" */ ,
@@ -625,47 +620,47 @@ static byte borg_magic_rating[8][4][8] =
 
 	{							/* Trump Realm */
 	 {							/* Trump Magic (sval 0) */
-	  95 /* ! "Phase Door" */ ,
-	  85 /* ! "Mind Blast " */ ,
-	  0 /*   "Shuffle" */ ,
-	  0 /*   "Reset Recall" */ ,
+	  95 /*   "Phase Door" */ ,
+	  85 /*   "Mind Blast " */ ,
+	  0  /*   "Shuffle" */ ,
+	  0  /*   "Reset Recall" */ ,
 	  75 /*   "Tlelport Self" */ ,
 	  65 /*   "Dimension Door " */ ,
-	  65 /*   "Trump Spying " */ ,
+	  0  /*   "Trump Spying " */ ,
 	  70 /*   "Teleport Away " */ },
 	 {							/* Deck of Many Things (sval 1) */
-	  0 /* ! "Trump Object " */ ,
-	  0 /* ! "Trump animal " */ ,
-	  85 /*   "Phantasmal Servant " */ ,
-	  0 /*   "Trump Monster " */ ,
-	  0 /*   "Conjure Elemental " */ ,
+	  0  /*   "Trump Object " */ ,
+	  0  /*   "Trump animal " */ ,
+	  0  /*   "Phantasmal Servant " */ ,
+	  0  /*   "Trump Monster " */ ,
+	  0  /*   "Conjure Elemental " */ ,
 	  50 /*   "Teleport Level " */ ,
 	  65 /*   "Word of recall " */ ,
 	  65 /*   "Banishment" */ },
 	 {							/* Trump of Doom (sval 2) */
-	  0 /* ! "Joker Card " */ ,
-	  0 /*   "Trump Spiders " */ ,
-	  0 /*   "Trump Reptiles " */ ,
-	  0 /*   "Trump Hounds " */ ,
-	  0 /*   "Trump Branding " */ ,
-	  0 /*   "Living Trump " */ ,
-	  0 /*   "Death Dealing " */ ,
-	  0 /*   "Trump Cyberdemon " */ },
+	  0  /*   "Joker Card " */ ,
+	  0  /*   "Trump Spiders " */ ,
+	  0  /*   "Trump Reptiles " */ ,
+	  0  /*   "Trump Hounds " */ ,
+	  0  /*   "Trump Branding " */ ,
+	  0  /*   "Living Trump " */ ,
+	  55 /*   "Death Dealing " */ ,
+	  0  /*   "Trump Cyberdemon " */ },
 	 {							/* Five Aces (sval 3) */
-	  0 /* ! "Trump Divination " */ ,
-	  0 /*   "Trump Lore " */ ,
-	  0 /*   "Trump Undead " */ ,
-	  0 /*   "Trump Dragon " */ ,
-	  0 /*   "Mass Trump " */ ,
-	  0 /*   "Trump Demon " */ ,
-	  0 /*   "Trump Ancient Dragon " */ ,
-	  0 /*   "Trump Greater Undead " */ }
+	  45 /*   "Trump Divination " */ ,
+	  45 /*   "Trump Lore " */ ,
+	  0  /*   "Trump Undead " */ ,
+	  0  /*   "Trump Dragon " */ ,
+	  0  /*   "Mass Trump " */ ,
+	  0  /*   "Trump Demon " */ ,
+	  0  /*   "Trump Ancient Dragon " */ ,
+	  0  /*   "Trump Greater Undead " */ }
 	 },							/* end of Trump Realm */
 
 	{							/* 7 Arcane Realm */
 	 {							/* Cantrips (sval 0) */
-	  85 /* ! "Zap" */ ,
-	  85 /*   "Wiz Lock" */ ,
+	  85 /*   "Zap" */ ,
+	  0  /*   "Wiz Lock" */ ,
 	  75 /*   "Det Invis" */ ,
 	  75 /*   "Det Mon" */ ,
 	  75 /*   "Blink" */ ,
@@ -673,8 +668,8 @@ static byte borg_magic_rating[8][4][8] =
 	  85 /*   "Trap/Door Dest" */ ,
 	  75 /*   "Cure Light Wounds" */ },
 	 {							/* Minor Arcana (sval 1) */
-	  75 /* ! "Det Door/Trap" */ ,
-	  75 /* ! "Phlogiston" */ ,
+	  75 /*   "Det Door/Trap" */ ,
+	  75 /*   "Phlogiston" */ ,
 	  75 /*   "Det Treasure" */ ,
 	  75 /*   "Det Enchant" */ ,
 	  75 /*   "Det Object" */ ,
@@ -682,18 +677,18 @@ static byte borg_magic_rating[8][4][8] =
 	  75 /*   "Resist Cold" */ ,
 	  75 /*   "Resist Fre" */ },
 	 {							/* Major Arcana (sval 2) */
-	  75 /* ! "Resist Elec" */ ,
+	  75 /*   "Resist Elec" */ ,
 	  75 /*   "Resist Acid" */ ,
-	  75 /* ! "Cure Med Wounds" */ ,
+	  75 /*   "Cure Med Wounds" */ ,
 	  75 /*   "Teleport" */ ,
 	  85 /*   "Stone to Mud" */ ,
 	  85 /*   "Ray of Light" */ ,
 	  75 /*   "Satisfy Hunger" */ ,
 	  75 /*   "See Invis" */ },
 	 {							/* Manual of Mastery (sval 3) */
-	  75 /* ! "Recharge" */ ,
+	  75 /*   "Recharge" */ ,
 	  75 /*   "Teleport Level" */ ,
-	  85 /* ! "Ident" */ ,
+	  85 /*   "Ident" */ ,
 	  85 /*   "Teleport Away" */ ,
 	  70 /*   "Elemental Ball" */ ,
 	  75 /*   "Detection" */ ,
@@ -701,6 +696,81 @@ static byte borg_magic_rating[8][4][8] =
 	  75 /*   "Clairvoyance" */ }
 	 }							/* end of Arcane Realm */
 
+};
+
+
+/* Recognition list for the activations.  Should be in sync with BORG_ACT_* */
+static cptr borg_activation[] =
+{
+	"",
+	"illumination",
+	"light area",
+	"magic mapping and illumination",
+	"magic mapping and light area",
+	"magic mapping",
+	"dangerous clairvoyance",
+	"word of recall",
+	"dangerous clairvoyance and recall",
+	"protection from evil",
+	"haste self",
+	"speed",
+	"heal (1000)",
+	"curing, heroism and heal (777)",
+	"heal (700)",
+	"heavenly blessing and heal (500)",
+	"genocide",
+	"trap and door destruction",
+	"detection",
+	"create food",
+	"resistance",
+	"resist elements",
+	"recharg",
+	"teleport every",
+	"teleport (100)",
+	"restore life levels",
+	"restore stats and life levels",
+	"remove fear",
+	"remove fear and cure poison",
+	"a getaway",
+	"phase door",
+	"mass genocide",
+	"cure wounds",
+	"remove fear and heal",
+	"teleport away",
+	"identify",
+	"probing, detection",
+	"identify true",
+	"heal (45)",
+	"dimension door",
+	"alchemy",
+	"satisfy hunger",
+	"restore stats",
+	"telepathy",
+	"heroism (",
+	"berserk",
+	"bless",
+	"resist acid",
+	"resist fire",
+	"resist cold",
+	"resist lightning",
+	"resist poison",
+	"wraith form",
+	"invulnerability",
+	"detect evil",
+	"detect monsters",
+	"detect traps and doors",
+	"remove curse",
+	"dispel curse",
+	"detect objects",
+	"self knowledge",
+	"teleport level",
+	"create doors",
+	"create stairs",
+	"alter reality",
+	"phase door",
+	"stone to mud",
+	"fire branding",
+	"borg_act_max"
 };
 
 /*
@@ -778,7 +848,7 @@ object_kind *borg_get_kind(int tval, int sval)
 	if (sval != SV_ANY)
 	{
 		/* Oops */
-		borg_note_fmt("No object (%d,%d)", tval, sval);
+		borg_note("No object (%d,%d)", tval, sval);
 	}
 
 	return (kb_ptr);
@@ -871,19 +941,330 @@ int look_up_index(list_item *l_ptr)
 }
 
 
-/*
- * Hack -- refuel a torch with the minimal torch
- */
-bool borg_refuel_torch(void)
+/* Should the borg *id* this item? */
+bool borg_obj_star_id_able(list_item *l_ptr)
 {
-	int slot, b_slot = -1, fuel = 9999;
-	list_item *l_ptr;
+	/* Is there an object at all? */
+	if (!l_ptr) return (FALSE);
 
-	/* Must first wield before one can refuel */
-	if (!equipment[EQUIP_LITE].k_idx) return (FALSE);
+	/* Demand that the item is identified */
+	if (!borg_obj_known_p(l_ptr)) return (FALSE);
+	
+	/* Some non-ego items should be *id'ed too */
+	if (l_ptr->tval == TV_SHIELD &&
+	 	k_info[l_ptr->k_idx].sval == SV_DRAGON_SHIELD) return (TRUE);
+	if (l_ptr->tval == TV_HELM &&
+	 	k_info[l_ptr->k_idx].sval == SV_DRAGON_HELM) return (TRUE);
+	if (l_ptr->tval == TV_CLOAK &&
+	 	k_info[l_ptr->k_idx].sval == SV_SHADOW_CLOAK) return (TRUE);
+	if (l_ptr->tval == TV_RING &&
+	 	k_info[l_ptr->k_idx].sval == SV_RING_LORDLY) return (TRUE);
 
- 	/* Must wield torch */
-	if (k_info[equipment[EQUIP_LITE].k_idx].sval != SV_LITE_TORCH) return (FALSE);
+	/* not an ego object */
+	if (!borg_obj_is_ego_art(l_ptr)) return (FALSE);
+
+	/* Artifacts */
+	if (KN_FLAG(l_ptr, TR_INSTA_ART)) return (TRUE);
+
+	/* Weapons */
+	if (streq(l_ptr->xtra_name, "(Holy Avenger)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Defender)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Blessed)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Westernesse")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Slay Dragon")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of *Slay* Dragon")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Chaotic)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Slaying")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Vampiric)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Trump Weapon)")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "(Pattern Weapon)")) return (TRUE);
+
+	/* Bow */
+	if (streq(l_ptr->xtra_name, "of Might")) return (TRUE);
+
+	/* Armour */
+	if (streq(l_ptr->xtra_name, "of Permanence")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Resistance")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Elvenkind")) return (TRUE);
+
+	/* Hat */
+	if (streq(l_ptr->xtra_name, "of the Magi")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Lordliness")) return (TRUE);
+	if (streq(l_ptr->xtra_name, "of Seeing")) return (TRUE);
+
+	/* Cloak */
+	if (streq(l_ptr->xtra_name, "of Aman")) return (TRUE);
+
+	/* Any object that reaches here has nothing interesting to *id* */
+	return (FALSE);
+}
+
+
+/* This function (copied from dungeon.c) delivers the chance for pseudo-id. */
+long borg_calc_pseudo(void)
+{
+	long difficulty;
+
+	/* Based on race get the basic feel factor. */
+	switch (borg_class)
+	{
+		case CLASS_WARRIOR:
+		{
+			/* Good (heavy) sensing */
+			difficulty = 9000L;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_MAGE:
+		case CLASS_HIGH_MAGE:
+		{
+			/* Very bad (light) sensing */
+			difficulty = 240000L;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_PRIEST:
+		{
+			/* Good (light) sensing */
+			difficulty = 10000L;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_ROGUE:
+		{
+			/* Okay sensing */
+			difficulty = 20000L;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_RANGER:
+		{
+			/* Bad (heavy) sensing */
+			difficulty = 95000L;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_PALADIN:
+		{
+			/* Bad (heavy) sensing */
+			difficulty = 77777L;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_WARRIOR_MAGE:
+		{
+			/* Bad sensing */
+			difficulty = 75000L;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_MINDCRAFTER:
+		{
+			/* Bad sensing */
+			difficulty = 55000L;
+	
+			/* Done */
+			break;
+		}
+
+		case CLASS_CHAOS_WARRIOR:
+		{
+			/* Bad (heavy) sensing */
+			difficulty = 80000L;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_MONK:
+		{
+			/* Okay sensing */
+			difficulty = 20000L;
+
+			/* Done */
+			break;
+		}
+
+		default:
+		{
+			/* Paranoia */
+			difficulty = 0;
+		}
+	}
+
+	/* Factor in the sensing ability */
+	difficulty /= MAX(bp_ptr->skill_sns, 1);
+
+	/* Rescale larger by a facter of 25 */
+	difficulty *= 25;
+
+	/* Sensing gets better as you get more experienced */
+	difficulty /= p_ptr->lev * p_ptr->lev + 40;
+
+	/* Give the answer */
+	return (difficulty);
+}
+
+
+/*
+ * Determine if an item is "probably" worthless
+ *
+ * This (very heuristic) function is a total hack, designed only to prevent
+ * a very specific annoying situation described below.
+ *
+ * Note that a "cautious" priest (or low level mage/ranger) will leave town
+ * with a few identify scrolls, wander around dungeon level 1 for a few turns,
+ * and use all of the scrolls on leather gloves and broken daggers, and must
+ * then return to town for more scrolls.  This may repeat indefinitely.
+ *
+ * The problem is that some characters (priests, mages, rangers) never get an
+ * "average" feeling about items, and have no way to keep track of how long
+ * they have been holding a given item for, so they cannot even attempt to
+ * gain knowledge from the lack of "good" or "cursed" feelings.  But they
+ * cannot afford to just identify everything they find by using scrolls of
+ * identify, because, in general, some items are, on average, "icky", and
+ * not even worth the price of a new scroll of identify.
+ */
+bool borg_worthless_item(list_item *l_ptr)
+{
+	int slot;
+	int sval;
+	list_item *q_ptr;
+
+	/* Is this item for real? */
+	if (!l_ptr) return (FALSE);
+
+	/* pick up the items sval */
+	sval = k_info[l_ptr->k_idx].sval;
+
+	/* This item needs identification first */
+	if (!sval) return (FALSE);
+
+	/* Discard some junk items */
+	switch (l_ptr->tval)
+	{
+		case TV_RING:
+		{
+			if (sval <= SV_RING_TELEPORTATION) return (TRUE);
+			break;
+		}
+		case TV_AMULET:
+		{
+			if (sval <= SV_AMULET_TELEPORT) return (TRUE);
+			break;
+		}
+		case TV_STAFF:
+		{
+			if (sval == SV_STAFF_DARKNESS &&
+				!FLAG(bp_ptr, TR_HURT_LITE)) return (TRUE);
+			if (sval >= SV_STAFF_SLOWNESS &&
+				sval <= SV_STAFF_SUMMONING) return (TRUE);
+			break;
+		}
+		case TV_WAND:
+		{
+			if (sval == SV_WAND_CLONE_MONSTER) return (TRUE);
+			if (sval == SV_WAND_HASTE_MONSTER) return (TRUE);
+			if (sval == SV_WAND_HEAL_MONSTER) return (TRUE);
+			break;
+		}
+	}
+
+	/* Just checking */
+	if (streq(l_ptr->o_name, "")) return (FALSE);
+
+	/* If this item has been pseudo id'd with boring results */
+	if (strstr(l_ptr->o_name, "{average") ||
+		strstr(l_ptr->o_name, "{cursed") ||
+		strstr(l_ptr->o_name, "{bad") ||
+		strstr(l_ptr->o_name, "{broken") ||
+		strstr(l_ptr->o_name, "{dubious") ||
+		strstr(l_ptr->o_name, "{worthless")) return (TRUE);
+
+	/* items that are terrible/excellent/special/tainted need ID */
+	if (strstr(l_ptr->o_name, "{special") ||
+		strstr(l_ptr->o_name, "{terrible") ||
+		strstr(l_ptr->o_name, "{excellent") ||
+		strstr(l_ptr->o_name, "{tainted")) return (FALSE);
+
+	/* If the item is good, check if the borg already has better */
+	if (strstr(l_ptr->o_name, "{good"))
+	{
+		/* Obtain the slot of the suspect item */
+		slot = borg_wield_slot(l_ptr);
+
+		/* Obtain my equipped item in the slot */
+		q_ptr = &equipment[slot];
+
+		/* Is the equipped item an ego or artifact? */
+		if (q_ptr->k_idx &&
+			(borg_obj_is_ego_art(q_ptr) ||
+			 (streq(q_ptr->o_name, "") &&
+			  (strstr(q_ptr->o_name, "{special") ||
+			   strstr(q_ptr->o_name, "{terrible") ||
+			   strstr(q_ptr->o_name, "{excellent") ||
+			   strstr(q_ptr->o_name, "{tainted"))))) return (TRUE);
+	}
+
+	/* Is there something known about this item? */
+	if (!l_ptr->k_idx) return (FALSE);
+
+	/* If your pseudo capabilities are good then wait for pseudo id */
+	if (borg_calc_pseudo() < 100) return (FALSE);
+
+	switch (l_ptr->tval)
+	{
+		/* Swords */
+		case TV_SWORD: return (sval == SV_BROKEN_DAGGER ||
+							   sval == SV_BROKEN_SWORD ||
+							   sval == SV_DAGGER);
+
+		/* Hafted */
+		case TV_HAFTED:	return (sval == SV_CLUB ||
+								sval == SV_WHIP);
+
+		/* Sling */
+		case TV_BOW: return (sval == SV_SLING);
+
+		/* Rags and Robes */
+		case TV_SOFT_ARMOR:	return (sval == SV_FILTHY_RAG ||
+									sval == SV_SOFT_LEATHER_ARMOR ||
+									sval == SV_SOFT_STUDDED_LEATHER ||
+									sval == SV_ROBE);
+
+		/* Cloak */
+		case TV_CLOAK: return (sval == SV_CLOAK);
+
+		/* Leather Gloves */
+		case TV_GLOVES:	return (sval == SV_SET_OF_LEATHER_GLOVES);
+
+		/* Helmet */
+		case TV_HELM: return (sval == SV_HARD_LEATHER_CAP);
+
+		/* This item needs identification */
+		default: return (FALSE);
+	}
+}
+
+
+/* Refuel a torch with the minimal torch */
+static bool borg_refuel_torch(void)
+{
+	int slot, b_slot = -1, fuel = 5001;
 
 	/* Cast phlogiston */
 	if (borg_spell_fail(REALM_ARCANE, 1, 1, 40)) return (TRUE);
@@ -891,7 +1272,7 @@ bool borg_refuel_torch(void)
 	/* Look for the minimal torch */
 	for (slot = 0; slot < inven_num; slot++)
 	{
-		l_ptr = &inventory[slot];
+		list_item *l_ptr = &inventory[slot];
 
 		/* Must be a light */
 		if (l_ptr->tval != TV_LITE) continue;
@@ -914,7 +1295,7 @@ bool borg_refuel_torch(void)
 	if (b_slot == -1) return (FALSE);
 
 	/* Log the message */
-	borg_note_fmt("# Refueling with %s.", inventory[b_slot].o_name);
+	borg_note("# Refueling with %s.", inventory[b_slot].o_name);
 
 	/* Perform the action */
 	borg_keypress('F');
@@ -925,20 +1306,10 @@ bool borg_refuel_torch(void)
 }
 
 
-/*
- * Hack -- refuel a lantern
- */
-bool borg_refuel_lantern(void)
+/* Refuel a lantern */
+static bool borg_refuel_lantern(void)
 {
-	int slot, b_slot = -1, fuel = 14999;
-	list_item *l_ptr;
-
-	/* Must first wield before one can refuel */
-	if (!equipment[EQUIP_LITE].k_idx) return (FALSE);
-
- 	/* Must wield lantern */
-	if (k_info[equipment[EQUIP_LITE].k_idx].sval != SV_LITE_LANTERN)
-		return (FALSE);
+	int slot, b_slot = -1, fuel = 15001;
 
 	/* Cast phlogiston */
 	if (borg_spell_fail(REALM_ARCANE, 1, 1, 40)) return (TRUE);
@@ -946,12 +1317,15 @@ bool borg_refuel_lantern(void)
 	/* Loop through the inventory backwards */
 	for (slot = inven_num - 1; slot >= 0; slot--)
 	{
-		l_ptr = &inventory[slot];
+		list_item *l_ptr = &inventory[slot];
 
 		/* Maybe fuel with a Lantern? */
 		if (l_ptr->tval == TV_LITE &&
 			k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN)
 		{
+			/* Ignore lanterns with no fuel */
+			if (l_ptr->timeout == 0) continue;
+
 			/* Ignore lanterns with the most fuel */
 			if (l_ptr->timeout >= fuel) continue;
 
@@ -970,14 +1344,14 @@ bool borg_refuel_lantern(void)
 		}
 	}
 
-	/* b_slot holds best lantern, slot holds flask, let's see if there is one */
+	/* b_slot holds best lantern, slot holds flask, is there one of either? */
 	if (b_slot == -1 && slot == -1) return (FALSE);
 
 	/* Found no lantern but a flask */
 	if (b_slot == -1) b_slot = slot;
 
 	/* Log the message */
-	borg_note_fmt("# Refueling with %s.", inventory[b_slot].o_name);
+	borg_note("# Refueling with %s.", inventory[b_slot].o_name);
 
 	/* Perform the action */
 	borg_keypress('F');
@@ -988,6 +1362,33 @@ bool borg_refuel_lantern(void)
 }
 
 
+/*
+ * Determines whether the borg has a refuelable lightsource and calls the
+ * appropriate subroutine
+ */
+bool borg_refuel(void)
+{
+	list_item *l_ptr = &equipment[EQUIP_LITE];
+
+	/* Must first wield something before one can refuel */
+	if (!l_ptr->k_idx) return (FALSE);
+
+	/* Is there the need to refuel? */
+	if (l_ptr->timeout > 1000) return (FALSE);
+
+	/* What sort of light is this */
+	switch (k_info[l_ptr->k_idx].sval)
+	{
+		case SV_LITE_LANTERN: return (borg_refuel_lantern());
+
+		case SV_LITE_TORCH: return (borg_refuel_torch());
+
+		/* Whatever it is, the borg can't light it */
+		default: return (FALSE);
+	}
+}
+
+
 
 
 /*
@@ -995,20 +1396,20 @@ bool borg_refuel_lantern(void)
  */
 bool borg_eat_food(int sval)
 {
-	list_item *l_ptr;
+	int slot;
 
 	/* Look for that food */
-	l_ptr = borg_slot(TV_FOOD, sval);
+	slot = borg_slot_from(TV_FOOD, sval, 0);
 
 	/* None available */
-	if (!l_ptr) return (FALSE);
+	if (slot == -1) return (FALSE);
 
 	/* Log the message */
-	borg_note_fmt("# Eating %s.", l_ptr->o_name);
+	borg_note("# Eating %s. (%c)", inventory[slot].o_name, I2A(slot));
 
 	/* Perform the action */
 	borg_keypress('E');
-	borg_keypress(I2A(look_up_index(l_ptr)));
+	borg_keypress(I2A(slot));
 
 	/* Success */
 	return (TRUE);
@@ -1030,7 +1431,8 @@ bool borg_quaff_crit(bool no_check)
 {
 	if (no_check)
 	{
-		if (borg_quaff_potion(SV_POTION_CURE_CRITICAL))
+		if (borg_quaff_potion(SV_POTION_CURE_CRITICAL) ||
+			borg_quaff_potion(SV_POTION_CURING))
 		{
 			when_last_quaff = borg_t;
 			return (TRUE);
@@ -1046,7 +1448,8 @@ bool borg_quaff_crit(bool no_check)
 		when_last_quaff <= borg_t && (randint0(100) < 75))
 		return FALSE;
 
-	if (borg_quaff_potion(SV_POTION_CURE_CRITICAL))
+	if (borg_quaff_potion(SV_POTION_CURE_CRITICAL) ||
+		borg_quaff_potion(SV_POTION_CURING))
 	{
 		when_last_quaff = borg_t;
 		return (TRUE);
@@ -1060,20 +1463,20 @@ bool borg_quaff_crit(bool no_check)
  */
 bool borg_quaff_potion(int sval)
 {
-	list_item *l_ptr;
+	int slot;
 
 	/* Look for that potion */
-	l_ptr = borg_slot(TV_POTION, sval);
+	slot = borg_slot_from(TV_POTION, sval, 0);
 
 	/* None available */
-	if (!l_ptr) return (FALSE);
+	if (slot == -1) return (FALSE);
 
 	/* Log the message */
-	borg_note_fmt("# Quaffing %s.", l_ptr->o_name);
+	borg_note("# Quaffing %s. (%c)", inventory[slot].o_name, I2A(slot));
 
 	/* Perform the action */
 	borg_keypress('q');
-	borg_keypress(I2A(look_up_index(l_ptr)));
+	borg_keypress(I2A(slot));
 
 	/* Success */
 	return (TRUE);
@@ -1098,7 +1501,7 @@ bool borg_quaff_unknown(void)
 		if (l_ptr->k_idx) continue;
 
 		/* Log the message */
-		borg_note_fmt("# Quaffing unknown potion %s.", l_ptr->o_name);
+		borg_note("# Quaffing unknown potion %s. (%c)", l_ptr->o_name, I2A(i));
 
 		/* Perform the action */
 		borg_keypress('q');
@@ -1138,7 +1541,7 @@ bool borg_read_unknown(void)
 		if (bp_ptr->status.blind || bp_ptr->status.confused) return (FALSE);
 
 		/* Log the message */
-		borg_note_fmt("# Reading unknown scroll %s.", l_ptr->o_name);
+		borg_note("# Reading unknown scroll %s. (%c)", l_ptr->o_name, I2A(i));
 
 		/* Perform the action */
 		borg_keypress('r');
@@ -1172,7 +1575,7 @@ bool borg_eat_unknown(void)
 		if (l_ptr->tval != TV_FOOD) continue;
 
 		/* Log the message */
-		borg_note_fmt("# Eating unknown mushroom %s.", l_ptr->o_name);
+		borg_note("# Eating unknown mushroom %s. (%c)", l_ptr->o_name, I2A(i));
 
 		/* Perform the action */
 		borg_keypress('E');
@@ -1205,7 +1608,7 @@ bool borg_use_unknown(void)
 		if (l_ptr->tval != TV_STAFF) continue;
 
 		/* Log the message */
-		borg_note_fmt("# Using unknown Staff %s.", l_ptr->o_name);
+		borg_note("# Using unknown Staff %s. (%c)", l_ptr->o_name, I2A(i));
 
 		/* Perform the action */
 		borg_keypress('u');
@@ -1239,7 +1642,7 @@ bool borg_read_scroll_fail(int sval)
 /* Attempt to read the given scroll (by sval) */
 bool borg_read_scroll(int sval)
 {
-	list_item *l_ptr;
+	int slot;
 	map_block *mb_ptr = map_loc(c_x, c_y);
 
 	/* Dark */
@@ -1249,27 +1652,17 @@ bool borg_read_scroll(int sval)
 	if (bp_ptr->status.blind || bp_ptr->status.confused) return (FALSE);
 
 	/* Look for that scroll */
-	l_ptr = borg_slot(TV_SCROLL, sval);
+	slot = borg_slot_from(TV_SCROLL, sval, 0);
 
 	/* None available */
-	if (!l_ptr) return (FALSE);
+	if (slot == -1) return (FALSE);
 
 	/* Log the message */
-	borg_note_fmt("# Reading %s.", l_ptr->o_name);
+	borg_note("# Reading %s. (%c)", inventory[slot].o_name, I2A(slot));
 
 	/* Perform the action */
-	borg_keypress(ESCAPE);
-	borg_keypress(ESCAPE);
 	borg_keypress('r');
-	borg_keypress(I2A(look_up_index(l_ptr)));
-
-	/* reset recall depth in dungeon? */
-	if ((sval == SV_SCROLL_WORD_OF_RECALL) &&
-		(bp_ptr->depth < bp_ptr->max_depth) && bp_ptr->depth)
-	{
-		/* Do not reset Depth */
-		borg_keypress('n');
-	}
+	borg_keypress(I2A(slot));
 
 	/* Success */
 	return (TRUE);
@@ -1290,6 +1683,9 @@ bool borg_use_item_fail(list_item *l_ptr, bool risky)
 	/* Confusion hurts skill */
 	if (bp_ptr->status.confused) chance = chance / 2;
 	
+	/* Cursed items are difficult to activate */
+	if (KN_FLAG(l_ptr, TR_CURSED)) chance /= 3;
+
 	/* Do you feel lucky, punk? */
 	if (risky)
 	{
@@ -1334,7 +1730,7 @@ static bool borg_rod_aux(int sval, bool zap, bool fail)
 	if (zap)
 	{
 		/* Log the message */
-		borg_note_fmt("# Zapping %s.", l_ptr->o_name);
+		borg_note("# Zapping %s (%c).", l_ptr->o_name, I2A(slot));
 
 		/* Perform the action */
 		borg_keypress('z');
@@ -1409,7 +1805,7 @@ static bool borg_wand_aux(int sval, bool aim, bool fail)
 	if (aim)
 	{
 		/* Log the message */
-		borg_note_fmt("# Aiming %s.", l_ptr->o_name);
+		borg_note("# Aiming %s (%c).", l_ptr->o_name, I2A(slot));
 
 		/* Perform the action */
 		borg_keypress('a');
@@ -1421,9 +1817,7 @@ static bool borg_wand_aux(int sval, bool aim, bool fail)
 }
 
 
-/*
- * Hack -- attempt to aim the given (charged) wand (by sval)
- */
+/* Attempt to aim the given (charged) wand (by sval) */
 bool borg_aim_wand(int sval)
 {
 	/* aim that wand without a fail check */
@@ -1431,13 +1825,19 @@ bool borg_aim_wand(int sval)
 }
 
 
-/*
- * Hack -- attempt to aim the given (charged) wand (by sval)
- */
+/* Does the borg have this wand with charges and can it be aimed? */
 bool borg_equips_wand_fail(int sval)
 {
 	/* Search for that wand with a fail check */
 	return (borg_wand_aux(sval, FALSE, TRUE));
+}
+
+
+/* Does the borg have this wand with charges? */
+bool borg_equips_wand(int sval)
+{
+	/* Search for that wand */
+	return (borg_wand_aux(sval, FALSE, FALSE));
 }
 
 
@@ -1501,7 +1901,7 @@ static bool borg_staff_aux(int sval, bool use, bool fail)
 	if (use)
 	{
 		/* Log the message */
-		borg_note_fmt("# Using %s.", l_ptr->o_name);
+		borg_note("# Using %s (%c).", l_ptr->o_name, I2A(slot));
 
 		/* Perform the action */
 		borg_keypress('u');
@@ -1552,10 +1952,10 @@ bool borg_check_artifact(list_item *l_ptr, bool real_use)
 	if (!l_ptr || !l_ptr->k_idx) return (FALSE);
 
 	/* Skip non-artifacts */
-	if (!(KN_FLAG(l_ptr, TR_INSTA_ART))) return (FALSE);
+	if (!KN_FLAG(l_ptr, TR_INSTA_ART)) return (FALSE);
 
 	/* Is this an activatable item? */
-	if (!(KN_FLAG(l_ptr, TR_ACTIVATE))) return (FALSE);
+	if (!KN_FLAG(l_ptr, TR_ACTIVATE)) return (FALSE);
 
 	/* Can we activate this artifact */
 	if (!borg_use_item_fail(l_ptr, FALSE)) return (FALSE);
@@ -1569,16 +1969,12 @@ bool borg_check_artifact(list_item *l_ptr, bool real_use)
 	return (TRUE);
 }
 
-/*
- * Hack -- attempt to use the given artifact
- * Doesn't work because I don't know how to find out the activation.
- * It is possible to do this by name (Galadriel, etc) but that leaves
- * out the randarts.
- */
-bool borg_activate_artifact(int name1, bool secondary)
+
+/* Try to activate a certain activation */
+static bool borg_activate_aux(int act_index, bool real_use)
 {
-	int slot,
-		act;
+	int slot;
+	cptr act;
 
 	/* Check the equipment */
 	for (slot = 0; slot < equip_num; slot++)
@@ -1588,45 +1984,164 @@ bool borg_activate_artifact(int name1, bool secondary)
 		/* Is this item an artifact that can be activated now? */
 		if (!borg_check_artifact(l_ptr, TRUE)) continue;
 
-		/* 
-		 * Find out what activation is, but not like this
-		 * act = p_ptr->equipment[slot].activate;
-		 * With act = 0 no activation will be found
-		 */
-		act = 0;
+		/* Hack!  Get the activation */
+		act = item_activation(&p_ptr->equipment[slot]);
 
-		/* Is this a predefined artifact with the right activation? */
-		if (act < 128 || act - 128 != name1) continue;
+		/* Check if it is the activation the borg is after */
+		if (!prefix(act, borg_activation[act_index])) continue;
 
-		/* Log the message */
-		borg_note_fmt("# Activating artifact %s.", l_ptr->o_name);
+		/* Just checking for the ability? */
+		if (!real_use) return (TRUE);
 
-		/* Perform the action */
+		/* Try it */
 		borg_keypress('A');
 		borg_keypress(I2A(slot));
 
-		/* Jewel also gives Recall */
-		if (act - 128 == ART_THRAIN)
-		{
-			/* probably some spaces missing */
-			borg_keypress(' ');
-
-			if (secondary == FALSE)
-			{
-				borg_keypress('n');
-			}
-			else
-			{
-				borg_keypress('y');
-			}
-		}
-
-		/* Success */
+		/* Confirm success */
 		return (TRUE);
 	}
 
-	/* The artifact is not in the equipment */
+	/* No such luck */
 	return (FALSE);
+}
+
+
+/* Fiddle a bit with peculiar activations */
+static bool borg_activate_aux2(int act_index, bool real_use)
+{
+	switch (act_index)
+	{
+		/* illumination has several entries */
+		case BORG_ACT_LIGHT:
+		{
+			return (borg_activate_aux(BORG_ACT_LIGHT, real_use) ||
+					borg_activate_aux(BORG_ACT_LIGHT2, real_use) ||
+					borg_activate_aux(BORG_ACT_LIGHT3, real_use) ||
+					borg_activate_aux(BORG_ACT_LIGHT4, real_use));
+		}
+
+		/* Speed has several entries */
+		case BORG_ACT_SPEED:
+		{
+			return (borg_activate_aux(BORG_ACT_SPEED, real_use) ||
+					borg_activate_aux(BORG_ACT_SPEED2, real_use));
+		}
+
+		/* Resistance has several entries */
+		case BORG_ACT_RESISTANCE:
+		{
+			return (borg_activate_aux(BORG_ACT_RESISTANCE, real_use) ||
+					borg_activate_aux(BORG_ACT_RESISTANCE2, real_use));
+		}
+
+		/* *identify* has several entries */
+		case BORG_ACT_STAR_IDENTIFY:
+		{
+			return (borg_activate_aux(BORG_ACT_STAR_IDENTIFY, real_use) ||
+					borg_activate_aux(BORG_ACT_STAR_IDENTIFY2, real_use));
+		}
+
+		/* Restore life levels has several entries */
+		case BORG_ACT_RESTORE_LIFE:
+		{
+			return (borg_activate_aux(BORG_ACT_RESTORE_LIFE, real_use) ||
+					borg_activate_aux(BORG_ACT_RESTORE_LIFE2, real_use));
+		}
+
+		/* Restore life levels has several entries */
+		case BORG_ACT_HEAL_SERIOUS:
+		{
+			return (borg_activate_aux(BORG_ACT_HEAL_SERIOUS, real_use) ||
+					borg_activate_aux(BORG_ACT_HEAL_SERIOUS2, real_use));
+		}
+
+		/* Phase door has several entries */
+		case BORG_ACT_PHASE_DOOR:
+		{
+			return (borg_activate_aux(BORG_ACT_PHASE_DOOR, real_use) ||
+					borg_activate_aux(BORG_ACT_PHASE_DOOR2, real_use));
+		}
+
+		/* Teleport has several entries */
+		case BORG_ACT_TELEPORT:
+		{
+			return (borg_activate_aux(BORG_ACT_TELEPORT, real_use) ||
+					borg_activate_aux(BORG_ACT_TELEPORT2, real_use));
+		}
+
+		/* Big healers have several entries */
+		case BORG_ACT_HEAL_BIG:
+		{
+			return (borg_activate_aux(BORG_ACT_HEAL_BIG, real_use) ||
+					borg_activate_aux(BORG_ACT_HEAL_BIG2, real_use) ||
+					borg_activate_aux(BORG_ACT_HEAL_BIG3, real_use) ||
+					borg_activate_aux(BORG_ACT_HEAL_BIG4, real_use));
+		}
+
+		/* Word of Recall has several entries */
+		case BORG_ACT_WORD_OF_RECALL:
+		{
+			/* Regular try */
+			if (borg_activate_aux(BORG_ACT_WORD_OF_RECALL, real_use))
+			{
+				/* success */
+				return (TRUE);
+			}
+
+			/* Maybe the borg has the Jewel of Judgement */
+			if (borg_activate_aux(BORG_ACT_RECALL2, real_use))
+			{
+				/* Activate for recall */
+				borg_keypress('y');
+
+				return (TRUE);
+			}
+
+			/* No recall available */
+			return (FALSE);
+		}
+
+		/* The jewel of judgement needs specail treatment */
+		case BORG_ACT_CLAIRVOYANCE:
+		{
+			if (borg_activate_aux(BORG_ACT_CLAIRVOYANCE, real_use))
+			{
+				/* It is the jewel of judgement, no need to recall */
+				borg_keypress('n');
+
+				return (TRUE);
+			}
+
+			/* Not found */
+			return (FALSE);
+		}
+
+
+		default:
+		{
+			if (act_index <= BORG_ACT_NONE ||
+				act_index >= BORG_ACT_MAX) return (FALSE);
+
+			/* Do the work */
+			return (borg_activate_aux(act_index, real_use));
+		}
+	}
+}
+
+
+/* Perform a certain activation if available */
+bool borg_activate(int act_index)
+{
+	/* Do the work */
+	return (borg_activate_aux2(act_index, TRUE));
+}
+
+
+/* Check if a certain activation is available */
+bool borg_activate_fail(int act_index)
+{
+	/* Do the work */
+	return (borg_activate_aux2(act_index, FALSE));
 }
 
 
@@ -1638,8 +2153,7 @@ static void borg_dimension_door(void)
 	borg_keypress(' ');
 
 	/* Report a little bit */
-	borg_note_fmt
-		("# Targetting Landing Zone (%d,%d)", dim_door_x, dim_door_y);
+	borg_note("# Targetting Landing Zone (%d,%d)", dim_door_x, dim_door_y);
 
 	/* Determine "path" */
 	x1 = c_x;
@@ -1672,7 +2186,7 @@ byte borg_spell_mana(int realm, int book, int spell)
 	power = borg_magics[realm][book][spell].power;
 
 	/* If this is a chaos spell and the borg has a chaos patron */
-	if (realm == REALM_CHAOS && FLAG(p_ptr, TR_PATRON))
+	if (realm == REALM_CHAOS && FLAG(bp_ptr, TR_PATRON))
 	{
 		/* Reduce the spell cost */
 		power = (2 * power + 2) / 3;
@@ -1766,9 +2280,6 @@ int borg_reserve_mana(void)
 	if (borg_mana_legal_fail(REALM_SORCERY, 0, 5, 15, &cost)) return (cost);
 	if (borg_mana_legal_fail(REALM_CHAOS, 1, 7, 15, &cost)) return (cost);
 	if (borg_mana_legal_fail(REALM_ARCANE, 2, 3, 15, &cost)) return (cost);
-
-	/* Stair Building */
-	if (borg_mana_legal_fail(REALM_NATURE, 2, 1, 15, &cost)) return (cost);
 
 	/* Phase Door? */
 	if (borg_mana_legal_fail(REALM_TRUMP, 0, 0, 15, &cost)) return (cost);
@@ -1932,10 +2443,8 @@ bool borg_spell_legal(int realm, int book, int what)
 }
 
 
-/*
- * Determine if borg can cast a given spell (right now)
- */
-bool borg_spell_okay(int realm, int book, int what)
+/* Determine if borg can cast a given spell (right now) */
+static bool borg_spell_okay_aux(int realm, int book, int what, bool reserve)
 {
 	map_block *mb_ptr = map_loc(c_x, c_y);
 
@@ -1952,12 +2461,36 @@ bool borg_spell_okay(int realm, int book, int what)
 	/* The spell must be affordable (now) */
 	if (borg_spell_mana(realm, book, what) > bp_ptr->csp) return (FALSE);
 
-	/* Check if this spell uses reserve mana */
-	if (!borg_reserve_allow(realm, book, what)) return (FALSE);
+	/* With the reserve check */
+	if (reserve)
+	{
+		/* Check if this spell uses reserve mana */
+		if (!borg_reserve_allow(realm, book, what)) return (FALSE);
+	}
+
+	/* Not if locked down */
+	if (FLAG(bp_ptr, TR_NO_MAGIC)) return (FALSE);
 
 	/* Success */
 	return (TRUE);
 }
+
+
+/* Determine if borg can cast a given spell (right now) */
+bool borg_spell_okay(int realm, int book, int what)
+{
+	/* Do the work */
+	return (borg_spell_okay_aux(realm, book, what, TRUE));
+}
+
+
+/* Determine if borg can cast a given spell (right now) */
+bool borg_spell_okay_no_reserve(int realm, int book, int what)
+{
+	/* Do the work */
+	return (borg_spell_okay_aux(realm, book, what, FALSE));
+}
+
 
 /*
  * fail rate on a spell
@@ -1973,7 +2506,10 @@ int borg_spell_fail_rate(int realm, int book, int what)
 	if (borg_class == CLASS_WARRIOR) return (100);
 
 	/* Access the spell  */
-	chance = as->sfail;
+	if (realm == REALM_ARCANE - 1)
+		chance = as->level + 20;
+	else
+		chance = as->level * 3 / 2 + 20;
 
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (bp_ptr->lev - as->level);
@@ -2000,7 +2536,7 @@ int borg_spell_fail_rate(int realm, int book, int what)
 	}
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[stat] - 1);
+	chance -= adj_mag_stat[stat];
 
 	/* Collect the spell cost */
 	power = borg_spell_mana(realm, book, what);
@@ -2012,14 +2548,8 @@ int borg_spell_fail_rate(int realm, int book, int what)
 	if (bp_ptr->muta3 & MUT3_MAGIC_RES ||
 		bp_ptr->muta1 & MUT1_EAT_MAGIC) chance += 5;
 
-	/*
-	 * What realm is that????
-	 * spell_chance in spells3.c has the -1 here, but I got confused with
-	 * the -1 that are in the calls to spell_chance too.  I am guessing it
-	 * refers here to REALM_DEATH that already has a banish.
-	 */
-/*	if (realm == REALM_DEATH - 1 &&*/
-	if (realm == REALM_DEATH &&
+	/* Having two banishments hurts your chances */
+	if (realm == REALM_DEATH - 1 &&
 		bp_ptr->muta1 & MUT1_BANISH) chance += 10;
 
 	/* Squeeeeeek */
@@ -2096,20 +2626,26 @@ bool borg_spell_legal_fail(int realm, int book, int what, int allow_fail)
 	return borg_spell_legal(realm, book, what);
 }
 
-/*
- * Attempt to cast a spell
- */
-bool borg_spell(int realm, int book, int what)
+
+/* Attempt to cast a spell */
+static bool borg_spell_aux(int realm, int book, int what, bool reserve)
 {
 	int i;
 
 	borg_magic *as = &borg_magics[realm][book][what];
 
-	/* Require ability (right now) */
-	if (!borg_spell_okay(realm, book, what)) return (FALSE);
-
-	/* Not if locked down */
-	if (FLAG(bp_ptr, TR_NO_MAGIC)) return (FALSE);
+	/* With the reserve check */
+	if (reserve)
+	{
+		/* Require ability (right now) */
+		if (!borg_spell_okay(realm, book, what)) return (FALSE);
+	}
+	else
+	/* Without the reserve check */
+	{
+		/* Require ability (right now) */
+		if (!borg_spell_okay_no_reserve(realm, book, what)) return (FALSE);
+	}
 
 	/* Look for the book */
 	i = borg_book[realm][book];
@@ -2118,7 +2654,7 @@ bool borg_spell(int realm, int book, int what)
 	if (i < 0) return (FALSE);
 
 	/* Debugging Info */
-	borg_note_fmt("# Casting %s (%d,%d).", as->name, book, what);
+	borg_note("# Casting %s (%d,%d).", as->name, book, what);
 
 	/* Cast a spell */
 	borg_keypress('m');
@@ -2139,7 +2675,28 @@ bool borg_spell(int realm, int book, int what)
 	return (TRUE);
 }
 
-/* Determines if a book contains spells that can be reliably cast */
+
+/* Attempt to cast a spell */
+bool borg_spell(int realm, int book, int what)
+{
+	/* Do the work */
+	return (borg_spell_aux(realm, book, what, TRUE));
+}
+
+
+/* Attempt to cast a spell */
+bool borg_spell_no_reserve(int realm, int book, int what)
+{
+	/* Do the work */
+	return (borg_spell_aux(realm, book, what, FALSE));
+}
+
+
+/*
+ * Determines if a book contains spells that can be reliably cast,
+ * regardless whether the borg has the book or not, otherwise he'll
+ * drop all his books at home and never picks them up to learn from them
+ */
 bool borg_uses_book(int realm, int book)
 {
 	int spell;
@@ -2148,7 +2705,7 @@ bool borg_uses_book(int realm, int book)
 	for (spell = 0; spell < 8; spell++)
 	{
 		/* Is this an easy spell? */
-		if (borg_spell_legal_fail(realm, book, spell, 40)) return (TRUE);
+		if (borg_spell_fail_rate(realm, book, spell) < 40) return (TRUE);
 	}
 
 	/* Only hard / impossible spells */
@@ -2198,10 +2755,9 @@ bool borg_mindcr_legal(int spell, int level)
 	return (TRUE);
 }
 
-/*
- * Determine if borg can cast a given spell (right now)
- */
-bool borg_mindcr_okay(int spell, int level)
+
+/* Determine if borg can cast a given spell (right now) */
+static bool borg_mindcr_okay_aux(int spell, int level, bool reserve)
 {
 	borg_mind *as = &borg_minds[spell];
 
@@ -2214,8 +2770,12 @@ bool borg_mindcr_okay(int spell, int level)
 	/* The spell must be affordable (now) */
 	if (as->power > bp_ptr->csp) return (FALSE);
 
-	/* Do not cut into reserve mana (for final teleport) */
-	if (!borg_reserve_allow_mindcrafter(spell)) return (FALSE);
+	/* Check for reserve mana */
+	if (reserve)
+	{
+		/* Do not cut into reserve mana (for final teleport) */
+		if (!borg_reserve_allow_mindcrafter(spell)) return (FALSE);
+	}
 
 	/* No go if there is an item with the NO_MAGIC flag */
 	if (FLAG(bp_ptr, TR_NO_MAGIC)) return (FALSE);
@@ -2224,9 +2784,24 @@ bool borg_mindcr_okay(int spell, int level)
 	return (TRUE);
 }
 
-/*
- * fail rate on a mindcrafter spell
- */
+
+/* Can the borg cast this spell with the current mana with the reserve check */
+bool borg_mindcr_okay(int spell, int level)
+{
+	/* Do the work */
+	return (borg_mindcr_okay_aux(spell, level, TRUE));
+}
+
+
+/* Can the borg cast this spell with the current mana without the reserve check */
+bool borg_mindcr_okay_no_reserve(int spell, int level)
+{
+	/* Do the work */
+	return (borg_mindcr_okay_aux(spell, level, FALSE));
+}
+
+
+/* fail rate on a mindcrafter spell */
 int borg_mindcr_fail_rate(int spell, int level)
 {
 	int chance, minfail;
@@ -2235,14 +2810,14 @@ int borg_mindcr_fail_rate(int spell, int level)
 	/* Hack - ignore parameter */
 	(void)level;
 
-	/* Access the spell  */
+	/* XXX Access the spell  */
 	chance = as->sfail;
 
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (bp_ptr->lev - as->level);
 
 	/* Reduce failure rate by WIS adjustment */
-	chance -= 3 * (adj_mag_stat[my_stat_ind[A_WIS]] - 1);
+	chance -= adj_mag_stat[my_stat_ind[A_WIS]] - 3;
 
 	/* If there is not enough mana the fail rate plummets */
 	if (as->power > bp_ptr->csp) chance += 5 * (as->power - bp_ptr->csp);
@@ -2294,22 +2869,26 @@ bool borg_mindcr_legal_fail(int spell, int level, int allow_fail)
 	return borg_mindcr_legal(spell, level);
 }
 
-/*
- * Attempt to cast a mindcrafter spell
- */
-bool borg_mindcr(int spell, int level)
+/* Attempt to cast a mindcrafter spell */
+static bool borg_mindcr_aux(int spell, int level, bool reserve)
 {
 	borg_mind *as = &borg_minds[spell];
 
-	/* Require ability (right now) */
-	if (!borg_mindcr_okay(spell, level)) return (FALSE);
-
-	/* Not if locked down */
-	if (FLAG(bp_ptr, TR_NO_MAGIC)) return (FALSE);
+	/* Check for reserve mana */
+	if (reserve)
+	{
+		/* Require ability (right now) */
+		if (!borg_mindcr_okay(spell, level)) return (FALSE);
+	}
+	/* No check for reserve mana */
+	else
+	{
+		/* Require ability (right now) */
+		if (!borg_mindcr_okay_no_reserve(spell, level)) return (FALSE);
+	}
 
 	/* Debugging Info */
-	borg_note_fmt
-		("# Casting %s (spell: %d, level: %d).", as->name, spell, level);
+	borg_note("# Casting %s (spell: %d, level: %d).", as->name, spell, level);
 
 	/* Cast a spell */
 	borg_keypress('m');
@@ -2324,6 +2903,23 @@ bool borg_mindcr(int spell, int level)
 	/* Success */
 	return (TRUE);
 }
+
+
+/* Attempt to cast a mindcrafter spell without the reserve check */
+bool borg_mindcr_no_reserve(int spell, int level)
+{
+	/* Call the actual proc */
+	return (borg_mindcr_aux(spell, level, FALSE));
+}
+
+
+/* Attempt to cast a mindcrafter spell with the reserve check */
+bool borg_mindcr(int spell, int level)
+{
+	/* Call the actual proc */
+	return (borg_mindcr_aux(spell, level, TRUE));
+}
+
 
 static bool borg_power_check(bool race, u32b which, bool check_fail,
 						int lev_req, int cost, int use_stat, int difficulty)
@@ -2342,6 +2938,9 @@ static bool borg_power_check(bool race, u32b which, bool check_fail,
 	/* Don't use too much HP */
 	if (bp_ptr->csp < cost)
 	{
+		/* Don't use it if it can kill you */
+		if (cost > bp_ptr->chp) return (FALSE);
+
 		/* Don't use the racial if it takes more then 70% of current HP */
 		if (cost > bp_ptr->chp * 7 / 10) return (FALSE);
 
@@ -2386,7 +2985,7 @@ static bool borg_power_check(bool race, u32b which, bool check_fail,
     if (stat <= 180)
         stat /= 10;
     else
-        stat += 18-180;
+        stat += 18 - 180;
 
 	/* Stun makes it more difficult */
 	if (bp_ptr->status.stun)
@@ -2431,13 +3030,21 @@ static bool borg_power_check(bool race, u32b which, bool check_fail,
  * -or-
  * with a reasonable degree of difficulty with Check_fail
  *
- * Ghoul and Amberite have a second power but that is ignored
  * The values for borg_power_check come from tables.c
  */
 bool borg_racial_check(int race, bool check_fail)
 {
-	/* Who are you?  Who, who.  Who, who. */
-	if (borg_race != race) return (FALSE);
+	/* normal check */
+	if (borg_race != race)
+	{
+		/* Hack these two races with two powers */
+		if ((borg_race != RACE_AMBERITE || race != RACE_AMBERITE_POWER2) &&
+			(borg_race != RACE_GHOUL || race != RACE_GHOUL_POWER2))
+		{
+			/* This race is not omnipotent */
+			return (FALSE);
+		}
+	}
 
 	/* Tell me who are you */
 	switch (race)
@@ -2457,8 +3064,11 @@ bool borg_racial_check(int race, bool check_fail)
 		case RACE_HALF_TROLL:
 			return borg_power_check(TRUE, race, check_fail, 10, 12, A_WIS, 9);
 
-		case RACE_AMBERITE:	/* not coded yet */
+		case RACE_AMBERITE:
 			return borg_power_check(TRUE, race, check_fail, 30, 50, A_INT, 50);
+
+		case RACE_AMBERITE_POWER2:
+			return borg_power_check(TRUE, race, check_fail, 40, 75, A_WIS, 50);
 
 		case RACE_BARBARIAN:
 			return borg_power_check(TRUE, race, check_fail, 8, 10, A_WIS, 9);
@@ -2518,6 +3128,9 @@ bool borg_racial_check(int race, bool check_fail)
 		case RACE_GHOUL:
 			return borg_power_check(TRUE, race, check_fail, 1, 0, A_CON, 0);
 
+		case RACE_GHOUL_POWER2:
+			return borg_power_check(TRUE, race, check_fail, 30, 10, A_WIS, 12);
+
 		case RACE_HUMAN:
 		case RACE_HALF_ELF:
 		case RACE_ELF:
@@ -2541,7 +3154,12 @@ bool borg_racial(int race)
 
 	/* Cast a spell */
 	borg_keypress('U');
-	borg_keypress('a');
+
+	/* Hack to reach the second powers of Ghoul and Amberite */
+	if (race < MAX_RACES)
+		borg_keypress('a');
+	else
+		borg_keypress('b');
 
 	/* Success */
 	return (TRUE);
@@ -2762,7 +3380,6 @@ void borg_cheat_spell(int realm)
 	/* Can we use spells/prayers? */
 	if (realm == 0) return;
 
-
 	/* process books */
 	for (book = 0; book < 4; book++)
 	{
@@ -2805,8 +3422,8 @@ void borg_cheat_spell(int realm)
 
 			/* Note "untried" spells */
 			else if (!((realm == bp_ptr->realm1) ?
-					   (p_ptr->spell.r[0].learned & (1L << j)) :
-					   (p_ptr->spell.r[1].learned & (1L << j))))
+					   (p_ptr->spell.r[0].worked & (1L << j)) :
+					   (p_ptr->spell.r[1].worked & (1L << j))))
 			{
 				/* Untried */
 				as->status = BORG_MAGIC_TEST;
@@ -2916,9 +3533,6 @@ static void prepare_book_info(int realm, int book)
 		/* Extract the level and power */
 		as->level = s_ptr->slevel;
 		as->power = s_ptr->smana;
-
-		/* extract fail rate. */
-		as->sfail = s_ptr->sfail;
 	}
 }
 
@@ -2978,16 +3592,86 @@ void prepare_race_class_info(void)
 }
 
 /*
+ * Bookkeeping function that keeps track of which dungeon the borg is in
+ * and what are the minimal and maximal depths of this dungeon.
+ * Use this function only after the borg presses a '>' or a '<'
+ */
+void borg_dungeon_remember(bool down_stairs)
+{
+	int i;
+	int d, b_d = BORG_MAX_DISTANCE;
+
+	/* On top of a dungeon. */
+	if (bp_ptr->depth == 0)
+	{
+		/* There is no dungeon known */
+		if (!borg_dungeon_num) return;
+
+		/* Is there dungeon closer? */
+		for (i = 0; i < borg_dungeon_num; i++)
+		{
+			d = distance(c_x, c_y, borg_dungeons[i].x, borg_dungeons[i].y);
+
+			/* Ignore dungeons that are further away */
+			if (d > b_d) continue;
+
+			/* Remember this dungeon */
+			b_d = d;
+			dungeon_num = i;
+		}
+	}
+	/* In a dungeon */
+	else
+	{
+		/* Just checking */
+		if (dungeon_num == -1) return;
+
+		/* First time in this dungeon */
+		if (borg_dungeons[dungeon_num].min_depth == 0 ||
+			borg_dungeons[dungeon_num].min_depth > bp_ptr->depth)
+		{
+			/* Set the minimal depth of this dungeon */
+			borg_dungeons[dungeon_num].min_depth = bp_ptr->depth;
+		}
+
+		/* Getting deeper than ever before? */
+		if (down_stairs &&
+			borg_dungeons[dungeon_num].max_depth <= bp_ptr->depth)
+		{
+			/* Set the deepest depth of this dungeon */
+			borg_dungeons[dungeon_num].max_depth = bp_ptr->depth + 1;
+		}
+
+		/* Reached the bottom? */
+		if (!down_stairs)
+		{
+			int wid, hgt;
+
+			if (borg_dungeons[dungeon_num].max_depth < bp_ptr->depth)
+			{
+				/* Set the deepest depth of this dungeon */
+				borg_dungeons[dungeon_num].max_depth = bp_ptr->depth;
+			}
+
+			/* Get size */
+			Term_get_size(&wid, &hgt);
+
+			/* If the screen says bottom */
+			if (borg_term_text_comp(wid - T_NAME_LEN, hgt - 1, "Bottom"))
+			{
+				/* The borg has reached the bottom of this dungeon */
+				borg_dungeons[dungeon_num].bottom = TRUE;
+			}
+		}
+	}
+}
+
+
+/*
  * Initialize this file
  */
 void borg_init_3(void)
 {
-	/* Track the shop locations */
-	track_shop_num = 0;
-	track_shop_size = 16;
-
-	/* Make the stores in the town */
-	C_MAKE(borg_shops, track_shop_size, borg_shop);
 }
 
 #else

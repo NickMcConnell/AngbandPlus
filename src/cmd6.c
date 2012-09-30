@@ -64,15 +64,12 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 	/* Take a turn */
 	p_ptr->state.energy_use = 100;
 
-	/* Identity not known yet */
-	ident = FALSE;
+	/* Is Identity known? */
+	ident = object_aware_p(o_ptr);
 
 	/* Eat the food */
-	(void)use_object(o_ptr, &ident);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
+	(void)use_object(o_ptr, &ident, FALSE);
+	
 	if (!(object_aware_p(o_ptr)))
 	{
 		chg_virtue(V_PATIENCE, -1);
@@ -91,10 +88,12 @@ static void do_cmd_eat_food_aux(object_type *o_ptr)
 		object_aware(o_ptr);
 		gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 	}
+	
+	/* Notice changes */
+	notice_item();	
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
-
+	p_ptr->window |= (PW_PLAYER);
 
 	/* Food can feed the player */
 	if (p_ptr->rp.prace == RACE_VAMPIRE)
@@ -192,20 +191,17 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 	/* Take a turn */
 	p_ptr->state.energy_use = 100;
 
-	/* Not identified yet */
-	ident = FALSE;
+	/* Is Identity known? */
+	ident = object_aware_p(o_ptr);
 
 	/* Quaff the potion */
-	(void)use_object(o_ptr, &ident);
+	(void)use_object(o_ptr, &ident, FALSE);
 
 	if (p_ptr->rp.prace == RACE_SKELETON)
 	{
 		msgf("Some of the fluid falls through your jaws!");
 		(void)potion_smash_effect(0, p_ptr->px, p_ptr->py, o_ptr);
 	}
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	if (!(object_aware_p(o_ptr)))
 	{
@@ -226,8 +222,11 @@ static void do_cmd_quaff_potion_aux(object_type *o_ptr)
 		gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 	}
 
+	/* Notice changes */
+	notice_item();
+
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER);
 
 	/* Potions can feed the player */
 	switch (p_ptr->rp.prace)
@@ -286,23 +285,35 @@ void do_cmd_quaff_potion(void)
  */
 static void do_cmd_read_scroll_aux(object_type *o_ptr)
 {
+	object_type temp, *j_ptr;
 	bool ident, used_up;
 
 	/* Take a turn */
 	p_ptr->state.energy_use = 100;
 
-	/* Not identified yet */
-	ident = FALSE;
+	/* Is Identity known? */
+	ident = object_aware_p(o_ptr);
+
+	/* Copy item into temp */
+	COPY(&temp, o_ptr, object_type);
 
 	/* Read the scroll */
-	used_up = use_object(o_ptr, &ident);
+	used_up = use_object(o_ptr, &ident, FALSE);
 	
+	/*
+	 * Counter the side effect of use_object on an identify scroll
+	 * by finding the original item
+	 */
+	OBJ_ITT_START (p_ptr->inventory, j_ptr)
+	{
+		/* retrieve the pointer of the original scroll */
+		if (object_equal(&temp, j_ptr)) o_ptr = j_ptr;
+	}
+	OBJ_ITT_END;
+
 	/* Hack - the scroll may already be destroyed by its effect */
 	if (o_ptr->k_idx)
 	{
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 		if (!(object_aware_p(o_ptr)))
 		{
 			chg_virtue(V_PATIENCE, -1);
@@ -321,10 +332,15 @@ static void do_cmd_read_scroll_aux(object_type *o_ptr)
 			object_aware(o_ptr);
 			gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 		}
-
+		
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
 
+		/* Hack.  Do the sorting now */
+		o_ptr = reorder_pack_watch(o_ptr);
+
+		/* Hack.  Do the combining now */
+		o_ptr = combine_pack_watch(o_ptr);
 
 		/* Hack -- allow certain scrolls to be "preserved" */
 		if (!used_up) return;
@@ -401,8 +417,8 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	/* Take a turn */
 	p_ptr->state.energy_use = 100;
 
-	/* Not identified yet */
-	ident = FALSE;
+	/* Is Identity known? */
+	ident = object_aware_p(o_ptr);
 
 	/* Extract the item level */
 	lev = get_object_level(o_ptr);
@@ -438,11 +454,11 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 		msgf("The staff has no charges left.");
 		o_ptr->info |= (OB_EMPTY);
 
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
+		
+		/* Notice changes */
+		notice_item();
 
 		return;
 	}
@@ -452,7 +468,7 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 	sound(SOUND_ZAP);
 
 	/* Use the staff */
-	use_charge = use_object(o_ptr, &ident);
+	use_charge = use_object(o_ptr, &ident, FALSE);
 	
 	/* Hack - the staff may destroy itself when activated on the ground */
 	if (o_ptr->k_idx)
@@ -463,9 +479,6 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 			chg_virtue(V_CHANCE, 1);
 		}
 
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 		/* Tried the item */
 		object_tried(o_ptr);
 
@@ -475,9 +488,12 @@ static void do_cmd_use_staff_aux(object_type *o_ptr)
 			object_aware(o_ptr);
 			gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 		}
+		
+		/* Notice changes */
+		notice_item();
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
 
 
 		/* Hack -- some uses are "free" */
@@ -571,7 +587,7 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 {
 	bool use_charge;
 	int chance, dir, lev;
-	bool ident = TRUE, result = TRUE;
+	bool ident;
 
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if (floor_item(o_ptr) && (o_ptr->number > 1))
@@ -587,17 +603,20 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 		msgf("The wand has no charges left.");
 		o_ptr->info |= (OB_EMPTY);
 
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
+		
+		/* Notice changes */
+		notice_item();
 
 		return;
 	}
 
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
+	
+	/* Is Identity known? */
+	ident = object_aware_p(o_ptr);
 
 	/* Take a turn */
 	p_ptr->state.energy_use = MIN(75, 200 - 5 * p_ptr->skills[SKILL_DEV] / 8);
@@ -633,16 +652,11 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 	sound(SOUND_ZAP);
 
 	/* Aim the wand */
-	apply_object_trigger(TRIGGER_USE, o_ptr, "i:bb", 
-		LUA_VAR(dir), LUA_RETURN(result), LUA_RETURN(ident));
-	use_charge = result;
+	use_charge = use_object(o_ptr, &ident, dir);
 	
 	/* Hack - wands may destroy themselves if activated on the ground */
 	if (o_ptr->k_idx)
 	{
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 		/* Mark it as tried */
 		object_tried(o_ptr);
 
@@ -654,9 +668,12 @@ static void do_cmd_aim_wand_aux(object_type *o_ptr)
 			object_aware(o_ptr);
 			gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 		}
+		
+		/* Notice changes */
+		notice_item();
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
 
 		/* Hack -- some uses are "free" */
 		if (!use_charge) return;
@@ -707,11 +724,11 @@ void do_cmd_aim_wand(void)
  */
 static void do_cmd_zap_rod_aux(object_type *o_ptr)
 {
-	int ident, chance, dir, lev;
+	int chance, dir, lev;
+	bool ident;
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
-	bool result = TRUE;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -751,6 +768,9 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 
 	/* Not identified yet */
 	ident = FALSE;
+	
+	/* Is Identity known? */
+	ident = object_aware_p(o_ptr);
 
 	/* Extract the item level */
 	lev = get_object_level(o_ptr);
@@ -786,12 +806,7 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 	o_ptr->timeout += k_ptr->pval;
 
 	/* Zap the rod */
-	apply_object_trigger(TRIGGER_USE, o_ptr, "i:bb", 
-		LUA_VAR(dir), LUA_RETURN(result), LUA_RETURN(ident));
-	use_charge = result;
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	use_charge = use_object(o_ptr, &ident, dir);
 
 	if (!(object_aware_p(o_ptr)))
 	{
@@ -808,9 +823,12 @@ static void do_cmd_zap_rod_aux(object_type *o_ptr)
 		object_aware(o_ptr);
 		gain_exp((lev + p_ptr->lev / 2) / p_ptr->lev);
 	}
+	
+	/* Notice changes */
+	notice_item();
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER);
 
 	/* Hack -- deal with cancelled zap */
 	if (!use_charge)
@@ -991,8 +1009,8 @@ static void do_cmd_activate_aux(object_type *o_ptr)
 	/* Activate the object */
 	apply_object_trigger(TRIGGER_USE, o_ptr, ""); 
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Notice changes */
+	notice_item();
 
 	make_noise(3);
 
@@ -1004,7 +1022,6 @@ void do_cmd_activate(void)
 {
 	object_type *o_ptr;
 	cptr q, s;
-
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;

@@ -525,7 +525,7 @@ static void wr_string(cptr str)
  */
 static void wr_item(const object_type *o_ptr)
 {
-	int i;
+	byte i;
 	
 	wr_s16b(o_ptr->k_idx);
 
@@ -552,10 +552,9 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_byte(o_ptr->info);
 
-	wr_u32b(o_ptr->flags[0]);
-	wr_u32b(o_ptr->flags[1]);
-	wr_u32b(o_ptr->flags[2]);
-	wr_u32b(o_ptr->flags[3]);
+	wr_byte(NUM_TR_SETS);
+	for (i = 0; i < NUM_TR_SETS; i++)
+		wr_u32b(o_ptr->flags[i]);
 
 	/* Next object in list */
 	wr_s16b(o_ptr->next_o_idx);
@@ -605,10 +604,8 @@ static void wr_item(const object_type *o_ptr)
 
 	wr_byte(o_ptr->a_idx);
 
-	wr_u32b(o_ptr->kn_flags[0]);
-	wr_u32b(o_ptr->kn_flags[1]);
-	wr_u32b(o_ptr->kn_flags[2]);
-	wr_u32b(o_ptr->kn_flags[3]);
+	for (i = 0; i < NUM_TR_SETS; i++)
+		wr_u32b(o_ptr->kn_flags[i]);
 }
 
 
@@ -707,6 +704,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(r_ptr->r_flags[3]);
 	wr_u32b(r_ptr->r_flags[4]);
 	wr_u32b(r_ptr->r_flags[5]);
+	wr_u32b(r_ptr->r_flags[6]);
 
 
 	/* Monster limit per level */
@@ -744,10 +742,20 @@ static void wr_store(const store_type *st_ptr)
 	wr_s16b(st_ptr->data);
 
 	/* Save the current owner */
-	wr_byte(st_ptr->owner);
+	
+	if (quark_str(st_ptr->owner_name))
+	{
+		wr_string(quark_str(st_ptr->owner_name));
+	}
+	else
+	{
+		wr_string("");
+	}
+	wr_s16b(st_ptr->max_cost);
+	wr_byte(st_ptr->greed);
 
 	/* Hack - Save whether or not we have stock */
-	wr_byte(st_ptr->stock ? TRUE : FALSE);
+	wr_byte((byte) (st_ptr->stock ? TRUE : FALSE));
 
 	/* Position in the town */
 	wr_u16b(st_ptr->x);
@@ -1285,49 +1293,29 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
-	wr_u16b(base_level());
+	wr_u16b((u16b) base_level());
 	wr_u16b(num_repro);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
 	wr_u16b(p_ptr->max_hgt);
 	wr_u16b(p_ptr->max_wid);
-	wr_u16b(max_panel_rows);
-	wr_u16b(max_panel_cols);
+	
+	/* Old panel stuff */
+	wr_u16b(0);
+	wr_u16b(0);
+	
+	/* Panel bounds */
+	wr_s16b(p_ptr->panel_x1);
+	wr_s16b(p_ptr->panel_y1);
+	wr_s16b(p_ptr->panel_x2);
+	wr_s16b(p_ptr->panel_y2);
 
 	/* Save wilderness data */
 	save_wild_data();
 
-	if (p_ptr->depth)
-	{
-		/* Save dungeon map */
-		save_map(p_ptr->min_wid, p_ptr->min_hgt, p_ptr->max_wid,
-				 p_ptr->max_hgt);
-#if 0
-		/* Hack - the player is not in this dungeon */
-		character_dungeon = FALSE;
-
-		/* Save wilderness map */
-		change_level(0);
-
-		save_map(wild_grid.y_max, wild_grid.y_min,
-				 wild_grid.x_max, wild_grid.x_min);
-
-		change_level(p_ptr->depth);
-
-		/* The character is back in the dungeon */
-		character_dungeon = TRUE;
-
-		/* Restore bounds */
-		max_hgt = cur_hgt;
-		max_wid = cur_wid;
-#endif /* 0 */
-	}
-	else
-	{
-		/* Save wilderness map */
-		save_map(p_ptr->min_wid, p_ptr->min_hgt, p_ptr->max_wid,
-				 p_ptr->max_hgt);
-	}
+	/* Save map */
+	save_map(p_ptr->min_wid, p_ptr->min_hgt, p_ptr->max_wid,
+				p_ptr->max_hgt);
 
 	/* Compact the monsters */
 	compact_monsters(0);
@@ -1467,7 +1455,7 @@ static bool wr_savefile_new(void)
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
 		wr_string(message_str((s16b)i));
-		wr_byte(message_type((s16b)i));
+		wr_byte((byte) message_type((s16b)i));
 	}
 
 
@@ -1848,19 +1836,6 @@ bool save_player(void)
 
 	char safe[1024];
 
-
-#ifdef SET_UID
-
-# ifdef SECURE
-
-	/* Get "games" permissions */
-	beGames();
-
-# endif
-
-#endif
-
-
 	/* New savefile */
 	strnfmt(safe, 1024, "%s.new", savefile);
 
@@ -1912,37 +1887,9 @@ bool save_player(void)
 		/* Hack -- Pretend the character was loaded */
 		character_loaded = TRUE;
 
-#ifdef VERIFY_SAVEFILE
-
-		/* Lock on savefile */
-		strnfmt(temp, 1024, "%s.lok", savefile);
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Remove lock file */
-		fd_kill(temp);
-
-		/* Drop permissions */
-		safe_setuid_drop();
-
-#endif
-
 		/* Success */
 		result = TRUE;
 	}
-
-
-#ifdef SET_UID
-
-# ifdef SECURE
-
-	/* Drop "games" permissions */
-	bePlayer();
-
-# endif
-
-#endif
 
 
 	/* Return the result */
@@ -1973,10 +1920,6 @@ bool load_player(void)
 	errr err = 0;
 
 	byte vvv[4];
-
-#ifdef VERIFY_TIMESTAMP
-	struct stat statbuf;
-#endif
 
 	cptr what = "generic";
 
@@ -2015,60 +1958,6 @@ bool load_player(void)
 	(void)fd_close(fd);
 
 
-#ifdef VERIFY_SAVEFILE
-
-	/* Verify savefile usage */
-	if (!err)
-	{
-		FILE *fkk;
-
-		char temp[1024];
-
-		/* Extract name of lock file */
-		strnfmt(temp, 1024, "%s.lok", savefile);
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Check for lock */
-		fkk = my_fopen(temp, "r");
-
-		/* Drop permissions */
-		safe_setuid_drop();
-
-		/* Oops, lock exists */
-		if (fkk)
-		{
-			/* Close the file */
-			my_fclose(fkk);
-
-			/* Message */
-			msgf("Savefile is currently in use.");
-			message_flush();
-
-			/* Oops */
-			return (FALSE);
-		}
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Create a lock file */
-		fkk = my_fopen(temp, "w");
-
-		/* Drop permissions */
-		safe_setuid_drop();
-
-		/* Dump a line of info */
-		froff(fkk, "Lock file for savefile '%s'\n", savefile);
-
-		/* Close the lock file */
-		my_fclose(fkk);
-	}
-
-#endif
-
-
 	/* Okay */
 	if (!err)
 	{
@@ -2091,20 +1980,6 @@ bool load_player(void)
 	/* Process file */
 	if (!err)
 	{
-
-#ifdef VERIFY_TIMESTAMP
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Get the timestamp */
-		(void)fstat(fd, &statbuf);
-
-		/* Drop permissions */
-		safe_setuid_drop();
-
-#endif
-
 		/* Read the first four bytes */
 		if (fd_read(fd, (char *)(vvv), 4)) err = -1;
 
@@ -2145,24 +2020,6 @@ bool load_player(void)
 		/* Message (below) */
 		if (err) what = "Broken savefile";
 	}
-
-#ifdef VERIFY_TIMESTAMP
-	/* Verify timestamp */
-	if (!err && !arg_wizard)
-	{
-		/* Hack -- Verify the timestamp */
-		if (sf_when > (statbuf.st_ctime + 100) ||
-			sf_when < (statbuf.st_ctime - 100))
-		{
-			/* Message */
-			what = "Invalid timestamp";
-
-			/* Oops */
-			err = -1;
-		}
-	}
-#endif
-
 
 	/* Okay */
 	if (!err)
@@ -2228,30 +2085,6 @@ bool load_player(void)
 		return (TRUE);
 	}
 
-
-#ifdef VERIFY_SAVEFILE
-
-	/* Verify savefile usage */
-	if (TRUE)
-	{
-		char temp[1024];
-
-		/* Extract name of lock file */
-		strnfmt(temp, 1024, "%s.lok", savefile);
-
-		/* Grab permissions */
-		safe_setuid_grab();
-
-		/* Remove lock */
-		fd_kill(temp);
-
-		/* Drop permissions */
-		safe_setuid_drop();
-	}
-
-#endif
-
-
 	/* Message */
 	msgf("Error (%s) reading %d.%d.%d savefile.",
 			   what, z_major, z_minor, z_patch);
@@ -2261,39 +2094,3 @@ bool load_player(void)
 	return (FALSE);
 }
 
-
-void remove_loc(void)
-{
-#ifdef VERIFY_SAVEFILE
-	char temp[1024];
-#endif /* VERIFY_SAVEFILE */
-
-#ifdef SET_UID
-# ifdef SECURE
-
-	/* Get "games" permissions */
-	beGames();
-
-# endif	/* SECURE */
-#endif /* SET_UID */
-
-#ifdef VERIFY_SAVEFILE
-
-	/* Lock on savefile */
-	strnfmt(temp, 1024, "%s.lok", savefile);
-
-	/* Remove lock file */
-	fd_kill(temp);
-
-#endif /* VERIFY_SAVEFILE */
-
-#ifdef SET_UID
-# ifdef SECURE
-
-	/* Drop "games" permissions */
-	bePlayer();
-
-# endif	/* SECURE */
-#endif /* SET_UID */
-
-}

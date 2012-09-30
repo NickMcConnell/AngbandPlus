@@ -55,7 +55,7 @@ static int toluaI_tolua_tolua_type00(lua_State* tolua_S)
  {
   LUA_VALUE lo = ((LUA_VALUE)  tolua_getvalue(tolua_S,1,0));
   {
-   char* toluaI_ret = (char*)  tolua_type(lo);
+   const char* toluaI_ret = (const char*) tolua_type(lo);
    tolua_pushstring(tolua_S,toluaI_ret);
   }
  }
@@ -160,7 +160,7 @@ static int toluaI_tolua_tolua_cast00(lua_State* tolua_S)
  else
  {
   LUA_VALUE lo = ((LUA_VALUE)  tolua_getvalue(tolua_S,1,0));
-  char* type = ((char*)  tolua_getstring(tolua_S,2,0));
+  const char* type = (const char*) tolua_getstring(tolua_S,2,0);
   {
    LUA_VALUE toluaI_ret = (LUA_VALUE)  tolua_cast(lo,type);
    tolua_pushvalue(tolua_S,toluaI_ret);

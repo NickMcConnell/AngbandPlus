@@ -1,6 +1,6 @@
 /* File: files.c */
 
-/* Purpose: code dealing with files (and death) */
+/* Purpose: code dealing with pref files (and death) */
 
 /*
  * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
@@ -11,94 +11,7 @@
  */
 
 #include "angband.h"
-
-
-/*
- * Hack -- drop permissions
- */
-void safe_setuid_drop(void)
-{
-
-#ifdef SET_UID
-
-#ifdef SAFE_SETUID
-
-#ifdef HAVE_SETEGID
-
-	if (setegid(getgid()) != 0)
-	{
-		quit("setegid(): cannot set permissions correctly!");
-	}
-
-#else  /* HAVE_SETEGID */
-
-#ifdef SAFE_SETUID_POSIX
-
-	if (setgid(getgid()) != 0)
-	{
-		quit("setgid(): cannot set permissions correctly!");
-	}
-
-#else  /* SAFE_SETUID_POSIX */
-
-	if (setregid(getegid(), getgid()) != 0)
-	{
-		quit("setregid(): cannot set permissions correctly!");
-	}
-
-#endif /* SAFE_SETUID_POSIX */
-
-#endif /* HAVE_SETEGID */
-
-#endif /* SAFE_SETUID */
-
-#endif /* SET_UID */
-
-}
-
-
-/*
- * Hack -- grab permissions
- */
-void safe_setuid_grab(void)
-{
-
-#ifdef SET_UID
-
-#ifdef SAFE_SETUID
-
-#ifdef HAVE_SETEGID
-
-	if (setegid(player_egid) != 0)
-	{
-		quit("setegid(): cannot set permissions correctly!");
-	}
-
-#else  /* HAVE_SETEGID */
-
-#ifdef SAFE_SETUID_POSIX
-
-	if (setgid(player_egid) != 0)
-	{
-		quit("setgid(): cannot set permissions correctly!");
-	}
-
-#else  /* SAFE_SETUID_POSIX */
-
-	if (setregid(getegid(), getgid()) != 0)
-	{
-		quit("setregid(): cannot set permissions correctly!");
-	}
-
-#endif /* SAFE_SETUID_POSIX */
-
-#endif /* HAVE_SETEGID */
-
-#endif /* SAFE_SETUID */
-
-#endif /* SET_UID */
-
-}
+#include "script.h"
 
 
 /*
@@ -850,6 +763,8 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 						break;
 					case GRAPHICS_ADAM_BOLT: v = "new";
 						break;
+					case GRAPHICS_DAVID_GERVAIS: v = "david";
+						break;
 					case GRAPHICS_ANY: v = "error";
 						break;
 					case GRAPHICS_HALF_3D: v = "none";
@@ -1043,7 +958,7 @@ errr process_pref_file(cptr fmt, ...)
 	va_end(vp);
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_PREF, name);
+	path_make(buf, ANGBAND_DIR_PREF, name);
 
 	/* Process the pref file */
 	err = process_pref_file_aux(buf);
@@ -1052,7 +967,7 @@ errr process_pref_file(cptr fmt, ...)
 	if (err < 1)
 	{
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_USER, name);
+		path_make(buf, ANGBAND_DIR_USER, name);
 
 		/* Process the pref file */
 		err = process_pref_file_aux(buf);
@@ -1060,245 +975,6 @@ errr process_pref_file(cptr fmt, ...)
 
 	/* Result */
 	return (err);
-}
-
-
-
-
-#ifdef CHECK_TIME
-
-/*
- * Operating hours for ANGBAND (defaults to non-work hours)
- */
-static char days[7][29] =
-{
-	"SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
-	"MON:XXXXXXXX.........XXXXXXX",
-	"TUE:XXXXXXXX.........XXXXXXX",
-	"WED:XXXXXXXX.........XXXXXXX",
-	"THU:XXXXXXXX.........XXXXXXX",
-	"FRI:XXXXXXXX.........XXXXXXX",
-	"SAT:XXXXXXXXXXXXXXXXXXXXXXXX"
-};
-
-/*
- * Restict usage (defaults to no restrictions)
- */
-static bool check_time_flag = FALSE;
-
-#endif
-
-
-/*
- * Handle CHECK_TIME
- */
-errr check_time(void)
-{
-
-#ifdef CHECK_TIME
-
-	time_t c;
-	struct tm *tp;
-
-	/* No restrictions */
-	if (!check_time_flag) return (0);
-
-	/* Check for time violation */
-	c = time((time_t *) 0);
-	tp = localtime(&c);
-
-	/* Violation */
-	if (days[tp->tm_wday][tp->tm_hour + 4] != 'X') return (1);
-
-#endif
-
-	/* Success */
-	return (0);
-}
-
-
-
-/*
- * Initialize CHECK_TIME
- */
-errr check_time_init(void)
-{
-
-#ifdef CHECK_TIME
-
-	FILE *fp;
-
-	char buf[1024];
-
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "time.txt");
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-
-	/* No file, no restrictions */
-	if (!fp) return (0);
-
-	/* Assume restrictions */
-	check_time_flag = TRUE;
-
-	/* Parse the file */
-	while (0 == my_fgets(fp, buf, 80))
-	{
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Chop the buffer */
-		buf[29] = '\0';
-
-		/* Extract the info */
-		if (prefix(buf, "SUN:")) strcpy(days[0], buf);
-		if (prefix(buf, "MON:")) strcpy(days[1], buf);
-		if (prefix(buf, "TUE:")) strcpy(days[2], buf);
-		if (prefix(buf, "WED:")) strcpy(days[3], buf);
-		if (prefix(buf, "THU:")) strcpy(days[4], buf);
-		if (prefix(buf, "FRI:")) strcpy(days[5], buf);
-		if (prefix(buf, "SAT:")) strcpy(days[6], buf);
-	}
-
-	/* Close it */
-	my_fclose(fp);
-
-#endif
-
-	/* Success */
-	return (0);
-}
-
-
-
-#ifdef CHECK_LOAD
-
-#ifndef MAXHOSTNAMELEN
-# define MAXHOSTNAMELEN  64
-#endif
-
-typedef struct statstime statstime;
-
-struct statstime
-{
-	int cp_time[4];
-	int dk_xfer[4];
-	unsigned int v_pgpgin;
-	unsigned int v_pgpgout;
-	unsigned int v_pswpin;
-	unsigned int v_pswpout;
-	unsigned int v_intr;
-	int if_ipackets;
-	int if_ierrors;
-	int if_opackets;
-	int if_oerrors;
-	int if_collisions;
-	unsigned int v_swtch;
-	long avenrun[3];
-	struct timeval boottime;
-	struct timeval curtime;
-};
-
-/*
- * Maximal load (if any).
- */
-static int check_load_value = 0;
-
-#endif
-
-
-/*
- * Handle CHECK_LOAD
- */
-errr check_load(void)
-{
-
-#ifdef CHECK_LOAD
-
-	struct statstime st;
-
-	/* Success if not checking */
-	if (!check_load_value) return (0);
-
-	/* Check the load */
-	if (0 == rstat("localhost", &st))
-	{
-		long val1 = (long)(st.avenrun[2]);
-		long val2 = (long)(check_load_value) * FSCALE;
-
-		/* Check for violation */
-		if (val1 >= val2) return (1);
-	}
-
-#endif
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Initialize CHECK_LOAD
- */
-errr check_load_init(void)
-{
-
-#ifdef CHECK_LOAD
-
-	FILE *fp;
-
-	char buf[1024];
-
-	char temphost[MAXHOSTNAMELEN + 1];
-	char thishost[MAXHOSTNAMELEN + 1];
-
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "load.txt");
-
-	/* Open the "load" file */
-	fp = my_fopen(buf, "r");
-
-	/* No file, no restrictions */
-	if (!fp) return (0);
-
-	/* Default load */
-	check_load_value = 100;
-
-	/* Get the host name */
-	(void)gethostname(thishost, (sizeof thishost) - 1);
-
-	/* Parse it */
-	while (0 == my_fgets(fp, buf, 1024))
-	{
-		int value;
-
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Parse, or ignore */
-		if (sscanf(buf, "%s%d", temphost, &value) != 2) continue;
-
-		/* Skip other hosts */
-		if (!streq(temphost, thishost) &&
-			!streq(temphost, "localhost")) continue;
-
-		/* Use that value */
-		check_load_value = value;
-
-		/* Done */
-		break;
-	}
-
-	/* Close the file */
-	my_fclose(fp);
-
-#endif
-
-	/* Success */
-	return (0);
 }
 
 
@@ -1523,15 +1199,33 @@ static void display_player_abilities(void)
 	/* See if have a weapon with extra power */
 	if (o_ptr->k_idx)
 	{
+		int dam = avgdam / blows;
+		int vorpal_chance = (o_ptr->flags[0] & TR0_VORPAL) ? 2 : 0;
+		int ghoul_paral = 0;
+		int drain_power = 0;
+		bool do_quake = FALSE;
+		bool do_conf = FALSE;
+		bool do_tele = FALSE;
+		bool do_poly = FALSE;
+
+		/* Apply special scripts */
+		apply_object_trigger(TRIGGER_HIT, o_ptr, ":iiibbbbi", 
+			LUA_RETURN(ghoul_paral), LUA_RETURN(drain_power),
+			LUA_RETURN(vorpal_chance), LUA_RETURN(do_quake),
+			LUA_RETURN(do_conf), LUA_RETURN(do_tele),
+			LUA_RETURN(do_poly), LUA_RETURN(dam));
+
+		/* Apply special damage boost */
+		avgdam = avgdam * dam / (avgdam / blows);
+
 		/* Is there a vorpal effect we know about? */
-		if (object_known_p(o_ptr) &&
-			(o_ptr->a_idx == ART_VORPAL_BLADE))
+		if (vorpal_chance == 1)
 		{
 			/* vorpal blade */
 			avgdam *= 786;
 			avgdam /= 500;
 		}
-		else if (object_known_p(o_ptr) && (FLAG(o_ptr, TR_VORPAL)))
+		else if (vorpal_chance == 2)
 		{
 			/* vorpal flag only */
 			avgdam *= 609;
@@ -1590,6 +1284,11 @@ void player_flags(object_flags *of_ptr)
 		case CLASS_PALADIN:
 			if (p_ptr->lev > 39)
 				SET_FLAG(of_ptr, TR_RES_FEAR);
+			break;
+		case CLASS_RANGER:
+			SET_FLAG(of_ptr, TR_WILD_SHOT);
+			if (p_ptr->lev > 9)
+				SET_FLAG(of_ptr, TR_WILD_WALK);
 			break;
 		case CLASS_CHAOS_WARRIOR:
 			SET_FLAG(of_ptr, TR_PATRON);
@@ -2982,9 +2681,8 @@ errr file_character(cptr name, bool full)
 
 	object_type *o_ptr;
 
-
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+	path_make(buf, ANGBAND_DIR_USER, name);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -3240,7 +2938,7 @@ errr file_character(cptr name, bool full)
                 monster_race *r_ptr = &r_info[who[i]];
 
                 froff(fff, "%2i %-36s Level %i (%i')\n", r_ptr->r_pkills,
-                        (r_ptr->name + r_name), r_ptr->level, r_ptr->level * 50);
+                        mon_race_name(r_ptr), r_ptr->level, r_ptr->level * 50);
             }
         }
 
@@ -3268,8 +2966,16 @@ errr file_character(cptr name, bool full)
 	froff(fff, "  [Character Equipment]\n\n");
 	for (i = 0; i < EQUIP_MAX; i++)
 	{
-		froff(fff, "%c%s %v\n", I2A(i), paren,
-				OBJECT_FMT(&p_ptr->equipment[i], TRUE, 3));
+		char o_name[256];
+
+		/* Describe object */
+		object_desc(o_name, &p_ptr->equipment[i], TRUE, 3, 256);
+						
+		/* Clean formatting escape sequences */
+		fmt_clean(o_name);
+		
+		/* Dump the equipment slot */
+		froff(fff, "%c%s %s\n", I2A(i), paren, o_name);
 	}
 	froff(fff, "\n\n");
 
@@ -3281,8 +2987,16 @@ errr file_character(cptr name, bool full)
 
 	OBJ_ITT_START (p_ptr->inventory, o_ptr)
 	{
+		char o_name[256];
+		
+		/* Describe object */
+		object_desc(o_name, o_ptr, TRUE, 3, 256);
+						
+		/* Clean formatting escape sequences */
+		fmt_clean(o_name);
+		
 		/* Dump the inventory slots */
-		froff(fff, "%c%s %v\n", I2A(i), paren, OBJECT_FMT(o_ptr, TRUE, 3));
+		froff(fff, "%c%s %s\n", I2A(i), paren, o_name);
 
 		/* Count slots */
 		i++;
@@ -3304,6 +3018,8 @@ errr file_character(cptr name, bool full)
 				/* Home -- if anything there */
 				if (st_ptr->stock)
 				{
+					char o_name[256];
+				
 					/* Header with name of the town */
 					froff(fff, "  [Home Inventory - %s]\n\n", place[i].name);
 
@@ -3313,8 +3029,13 @@ errr file_character(cptr name, bool full)
 					/* Dump all available items */
 					OBJ_ITT_START (st_ptr->stock, o_ptr)
 					{
-						froff(fff, "%c%s %v\n", I2A(k), paren,
-								OBJECT_FMT(o_ptr, TRUE, 3));
+						/* Describe object */
+						object_desc(o_name, o_ptr, TRUE, 3, 256);
+						
+						/* Clean formatting escape sequences */
+						fmt_clean(o_name);
+					
+						froff(fff, "%c%s %s\n", I2A(k), paren, o_name);
 
 						/* Increment counter */
 						k++;
@@ -3350,6 +3071,28 @@ errr file_character(cptr name, bool full)
 
 	/* Success */
 	return (0);
+}
+
+
+#define RESIZE_SHOW_FILE	-2
+static cptr resize_name = NULL;
+static cptr resize_what = NULL;
+static int resize_line  = 0;
+static int resize_hgt   = 0;
+
+
+/*
+ * Resizing can happen while show_file is waiting for input.  The resize can
+ * be done by show_file, except that then there should be no input
+ */
+static void resize_show_file(void)
+{
+	int dummy;
+
+	(void)show_file(resize_name, resize_what, resize_line, RESIZE_SHOW_FILE);
+
+	/* Get size */
+	Term_get_size(&dummy, &resize_hgt);
 }
 
 
@@ -3421,6 +3164,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* Sub-menu information */
 	char hook[62][32];
 
+	void (*old_hook) (void);
+
 
 	/* Get size */
 	Term_get_size(&wid, &hgt);
@@ -3479,7 +3224,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		strnfmt(caption, 128, "Help file '%s'", name);
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_HELP, name);
+		path_make(path, ANGBAND_DIR_HELP, name);
 
 		/* Open the file */
 		fff = my_fopen(path, "r");
@@ -3492,7 +3237,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		strnfmt(caption, 128, "Info file '%s'", name);
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_INFO, name);
+		path_make(path, ANGBAND_DIR_INFO, name);
 
 		/* Open the file */
 		fff = my_fopen(path, "r");
@@ -3509,6 +3254,18 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		return (TRUE);
 	}
 	
+	/* Remember what the resize hook was */
+	old_hook = angband_term[0]->resize_hook;
+
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = resize_show_file;
+
+	/* Remember essentials for resizing */
+	resize_name = name;
+	resize_what = what;
+	resize_line = line;
+	resize_hgt  = hgt;
+
 	/* Pre-Parse the file */
 	while (TRUE)
 	{
@@ -3561,7 +3318,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		next++;
 	}
 	
-	screen_save();
+	if (mode != RESIZE_SHOW_FILE) screen_save();
 
 	/* Save the number of "real" lines */
 	size = next;
@@ -3712,8 +3469,20 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			}
 		}
 
-		/* Get a keypress */
-		k = inkey();
+		/* Leave in case of resize */
+		if (mode == RESIZE_SHOW_FILE)
+		{
+			/* Hack: the file  will be closed by the other instance of show_file */
+			return (TRUE);
+		}
+		else
+		{
+			/* Get a keypress */
+			k = inkey();
+		}
+
+		/* Correct hgt after a resize */
+		if (hgt != resize_hgt) hgt = resize_hgt;
 
 		/* Hack -- return to last screen */
 		if (k == '<') break;
@@ -3857,7 +3626,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			if (!(xtmp[0] && (xtmp[0] != ' '))) continue;
 
 			/* Build the filename */
-			path_build(outfile, 1024, ANGBAND_DIR_USER, xtmp);
+			path_make(outfile, ANGBAND_DIR_USER, xtmp);
 
 			/* Close the input file */
 			my_fclose(fff);
@@ -3878,7 +3647,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 			/* Write the file line by line */
 			while (!my_raw_fgets(fff, xtmp, 80))
-				my_fputs(ffp, xtmp, 80);
+			{
+				froff(ffp, "%s\n", xtmp);
+			}
 
 			/* Close the files */
 			my_fclose(fff);
@@ -3897,6 +3668,15 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 	/* Close the file */
 	my_fclose(fff);
+
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = old_hook;
+
+	/* The size may have changed during the menu display */
+	angband_term[0]->resize_hook();
+
+	/* Hack - Flush it */
+	Term_fresh();
 
 	/* Escape */
 	if (k == ESCAPE) return (FALSE);
@@ -4016,7 +3796,7 @@ void process_player_name(bool sf)
 #endif /* VM */
 
 		/* Build the filename */
-		path_build(savefile, 1024, ANGBAND_DIR_SAVE, temp);
+		path_make(savefile, ANGBAND_DIR_SAVE, temp);
 	}
 }
 
@@ -4210,590 +3990,6 @@ void do_cmd_save_and_exit(void)
 	p_ptr->state.leaving = TRUE;
 }
 
-/*
- * Center a format string in the buffer.
- *
- * The first parameter on the stack must be the width
- *  to center in.
- *
- * The second must be the string to center with.
- * This is treated as a format string - so may contain
- * other commands etc...
- */
-void center_string(char *buf, uint max, cptr fmt, va_list *vp)
-{
-	int i, j;
-
-	cptr str;
-	
-	char tmp[1024];
-	
-    int size;
-	
-	/* Unused parameter */
-	(void)fmt;
-	    
-    /* Get the size of the string to center in */
-	size = va_arg(*vp, int);
-	
-	/* Get the string to center with. */
-	str = va_arg(*vp, cptr);
-	
-	/* Expand the string */
-	vstrnfmt(tmp, 1024, str, vp);
-	
-	/* Total length */
-	i = strlen(tmp);
-
-	/* Necessary border */
-	j = (size - i) / 2;
-
-	/* Mega-Hack center the (format) string in the buffer */
-	strnfmt(buf, max, "%*s%s%*s", j, "", tmp, size - i - j, "");
-}
-
-
-
-
-/*
- * Redefinable "print_tombstone" action
- */
-bool (*tombstone_aux) (void) = NULL;
-
-
-/*
- * Display a "tomb-stone"
- */
-static void print_tomb(void)
-{
-	bool done = FALSE;
-
-	/* Do we use a special tombstone ? */
-	if (tombstone_aux)
-	{
-		/* Use tombstone hook */
-		done = (*tombstone_aux) ();
-	}
-
-	/* Print the text-tombstone */
-	if (!done)
-	{
-		char buf[1024];
-
-		FILE *fp;
-
-		time_t ct = time((time_t) 0);
-
-
-		/* Clear screen */
-		Term_clear();
-
-		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_FILE, "dead.txt");
-
-		/* Open the News file */
-		fp = my_fopen(buf, "r");
-
-		/* Dump */
-		if (fp)
-		{
-			int i = 0;
-
-			/* Dump the file to the screen */
-			while (0 == my_fgets(fp, buf, 1024))
-			{
-				/* Display and advance */
-				put_fstr(0, i++, buf);
-			}
-
-			/* Close */
-			my_fclose(fp);
-		}
-
-
-		put_fstr(11, 6, "%v", center_string, 31, player_name);
-
-		put_fstr(11, 7, "%v", center_string, 31, "the");
-
-		
-		/* King or Queen */
-		if (p_ptr->state.total_winner || (p_ptr->lev > PY_MAX_LEVEL))
-		{
-			put_fstr(11, 8, "%v", center_string, 31, "Magnificent");
-		}
-
-		/* Normal */
-		else
-		{
-			put_fstr(11, 8, "%v", center_string, 31,
-					 player_title[p_ptr->rp.pclass][(p_ptr->lev - 1) / 5]);
-		}
-
-		put_fstr(11, 10, "%v", center_string, 31, cp_ptr->title);
-
-		put_fstr(11, 11, "%v", center_string, 31, "Level: %d", (int)p_ptr->lev);
-
-		put_fstr(11, 12, "%v", center_string, 31, "Exp: %ld", (long)p_ptr->exp);
-
-		put_fstr(11, 13, "%v", center_string, 31, "AU: %ld", (long)p_ptr->au);
-
-		put_fstr(11, 14, "%v", center_string, 31, "Killed on Level %d", p_ptr->depth);
-
-
-		if (strlen(p_ptr->state.died_from) > 24)
-		{
-			put_fstr(11, 15, "%v", center_string, 31, "by %.24s.", p_ptr->state.died_from);
-		}
-		else
-		{
-			put_fstr(11, 15, "%v", center_string, 31, "by %s.", p_ptr->state.died_from);
-		}
-
-		put_fstr(11, 17, "%v", center_string, 31, "%-.24s", ctime(&ct));
-	}
-}
-
-
-/*
- * Display some character info
- */
-static void show_info(void)
-{
-	int i, j, l;
-	object_type *o_ptr;
-	store_type *st_ptr;
-
-	/* Hack -- Know everything in the equipment */
-	for (i = 0; i < EQUIP_MAX; i++)
-	{
-		o_ptr = &p_ptr->equipment[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-		object_mental(o_ptr);
-
-		/* Save all the known flags */
-		o_ptr->kn_flags[0] = o_ptr->flags[0];
-		o_ptr->kn_flags[1] = o_ptr->flags[1];
-		o_ptr->kn_flags[2] = o_ptr->flags[2];
-		o_ptr->kn_flags[3] = o_ptr->flags[3];
-	}
-
-	/* Hack -- Know everything in the inventory */
-	OBJ_ITT_START (p_ptr->inventory, o_ptr)
-	{
-		/* Aware and Known */
-		object_aware(o_ptr);
-		object_known(o_ptr);
-		object_mental(o_ptr);
-
-		/* Save all the known flags */
-		o_ptr->kn_flags[0] = o_ptr->flags[0];
-		o_ptr->kn_flags[1] = o_ptr->flags[1];
-		o_ptr->kn_flags[2] = o_ptr->flags[2];
-		o_ptr->kn_flags[3] = o_ptr->flags[3];
-	}
-	OBJ_ITT_END;
-
-	for (i = 1; i < z_info->wp_max; i++)
-	{
-		for (j = 0; j < place[i].numstores; j++)
-		{
-			st_ptr = &place[i].store[j];
-
-			if (st_ptr->type == BUILD_STORE_HOME)
-			{
-				/* Hack -- Know everything in the home */
-				OBJ_ITT_START (st_ptr->stock, o_ptr)
-				{
-					/* Aware and Known */
-					object_aware(o_ptr);
-					object_known(o_ptr);
-					object_mental(o_ptr);
-
-					/* Save all the known flags */
-					o_ptr->kn_flags[0] = o_ptr->flags[0];
-					o_ptr->kn_flags[1] = o_ptr->flags[1];
-					o_ptr->kn_flags[2] = o_ptr->flags[2];
-					o_ptr->kn_flags[3] = o_ptr->flags[3];
-				}
-				OBJ_ITT_END;
-			}
-		}
-	}
-
-	/* Hack -- Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Display player */
-	display_player(DISPLAY_PLAYER_STANDARD);
-
-	/* Prompt for inventory */
-	prtf(0, 23, "Hit any key to see more information (ESC to abort): ");
-
-	/* Flush keys */
-	flush();
-
-	/* Allow abort at this point */
-	if (inkey() == ESCAPE) return;
-
-
-	/* Show equipment */
-	Term_clear();
-
-	/* Equipment -- if any */
-	item_tester_full = TRUE;
-	show_equip(FALSE);
-
-	prtf(0, 0, "You are using: -more-");
-
-	/* Flush keys */
-	flush();
-
-	if (inkey() == ESCAPE) return;
-
-
-	/* Show inventory */
-	Term_clear();
-
-	/* Inventory -- if any */
-	item_tester_full = TRUE;
-	show_list(p_ptr->inventory, FALSE);
-
-	prtf(0, 0, "You are carrying: -more-");
-
-	/* Flush keys */
-	flush();
-
-	if (inkey() == ESCAPE) return;
-
-	for (i = 1; i < z_info->wp_max; i++)
-	{
-		for (l = 0; l < place[i].numstores; l++)
-		{
-			st_ptr = &place[i].store[l];
-
-			if (st_ptr->type == BUILD_STORE_HOME)
-			{
-				/* Home -- if anything there */
-				if (st_ptr->stock)
-				{
-					/* Initialise counter */
-					j = 0;
-
-					/* Clear screen */
-					Term_clear();
-
-					/* Display contents of the home */
-					OBJ_ITT_START (st_ptr->stock, o_ptr)
-					{
-						/* Print header, clear line */
-						prtf(4, j + 2, "%c) %s%v", I2A(j),
-							 color_seq[tval_to_attr[o_ptr->tval]],
-							 OBJECT_FMT(o_ptr, TRUE, 3));
-
-						/* Show 12 items at a time */
-						if (j == 12)
-						{
-							/* Caption */
-							prtf(0, 0, "Your home in %s: -more-",
-								 place[i].name);
-
-							/* Flush keys */
-							flush();
-
-							/* Wait for it */
-							if (inkey() == ESCAPE) return;
-
-							/* Restart counter */
-							j = 0;
-
-							/* Clear screen */
-							Term_clear();
-						}
-					}
-					OBJ_ITT_END;
-				}
-			}
-		}
-	}
-}
-
-
-static void close_game_handle_death(void)
-{
-	char ch;
-
-	/* Handle retirement */
-	if (p_ptr->state.total_winner)
-	{
-		/* Save winning message to notes file. */
-		if (take_notes)
-		{
-			add_note_type(NOTE_WINNER);
-		}
-
-		kingly();
-	}
-
-	/* Save memories */
-	if (!munchkin_death || get_check("Save death? "))
-	{
-		if (!save_player()) msgf("death save failed!");
-	}
-
-#if 0
-	/* Dump bones file */
-	make_bones();
-#endif
-
-	/* Inform notes file that you are dead */
-	if (take_notes)
-	{
-		char long_day[30];
-		time_t ct = time((time_t *) NULL);
-
-		/* Get the date */
-		(void)strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));
-
-		/* Output to the notes file */
-		output_note("\n%s was killed by %s on %s\n", player_name,
-				p_ptr->state.died_from, long_day);
-	}
-
-	/* Enter player in high score list */
-	enter_score();
-
-	/* You are dead */
-	print_tomb();
-
-	/* Describe options */
-	prtf(0, 23, "(D) Dump char record  (C) Show char info  (T) Show top scores  (ESC) Exit");
-
-	/* Flush messages */
-	message_flush();
-
-	/* Flush all input keys */
-	flush();
-
-	/* Player selection */
-	while (TRUE)
-	{
-		/* Save screen */
-		/* Note that Term_save() and Term_load() must match in pairs */
-		Term_save();
-
-		/* Flush all input keys */
-		flush();
-
-		ch = inkey();
-
-		switch (ch)
-		{
-			case ESCAPE:
-			{
-				/* Flush the keys */
-				flush();
-
-				if (get_check("Do you really want to exit? "))
-				{
-					/* Save dead player */
-					if (!save_player())
-					{
-						msgf("Death save failed!");
-						message_flush();
-					}
-
-#if 0
-					/* Dump bones file */
-					make_bones();
-#endif
-
-					/* XXX We now have an unmatched Term_save() */
-					Term_load();
-
-					/* Go home, we're done */
-					return;
-				}
-				else
-				{
-					break;
-				}
-			}
-
-			case 'd':
-			case 'D':
-			{
-				/* Dump char file */
-				char tmp[160] = "";
-
-				/* Prompt */
-				put_fstr(0, 23, "Filename: ");
-
-				/* Ask for filename (or abort) */
-				if (!askfor_aux(tmp, 60)) break;
-
-				/* Ignore Return */
-				if (!tmp[0]) break;
-
-				/* Dump a character file */
-				(void)file_character(tmp, FALSE);
-
-				break;
-			}
-
-			case 'c':
-			case 'C':
-			{
-				/* Show char info */
-				show_info();
-				break;
-			}
-
-			case 't':
-			case 'T':
-			{
-				/* Show top twenty */
-				top_twenty();
-				break;
-			}
-		}
-
-		/* Restore the screen */
-		Term_load();
-	}
-}
-
-
-/*
- * Close up the current game (player may or may not be dead)
- *
- * This function is called only from "main.c" and "signals.c".
- */
-void close_game(void)
-{
-	char buf[1024];
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Flush the messages */
-	message_flush();
-
-	/* Flush the input */
-	flush();
-
-	/* No suspending now */
-	signals_ignore_tstp();
-
-
-	/* Hack -- Character is now "icky" */
-	character_icky = TRUE;
-
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
-
-	/* Grab permissions */
-	safe_setuid_grab();
-
-	/* Open the high score file, for reading/writing */
-	highscore_fd = fd_open(buf, O_RDWR);
-
-	/* Drop permissions */
-	safe_setuid_drop();
-
-	if (p_ptr->state.is_dead)
-	{
-		/* Handle death */
-		close_game_handle_death();
-	}
-
-	/* Still alive */
-	else
-	{
-		int wid, hgt;
-	
-		/* Save the game */
-		do_cmd_save_game(FALSE);
-
-		/* If note-taking enabled, write session end to notes file */
-		if (take_notes)
-		{
-			add_note_type(NOTE_SAVE_GAME);
-		}
-		
-		/* Get size */
-		Term_get_size(&wid, &hgt);
-
-		/* Prompt for scores XXX XXX XXX */
-		prtf(0, hgt - 1, "Press Return (or Escape).");
-
-		/* Predict score (or ESCAPE) */
-		if (inkey() != ESCAPE) predict_score();
-	}
-
-
-	/* Shut the high score file */
-	(void)fd_close(highscore_fd);
-
-	/* Forget the high score fd */
-	highscore_fd = -1;
-
-	/* Allow suspending now */
-	signals_handle_tstp();
-}
-
-
-/*
- * Handle abrupt death of the visual system
- *
- * This routine is called only in very rare situations, and only
- * by certain visual systems, when they experience fatal errors.
- *
- * XXX XXX Hack -- clear the death flag when creating a HANGUP
- * save file so that player can see tombstone when restart.
- */
-void exit_game_panic(void)
-{
-	/* If nothing important has happened, just quit */
-	if (!character_generated || character_saved) quit("panic");
-
-	/* Mega-Hack -- see "msgf()" */
-	msg_flag = FALSE;
-
-	/* Clear the top line */
-	clear_msg();
-
-	/* Hack -- turn off some things */
-	disturb(TRUE);
-
-	/* Mega-Hack -- Delay death */
-	if (p_ptr->chp < 0) p_ptr->state.is_dead = FALSE;
-
-	/* Hardcode panic save */
-	p_ptr->state.panic_save = 1;
-
-	/* Forbid suspend */
-	signals_ignore_tstp();
-
-	/* Indicate panic save */
-	(void)strcpy(p_ptr->state.died_from, "(panic save)");
-
-	/* Panic save, or get worried */
-	if (!save_player()) quit("panic save failed!");
-
-	/* Successful panic save */
-	quit("panic save succeeded!");
-}
-
 
 /*
  * Get a random line from a file
@@ -4806,7 +4002,7 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 	int line, counter, test, numentries;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, file_name);
+	path_make(buf, ANGBAND_DIR_FILE, file_name);
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
@@ -4919,320 +4115,4 @@ errr get_rnd_line(cptr file_name, int entry, char *output)
 }
 
 
-#ifdef HANDLE_SIGNALS
 
-
-#include <signal.h>
-
-
-/*
- * Handle signals -- suspend
- *
- * Actually suspend the game, and then resume cleanly
- */
-static void handle_signal_suspend(int sig)
-{
-	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
-
-#ifdef SIGSTOP
-
-	/* Flush output */
-	Term_fresh();
-
-	/* Suspend the "Term" */
-	Term_xtra(TERM_XTRA_ALIVE, 0);
-
-	/* Suspend ourself */
-	(void)kill(0, SIGSTOP);
-
-	/* Resume the "Term" */
-	Term_xtra(TERM_XTRA_ALIVE, 1);
-
-	/* Redraw the term */
-	Term_redraw();
-
-	/* Flush the term */
-	Term_fresh();
-
-#endif
-
-	/* Restore handler */
-	(void)signal(sig, handle_signal_suspend);
-}
-
-
-/*
- * Handle signals -- simple (interrupt and quit)
- *
- * This function was causing a *huge* number of problems, so it has
- * been simplified greatly.  We keep a global variable which counts
- * the number of times the user attempts to kill the process, and
- * we commit suicide if the user does this a certain number of times.
- *
- * We attempt to give "feedback" to the user as he approaches the
- * suicide thresh-hold, but without penalizing accidental keypresses.
- *
- * To prevent messy accidents, we should reset this global variable
- * whenever the user enters a keypress, or something like that.
- */
-static void handle_signal_simple(int sig)
-{
-	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
-
-
-	/* Nothing to save, just quit */
-	if (!character_generated || character_saved) quit(NULL);
-
-
-	/* Count the signals */
-	signal_count++;
-
-
-	/* Terminate dead characters */
-	if (p_ptr->state.is_dead)
-	{
-		/* Mark the savefile */
-		(void)strcpy(p_ptr->state.died_from, "Abortion");
-
-		/* Close stuff */
-		close_game();
-
-		/* Quit */
-		quit("interrupt");
-	}
-
-	/* Allow suicide (after 5) */
-	else if (signal_count >= 5)
-	{
-		/* Cause of "death" */
-		(void)strcpy(p_ptr->state.died_from, "Interrupting");
-
-		/* Stop playing */
-		p_ptr->state.playing = FALSE;
-
-		/* Suicide */
-		p_ptr->state.is_dead = TRUE;
-
-		/* Leaving */
-		p_ptr->state.leaving = TRUE;
-
-		/* Close stuff */
-		close_game();
-
-		/* Quit */
-		quit("interrupt");
-	}
-
-	/* Give warning (after 4) */
-	else if (signal_count >= 4)
-	{
-		/* Make a noise */
-		Term_xtra(TERM_XTRA_NOISE, 0);
-
-		/* Display the cause */
-		prtf(0, 0, "Contemplating suicide!");
-
-		/* Flush */
-		Term_fresh();
-	}
-
-	/* Give warning (after 2) */
-	else if (signal_count >= 2)
-	{
-		/* Make a noise */
-		Term_xtra(TERM_XTRA_NOISE, 0);
-	}
-
-	/* Restore handler */
-	(void)signal(sig, handle_signal_simple);
-}
-
-
-/*
- * Handle signal -- abort, kill, etc
- */
-static void handle_signal_abort(int sig)
-{
-	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
-
-
-	/* Nothing to save, just quit */
-	if (!character_generated || character_saved) quit(NULL);
-
-	/* Give a warning */
-	prtf(0, 23, CLR_RED "A gruesome software bug LEAPS out at you!");
-
-	/* Message */
-	put_fstr(45, 23, CLR_RED "Panic save...");
-
-	/* Flush output */
-	Term_fresh();
-
-	/* Panic Save */
-	p_ptr->state.panic_save = 1;
-
-	/* Panic save */
-	(void)strcpy(p_ptr->state.died_from, "(panic save)");
-
-	/* Forbid suspend */
-	signals_ignore_tstp();
-
-	/* Attempt to save */
-	if (save_player())
-	{
-		put_fstr(45, 23, CLR_RED "Panic save succeeded!");
-	}
-
-	/* Save failed */
-	else
-	{
-		put_fstr(45, 23, CLR_RED "Panic save failed!");
-	}
-
-	/* Flush output */
-	Term_fresh();
-
-	/* Quit */
-	quit("software bug");
-}
-
-
-
-
-/*
- * Ignore SIGTSTP signals (keyboard suspend)
- */
-void signals_ignore_tstp(void)
-{
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, SIG_IGN);
-#endif
-
-}
-
-/*
- * Handle SIGTSTP signals (keyboard suspend)
- */
-void signals_handle_tstp(void)
-{
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
-#endif
-
-}
-
-
-/*
- * Prepare to handle the relevant signals
- */
-void signals_init(void)
-{
-
-#ifdef SIGHUP
-	(void)signal(SIGHUP, SIG_IGN);
-#endif
-
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
-#endif
-
-
-#ifdef SIGINT
-	(void)signal(SIGINT, handle_signal_simple);
-#endif
-
-#ifdef SIGQUIT
-	(void)signal(SIGQUIT, handle_signal_simple);
-#endif
-
-
-#ifdef SIGFPE
-	(void)signal(SIGFPE, handle_signal_abort);
-#endif
-
-#ifdef SIGILL
-	(void)signal(SIGILL, handle_signal_abort);
-#endif
-
-#ifdef SIGTRAP
-	(void)signal(SIGTRAP, handle_signal_abort);
-#endif
-
-#ifdef SIGIOT
-	(void)signal(SIGIOT, handle_signal_abort);
-#endif
-
-#ifdef SIGKILL
-	(void)signal(SIGKILL, handle_signal_abort);
-#endif
-
-#ifdef SIGBUS
-	(void)signal(SIGBUS, handle_signal_abort);
-#endif
-
-#ifdef SIGSEGV
-	(void)signal(SIGSEGV, handle_signal_abort);
-#endif
-
-#ifdef SIGTERM
-	(void)signal(SIGTERM, handle_signal_abort);
-#endif
-
-#ifdef SIGPIPE
-	(void)signal(SIGPIPE, handle_signal_abort);
-#endif
-
-#ifdef SIGEMT
-	(void)signal(SIGEMT, handle_signal_abort);
-#endif
-
-#ifdef SIGDANGER
-	(void)signal(SIGDANGER, handle_signal_abort);
-#endif
-
-#ifdef SIGSYS
-	(void)signal(SIGSYS, handle_signal_abort);
-#endif
-
-#ifdef SIGXCPU
-	(void)signal(SIGXCPU, handle_signal_abort);
-#endif
-
-#ifdef SIGPWR
-	(void)signal(SIGPWR, handle_signal_abort);
-#endif
-
-}
-
-
-#else  /* HANDLE_SIGNALS */
-
-
-/*
- * Do nothing
- */
-void signals_ignore_tstp(void)
-{
-}
-
-/*
- * Do nothing
- */
-void signals_handle_tstp(void)
-{
-}
-
-/*
- * Do nothing
- */
-void signals_init(void)
-{
-}
-
-#endif /* HANDLE_SIGNALS */

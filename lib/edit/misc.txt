@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2003/09/19 15:26:45 $
+# CVS: Last edit by $Author: rr9 $ on $Date: 2005/06/04 12:53:28 $
 # File: misc.txt
 
 # This file is used to initialize the "lib/data/z_info.raw" file, which is
@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:2.7.4
+V:2.7.5
 
 # Maximum number of feature types
 M:F:160
@@ -20,7 +20,7 @@ M:F:160
 M:K:596
 
 # Maximum number of artifacts
-M:A:131
+M:A:134
 
 # Maximum number of ego-item types
 M:E:128

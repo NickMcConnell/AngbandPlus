@@ -141,6 +141,9 @@ void do_cmd_wield(void)
 		msgf("The %v you are %s appears to be cursed.",
 			 OBJECT_FMT(o_ptr, FALSE, 0), describe_use(slot));
 
+		/* Set the knowledge flag for the player */
+		o_ptr->kn_flags[2] |= TR2_CURSED;
+
 		/* Cancel the command */
 		return;
 	}
@@ -229,7 +232,10 @@ void do_cmd_wield(void)
 	p_ptr->redraw |= (PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER);
+	
+	/* Notice changes */
+	notice_item();
 
 	make_noise(1);
 }
@@ -260,6 +266,9 @@ void do_cmd_takeoff(void)
 	{
 		/* Oops */
 		msgf("Hmmm, it seems to be cursed.");
+
+		/* Set the knowledge flag for the player */
+		o_ptr->kn_flags[2] |= TR2_CURSED;
 
 		/* Nope */
 		return;
@@ -300,6 +309,9 @@ void do_cmd_drop(void)
 	{
 		/* Oops */
 		msgf("Hmmm, it seems to be cursed.");
+
+		/* Set the knowledge flag for the player */
+		o_ptr->kn_flags[2] |= TR2_CURSED;
 
 		/* Nope */
 		return;
@@ -519,11 +531,8 @@ void do_cmd_observe(void)
 	/* Not a valid item */
 	if (!o_ptr) return;
 
-	/* Describe */
-	msgf("Examining %v...", OBJECT_FMT(o_ptr, TRUE, 3));
-
 	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr)) msgf("You see nothing special.");
+	identify_fully_aux(o_ptr);
 }
 
 static bool item_tester_inscribed(const object_type *o_ptr)
@@ -561,12 +570,9 @@ void do_cmd_uninscribe(void)
 
     /* Remove the incription */
     quark_remove(&o_ptr->inscription);
-
-	/* Combine the pack */
-	p_ptr->notice |= (PN_COMBINE);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	
+	/* Notice changes */
+	notice_item();
 
 	make_noise(2);
 }
@@ -613,11 +619,8 @@ void do_cmd_inscribe(void)
         quark_remove(&o_ptr->inscription);
 		o_ptr->inscription = quark_add(out_val);
 
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		/* Notice changes */
+		notice_item();
 
 		make_noise(2);
 	}
@@ -705,14 +708,11 @@ static void do_cmd_refill_lamp(void)
 		o_ptr->timeout = 0;
 	}
 
-	/* Combine the pack */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	
+	/* Notice changes */
+	notice_item();
 }
 
 
@@ -866,17 +866,12 @@ void do_cmd_locate(void)
 	char tmp_val[80];
 	char out_val[160];
 
-
 	/* Get size */
-	Term_get_size(&wid, &hgt);
-
-	/* Offset */
-	wid -= COL_MAP + 1;
-	hgt -= ROW_MAP + 1;
+	get_map_size(&wid, &hgt);
 
 	/* Start at current panel */
-	y2 = y1 = panel_row_min;
-	x2 = x1 = panel_col_min;
+	x2 = x1 = p_ptr->panel_x1;
+	y2 = y1 = p_ptr->panel_y1;
 
 	/* Show panels until done */
 	while (1)
@@ -923,26 +918,13 @@ void do_cmd_locate(void)
 		/* Apply the motion */
 		if (change_panel(ddx[dir], ddy[dir]))
 		{
-			y2 = panel_row_min;
-			x2 = panel_col_min;
+			x2 = p_ptr->panel_x1;
+			y2 = p_ptr->panel_y1;
 		}
 	}
 
-
 	/* Recenter the map around the player */
 	verify_panel();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_MONSTERS);
-
-	/* Redraw map */
-	p_ptr->redraw |= (PR_MAP);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-
-	/* Handle stuff */
-	handle_stuff();
 }
 
 
@@ -1150,6 +1132,15 @@ void ang_sort_swap_hook(const vptr u, const vptr v, int a, int b)
 }
 
 
+static int resize_monster;
+void (*resize_old_hook) (void);
+
+static void resize_monster_recall(void)
+{
+	/* Put the monster description on the newly-sized screen.*/
+	screen_roff_mon(resize_monster, 0);
+}
+
 /*
  * Identify a character, allow recall of monsters
  *
@@ -1275,7 +1266,7 @@ void do_cmd_query_symbol(void)
 			{
 				if (isupper(temp1[xx])) temp1[xx] = tolower(temp1[xx]);
 			}
-			strcpy(temp2, r_name + r_ptr->name);
+			strcpy(temp2, mon_race_name(r_ptr));
 
 			for (xx = 0; temp2[xx] && (xx < 80); xx++)
 			{
@@ -1382,8 +1373,26 @@ void do_cmd_query_symbol(void)
 				roff(" [(r)ecall, ESC]");
 			}
 
+			/* Remember what the resize hook was */
+			resize_old_hook = angband_term[0]->resize_hook;
+
+			/* Hack - change the redraw hook so bigscreen works */
+			angband_term[0]->resize_hook = resize_monster_recall;
+
+			/* Remember the monster for resizing */
+			resize_monster = who[i];
+
 			/* Command */
 			query = inkey();
+
+			/* Hack - change the redraw hook so bigscreen works */
+			angband_term[0]->resize_hook = resize_old_hook;
+
+			/* The size may have changed during the monster recall */
+			angband_term[0]->resize_hook();
+
+			/* Hack - Flush it */
+			Term_fresh();
 
 			/* Unrecall */
 			if (recall)
@@ -1444,7 +1453,8 @@ bool research_mon(void)
 	byte oldwake;
 	bool oldcheat;
 
-	bool notpicked;
+	bool picked = FALSE;
+	bool cost_gold = TRUE;
 
 	bool recall = FALSE;
 
@@ -1499,11 +1509,12 @@ bool research_mon(void)
 		if (r_ptr->d_char == sym) who[n++] = i;
 	}
 
+	/* Back to what it was */
+	cheat_know = oldcheat;
+
 	/* Nothing to recall */
 	if (!n)
 	{
-		cheat_know = oldcheat;
-
 		/* Free the "who" array */
 		KILL(who);
 
@@ -1532,10 +1543,8 @@ bool research_mon(void)
 	/* Start at the end */
 	i = n - 1;
 
-	notpicked = TRUE;
-
 	/* Scan the monster memory */
-	while (notpicked)
+	while (!picked)
 	{
 		/* Extract a race */
 		r_idx = who[i];
@@ -1561,13 +1570,32 @@ bool research_mon(void)
 				/* Recall on screen */
 				r2_ptr = &r_info[r_idx];
 
+				/* Have you researched this monster before? */
+				if (r2_ptr->r_flags[6] & RF6_LIBRARY)
+				{
+					/* Looking up a monster the second time is for free */
+					cost_gold = FALSE;
+				}
+				else
+				{
+					/* This monster has now been researched */
+					r2_ptr->r_flags[6] |= RF6_LIBRARY;
+
+					/* You've seen this monster now (in a book) */
+					if (!r2_ptr->r_sights) r2_ptr->r_sights = 1;
+				}
+
 				oldkills = r2_ptr->r_tkills;
 				oldwake = r2_ptr->r_wake;
+
+				/* Show the monster */
 				screen_roff_mon(who[i], 1);
+
 				r2_ptr->r_tkills = oldkills;
 				r2_ptr->r_wake = oldwake;
-				cheat_know = oldcheat;
-				notpicked = FALSE;
+
+				picked = TRUE;
+
 			}
 
 			/* Command */
@@ -1604,13 +1632,11 @@ bool research_mon(void)
 		}
 	}
 
-	cheat_know = oldcheat;
-
 	/* Free the "who" array */
 	KILL(who);
 
 	/* Restore */
 	screen_load();
 
-	return (!notpicked);
+	return (picked && cost_gold);
 }

@@ -1889,7 +1889,7 @@ int read_menus( void )
 	FILE *file;
 	char *s;
 
-	path_build(fname, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, "cfg/menu.cfg");
+	path_make(fname, ANGBAND_DIR_XTRA, "cfg/menu.cfg");
 	file = fopen( fname , "r" );
 	if (!file)
 	{
@@ -2045,7 +2045,7 @@ int read_prefs( void )
 
 	public_str[0] = custom_str[0] = 0;
 
-	path_build( fname , MAX_PATH_LENGTH , ANGBAND_DIR_USER , WPRF);
+	path_make( fname , ANGBAND_DIR_USER , WPRF);
 	file = fopen( fname , "r" );
 	if (!file)
 	{
@@ -2610,10 +2610,6 @@ static errr amiga_xtra( int n, int v )
 		case TERM_XTRA_FLUSH:
 			return ( amiga_flush( v ));
 
-		/* Make a noise */
-		case TERM_XTRA_CLEAR:
-			return ( amiga_clear());
-
 		/* Change cursor visibility */
 		case TERM_XTRA_SHAPE:
 
@@ -2940,7 +2936,7 @@ int amiga_tomb( void )
 		return( FALSE );
 
 	/* Open tomb file */
-	path_build( tmp , MAX_PATH_LENGTH , ANGBAND_DIR_XTRA , MTOM);
+	path_make( tmp , ANGBAND_DIR_XTRA , MTOM);
 	file = fopen( tmp, "r" );
 	if (!file)
 	{
@@ -3325,7 +3321,7 @@ static void amiga_save_file( void )
 	if (!fh)
 		return;
 
-	path_build( fname , MAX_PATH_LENGTH , ANGBAND_DIR_USER , WPRF);
+	path_make( fname , ANGBAND_DIR_USER , WPRF);
 	f = fopen( fname , "r" );
 	if (!f)
 	{
@@ -3621,7 +3617,7 @@ static int load_gfx( void )
 		return( FALSE);
 
 	/* Open file */
-	path_build( tmp , MAX_PATH_LENGTH , ANGBAND_DIR_XTRA , screen_enhanced ? AB_MGFX : DE_MGFX );
+	path_make( tmp , ANGBAND_DIR_XTRA , screen_enhanced ? AB_MGFX : DE_MGFX );
 	file = fopen( tmp, "r" );
 	if (!file)
 	{
@@ -4074,7 +4070,7 @@ static void ami_player_move(int x, int y, vptr dummy)
 /*
  * Save the information so we can access it later
  */
-static void ami_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
+static void ami_map_info(map_block *mb_ptr, const term_map *map, vptr dummy)
 {
 	/* Hack -- ignore parameter */
 	(void) dummy;
@@ -4243,7 +4239,7 @@ static int read_enhanced_palette(void)
 	static char buffer[1024];
 	FILE *f;
 
-	path_build( buffer, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, AB_MGFX_CMAP );
+	path_make( buffer, ANGBAND_DIR_XTRA, AB_MGFX_CMAP );
 	f = fopen(buffer, "r");
 	if (f)
 	{
@@ -4262,7 +4258,7 @@ static int read_normal_palette(void)
 	static char buffer[1024];
 	FILE *f;
 
-	path_build( buffer, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, DE_MGFX_CMAP );
+	path_make( buffer, ANGBAND_DIR_XTRA, DE_MGFX_CMAP );
 	f = fopen(buffer, "r");
 	if (f)
 	{
@@ -4408,7 +4404,7 @@ int init_sound( void )
 	int i,j,k,slev;
 	BOOL memory;
 
-	path_build(buf, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, "cfg/sound.cfg");
+	path_make(buf, ANGBAND_DIR_XTRA, "cfg/sound.cfg");
 
 	/* Look for .cfg file */
 	f = fopen(buf,"r");
@@ -4489,7 +4485,7 @@ int init_sound( void )
 	if (getasn("AngSound"))
 		use_angsound = TRUE;
 
-	path_build(buf, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, "sound");
+	path_make(buf, ANGBAND_DIR_XTRA, "sound");
 	sound_data = snd = malloc( sizeof(struct AmiSound) * sounds_needed );
 	if (!sound_data)
 		return( has_sound = use_sound = FALSE );
@@ -4525,7 +4521,7 @@ int init_sound( void )
 			FILE *f;
 
 			/* Construct filename */
-			path_build(tmp, MAX_PATH_LENGTH, buf, snd->Name );
+			path_make(tmp, buf, snd->Name );
 
 			if (!(f = fopen(tmp, "r")))
 			{
@@ -4640,8 +4636,8 @@ static void play_sound( int v )
 			FILE *f;
 
 			/* Construct filename */
-			path_build(buf, MAX_PATH_LENGTH, ANGBAND_DIR_XTRA, "sound");
-			path_build(tmp, MAX_PATH_LENGTH, buf, snd->Name );
+			path_make(buf, ANGBAND_DIR_XTRA, "sound");
+			path_make(tmp, buf, snd->Name );
 
 			if (!(f = fopen(tmp, "r")))
 			{
@@ -5096,7 +5092,7 @@ void amiga_save_palette( void )
 	char buf[MAX_PATH_LENGTH];
 
 	/* Build the filename */
- 	path_build(buf, MAX_PATH_LENGTH, ANGBAND_DIR_USER, "colours.prf");
+ 	path_make(buf, ANGBAND_DIR_USER, "colours.prf");
 
 	/* Append to the file */
 	fff = fopen(buf, "w");
@@ -5173,7 +5169,7 @@ void amiga_hs_to_ascii(void)
 	int pr, pc, clev, mlev, cdun, mdun;
 	cptr gold, when, aged;
 
-	path_build(filename,MAX_PATH_LENGTH,ANGBAND_DIR_APEX,"scores.raw");
+	path_make(filename,ANGBAND_DIR_APEX,"scores.raw");
 	f = fopen(filename,"r");
 	if (!f)
 	{
@@ -5181,7 +5177,7 @@ void amiga_hs_to_ascii(void)
 		return;
 	}
 
-	path_build(destfile,MAX_PATH_LENGTH,ANGBAND_DIR_APEX,"scores.txt");
+	path_make(destfile,ANGBAND_DIR_APEX,"scores.txt");
 	d = fopen(destfile,"w");
 	if (!d)
 	{
@@ -5278,7 +5274,7 @@ void amiga_user_name( char *buf )
 	FILE *f;
 
 	/* Check if our data file exists; if not, return 'PLAYER' */
-	path_build(temp,MAX_PATH_LENGTH,ANGBAND_DIR_USER,"data-ami.prf");
+	path_make(temp,ANGBAND_DIR_USER,"data-ami.prf");
 	f = fopen(temp,"r");
 	if (!f)
 	{
@@ -5317,7 +5313,7 @@ void amiga_write_user_name( char *name )
 	char temp[MAX_PATH_LENGTH];
 	FILE *f;
 
-	path_build(temp,MAX_PATH_LENGTH,ANGBAND_DIR_USER,"data-ami.prf");
+	path_make(temp,ANGBAND_DIR_USER,"data-ami.prf");
 	f = fopen(temp,"w");
 	if (!f)
 		return;

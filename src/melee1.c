@@ -170,7 +170,7 @@ bool make_attack_normal(int m_idx)
 	ac = p_ptr->ac + p_ptr->to_a;
 
 	/* Extract the effective monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+	rlev = ((r_ptr->hdice * 2 >= 1) ? r_ptr->level : 1);
 
 
 	/* Get the monster name (or "it") */
@@ -593,12 +593,9 @@ bool make_attack_normal(int m_idx)
 									o_ptr->ac += o_ptr->pval;
 								}
 								o_ptr->pval = 0;
-
-								/* Combine / Reorder the pack */
-								p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-								/* Window stuff */
-								p_ptr->window |= (PW_INVEN);
+								
+								/* Notice changes */
+								notice_inven();
 
 								/* Done */
 								break;
@@ -797,9 +794,9 @@ bool make_attack_normal(int m_idx)
 								msgf("Your light dims.");
 								obvious = TRUE;
 							}
-
-							/* Window stuff */
-							p_ptr->window |= (PW_EQUIP);
+							
+							/* Notice changes */
+							notice_equip();
 						}
 
 						break;
@@ -904,7 +901,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_TERRIFY:
 					{
 						/* Saving throw difficulty */
-						int power = MAX(r_ptr->level, damage) - p_ptr->lev;
+						int power = MAX(r_ptr->hdice * 2, damage);
 
 						/* Take damage */
 						take_hit(damage, ddesc);
@@ -915,7 +912,7 @@ bool make_attack_normal(int m_idx)
 							msgf("You stand your ground!");
 							obvious = TRUE;
 						}
-						else if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+						else if (player_save(power))
 						{
 							msgf("You stand your ground!");
 							obvious = TRUE;
@@ -937,7 +934,7 @@ bool make_attack_normal(int m_idx)
 					case RBE_PARALYZE:
 					{
 						/* Saving throw difficulty */
-						int power = MAX(r_ptr->level, damage) - p_ptr->lev;
+						int power = MAX(r_ptr->hdice * 2, damage);
 
 						/* Hack -- Prevent perma-paralysis via damage */
 						if (p_ptr->tim.paralyzed && (damage < 1)) damage = 1;
@@ -951,7 +948,7 @@ bool make_attack_normal(int m_idx)
 							msgf("You are unaffected!");
 							obvious = TRUE;
 						}
-						else if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+						else if (player_save(power))
 						{
 							msgf("You resist the effects!");
 							obvious = TRUE;

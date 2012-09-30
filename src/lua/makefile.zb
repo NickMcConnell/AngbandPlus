@@ -36,4 +36,6 @@ TOLUALUAOBJS := $(addprefix src/lua/,basic.lua feature.lua verbatim.lua code.lua
 
 srcdirlist += src/lua
 srcfiles += src/lua/*.c src/lua/*.h src/lua/*.lua src/lua/*.pkg src/lua/makefile.zb
+
+dust-files += src/lua/*~
 clean-files += src/lua/*.bak src/lua/*.o src/lua/tolua

@@ -187,9 +187,7 @@ s32b price_item(object_type *o_ptr, bool flip)
 	int adjust;
 	s32b price;
 
-	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
-
-	int greed = ot_ptr->greed;
+	int greed = st_ptr->greed;
 
 	/* Get the value of one of the items */
 	price = object_value(o_ptr);
@@ -239,9 +237,9 @@ s32b price_item(object_type *o_ptr, bool flip)
 	price = (price * adjust + 50L) / 100L;
 
     /* Cap the price */
-    if (flip && price > ot_ptr->max_cost * 100L)
+    if (flip && price > st_ptr->max_cost * 100L)
     {
-        price = ot_ptr->max_cost * 100L;
+        price = st_ptr->max_cost * 100L;
     }
 
 	/* Note -- Never become "free" */
@@ -585,13 +583,11 @@ static bool store_will_buy(const object_type *o_ptr)
  */
 static bool store_will_stock(const object_type *o_ptr)
 {
-	cave_type *c_ptr = area(p_ptr->px, p_ptr->py);
-
 	/* Default is to reject this rejection */
 	bool result = FALSE;
 
 	/* Will the store !not! buy this item? */
-	field_hook(c_ptr, FIELD_ACT_STORE_ACT1, o_ptr, &result);
+	field_script_const(f_ptr, FIELD_ACT_STORE_ACT1, "p:b", LUA_OBJECT(o_ptr), LUA_RETURN(result));
 
 	/* We don't want this item type? */
 	if (result == TRUE) return (FALSE);
@@ -600,7 +596,7 @@ static bool store_will_stock(const object_type *o_ptr)
 	result = TRUE;
 
 	/* Will the store buy this item? */
-	field_hook(c_ptr, FIELD_ACT_STORE_ACT2, o_ptr, &result);
+	field_script_const(f_ptr, FIELD_ACT_STORE_ACT2, "p:b", LUA_OBJECT(o_ptr), LUA_RETURN(result));
 
 	/* Finally check to see if we will buy the item */
 	return (result && store_will_buy(o_ptr));
@@ -812,7 +808,7 @@ static void store_delete(void)
 	}
 
 	/* Actually destroy (part of) the item */
-	item_increase(o_ptr, -num);
+	item_increase_silent(o_ptr, -num);
 }
 
 
@@ -844,9 +840,6 @@ static void store_create(void)
 
 	/* Prepare allocation table */
 	get_obj_num_prep(kind_is_theme);
-
-	/* Limit table with store-only items */
-	get_obj_store_prep();
 
 	/* Hack -- consider up to fifty items */
 	for (tries = 0; tries < 50; tries++)
@@ -899,6 +892,7 @@ static void store_create(void)
 
 		/* Mark it storebought */
 		q_ptr->info |= OB_STOREB;
+		q_ptr->info |= OB_NO_EXP;
 
 		/* Require valid object */
 		if (!store_will_stock(q_ptr)) continue;
@@ -1069,8 +1063,6 @@ static void store_prt_gold(void)
  */
 static void display_store(void)
 {
-	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
-	
 	int wid, hgt;
 
 	/* Get size */
@@ -1098,15 +1090,14 @@ static void display_store(void)
 	/* Normal stores */
 	else
 	{
-		cptr store_name = t_info[f_ptr->t_idx].name;
-		cptr owner_name = ot_ptr->owner_name;
-		cptr race_name = race_info[ot_ptr->owner_race].title;
+		cptr store_name = field_name(f_ptr);
+		cptr owner_name = quark_str(st_ptr->owner_name);
 
-		/* Put the owner name and race */
-		put_fstr(5, 3, "%s (%s)", owner_name, race_name);
+		/* Put the owner name */
+		put_fstr(5, 3, "%s", owner_name);
 
 		/* Show the max price in the store (above prices) */
-		put_fstr(45, 3, "%s (%ld)", store_name, (long)(ot_ptr->max_cost) * 100);
+		put_fstr(45, 3, "%s (%ld)", store_name, (long)(st_ptr->max_cost) * 100);
 
 		/* Label the item descriptions */
 		put_fstr(3, 5, "Item Description");
@@ -1127,6 +1118,35 @@ static void display_store(void)
 	/* Draw in the inventory */
 	display_inventory();
 	
+	/* Basic commands */
+	prtf(0, 22, " ESC) Exit from Building.");
+
+	/* Browse if necessary */
+	if (get_list_length(st_ptr->stock) > 12)
+	{
+		prtf(0, 23, " SPACE) Next page of stock");
+	}
+
+	/* Home commands */
+	if (st_ptr->type == BUILD_STORE_HOME)
+	{
+		prtf(31, 22, " g) Get an item.");
+		prtf(31, 23, " d) Drop an item.");
+	}
+
+	/* Shop commands XXX XXX XXX */
+	else
+	{
+		prtf(31, 22, " p) Purchase an item.");
+		prtf(31, 23, " s) Sell an item.");
+	}
+
+	/* Add in the eXamine option */
+	prtf(56, 22, " x) eXamine an item.");
+
+	/* Prompt */
+	prtf(0, 21, "You may: ");
+
 	/* Refresh */
 	Term_fresh();
 }
@@ -1219,7 +1239,8 @@ static void store_maint(void)
  */
 static void store_shuffle(store_type *st_ptr)
 {
-	int j;
+	cptr own_name = owner_names[randint0(owner_names_max)];
+	cptr own_suffix = owner_suffix[randint0(owner_suffix_max)];
 
 	object_type *o_ptr;
 
@@ -1227,10 +1248,18 @@ static void store_shuffle(store_type *st_ptr)
 	if (st_ptr->type == BUILD_STORE_HOME) return;
 
 	/* Pick a new owner */
-	for (j = st_ptr->owner; j == st_ptr->owner;)
-	{
-		st_ptr->owner = (byte)randint0(MAX_OWNERS);
-	}
+	st_ptr->owner_name = quark_fmt("%s %s", own_name, own_suffix);
+	
+	/* These are set in place_sb() via the lua hook below */
+	st_ptr->greed = 0;
+	st_ptr->max_cost = 0;
+		
+	/*
+	 * Hack - Init store
+	 *
+	 * Note that this assumes the player is in this store
+	 */
+	field_script_const(f_ptr, FIELD_ACT_SB_INIT, "");
 
 	/* Reset the owner data */
 	st_ptr->data = 0;
@@ -1339,7 +1368,7 @@ static bool store_access_item(const object_type *o_ptr, s32b price, bool buy)
 	put_fstr(0, 2, "Offer :  %ld", (long)price);
 
 	/* Ask the user for a response */
-	if (check_transaction && !get_check(buy ? "Buy? ": "Sell? "))
+	if (check_transaction && !get_check_ext(TRUE, FALSE, buy ? "Buy? ": "Sell? "))
 	{
 		return (FALSE);
 	}
@@ -1433,6 +1462,10 @@ static void store_purchase(void)
 		/* Find out how many the player wants */
 		if (o_ptr->number > 1)
 		{
+			/* Describe the object (fully) */
+			put_fstr(0, 1, "%s %v", "Buying",
+						OBJECT_STORE_FMT(o_ptr, TRUE, 3));
+
 			/* Get a quantity */
 			amt = get_quantity(NULL, o_ptr->number);
 
@@ -1491,6 +1524,8 @@ static void store_purchase(void)
 
 			/* Hack -- buying an item makes you aware of it */
 			object_aware(j_ptr);
+			object_mental(j_ptr);
+			j_ptr->info &= ~(OB_STOREB);
 
 			/* Describe the transaction */
 			msgf("You bought %v for %ld gold.",
@@ -1534,7 +1569,7 @@ static void store_purchase(void)
 			i = get_list_length(st_ptr->stock);
 
 			/* Remove the bought items from the store */
-			item_increase(o_ptr, -amt);
+			item_increase_silent(o_ptr, -amt);
 
 			/* Store is empty */
 			if (!st_ptr->stock)
@@ -1657,6 +1692,8 @@ static void store_sell(void)
 
 	cptr q, s;
 	
+	s16b *list;
+
 	/* Get an item */
 	s = "You have nothing that I want.";
 
@@ -1691,6 +1728,9 @@ static void store_sell(void)
 		/* Oops */
 		msgf("Hmmm, it seems to be cursed.");
 
+		/* Set the knowledge flag for the player */
+		o_ptr->kn_flags[2] |= TR2_CURSED;
+
 		/* Nope */
 		return;
 	}
@@ -1701,6 +1741,10 @@ static void store_sell(void)
 	/* Find out how many the player wants to sell */
 	if (o_ptr->number > 1)
 	{
+		/* Describe the object (only what we know) */
+		put_fstr(0, 1, "%s %v", "Selling",
+					OBJECT_FMT(o_ptr, TRUE, 3));
+
 		/* Get a quantity */
 		amt = get_quantity(NULL, o_ptr->number);
 
@@ -1753,6 +1797,19 @@ static void store_sell(void)
 		else
 			msgf("I have not the room in my store to keep it.");
 		return;
+	}
+
+	/* Get list to ensure that the object is in the inv */
+	list = look_up_list(o_ptr);
+
+	/* Take off equipment */
+	if (!list)
+	{
+		/* Take off first */
+		o_ptr = inven_takeoff(o_ptr);
+
+		/* Paranoia */
+		if (!o_ptr) return;
 	}
 
 	/* Real store */
@@ -1920,12 +1977,8 @@ static void store_examine(void)
 	/* Get the actual item */
 	o_ptr = get_list_item(st_ptr->stock, item);
 
-	/* Describe */
-	msgf("Examining %v...", OBJECT_FMT(o_ptr, TRUE, 3));
-
 	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr))
-		msgf("You see nothing special.");
+	identify_fully_aux(o_ptr);
 
 	return;
 }
@@ -1936,6 +1989,238 @@ static void store_examine(void)
  */
 static bool leave_store = FALSE;
 
+
+/* These commands are available inside stores and buildings both. */
+bool do_standard_command(s16b c)
+{
+	/* Is this the right sort of command? */
+	switch (c)
+	{
+			/*** Inventory Commands ***/
+
+		case 'w':
+		{
+			/* Wear/wield equipment */
+			do_cmd_wield();
+			return (TRUE);
+		}
+
+		case 't':
+		{
+			/* Take off equipment */
+			do_cmd_takeoff();
+			return (TRUE);
+		}
+
+		case 'k':
+		{
+			/* Destroy an item */
+			do_cmd_destroy();
+			return (TRUE);
+		}
+
+		case 'e':
+		{
+			/* Equipment list */
+			do_cmd_equip();
+			return (TRUE);
+		}
+
+		case 'i':
+		{
+			/* Inventory list */
+			do_cmd_inven();
+			return (TRUE);
+		}
+
+
+			/*** Various commands ***/
+
+		case 'M':
+		{
+			/* Full dungeon map */
+			do_cmd_view_map();
+			return (TRUE);
+		}
+
+		case 'I':
+		{
+			/* Identify an object */
+			do_cmd_observe();
+			return (TRUE);
+		}
+
+		case KTRL('I'):
+		{
+			/* Hack -- toggle windows */
+			toggle_inven_equip();
+			return (TRUE);
+		}
+
+
+			/*** Use various objects ***/
+
+		case 'b':
+		{
+			/* Browse a book */
+			do_cmd_browse();
+			return (TRUE);
+		}
+
+		case '{':
+		{
+			/* Inscribe an object */
+			do_cmd_inscribe();
+			return (TRUE);
+		}
+
+		case '}':
+		{
+			/* Uninscribe an object */
+			do_cmd_uninscribe();
+			return (TRUE);
+		}
+
+
+
+		/*** Help and Such ***/
+
+		case '?':
+		{
+			/* Help */
+			do_cmd_help();
+			return (TRUE);
+		}
+
+		case '/':
+		{
+			/* Identify symbol */
+			do_cmd_query_symbol();
+			return (TRUE);
+		}
+
+		case 'C':
+		{
+			/* Character description */
+			do_cmd_character();
+			return (TRUE);
+		}
+
+
+		/*** System Commands ***/
+
+		case '!':
+		{
+			/* Hack -- User interface */
+			(void)Term_user(0);
+			return (TRUE);
+		}
+
+		case '"':
+		{
+			/* Single line from a pref file */
+			do_cmd_pref();
+			return (TRUE);
+		}
+
+		case '@':
+		{
+			/* Interact with macros */
+			do_cmd_macros();
+			return (TRUE);
+		}
+
+		case '%':
+		{
+			/* Interact with visuals */
+			do_cmd_visuals();
+			return (TRUE);
+		}
+
+		case '&':
+		{
+			/* Interact with colors */
+			do_cmd_colors();
+			return (TRUE);
+		}
+
+		case '=':
+		{
+			/* Interact with options */
+			do_cmd_options(OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+			return (TRUE);
+		}
+
+			/*** Misc Commands ***/
+
+		case ':':
+		{
+			/* Take notes */
+			do_cmd_note();
+			return (TRUE);
+		}
+
+		case 'V':
+		{
+			/* Version info */
+			do_cmd_version();
+			return (TRUE);
+		}
+
+		case KTRL('F'):
+		{
+			/* Repeat level feeling */
+			do_cmd_feeling();
+			return (TRUE);
+		}
+
+		case KTRL('P'):
+		{
+			/* Show previous messages */
+			do_cmd_messages();
+			return (TRUE);
+		}
+
+		case KTRL('Q'):
+		{
+			/* Show quest status -KMW- */
+			do_cmd_checkquest();
+			return (TRUE);
+		}
+
+		case KTRL('T'):
+		{
+			/* Get the time of day */
+			do_cmd_time();
+			return (TRUE);
+		}
+
+		case '~':
+		case '|':
+		{
+			/* Check artifacts, uniques, quests etc. */
+			do_cmd_knowledge();
+			return (TRUE);
+		}
+
+		case '(':
+		{
+			/* Load "screen dump" */
+			do_cmd_load_screen();
+			return (TRUE);
+		}
+
+		case ')':
+		{
+			/* Save "screen dump" */
+			do_cmd_save_screen();
+			return (TRUE);
+		}
+	}
+
+	/* So the commands didn't match */
+	return (FALSE);
+}
 
 /*
  * Process a command in a store
@@ -2019,212 +2304,15 @@ static void store_process_command(void)
 			break;
 		}
 
-			/*** Inventory Commands ***/
-
-		case 'w':
-		{
-			/* Wear/wield equipment */
-			do_cmd_wield();
-			break;
-		}
-
-		case 't':
-		{
-			/* Take off equipment */
-			do_cmd_takeoff();
-			break;
-		}
-
-		case 'k':
-		{
-			/* Destroy an item */
-			do_cmd_destroy();
-			break;
-		}
-
-		case 'e':
-		{
-			/* Equipment list */
-			do_cmd_equip();
-			break;
-		}
-
-		case 'i':
-		{
-			/* Inventory list */
-			do_cmd_inven();
-			break;
-		}
-
-
-			/*** Various commands ***/
-
-		case 'I':
-		{
-			/* Identify an object */
-			do_cmd_observe();
-			break;
-		}
-
-		case KTRL('I'):
-		{
-			/* Hack -- toggle windows */
-			toggle_inven_equip();
-			break;
-		}
-
-
-			/*** Use various objects ***/
-
-		case 'b':
-		{
-			/* Browse a book */
-			do_cmd_browse();
-			break;
-		}
-
-		case '{':
-		{
-			/* Inscribe an object */
-			do_cmd_inscribe();
-			break;
-		}
-
-		case '}':
-		{
-			/* Uninscribe an object */
-			do_cmd_uninscribe();
-			break;
-		}
-
-
-
-		/*** Help and Such ***/
-
-		case '?':
-		{
-			/* Help */
-			do_cmd_help();
-			break;
-		}
-
-		case '/':
-		{
-			/* Identify symbol */
-			do_cmd_query_symbol();
-			break;
-		}
-
-		case 'C':
-		{
-			/* Character description */
-			do_cmd_character();
-			display_store();
-			break;
-		}
-
-
-		/*** System Commands ***/
-
-		case '!':
-		{
-			/* Hack -- User interface */
-			(void)Term_user(0);
-			break;
-		}
-
-		case '"':
-		{
-			/* Single line from a pref file */
-			do_cmd_pref();
-			break;
-		}
-
-		case '@':
-		{
-			/* Interact with macros */
-			do_cmd_macros();
-			break;
-		}
-
-		case '%':
-		{
-			/* Interact with visuals */
-			do_cmd_visuals();
-			break;
-		}
-
-		case '&':
-		{
-			/* Interact with colors */
-			do_cmd_colors();
-			break;
-		}
-
-		case '=':
-		{
-			/* Interact with options */
-			do_cmd_options(OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
-			break;
-		}
-
-			/*** Misc Commands ***/
-
-		case ':':
-		{
-			/* Take notes */
-			do_cmd_note();
-			break;
-		}
-
-		case 'V':
-		{
-			/* Version info */
-			do_cmd_version();
-			break;
-		}
-
-		case KTRL('F'):
-		{
-			/* Repeat level feeling */
-			do_cmd_feeling();
-			break;
-		}
-
-		case KTRL('P'):
-		{
-			/* Show previous messages */
-			do_cmd_messages();
-			break;
-		}
-
-		case '~':
-		case '|':
-		{
-			/* Check artifacts, uniques, quests etc. */
-			do_cmd_knowledge();
-			break;
-		}
-
-		case '(':
-		{
-			/* Load "screen dump" */
-			do_cmd_load_screen();
-			break;
-		}
-
-		case ')':
-		{
-			/* Save "screen dump" */
-			do_cmd_save_screen();
-			break;
-		}
-
 		default:
 		{
-			/* Hack -- Unknown command */
-			msgf("That command does not work in stores.");
-			break;
+			/* Is it a standard command? */
+			if (!do_standard_command(p_ptr->cmd.cmd))
+			{
+				/* Hack -- Unknown command */
+				msgf("That command does not work in stores.");
+				break;
+			}
 		}
 	}
 }
@@ -2371,6 +2459,9 @@ void do_cmd_store(const field_type *f1_ptr)
 	int i;
 
 	object_type *o_ptr;
+	
+	/* Disturb */
+	disturb(FALSE);
 
 	/* Hack - save f1_ptr for later */
 	f_ptr = f1_ptr;
@@ -2381,12 +2472,14 @@ void do_cmd_store(const field_type *f1_ptr)
 	/* Paranoia */
 	if (!st_ptr) return;
 	
+	/* Init store if required */
+	field_script_const(f1_ptr, FIELD_ACT_SB_INIT, "");
+	
 	/* Some quests are finished by finding a shop */
 	trigger_quest_complete(QX_FIND_SHOP, (vptr)st_ptr);
 
 	/* Hack - save interesting flags for later */
 	info_flags = f_ptr->data[7];
-
 
 	/* Hack -- Check the "locked doors" */
 	if (ironman_shops)
@@ -2397,7 +2490,6 @@ void do_cmd_store(const field_type *f1_ptr)
 		
 	/* Calculate the number of store maintainances since the last visit */
 	maintain_num = (turn - st_ptr->last_visit) / (10L * STORE_TURNS);
-
 
 	/* Recalculate maximum number of items in store */
 	if (f_ptr->data[7] & ST_HALF_INVEN)
@@ -2436,8 +2528,7 @@ void do_cmd_store(const field_type *f1_ptr)
 
 
 	/* Hack -- Character is in "icky" mode */
-	character_icky = TRUE;
-
+	screen_save();
 
 	/* No command argument */
 	p_ptr->cmd.arg = 0;
@@ -2542,7 +2633,6 @@ void do_cmd_store(const field_type *f1_ptr)
 		item_tester_hook = NULL;
 
 
-
 		/* Basic commands */
 		prtf(0, 22, " ESC) Exit from Building.");
 
@@ -2578,9 +2668,6 @@ void do_cmd_store(const field_type *f1_ptr)
 		/* Process the command */
 		store_process_command();
 
-		/* Hack -- Character is still in "icky" mode */
-		character_icky = TRUE;
-
 		/* Notice stuff */
 		notice_stuff();
 
@@ -2609,7 +2696,7 @@ void do_cmd_store(const field_type *f1_ptr)
 	p_ptr->state.energy_use = 0;
 
 	/* Hack -- Character is no longer in "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 
 	/* Hack -- Cancel automatic command */
 	p_ptr->cmd.new = 0;
@@ -2636,11 +2723,18 @@ void do_cmd_store(const field_type *f1_ptr)
  */
 void store_init(int town_num, int store_num, byte store)
 {
-	/* Activate that store */
-	st_ptr = &place[town_num].store[store_num];
+	cptr own_name = owner_names[randint0(owner_names_max)];
+	cptr own_suffix = owner_suffix[randint0(owner_suffix_max)];
+
+	/* Activate that building */
+	store_type *st_ptr = &place[town_num].store[store_num];
 
 	/* Pick an owner */
-	st_ptr->owner = (byte)randint0(MAX_OWNERS);
+	st_ptr->owner_name = quark_fmt("%s %s", own_name, own_suffix);
+	
+	/* These are set in place_sb() via lua hooks */
+	st_ptr->greed = 0;
+	st_ptr->max_cost = 0;
 
 	/* Do not allocate the stock yet. */
 	st_ptr->stock = 0;
@@ -2667,4 +2761,16 @@ void store_init(int town_num, int store_num, byte store)
 	 * BEFORE player birth to enable store restocking
 	 */
 	st_ptr->last_visit = -100L * STORE_TURNS;
+}
+
+void place_sb(int greed, int max_cost)
+{
+	store_type *st_ptr = get_current_store();
+
+	/* Set greed / max_cost values if unset */
+	if (!st_ptr->greed)
+	{
+		st_ptr->greed = greed;
+		st_ptr->max_cost = max_cost;
+	}
 }

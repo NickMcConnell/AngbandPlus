@@ -150,7 +150,7 @@ wild_building_type wild_build[MAX_CITY_BUILD] =
 };
 
 /* The stores in the starting town */
-static int wild_first_town[START_STORE_NUM] =
+static byte wild_first_town[START_STORE_NUM] =
 {
 	BUILD_STAIRS,
 	BUILD_STORE_HOME,
@@ -312,7 +312,7 @@ void select_town_name(char *name, int pop)
 
 
 /* Select a store or building "appropriate" for a given position */
-static u16b select_building(byte pop, byte magic, byte law, u16b *build,
+static byte select_building(byte pop, byte magic, int law, u16b *build,
                             int build_num)
 {
 	int i;
@@ -468,7 +468,7 @@ static void fill_town(byte x, byte y)
 	for (i = 0; i < 8; i++)
 	{
 		/* Recurse */
-		fill_town(x + ddx_ddd[i], y + ddy_ddd[i]);
+		fill_town((byte)(x + ddx_ddd[i]), (byte)(y + ddy_ddd[i]));
 	}
 }
 
@@ -601,10 +601,10 @@ static bool create_city(int x, int y, int town_num)
 	/* Hack - fix this XXX XXX */
 
 	/* int pop = wild[y][x].trans.pop_map; */
-	int pop = ((wild[y][x].trans.pop_map + wild[y][x].trans.law_map) /
+	byte pop = ((wild[y][x].trans.pop_map + wild[y][x].trans.law_map) /
 			   rand_range(4, 32)) + 128;
-	int law = wild[y][x].trans.law_map;
-	int magic;
+	byte law = wild[y][x].trans.law_map;
+	byte magic;
 	int build_num = 0, build_tot;
 	byte building;
 	byte count;
@@ -653,12 +653,12 @@ static bool create_city(int x, int y, int town_num)
 	Rand_value = pl_ptr->seed;
 
 	/* We don't have to save this in the town structure */
-	magic = randint0(256);
+	magic = (byte) randint0(256);
 
 	/* Generate plasma factal */
 	clear_temp_block();
 	set_temp_corner_val(WILD_BLOCK_SIZE * 64);
-	set_temp_mid(WILD_BLOCK_SIZE * pop);
+	set_temp_mid((u16b) (WILD_BLOCK_SIZE * pop));
 	frac_block();
 
 	/* Locate the walls */
@@ -790,7 +790,7 @@ static bool create_city(int x, int y, int town_num)
 	 */
 	clear_temp_block();
 	set_temp_corner_val(WILD_BLOCK_SIZE * 64);
-	set_temp_mid(WILD_BLOCK_SIZE * law);
+	set_temp_mid((u16b)(WILD_BLOCK_SIZE * law));
 	frac_block();
 
 	/* Restore the old seed */
@@ -849,7 +849,7 @@ static bool create_city(int x, int y, int town_num)
 	/* Initialise the stores */
 	for (i = 0; i < build_num; i++)
 	{
-		building = build_list[i];
+		building = (byte)build_list[i];
 
 		if (build_is_store(building))
 		{
@@ -2161,7 +2161,7 @@ static bool blank_spot(int x, int y, int xsize, int ysize, int town_num, bool to
 /*
  * A few dungeon types.
  *
- * {Object theme, habitat, minlevel, maxlevel, chance,
+ * {Object theme}, habitat, minlevel, maxlevel, chance,
  * population, height,
  * rooms,
  * floor,
@@ -2307,6 +2307,39 @@ const dun_gen_type *pick_dungeon_type(void)
 }
 
 
+cptr dungeon_type_name(u32b dun)
+{
+	switch(dun)
+	{
+		case RF7_DUN_DARKWATER: return ("Darkwater");
+
+		case RF7_DUN_LAIR: return("Lair");
+
+		case RF7_DUN_TEMPLE: return("Temple");
+
+		case RF7_DUN_TOWER: return("Tower");
+		
+		case RF7_DUN_RUIN: return("Ruin");
+		
+		case RF7_DUN_GRAVE: return("Grave");
+		
+		case RF7_DUN_CAVERN: return("Cavern");
+		
+		case RF7_DUN_PLANAR: return("Planar");
+		
+		case RF7_DUN_HELL: return("Hell");
+		
+		case RF7_DUN_HORROR: return("Horror");
+		
+		case RF7_DUN_MINE: return("Mine");
+		
+		case RF7_DUN_CITY: return("City");
+		
+		default: return ("Unknown");
+	}
+}
+
+
 /* Save dungeon information so we know what to build later */
 static void init_dungeon(place_type *pl_ptr, const dun_gen_type *d_ptr)
 {
@@ -2324,8 +2357,14 @@ static void init_dungeon(place_type *pl_ptr, const dun_gen_type *d_ptr)
 	dt_ptr->habitat = d_ptr->habitat;
 	
 	/* Save level bounds */
-	dt_ptr->min_level = d_ptr->min_level;
-	dt_ptr->max_level = d_ptr->max_level;
+	dt_ptr->min_level = (d_ptr->min_level * rand_range(80, 120) + 50) / 100;
+	dt_ptr->max_level = (d_ptr->max_level * rand_range(80, 120) + 50) / 100;
+
+	/* Cap min/max level */
+	if (dt_ptr->min_level < 1)
+		dt_ptr->min_level = 1;
+	if (dt_ptr->max_level > 127)
+		dt_ptr->max_level = 127;
 	
 	/* Copy dungeon creation info */
 	dt_ptr->rooms = d_ptr->rooms;
@@ -2515,7 +2554,7 @@ static long score_dungeon(const wild_gen2_type *w_ptr, const dun_gen_type *d_ptr
 /* Add in dungeons into the wilderness */
 static void create_dungeons(int xx, int yy)
 {
-	int i, j;
+	byte i, j;
 	
 	int x, y;
 	

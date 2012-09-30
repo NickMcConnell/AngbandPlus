@@ -51,6 +51,12 @@ struct term_win
 	byte *vta;
 	char *vtc;
 	
+	/* Bigtile data */
+	bool wipe_bigtile;
+	int big_x1;
+	int big_y1;
+	int big_y2;
+	
 	term_win *next;
 };
 
@@ -245,7 +251,6 @@ struct term
  */
 #define TERM_XTRA_EVENT	1		/* Process some pending events */
 #define TERM_XTRA_FLUSH 2		/* Flush all pending events */
-#define TERM_XTRA_CLEAR 3		/* Clear the entire window */
 #define TERM_XTRA_SHAPE 4		/* Set cursor shape (optional) */
 #define TERM_XTRA_FROSH 5		/* Flush one row (optional) */
 #define TERM_XTRA_FRESH 6		/* Flush all rows (optional) */
@@ -256,7 +261,6 @@ struct term
 #define TERM_XTRA_ALIVE 11		/* Change the "hard" level (optional) */
 #define TERM_XTRA_LEVEL 12		/* Change the "soft" level (optional) */
 #define TERM_XTRA_DELAY 13		/* Delay some milliseconds (optional) */
-#define TERM_XTRA_ERMAP 14		/* Erase the overhead map (optional) */
 
 
 
@@ -275,8 +279,6 @@ extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
 
 extern void Term_queue_line(int x, int y, int n, byte *a, char *c, byte *ta,
 							char *tc);
-
-extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
 
 extern void Term_fresh(void);
 extern errr Term_set_cursor(int v);
@@ -308,5 +310,7 @@ extern void Term_activate(term *t);
 
 extern errr term_nuke(term *t);
 extern errr term_init(term *t, int w, int h, int k);
+
+extern errr Term_bigregion(int x1, int y1, int y2);
 
 #endif /* INCLUDED_Z_TERM_H */

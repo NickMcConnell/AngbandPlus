@@ -113,7 +113,7 @@ extern bool project(int who, int rad, int x, int y, int dam, int typ, u16b flg);
 
 /* spells2.c */
 extern void self_knowledge(void);
-extern bool detect_traps(void);
+extern bool detect_traps(bool ident);
 extern bool detect_doors(void);
 extern bool detect_stairs(void);
 extern bool detect_treasure(void);
@@ -154,7 +154,7 @@ extern bool fire_bolt(int typ, int dir, int dam);
 extern void call_chaos(void);
 extern bool fire_beam(int typ, int dir, int dam);
 extern bool fire_bolt_or_beam(int prob, int typ, int dir, int dam);
-extern bool lite_line(int dir);
+extern bool lite_line(int dir, int dam);
 extern bool drain_life(int dir, int dam);
 extern bool drain_gain_life(int dor, int dam);
 extern bool death_ray(int dir, int plev);
@@ -223,6 +223,7 @@ extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
 extern bool artifact_scroll(void);
 extern bool ident_spell(void);
+extern bool ident_scroll(int k_idx);
 extern bool mundane_spell(void);
 extern void identify_item(object_type *o_ptr);
 extern bool identify_fully(void);

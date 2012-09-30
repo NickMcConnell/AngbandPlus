@@ -24,15 +24,18 @@
 /*
  * Possible values of "goal"
  */
+#define GOAL_NONE   0			/* No goal */
 #define GOAL_KILL   1			/* Monsters */
 #define GOAL_TAKE   2			/* Objects */
-#define GOAL_MISC   3			/* Stores */
-#define GOAL_DARK   4			/* Exploring */
-#define GOAL_XTRA   5			/* Searching */
-#define GOAL_BORE   6			/* Leaving */
-#define GOAL_FLEE   7			/* Fleeing */
+#define GOAL_FLEE   3			/* Fleeing */
+#define GOAL_SHOP   4			/* Stores */
+#define GOAL_DARK   5			/* Exploring */
+#define GOAL_XTRA   6			/* Searching */
+#define GOAL_BORE   7			/* Leaving */
 #define GOAL_TOWN	8			/* Town Special Grid */
-
+#define GOAL_FEAT	9			/* Getting of painful feat */
+#define GOAL_CAVE	10			/* Reach a dungeon */
+#define GOAL_MAX	11
 
 /*
  * Flags for the "info" field of grids
@@ -84,9 +87,6 @@
 #define GF_ELEMENTS			102	/* all elements could be cast */
 #define GF_DEATHRAY			103
 
-/* the Z randarts are considered #127 by the borg */
-#define ART_RANDART  127
-
 /* values for the successful_target global */
 #define BORG_TARGET			-1
 #define BORG_FRESH_TARGET	0
@@ -102,19 +102,19 @@
 /*
  * Number of grids in the "temp" array
  */
-#define AUTO_TEMP_MAX 1536
+#define BORG_TEMP_MAX 1536
 
 
 /*
- * Number of grids in the "borg_hit" array
+ * Number of grids in the "borg_next" array
  */
-#define AUTO_HIT_MAX 1536
+#define BORG_NEXT_MAX 8
 
 
 /*
  * Number of grids in the "flow" array
  */
-#define AUTO_FLOW_MAX 2000
+#define BORG_FLOW_MAX 2000
 
 
 /*
@@ -177,14 +177,64 @@ struct borg_shop
 	s16b x;
 	s16b y;
 
+	/* Town */
+	int town_num;
+
 	/* Time stamp */
 	s32b when;
+	bool visit;
 
 	/* Is this shop useful? */
+	char type;
 	s16b b_count;
 	s16b u_count;
 };
 
+
+/*
+ * A dungeon
+ */
+typedef struct borg_dungeon borg_dungeon;
+
+struct borg_dungeon
+{
+	/* Location */
+	s16b x;
+	s16b y;
+
+	/* depth */
+	s16b min_depth;
+	s16b max_depth;
+
+	bool bottom;
+};
+
+/*
+ * A town
+ */
+typedef struct borg_town borg_town;
+
+struct borg_town
+{
+	/* Location */
+	s16b x;
+	s16b y;
+
+	/* name */
+	char name[T_NAME_LEN];
+
+	/* Was the borg here? */
+	bool visit;
+};
+
+/* Max size for the wilderness */
+#define BORG_MAX_WILD_SIZE	(max_wild * WILD_BLOCK_SIZE)
+
+/* Maximal distance the borg can travel between dungeons */
+#define BORG_MAX_DISTANCE	(BORG_MAX_WILD_SIZE * 3 / 2)
+
+/* Small distance in the wilderness (when the borg is close enough) */
+#define BORG_SMALL_DISTANCE	96
 
 /*
  * Some variables
@@ -192,11 +242,8 @@ struct borg_shop
 extern bool borg_active;	/* Actually active */
 extern bool borg_cancel;	/* Being cancelled */
 
-extern bool borg_stop_king;
 extern bool borg_dont_react;
 extern int successful_target;
-
-extern bool borg_scums_uniques;
 
 /*
  * Borg-abilities
@@ -208,13 +255,16 @@ struct borg_ability
 	s16b phase;
 	s16b teleport;
 	s16b teleport_level;
+	s16b teleport_away;
 	s16b escape;
 	s16b fuel;
 
 	s16b heal;
 	s16b easy_heal;
 	s16b id;
+	s16b id_item;
 	s16b star_id;
+	s16b star_id_item;
 	s16b berserk;
 	s16b speed;
 
@@ -222,7 +272,10 @@ struct borg_ability
 	s16b staff_dest;
 	s16b staff_cool;
 	s16b missile;
-	s16b curepois;
+
+	s16b cure_pois;
+	s16b cure_blind;
+	s16b cure_conf;
 
 	s16b det_trap;
 	s16b det_door;
@@ -232,14 +285,17 @@ struct borg_ability
 
 	s16b recharge;
 	s16b remove_curse;
+	s16b remove_curse_item;
 	s16b star_remove_curse;
-	s16b pfe;
+	s16b star_remove_curse_item;
 	s16b glyph;
-	s16b ccw;
 
+	s16b ccw;
 	s16b csw;
+	s16b clw;
 	s16b res_heat;
 	s16b res_cold;
+	s16b res_all;
 
 	s16b death;
 	s16b poison;
@@ -248,6 +304,10 @@ struct borg_ability
 	s16b genocide;
 	s16b mass_genocide;
 	s16b invulnerability;
+	s16b artifact;
+	s16b artify_item;
+	s16b acquire;
+	s16b mundane;
 
 	s16b bolt;
 	s16b ball;
@@ -287,6 +347,10 @@ struct borg_status
 	
 	/* Heavy stuff */
 	bool hvy_weapon;
+
+	/* Cursedness */
+	bool cursed;
+	bool heavy_curse;
 };
 
 
@@ -354,6 +418,7 @@ struct borg_player
 	s16b b_to_d;
 	s16b b_max_dam;
 	s16b blows;
+	s16b mana_bonus;
 
 	u32b value;	/* Cost of items we are carrying */
 
@@ -381,11 +446,11 @@ extern borg_player *bp_ptr;
  * Various silly flags
  */
 
-extern bool borg_flag_save;	/* Save savefile at each level */
-
-extern bool borg_flag_dump;	/* Save savefile at each death */
-
-extern bool borg_save;	/* do a save next time we get to press a key! */
+extern bool borg_stop_king;		/* The borg stops when he wins */
+extern bool borg_cheat_death;	/* Is there life after death? */
+extern bool borg_flag_dump;		/* Save savefile at each death */
+extern bool borg_flag_save;		/* Save savefile at each level */
+extern bool borg_save;			/* do a save next time we get to press a key! */
 
 /*
  * Use a simple internal random number generator
@@ -403,6 +468,7 @@ extern s32b need_see_inviso;	/* To tell me to cast it */
 extern s32b borg_see_inv;
 extern bool vault_on_level;	/* borg will search for a vault */
 extern bool unique_on_level;
+extern int  unique_r_idx;
 extern bool scaryguy_on_level;
 
 extern bool breeder_level;	/* Borg will shut doors */
@@ -489,25 +555,34 @@ extern bool borg_confuse_spell;
 extern bool borg_fear_mon_spell;
 
 
-/*
- * Shop goals
- */
+/* Which shop or dungeon to visit next */
+extern s16b goal_town;
+extern s16b goal_shop;
+extern s16b goal_dungeon;
+extern s16b goal_explore_x;
+extern s16b goal_explore_y;
 
-extern s16b goal_shop;	/* Next shop to visit */
-
-/*
- * Hack -- current shop index
- */
+/* Current shop/dungeon index */
+extern s16b town_num;
 extern s16b shop_num;
+extern s16b dungeon_num;
 
-/* Current "shops" */
+/* List of known shops and dungeons */
+extern borg_town *borg_towns;
 extern borg_shop *borg_shops;
+extern borg_dungeon *borg_dungeons;
 
-/*
- * Number of allocated stores...
- */
-extern s16b track_shop_num;
-extern s16b track_shop_size;
+/* Number of allocated towns */
+extern s16b borg_town_num;
+extern s16b borg_town_size;
+
+/* Number of allocated stores */
+extern s16b borg_shop_num;
+extern s16b borg_shop_size;
+
+/* Number of allocated dungeons */
+extern s16b borg_dungeon_num;
+extern s16b borg_dungeon_size;
 
 /*
  * Other variables
@@ -519,11 +594,15 @@ extern int c_y;	/* Current location (Y) */
 extern int g_x;	/* Goal location (X) */
 extern int g_y;	/* Goal location (Y) */
 
-extern int dim_door_y;	/* Safe landing zone for DDoor */
+extern s32b g_power;		/* Current power value */
+extern s32b g_power_home;	/* Current power_home value */
+
+extern int dim_door_y;		/* Safe landing zone for DDoor */
 extern int dim_door_x;
 
 extern int bad_obj_x[50];	/* Dropped cursed artifact at location (X) */
 extern int bad_obj_y[50];	/* Dropped cursed artifact at location (Y) */
+extern int bad_obj_n;
 
 /*
  * Some estimated state variables
@@ -531,7 +610,6 @@ extern int bad_obj_y[50];	/* Dropped cursed artifact at location (Y) */
 
 extern s16b my_stat_max[6];	/* Current "maximal" stat values    */
 extern s16b my_stat_cur[6];	/* Current "natural" stat values    */
-extern s16b my_stat_use[6];	/* Current "resulting" stat values  */
 extern s16b my_stat_ind[6];	/* Current "additions" to stat values   */
 extern bool my_need_stat_check[6];	/* do I need to check my stats */
 
@@ -539,18 +617,11 @@ extern s16b my_stat_add[6];	/* aditions to stats */
 
 extern s16b home_stat_add[6];
 
-extern bool borg_wearing_cursed;
-extern bool borg_heavy_curse;
-
 extern s16b weapon_swap_digger;
 
 extern int my_ammo_tval;	/* Ammo -- "tval"   */
 extern s16b my_ammo_power;	/* Average power   */
 extern s16b my_ammo_range;	/* Shooting range   */
-
-extern bool my_need_enchant_to_a;	/* Need some enchantment */
-extern bool my_need_enchant_to_h;	/* Need some enchantment */
-extern bool my_need_enchant_to_d;	/* Need some enchantment */
 
 
 /*
@@ -558,15 +629,13 @@ extern bool my_need_enchant_to_d;	/* Need some enchantment */
  */
 
 extern s16b amt_food_scroll;
-extern s16b amt_food_hical;
 extern s16b amt_food_lowcal;
 extern s16b amt_torch;
 extern s16b amt_lantern;
 extern s16b amt_flask;
 
 extern s16b amt_slow_poison;
-extern s16b amt_cure_confusion;
-extern s16b amt_cure_blind;
+extern s16b amt_pot_curing;
 extern s16b amt_star_heal;
 extern s16b amt_life;
 extern s16b amt_rod_heal;
@@ -705,8 +774,8 @@ extern borg_kill *borg_kills;
  */
 
 extern s16b borg_view_n;
-extern s16b borg_view_y[AUTO_VIEW_MAX];
-extern s16b borg_view_x[AUTO_VIEW_MAX];
+extern s16b *borg_view_y;
+extern s16b *borg_view_x;
 
 
 /*
@@ -715,36 +784,36 @@ extern s16b borg_view_x[AUTO_VIEW_MAX];
 
 /* For any monster within MAX_RANGE */
 extern s16b borg_temp_n;
-extern s16b borg_temp_y[AUTO_TEMP_MAX];
-extern s16b borg_temp_x[AUTO_TEMP_MAX];
+extern s16b *borg_temp_y;
+extern s16b *borg_temp_x;
 
 /* For the monsters immediately surrounding the borg */
 extern s16b borg_next_n;
-extern s16b borg_next_y[AUTO_HIT_MAX];
-extern s16b borg_next_x[AUTO_HIT_MAX];
+extern s16b *borg_next_y;
+extern s16b *borg_next_x;
 
 /* For the monsters that can be hit by a bolt */
 extern s16b borg_bolt_n;
-extern s16b borg_bolt_y[AUTO_TEMP_MAX];
-extern s16b borg_bolt_x[AUTO_TEMP_MAX];
+extern s16b *borg_bolt_y;
+extern s16b *borg_bolt_x;
 
 /* For the monsters that can be hit by a beam, basically any monster in LOS */
 extern s16b borg_beam_n;
-extern s16b borg_beam_y[AUTO_TEMP_MAX];
-extern s16b borg_beam_x[AUTO_TEMP_MAX];
+extern s16b *borg_beam_y;
+extern s16b *borg_beam_x;
 
 /* For the monsters that can be hit by a ball with radius > 1 */
 extern s16b borg_ball_n;
-extern s16b borg_ball_y[AUTO_TEMP_MAX];
-extern s16b borg_ball_x[AUTO_TEMP_MAX];
+extern s16b *borg_ball_y;
+extern s16b *borg_ball_x;
 
 
 /*
  * Maintain a set of grids (flow calculations)
  */
 extern s16b borg_flow_n;
-extern s16b borg_flow_y[AUTO_FLOW_MAX];
-extern s16b borg_flow_x[AUTO_FLOW_MAX];
+extern s16b *borg_flow_y;
+extern s16b *borg_flow_x;
 
 
 /*
@@ -766,11 +835,7 @@ extern bool borg_do_spell;	/* Acquire "spell" info */
  * Strategy flags -- run certain functions
  */
 
-extern bool borg_do_crush_junk;
-
-extern bool borg_do_crush_hole;
-
-extern bool borg_do_crush_slow;
+extern bool borg_do_destroy;
 
 /* am I fighting a unique */
 extern int borg_fighting_unique;
@@ -809,19 +874,18 @@ extern errr borg_what_char(int x, int y, byte *a, char *c);
  * Obtain some text from the screen (multiple characters)
  */
 extern errr borg_what_text(int x, int y, int n, byte *a, char *s);
+extern bool borg_term_text_comp(int x, int y, cptr what);
 
 
 /*
  * Log a message, Search it, and Show/Memorize it in pieces
  */
-extern void borg_note(cptr what);
-extern void borg_note_fmt(cptr fmt, ...);
+extern void borg_note(cptr fmt, ...);
 
 /*
  * Abort the Borg, noting the reason
  */
-extern void borg_oops(cptr what);
-extern void borg_oops_fmt(cptr fmt, ...);
+extern void borg_oops(cptr fmt, ...);
 
 /*
  * Take a "memory note"

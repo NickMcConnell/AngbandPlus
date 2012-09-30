@@ -34,8 +34,6 @@ bool teleport_away(int m_idx, int dis)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	cave_type *c_ptr = NULL;
 
-	byte flags;
-
 	/* Paranoia */
 	if (!m_ptr->r_idx) return (FALSE);
 
@@ -90,16 +88,7 @@ bool teleport_away(int m_idx, int dis)
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
-
-			/* Initialise information to pass to action functions */
-			flags = MEG_DO_MOVE;
-
-			/* Call the hook */
-			field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
-					   (monster_type *) NULL, &flags);
-
-			/* Get result */
-			if (!(flags & (MEG_DO_MOVE))) continue;
+			if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) continue;
 
 			/* No teleporting into vaults and such */
 			if (c_ptr->info & CAVE_ICKY) continue;
@@ -124,9 +113,6 @@ bool teleport_away(int m_idx, int dis)
 	/* Sound */
 	sound(SOUND_TPOTHER);
 
-	/* Process fields under the monster. */
-	field_hook(c_ptr, FIELD_ACT_MONSTER_LEAVE, m_ptr);
-
 	/* Update the new location */
 	area(nx, ny)->m_idx = m_idx;
 
@@ -141,7 +127,7 @@ bool teleport_away(int m_idx, int dis)
 	update_mon(m_idx, TRUE);
 
 	/* Process fields under the monster. */
-	field_hook(c_ptr, FIELD_ACT_MONSTER_ENTER, m_ptr);
+	field_script(c_ptr, FIELD_ACT_MONSTER_ENTER, "");
 
 	/* Redraw the old grid */
 	lite_spot(ox, oy);
@@ -173,7 +159,6 @@ void teleport_to_player(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	cave_type *c_ptr = NULL;
-	byte flags;
 
 	/* Paranoia */
 	if (!m_ptr->r_idx) return;
@@ -229,16 +214,7 @@ void teleport_to_player(int m_idx)
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
-
-			/* Initialise information to pass to action functions */
-			flags = MEG_DO_MOVE;
-
-			/* Call the hook */
-			field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
-					   (monster_type *) NULL, &flags);
-
-			/* Get result */
-			if (!(flags & (MEG_DO_MOVE))) continue;
+			if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) continue;
 
 			/* Require "empty" floor space */
 			if (!cave_empty_grid(c_ptr)) continue;
@@ -271,9 +247,6 @@ void teleport_to_player(int m_idx)
 	/* Sound */
 	sound(SOUND_TPOTHER);
 
-	/* Process fields under the monster. */
-	field_hook(c_ptr, FIELD_ACT_MONSTER_LEAVE, m_ptr);
-
 	/* Update the new location */
 	area(nx, ny)->m_idx = m_idx;
 
@@ -288,7 +261,7 @@ void teleport_to_player(int m_idx)
 	update_mon(m_idx, TRUE);
 
 	/* Process fields under the monster. */
-	field_hook(c_ptr, FIELD_ACT_MONSTER_ENTER, m_ptr);
+	field_script(c_ptr, FIELD_ACT_MONSTER_ENTER, "");
 
 	/* Redraw the old grid */
 	lite_spot(ox, oy);
@@ -413,9 +386,6 @@ void teleport_player(int dis)
 	oy = py;
 	ox = px;
 
-	/* Process fields under the player. */
-	field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
-
 	/* Move the player */
 	py = y;
 	px = x;
@@ -442,7 +412,7 @@ void teleport_player(int dis)
 	lite_spot(px, py);
 
 	/* Process fields under the player. */
-	field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
+	field_script(area(px, py), FIELD_ACT_PLAYER_ENTER, "");
 
 	/* Monsters with teleport ability may follow the player */
 	for (xx = -1; xx <= 1; xx++)
@@ -557,9 +527,6 @@ void teleport_player_to(int nx, int ny)
 	oy = py;
 	ox = px;
 
-	/* Process fields under the player. */
-	field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
-
 	/* Move the player */
 	py = y;
 	px = x;
@@ -586,7 +553,7 @@ void teleport_player_to(int nx, int ny)
 	lite_spot(px, py);
 
 	/* Process fields under the player. */
-	field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
+	field_script(area(px, py), FIELD_ACT_PLAYER_ENTER, "");
 
 	/* Check for new panel (redraw map) */
 	verify_panel();
@@ -632,30 +599,20 @@ void teleport_player_level(void)
 	if (!p_ptr->depth || ironman_downward)
 	{
 		msgf(MSGT_TPLEVEL, "You sink through the floor.");
-
-		if (autosave_l) do_cmd_save_game(TRUE);
-
-		p_ptr->depth++;
-
-		/* Leaving */
-		p_ptr->state.leaving = TRUE;
+		
+		/* Go down */
+		move_dun_level(1);
 	}
 	else if (is_special_level(p_ptr->depth))
 	{
 		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
-
-		if (autosave_l) do_cmd_save_game(TRUE);
-
-		p_ptr->depth--;
-
-		/* Leaving */
-		p_ptr->state.leaving = TRUE;
+		
+		/* Go up */
+		move_dun_level(-1);
 	}
 	else if (one_in_(2) || (p_ptr->depth >= dungeon()->max_level))
 	{
 		msgf(MSGT_TPLEVEL, "You rise up through the ceiling.");
-
-		if (autosave_l) do_cmd_save_game(TRUE);
 
 		/* Go down */
 		move_dun_level(-1);
@@ -663,8 +620,6 @@ void teleport_player_level(void)
 	else
 	{
 		msgf(MSGT_TPLEVEL, "You sink through the floor.");
-
-		if (autosave_l) do_cmd_save_game(TRUE);
 
 		/* Go up */
 	    move_dun_level(1);
@@ -737,12 +692,12 @@ void recall_player(int turns)
 	if (p_ptr->depth && (d_ptr->recall_depth > p_ptr->depth))
 	{
 		if (get_check("Reset recall depth? "))
-			d_ptr->recall_depth = p_ptr->depth;
+			d_ptr->recall_depth = (char) p_ptr->depth;
 
 	}
 	else if (p_ptr->depth > d_ptr->recall_depth)
 	{
-		d_ptr->recall_depth = p_ptr->depth;
+		d_ptr->recall_depth = (char) p_ptr->depth;
 	}
 
 	if (!p_ptr->tim.word_recall)
@@ -867,6 +822,9 @@ bool apply_disenchant(void)
 	if (o_ptr->to_a > 0) o_ptr->to_a--;
 	if ((o_ptr->to_a > 10) && (randint0(100) < 20)) o_ptr->to_a--;
 
+	/* Trigger scripts */
+	apply_object_trigger(TRIGGER_ALTER, o_ptr, "");
+
 
 	chg_virtue(V_HARMONY, 1);
 	chg_virtue(V_ENCHANT, -2);
@@ -874,8 +832,8 @@ bool apply_disenchant(void)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+	/* Notice changes */
+	notice_equip();
 
 	/* Notice */
 	return (TRUE);
@@ -921,6 +879,8 @@ void mutate_player(void)
  */
 void apply_nexus(const monster_type *m_ptr)
 {
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
 	switch (randint1(7))
 	{
 		case 1:  case 2:  case 3:
@@ -937,7 +897,7 @@ void apply_nexus(const monster_type *m_ptr)
 
 		case 6:
 		{
-			if (randint0(100) < p_ptr->skills[SKILL_SAV])
+			if (player_save(r_ptr->hdice * 2))
 			{
 				msgf("You resist the effects!");
 				break;
@@ -950,7 +910,7 @@ void apply_nexus(const monster_type *m_ptr)
 
 		case 7:
 		{
-			if (randint0(100) < p_ptr->skills[SKILL_SAV])
+			if (player_save(r_ptr->hdice * 2))
 			{
 				msgf("You resist the effects!");
 				break;
@@ -971,18 +931,25 @@ void phlogiston(void)
 {
 	int max_flog;
 	object_type *o_ptr = &p_ptr->equipment[EQUIP_LITE];
+	cptr lite_item = NULL;
 
 
 	/* It's a lamp */
 	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
 	{
 		max_flog = FUEL_LAMP;
+
+		/* Remember what the item is */
+		lite_item = "lantern";
 	}
 
 	/* It's a torch */
 	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
 	{
 		max_flog = FUEL_TORCH;
+
+		/* Remember what the item is */
+		lite_item = "torch";
 	}
 
 	/* No torch to refill */
@@ -994,7 +961,7 @@ void phlogiston(void)
 
 	if (o_ptr->timeout >= max_flog)
 	{
-		msgf("No more phlogiston can be put in this item.");
+		msgf("No more phlogiston can be put in this %s.", lite_item);
 		return;
 	}
 
@@ -1002,17 +969,20 @@ void phlogiston(void)
 	o_ptr->timeout += (max_flog / 2);
 
 	/* Message */
-	msgf("You add phlogiston to your light item.");
+	msgf("You add phlogiston to your %s.", lite_item);
 
 	/* Comment */
 	if (o_ptr->timeout >= max_flog)
 	{
 		o_ptr->timeout = max_flog;
-		msgf("Your light item is full.");
+		msgf("Your %s is full.", lite_item);
 	}
 
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
 }
 
 
@@ -1104,10 +1074,10 @@ void brand_weapon(int brand_type)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
 		
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		/* Notice changes */
+		notice_item();
 	}
 }
 
@@ -1284,8 +1254,6 @@ void alter_reality(void)
 	{
 		msgf("The world changes!");
 
-		if (autosave_l) do_cmd_save_game(TRUE);
-
 		/* Leaving */
 		p_ptr->state.leaving = TRUE;
 	}
@@ -1392,6 +1360,9 @@ void identify_pack(void)
 		identify_item(o_ptr);
 	}
 	OBJ_ITT_END;
+	
+	/* Notice changes */
+	notice_inven();
 }
 
 /*
@@ -1444,20 +1415,20 @@ static bool uncurse_item(object_type *o_ptr, bool all)
 	/* Heavy sensing? */
 	heavy = class_info[p_ptr->rp.pclass].heavy_sense;
 	
-	/* Hack -- assume no feeling */
+	/* Take away the feeling */
 	o_ptr->feeling = FEEL_NONE;
 
-	/* Hack -- Update feeling */
+	/* Strip awareness of feeling */
+	o_ptr->info &= ~(OB_SENSE);
+
+	/* Renew feeling */
 	sense_item(o_ptr, heavy, TRUE, FALSE);
 
 	/* Recalculate the bonuses */
 	p_ptr->update |= (PU_BONUS);
-
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_INVEN);
+	
+	/* Notice changes */
+	notice_item();
 
 	return (TRUE);
 }
@@ -1731,6 +1702,16 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		prob = prob / 50;
 	}
 
+	/* Some items are easier to enchant */
+	if (FLAG(o_ptr, TR_EASY_ENCHANT))
+	{
+		/* Don't apply artifact failure chance */
+		a = FALSE;
+
+		/* Apply more enchantment attempts */
+		n *= 2;
+	}
+
 	/* Try "n" times */
 	for (i = 0; i < n; i++)
 	{
@@ -1816,14 +1797,17 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Failure */
 	if (!res) return (FALSE);
 
+	/* Apply trigger */
+	apply_object_trigger(TRIGGER_ALTER, o_ptr, "");
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER);
+	
+	/* Notice changes */
+	notice_item();
 
 	/* Success */
 	return (TRUE);
@@ -2032,10 +2016,10 @@ static void bad_luck(object_type *o_ptr)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
 		
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		/* Notice changes */
+		notice_item();
 	}
 }
 
@@ -2090,11 +2074,11 @@ void identify_item(object_type *o_ptr)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER);
+	
+	/* Notice changes */
+	notice_item();	
 }
 
 
@@ -2128,13 +2112,24 @@ static bool item_tester_unknown_star(const object_type *o_ptr)
 
 /*
  * Identify an object in the inventory (or on the floor)
- * This routine does *not* automatically combine objects.
  * Returns TRUE if something was identified, else FALSE.
+ * As a side effect it also sorts and combines the objects in the inventory.
+ *
+ * This has been rewritten so that when the identification was of an inventory
+ * object the correct inv slot (after sorting and combining) is shown in the message.
+ * To do this the routine combines and sorts the objects right after the
+ * identification and before the message is generated.  This way the combined
+ * and sorted object will have the right letter for the slot in the message.
+ * Except in the case where the player had 1 scroll of identify and that scroll
+ * disappeared after use.  So then the letter for the slot in the message is
+ * one too high.  This is solved by determining that the identification was by
+ * scroll, there was only one scroll and so the letter must be one lower.
  */
-bool ident_spell(void)
+static bool ident_spell_aux(int k_idx)
 {
-	object_type *o_ptr;
 	cptr q, s;
+	object_type *o_ptr, *j_ptr;
+	bool disappear = FALSE, back_step = FALSE, skip = FALSE;
 
 	/* Only un-id'ed items */
 	item_tester_hook = item_tester_unknown;
@@ -2151,11 +2146,66 @@ bool ident_spell(void)
 	/* Identify it */
 	identify_item(o_ptr);
 
-	/* Description */
-	item_describe(o_ptr);
+	/* Hack.  Do the sorting now */
+	o_ptr = reorder_pack_watch(o_ptr);
+
+	/* Hack.  Do the combining now */
+	o_ptr = combine_pack_watch(o_ptr);
+
+	/* Find out if the id was by scroll */
+	OBJ_ITT_START (p_ptr->inventory, j_ptr)
+	{
+		/* No need to skip anything now */
+		skip = FALSE;
+
+		/* Was it exactly one scroll? */
+		if (j_ptr->k_idx == k_idx &&
+			j_ptr->number == 1)
+		{
+			/* That will disappear */
+			disappear = TRUE;
+
+			/* If you read the id scroll on itself, list it just once */
+			skip = TRUE;
+		}
+
+		/* Found the original */
+		if (o_ptr == j_ptr)
+		{
+			/* The id scroll is located before object */
+			if (disappear) back_step = TRUE;
+
+			/* We know enough */
+			break;
+		}
+	}
+	OBJ_ITT_END;
+
+	/* Do we need the hack for the right letter in the inventory? */
+	if (back_step)
+	{
+		/* Not quite the description */
+		if (!skip) item_describe_faux(o_ptr);
+	}
+	else
+		/* Description */
+		item_describe(o_ptr);
 
 	/* Something happened */
 	return (TRUE);
+}
+
+
+/* Identify an object by some non-scroll method. */
+bool ident_spell(void)
+{
+	return (ident_spell_aux(0));
+}
+
+/* Identify an object by reading an identify scroll */
+bool ident_scroll(int k_idx)
+{
+	return (ident_spell_aux(k_idx));
 }
 
 
@@ -2275,16 +2325,12 @@ bool identify_fully(void)
 	/* Handle stuff */
 	handle_stuff();
 
-	/* Describe */
-	item_describe(o_ptr);
-
 	/* Describe it fully */
-	(void)identify_fully_aux(o_ptr);
+	identify_fully_aux(o_ptr);
 
 	/* Success */
 	return (TRUE);
 }
-
 
 /*
  * Recharge a wand/staff/rod from the pack or on the floor.
@@ -2424,6 +2470,9 @@ bool recharge(int power)
 				/* Never less than zero */
 				if (o_ptr->ac < 0) o_ptr->ac = 0;
 			}
+			
+			/* Hack -- we no longer "memorize" the item */
+			o_ptr->info &= ~(OB_MENTAL);
 
 			/* Hack -- we no longer "know" the item */
 			o_ptr->info &= ~(OB_KNOWN);
@@ -2574,11 +2623,8 @@ bool recharge(int power)
 		}
 	}
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN);
+	/* Notice changes */
+	notice_inven();
 
 	/* Something was done */
 	return (TRUE);
@@ -2691,8 +2737,8 @@ bool bless_weapon(void)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP | PW_PLAYER);
+	/* Notice changes */
+	notice_item();
 
 	return TRUE;
 }
@@ -2738,10 +2784,10 @@ bool potion_smash_effect(int who, int x, int y, object_type *o_ptr)
 		gain_exp((k_ptr->level + p_ptr->lev / 2) / p_ptr->lev);
 	}
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Notice changes */
+	notice_item();
 
-	return angry;
+	return (angry);
 }
 
 
@@ -2799,8 +2845,7 @@ void display_spell_list(void)
 			chance -= 3 * (p_ptr->lev - spell.min_lev);
 
 			/* Reduce failure rate by INT/WIS adjustment */
-			chance -=
-				3 * (adj_mag_stat[p_ptr->stat[mp_ptr->spell_stat].ind] - 1);
+			chance -= adj_mag_stat[p_ptr->stat[mp_ptr->spell_stat].ind] - 3;
 
 			/* Not enough mana to cast */
 			if (spell.mana_cost > p_ptr->csp)
@@ -2926,13 +2971,16 @@ s16b spell_chance(int spell, int realm)
 	s_ptr = &mp_ptr->info[realm][spell];
 
 	/* Extract the base spell failure rate */
-	chance = s_ptr->sfail;
+	if (realm == REALM_ARCANE-1)
+		chance = s_ptr->slevel + 20;
+	else
+		chance = s_ptr->slevel * 3 / 2 + 20;
 
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat[mp_ptr->spell_stat].ind] - 1);
+	chance -= adj_mag_stat[p_ptr->stat[mp_ptr->spell_stat].ind];
 
 	/* Get mana cost */
 	smana = spell_mana(spell, realm);
@@ -4061,7 +4109,7 @@ bool rustproof(void)
 	cptr q, s;
 
 	/* Select a piece of armour */
-	item_tester_hook = item_tester_hook_armour;
+	item_tester_hook = item_tester_hook_armour_no_acid;
 
 	/* Get an item */
 	q = "Rustproof which piece of armour? ";
@@ -4073,6 +4121,7 @@ bool rustproof(void)
 	if (!o_ptr) return (FALSE);
 
 	SET_FLAG(o_ptr, TR_IGNORE_ACID);
+	o_ptr->kn_flags[2] |= TR2_IGNORE_ACID;
 
 	if ((o_ptr->to_a < 0) && !(cursed_p(o_ptr)))
 	{
@@ -4130,7 +4179,7 @@ bool curse_armor(void)
 		o_ptr->flags[1] = 0;
 		o_ptr->flags[2] = 0;
 		o_ptr->flags[3] = 0;
-
+		
 		/* Lose your feeling */
 		o_ptr->feeling = FEEL_NONE;
 
@@ -4143,10 +4192,10 @@ bool curse_armor(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
 		
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		/* Notice changes */
+		notice_item();
 	}
 
 	return (TRUE);
@@ -4206,10 +4255,10 @@ bool curse_weapon(void)
 		p_ptr->update |= (PU_MANA);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+		p_ptr->window |= (PW_PLAYER);
 		
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		/* Notice changes */
+		notice_item();
 	}
 
 	/* Notice */
@@ -4248,8 +4297,8 @@ bool brand_bolts(void)
 		/* Enchant */
 		(void)enchant(o_ptr, rand_range(2, 6), ENCH_TOHIT | ENCH_TODAM);
 		
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		/* Notice changes */
+		notice_inven();
 
 		/* Notice */
 		return (TRUE);
@@ -4409,7 +4458,7 @@ void map_wilderness(int radius, s32b x, s32b y)
 		for (j = y - radius; j < y + radius + 1; j++)
 		{
 			/* In bounds? */
-			if ((i >= 0) && (i < max_wild) && (j >= 0) && (j < max_wild))
+			if ((i >= 0) && (i < max_wild - 1) && (j >= 0) && (j < max_wild - 1))
 			{
 				dist = distance(i, j, x, y);
 
@@ -4417,6 +4466,9 @@ void map_wilderness(int radius, s32b x, s32b y)
 				{
 					/* Memorise the location */
 					wild[j][i].done.info |= WILD_INFO_SEEN;
+
+					/* Alert player to a new wilderness quest */
+					discover_wild_quest(place[wild[j][i].done.place].quest_num);
 				}
 			}
 		}
@@ -4430,15 +4482,17 @@ void sanity_blast(const monster_type *m_ptr)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	power = r_ptr->level + 10;
+	power = r_ptr->hdice * 2 + 10;
 
 	if (!FLAG(r_ptr, RF_UNIQUE))
 	{
 		if (FLAG(r_ptr, RF_FRIENDS))
-			power /= 2;
+			power -= 50;
 	}
 	else
-		power *= 2;
+	{
+		power += 50;
+	}
 
 	/* Can we see it? */
 	if (!m_ptr->ml) return;
@@ -4450,7 +4504,7 @@ void sanity_blast(const monster_type *m_ptr)
 	if (is_pet(m_ptr) && !one_in_(8)) return;
 
 	/* Do we pass the saving throw? */
-	if (saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power)) return;
+	if (player_save(power)) return;
 
 	if (p_ptr->tim.image)
 	{
@@ -4461,7 +4515,7 @@ void sanity_blast(const monster_type *m_ptr)
 		if (one_in_(3))
 		{
 			msgf(funny_comments[randint0(MAX_SAN_COMMENT)]);
-			(void)inc_image(randint1(r_ptr->level));
+			(void)inc_image(randint1(r_ptr->hdice * 2));
 		}
 
 		/* Never mind; we can't see it clearly enough */
@@ -4486,7 +4540,7 @@ void sanity_blast(const monster_type *m_ptr)
 		 (p_ptr->rp.prace == RACE_GHOUL)) && saving_throw(25 + p_ptr->lev)) return;
 
 	/* Mind blast */
-	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
+	if (!player_save(power))
 	{
 		if ((!(FLAG(p_ptr, TR_RES_FEAR))) || one_in_(5))
 		{

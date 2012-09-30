@@ -62,6 +62,9 @@ cptr help_gcu[] =
  */
 #undef bool
 
+/* Avoid 'struct term' name conflict with <curses.h> (via <term.h>) on AIX */
+#define term System_term
+
 /*
  * Include the proper "header" file
  */
@@ -70,6 +73,8 @@ cptr help_gcu[] =
 #else
 # include <curses.h>
 #endif
+
+#undef term
 
 /*
  * Try redefining the colors at startup.
@@ -118,7 +123,7 @@ cptr help_gcu[] =
 #endif
 
 /*
- * One version needs this file
+ * One version needs these files
  */
 #ifdef USE_TERMIO
 # include <sys/ioctl.h>
@@ -126,7 +131,7 @@ cptr help_gcu[] =
 #endif
 
 /*
- * The other needs this file
+ * The other needs these files
  */
 #ifdef USE_TCHARS
 # include <sys/ioctl.h>
@@ -161,11 +166,6 @@ cptr help_gcu[] =
 /* #define nonl() */
 /* #define nl() */
 
-
-/*
- * OPTION: NetBSD seems to like this better
- */
-/* #define can_change_color() can_change_colors() */
 
 /*
  * Save the "normal" and "angband" terminal settings
@@ -534,6 +534,14 @@ static void Term_init_gcu(term *t)
 {
 	term_data *td = (term_data *)(t->data);
 
+#ifdef USE_GETCH
+	/*
+	 * This is necessary to keep the first call to getch()
+	 * from clearing the screen
+	 */
+	wrefresh(stdscr);
+#endif /* USE_GETCH */
+
 	/* Count init's, handle first */
 	if (active++ != 0) return;
 
@@ -735,12 +743,6 @@ static errr Term_xtra_gcu(int n, int v)
 	/* Analyze the request */
 	switch (n)
 	{
-		/* Clear screen */
-		case TERM_XTRA_CLEAR:
-		touchwin(td->win);
-		(void)wclear(td->win);
-		return (0);
-
 		/* Make a noise */
 		case TERM_XTRA_NOISE:
 		(void)write(1, "\007", 1);
@@ -898,7 +900,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 /*
  * Create a window for the given "term_data" argument.
  */
-static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, int i)
+static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
 {
 	term *t = &td->t;
 
@@ -921,8 +923,8 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 	/* Avoid bottom right corner */
 	t->icky_corner = TRUE;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
+	/* Erase with "black space" */
+	t->attr_blank = TERM_DARK;
 	t->char_blank = ' ';
 
 	/* Set some hooks */
@@ -940,19 +942,6 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x, 
 
 	/* Activate it */
 	Term_activate(t);
-
-	/* Reset map size if required */
-	if (i == 0)
-	{
-		/* Mega-Hack -- no panel yet */
-		panel_row_min = 0;
-		panel_row_max = 0;
-		panel_col_min = 0;
-		panel_col_max = 0;
-
-		/* Reset the panels */
-		map_panel_size();
-	}
 
 	/* Success */
 	return (0);
@@ -1066,15 +1055,15 @@ errr init_gcu(void)
 
 		/* Prepare the "Angband Colors" -- Bright white is too bright */
 		colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
-		colortable[1] = (COLOR_PAIR(0) | A_NORMAL);	/* White */
-		colortable[2] = (COLOR_PAIR(6) | A_NORMAL);	/* Grey XXX */
+		colortable[1] = (COLOR_PAIR(0) | A_BRIGHT);	/* White */
+		colortable[2] = (COLOR_PAIR(0) | A_NORMAL);	/* Grey XXX */
 		colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
 		colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
 		colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
 		colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
 		colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
 		colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
-		colortable[9] = (COLOR_PAIR(6) | A_BRIGHT);	/* Light-grey XXX */
+		colortable[9] = (COLOR_PAIR(0) | A_NORMAL);	/* Light-grey XXX */
 		colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
 		colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
 		colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
@@ -1165,7 +1154,7 @@ errr init_gcu(void)
 		if (rows <= 0 || cols <= 0) continue;
 
 		/* Create a term */
-		term_data_init_gcu(&data[next_win], rows, cols, y, x, i);
+		term_data_init_gcu(&data[next_win], rows, cols, y, x);
 
 		/* Remember the term */
 		angband_term[next_win] = &data[next_win].t;

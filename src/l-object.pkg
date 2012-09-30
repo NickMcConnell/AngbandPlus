@@ -26,6 +26,57 @@ typedef int sint;
 /* Special ability OR high resist */
 #define EGO_XTRA_POWER          6
 
+/*
+ * Use tvals for the item tester functions in stores
+ */
+#define TV_ANY			 0		/* Used for matching all objects */
+#define TV_SKELETON      1		/* Skeletons ('~') */
+#define TV_BOTTLE        2		/* Empty bottles ('!') */
+#define TV_JUNK          3		/* Sticks, Pottery, etc ('~') */
+#define TV_SPIKE         5		/* Spikes ('~') */
+#define TV_CHEST         7		/* Chests ('&') */
+#define TV_FIGURINE      8		/* Magical figurines */
+#define TV_STATUE        9		/* Statue */
+/*#define TV_CORPSE       10  */ /* Corpses are now fields */
+#define TV_SHOT         16		/* Ammo for slings */
+#define TV_ARROW        17		/* Ammo for bows */
+#define TV_BOLT         18		/* Ammo for x-bows */
+#define TV_BOW          19		/* Slings/Bows/Xbows */
+#define TV_DIGGING      20		/* Shovels/Picks */
+#define TV_HAFTED       21		/* Priest Weapons */
+#define TV_POLEARM      22		/* Axes and Pikes */
+#define TV_SWORD        23		/* Edged Weapons */
+#define TV_BOOTS        30		/* Boots */
+#define TV_GLOVES       31		/* Gloves */
+#define TV_HELM         32		/* Helms */
+#define TV_CROWN        33		/* Crowns */
+#define TV_SHIELD       34		/* Shields */
+#define TV_CLOAK        35		/* Cloaks */
+#define TV_SOFT_ARMOR   36		/* Soft Armor */
+#define TV_HARD_ARMOR   37		/* Hard Armor */
+#define TV_DRAG_ARMOR   38		/* Dragon Scale Mail */
+#define TV_LITE         39		/* Lites (including Specials) */
+#define TV_AMULET       40		/* Amulets (including Specials) */
+#define TV_RING         45		/* Rings (including Specials) */
+#define TV_STAFF        55
+#define TV_WAND         65
+#define TV_ROD          66
+#define TV_SCROLL       70
+#define TV_POTION       75
+#define TV_FLASK        77
+#define TV_FOOD         80
+#define TV_LIFE_BOOK    90
+#define TV_SORCERY_BOOK 91
+#define TV_NATURE_BOOK  92
+#define TV_CHAOS_BOOK   93
+#define TV_DEATH_BOOK   94
+#define TV_TRUMP_BOOK   95
+#define TV_ARCANE_BOOK  96
+#define TV_GOLD         100		/* Gold can only be picked up by players */
+
+#define TV_BOOKS_MIN    TV_LIFE_BOOK	/* First tval of spellbooks */
+#define TV_BOOKS_MAX    TV_ARCANE_BOOK	/* Last tval of spellbooks */
+
 
 /*
  * Use sval codes for wand of wonder
@@ -182,9 +233,9 @@ typedef int sint;
 
 
 #define TR3_LUCK_10             0x00000001L
-#define TR3_XXX2                0x00000002L
-#define TR3_XXX3                0x00000004L
-#define TR3_XXX4                0x00000008L
+#define TR3_WILD_SHOT           0x00000002L
+#define TR3_WILD_WALK           0x00000004L
+#define TR3_EASY_ENCHANT        0x00000008L
 #define TR3_XXX5                0x00000010L
 #define TR3_XXX6                0x00000020L
 #define TR3_XXX7                0x00000040L
@@ -268,6 +319,18 @@ struct object_type
 };
 
 
+struct bonuses_type
+{
+	int stat[6];
+	int sp_bonus;
+	int skills[MAX_SKILL];
+	int see_infra;
+	int pspeed;
+	int extra_blows;
+	int extra_shots;
+};
+
+
 /***** Functions *****/
 
 extern bool item_tester_hook_weapon(const object_type *o_ptr);
@@ -284,7 +347,7 @@ extern bool item_tester_hook_weapon_armour(const object_type *o_ptr);
 extern bool item_tester_hook_wear(const object_type *o_ptr);
 extern bool item_tester_hook_recharge(const object_type *o_ptr);
 extern bool item_tester_hook_jewel(const object_type *o_ptr);
-extern bool item_tester_hook_tval(const object_type *o_ptr);
+extern bool item_tester_hook_tval(const object_type *o_ptr, byte tval);
 extern bool item_tester_hook_is_blessed(const object_type *o_ptr);
 extern bool item_tester_hook_is_good(const object_type *o_ptr);
 extern bool item_tester_hook_is_great(const object_type *o_ptr);

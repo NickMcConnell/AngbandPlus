@@ -21,6 +21,29 @@ static cptr wd_he[3] =
 static cptr wd_his[3] =
 { "its", "his", "her" };
 
+/*
+ * Get the monster race in r_info[]
+ */
+monster_race *monst_race(int r_idx)
+{
+	return (&r_info[r_idx]);
+}
+
+/*
+ * Get the monster name from r_info[]
+ */
+cptr mon_race_name(const monster_race *r_ptr)
+{
+	return (r_name + r_ptr->name);
+}
+
+/*
+ * Does the monster name contain string str?
+ */
+bool mon_name_cont(const monster_race *r_ptr, cptr str)
+{
+	return (strstr(mon_race_name(r_ptr), str) ? TRUE : FALSE);
+}
 
 /*
  * Pluralizer.  Args(count, singular, plural)
@@ -116,6 +139,9 @@ static void roff_mon_aux(int r_idx, int remem)
 	bool old = FALSE;
 	bool sin = FALSE;
 
+	/* Should all knowledge be displayed? */
+	bool know_all = cheat_know || (r_ptr->r_flags[6] & RF6_LIBRARY);
+
 	int m, n, r;
 	cptr p, q;
 
@@ -137,7 +163,7 @@ static void roff_mon_aux(int r_idx, int remem)
 	char buf[2048];
 
 	/* Cheat -- Know everything */
-	if (cheat_know)
+	if (know_all)
 	{
 		/* XXX XXX XXX */
 
@@ -199,6 +225,19 @@ static void roff_mon_aux(int r_idx, int remem)
 	mf_ptr->flags[5] = (r_ptr->flags[5] & r_ptr->r_flags[5]);
 	mf_ptr->flags[6] = (r_ptr->flags[6]);
 
+	/*
+	 * Hack.  All flags from flag[6] are known.  But the swimming flag should
+	 * not be known until discovered.  I suppose I can write it in one
+	 * line of code but then noone knows why I did so.
+
+	 * So if the monster is not known to be a swimmer
+	 */
+	if  (!(r_ptr->r_flags[6] & RF6_CAN_SWIM))
+	{
+		/* Take away the swimming flag */
+		mf_ptr->flags[6] &= ~(RF6_CAN_SWIM);
+	}
+
 
 	/* Assume some "obvious" flags */
 	COPY_FLAG(r_ptr, mf_ptr, RF_UNIQUE);
@@ -213,7 +252,7 @@ static void roff_mon_aux(int r_idx, int remem)
 	COPY_FLAG(r_ptr, mf_ptr, RF_ESCORTS);
 
 	/* Killing a monster reveals some properties */
-	if (r_ptr->r_tkills || cheat_know)
+	if (r_ptr->r_tkills || know_all)
 	{
 		/* Know "race" flags */
 		COPY_FLAG(r_ptr, mf_ptr, RF_ORC);
@@ -331,7 +370,7 @@ static void roff_mon_aux(int r_idx, int remem)
 	int fd;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "r_info.raw");
+	path_make(buf, ANGBAND_DIR_DATA, "r_info.raw");
 
 	/* Open the "raw" file */
 	fd = fd_open(buf, O_RDONLY);
@@ -380,11 +419,11 @@ static void roff_mon_aux(int r_idx, int remem)
 		roff("%^s lives in the town", wd_he[msex]);
 		old = TRUE;
 	}
-	else if (r_ptr->r_tkills || cheat_know)
+	else if (r_ptr->r_tkills || know_all)
 	{
 		roff(CLR_SLATE "%^s is ", wd_he[msex]);
 
-		if (r_ptr->r_tkills * r_ptr->rarity >= 30 || cheat_know)
+		if (r_ptr->r_tkills * r_ptr->rarity >= 30 || know_all)
 		{
 			if (r_ptr->rarity < 2)
 				roff(CLR_SLATE "very common");
@@ -400,6 +439,11 @@ static void roff_mon_aux(int r_idx, int remem)
 		else
 		{
 			roff(CLR_SLATE "normally found");
+		}
+
+		if (FLAG(mf_ptr, RF_AQUATIC))
+		{
+			roff(CLR_SLATE " in water");
 		}
 		
 		if (depth_in_feet)
@@ -420,14 +464,20 @@ static void roff_mon_aux(int r_idx, int remem)
 		/* Introduction */
 		if (old)
 		{
-			roff(", and ");
+			roff(" and ");
 		}
 		else
 		{
 			roff("%^s ", wd_he[msex]);
 			old = TRUE;
 		}
-		roff("moves");
+
+		if (FLAG(mf_ptr, RF_CAN_FLY))
+		{
+			roff("flies");
+		}
+		else
+			roff("moves");
 
 		/* Random-ness */
 		if ((FLAG(mf_ptr, RF_RAND_50)) || (FLAG(mf_ptr, RF_RAND_25)))
@@ -450,7 +500,7 @@ static void roff_mon_aux(int r_idx, int remem)
 			roff(" erratically");
 
 			/* Hack -- Occasional conjunction */
-			if (speed != 110) roff(", and");
+			if (speed != 110) roff(" and");
 		}
 
 		/* Speed */
@@ -499,7 +549,7 @@ static void roff_mon_aux(int r_idx, int remem)
 
 
 	/* Describe experience if known */
-	if (r_ptr->r_tkills || cheat_know)
+	if (r_ptr->r_tkills || know_all)
 	{
 		/* Introduction */
 		if (FLAG(mf_ptr, RF_UNIQUE))
@@ -615,10 +665,7 @@ static void roff_mon_aux(int r_idx, int remem)
 	if (FLAG(mf_ptr, RF_SHRIEK)) vp[vn++] = "shriek for help";
 	if (FLAG(mf_ptr, RF_ELDRITCH_HORROR)) vp[vn++] = "blast your sanity";
 	if (FLAG(mf_ptr, RF_ROCKET)) vp[vn++] = "shoot a rocket";
-	if (FLAG(mf_ptr, RF_ARROW_1)) vp[vn++] = "fire an arrow";
-	if (FLAG(mf_ptr, RF_ARROW_2)) vp[vn++] = "fire arrows";
-	if (FLAG(mf_ptr, RF_ARROW_3)) vp[vn++] = "fire a missile";
-	if (FLAG(mf_ptr, RF_ARROW_4)) vp[vn++] = "fire missiles";
+	if (FLAG(mf_ptr, RF_ARROW)) vp[vn++] = "fire arrows";
 
 	/* Describe inate attacks */
 	if (vn)
@@ -771,7 +818,7 @@ static void roff_mon_aux(int r_idx, int remem)
 		/* Intro */
 		if (breath)
 		{
-			roff(", and is also");
+			roff(" and is also");
 		}
 		else
 		{
@@ -851,6 +898,7 @@ static void roff_mon_aux(int r_idx, int remem)
 
 	/* Collect special abilities. */
 	vn = 0;
+	if (FLAG(mf_ptr, RF_CAN_SWIM))  vp[vn++] = "swim";
 	if (FLAG(mf_ptr, RF_OPEN_DOOR)) vp[vn++] = "open doors";
 	if (FLAG(mf_ptr, RF_BASH_DOOR)) vp[vn++] = "bash down doors";
 	if (FLAG(mf_ptr, RF_PASS_WALL)) vp[vn++] = "pass through walls";
@@ -1045,7 +1093,7 @@ static void roff_mon_aux(int r_idx, int remem)
 	/* Do we know how aware it is? */
 	if ((((int)r_ptr->r_wake * (int)r_ptr->r_wake) > r_ptr->sleep) ||
 		(r_ptr->r_ignore == MAX_UCHAR) ||
-		((r_ptr->sleep == 0) && ((r_ptr->r_tkills >= 10) || cheat_know)))
+		(r_ptr->sleep == 0 && (r_ptr->r_tkills >= 10 || know_all)))
 	{
 		cptr act;
 
@@ -1394,7 +1442,7 @@ static void roff_mon_aux(int r_idx, int remem)
 		}
 		else
 		{
-			roff(", and ");
+			roff(" and ");
 		}
 
 
@@ -1459,7 +1507,7 @@ static void roff_mon_aux(int r_idx, int remem)
 	roff("\n");
 
 	/* Cheat -- know everything */
-	if ((cheat_know) && (remem == 0))
+	if (know_all && (remem == 0))
 	{
 		/* Hack -- restore memory */
 		COPY(r_ptr, &save_mem, monster_race);
@@ -1508,7 +1556,7 @@ void roff_mon_top(int r_idx)
 	}
 
 	/* Dump the name */
-	roff(r_name + r_ptr->name);
+	roff(mon_race_name(r_ptr));
 
 	/* Append the "standard" attr/char info */
 	roff(" ('");
@@ -1624,15 +1672,15 @@ void display_visible(void)
 		/* Dump the name */
 		if (FLAG(r_ptr, RF_UNIQUE))
 		{
-			roff(CLR_L_BLUE "%s", (r_name + r_ptr->name));
+			roff(CLR_L_BLUE "%s", mon_race_name(r_ptr));
 		}
 		else if (FLAG(r_ptr, RF_QUESTOR))
 		{
-			roff(CLR_L_RED "%s", (r_name + r_ptr->name));
+			roff(CLR_L_RED "%s", mon_race_name(r_ptr));
 		}
 		else
 		{
-			roff("%s", r_name + r_ptr->name);
+			roff("%s", mon_race_name(r_ptr));
 		}
 
 		/* Append the "standard" attr/char info */

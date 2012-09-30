@@ -626,10 +626,6 @@ static errr Term_xtra_emx(int n, int v)
 
 		/* Success */
 		return (0);
-
-		case TERM_XTRA_CLEAR:
-		v_clear();
-		return (0);
 	}
 
 	return (1);
@@ -650,17 +646,6 @@ static errr Term_xtra_pipe_emx(int n, int v)
 
 		case TERM_XTRA_EVENT:
 		return (CheckEvents(FALSE));
-
-		case TERM_XTRA_CLEAR:
-
-		if (!tp->out) return -1;
-
-		fputc(PIP_XTRA, tp->out);
-		fwrite(&n, sizeof(n), 1, tp->out);
-		fwrite(&v, sizeof(v), 1, tp->out);
-		fflush(tp->out);
-
-		return (0);
 	}
 
 	return (1);
@@ -909,16 +894,8 @@ int main(int argc, char **argv)
 				abort();
 
 			/* This hack prevents another hack */
-			switch (n)
-			{
-				case TERM_XTRA_CLEAR:
-				v_clear();
-				break;
-
-				default:
-				printf("Sorry, angband.exe and aclient.exe don't fit together.\n");
-				exit(1);
-			}
+			printf("Sorry, angband.exe and aclient.exe don't fit together.\n");
+			exit(1);
 
 			break;
 
@@ -1102,10 +1079,6 @@ static errr Term_xtra_emx(int n, int v)
 
 		case TERM_XTRA_EVENT:
 		return (CheckEvents(!v));
-
-		case TERM_XTRA_CLEAR:
-		emx_clear(instance);
-		return (0);
 
 		case TERM_XTRA_DELAY:
 		if (v > 0) _sleep2(v);

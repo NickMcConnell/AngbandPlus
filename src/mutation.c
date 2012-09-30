@@ -1026,9 +1026,6 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		oy = py;
 		ox = px;
 
-		/* Process fields under the player. */
-		field_hook(area(px, py), FIELD_ACT_PLAYER_LEAVE);
-
 		/* Move the player */
 		py = y;
 		px = x;
@@ -1052,7 +1049,7 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 		lite_spot(ox, oy);
 
 		/* Process fields under the player. */
-		field_hook(area(px, py), FIELD_ACT_PLAYER_ENTER);
+		field_script(area(px, py), FIELD_ACT_PLAYER_ENTER, "");
 
 		verify_panel();
 
@@ -1213,8 +1210,8 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 			p_ptr->csp = p_ptr->msp;
 		}
 
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-		p_ptr->window |= (PW_INVEN);
+		/* Notice changes */
+		notice_inven();
 	}
 
 	else if (mut_ptr->which == MUT1_WEIGH_MAG)

@@ -909,7 +909,7 @@ static int Widget_CaveToView(Widget *widgetPtr, int y, int x, int *rowPtr, int *
  */
 
 /* Want to redraw this square */
-static void Widget_map_info(map_block *mb_ptr, term_map *map, vptr data)
+static void Widget_map_info(map_block *mb_ptr, const term_map *map, vptr data)
 {
 	Widget *widgetPtr = (Widget *) data;
 		

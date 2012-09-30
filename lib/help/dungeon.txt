@@ -194,12 +194,9 @@ may also be locked or jammed.
 
 Creatures in the dungeon will generally know and use these secret
 doors, and can often be counted on to leave them open behind them when
-they pass through.
-
-Doors can be broken down by bashing them. Once a door is bashed open,
-it is forever useless and cannot be closed.
-
-For historical reasons, secret doors are never locked.
+they pass through. Often the creature won't know how to open a door and
+will simply bash it open. Once a door is bashed open, it is forever
+useless and cannot be closed.
 
 
 ***** <Feelings>

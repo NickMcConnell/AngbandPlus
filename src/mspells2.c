@@ -135,7 +135,7 @@ bool monst_spell_monst(int m_idx)
 		x = t_ptr->fx;
 
 		/* Extract the monster level */
-		rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+		rlev = ((r_ptr->hdice * 2 >= 1) ? r_ptr->hdice * 2 : 1);
 
 		/* Extract the racial spell flags */
 		f4 = r_ptr->flags[3];
@@ -322,7 +322,10 @@ bool monst_spell_monst(int m_idx)
 
 			case 96 + 4:
 			{
-				/* RF3_ARROW_1 */
+				int dice = r_ptr->hdice < 4 ? 1 : r_ptr->hdice / 4;
+				if (dice > 7) dice = 7;
+
+				/* RF3_ARROW */
 				if (known)
 				{
 					if (see_either)
@@ -345,98 +348,26 @@ bool monst_spell_monst(int m_idx)
 					sound(SOUND_SHOOT);
 				}
 
-				monst_bolt_monst(m_idx, x, y, GF_ARROW, damroll(1, 6));
+				monst_bolt_monst(m_idx, x, y, GF_ARROW, damroll(dice, 6));
 
 				break;
 			}
 
 			case 96 + 5:
 			{
-				/* RF3_ARROW_2 */
-				if (known)
-				{
-					if (see_either)
-					{
-						if (blind)
-						{
-							msgf("%^s makes a strange noise.", m_name);
-						}
-						else
-						{
-							msgf("%^s fires an arrow at %s.", m_name,
-									   t_name);
-						}
-					}
-					else
-					{
-						p_ptr->state.mon_fight = TRUE;
-					}
-
-					sound(SOUND_SHOOT);
-				}
-
-				monst_bolt_monst(m_idx, x, y, GF_ARROW, damroll(3, 6));
-
+				/* RF3_XXX6 */
 				break;
 			}
 
 			case 96 + 6:
 			{
-				/* RF3_ARROW_3 */
-				if (known)
-				{
-					if (see_either)
-					{
-						if (blind)
-						{
-							msgf("%^s makes a strange noise.", m_name);
-						}
-						else
-						{
-							msgf("%^s fires a bolt at %s.", m_name,
-									   t_name);
-						}
-					}
-					else
-					{
-						p_ptr->state.mon_fight = TRUE;
-					}
-
-					sound(SOUND_SHOOT);
-				}
-
-				monst_bolt_monst(m_idx, x, y, GF_ARROW, damroll(5, 6));
-
+				/* RF3_XXX7 */
 				break;
 			}
 
 			case 96 + 7:
 			{
-				/* RF3_ARROW_4 */
-				if (known)
-				{
-					if (see_either)
-					{
-						if (blind)
-						{
-							msgf("%^s makes a strange noise.", m_name);
-						}
-						else
-						{
-							msgf("%^s fires a bolt at %s.", m_name,
-									   t_name);
-						}
-					}
-					else
-					{
-						p_ptr->state.mon_fight = TRUE;
-					}
-
-					sound(SOUND_SHOOT);
-				}
-
-				monst_bolt_monst(m_idx, x, y, GF_ARROW, damroll(7, 6));
-
+				/* RF3_XXX8 */
 				break;
 			}
 
@@ -1275,7 +1206,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, x, y, GF_ACID,
-								   randint1(rlev * 3) + 15, 2, FALSE);
+					damroll(r_ptr->hdice, 6), 2, FALSE);
 
 				break;
 			}
@@ -1306,7 +1237,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, x, y, GF_ELEC,
-								   randint1(rlev * 3) / 2 + 8, 2, FALSE);
+					damroll(r_ptr->hdice, 6), 2, FALSE);
 
 				break;
 			}
@@ -1337,7 +1268,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, x, y, GF_FIRE,
-								   randint1(rlev * 7 / 2) + 10, 2, FALSE);
+					damroll(r_ptr->hdice, 6), 2, FALSE);
 
 				break;
 			}
@@ -1368,7 +1299,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, x, y, GF_COLD,
-								   randint1(rlev * 3) / 2 + 10, 2, FALSE);
+					damroll(r_ptr->hdice, 6), 2, FALSE);
 
 				break;
 			}
@@ -1463,7 +1394,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_breath_monst(m_idx, x, y, GF_WATER,
-								   randint1(rlev * 5 / 2) + 50, 4, FALSE);
+					damroll(r_ptr->hdice, 8), 4, FALSE);
 
 				break;
 			}
@@ -1588,7 +1519,7 @@ bool monst_spell_monst(int m_idx)
 				/* Attempt a saving throw */
 				if (FLAG(tr_ptr, RF_UNIQUE) ||
 					FLAG(tr_ptr, RF_NO_CONF) ||
-					(tr_ptr->level > randint1(rlev * 3) / 2))
+					(tr_ptr->hdice * 2 > randint1(rlev * 3) / 2))
 				{
 					/* No obvious effect */
 					if (see_both)
@@ -1631,7 +1562,7 @@ bool monst_spell_monst(int m_idx)
 				/* Attempt a saving throw */
 				if (FLAG(tr_ptr, RF_UNIQUE) ||
 					FLAG(tr_ptr, RF_NO_CONF) ||
-					(tr_ptr->level > randint1(rlev * 3) / 2))
+					(tr_ptr->hdice * 2 > randint1(rlev * 3) / 2))
 				{
 					/* No obvious effect */
 					if (see_both)
@@ -1681,7 +1612,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint1(rlev * 3) / 2)
+				if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_both) msgf("%^s resists!", t_name);
 				}
@@ -1712,7 +1643,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint1(rlev * 3) / 2)
+				if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_both) msgf("%^s resists!", t_name);
 				}
@@ -1743,7 +1674,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint1(rlev * 3) / 2)
+				if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_both) msgf("%^s resists!", t_name);
 				}
@@ -1775,7 +1706,7 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				if (tr_ptr->level > randint1(rlev * 3) / 2)
+				if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_both) msgf("%^s resists!", t_name);
 				}
@@ -1946,7 +1877,7 @@ bool monst_spell_monst(int m_idx)
 				}
 
 				monst_bolt_monst(m_idx, x, y, GF_MANA,
-								 randint1(rlev * 7 / 2) + 50);
+					damroll(r_ptr->hdice, 10));
 
 				break;
 			}
@@ -2038,7 +1969,7 @@ bool monst_spell_monst(int m_idx)
 					if (see_t) msgf("%^s refuses to be frightened.",
 										  t_name);
 				}
-				else if (tr_ptr->level > randint1(rlev * 3) / 2)
+				else if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msgf("%^s refuses to be frightened.",
 										  t_name);
@@ -2077,7 +2008,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint1(rlev * 3) / 2)
+				else if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
@@ -2115,7 +2046,7 @@ bool monst_spell_monst(int m_idx)
 					if (see_t) msgf("%^s disbelieves the feeble spell.",
 										  t_name);
 				}
-				else if (tr_ptr->level > randint1(rlev * 3) / 2)
+				else if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msgf("%^s disbelieves the feeble spell.",
 										  t_name);
@@ -2153,7 +2084,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint1(rlev * 3) / 2)
+				else if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
@@ -2190,7 +2121,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
-				else if (tr_ptr->level > randint1(rlev * 3) / 2)
+				else if (tr_ptr->hdice * 2 > randint1(rlev * 3) / 2)
 				{
 					if (see_t) msgf("%^s is unaffected.", t_name);
 				}
@@ -2263,8 +2194,8 @@ bool monst_spell_monst(int m_idx)
 				}
 				else
 				{
-					if ((r_ptr->level + randint1(20)) >
-						(tr_ptr->level + rand_range(10, 30)))
+					if ((r_ptr->hdice * 2 + randint1(20)) >
+						(tr_ptr->hdice * 2 + rand_range(10, 30)))
 					{
 						t_ptr->hp = t_ptr->hp -
 							(((s32b)(rand_range(65, 90) * t_ptr->hp)) / 100);
@@ -2447,7 +2378,7 @@ bool monst_spell_monst(int m_idx)
 
 						resists_tele = TRUE;
 					}
-					else if (tr_ptr->level > randint1(100))
+					else if (tr_ptr->hdice * 2 > randint1(100))
 					{
 						if (see_t)
 						{

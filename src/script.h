@@ -6,26 +6,6 @@
 #include "angband.h"
 
 /*
- * Useful macros for appl_object_trigger()
- */
-#define LUA_VAR(A) \
-	#A, (A)
-#define LUA_VAR_NAMED(A, N) \
-	N, (A)
-#define LUA_RETURN(A) \
-	#A, &(A)
-#define LUA_RETURN_NAMED(A, N) \
-	N, &(A)
-#define LUA_OBJECT(A) \
-	#A, "object_type", (void *)(A)
-#define LUA_OBJECT_NAMED(A, N) \
-	N, "object_type", (void *)(A)
-#define LUA_MONSTER(A) \
-	#A, "monster_type", (void *)(A)
-#define LUA_MONSTER_NAMED(A, N) \
-	N, "monster_type", (void *)(A)
-
-/*
  * Initalize the scripting support
  */
 extern errr script_init(void);
@@ -53,12 +33,18 @@ extern bool script_do_file(cptr filename);
 /*
  * Execute one of the scripts attached to an object
  */
-extern void apply_object_trigger(int trigger_id, object_type *o_ptr, cptr format, ...); 
+extern void apply_object_trigger(int trigger_id, object_type *o_ptr, cptr format, ...);
 
 /*
  * Callback for using an object
  */
-extern bool use_object(object_type *o_ptr, bool *ident);
+extern bool use_object(object_type *o_ptr, bool *ident, int aim);
+
+/*
+ * Execute a script attached to a field
+ */
+extern bool apply_field_trigger(cptr script, field_type *f_ptr, cptr format, va_list vp);
+extern void const_field_trigger(cptr script, const field_type *f_ptr, cptr format, va_list vp);
 
 /*
  * Debug lua stack depth

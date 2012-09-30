@@ -2,6 +2,1335 @@ This is a document file listing the changes in Zangband (compared to
 the standard Angband 2.8.1.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less):
 
+Changes in Zangband 2.7.5pre1:
+
+2005-06-04 14:26  rr9
+
+	* src/zborg2.c: The borg didn't correctly reset his goal when
+	entering a new level.
+
+2005-06-04 14:25  rr9
+
+	* src/zbmagic2.c: The borg didn't predict the power from the "sleep
+	nearby monsters" artifact activation correctly.
+
+2005-06-01 14:49  siemelink
+
+	* src/: zbmagic1.c, zborg6.c, zborg6.h, zborg8.c, zborg9.c: The
+	borg often forgot to revisit shops.
+
+2005-05-30 16:01  siemelink
+
+	* src/: externs.h, object2.c, store.c: There was a bug in the
+	shopping code that created duplicated items because the sold item
+	was not taken away from the equipment.	I fixed this bug by copying
+	the drop_object code that handles droppng an equipped item that was
+	missing in the shopping code.
+
+2005-05-26 12:54  siemelink
+
+	* src/zborg7.c: The borg can now *identify* an item that has
+	special or terrible as pseudo-id but that has not yet been
+	identified.
+
+2005-05-26 12:51  siemelink
+
+	* src/zborg2.c: The borg parses pet messages successfully
+
+2005-05-18 12:21  siemelink
+
+	* src/wizard1.c: I Synchronized the full monster spoilers with the
+	monster knowledge routine.  Fixed the object description spoiler
+	that was showing unknown items as unknowns.
+
+2005-05-18 12:17  siemelink
+
+	* src/object1.c: If you examine a weapon that is to heavy for you
+	you'll get a line saying just that.  This comes in handy when you
+	want to buy a new weapon in the shop.
+
+2005-05-16 14:26  rr9
+
+	* src/run.c: Improved the running code so that it stops at corridor
+	entrances when running alongside the wall of a room.
+
+2005-05-15 21:28  rr9
+
+	* src/makefile.std: - Provided an "osx-dist" Makefile target to
+	build a *.dmg disk image containing ZAngband.  - Cleaned up the OS
+	X part of the Makefile a bit.
+
+2005-05-15 16:13  rr9
+
+	* lib/: data/makefile.zb, save/makefile.zb: The 'chown' command
+	expects user and group separated by a colon instead of a period.
+
+2005-05-15 15:55  rr9
+
+	* src/makefile.std: Added an "osx-install-tiles" Makefile target.
+	An archive with the Mac-tiles can be found at:
+	ftp://ftp.thangorodrim.net/pub/angband/Variant/ZAngband/ext-graf-ma
+	c-275.zip
+
+2005-05-15 15:26  rr9
+
+	* src/h-config.h: Don't add the user-id to the savefilename on OS
+	X.
+
+2005-05-15 14:49  rr9
+
+	* src/: Data.icns, Edit.icns, Save.icns, ZAngband.icns, ZAngband.r,
+	ZAngband.xml, externs.h, h-config.h, init2.c, main-crb.c, main.c,
+	makefile.std, util.c: Ported the basic Angband OS X code to
+	ZAngband.
+
+2005-05-15 13:15  rr9
+
+	* src/h-config.h: Allow the definition of PRIVATE_USER_PATH to be
+	overwritten.
+
+2005-05-15 12:55  rr9
+
+	* src/: z-util.c, z-util.h: Added secure versions of strcpy() and
+	strcat() that check the buffer size.
+
+2005-05-15 12:28  rr9
+
+	* src/makefile.std: Make is picky about tabulators and spaces. 
+	Don't use tabs where spaces should be.
+
+2005-05-14 17:41  siemelink
+
+	* src/zborg9.c: Have the borg parse the demon summoning message
+	correctly.
+
+2005-05-14 17:32  rr9
+
+	* src/dungeon.c: Added a workaround for a possible crash when
+	starting a new character from an old savefile.
+
+2005-05-14 17:31  rr9
+
+	* src/maid-grf.c: Second try to fix a crash bug when playing with
+	bigscreen.
+
+2005-05-14 16:26  rr9
+
+	* src/maid-grf.c: The last patch broke more things than it fixed,
+	so undo it.
+
+2005-05-14 16:19  rr9
+
+	* src/maid-grf.c: Added a workaround for a crash in bigscreen mode.
+
+2005-05-14 15:46  rr9
+
+	* src/: cmd3.c, files.c: Fixed two compiler warnings.
+
+2005-05-09 15:32  siemelink
+
+	* src/object2.c: Fixed a message bug when you used the last item of
+	a pile on the ground.
+
+2005-05-09 14:56  siemelink
+
+	* src/object1.c: Fix resize during object examination
+
+2005-05-09 14:55  siemelink
+
+	* src/cmd3.c: Fix resize during monster recall
+
+2005-05-02 10:44  siemelink
+
+	* src/files.c: Fix resizing when there is a menu on the screen. 
+	There was an unused parameter in show_file that I used to flag for
+	the resize.
+
+2005-05-02 09:33  siemelink
+
+	* src/zborg2.c: Repair the borg recognizing uniques.
+
+2005-05-02 09:32  siemelink
+
+	* src/zborg8.c: Allow the borg to search twitchingly only in
+	dungeons.  Otherwise it burns its phase and teleport scrolls.
+
+2005-04-28 12:11  siemelink
+
+	* src/zborg6.c: Fix that the borg leaves the vanilla town for the
+	dungeon Made the header of borg_flow_spread easier to use.
+
+2005-04-28 12:08  siemelink
+
+	* src/zborg7.c: Remove old comment
+
+2005-04-28 11:51  siemelink
+
+	* src/zborg3.c: Enble borg use of artifact phase door.
+
+2005-04-01 12:52  siemelink
+
+	* src/zborg7.c: The borg can now use artifact activation and hobbit
+	racial power to eat.
+
+2005-02-12 22:59  siemelink
+
+	* src/zborg6.c: Oops, !vanilla should have been vanilla
+
+2005-02-12 22:45  siemelink
+
+	* src/zborg6.c: And avoid the borg trying to wait inside the
+	building.
+
+2005-02-12 22:39  siemelink
+
+	* src/: zborg6.c, zborg8.c: Have the borg check his money before
+	going to an inn to wait out the night
+
+2005-02-12 22:35  siemelink
+
+	* src/zborg8.c: Have the borg check his money before using an inn
+
+2005-02-12 22:21  siemelink
+
+	* src/: zborg2.c, zborg6.c, zborg9.c: tweaks to borg_status window,
+	borg_find_town and that Line of Sight that I left in comments.
+
+2005-02-03 22:36  siemelink
+
+	* lib/edit/k_info.txt, src/zborg1.c, src/zborg1.h, src/zborg2.c,
+	src/zborg4.c, src/zborg6.c, src/zborg6.h, src/zborg7.c,
+	src/zborg8.c, src/zborg9.c: What a few days without the internet
+	can do:
+	
+	There are some procedures that call borg_power() to swap items. 
+	Borg_power has as a side effect that it resets bp_ptr.	But these
+	procs would sometimes leave bp_ptr inconsistent with the unswapped
+	state.	These procedures now call borg_power at the end to make
+	sure that bp_ptr is consistent with reality.  The existing
+	inconsistency was causing an error with borg_restock and a
+	wilderness loop.  Tried to fix another wilderness loop.  There was
+	a funny calculation to determine the best shop in town.  But as the
+	borg visits all the shops anyway I changed the best shop into the
+	closest, unvisited shop.  Put in some more GOAL_NONEs The previous
+	entry trying to fix message handling for monks was incorrect as it
+	missed al the uniques if they were hit by some fancy monk move.  I
+	fixed it by first testing the message for a suffix.  I tried to fix
+	the dungeon loop where the borg would hover close to a non-moving
+	monster just around the corner.  I put in another line of sight
+	check to improve on this.  There was a wilderness loop where the
+	borg would reach a town but leave it right away for some unexplored
+	wilderness.  This won't happen anymore because now the borg will
+	head for a shop when it realizes that it reached the town.
+
+2005-01-26 10:58  siemelink
+
+	* src/zborg7.c: Allow the borg to light up, detect traps and
+	monsters in the wilderness
+
+2005-01-26 10:02  siemelink
+
+	* src/: zborg3.c, zborg7.c: Prevent the borg from wearing crap
+	items like an amulet of teleportation
+
+2005-01-20 21:38  siemelink
+
+	* src/: externs.h, object1.c, object2.c: Add wraparound for
+	examining objects.  Now the tail end of your object description
+	won't fall off.
+
+2005-01-20 14:34  siemelink
+
+	* src/: zborg3.c, zborg6.c: The borg no longer stops when as a
+	Half_giant it wanted to eat rock
+
+2005-01-19 13:05  siemelink
+
+	* src/: cave.c, externs.h, run.c: If the player is runnig he'll
+	stop when he's is next to a shop entrance.
+
+2005-01-19 12:49  siemelink
+
+	* src/: zbmagic1.c, zborg6.c, zborg6.h: Prevent the borg from
+	eating a cure poison when the borg is full or gorged (unless the
+	borg has three hp or less)
+
+2005-01-19 11:51  siemelink
+
+	* src/zborg2.c: Fixed parsing of hit-messages with a suffix Prevent
+	borg_add_town to add towns called Bottom, lev or 50 ft
+
+2005-01-19 09:33  siemelink
+
+	* src/: zborg1.h, zborg5.c, zborg6.c, zborg6.h, zborg8.c, zborg9.c:
+	Another attempt to prevent lifelock for borgs in the wilderness
+
+2004-11-26 17:46  siemelink
+
+	* src/: zborg1.h, zborg2.c, zborg2.h, zborg9.c: Fiddle with
+	borg_add_dungeon
+
+2004-11-25 22:43  siemelink
+
+	* src/: zborg1.c, zborg1.h, zborg2.c, zborg2.h, zborg6.c, zborg6.h,
+	zborg9.c: Prevent the borg from using towns called Bottom and 100
+	ft.  Hack the borg_map_reader a bit further so the borg knwos the
+	correct recall_depth.  Make the borg look for more towns in the
+	wilderness depending on its level.  Prevent the borg from waiting
+	out the night while on a swamp.  If the borg is looking for an inn
+	it might as well remember it with goal_shop.  I rewrote the
+	wilderness explorer so that the borg will explore a dark spot on
+	the map by not going there all the way but just far enough. 
+	Prevented another bouncing borg, with shops this time.
+
+2004-11-22 10:53  siemelink
+
+	* src/: zbmagic1.c, zborg2.c, zborg5.c, zborg6.c, zborg7.c,
+	zborg8.c, zborg9.c: Fix a bouncing borg in the wilderness.  Borgs
+	that have IM_POISON do not need to carry cure poisons anymore The
+	wilderness map reader now includes wilderness dungeons.  I rewrote
+	borg_leave_level
+
+2004-11-20 21:19  siemelink
+
+	* src/zborg9.c: Aha, I forgot to press save.
+
+2004-11-20 21:16  siemelink
+
+	* src/: zborg1.c, zborg1.h, zborg2.c, zborg3.c, zborg5.c, zborg6.c,
+	zborg6.h, zborg7.c, zborg9.c: I removed the last of the
+	borg_notes_fmt I made an attempt to get rid of the bouncing borg
+	(with telepathy) problem where it would flow to a monster,
+	accidentally erase it, do something new, see the monster, flow to a
+	it, erase it....  The borg no longer rests close to some mana
+	draining monster I integrated the two routines that made the borg
+	pick a dungeon The borg now realizes that a immunity also
+	represents the relevant resistance.  The status window noe also
+	displays immunities to poison, light and dark.
+
+2004-11-19 15:21  siemelink
+
+	* src/dungeon.c: If you were not hurt by shallow swamp in the
+	wilderness you still got the -The plants poison you- message.  No
+	longer.
+
+2004-11-19 09:41  siemelink
+
+	* src/: zborg1.c, zborg1.h, zborg6.c: Reduce the compile size by
+	changing some static arrays used by the borg to be dynamically
+	allocated.
+
+2004-11-19 09:22  siemelink
+
+	* src/zborg6.c: Fix the livelock that occurred when the borg was
+	picking up items on painful feats.
+
+2004-11-19 08:59  siemelink
+
+	* src/: zborg6.c, zborg8.c: Fix some omissions for the borg
+	wilderness handling
+
+2004-11-18 12:55  siemelink
+
+	* src/run.c: Allow players with levitation to continue running
+	(ahem) over terrains that would hurt them without levitation.  Now
+	the player isn't stopped everytime he runs (flies) next to swamp or
+	acid either.
+
+2004-11-18 12:46  siemelink
+
+	* src/: zbmagic1.c, zborg1.c, zborg1.h, zborg2.c, zborg2.h,
+	zborg3.c, zborg4.c, zborg6.c, zborg6.h, zborg7.c, zborg8.c,
+	zborg9.c: Prevent frequent crash.  Further improvements to
+	wilderness handling:  The borg goes to an inn when it is dark, to a
+	dungeon of the right depth compared to its equipment and to (all)
+	the known towns to go shopping.
+
+2004-10-30 22:51  siemelink
+
+	* src/: zbmagic1.c, zborg1.h, zborg2.c, zborg2.h, zborg3.c,
+	zborg4.c, zborg6.c, zborg6.h, zborg8.c, zborg9.c: Tweaks to the
+	flow code for the wilderness changed a light beam radius test from
+	<= to < Prevent the borg from wearing weapons of Morgul, it used to
+	like them because of the see invisible.
+
+2004-10-27 10:18  siemelink
+
+	* src/: zbmagic1.c, zborg1.h, zborg6.c, zborg6.h, zborg8.c: If the
+	borg is standing on some painful terrain feature it now can get
+	off.
+
+2004-10-26 22:12  siemelink
+
+	* src/: zbmagic1.c, zborg1.c, zborg1.h, zborg2.c, zborg3.c,
+	zborg3.h, zborg5.c, zborg5.h, zborg6.c, zborg6.h, zborg7.c,
+	zborg8.c, zborg9.c: I have introduced the concept of multiple
+	dungeons to the borg.  The borg now keeps track of the location and
+	depth of the dungeons it has seen.  When about to Recall into a
+	dungeon it will first pick a dungeon with the correct depth.  When
+	it is dark the borg will head for the closest Inn to wait out the
+	night.	I added another borg command ^z9:  The list of dungeons.
+
+2004-10-20 22:43  siemelink
+
+	* src/zborg6.c: Enable the borg to explore the wilderness.  If the
+	borg is bored at a town or far away from dungeons it will locate
+	the closest unexplored spot on the map and head in that direction.
+
+2004-10-20 22:40  siemelink
+
+	* src/spells3.c: Aha, here was that boundary fix for the map maker.
+
+2004-10-20 22:38  siemelink
+
+	* src/zborg9.c: Force the borg to release it flow target when that
+	target is a jungle.
+
+2004-10-20 22:36  siemelink
+
+	* src/: scores.c, zborg8.c: Fix faulty boundary for the map maker.
+
+2004-10-19 10:49  siemelink
+
+	* src/: externs.h, object1.c, object2.c, store.c: Yet another fix
+	to the *id* handling.  I accidentally left out its use in the
+	shops.	Maybe this time it is ready.
+
+2004-10-19 10:47  siemelink
+
+	* src/zborg4.c: remove unused variable.
+
+2004-10-19 10:46  siemelink
+
+	* src/: cmd3.c, defines.h, load.c, monster1.c, save.c: Fix some
+	library issues.  1:  You couldn't find a researched monster in the
+	monster memory if you had never seen it before.  2:  If you
+	research a monster that you have researched before it is now for
+	free.  3:  There were differences between what you'd see in the
+	library and the monster memory, if the monster had never been
+	killed.  I fixed this by introducing a new monster flag,
+	RF6_LIBRARY.  If set then a monster description will include those
+	details.  To do this properly r_ptr->r_flags[6] has to be saved,
+	which it wasn't.  I found that a previous change of mine (finding
+	out about swimming monsters) also needed this to be saved.   I
+	hadn't realize this until now.	So I've upped SAVEFILE_VERSION,
+	added a wr32b in save.c and an	if (sf_version > 51) rd32b in
+	load.c.  I think I did that right, please correct me if I am wrong.
+	
+	Willem.
+
+2004-10-17 22:28  siemelink
+
+	* src/zborg8.c: Fix the borg use of the healer building.
+
+2004-10-17 22:28  siemelink
+
+	* src/: object1.c, object2.c: Add the pack letter when you are
+	examining an object.
+
+2004-10-17 22:26  siemelink
+
+	* lib/edit/t_info.txt: Add a message to the healing building when
+	all your stats are tiptop.
+
+2004-10-17 21:38  siemelink
+
+	* src/zborg3.c: Try to prevent a crash noticed by mnbv
+
+2004-10-17 21:37  siemelink
+
+	* src/zborg9.c: Fix omission of "%s", in a prtf
+
+2004-10-15 19:39  siemelink
+
+	* src/zborg5.c: increase the penalty for aggravate monsters.  The
+	borg would wield a weapon of morgul otherwise.
+
+2004-10-15 18:33  siemelink
+
+	* src/: zborg1.h, zborg2.c, zborg4.c, zborg8.c, zborg9.c: Get the
+	borg to understand buildings that are not shops.  The borg can	now
+	use the weaponmaster, the two magesmiths, the casino, the
+	zymurgist, the map maker, the inn, the healer, the magetowers and
+	the castles.  Just for the library and the mutatalist I can't think
+	of a way for the borg to use them advantageously.
+
+2004-10-15 17:51  siemelink
+
+	* src/zborg7.c: Yet another rewrite of the enchant weaopn and
+	armour routines.  This the aim was to let the borg always read the
+	scroll and cast spells onyl for a while.  There were put together
+	and that prevented the borg from reading scrolls when it is in the
+	wilderness for a long time.
+
+2004-10-15 17:48  siemelink
+
+	* src/zbmagic1.c: prevent the borg from using teleport level in
+	town/wilderness because in the wilderness there usually is no
+	dungeon beneath.
+
+2004-10-14 22:21  siemelink
+
+	* src/zborg6.c: Undo change to wait for recharging rods.  It is
+	necessary for them to be charging in the first place.
+
+2004-10-14 22:20  siemelink
+
+	* src/zborg3.c: The racial power could be used when the borg does
+	not have enough hitpoints....
+
+2004-10-14 00:00  siemelink
+
+	* src/: zbmagic1.c, zborg3.c, zborg3.h, zborg4.c, zborg6.c,
+	zborg7.c: Add some code for the borg to handle the branding of
+	bolts with the Crossbow of Brand.  Add a hack for the borg to
+	handle the second racial powers of Amberites and Ghouls.
+
+2004-10-12 11:56  siemelink
+
+	* src/bldg.c: If you are a monk you can now see your attacks listed
+	at the weaponmasters.
+
+2004-10-12 11:55  siemelink
+
+	* src/wizard2.c: If you create money in wizard mode the maximum is
+	now a bit less so it won't look odd in the shops on the gold
+	remaining line.  But don't worry, 99999999 is still plenty.
+
+2004-10-12 11:53  siemelink
+
+	* lib/edit/k_info.txt: Give all the armours an article (a/an). 
+	They were the only objects without them.
+
+2004-10-11 23:46  siemelink
+
+	* lib/edit/t_info.txt, src/bldg.c, src/object1.c: Smoothen the use
+	of special buildings.
+
+2004-10-11 14:17  siemelink
+
+	* lib/edit/k_info.txt, src/cmd6.c, src/externs.h, src/l-spell.pkg,
+	src/object2.c, src/script.c, src/spells3.c: Attempt to have a
+	correct message after identifying an object.  The message often
+	contains the wrong letter for the identified object or the id
+	scroll.  This happens because of the sorting and combining which is
+	done after the message generation.  So I moved the sorting and
+	combining forward.  This solution is not perfect, there are some
+	obscure possibilities that still generate an incorrect message. 
+	(When by reading a scroll of identify you combine two piles of
+	scrolls of identify) To keep everything consistent I had to hack a
+	bit too.  So if my hacks are too monstrous please tell me how to
+	make it better.
+
+2004-10-11 14:05  siemelink
+
+	* src/object1.c: That tweak of examining was no good.  Back to
+	normal.
+
+2004-10-11 12:19  siemelink
+
+	* src/: defines.h, l-ui.pkg: Complete changes to window options
+	screen.
+
+2004-10-11 12:16  siemelink
+
+	* src/object1.c: Tweak *identify*
+
+2004-10-11 12:13  siemelink
+
+	* lib/edit/k_info.txt: Fix a double d: entry that wasn't to be.
+
+2004-10-07 22:24  siemelink
+
+	* lib/edit/t_info.txt: Correctly fix the compact runes with bOr
+	instead of +
+
+2004-10-07 22:23  siemelink
+
+	* src/zborg4.c: Tweak borg appreciation of TY_curse
+
+2004-10-06 23:35  siemelink
+
+	* src/zborg9.c: Make sure that the borg ignores the new options
+	emergency_stop
+
+2004-10-06 23:34  siemelink
+
+	* src/: cmd4.c, defines.h, effects.c, externs.h, tables.c: Add a
+	#define WINDOW_CHOICE_MAX which contains the number of different
+	widows you can have.  Make the window submenu use it.  Add a new
+	option emergency_stop.	If your hitpoints get low this option will
+	discard all your input until you press a 'c' to continue.  I've
+	played with this option and I found that it cut down on the number
+	of careless deaths by at least 50%.
+
+2004-10-06 22:55  siemelink
+
+	* lib/edit/t_info.txt: compact runes didn't work because this
+	cannot be parsed.  PROJECT_HIDE | PROJECT_JUMP.  Apparently the |
+	is not in lua.	I don't know what is but in this case a + fixes the
+	problem.
+
+2004-10-06 22:53  siemelink
+
+	* lib/help/spoiler.hlp: Replace reference to web page that no
+	longer exists with a how to generate the spoilers yourself.
+
+2004-10-06 22:52  siemelink
+
+	* lib/edit/e_info.txt, src/dungeon.c: Attempt to prevent bad ego
+	items from showing up as {good} or {excellent}
+
+2004-10-06 22:36  siemelink
+
+	* lib/edit/k_info.txt: Fix the script for staff of slowness
+
+2004-10-06 22:35  siemelink
+
+	* src/: zborg5.c, zborg7.c, zborg8.c: Minor tweaks.
+
+2004-10-04 22:25  siemelink
+
+	* src/: zbmagic1.c, zborg3.c, zborg3.h, zborg4.c, zborg5.c,
+	zborg7.c: Add the use of BORG_ACT_* to the power calculations. 
+	Some items are no longer left at home: Enchant scrolls and resis
+	heat/cold potions.
+
+2004-10-04 11:36  siemelink
+
+	* src/monster1.c: The monster memory now shows if a monster is
+	flying ("flies" instead of "moves"), if  a monster can swim or if a
+	monster lives in water.
+
+2004-10-04 11:35  siemelink
+
+	* src/melee2.c: If the player sees a non-flying monster on lava or
+	swamp or acid or deep water the appropriate flag (im_fire, im_pois,
+	im_acid or can_swim) will be added to the monster memory.
+
+2004-10-04 09:57  siemelink
+
+	* src/: zbmagic1.c, zborg3.c, zborg3.h: Fix BORG_ACT_RECALL to use
+	the Jewel of Judgment
+
+2004-10-04 09:54  siemelink
+
+	* src/object1.c: When you examine an object that has an immunity
+	and vulnerability to fire, the vulnerability is no longer shown. 
+	The vulnerability wasn't counted because the immunity sets the
+	damage to 0.  Same with resistance and acid, cold, poison, elec,
+	light and dark.
+
+2004-10-04 09:52  siemelink
+
+	* src/: zborg1.h, zborg4.c, zborg5.c: Have the borg carry
+	wands/rods of teleport away.
+
+2004-10-03 20:38  siemelink
+
+	* src/main-win.c: This buffer is no longer needed here because it
+	sits inside ingame_score
+
+2004-10-03 20:37  siemelink
+
+	* src/ui.c: Remove reference to procedure that no longer exists.
+
+2004-10-03 12:04  sfuerst
+
+	* src/fields.c: Add back missing check for field destruction in
+	compact_fields().  Destroy it by hand if the script doesn't kill it
+	for us.
+
+2004-10-02 22:00  siemelink
+
+	* src/zborg7.c: Let BORG_ACT_DETECT_MONSTERS to be used.
+
+2004-10-02 21:59  siemelink
+
+	* src/: zbmagic3.c, zborg1.h, zborg4.c, zborg5.c: Allow the borg to
+	use an activation for the perma protection form evil.  No longer
+	collect scrolls of PfE, it is not worth the bother now that many
+	items give prot from evil.
+
+2004-10-02 21:37  siemelink
+
+	* lib/edit/a_info.txt: Fix The Jewel of Judgment.  Whether you said
+	y or n didn't matter, you got the recall.  The mistake was that 0
+	!= nil
+
+2004-10-02 21:36  siemelink
+
+	* lib/script/spell.lua: Fix the summoning bug (no identification of
+	the staff when it wsa used) properly, it was a faulty
+	initialization.
+
+2004-10-02 13:29  siemelink
+
+	* src/: zbmagic1.c, zbmagic2.c, zbmagic3.c, zborg3.c, zborg3.h,
+	zborg6.c, zborg7.c, zborg8.c: Have the borg use artifact
+	activations that do no damage, like identify, teleport,
+	invulnerabilty, etc.  This is based on the activation description
+	so the borg makes no difference between randarts and standarts. 
+	Replaced all the references to specific artifacts (for their
+	activations) with their activations.
+
+2004-10-02 13:08  siemelink
+
+	* src/artifact.c: In activation texts replace & with and some other
+	rewording.
+
+2004-10-02 13:07  siemelink
+
+	* src/zborg4.c: Correct usage of precognition with trap/door
+	detection
+
+2004-10-02 13:05  siemelink
+
+	* lib/edit/a_info.txt: Give randarts and standarts the same format
+	for damage and radius.
+
+2004-10-02 13:04  siemelink
+
+	* lib/edit/k_info.txt: Fix typo
+
+2004-09-30 16:01  siemelink
+
+	* src/zbmagic2.c: I revamped the borg support for activating
+	artifacts that damage monsters.  Instead of multiple passes on the
+	activation description string only one is needed.
+
+2004-09-28 23:51  siemelink
+
+	* src/zbmagic2.c: Add borg support for artifact actications that
+	can damage monsters.
+
+2004-09-28 22:45  siemelink
+
+	* src/tk/describe.c: Whoops, I overlooked this one.
+
+2004-09-27 22:53  siemelink
+
+	* src/artifact.c: Prevent the display of a (+0, +0%) boost to
+	to_hit and to_dam for randart non-weapons.
+
+2004-09-27 22:27  siemelink
+
+	* lib/script/spell.lua: Fix the bug where you summon a monster and
+	your scroll or staff would not get awareness.
+
+2004-09-27 22:20  siemelink
+
+	* src/store.c: Oops, I forgot the crucial one with the OB_STOREB
+	stuff.
+
+2004-09-27 22:18  siemelink
+
+	* src/: artifact.c, birth.c, defines.h, object2.c, scores.c:
+	Restrict the usage of OB_STOREB to inside the shops only.  Once you
+	buy an item the flag goes away.  Introduce OB_NO_EXP that keeps
+	track of items that shouldn't be scored because they came from a
+	shop.  This is to make shopbought items show their flavor. 
+	Previously, you'd have a shopbought potion of poison and you could
+	not tell its flavor.  This I found weird because the player has the
+	potion right there in his pack so surely he can see if the flavor
+	is polka-dot.
+
+2004-09-27 11:27  siemelink
+
+	* src/store.c: Tweak the store examine code which had both a msgf
+	and a fput_str describing what object it was.
+
+2004-09-27 11:19  siemelink
+
+	* src/: flavor.c, wizard2.c: There was a bug where you could find
+	out what a potion was by dropping several of them at home.  If you
+	would pick it up the home/store code would reveal what is was.	I
+	fixed it by testing for the OB_SHOPB flag.  Only with that flag you
+	can see an unid'd item completely in a shop.  This warped the
+	wizard mode play with object command so I fixed that by giving such
+	object a temporary shop flag.
+
+2004-09-27 10:49  siemelink
+
+	* src/: artifact.c, cmd3.c, externs.h, object1.c, spells3.c,
+	store.c: identify_fully_aux returned a bool in case there was
+	nothing special.  But the returned bool was always (TRUE).  So I
+	replaced the bool with a void and put the nothing special inside
+	identify_fully_aux.  I replaced a msgf that stated what you were
+	examining with a fput_str to get that item as a header for the
+	examination info.  I added that you only need to be aware of an
+	object to see its description from k_idx.txt.
+
+2004-09-27 10:43  siemelink
+
+	* src/object2.c: When you merge two stacks the *full* info from the
+	second stack gets carried over.
+
+2004-09-27 10:39  siemelink
+
+	* src/zborg4.c: Allow the borg to wear exp_draining items when
+	hehas reached lvl 50.
+
+2004-09-27 10:38  siemelink
+
+	* src/zborg8.c: Allow the borg to sell un*id*'d artifacts when it
+	has lots of cash.
+
+2004-09-27 10:34  siemelink
+
+	* lib/edit/k_info.txt: I added lots of descriptions to items. 
+	Everything except for armour and weapons should have a description
+	now.
+
+2004-09-24 17:06  siemelink
+
+	* src/zborg5.c: use borg_test_bad_curse to edcrease value on the
+	equipment when the borg wears an item with such a curse
+	inappropriately.
+
+2004-09-24 17:05  siemelink
+
+	* src/zborg4.c: Add drain_exp to the bad curses
+
+2004-09-24 16:49  siemelink
+
+	* src/: zborg4.c, zborg4.h, zborg7.c: There is now a test for the
+	nasty curse (ty, no_tele, no_magic, drain_stat).  The borg can
+	ignore drain_stat when it has all sustains.
+
+2004-09-18 21:20  siemelink
+
+	* src/: zborg4.c, zborg8.c: Fix a home loop by changing the
+	definition for home_damage.  Further tweak the pick up from home
+	code
+
+2004-09-18 21:19  siemelink
+
+	* src/zborg5.c: Change the usage for multibonus so that it doesn't
+	give a bonus for resistances that are already covered by your race.
+
+2004-09-17 09:14  siemelink
+
+	* src/zborg8.c: If the home is full the borg will take the item
+	away that costs the least, instead of just the negative ones.  When
+	attempting to add an item to the home when it is almost full the
+	added value must be higher than the item in the home that adds the
+	least.
+
+2004-09-16 22:55  siemelink
+
+	* src/zborg7.c: Add use of rod of restoration Add use of staff of
+	detect evil tweak destroying items
+
+2004-09-16 22:05  siemelink
+
+	* src/zbmagic3.c: Add use of staff of earthquakes
+
+2004-09-16 22:05  siemelink
+
+	* src/zbmagic2.c: Add use of staff of starlight
+
+2004-09-16 22:04  siemelink
+
+	* src/zbmagic1.c: Add use of staff of cure light wounds
+
+2004-09-16 22:03  siemelink
+
+	* src/: zborg1.c, zborg1.h, zborg4.c, zborg5.c: Replace borg_note
+	with borg_note_fmt Forbid the borg to drop items with ty_curse and
+	the like at home.  Add use of Amulet of Luck and Sustenance.  Add
+	use of unknown shadow and elven cloaks.  Add use of Spell point
+	bonus
+
+2004-09-13 12:32  siemelink
+
+	* src/: zborg1.c, zborg3.c, zborg3.h, zborg4.c, zborg5.c, zborg6.c,
+	zborg7.c, zborg8.c, zborg9.c: Collapse borg_item_icky and
+	borg_keep_unidentified into borg_worthless_item Introduce
+	borg_spell_no_reserve for when you know there is no danger and
+	theborg should do a reserve mana check.  Use this for identifying
+	and destroying things.	Give a value fire/cold/elec/acid sheaths. 
+	Prevent a crash when evaluating borg_power_home().  Rewrite
+	identifying objects.  Prevent a home loop.  Allow the sale of ego
+	items that need *id* to make the shop *id* it.	Make the borg
+	remember the settings of 11 options that have to be set FALSE. 
+	WHen the borg is done the original value is restored.  This is for
+	my daughter who likes to explore caves.  She uses easy_open and the
+	borg can not.
+
+2004-09-13 12:31  siemelink
+
+	* src/dungeon.c: Add the cursed kn_flags to items when the curse is
+	discovered by pseudo id
+
+2004-09-13 12:22  siemelink
+
+	* lib/edit/k_info.txt: Improve the description of Rings of Flames,
+	Ice and Acid
+
+2004-09-12 16:17  sfuerst
+
+	* src/: dungeon.c, externs.h, load.c, main.c, save.c, z-config.h:
+	Removed the broken VERIFY_SAVEFILE option because it didn't work. 
+	Removed the VERIFY_TIMESTAMP option because it was trivial to hack
+	around by using a modified version of the game source code.  Turned
+	VERIFY_CHECKSUMS permanently on because it is good at detecting
+	corrupted savefiles.  (Its security aspect is ignorable though,
+	being trivial to hack around - again with a modified copy of the
+	game source code.)
+
+2004-09-11 21:35  sfuerst
+
+	* src/z-config.h: Remove the ALLOW_CAVERNS_AND_LAKES option.  It is
+	no longer used anywhere because the old stack overflow problem was
+	fixed many versions ago.
+
+2004-09-11 21:31  sfuerst
+
+	* src/: dungeon.c, externs.h, files.c, util.c, variable.c,
+	z-config.h: Remove the CHECK_LOAD option.  Multiuser machines are
+	quite a bit more powerful than in the Moria days.
+
+2004-09-11 21:26  sfuerst
+
+	* src/: dungeon.c, externs.h, files.c, util.c, z-config.h: Remove
+	the old Moria (non-GPLed) CHECK_TIME option.
+
+2004-09-11 21:18  sfuerst
+
+	* src/: main.c, save.c, util.c, z-config.h: Remove the dead code
+	for the out of date AFS file system.  Removed the 'SECURE' option
+	so it can be used for something else.
+
+2004-09-11 21:09  sfuerst
+
+	* src/: externs.h, main.c, util.c: Move multiuser machine
+	initialization into a seperate function, and then put that in
+	util.c
+
+2004-09-11 18:43  sfuerst
+
+	* src/: externs.h, files.c, main-crb.c, main-win.c, scores.c, ui.c,
+	variable.c: Move all handling of highscore_fd into scores.c  Export
+	an extra function so the windows and mac carbon ports can do their
+	magic.	Move the death functions from files.c to scores.c
+
+2004-09-11 18:01  sfuerst
+
+	* src/: externs.h, files.c, util.c: Remove unused parts of the
+	files API.
+
+2004-09-11 17:45  sfuerst
+
+	* src/zborg9.c: Remove the need for safe_setuid_grab/drop in the
+	borg code by putting files in the users directory where they have
+	the required permisions already.
+
+2004-09-11 17:15  sfuerst
+
+	* src/: externs.h, files.c, util.c: Move guid and signals code from
+	files.c to util.c leaving only the pref-file and death-handling
+	stuff in files.c
+
+2004-09-08 11:29  sfuerst
+
+	* src/files.c: Fix printing of enscriptions on equipment in
+	character dumps.
+
+2004-09-07 10:52  siemelink
+
+	* src/: zborg1.c, zborg1.h, zborg3.c, zborg3.h, zborg4.c, zborg5.c,
+	zborg7.c, zborg7.h, zborg8.c, zborg9.c: Remove the hack
+	borg_wearing_cursed and replaced it with bp_ptr->status.cursed The
+	borg now counts how many items it has to identify, remove curse or
+	whatever.  This way the borg can put items that need *id* at home
+	and pull them out again when it has the *id* scroll.  The borg can
+	now wait for a rod to recharge before leaving a level.	If the borg
+	has a heavy curse it will show up orange on the borg_status menu.
+
+2004-09-07 10:50  siemelink
+
+	* src/: cmd2.c, cmd3.c, store.c: Fixed the bug where you'd know an
+	item is cursed but would not get the KN_FLAG for it.
+
+2004-09-02 21:42  siemelink
+
+	* src/: zborg1.h, zborg3.c, zborg4.c, zborg5.c, zborg7.c, zborg9.c:
+	The borg now judges the fail rate for cursed items correctly.  The
+	borg may now read a scroll of mundanity The borg now wield/wear
+	cursed/heavy cursed or teleport items if the other flags on the
+	item make it good enough.  The borg ignores vulnerabilities if it
+	has invulnerabilities.	A Borg that can't eat shouldn't try it when
+	destroying items.  Some of the borg option handling was changed.  A
+	borg mage may now wear any pair of gloves, as long as it leaves him
+	300+ mana.
+
+2004-09-01 23:21  siemelink
+
+	* src/: zborg1.h, zborg4.c, zborg4.h, zborg5.c, zborg7.c: Add code
+	for the borg to use scrolls of artifact creation.  Finding one
+	myself gave me the inspiration to do this.
+
+2004-08-31 22:19  siemelink
+
+	* src/quest.c: Add some breaks in a switch.
+
+2004-08-31 22:18  siemelink
+
+	* src/cmd4.c: I forgot.  (It did have meaning)
+
+2004-08-31 22:17  siemelink
+
+	* src/effects.c: Give the warning bell when you are exactly on the
+	HP-percentage
+
+2004-08-31 22:14  siemelink
+
+	* src/scores.c: fix score display bug when you are in the top 10.
+
+2004-08-31 22:13  siemelink
+
+	* src/artifact.c: Fix that you can see what the artifact is before
+	you name it instead of after.
+
+2004-08-24 18:58  sfuerst
+
+	* src/maid-grf.c: Code cleanup in the pick_graphics() function.
+
+2004-08-24 18:57  sfuerst
+
+	* src/: main-x11.c, main-xaw.c: Fix bigtile mode to work in 32x32
+	and 8x8 tilesets.
+
+2004-08-23 22:20  sfuerst
+
+	* src/: angband.rc, fields.c, files.c, maid-grf.c, main-gtk.c,
+	main-win.c, main-x11.c, main-xaw.c, spells1.c: Add support for
+	David Gervais's tileset to several linux + windows ports.  Note
+	that it doesn't seem to work well with bigtile in x11 and xaw yet. 
+	Use the -b32 option to select it in the port options.  Or use the
+	menus in gtk and windows.
+
+2004-08-23 22:16  sfuerst
+
+	* lib/pref/: graf-dvg.prf, graf-win.prf, graf-x11.prf,
+	graf-xaw.prf, xtra-dvg.prf: Add pref files for David Gervais's
+	tileset.  Note that these have been copied from Angband - so are
+	totally wrong for [Z].	If anyone feels like fixing the tile
+	allocations that would be a great help.  At the moment barely
+	anything works properly.
+
+2004-08-23 22:12  sfuerst
+
+	* lib/xtra/graf/: 32x32.bmp, mask32.bmp: Add David Gervais tileset
+	from Angband
+
+2004-08-18 10:47  siemelink
+
+	* src/maid-grf.c: Add colour to the map home item list.
+
+2004-08-16 19:32  siemelink
+
+	* lib/edit/r_info.txt: Reduce the XP for Caaws by a factor 10. 
+	Getting 200000 XP when you are lvl 50 is ridiculous if the monster
+	doesn't move.
+
+2004-08-16 19:30  siemelink
+
+	* lib/edit/k_info.txt: Add descriptions to books, foodstuff and
+	diggers.  From Otto Martin.
+
+2004-08-15 22:27  sfuerst
+
+	* src/: angband.rc, main-win.c: Removed the bizzare mode from
+	main-win, and made it permanently on.  (Since the broken windows
+	versions are very common now.)	Added bigtile support to main-win.c
+
+2004-08-15 18:52  sfuerst
+
+	* src/: cmd4.c, maid-grf.c, maid-grf.h, main-gtk.c: Add a new
+	checkbox to main-gtk so bigtile mode can be toggled in-game.
+
+2004-08-15 17:31  sfuerst
+
+	* src/main-x11.c: Minor optimisation.
+
+2004-08-15 17:30  sfuerst
+
+	* src/main-gtk.c: main-gtk supports bigtile.
+
+2004-08-15 15:55  sfuerst
+
+	* src/main-xaw.c: Fix resize bug with xaw and bigtile.
+
+2004-08-15 13:02  sfuerst
+
+	* src/: main-x11.c, main-xaw.c, z-term.c, z-term.h: main-xaw.c now
+	supports bigtile.
+
+2004-08-15 12:17  sfuerst
+
+	* src/maid-grf.c: Rename the resize_map() in miad-grf.c to
+	resize_big_map() so it doesn't conflict with the resize_map() in
+	cmd4.c
+
+2004-08-15 00:08  siemelink
+
+	* src/maid-grf.c: Resizing while looking at the big map now adjusts
+	the size of the map.
+
+2004-08-14 18:57  sfuerst
+
+	* src/z-term.c: Redraw cursor only when it is inside the affected
+	region.
+
+2004-08-14 17:57  sfuerst
+
+	* src/z-term.c: Redraw cursor in Term_redraw_section()
+
+2004-08-14 17:48  sfuerst
+
+	* src/main-x11.c: Fix Term_wipe_x11() to work properly.  Make the
+	copy/paste box use xor instead of grey.
+
+2004-08-14 00:24  siemelink
+
+	* src/: externs.h, main-win.c, scores.c: This all started with one
+	bug: If your highscore list has 100 entries and you get killed with
+	a score lower than nr 100, you'd get listed as 100.  This way you'd
+	bump off the real nr 100.  I fixed that.  Then I found at that
+	pressing ESC does not always end the listing of the highscores
+	list.  I fixed that too.  Then I thought, why not have more than 5
+	scores on a page?  I use bigscreen after all.  So I fixed that the
+	whole page is filled with scores.  Then I found out that if you
+	resize your bigscreen while in the score display the main map needs
+	updating too.  So I fixed that too.
+
+2004-08-14 00:16  siemelink
+
+	* src/store.c: Add store commands to the display_store procedure
+
+2004-08-14 00:03  siemelink
+
+	* src/bldg.c: Fix resize to work inside buildings that are not
+	shops.
+
+2004-08-12 21:30  sfuerst
+
+	* src/: main-cap.c, main-crb.c, main-dos.c, main-gcu.c, main-gtk.c,
+	main-ibm.c, main-mac-carbon.c, main-mac.c, main-ros.c, main-tnb.c,
+	main-vcs.c, main-win.c, main-x11.c, main-xaw.c, main-xpj.c,
+	main-xxx.c: Actually use the Term_wipe_blah hook if we have one. 
+	This makes the close_game() screen glitch free in bigtile mode.
+
+2004-08-12 20:42  sfuerst
+
+	* src/xtra2.c: Make dimension door work properly again.
+
+2004-08-12 20:34  sfuerst
+
+	* src/z-term.c: Fix glitch where the screen isn't redraw properly
+	when transitioning between non-bigtile and bigtile modes where the
+	screen has an odd width.  (So stuff on the far right hand side
+	remained when it shouldn't have.)
+
+2004-08-12 20:26  sfuerst
+
+	* src/defines.h: Fix panel off-by-one glitch.
+
+2004-08-12 20:08  sfuerst
+
+	* src/maid-grf.c: Fix large scale map in bigtile mode.
+
+2004-08-11 22:41  siemelink
+
+	* src/: externs.h, maid-grf.c, quest.c: Rewrote that bit again in
+	order to prevent a temp file to be opened when it is not needed for
+	the map.
+
+2004-08-11 22:39  siemelink
+
+	* lib/edit/t_info.txt: Changed Copper Jewler into a Copper Jeweler
+
+2004-08-08 22:29  sfuerst
+
+	* src/: maid-grf.c, main-x11.c, util.c, z-term.c, z-term.h: More
+	updates to the bigtile code.  Glitches are much rarer now, and it
+	seems to be almost usable.  Fix use before open of fff in
+	do_cmd_view_map_aux.
+
+2004-08-08 16:22  siemelink
+
+	* src/: bldg.c, externs.h, store.c: I made stores and buildings
+	share the same procedure that provides all the commands that are
+	not related to stores and buildings. These are commands like e, i,
+	b, M, {, {, (, ), @, %, etc...
+
+2004-08-08 16:18  siemelink
+
+	* src/main-win.c: Remove from main-win.c the declaration for
+	use_bigtile which was there as a hack and now is useless.
+
+2004-08-07 23:21  siemelink
+
+	* src/: externs.h, maid-grf.c, quest.c: Change the town info
+	command on the wilderness map so that no temp file is opened if it
+	is not needed
+
+2004-08-07 21:54  siemelink
+
+	* src/artifact.c: The breathe elements random activation was
+	wrongly initialized causing a script erorr.  I changed a FALSE with
+	a TRUE to fix this.
+
+2004-08-06 19:12  sfuerst
+
+	* src/z-term.c: Fix term redraw in text mode.
+
+2004-08-05 22:59  sfuerst
+
+	* src/object1.c: Minor memory optimisation.
+
+2004-08-05 22:58  sfuerst
+
+	* src/: dungeon.c, externs.h, xtra2.c, z-term.c: Fix looking.  (Bug
+	due to panel code changes.)
+
+2004-08-05 22:26  sfuerst
+
+	* src/main-x11.c: Only allow bigtile mode if graphics is turned on.
+
+2004-08-05 22:19  sfuerst
+
+	* src/main-x11.c: Fix cursor size in bigtile mode.
+
+2004-08-05 22:00  sfuerst
+
+	* src/maid-grf.c: Fix off by one error in map drawing code which
+	was stomping on the lower status line.
+
+2004-08-05 19:26  sfuerst
+
+	* src/maid-grf.c: Fix typo which stuffed up the cursor.
+
+2004-08-05 19:09  sfuerst
+
+	* src/z-term.c: Fix menus so that bigtile works a bit better.  It
+	still isn't perfect though...
+
+2004-08-05 15:51  sfuerst
+
+	* src/: cmd4.c, dungeon.c, generate.c, maid-grf.c, main-cap.c,
+	main-gcu.c, main-win.c, wild1.c, wild3.c: Move nearly all calls of
+	map_panel_size() to use PU_MAP instead.  This probably breaks
+	something due to delayed updates of panel sizes.  However, it
+	removes the last of the panel crud from the main-port.c files.
+
+2004-08-05 15:36  sfuerst
+
+	* src/: main-ami.c, main-cap.c, main-crb.c, main-dos.c, main-emx.c,
+	main-gcu.c, main-gtk.c, main-ibm.c, main-lsl.c, main-mac-carbon.c,
+	main-mac.c, main-ros.c, main-sla.c, main-tnb.c, main-vcs.c,
+	main-vme.c, main-win.c, main-x11.c, main-xaw.c, main-xpj.c,
+	main-xxx.c, z-term.c, z-term.h: Remove final use of
+	TERM_XTRA_CLEAR.  It was reduntantly being used in screen
+	resize/refresh.
+
+2004-08-05 15:06  sfuerst
+
+	* src/z-term.c: Fix Term_redraw_section to work properly with
+	bigtile.
+
+2004-08-04 21:35  sfuerst
+
+	* src/: maid-grf.c, xtra2.c: Stomp memory overrun bug when drawing
+	map while resizing the panel.
+
+2004-08-04 17:31  siemelink
+
+	* lib/help/: command.txt, commdesc.txt: Add the roguelike display
+	time command (') to the help
+
+2004-08-04 17:11  sfuerst
+
+	* src/: main-x11.c, main-xaw.c, zborg9.c: Speed up resize/redraw in
+	x11 port massively.  Fix a few remaining bugs with bigtile mode. 
+	The only problem now is the cursor...
+
+2004-08-04 17:09  sfuerst
+
+	* src/z-term.c: Prevent race condition in map updating.
+
+2004-08-03 23:39  siemelink
+
+	* src/notes.c: Prevent the Chaos-warrior of chaos in the notes, it
+	is just a chaos-warrior.
+
+2004-08-03 23:35  sfuerst
+
+	* src/main-win.c: Remove old panel code.
+
+2004-08-03 23:34  sfuerst
+
+	* src/main-gcu.c: Update to the latest version of main-gcu.c from
+	[V].
+
+2004-08-03 23:33  sfuerst
+
+	* src/main-cap.c: Update to the latest version of main-cap.c from
+	[V].
+
+2004-08-03 23:32  sfuerst
+
+	* makefile.in, src/makefile.zb, src/lua/makefile.zb,
+	src/tk/makefile.zb: Add a 'make dust' target to do minor cleanup of
+	the backup files my editor drops behind.
+
+2004-08-03 23:31  sfuerst
+
+	* lib/pref/pref-mac.prf: Add support for numeric keypad on mac.
+
+2004-08-03 23:30  sfuerst
+
+	* src/: bldg.c, cave.c, cmd3.c, cmd4.c, defines.h, dungeon.c,
+	externs.h, files.c, generate.c, load.c, maid-grf.c, maid-grf.h,
+	main-x11.c, main.c, save.c, store.c, types.h, variable.c, xtra1.c,
+	xtra2.c, z-term.c, z-term.h: Rewrite the panel code.  Add a
+	hacked-up version of the 'bigtile' patch to x11.  There are two
+	bugs remaining: The cursor seems to be broken.	(But I don't think
+	it is due to my changes.)  Also there is a memory error when you
+	resize the screen too much, spotted by valgrind.
+
+2004-08-03 16:47  siemelink
+
+	* src/dungeon.c: When you inscribe a recharging item with '!!' then
+	you get a message when it is recharged.  Based upon Andrew Farmers
+	patch I made the recharge message to show how many of the pile are
+	now charged.
+
+2004-08-03 13:26  siemelink
+
+	* src/zborg2.c: Add the town name to the list of shops
+
+2004-08-03 13:25  siemelink
+
+	* src/: zborg1.c, zborg1.h, zborg9.c: Get rid of options that were
+	not needed and bools that were not used
+
+2004-08-03 13:23  siemelink
+
+	* src/: zbmagic1.c, zborg7.c: Repair the use of lightbeams
+
+2004-08-03 13:22  siemelink
+
+	* lib/help/: command.txt, commdesc.txt: Document the time command
+	^t
+
+2004-08-03 11:58  siemelink
+
+	* src/quest.c: Fix the buggy directions of wilderness dungeons.
+
+
 Zangband 2.7.4c
 - Fixed a bug that could cause the game to exit with an "Cannot find
   field to delete!" message.

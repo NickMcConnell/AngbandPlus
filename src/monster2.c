@@ -961,7 +961,7 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode, int max)
 {
 	cptr res;
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	cptr name = (r_name + r_ptr->name);
+	cptr name = mon_race_name(r_ptr);
 	char silly_name[1024];
 	bool seen, pron;
 	bool named = FALSE;
@@ -987,7 +987,7 @@ void monster_desc(char *desc, const monster_type *m_ptr, int mode, int max)
 			}
 			while (FLAG(hallu_race, RF_UNIQUE));
 
-			strcpy(silly_name, (r_name + hallu_race->name));
+			strcpy(silly_name, mon_race_name(hallu_race));
 		}
 
 		/* Better not strcpy it, or we could corrupt r_info... */
@@ -1692,8 +1692,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 	monster_race *r_ptr = &r_info[r_idx];
 
 	cptr name;
-	byte flags;
-	
+
 	/* Paranoia */
 	if (!r_idx) return (NULL);
 
@@ -1701,7 +1700,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 	if (!r_ptr->name) return (NULL);
 	
 	/* Lookup the name of the monster */
-	name = (r_name + r_ptr->name);
+	name = mon_race_name(r_ptr);
 
 	/* Verify location */
 	if (!in_bounds2(x, y)) return (NULL);
@@ -1743,16 +1742,7 @@ monster_type *place_monster_one(int x, int y, int r_idx, bool slp, bool friendly
 	 * Test for fields that will not allow monsters to
 	 * be generated on them.  (i.e. Glyph of warding)
 	 */
-
-	/* Initialise information to pass to action functions */
-	flags = MEG_DO_MOVE;
-
-	/* Call the hook */
-	field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
-			   (monster_type *) NULL, &flags);
-
-	/* Get result */
-	if (!(flags & (MEG_DO_MOVE))) return (NULL);
+	if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) return (NULL);
 
 	/* Powerful monster */
 	if (r_ptr->level > p_ptr->depth)
@@ -2535,7 +2525,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_DAWN:
 		{
-			okay = ((strstr((r_name + r_ptr->name), "the Dawn"))
+			okay = (mon_name_cont(r_ptr, "the Dawn")
 					&& !(FLAG(r_ptr, RF_UNIQUE)));
 			break;
 		}
@@ -2583,21 +2573,21 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_PHANTOM:
 		{
-			okay = ((strstr((r_name + r_ptr->name), "Phantom"))
+			okay = (mon_name_cont(r_ptr, "Phantom")
 					&& !(FLAG(r_ptr, RF_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_ELEMENTAL:
 		{
-			okay = ((strstr((r_name + r_ptr->name), "lemental"))
+			okay = (mon_name_cont(r_ptr, "lemental")
 					&& !(FLAG(r_ptr, RF_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_BLUE_HORROR:
 		{
-			okay = ((strstr((r_name + r_ptr->name), "lue horror"))
+			okay = (mon_name_cont(r_ptr, "lue horror")
 					&& !(FLAG(r_ptr, RF_UNIQUE)));
 			break;
 		}
@@ -2637,7 +2627,6 @@ bool summon_specific(int who, int x1, int y1, int req_lev, int type, bool group,
 {
 	int i, x, y, r_idx;
 	cave_type *c_ptr;
-	byte flags;
 
 	/* Look for a location */
 	for (i = 0; i < 20; ++i)
@@ -2665,19 +2654,10 @@ bool summon_specific(int who, int x1, int y1, int req_lev, int type, bool group,
 		if (fields_have_flags(c_ptr, FIELD_INFO_NO_ENTER)) continue;
 
 		/* 
-		 * Test for fields that will not allow this
-		 * specific monster to pass. (i.e. Glyph of warding)
+		 * Test for fields that will not allow monsters to
+		 * be generated on them.  (i.e. Glyph of warding)
 		 */
-
-		/* Initialise info to pass to action functions */
-		flags = MEG_DO_MOVE;
-
-		/* Call the hook */
-		field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
-				   (monster_type *) NULL, &flags);
-
-		/* Get result */
-		if (!(flags & (MEG_DO_MOVE))) continue;
+		if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) continue;
 
 		/* Okay */
 		break;
@@ -2716,8 +2696,8 @@ bool summon_specific(int who, int x1, int y1, int req_lev, int type, bool group,
 /*
  * A "dangerous" function, creates a pet of the specified type
  */
-monster_type *summon_named_creature(int x1, int y1, int r_idx, bool slp, bool group_ok,
-                           bool pet)
+monster_type *summon_named_creature(int x1, int y1, int r_idx, bool slp,
+									 bool group_ok, bool pet)
 {
 	int i, x, y;
 
@@ -2752,6 +2732,23 @@ monster_type *summon_named_creature(int x1, int y1, int r_idx, bool slp, bool gr
 		/* Place it (allow groups) */
 		m_ptr = place_monster_aux(x, y, r_idx, slp, group_ok, FALSE, pet, TRUE);
 		if (m_ptr) break;
+	}
+
+	return (m_ptr);
+}
+
+/*
+ * Same as above, but set SM_CLONE,
+ * and assume there is only one monster created, which is awake.
+ */
+monster_type *summon_cloned_creature(int x1, int y1, int r_idx, bool pet)
+{
+	monster_type *m_ptr = summon_named_creature(x1, y1, r_idx, FALSE, FALSE, pet);
+
+	if (m_ptr)
+	{
+		/* Set the cloned flag, so no treasure is dropped */
+		m_ptr->smart |= SM_CLONED;
 	}
 
 	return (m_ptr);

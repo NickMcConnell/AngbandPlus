@@ -259,7 +259,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 				| RF4_BO_ELEC | RF4_BO_POIS | RF4_BO_NETH
 				| RF4_BO_WATE | RF4_BO_MANA | RF4_BO_PLAS
 				| RF4_BO_ICEE | RF4_MISSILE);
-		f4 &= ~(RF3_ARROW_1 | RF3_ARROW_2 | RF3_ARROW_3 | RF3_ARROW_4);
+		f4 &= ~(RF3_ARROW);
 	}
 
 	if ((smart & (SM_IMM_FREE)) && (int_outof(is_dumb, 100)))
@@ -292,7 +292,6 @@ static bool summon_possible(int x1, int y1)
 	int dy, dx;
 
 	cave_type *c_ptr;
-	byte flags;
 
 	/* Start at the player's location, and check 2 grids in each dir */
 	for (dy = -2; dy <= 2; dy++)
@@ -329,16 +328,8 @@ static bool summon_possible(int x1, int y1)
 			 * Test for fields that will not allow monsters to
 			 * be generated on them.  (i.e. Glyph of warding)
 			 */
+			if (fields_have_flags(c_ptr, FIELD_INFO_NO_MPLACE)) return (FALSE);
 
-			/* Initialise information to pass to action functions */
-			flags = MEG_DO_MOVE;
-
-			/* Call the hook */
-			field_hook(c_ptr, FIELD_ACT_MON_ENTER_TEST,
-					   (monster_type *) NULL, &flags);
-
-			/* Get result */
-			if (!(flags & (MEG_DO_MOVE))) return (FALSE);
 
 			/* Require empty floor grid in line of sight of player */
 			if (cave_empty_grid(c_ptr)
@@ -743,7 +734,7 @@ bool make_attack_spell(int m_idx)
 	char ddesc[80];
 
 	/* Saving throw difficulty */
-	int power = r_ptr->level - p_ptr->lev;
+	int power = r_ptr->hdice * 2;
 
 	/* Target location */
 	int x = px;
@@ -763,6 +754,8 @@ bool make_attack_spell(int m_idx)
 
 	/* Assume "projectable" */
 	bool direct = TRUE;
+
+	int i;
 
 	/* Cannot cast spells when confused */
 	if (m_ptr->confused) return (FALSE);
@@ -869,10 +862,10 @@ bool make_attack_spell(int m_idx)
 	if (!thrown_spell) return (FALSE);
 
 	/* Extract the monster level */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+	rlev = r_ptr->hdice * 2;
 
 	/* Calculate spell failure rate */
-	failrate = 25 - (rlev + 3) / 4;
+	failrate = 25 - (r_ptr->hdice + 1) / 2;
 
 	/* Hack -- Stupid monsters will never fail (for jellies and such) */
 	if (FLAG(r_ptr, RF_STUPID)) failrate = 0;
@@ -934,49 +927,34 @@ bool make_attack_spell(int m_idx)
 
 		case 96 + 4:
 		{
-			/* RF3_ARROW_1 */
+			int dice = r_ptr->hdice < 4 ? 1 : r_ptr->hdice / 4;
+			if (dice > 7) dice = 7;
+
+			/* RF3_ARROW */
 			disturb(TRUE);
 			if (blind) msgf("%^s makes a strange noise.", m_name);
 			else
 				msgf("%^s fires an arrow.", m_name);
-			bolt(m_idx, GF_ARROW, damroll(1, 6));
+			bolt(m_idx, GF_ARROW, damroll(dice, 6));
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
 		}
 
 		case 96 + 5:
 		{
-			/* RF3_ARROW_2 */
-			disturb(TRUE);
-			if (blind) msgf("%^s makes a strange noise.", m_name);
-			else
-				msgf("%^s fires an arrow!", m_name);
-			bolt(m_idx, GF_ARROW, damroll(3, 6));
-			update_smart_learn(m_idx, DRS_REFLECT);
+			/* RF3_XXX6X4 */
 			break;
 		}
 
 		case 96 + 6:
 		{
-			/* RF3_ARROW_3 */
-			disturb(TRUE);
-			if (blind) msgf("%^s makes a strange noise.", m_name);
-			else
-				msgf("%^s fires a bolt.", m_name);
-			bolt(m_idx, GF_ARROW, damroll(5, 6));
-			update_smart_learn(m_idx, DRS_REFLECT);
+			/* RF3_XXX7X4 */
 			break;
 		}
 
 		case 96 + 7:
 		{
-			/* RF3_ARROW_4 */
-			disturb(TRUE);
-			if (blind) msgf("%^s makes a strange noise.", m_name);
-			else
-				msgf("%^s fires a bolt!", m_name);
-			bolt(m_idx, GF_ARROW, damroll(7, 6));
-			update_smart_learn(m_idx, DRS_REFLECT);
+			/* RF3_XXX8X4 */
 			break;
 		}
 
@@ -1241,7 +1219,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a ball of radiation.", m_name);
-			breath(m_idx, GF_NUKE, (rlev + damroll(10, 6)), 2, FALSE);
+			breath(m_idx, GF_NUKE, (r_ptr->hdice * 2 + damroll(10, 6)), 2, FALSE);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
 		}
@@ -1266,7 +1244,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles frighteningly.", m_name);
 			else
 				msgf("%^s invokes raw Logrus.", m_name);
-			breath(m_idx, GF_CHAOS, (rlev * 2) + damroll(10, 10), 4, FALSE);
+			breath(m_idx, GF_CHAOS, (r_ptr->hdice * 4) + damroll(10, 10), 4, FALSE);
 			update_smart_learn(m_idx, DRS_CHAOS);
 			break;
 		}
@@ -1292,7 +1270,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts an acid ball.", m_name);
-			breath(m_idx, GF_ACID, randint1(rlev * 3) + 15, 2, FALSE);
+			breath(m_idx, GF_ACID, damroll(r_ptr->hdice, 6), 2, FALSE);
 			update_smart_learn(m_idx, DRS_ACID);
 			break;
 		}
@@ -1304,7 +1282,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a lightning ball.", m_name);
-			breath(m_idx, GF_ELEC, randint1(rlev * 3 / 2) + 8, 2, FALSE);
+			breath(m_idx, GF_ELEC, damroll(r_ptr->hdice, 6), 2, FALSE);
 			update_smart_learn(m_idx, DRS_ELEC);
 			break;
 		}
@@ -1316,7 +1294,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a fire ball.", m_name);
-			breath(m_idx, GF_FIRE, randint1(rlev * 7 / 2) + 10, 2, FALSE);
+			breath(m_idx, GF_FIRE, damroll(r_ptr->hdice, 6), 2, FALSE);
 			update_smart_learn(m_idx, DRS_FIRE);
 			break;
 		}
@@ -1328,7 +1306,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a frost ball.", m_name);
-			breath(m_idx, GF_COLD, randint1(rlev * 3 / 2) + 10, 2, FALSE);
+			breath(m_idx, GF_COLD, damroll(r_ptr->hdice, 6), 2, FALSE);
 			update_smart_learn(m_idx, DRS_COLD);
 			break;
 		}
@@ -1352,7 +1330,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a nether ball.", m_name);
-			breath(m_idx, GF_NETHER, (50 + damroll(10, 10) + rlev), 2, FALSE);
+			breath(m_idx, GF_NETHER, (50 + damroll(10, 10) + r_ptr->hdice * 2), 2, FALSE);
 			update_smart_learn(m_idx, DRS_NETH);
 			break;
 		}
@@ -1365,7 +1343,7 @@ bool make_attack_spell(int m_idx)
 			else
 				msgf("%^s gestures fluidly.", m_name);
 			msgf("You are engulfed in a whirlpool.");
-			breath(m_idx, GF_WATER, randint1(rlev * 5 / 2) + 50, 4, FALSE);
+			breath(m_idx, GF_WATER, damroll(r_ptr->hdice, 8), 4, FALSE);
 			break;
 		}
 
@@ -1376,7 +1354,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles powerfully.", m_name);
 			else
 				msgf("%^s invokes a mana storm.", m_name);
-			breath(m_idx, GF_MANA, (rlev * 4) + damroll(10, 10), 4, FALSE);
+			breath(m_idx, GF_MANA, (r_ptr->hdice * 8) + damroll(10, 10), 4, FALSE);
 			break;
 		}
 
@@ -1387,7 +1365,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles powerfully.", m_name);
 			else
 				msgf("%^s invokes a darkness storm.", m_name);
-			breath(m_idx, GF_DARK, (rlev * 4) + damroll(10, 10), 4, FALSE);
+			breath(m_idx, GF_DARK, (r_ptr->hdice * 8) + damroll(10, 10), 4, FALSE);
 			update_smart_learn(m_idx, DRS_DARK);
 			break;
 		}
@@ -1407,7 +1385,7 @@ bool make_attack_spell(int m_idx)
 				msgf("%^s draws psychic energy from you!", m_name);
 
 				/* Attack power */
-				r1 = (randint1(rlev) / 2) + 1;
+				r1 = randint1(r_ptr->hdice);
 
 				/* Full drain */
 				if (r1 >= p_ptr->csp)
@@ -1466,7 +1444,7 @@ bool make_attack_spell(int m_idx)
 				msgf("%^s gazes deep into your eyes.", m_name);
 			}
 
-			if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			if (player_save(power))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1503,7 +1481,7 @@ bool make_attack_spell(int m_idx)
 				msgf("%^s looks deep into your eyes.", m_name);
 			}
 
-			if (saving_throw(p_ptr->skills[SKILL_SAV] - power - 10))
+			if (player_save(power + 10))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1525,10 +1503,11 @@ bool make_attack_spell(int m_idx)
 				}
 				(void)inc_slow(rand_range(4, 8));
 
-				while (!saving_throw(p_ptr->skills[SKILL_SAV]))
+				for (i = 0; !player_save(power - i); i += 10)
+				{
 					(void)do_dec_stat(A_INT);
-				while (!saving_throw(p_ptr->skills[SKILL_SAV]))
 					(void)do_dec_stat(A_WIS);
+				}
 
 				if (!(FLAG(p_ptr, TR_RES_CHAOS)))
 				{
@@ -1546,7 +1525,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s points at you and curses.", m_name);
-			if (saving_throw(p_ptr->skills[SKILL_SAV] - power + 20))
+			if (player_save(power - 20))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1566,7 +1545,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s points at you and curses horribly.", m_name);
-			if (saving_throw(p_ptr->skills[SKILL_SAV] - power + 10))
+			if (player_save(power - 10))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1586,7 +1565,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles loudly.", m_name);
 			else
 				msgf("%^s points at you, incanting terribly!", m_name);
-			if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			if (player_save(power))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1607,7 +1586,7 @@ bool make_attack_spell(int m_idx)
 			else
 				msgf("%^s points at you, screaming the word DIE!",
 						   m_name);
-			if (saving_throw(p_ptr->skills[SKILL_SAV] - power - 10))
+			if (player_save(power + 10))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1626,7 +1605,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a acid bolt.", m_name);
-			bolt(m_idx, GF_ACID, damroll(7, 8) + (rlev / 3));
+			bolt(m_idx, GF_ACID, damroll(7, 8) + (r_ptr->hdice * 2 / 3));
 			update_smart_learn(m_idx, DRS_ACID);
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
@@ -1639,7 +1618,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a lightning bolt.", m_name);
-			bolt(m_idx, GF_ELEC, damroll(4, 8) + (rlev / 3));
+			bolt(m_idx, GF_ELEC, damroll(4, 8) + (r_ptr->hdice * 2 / 3));
 			update_smart_learn(m_idx, DRS_ELEC);
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
@@ -1652,7 +1631,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a fire bolt.", m_name);
-			bolt(m_idx, GF_FIRE, damroll(9, 8) + (rlev / 3));
+			bolt(m_idx, GF_FIRE, damroll(9, 8) + (r_ptr->hdice * 2 / 3));
 			update_smart_learn(m_idx, DRS_FIRE);
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
@@ -1665,7 +1644,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a frost bolt.", m_name);
-			bolt(m_idx, GF_COLD, damroll(6, 8) + (rlev / 3));
+			bolt(m_idx, GF_COLD, damroll(6, 8) + (r_ptr->hdice * 2 / 3));
 			update_smart_learn(m_idx, DRS_COLD);
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
@@ -1685,7 +1664,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a nether bolt.", m_name);
-			bolt(m_idx, GF_NETHER, 30 + damroll(5, 5) + (rlev * 3) / 2);
+			bolt(m_idx, GF_NETHER, 30 + damroll(5, 5) + (r_ptr->hdice * 3));
 			update_smart_learn(m_idx, DRS_NETH);
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
@@ -1698,7 +1677,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a water bolt.", m_name);
-			bolt(m_idx, GF_WATER, damroll(10, 10) + (rlev));
+			bolt(m_idx, GF_WATER, damroll(10, 10) + (r_ptr->hdice * 2));
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
 		}
@@ -1710,7 +1689,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a mana bolt.", m_name);
-			bolt(m_idx, GF_MANA, randint1(rlev * 7 / 2) + 50);
+			bolt(m_idx, GF_MANA, damroll(r_ptr->hdice, 10));
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
 		}
@@ -1722,7 +1701,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a plasma bolt.", m_name);
-			bolt(m_idx, GF_PLASMA, 10 + damroll(8, 7) + (rlev));
+			bolt(m_idx, GF_PLASMA, 10 + damroll(8, 7) + (r_ptr->hdice * 2));
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
 		}
@@ -1734,7 +1713,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts an ice bolt.", m_name);
-			bolt(m_idx, GF_ICE, damroll(6, 6) + (rlev));
+			bolt(m_idx, GF_ICE, damroll(6, 6) + (r_ptr->hdice * 2));
 			update_smart_learn(m_idx, DRS_COLD);
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
@@ -1747,7 +1726,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msgf("%^s mumbles.", m_name);
 			else
 				msgf("%^s casts a magic missile.", m_name);
-			bolt(m_idx, GF_MISSILE, damroll(2, 6) + (rlev / 3));
+			bolt(m_idx, GF_MISSILE, damroll(2, 6) + (r_ptr->hdice * 2 / 3));
 			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
 		}
@@ -1765,7 +1744,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("You refuse to be frightened.");
 			}
-			else if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			else if (player_save(power))
 			{
 				msgf("You refuse to be frightened.");
 			}
@@ -1789,7 +1768,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("You are unaffected!");
 			}
-			else if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			else if (player_save(power))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1814,7 +1793,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("You disbelieve the feeble spell.");
 			}
-			else if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			else if (player_save(power))
 			{
 				msgf("You disbelieve the feeble spell.");
 			}
@@ -1836,7 +1815,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("You are unaffected!");
 			}
-			else if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			else if (player_save(power))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1860,7 +1839,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("You are unaffected!");
 			}
-			else if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			else if (player_save(power))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1907,7 +1886,7 @@ bool make_attack_spell(int m_idx)
 			/* RF5_HAND_DOOM */
 			disturb(TRUE);
 			msgf("%^s invokes the Hand of Doom!", m_name);
-			if (saving_throw(p_ptr->skills[SKILL_SAV] - power - 10))
+			if (player_save(power + 10))
 			{
 				msgf("You resist the effects!");
 			}
@@ -1939,7 +1918,7 @@ bool make_attack_spell(int m_idx)
 			}
 
 			/* Heal some */
-			m_ptr->hp += (rlev * 6);
+			m_ptr->hp += (r_ptr->hdice * 12);
 
 			/* Fully healed */
 			if (m_ptr->hp >= m_ptr->maxhp)
@@ -2070,7 +2049,7 @@ bool make_attack_spell(int m_idx)
 			{
 				msgf("You are unaffected!");
 			}
-			else if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			else if (player_save(power))
 			{
 				msgf("You resist the effects!");
 			}
@@ -2120,7 +2099,7 @@ bool make_attack_spell(int m_idx)
 			disturb(TRUE);
 			msgf("%^s tries to blank your mind.", m_name);
 
-			if (saving_throw(p_ptr->skills[SKILL_SAV] - power))
+			if (player_save(power))
 			{
 				msgf("You resist the effects!");
 			}

@@ -327,11 +327,11 @@ static int borg_danger_aux1(int r_idx)
 				if ((borg_goi) && !borg_attacking)
 					z /= 25;
 				if (bp_ptr->sust[A_STR]) break;
-				if (borg_stat[A_STR] <= 3) break;
+				if (borg_stat[A_STR] <= 30) break;
 				if (borg_spell_legal(REALM_LIFE, 3, 3)) break;
 				z += 150;
 				/* extra scary to have str drain below 10 */
-				if (borg_stat[A_STR] < 10)
+				if (borg_stat[A_STR] < 100)
 					z += 350;
 				if ((pfe) && !borg_attacking)
 					z /= 2;
@@ -345,11 +345,11 @@ static int borg_danger_aux1(int r_idx)
 				if ((borg_goi) && !borg_attacking)
 					z /= 25;
 				if (bp_ptr->sust[A_DEX]) break;
-				if (borg_stat[A_DEX] <= 3) break;
+				if (borg_stat[A_DEX] <= 30) break;
 				if (borg_spell_legal(REALM_LIFE, 3, 3)) break;
 				z += 150;
 				/* extra scary to have drain below 10 */
-				if (borg_stat[A_DEX] < 10)
+				if (borg_stat[A_DEX] < 100)
 					z += 350;
 				if ((pfe) && !borg_attacking)
 					z /= 2;
@@ -363,12 +363,12 @@ static int borg_danger_aux1(int r_idx)
 				if ((borg_goi) && !borg_attacking)
 					z /= 25;
 				if (bp_ptr->sust[A_CON]) break;
-				if (borg_stat[A_CON] <= 3) break;
+				if (borg_stat[A_CON] <= 30) break;
 				if (borg_spell_legal(REALM_LIFE, 3, 3)) break;
 				if (!borg_full_damage)
 					z += 150;
 				/* extra scary to have con drain below 8 */
-				if (borg_stat[A_STR] < 8)
+				if (borg_stat[A_STR] < 80)
 					z += 350;
 				if ((pfe) && !borg_attacking)
 					z /= 2;
@@ -382,7 +382,7 @@ static int borg_danger_aux1(int r_idx)
 				if ((borg_goi) && !borg_attacking)
 					z /= 25;
 				if (bp_ptr->sust[A_INT]) break;
-				if (borg_stat[A_INT] <= 3) break;
+				if (borg_stat[A_INT] <= 30) break;
 				if (borg_spell_legal(REALM_LIFE, 3, 3)) break;
 				z += 150;
 				/* extra scary for spell caster */
@@ -400,7 +400,7 @@ static int borg_danger_aux1(int r_idx)
 				if ((borg_goi) && !borg_attacking)
 					z /= 25;
 				if (bp_ptr->sust[A_WIS]) break;
-				if (borg_stat[A_WIS] <= 3) break;
+				if (borg_stat[A_WIS] <= 30) break;
 				if (borg_spell_legal(REALM_LIFE, 3, 3)) break;
 				z += 150;
 				/* extra scary for pray'er */
@@ -418,7 +418,7 @@ static int borg_danger_aux1(int r_idx)
 				if ((borg_goi) && !borg_attacking)
 					z /= 25;
 				if (bp_ptr->sust[A_CHR]) break;
-				if (borg_stat[A_CHR] <= 3) break;
+				if (borg_stat[A_CHR] <= 30) break;
 				if (borg_spell_legal(REALM_LIFE, 3, 3)) break;
 				z += 50;
 				if ((pfe) && !borg_attacking)
@@ -680,8 +680,8 @@ static int borg_danger_aux2(int i, bool average)
 
 			/* Track spaces already protected */
 			if (mb_ptr->monster ||
-				((mb_ptr->feat >= FEAT_CLOSED)
-				 && (mb_ptr->feat <= FEAT_PERM_SOLID)))
+			    ((mb_ptr->feat >= FEAT_CLOSED) &&
+			     (mb_ptr->feat <= FEAT_PERM_SOLID)))
 			{
 				/* Track the safe areas for calculating danger */
 				spot_safe++;
@@ -784,8 +784,11 @@ static int borg_danger_aux2(int i, bool average)
 
 			case 96 + 4:
 			{
-				/* RF3_ARROW_1 */
-				z = (1 * 6);
+				int dice = (r_ptr->hdice < 4 ? 1 : r_ptr->hdice / 4);
+				if (dice > 7) dice = 7;
+				
+				/* RF3_ARROW */
+				z = (dice * 6);
 				if (borg_goi)
 				{
 					z /= 25;
@@ -797,40 +800,19 @@ static int borg_danger_aux2(int i, bool average)
 
 			case 96 + 5:
 			{
-				/* RF3_ARROW_2 */
-				z = (3 * 6);
-				if (borg_goi)
-				{
-					z /= 25;
-					break;
-				}
-				if (FLAG(bp_ptr, TR_REFLECT)) z = (z + 2) / 3;
+				/* RF3_XXX6 */
 				break;
 			}
 
 			case 96 + 6:
 			{
-				/* RF3_ARROW_3 */
-				z = (5 * 6);
-				if (borg_goi)
-				{
-					z /= 25;
-					break;
-				}
-				if (FLAG(bp_ptr, TR_REFLECT)) z = (z + 2) / 3;
+				/* RF3_XXX7 */
 				break;
 			}
 
 			case 96 + 7:
 			{
-				/* RF3_ARROW_4 */
-				z = (7 * 6);
-				if (borg_goi)
-				{
-					z /= 25;
-					break;
-				}
-				if (FLAG(bp_ptr, TR_REFLECT)) z = (z + 2) / 3;
+				/* RF3_XXX8 */
 				break;
 			}
 
@@ -1532,7 +1514,7 @@ static int borg_danger_aux2(int i, bool average)
 			case 128 + 9:
 			{
 				/* RF4_DRAIN_MANA */
-				if (bp_ptr->msp) p += 10;
+				if (bp_ptr->msp) p += 20;
 				break;
 			}
 
@@ -2440,6 +2422,7 @@ static int borg_danger_aux2(int i, bool average)
 	 * elemental resistance spells and PFE have the flag set as FALSE.
 	 */
 	if (!average) return (av);
+
 	if ((n >= av * 15 / 10) || (n > bp_ptr->chp * 8 / 10))
 	{
 		return (n);
@@ -2776,6 +2759,7 @@ int borg_danger_aux(int x, int y, int c, int i, bool average)
 		{
 			v2 = v2 / 2;
 		}
+
 		/* Reduce danger from stunnned monsters  */
 		if (kill->m_flags & MONST_STUN)
 		{
@@ -2946,7 +2930,8 @@ static s32b borg_power_aux3(void)
 
 	s32b value = 0L;
 
-	list_item *l_ptr;
+	/* Heavily penalize various flags */
+	list_item temp, *l_ptr;
 
 
 	/* Obtain the "hold" value (weight limit for weapons) */
@@ -3121,14 +3106,26 @@ static s32b borg_power_aux3(void)
 			}
 		}
 	}
+
 	
 	/*** Reward various things ***/
 
 	/* Hack -- Reward light radius */
-	value += (bp_ptr->cur_lite * 100000L);
+	value += 1000000 * MIN(bp_ptr->cur_lite, 3);
+	value += 1000 * MIN_FLOOR(bp_ptr->cur_lite, 3, 10);
 
 	/* Hack -- Reward for wearing a permanent light */
-	if (bp_ptr->britelite) value += 5000;
+	if (bp_ptr->britelite)
+	{
+		value += 5000;
+	}
+	/* if there is no permanent light */
+	else
+	{
+		/* Reward carrying a light item, so the borg can cast phlogiston on it */
+		if (look_up_equip_slot(EQUIP_LITE) &&
+			borg_has_realm(REALM_ARCANE)) value += 1000;
+	}
 
 	/* Hack -- Reward speed */
 
@@ -3174,7 +3171,7 @@ static s32b borg_power_aux3(void)
 		value += ((adj_mag_mana[my_stat_ind[A_INT]] * bp_ptr->lev) / 2) * 155L;
 
 		/* bonus for fail rate */
-		value += adj_mag_stat[my_stat_ind[A_INT]] * 5010L;
+		value += adj_mag_stat[my_stat_ind[A_INT]] * 1670L;
 
 		/* mage should try to get min fail to 0 */
 		if (borg_class == CLASS_MAGE || borg_class == CLASS_HIGH_MAGE)
@@ -3202,7 +3199,7 @@ static s32b borg_power_aux3(void)
 		value += ((adj_mag_mana[my_stat_ind[A_WIS]] * bp_ptr->lev) / 2) * 150L;
 
 		/* bonus for fail rate */
-		value += adj_mag_stat[my_stat_ind[A_WIS]] * 3000L;
+		value += adj_mag_stat[my_stat_ind[A_WIS]] * 1000L;
 
 		/* priest should try to get min fail to 0 */
 		if (borg_class == CLASS_PRIEST || borg_class == CLASS_MINDCRAFTER)
@@ -3257,7 +3254,8 @@ static s32b borg_power_aux3(void)
 	for (i = 0; i < 6; i++) value += my_stat_add[i];
 
 
-	/*** Reward current skills ***/
+	/* Reward the extra mana */
+	if (borg_class != CLASS_WARRIOR) value += (bp_ptr->mana_bonus * 987);
 
 	/* Hack -- tiny rewards */
 	value += (bp_ptr->skill_dis * 2L);
@@ -3280,41 +3278,52 @@ static s32b borg_power_aux3(void)
 	/* Various flags */
 	if (FLAG(bp_ptr, TR_SLOW_DIGEST)) value += 10L;
 
-	/* Feather Fall if low level is nice */
-	if (bp_ptr->max_depth < 20)
+	if (FLAG(bp_ptr, TR_FEATHER))
 	{
-		if (FLAG(bp_ptr, TR_FEATHER)) value += 500L;
-	}
-	else
-	{
-		if (FLAG(bp_ptr, TR_FEATHER)) value += 50;
+		/* Feather Fall if low level is nice */
+		if (bp_ptr->max_depth < 20)
+			value += 500L;
+		else
+			value += 50;
 	}
 
-	if (FLAG(bp_ptr, TR_TELEPATHY))
+	if (FLAG(bp_ptr, TR_SEE_INVIS))
 	{
-		if (FLAG(bp_ptr, TR_SEE_INVIS)) value += 500L;
+		/* See invisible is less important if you have ESP */
+		if (FLAG(bp_ptr, TR_TELEPATHY))
+			value += 2000L;
+		else
+			value += 5000L;
 	}
-	else if (FLAG(bp_ptr, TR_SEE_INVIS)) value += 5000L;
 
 	if (FLAG(bp_ptr, TR_FREE_ACT)) value += 10000L;
 
-	/* after you max out you are pretty safe from drainers. */
-	if (bp_ptr->max_lev < 50)
+	if (FLAG(bp_ptr, TR_HOLD_LIFE))
 	{
-		if (FLAG(bp_ptr, TR_HOLD_LIFE)) value += 2000L;
-	}
-	else
-	{
-		if (FLAG(bp_ptr, TR_HOLD_LIFE)) value += 200L;
+		/* after you max out you are pretty safe from drainers. */
+		if (bp_ptr->max_lev < 50)
+			value += 2000L;
+		else
+			value += 200L;
 	}
 	if (FLAG(bp_ptr, TR_REGEN)) value += 2000L;
 	if (FLAG(bp_ptr, TR_TELEPATHY)) value += 80000L;
 
 	/* Immunity flags */
-	if (FLAG(bp_ptr, TR_IM_COLD)) value += 25000L;
-	if (FLAG(bp_ptr, TR_IM_ELEC)) value += 40000L;
-	if (FLAG(bp_ptr, TR_IM_FIRE)) value += 60000L;
-	if (FLAG(bp_ptr, TR_IM_ACID)) value += 80000L;
+	if (FLAG(bp_ptr, TR_IM_COLD)) value += 10000L;
+	if (FLAG(bp_ptr, TR_IM_ELEC)) value += 10000L;
+	if (FLAG(bp_ptr, TR_IM_FIRE)) value += 16000L;
+	if (FLAG(bp_ptr, TR_IM_ACID)) value += 10000L;
+
+	/* Immunity implies resistance too */
+	if (FLAG(bp_ptr, TR_IM_COLD)) SET_FLAG(bp_ptr, TR_RES_COLD);
+	if (FLAG(bp_ptr, TR_IM_ELEC)) SET_FLAG(bp_ptr, TR_RES_ELEC);
+	if (FLAG(bp_ptr, TR_IM_ACID)) SET_FLAG(bp_ptr, TR_RES_ACID);
+	if (FLAG(bp_ptr, TR_IM_FIRE)) SET_FLAG(bp_ptr, TR_RES_FIRE);
+	if (FLAG(bp_ptr, TR_IM_POIS)) SET_FLAG(bp_ptr, TR_RES_POIS);
+	if (FLAG(bp_ptr, TR_IM_LITE)) SET_FLAG(bp_ptr, TR_RES_LITE);
+	if (FLAG(bp_ptr, TR_IM_DARK)) SET_FLAG(bp_ptr, TR_RES_DARK);
+
 	/* Warriors need a slight boost for this */
 	if ((borg_class == CLASS_WARRIOR ||
 		 borg_class == CLASS_CHAOS_WARRIOR) &&
@@ -3322,10 +3331,11 @@ static s32b borg_power_aux3(void)
 	if (FLAG(bp_ptr, TR_RES_FEAR)) value += 2000L;
 
 	/* Resistance flags */
-	if (FLAG(bp_ptr, TR_RES_COLD)) value += 3000L;
-	if (FLAG(bp_ptr, TR_RES_ELEC)) value += 4000L;
-	if (FLAG(bp_ptr, TR_RES_ACID)) value += 6000L;
+	if (FLAG(bp_ptr, TR_RES_COLD)) value += 5000L;
+	if (FLAG(bp_ptr, TR_RES_ELEC)) value += 5000L;
+	if (FLAG(bp_ptr, TR_RES_ACID)) value += 5000L;
 	if (FLAG(bp_ptr, TR_RES_FIRE)) value += 8000L;
+
 	/* extra bonus for getting all basic resist */
 	if ((FLAG(bp_ptr, TR_RES_FIRE)) &&
 		(FLAG(bp_ptr, TR_RES_ACID)) &&
@@ -3340,10 +3350,6 @@ static s32b borg_power_aux3(void)
 	/* this is way boosted to avoid carrying stuff you don't need */
 	if (FLAG(bp_ptr, TR_RES_CONF)) value += 80000L;
 
-	/* mages need a slight boost for this */
-	if (borg_class == CLASS_MAGE &&
-		(FLAG(bp_ptr, TR_RES_CONF))) value += 2000L;
-
 	if (FLAG(bp_ptr, TR_RES_DISEN)) value += 5000L;
 	if (FLAG(bp_ptr, TR_RES_SHARDS)) value += 100L;
 	if (FLAG(bp_ptr, TR_RES_NEXUS)) value += 100L;
@@ -3351,12 +3357,19 @@ static s32b borg_power_aux3(void)
 	if (FLAG(bp_ptr, TR_RES_NETHER)) value += 5500L;
 	if (FLAG(bp_ptr, TR_REFLECT)) value += 2000L;
 
+	/* Aura's */
+	if (FLAG(bp_ptr, TR_SH_FIRE)) value += 2000L;
+	if (FLAG(bp_ptr, TR_SH_ELEC)) value += 2000L;
+	if (FLAG(bp_ptr, TR_SH_COLD)) value += 2000L;
+	if (FLAG(bp_ptr, TR_SH_ACID)) value += 2000L;
+
 	/* Sustain flags */
 	if (bp_ptr->sust[A_STR]) value += 50L;
 	if (bp_ptr->sust[A_INT]) value += 50L;
 	if (bp_ptr->sust[A_WIS]) value += 50L;
 	if (bp_ptr->sust[A_CON]) value += 50L;
 	if (bp_ptr->sust[A_DEX]) value += 50L;
+	
 	/* boost for getting them all */
 	if (bp_ptr->sust[A_STR] &&
 		bp_ptr->sust[A_INT] &&
@@ -3443,29 +3456,95 @@ static s32b borg_power_aux3(void)
 
 
 	/*** Reward powerful armor ***/
-	value += 2000 * MIN(bp_ptr->ac, 15);
-	value += 1500 * MIN_FLOOR(bp_ptr->ac, 15, 75);
-	value += 500 * MIN_FLOOR(bp_ptr->ac, 75, 200);
+	value += 200 * MIN(bp_ptr->ac, 15);
+	value += 150 * MIN_FLOOR(bp_ptr->ac, 15, 75);
+	value += 50 * MIN_FLOOR(bp_ptr->ac, 75, 200);
 
 	/*** Penalize various things ***/
 
-	/* Heavily penalize various flags */
-	if (FLAG(bp_ptr, TR_TELEPORT)) value -= 1000000L;
-	if (FLAG(bp_ptr, TR_TY_CURSE)) value -= 1000000L;
-	if (FLAG(bp_ptr, TR_NO_TELE)) value -= 1000000L;
-	if (FLAG(bp_ptr, TR_NO_MAGIC) &&
-		borg_class != CLASS_WARRIOR) value -= 1000000L;
-	if (FLAG(bp_ptr, TR_HURT_LITE) &&
-		!FLAG(bp_ptr, TR_RES_LITE)) value -= 1000000L;
+	/* Hack the flags so that they can be tested for bad curses */
+	for (i = 0; i < 4; i++) temp.kn_flags[i] = bp_ptr->flags[i];
+
+	/* If there is a bad flag it will cost the borg big */
+	if (borg_test_bad_curse(&temp)) value -= 1000000L;
 
 	/* Slightly penalize some flags */
-	if (FLAG(bp_ptr, TR_AGGRAVATE)) value -= 2000L;
-	if (FLAG(bp_ptr, TR_HURT_COLD)) value -= 2000L;
-	if (FLAG(bp_ptr, TR_HURT_FIRE)) value -= 2000L;
-	if (FLAG(bp_ptr, TR_HURT_ACID)) value -= 2000L;
-	if (FLAG(bp_ptr, TR_HURT_ELEC)) value -= 2000L;
-	if (FLAG(bp_ptr, TR_HURT_LITE)) value -= 2000L;
-	if (FLAG(bp_ptr, TR_HURT_DARK)) value -= 2000L;
+	if (FLAG(bp_ptr, TR_AGGRAVATE)) value -= 5000L;
+	if (FLAG(bp_ptr, TR_TELEPORT))  value -= 1000L;
+	if (FLAG(bp_ptr, TR_HEAVY_CURSE))  value -= 5000L;
+
+	/* Penalize vulnerability to light */
+	if (FLAG(bp_ptr, TR_HURT_LITE) &&
+		!FLAG(bp_ptr, TR_IM_LITE) &&
+		!FLAG(bp_ptr, TR_RES_LITE)) value -= 1000000;
+
+	/* Penalize vulnerability to DARK */
+	if (FLAG(bp_ptr, TR_HURT_DARK) && !FLAG(bp_ptr, TR_IM_DARK))
+	{
+		/* Not for high levels, big breathers are too painfull */
+		if (bp_ptr->lev > 40) value -= 1000000L;
+
+		value -= 2000;
+
+		/* With res_DARK it is more acceptable */
+		if (FLAG(bp_ptr, TR_RES_DARK)) value += 1000;
+
+	}
+
+	/* Penalize vulnerability to cold */
+	if (FLAG(bp_ptr, TR_HURT_COLD) && !FLAG(bp_ptr, TR_IM_COLD))
+	{
+		/* Not for high levels, big breathers are too painfull */
+		if (bp_ptr->lev > 40) value -= 1000000L;
+
+		value -= 2000;
+
+		/* With res_cold it is more acceptable */
+		if (FLAG(bp_ptr, TR_RES_COLD)) value += 1000;
+
+	}
+
+	/* Penalize vulnerability to fire */
+	if (FLAG(bp_ptr, TR_HURT_FIRE) && !FLAG(bp_ptr, TR_IM_FIRE))
+	{
+		/* Not for high levels, big breathers are too painfull */
+		if (bp_ptr->lev > 40) value -= 1000000L;
+
+		/* basic penalty */
+		value -= 2000;
+
+		/* With res_FIRE it is more acceptable */
+		if (FLAG(bp_ptr, TR_RES_FIRE)) value += 1000;
+
+	}
+
+	/* Penalize vulnerability to electricity */
+	if (FLAG(bp_ptr, TR_HURT_ELEC) && !FLAG(bp_ptr, TR_IM_ELEC))
+	{
+		/* Not for high levels, big breathers are too painfull */
+		if (bp_ptr->lev > 40) value -= 1000000L;
+
+		/* basic penalty */
+		value -= 2000;
+
+		/* With res_ELEC it is more acceptable */
+		if (FLAG(bp_ptr, TR_RES_ELEC)) value += 1000;
+
+	}
+
+	/* Penalize vulnerability to acid */
+	if (FLAG(bp_ptr, TR_HURT_ACID) && !FLAG(bp_ptr, TR_IM_ACID))
+	{
+		/* Not for high levels, big breathers are too painfull */
+		if (bp_ptr->lev > 40) value -= 1000000L;
+
+		/* basic penalty */
+		value -= 2000;
+
+		/* With res_ACID it is more acceptable */
+		if (FLAG(bp_ptr, TR_RES_ACID)) value += 1000;
+
+	}
 
 	/*** Penalize armor weight ***/
 	if (my_stat_ind[A_STR] < 15)
@@ -3505,12 +3584,13 @@ static s32b borg_power_aux3(void)
 	/*** Penalize bad magic ***/
 
 	/* Hack -- most gloves hurt magic for spell-casters */
-	if (borg_class == CLASS_MAGE)
+	if (bp_ptr->intmana)
 	{
 		l_ptr = look_up_equip_slot(EQUIP_HANDS);
 
 		/* Penalize non-usable gloves */
-		if (l_ptr && !KN_FLAG(l_ptr, TR_FREE_ACT) &&
+		if (l_ptr && bp_ptr->msp < 300 &&
+			!KN_FLAG(l_ptr, TR_FREE_ACT) &&
 			!(KN_FLAG(l_ptr, TR_DEX) && (l_ptr->pval > 0)))
 		{
 			/* Hack -- Major penalty */
@@ -3543,20 +3623,109 @@ static s32b borg_power_aux3(void)
 		/* Skip empty items */
 		if (!l_ptr) continue;
 
-		/* Good to have one item with multiple high resists */
-		multibonus = (KN_FLAG(l_ptr, TR_RES_POIS) +
-					  KN_FLAG(l_ptr, TR_RES_LITE) +
-					  KN_FLAG(l_ptr, TR_RES_DARK) +
-					  KN_FLAG(l_ptr, TR_RES_BLIND) +
-					  KN_FLAG(l_ptr, TR_RES_CONF) +
-					  KN_FLAG(l_ptr, TR_RES_SOUND) +
-					  KN_FLAG(l_ptr, TR_RES_SHARDS) +
-					  KN_FLAG(l_ptr, TR_RES_NEXUS) +
-					  KN_FLAG(l_ptr, TR_RES_NETHER) +
-					  KN_FLAG(l_ptr, TR_RES_CHAOS) +
-					  KN_FLAG(l_ptr, TR_RES_DISEN));
+		/* Don't reward rings twice */
+		if (i == EQUIP_LEFT)
+		{
+			list_item *q_ptr = look_up_equip_slot(EQUIP_RIGHT);
 
-		if (multibonus >= 2) value += 15000 * multibonus;
+			/* If the rings are the same */
+			if (q_ptr &&
+				k_info[l_ptr->k_idx].sval == k_info[q_ptr->k_idx].sval)
+			{
+				/* skip a ring */
+				continue;
+			}
+		}
+
+		/*
+		 * It is good to have one item with multiple high resists.  But
+		 * the various races all have their bonuses.  So a ring of Light and
+		 * Dark should not get a multibonus when it is worn by Elf or Half-Ogre
+		 */
+		multibonus = KN_FLAG(l_ptr, TR_RES_NEXUS) +
+					 KN_FLAG(l_ptr, TR_IM_LITE) +
+					 KN_FLAG(l_ptr, TR_IM_FIRE) +
+					 KN_FLAG(l_ptr, TR_IM_COLD) +
+					 KN_FLAG(l_ptr, TR_IM_ELEC);
+
+		/* Vampires get Immunity to Dark */
+		if (KN_FLAG(l_ptr, TR_IM_DARK) &&
+			borg_race != RACE_VAMPIRE) multibonus += 1;
+
+		/* Zombies get resist Nether */
+		if (KN_FLAG(l_ptr, TR_RES_NETHER) &&
+			borg_race != RACE_GHOUL &&
+			borg_race != RACE_ZOMBIE &&
+			borg_race != RACE_SPECTRE &&
+			borg_race != RACE_VAMPIRE) multibonus += 1;
+
+		/* Yeeks get Immunity to Acid */
+		if (KN_FLAG(l_ptr, TR_IM_ACID) &&
+			borg_race != RACE_YEEK) multibonus += 1;
+
+		/* Golems get Immunity to Poison */
+		if (KN_FLAG(l_ptr, TR_IM_POIS) &&
+			borg_race != RACE_GHOUL &&
+			borg_race != RACE_GOLEM &&
+			borg_race != RACE_ZOMBIE &&
+			borg_race != RACE_VAMPIRE &&
+			borg_race != RACE_SPECTRE &&
+			borg_race != RACE_SKELETON) multibonus += 1;
+
+		/* Nibelungs get resist Disenchant */
+		if (KN_FLAG(l_ptr, TR_RES_DISEN) &&
+			borg_race != RACE_NIBELUNG) multibonus += 1;
+
+		/* Kobolds get resist Poison */
+		if (KN_FLAG(l_ptr, TR_RES_POIS) &&
+			borg_race != RACE_KOBOLD &&
+			borg_race != RACE_DRACONIAN) multibonus += 1;
+
+		/* Cyclopi get resist Sound */
+		if (KN_FLAG(l_ptr, TR_RES_SOUND) &&
+			borg_race != RACE_BEASTMAN &&
+			borg_race != RACE_CYCLOPS) multibonus += 1;
+
+		/* Half Giants get resist Shards */
+		if (KN_FLAG(l_ptr, TR_RES_SHARDS) &&
+			borg_race != RACE_HALF_GIANT &&
+			borg_race != RACE_SKELETON) multibonus += 1;
+
+		/*
+		 * Hack.  Not Light and Dark because shadow cloaks or rings of light
+		 * and dark get too much of a boost
+		 */
+		if (KN_FLAG(l_ptr, TR_RES_DARK) &&
+			!KN_FLAG(l_ptr, TR_RES_LITE) &&
+			borg_race != RACE_HALF_OGRE &&
+			borg_race != RACE_NIBELUNG &&
+			borg_race != RACE_VAMPIRE &&
+			borg_race != RACE_GHOUL &&
+			borg_race != RACE_DARK_ELF) multibonus += 1;
+
+		/* Elves get resist Lite  */
+		if (KN_FLAG(l_ptr, TR_RES_LITE) &&
+			!KN_FLAG(l_ptr, TR_RES_DARK) &&
+			borg_race != RACE_ELF &&
+			borg_race != RACE_SPRITE &&
+			borg_race != RACE_HIGH_ELF) multibonus += 1;
+
+		/* Dwarves get resist Blind  */
+		if (KN_FLAG(l_ptr, TR_RES_BLIND) &&
+			borg_race != RACE_DWARF) multibonus += 1;
+
+		/* Mindcrafter get resist Conf  */
+		if (KN_FLAG(l_ptr, TR_RES_CONF) &&
+			borg_class != CLASS_MINDCRAFTER &&
+			borg_race != RACE_BEASTMAN &&
+			borg_race != RACE_KLACKON) multibonus += 1;
+
+		/* Chaos-warriors and Half Titan get resist Chaos */
+		if (KN_FLAG(l_ptr, TR_RES_CHAOS) &&
+			borg_class != CLASS_CHAOS_WARRIOR &&
+			borg_race != RACE_HALF_TITAN) multibonus += 1;
+
+		value += 1500 * ((multibonus < 2) ? 0 : multibonus);
 	}
 
 	/* Result */
@@ -3566,13 +3735,21 @@ static s32b borg_power_aux3(void)
 
 /*
  * Helper function -- calculate power of inventory
- * Dynamic Calcs off
+ * Items can appear multiple times.  This is to allow that item to be destroyed.
+ * Use MIN_FLOOR to start counting from higher numbers of items onwards.
+ * So 
+ * value += 2000 * MIN(amt_book, 2);
+ * value += 500  * MIN_FLOOR(amt_book, 2, 3);
+ * means that the borg counts 2000 per book for the first two books and 500 for
+ * the third.  If the borg needs to destroy items it might pick the third book
+ * If the item is also collected at home be sure that the values for the home 
+ * and the inv accomplish what you want.
  */
 static s32b borg_power_aux4(void)
 {
 	int book, realm;
-	int max_carry;
-	list_item *l_ptr = look_up_equip_slot(EQUIP_LITE);
+	int i, max_carry;
+	list_item *l_ptr;
 
 	s32b value = 0L;
 
@@ -3581,6 +3758,9 @@ static s32b borg_power_aux4(void)
 	/* Reward collecting fuel,	 */
 	value += 6000 * MIN(bp_ptr->able.fuel, 3);
 	value += 600 * MIN_FLOOR(bp_ptr->able.fuel, 3, 7);
+
+	/* Get the current light source */
+	l_ptr = look_up_equip_slot(EQUIP_LITE);
 
 	if (!l_ptr)
 	{
@@ -3595,8 +3775,8 @@ static s32b borg_power_aux4(void)
 			/* reward carrying a lantern when you don't use it */
 			value += 500 * MIN(amt_lantern, 1);
 
-			/* If you need fuel prefer torches */
-			if (bp_ptr->able.fuel < 1000) value += 50 * MIN(amt_torch, 7);
+			/* Prefer torches */
+			value += 50 * MIN(amt_torch, 7);
 
 			/*
 			 * The flasks acts as molotov cocktails, but they can't
@@ -3608,9 +3788,8 @@ static s32b borg_power_aux4(void)
 		/* If the borg wields a lantern */
 		if (k_info[l_ptr->k_idx].sval == SV_LITE_LANTERN)
 		{
-			/* If you need fuel prefer flasks/lanterns */
-			if (bp_ptr->able.fuel < 1000)
-				value += 50 * MIN(amt_lantern + amt_flask, 7);
+			/* Prefer flasks/lanterns to torches */
+			value += 50 * MIN(amt_lantern + amt_flask, 7);
 
 			/* Keep some more flasks as molotov cocktails */
 			if (bp_ptr->lev < 15) value += 50 * MIN_FLOOR(amt_flask, 7, 20);
@@ -3623,88 +3802,104 @@ static s32b borg_power_aux4(void)
 	if ((FLAG(bp_ptr, TR_REGEN)) && !(FLAG(bp_ptr, TR_SLOW_DIGEST)))
 	{
 		/* take more food */
-		max_carry = 50;
+		max_carry = 15;
 	}
 	else
-		max_carry = 35;
+		max_carry = 10;
 
 	/* if hungry, food is THE top priority */
 	if ((bp_ptr->status.hungry || bp_ptr->status.weak) && bp_ptr->food)
 		value += 100000;
 
-	/* Take some food along */
-	value += 10000 * MIN(bp_ptr->food, 25);
-	value += 1000 * MIN_FLOOR(bp_ptr->food, 25, max_carry);
-
-	/* If you can digest food */
-	if (!FLAG(bp_ptr, TR_CANT_EAT) && bp_ptr->food < 1000)
+	/* If you can't digest food */
+	if (FLAG(bp_ptr, TR_CANT_EAT))
 	{
-		/* Prefer to buy HiCalorie foods over LowCalorie */
-		value += 20 * MIN(5 * amt_food_hical, max_carry);
-
-		/* Prefer to buy scrolls over foodstuffs */
-		value += 50 * MIN(5 * amt_food_scroll, max_carry);
+		/* Take some scrolls along */
+		value += 10000 * MIN(amt_food_scroll, 5);
+		value += 200 * MIN_FLOOR(amt_food_scroll, 5, max_carry);
 	}
+	/* If the borg can digest food */
+	else
+	{
+		/* Take some food along */
+		value += 10000 * MIN(bp_ptr->food, 5);
+		value += 200 * MIN_FLOOR(bp_ptr->food, 5, max_carry);
+
+		/* Prefer to buy scrolls over rations */
+		value += 30 * MIN(amt_food_scroll, max_carry);
+
+		/* Take small foodstuffs along if the borg is low on food */
+		value += 1000 * MIN_FLOOR(amt_food_lowcal, 0, 3 * (5 - bp_ptr->food));
+		value += 50 * MIN_FLOOR(amt_food_lowcal, 0, 3 * (max_carry - bp_ptr->food));
+	}
+
 
 	/* Reward throwing potions of poison for low level borgs */
 	if (bp_ptr->lev < 16) value += 50 * MIN(bp_ptr->able.poison, 20);
 
 	/* Reward potions you can throw for damage */
-	value += bp_ptr->able.death * 1000;
+	value += bp_ptr->able.death * 200;
 
 	/* Reward scrolls you can read for damage */
-	value += bp_ptr->able.logrus * 1000;
+	value += bp_ptr->able.logrus * 200;
 
 	/* Reward Cure Poison and Cuts */
-	if ((bp_ptr->status.cut || bp_ptr->status.poisoned) &&
-		bp_ptr->able.ccw) value += 100000;
-	if ((bp_ptr->status.cut || bp_ptr->status.poisoned) &&
-		bp_ptr->able.heal) value += 50000;
+	if ((bp_ptr->status.cut || bp_ptr->status.poisoned) && bp_ptr->able.ccw)
+		value += 100000;
+
+	if ((bp_ptr->status.cut || bp_ptr->status.poisoned) && bp_ptr->able.heal)
+		value += 50000;
+
 	if ((bp_ptr->status.cut || bp_ptr->status.poisoned) && bp_ptr->able.csw)
-	{
-		/* Reward cure serious wounds if needed */
-		value += 25000 * MIN(bp_ptr->able.csw, 5);
-	}
-	if (bp_ptr->status.poisoned && bp_ptr->able.curepois) value += 15000;
+		value += 25000;
+
+	if (bp_ptr->status.poisoned && bp_ptr->able.cure_pois) value += 15000;
 	if (bp_ptr->status.poisoned && amt_slow_poison) value += 5000;
+
+	/* Reward potion of curing when the borg is hallucinating */
+	if (bp_ptr->status.image && amt_pot_curing) value += 100000;
 
 	/* Reward Resistance Potions for Warriors */
 	if (borg_class == CLASS_WARRIOR)
 	{
-		value += 1500 * MIN(bp_ptr->able.res_heat, 5);
-		value += 1500 * MIN(bp_ptr->able.res_cold, 5);
+		value += 250 * MIN(bp_ptr->able.res_heat, 5);
+		value += 250 * MIN(bp_ptr->able.res_cold, 5);
 	}
+
+	/* It is counted as res_heas & cold too */
+	value += 250 * MIN(bp_ptr->able.res_all, 5);
 
 	/* Reward ident */
 	value += 6000 * MIN(bp_ptr->able.id, 10);
 	value += 600 * MIN_FLOOR(bp_ptr->able.id, 10, 25);
 
+	/* Try to carry 3 rods if there is no identify spell available */
+	if (bp_ptr->able.id >= 100) value += 6 * MIN(bp_ptr->able.id, 3 * 100);
+
 	/*  Don't start with these before you are likely to need them */
 	if (bp_ptr->lev > 20)
 	{
 		/* *identify* scrolls */
-		value += 10000 * MIN(bp_ptr->able.star_id, 7);
-		value += 2000 * MIN_FLOOR(bp_ptr->able.star_id, 7, 15);
+		value += 5000 * MIN(bp_ptr->able.star_id, 5);
+		value += 500 * MIN_FLOOR(bp_ptr->able.star_id, 5, 10);
+	}
 
-		/*  Reward PFE  carry lots of these */
-		value += 10000 * MIN(bp_ptr->able.pfe, 10);
-		value += 2000 * MIN_FLOOR(bp_ptr->able.pfe, 10, 25);
-
-		if (bp_ptr->lev > 40)
-		{
-			/*  Reward Glyph- Rune of Protection-  carry lots of these */
-			value += 10000 * MIN(bp_ptr->able.glyph, 10);
-			value += 2000 * MIN_FLOOR(bp_ptr->able.glyph, 10, 25);
-		}
+	if (bp_ptr->lev > 40)
+	{
+		/*  Reward Glyph- Rune of Protection-  carry lots of these */
+		value += 10000 * MIN(bp_ptr->able.glyph, 10);
+		value += 2000 * MIN_FLOOR(bp_ptr->able.glyph, 10, 25);
 	}
 
 	/* Reward recall */
-	value += 50000 * MIN(bp_ptr->recall, 3);
-	value += 5000 * MIN_FLOOR(bp_ptr->recall, 3, 7);
+	value += 50000 * MIN(bp_ptr->recall, 1);
+	value += 2000 * MIN_FLOOR(bp_ptr->recall, 1, 5);
+	value += 800 * MIN_FLOOR(bp_ptr->recall, 5, 7);
 
 	/* first phase door is very important */
 	value += 50000 * MIN(bp_ptr->able.phase, 1);
-	value += 5000 * MIN_FLOOR(bp_ptr->able.phase, 1, 15);
+	value += 2000 * MIN_FLOOR(bp_ptr->able.phase, 1, 5);
+	value += 800 * MIN_FLOOR(bp_ptr->able.phase, 5, 15);
 
 	/* Reward escape */
 	value += 10000 * MIN(bp_ptr->able.escape, 5);
@@ -3722,40 +3917,51 @@ static s32b borg_power_aux4(void)
 	/* Reward teleport */
 	value += 10000 * MIN(bp_ptr->able.teleport, 10);
 
+	/* reset quantity */
+	max_carry = 0;
+
 	/* If the borg has lots of hitpoints */
 	if (bp_ptr->mhp > 800)
 	{
-		/* Carry some big healers:  Potion of *Healing* or Life */
-		value += 10000 * MIN(bp_ptr->able.easy_heal, 2);
-
-		/* Prefer to take *healing* over life */
-		value += 50 * MIN(amt_star_heal, 2);
-
+		/* If the borg is big and up to dangerous things */
 		if (bp_ptr->lev == 50)
 		{
 			/* Carry more */
-			value += 10000 * MIN_FLOOR(bp_ptr->able.easy_heal, 2, 10);
-			value += 50 * MIN_FLOOR(amt_star_heal, 2, 10);
+			max_carry = 10;
 		}
+		else
+		{
+			/* Carry a few */
+			max_carry = 2;
+		}
+
+		/* Carry some big healers:  Potion of *Healing* or Life */
+		value += 10000 * MIN(bp_ptr->able.easy_heal, max_carry);
+
+		/* Prefer to take *healing* over life */
+		value += 50 * MIN(amt_star_heal, max_carry);
 	}
 
 	/* If the borg has a reliable healing spell */
 	if (borg_spell_legal_fail(REALM_LIFE, 3, 4, 5) ||
-		borg_spell_legal_fail(REALM_LIFE, 1, 6, 5) ||
-		borg_spell_legal_fail(REALM_NATURE, 1, 6, 5))
+	    borg_spell_legal_fail(REALM_LIFE, 1, 6, 5) ||
+	    borg_spell_legal_fail(REALM_NATURE, 1, 7, 5))
 	{
 		/* Still take some potions along */
-		value += 2000 * MIN(bp_ptr->able.heal, 10);
+		max_carry = 5;
 	}
 	/* This borg needs potions to heal */
 	else
 	{
-		/* Reward healing */
-		value += 8000 * MIN(bp_ptr->able.heal, 15);
+		/* Take some more */
+		max_carry = 10;
 	}
 
+	/* Reward healing */
+	value += 8000 * MIN(bp_ptr->able.heal, max_carry);
+
 	/* Rods of Healing are preferred to potions */
-	value += 50 * MIN(amt_rod_heal, 10);
+	value += 50 * MIN(amt_rod_heal, max_carry);
 
 	/* Restore Mana */
 	if (bp_ptr->msp > 100)
@@ -3764,50 +3970,40 @@ static s32b borg_power_aux4(void)
 		value += 4000 * MIN(bp_ptr->able.mana, 10);
 		value += 4000 * MIN(bp_ptr->able.staff_magi, 10);
 	}
-	else if (borg_class != CLASS_WARRIOR)
-	{
-		/* reward carrying potions/staffs of mana to bring home */
-		value += 1000 * MIN(bp_ptr->able.mana, 99);
-		value += 1000 * MIN(bp_ptr->able.staff_magi, 99);
-	}
 
 	/* Reward cure critical.  Heavy reward on first 10 */
 	value += 5000 * MIN(bp_ptr->able.ccw, 10);
 
-	/* If the borg has no confusion resist */
-	if (!FLAG(bp_ptr, TR_RES_CONF))
-	{
-		/* Carry some more cure criticals */
-		value += 500 * MIN_FLOOR(bp_ptr->able.csw, 10, 15);
-	}
+	/* potions of curing and of ccw are basically the same:  prefer curing */
+	value += 50 * MIN(amt_pot_curing, 10);
 
-	/* If the borg is low on cure critical or is low level */
-	if (bp_ptr->able.ccw < 10 || bp_ptr->lev < 15)
-	{
-		/* Reward cure serious */
-		value += 250 * MIN(bp_ptr->able.csw, 5);
-		value += 55 * MIN_FLOOR(bp_ptr->able.csw, 5, 10);
-	}
-	
+	/* Reward cure serious relative to how many cure crits the borg has */
+	value += 1500 * MIN_FLOOR(bp_ptr->able.csw, 0, 10 - bp_ptr->able.ccw);
+	value += 1200 * MIN_FLOOR(bp_ptr->able.clw,
+							  0, 10 - bp_ptr->able.ccw - bp_ptr->able.csw);
+
 	/* If the borg has no confucius resist */
 	if (!FLAG(bp_ptr, TR_RES_CONF))
 	{
-		/* Reward cure blindness */
-		value += 400 * MIN(amt_cure_confusion, 10);
+		/* Reward cure confusion */
+		value += 2000 * MIN(bp_ptr->able.cure_conf, 2);
+		value += 200 * MIN_FLOOR(bp_ptr->able.cure_conf, 2, 5);
 	}
 
 	/* If the borg has no blindness resist */
 	if (!FLAG(bp_ptr, TR_RES_BLIND))
 	{
 		/* Reward cure blindness */
-		value += 300 * MIN(amt_cure_blind, 5);
+		value += 3000 * MIN(bp_ptr->able.cure_blind, 2);
+		value += 300 * MIN_FLOOR(bp_ptr->able.cure_blind, 2, 5);
 	}
 
 	/* If the borg has no poison resist */
 	if (!FLAG(bp_ptr, TR_RES_POIS))
 	{
 		/* Reward cure poison */
-		value += 250 * MIN(bp_ptr->able.curepois, 5);
+		value += 2500 * MIN(bp_ptr->able.cure_pois, 2);
+		value += 250 * MIN_FLOOR(bp_ptr->able.cure_pois, 2, 5);
 	}
 
 	/*** Detection ***/
@@ -3827,9 +4023,18 @@ static s32b borg_power_aux4(void)
 	/* Reward magic mapping */
 	value += 4000 * MIN(bp_ptr->able.magic_map, 1);
 
+	/* Try to carry 3 rods if there is no magic_map spell available */
+	if (bp_ptr->able.magic_map >= 100)
+	{
+		value += 6 * MIN(bp_ptr->able.magic_map, 3 * 100);
+	}
+
 	/* Reward room lites */
 	value += 600 * MIN(bp_ptr->able.lite, 10);
 	value += 60 * MIN_FLOOR(bp_ptr->able.lite, 10, 25);
+
+	/* Try to carry 3 rods if there is no light spell available */
+	if (bp_ptr->able.lite >= 100) value += 6 * MIN(bp_ptr->able.lite, 3 * 100);
 
 	/* Stuff to use against the the Serpent */
 	if (bp_ptr->max_depth >= 98)
@@ -3843,12 +4048,12 @@ static s32b borg_power_aux4(void)
 		value += 2000 * MIN_FLOOR(bp_ptr->able.mass_genocide, 10, 25);
 
 		/* Invulnerability Potions */
-		value += 10000 * MIN(bp_ptr->able.invulnerability, 15);
-		value += 2000 * MIN_FLOOR(bp_ptr->able.invulnerability, 15, 99);
+		value += 10000 * MIN(bp_ptr->able.invulnerability, 99);
 	}
 
 	/* Reward speed potions/staves */
-	value += 5000 * MIN(bp_ptr->able.speed, 20);
+	value += 5000 * MIN(bp_ptr->able.speed, 4);
+	value += 1500 * MIN_FLOOR(bp_ptr->able.speed, 4, 8);
 
 	/* Reward berserk strength */
 	value += 500 * MIN(bp_ptr->able.berserk, 5);
@@ -3862,16 +4067,22 @@ static s32b borg_power_aux4(void)
 	/* Reward missiles, Rangers carry more */
 	if (borg_class == CLASS_RANGER)
 	{
-		value += 1000 * MIN(bp_ptr->able.missile, 30);
-		value += 100 * MIN_FLOOR(bp_ptr->able.missile, 30, 80);
+		value += 100 * MIN(bp_ptr->able.missile, 30);
+		value += 10 * MIN_FLOOR(bp_ptr->able.missile, 30, 80);
 	}
 	else
 	{
-		value += 1000 * MIN(bp_ptr->able.missile, 20);
-		value += 100 * MIN_FLOOR(bp_ptr->able.missile, 20, 50);
+		value += 100 * MIN(bp_ptr->able.missile, 20);
+		value += 10 * MIN_FLOOR(bp_ptr->able.missile, 20, 50);
 	}
 
 	/*** Various ***/
+
+	/* Reward carrying a full wand of teleport away */
+	value += 100 * MIN(bp_ptr->able.teleport_away, 12);
+
+	/* Reward carrying up to 10 rods of teleport away */
+	value += 100 * MIN(bp_ptr->able.teleport_away / 100, 10);
 
 	/* Reward carrying a wand or rod with balls */
 	value += 500 * MIN(bp_ptr->able.ball, 10);
@@ -3904,37 +4115,54 @@ static s32b borg_power_aux4(void)
 	if (amt_add_stat[A_CON]) value += 50000;
 	if (amt_add_stat[A_CHR]) value += 10000;
 
-	/* Hack -- Reward fix stat */
-	if (amt_fix_stat[A_STR]) value += 10000;
-	if (amt_fix_stat[A_INT]) value += 10000;
-	if (amt_fix_stat[A_WIS]) value += 10000;
-	if (amt_fix_stat[A_DEX]) value += 10000;
-	if (amt_fix_stat[A_CON]) value += 10000;
-	if (amt_fix_stat[A_CHR]) value += 10000;
-
 	/* Reward Remove Curse */
-	if (borg_wearing_cursed && bp_ptr->able.remove_curse) value += 90000;
+	if (bp_ptr->status.cursed &&
+		bp_ptr->able.remove_curse) value += 90000;
+ 
+ 	/* Reward *Remove Curse* (Pick them up from home) */
+	if (bp_ptr->status.heavy_curse &&
+		bp_ptr->able.star_remove_curse) value += 90000;
 
-	/* Reward *Remove Curse* */
-	if (borg_heavy_curse && bp_ptr->able.star_remove_curse) value += 90000;
-	if (bp_ptr->able.star_remove_curse < 1000)
+	/* Reward id */
+	if (bp_ptr->able.id &&
+		bp_ptr->able.id_item) value += 10000;
+
+	/* Reward star_id */
+	if (bp_ptr->able.star_id &&
+		bp_ptr->able.star_id_item) value += 50000;
+ 
+	/* Reward restore experience */
+	if (bp_ptr->lev < bp_ptr->max_lev &&
+		bp_ptr->status.fixexp) value += 50000;
+
+	/* Reward getting stat restore potions when needed */
+	for (i = 0; i < A_MAX; i++)
 	{
-		value += bp_ptr->able.star_remove_curse * 100;
+		if (bp_ptr->status.fixstat[i] && amt_fix_stat[i]) value += 10000;
 	}
-
-	/* Hack -- Restore experience */
-	if (amt_fix_exp) value += 500000;
 
 	/*** Enchantment ***/
 
 	/* Reward enchant armor */
-	if (amt_enchant_to_a && my_need_enchant_to_a) value += amt_enchant_to_a * 14L;
+	value += amt_enchant_to_a * 14L;
 
 	/* Reward enchant weapon to hit */
-	if (amt_enchant_to_h && my_need_enchant_to_h) value += amt_enchant_to_h * 24L;
+	value += amt_enchant_to_h * 24L;
 
 	/* Reward enchant weapon to damage */
-	if (amt_enchant_to_d && my_need_enchant_to_d) value += amt_enchant_to_d * 109L;
+	value += amt_enchant_to_d * 109L;
+
+	/* Reward a scroll of artifact creation */
+	value += bp_ptr->able.artifact * 100000;
+
+	/* Reward having an item to use that artifact scroll on */
+	value += bp_ptr->able.artify_item * 1000 * bp_ptr->able.artifact;
+
+	/* Reward a scroll of acquirement */
+	value += bp_ptr->able.acquire * 100000;
+
+	/* Reward a scroll of mundanity */
+	value += bp_ptr->able.mundane * 100000;
 
 	/*** Hack -- books ***/
 
@@ -3964,23 +4192,21 @@ static s32b borg_power_aux4(void)
 
 					/* Reward the third book */
 					if (bp_ptr->lev > 35)
-						value += 5000 * MIN_FLOOR(amt_book[realm][book], 2, 3);
+						value += 1000 * MIN_FLOOR(amt_book[realm][book], 2, 3);
 				}
-			}
-			/* This is a book the borg can not use yet */
-			else
-			{
-				/* Give it value to get it home */
-				value += 3000 * MIN(amt_book[realm][book], 1);
 			}
 		}
 	}
- 
-	/* Hack -- Apply "encumbrance" from weight */
-	value -= bp_ptr->encumber * 500L;
 
-	/* Being too heavy is really bad */
-	value -= bp_ptr->weight / adj_str_wgt[my_stat_ind[A_STR]];
+	/* If the borg is carrying 120% of capacity or more */
+	if (2 * bp_ptr->weight / adj_str_wgt[my_stat_ind[A_STR]] >= 120)
+	{
+		/* How much plus weight can the borg have before being slowed */
+		int plus = (adj_str_wgt[my_stat_ind[A_STR]] * 100) / 10;
+
+		/* Punish the borg for dropping speed */
+		value -= (bp_ptr->encumber - plus) * 500L;
+	}
 
 	/* Return the value */
 	return (value);
@@ -4011,7 +4237,8 @@ s32b borg_power(void)
 		/* Dump fear code */
 		if (borg_prepared(i)) break;
 	}
-	value += ((i - 1) * 20000L);
+
+	value += (i - 1) * 20000L;
 
 	/* Return the value */
 	return (value);
@@ -4068,25 +4295,33 @@ cptr borg_restock(int depth)
 
 	/*** Level 6 to 9 ***/
 
+	/* Must have "cure" */
+	if (bp_ptr->able.clw + bp_ptr->able.csw + bp_ptr->able.ccw < 2 &&
+		bp_ptr->max_lev < 30) return ("rs cure 2");
+
 	/* Must have good lite */
 	if (bp_ptr->cur_lite == 1) return ("rs lite+1");
 
-	/* Potions of Critical Wounds */
-	if (!bp_ptr->able.ccw &&
-		(!(FLAG(bp_ptr, TR_RES_BLIND)) ||
-		 !(FLAG(bp_ptr, TR_RES_CONF)))) return ("rs cure crit");
+	/* Something to cure poison */
+	if (!FLAG(bp_ptr, TR_RES_POIS) &&
+		!FLAG(bp_ptr, TR_IM_POIS) &&
+		bp_ptr->able.cure_pois < 4) return ("rs cure poison");
 
 	/* Assume happy at level 9 */
 	if (depth <= 9) return (NULL);
 
 	/*** Level 10 - 19  ***/
 
+	/* Something to cure confusion */
+	if (!FLAG(bp_ptr, TR_RES_CONF) &&
+		bp_ptr->able.cure_conf < 4) return ("rs cure conf");
+
 	/* Must have "phase" */
 	if (bp_ptr->able.phase < 1) return ("rs phase");
 
 	/* Must have "cure" */
-	if ((bp_ptr->max_lev < 30) &&
-		(bp_ptr->able.csw + bp_ptr->able.ccw < 4)) return ("rs cure");
+	if (bp_ptr->able.clw + bp_ptr->able.csw + bp_ptr->able.ccw < 4 &&
+		bp_ptr->max_lev < 30) return ("rs cure 4");
 
 	/* Must have "teleport" */
 	if (bp_ptr->able.teleport < 2) return ("rs teleport");
@@ -4096,9 +4331,13 @@ cptr borg_restock(int depth)
 
 	/*** Level 20 - 45  ***/
 
+	/* Something to cure blindness */
+	if (!FLAG(bp_ptr, TR_RES_BLIND) &&
+		bp_ptr->able.cure_blind < 4) return ("rs cure blind");
+
 	/* Must have "cure" */
-	if ((bp_ptr->max_lev < 30) &&
-		(bp_ptr->able.csw + bp_ptr->able.ccw < 6)) return ("rs cure");
+	if (bp_ptr->able.csw + bp_ptr->able.ccw < 6 &&
+		bp_ptr->max_lev < 30) return ("rs cure 6");
 
 	/* Must have "teleport" */
 	if (bp_ptr->able.teleport + bp_ptr->able.escape < 4)
@@ -4166,8 +4405,8 @@ static cptr borg_prepared_aux2(int depth)
 	if (bp_ptr->recall < 3) return ("3 recall");
 
 	/* Potions of Cure Serious Wounds */
-	if ((bp_ptr->max_lev < 30) &&
-		(bp_ptr->able.csw + bp_ptr->able.ccw < 2)) return ("2 cure");
+	if (bp_ptr->able.clw + bp_ptr->able.csw + bp_ptr->able.ccw < 2 &&
+		bp_ptr->max_lev < 30) return ("2 cures");
 
 	/* Usually ready for level 3 and 4 */
 	if (depth <= 4) return (NULL);
@@ -4182,8 +4421,8 @@ static cptr borg_prepared_aux2(int depth)
 	if (bp_ptr->recall < 4) return ("4 recalls");
 
 	/* Potions of Cure Serious/Critical Wounds */
-	if ((bp_ptr->max_lev < 30) &&
-		(bp_ptr->able.csw + bp_ptr->able.ccw < 5)) return ("5 cures");
+	if (bp_ptr->able.clw + bp_ptr->able.csw + bp_ptr->able.ccw < 4 &&
+		bp_ptr->max_lev < 30) return ("4 cures");
 
 	/* Usually ready for level 5 to 9 */
 	if (depth <= 9) return (NULL);
@@ -4196,19 +4435,18 @@ static cptr borg_prepared_aux2(int depth)
 		return ("2 teleports");
 
 	/* Potions of Cure Critical Wounds */
-	if ((bp_ptr->max_lev < 30) && (bp_ptr->able.ccw < 5))
-		return ("cure crit5");
-
-	/* See invisible */
-	/* or telepathy */
-	if ((!(FLAG(bp_ptr, TR_SEE_INVIS)) &&
-		 !(FLAG(bp_ptr, TR_TELEPATHY)))) return ("See Invis : ESP");
+	if (bp_ptr->able.csw + bp_ptr->able.ccw < 6 &&
+		bp_ptr->max_lev < 30) return ("6 cures");
 
 	/* Usually ready for level 10 to 19 */
 	if (depth <= 19) return (NULL);
 
 
 	/*** Essential Items for Level 20 ***/
+
+	/* See invisible or telepathy */
+	if (!FLAG(bp_ptr, TR_SEE_INVIS) &&
+		!FLAG(bp_ptr, TR_TELEPATHY)) return ("See Invis : ESP");
 
 	/* Free action */
 	if (!(FLAG(bp_ptr, TR_FREE_ACT))) return ("FA");
@@ -4218,20 +4456,6 @@ static cptr borg_prepared_aux2(int depth)
 
 
 	/*** Essential Items for Level 25 ***/
-
-	/* have some minimal stats */
-	if (borg_stat[A_STR] < 7) return ("low STR");
-
-	if (bp_ptr->intmana)
-	{
-		if (borg_stat[A_INT] < 7) return ("low INT");
-	}
-	if (bp_ptr->wismana)
-	{
-		if (borg_stat[A_WIS] < 7) return ("low WIS");
-	}
-	if (borg_stat[A_DEX] < 7) return ("low DEX");
-	if (borg_stat[A_CON] < 7) return ("low CON");
 
 	/* Ready for level 25 */
 	if (depth <= 25) return (NULL);
@@ -4246,14 +4470,11 @@ static cptr borg_prepared_aux2(int depth)
 		return ("tell&esc6");
 
 	/* Cure Critical Wounds */
-	if ((bp_ptr->max_lev < 30) &&
-		(bp_ptr->able.ccw + bp_ptr->able.csw < 10)) return ("cure10");
+	if (bp_ptr->able.csw + bp_ptr->able.ccw < 10 &&
+		bp_ptr->max_lev < 30) return ("10 cures");
 
 	/* Ready for level 33 */
 	if (depth <= 33) return (NULL);
-
-	/* Minimal level */
-	if (bp_ptr->max_lev < 40) return ("level 40");
 
 	/* Usually ready for level 20 to 39 */
 	if (depth <= 39) return (NULL);
@@ -4262,21 +4483,18 @@ static cptr borg_prepared_aux2(int depth)
 
 	/*** Essential Items for Level 40 to 45 ***/
 
-	if (borg_stat[A_STR] < 16) return ("low STR");
+	if (borg_stat[A_STR] < 160) return ("low STR");
 
-	if (borg_has_realm(REALM_SORCERY))
-	{
-		if (borg_stat[A_INT] < 16) return ("low INT");
-	}
-	if (borg_has_realm(REALM_LIFE))
-	{
-		if (borg_stat[A_WIS] < 16) return ("low WIS");
-	}
-	if (borg_stat[A_DEX] < 16) return ("low DEX");
-	if (borg_stat[A_CON] < 16) return ("low CON");
+	if ((borg_class == CLASS_MAGE || borg_class == CLASS_HIGH_MAGE) &&
+		borg_stat[A_INT] < 160) return ("low INT");
+
+	if ((borg_class == CLASS_PRIEST || borg_class == CLASS_MINDCRAFTER) &&
+		borg_stat[A_WIS] < 160) return ("low WIS");
+
+	if (borg_stat[A_DEX] < 160) return ("low DEX");
+	if (borg_stat[A_CON] < 160) return ("low CON");
 
 	if (depth <= 45) return (NULL);
-
 
 	/*** Essential Items for Level 46 to 55 ***/
 
@@ -4287,22 +4505,23 @@ static cptr borg_prepared_aux2(int depth)
 	if (!bp_ptr->able.heal && !bp_ptr->able.easy_heal) return ("1heal");
 
 	/* High stats XXX XXX XXX */
-	if (borg_stat[A_STR] < 18 + 40) return ("low STR");
+	if (borg_stat[A_STR] < 220) return ("low STR");
 
-	if (borg_has_realm(REALM_SORCERY))
-	{
-		if (borg_stat[A_INT] < 18 + 100) return ("low INT");
-	}
-	if (borg_has_realm(REALM_LIFE))
-	{
-		if (borg_stat[A_WIS] < 18 + 100) return ("low WIS");
-	}
-	if (borg_stat[A_DEX] < 18 + 60) return ("low DEX");
-	if (borg_stat[A_CON] < 18 + 60) return ("low CON");
+	if ((borg_class == CLASS_MAGE || borg_class == CLASS_HIGH_MAGE) &&
+		borg_stat[A_INT] < 280) return ("low INT");
+
+	if ((borg_class == CLASS_PRIEST || borg_class == CLASS_MINDCRAFTER) &&
+		borg_stat[A_WIS] < 280) return ("low WIS");
+
+	if (borg_stat[A_DEX] < 240) return ("low DEX");
+	if (borg_stat[A_CON] < 240) return ("low CON");
 
 	/* Hold Life */
 	if (!(FLAG(bp_ptr, TR_HOLD_LIFE)) &&
 		(bp_ptr->max_lev < 50)) return ("hold life");
+
+	/* Minimal level */
+	if (bp_ptr->max_lev < 40) return ("level 40");
 
 	/* Usually ready for level 46 to 55 */
 	if (depth <= 55) return (NULL);
@@ -4349,14 +4568,22 @@ static cptr borg_prepared_aux2(int depth)
 	{
 		if ((bp_ptr->msp > 100) && (bp_ptr->able.mana < 15)) return ("15ResMana");
 
-		/* must have lots of heal */
-		if (bp_ptr->able.heal < 15 &&
-			(borg_class == CLASS_MAGE ||
-			 borg_class == CLASS_PRIEST)) return ("15Heal");
-		else if (bp_ptr->able.heal < 25) return ("25Heal");
-
 		/* must have lots of ez-heal */
-		if (bp_ptr->able.easy_heal < 15) return ("15EZHeal");
+		if (bp_ptr->able.easy_heal < 25) return ("25 easy_heal");
+
+		/* must have lots of heal */
+		if (borg_has_realm(REALM_LIFE) || borg_has_realm(REALM_NATURE))
+		{
+			/* Healers can afford to carry less */
+			if (bp_ptr->able.heal + bp_ptr->able.easy_heal < 40)
+				return ("40 heal + easy_heal");
+		}
+		else
+		{
+			/* Non-healers need to carry more */
+			if (bp_ptr->able.heal + bp_ptr->able.easy_heal < 50)
+				return ("50 heal + easy_heal");
+		}
 
 		/* must have lots of speed */
 		if (bp_ptr->able.speed < 15) return ("15Speed");
@@ -4364,15 +4591,11 @@ static cptr borg_prepared_aux2(int depth)
 	}
 
 	/* Its good to be the king */
-	if (depth <= 127) return (NULL);
+	if (depth <= MAX_DEPTH) return (NULL);
 
 	/* all bases covered */
 	return (NULL);
 }
-
-
-
-
 
 /*
  * Determine if the Borg is "prepared" for the given level
@@ -4402,6 +4625,22 @@ cptr borg_prepared(int depth)
 	/* Always okay */
 	return (NULL);
 }
+
+/* This proc returns the depth that the borg is prepared for */
+int borg_prepared_depth(void)
+{
+	int i;
+
+	/* Check all depths */
+	for (i = 1; i < MAX_DEPTH; i++)
+	{
+		/* Is the borg prepared for this depth? */
+		if (borg_prepared(i)) break;
+	}
+
+	return (i);
+}
+
 
 /*
  * Initialize this file

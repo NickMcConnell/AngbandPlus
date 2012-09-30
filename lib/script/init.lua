@@ -5,4 +5,4 @@ end
 
 dofile(build_script_path("object.lua"))
 dofile(build_script_path("spell.lua"))
-
+dofile(build_script_path("field.lua"))

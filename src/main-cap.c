@@ -52,7 +52,7 @@ cptr help_cap[] =
 #  if defined(_POSIX_VERSION)
 #   define USE_TPOSIX
 #  else
-#   if defined(USG) || defined(linux) || defined(SOLARIS)
+#   if defined(USG) || defined(linux) || defined(SOLARIS) || defined(WINDOWS)
 #    define USE_TERMIO
 #   else
 #    define USE_TCHARS
@@ -110,10 +110,17 @@ cptr help_cap[] =
  * Termcap string information
  */
 
-static char blob[1024];		/* The "termcap" entry */
-static char termcap_area[1024];		/* The string extraction buffer */
-static char *next = termcap_area;	/* The current "index" into "area" */
-static char *desc;		/* The terminal name */
+/* The "termcap" entry */
+static char blob[1024];
+
+/* The string extraction buffer */
+static char termcap_area[1024];
+
+/* The current "index" into "area" */
+static char *next = termcap_area;
+
+/* The terminal name */
+static char *desc;
 
 #endif
 
@@ -286,7 +293,7 @@ static void do_cs(int y1, int y2)
 
 #ifdef USE_HARDCODE
 	char temp[64];
-	strnfmt(temp, 64, cs, y1, y2);
+	strnfmt(temp, sizeof(temp), cs, y1, y2);
 	tp (temp);
 #endif
 
@@ -306,7 +313,7 @@ static void do_cm(int x, int y)
 
 #ifdef USE_HARDCODE
 	char temp[64];
-	strnfmt(temp, 64, cm, y+1, x+1);
+	strnfmt(temp, sizeof(temp), cm, y+1, x+1);
 	tp(temp);
 #endif
 
@@ -908,12 +915,6 @@ static errr Term_xtra_cap(int n, int v)
 	/* Analyze the request */
 	switch (n)
 	{
-		/* Clear the screen */
-		case TERM_XTRA_CLEAR:
-		do_cl();
-		do_move(0, 0, 0, 0);
-		return (0);
-
 		/* Make a noise */
 		case TERM_XTRA_NOISE:
 		(void)write(1, "\007", 1);
@@ -1036,8 +1037,8 @@ errr init_cap(void)
 	/* Avoid the bottom right corner */
 	t->icky_corner = TRUE;
 
-	/* Erase with "white space" */
-	t->attr_blank = TERM_WHITE;
+	/* Erase with "black space" */
+	t->attr_blank = TERM_DARK;
 	t->char_blank = ' ';
 
 	/* Set some hooks */
@@ -1055,15 +1056,6 @@ errr init_cap(void)
 
 	/* Activate it */
 	Term_activate(term_screen);
-
-	/* Mega-Hack -- no panel yet */
-	panel_row_min = 0;
-	panel_row_max = 0;
-	panel_col_min = 0;
-	panel_col_max = 0;
-
-	/* Reset the panels */
-	map_panel_size();
 
 	/* Success */
 	return (0);

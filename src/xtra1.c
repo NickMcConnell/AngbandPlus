@@ -543,9 +543,21 @@ static void prt_depth(void)
 	{
 		if (p_ptr->place_num)
 		{
-			if (place[p_ptr->place_num].quest_num)
+			int q_num = place[p_ptr->place_num].quest_num;
+
+			/* Is there a quest here? */
+			if (q_num && q_num < z_info->q_max)
 			{
-				prtf(COL_DEPTH, Term->hgt - 1, "Quest");
+				/* Is this a quest to find a ruin? */
+				if (quest[q_num].type == QUEST_TYPE_FIND_PLACE)
+				{
+					prtf(COL_DEPTH, Term->hgt - 1, "Ruin");
+				}
+				/* then it is this a wilderness quest */
+				else
+				{
+					prtf(COL_DEPTH, Term->hgt - 1, "Quest");
+				}
 			}
 			else
 			{
@@ -2286,6 +2298,104 @@ static sint add_special_missile_skill(byte pclass)
 	return (add_skill);
 }
 
+
+void object_bonuses(const object_type *o_ptr, bonuses_type *b)
+{
+	/* Zero the bonuses */
+	memset(b, 0, sizeof(bonuses_type));
+	
+	/* Affect stats */
+	if (FLAG(o_ptr, TR_STR)) b->stat[A_STR] = o_ptr->pval;
+	if (FLAG(o_ptr, TR_INT)) b->stat[A_INT] = o_ptr->pval;
+	if (FLAG(o_ptr, TR_WIS)) b->stat[A_WIS] = o_ptr->pval;
+	if (FLAG(o_ptr, TR_DEX)) b->stat[A_DEX] = o_ptr->pval;
+	if (FLAG(o_ptr, TR_CON)) b->stat[A_CON] = o_ptr->pval;
+	if (FLAG(o_ptr, TR_CHR)) b->stat[A_CHR] = o_ptr->pval;
+
+	/* Affect mana */
+	if (FLAG(o_ptr, TR_SP)) b->sp_bonus = o_ptr->pval;
+
+	/* Affect stealth */
+	if (FLAG(o_ptr, TR_STEALTH)) b->skills[SKILL_STL] = o_ptr->pval;
+
+	/* Affect sensing ability (factor of five) */
+	if (FLAG(o_ptr, TR_SEARCH)) b->skills[SKILL_SNS] = (o_ptr->pval * 5);
+
+	/* Affect searching frequency (factor of five) */
+	if (FLAG(o_ptr, TR_SEARCH)) b->skills[SKILL_FOS] = (o_ptr->pval * 5);
+
+	/* Affect infravision */
+	if (FLAG(o_ptr, TR_INFRA)) b->see_infra = o_ptr->pval;
+
+	/* Affect digging (factor of 20) */
+	if (FLAG(o_ptr, TR_TUNNEL)) b->skills[SKILL_DIG] = (o_ptr->pval * 20);
+
+	/* Affect speed */
+	if (FLAG(o_ptr, TR_SPEED)) b->pspeed = o_ptr->pval;
+
+	/* Affect blows */
+	if (FLAG(o_ptr, TR_BLOWS)) b->extra_blows = o_ptr->pval;
+
+	/* Boost shots */
+	if (FLAG(o_ptr, TR_XTRA_SHOTS)) b->extra_shots = 1;
+	
+	/* Boost saving throws */
+	if (FLAG(o_ptr, TR_LUCK_10)) b->skills[SKILL_SAV] = 10;
+
+	/* Apply special bonuses */
+	apply_object_trigger(TRIGGER_BONUS, (object_type *)o_ptr, "p", "b", "bonuses_type", b);
+}
+
+
+void object_bonuses_known(const object_type *o_ptr, bonuses_type *b)
+{
+	/* Zero the bonuses */
+	memset(b, 0, sizeof(bonuses_type));
+	
+	/* Affect stats */
+	if (KN_FLAG(o_ptr, TR_STR)) b->stat[A_STR] = o_ptr->pval;
+	if (KN_FLAG(o_ptr, TR_INT)) b->stat[A_INT] = o_ptr->pval;
+	if (KN_FLAG(o_ptr, TR_WIS)) b->stat[A_WIS] = o_ptr->pval;
+	if (KN_FLAG(o_ptr, TR_DEX)) b->stat[A_DEX] = o_ptr->pval;
+	if (KN_FLAG(o_ptr, TR_CON)) b->stat[A_CON] = o_ptr->pval;
+	if (KN_FLAG(o_ptr, TR_CHR)) b->stat[A_CHR] = o_ptr->pval;
+
+	/* Affect mana */
+	if (KN_FLAG(o_ptr, TR_SP)) b->sp_bonus = o_ptr->pval;
+
+	/* Affect stealth */
+	if (KN_FLAG(o_ptr, TR_STEALTH)) b->skills[SKILL_STL] = o_ptr->pval;
+
+	/* Affect sensing ability (factor of five) */
+	if (KN_FLAG(o_ptr, TR_SEARCH)) b->skills[SKILL_SNS] = (o_ptr->pval * 5);
+
+	/* Affect searching frequency (factor of five) */
+	if (KN_FLAG(o_ptr, TR_SEARCH)) b->skills[SKILL_FOS] = (o_ptr->pval * 5);
+
+	/* Affect infravision */
+	if (KN_FLAG(o_ptr, TR_INFRA)) b->see_infra = o_ptr->pval;
+
+	/* Affect digging (factor of 20) */
+	if (KN_FLAG(o_ptr, TR_TUNNEL)) b->skills[SKILL_DIG] = (o_ptr->pval * 20);
+
+	/* Affect speed */
+	if (KN_FLAG(o_ptr, TR_SPEED)) b->pspeed = o_ptr->pval;
+
+	/* Affect blows */
+	if (KN_FLAG(o_ptr, TR_BLOWS)) b->extra_blows = o_ptr->pval;
+
+	/* Boost shots */
+	if (KN_FLAG(o_ptr, TR_XTRA_SHOTS)) b->extra_shots = 1;
+	
+	/* Boost saving throws */
+	if (KN_FLAG(o_ptr, TR_LUCK_10)) b->skills[SKILL_SAV] = 10;
+
+	/* Apply special bonuses */
+	if (object_known_full(o_ptr))
+		apply_object_trigger(TRIGGER_BONUS, (object_type *)o_ptr, "p", "b", "bonuses_type", b);
+}
+
+
 /*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
@@ -2457,6 +2567,8 @@ static void calc_bonuses(void)
 	/* Scan the usable inventory */
 	for (i = 0; i < EQUIP_MAX; i++)
 	{
+		bonuses_type b;
+
 		o_ptr = &p_ptr->equipment[i];
 
 		/* Skip non-objects */
@@ -2467,49 +2579,32 @@ static void calc_bonuses(void)
 		p_ptr->flags[2] |= o_ptr->flags[2];
 		p_ptr->flags[3] |= o_ptr->flags[3];
 
-		/* Affect stats */
-		if (FLAG(o_ptr, TR_STR)) p_ptr->stat[A_STR].add += o_ptr->pval;
-		if (FLAG(o_ptr, TR_INT)) p_ptr->stat[A_INT].add += o_ptr->pval;
-		if (FLAG(o_ptr, TR_WIS)) p_ptr->stat[A_WIS].add += o_ptr->pval;
-		if (FLAG(o_ptr, TR_DEX)) p_ptr->stat[A_DEX].add += o_ptr->pval;
-		if (FLAG(o_ptr, TR_CON)) p_ptr->stat[A_CON].add += o_ptr->pval;
-		if (FLAG(o_ptr, TR_CHR)) p_ptr->stat[A_CHR].add += o_ptr->pval;
-
-		/* Affect mana */
-		if (FLAG(o_ptr, TR_SP)) p_ptr->sp_bonus += o_ptr->pval;
-
-		/* Affect stealth */
-		if (FLAG(o_ptr, TR_STEALTH)) p_ptr->skills[SKILL_STL] += o_ptr->pval;
-
-		/* Affect sensing ability (factor of five) */
-		if (FLAG(o_ptr, TR_SEARCH)) p_ptr->skills[SKILL_SNS] += (o_ptr->pval * 5);
-
-		/* Affect searching frequency (factor of five) */
-		if (FLAG(o_ptr, TR_SEARCH)) p_ptr->skills[SKILL_FOS] += (o_ptr->pval * 5);
-
-		/* Affect infravision */
-		if (FLAG(o_ptr, TR_INFRA)) p_ptr->see_infra += o_ptr->pval;
-
-		/* Affect digging (factor of 20) */
-		if (FLAG(o_ptr, TR_TUNNEL)) p_ptr->skills[SKILL_DIG] += (o_ptr->pval * 20);
-
-		/* Affect speed */
-		if (FLAG(o_ptr, TR_SPEED)) p_ptr->pspeed += o_ptr->pval;
-
-		/* Affect blows */
-		if (FLAG(o_ptr, TR_BLOWS)) extra_blows += o_ptr->pval;
-
-		/* Boost shots */
-		if (FLAG(o_ptr, TR_XTRA_SHOTS)) extra_shots++;
-		
-		/* Boost saving throws */
-		if (FLAG(o_ptr, TR_LUCK_10)) p_ptr->skills[SKILL_SAV] += 10;
+		/* Calculate bonuses from object */
+		object_bonuses(o_ptr, &b);
 
 		/* Modify the base armor class */
 		p_ptr->ac += o_ptr->ac;
 
 		/* The base armor class is always known */
 		p_ptr->dis_ac += o_ptr->ac;
+
+		/* Apply bonuses to stats */
+		for (j = 0; j < A_MAX; j++)
+		{
+			p_ptr->stat[j].add += b.stat[j];
+		}
+		
+		p_ptr->sp_bonus += b.sp_bonus;
+		p_ptr->see_infra += b.see_infra;
+		p_ptr->pspeed += b.pspeed;
+		extra_blows += b.extra_blows;
+		extra_shots += b.extra_shots;
+
+		/* Apply bonuses to skills */
+		for (j = 0; j < MAX_SKILL; j++)
+		{
+			p_ptr->skills[j] += b.skills[j];
+		}
 
 		/* Apply the bonuses to armor class */
 		p_ptr->to_a += o_ptr->to_a;
@@ -2530,6 +2625,7 @@ static void calc_bonuses(void)
 		/* Apply the mental bonuses tp hit/damage, if known */
 		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
+
 	}
 
 	/* Monks get extra ac for armour _not worn_ */
@@ -2603,12 +2699,13 @@ static void calc_bonuses(void)
 		use = modify_stat_value(p_ptr->stat[i].cur, p_ptr->stat[i].add);
 
 		if ((i == A_CHR) && (p_ptr->muta3 & MUT3_ILL_NORM))
-        {
-            int floor = 8 + 2 * p_ptr->lev;
-            if (floor <= 18)
-                floor *= 10;
-            else
-                floor += 180-18;
+		{
+			int floor = 8 + 2 * p_ptr->lev;
+
+			if (floor <= 18)
+				floor *= 10;
+			else
+				floor += 180-18;
 
 			/* 10 to 18/90 charisma, guaranteed, based on level */
 			if (use < floor)
@@ -2630,11 +2727,11 @@ static void calc_bonuses(void)
 			p_ptr->window |= (PW_PLAYER);
 		}
 
-
-        if (use < 400)
-            ind = use / 10 - 3;
-        else
-            ind = 37;
+		/* Find index into various tables */
+		if (use < 400)
+			ind = use / 10 - 3;
+		else
+			ind = 37;
 
 		/* Notice changes */
 		if (p_ptr->stat[i].ind != ind)
@@ -2762,7 +2859,7 @@ static void calc_bonuses(void)
 	/* Temporary infravision boost */
 	if (p_ptr->tim.infra)
 	{
-		p_ptr->see_infra++;
+		p_ptr->see_infra += 3;
 	}
 
 
@@ -3060,8 +3157,8 @@ static void calc_bonuses(void)
 	/* Apply Skill -- Extract noise from stealth */
 	p_ptr->noise = (1L << (30 - p_ptr->skills[SKILL_STL]));
 
-	if ((FLAG(p_ptr, TR_NO_MAGIC)) && (p_ptr->skills[SKILL_SAV] < p_ptr->lev + 85))
-		 p_ptr->skills[SKILL_SAV] = p_ptr->lev + 85;
+	if ((FLAG(p_ptr, TR_NO_MAGIC)) && (p_ptr->skills[SKILL_SAV] < p_ptr->lev * 2 + 85))
+		 p_ptr->skills[SKILL_SAV] = p_ptr->lev * 2 + 85;
 
 	/* Assume not heavy */
 	p_ptr->state.heavy_wield = FALSE;
@@ -3112,22 +3209,12 @@ static void calc_bonuses(void)
 			/* Use the blows table */
 			p_ptr->num_blow = blows_table[str_index][dex_index];
 
-			/* Get weapon skill */
-			skill = p_ptr->skills[SKILL_THN] + (p_ptr->to_h * BTH_PLUS_ADJ);
+			/* Get weapon skill (not including magical enhancments) */
+			skill = p_ptr->skills[SKILL_THN];
 
 			/* Require high skill to get large number of blows */
-			if ((skill < 100) && (p_ptr->num_blow > 3))
-			{
-				p_ptr->num_blow = 3;
-			}
-			if ((skill < 150) && (p_ptr->num_blow > 4))
-			{
-				p_ptr->num_blow = 4;
-			}
-			if ((skill < 200) && (p_ptr->num_blow > 5))
-			{
-				p_ptr->num_blow = 5;
-			}
+			if (p_ptr->num_blow > 1 + skill / 15)
+				p_ptr->num_blow = 1 + skill / 15;
 
 			/* Paranoia - require at least one blow */
 			if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
@@ -3178,17 +3265,6 @@ static void calc_bonuses(void)
 		}
 	}
 
-	/* Apply special scripts */
-	for (i = 0; i < EQUIP_MAX; i++)
-	{
-		o_ptr = &p_ptr->equipment[i];
-
-		/* Skip non-objects */
-		if (!o_ptr->k_idx) continue;
-
-		apply_object_trigger(TRIGGER_BONUS, o_ptr, "");
-	}
-		
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
 
@@ -3336,12 +3412,17 @@ void update_stuff(void)
 	/* Character is not ready yet, no screen updates */
 	if (!character_generated) return;
 
-
 	/* Character is in "icky" mode, no screen updates */
 	if (character_icky) return;
 	
 	/* Do not update map, it doesn't exist */
 	if (!character_dungeon) return;
+	
+	if (p_ptr->update & (PU_MAP))
+	{
+		p_ptr->update &= ~(PU_MAP);
+		map_panel_size();
+	}
 	
 	if ((p_ptr->update & (PU_MON_LITE)) && monster_light)
 	{
@@ -3738,4 +3819,12 @@ void change_stuff(void)
 		msgf("You feel different!");
 		(void)gain_mutation(0);
 	}
+}
+
+/*
+ * Roll a saving throw for the player
+ */
+bool player_save(int power)
+{
+	return saving_throw(p_ptr->skills[SKILL_SAV] - power);
 }

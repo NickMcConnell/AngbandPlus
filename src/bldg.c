@@ -24,9 +24,10 @@ static void have_nightmare_aux(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 	char m_name[80];
 	bool happened = FALSE;
-	int power = r_ptr->level + 10;
-	cptr desc = r_name + r_ptr->name;
+	int power = r_ptr->hdice * 2 + 10;
+	cptr desc = mon_race_name(r_ptr);
 
+	int i;
 
 	if (!FLAG(r_ptr, RF_UNIQUE))
 	{
@@ -35,7 +36,7 @@ static void have_nightmare_aux(int r_idx)
 
 		if (FLAG(r_ptr, RF_FRIENDS))
 		{
-			power /= 2;
+			power -= 50;
 		}
 	}
 	else
@@ -43,10 +44,10 @@ static void have_nightmare_aux(int r_idx)
 		/* Describe it */
 		strnfmt(m_name, 80, "%s", desc);
 
-		power *= 2;
+		power += 50;
 	}
 
-	if (saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
+	if (player_save(power))
 	{
 		msgf("%^s chases you through your dreams.", m_name);
 
@@ -63,7 +64,7 @@ static void have_nightmare_aux(int r_idx)
 		if (one_in_(3))
 		{
 			msgf(funny_comments[randint0(MAX_SAN_COMMENT)]);
-			(void) inc_image(randint1(r_ptr->level));
+			(void) inc_image(randint1(r_ptr->hdice * 2));
 		}
 
 		/* Never mind; we can't see it clearly enough */
@@ -100,7 +101,7 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Mind blast */
-	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
+	if (!player_save(power))
 	{
 		if (!(FLAG(p_ptr, TR_RES_CONF)))
 		{
@@ -114,7 +115,7 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Lose int & wis */
-	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
+	if (!player_save(power))
 	{
 		(void)do_dec_stat(A_INT);
 		(void)do_dec_stat(A_WIS);
@@ -122,7 +123,7 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Brain smash */
-	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
+	if (!player_save(power))
 	{
 		if (!(FLAG(p_ptr, TR_RES_CONF)))
 		{
@@ -132,14 +133,13 @@ static void have_nightmare_aux(int r_idx)
 		{
 			(void)inc_paralyzed(rand_range(4, 8));
 		}
-		while (!saving_throw(p_ptr->skills[SKILL_SAV]))
+
+		for (i = 0; !player_save(power - i); i += 10)
 		{
 			(void)do_dec_stat(A_INT);
-		}
-		while (!saving_throw(p_ptr->skills[SKILL_SAV]))
-		{
 			(void)do_dec_stat(A_WIS);
 		}
+
 		if (!(FLAG(p_ptr, TR_RES_CHAOS)))
 		{
 			(void)inc_image(rand_range(250, 400));
@@ -148,7 +148,7 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Permanent lose int & wis */
-	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
+	if (!player_save(power))
 	{
 		if (dec_stat(A_INT, 10, TRUE)) happened = TRUE;
 		if (dec_stat(A_WIS, 10, TRUE)) happened = TRUE;
@@ -160,7 +160,7 @@ static void have_nightmare_aux(int r_idx)
 	}
 
 	/* Amnesia */
-	if (!saving_throw(p_ptr->skills[SKILL_SAV] * 100 / power))
+	if (!player_save(power))
 	{
 		if (lose_all_info())
 		{
@@ -266,7 +266,7 @@ bool get_nightmare(int r_idx)
 	if (!FLAG(r_ptr, RF_ELDRITCH_HORROR)) return (FALSE);
 
 	/* Require high level */
-	if (r_ptr->level <= p_ptr->lev) return (FALSE);
+	if (r_ptr->hdice * 2 <= p_ptr->lev) return (FALSE);
 
 	/* Accept this monster */
 	return (TRUE);
@@ -279,16 +279,14 @@ static void building_prt_gold(void)
 }
 
 /* Does the player have enough gold for this action? */
-bool test_gold(s32b *cost)
+bool test_gold(s32b cost)
 {
-	if (p_ptr->au < *cost)
+	if (p_ptr->au < cost)
 	{
 		/* Player does not have enough gold */
 
-		msgf("You need %ld gold to do this!", (long)*cost);
+		msgf("You need %ld gold to do this!", (long)cost);
 		message_flush();
-
-		*cost = 0;
 
 		return (FALSE);
 	}
@@ -298,33 +296,65 @@ bool test_gold(s32b *cost)
 }
 
 
+static const store_type *build_ptr;
+
+
+/* Does this building have an outstanding quest */
+bool build_has_quest(void)
+{
+	if (lookup_quest_building(build_ptr)) return (TRUE);
+
+	return (FALSE);
+}
+
+void build_cmd_quest(int level)
+{
+	quest_type *q_ptr = lookup_quest_building(build_ptr);
+
+	/* Do we already have a quest? */
+	if (q_ptr)
+	{
+		/* Give reward? */
+		reward_quest(q_ptr);
+	}
+	else
+	{
+		/* Make a new quest */
+		request_quest(build_ptr, level);
+	}
+	
+	/* Display messages */
+	message_flush();
+}
+
+
+/* Global that contains which building the player is in */
+static field_type resize_f_ptr;
 
 /*
  * Display a building.
  */
-void display_build(const field_type *f_ptr, const store_type *b_ptr)
+void display_build(const field_type *f_ptr)
 {
-	const b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
-
 	int factor;
 
-	cptr build_name = t_info[f_ptr->t_idx].name;
-	cptr owner_name = (bo_ptr->owner_name);
-	cptr race_name = race_info[bo_ptr->owner_race].title;
+	cptr build_name = field_name(f_ptr);
+	cptr owner_name = quark_str(build_ptr->owner_name);
+
+	/* remember for the resize */
+	resize_f_ptr = *f_ptr;
 
 	/* The charisma factor */
 	factor = adj_chr_gold[p_ptr->stat[A_CHR].ind];
 
-	factor = ((factor + 200) * bo_ptr->inflate) / 400;
+	factor = ((factor + 200) * build_ptr->greed) / 400;
 
 	Term_clear();
-	prtf(1, 2, "%s (%s) %s", owner_name, race_name, build_name);
+	prtf(1, 2, "%s %s", owner_name, build_name);
 	prtf(0, 19, "You may:");
 
-
 	/* Display building-specific information */
-	field_hook(area(p_ptr->px, p_ptr->py),
-			   FIELD_ACT_STORE_ACT1, factor, b_ptr);
+	(void) field_script_const(f_ptr, FIELD_ACT_BUILD_ACT1, "i", LUA_VAR(factor));
 
 	prtf(0, 23, " ESC) Exit building");
 
@@ -332,6 +362,13 @@ void display_build(const field_type *f_ptr, const store_type *b_ptr)
 	building_prt_gold();
 }
 
+
+/* Display the building without argument, relies on display_build going first */
+static void resize_build(void)
+{
+	/* Get the argument from the global */
+	display_build(&resize_f_ptr);
+}
 
 /*
  * display fruit for dice slots
@@ -536,14 +573,14 @@ static bool gamble_again(bool win, int odds, s32b wager)
 	{
 		prtf(37, 16, "YOU WON\n"
 					 "Payoff: %ld\n"
-                     "Again(Y/N)?", odds * wager);
+                     "Again(y/n)?", odds * wager);
         p_ptr->au += odds * wager;
 	}
 	else
 	{
 		prtf(37, 16, "You Lost\n"
 					 "\n"
-                     "Again(Y/N)?");
+                     "Again(y/n)?");
         p_ptr->au -= wager;
 	}
 
@@ -855,9 +892,92 @@ bool inn_rest(void)
 	return (TRUE);
 }
 
+/*
+ * Calculate the probability of successful hit for a weapon and certain AC
+ *
+ * Only accurate for the current weapon, because it includes
+ * player's +to_hit.
+ */
+static int hit_prob(int to_h, int ac)
+{
+	int chance = p_ptr->skills[SKILL_THN] + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
+	int prob = 0;
+
+	if (chance > 0 && ac < chance) prob = (100 * (chance - ac) / chance);
+	return (5 + 95 * prob / 100);
+}
+
 
 #define WEP_MAST_COL1	2
 #define WEP_MAST_COL2	45
+
+/* Show how much damage a player does without a weapon */
+static bool compare_weaponless(void)
+{
+	int i;
+	int intmaxdam = 0, intmindam = 10;
+
+	if (p_ptr->rp.pclass != CLASS_MONK)
+	{
+		if (p_ptr->rp.prace == RACE_GHOUL)
+		{
+			/* Claw */
+			msgf("Maybe you will paralyze your foes with your claws.");
+		}
+		else
+		{
+			/* Just punching */
+			msgf("You can do little damage with your fists.");
+		}
+
+		/* Free of charge */
+		return (FALSE);
+	}
+
+	/* State the obvious */
+	msgf("Monks without a weapon use martial arts.");
+
+	/* Need more room on the screen so clear a part of it */
+	if (p_ptr->lev >= 45) clear_region(0, 15, 21);
+
+	/* Show the list of attacks */
+	put_fstr(WEP_MAST_COL1, 4, CLR_L_BLUE "Possible Attacks:");
+
+	for (i = 0; i < MAX_MA && ma_blows[i].min_level < p_ptr->lev; i++)
+	{
+		const martial_arts *ma_ptr = &ma_blows[i];
+
+		intmaxdam = ma_ptr->dd * ma_ptr->ds;
+		intmindam = MIN(intmindam, ma_ptr->dd);
+
+		/* Show a line from the table */
+		put_fstr(WEP_MAST_COL1, i + 5, "%s (%dd%d)",
+				 format(ma_ptr->desc, "a monster"),
+				 ma_ptr->dd, ma_ptr->ds);
+	}
+
+	put_fstr(WEP_MAST_COL2, 4, CLR_L_BLUE "Possible Damage:");
+
+	/* Damage for one blow (if it hits) */
+	put_fstr(WEP_MAST_COL2, 5, "One Strike: %d-%d damage", intmindam, intmaxdam);
+
+	/* The whole attack */
+	intmindam *= p_ptr->num_blow;
+	intmaxdam *= p_ptr->num_blow;
+
+	/* Damage for the complete attack (if all blows hit) */
+	put_fstr(WEP_MAST_COL2, 6, "One Attack: %d-%d damage", intmindam, intmaxdam);
+
+	/* Print hit probabilities */
+	put_fstr(WEP_MAST_COL2, 8, "Enemy AC:  Low   Medium  High \n"
+							   "Hit Prob:  %2d%% %2d%% %2d%% %2d%% %2d%%",
+			hit_prob(0, 25), hit_prob(0, 50), hit_prob(0, 75), hit_prob(0, 100),
+			hit_prob(0, 200));
+
+	/* This info costs money */
+	return (TRUE);
+}
+
 
 /*
  * Display the damage figure of an object
@@ -982,22 +1102,6 @@ static void compare_weapon_aux1(const object_type *o_ptr)
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++,
 							CLR_RED "Poison:", 20);
 	}
-}
-
-
-/*
- * Calculate the probability of successful hit for a weapon and certain AC
- *
- * Only accurate for the current weapon, because it includes
- * player's +to_hit.
- */
-static int hit_prob(int to_h, int ac)
-{
-	int chance = p_ptr->skills[SKILL_THN] + (p_ptr->to_h + to_h) * BTH_PLUS_ADJ;
-	int prob = 0;
-
-	if (chance > 0 && ac < chance) prob = (100 * (chance - ac) / chance);
-	return (5 + 95 * prob / 100);
 }
 
 
@@ -1142,6 +1246,7 @@ static void list_weapon(const object_type *o_ptr)
 bool compare_weapons(void)
 {
 	object_type *o_ptr;
+	bool result = TRUE;;
 
 	/* Clear the screen */
     clear_region(0, 6, 18);
@@ -1150,45 +1255,49 @@ bool compare_weapons(void)
 	o_ptr = &p_ptr->equipment[EQUIP_WIELD];
 
 	/* Check to see if we have one */
-	if (!o_ptr->k_idx)
+	if (o_ptr->k_idx)
 	{
-		msgf("You need to wield a weapon.");
-		return (FALSE);
+		/* Identify the weapon */
+		identify_item(o_ptr);
+		object_mental(o_ptr);
+
+		/* Save all the known flags */
+		o_ptr->kn_flags[0] = o_ptr->flags[0];
+		o_ptr->kn_flags[1] = o_ptr->flags[1];
+		o_ptr->kn_flags[2] = o_ptr->flags[2];
+		o_ptr->kn_flags[3] = o_ptr->flags[3];
+
+		/* Erase the "feeling" */
+		o_ptr->feeling = FEEL_NONE;
+
+
+		/* List the new values */
+		list_weapon(o_ptr);
+		compare_weapon_aux1(o_ptr);
+
+		put_fstr(0, 19,
+				"(Only highest damage applies per monster. Special damage not cumulative.)");
+
+		msgf("Based on your current abilities, here is what your weapon will do:");
+	}
+	else
+	{
+		/* Bare hands */
+		result = compare_weaponless();
 	}
 
-	put_fstr(2, 4, 
-			"Based on your current abilities, here is what your weapon will do:");
-
-	/* Identify the weapon */
-	identify_item(o_ptr);
-	object_mental(o_ptr);
-
-	/* Save all the known flags */
-	o_ptr->kn_flags[0] = o_ptr->flags[0];
-	o_ptr->kn_flags[1] = o_ptr->flags[1];
-	o_ptr->kn_flags[2] = o_ptr->flags[2];
-	o_ptr->kn_flags[3] = o_ptr->flags[3];
-
-	/* Erase the "feeling" */
-	o_ptr->feeling = FEEL_NONE;
-
-
-	/* List the new values */
-	list_weapon(o_ptr);
-	compare_weapon_aux1(o_ptr);
-
-	put_fstr(0, 20,
-			"(Only highest damage applies per monster. Special damage not cumulative.)");
+	/* Give the player a chance to see it all */
+	if (auto_more) (void)inkey();
 
 	/* Done */
-	return (TRUE);
+	return (result);
 }
 
 
 /*
  * Enchant item
  */
-bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
+bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac, bool weap)
 {
 	bool okay = FALSE;
 	object_type *o_ptr;
@@ -1196,13 +1305,16 @@ bool enchant_item(s32b cost, bool to_hit, bool to_dam, bool to_ac)
 	int maxenchant = (p_ptr->lev / 5);
 	int maxenchant_d = (p_ptr->lev / 3);
 
-    clear_region(0, 5, 18);
-    
-	if (to_dam)
-		prtf(0, 5, "  Based on your skill, we can improve up to +%d,+%d%%.", maxenchant, maxenchant_d * 3);
+	if (weap)
+	{
+		/* Select weapons */
+		item_tester_hook = item_tester_hook_melee_weapon;
+	}
 	else
-		prtf(0, 5, "  Based on your skill, we can improve up to +%d.", maxenchant);
-	prtf(0, 7, "  The price for the service is %d gold per item.", cost);
+	{
+		/* Select armour */
+		item_tester_hook = item_tester_hook_armour;
+	}
 
 	/* Get an item */
 	q = "Improve which item? ";
@@ -1293,10 +1405,6 @@ void building_recharge(s32b cost)
 	int charges;
 	int max_charges;
 
-
-	/* Display some info */
-    clear_region(0, 5, 18);
-	prtf(0, 6, "  The prices of recharge depend on the type.");
 
 	/* Only accept legal items */
 	item_tester_hook = item_tester_hook_recharge;
@@ -1459,11 +1567,8 @@ void building_recharge(s32b cost)
 			   ((o_ptr->number > 1) ? "were" : "was"), price);
 	message_flush();
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN);
+	/* Notice changes */
+	notice_inven();
 
 	/* Pay the price */
 	p_ptr->au -= price;
@@ -1540,10 +1645,31 @@ static int collect_magetower_links(int n, int *link_p, int *link_w, s32b *cost,
 	return max_link;
 }
 
+/*
+ * Record that the player has visited a magetower
+ * and paid for the privelidge of being able to
+ * teleport there from another magetower
+ */
+void record_aura(void)
+{
+	store_type *b_ptr = get_current_store();
+
+	if (!b_ptr->data)
+	{
+		/*
+		 * Hack XXX - save the fact we have "noticed" this tower
+		 * in this variable, which later will have to be removed
+		 * from store_type anyway.
+		 */
+		b_ptr->data = 1;
+		
+		msgf("The portal keeper notes your aura.");
+	}
+}
+
+
 bool building_magetower(int factor, bool display)
 {
-	store_type *st_ptr;
-
 	int link_p[24], link_w[24];
 	int max_link = 0;
 	int i;
@@ -1552,18 +1678,19 @@ bool building_magetower(int factor, bool display)
 
 	char out_val[160];
 
-
-	/* Save the store pointer */
-	st_ptr = get_current_store();
-
-	/* Paranoia */
-	if (!st_ptr) return (FALSE);
-
 	/* Collect links */
 	max_link = collect_magetower_links(24, link_p, link_w, cost, factor);
 
 	if (display)
 	{
+		/* Haven't been here before? */
+		if (!build_ptr->data)
+		{
+			put_fstr(35, 18, CLR_YELLOW " R) Record aura (%dgp)", factor * 5);
+		}
+		
+		put_fstr(35, 19, CLR_YELLOW " T) Teleport");
+	
 		for (i = 0; i < max_link; i++)
 		{
 			int row = i % 12 + 4;
@@ -1602,7 +1729,7 @@ bool building_magetower(int factor, bool display)
 
 			k = (islower(command) ? A2I(command) : -1);
 
-			if ((k >= 0) && (k < max_link) && test_gold(&cost[k]))
+			if ((k >= 0) && (k < max_link) && test_gold(cost[k]))
 			{
 				place_type *pl_ptr2 = &place[link_p[k]];
 				store_type *st_ptr2 = &pl_ptr2->store[link_w[k]];
@@ -1652,22 +1779,32 @@ bool building_magetower(int factor, bool display)
 }
 
 
-static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
+static bool process_build_hook(const field_type *f_ptr)
 {
-	const b_own_type *bo_ptr = &b_owners[f_ptr->data[0]][b_ptr->owner];
-
 	int factor;
+	
+	char command[2];
+	
+	bool done = FALSE;
 
 	/* The charisma factor */
 	factor = adj_chr_gold[p_ptr->stat[A_CHR].ind];
 
-	factor = ((factor + 200) * bo_ptr->inflate) / 400;
+	factor = ((factor + 200) * build_ptr->greed) / 400;
+	
+	/* Hack - lua expects a string instead of a character */
+	command[0] = (byte) p_ptr->cmd.cmd;
+	command[1] = '\0';
 
-	field_hook(area(p_ptr->px, p_ptr->py),
-			   FIELD_ACT_STORE_ACT2, &factor, b_ptr);
+	field_script_const(f_ptr, FIELD_ACT_BUILD_ACT2, "is:b",
+						LUA_VAR(factor), LUA_VAR(command),
+						LUA_RETURN(done));
+	
+	/* Redraw screen */
+	display_build(f_ptr);
 
 	/* Did we do anything? */
-	return (factor);
+	return (done);
 }
 
 
@@ -1683,7 +1820,7 @@ static bool process_build_hook(field_type *f_ptr, store_type *b_ptr)
  * people use the roguelike keyset and press a 'direction' key
  * which also corresponds to a building command.
  */
-static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
+static bool build_process_command(const field_type *f_ptr)
 {
 	/* Hack - Get a command */
 	p_ptr->cmd.cmd = inkey();
@@ -1692,7 +1829,7 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 	repeat_check();
 
 	/* Process the building-specific commands */
-	if (process_build_hook(f_ptr, b_ptr)) return (FALSE);
+	if (process_build_hook(f_ptr)) return (FALSE);
 
 	/* Parse the command */
 	switch (p_ptr->cmd.cmd)
@@ -1707,151 +1844,31 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 		{
 			/* Redraw */
 			do_cmd_redraw();
-			display_build(f_ptr, b_ptr);
+			display_build(f_ptr);
 			break;
 		}
 
+		case ' ':
 		case '\r':
 		{
 			/* Ignore return */
 			break;
 		}
 
-
-		/*** Various commands ***/
-
-		case KTRL('I'):
-		{
-			/* Hack -- toggle windows */
-			toggle_inven_equip();
-			break;
-		}
-
-		/*** Help and Such ***/
-
-		case '?':
-		{
-			/* Help */
-			do_cmd_help();
-			break;
-		}
-
-		case '/':
-		{
-			/* Identify symbol */
-			do_cmd_query_symbol();
-			break;
-		}
-
-		case 'C':
-		{
-			/* Character description */
-			do_cmd_character();
-			display_build(f_ptr, b_ptr);
-			break;
-		}
-
-
-		/*** System Commands ***/
-
-		case '!':
-		{
-			/* Hack -- User interface */
-			(void)Term_user(0);
-			break;
-		}
-
-		case '"':
-		{
-			/* Single line from a pref file */
-			do_cmd_pref();
-			break;
-		}
-
-		case '@':
-		{
-			/* Interact with macros */
-			do_cmd_macros();
-			break;
-		}
-
-		case '%':
-		{
-			/* Interact with visuals */
-			do_cmd_visuals();
-			break;
-		}
-
-		case '&':
-		{
-			/* Interact with colors */
-			do_cmd_colors();
-			break;
-		}
-
-		case '=':
-		{
-			/* Interact with options */
-			do_cmd_options(OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
-			break;
-		}
-
-		/*** Misc Commands ***/
-
-		case ':':
-		{
-			/* Take notes */
-			do_cmd_note();
-			break;
-		}
-
-		case 'V':
-		{
-			/* Version info */
-			do_cmd_version();
-			break;
-		}
-
-		case KTRL('F'):
-		{
-			/* Repeat level feeling */
-			do_cmd_feeling();
-			break;
-		}
-
-		case KTRL('P'):
-		{
-			/* Show previous messages */
-			do_cmd_messages();
-			break;
-		}
-
-		case '~':
-		case '|':
-		{
-			/* Check artifacts, uniques etc. */
-			do_cmd_knowledge();
-			break;
-		}
-
-		case '(':
-		{
-			/* Load "screen dump" */
-			do_cmd_load_screen();
-			break;
-		}
-
-		case ')':
-		{
-			/* Save "screen dump" */
-			do_cmd_save_screen();
-			break;
-		}
-
 		default:
 		{
-			/* Hack -- Unknown command */
-			msgf("That command does not work in buildings.");
+			/* Is it a standard command? */
+			if (!do_standard_command(p_ptr->cmd.cmd))
+			{
+				/* Hack -- Unknown command */
+				msgf("That command does not work in buildings.");
+			}
+			else
+			{
+				/* Why this is neeed so often I don't know */
+				message_flush();
+			}
+
 			break;
 		}
 	}
@@ -1863,15 +1880,24 @@ static bool build_process_command(field_type *f_ptr, store_type *b_ptr)
 /*
  * Do building commands
  */
-void do_cmd_bldg(field_type *f_ptr)
+void do_cmd_bldg(const field_type *f_ptr)
 {
 	store_type *b_ptr;
 	bool leave_build = FALSE;
+
+	/* Disturb */
+	disturb(FALSE);
 
 	b_ptr = get_current_store();
 	
 	/* Paranoia */
 	if (!b_ptr) return;
+	
+	/* Save building pointer for lua hook */
+	build_ptr = b_ptr;
+	
+	/* Init building if required */
+	field_script_const(f_ptr, FIELD_ACT_SB_INIT, "");
 	
 	/* Some quests are finished by finding a building */
 	trigger_quest_complete(QX_FIND_SHOP, (vptr)b_ptr);
@@ -1880,7 +1906,7 @@ void do_cmd_bldg(field_type *f_ptr)
 	forget_view();
 
 	/* Hack -- Increase "icky" depth */
-	character_icky++;
+	screen_save();
 
 	/* No command argument */
 	p_ptr->cmd.arg = 0;
@@ -1892,13 +1918,14 @@ void do_cmd_bldg(field_type *f_ptr)
 	p_ptr->cmd.new = 0;
 
 	/* Display the building */
-	display_build(f_ptr, b_ptr);
+	display_build(f_ptr);
+
+	/* Hack - change the redraw hook so bigscreen works */
+	angband_term[0]->resize_hook = resize_build;
 
 	/* Interact with player */
 	while (!leave_build)
 	{
-		clear_row(1);
-
 		/* Clear */
 		clear_from(21);
 
@@ -1909,7 +1936,7 @@ void do_cmd_bldg(field_type *f_ptr)
 		building_prt_gold();
 
 		/* Process the command */
-		leave_build = build_process_command(f_ptr, b_ptr);
+		leave_build = build_process_command(f_ptr);
 
 		if (force_build_exit)
 		{
@@ -1917,22 +1944,20 @@ void do_cmd_bldg(field_type *f_ptr)
 			break;
 		}
 
-		/* Hack -- Character is still in "icky" mode */
-		character_icky = TRUE;
-
 		/* Notice stuff */
 		notice_stuff();
 
 		/* Handle stuff */
 		handle_stuff();
+
+		message_flush();
 	}
 
 	/* Free turn XXX XXX XXX */
 	p_ptr->state.energy_use = 0;
 
 	/* Hack -- Character is no longer in "icky" mode */
-	character_icky = FALSE;
-
+	screen_load();
 
 	/* Hack -- Cancel automatic command */
 	p_ptr->cmd.new = 0;
@@ -1940,10 +1965,14 @@ void do_cmd_bldg(field_type *f_ptr)
 	/* Flush messages XXX XXX XXX */
 	message_flush();
 
+	/* Hack - reset the redraw hook */
+	angband_term[0]->resize_hook = resize_map;
 
 	/* Clear the screen */
 	Term_clear();
 
+	/* Update for the changed screen size */
+	resize_map();
 
 	/* Update everything */
 	p_ptr->update |= (PU_VIEW);
@@ -1965,11 +1994,18 @@ void do_cmd_bldg(field_type *f_ptr)
  */
 void build_init(int town_num, int build_num, byte build_type)
 {
+	cptr own_name = owner_names[randint0(owner_names_max)];
+	cptr own_suffix = owner_suffix[randint0(owner_suffix_max)];
+
 	/* Activate that building */
 	store_type *st_ptr = &place[town_num].store[build_num];
 
 	/* Pick an owner */
-	st_ptr->owner = (byte)randint0(MAX_B_OWN);
+	st_ptr->owner_name = quark_fmt("%s %s", own_name, own_suffix);
+	
+	/* These are set in place_sb() via lua hooks */
+	st_ptr->greed = 0;
+	st_ptr->max_cost = 0;
 
 	/* Set the type */
 	st_ptr->type = build_type;

@@ -24,14 +24,11 @@
 /* Chance of getting a 'high' immunity rather than resist (1 in 12) */
 #define HI_IM_LUCK	12
 
-/*
- * Bias luck needs to be higher than weird luck,
- * since it is usually tested several times...
- */
 #define ACTIVATION_CHANCE 3
 
 static void random_plus(object_type *o_ptr)
 {
+  bad_type:
 	switch (randint1(o_ptr->tval < TV_BOOTS ? 24 : 20))
 	{
 		case 1:  case 2:
@@ -72,13 +69,9 @@ static void random_plus(object_type *o_ptr)
 			break;
 		case 23:  case 24:
 			if (o_ptr->tval == TV_BOW)
-			{
-				SET_FLAG(o_ptr, TR_DEX);
-			}
-			else
-			{
-				SET_FLAG(o_ptr, TR_BLOWS);
-			}
+				goto bad_type;
+
+			SET_FLAG(o_ptr, TR_BLOWS);
 			break;
 	}
 }
@@ -86,6 +79,7 @@ static void random_plus(object_type *o_ptr)
 
 static void random_resistance(object_type *o_ptr, int specific)
 {
+  bad_type:
 	switch (specific ? specific : randint1(42))
 	{
 		case 1:
@@ -199,11 +193,13 @@ static void random_resistance(object_type *o_ptr, int specific)
 			break;
 		/* Note: SH_ACID is deliberately omitted here */
 		case 42:
-			if (o_ptr->tval == TV_SHIELD || o_ptr->tval == TV_CLOAK ||
-				o_ptr->tval == TV_HELM || o_ptr->tval == TV_HARD_ARMOR)
-				SET_FLAG(o_ptr, TR_REFLECT);
-			else
-				SET_FLAG(o_ptr, TR_RES_FEAR);
+			if (o_ptr->tval != TV_SHIELD && o_ptr->tval != TV_CLOAK &&
+				o_ptr->tval != TV_HELM && o_ptr->tval != TV_HARD_ARMOR)
+			{
+				goto bad_type;
+			}
+				
+			SET_FLAG(o_ptr, TR_REFLECT);
 			break;
 	}
 }
@@ -212,7 +208,8 @@ static void random_resistance(object_type *o_ptr, int specific)
 
 static void random_misc(object_type *o_ptr)
 {
-	switch (randint1(38))
+  bad_type:
+	switch (randint1(39))
 	{
 		case 1:
 			SET_FLAG(o_ptr, TR_SUST_STR);
@@ -249,11 +246,10 @@ static void random_misc(object_type *o_ptr)
 			SET_FLAG(o_ptr, TR_FEATHER);
 			break;
 		case 15:
-			if (o_ptr->tval == TV_GLOVES)
-				SET_FLAG(o_ptr, TR_GHOUL_TOUCH);
-			else
-				SET_FLAG(o_ptr, TR_SEE_INVIS);
+			if (o_ptr->tval != TV_GLOVES)
+				goto bad_type;
 
+			SET_FLAG(o_ptr, TR_GHOUL_TOUCH);
 			break;
 		case 16:
 		case 17:
@@ -276,15 +272,8 @@ static void random_misc(object_type *o_ptr)
 		case 24:
 		case 25:
 		case 26:
-			if (o_ptr->tval >= TV_BOOTS && o_ptr->tval < TV_LITE)
-			{
-				SET_FLAG(o_ptr, TR_SLOW_DIGEST);
-			}
-			else
-			{
-				SET_FLAG(o_ptr, TR_SHOW_MODS);
-				o_ptr->to_a = (s16b)rand_range(5, 15);
-			}
+			SET_FLAG(o_ptr, TR_SHOW_MODS);
+			o_ptr->to_a += (s16b)rand_range(5, 15);
 			break;
 		case 27:
 		case 28:
@@ -326,6 +315,12 @@ static void random_misc(object_type *o_ptr)
 			break;
 		case 38:
 			SET_FLAG(o_ptr, TR_LUCK_10);
+			break;
+		case 39:
+			if (o_ptr->tval != TV_BOOTS)
+				goto bad_type;
+
+			SET_FLAG(o_ptr, TR_WILD_WALK);
 			break;
 	}
 }
@@ -380,11 +375,11 @@ static void random_curse(object_type *o_ptr, bool evil)
 			SET_FLAG(o_ptr, TR_CURSED);
 			break;
 		case 17:
-			o_ptr->to_a -= rand_range(5, 15);
+			o_ptr->to_a -= (s16b) rand_range(5, 15);
 			break;
 		case 18:
-			o_ptr->to_h -= rand_range(5, 10);
-			o_ptr->to_d -= rand_range(5, 10);
+			o_ptr->to_h -= (s16b) rand_range(5, 10);
+			o_ptr->to_d -= (s16b) rand_range(5, 10);
 			break;
 		case 24:
 		case 25:
@@ -414,12 +409,17 @@ static void random_slay(object_type *o_ptr)
 	/* Bows get special treatment */
 	if (o_ptr->tval == TV_BOW)
 	{
-		switch (randint1(6))
+		switch (randint1(12))
 		{
 			case 1:
 			case 2:
 			case 3:
+			case 4:
+			case 5:
 				SET_FLAG(o_ptr, TR_XTRA_MIGHT);
+				break;
+			case 6:
+				SET_FLAG(o_ptr, TR_WILD_SHOT);
 				break;
 			default:
 				SET_FLAG(o_ptr, TR_XTRA_SHOTS);
@@ -604,7 +604,7 @@ static const struct randart_activation randart_activations[] =
 {
 	{
 		NULL,
-		"remove fear & cure poison",
+		"remove fear and cure poison",
 		"clear_afraid(); clear_poisoned()",
 		20, FALSE, 100, 0, 0
 	},
@@ -838,9 +838,9 @@ static const struct randart_activation randart_activations[] =
 	},
 	{
 		"A line of sunlight appears.",
-		"beam of sunlight",
-		"lite_line(dir)",
-		100, TRUE, 500, 0, 0
+		"beam of sunlight (%sd8)",
+		"lite_line(dir, damroll(%s, 8))",
+		100, TRUE, 100, 10, 4	/* lev / 10 + 4 */
 	},
 	{
 		"The %v glow extremely brightly...",
@@ -907,7 +907,7 @@ static const struct randart_activation randart_activations[] =
 		"You breathe the elements.",
 		"breathe the elements (%s, rad. 4)",
 		"fire_ball(GF_MISSILE, dir, %s, 4)",
-		5, FALSE, 40, 1000, 0	/* rlev * 10 */
+		5, TRUE, 40, 1000, 0	/* rlev * 10 */
 	},
 	{
 		"The %v vibrates...",
@@ -965,26 +965,26 @@ static const struct randart_activation randart_activations[] =
 	},
 	{
 		NULL,
-		"remove fear & heal (%sd10)",
+		"remove fear and heal (%sd10)",
 		"clear_afraid(); hp_player(damroll(%s, 10))",
 		25, FALSE, 100, 33, 1	/* lev / 3 + 1 */
 	},
 	{
 		NULL,
-		"cure wounds & heal (%sd10)",
+		"cure wounds and heal (%sd10)",
 		"hp_player(damroll(%s, 10)); clear_cut(); clear_stun()",
 		100, FALSE, 100, 100, 0	/* lev */
 	},
 	{
 		NULL,
-		"cure wounds & heal (%s)",
+		"cure wounds and heal (%s)",
 		"hp_player(%s); clear_cut(); clear_stun()",
 		100, FALSE, 20, 1000, 0	/* lev * 10 */
 	},
 	{
 		"The %v enters your thoughts...",
 		"telepathy (%s+ turns)",
-		"inc_time_esp(rand_range2(%s))",
+		"inc_tim_esp(rand_range2(%s))",
 		25, FALSE, 200, 100, 0	/* lev */
 	},
 	{
@@ -1073,7 +1073,7 @@ static const struct randart_activation randart_activations[] =
 	},
 	{
 		"The %v shines brightly...",
-		"map & light area (5d20)",
+		"magic mapping and light area (5d20)",
 		"map_area(); lite_area(damroll(5, 20), 3)",
 		50, FALSE, 400, 0, 0
 	},
@@ -1092,7 +1092,7 @@ static const struct randart_activation randart_activations[] =
 	{
 		NULL,
 		"detect traps and doors",
-		"detect_traps(); detect_doors(); detect_stairs()",
+		"detect_traps(TRUE); detect_doors(); detect_stairs()",
 		50, FALSE, 1000, 0, 0
 	},
 	{
@@ -1383,6 +1383,7 @@ static void misc_activation_power(object_type *o_ptr, int level, cptr fix_power)
 {
 	const struct randart_activation *act = NULL;
 	char dice[32];
+	char dice_desc[32];
 	char effect[256] = "";
 	char desc[256] = "";
 	int pp;
@@ -1409,19 +1410,26 @@ static void misc_activation_power(object_type *o_ptr, int level, cptr fix_power)
 	/* Sometimes make the activation dependent on the player's level */
 	if (one_in_(10) && act->dice >= 100 && act->bonus == 0)
 	{
-		int mult = act->dice * rand_range(50, 150) / 10000;
+		/* Deeper items may give better multipliers */
+		int mult = act->dice * rand_range(50, 100 + 2 * rlev) / 10000;
 		if (mult < 1) mult = 1;
 
 		if (mult > 1)
+		{
 			strnfmt(dice, 32, "player.lev * %i", mult);
+			strnfmt(dice_desc, 32, "plev * %i", mult);
+		}
 		else
+		{
 			strcpy(dice, "player.lev");
+			strcpy(dice_desc, "plev");
+		}
 		
 		/* Fill in the dice */
-		strnfmt(desc, 256, act->desc, dice);
+		strnfmt(desc, 256, act->desc, dice_desc);
 		strnfmt(effect, 256, act->effect, dice);
 
-		/* Assume plev 30 */
+		/* Assume plev 30 for power calculation */
 		pp = act->pp * mult * 30;
 	}
 	else
@@ -1680,8 +1688,8 @@ static int random_minor_theme_weapon(object_type *o_ptr, int level)
 			break;
 
 		case 37:
-			o_ptr->to_h += rand_range(5, 15);
-			o_ptr->to_d += rand_range(5, 15);
+			o_ptr->to_h += (s16b) rand_range(5, 15);
+			o_ptr->to_d += (s16b) rand_range(5, 15);
 
 			if (one_in_(ACTIVATION_CHANCE))
 				misc_activation_power(o_ptr, level, "whirlwind attack");
@@ -1985,7 +1993,7 @@ static int random_minor_theme_armor(object_type *o_ptr, int level)
 			SET_FLAG(o_ptr, TR_RES_DARK);
 
 			if (one_in_(ACTIVATION_CHANCE))
-				misc_activation_power(o_ptr, level, "beam of sunlight");
+				misc_activation_power(o_ptr, level, "beam of sunlight (%sd8)");
 			else if (one_in_(ACTIVATION_CHANCE))
 				misc_activation_power(o_ptr, level, "light area (2d20)");
 
@@ -2217,16 +2225,21 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 	{
 		int act;
 		
-		if (o_ptr->tval < TV_BOOTS)
+		if (o_ptr->tval == TV_BOW)
+		{
+			/* Hack - bows don't have major themes yet */
+			random_slay(o_ptr);
+		}
+		else if (o_ptr->tval < TV_BOOTS)
 		{
 			act = random_major_theme_weapon(o_ptr, level);
-			o_ptr->to_h += rand_range(5, 15);
-			o_ptr->to_d += rand_range(5, 15);
+			o_ptr->to_h += (s16b) rand_range(5, 15);
+			o_ptr->to_d += (s16b) rand_range(5, 15);
 		}
 		else
 		{
 			act = random_major_theme_armor(o_ptr, level);
-			o_ptr->to_a += rand_range(5, 15);
+			o_ptr->to_a += (s16b) rand_range(5, 15);
 		}
 		powers -= 3;
 	}
@@ -2497,22 +2510,24 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 			power_level = 3;
 	}
 
+	/* If this non-weapon has the show_mod flag */
+	if (o_ptr->tval >= TV_BOOTS &&
+		o_ptr->tval <= TV_RING &&
+		FLAG(o_ptr, TR_SHOW_MODS))
+	{
+		/* Check if it is not accidentally zero */
+		if (!o_ptr->to_h && !o_ptr->to_d)
+		{
+			/* Turn of that flag, no silly (+0, +0%) display */
+			o_ptr->flags[2] &= ~(TR2_SHOW_MODS);
+		}
+	}
+
 	if (a_scroll)
 	{
 		char dummy_name[80];
 		dummy_name[0] = 0;
-		(void)identify_fully_aux(o_ptr);
-		o_ptr->info |= OB_STOREB;
 
-		if (!(get_string(dummy_name, 80,
-        				 "What do you want to call the artifact? ")))
-		{
-			get_random_name(new_name, o_ptr->tval, power_level);
-		}
-		else
-		{
-			strnfmt(new_name, 1024, "'%s'", dummy_name);
-		}
 		/* Identify it fully */
 		object_aware(o_ptr);
 		object_known(o_ptr);
@@ -2523,6 +2538,18 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 		o_ptr->kn_flags[1] = o_ptr->flags[1];
 		o_ptr->kn_flags[2] = o_ptr->flags[2];
 		o_ptr->kn_flags[3] = o_ptr->flags[3];
+
+		identify_fully_aux(o_ptr);
+
+		if (!(get_string(dummy_name, 80,
+        				 "What do you want to call the artifact? ")))
+		{
+			get_random_name(new_name, o_ptr->tval, power_level);
+		}
+		else
+		{
+			strnfmt(new_name, 1024, "'%s'", dummy_name);
+		}
 	}
 	else
 	{
@@ -2535,14 +2562,14 @@ bool create_artifact(object_type *o_ptr, int level, bool a_scroll)
 	/* Save the inscription */
 	o_ptr->xtra_name = quark_add(new_name);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
 	/* Make the object an artifact */
 	SET_FLAG(o_ptr, TR_INSTA_ART);
 
 	/* Set the cost */
 	o_ptr->cost = k_info[o_ptr->k_idx].cost + flag_cost(o_ptr, o_ptr->pval);
+	
+	/* Notice changes */
+	notice_item();
 
 	return TRUE;
 }

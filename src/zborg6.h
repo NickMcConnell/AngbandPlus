@@ -1,6 +1,6 @@
 /* File: zborg6.h */
 
-/* Purpose: Header file for "borg6.c" -BEN- */
+/* Purpose: Header file for "zborg6.c" */
 
 #ifndef INCLUDED_BORG6_H
 #define INCLUDED_BORG6_H
@@ -10,7 +10,7 @@
 #ifdef ALLOW_BORG
 
 /*
- * This file provides support for "borg6.c".
+ * This file provides support for "zborg6.c".
  */
 
 #include "zborg1.h"
@@ -37,12 +37,14 @@ extern bool borg_recall(void);
  */
 extern bool borg_caution(void);
 extern bool borg_attack(bool boosted_bravery);
+extern bool borg_flow_non_hurt(void);
 extern bool borg_recover(void);
 
 extern bool borg_offset_ball(void);
 extern bool borg_defend(int p);
 extern bool borg_perma_spell(void);
 
+extern bool borg_eat_cure_poison(void);
 extern bool borg_check_rest(void);
 extern bool borg_on_safe_feat(byte feat);
 
@@ -67,7 +69,6 @@ extern int borg_extract_dir(int x1, int y1, int x2, int y2);
 extern bool borg_flow_stair_both(int why);
 extern bool borg_flow_stair_less(int why);
 extern bool borg_flow_stair_more(int why);
-extern bool borg_flow_town_exit(int why);
 
 extern bool borg_flow_glyph(int why);
 extern bool borg_flow_light(int why);
@@ -87,9 +88,18 @@ extern bool borg_flow_kill_aim(bool viewable);
 extern bool borg_flow_kill_corridor(bool viewable);
 extern bool borg_flow_take(bool viewable, int nearness);
 
-/*
- * Flow towards "interesting" grids
- */
+/* Flow in the wilderness */
+extern bool borg_choose_shop(void);
+extern bool borg_find_shop(void);
+extern bool borg_find_town(void);
+extern bool borg_find_dungeon(void);
+extern bool borg_find_home(void);
+extern bool borg_waits_daylight(void);
+extern bool borg_flow_dark_wild(void);
+extern void borg_flow_goal_wild(void);
+extern void borg_leave_surface(void);
+
+/* Flow towards unexplored grids */
 extern bool borg_flow_dark(bool neer);
 
 /*

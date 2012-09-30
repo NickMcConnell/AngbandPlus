@@ -59,8 +59,8 @@ Pick things up by default    [always_pickup]
 ***** <always_repeat>
 Repeat obvious commands    [always_repeat]
     Tells the game that when you attempt to "open" a door or chest,
-    "bash" a door, "tunnel" through walls, or "disarm" traps or chests,
-    that you wish to "repeat" the command 99 times (see "command.txt").
+    "tunnel" through walls, or "disarm" traps or chests, that you
+	 wish to "repeat" the command 99 times (see "command.txt").
 
 ***** <stack_force_notes>
 Merge inscriptions when stacking    [stack_force_notes]

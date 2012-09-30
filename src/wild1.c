@@ -3031,11 +3031,6 @@ static void wild_done(void)
 	p_ptr->px = (s16b)p_ptr->wilderness_x;
 	p_ptr->py = (s16b)p_ptr->wilderness_y;
 
-	/* Notice player location */
-	Term_move_player();
-
-	map_panel_size();
-
 	/* Refresh random number seed */
 	wild_seed = randint0(0x10000000);
 
@@ -3255,7 +3250,7 @@ static void create_wild_info(int *bestx, int *besty)
 	hgt_min *= 16;
 
 	/* Create "population density" information */
-	create_pop_map(sea_level * 16 + hgt_min);
+	create_pop_map((u16b) (sea_level * 16 + hgt_min));
 
 	/* Work out extremes of population so it can be scaled. */
 
@@ -3285,7 +3280,7 @@ static void create_wild_info(int *bestx, int *besty)
 	/* Rescale minimum. */
 	pop_min *= 16;
 
-	create_law_map(sea_level * 16 + hgt_min);
+	create_law_map((u16b) (sea_level * 16 + hgt_min));
 
 	/* Work out extremes of "lawfulness" so it can be scaled. */
 
@@ -3315,7 +3310,7 @@ static void create_wild_info(int *bestx, int *besty)
 
 			hgt = (byte)((w_ptr->gen.hgt_map - hgt_min) * 16 / hgt_scale);
 			pop = (byte)((w_ptr->gen.pop_map - pop_min) * 16 / pop_scale);
-			law = wild_temp_dist[w_ptr->gen.law_map / 16];
+			law = (byte) wild_temp_dist[w_ptr->gen.law_map / 16];
 
 			/*
 			 * Go to transition data structure
@@ -3331,7 +3326,7 @@ static void create_wild_info(int *bestx, int *besty)
 			w_ptr->trans.info = 0;
 
 			/* How good is this spot to put a town? */
-			if ((law < 20) && (hgt > 160))
+			if ((law > 230) && (hgt > 160))
 			{
 				/* Hack - Only record the first such place */
 				if ((x == -1) && (y == -1))
@@ -3499,7 +3494,6 @@ void create_wilderness(void)
 	int x, y;
 
 	bool done = FALSE;
-	int count = 0;
 	
 	/* Invalidate the player while we make everything */
 	character_dungeon = FALSE;
@@ -3537,10 +3531,6 @@ void create_wilderness(void)
 	 */
 	while (!done)
 	{
-		count++;
-
-		if (count > 50) quit("Cannot make wilderness, adjust constraints.");
-
 		/* Clear the wilderness */
 		wipe_wilderness();
 

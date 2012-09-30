@@ -198,122 +198,37 @@ int borg_goto_dir(int x1, int y1, int x2, int y2)
 }
 
 
-
-/* Check to see if the borg is standing on a nasty grid.
- * Lava can hurt the borg unless he is IFire.
- * Water can hurt if it is deep/ocean and encumbered.
- * Acid can hurt the borg unless he is IAcid.
- * Swamp can hurt the borg unless he is ResPoison.
- * Levitation item can reduce the effect of nasty grids.
- */
-bool borg_on_safe_feat(byte feat)
-{
-	/* Nothing hurts when Invulnerable */
-	if (borg_goi) return (TRUE);
-
-	/* Lava */
-	if (feat == FEAT_DEEP_LAVA)
-	{
-		/* Immunity helps */
-		if (FLAG(bp_ptr, TR_IM_FIRE)) return (TRUE);
-
-		/* Everything else hurts */
-		return (FALSE);
-	}
-
-	if (feat == FEAT_SHAL_LAVA)
-	{
-		/* Levitation helps */
-		if (FLAG(bp_ptr, TR_FEATHER)) return (TRUE);
-
-		/* Immunity helps */
-		if (FLAG(bp_ptr, TR_IM_FIRE)) return (TRUE);
-
-		/* Everything else hurts */
-		return (FALSE);
-	}
-
-	/* Water */
-	if (feat == FEAT_DEEP_WATER ||
-	 	 feat == FEAT_OCEAN_WATER)
-	{
-		/* Levitation helps */
-		if (FLAG(bp_ptr, TR_FEATHER)) return (TRUE);
-
-		/* Being non-encumbered helps */
-		if (!bp_ptr->encumber) return (TRUE);
-
-		/* Everything else hurts */
-		return (FALSE);
-	}
-
-	/* Swamp */
-	if (feat == FEAT_DEEP_SWAMP)
-	{
-		/* (temp) Immunity helps */
-		if (FLAG(bp_ptr, TR_IM_POIS)) return (TRUE);
-
-		return (FALSE);
-	}
-	if (feat == FEAT_SHAL_SWAMP)
-	{
-		/* (temp) Resistance helps */
-		if (FLAG(bp_ptr, TR_RES_POIS) || my_oppose_pois) return (TRUE);
-
-		/* Levitation helps */
-		if (FLAG(bp_ptr, TR_FEATHER)) return (TRUE);
-
-		/* Everything else hurts */
-		return (FALSE);
-	}
-
-	/* Acid */
-	if (feat == FEAT_DEEP_ACID)
-	{
-		/* Immunity helps */
-		if (FLAG(bp_ptr, TR_IM_ACID)) return (TRUE);
-
-		/* Everything else hurts */
-		return (FALSE);
-	}
-
-	if (feat == FEAT_SHAL_ACID)
-	{
-		/* Immunity helps */
-		if (FLAG(bp_ptr, TR_IM_ACID)) return (TRUE);
-
-		/* Levitation helps */
-		if (FLAG(bp_ptr, TR_FEATHER)) return (TRUE);
-
-		/* Everything else hurts */
-		return (FALSE);
-	}
-	/* Generally ok */
-	return (TRUE);
-}
-
-
-
 /*
  * Attempt to induce "word of recall"
  * artifact activations added throughout this code
  */
 bool borg_recall(void)
 {
+	int wid, hgt;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	/* Is the borg somewhere in the wilderness? */
+	if (borg_term_text_comp(wid - T_NAME_LEN, hgt - 1, "Wilderness"))
+		return (FALSE);
+
 	/* Multiple "recall" fails */
 	if (!goal_recalling)
 	{
+		/* Press an ESC to try to avoid the take-off loop */
+		borg_keypress(ESCAPE);
+
 		/* Try to "recall" */
 		if (borg_zap_rod(SV_ROD_RECALL) ||
-			borg_activate_artifact(ART_AVAVIR, FALSE) ||
-			borg_activate_artifact(ART_THRAIN, TRUE) ||
+			borg_activate(BORG_ACT_WORD_OF_RECALL) ||
 			borg_spell_fail(REALM_SORCERY, 2, 7, 60) ||
 			borg_spell_fail(REALM_ARCANE, 3, 6, 60) ||
 			borg_spell_fail(REALM_TRUMP, 1, 6, 60) ||
 			borg_mutation(MUT1_RECALL) ||
 			borg_read_scroll(SV_SCROLL_WORD_OF_RECALL))
 		{
-			/* Press another ESC to avoid the recall reset */
+			/* Always try to cancel the reset recall. */
 			borg_keypress(ESCAPE);
 
 			/* Success */
@@ -396,8 +311,10 @@ bool borg_eat_food_any(void)
 		/* Consume in order, when hurting */
 		if (bp_ptr->chp < 4 &&
 			(borg_quaff_potion(SV_POTION_CURE_LIGHT) ||
+			 borg_use_staff(SV_STAFF_CURE_LIGHT) ||
 			 borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
-			 borg_quaff_potion(SV_POTION_CURE_CRITICAL) ||
+			 borg_quaff_crit(TRUE) ||
+			 borg_use_staff(SV_STAFF_CURING) ||
 			 borg_quaff_potion(SV_POTION_RESTORE_MANA) ||
 			 borg_quaff_potion(SV_POTION_HEALING) ||
 			 borg_quaff_potion(SV_POTION_STAR_HEALING) ||
@@ -510,7 +427,7 @@ bool borg_surrounded(void)
 	/* I am likely to get surrouned */
 	if (monsters > safe_grids)
 	{
-		borg_note_fmt("# Possibility of being surrounded (%d/%d)",
+		borg_note("# Possibility of being surrounded (%d/%d)",
 					  monsters, safe_grids);
 
 		/* The borg can get trapped by breeders by continueing to flee
@@ -730,7 +647,7 @@ void borg_target(int x, int y)
 	/* Bounds checking */
 	if (!map_in_bounds(x, y))
 	{
-		borg_oops_fmt("Untargettable location (%d, %d)", x, y);
+		borg_oops("Untargettable location (%d, %d)", x, y);
 		return;
 	}
 
@@ -740,12 +657,12 @@ void borg_target(int x, int y)
 	/* Report a little bit */
 	if (mb_ptr->monster)
 	{
-		borg_note_fmt("# Targeting %s, from (%d, %d) to (%d, %d).",
-					  (r_name + r_info[mb_ptr->monster].name), c_x, c_y, x, y);
+		borg_note("# Targeting %s, from (%d, %d) to (%d, %d).",
+					  mon_race_name(&r_info[mb_ptr->monster]), c_x, c_y, x, y);
 	}
 	else
 	{
-		borg_note_fmt("# Targetting location from (%d, %d) to (%d,%d)",
+		borg_note("# Targetting location from (%d, %d) to (%d,%d)",
 					  c_x, c_y, x, y);
 	}
 
@@ -796,6 +713,8 @@ static bool test_borg_lite_beam(byte dir, byte radius)
 			/* North */
 			dx = 0;
 			dy = -1;
+
+			break;
 		}
 
 		case 6:
@@ -803,6 +722,8 @@ static bool test_borg_lite_beam(byte dir, byte radius)
 			/* East */
 			dx = 1;
 			dy = 0;
+
+			break;
 		}
 
 		case 2:
@@ -810,6 +731,8 @@ static bool test_borg_lite_beam(byte dir, byte radius)
 			/* South */
 			dx = 0;
 			dy = 1;
+
+			break;
 		}
 
 		case 4:
@@ -817,16 +740,18 @@ static bool test_borg_lite_beam(byte dir, byte radius)
 			/* West */
 			dx = -1;
 			dy = 0;
+
+			break;
 		}
 	}
 
-	for (i = 0; i <= radius; i++)
+	for (i = 0; i < radius; i++)
 	{
 		x += dx;
 		y += dy;
 
-		/* Bounds checking */
-		if (!map_in_bounds(x, y)) continue;
+		/* No need to light beyond the map */
+		if (!map_in_bounds(x, y)) return (FALSE);
 
 		mb_ptr = map_loc(x, y);
 
@@ -876,16 +801,16 @@ bool borg_lite_beam(bool simulation, int *dir)
 		*dir = 5;
 
 		/* North */
-		if (test_borg_lite_beam(8, bp_ptr->cur_lite)) *dir = 8;
+		if (test_borg_lite_beam(8, MAX_RANGE)) *dir = 8;
 
 		/* East */
-		else if (test_borg_lite_beam(6, bp_ptr->cur_lite)) *dir = 6;
+		else if (test_borg_lite_beam(6, MAX_RANGE)) *dir = 6;
 
 		/* West */
-		else if (test_borg_lite_beam(4, bp_ptr->cur_lite)) *dir = 4;
+		else if (test_borg_lite_beam(4, MAX_RANGE)) *dir = 4;
 
 		/* South */
-		else if (test_borg_lite_beam(2, bp_ptr->cur_lite)) *dir = 2;
+		else if (test_borg_lite_beam(2, MAX_RANGE)) *dir = 2;
 
 		/* Failure? */
 		if (*dir == 5) return (FALSE);
@@ -900,7 +825,7 @@ bool borg_lite_beam(bool simulation, int *dir)
 
 	/* cast the light beam */
 	if (borg_spell(REALM_NATURE, 1, 4) ||
-		borg_spell(REALM_ARCANE, 2, 4) ||
+		borg_spell(REALM_ARCANE, 2, 5) ||
 		borg_zap_rod(SV_ROD_LITE) ||
 		borg_aim_wand(SV_WAND_LITE))
 	{	
@@ -908,7 +833,7 @@ bool borg_lite_beam(bool simulation, int *dir)
 		borg_keypress(I2D(*dir));
 
 		/* Tell what you do */
-		borg_note("# Illuminating this hallway");
+		borg_note("# Illuminating this hallway, dir = %d", *dir);
 
 		/* Leave */
 		return (TRUE);
@@ -971,6 +896,9 @@ void borg_near_monster_type(int dist)
 		{
 			/* Set a flag for use with certain types of spells */
 			unique_on_level = TRUE;
+
+			/* Remember which unique */
+			unique_r_idx = kill->r_idx;
 
 			/* return 1 if not Serpent, +101 if it is Serpent or Oberon */
 			if (FLAG(r_ptr, RF_QUESTOR))
@@ -1068,11 +996,11 @@ bool borg_caution_phase(int emergency, int turns)
 	/* in an emergency try with extra danger allowed */
 	if (n > emergency)
 	{
-		borg_note_fmt("# No Phase. scary squares: %d", n);
+		borg_note("# No Phase. scary squares: %d", n);
 		return (FALSE);
 	}
 	else
-		borg_note_fmt("# Safe to Phase. scary squares: %d", n);
+		borg_note("# Safe to Phase. scary squares: %d", n);
 
 	/* Okay */
 	return (TRUE);
@@ -1133,7 +1061,7 @@ static bool borg_dim_door(int emergency, int p1)
 
 
 	/* Dimension Door report */
-	borg_note_fmt
+	borg_note
 		("# Dim Door: Safest grid: (%d, %d) with %d Danger", b_y, b_x, b_p);
 	dim_door_y = b_y;
 	dim_door_x = b_x;
@@ -1149,7 +1077,6 @@ static bool borg_dim_door(int emergency, int p1)
 /* Just in case the key changes again */
 void borg_press_faint_accept(void)
 {
-	borg_keypress(' ');
 	borg_keypress('y');
 }
 
@@ -1173,7 +1100,8 @@ bool borg_escape(int b_q)
 	if (FLAG(bp_ptr, TR_NO_TELE)) return (FALSE);
 
 	/* if we have Dim Door spell */
-	amt_dim_door = (borg_spell_okay_fail(REALM_SORCERY, 2, 3, allow_fail) ||
+	amt_dim_door = (borg_activate_fail(BORG_ACT_DIM_DOOR) ||
+					borg_spell_okay_fail(REALM_SORCERY, 2, 3, allow_fail) ||
 					borg_spell_okay_fail(REALM_TRUMP, 0, 5, allow_fail) ||
 					borg_mindcr_okay_fail(MIND_MINOR_DISP, 40, allow_fail));
 
@@ -1229,7 +1157,7 @@ bool borg_escape(int b_q)
 			borg_mindcr_fail(MIND_MAJOR_DISP, 7, allow_fail - 10) ||
 			borg_read_scroll(SV_SCROLL_TELEPORT) ||
 			borg_use_staff_fail(SV_STAFF_TELEPORTATION) ||
-			borg_activate_artifact(ART_COLANNON, FALSE) ||
+			borg_activate(BORG_ACT_TELEPORT) ||
 			/* revisit spells, increased fail rate */
 			borg_spell_fail(REALM_ARCANE, 2, 3, allow_fail + 9) ||
 			borg_spell_fail(REALM_TRUMP, 0, 4, allow_fail + 9) ||
@@ -1239,19 +1167,22 @@ bool borg_escape(int b_q)
 			borg_racial(RACE_GNOME) ||
 			borg_mutation(MUT1_VTELEPORT) ||
 			/* Attempt Teleport Level */
+			(bp_ptr->depth &&
+			(borg_activate(BORG_ACT_TELEPORT_LEVEL) ||
 			borg_spell_fail(REALM_SORCERY, 2, 6, allow_fail + 9) ||
 			borg_spell_fail(REALM_TRUMP, 1, 5, allow_fail + 9) ||
 			borg_spell_fail(REALM_ARCANE, 3, 1, allow_fail + 9) ||
 			borg_racial(RACE_AMBERITE) ||
-			borg_read_scroll(SV_SCROLL_TELEPORT_LEVEL) ||
+			borg_read_scroll(SV_SCROLL_TELEPORT_LEVEL))) ||
 			/* try Dimension Door */
 			(amt_dim_door && borg_dim_door(TRUE, b_q) &&
-			  (borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
+			  (borg_activate(BORG_ACT_DIM_DOOR) ||
+			   borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
 			   borg_spell_fail(REALM_TRUMP, 0, 5, allow_fail) ||
 			   borg_mindcr_fail(MIND_MINOR_DISP, 40, allow_fail))) ||
 			/* try phase at least */
 			borg_read_scroll(SV_SCROLL_PHASE_DOOR) ||
-			borg_activate_artifact(ART_ANGUIREL, FALSE) ||
+			borg_activate(BORG_ACT_PHASE_DOOR) ||
 			borg_spell_fail(REALM_ARCANE, 0, 4, allow_fail) ||
 			borg_spell_fail(REALM_SORCERY, 0, 1, allow_fail) ||
 			borg_spell_fail(REALM_TRUMP, 0, 0, allow_fail) ||
@@ -1262,17 +1193,17 @@ bool borg_escape(int b_q)
 			return (TRUE);
 		}
 
-		bp_ptr->csp = bp_ptr->msp;
-
 		/* try to teleport, get far away from here */
 		if (borg_use_staff_fail(SV_STAFF_TELEPORTATION) ||
-			borg_activate_artifact(ART_COLANNON, FALSE) ||
+			borg_activate(BORG_ACT_TELEPORT) ||
 			borg_read_scroll(SV_SCROLL_TELEPORT))
 		{
 			/* Flee! */
 			borg_note("# Danger Level 1.1  Critical Attempt");
 			return (TRUE);
 		}
+
+		bp_ptr->csp = bp_ptr->msp;
 
 		if (borg_spell(REALM_ARCANE, 2, 3) ||
 			borg_spell(REALM_TRUMP, 0, 4) ||
@@ -1289,9 +1220,10 @@ bool borg_escape(int b_q)
 
 
 		/* emergency phase spell */
-		if (borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			(bp_ptr->able.phase && borg_caution_phase(80, 5) &&
-			(borg_read_scroll(SV_SCROLL_PHASE_DOOR))) ||
+		if ((bp_ptr->able.phase && borg_caution_phase(80, 5) &&
+			(borg_read_scroll(SV_SCROLL_PHASE_DOOR) ||
+			 borg_activate(BORG_ACT_PHASE_DOOR))) ||
+			borg_activate(BORG_ACT_TELEPORT_LEVEL) ||
 			borg_read_scroll(SV_SCROLL_TELEPORT_LEVEL))
 		{
 			/* Flee! */
@@ -1341,7 +1273,7 @@ bool borg_escape(int b_q)
 			borg_spell_fail(REALM_SORCERY, 0, 5, allow_fail - 10) ||
 			borg_mindcr_fail(MIND_MAJOR_DISP, 7, allow_fail - 10) ||
 			borg_use_staff_fail(SV_STAFF_TELEPORTATION) ||
-			borg_activate_artifact(ART_COLANNON, FALSE) ||
+			borg_activate(BORG_ACT_TELEPORT) ||
 			borg_read_scroll(SV_SCROLL_TELEPORT) ||
 			borg_spell_fail(REALM_ARCANE, 2, 3, allow_fail) ||
 			borg_spell_fail(REALM_TRUMP, 0, 4, allow_fail) ||
@@ -1352,7 +1284,8 @@ bool borg_escape(int b_q)
 			borg_mutation(MUT1_VTELEPORT) ||
 			/* try Dimension Door */
 			(amt_dim_door && borg_dim_door(TRUE, b_q) &&
-			 (borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
+			 (borg_activate(BORG_ACT_DIM_DOOR) ||
+			  borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 5, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 40, allow_fail))))
 		{
@@ -1369,8 +1302,8 @@ bool borg_escape(int b_q)
 			 borg_spell(REALM_SORCERY, 0, 1) ||
 			 borg_spell(REALM_TRUMP, 0, 0) ||
 			 borg_mindcr(MIND_MINOR_DISP, 3) ||
-			 borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			 borg_activate_artifact(ART_COLANNON, FALSE)))
+			 borg_activate(BORG_ACT_PHASE_DOOR) ||
+			 borg_activate(BORG_ACT_TELEPORT)))
 		{
 			/* Flee! */
 			borg_note("# Danger Level 2.2");
@@ -1392,7 +1325,8 @@ bool borg_escape(int b_q)
 	{
 		/* try Dimension Door */
 		if ((amt_dim_door && borg_dim_door(TRUE, b_q) &&
-			 (borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
+			 (borg_activate(BORG_ACT_DIM_DOOR) ||
+			  borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 5, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 40, allow_fail))) ||
 			/* Phase door, if useful */
@@ -1401,8 +1335,8 @@ bool borg_escape(int b_q)
 			  borg_spell_fail(REALM_SORCERY, 0, 1, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 0, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 3, allow_fail) ||
-			  borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			  borg_activate_artifact(ART_COLANNON, FALSE) ||
+			  borg_activate(BORG_ACT_PHASE_DOOR) ||
+			  borg_activate(BORG_ACT_TELEPORT) ||
 			  borg_read_scroll(SV_SCROLL_PHASE_DOOR))))
 		{
 			/* Flee! */
@@ -1419,8 +1353,7 @@ bool borg_escape(int b_q)
 			borg_spell_fail(REALM_CHAOS, 0, 7, allow_fail) ||
 			borg_spell_fail(REALM_SORCERY, 0, 5, allow_fail) ||
 			borg_mindcr_fail(MIND_MAJOR_DISP, 7, allow_fail) ||
-			borg_activate_artifact(ART_COLANNON, FALSE) ||
-			borg_activate_artifact(ART_ANGUIREL, FALSE) ||
+			borg_activate(BORG_ACT_TELEPORT) ||
 			borg_use_staff_fail(SV_STAFF_TELEPORTATION) ||
 			borg_read_scroll(SV_SCROLL_TELEPORT) ||
 			borg_mutation(MUT1_VTELEPORT) ||
@@ -1439,8 +1372,8 @@ bool borg_escape(int b_q)
 			 borg_spell_fail(REALM_CHAOS, 0, 7, allow_fail) ||
 			 borg_spell_fail(REALM_SORCERY, 0, 5, allow_fail) ||
 			 borg_mindcr_fail(MIND_MINOR_DISP, 3, allow_fail) ||
-			 borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			 borg_activate_artifact(ART_COLANNON, FALSE) ||
+			 borg_activate(BORG_ACT_PHASE_DOOR) ||
+			 borg_activate(BORG_ACT_TELEPORT) ||
 			 borg_read_scroll(SV_SCROLL_PHASE_DOOR)))
 		{
 			/* Flee! */
@@ -1490,7 +1423,8 @@ bool borg_escape(int b_q)
 	{
 		/* Phase door, if useful */
 		if ((amt_dim_door && borg_dim_door(TRUE, b_q) &&
-			 (borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
+			 (borg_activate(BORG_ACT_DIM_DOOR) ||
+			  borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 5, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 40, allow_fail))) ||
 			(bp_ptr->able.phase && borg_caution_phase(20, 2) &&
@@ -1498,8 +1432,8 @@ bool borg_escape(int b_q)
 			  borg_spell_fail(REALM_SORCERY, 0, 1, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 0, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 3, allow_fail) ||
-			  borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			  borg_activate_artifact(ART_COLANNON, FALSE) ||
+			  borg_activate(BORG_ACT_PHASE_DOOR) ||
+			  borg_activate(BORG_ACT_TELEPORT) ||
 			  borg_read_scroll(SV_SCROLL_PHASE_DOOR))))
 		{
 			/* Flee! */
@@ -1515,8 +1449,7 @@ bool borg_escape(int b_q)
 			borg_spell_fail(REALM_CHAOS, 0, 7, allow_fail) ||
 			borg_spell_fail(REALM_SORCERY, 0, 5, allow_fail) ||
 			borg_mindcr_fail(MIND_MAJOR_DISP, 7, allow_fail) ||
-			borg_activate_artifact(ART_COLANNON, FALSE) ||
-			borg_activate_artifact(ART_ANGUIREL, FALSE) ||
+			borg_activate(BORG_ACT_TELEPORT) ||
 			borg_read_scroll(SV_SCROLL_TELEPORT) ||
 			borg_use_staff_fail(SV_STAFF_TELEPORTATION) ||
 			borg_mutation(MUT1_VTELEPORT) ||
@@ -1557,8 +1490,8 @@ bool borg_escape(int b_q)
 			 borg_spell_fail(REALM_SORCERY, 0, 1, allow_fail) ||
 			 borg_spell_fail(REALM_TRUMP, 0, 0, allow_fail) ||
 			 borg_mindcr_fail(MIND_MINOR_DISP, 3, allow_fail) ||
-			 borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			 borg_activate_artifact(ART_COLANNON, FALSE) ||
+			 borg_activate(BORG_ACT_PHASE_DOOR) ||
+			 borg_activate(BORG_ACT_TELEPORT) ||
 			 borg_read_scroll(SV_SCROLL_PHASE_DOOR)))
 		{
 			/* Flee! */
@@ -1578,7 +1511,8 @@ bool borg_escape(int b_q)
 	{
 		/* Dimension Door, if useful */
 		if ((amt_dim_door && borg_dim_door(TRUE, b_q) &&
-			 (borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
+			 (borg_activate(BORG_ACT_DIM_DOOR) ||
+			  borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 5, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 40, allow_fail))) ||
 			/* Phase Door */
@@ -1587,8 +1521,8 @@ bool borg_escape(int b_q)
 			  borg_spell_fail(REALM_SORCERY, 0, 1, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 0, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 3, allow_fail) ||
-			  borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			  borg_activate_artifact(ART_COLANNON, FALSE) ||
+			  borg_activate(BORG_ACT_PHASE_DOOR) ||
+			  borg_activate(BORG_ACT_TELEPORT) ||
 			  borg_read_scroll(SV_SCROLL_PHASE_DOOR))))
 		{
 			/* Flee! */
@@ -1603,8 +1537,7 @@ bool borg_escape(int b_q)
 			borg_spell_fail(REALM_CHAOS, 0, 7, allow_fail) ||
 			borg_spell_fail(REALM_SORCERY, 0, 5, allow_fail) ||
 			borg_mindcr_fail(MIND_MAJOR_DISP, 7, allow_fail) ||
-			borg_activate_artifact(ART_COLANNON, FALSE) ||
-			borg_activate_artifact(ART_ANGUIREL, FALSE) ||
+			borg_activate(BORG_ACT_TELEPORT) ||
 			borg_read_scroll(SV_SCROLL_TELEPORT) ||
 			borg_use_staff_fail(SV_STAFF_TELEPORTATION) ||
 			borg_mutation(MUT1_VTELEPORT) ||
@@ -1644,8 +1577,8 @@ bool borg_escape(int b_q)
 			 borg_spell_fail(REALM_SORCERY, 0, 1, allow_fail) ||
 			 borg_spell_fail(REALM_TRUMP, 0, 0, allow_fail) ||
 			 borg_mindcr_fail(MIND_MINOR_DISP, 3, allow_fail) ||
-			 borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			 borg_activate_artifact(ART_COLANNON, FALSE) ||
+			 borg_activate(BORG_ACT_PHASE_DOOR) ||
+			 borg_activate(BORG_ACT_TELEPORT) ||
 			 borg_read_scroll(SV_SCROLL_PHASE_DOOR)))
 		{
 			/* Flee! */
@@ -1658,7 +1591,8 @@ bool borg_escape(int b_q)
 	}
 
 	/* 6- not too scary but I'm out of mana  */
-	if ((borg_class == CLASS_MAGE || borg_class == CLASS_PRIEST) &&
+	if ((borg_class == CLASS_MAGE || borg_class == CLASS_HIGH_MAGE ||
+		borg_class == CLASS_PRIEST || borg_class == CLASS_MINDCRAFTER) &&
 		(b_q >= avoidance * (6 + risky_boost) / 10 ||
 		 (b_q >= avoidance * (8 + risky_boost) / 10 && borg_fighting_unique >= 1
 		  && borg_fighting_unique <= 8)) &&
@@ -1666,7 +1600,8 @@ bool borg_escape(int b_q)
 	{
 		/* Dimension Door, if useful */
 		if ((amt_dim_door && borg_dim_door(TRUE, b_q) &&
-			 (borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
+			 (borg_activate(BORG_ACT_DIM_DOOR) ||
+			  borg_spell_fail(REALM_SORCERY, 2, 3, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 5, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 40, allow_fail))) ||
 			/* Phase Door */
@@ -1675,8 +1610,8 @@ bool borg_escape(int b_q)
 			  borg_spell_fail(REALM_SORCERY, 0, 1, allow_fail) ||
 			  borg_spell_fail(REALM_TRUMP, 0, 0, allow_fail) ||
 			  borg_mindcr_fail(MIND_MINOR_DISP, 3, allow_fail) ||
-			  borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			  borg_activate_artifact(ART_COLANNON, FALSE) ||
+			  borg_activate(BORG_ACT_PHASE_DOOR) ||
+			  borg_activate(BORG_ACT_TELEPORT) ||
 			  borg_read_scroll(SV_SCROLL_PHASE_DOOR))))
 		{
 			/* Flee! */
@@ -1691,8 +1626,7 @@ bool borg_escape(int b_q)
 			borg_spell_fail(REALM_CHAOS, 0, 7, allow_fail) ||
 			borg_spell_fail(REALM_SORCERY, 0, 5, allow_fail) ||
 			borg_mindcr_fail(MIND_MAJOR_DISP, 7, allow_fail) ||
-			borg_activate_artifact(ART_COLANNON, FALSE) ||
-			borg_activate_artifact(ART_ANGUIREL, FALSE) ||
+			borg_activate(BORG_ACT_TELEPORT) ||
 			borg_read_scroll(SV_SCROLL_TELEPORT) ||
 			borg_use_staff_fail(SV_STAFF_TELEPORTATION) ||
 			borg_mutation(MUT1_VTELEPORT) ||
@@ -1743,12 +1677,15 @@ bool borg_heal(int danger)
 	}
 
 	/* Special cases get a second vote */
-	if (borg_class == CLASS_MAGE &&
+	if ((borg_class == CLASS_MAGE || borg_class == CLASS_HIGH_MAGE) &&
 		bp_ptr->status.fixstat[A_INT]) stats_needing_fix++;
-	if (borg_class == CLASS_PRIEST &&
+
+	if ((borg_class == CLASS_PRIEST || borg_class == CLASS_MINDCRAFTER) &&
 		bp_ptr->status.fixstat[A_WIS]) stats_needing_fix++;
-	if (borg_class == CLASS_WARRIOR &&
+
+	if (!borg_has_realm(REALM_LIFE) &&
 		bp_ptr->status.fixstat[A_CON]) stats_needing_fix++;
+
 	if (bp_ptr->mhp <= 850 && bp_ptr->status.fixstat[A_CON])
 	{
 		stats_needing_fix++;
@@ -1757,10 +1694,13 @@ bool borg_heal(int danger)
 	{
 		stats_needing_fix += 3;
 	}
-	if (borg_class == CLASS_PRIEST && bp_ptr->msp < 100 &&
+	if ((borg_class == CLASS_PRIEST || borg_class == CLASS_MINDCRAFTER) &&
+		bp_ptr->msp < 100 &&
 		bp_ptr->status.fixstat[A_WIS])
 		stats_needing_fix += 5;
-	if (borg_class == CLASS_MAGE && bp_ptr->msp < 100 &&
+
+	if ((borg_class == CLASS_MAGE || borg_class == CLASS_HIGH_MAGE) &&
+		bp_ptr->msp < 100 &&
 		bp_ptr->status.fixstat[A_INT])
 		stats_needing_fix += 5;
 
@@ -1781,7 +1721,7 @@ bool borg_heal(int danger)
 		}
 		if (danger - 20 < bp_ptr->chp &&
 			(borg_eat_food(SV_FOOD_CURE_CONFUSION) ||
-			 borg_activate_artifact(ART_BELEGENNON, FALSE) ||
+			 borg_activate(BORG_ACT_HEAL_BIG) ||
 			 borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
 			 borg_quaff_crit(FALSE) ||
 			 borg_quaff_potion(SV_POTION_HEALING) ||
@@ -1845,7 +1785,6 @@ bool borg_heal(int danger)
 			  FLAG(bp_ptr, TR_TELEPATHY)))
 		{
 			if (borg_eat_food(SV_FOOD_CURE_BLINDNESS) ||
-			    borg_activate_artifact(ART_BELEGENNON, FALSE) ||
 				borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
 				borg_quaff_crit(TRUE) ||
 				borg_quaff_potion(SV_POTION_HEALING) ||
@@ -1881,13 +1820,14 @@ bool borg_heal(int danger)
 		  (bp_ptr->chp < bp_ptr->mhp) ||
 		  (bp_ptr->csp < bp_ptr->msp * 6 / 10)) &&
 		 (danger < avoidance / 5)) && borg_check_rest() && !scaryguy_on_level &&
-		(danger <= mb_ptr->fear) && !goal_fleeing)
+		(danger <= mb_ptr->fear) && !goal_fleeing &&
+		borg_on_safe_feat(map_loc(c_x, c_y)->feat))
 	{
 		/* check for then call lite in dark room before resting */
 		if (!borg_check_lite_only())
 		{
 			/* Take note */
-			borg_note_fmt("# Resting to restore HP/SP...");
+			borg_note("# Resting to restore HP/SP...");
 
 			/* Rest until done */
 			borg_keypress('R');
@@ -1902,7 +1842,7 @@ bool borg_heal(int danger)
 		else
 		{
 			/* Must have been a dark room */
-			borg_note_fmt("# Lighted the darkened room instead of resting.");
+			borg_note("# Lighted the darkened room instead of resting.");
 			return (TRUE);
 		}
 	}
@@ -2003,7 +1943,7 @@ bool borg_heal(int danger)
 		chance -= 75;
 	else
 	{
-		if (borg_class != CLASS_PRIEST && borg_class != CLASS_PALADIN)
+		if (!borg_has_realm(REALM_LIFE) && !borg_has_realm(REALM_NATURE))
 			chance -= 25;
 	}
 
@@ -2024,58 +1964,42 @@ bool borg_heal(int danger)
 		return FALSE;
 
 
-	/* Cure light Wounds (2d10) */
-	if (hp_down < 10 &&
-		((danger / 2) < bp_ptr->chp + 6) &&
+	/* Cure light Wounds (50) */
+	if (hp_down < 50 &&
+		danger < bp_ptr->chp + 50 &&
+		danger > bp_ptr->chp &&
 		(borg_spell_fail(REALM_LIFE, 0, 1, allow_fail) ||
 		 borg_spell_fail(REALM_ARCANE, 0, 7, allow_fail) ||
 		 borg_spell_fail(REALM_NATURE, 0, 1, allow_fail) ||
 		 borg_quaff_potion(SV_POTION_CURE_LIGHT) ||
-		 borg_activate_artifact(ART_CATAPULT, FALSE) ||
-		 borg_activate_artifact(ART_LOTHARANG, FALSE)))
+		 borg_use_staff(SV_STAFF_CURE_LIGHT)))
 	{
 		borg_note("# Healing Level 1.");
 		return (TRUE);
 	}
-	/* Cure Serious Wounds (4d10) */
-	if (hp_down < 20 &&
-		((danger / 2) < bp_ptr->chp + 18) &&
-		(borg_activate_artifact(ART_CATAPULT, FALSE) ||
-		 borg_spell_fail(REALM_LIFE, 0, 6, allow_fail) ||
-		 borg_spell_fail(REALM_ARCANE, 2, 3, allow_fail) ||
-		 borg_mindcr_fail(MIND_ADRENALINE, 23, allow_fail) ||
+	/* Cure Serious Wounds (75) */
+	if (hp_down < 75 &&
+		danger < bp_ptr->chp + 75 &&
+		danger > bp_ptr->chp &&
+		(borg_spell_fail(REALM_LIFE, 0, 6, allow_fail) ||
+		 borg_spell_fail(REALM_ARCANE, 2, 2, allow_fail) ||
 		 borg_quaff_potion(SV_POTION_CURE_SERIOUS)))
 	{
 		borg_note("# Healing Level 2.");
 		return (TRUE);
 	}
 
-	/* Cure Critical Wounds (6d10) */
-	if (hp_down < 50 &&
-		((danger / 2) < bp_ptr->chp + 35) &&
+	/* Cure Critical Wounds (150) */
+	if (hp_down < 150 &&
+		danger < bp_ptr->chp + 150 &&
+		danger > bp_ptr->chp &&
 		(borg_spell_fail(REALM_LIFE, 1, 2, allow_fail) ||
-		 borg_mindcr_fail(MIND_ADRENALINE, 35, allow_fail) ||
 		 borg_quaff_crit(FALSE)))
 	{
 		borg_note("# Healing Level 3.");
 		return (TRUE);
 	}
 
-	/* Cure Mortal Wounds (8d10) */
-#if 0							/* These spells are not in Z */
-	if (hp_down < 120 &&
-		((danger / 2) < bp_ptr->chp + 55) &&
-		(borg_spell_fail(REALM_LIFE, 2, 7, allow_fail) ||
-		 borg_spell_fail(REALM_LIFE, 6, 1, allow_fail) ||
-		 borg_mindcr_fail(MIND_ADRENALINE, 50, allow_fail) ||
-		 /* ||
-		    borg_quaff_crit(FALSE) don't want to CCW here, it would not help enough */
-		))
-	{
-		borg_note("# Healing Level 4.");
-		return (TRUE);
-	}
-#endif
 	/* If in danger try  one more Cure Critical if it will help */
 	if (danger >= bp_ptr->chp &&
 		danger < bp_ptr->mhp &&
@@ -2092,8 +2016,11 @@ bool borg_heal(int danger)
 	 * (unless The Serpent is dead)
 	 * Priests wont need to bail, they have good heal spells.
 	 */
-	if ((bp_ptr->max_depth >= 98) && !bp_ptr->winner &&
-		!borg_fighting_unique && (borg_class != CLASS_PRIEST))
+	if (bp_ptr->max_depth >= 98 &&
+		!bp_ptr->winner &&
+		!borg_fighting_unique &&
+		!borg_has_realm(REALM_LIFE) &&
+		!borg_has_realm(REALM_NATURE))
 	{
 		/* Bail out to save the heal pots for The Serpent */
 		return (FALSE);
@@ -2106,9 +2033,7 @@ bool borg_heal(int danger)
 		   (bp_ptr->skill_dev -
 			borg_get_kind(TV_ROD, SV_ROD_HEALING)->level > 7)) &&
 		  borg_zap_rod(SV_ROD_HEALING)) ||
-		 borg_activate_artifact(ART_SOULKEEPER, FALSE) ||
-		 borg_activate_artifact(ART_GONDOR, FALSE) ||
-		 borg_activate_artifact(ART_BELEGENNON, FALSE) ||
+		 borg_activate(BORG_ACT_HEAL_BIG) ||
 		 borg_use_staff_fail(SV_STAFF_HEALING) ||
 		 borg_spell_fail(REALM_LIFE, 1, 6, allow_fail) ||
 		 borg_quaff_potion(SV_POTION_HEALING)))
@@ -2147,9 +2072,7 @@ bool borg_heal(int danger)
 		 borg_use_staff_fail(SV_STAFF_HOLINESS) ||
 		 borg_use_staff_fail(SV_STAFF_HEALING) ||
 		 borg_quaff_potion(SV_POTION_HEALING) ||
-		 borg_activate_artifact(ART_SOULKEEPER, FALSE) ||
-		 borg_activate_artifact(ART_BELEGENNON, FALSE) ||
-		 borg_activate_artifact(ART_GONDOR, FALSE)))
+		 borg_activate(BORG_ACT_HEAL_BIG)))
 	{
 		borg_note("# Healing Level 8.");
 		return (TRUE);
@@ -2169,14 +2092,11 @@ bool borg_heal(int danger)
 		 ((!bp_ptr->able.teleport ||
 		   (bp_ptr->skill_dev - borg_get_kind(TV_ROD,
 											  SV_ROD_HEALING)->level > 7)) &&
-		  borg_zap_rod(SV_ROD_HEALING)) || borg_quaff_potion(SV_POTION_HEALING)
-		 || borg_activate_artifact(ART_SOULKEEPER, FALSE) ||
-		 borg_activate_artifact(ART_BELEGENNON, FALSE) ||
-		 borg_activate_artifact(ART_GONDOR, FALSE) || (borg_fighting_unique &&
-													   (borg_quaff_potion
-														(SV_POTION_HEALING) ||
-														borg_quaff_potion
-														(SV_POTION_LIFE)))))
+		  borg_zap_rod(SV_ROD_HEALING)) ||
+		  borg_quaff_potion(SV_POTION_HEALING) ||
+		 borg_activate(BORG_ACT_HEAL_BIG) ||
+		 (borg_fighting_unique && (borg_quaff_potion(SV_POTION_HEALING) ||
+								   borg_quaff_potion(SV_POTION_LIFE)))))
 	{
 		borg_note("# Healing Level 9.");
 		return (TRUE);
@@ -2196,11 +2116,10 @@ bool borg_heal(int danger)
 			borg_spell_fail(REALM_ARCANE, 1, 5, 60) ||
 			borg_spell_fail(REALM_NATURE, 0, 7, 60) ||
 			borg_quaff_potion(SV_POTION_CURE_POISON) ||
-			borg_activate_artifact(ART_DAL, FALSE) ||
-			borg_activate_artifact(ART_BELEGENNON, FALSE) ||
+			borg_activate(BORG_ACT_CURE_POISON) ||
 			borg_use_staff(SV_STAFF_CURING) ||
-			borg_eat_food(SV_FOOD_CURE_POISON) ||
-			borg_quaff_potion(SV_POTION_CURING) ||
+			borg_eat_cure_poison() ||
+			borg_racial(RACE_AMBERITE_POWER2) ||
 			/* buy time */
 			borg_quaff_crit(TRUE) ||
 			borg_spell_fail(REALM_LIFE, 0, 6, 40) ||
@@ -2250,6 +2169,7 @@ bool borg_heal(int danger)
 
 		/* Quaff healing pots to buy some time- in this emergency.  */
 		if (borg_quaff_potion(SV_POTION_CURE_LIGHT) ||
+			borg_use_staff(SV_STAFF_CURE_LIGHT) ||
 			borg_quaff_potion(SV_POTION_CURE_SERIOUS)) return (TRUE);
 
 		/* Try to Restore Mana */
@@ -2282,8 +2202,9 @@ bool borg_heal(int danger)
 	if (bp_ptr->status.cut &&
 		(bp_ptr->chp < bp_ptr->mhp / 3 || randint0(100) < 20))
 	{
-		if (borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
-			borg_quaff_potion(SV_POTION_CURE_LIGHT) ||
+		if (borg_quaff_potion(SV_POTION_CURE_LIGHT) ||
+			borg_use_staff(SV_STAFF_CURE_LIGHT) ||
+			borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
 			borg_quaff_crit((bool) (bp_ptr->chp < 10)) ||
 			borg_spell_fail(REALM_LIFE, 1, 1, 100) ||
 			borg_spell_fail(REALM_LIFE, 0, 6, 100) ||
@@ -2305,6 +2226,7 @@ bool borg_heal(int danger)
 
 		/* Quaff healing pots to buy some time- in this emergency.  */
 		if (borg_quaff_potion(SV_POTION_CURE_LIGHT) ||
+			borg_use_staff(SV_STAFF_CURE_LIGHT) ||
 			borg_quaff_potion(SV_POTION_CURE_SERIOUS)) return (TRUE);
 
 		/* Try to Restore Mana */
@@ -2503,6 +2425,7 @@ bool borg_caution(void)
 	/* Hallucination is nasty */
 	if (bp_ptr->status.image) nasty = TRUE;
 
+
 	/*** Evaluate local danger ***/
 
 	/* am I fighting a unique or a summoner, or scaryguy? */
@@ -2573,23 +2496,23 @@ bool borg_caution(void)
 	if (borg_goi || (p > avoidance / 10) || (p > mb_ptr->fear))
 	{
 		/* Describe (briefly) the current situation */
-		borg_note_fmt
+		borg_note
 			("# Loc:%d,%d Dep:%d Lev:%d HP:%d/%d SP:%d/%d Danger:p=%d",
 			 c_x, c_y, bp_ptr->depth, bp_ptr->lev,
 			 bp_ptr->chp, bp_ptr->mhp, bp_ptr->csp, bp_ptr->msp, p);
 		if (borg_goi)
 		{
-			borg_note_fmt
+			borg_note
 				("# Protected by GOI (borg turns:%d; game turns:%d)",
 				 borg_goi / borg_game_ratio, p_ptr->tim.invuln);
 		}
 		if (borg_shield)
 		{
-			borg_note_fmt("# Protected by Mystic Shield");
+			borg_note("# Protected by Mystic Shield");
 		}
 		if (borg_prot_from_evil)
 		{
-			borg_note_fmt("# Protected by PFE");
+			borg_note("# Protected by PFE");
 		}
 	}
 	/* Comment on glyph */
@@ -2602,7 +2525,7 @@ bool borg_caution(void)
 			if ((track_glyph_y[i] == c_y) && (track_glyph_x[i] == c_x))
 			{
 				/* if standing on one */
-				borg_note_fmt("# Standing on Glyph");
+				borg_note("# Standing on Glyph");
 			}
 		}
 	}
@@ -2616,7 +2539,7 @@ bool borg_caution(void)
 			if ((track_less_y[i] == c_y) && (track_less_x[i] == c_x))
 			{
 				/* if standing on one */
-				borg_note_fmt("# Standing on up-stairs");
+				borg_note("# Standing on up-stairs");
 			}
 		}
 	}
@@ -2630,34 +2553,36 @@ bool borg_caution(void)
 			if ((track_more_y[i] == c_y) && (track_more_x[i] == c_x))
 			{
 				/* if standing on one */
-				borg_note_fmt("# Standing on dn-stairs");
+				borg_note("# Standing on dn-stairs, (%d, %d)", c_x, c_y);
 			}
 		}
 	}
 
-	if (borg_class == CLASS_MAGE)
-	{
-		/* do some defence before running away */
-		if (borg_defend(p))
-			return TRUE;
-
-		/* try healing before running away */
-		if (borg_heal(p))
-			return TRUE;
-	}
-	else
+	/* If the borg has healing spells */
+	if (borg_has_realm(REALM_LIFE) || borg_has_realm(REALM_NATURE))
 	{
 		/* try healing before running away */
 		if (borg_heal(p))
-			return TRUE;
+			return (TRUE);
 
 		/* do some defence before running away! */
 		if (borg_defend(p))
-			return TRUE;
+			return (TRUE);
+	}
+	else
+	{
+		/* do some defence before running away */
+		if (borg_defend(p))
+			return (TRUE);
+
+		/* try healing before running away */
+		if (borg_heal(p))
+			return (TRUE);
 	}
 
 	/* If I am waiting for recall,  & safe, then stay put. */
-	if (goal_recalling && borg_check_rest() && bp_ptr->depth)
+	if (goal_recalling && borg_check_rest() &&
+		bp_ptr->depth && borg_on_safe_feat(map_loc(c_x, c_y)->feat))
 	{
 		/* note the resting */
 		borg_note("# Resting here, waiting for Recall.");
@@ -2727,7 +2652,7 @@ bool borg_caution(void)
 		if (!goal_leaving)
 		{
 			/* Note */
-			borg_note_fmt
+			borg_note
 				("# Leaving (restock) %s", borg_restock(bp_ptr->depth));
 
 			/* Start leaving */
@@ -2737,7 +2662,7 @@ bool borg_caution(void)
 		if (!goal_fleeing && (bp_ptr->able.ccw < 2))
 		{
 			/* Flee */
-			borg_note_fmt
+			borg_note
 				("# Fleeing (restock) %s", borg_restock(bp_ptr->depth));
 
 			/* Start fleeing */
@@ -2788,8 +2713,8 @@ bool borg_caution(void)
 		 * but not when starving, or lacking food
 		 */
 		stair_more = goal_fleeing;
-		if (!borg_prepared(bp_ptr->depth + 1))
-			stair_more = TRUE;
+
+		if (borg_prepared_depth() > bp_ptr->depth) stair_more = TRUE;
 
 		/* Its ok to go one level deep if evading scary guy */
 		if (scaryguy_on_level) stair_more = TRUE;
@@ -2819,7 +2744,6 @@ bool borg_caution(void)
 			return (TRUE);
 		}
 	}
-
 
 	/* Take stairs down */
 	if (stair_more && !goal_recalling)
@@ -2875,6 +2799,9 @@ bool borg_caution(void)
 			/* Take the stairs */
 			borg_keypress('>');
 
+			/* If the borg leaves the wilderness */
+			if (!bp_ptr->depth) borg_leave_surface();
+
 			/* Success */
 			return (TRUE);
 		}
@@ -2888,29 +2815,8 @@ bool borg_caution(void)
 	{
 		list_item *l_ptr = look_up_equip_slot(EQUIP_LITE);
 
-		/* If there is something in the lite slot */
-		if (l_ptr)
-		{
-			object_kind *k_ptr = &k_info[l_ptr->k_idx];
-
-			/* If the light source is getting low */
-			if (l_ptr->timeout < 1000)
-			{
-				/* Try to refuel the torch */
-				if (k_ptr->sval == SV_LITE_TORCH && borg_refuel_torch())
-				{
-					/* success */
-					return (TRUE);
-				}
-
-				/* Try to refuel the lantern */
-				if (k_ptr->sval == SV_LITE_LANTERN && borg_refuel_lantern())
-				{
-					/* success */
-					return (TRUE);
-				}
-			}
-		}
+		/* If the borg manages to refuel */
+		if (borg_refuel()) return (TRUE);
 
 		/* Flee for fuel */
 		if (bp_ptr->depth && (!l_ptr || l_ptr->timeout < 1000))
@@ -2932,9 +2838,8 @@ bool borg_caution(void)
 	{
 		/* Attempt to satisfy hunger */
 		if (borg_eat_food_any() ||
-			borg_spell_fail(REALM_SORCERY, 2, 0, 45) ||
 			borg_spell_fail(REALM_LIFE, 0, 7, 45) ||
-			borg_spell_fail(REALM_ARCANE, 2, 7, 45) ||
+			borg_spell_fail(REALM_ARCANE, 2, 6, 45) ||
 			borg_spell_fail(REALM_NATURE, 0, 3, 45))
 		{
 			/* Success */
@@ -3210,7 +3115,7 @@ bool borg_caution(void)
 			g_y = c_y + ddy[b_d];
 
 			/* Note */
-			borg_note_fmt
+			borg_note
 				("# Retreating to %d,%d (distance %d) via %d,%d (%d > %d)",
 				 b_y, b_x, b_r, g_y, g_x, p, borg_danger(g_x, g_y, 2, TRUE));
 
@@ -3321,7 +3226,7 @@ bool borg_caution(void)
 			g_y = c_y + ddy_ddd[b_i];
 
 			/* Note */
-			borg_note_fmt("# Backing up to %d,%d (%d > %d)",
+			borg_note("# Backing up to %d,%d (%d > %d)",
 						  g_x, g_y, p, borg_danger(g_x, g_y, 2, TRUE));
 
 			/* Back away from danger */
@@ -3356,6 +3261,16 @@ bool borg_caution(void)
 		}
 	}
 
+	/* Cure hallucination as soon as possible! */
+	if (bp_ptr->status.image &&
+		(borg_quaff_potion(SV_POTION_CURING) ||
+		 borg_use_staff(SV_STAFF_CURING) ||
+		 borg_zap_rod(SV_ROD_CURING)))
+	{
+		/* Tried to stop the visions */
+		return (TRUE);
+	}
+
 	/* Hack -- cure fear when afraid */
 	if (bp_ptr->status.afraid &&
 		(randint0(100) < 70 ||
@@ -3366,7 +3281,9 @@ bool borg_caution(void)
 			borg_quaff_potion(SV_POTION_BOLDNESS) ||
 			borg_quaff_potion(SV_POTION_HEROISM) ||
 			borg_quaff_potion(SV_POTION_BERSERK_STRENGTH) ||
-			borg_activate_artifact(ART_DAL, FALSE) ||
+			borg_activate(BORG_ACT_REMOVE_FEAR) ||
+			borg_activate(BORG_ACT_HEROISM) ||
+			borg_activate(BORG_ACT_BERSERKER) ||
 			borg_mutation(MUT1_BERSERK) ||
 			borg_racial(RACE_HALF_ORC) ||
 			borg_racial(RACE_HALF_TROLL))
@@ -3488,8 +3405,8 @@ bool borg_caution(void)
 			borg_spell_fail(REALM_SORCERY, 0, 1, 25) ||
 			borg_spell_fail(REALM_TRUMP, 0, 0, 25) ||
 			borg_mindcr_fail(MIND_MINOR_DISP, 3, 35) ||
-			borg_activate_artifact(ART_ANGUIREL, FALSE) ||
-			borg_activate_artifact(ART_COLANNON, FALSE) ||
+			borg_activate(BORG_ACT_PHASE_DOOR) ||
+			borg_activate(BORG_ACT_TELEPORT) ||
 			borg_zap_rod(SV_ROD_HEALING))
 		{
 			borg_note("# Buying time waiting for Recall.  Step 2.");
@@ -3497,22 +3414,30 @@ bool borg_caution(void)
 		}
 
 		if ((bp_ptr->mhp - bp_ptr->chp < 100) &&
-			(borg_quaff_crit(TRUE) ||
+			(borg_quaff_potion(SV_POTION_CURE_LIGHT) ||
+			 borg_use_staff(SV_STAFF_CURE_LIGHT) ||
 			 borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
-			 borg_quaff_potion(SV_POTION_CURE_LIGHT)))
+			 borg_quaff_crit(FALSE)))
 		{
 			borg_note("# Buying time waiting for Recall.  Step 3.");
 			return (TRUE);
 		}
-		if ((bp_ptr->mhp - bp_ptr->chp > 150) &&
+
+		if ((bp_ptr->mhp - bp_ptr->chp < 300) &&
+			(borg_quaff_crit(FALSE) ||
+			 borg_use_staff(SV_STAFF_CURING)))
+		{
+			borg_note("# Buying time waiting for Recall.  Step 4.");
+			return (TRUE);
+		}
+
+		if ((bp_ptr->mhp - bp_ptr->chp >= 300) &&
 			(borg_quaff_potion(SV_POTION_HEALING) ||
 			 borg_quaff_potion(SV_POTION_STAR_HEALING) ||
 			 borg_quaff_potion(SV_POTION_LIFE) ||
-			 borg_quaff_crit(TRUE) ||
-			 borg_quaff_potion(SV_POTION_CURE_SERIOUS) ||
-			 borg_quaff_potion(SV_POTION_CURE_LIGHT)))
+			 borg_quaff_crit(FALSE)))
 		{
-			borg_note("# Buying time waiting for Recall.  Step 4.");
+			borg_note("# Buying time waiting for Recall.  Step 5.");
 			return (TRUE);
 		}
 

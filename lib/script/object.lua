@@ -65,7 +65,7 @@ function wand_of_wonder(dir)
 		if wall_to_mud(dir) then ident = TRUE end
 	elseif sval == SV_WAND_LITE then
 		msgf("A line of blue shimmering light appears.")
-		lite_line(dir)
+		lite_line(dir, damroll(6, 8))
 		ident = TRUE
 	elseif sval == SV_WAND_SLEEP_MONSTER then
 		if sleep_monster(dir) then ident = TRUE end
@@ -137,7 +137,6 @@ function werewindle()
 		stair_creation()
 	else
 		if (get_check("Leave this level? ") ~= 0) then
-			if autosave_l then do_cmd_save_game(TRUE) end
 			player.state.leaving = TRUE
 		end
 	end

@@ -278,7 +278,7 @@
 /*
  * The Macintosh allows the use of a "file type" when creating a file
  */
-#if defined(MACINTOSH) && !defined(applec)
+#if defined(MACINTOSH) || defined(MACH_O_CARBON)
 # define FILE_TYPE_TEXT 'TEXT'
 # define FILE_TYPE_DATA 'DATA'
 # define FILE_TYPE_SAVE 'SAVE'
@@ -305,7 +305,9 @@
  * for storing pref-files and character-dumps.
  */
 #ifdef SET_UID
-#define PRIVATE_USER_PATH "~/.angband"
+# ifndef PRIVATE_USER_PATH
+#  define PRIVATE_USER_PATH "~/.angband"
+# endif /* PRIVATE_USER_PATH */
 #endif /* SET_UID */
 
 
@@ -316,6 +318,15 @@
 # define SAVEFILE_USE_UID
 #endif /* SET_UID */
 
+/*
+ * Hack -- Mach-O (native binary format of OS X) is basically a Un*x
+ * but has Mac OS/Windows-like user interface
+ */
+#ifdef MACH_O_CARBON
+# ifdef SAVEFILE_USE_UID
+#  undef SAVEFILE_USE_UID
+# endif /* SAVEFILE_USE_UID */
+#endif /* MACH_O_CARBON */
 
 /* Include maid-grf.c stuff */
 #ifdef ALLOW_BORG
@@ -326,5 +337,13 @@
 #ifdef USE_TNB
 #define TERM_CAVE_MAP
 #endif /* USE_TNB */
+
+
+/* Autoconf derived stuff */
+#ifdef SIZEOF_LONG_INT
+#if SIZEOF_LONG_INT > 4
+#define L64
+#endif
+#endif
 
 #endif

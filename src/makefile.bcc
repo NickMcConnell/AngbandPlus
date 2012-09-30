@@ -123,8 +123,9 @@ OBJ = \
 	artifact.obj \
 	script.obj \
 	ui.obj \
+	run.obj \
 	l-monst.obj l-object.obj l-player.obj l-random.obj l-ui.obj \
-	l-misc.obj l-spell.obj \
+	l-misc.obj l-spell.obj l-field.obj\
 	zbmagic1.obj zbmagic2.obj zbmagic3.obj \
 	zborg1.obj zborg2.obj zborg3.obj zborg4.obj zborg5.obj \
 	zborg6.obj zborg7.obj zborg8.obj zborg9.obj \
@@ -162,6 +163,9 @@ l-monst.c: lua\tolua.exe l-monst.pkg
 
 l-object.c: lua\tolua.exe l-object.pkg
 	lua\tolua.exe -n object -o l-object.c l-object.pkg
+
+l-field.c: lua\tolua.exe l-field.pkg
+	lua\tolua.exe -n field -o l-field.c l-field.pkg
 
 l-player.c: lua\tolua.exe l-player.pkg
 	lua\tolua.exe -n player -o l-player.c l-player.pkg

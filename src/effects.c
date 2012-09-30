@@ -1511,105 +1511,116 @@ bool inc_oppose_pois(int v)
 /*
  * Helper functions to test resistance status for the various elements
  *
- *
- * These return a value from 0 to 18 standing for how much damage
- * you will receive.
- *
- * 0 is immunity.
- * 1 is double resistance.
- * 3 is normal resistance.
- * 9 is no resistance.
- * 18 is succeptibility to.
- *
- * Other combinations such as 2 and 6 are also possible.
- *
- * XXX XXX Should these "magic numbers" have #defines?
+ * These return a value from 0 to 200 indicating how much damage you
+ * take from an element, as a percentage of normal damage.
  */
+
+static int resist_table[12] = {3, 5, 7, 11, 16, 22, 33, 50, 66, 100, 150, 200};
 
 /*
  * Acid resist level
  */
-byte res_acid_lvl(void)
+int res_acid_lvl(void)
 {
-	byte level = 9;
+	int level = 9;
 	
 	if (FLAG(p_ptr, TR_IM_ACID)) return (0);
-	if (FLAG(p_ptr, TR_RES_ACID)) level /= 3;
-	if (p_ptr->tim.oppose_acid) level /= 3;
-	if (FLAG(p_ptr, TR_HURT_ACID)) level *= 2;
+	
+	if (FLAG(p_ptr, TR_RES_ACID))  level -= 3;
+	if (p_ptr->tim.oppose_acid)    level -= 3;
+	if (FLAG(p_ptr, TR_HURT_ACID)) level += 2;
 
-	return (level);
+	if (level < 0)  level = 0;
+	if (level > 11) level = 11;
+	
+	return resist_table[level];;
 }
 
 /*
  * Electricity resist level
  */
-byte res_elec_lvl(void)
+int res_elec_lvl(void)
 {
-	byte level = 9;
+	int level = 9;
 	
 	if (FLAG(p_ptr, TR_IM_ELEC)) return (0);
-	if (FLAG(p_ptr, TR_RES_ELEC)) level /= 3;
-	if (p_ptr->tim.oppose_elec) level /= 3;
-	if (FLAG(p_ptr, TR_HURT_ELEC)) level *= 2;
+	
+	if (FLAG(p_ptr, TR_RES_ELEC))  level -= 3;
+	if (p_ptr->tim.oppose_elec)    level -= 3;
+	if (FLAG(p_ptr, TR_HURT_ELEC)) level += 2;
 
-	return (level);
+	if (level < 0)  level = 0;
+	if (level > 11) level = 11;
+	
+	return resist_table[level];;
 }
 
 /*
  * Fire resist level
  */
-byte res_fire_lvl(void)
+int res_fire_lvl(void)
 {
-	byte level = 9;
+	int level = 9;
 	
 	if (FLAG(p_ptr, TR_IM_FIRE)) return (0);
-	if (FLAG(p_ptr, TR_RES_FIRE)) level /= 3;
-	if (p_ptr->tim.oppose_fire) level /= 3;
-	if (FLAG(p_ptr, TR_HURT_FIRE)) level *= 2;
 
-	return (level);
+	if (FLAG(p_ptr, TR_RES_FIRE))  level -= 3;
+	if (p_ptr->tim.oppose_fire)    level -= 3;
+	if (FLAG(p_ptr, TR_HURT_FIRE)) level += 2;
+
+	if (level < 0)  level = 0;
+	if (level > 11) level = 11;
+	
+	return resist_table[level];;
 }
 
 /*
  * Cold resist level
  */
-byte res_cold_lvl(void)
+int res_cold_lvl(void)
 {
-	byte level = 9;
+	int level = 9;
 	
 	if (FLAG(p_ptr, TR_IM_COLD)) return (0);
-	if (FLAG(p_ptr, TR_RES_COLD)) level /= 3;
-	if (p_ptr->tim.oppose_cold) level /= 3;
-	if (FLAG(p_ptr, TR_HURT_COLD)) level *= 2;
+	
+	if (FLAG(p_ptr, TR_RES_COLD))  level -= 3;
+	if (p_ptr->tim.oppose_cold)    level -= 3;
+	if (FLAG(p_ptr, TR_HURT_COLD)) level += 2;
 
-	return (level);
+	if (level < 0)  level = 0;
+	if (level > 11) level = 11;
+	
+	return resist_table[level];;
 }
 
 /*
  * Poison resist level
  */
-byte res_pois_lvl(void)
+int res_pois_lvl(void)
 {
-	byte level = 9;
+	int level = 9;
 	
 	if (FLAG(p_ptr, TR_IM_POIS)) return (0);
-	if (FLAG(p_ptr, TR_RES_POIS)) level /= 3;
-	if (p_ptr->tim.oppose_pois) level /= 3;
 
-	return (level);
+	if (FLAG(p_ptr, TR_RES_POIS)) level -= 3;
+	if (p_ptr->tim.oppose_pois)   level -= 3;
+
+	if (level < 0)  level = 0;
+	if (level > 11) level = 11;
+	
+	return resist_table[level];;
 }
 
 /*
  * Apply resistance to damage
  */
-int resist(int dam, byte (*f_func) (void))
+int resist(int dam, int (*f_func) (void))
 {
 	/* Invulnerability */
 	if (p_ptr->tim.invuln) return (0);
 
 	/* Use the function we were passed, and round up the damage */
-	return ((dam * f_func() + 8) / 9);
+	return ((dam * f_func() + 99) / 100);
 }
 
 
@@ -1705,7 +1716,7 @@ bool acid_dam(int dam, cptr kb_str)
 
 	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	if ((res_acid_lvl() > 3) && one_in_(HURT_CHANCE))
+	if ((res_acid_lvl() > 50) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_CHR);
 
 	/* If any armor gets hit, defend the player */
@@ -1715,7 +1726,7 @@ bool acid_dam(int dam, cptr kb_str)
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	if (res_acid_lvl() > 2)
+	if (res_acid_lvl() > 25)
 		(void)inven_damage(set_acid_destroy, inv);
 	
 	/* Obvious */
@@ -1737,14 +1748,14 @@ bool elec_dam(int dam, cptr kb_str)
 
 	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	if ((res_elec_lvl() > 3) && one_in_(HURT_CHANCE))
+	if ((res_elec_lvl() > 50) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_DEX);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	if (res_acid_lvl() > 2)
+	if (res_acid_lvl() > 25)
 		(void)inven_damage(set_elec_destroy, inv);
 
 	/* Obvious */
@@ -1766,14 +1777,14 @@ bool fire_dam(int dam, cptr kb_str)
 
 	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	if ((res_fire_lvl() > 3) && one_in_(HURT_CHANCE))
+	if ((res_fire_lvl() > 50) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_STR);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	if (res_fire_lvl() > 2)
+	if (res_fire_lvl() > 25)
 		(void)inven_damage(set_fire_destroy, inv);
 
 	/* Obvious */
@@ -1795,14 +1806,14 @@ bool cold_dam(int dam, cptr kb_str)
 
 	inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
-	if ((res_cold_lvl() > 3) && one_in_(HURT_CHANCE))
+	if ((res_cold_lvl() > 50) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_STR);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
-	if (res_cold_lvl() > 2)
+	if (res_cold_lvl() > 25)
 		(void)inven_damage(set_cold_destroy, inv);
 
 	/* Obvious */
@@ -1823,14 +1834,14 @@ bool pois_dam(int dam, cptr kb_str, int pois)
 	/* Totally immune? */
 	if (dam <= 0) return (FALSE);
 
-	if ((res_pois_lvl() > 3) && one_in_(HURT_CHANCE))
+	if ((res_pois_lvl() > 50) && one_in_(HURT_CHANCE))
 		(void)do_dec_stat(A_CON);
 
 	/* Take damage */
 	take_hit(dam, kb_str);
 
 	/* Add poison to counter */
-	if (res_pois_lvl() > 2)
+	if (res_pois_lvl() > 25)
 	{
 		pois = resist(pois, res_pois_lvl);
 		inc_poisoned(pois);
@@ -2976,7 +2987,7 @@ bool lose_all_info(void)
 		object_kind *k_ptr = &k_info[k];
 
 		/* Forget flavored items, with saving throw */
-		if (k_ptr->flavor && one_in_(p_ptr->skills[SKILL_SAV]))
+		if (k_ptr->flavor && !player_save(k_ptr->level - 50))
 		{
 			/* Forget knowledge */
 			k_ptr->aware = FALSE;
@@ -2987,11 +2998,11 @@ bool lose_all_info(void)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
-	/* Combine / Reorder the pack (later) */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+	p_ptr->window |= (PW_PLAYER);
+
+	/* Notice changes */
+	notice_item();
 
 	/* Mega-Hack -- Forget the map */
 	wiz_dark();
@@ -3347,10 +3358,28 @@ void take_hit(int damage, cptr hit_from)
 	}
 
 	/* Hitpoint warning */
-	if (p_ptr->chp < warning)
+	if (p_ptr->chp <= warning)
 	{
 		/* Hack -- bell on first notice */
-		if (old_chp > warning) bell("Low hitpoint warning!");
+		if (old_chp > warning)
+		{
+			/* Alert */
+			bell("Low hitpoint warning!");
+
+			if (emergency_stop)
+			{
+				/* Show all the messages */
+				message_flush();
+
+				/* Alert the user to the problem */
+				put_fstr(0, 0, "Emergency stop.  Press 'c' to continue.");
+
+				/* Wait for acknowledgement */
+				while (inkey() != 'c') ;
+
+				disturb(TRUE);
+			}
+		}
 
 		sound(SOUND_WARN);
 
@@ -3417,6 +3446,44 @@ void make_noise(byte amount)
 
 	/* Save the new noise level */
 	p_ptr->state.noise_level = (byte)total;
+}
+
+
+/*
+ * Various notice 'blah' functions
+ */
+
+
+/*
+ * Change an item in the inventory
+ */
+void notice_inven(void)
+{
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
+}
+
+
+/*
+ * Change an item in the equipment
+ */
+void notice_equip(void)
+{
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
+}
+
+
+/*
+ * Change an item somewhere
+ */
+void notice_item(void)
+{
+	notice_inven();
+	notice_equip();
 }
 
 

@@ -119,52 +119,6 @@
 #endif
 
 
-
-
-/*
- * OPTION: for the AFS distributed file system, define this to ensure that
- * the program is secure with respect to the setuid code.  This option has
- * not been tested (to the best of my knowledge).  This option may require
- * some weird tricks with "player_uid" and such involving "defines".
- * Note that this option used the AFS library routines Authenticate(),
- * bePlayer(), beGames() to enforce the proper priviledges.
- * You may need to turn "SAFE_SETUID" off to use this option.
- */
-/* #define SECURE */
-
-
-
-
-/*
- * OPTION: Verify savefile Checksums (Angband 2.7.0 and up)
- * This option can help prevent "corruption" of savefiles, and also
- * stop intentional modification by amateur users.
- */
-#define VERIFY_CHECKSUMS
-
-
-/*
- * OPTION: Forbid the use of "fiddled" savefiles.  As far as I can tell,
- * a fiddled savefile is one with an internal timestamp different from
- * the actual timestamp.  Thus, turning this option on forbids one from
- * copying a savefile to a different name.  Combined with disabling the
- * ability to save the game without quitting, and with some method of
- * stopping the user from killing the process at the tombstone screen,
- * this should prevent the use of backup savefiles.  It may also stop
- * the use of savefiles from other platforms, so be careful.
- */
-/* #define VERIFY_TIMESTAMP */
-
-
-/*
- * OPTION: Forbid the "savefile over-write" cheat, in which you simply
- * run another copy of the game, loading a previously saved savefile,
- * and let that copy over-write the "dead" savefile later.  This option
- * either locks the savefile, or creates a fake "xxx.lok" file to prevent
- * the use of the savefile until the file is deleted.  Not ready yet.
- */
-/* #define VERIFY_SAVEFILE */
-
 /* Debug mode options */
 #ifdef USE_DEBUG
 
@@ -362,17 +316,6 @@
 #endif /* DEFAULT_PATH */
 
 
-/*
- * OPTION: Check the "time" against "lib/file/hours.txt"
- */
-/* #define CHECK_TIME */
-
-/*
- * OPTION: Check the "load" against "lib/file/load.txt"
- * This may require the 'rpcsvs' library
- */
-/* #define CHECK_LOAD */
-
 
 /*
  * OPTION: For some brain-dead computers with no command line interface,
@@ -382,8 +325,7 @@
  * machines, once you manage to "load" a savefile, it stays that way.
  * Macintosh is particularly weird because you can load savefiles that
  * are not contained in the "lib:save:" folder, and if you change the
- * player's name, it will then save the savefile elsewhere.  Note that
- * this also gives a method of "bypassing" the "VERIFY_TIMESTAMP" code.
+ * player's name, it will then save the savefile elsewhere.
  */
 #if defined(MACINTOSH) || defined(WINDOWS) || defined(AMIGA)
 # define SAVEFILE_MUTABLE
@@ -437,16 +379,6 @@
 /* #define VERIFY_HONOR */
 
 
-/*
- * React to the "VERIFY_HONOR" flag
- */
-#ifdef VERIFY_HONOR
-# define VERIFY_SAVEFILE
-# define VERIFY_CHECKSUMS
-# define VERIFY_TIMESTAMP
-#endif
-
-
 /* Do we want different characters for different races? */
 /*
  * Too slow for general use - note that the 16x16 tiles use a
@@ -467,11 +399,6 @@
  * playing monks in the first place
  */
 /* #define MONK_HACK */
-
-/*
- * Add caverns and lakes to the dungeon
- */
-#define ALLOW_CAVERNS_AND_LAKES
 
 /*
  * Add pillar tunnels (Annoying)

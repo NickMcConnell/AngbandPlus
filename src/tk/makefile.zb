@@ -21,4 +21,6 @@ src/tk/icon.o src/tk/interp.o: src/tk/icon.h
 
 srcdirlist += src/tk
 srcfiles += src/tk/*.c src/tk/*.h src/tk/makefile.zb
+
+dust-files += src/tk/*~
 clean-files += src/tk/*.bak src/tk/*.o

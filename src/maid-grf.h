@@ -201,7 +201,7 @@ struct map_block
 typedef map_block *map_blk_ptr;
 typedef map_block **map_blk_ptr_ptr;
 
-typedef void (*map_info_hook_type) (map_block *mb_ptr, term_map *map, vptr data);
+typedef void (*map_info_hook_type) (map_block *mb_ptr, const term_map *map, vptr data);
 typedef void (*map_erase_hook_type) (vptr data);
 typedef void (*player_move_hook_type) (int x, int y, vptr data);
 
@@ -312,6 +312,8 @@ extern int cur_num;
 extern void build_gamma_table(int gamma);
 extern cptr get_default_font(int term_num);
 extern bool pick_graphics(int graphics, int *xsize, int *ysize, char *filename);
+extern bool is_bigtiled(int x, int y);
+extern void toggle_bigtile(void);
 extern void map_get_player(int *x, int *y);
 extern bool map_in_bounds(int x, int y);
 extern map_block *map_loc(int dx, int dy);

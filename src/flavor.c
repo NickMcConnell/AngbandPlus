@@ -797,7 +797,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode,
 		case TV_STATUE:
 		{
 			/* Figurines/Statues */
-			cptr tmp = r_name + r_ptr->name;
+			cptr tmp = mon_race_name(r_ptr);
 			
 			char idol_name[512];
 
@@ -1725,11 +1725,15 @@ void object_desc_store(char *buf, const object_type *o_ptr, int pref,
 	/* Clear the flavor */
 	k_info[o_ptr->k_idx].flavor = FALSE;
 
-	/* Set the "known" flag */
-	q_ptr->info |= (OB_KNOWN);
+	/* If this is a shop item or in you are in wizard mode play with objects */
+	if (q_ptr->info & OB_STOREB)
+	{
+		/* Make it known */
+		q_ptr->info |= (OB_KNOWN);
 
-	/* Force "aware" for description */
-	k_info[o_ptr->k_idx].aware = TRUE;
+		/* Force "aware" for description */
+		k_info[o_ptr->k_idx].aware = TRUE;
+	}
 
 	/* Describe the object */
 	object_desc(buf, q_ptr, pref, mode, size);

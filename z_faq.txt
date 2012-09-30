@@ -43,10 +43,10 @@ questions and answers.
     3.2.2 Why do I get an error message when I try to switch on
           graphics?
     3.2.3 The screen isn't refreshing properly when I move around,
-	      how can I fix this?
+          how can I fix this?
   3.3 Unix
     3.3.1 How do I change the number of terminals used?
-	3.3.2 How do I change the tileset used?
+    3.3.2 How do I change the tileset used?
 
 4. Game-play questions
   4.1 Artifacts
@@ -62,19 +62,19 @@ questions and answers.
   4.3 Objects
     4.3.1 What does a 'magical figurine' do?
     4.3.2 What does a 'statue' do?
-	4.3.3 Why do I have a 'lantern of everburning' with a light radius
-	      of one square?
+    4.3.3 Why do I have a 'lantern of everburning' with a light radius
+          of one square?
   4.4 Miscellaneous
     4.4.1 What is an "anti-magic shell"?
     4.4.2 What are virtues, and how can I affect them?
-	4.4.3 Why isn't there a staircase downwards on dungeon level 15?
+    4.4.3 Why isn't there a staircase downwards on dungeon level 15?
   4.5 Quests
     4.5.1 What happened to the fixed quests after version 2.4.0?
 
 5. Other questions
   5.1 Interface
     5.1.1 Why can't I see my spells or missiles flying through the air?
-	5.1.2 What does the "(number / number)" on missiles mean?
+    5.1.2 What does the "(number / number)" on missiles mean?
   5.2 Bugs
     5.2.1 A monster "points at me and curses", and the game crashes!
           What is going on?

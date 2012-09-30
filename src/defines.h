@@ -32,16 +32,16 @@
 #define VERSION_NAME "ZAngband"
 
 /* Savefile version */
-#define SAVEFILE_VERSION 48
+#define SAVEFILE_VERSION 52
 
 /* User-visible version */
 #define VER_MAJOR 2
 #define VER_MINOR 7
-#define VER_PATCH 4
+#define VER_PATCH 5
 #define VER_EXTRA 0
 
 /* Versions after release */
-#define VER_AFTER "b"
+#define VER_AFTER "pre1"
 
 /* Stringify argument */
 #define Z_STR(a) Z_STR1(a)
@@ -109,6 +109,11 @@
 #define ANGBAND_TERM_MAX 8
 
 /*
+ * Maximum of different windows
+ */
+#define WINDOW_CHOICE_MAX	15
+
+/*
  * Number of grids in each block (vertically)
  */
 #define BLOCK_HGT	11
@@ -132,7 +137,7 @@
 /*
  * Script triggers
  */
-#define MAX_TRIGGER     8
+#define MAX_TRIGGER     10
 
 #define TRIGGER_USE     0
 #define TRIGGER_MAKE    1
@@ -142,6 +147,8 @@
 #define TRIGGER_TIMED   5
 #define TRIGGER_HIT     6
 #define TRIGGER_ATTACK  7
+#define TRIGGER_ALTER   8
+#define TRIGGER_SPOIL   9
 
 
 /*
@@ -654,10 +661,9 @@
 
 /*
  * OPTION: Maximum number of "quarks" (see "utils.c")
- * Default: assume at most 512 different inscriptions are used
+ * Default: assume at most 2048 scripts + names + inscriptions
  */
-#define QUARK_MAX       768
-/* Was 512... 256 quarks added for random artifacts */
+#define QUARK_MAX       2048
 
 /*
  * Threshold for quark list before compacting
@@ -1774,7 +1780,7 @@
 #define TV_CHEST         7		/* Chests ('&') */
 #define TV_FIGURINE      8		/* Magical figurines */
 #define TV_STATUE        9		/* Statue */
-/*#define TV_CORPSE       10  *//* Corpses are now fields */
+/*#define TV_CORPSE       10  */ /* Corpses are now fields */
 #define TV_SHOT         16		/* Ammo for slings */
 #define TV_ARROW        17		/* Ammo for bows */
 #define TV_BOLT         18		/* Ammo for x-bows */
@@ -2567,6 +2573,7 @@
 /* xxx (many) */
 #define PU_WEIGHT		0x00000100L	/* Calculate weight of inventory */
 /* xxx (many) */
+#define PU_MAP			0x00001000L	/* Notice change in screen size */
 /* xxx (many) */
 #define PU_VIEW         0x00100000L	/* Update view */
 #define PU_MON_LITE		0x00200000L	/* Monster illumination */
@@ -2641,9 +2648,8 @@
 #define PW_DUNGEON          0x00000400L	/* Display dungeon view */
 #define PW_SNAPSHOT         0x00000800L	/* Display snap-shot */
 #define PW_VISIBLE          0x00001000L	/* Display monster visible list */
-/* xxx */
-#define PW_BORG_1           0x00004000L	/* Display borg messages */
-#define PW_BORG_2           0x00008000L	/* Display borg status */
+#define PW_BORG_1           0x00002000L	/* Display borg messages */
+#define PW_BORG_2           0x00004000L	/* Display borg status */
 
 
 /*** General index values ***/
@@ -2851,7 +2857,7 @@
 #define OB_KNOWN     0x08		/* Item abilities are known */
 #define OB_STOREB    0x10		/* Item is storebought */
 #define OB_MENTAL    0x20		/* Item is *id*'ed */
-#define OB_DUMMY3    0x40
+#define OB_NO_EXP    0x40		/* Item gives no score */
 #define OB_DUMMY4    0x80
 
 
@@ -2891,6 +2897,8 @@
  * it can not be affected by various forms of destruction.  This is NOT as
  * powerful as actually granting resistance/immunity to the wearer.
  */
+
+#define NUM_TR_SETS 4
 
 #define TR0_STR                 0x00000001L	/* STR += "pval" */
 #define TR0_INT                 0x00000002L	/* INT += "pval" */
@@ -2993,9 +3001,9 @@
 
 
 #define TR3_LUCK_10             0x00000001L
-#define TR3_XXX2                0x00000002L
-#define TR3_XXX3                0x00000004L
-#define TR3_XXX4                0x00000008L
+#define TR3_WILD_SHOT           0x00000002L
+#define TR3_WILD_WALK           0x00000004L
+#define TR3_EASY_ENCHANT        0x00000008L
 #define TR3_XXX5                0x00000010L
 #define TR3_XXX6                0x00000020L
 #define TR3_XXX7                0x00000040L
@@ -3156,7 +3164,9 @@
 
 
 #define TR_LUCK_10  	 	3,  TR3_LUCK_10 	 
-#define TR_XXX6 		 	3,  TR3_XXX6		 
+#define TR_WILD_SHOT            3,  TR3_WILD_SHOT
+#define TR_WILD_WALK            3,  TR3_WILD_WALK
+#define TR_EASY_ENCHANT		3,  TR3_EASY_ENCHANT
 #define TR_XXX7 		 	3,  TR3_XXX7		 
 #define TR_XXX8 		 	3,  TR3_XXX8		 
 #define TR_XXX9 		 	3,  TR3_XXX9		 
@@ -3382,10 +3392,10 @@
 #define RF3_ELDRITCH_HORROR 0x00000002	/* Sanity-blasting horror */
 #define RF3_XXX3            0x00000004	/* (?) */
 #define RF3_ROCKET          0x00000008	/* TY: Rocket */
-#define RF3_ARROW_1         0x00000010	/* Fire an arrow (light) */
-#define RF3_ARROW_2         0x00000020	/* Fire an arrow (heavy) */
-#define RF3_ARROW_3         0x00000040	/* Fire missiles (light) */
-#define RF3_ARROW_4         0x00000080	/* Fire missiles (heavy) */
+#define RF3_ARROW           0x00000010  /* Fire an arrow */
+#define RF3_XXX6            0x00000020  /* (?) */
+#define RF3_XXX7            0x00000040  /* (?) */
+#define RF3_XXX8            0x00000080  /* (?) */
 #define RF3_BR_ACID         0x00000100	/* Breathe Acid */
 #define RF3_BR_ELEC         0x00000200	/* Breathe Elec */
 #define RF3_BR_FIRE         0x00000400	/* Breathe Fire */
@@ -3493,6 +3503,7 @@
 #define RF6_SILLY			0x00000010	/* Monster is "silly" */
 #define RF6_LITE_1			0x00000020	/* Monster carries a small lite */
 #define RF6_LITE_2			0x00000040	/* Monster carries a large lite */
+#define RF6_LIBRARY			0x00000080  /* Monster has been researched at a library */
 
 /*
  * Monster race wilderness flags
@@ -3569,7 +3580,7 @@
  * Hack -- "bolt" spells that may hurt fellow monsters
  */
 #define RF3_BOLT_MASK \
-  (RF3_ROCKET | RF3_ARROW_1 | RF3_ARROW_2 | RF3_ARROW_3 | RF3_ARROW_4)
+  (RF3_ROCKET | RF3_ARROW)
 
 #define RF4_BOLT_MASK \
    (RF4_BO_ACID | RF4_BO_ELEC | RF4_BO_FIRE | RF4_BO_COLD | \
@@ -3583,7 +3594,7 @@
  * Spells that hurt the player directly
  */
 #define RF3_ATTACK_MASK \
-	(RF3_ROCKET | RF3_ARROW_1 | RF3_ARROW_2 | RF3_ARROW_3 | RF3_ARROW_4 | \
+	(RF3_ROCKET | RF3_ARROW |  \
 	 RF3_BR_ACID | RF3_BR_ELEC | RF3_BR_FIRE | RF3_BR_COLD | RF3_BR_POIS | \
 	 RF3_BR_NETH | RF3_BR_LITE | RF3_BR_DARK | RF3_BR_CONF | RF3_BR_SOUN | \
 	 RF3_BR_CHAO | RF3_BR_DISE | RF3_BR_NEXU | RF3_BR_TIME | RF3_BR_INER | \
@@ -3721,8 +3732,8 @@
  * Innate spell-like effects
  */
 #define RF3_INNATE_MASK \
-	(RF3_SHRIEK | RF3_ELDRITCH_HORROR | RF3_ARROW_1 | RF3_ARROW_2 | \
-	 RF3_ARROW_3 | RF3_ARROW_4 | RF3_BR_ACID | RF3_BR_ELEC | RF3_BR_FIRE | \
+	(RF3_SHRIEK | RF3_ELDRITCH_HORROR | RF3_ARROW | \
+	 RF3_BR_ACID | RF3_BR_ELEC | RF3_BR_FIRE | \
 	 RF3_BR_COLD | RF3_BR_POIS | RF3_BR_NETH | RF3_BR_LITE | RF3_BR_DARK | \
 	 RF3_BR_CONF | RF3_BR_SOUN | RF3_BR_CHAO | RF3_BR_DISE | RF3_BR_NEXU | \
 	 RF3_BR_TIME | RF3_BR_INER | RF3_BR_GRAV | RF3_BR_SHAR | RF3_BR_PLAS | \
@@ -3858,10 +3869,10 @@
 #define RF_ELDRITCH_HORROR     3,  RF3_ELDRITCH_HORROR 
 #define RF_XXX3 			   3,  RF3_XXX3 		
 #define RF_ROCKET			   3,  RF3_ROCKET		
-#define RF_ARROW_1  		   3,  RF3_ARROW_1  	
-#define RF_ARROW_2  		   3,  RF3_ARROW_2  	
-#define RF_ARROW_3  		   3,  RF3_ARROW_3  	
-#define RF_ARROW_4  		   3,  RF3_ARROW_4  	
+#define RF_ARROW  		   3,  RF3_ARROW  	
+#define RF_XXX6X4  		   3,  RF3_XXX6  	
+#define RF_XXX7X4  		   3,  RF3_XXX7  	
+#define RF_XXX8X4  		   3,  RF3_XXX8
 #define RF_BR_ACID  		   3,  RF3_BR_ACID  	
 #define RF_BR_ELEC  		   3,  RF3_BR_ELEC  	
 #define RF_BR_FIRE  		   3,  RF3_BR_FIRE  	
@@ -3969,6 +3980,7 @@
 #define RF_SILLY			   6,  RF6_SILLY     
 #define RF_LITE_1			   6,  RF6_LITE_1    
 #define RF_LITE_2			   6,  RF6_LITE_2    
+#define RF_LIBRARY			   6,  RF6_LIBRARY
 
 /*
  * Monster race wilderness flags
@@ -4101,10 +4113,10 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define carry_query_flag		p_ptr->options[3]
 #define use_old_target			p_ptr->options[4]
 #define always_pickup			p_ptr->options[5]
-#define always_repeat			p_ptr->options[6]
+/* {TRUE,  0, NULL,					"Number 6" }, p_ptr->options[6] */
 #define depth_in_feet			p_ptr->options[7]
 /* {TRUE,  0, NULL,					"Number 8" }, p_ptr->options[8] */
-#define stack_force_costs		p_ptr->options[9]
+/* {FALSE, 0, NULL,					"Number 9" }, p_ptr->options[9] */
 #define show_labels				p_ptr->options[10]
 #define show_weights			p_ptr->options[11]
 #define view_monster_grids		p_ptr->options[12]
@@ -4115,7 +4127,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define find_ignore_doors		p_ptr->options[17]
 #define find_cut				p_ptr->options[18]
 #define find_examine			p_ptr->options[19]
-#define disturb_view                    p_ptr->options[20]
+#define disturb_view			p_ptr->options[20]
 #define disturb_near			p_ptr->options[21]
 #define disturb_panel			p_ptr->options[22]
 #define disturb_state			p_ptr->options[23]
@@ -4126,14 +4138,14 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define last_words				p_ptr->options[28]
 #define speak_unique			p_ptr->options[29]
 #define small_levels			svr_ptr->options[0]
-/* {TRUE,  0, NULL,					"Number 31" }, svr_ptr->options[1] */
+/* {TRUE,  0, NULL,					"Number 31" }, p_ptr->options[30] */
 
 /* Option set 1 */
 
-/* {TRUE,  0, NULL,					"Number 32" }, p_ptr->options[30] */
+/* {TRUE,  0, NULL,					"Number 32" }, svr_ptr->options[1] */
 /* {TRUE,  0, NULL,					"Number 33" }, svr_ptr->options[2] */
 /* {TRUE,  0, NULL,					"Number 34" }, svr_ptr->options[3] */
-#define stack_allow_wands		svr_ptr->options[4]
+/* {TRUE,  0, NULL,					"Number 35" }, svr_ptr->options[4] */
 /* {TRUE, 0, NULL, 					"Number 36" }, svr_ptr->options[5] */
 #define expand_list				svr_ptr->options[6]
 /* {TRUE, 0, NULL, 					"Number 38" }, p_ptr->options[31] */
@@ -4155,6 +4167,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* {FALSE, 0, NULL, 					"Number 54" }, p_ptr->options[39] */
 #define fresh_before			p_ptr->options[40]
 #define fresh_after				p_ptr->options[41]
+#define emergency_stop			p_ptr->options[42]
 /* {FALSE, 0, NULL,					"Number 57" }, p_ptr->options[42] */
 #define compress_savefile		p_ptr->options[43]
 #define hilite_player			p_ptr->options[44]
@@ -4275,7 +4288,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 #define stupid_monsters			p_ptr->birth[0]
 #define auto_destroy			p_ptr->options[147]
 #define confirm_wear			p_ptr->options[148]
-#define confirm_stairs			p_ptr->options[149]
+/* {FALSE, 0, NULL,					"Number 165" }, p_ptr->options[149] */
 #define easy_open				p_ptr->options[150]
 #define easy_disarm				p_ptr->options[151]
 #define easy_floor				p_ptr->options[152]
@@ -4314,7 +4327,7 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
 /* {TRUE,  0, NULL,					"Number 198" }, p_ptr->birth[6] */
 /* {TRUE,  0, NULL,					"Number 199" }, p_ptr->birth[7] */
 /* {TRUE,  0, NULL,					"Number 200" }, p_ptr->birth[8] */
-#define terrain_streams			p_ptr->birth[9]
+/* {TRUE,  0, NULL,					"Number 201" }, p_ptr->birth[9] */
 /* {TRUE,  0, NULL,					"Number 202" }, p_ptr->birth[10] */
 #define munchkin_death			p_ptr->birth[11]
 /* {TRUE,  0, NULL,					"Number 204" }, p_ptr->birth[12] */
@@ -4521,8 +4534,8 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
  * Determines if a map location is currently "on screen" -RAK-
  */
 #define panel_contains(X,Y) \
-  (((Y) >= panel_row_min) && ((Y) <= panel_row_max) && \
-   ((X) >= panel_col_min) && ((X) <= panel_col_max))
+  (((Y) >= p_ptr->panel_y1) && ((Y) < p_ptr->panel_y2) && \
+   ((X) >= p_ptr->panel_x1) && ((X) < p_ptr->panel_x2))
 
 /*
  * Determine if a "legal" grid is a "floor" grid
@@ -4664,6 +4677,18 @@ static __inline void COPY_FLAG_AUX(const u32b *flags1, u32b *flags2, int num, u3
  */
 #define is_hostile(T) \
 	 ((bool)(!(is_pet(T) || is_friendly(T))))
+
+
+/*
+ * Helper macro so call path_build() with correct buffer size.
+ */
+#define path_make(B, P, F) \
+	do \
+	{ \
+		assert(sizeof(B) > sizeof(void*)); \
+		path_build((B), sizeof(B), (P), (F)); \
+	} \
+	while (FALSE)
 
 
 
@@ -4925,28 +4950,14 @@ extern int PlayerUID;
 
 
 /*
- * Hack -- attempt to reduce various values
- */
-#ifdef ANGBAND_LITE
-# undef MACRO_MAX
-# define MACRO_MAX      128
-# undef QUARK_MAX
-# define QUARK_MAX      256
-# undef MESSAGE_MAX
-# define MESSAGE_MAX    128
-# undef MESSAGE_BUF
-# define MESSAGE_BUF    4096
-#endif
-
-
-/*
  * Available graphic modes
  */
-#define GRAPHICS_NONE		0
-#define GRAPHICS_ORIGINAL	1
-#define GRAPHICS_ADAM_BOLT	2
-#define GRAPHICS_ANY		3
-#define GRAPHICS_HALF_3D	4
+#define GRAPHICS_NONE			0
+#define GRAPHICS_ORIGINAL		1
+#define GRAPHICS_ADAM_BOLT		2
+#define GRAPHICS_DAVID_GERVAIS	3
+#define GRAPHICS_ANY			4
+#define GRAPHICS_HALF_3D		5
 
 /*
  * Modes for the random name generator
@@ -4987,7 +4998,7 @@ extern int PlayerUID;
 #define FIELD_INFO_NO_OBJCT	0x0400	/* Grid cannot hold objects */
 #define FIELD_INFO_PERM		0x0800	/* Grid is not affected by disintegrate */
 #define FIELD_INFO_IGNORE	0x1000	/* Grid is below the object layer */
-#define FIELD_INFO_DUMMY12	0x2000
+#define FIELD_INFO_NO_MPLACE 0x2000	/* Grid blocks monster placement */
 #define FIELD_INFO_DUMMY13	0x4000
 #define FIELD_INFO_DUMMY14  0x8000
 
@@ -5008,39 +5019,32 @@ extern int PlayerUID;
 #define FIELD_ACT_LOAD			1	/* Loading Initialisation */
 #define FIELD_ACT_PLAYER_ENTER	2	/* Player walks onto square */
 #define FIELD_ACT_PLAYER_ON		3	/* Player is on square */
-#define FIELD_ACT_PLAYER_LEAVE	4	/* Player leaves square */
-#define FIELD_ACT_MONSTER_ENTER	5	/* Monster walks onto square */
-#define FIELD_ACT_MONSTER_ON	6	/* Monster is on square */
-#define FIELD_ACT_MONSTER_LEAVE	7	/* Monster leaves square */
-#define FIELD_ACT_OBJECT_DROP	8	/* Object lands on square */
-#define FIELD_ACT_OBJECT_ON		9	/* Object is on square */
-#define FIELD_ACT_INTERACT		10	/* Type-specific interation */
-#define FIELD_ACT_MAGIC_TARGET	11	/* Targeting this square */
-#define FIELD_ACT_LOOK			12	/* Hook for name of field when looking */
-#define FIELD_ACT_EXIT			13	/* Field is destroyed */
-#define FIELD_ACT_MONSTER_AI	14	/* Monster AI hook */
-#define FIELD_ACT_SPECIAL		15	/* Special, type specific action */
-#define FIELD_ACT_INTERACT_TEST	16	/* Test for type of player interaction */
-#define FIELD_ACT_MON_ENTER_TEST 17	/* Monster attempts to enter grid */
-#define FIELD_ACT_STORE_ACT1	18	/* Store / building prelimiary action */
-#define FIELD_ACT_STORE_ACT2	19	/* Store / building final action */
+#define FIELD_ACT_MONSTER_ENTER	4	/* Monster walks onto square */
+#define FIELD_ACT_MONSTER_ON	5	/* Monster is on square */
+#define FIELD_ACT_OBJECT_DROP	6	/* Object lands on square */
+#define FIELD_ACT_OBJECT_ON		7	/* Object is on square */
+#define FIELD_ACT_INTERACT		8	/* Type-specific interation */
+#define FIELD_ACT_MAGIC_TARGET	9	/* Targeting this square */
+#define FIELD_ACT_LOOK			10	/* Hook for name of field when looking */
+#define FIELD_ACT_EXIT			11	/* Field is destroyed */
+#define FIELD_ACT_MONSTER_AI	12	/* Monster AI hook */
+#define FIELD_ACT_SPECIAL		13	/* Special, type specific action */
+#define FIELD_ACT_INTERACT_TEST	14	/* Test for type of player interaction */
+#define FIELD_ACT_MON_ENTER_TEST 15	/* Monster attempts to enter grid */
+#define FIELD_ACT_BUILD_ACT1	16	/* Building prelimiary action */
+#define FIELD_ACT_BUILD_ACT2	17	/* Building final action */
+#define FIELD_ACT_STORE_ACT1	18	/* Store object antiselection action */
+#define FIELD_ACT_STORE_ACT2	19	/* Store object selection action */
+#define FIELD_ACT_SB_INIT		20	/* Initialize a store / building */
+#define FIELD_ACTION_MAX		21
 
-#define FIELD_ACTION_MAX		20
+#define ACT_TUNNEL		0
+#define ACT_DISARM		1
+#define ACT_OPEN		2
 
 /* To make the declarations in externs.h simpler */
 #define DECL_FIELD_ACTION(N) \
 	extern bool field_action_##N (field_type *f_ptr, va_list vp)
-
-
-/*
- * Monster enter grid test flags
- */
-#define MEG_DO_MOVE			0x01	/* Do move */
-#define MEG_OPEN			0x02	/* Opened a door */
-#define MEG_BASH			0x04	/* Bashed a door */
-#define MEG_FORCE			0x08	/* Forced a rune */
-#define MEG_DO_TURN			0x10	/* Take turn */
-
 
 /*
  * Player displays
@@ -5065,3 +5069,18 @@ extern int PlayerUID;
 
 #define INVALID_CHOICE 255
 
+/*
+ * Useful macros for lua interface.
+ */
+#define LUA_VAR(A) \
+	#A, (A)
+#define LUA_VAR_NAMED(A, N) \
+	N, (A)
+#define LUA_RETURN(A) \
+	#A, &(A)
+#define LUA_RETURN_NAMED(A, N) \
+	N, &(A)
+#define LUA_OBJECT(A) \
+	"object", "object_type", (void *)(A)
+#define LUA_OBJECT_NAMED(A, N) \
+	N, "object_type", (void *)(A)

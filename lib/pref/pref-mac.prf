@@ -1,4 +1,4 @@
-# CVS: Last edit by $Author: rr9 $ on $Date: 2001/05/23 11:30:34 $
+# CVS: Last edit by $Author: sfuerst $ on $Date: 2004/08/03 21:31:51 $
 # File: pref-mac.prf
 
 #
@@ -134,3 +134,36 @@ A:8
 P:^_62\r
 
 
+#
+# Keypad -- (/,*,7,8,9,-,4,5,6,+,1,2,3,0,.)
+#
+A:/
+P:^_K/\r
+A:*
+P:^_K*\r
+A:7
+P:^_K7\r
+A:8
+P:^_K8\r
+A:9
+P:^_K9\r
+A:-
+P:^_K-\r
+A:4
+P:^_K4\r
+A:5
+P:^_K5\r
+A:6
+P:^_K6\r
+A:+
+P:^_K+\r
+A:1
+P:^_K1\r
+A:2
+P:^_K2\r
+A:3
+P:^_K3\r
+A:0
+P:^_K0\r
+A:.
+P:^_K.\r

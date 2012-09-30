@@ -77,6 +77,16 @@ int distance(int x1, int y1, int x2, int y2)
 
 
 /*
+ * Return TRUE if the given square contains a building
+ */
+bool is_build(const cave_type *c_ptr)
+{
+	/* We assume field_is_type does not alter the data in c_ptr */
+	return (field_is_type(c_ptr, FTYPE_BUILD) != 0);
+}
+
+
+/*
  * Return TRUE if the given square contains a trap
  */
 bool is_trap(const cave_type *c_ptr)
@@ -1047,43 +1057,6 @@ bool cave_valid_grid(const cave_type *c_ptr)
 
 	/* Accept */
 	return (TRUE);
-}
-
-
-
-/*
- * Moves the cursor to a given MAP (x, y) location
- */
-void move_cursor_relative(int col, int row)
-{
-	/* Real coordinates convert to screen positions */
-	row -= panel_row_prt;
-	col -= panel_col_prt;
-
-	/* Go there */
-	Term_gotoxy(col, row);
-}
-
-
-
-/*
- * Place an attr/char pair at the given map coordinate, if legal.
- */
-void print_rel(char c, byte a, int x, int y)
-{
-	/* Only do "legal" locations */
-	if (panel_contains(x, y))
-	{
-		/* Hack -- fake monochrome */
-		if (fake_monochrome)
-		{
-			if (p_ptr->tim.invuln || !use_color) a = TERM_WHITE;
-			else if (p_ptr->tim.wraith_form) a = TERM_L_DARK;
-		}
-
-		/* Draw the char using the attr */
-		Term_draw(x - panel_col_prt, y - panel_row_prt, a, c);
-	}
 }
 
 

@@ -1,4 +1,4 @@
-/* File: borg2.c */
+/* File: zborg2.c */
 /* Purpose: Low level dungeon mapping skills -BEN- */
 
 #include "angband.h"
@@ -712,7 +712,8 @@ void borg_update_view(void)
 			if ((bits0 & (p->bits[0])) ||
 				(bits1 & (p->bits[1])) ||
 				(bits2 & (p->bits[2])) ||
-				(bits3 & (p->bits[3])) || (bits4 & (p->bits[4])))
+				(bits3 & (p->bits[3])) ||
+				(bits4 & (p->bits[4])))
 			{
 				/* Get location */
 				x = p->grid_x[o2] + c_x;
@@ -1422,7 +1423,63 @@ static int borg_guess_race_name(cptr who)
 
 	char partial[160];
 
-	int len = strlen(who);
+	int suflen = 0, len = strlen(who);
+
+
+	/* If the borg is hallucinating */
+	if (bp_ptr->status.image)
+	{
+		/* Say so */
+		borg_note("# Seeing a monster while hallucinating (%s)", who);
+
+		/* The borg can't recognize monster when it is seeing funny things */
+		return (0);
+	}
+
+	/* Hack -- handle "offscreen" */
+	if (suffix(who, " (offscreen)")) suflen = 12;
+
+	/* Handle mutations */
+	if (bp_ptr->muta2 & MUT2_SCOR_TAIL &&
+		suffix(who, " with your tail")) suflen = 16;
+	else if (bp_ptr->muta2 & MUT2_HORNS &&
+		suffix(who, " with your horns")) suflen = 17;
+	else if (bp_ptr->muta2 & MUT2_BEAK &&
+		suffix(who, " with your beak")) suflen = 16;
+	else if (bp_ptr->muta2 & MUT2_TRUNK &&
+		suffix(who, " with your trunk")) suflen = 17;
+	else if (bp_ptr->muta2 & MUT2_TENTACLES &&
+		suffix(who, " with your tentacles")) suflen = 21;
+
+	/* Handle monk suffices */
+	if (borg_class == CLASS_MONK)
+	{
+		if (suffix(who, " with your knee"))
+		{
+			if (suffix(who, " in the groin with your knee"))
+				suflen = 28;
+			else
+				suflen = 15;
+		}
+		else if (suffix(who, " with your elbow")) suflen = 16;
+		else if (suffix(who, " in the ankle")) suflen = 13;
+		else if (suffix(who, " with a Cat's Claw")) suflen = 18;
+		else if (suffix(who, " with a jump kick")) suflen = 17;
+		else if (suffix(who, " with an Eagle's Claw")) suflen = 21;
+		else if (suffix(who, " with a circle kick")) suflen = 19;
+		else if (suffix(who, " with an Iron Fist")) suflen = 18;
+		else if (suffix(who, " with a flying kick")) suflen = 19;
+		else if (suffix(who, " with a Dragon Fist")) suflen = 19;
+		else if (suffix(who, " with a Crushing Blow")) suflen = 21;
+	}
+
+	if (suflen)
+	{
+		/* Remove the suffix */
+		strcpy(partial, who);
+		partial[len - suflen] = '\0';
+		who = partial;
+	}
 
 	/* Start the search */
 	m = 0;
@@ -1454,39 +1511,9 @@ static int borg_guess_race_name(cptr who)
 		return (borg_unique_what[m]);
 	}
 
-
-	/* Assume player ghost */
-	if (!prefix(who, "The "))
-	{
-		/* Message */
-		if (bp_ptr->status.image)
-		{
-			borg_note_fmt("# Seeing a monster while hallucinating (%s)", who);
-		}
-		else
-		{
-			borg_note_fmt("# Assuming unknown (%s)", who);
-		}
-
-		/* Oops */
-		return (0);
-	}
-
-	/* Hack -- handle "offscreen" */
-	if (suffix(who, " (offscreen)"))
-	{
-		/* Remove the suffix */
-		strcpy(partial, who);
-		partial[len - 12] = '\0';
-		who = partial;
-
-		/* Message */
-		borg_note_fmt("# Handling offscreen monster (%s)", who);
-	}
-
 	/* Skip the prefix */
-	who += 4;
-
+	if (prefix(who, "The ")) who += 4;
+	else if (prefix(who, "Your ")) who += 5;
 
 	/* Start the search */
 	m = 0;
@@ -1541,16 +1568,7 @@ static int borg_guess_race_name(cptr who)
 
 	if (b_i) return (b_i);
 
-
-	/* Message */
-	if (bp_ptr->status.image)
-	{
-		borg_note_fmt("# Seeing a monster while hallucinating (%s)", who);
-	}
-	else
-	{
-		borg_note_fmt("# Assuming unknown (%s)", who);
-	}
+	borg_oops("# Assuming unknown (%s)", who);
  
 	/* Oops */
 	return (0);
@@ -1583,7 +1601,7 @@ static void borg_delete_take(int i)
 	}
 
 	/* Note */
-	borg_note_fmt("# Forgetting an object '%s' at (%d,%d)",
+	borg_note("# Forgetting an object '%s' at (%d,%d)",
 				  (k_name + k_info[take->k_idx].name), take->x, take->y);
 
 	/* Kill the object */
@@ -1593,7 +1611,7 @@ static void borg_delete_take(int i)
 	borg_takes_cnt--;
 
 	/* Wipe goals */
-	goal = 0;
+	goal = GOAL_NONE;
 }
 
 
@@ -1655,7 +1673,7 @@ static int borg_guess_kidx(char unknown)
 	if (b_i != -1) return (b_i);
 
 	/* Didn't find anything */
-	borg_note_fmt("# Cannot guess object '%c'", unknown);
+	borg_note("# Cannot guess object '%c'", unknown);
 
 	return (1);
 }
@@ -1726,11 +1744,11 @@ static int borg_new_take(int k_idx, char unknown, int x, int y)
 	take->y = y;
 
 	/* Note */
-	borg_note_fmt("# Creating an object '%s' at (%d,%d)",
+	borg_note("# Creating an object '%s' at (%d,%d)",
 				  (k_name + k_info[take->k_idx].name), x, y);
 
 	/* Wipe goals */
-	goal = 0;
+	goal = GOAL_NONE;
 
 	/* Result */
 	return (n);
@@ -1782,8 +1800,8 @@ void borg_delete_kill(int who, cptr reason)
 	}
 
 	/* Note */
-	borg_note_fmt("# Removing a monster '%s' (%i) at (%d,%d) [%s]",
-				  (r_name + r_info[kill->r_idx].name), who,
+	borg_note("# Removing a monster '%s' (%i) at (%d,%d) [%s]",
+				  mon_race_name(&r_info[kill->r_idx]), who,
 				  kill->x, kill->y, reason);
 
 	/* Kill the monster */
@@ -1796,7 +1814,7 @@ void borg_delete_kill(int who, cptr reason)
 	borg_danger_wipe = TRUE;
 
 	/* Wipe goals */
-	goal = 0;
+	goal = GOAL_NONE;
 }
 
 static int get_blank_kill(void)
@@ -1872,7 +1890,7 @@ static void borg_wipe_mon(byte type)
 
 		if (kill->type == type)
 		{
-			borg_note_fmt("Destroying kill %d in MOVED list in wipe_mon", i);
+			borg_note("Destroying kill %d in MOVED list in wipe_mon", i);
 
 			borg_merge_kill(i);
 		}
@@ -1979,14 +1997,14 @@ static void borg_new_kill(int r_idx, int n, int x, int y)
 	borg_update_kill(n);
 
 	/* Note */
-	borg_note_fmt("# Creating a monster '%s' (%d) at (%d, %d)",
-				  (r_name + r_info[kill->r_idx].name), n, x, y);
+	borg_note("# Creating a monster '%s' (%d) at (%d, %d)",
+				  mon_race_name(&r_info[kill->r_idx]), n, x, y);
 
 	/* Recalculate danger */
 	borg_danger_wipe = TRUE;
 
 	/* Wipe goals */
-	goal = 0;
+	goal = GOAL_NONE;
 
 	/* Done */
 	return;
@@ -2126,7 +2144,7 @@ static void observe_kill_move(int new_type, int old_type, int dist)
 			mb_ptr2 = map_loc(kill2->x, kill2->y);
 
 			/* Note */
-			borg_note_fmt
+			borg_note
 				("# Tracking monster (%d) from (%d,%d) to (%d) (%d,%d)", i, x,
 				 y, j, kill2->x, kill2->y);
 
@@ -2155,7 +2173,7 @@ static void observe_kill_move(int new_type, int old_type, int dist)
 			/* Clear goals */
 			if (!(FLAG(bp_ptr, TR_TELEPATHY)) && (goal == GOAL_TAKE))
 			{
-				goal = 0;
+				goal = GOAL_NONE;
 			}
 		}
 	}
@@ -2190,11 +2208,16 @@ static bool remove_bad_kills(u16b who)
 	{
 		char buf[100];
 
-		(void)strnfmt(buf, 100, "vanished : %d, %d", map_loc(ox, oy)->monster,
-					  kill->r_idx);
+		/* Check again because BORG_MAP_VIEW != Line of Sight */
+		if (distance(c_x, c_y, ox, oy) < MAX_SIGHT &&
+			borg_los_pure(c_x, c_y, ox, oy))				  
+		{
+			(void)strnfmt(buf, 100, "vanished : %d, %d", map_loc(ox, oy)->monster,
+						  kill->r_idx);
 
-		borg_delete_kill(who, buf);
-		return (TRUE);
+			borg_delete_kill(who, buf);
+			return (TRUE);
+		}
 	}
 
 	/* We haven't seen it for ages? */
@@ -2306,8 +2329,8 @@ static int borg_locate_kill(cptr who, int x, int y, int r)
 	r_ptr = &r_info[r_idx];
 
 	/* Note */
-	borg_note_fmt("# There is a monster '%s' within %d grids of %d,%d",
-				  (r_name + r_ptr->name), r, x, y);
+	borg_note("# There is a monster '%s' within %d grids of %d,%d",
+				  mon_race_name(r_ptr), r, x, y);
 
 
 	/* Handle trappers and lurkers and mimics */
@@ -2358,8 +2381,8 @@ static int borg_locate_kill(cptr who, int x, int y, int r)
 		kill = &borg_kills[b_i];
 
 		/* Note */
-		borg_note_fmt("# Matched a monster '%s' at (%d,%d)",
-					  (r_name + r_info[kill->r_idx].name), kill->x, kill->y);
+		borg_note("# Matched a monster '%s' at (%d,%d)",
+					  mon_race_name(&r_info[kill->r_idx]), kill->x, kill->y);
 
 
 		/* Index */
@@ -2370,8 +2393,8 @@ static int borg_locate_kill(cptr who, int x, int y, int r)
 	/*** Oops ***/
 
 	/* Note */
-	borg_note_fmt("# Ignoring a monster '%s' near (%d,%d)",
-				  (r_name + r_ptr->name), x, y);
+	borg_note("# Ignoring a monster '%s' near (%d,%d)",
+				  mon_race_name(r_ptr), x, y);
 
 	/* Oops */
 	/* this is the case where we know the name of the monster */
@@ -2517,10 +2540,191 @@ static bool borg_handle_self(cptr str)
 	return (TRUE);
 }
 
+
+/* Try to add a town to the town list */
+int borg_add_town(int x, int y, cptr town_name)
+{
+	int i;
+
+	/* Not quite a town */
+	if (prefix(town_name, "Bottom") ||
+		strstr(town_name, "0 ft") ||
+		prefix(town_name, "Lev "))
+	{
+		borg_oops("Trying to add %s as a town!", town_name);
+		return (-1);
+	}
+
+	/* Loop through the towns */
+	for (i = 0; i < borg_town_num; i++)
+	{
+		/* Find the matching town */
+		if (streq(borg_towns[i].name, town_name)) break;
+	}
+
+	/* No need to duplicate towns */
+	if (i < borg_town_num) return (i);
+
+	/* Do we need to increase the size of the town array? */
+	if (borg_town_num == borg_town_size)
+	{
+		borg_town *temp;
+
+		/* Double size of arrays */
+		borg_town_size *= 2;
+
+		/* Make new (bigger) array */
+		C_MAKE(temp, borg_town_size, borg_town);
+
+		/* Copy into new array */
+		C_COPY(temp, borg_towns, borg_town_num, borg_town);
+
+		/* Get rid of old array */
+		FREE(borg_towns);
+
+		/* Use new array */
+		borg_towns = temp;
+	}
+
+	/* Add this town */
+	borg_towns[i].x = x;
+	borg_towns[i].y = y;
+	strncpy(borg_towns[i].name, town_name, strlen(town_name));
+
+	borg_note("# Adding town = %s, x, = %d, y = %d", town_name, x, y);
+
+	/* extend the list */
+	borg_town_num += 1;
+
+	return (i);
+}
+
+
+/* Find out the current towns name, add it to the array, return its index */
+static int borg_add_town_screen(int x, int y)
+{
+	int wid, hgt;
+	byte t_a;
+	char buf[T_NAME_LEN];
+	int count = 0;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	/* Pick up town name */
+	if (0 != borg_what_text(wid - T_NAME_LEN,
+							hgt - 1,
+							T_NAME_LEN - 1, &t_a, buf))
+	{
+		/* Failed to read off the screen */
+		return (-1);
+	}
+
+	/* Is the borg somewhere in the wilderness? */
+	if (prefix(buf, "Wilderness")) return (-1);
+
+	/* Is the borg somewhere next to a dungeon? */
+	if (prefix(buf, "Dungeon")) return (-1);
+
+	/* Is the borg somewhere next to a dungeon with a quest? */
+	if (prefix(buf, "Ruin")) return (-1);
+
+	/* Is this a dungeon? */
+	if (prefix(buf, "Bottom ") ||
+		prefix(buf, "Lev ") ||
+		strstr(buf, "0 ft")) return (-1);
+
+	/* Discard leading spaces */
+	while (buf[count] == ' ') count++;
+
+	/* Try to add this town */
+	return (borg_add_town(x, y, buf + count));
+}
+
+
+/* Add a dungeon to the array, overwrite an old one if it was an estimate */
+void borg_add_dungeon(int x, int y, int min_depth, int max_depth, bool bottom)
+{
+	int i, b_i = 0;
+	int d, b_d = BORG_MAX_DISTANCE;
+
+	/* Do we need to increase the size of the dungeon array? */
+	if (borg_dungeon_num == borg_dungeon_size)
+	{
+		borg_dungeon *temp;
+
+		/* Double size of arrays */
+		borg_dungeon_size *= 2;
+
+		/* Make new (bigger) array */
+		C_MAKE(temp, borg_dungeon_size, borg_dungeon);
+
+		/* Copy into new array */
+		C_COPY(temp, borg_dungeons, borg_dungeon_num, borg_dungeon);
+
+		/* Get rid of old array */
+		FREE(borg_dungeons);
+
+		/* Use new array */
+		borg_dungeons = temp;
+	}
+
+
+	/* Find closest dungeon */
+	for (i = 0; i < borg_dungeon_num; i++)
+	{
+		/*
+		 * There is a wilderness dungeon that has three stairs
+		 * that all lead to the same dungeon.  Pick only one to
+		 * avoid confusion.
+		 */
+		if ((borg_dungeons[i].x == x ||
+			ABS(borg_dungeons[i].x - x) == 14) &&
+			(borg_dungeons[i].y == y ||
+			ABS(borg_dungeons[i].y - y) == 30)) return;
+
+		/* Get the distance */
+		d = distance(x, y, borg_dungeons[i].x, borg_dungeons[i].y);
+
+		/* Is it closer? */
+		if (d >= b_d) continue;
+
+		/* remember */
+		b_i = i;
+		b_d = d;
+	}
+
+	/* It is close */
+	if (b_d > 6 * WILD_BLOCK_SIZE) b_i = borg_dungeon_num++;
+
+	/* The dungeon entrance is seen or spotted for the first time ever */
+	if (!min_depth || !borg_dungeons[b_i].x)
+	{
+		/* Assign coordinates */
+		borg_dungeons[b_i].x = x;
+		borg_dungeons[b_i].y = y;
+
+		/* Tell the player */
+		borg_note("# Adding a %d dungeon at (%d, %d), min, max = %d, %d",
+				 (min_depth + 9) / 10, x, y, min_depth, max_depth);
+	}
+
+	/* Add depth if it was given */
+	if (min_depth)
+	{
+		/* Assign depth */
+		borg_dungeons[b_i].min_depth = min_depth;
+		borg_dungeons[b_i].max_depth = max_depth;
+		borg_dungeons[b_i].bottom = bottom;
+	}
+
+}
+
+
 /*
  * Save the borg information into the overhead map
  */
-void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
+void borg_map_info(map_block *mb_ptr, const term_map *map, vptr dummy)
 {
 	int i;
 
@@ -2606,7 +2810,7 @@ void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 				}
 				else
 				{
-					borg_note_fmt("Strange kill %d at (%d,%d)", mb_ptr->kill,
+					borg_note("Strange kill %d at (%d,%d)", mb_ptr->kill,
 								  kill->x, kill->y);
 				}
 			}
@@ -2629,7 +2833,7 @@ void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 			if ((bt_ptr->unknown != map->unknown) ||
 				((bt_ptr->k_idx != map->object) && !map->unknown))
 			{
-				borg_note_fmt("# The object %d is different! (%d,%d)",
+				borg_note("# The object %d is different! (%d,%d)",
 							  mb_ptr->take, bt_ptr->k_idx, map->object);
 
 				/* The object is different- delete it */
@@ -2650,7 +2854,7 @@ void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 		/* Do we think there is an object here that we cannot see? */
 		if (mb_ptr->take && (map->flags & MAP_SEEN))
 		{
-			borg_note_fmt("# Removing missing object (%d)", mb_ptr->take);
+			borg_note("# Removing missing object (%d)", mb_ptr->take);
 
 			/* The object is no longer here - delete it */
 			borg_delete_take(mb_ptr->take);
@@ -2699,6 +2903,13 @@ void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 				track_more_num++;
 			}
 
+			/* Hack!  use p_ptr instead of bp because bp is not yet updated */
+			if (p_ptr->depth == 0)
+			{
+				/* Add this dungeon maybe */
+				borg_add_dungeon(x, y, 0, 0, FALSE);
+			}
+
 			/* Done */
 			break;
 		}
@@ -2713,25 +2924,25 @@ void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 		if (t_ptr->type == FTYPE_BUILD)
 		{
 			/* Check for an existing shop */
-			for (i = 0; i < track_shop_num; i++)
+			for (i = 0; i < borg_shop_num; i++)
 			{
 				/* Stop if we already knew about this shop */
 				if ((borg_shops[i].x == x) && (borg_shops[i].y == y)) break;
 			}
 
 			/* Do we need to increase the size of the shop array? */
-			if (i == track_shop_size)
+			if (i == borg_shop_size)
 			{
 				borg_shop *temp;
 
 				/* Double size of arrays */
-				track_shop_size *= 2;
+				borg_shop_size *= 2;
 
 				/* Make new (bigger) array */
-				C_MAKE(temp, track_shop_size, borg_shop);
+				C_MAKE(temp, borg_shop_size, borg_shop);
 
 				/* Copy into new array */
-				C_COPY(temp, borg_shops, track_shop_num, borg_shop);
+				C_COPY(temp, borg_shops, borg_shop_num, borg_shop);
 
 				/* Get rid of old array */
 				FREE(borg_shops);
@@ -2741,17 +2952,77 @@ void borg_map_info(map_block *mb_ptr, term_map *map, vptr dummy)
 			}
 
 			/* Track the newly discovered shop */
-			if (i == track_shop_num)
+			if (i == borg_shop_num)
 			{
 				/* Position */
 				borg_shops[i].x = x;
 				borg_shops[i].y = y;
 
+				borg_shops[i].town_num = borg_add_town_screen(x, y);
+
+				/* Catch all the funny buildings */
+				if (streq(t_ptr->name, "Weaponmaster"))
+				{
+					borg_shops[i].type = BUILD_WEAPONMASTER;
+				}
+				else if (streq(t_ptr->name, "Zymurgist"))
+				{
+					borg_shops[i].type = BUILD_RECHARGE;
+				}
+				else if (streq(t_ptr->name, "Magesmith (weapons)"))
+				{
+					borg_shops[i].type = BUILD_PLUS_WEAPON;
+				}
+				else if (streq(t_ptr->name, "Magesmith (armor)"))
+				{
+					borg_shops[i].type = BUILD_PLUS_ARMOUR;
+				}
+				else if (streq(t_ptr->name, "Mutatalist"))
+				{
+					borg_shops[i].type = BUILD_MUTATE;
+				}
+				else if (streq(t_ptr->name, "Map Maker"))
+				{
+					borg_shops[i].type = BUILD_MAP;
+				}
+				else if (streq(t_ptr->name, "Library"))
+				{
+					borg_shops[i].type = BUILD_LIBRARY;
+				}
+				else if (streq(t_ptr->name, "Casino"))
+				{
+					borg_shops[i].type = BUILD_CASINO;
+				}
+				else if (streq(t_ptr->name, "Inn"))
+				{
+					borg_shops[i].type = BUILD_INN;
+				}
+				else if (streq(t_ptr->name, "Healer"))
+				{
+					borg_shops[i].type = BUILD_HEALER;
+				}
+				else if (streq(t_ptr->name, "Magetower"))
+				{
+					borg_shops[i].type = BUILD_MAGETOWER0;
+				}
+				else if (streq(t_ptr->name, "Large Magetower"))
+				{
+					borg_shops[i].type = BUILD_MAGETOWER1;
+				}
+				else if (streq(t_ptr->name, "Small Castle"))
+				{
+					borg_shops[i].type = BUILD_CASTLE0;
+				}
+				else if (streq(t_ptr->name, "Large Castle"))
+				{
+					borg_shops[i].type = BUILD_CASTLE1;
+				}
+
 				/* Hack - we have never been here before */
 				borg_shops[i].when = borg_t - 1000;
 
 				/* One more shop */
-				track_shop_num++;
+				borg_shop_num++;
 			}
 		}
 		
@@ -2914,12 +3185,11 @@ static void borg_fear_grid(cptr who, int x, int y, uint k, bool seen_guy)
 	/* Messages */
 	if (seen_guy)
 	{
-		borg_note_fmt("#   Fearing region value %d.", k);
+		borg_note("#   Fearing region value %d.", k);
 	}
 	else
 	{
-		borg_note_fmt
-			("# Fearing grid (%d,%d) value %d because of a non-LOS %s", x,
+		borg_note("# Fearing grid (%d,%d) value %d because of a non-LOS %s", x,
 			 y, k, who);
 	}
 
@@ -2997,29 +3267,27 @@ static int borg_fear_spell(int i)
 
 		case 4:
 		{
-			/* RF3_ARROW_1 */
-			z = (1 * 6);
+			/* RF3_ARROW */
+			/* XXX FIXME this depends on the monster */
+			z = (4 * 6);
 			break;
 		}
 
 		case 5:
 		{
-			/* RF3_ARROW_2 */
-			z = (3 * 6);
+			/* RF3_XXX6 */
 			break;
 		}
 
 		case 6:
 		{
-			/* RF3_ARROW_3 */
-			z = (5 * 6);
+			/* RF3_XXX7 */
 			break;
 		}
 
 		case 7:
 		{
-			/* RF3_ARROW_4 */
-			z = (7 * 6);
+			/* RF3_XXX8 */
 			break;
 		}
 
@@ -3811,7 +4079,7 @@ void borg_update(void)
 		msg = borg_msg_buf + borg_msg_pos[i];
 
 		/* Note the message */
-		borg_note_fmt("# %s (+)", msg);
+		borg_note("# %s (+)", msg);
 	}
 
 	/* Process messages */
@@ -4179,9 +4447,7 @@ void borg_update(void)
 		borg_do_frame = TRUE;
 
 		/* Enable some functions */
-		borg_do_crush_junk = TRUE;
-		borg_do_crush_hole = TRUE;
-		borg_do_crush_slow = TRUE;
+		borg_do_destroy = TRUE;
 
 		/* Allow Pets to stick close */
 		p_ptr->pet_follow_distance = PET_FOLLOW_ME;
@@ -4205,7 +4471,7 @@ void borg_update(void)
 		when_detect_evil = 0;
 
 		/* No goal yet */
-		goal = 0;
+		goal = GOAL_NONE;
 
 		/* Hack -- Clear "shop" goals */
 		goal_shop = -1;
@@ -4251,12 +4517,8 @@ void borg_update(void)
 		g_y = c_y;
 
 		/* wipe out bad artifacts list */
-		for (i = 0; i < 50; i++)
-		{
-			bad_obj_x[i] = -1;
-			bad_obj_y[i] = -1;
-		}
-
+		bad_obj_n = -1;
+		
 		/* save once per level */
 		if (borg_flag_save) borg_save = TRUE;
 
@@ -4449,7 +4711,7 @@ void borg_update(void)
 		msg = borg_msg_buf + borg_msg_pos[i];
 
 		/* Final message */
-		borg_note_fmt("# %s (%d)", msg, borg_msg_use[i]);
+		borg_note("# %s (%d)", msg, borg_msg_use[i]);
 	}
 
 	/*** Various things ***/
@@ -4491,7 +4753,7 @@ void borg_react(cptr msg, cptr buf)
 		return;
 
 	/* Note actual message */
-	borg_note_fmt("> %s", msg);
+	borg_note("> %s", msg);
 
 	/* Extract length of parsed message */
 	len = strlen(buf);
@@ -4606,6 +4868,15 @@ void borg_init_2(void)
 	s16b *what;
 	cptr *text;
 
+	/* Make the towns in the wilderness */
+	C_MAKE(borg_towns, borg_town_size, borg_town);
+
+	/* Make the stores in the towns */
+	C_MAKE(borg_shops, borg_shop_size, borg_shop);
+
+	/* Make the dungeons in the wilderness */
+	C_MAKE(borg_dungeons, borg_dungeon_size, borg_dungeon);
+
 	/* Initialise los information */
 	borg_vinfo_init();
 
@@ -4654,7 +4925,7 @@ void borg_init_2(void)
 		if (!FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Use it */
-		text[size] = r_name + r_ptr->name;
+		text[size] = mon_race_name(r_ptr);
 		what[size] = i;
 		size++;
 	}
@@ -4695,7 +4966,7 @@ void borg_init_2(void)
 		if (FLAG(r_ptr, RF_UNIQUE)) continue;
 
 		/* Use it */
-		text[size] = r_name + r_ptr->name;
+		text[size] = mon_race_name(r_ptr);
 		what[size] = i;
 		size++;
 	}

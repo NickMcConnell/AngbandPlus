@@ -273,11 +273,11 @@ struct ego_item_type
 	byte level;	/* Minimum level */
 	byte rarity;	/* Object rarity */
 
-	byte max_to_h;	/* Maximum to-hit bonus */
-	byte max_to_d;	/* Maximum to-dam bonus */
-	byte max_to_a;	/* Maximum to-ac bonus */
+	s16b max_to_h;	/* Maximum to-hit bonus */
+	s16b max_to_d;	/* Maximum to-dam bonus */
+	s16b max_to_a;	/* Maximum to-ac bonus */
 
-	byte max_pval;	/* Maximum pval */
+	s16b max_pval;	/* Maximum pval */
 
 	s32b cost;	/* Ego-item "cost" */
 
@@ -336,8 +336,8 @@ struct monster_race
 	u32b name;	/* Name (offset) */
 	u32b text;	/* Text (offset) */
 
-	byte hdice;	/* Creatures hit dice count */
-	byte hside;	/* Creatures hit dice sides */
+	s16b hdice;	/* Creatures hit dice count */
+	s16b hside;	/* Creatures hit dice sides */
 
 	s16b ac;	/* Armour Class */
 
@@ -860,19 +860,6 @@ struct rbm_type
 };
 
 
-/* Forward declare */
-typedef struct field_type field_type;
-
-/*
- * A function pointer to an action.  The function takes two values:
- * 1) a pointer to the field that is undergoing the action.
- * 2) a pointer to the list of 
- * The function returns a bool saying whether or not to delete the field.
- */
-typedef bool (*field_action_type) (field_type *f_ptr, va_list vp);
-
-
-
 /*
  * The thaumaturgical list of fields.
  *
@@ -901,14 +888,12 @@ struct field_thaum
 
 	s16b count_init;	/* Counter for timed effects */
 
-	field_action_type action[FIELD_ACTION_MAX];	/* Function indexs for the actions */
+	s16b action[FIELD_ACTION_MAX];	/* Action scripts */
 
 	/* Storage space for the actions to interact with. */
 	byte data_init[8];
 
 	u16b info;	/* Information flags */
-
-
 };
 
 
@@ -922,6 +907,7 @@ struct field_thaum
  * The new building / store code will use this structure.
  *
  */
+typedef struct field_type field_type;
 struct field_type
 {
 	byte f_attr;	/* attribute */
@@ -944,20 +930,6 @@ struct field_type
 	s16b region;	/* Region */
 
 	byte priority;	/* LOS priority higher = more visible */
-};
-
-
-/*
- * This is the type of the array that is used to parse t_info.txt
- * It contains the functions fields call + the names of those functions.
- */
-
-typedef struct field_action field_action;
-
-struct field_action
-{
-	field_action_type action;	/* The function to call */
-	cptr func;	/* The name of the function */
 };
 
 
@@ -1127,8 +1099,6 @@ struct magic_type
 {
 	byte slevel;	/* Required level (to learn) */
 	byte smana;	/* Required mana (to cast) */
-	byte sfail;	/* Minimum chance of failure */
-	byte sexp;	/* Encoded experience bonus */
 };
 
 
@@ -1208,8 +1178,6 @@ struct player_race
 	byte f_m_wt;	/* mod weight (females) */
 
 	byte infra;	/* Infra-vision range */
-
-	u16b choice;	/* Legal class choices */
 };
 
 
@@ -1393,10 +1361,7 @@ struct player_run
 {
 	s16b cur_dir;	/* Direction we are running */
 	s16b old_dir;	/* Direction we came from */
-	bool unused;	/* Unused (padding field) */
-	bool open_area;	/* Looking for an open area */
-	bool break_right;	/* Looking for a break (right) */
-	bool break_left;	/* Looking for a break (left) */
+	int  mode;      /* Current running algorithm */
 };
 
 /*
@@ -1482,6 +1447,12 @@ struct player_type
 
 	s16b old_wild_x;	/* Previous block coords in the wilderness */
 	s16b old_wild_y;
+
+	s16b panel_x1;	/* Coordinates of top left hand corner of panel */
+	s16b panel_y1;
+
+	s16b panel_x2;	/* Coordinates of bottom right hand corner of panel */
+	s16b panel_y2;
 
 	s16b mhp;	/* Max hit pts */
 	s16b chp;	/* Cur hit pts */
@@ -1657,7 +1628,7 @@ struct mindcraft_power
 	cptr name;
 };
 
-
+#if 0
 /*
  * A store owner
  */
@@ -1670,8 +1641,6 @@ struct owner_type
 	s16b max_cost;	/* Purse limit / 100 */
 
 	byte greed;	/* Greed level */
-
-	byte owner_race;	/* Owner race */
 };
 
 
@@ -1685,9 +1654,9 @@ struct b_own_type
 	cptr owner_name;	/* Name */
 
 	byte inflate;	/* Inflation */
-
-	byte owner_race;	/* Owner race */
 };
+#endif /* 0 */
+
 
 /*
  * A store, with an owner, various state flags, a current stock
@@ -1698,8 +1667,11 @@ typedef struct store_type store_type;
 struct store_type
 {
 	byte type;	/* Store type */
-	byte owner;	/* Owner index */
-
+	
+	byte greed;	/* Greed value */
+	s16b max_cost;	/* Purse limit / 100 */
+	s16b owner_name;	/* Owner name */
+	
 	s16b data;	/* Data used for various things */
 
 	s32b last_visit;	/* Last visited on this turn */
@@ -1906,3 +1878,19 @@ struct menu_type
 	byte flags;					/* Flags controling option behaviour */
 };
 
+
+/*
+ * Object bonuses to various stuff
+ */
+typedef struct bonuses_type bonuses_type;
+
+struct bonuses_type
+{
+	int stat[6];
+	int sp_bonus;
+	int skills[MAX_SKILL];
+	int see_infra;
+	int pspeed;
+	int extra_blows;
+	int extra_shots;
+};

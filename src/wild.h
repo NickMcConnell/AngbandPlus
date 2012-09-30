@@ -1,4 +1,4 @@
-/* File: wild1.h */
+/* File: wild.h */
 
 /* Purpose: Wilderness + Quest generation header file */
 
